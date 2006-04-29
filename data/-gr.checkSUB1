@@ -1,0 +1,22 @@
+// Bol Processor version BP2.9.3
+// Grammar file saved as '-gr.checkSUB1'. Date: Lun 15 fŽv 1999 -- 18:54
+-se.checkSUB1
+-ho.abc
+// This grammar checks the new choice of candidate rules...
+// ...in SUB1 grammars.
+// Derivations occur in the leftmost position, and the rule...
+// ...selected is among the ones with the longest left argument.
+RND
+_mm(60.0000) _striated
+gram#1[1] S --> a b c d
+----
+SUB1
+gram#2[1] a --> i
+gram#2[2] bcd --> j
+gram#2[3] ab --> k
+gram#2[4] bc --> l
+gram#2[5] b --> m
+gram#2[6] c --> n
+gram#2[7] cd --> o
+gram#2[8] c --> p
+gram#2[9] d --> q

@@ -1,0 +1,29 @@
+// Bol Processor version BP2.6.1
+// Grammar file saved as '-gr.koto2'. Date: Mer 26 Juin 1996 -- 11:46
+-se.koto1
+-ho.abc1
+
+// -gr.koto2
+// A sort of cellular automaton making a sort of Turkish music...
+
+RND
+S --> X X X X X X X X /K1/
+ /K2/ X --> a /K1/
+ /K1/ X  --> b /K2/
+-------------------
+SUB
+#? ?1 --> #? ?1  [Keep leftmost symbol]
+?1 #? --> ?1 #?  [Keep rightmost symbol]
+<5> a --> a
+<30> a b a --> a a
+<5> b --> b
+<30> b a b --> b b
+<100-10> #a b --> #a c b
+c c c -->  c a c
+c a c --> b a b
+?1 ?1 ?2 ?3 ?4 ?4 --> ?2 ?3
+<10> ?1 ?1 ?1 --> ?1
+<10> ?1 ?1 --> ?1
+--------------------
+ORD
+<1-1> ? #? --> d #? [Append "d" at the end of the item]

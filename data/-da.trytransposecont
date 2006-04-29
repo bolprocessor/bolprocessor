@@ -1,0 +1,13 @@
+// Bol Processor version BP2.9.3
+// Data file saved as '-da.trytransposecont'. Date: Jeu 28 jan 1999 -- 22:42
+-se.trytransposecont
+
+{_transposecont _transpose(0) C3 C3 C3 C3 _transpose(24)} _transpose(6){_transposecont _transpose(0) C3 C3 C3 C3 _transpose(24)} _transpose(6)
+
+_transpose(1){_transposecont _transpose(0) C3 C3 C3 C3 _transpose(24)}
+
+_transpose(1){_transpose(0) _transposecont  C3 C3 C3 C3 _transpose(24)}
+
+_retro {_transposecont _transpose(0) C3 C3 C3 _transpose(6) C3 C3 C3 C3 C3 C3 C3 C3 _transpose(-2)}
+
+_retro {_transposecont _transpose(0) C3 C3 C3 D3 _transpose(24)}

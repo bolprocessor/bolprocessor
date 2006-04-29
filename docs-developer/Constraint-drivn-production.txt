@@ -1,0 +1,54 @@
+Constraint-driven production
+
+This follows an idea that came from Jae Roh's tabla machine: given a clap pattern, let
+the machine figure out a tabla composition that matches it.  Roh's idea was to store
+a large number of individual pieces covering all possible patterns.  My idea is to
+replace the set of pieces with grammar(s).
+
+To this effect, I have reserved character Ô!Õ for claps, accentuations, or any type
+of non-metric markers. ("Pattern marker" may be a good generic term.)
+Inserting these markers in a BP grammar makes no difficulty.  Different types of
+pattern markers may be notated "!", "!!", "!!!", or even "!1", "!2", "!sam", etc. when
+specific labels are required.
+
+The grammar may then be asked to produce a set of "pattern templates".  Matching
+templates against the clap pattern is a quick way of making sure the grammar is able
+to produce an item matching the pattern.
+
+The next problem is to produce an item or a set of items matching the selected
+pattern template.  There is a more general statement of this problem: produce
+items whose fragments are known in advance.  These fragments may contain terminal
+symbols, pattern markers and variables (known to the grammar).
+
+The practical use of constraint-driven production would be to evaluate the space of
+possibilities for a drum player to achieve a given task given certain constraints.
+Suppose for instance that we have a grammar for making tihais of the form:
+
+   A (=B)(:C)(:B)(:C)(:B)
+
+with the contraint of finishing on sam.  Constraint-driven production will allow BP2
+to answer the following questions:
+
+* produce all tihais that contain a given string of bols at a given place
+* produce all tihais with 'A' being of a given length; for this, a pattern
+    marker may be placed after 'A' and will appear in pattern templates.
+
+This constraint-driven production should be studied in the domain of "true BP grammars".
+In fact, the problem relates to non-deterministic parsing: if the known fragments cover
+the entire item then the algorithm will perform its parsing using a top-down strategy.
+
+The first development will be to allow the assignment of metric values to variables.
+In BP grammars we already often use digits to indicate the metric value, e.g. in the
+production rule
+
+    A32 --> B8 B10 C14
+
+it is understood that A32 represents a fragment of 32 time units, B8 eight time units, etc.
+But now the inference engine should also understand the same, so that in the process
+of producing an item it may be able to locate terminal symbols and pattern markers
+(and match them against the template) even when the work string still contains variables.
+
+In the end, the problem remains to match a work string against a template, and to force
+backtracking if it doesn't match.  Variables may for instance be replaced with strings
+of '_' working as wild cards.  Before matching the item should of course be rewritten
+without structure, using the period notation.

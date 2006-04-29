@@ -1,0 +1,20 @@
+// Bol Processor version BP2.8.1
+// Grammar file saved as '-gr.12345678'. Date: Lun 4 Mai 1998 -- 8:29
+-se.EkDoTin
+-ho.EkDoTin
+
+// This project demonstrates performance controls on sound-objects.  The structure is a well-known Kathak tihai.
+
+INIT: MIDI program 110
+
+ORD
+_mm(88.0000) _striated
+
+gram#1[1] S -->  _pitchrange(200) (= Tihai)  _transpose(-2) (: Tihai) _pitchcont  _pitchbend(-200) _transpose(-2) (: Tihai) _pitchbend(+200)
+
+gram#1[2] Tihai --> {2,Huit}{2,Six}{2,Cinq}{2,Quatre} Â
+						                                       {3,- - ek - - do - - tin - - -}
+gram#1[3] Huit --> ek do tin char panch che sat at
+gram#1[4] Six --> ek do tin char panch che
+gram#1[5] Cinq --> ek do tin char panch
+gram#1[6] Quatre --> ek do tin char

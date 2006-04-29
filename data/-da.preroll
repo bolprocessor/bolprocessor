@@ -1,0 +1,44 @@
+// Bol Processor version BP2.8.1
+// Data file saved as '-da.preroll'. Date: Mar 14 Avr 1998 -- 19:03
+-se.preroll
+-ho.preroll
+
+// This is a test of pre-roll, post-roll and periodic features on sound-objects
+// It's meant to explain what it is about rather than demonstrate musical utility!
+
+// 1) PRE-ROLL, POST-ROLL
+// So far, the main practical utility I found is the handling of sound-objects that contain messages sent to a MIDI sampler.  Sometimes you need to send a message triggering, modifying or cancelling a sound at a date which does not fall into the time-span interval of the object.
+// There is a theoretical motivation too: there is no reason to force the time-span interval (which is used to determine the sound-object's physical duration) to be bounded exactly by the first and last events (MIDI messages).
+
+// Set your synth to a piano and play the following sequence
+// You will notice that the grace notes aren't taken into account in the timings
+
+  un deux un deux trois deux un
+
+// My wife says it does not sound right
+// My son says "it may be right but it sounds like shit"
+
+// Anyway, let them have this instead:
+
+   C5 D5 C5 D5 E5 D5 C5
+
+// The following made the whole family happy
+
+ _volume(64) {_vel(127) un deux un D5 trois D5 un,_vel(80) C4 E4 F4 F#4 G4 F#4 F4 E4   C4 E4 F4 F#4 G4 F#4 F4 E4   C4 E4 F4 F#4 G4 F#4 F4 E4   C4 E4 F4 F#4 G4 F#4 F4 E4   G4 B4 C5 C#5 D5 C#5 C5 B4    F4 A4 A#4 B4 C5 B4 A#4 A4   C4 E4 F4 F#4 G4 F#4 F4 E4}
+
+// 2) PERIODS, CYCLIC SOUND-OBJECTS
+
+// This example shows how BP2 deals with sound-objects containing a periodical part combined
+// with positive preroll.
+// Note that the pivot of cycle1 has been positioned at the beginning of its periodical part.
+// Use piano sound
+
+   {C6 B5 A5 G5 A5 B5 C6,cycle1}
+
+// Set the synth sound to continuous sound (e.g. cello) and listen to the following item.
+// It demonstrates the use of "Discard NoteOff's except in last period" and
+// "Don't strike again NoteOn's" properties, notably with a MIDI sampler.
+
+   cycle2 _ _
+
+// End of file

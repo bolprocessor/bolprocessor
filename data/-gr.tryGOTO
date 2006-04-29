@@ -1,0 +1,30 @@
+V.2.5
+Date: Sat, May 6, 1995 -- 23:25
+-ho.abc
+-se.tryGOTO
+[This grammar generates a string containingÉ]
+[É not more than six ÔcÕ and an equalÉ]
+[É number of ÔaÕ and ÔbÕ.]
+
+ORD
+GRAM#1[1] S --> X S  _repeat(K1=12) _goto(1,2)
+GRAM#1[2] S --> lambda  _goto(2,0)
+----------
+RND
+_print
+GRAM#2[1] <5-1> X --> C
+GRAM#2[2] <1> X --> C _goto(3,1)
+----------
+RND
+GRAM#3[1] X --> A _failed(4,0) _goto(3,2)
+GRAM#3[2] X --> B _failed(3,3) _goto(3,1)
+GRAM#3[3] _print ? --> ? B _goto(4,0) _print
+----------
+SUB
+GRAM#4[1] A --> a 
+GRAM#4[2] B --> b
+GRAM#4[3] C --> c 
+ 
+
+
+

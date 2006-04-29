@@ -1,0 +1,11 @@
+// Bol Processor version BP2.8.1
+// Interaction file saved as '-in.tryRandomVelocity'. Date: Jeu 7 Mai 1998 -- 18:25
+BP2 script
+
+// Change the number Ô20Õ, Ô21Õ... according to the pedal or controller used to modify K1, K2...
+
+IN Param K1 = controller #20 channel 1
+IN Param K2 = controller #21 channel 1
+IN Param K3 = controller #22 channel 1
+IN Param K4 = controller #23 channel 1
+IN Param K5 = controller #24 channel 1

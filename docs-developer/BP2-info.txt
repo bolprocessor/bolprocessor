@@ -1,0 +1,1556 @@
+------- Compilation flags --------
+SHOWEVERYTHING in Graphic.c  If set, also displays spaces and out-time empty objects
+DISPLAY in Timeset.c  If set, prints the phase diagram
+BIGTEST in -BP2.h   If set, displays memory leakage.
+
+-------  Encoding tokens ------
+
+T0,T1,T2... are constants of (tokenbyte) type.
+
+TEND TEND  End of argument (TEND = -1)
+
+T0 1 ? wildcard
+T0 2 # negative context
+T0 3 +
+T0 4 :
+T0 5 ;
+T0 6 =
+T0 7 •  (used as a beat separator. Normal period is also accepted)
+T0 8 (
+T0 9 )
+T0 10 S
+T0 11 T1 x T1 y / speed up ((TOKBASE * x) + y) times
+T0 12 {
+T0 13 }
+T0 14 ,
+T0 15 < (unused)
+T0 16 > (unused)
+T0 17 … (equivalent to '_rest')
+T0 18 & (following terminal or variable)
+T0 19 & (preceding terminal or variable)
+T0 20 ! (pattern marker)
+T0 21 T1 x T1 y  * scale up ((TOKBASE * x) + y) times
+T0 22 | (temporary { bracket, in polymetric evaluation and Zouleb only)
+T0 23 | (temporary } bracket, in polymetric evaluation and Zouleb only)
+T0 24 T1 x T1 y  ** scale down ((TOKBASE * x) + y) times
+T0 25 T1 x T1 y \ speed down ((TOKBASE * x) + y) times
+
+Numbers:
+T1 0 '0'	(T1 = 1)
+T1 1 '1'
+—
+T1 32768 '32768'
+	[Convention: numbers are stored in base 32768,
+				high byte first, maximum 2 bytes]
+    TOKBASE = 32768
+
+T2 x Parenthesis marker.  x=0 for a master parenthesis.  x=1 is
+	also a temporary slave marker in Encode().
+
+T3 0 '_' prolongation of the immediate preceding time-object
+T3 1 '-' silence
+T3 x terminal symbol x (with 1 < x < Jbol)
+
+T4 x variable x (with 0 < x <= Jvar)
+
+T5 x homomorphism marker (with x < Jhomo)
+
+T6 x Wildcard '?x'
+
+T7 x out-time object or simple note
+	if x < 16384, x is index of sound-object
+	otherwise (x - 16384) is index of simple note (MIDI key number)
+
+T8 x synchronization tag
+
+T9 x time pattern
+
+T10 x MIDI channel assignment _chan(x)
+	if x > 127 the value assigned is ParamValue[x-128]
+
+T11 x Velocity assignment _vel(x)  [default 64] (current channel)  -1 < x < 128
+	if x > 127 the value assigned is ParamValue[x-128]
+
+T12 0 _velcont
+T12 1 _velstep
+T12 2 _modstep
+T12 3 _modcont
+T12 4 _pitchstep
+T12 5 _pitchcont
+T12 6 _presstep
+T12 7 _presscont
+T12 8 _volumestep
+T12 9 _volumecont
+T12 10 _articulstep
+T12 11 _articulcont
+T12 12 _velfixed
+T12 13 _modfixed
+T12 14 _pitchfixed
+T12 15 _pressfixed
+T12 16 _volumefixed
+T12 17 _articulfixed
+T12 18 _panfixed
+T12 19 _panstep
+T12 20 _pancont
+T12 21 _retro
+T12 22 _rndseq
+T12 23 _randomize
+T12 24 _ordseq
+T12 25 _mapfixed
+T12 26 _mapcont
+T12 27 _mapstep
+T12 28 _transposefixed
+T12 29 _transposecont
+T12 30 _transposestep
+
+T13 x _script(x)  Script line x  
+
+T14 x _mod(x)  (current channel)    -1 < x < 16384
+
+T15 x _pitchbend(x)  (current channel)     -1 < x < 16385
+	If PitchRange = 16384 (default), x is the MIDI value (0..16383)
+	otherwise it is the value in cents.
+	Conversion is done as follows:
+		MIDI value = 8191.5 + ((double) i * 8191.5 / (double) PitchRange);
+	PitchRange can be set by _pitchrange().
+
+T16 x _press(x) (current channel)     -1 < x < 128
+	if x > 127 the value assigned is ParamValue[x-128]
+
+T17 x _switchon(i,channel)  x = channel * 128 + i
+
+T18 x _switchoff(i,channel)  x = channel * 128 + i
+
+T19 x _volume(x) volume (current channel)   -1 < x < 128
+	if x > 127 the value assigned is ParamValue[x-128]
+
+T20 x _legato(x) (x > 0) or _staccato(-x) (x < 0)
+    Articulation range 0..127 (current channel)
+	if x > 127 the value assigned is ParamValue[x-128]
+
+T21 x _pitchrange(r)  (all channels)  0 < x < 16385
+	See explanation above with _pitchbend() 
+
+T22 x _pitchrate(x)  (all channels)  0 < x < 1001 (samples per second)
+
+T23 x _modrate(x)  (all channels)  0 < x < 1001 (samples per second)
+
+T24 x _pressrate(x)  (all channels)  0 < x < 32768 (1001 per second)
+
+T25 x  Simple note #x  (x is the MIDI key number). This is processed as a striated
+	sound-object with default object properties, containing only NoteOn and NoteOff
+	on the default channel.
+
+T26 x _transpose(x/100)  -129 < x/100 < 128 (semitones)
+    x may be decimal, down to +/- 0.01
+    Transpositions are cumulated when occuring at increasing levels of polymetric expressions.
+
+T27 x _volumerate(x)  (all channels)  0 < x < 1001 (samples per second)
+
+T28 x _volumecontrol(x)  -1 < x < 128  Which controller sets volume (deft 7)
+
+T29 x _pan(x) panoramic (current channel)   -1 < x < 128
+	if x > 127 the value assigned is ParamValue[x-128]
+
+T30 x _panrate(x)  (all channels)  0 < x < 1001 (samples per second)
+
+T31 x _pancontrol(x)  -1 < x < 128  Which controller sets pan (deft 10)
+
+T32 x Csound instrument assignment _ins(x)
+	if x > 127 the value assigned is ParamValue[x-128]
+
+T33 x _step(paramname)
+    x = paramnameindex
+    paramnameindex is the position of paramname
+    in the StringConstant[] table.
+
+T34 x _cont(paramname)
+    x = paramnameindex
+    paramnameindex is the position of paramname
+    in the StringConstant[] table.
+
+T35 x _value(paramname,paramvalue)
+    x = 256 * paramvalueindex + paramnameindex
+    with 0 <= paramnameindex < 256
+    paramnameindex is the position of paramname
+        in the StringConstant[] table
+        and paramvalue in the NumberConstant[] table.
+
+T36 x _fixed(paramname)
+    x = paramnameindex
+    paramnameindex is the position of paramname
+    in the StringConstant[] table.
+
+T37 x T37 y  _keymap(p1,q1,p2,q2)
+    p1,q1,p2,q2 are key numbers in range 0..127
+    p1, p2 are mapped to q1, q2 respectively.
+    x = p1 + 128 * q1
+    y = p2 + 128 * q2
+
+T38 x _rndvel(x) with 0 <= x <= 64
+    Velocities of notes following in the sequence will be assigned
+    random fluctuations +/- x.
+    if x > 127 the value assigned is ParamValue[x-128].
+
+T39 x _rotate(x) with -128 <= x <= 127
+    Rotates a sequence by x units.
+    if x > 127 the value assigned is ParamValue[x-128].
+	Rotations are cumulated when occuring at increasing levels of polymetric expressions.
+
+T40 x _keyxpand(p,k)
+    If p < 128, p is a key number in range 0..127
+    if p > 127 the value assigned is ParamValue[p-128].
+    k is a floating-point number stored as element i of the NumberConstant[] table
+    x = p + 256 * i
+
+T41 x _rndtime(x) with 0 <= x <= 32767
+	Fluctuations of +/- x milliseconds on the positions of sound-objects
+	
+T42 x  _srand(x)
+	(is also a grammar procedure)
+    Seeds the random generator and resets the sequence.
+	0 <= x <= 32767
+	T42 -1  will not do anything.
+	
+T43 x  T43 y   _tempo(n)
+	n = x / y
+
+T44 x remark index x [not yet implemented]
+
+
+
+--------------- Performance controls / tools -----------------
+
+0:  _chan()
+1:	_vel()
+2:	_velstep
+3:	_velcont
+4:	_script
+5:	_mod()
+6:	_modstep
+7:	_modcont
+8:	_pitchbend()
+9:	_pitchstep
+10:	_pitchcont
+11:	_press()
+12:	_presstep
+13:	_prescont
+14: _switchon
+15: _switchoff
+16: _volume()
+17: _volumestep
+18:	_volumecont
+19: _legato
+20: _staccato
+21: _articulstep
+22: _articulcont
+23: _velfixed
+24: _modfixed
+25: _pitchfixed
+26: _pressfixed
+27: _volumefixed
+28: _articulfixed
+29: _pitchrange
+30: _pitchrate
+31: _modrate
+32: _pressrate
+33: _transpose
+34: _volumerate
+35: _volumecontrol
+36:	_pan
+37:	_panstep
+38:	_pancont
+39:	_panfixed
+40:	_panrate
+41:	_pancontrol
+42: _rest /* This is equivalent to '…' */
+43: _ins()
+44: _value()
+45: _step()
+46: _cont()
+47: _fixed()
+48: _retro
+49: _rndseq
+50: _randomize
+51: _ordseq
+52: _keymap
+53: _mapfixed
+54: _mapcont
+55: _mapstep
+56: _rndvel
+57: _rotate
+58: _keyxpand
+59: _rndtime
+60: _srand (is also a grammar procedure)
+61: _tempo
+62: _transposefixed
+63: _transposecont
+64: _transposestep
+
+The same in alphabetic order:
+(see PerfCtrlNdx[] in BP2main.h)
+
+_articulcont 22
+_articulfixed 28
+_articulstep 21
+_chan 0
+_cont 46
+_fixed 47
+_ins 43
+_keymap 52
+_keyxpand 58
+_legato 19
+_mapcont 54
+_mapfixed 53
+_mapstep 55
+_mod 5
+_modcont 7
+_modfixed 24
+_modrate 31
+_modstep 6
+_ordseq 51
+_pan 36
+_pancont 38
+_pancontrol 41
+_panfixed 39
+_panrate 40
+_panstep 37
+_pitchbend 8
+_pitchcont 10
+_pitchfixed 25
+_pitchrange 29
+_pitchrate 30
+_pitchstep 9
+_press 11
+_presscont 13
+_pressfixed 26
+_pressrate 32
+_presstep 12
+_randomize 50
+_rndseq 49
+_rndtime 59
+_rndvel 56
+_rest 42
+_retro 48
+_rotate 57
+_script 4
+_srand 60
+_staccato 20
+_step 45
+_switchoff 15
+_switchon 14
+_tempo 61
+_transpose 33
+_transposecont 63
+_transposefixed 62
+_transposestep 64
+_value 44
+_vel 1
+_velcont 3
+_velfixed 23
+_velstep 2
+_volume 16
+_volumecont 18
+_volumecontrol 35
+_volumefixed 27
+_volumerate 34
+_volumestep 17
+
+In FixStringConstant() and FindParamIndex() indexes of predefined controls are
+    the following:
+
+pitchbend 0
+volume 1
+modulation 2
+pressure 3
+panoramic 4
+
+-----------------  Grammar procedures --------------
+
+0 _goto
+1 _failed
+2 _repeat
+3 _stop
+4 _print
+5 _printOn
+6 _printOff
+7 _stepOn
+8 _stepOff
+9 _traceOn
+10 _traceOff
+11 _destru
+12 _randomize
+13 _mm
+14 _striated
+15 _smooth
+16 _srand  (also a performance control)
+
+Same in alphabetic order:
+
+11 _destru
+0 _goto
+1 _failed
+13 _mm
+4 _print
+6 _printOff
+5 _printOn
+12 _randomize
+2 _repeat
+15 _smooth
+16 _srand
+8 _stepOff
+7 _stepOn
+3 _stop
+14 _striated
+10 _traceOff
+9 _traceOn
+
+-------------  Types of variation ------------------
+
+FIXED: parameter remains fixed until next value is given
+STEPWISE: parameter is interpolated from one value to the next,
+	but it remains fixed over each sound-object
+CONTINOUS: parameter is interpolated from one value to the next,
+	and keeps changing over the same sound-object
+
+These types are determined by _pitchfixed (default), _pitchstep, _pitchcont,
+	and similarly for modulation, pressure, velocity, volume and articulation.
+	
+Only pitch, modulation, pressure and panoramic can be continous.
+	Therefore, _velcont is processed like _velstep,
+	 _articulcont is processed like _articulstep
+	
+-------------  LengthOf() --------------------------
+
+A string of tokenbytes terminates with -1 -1
+(tokenbytes are integers)
+LengthOf() returns the length in tokenbytes, not including the two end markers.
+Therefore the total length is LengthOf() + 2 * sizeof(tokenbyte).
+
+--------------- Window and dialog indexes ---------------------
+
+// Window indexes
+#define wGrammar 0
+#define wAlphabet 1
+#define wStartString 2
+#define wMessage 3
+#define wGraphic 4
+#define wTrace 5
+#define wInfo 6
+#define wData 7
+#define wScript 8
+#define wScrap 9
+#define wHelp 10
+#define wNotice 11
+#define wGlossary 12
+
+// Dialog indexes
+#define wInteraction 13
+#define wRandomSequence 14
+#define wAccuracy 15
+#define wTimeBase 16
+#define wBufferSize 17
+#define wFindReplace 18
+#define wGraphicSettings 19
+#define wControlPannel 20
+#define wKeyboard 21
+#define wScriptDialog 22
+#define wTempo 23
+#define wSettingsTop 24
+#define wSettingsBottom 25
+#define wPrototype1 26
+#define wPrototype2 27
+#define wPrototype3 28
+#define wPrototype4 29
+#define wPrototype5 30
+#define wFilter 31
+
+// Additional indexes used in file types (see FileType[] in BP2main.h)
+#define iObjects 26
+#define iWeights 14
+#define iMIDIfile 24
+#define iSettings 25
+
+------------------------- Default text styles --------------------------------
+
+Red: variable
+Green: time pattern tx
+Blue: homomorphism
+Cyan: flag /flag/
+Magenta: parameter controller Kx
+Yellow: synchronisation tag <<Wx>>
+Brown: terminal symbol
+
+-----------------------  File types ----------------------------------
+Also see document "Types-creators"
+
+	case 1:
+		thetype = 'TEXT';
+		break;
+	case 2:
+		thetype = 'BP02';	/* -kb keyboard file */
+		break;
+	case 3:
+		thetype = 'BP03';	/* -mi MIDI object file */
+		break;
+	case 4:
+		thetype = 'BP04';	/* decision file */
+		break;
+	case 5:
+		thetype = 'BP05';	/* -gr grammar file */
+		break;
+	case 6:
+		thetype = 'BP06';	/* -ho alphabet file */
+		break;
+	case 7:
+		thetype = 'BP07';	/* -da data file */
+		break;
+	case 8:
+		thetype = 'BP08';	/* -in interactive code file */
+		break;
+	case 9:
+		thetype = 'BP09';	/* -se settings file */
+		break;
+	case 10:
+		thetype = 'AIFC';	/* AIFF compressed file */
+		break;
+	case 11:
+		thetype = 'Midi';	/* MIDI file */
+		break;
+	case 12:
+		thetype = 'BP10';	/* -wg weight file */
+		break;
+	case 13:
+		thetype = 'BP11';	/* +sc script file */
+		break;
+	case 14:
+		thetype = 'BP12';	/* -gl glossary file */
+		break;
+	case 15:
+		thetype = 'BP13';	/* time-base -tb file */
+		break;
+
+--------------------------  Variables and terminals --------------------------------
+
+Jbol is the number of terminals.  Index 0 is "_".  Index 1 is "-".
+(*p_Bol)[i] (with 0 =< i < Jbol) is dimensioned Jbol
+
+Jvar is the number of variables.  (*p_Var)[i] (with 1 <= i <= Jvar)
+	is dimensioned MaxVar (with Jvar < MaxVar)
+
+Jflag is the number of flags.  (*p_Switch)[i] (with 1 <= i <= Jflag)
+	is dimensioned MaxFlag (with Jflag < MaxFlag)
+	
+VariableStatus[i] =
+	0 if variable does not exist
+	1 if variable is found only in left argument (unreachable)
+	2 if variable is found only in right argument (undefined)
+	3 if variable is reachable and defined
+	4 if variable is found in left argument of glossary
+	8 if variable is found in right argument of glossary
+
+-------------------------  Memory release ----------------------------
+
+The following should be applied in order:
+
+ReleaseComputeStackSpace() deletes current computation info.
+ReleaseBufferSpace() deletes workstring buffers.
+ReleasePhaseDiagram() deletes the current phase diagram.
+ReleaseObjectPrototypes() deletes sound-object information. /* requires Jbol and Jpatt */
+ReleaseGrammarSpace() resets MaxRul to 0 and MaxGram to 1.
+	[ReleaseFlagSpace() called by ReleaseGrammarSpace() resets Jflag and Maxflag to 0.]
+ReleaseVariableSpace() resets Jvar,Jflag to 0 /* not always done because of glossary */
+ReleaseAlphabetSpace() resets Jbol and Jhomo to 0.
+ReleasePatternSpace() resets Jpatt to 0.
+ReleaseEventScriptSpace() resets Jeventscript to 0.
+
+All Release...() are in BP2main.c
+
+----------------------  COMPILE FLAGS --------------------------------
+
+Alphabet: CompiledAl
+Grammar: CompiledGr
+Interaction: CompiledIn
+Glossary: CompiledGl
+Time patterns: CompiledPt
+
+These are reset to false when
+	the corresponding window is cleared
+	something is modified in the window
+	some memory is released (see further)
+	
+ReleaseAlphabetSpace() resets  CompiledAl,CompiledGr,CompiledGl
+ReleaseVariableSpace() resets  CompiledGr,CompiledGl
+ReleaseGrammarSpace() resets  CompiledGr
+ReleasePatternSpace() resets  CompiledGr
+ReleaseEventScriptSpace() resets  CompiledGr,CompiledGl
+ReleasePatternSpace() resets  CompiledPt
+
+
+-----------------------  GLOSSARY ------------------------------------
+
+Uses GlossGram instead of Gram
+Is a subgram of SUB1 type.
+Accepts only rules in which left argument is a unique variable
+can't have two rules with identical left arguments
+
+------------------------  Mouse interrupts ---------------------------
+
+Function:            calls:               returns:
+
+CompileGrammar()     InterruptCompile()   OK,FAILED
+InterruptCompile()                        OK,ABORT
+ReadAlphabet()       InterruptCompile()   r = InterruptCompile()
+CompileAlphabet()    ReadAlphabet()       r = ReadAlphabet()
+Encode()                                  NULL
+Polymake()                                OK,ABORT,AGAIN
+Interrupt()                               OK,ABORT,AGAIN
+Locate()             Interrupt()          r = Interrupt()
+1 TimeSet()                               OK,ABORT,AGAIN
+2 TimeSet()          Locate()             r = Locate()
+InterruptCompute()                        OK,ABORT,FAILED,FINISH,AGAIN
+ShowItem()           InterruptCompute()   r = InterruptCompute()
+                     PlayBuffer()
+
+------------------------   String handling  --------------------------
+
+Mystrcpy(char *s1,char *s2,int imax) limits length to imax
+pStrCopy(char*,Str255);  /* first argument copied to second */
+unsigned char c2pstr(char*) /* taken in Strings.h, formerly *CtoPstr(char*) */;
+MyPtoCstr(Str255,char*,int);
+Mystrcpy(char**,char*);
+MystrcpyStringToTable(char ****p_t,int j,char *s)
+MystrcpyTableToString(char *s,char ****p_t,int j)
+MystrcpyStringToHandle(char **p_t,char *s)
+MystrcpyHandleToString(int offset,char *s,char **p_t)
+MystrcpyHandleToHandle(int offset,char **p_s,char **p_t)
+
+Mystrcmp(char**,char*);
+Myhandlecmp(char **p_t,char **p_s)
+Pstrcmp(Str255,char*);
+
+MyHandleLen(char **p_t)
+
+StripString(char *word) eliminates trailing spaces on both sides
+StripHandle(char **p_line)
+
+char Filter(char c) eliminates smart quotes
+
+--------------- My convention for refCon in DIALOGS --------------------
+
+* - refCon is (long) type
+* - "r" is the rectangle in which buttons should be drawn
+* - From LSB to MSB:
+* - 2 bits = button type (0=no button, 1=radio, 2=push, 3=check)
+* - 6 bits = 4 * (stringlistID - 300)
+* - 9 bits = 256 * r.right.  (If 0 then r.right = window width)
+* - 9 bits = 131072 * r.bottom. (If 0 then r.bottom = window height)
+* - 3 bits = 67108864 * ((r.left-4) / 64)
+* - 3 bits = 536870912 * ((r.top-4) / 64)
+
+-----  CLOCK  ------------------
+
+clock period (in seconds) = Pclock / Qclock
+i.e. Qclock ticks in Pclock seconds.
+
+Pclock and Qclock are long integers.
+
+metronom value mm = 60 * Qclock / Pclock
+
+Smooth time:
+-- measured => Pclock > 0, Qclock > 0
+-- non-measured => Pclock = 0, Qclock = 1.  Windows "Time Base" and
+"Metronom" display "no clock".
+
+--------- Graphic scale --------------
+
+Screen of Mac Classic is approximately 500 points.
+1 pixel represents GraphicScaleQ/(GraphicScaleP * 100) milliseconds
+User will enter x = the number of seconds represented by 500 pixels.
+Therefore, GraphicScaleQ/GraphicScaleP = x / 5.
+That ratio is then simplified.
+1 second is therefore: 100 * GraphicScaleP / GraphicScaleQ pixels.
+
+-------------------------  MIDI OPCODES ----------------------------------
+
+#define MIDI_NoteOffType 0x80
+#define MIDI_NoteOnType 0x90
+#define MIDI_PolyTouchType 0xa0
+#define MIDI_ControlType 0xb0
+#define MIDI_ProgramType 0xc0
+#define MIDI_AfterTouchType 0xd0
+#define MIDI_PitchBendType 0xe0
+#define MIDI_SysRealTimeType 0xf0
+
+#define MIDI_SysXType 0xf0
+#define MIDI_TimeCodeType 0xf1
+#define MIDI_SongPosType 0xf2
+#define MIDI_SongSelType 0xf3
+#define MIDI_TuneType 0xf6
+#define MIDI_EndSysXType 0xf7
+#define MIDI_ClockType 0xf8
+#define MIDI_StartType 0xfa
+#define MIDI_ContType 0xfb
+#define MIDI_StopType 0xfc
+#define MIDI_ActiveSenseType 0xfe
+#define MIDI_ResetType 0xff
+
+--------------------------  FILTERING - MIDIinputFilter ----------------------------
+
+The driver has the ability to filter which events are read in NORMAL_EVENT
+read mode. This filter defaults to MIDI channel messages only, but you
+can set the filter easily enough. The filter is a longword with the bits
+defined as follows:
+
+  	Midi Event		Bit No.
+  	
+ 	Note Off		0
+ 	Note ON			1
+ 	ChannelPressure	2
+ 	ControlType		3
+ 	ProgramType		4
+ 	Aftertouch		5
+ 	PitchBend		6
+ 	SysEx			7
+    TimeCode		8
+ 	Songpos			9
+ 	SongSel			10
+ 	
+ 	
+ 	TuneType		13
+ 	EndSysEx		14
+ 	ClockType		15
+ 	
+ 	StartType		17
+ 	ContType		18
+ 	StopType		19
+ 	
+ 	ActiveSense		21
+ 	Reset			22
+ 	
+A high bit means pass that event, a 0 means filter it. The default
+longword in BP2 is: MIDIinputFilter = 0xffffffffL which means pass all events.
+
+The following variables, summarized in long word ‘MIDIoutputFilter’,
+are used to permit the transmission of received MIDI events.  If
+permission is granted, the event received by the driver is sent to
+the output.  Whether it is also processed by BP2 depends on the
+current implementation and on the settings of interactive parameters.
+
+NoteOffPass
+NoteOnPass
+AfterTouchPass
+ControlTypePass
+ProgramTypePass
+ChannelPressurePass	/* Monophonic aftertouch */
+PitchBendPass
+SysExPass
+TimeCodePass
+SongPosPass
+SongSelPass
+TuneTypePass
+EndSysExPass
+ClockTypePass
+StartTypePass
+ContTypePass
+ActiveSensePass
+ResetPass
+
+Default settings are:
+SysExPass = TimeCodePass = SongPosPass = SongSelPass = 
+	TuneTypePass = EndSysExPass = ClockTypePass = StartTypePass = ContTypePass = 
+	ActiveSensePass = ResetPass = TRUE;
+NoteOffPass = NoteOnPass = ControlTypePass = AfterTouchPass = ProgramTypePass =
+	ChannelPressurePass = PitchBendPass = FALSE;
+
+-------------------------------------------------------------------------
+HOMOMORPHISMS
+
+Homomorphisms are applied to terminal symbols of slave parenthesis in the
+reverse order of occurrence in the string.
+
+-------------------------------------------------------------------------
+CONVENTION FOR RULE PROCEDURES: _STOP,_PRINT,_PRINTON,_PRINTOFF,_STEPON,
+		_STEPOFF,_TRACEON,_TRACEOFF
+e.g. “(*((*(Gram.p_subgram))[igram].p_rule))[irul].printon”
+0 : no procedure
+1 : procedure in left argument
+2 : procedure in right argument
+3 : procedure in both arguments
+-------------------------------------------------------------------------
+Match(case_sensitive,u,v,length):
+	v must be a prefix of u.  length is usually the length of v.
+	Beware that Match(case,&p,&q,i) changes p and q.
+-------------------------------------------------------------------------
+
+CHANNELS   _chan(x) instruction
+
+Each sound-object prototype is assigned a channel number c0.
+	If c0 = -1 channels should not be changed
+	(they are indicated in the prototype's code)
+	If c0 = 0 channel may be assigned as per the _chan commands
+	If c0 > 0 then channel c0 should always be used.
+When building the phase table (see: TimeSet.c) events are created.
+Each event is assigned channel number c1 as follows:
+	If c0 > 0 then c1 = c0
+	If c0 = 0 then c1 = current channel
+	If c0 < 0 then c1 = 0
+When playing the item (see: MakeSound.c) channel messages are sent.
+	Each message has a channel c2 imbedded in the object prototype's code.
+	Each message is assigned a channel c3 such that:
+		c3 = c1 if c1 > 0
+		c3 = c2 if c1 = 0
+	c3 is a channel number if it is in range 1 to 16.
+	If it is > 128 then channel is taken from ParamValue[c3 - 128].
+	(See function Channel() in MakeSound.c)
+	
+Calculating current channel (Timeset.c):
+	In the beginning, current channel = default channel(0) = 0
+	When _chan(x) instruction is found, current channel is set to x
+	When entering a polymetric expression at level k
+		default channel(k) = current channel
+	When a new argument is found (after ",")
+		current channel = default channel(k)
+	When exiting polymetric expression level k (thus reaching level k-1)
+		current channel = default channel(k)
+
+Case of Alpha controllers
+If AlphaCtrlChan > 0 then alpha control is sent on channel AlphaCtrlChan
+	otherwise it is sent on event's channel as determined above.
+	If event's channel is 0, then it is sent on channel 1
+	
+
+TRANSPOSITION _transpose(x)
+
+In the beginning, current transposition = default transposition(0) = 0
+When _transpose(x) instruction is found, current transposition is set to x
+When entering a polymetric expression at level k
+	default transposition(k) = current transposition
+When a new argument is found (after ",")
+	current transposition = default transposition(k)
+When exiting polymetric expression level k (thus reaching level k-1)
+	current transposition = default transposition(k)
+
+Simple notes are systematically transposed.
+Sound-objects are transposed if their prototype has property OKtranspose.
+
+
+VELOCITY    _vel(x) instruction
+
+Default value is 64.
+Each sound-object prototype contains NoteOn messages with velocity values v2.
+Each event is assigned a velocity v0 (see below)
+When the corresponding object is played, velocity v2 is changed as follows:
+	if v0 < 128 then v = v0
+	else v = ParamValue[v0-128].
+	v2 = v2 * v / 127
+	if(v2 > 127) v2 = 127
+
+Velocity v0 is calculated for each event when building the phase table.  It is
+set to current velocity which is determined as follows:
+	In the beginning, current velocity = default velocity(0) = DEFTVELOCITY = 64
+	When _vel(x) instruction is found, current velocity is set to x
+	When entering a polymetric expression at level k
+		default velocity(k) = current velocity
+	When a new argument is found (after ",")
+		current velocity = default velocity(k)
+	When exiting polymetric expression level k (thus reaching level k-1)
+		current velocity = default velocity(k)
+	
+_velcont and _velstep are equivalent in this version.  They may be compared
+	with _modstep and _pitchstep.
+
+	
+ARTICULATION _legato(x)  _staccato(x) _legato(Ky=x)  _staccato(Ky=x)
+
+_legato(x) extends the duration of following objects by x / 127.
+_staccato(x) reduces the duration of following objects by x / 127.
+In case Ky=x, (token) t = 128  + y
+	therefore, if t < 128 then x = t
+	else x = ParamValue[t-128]
+Both instructions are encoded identically, with negative argument for staccato
+	and positive argument for legato.
+Modification of durations is done after time-setting, and therefore
+	will not affect object position or truncation.  However, if the end
+	of an object has been truncated, it will not be extended.
+Modifications are assigned to objects in table (*p_Acc)[].
+	Value is x if x >= 0, 256+x otherwise. See SetObjectParams().
+Effect of these instructions on polymetric expressions is identical to velocity.
+Continuous or sudden changes are controlled by _articulstep (default) and _articulcont
+	which are equivalent in current version.
+
+
+PITCH BENDER _pitchbend(x)
+
+x is the value of cents in range -32768,32767.  The actual range of pitch bender MIDI
+events is 0..16383.  Its effect depends on the setting of the sound processor, generally
+ranging from +/- 100 to +/- 1200 cents. That range is declared in _pitchrange(y).
+
+The MIDI value is therefore given by the formula:
+	z = 8191.5 + (x * 8191.5 / y).
+	
+MODULATION _mod(x)
+$$$
+
+CHANNEL PRESSURE _press(x)
+$$$
+
+VOLUME  _volume(x)  _volume(Ky=x)
+
+Controls volume ("expression pedal") on current channel
+_volumerate(x) decides on the rate of continuous changes
+	(deft DEFTRATE=50 samples per second)
+_volumecontrol(x) assigns controller x to control volume (deft DEFTVOLUMECONTROL = 7)
+In the beginning, current volume = default volume(0) = DEFTVOLUME = 90
+In "_volumestep" or "_volumefixed" mode, volume information is stored with each object
+	(table (*p_Volume)[k]).
+In "_volumecont" mode, volume is interpolated in a way similar to pitchbender,modulation
+and channel pressure information.
+
+PANORAMIC CONTROL _pan(x)
+
+Processed eactly like volume except that the default controller is DEFTPANCONTROL.
+
+-------------------------------
+OBJECT SPECIFICATIONS
+
+Note: an instantiated sound-object is one in which all timings have been defined.
+Here we call it an "event".
+Each event has a channel and volume (see above).
+It may also have additional information: a "wait list" and a "script line".  In such
+a case, it has a non-empty handle pointing at an "objectspecs" record.
+The record contains a handle to the waitlist and a handle to a scriptline list.
+
+Wait list:
+
+It is a chain of records.  Each record contains a handle to the next record and an
+integer x.  WaitKey[x] is the key number to wait for a NoteOn and WaitChan[x] is the
+channel on which it is expected.  These are synchronization tags.
+
+Script line list:
+
+Script lines executed while performing items are stored in an expandable table
+(*p_EventScript)[] with index = 0..Jeventscript.  Identical instructions are not
+duplicated: when encoding an argument, if a _script(x) instruction is encountered,
+string x is searched in the current table (see CreateEventScript()).  If it is found,
+index p is returned, thus the tokens stored are (m,p) with m = T13.
+
+Timeset() deals with script lines much in the same way as with sync tags.  It
+maintains a scriptlist that is a chain of records, each of which contains a handle
+to the next record and a pointer indicating which script line in (*p_EventScript)[]
+should be executed.
+
+-------------------------------
+Parameter controllers
+
+MIDI controllers may control parameters K1,K2,etc.
+These parameters are used as:
+	rule weights
+	procedure parameters, ex. _repeat(Kx)
+	instruction parameters, ex. _vel(Kx)
+ParamControl[x] is the number of the MIDI controller controlling Kx.
+	It is -1 if no MIDI controller is attached.  In this case, Kx may be used,
+	but it is assigned values specifically: Kx = y
+ParamInit[x] is the initial value of Kx before the controller takes it.
+	If there is a specific assignment Kx = y, then ParamInit[x] = y
+	otherwise it is set to 127 after compiling the grammar.
+ParamValue[x] is the current value of Kx.
+	When production starts it is set to ParamInit[x].
+	When a MIDI control message is received (see ListenMIDI) we check
+	whether it controls some of the Kx (several Kx's may be controlled by
+	the same device.).  If so, ParamValue[x] is modified and weights in the
+	grammar are modified accordingly.
+	In MakeSound(), ParamValue[x] is checked each time a Kx is used.
+
+-----------------------------------
+MIDI switches: _switchon(), _switchoff
+
+In Timeset() I use currswitchstate[c] for the current state of switches on channel c.
+There are 32 switches actioned by control messages, controllers 64 to 95.
+Each element of currswitchstate[] is a long integer (32 bits).  The rightmost bit is
+the state of switch #64, etc.
+The current switch state is stored in a handle attached to object specifications.
+For object i, that handle is accessed as SwitchState(i)
+	(via a macro definition, see BP2.h)
+	
+	
+----------------- NOTEON/NOTEOFF PROBLEM ---------------------
+
+(See MakeSound.c)
+
+Below are two overlapping occurrences of the same MIDI key.
+
+	xxxxxxxxxxxxxxxxxxxx
+	            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	t1          t2      t3                   t4
+
+Sending again a NoteOn in t2 will not produce the desired effect since the key
+	is already on.
+	
+Two cases are considered:
+
+1) Sound-objects with 'StrikeAgain' property
+This is the default case and it also applies to simple notes.
+A NoteOff must first be sent.  Thus the sequence becomes:
+
+	xxxxxxxxxxxx
+	            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	t1          t2      t3                   t4
+	NoteOn     NoteOff
+	            NoteOn                       NoteOff
+
+The NoteOff in t3 must be ignored. For this, variable 'keyon' is used:
+
+	xxxxxxxxxxxxxxxxxxxx
+	            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	t1          t2      t3                   t4
+	
+0	1           2       1                    0    (keyon)
+
+NoteOff is sent only when keyon = 1. 
+
+
+Similarly, the sequence
+
+	xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	                    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	t1          t2      t3        t4         t5       t6
+
+is replaced with
+
+	xxxxxxxxxxxx
+	            xxxxxxxx
+	                    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	t1          t2      t3        t4         t5       t6
+
+using 'keyon' values:
+
+	xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	                    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	t1          t2      t3        t4         t5       t6
+
+0	1           2       3         2          1        0   (keyon)
+
+
+The same idea is used in MakeMonodic() except that 'keyon' concerns any key on
+	a given channel.
+
+2) Sound-objects without 'StrikeAgain' property (introduced 28/10/96 in 2.6.2)
+
+The time-span intervals must be merged. Thus the sequence becomes:
+
+	xxxxxxxxxxxx
+	            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	t1          t2      t3                   t4
+	NoteOn                                   NoteOff
+	      
+
+The NoteOff in t3 must be ignored. For this, variable 'keyon' is used:
+
+	xxxxxxxxxxxxxxxxxxxx
+	            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	t1          t2      t3                   t4
+	
+0	1           2       1                    0    (keyon)
+
+NoteOff is sent only when keyon = 1. 
+
+
+Similarly, the sequence
+
+	xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	                    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	t1          t2      t3        t4         t5       t6
+
+is replaced with
+
+	xxxxxxxxxxxx
+	            xxxxxxxx
+	                    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	t1          t2      t3        t4         t5       t6
+	NoteOn                                            NoteOff
+
+using 'keyon' values:
+
+	xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	                    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	t1          t2      t3        t4         t5       t6
+
+0	1           2       3         2          1        0   (keyon)
+
+
+
+---------------- MakeSound.c  BASIC SCHEDULING IDEAS -----------
+
+k1 is the object being played.
+j = (*p_Obj)[k1].
+	if(0 < j < Jbol) j is the sound-object prototype ("normal" sound-object)
+	if(j < 0) -j is the sound-object prototype ("out-time" sound-object) 
+	if(j > 16383) then simple note (j-16384) will be played
+	if(j >= Jbol) then j is a time object (for time pattern). Never occurs in MakeSound().
+The pre-roll value may be absolute or relative, depending on PreRollMode[j].  It is stored
+    in PreRoll[j]. If relative it is recalculated as:
+    preroll = PreRoll[j] * Alpha[k] * Dur[j] / 100;
+    The pre-roll value is added to all event dates relative to the sound-object.
+    Pre-roll is null for simple notes.
+Post-roll is irrelevant here.
+t1 is the date of the current MIDI event.
+i is the index of the current MIDI event.
+t2 is the date of the next MIDI event belonging to a different object or created by
+	pitchbend, modulation, pressure, etc., continuous changes.
+t3 is the switch-off date of k1.
+im is the index of the last MIDI event in k1.
+	If j > 16383 then im = 6 because a NoteOn/NoteOff pair is 6 MIDI bytes.
+
+While t1 <= t2 and t1 <= t3, events belonging to k1 can be sent.
+Each time an event has been sent, t1 is incremented.  Then, i is compared with im.
+If i < im then
+	inext[k1] = i
+	inextd[k1] = t1, or t3 in case t1 > t3, which happens if the end of k1 is truncated,
+	otherwise object k1 is over and inextd[k1] is set to minus infinite.
+In that case, we look at t2.  If it is the date of a pitchbend, modulation, etc.,
+	event, we send that event. Then we look for the next MIDI event to be sent.
+	If it is a pitchbend, modulation or pressure event, we send it.  Otherwise it
+	belongs to another object k; we set k1 to k:
+	
+	t2obj = t2pitch = t2mod = t2press = Infpos; k1 = 0;
+	for(k=2; k <= (*p_kmax); k++) {
+		if((*p_Obj)[k] == 0) continue;
+		if((*p_nextd)[k] < t2obj) {
+			k1 = k;
+			t2obj = (*p_nextd)[k];
+			}
+		}
+	... Here, calculate t2pitch, etc.
+	t2 = t2obj;
+	if(t2 > t2pitch) t2 = t2pitch;
+	if(t2 > t2press) t2 = t2press;
+	if(t2 > t2mod) t2 = t2mod;
+	etc. (other continuous controls)
+	if(t2 != t2obj) {
+		/* This will take us back to the preceding object */
+		goto SENDCONTROLS;
+		}
+	else {
+		t1 = (*p_nextd)[k1];
+		}
+	... then jump back to the beginning of the loop:
+	j = (*p_Obj)[k1]; if(j == 0) continue;
+	if(j < 0) j = -j;
+	...
+	t3 = (*p_T2)[k1] + preroll;
+	i = (*p_inext)[k1];
+	im = (*p_SIZE)[j];
+	if(!(*p_onoff)[k1]) {	/* This object is not the one that was being played */
+		(*p_onoff)[k1] = TRUE;
+		... calculate new value of t2.
+		... look at attached script, pitchbend, pressure, specs. (This might modify t2.)
+		... send alpha
+		if(i > 0) {	/* Beginning of sound-object is truncated: send all messages… */
+			... send events in truncated part
+			}
+		}
+
+--------------- VARIABLES IN Timeset() --------------------------------------------
+
+k = (*((*p_Seq)[nseq]))[i];
+j = (*p_Obj)[k].
+	if(0 < j < Jbol) j is the sound-object prototype ("normal" sound-object)
+	if(j < 0) -j is the sound-object prototype ("out-time" sound-object) 
+	if(j > 16383) then simple note (j-16384) will be played
+	if(j >= Jbol) then j is a time object (for time pattern).
+
+--------------- 'Dump' files: storage of MIDI data --------------------------------
+
+File format: text.  Encoding: decimal
+To be revised: use Hexa.
+
+Content:
+
+"BP2 decimal MIDI dump"
+imax ;; number of codes in file
+b[0] ;; first byte
+b[1] ;; second byte
+...
+b[im-1]
+
+To load or save D-50 memory I used SoundObjectEditor with an input/output buffer
+of 120 000 bytes. Click 'D50' when entering SoundObjectEditor and follow instructions.
+
+Note that D-50 transfers from/to internal (I) or external (X) banks, not from/to
+card (C).  Therefore, to save the content of ROM card PN-D50-02, I first transfered it
+to the internal bank.
+Bank (X) is the one in the multimode expansion card supplied by Musitronics
+(TSI GmbH, Neustr. 12, 5481 Waldorf, West Germany).  Presumably you can also
+transfer from/to (Y) bank if your card has an additional Toshiba TC 55257 PL-10
+memory chip.
+
+-------------- VARIABLE STATUS ------------------------------------------------------
+
+(*p_VarStatus)[j] is the status of variable j defined by the following binary flags:
+
+	1 found in left argument of rule
+	2 found in right argument of rule
+	4 found in left argument of glossary
+	8 found in right argument of glossary
+	
+	
+------------- THE ‘INIT:’ IN GRAMMARS ------------------------------------------------
+
+There are three cases indicated by variable InitThere:
+
+InitThere = 0.  No initialisation
+InitThere = 1.  A “Play…” instruction has been found. Item will be played just before
+	the first item produced.  (It sets FirstTime to TRUE.)
+InitThere = 2.  Another script instruction has been found and will be executed before
+	items are produced.
+
+------------ TIME-SETTING AND SOUND-OBJECT PROPERTIES --------------------------------
+$$$ This part needs to be checked
+
+Revised 21/3/95   Version >= 2.5
+
+DURATION
+OkExpand: alpha may take any value > 1
+OkCompress:  alpha may take any value < 1
+FixScale: alpha = 1
+!OkExpand && !OkCompress && !FixScale: alpha may vary in specified range
+
+		if(j > 16383) goto OKALPHA;	/* Simple note */
+		if((*p_FixScale)[j]) {
+			alpha = 1.; goto OKALPHA;
+			}
+		if((*p_OkExpand)[j] && alpha >= 1.) goto OKALPHA;
+		if((*p_OkCompress)[j] && alpha <= 1.) goto OKALPHA;
+		if(!(*p_OkExpand)[j] && !(*p_OkCompress)[j]) {
+			if(alpha > (*p_AlphaMax)[j]) alpha = (*p_AlphaMax)[j];
+			if(alpha < (*p_AlphaMin)[j]) alpha = (*p_AlphaMin)[j];
+			goto OKALPHA;
+			}
+		alpha = 1.;
+	OKALPHA: etc...
+
+PIVOTS
+PivPos is position of pivot relative to beginning of prototype.
+if PivMode is RELATIVE then PivPos is percentage of duration
+else (ABSOLUTE) it is absolute position in milliseconds.
+PivType indicates particular cases:
+	1: PivBeg	(ABSOLUTE, PivPos = ZERO)
+	2: PivEnd	(RELATIVE, PivPos = 100)
+	3: PivFirstNoteOn	(RELATIVE, PivPos = percentage of duration where first NoteOn
+						is found)
+	4: PivLastNoteOff	(RELATIVE, PivPos = percentage of duration where last NoteOff
+						is found)  NoteOff is also NoteOn with velocity 0
+	5: PivMiddle	(RELATIVE, PivPos = 50)
+	6: PivMiddleNoteOnOff	(RELATIVE, PivPos = average percentage of cases 3 and 4)
+	7: use PivPos and PivMode
+	
+	PivType is determined at the time a sound-object prototype file is loaded, using
+	Boolean properties PivBeg, etc.  Then it calculates PivPos and PivMode, as these are
+	the only parameters used for calculations.  PivType is kept in memory for edit
+	and save purposes (reconstructing Boolean properties).
+
+LOCATION
+OkRelocate means that object may be relocated. Otherwise, relocation is acceptable
+	within the limits  set by MaxForward and MaxDelay.
+If ForwardMode = ABSOLUTE then MaxForward is in milliseconds
+else (RELATIVE) then MaxForward is a percentage of object duration.
+Same for DelayMode and MaxDelay
+	
+	Possible_choices()
+	...
+	if(side == 1) mustmove = shift;		/* side = 1 means correcting clockwise */
+	else mustmove = -shift;
+	if(mustmove > ZERO) {
+		if((*p_DelayMode)[j] == ABSOLUTE) maxmove = (*p_MaxDelay)[j];
+		else
+			maxmove = (*p_MaxDelay)[j] * ((*p_Alpha)[k] * (float)(*p_Dur)[j] / 100.);
+		if(mustmove <= maxmove) {
+			sol[0] = TRUE; choice++;	/* sol[0] is "shift object" */
+			}
+		}
+	else {
+		if((*p_ForwardMode)[j] == ABSOLUTE) maxmove = -(*p_MaxForward)[j];
+		else
+			maxmove = -(*p_MaxForward)[j] * ((*p_Alpha)[k] * (float)(*p_Dur)[j] / 100.);
+		if(mustmove >= maxmove) {
+			sol[0] = TRUE; choice++;
+			}
+		}
+	
+	------------- 2nd correction
+	
+	if(j <= 16383 && !(*p_OkRelocate)[j]) {
+		if(shift2 < ZERO) {
+			if((*p_ForwardMode)[j] == ABSOLUTE)
+				maxmove = -(*p_MaxForward)[j];
+			else
+				maxmove = -(*p_MaxForward)[j] * ((*p_Alpha)[k]
+											* (float)(*p_Dur)[j] / 100.);
+			if(shift2 >= maxmove) okmove = TRUE;
+			}
+		else {
+			if((*p_DelayMode)[j] == ABSOLUTE)
+				maxmove = (*p_MaxDelay)[j];
+			else
+				maxmove = (*p_MaxDelay)[j] * ((*p_Alpha)[k]
+											* (float)(*p_Dur)[j] / 100.);
+			if(shift2 <= maxmove) okmove = TRUE;
+			}
+		}
+	
+COVER BEGINNING
+CoverBeg means that the beginning of the object may be covered (no limit);
+Otherwise, covering is limited by MaxCoverBeg, using CoverBegMode ABSOLUTE or
+	CONTINUOUS.
+CheckConsistency() forces MaxCoverBeg to 100 and CoverBegMode to RELATIVE if
+	CoverBeg is true. It also forces MaxCoverBeg to minimum 0 in all cases.
+	
+
+
+COVER END
+	is treated similarly with CoverEnd, MaxCoverEnd and CoverEndMode.
+
+tscover is the maximum date up at which the end of preceding event(s) may be covered.
+tsgap is the minimum date after which the beginning of an object should occur
+	
+	/* Update tscover */
+	/* (*p_ts2)[i] is the date of the end of object indexed i */
+	
+	(*p_tscover)[inext] = (*p_tscover)[i];
+	if(j < 16384) {	/* Not a simple note */
+		if(((*p_ts2)[i] - (*p_maxcoverend)[i]) > (*p_tscover)[i])
+			(*p_tscover)[inext] = (*p_ts2)[i] - (*p_maxcoverend)[i];
+		}
+	
+	/* Update tsgap */
+	(*p_tsgap)[inext] = (*p_tsgap)[i];
+	if(((*p_ts2)[i] + (*p_maxgapend)[i]) < (*p_tsgap)[i]) {
+			(*p_tsgap)[inext] = (*p_ts2)[i] + (*p_maxgapend)[i];
+		}
+
+
+SetLimits(int i,int j,int k,duration **p_maxcoverbeg,duration **p_maxcoverend,
+	duration **p_maxgapbeg,duration **p_maxgapend)
+{
+duration maxcover1,maxcover2,maxgap1,maxgap2,dur;
+int coverall;
+
+dur = (*p_Alpha)[j] * (*p_Dur)[k];
+
+maxcover1 = Infpos;
+if(j > 1 && j < 16384 && !(*p_CoverBeg)[j]) {
+	if((*p_CoverBegMode)[j] == ABSOLUTE) {
+		maxcover1 = (*p_MaxCoverBeg)[j];
+		}
+	else {
+		maxcover1 = (dur * (*p_MaxCoverBeg)[j]) / 100.;
+		}
+	}
+
+maxcover2 = Infpos;
+if(j > 1 && j < 16384 && !(*p_CoverEnd)[j]) {
+	if((*p_CoverEndMode)[j] == ABSOLUTE) {
+		maxcover2 = (*p_MaxCoverEnd)[j];
+		}
+	else {
+		maxcover2 = (dur * (*p_MaxCoverEnd)[j]) / 100.;
+		}
+	}
+coverall = FALSE;
+if((maxcover1 + maxcover2) >= dur) coverall = TRUE;
+
+if(!coverall && (maxcover1 < dur) (*p_maxcoverbeg)[i] = maxcover1;
+else (*p_maxcoverbeg)[i] = Infpos;
+
+if(!coverall && (maxcover2 < dur) (*p_maxcoverend)[i] = maxcover2;
+else (*p_maxcoverend)[i] = Infpos;
+
+maxgap1 = Infpos;
+if(j > 1 && j < 16384 && (*p_ContBeg)[j]) {
+	if((*p_ContBegMode)[j] == ABSOLUTE) {
+		maxgap1 = (*p_MaxGapBeg)[j];
+		}
+	else {
+		maxgap1 =
+			(dur * (*p_MaxGapBeg)[j]) / 100.;
+		}
+	}
+
+maxgap2 = Infpos;
+if(j > 1 && j < 16384 && (*p_ContEnd)[j]) {
+	if((*p_ContEndMode)[j] == ABSOLUTE) {
+		maxgap2 = (*p_MaxGapEnd)[j];
+		}
+	else {
+		maxgap2 = (dur * (*p_MaxGapEnd)[j]) / 100.;
+		}
+	}
+
+TRUNCATE BEGINNING
+	is treated similarly with TruncBeg, MaxTruncBeg and TruncBegMode.
+
+Situation_ok(int nseq, int i, int i0, int j, duration shift, duration t1, duration t2,
+	duration ts, duration tscover, duration tsgap, char **p_marked,int nature_time)
+{
+if(i == i0) return(OK);
+if((nature_time == SMOOTH) && (nseq == 0)) return(FAILED);
+if(shift == 0) return(OK);														/* 2 */
+if(j == 1 || j > 16383) return(OK);		/* Silence “-” or simple note */
+if(shift < ZERO) {
+	if((tsgap >= t1 && (-shift <= maxgapbeg))) || DiscontinuityOK) return(OK);	/* 1 */
+	}																	
+if(shift > 0) {
+	if(nature_time == SMOOTH && !(*p_marked)[i]) return(FAILED);
+	if((t1 >= tscover && (ts <= (t1 + maxcoverbeg))) || CoverOK) return(OK); 	/* 3 */
+	}
+return(FAILED);
+}
+
+----------- LOADING AND CREATING SOUND-OBJECT PROTOTYPES ----------------------
+
+Different things take place when typing cmd-E (edit prototypes):
+	
+1.	BP2 compiles the alphabet, grammar, glossary in order to collect all terminal
+	symbols.
+2.	If it finds a -mi.file name, it loads it.  There are two cases:
+	2.1 the file is an old one (before 2.5) and does tell the number of
+		prototypes it contains.  Then BP2 reads only the proototypes already
+		defined in the alphabet.
+	2.2 the file is a new one.  BP2 reserves space for the current terminals
+		plus the prototypes announced in the file.  It maps prototypes with
+		terminals if they have identical names; it creates terminals for prototypes
+		which don't match any terminal.
+3.	If BP2 doesn't find a -mi.file name it prompts for the name of a file and loads
+	it.  If no name is given, it creates empty prototypes for each terminal.
+
+-----------  APPLE EVENTS -------------------------------------------------------
+
+The list of supported Apple Events is under this entry in the "BP2 help" file.
+
+----------- TICK CYCLES IN TIME BASE DIALOG --------------------------------------
+
+In real-time ticking (when items are not being produced or played), integer periods cannot
+be simply added, otherwise roundings might be cumulated.  Therefore it is safer to
+start from a base date and to calculate the next tick date on the basis of a
+grand period common to all tick cycles:
+
+NextTickDate[itick] = LastCommonDate[itick]
+				+ ((double)PosGrandCycle[itick] * GrandPeriod) / GrandCycle[itick];
+
+NextTickDate, PosGrandCycle and GrandCycle are long integers.  Calculation uses double to
+avoid overflow.
+PosGrandCycle is incremented after every tick. When it reaches the maximum value
+GrandCycle (or a multiple of it) the resynchronization occurs:
+
+if(PosGrandCycle[itick] > ZERO && (PosGrandCycle[itick] % GrandCycle[itick]) == ZERO) {
+	/* Calculation on long, no rounding */
+	LastCommonDate[itick] += GrandPeriod * (PosGrandCycle[itick] / GrandCycle[itick]);
+	PosGrandCycle[itick] = 1L;
+	NextTickDate[itick] = LastCommonDate[itick] + (GrandPeriod / GrandCycle[itick]);
+	}
+
+Now we show how GrandPeriod and GrandCycle[itick] are calculated.
+Each tick cycle has its own speed, relative to the clock's speed.
+The clock frequency is: f = Qclock / Pclock.
+Its period (in milliseconds) is: T = 1000 / F = (1000. * Pclock) / Qclock.
+The frequency of each tick cycle is: f * Ptick[i] / Qtick[i].
+The duration of the grand cycle (at the completion of which all ticks are superimposed
+	again) is GrandPeriod, expressed in milliseconds.
+The basic idea is that GrandPeriod contains integer numbers of tick periods.
+Each tick period is: T * Qtick[i] / Ptick[i].
+BeatGrandCycle is the number of clock periods in GrandPeriod.  Therefore,
+	GrandPeriod = BeatGrandCycle * T
+and similarly
+	GrandPeriod = GrandCycle[i] * T * Qtick[i] / Ptick[i]
+To find the minimum integer values of GrandCycle[i] and BeatGrandCycle we express
+	the equality between (minima) integers, multiplying each member by the LCM
+	of Ptick[i], notated plcm.
+This yields (after simplifying by T):
+	plcm * BeatGrandCycle = GrandCycle[i] * Qtick[i] * (plcm / Ptick[i]) = ...
+Then we write
+	ppq[i] = (plcm / Ptick[i]) * Qtick[i];
+and we calculate ppqlcm, the LCM of ppq[i].
+We should also calculate ppqlcm', the LCM of ppqlcm and plcm, but this may be too big
+	and we only need ppqlcm'/ plcm = BeatGrandCycle.  It is therefore more convnient
+	to calculate g, the Greatest Common Divider of ppqlcm and plcm, and then write
+	BeatGrandCycle = ppqlcm / g.
+In the same way, we calculate h = plcm / g.
+This yields: GrandCycle[i] = (ppqlcm / ppq[i]) * h;
+
+Below is the simplified code:
+
+/* LCMofTable() is a function returning the Lowest Common Multiple of numbers in an array. */
+plcm = LCMofTable(Ptick,MAXTICKS,&overflow);
+for(i=0; i < MAXTICKS; i++) ppq[i] = (plcm / Ptick[i]) * Qtick[i];
+ppqlcm = LCMofTable(ppq,MAXTICKS,&overflow);
+g = GCD(ppqlcm,plcm);
+BeatGrandCycle = ppqlcm / g;
+T = (1000. * (double) Pclock) / Qclock;
+GrandPeriod = BeatGrandCycle * T;
+h = plcm / g;
+for(i=0; i < MAXTICKS; i++) {
+	PleaseWait();
+	GrandCycle[i] = (ppqlcm / ppq[i]) * h;
+	}
+
+----------------------  HTML file format ----------------------------------
+
+ReadFile() automatically recognizes and converts HTML files (after removing LF's
+	if files are in DOS format)
+	
+It identifies the file as a HTML one after finding:
+
+	• "<HTML>" or "<html>";
+	• a token "</…>" where "…" is a non-empty string of alphabetic chars shorter than
+		HTMLTOKENLENGTH;
+	• a token "&…;" where "…" is a non-empty string of alphabetic chars shorter than
+		HTMLTOKENLENGTH;
+	• a token "&#…;" where "…" is a non-empty string of 1 to 3 digits.
+	
+Conversion removes all <> </> tags and translates special characters "&…;" to the
+	Mac character set.  Unknown characters are replaced with '•'.
+Conversion accepts inserts in normal text if preceded by "</html>" and ending with "<html>".
+
+A file that has been identified as HTML is saved again as HTML, except if its name is
+	changed ("Save as…").  When names are changed the user is given four format options:
+	
+	• Normal BP2 file (signature 'Bel0', file type depending on type of data
+		(see "Types-creators");
+	• Pure text (signature 'Bel0', file type 'TEXT');
+	• HTML text (signature 'MOSS', file type 'TEXT');
+	• HTML BP2 (signature 'MOSS', file type depending on type of data
+		(see "Types-creators");
+
+HTML text is directly compatible with Netscape Navigator.
+Character '…' is converted to "_rest".  HTML files are sliced to approximately 80 character
+	lines terminated with CR and LF.
+
+--------------------  Tick encoding in Time base window -------------------------------
+
+The following is the value of ThisTick[][]
+
+s = on/off state [0..1]
+v = velocity [0..127]
+c = channel [1..16]
+k = key [0..127]
+
+ThisTick[][] = s + 2 * (v + 128 * ((c - 1) + 128 * k))
+
+Special values:
+If ThisTick[][] < 2 then v, c and k are taken from the default values on the tick cycle.
+
+-------------------------  DoDialog() returns -----------------------------------------
+
+OK if hit content, nothing done
+OK if return key
+STOP if hit a button and procedure failed
+STOP if hit a button and procedure succeded
+EXIT to exit program
+ABORT in case of emergency
+OK if hit static text
+OK if hit edit text

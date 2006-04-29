@@ -1,0 +1,31 @@
+// Bol Processor version BP2.9.3
+// Grammar file saved as '-gr.tuplets_1'. Date: Mer 21 Oct 1998 -- 14:33
+// Received:    21/10/98
+// From:        Harm Visser, hvisser@wxs.nl
+
+// Rhythm-tutorial: making tuplets in embedded structures.
+-se.tuplets_1
+
+ORD
+
+gram#1[1] S --> M1 M2 M3
+
+gram#1[2] M1 --> {4, C3 D3 E3 F3 G3}
+
+gram#1[3] M2 --> {4, C3 D3 {2, _transpose(1) C3 D3 E3 F3 G3} F3 G3}
+
+gram#1[4] M3 --> {4, C3 D3 {4, _transpose(-5) C3 D3 {4, C3 D3 {4, _transpose(5) C3 D3 E3 F3 G3} F3 G3} F3 G3} F3 G3}
+
+
+COMMENT:
+
+In this example we start with a quintuplet: 5:4 (M1).
+
+In M2 we substitute the third beat by the same (transposed) structure, so again a quintuplet. The first 'timesignature' (4,) stands for the duration of the total
+structure.  The second 'timesignature' (2,) plays the role of scaling factor
+in relationship to the first (4,).
+
+Figure out M3 by yourself...
+
+This possibility of embedded (or recursive) structures is in my opinion one of
+the main rhythmical features of BP2.    [Harm]

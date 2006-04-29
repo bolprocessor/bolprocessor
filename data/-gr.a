@@ -1,0 +1,17 @@
+// Bol Processor version BP2.9.4
+// Grammar file saved as '-gr.a'. Date: Mar 6 juil 1999 -- 11:36
+RND
+gram#1[1] Dummy -->     /K2 = 11/
+gram#1[2] Dummy -->     /K2 = 13/
+gram#1[3] Dummy -->     /K2 = 17/
+gram#1[4] Dummy -->     /K2 = 26/
+gram#1[5] Dummy -->     /K2 = 51/
+---------
+ORD
+gram#2[1] /K1<100/ Part --> A     /K1 +2/
+gram#2[2] /K1³100//K1<200/ Part --> B     /K1 = 2/
+/K1³200/ /K1<300/ Part --> C     /K1 = K1+K2/
+/K1³300/ /K1<400/ Part --> D     /K1 = K1+K2/
+/K1³400/ /K1<500/ Part --> E     /K1 = K1+K2/
+/K1³500/ /K1<600/ Part --. F     /K1 = K1+K2/
+/K1³600/ Part --> lambda

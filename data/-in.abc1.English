@@ -1,0 +1,33 @@
+V.2.4
+Date: Mon, 23 Jan 1995 -- 17:26
+BP2 script
+Note convention = English
+IN Derive further A4 channel 1
+IN Reset weights B4 channel 1
+IN Start play C5 channel 1
+IN Repeat ‘v’ times C5 channel 1
+IN End repeat G5 channel 1
+IN Repeat forever E5 channel 1 
+IN Quit F5 channel 1
+IN Use each substitution G#4 channel 1
+IN Use-ignore ‘Start play’ F#4 channel 1
+IN Set computation time to ‘v’ F4 channel 1
+IN Smooth-striated time E4 channel 1
+IN Use-ignore object constraints C#5 channel 1
+IN Skip next item D4 channel 1
+IN Play again item D#5 channel 1
+IN Min 10 ticks in 3 sec C7 max 400 ticks in 60 sec C6 channel 1
+IN Synchro tag W1 = C3 channel 1
+IN Synchro tag W2 = C#3 channel 1
+IN Synchro tag W7 = D3 channel 1
+IN Synchro tag W8 = D#3 channel 1
+IN Param K1 = controller #16 channel 1
+IN Param K2 = controller #17 channel 1
+IN Param K3 = controller #18 channel 1
+IN Param K4 = controller #19 channel 1
+IN Param K5 = controller #80 channel 1
+IN Param K6 = controller #81 channel 1
+IN Param K7 = controller #82 channel 1
+IN Param K8 = controller #83 channel 1
+IN Param K9 = controller #0 channel 1
+

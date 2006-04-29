@@ -1,0 +1,70 @@
+Dear Harm, dear Kumar,
+
+Today I worked on the management of memory overflow,
+reviewing the (presumably obsolete) information in ThinkReference, but I could
+not redo the efficient management that worked in old versions of BP2 (on old
+Macs and old systems...)
+
+I was successful with one thing, however.  When an
+item grows too big, BP2 proposes to use "additional memory", that is, memory
+outside the allocation of the program.  This is dangerous, of course, because
+that memory may be needed by the Finder and other applications such as OMS.
+But at least users who have enough RAM won't need to resize BP2.
+
+If the user
+refuses to use additional memory, BP2 will try two things: first setting on the
+quantization if it is off, then changing increasing the value of the time
+accuracy.
+
+For instance, if you run -gr.Visser5 with BP2 set to 4.5 Mbytes,
+using additional memory works fine (provided that the Mac still has something
+like 5 Mbytes RAM available).  If you refuse the additional memory, BP2
+proposes a time accuracy of 30 milliseconds instead of the default 10
+milliseconds, which is fine for this musical example.  (Remember that anyway
+the time resolution of BP2's MIDI driver is 10 milliseconds.)
+
+The remaining
+problem, Kumar, is the following: how does BP2 decide that the item is too big?
+First I have tried to find the heap size still available, and the size of the
+largest contiguous block.  I called MaxBlock() but I always get very small
+values, e.g. 2000 bytes when BP2's RAM is about 4 Mbytes.  MaxMem() returns
+similar values, and it's slower because it purges memory.  I tried MFMaxMem(),
+this time I got 34 Mbytes which is probably the RAM available outside the
+application.  I think there may be a new way of finding the available memory.
+
+Once I get this available memory I can do two things.  First I can pre-evaluate
+the required size before doing the time-setting.  That's pretty hard and
+unreliable.  Otherwise I can call whatever replaces MaxBlock() before creating
+a handle, and if there isn't enough memory I ask the user whether additional
+memory could be used.  For this, the MaxBlock() call must be a very quick one.
+
+In any case we should also check the size of the item before setting time.  If the item is
+"large", for instance if the phase diagram contains more than 30,000 columns,
+then suggest to use quantization and/or to change the value of the time
+accuracy.  Otherwise, when BP2 really runs short of memory it is too late to allow
+the user to change quantization status: the process must be abandoned.  We
+expect that it will happen when computation has been very long, so it is the
+more frustrating for users...
+
+So, Kumar, if you get to Inside Macintosh
+on-line, just check what is the recommended call before calling NewHandle().
+
+To conclude, the present version is already much more friendly in terms of crash-prediction,
+but not yet 100% safe.  At least, the nice thing is that it reminds musicians
+that using the quantization saves memory space (and computation time).
+
+By the way, it is
+very interesting to compare two examples, setting BP2 to 10ms quantization:
+-gr.Visser3 will immediately use a compression rate of 2,600,000 because the
+polymetric algorithm finds a very high 'Ratio' rescaling.  On the other hand,
+-gr.Visser5 sets the compression rate to 22 only, so the program wants to
+create a very large phase diagram. When the user accepts to set the
+quantization to 30ms, the compression rate becomes about 66, as expected, and
+it goes.  The fun is that there is virtually nothing in these grammars that would
+help us to predict such extreme situations.  It's just a question of integer dividability
+properties...  And it shows that there is no simple, standard measure of the
+"complexity" of a musical item, neither in a mathematical sense nor in a
+musical sense. Even the criterion of having integer ratios with very large terms as being
+"closer to irrational numbers" does not hold in the case of -gr.Visser5, which both BP2 and I
+would call a "complex" piece...
+a mathematicall

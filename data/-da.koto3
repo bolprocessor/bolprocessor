@@ -1,0 +1,25 @@
+-ho.abc1
+-se.koto3
+b b Y{5 ,a c b,f f f - f}a Y b a
+b b Y{5 ,a c b,f f - f}a Y b a
+b b Y{5 ,a c b,f - f}a Y b a
+b b Y{5 ,a c b,f - f}a Y b a
+b b <<f>>{5 ,a c b,f - f}a <<chik>> b <<sync>>
+a a Y a a Y a a a a
+a a Y a a Y a a a a
+a a <<f>> a a <<chik>> a a a <<sync>>
+a a Y a a Y b a b a
+a Y a Y c b{5 ,a c b,f f f - f}
+a Y a Y c b{5 ,a c b,f - f}
+a Y a Y c b{5 ,a c b,f - f}
+a <<chik>> a <<chik>> c b{5 ,a c b,f - f}
+b a b Y b a b Y a b
+b a b Y b a b Y a b
+b a b <<chik>> b a b <<chik>> a <<sync>>
+b b c b Y b c b a Y a a b
+b c c b Y c b c c b a Y a b
+b c c b Y c c b c c b a Y a b
+c b c c b Y c c b c c b a Y a b
+c c b b Y c b c c b a Y a b
+c b Y c c b c c b a Y a b
+

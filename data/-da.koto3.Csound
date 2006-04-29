@@ -1,0 +1,10 @@
+// Bol Processor version BP2.7
+// Data file saved as '-da.koto3.Csound'. Date: Lun 24 Mars 1997 -- 2d46i
+-mi.abc1
+-ho.abc1
+-tb.koto3
+-in.abc1
+-se.koto3.Csound
+
+// Select this item and type command P to generate its Csound score
+_vel(127) _volume(40) a b <<f>>{5,a c b,f - f}<<chik>>{5,a c b,f - f}

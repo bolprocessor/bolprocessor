@@ -1,0 +1,100 @@
+-se.kathak
+-ho.kathak
+
+// This is an example of Kathak dance material composed by Pandit Birju Maharaj and documented by Andrine Bel
+// All these examples are in 'tintal' (16-beat measure)
+
+// MULTI CHANGE OF SPEED
+
+// 1st notation: explicit 'bol' density markers
+
+/4takiteta kite/6takite takitetakite /8takitetakitetaki Â
+tetakite/4dhati dha-/4taki tetakite /6takitetakite Â
+takite/8takiteta kitetakitetakite /4dhati dha- /4takiteta Â
+kite/6takite takitetakite /8takitetakitetaki tetakite/4dhati Â
+dha
+
+// other notation of the same composition: using polymetric structures
+
+{3/2,takiteta kite} {3/2,takite takitetakite} {3/2,takitetakitetaki Â
+tetakite} {1,dhati dha-} {3/2,taki tetakite} {3/2,takitetakite Â
+takite}{3/2,takiteta kitetakitetakite} {1,dhati dha-} {3/2,takiteta Â
+kite}{3/2,takite takitetakite} {3/2,takitetakitetaki tetakite} {1,dhati} Â
+dha
+
+// chakkardar
+
+/4takiteta	kitetaki	tetakite	takiteta	Â
+kite/6takite	takitetakite	takitetakite	takitetakite	Â
+takitetakite	/8takitetakitetaki	tetakitedha-ti-	dha---takiteta	Â
+kitetakitetakite	dha-ti-dha---	takitetakitetaki	tetakitedha-ti-	Â
+dha
+
+// reverse
+
+/8takitetakitetaki	tetakitetakiteta	kitetakitetakite	takitetakitetaki	Â
+tetakite/6takite	takitetakite	takitetakite	takitetakite	Â
+takitetakite	/4takiteta	kitedhati	dha-taki	Â
+tetakite	dhatidha-	takiteta	kitedhati	Â
+dha
+
+/4takitedi	gitedha-	nedha-ne	dha-/6takite	digitedha-ne	Â
+dha-nedha--	/8takitedigitedha-	nedha-nedha-s-	/4stakite	Â
+digitedha	-nedha-	nedha-/6ta	kitedigitedha	Â
+-nedha-nedha	/8--takitedigite	dha-nedha-nedha	s-s-/4taki	Â
+tedigite	dha-nedha	-nedha-	/6takitedigite	Â
+dha-nedha-ne	dha--/8takitedi	gitedha-nedha-ne	Â
+dha
+
+// a few 'number tihais'
+
+#1-#2-#3-	#4-#5-#6-	#1-#2-#3-	#4-#5-#6-	Â
+#1-#2-#3	-#4-#5-	#1-#2-#3	-#4-#5-	Â
+#1-#2-#3	-#4-#5-	#6----	#1-#2-#3-	Â
+#4-#5-#6-	#1-#2-#3-	#4-#5-#6-	#1-#2-#3	Â
+-#4-#5-	#1-#2-#3	-#4-#5-	#1-#2-#3	Â
+-#4-#5-	#6----#1-#2-#3-	#4-#5-#6-	Â
+#1-#2-#3-	#4-#5-#6-	#1-#2-#3	-#4-#5-	Â
+#1-#2-#3	-#4-#5-	#1-#2-#3	-#4-#5-	Â
+#6
+
+#1-#2-#3-	#4-#5-#6-	#1-#2-#3	-#4-#5-	Â
+#6----	#1-#2-#3	-#4-#5-	#6----	Â
+#1-#2-#3	-#4-#5-	#6----	#1-#2-#3-	Â
+#4-#5-#6-	#1-#2-#3	-#4-#5-	#6----	Â
+#1-#2-#3	-#4-#5-	#6----	#1-#2-#3	Â
+-#4-#5-	#6----	#1-#2-#3-	#4-#5-#6-	Â
+#1-#2-#3	-#4-#5-	#6----	#1-#2-#3	Â
+-#4-#5-	#6----	#1-#2-#3	-#4-#5-	Â
+#6
+
+#1-#2-#3-#4-	#5-#6-#7-#8-	#1-#2-#3-	#4-#5-#6-	Â
+#1-#2-#3	-#4-#5-	#1-#2-	#3-#4-	Â
+--#1-	-#2--	#3---	#1-#2-#3-#4-	Â
+#5-#6-#7-#8-	#1-#2-#3-	#4-#5-#6-	#1-#2-#3	Â
+-#4-#5-	#1-#2-	#3-#4-	--#1-	Â
+-#2--	#3---	#1-#2-#3-#4-	#5-#6-#7-#8-	Â
+#1-#2-#3-	#4-#5-#6-	#1-#2-#3	-#4-#5-	Â
+#1-#2-	#3-#4-	--#1-	-#2--	Â
+#3
+
+#1-#2-#3-#4-	#5-#6-#7-#8-	#1-#2-#3-#4	-#5-#6-#7-	Â
+#1-#2-#3-	#4-#5-#6-	#1-#2-#3	-#4-#5-	Â
+#1-#2-	#3-#4-	dha---	#1-#2-#3-#4-	Â
+#5-#6-#7-#8-	#1-#2-#3-#4	-#5-#6-#7-	#1-#2-#3-	Â
+#4-#5-#6-	#1-#2-#3	-#4-#5-	#1-#2-	Â
+#3-#4-	dha---	#1-#2-#3-#4-	#5-#6-#7-#8-	Â
+#1-#2-#3-#4	-#5-#6-#7-	#1-#2-#3-	#4-#5-#6-	Â
+#1-#2-#3	-#4-#5-	#1-#2-	#3-#4-	Â
+dha
+
+#1#2-#3	#4-#5-	#6---	#1#2-	Â
+#3#4-	#5#6-	-#1	#2-	Â
+#3#4	-#5	#6-	#1#2-#3	Â
+#4-#5-	#6---	#1#2-	#3#4-	Â
+#5#6-	-#1	#2-	#3#4	Â
+-#5	#6-	#1#2-#3	#4-#5-	Â
+#6---	#1#2-	#3#4-	#5#6-	Â
+-#1	#2-	#3#4	-#5	Â
+#6
+

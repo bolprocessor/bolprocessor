@@ -1,0 +1,108 @@
+// Bol Processor version BP2.9.2
+// Data file saved as '-da.tryTempo'. Date: Mar 1 Sep 1998 -- 1:01
+-se.tryTempo
+
+// A demo of the "_tempo" tool implemented in May 1998  -- Revised 20/6/98
+
+// This tool had been asked for by many users, notably Harm Visser and Thierry Montaudon.
+// It was possible to implement it only after a thorough rewriting of the polymetric
+// expansion algorithm, a tough piece of code!
+
+// The _tempo tool accepts floating-point or integer ratio arguments.
+A3 B3 _tempo(1.5) C4 D4 _tempo(1/2) E4 F4
+
+// When entering a polymetric expression {} tempos are combined in multiplication.
+// Here for instance "E4 F4" will play at tempo 3/4 = 1.5 * 1/2.
+A3 B3 _tempo(1.5) C4 D4 {_tempo(1/2) E4 F4}
+
+// The fractional gap "3/2" is resized to exactly 1 beat since it is performed with
+// a speed of 1.5 = 3/2.
+A3 B3 _tempo(1.5) C4 D4 3/2 {_tempo(1/2) E4 F4}
+
+// The _tempo tool produces a relative speed change, so the resulting structure may be resized,
+// for instance here it is constrained to exactly 7 beats.
+{7, A3 B3 _tempo(1.5) C4 D4 _tempo(1/3) E4 F4}
+
+// $$$
+A3 {B3 C4 -, F3} A3 {B3 C4 -, F3} A3 {B3 C4 -, F3}
+
+// "Fractal" speed-ups are easy. The following piece causes overflows on integer calculations,
+// but BP2 performs appropriate roundings to get very close to the theoretical result.
+A3 {B3 C4 -, F3} _tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3}}}}}
+// which expands as:
+//  /1  A3{*1/1  B3 C4 -,*3/1  F3} *500/707  A3{*500/707  B3 C4 -,*1500/707  F3} *500/707 {*2501/5000  A3{*2501/5000  B3 C4 -,*7503/5000  F3} *2501/5000 {*3537/10000  A3{*3537/10000  B3 C4 -,*10611/10000  F3} *3537/10000 {*2501/10000  A3{*2501/10000  B3 C4 -,*7503/10000  F3} *2501/10000 {*1769/10000  A3{*1769/10000  B3 C4 -,*5307/10000  F3} *1769/10000 } *2501/10000 } *3537/10000 } *2501/5000 }
+
+
+// Same piece constrained to a total duration of 11 beats.
+{11, A3 {B3 C4 -, F3} _tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3}}}}}}
+
+// Ad infinitum...
+// BTW, to select such a large item, click inside the item and type cmd-B until the entire
+// item is selected.
+{11, A3 {B3 C4 -, F3} _tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3}}}}}}}}}}}}}}}}}}}}}
+
+// This one may not play well on QuickTime Music with a slow Mac...
+// Note that the quantization is 10ms (see the ‘Time accuracy’ dialog). $$$
+--{11, A3 {B3 C4 -, F3} _tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3} {_tempo(1.414) A3 {B3 C4 -, F3}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+// When this expression is expanded (see below), marker “*0/1” indicates infinite speed, thereby
+// meaning that all following sound-objects are played simultaneously. BP2 sets a limit,
+// depending on available memory, to the number of sound-objects that can be played
+// simultaneously.  Here, for instance, the limit is 73, so that some sound-objects (notes)
+// are skipped in the end of the item.
+// Below is the expanded version of the above expression.
+//    /1 {*10000/12419  A3{*10000/12419  B3 C4 -,*30000/12419  F3} *1139/2000  A3{*1139/2000  B3 C4 -,*4271/2500  F3} *1139/2000 {*1007/2500  A3{*1007/2500  B3 C4 -,*12083/10000  F3} *1007/2500 {*178/625  A3{*178/625  B3 C4 -,*534/625  F3} *178/625 {*1007/5000  A3{*1007/5000  B3 C4 -,*3021/5000  F3} *1007/5000 {*89/625  A3{*89/625  B3 C4 -,*4273/10000  F3} *89/625 {*1007/10000  A3{*1007/10000  B3 C4 -,*1511/5000  F3} *1007/10000 {*713/10000  A3{*713/10000  B3 C4 -,*1069/5000  F3} *713/10000 {*63/1250  A3{*63/1250  B3 C4 -,*189/1250  F3} *63/1250 {*357/10000  A3{*357/10000  B3 C4 -,*107/1000  F3} *357/10000 {*63/2500  A3{*63/2500  B3 C4 -,*189/2500  F3} *63/2500 {*89/5000  A3{*89/5000  B3 C4 -,*267/5000  F3} *89/5000 {*63/5000  A3{*63/5000  B3 C4 -,*377/10000  F3} *63/5000 {*89/10000  A3{*89/10000  B3 C4 -,*133/5000  F3} *89/10000 {*63/10000  A3{*63/10000  B3 C4 -,*47/2500  F3} *63/10000 {*11/2500  A3{*11/2500  B3 C4 -,*133/10000  F3} *11/2500 {*31/10000  A3{*31/10000  B3 C4 -,*47/5000  F3} *31/10000 {*23/10000  A3{*23/10000  B3 C4 -,*17/2500  F3} *23/10000 {*1/625  A3{*1/625  B3 C4 -,*3/625  F3} *1/625 {*11/10000  A3{*11/10000  B3 C4 -,*17/5000  F3} *11/10000 {*1/1250  A3{*1/1250  B3 C4 -,*3/1250  F3} *1/1250 {*3/5000  A3{*3/5000  B3 C4 -,*17/10000  F3} *3/5000 {*1/2500  A3{*1/2500  B3 C4 -,*3/2500  F3} *1/2500 {*3/10000  A3{*3/10000  B3 C4 -,*1/1000  F3} *3/10000 {*1/5000  A3{*1/5000  B3 C4 -,*7/10000  F3} *1/5000 {*1/5000  A3{*1/5000  B3 C4 -,*1/2000  F3} *1/5000 {*0/1  A3{*0/1  B3 C4 -,*1/5000  F3} *0/1 {*0/1  A3{*0/1  B3 C4 -,*0/1  F3} *0/1 {*0/1  A3{*0/1  B3 C4 -,*0/1  F3} *0/1 {*0/1  A3{*0/1  B3 C4 -,*0/1  F3} *0/1 {*0/1  A3{*0/1  B3 C4 -,*0/1  F3} *0/1 {*0/1  A3{*0/1  B3 C4 -,*0/1  F3} *0/1 {*0/1  A3{*0/1  B3 C4 -,*0/1  F3} *0/1 {*0/1  A3{*0/1  B3 C4 -,*0/1  F3} *0/1 {*0/1  A3{*0/1  B3 C4 -,*0/1  F3} *0/1 {*0/1  A3{*0/1  B3 C4 -,*0/1  F3} *0/1 {*0/1  A3{*0/1  B3 C4 -,*0/1  F3} *0/1 {*0/1  A3{*0/1  B3 C4 -,*0/1  F3} *0/1 {*0/1  A3{*0/1  B3 C4 -,*0/1  F3} *0/1 {*0/1  A3{*0/1  B3 C4 -,*0/1  F3} *0/1 {*0/1  A3{*0/1  B3 C4 -,*0/1  F3} *0/1 } *0/1 } *0/1 } *0/1 } *0/1 } *0/1 } *0/1 } *0/1 } *0/1 } *0/1 } *0/1 } *0/1 } *0/1 } *0/1 } *0/1 } *1/5000 } *1/5000 } *3/10000 } *1/2500 } *3/5000 } *1/1250 } *11/10000 } *1/625 } *23/10000 } *31/10000 } *11/2500 } *63/10000 } *89/10000 } *63/5000 } *89/5000 } *63/2500 } *357/10000 } *63/1250 } *713/10000 } *1007/10000 } *89/625 } *1007/5000 } *178/625 } *1007/2500 } *1139/2000 }
+
+
+// To get back to the original speed after _tempo(4/3), just insert _tempo(1)…
+G4 D#4 _tempo(4/3) C4 D4 C4 B3 _tempo(1) C4 G4 D#4
+
+// Here the expression is sized down because of the (absolute) speed marker "/2".
+/2 {G4 D#4 _tempo(4/3) C4 D4 C4 B3 _tempo(1) C4 G4 D#4}
+
+// Placing the absolute speed marker "/2" anywhere else than in the begining yields
+// a result uneasy to interpret (see the next example for a proper notation).
+// This use of the speed marker is obsolete and should be avoided.
+G4 D#4 _tempo(4/3) C4 D4 /2 C4 B3 _tempo(1) C4 G4 D#4
+
+// This is the proper way of doubling the speed of "C4 B3".
+G4 D#4 _tempo(4/3) C4 D4 _tempo(2) C4 B3 _tempo(1) C4 G4 D#4
+
+// In general, you will no more use absolute markers, except in the beginning of the piece.
+// Even there, it is more logical to use a "_tempo" assignment.  Absolute markers remain
+// licit only for the sake of compatibility with old projects.
+// The two following expressions are equivalent:
+/2 {G4 D#4 _tempo(4/3) C4 D4 C4 B3 _tempo(1) C4 G4 D#4}
+_tempo(2) {G4 D#4 _tempo(4/3) C4 D4 C4 B3 _tempo(1) C4 G4 D#4}
+
+// Using _tempo in the leftmost field (sequence) of a polymetric expression.
+C3 D3 {A3 B3 _tempo(1.5) C4 D4, E4}
+
+// Here, the duration of the polymetric expression is two beats because it is set by the
+// leftmost field, i.e. "E4 F4".
+C3 D3 {E4 F4, A3 B3 _tempo(0.5) C4 D4}
+
+// Here, the "/2" speed marker forces "A3 B3" to the (absolute) speed of two notes per beat.
+// The duration of the polymetric expression is modified accordingly.
+// This type of notation is not recommended because it may result in duration conflicts.
+// (See next example for conflict and following example for better solution)
+C3 D3 {E4 F4, /2 {A3 B3 _tempo(0.5) C4 D4}}
+
+// Almost the same example with one more absolute speed marker which causes a conflict.
+// (See next example for a proper notation)
+C3 D3 {E4 /3 F4, /2 {A3 B3 _tempo(0.5) C4 D4}}
+
+// This is a proper way of setting "A3 B3" to speed 2.  BP2 understands that since there is
+// _tempo(2) in the beginning of the second field of the polymetric expression, that same field
+// should serve as a reference to calculate the duration of the expression.
+C3 D3 {E4 _tempo(3) F4, _tempo(2) {A3 B3 _tempo(0.5) C4 D4}}
+
+// Here, _tempo(1/3) is ignored because BP2 already selected "_tempo(1.5) C4 D4"
+// as a reference for calculating the duration of the expression. Remember that it selects the
+// leftmost field satisfying certain conditions.
+C3 D3 {E4 D4 _tempo(3) F4, _tempo(1.5) C4 D4, C2 G2 D2, _tempo(1/3) C3 D3}
+
+// Try to make sense of this!
+C3 D3 {E4 _tempo(3) F4, _tempo(1.5) C4 … D3 {E4 _tempo(3) F4, _tempo(1.5) C4 D4, C2 G2 D2, _tempo(1/3) C3 D3}D4, C2 G2 D2, _tempo(1/3) C3 D3}
+
+// Your comments, suggestions and questions are welcome!
+// Contact: <bel@kagi.com>

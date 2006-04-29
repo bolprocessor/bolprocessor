@@ -1,0 +1,19 @@
+-se.checkTimeSet
+-ho.abc2
+
+// This file is used for cheching the time-setting algorithm
+
+// It uses properties of sound-objects defined in Ô-mi.abc2Õ, notably:
+// Prop(a) = OkExpand,not OkCompress,Reloc,ContBeg,not CoverBeg,not CoverEnd,not TruncBeg,not TruncEnd
+// Prop(b') = OkRescale,Reloc,CoverBeg,not CoverEnd,not TruncBeg,not TruncEnd
+// Prop(c') = Fixscale,Reloc,ContBeg,ContEnd,not CoverBeg,not CoverEnd,not TruncBeg,not TruncEnd
+// Prop(e) = OkRescale,not Reloc,CoverBeg,CoverEnd,not TruncBeg, not TruncEnd
+// Prop(f') = OkExpand,not OkCompress, Reloc, CoverBeg, CoverEnd, TruncBeg, TruncEnd, BrkTempo
+
+
+// Try time-setting the following item step by step. The sound item it produces is absolutely irrelevant. Only look at graphics!
+// First try as it is, ask for "all canonic solutions". Then set "Step time setting" to true.
+ 
+aab'ac'ec'f'ea
+
+// ----------------------------+

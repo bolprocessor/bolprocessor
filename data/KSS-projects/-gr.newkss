@@ -1,0 +1,48 @@
+V.2.5
+Date: Dim 11 Juin 1995 -- 15:50
+-se.newkss
+
+RND
+GRAM#1[1] S --> /5 _transpose(-6) X _vel(95) ga6 _vel(64)  _ _ _vel(110) ga6 _vel(64) - - _press(0) - Â
+/flag1/ /flag1/ /flag1/ /flag1/ /flag1/ Â
+/flag1/ /flag1/ /flag1/ /flag1/ /flag1/ Â
+/flag1/ /flag1/ /flag1/ /flag1/ /flag1/ Â
+/flag1/ /flag1/ /flag1/ /flag1/ /flag1/ Â
+/flag1/ /flag1/ /flag1/ /flag1/ /flag2/
+
+GRAM#1[2] <1-1> /flag2/ X --> dha5 X
+GRAM#1[3] <1-1> /flag2/ X --> sa6 X
+GRAM#1[4] <1-1> /flag2/ X --> re6 X
+GRAM#1[5] <1-1> /flag2/ X --> ga6 X
+GRAM#1[6] <1-1> /flag2/ X --> pa6 X
+GRAM#1[7] <1-1> /flag2/ X --> dha6 X
+GRAM#1[8] <1-1> /flag2/ X --> sa7 X
+GRAM#1[9] <1-1> /flag2/ X --> re7 X
+GRAM#1[10]  <9-3> /flag1/ sa6 X  --> sa6 dha5 X 
+GRAM#1[11]  <9-3> /flag1/ dha5 X  --> dha5 sa6 X 
+GRAM#1[12]  <9-3> /flag1/ sa6 X  --> sa6 re6 X 
+GRAM#1[13]  <14-4> /flag1/  re6 X  --> re6 ga6 X 
+GRAM#1[14]  <14-4> /flag1/  ga6 X  --> ga6 pa6 X 
+GRAM#1[15]  <14-4> /flag1/ ga6 X --> ga6 _vel(90) pa6 X
+GRAM#1[16]  <9-3> /flag1/ ga6 X --> ga6 dha6 X
+GRAM#1[17]  <6-3> /flag1/ dha6 X --> _vel(90) dha6 dha6 X
+GRAM#1[18]  <14-4> /flag1/  ga6 X  --> ga6 re6 X 
+GRAM#1[19]  <14-4> /flag1/  pa6 X  --> pa6 dha6 X 
+GRAM#1[20]  <14-4> /flag1/  pa6 X  --> pa6 ga6 X 
+GRAM#1[21]  <9-3> /flag1/  dha6 X  --> dha6 sa7 X 
+GRAM#1[22]  <9-3> /flag1/ dha6 X --> dha6 _vel(90) sa7 X
+GRAM#1[23]  <9-3> /flag1/  dha6 X  --> dha6 pa6 X 
+GRAM#1[24]  <5-2> /flag1/  ?1 X --> ?1 _ ?1 X _goto(1,30)
+GRAM#1[25]  <4-2> /flag1/  ?1 X --> ?1 _ _ ?1 X _goto(1,31)
+GRAM#1[26]  <5-2> /flag1/ ?1 _ ?1 X --> _vel(90) ?1 _vel(64) - ?1 X _goto(1,32)
+GRAM#1[27]  <5-2> /flag1/ ?1 _ _ ?1 X --> _vel(90) ?1 _vel(64) _ _ ?1 X  _goto(1,32)
+GRAM#1[28]  <2-1> /flag1/ sa7 X --> sa7 _ re7 X _goto(1,30)
+GRAM#1[29]  <2-1> /flag1/ re7 X --> re7 dha6 X
+
+GRAM#1[30] <0> /flag1/ X --> X
+GRAM#1[31] <0> /flag1/ X --> X _goto(1,30)
+GRAM#1[32] <0> /flag1/ X --> X /flag1/ /flag1/
+
+--------------------------
+RND
+GRAM#2[1] X -->

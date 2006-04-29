@@ -1,0 +1,47 @@
+V.2.5
+Date: Lun 5 Juin 1995 -- 20:27
+-se.polyphony1
+-ho.abc
+
+// Lots of polymetric expressions
+
+RND
+<1> S --> /2 a b c d /3 d e f g h i [4/1]
+<1> S --> a { - b, a c} [3]
+<1> S --> /2 a b c {/3 d e} fg  [19/6] 
+<1> S --> /2 a b c {/3 d e {f g} h} i j  [25/6]
+<1> S --> {{ab{ab,/1 cde},5},fg{hi,/1 jkl}}  [5/1] 
+<1> S --> {fg{hi,/1 jkl},5}  [5/1]
+<1> S --> ab{ab,cde}cd [7/1]
+<1> S --> ab{cde,/1 ab}cd [6/1] 
+<1> S --> ab{ab,/1 cde}cd [7/1]
+<1> S --> ab{/2 ab,cde}cd
+<1> S --> ab{cde,/2 ab}cd [5/1]
+<1> S --> ab{/5 ab,cde}cd  [22/5]
+<1> S --> ab{cde,/5 ab}cd [22/5]
+<1> S --> ab{/2 ab,/3 cde}cd [5/1 scale=1]
+<1> S --> ab{/3 cde,/2 ab}cd
+<1> S --> ab{/2 ab,/2 cde}cd [impossible] 
+<1> S --> ab{/2 cde,/2 ab}cd [impossible]
+<1> S --> {a {bc,def},ghijk} [5/1]
+<1> S --> {ghijk,a {bc,def}} [5/1]
+<1> S --> /3 a b' {cde,ab'} cd [7/3]
+<1> S --> /3 a b {cde,ab} cd [7/3]
+<1> S --> /3 a' b {/2 a'b,cde} cd [7/3]
+<1> S --> {/2 ab {/3 abc, de},fghi} [2/1]
+<1> S --> {/2 ab {de,/3 abc},fghi} [2/1]
+<1> S --> {b-ba,/2 a'c {de,/3 a-c}} [2/1]
+<1> S --> {ab /3 cde, fg} [3/1]
+<1> S --> {fg, ab /3 cde}
+<1> S --> {/1 ab /3 cde, fg} [3/1]
+<1> S --> fg {abcde,4} [7/1]
+<1> S --> fg {/4 abcde}
+<1> S --> fg {abcde, /4 ijklm} [13/4]
+<1> S --> fg {abcde,5/4} [7/1]
+<1> S --> ij{ijk,ab 5/3 cd}lm [7/1]
+<1> S --> ij{ab 5/3 cd,ijk}lm [29/3]
+<1> S --> ij{17/3,ab 5/3 cd,ijk}lm  [29/3 no need to rescale ab 5/3 cd ]
+<1> S --> cd{17/3,ab 9/2 cd,abe}de  [29/3 need to rescale 'ab 9/2 cd']
+<1> S --> a b /2 cdef 4/3 gh [17/3]
+<1> S --> a b {cd 2,2}
+<1> S --> {i{ab,cde},jk} [Thesis example]

@@ -1,0 +1,48 @@
+// Bol Processor version BP2.7.1
+// Data file saved as '-da.check&'. Date: Sam 7 Juin 1997 -- 22:29
+-se.check&
+
+// Examples for checking sound-object concatenation
+
+do3& re3 do3 mi3 &do3
+do3& re3& do3 mi3 &do3 &re3
+{do3 _ -,sol4&,mi5 _rest}{fa3 _,&sol4 -}
+{do3 _& -,sol4&,mi5 _rest}{fa3 _,- &sol4 -}&do3 _ _
+{1/4,sol#3&,do4,mi4,si4&} {2,&sol#3,&si4}
+
+// We show the Csound score for this one
+{do3 _ _& mi5,sol4&,mi5 _rest}{mi5,&do3 _ _}{fa3 _,&sol4 -}
+t 0.000 60.000
+i1 0.000 1.000 10.04 90.000 90.000 0.000 0.000 0.000 0.000 ; mi5
+i1 3.000 1.000 10.04 90.000 90.000 0.000 0.000 0.000 0.000 ; mi5
+i1 0.000 5.000 8.00 90.000 90.000 0.000 0.000 0.000 0.000 ; do3
+i1 4.000 1.000 10.04 90.000 90.000 0.000 0.000 0.000 0.000 ; mi5
+i1 0.000 6.000 9.07 90.000 90.000 0.000 0.000 0.000 0.000 ; sol4
+i1 5.000 2.000 8.05 90.000 90.000 0.000 0.000 0.000 0.000 ; fa3
+s
+
+// Now do3 is in more than two parts
+{do3& -,sol4,mi5 _rest}{&do3&,sol4} &do3 _ _
+
+// Same thing. Below is the Csound score.
+{do3 _& -,sol4&,mi5 _rest}{&do3 _&,- &sol4 -}&do3 _ _
+t 0.000 60.000
+i1 0.000 1.000 10.04 90.000 90.000 0.000 0.000 0.000 0.000 ; mi5
+i1 0.000 4.333 9.07 90.000 90.000 0.000 0.000 0.000 0.000 ; sol4
+i1 0.000 8.000 8.00 90.000 90.000 0.000 0.000 0.000 0.000 ; do3
+s
+
+// Here normally we shouldn't hear a portamento on sol4 but MIDI can't avoid it because
+// the two notes are one the same channel.  But Csound handles it properly.
+_pitchrange(200) _pitchbend(-200) _pitchcont do4 _ _ _&{&do4_ _ _&,sol4 }&do4_ _ _ _pitchbend(200)
+t 0.000 60.000
+i1 4.000 4.000 9.07 90.000 90.000 0.000 -66.667 -66.667 0.000 ; sol4
+i1 0.000 12.000 9.00 90.000 90.000 0.000 -200.000 200.000 0.000 ; do4s
+
+// Same remark. Csound builds a function table for 'do4' and keeps G5's pitchbend at 66.6 cents
+_pitchrange(200) _pitchbend(-200) _pitchcont do4 _ _ _&{&do4_ _pitchbend(200)_ _&,sol4 }&do4_ _ _ _pitchbend(0)
+t 0.000 60.000
+i1 4.000 4.000 9.07 90.000 90.000 0.000 66.667 66.667 0.000 ; sol4
+f101 0.000 256 -7 -200.000 128 200.000 128 0.000
+i1 0.000 12.000 9.00 90.000 90.000 0.000 -200.000 0.000 101.000 ; do4
+s

@@ -1,0 +1,42 @@
+// Bol Processor version BP2.7.2
+// Data file saved as '-da.makePrototypes'. Date: Mer 9 Juil 1997 -- 7:12
+-mi.makePrototypes
+-se.makePrototypes
+-ho.makePrototypes
+// -da.MakePrototypes
+// 
+
+Select this sequence of notes and click "Capture selection as…" on the Control panel
+        /2 C5 D5 E5 F5 G5
+
+Now click the "Paste MIDI stream" button on the window of sound-object prototype "object1"
+(Type cmd-E to display that window)
+
+The sound-object prototype labelled "object1" has a duration of 2500ms.
+Now, click the picture of the prototype and move the vertical red line to the
+    position located 2000ms from the beginning.
+(Use command and arrow keys to move the red line. Right/left arrows move on 1ms steps, up/down
+    arrows on 10ms.)
+This position is exactly the beginning of G5.
+We will insert the following sequence at this point:
+        /4 E5 F5
+Select it, click "Capture selection as…".  Go back to prototype "sound1" and click
+"Paste MIDI stream".  Take the option "Insert at insert point"
+
+Now, the sound-object prototype "object1" has duration 3000ms.
+Click the "Undo paste" button to get back the previous prototype, and "Paste selection"
+    to do the same operation again and try other paste modes.
+
+Beware that the "Undo paste" is not possible after every kind of paste. If undo is impossible
+    you will be warned before completing the operation. It is safe to save the current ‘-mi’
+    file and to use "Revert to saved" in case the effect obtained was not the one wanted.
+
+Also beware of the insertion point. If you take 1999ms instead of 2000ms, you get a different
+    result because the NoteOff of F5 is moved after the inserted part...  BP2 tries to find
+    an acceptable insert point, but it will do so if the timing is correct within 1ms.
+
+We will now demonstrate another paste option using "object2".
+
+Position the red line at 750ms and paste the following expression:
+        /4 {F5 E5 D5 E5,C5 B4 C5}
+with the "Replace from insert point" option.  The duration has not changed (3000ms).

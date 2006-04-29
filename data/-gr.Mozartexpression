@@ -1,0 +1,386 @@
+// Bol Processor version BP2.8.0
+// Grammar file saved as '-gr.Mozartexpression'. Date: Dim 8 Mars 1998 -- 18:25
+-or.Mozart
+-se.Mozartexpression
+
+// This is a variant of Ò-gr.MozartÓ using time-patterns
+// Time is ÔsmoothÕ.  See the "Metronom" window.
+
+TIMEPATTERNS:
+t1 = 96/100  t2 = 100/100  t3 = 102/100  t4 = 100/100
+t5 = 100/100  t6 = 102/100  t7 = 104/100  t8 = 106/100 t9 = 107/100
+t10 = 108/100 t11 = 107/100 t12 = 106/100Êt13Ê=Ê104/100 t14 = 102/100
+t15 = 1/1
+-------------------
+RND [Select rules randomly]
+GRAM#1[1] S --> _vel(80) {96,Tp1,A B}
+GRAM#1[2] A --> {12,(=Tp2),A1 A2 A3 A4} A5 A6 A7 A8 {12,(:Tp2),A1 A2 A3 A4} {12,Tp3,A5 A6 A7 A'8}
+GRAM#1[3] B --> B1 B2 B3 B4 B5 B6 B7 B8 B1 B2 B3 B4 {12,Tp2,B5 B6 B7 B8}
+-------------------
+RND [Here we define time-patterns]
+GRAM#2[1] <20> Tp1 --> Tp2
+GRAM#2[2] <30> Tp1 --> t5 t6 t7 t8 t9 t10 t11 t12 t13 t14 t15
+GRAM#2[3] Tp2 --> t1 t2 t3 t4
+GRAM#2[4] Tp2 --> t1 t7
+GRAM#2[5] Tp3 --> t2 t1
+GRAM#2[6] Tp3 --> t14 t15
+-------------------
+LIN [ÔRNDÕ would be OK but slower]
+GRAM#3[1] <K1=1> A1 --> T96
+GRAM#3[2] <K2=2> A1 --> T32 
+GRAM#3[3] <K3=3> A1 --> T69 
+GRAM#3[4] <K4=4> A1 --> T40
+GRAM#3[5] <K5=5> A1 --> T148
+GRAM#3[6] <K6=6> A1 --> T104
+GRAM#3[7] <K7=5> A1 --> T152
+GRAM#3[8] <K8=4> A1 --> T119
+GRAM#3[9] <K9=3> A1 --> T98
+GRAM#3[10] <K10=2> A1 --> T3
+GRAM#3[11] <K11=1> A1 --> T54
+-------------------
+LIN [These rules could be mixed with the preceding ones.  But production is faster in this way.]
+GRAM#4[1] <K1> A2 --> T22
+GRAM#4[2] <K2> A2 --> T6
+GRAM#4[3] <K3> A2 --> T95
+GRAM#4[4] <K4> A2 --> T17
+GRAM#4[5] <K5> A2 --> T74
+GRAM#4[6] <K6> A2 --> T157
+GRAM#4[7] <K7> A2 --> T60
+GRAM#4[8] <K8> A2 --> T84
+GRAM#4[9] <K9> A2 --> T142
+GRAM#4[10] <K10> A2 --> T87
+GRAM#4[11] <K11> A2 --> T130
+-------------------
+LIN
+GRAM#5[1] <K1> A3 --> T141
+GRAM#5[2] <K2> A3 --> T128
+GRAM#5[3] <K3> A3 --> T158
+GRAM#5[4] <K4> A3 --> T113
+GRAM#5[5] <K5> A3 --> T163
+GRAM#5[6] <K6> A3 --> T27
+GRAM#5[7] <K7> A3 --> T171
+GRAM#5[8] <K8> A3 --> T114
+GRAM#5[9] <K9> A3 --> T42
+GRAM#5[10] <K10> A3 --> T165
+GRAM#5[11] <K11> A3 --> T10
+-------------------
+LIN
+GRAM#6[1] <K1> A4 --> T41
+GRAM#6[2] <K2> A4 --> T63
+GRAM#6[3] <K3> A4 --> T13
+GRAM#6[4] <K4> A4 --> T85
+GRAM#6[5] <K5> A4 --> T45
+GRAM#6[6] <K6> A4 --> T167
+GRAM#6[7] <K7> A4 --> T53
+GRAM#6[8] <K8> A4 --> T50
+GRAM#6[9] <K9> A4 --> T156
+GRAM#6[10] <K10> A4 --> T61
+GRAM#6[11] <K11> A4 --> T103
+-------------------
+LIN
+GRAM#7[1] <K1> A5 --> T105
+GRAM#7[2] <K2> A5 --> T146
+GRAM#7[3] <K3> A5 --> T153
+GRAM#7[4] <K4> A5 --> T161
+GRAM#7[5] <K5> A5 --> T80
+GRAM#7[6] <K6> A5 --> T154
+GRAM#7[7] <K7> A5 --> T99
+GRAM#7[8] <K8> A5 --> T140
+GRAM#7[9] <K9> A5 --> T75
+GRAM#7[10] <K10> A5 --> T135
+GRAM#7[11] <K11> A5 --> T28
+-------------------
+LIN
+GRAM#8[1] <K1> A6 --> T122
+GRAM#8[2] <K2> A6 --> T46
+GRAM#8[3] <K3> A6 --> T55
+GRAM#8[4] <K4> A6 --> T2
+GRAM#8[5] <K5> A6 --> T97
+GRAM#8[6] <K6> A6 --> T68
+GRAM#8[7] <K7> A6 --> T133
+GRAM#8[8] <K8> A6 --> T86
+GRAM#8[9] <K9> A6 --> T129
+GRAM#8[10] <K10> A6 --> T47
+GRAM#8[11] <K11> A6 --> T37
+-------------------
+LIN
+GRAM#9[1] <K1> A7 --> T11
+GRAM#9[2] <K2> A7 --> T134
+GRAM#9[3] <K3> A7 --> T110
+GRAM#9[4] <K4> A7 --> T159
+GRAM#9[5] <K5> A7 --> T36
+GRAM#9[6] <K6> A7 --> T118
+GRAM#9[7] <K7> A7 --> T21
+GRAM#9[8] <K8> A7 --> T169
+GRAM#9[9] <K9> A7 --> T62
+GRAM#9[10] <K10> A7 --> T147
+GRAM#9[11] <K11> A7 --> T106
+-------------------
+LIN
+GRAM#10[1] A8 --> T5 [T30 = T81 = É = T5]
+GRAM#10[2] A'8 --> T'5
+------------------
+LIN
+GRAM#11[1] <K1> B1 --> T70
+GRAM#11[2] <K2> B1 --> T117
+GRAM#11[3] <K3> B1 --> T66
+GRAM#11[4] <K4> B1 --> T90
+GRAM#11[5] <K5> B1 --> T25
+GRAM#11[6] <K6> B1 --> T138
+GRAM#11[7] <K7> B1 --> T16
+GRAM#11[8] <K8> B1 --> T120
+GRAM#11[9] <K9> B1 --> T65
+GRAM#11[10] <K10> B1 --> T102
+GRAM#11[11] <K11> B1 --> T35
+------------------
+LIN
+GRAM#12[1] <K1> B2 --> T121
+GRAM#12[2] <K2> B2 --> T39
+GRAM#12[3] <K3> B2 --> T139
+GRAM#12[4] <K4> B2 --> T176
+GRAM#12[5] <K5> B2 --> T143
+GRAM#12[6] <K6> B2 --> T71
+GRAM#12[7] <K7> B2 --> T155
+GRAM#12[8] <K8> B2 --> T88
+GRAM#12[9] <K9> B2 --> T77
+GRAM#12[10] <K10> B2 --> T4
+GRAM#12[11] <K11> B2 --> T20
+------------------
+LIN
+GRAM#13[1] <K1> B3 --> T26
+GRAM#13[2] <K2> B3 --> T126
+GRAM#13[3] <K3> B3 --> T15
+GRAM#13[4] <K4> B3 --> T7
+GRAM#13[5] <K5> B3 --> T64
+GRAM#13[6] <K6> B3 --> T150
+GRAM#13[7] <K7> B3 --> T57
+GRAM#13[8] <K8> B3 --> T48
+GRAM#13[9] <K9> B3 --> T19
+GRAM#13[10] <K10> B3 --> T31
+GRAM#13[11] <K11> B3 --> T108
+------------------
+LIN
+GRAM#14[1] <K1> B4 --> T9
+GRAM#14[2] <K2> B4 --> T56
+GRAM#14[3] <K3> B4 --> T132
+GRAM#14[4] <K4> B4 --> T34
+GRAM#14[5] <K5> B4 --> T125
+GRAM#14[6] <K6> B4 --> T29
+GRAM#14[7] <K7> B4 --> T175
+GRAM#14[8] <K8> B4 --> T166
+GRAM#14[9] <K9> B4 --> T82
+GRAM#14[10] <K10> B4 --> T164
+GRAM#14[11] <K11> B4 --> T92
+------------------
+LIN
+GRAM#15[1] <K1> B5 --> T112
+GRAM#15[2] <K2> B5 --> T174
+GRAM#15[3] <K3> B5 --> T73
+GRAM#15[4] <K4> B5 --> T67
+GRAM#15[5] <K5> B5 --> T76
+GRAM#15[6] <K6> B5 --> T101
+GRAM#15[7] <K7> B5 --> T43
+GRAM#15[8] <K8> B5 --> T51
+GRAM#15[9] <K9> B5 --> T137
+GRAM#15[10] <K10> B5 --> T144
+GRAM#15[11] <K11> B5 --> T12
+------------------
+LIN
+GRAM#16[1] <K1> B6 --> T49
+GRAM#16[2] <K2> B6 --> T18
+GRAM#16[3] <K3> B6 --> T58
+GRAM#16[4] <K4> B6 --> T160
+GRAM#16[5] <K5> B6 --> T136
+GRAM#16[6] <K6> B6 --> T162
+GRAM#16[7] <K7> B6 --> T168
+GRAM#16[8] <K8> B6 --> T115
+GRAM#16[9] <K9> B6 --> T38
+GRAM#16[10] <K10> B6 --> T59
+GRAM#16[11] <K11> B6 --> T124
+------------------
+LIN
+GRAM#17[1] <K1> B7 --> T109
+GRAM#17[2] <K2> B7 --> T116
+GRAM#17[3] <K3> B7 --> T145
+GRAM#17[4] <K4> B7 --> T52
+GRAM#17[5] <K5> B7 --> T1
+GRAM#17[6] <K6> B7 --> T23
+GRAM#17[7] <K7> B7 --> T89
+GRAM#17[8] <K8> B7 --> T72
+GRAM#17[9] <K9> B7 --> T149
+GRAM#17[10] <K10> B7 --> T173
+GRAM#17[11] <K11> B7 --> T44
+------------------
+LIN
+GRAM#18[1] <K1> B8 --> T8
+GRAM#18[2] <K2> B8 --> T78
+GRAM#18[3] <K3> B8 --> T8
+GRAM#18[4] <K4> B8 --> T8
+GRAM#18[5] <K5> B8 --> T8
+GRAM#18[6] <K6> B8 --> T8
+GRAM#18[7] <K7> B8 --> T8
+GRAM#18[8] <K8> B8 --> T8
+GRAM#18[9] <K9> B8 --> T8
+GRAM#18[10] <K10> B8 --> T8
+GRAM#18[11] <K11> B8 --> T8
+------------------
+SUB1 [Substitute only once.]
+GRAM#19[1] T1 --> {fa3 re3 sol3,fa5 re5 sol5}
+GRAM#19[2] T2 --> {{2,si2,sol3}-,la4 {2,fa#4 sol4 si4 sol5}}
+GRAM#19[3] T3 --> {{2,do3,mi3}-,sol5 do5 mi5}
+GRAM#19[4] T4 --> {{1,sol2 si2} sol3 si2,sol5 re5_}
+GRAM#19[5] T5 --> {sol2 {2,sol3 fa3 mi3 re3}, {2,sol4,si4,re5,sol5}-}
+GRAM#19[6] T'5 --> {sol2 {2,si3 sol3 fa#3 mi3}, {2,sol4,si4,re5,sol5}-}
+GRAM#19[7] T6 --> {{2,do3,mi3}-,sol4 do5 mi5}
+GRAM#19[8] T7 --> {{2,do3,sol3}-,mi5 do5 mi5 sol5 do6 sol5}
+GRAM#19[9] T8 --> {do3 sol2 do2,do5_ -}
+GRAM#19[10] T9 --> {sol3_ sol2,{do5,mi5}{si4,re5}-}
+GRAM#19[11] T10 --> {sol3_ -,si4 la4 si4 do5 re5 si4}
+GRAM#19[12] T11 --> {do3 re3 re2,mi5 do5 si4 la4 sol4 fa#4}
+GRAM#19[13] T12 --> {do3 do3 do3,{mi4 mi4 mi4},{do5 do5 do5}}
+GRAM#19[14] T13 --> {{2,mi3,sol3}-,do5 sol4 mi4}
+GRAM#19[15] T15 --> {{2,do3,sol3}{do3,mi3},mi5 {1,sol5 mi5}do5}
+GRAM#19[16] T16 --> {{2,re3,fa#3}{do3,fa#3},la5 fa#5 re5}
+GRAM#19[17] T17 --> {{2,mi3,sol3}-,do5 sol4 do5 mi5 sol4 do5}
+GRAM#19[18] T18 --> {{2,do3,mi3}{do3,sol3},sol4 do5 mi5}
+GRAM#19[19] T19 --> {{2,do3,sol3}{do3,mi3},{1,mi5 do5}mi5 sol5}
+GRAM#19[20] T20 --> {si2_ -,sol5{1,si5 re6}re5}
+GRAM#19[21] T21 --> {do3 re3 re2,do5 mi5 sol5 re5 la4 fa#5}
+GRAM#19[22] T22 --> {do3_ -,mi5 do5 sol4}
+GRAM#19[23] T23 --> {{3,fa3 mi3 re3 mi3 fa3 sol3},fa5 mi5 re5 mi5 fa5 sol5}
+GRAM#19[24] T25 --> {re3_ do3,re4 fa#4 la4 re5 fa#5 la5}
+GRAM#19[25] T26 --> {{3,do3 mi3 sol3 mi3 do4 do3}, {do5,mi5}{do5,mi5}{do5,mi5}}
+GRAM#19[26] T27 --> {{2,sol3,si3}-,fa5 mi5 fa5 re5 do5 si4}
+GRAM#19[27] T28 --> {{2,do3,la3}-,fa#5 re5 la4 la5 fa#5 re5}
+GRAM#19[28] T29 --> {sol3_ sol2,{2,si4 re5 sol5 re5}si4}
+GRAM#19[29] T31 --> {{2,do3,sol3}{do3,sol3},{1,mi5 do5}sol4 mi5}
+GRAM#19[30] T32 --> {{2,do3,mi3}-,sol4 do5 mi5}
+GRAM#19[31] T34 --> {sol3_ -,{2,mi5 do5 re5 si4} sol4}
+GRAM#19[32] T35 --> {{2,re3,fa#3}{do3,la3},la4 re5 fa#5}
+GRAM#19[33] T36 --> {do3 re3 re2,la4 mi5 re5 sol5 fa#5 la5}
+GRAM#19[34] T37 --> {{2,si2,re3}-,{2,sol5 si5 sol5 re5}si4}
+GRAM#19[35] T38 --> {{1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_}, do5 sol4 mi5}
+GRAM#19[36] T39 --> {{3,si2 re3 sol3 re3 si2 sol2},sol5 sol4 sol4}
+GRAM#19[37] T40 --> {{2,do3,mi3}-,do5 si4 do5 mi5 sol4 do5}
+GRAM#19[38] T41 --> {{2,do3,mi3}-,{2,do5 si4 do5 mi5} sol4}
+GRAM#19[39] T42 --> {sol2_ -,si4 do5 re5 si4 la4 sol4}
+GRAM#19[40] T43 --> {{2,do3,mi3}-,sol5{2,fa5 mi5 re5 do5}}
+GRAM#19[41] T44 --> {fa3_ sol3,la4{2,fa5 re5 la4 si4}}
+GRAM#19[42] T45 --> {{2,mi3,sol3}-,do5 si4 do5 sol4 mi4 do4}
+GRAM#19[43] T46 --> {{2,si2,re3}-,sol5{2,si5 sol5 re5 si4}}
+GRAM#19[44] T47 --> {{2,si2,re3}-,sol5{1,sol5 re5}si5}
+GRAM#19[45] T48 --> {{2,do3,sol3}{do3,mi3},mi5{2,do5 mi5 sol5 do6}}
+GRAM#19[46] T49 --> {{1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_},mi5 do5 sol4}
+GRAM#19[47] T50 --> {{2,mi3,sol3}-,do5{1,mi5 do5}sol4}
+GRAM#19[48] T51 --> {{2,do3,mi3}-,do5 sol4 mi5 do5 sol5 mi5}
+GRAM#19[49] T52 --> {fa3_ sol3,re5 do#5 re5 fa5 sol4 si4}
+GRAM#19[50] T53 --> {do3_ -,{do5,mi5}{1,do5 re5,mi5 fa5}{mi5,sol5}}
+GRAM#19[51] T54 --> {do3 do3 do3,{mi4,do5}{mi4,do5}{mi4,do5}}
+GRAM#19[52] T55 --> {{2,si2,re3}-,sol5 si5 re5}
+GRAM#19[53] T56 --> {{2,sol2,sol3}sol3,{1,re5 si4}sol4 -}
+GRAM#19[54] T57 --> {{1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_},mi5 do5 sol4}
+GRAM#19[55] T58 --> {{1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_},sol5 mi5 do5}
+GRAM#19[56] T59 --> {{1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_},sol5 do5 mi5}
+GRAM#19[57] T60 --> {{2,do3,mi3}-,sol5{2,fa5 mi5 re5 do5}}
+GRAM#19[58] T61 --> {{2,mi3,sol3}-,do5{1,mi5 do5}sol5}
+GRAM#19[59] T62 --> {do3 re3 re2,mi5 do5 si4 sol4 la4 fa#4}
+GRAM#19[60] T63 --> {do3_ -,{2,mi5 do5 si4 do5} sol4}
+GRAM#19[61] T64 --> {{2,do3,sol3}{do3,sol3},mi5 sol5 do6 sol5 mi5 do5}
+GRAM#19[62] T65 --> {{2,re3 fa#3}-,{1,re5 la4}re5 fa#5}
+GRAM#19[63] T66 --> {{re3,la3}{re3,fa#3}{do3,re3},fa#5 la5 fa#5}
+GRAM#19[64] T67 --> {{2,do3,mi3}{mi3,sol3},do5 si4 do5 mi5 sol4 do5}
+GRAM#19[65] T68 --> {si2_ -,sol5{2,si5 sol5 re5 sol5}}
+GRAM#19[66] T69 --> {{2,do3,mi3}-,sol5 mi5 do5}
+GRAM#19[67] T70 --> {re3_ do3,fa#5{2,la5 fa#5 re5 fa#5}}
+GRAM#19[68] T71 --> {{2,si2,re3}{si2,re3},{2,sol5 si5 re6 si5} sol5}
+GRAM#19[69] T72 --> {fa3_ sol3,fa5 mi5 re5 do5 si4 re5}
+GRAM#19[70] T73 --> {{1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_},sol5 mi5 do5}
+GRAM#19[71] T74 --> {{2,do3,mi3}-,do6 si5 do6 sol5 mi5 do5}
+GRAM#19[72] T75 --> {do3 do3 do3,{re5,fa#5}{re5,fa#5}{re5,fa#5}}
+GRAM#19[73] T76 --> {{2,do3,mi3}{do3,sol3},do6 si5 do6 sol5 mi5 do5}
+GRAM#19[74] T77 --> {{2,si2,re3}{si2,sol3},{1,sol5 si5}sol5 re5}
+GRAM#19[75] T78 --> {do3_ do2,do5 do4 -}
+GRAM#19[76] T80 --> {do3_ -,re5 la4 fa#5}
+GRAM#19[77] T82 --> {{2,si2,sol3}{si2,re3},{1,re5 si4}sol4 sol5}
+GRAM#19[78] T84 --> {{2,do3,mi3}-,do5 sol4 mi5 do5 sol5 mi5}
+GRAM#19[79] T85 --> {{2,mi3,sol3}-,do5 mi5 sol4}
+GRAM#19[80] T86 --> {{2,si2,sol3}-,re5{1,re5 sol5}si5}
+GRAM#19[81] T87 --> {{2,do3,mi3}{do3,sol3},sol5 do5 mi5}
+GRAM#19[82] T88 --> {{2,si2,re3}{si2,re3},sol5 re5 sol5 si5 sol5 re5}
+GRAM#19[83] T89 --> {{1,fa3 mi3}re3 sol3,{1,fa5 mi5}re5 sol5}
+GRAM#19[84] T90 --> {{2,do3,la3}{do3,la3},fa#5 la5 re6 la5 fa#5 la5}
+GRAM#19[85] T92 --> {{2,sol2,sol3}sol3,{si4,re5}{1,sol5 si5}re5}
+GRAM#19[86] T95 --> {{2,do3,mi3}-,sol5 mi5 do5}
+GRAM#19[87] T96 --> {do3_ -,mi5 do5 sol4}
+GRAM#19[88] T97 --> {{2,si2,re3}{si2,sol3},sol5 fa#5 sol5 re5 si4 sol4}
+GRAM#19[89] T98 --> {{1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_},do5 sol4 mi5}
+GRAM#19[90] T99 --> {{2,do3,la3}{do3,la3},fa#5 la5 re5}
+GRAM#19[91] T101 --> {{2,do3,sol3}{do3,mi3},mi5 re5 mi5 sol5 do6 sol5}
+GRAM#19[92] T102 --> {{2,do3,la3}{do3,la3},{1,fa#5 re5}la4 fa#5}
+GRAM#19[93] T103 --> {{2,mi3,sol3}-,{2,do5 mi5 do5 sol4} mi4}
+GRAM#19[94] T104 --> {do3_ -,mi5 re5 mi5 sol5 do6 sol5}
+GRAM#19[95] T105 --> {do3_ -,fa#5{2,la5 fa#5 re5 fa#5}}
+GRAM#19[96] T106 --> {do3 re3 re2,la4{2,re5 do5 si4 la4}}
+GRAM#19[97] T108 --> {{2,do3,sol3}{do3,mi3},mi5 sol5 do6}
+GRAM#19[98] T109 --> {{2,fa3,la3}{sol3,re4},re5 fa5 re5 fa5 si4 re5}
+GRAM#19[99] T110 --> {do3 re3 re2,si4 la4 la4 sol4 sol4 fa#4,re5 do5 do5 si4 si4 la4}
+GRAM#19[100] T112 --> {{1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_},mi5 do5 sol4}
+GRAM#19[101] T113 --> {{2,sol3,si3}-,fa5 re5 si4}
+GRAM#19[102] T114 --> {sol3 sol3 sol3,{si4,re5}{si4,re5}{si4,re5}}
+GRAM#19[103] T115 --> {{2,do3,mi3}-,do5 sol4 mi5 do5 sol5 mi5}
+GRAM#19[104] T116 --> {fa3_ sol3,re5 fa5 la5 fa5 re5 si4}
+GRAM#19[105] T117 --> {{2,re3,fa#3}-,re5 la4 re5 fa#5 la5 fa#5}
+GRAM#19[106] T118 --> {do3 re3 re2,mi5 la5 sol5 si5 fa#5 la5}
+GRAM#19[107] T119 --> {{2,do3,mi3}-,mi5 do5 sol5 mi5 do6 sol5}
+GRAM#19[108] T120 --> {{2,re3,fa#3}{do3,fa#3},re6{2,la5 fa#5 re5 la4}}
+GRAM#19[109] T121 --> {{2,si2,sol3}-,sol5{1,si5 sol5}re5}
+GRAM#19[110] T122 --> {{si2,re3}{si2,re3}{si2,re3},{2,sol5 fa#5 sol5 si5} re5}
+GRAM#19[111] T124 --> {do3 do3 do3,{mi4,do5}{mi4,do5}{mi4,do5}}
+GRAM#19[112] T125 --> {sol3 sol2 -,{2,sol5 mi5 re5 si4}sol4}
+GRAM#19[113] T126 --> {mi3_ {1,mi3 do3},do5 sol4 do5 mi5 sol5 {do5,mi5}}
+GRAM#19[114] T128 --> {sol2_ -,si4 re5 sol5}
+GRAM#19[115] T129 --> {{si2,re3}{si2,re3}{si2,sol3},{2,la5 sol5 fa#5 sol5}re5}
+GRAM#19[116] T130 --> {do3 do3 do3,mi4 mi4 mi4,do5 do5 do5}
+GRAM#19[117] T132 --> {sol3 sol2 -,{do5,mi5}{1,si4 sol4,re5 si4}sol4}
+GRAM#19[118] T133 --> {{2,si2,sol3}-,re5{2,sol5 re5 si4 re5}}
+GRAM#19[119] T134 --> {do3 re3 re2,la4 mi5{si4,re5}{la4,do5}{sol4,si4}{fa#4,la4}}
+GRAM#19[120] T135 --> {{do3,re3}{do3,re3}{do3,re3},fa#5{1,fa#5 re5}la5}
+GRAM#19[121] T136 --> {{2,do3,mi3}-,do6 si5 do6 sol5 mi5 do5}
+GRAM#19[122] T137 --> {{1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_},do5 sol4 mi5}
+GRAM#19[123] T138 --> {{3,re2 re3 do#3 re3 do3 re3},{la4,re5,fa#5}fa#5_}
+GRAM#19[124] T139 --> {si2_ -,{2,sol5 si5 sol5 si5}re5}
+GRAM#19[125] T140 --> {{do3,fa#3}{do3,fa#3}{do3,la3},la4{1,la4 re5}fa#5}
+GRAM#19[126] T141 --> {{2,si2,sol3}sol2,re5 mi5 fa5 re5 do5 si4}
+GRAM#19[127] T142 --> {{2,do3,mi3}-,do5 sol4 mi5}
+GRAM#19[128] T143 --> {{2,si2,re3}{si2,re3},sol5{1,re5 si4}sol4}
+GRAM#19[129] T144 --> {{1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_},sol5 do5 mi5}
+GRAM#19[130] T145 --> {fa3_ sol3,re5 fa5 la4 re5 si4 re5}
+GRAM#19[131] T146 --> {do3 do3 do3,{fa#4,re5}{re5,fa#5}{fa#5,la5}}
+GRAM#19[132] T147 --> {do3 re3 re2,mi5 do6 si5 sol5 la5 fa#5}
+GRAM#19[133] T148 --> {{2,do3,mi3}-,do6 si5 do6 sol5 mi5 do5}
+GRAM#19[134] T149 --> {fa3_ sol3,{1,fa5 re5}la4 si4}
+GRAM#19[135] T150 --> {{3,do3 si2 do3 re3 mi3 fa#3},{sol4,do5,mi5}mi5_}
+GRAM#19[136] T152 --> {{2,do3,mi3}-,sol5{2,fa5 mi5 re5 do5}}
+GRAM#19[137] T153 --> {do3_ -,re5 la4 fa#5 re5 la5 fa#5}
+GRAM#19[138] T154 --> {do3_ -,re5 do#5 re5 fa#5 la5 fa#5}
+GRAM#19[139] T155 --> {{2,si2,re3}-,sol5 si5 sol5 re5 si4 sol4}
+GRAM#19[140] T156 --> {{2,mi3,sol3}-,{2,do5 sol4 mi5 do5} sol5}
+GRAM#19[141] T157 --> {do3_ -,mi5 re5 mi5 sol5 do6 sol5}
+GRAM#19[142] T158 --> {sol2_ -,si4{2,re5 si4 la4 sol4}}
+GRAM#19[143] T159 --> {do3 re3 re2,mi5 sol5 re5 do5 si4 la4}
+GRAM#19[144] T160 --> {{2,do3,mi3}{do3,mi3},do5 si4 do5 mi5 sol4 do5}
+GRAM#19[145] T161 --> {do3 do3 do3,{fa#4,re5}{fa#4,re5}{fa#4,re5}}
+GRAM#19[146] T162 --> {{2,do3,sol3}{do3,mi3},mi5 re5 mi5 sol5 do6 sol5}
+GRAM#19[147] T163 --> {{2,si2,re3}-,sol5 fa#5 sol5 re5 si4 sol4}
+GRAM#19[148] T164 --> {{3,sol3 fa#3 sol3 re3 si2 sol3},re5 sol4_}
+GRAM#19[149] T165 --> {si2_ -,re5 si4 sol4}
+GRAM#19[150] T166 --> {{2,sol3,si3}-,{2,re5 si5 sol5 re5}si4}
+GRAM#19[151] T167 --> {{2,do3,mi3}-,do5{1,do5 re5}mi5}
+GRAM#19[152] T168 --> {{2,do3,mi3}{mi3,sol3},sol5{2,fa5 mi5 re5 do5}}
+GRAM#19[153] T169 --> {do3 re3 re3,mi5 sol5 re5 sol5 la4 fa#5}
+GRAM#19[154] T171 --> {{2,sol2,sol3}{si2,sol3},si4 do5 re5 mi5 fa5 re5}
+GRAM#19[155] T173 --> {fa3_ sol3,{1,fa5 la5}la4{1,si4 re5}}
+GRAM#19[156] T174 --> {{1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_} {1,{do3,mi3}sol3_},sol4 do5 mi5}
+GRAM#19[157] T175 --> {sol3 sol2 -,{2,mi5 do5 si4 re5}sol5}
+GRAM#19[158] T176 --> {{2,si2,re3}{si2,re3},la5 sol5 si5 sol5 re5 sol5}
+// ------------------------------------+

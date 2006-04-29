@@ -1,0 +1,79 @@
+// Bol Processor version BP2.7.4
+// Data file saved as '-da.checkContControl'. Date: Lun 29 DŽc 1997 -- 17:19
+-or.checkContControls
+// -da.checkContControl
+// Use a cello sound to check this with MIDI
+
+-se.checkContControls
+
+_volumecont _volume(0) C4 D4 E4 F4 _volume(127)
+_volumecont _volume(0) C4 {B3 A3,D4 E4} F4 _volume(127)
+_volumecont _volume(0) C4 {B3 A3, _chan(2) D4 E4} F4 _volume(127)
+
+// This one works in Csound, not in MIDI because two streams can't be superimposed on the
+// same channel
+_volumecont _volume(0) C4 {_volume(127) B3 A3 _volume(0),D4 E4} F4 _volume(127)
+i1 0.000 1.000 8.00 0.000 31.750 0.000 0.000 0.000 0.000 ; C4
+i1 1.000 1.000 7.11 127.000 63.500 0.000 0.000 0.000 0.000 ; B3
+i1 1.000 1.000 8.02 127.000 63.500 0.000 0.000 0.000 0.000 ; D4
+i1 2.000 1.000 7.09 63.500 0.000 0.000 0.000 0.000 0.000 ; A3
+i1 2.000 1.000 8.04 63.500 0.000 0.000 0.000 0.000 0.000 ; E4
+i1 3.000 1.000 8.05 95.250 127.000 0.000 0.000 0.000 0.000 ; F4
+
+// Same problem
+_volumecont _volume(0) C4 {B3 A3,_volume(127) D4 E4 _volume(0)} F4 _volume(127)
+i1 0.000 1.000 8.00 0.000 31.750 0.000 0.000 0.000 0.000 ; C4
+i1 1.000 1.000 7.11 31.750 63.500 0.000 0.000 0.000 0.000 ; B3
+i1 1.000 1.000 8.02 127.000 63.500 0.000 0.000 0.000 0.000 ; D4
+i1 2.000 1.000 7.09 63.500 95.250 0.000 0.000 0.000 0.000 ; A3
+i1 2.000 1.000 8.04 63.500 0.000 0.000 0.000 0.000 0.000 ; E4
+i1 3.000 1.000 8.05 95.250 127.000 0.000 0.000 0.000 0.000 ; F4
+
+// This should also work in MIDI except with some synths (such as D-50) that cannot
+// control volumes independently on separate channels
+_chan(5) _volumecont _volume(0) C4 {_volume(127) B3 A3 _volume(0),_chan(7) _volumecont D4 E4} F4 _volume(127)
+i1 0.000 1.000 8.00 0.000 31.750 0.000 0.000 0.000 0.000 ; C4
+i1 1.000 1.000 7.11 127.000 63.500 0.000 0.000 0.000 0.000 ; B3
+i1 1.000 1.000 8.02 31.750 63.500 0.000 0.000 0.000 0.000 ; D4
+i1 2.000 1.000 7.09 63.500 0.000 0.000 0.000 0.000 0.000 ; A3
+i1 2.000 1.000 8.04 63.500 95.250 0.000 0.000 0.000 0.000 ; E4
+i1 3.000 1.000 8.05 95.250 127.000 0.000 0.000 0.000 0.000 ; F4
+
+
+// This one works in MIDI but not in Csound:
+// MIDI merges streams on the same channel, Csound doesn't.
+_volumecont{_volume(0) --_volume(127) -- _volume(60), C4 D4 E4 F4}
+i1 0.000 1.000 8.00 90.000 90.000 0.000 0.000 0.000 0.000 ; C4
+i1 1.000 1.000 8.02 90.000 90.000 0.000 0.000 0.000 0.000 ; D4
+i1 2.000 1.000 8.04 90.000 90.000 0.000 0.000 0.000 0.000 ; E4
+i1 3.000 1.000 8.05 90.000 90.000 0.000 0.000 0.000 0.000 ; F4
+
+
+_chan(5)  _pitchcont  _pitchrange(200)  _pitchbend(0) C4 {B3 A3,D4 E4} F4 _pitchbend(200)
+i1 0.000 1.000 8.00 90.000 90.000 0.000 0.000 50.000 0.000 ; C4
+i1 1.000 1.000 7.11 90.000 90.000 0.000 50.000 100.000 0.000 ; B3
+i1 1.000 1.000 8.02 90.000 90.000 0.000 50.000 100.000 0.000 ; D4
+i1 2.000 1.000 7.09 90.000 90.000 0.000 100.000 150.000 0.000 ; A3
+i1 2.000 1.000 8.04 90.000 90.000 0.000 100.000 150.000 0.000 ; E4
+i1 3.000 1.000 8.05 90.000 90.000 0.000 150.000 200.000 0.000 ; F4
+
+{_chan(5) _pitchcont _pitchrange(200) _pitchbend(200) C4 _pitchbend(0),_chan(7) _pitchrange(200)  _pitchcont _pitchbend(0) G4 _pitchbend(200)}
+i1 0.000 1.000 8.00 90.000 90.000 0.000 200.000 0.000 0.000 ; C4
+i1 0.000 1.000 8.07 90.000 90.000 0.000 0.000 200.000 0.000 ; G4
+
+_chan(7) _pitchcont _pitchrange(200) _chan(5) _pitchcont _pitchrange(200) _pitchbend(0) C4 {C4 _,_chan(7) _pitchbend(200) D4 _pitchbend(0)} C4 _pitchbend(200)
+i1 0.000 1.000 8.00 90.000 90.000 0.000 0.000 50.000 0.000 ; C4
+i1 1.000 2.000 8.00 90.000 90.000 0.000 50.000 150.000 0.000 ; C4
+i1 1.000 2.000 8.02 90.000 90.000 0.000 200.000 0.000 0.000 ; D4
+i1 3.000 1.000 8.00 90.000 90.000 0.000 150.000 200.000 0.000 ; C4
+
+_chan(7) _pitchcont _pitchrange(200) _chan(5) _pitchcont _pitchrange(200) _pitchbend(0) C4 {_pitchbend(200) C5 _ _pitchbend(0), _chan(7) C4} C4 _pitchbend(200)
+i1 0.000 1.000 8.00 90.000 90.000 0.000 0.000 50.000 0.000 ; C4
+i1 1.000 2.000 9.00 90.000 90.000 0.000 200.000 0.000 0.000 ; C5
+i1 1.000 2.000 8.00 90.000 90.000 0.000 50.000 150.000 0.000 ; C4
+i1 3.000 1.000 8.00 90.000 90.000 0.000 150.000 200.000 0.000 ; C4
+
+_velcont _vel(5) C4 {B3 A3 B3,D4 F4 E4} F4 _vel(127)
+_velcont _vel(5) C4 {B3 _vel(127) A3 B3,D4 F4 E4} F4 _vel(127)
+_velcont _vel(5) C4 {B3 _vel(127) A3 B3,_chan(2) D4 F4 E4} F4 _vel(127)
+_chan(2) _velcont _chan(1) _velcont _vel(5) C4 {B3 _vel(127) A3 B3,_chan(2) D4 F4 E4} F4 _vel(127)

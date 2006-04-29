@@ -1,0 +1,18 @@
+V.2.5
+Date: Sun, Jun 4, 1995 -- 20:54
+-se.tryLIN 
+-ho.abc
+
+// This is a demonstration of a LIN subgrammar:
+// Produce strings of a,b,c, with length 18, in which you don't find two consecutive occurrences of ÒbÓ, while ÒcÓs always come in pairs
+
+ORD
+S --> X X X X X X X X X X X X X X X X X X
+------------
+LIN
+X --> a
+#b X --> #b b	[Negative context.  Never two consecutive ÒbÓs]
+X ? --> c Y ?	[Can't be applied if ÒXÓ is the rightmost symbol]
+Y X --> c
+
+

@@ -1,0 +1,15 @@
+// Bol Processor version BP2.6.2
+// Grammar file saved as '-gr.checkNegativeContext'. Date: Dim 1 DŽc 1996 -- 1:46
+-se.checkNegativeContext
+// -gr.checkNegativeContext
+
+RND
+gram#1[1] S --> A A2 A3 A1 A A /times=5/
+gram#1[2] /times >0/ #A1 #A2 #A3 A A --> #A1 #A2 A A #A3  /times-1/
+
+gram#1[3] <0> LEFT #A2 #A1 A --> B B
+
+gram#1[4] <0> S --> A
+gram#1[5] <0> #B A --> A #B
+
+// Result: A A A A2 A3 A1

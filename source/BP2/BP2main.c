@@ -1,0 +1,728 @@
+/* BP2main.c (BP2 version 2.9.4) */
+
+#ifndef _H_BP2
+#include "-BP2.h"
+#endif
+
+#ifndef _H_BP2main
+#include "-BP2main.h"
+#endif
+
+
+main(void)
+{
+int i,startupscript,what,eventfound,rep,oms,changed;
+short oldvrefnum;
+long oldparid,leak;
+EventRecord event;
+OSErr io;
+
+if(Inits() != OK) return(OK);
+
+TraceMemory = FALSE;
+#if BIGTEST
+TraceMemory = TRUE;
+#endif
+
+#ifdef __POWERPC
+SetZone(ApplicationZone());
+NewGrowZoneProc(MyGrowZone);
+#else
+SetGrowZone((GrowZoneProcPtr) MyGrowZone);
+#endif
+
+leak = 0;	/* Adjust for leak indication = 0 */
+
+
+// The following two files are found in BP2's folder which was identified by
+// GetProcessInformation() in Inits.c
+
+if(OpenHelp() == ABORT) return(OK);
+HideWindow(Window[wInfo]);
+LoadSettings(TRUE,TRUE,TRUE,FALSE,&oms);
+
+// Install time scheduler
+
+if(NEWTIMER) {
+	if(InstallTMTask() != OK) {
+ 		Alert1("Unknown problem installing time scheduler. May be this version of BP2 is obsolete with the current system");
+		return(OK);
+		}
+	}
+
+// OMS initialisation
+
+if(oms) {
+	if(InitOMS('Bel0') == noErr) {
+		Oms = TRUE;
+		ChangeControlValue(TRUE,Hbutt[bOMS],Oms);
+		}
+	else Alert1("To avoid OMS warning when using internal MIDI driver, change settings ‘-se.startup’ after launching BP2");
+	ClearMessage();
+	}
+
+PleaseWait();
+	
+if(!Oms && (io = DriverOpen("\p.MIDI")) != noErr) {
+	Alert1("Unexpected error opening MIDI driver. OMS is off, but some other device might be conflicting");
+	return(OK);
+	}
+	
+if(SetDriver() != OK) goto END;
+
+ResetTicks(TRUE,TRUE,ZERO,0);
+
+#if !WASTE
+for(w=0; w < WMAX; w++) {
+	if(!Editable[w] || LockedWindow[w] || w == wStartString) continue;
+	SetSelect(ZERO,GetTextLength(w),TEH[w]);
+	TextDelete(w);
+	}
+#endif
+ClearWindow(YES,wCsoundTables);
+
+if(ResetScriptQueue() != OK) goto END;
+CurrentDir = WindowParID[wScript];
+CurrentVref = TheVRefNum[wScript];
+startupscript = FALSE;
+
+HideWindow(GreetingsPtr);
+MemoryUsedInit = MemoryUsed + leak;
+ForceTextColor = ForceGraphicColor = 0;
+ActivateWindow(SLOW,wMessage);
+SetCursor(&arrow);
+
+ClearWindow(TRUE,wInteraction);
+ClearWindow(TRUE,wGlossary);
+ClearWindow(TRUE,wScript);
+/* At least one window must be active so that Apple Events are detected even if the... */
+/* ... application is not active ! */
+ActivateWindow(SLOW,wMessage);
+HideWindow(Window[wInfo]);
+
+if(CheckRegistration() != OK) goto END;
+
+// Let's have some fun in year 2000
+Y2K();
+
+if(MustChangeInput) goto NOEVENT;
+
+event.what = nullEvent;
+for(i=0; i < 50; i++) {
+	/* Identify and process the Apple Event that might have launched BP2 */
+GETEVENT:
+	eventfound = GetNextEvent(everyEvent,&event);
+	if(!eventfound || event.what == activateEvt) continue;
+	if(event.what == updateEvt) {
+		DoEvent(&event); 
+		goto GETEVENT;
+		}
+	if((event.what != kHighLevelEvent || !GoodEvent(&event))
+		&& (event.what != keyDown || (event.modifiers & cmdKey) == 0)) continue;
+	break;
+	}
+SessionTime = clock();
+if(eventfound && ((event.what == keyDown && (event.modifiers & cmdKey) != 0)
+		|| (event.what == kHighLevelEvent && GoodEvent(&event)))) {
+	FlushEvents(everyEvent,0);
+	InitOn = FALSE;
+	HideWindow(Window[wInfo]);
+	rep = DoEvent(&event);
+	if(rep == EXIT) goto END;
+	if(LoadedScript) {
+		InitOn = FALSE;
+		if(RunScript(wScript,TRUE) == EXIT) goto END;
+		}
+	if(ResetScriptQueue() != OK) goto END;
+	}
+else {
+NOEVENT:
+	InitOn = FirstTimeAE = FALSE;
+	if(!MustChangeInput && AppendStringList("+sc.startup") == OK) {
+		if(RunScriptOnDisk(FALSE,"+sc.startup",&changed) == OK) startupscript = TRUE;
+		ScriptExecOn = 0;
+		}
+	if(ResetScriptQueue() != OK) goto END;
+	ShowMessage(TRUE,wMessage,"Type ‘-?’ and select button, word or menu item for help");
+	if(!startupscript && !MustChangeInput) {
+		ClearWindow(TRUE,wGrammar);
+		ClearWindow(TRUE,wAlphabet);
+		ClearWindow(TRUE,wData);
+SHOWOPTIONS:
+		StopWait();
+		SndSetSysBeepState(sysBeepDisable);
+		what = Alert(WorkAlert,0L);
+		SndSetSysBeepState(sysBeepEnable);
+		HideWindow(Window[wInfo]);
+		switch(what) {
+			case dData:
+				LastEditWindow = wData;
+				ActivateWindow(SLOW,wData);
+				ActivateWindow(SLOW,wControlPannel);
+				break;
+			case dGrammars:
+				LastEditWindow = wGrammar;
+				ActivateWindow(SLOW,wGrammar);
+				ActivateWindow(SLOW,wControlPannel);
+				break;
+			case dAlphabets:
+				LastEditWindow = wAlphabet;
+				ActivateWindow(SLOW,wAlphabet);
+				break;
+			case dScripts:
+				LastEditWindow = wScript;
+				mScript(wScript);
+				break;
+			case dSoundObjects:
+				mObjectPrototypes(wPrototype1);
+				break;
+			case dInteraction:
+				LastEditWindow = wInteraction;
+				ActivateWindow(SLOW,wInteraction);
+				break;
+			case dGlossary:
+				LastEditWindow = wGlossary;
+				ActivateWindow(SLOW,wGlossary);
+				break;
+			case dTimeBase:
+				mTimeBase(wTimeBase);
+				break;
+			case dCsoundInstruments:
+				mCsoundInstrumentsSpecs(wCsoundInstruments);
+				break;
+			case dFAQ:
+				ActivateWindow(SLOW,wData);
+				mFAQ(0);
+				break;
+			case dLoadProject:
+				LastEditWindow = wGrammar;
+				if(mLoadProject(wGrammar) == OK)
+					ActivateWindow(SLOW,wControlPannel);
+				else ActivateWindow(SLOW,wGrammar);
+				break;
+			case dRegister:
+				DisplayFile(wHelp,"Registration.txt");
+				Register();
+				break;
+			case dQuitWork:
+				goto END;
+				break;
+			}
+		}
+	}
+
+START:
+InitOn = FALSE;
+SessionTime = clock();
+HideWindow(Window[wInfo]);
+
+if(MustChangeInput) {
+	Alert1("Select a MIDI device on the OMS MIDI-input menu. Close window for no device…");
+	mOMSinout(0);
+	}
+
+////////////////////////////
+while(MainEvent() != EXIT) {
+	if(Beta && LoadOn > 0) {
+		Alert1("Err. LoadOn > 0 ");
+		LoadOn = 0;
+		}
+	}
+////////////////////////////
+
+oldparid = WindowParID[wScript];
+oldvrefnum = TheVRefNum[wScript];
+CurrentDir = WindowParID[wScript] = ParIDstartup;
+CurrentVref = TheVRefNum[wScript] = RefNumStartUp;
+if(!EmergencyExit && !MustChangeInput && !ScriptExecOn && AppendStringList("+sc.shutdown") == OK) {
+	RunScriptOnDisk(FALSE,"+sc.shutdown",&changed);
+	}
+if(!ScriptExecOn) ResetScriptQueue();
+StopWait();
+/* KillSubTree(PrefixTree); KillSubTree(SuffixTree); $$$ */
+MyDisposeHandle((Handle*)&Stream.code);
+Stream.imax = ZERO;
+Stream.period = ZERO;
+LoadedCsoundInstruments = TRUE;
+if(CheckMem && Beta && !MustChangeInput) {
+	if(ResetProject(FALSE) != OK && !EmergencyExit) goto START;
+	if(ClearWindow(FALSE,wData) != OK) goto START;
+	ForgetFileName(wData);
+	sprintf(Message,"This session used %ld Kbytes maximum.  %ld handles created and released. [%ld bytes leaked]",
+		(long) MaxMemoryUsed/1000L,(long)MaxHandles,
+		(long) (MemoryUsed - MemoryUsedInit));
+	ShowMessage(TRUE,wMessage,Message);
+	if(MemoryUsed != MemoryUsedInit) {
+		sprintf(Message,"%ld bytes leaked",(long) (MemoryUsed - MemoryUsedInit));
+		Alert1(Message);
+		}
+	}
+StopWait();
+if(!ScriptExecOn && !AEventOn && !EmergencyExit && !MustChangeInput) {
+	if(mAbout(-1) == RESUME) {
+		WindowParID[wScript] = oldparid;
+		TheVRefNum[wScript] = oldvrefnum;
+		InitButtons();
+		goto START;
+		}
+	if(MaxTempMemoryUsed > ZERO) {
+		MaxTempMemoryUsed = 1L + (MaxTempMemoryUsed / 1000000L);
+		sprintf(Message,
+			"Additional memory was required during this session. You should give BP2 at least %ld more Mbyte(s)",
+			(long)MaxTempMemoryUsed);
+		Alert1(Message);
+		}
+	}
+
+END:
+
+CloseMIDIFile();
+CloseMe(&HelpRefnum);
+CloseMe(&TraceRefnum);
+CloseMe(&TempRefnum);
+CloseCsScore();
+MyDisposeHandle((Handle*)&p_Oldvalue);
+ClearLockedSpace();
+
+if(Oms) ExitOMS();
+else if(InBuiltDriverOn) CloseCurrentDriver(FALSE);
+if(NEWTIMER) RemoveTMTask();
+	
+return(OK);
+}
+
+
+// --------------------  MEMORY MANGEMENT -------------------------
+
+
+pascal long MyGrowZone(Size size)
+// This doesn't seem to work any more since system 7.5.3
+{
+long result;
+long oldA5;
+
+oldA5 = SetCurrentA5();
+
+result = GetMoreSpace(size);
+
+SetA5(oldA5);
+
+return(result);
+}
+
+
+int **GiveSpace(Size size)
+{
+int **p,rep;
+OSErr err,memerr;
+long totalbytes,contigbytes,grow,dummy;
+
+TRY:
+if(TempMemory) {
+	/* We are using memory outside BP2's partition */
+	SchedulerIsActive--;
+	totalbytes = TempFreeMem();
+	if(size > totalbytes)
+		contigbytes = TempMaxMem(&dummy);
+	else contigbytes = size;
+	if(contigbytes < size) {
+		EmergencyExit = TRUE;
+		Alert1("BP2 didn't get enough additional memory. (Insufficient RAM?) Save your work and quit");
+		SchedulerIsActive++;
+		TempMemory = FALSE;
+		TempMemoryUsed = ZERO;
+		return(NULL);
+		}
+	p = (int**) TempNewHandle(size,&err);
+	SchedulerIsActive++;
+	if(p == NULL || err != noErr) {
+		EmergencyExit = TRUE;
+		Alert1("BP2 didn't get enough additional memory. (Insufficient RAM?) Save your work and quit");
+		TempMemory = FALSE;
+		TempMemoryUsed = ZERO;
+		return(NULL);
+		}
+	}
+else {
+	if(LowOnMemory) {
+		totalbytes = FreeMem();
+		grow = ZERO;
+		contigbytes = size;
+		if(size > totalbytes) contigbytes = MaxMem(&grow);
+		if((contigbytes + grow) < size) {
+			rep = GetMoreSpace(size);
+			if(rep == OK) goto TRY;
+			else return(NULL);
+			}
+		}
+	p = (int**) NewHandle(size);
+	}
+
+MaxHandles++;
+
+if(p == NULL || (Beta && ((memerr=MemError()) != noErr))) {
+	MaxHandles--;
+	rep = GetMoreSpace(size);
+	if(rep == OK) goto TRY;
+	else return(NULL);
+	}
+else {
+	MemoryUsed += (unsigned long) size;
+	if(MemoryUsed > MaxMemoryUsed) {
+		MaxMemoryUsed = MemoryUsed;
+		}
+	if(TempMemory) {
+		TempMemoryUsed += (unsigned long) size;
+		if(TempMemoryUsed > MaxTempMemoryUsed) {
+			MaxTempMemoryUsed = TempMemoryUsed;
+			}
+		}
+	if((MaxHandles % 200) == 0) {
+		if(TempMemory) FlashInfo("••• Using additional memory…");
+		else if(LowOnMemory) FlashInfo("••• Low on memory… Reset project as soon as possible!");
+		}
+	}
+return(p);
+}
+
+
+CheckGrowingHandle(Handle *p_h,Size oldsize,Size size)
+{
+long contigbytes,grow,totalbytes,rep,dummy,resize;
+Handle p;
+OSErr memerr;
+
+if(size < oldsize) return(OK);
+
+resize = size - oldsize;
+
+if(!TempMemory) {
+	totalbytes = FreeMem();
+	grow = ZERO;
+	contigbytes = resize;
+	if(resize > totalbytes) {
+		contigbytes = MaxMem(&grow);
+		}
+	if((contigbytes + grow) < resize) {
+		rep = GetMoreSpace(resize);
+		if(rep != OK) return(ABORT);
+		if(TempMemory) {
+			/* Move the current handle to the temp memory */
+			SchedulerIsActive--;
+			p = (Handle) TempNewHandle(ZERO,&memerr);
+			SchedulerIsActive++;
+			if(p == NULL || memerr != noErr) {
+				EmergencyExit = TRUE;
+				Alert1("BP2 didn't get enough additional memory. (Insufficient RAM?) Save your work and quit");
+				TempMemory = FALSE;
+				TempMemoryUsed = ZERO;
+				return(ABORT);
+				}
+			HLock(*p_h);
+			memerr = HandAndHand(*p_h,p);
+			HUnlock(*p_h);
+			if(memerr != noErr) {
+				TellError(28,memerr);
+				if(Beta && !InitOn) Alert1("HandAndHand() returned error in MySetHandleSize()");
+				TempMemory = FALSE;
+				TempMemoryUsed = ZERO;
+				return(ABORT);
+				}
+			DisposeHandle(*p_h);
+			(*p_h) = p;
+			}
+		}
+	}
+else {
+	totalbytes = TempFreeMem();
+	if(resize > totalbytes)
+		contigbytes = TempMaxMem(&dummy);
+	else contigbytes = resize;
+	if(contigbytes < resize) {
+		EmergencyExit = TRUE;
+		Alert1("BP2 didn't get enough additional memory. (Insufficient RAM?) Save your work and quit");
+		SchedulerIsActive++;
+		TempMemory = FALSE;
+		TempMemoryUsed = ZERO;
+		return(ABORT);
+		}
+	}
+return(OK);
+}
+
+
+Size MyGetHandleSize(Handle h)
+{
+if(h == NULL) return((Size) ZERO);
+else return(GetHandleSize(h));
+}
+
+
+MyDisposeHandle(Handle *p_h)
+{
+Size size;
+int r;
+OSErr memerr;
+
+r = OK;
+if(*p_h != NULL) {
+	size = MyGetHandleSize(*p_h);
+	if(size < 1L) {
+		if(!EmergencyExit && Beta) Alert1("Err. MyDisposeHandle. size < 1L");
+		*p_h = NULL;
+		return(ABORT);
+		}
+	DisposeHandle(*p_h);
+	if(!EmergencyExit && Beta && ((memerr = MemError()) != noErr)) {
+		TellError(29,memerr);
+		if(Beta) Alert1("Memory error in MyDisposeHandle()");
+		r = ABORT;
+		}
+	else MemoryUsed -= (unsigned long) size;
+	if(TempMemory) TempMemoryUsed -= (unsigned long) size;
+	}
+*p_h = NULL;
+return(r);
+}
+
+
+Handle IncreaseSpace(Handle h)
+{
+Size oldsize,newsize;
+int rep;
+OSErr memerr;
+
+TRY:
+if(h == NULL) {
+	if(Beta) Alert1("Err. IncreaseSpace(). h = NULL");
+	return(NULL);
+	}
+oldsize = MyGetHandleSize(h);
+newsize = 2L + ((oldsize * 3L) / 2L);
+if(CheckGrowingHandle(&h,oldsize,newsize) != OK) return(NULL);
+
+MemoryUsed += (newsize - oldsize);
+if(MemoryUsed > MaxMemoryUsed) {
+	MaxMemoryUsed = MemoryUsed;
+	}
+if(TempMemory) {
+	TempMemoryUsed += (newsize - oldsize);
+	if(TempMemoryUsed > MaxTempMemoryUsed) {
+		MaxTempMemoryUsed = TempMemoryUsed;
+		}
+	}
+SchedulerIsActive--;
+SetHandleSize(h,newsize);
+SchedulerIsActive++;
+
+if((memerr=MemError()) != noErr) {
+	rep = GetMoreSpace(newsize);
+	if(rep == OK) goto TRY;
+	else return(NULL);
+	}
+return(h);
+}
+
+
+MySetHandleSize(Handle* p_h,Size size)
+{
+Size oldsize;
+OSErr memerr;
+int rep;
+
+TRY:
+if(p_h == NULL) {
+	sprintf(Message,"Err. MySetHandleSize(). p_h == NULL");
+	if(Beta) Alert1(Message);
+	return(ABORT);
+	}
+if((*p_h) == NULL) oldsize = ZERO;
+else {
+	oldsize = MyGetHandleSize(*p_h);
+	}
+if((*p_h) != NULL && oldsize > ZERO) {
+	if(CheckGrowingHandle(p_h,oldsize,size) != OK) return(ABORT);
+	SchedulerIsActive--;
+	SetHandleSize(*p_h,size);
+	SchedulerIsActive++;
+	}
+else {
+	if(Beta && (*p_h) != NULL && !InitOn) {
+		sprintf(Message,"Err. MySetHandleSize(). oldsize = %ld",
+			(long) oldsize);
+		Alert1(Message);
+		}
+	if(((*p_h) = (Handle) GiveSpace(size)) == NULL) return(ABORT);
+	}
+
+if((memerr=MemError()) == noErr) {
+	MemoryUsed += (unsigned long)(size - oldsize);
+	if(MemoryUsed > MaxMemoryUsed) {
+		MaxMemoryUsed = MemoryUsed;
+		}
+	if(TempMemory) {
+		TempMemoryUsed += (unsigned long)(size - oldsize);
+		if(TempMemoryUsed > MaxTempMemoryUsed) {
+			MaxTempMemoryUsed = TempMemoryUsed;
+			}
+		}
+	return(OK);
+	}
+else {
+	rep = GetMoreSpace(size);
+	if(rep == OK) goto TRY;
+	else return(ABORT);
+	}
+}
+
+
+IsMemoryAvailable(long memrequest)	/* Not used here */
+{
+long total,contig;
+
+if(!IsEmergencyMemory()) return(FALSE);
+PurgeSpace(&total,&contig);
+if(memrequest > /* EMERGENCYMEMORYSIZE + */ contig) return(FALSE);
+else return(TRUE);
+}
+
+
+IsEmergencyMemory(void)
+{
+return((h_EmergencyMemory != NULL) && (*h_EmergencyMemory != NULL)
+	/* First condition: created; second case: allocated */
+	&& !LowOnMemory && !TempMemory && !InitOn);
+}
+
+
+RecoverEmergencyMemory()
+{
+if((h_EmergencyMemory != NULL) && (*h_EmergencyMemory != NULL)) return(OK);
+ShowMessage(TRUE,wMessage,"Recovered emergency memory…");
+// h_EmergencyMemory = NewHandle(EMERGENCYMEMORYSIZE);
+ReallocateHandle(h_EmergencyMemory,EMERGENCYMEMORYSIZE);
+if((h_EmergencyMemory == NULL) ||  (*h_EmergencyMemory == NULL))
+	return(ABORT);
+LowOnMemory = FALSE;
+return(OK);
+}
+
+
+CheckMemory(void)
+{
+int r;
+
+if((r=DoSystem()) != OK) return(r);
+return(OK);
+}
+
+
+ThreeOverTwo(long *p_x)
+{
+long y;
+
+y = ((*p_x) * 3L) / 2L;
+*p_x = y;
+return(OK);
+}
+
+int MyLock(int high,Handle h)
+{
+OSErr memerr;
+
+if(h == NULL) {
+	if(Beta) Alert1("Attempted to lock NIL handle");
+	return(ABORT);
+	}
+if(high) HLockHi(h);
+else HLock(h);
+if((memerr=MemError()) != noErr) {
+	TellError(30,memerr);
+	if(Beta) Alert1("Error locking handle");
+	return(ABORT);
+	}
+return(OK);
+}
+
+
+int MyUnlock(Handle h)
+{
+OSErr memerr;
+
+if(h == NULL) {
+	if(Beta) Alert1("Attempted to unlock NIL handle");
+	return(ABORT);
+	}
+HUnlock(h);
+if((memerr=MemError()) != noErr) {
+	TellError(31,memerr);
+	if(Beta) Alert1("Error unlocking handle");
+	return(ABORT);
+	}
+return(OK);
+}
+
+
+GetMoreSpace(Size size)
+{
+long contigbytes,grow;
+int rep,result;
+
+SchedulerIsActive--;
+if(IsEmergencyMemory() && (h_EmergencyMemory != GZSaveHnd())) {
+	EmptyHandle(h_EmergencyMemory);
+	LowOnMemory = TRUE;
+	contigbytes = MaxMem(&grow);
+	size += 50000L;
+	if((contigbytes+grow) < size) {
+		if(AskedTempMemory) goto USEIT;
+		sprintf(LineBuff,"Memory is low");
+		if(SelectOn) sprintf(LineBuff,"Need more memory for playing selection");
+		if(ComputeOn) sprintf(LineBuff,"Need more memory for computation");
+		if(CompileOn) sprintf(LineBuff,"Need more memory for compilation");
+		if(SetTimeOn) sprintf(LineBuff,"Need more memory for time setting");
+		if(PolyOn) sprintf(LineBuff,"Need more memory for polymetric expansion");
+		if(GraphicOn) sprintf(LineBuff,"Need more memory for graphics");
+		if(PrintOn) sprintf(LineBuff,"Need more memory to print");
+		if(SoundOn) sprintf(LineBuff,"Need more memory to play sound");
+		sprintf(Message,"%s. %s",LineBuff,"Use additional memory (otherwise task will be abandoned)");
+NOSPACE:
+		rep = Answer(Message,'Y');
+		if(rep != YES) {
+			if((rep=Answer("Do you really want to abort this job",'N')) == YES)
+				goto FORGETITALL;
+			else goto NOSPACE;
+			}
+		FlashInfo("Using additional memory…");
+		if(!ScriptExecOn && ShowGraphic)
+			Alert1("Graphics will not be displayed because of lack of memory");
+		ShowWindow(Window[wTimeAccuracy]);
+		BringToFront(Window[wTimeAccuracy]);
+		UpdateDialog(Window[wTimeAccuracy],Window[wTimeAccuracy]->visRgn);
+		if(!ScriptExecOn)
+			Alert1("You should size up the memory allocation for BP2, or increase the quantization");
+USEIT:		
+		AskedTempMemory = TempMemory = TRUE;
+		result = OK;
+		}
+	else result = OK;
+	}
+else {
+	if(!TempMemory) {
+		if(AskedTempMemory) goto USEIT;
+		sprintf(Message,"Use additional memory (otherwise task will be abandoned)");
+		goto NOSPACE;
+		}
+/* Here we could try other schemes for recovering memory */
+	Alert1("Out of memory. Task abandoned. Save your work and quit!");
+	EmergencyExit = TRUE;
+	
+FORGETITALL:
+	TempMemory = FALSE;
+	TempMemoryUsed = ZERO;
+	result = NO;
+	}
+	
+SchedulerIsActive++;
+return(result);
+}

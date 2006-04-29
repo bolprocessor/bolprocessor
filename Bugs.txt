@@ -1,0 +1,25 @@
+Here is a short list of known issues since I began working on the project:
+
+- Level 3 & 4 optimization in CWpro4 seem to be breaking some things.  Most
+noticeably, selecting "New Project" causes an infinite loop in setting the
+Midi output port?
+
+- Can't successfully run +sc.checkall because -gr.Visser3 fails on these
+lines of code in FillPhaseDiagram.c (line 902):
+		if(nseq >= Minconc) {
+			if(Beta) {
+				Alert1("Err. FillPhaseDiagram(). nseq >= Minconc");
+				goto ENDDIAGRAM;
+				}
+
+- The coloring of menu items in the File menu is off by one since the
+addition of the "Make grammar from table" item in vs. 2.9.4.
+
+- The ID string and the about box need their version numbers updated for
+2.9.5 beta.
+
+
+Anthony Kozar
+akozar@users.sourceforge.net
+
+April 28, 2006

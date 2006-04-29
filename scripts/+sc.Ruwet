@@ -1,0 +1,14 @@
+// Bol Processor version BP2.7.3
+// Script file saved as '+sc.Ruwet'. Date: Mon, Oct 20, 1997 -- 21:34
+// A good example for trying ‘Pause’, ‘Resume’, ‘Skip’, etc.
+// The first execution is likely to abort. Bring BP2 to foreground, save the script and select “Check script syntax” in the “Script” menu. This will set the directory number to the right value.
+// Then copy that value into this field and try another run.
+
+New Project
+Set directory 5844
+Load Project "-gr.Ruwet"
+Activate window "Grammar"
+Note convention = French
+Non-stop improvize ON
+Compute while play OFF
+Produce items 

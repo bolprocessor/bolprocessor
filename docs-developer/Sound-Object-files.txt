@@ -1,0 +1,81 @@
+SoundObjectfile format: -mi.filename
+
+Version string
+Date string
+[version > 4] number of prototypes
+	Object name string
+	[version > 3] Object type
+		[version <= 9] 0
+		[version > 9] /* deft 1 */ 
+		isMIDI + 2 * (isSampledSound) + 4 * (isCsoundObject)
+	[version > 3] Object_resolution (long) /* Always 1ms */
+	CHAN (int)
+	Tref / Object_resolution (int)
+	QUAN / Object_resolution (int)
+	Property string: PivBeg, PivEnd, PivBegOn, PivEndOff,
+		PivCent, PivCentOnOff, OkRescale, FixScale, OkExpand, OkCompress, OkRelocate,
+		BrkTempo, ContBeg, ContEnd, CoverBeg, CoverEnd, TruncBeg, TruncEnd,
+		PivSpec, AlphaCtrl
+	[version > 3] {
+		rescalemode			/* deft 0 = linear, >0 = table */
+		AlphaMin (float)	/* deft 0 */
+		AlphaMax (float)	/* deft 10 */
+		DelayMode			/* 0 = relative, deft -1 = abs, >0 = table */
+		MaxDelay (long)		/* deft 0 */
+		[version > 4]  forwardMode	/* 0 = relative, deft -1 = abs, >0 = table */
+		MaxForward (long)	/* deft 0 */
+		[ Not used ]
+		[ Not used ]
+		ContBegMode			/* 0 = rel, deft -1 = abs, >0 = table */
+		MaxBegGap (long)	/* deft 0 */
+		ContEndMode			/* 0 = rel, deft -1 = abs, >0 = table */
+		MaxEndGap (long)	/* deft 0 */
+		CoverBegMode			/* deft 0 = rel, -1 = abs, >0 = table */
+		MaxCoverBeg (long)	/* deft 100 */
+		CoverEndMode			/* deft 0 = rel, -1 = abs, >0 = table */
+		MaxCoverEnd (long)	/* deft 100 */
+		TruncBegMode		/* deft 0 = rel, -1 = abs, >0 = table */
+		MaxTruncBeg (long)	/* deft 100 */
+		TruncEndMode		/* deft 0 = rel, -1 = abs, >0 = table */
+		MaxTruncEnd (long)	/* deft 100 */
+		PivMode				/* RELATIVE, deft ABSOLUTE, >0 = table */
+		}
+	[PivMode = ABSOLUTE] PivPos / Object_resolution (float) : absolute pivot position
+					else PivPos (float) : relative pivot position (%)
+	AlphaCtrlNr /* Controller to which to send alpha */
+	[version > 4] {
+		AlphaCh /* Channel on which to send alpha */
+		OkTransp
+		OkArticul
+		OkVolume
+		OkPan
+		[version > 17] {
+			OkMap 
+			OkVelocity
+			}
+		}
+	[version > 9]
+		PreRoll (long)	/* deft 0 */
+		PostRoll (long)	/* deft 0 */
+		PreRollMode		/* deft 0 = rel, -1 = abs */
+		PostRollMode	/* deft 0 = rel, -1 = abs */
+		PeriodMode	/* deft -1 = irrelevant; 0 = rel, -1 = abs */
+		Period (float)
+		ForceIntegerPeriod
+		PostPoneNoteOffs
+		StrikeAgain
+		CsoundInstr /* deft -1 (no instrument) */
+		Tpict		/* Current position of red line */
+		_beginCsoundScore_
+		Csound score /* any number of lines */
+		_endCsoundScore_
+	Number of MIDI codes x
+		[x times] (long) time-stamped MIDI code
+
+TABLES:
+Number of tables	/* deft 0 */
+Table 1
+
+DATA:
+Comment on this file /* 1 line */
+[else] _endSoundObjectFile_

@@ -1,0 +1,47 @@
+WASTE, a WorldScriptª-Aware Styled Text Engine for the Macintosh
+Written by: Marco Piovanelli (<mailto:marco.piovanelli@pobox.com>)
+Copyright © 1993-1998 Marco Piovanelli
+
+Distribution & Licensing
+
+You can use the WASTE library in any way you like in freeware, shareware and
+commercial programs, subject to the following conditions:
+
+¥ I, Marco Piovanelli, retain all rights on the library and on the original
+source code.
+
+¥ You expressly acknowledge and agree that use of this software is at your
+sole risk. This software and the related documentation are provided ÒAS ISÓ
+and without warranty of any kind, express or implied, including, but not
+limited to, the implied warranties of merchantability and fitness for a
+particular purpose. Under no circumstances including negligence, shall I be
+liable for any incidental, special or consequential damages that result from
+the use or inability to use the software or related documentation, even if
+advised of the possibility of such damages.
+
+¥ You give me credit in your programÕs about box and/or in the printed
+documentation (if any), by including the following line: WASTE text engine ©
+1993-1998 Marco Piovanelli
+
+¥ You notify me that you are using my code. This allows me to keep the list
+of WASTE-using programs up-to-date.
+
+¥ I have the right to request one complimentary copy of the finished
+product, either electronically or by postal mail. For shareware and
+commercial programs, this means that I get a fully registered copy of the
+complete package. This item does not apply to in-house applications.
+
+The WASTE 1.x package can be freely distributed in electronic form on
+computer networks. It cannot, however, be distributed by other means (such
+as in printed form, on magnetic media or on CD-ROM) without permission from
+the author. Special permission is granted to the following companies for
+including the WASTE 1.x package in their respective CD-based products:
+
+Apple Computer, Inc. Developer Series
+Celestin Company Apprentice
+Metrowerks CodeWarrior
+Pacific HiTech, Inc. Info-Mac
+
+The latest news about WASTE is available from the WASTE web page:
+
+      <http://www.merzwaren.com/waste/index.html>

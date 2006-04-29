@@ -1,0 +1,33 @@
+// Bol Processor version BP2.6.1
+// Grammar file saved as '-gr.MyMelody'. Date: Mar 25 Juin 1996 -- 21:56
+-ho.Frenchnotes
+// We need "-ho.Frenchnotes" in order to define homomorphism 'OCT'
+-se.MyMelody
+
+RND
+GRAM#1[1] <1-1> S --> /1 {MyMelody1, Accomp1} [Play MyMelody1 and Accomp1 in the same time.]
+
+GRAM#1[2] <1-1> S --> {(= MyMelody1), Accomp1} {OCT (: MyMelody1), Accomp1}
+[Repeat MyMelody1 transposed one octave higher.]
+
+GRAM#1[3] <1-1> S --> /4 {MyMelody2, Accomp2} /8 {MyMelody2, Accomp2}
+[Doubling tempo on second occurrence.]
+
+GRAM#1[4] Accomp1 --> DoM Lam FaM /2 SolM Sol7
+GRAM#1[5] Accomp2 --> DoM Lam FaM {1, SolM Sol7}
+[Same as above but may be adjusted to tempo.]
+
+GRAM#1[6] MyMelody1 --> /4 mi5 _ _ re5 do5 - /8 re5 mi5 re5 mi5 /4 fa5 _ _  {mi5 re5, do5 si4} sol4 fa4 re4
+GRAM#1[7] MyMelody2 --> mi5 _ _ re5 do5 - {2, re5 mi5 re5 mi5} fa5 _ _  {mi5 re5, do5 si4} sol4 fa4 re4  
+--------------------
+RND
+GRAM#2[1] <20>	DoM --> {do3, mi3, sol3}
+GRAM#2[2] <70>	DoM --> {1, do2 - sol2 - do2 - mi3 - }
+GRAM#2[3] <100> Lam --> {la2, do3, mi3}
+GRAM#2[4] <100> Lam --> {1, la2 - do3 - mi3 - la3 _ , mi2 la2 _ do3}
+GRAM#2[5] FaM --> {la2, do3, fa3}
+GRAM#2[6] SolM --> {sol2, si2, re3}
+GRAM#2[7] <20>	Sol7 --> {sol2, si2, fa3}
+GRAM#2[8] <100> Sol7 --> {sol2, re3, sol3 fa3}
+GRAM#2[9] <50>	Sol7 --> {1, sol2 si2 re3 sol3 fa3 re3 si2 sol2}
+

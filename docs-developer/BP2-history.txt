@@ -1,0 +1,1976 @@
+
+--------------------------------------------------------------------------
+--------------------------- Modifications --------------------------------
+--------------------------------------------------------------------------
+
+19/5/92
+'RND' is also a rule instruction.  In 'ORD' grammars all rules are 'LEFT'
+unless specified 'RND'.
+When displaying tokenized grammar, all variables are displayed between
+bars, i.e. Splitvar is forced to TRUE.
+Corrected a bug in “Save”: now if you cancel the first “save” you are
+prompted again for a name.
+You can load any file in the “Trace” window.
+Corrected memory overflow in PolyMake().
+
+8/6/92
+Created 'SUB1'
+Added 'Fast compute'
+
+13/6/92
+***** Version 2.4
+Setting handles to NULL once they have been disposed of.
+Using ClearHandle() instead of DisposHandle().
+Created <K1=...> (up to 32 coefficients)
+Created <<W1>> (up to 128 synchro flags)
+Button 'Interactive (use input)'
+Button 'Compute while playing'
+
+20/6/92
+Created ‘-se.’ files
+Possible to save items (as time-stamped MIDI) once they are played
+
+1/7/92
+Changed format of -in. and -mi. files (still compatible)
+
+23/9/92
+Entering time quantization, but not used yet.
+Using ratio Pclock / Qclock to measure tempo precisely.
+No more limitation in number of flags.
+Corrected bug in flag calculation.
+(These are edited in the TimeBase dialog)
+Using ‘%’ in GCD calculation (on long integers).
+Replaced ‘atof’ with ‘Myatof’ since atof("0.04") returns 0.4 !!!
+Tried to ompensate bug in WriteFile() and SetEOF():
+	GetFPos(refnum,&count);
+	WriteFile(refnum,(**TEH[wAlphabet]).hText,
+		(long)(**TEH[wAlphabet]).teLength);
+	SetEOF(refnum,count+(long)(**TEH[wAlphabet]).teLength);
+	
+12/10/92
+Replaced EmptyHandle() with DisposHandle() because the former does not
+release memory space.
+Corrected many bugs: using &x when x is a formal parameter, asserting
+*x whan x is undefined...
+Corrected bugs in BindSlaves(): *p_imax is now calculated with LengthOf(),
+and we don't look beyond buffer[imax-2].
+Note that buffer[imax] = buffer[imax+1] = 0
+Changed format of -in. files.  Still compatible in BP2, but old files
+can't be read by SoundObjectEditor.
+Now we use MinPclock, MaxPclock, MinQclock, MaxQclock to adjust the
+time base in interactive mode.
+
+30/12/92
+Created Find/Replace.
+Desactivated MIDI driver to check operation under System 7.  But still problems
+with memory when running -gr.Mozart.
+Solved file EOF problem: use WriteToFile("\0",refnum)...
+
+20/1/93
+Now releasing dialog space on exit: see CloseDialog().
+Setting default button activated by Return in dialogs, if item #1 is a button.
+Finished programming Find/Replace.
+Solved memory problem under System 7 by setting partition to 1000K.
+I tried to insert a submenu for Preferences.  It's there in the resource
+file, but I can't use it yet.
+
+4/2/93
+Now compiling program under Think C 5.0.2, using code optimisation,
+infer prototypes, etc.
+Also recompiled Joe Chung's MIDI driver.
+This forced many changes.  For instance, type ioParam1 disappeared and ws
+replaced by IOParam found in files.h.  Also IoErr became IOErr.
+Changed signification of Nplay.  If Nplay > 1 all items will be played Nplay
+times until you quit GenerateSentences() or send a Stop Repeating MIDI
+message.
+
+6/2/93
+Now RMaker generates all resources.  It includes the driver resource created
+by MIDIdriver.proj and an icon file -BP2.icons.rsrc that may be generated
+either by ResEdit or by compiling --BP2.icons.R.  I have improved the look
+of icons.
+Fixed memory overflow scheme.  I wrote a special document on the topic, named
+"Memory schemes.c", stored in folder Think C 5.0.
+
+8/2/93
+Worked on ComputeWhilePlay.  When it is on, BP2 resumes computing as soon as MIDI
+codes have been dumped to the interface.  (This may cause memory overflow.)  When it is
+off, BP2 resumes computing only T before the interface buffer is empty.  T is
+the maximum computation time estimated from the preceding items.
+Now all resources are in "-BP2.proj.R" except the driver and icons that are inserted
+by RMaker.
+
+9/2/93
+Introduced GraphicScale (see above).  Found bugs that would blow BP2 in
+ReleaseGrammarSpace() and ReleaseObjectSpace.  Now Port (Modem or Printer) is stored
+in the "-se." file and can be changed from the menu, but Printer port
+seems not to work.
+Inserted Systemtask() in loops.
+Now, if windows are resized or relocated, their new coordinates are stored in the
+"-se." file.  These files remain compatible with preceding ones: a former dummy
+value "0" is used for NewEnvironment.  If it is "1" then coordinates follow.
+Each window has a ChangedCoordinates[w] parmeter that is TRUE if it has been resized
+or relocated.  Only those windows with ChangedCoordinates[w] true have their new
+coordinates stored.
+
+16/2/93
+Fixed several bugs.  Now ResumeStopPtr remains allocated so that the heap is
+not fragmented.  p_Buff[i] are disposed of in ClearGrammar().  I checked 
+that when creating tables of handles these are set to NULL so that
+MyDisposeHandle() will know that they are not allocated.
+
+26/2/93
+Corrected LIN production.  Now looking for candidate(s) in real leftmost
+derivation.  For this we use “leftoffset” in each rule, which represents the
+length of the longest prefix that is not changed in the derivation.
+
+7/3/93
+Implemented quantization.  Modified TimeSet() so that the number of columns
+in the phase diagram is a long integer.
+
+13/3/93
+Fixed bugs in Analgram(): (1) When infinite weight position was not determined;
+(2) Infinite weights were ignored in LIN grammars.
+
+HERE IS V 2.4 March 1993 RELEASE DISTRIBUTED ON E-MAIL.
+
+25/8/93
+Introduced fast random procedure (see file ‘random problem’) and determined
+that maxtry = N / 2 is a good value making it 25% shorter.
+
+29/8/93
+Introduced analysis.  Corrected (already known and compensated) bug in
+encoding homomorphism on terminal strings.  Now the reference bracket is
+transformed by homomorphisms and then compared with the potential slave.
+Try ‘-gr.chekhomo2’.
+
+4/9/93
+Implemented keyboard tokenization and ‘-kb.’ files.
+
+12/9/93
+Implemented learn weights.
+
+26/9/93
+Procedure names are no longer case-sensitive.
+Implemented _goto, _failed, _repeat.
+Argument of _repeat may also be controlled by controler: _repeat(Kx=y)
+Lists variables, terminals, reserved words.
+Inserts "RND" when subgrammar type not specified.
+Implemented _stop,_print,_printOn,_printOff,_stepOn,_stepOff,_traceOn,_traceOff
+These may also be in left argument (print "before" or "after" applying rule)
+Renumbers grammars and rules at compilation time.  Arguments of _goto and _failed
+are updated accordingly.
+Procedures _stop,_print,_printOn,_printOff,_stepOn,_stepOff,_traceOn,_traceOff
+	and _destru may also be subgrammar procedures.  ‘_destru’ replaces DESTRU.
+Problem: if first rule starts with procedure then a compilation error may occur
+	because the compiler thinks it is a subgrammar procedure.  Solution: insert a
+	remark or number between square brackets before rume procedure.
+
+14/11/93
+Introduced source code for dealing with AIFF/Sound Designer files borrowed from Csound.
+Seriously thinking about a Csound interface.
+
+18/11/93
+Put "changed = FALSE" after TRY1 in Compute.c
+
+HERE IS V 2.4.1 November 1993 RELEASE DISTRIBUTED ON E-MAIL.
+
+4/12/93
+Corrected missing resource for ObjectPrototypes window.
+Corrected bug in PlaySelect().  If new terminals are found in the selection,
+p_Bol and (*p_Homo)[] are resized.
+There is still a bug in PlaySelect: in smooth time if item contains on out-time
+object then system may blow:
+	Try: b b <<f>>{5 ,a c b,f - f}a <<chik>> b
+	and, worse, b b <<f>>{5 ,a c b,f - f}a <<chik>> b <<sync>>
+
+HERE IS V 2.4.2 December 1993 RELEASE DISTRIBUTED ON E-MAIL.
+
+20/6/94
+Started adding script facility.  Created "-sc" files.  Corrected bundles.
+Created FilePrefix[iObjects] to replace prefixmi.
+Now, if not DisplayItems and MIDImode and not Improvize, item is only played.
+Introduced InitToken[] = "INIT:".  Initialisation item is stored in token format
+	in (*p_Initbuff)[].  Process is quite complex because it must be erased after
+	the item (or the work string) has been played once.  Problem appears with
+	‘SUB’ subgrammars when playing all substitutions: there are two buffers
+	containing the workstring, so the init item must be removed from both.
+Fixed bug in SelectionToBuffer() that would force window ResumeStop to appear
+	when selection is void.
+Now you can have ‘nil’ anywhere in an argument.
+
+26/6/94
+Introduced text colors and color picker.  Colors are stored in the settings file.
+Corrected bugs in interface (update events, etc.) and speeded up text display.
+
+30/6/94
+Script execution.
+Fixed bugs in PolyExpand() and TimeSet() that would mess an item containing only
+	a sync tag.  In TimeSet I added:
+	while(Class((*p_imaxseq)[nseq]) == 0) ((*p_imaxseq)[nseq])++;
+Changed the meaning of Match(case,u,v,length):
+	Now, v must be a prefix of u.  length is the length of v.
+Beware that Match(case,&p,&q,i) changes p and q.  Many such bugs have been fixed.
+Corrected a bug in DoEvent() so that tokens are trapped correctly.
+Graphics in color.
+
+6/8/94
+Now can use Printer as the MIDI port.  Bug was that ‘32’ should be added to
+event type in that case.  (See Joe Chung's doc.)
+Revised script syntax to enable multiple arguments.
+
+9/8/94
+Revised MIDI input/output.  Now, ListenMIDI receives raw events, which allows
+it to pass SysEx events and other events to the output, depnding on the
+settings of an output filter.
+Possibility of loading raw MIDI data, yet to be utilised for sound-objects.
+
+13/8/93
+Fixed bug: when compiling alphabet, N_err was not properly reset.
+Result of preceding compilation was kept...
+Installed RESET MIDI button.  Now killing the driver before
+'Play selection' or 'Produce items'.
+Fixed a bug in MIDI output that would provoke a program change: 
+for empty event, MIDI code is -1 and is therefore not
+sent.
+
+22/8/93
+Added SystemTask() in ListenMidi().
+Dates are now displayed with ‘Get info’.
+You can play an item without displaying it.  Possibility of repeating and displaying.
+Fixed a bug in PolyExpand(): tempo numbers would grow very large (although correct).
+	See: *p_s = (*p_r)[a0] * ss;
+		gg = GCD(*p_s,oldscale);
+		*p_s = *p_s / gg;
+	But this remains to be checked although it seems to work...
+Fixed a bug in selection of StartString: if no selection it will take "S"
+Checking for undefined and unreachable variables.
+
+29/8/94
+Now you can have rules of any length, MAXLIN is no longer used.
+Check variables: display list of unreachable or undetermined
+Controlling velocity and channels _vel() and _chan()
+Fixed part of problems occurring with empty fields in polymetric structures.
+Made better evaluation of Maxconc so that lot of memory is saved.
+Also, handles sized to Maxevent and Maxseq are now resized to its correct value.
+In PolyExpand(), a structure A containing one single field is still kept as
+	{A}.  Previously, {} were removed.  This avoids wrong channel and volume
+	assignments.  ==> {} May be used to separate units sharing the same channel
+	or volume.
+Showing remaining duration while playing
+In printArg(), copying to array B: put ‘/’ and first tempo marker when nocode,
+	first byte is now 0, not 1.
+Script: Play <<a>> b c
+Fixed problem in MakeSound(): now when the MIDI buffer contains maxbytes
+	we wait until it contains only half of that.
+Fixed bug in Timeset(): now using long instead of unsigned for (*p_imaxseq)[] because
+	it may be negative when using ‘&’ concatenation.  Probably created
+	problem on previous version.
+	Later we should go back to unsigned and use a separate table for that.
+Fixed another bug in Calculate_alpha for smooth time.  Now streaks are
+	properly defined (up to the end of the table, beyond the end of current sequence.)
+Accepts remarks in either [] or /* */ or // format.
+Changed Print() using a very large locked buffer instead of line[MAXLIN].
+Set MAXPARAMCTRL to 128.
+
+30/8/94
+I am now using BlockMove() for replacing strings and Munger() to measure buffer
+	length.  Munger() is very smart: it normally searches strings and should stop
+	when it finds '\0'.  Here we searching FFFF in an integer array containing
+	zeros and it does not stop on them.
+	Modifications concern LengthOf(), CopyBuf() and Insert().
+For Munger() I had to change tokens.  End of buffer is -1 -1 (OxFFFF).
+Also using SetHandleSize() in IncreaseSpace().
+Using 68881 coprocessor
+Also generating 68020 code.  No longer compatible with 68000.
+
+1/9/94
+Now each event has a handle that may point to an ‘objectspecs’ record.  For the
+time being only sync tag lists and scriptline lists are stored in those records.
+Implemented _velcont, _velstep and _script()
+
+5/9/94
+I reset a feature that had been inhibited in MakeSound() : if a key is on,
+consecutive NoteOns will be ignored, but they will be counted.   NoteOffs will
+also be ignored and counted, except the one balancing the first NoteOn.
+Implemented _pitch(), _mod(), _press() both stepwise and continuous.
+
+7/9/94
+Revised DisplayMode()
+Checked PolyExpand in weird cases.  Se: -da.checkPoly
+Put long integers as indexes in Compute() etc. so that buffers may grow
+larger than 32767 bytes.
+Suppressed “BP2 / TEXT” when replacing an existing file.
+
+15/9/94
+Fixed a bug with MaxVar.  It is reset to 0 when opening project.
+Fixed bugs in TimeSet():
+	When plotting out-time objects, never use nseq = 0 because this should be
+	reserved to time-patterns
+	Condition for finding new nseq was incorrect, resulting in bus error.
+If ‘&’ is not found for concatenation then no error message: only ignored.
+
+17/9/94
+Fixed a bug in calculation of maxseq
+	*p_imax = Class(imax + Kpress);
+	maxseq = *p_imax + 1;
+End of table should be verified...
+cmd-I (Info) shows date on editable windows.
+
+19/9/94
+Now, object prototype 1 (silence ‘-’) had Dur = Tref = 1000ms.
+	This allows taking silences into acount properly in Calculate_Alpha().
+
+20/10/94
+Fixed bugs in keyboard token encoding.
+Now, Data is saved as TXT.
+
+7/1/95
+Implemented _legato and _staccato
+Implemented _volume
+Implemented portamento up and down.
+Fixed bug in ParID and Vrefnum of settings file: now, BP2 remembers the
+location of '-se.startup' and will not search it when doing a new project.
+Now, sending NoteOff's before NoteOn if note is already on.
+Implemented Balance
+
+13/1/95
+Implemented "Enter and Find"
+Fixed bugs making it difficult to start by clicking a file:
+	you would be asked to locate -se.startup.  Now, -se.startup is not loaded in
+	a file has been clicked.
+Fixed bug allowing ctrl-option-A to be interpreted both on US and French keyboards
+Implemented Indian notes
+Now parameter controllers may have separate channels
+
+15/1/95
+Now using _FASCODE
+Can select entire -da window and play: lines starting with // aren't played, -ho
+	and -se are ignored.
+Interactive settings can be changed by script
+Revised MakeSound.c: now sending NoteOn's in truncated parts
+	Also fixed problem of NoteOff when key is already on.
+
+16/1/95
+Fixed bug in MakeSound.c.  Now objects truncated at the end are played properly.
+Installed on-line help.
+Implemented Help.
+Created Scrap and Info windows.
+Now default velocity is 64.
+This is Jae Roh's version.
+
+19/1/95
+Now, tabs are treated as spaces.
+Trailing tabs or spaces are removed from the beginning of lines.
+Lines starting with "//" are ignored.
+In parse mode, lines read in windows are not limited to MAXLIN.
+	(All this is valid for grammars, alphabet and scripts.)
+Fixed interface problem: refreshing windows, notably graphic.
+Now, ‘-in’ can appear only in grammar or data window/file, not in alphabet.
+Tried to implement bulk MIDI transfer, but it doesn't work with D-50.  (I used
+SoundObjectEditor for this purpose, with an input/output buffer of 120000 bytes.)
+I tried to increase the size of the MIDI buffer:
+	Changed MIDI_FIFO_MAX 4096-1 instead of 2048-1 (needed for bulk transfer)
+	Changed TASK_TABLE_SIZE 2048*2 instead of 1024*2
+	Changed WAIT_CACHE_SIZE 2048 instead of 1024
+but it is still insufficient. Part of the data is lost while loading because BP2 is
+too slow on Mac II-ci and the buffer gets saturated. It may work on faster machines.
+May be try an assembly language version?
+The MIDI driver does not work beyond MIDI_FIFO_MAX = 8192-1.
+When sending MIDI data it is probably possible to speed down the transfer, waiting
+on a SystemExclusive event.  BP2 transfer produces exactly 36048 MIDI events.
+
+23/1/95
+Fixed a bug in graphics: sometimes a sound-object would be placed on top of picture.
+Project flags are now 1088. If application is aware of Apple Events then CountAppFiles()
+	doesn't work properly.
+	If it is multufinder aware then graphic windows are not refreshed properly.
+Fixed problem of finding '-se.startup' by setting: RefNumStartUp = -SFSaveDisk;
+Also replaced strcmp() with Mystrcmp(), and strcpy with Mystrcpy where needed.
+Now, version and date are also saved in -ho files.
+
+25/1/95
+Implemented _pitchrange() and _pitchrate(), _modrate(), _pressrate()
+Implemented predefined 'simple notes': no need to use -ho.Frenchnotes, -mi.Frenchnotes,
+etc. 
+Fixed a bug in ReleaseBufferSpace() traced by MemErr(): a handle was disposed of
+twice.
+At last I think I have solved all window update problems!
+Implemented _transpose()
+Implemented _volume()
+Does NOT run on 68000.
+
+3/2/95
+Don't reset volume at the end of an item.
+Completed script implementation: selection in text, all buttons...
+I no longer use Munger() in LengthOf(): problem because Endstr may be found too early
+	if some parameter goes for instance 16383
+Added "Reset controllers"
+Fixed a bug in ShowSelect(): now the beginning of selection is moved to the window middle
+also if the end of the selection is below the visible part.
+Implemented cmd-up/down arrow.
+Implemented Glossary.
+
+17/2/95
+Revised Release...Space(), notably variables because glossary shouldn't be recompiled
+	each time grammar is compiled, and vice-versa.
+Checked LoadedIn,LoadedGl,CompiledIn,CompiledGl
+Now when compiling alphabet, if there is no arrow and no separation line,
+	homomorphisms are not created.
+Beware that isspace('\r') is TRUE.
+Now variables may be of any length.
+Fixed a bug in CreateFile(). Now, SetEOF(0) works properly if file is duplicate.
+Got rid of global buffers.
+
+25/2/95
+Changed the handling of volume.
+STEPWISE or FIXED uses (*p_Volume) while CONTINOUS uses VolumeStart() etc.
+Every object has (*p_Volume) info, and therefore will send at least one volume message.
+Fixed a bug of resizing handle in PolyExpand()
+Black & white display
+Now cmd-O is open file, cmd-L load project
+Checked memory usage: all memory used is released.
+Implemented _pan()
+
+13/3/95
+Implementing object prototype editor.
+-mi.files saved by version >= 2.5 will be of type 3.
+They will contain the number of prototypes.
+When they are loaded, all prototypes will create the corresponding terminal
+	symbols, if necessary, so that the entire ile may be edited, not only
+	prototypes appearing in the alphabet.
+
+17/3/95
+Now you can use '¬'  in grammars and scripts
+"--" remarks
+p_CHAN,p_AlphaCtrl,p_AlphaCtrlNr,p_AlphaCtrlChan have become char**
+I found that this compiler doesn't handle 'switch' properly:
+	If I replace 'default' with 'deft' or 'deflt' it does not notice it, but
+	then the default case is never taken. Consequence: the "save" command
+	would often not save...
+
+28/3/95
+Fixed 2 bugs in TimeSet():
+	Plot()ing prolongations even after silences
+	Removing silences (k = 1 or k > 1) in prolongation of a silence
+Since Timing Clock events (248) are used internally to append silences before or after
+	a sound-object, they are not transmitted or sent to the MIDI output.
+
+5/4/95
+Implemented Undo().  Incomplete in dialog windows.
+When recording a prototype AllNotesOff messages are deleted.
+Beware of arguments in DriverControl:
+	tr must be long when doing:
+		tr = Time_res;
+		DriverControl(TICKSIZE_CODE,(MIDI_Parameters*)&tr);
+
+14/4/95
+Fixed bug in MIDI driver code! Size of parms is 20, not 22, hence loop is 0 < i < 10
+	and not 0 < i < 11...
+Simplified PolyExpand(): fields containing only silences are not copied.
+
+18/4/95
+Implemented running status in sound output and sorted out problems with MIDI
+	messages that contain onlt two bytes.  (They are sent as raw data.)
+Implemented the checkAll script.
+This is the beta version for Elad Ophir, Alcedo Coenen and Stephen Slawek
+
+26/4/95
+Fixed bugs in CreateFile(): don't use strcpy with pascal strings because no end
+	delimiter.
+Now, when loading old -mi files, missing status is always reinserted.
+This is the vesrion for Jose Martinez.
+
+27/4/95
+Fixed a bug in TimeSet(). Now silences are plotted:
+	if(p == 0 || p == 1) {	/* empty object or silence */
+		Plot(FALSE,p_Seq,nseq,Class((*p_im)[nseq]),p);
+		(*p_imaxseq)[nseq] = (*p_im)[nseq];
+		}
+	
+	and prolongated properly:
+	
+	if(Prod/tempo > 1) {
+		for(j=Kpress; j < Prod/tempo; j += Kpress) {
+			((*p_im)[nseq]) += Kpress;
+			Plot(FALSE,p_Seq,nseq,Class((*p_im)[nseq]),0);
+			}
+		(*p_im)[nseq] += Prod/tempo - 1 - (j - Kpress);
+		(*p_imaxseq)[nseq] = (*p_im)[nseq];
+		}
+	
+	This prevents the silence from being erased by the prolongation when Kpress > 1.
+
+29/4/95
+Fixed problems with timing of MIDI events:
+	pp_TIME [][i] contains the delay between event i and the previous event.
+	If i = 0 and pp_TIME [][i] > 0 then a silence must be inserted: this has been
+		fixed now.
+Now, terminal symbols may just be separated with spaces in the alphabet window.
+Fixed bug in TimeSet(): if tempo has been broken then alpha's are not
+	recalculated, thanks to flag (*p_alphadone)[nseq].
+Fixed bug in recognizing wild cards '?'
+Fixed parameters in FlushVol().
+Improved directory identification in scripts.
+Fixed bug of disposing handle in ReadLine().
+ReleaseAlphabetSpace() also releases '-' and '_'
+Fixed bugs in releasing memory and checked byte balance on compilation.
+Checked script debugging. Remarks are not deleted when checking.
+Using left-right arrows to move along paragraphs
+Speeded up find-replace and solved problem with election on exit
+Changed character set for terminals so that numbers may be notated #1, #2...
+
+8/5/95
+Fixed bug in TimeSet(): now simple notes (T25) and time patterns (T9) accept '&'.
+Also fixed a bug on finding the index for making the link.
+Implemented AZERTY/QWERTY option.
+Introduce shutdown script.
+Fixed problem with vscroll after ClearWindow().
+Automatic entering of values of velocity, pitchbend, etc.
+BP2 checks that the sizes of windows does not exceed 31900 chars.  It displays sizes
+when loading, saving, and information (cmd-i)
+Fixed a bug in compile script.  Now "Define" instructions are not skipped.
+
+16/5/95
+Implemented control of MIDI filter
+Fixed step production.
+Fixed problem with "repeat" with equal-weight grammars in ComputeInGram().
+cmd-I shows numbers of chars and of paragraphs.
+Now aliases are resolved.
+BP2 checks system version and processor.
+// This is the version for Mario
+
+21/5/95
+Now, _pitchrange(0) is used to take actual MIDI values in _pitchbend(x)
+Now, in Datamode, PrintArg() puts tabs and '¬' to indicate beats
+
+31/5/95
+Fixed problems with template matching and analysis.
+	Items analysed may not contain all the initial section/speed markers.  These
+	are not copied to templates.  Only the initial speed marker is inserted, same
+	when producing items.
+	If analysis is successful, workstring may contain 'S' preceded with the speed
+	marker.
+	Still does not work when some rules contain section markers because these are
+	not found in the work string.  The solution will be to ignore them when searching
+	for the right argument of a rule.
+
+3/6/95
+Fixed problems in ComputeInGram: don't jump to RETRY2 if repeating, LIN, _goto
+	or PlanProduce.
+When a terminal is between single quotes, characters are not checked.
+Verified -gr.gramgene1, -gr.gramgene2
+Added filtering so that smart quotes are accepted
+
+9/6/95
+Fixed pb with empty sequence in Calculate_alpha()
+Fixed pb in ComputeInGram: recalculate length before Derive(_)
+Fixed pb with _repeat(K1)
+Fixed ?1 with simple notes
+Implemented flag assignment and incrementation
+
+12/6/95
+Now, FlushDriver sends AllNoteOffs
+Fixed pb with Class(i) when i = 0
+Fixed pb with Produce all items when flags or dynamic weights
+Now, simple note may be mentioned in alphabet to take part in homomorphisms
+Checked lock/unlock and fixed a few bugs
+Now, wild cards ? and ?n may also be instantiated as (,), or any performance control.
+Fixed a bug in FindCandidateRules(): with LIN grammars some candidate rules were
+	left out.
+
+24/6/95
+Now, Match(casesensitive,&s,pp_t,l) no longer modifies s.
+Old C style /* remarks */ on several lines are accepted
+Modified Fix() and Calculate_alpha() in TimeSetFunctions.c to speed it up.
+In MakeSound(), nbytes is reset to zero after executing script.
+Fixed bugs in MakeSound:
+	while(t1 <= t2  && t1 <= t3  && i < im)  [test on i]
+	no volume or pan message sent on out-time objects.
+Fixed bug in text size. Now TEsetStyle is invoked in ActivateWindow() to modify text size
+Now, BP2 maintains a global count of events queueing in the MIDI driver buffer, so that
+	computation may be continuous and output to the driver is only controlled by
+	CheckMIDIbytes()
+
+30/6/95
+Fixed bug in ComputeInGram(): not sizing p_candidate to Maxrul because it is
+	undetermined when using GlossGram.
+To open any file use the 'option' key
+
+1/7/95
+If ResetMIDI() is called immediately after tplaying an item, it may bomb because some
+	codes are still in the buffer.  This happened notably after resetting buttons
+	(_switchoff).  Therefore I have put a delay before closing the driver.  It would
+	be better to check that the queue is empty, or to clear it properly.
+
+2/7/95
+Now, lines of any length can be read by ReadOne().
+Fixed interface problem for AnswerWith().
+
+THIS BP2.5 VERSION SENT TO ftp.ircam.fr in July 1995
+
+9/8/95
+Trying to recompile with ThinkC 7.0.4
+	ProcPtr -> IntProcPtr (because expecting long otherwise)
+	Using Universal Mac headers (<MacHeaders>)
+Does compile and link, but does not run properly.
+
+20/8/95
+Compiled as BP2.5.1
+Seems to run OK.
+Fixed bug in Check script syntax: if checked script is not in same folders as
+	other scripts called, it will nevertheless be found after checking.
+
+8/11/95
+Seemed to refuse terminals starting with uppercase 'S'. Fixed it in Encode().
+Encode() very slow.  Made shortcuts with '-' and '_', introduced precomputed
+	lengths of NoteName[], but it is still slow, see for instance -da.Rajeev.
+	Instead of scanning tables, a DFA should be used.
+Fixed problem "driver already open" after printing.
+Revised Eucl(): a = bq + r
+	r = a % b;
+	q = (a+r) / b;
+Fixed MAXVERSION in GetVersion()
+Modified the syntax of script command “IN Min...” in order to reduce
+	the width of the ‘Script’ menu.
+Using '-' in templates instead of '.'
+	'.' and '!' have no rhythmic value and don't appear in templates.
+	'.' is a beat separator
+	'!' will indicate accentuation
+Fixed bug in templates: now, only terminals and plain notes may replace '_'
+(See document "BP2.5.1 changes")
+UpdateAutomata(void) is implemented:
+	prefix and suffix trees of alphabet would be constructed but SmartCursor has been
+	desactivated because tree construction bombs the second time it is invoked.
+
+11/11/95
+Producing '.' as beat markers instead of tabs
+DisplayCompute active even if producing all items
+LIN grammars now work fine when producing all items
+Implemented "Space selection"
+Find/replace takes special characters
+BP2 recognizes and automatically convert DOS text files
+Fixed a bug with directory and refnum when BP2 is launched from files
+
+15/11/95
+Windows are now cleared before loading at script execution
+When "clear window" is selected, clearing occurs only after that the file has been
+	opened.
+
+We don't get color menus any more! (Even on the old BP2.5.  May be a system problem)
+
+------ This is BP2.5.1 release ----- 17 November 1995 ---------------------------
+
+17/11/95
+If -se.startup is missing, BP2 doesn't quit.  Fixed.
+When picked, grammar procedure is printed entirely in the grammar window. Fixed.
+
+10/12/95
+Problem with SelectControlArgument() in some examples: although pitch range is
+	specified it was not taken into account. Fixed.
+
+16/12/95
+Modified InterpretPeriods() so that abc.de.fg is interpreted as {1,abc}{1,de}{1,fg},
+	not as /3 abc /2 defg.
+
+1/1/96
+Modified InterpretPeriods().  The last beat is interpreted like other beats:
+	abc.de is interpreted as {1,abc}{1,de}, not {1,abc}{1,de-}
+
+7/2/96
+Did not paste text copied from other application. Fixed by suppressing ZeroScrap(),
+TEToScrap() and TEFromScrap().
+
+1/3/96
+Completed "period" notation of sequences.  These sequences are interpreted by an
+	adapted version of PolyExpand().  Beware that now the speed of objects in the
+	first beat is the default speed ('/1' unless otherwise stated).
+Suppressed MakeComputeSpace() before glossary derivation of PlayBuffer1()
+
+3/3/96
+Fixed an old problem in PrintArgSub(). When matching templates in master parentheses
+	preceded by homomorphism markers, now the original terminal symbols are substituted
+	to their images.  For instance, 'ta' will be replaced with 'dha'.
+	See for instance '-gr.dhadhatite'.  There are still problems due to ambiguity. This
+	grammar shows how they can be solved with contextual rules, notably the one(s)
+	used only in analysis.
+Tansen designed the new welcome window.
+
+4/3/96
+Now, if a non-resizable window is dragged, its new coordinates are stored in the
+	settings file.
+Fixed two bug in PolyExpand(), relating to undetermined rests: now, Substract() may
+	yield a negative result.  In addition, the condition for not being able to fix
+	an undetermined rest is that the reference field or beat (a0) has fixed speed,
+	not the one containing the rest (a).
+
+12/3/96
+Designed tick counting in time-base dialog
+Using DriverKill() to avoid bombing on MIDI output interruption
+
+14/3/96
+BP2 now runs in background.
+If "play ticks" is checked, entering notes from the MIDI keyboard comprises automatic
+notation of durations (in the "period notation").
+
+20/3/96
+Entering notes when ticks are played produces a period notation which takes durations
+	into account.
+Fixed a bomb occuring when improvisation is cancelled.  First, while doing graphics
+	the initial port must be restored: SetPort(saveport).
+
+27/3/96
+BP2 deals with in-coming AppleEvents.  Designed a particular event 'play' that plays the
+	content of scrap.  Linked it with FileMaker Pro.
+Another Apple Event 'scri' executes the script contained in the scrap.
+Implemented input transposition
+
+28/4/96
+Now, in script mode, BP2 does not reload settings file if its name is unchanged.
+Another Apple Event 'sett' loads the settings file whose name is contained in the scrap.
+
+3/5/96
+if(CompileOn) return(OK) in CompileAlphabet() and CompileGrammar().
+Added lots of AEs
+Added Pause and Stop script commands
+DriverWrite(&e,count) is used also for raw events in MakeSound()
+
+----------  This is version 2.6 released on 8/5/96 -------------
+
+11/5/96
+In the time base window, each cycle has its own ratio to the main time base
+Implemented the same in InsertTickInItem()
+
+15/5/96
+GetField() simplifies p/q
+Modified Substract(), Equal() and Simplify() to accept zero values
+Now, non-integer values can be entered in time base
+Developed time base cycles with independent speeds and tick durations
+Prints time patterns when displaying tokenized grammar
+(*p_Ppatt)[],(*p_Qpatt)[],(*p_Tref)[] are long
+Replaced "…" with "_rest". Both are equivalent
+Revised LCM() and GCD() using unsigned longs
+
+18/5/96
+>>> Important change in FSRead() and TEStylInsert().
+	Now the Ptr argument is a pointer to text, not a handle, throughout the program.
+	Strangely, both seemed to be accepted, but this was done in compliance with
+	prototypes found in File.h and TextEdit.h, which are now loaded.
+	Change will affect loading files to windows, Printarg() and reading files from disk.
+Fixed the interruption of 'check script syntax'
+Fixed problem when reopening a file that is already open in writing, in CheckFileName()
+	and MyOpen().
+	If the file is already open in writing (opWrErr) we do
+	SetFPos(fRefNum,fsFromStart,ZERO);
+There is a warning if trying to read a file larger than 32000 chars.
+Implemented "Tell session time"
+BP2 was bombin on "PlaySElection()" if not editable window. Fixed.
+
+20/5/96
+Changed the handling of NoteOff to avoid repeating them
+	Old:
+		if(ByteToInt(--((*p_keyon[localchan])[c1])) < 0) (*p_keyon[localchan])[c1] = 0;
+		if((*p_keyon[localchan])[c1] == 0) {
+	New:
+		if(ByteToInt((*p_keyon[localchan])[c1]) > 0) {
+			((*p_keyon[localchan])[c1])--;
+			if((*p_keyon[localchan])[c1] == 0) {
+	
+>>> Fixed problem with (*p_sequence)[] in PrintArgSub() so that period expressions are
+	interpreted properly.  (Try: {{1/2,E5}.F5.A5.B5} )
+>>> Fixed Maxconc in Polymetric.c for multilevel {}
+	In addition, introduced IMBEDDED to remove unwanted levels
+	
+22/5/96
+Switched on SIZE flag AcceptSuspendResume Events. May be processing these events will
+	be useful.
+ReadFile() automatically recognizes and converts HTML files (after removing LF's
+	if files are in DOS format)
+GetHeader() is more flexible, it allows empty lines before version number and date.
+Files can also be saved as HTML.
+
+4/6/96
+Fixed bug in ReadOne(): offset += i + 1; instead of offset = i + 1;
+
+24/6/96
+Fixed handle activation problem in DisplayGrammar().
+Now, '>' is rejected in Encode().
+When PlaySelection, rule weights and flags are reset, and random sequence may be reset.
+Fixed pb with display of flag values when showing tokenized grammar
+Suppressed "Suspend and resume events" in SIZE flags
+
+7/9/96
+Fixed a few minor interface problems.  Adapted windows and dialogs to Aaron.
+
+
+----------  This is version 2.6.1 released on 26/6/96 -------------
+
+28/6/96
+Fixed mPaste() in dialog fields: Nw wasn't correct if dialog selected by mouse click.
+    Therefore, Nw is forced to new value even if ActivateWindow() isn't called in
+    DoEvent().
+Allows empty handle to be resized.
+
+8/7/96 (in Leh)
+ThisTick[][] has become a long (see FindTickValues())
+In the Time base window, option-clicking a tick box enables setting its own channel,
+    key and velocity independently on default values.
+
+----------  This is version 2.6.1 sent to Info-Mac in September 1996 -------------
+
+18/9/96
+Porting to PowerPC.  Still running 68K compiler, but on PowerPC
+Replaced all floats with double
+Don't use native floating-point format!
+Fixed a bug in MyButton():
+	if(savePort != NULL && what != updateEvt && what != activateEvt) SetPort(savePort);
+	Otherwise SetPort may cause memory errors
+Checking overflow in LCM() and exiting PolyExpand() if it occured
+Checking _CONDITIONALMACROS_
+Replaced CtoPstr() with c2pstr(), loaded Strings.h
+Fixed a bug in MyDrawText(): 
+    while ((p1 < p2) && (*p1 != '\t')) p1++; 	/*  *p1++ $$$ */
+    Needs to be checked
+Libraries used in PPC project:
+	PPCANSI.o
+	PPCRuntime.o
+	InterfaceLib.xcoff
+	MathLib.xcoff
+Suppressed "mapping characters"
+Symantec returns error that version of Power Mac DebugServices is too old when it is
+	2.0b12, then it says error -27324.
+No panic, it seems the problem lies with outdated universal headers and libraries.
+    I must dowload upgrades of Symantec C++.
+For the same reason I am unable to compile the WASTE package in either 680x0 or
+    PowerMac.
+
+Native code application starts fine but it bombs with unimplemented trap when doing graphics.
+
+24/9/96
+Starting implementing off-screen graphics
+    If NEWGRAF is set to 1 this option is taken
+    Can't print these graphics, and they are not properly clipped and offset
+    Also they cause memory overflow, e.g. with Mozart
+Fixed problems with graphic updates in conventional graphics
+Also fixed pb with clicking at the thumbnail while ResumeStop dialog is in front
+
+29/9/96
+Implemented pre-roll and post-roll.
+Fixed a bug in WriteHeader(): should not insert headers for certain file types.
+Fixed bug in GetField(): line is dimensioned to 64.
+Introduced comment fields in Time base and wPrototype1.
+Now sound-object protoypes are always saved with time-resolution = 1ms.
+Fixed a bug in delete text: deleting a non-sempty selection would delete one extra
+    char at the left if the preceding operation was a copy.
+Script -sc.checkall works on PowerMac only if FileSaver is inactive.
+
+5/10/96
+Line of comment in every prototype.
+Fixed print text procedure.
+	     
+27/10/96
+Started implementing periods in sound-objects.
+Changed the signs of pre-roll and post-roll.
+Implemented StrikeAgain property on sound-objects.
+
+30/10/96
+Fixed a bug in MakeSound.c.  When repeating an item with reset controllers on,
+   its volume and pan could be changed.
+Implemented "Create new sound-object".
+The MIDI driver is an unpurgeable resource: this may be wrong in 7.5.3 with PPCs.
+Replaced FlushVol() with synchronous PBFlushVol().
+In the 680x0 compiler checked option "align arrays of chars".  Same in the MIDI
+     driver project.  I recompiled the driver for 680x0 (>= 68020) with MacHeaders.
+I am trying to set 4-byte ints.  It doesn't work in the MIDI driver because the
+    assembly code may take it for granted that ints are 2-byte.
+    In BP2 I suppressed register ints and I replaced atoi() with (int) atol().
+Other changes:
+    Replaced %d with %ld.
+    vScrollProc(..., short)
+    randomnumber = (short) rand();	/* Explicit conversion */
+    Suppressed tolower() because its arguments are int.
+Surprizingly sprintf(line,"%c",thechar) always return an empty string.
+
+4/11/96
+Completed cyclic objects
+Started thinking about Csound interface
+Fixed pbs with accuracy of object properties such as PivPos.
+Back to 2-byte ints settings
+Fixed a bug in Eucl().  The rest was incorrect.
+Implemented paste (insert, replace, merge) text selection to prototype.
+Update events are no longer ignored because, I was told, otherwise the program crashes.
+Implemented capture tick cycle as MIDI stream.
+
+17/11/96
+Fixed Expect() to indicate spaces or non-printing chars clearly.
+Changed meaning of (*p_Type)[] so that sound-objects may be of MIDI, Csound or
+    sampled sound types simultaneously.
+Now, the button "use MIDI in/out" does the same as the item in menu "Output".
+BP2 checks screen depth at startup and doesn't allow colour if it's less than 4 bits.
+GetField() now checks validity of numeric fields
+I made the driver resource unpurgeable.
+Select all, copy and paste work in dialog fields.
+Dialogs may have edit text handles (e.g. wPrototype7)
+When saving sound-object prototype files, empty prototypes are not saved.
+
+28/11/96
+Checked that SetPort() has been called before InvalRect() and ValidRect()
+Changed CopyBits using CGrafPort, so NEWGRAF should be tried again.
+Sorted out mess in windows because I was not setting port in ClearWindow().
+Made it possible to read a sound-object prototype file that ends abruptedly (like
+    -mi.abc and possibly some other outdated files).  This might have caused crashes
+    previously because of attempts to read beyond EOF.
+I put an explicit end of file marker in these files: "_endSoundObjectFile_"
+
+30/11/96
+THREE MAJOR BUGS FIXED:
+Fixed a problem with left negative context: see FindLeftoffset() and Found().
+    The leftmost negative context should be the one that is common to both arguments,
+        e.g., in rule  #A #B C --> #A C #B
+    only #A belongs to that leftmost negative context.
+    This was posing problems in -gr.dhin1, rule #A3 A --> A #A3 yielded a bad
+    position of derivation.  It was sometimes wrongly identified as a structural
+    rule, so that templates would be calculated on 4 grammars instead of two.
+Fixed an indetermination in Flag compilation that may have delayed or bombed grammars
+	using expressions like /flag > 4/  (sometimes wrongly compiled as /flag > K4/)
+Fixed a bug in glossary compilation so that values of leftoffset, rightoffset and
+    leftnegcontext are forced to zero.  Otherwise Found() may return true and Derive()
+    will crash.
+    
+Using a table of old and new names for Universal Headers I am making changes.
+    However, GetMenuHandle() seems to crash.
+Now if not eventfound DoDialog is not called.  (Probably caused bombs.)  Idling
+    the textedit carret of dialog fields is done separately.
+
+4/12/96
+Sorted out mess with update events and dialogs. Now IsDialogEvent() is called only
+    for mouse clicks and key strokes, DialogSelect() is called only in dialogs,
+    and UpdateDialog() is performed only on dialogs.
+
+----------- This is version 2.6.2 sent to Info-Mac on 27/12/96 ---------------
+
+7/1/97
+Now BP2 is producing Csound scores...
+
+28/1/97
+Regressions in Csound instruments: if the quadratic regression has an optimum
+    on one of the two intervals on which it is interpolated, it is replaced with
+    a straight line on that interval, and the parabole is made tangent to that
+    line on the other interval.
+Changed MakeSound():
+    if(!nextisobject && t2 != Infpos) { /* $$$ It was t2 != t2obj */
+    so that continuous controls are updated before NoteOns and NoteOffs.
+
+31/1/97
+BP2 saves true MIDI files (thanks to Kumar Subramanian) but there is a bug in the header.
+
+17/2/97
+Now BP2 does no longer wait for the completion of imbedded script lines unless instructed
+    to do so: see WaitForEmptyBuffer() calls in DoScript().
+
+23/2/97
+Now, continuous parameters (pitchbend,volume,pressure,panoramic,modulation) are controlled
+    according to sequences and no longer according to MIDI channels.
+    This allows Csound to ignore MIDI channels, and this will later allow the
+    handling of more than 16 channels.
+This should be checked with -da.checkControls.
+MIDI file format is still incorrect.  Kumar and I are working on it.
+
+24/2/97
+Checked and fixed continuous parameters with -da.checkControls.
+InterruptDraw() was bombing BP2 because it should have aborted the picture before
+   calling MainEvent().
+Created script instructions "Set output Csound file «filename»" and
+    "Set output MIDI file «filename»".
+    
+26/2/97
+Finished the Csound implementation.
+Now version 2.7
+
+4/3/97
+Introduced "sequence" info in the MIDI streams of sound-object prototypes.
+    It is saved to the -mi file.
+   	It contains sequence numbers of streams captured from text;
+    
+    Later it will be used:
+    1) to load prototypes from type 2 MIDI files;
+    2) to produce Csound scores and type 2 MIDI files keeping a proper sequence
+        even if identical notes are overlapping
+
+5/3/97
+Fixed SortMIDIdates().  Needs check with ExpandDurations().
+Now, BP2 score is sorted chronologically in sound-object prototype.
+    Sorting is checked in -da.checkSortCsoundScore.
+Strike mode preferences are saved with -se file.
+See -da.tryStrikeMode for examples
+
+6/3/97
+TellError() returns ABORT.
+MIDI files type 2 work.
+
+8/3/97
+Introduced shortcuts in Locate() when there are no sound-objects.
+
+16/3/97
+Introduced Tuning dialog.
+
+22/3/97
+MIDI files work.
+SetName() has a third parameter indicating whether the name should be recorded
+   on the top of other windows.
+Created FlushFile().
+This version runs optimized for PowerPC.
+
+29/3/97
+Fixed bugs in FillPhaseDiagram() so that SetObjectParams() does not mess up
+    parameters when several continous controls are used simultaneously.
+I thought that FlushEvents() was bombing the ppc version but it does not seem to be the case.
+   This version bombs at startup if a menu command is sent before the welcome dialog
+   is displayed.
+
+2/4/97
+I fixed ppc error on Apple Event installation.  PPC works perfect except that it still
+    produces 'nilHandleErr' errors; I discarded the message even in the Beta version.
+    Wait for Symantec C++ version 8.5 and see whether it happens.
+  
+4/4/97
+Changed convention. Now C4 = do3 = key 60 and A4 = 440Hz
+Fixed script instruction "Type...".  It no longers allows keys to be mapped
+
+4/5/97
+Fixed small memory leakage (40 bytes per sequence in FillPhaseDiagram()).
+Implemented _value(), _cont(), _step(), _fixed().  See "blurb" examples;
+
+
+--------- This is version 2.7.0 sent to Info-Mac on 6/5/97 -------------
+The upload had a problem: the ppc version missed its resources because of a compiler
+bug.
+
+10/5/97
+Started working on Csound function tables.  See "Csound tables".
+
+23/5/97
+Fixed bug in mPickPerformanceControl.  "_rest" has no argument.
+Changed entirely the handling of continuous parameters. It works in MIDI and uses
+    the tables that will be converted to Csound functions.
+PrintNote() is now used in PrintArg() and in graphics, so alternate note names are
+    properly displayed.  See for instance -gr.Ames.
+Fixed pb with ResetRuleWeights.
+Fixed pbs with object concatenation '&'.
+The new version operates ok except for continuous 'blurb' parameters in Csound, and
+    it does not yet produce Csound function tables.
+
+29/5/97
+The new Csound implementation is complete and is under check (version 2.7.1).
+When ResetWeights is false, the user is prompted to reset rule weights.
+Fixed a bug in FixNumberConstant().
+Fixed pb with Locate(). p_sol_set is now a handle.
+Fixed a memory bug in FindVersion().
+
+
+3/6/97
+Got news that BP2 won the Bourges 97 award.
+Finished handling of Csound tabulated functions taking into account start and end
+   values of parameters in sound-object scores.
+In WaitForLastSounds(), Nbytes is not reset to zero because the buffer may not be empty.
+   This allows WaitForEmptyBuffer() to work properly.
+   
+7/6/97
+Fixed important bug in TimeSet(): the calculation of *p_tmin and *p_tmax.
+Fixed a bug in PrintArg: expand selection would not print polongations after time patterns.
+Fixed many problems with concatenation '&' in polymetric structures, and combined
+    with continuous parameter controls.
+Some time ago I got an error in GetVersion(): disposing of p_line when p_line was empty.
+    But it seems to be a consequence of the TimeSet() bug corrected today.
+Fixed problem with LoadSettings(): CheckFileName() is called with type 8.
+Fixed problem with CheckFileName(): the prefix is checked.
+Fixed problems in FillPhaseDiagram(): (*p_im)[nseq] is incremented systematically
+    so that sound-objects fall in the proper column whatever the value of Kpress.
+    Trace the output value in PutZeros().
+Fixed a problem in MakeSound(): last NoteOffs of ticks were not sent.
+
+12/6/97
+Fixed a few minor interface problems.
+Changed the compiler, using release 5 of Symantec C++ version 8
+
+--------- This is version 2.7.1 sent to Info-Mac on 14/6/97 -------------
+
+22/6/97
+Implemented WASTE.
+When constant WASTE is 1, the WASTE package is used.  Otherwise TextEdit is used.
+
+Sorted out MIDI driver procedure to facilitate patching with OMS.
+    Capture of time patterns needs to be checked.
+
+25/6/97
+Fixed bug in FillPhaseDiagram() concerning _value() assignments.
+
+
+4/7/97
+Fixed bug in Encode:
+	jj += (C4key - 60);
+Ranges of _legato and _staccato are 0..100
+Fixed a bug in smooth time in Situation_ok():
+    if(j > 16383) return(nature_time == STRIATED);
+Introduced "AutoRandomize"
+Fixed bug in Dialogs.c that would bomb BP2 when attempting to type in the Tuning
+    dialog.  The bug was refering to TEH[w] with w >= WMAX.
+
+--------- This is version 2.7.2 sent to Kumar on 8/7/97 -------------
+
+
+5/9/97  Fixed a bug in Polymetric.c, and overflow problems in FillPhaseDiagram.c
+Speeded up calculation of time structure in SetTimeObjects() by incrementing
+   'in' properly: in += Kpress;  This has become possible thanks to the previous fixing
+   of errors in FillPhaseDiagram() on 7/6/97.
+   See -gr.Visser for an example of very complex structure that BP2 handles with
+   a high compression rate.
+
+11/9/97
+Started OMS implementation:
+    Changed SIZE flags to 50E8, adding "Suspend/resume events"
+    It works, but the way of determining gChosenOutputID and gOutNodeRefNum is clumsy.
+    In addition, OMS timing doesn't work.
+
+28/9/97
+Changed transposition so that
+    _transpose(12) {_transpose(2) A3 _transpose(4) D4}
+    will make sense.  Transposititions are cumulated
+Can switch from OMS to in-built driver and vice-versa
+OMS timing not yet solved.
+
+2/10/97
+Fixed bug in PassEvent() => MIDI filter now works.
+Fixed MIDI input with OMS thanks to Tom Erbe (tre@shoko.calarts.edu)
+Received scheduling code from Tom Demeyer (tomd@xs4all.nl)
+OMS works, a few problems need to be fixed.
+
+5/10/97
+Introduced TWO_BYTE_EVENT in "Midi1.h" to pack events properly notably with OMS
+    failing to which we get MIDI communication errors
+Changed "Midi1.h" to introduce TWO_BYTE_EVENT.
+Created interactive commands (only in OMS):
+     IN Mute ON «note» channel «1..16»
+     IN Mute OFF «note» channel «1..16»
+Created MUTE button (only in OMS)
+Unlocking and disposing handles created at startup: ClearLockedSpace()
+Checked problems with interactivity: quitting when SynchronizeStart
+Created procedure in the 'File' menu to save current settings as '-se.startup'.
+Saving the current input/output selected device under OMS with the settings.
+Automatic HTML conversion of text data whenever needed in files
+Fixed problem with determining dates of loaded text files
+
+10/10/97
+Text files, when saved, offer the HTML option
+wScrap doesn't decode HTML
+wTrace does recognise and decode HTML
+In dialog files text fields are automatically converted to HTML
+wStartString and wPrototype7 also save with headers
+wScrap, wHelp, wNotice don't create headers (and don't remove them when reading)
+Implemented:
+    MIDI send Start
+    MIDI send Continue
+    MIDI send Stop
+    Wait for Start
+    Wait for Stop
+    Wait for Continue
+
+12/10/97
+I found out that MIDI programs are numbered 1 to 128, not 0 to 127.
+Therefore I introduced ProgNrFrom = 1 saved in new settings file.
+Synchronize start waits for Start or Continue when no synchro key has been declared.
+Made interface for selecting patches.
+Managed to suppress beep sounds on alerts when unnecessary.
+
+In TypeChar() I had to insert
+    if(WASTE && Nw == wGlossary) TextUpdate(Nw);
+because strangely DoKey() messes up the selection in the glossary window.
+This happened only when the window colour was blue!!!
+I changed the colour to avoid it.
+Later I found that it is a bug of WASTE, so we'll upgrade it.
+
+17/10/97
+When NEWTIMER = 1, the in-built MIDI driver uses the new time scheduler for the output.
+It has the advantages of allowing Mute and improving FlushDriver().
+However it does not work properly because it requires inhibiting the output
+	interrupt while reading messages. See:
+	    /* Don't allow writing while reading */
+		OKsend = FALSE;
+		io = PBRead((ParmBlkPtr)p_Pb,FALSE);
+		OKsend = TRUE;
+	in DriverRead().
+DriverRead() is called many times when the project is interactive, so the output
+	is not timed properly even though I have given 500ms advance in
+	WriteInBuiltDriver().
+I think the problem is that the in-built driver goes on generating its own
+	interrupts for receiving data.  The solution might be to use the
+	Tdecr() interrupt for that.  In addition, it would make it easier to transmit
+	the input data.
+For the time being I have set NEWTIMER = 0.
+AllNotesOffAllChannels() will need to be completed when NEWTIMER = 1.
+
+--------- This is version 2.7.3 sent to Info-Mac on 9/11/97 -------------
+
+11/11/97
+Fixed problem with 'Undo': it was not active when typing backspace after clicking.
+Fixed problem with HTML interpretation: now, a space is inserted if a line is terminated
+    with '\r'.
+Now the option is given to interpret HTML in the Scrap window.
+After trying '-da.Prodoverflow' suggested by Harm Visser I bypassed LCM overflows in
+   calculations of Prod, Add(), Equal() and Substract().
+
+14/11/97
+Fixed bug in calculating tables for Csound (see MakeCsoundFunctionTable()).
+Fixed problem with printing graphic window.
+
+18/11/97
+In ResetMIDIControllers() we no longer force resetting switches because these
+    controllers might be assigned to something else (Reverb on a Korg?  See Montaudon).
+Introduced dialog "Default settings"
+Found that I had forgotten to set Oms to FALSE at startup!
+
+Now we don't allow breaking tempo after a simple note.
+    See Locate():
+	/* Update Ts */
+	if((*p_Ts)[i] < (*p_ts2)[i]) {
+		(*p_Ts)[inext] = (*p_ts2)[i];
+		if(j < 16384) (*p_BreakTempoPrev)[inext] = (*p_BreakTempo)[j];
+		else (*p_BreakTempoPrev)[inext] = FALSE;
+		...
+
+23/11/97
+On the graphic, transposed notes are displayed with transposed values.
+Now the names of MIDI devices are saved in the settings file.
+FindOMSdevice() looks for the ID.
+Two problems:
+    node.numNodes is often incorrect, therefore I wrote
+	    for(j=0; j < node.numNodes && j < 10; j++)
+	Instead of "QuickTime music" we get "ickTime music"
+Upgrading OMS will perhaps solve these problems.
+
+24/11/97
+Introduced CorrectionFactor to compensate duration errors cause by overflow on
+    the calculation of Prod.  This is used notably in -gr.transpose2
+Accepts '•' instead of '.' in period notation
+Fixed a bug: weight was not changing when using _repeat for a rule.
+	I added:
+    rule = (*(subgram.p_rule))[irul];	/* Added after TRY3 */
+Simplified Locate() suppressing table of handles to solsets.
+Very important: now Kpress is always used at the estimated value even when some
+    sequences run too fast to be kept sequential.  In such cases, sound-objects
+    are put in the same column of the phase diagram.
+
+27/11/97
+I fixed a small bug in GetBol().  Now it picks up the correct note number even when
+    C4key != 60.
+I sent this version to Thierry Montaudon and Harm Visser.
+
+2/12/97
+Implemented _randomize  in grammars.
+Fixed bug in Reference(): homomorphism works also on simple notes.
+The polymetric expansion always keeps one level of {} if several are imbedded, even
+    if there is a sequence in period notation inside the {}.  For this I put:
+        if(r != EMPTY &&  r != IMBEDDED && v == 22) imbedded = FALSE;
+    into PolyExpand().
+Now, "_volumecont{_volume(0) 4 _volume(127), C4 D4 E4 F4}" will produce a variation
+    of volume in MIDI because a silence creates an object instance if found in a
+    sequence which contains active continuous parameters.  'isMIDIcontinuous' is checked
+    in FillPhaseDiagram().
+    It does not yet work in Csound because the fields of the polymetric expression should
+    be merged in this case; Csound does not play silences.
+
+
+--------- This is version 2.7.4 sent to Info-Mac on 5/12/97 -------------
+
+16/12/97
+"_volumecont{_volume(0) 4 _volume(127), C4 D4 E4 F4}" was not working properly because
+    volume messages with value 90 were inserted before each NoteOn even though the
+    current volume had been set to a different value by the continuous control.
+    I fixed this. 
+Fixed Findibm(): rate was taken on wrong channel.
+Fixed problem in MakeSound() that was only audible with QuickTime Music:
+    2-byte and 3-byte messages cannot be split to raw events with identical dates
+    otherwise QT seems to mess them up.  Now messages are analysed to send
+    OMS packages of the correct lengths.
+
+18/12/97
+Added AESetInteractionAllowed(kAEInteractWithAll);
+Added button for registering, but sending AppleEvent doesn't work.
+It returns "no connection" error.
+
+28/12/97
+Fixed problems with continuous controls on polymetric structures
+See -da.checkContControls
+Some problems remain with the merging of MIDI streams on different channels: check
+     MakeSound().
+
+14/2/98
+I worked out an assistant for setting up the default MIDI input device (under OMS).
+• If a default input device was saved in ‘-se.startup’ and connection to it could not be opened,
+    BP2 will help you to select a device, modify ‘-se.startup’ and restart;
+• If no default input device was saved in ‘-se.startup’, BP2 attempts to connect to an existing
+    input MIDI device. This makes it possible to change the device (see ‘OMS input-output’ in the
+    “Devices” menu) without restarting BP2;
+• When modifying ‘-se.startup’ (“File” menu), if an input MIDI device is selected, you will still
+    be given the option of setting ‘no input device’ as the default.
+
+Fixed important bug in ActivateWindow():
+    Instead of 
+		if(OKvScroll[newNw] || OKhScroll[newNw])
+			UpdateControls(Window[Nw],Window[Nw]->clipRgn);
+	I wrote:
+		if(OKvScroll[newNw] || OKhScroll[newNw])
+			UpdateControls(Window[newNw],Window[newNw]->clipRgn);
+	as it would cause bombs when Nw = -1.
+
+Fixed minor bug in SetVariation().  Added:
+    (*h_table)[index].point = NULL;
+    (*h_table)[index].imax = 0;
+
+15/2/98
+Fixed problem with streams of continuous parameters, in FillPhaseDiagram(), that would not
+    end up properly, resulting in attempts of casting wrong values of parameters after the
+    completion of a stream associated with a sound-object.
+Pitchbend, volume, etc. initial values are now sent with the first sound-object that permits
+    it on each occurrence of the playback (if Reset controllers is checked).
+Fixed problem of halting cyclic play.
+Fixed two bugs due to using true quantization (see 24/11/97):
+    1) Prolongation symbols '_' are written in sequence even when the sequence is too fast.
+   
+    This is obtained by the following code in FillPhaseDiagram():
+    if(prodtempo == ZERO) {		/* Sequence is too fast, we'll store proper duration nevertheless */
+		icurr = (*p_im)[nseq];
+		/* We'll get the symbolic duration excluding ‘&’ concatenation */
+		numberzeros = GetSymbolicDuration(YES,YES,*pp_buff,m,p,id,tempo,level);
+		if(PutZeros(p_im,p_imaxseq,nseq,*p_maxseq,numberzeros,p_nmax) != OK) goto ENDDIAGRAM;
+		skipzeros = TRUE;
+		ibeatsvel += numberzeros;
+		ibeatsarticul += numberzeros;
+		(*p_currobject)[level] += numberzeros;
+		for(i=0; i < (*p_contparameters)[level].number; i++)
+			IncrementParameter(i,p_contparameters,level,(unsigned long) numberzeros);
+		goto NEXTTOKEN;
+		}
+	 Calling PutZeros immediately takes prolongations into account.  After this the symbols will
+	   be ignored as long as skipzeros is TRUE.
+	 
+	 2) Shapes of continuous parameters are now produced properly even if their points are
+	 closer than the time resolution.
+
+16/2/98
+Now we can change the MIDI input without getting an error and being forced to restart.
+    The solution was to add the port if it does not exist.  See code in OpenOrCloseConnection():
+	    case omsAppPortNotFoundErr:
+			if(!tried) {
+				tried = TRUE;
+				err = OMSAddPort('Bel0',gChosenInputID,omsPortTypeInput2,(OMSReadHook2UPP)readHook,
+					(long)LMGetCurrentA5(),&gInputPortRefNum);
+				if(err == noErr) goto TRY;
+				}
+Strangely it seemed not to be needed for outputs, but I added it in OutputMenuSideEffects():
+	    err = OMSAddPort('Bel0',gChosenOutputID,omsPortTypeOutput,NULL,0L,&gOutputPortRefNum);
+	It returns err = 4 if the port is already open, but at least it sets gOutputPortRefNum
+	back to the proper value.
+
+22/2/98
+When checking script syntax, if a subscript is incorrect it is now loaded to the Script window.
+Revised MyHandleODOC() to warn about unknown files and to load specific settings if instructed to.
+I revised the creator of BP2 HTML files.
+The shift key extends the selection when typing arrows, even if option key is not pushed.
+Fixed problem with _repeat() and _goto():
+   When jumping to a new rule the repeat counter was not reset.
+
+27/2/98
+Thanks to Paul Cardon I solved the "Register" problem using the launch manager.  But we still
+   need to find out how to send AppleEvents when the target application is not running.
+
+2/3/98
+p_CsoundSize was not set to NULL, and (*p_CsoundSize)[j] was not set to 0 when
+    compiling empty Csound object score
+
+7/3/98
+Designed a button allowing to describe a Csound instrument as text in the Trace window.
+Important change in GetRelease.c:
+	if(/* Jbol >= 2 && */ Jbol < maxsounds) {
+		if(Jbol >= 2) j = Jbol;
+		else j = 2;
+		for(j=j; j < maxsounds; j++) {
+ResetTicks() in Main() was not effective because InitOn was true.
+(*((*p_CsInstrument)[i].paramlist))[ip].name was not checked for NULL in GetCsoundInstrument().
+
+8/3/98
+Fixed bug in Encode():
+    if(j > 0) (*p_VarStatus)[j] = (*p_VarStatus)[j] | arg_nr;
+    When j == 0 p_VarStatus could be NULL
+    Also added: if(p_Var == NULL && GetVariableSpace() != OK) return(NULL);
+   
+Fixed problems with MyButton() so that mouse events are always processed properly,
+    notably sending BP2 to background when needed.  This makes it possible to
+    call MyButton(2) in fast loops.
+
+9/3/98
+Fixed problem of reading tempo signature in MIDI files type 1 or 2.  The speed was not
+    correct.
+
+13/3/98
+Fixed bugs in ReadMIDIfile(). Now all MIDI messages were read and stored.
+Fixed problem launching application, if necessary, before sending an Apple Event to it.
+We can use 'DATA:' or 'COMMENT:' at the bottom of a grammar.
+Now, replacing a file is done in a safe way, creating a temporary file and calling
+    FSpExchangeFiles() at the time of closing.  See CreateFile() and MyFSClose()
+
+16/3/98
+Added in GetKbName():
+    if(Token && LoadOn && FileName[wKeyboard][0] == '\0') Token = FALSE;
+   
+--------- This is version 2.8.0 sent to Info-Mac on 17/3/98 -------------
+
+28/3/98
+Fixed problem typing option key
+Fixed problem typing ctrl-p, which produces a space ('\20')
+
+29/3/98
+Improved CallUser() trying several times to bring BP2 to front and notifying
+    user when unsuccessful
+In SetTimeObjects() I merged maxseq and *p_imax since they have the same value.
+Class() is now of type unsigned long.
+Prod, Ratio and Kpress are double.  This makes it possible to deal with very high values
+    of Kpress
+    FillPhaseDiagram.c has been modified accordingly.
+Created[w] = TRUE immediately after loading script, grammar, alphabet, data.
+Highlighting buttons on Script Dialog and Control Panel
+
+31/3/98
+Now, doubles are used for P and Q values in PolyExpand().
+
+1/4/98
+Fixed a problem adjusting durations of objects containing Csound scores
+   The problem was with DecompileScore() when no Csound instrument is defined.
+
+10/4/98
+Implemented _retro, _rndseq and _ordseq, _keymap(p1,q1,p2,q2), _mapfixed, _mapcont, _mapstep.
+
+11/4/98
+_transpose(0.01) is now licit, but no longer _transpose(K1).
+
+12/4/98
+Implemented _rndvel().
+When their argument is Kx, velocity, volume, panoramic and random velocity may be controlled
+	during the performance.
+Fixed a problem of memory leakage (bad accounting in MySetHandleSize()).
+Fixed a problem with p_Ppatt being NULL in ResizeObjectSpace() when creating a new prototype.
+    Now, mObjectPrototypes() is called in ActivateWindow() after clicking wPrototype1, so
+    that the -mi.file is reloaded if the alphabet or grammar have been recompiled.
+Introduced OkVelocity in sound-objects.
+The MIDI sequence of a sound-object can be made inactive to silence it during the performance.
+
+14/4/98
+Fixed problem with _legato in SetTimeObjects():
+	if((*p_Instance)[k].ncycles < 2)	/* Object is not cyclic */
+		(*p_Instance)[k].dilationratio = (*p_Instance)[k].alpha;
+	Otherwise legato objects would not be elongated.
+
+15/4/98
+Implemented _rotate().
+
+16/4/98
+When compiling grammar, negative weights are checked and rejected.
+In FillPhaseDiagram()  (file FillPhaseDiagram.c)
+    if(m == T25 || m == T9 || p > 0) [and not p > 1]
+	    objectduration = GetSymbolicDuration(NO,YES,*pp_buff,m,p,id,tempo,level);
+
+18/4/98
+Implemented _keyxpand().
+
+27/4/98
+Supporting page up / page down
+Fixed problem displaying out-time simple notes <<C4>>
+Fixed bug in Situation_ok():
+    if(j > 16383 && nature_time == SMOOTH) return(NO);
+Fixed bug timing Out-time objects or simple notes in FillPhaseDiagram().
+    '-da.testOutTime' may be used to check older versions.
+Implemented _rndtime(), _mm(), _striated, _smooth
+Fixed problems with combining serial tools
+
+29/4/98
+Fixed consistency problems with clock settings in Metronome dialog and in grammar
+Made changes in memory overflow management.  Everything works except that MyGrowZone()
+    is never called.  BP2 notably uses temporary memory outside its own RAM partition.
+Fixed problem in maintaining the selection in the grammar window while compiling.
+
+30/4/98
+Changed the direction of _rotate.
+
+1/5/98
+Implemented _srand
+TOKBASE = 32768 is now used as a base for encoding numbers.
+With _repeat(Kx), Kx is now modified during the performance.
+
+6/5/98
+Improved the automatic selection in GetClickedWord().
+    Now several words are picked together if found between quotes.
+
+8/5/98
+Fixed some problems in AllFollowingItems() when doing templates.
+   
+--------- This is version 2.8.1 sent to Info-Mac on 17/5/98 -------------
+
+23/5/98
+Replaced BlockMove() with BlockMoveData()
+
+28/5/98
+Recognizes the "Help" key.
+Revised temp memory use in Polymetric.c taking actual available RAM into consideration
+Records temp memory use and suggests user to increase SIZE before quitting
+
+29/5/98
+Fixed problems with dragging windows, etc. while playing
+cmd-space turns MUTE on and off.
+'tempo' is of type double in PolyExpand().
+
+30/5/98
+Implemented _tempo()
+Fixed problem with selecting word for Help.
+Improved RAM and quantization evaluations.
+Supports several ‘…’ in a field.
+Fixed problems in PolyExpand() and FillPhaseDiagram() to deal with expressions like:
+    C4 C5 35542/24783 D5 E5
+    Since Kpress = 6, the silences are stored with toofast == TRUE.
+    PolyExpand() also simplifies the ration to 145/100.
+
+3/6/98
+Modified MakeRatio() to perform roundings.
+If there are several "_rest" in the field of a polymetric
+    structure these are assigned equal values as rests.
+   
+--------- This is version 2.9.0 sent to Kumar on 11/5/98 -------------
+
+13/6/98
+MIDI orchestra is saved in MIDI file -- see WriteMIDIorchestra().
+Maxconc has been limited to 40 when there is not enough memory.
+   Some time-objects may be skipped.
+In DrawItem() density of streak lines has been limited.
+   
+--------- This is version 2.9.0 sent to Kumar on 14/5/98 -------------
+
+15/6/98
+Introduced PianoRollColors that will be stored in the settings from version 2.9.1 onwards.
+Implemented piano roll.
+
+21/6/98
+Ratio = LCM(Ratio,kpress,&overflow) etc. in PolyMake() solved accuracy problem.
+
+26/6/98
+Fixed template matching
+
+3/7/98
+Fixed problem with SetVariation using float instead of unsigned long.  Harm's piece "Shapes"
+    now plays fine.
+
+6/7/98
+Fixed bug in AllFollowingItems().
+Modified AllFollowingItems() so that it is not called recursively once the last grammar
+    containing structural rules has been used.
+
+7/7/96
+Fixed template matching.
+When program change messages are sent to MIDI, program numbers are recorded iin MIDI orchestra.
+    (This might not be a good idea.)  It only occurs in the first item improvised or
+    when selection is played.
+
+12/7/98
+Fixed homomorphism / slave reference problem in Reference().
+
+31/8/98
+ChangedMIDIprogram keeps trace of modified MIDI programs, and ClearWindow() applied to the MIDI
+    orchestra sets back programs to 0 on all channels.
+
+6/9/98
+Fixed timing problem when writing MIDI files in Improvize mode.
+Fixed pb importing MIDI files: channels are now preserved.
+Fixed pb displaying streaks on pianoroll of sound-object prototype.
+
+7/8/98
+Implemented MIDI fade-out.
+Fixed incorrect channels (range 1..16) in VolumeControl[] and PanoramicControl[].
+
+18/10/98
+_keyxpand and _transpose are no longer performed in Zouleb(). This modified the result of _retro
+    when combined with _keyxpand and improved it, as follows:
+    
+    Old version (bad):
+    /6  C4 C#4 D4 G4 F#4 F4 E4 2/3 {_keyxpand(C4,-1.0000) C4 C#4 D4 G4 F#4 F4 E4 2/3 } _keyxpand(C4,1.5000) C4 C#4 D4 G4 F#4 F4 E4 2/3 {_retro C4 C#4 D4 G4 F#4 F4 E4 2/3 } - -{_keyxpand(C4,2.0000) C4 C#4 D4 G4 F#4 F4 E4 2/3 {_retro C4 C#4 D4 G4 F#4 F4 E4 2/3 } _keyxpand(C4,0.6600) C4 C#4 D4 G4 F#4 F4 E4 2/3 } - - _keyxpand(C4,1.0000){_retro {_keyxpand(C4,-1.0000) C4 C#4 D4 G4 F#4 F4 E4 2/3 } _keyxpand(C4,1.5000) C4 C#4 D4 G4 F#4 F4 E4 2/3 {_retro C4 C#4 D4 G4 F#4 F4 E4 2/3 }} - -{_rotate(-2){{_keyxpand(C4,-1.0000) C4 C#4 D4 G4 F#4 F4 E4 2/3 } _keyxpand(C4,1.5000) C4 C#4 D4 G4 F#4 F4 E4 2/3 {_retro C4 C#4 D4 G4 F#4 F4 E4 2/3 }}}
+
+    New version (better):
+    /6  C4 C#4 D4 G4 F#4 F4 E4 2/3 {_keyxpand(C4,-1.0000) C4 C#4 D4 G4 F#4 F4 E4 2/3 } _keyxpand(C4,1.5000) C4 C#4 D4 G4 F#4 F4 E4 2/3 { 2/3 E4 F4 F#4 G4 D4 C#4 C4} - -{_keyxpand(C4,2.0000) C4 C#4 D4 G4 F#4 F4 E4 2/3 { 2/3 E4 F4 F#4 G4 D4 C#4 C4} _keyxpand(C4,0.6600) C4 C#4 D4 G4 F#4 F4 E4 2/3 } - - _keyxpand(C4,1.0000){{C4 C#4 D4 G4 F#4 F4 E4 2/3 } _keyxpand(C4,1.5000) 2/3 E4 F4 F#4 G4 D4 C#4 C4{_keyxpand(C4,-1.0000) 2/3 E4 F4 F#4 G4 D4 C#4 C4}} - -{{ 2/3 _keyxpand(C4,1.5000){F4 F#4 G4 D4 C#4 C4 2/3 E4}{_keyxpand(C4,-1.0000) E4 2/3 C4 C#4 D4 G4 F#4 F4} C4 C#4 D4 G4 F#4 F4 E4}}
+
+Implemented
+    _transposestep = _transposecont.
+Fixed pb with ResetControllers().  Now it is called after ResetMIDI() and it is called only
+    once in MakeSound().
+
+21/10/98
+Fixed some problems in FillPhaseDiagram regarding _keyxpand()
+Saving HTML now stores META tags.
+
+24/10/98
+Fixed more pb with resetting controllers:
+   In grammar S --> C4 _pan(60) D4, in improvise mode without Reset Controllers,
+       pan will now keep value 60 after the first item.
+   In interactive mode, if a MIDI controller value is modified manually, the value is stored
+       in (*p_Oldvalue)[chan]...  The same value is used as an initial value if Reset Controllers
+       is not checked.
+BP2 is Y2K certified.  Hi Hi Hi!
+
+25/10/98
+Fixed bug in ReadUnsignedLong()
+Implemented key activation and registration check
+
+   
+--------- This is version 2.9.3 sent to Info-Mac on 25/10/98 -------------
+
+14/11/98
+Replaced 
+    sprintf(Message,"%u",(unsigned long) ...
+with
+    sprintf(Message,"%.0f",(double) ...
+as it was truncating large unsigned long integers in the 68k version.
+This solves the problem of date registration in the 68k version.
+
+Now the 68k compiler has the "Far DATA" option.
+
+18/11/98
+Fixed problem with "tempo" meta-events in MIDI files.  Only the first tempo is
+    taken into account.
+    However the option should be given to interpret all tempo events.
+
+27/1/99
+Fixed problem: _pancont and _pantstep were ignored
+Fixed problem with _transposecont in SetVariation():
+    _transpose(1){_transpose(0) _transposecont  C3 C3 C3 C3 _transpose(24)}
+    now plays: C#3 G3 C#4 G4, i.e. the cumulation of _transpose is taken into account.
+
+28/1/99
+Fixed another problem with _transposecont in SetVariation().
+
+--------- This is version 2.9.3 stored on CD-ROM -------------
+
+13/2/98
+Modified Encode() so that terminals starting with '#' can be recognised.
+Implemented read grammar from table.
+Added SetMIDIPrograms() in OutputMenuSideEffects() so that programs are sent to MIDI when
+    the output is changed.
+Added:
+    (**pp_dest)[j++] = TEND;
+	(**pp_dest)[j] = TEND;
+in Insert().  Important bug in SUB grammars when buffer is resized.
+It needs to be checked with -gr.koto3.
+
+Implemented Transliterate text.
+
+24/2/99
+Fixed important memory error in MapThisKey().
+Now any file can be opened whatever its prefix.
+    However it bombs when loading '-cs.TryCsound' to the grammar window, probably because it's a
+    hybrid HTML file...
+Fixed bug in FindVersion().
+
+13/3/99
+Fixed errors in MystrcpyHandleToHandle() and GetDateSaved().
+    Now memory may leak a few bytes if a file with an incorrect header is loaded, e.g. a '-cs'
+    file is forcefully loaded as a '-gr' file.
+    
+22/6/99
+Fixed pb with file and any prefix.  Needs to be checked with hybrid HTML file (see 24/2/99)
+
+1/10/99
+Fixed problems in transliterate files: default remapping of fields.
+
+4/11/00
+This is the last version that compiled with Symantec C++.  For a long time the compiler refused to run
+on Macs with more than 64 Mbytes RAM.  Eventually I was able to restart it on a G4.  I took this
+opportunity to transfer the entire project to CodeWarrior 5.  It compiled and linked OK after a few
+modifications, due to updated headers (notably with OBSOLETE defined as 0), but the debugger hangs when
+an OMS port is opened.  This is probably due to the fact that OMSLibPPC.slb hasn't been included.
+
+9/11/00
+Modified OMS.h as per Doug's instructions.
+Fixed bug in ReadOne() [unchecked]
+
+
+-----------------------------  FUTURE  -------------------------------------------
+
+In the 68 version there is an invalid instruction bombing at shutdown.  This seems to be caused by
+the debugger under MacOS 8.5.
+
+In -gr.Visser5, large quantization (180ms) causes overflow in phase diagram.
+   An incorrect change of quantization, 10 -> 30 -> 180 occured under MacOS 8.5,
+   then did not occur any more.  Maybe a critical value for the estimation of available memory.
+
+Interpret tempo meta-events in MIDI files if prompted to do so.
+
+Insert tempo meta-events in type-1 MIDI files when running smooth time.
+
+Check item 19 of -da.checkcontrols.html
+
+Implement _transposecont != _transposestep
+
+Implement _tempocont
+
+Add buttons to suppress Program Change and channel information in sound-objects.
+
+Sound-objects should have programmable colours.
+Use (*p_ObjectColor)[] to store colours.
+
+Use LastDir and LastVref in script
+
+_rndpitch, _rndpitchcont
+
+The 2nd item produced by -gr.dhin1 is rejected by the grammar.
+
+_repeat() does not work fine when producing all items. Check AllFollowingItems().
+
+Design a print procedure for '-cs' and '-mi' data with the option of either printing the
+   currently displayed data, or the entire file.  The easiest would be to export the data to a
+   text file displayed in the ‘Trace’ window.  The same file should be usable as an
+   export/import format.
+
+Produce all items should also work with _rndseq
+
+Use KeyFilter() to process option keys on international keyboards (see "Translate option key").
+
+Read BP2 help, construct a list and an index of topics in alphabetic order, save it,
+   use it to display list of topics and to seek the info.
+
+On-line help in DoThings()
+
+Improve page up / page down
+
+'\20' = ASCII 16 ???
+
+Precompile -gl.GeneralMIDI
+
+Use the list manager to replace DoThings()
+
+_transpose(K1) with -128 <= K1 <= 127
+
+Allow sound-objects that contain digitized sounds (related to sound files).
+    The same object should be allowed to contain MIDI, sampled sound and Csound score.
+    This may also be extended to MOD files.
+
+Cumulating parameter changes
+    Instead or _xxx(20) we'll write _xxx(up 20)  or _xxx(dn 20)
+    Values should always be real numbers
+    This would apply to all control parameters except _chan() and _ins()
+
+node.numNodes and node.info[j].name are incorrect when it comes to QuickTime Music.
+    We get node.numNodes and node.info[j].name = "\puickTime Music... garbage"
+    It seems numNodes is overwriting the name.  May be data types have changed.
+    See the next OMS SDK.  The current one was for 2.0.  This mess was already
+    visible with 2.1.
+
+When printing pictures these get resized automatically.  Print pictures at original
+   scale.  Don't use DrawPicture() for this, redraw what we need only.
+   Or save the actual dimensions of the picture.
+   
+Page setup is ignored (with a StyleWriter 2500).  It always prints portrait…
+
+MacOS 8.0 seems to send more Update events than previous versions.  This forces the
+    redrawing of graphics during the countdown while playing an item.
+    Try to avoid redrawing, perhaps make a variable that keeps trace of having redrawn,
+    or check whether picture rectangle intersects with update region.
+
+Find a way of merging streams of performance controls when one of them is applied to a
+    sequence that contains exclusively silences.  I think it should be done at the syntactic
+    level, when expanding polymetric expressions.
+
+Use FlushOutputEventQueueAfter() to make real 'real time':
+    Store the dates of item end in improvise mode
+    When some intractive commands are received (the ones changing tempo, etc.)
+       find out when the idem being played ends, and remove everything that follows.
+       (Keep a security of a few seconds to do it properly)
+
+In -gr.ShapesInRhythm, if you play "Gap12 Part2" the 185th sound-object (kcurrentinstance = 185) and may
+    be the following ones are not defined properly.  It seems they are not seen by
+    Calculate_alpha().  In this case time is smooth and nseq = 2.
+    For the time being I skipped the problem initialising
+	    (*p_Instance)[k].ncycles = 0;
+	    (*p_Instance)[k].alpha = (*p_Instance)[k].dilationratio = 0.;
+	in FillPhaseDiagram(),
+	but it points at a bug of Calculate_alpha() in smooth time...
+	[May be this has already been fixed]
+    
+Use the time scheduler with the in-built MIDI driver, or, rather, use code in that
+    driver to get direct MIDI output, and throw away the driver.  Then we can use
+    Mute and flush the driver properly.
+    For this, set NEWTIMER = 1.  (See 17/10/97)
+    At present it does not work fine because the in-built
+    driver is still having its own interrupts for the scheduling of the output.  Besides,
+    it uses another interrupt for the input, and neither of these interrupts can be
+    safely inhibited.  Not only they slow down operation, but also they may bomb the system
+    when closing and reopening the connection.  The in-built driver should be
+    simplified so that it may work with the same interrupts as the OMS driver.
+
+Bytes leak when learning weights (minor problem).
+
+PrintArg() is very slow especially in colour.  Needs to be entirely redesigned.
+    Display() has too many fields.  It shouldn't be used for printing.  Design
+    several different procedures for template matching, expanding and printing.
+    
+Implement the latest version of WASTE.  I had problems compiling Waste 1.3a6.
+    Use TSM and international resources, WorldScript, etc., to allow changes of fonts.
+    Beware that the current text scrolling is line-based and it assumes constant line height.
+    It should be redesigned pixel-based.  See ShowSelect().
+
+The 'Beta' variable could be stored in the resource fork.
+
+Allow function tables in the Csound scores of sound-objects, and combine them
+    properly (+, x) with parameter variations.
+    
+Revise continuous parameter handling in the case of truncated objects.
+
+Remarks between square brackets contained in the right arguments of grammar rules
+    should be copied to the work string and kept until the final derivation.
+    To this effect, token T37 x will designate remark index x.  These remarks may be
+    stored in a table similar to imbedded script commands.
+
+Revise ParseGrammarLine() so that p_line does not need to be locked.
+
+Speed up  Locate() using records to pack variables together, and pointers as arguments of
+    functions.
+
+Use sequence info in MIDI stream to solve the pb of overlapping events when
+    converting to Csound.
+    
+Do something with bCheckCsoundOrchestra:
+    Check consistency between -cs.file and orchestra file
+    Pick up number of arguments in each instruments, from orchestra file.
+
+"if(HasFields[Nw]) TEIdle(DRecord[Nw].textH);" causes cursor blinking in static fields.
+
+Transpose selection (by semitones up/down).
+
+For MIDI mechanical instruments (e.g. Disklavier)
+    Allow using a table compensating NoteOn and NoteOff delays at different
+    velocities.
+    Fill that table automatically by performing NoteOns and NoteOffs and
+    measuring the delay at which the echo is received from the keyboard.
+    (See CMJ 20,1, p.64)
+
+Mapping continuous pitch to separate MIDI channels (CMJ 20,3:59)
+    16 channels cover 1 semitone
+    frequ = 440 * 2 ^ ((line - (69 * 16)) / (12 * 16))
+    where 69 is the index of A4 (440Hz)
+    
+Check and display NoteOn/NoteOff misbalance in sound-object prototypes.
+
+Design examples to illustrate tick cycle capture.
+
+Print pictures over several pages.
+
+Print keyboard token encoding.
+    
+Kumar suggested the implementation of "polycyclic" structures.  (Terminology is
+    mine.)  It requires a thorough study of polymetric resolution.
+    
+Use Mac's keyboard for entering notes.
+
+Replace ReadLine1() with ReadLine().
+
+Possibility of using any of the tick cycles as a time base for items, in replacement of
+    the conventional clock.
+
+Tick cycles get desynchronized in background when the mouse button is down.
+    May be suspend/resume events will help tracing the mouse's action.
+    
+See -gr.simpletemplates.  Must solve the problem of periods and explicit tempo
+    markers in template matching.
+    
+In the time base, allow the sending of arbitrary streams of MIDI messages
+    The -tb. file contains space for it thanks to tick types.
+    
+Install programmable filter for (micro)tonal intervals based on various scale models.
+
+Design a kind of Bézier curve fitting for entering controller movements.
+
+Display simple notes as line segments on twelve-tone background (piano roll),
+    show pitchbend and volume varitions on graphics.
+    Volume could for instance modify the width of time-objects.
+    
+Construct prefix and suffix trees of alphabet, variables and reserved words. Use them
+    to move cursor over tokens and delete complete words with the backspace key.
+    UpdateAutomata(void) builds trees. SmartCursor is the global used to allow cursor
+    moves over the compiled tokens.
+Use similar trees for speeding up Encode().
+
+Recompile Initstring after changing glossary?
+
+Open any number of data files?
+    Could be a problem with the current interface.
+
+Implement new script syntax:
+    if «expression» then
+        «script»
+    else
+        «script»
+    endif
+    
+Find out about Pitch Bend Sensitivity in GeneralMIDI (registered parameter 0]
+Check what "expression" means [controller ??? in GeneralMIDI]
+
+Suppress BOLSIZE and allow any size for terminal symbols
+
+For Kx the range of x should be 0..32767, or Kx should be a float number so that it
+    can be used in 'blurb' parameters.
+
+Design performance parameters overlapping properties of sound-objects:
+	_overlapbegin(true), _overlapbegin(false)
+	_truncatebegin(true), _truncatebegin(false)
+	_continuousbegin(true), _continuousbegin(false)
+	_relocate(true), _relocate(false)
+	_ignoreconstraints(true), _ignoreconstraints(false)
+	_ignoreconstraints(default): would cancel all preceding instructions
+	
+	These parameters should be propagated along sequences and in polymetric
+	expressions exactly in the same way as _chan(), _ins()...
+
+Create sound-objects with variable arguments, i.e. some generic properties may be changed
+	by global variables or performance controls.
+    
+Interactive graphics: with the mouse we should be able to drag objects, resize them,
+    double-click to open the MIDI/Csound event list and modify it for that particular
+    object...
+    The problem is that changes can't be reflected back in the notation because timings
+    are the result of constraint satisfaction.
+  
+Implement < and = on terminals and/or simple notes
+    With '=' a sound-object may be given two identical names
+    With '<' sound-objects may be partially ordered.  This ordering would be reflected
+        on the vertical axis of graphics.  This feature should be implemented in the
+        new interactive graphic display.
+
+_velcont is still equivalent to _velstep
+_articulcont is still equivalent to _articulstep
+    Velocity could be interpolated over each sound-object containing several NoteOn's
+    Articulation is more questionable.  Basically it is a property at the level of
+    a sound-object or simple note, but each sound-object could have a checkbox saying
+    whether it accepts articulation.  When yes it should reflect articulation changes
+    on the duration of each event, and it should interpolate these changes when property
+    _articulcont is checked.
+
+Convert automatically French to English notes etc.
+
+Study MDPL output as an alternative to MIDI
+
+Suppress GRAM# and use lay-out:
+------- SUBRAMMAR 1 --------
+ORD
+[1] ...
+
+When parameters are changed continuously (_pitch, _mod, _press) all silences create new objects.
+    This is fine, but the evaluation of Maxevent by Polymake() is oversized, because
+    all silences are taken as potential objects.  Refine this evaluation...
+
+See DisplayMode(), FindRightOffset() and /* Recalculate tempo markers */ for simplification
+
+Check that _goto process is not looping.

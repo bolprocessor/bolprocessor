@@ -1,0 +1,1385 @@
+Subject:     1/6 de tons
+Date:        25/10/99 17:39
+
+Date:        25/10  11:24
+Received:    25/10  16:41
+From:        Jerome Nathanael, jeronath@netcourrier.com 
+
+J'ai aussi changé le glossaire et essayé au passage de trouver une
+solution pour avoir mes 1/6 de tons (ou des 1/4 ou n'importe quoi
+d'autre comme tempérament égal divisant le 1/2ton).
+La solution la plus simple pourrait être d'utiliser les valeurs de PB
+devant les seules notes à "altérer" mais évidemment çà ne marche que
+pour une mélodie, adieu les sons simultanés...
+Si j'adopte la répartition des notes d'un instrument en 1/6 de tons
+sur trois canaux Midi, l'un avec PB 0, l'autre +33 cents, le dernier
+- -33 cents, ce qui permet les "accords", je suis obligé de créer dans
+le glossaire 127*3 variables par instrument, sur le modele de :
+Ct4 --> _chan(x) _pitchrange(200) _pitchbend(y) C4,
+cf mon -gl.1/6tons all.
+Cela fonctionne encore pour une grammaire avec un seul instrument mais
+les choses se compliquent si je veux utiliser 16/3= 6 instruments en
+simultanés (ou 32/3 quand BP2 utilisera les deux ports avec l'OMS...),
+il faut alors créer 127*16 variables!!!...
+(Bien sûr je n'en suis pas encore à faire des grammaires utilisant 6
+instruments - et celà me semble actuellement difficile sans la
+possibilité de faire tourner plusieurs grammaires en simultané -, mais
+mon sens de la réflexion hors-temps me pousse à y réfléchir...)
+Si j'envoie trois valeurs de PB * x instruments pour "accorder" mes
+canaux avant la production sonore (_j'ai essayé avec INIT mais je n'ai
+pas trouvé le bon moyen d'écrire çà_) je peux alors me suffire de la
+convention de notation actuelle, mais il me reste à trouver le moyen
+de signifier clairement les notes altérées dans la grammaire...
+
+La solution serait de n'indiquer dans la grammaire qu'un seul canal
+midi par instrument en 1/6 de tons et de disposer d'un outil qui
+permettrait de prendre le n° d'un canal midi courant et de l'affecter
+d'une "transposition". Il suffirait alors d'envoyer une valeur PB en
+INIT pour accorder un canal en -33cents et l'autre en +33 cents et
+d'avoir un glossaire comprenant 128 variables pour les notes -33 cents
+et 128 variables pour les notes +33 cents permettant de décaler vers
+le canal accordé, par exemple si Au4 = A4 -33cents (u, abréviation de
+up, signalant à la lecture une note +33 cents) reporté sur le canal
+courant + 1 on aurait:
+Cu4 --> _varichan(+1) C4
+On pourrait aussi utiliser au niveau d'une SUB1
+Cu4 --> _varichan(+1) _pitchrange(200) _pitchbend(+33) C4
+et creer une possibilite de changer les valeurs par des instructions
+IN:
+Cu4 --> _varichan(K1) _pitchrange(200) _pitchbend(K2) C4
+K1 et K2 pourraient etre donne par l'envoi d'un PG ou autre.
+On aurait alors la possibilité de transposer dans l'ordre des hauteurs
+la polychronicité temporelle que permet BP2.
+
+============================================================================
+
+Subject:     RE: re: BP2 - votre mssg (2)
+Date:        29/10  15:16
+Received:    01/11  17:41
+From:        Jerome Nathanael Demolliens, jeronath@netcourrier.com
+To:          Bernard Bel, bel@wanadoo.fr
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+
+Le lundi 25 octobre 1999 18:17:11, Bernard Bel a ecrit:
+
+>> faire tourner plusieurs grammaires en simultanÈ
+>
+>> Il y a d'ailleurs une difficulté, à moins qu'on utilise plusieurs
+> ordinateurs, c'est que OMS ne nous autorise à faire tourner qu'une
+> copie de BP2 simultanément, et cela tout simplement parce qu'il a
+> besoin de la 'signature' du programme pour identifier ses ports.
+Bien
+> sûr on pourrait toujours compiler n versions de BP2 avec des
+> signatures distinctes, mais ça poserait ensuite des problèmes de
+> compatibilité entre les fichiers...
+
+Au passage et concernant l'utilisation d'OMS avec BP2, OMS autorise
+l'envoi des commandes midi sur chaque port et sur des synthes
+différents sur chaque port. Or actuellement BP2 n'adresse, il me
+semble, que sur un port et un instrument a la fois.
+J'ai une interface Opcode Translator Pro qui utilise les deux ports et
+j'aimerais par exemple utiliser sur le port Modem mon Ultraproteus (16
+canaux Midi) et sur le port Printer mes deux echantillonneurs, ASR10
+Ensoniq (8 canaux) et un vieil EPS13 Ensoniq (encore 8 canaux) plus
+QuickTime si besoin pour les sons au standard GM.
+Comment faire? Non pas pour faire jouer tout cela en simultane mais
+pour pouvoir aller chercher les sons la où ils sont ! surtout dans la
+perspective d'une installation ou d'une utilisation concert.
+
+>
+>>Si j'envoie trois valeurs de PB * x instruments pour "accorder" mes
+>>canaux avant la production sonore (_j'ai essayÈ avec INIT mais je
+n'ai
+>>pas trouvÈ le bon moyen d'Ècrire Á‡_)
+- - - --> (_j'ai essaye avec INIT mais je n'ai pas trouve le bon moyen
+d'ecrire ca_)
+>
+>> Je n'arrive pas à voir ce qu'il y a dans "Á‡_"  (au passage, dans
+> OutLook Express, il serait bon de régler les préférences pour que le
+> codage des messages se fasse en Quoted Printable et non en
+8bits...).
+
+J'utilise OE depuis plusieurs mois car il permet de gerer plusieurs
+comptes email, ce que ne faisait pas Eudora Lite... Les preferences
+d'OE ne font pas apparaitre d'option "quotedprintable", je suis en
+"Europe Occidentale ISO" au cas ou vous savez a quoi cela correspond.
+Je vais donc eviter les caracteres accentues, a moins que vous ayez
+vous aussi une option Euro ISO ? Desole je ne suis pas un grand
+connaisseur de ces aspects du Net !
+
+....
+
+>
+>>La solution serait de n'indiquer dans la grammaire qu'un seul canal
+>>midi par instrument en 1/6 de tons et de disposer d'un outil qui
+>>permettrait de prendre le n? d'un canal midi courant et de
+>>l'affecter
+>>d'une "transposition". ...
+>
+> Je prends note de cette proposition.  Il y a deux manières de
+> procéder (en fait 2 philosophies):
+>
+> 1) sur le plan pratique, on pourrait créer une fenêtre de dialogue
+> dans laquelle on mettrait des indications sur des corrections
+> microtonales à appliquer à chaque canal.  Ça fait un moment que
+Kumar
+> et moi y pensons, car bien sûr on a besoin de ça pour la musique
+> indienne.
+
+
+(Je vous signale RealTime Tuner, realise a partir de MAX, qui doit
+pouvoir fonctionner avec BP2 via le bus IAC puisque qu'il est sous OMS
+(je n'ai pas essaye). Telechargeable gratis a l'adresse:
+http://socrates.berkeley.edu/~wcooper/realtimetuner.html
+et utilisable sans MAX. On peut introduire un tuning par un fichier
+texte mais il conserve la limitation des 12 sons a l'octave et sur le
+clavier. Il m'est cependant bien utile pour travailler certaines
+compositions adaptees a ces contraintes.)
+
+J'attendais beaucoup de Scala, qui n'existe actuellement que sur PC
+mais etait en cours de portage sur Mac, mais le portage est stoppe
+pour l'instant, cela peut sans doute tourne avec un emulateur Windows
+http://www.tiac.net/users/xen/scala/
+
+Enfin peut-etre connaissez-vous la liste de diffusion tuning chez
+Onelist.com qui est tres active et source de precieuses infos.)
+
+> Mais on pense de manière assez générale, donc avec un système qui
+> incluerait, non seulement les canaux MIDI, mais aussi des
+> instruments
+> Csound.  De plus, on souhaiterait ne pas nécessairement donner les
+> valeurs
+> en cents, mais en termes de relations entre degrés d'une échelle
+> musicale,
+> pour fabriquer par exemple toutes sortes de tempéraments
+> exotiques...  Un
+> peu comme l'âne de Gonfaron, on voit tellement grand qu'on n'a pas
+> encore
+> commencé!
+
+Ce serait evidemment l'ideal ! mais ma reflexion et ma proposition
+partait du postulat qu'il fallait trouver une solution ouverte, peu
+couteuse en temps et utilisait le glossaire pour faire les reglages en
+sortie, d'ou le besoin d'une commande _varichan.
+La solution "fenetre de dialogue", qui eviterait la creation d'une
+multitude de variables, garderait la possibilite d'utiliser le clavier
+pour rentrer les notes mais devrait aussi etre etudiee pour rester
+ouverte et evolutive au cours d'une grammaire.
+Peut-etre differents patches correspondant a des "tunings" integrables
+dans la syntaxe d'une grammaire ou repondant a un PG. Ce qui me semble
+important c'est que chaque "note" ainsi definie existe a part entiere
+et puisse etre le resultat d'un processus de calcul. Il faut pouvoir
+faire des "modulations" ou des superpositions de temperaments comme on
+fait dans BP2 (comme je ferai bientot !!!) des modulations ou des
+superpositions de tempo.
+D'ou la necessite d'avoir la possibilite des deux acces, passage d'un
+reglage global a l'autre, les "patches" ci-dessus, ou utilisation par
+un "homomorphisme" par exemple d'une transformation "chromatique"
+progressive. De plus il faudrait pouvoir gerer a la fois les
+temperaments egaux jusqu'aux 53 degres a l'octave de Mercator qui
+permet pratiquement de travailler en Just Intonation dans toutes les
+tonalites en passant par les 1/4, 1/6, 1/8 etc... que les temperaments
+inegaux issus des musiques ethniques ou de la resonance harmonique.
+D'ou mon recours a une solution un peu lourde a mettre en oeuvre pour
+l'utilisateur mais totalement ouverte.
+
+>
+> 2) ce qui serait plus en accord avec la philosophie de BP2, ce
+> serait d'étendre la syntaxe du modèle grammatical.  Dans un premier
+> temps, d'autoriser une instruction comme "_pitchbend(K2)".  La seule
+> raison pour laquelle ce n'est pas encore implémenté est que les "Kx"
+> représentent, pour des raisons sordides de codage interne, des
+nombres
+> variant de 0 à 127.  A l'origine, on ne les réglait qu'avec des
+> contrôleurs MIDI sur 7 bits.
+"_pitchbend(K2)" cela peut etre tres interessant et j'ai remarque a ce
+propos que _transpose(x) n'est plus controlable par un Kx. Pourquoi?
+Cela permettait en situation d'interaction une grande souplesse sur la
+realisation finale...
+
+>
+>  Je pense travailler en priorité sur la solution (2), qui n'est pas
+> incompatible avec la (1).  L'idée d'une instruction "_varichan()" me
+> semble aussi assez simple à implémenter.  Il faut patienter un tout
+> petit peu car j'ai deux ou trois bricoles à finir pendant 1-2
+> semaines.  Et comme Symantec C++ ne tourne plus que sur mon portable
+> qui reste au bureau je ne peux même pas caser ça dans une nuit
+> d'insomnie...
+
+Ah les nuits d'insommnie, j'adore ca, la maison est tranquille, ce
+monde agite dort, je peux travailler dans le silence... Le matin !=+!
+quand il faut a 8h etre operationnel pour emmener les enfants a
+l'ecole...
+>
+>>PossibilitÈ
+>>d'utiliser des metagrammaires qui dÈclencheraient des grammaires
+>>imbriquÈes, chacune correspondant ‡ un instrument, et Ètant en
+>>interaction
+>
+> A priori, comme je le disais au début, on a envisagé ça avec
+>plusieurs machines plutôt que dans un seul programme.
+
+> La difficulté est moins au niveau de l'implémentation qu'à celui de
+> modifier l'interface pour que ces manipulations complexes restent
+>assez
+> lisibles pour l'utilisateur.  Ce problème d'interface a été très
+> préoccupant et m'a obligé à refaire ma copie plusieurs fois quand
+>j'ai
+> programmé l'accès à Csound.
+
+J'ai une autre question:
+Concernant les procedures, je me suis demande si il serait possible,
+comme dit dans un precedent mail, d'avoir une interaction sur elles.
+J'imaginais le cas d'une grammaire ayant plusieurs subgrammaires dont
+le choix serait determine d'une production a l'autre, en mode
+Improvize, par l'envoi d'une commande externe Kx et Ky determinant les
+valeurs de _goto ou _failed, pendant le jeu de la production
+precedente, du style:
+
+ORD
+xxxxxxxx
+xxxxxxx
+xxxxxxx _goto(x,y)
+- - - -----------------
+SUB ou LIN ou ORD ou RND
+yyyyyyyy
+yyyyyyyy
+yyyyyyy
+- - - -----------------
+SUB ou LIN ou ORD ou RND
+zzzzzzz
+zzzzzzz
+zzzzzzz
+zzzzzz
+zzzzzz
+
+La premiere production utiliserait la 1ere subgrammaire, la suivante
+une autre, etc... On peut imaginer des nombreuses possibilites. Est-ce
+que cela fonctionnerait ?
+
+>
+>>grammaires envoyant des lignes de commandes ‡ d'autres
+>>softs (j'aimerais avoir des infos sur l'interface avec les CGI, j'ai
+>>peut-Ítre la possibilitÈ d'hÈberger mon futur site sur un serveur
+>>ami
+>>qui me laisserai faire des expÈriences...) Un rÍve trËs excitant...
+>
+> On peut envoyer/recevoir des AppleEvents avec BP2, c'est d'ailleurs
+> je crois ce qu'il fait quand on utilise l'IAC d'OMS.  Pour l'instant
+> je n'ai testé les AppleEvents qu'avec des scripts en FileMaker Pro
+- - --
+> voir la base de données fournie en démo.
+
+Est-ce que l'implementation actuelle en Apple Events permet aussi de
+creer une passerelle entre BP2 et le CGI?
+>
+>>Plus simplement et de faÁon plus proche, je me demande s'il serait
+>>possible d'implÈmenter une sortie en notation BP2 dans la fenetre
+>>Data
+>>d'un Midifile digÈrÈ en soundobject. ...
+> C'est aussi en projet... ...... La solution consiste donc à placer
+> les événements sur un graphique et à permettre à l'utilisateur de
+les
+> déplacer, de les éditer, voire d'encadrer les clusters un peu comme
+on
+> définit les colonnes et paragraphes dans OmniPage Pro (OCR).  C'est
+> facile en apparence sauf que je suis incapable de concevoir des
+> graphiques interactifs.  C'est Kumar, en principe, qui parle C++
+comme
+> les natifs du pays, qui se chargerait de cette partie.  Car il veut
+> aussi pouvoir manipuler des "streams" continus, comme des mouvements
+> compliqués de pitchbend, pour en faire des objets réutilisables dans
+> les formules polymétriques.  Il pense bien sûr aux multiples
+"gamakas"
+> de la musique Carnatique.
+
+C'est un peu le systeme utilise par Finale dans sa partie
+Transcription Mode. On enregistre le midi sans indication de tempo, il
+apparait ensuite en piano roll dans une fenetre ou on peut zoomer.
+Ensuite on dispose d'un outil qui interprete une note ou une pedale
+style sustain entrante comme tags pour les temps et ensuite comme tags
+pour les mesures. Cela peut se faire en temps reel avec un quantize ou
+il y a possibilite que Finale les calcule a partir des deux premiers
+tags et d'une fourchette d'interpolation pour recaler les imprecisions
+du jeu. On peut ensuite editer les tags a la souris, puis Finale
+interprete le tout pour proposer une notation graphique.
+
+C'est certainement actuellement le seul soft largement diffuse qui
+dispose de cette solution pas tout a fait pratique dans sa realisation
+(je pense que Coda pourrait largement en ameliorer l'interface) mais
+extremement precieuse, y compris je pense pour les utilisateurs de BP2
+qui voudraient noter des productions un peu complexe au niveau
+temporel. Ce mode ne lit malheureusement pas les Midifiles mais par le
+bus IAC il doit etre possible d'y enregistrer en temps reel la
+production de BP2 puis de rentrer les tags ou on veut, editer la
+partition qu'en deduit Finale jusqu'a une version adaptee a son
+besoin.
+
+> Toutefois, si l'on se limite aux objets capturés à la sortie de BP2,
+> on pourrait après tout conserver la formule qui a servi à les
+> produire, l'utiliser dans l'interface d'édition, et même la modifier
+> avec des paramètres calculés au dernier moment...  Je n'y avais pas
+> pensé, c'est une idée en fait assez riche en perpectives!
+
+> Tout cela se fera certainement un jour, de même que la synthèse
+> vocale.  Je ne fais que commencer mon recyclage dans ce labo où la
+> demande informatique est plus grande que dans le précédent...
+>>
+
+>>J'ai ÈtÈ (je suis alle!!!) sur le site de MBROLA de Mons ....
+>
+> Vous avez dû remarquer que MBROLA chante bien, et même un peu faux
+> pour faire plus vrai, dans l'exemple fourni avec MacTTS...  Cette
+> partir va être développée assez rapidement car on a besoin de BP2
+pour
+> tester de nouveaux modèles théoriques de prosodie.
+
+Je piaffe totalement d'impatience non dissimulee. Je me suis amuse a
+faire des grammaires pour reconstruire des poemes de Lorca sur
+lesquels je travaille en ce moment et il me semble d'ailleurs qu'une
+d'entre elles pourrait servir d'exemple pour les debutants en BP2. Et
+j'ai hate de pouvoir l'utiliser avec MBROLA et d'en realiser realiser
+une mise en polyphonie...
+>
+Bien cordialement.
+
+Jerome.
+
+- - - --
+Jerome NATHANAEL Demolliens | composer - multi-instrumentist
+c/o On the One Associates   | BP85 FR-78314 Maurepas Cedex
+jeronath@netcourrier.com    | ICQ UIN: 43231102
+fax: +33 (0)1 3050 5456     | e-fax: +1 419-730-0223
+mobile: +33 (0)6 1524 2154  | e-mobile: jnd-GSM@mailme.net
+
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 6.0.2i for non-commercial use
+Comment: My DH/DSS key (ID: 0xADFA8EE1) at http://www.keyserver.net/
+
+iQA/AwUBOBmsJNCVT6qt+o7hEQKIrgCffB6xm33+rFLTwSU5It2AkHPhbSAAmwdH
+eD1+eBl5Olir5Bw2W27H9U3N
+=6y/m
+-----END PGP SIGNATURE-----
+
+
+============================================================================
+
+Subject:     BP2 remarques globales & tutorial & perspectives
+Date:        29/10  16:24
+Received:    01/11  17:41
+From:        Jerome Nathanael Demolliens, jeronath@netcourrier.com
+To:          Bernard Bel, bel@wanadoo.fr
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Cher Bernard,
+
+Au fur et a mesure que j'avance avec BP2, je me rends compte a quel
+point il est necessaire de presenter les outils BP2 de maniere
+structuree pour en faciliter la comprehension. J'ai donc decide de
+m'atteler a une presentation ordonnee des "grammar procedures", des
+"transformer tools" et des "performance controls", avec exemples si
+necessaire, en vue d'un nouveau manuel. Nous pourrons ensuite voir
+comment reorganiser les elements du manuel existant, les refondre,
+etc...qu'en pensez-vous ?
+
+J'ai au passage remarque que l'implementation des possibilites n'est
+pas toujours homogene.
+Ainsi nous avons par exemple un outil randomize pour :
+- - les elements d'une expression --> _rndseq
+- - les velocites --> _rndvel(x)
+- - le timing des notes --> rndtime(x)
+mais pas d'outil pour les notes --> rndpitch(x) ?
+Il serait logique que cet outil soit etendu a l'ensemble des
+parametres
+midi, y compris pour les controleurs, par exemple avec rndmod(x), il
+serait possible de donner un peu de vie a un son, si mod est assigne a
+l'ouverture d'un filtre par exemple ou a un LFO.
+Les outils step et cont sont plus largement disponibles.
+Peut-etre meme serait-il souhaitable de developper la categorie des
+"transformers tools" en y integrant des objets mathematiques
+(fonctions) ou lecture de courbes graphiques, etc...
+Concernant les controlleurs continus, pourquoi ne pas elargir a
+l'ensemble des controleurs midi votre conception pour les controleurs
+switch : _switchon(64,1) et switchoff(64,1).
+On aurait _control(x,y,z) ou x est le n∞ du controleur, y le canal
+midi
+et z la valeur. Et il me semble utile de disposer de plus de
+controleurs
+continus que ce qui est actuellement implemente. Nous avons
+modulation,
+channel aftertouch, volume et pan. Vu l'utilisation qui est faite
+aujourd'hui des controleurs dans la gestion des effets ou de la
+synthese
+il serait necessaire d'avoir au moins en plus:
+- - bank select MSB cntrl 0
+- - bank select LSB cntrl 32
+- - breath cntrl 2
+- - foot pedal cntrl 4
+- - portamento time cntrl 5 (nous avons switch(41, x) pour son
+declenchement)
+- - data entry cntrl 6
+- - expression pedal cntrl 11
+Ou bien n'est-ce pas possible en adaptant l'implementation des
+parametres de CSound tel _param, _value, ...
+
+De la meme facon, du point de vue de l'interaction, l'utilisation du
+Kx
+pourrait etre etendue a l'ensemble des elements pour lesquels cela est
+signifiant. J'ai au passage remarque que l'utilisation de K n'est plus
+possible pour _transpose, ce que je regrette.
+L'aspect interactif pourrait alors porter sur trois niveaux :
+- - grammaires : poids des regles, flags, procedures...
+- - transformations : valeurs des transformer tools
+- - bas niveau : la realisation midi.
+et etre influence par tout ce que MAX peut interpreter, rendant BP2
+d'une souplesse rare, sans egale je crois actuellement.
+
+Je suis tente de vous proposer ceci : nous sommes sans doute tous deux
+tres occupes mais en prenant notre temps et en nous "organisant"
+peut-etre pourrions-nous venir a bout d'un BP2 version3, implementant
+de nouvelles possibilites dans les domaines suggeres par mes mails et
+ceux d'autres utilisateurs.
+Comme je ne connais rien en programmation en C ou C++, mais commence a
+savoir tomber des pages HTML, a comprendre BP2 suffisament pour faire
+pour chaque fonction des exemples simples si necessaire, je pourrais
+prendre en main une refonte du manuel, version Word et HTML.
+Ma progressive acquisition du logiciel partant d'une inconnaissance
+totale de l'approche generative, je commence a comprendre comment le
+presenter d'une facon qui rende BP2 comprehensible a l'individu lambda
+et j'ai de plus une longue pratique de la pedagogie (15 ans de
+professeur de musique --> saxes, improvisation, big-band, ensembles
+vocaux, informatique musicale avec Finale, StudioVision, etc...) qui
+peut aider dans un pareil cas.
+
+D'autre part, je suis en relation avec une grosse association
+parisienne qui procede a une refonte complete, locaux agrandis
+(administratif, salle d'expo, salle de spectacle, studio
+d'enregistrement, regie video et son, serveur internet, salles de
+repetitions et d'ateliers...) et nouvelle dynamique globale.
+J'y suis conseille culturel pour la musique et les nouvelles
+technologies et bientot intervenant dans les domaines qui sont les
+miens. Il y a aussi une residence en route pour 2001-2 pour la
+creation de mon oratorio...
+Vu les equipements presents ou prevus et la volonte de la direction
+actuelle, il n'est pas impossible que le lieu devienne un petit pole
+pas trop institutionnel qui developperait entre autres aspects une
+partie "Nouvelles technologies appliquees a la creation contemporaine"
+sous une forme populaire et ouverte a la diversite des experiences et
+des pratiques et fonctionnant en residence. Je souhaite pouvoir creer
+des liens avec des informaticiens, chercheurs, etc... car il me semble
+aujourd'hui indispensable d'impliquer l'art et la creation dans la
+recherche. A terme je pourrai peut-etre debloquer des petits budjets
+pour des taches de developpement liees a un projet en residence.
+Et permettre ainsi de payer quelqu'un pour des developpements sur BP2
+par exemple...
+
+Dans le cadre de l'inauguration de l'association relookee,  il est a
+l'etude de me confier la realisation d'un evenement multimedia avec
+teles, radios, realtime sur le net, etc...
+Il s'agirait d'investir toute la partie publique, rez-de-chaussee et
+acces a l'etage d'un point de vue scenographique avec integration des
+acteurs culturels du lieu, danseurs, musiciens, videastes etc... et
+developpement d'interactions avec le public. Si cela se confirme, ce
+serait une occasion revee pour utiliser BP2 conjointement avec Max,
+faire mieux connaitre BP2 en region parisienne...
+Bon c'est mon cote enthousiaste delirant qui a repris le dessus mais
+les choses semblent bien se presenter... Et j'appelle de tous mes
+voeux et de tous mes efforts depuis 20 ans le developpement d'une
+autre approche et des lieux de creation et de diffusion et des outils
+de creation...
+
+Tout va se jouer dans les semaines a venir, le nouveau projet du lieu
+sera-t-il soutenu globalement au niveau politique (conseil regional,
+ministeres, Europe) ? et obtiendra-t-il a nouveau les aides
+importantes dont il disposait jusqu'a ce que l'ancienne equipe ne
+desagrege en trois ans le benefice d'une vingtaine d'annees
+d'efforts.... Les chances de succes semblent importantes et les
+soutiens humains influents pour reussir cette reconversion...
+
+Cordialement.
+Jerome
+
+- --
+Jerome NATHANAEL Demolliens | composer - multi-instrumentist
+c/o On the One Associates   | BP85 FR-78314 Maurepas Cedex
+jeronath@netcourrier.com    | ICQ UIN: 43231102
+fax: +33 (0)1 3050 5456     | e-fax: +1 419-730-0223
+mobile: +33 (0)6 1524 2154  | e-mobile: jnd-GSM@mailme.net
+
+
+
+
+
+
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 6.0.2i for non-commercial use
+Comment: My DH/DSS key (ID: 0xADFA8EE1) at http://www.keyserver.net/
+
+iQA/AwUBOBm8H9CVT6qt+o7hEQIwUQCg6a6d5Oqi8syVRxxvf/1ggdX9/ywAn36n
+U8F+ny1xkPU/j58pFPv7WTJ7
+=QGtq
+-----END PGP SIGNATURE-----
+
+
+============================================================================
+
+Subject:     Re: BP2 remarques globales & tutorial & perspectives
+Date:        2/11/99 16:04
+To:          Jerome Nathanael Demolliens, jeronath@netcourrier.com
+
+
+>Ainsi nous avons par exemple un outil randomize pour :
+>- - les elements d'une expression --> _rndseq
+>- - les velocites --> _rndvel(x)
+>- - le timing des notes --> rndtime(x)
+>mais pas d'outil pour les notes --> rndpitch(x) ?
+
+... qui agirait sur quoi?  sur la valeur courante du pitch bender, ou sur
+les notes elles-mêmes, en ajoutant/retranchant un nombre arbitraire de
+demi-tons, ou encore pour produire une note arbitraire, auquel cas il
+faudrait donner une valeur moyenne et un écart type?  Si l'on agit ainsi sur
+le pitchbender, est-ce qu'on modifie sa valeur uniquement en début d'une
+note, ou de manière aléatoire, toutes le 'y' millisecondes, où 'y' serait
+spécifié?
+
+En fait, tous ces 'random' ont une histoire et ont été introduits un par un
+en fonction d'un besoin particulier.  Essayons donc de trouver un exemple
+typique d'utilisation et de le généraliser...
+
+>Il serait logique que cet outil soit etendu a l'ensemble des
+>parametres
+>midi, y compris pour les controleurs, par exemple avec rndmod(x), il
+>serait possible de donner un peu de vie a un son, si mod est assigne a
+>l'ouverture d'un filtre par exemple ou a un LFO.
+
+Même remarque que pour le pitchbend: il faut à mon avis plus de paramètres
+pour dire si on fait varier fréquemment cette modification aléatoire, ou si
+on garde la même valeur pour chaque note (sachant que ça fera bizarre en
+polyphonie).  Il me semble qu'il faudrait au moins trois paramètres:
+
+rndmod(val,tmin,tmax)
+
+avec 'val' l'étendue de la variation aléatoire, et tmin, tmax les
+intervalles de temps minimal et maximal entre deux variations.  Si tmin =
+tmax, la variation se faisant de manière régulière risque de créer un effet
+indésirable de régularité.
+
+>Les outils step et cont sont plus largement disponibles.
+
+Je regrette d'ailleurs de ne pas avoir introduit 'cont' comme un paramètre
+des instructions auxquelles il s'applique.
+
+>Peut-etre meme serait-il souhaitable de developper la categorie des
+>"transformers tools" en y integrant des objets mathematiques
+>(fonctions) ou lecture de courbes graphiques, etc...
+
+C'est ce qu'on a pensé faire avec Kumar.  Par exemple, si G1 est une courbe
+mathématique définie par une équation ou un tableau de valeurs, on mettrait
+G1 dans un 'field' de formule polymétrique, la fonction serait alors définie
+sur la durée totale de la formule, ensuite on 'piquerait' dans G1 pour
+définir des valeurs de pitchbend ou autres paramètres, en passant
+éventuellement par une autre fonction d'adaptation d'échelle.  C'est le seul
+moyen pratique que nous voyons d'introduire des "formes mélodiques" plus
+simplement qu'en définissant une séquence de points, comme c'est le cas en
+ce moment.
+
+>On aurait _control(x,y,z) ou x est le n∞ du controleur, y le canal
+>midi
+>et z la valeur.
+
+Excellente idée, facile à implémenter.  Il faut rendre les contrôleurs
+indépendants du canal MIDI des séquences dans lesquelles ils apparaissent.
+
+>Et il me semble utile de disposer de plus de
+>controleurs
+>continus que ce qui est actuellement implemente. Nous avons
+>modulation,
+>channel aftertouch, volume et pan. Vu l'utilisation qui est faite
+>aujourd'hui des controleurs dans la gestion des effets ou de la
+>synthese
+>il serait necessaire d'avoir au moins en plus:
+>- - bank select MSB cntrl 0
+>- - bank select LSB cntrl 32
+>- - breath cntrl 2
+>- - foot pedal cntrl 4
+>- - portamento time cntrl 5 (nous avons switch(41, x) pour son
+>declenchement)
+>- - data entry cntrl 6
+>- - expression pedal cntrl 11
+>Ou bien n'est-ce pas possible en adaptant l'implementation des
+>parametres de CSound tel _param, _value, ...
+
+En fait c'est probablement possible avec _value().  La difficulté est de
+définir les 'ranges' qui permettent à BP2 d'envyer un message MIDI bien
+formé.  Dans un permier temps on pourrait se contenter d'agir sur les
+controleurs uniques (range 0..127), comme on le fait avec _volume() qui agit
+sur le contrôleur 11 si mes souvenirs sont exacts.  En fait, on peut
+reprogrammer _volume() pour agir sur un autre controleur...  Alors, pourquoi
+pas donner des noms arbitraires aux controleurs (comme dans Csound) et
+ensuite faire un mapping de ces noms vers des contrôleurs existant
+physiquement?
+
+Je vais certainement voir ça en priorité, car ce n'est pas trop compliqué. 
+Je vous ferai tester l'implémentation car je n'ai toujours pas récupéré mon
+vieux D50...
+
+>L'aspect interactif pourrait alors porter sur trois niveaux :
+>- - grammaires : poids des regles, flags, procedures...
+>- - transformations : valeurs des transformer tools
+>- - bas niveau : la realisation midi.
+>et etre influence par tout ce que MAX peut interpreter, rendant BP2
+>d'une souplesse rare, sans egale je crois actuellement.
+
+C'est très intéressant...  Si je ne m'y suis pas penché plus tôt c'est parce
+qu'aucun utlisateur ne l'avait demandé!
+
+>Je suis tente de vous proposer ceci : nous sommes sans doute tous deux
+>tres occupes mais en prenant notre temps et en nous "organisant"
+>peut-etre pourrions-nous venir a bout d'un BP2 version3, implementant
+>de nouvelles possibilites dans les domaines suggeres par mes mails et
+>ceux d'autres utilisateurs.
+>Comme je ne connais rien en programmation en C ou C++, mais commence a
+>savoir tomber des pages HTML, a comprendre BP2 suffisament pour faire
+>pour chaque fonction des exemples simples si necessaire, je pourrais
+>prendre en main une refonte du manuel, version Word et HTML.
+
+Ça serait très, très utile...  Surtout en HTML car on ne peut pas se
+contenter d'un manuel "linéaire" à entrée unique.  Quand j'ai fait la
+conversion automatique du manuel MS-Word en HTML, je pensais reprendre
+l'édition directement dans la version HTML, mais je me suis aperçu que ça
+demanderait beaucoup de travail.  En fait, depuis deux ans, je me suis
+contenté de mettre à jour l'aide en ligne et de signaler les nouveautés dans
+"What's new?".  Harm a commencé à proposer des exemples pour un tutoriel,
+mais ensuite il n'a plus eu le temps et je me suis bien gardé de le relancer
+car de mon côté aussi j'avais trop peu de temps pour penser à une refonte
+complète du tutoriel à partir de ses propositions.
+
+Mais dans la perspective d'un projet de longue durée, on pourrait envisager
+un travail plus fondamental de documentation et de développement.  Ce serait
+très prometteur si on atteint une "masse critique" d'utilisateurs, à la
+fois, du logiciel, mais aussi du matériel pédagogique qui lui serait
+associé.  Ce qui veut dire, probablement, pour être réaliste, que la
+documentation deviendrait bilingue, mais ce n'est pas un surcroît
+considérable de travail.
+
+J'ai déjà entendu dire que certains profs d'université américains
+utilisaient BP2 dans un but pédagogique, mais je n'ai jamais reçu de détails
+sur leur manière de procéder.  D'autres (notamment un collègue canadien)
+m'ont incité à améliorer la documentation, mais sans donner des suggestions
+précises.  Le problème, comme vous l'indiquez, est avec l'approche
+générative qui est très peu connue des musiciens, non pas parce qu'ils en
+ont fait le tour, mais parce qu'ils n'ont jamais eu en main un outil assez
+perfectionné pour expérimenter.  Harm m'a montré une première voie vers ce
+perfectionnement, en brisant la rigidité des structure temporelles.  Avec
+l'interactivité on entre dans un domaine qui lui aussi devrait être très
+fructueux, car on reproche généralement au "génératif" de produire un
+matériau sur lequel on ne peut plus intervenir -- un sorte d'art "brut",
+comme Xenakis avec ses modèles mathématiques.
+
+Je suis donc partant à 100% sur tous ces projets que vous évoquez.  Toujours
+émerveillé de voir que les choses avancent dans des lieux et à des moments
+complètement inattendus -- alors que les campagnes "publicitaires" n'ont
+aucun résultat apparent.  Il est très difficile d'anticiper les besoins
+momentanés de la création artistique, et encore plus de répondre à ces
+besoins da manière convaincante, à moins que le lien soit assuré par
+certains artistes tournés à la fois vers la création et la recherche.
+
+>Tout va se jouer dans les semaines a venir, le nouveau projet du lieu
+>sera-t-il soutenu globalement au niveau politique (conseil regional,
+>ministeres, Europe) ? et obtiendra-t-il a nouveau les aides
+>importantes dont il disposait jusqu'a ce que l'ancienne equipe ne
+>desagrege en trois ans le benefice d'une vingtaine d'annees
+>d'efforts.... Les chances de succes semblent importantes et les
+>soutiens humains influents pour reussir cette reconversion...
+
+Je croise les doigts, car c'est exactement ce que nous aurions aimé voir il
+y a quelques années, quand nous étions à 100% dans le monde du spectacle. 
+Mais le milieu politico-culturel marseillais était aux antipodes de cette
+approche ouverte, et complètement court-circuité par les réseaux de
+copinage!
+
+Bernard
+
+============================================================================
+
+Subject:     suite BP2 perspectives et divers
+Date:        12/11  20:55
+Received:    15/11  10:22
+From:        Jerome Nathanael Demolliens, jeronath@netcourrier.com
+To:          Andreine & Bernard Bel, bel@wanadoo.fr
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Je reprend ce mail abandonne il y a quatre jours....
+Tout cela est un peu decousu mais cela va s'arranger...
+
+Le mardi 2 novembre 1999 18:27:56, Andréine & Bernard Bel a écrit:
+>
+>>d'outil pour les notes --> rndpitch(x) ?
+>
+> .. qui agirait sur quoi?  sur la valeur courante du pitch bender, ou
+sur les notes elles-mêmes, en ajoutant/retranchant un nombre
+arbitraire de demi-tons, ou encore pour produire une note arbitraire,
+auquel cas il faudrait donner une valeur moyenne et un écart type?  Si
+l'on agit ainsi sur le pitchbender, est-ce qu'on modifie sa valeur
+uniquement en début d'une note, ou de manière aléatoire, toutes le 'y'
+millisecondes, où 'y' serait spécifié?
+Je pensais bien au pitch et non au pitchbend, l'ideal etant a mon avis
+de pouvoir disposer d'un reservoir de notes et d'une etendue de la
+variation aleatoire, votre val ci-dessous, correspondant ici au nombre
+de degres d'une gamme par exemple, possible vers le haut ou le bas.
+Exemple si =A est le reservoir de notes (C, D, E, F, G, A, B) et 2 le
+nombre de degre permis, on pourrait avoir rndpitch(=A, 2, tmin=50,
+tmax=100) on aurait une variation possible si la note concernee est A4
+entre B4 et C5 d'un cote et G4 et F4 de l'autre. Il faudrait trouver
+un moyen pour passer du degre a la note finale.
+Si on reflechit a cela on se rend compte de l'utilite d'implementer
+des objects mathematiques  (tels que des ensembles et les possibilites
+d'intersection, reunion, etc ce qui permettrait de realiser les
+cribles de Xenakis je crois) et des fonctions mathematiques et/ou des
+graphiques. Dans ce cas une fonction rnd generique pourrait avoir
+comme champs un reservoir de valeurs, la lecture du courbe ou d'une
+fonction, avec un ecart max (votre val) et vos tmin et tmax pour les
+intervalles entre deux variations.
+>
+>
+>  il faut à mon avis plus de paramètres pour dire si on fait varier
+> fréquemment cette modification aléatoire, ou si on garde la même
+valeur
+> pour chaque note (sachant que ça fera bizarre en polyphonie).  Il me
+semble
+> qu'il faudrait au moins trois paramètres:
+>
+> rndmod(val,tmin,tmax)
+>
+> avec 'val' l'étendue de la variation aléatoire, et tmin, tmax les
+intervalles de temps minimal et maximal entre deux variations.  Si
+tmin = tmax, la variation se faisant de manière régulière risque de
+créer un effet indésirable de régularité.
+>
+>>Les outils step et cont sont plus largement disponibles.
+>
+> Je regrette d'ailleurs de ne pas avoir introduit 'cont' comme un
+paramètre des instructions auxquelles il s'applique.
+On obtiendrait des possibilites tout a fait etonnates en effet....
+>
+>>Peut-etre meme serait-il souhaitable de developper la categorie des
+>>"transformers tools" en y integrant des objets mathematiques
+>>(fonctions) ou lecture de courbes graphiques, etc...
+>
+> C'est ce qu'on a pensé faire avec Kumar.  Par exemple, si G1 est une
+courbe mathématique définie par une équation ou un tableau de valeurs,
+on mettrait G1 dans un 'field' de formule polymétrique, la fonction
+serait alors définie sur la durée totale de la formule, ensuite on
+'piquerait' dans G1 pour définir des valeurs de pitchbend ou autres
+paramètres, en passant éventuellement par une autre fonction
+d'adaptation d'échelle.  C'est le seul moyen pratique que nous voyons
+d'introduire des "formes mélodiques" plus simplement qu'en définissant
+une séquence de points, comme c'est le cas en ce moment.
+Cela rejoint ce que je proposais ci-dessus. Je pense qu'il y a des
+idees tres interessantes sur ce point a voir dans ACT-Toolbox qui est
+un programme que Harm et moi utilisons et dont certains aspects
+pourraient etre retravailler pour les implementer dans BP2. On le
+trouve en telechargement gratuit a l'adresse :
+je cite
+"AC-Toolbox (Mac only  algorithmic composition toolbox) is by Paul
+Berg
+at the Institute of Sonology (!) at The Hague in Holland.
+There is now 3.4 which is a PPC version running with OMS.
+
+You can download AC Toolbox from the Koninklijk Conservatorium of
+Amsterdam.
+ftp site : ftp://ftp.koncon.nl
+web site: http://www.koncon.nl/ACToolbox"
+>
+>>On aurait _control(x,y,z) ou x est le n? du controleur, y le canal
+>>midi
+>>et z la valeur.
+>
+> Excellente idée, facile à implémenter.  Il faut rendre les
+contrôleurs indépendants du canal MIDI des séquences dans lesquelles
+ils apparaissent.
+>
+>>Et il me semble utile de disposer de plus de
+>>controleurs
+>>continus que ce qui est actuellement implemente. Nous avons
+>>modulation,
+>>channel aftertouch, volume et pan. Vu l'utilisation qui est faite
+>>aujourd'hui des controleurs dans la gestion des effets ou de la
+>>synthese
+>>il serait necessaire d'avoir au moins en plus:
+>>- - bank select MSB cntrl 0
+>>- - bank select LSB cntrl 32
+>>- - breath cntrl 2
+>>- - foot pedal cntrl 4
+>>- - portamento time cntrl 5 (nous avons switch(41, x) pour son
+>>declenchement)
+>>- - data entry cntrl 6
+>>- - expression pedal cntrl 11
+>>Ou bien n'est-ce pas possible en adaptant l'implementation des
+>>parametres de CSound tel _param, _value, ...
+>
+> En fait c'est probablement possible avec _value().  La difficulté
+est de définir les 'ranges' qui permettent à BP2 d'envyer un message
+MIDI bien formé.  Dans un permier temps on pourrait se contenter
+d'agir sur les controleurs uniques (range 0..127), comme on le fait
+avec _volume() qui agit sur le contrôleur 11 si mes souvenirs sont
+exacts.  En fait, on peut reprogrammer _volume() pour agir sur un
+autre controleur...  Alors, pourquoi pas donner des noms arbitraires
+aux controleurs (comme dans Csound) et ensuite faire un mapping de ces
+noms vers des contrôleurs existant physiquement?
+Le controler 11 est le controleur d'expression, le 7 etant le volume
+>
+> Je vais certainement voir ça en priorité, car ce n'est pas trop
+compliqué.  Je vous ferai tester l'implémentation car je n'ai toujours
+pas récupéré mon vieux D50...
+OK bien sur pour tester l'implementation...
+>
+>>L'aspect interactif pourrait alors porter sur trois niveaux :
+>>- - grammaires : poids des regles, flags, procedures...
+>>- - transformations : valeurs des transformer tools
+>>- - bas niveau : la realisation midi.
+>>et etre influence par tout ce que MAX peut interpreter, rendant BP2
+>>d'une souplesse rare, sans egale je crois actuellement.
+>
+> C'est très intéressant...  Si je ne m'y suis pas penché plus tôt
+c'est parce qu'aucun utlisateur ne l'avait demandé!
+>
+>> je pourrais
+>>prendre en main une refonte du manuel, version Word et HTML.
+>
+> Ça serait très, très utile...  Surtout en HTML car on ne peut pas se
+contenter d'un manuel "linéaire" à entrée unique.
+Tout a fait d'accord
+....
+> Mais dans la perspective d'un projet de longue durée, on pourrait
+envisager un travail plus fondamental de documentation et de
+développement.  Ce serait très prometteur si on atteint une "masse
+critique" d'utilisateurs, à la fois, du logiciel, mais aussi du
+matériel pédagogique qui lui serait associé.  Ce qui veut dire,
+probablement, pour être réaliste, que la documentation deviendrait
+bilingue, mais ce n'est pas un surcroît considérable de travail.
+>
+> J'ai déjà entendu dire que certains profs d'université américains
+utilisaient BP2 dans un but pédagogique, mais je n'ai jamais reçu de
+détails sur leur manière de procéder.  D'autres (notamment un collègue
+canadien) m'ont incité à améliorer la documentation, mais sans donner
+des suggestions précises.
+Peut-etre serait-il possible dans un premier temps, a partir de la
+base de donnees utilisateurs que vous devez avoir, de lancer une sorte
+de sondage direct par mail portant sur l'utilisation de BP2. Cela
+permettrait de degager les grandes lignes quant aux domaines
+d'application et de reperer les attentes en termes de developpement.
+Le sondage pourrait s'accompagner d'une presentation d'un projet
+longue duree et d'un appel a participation par la mise a disposition
+d'exemples de grammaire ou de contribution textuelle. De la nous
+pourrions faire une synthese des apports, tirer le plan d'une nouvelle
+documentation et un planning de developpement, voir avec qui et
+comment y repondre, peut-etre obtenir des financements...
+Si le "Centre Populaire Arts et Technologies" se met a fonctionner on
+pourra aussi envisager une journee BP2 avec demonstrations
+d'utilisation, conference-debat sur l'histoire, l'approche, les
+perspectives, etc... eventuellement en relation avec d'autres
+logiciels, ou integrer cela dans un festival ou quelque chose du genre
+Arts et Nouvelles Technologies pour 2001.
+Je suis en reflexion sur ces aspects, dans une perspective globale
+"(In)Formation _ Creation _ Diffusion ".
+
+> Le problème, comme vous l'indiquez, est avec l'approche générative
+qui est
+> très peu connue des musiciens, non pas parce qu'ils en ont fait le
+tour,
+> mais parce qu'ils n'ont jamais eu en main un outil assez
+perfectionné pour
+> expérimenter.  Harm m'a montré une première voie vers ce
+perfectionnement,
+> en brisant la rigidité des structure temporelles.  Avec
+l'interactivité on
+> entre dans un domaine qui lui aussi devrait être très fructueux, car
+on
+> reproche généralement au "génératif" de produire un matériau sur
+lequel on
+> ne peut plus intervenir -- un sorte d'art "brut", comme Xenakis avec
+ses
+> modèles mathématiques.
+Pour moi il est important de penser la relation de l'homme a son outil
+et par rapport a l'informatique indispensable de developper des acces
+pour que l'homme puisse influencer le fonctionnement de la machine,
+d'ou mon interet tres fort pour l'interactivite et ma joie de
+decouvrir des outils comme BP2 qui ont de reelles possibilites de ce
+cote. Je pense qu'il faudra ensuite developper le cote "memoire"
+(developpement des procedures remote-context) pour "humaniser" les
+reactions de BP2.
+Nous sommes aujourd'hui devant l'informatique au debut d'une histoire
+qui va aller s'accelerant a mesure que la puissance de calcul de
+l'ordinateur grand public va augmenter. L'enjeu est pour moi de
+participer a l'amelioration de l'outil pour qu'il soit au service de
+l'homme et de sa creativite. L'ordinateur est comme le pinceau du
+peintre ou le violon du musicien, il a fallu de longs echanges entre
+les artistes et les fabriquants d'outils pour realiser un violon qui
+sonne et reagisse ou un pinceau qui se prete au geste. Il faudra
+pareillement progressivement rendre le comportement de l'ordinateur et
+des logiciels extremement sensible a l'action humaine directe en temps
+reel. Il y a pour cela besoin que les artistes et les chercheurs
+travaillent ensemble pour partir des besoins expressifs et creatifs
+des uns pour apporter des idees de developpement aux autres et
+vice-versa, BP2 m'ayant par exemple enormement apporte en envie et
+perspectives de travail....
+
+> Je suis donc partant à 100% sur tous ces projets que vous évoquez.
+....Il est très difficile d'anticiper les besoins momentanés de la
+création artistique, et encore plus de répondre à ces besoins da
+manière convaincante, à moins que le lien soit assuré par certains
+artistes tournés à la fois vers la création et la recherche.
+Cet aspect me semble passionnant et fondamental pour l'avenir. Je
+fonde de bons espoirs de ce cote et je commence a reunir
+progressivement une equipe de creatifs qui travailleront dans ce sens
+si le socle du Centre est solide.
+>
+>>Tout va se jouer dans les semaines a venir, le nouveau projet du
+lieu
+>>sera-t-il soutenu globalement au niveau politique (conseil regional,
+>>ministeres, Europe) ? et obtiendra-t-il a nouveau les aides
+>>importantes dont il disposait jusqu'a ce que l'ancienne equipe ne
+>>desagrege en trois ans le benefice d'une vingtaine d'annees
+>>d'efforts.... Les chances de succes semblent importantes et les
+>>soutiens humains influents pour reussir cette reconversion...
+Il nous est venu un soutien au plus haut niveau de la hierarchie du
+PS, je pense que cela va servir....
+>
+A bientot.
+
+Cordialement et vous renouvelant mes excuses pour ma lenteur a
+repondre...
+
+Jerome.
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 6.0.2i for non-commercial use
+Comment: My DH/DSS key (ID: 0xADFA8EE1) at http://www.keyserver.net/
+
+iQA/AwUBOCxwmtCVT6qt+o7hEQKYdACfeEviKY1MdgAU3GT+LgunAFsxCRsAn09O
+C9CUMyhrMgga9Ih/nbaDkOhr
+=l96h
+-----END PGP SIGNATURE-----
+
+
+============================================================================
+
+Subject:     RE: re: BP2 - votre mssg (2)
+Date:        12/11  20:55
+Received:    15/11  10:22
+From:        Jerome Nathanael Demolliens, jeronath@netcourrier.com
+To:          Andreine & Bernard Bel, bel@wanadoo.fr
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Bonjour Bernard,
+
+Desole d'etre long a repondre mais je suis en periode de consultations
+nombreuses pour le montage du projet "Centre Populaire Arts et
+Technologies".
+Cela avance pour l'instant de maniere prometteuse aussi bien au niveau
+des perspectives de financement et des soutiens politiques que des
+collaborateurs sur les differents secteurs, son (enregistrement
+numerique, post-production, creation sonore), image (2D-3D, video,
+film), geste (interactions, installations) et communication (serveur
+web, email, ftp).
+Je pense etre assez occupe par cela jusqu'a la mi-decembre et disposer
+de temps ensuite pendant les travaux qui sont prevus en janv-fev et
+deb mars.
+Tout cela est assez imprevu meme si c'etait dans l'air depuis
+plusieurs mois, le CA du lieu n'a donne son feu vert que depuis
+quelques semaines d'ou acceleration pour les negociations de budget,
+etc...
+J'ai ete oblige de mettre en stand-by deux-trois autres activites mais
+l'enjeu commence a en valoir serieusement la peine...
+
+Le mardi 2 novembre 1999 18:27:46, Andréine & Bernard Bel a écrit:
+
+> OMS gèrerait jusqu'à 128 ou 256 canaux...  Mais je ne connais pas
+encore la
+> syntaxe à utiliser pour ces messages.
+> Le plus simple pour le savoir serait peut-être d'essayer de capturer
+une séquence de messages MIDI (NoteOn/Off) envoyant des ordres à des
+périphériques affectés de canaux > 16.  En analysant la séquence je
+pourrais peut-être comprendre comment ça a été fait.
+Je ne suis pas certain que cela fonctionne puisque qu'en sortie les
+infos sont deja routees par port et par canal Midi sur chaque port et
+cela sans sys ex supplementaire, chaque boite a sons recevant ce qui
+lui revient, sur des canaux de 1 a 16 de facon classique.  Le triage
+se fait donc dans le mac, à l'interieur d'OMS qui sait comment faire
+correspondre tout cela.
+
+> Je me doute qu'en fait les messages restent standards (1-16) mais
+qu'ils sont précédés d'un message system exclusive prévenant OMS qu'il
+faut ajouter une certaine quantité au numéro de canal.
+Il me semble qu'OMS utilise un n° ID par machine. Je vais essayer par
+le port IAC de voir ce que je peux recuperer des que j'ai un peu de
+temps...Je ne suis pas certain que la capture fera apparaitre quelque
+chose d'utilisable.
+.....
+> IL y a d'ailleurs une nouvelle version d'OE pour Mac distribuée
+depuis quelques semaines, et qui améliore le produit notamment au
+niveau des attachements.
+J'ai telecharge la version US mais sans succes pour importer dans la
+nouvelle version les mails, reglages et adresses de ma version 4.5
+francaise... Je reste donc sur 4.5 pour l'instant.
+....
+>>Enfin peut-etre connaissez-vous la liste de diffusion tuning chez
+>>Onelist.com qui est tres active et source de precieuses infos.)
+>
+> Non.  En fait je n'ai pas eu le temps de continuer ces réflexions
+sur les systèmes d'intonation.  Sur le plan pratique, c'est à dire
+sans se soucier trop des modèles théoriques ni de spéculations
+numérologiques à la Daniélou, un système tempéré à 52 ou 53
+intervalles est ce qui semble le mieux pour se rapprocher de
+l'intonation juste.  Bose, en Inde, était arrivé à la même conclusion
+(52) pour la musique Hindustani...  Je ne sais pas trop s'il y a une
+différence significative entre 52 et 53; de même, pour la gamme
+(non-tempérée) qui sous-tend le système Hindustani (d'après Bharata)
+on a 23 intervalles mais on compte 22 shrutis; la raison est d'ordre
+topologique.  Bref, lorsque je vai me pencher sur la question,
+concernant BP2, je pense partir d'un système de 52 ou 53 intervalles
+que le musicien pourrait programmer à sa guise.  (Daniélou ne se
+retournera pas dans son urne!)  Car si on a un système flexible à 52
+ou 53 intervalles on peut programmer tous les systèmes plus simples,
+qui n'utiliseront qu'une partie des intervalles.
+Le temperament a 53 intervalles dit de Holder-Mercator me semble un
+bon choix car il permet une harmonie avec des accords majeurs ou
+mineurs purs et est un bon outil de comparaison entre les gammes
+pythagoricienne, zarlinienne et quelques autres.
+C'est egalement l'outil de reference en theorie classique pour
+determiner les intervalles d'une gamme diatonique et la valeur des
+demi-tons chromatiques. Nous avons alors pour do majeur par exemple :
+C   D   E  F  G  A  B  C
+  9   9  4  9  9  9  4  soient 53 commas holderiens, le demi-ton
+chromatique C C# valant 5 commas.
+Ce temperament peut egalement servir de reservoir pour determiner par
+choix de nombreux autres temperaments, les 1/3 et 1/6 de tons
+correspondent a 6 et 3 commas holderiens.
+Par contre les 1/4 et 1/8 de tons ne sont pas compatibles avec
+Mercator, mais si chaque degre est configurable dans le programme on
+s'en sort.
+Pour les 12eme de tons de Wyschnegradsky ou les 16eme de tons de
+Carillo (cf les pieces d'Emmanuel Levinas qui utilisent le piano en
+16emes de ton de Carillo conserve au CNSP de Paris) il manquerait des
+degres. On atteint la des aspects encore rarement utilises
+aujourd'hui, sans doute plus facilement realisables dans CSound
+qu'avec des synthes, a moins de consacrer un canal midi en 1/2 tons
+temperes a chaque "position", chaque canal etant alors decale d'un
+1/12 ou d'un 1/16 par rapport au precedent...
+Mes souvenirs du piano de Carillo entendu en concert a Royaumont lors
+d'un colloque sur les micro-intervalles me donnent cependant bien
+envie d'aller me hasarder par la s'il etait possible par BP2 d'avoir
+un outil permettant de gerer ces temperaments d'une facon non plus
+analytique mais par "nuages de sons", polychromie sonore pensee a un
+niveau structurel.
+>
+> Evidemment, ça peut vouloir dire donner au départ 60 ou même 64
+intervalles, voire plus, pour simplifier l'interface.
+Est-il possible dans BP2 d'avoir jusqu'a 192 intervalles (1/16emes)
+dispatches en sortie sur plusieurs expandeurs par OMS, soit pour le
+resultat final soit pour une simple ecoute? On pourrait ensuite
+repartir le resultat sur plusieurs guitares microtonales par
+exemple... J'imagine depuis longtemps une piece melangeant sons de
+synthese et de telles guitares...
+>
+> Il faut aussi compter avec le "stretch" d'octave, puisqu'avec des
+octaves tempérées (vers le haut) de 1204 cents on a des quintes
+exactes...  Il y a une dizaine d'années, j'avais programmé sur un
+Syter un système d'intonation utilisant des cribles de Xénakis, dans
+lequel l'octave était programmable.  L'étape suivante aurait été de
+dilater plus ou moins les octaves en fonction des registres.  C'est
+tout cela que j'ai en tête derrière cette interface de "tuning".  Rien
+de terriblement compliqué, mais ça demande une réflexion sur la
+manière de représenter les positions tonales dans les grammaires ou
+les pièces musicales.
+On peut en effet aborder le probleme du "tuning" de facon mathematique
+par les cribles de Xenakis ou les genres d'Euler-Fokker, ce qui peut
+permettre pour les micro-intervalles d'obtenir des representations
+facilement manipulables au niveau compositionnel.
+Mais je pense comme vous que l'aspect psycho-physiologique de
+l'audition qui oblige un accordeur a dilater les octaves d'un piano en
+montant dans l'aigu pour que l'oreille les trouvent justes devrait
+etre integre dans le dispositif. Par ailleurs on peut pousser jusqu'a
+remettre en cause la suprematie de l'octave et envisager des espaces
+non-octaviants...
+>
+> Au passage, j'avais aidé Jim Arnold, au début des années 80, à
+rédiger un article sur l'application du système de Bharata à
+l'intonation juste en musique occidentale, qui a été publié, presque
+dix ans plus tard (!) par la Revue d'Ethnomusicologie.  Je peux vous
+envoyer cet article s'il vous intéresse.  On y apprend par exemple que
+pour passer de do majeur à do mineur il faut baisser le do d'un comma
+syntonique...
+Je lirai volontiers votre article. Merci d'avance.
+>
+>>La solution "fenetre de dialogue", qui eviterait la creation d'une
+>>multitude de variables, garderait la possibilite d'utiliser le
+clavier
+>>pour rentrer les notes mais devrait aussi etre etudiee pour rester
+>>ouverte et evolutive au cours d'une grammaire.
+>>Peut-etre differents patches correspondant a des "tunings"
+integrables
+>>dans la syntaxe d'une grammaire ou repondant a un PG. Ce qui me
+semble
+>>important c'est que chaque "note" ainsi definie existe a part
+entiere
+>>et puisse etre le resultat d'un processus de calcul. Il faut pouvoir
+>>faire des "modulations" ou des superpositions de temperaments comme
+on
+>>fait dans BP2 (comme je ferai bientot !!!) des modulations ou des
+>>superpositions de tempo.
+>
+> Je note cela avec précaution.  Il faudrait en premier trouver une
+forme de syntaxe qui permette de décrire ces subtilités de manière à
+la fois générale et compréhensible.
+Je ne vois pour l'instant pas quel systeme general pourrait etre
+utiliser et j'ai bien conscience que mes remarques ne font pas
+forcement avancer cet aspect... J'y reflechis...
+>
+>
+>>Concernant les procedures, je me suis demande si il serait possible,
+>>comme dit dans un precedent mail, d'avoir une interaction sur elles.
+>>J'imaginais le cas d'une grammaire ayant plusieurs subgrammaires
+dont
+>>le choix serait determine d'une production a l'autre, en mode
+>>Improvize, par l'envoi d'une commande externe Kx et Ky determinant
+les
+>>valeurs de _goto ou _failed, pendant le jeu de la production
+>>precedente, du style:
+>>
+>>ORD
+>>xxxxxxxx
+>>xxxxxxx
+>>xxxxxxx _goto(x,y)
+>>- - - -----------------
+>>SUB ou LIN ou ORD ou RND
+>>yyyyyyyy
+>>yyyyyyyy
+>>yyyyyyy
+>>- - - -----------------
+>>SUB ou LIN ou ORD ou RND
+>>zzzzzzz
+>>zzzzzzz
+>>zzzzzzz
+>>zzzzzz
+>>zzzzzz
+>>
+>>La premiere production utiliserait la 1ere subgrammaire, la suivante
+>>une autre, etc... On peut imaginer des nombreuses possibilites.
+Est-ce
+>>que cela fonctionnerait ?
+>
+> Ce n'est pas tout à fait clair.  On pourrait mettre des Kx et Ky
+dans les _goto().  Ca me semble suffisant pour faire ce saut vers une
+sous-grammaire déterminée.
+C'est en effet a cela que je pensais mais mon explication n'etait pas
+claire...
+>Il y aussi des sauts qui se font lorsqu'aucune variable utilisée dans
+la
+>sous-grammaire n'est produite par les productions précédentes.
+>
+> On pourrait chercher d'autres raffinements, par exemple qu'une règle
+active ou désactive des sous-grammaires, change leur ordre, etc.  Je
+pense qu'une bonne partie des problèmes résolus ainsi peuvent l'être
+avec les /flags/.  Il faudrait voir un cas concret où on ne peut pas
+s'en sortir avec la syntaxe existante.
+L'idee generale a laquelle je reflechissais serait  l'ecriture de
+grammaires non-lineaires, presentant plusieurs cheminements de calculs
+possibles fournissant des resultats tres differents. Une fois en mode
+Improvize, le choix d'un chemin serait determine par les goto ou
+failed dont les valeurs seraient fournis par interaction.
+Deroulement: la grammaire est mise en route apres envoi des premiers
+Kx et Ky, la premiere "computation" utilise par exemples les lignes 5
+a 25 pour un premier resultat sonore ou autre (si Max est en sortie,
+il peut transformer le midi en autre chose). Pendant l'execution du
+resultat, de nouvelles valeurs Kx et Ky sont envoyees qui declenchent
+par goto l'utilisation des lignes 26 a 42 dont les resultats sont tout
+autres... Nouvelles valeurs qui renvoient a une nouvelle utilisation
+des lignes 5 a 25 mais qui par "remote-context" produisent cette fois
+un resultat un peu varie... etc...
+Il faudrait je suppose disposer d'une commande a la fin de chacune des
+portions qui signalent que la derniere regle a utiliser est la ligne
+n°x et qu'il faut produire le resultat a la fin de cette ligne... un
+peu comme la commande _print.
+Est-ce que mon explication est plus claire?
+
+>>Est-ce que l'implementation actuelle en Apple Events permet aussi de
+>>creer une passerelle entre BP2 et le CGI?
+>
+> Dans FileMaker Pro le CGI est intégré au logiciel.  Je ne sais rien
+de Webstar, etc., ni des Web Objects qui me semblent être des
+extensions au web de représentations existant dans les Apple Events.
+En fait, j'attends le système 9 pour en savoir plus, car d'après ce
+que j'ai compris il permet de faire de l'AppleShare sous TCP/IP (par
+exemple de monter un volume éloigné via Internet, sans logiciel
+spécialisé).  Je ne pense pas avoir répondu à votre question car je ne
+sais pas assez bien ce que fait un CGI ni ce que vous penseriez en
+faire dans un environnement musical.  (Jouer en temps réel sur un
+instrument éloigné?)
+Deux pistes me semblent interessantes et realisables si je dispose
+d'une equipe et de materiel (ce qui pourrait bien arriver...):
+- - developper, en collaboration avec un specialiste des langages
+client-serveur, des sites web interactifs qui utiliseraient les
+grammaires programmees de BP2 disponibles sur le serveur pour
+interpreter les commandes envoyees en ligne par l'internaute et
+renvoyer en retour du son, du texte, du Gif anime, de la video, etc...
+tout ce qui pourra transiter par le Web quand les hauts debits ADSL,
+cable et satellite vont se developper,
+- - faire communiquer en temps reel des evenements eloignes
+geographiquement et les rendre interagissants.
+
+L'interet que je porte a BP2 tient aussi au fait qu'il me semble
+pouvoir a terme permettre, en le couplant avec Max et d'autres outils
+comme FishEye par exemple ou des capteurs a retour d'effort, etc... de
+depasser le cadre purement musical pour s'elargir a tout evenement
+integrant une dimension temporelle. On peut utiliser BP2 pour produire
+des actions placees en relation temporelle les unes par rapport aux
+autres, il suffit de transformer la production midi en autre chose
+avec un logiciel qui interprete.
+
+.......
+>
+> Oui, mais en définitive on obtiendrait une notation sur partition,
+dans le format propriétaire de Finale, et non une notation
+transformable en expression polymétrique...
+>
+> Si on prend des pièces composées par Harm sur BP2, utilisant des
+instructions _tempo(x) avec des 'x' décimaux, différents sur plusieurs
+séquences superposées, je vois mal comment on pourrait en tirer une
+notation compréhensible sur partition.
+Le default de Finale a cet egard est l'impossibilite de superposer des
+portees ayant des barres de mesure et des pulsations independantes.
+>
+>>Je piaffe totalement d'impatience non dissimulee. Je me suis amuse a
+>>faire des grammaires pour reconstruire des poemes de Lorca sur
+>>lesquels je travaille en ce moment et il me semble d'ailleurs qu'une
+>>d'entre elles pourrait servir d'exemple pour les debutants en BP2.
+Et
+>>j'ai hate de pouvoir l'utiliser avec MBROLA et d'en realiser
+realiser
+>>une mise en polyphonie...
+>
+> On va bien y arriver.  En tout cas c'est votre enthousiasme qui
+m'encourage à remettre la main à la pâte.  Je vais probablement
+commencer par cette implémentation plus générale des 'Kx'.  Je pense
+d'ores et déjà que le mapping de Kx avec un contrôleur MIDI devrait
+être défini de manière plus souple, du genre
+>
+> K1 controler 23 channel 5 range 0 to 127 default 64
+ou aussi
+K1 velocity of note C4 channel 8 range 0 to 127 default 64 (pour les
+pads midi)
+ou
+K1 n° note channel 15 (eventuellement avec un multiplicateur decimal)
+pour repondre a un bang de Max exprime sous forme d'une note
+>
+> de sorte qu'en faisant varier le 'range' on pourrait contrôler des
+paramètres qui ne sont pas nécessairement dans l'intervalle 0..127.
+La valeur 'default' serait celle prise en début de production ou après
+un "Reset MIDI controlers".
+>
+
+- --
+Jerome NATHANAEL Demolliens | composer - multi-instrumentist
+c/o On the One Associates   | BP85 FR-78314 Maurepas Cedex
+jeronath@netcourrier.com    | ICQ UIN: 43231102
+fax: +33 (0)1 3050 5456     | e-fax: +1 419-730-0223
+mobile: +33 (0)6 1524 2154  | e-mobile: jnd-GSM@mailme.net
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 6.0.2i for non-commercial use
+Comment: My DH/DSS key (ID: 0xADFA8EE1) at http://www.keyserver.net/
+
+iQA/AwUBOCxwutCVT6qt+o7hEQIUXwCfasMgWfymL3NhD1CtmezmRHjOrFYAoKiz
+lS/lcEJ3L4cAiezZAsxm2QFN
+=Hofn
+-----END PGP SIGNATURE-----
+
+
+============================================================================
+
+Subject:     Re: suite BP2 perspectives et divers
+Date:        16/11/99 10:20
+To:          Jerome Nathanael Demolliens, jeronath@netcourrier.com
+
+Merci pour vos deux messages.  Je note soigneusement les nouveaux points et
+je les reprendrai un par un.  Je vous envoie aussi l'article.
+
+>Peut-etre serait-il possible dans un premier temps, a partir de la
+>base de donnees utilisateurs que vous devez avoir, de lancer une sorte
+>de sondage direct par mail portant sur l'utilisation de BP2. Cela
+>permettrait de degager les grandes lignes quant aux domaines
+>d'application et de reperer les attentes en termes de developpement.
+
+J'ai effectivement un grand nombre d'adresses d'utilisateurs (en exercice ou
+non), plus la liste de discussion.  Il y a deux difficultés:
+
+- la langue.  Jusqu'à une époque très récente tous les utilisateurs étaient
+anglophones; si on envisage un développement local plus important il sera
+probablement nécessaire de travailler en bilingue;
+
+- chaque utilisateur, semble-t-il, exploite surtout un aspect particulier du
+logiciel.  Vous êtes le premier que je connaisse à vous intéresser à
+l'interactivité.  Certaines de vos propositions sont par contre proches de
+celles que m'avait faites Harm (j'ai téléchargé AC-Toolbox pour avoir une
+idée plus précise...).  Mais il y a des utilisateurs qui par exemple
+s'intéresseront uniquement à Csound, ou aux objets sonores sur des samplers,
+etc.  Il y a ceux qui veulent composer à partir d'une "page blanche", et
+ceux qui voudraient plutôt transformer des matériaux existants.  Enfin, il y
+a ceux qui voudraient avoir des options prédéfinies pour des méthodes de
+composition (par exemple, "sériel" à la façon de...) et ceux qui préfèrent
+un espace vierge de possibilités.
+
+Tous ces profils d'utilisateurs sont contradictoires dans la mesure où
+chaque approche nécessite un plein investissement au niveau du
+développement.  C'est pourquoi, jusqu'à présent, j'ai travaillé de manière
+plutôt pragramatique en essayant de satisfaire des demandes ponctuelles au
+moment où elles étaient formulées, et en les classant par ordre de
+difficulté.
+
+On pourrait envisager une toute autre manière de procéder si le
+développement se faisait en équipe, dans un environnement de programmation
+"ouvert" (comme Linux et Csound).  Je suis prêt à ouvrir complètement cet
+environnement (sous réserve que personne ne s'en emparera pour réaliser une
+version commerciale), mais cette façon de faire ne présente pas que des
+avantages: elle peut aboutir à des versions "concurrentes" du logiciel,
+lorsque les développeurs implémentent des idées, chacun de leur côté, et
+sans homogénéité quant aux modes de représentation.  Linux est un exemple:
+il existe déjà plusieurs versions, et le seul facteur d'homogénéisation est
+maintenant qu'il est distribué commercialement par une entreprise (RedHat). 
+On arrive donc à l'inverse de ce qu'on souhaitait.
+
+On peut, à mon avis, se préserver de ces dérives en créant un "comité" qui
+déciderait, notamment, des représentations dans BP2.  Jusqu'à présent, je
+prenais ces décisions, après consultation de l'utilisateur demandeur d'une
+nouvelle fonctionnalité, mais cette réflexion pourrait être élargie (via la
+liste de discussion) à condition de donner des "guidelines" sur les
+représentations utilisées -- par exemple, doit on utiliser "pitch" au sens
+de "pitchbend" ou de "note"?
+
+Je suis donc partant pour ce type d'aventure -- à moyen terme.  Le court
+terme (aujourd'hui) c'est que je ne peux développer BP2 que sur mon vieux
+portable 5300 car les G3 refusent de faire tourner Symantec C++ dès qu'ils
+ont plus de 128Mo de RAM...  J'ai heureusement CodeWarrior dans mon bureau,
+et je vais dès que possible transporter le projet dans cet environnement, ce
+qui peut prendre quelques semaines pour le "rodage".  Bien entendu, le code
+source n'a pas été conçu pour un développement multi-utilisateurs, et je
+pense que seul un informaticien bien habitué à ces pratiques pourrait le
+remodeler.  (Ce serait un bon sujet de stage pour un étudiant
+informaticien.)
+
+Bernard

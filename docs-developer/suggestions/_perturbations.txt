@@ -1,0 +1,21 @@
+Hi Bernard,  making copies of objects -that opens new doors for
+experimentations!
+BTW: I get this warning in the Trace-window: 'Correction factor 1.074 might
+be out of rangeSÿ'
+
+Another suggestion (for new 'serial' tools) :
+
+_pertubation(factor) .
+
+This is similar to _rndtime, but pertubations randomize pitches with a
+factor (more or less daviations). With the concept of recursion you can
+design then evolving melodies.
+
+_rndtransp(12,-12)
+
+This randomize the pitches with for instance an octave above and below.
+
+Sheers
+Harm
+
+

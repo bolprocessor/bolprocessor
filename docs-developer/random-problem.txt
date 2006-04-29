@@ -1,0 +1,88 @@
+Random selection of an item in a fixed-cardinal set
+
+
+Typical application:
+
+Select candidate rules in a generative grammar randomly and apply them 
+to the workstring until there is no more candidate rule.
+
+
+Problem:
+
+To stop the process it is necessary to scan the entire grammar and 
+make sure that there is no more candidate rule.  Each time the 
+workstring has changed the "candidate / non candidate" status of each 
+rule in the grammar may vary.  Since scanning "N" rules in the grammar 
+is time consuming, it is preferable to do it only after 
+"maxtry" unsuccessful attempts to find a candidate.  The problem 
+investigated here is to find a minimum "maxtry" making it almost 
+sure that there is no more candidate.
+
+
+Related problem:
+
+Sometimes a selected rule must be applied repeatedly until it is no 
+longer candidate.  If the position of derivation in the workstring is 
+random then the problem amounts to selecting one amongst "candidate" 
+or "non candidate" positions in a set whose cardinal "N" is the length 
+of the workstring.
+
+
+To summarize:
+
+The two examples above may be abstracted to the repeated random 
+selection of an item in a set containg N items.  The algorithm of a 
+general procedure is given below.  The problem is to evaluate 
+"maxtry" so that in the worst case the probability of heuristic [2] being 
+true is greater than a given probability "p".
+
+ScanSet()
+  Return number of candidate items;
+
+FoundItem()
+  Select a item;
+  Return "yes" if item is candidate, "no" otherwise;
+
+Procedure()
+  Evaluate maxtry;
+  Start:
+  nb_candidates = ScanSet();
+  if (nb_candidates = 0) exit;
+  if (nb_candidates = 1)
+    Use candidate item found;
+    Go to Start;
+    [Heuristic 1: if there was a unique candidate item
+     then next time there should be less than two.]
+  Again:
+  repeat with try = 1 to maxtry
+    if (FoundItem()) then
+      Use candidate item found;
+      Go to Again;
+      [Heuristic 2: if try < maxtry there may still be
+       candidate items.]
+  Go to Start;
+
+
+Solution:
+
+Let "k" be the number of candidate items.  The probability to find a 
+candidate item after (maxtry-1) unsuccessful attempts is:
+
+      1 - (1 - k/N)^maxtry
+
+If k = 1 then the Scan() procedure will find the unique candidate item.
+Therefeore the worst case is k = 2 and the condition is:
+
+      1 - (1 - 2/N)^maxtry > p
+
+yielding:
+
+      maxtry > Log(1 - p) / Log(1 - 2/N)
+
+i.e., if 2/N is much smaller than 1,
+
+      maxtry > - N/2 Log(1 - p)
+
+In Bol Processor, I imposed p = 0.64 so that maxtry > N/2.  Of course
+this method is only valid if items have equal weights.
+

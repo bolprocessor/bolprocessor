@@ -1,0 +1,58 @@
+// Bol Processor version BP2.8.1
+// Grammar file saved as '-gr.trySerial'. Date: Lun 20 Avr 1998 -- 0:30
+-se.trySerial
+-ho.abc
+
+// -gr.trySerial
+// This is a test of serial operators implemented in BP2 version 2.8.1, April 1998
+
+// Reset rule weights is unchecked, so all rules will be tried in turn. Type cmd-R to produce the set of items.
+// MIDI is not active, only watch results.
+
+ORD
+_randomize
+
+gram#1[1] <4-1> S --> He Says: _rndseq {_ordseq Boulezian Operators} Are Useless {_ordseq For BP2}
+gram#1[2] <1-1> S --> _retro a b c
+gram#1[3] <1-1> S --> _retro a P b Q c [undefined variables]
+gram#1[4] <1-1> S --> _retro a X b Y Z c [defined variables]
+gram#1[5] <1-1> S --> _retro {a b {c d}} e f
+gram#1[6] <1-1> S --> a b {_retro c d e} f g
+gram#1[7] <1-1> S --> _retro d e f {_retro a b c}
+gram#1[8] <1-1> S --> _retro d e f {_ordseq a b c}
+gram#1[9] <1-1> S --> a b _retro X T Z
+gram#1[10] <1-1> S --> a b _retro {c d e,f g}
+gram#1[11] <1-1> S --> a b _retro {c d e,X T}
+gram#1[12] <1-1> S --> a b _retro {Æ1 Æ2 Æ3,f g} [Time patterns]
+gram#1[13] <1-1> S --> _retro {a b c, d e, f g}
+gram#1[14] <1-1> S --> _retro a b c, d e, f g
+gram#1[15] <1-1> S --> _retro {a b c ¥ d e ¥ f g}
+gram#1[16] <1-1> S --> _retro a b c ¥ d e ¥ f g
+gram#1[17] <1-1> S --> a b _retro c d e _retro f g
+gram#1[18] <1-1> S --> a b {_retro c d e} _retro f g
+gram#1[19] <1-1> S --> _retro a b c /2 d e
+gram#1[20] <1-1> S --> _retro a b c 5/4 d e
+gram#1[21] <1-1> S --> _retro {5/4, a b c, d e}
+
+gram#1[22] <4-1> S --> _rndseq a b c d
+gram#1[23] <4-1> S --> a b _rndseq c d e
+gram#1[24] <4-1> S --> _rndseq a b c _ordseq d e f
+gram#1[25] <4-1> S --> _rndseq a b c {_ordseq d e f}
+
+gram#1[26] <4-1> S --> _rndseq {_ordseq d e f} a b c
+gram#1[27] <4-1> S --> a b _rndseq X Y Z
+gram#1[28] <4-1> S --> a b _rndseq {c d e,f g}
+gram#1[29] <4-1> S --> a b _rndseq {c d e,X T}
+gram#1[30] <4-1> S --> a b _rndseq {Æ1 Æ2 Æ3,f g} [Time patterns]
+gram#1[31] <4-1> S --> _rndseq {a b c ¥ d e ¥ f g}
+gram#1[32] <4-1> S --> _rndseq a b c ¥ d e ¥ f g
+
+-------
+RND
+gram#2[1] T --> X Y
+gram#2[2] X --> p q r
+gram#2[3] Y --> s t u
+gram#2[4] Z --> v w y
+
+TIMEPATTERNS:
+Æ1 = 1/1   Æ2 = 2/3  Æ3 = 5/4

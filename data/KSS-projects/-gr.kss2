@@ -1,0 +1,38 @@
+V.2.5
+Date: Sam 24 Juin 1995 -- 19:41
+// This piece was composed by Kumar S. Subramanian
+// June 1995
+-se.kss
+
+INIT: Play _script(MIDI program 10 [basic channel]) 
+
+RND
+GRAM#1[1] S --> /5 _transpose(-7) X Y X X Y Y X
+GRAM#1[2] <20-4> X Y --> Y X
+GRAM#1[3] <10-2>X Y --> X Y Y X
+GRAM#1[4] <20-4> Y X --> X Y
+GRAM#1[5] <10-2>Y X --> Y X X Y
+GRAM#1[6] <5-1>X X --> Y Y
+GRAM#1[7] <3-1>X X --> X Y X Y
+GRAM#1[8] <5-1>Y Y --> X X
+GRAM#1[9] <3-1>Y Y --> Y X Y X
+-------------------------
+
+RND
+GRAM#2[1] <8-2>X --> sa6 re6
+GRAM#2[2] <8-2> X --> re6 ga6
+GRAM#2[3] <8-1>X Y --> ga6 pa6 dha6 X X
+GRAM#2[4] <8-1>X X --> sa7 dha6 pa6
+GRAM#2[5] <8-2> X X --> _vel(110) sa7 _vel(64) dha6 pa6 Y X
+GRAM#2[6] <8-1>Y --> re7 sa7
+GRAM#2[7] <8-2> Y --> sa7 dha6
+GRAM#2[8] <8-1>Y X --> pa6 ga6 re6 Y Y
+GRAM#2[9] <8-2> Y X --> _vel(110) pa6 _vel(64) ga6 re6 X X
+GRAM#2[10] <8-1>Y Y --> ga6 dha6 pa6
+GRAM#2[11] <8-2> Y Y --> _vel(110) ga6 _vel(64) dha6 pa6
+GRAM#2[12] <6-1> X --> _ X
+GRAM#2[13] <6-1> Y --> _ Y
+GRAM#2[14] <6-1> X X --> _ _ Y Y
+GRAM#2[15] <6-1> Y Y --> _ _ _vel(110) X Y _vel(64)
+GRAM#2[16] <6-1> X Y --> _ Y X
+GRAM#2[17] <6-1> Y X --> _ _ X X

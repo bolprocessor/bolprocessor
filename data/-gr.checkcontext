@@ -1,0 +1,24 @@
+-ho.abc
+LIN
+S --> A B B C D E F G H I J K L M N O P B
+(A B) D --> d
+(B B C) C --> c
+F (G H) --> f
+I #(I J) --> i
+K #(L) --> k
+K #(M) --> k
+#(B C) E --> e
+#(N O) O --> o
+[Result: ABBCdEfGHiJKLMNoPB]
+-----------------------------
+LIN
+<0> ?1 ?2 --> ?2 ?1
+<1> (?1 ?2) ?2 --> ?1
+[Result: ABACdEfGHiJKLMNoPA]
+[(a b c) d e --> f]
+[(= A) B (: A) --> f]
+[<25-4> #(A b) cd --> f]
+[#(A (= B) * (: B)) C --> f]
+[(A B ) C (D E) --> f]
+[(A B) C #(D E) --> f]
+[(A B (C D) E) F --> f Error: multilayered]

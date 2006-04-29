@@ -1,0 +1,53 @@
+// Bol Processor version BP2.9.2
+// Grammar file saved as '-gr.tryKeyMap'. Date: Dim 18 oct 1998 -- 20:17
+-or.cello
+-ho.tryKeyMap
+-se.tryKeyMap
+
+// Type command-R ("Produce items"), listen, and then look at the descriptions of
+// Part1, Part2, etc.  You can select any expression and type
+// command-P to play it separately...
+
+ORD
+_mm(60) _striated
+
+gram#1[1] S --> _vel(64) Part1 - _vel(127) Part2 1/2 Part3 Part4 1/2 _vel(64) _retro Part1
+
+// Rem 1: _keymap(C3,C3,C5,C5) does not change key numbers.  It is used here
+// only for shaping the interpolation which gradually sets the mapping to
+// _keymap(C3,C2,C5,C6), expanding intervals in range (C3,C6) by a ratio of 2
+// with C4 being the pivot note.
+// Rem 2: _mapstep and _mapcont would give identical results here since the example
+// deals with simple notes.
+// Rem 3: With _keymap(C3,C5,C5,C3) intervals in range (C3,C5) are inverted. Since C4 is the
+// pivot of this inversion, it is not modified.
+
+gram#1[2] Part1 --> /8 _mapstep _keymap(C3,C3,C5,C5) M M M M M M _keymap(C3,C2,C5,C6) M M M M M M _keymap(C3,C3,C5,C5) M M M M M M M M M M M M _keymap(C3,C5,C5,C3) _mapfixed M M _keymap(C3,C3,C5,C5) M M /1
+
+gram#1[3] M --> C4 C#4 D4 G4 F#4 F4 E4
+
+// In this part, key mapping is performed on sound-object 'a'.  When _mapcont
+// is used, map interpolation also takes place within the sound-object, because
+// ÔAccept key mappingÕ is checked for this sound-object (type cmd-E then click
+// ÔChannel / instrumentÕ to verify it).
+// Sound-object 'b', otherwise identical to 'a', does not accept key mapping and is
+// never modified.
+// Therefore, here _mapcont does not do the same as _mapstep (used in Part3).
+// Note that the arguments of _keymap() can be key numbers, note names, or both.
+// Sound-object 'a' forces MIDI channel to 2.
+
+gram#1[4] Part2 --> _keymap(52,52,86,86) a a _mapcont a a a a a a a a a a _keymap(52,86,86,52) a b
+
+// Here we compare _mapcont (Part3) and _mapstep (Part4).  In Part3 the key map is
+// interpolated over the duration of 'a'.  In Part4 it keeps its initial value. Note
+// that the second occurrence of 'a' in Part4 is just C4 because the initial key map
+// at the onset is (52,C4,86,C4)
+
+gram#1[5] Part3 --> _mapcont _keymap(52,52,86,86) a__ a__ _keymap(52,86,86,52)
+gram#1[6] Part4 --> _mapstep _keymap(52,52,86,86) a__ a__ _keymap(52,86,86,52)
+
+COMMENT:
+This is a test of the key-mapping tool.
+There is another way of performing similar transformations: the "-keyxpand" tool.
+(See '-gr.tryKeyXpand')
+This piece also demonstrates the use of property "Break tempo" on sound-objects 'a' and 'b'.  Check the graphic display to observe the irregularity of beats in parts 2, 3 and 4.  The tempo needs to be broken because 'a' and 'b' do not accept to be compressed nor to be covered.

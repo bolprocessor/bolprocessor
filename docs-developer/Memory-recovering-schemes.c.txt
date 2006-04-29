@@ -1,0 +1,192 @@
+// The following scheme makes it possible to reallocate h_EmergencyMemory
+// and to retrieve the initial situation.
+// Its drawback is that PurgeSpace() must be called before creating
+// any handle.  This may take approximately 50ms on a Mac+
+
+
+#define EMERGENCYMEMORYSIZE 50000L	/* Enough size for save operations */
+
+long MyGrowZone(long);
+Handle h_EmergencyMemory;
+
+
+main()
+{
+...
+MaxApplZone();
+for(i=0; i < ...; i++) MoreMasters();
+h_EmergencyMemory = NewHandle(EMERGENCYMEMORYSIZE);
+SetGrowZone((GrowZoneProcPtr) MyGrowZone);
+...
+while(MainEvent() != ABORT);
+}
+
+
+MainEvent()
+{
+EventRecord event;
+WindowPtr whichwindow;
+.... etc.
+if(!IsEmergencyMemory() && RecoverEmergencyMemory() != OK) return(ABORT);
+Process events....
+}
+
+
+// The following function must be in the same segment as main(), at least // in a segment that remains loaded
+
+long MyGrowZone(s)
+long s; 
+{
+Size g;
+long theA5;
+
+theA5 = SetCurrentA5();
+if(IsEmergencyMemory() && (h_EmergencyMemory != GZSaveHnd())) {
+	EmptyHandle(h_EmergencyMemory);
+	g = EMERGENCYMEMORYSIZE;
+	ShowMessage(wMessage,
+			"Low on memory, but will try to complete this task…");
+	}
+else g = ZERO;
+SetA5(theA5);
+return(g);
+}
+
+
+int **GiveSpace(size,)
+Size size;
+{
+int **p;
+
+if(!IsMemoryAvailable((long)size)) {
+	MyAlert("Running short of memory…");
+	return(NULL);
+	}
+SetGrowZone(NULL);
+p = (int**) NewHandle(size);
+SetGrowZone((GrowZoneProcPtr) MyGrowZone);
+return(p);
+}
+
+
+IsMemoryAvailable(memrequest)
+long memrequest;
+{
+long total,contig;
+
+if(!IsEmergencyMemory()) return(FALSE);
+PurgeSpace(&total,&contig);
+if(memrequest > contig) return(FALSE);
+else return(TRUE);
+}
+
+
+IsEmergencyMemory()
+{
+return((h_EmergencyMemory != NULL) && (*h_EmergencyMemory != NULL));
+}
+
+
+RecoverEmergencyMemory()
+{
+ReallocateHandle(h_EmergencyMemory,EMERGENCYMEMORYSIZE);
+if((h_EmergencyMemory == NULL) ||  (*h_EmergencyMemory == NULL))
+				return(ABORT);
+return(OK);
+}
+
+
+// The following scheme forces you to save and exit as soon as a
+// memory overflow has been encountered: no handle may be created
+// any longer.  Whenever GiveSpace() returns NULL all procedures
+// should abort until you get back to MainEvent() or some level
+// at which saves are possible.
+
+#define EMERGENCYMEMORYSIZE 50000L  /* Enough size for save operations */
+// In this scheme, hoewever, EMERGENCYMEMORYSIZE may be smaller
+// becauseMyGrowZone() may also release memory
+// used by data that doesn't need to be saved…
+
+
+long MyGrowZone(long);
+Handle h_EmergencyMemory;
+int EmergencyExit = FALSE;
+
+
+main()
+{
+...
+MaxApplZone();
+for(i=0; i < ...; i++) MoreMasters();
+h_EmergencyMemory = NewHandle(EMERGENCYMEMORYSIZE);
+SetGrowZone((GrowZoneProcPtr) MyGrowZone);
+...
+while(MainEvent() != ABORT);
+}
+
+
+MainEvent()
+{
+EventRecord event;
+WindowPtr whichwindow;
+.... etc.
+Process events....
+}
+
+
+// The following function must be in the same segment as main(), at least // in a segment that remains loaded
+
+long MyGrowZone(s)
+long s; 
+{
+Size g;
+long theA5;
+
+theA5 = SetCurrentA5();
+if(IsEmergencyMemory() && (h_EmergencyMemory != GZSaveHnd())) {
+	EmptyHandle(h_EmergencyMemory);
+	g = EMERGENCYMEMORYSIZE;
+	MyAlert("Low on memory.  Save your work and quit…");
+	EmergencyExit = TRUE;
+	}
+else g = ZERO;
+SetA5(theA5);
+return(g);
+}
+
+
+int **GiveSpace(size)
+Size size;
+{
+int **p;
+
+if(EmergencyExit) {
+	MyAlert("Out of memory! Can't complete task…");
+	return(NULL);
+	}
+p = (int**) NewHandle(size);
+if(p == NULL) MyAlert("Out of memory…");	/* Normally this shouldn't… */
+/* …happen if MyGrowZone() has properly been called. */
+return(p);
+}
+
+
+IsMemoryAvailable(memrequest)	/* Not used in this scheme */
+// You may call it before starting a process of known memory requirement
+
+long memrequest;
+{
+long total,contig;
+
+if(!IsEmergencyMemory()) return(FALSE);
+PurgeSpace(&total,&contig);
+if(memrequest > contig) return(FALSE);
+else return(TRUE);
+}
+
+
+IsEmergencyMemory()
+{
+return((h_EmergencyMemory != NULL) && (*h_EmergencyMemory != NULL));
+}
+

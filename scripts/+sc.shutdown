@@ -1,0 +1,29 @@
+// Bol Processor version BP2.9.3
+// Script file saved as '+sc.shutdown'. Date: Mer 18 Nov 1998 -- 12:56
+// Example of a shutdown script
+
+Activate window Scrap
+Type Hope you liked BP2!
+Type <return> 
+Type <return>
+Type The installer for this product was created using Installer VISE from MindVision Software.  For more information on Installer VISE, contact: 
+Type <return>
+Type <return>
+
+Type "                     MindVision Software"
+Type <return> 
+Type "                     7201 North 7th Street"
+Type <return> 
+Type "                     Lincoln, NE 68521-8913" 
+Type <return>
+Type <return>
+Type "                     Voice: (402) 477-3269"
+Type <return> 
+Type "                     Fax: (402) 477-1395"
+Type <return> 
+Type "                     E-mail: mindvision@mindvision.com"
+Type <return>
+Type "                     http://www.mindvision.com"
+Type <return>
+Type <return>
+Type To delete this message you may trash or relocate “+sc.shutdown”.

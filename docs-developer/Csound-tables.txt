@@ -1,0 +1,77 @@
+Csound tables
+
+BP2 makes it possible to use Csound orchestra instructions like
+
+kr tablei kndx, ifn   (see p.23)
+
+to make continuous parameters vary according to a function table (indexed 'ifn', see p.52)
+that BP2 produces and insert in the Csound score when necessary.
+
+Below is a typical instrument in which volume and pitchbend are controlled either by
+    linear interpolation, using start and end values, or by function tables.
+p5 and p6 are the start and end values of volume
+p8 and p9 are the start and end values of pitchbend
+p7 contains the index of the volume function table.  If it is 0, then volume
+    varies by linear interpolation.
+p10 contains the index of the pitchbend function table.  If it is 0, then pitchbend
+    varies by linear interpolation.
+
+Indexes of function tables are assigned automatically by BP2, and each table is stored in
+    the score as a 'f' statement just preceding the 'i' statement relating to an
+    instrument using the table.  BP2 takes care of not overwriting tables that might be
+    refered by Csound instrument and enlisted in the Csound instrument description file.
+    In any case, it starts indexes from 100 onwards.
+
+	sr = 22050
+	kr = 2205
+	ksmps = 10
+	nchnls = 1
+
+	instr	1
+	
+ik1	= 32767. / 127.
+ik2	= log(2.) / 1200.
+
+ifvol = p7
+ifcents = p10
+
+kvol line p5, p3, p6
+if (ifvol <= 0) goto volumelin
+ilenvol = ftlen(ifvol)
+kndxvol line 0, p3, ilenvol
+kvol tablei kndxvol, ifvol
+
+volumelin: kcents line p8, p3, p9
+if (ifcents <= 0) goto pitchbendlin
+ilencents = ftlen(ifcents)
+kndxcents line 0, p3, ilencents
+kcents tablei kndxcents, ifcents
+
+pitchbendlin: kpitch = cpspch(p4) * exp(kcents * ik2)
+kamp = kvol * ik1
+
+a1	oscil	kamp, kpitch, 1
+	out	a1
+	endin
+
+(This instrument is currently saved as "BP2text.sco".
+
+Function tables might invoke either GEN07 (straight lines, p.62) or GEN08 (cubic spline,
+    p.64).
+
+If for instance the function table index is 102, and GEN07 is used,
+    the following instruction will be inserted by BP2 into the score:
+
+f102 time size -7 v1 n1 v2 n2 v3 n3 ... vmax
+
+    with n1 + n2 + ... + n(max-1) = maxpoints
+
+'size' is a power of two equal to or greater than the actual number of points 'maxpoints'.
+'time' is exactly parameter p2 of the following 'i' statement which makes actual
+    use of the table.
+
+Writing '-7' instead of '7' after 'size' inhibits rescaling.
+
+GEN08 looks better in terms of smoothing the table, but it has the drawback of setting
+    first derivatives to 0 on the first and last points of the table.  It also slows down
+    Csound's sound file generation.

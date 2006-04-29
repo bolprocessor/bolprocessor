@@ -1,0 +1,102 @@
+// Bol Processor version BP2.7
+// Data file saved as '-da.tryStrikeMode'. Date: Mer 12 Mars 1997 -- 1d50i
+-se.tryStrikeMode
+-ho.tryStrikeMode
+
+// File “-da.tryStrikeMode”
+
+// This is a demo of the strike mode which can be modified in window “Settings”
+// and in sound-object prototype specifications.
+
+// The following piece demonstrates the effect on the MIDI output
+
+   {C5 D5 C5 C5,C5 D5 C5}
+
+// Not a great piece, eh?
+// Now, display window “Settings” and change to “Don't strike again NoteOn's”. Play the same
+// and hear the difference.
+
+// You will agree that neither is representative of what is shown in the graphic window.
+// This is not BP2's fault, but a limitation of MIDI: you can't strike two NoteOn's with
+// the same key and channel consecutively ;-(
+// However, BP2 deals with this situation in two optional ways that do not cause the synth
+// to hang :-)
+
+// If you are playing sound-objects rather than simple notes you can set the strike mode
+// option for each sound-object prototype.
+// (Type command-E and click “Period (cyclic object)/strike mode” to see how it looks)
+
+
+// ..................................FOR Csound USERS.................................
+
+// The good news is that Csound doesn't have that limitation. Let's demonstrate it.
+// We'll take the default instrument specification, rather than load a ‘-cs’ file.
+// (Look at “Csound instrument specs” in the “Output” menu if you are curious.)
+
+// Display window “Settings” and check “Write Csound scores” (bottom) and
+// “Trace Csound” (top). The latter will make the Csound score visible
+// in the “Trace” window.  Now try again to play
+
+   {C5 D5 C5 C5,C5 D5 C5}
+
+// and save it as a Csound score. (Use anything, such as “a.sco”, as a file name)
+
+// Look at the score obtained in the “Trace” window
+
+t 0 60.0000
+i1 0.000 1.000 8.00 
+i1 0.000 1.333 8.00 
+i1 1.000 1.000 8.02 
+i1 1.333 1.333 8.02 
+i1 2.000 1.000 8.00 
+i1 3.000 1.000 8.00
+i1 2.666 1.333 8.00
+
+// For instance, the last two lines indicates that the “C5” starting on the 3d beat
+// is striked again although it had already been striked on the 2.666 th beat.
+// You get the same result whatever the default strike mode setting.
+
+// BP2 may get in trouble again if it needs to create a Csound score using a sound-object
+// that does not contain a Csound score, but a MIDI stream instead. In converting MIDI to
+// Csound it is faced with what to do when two consecutive NoteOn's are found on the same
+// key and the same channel.
+// The problem may occur when two sound-objects in the same sequence are overlapping.
+// In this situation, the present version of BP2 resorts to what the sound-object
+// prototype's strike mode, or the “Default strike mode”, tells it to do.
+
+// For instance, sound-object 'one' contains the notes E5 F5, whereas sound-object 'two'
+// contains {5/6,C5 D5 E5 F5 G5} A5 with a pivot located exactly on the beginning of A5.
+// If these objects are played in sequence "one two" at metronom 30, they overlap.
+// In the overlapping, the  note F5 needs to be stroked again on the same channel.
+
+// Set the metronom to mm = 30.
+// Listen to “one two” on MIDI with the option “Strike again NoteOn's” checked and unchecked.
+
+// Do the same producing Csound scores.
+// With “Strike again NoteOn's” checked we obtain:
+
+t 0.000 30.000
+i1 0.000 0.500 8.04 ; E5
+i1 0.584 0.083 8.00 ; C5
+i1 0.666 0.084 8.02 ; D5
+i1 0.750 0.084 8.04 ; E5
+i1 0.500 0.334 8.05 ; F5 is shorter, it should be 0.5 beat
+i1 0.834 0.166 8.05 ; F5 is striked again
+i1 0.916 0.084 8.07 ; G5
+i1 1.000 0.500 8.09 ; A5
+e
+
+// With “Strike again NoteOn's” unchecked we obtain:
+
+t 0.000 30.000
+i1 0.000 0.500 8.04 ; E5
+i1 0.584 0.083 8.00 ; C5
+i1 0.666 0.084 8.02 ; D5
+i1 0.750 0.084 8.04 ; E5
+i1 0.500 0.500 8.05 ; F5 is striked once and then ignored
+i1 0.916 0.084 8.07 ; G5
+i1 1.000 0.500 8.09 ; A5
+e
+
+// BP2 could avoid resorting to the strike mode in this case also, but for a general case it
+// might take too much computational space, so it has not yet been attempted.

@@ -1,0 +1,48 @@
+V.2.3
+$$date-time$$
+-ho.abc
+RND
+<0> S --> X X Y X Y Y Y X
+<0> S --> A B B A B B A
+ S --> U V ... W W W W V V U W U V U W
+<0> S --> /8 a b c d
+-----------------
+SUB
+X --> a
+#Y #Y #Y Y X #X #X --> #Y #Y #Y b X #X #X
+Y Y Y --> Y d Y
+X Y Y --> X c Y
+Y Y #Y --> Y c #Y
+------------------
+SUB
+A B --> a B
+B A --> B b
+A A --> c c
+A B A --> A d A
+B B A --> B e A
+B B --> f B
+------------------
+SUB [Produces: "Hi There ... My Name Is Billy The Kid"]
+W W W V --> W Name [Length-decreasing rule]
+#(W W) U (V U W) --> Hi [Remote negative left context, positive right context]
+V V U #(V U W) --> V V The Great Billy [Proximate left context and remote negative right context]
+V .. --> There .. ['V' followed with '..']
+?1 ?1 ?2 V ?3 ?1 U --> ?1 ?1 ?2 Is ?3 ?1 U [Proximate context: pattern xxyVyx]
+W U --> The [Length-decreasing rule]
+W W W (W V) --> My W [Proximate and remote right contexts.  Also length-decreasing rule]
+#W #V V #(?1 ?1) --> #W #V Kid [Pattern xx in remote negative right context]
+(U W U V) U W --> [Erasing rule with remote left context]
+-----------------
+SUB
+a --> a
+d --> d
+x --> x
+y --> y
+bc --> x(=cb)(:cb)y
+cb --> y(=bc)(:bc)x
+<10-2>  ?1 ?2 ) --> ?2 ?1 )
+<1> (= ?1 ?2 --> (= z
+
+
+
+

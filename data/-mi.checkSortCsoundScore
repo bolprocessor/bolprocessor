@@ -1,0 +1,75 @@
+// Bol Processor version BP2.7
+// Object Prototypes file saved as '-mi.checkSortCsoundScore'. Date: Mon, Apr 7, 1997 -- 9:29
+84
+1
+64
+-cs.tryCsound
+3
+a
+4
+1
+0
+1000
+0.0000
+10000010111000110000
+0
+0.0000
+0.0000
+-1
+0
+-1
+0
+1
+1
+-1
+0
+-1
+0
+0
+100
+0
+100
+-1
+0
+-1
+0
+-1
+0.0000
+0
+-1
+1
+1
+1
+1
+1
+0
+0
+0
+0
+-2
+0.0000
+0
+0
+-1
+-1
+-1
+148
+_beginCsoundScore_
+// This score is not in chronological order
+// and will be sorted out when compiling
+t 0 60.0000
+i2 0.000 1.000 523.25 90
+i2 0.000 1.333 783.99 90
+i2 2.000 1.000 659.26 90
+i2 1.000 0.333 587.33 90
+i2 1.333 1.333 587.33 90
+i2 3.000 1.000 698.46 90
+i2 2.666 1.334 1046.50 90
+e
+_endCsoundScore_
+0
+[Comment on this prototype]
+DATA:
+[Comment on this file]
+_endSoundObjectFile_
+

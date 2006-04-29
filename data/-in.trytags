@@ -1,0 +1,8 @@
+// Bol Processor version BP2.7.2
+// Interaction file saved as '-in.trytags'. Date: Lun 7 Juil 1997 -- 11:31
+BP2 script
+Note convention = English
+IN Synchro tag W1 = C3 channel 1
+IN Synchro tag W2 = C#3 channel 1
+IN Synchro tag W7 = D3 channel 1
+IN Synchro tag W8 = D#3 channel 1

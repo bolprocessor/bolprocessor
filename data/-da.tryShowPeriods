@@ -1,0 +1,30 @@
+// Bol Processor version BP2.8.0
+// Data file saved as '-da.tryShowPeriods'. Date: Lun 30 Mars 1998 -- 17:28
+-se.tryShowPeriods
+-ho.abc
+
+// These items will be spaced if "Show periods" is applied
+3+4+2/4 abbabccabcca /3 abcccbaab /1 bbb
+3+4+1/4 abbabccabcca /3 abcccbaab /1 bb
+
+// This one won't be spaced because it contains a fractional gap
+3+3+2/4 abbabccabcca 5/3 abcccbaab /1 bb
+
+// With "Show periods", this one will be assigned explicit tempo markers
+{abc.abc.abc,de.fg.hi}
+
+// Try "Expand selection" on the following ones
+
+abba.bcca.bcca.Â
+abc.ccb.aab.b.Â
+b.b
+
+abba.bcca.bcca.Â
+abc.ccb.aab.b.Â
+b
+
+abc.abc.de.fg.hi
+
+{abc.abc.abc,de.fg.hi}
+
+{abc.abc.abc,de.fg}

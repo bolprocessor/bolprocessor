@@ -1,0 +1,19 @@
+// Bol Processor version BP2.9.4
+// Data file saved as '-da.canons'. Date: Jeu 27 avr 2000 -- 17:09
+-ho.<alphabet>
+-in.<interactive code file>
+-se.<settings file>
+-gl.<glossary file>
+-tb.<time base file>
+-or.<MIDI orchestra file>
+<Generate or type items here>
+
+{C3 B3 F3 C2 1, 1 C4 B4 F4 C3}
+
+{C3 B3 F3 C2 1 1, 1 C4 B4 F4 C3 1, 1 1 C5 B5 F5 C4}
+
+{C3 B3 F3 C2 2, 1 C4 B4 F4 C3 1, 2 C5 B5 F5 C4}
+
+{C3 B3 F3 C2  _rest, - C4 B4 F4 C3 _rest, - - C5 B5 F5 C4}
+
+{C3 B3 F3 C2  _rest, - C4 B4 F4 C3 _rest, - - C5 B5 F5 C4 _rest}

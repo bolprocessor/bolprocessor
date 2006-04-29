@@ -1,0 +1,2944 @@
+/* MenuCommands.c (BP2 version 2.9.4) */
+
+#ifndef _H_BP2
+#include "-BP2.h"
+#endif
+
+#include "-BP2decl.h"
+
+
+mLoadTimePattern(int wind)
+{
+int rep;
+
+if(!OutMIDI) {
+	Alert1("Cannot load time pattern because MIDI output is inactive");
+	return(FAILED);
+	}
+if(CheckMemory() != OK) return(FAILED);
+rep = NO;
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+if((LastEditWindow == wGrammar
+		&& (rep=Answer("Insert pattern\rin current grammar",'Y')) == OK)
+	|| (LastEditWindow == wAlphabet
+		&& (rep=Answer("Insert pattern\rin current alphabet",'Y')) == OK)) {
+	LoadTimePattern(LastEditWindow);
+	}
+if(rep == ABORT) return(OK);
+if(rep == NO) Alert1("First select grammar or alphabet window");
+return(OK);
+}
+
+
+mGetInfo(int wind)
+{
+int gap;
+long pos;
+
+if(wind < 0 || wind >= WMAX) return(OK);
+if(Editable[wind] && !LockedWindow[wind]) {
+	ShowLengthType(wind);
+	}
+if((*p_FileInfo[wind])[0] == '\0') return(OK);
+MystrcpyHandleToString(MAXINFOLENGTH,0,Message,p_FileInfo[wind]);
+FlashInfo(Message);
+return(OK);
+}
+
+
+mFAQ(int wind)
+{
+ShowWindow(FAQPtr);
+SelectWindow(FAQPtr);
+Help = TRUE;
+return(OK);
+}
+
+
+mShowMessages(int wind)
+{
+int j;
+
+ClearWindow(NO,wNotice);
+Print(wNotice,"LAST MESSAGES:\r");
+if(Jmessage < MAXMESSAGE - 1) {
+	for(j=Jmessage+1; j < MAXMESSAGE; j++) {
+		if((*p_MessageMem[j])[0] != '\0') {
+			PrintHandleln(wNotice,p_MessageMem[j]);
+			}
+		}
+	}
+for(j=0; j <= Jmessage; j++) {
+	PrintHandleln(wNotice,p_MessageMem[j]);
+	}
+Print(wNotice,"\r");
+/* SetSelect(ZERO,ZERO,TEH[wNotice]); */
+ShowSelect(CENTRE,wNotice);
+ShowWindow(Window[wNotice]);
+BringToFront(Window[wNotice]);
+ShowWindow(Window[wInfo]);
+BringToFront(Window[wInfo]);
+ShowWindow(Window[wMessage]);
+BringToFront(Window[wMessage]);
+return(OK);
+}
+
+
+mAbout(int wind)
+{
+int r;
+
+SetCursor(&arrow);
+switch(Alert(AboutAlert,0L)) {
+	case dAboutOK:
+		r = OK;
+		break;
+	case dAboutAbort:
+		if(wind < 0) r = RESUME;
+		else r = OK;
+		break;
+	case dCredits:
+		DisplayFile(wNotice,"Credits");
+		if(wind < 0) r = RESUME;
+		wind = wNotice;
+		ActivateWindow(SLOW,wind);
+		break;
+	case bRegister:
+		DisplayFile(wHelp,"Registration.txt");
+	//	DisplayHelp("How do I register for BP2?");
+		Register();
+		if(wind < 0) r = RESUME;
+		else r = OK;
+		break;
+	}
+if(r == OK && wind >= 0) ActivateWindow(SLOW,wind);
+else ActivateWindow(SLOW,Nw);
+return(r);
+}
+
+
+m9pt(int wind)
+{
+return(SetFontSize(wind,9));
+}
+
+
+m10pt(int wind)
+{
+return(SetFontSize(wind,10));
+}
+
+
+m12pt(int wind)
+{
+return(SetFontSize(wind,12));
+}
+
+
+m14pt(int wind)
+{
+return(SetFontSize(wind,14));
+}
+
+
+mChangeColor(int wind)
+{
+ChangeColor();
+return(OK);
+}
+
+
+mUseGraphicsColor(int wind)
+{
+UseGraphicsColor = 1 - UseGraphicsColor;
+return(OK);
+}
+
+
+mUseTextColor(int wind)
+{
+UseTextColor = 1 - UseTextColor;
+return(OK);
+}
+
+
+mMIDIorchestra(int wind)
+{
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+
+if(mMIDIoutputcheck(wind) != OK) return(FAILED);
+
+ShowWindow(MIDIprogramPtr);
+SelectWindow(MIDIprogramPtr);
+UpdateDialog(MIDIprogramPtr,MIDIprogramPtr->visRgn); /* Needed to make static text visible */
+
+ActivateWindow(SLOW,wMIDIorchestra);
+return(OK);
+}
+
+
+mMIDIinputcheck(int wind)
+{
+if(!OutMIDI) {
+	Alert1("MIDI output is inactive (check the ‘Devices’ menu)");
+	return(FAILED);
+	}
+if(Oms) FlashInfo("OMS MIDI driver is being used");
+else FlashInfo("OMS is inactive. In-built MIDI driver is used");
+
+Alert1("Notes played on external MIDI device will be shown in the ‘Data’ window. Otherwise select the proper input…");
+mTypeNote(wData);
+SetSelect((**(TEH[wData])).selEnd,(**(TEH[wData])).selEnd,TEH[wData]);
+ShowSelect(CENTRE,wData);
+
+ShowWindow(OMSinoutPtr);
+SelectWindow(OMSinoutPtr);
+if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
+if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
+UpdateWindow(FALSE,OMSinoutPtr);
+return(OK);
+}
+
+
+mMIDIoutputcheck(int wind)
+{
+if(!OutMIDI) {
+	Alert1("MIDI output is inactive (check the ‘Devices’ menu)");
+	return(FAILED);
+	}
+if(Oms) FlashInfo("OMS MIDI driver is being used");
+else FlashInfo("OMS is inactive. In-built MIDI driver is used");
+
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+
+HideWindow(Window[wMessage]);
+
+ShowWindow(SixteenPtr);
+SelectWindow(SixteenPtr);
+UpdateDialog(SixteenPtr,SixteenPtr->visRgn); /* Needed to make static text visible */
+
+return(OK);
+}
+
+
+mExpandSelection(int wind)
+{
+if(SoundOn) return(FAILED);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+wind = LastEditWindow;
+HideWindow(Window[wMessage]);
+sprintf(Message,"\"%s\"",WindowName[wind]);
+MystrcpyStringToTable(ScriptLine.arg,0,Message);
+AppendScript(0);
+return(ExpandSelection(wind));
+}
+
+
+mCaptureSelection(int wind)
+{
+int w;
+
+if(SoundOn) return(FAILED);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+if(Answer("Capture text selection as a MIDI stream to paste it later to a sound-object prototype",'Y')
+	!= YES) return(OK);
+if(wind >= 0 && wind < WMAX && Editable[wind]) LastEditWindow = wind;
+w = LastEditWindow;
+switch(w) {
+	case wData:
+	case wAlphabet:
+	case wGrammar:
+	case wScript:
+	case wScrap:
+	case wTrace:
+	case wStartString:
+	case wGlossary:
+		break;
+	default:
+		Alert1("You must select the item in the Data, Grammar, Alphabet, Script, Trace, Scrap or Glossary window");
+		return(FAILED);
+	}
+return(TextToMIDIstream(w));
+}
+
+
+mShowPeriods(int wind)
+{
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+wind = LastEditWindow;
+if(wind != wData) {
+	Alert1("Selection may be spaced only in data window");
+	return(OK);
+	}
+return(ShowPeriods(wind));
+}
+
+
+mExecuteScript(int wind)
+{
+int rep;
+
+if(SoundOn || ScriptExecOn) return(ABORT);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+EndWriteScript();
+HideWindow(Window[wMessage]);
+rep = RunScript(wScript,FALSE);
+return(rep);
+}
+
+
+mTransliterateFile(int wind)
+{
+int rep;
+
+if((ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || GraphicOn
+	|| PolyOn || ScriptExecOn)) return(FAILED);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+GetValues(TRUE);
+if(IsEmpty(wGrammar)) {
+	Alert1("Can't transliterate file because grammar is empty");
+	return(FAILED);	
+	}
+if(CompileCheck() != OK) return(FAILED);
+rep = TransliterateFile();
+return(rep);
+}
+
+
+mCheckDeterminism(int wind)
+{
+int rep;
+
+if((ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || GraphicOn
+	|| PolyOn || ScriptExecOn)) return(FAILED);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+if(IsEmpty(wGrammar)) {
+	Alert1("Grammar is empty");
+	return(FAILED);	
+	}
+if(CompileCheck() != OK) return(FAILED);
+rep = CheckDeterminism(&Gram);
+if(rep == OK) Alert1("All subgrammars in this project are deterministic");
+return(rep);
+}
+
+
+mFrenchConvention(int wind)
+{
+if(NoteConvention != FRENCH) {
+	NoteConvention = FRENCH;
+	CompiledAl = CompiledGr = FALSE;
+	AppendScript(1);
+	Dirty[iSettings] = TRUE;
+	UpdateInteraction();
+	}
+ShowMIDIkeyboard();
+return(OK);
+}
+
+
+mEnglishConvention(int wind)
+{
+if(NoteConvention != ENGLISH) {
+	NoteConvention = ENGLISH;
+	CompiledAl = CompiledGr = FALSE;
+	AppendScript(2);
+	Dirty[iSettings] = TRUE;
+	UpdateInteraction();
+	}
+ShowMIDIkeyboard();
+return(OK);
+}
+
+
+mIndianConvention(int wind)
+{
+if(NoteConvention != INDIAN) {
+	NoteConvention = INDIAN;
+	CompiledAl = CompiledGr = FALSE;
+	AppendScript(88);
+	Dirty[iSettings] = TRUE;
+	UpdateInteraction();
+	}
+ShowMIDIkeyboard();
+return(OK);
+}
+
+
+mKeyConvention(int wind)
+{
+if(NoteConvention != KEYS) {
+	NoteConvention = KEYS;
+	CompiledAl = CompiledGr = FALSE;
+	AppendScript(3);
+	Dirty[iSettings] = TRUE;
+	UpdateInteraction();
+	}
+HideWindow(MIDIkeyboardPtr);
+return(OK);
+}
+
+
+mAzerty(int wind)
+{
+if(KeyboardType != AZERTY) {
+	KeyboardType = AZERTY;
+	UpdateDirty(TRUE,wKeyboard);
+	SetKeyboard();
+	}
+return(OK);
+}
+
+
+mQwerty(int wind)
+{
+if(KeyboardType != QWERTY) {
+	KeyboardType = QWERTY;
+	UpdateDirty(TRUE,wKeyboard);
+	SetKeyboard();
+	}
+return(OK);
+}
+
+
+mUseBullet(int wind)
+{
+UseBullet = 1 - UseBullet;
+if(UseBullet) Code[7] = '•';
+else Code[7] = '.';
+MaintainMenus();
+return(OK);
+}
+
+
+mPianoRoll(int wind)
+{
+ShowPianoRoll = 1 - ShowPianoRoll;
+ToldAboutPianoRoll = TRUE;
+MaintainMenus();
+return(OK);
+}
+
+
+mSplitTimeObjects(int wind)
+{
+SplitTimeObjects = 1 - SplitTimeObjects;
+Dirty[iSettings] = TRUE;
+MaintainMenus();
+return(OK);
+}
+
+
+mSplitVariables(int wind)
+{
+SplitVariables = 1 - SplitVariables;
+Dirty[iSettings] = TRUE;
+MaintainMenus();
+return(OK);
+}
+
+
+mText(int wind)
+{
+Token = 1 - Token;
+Dirty[iSettings] = TRUE;
+MaintainMenus();
+return(OK);
+}
+
+
+mMIDI(int wind)
+{
+OutMIDI = 1 - OutMIDI;
+if(OutMIDI) {
+	AppendScript(20);
+	ResetMIDI(FALSE);
+	}
+else AppendScript(21);
+Dirty[iSettings] = TRUE;
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+SetButtons(TRUE);
+return(OK);
+}
+
+
+mCsound(int wind)
+{
+OutCsound = 1 - OutCsound;
+if(OutCsound) {
+	AppendScript(22);
+	}
+else {
+	AppendScript(23);
+	CloseCsScore();
+	}
+Dirty[iSettings] = TRUE;
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+SetButtons(TRUE);
+return(OK);
+}
+
+
+mOMS(int wind)
+{
+OSErr io;
+
+HideWindow(Window[wInfo]);
+if(Oms) {
+	if(!ScriptExecOn) {
+		if(Answer("Are you sure you want do disable OMS and use the built-in MIDI driver",
+			'N') != OK) return(FAILED);
+		if(!NEWTIMER && Answer("The ‘Mute’ command will be disabled, and flushing the output may be problematic. Continue",
+			'N') != OK) return(FAILED);
+		}
+	if(gSignedInToMIDIMgr) SignOutFromMIDIMgr();
+	ExitOMS();
+	if((io = DriverOpen("\p.MIDI")) != noErr) {
+		Alert1("Unexpected error opening MIDI driver. OMS is off, but some other device might be conflicting");
+		return(OK);
+		}
+	AppendScript(183);
+	ShowMessage(TRUE,wMessage,"OMS has been disabled. Built-in MIDI driver is now active.");
+	}
+else {
+	if(InBuiltDriverOn) CloseCurrentDriver(FALSE);
+	io = InitOMS('Bel0');
+	if(io!= noErr) return(FAILED);
+	Oms = TRUE;
+	ShowMessage(TRUE,wMessage,"OMS has been enabled. Built-in MIDI driver is now inactive.");
+	AppendScript(182);
+	}
+if(SetDriver() != OK && Beta) Alert1("Err. mOMS(). SetDriver() != OK");
+ResetTicks(FALSE,TRUE,ZERO,0);
+ReadKeyBoardOn = FALSE;
+Jcontrol = -1;
+SetButtons(TRUE);
+return(OK);
+}
+
+
+mMIDIfile(int wind)
+{
+WriteMIDIfile = 1 - WriteMIDIfile;
+if(WriteMIDIfile) {
+	AppendScript(184);
+	}
+else {
+	CloseMIDIFile();
+	AppendScript(185);
+	}
+Dirty[iSettings] = TRUE;
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+SetButtons(TRUE);
+return(OK);
+}
+
+
+mCsoundInstrumentsSpecs(int wind)
+{
+ActivateWindow(SLOW,wCsoundInstruments);
+return(OK);
+}
+
+
+mOMSmidisetup(int wind)
+{
+if(Oms) {
+	StopWait();
+	OMSMIDISetupDialog();
+	/* SetDriver(); */
+	}
+return(OK);
+}
+
+
+mOMSstudiosetup(int wind)
+{
+if(Oms) {
+	StopWait();
+	OMSOpenCurrentStudioSetup();
+	/* SetDriver(); */
+	}
+return(OK);
+}
+
+
+mOMSinout(int wind)
+{
+if(Oms && !InitOn) {
+	StopWait();
+	ShowWindow(OMSinoutPtr);
+	SelectWindow(OMSinoutPtr);
+	if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
+	if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
+	UpdateWindow(FALSE,OMSinoutPtr);
+	}
+return(OK);
+}
+
+
+mToken(int wind)
+{
+Token = 1 - Token;
+Dirty[iSettings] = TRUE;
+MaintainMenus();
+return(OK);
+}
+
+
+mSmartCursor(int wind)
+{
+Alert1("‘Smart cursor’, a wonderful idea, will soon be implemented…");
+return(OK);	/* $$$ */
+SmartCursor = 1 - SmartCursor;
+Dirty[iSettings] = TRUE;
+if(SmartCursor) {
+	if(CompiledAl && CompiledGr) {
+		KillSubTree(PrefixTree); KillSubTree(SuffixTree);
+		UpdateAutomata();
+		}
+	Alert1("‘Smart cursor’ is ON");
+	}
+return(OK);
+}
+
+
+mTypeNote(int wind)
+{
+if(!ReadKeyBoardOn) {
+	if(!OutMIDI) {
+		Alert1("Cannot type from MIDI because MIDI input/output is inactive");
+		return(FAILED);
+		}
+	if(!NoteOnIn) {
+		Alert1("Can't type from MIDI because NoteOn's are not received. Check MIDI filter");
+		mMIDIfilter(wind);
+		return(FAILED);
+		}
+	FoundNote = FALSE; TickDone = FALSE;
+	EmptyBeat = TRUE;
+	ShowMessage(TRUE,wMessage,
+		"Entering data from MIDI keyboard. Type cmd-J to return to text mode…");
+	ResetMIDI(FALSE);
+//	#ifndef __POWERPC
+	FlushEvents(driverEvt,0);
+//	#endif
+	GetControlParameters();
+	if(TransposeInput && LastEditWindow != wScript && TransposeValue != 0) {
+		PrintHandle(LastEditWindow,(*p_PerformanceControl)[33]);
+		sprintf(Message,"(%ld)",(long)-TransposeValue);
+		Print(LastEditWindow,Message);
+		EmptyBeat = FALSE;
+		}
+	ReadKeyBoardOn = TRUE;
+	}
+else {
+	ReadKeyBoardOn = FALSE;
+	HideWindow(Window[wMessage]);
+	}
+Jcontrol = -1;
+ActivateWindow(SLOW,wind);
+return(OK);
+}
+
+
+mTuning(int wind)
+{
+ShowWindow(TuningPtr);
+SelectWindow(TuningPtr);
+SetTuning();
+UpdateDialog(TuningPtr,TuningPtr->visRgn);
+return(OK);
+}
+
+
+mDefaultPerformanceValues(int wind)
+{
+ShowWindow(DefaultPerformanceValuesPtr);
+SelectWindow(DefaultPerformanceValuesPtr);
+SetDefaultPerformanceValues();
+UpdateDialog(DefaultPerformanceValuesPtr,DefaultPerformanceValuesPtr->visRgn);
+return(OK);
+}
+
+
+mFileSavePreferences(int wind)
+{
+ShowWindow(FileSavePreferencesPtr);
+SelectWindow(FileSavePreferencesPtr);
+SetFileSavePreferences();
+UpdateDialog(FileSavePreferencesPtr,FileSavePreferencesPtr->visRgn);
+return(OK);
+}
+
+
+mDefaultStrikeMode(int wind)
+{
+ShowWindow(StrikeModePtr);
+SelectWindow(StrikeModePtr);
+SetDefaultStrikeMode();
+UpdateDialog(StrikeModePtr,StrikeModePtr->visRgn);
+return(OK);
+}
+
+
+mNewProject(int wind)
+{
+int rep;
+
+if(CheckMemory() != OK) return(FAILED);
+if((rep=CheckSettings()) == ABORT) return(rep);
+if(ResetProject(TRUE) != OK) return(FAILED);
+if(!ScriptExecOn) {
+	ShowWindow(Window[wAlphabet]);
+	ActivateWindow(SLOW,wGrammar);
+	AppendScript(4);
+	}
+return(OK);
+}
+
+
+mLoadProject(int wind)
+{
+int w,rep;
+FSSpec spec;
+short refnum;
+char *p,*q;
+Str255 fn;
+OSErr io;
+
+if(CheckMemory() != OK) return(FAILED);
+if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn
+	|| CompileOn || GraphicOn || PolyOn || LoadOn) return(FAILED);
+if((rep=CheckSettings()) == ABORT) return(rep);
+if(ResetProject(FALSE) != OK) return(ABORT);
+HideWindow(Window[wInfo]);
+ShowMessage(TRUE,wMessage,"Find grammar: -gr.<name>");
+
+TRYLOAD:
+if(OldFile(wGrammar,5,fn,&spec)) {
+	MyPtoCstr(MAXNAME,fn,LineBuff);
+	p = &LineBuff[0]; q = &(FilePrefix[wGrammar][0]);
+	if(!Match(TRUE,&p,&q,4)) {
+		sprintf(Message,"File name should start with ‘%s’. Load anyway",
+			FilePrefix[wGrammar]);
+		rep = Answer(Message,'N');
+		if(rep != YES) {
+			if(rep == NO) Alert1("Use the ‘Scrap’ window to load any file…");
+			goto TRYLOAD;
+			}
+		}
+	if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {	/* Read grammar */
+		if(LoadGrammar(&spec,refnum) != OK) goto ERR;
+		sprintf(Message,"\"%s\"",FileName[wGrammar]);
+		MystrcpyStringToTable(ScriptLine.arg,0,Message);
+		AppendScript(5);
+		if(LoadAlphabet(wGrammar,&spec) != OK) goto ERR;
+		for(w=0; w < WMAX; w++) {
+			if(w != wScript && Editable[w]) SetSelect(ZERO,ZERO,TEH[w]);
+			}
+		}
+	else {
+		MyPtoCstr(MAXNAME,fn,LineBuff);
+		sprintf(Message,"Error opening %s",LineBuff);
+		ShowMessage(TRUE,wMessage,Message);
+		TellError(7,io);
+		}
+	}
+else {
+	HideWindow(Window[wMessage]);
+	return(FAILED);
+	}
+HideWindow(Window[wMessage]);
+Dirty[wData] = FALSE;
+if(!ScriptExecOn) {
+	ActivateWindow(QUICK,wStartString);
+	ActivateWindow(QUICK,wGrammar);
+	}
+return(OK);
+
+ERR:
+return(FAILED);
+}
+
+
+mMakeGrammarFromTable(int wind)
+{
+int append;
+
+if(CheckMemory() != OK) return(FAILED);
+if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn
+	|| CompileOn || GraphicOn || PolyOn || LoadOn) return(FAILED);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+HideWindow(Window[wInfo]);
+if(SaveCheck(wGrammar) == ABORT) return(ABORT);
+if(SaveCheck(wAlphabet) == ABORT) return(ABORT);
+if(ClearWindow(NO,wTrace) == ABORT) return(FAILED);
+append = NO;
+if(!IsEmpty(wGrammar)) {
+	if((append=Answer("Append to existing grammar",'Y')) == ABORT) return(ABORT);
+	if(append != YES) {
+		if(ClearWindow(NO,wGrammar) != OK) return(FAILED);
+		RemoveFirstLine(wData,FilePrefix[wGrammar]);
+		ForgetFileName(wGrammar);
+		}
+	}
+else ClearWindow(NO,wGrammar);
+return(MakeGrammarFromTable(append));
+}
+
+
+mReceiveMIDI(int wind)
+{
+int r;
+long count,i,im;
+short refnum;
+Str255 fn;
+StandardFileReply reply;
+Handle ptr;
+
+if(CheckMemory() != OK) return(FAILED);
+if(ComputeOn || PolyOn || SoundOn || SelectOn ||
+	SetTimeOn || GraphicOn || PrintOn || ReadKeyBoardOn || HangOn || ScriptExecOn)
+	return(FAILED);
+r = OK;
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+if(Answer("Load and save MIDI data from device",'Y') == YES) {
+	if((r=LoadRawData(&im)) != OK) {
+		r = FAILED; goto OUT;
+		}
+	if(im < ZERO) {
+		Alert1("MIDI receive error: perhaps your machine is too slow for bulk transfer");
+		r = FAILED; goto OUT;
+		}
+	sprintf(Message,"%ld bytes received. Writing them to text file.",(long)im);
+	ShowMessage(TRUE,wMessage,Message);
+	strcpy(Message,"Dump");
+	pStrCopy((char*)c2pstr(Message),fn);
+	if(NewFile(fn,&reply)) {
+		if((r=CreateFile(-1,-1,1,fn,&reply,&refnum)) != OK) goto OUT;
+		WriteToFile(NO,MAC,"BP2 decimal MIDI dump",refnum);
+		sprintf(LineBuff,"%ld",(long)im);
+		WriteToFile(NO,MAC,LineBuff,refnum);
+		for(i=ZERO; i < im; i++) {
+			PleaseWait();
+			sprintf(Message,"%ld\r",(long)ByteToInt((*p_Code)[i].byte));
+			count = (long) strlen(Message);
+			FSWrite(refnum,&count,Message);
+			}
+		WriteEnd(-1,refnum);
+		GetFPos(refnum,&count);
+		SetEOF(refnum,count);
+		FlushFile(refnum);
+		FSClose(refnum);
+		}
+			
+OUT:	
+	ptr = (Handle) p_Code;
+	MyDisposeHandle(&ptr);
+	p_Code = NULL;
+	}
+HideWindow(Window[wMessage]);
+return(r);
+}
+
+
+mSendMIDI(int wind)
+// $$$ needs to be revised
+{
+int r,k,sysex,send,nbytes,maxbytes;
+long pos,im,i,timeleft,formertime,tbytes2;
+short refnum;
+FSSpec spec;
+MIDI_Event e;
+// long count = 12L;
+// MIDI_Parameters parms;
+Handle ptr;
+char **p_line,**p_completeline;
+unsigned long drivertime;
+
+if(CheckMemory() != OK) return(FAILED);
+if(!InBuiltDriverOn && !Oms) {
+	if(Beta) Alert1("Err. mSendMIDI(). Driver is OFF");
+	return(ABORT);
+	}
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+p_line = p_completeline = NULL;
+if(OldFile(-1,1,PascalLine,&spec)) {
+	if(MyOpen(&spec,fsCurPerm,&refnum) == noErr) {
+		pos = ZERO;
+		if(ReadOne(FALSE,FALSE,TRUE,refnum,FALSE,&p_line,&p_completeline,&pos) == FAILED) goto ERR1;
+		if(Mystrcmp(p_line,"BP2 decimal MIDI dump") != 0) {
+			Alert1("This file does not contain appropriate (decimal) code");
+			goto ERR1;
+			}
+		if(ReadLong(refnum,&im,&pos) == FAILED) goto ERR1;
+		if((p_Code = (MIDIcode**) GiveSpace((Size)im * sizeof(MIDIcode))) == NULL)
+			return(FAILED);
+		sysex = Answer("Is it system exclusive data",'Y');
+		if(sysex == ABORT) goto ERR2;
+		Alert1("Set MIDI device ready to ‘receive’ mode and click ‘OK’");
+		sprintf(Message,"Reading %ld bytes from file…",(long)im);
+		ShowMessage(TRUE,wMessage,Message);
+		SetCursor(&WatchCursor);
+		while(Button()){};
+		for(i=0; i < im; i++) {
+			PleaseWait();
+			if(ReadInteger(refnum,&k,&pos) == FAILED) goto ERR1;
+			(*p_Code)[i].time = i / Time_res;
+			(*p_Code)[i].byte = k;
+			(*p_Code)[i].sequence = 0;
+			if(Button() && Answer("Continue reading",'Y') != OK) break;
+			/* This timing is only needed for the control of overflow when sending codes */
+			}
+		FSClose(refnum);
+		sprintf(Message,"Sending %ld bytes to MIDI device.",(long)im);
+		ShowMessage(TRUE,wMessage,Message);
+		ResetMIDI(FALSE);
+		if(sysex) send = FALSE; else send = TRUE;
+		maxbytes = MIDI_FIFO_MAX - 50;
+		nbytes = 0; tbytes2 = ZERO;
+		for(i=0; i < im; i++) {
+			if(Button() && Answer("Continue sending",'Y') != OK) break;
+			PleaseWait();
+			e.type = RAW_EVENT;
+			e.time = Tcurr = (*p_Code)[i].time;
+			e.data2 = ByteToInt((*p_Code)[i].byte);
+			if(!send  && (e.data2 == SystemExclusive)) send = TRUE;
+			if(send) {
+				DriverWrite(Tcurr * Time_res,0,&e);
+				nbytes++;
+				}
+			if(nbytes > maxbytes/2 && tbytes2 == ZERO) tbytes2 = Tcurr;
+			if(nbytes > maxbytes) {
+				drivertime = GetDriverTime();
+				formertime = ZERO;
+				while((timeleft = tbytes2 - drivertime) > ZERO) {
+					if((timeleft * Time_res / 1000L) != formertime) {
+						formertime = timeleft * Time_res / 1000L;
+						sprintf(Message,"Idling (%ld sec)",
+							(long)formertime + 1L);
+						ShowMessage(FALSE,wMessage,Message);
+						}
+					drivertime = GetDriverTime();
+					}
+				HideWindow(Window[wInfo]);
+				tbytes2 = ZERO; nbytes = maxbytes/2;
+				}
+			}
+		ptr = (Handle) p_Code;
+		MyDisposeHandle(&ptr);
+		p_Code = NULL;
+		while(Tcurr > drivertime  + (SetUpTime / Time_res)) {
+			drivertime = GetDriverTime();
+			PleaseWait();
+			}
+		sprintf(Message,"%ld bytes have been sent. Check result on MIDI device",
+			(long)im);
+		Alert1(Message);
+		goto OUT;
+		}
+	}
+
+ERR1:
+FSClose(refnum);
+Alert1("Couldn't read enough bytes from this file. Check its format");
+
+ERR2:
+MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
+ptr = (Handle) p_Code;
+MyDisposeHandle(&ptr);
+p_Code = NULL;
+r = FAILED;
+
+OUT:
+HideWindow(Window[wMessage]);
+return(r);
+}
+
+
+mOpenFile(int w)
+{
+int anyfile,r,type,result,clear,oldoutmidi,oms,i,badname;
+FSSpec spec;
+short refnum;
+char *p,*q;
+Str255 fn;
+OSErr io;
+
+w = FindGoodIndex(w);
+if(CheckMemory() != OK) return(FAILED);
+oldoutmidi = OutMIDI;
+badname = FALSE;
+if(w == wControlPannel || (!Editable[w] && !HasFields[w])) {
+	w = LastEditWindow;
+	ActivateWindow(QUICK,w);
+	}
+if(LockedWindow[w]) return(FAILED);
+if(w == wScript) EndWriteScript();
+if(w == wScriptDialog) {
+	w = wScript; EndWriteScript();
+	ActivateWindow(SLOW,w);
+	}
+if((w == wGrammar || w == iObjects || w == wGlossary || w == wInteraction
+		|| w == wAlphabet || w == wPrototype7 || w == wMIDIorchestra)
+		&& (ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn
+		|| CompileOn || GraphicOn || PolyOn)) {
+	Alert1("Can't change this file because a task using this file is being executed…");
+	return(FAILED);
+	}
+r = OK;
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+HideWindow(Window[wInfo]);
+if(SaveCheck(w) == ABORT) return(ABORT);
+switch(w) {
+	case wInteraction:
+		if((r=ClearWindow(FALSE,w)) != OK) return(r);
+		ForgetFileName(w);
+		Interactive = OutMIDI = TRUE; SetButtons(TRUE);
+		if(!oldoutmidi) ResetMIDI(FALSE);
+		LoadedIn = CompiledIn = anyfile = FALSE;
+		if(Option && (r = Answer("Open any file type",'N')) == YES) anyfile = TRUE;
+		if(r == ABORT) return(FAILED);
+		r = LoadInteraction(anyfile,TRUE);
+		if(r == OK && ScriptRecOn) {
+			sprintf(Message,"\"%s\"",FileName[wInteraction]);
+			MystrcpyStringToTable(ScriptLine.arg,0,Message);
+			if(FileName[wInteraction][0] != '\0') AppendScript(24);
+			}
+		return(r);
+		break;
+	case wGlossary:
+		if((r=ClearWindow(FALSE,w)) != OK) return(r);
+		ForgetFileName(w);
+		LoadedGl = CompiledGl = anyfile = FALSE;
+		if(Option && (r = Answer("Open any file type",'N')) == YES) anyfile = TRUE;
+		if(r == ABORT) return(FAILED);
+		r = LoadGlossary(anyfile,TRUE);
+		if(r == OK && ScriptRecOn) {
+			sprintf(Message,"\"%s\"",FileName[wGlossary]);
+			MystrcpyStringToTable(ScriptLine.arg,0,Message);
+			if(FileName[wGlossary][0] != '\0') AppendScript(24);
+			}
+		return(r);
+		break;
+	case iObjects:
+		if(IsEmpty(wAlphabet)) {
+			if(Answer("Your alphabet is empty. Loading prototypes will generate a new alphabet.\rFirst load an alphabet file",
+				'N') == OK) mOpenFile(wAlphabet);
+			}
+		else {
+			if(Answer("Your alphabet is not empty. Loading prototypes will generate new symbols.\rFirst clear current alphabet and grammar",
+				'Y') == OK) {
+				if(ResetProject(FALSE) != OK) return(ABORT);
+				}
+			}
+		if((r=ClearWindow(FALSE,w)) != OK) return(r);
+		ForgetFileName(w);
+		if(CompileCheck() != OK) return(STOP);
+		FileName[iObjects][0] = '\0';
+		if((r=LoadObjectPrototypes(YES,YES)) != OK) {
+			ObjectMode = ObjectTry = FALSE;
+			FileName[iObjects][0] = '\0';
+			SetName(iObjects,TRUE,TRUE);
+			Dirty[iObjects] = Created[iObjects] = FALSE;
+			iProto = 0;
+			}
+		else {
+			sprintf(Message,"\"%s\"",FileName[iObjects]);
+			MystrcpyStringToTable(ScriptLine.arg,0,Message);
+			if(FileName[iObjects][0] != '\0') AppendScript(24);
+			if(iProto >= Jbol) iProto = 2;
+			SetPrototype(iProto);
+			SetCsoundScore(iProto);
+			ActivateWindow(SLOW,wPrototype1);
+			ObjectTry = ObjectMode = TRUE;
+	/*		CompileObjectScore(iProto,&longerCsound); */
+			StopWait();
+			}
+		return(r);
+		break;
+	}
+clear = FALSE; r = OK;
+if(Editable[w] && !IsEmpty(w) && w != wGrammar) {
+	sprintf(Message,"Clear ‘%s’ window",WindowName[w]);
+	if((r=Answer(Message,'Y')) == YES) {
+		clear = TRUE;
+		sprintf(Message,"\"%s\"",WindowName[w]);
+		MystrcpyStringToTable(ScriptLine.arg,0,Message);
+		if(w != wScript) AppendScript(25);
+		}
+	else Created[w] = FALSE;
+	}
+if(r == ABORT) return(FAILED);
+if(Editable[w] && IsEmpty(w)) clear = TRUE;
+anyfile = FALSE; r = OK;
+if(w == wTrace || (w != wData && w != wScrap
+	&& Option && (r = Answer("Open any file type",'N')) == YES)) anyfile = TRUE;
+if(r == ABORT) return(FAILED);
+
+TRYLOAD:
+LastAction = NO;
+if(FilePrefix[w][0] != '\0' && w != wTrace) {
+	sprintf(Message,"Locate ‘%s’ file…",FilePrefix[w]);
+	ShowMessage(TRUE,wMessage,Message);
+	}
+type = FileType[w];
+if(anyfile) type = 0;
+result = FAILED;
+if(OldFile(w,type,fn,&spec)) {
+	MyPtoCstr(MAXNAME,fn,LineBuff);
+	if(FilePrefix[w][0] != '\0') {
+		p = LineBuff; q = &(FilePrefix[w][0]);
+		anyfile = TRUE;
+		if(w != wTrace && !Match(TRUE,&p,&q,4)) {
+			sprintf(Message,"File name should start with ‘%s’. Load anyway",
+				FilePrefix[w]);
+			r = Answer(Message,'N');
+			if(r != YES) {
+				if(r == NO) Alert1("Use the ‘Scrap’ window to load any file…");
+				return(ABORT);
+				}
+			for(i=0; i < WMAX; i++) {
+				p = LineBuff; q = &(FilePrefix[i][0]);
+				if(i != w && Match(TRUE,&p,&q,4)) {
+					badname = TRUE;
+					break;
+					}
+				}
+			}
+		}
+	if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
+		if(clear) {
+			ClearWindow(FALSE,w);
+			ForgetFileName(w);
+			}
+		else if(Editable[w])
+					SetSelect(GetTextLength(w),GetTextLength(w),TEH[w]);
+		if(badname) {
+			for(i=0; i < strlen(FilePrefix[w]); i++)
+				FileName[w][i] = FilePrefix[w][i];
+			for(i=strlen(FilePrefix[w]); i < strlen(LineBuff); i++)
+				FileName[w][i] = LineBuff[i];
+			}
+		else strcpy(FileName[w],LineBuff);
+		TheVRefNum[w] = spec.vRefNum;
+		WindowParID[w] = spec.parID;
+		if(anyfile) Weird[w] = TRUE;
+		else Weird[w] = FALSE;
+		if(w == wKeyboard) {
+			r = LoadKeyboard(refnum);
+			if(r == OK && ScriptRecOn) {
+				sprintf(Message,"\"%s\"",FileName[w]);
+				MystrcpyStringToTable(ScriptLine.arg,0,Message);
+				if(FileName[w][0] != '\0') AppendScript(24);
+				}
+			Token = TRUE; MaintainMenus();
+			return(r);
+			}
+		if(w == wTimeBase) {
+			r = LoadTimeBase(refnum);
+			if(r == OK && ScriptRecOn) {
+				sprintf(Message,"\"%s\"",FileName[w]);
+				MystrcpyStringToTable(ScriptLine.arg,0,Message);
+				if(FileName[w][0] != '\0') AppendScript(24);
+				}
+			MaintainMenus();
+			return(r);
+			}
+		if(w == wCsoundInstruments) {
+			r = LoadCsoundInstruments(refnum,FALSE);
+			if(r == OK) SetName(w,TRUE,TRUE);
+			if(r == OK && ScriptRecOn) {
+				sprintf(Message,"\"%s\"",FileName[w]);
+				MystrcpyStringToTable(ScriptLine.arg,0,Message);
+				if(FileName[w][0] != '\0') AppendScript(24);
+				}
+			MaintainMenus();
+			return(r);
+			}
+		if(w == wMIDIorchestra) {
+			r = LoadMIDIorchestra(refnum,FALSE);
+			if(r == OK) SetName(w,TRUE,TRUE);
+			if(r == OK && ScriptRecOn) {
+				sprintf(Message,"\"%s\"",FileName[w]);
+				MystrcpyStringToTable(ScriptLine.arg,0,Message);
+				if(FileName[w][0] != '\0') AppendScript(24);
+				}
+			MaintainMenus();
+			return(r);
+			}
+		if((w == wGrammar) && (LoadGrammar(&spec,refnum) == OK)) {
+			sprintf(Message,"\"%s\"",FileName[wGrammar]);
+			MystrcpyStringToTable(ScriptLine.arg,0,Message);
+			if(FileName[wGrammar][0] != '\0') AppendScript(24);
+			LoadAlphabet(wGrammar,&spec);
+			sprintf(Message,"\"%s\"",FileName[wAlphabet]);
+			MystrcpyStringToTable(ScriptLine.arg,0,Message);
+			if(FileName[wAlphabet][0] != '\0') AppendScript(24);
+			ActivateWindow(QUICK,wStartString);
+			result = OK;
+			}
+		else {
+			if(ReadFile(w,refnum) == OK) {
+				ZeroScrap();
+				if(!WASTE) TEToScrap();
+				if(w != wScrap) GetHeader(w);
+				if(clear) {
+					MyPtoCstr(MAXNAME,fn,FileName[w]);
+					SetName(w,TRUE,TRUE);
+					}
+				if(w == wGrammar || w == wAlphabet || w == wData) {
+					TheVRefNum[wGrammar] = TheVRefNum[wInteraction]
+					= TheVRefNum[wGlossary] = TheVRefNum[wTimeBase]
+					= TheVRefNum[iSettings] = TheVRefNum[wAlphabet] = TheVRefNum[iObjects]
+					= TheVRefNum[wKeyboard] = TheVRefNum[wCsoundInstruments]
+					= TheVRefNum[wMIDIorchestra] = spec.vRefNum;
+					WindowParID[iObjects] = WindowParID[wGrammar] = WindowParID[wKeyboard]
+					= WindowParID[wInteraction] = WindowParID[wGlossary]
+					= WindowParID[iSettings] = WindowParID[wTimeBase]
+					= WindowParID[wAlphabet] = WindowParID[wCsoundInstruments]
+					= WindowParID[wMIDIorchestra] = spec.parID;
+					}
+				result = OK;
+				sprintf(Message,"\"%s\"",FileName[w]);
+				MystrcpyStringToTable(ScriptLine.arg,0,Message);
+				if(w != wScrap && FileName[w][0] != '\0') AppendScript(24);
+				}
+			else {
+				sprintf(Message,"Can't read ‘%s’… (no data)",FileName[w]);
+				Alert1(Message);
+				result = FAILED;
+				}
+			if(FSClose(refnum) != noErr) {
+				if(Beta) Alert1("Error closing file…");
+				}
+			if(result == OK) {
+				if(Editable[w]) SetSelect(ZERO,ZERO,TEH[w]);
+				ActivateWindow(SLOW,w);
+				if(w == wAlphabet) {
+					GetMiName(); GetKbName(w);
+					GetCsName(w);
+					GetFileNameAndLoadIt(wMIDIorchestra,w,LoadMIDIorchestra);
+					}
+				if(w == wData) {
+					if(GetSeName(w) == OK)
+						result = LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms);
+					GetTimeBaseName(w);
+					GetGlName(w);
+					GetInName(w);
+					GetCsName(w);
+					GetFileNameAndLoadIt(wMIDIorchestra,w,LoadMIDIorchestra);
+					if(LoadInteraction(TRUE,FALSE) != OK) return(OK);
+					if(LoadAlphabet(wData,&spec) != OK) return(OK);
+					if(result == OK && SmartCursor) result = CompileAlphabet();
+					}
+				if(w == wScript) ActivateWindow(SLOW,wScriptDialog);
+				}
+			}
+		}
+	else {
+		sprintf(Message,"Unexpected error opening ‘%s’",LineBuff);
+		ShowMessage(TRUE,wMessage,Message);
+		TellError(8,io);
+		}
+	}
+HideWindow(Window[wMessage]);
+if(Editable[w]) SetSelect(ZERO,ZERO,TEH[w]);
+if(result == OK) {
+	result = ActivateWindow(SLOW,w);
+	if((w == wScript || w == wData || w == wGrammar) && !anyfile) Created[w] = TRUE;
+	}
+return(result);
+}
+
+
+mClearWindow(int wind)
+{
+int r;
+
+wind = FindGoodIndex(wind);
+if(wind < 0 || wind >= WMAX) return(FAILED);
+if((wind == wGrammar || wind == wData || wind == wAlphabet)
+	&& (SetTimeOn || PrintOn || SoundOn || SelectOn
+	|| CompileOn || GraphicOn || PolyOn)) return(FAILED);
+if((r=ClearWindow(FALSE,wind)) != OK) return(r);
+ForgetFileName(wind);
+if(!ScriptExecOn) ActivateWindow(SLOW,wind);
+sprintf(Message,"\"%s\"",WindowName[wind]);
+MystrcpyStringToTable(ScriptLine.arg,0,Message);
+if(wind != wScript) AppendScript(25);
+return(OK);
+}
+
+
+mGoAway(int wind)
+{
+return(GoAway(wind));
+}
+
+
+mSelectAll(int wind)
+{
+long posmax;
+TEHandle h;
+
+if(wind < 0 || wind >= WMAX) return(FAILED);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+if(Editable[wind]) {
+	posmax = GetTextLength(wind);
+	SetSelect(ZERO,posmax,TEH[wind]);
+	}
+else {
+	if(HasFields[wind]) {
+		h = ((DialogPeek)(Window[wind]))->textH;
+		TESetSelect(ZERO,32767,h);
+		}
+	else return(FAILED);
+	}
+sprintf(Message,"\"%s\"",WindowName[wind]);
+MystrcpyStringToTable(ScriptLine.arg,0,Message);
+AppendScript(6);
+return(OK);
+}
+
+
+mSaveFile(int w)
+{
+int w1,rep,longerCsound;
+Str255 fn;
+FSSpec spec;
+
+if(w < 0 || w >= WMAX) return(FAILED);
+w1 = FindGoodIndex(w);
+if(w == wPrototype7) {
+	if(CompileObjectScore(iProto,&longerCsound) != OK) return(FAILED);
+	w1 = iObjects;
+	}
+SetCursor(&WatchCursor);
+spec.vRefNum = TheVRefNum[w1];
+spec.parID = WindowParID[w1];
+strcpy(Message,FileName[w1]);
+pStrCopy((char*)c2pstr(Message),spec.name);
+rep = OK;
+strcpy(Message,FileName[w1]);
+pStrCopy((char*)c2pstr(Message),fn);
+if(!Created[w1] || Weird[w1]) {
+	if(!Editable[w1]) return(mSaveAs(w1));
+	if((rep=SaveAs(fn,&spec,w1)) == OK) {
+		MyPtoCstr(MAXNAME,spec.name,FileName[w1]);
+		TheVRefNum[w1] = spec.vRefNum;
+		WindowParID[w1] = spec.parID;
+		SetName(w1,TRUE,TRUE);
+		Created[w1] = TRUE;
+		}
+	}
+else {
+	spec.vRefNum = TheVRefNum[w1];
+	spec.parID = WindowParID[w1];
+	strcpy(Message,FileName[w1]);
+	pStrCopy((char*)c2pstr(Message),spec.name);
+	sprintf(Message,"Saving ‘%s’…",FileName[w1]);
+	ShowMessage(TRUE,wMessage,Message);
+	switch(w1) {
+		case iObjects:
+			rep = SaveObjectPrototypes(&spec); break;
+		case wKeyboard:
+			rep = SaveKeyboard(&spec); break;
+		case wTimeBase:
+			rep = SaveTimeBase(&spec); break;
+		case wCsoundInstruments:
+			rep = SaveCsoundInstruments(&spec); break;
+		case iSettings:
+			rep = mSaveSettings(w1); return(rep);
+		case wMIDIorchestra:
+			rep = SaveMIDIorchestra();
+		default:
+			rep = SaveFile(fn,&spec,w1); break;
+		}
+	}
+HideWindow(Window[wMessage]);
+/* ActivateWindow(SLOW,w); */
+return(rep);
+}
+
+
+mSaveAs(int w)
+{
+int r;
+Str255 fn;
+FSSpec spec;
+
+if(w < 0 || w >= WMAX) return(FAILED);
+w = FindGoodIndex(w);
+strcpy(Message,FileName[w]);
+pStrCopy((char*)c2pstr(Message),fn);
+spec.vRefNum = TheVRefNum[w];
+spec.parID = WindowParID[w];
+strcpy(Message,FileName[w]);
+pStrCopy((char*)c2pstr(Message),spec.name);
+
+if(!Editable[w]) Created[w] = FALSE;
+
+switch(w) {
+	case iObjects:
+		r = SaveObjectPrototypes(&spec); return(r);
+		break;
+	case wKeyboard:
+		r = SaveKeyboard(&spec); return(r);
+		break;
+	case wTimeBase:
+		r = SaveTimeBase(&spec); return(r);
+		break;
+	case wCsoundInstruments:
+		r = SaveCsoundInstruments(&spec); return(r);
+		break;
+	case iSettings:
+		r = mSaveSettings(w); return(r);
+		break;
+	case wMIDIorchestra:
+		r = SaveMIDIorchestra(); return(r);
+		break;
+	}
+if(!Editable[w]) return(FAILED);
+if(SaveAs(fn,&spec,w) == OK) {
+	MyPtoCstr(MAXNAME,spec.name,FileName[w]);
+	TheVRefNum[w] = spec.vRefNum;
+	WindowParID[w] = spec.parID;
+	SetName(w,TRUE,TRUE);
+	Created[w] = TRUE;
+	}
+ActivateWindow(SLOW,w);
+return(OK);
+}
+
+
+mLoadSettings(int wind)
+{
+int rep,oms,anyfile;
+
+if(CheckMemory() != OK) return(FAILED);
+if(Dirty[iSettings]) {
+	if((rep=Answer("Save changes in current settings",'Y')) == OK) mSaveSettings(wind);
+	if(rep == ABORT) return(FAILED);
+	Dirty[iSettings] = FALSE;
+	}
+FileName[iSettings][0] = '\0';
+anyfile = FALSE;
+rep = OK;
+if(Option && (rep=Answer("Open any file type",'N')) == YES) anyfile = TRUE;
+if(rep == ABORT) return(OK);
+LoadSettings(anyfile,TRUE,FALSE,TRUE,&oms);
+sprintf(Message,"\"%s\"",FileName[iSettings]);
+MystrcpyStringToTable(ScriptLine.arg,0,Message);
+AppendScript(26);
+ActivateWindow(SLOW,wind);
+return(OK);
+}
+
+
+mSaveSettings(int wind)
+{
+int rep;
+Str255 fn;
+FSSpec spec;
+
+if(Dirty[wData]) GetSeName(wData);
+if(Dirty[wGrammar]) GetSeName(wGrammar);
+
+TRYINPUTNAME:
+if(Oms && OMSinputName[0] != '\0' && OMSinputName[0] != '<') {
+	sprintf(Message,"The current input device is ‘%s’. Save it to settings",
+		OMSinputName);
+	rep = Answer(Message,'Y');
+	if(rep == CANCEL) return(FAILED);
+	if(rep == NO) {
+		rep = Answer("Set to <no input device>",'Y');
+		if(rep == CANCEL) return(FAILED);
+		if(rep == NO) goto TRYINPUTNAME;
+		OpenOrCloseConnection(FALSE,FALSE);
+		OMSinputName[0] = '\0';
+		}
+	}
+	
+strcpy(Message,FileName[iSettings]);
+pStrCopy((char*)c2pstr(Message),fn);
+spec.vRefNum = TheVRefNum[iSettings];
+spec.parID = WindowParID[iSettings];
+strcpy(Message,FileName[iSettings]);
+pStrCopy((char*)c2pstr(Message),spec.name);
+if(SaveSettings(NO,NO,fn,&spec) == OK) {
+	TheVRefNum[iSettings] = spec.vRefNum;
+	WindowParID[iSettings] = spec.parID;
+	Created[iSettings] = TRUE;
+	}
+ActivateWindow(SLOW,wind);
+return(OK);
+}
+
+
+mSaveStartup(int wind)
+{
+int rep;
+FSSpec spec;
+
+if(Answer("Save current settings as startup",'Y') != OK) return(FAILED);
+strcpy(Message,"-se.startup");
+spec.vRefNum = RefNumbp2;
+spec.parID = ParIDbp2;
+pStrCopy((char*)c2pstr(Message),spec.name);
+
+TRYINPUTNAME:
+if(Oms && OMSinputName[0] != '\0') {
+	sprintf(Message,"The current input device is ‘%s’. Save it as default",
+		OMSinputName);
+	rep = Answer(Message,'Y');
+	if(rep == CANCEL) return(FAILED);
+	if(rep == NO) {
+		rep = Answer("Set to <no input device>",'Y');
+		if(rep == CANCEL) return(FAILED);
+		if(rep == NO) goto TRYINPUTNAME;
+		OpenOrCloseConnection(FALSE,FALSE);
+		OMSinputName[0] = '\0';
+		}
+	}
+SaveSettings(YES,YES,spec.name,&spec);
+return(OK);
+}
+
+
+mSaveDecisions(int wind)
+{
+if(ProduceStackDepth == 0) {
+	Alert1("No item has been produced");
+	}
+else {
+	if(ProduceStackDepth == -1) {
+		Alert1("Can't save… Decisions are lost!");
+		}
+	else SaveDecisions();
+	}
+ActivateWindow(SLOW,wind);
+return(OK);
+}
+
+
+mRevert(int wind)
+{
+int rep,longerCsound;
+long pos;
+short refnum;
+FSSpec spec;
+OSErr io;
+
+wind = FindGoodIndex(wind);
+if(wind == wPrototype7) wind = iObjects;
+if(wind < 0 || wind >= WMAX || LockedWindow[wind] || FileName[wind][0] == '\0')
+	return(FAILED);
+sprintf(Message,"Revert to last saved version\rof %s",FileName[wind]);
+rep = Answer(Message,'N');
+switch (rep) {
+	case YES:
+		Dirty[wind] = FALSE;
+		if(Editable[wind]) {
+			pos = (**(TEH[wind])).selStart;
+			SetSelect(ZERO,GetTextLength(wind),TEH[wind]);
+			TextDelete(wind);
+			}
+		spec.vRefNum = TheVRefNum[wind];
+		spec.parID = WindowParID[wind];
+		strcpy(Message,FileName[wind]);
+		c2pstr(Message);
+		pStrCopy(Message,spec.name);
+		switch(wind) {
+			case wGlossary:
+				LoadedGl = CompiledGl = FALSE;
+				LoadGlossary(TRUE,FALSE);
+				goto OUT;
+				break;
+			case wInteraction:
+				LoadedIn = CompiledIn = FALSE;
+				LoadInteraction(FALSE,TRUE);
+				goto OUT;
+				break;
+			case wMIDIorchestra:
+				if(MyOpen(&spec,fsCurPerm,&refnum) == noErr)
+					LoadMIDIorchestra(refnum,FALSE);
+				goto OUT;
+				break;
+			case iObjects:
+				if(LoadObjectPrototypes(YES,YES) != OK) {
+					ObjectMode = ObjectTry = FALSE;
+					FileName[iObjects][0] = '\0';
+					SetName(iObjects,TRUE,TRUE);
+					Dirty[iObjects] = FALSE;
+					iProto = 0;
+					}
+				else {
+					SetCsoundScore(iProto);
+					SetPrototype(iProto);
+					ActivateWindow(SLOW,wPrototype1);
+					ObjectTry = ObjectMode = TRUE;
+					CompileObjectScore(iProto,&longerCsound);
+					StopWait();
+					}
+				return(OK);
+				break;
+			}
+		strcpy(Message,FileName[wind]);
+		pStrCopy((char*)c2pstr(Message),spec.name);
+		if(FileName[wind][0] != '\0') {
+			if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
+				if(!Editable[wind]) {
+					if(wind == wTimeBase) LoadTimeBase(refnum);
+					if(wind == wCsoundInstruments) {
+						return(LoadCsoundInstruments(refnum,TRUE));
+						}
+					if(wind == wKeyboard) LoadKeyboard(refnum);
+					}
+				else {
+					if(ReadFile(wind,refnum) == OK) {
+						UpdateDirty(TRUE,wind);
+						Dirty[wind] = FALSE;
+#if WASTE
+						WEResetModCount(TEH[wind]);
+#endif
+						}
+					else {
+						sprintf(Message,"Can't read ‘%s’… (no data)",FileName[wind]);
+						Alert1(Message);
+						FSClose(refnum);
+						return(FAILED);
+						}
+					}
+				if(FSClose(refnum) == noErr);
+				}
+			else TellError(9,io);
+			}
+		UpdateWindow(FALSE,Window[wind]);
+		GetHeader(wind);
+		if(wind == wGrammar) {
+			GetSeName(wind);
+			GetTimeBaseName(wind);
+			GetAlphaName(wind);
+			GetCsName(wind);
+			GetFileNameAndLoadIt(wMIDIorchestra,wind,LoadMIDIorchestra);
+			}
+		if(wind == wAlphabet) {
+			GetMiName();
+			GetKbName(wind);
+			GetCsName(wind);
+			GetFileNameAndLoadIt(wMIDIorchestra,wind,LoadMIDIorchestra);
+			}
+		if(wind == wData) {
+			GetSeName(wind);
+			GetTimeBaseName(wind);
+			GetAlphaName(wind);
+			GetCsName(wind);
+			GetFileNameAndLoadIt(wMIDIorchestra,wind,LoadMIDIorchestra);
+			}
+		break;
+	case NO:
+ 	case ABORT:
+ 		return(FAILED);
+ 		break;
+ 	}
+
+OUT:
+if(Editable[wind]) {
+	SetSelect(pos,pos,TEH[wind]);
+	ShowSelect(CENTRE,wind);
+	}
+return(OK);
+}
+
+
+mPageSetup(int wind)
+{
+DoPageSetUp();
+return(OK);
+}
+
+
+mPrint(int wind)
+{
+int n;
+Rect r;
+
+if(wind < 0 || wind >= WMAX || (!Editable[wind] && !GrafWindow[wind])) return(FAILED);
+sprintf(Message,"Printing ‘%s’ window…",WindowName[wind]);
+ShowMessage(TRUE,wMessage,Message);
+
+WaitForLastTicks();
+WaitForEmptyBuffer();
+WaitABit(500L);
+
+if(wind == wGraphic) {
+	if(!Offscreen) {
+		for(n=0; n < Npicture; n++) {
+			r = Window[wGraphic]->portRect;
+			if(OKhScroll[wind]) r.bottom = r.bottom - SBARWIDTH - 1;
+			if(OKvScroll[wind]) r.right = r.right - SBARWIDTH - 1;
+			PrintGraphicWindow(p_Picture[n],&r);
+			}
+		if(NoteScalePicture != NULL) PrintGraphicWindow(NoteScalePicture,&NoteScaleRect);
+		}
+	else Alert1("This version can't print pictures");
+	}
+else {
+	wind = LastEditWindow;
+	PrintTextWindow(wind);
+	}
+HideWindow(Window[wMessage]);
+
+sprintf(Message,"\"%s\"",WindowName[wind]);
+MystrcpyStringToTable(ScriptLine.arg,0,Message);
+AppendScript(7);
+return(OK);
+}
+
+
+mQuit(int wind)
+{
+int r,w,s;
+
+if(ScriptExecOn && ResumeStopOn) {
+	s = ScriptExecOn;
+	ScriptExecOn = FALSE;
+	r = Answer("Abort script and quit",'N');
+	ScriptExecOn = s;
+	if(r != OK) return(FAILED);
+	else ScriptExecOn = FALSE;
+	}
+ResumeStopOn = FALSE;
+HideWindow(ResumeStopPtr);
+HideWindow(ResumeUndoStopPtr);
+if((r=CheckSettings()) == ABORT) return(r);
+AppendScript(8);
+for(w=0; w < WMAX; w++) {
+	PleaseWait();
+	if((r=SaveCheck(w)) == ABORT) return(r);
+	}
+return(EXIT);
+}
+
+
+mUndo(int wind)
+{
+if(UndoFlag) {
+	HideWindow(ResumeUndoStopPtr); ResumeStopOn = FALSE;
+	return(UNDO);
+	}
+TextAutoView(FALSE,TRUE,TEH[UndoWindow]);
+switch(LastAction) {
+	case TYPEWIND:
+#if WASTE
+		WEUndo(TEH[UndoWindow]);
+		ShowSelect(CENTRE,UndoWindow);
+		break;
+#endif
+	case TYPEDLG:
+		if(LastAction == TYPEWIND) {
+			SetSelect(UndoPos,(*TEH[UndoWindow])->selEnd,TEH[UndoWindow]);
+			TextCut(UndoWindow);
+			LastAction = CUTWIND;
+			UpdateDirty(TRUE,UndoWindow);
+			Activate(TEH[UndoWindow]);
+			ShowSelect(CENTRE,UndoWindow);
+			ActivateWindow(SLOW,UndoWindow);
+			}
+		else LastAction = NO;
+		break;
+	case COPY:
+#if WASTE
+		WEUndo(TEH[UndoWindow]);
+		ShowSelect(CENTRE,UndoWindow);
+#endif
+		break;
+	case CUTWIND:
+#if WASTE
+		WEUndo(TEH[UndoWindow]);
+		ShowSelect(CENTRE,UndoWindow);
+#else
+		SetSelect(UndoPos,UndoPos,TEH[UndoWindow]);
+		UndoPos = (**(TEH[UndoWindow])).selStart;
+		TextPaste(UndoWindow);
+		LastAction = PASTEWIND;
+		UpdateDirty(TRUE,UndoWindow);
+		Activate(TEH[UndoWindow]);
+		ShowSelect(CENTRE,UndoWindow);
+		ActivateWindow(SLOW,UndoWindow);
+#endif
+		break;
+	case CUTDLG: break;
+	case PASTEWIND:
+#if WASTE
+		WEUndo(TEH[UndoWindow]);
+		ShowSelect(CENTRE,UndoWindow);
+#else
+		SetSelect(UndoPos,(*TEH[UndoWindow])->selEnd,TEH[UndoWindow]);
+		TextCut(UndoWindow);
+		LastAction = CUTWIND;
+		UpdateDirty(TRUE,UndoWindow);
+		Activate(TEH[UndoWindow]);
+		ShowSelect(CENTRE,UndoWindow);
+		ActivateWindow(SLOW,UndoWindow);
+#endif
+		break;
+	case PASTEDLG:
+		break;
+	case DELETEWIND:
+#if WASTE
+		WEUndo(TEH[UndoWindow]);
+		ShowSelect(CENTRE,UndoWindow);
+#else
+		SetSelect(UndoPos,UndoPos,TEH[UndoWindow]);
+		UndoPos = (**(TEH[UndoWindow])).selStart;
+		TextPaste(UndoWindow);
+		LastAction = PASTEWIND;
+		UpdateDirty(TRUE,UndoWindow);
+		Activate(TEH[UndoWindow]);
+		ShowSelect(CENTRE,UndoWindow);
+		ActivateWindow(SLOW,UndoWindow);
+#endif
+		break;
+	case SPACESELECTION:
+		TextDelete(UndoWindow);
+		SetSelect(UndoPos,UndoPos,TEH[UndoWindow]);
+		UndoPos = (**(TEH[UndoWindow])).selStart;
+		TextPaste(UndoWindow);
+		LastAction = NO;
+		UpdateDirty(TRUE,UndoWindow);
+		Activate(TEH[UndoWindow]);
+		ShowSelect(CENTRE,UndoWindow);
+		ActivateWindow(SLOW,UndoWindow);
+		break;
+	case DELETEDLG:
+		break;
+	case NO:
+/* #if WASTE
+		WEUndo(TEH[UndoWindow]);
+		ShowSelect(CENTRE,UndoWindow);
+#endif */
+		break;
+	}
+TextAutoView(FALSE,FALSE,TEH[UndoWindow]);
+
+return(OK);
+}
+
+
+mCut(int wind)
+{
+if(wind < 0 || wind >= WMAX || (!Editable[wind] && !HasFields[wind])) return(FAILED);
+if(RecordEditWindow(wind) && wind != wScript) AppendScript(61);
+if(Editable[wind]) {
+	TextAutoView(FALSE,TRUE,TEH[wind]);
+	TextCut(wind);
+	TextAutoView(FALSE,FALSE,TEH[wind]);
+	LastAction = CUTWIND;
+	UndoWindow = wind;
+	UndoPos = (**(TEH[wind])).selStart;
+	if(!WASTE) {
+		ZeroScrap(); TEToScrap();
+		}
+	UpdateDirty(FALSE,wind);
+	ShowSelect(CENTRE,wind);
+	if(IsEmpty(wind)) {
+		ForgetFileName(wind);
+		}
+	}
+else {
+	DialogCut(FrontWindow());
+	LastAction = CUTDLG;
+	if(FrontWindow() == Window[wind]) {
+		UndoWindow = wind;
+		GetDialogValues(wind);
+		}
+	ZeroScrap(); TEToScrap();
+	UpdateDirty(TRUE,wind);
+	}
+return(OK);
+}
+
+
+mCopy(int wind)
+{
+
+if(wind < 0 || wind >= WMAX || (!Editable[wind] && !HasFields[wind])) return(FAILED);
+if(RecordEditWindow(wind)) AppendScript(62);
+if(Editable[wind]) {
+	TextCopy(wind);
+	if(LastAction == 0) LastAction = COPY;
+	LastComputeWindow = wind;
+	}
+else {
+	DialogCopy(FrontWindow());
+	ZeroScrap(); TEToScrap();
+	}
+// if(WASTE) TEFromScrap();
+if(!WASTE) {
+	ZeroScrap(); TEToScrap();
+	}
+return(OK);
+}
+
+
+mPaste(int wind)
+{
+
+/* if(wind == wPrototype1 && SelectPictureOn && LastAction == COPY) {
+	if(Stream.imax > ZERO) return(PasteStreamToPrototype(iProto));
+	if((rep=TextToMIDIstream(LastEditWindow)) != OK) return(rep);
+	if(Stream.imax > ZERO) return(PasteStreamToPrototype(iProto));
+	} */
+if(wind < 0 || wind >= WMAX
+	|| ((!Editable[wind] || LockedWindow[wind]) && !HasFields[wind])) return(FAILED);
+if(RecordEditWindow(wind) && wind != wScript) AppendScript(63);
+if(Editable[wind]) {
+	UndoPos = (**(TEH[wind])).selStart;
+	TextAutoView(FALSE,TRUE,TEH[wind]);
+	TextPaste(wind);
+	TextAutoView(FALSE,FALSE,TEH[wind]);
+	LastAction = PASTEWIND;
+	UndoWindow = wind;
+	CheckTextSize(wind);
+	UpdateDirty(FALSE,wind);
+	ShowSelect(CENTRE,wind);
+	}
+else {
+	DialogPaste(FrontWindow());
+	LastAction = PASTEDLG;
+	if(FrontWindow() == Window[wind]) {
+		UndoWindow = wind;
+		GetDialogValues(wind);
+		}
+	UpdateDirty(TRUE,wind);
+	}
+return(OK);
+}
+
+
+mPickPerformanceControl(int wind)
+{
+int i,w,r;
+
+r = DoThings(p_PerformanceControl,0,MaxPerformanceControl,p_PerfCtrlNdx,16,MINUSPROC,"\0",
+	(int) pushButProc);
+if(r >= 0 && r < MaxPerformanceControl) {
+	if(wind >= 0 && wind < WMAX && Editable[wind] && !LockedWindow[wind]) w = wind;
+	else w = LastEditWindow;
+	r = (*p_PerfCtrlNdx)[r];
+	Print(w," ");
+	PrintHandle(w,(*p_PerformanceControl)[r]);
+	if((*p_PerfCtrlNArg)[r] > 0) {
+		Print(w,"(•");
+		for(i=0; i < (*p_PerfCtrlNArg)[r]-1; i++) Print(w,",•");
+		Print(w,")");
+		}
+	UpdateDirty(YES,w);
+	}
+return(OK);
+}
+
+
+mPickGrammarProcedure(int wind)
+{
+int i,r;
+
+r = DoThings(p_GramProcedure,0,MaxProc,p_ProcNdx,16,MINUSPROC,"\0",(int) pushButProc);
+if(r >= 0 && r < MaxProc) {
+	r = (*p_ProcNdx)[r];
+	Print(wGrammar," ");
+	PrintHandle(wGrammar,(*p_GramProcedure)[r]);
+	if((*p_ProcNArg)[r] > 0) {
+		Print(wGrammar,"(•");
+		for(i=0; i < (*p_ProcNArg)[r]-1; i++) Print(wGrammar,",•");
+		Print(wGrammar,")");
+		}
+	CompiledGr = FALSE;
+	}
+return(OK);
+}
+
+
+mClear(int wind)
+{
+if(wind < 0 || wind >= WMAX
+	|| (!Editable[wind] && !HasFields[wind])) return(FAILED);
+if(RecordEditWindow(wind) && wind != wScript) AppendScript(64);
+if(Editable[wind]) {
+	TextDelete(wind);
+	UpdateDirty(FALSE,wind);
+	}
+else {
+	DialogDelete(Window[wind]);
+	UpdateDirty(TRUE,wind);
+	}
+return(OK);
+}
+
+
+mGrammar(int wind)
+{
+int r;
+
+r = OK;
+if(Option && (r=Answer("Display tokenized grammar",'Y')) == YES) {
+	if(!CompiledGr) r = CompileGrammar(1);
+	if((CompiledGr || N_err > 0) && Gram.number_gram > 0) {
+		DisplayGrammar(&Gram,wTrace,FALSE,TRUE,TRUE);
+		return(OK);
+		}
+	else Alert1("No token created in grammar");
+	}
+AppendScript(27);
+ActivateWindow(SLOW,wGrammar);
+if(ScriptExecOn) ScriptW = wGrammar;
+return(OK);
+}
+
+
+mAlphabet(int wind)
+{
+if(Option && Answer("Display tokenized alphabet",'Y') == YES) {
+	if(CompiledAl || CompileAlphabet() == OK) {
+		ShowAlphabet();
+		return(OK);
+		}
+	else Alert1("No token created in alphabet");
+	}
+AppendScript(28); 
+ActivateWindow(SLOW,wAlphabet);
+if(ScriptExecOn) ScriptW = wAlphabet;
+return(OK);
+}
+
+
+mData(int wind)
+{
+AppendScript(29); 
+ActivateWindow(SLOW,wData);
+if(ScriptExecOn) ScriptW = wData;
+return(OK);
+}
+
+
+mMiscSettings(int wind)
+{
+AppendScript(30);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+
+ShowWindow(StrikeModePtr);
+BringToFront(StrikeModePtr);
+SetDefaultStrikeMode();
+UpdateDialog(StrikeModePtr,StrikeModePtr->visRgn);
+
+ShowWindow(FileSavePreferencesPtr);
+BringToFront(FileSavePreferencesPtr);
+SetFileSavePreferences();
+UpdateDialog(FileSavePreferencesPtr,FileSavePreferencesPtr->visRgn);
+
+ShowWindow(DefaultPerformanceValuesPtr);
+BringToFront(DefaultPerformanceValuesPtr);
+SetDefaultPerformanceValues();
+UpdateDialog(DefaultPerformanceValuesPtr,DefaultPerformanceValuesPtr->visRgn);
+
+ShowWindow(TuningPtr);
+BringToFront(TuningPtr);
+SetTuning();
+UpdateDialog(TuningPtr,TuningPtr->visRgn);
+
+ActivateWindow(SLOW,wSettingsTop);
+ActivateWindow(SLOW,wSettingsBottom);
+ActivateWindow(SLOW,wTimeAccuracy);
+return(OK);
+}
+
+
+mInteraction(int wind)
+{
+AppendScript(31); 
+ActivateWindow(SLOW,wInteraction);
+if(ScriptExecOn) ScriptW = wInteraction;
+return(OK);
+}
+
+
+mGlossary(int wind)
+{
+int r;
+
+if(CompiledGl && GlossGram.p_subgram != NULL && (CheckMemory() == OK)) {
+	if(Option && (r=Answer("Display tokenized glossary",'N')) == YES) {
+		DisplayGrammar(&GlossGram,wTrace,FALSE,FALSE,FALSE);
+		return(OK);
+		}
+	}
+AppendScript(143); 
+ActivateWindow(SLOW,wGlossary);
+if(ScriptExecOn) ScriptW = wGlossary;
+return(OK);
+}
+
+
+mStartString(int wind)
+{
+AppendScript(32); 
+ActivateWindow(SLOW,wStartString);
+if(ScriptExecOn) ScriptW = wStartString;
+return(OK);
+}
+
+
+mTrace(int wind)
+{
+AppendScript(34); 
+ActivateWindow(SLOW,wTrace);
+if(ScriptExecOn) ScriptW = wTrace;
+return(OK);
+}
+
+
+mControlPannel(int wind)
+{
+AppendScript(36);
+ShowWindow(Window[wControlPannel]);
+BringToFront(Window[wControlPannel]);
+return(OK);
+}
+
+
+mKeyboard(int wind)
+{
+AppendScript(38); 
+ActivateWindow(SLOW,wKeyboard);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+return(OK);
+}
+
+
+mScrap(int wind)
+{
+AppendScript(108); 
+ActivateWindow(SLOW,wScrap);
+if(ScriptExecOn) ScriptW = wScrap;
+return(OK);
+}
+
+
+mNotice(int wind)
+{
+AppendScript(109); 
+ActivateWindow(SLOW,wNotice);
+return(OK);
+}
+
+
+mGraphic(int wind)
+{
+int found=FALSE;
+
+AppendScript(35);
+found = TRUE;
+if(found) ActivateWindow(SLOW,wGraphic);
+else Alert1("First load or produce items…");
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+return(OK);
+}
+
+
+mScript(int wind)
+{
+AppendScript(37); 
+ActivateWindow(SLOW,wScriptDialog);
+ActivateWindow(SLOW,wScript);
+return(OK);
+}
+
+
+mFind(int wind)
+{
+Rect r;
+
+if(wind < 0 || wind >= WMAX || !Editable[wind]) {
+	Alert1("You can search only text window…");
+	return(OK);
+	}
+TargetWindow = LastEditWindow = wind;
+ActivateWindow(QUICK,wFindReplace);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+SelectField(NULL,wFindReplace,fFind,TRUE);
+
+// We need the following so that typing will directly be taken as a dialog
+// event belonging to this window $$$
+SetPort(Window[wFindReplace]);
+r = Window[wFindReplace]->portRect;
+InvalRect(&r);
+return(OK);
+}
+
+
+mEnterFind(int wind)
+{
+Handle myHandle;
+long scrapOffset, rc;
+
+if(wind < 0 || wind >= WMAX || !Editable[wind]) {
+	Alert1("You can search only text window…");
+	return(OK);
+	}
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+TargetWindow = LastEditWindow = wind;
+if(!WASTE) {
+	ZeroScrap(); TEToScrap();	/* save current text edit scrap */
+	}
+myHandle = (Handle) GiveSpace(1);
+rc = GetScrap(myHandle,'TEXT',&scrapOffset);
+if(rc > 0) {
+	MemoryUsed += (unsigned long)(rc - 1);
+	MySetHandleSize(&myHandle,rc+1);
+	MyLock(FALSE,myHandle);
+	(*myHandle)[rc] = 0;
+	MyUnlock(myHandle);
+	}
+TextCopy(wind);
+// if(WASTE) TEFromScrap();
+SetSelect((**(TEH[wind])).selStart,(**(TEH[wind])).selStart,TEH[wind]);
+ActivateWindow(SLOW,wFindReplace);
+SelectField(NULL,wFindReplace,fFind,TRUE);
+DialogPaste(Window[wFindReplace]);
+ZeroScrap();
+if(rc > 0) {
+	MyLock(FALSE,myHandle);
+	PutScrap(rc+1,'TEXT',*myHandle);
+	MyUnlock(myHandle);
+	MyDisposeHandle((Handle*)&myHandle);
+	}
+Dirty[wFindReplace] = TRUE;
+GetFindReplace();
+return(OK);
+}
+
+
+mFindAgain(int wind)
+{
+if(wind < 0 || wind >= WMAX || !Editable[wind]) {
+	Alert1("You can search only text window…");
+	return(OK);
+	}
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+TargetWindow = wind;
+FindReplace(FALSE);
+ActivateWindow(SLOW,wind);
+return(OK);
+}
+
+
+mCheckVariables(int wind)
+{
+int j,s,unreachable,undefined;
+
+if(CompileCheck() != OK) return(OK);
+if(p_Var == NULL) {
+	Alert1("No variables found");
+	return(OK);
+	}
+ClearWindow(NO,wNotice);
+Print(wNotice,"VARIABLES USED IN GRAMMAR:\r");
+undefined = unreachable = 0;
+for(j=1; j <= Jvar; j++) { 
+	s = (*p_VarStatus)[j];
+	sprintf(Message,"%s ",*((*p_Var)[j]));
+	if(s & (1+2)) Print(wNotice,Message);
+	if((s & 1) && !(s & 2)) unreachable++;
+	if((s & 2) && !(s & 1) && !(s & 4))
+		undefined++;
+	}
+Print(wNotice,"\r");
+if(undefined) {
+	Print(wNotice,"\rUNDEFINED VARIABLES:\r");
+	for(j=1; j <= Jvar; j++) {
+		s = (*p_VarStatus)[j];
+		if((s & 2) && !(s & 1) && !(s & 4)) { 
+			sprintf(Message,"%s ",*((*p_Var)[j]));
+			Print(wNotice,Message);
+			}
+		}
+	Print(wNotice,"\r");
+	}
+if(unreachable) {
+	Print(wNotice,"\rUNREACHABLE VARIABLES:\r");
+	for(j=1; j <= Jvar; j++) {
+		s = (*p_VarStatus)[j];
+		if((s & 1) && !(s & 2))  {
+			sprintf(Message,"%s ",*((*p_Var)[j]));
+			Print(wNotice,Message);
+			}
+		}
+	}
+SetSelect(ZERO,ZERO,TEH[wNotice]);
+ShowSelect(CENTRE,wNotice);
+return(OK);
+}
+
+
+mListReserved(int wind)
+{
+int i,j,ii;
+
+ClearWindow(NO,wNotice);
+Print(wNotice,"RESERVED WORDS:\r\r");
+Println(wNotice,"Miscellaneous operators and markers (see doc):");
+for(i=0; i < (MAXCODE-2); i++) {
+	sprintf(Message,"%c ",Code[i]);
+	Print(wNotice,Message);
+	}
+Print(wNotice,"* \\");
+Print(wNotice,"\r\rNote conventions used in Apple Event 'conv' (not case sensitive): ");
+for(i=0; i < MAXCONVENTIONS-1; i++) {
+	sprintf(Message,"%s, ",ConventionString[i]);
+	Print(wNotice,Message);
+	}
+sprintf(Message,"%s\r\r",ConventionString[MAXCONVENTIONS-1]);
+Print(wNotice,Message);
+sprintf(Message,"‘%s’ for initialisation line on top of grammar\r\r",InitToken);
+Print(wNotice,Message);
+Print(wNotice,"Subgrammar types: ");
+for(i=0; i < MAXTYPE; i++) {
+	sprintf(Message,"%s ",SubgramType[i]);
+	Print(wNotice,Message);
+	}
+Print(wNotice,"\r\r");
+Print(wNotice,"Rule operators: ");
+for(i=0; i < MAXARROW; i++) {
+	sprintf(Message,"%s ",Arrow[i]);
+	Print(wNotice,Message);
+	}
+Print(wNotice,"\r\r");
+Print(wNotice,"Rule derive modes: ");
+for(i=0; i < MAXMODE; i++) {
+	sprintf(Message,"%s ",Mode[i]);
+	Print(wNotice,Message);
+	}
+Print(wNotice,"\r\r");
+Print(wNotice,"Grammar procedures (not case sensitive): ");
+for(j=0; j < MaxProc; j++) {
+	i = (*p_ProcNdx)[j];
+	sprintf(Message,"%s",*((*p_GramProcedure)[i]));
+	Print(wNotice,Message);
+	if((*p_ProcNArg)[i] > 0) {
+		Print(wNotice,"(•");
+		for(ii=0; ii < (*p_ProcNArg)[i]-1; ii++) Print(wNotice,",•");
+		Print(wNotice,") ");
+		}
+	else Print(wNotice," ");
+	}
+Print(wNotice,"\r\r");
+Print(wNotice,"Performance control (not case sensitive): ");
+for(j=0; j < MaxPerformanceControl; j++) {
+	i = (*p_PerfCtrlNdx)[j];
+	sprintf(Message,"%s",*((*p_PerformanceControl)[i]));
+	Print(wNotice,Message);
+	if((*p_PerfCtrlNArg)[i] > 0) {
+		Print(wNotice,"(•");
+		for(ii=0; ii < (*p_PerfCtrlNArg)[i]-1; ii++) Print(wNotice,",•");
+		Print(wNotice,") ");
+		}
+	else Print(wNotice," ");
+	}
+Print(wNotice,"\r\r");
+Print(wNotice,"Null string (equivalent symbols): ");
+for(i=0; i < MAXNIL; i++) {
+	sprintf(Message,"%s ",NilString[i]);
+	Print(wNotice,Message);
+	}
+Print(wNotice,"\r\r");
+Println(wNotice,"Templates in a grammar start on a ‘TEMPLATES:’ header");
+Println(wNotice,"Grammars may terminate on a ‘COMMENTS:’ or ‘DATA:’ header");
+SetSelect(ZERO,ZERO,TEH[wNotice]);
+ShowSelect(CENTRE,wNotice);
+return(OK);
+}
+
+
+mListTerminals(int wind)
+{
+int j;
+
+if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
+	CompiledAl = FALSE;
+	if(CompileAlphabet() != OK) return(OK);
+	}
+if(Jbol < 3) {
+	Alert1("No terminal symbols found (other than simple notes)");
+	return(OK);
+	}
+ClearWindow(NO,wNotice);
+Print(wNotice,"\rTERMINAL SYMBOLS (ALPHABET):\r");
+for(j=2; j < Jbol; j++) {
+	sprintf(Message,"%s ",*((*p_Bol)[j]));
+	Print(wNotice,Message);
+	}
+SetSelect(ZERO,ZERO,TEH[wNotice]);
+ShowSelect(CENTRE,wNotice);
+return(OK);
+}
+
+
+mBalance(int w)
+{
+long i,iorg,startpos,endpos,length;
+int levelbracket,levelsquare,levelcurled,
+	isbracket,issquare,iscurled;
+char c;
+
+if(w < 0 || w >= WMAX || !Editable[w]) return(OK);
+iorg = (**(TEH[w])).selStart - 1;
+length = GetTextLength(w);
+levelbracket = levelsquare = levelcurled = 0;
+isbracket = issquare = iscurled = FALSE;
+for(i=iorg; i >= 0; i--) {
+	c = GetTextChar(w,i);
+	if(c == ')') levelbracket++;
+	if(c == '}') levelcurled++;
+	if(c == ']') levelsquare++;
+	if(c == '(') {
+		if(levelbracket == 0) {
+			isbracket = TRUE; break;
+			}
+		levelbracket--;
+		}
+	if(c == '{')  {
+		if(levelcurled == 0) {
+			iscurled = TRUE; break;
+			}
+		levelcurled--;
+		}
+	if(c == '[')  {
+		if(levelsquare == 0) {
+			issquare = TRUE; break;
+			}
+		levelsquare--;
+		}
+	}
+if(isbracket || issquare || iscurled) {
+	startpos = i;
+	}
+else {
+	startpos = 0;
+	}
+
+levelbracket = levelsquare = levelcurled = 0;
+for(i=startpos; i < length; i++) {
+	c = GetTextChar(w,i);
+	if(c == '(') levelbracket++;
+	if(c == '{') levelcurled++;
+	if(c == '[') levelsquare++;
+	if(c == ')') {
+		if(isbracket && levelbracket == 1) break;
+		levelbracket--;
+		}
+	if(c == '}')  {
+		if(iscurled && levelcurled == 1) break;
+		levelcurled--;
+		}
+	if(c == ']')  {
+		if(issquare && levelsquare == 1) break;
+		levelsquare--;
+		}
+	}
+if(i == length) {
+	if(levelbracket == 0 && levelsquare == 0 && levelcurled == 0) {
+		endpos = length - 1;
+		}
+	else {
+		SysBeep(10); return(OK);
+		}
+	}
+else {
+	endpos = i + 1;
+	}
+SetSelect((long)startpos,(long)endpos,TEH[w]);
+return(OK);
+}
+
+
+mCompile(int wind)
+{
+AppendScript(9);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+if(CompileCheck() != OK) SysBeep(10);
+else ActivateWindow(SLOW,wind);
+return(OK);
+}
+
+
+mProduce(int wind)
+{
+int r;
+
+if(!ScriptExecOn && (ResetScriptQueue() != OK)) return(FAILED);
+if((ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || GraphicOn
+	|| PolyOn)) return(FAILED);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+GetValues(TRUE);
+if(OutMIDI && Interactive && !LoadedIn) {
+	if(GetInName(wData) != OK) GetInName(wGrammar);
+	if(LoadInteraction(TRUE,FALSE) != OK) return(OK);
+	}
+if(!ScriptExecOn && IsEmpty(wGrammar)) {
+	Alert1("Can't produce items because grammar is empty");
+	return(FAILED);	
+	}
+if(CompileCheck() != OK) return(FAILED);
+
+if(WillRandomize) {
+//	ReseedOrShuffle(RANDOMIZE);
+	if(!AllowRandomize) {
+		Alert1("Since ‘_randomize’ was found, button ‘Allow randomize’ has been checked");
+		AllowRandomize = TRUE; SetButtons(TRUE);
+		ActivateWindow(QUICK,wSettingsTop);
+		}
+	}
+else {
+	if(!AllowRandomize) ResetRandom();
+	else {
+		if(UsedRandom && !ScriptExecOn && !AllItems && !AEventOn) {
+			UsedRandom = FALSE;
+			switch(Improvize) {
+				case TRUE:
+					if((r=Answer("Reset random sequence",'Y')) == OK)
+						ResetRandom();
+					break;
+				case FALSE:
+					if((r=Answer("Reset random sequence",'N')) == OK)
+						ResetRandom();
+				}
+			}
+		}
+	}
+if(r == ABORT) return(FAILED);
+Ctrlinit();
+
+DOIT:
+if(ScriptExecOn == 0 && AEventOn == 0) OkWait = OK;
+SwitchOn(NULL,wControlPannel,dProduceItems);
+r = ProduceItems(wStartString,FALSE,FALSE,NULL);
+SwitchOff(NULL,wControlPannel,dProduceItems);
+if(r == RESUME) return(mResume(wind));
+else return(r);
+}
+
+
+mTemplates(int wind)
+{
+int result;
+	
+if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || GraphicOn
+	|| PolyOn) return(RESUME);
+if(CompileCheck() != OK || ShowNotBP() != OK) return(OK);
+SwitchOn(NULL,wControlPannel,dTemplates);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+AppendScript(11);
+result = ProduceItems(wStartString,FALSE,TRUE,NULL);
+SwitchOff(NULL,wControlPannel,dTemplates);
+return(result);
+}
+
+
+mAnalyze(int wind)
+{
+int result;
+
+if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || GraphicOn
+	|| PolyOn) return(RESUME);
+if(CompileCheck() != OK) return(FAILED);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+HideWindow(Window[wMessage]);
+if(ShowNotBP() != OK) return(OK);
+if(wTrace != wind) SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),
+	TEH[wTrace]);
+if(RecordEditWindow(wind)) {
+	sprintf(Message,"\"%s\"",WindowName[wind]);
+	MystrcpyStringToTable(ScriptLine.arg,0,Message);
+	AppendScript(12);
+	}
+result = AnalyzeSelection(FALSE);
+return(result);
+}
+
+/* int TestIt(void); $$$ */
+
+mPlaySelect(int wind)
+{
+int r;
+long origin,end;
+
+if(CheckMemory() != OK) return(FAILED);
+if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || GraphicOn
+	|| PolyOn) return(FAILED);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+if(wind < 0 || wind >= WMAX || !Editable[wind]) wind = LastEditWindow;
+HideWindow(Window[wMessage]);
+origin = (**(TEH[wind])).selStart; end = (**(TEH[wind])).selEnd;
+if(Nw == wScript) goto DOIT;
+if(RecordEditWindow(wind)) {
+	sprintf(Message,"\"%s\"",WindowName[wind]);
+	MystrcpyStringToTable(ScriptLine.arg,0,Message);
+	AppendScript(13);
+	}
+if(OutMIDI && Interactive && !LoadedIn) {
+	if(GetInName(wData) != OK) GetInName(wGrammar);
+	if(LoadInteraction(TRUE,FALSE) != OK) return(OK);
+	}
+SetSelect(origin,end,TEH[wind]);
+
+DOIT:
+if(ScriptExecOn == 0) OkWait = OK;
+r = PlaySelection(wind);
+if(r == OK) ActivateWindow(SLOW,wind);
+return(r);
+}
+
+
+mRandomSequence(int wind)
+{
+SetSeed();
+ActivateWindow(SLOW,wRandomSequence);
+return(OK);
+}
+
+
+mTimeBase(int wind)
+{
+ActivateWindow(SLOW,wMetronom);
+ActivateWindow(SLOW,wTimeBase);
+AppendScript(173);
+return(OK);
+}
+
+
+mMetronom(int wind)
+{
+ActivateWindow(SLOW,wMetronom);
+AppendScript(179);
+return(OK);
+}
+
+
+mTimeAccuracy(int wind)
+{
+ActivateWindow(SLOW,wTimeAccuracy);
+/* BuildAutomaton(); */
+return(OK);
+}
+
+
+mBufferSize(int wind)
+{
+ActivateWindow(SLOW,wBufferSize);
+return(OK);
+}
+
+
+mGraphicSettings(int wind)
+{
+ActivateWindow(SLOW,wGraphicSettings);
+return(OK);
+}
+
+
+mModemPort(int wind)
+{
+return(FixPort(1));
+}
+
+
+mPrinterPort(int wind)
+{
+return(FixPort(2));
+}
+
+
+mObjectPrototypes(int wind)
+{
+int r,longerCsound;
+long p,q;
+char line[MAXFIELDCONTENT];
+
+if(CompileCheck() != OK) return(OK);
+if(!NeedAlphabet) {
+	ObjectMode = ObjectTry = FALSE;
+	if(Jbol > 2) NeedAlphabet = TRUE;	/* Added if(Jbol > 2) on 31/3/98 */
+	}
+if(!ObjectMode && !ObjectTry && NeedAlphabet && LoadObjectPrototypes(YES,NO) != OK) {
+	if((r=Answer("Load an existing ‘-mi’ sound-object prototype file",'N')) == YES) {
+		if((r=CheckPrototypes()) != OK) return(r);
+		}
+	else {
+		if(r != NO) return(r);
+		if((r=CheckTerminalSpace()) != OK) return(r);
+		if((r=ResizeObjectSpace(YES,Jbol + Jpatt,0)) != OK) return(r);
+		ObjectMode = ObjectTry = NeedAlphabet = TRUE;
+		}
+	}
+if(Jbol < 3) iProto = 0;
+if(iProto >= Jbol) iProto = Jbol - 1;
+GetField(NULL,TRUE,wMetronom,fTempo,line,&p,&q);
+sprintf(line,"%.1f", ((double)p)/q);
+SetField(NULL,wPrototype1,fMetronomTry,line);
+sprintf(line,"100");
+SetField(NULL,wPrototype1,fDilationRatio,line);
+if(Nature_of_time == STRIATED)
+	SwitchOn(NULL,wPrototype1,bStriatedTimeTry);
+else
+	SwitchOff(NULL,wPrototype1,bStriatedTimeTry);
+SwitchOn(NULL,wPrototype1,bShowGraphicTry);
+SwitchOff(NULL,wPrototype1,bIgnorePropertiesTry);
+SwitchOff(NULL,wPrototype1,bWithParameters);
+SetPrototype(iProto);
+SetCsoundScore(iProto);
+AppendScript(33);
+ActivateWindow(AGAIN,wPrototype1);	/* AGAIN avoids recursive call of mObjectPrototypes() */
+DrawPrototype(iProto,wPrototype1,&PictFrame);
+CompileObjectScore(iProto,&longerCsound);
+StopWait();
+return(OK);
+}
+
+
+mPause(wind)
+{
+int r,oldbuttonon;
+unsigned long datemem;
+
+if(!ComputeOn && !PolyOn && !CompileOn && !SoundOn && !SelectOn &&
+	!SetTimeOn && !GraphicOn && !PrintOn /* && !ReadKeyBoardOn */
+	&& !HangOn && !ScriptExecOn) return(OK);
+if(PauseOn) return(OK);
+oldbuttonon = ButtonOn;
+/* ButtonOn = FALSE;	This will allow ResumeStop window to show up */
+SetButtons(TRUE);
+Interrupted = PauseOn = TRUE;
+datemem = CompileDate; UndoFlag = FALSE;
+SetResumeStop(TRUE);
+while((r = MainEvent()) != RESUME && r != STOP && r != ABORT && r != EXIT
+											&& !(StepProduce && r == UNDO)){};
+/* ButtonOn = oldbuttonon; */
+if(r == ABORT || r == EXIT) EventState = r;
+if(datemem != CompileDate) {
+	ShowMessage(TRUE,wMessage,"Grammar changed or recompiled. Must abort…");
+	EventState = ABORT;
+	}
+if(r == STOP) EventState = ABORT;
+if(r == RESUME) {
+	EventState = NO;
+	r = OK;
+	}
+return(r);
+}
+
+
+mResume(int wind)
+{
+StartCount();
+HideWindow(ResumeStopPtr);
+HideWindow(ResumeUndoStopPtr);
+ResumeStopOn = FALSE;
+GetDialogValues(Nw);
+SetTempo();
+SetTimeAccuracy();
+SetCursor(&WatchCursor);
+PauseOn = FALSE;
+return(RESUME);
+}
+
+
+mStop(int wind)
+{
+int s,r,result;
+
+StopCount(0);
+HideWindow(ResumeStopPtr);
+HideWindow(ResumeUndoStopPtr);
+ResumeStopOn = FALSE;
+HideWindow(Window[wMessage]);
+
+r = OK;
+result = STOP;
+if(!WaitOn) r = WaitForLastSounds(ZERO);
+if(r == EXIT) result = r;
+
+if(EventState == ABORT) ScriptExecOn = 0;
+else {
+	if((s=ScriptExecOn) > 0) {
+		ScriptExecOn = 0;	/* Needed for manual answer to question */
+		if(Answer("Continue executing script",'Y') == OK) ScriptExecOn = s;
+		}
+	}
+GetDialogValues(Nw);
+SetTempo();
+SetTimeAccuracy();
+SetCursor(&WatchCursor);
+PauseOn = FALSE;
+return(result);
+}
+
+
+mHelp(int wind)
+{
+if(OpenHelp() != OK) return(OK);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+Help = TRUE;
+SetCursor(&HelpCursor);
+return(OK);
+}
+
+
+mResetSessionTime(int wind)
+{
+SessionTime = clock();
+AppendScript(174);
+return(OK);
+}
+
+
+mTellSessionTime(int wind)
+{
+int w;
+
+sprintf(Message,"Elapsed time in this session: %.0f seconds",
+	(double)(clock() - SessionTime) / 60.);
+if(ScriptExecOn) {
+	w = OutputWindow;
+	if(w < 0 || w >= WMAX || !Editable[w]) w = wTrace;
+	PrintBehind(w,"\r");
+	PrintBehindln(w,Message);
+	ShowSelect(CENTRE,w);
+	}
+else Alert1(Message);
+AppendScript(175);
+return(OK);
+}
+
+
+mCheckScript(int wind)
+{
+int i,w,r,changed,vrefnummem;
+long parIDmem;
+FSSpec spec;
+short refnum;
+char line[MAXNAME];
+OSErr io;
+
+if(ScriptExecOn || ResetScriptQueue() != OK) goto END;
+EndWriteScript();
+ActivateWindow(wScript,SLOW);
+ReadKeyBoardOn = FALSE; Jcontrol = -1;
+if(Dirty[wScript]) {
+	if(FileName[wScript][0] != '\0') Created[wScript] = TRUE;
+	if(mSaveFile(wScript) != OK) goto END;
+	}
+if(FileName[wScript][0] == '\0') {
+	Alert1("No script has been loaded");
+	return(OK);
+	}
+HideWindow(Window[wMessage]);
+AppendStringList(FileName[wScript]);
+vrefnummem = TheVRefNum[wScript];
+parIDmem = WindowParID[wScript];
+i = 0; changed = FALSE;
+
+SwitchOn(NULL,wScriptDialog,bCheckScriptSyntax);
+while(i < NrStrings) {
+	CurrentDir = WindowParID[wScript];
+	CurrentVref = TheVRefNum[wScript];
+	for(w=0; w < WMAX; w++) {
+		WindowParID[w] = CurrentDir;
+		TheVRefNum[w] = CurrentVref;
+		}
+	MystrcpyTableToString(MAXNAME,line,p_StringList,i);
+	if((r=RunScriptOnDisk(TRUE,line,&changed)) != OK) {
+		if(r == ABORT) break;
+		}
+	i++;
+	}
+if(r != ABORT) {
+	spec.vRefNum = TheVRefNum[wScript] = vrefnummem;
+	spec.parID = WindowParID[wScript] = parIDmem;
+	}
+if(r != ABORT && changed) {
+	/* Reload new version */
+	SetSelect(ZERO,GetTextLength(wScript),TEH[wScript]);
+	TextDelete(wScript);
+	strcpy(Message,FileName[wScript]);
+	pStrCopy((char*)c2pstr(Message),spec.name);
+	if(FileName[wScript][0] != '\0') {
+		if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
+			if(ReadFile(wScript,refnum)) {
+				GetHeader(wScript);
+				Created[wScript] = TRUE;
+				SetName(wScript,TRUE,TRUE);
+				}
+			else {
+				sprintf(Message,"Can't read ‘%s’…",FileName[wScript]);
+				Alert1(Message);
+				}
+			if(FSClose(refnum) == noErr);
+			}
+		else {
+			Alert1("Unknown error: unable to reload the script…");
+			if(Beta) TellError(10,io);
+			ClearWindow(FALSE,wScript);
+			ForgetFileName(wScript);
+			}
+		}
+	ActivateWindow(SLOW,wScript);
+	Alert1("Script syntax is now OK. Changes have been recorded");
+	goto END;
+	}
+if(r != OK) {
+	Alert1("Syntax errors have been reported in the ‘Trace’ window");
+	ActivateWindow(SLOW,wTrace);
+	ShowSelect(CENTRE,wTrace);
+	}
+else {
+	Alert1("Script syntax is OK.\r(Smooth execution is not certified)");
+	ActivateWindow(SLOW,wScript);
+	}
+
+END:
+SwitchOff(NULL,wScriptDialog,bCheckScriptSyntax);
+return(OK);
+}
+
+
+mMIDIfilter(int wind)
+{
+
+ActivateWindow(SLOW,wFilter);
+return(OK);
+}

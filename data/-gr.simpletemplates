@@ -1,0 +1,15 @@
+V.2.6
+Date: Mer 8 Mai 1996 -- 16:11
+-se.simpletemplates
+// Does not yet work
+RND
+GRAM#1[1] S <-> C4.C5.D5 C5 F#4.A4.C5
+GRAM#1[2] S <-> C4.C5.D5 C5 D5 C5 F#4.A4.C5
+GRAM#1[3] S <-> (= A) (:A)
+GRAM#1[4] A <-> D5 C5.D5
+------------
+TEMPLATES:
+[1] /1 _______
+[2] /1 _________
+[3] /1 (@0 ___)(@1 )
+------------

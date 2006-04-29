@@ -1,0 +1,79 @@
+// Bol Processor version BP2.7.4
+// Grammar file saved as '-gr.cloches1'. Date: Sun, Feb 15, 1998 -- 0:49
+-or.cloches
+-se.cloches
+-ho.cloches1
+
+[Airs de sonneurs de cloches: 4 cloches A,B,C,D]
+
+RND [Prendre une règle au hasard.]
+
+GRAM#1[1] S --> /4 Air
+GRAM#1[2] Air --> Fixe   Nouv   B A C D X12 F
+GRAM#1[3] Air --> Fixe   Nouv   A C B D X23 F
+GRAM#1[4] Air --> Fixe   Nouv   A B D C X34 F
+GRAM#1[5] Air --> Fixe   Nouv   TR(= B A D C X1234) F
+
+----------------------------------------------------------
+LIN [Prendre une règle au hasard, en cherchant l'occurrence la plus à gauche de son premier argument.]
+
+[Règles sans contexte éloigné, de faible poids:]
+
+GRAM#2[1] <1> ?1 ?2 ?3 ?4  X12 --> ?1 ?2 ?3 ?4   TR(=?1 ?2 ?4 ?3 X34)
+GRAM#2[2] <1> ?1 ?2 ?3 ?4  X12 --> ?1 ?2 ?3 ?4   TR(=?2 ?1 ?4 ?3 X1234)
+
+GRAM#2[3] <1> ?1 ?2 ?3 ?4  X34 --> ?1 ?2 ?3 ?4  TR(=?2 ?1 ?4 ?3 X1234)
+GRAM#2[4] <1> ?1 ?2 ?3 ?4  X34 --> ?1 ?2 ?3 ?4  TR(=?2 ?1 ?3 ?4 X12)
+
+GRAM#2[5] <1> ?1 ?2 ?3 ?4  X23 --> ?1 ?2 ?3 ?4   TR(=?2 ?1 ?4 ?3 X1234)
+
+GRAM#2[6] <1> ?1 ?2 ?3 ?4  X1234 --> ?1 ?2 ?3 ?4   TR(=?2 ?1 ?3 ?4 X12)
+GRAM#2[7] <1> ?1 ?2 ?3 ?4  X1234 --> ?1 ?2 ?3 ?4   TR(=?1 ?3 ?2 ?4 X23)
+GRAM#2[8] <1> ?1 ?2 ?3 ?4  X1234 --> ?1 ?2 ?3 ?4  TR(= ?1 ?2 ?4 ?3 X34)
+
+[Règle de poids infini:]
+
+// <∞> A B C D ?1 F  -->   A B C D  [Fin de l'air: volée canonique.]
+
+[Règles avec contexte éloigné, de fort poids:]
+
+GRAM#2[9] <1000> #(?1 ?2 ?4 ?3) ?1 ?2 ?3 ?4  X12 --> ?1 ?2 ?3 ?4  Nouv ?1 ?2 ?4 ?3 X34
+GRAM#2[10] <1000> #(?2 ?1 ?4 ?3) ?1 ?2 ?3 ?4  X12 --> ?1 ?2 ?3 ?4   Nouv ?2 ?1 ?4 ?3 X1234
+
+GRAM#2[11] <1000> #(?2 ?1 ?4 ?3) ?1 ?2 ?3 ?4  X34 --> ?1 ?2 ?3 ?4  Nouv ?2 ?1 ?4 ?3 X1234
+GRAM#2[12] <1000> #(?2 ?1 ?3 ?4) ?1 ?2 ?3 ?4  X34 --> ?1 ?2 ?3 ?4   Nouv ?2 ?1 ?3 ?4 X12
+
+GRAM#2[13] <1000> #(?2 ?1 ?4 ?3) ?1 ?2 ?3 ?4  X23 --> ?1 ?2 ?3 ?4  Nouv ?2 ?1 ?4 ?3 X1234
+
+GRAM#2[14] <1000> #(?2 ?1 ?3 ?4) ?1 ?2 ?3 ?4  X1234 --> ?1 ?2 ?3 ?4   Nouv ?2 ?1 ?3 ?4 X12
+GRAM#2[15] <1000> #(?1 ?3 ?2 ?4) ?1 ?2 ?3 ?4  X1234 --> ?1 ?2 ?3 ?4   Nouv ?1 ?3 ?2 ?4 X23
+GRAM#2[16] <1000> #(?1 ?2 ?4 ?3) ?1 ?2 ?3 ?4  X1234 --> ?1 ?2 ?3 ?4   Nouv ?1 ?2 ?4 ?3 X34
+
+-----------------------------------------------------------
+ORD [Prendre ces règles dans l'ordre: pas de choix.]
+
+[Règles d'effacement au cas où on a quitté la grammaire précédente par une interruption:]
+
+GRAM#3[1] LEFT X12 -->[‘LEFT’ force la réécriture de gauche à droite.  Plus rapide ici.]
+GRAM#3[2] LEFT X34 -->
+GRAM#3[3] LEFT X23 -->
+GRAM#3[4] LEFT X1234 -->
+GRAM#3[5] LEFT F -->
+
+[Effacer les marques de début de volée:]
+
+GRAM#3[6] LEFT Nouv -->
+
+[Ecriture de la volée canonique de départ:]
+
+GRAM#3[7] LEFT Fixe --> A B C D
+
+-----------------------------------------------------------
+SUB1 [Substitutions.  Les réécritures se font en fait de gauche à droite.]
+
+GRAM#4[1] A --> do3
+GRAM#4[2] B --> sol3
+GRAM#4[3] C --> re3
+GRAM#4[4] D --> mi3
+
+// -------------------------------------------------------+

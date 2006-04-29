@@ -1,0 +1,10 @@
+// Bol Processor version BP2.9.3
+// Grammar file saved as '-gr.a'. Date: Mer 27 jan 1999 -- 16:03
+RND
+_mm(60.0000) _striated
+gram#1[1] S --> M1
+gram#1[2] <2-1> M1 --> {_transposecont _transpose(0) C3 C3 C3 C3 _transpose(24)} _transpose(6) M1
+<0> S --> _pan(10){ _pancont  _pan(0)  C3 C3 C3 C3 _pan(100)}
+------
+RND
+gram#2[1] M1 --> lambda

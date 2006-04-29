@@ -1,0 +1,21 @@
+-se.checkPeriods
+
+// Select the following items and click "Space selection" or "Expand selection" on the Control panel.
+
+C5 D5 E5.F5 G5 A5.E5 F5.E5 F5
+C5 D5 E5.F5 G5 A5.E5 F5.E5
+C5 D5 E5.F5 G5 {A5}.E5 F5.E5
+C5 D5 E5.F5 {G5 A5}.E5 F5.E5
+C5 D5 E5.F5 G5 X.E5 F5.E5
+C5 D5 E5.F5 <<G5>> A5.E5 F5.E5
+C5 D5 E5.F5 _script(Beep) A5.E5 F5.E5
+C5 D5 E5.F5  _vel(40) A5.E5 F5.E5
+C5 D5 E5.F5 G5 A5.E5 F5.E5 F5 G5 F5
+{F5 - A5.D5 F5.A5,G5 F5}
+{F5 - A5.D5 F5.A5,G5 F5.C6}
+{C5.D5.{E5 F5}}
+C5.D5.{E5.F5,G5.F5.C6}
+
+// The following two are different.  The first line contains a "4/3" beat silence, the second one a "4/3" half-a-beat silence:
+C5.D5.E5 F5.G5 A5. 4/3. E5 F5.A5 B5
+C5 D5 /2 E5 F5 G5 A5 4/3 E5 F5 A5 B5

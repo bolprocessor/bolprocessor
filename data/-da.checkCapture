@@ -1,0 +1,11 @@
+// Bol Processor version BP2.6.1
+// Data file saved as '-da.checkCapture'. Date: Lun 24 Juin 1996 -- 18:17
+// This example is provided for filling slots with parameter values captured from a MIDI
+// device.  (See QuickStart manual)
+// Type ð j and click a parameter name.  When the slot Ô¥Õ is selected hit a key or move
+// a controller of the MIDI device to set the value of the corresponding parameter.
+
+_chan(¥) _pitchrange(¥) _volumecontrol(¥) _volume(¥) _vel(¥) C5 D5 F5 _vel(¥) G5 C6 _mod(¥) A#5 _pitchbend(¥)  G5 F5
+
+// An example of acceptable values would be:
+_chan(1) _pitchrange(200) _volumecontrol(7) _volume(58) _vel(76) C5 D5 F5 _vel(68) G5 C6 _mod(15232) A#5 _pitchbend(-10)  G5 F5

@@ -1,0 +1,9 @@
+Thank you for your payment and welcome to Bol Processor...
+
+I am enclosing the activation key for Bol Processor.  Please do not change the file name and drag it to the folder containing the application.  When you start again the application it will warn you that it "swallowed" the key.
+
+You may be interested to join the Bol Processor mailing list in which technical and musical problems are discussed, including suggestions for future development.  There is a command to join the list on Bol Processor home page <http://perso.wanadoo.fr/bel/music/index.html>.  The list also has an archive in which you can see the points that have already been discussed.
+
+With best regards,
+
+Bernard Bel -- Kumar Subramanian

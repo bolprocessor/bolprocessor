@@ -1,0 +1,7 @@
+// Bol Processor version BP2.7
+// Data file saved as '-da.checkMIDIfiles'. Date: Fri, Mar 7, 1997 -- 12d17
+-gl.GeneralMIDI
+-se.checkMIDIfiles
+C4 D4 E4
+ _pitchrange(200) _pitchcont _pitchbend(0) C4 D4 E4 _pitchbend(100)
+AcousticGrandPiano C4 D4 E4 Cello F4 G4 F4 E4

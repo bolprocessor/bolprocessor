@@ -1,0 +1,79 @@
+// Bol Processor version BP2.9.1
+// Grammar file saved as '-gr.dhin1'. Date: Sam 11 Juil 1998 -- 22:26
+-se.dhin--
+-ho.dhin--
+
+// An initial version of '-gr.dhin--' producing incorrect accentuation
+
+// You must produce templates before analysing items
+
+RND 
+_mm(360.0000) _striated
+gram#1[1] S <-> 4+4/6 S48 
+gram#1[2] S <-> 4+4+4+4/6 S96 
+----------------------------------------------------
+RND  
+gram#2[1] S96 <-> (= F48 ) (= V24 ) F'24 *(: F48 ) (: V24 ) F24 
+gram#2[2] S48 <-> (= V24 ) F'24 *(: V24 ) F24 
+gram#2[3] V24 <-> (= V12 ) (: V12 ) 
+gram#2[4] V24 <-> (= V12 ) *(: V12 )
+gram#2[5] V24 <-> Q24
+gram#2[6] V24 <-> V12 V12
+gram#2[7] V24 <-> B24 
+gram#2[8] V12 <-> (= B6 ) *(: B6 )
+gram#2[9] V12 <-> B12
+----------------------------------------------------
+LIN
+gram#3[1] B6 <-> A A A A A A
+gram#3[2] B12 <-> A A A A A A A A A A A A
+gram#3[3] B24 <-> A A A A A A A A A A A A A A A A A A A A A A A A
+gram#3[4] A A A <-> A3
+gram#3[5] A A A A <-> A4
+gram#3[6] A A A A A A <-> A6
+------------------------------------------
+ORD
+gram#4[1] A A --> A2
+gram#4[2] A3 A --> A4
+gram#4[3] #A3 A --> A #A3
+gram#4[4] A6 A2 --> A4 A4
+gram#4[5] #A6 A2 --> A2 #A6
+------------------------------------------
+RND
+gram#5[1] A3 <-> dhin--
+gram#5[2] A3 <-> dha--
+gram#5[3] A3 <-> dhagena
+gram#5[4] A4 <-> tirakita
+gram#5[5] A3 A3 <-> dhagenadhin--
+gram#5[6] A3 A3 <-> dhagenadha--
+gram#5[7] A6 <-> dha-dha-dha-
+gram#5[8] A6 <-> dha-ta-dha-
+gram#5[9] A6 <-> dheenedheenedheene
+gram#5[10] A6 <-> dheenedheenagena
+gram#5[11] A6 <-> dheenedha-dheene
+gram#5[12] A6 <-> tagetirakita
+gram#5[13] A6 <-> teeneteenakena
+gram#5[14] A6 <-> dhatigegenaka
+----------------------------------------------------------------------------
+RND 
+gram#6[1] F'12 <-> dhatigegenakateeneteenakena
+gram#6[2] Q24 <-> dhin--dhagenadha--dhagenadhatigegenakadheenedheenagena
+gram#6[3] F24 <-> tagetirakitadhin--dhagenadhatigegenakadheenedheenagena
+gram#6[4] F24 <-> tagetirakitagena-dhagenadhatigegenakadheenedheenagena
+gram#6[5] F'24 <-> tagetirakitadhin--dhagenadhatigegenakateeneteenakena
+gram#6[6] F'24 <-> tagetirakitagena-dhagenadhatigegenakateeneteenakena
+gram#6[7] F48 <-> dhin--dhagenadha--dhagenadhatigegenakadheenedheenagenatagetirakitadhin--dhagenadhatigegenakateeneteenakena
+gram#6[8] F48 <-> dhin--dhagenadha--dhagenadhatigegenakadheenedheenagenatagetirakitagena-dhagenadhatigegenakateeneteenakena
+----------------------------------------------------------------------------
+TEMPLATES:
+[1] 4+4*1/6 (@0 (@0 ____________)(@1 ))________________________ * (@2 )________________________
+[2] 4+4*1/6 (@0 ________________________)________________________ * (@1 )________________________
+[3] 4+4*1/6 (@0 (@0 ______) * (@1 )____________)________________________ * (@2 )________________________
+[4] 4+4*1/6 (@0 (@0 ______) * (@1 )(@0 ______) * (@1 ))________________________ * (@3 )________________________
+[5] 4+4*1/6 (@0 ____________(@0 ______) * (@1 ))________________________ * (@2 )________________________
+[6] 4+4+4+4*1/6 (@0 ________________________________________________)(@0 (@0 (@0 ______) * (@1 ))(@2 ))________________________ * (@4 )(@3 )________________________
+[7] 4+4+4+4*1/6 (@0 ________________________________________________)(@0 (@0 ____________)(@1 ))________________________ * (@3 )(@2 )________________________
+[8] 4+4+4+4*1/6 (@0 ________________________________________________)(@0 (@0 ____________) * (@1 ))________________________ * (@3 )(@2 )________________________
+[9] 4+4+4+4*1/6 (@0 ________________________________________________)(@0 ________________________)________________________ * (@2 )(@1 )________________________
+[10] 4+4+4+4*1/6 (@0 ________________________________________________)(@0 ______________(@0 ____) * (@1 ))________________________ * (@3 )(@2 )________________________
+[11] 4+4+4+4*1/6 (@0 ________________________________________________)(@0 (@0 ________) * (@1 )__________)________________________ * (@3 )(@2 )________________________
+------------

@@ -1,0 +1,18 @@
+// Bol Processor version BP2.9.1
+// Grammar file saved as '-gr.Ames'. Date: Mar 11 Aož 1998 -- 14:21
+-se.Ames
+
+// A grammar illustrating the construction of a rather
+// complex time structure with an undetermined rest.
+ORD
+
+S --> {PA, _rest PB}
+
+PA --> {2,- PA1,-- PA2} {4,PA3}
+PA1 --> {2,F#3}
+PA2 --> {1,F5,A5}
+PA3 --> PA31 PA32
+PA31 --> {1/2,G#3,E5,G5}
+PA32 --> {7/2,Bb4}
+
+PB --> {1/4,G#5&,C6,E6,B6&} {2,&G#5,&B6}

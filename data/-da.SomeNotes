@@ -1,0 +1,9 @@
+// First examples on BP2. Make sure that “English notes” is checked in the “Misc” menu.
+C5 - D5 F5 G5_ C6 A#5 A5 G5
+{C5 D5 F5 G5 C6, A#5 A5 G5}
+_script(Beep) C5 D5 F5 G5 C6 _script(Wait for space) A#5 A5 G5
+_vel(60) C5 D5 F5 G5 _vel(127) C6 A#5 A5 G5
+_volumecont _volume(20) C5 D5 F5 G5 _volume(127) C6 A#5 A5 G5 _volume(80)
+_pitchcont _pitchrange(200) _pitchbend(0) C5 _ _ _ _pitchbend(150) _ _ _ _pitchbend(-180)
+_script(MIDI program 5) C5 D5 F5 G5 _script(MIDI program 5) C6 A#5 A5 G5
+ 

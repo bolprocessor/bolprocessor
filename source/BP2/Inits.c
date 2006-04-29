@@ -1,0 +1,1904 @@
+/* Inits.c (BP2 version 2.9.4) */
+
+#ifndef _H_BP2
+#include "-BP2.h"
+#endif
+
+#include "-BP2decl.h"
+
+
+Inits(void)
+{
+int i,j,ch;
+OSErr io;
+WDPBRec pb;
+char **ptr;
+Rect r;
+long handlerRefcon;
+AEEventHandlerUPP handler;
+ProcessInfoRec info;
+FSSpec spec;
+long t;
+
+static char HTMLlatin[] /* Starting with "&#32" up to "&#255" */
+	= {' ','!','\"','#','$','%','&','\'','(',')','*','+',',','-','.','/','0','1','2','3',
+	'4','5','6','7','8','9',':',';','<','=','>','?','@','A','B','C','D','E','F','G','H',
+	'I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','[','\\',']',
+	'\0','_','\0',
+	'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t',
+	'u','v','w','x','y','z','{','|','}','~','\0','•','™','≠','∞','≥','∑','∫','Ω',
+	'√','≈','…','—','‘','Ÿ','⁄','∂','∆','Œ','‚','„','„','‰','','ˆ','˜',
+	'˘','˙','˚','˛','ˇ','ı','ƒ','\0','¡','¢','£','€','¥','|','§','¨','©','ª','«',
+	'¬','\0','®','\0','°','±','”','“','\0','µ','\0','·','˛','’','º','»','π','∏','≤','¿',
+	'À','Á','Â','Ã','Ä','Å','Æ','Ç','È','É','Ê','Ë','Ì','Í','Î','Ï','\0','Ñ','Ò','Ó','Ô',
+	'Õ','Ö','◊','Ø','Ù','Ú','Û','Ü','Y','\0','ß','à','á','â','ã','ä','å','æ','ç','è','é','ê',
+	'ë','ì','í','î','ï','\0','ñ','ò','ó','ô','õ','ö','÷','ø','ù','ú','û','ü','y',
+	'\0','ÿ'};
+
+// It would be wise to verify that these inits are the same ones used in recent projects
+
+InitGraf(&thePort);
+InitFonts();
+InitWindows();
+InitMenus();
+TEInit();
+InitDialogs(0L);
+InitCursor();
+
+#ifndef __POWERPC
+// These are old memory management calls recommended in Inside Macintosh
+// They may not be of any use now.
+MaxApplZone();
+for(i=0; i < 15; i++) MoreMasters(); /* Create more space for handle master pointers */
+#endif
+
+FlushEvents(everyEvent,0);
+
+//////////////////////////////////
+////   Is this a beta version?  ////
+      Beta = YES;       ////
+//////////////////////////////////
+
+// In this part we systematically initialise ALL global variables
+
+Time_res = 10L; /* Time resolution for MIDI messages */
+Quantization = 10L;
+TotalTicks = ZERO;
+
+p_Pb = &Pb;
+Pb.ioVRefNum = 0;
+InBuiltDriverOn = FALSE;
+
+Nw = 0;
+ 
+InitOn = NoCursor = FirstTimeAE = NotSaidKpress = TRUE;
+CheckMem = TRUE; EmergencyExit = LowOnMemory = TempMemory = AskedTempMemory
+	= FixedMaxQuantization = FALSE;
+TempMemoryUsed = ZERO;
+EventState = NO;
+MemoryUsed = TempMemoryUsed = MaxMemoryUsed = MaxTempMemoryUsed = ZERO;
+SetTimeOn = ComputeOn = PolyOn = CompileOn = SoundOn = SelectOn = ButtonOn = ExpandOn
+	= PrintOn = ClickRuleOn = GraphicOn = CompleteDecisions = LoadOn = SaveOn = MIDIfileOn
+	= ReadKeyBoardOn = AlertOn = AllOn = HangOn = ScriptRecOn = PlayPrototypeOn
+	= PlaySelectionOn = SelectPictureOn = TypeScript = InputOn = EnterOn = AEventOn
+	= PauseOn = WaitOn = ItemOutPutOn = ItemCapture = TickCapture = TickCaptureStarted
+	= AskedAboutCsound = MustChangeInput = ToldSkipped = ShownBufferSize = FALSE;
+Option = TickDone = FoundNote = GotAlert = UsedRandom = SaidTooComplex = FALSE;
+POLYconvert = OkShowExpand = FALSE;
+NewOrchestra = TRUE;
+Ratio = 0.;  Prod = 1.;
+TimeMax = MAXTIME; Nalpha = 100L; SpeedRange = 6.;
+CorrectionFactor = 1.;
+UserName[0] = UserInstitution[0] = '\0';
+// Tracefile = NULL;
+
+Oms = FALSE;
+
+// Space for time scheduler
+if((p_Clock = (Slice***) NewHandle((Size)CLOCKSIZE * sizeof(Slice*))) == NULL)
+	return(ABORT);
+MyLock(TRUE,(Handle)p_Clock);
+Clock = *p_Clock;
+for(t=0; t < CLOCKSIZE; t++) Clock[t] = NULL;	/* No event in the queue */
+
+if((p_AllSlices = (Slice**) NewHandle((Size)MAXTIMESLICES * sizeof(Slice))) == NULL)
+	return(ABORT);
+MyLock(TRUE,(Handle)p_AllSlices);
+SlicePool = NULL;
+for(i=ZERO; i < MAXTIMESLICES; i++) {
+	(*p_AllSlices)[i].next = SlicePool;
+	SlicePool = &((*p_AllSlices)[i]);
+	}
+
+for(i=0; i < MAXMESSAGE; i++) {
+	ptr = (char**) GiveSpace((Size)(MAXLIN * sizeof(char)));
+	if(ptr == NULL) return(ABORT);
+	p_MessageMem[i] = ptr;
+	(*p_MessageMem[i])[0] = '\0';
+	}
+Jmessage = 0;
+
+if((p_TempFSspec=(FSSpec**) GiveSpace((Size)(WMAX * sizeof(FSSpec)))) == NULL)
+	return(ABORT);
+
+for(i=0; i < WMAX; i++) {
+	ptr = (char**) GiveSpace((Size)(MAXINFOLENGTH * sizeof(char)));
+	if(ptr == NULL) return(ABORT);
+	p_FileInfo[i] = ptr;
+	(*p_FileInfo[i])[0] = '\0';
+	(*p_TempFSspec)[i].name[0] = 0;
+	}
+
+if(NEWTIMER) MaxMIDIbytes = MAXTIMESLICES - 50;
+else MaxMIDIbytes = ZERO;
+
+KeyboardType = QWERTY;
+C4key = 60;  A4freq = 440.;
+ProgNrFrom = 1;	/* This has changed with version 2.7.3 */
+TestMIDIChannel = 1;
+for(i=0; i <= MAXCHAN; i++) {
+	CurrentMIDIprogram[i] = 0;
+	}
+ChangedMIDIprogram = FALSE;
+
+Port = 1; /* MIDI output on "Modem" port */
+/* Port = 2; MIDI output on "Printer" port */
+switch(Port) {
+	case 1:
+		Portbit = PORTA; break;
+	case 2:
+		Portbit = PORTB; break;
+	}
+
+Nbytes = Tbytes2 = BytesReceived = BytesProcessed = ZERO;
+MaxOMSinputBufferSize = DEFTMAXOMSINPUTBUFFERSIZE;
+OMSinputOverflow = FALSE; DownBuffer = TRUE;
+h_OMSinputMessage = NULL;
+gChosenInputID = gChosenInputIDbydefault = 0;
+gChosenOutputID = 0;
+gInputMenu = gOutputMenu = NULL;
+gOutNodeRefNum = OMSInvalidRefNum;
+MIDIinputFilter = MIDIinputFilterstartup = -1L;
+MIDIoutputFilter = MIDIoutputFilterstartup = -1L;
+ResetMIDIFilter();
+
+QuantizeOK = TRUE;
+LapWait = ZERO;
+PrefixTree.p = SuffixTree.p = NULL;
+PrefixTree.accept = SuffixTree.accept = FALSE;
+SmartCursor = Mute = Panic = ClockOverFlow = SchedulerIsActive = OKsend = FALSE;
+AlertMute = FALSE;
+
+// Limits of speed and scale values
+TokenLimit = (((double)TOKBASE) * ((double)TOKBASE)) - 1.;
+InvTokenLimit = 1. / TokenLimit;
+MaxTempo = 100000.;
+MaxFrac = 1000000.;
+InvMaxTempo = 1. / MaxTempo;
+//
+
+Stream.code = NULL;
+Stream.imax = ZERO; Stream.cyclic = FALSE; Stream.period = ZERO;
+if(GetResource('MENU',MenuIDoffset) == NULL) {
+	SysBeep(20);
+	CantOpen();
+	return(ABORT);
+	}
+GetResource('ICON',EditObjectsIconID);
+GetResource('ICON',BP2iconID);
+GetResource('PICT',MIDIKeyboardPictID);
+GetResource('PICT',GreetingsPictID);
+GetResource('DITL',GreetingsDitlID);
+if(SetUpCursors() != OK) {
+	SysBeep(20);
+	CantOpen();
+	return(ABORT);
+	}
+SetUpMenus();
+InitColors();
+if(LoadStrings() != OK) return(ABORT);
+
+if((p_Diacritical = (char****) NewHandle((Size)(MAXHTMLDIACR) * sizeof(char**)))
+	== NULL) return(ABORT);
+MyLock(TRUE,(Handle)p_Diacritical);
+
+if((p_HTMLdiacritical = (char**) NewHandle((Size)(MAXHTMLDIACR) * sizeof(char)))
+	== NULL) return(ABORT);
+MyLock(TRUE,(Handle)p_HTMLdiacritical);
+
+if((p_HTMLchar1 = (char**) NewHandle((Size)(MAXHTMLDIACR) * sizeof(char)))
+	== NULL) return(ABORT);
+if((p_HTMLchar2 = (char**) NewHandle((Size)256 * sizeof(char)))
+	== NULL) return(ABORT);
+	
+for(i=0; i < MAXHTMLDIACR; i++) {
+	if((ptr = (char**) NewHandle((Size)((1 + MyHandleLen((*p_HTMLdiacrList)[i+i])) * sizeof(char))))
+		== NULL) return(ABORT);
+	(*p_Diacritical)[i] = ptr;
+	MystrcpyHandleToHandle(0,&((*p_Diacritical)[i]),(*p_HTMLdiacrList)[i+i]);
+	MyLock(TRUE,(Handle)(*p_Diacritical)[i]);
+	(*p_HTMLchar1)[i] = (*((*p_HTMLdiacrList)[i+i+1]))[0];
+	}
+for(i=0; i < MAXHTMLDIACR; i++) {
+	(*p_HTMLdiacritical)[i] = (*((*p_HTMLdiacrList)[i+i+1]))[0];
+	}
+DisposeHandle((Handle)p_HTMLdiacrList);
+
+for(i=0; i < 32; i++) (*p_HTMLchar2)[i] = '\0';
+for(i=32; i < 256; i++) (*p_HTMLchar2)[i] = HTMLlatin[i-32];
+
+// This is some extra memory used in case memory gets low
+// Helas it doesn't seem to work any more.
+h_EmergencyMemory = NewHandle(EMERGENCYMEMORYSIZE);
+
+if(MakeWindows() != OK) return(ABORT);
+SetDialogFont(systemFont);
+if(InitButtons() != OK) return(ABORT);
+if(Beta) FlashInfo("This is a beta version for evaluation...");
+
+ForceTextColor = ForceGraphicColor = 0;
+if(!GoodMachine()) return(ABORT);
+#if NEWGRAF
+if(!HasGWorlds()) {
+	Alert1("Deep GWorlds not supported by this machine!");
+	return(ABORT);
+	}
+else if(GWorldInit() != OK) return(ABORT);
+Offscreen = TRUE;
+#else
+Offscreen = FALSE;
+#endif
+Nw = -1; Ndiagram = Npicture = 0;
+LastEditWindow = OutputWindow = wData;
+LastComputeWindow = wGrammar;
+LastAction = NO;
+Ke = log((double) 2.) / 64.;
+strcpy(Message,"\0");
+PictFrame.top = topDrawPrototype;
+PictFrame.left = leftDrawPrototype;
+PictFrame.bottom = bottomDrawPrototype;
+PictFrame.right = rightDrawPrototype;
+NoteScalePicture = NULL;
+p_Tpict = NULL; Hpos = -1;
+for(i=0; i < 4; i++) EndStr[i] = (char) 255;
+Jbol = Jfunc = iProto = Jpatt = Jvar = Jflag = Jhomo = N_err = BolsInGrammar
+	= ScriptExecOn = 0;
+Jcontrol = -1;
+for(i=0; i < MAXPARAMCTRL; i++) ParamControl[i] = ParamKey[i] = -1;
+MaxRul = MaxGram = 0;
+Gram.trueBP = Gram.hasTEMP = Gram.hasproc = FALSE;
+pp_MIDIcode = NULL;
+pp_CsoundTime = NULL;
+p_Code = NULL;
+pp_Comment = pp_CsoundScoreText = NULL;
+p_CsoundSize = NULL;
+pp_CsoundScore = NULL;
+PointCsound = PointMIDI = FALSE;
+CsFileName[0] = MIDIfileName[0] = CsoundOrchestraName[0] = '\0';
+MIDIfadeOut = 2.;
+MIDIfileOpened = FALSE;
+if((p_Oldvalue = (MIDIcontrolstatus**)
+	GiveSpace((Size)MAXCHAN*sizeof(MIDIcontrolstatus))) == NULL) return(ABORT);
+	
+for(ch=0; ch < MAXCHAN; ch++) {
+	(*p_Oldvalue)[ch].volume = -1;
+	(*p_Oldvalue)[ch].panoramic = -1;
+	(*p_Oldvalue)[ch].pressure = -1;
+	(*p_Oldvalue)[ch].pitchbend = -1;
+	(*p_Oldvalue)[ch].modulation = -1;
+	}
+
+// Variables for Csound instruments
+p_CsInstrument = NULL;
+p_CsInstrumentIndex = p_CsDilationRatioIndex = p_CsAttackVelocityIndex = p_CsReleaseVelocityIndex
+	= p_CsPitchIndex = p_CsPitchBendStartIndex
+	= p_CsVolumeStartIndex = p_CsPressureStartIndex = p_CsModulationStartIndex
+	= p_CsPanoramicStartIndex = p_CsPitchBendEndIndex = p_CsVolumeEndIndex
+	= p_CsPressureEndIndex = p_CsModulationEndIndex = p_CsPanoramicEndIndex
+	= NULL;
+p_CsPitchFormat = NULL;
+pp_CsInstrumentName = pp_CsInstrumentComment = p_StringConstant = NULL;
+p_NumberConstant = NULL;
+FileSaveMode = ALLSAMEPROMPT;
+FileWriteMode = LATER;
+ConvertMIDItoCsound = FALSE;
+MIDIfileType = 0;
+CsoundFileFormat = MAC;
+
+for(i=0; i < 6; i++) {
+	p_CsPitchBend[i] = p_CsVolume[i] = p_CsPressure[i] = p_CsModulation[i]
+		= p_CsPanoramic[i] = NULL;
+	}
+	
+NoAlphabet = TRUE;
+UseGraphicsColor = UseTextColor = TRUE;
+hPrint = NULL;
+StartFromOne = TRUE;
+OutMIDI = TRUE;
+OutCsound = /* OutQuickTime = ToldAboutQuickTime = */ WriteMIDIfile = CsoundTrace = FALSE;
+SetUpTime = 100L;	/* 100 ms */
+NewEnvironment = NewColors = Help = FALSE;
+for(i=0; i < WMAX; i++) ChangedCoordinates[i] = Dirty[i] = FALSE;
+ObjectMode = ObjectTry = Final = LoadedScript = FALSE;
+LoadedIn = LoadedGl = FALSE;
+TransposeInput = FALSE; TransposeValue = 0;
+CompiledGr = CompiledAl = CompiledPt = CompiledIn = CompiledGl = CompiledCsObjects
+	= CompiledRegressions = NotFoundMetronom = NotFoundNatureTime = FALSE;
+Pclock = Qclock = 1.;
+Nature_of_time = STRIATED;
+Pduration = 0.;  Qduration = 1.;
+UseBufferLimit = FirstTime = FALSE;
+OkWait = TRUE;
+Nplay = 1;	/* Number of times each item is played */
+SynchroSignal = OFF;
+MaxDeriv = MAXDERIV;
+
+Infneg = LONG_MIN;
+Veryneg = Infneg + 1;
+Infpos = - Veryneg;
+Infpos1 = Infpos + 1.;
+
+SplitTimeObjects = TRUE;	/* Terminal symbols separated by spaces */
+SplitVariables = FALSE;	/* SplitVariables <=> variables displayed between '||' */
+Token = SpaceOn = FALSE;	/* Typing text, not tokens */
+FileName[iObjects][0] = '\0';
+BufferSize = DeftBufferSize = MAXDISPL;
+GraphicScaleP = GraphicScaleQ = 1L;
+MatchWords = Finding = FALSE; IgnoreCase = TRUE;
+strcpy(FindString,"\0"); strcpy(ReplaceString,"\0");
+p_Image = p_NoteImage = NULL; p_Homo = NULL; p_Initbuff = NULL;
+p_Bol = p_Patt = p_Var = p_Flagname = NULL;
+p_Ppatt = p_Qpatt = NULL;
+MaxScript = MAXEVENTSCRIPT; Jscriptline = 0;
+p_Script = NULL;
+InitThere = 0; JustCompiled = FALSE;
+MIDIbytestate = MIDIfileTrackNumber = 0;
+MIDItracklength = MidiLen_pos = ZERO;
+Midi_msg = OldMIDIfileTime = 0;
+LoadedCsoundInstruments = FALSE;
+OMSoutputName[0] = OMSinputName[0] = '\0';
+
+// Allow BP2 to respond to Apple Events coming from remote machines
+
+io = AESetInteractionAllowed(kAEInteractWithAll);
+
+// Installing Apple Event handlers. Don't forget to register in GoodEvent()
+
+handler = NewAEEventHandlerProc(MyHandleOAPP);
+io = AEInstallEventHandler(kCoreEventClass,kAEOpenApplication,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(MyHandleODOC);
+io = AEInstallEventHandler(kCoreEventClass,kAEOpenDocuments,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(MyHandleODOC);
+io = AEInstallEventHandler(kCoreEventClass,kAEPrintDocuments,handler,0,FALSE);	/* Print is identified by handler */
+
+/*  = NewAEEventHandlerProc(MyHandlePDOC);
+io = AEInstallEventHandler(kCoreEventClass,kAEPrintDocuments,handler,0,FALSE); */
+
+handler = NewAEEventHandlerProc(MyHandleQUIT);
+io = AEInstallEventHandler(kCoreEventClass,kAEQuitApplication,handler,0,FALSE);
+
+
+handler = NewAEEventHandlerProc(MyHandleSectionReadEvent);
+io = AEInstallEventHandler(sectionEventMsgClass,sectionReadMsgID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(MyHandleSectionWriteEvent);
+io = AEInstallEventHandler(sectionEventMsgClass,sectionWriteMsgID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(MyHandleSectionScrollEvent);
+io = AEInstallEventHandler(sectionEventMsgClass,sectionScrollMsgID,handler,0,FALSE);
+
+
+handler = NewAEEventHandlerProc(RemoteUseText);
+io = AEInstallEventHandler(BP2Class,PlayEventID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteUseText);
+io = AEInstallEventHandler(BP2Class,NameID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteUseText);
+io = AEInstallEventHandler(BP2Class,GrammarID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteUseText);
+io = AEInstallEventHandler(BP2Class,AlphabetID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteUseText);
+io = AEInstallEventHandler(BP2Class,GlossaryID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteUseText);
+io = AEInstallEventHandler(BP2Class,InteractionID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteUseText);
+io = AEInstallEventHandler(BP2Class,DataID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteLoadCsoundInstruments);
+io = AEInstallEventHandler(BP2Class,CsoundInstrID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteUseText);
+io = AEInstallEventHandler(BP2Class,ScriptID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteControl);
+io = AEInstallEventHandler(BP2Class,ImprovizeID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteControl);
+io = AEInstallEventHandler(BP2Class,DoScriptID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteDoScriptLine);
+io = AEInstallEventHandler(BP2Class,ScriptLineEventID,handler,0,FALSE);
+
+
+handler = NewAEEventHandlerProc(RemoteLoadSettings);
+io = AEInstallEventHandler(BP2Class,LoadSettingsEventID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteSetConvention);
+io = AEInstallEventHandler(BP2Class,NoteConventionEventID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteControl);
+io = AEInstallEventHandler(BP2Class,BeepID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteControl);
+io = AEInstallEventHandler(BP2Class,AbortID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteControl);
+io = AEInstallEventHandler(BP2Class,AgainID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteControl);
+io = AEInstallEventHandler(BP2Class,PauseID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteControl);
+io = AEInstallEventHandler(BP2Class,QuickID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteControl);
+io = AEInstallEventHandler(BP2Class,SkipID,handler,0,FALSE);
+
+handler = NewAEEventHandlerProc(RemoteControl);
+io = AEInstallEventHandler(BP2Class,ResumeID,handler,0,FALSE);
+
+io = AESetInteractionAllowed(kAEInteractWithAll);
+
+Maxitems = ZERO;
+p_Flag = NULL;
+p_MemGram = p_MemRul = p_VarStatus = NULL;
+p_MemPos = p_LastStackIndex = NULL;
+p_ItemStart = p_ItemEnd = NULL;
+pp_Scrap = &p_Scrap;
+
+for(i=0; i < MAXPICT; i++) {
+	p_Picture[i] = NULL;
+	PictureWindow[i] = -1;
+	}
+
+for(i=0; i < MAXDIAGRAM; i++) p_Diagram[i] = NULL;
+p_StringList = NULL; pp_StringList = &p_StringList; NrStrings = 0;
+if(ResetScriptQueue() != OK) return(ABORT);
+p_InitScriptLine = NULL;
+Maxinscript = 8; Jinscript = 0;
+if((p_INscript=(INscripttype**) GiveSpace((Size) Maxinscript * sizeof(INscripttype)))
+	== NULL) return(ABORT);
+for(i=0; i < Maxinscript; i++) ((*p_INscript)[i]).chan = -1;
+
+ResetPianoRollColors();
+ShowPianoRoll = ToldAboutPianoRoll = FALSE;
+ShowObjectGraph = TRUE;
+
+p_Instance = NULL;
+p_ObjectSpecs = NULL;
+
+p_Seq = NULL;
+
+if(MakeSoundObjectSpace() != OK) return(ABORT);
+
+MaxVar = MaxFlag = 0;
+Gram.p_subgram = GlossGram.p_subgram = NULL;
+Gram.number_gram = GlossGram.number_gram = 0;
+RunningStatus = 0; NoRepeat = FALSE;
+ScriptSyncKey = ScriptSyncChan = -1;
+StrikeAgainDefault = TRUE;
+Jwheel = Jfeet = Jdisk = 0;
+EmptyBeat = TRUE;
+
+DeftPitchbendRange = 0;
+DeftVolume = DEFTVOLUME;
+DeftVelocity = DEFTVELOCITY;
+DeftPanoramic = DEFTPANORAMIC;
+PanoramicController = PANORAMICCONTROL;
+VolumeController = VOLUMECONTROL;
+SamplingRate = SAMPLINGRATE;
+for(i=0; i <= MAXCHAN; i++) {
+	CurrentVolume[i] = -1;
+	PitchbendRange[i] = DeftPitchbendRange;
+	VolumeControl[i] = VolumeController;
+	PressRate[i] = PitchbendRate[i] = ModulationRate[i] = VolumeRate[i] = PanoramicRate[i]
+		= SamplingRate;
+	PanoramicControl[i] = PanoramicController;
+	}
+ForceRatio = -1.; PlayFromInsertionPoint = FALSE;
+if((p_Token = (char****) GiveSpace((Size) 52 * sizeof(char**))) == NULL) return(ABORT);
+for(i=0; i < 52; i++) (*p_Token)[i] = NULL;
+ResetKeyboard(TRUE);
+
+// Find current directory and volume
+pb.ioCompletion = ZERO;
+pb.ioNamePtr = (StringPtr) DeftVolName;
+io = PBHGetVol(&pb,(Boolean)FALSE);
+LastDir = ParIDstartup = pb.ioWDDirID;
+LastVref = RefNumStartUp = pb.ioWDVRefNum;
+
+// Find the folder and volume of BP2 so that -se.startup and BP2 help may be located
+io = GetCurrentProcess(&PSN);
+info.processName = NULL;
+info.processAppSpec = &spec;
+info.processInfoLength = sizeof(ProcessInfoRec);
+io = GetProcessInformation(&PSN,&info);
+ParIDbp2 = info.processAppSpec->parID;
+RefNumbp2 = info.processAppSpec->vRefNum;
+
+MIDIRefNum = HelpRefnum = TempRefnum = TraceRefnum = -1;
+CsRefNum = -1; CsScoreOpened = MIDIfileTrackEmpty = FALSE;
+for(i=0; i < WMAX; i++) {
+	WindowParID[i] = ParIDstartup;
+	TheVRefNum[i] = RefNumStartUp;
+	}
+FileName[wScript][0] = '\0';
+CurrentChannel = 1;	/* Used for program changes,by default. */
+Seed = 1;
+SetSeed(); ResetRandom();
+if(ResetInteraction() != OK) return(ABORT);
+if(SetFindReplace() != OK) return(ABORT);
+if(ResetPannel() != OK) return(ABORT);
+if(SetNoteNames() != OK) return(ABORT);
+NeedAlphabet = FALSE;
+for(i=0; i < MAXCHAN; i++) {
+	ChangedVolume[i] = ChangedPanoramic[i] = ChangedModulation[i] = ChangedPitchbend[i] = ChangedSwitch[i]
+		= ChangedPressure[i] = FALSE;
+	WhichCsoundInstrument[i+1] = -1;
+	}
+
+SwitchOn(NULL,wPrototype5,bPlayPrototypeTicks);
+PrototypeTickChannel = 1; PrototypeTickKey = 84;
+TickKey[0] = 96;
+TickKey[1] = 84;
+TickKey[2] = 72;
+PrototypeTickVelocity = 64;
+TickThere = PlayTicks = HideTicks = FALSE;
+for(i=0; i < MAXTICKS; i++) {
+	TickChannel[i] = 1;
+	TickVelocity[i] = 64;
+	TickCycle[i] = 4;
+	if(Quantization < 50) TickDuration[i] = 50;
+	else  TickDuration[i] = Quantization;
+	NextTickDate[i] = ZERO;
+	for(j=0; j < MAXBEATS; j++) ThisTick[i][j] = ZERO;
+	ThisTick[0][0] = ThisTick[1][1] = ThisTick[1][2] = ThisTick[1][3] = 1L;
+	Ptick[i] = Qtick[i] = 1L;
+	MuteTick[i] = FALSE;
+	SetTickParameters(i+1,MAXBEATS);
+	}
+SetTickParameters(0,MAXBEATS);
+SetField(NULL,wTimeBase,fTimeBaseComment,"[Comment on time base]");
+iTick = jTick = -1;
+ResetTickFlag = TRUE; ResetTickInItemFlag = FALSE;
+strcpy(Message,WindowName[wCsoundTables]);
+SetWTitle(Window[wCsoundTables],c2pstr(Message));
+
+MaxHandles = ZERO;
+PedalOrigin = -1;
+Nalpha = 100L;
+Jinstr = 0;
+NeedZouleb = 0;
+UseBullet = TRUE;  Code[7] = '•';
+if(ResizeCsoundInstrumentsSpace(1) != OK) return(ABORT);
+iCsoundInstrument = 0;
+ResetCsoundInstrument(iCsoundInstrument,YES);
+for(i=1; i <= MAXCHAN; i++) WhichCsoundInstrument[i] = -1;
+SetCsoundInstrument(iCsoundInstrument,-1);
+/* ClearWindow(TRUE,wCsoundInstruments); */
+// ErrorSound(MySoundProc);
+return(DoSystem());
+}
+
+
+SetNoteNames(void)
+{
+int i,j,notenum,octave;
+char **ptr;
+
+for(i=0; i < MAXCONVENTIONS; i++) {
+	if((p_NoteName[i] = (char****) GiveSpace((Size) 128 * sizeof(char**)))
+		== NULL) return(ABORT);
+	if((p_AltNoteName[i] = (char****) GiveSpace((Size) 128 * sizeof(char**)))
+		== NULL) return(ABORT);
+	if((p_NoteLength[i] = (int**) GiveSpace((Size) 128 * sizeof(int)))
+		== NULL) return(ABORT);
+	if((p_AltNoteLength[i] = (int**) GiveSpace((Size) 128 * sizeof(int)))
+		== NULL) return(ABORT);
+	for(j=0; j < 128; j++) {
+		if((ptr=(char**) GiveSpace((Size) NOTESIZE * sizeof(char))) == NULL) return(ABORT);
+		(*(p_NoteName[i]))[j] = ptr;
+		if((ptr=(char**) GiveSpace((Size) NOTESIZE * sizeof(char))) == NULL) return(ABORT);
+		(*(p_AltNoteName[i]))[j] = ptr;
+		notenum = j % 12;
+		octave = (j - notenum) / 12;
+		switch(i) {
+			case FRENCH:
+				octave -= 2;
+				switch(octave) {
+					case -2:
+						sprintf(Message,"%s000",Frenchnote[notenum]); break;
+					case -1:
+						sprintf(Message,"%s00",Frenchnote[notenum]); break;
+					default:
+						sprintf(Message,"%s%ld",Frenchnote[notenum],(long)octave);
+						break;
+					}
+				break;
+			case ENGLISH:
+				octave--;
+				switch(octave) {
+					case -1:
+						sprintf(Message,"%s00",Englishnote[notenum]); break;
+					default:
+						sprintf(Message,"%s%ld",Englishnote[notenum],(long)octave);
+						break;
+					}
+				break;
+			case INDIAN:
+				octave--;
+				switch(octave) {
+					case -1:
+						sprintf(Message,"%s00",Indiannote[notenum]); break;
+					default:
+						sprintf(Message,"%s%ld",Indiannote[notenum],(long)octave);
+						break;
+					}
+				break;
+			case KEYS:
+				sprintf(Message,"%s%ld",KeyString,(long)j);
+				break;
+			}
+		MystrcpyStringToTable(p_NoteName[i],j,Message);
+		(*(p_NoteLength[i]))[j] = MyHandleLen((*(p_NoteName[i]))[j]);
+		octave = (j - notenum) / 12;
+		switch(i) {
+			case FRENCH:
+				octave -= 2;
+				switch(octave) {
+					case -2:
+						sprintf(Message,"%s000",AltFrenchnote[notenum]); break;
+					case -1:
+						sprintf(Message,"%s00",AltFrenchnote[notenum]); break;
+					default:
+						sprintf(Message,"%s%ld",AltFrenchnote[notenum],(long)octave);
+						break;
+					}
+				break;
+			case ENGLISH:
+				octave--;
+				switch(octave) {
+					case -1:
+						sprintf(Message,"%s00",AltEnglishnote[notenum]); break;
+					default:
+						sprintf(Message,"%s%ld",AltEnglishnote[notenum],(long)octave);
+						break;
+					}
+				break;
+				break;
+			case INDIAN:
+				octave--;
+				switch(octave) {
+					case -1:
+						sprintf(Message,"%s00",AltIndiannote[notenum]); break;
+					default:
+						sprintf(Message,"%s%ld",AltIndiannote[notenum],(long)octave);
+						break;
+					}
+				break;
+			case KEYS:
+				sprintf(Message,"%s%ld",KeyString,(long)j);
+				break;
+			}
+		MystrcpyStringToTable(p_AltNoteName[i],j,Message);
+		(*(p_AltNoteLength[i]))[j] = MyHandleLen((*(p_AltNoteName[i]))[j]);
+		}
+	}
+for(i=0; i < 12; i++) NameChoice[i] = 0;
+return(SetNameChoice());
+}
+
+
+Ctrlinit(void)
+{
+int i,igram,irul,j,k;
+/* Print(wTrace,"\rCtrl values:\r"); */
+
+if(Gram.p_subgram == NULL || Gram.number_gram < 1) return(OK);
+for(i=1; i < MAXPARAMCTRL; i++) {
+	k = ParamValue[i] = ParamInit[i];
+	if(k == INT_MAX) continue;
+	for(igram=1; igram <= Gram.number_gram; igram++) {
+		for(irul=0; irul <= (*(Gram.p_subgram))[igram]
+										.number_rule; irul++) {
+			if((*((*(Gram.p_subgram))[igram].p_rule))[irul].ctrl == i) {
+				(*((*(Gram.p_subgram))[igram].p_rule))[irul].w
+					= (*((*(Gram.p_subgram))[igram].p_rule))[irul].weight = k;
+				}
+			if((*((*(Gram.p_subgram))[igram].p_rule))[irul].repeatcontrol == i) {
+				(*((*(Gram.p_subgram))[igram].p_rule))[irul].repeat = k;
+				}
+			}
+		}
+/*	sprintf(Message,"K%ld = %ld ",(long)i,(long)k);
+	Print(wTrace,Message); */
+	}
+return(OK);
+}
+
+
+MakeWindows(void)
+{
+int i,id,im,ibot,itemtype,j,k,km,w,top,left,bottom,right,leftoffset,
+	widmax,type,proc,bad,x0,y0;
+Handle h_res;
+Rect r;
+Str255 title;
+long rc;
+GrafPtr saveport;
+
+ReplaceCommandPtr = GetNewDialog(ReplaceCommandID,&ReplaceCommandDR,0L);
+ResumeStopPtr = GetNewDialog(ResumeStopID,0L,0L);
+ResumeStopOn = FALSE;
+ResumeUndoStopPtr = GetNewDialog(ResumeUndoStopID,0L,0L);
+MIDIkeyboardPtr = GetNewDialog(MIDIkeyboardID,0L,0L);
+FileSavePreferencesPtr = GetNewDialog(FileSavePreferencesID,&FileSavePreferencesDR,0L);
+PatternPtr = GetNewDialog(PatternID,&PatternDR,0L);
+EnterPtr = GetNewDialog(EnterID,&EnterDR,0L);
+GreetingsPtr = GetNewDialog(GreetingsID,0L,0L);
+DrawDialog(GreetingsPtr);
+FAQPtr = GetNewDialog(FAQDialogID,0L,0L);
+SixteenPtr = GetNewDialog(SixteenDialogID,0L,0L);
+StrikeModePtr = GetNewDialog(StrikeModeID,0L,0L);
+TuningPtr = GetNewDialog(TuningID,&TuningDR,0L);
+DefaultPerformanceValuesPtr = GetNewDialog(DefaultID,&DefaultPerformanceValuesDR,0L);
+CsoundInstrMorePtr = GetNewDialog(CsoundInstrMoreID,&CsoundInstrMoreDR,0L);
+OMSinoutPtr = GetNewDialog(OMSinoutID,0L,0L);
+MIDIprogramPtr = GetNewDialog(MIDIprogramID,&MIDIprogramDR,0L);
+
+bad = FALSE;
+Jbutt = 0;
+for(w=0; w < WMAX; w++) {
+	Window[w] = NULL;
+	CurrentColor[w] = Black;
+	IsHTML[w] = FALSE;
+	}
+IsHTML[wCsoundTables] = TRUE;
+for(w=0; w < MAXWIND; w++) {
+	PleaseWait();
+	if((Window[w] =
+		GetNewCWindow(WindowIDoffset+w,&(DRecord[w].window),0L)) == NULL) {
+		sprintf(Message,"Can't load resource window ID#%ld",
+			(long)WindowIDoffset+w);
+		EmergencyExit = TRUE;
+		ParamText(c2pstr(Message),"\p","\p","\p");
+		NoteAlert(OKAlert,0L);
+		bad = TRUE;
+		}
+	if(!bad) SetUpWindow(w);
+	r = Window[w]->portRect;
+	Weird[w] = FALSE;
+	InvalRect(&r);
+	SystemTask();	/* Allows redrawing control strip */
+	}
+
+r = Window[wMessage]->portRect;
+AdjustWindow(FALSE,wMessage,r.top,r.left,r.bottom,r.right);
+r = Window[wInfo]->portRect;
+AdjustWindow(FALSE,wInfo,r.top,r.left,r.bottom,r.right);
+
+sprintf(Message,"%s",IDSTRING);
+ShowMessage(TRUE,wMessage,Message);
+
+#ifdef __POWERPC
+FlashInfo("•       •      •     •    •   •  • • Accelerated for PowerPC •");
+#else
+FlashInfo("• • Macintosh 68k version • •");
+#endif
+
+SelectWindow(GreetingsPtr);
+SetPort(GreetingsPtr);
+TextSize(10); TextFont(kFontIDCourier);
+RGBForeColor(&Red);
+x0 = 253; y0 = 18;
+pStrCopy((char*)"\pInternational",title);
+MoveTo(x0 - StringWidth(title)/2,y0);
+DrawString(title);
+y0 += 11;
+pStrCopy((char*)"\paward",title);
+MoveTo(x0 - StringWidth(title)/2,y0);
+DrawString(title);
+y0 += 11;
+pStrCopy((char*)"\pBourges",title);
+MoveTo(x0 - StringWidth(title)/2,y0);
+DrawString(title);
+y0 += 11;
+pStrCopy((char*)"\p1997",title);
+MoveTo(x0 - StringWidth(title)/2,y0);
+DrawString(title);
+	
+for(w=MAXWIND; w < WMAX; w++) {
+	PleaseWait();
+	if((Window[w] =
+		GetNewDialog(WindowIDoffset+w,&(DRecord[w]),0L)) == NULL) {
+		sprintf(Message,"Can't load dialog window ID#%ld",
+			(long)WindowIDoffset+w);
+		EmergencyExit = TRUE;
+		ParamText(c2pstr(Message),"\p","\p","\p");
+		NoteAlert(OKAlert,0L);
+		bad = TRUE;
+		}
+	if(bad) continue;
+	SetPort(Window[w]);
+	rc = DRecord[w].window.refCon;
+	if(rc != 0L) {
+		TextSize(WindowTextSize[w]);
+		type = (int) (rc % 4L);
+		switch(type) {
+			case 1: proc = radioButProc; break;
+			case 2: proc = pushButProc; break;
+			case 3: proc = checkBoxProc; break;
+			default:
+				sprintf(Message,"Incorrect button type in window %ld",(long)w);
+				EmergencyExit = TRUE;
+				ParamText(c2pstr(Message),"\p","\p","\p");
+				NoteAlert(OKAlert,0L);
+				return(FAILED);
+			}
+		id = (int)((((rc % 256L) - type) / 4L) + DialogStringsBaseID); /* string list ID */
+		h_res = GetResource('STR#',id);
+		if((i=ResError()) != noErr) {
+			sprintf(Message,
+		"Error %ld loading resource string list for window %ld",(long)i,(long)w);
+			EmergencyExit = TRUE;
+			ParamText(c2pstr(Message),"\p","\p","\p");
+			NoteAlert(OKAlert,0L);
+			return(FAILED);
+			}
+		im = (*h_res)[1];
+		if(im < 1) {
+			sprintf(Message,
+					"Error in resource string list for window %ld",(long)w);
+			EmergencyExit = TRUE;
+			ParamText(c2pstr(Message),"\p","\p","\p");
+			NoteAlert(OKAlert,0L);
+			return(FAILED);
+			}
+		top = (int)(((rc - (rc % 536870912L)) / 536870912L) * 64)+4;
+		if(top == 0) top = DRecord[w].window.port.portRect.top;
+		left = (int)((((rc - (rc % 67108864L)) / 67108864L) % 8) * 64)+4;
+		if(left == 0) left = DRecord[w].window.port.portRect.left;
+		bottom = (int)(((rc - (rc % 131072L)) / 131072L) % 512);
+		if(bottom == 0) bottom = DRecord[w].window.port.portRect.bottom;
+		right = (int)(((rc - (rc % 256L)) / 256L) % 512);
+		if(right == 0) right = DRecord[w].window.port.portRect.right;
+		ibot = (bottom - top) / Buttonheight;
+		j = 2;
+		widmax = 0;
+		leftoffset = -Buttonheight;
+		for(i=0; i < im; i++) {
+			PleaseWait();
+			km = (*h_res)[j]; /* length of P-string */
+			if(km == 0) {
+				sprintf(Message,
+					"Error in resource string list for window %ld",(long)w);
+				EmergencyExit = TRUE;
+				ParamText(c2pstr(Message),"\p","\p","\p");
+				NoteAlert(OKAlert,0L);
+				return(FAILED);
+				}
+			for(k=0; k <= km; j++,k++) {
+				title[k] = (*h_res)[j];
+				}
+			if((i % ibot) == 0) {
+				leftoffset += Buttonheight + (widmax * Charstep);
+				widmax = km;
+				}
+			else if(widmax < km) widmax = km;
+			r.top = top + (i % ibot) * Buttonheight;
+			r.left = left + leftoffset;
+			r.bottom = r.top + Buttonheight;
+			r.right = r.left + Buttonheight + (widmax * Charstep); 
+			if(r.right > right) {
+				sprintf(Message,
+					"Can't put more than %ld buttons on window %ld",
+						(long)i+1L,(long)w);
+				EmergencyExit = TRUE;
+				ParamText(c2pstr(Message),"\p","\p","\p");
+				NoteAlert(OKAlert,0L);
+				return(FAILED);
+				}
+			if((Jbutt+1) >= MAXBUTT) {
+				EmergencyExit = TRUE;
+				ParamText("\pIncrease MAXBUTT: too many buttons","\p","\p","\p");
+				NoteAlert(OKAlert,0L);
+				return(FAILED);
+				}
+			Hbutt[Jbutt++] = NewControl((WindowPtr)Window[w],&r,title,(Boolean)1,
+				(short)0,(short)0,(short)1,(short)(proc + 8),0L);
+			}
+		ReleaseResource(h_res);
+		}
+	SetUpWindow(w);
+	}
+if(bad) return(FAILED);
+ClearWindow(TRUE,wMIDIorchestra);
+return(DoSystem());
+}
+
+
+HiliteDefault(WindowPtr thewindow)
+{
+short itemtype;
+ControlHandle itemhandle;
+Rect r;
+UserItemUPP procForBorderUserItem;
+GrafPtr	saveport;
+
+/* procForBorderUserItem = NewUserItemProc(DrawButtonBorder); */
+
+return(OK); /* $$$ */
+if(thewindow == NULL || !(*(WindowPeek) thewindow).visible) return(FAILED);
+GetDialogItem((DialogPtr)thewindow,1,&itemtype,(Handle*)&itemhandle,&r);
+itemtype = (itemtype & 127) - ctrlItem;
+if(itemhandle != NULL && itemtype == btnCtrl) {
+	GetPort(&saveport);
+	SetPort(thewindow);
+	PenSize(3,3);
+	InsetRect(&r,-2,-2);
+	FrameRoundRect(&r,16,16);
+/*	SetDialogItem(thewindow,1,itemtype,(Handle)procForBorderUserItem,&r); */
+	if(saveport != NULL) SetPort(saveport);
+	else if(Beta) Alert1("Err HiliteDefault(). saveport == NULL");
+	}
+return(DoSystem());
+}
+
+
+SetUpWindow(int w)
+{
+Rect destRect,viewRect;
+Rect ScrollRect,r;
+FontInfo myInfo;
+int height,i,itemType;
+long scrapoffset,n;
+OSErr err;
+#if WASTE
+LongRect dr,vr;
+#else
+Rect dr,vr;
+#endif
+
+/* SetCursor(&WatchCursor); */
+if(w < 0 || w >= WMAX) {
+	Alert1("Internal problem in setting up windows. Restart your Mac!");
+	return(ABORT);
+	}
+SetPort(Window[w]);
+if(Editable[w]) TextFont(kFontIDCourier);
+SetDialogFont(systemFont);
+Charstep = 7; /* StringWidth("\pm"); */
+Nw = w;
+viewRect = thePort->portRect;
+if(OKvScroll[w]  || OKhScroll[w]) {
+	viewRect.right = viewRect.right - SBARWIDTH;
+	viewRect.bottom = viewRect.bottom - SBARWIDTH;
+	r = (Window[w])->portRect;
+	}
+if(OKvScroll[w]) {
+	ScrollRect.left = r.right - SBARWIDTH;
+	ScrollRect.right = r.right + 1;
+	ScrollRect.bottom = r.bottom - (SBARWIDTH - 1) - Freebottom[w];
+	ScrollRect.top = r.top - 1;
+	vScroll[w] = NewControl((WindowPtr)Window[w],&ScrollRect,"\p",(Boolean)1,(short)0,
+		(short)0,(short)0,(short)scrollBarProc,0L);
+	Vmin[w] = INT_MAX; Vmax[w] = - INT_MAX;
+	Vzero[w] = 0;
+	}
+if(OKhScroll[w]) {
+	ScrollRect.left = r.left - 1;
+	ScrollRect.right = r.right - (SBARWIDTH - 1);
+	ScrollRect.bottom = r.bottom - Freebottom[w];
+	ScrollRect.top = r.bottom - SBARWIDTH - Freebottom[w];
+	hScroll[w] = NewControl((WindowPtr)Window[w],&ScrollRect,"\p",(Boolean)1,(short)0,
+		(short)0,(short)0,(short)scrollBarProc,0L);
+	Hmin[w] = INT_MAX; Hmax[w] = - INT_MAX;
+	Hzero[w] = 0;
+	}
+viewRect.bottom -= Freebottom[w];
+destRect = viewRect;
+if(Editable[w]) {
+	dr.top = destRect.top;
+	dr.left = destRect.left;
+	dr.bottom = destRect.bottom;
+	dr.right = destRect.right;
+	vr.top = viewRect.top;
+	vr.left = viewRect.left;
+	vr.bottom = viewRect.bottom;
+	vr.right = viewRect.right;
+#if WASTE
+	err = WENew((const LongRect*)&dr,(const LongRect*)&vr,/* weFUseTempMem */ 0,
+		&TEH[w]);
+	if(err != noErr) {
+		TellError(36,err); return(ABORT);
+		}
+	WEFeatureFlag(weFUndoSupport,weBitSet,TEH[w]);
+	WEFeatureFlag(weFIntCutAndPaste,weBitClear,TEH[w]);
+	WEFeatureFlag(weFDrawOffscreen,weBitSet,TEH[w]);
+	WEFeatureFlag(weFInhibitRecal,weBitClear,TEH[w]);
+	WEFeatureFlag(weFAutoScroll,weBitClear,TEH[w]);
+	if(w != wInfo)
+		WESetAlignment(weFlushLeft,TEH[w]);
+	else
+		WESetAlignment(weFlushRight,TEH[w]);
+#else
+	TEH[w] = TEStyleNew(&destRect,&viewRect);
+	// StyleHandle[w] = TEGetStyleHandle(TEH[w]);
+#endif
+	CalText(TEH[w]);
+	ForgetFileName(w);
+	if(w != wInfo)
+		Reformat(w,(int)kFontIDCourier,WindowTextSize[w],(int)normal,&Black,TRUE,TRUE);
+	else
+		Reformat(w,(int)kFontIDCourier,WindowTextSize[w],(int)normal,&Blue,TRUE,TRUE);
+	}
+else TEH[w] = NULL;
+Dirty[w] = FALSE;
+SetViewRect(w);
+#if !WASTE
+if(Editable[w]) PrintBehind(w," ");	/* Needed to record size into windowscrap */
+#endif
+return(DoSystem());
+}
+
+
+LoadStrings(void)
+{
+long max;
+
+p_GramProcedure = p_PerformanceControl = p_GeneralMIDIpatch = p_Str = p_HTMLdiacrList = NULL;
+p_ProcNdx = p_ProcNArg = p_PerfCtrlNdx = p_GeneralMIDIpatchNdx = p_PerfCtrlNArg;
+MaxProc = MaxPerformanceControl = ZERO;
+
+if(LoadStringResource(&p_GramProcedure,&p_ProcNdx,&p_ProcNArg,GramProcedureStringsID,
+	&MaxProc,YES) != OK) return(ABORT);
+MyLock(TRUE,(Handle)p_GramProcedure);
+	
+if(LoadStringResource(&p_PerformanceControl,&p_PerfCtrlNdx,&p_PerfCtrlNArg,
+	PerformanceControlStringsID,&MaxPerformanceControl,YES) != OK) return(ABORT);
+MyLock(TRUE,(Handle)p_PerformanceControl);
+	
+if(LoadStringResource(&p_GeneralMIDIpatch,&p_GeneralMIDIpatchNdx,NULL,
+	GeneralMIDIpatchesID,&max,YES) != OK) return(ABORT);
+MyLock(TRUE,(Handle)p_GeneralMIDIpatch);
+	
+if(LoadStringResource(&p_HTMLdiacrList,NULL,NULL,
+	HTMLdiacriticalID,&max,YES) != OK) return(ABORT);
+	
+if(LoadStringResource(&p_Str,NULL,NULL,MiscStringsID,&max,NO) != OK) return(ABORT);
+if(LoadScriptCommands(ScriptStringsID) != OK) return(ABORT);
+return(DoSystem());
+}
+
+
+LoadStringResource(char***** pp_str,int ***pp_ndx,int ***pp_narg,int id,long *p_max,
+	int lock)
+{
+int i,im,j,j0,k,km;
+char c,**ptr;
+Handle h_res;
+
+h_res = GetResource('STR#',id);
+if((i=ResError()) != noErr) {
+	sprintf(Message,"Error %ld loading resource string list ID %ld",(long)i,(long)id);
+	ParamText(c2pstr(Message),"\p","\p","\p");
+	NoteAlert(OKAlert,0L);
+	EmergencyExit = TRUE;
+	return(FAILED);
+	}
+im = (*h_res)[1];
+if(im < 0) im += 256;
+*p_max = im;
+	
+if((*pp_str = (char****) GiveSpace((Size)im * sizeof(char**))) == NULL)
+	return(ABORT);
+if(pp_ndx != NULL) {
+	if((*pp_ndx = (int**) GiveSpace((Size)im * sizeof(int))) == NULL)
+		return(ABORT);
+	}
+if(pp_narg != NULL) {
+	if((*pp_narg = (int**) GiveSpace((Size)im * sizeof(int))) == NULL)
+		return(ABORT);
+	}
+
+for(i=0,j=1; i < im; i++) {
+	km = (*h_res)[++j]; /* length of P-string */
+	j0 = j;
+	if(km == 0) goto ERR;
+	if(pp_ndx != NULL) {
+		j++;
+		MyLock(FALSE,(Handle)h_res);
+		k = GetInteger(NO,(char*)*h_res,&j);
+		if(k == INT_MAX) goto ERR;
+		(**pp_ndx)[i] = k;
+		MyUnlock((Handle)h_res);
+		}
+	if(pp_narg != NULL) {
+		j++;
+		MyLock(FALSE,(Handle)h_res);
+		k = GetInteger(NO,(char*)*h_res,&j);
+		if(k == INT_MAX) goto ERR;
+		(**pp_narg)[i] = k;
+		MyUnlock((Handle)h_res);
+		}
+	km -= j - j0;
+	
+	ptr = (char**) GiveSpace((Size)(km+1) * sizeof(char));
+	if(((**pp_str)[i] = ptr) == NULL) return(ABORT);
+	if(lock) MyLock(TRUE,(Handle)ptr);
+	for(k=0; k < km; k++) {
+		c = (*h_res)[++j];
+		(*((**pp_str)[i]))[k] = c;
+		}
+	(*((**pp_str)[i]))[k] = '\0';
+	}
+ReleaseResource(h_res);
+return(OK);
+
+ERR:
+sprintf(Message,"Error loading %ldth string in resource list ID %ld",
+	(long)i,(long)id);
+ParamText(c2pstr(Message),"\p","\p","\p");
+NoteAlert(OKAlert,0L);
+EmergencyExit = TRUE;
+return(FAILED);
+}
+
+
+LoadScriptCommands(int id)
+{
+int i,im,ilabel,iarg,j,k,km,kk,n,nmax,ic;
+char c,**ptr;
+Handle h_res;
+
+h_res = GetResource('STR#',id);
+if((i=ResError()) != noErr) {
+	sprintf(Message,"Error %ld loading resource string list ID %ld",(long) i,
+		(long)id);
+ERR1:
+	ParamText(c2pstr(Message),"\p","\p","\p");
+	NoteAlert(OKAlert,0L);
+	EmergencyExit = TRUE;
+	return(FAILED);
+	}
+j = 1; nmax = 0;
+im = (*h_res)[j]; if(im < 0) im += 256;
+MaxScriptInstructions = im;
+if(im < 1 || im > 255) {
+	sprintf(Message,"Error im=%ld loading resource string list ID %ld",
+		(long)im,(long)id);
+	goto ERR1;
+	}
+if((h_Script = (scriptcommandtype**) GiveSpace((Size)im * sizeof(scriptcommandtype))) == NULL)
+	goto ERR2;
+if((h_ScriptIndex = (int**) GiveSpace((Size)im * sizeof(int))) == NULL)
+	goto ERR2;
+for(i=0; i < im; i++) {
+	(*h_ScriptIndex)[i] = i;
+	ScriptLabel(i) = ScriptArg(i) = NULL;
+	ScriptNrLabel(i) = ScriptNrArg(i) = 0;
+	}
+for(i=0; i < im; i++) {
+	PleaseWait();
+	km = (*h_res)[++j]; /* length of P-string */
+	if(km == 0) goto ERR;
+	j++; km += j;
+	MyLock(FALSE,(Handle)h_res);
+	k = GetInteger(NO,(char*)*h_res,&j);
+	if(k == INT_MAX) goto ERR;
+	if(k >= MaxScriptInstructions) goto ERR;
+	(*h_ScriptIndex)[i] = ic = k;
+	MyUnlock((Handle)h_res);
+	
+	/* Insert script command into script menu */
+	for(k=j+1; k < km; k++) PascalLine[k-j] = (*h_res)[k];
+	PascalLine[0] = km - j - 1;
+	AppendMenu(myMenus[scriptM],PascalLine);
+	
+	ilabel = iarg = n = 0;
+	for(k=j; k < km; k++) {
+		if((*h_res)[k] == '«') n++;
+		}
+	if(n > nmax) nmax = n;
+	if((ScriptLabel(ic) = (char****) GiveSpace((Size)(n+1) * sizeof(char**)))
+		== NULL) goto ERR2;
+	if(n > 0 && ((ScriptArg(ic) = (char****) GiveSpace((Size)(n) * sizeof(char**)))
+		== NULL)) goto ERR2;
+	
+NEWLABELPART:
+	while((c=(*h_res)[j]) == ' ' || c == '»') j++;
+	if(j >= km) {
+		j = km - 1; continue;
+		}
+	k = j; while((c=(*h_res)[k]) != '«' && k < km) k++;
+	k--; while((c=(*h_res)[k]) == ' ') k--; k++;
+	ptr = (char**) GiveSpace((Size)(k-j+2) * sizeof(char));
+	if((p_ScriptLabelPart(ic,ilabel) = ptr) == NULL) goto ERR2;
+	k -= j;
+	for(kk=0; kk < k; j++,kk++) {
+		c = (*h_res)[j];
+		(*(p_ScriptLabelPart(ic,ilabel)))[kk] = Filter(c);
+		}
+	(*(p_ScriptLabelPart(ic,ilabel)))[kk] = '\0';
+	ScriptNrLabel(ic) = ++ilabel;
+
+NEWARGPART:	
+	while((c=(*h_res)[j]) == ' ' || c == '«') j++;
+	if(j >= km) {
+		j = km - 1; continue;
+		}
+	k = j; while((c=(*h_res)[k]) != '»' && k < km) k++;
+	ptr = (char**) GiveSpace((Size)(k-j+1) * sizeof(char));
+	if((p_ScriptArgPart(ic,iarg) = ptr) == NULL) goto ERR2;
+	k -= j;
+	for(kk=0; kk < k; j++,kk++) {
+		c = (*h_res)[j];
+		(*(p_ScriptArgPart(ic,iarg)))[kk] = Filter(c);
+		}
+	(*(p_ScriptArgPart(ic,iarg)))[kk] = '\0';
+	ScriptNrArg(ic) = ++iarg;
+	goto NEWLABELPART;
+	}
+ReleaseResource(h_res);
+nmax++;
+if((ScriptLine.label=(char****) GiveSpace((Size)(nmax) * sizeof(char**))) == NULL)
+	goto ERR2;
+if((ScriptLine.arg=(char****) GiveSpace((Size)(nmax) * sizeof(char**))) == NULL)
+	goto ERR2;
+if((ScriptLine.intarg=(long**) GiveSpace((Size)(nmax) * sizeof(long))) == NULL)
+	goto ERR2;
+if((ScriptLine.floatarg=(double**) GiveSpace((Size)(nmax) * sizeof(double))) == NULL)
+	goto ERR2;
+if((ScriptLine.ularg=(unsigned long**) GiveSpace((Size)(nmax) * sizeof(unsigned long))) == NULL)
+	goto ERR2;
+for(i=0; i < nmax; i++) {
+	if((ptr=(char**) GiveSpace((Size)MAXLIN * sizeof(char))) == NULL) goto ERR2;
+	(*(ScriptLine.label))[i] = ptr;
+	if((ptr=(char**) GiveSpace((Size)MAXLIN * sizeof(char))) == NULL) goto ERR2;
+	(*(ScriptLine.arg))[i] = ptr;
+	}
+return(OK);
+
+ERR:
+sprintf(Message,"Error loading %ldth string in resource list ID %ld",
+	(long)i,(long)id);
+ERR3:
+ParamText(c2pstr(Message),"\p","\p","\p");
+NoteAlert(OKAlert,0L);
+EmergencyExit = TRUE;
+return(FAILED);
+
+ERR2:
+sprintf(Message,"Error string resource list ID %ld. Insufficient memory",(long)id);
+goto ERR3;
+}
+
+
+SetUpCursors(void)
+{
+CursHandle	hCurs;
+int i;
+
+hCurs = GetCursor(iBeamCursor);
+EditCursor = **hCurs;
+
+hCurs = GetCursor(watchCursor);
+WatchCursor = **hCurs;
+
+hCurs = GetCursor(crossCursor);
+CrossCursor = **hCurs;
+
+if((hCurs=GetCursor(KeyboardID)) == NULL)  return(ABORT);
+KeyboardCursor = **hCurs;
+
+if((hCurs=GetCursor(QuestionID)) == NULL) return(ABORT);
+HelpCursor = **hCurs;
+
+for(i=0; i < 4; i++) {
+	if((hCurs = GetCursor(WheelID+i)) == NULL) return(ABORT);
+	WheelCursor[i] = **hCurs;
+	}
+for(i=0; i < 8; i++) {
+	if((hCurs = GetCursor(FeetID+i)) == NULL) return(ABORT);
+	FootCursor[i] = **hCurs;
+	}
+for(i=0; i < 2; i++) {
+	if((hCurs = GetCursor(DiskID+i)) == NULL) return(ABORT);
+	DiskCursor[i] = **hCurs;
+	}
+NoCursor = FALSE;
+return(DoSystem());
+}
+
+
+InitButtons(void)
+{
+ObjectMode = ObjectTry = Improvize = StepProduce = StepGrammars
+	= PlanProduce = DisplayProduce = UseEachSub
+	= TraceProduce = DisplayTimeSet = StepTimeSet = TraceTimeSet
+	= ShowGraphic = ComputeWhilePlay = NeverResetWeights = FALSE;
+SynchronizeStart = CyclicPlay = NoConstraint = AllItems
+	= WriteMIDIfile = Interactive = OutCsound = CsoundTrace = WillRandomize = FALSE;
+ResetWeights = ResetFlags = ResetControllers = DisplayItems = ShowMessages
+	= AllowRandomize = TRUE;
+NoteConvention = ENGLISH;
+SetButtons(TRUE);
+return(DoSystem());
+}
+
+
+ResetPannel(void)
+{
+HidePannel(wControlPannel,dDeriveFurther);
+HidePannel(wControlPannel,dSaveDecisions);
+HidePannel(wControlPannel,dShowGramWeights);
+HidePannel(wControlPannel,dAnalyze);
+/* HidePannel(wControlPannel,dLoadWeights);
+HidePannel(wControlPannel,dLearnWeights);
+HidePannel(wControlPannel,dSaveWeights);
+HidePannel(wControlPannel,dSetWeights); */
+ShowPannel(wControlPannel,dTemplates);
+return(DoSystem());
+}
+
+
+GoodMachine(void)
+{
+char *processor[] = {
+	"mc68000",
+	"mc68010",
+	"mc68020",
+	"mc68030",
+	"mc68040"
+	};
+char *fpu[] = {
+	"<none>",
+	"mc68881",
+	"mc68882",
+	"mc68040 built-in"
+	};
+long gestaltAnswer;
+OSErr gestaltErr;
+short depth;
+
+/* Determine whether we can use Gestalt or not,and if so,what version */
+gestaltErr = Gestalt(gestaltVersion,&gestaltAnswer);
+
+if(!gestaltErr) {
+	/* Check the processor type */
+	Gestalt('cput',&gestaltAnswer);
+#ifdef __POWERPC
+	if(gestaltAnswer < 0x101) {
+		sprintf(Message,"This version of BP2 runs only on PowerMac. Use 68k version");
+		Alert1(Message);
+		return(FAILED);
+		}
+#endif
+	if(gestaltAnswer < 0x002) {
+		sprintf(Message,"BP2 requires at least a 68020 processor.\rThis machine has a %s processor",
+			processor[gestaltAnswer]);
+		Alert1(Message);
+		return(FAILED);
+		}
+	
+	/* Determine the coprocessor type -- useless */
+	Gestalt(gestaltFPUType,&gestaltAnswer);
+	
+	/* Determine system version */
+	Gestalt(gestaltSystemVersion,&gestaltAnswer);
+	if(gestaltAnswer < 0x00000701) {
+		Alert1("System version is too old. BP2 requires at least MacOS version 7.1");
+		return(FAILED);
+		}
+	/* Check color possibility */
+	Gestalt(gestaltQuickdrawVersion,&gestaltAnswer);
+	if(gestaltAnswer < 0x100
+			|| ((depth=GetDepth(GetMainDevice())) < 4)) {
+		/* Color QuickDraw not there or pixel depth insufficient */
+		/* HasDepth() might be a better solution $$$ */
+		ForceTextColor = ForceGraphicColor = -1;
+		}
+	return(OK);
+	}
+Alert1("System version is too old. BP2 requires at least 7.1");
+return(FAILED);
+}
+
+
+SetUpMenus(void)
+{
+int	i;
+MCTableHandle hMCTbl;
+
+ClearMenuBar();
+myMenus[appleM] = GetMenu(MenuIDoffset);
+/* myMenus[appleM] = GetMenuHandle(MenuIDoffset); $$$ new but seems to bomb */
+/* hMCTbl = GetMCInfo(); */
+InsertMenu(myMenus[appleM],0) ;
+/*	AddResMenu(myMenus[appleM],'DRVR'); */
+AppendResMenu(myMenus[appleM],'DRVR');
+
+for (i = fileM; i <= MAXMENU; i++) {
+	/* Also loading ‘Script’ menu */
+/*	myMenus[i] = GetMenuHandle(MenuIDoffset + i); $$$ new but seems to bomb */
+	myMenus[i] = GetMenu(MenuIDoffset + i);
+	InsertMenu(myMenus[i],0);
+	}
+sprintf(Message,"Find again %c-option A",(char) commandMark);
+pStrCopy((char*)c2pstr(Message),PascalLine);
+SetMenuItemText(myMenus[searchM],findagainCommand,PascalLine);
+
+sprintf(Message,"Enter and find %c-option E",(char) commandMark);
+pStrCopy((char*)c2pstr(Message),PascalLine);
+SetMenuItemText(myMenus[searchM],enterfindCommand,PascalLine);
+
+EnableItem(myMenus[searchM],enterfindCommand);
+sprintf(Message,"Use tokens [toggle] %c-option T",(char) commandMark);
+pStrCopy((char*)c2pstr(Message),PascalLine);
+SetMenuItemText(myMenus[miscM],tokenCommand,PascalLine);
+
+EnableItem(myMenus[windowM],miscsettingsCommand);
+sprintf(Message,"Settings            %c-option-space",(char) commandMark);
+pStrCopy((char*)c2pstr(Message),PascalLine);
+SetMenuItemText(myMenus[windowM],miscsettingsCommand,PascalLine);
+
+EnableItem(myMenus[miscM],tokenCommand);
+sprintf(Message,"Help                       %c-?",(char) commandMark);
+pStrCopy((char*)c2pstr(Message),PascalLine);
+SetMenuItemText(myMenus[actionM],helpCommand,PascalLine);
+
+EnableItem(myMenus[actionM],helpCommand);
+DrawMenuBar();
+return(OK);
+}
+
+
+AdjustWindow(int newplace,int w,int top,int left,int bottom,int right)
+{
+int vdrag,hdrag,wresize,hresize,height,width,screenwidth,screenheight,d;
+Rect r; Point p,q;
+GrafPtr saveport;
+
+if(w < 0 || w >= WMAX
+		|| (!Adjustable[w] && w != wMessage && w != wInfo)) return(OK);
+if(ScriptExecOn || InitOn) PleaseWait();
+
+r = Window[w]->portRect;
+
+GetPort(&saveport);
+SetPort(Window[w]);
+
+p = topLeft(r); LocalToGlobal(&p);
+q = botRight(r); LocalToGlobal(&q);
+
+/* First readjust coordinates so that window will not disappear */
+screenwidth = screenBits.bounds.right - screenBits.bounds.left;
+screenheight = screenBits.bounds.bottom - screenBits.bounds.top;
+
+if(w == wMessage || w == wInfo) {
+	height = 12;
+	if(w == wMessage) bottom = screenheight;
+	else bottom = screenheight - height - 1;
+	top = bottom - height;
+	right = screenwidth;
+	if(w == wMessage) left = 0;
+	else left = screenwidth / 3;
+	}
+else if(!newplace) {
+	top = p.v; left = p.h; bottom = q.v; right = q.h;
+	}
+
+if(!OKgrow[w] && w != wMessage && w != wInfo) {
+	d = (q.h - p.h) - (right - left);
+	right += d;
+	d = (q.v - p.v) - (bottom - top);
+	bottom += d;
+	}
+	
+d = bottom - screenheight;
+if(d > 0) {
+	bottom = screenheight;
+	top = top - d;
+	if(top < (2 * LMGetMBarHeight() + 4)) top = (2 * LMGetMBarHeight() + 4);
+	}
+	
+d = right - screenwidth;
+if(d > 0) {
+	right = screenwidth;
+	left = left - d;
+	if(left < 0) left = 0;
+	}
+
+vdrag = top - p.v;	/* top */
+hdrag = left - p.h;	/* left */
+wresize = (right - left) - (q.h - p.v);
+hresize = (bottom - top) - (q.v - p.h);
+
+if(Editable[w] && !LockedWindow[w]) Deactivate(TEH[w]);
+
+if((vdrag != 0) || (hdrag != 0)) {
+	r = Window[w]->portRect;
+	InvalRect(&r);
+	EraseRect(&r);
+	MoveWindow(Window[w],left,top,FALSE);	/* Don't activate */
+	r = (Window[w])->portRect;
+	InvalRect(&r);
+	}
+if((OKgrow[w] || w == wMessage || w == wInfo) && ((wresize != 0) || (hresize != 0))) {
+	r = Window[w]->portRect;
+	if(GrafWindow[w]) ClipRect(&r);
+	EraseRect(&r);
+	SizeWindow(Window[w],right - left,bottom - top,TRUE);	/* Update */
+	r = Window[w]->portRect;
+	ClipRect(&r);
+	EraseRect(&r);
+	InvalRect(&r);
+	SetViewRect(w);
+	HidePen();
+	if(OKvScroll[w]) {
+		MoveControl(vScroll[w],r.right - SBARWIDTH,r.top - 1);
+		SizeControl(vScroll[w],SBARWIDTH + 1,r.bottom - r.top - (SBARWIDTH - 2)
+			- Freebottom[w]);
+		}
+	if(OKhScroll[w]) {
+		MoveControl(hScroll[w],r.left - 1,r.bottom - SBARWIDTH);
+		SizeControl(hScroll[w],r.right - r.left - (SBARWIDTH - 2),SBARWIDTH + 1);
+		r.bottom -= SBARWIDTH;
+		}
+	if(OKvScroll[w]) {
+		r.right -= SBARWIDTH;
+		SetVScroll(w);
+		}
+	ShowPen();
+	if(GrafWindow[w]) {
+		SetMaxControlValues(w,r);
+		ClipRect(&r);
+		}
+	AdjustTextInWindow(w);
+	}
+if(w == wScript && ScriptExecOn) {
+	ActivateWindow(SLOW,w);
+	Activate(TEH[w]);
+	}
+	
+if(saveport != NULL) SetPort(saveport);
+else if(Beta) Alert1("Err AdjustWindow(). saveport == NULL");
+return(OK);
+}
+
+
+Boolean HasGWorlds(void)
+{
+long qdResponse,mask;
+OSErr err;
+
+err = Gestalt(gestaltQuickdrawFeatures,&qdResponse );
+
+if(err != noErr) {
+	Alert1("Error calling Gestalt");
+	return false;
+	}
+
+mask = 1 << gestaltHasDeepGWorlds;
+	
+if(qdResponse & mask)
+	return true;
+else
+	return false;
+}
+
+
+GWorldInit(void)
+{
+OSErr	err;
+Rect	r;
+WindowPtr	window;	
+
+window = Window[wGraphic];
+r = window->portRect;
+OffsetRect(&r,-r.left,-r.top);
+
+err = NewGWorld(&gMainGWorld,16,&r,nil,nil,pixPurge);
+
+if(err != noErr) {
+	Alert1("Error calling NewGWorld");
+	return(ABORT);
+	}
+return(OK);
+}
+
+
+short GetDepth(GDHandle gdevice)
+{
+short depth = 0;
+if(gdevice && (*gdevice)->gdPMap) depth = (*((*gdevice)->gdPMap))->pixelSize;
+return(depth);
+}
+
+
+CheckRegistration(void)
+{
+int result,iv;
+short type,refnum;
+OSErr io;
+FSSpec spec;
+unsigned long today,secs;
+FInfo fndrinfo;
+StandardFileReply reply;
+char **p_line,**p_completeline;
+long pos;
+
+p_line = p_completeline = NULL;
+strcpy(Message,"_bp2_key");
+pStrCopy((char*)c2pstr(Message),spec.name);
+spec.vRefNum = RefNumbp2;
+spec.parID = ParIDbp2;
+io = FSpGetFInfo(&spec,&fndrinfo);
+if(io == noErr) {
+	if(!(fndrinfo.fdFlags & fInvisible)) {
+		fndrinfo.fdFlags |= fInvisible;
+		io = FSpSetFInfo(&spec,&fndrinfo);
+		io = FSDelete("\p_bp2_startdate",0);
+		}
+	MyOpen(&spec,fsRdPerm,&refnum);
+	pos = ZERO;
+	if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ENTERNAME;
+	if(CheckVersion(&iv,p_line,"'\0'") != OK) goto ENTERNAME;
+	if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ENTERNAME;
+	if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ENTERNAME;
+	MystrcpyHandleToString(MAXNAME,0,UserName,p_completeline);
+	Strip(UserName);
+	if(UserName[0] == '\0' || strcmp(UserName,"<unknown>") == 0) goto ENTERNAME;
+	if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ENTERNAME;
+	MystrcpyHandleToString(MAXNAME,0,UserInstitution,p_completeline);
+	CloseMe(&refnum);
+	sprintf(Message,"Bonjour %s!",UserName);
+	FlashInfo(Message);
+	goto OUT;
+	
+ENTERNAME:
+	CloseMe(&refnum);
+	if(MakeNewKeyFile(TRUE) == OK) io = FSDelete("\p_bp2_startdate",0);
+	}
+else {
+	GetDateTime(&today);
+	strcpy(Message,"_bp2_startdate");
+	pStrCopy((char*)c2pstr(Message),spec.name);
+	spec.vRefNum = RefNumbp2;
+	spec.parID = ParIDbp2;
+	type = 0;
+	io = FSpGetFInfo(&spec,&fndrinfo);
+	if(io == noErr) {
+		MyOpen(&spec,fsRdPerm,&refnum);
+		pos = ZERO;
+		if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+		if(CheckVersion(&iv,p_line,"'\0'") != OK) goto ERR;
+		if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+		if(ReadUnsignedLong(refnum,&secs,&pos) == FAILED) goto ERR;
+		CloseMe(&refnum);
+//		if(Beta) goto MAKE;
+		if((today-secs) > (86400L * 30L)) {
+			Alert1("This copy of BP2 has been used for more than 30 days.\rIt's a good idea to click the ‘Register’ button...");
+			goto REGISTERED;
+			}
+		goto OUT;
+ERR:
+		CloseMe(&refnum);
+		goto MAKE;
+		}
+	else {
+MAKE:
+		io = FSDelete("\p_bp2_startdate",0);
+		reply.sfFile.vRefNum = RefNumbp2;
+		reply.sfFile.parID = ParIDbp2;
+		reply.sfReplacing = FALSE;
+		pStrCopy((char*)"\p_bp2_startdate",PascalLine);
+		pStrCopy((char*)PascalLine,reply.sfFile.name);
+		result = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
+		if(result != OK) {
+			Alert1("Unexpected problem creating the registration file.  Is the hard disk full?\rContact the authors");
+			goto OUT;
+			}
+		WriteHeader(-1,refnum,reply.sfFile);
+		sprintf(Message,"%.0f",(double)today);
+		WriteToFile(NO,MAC,Message,refnum);
+		CloseMe(&refnum);
+		spec = reply.sfFile;
+		io = FSpGetFInfo(&spec,&fndrinfo);
+		fndrinfo.fdFlags |= fInvisible;
+		io = FSpSetFInfo(&spec,&fndrinfo);
+		Alert1("This is a fresh copy of BP2.\rIt's a good idea to click the ‘Register’ button...");
+REGISTERED:
+		Alert1("If you already registered, contact <bel@kagi.com> to get an activation key");
+		}
+	}
+OUT:
+MyDisposeHandle((Handle*)&p_line);
+MyDisposeHandle((Handle*)&p_completeline);
+return(OK);
+}
+
+
+MakeNewKeyFile(int formyself)
+{
+int result;
+short type,refnum;
+OSErr io;
+FSSpec spec;
+FInfo fndrinfo;
+StandardFileReply reply;
+char line[MAXFIELDCONTENT];
+Rect r;
+Handle itemhandle;
+short item,itemtype;
+long pos;
+Str255 t;
+DialogPtr enternameptr;
+
+enternameptr = GetNewDialog(EnterNameID,0L,0L);
+
+GetDialogItem(enternameptr,fUserName,&itemtype,&itemhandle,&r);
+SetDialogItemText(itemhandle,"\p");
+GetDialogItem(enternameptr,fInstitution,&itemtype,&itemhandle,&r);
+SetDialogItemText(itemhandle,"\p");
+
+TRYENTER:
+ShowWindow(enternameptr);
+SelectWindow(enternameptr);
+result = FAILED;
+while(TRUE) {
+	MaintainCursor();
+	ModalDialog((ModalFilterUPP) 0L,&item);
+	switch(item) {
+		case dNameOK:
+			result = OK; break;
+		case fUserName:
+			break;
+		case fInstitution:
+			break;
+		}
+	if(result == OK) break;
+	}
+
+GetDialogItem(enternameptr,fUserName,&itemtype,&itemhandle,&r);
+GetDialogItemText(itemhandle,t);
+MyPtoCstr(MAXFIELDCONTENT,t,line);
+Strip(line);
+if(formyself && line[0] == '\0') {
+	Alert1("You must enter a user name");
+	goto TRYENTER;
+	}
+if(strlen(line) >= MAXNAME) {
+	sprintf(Message,"Name can't be more than %ld chars",(long)(MAXNAME-1L));
+	Alert1(Message);
+	goto TRYENTER;
+	}
+strcpy(UserName,line);
+if(UserName[0] == '\0') sprintf(UserName,"<unknown>");
+
+GetDialogItem(enternameptr,fInstitution,&itemtype,&itemhandle,&r);
+GetDialogItemText(itemhandle,t);
+MyPtoCstr(MAXFIELDCONTENT,t,line);
+Strip(line);
+if(strlen(line) >= MAXNAME) {
+	sprintf(Message,"Institution can't be more than %ld chars",(long)(MAXNAME-1L));
+	Alert1(Message);
+	goto TRYENTER;
+	}
+strcpy(UserInstitution,line);
+if(UserInstitution[0] == '\0') sprintf(UserInstitution,"<unknown>");
+
+if(formyself) {
+	sprintf(Message,"Your name is: %s",UserName);
+	if(Answer(Message,'Y') != YES) goto TRYENTER;
+	sprintf(Message,"Your institution is: %s",UserInstitution);
+	if(Answer(Message,'Y') != YES) goto TRYENTER;
+	}
+
+DisposeDialog(enternameptr);
+
+pStrCopy((char*)"\p_bp2_key",PascalLine);
+if(formyself || Answer("Delete the current (invisible) activation key",'N') == YES) {
+	io = FSDelete(PascalLine,0);
+	}
+if(formyself) {
+	reply.sfFile.vRefNum = RefNumbp2;
+	reply.sfFile.parID = ParIDbp2;
+	reply.sfReplacing = FALSE;
+	pStrCopy((char*)PascalLine,reply.sfFile.name);
+	}
+else {
+	result = NewFile(PascalLine,&reply);
+	if(result != OK) return(FAILED);
+	}
+result = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
+if(result != OK) {
+	Alert1("Unexpected problem recording your identity. Is the hard disk full?\rContact the authors");
+	return(ABORT);
+	}
+WriteHeader(-1,refnum,reply.sfFile);
+WriteToFile(NO,MAC,UserName,refnum);
+WriteToFile(NO,MAC,UserInstitution,refnum);
+CloseMe(&refnum);
+if(formyself) {
+	spec = reply.sfFile;
+	io = FSpGetFInfo(&spec,&fndrinfo);
+	fndrinfo.fdFlags |= fInvisible;
+	io = FSpSetFInfo(&spec,&fndrinfo);
+	}
+return(OK);
+}
+
+
+Y2K(void)
+{
+short y2krefnum;
+unsigned long today,secs;
+DateTimeRec dtrp;
+OSErr io;
+FSSpec spec;
+FInfo fndrinfo;
+int type;
+	
+dtrp.year = 2000;
+dtrp.month = 1;
+dtrp.day = 1;
+dtrp.hour = dtrp.minute = dtrp.second = 0; 
+/* dtrp.year = 1998;
+dtrp.month = 9;
+dtrp.day = 22; */
+DateToSeconds(&dtrp,&secs);
+GetDateTime(&today);
+strcpy(Message,"y2k");
+spec.vRefNum = RefNumbp2;
+spec.parID = ParIDbp2;
+type = 0;
+pStrCopy((char*)c2pstr(Message),spec.name);
+io = FSpGetFInfo(&spec,&fndrinfo);
+if(io == noErr) {
+	if(!(fndrinfo.fdFlags & fInvisible)) {
+		fndrinfo.fdFlags |= fInvisible;
+		io = FSpSetFInfo(&spec,&fndrinfo);
+		}
+	if(today > secs) {
+		if(((today-secs) < (86400L * 70L)) && (io=MyOpen(&spec,fsRdPerm,&y2krefnum)) == noErr) {
+			Alert1("Welcome to the third millennium!\r(Any idea whether this software is y2k compliant?)");
+			while(Button());
+			ActivateWindow(SLOW,wData);
+			ActivateWindow(SLOW,wGrammar);
+			Println(wNotice,"\r\rPhew! BP2 survived the shock...\r");
+			Println(wNotice,"You'd better check your bank account, retirement planning, etc.\r");
+			Println(wNotice,"It's an auspicious day to click the ‘Register’ button if you never tried it and the bank hasn't screwed up your account ;-)\r\r");
+			Println(wNotice,"With you, forever,\r\r");
+			Println(wNotice,"•    •   •  • • Bol Processor folks • •  •   •    •\r\r");
+			Println(wNotice,"             (Click mouse to continue)");
+			while(!Button());
+			FSClose(y2krefnum);
+			io = FSDelete("\py2k",0);
+			}
+		}
+	}
+else {
+	if(today < secs) {
+		Alert1("You should get the y2k certificate for this program.\rContact <bel@kagi.com>");
+		}
+	}
+return(OK);
+}

@@ -1,0 +1,38 @@
+// Bol Processor version BP2.8.0
+// Data file saved as '-da.tryQuantize'. Date: Lun 30 Mars 1998 -- 17:24
+-ho.tryQuantize
+-se.tryQuantize 
+
+// This is a demo of BP2 quantization. See BP2 Reference manual (6. Time quantization) for detailed explanation.
+// In the "Windows" menu, select "Time accuracy".
+// Play this with Quantization OFF:
+{do4 {re4 mi4,fa4 sol4 la4}, si4 do5}
+
+// The graphic you see comes from the following phase diagram:
+
+do4 _ _ _ _ _ re4 _ _ _   _    _ mi4 _ _   _ _ _
+              fa4 _ _ _   sol4 _ _   _ la4 _ _ _
+si4 _ _ _ _ _ _   _ _ do5 _    _ _   _ _   _ _ _
+
+// Now, set Quantization to ON and play the same item.  The graphic (and the sound) have changed. The corresponding simplified phase diagram is:
+
+do4 _ _ re4 _   _    mi4 _   _
+        fa4 _   sol4 _   la4 _
+si4 _ _ _   do5 _    _   _   _
+
+// Indeed, 200ms is a high value for quantization, but it's convenient for a simple demo.
+
+// More complicated item. The graphic shows that the
+// duration of the item does not match precisely
+// the original duration because the number of streaks (45)
+// is not a multiple of the quantization ratio (Kpress = 4)
+// Of course the mismatch cannot be larger than the
+// quantization value (200ms).
+// This example is discussed in CMJ.
+
+{do4 {re4 mi4,fa4 sol4 la4},si4 do5 re5 mi5 fa5}
+
+
+// Now we try quantizing in smooth time with time patterns
+// Set time to "smooth" in "Metronom" window
+{t1 {t2 t3,fa4 sol4 la4}, si4 do5}

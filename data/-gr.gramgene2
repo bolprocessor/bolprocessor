@@ -1,0 +1,23 @@
+// Bol Processor version BP2.9.3
+// Grammar file saved as '-gr.gramgene2'. Date: Mer 24 fŽv 1999 -- 21:49
+-se.gramgene
+-ho.gramgene
+
+// This "metagrammar" produces a grammar represented as a binary tree
+
+INIT: Clear window "Data"
+
+RND
+_mm(360.0000) _striated
+
+GRAM#1[1] S --> '-ho.abc'; 'RND'; 'S' '-->' Inc Var Inc Var; '--------------------' ;
+GRAM#1[2] <6-1> '-->' ?1 ?2 ; --> '-->' ?1 ?2 ; ?1 '-->' Arg2 ; ?2 '-->' Arg2 ; [not more than 6 times...]
+GRAM#1[3] Arg2 --> Inc Var Inc Var
+GRAM#1[4] Arg2 --> Const
+GRAM#1[5] Inc Var --> (= Inc Var) (:Inc Var)
+GRAM#1[6] Inc Var --> 'X'
+GRAM#1[7] Inc Var --> 'Y'
+GRAM#1[8] Inc Var --> 'Z'
+GRAM#1[9] Const --> a
+GRAM#1[9] Const --> b
+GRAM#1[9] Const --> c
