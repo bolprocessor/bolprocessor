@@ -1,0 +1,34 @@
+// Bol Processor version BP2.9.3
+// Grammar file saved as '-gr.Visser7'. Date: Lun 30 nov 1998 -- 19:55
+// A short piece by Harm Visser
+// May 1998
+-se.Visser7
+-or.Visser7
+
+RND
+_mm(60.0000) _striated
+
+gram#1[1] S -->  _script(Wait for space) _volume(90) _vel(70) _rndvel(10) M1 M1 - M1 M1 {_rotate(1) M1 M2 M3 M4 M5 M5 M5} - {_transpose(11) M1 M2 M3 M4 M5} - {{12, M1a} {M2a  M5a}} _transpose(2) {_rotate(1) M1 M2 M3 M3 M3 M4 M5} - {5, _keyxpand(C4,-1) M1} {5, _transpose(11) _keyxpand(C4,-1) M3} - {_transpose(-1) M1 M2 M3 M4 M5}
+
+gram#1[2] M1 --> {C5, - B3, F3, _chan(9) {1/2 C4 B3 - F4 -}}
+gram#1[3] M2 --> {_transpose(11) M1}
+gram#1[4] M3 --> {_transpose(5) M1 ¥ M2}
+gram#1[5] M4 --> {_transpose(-11) M1 ¥ M2 M3}
+gram#1[6] M5 --> {_transpose(11) M1 - ¥ M2 - M3 M4}
+
+gram#1[7] <1-1> M1a --> {1, C2, - B3, - F3, - C4, -- B4, {_chan(9) --- B3 F3 -}} _transpose(5) {_retro M1a} _repeat(6)
+gram#1[8] <1-1> M2a --> _transpose(-1) {1, C2, - B3, - F3, - C4, -- B4, {_chan(9) --- B3 F3 -}} _transpose(7) {_rotate(1) M2a} _repeat(5)
+gram#1[9] M5a --> _retro {_transpose(11) M1 -- ¥ M2 - M3 - M4}
+
+-------------
+RND
+gram#2[1] M1a --> nil
+gram#2[2] M2a --> nil
+
+COMMENT:
+{1/2 C4 B3 - F4 -, C3 B2}
+C4 B3 - F4 {1/2 C4 B3 - F4 -, C3 B2} . C3 B2
+Listen to this piece for piano and sax (chan9), its a very funny one,
+again with a lot of rhythmical diversity. I play it on the Yamaha VL1, with
+physical modelling saxes, so when the notes are very low and rather soft,
+you hear a beautiful breath.

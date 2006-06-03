@@ -1,0 +1,81 @@
+// Bol Processor version BP2.9.2
+// Grammar file saved as '-gr.Visser.Shapes'. Date: Dim 27 Sep 1998 -- 10:20
+-se.Visser.Shapes
+
+ORD
+_mm(60.0000) _striated
+
+gram#1[1] S --> _script(Wait for space) _staccato(50) Shapes
+
+gram#1[2] Shapes --> Part1 {_rotate(20) _transpose(2) Part1} Part2 Part3 {_tempo(0.7) Part3} Part4
+
+-----
+ORD
+//parts
+
+gram#2[1] Part1 --> {M1 Trill1 M2 Trill2 Int1 Int2 Trill3  Int3 1/4}
+
+gram#2[2] Part2 --> {M3 M4 M5 1/4 Trill4 1/4 Trill4 Trill4 1/4 Trill5 M6 1/4 Trill6 Trill7 Trill8 1/4 Trill9 Trill10 1/4 M5 M4 M3 M6 {_rotate(6) _transpose(23) M6} 1/4 Int3 Int2 Int1 _rotate(23) Part1} Trill3
+
+gram#2[3] Part3 --> {1 {M3, M4} 2, _transpose(12) Trill1} _transpose(-11) {1 {M3, M4} 2, _transpose(12) Trill1}
+
+gram#2[4] Part4 --> {Trill12, Trill11} {Trill10, Trill1} {Trill9 Trill10, Trill2} {_transpose(11) {M3, Trill2}} {M3, _transpose(12) Trill3} {Trill10, Trill1} {Trill9 Trill10, Trill2} {_tempo(2/3) Trill10} {M3, M4} {_tempo(1/2) Trill10} 1/4 _transpose(12) Trill9
+
+-----
+ORD
+//parts-material
+
+gram#3[1] M1 -->  {_velcont _vel(40) _transpose(12) _tempo(7) C0 C2 C4 C6 _vel(60) _tempo(6) Bb4 G3 F2 B2 G3 _vel(80) _tempo(8) A2 B1 F#1 G2 A3 C#4 E3 G2 _vel(40) _tempo(6) Bb1 C#1 G0 _tempo(5) G#1 A2 A3 Bb4 _vel(90)}
+
+gram#3[2] M2 --> {_keyxpand(C4,-1) M1}
+
+gram#3[3] M3 --> {_velcont _vel(40) _transpose(12) _tempo(7) C0 C2 {C4, C6} _vel(100) _tempo(6) Bb4 G3 F2 {B2, G3} _vel(80) _tempo(8) A2 B1 F#1 G2 A3 C#4 {E3, G2} _vel(50) _tempo(6) Bb1 C#1 G0 _tempo(5) G#1 A2 {A3, Bb4} _vel(70)}
+
+gram#3[4] M4 --> {_tempo(0.7) _rotate(5) _transpose(3) M3}
+
+gram#3[5] M5 --> {_tempo(0.7) _rotate(12) _transpose(6) M4}
+
+gram#3[6] M6 --> {_tempo(2) M1}
+
+gram#3[7] Int1 --> {_tempo(12) _vel(40) _transpose(3) D2 C#3  _transpose(6) D2 C#3   _transpose(9) D2 C#3}
+
+gram#3[8] Int2 --> {_transpose(11) Int1}
+
+gram#3[9] Int3 --> {_transpose(11) Int2}
+
+gram#3[10] Trill1 --> {_tempo(12) _velcont _vel(10) Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 _vel(80) Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 _vel(10)}
+
+gram#3[11] Trill2 --> {_transpose(-36) _keyxpand(C5,-1) Trill1}
+
+gram#3[12] Trill3 --> {_transpose(-12) Trill1}
+
+gram#3[13] Trill4 --> {_tempo(14) _velcont _vel(10) Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 _vel(80)}
+
+gram#3[14] Trill5 --> {_tempo(12) _velcont _vel(10) Bb4 A6 Bb4 A4 Bb6 A5 Bb3 A6 Bb4 A5 _vel(80) Bb4 A6 Bb4 A4 Bb6 A5 Bb3 A6 Bb4 A5 _vel(10)}
+
+gram#3[15] Trill6 --> {_transpose(-19) Trill5}
+
+gram#3[16] Trill7 --> Trill4 _transpose(-22) Trill4 _transpose(-9) Trill4
+
+gram#3[17] Trill8 --> {_tempo(14) _velcont _vel(80) Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 _transpose(-12) A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 _vel(10)}
+
+gram#3[18] Trill9 --> {_tempo(14) _velcont _vel(80)  _transpose(-12) Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 _vel(10)}
+
+gram#3[19] Trill10 --> {_tempo(2/3) _transpose(-23) Trill8 1/4 Trill9}
+
+gram#3[20] Trill11 --> {_tempo(14) _velcont _vel(10)_transpose(-23) Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 Bb4 A5 _vel(80)}
+
+gram#3[21] Trill12 --> {_tempo(2) _velcont _vel(10) Bb4 A5 Bb4 A5 Bb4 _tempo(3) A5 Bb4 A5 Bb4 A5 _tempo(4) Bb4 A5 Bb4 A5 Bb4 _tempo(5) A5 Bb4 A5 Bb4 A5 _vel(80)_tempo(6) Bb4 A5 Bb4 A5 _tempo(7) Bb4 A5 Bb4 A5 _tempo(8) Bb4 A5 Bb4 A5 Bb4 _tempo(8) A5 Bb4 A5 Bb4 A5 Bb4 A5 _vel(10)}
+
+
+
+COMMENT:
+----------------------------------------------------------------------------
+Received: 02 Jul 98 13:30:49 IST (+0530)
+To:       bel@csh.ernet.in
+From:     hvisser <hvisser@wxs.nl>
+Date:     Sun, 28 Jun 1998 14:19:04 +0200
+----------------------------------------------------------------------------
+
+Hi Bernard, here is my new piece, called 'Shapes'. As a starting point it
+deals with the notion of 'musical objects' in the sense of Varese. They are 'things' that pass in time. It's complete for piano in this version, but may be I make another instrumentation for the trills that you shall hear.

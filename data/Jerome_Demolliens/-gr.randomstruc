@@ -1,0 +1,47 @@
+// Bol Processor version BP2.9.3
+// Grammar file saved as '-gr.randomstruc'. Date: Lun 18 oct 1999 -- 19:25
+-gl.1_6tons
+-or.randomstruc
+-se.randomstruc
+-in.randomstruc
+
+// envoyer avant "produce item" ?:
+// _chan(1) _pitchrange(200) _pitchbend(0) _vel(127) C1
+// _chan(2) _pitchrange(200) _pitchbend(+33) _vel(127) C1
+// _chan(3) _pitchrange(200) _pitchbend(-33) _vel(127) C1  
+
+
+RND
+_mm(400.0000) _striated
+gram#1[1] S --> X X X X X X X X X X X X X X X X X X X X X X X X X X X X X X
+gram#1[2] <K1> X --> A
+gram#1[3] <K2> X --> B
+gram#1[4] <K3> X --> C
+gram#1[5] <K4> X --> D
+---------
+ORD
+gram#2[1] <K5> ?1 ?1 --> ?1
+gram#2[2] <5-1> ?1 ?2 ?1 --> ?1 ?2 - 
+gram#2[3] <8-1> ?1 ?2 ?3 ?1 --> - ?1 ?2 ?3  
+gram#2[4] <10-1> ?1 ?2 ?3 --> - ?2 ?1 - ?3 -
+--------
+SUB
+gram#3[1] ?1 ?2 ?1 ?2 --> ?1 ?2
+--------
+RND
+gram#4[1] A --> _rndseq  C E G#
+gram#4[2] A --> _rndseq  C# F A
+gram#4[3] A --> _rndseq  D F# A#
+gram#4[4] A --> _rndseq  D# G B
+gram#4[5] B --> _rndseq CU EU G#U
+gram#4[6] B --> _rndseq C#U FU AU
+gram#4[7] B --> _rndseq DU F#U A#U
+gram#4[8] B --> _rndseq D#U GU BU
+gram#4[9] C --> _rndseq C#D FD AD
+gram#4[10] C --> _rndseq DD F#D A#D
+gram#4[11] C --> _rndseq D#D GD BD
+gram#4[12] C --> _rndseq ED G#D CDP
+gram#4[13] D --> _rndseq _chan(4) _pitchrange(200) _pitchbend(0) _vel(127) C2 E2 G#2
+gram#4[14] D --> _rndseq _chan(4) _pitchrange(200) _pitchbend(0) _vel(127) C#2 F2 A2
+gram#4[15] D --> _rndseq _chan(4) _pitchrange(200) _pitchbend(0) _vel(127) D2 F#2 A#2
+gram#4[16] D --> _rndseq _chan(4) _pitchrange(200) _pitchbend(0) _vel(127) D#2 G2 B2

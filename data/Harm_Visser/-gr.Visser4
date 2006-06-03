@@ -1,0 +1,40 @@
+// Bol Processor version BP2.9.0
+// Grammar file saved as '-gr.Visser4'. Date: Ven 12 Juin 1998 -- 21:23
+// A piece by Harm Visser, April 1998
+
+-se.Visser4
+
+ORD
+_mm(60.0000) _striated
+gram#1[1] S --> Begin {Melos1 Melos2} ¥ {Melos1 Melos2, Melos3} End
+gram#1[2] Melos1 --> {Mel1 Mel2} ¥ {Mel1 Mel2, Mel3}
+gram#1[3] Melos2 --> _transpose(11) {Melos1}
+gram#1[4] Melos3 --> _transpose(5) {Melos1 - Melos2}
+--------------
+ORD
+gram#2[1] Mel1 --> {M1 M2} ¥ {M1 M2,M3}
+gram#2[2] Mel2 --> _transpose(11) {Mel1}
+gram#2[3] Mel3 --> _transpose(5) {Mel1 - Mel2}
+--------------
+ORD
+gram#3[1] M1 --> {C3 B3 Ped F3}
+gram#3[2] M2 --> _transpose(11) {M1}
+gram#3[3] M3 --> _transpose(2) {M1 - M2}
+--------------
+ORD
+// Fade-out added by Bernard Bel
+// Only the rightmost occurrence of 'Ped' will remain
+gram#4[1] <1-1> RIGHT Ped --> _switchon(64,1) _vel(40)
+gram#4[2] Ped --> lambda
+gram#4[3] Begin --> _volume(120) _vel(64)
+gram#4[4] End -->   _volumecont _volume(120) --- _volume(0)
+
+
+COMMENT:
+(Comment by Harm Visser)
+This example shows 'recursive writing' at structural level! It
+alternates between degrees of melodic and harmonic density. BTW: at the
+level of rhythm, I think it 'sounds' really recursive because there is value accumulation.
+
+(Comment by Bernard Bel)
+This is another case demonstrating the potential of the polymetric representation in terms of producing complex and "meaningful" rhythmic structures...

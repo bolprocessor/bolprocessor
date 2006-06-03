@@ -1,0 +1,24 @@
+// Bol Processor version BP2.9.2
+// Grammar file saved as '-gr.NotReich'. Date: Ven 11 Sep 1998 -- 7:40
+// '-gr.NotReich'
+// Composed by  Thierry Montaudon <buil@club-internet.fr>
+// November 1997
+
+-or.NotReich
+-se.NotReich
+
+RND
+_mm(60.0000) _striated
+gram#1[1] S --> _chan(1) _vel(50) _volumecont _volume(80) A' B' C'
+--------
+RND
+gram#2[1] A' --> A A A A A A A A
+gram#2[2] B' --> B B B" B" C C D D D D E E E E
+gram#2[3] C' --> C C C D E E E E C D C D E E E E C C C B" B" B A A _volume(80) A A A _volume(0)
+
+gram#2[4] A --> {1, C4 -,_vel(40) - E#3 G3, A#5, - D5}
+gram#2[5] B --> {A A, _vel(60) C2}
+gram#2[6] B" --> {B, - F5}
+gram#2[7] C --> {B, {_vel(55) - C5}}
+gram#2[8] D --> {B, - {C4 F5 E#4}}
+gram#2[9] E --> {D, D#4 F4 C5 G#3}

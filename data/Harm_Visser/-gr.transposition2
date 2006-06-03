@@ -1,0 +1,23 @@
+// Bol Processor version BP2.8.0
+// Grammar file saved as '-gr.transposition2'. Date: Mer 4 Mars 1998 -- 0:01
+-se.transposition
+
+// This grammar was composed by Harm Visser
+// (hvisser@pop3.worldaccess.nl) in Nov. 97.
+// Unlike '-gr.transposition1', it uses transposition recursively
+
+RND
+gram#1[1] <10-1> S --> {20, M1 Tr1 B4 Tr1 S Tr2 Tr2 S Tr3 Tr3}
+
+gram#1[2] M1 --> A A A
+
+gram#1[3] Tr1 --> _transpose(0)
+gram#1[4] Tr2 --> _transpose(2)
+gram#1[5] Tr3 --> _transpose(-2)
+
+gram#1[6] A --> {Tr1 {C3, F4}}
+gram#1[7] A --> {Tr2 {Tr2 {A}}}
+gram#1[8] A --> {Tr3 {Tr3 {A}}}
+-----------
+RND
+gram#2[1] S --> lambda
