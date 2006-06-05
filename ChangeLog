@@ -1,0 +1,15 @@
+2006-06-05	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	* source/BP2/Strings.c (MystrcpyHandleToString):  Fixed a buffer overrun bug.
+
+	* data/Thierry_Montaudon/-or.piano: Moved to data/Harm_Visser.
+
+	* New ChangeLog file :)
+
+2006-06-02	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	* Many more example files added to new directories:
+		bolprocessor/data/Harm_Visser
+		bolprocessor/data/Jerome_Demolliens
+		bolprocessor/data/Thierry_Montaudon
+
+	* New CVS module, QAVAID, containing the Prolog II code and projects
+	  from Bernard that create grammars from sets of musical examples.

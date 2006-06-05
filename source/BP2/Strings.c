@@ -130,12 +130,10 @@ if(p_t == NULL) {
 	s[0] = '\0';
 	goto OUT;
 	}
-i = -1;
-do {
-	i++;
-	s[i] = c = (*p_t)[offset++];
-	}
-while(c != '\0' && i < imax);
+i = 0;
+while((c = (*p_t)[offset++]) != '\0' && i < imax)
+	s[i++] = c;
+if (i >= imax) i = imax - 1;
 s[i] = '\0';	/* The content might get truncated */
 
 OUT:
