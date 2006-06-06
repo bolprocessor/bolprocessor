@@ -145,8 +145,8 @@ if(Help && !rtn) {
 	MyPtoCstr(255,t,line);
 	DisplayHelp(line);
 	if(thedialog == FAQPtr && strcmp("How do I register for BP2?",line) == 0) {
-		DisplayFile(wNotice,"Registration.txt");
-		Register();
+		// DisplayFile(wNotice,"License.txt");
+		// Register();
 		}
 	return(DONE);
 	}

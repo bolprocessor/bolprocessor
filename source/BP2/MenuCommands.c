@@ -99,15 +99,16 @@ switch(Alert(AboutAlert,0L)) {
 		else r = OK;
 		break;
 	case dCredits:
-		DisplayFile(wNotice,"Credits");
+		if (DisplayFile(wNotice,"Credits") != OK)
+			DisplayFile(wNotice,"Credits.txt");
 		if(wind < 0) r = RESUME;
 		wind = wNotice;
 		ActivateWindow(SLOW,wind);
 		break;
 	case bRegister:
-		DisplayFile(wHelp,"Registration.txt");
+		DisplayFile(wNotice,"License.txt");
 	//	DisplayHelp("How do I register for BP2?");
-		Register();
+	//	Register();
 		if(wind < 0) r = RESUME;
 		else r = OK;
 		break;

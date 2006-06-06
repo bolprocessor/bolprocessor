@@ -213,19 +213,12 @@ http://mirrors.vuw.ac.nz/info-mac/
 ftp://ftp.nus.sg/pub/mac/
 ftp://ftp.hawaii.edu/mirrors/info-mac/gst/midi/
 ### How do I register for BP2?
-Bol Processor BP2 is a shareware product.
-Fee: 50 US dollars (30 dollars for students, unemployed or citizens of developing countries)
-¥ Payment is handled by KAGI SHAREWARE.  You can send it via Internet, fax, etc.
-    First read the 'Registration.txt' document carefully, then launch the 'Register' utility
-    supplied with BP2.  Report any problems to <bel@kagi.com>.
-¥ Not a commercial product, BP2 is meant to be shared by the international community of music
-    researchers, musicians and music lovers.  Unregistered users shouldn't fear police raids!
-    However, your contribution will be highly appreciated as this money is entirely
-    invested on music/development documentation, hardware and software.
-    (Fees received in 1995 allowed us to buy Opcode MAX.)
-¥ We are committed to providing continuous support for BP2, in terms of responding to individual
-    inquiries, as well as in making fixes, upgrades and documentation available to registered
-    users.
+Bol Processor BP2 used to be a shareware product, but is now open source software (a.k.a
+"free software", refering to the freedoms granted to the user, not necessarily the price).
+Therefore, it is no longer necessary to register or to pay to use Bol Processor.
+Both the application and the complete source code for BP2 are available under a BSD-style
+license that allow them to be liberally used, modified, and distributed.  Please click on
+"License..." in the About box, or see the accompanying file, "License.txt" for details.
 ### Where can I find more information?
 ¥ If you are a new user, a quick visit is recommended:
     If you have Clarisª FileMaker Pro, double-click the database "TryAppleEvents.fm".

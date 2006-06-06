@@ -100,7 +100,8 @@ ClearWindow(TRUE,wScript);
 ActivateWindow(SLOW,wMessage);
 HideWindow(Window[wInfo]);
 
-if(CheckRegistration() != OK) goto END;
+// Registration is no longer necessary -- 060506 akozar
+// if(CheckRegistration() != OK) goto END;
 
 // Let's have some fun in year 2000
 Y2K();
@@ -201,8 +202,8 @@ SHOWOPTIONS:
 				else ActivateWindow(SLOW,wGrammar);
 				break;
 			case dRegister:
-				DisplayFile(wHelp,"Registration.txt");
-				Register();
+				DisplayFile(wNotice,"License.txt");
+			//	Register();
 				break;
 			case dQuitWork:
 				goto END;
