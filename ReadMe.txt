@@ -13,21 +13,35 @@ development is now hosted by Sourceforge at
 the project are most welcome to do so.  Please email me for more
 information.
 
-At this stage, the source code in CVS is unaltered from the code that I
-received from Bernard Bel (except for some file reorganization).  This code
-could be considered version 2.9.5 beta (2.9.3 was the last stable public
-release; I have a copy of the unreleased 2.9.4 application too).  I did
-create a new CodeWarrior Pro 4 project with 68K and PPC MacOS targets.  BP2
-will only compile for the Classic MacOS at this time.  One of the goals of
-the open-source project will be to port it to other platforms (MacOS X in
-particular).
+The source code for this release has been altered in only minimal ways from
+the code that I received from Bernard Bel.  This is version 2.9.5 final of
+the project. (2.9.3 was the last stable public release under the shareware
+model; There was also an unreleased 2.9.4 application).  I have created a
+new CodeWarrior Pro 4 project with 68K and PPC MacOS targets.
 
-Because the code has not been changed, the BP2 application still thinks that
-it is necessary to register.  A registration code is provided in the file
-_bp2_key (which will be made invisible when BP2 is run).  Please disregard
-all notices from the program or in the documentation about needing to
-purchase a registration code.  (Removing the registration system is the
-first development priority).
+BP2 will only compile for the Classic MacOS at this time.  One of the goals
+of the open-source project is to port it to other platforms (MacOS X in
+particular).  Stage one of this process will begin immediately after this
+release of version 2.9.5.  That phase of development will involve porting
+BP2 to the Carbon API from Apple so that it can run under MacOS X (and OS
+8/9 as well).  The projected completion date for this phase is April 1,
+2007.
+
+Stage two will be to begin breaking BP up into modules including several
+cross-platform libraries for the major components that can be reused in
+other programs.  It will then be possible to create new interfaces for these
+parts of BP3 including interfaces that run on other platforms (Linux,
+Windows, etc.).
+
+If you would like to help with either stage of this process, please get in
+contact with us either privately or via the mailing lists.
+
+Changes since version 2.9.5 beta include the disablement of the shareware
+registration system, updates to the BP2 Help file to describe the
+open-source licensing model, and minor cosmetic changes to the About box and
+File menu. You can view the BP2 license by opening the About box and
+clicking the 'License' button.  Additional examples have also been added to
+CVS.
 
 If you want to get started understanding the source code, look in the
 "docs-developer" directory; particularly the files "BP2-info.txt" and
@@ -60,12 +74,12 @@ to resolve directory differences.  Currently this script fails for me
 because -gr.Visser3 is failing in beta mode).  There are also many example
 files in the "data" directory.
 
-A Note regarding optimization levels:  Level 4 in CW4 requires a lot of
+A note regarding optimization levels:  Level 4 in CW4 requires a lot of
 memory to compile.  But I had to back the optimizations down to Level 2
 anyways to avoid an infinite loop when choosing "New Project" that seemed to
 be caused by compiling at Level 3.
 
-If you want to follow or contribute to the developement of BP3, then you
+If you want to follow or contribute to the development of BP3, then you
 will probably want to join the Bol Processor Development mailing list hosted
 with the Sourceforge project.  (The BP2 mailing list at
 <bp2-list@yahoogroups.com> is for user discussions).
@@ -74,6 +88,6 @@ Please also feel free to contact me if you have problems with compiling the
 code or other questions.
 
 Anthony Kozar
-akozar@users.sourceforge.net
+anthonykozar@sbcglobal.net
 
-April 28, 2006
+January 2, 2007

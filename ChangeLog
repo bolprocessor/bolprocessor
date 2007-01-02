@@ -1,3 +1,22 @@
+2007-01-02	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	* VERSION 2.9.5 (FINAL)
+	
+	* BP2 help: Updated entries for "Where can I get the latest version of BP2?"
+		and "Where can I find more information?"
+
+	* BP2 help: Added entries for "License" and "free software".
+
+	* resources/BP2-MacOS.rsrc: 
+		Updated version resource & date in the about alert.
+		Fixed coloring of menu items in the File menu.
+
+	* source/BP2/-BP2.h:
+	* source/BP2/-BP2main.h:
+	* source/BP2/Inits.c:
+		Added "BP2.9.5" to VersionName and updated IDSTRING, MAXVERSION, and
+		Version defines/globals.
+		New #define COMPILING_BETA to set Beta global.  (May move to prefix file).
+
 2006-06-06	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	* source/BP2/BP2main.c (main):
 	* source/BP2/MenuCommands.c (mAbout):

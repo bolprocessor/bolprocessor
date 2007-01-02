@@ -193,46 +193,49 @@ Assignments are listed as script instructions in the "Interaction" window.
     This parameter may control weights in grammar rules, velocities, etc. (see "Variable arguments")
 ¥ Related topic: "Apple Events"
 ### Where can I get the latest version of BP2?
-¥ You may contact belkagi.com to be regularly posted about upgrades, even if you are not a
-    registered user.
-¥ Bol Processor BP2 is available on Info-Mac mirror sites
-    (list available under ftp://ftp.hawaii.edu/mirrors/info-mac/help/)
+¥ The Bol Processor project is now hosted by Sourceforge at 
+   <http://bolprocessor.sourceforge.net/>
+  You can obtain the latest versions and information from this site.
+¥ Older versions of Bol Processor BP2 may still be available on Info-Mac mirror sites
+   (list available under <ftp://ftp.hawaii.edu/mirrors/info-mac/help/>)
 ¥ A few sites in Europe:
-ftp://ftp.uni-stuttgart.de/pub/systems/mac/info-mac/
-ftp://ftp.ibp.fr/pub/mac/info-mac/ 
+   <ftp://ftp.uni-stuttgart.de/pub/systems/mac/info-mac/>
+   <ftp://ftp.ibp.fr/pub/mac/info-mac/>
 ¥ In North America:
-ftp://ftp.agt.net/pub/info-mac/
-http://mirror.apple.com/
-http://hyperarchive.lcs.mit.edu/HyperArchive.html
+   <ftp://ftp.agt.net/pub/info-mac/>
+   <http://mirror.apple.com/>
+   <http://hyperarchive.lcs.mit.edu/HyperArchive.html>
 ¥ In Africa:
-ftp://ftp.is.co.za/info-mac/
+   <ftp://ftp.is.co.za/info-mac/>
 ¥ In Asia and Pacific:
-ftp://ftp.hk.super.net/pub/mirror/info-mac/ 
-ftp://ftp.center.osaka-u.ac.jp/info-mac/ 
-http://mirrors.vuw.ac.nz/info-mac/
-ftp://ftp.nus.sg/pub/mac/
-ftp://ftp.hawaii.edu/mirrors/info-mac/gst/midi/
+   <ftp://ftp.hk.super.net/pub/mirror/info-mac/>
+   <ftp://ftp.center.osaka-u.ac.jp/info-mac/>
+   <http://mirrors.vuw.ac.nz/info-mac/>
+   <ftp://ftp.nus.sg/pub/mac/>
+   <ftp://ftp.hawaii.edu/mirrors/info-mac/gst/midi/>
 ### How do I register for BP2?
 Bol Processor BP2 used to be a shareware product, but is now open source software (a.k.a
 "free software", refering to the freedoms granted to the user, not necessarily the price).
 Therefore, it is no longer necessary to register or to pay to use Bol Processor.
 Both the application and the complete source code for BP2 are available under a BSD-style
 license that allow them to be liberally used, modified, and distributed.  Please click on
-"License..." in the About box, or see the accompanying file, "License.txt" for details.
+"License" in the About box, or see the accompanying file, 'License.txt' for details.
 ### Where can I find more information?
-¥ If you are a new user, a quick visit is recommended:
-    If you have Clarisª FileMaker Pro, double-click the database "TryAppleEvents.fm".
-    It calls BP2 as a server to play simple examples of music, grammars and scripts.
-¥ Print the MS-Word document extracted from "BP2doc.sea" and follow the "QuickStart"
-    manual step by step.
-¥ BP2 is documented on-line. You are reading this documentation now!
+¥ BP2 comes with HTML documentation that you can read with any web browser.  Try working
+    through the "QuickStart" section first.
+¥ Alternatively, you can print the MS-Word document extracted from "BP2doc.sea" and 
+    follow the "QuickStart" manual step by step.
+¥ BP2 is also documented on-line. You are reading this documentation now!
 To get information about any feature, type command-? or select "Help" in the "Action" menu.
     The cursor is changed to a question mark. Then click any button, select any menu item or
     any segment of text to get information.
 In this "Help" text, any expression between quotes is a link to more entries.
 ¥ You may also open "BP2 help" with a word-processor.
-¥ Contact the designers (see "About BP2") even if you haven't paid the shareware.
-    First make sure the information you need is not in the documentation :-)
+¥ Contact the designers to report bugs or request information not available from other
+    sources:
+        ¥ Bernard Bel    <bel@lpl.univ-aix.fr>
+        ¥ Anthony Kozar  <anthonykozar@sbcglobal.net>
+    Please first make sure the information you need is not in the documentation :-)
 ### Action menu
 Contains most commands of BP2. You may document them with the on-line "Help".
 ### About BP2É
@@ -2841,4 +2844,19 @@ BP2 reads the table and creates a "subgrammar" of a specified type, using a spec
         For instance, a cell containing "128+45+7" will yield a rule argument "f128 f45 f7" if
         'f' is the selected starting character.
 ¥ Related topic: "Transliterate text file"
+### License
+Starting with version 2.9.5, the license for Bol Processor has changed.  BP2 is now "free software"
+distributed under a simple permissive license called the 'BSD license'.  This license permits
+anyone who receives a copy of the Bol Processor program or source code to use, modify, and 
+distribute the program or source code provided that they comply with some simple conditions.
+For the complete terms under which BP2 may be used and redistributed, please read the new license.
+To view the license for BP2, please click on 'License' in the About box, or read the 
+accompanying file, 'License.txt' for details.
+### Free software
+Free software is a term used to describe software that gives all users the freedom to use, modify,
+and distribute the software.  It does not refer to the price of the software.  Since modifying the
+software requires the source code, it is implied that access to the source code is given to all
+users as well.  This concept originated with the GNU project which is supported by the Free Software
+Foundation.  For more information about the free software philosophy, you can visit their web site
+at <http://www.fsf.org/>.
 ### END OF BP2 help

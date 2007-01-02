@@ -1,5 +1,5 @@
-// Bol Processor version BP2.9.4
-// General settings file saved as '-se.startup'. Date: Ven 17 nov 2000 -- 14:50
+// Bol Processor version BP2.9.5
+// General settings file saved as '-se.startup'. Date: Tue, Jan 2, 2007 -- 1:09 PM
 1
  
 10
@@ -52,8 +52,8 @@
 0
 1
 2
-20463 ° IAC Bus #1
-27109 QuickTime Music
+18272 ° IAC Bus #1
+31600 QuickTime Music
 1
 0
 1
@@ -194,10 +194,10 @@
 155
 164
 1
-612
+756
 0
-624
-832
+768
+1024
 1
 281
 14
@@ -209,10 +209,10 @@
 439
 599
 1
-599
-277
-611
-832
+743
+341
+755
+1024
 1
 43
 6

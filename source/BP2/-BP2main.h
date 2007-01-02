@@ -8,7 +8,7 @@ QDGlobals Qd;
 
 GWorldPtr gMainGWorld;
 GDHandle gCurDev;
-int Version = 23; /* 2.9.4 */
+int Version = 24; /* 2.9.5 */
 
 
 // OMS globals
@@ -109,7 +109,8 @@ char Code[] = {'\0','?','#','+',':',';','=','¥','(',')','S','/','{','}',',','<',
 	'>','É','&','&','!','*','{','}'};
 char VersionName[][VERSIONLENGTH] = {"-","V.2.1","V.2.2","V.2.3","V.2.4","V.2.5",
 	"V.2.5.1","V.2.5.2","V.2.6","BP2.6.1","BP2.6.2","BP2.6.3","BP2.7","BP2.7.1","BP2.7.2",
-	"BP2.7.3","BP2.7.4","BP2.8.0","BP2.8.1","BP2.9.0","BP2.9.1","BP2.9.2","BP2.9.3","BP2.9.4"};
+	"BP2.7.3","BP2.7.4","BP2.8.0","BP2.8.1","BP2.9.0","BP2.9.1","BP2.9.2","BP2.9.3","BP2.9.4",
+	"BP2.9.5"};
 char Arrowstring[] = "-->",GRAMstring[] = "gram#";
 char Portname[][8] = {"\0","Modem","Printer"};
 char ConventionString[][20] = {"ENGLISH","FRENCH","INDIAN","KEYS"};

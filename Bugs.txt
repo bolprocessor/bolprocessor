@@ -12,14 +12,10 @@ lines of code in FillPhaseDiagram.c (line 902):
 				goto ENDDIAGRAM;
 				}
 
-- The coloring of menu items in the File menu is off by one since the
-addition of the "Make grammar from table" item in vs. 2.9.4.
-
-- The ID string and the about box need their version numbers updated for
-2.9.5 beta.
+- Several "variable used before initialized" warnings should be investigated.
 
 
 Anthony Kozar
 akozar@users.sourceforge.net
 
-April 28, 2006
+January 2, 2007

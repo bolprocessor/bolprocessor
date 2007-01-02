@@ -4,8 +4,8 @@
 // ------  This is the common header used by Bol Processor BP2 --------
 // --------------------------------------------------------------------
 
-#define IDSTRING "Version 2.9.4 (Oct.99) --> make grammars from tables + automatic transliteration"
-#define MAXVERSION 24
+#define IDSTRING "Version 2.9.5 (Jan 2007)"
+#define MAXVERSION 25
 
 #define _H_BP2
 
@@ -14,8 +14,11 @@
 #endif
 
 
-// 1 for debugging, 0 otherwise
+// 1 for debugging memory, 0 otherwise
 #define BIGTEST 0
+
+// 1 to execute Beta tests for data validity, 0 otherwise
+#define COMPILING_BETA 0
 
 // Select compilation option
 #define MACOS 1
@@ -28,6 +31,7 @@
 
 #define OBSOLETE 0
 
+// 1 to use WASTE for text editing, 0 to use TextEdit instead
 #define WASTE 1
 
 // See BP2 history regarding NEWTIMER

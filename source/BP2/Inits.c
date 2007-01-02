@@ -54,10 +54,14 @@ for(i=0; i < 15; i++) MoreMasters(); /* Create more space for handle master poin
 
 FlushEvents(everyEvent,0);
 
-//////////////////////////////////
+////////////////////////////////////
 ////   Is this a beta version?  ////
-      Beta = YES;       ////
-//////////////////////////////////
+#if	COMPILING_BETA
+      Beta = YES;
+#else
+	Beta = NO;
+#endif
+////////////////////////////////////
 
 // In this part we systematically initialise ALL global variables
 
