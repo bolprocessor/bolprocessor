@@ -1,21 +1,4 @@
-Version 2.9.3 of Bol Processor has been developed thanks to feedback and cooperation of several musicians and computer scientists.
-
-Among them:
-
-Harm Visser and Thierry Montaudon have been in contact with the designers for several months, using BP2 to compose music in Western contemporary style.  This prompted the development of tools enhancing the syntactic model.  See their musical examples in the folder on contemporary Western music and in the "NEW EXAMPLES" folder.
-
-Thanks to Jim Ross, Tom Demeyer, Nadaka and Didier, Paul Sheldon, Sterling Beckwith for comments, code examples, help in uploading and distributing.  To Otto Laske and Jim Kippen for supporting the underlying research work.  To Barry Vercoe for encouraging work with Csound.  And to the GMEB folks in Bourges for their 1997 award...
-
-Internet newsgroups for Mac software developers such as the CSMP compilation are great help to us.
-
-Last but not least, EvangeListas keep the spirits high broadcasting news about the impressive development of MacOS and Rhapsody.
-(To join the list, send e-mail to: <majordomo@public.lists.apple.com> and include in the body of the message the text: "subscribe EvangeList")
-
-Bernard Bel <bel@kagi.com>    ---   October 1998
-Srikumar Karaikudi Subramanian <srikumar@krdl.org.sg>
-
---------------------------------------------
-Bol Processor is based on initial work by ethnomusicologist Jim Kippen and computer scientist Bernard Bel in the early 1980s.  Their work was granted support by:
+Bol Processor is based on initial work by ethnomusicologist Jim Kippen and computer scientist Bernard Bel in the early 1980s.  Their work had been granted support by:
 
 - International Society for Traditional Arts Research (ISTAR, New Delhi)
 - Department of Social and Cultural Anthropology, University of Belfast (UK)
@@ -28,3 +11,7 @@ Further development between 1986 and 1998 was part of research projects under th
 - Groupe Représentation et Traitement des Connaissances (GRTC, CNRS, France)
 - Association ISTAR France
 - Centre de Sciences Humaines (CSH, French Ministry of External Affairs, New Delhi)
+
+Version 2.9.5 of Bol Processor has been developed thanks to feedback and cooperation of several musicians and computer scientists.
+
+Thanks to Harm Visser, Jim Ross, Tom Demeyer, Nadaka and Didier, Paul Sheldon, and Sterling Beckwith for musical material, comments, code examples, help in uploading and distributing.  To Otto Laske and Jim Kippen for supporting the underlying research work.  To Srikumar Karaikudi Subramanian for additional development of BP2.  To Barry Vercoe for encouraging work with Csound.  And to the GMEB folks in Bourges for their 1997 award...

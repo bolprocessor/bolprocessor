@@ -81,8 +81,8 @@ be caused by compiling at Level 3.
 
 If you want to follow or contribute to the development of BP3, then you
 will probably want to join the Bol Processor Development mailing list hosted
-with the Sourceforge project.  (The BP2 mailing list at
-<bp2-list@yahoogroups.com> is for user discussions).
+with the Sourceforge project.  See 
+<http://lists.sourceforge.net/mailman/listinfo/bolprocessor-devel>
 
 Please also feel free to contact me if you have problems with compiling the
 code or other questions.
