@@ -17,6 +17,8 @@
 		Version defines/globals.
 		New #define COMPILING_BETA to set Beta global.  (May move to prefix file).
 
+	* source/BP2/BP2main.c (main): Commented out the call to Y2K().
+
 2006-06-06	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	* source/BP2/BP2main.c (main):
 	* source/BP2/MenuCommands.c (mAbout):

@@ -104,7 +104,7 @@ HideWindow(Window[wInfo]);
 // if(CheckRegistration() != OK) goto END;
 
 // Let's have some fun in year 2000
-Y2K();
+// Y2K();  // not needed anymore :-) 010207 akozar
 
 if(MustChangeInput) goto NOEVENT;
 
