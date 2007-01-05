@@ -1381,7 +1381,7 @@ while(GetTextChar(w,i) != ')') {
 	if(i >= length) return(FAILED);
 	}
 SetSelect(iend,i,TEH[w]);
-ActivateWindow(SLOW,w);
+BPActivateWindow(SLOW,w);
 if(Jcontrol != 8 && Jcontrol != 16 && Jcontrol != 36) return(OK);
 
 /* Look for particular settings on same line */
@@ -1579,7 +1579,7 @@ if(Mute) {
 	Mute = FALSE;
 	HideWindow(Window[wInfo]);
 	MaintainMenus();
-	ActivateWindow(SLOW,wControlPannel);
+	BPActivateWindow(SLOW,wControlPannel);
 	return(FAILED);
 	}
 if(SoundOn) {

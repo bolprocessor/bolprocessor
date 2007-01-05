@@ -316,7 +316,7 @@ if(Pclock > 0.) {
 	else {
 		if((kpress >= 4. && NotSaidKpress) || kpress >= 100.) {
 			NotSaidKpress = FALSE;
-			ActivateWindow(SLOW,wTimeAccuracy);
+			BPActivateWindow(SLOW,wTimeAccuracy);
 			if(kpress < 100.)
 				sprintf(Message,"This item is quite complex. Quantization is recommended (compression rate > %u). Set it to %ldms",
 					(unsigned long)kpress,Quantization);
@@ -542,8 +542,8 @@ thelimit = ULONG_MAX - 10.;
 if(imax >= thelimit) {
 TOOBIG:
 	if(Pclock < 1.) {
-		ActivateWindow(SLOW,wTimeAccuracy);
-		ActivateWindow(SLOW,wMetronom);
+		BPActivateWindow(SLOW,wTimeAccuracy);
+		BPActivateWindow(SLOW,wMetronom);
 		if(!ScriptExecOn) Alert1("Quantization is required but you must set a metronom value");
 		else {
 			Pclock = Qclock = 1.;
@@ -575,7 +575,7 @@ SETMETRONOM:
 		SetGrammarTempo();
 		}
 	if(!QuantizeOK) {
-		ActivateWindow(SLOW,wTimeAccuracy);
+		BPActivateWindow(SLOW,wTimeAccuracy);
 		rep = Answer("Set ÔQuantizeÕ to true (no other way!)",'Y');
 		if(rep != YES && Answer("Do you really want to abort this job",'Y') == YES) {
 			r = ABORT;
@@ -622,7 +622,7 @@ SETMETRONOM:
 				}
 			}
 		newquantize = (long) x;
-		ActivateWindow(SLOW,wTimeAccuracy);
+		BPActivateWindow(SLOW,wTimeAccuracy);
 		sprintf(Message,"Quantization of %ldms may be increased to reduce memory requirement (%ldms will work)",
 			(long) Quantization,(long) newquantize);
 		if(!ScriptExecOn && !alreadychangedquantize) Alert1(Message);
@@ -665,7 +665,7 @@ SETQUANTIZE:
 		Quantization = newquantize;
 		UpdateDirty(TRUE,iSettings);
 		SetTimeAccuracy();
-		ActivateWindow(SLOW,wTimeAccuracy);
+		BPActivateWindow(SLOW,wTimeAccuracy);
 		MyDisposeHandle((Handle*)&p_nseq);
 		MyDisposeHandle((Handle*)&p_nseqmax);
 		goto FINDCOMPRESSION;

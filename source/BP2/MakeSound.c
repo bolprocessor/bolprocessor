@@ -1754,7 +1754,7 @@ if(!FirstTime && !PlayPrototypeOn
 			if(Beta) Alert1("Err. MakeSound(). *pp_b == NULL");
 			}
 		else {
-			ActivateWindow(SLOW,wData);
+			BPActivateWindow(SLOW,wData);
 			PrintArg(DisplayMode(pp_b,&ifunc,&hastabs),FALSE,TRUE,FALSE,ifunc,FALSE,stdout,wData,pp_Scrap,pp_b);
 			DataEnd = GetTextLength(wData);
 			SetSelect(DataOrigin,GetTextLength(wData)-1,TEH[wData]);

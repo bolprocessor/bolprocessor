@@ -152,7 +152,7 @@ MaxComputeTime = ZERO;
 Nplay = 1; SynchroSignal = OFF;
 if(!PlaySelectionOn && InitThere == 1) FirstTime = TRUE;
 else FirstTime = FALSE;
-if(!PlaySelectionOn && DisplayItems && !template) ActivateWindow(SLOW,OutputWindow);
+if(!PlaySelectionOn && DisplayItems && !template) BPActivateWindow(SLOW,OutputWindow);
 
 if(!PlaySelectionOn && (AllItems || template)) {
 	ProduceAll(&Gram,pp_a,template);
@@ -253,7 +253,7 @@ if((((r=Compute(pp_a,1,Gram.number_gram,&lengthA,&repeat)) != OK) && !SkipFlag) 
 ////////////////////////////////////////////////////////////////////////////
 
 if(!ShowGraphic && !PlaySelectionOn && DisplayItems)
-	ActivateWindow(QUICK,OutputWindow);
+	BPActivateWindow(QUICK,OutputWindow);
 Final = TRUE;
 ResetDone = ifunc = FALSE;
 OkShowExpand = FALSE;
@@ -279,7 +279,7 @@ if(!PlaySelectionOn && DisplayItems) {
 	if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
 	DataEnd = GetTextLength(OutputWindow);
 	SetSelect(DataOrigin,DataEnd,TEH[OutputWindow]);
-	ActivateWindow(SLOW,OutputWindow);
+	BPActivateWindow(SLOW,OutputWindow);
 	Dirty[OutputWindow] = TRUE;
 	}
 if((!DisplayItems || PlaySelectionOn) && (OutMIDI || OutCsound || WriteMIDIfile)) {
@@ -306,7 +306,7 @@ if(ResetControllers) ResetMIDIControllers(YES,NO,YES);
 PedalOrigin = -1;
 Maxitems = ZERO;
 if(!ShowGraphic && !PlaySelectionOn && DisplayItems && !template) {
-	ActivateWindow(SLOW,OutputWindow);
+	BPActivateWindow(SLOW,OutputWindow);
 	}
 if(!PlaySelectionOn) {
 	if(Improvize) AppendScript(147);
@@ -361,7 +361,7 @@ long origin,neworigin,end,pos,posmax;
 
 if(!CompiledGr) return(FAILED);
 w = LastEditWindow;
-ActivateWindow(SLOW,w);
+BPActivateWindow(SLOW,w);
 p_a = NULL; pp_a = &p_a;
 origin = (**(TEH[w])).selStart; end = (**(TEH[w])).selEnd;
 SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
@@ -431,11 +431,11 @@ while(origin < end) {
 	neworigin = origin;
 	if((r = SelectionToBuffer(FALSE,FALSE,w,pp_a,&neworigin,ANAL)) != OK) {
 		MyDisposeHandle((Handle*)pp_a);
-		ActivateWindow(SLOW,wTrace);
+		BPActivateWindow(SLOW,wTrace);
 		r = FAILED; goto END;
 		}
 	SetSelect(origin,neworigin,TEH[w]);
-	ActivateWindow(QUICK,w);
+	BPActivateWindow(QUICK,w);
 	SelectBehind(origin,origin,TEH[w]);
 	origin = neworigin;
 	PleaseWait();
@@ -724,7 +724,7 @@ if(template && ItemNumber > 10L) SysBeep(10);
 HideWindow(Window[wInfo]);
 if((*p_gram).hasTEMP && template) {
 	ShowSelect(CENTRE,wGrammar);
-	ActivateWindow(SLOW,wGrammar);
+	BPActivateWindow(SLOW,wGrammar);
 	}
 ItemNumber = 0L;
 return(r);

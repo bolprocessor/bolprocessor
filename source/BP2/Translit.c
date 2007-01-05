@@ -76,7 +76,7 @@ if(imax == 0) goto TRYREAD;
 grammarfromtableptr = GetNewDialog(GrammarFromTableID,0L,0L);
 ResetGrammarFromTableDialog(grammarfromtableptr);
 
-ActivateWindow(SLOW,wNotice);
+BPActivateWindow(SLOW,wNotice);
 PreviewLine(p_line,TRUE);
 
 
@@ -565,10 +565,10 @@ LoadOn--;
 
 if(result != OK) Println(wGrammar,"\r\r<< Reading grammar from table aborted >>");
 if(appendtoalphabet) {
-	ActivateWindow(SLOW,wAlphabet);
+	BPActivateWindow(SLOW,wAlphabet);
 	ShowSelect(CENTRE,wAlphabet);
 	}
-ActivateWindow(SLOW,wGrammar);
+BPActivateWindow(SLOW,wGrammar);
 ShowSelect(CENTRE,wGrammar);
 if(errors > 0) {
 	Alert1("Incomplete lines (no left argument) were ignored. See empty rules in grammar");
@@ -584,7 +584,7 @@ Dirty[wScrap] = FALSE;
 if(result == OK && rulefound && Answer("Check determinism",'Y') == YES) {
 	if(CompileCheck() != OK) return(FAILED);
 	if(CheckDeterminism(&Gram) == FAILED) {
-		ActivateWindow(SLOW,wScrap);
+		BPActivateWindow(SLOW,wScrap);
 		Alert1("Check original line numbers in ‘Scrap’ window");
 		}
 	}
@@ -785,7 +785,7 @@ for(i=0; i < imax; i++) {
 	if((*p_completeline)[i] == '\t') nfields++;
 	}
 if(nfields > maxfields) maxfields = nfields;
-ActivateWindow(SLOW,wNotice);
+BPActivateWindow(SLOW,wNotice);
 PreviewLine(p_completeline,FALSE);
 
 filepreviewptr = GetNewDialog(SelectFieldID,0L,0L);

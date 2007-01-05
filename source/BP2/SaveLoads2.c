@@ -68,7 +68,7 @@ if(Created[iObjects]) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noErr);
 else good = NO;
 if(good) goto WRITE;
 if(NewFile(fn,&reply)) {
-	i = CreateFile(iObjects,-1,FileType[iObjects],fn,&reply,&refnum);
+	i = CreateFile(iObjects,-1,gFileType[iObjects],fn,&reply,&refnum);
 	(*p_spec) = reply.sfFile;
 	if(i == ABORT) return(FAILED);
 	if(i == OK) {
@@ -338,7 +338,7 @@ FIND:
 	if(Option) r = Answer("Open old sound-object prototype file (text created by HyperMIDI)",'N');
 	else r = NO;
 	if(r == ABORT) return(r);
-	type = FileType[iObjects]; if(r == YES) type = 0;
+	type = gFileType[iObjects]; if(r == YES) type = 0;
 	if(!OldFile(iObjects,type,PascalLine,&spec)) return(ABORT);
 	if(FileName[iObjects][0] == '\0') {
 		MyPtoCstr(MAXNAME,PascalLine,FileName[iObjects]);
@@ -403,7 +403,7 @@ if(iv > 4) {
 					|| strcmp(line,FileName[wCsoundInstruments]) != 0) {
 				if(SaveCheck(wCsoundInstruments) == ABORT) goto MAXSOUNDS;
 				strcpy(FileName[wCsoundInstruments],line);
-				type = FileType[wCsoundInstruments];
+				type = gFileType[wCsoundInstruments];
 				c2pstr(line);
 				pStrCopy(line,spec.name);
 				spec.vRefNum = TheVRefNum[wCsoundInstruments];
@@ -884,7 +884,7 @@ result = FAILED;
 strcpy(Message,FileName[wGlossary]);
 strcpy(line,Message);
 p_line = p_completeline = NULL;
-type = FileType[wGlossary];
+type = gFileType[wGlossary];
 if(anyfile) type = 0;
 spec.vRefNum = TheVRefNum[wGlossary];
 spec.parID = WindowParID[wGlossary];
@@ -892,7 +892,7 @@ pStrCopy((char*)c2pstr(Message),spec.name);
 SetSelect(ZERO,GetTextLength(wGlossary),TEH[wGlossary]);
 TextDelete(wGlossary); CompiledGl = FALSE;
 if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-	if(CheckFileName(wGlossary,line,&spec,&refnum,FileType[wGlossary],TRUE) != OK) {
+	if(CheckFileName(wGlossary,line,&spec,&refnum,gFileType[wGlossary],TRUE) != OK) {
 		return(FAILED);
 		}
 	}
@@ -935,7 +935,7 @@ if(FSClose(refnum) != noErr) {
 HideWindow(Window[wMessage]);
 if(result == OK) {
 	SetSelect(ZERO,ZERO,TEH[wGlossary]);
-	if(manual) ActivateWindow(SLOW,wGlossary);
+	if(manual) BPActivateWindow(SLOW,wGlossary);
 	else UpdateWindow(FALSE,Window[wGlossary]);
 	LoadedGl = TRUE;
 	}

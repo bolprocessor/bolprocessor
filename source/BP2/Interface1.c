@@ -107,7 +107,7 @@ if(!AlertOn && (p_event->what == keyDown && ((p_event->modifiers & cmdKey) != 0)
 					&& OutMIDI && !PlayPrototypeOn) {
 				Mute = 1 - Mute;
 				MaintainMenus();
-				ActivateWindow(SLOW,wControlPannel);
+				BPActivateWindow(SLOW,wControlPannel);
 				if(Mute) {
 					sprintf(Message,"MUTE is ONÉÊ  cmd-space will turn if off");
 					FlashInfo(Message);
@@ -140,6 +140,7 @@ if(!AlertOn && (p_event->what == keyDown && ((p_event->modifiers & cmdKey) != 0)
 			break;
 		case 'é':	/* cmd option K */
 		case 'û':
+#if 0
 			if(Beta) {
 				if(Answer("Create a new key",'N') == YES) {
 					rep = AnswerWith("Enter admin passwordÉ","\0",Message);
@@ -151,6 +152,7 @@ if(!AlertOn && (p_event->what == keyDown && ((p_event->modifiers & cmdKey) != 0)
 					MakeNewKeyFile(FALSE);
 					}
 				}
+#endif
 			break;
 		case '?':
 		case '/':
@@ -272,9 +274,9 @@ switch(p_event->what) {
 			default:
 				if(GrafWindow[w]) {
 					if(w == wGraphic) ShowDuration(NO);
-					ActivateWindow(SLOW,w);
+					BPActivateWindow(SLOW,w);
 					}
-				else ActivateWindow(QUICK,w);
+				else BPActivateWindow(QUICK,w);
 				rep = DoContent(whichwindow,p_event,&intext);
 				goto END;
 				break;
@@ -347,7 +349,7 @@ DOTHECLICK:
 				else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
 				SystemClick(p_event,whichwindow);
 				ResetTickFlag = TRUE;
-				if(0 <= w && w < WMAX) ActivateWindow(SLOW,w);
+				if(0 <= w && w < WMAX) BPActivateWindow(SLOW,w);
 				if(ResumeStopOn) {
 					if(UndoFlag) BringToFront(ResumeUndoStopPtr);
 					else BringToFront(ResumeStopPtr);
@@ -364,7 +366,7 @@ DOTHECLICK:
 				if(whichwindow != FrontWindow()
 						&& ResumeStopPtr != FrontWindow()) {
 					Help = FALSE;
-					if(w >= 0 && w < WMAX) ActivateWindow(SLOW,w);
+					if(w >= 0 && w < WMAX) BPActivateWindow(SLOW,w);
 					else SelectWindow(whichwindow);
 					}
 				else {
@@ -386,8 +388,8 @@ DOTHECLICK:
 							}
 						if(saveport != NULL) SetPort(saveport);
 						else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
-						if(w == wScript) ActivateWindow(SLOW,wScriptDialog);
-						if(w == wScriptDialog) ActivateWindow(SLOW,wScript);
+						if(w == wScript) BPActivateWindow(SLOW,wScriptDialog);
+						if(w == wScriptDialog) BPActivateWindow(SLOW,wScript);
 						if(w == wData) ShowDuration(NO);
 						if(ResumeStopOn) {
 							if(UndoFlag) BringToFront(ResumeUndoStopPtr);
@@ -396,7 +398,7 @@ DOTHECLICK:
 						}
 					else {
 						Help = FALSE;
-						if(w < WMAX) ActivateWindow(QUICK,w);
+						if(w < WMAX) BPActivateWindow(QUICK,w);
 						else {
 							GetPort(&saveport);
 							SetPort(whichwindow);
@@ -415,7 +417,7 @@ DOTHECLICK:
 			case inGrow:
 				if(w == Nw /* && (!ClickRuleOn || w != wTrace) */) {
 					if(MyGrowWindow(w,p_event->where) == OK) {
-						if(w < WMAX) ActivateWindow(SLOW,w);
+						if(w < WMAX) BPActivateWindow(SLOW,w);
 						NewEnvironment = ChangedCoordinates[w] = TRUE;
 						}
 					}
@@ -427,7 +429,7 @@ DOTHECLICK:
 					if(whichwindow != FrontWindow()) {
 						if(w < WMAX) {
 							Help = FALSE;
-							ActivateWindow(SLOW,w);
+							BPActivateWindow(SLOW,w);
 							}
 						else SysBeep(10);
 						}
@@ -478,7 +480,7 @@ DOTHECLICK:
 							|| whichwindow == Window[wPrototype1]
 							|| whichwindow == Window[wScriptDialog]) {
 						if(1 || !Help) {
-							if(w >= 0 && w < WMAX) ActivateWindow(QUICK,w);
+							if(w >= 0 && w < WMAX) BPActivateWindow(QUICK,w);
 							else {
 								SelectWindow(whichwindow);
 								UpdateWindow(FALSE,whichwindow);
@@ -486,12 +488,12 @@ DOTHECLICK:
 							}
 						rep = DoDialog(p_event);
 						if((rep == OK || rep == AGAIN) && w < WMAX) {
-							ActivateWindow(SLOW,w);
+							BPActivateWindow(SLOW,w);
 							}
 						if(rep == DONE) rep = OK;
 						return(rep);
 						}
-					if(w >= 0 && w < WMAX) ActivateWindow(SLOW,w);
+					if(w >= 0 && w < WMAX) BPActivateWindow(SLOW,w);
 					else {
 						SelectWindow(whichwindow);
 						UpdateWindow(FALSE,whichwindow);
@@ -507,7 +509,7 @@ DOTHECLICK:
 						}
 					else {
 						Help = FALSE;
-						if(w < WMAX) ActivateWindow(QUICK,w);
+						if(w < WMAX) BPActivateWindow(QUICK,w);
 						}
 					if(w == wGraphic) {
 						ShowDuration(NO);
@@ -852,7 +854,7 @@ if(((w == wTrace || w == wHelp || GrafWindow[w]) && (r=ClearWindow(TRUE,w)) == O
 	for(w=0; w < WMAX; w++) {
 		if(FrontWindow() == Window[w]) break;
 		}
-	if(w < WMAX && w != wmem) ActivateWindow(SLOW,w);
+	if(w < WMAX && w != wmem) BPActivateWindow(SLOW,w);
 	sprintf(Message,"\"%s\"",WindowName[wmem]);
 	MystrcpyStringToTable(ScriptLine.arg,0,Message);
 	AppendScript(158);
@@ -909,7 +911,7 @@ return(OK);
 }
 
 
-ActivateWindow(int mode,int newNw)
+BPActivateWindow(int mode,int newNw)
 {
 Rect r,r1;
 FontInfo myInfo;
@@ -1453,7 +1455,7 @@ if((cntlCode=FindControl(p_event->where,theWindow,&theControl)) != 0) {
 			if(saveport != NULL) SetPort(saveport);
 				else if(Beta) Alert1("Err DoContent(). saveport == NULL");
 			AdjustGraph(TRUE,w,theControl);
-			if((rep=ActivateWindow(SLOW,w)) != OK) return(rep);
+			if((rep=BPActivateWindow(SLOW,w)) != OK) return(rep);
 			}
 		}
 	}

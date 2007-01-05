@@ -210,7 +210,7 @@ if(good) goto WRITE;
 reply.sfFile.vRefNum = TheVRefNum[wKeyboard];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[wKeyboard];
 if(NewFile(fn,&reply)) {
-	i = CreateFile(wKeyboard,-1,FileType[wKeyboard],fn,&reply,&refnum);
+	i = CreateFile(wKeyboard,-1,gFileType[wKeyboard],fn,&reply,&refnum);
 	(*p_spec) = reply.sfFile;
 	if(i == ABORT) return(FAILED);
 	if(i == OK) {
@@ -356,7 +356,7 @@ if(good) goto WRITE;
 reply.sfFile.vRefNum = TheVRefNum[wTimeBase];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[wTimeBase];
 if(NewFile(fn,&reply)) {
-	i = CreateFile(wTimeBase,-1,FileType[wTimeBase],fn,&reply,&refnum);
+	i = CreateFile(wTimeBase,-1,gFileType[wTimeBase],fn,&reply,&refnum);
 	*p_spec = reply.sfFile;
 	if(i == ABORT) return(FAILED);
 	if(i == OK) {
@@ -718,7 +718,7 @@ if(good) goto WRITE;
 reply.sfFile.vRefNum = TheVRefNum[wCsoundInstruments];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[wCsoundInstruments];
 if(NewFile(fn,&reply)) {
-	i = CreateFile(wCsoundInstruments,-1,FileType[wCsoundInstruments],fn,&reply,&refnum);
+	i = CreateFile(wCsoundInstruments,-1,gFileType[wCsoundInstruments],fn,&reply,&refnum);
 	*p_spec = reply.sfFile;
 	if(i == ABORT) return(FAILED);
 	if(i == OK) {
@@ -931,7 +931,7 @@ reply.sfFile.parID = WindowParID[iSettings];
 result = FAILED;
 
 if(NewFile(fn,&reply)) {
-	io = CreateFile(iSettings,iSettings,FileType[iSettings],fn,&reply,&refnum);
+	io = CreateFile(iSettings,iSettings,gFileType[iSettings],fn,&reply,&refnum);
 	*p_spec = reply.sfFile;
 	if(io == ABORT) return(FAILED);
 	MyPtoCstr(MAXNAME,fn,line);
@@ -1145,12 +1145,12 @@ else {
 	}
 strcpy(LineBuff,Message);
 strcpy(filename,LineBuff);
-type = FileType[iSettings];
+type = gFileType[iSettings];
 if(anyfile) type = 0;
 pStrCopy((char*)c2pstr(Message),spec.name);
 if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
 	rep = FAILED;
-	if(startup || (rep=CheckFileName(iSettings,LineBuff,&spec,&refnum,FileType[iSettings],TRUE)) != OK) {
+	if(startup || (rep=CheckFileName(iSettings,LineBuff,&spec,&refnum,gFileType[iSettings],TRUE)) != OK) {
 		sprintf(Message,"Can't find Ô%sÕ setting file...",LineBuff);
 		ShowMessage(TRUE,wMessage,Message);
 		return(rep);
@@ -1809,7 +1809,7 @@ result = FAILED;
 p_line = p_completeline = NULL;
 strcpy(Message,FileName[wInteraction]);
 strcpy(line,Message);
-type = FileType[wInteraction];
+type = gFileType[wInteraction];
 if(anyfile) type = 0;
 spec.vRefNum = TheVRefNum[wInteraction];
 spec.parID = WindowParID[wInteraction];
@@ -1817,7 +1817,7 @@ pStrCopy((char*)c2pstr(Message),spec.name);
 SetSelect(ZERO,GetTextLength(wInteraction),TEH[wInteraction]);
 TextDelete(wInteraction);
 if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-	if(CheckFileName(wInteraction,line,&spec,&refnum,FileType[wInteraction],TRUE) != OK) {
+	if(CheckFileName(wInteraction,line,&spec,&refnum,gFileType[wInteraction],TRUE) != OK) {
 		Interactive = FALSE;
 		SetButtons(TRUE);
 		UpdateDirty(TRUE,iSettings);
@@ -2066,7 +2066,7 @@ ShowMessage(TRUE,wMessage,"Saving MIDI orchestra fileÉ");
 if(FileName[wMIDIorchestra][0] == '\0') strcpy(Message,"-or.");
 else strcpy(Message,FileName[wMIDIorchestra]);
 pStrCopy((char*)c2pstr(Message),fn);
-type = FileType[wMIDIorchestra];
+type = gFileType[wMIDIorchestra];
 
 result = FAILED;
 rep = Answer("Export as text file",'N');
@@ -2152,7 +2152,7 @@ if(TestMIDIChannel > 0 && TestMIDIChannel <= MAXCHAN) {
 if(!manual) goto READIT;
 
 ShowMessage(TRUE,wMessage,"Locate MIDI orchestra fileÉ");
-type = FileType[wMIDIorchestra];
+type = gFileType[wMIDIorchestra];
 if(Option && Answer("Import any type of file",'Y') == OK) type = 0;
 if(OldFile(-1,type,PascalLine,&spec)) {
 	MyPtoCstr(255,PascalLine,FileName[wMIDIorchestra]);

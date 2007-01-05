@@ -896,7 +896,7 @@ if(Jbol < 3) {
 if(iProto < 2) iProto = 2;
 if(iProto >= Jbol) {
 	Alert1("Before designing prototypes you must load or create an alphabet");
-	ActivateWindow(SLOW,wAlphabet);
+	BPActivateWindow(SLOW,wAlphabet);
 	NeedAlphabet = TRUE;
 	iProto = 0;
 	return(FAILED);

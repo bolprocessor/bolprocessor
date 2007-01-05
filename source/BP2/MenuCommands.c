@@ -103,7 +103,7 @@ switch(Alert(AboutAlert,0L)) {
 			DisplayFile(wNotice,"Credits.txt");
 		if(wind < 0) r = RESUME;
 		wind = wNotice;
-		ActivateWindow(SLOW,wind);
+		BPActivateWindow(SLOW,wind);
 		break;
 	case bRegister:
 		DisplayFile(wNotice,"License.txt");
@@ -113,8 +113,8 @@ switch(Alert(AboutAlert,0L)) {
 		else r = OK;
 		break;
 	}
-if(r == OK && wind >= 0) ActivateWindow(SLOW,wind);
-else ActivateWindow(SLOW,Nw);
+if(r == OK && wind >= 0) BPActivateWindow(SLOW,wind);
+else BPActivateWindow(SLOW,Nw);
 return(r);
 }
 
@@ -174,7 +174,7 @@ ShowWindow(MIDIprogramPtr);
 SelectWindow(MIDIprogramPtr);
 UpdateDialog(MIDIprogramPtr,MIDIprogramPtr->visRgn); /* Needed to make static text visible */
 
-ActivateWindow(SLOW,wMIDIorchestra);
+BPActivateWindow(SLOW,wMIDIorchestra);
 return(OK);
 }
 
@@ -545,7 +545,7 @@ return(OK);
 
 mCsoundInstrumentsSpecs(int wind)
 {
-ActivateWindow(SLOW,wCsoundInstruments);
+BPActivateWindow(SLOW,wCsoundInstruments);
 return(OK);
 }
 
@@ -646,7 +646,7 @@ else {
 	HideWindow(Window[wMessage]);
 	}
 Jcontrol = -1;
-ActivateWindow(SLOW,wind);
+BPActivateWindow(SLOW,wind);
 return(OK);
 }
 
@@ -700,7 +700,7 @@ if((rep=CheckSettings()) == ABORT) return(rep);
 if(ResetProject(TRUE) != OK) return(FAILED);
 if(!ScriptExecOn) {
 	ShowWindow(Window[wAlphabet]);
-	ActivateWindow(SLOW,wGrammar);
+	BPActivateWindow(SLOW,wGrammar);
 	AppendScript(4);
 	}
 return(OK);
@@ -761,8 +761,8 @@ else {
 HideWindow(Window[wMessage]);
 Dirty[wData] = FALSE;
 if(!ScriptExecOn) {
-	ActivateWindow(QUICK,wStartString);
-	ActivateWindow(QUICK,wGrammar);
+	BPActivateWindow(QUICK,wStartString);
+	BPActivateWindow(QUICK,wGrammar);
 	}
 return(OK);
 
@@ -984,13 +984,13 @@ oldoutmidi = OutMIDI;
 badname = FALSE;
 if(w == wControlPannel || (!Editable[w] && !HasFields[w])) {
 	w = LastEditWindow;
-	ActivateWindow(QUICK,w);
+	BPActivateWindow(QUICK,w);
 	}
 if(LockedWindow[w]) return(FAILED);
 if(w == wScript) EndWriteScript();
 if(w == wScriptDialog) {
 	w = wScript; EndWriteScript();
-	ActivateWindow(SLOW,w);
+	BPActivateWindow(SLOW,w);
 	}
 if((w == wGrammar || w == iObjects || w == wGlossary || w == wInteraction
 		|| w == wAlphabet || w == wPrototype7 || w == wMIDIorchestra)
@@ -1064,7 +1064,7 @@ switch(w) {
 			if(iProto >= Jbol) iProto = 2;
 			SetPrototype(iProto);
 			SetCsoundScore(iProto);
-			ActivateWindow(SLOW,wPrototype1);
+			BPActivateWindow(SLOW,wPrototype1);
 			ObjectTry = ObjectMode = TRUE;
 	/*		CompileObjectScore(iProto,&longerCsound); */
 			StopWait();
@@ -1096,7 +1096,7 @@ if(FilePrefix[w][0] != '\0' && w != wTrace) {
 	sprintf(Message,"Locate ‘%s’ file…",FilePrefix[w]);
 	ShowMessage(TRUE,wMessage,Message);
 	}
-type = FileType[w];
+type = gFileType[w];
 if(anyfile) type = 0;
 result = FAILED;
 if(OldFile(w,type,fn,&spec)) {
@@ -1189,7 +1189,7 @@ if(OldFile(w,type,fn,&spec)) {
 			sprintf(Message,"\"%s\"",FileName[wAlphabet]);
 			MystrcpyStringToTable(ScriptLine.arg,0,Message);
 			if(FileName[wAlphabet][0] != '\0') AppendScript(24);
-			ActivateWindow(QUICK,wStartString);
+			BPActivateWindow(QUICK,wStartString);
 			result = OK;
 			}
 		else {
@@ -1228,7 +1228,7 @@ if(OldFile(w,type,fn,&spec)) {
 				}
 			if(result == OK) {
 				if(Editable[w]) SetSelect(ZERO,ZERO,TEH[w]);
-				ActivateWindow(SLOW,w);
+				BPActivateWindow(SLOW,w);
 				if(w == wAlphabet) {
 					GetMiName(); GetKbName(w);
 					GetCsName(w);
@@ -1246,7 +1246,7 @@ if(OldFile(w,type,fn,&spec)) {
 					if(LoadAlphabet(wData,&spec) != OK) return(OK);
 					if(result == OK && SmartCursor) result = CompileAlphabet();
 					}
-				if(w == wScript) ActivateWindow(SLOW,wScriptDialog);
+				if(w == wScript) BPActivateWindow(SLOW,wScriptDialog);
 				}
 			}
 		}
@@ -1259,7 +1259,7 @@ if(OldFile(w,type,fn,&spec)) {
 HideWindow(Window[wMessage]);
 if(Editable[w]) SetSelect(ZERO,ZERO,TEH[w]);
 if(result == OK) {
-	result = ActivateWindow(SLOW,w);
+	result = BPActivateWindow(SLOW,w);
 	if((w == wScript || w == wData || w == wGrammar) && !anyfile) Created[w] = TRUE;
 	}
 return(result);
@@ -1277,7 +1277,7 @@ if((wind == wGrammar || wind == wData || wind == wAlphabet)
 	|| CompileOn || GraphicOn || PolyOn)) return(FAILED);
 if((r=ClearWindow(FALSE,wind)) != OK) return(r);
 ForgetFileName(wind);
-if(!ScriptExecOn) ActivateWindow(SLOW,wind);
+if(!ScriptExecOn) BPActivateWindow(SLOW,wind);
 sprintf(Message,"\"%s\"",WindowName[wind]);
 MystrcpyStringToTable(ScriptLine.arg,0,Message);
 if(wind != wScript) AppendScript(25);
@@ -1372,7 +1372,7 @@ else {
 		}
 	}
 HideWindow(Window[wMessage]);
-/* ActivateWindow(SLOW,w); */
+/* BPActivateWindow(SLOW,w); */
 return(rep);
 }
 
@@ -1422,7 +1422,7 @@ if(SaveAs(fn,&spec,w) == OK) {
 	SetName(w,TRUE,TRUE);
 	Created[w] = TRUE;
 	}
-ActivateWindow(SLOW,w);
+BPActivateWindow(SLOW,w);
 return(OK);
 }
 
@@ -1446,7 +1446,7 @@ LoadSettings(anyfile,TRUE,FALSE,TRUE,&oms);
 sprintf(Message,"\"%s\"",FileName[iSettings]);
 MystrcpyStringToTable(ScriptLine.arg,0,Message);
 AppendScript(26);
-ActivateWindow(SLOW,wind);
+BPActivateWindow(SLOW,wind);
 return(OK);
 }
 
@@ -1486,7 +1486,7 @@ if(SaveSettings(NO,NO,fn,&spec) == OK) {
 	WindowParID[iSettings] = spec.parID;
 	Created[iSettings] = TRUE;
 	}
-ActivateWindow(SLOW,wind);
+BPActivateWindow(SLOW,wind);
 return(OK);
 }
 
@@ -1532,7 +1532,7 @@ else {
 		}
 	else SaveDecisions();
 	}
-ActivateWindow(SLOW,wind);
+BPActivateWindow(SLOW,wind);
 return(OK);
 }
 
@@ -1591,7 +1591,7 @@ switch (rep) {
 				else {
 					SetCsoundScore(iProto);
 					SetPrototype(iProto);
-					ActivateWindow(SLOW,wPrototype1);
+					BPActivateWindow(SLOW,wPrototype1);
 					ObjectTry = ObjectMode = TRUE;
 					CompileObjectScore(iProto,&longerCsound);
 					StopWait();
@@ -1759,7 +1759,7 @@ switch(LastAction) {
 			UpdateDirty(TRUE,UndoWindow);
 			Activate(TEH[UndoWindow]);
 			ShowSelect(CENTRE,UndoWindow);
-			ActivateWindow(SLOW,UndoWindow);
+			BPActivateWindow(SLOW,UndoWindow);
 			}
 		else LastAction = NO;
 		break;
@@ -1781,7 +1781,7 @@ switch(LastAction) {
 		UpdateDirty(TRUE,UndoWindow);
 		Activate(TEH[UndoWindow]);
 		ShowSelect(CENTRE,UndoWindow);
-		ActivateWindow(SLOW,UndoWindow);
+		BPActivateWindow(SLOW,UndoWindow);
 #endif
 		break;
 	case CUTDLG: break;
@@ -1796,7 +1796,7 @@ switch(LastAction) {
 		UpdateDirty(TRUE,UndoWindow);
 		Activate(TEH[UndoWindow]);
 		ShowSelect(CENTRE,UndoWindow);
-		ActivateWindow(SLOW,UndoWindow);
+		BPActivateWindow(SLOW,UndoWindow);
 #endif
 		break;
 	case PASTEDLG:
@@ -1813,7 +1813,7 @@ switch(LastAction) {
 		UpdateDirty(TRUE,UndoWindow);
 		Activate(TEH[UndoWindow]);
 		ShowSelect(CENTRE,UndoWindow);
-		ActivateWindow(SLOW,UndoWindow);
+		BPActivateWindow(SLOW,UndoWindow);
 #endif
 		break;
 	case SPACESELECTION:
@@ -1825,7 +1825,7 @@ switch(LastAction) {
 		UpdateDirty(TRUE,UndoWindow);
 		Activate(TEH[UndoWindow]);
 		ShowSelect(CENTRE,UndoWindow);
-		ActivateWindow(SLOW,UndoWindow);
+		BPActivateWindow(SLOW,UndoWindow);
 		break;
 	case DELETEDLG:
 		break;
@@ -2007,7 +2007,7 @@ if(Option && (r=Answer("Display tokenized grammar",'Y')) == YES) {
 	else Alert1("No token created in grammar");
 	}
 AppendScript(27);
-ActivateWindow(SLOW,wGrammar);
+BPActivateWindow(SLOW,wGrammar);
 if(ScriptExecOn) ScriptW = wGrammar;
 return(OK);
 }
@@ -2023,7 +2023,7 @@ if(Option && Answer("Display tokenized alphabet",'Y') == YES) {
 	else Alert1("No token created in alphabet");
 	}
 AppendScript(28); 
-ActivateWindow(SLOW,wAlphabet);
+BPActivateWindow(SLOW,wAlphabet);
 if(ScriptExecOn) ScriptW = wAlphabet;
 return(OK);
 }
@@ -2032,7 +2032,7 @@ return(OK);
 mData(int wind)
 {
 AppendScript(29); 
-ActivateWindow(SLOW,wData);
+BPActivateWindow(SLOW,wData);
 if(ScriptExecOn) ScriptW = wData;
 return(OK);
 }
@@ -2064,9 +2064,9 @@ BringToFront(TuningPtr);
 SetTuning();
 UpdateDialog(TuningPtr,TuningPtr->visRgn);
 
-ActivateWindow(SLOW,wSettingsTop);
-ActivateWindow(SLOW,wSettingsBottom);
-ActivateWindow(SLOW,wTimeAccuracy);
+BPActivateWindow(SLOW,wSettingsTop);
+BPActivateWindow(SLOW,wSettingsBottom);
+BPActivateWindow(SLOW,wTimeAccuracy);
 return(OK);
 }
 
@@ -2074,7 +2074,7 @@ return(OK);
 mInteraction(int wind)
 {
 AppendScript(31); 
-ActivateWindow(SLOW,wInteraction);
+BPActivateWindow(SLOW,wInteraction);
 if(ScriptExecOn) ScriptW = wInteraction;
 return(OK);
 }
@@ -2091,7 +2091,7 @@ if(CompiledGl && GlossGram.p_subgram != NULL && (CheckMemory() == OK)) {
 		}
 	}
 AppendScript(143); 
-ActivateWindow(SLOW,wGlossary);
+BPActivateWindow(SLOW,wGlossary);
 if(ScriptExecOn) ScriptW = wGlossary;
 return(OK);
 }
@@ -2100,7 +2100,7 @@ return(OK);
 mStartString(int wind)
 {
 AppendScript(32); 
-ActivateWindow(SLOW,wStartString);
+BPActivateWindow(SLOW,wStartString);
 if(ScriptExecOn) ScriptW = wStartString;
 return(OK);
 }
@@ -2109,7 +2109,7 @@ return(OK);
 mTrace(int wind)
 {
 AppendScript(34); 
-ActivateWindow(SLOW,wTrace);
+BPActivateWindow(SLOW,wTrace);
 if(ScriptExecOn) ScriptW = wTrace;
 return(OK);
 }
@@ -2127,7 +2127,7 @@ return(OK);
 mKeyboard(int wind)
 {
 AppendScript(38); 
-ActivateWindow(SLOW,wKeyboard);
+BPActivateWindow(SLOW,wKeyboard);
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
 return(OK);
@@ -2137,7 +2137,7 @@ return(OK);
 mScrap(int wind)
 {
 AppendScript(108); 
-ActivateWindow(SLOW,wScrap);
+BPActivateWindow(SLOW,wScrap);
 if(ScriptExecOn) ScriptW = wScrap;
 return(OK);
 }
@@ -2146,7 +2146,7 @@ return(OK);
 mNotice(int wind)
 {
 AppendScript(109); 
-ActivateWindow(SLOW,wNotice);
+BPActivateWindow(SLOW,wNotice);
 return(OK);
 }
 
@@ -2157,7 +2157,7 @@ int found=FALSE;
 
 AppendScript(35);
 found = TRUE;
-if(found) ActivateWindow(SLOW,wGraphic);
+if(found) BPActivateWindow(SLOW,wGraphic);
 else Alert1("First load or produce items…");
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
@@ -2168,8 +2168,8 @@ return(OK);
 mScript(int wind)
 {
 AppendScript(37); 
-ActivateWindow(SLOW,wScriptDialog);
-ActivateWindow(SLOW,wScript);
+BPActivateWindow(SLOW,wScriptDialog);
+BPActivateWindow(SLOW,wScript);
 return(OK);
 }
 
@@ -2183,7 +2183,7 @@ if(wind < 0 || wind >= WMAX || !Editable[wind]) {
 	return(OK);
 	}
 TargetWindow = LastEditWindow = wind;
-ActivateWindow(QUICK,wFindReplace);
+BPActivateWindow(QUICK,wFindReplace);
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
 SelectField(NULL,wFindReplace,fFind,TRUE);
@@ -2224,7 +2224,7 @@ if(rc > 0) {
 TextCopy(wind);
 // if(WASTE) TEFromScrap();
 SetSelect((**(TEH[wind])).selStart,(**(TEH[wind])).selStart,TEH[wind]);
-ActivateWindow(SLOW,wFindReplace);
+BPActivateWindow(SLOW,wFindReplace);
 SelectField(NULL,wFindReplace,fFind,TRUE);
 DialogPaste(Window[wFindReplace]);
 ZeroScrap();
@@ -2250,7 +2250,7 @@ ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
 TargetWindow = wind;
 FindReplace(FALSE);
-ActivateWindow(SLOW,wind);
+BPActivateWindow(SLOW,wind);
 return(OK);
 }
 
@@ -2490,7 +2490,7 @@ AppendScript(9);
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
 if(CompileCheck() != OK) SysBeep(10);
-else ActivateWindow(SLOW,wind);
+else BPActivateWindow(SLOW,wind);
 return(OK);
 }
 
@@ -2520,7 +2520,7 @@ if(WillRandomize) {
 	if(!AllowRandomize) {
 		Alert1("Since ‘_randomize’ was found, button ‘Allow randomize’ has been checked");
 		AllowRandomize = TRUE; SetButtons(TRUE);
-		ActivateWindow(QUICK,wSettingsTop);
+		BPActivateWindow(QUICK,wSettingsTop);
 		}
 	}
 else {
@@ -2620,7 +2620,7 @@ SetSelect(origin,end,TEH[wind]);
 DOIT:
 if(ScriptExecOn == 0) OkWait = OK;
 r = PlaySelection(wind);
-if(r == OK) ActivateWindow(SLOW,wind);
+if(r == OK) BPActivateWindow(SLOW,wind);
 return(r);
 }
 
@@ -2628,15 +2628,15 @@ return(r);
 mRandomSequence(int wind)
 {
 SetSeed();
-ActivateWindow(SLOW,wRandomSequence);
+BPActivateWindow(SLOW,wRandomSequence);
 return(OK);
 }
 
 
 mTimeBase(int wind)
 {
-ActivateWindow(SLOW,wMetronom);
-ActivateWindow(SLOW,wTimeBase);
+BPActivateWindow(SLOW,wMetronom);
+BPActivateWindow(SLOW,wTimeBase);
 AppendScript(173);
 return(OK);
 }
@@ -2644,7 +2644,7 @@ return(OK);
 
 mMetronom(int wind)
 {
-ActivateWindow(SLOW,wMetronom);
+BPActivateWindow(SLOW,wMetronom);
 AppendScript(179);
 return(OK);
 }
@@ -2652,7 +2652,7 @@ return(OK);
 
 mTimeAccuracy(int wind)
 {
-ActivateWindow(SLOW,wTimeAccuracy);
+BPActivateWindow(SLOW,wTimeAccuracy);
 /* BuildAutomaton(); */
 return(OK);
 }
@@ -2660,14 +2660,14 @@ return(OK);
 
 mBufferSize(int wind)
 {
-ActivateWindow(SLOW,wBufferSize);
+BPActivateWindow(SLOW,wBufferSize);
 return(OK);
 }
 
 
 mGraphicSettings(int wind)
 {
-ActivateWindow(SLOW,wGraphicSettings);
+BPActivateWindow(SLOW,wGraphicSettings);
 return(OK);
 }
 
@@ -2723,7 +2723,7 @@ SwitchOff(NULL,wPrototype1,bWithParameters);
 SetPrototype(iProto);
 SetCsoundScore(iProto);
 AppendScript(33);
-ActivateWindow(AGAIN,wPrototype1);	/* AGAIN avoids recursive call of mObjectPrototypes() */
+BPActivateWindow(AGAIN,wPrototype1);	/* AGAIN avoids recursive call of mObjectPrototypes() */
 DrawPrototype(iProto,wPrototype1,&PictFrame);
 CompileObjectScore(iProto,&longerCsound);
 StopWait();
@@ -2857,7 +2857,7 @@ OSErr io;
 
 if(ScriptExecOn || ResetScriptQueue() != OK) goto END;
 EndWriteScript();
-ActivateWindow(wScript,SLOW);
+BPActivateWindow(wScript,SLOW);
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 if(Dirty[wScript]) {
 	if(FileName[wScript][0] != '\0') Created[wScript] = TRUE;
@@ -2917,18 +2917,18 @@ if(r != ABORT && changed) {
 			ForgetFileName(wScript);
 			}
 		}
-	ActivateWindow(SLOW,wScript);
+	BPActivateWindow(SLOW,wScript);
 	Alert1("Script syntax is now OK. Changes have been recorded");
 	goto END;
 	}
 if(r != OK) {
 	Alert1("Syntax errors have been reported in the ‘Trace’ window");
-	ActivateWindow(SLOW,wTrace);
+	BPActivateWindow(SLOW,wTrace);
 	ShowSelect(CENTRE,wTrace);
 	}
 else {
 	Alert1("Script syntax is OK.\r(Smooth execution is not certified)");
-	ActivateWindow(SLOW,wScript);
+	BPActivateWindow(SLOW,wScript);
 	}
 
 END:
@@ -2940,6 +2940,6 @@ return(OK);
 mMIDIfilter(int wind)
 {
 
-ActivateWindow(SLOW,wFilter);
+BPActivateWindow(SLOW,wFilter);
 return(OK);
 }

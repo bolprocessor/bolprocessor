@@ -17,7 +17,7 @@ if(CheckMemory() != OK) return(ABORT);
 if(GetTuning() != OK) return(ABORT);
 if(!OutMIDI && !OutCsound) {
 	Alert1("Both MIDI and Csound outputs are inactive. Selection can't be played");
-	ActivateWindow(SLOW,wSettingsBottom);
+	BPActivateWindow(SLOW,wSettingsBottom);
 	return(FAILED);
 	}
 asked = FALSE;
@@ -33,7 +33,7 @@ if(w == wScript) {
 	}
 // if(WillRandomize) ReseedOrShuffle(RANDOMIZE);
 
-ActivateWindow(SLOW,w);
+BPActivateWindow(SLOW,w);
 origin = (**(TEH[w])).selStart;
 end = (**(TEH[w])).selEnd;
 improvize = FALSE;
@@ -157,7 +157,7 @@ if(improvize) {
 	}
 SetButtons(TRUE);
 if(r == OK) {
-	ActivateWindow(SLOW,LastComputeWindow);
+	BPActivateWindow(SLOW,LastComputeWindow);
 	ResetMIDI(TRUE);
 	if(ResetControllers) ResetMIDIControllers(YES,NO,NO);
 	}
@@ -336,7 +336,7 @@ if((*p_line)[0] == '\0') return(OK);
 if(GetTuning() != OK) return(ABORT);
 if(!OutMIDI && !OutCsound && !onlypianoroll) {
 	Alert1("Both MIDI and Csound outputs are inactive. Item can't be played");
-	ActivateWindow(SLOW,wSettingsBottom);
+	BPActivateWindow(SLOW,wSettingsBottom);
 	return(FAILED);
 	}
 
@@ -492,7 +492,7 @@ origin = (**(TEH[w])).selStart;
 end = (**(TEH[w])).selEnd;
 if(end <= origin) {
 	Alert1("Selection is empty");
-	ActivateWindow(SLOW,w);
+	BPActivateWindow(SLOW,w);
 	return(FAILED);
 	}
 showmessages = ShowMessages;
@@ -944,7 +944,7 @@ while(origin < end) {
 		if(OkShowExpand)
 			r = PrintArg(DisplayMode(&p_a,&ifunc,&hastabs),FALSE,FALSE,TRUE,FALSE,FALSE,stdout,wout,pp_Scrap,&p_a);
 		newend = (**(TEH[wout])).selEnd;
-		ActivateWindow(SLOW,wout);
+		BPActivateWindow(SLOW,wout);
 		}
 	MyDisposeHandle((Handle*)&p_a);
 	/* Could be NULL because of PolyExpand() */
@@ -1006,7 +1006,7 @@ while(origin < end) {
 		if(r == ABORT || r == EXIT) goto BAD;
 		r = PrintArg(DisplayMode(&p_a,&ifunc,&hastabs),FALSE,FALSE,TRUE,FALSE,FALSE,stdout,w,pp_Scrap,&p_a);
 		if(r != OK) goto BAD;
-		ActivateWindow(SLOW,w);
+		BPActivateWindow(SLOW,w);
 		UpdateDirty(TRUE,w);
 		newend = (**(TEH[w])).selEnd;
 		end += newend - oldend;

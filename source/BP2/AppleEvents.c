@@ -204,14 +204,14 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 				}
 			if(wind == wGlossary) {
 				LoadGlossary(FALSE,FALSE);
-				ActivateWindow(SLOW,wind);
+				BPActivateWindow(SLOW,wind);
 				if(print) mPrint(wind);
 				goto NEWINDEX;
 				}
 			if(wind == wInteraction) {
 				Interactive = TRUE; SetButtons(TRUE);
 				LoadInteraction(FALSE,FALSE);
-				ActivateWindow(SLOW,wind);
+				BPActivateWindow(SLOW,wind);
 				if(print) mPrint(wind);
 				goto NEWINDEX;
 				}
@@ -226,7 +226,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 					}
 				else {
 					iProto = 2;
-					ActivateWindow(SLOW,wPrototype1);
+					BPActivateWindow(SLOW,wPrototype1);
 					SetPrototype(iProto);
 					SetCsoundScore(iProto);
 					CompileObjectScore(iProto,&longerCsound);
@@ -263,7 +263,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 							SelectWindow(SixteenPtr);
 							UpdateDialog(SixteenPtr,SixteenPtr->visRgn); /* Needed to make static text visible */
 							
-							ActivateWindow(SLOW,wind);
+							BPActivateWindow(SLOW,wind);
 							break;
 						}
 					Created[wind] = FALSE;
@@ -332,7 +332,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 						GetFileNameAndLoadIt(wMIDIorchestra,wind,LoadMIDIorchestra);
 						LoadAlphabet(wData,&spec);
 						}
-					ActivateWindow(SLOW,wind);
+					BPActivateWindow(SLOW,wind);
 					if(print) mPrint(wind);
 					}
 				}
@@ -356,7 +356,7 @@ NEWINDEX:
 	}
 OUT:
 if(failedonce) {
-	ActivateWindow(SLOW,wTrace);
+	BPActivateWindow(SLOW,wTrace);
 	ShowSelect(CENTRE,wTrace);
 	}
 err = AEDisposeDesc(&docList);
@@ -556,7 +556,7 @@ if(size > 0) {
 	Strip(Message);
 	if(Message[0] != '\0' && strcmp(Message,FileName[wCsoundInstruments]) != 0) {
 		strcpy(FileName[wCsoundInstruments],Message);
-		type = FileType[wCsoundInstruments];
+		type = gFileType[wCsoundInstruments];
 		c2pstr(Message);
 		pStrCopy(Message,spec.name);
 		spec.vRefNum = TheVRefNum[wCsoundInstruments];

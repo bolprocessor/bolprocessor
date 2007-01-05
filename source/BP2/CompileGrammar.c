@@ -840,7 +840,7 @@ CompiledAl = TRUE;
 return(OK);
 
 ERR:
-ActivateWindow(SLOW,wTrace);
+BPActivateWindow(SLOW,wTrace);
 ShowMessage(TRUE,wMessage,"Can't compile alphabet");
 return(rep);
 }
@@ -1731,7 +1731,7 @@ static char *err[] = {
 	};
 
 if(!CompiledGr || Gram.trueBP) return(OK);
-ActivateWindow(SLOW,wTrace);
+BPActivateWindow(SLOW,wTrace);
 sprintf(Message,"\rThis is not a true BP grammar.\rThe following features are not standard:\r");
 Print(wTrace,Message);
 for(i=0; i < MAXNOTBPCASES; i++) {

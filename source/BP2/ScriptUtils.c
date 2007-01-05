@@ -37,9 +37,9 @@ else line[0] = '\0';
 switch(instr) {
 	case 0:	/* Expand selection */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if((w=GetWindowIndex(line,0)) != ABORT) {
+		if((w=BPGetWindowIndex(line,0)) != ABORT) {
 			if(check) return(OK);
-			ActivateWindow(SLOW,w); ScriptW = w;
+			BPActivateWindow(SLOW,w); ScriptW = w;
 			return(mExpandSelection(w));
 			}
 		else r = ABORT;
@@ -99,7 +99,7 @@ GOTIT:
 			MyPtoCstr(MAXNAME,spec.name,FileName[wGrammar]);
 			SetName(wGrammar,TRUE,TRUE);
 			if(LoadAlphabet(wGrammar,&spec) != OK) return(ABORT);
-			ActivateWindow(SLOW,wScript);
+			BPActivateWindow(SLOW,wScript);
 			}
 		else {
 			spec.vRefNum = CurrentVref;
@@ -110,7 +110,7 @@ GOTIT:
 				Print(wTrace,Message);
 				}
 			else {
-				if(CheckFileName(wGrammar,line,&spec,&refnum,FileType[wGrammar],FALSE)
+				if(CheckFileName(wGrammar,line,&spec,&refnum,gFileType[wGrammar],FALSE)
 					!= OK) return(ABORT);
 				MystrcpyStringToTable(ScriptLine.arg,0,line);
 				*p_newarg = TRUE;
@@ -127,41 +127,41 @@ GOTIT:
 		break;
 	case 6:	/* Select all window: */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if((w=GetWindowIndex(line,0)) != ABORT) {
+		if((w=BPGetWindowIndex(line,0)) != ABORT) {
 			ScriptW = w;
 			if(check) return(OK);
-			ActivateWindow(SLOW,w);
+			BPActivateWindow(SLOW,w);
 			SelectBehind(ZERO,GetTextLength(w),TEH[w]);
 			}
 		else r = FAILED;
 		break;
 	case 7:	/* Print window: */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if((w=GetWindowIndex(line,0)) != ABORT) {
+		if((w=BPGetWindowIndex(line,0)) != ABORT) {
 			ScriptW = w;
 			if(check) return(OK);
-			ActivateWindow(SLOW,w);
+			BPActivateWindow(SLOW,w);
 			r = mPrint(w);
 			}
 		else r = FAILED;
 		break;
 	case 12:	/* Analyze selection window: */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if((w=GetWindowIndex(line,0)) != ABORT) {
+		if((w=BPGetWindowIndex(line,0)) != ABORT) {
 			ScriptW = w;
 			if(check) return(OK);
-			ActivateWindow(SLOW,w);
+			BPActivateWindow(SLOW,w);
 			if(mAnalyze(w) == ABORT) r = ABORT;
 			}
 		else r = ABORT;
 		break;
 	case 13:	/* Play selection window: */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if((w=GetWindowIndex(line,0)) != ABORT) {
+		if((w=BPGetWindowIndex(line,0)) != ABORT) {
 			ScriptW = w;
 			if(check) return(OK);
 			if((r=WaitForEmptyBuffer()) != OK) return(r);
-			ActivateWindow(SLOW,w);
+			BPActivateWindow(SLOW,w);
 			r = PlaySelection(w);
 			if(r == FAILED) r = OK;
 			}
@@ -372,7 +372,7 @@ GOTIT2:
 						spec.vRefNum = CurrentVref;
 						spec.parID = CurrentDir;
 						if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) goto GOTIT2;
-						if(CheckFileName(iObjects,line,&spec,&refnum,FileType[iObjects],FALSE) != OK)
+						if(CheckFileName(iObjects,line,&spec,&refnum,gFileType[iObjects],FALSE) != OK)
 							return(ABORT);
 						MystrcpyStringToTable(ScriptLine.arg,0,line); *p_newarg = TRUE;
 						CurrentDir = WindowParID[wCsoundInstruments]
@@ -444,7 +444,7 @@ GOTIT3:
 						spec.vRefNum = CurrentVref;
 						spec.parID = CurrentDir;
 						if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) goto GOTIT3;
-						if(CheckFileName(wInteraction,line,&spec,&refnum,FileType[wInteraction],FALSE)
+						if(CheckFileName(wInteraction,line,&spec,&refnum,gFileType[wInteraction],FALSE)
 							!= OK) return(ABORT);
 						MystrcpyStringToTable(ScriptLine.arg,0,line); *p_newarg = TRUE;
 						CurrentDir = WindowParID[wInteraction] = spec.parID;
@@ -491,7 +491,7 @@ GOTIT4:
 						spec.vRefNum = CurrentVref;
 						spec.parID = CurrentDir;
 						if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) goto GOTIT4;
-						if(CheckFileName(wGlossary,line,&spec,&refnum,FileType[wGlossary],FALSE)
+						if(CheckFileName(wGlossary,line,&spec,&refnum,gFileType[wGlossary],FALSE)
 							!= OK) return(ABORT);
 						MystrcpyStringToTable(ScriptLine.arg,0,line); *p_newarg = TRUE;
 						CurrentDir = WindowParID[wGlossary] = spec.parID;
@@ -602,7 +602,7 @@ GOTIT5:
 				if(LoadAlphabet(w,&spec) != OK) return(ABORT);
 				}
 			FSClose(refnum);
-			ActivateWindow(SLOW,wScript);
+			BPActivateWindow(SLOW,wScript);
 			}
 		else {
 			spec.vRefNum = CurrentVref;
@@ -620,7 +620,7 @@ GOTIT5:
 				Print(wTrace,Message);
 				}
 			else {
-				if(CheckFileName(w,line,&spec,&refnum,FileType[w],FALSE) != OK) return(ABORT);
+				if(CheckFileName(w,line,&spec,&refnum,gFileType[w],FALSE) != OK) return(ABORT);
 				MystrcpyStringToTable(ScriptLine.arg,0,line); *p_newarg = TRUE;
 				CurrentDir = WindowParID[w] = spec.parID;
 				ChangeDirInfo(CurrentDir,spec.vRefNum,p_posdir);
@@ -635,7 +635,7 @@ GOTIT5:
 		break;
 	case 25:	/* Clear window */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if((w=GetWindowIndex(line,0)) != ABORT) {
+		if((w=BPGetWindowIndex(line,0)) != ABORT) {
 			ScriptW = w;
 			if(check) return(OK);
 			return(mClearWindow(w));
@@ -664,7 +664,7 @@ GOTIT6:
 				spec.vRefNum = CurrentVref;
 				spec.parID = CurrentDir;
 				if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) goto GOTIT6;
-				if(CheckFileName(iSettings,line,&spec,&refnum,FileType[iSettings],FALSE)
+				if(CheckFileName(iSettings,line,&spec,&refnum,gFileType[iSettings],FALSE)
 						!= OK) return(ABORT);
 				MystrcpyStringToTable(ScriptLine.arg,0,line); *p_newarg = TRUE;
 				CurrentDir = WindowParID[iSettings] = spec.parID;
@@ -693,52 +693,52 @@ GOTIT6:
 		break;
 	case 27:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(!check) ActivateWindow(SLOW,wGrammar);
+		if(!check) BPActivateWindow(SLOW,wGrammar);
 		break;
 	case 28:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(!check) ActivateWindow(SLOW,wAlphabet);
+		if(!check) BPActivateWindow(SLOW,wAlphabet);
 		break;
 	case 29:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(!check) ActivateWindow(SLOW,wData);
+		if(!check) BPActivateWindow(SLOW,wData);
 		break;
 	case 30:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(!check) ActivateWindow(SLOW,wSettingsTop);
-		if(!check) ActivateWindow(SLOW,wSettingsBottom);
+		if(!check) BPActivateWindow(SLOW,wSettingsTop);
+		if(!check) BPActivateWindow(SLOW,wSettingsBottom);
 		break;
 	case 31:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(!check) ActivateWindow(SLOW,wInteraction);
+		if(!check) BPActivateWindow(SLOW,wInteraction);
 		break;
 	case 32:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(!check) ActivateWindow(SLOW,wStartString);
+		if(!check) BPActivateWindow(SLOW,wStartString);
 		break;
 	case 33:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(!check) ActivateWindow(SLOW,wPrototype1);
+		if(!check) BPActivateWindow(SLOW,wPrototype1);
 		break;
 	case 34:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(!check) ActivateWindow(SLOW,wTrace);
+		if(!check) BPActivateWindow(SLOW,wTrace);
 		break;
 	case 35:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(!check) ActivateWindow(SLOW,wGraphic);
+		if(!check) BPActivateWindow(SLOW,wGraphic);
 		break;
 	case 36:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(!check) ActivateWindow(SLOW,wControlPannel);
+		if(!check) BPActivateWindow(SLOW,wControlPannel);
 		break;
 	case 37:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(!check) ActivateWindow(SLOW,wScript);
+		if(!check) BPActivateWindow(SLOW,wScript);
 		break;
 	case 38:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(!check) ActivateWindow(SLOW,wKeyboard);
+		if(!check) BPActivateWindow(SLOW,wKeyboard);
 		break;
 	case 39:	/* Set vref: */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
@@ -754,10 +754,10 @@ GOTIT6:
 		break;
 	case 42:	/* Activate window */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if((w=GetWindowIndex(line,0)) != ABORT) {
+		if((w=BPGetWindowIndex(line,0)) != ABORT) {
 			ScriptW = w;
 			if(check) return(OK);
-			ActivateWindow(SLOW,w);
+			BPActivateWindow(SLOW,w);
 			}
 		else r = ABORT;
 		break;
@@ -979,7 +979,7 @@ GOTIT7:
 				spec.vRefNum = CurrentVref;
 				spec.parID = CurrentDir;
 				if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) goto GOTIT7;
-				if(CheckFileName(wScript,line,&spec,&refnum,FileType[wScript],FALSE) != OK) return(ABORT);
+				if(CheckFileName(wScript,line,&spec,&refnum,gFileType[wScript],FALSE) != OK) return(ABORT);
 				MystrcpyStringToTable(ScriptLine.arg,0,line); *p_newarg = TRUE;
 				CurrentDir = WindowParID[wScript] = spec.parID;
 				CurrentVref = TheVRefNum[wScript] = spec.vRefNum;
@@ -1405,11 +1405,11 @@ GOTIT7:
 		break;
 	case 108:	/* Display Scrap */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(!check) ActivateWindow(SLOW,wScrap);
+		if(!check) BPActivateWindow(SLOW,wScrap);
 		break;
 	case 109:	/* Display info */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(!check) ActivateWindow(SLOW,wNotice);
+		if(!check) BPActivateWindow(SLOW,wNotice);
 		break;
 	case 110:	/* BP2 script */
 		return(OK); break;
@@ -1594,7 +1594,7 @@ GOTIT7:
 	case 143:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(check) return(OK);
-		ActivateWindow(SLOW,wGlossary);
+		BPActivateWindow(SLOW,wGlossary);
 		break;
 	case 144: return(OK); break;
 	case 145:	/* Define... */
@@ -1659,10 +1659,10 @@ GOTIT7:
 		break;
 	case 151:	/* Play-show «int» times selection in window «windowname» */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if((w=GetWindowIndex(line,0)) != ABORT) {
+		if((w=BPGetWindowIndex(line,0)) != ABORT) {
 			ScriptW = w;
 			if(check) return(OK);
-			ActivateWindow(SLOW,w);
+			BPActivateWindow(SLOW,w);
 			Nplay = (*(ScriptLine.intarg))[0];
 			if((r=WaitForEmptyBuffer()) != OK) return(r);
 			return(mPlaySelect(w));
@@ -1701,7 +1701,7 @@ GOTIT7:
 		break;
 	case 158:	/* Hide window «windowname» */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if((w=GetWindowIndex(line,0)) != ABORT) {
+		if((w=BPGetWindowIndex(line,0)) != ABORT) {
 			ScriptW = w;
 			if(check) return(OK);
 			GoAway(w);
@@ -1741,7 +1741,7 @@ GOTIT7:
 		break;
 	case 164:	/* Set output window «windowname» */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if((w=GetWindowIndex(line,0)) != ABORT) {
+		if((w=BPGetWindowIndex(line,0)) != ABORT) {
 			if(check) return(OK);
 			OutputWindow = w;
 			}
@@ -1820,7 +1820,7 @@ BAD:
 	case 172: break; /* (- */
 	case 173:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(!check) ActivateWindow(SLOW,wTimeBase);
+		if(!check) BPActivateWindow(SLOW,wTimeBase);
 	case 174: break; /* Reset session time */
 	case 175: break; /* Tell session time */
 	case 176: /* Reset tick cycle */
@@ -1846,7 +1846,7 @@ BAD:
 		break;
 	case 179:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(!check) ActivateWindow(SLOW,wMetronom);
+		if(!check) BPActivateWindow(SLOW,wMetronom);
 	case 180: /* Set output Csound file «filename» */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(check) return(OK);
@@ -1956,7 +1956,7 @@ return(r);
 }
 
 
-GetWindowIndex(char* arg,int pos)
+BPGetWindowIndex(char* arg,int pos)
 {
 char *p,*q,line[MAXLIN];
 int w,j;

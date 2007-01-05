@@ -144,7 +144,7 @@ BADLUCK:
 		PrintBehindln(wHelp,target);
 		PrintBehindln(wHelp,"This item is not documented.");
 		ShowSelect(CENTRE,wHelp);
-		ActivateWindow(QUICK,wHelp);
+		BPActivateWindow(QUICK,wHelp);
 		pos2 = GetTextLength(wHelp);
 		break;
 		}
@@ -160,7 +160,7 @@ SetSelect(pos1,pos2,TEH[wHelp]);
 
 OUT:
 ShowSelect(CENTRE,wHelp);
-ActivateWindow(QUICK,wHelp);
+BPActivateWindow(QUICK,wHelp);
 BringToFront(Window[wHelp]);
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err DisplayHelp(). saveport == NULL");
@@ -187,7 +187,7 @@ if((io=MyOpen(&spec,fsRdPerm,&refnum)) == noErr) {
 	ShowWindow(Window[w]);
 	SetSelect(ZERO,ZERO,TEH[w]);
 	ShowSelect(UP,w);
-	ActivateWindow(QUICK,w);
+	BPActivateWindow(QUICK,w);
 	BringToFront(Window[w]);
 	LoadOn--;
 	return(OK);
@@ -939,7 +939,7 @@ do {
 				if(Answer("Alphabet file indicated keyboard encoding.\rType tokens instead of normal text",
 					'N') == OK) Token = TRUE;
 				}
-			type = FileType[wKeyboard];
+			type = gFileType[wKeyboard];
 			c2pstr(line); pStrCopy(line,fn);
 			pStrCopy(line,spec.name);
 			spec.vRefNum = TheVRefNum[wKeyboard];
@@ -1000,7 +1000,7 @@ do {
 		Strip(line);
 		if(strcmp(FileName[wfile],line) != 0) {
 			strcpy(FileName[wfile],line);
-			type = FileType[wfile];
+			type = gFileType[wfile];
 			c2pstr(line); pStrCopy(line,fn);
 			pStrCopy(line,spec.name);
 			spec.vRefNum = TheVRefNum[wfile];
@@ -1045,7 +1045,7 @@ do {
 		Strip(line);
 		if(strcmp(FileName[wCsoundInstruments],line) != 0) {
 			strcpy(FileName[wCsoundInstruments],line);
-			type = FileType[wCsoundInstruments];
+			type = gFileType[wCsoundInstruments];
 			c2pstr(line); pStrCopy(line,fn);
 			pStrCopy(line,spec.name);
 			spec.vRefNum = TheVRefNum[wCsoundInstruments];
@@ -1092,7 +1092,7 @@ do {
 		Strip(line);
 		if(strcmp(FileName[wTimeBase],line) != 0) {
 			strcpy(FileName[wTimeBase],line);
-			type = FileType[wTimeBase];
+			type = gFileType[wTimeBase];
 			c2pstr(line); pStrCopy(line,fn);
 			pStrCopy(line,spec.name);
 			spec.vRefNum = TheVRefNum[wTimeBase];
@@ -1487,7 +1487,7 @@ if(QuantizeOK) {
 		Alert1("Quantization requires a metronom value. It has been set to mm = 60");
 		Pclock = Qclock = 1000.;
 		SetTempo();
-		ActivateWindow(SLOW,wMetronom);
+		BPActivateWindow(SLOW,wMetronom);
 		}
 	}
 else {
@@ -2027,7 +2027,7 @@ EventRecord theEvent;
 int r,compiledmem,dirtymem;
 
 ShowSelect(CENTRE,wTrace);
-ActivateWindow(SLOW,wTrace);
+BPActivateWindow(SLOW,wTrace);
 ShowMessage(TRUE,wMessage,"Type answer!");
 while(!GetNextEvent(everyEvent,&theEvent) || ((theEvent.what != keyDown)
 		&& (theEvent.what != autoKey))) {

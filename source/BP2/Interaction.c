@@ -28,8 +28,8 @@ CompileInteraction(void)
 {
 int r;
 
-// This is a bit tricky: CompileInteraction() is invoked by ActivateWindow()
-// if CompiledIn is false. But RunScript() also invokes ActivateWindow().
+// This is a bit tricky: CompileInteraction() is invoked by BPActivateWindow()
+// if CompiledIn is false. But RunScript() also invokes BPActivateWindow().
 // Therefore, it is important to set CompiledIn to true until the end of the procedure.
 
 ResetInteraction();

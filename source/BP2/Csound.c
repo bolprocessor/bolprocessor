@@ -1594,7 +1594,7 @@ for(j=2; j < maxsounds; j++) {
 		SetCsoundScore(iProto);
 		ShowWindow(Window[wPrototype1]);
 		BringToFront(Window[wPrototype1]);
-		ActivateWindow(SLOW,wPrototype7);
+		BPActivateWindow(SLOW,wPrototype7);
 		CompiledCsObjects = FALSE;
 		rep = FAILED;
 		goto OUT;
@@ -1786,7 +1786,7 @@ NEWPARAMETER:
 						if((*p_CsoundInstr)[j] > 0) {
 							ShowWindow(Window[wPrototype1]);
 							BringToFront(Window[wPrototype1]);
-							ActivateWindow(SLOW,wPrototype8);
+							BPActivateWindow(SLOW,wPrototype8);
 							SelectField(NULL,wPrototype8,fForceToInstrument,TRUE);
 							sprintf(Message,"Perhaps the problem is that you forced this sound-object to use instrument %ld",
 								(long)param);
@@ -1932,7 +1932,7 @@ NEXTLINE:
 			if((*p_CsoundInstr)[j] > 0) {
 				ShowWindow(Window[wPrototype1]);
 				BringToFront(Window[wPrototype1]);
-				ActivateWindow(SLOW,wPrototype8);
+				BPActivateWindow(SLOW,wPrototype8);
 				SelectField(NULL,wPrototype8,fForceToInstrument,TRUE);
 				sprintf(Message,"Perhaps the problem is that this sound-object is instructed to use instrument %ld",
 					(long)param);
@@ -2043,7 +2043,7 @@ for(ievent=ZERO; ievent < (*p_CsoundSize)[j]; ievent++) {
 		if(instrumentindex > 1) {
 			Alert1("Can't decompile this Csound score. We need a ‘-cs’ file describing Csound instruments");
 			PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j);
-			ActivateWindow(SLOW,wCsoundInstruments);
+			BPActivateWindow(SLOW,wCsoundInstruments);
 			DurationToPoint(NULL,pp_CsoundTime,p_CsoundSize,j);
 			result = ABORT;
 			goto OUT;

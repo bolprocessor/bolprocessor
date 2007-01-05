@@ -272,7 +272,7 @@ extern int Freebottom[WMAX];
 extern short Editable[WMAX],IsHTML[WMAX],IsText[WMAX],Weird[WMAX];
 extern short HasFields[WMAX];
 extern short IsDialog[WMAX];
-extern short FileType[WMAX];
+extern short gFileType[WMAX];
 extern char **p_FileInfo[WMAX];
 extern Cursor EditCursor,WatchCursor,CrossCursor,HelpCursor,KeyboardCursor,
 	WheelCursor[4],FootCursor[8],DiskCursor[2];

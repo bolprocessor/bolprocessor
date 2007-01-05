@@ -168,7 +168,7 @@ if((*p_AlphaCtrl)[j]) {
       SelectField(NULL,wPrototype2,fSendAlphaControl,TRUE);
       if((*p_AlphaCtrl)[iProto]) {
          Alert1("Indicate controller # for sending dilation ratio");
-         ActivateWindow(SLOW,wPrototype2);
+         BPActivateWindow(SLOW,wPrototype2);
          return(ABORT);
          }
       }
@@ -181,7 +181,7 @@ if((*p_AlphaCtrl)[j]) {
       SelectField(NULL,wPrototype2,fSendAlphaChannel,TRUE);
       if((*p_AlphaCtrl)[iProto]) {
          Alert1("Indicate channel # for sending dilation ratio");
-         ActivateWindow(SLOW,wPrototype2);
+         BPActivateWindow(SLOW,wPrototype2);
          return(ABORT);
          }
       }

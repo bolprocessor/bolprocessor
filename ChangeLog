@@ -1,3 +1,16 @@
+2007-01-05	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	* source/BP2/Inits.c:
+	* source/BP2/Interface1.c:
+		#ifdefed out CheckRegistration(), Y2K(), and MakeNewKeyFile().
+		
+	* BP2-MacOS.cw8.mcp: New project file for CodeWarrior pro 8.
+	
+	* (36 files in source/BP2/):
+		Renamed ActivateWindow() to BPActivateWindow() and
+		GetWindowIndex() to BPGetWindowIndex() and 
+		FileType[] to gFileType[] to avoid conflicts with Univ. Headers 3.4.2.
+		Everything now compiles with CodeWarrior 8 and UH 3.4.2.
+
 2007-01-02	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	* VERSION 2.9.5 (FINAL)
 	

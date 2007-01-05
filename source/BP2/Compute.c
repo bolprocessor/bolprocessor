@@ -17,7 +17,7 @@ unsigned long ix;
 if((p_ItemStart == NULL) && MakeComputeSpace(MaxDeriv) != OK) return(ABORT);
 displayproducemem = DisplayProduce;
 if(DisplayProduce && !ScriptExecOn) {
-	ActivateWindow(QUICK,wTrace);
+	BPActivateWindow(QUICK,wTrace);
 	}
 again = FALSE;
 if((*p_repeat)) {
@@ -370,7 +370,7 @@ ENTER:
 				goto DOIT;
 				}
 			ShowMessage(TRUE,wMessage,"Click on selected derivation and resume!");
-			ActivateWindow(SLOW,wTrace);
+			BPActivateWindow(SLOW,wTrace);
 			SetSelect((**(TEH[wTrace])).selEnd,(**(TEH[wTrace])).selEnd,TEH[wTrace]);
 			ShowSelect(CENTRE,wTrace);
 			datemem = CompileDate;
@@ -403,7 +403,7 @@ ENTER:
 					}
 				if(i != firstposition || j != position) {
 					SetSelect(i,j,TEH[wTrace]);
-					ActivateWindow(SLOW,wTrace);
+					BPActivateWindow(SLOW,wTrace);
 					}
 				}
 			ClickRuleOn = FALSE;
@@ -799,7 +799,7 @@ if(grtype == SUBtype) {
 	lastpos = leftpos = ZERO; incmark = 0;
 	if(UseEachSub) {
 		if(!PlaySelectionOn && DisplayItems) {
-			ActivateWindow(QUICK,OutputWindow);
+			BPActivateWindow(QUICK,OutputWindow);
 			Dirty[OutputWindow] = TRUE;
 			datamode = DisplayMode(pp_b,&ifunc,&hastabs);
 			if((rep=PrintResult(datamode && hastabs,wTrace,hastabs,ifunc,pp_b)) != OK) goto QUIT;
@@ -2069,7 +2069,7 @@ if(DisplayProduce) {
 	datamode = DisplayMode(pp_a,&ifunc,&hastabs);
 	if(mode == ANAL || all) datamode = FALSE;
 	Dirty[wTrace] = TRUE;
-	ActivateWindow(QUICK,wTrace);
+	BPActivateWindow(QUICK,wTrace);
 	if(p_ItemStart == NULL
 			|| DisplayStackIndex >= MyGetHandleSize((Handle)p_ItemStart) / sizeof(long)) {
 		if(Beta) Alert1("Err. ShowItem(). p_ItemStart = NULL");

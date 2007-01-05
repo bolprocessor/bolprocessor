@@ -165,7 +165,7 @@ if(w == wTickDialog) {
 		case dOK:
 			GetThisTick();
 			HideWindow(Window[wTickDialog]);
-			ActivateWindow(QUICK,wTimeBase);
+			BPActivateWindow(QUICK,wTimeBase);
 			jj = dPlayBeat + 55*iTick + jTick;
 			GetDialogItem((DialogPtr)&DRecord[wTimeBase],(short)jj,&itemtype,(Handle*)&itemhandle,&r);
 			if(ThisTick[iTick][jTick] < 2) HiliteControl(itemhandle,11);
@@ -440,14 +440,14 @@ if(w == wTimeBase) {
 			SetTickParameters(0,MAXBEATS);
 			SetField(NULL,wTimeBase,fTimeBaseComment,"[Comment on time base]");
 			ForgetFileName(w);
-			ActivateWindow(SLOW,w);
+			BPActivateWindow(SLOW,w);
 			ResetTickFlag = TRUE;
 			i = -1;
 			break;
 		case dLoadTimeBase:
 			if((rep=mOpenFile(w)) != OK) return(rep);
 			ResetTickFlag = TRUE;
-			ActivateWindow(SLOW,w);
+			BPActivateWindow(SLOW,w);
 			return(DONE);
 		case dSaveAsTimeBase:
 			Created[wTimeBase] = FALSE;	/* No break! */
@@ -532,7 +532,7 @@ FINDBOX:
 						}
 					iTick = i; jTick = j;
 					SetThisTick();
-					ActivateWindow(SLOW,wTickDialog);
+					BPActivateWindow(SLOW,wTickDialog);
 					return(DONE);
 					}
 				}
@@ -597,7 +597,7 @@ if(w == wFindReplace) {
 			break;
 		case dCancel:
 			HideWindow(Window[wFindReplace]);
-			ActivateWindow(SLOW,TargetWindow);
+			BPActivateWindow(SLOW,TargetWindow);
 			return(DONE);
 			break;
 		case dIgnoreCase:
@@ -647,14 +647,14 @@ if(w == wKeyboard) {
 	switch(itemHit) {
 		case dLoad:
 			if((rep=mOpenFile(w)) != OK) return(rep);
-			ActivateWindow(SLOW,w);
+			BPActivateWindow(SLOW,w);
 			break;
 		case dSave:
 			mSaveFile(w);
 			break;
 		case dOK:
 			HideWindow(Window[w]);
-			ActivateWindow(SLOW,LastEditWindow);
+			BPActivateWindow(SLOW,LastEditWindow);
 			break;
 		case dToken:
 			Token = 1 - Token;
@@ -675,7 +675,7 @@ if(w == wScriptDialog) {
 		case bLoadScript:
 			EndWriteScript();
 			if((rep=mOpenFile(wScript)) != OK) return(rep);
-			ActivateWindow(SLOW,wScript);
+			BPActivateWindow(SLOW,wScript);
 			break;
 		case bSaveScript:
 			rep = mSaveFile(wScript);
@@ -1225,7 +1225,7 @@ if(w == wPrototype1) {
 			if(CheckiProto() != OK) return(DONE);
 			if(GetPrototype(TRUE) != OK) return(DONE);
 			if(CompileCsoundObjects() != OK) return(DONE);
-			ActivateWindow(QUICK,wPrototype5);
+			BPActivateWindow(QUICK,wPrototype5);
 			return(DONE);
 			break;
 		case bChangeInstrumentFile:
@@ -1284,30 +1284,30 @@ if(w == wPrototype1) {
 		
 		// Open other dialogs	
 		case bChannelInstrument:
-			ActivateWindow(SLOW,wPrototype8);
+			BPActivateWindow(SLOW,wPrototype8);
 			return(DONE);
 			break;
 		case bCsoundWindow:
 			if(CheckiProto() != OK) return(DONE);
 			SetCsoundScore(iProto);
-			ActivateWindow(SLOW,wPrototype7);
+			BPActivateWindow(SLOW,wPrototype7);
 			OutlineTextInDialog(wPrototype7,TRUE);
 			return(DONE);
 			break;
 		case bDurationPivot:
-			ActivateWindow(SLOW,wPrototype2);
+			BPActivateWindow(SLOW,wPrototype2);
 			return(DONE);
 			break;
 		case bCoverTruncate:
-			ActivateWindow(SLOW,wPrototype3);
+			BPActivateWindow(SLOW,wPrototype3);
 			return(DONE);
 			break;
 		case bContinuityPreRoll:
-			ActivateWindow(SLOW,wPrototype4);
+			BPActivateWindow(SLOW,wPrototype4);
 			return(DONE);
 			break;
 		case bPeriodCyclicObject:
-			ActivateWindow(SLOW,wPrototype6);
+			BPActivateWindow(SLOW,wPrototype6);
 			return(DONE);
 			break;
 			
@@ -1324,7 +1324,7 @@ if(w == wPrototype1) {
 				SetCsoundScore(iProto);
 				}
 			Hpos = -1;
-			if(PrototypeWindow(w)) ActivateWindow(QUICK,w);
+			if(PrototypeWindow(w)) BPActivateWindow(QUICK,w);
 			return(DONE);
 			break;
 		case bRightArrowPrototype:
@@ -1339,7 +1339,7 @@ if(w == wPrototype1) {
 				SetCsoundScore(iProto);
 				}
 			Hpos = -1;
-			if(PrototypeWindow(w)) ActivateWindow(QUICK,w);
+			if(PrototypeWindow(w)) BPActivateWindow(QUICK,w);
 			return(DONE);
 			break;
 		case bGoToPrototype:
@@ -1351,7 +1351,7 @@ if(w == wPrototype1) {
 			ShowObjects(w);
 			if(SetPrototype(iProto) != OK) iProto = i;
 			SetCsoundScore(iProto);
-			if(PrototypeWindow(w)) ActivateWindow(QUICK,w);
+			if(PrototypeWindow(w)) BPActivateWindow(QUICK,w);
 			Hpos = -1;
 			return(DONE);
 			break;
@@ -1403,7 +1403,7 @@ IMPORT:
 			Hpos = point.h;
 			(*p_Tpict)[iProto] = Infneg;
 			if(DrawPrototype(iProto,wPrototype1,&PictFrame) != OK) return(DONE);
-			if(w != wPrototype1) ActivateWindow(QUICK,w);
+			if(w != wPrototype1) BPActivateWindow(QUICK,w);
 			return(DONE);
 			break;
 			
@@ -1465,7 +1465,7 @@ if(w == wPrototype2) {
 		case bOKprototype2:
 			if(GetPrototype(YES) != OK) return(DONE);
 			HideWindow(Window[wPrototype2]);
-			ActivateWindow(QUICK,wPrototype1);
+			BPActivateWindow(QUICK,wPrototype1);
 	/*		return(DONE); */
 			break;
 		case bOKrescale:
@@ -1601,7 +1601,7 @@ if(w == wPrototype3) {
 		case bOKprototype3:
 			if(GetPrototype(YES) != OK) return(DONE);
 			HideWindow(Window[wPrototype3]);
-			ActivateWindow(QUICK,wPrototype1);
+			BPActivateWindow(QUICK,wPrototype1);
 	/*		return(DONE); */
 			break;
 		case bNeverCoverBeg:
@@ -1743,7 +1743,7 @@ if(w == wPrototype4) {
 		case bOKprototype4:
 			if(GetPrototype(YES) != OK) return(DONE);
 			HideWindow(Window[wPrototype4]);
-			ActivateWindow(QUICK,wPrototype1);
+			BPActivateWindow(QUICK,wPrototype1);
 	/*		DrawPrototype(iProto,wPrototype1,&PictFrame);
 			return(DONE); */
 			break;
@@ -1863,7 +1863,7 @@ if(w == wPrototype8) {
 			if(CompileObjectScore(iProto,&longerCsound) != OK) return(DONE);
 			StopWait();
 			HideWindow(Window[wPrototype8]);
-			ActivateWindow(QUICK,wPrototype1);
+			BPActivateWindow(QUICK,wPrototype1);
 	/*		return(DONE); */
 			break;
 		case bCopyFrom8:
@@ -1948,7 +1948,7 @@ if(w == wPrototype5) {
 			if(GetDialogValues(w) != OK) return(DONE);
 			if(GetPrototype(YES) != OK) return(DONE);
 			HideWindow(Window[wPrototype5]);
-			ActivateWindow(QUICK,wPrototype1);
+			BPActivateWindow(QUICK,wPrototype1);
 	/*		return(DONE); */
 			break;
 		case bRecordPrototype:
@@ -2130,7 +2130,7 @@ if(w == wPrototype6) {
 			if(GetDialogValues(w) != OK) return(DONE);
 			if(GetPrototype(YES) != OK) return(DONE);
 			HideWindow(Window[wPrototype6]);
-			ActivateWindow(QUICK,wPrototype1);
+			BPActivateWindow(QUICK,wPrototype1);
 	/*		return(DONE); */
 			break;
 		case bIrrelevantPeriod:
@@ -2205,7 +2205,7 @@ if(w == wPrototype7) {
 				Alert1(Message);
 				}
 			HideWindow(Window[wPrototype7]);
-			ActivateWindow(QUICK,wPrototype1);
+			BPActivateWindow(QUICK,wPrototype1);
 			return(DONE);
 			break;
 		case bImportScore:
@@ -2241,7 +2241,7 @@ if(w == wCsoundInstruments) {
 			break;
 		case bLoadCsoundInstruments:
 			if((rep=mOpenFile(w)) != OK) return(rep);
-			ActivateWindow(SLOW,w);
+			BPActivateWindow(SLOW,w);
 			return(DONE);
 			break;
 		case bSaveAsCsoundInstruments:
@@ -2390,7 +2390,7 @@ if(w == wCsoundInstruments) {
 			return(DONE);
 			break;
 		case bCsoundTables:
-			ActivateWindow(SLOW,wCsoundTables);
+			BPActivateWindow(SLOW,wCsoundTables);
 			return(DONE);
 			break;
 		case bDisplayAsText:
@@ -2423,7 +2423,7 @@ if(w == wCsoundTables) {
 	switch(itemHit) {
 		case bOKCsoundTables:
 			HideWindow(Window[wCsoundTables]);
-			ActivateWindow(SLOW,wCsoundInstruments);
+			BPActivateWindow(SLOW,wCsoundInstruments);
 			break;
 		}
 	return(DONE);

@@ -38,8 +38,8 @@ StepScript = FALSE;
 ScriptW = 0;
 Created[w] = FALSE;
 if(quick) goto DOIT;
-ActivateWindow(SLOW,wScriptDialog);
-ActivateWindow(SLOW,w);
+BPActivateWindow(SLOW,wScriptDialog);
+BPActivateWindow(SLOW,w);
 if(SaveCheck(w) == ABORT) goto QUIT1;
 if(FileName[w][0] == '\0') {
 	Alert1("You should first load a script or save the current one");
@@ -112,10 +112,10 @@ while(ReadLine(YES,w,&pos,posmax,&p_line,&gap) == OK) {
 	if((*p_line)[0] == '\0') continue;
 	if((r=MyButton(0)) != FAILED || StepScript) {
 		wmem = Nw;
-		ActivateWindow(SLOW,w);
+		BPActivateWindow(SLOW,w);
 		if((StepScript || r == OK) && ((r=InterruptScript()) != OK && r != STOP))
 			goto END;
-		ActivateWindow(SLOW,wmem);
+		BPActivateWindow(SLOW,wmem);
 		if(r == STOP || r == EXIT) {
 			mStop(ScriptW);
 			if(!ScriptExecOn) break;
@@ -166,11 +166,11 @@ if(w == wScript) {
 	Maxitems = ZERO; OkWait = OK;
 	ForceTextColor = ForceGraphicColor = 0;
 	OutputWindow = wData;
-	ActivateWindow(SLOW,w);
+	BPActivateWindow(SLOW,w);
 	ShowSelect(CENTRE,w);
 	Activate(TEH[w]);
 	}
-/* if(r != OK) ActivateWindow(SLOW,wTrace); */
+/* if(r != OK) BPActivateWindow(SLOW,wTrace); */
 return(r);
 }
 
@@ -181,7 +181,7 @@ long i;
 
 CountOn = FALSE;
 ResetMIDI(TRUE);
-ActivateWindow(SLOW,wScript);
+BPActivateWindow(SLOW,wScript);
 SwitchOn(NULL,wScriptDialog,bRecordScript);
 
 i = GetTextLength(wScript) - 1L;
@@ -559,7 +559,7 @@ if(strcmp(filename,"+sc.startup") == 0) startup = TRUE;
 if(strcmp(filename,"+sc.shutdown") == 0) shutdown = TRUE;
 strcpy(Message,filename);
 strcpy(LineBuff,Message);
-type = FileType[wScript];
+type = gFileType[wScript];
 pStrCopy((char*)c2pstr(Message),spec.name);
 spec.vRefNum = TheVRefNum[wScript];
 spec.parID = WindowParID[wScript];
@@ -614,7 +614,7 @@ while((rr=ReadOne(TRUE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos)) != 
 		if(r != STOP && ((r != OK) || ((r=InterruptScript()) != OK && r != STOP))) {
 			result = r; break;
 			}
-		ActivateWindow(SLOW,wmem);
+		BPActivateWindow(SLOW,wmem);
 		if(r == STOP) {
 			mStop(ScriptW);
 			if(ScriptExecOn == 0) break;

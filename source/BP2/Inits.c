@@ -1578,7 +1578,7 @@ if((OKgrow[w] || w == wMessage || w == wInfo) && ((wresize != 0) || (hresize != 
 	AdjustTextInWindow(w);
 	}
 if(w == wScript && ScriptExecOn) {
-	ActivateWindow(SLOW,w);
+	BPActivateWindow(SLOW,w);
 	Activate(TEH[w]);
 	}
 	
@@ -1636,7 +1636,7 @@ if(gdevice && (*gdevice)->gdPMap) depth = (*((*gdevice)->gdPMap))->pixelSize;
 return(depth);
 }
 
-
+#if 0
 CheckRegistration(void)
 {
 int result,iv;
@@ -1885,8 +1885,8 @@ if(io == noErr) {
 		if(((today-secs) < (86400L * 70L)) && (io=MyOpen(&spec,fsRdPerm,&y2krefnum)) == noErr) {
 			Alert1("Welcome to the third millennium!\r(Any idea whether this software is y2k compliant?)");
 			while(Button());
-			ActivateWindow(SLOW,wData);
-			ActivateWindow(SLOW,wGrammar);
+			BPActivateWindow(SLOW,wData);
+			BPActivateWindow(SLOW,wGrammar);
 			Println(wNotice,"\r\rPhew! BP2 survived the shock...\r");
 			Println(wNotice,"You'd better check your bank account, retirement planning, etc.\r");
 			Println(wNotice,"It's an auspicious day to click the ÔRegisterÕ button if you never tried it and the bank hasn't screwed up your account ;-)\r\r");
@@ -1906,3 +1906,5 @@ else {
 	}
 return(OK);
 }
+
+#endif // 0

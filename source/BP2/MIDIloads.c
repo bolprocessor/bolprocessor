@@ -17,7 +17,7 @@ SetCursor(&WatchCursor);
 im = GetTextLength(w1);
 j = GetTextLength(w2);
 SetSelect(j,j,TEH[w2]);	/* Append output to text in window w2 */
-ActivateWindow(QUICK,w2);
+BPActivateWindow(QUICK,w2);
 for(i=ZERO,space=TRUE,start=TRUE,k=0,nitem=1,runningstatus=0,
 		buff[0] = 0; i < im; i++) { 
 	c = GetTextChar(w1,i);
@@ -131,7 +131,7 @@ if(!InBuiltDriverOn && !Oms) {
 	return(ABORT);
 	}
 EndWriteScript();
-ActivateWindow(SLOW,wind);
+BPActivateWindow(SLOW,wind);
 
 if((rep=CompilePatterns()) != OK) return(rep);
 ipatt = Jpatt;
@@ -333,7 +333,7 @@ MIDI_Event e;
 int i,j,r,c0,c1,c2,rep,channel,eventfound;
 char thechar;
 
-ActivateWindow(SLOW,wScript);
+BPActivateWindow(SLOW,wScript);
 SetCursor(&WatchCursor);
 ResetMIDI(FALSE);
 

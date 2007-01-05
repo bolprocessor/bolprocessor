@@ -1353,7 +1353,7 @@ if(what == mouseDown) {
 				result = OK;
 				intext = FALSE;
 				if(w < WMAX && w != Nw && w != wScript) {
-					ActivateWindow(QUICK,w);
+					BPActivateWindow(QUICK,w);
 					}
 				else {
 					result = OK;
@@ -1724,7 +1724,7 @@ do {
 	SetPort(Window[TargetWindow]);
 	r = (*(Window[TargetWindow])).portRect;
 	InvalRect(&r);
-	ActivateWindow(SLOW,TargetWindow);
+	BPActivateWindow(SLOW,TargetWindow);
 	ShowSelect(CENTRE,TargetWindow);
 	if(saveport != NULL) SetPort(saveport);
 	else if(Beta) Alert1("Err FindReplace(). saveport == NULL");
@@ -1746,7 +1746,7 @@ while(!done);
 
 QUIT:
 Activate(TEH[TargetWindow]);
-ActivateWindow(SLOW,TargetWindow);
+BPActivateWindow(SLOW,TargetWindow);
 sprintf(Message,"%ld occurrence(s) foundÉ",(long)i);
 ShowMessage(TRUE,wMessage,Message);
 return(OK);

@@ -1578,7 +1578,7 @@ else {
 	strcpy(t,"\r");
 	}
 strcat(Message,t);
-ActivateWindow(SLOW,wTrace);
+BPActivateWindow(SLOW,wTrace);
 Print(wTrace,Message);
 ShowSelect(CENTRE,wTrace);
 return(fatal[i]);

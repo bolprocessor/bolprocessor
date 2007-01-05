@@ -37,6 +37,9 @@
 // See BP2 history regarding NEWTIMER
 #define NEWTIMER 0
 
+// disable built-in MIDI driver at compile time (not finished yet) - 010507 akozar
+#define USE_BUILT_IN_MIDI_DRIVER 1
+
 // These are used by OMS.
 #define InputPortID 'in  '
 #define OutputPortID 'out '
@@ -75,7 +78,7 @@ enum {
 Hey: this code is not portable!!!
 #endif
 
-#include <ansi_prefix.mac.h>
+//#include <ansi_prefix.mac.h>	// commented out - 010507 akozar
 #include "OMS.h"
 #include "OMSDeviceMenu.h"
 
@@ -533,7 +536,7 @@ Hey: this code is not portable!!!
 // DITL indexes
 #define GreetingsDitlID 128
 
-// Additional indexes used in file types (see FileType[] in BP2main.h)
+// Additional indexes used in file types (see gFileType[] in BP2main.h)
 #define iObjects 26
 #define iWeights 14
 #define iMIDIfile 24

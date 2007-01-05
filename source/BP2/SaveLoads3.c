@@ -28,7 +28,7 @@ if(fn[0] == 0) pStrCopy((char*)c2pstr(line),fn);
 reply.sfFile.vRefNum = TheVRefNum[w];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[w];
 if(NewFile(fn,&reply)) {
-	i = CreateFile(w,w,FileType[w],fn,&reply,&refnum);
+	i = CreateFile(w,w,gFileType[w],fn,&reply,&refnum);
 	SetCursor(&WatchCursor);
 	*p_spec = reply.sfFile;
 	if(i == ABORT) return(FAILED);
@@ -1004,7 +1004,7 @@ strcpy(Message,"BP2 help");
 strcpy(line,Message);
 spec.vRefNum = RefNumbp2;
 spec.parID = ParIDbp2;
-type = FileType[wHelp];
+type = gFileType[wHelp];
 pStrCopy((char*)c2pstr(Message),spec.name);
 if((io=MyOpen(&spec,fsRdPerm,&HelpRefnum)) != noErr) {
 	if((r=CheckFileName(wHelp,line,&spec,&HelpRefnum,type,TRUE)) != OK) {
@@ -1097,7 +1097,7 @@ char line2[MAXNAME+1],line3[MAXLIN];
 int rep,io;
 Str255 fn;
 
-/* Usually, type = FileType[w] */
+/* Usually, type = gFileType[w] */
 
 FIND:
 if(line[0] != '\0') {

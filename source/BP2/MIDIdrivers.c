@@ -677,6 +677,7 @@ OSErr DriverOpen(unsigned char name[])
 {
 OSErr io;
 
+#if USE_BUILT_IN_MIDI_DRIVER
 if(InBuiltDriverOn) {
 	if(Beta) Alert1("Err. DriverOpen(). Driver already ON");
 	return(1);
@@ -696,6 +697,10 @@ if(p_Pb->ioRefNum == 0) {
 InBuiltDriverOn = TRUE;
 if(!NEWTIMER) MaxMIDIbytes = MIDI_FIFO_MAX - 50;
 return(io);
+#else
+  InBuiltDriverOn = FALSE;
+  return -1;
+#endif
 }
 
 

@@ -438,7 +438,7 @@ if(strlen(line) >= MAXNAME) {
 	line[MAXNAME-1] = '\0';
 	sprintf(Message,"File name is too long. Can't accept ‘%s’",line);
 	Alert1(Message);
-	ActivateWindow(QUICK,w);
+	BPActivateWindow(QUICK,w);
 	SetField(thedialog,w,field,line);
 	SelectField(thedialog,w,field,TRUE);
 	return(TRUE);

@@ -20,7 +20,7 @@ if(!Editable[w]) {
 	return(FAILED);
 	}
 length = strlen(t);
-ActivateWindow(QUICK,w);
+BPActivateWindow(QUICK,w);
 ptr = t;
 TextInsert(ptr,length,TEH[w]);
 if(LockedWindow[w]) Deactivate(TEH[w]);
@@ -48,7 +48,7 @@ if(p_t == NULL) {
 	return(OK);
 	}
 length = MyHandleLen(p_t);
-ActivateWindow(QUICK,w);
+BPActivateWindow(QUICK,w);
 MyLock(FALSE,(Handle)p_t);
 TextInsert(*p_t,length,TEH[w]);
 MyUnlock((Handle)p_t);
@@ -158,7 +158,7 @@ colormem = UseTextColor;
 if(isgrammar && !producemode) UseTextColor = TRUE;
 for(i=1; i < MAXPARAMCTRL; i++) shownctrlval[i] = FALSE;
 splitmem = SplitVariables;
-ActivateWindow(SLOW,wind);
+BPActivateWindow(SLOW,wind);
 starttrace = GetTextLength(wind);
 SetSelect(starttrace,starttrace,TEH[wind]);
 Reformat(wind,-1,-1,(int) normal,&Black,NO,NO);

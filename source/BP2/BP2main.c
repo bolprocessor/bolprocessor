@@ -63,10 +63,14 @@ if(oms) {
 
 PleaseWait();
 	
+#if USE_BUILT_IN_MIDI_DRIVER
 if(!Oms && (io = DriverOpen("\p.MIDI")) != noErr) {
 	Alert1("Unexpected error opening MIDI driver. OMS is off, but some other device might be conflicting");
 	return(OK);
-	}
+}
+#else
+// no real-time MIDI ... what should we do?? - akozar 010307
+#endif
 	
 if(SetDriver() != OK) goto END;
 
@@ -89,7 +93,7 @@ startupscript = FALSE;
 HideWindow(GreetingsPtr);
 MemoryUsedInit = MemoryUsed + leak;
 ForceTextColor = ForceGraphicColor = 0;
-ActivateWindow(SLOW,wMessage);
+BPActivateWindow(SLOW,wMessage);
 SetCursor(&arrow);
 
 ClearWindow(TRUE,wInteraction);
@@ -97,7 +101,7 @@ ClearWindow(TRUE,wGlossary);
 ClearWindow(TRUE,wScript);
 /* At least one window must be active so that Apple Events are detected even if the... */
 /* ... application is not active ! */
-ActivateWindow(SLOW,wMessage);
+BPActivateWindow(SLOW,wMessage);
 HideWindow(Window[wInfo]);
 
 // Registration is no longer necessary -- 060506 akozar
@@ -158,17 +162,17 @@ SHOWOPTIONS:
 		switch(what) {
 			case dData:
 				LastEditWindow = wData;
-				ActivateWindow(SLOW,wData);
-				ActivateWindow(SLOW,wControlPannel);
+				BPActivateWindow(SLOW,wData);
+				BPActivateWindow(SLOW,wControlPannel);
 				break;
 			case dGrammars:
 				LastEditWindow = wGrammar;
-				ActivateWindow(SLOW,wGrammar);
-				ActivateWindow(SLOW,wControlPannel);
+				BPActivateWindow(SLOW,wGrammar);
+				BPActivateWindow(SLOW,wControlPannel);
 				break;
 			case dAlphabets:
 				LastEditWindow = wAlphabet;
-				ActivateWindow(SLOW,wAlphabet);
+				BPActivateWindow(SLOW,wAlphabet);
 				break;
 			case dScripts:
 				LastEditWindow = wScript;
@@ -179,11 +183,11 @@ SHOWOPTIONS:
 				break;
 			case dInteraction:
 				LastEditWindow = wInteraction;
-				ActivateWindow(SLOW,wInteraction);
+				BPActivateWindow(SLOW,wInteraction);
 				break;
 			case dGlossary:
 				LastEditWindow = wGlossary;
-				ActivateWindow(SLOW,wGlossary);
+				BPActivateWindow(SLOW,wGlossary);
 				break;
 			case dTimeBase:
 				mTimeBase(wTimeBase);
@@ -192,14 +196,14 @@ SHOWOPTIONS:
 				mCsoundInstrumentsSpecs(wCsoundInstruments);
 				break;
 			case dFAQ:
-				ActivateWindow(SLOW,wData);
+				BPActivateWindow(SLOW,wData);
 				mFAQ(0);
 				break;
 			case dLoadProject:
 				LastEditWindow = wGrammar;
 				if(mLoadProject(wGrammar) == OK)
-					ActivateWindow(SLOW,wControlPannel);
-				else ActivateWindow(SLOW,wGrammar);
+					BPActivateWindow(SLOW,wControlPannel);
+				else BPActivateWindow(SLOW,wGrammar);
 				break;
 			case dRegister:
 				DisplayFile(wNotice,"License.txt");

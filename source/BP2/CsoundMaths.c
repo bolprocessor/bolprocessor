@@ -80,7 +80,7 @@ return(OK);
 
 ERR:
 iCsoundInstrument = j;
-ActivateWindow(SLOW,wCsoundInstruments);
+BPActivateWindow(SLOW,wCsoundInstruments);
 return(ABORT);
 }
 
