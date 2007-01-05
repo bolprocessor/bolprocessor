@@ -14,6 +14,8 @@ lines of code in FillPhaseDiagram.c (line 902):
 
 - Several "variable used before initialized" warnings should be investigated.
 
+- These dialogs cannot be closed with Command-W: Tuning, Default performance
+values, Default strike mode, and File Save Preferences.
 
 Anthony Kozar
 akozar@users.sourceforge.net
