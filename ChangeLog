@@ -1,3 +1,12 @@
+2007-01-08	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	* BP2-MacOS.cw8.mcp: New target for Carbon Transitional build.
+	
+	* (all files in source/BP2/ and source/WASTE):
+		Added per file #includes for MacHeaders.h or MacHeadersTransitional.h
+		
+	* (all files in source/BP2/ and source/additional):
+		Added copyright statement and license.
+	
 2007-01-05	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	* source/BP2/Inits.c:
 	* source/BP2/Interface1.c:

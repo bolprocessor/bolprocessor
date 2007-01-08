@@ -1,4 +1,35 @@
-/* -BP2.h (BP2 version 2.9.4) */
+/* -BP2.h (BP2 version CVS) */
+
+/*  This file is a part of Bol Processor 2
+    Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
+    All rights reserved. 
+    
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met: 
+    
+       Redistributions of source code must retain the above copyright notice, 
+       this list of conditions and the following disclaimer. 
+    
+       Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
+       and/or other materials provided with the distribution. 
+    
+       Neither the names of the Bol Processor authors nor the names of project
+       contributors may be used to endorse or promote products derived from this
+       software without specific prior written permission. 
+    
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+    CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+    SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+    INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+    CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+    POSSIBILITY OF SUCH DAMAGE.
+*/
 
 // --------------------------------------------------------------------
 // ------  This is the common header used by Bol Processor BP2 --------
@@ -44,35 +75,6 @@
 #define InputPortID 'in  '
 #define OutputPortID 'out '
 #define DEFTMAXOMSINPUTBUFFERSIZE 5000L
-//
-
-// Note: the following definitions must not be given before loading ColorPicker.h because they mess up CMICCProfile.h
-#ifdef __POWERPC
-#define arrow Qd.arrow
-#define screenBits Qd.screenBits
-#define randSeed Qd.randSeed
-#define dkGray Qd.dkGray
-#define ltGray Qd.ltGray
-#define gray Qd.gray
-#define black Qd.black
-#define white Qd.white
-#define thePort Qd.thePort
-#endif
-
-#if !OLDROUTINENAMES
-enum {
-	inLabel						= 1,
-	inMenu						= 2,
-	inTriangle					= 4,
-	inButton					= 10,
-	inCheckBox					= 11,
-	inUpButton					= 20,
-	inDownButton				= 21,
-	inPageUp					= 22,
-	inPageDown					= 23,
-	inThumb						= 129
-};
-#endif
 
 #ifndef __CONDITIONALMACROS__
 Hey: this code is not portable!!!
@@ -124,6 +126,40 @@ Hey: this code is not portable!!!
 
 #ifndef _H_midi1
 #include "midi1.h"
+#endif
+
+// Moved macros and enum down here to avoid potential problems with replacing names
+// in any of the above headers -- 010807 akozar
+// Note: the following definitions must not be given before loading ColorPicker.h because they mess up CMICCProfile.h
+#ifdef __POWERPC
+#define arrow Qd.arrow
+#define screenBits Qd.screenBits
+#define randSeed Qd.randSeed
+#define dkGray Qd.dkGray
+#define ltGray Qd.ltGray
+#define gray Qd.gray
+#define black Qd.black
+#define white Qd.white
+#define thePort Qd.thePort
+#endif
+
+#if !OLDROUTINENAMES
+enum {
+	inLabel						= 1,
+	inMenu						= 2,
+	inTriangle					= 4,
+	inButton					= 10,
+	inCheckBox					= 11,
+	inUpButton					= 20,
+	inDownButton				= 21,
+	inPageUp					= 22,
+	inPageDown					= 23,
+	inThumb						= 129
+};
+#endif
+
+#ifndef __CONDITIONALMACROS__
+Hey: this code is not portable!!!
 #endif
 
 // --------------------- General constants   --------------------------
