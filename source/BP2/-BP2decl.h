@@ -275,12 +275,13 @@ extern unsigned long NextTickDate[MAXTICKS],NextBeatDate;
 
 extern int Nw,LastEditWindow,LastComputeWindow,OutputWindow,ResumeStopOn,
 	ResetTickFlag,ResetTickInItemFlag;
-extern WindowPtr Window[WMAX],ResumeStopPtr,ResumeUndoStopPtr,
-	MIDIkeyboardPtr;
+extern WindowPtr Window[WMAX];
+extern DialogPtr ResumeStopPtr,ResumeUndoStopPtr,MIDIkeyboardPtr;
 extern DialogPtr PatternPtr,ReplaceCommandPtr,EnterPtr,GreetingsPtr,FAQPtr,SixteenPtr,FileSavePreferencesPtr,
 	StrikeModePtr,TuningPtr,DefaultPerformanceValuesPtr,CsoundInstrMorePtr,OMSinoutPtr,MIDIprogramPtr;
-extern DialogRecord DRecord[WMAX],EnterDR,ReplaceCommandDR,TuningDR,DefaultPerformanceValuesDR,CsoundInstrMoreDR,
-	MIDIprogramDR,PatternDR,FileSavePreferencesDR;
+extern DialogPtr gpDialogs[WMAX];
+/*extern DialogRecord EnterDR,ReplaceCommandDR,TuningDR,DefaultPerformanceValuesDR,CsoundInstrMoreDR,
+	MIDIprogramDR,PatternDR,FileSavePreferencesDR; */
 
 extern TextHandle TEH[WMAX];
 

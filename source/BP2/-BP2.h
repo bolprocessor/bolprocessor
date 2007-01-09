@@ -46,10 +46,10 @@
 
 
 // 1 for debugging memory, 0 otherwise
-#define BIGTEST 0
+#define BIGTEST 1
 
 // 1 to execute Beta tests for data validity, 0 otherwise
-#define COMPILING_BETA 0
+#define COMPILING_BETA 1
 
 // Select compilation option
 #define MACOS 1

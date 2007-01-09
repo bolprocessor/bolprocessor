@@ -731,7 +731,7 @@ if(GetCtrlValue(wTickDialog,dSpecialTick)) {
 	}
 else ThisTick[iTick][jTick] = s;
 jj = dPlayBeat + 55*iTick + jTick;
-GetDialogItem((DialogPtr)&DRecord[wTimeBase],(short)jj,&itemtype,&itemhandle,&r);
+GetDialogItem(gpDialogs[wTimeBase],(short)jj,&itemtype,&itemhandle,&r);
 /* HiliteControl((ControlHandle) itemhandle,11); */
 if(s) {
 	SwitchOn(NULL,wTimeBase,jj);
@@ -1238,20 +1238,20 @@ else {
 		Simplify((double)INT_MAX,Qclock,floor((double)Pclock/60.),&p,&q);
 	sprintf(line,"%.4f", ((double)p)/q);
 	}
-GetDialogItem((DialogPtr)&DRecord[wMetronom],fTempo,&itemtype,(Handle*)&itemhandle,&r);
+GetDialogItem(gpDialogs[wMetronom],fTempo,&itemtype,(Handle*)&itemhandle,&r);
 SetDialogItemText((Handle)itemhandle,c2pstr(line));
 
 /* Set smooth or striated */
 if(Nature_of_time == STRIATED) {
-	GetDialogItem((DialogPtr)&DRecord[wMetronom],dSmooth,&itemtype,(Handle*)&itemhandle,&r);
+	GetDialogItem(gpDialogs[wMetronom],dSmooth,&itemtype,(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,0);
-	GetDialogItem((DialogPtr)&DRecord[wMetronom],dStriated,&itemtype,(Handle*)&itemhandle,&r);
+	GetDialogItem(gpDialogs[wMetronom],dStriated,&itemtype,(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,1);
 	}
 else {
-	GetDialogItem((DialogPtr)&DRecord[wMetronom],dSmooth,&itemtype,(Handle*)&itemhandle,&r);
+	GetDialogItem(gpDialogs[wMetronom],dSmooth,&itemtype,(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,1);
-	GetDialogItem((DialogPtr)&DRecord[wMetronom],dStriated,&itemtype,(Handle*)&itemhandle,&r);
+	GetDialogItem(gpDialogs[wMetronom],dStriated,&itemtype,(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,0);
 	}
 return(OK);
@@ -1269,7 +1269,7 @@ unsigned long p,q;
 double oldp,oldq;
 
 if(!Dirty[wMetronom]) return(OK);
-GetDialogItem((DialogPtr)&DRecord[wMetronom],fTempo,&itemtype,&itemhandle,&r);
+GetDialogItem(gpDialogs[wMetronom],fTempo,&itemtype,&itemhandle,&r);
 GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,s);
 Dirty[wMetronom] = FALSE;
@@ -1360,23 +1360,23 @@ short itemtype;
 char line[MAXFIELDCONTENT];
 
 sprintf(line,"%ld",(long)BufferSize / 2L - 1L);
-GetDialogItem((DialogPtr)&DRecord[wBufferSize],fBufferSize,&itemtype,(Handle*)&itemhandle,&r);
+GetDialogItem(gpDialogs[wBufferSize],fBufferSize,&itemtype,(Handle*)&itemhandle,&r);
 SetDialogItemText((Handle)itemhandle,c2pstr(line));
-TESetSelect(ZERO,ZERO,DRecord[wBufferSize].textH);
+TESetSelect(ZERO,ZERO,((DialogPeek)gpDialogs[wBufferSize])->textH);
 sprintf(line,"%ld",(long)DeftBufferSize / 2L - 1L);
-GetDialogItem((DialogPtr)&DRecord[wBufferSize],fDeftBufferSize,&itemtype,(Handle*)&itemhandle,&r);
+GetDialogItem(gpDialogs[wBufferSize],fDeftBufferSize,&itemtype,(Handle*)&itemhandle,&r);
 SetDialogItemText((Handle)itemhandle,c2pstr(line));
-TESetSelect(ZERO,ZERO,DRecord[wBufferSize].textH);
+TESetSelect(ZERO,ZERO,((DialogPeek)gpDialogs[wBufferSize])->textH);
 if(UseBufferLimit) {
-	GetDialogItem((DialogPtr)&DRecord[wBufferSize],dNoSizeLimit,&itemtype,(Handle*)&itemhandle,&r);
+	GetDialogItem(gpDialogs[wBufferSize],dNoSizeLimit,&itemtype,(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,0);
-	GetDialogItem((DialogPtr)&DRecord[wBufferSize],dYesSizeLimit,&itemtype,(Handle*)&itemhandle,&r);
+	GetDialogItem(gpDialogs[wBufferSize],dYesSizeLimit,&itemtype,(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,1);
 	}
 else {
-	GetDialogItem((DialogPtr)&DRecord[wBufferSize],dNoSizeLimit,&itemtype,(Handle*)&itemhandle,&r);
+	GetDialogItem(gpDialogs[wBufferSize],dNoSizeLimit,&itemtype,(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,1);
-	GetDialogItem((DialogPtr)&DRecord[wBufferSize],dYesSizeLimit,&itemtype,(Handle*)&itemhandle,&r);
+	GetDialogItem(gpDialogs[wBufferSize],dYesSizeLimit,&itemtype,(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,0);
 	}
 return(OK);
@@ -1394,7 +1394,7 @@ long x;
 
 if(!Dirty[wBufferSize]) return(OK);
 InputOn++;
-GetDialogItem((DialogPtr)&DRecord[wBufferSize],fBufferSize,&itemtype,&itemhandle,&r);
+GetDialogItem(gpDialogs[wBufferSize],fBufferSize,&itemtype,&itemhandle,&r);
 GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,s);
 x = atol(s);
@@ -1407,7 +1407,7 @@ if(x > 100000L) {
 	x = 100000L;
 	}
 BufferSize = 2L * (x + 1L);
-GetDialogItem((DialogPtr)&DRecord[wBufferSize],fDeftBufferSize,&itemtype,&itemhandle,&r);
+GetDialogItem(gpDialogs[wBufferSize],fDeftBufferSize,&itemtype,&itemhandle,&r);
 GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,s);
 x = atol(s);
@@ -1434,20 +1434,20 @@ short itemtype;
 char line[MAXFIELDCONTENT];
 
 WriteFloatToLine(line,(double) (GraphicScaleQ * 5.) / (double) GraphicScaleP);
-GetDialogItem((DialogPtr)&DRecord[wGraphicSettings],fGraphicScale,
+GetDialogItem(gpDialogs[wGraphicSettings],fGraphicScale,
 	&itemtype,&itemhandle,&r);
 SetDialogItemText(itemhandle,c2pstr(line));
-TESetSelect(ZERO,63L,DRecord[wGraphicSettings].textH);
+TESetSelect(ZERO,63L,((DialogPeek)gpDialogs[wGraphicSettings])->textH);
 if(StartFromOne) {
-	GetDialogItem((DialogPtr)&DRecord[wGraphicSettings],dZero,&itemtype,&itemhandle,&r);
+	GetDialogItem(gpDialogs[wGraphicSettings],dZero,&itemtype,&itemhandle,&r);
 	SetControlValue((ControlHandle) itemhandle,0);
-	GetDialogItem((DialogPtr)&DRecord[wGraphicSettings],dOne,&itemtype,&itemhandle,&r);
+	GetDialogItem(gpDialogs[wGraphicSettings],dOne,&itemtype,&itemhandle,&r);
 	SetControlValue((ControlHandle) itemhandle,1);
 	}
 else {
-	GetDialogItem((DialogPtr)&DRecord[wGraphicSettings],dZero,&itemtype,&itemhandle,&r);
+	GetDialogItem(gpDialogs[wGraphicSettings],dZero,&itemtype,&itemhandle,&r);
 	SetControlValue((ControlHandle) itemhandle,1);
-	GetDialogItem((DialogPtr)&DRecord[wGraphicSettings],dOne,&itemtype,&itemhandle,&r);
+	GetDialogItem(gpDialogs[wGraphicSettings],dOne,&itemtype,&itemhandle,&r);
 	SetControlValue((ControlHandle) itemhandle,0);
 	}
 return(OK);
@@ -1467,7 +1467,7 @@ int rep;
 
 InputOn++;
 rep = FAILED;
-GetDialogItem((DialogPtr)&DRecord[wGraphicSettings],fGraphicScale,&itemtype,
+GetDialogItem(gpDialogs[wGraphicSettings],fGraphicScale,&itemtype,
 	&itemhandle,&r);
 GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,s);
@@ -1503,25 +1503,25 @@ short itemtype;
 char line[MAXFIELDCONTENT];
 
 sprintf(line,"%ld",(long)Time_res);
-GetDialogItem((DialogPtr)&DRecord[wTimeAccuracy],fTimeRes,&itemtype,
+GetDialogItem(gpDialogs[wTimeAccuracy],fTimeRes,&itemtype,
 	(Handle*)&itemhandle,&r);
 SetDialogItemText((Handle)itemhandle,c2pstr(line));
-TESetSelect(ZERO,ZERO,DRecord[wTimeAccuracy].textH);
+TESetSelect(ZERO,ZERO,((DialogPeek)gpDialogs[wTimeAccuracy])->textH);
 sprintf(line,"%ld",(long)Quantization);
-GetDialogItem((DialogPtr)&DRecord[wTimeAccuracy],fQuantize,&itemtype,
+GetDialogItem(gpDialogs[wTimeAccuracy],fQuantize,&itemtype,
 	(Handle*)&itemhandle,&r);
 SetDialogItemText((Handle)itemhandle,c2pstr(line));
-TESetSelect(ZERO,ZERO,DRecord[wTimeAccuracy].textH);
+TESetSelect(ZERO,ZERO,((DialogPeek)gpDialogs[wTimeAccuracy])->textH);
 sprintf(line,"%ld",(long)SetUpTime);
-GetDialogItem((DialogPtr)&DRecord[wTimeAccuracy],fSetUpTime,&itemtype,
+GetDialogItem(gpDialogs[wTimeAccuracy],fSetUpTime,&itemtype,
 	(Handle*)&itemhandle,&r);
 SetDialogItemText((Handle)itemhandle,c2pstr(line));
-TESetSelect(ZERO,ZERO,DRecord[wTimeAccuracy].textH);
+TESetSelect(ZERO,ZERO,((DialogPeek)gpDialogs[wTimeAccuracy])->textH);
 if(QuantizeOK) {
-	GetDialogItem((DialogPtr)&DRecord[wTimeAccuracy],dOff,&itemtype,
+	GetDialogItem(gpDialogs[wTimeAccuracy],dOff,&itemtype,
 		(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,0);
-	GetDialogItem((DialogPtr)&DRecord[wTimeAccuracy],dOn,&itemtype,
+	GetDialogItem(gpDialogs[wTimeAccuracy],dOn,&itemtype,
 		(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,1);
 	if(Pclock < 0.9 && !LoadOn) {
@@ -1532,10 +1532,10 @@ if(QuantizeOK) {
 		}
 	}
 else {
-	GetDialogItem((DialogPtr)&DRecord[wTimeAccuracy],dOff,&itemtype,
+	GetDialogItem(gpDialogs[wTimeAccuracy],dOff,&itemtype,
 		(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,1);
-	GetDialogItem((DialogPtr)&DRecord[wTimeAccuracy],dOn,&itemtype,
+	GetDialogItem(gpDialogs[wTimeAccuracy],dOn,&itemtype,
 		(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,0);
 	}
@@ -1554,7 +1554,7 @@ char line[MAXFIELDCONTENT];
 Str255 t;
 
 InputOn++;
-GetDialogItem((DialogPtr)&DRecord[wTimeAccuracy],fSetUpTime,&itemtype,
+GetDialogItem(gpDialogs[wTimeAccuracy],fSetUpTime,&itemtype,
 	&itemhandle,&r);
 GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,line);
@@ -1565,7 +1565,7 @@ if(i < 0 || i > 2000) {
 	else i = 0;
 	}
 SetUpTime = i;
-GetDialogItem((DialogPtr)&DRecord[wTimeAccuracy],fTimeRes,&itemtype,&itemhandle,&r);
+GetDialogItem(gpDialogs[wTimeAccuracy],fTimeRes,&itemtype,&itemhandle,&r);
 GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,line);
 k = atol(line);
@@ -1579,7 +1579,7 @@ if(k < 1L) {
 if(k != Time_res) 
 	Interrupted = Dirty[wTimeAccuracy] = Dirty[iSettings] = TRUE;
 Time_res = k;
-GetDialogItem((DialogPtr)&DRecord[wTimeAccuracy],fQuantize,&itemtype,&itemhandle,&r);
+GetDialogItem(gpDialogs[wTimeAccuracy],fQuantize,&itemtype,&itemhandle,&r);
 GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,line);
 k = atol(line);
@@ -1614,10 +1614,10 @@ for(i=0; i < 52; i++) {
 	if(i < 26) j = i + fA;
 	else j = i - 26 + fa;
 	if((*p_Token)[Key(i,KeyboardType)] != NULL) {
-		GetDialogItem((DialogPtr)&DRecord[wKeyboard],j,&itemtype,&itemhandle,&r);
+		GetDialogItem(gpDialogs[wKeyboard],j,&itemtype,&itemhandle,&r);
 		MystrcpyTableToString(MAXFIELDCONTENT,line,p_Token,Key(i,KeyboardType));
 		SetDialogItemText(itemhandle,c2pstr(line));
-		TESetSelect(ZERO,ZERO,DRecord[wKeyboard].textH);
+		TESetSelect(ZERO,ZERO,((DialogPeek)gpDialogs[wKeyboard])->textH);
 		}
 	}
 return(OK);
@@ -1686,11 +1686,11 @@ for(i=0; i < 52; i++) {
 	else c = '.';
 	if(i < 26) j = i + fA;
 	else j = i - 26 + fa;
-	GetDialogItem((DialogPtr)&DRecord[wKeyboard],j,&itemtype,&itemhandle,&r);
+	GetDialogItem(gpDialogs[wKeyboard],j,&itemtype,&itemhandle,&r);
 	line[1] = c;
 	SetDialogItemText(itemhandle,line);
 	}
-TESetSelect(ZERO,ZERO,DRecord[wKeyboard].textH);
+TESetSelect(ZERO,ZERO,((DialogPeek)gpDialogs[wKeyboard])->textH);
 Dirty[wKeyboard] = FALSE;
 Token = SpaceOn = FALSE;
 SwitchOff(NULL,wKeyboard,dToken);
@@ -1712,7 +1712,7 @@ Str255 t;
 for(i=0; i < 52; i++) {
 	if(i < 26) j = i + fA;
 	else j = i - 26 + fa;
-	GetDialogItem((DialogPtr)&DRecord[wKeyboard],j,&itemtype,&itemhandle,&r);
+	GetDialogItem(gpDialogs[wKeyboard],j,&itemtype,&itemhandle,&r);
 	GetDialogItemText(itemhandle,t);
 	MyPtoCstr(MAXFIELDCONTENT,t,line);
 	ptr = (*p_Token)[Key(i,KeyboardType)];
@@ -2312,9 +2312,9 @@ short itemtype;
 char line[MAXFIELDCONTENT];
 
 sprintf(line,"%.0f",(double) Seed);
-GetDialogItem((DialogPtr)&DRecord[wRandomSequence],fSeed,&itemtype,&itemhandle,&r);
+GetDialogItem(gpDialogs[wRandomSequence],fSeed,&itemtype,&itemhandle,&r);
 SetDialogItemText(itemhandle,c2pstr(line));
-TESetSelect(ZERO,63L,DRecord[wRandomSequence].textH);
+TESetSelect(ZERO,63L,((DialogPeek)gpDialogs[wRandomSequence])->textH);
 return(OK);
 }
 

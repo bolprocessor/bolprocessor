@@ -208,7 +208,7 @@ if(w == wTickDialog) {
 			HideWindow(Window[wTickDialog]);
 			BPActivateWindow(QUICK,wTimeBase);
 			jj = dPlayBeat + 55*iTick + jTick;
-			GetDialogItem((DialogPtr)&DRecord[wTimeBase],(short)jj,&itemtype,(Handle*)&itemhandle,&r);
+			GetDialogItem(gpDialogs[wTimeBase],(short)jj,&itemtype,(Handle*)&itemhandle,&r);
 			if(ThisTick[iTick][jTick] < 2) HiliteControl(itemhandle,11);
 			iTick = -1; jTick = -1;
 			return(DONE);
@@ -568,7 +568,7 @@ FINDBOX:
 					if(iTick >= 0 && jTick >= 0) {
 						GetThisTick();
 						jj = dPlayBeat + 55*iTick + jTick;
-						GetDialogItem((DialogPtr)&DRecord[wTimeBase],(short)jj,&itemtype,(Handle*)&itemhandle,&r);
+						GetDialogItem(gpDialogs[wTimeBase],(short)jj,&itemtype,(Handle*)&itemhandle,&r);
 						if(ThisTick[iTick][jTick] < 2) HiliteControl(itemhandle,11);
 						}
 					iTick = i; jTick = j;

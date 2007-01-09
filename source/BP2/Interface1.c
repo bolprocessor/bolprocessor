@@ -87,7 +87,7 @@ if(!AlertOn) {
 	MaintainMenus();
 	if(Nw >= 0 && Nw < WMAX) {
 		if(Editable[Nw] && !LockedWindow[Nw]) Idle(TEH[Nw]);
-		if(HasFields[Nw]) TEIdle(DRecord[Nw].textH);
+		if(HasFields[Nw]) TEIdle(((DialogPeek)gpDialogs[Nw])->textH);
 		}
 	if((rep=ListenMIDI(0,0,0)) != OK) return(rep);
 	GetValues(0);
@@ -661,7 +661,7 @@ DOTHECLICK:
 				}
 			if(p_event->modifiers & activeFlag) {
 				if(Editable[w] && !LockedWindow[w]) Activate(TEH[w]);
-				if(HasFields[w]) TEActivate(DRecord[w].textH);
+				if(HasFields[w]) TEActivate(((DialogPeek)gpDialogs[w])->textH);
 				if(OKvScroll[w]) ShowControl(vScroll[w]);
 				if(OKhScroll[w]) ShowControl(hScroll[w]);
 		/*		DisableItem(myMenus[editM],undoCommand); */
@@ -669,7 +669,7 @@ DOTHECLICK:
 			else {
 				if(w != Nw) {
 					if(Editable[w] && !LockedWindow[w]) Deactivate(TEH[w]);
-					if(HasFields[w]) TEDeactivate(DRecord[w].textH);
+					if(HasFields[w]) TEDeactivate(((DialogPeek)gpDialogs[w])->textH);
 					if(OKvScroll[w]) HideControl(vScroll[w]);
 					if(OKhScroll[w]) HideControl(hScroll[w]);
 					}
@@ -1013,8 +1013,8 @@ if(Nw > -1 && Nw < WMAX) {
 		else Activate(TEH[Nw]);
 		}
 	if(HasFields[Nw]) {
-		if(Nw != newNw) TEDeactivate(DRecord[Nw].textH);
-		else TEActivate(DRecord[Nw].textH);
+		if(Nw != newNw) TEDeactivate(((DialogPeek)gpDialogs[Nw])->textH);
+		else TEActivate(((DialogPeek)gpDialogs[Nw])->textH);
 		}
 	SetPort(Window[Nw]);
 	r1 = (*(Window[Nw]->clipRgn))->rgnBBox;
@@ -1187,7 +1187,7 @@ if(GrafWindow[w]) {
 	GotAlert = FALSE;
 	}
 
-if(HasFields[w]) TEActivate(DRecord[w].textH);
+if(HasFields[w]) TEActivate(((DialogPeek)gpDialogs[w])->textH);
 if(!Editable[w]) return(OK);
 Activate(TEH[w]);
 if(!OKvScroll[w]) return(OK);
@@ -2034,7 +2034,7 @@ if(Nw > -1 && Nw < WMAX && Ours(wPtr,Window[Nw])) {
 			}
 		}
 	if(HasFields[Nw]) {
-		r = (**(DRecord[Nw].textH)).viewRect;
+		r = (**(((DialogPeek)gpDialogs[Nw])->textH)).viewRect;
 		if(PtInRect(pt,&r)) {
 			SetCursor(&EditCursor);
 			goto OUT;
@@ -2044,31 +2044,31 @@ if(Nw > -1 && Nw < WMAX && Ours(wPtr,Window[Nw])) {
 else {
 	found = FALSE;
 	if(wPtr == EnterPtr) {
-		r = (**(EnterDR.textH)).viewRect;
+		r = (*(((DialogPeek)EnterPtr)->textH))->viewRect;
 		found = TRUE;
 		}
 	if(wPtr == TuningPtr) {
-		r = (**(TuningDR.textH)).viewRect;
+		r = (*(((DialogPeek)TuningPtr)->textH))->viewRect;
 		found = TRUE;
 		}
 	if(wPtr == DefaultPerformanceValuesPtr) {
-		r = (**(DefaultPerformanceValuesDR.textH)).viewRect;
+		r = (*(((DialogPeek)DefaultPerformanceValuesPtr)->textH))->viewRect;
 		found = TRUE;
 		}
 	if(wPtr == CsoundInstrMorePtr) {
-		r = (**(CsoundInstrMoreDR.textH)).viewRect;
+		r = (*(((DialogPeek)CsoundInstrMorePtr)->textH))->viewRect;
 		found = TRUE;
 		}
 	if(wPtr == PatternPtr) {
-		r = (**(PatternDR.textH)).viewRect;
+		r = (*(((DialogPeek)PatternPtr)->textH))->viewRect;
 		found = TRUE;
 		}
 	if(wPtr == FileSavePreferencesPtr) {
-		r = (**(FileSavePreferencesDR.textH)).viewRect;
+		r = (*(((DialogPeek)FileSavePreferencesPtr)->textH))->viewRect;
 		found = TRUE;
 		}
 	if(wPtr == MIDIprogramPtr) {
-		r = (**(MIDIprogramDR.textH)).viewRect;
+		r = (*(((DialogPeek)MIDIprogramPtr)->textH))->viewRect;
 		found = TRUE;
 		}
 	if(found && PtInRect(pt,&r)) {

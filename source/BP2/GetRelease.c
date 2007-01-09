@@ -288,10 +288,10 @@ for(w=0; w < MAXWIND; w++) {
 		}
 	}
 for(w=MAXWIND; w < WMAX; w++) {
-	if(Window[w] != NULL) {
-		ptr = (Handle) DRecord[w].items;
+	if(Window[w] != NULL) {	// FIXME ?: Why are we releasing DITLs by hand?
+		ptr = (Handle) ((DialogPeek)gpDialogs[w])->items;
 		MyDisposeHandle(&ptr);
-		DRecord[w].items = NULL;
+		((DialogPeek)gpDialogs[w])->items = NULL;
 		CloseDialog((DialogPtr) Window[w]);
 		}
 	else {

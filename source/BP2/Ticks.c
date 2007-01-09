@@ -545,11 +545,11 @@ else {
 	sprintf(line,"1");
 	Qclock = 1L;
 	}
-GetDialogItem((DialogPtr)&DRecord[wTimeBase],fP,&itemtype,&itemhandle,&r);
+GetDialogItem(gpDialogs[wTimeBase],fP,&itemtype,&itemhandle,&r);
 SetDialogItemText(itemhandle,c2pstr(line));
 if(Pclock > 0.) sprintf(line,"%.0f",Qclock);
 else sprintf(line,"[no clock]");
-GetDialogItem((DialogPtr)&DRecord[wTimeBase],fQ,&itemtype,&itemhandle,&r);
+GetDialogItem(gpDialogs[wTimeBase],fQ,&itemtype,&itemhandle,&r);
 SetDialogItemText(itemhandle,c2pstr(line));
 return(OK);
 }
@@ -790,7 +790,7 @@ if(itick > 0) {
 	i = itick - 1;
 	for(j=0; j < TickCycle[i]; j++) {
 		jj = dPlayBeat + 55*i + j;
-		GetDialogItem((DialogPtr)&DRecord[wTimeBase],(short)jj,&itemtype,&itemhandle,&r);
+		GetDialogItem(gpDialogs[wTimeBase],(short)jj,&itemtype,&itemhandle,&r);
 		if(ThisTick[i][j] < 2) HiliteControl((ControlHandle) itemhandle,11);
 		if(ThisTick[i][j] % 2L) {
 			SwitchOn(NULL,wTimeBase,jj);
@@ -801,7 +801,7 @@ if(itick > 0) {
 	for(j=TickCycle[i]; j < oldcycle; j++) {
 		jj = dPlayBeat + 55*i + j;
 		SwitchOff(NULL,wTimeBase,jj);
-		GetDialogItem((DialogPtr)&DRecord[wTimeBase],(short)jj,&itemtype,&itemhandle,&r);
+		GetDialogItem(gpDialogs[wTimeBase],(short)jj,&itemtype,&itemhandle,&r);
 		HiliteControl((ControlHandle) itemhandle,0);
 		}
 	}

@@ -789,24 +789,24 @@ Str255 title;
 long rc;
 GrafPtr saveport;
 
-ReplaceCommandPtr = GetNewDialog(ReplaceCommandID,&ReplaceCommandDR,0L);
-ResumeStopPtr = GetNewDialog(ResumeStopID,0L,0L);
+ReplaceCommandPtr = GetNewDialog(ReplaceCommandID,NULL,0L); // could use kLastWindowOfClass instead of 0L
+ResumeStopPtr = GetNewDialog(ResumeStopID,NULL,0L);
 ResumeStopOn = FALSE;
-ResumeUndoStopPtr = GetNewDialog(ResumeUndoStopID,0L,0L);
-MIDIkeyboardPtr = GetNewDialog(MIDIkeyboardID,0L,0L);
-FileSavePreferencesPtr = GetNewDialog(FileSavePreferencesID,&FileSavePreferencesDR,0L);
-PatternPtr = GetNewDialog(PatternID,&PatternDR,0L);
-EnterPtr = GetNewDialog(EnterID,&EnterDR,0L);
-GreetingsPtr = GetNewDialog(GreetingsID,0L,0L);
+ResumeUndoStopPtr = GetNewDialog(ResumeUndoStopID,NULL,0L);
+MIDIkeyboardPtr = GetNewDialog(MIDIkeyboardID,NULL,0L);
+FileSavePreferencesPtr = GetNewDialog(FileSavePreferencesID,NULL,0L);
+PatternPtr = GetNewDialog(PatternID,NULL,0L);
+EnterPtr = GetNewDialog(EnterID,NULL,0L);
+GreetingsPtr = GetNewDialog(GreetingsID,NULL,0L);
 DrawDialog(GreetingsPtr);
-FAQPtr = GetNewDialog(FAQDialogID,0L,0L);
-SixteenPtr = GetNewDialog(SixteenDialogID,0L,0L);
-StrikeModePtr = GetNewDialog(StrikeModeID,0L,0L);
-TuningPtr = GetNewDialog(TuningID,&TuningDR,0L);
-DefaultPerformanceValuesPtr = GetNewDialog(DefaultID,&DefaultPerformanceValuesDR,0L);
-CsoundInstrMorePtr = GetNewDialog(CsoundInstrMoreID,&CsoundInstrMoreDR,0L);
-OMSinoutPtr = GetNewDialog(OMSinoutID,0L,0L);
-MIDIprogramPtr = GetNewDialog(MIDIprogramID,&MIDIprogramDR,0L);
+FAQPtr = GetNewDialog(FAQDialogID,NULL,0L);
+SixteenPtr = GetNewDialog(SixteenDialogID,NULL,0L);
+StrikeModePtr = GetNewDialog(StrikeModeID,NULL,0L);
+TuningPtr = GetNewDialog(TuningID,NULL,0L);
+DefaultPerformanceValuesPtr = GetNewDialog(DefaultID,NULL,0L);
+CsoundInstrMorePtr = GetNewDialog(CsoundInstrMoreID,NULL,0L);
+OMSinoutPtr = GetNewDialog(OMSinoutID,NULL,0L);
+MIDIprogramPtr = GetNewDialog(MIDIprogramID,NULL,0L);
 
 bad = FALSE;
 Jbutt = 0;
@@ -818,8 +818,7 @@ for(w=0; w < WMAX; w++) {
 IsHTML[wCsoundTables] = TRUE;
 for(w=0; w < MAXWIND; w++) {
 	PleaseWait();
-	if((Window[w] =
-		GetNewCWindow(WindowIDoffset+w,&(DRecord[w].window),0L)) == NULL) {
+	if((Window[w] = GetNewCWindow(WindowIDoffset+w, NULL, 0L)) == NULL) {
 		sprintf(Message,"Can't load resource window ID#%ld",
 			(long)WindowIDoffset+w);
 		EmergencyExit = TRUE;
@@ -827,6 +826,7 @@ for(w=0; w < MAXWIND; w++) {
 		NoteAlert(OKAlert,0L);
 		bad = TRUE;
 		}
+	gpDialogs[w] = Window[w];  /* should probably not duplicate WindowPtrs as DialogPtrs, but may be neccessary for now -- 010907 akozar */
 	if(!bad) SetUpWindow(w);
 	r = Window[w]->portRect;
 	Weird[w] = FALSE;
@@ -871,8 +871,7 @@ DrawString(title);
 	
 for(w=MAXWIND; w < WMAX; w++) {
 	PleaseWait();
-	if((Window[w] =
-		GetNewDialog(WindowIDoffset+w,&(DRecord[w]),0L)) == NULL) {
+	if((gpDialogs[w] = GetNewDialog(WindowIDoffset+w,NULL,0L)) == NULL) {
 		sprintf(Message,"Can't load dialog window ID#%ld",
 			(long)WindowIDoffset+w);
 		EmergencyExit = TRUE;
@@ -881,8 +880,9 @@ for(w=MAXWIND; w < WMAX; w++) {
 		bad = TRUE;
 		}
 	if(bad) continue;
+	Window[w] = gpDialogs[w];  /* should probably not duplicate DialogPtrs as WindowPtrs, but may be neccessary for now -- 010907 akozar */
 	SetPort(Window[w]);
-	rc = DRecord[w].window.refCon;
+	rc = ((DialogPeek)gpDialogs[w])->window.refCon;
 	if(rc != 0L) {
 		TextSize(WindowTextSize[w]);
 		type = (int) (rc % 4L);
@@ -917,13 +917,13 @@ for(w=MAXWIND; w < WMAX; w++) {
 			return(FAILED);
 			}
 		top = (int)(((rc - (rc % 536870912L)) / 536870912L) * 64)+4;
-		if(top == 0) top = DRecord[w].window.port.portRect.top;
+		if(top == 0) top = ((DialogPeek)gpDialogs[w])->window.port.portRect.top;
 		left = (int)((((rc - (rc % 67108864L)) / 67108864L) % 8) * 64)+4;
-		if(left == 0) left = DRecord[w].window.port.portRect.left;
+		if(left == 0) left = ((DialogPeek)gpDialogs[w])->window.port.portRect.left;
 		bottom = (int)(((rc - (rc % 131072L)) / 131072L) % 512);
-		if(bottom == 0) bottom = DRecord[w].window.port.portRect.bottom;
+		if(bottom == 0) bottom = ((DialogPeek)gpDialogs[w])->window.port.portRect.bottom;
 		right = (int)(((rc - (rc % 256L)) / 256L) % 512);
-		if(right == 0) right = DRecord[w].window.port.portRect.right;
+		if(right == 0) right = ((DialogPeek)gpDialogs[w])->window.port.portRect.right;
 		ibot = (bottom - top) / Buttonheight;
 		j = 2;
 		widmax = 0;

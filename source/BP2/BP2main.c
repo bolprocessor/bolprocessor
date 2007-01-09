@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -131,7 +131,7 @@ CurrentDir = WindowParID[wScript];
 CurrentVref = TheVRefNum[wScript];
 startupscript = FALSE;
 
-HideWindow(GreetingsPtr);
+HideWindow(GetDialogWindow(GreetingsPtr));
 MemoryUsedInit = MemoryUsed + leak;
 ForceTextColor = ForceGraphicColor = 0;
 BPActivateWindow(SLOW,wMessage);
@@ -713,6 +713,7 @@ GetMoreSpace(Size size)
 {
 long contigbytes,grow;
 int rep,result;
+RgnHandle rgnH;
 
 SchedulerIsActive--;
 if(IsEmergencyMemory() && (h_EmergencyMemory != GZSaveHnd())) {
@@ -744,7 +745,9 @@ NOSPACE:
 			Alert1("Graphics will not be displayed because of lack of memory");
 		ShowWindow(Window[wTimeAccuracy]);
 		BringToFront(Window[wTimeAccuracy]);
-		UpdateDialog(Window[wTimeAccuracy],Window[wTimeAccuracy]->visRgn);
+		rgnH = NewRgn();	/* FIXME:  check to see that this is correct - 010907 akozar */
+		UpdateDialog(gpDialogs[wTimeAccuracy], GetPortVisibleRegion(GetDialogPort(gpDialogs[wTimeAccuracy]),rgnH));
+		DisposeRgn(rgnH);
 		if(!ScriptExecOn)
 			Alert1("You should size up the memory allocation for BP2, or increase the quantization");
 USEIT:		

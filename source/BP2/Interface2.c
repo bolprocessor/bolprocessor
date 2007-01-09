@@ -857,12 +857,12 @@ StopWait();
 strcpy(LineBuff,message);
 GetDialogItem(EnterPtr,fMessage,&itemtype,&itemhandle,&r);
 SetDialogItemText(itemhandle,c2pstr(LineBuff));
-TESetSelect(ZERO,ZERO,EnterDR.textH);
+TESetSelect(ZERO,ZERO,((DialogPeek)EnterPtr)->textH);
 strcpy(LineBuff,defaultvalue);
 GetDialogItem(EnterPtr,fValue,&itemtype,&itemhandle,&r);
 SetDialogItemText(itemhandle,c2pstr(LineBuff));
-TESetSelect(ZERO,63L,EnterDR.textH);
-TEActivate(EnterDR.textH);
+TESetSelect(ZERO,63L,((DialogPeek)EnterPtr)->textH);
+TEActivate(((DialogPeek)EnterPtr)->textH);
 
 ShowWindow(EnterPtr);
 BringToFront(EnterPtr);
@@ -874,7 +874,7 @@ AlertOn++;
 while(TRUE) {
 	eventfound = GetNextEvent(everyEvent,&event);
 	MaintainCursor();
-	TEIdle(EnterDR.textH);
+	TEIdle(((DialogPeek)EnterPtr)->textH);
 	/* Apparently needed although Think Reference says IsDialogEvent() blinks the caret */
 	if(!IsDialogEvent(&event)) continue;
 	if(!eventfound) continue;
@@ -1922,20 +1922,20 @@ char line[256];
 long p,q;
 
 sprintf(line,"%s",FindString);
-GetDialogItem((DialogPtr)&DRecord[wFindReplace],fFind,&itemtype,
+GetDialogItem(gpDialogs[wFindReplace],fFind,&itemtype,
 	(Handle*)&itemhandle,&r);
 SetDialogItemText((Handle)itemhandle,c2pstr(line));
-TESetSelect(ZERO,63L,DRecord[wFindReplace].textH);
+TESetSelect(ZERO,63L,((DialogPeek)gpDialogs[wFindReplace])->textH);
 sprintf(line,"%s",ReplaceString);
-GetDialogItem((DialogPtr)&DRecord[wFindReplace],fReplace,&itemtype,
+GetDialogItem(gpDialogs[wFindReplace],fReplace,&itemtype,
 	(Handle*)&itemhandle,&r);
 SetDialogItemText((Handle)itemhandle,c2pstr(line));
-TESetSelect(ZERO,63L,DRecord[wFindReplace].textH);
-GetDialogItem((DialogPtr)&DRecord[wFindReplace],dIgnoreCase,&itemtype,
+TESetSelect(ZERO,63L,((DialogPeek)gpDialogs[wFindReplace])->textH);
+GetDialogItem(gpDialogs[wFindReplace],dIgnoreCase,&itemtype,
 	(Handle*)&itemhandle,&r);
 /* SetCtlValue(itemhandle,IgnoreCase); */
 SetControlValue(itemhandle,IgnoreCase);
-GetDialogItem((DialogPtr)&DRecord[wFindReplace],dMatchWords,&itemtype,
+GetDialogItem(gpDialogs[wFindReplace],dMatchWords,&itemtype,
 	(Handle*)&itemhandle,&r);
 /* SetCtlValue(itemhandle,MatchWords); */
 SetControlValue(itemhandle,MatchWords);
@@ -1952,12 +1952,12 @@ int i,j,reply;
 Str255 t;
 
 /* if(!Dirty[wFindReplace]) return(OK); */
-GetDialogItem((DialogPtr)&DRecord[wFindReplace],fFind,&itemtype,&itemhandle,&r);
+GetDialogItem(gpDialogs[wFindReplace],fFind,&itemtype,&itemhandle,&r);
 GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,FindString);
 ConvertSpecialChars(FindString);
 Finding = TRUE; if(strlen(FindString) == 0) Finding = FALSE;
-GetDialogItem((DialogPtr)&DRecord[wFindReplace],fReplace,&itemtype,&itemhandle,
+GetDialogItem(gpDialogs[wFindReplace],fReplace,&itemtype,&itemhandle,
 	&r);
 GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,ReplaceString);
@@ -1985,9 +1985,9 @@ else {
 		if(Beta) Alert1("Err. SetField(). Incorrect index");
 		return(FAILED);
 		}
-	thedialog = (DialogPtr) &DRecord[w];
+	thedialog = gpDialogs[w];
 	}
-dr =  *((DialogRecord*)thedialog);
+dr =  *((DialogRecord*)thedialog);	// FIXME (use DialogPeek for now)
 
 GetDialogItem(thedialog,(short)ifield,&itemtype,&itemhandle,&r);
 if(((itemtype & 127)  != editText && (itemtype & 127)  != statText)
@@ -2025,7 +2025,7 @@ else {
 		if(Beta) Alert1("Err. GetField(). Incorrect index");
 		return(FAILED);
 		}
-	thedialog = (DialogPtr) &DRecord[w];
+	thedialog = gpDialogs[w];
 	}
 	
 *p_p = ZERO; *p_q = 1L;
@@ -2107,7 +2107,7 @@ if(w < 0 || w >= WMAX) {
 	if(Beta) Alert1("Err. GetCtrlValue(). Incorrect index");
 	return(0);
 	}
-GetDialogItem((DialogPtr)&DRecord[w],(short)icontrol,&itemtype,(Handle*)&itemhandle,&r);
+GetDialogItem(gpDialogs[w],(short)icontrol,&itemtype,(Handle*)&itemhandle,&r);
 if((((itemtype & 127) != (ctrlItem+radCtrl)) && ((itemtype & 127) != (ctrlItem+chkCtrl)))
 	|| itemhandle == NULL) {
 	if(Beta) {
@@ -2130,7 +2130,7 @@ if(w < 0 || w >= WMAX) {
 	if(Beta) Alert1("Err. ToggleButton(). Incorrect index");
 	return(FAILED);
 	}
-GetDialogItem((DialogPtr)&DRecord[w],(short)icontrol,&itemtype,(Handle*)&itemhandle,&r);
+GetDialogItem(gpDialogs[w],(short)icontrol,&itemtype,(Handle*)&itemhandle,&r);
 if((((itemtype & 127) != (ctrlItem+radCtrl)) && ((itemtype & 127) != (ctrlItem+chkCtrl)))
 	|| itemhandle == NULL) {
 	if(Beta)  {
@@ -2166,7 +2166,7 @@ else {
 		if(Beta) Alert1("Err. SwitchOn(). Incorrect index");
 		return(FAILED);
 		}
-	thedialog = (DialogPtr) &DRecord[w];
+	thedialog = gpDialogs[w];
 	}
 GetDialogItem(thedialog,(short)i,&itemtype,&itemhandle,&r);
 itemtype = (itemtype & 127) - ctrlItem;
@@ -2201,7 +2201,7 @@ else {
 		if(Beta) Alert1("Err. SwitchOff(). Incorrect index");
 		return(FAILED);
 		}
-	thedialog = (DialogPtr) &DRecord[w];
+	thedialog = gpDialogs[w];
 	}
 GetDialogItem(thedialog,(short)i,&itemtype,&itemhandle,&r);
 itemtype = (itemtype & 127) - ctrlItem;
@@ -2231,7 +2231,7 @@ if(w < 0 || w >= WMAX) {
 	if(Beta) Alert1("Err. ShowPannel(). Incorrect index");
 	return(FAILED);
 	}
-GetDialogItem((DialogPtr)&DRecord[w],(short)i,&itemtype,&itemhandle,&r);
+GetDialogItem(gpDialogs[w],(short)i,&itemtype,&itemhandle,&r);
 itemtype = (itemtype & 127) - ctrlItem;
 if(itemtype != radCtrl && itemtype != chkCtrl && itemtype != btnCtrl
 		|| itemhandle == NULL) {
@@ -2256,7 +2256,7 @@ if(w < 0 || w >= WMAX) {
 	if(Beta) Alert1("Err. HidePannel(). Incorrect index");
 	return(FAILED);
 	}
-GetDialogItem((DialogPtr)&DRecord[w],(short)i,&itemtype,&itemhandle,&r);
+GetDialogItem(gpDialogs[w],(short)i,&itemtype,&itemhandle,&r);
 itemtype = (itemtype & 127) - ctrlItem;
 if(itemtype != radCtrl && itemtype != chkCtrl && itemtype != btnCtrl
 		|| itemhandle == NULL) {
@@ -2283,7 +2283,7 @@ else {
 		if(Beta) Alert1("Err. SelectField(). Incorrect index");
 		return(FAILED);
 		}
-	thedialog = (DialogPtr) &DRecord[w];
+	thedialog = gpDialogs[w];
 	}
 if(all) SelectDialogItemText(thedialog,ifield,0,32767);
 else  SelectDialogItemText(thedialog,ifield,0,0);
@@ -2324,11 +2324,11 @@ SetPort(Window[w]);
 PenNormal();
 if(active) {
 	Activate(TEH[w]);
-	if(HasFields[w]) TEDeactivate(DRecord[w].textH);
+	if(HasFields[w]) TEDeactivate(((DialogPeek)gpDialogs[w])->textH);
 	}
 else {
 	Deactivate(TEH[w]);
-	if(HasFields[w]) TEActivate(DRecord[w].textH);
+	if(HasFields[w]) TEActivate(((DialogPeek)gpDialogs[w])->textH);
 	PenPat(&gray);
 	}
 RGBForeColor(&Black);

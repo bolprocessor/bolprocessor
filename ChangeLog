@@ -1,3 +1,26 @@
+2007-01-09	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	* source/BP2/BP2main.c: Converted for CarbonAccessors.
+	
+	* source/BP2/-BP2.h: Set BIGTEST and COMPILING_BETA to 1 for now.
+	
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+	* source/BP2/BP2main.c:
+	* source/BP2/Dialogs.c:
+	* source/BP2/GetRelease.c:
+	* source/BP2/Inits.c:
+	* source/BP2/Interface1.c:
+	* source/BP2/Interface2.c:
+	* source/BP2/Misc.c:
+	* source/BP2/Strings.c:
+	* source/BP2/Ticks.c:
+		Modified to not allocate space for (most) windows and dialogs.
+		Now using DialogPtrs everywhere instead of DialogRecords.
+		Changed some WindowPtrs to DialogPtrs as appropriate.
+		DRecord[] renamed to gpDialogs[].
+		Duplicating pointers between Window[] and gpDialogs[] for now, but
+			should be changed to be independent everywhere.
+
 2007-01-08	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	* BP2-MacOS.cw8.mcp: New target for Carbon Transitional build.
 	

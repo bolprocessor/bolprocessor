@@ -471,7 +471,7 @@ else {
 		if(Beta) Alert1("Err. TooLongFileName(). Incorrect index");
 		return(FAILED);
 		}
-	thedialog = (DialogPtr) &DRecord[w];
+	thedialog = gpDialogs[w];
 	}
 Strip(line);
 if(strlen(line) >= MAXNAME) {
