@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -366,7 +366,7 @@ if(showpianoroll) {
 	if(endxmax < 100) endxmax = 100;
 	endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
 	
-	graphrect = Window[w]->portRect;
+	GetWindowPortBounds(Window[w], &graphrect);
 	graphrect.bottom = graphrect.top + endymax;
 	graphrect.right = graphrect.left + endxmax;
 	
@@ -1728,7 +1728,7 @@ LastTcurr = Tcurr;
 if(showpianoroll) {
 	CloseGraphic(w,endxmax,endymax,overflow,&graphrect,&port,gdh);
 	if(!overflow) DrawNoteScale(w,minkey,maxkey,hrect,leftoffset,topoffset);
-	if(Offscreen) UnlockPixels(gMainGWorld->portPixMap);
+	if(Offscreen) UnlockPixels(GetGWorldPixMap(gMainGWorld));
 	if(saveport != NULL) SetPort(saveport);
 	else if(Beta) Alert1("Err MakeSound(). saveport == NULL");
 	if(ShowMessage) ClearMessage();
@@ -1840,7 +1840,7 @@ if(result == STOP) result = ABORT;
 if(showpianoroll) {
 	CloseGraphic(w,endxmax,endymax,overflow,&graphrect,&port,gdh);
 	if(!overflow) DrawNoteScale(w,minkey,maxkey,hrect,leftoffset,topoffset);
-	if(Offscreen) UnlockPixels(gMainGWorld->portPixMap);
+	if(Offscreen) UnlockPixels(GetGWorldPixMap(gMainGWorld));
 	if(saveport != NULL) SetPort(saveport);
 	else if(Beta) Alert1("Err MakeSound(). saveport == NULL");
 	if(ShowMessage) ClearMessage();

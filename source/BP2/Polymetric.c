@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -375,7 +375,14 @@ if(Pclock > 0.) {
 				QuantizeOK = TRUE;
 				UpdateDirty(TRUE,iSettings);
 				SetTimeAccuracy();
-				UpdateDialog(Window[wTimeAccuracy],Window[wTimeAccuracy]->visRgn);
+				{ GrafPtr port;
+				  RgnHandle rgn;
+				  port = GetDialogPort(gpDialogs[wTimeAccuracy]);
+				  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+				  GetPortVisibleRegion(port, rgn);
+				  UpdateDialog(gpDialogs[wTimeAccuracy], rgn);
+				  DisposeRgn(rgn);
+				}
 				goto FINDCOMPRESSION;
 				}
 			r = OK;

@@ -40,8 +40,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -544,7 +544,7 @@ Rect r;
 GrafPtr saveport;
 
 GetPort(&saveport);
-SetPort(OMSinoutPtr);
+SetPortDialogPort(OMSinoutPtr);
 SetRect(&r,70,10,210,26);
 
 gInputMenu = NewOMSDeviceMenu(NULL,odmFrameBox,&r,

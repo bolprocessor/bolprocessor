@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -164,12 +164,12 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 	return(ZERO);
 	}
 GetPort(&saveport);
-SetPort(Window[w]);
+SetPortWindowPort(Window[w]);
 #if WASTE
 EraseRgn((*TEH[w])->viewRgn);
 WEUpdate((*TEH[w])->viewRgn,TEH[w]);
 #else
-TEUpdate(&(Window[w]->portRect),TEH[w]);
+TEUpdate(&(Window[w]->portRect),TEH[w]);	// FIXME: Need to compile !WASTE to find some issues
 #endif
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err. TextUpdate(). saveport == NULL");

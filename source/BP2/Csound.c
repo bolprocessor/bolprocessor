@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -1346,9 +1346,16 @@ for(ip=0; ip < IPMAX; ip++) {
 		if(paramlist == NULL || (*paramlist)[ip].startindex == -1) {
 NOSTARTINDEX:
 			Alert1("Start index should be specified");
-			ShowWindow(CsoundInstrMorePtr);
-			SelectWindow(CsoundInstrMorePtr);
-			UpdateDialog(CsoundInstrMorePtr,CsoundInstrMorePtr->visRgn);
+			ShowWindow(GetDialogWindow(CsoundInstrMorePtr));
+			SelectWindow(GetDialogWindow(CsoundInstrMorePtr));
+			{ GrafPtr port;
+			  RgnHandle rgn;
+			  port = GetDialogPort(CsoundInstrMorePtr);
+			  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+			  GetPortVisibleRegion(port, rgn);
+			  UpdateDialog(CsoundInstrMorePtr, rgn);
+			  DisposeRgn(rgn);
+			}
 			SetField(CsoundInstrMorePtr,-1,fMoreStartIndex + (7*ip),"[?]");
 			SelectField(CsoundInstrMorePtr,-1,fMoreStartIndex + (7*ip),TRUE);
 			(*paramlist)[ip].nameindex = -1;
@@ -1502,8 +1509,8 @@ sprintf(line,"Argument #%ld is already assigned to another control. You may choo
 	(long)index,(long)1L+(*p_CsInstrument)[j].iargmax);
 Alert1(line);
 if(dialog != NULL) {
-	ShowWindow(dialog);
-	SelectWindow(dialog);
+	ShowWindow(GetDialogWindow(dialog));
+	SelectWindow(GetDialogWindow(dialog));
 	}
 else {
 	ShowWindow(Window[w]);

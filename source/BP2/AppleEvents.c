@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -300,10 +300,16 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 							
 							HideWindow(Window[wMessage]);
 							
-							ShowWindow(SixteenPtr);
-							SelectWindow(SixteenPtr);
-							UpdateDialog(SixteenPtr,SixteenPtr->visRgn); /* Needed to make static text visible */
-							
+							ShowWindow(GetDialogWindow(SixteenPtr));
+							SelectWindow(GetDialogWindow(SixteenPtr));
+							{ GrafPtr port;
+							  RgnHandle rgn;
+							  port = GetDialogPort(SixteenPtr);
+							  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+							  GetPortVisibleRegion(port, rgn);
+							  UpdateDialog(SixteenPtr, rgn); /* Needed to make static text visible */
+							  DisposeRgn(rgn);
+							}
 							BPActivateWindow(SLOW,wind);
 							break;
 						}

@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -1384,8 +1384,8 @@ FOUNDNOTE:
 					"Simple note ‘%s’ is out of range. (May be check “Tuning”)",
 					line);
 				Alert1(Message);
-				ShowWindow(TuningPtr);
-				SelectWindow(TuningPtr);
+				ShowWindow(GetDialogWindow(TuningPtr));
+				SelectWindow(GetDialogWindow(TuningPtr));
 				return(ABORT);
 				}
 			return(j+16384);

@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -522,10 +522,17 @@ if(!StrikeAgainDefault) {
 		'N');
 	if(r == ABORT) return(r);
 	if(r == YES) {
-		ShowWindow(StrikeModePtr);
-		BringToFront(StrikeModePtr);
+		ShowWindow(GetDialogWindow(StrikeModePtr));
+		BringToFront(GetDialogWindow(StrikeModePtr));
 		SetDefaultStrikeMode();
-		UpdateDialog(StrikeModePtr,StrikeModePtr->visRgn);
+		{ GrafPtr port;
+		  RgnHandle rgn;
+		  port = GetDialogPort(StrikeModePtr);
+		  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+		  GetPortVisibleRegion(port, rgn);
+		  UpdateDialog(StrikeModePtr, rgn);
+		  DisposeRgn(rgn);
+		}
 		return(ABORT);
 		}
 	}

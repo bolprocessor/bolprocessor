@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -80,7 +80,7 @@ wasactive = TRUE;
 if(wind >= 0 && wind < WMAX && Editable[wind]) {
 	th = TEH[wind];
 	GetPort(&saveport);
-	SetPort(Window[wind]);
+	SetPortWindowPort(Window[wind]);
 	TextSize(WindowTextSize[wind]);
 	Reformat(wind,-1,WindowTextSize[wind],(int)normal,&Black,NO,NO);
 #if WASTE

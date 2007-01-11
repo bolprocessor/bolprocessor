@@ -745,7 +745,7 @@ NOSPACE:
 			Alert1("Graphics will not be displayed because of lack of memory");
 		ShowWindow(Window[wTimeAccuracy]);
 		BringToFront(Window[wTimeAccuracy]);
-		rgnH = NewRgn();	/* FIXME:  check to see that this is correct - 010907 akozar */
+		rgnH = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
 		UpdateDialog(gpDialogs[wTimeAccuracy], GetPortVisibleRegion(GetDialogPort(gpDialogs[wTimeAccuracy]),rgnH));
 		DisposeRgn(rgnH);
 		if(!ScriptExecOn)

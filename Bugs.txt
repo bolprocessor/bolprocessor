@@ -17,7 +17,13 @@ lines of code in FillPhaseDiagram.c (line 902):
 - These dialogs cannot be closed with Command-W: Tuning, Default performance
 values, Default strike mode, and File Save Preferences.
 
+- importing a long Csound score into a sound-prototype (with large time values)
+results in a lot of "overflow" messages in the Trace window.  Pressing Command-.
+during this output brings up the Resume/Stop dialog and choosing Stop then 
+_starts_ a silent performance for a length of time. (Equal to last performance 
+length?) ??
+
 Anthony Kozar
 akozar@users.sourceforge.net
 
-January 2, 2007
+January 10, 2007

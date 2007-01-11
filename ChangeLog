@@ -1,3 +1,57 @@
+2007-01-10	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	* source/BP2/Arithmetic.c:
+	* source/BP2/Automata.c:
+	* source/BP2/CompileProcs.c:
+	* source/BP2/CsoundMaths.c:
+	* source/BP2/CsoundScoreMake.c:
+	* source/BP2/DisplayThings.c:
+	* source/BP2/FillPhaseDiagram.c:
+	* source/BP2/Glossary.c:
+	* source/BP2/HTML.c:
+	* source/BP2/Interaction.c:
+	* source/BP2/MIDIdrivers.c:
+	* source/BP2/MIDIfiles.c:
+	* source/BP2/MIDIstuff.c:
+	* source/BP2/Processes.c:
+	* source/BP2/ProduceItems.c:
+	* source/BP2/SaveLoads2.c:
+	* source/BP2/SaveLoads3.c:
+	* source/BP2/Schedule.c:
+	* source/BP2/ScriptAlgo.c:
+	* source/BP2/ScriptUtils.c:
+	* source/BP2/SetObjectFeatures.c:
+	* source/BP2/SoundObjects1.c:
+	* source/BP2/SoundObjects2.c:
+	* source/BP2/SoundObjects3.c:
+	* source/BP2/Strings.c:
+	* source/BP2/Ticks.c:
+	* source/BP2/TimeSet.c:
+	* source/BP2/TimeSetFunctions.c:
+	* source/BP2/Zouleb.c:
+		Switched to CarbonAccessors (no conversion necessary).
+
+	* source/BP2/AppleEvents.c:
+	* source/BP2/Color.c:
+	* source/BP2/CompileGrammar.c:
+	* source/BP2/Compute.c:
+	* source/BP2/Csound.c:
+	* source/BP2/DisplayArg.c:
+	* source/BP2/Encode.c:
+	* source/BP2/GetRelease.c:
+	* source/BP2/Graphic.c:
+	* source/BP2/MakeSound.c:
+	* source/BP2/MIDIloads.c:
+	* source/BP2/OMS.c:
+	* source/BP2/PlayThings.c:
+	* source/BP2/Polymetric.c:
+	* source/BP2/SaveLoads1.c:
+	* source/BP2/Script.c:
+	* source/BP2/Translit.c:
+		Converted for CarbonAccessors.
+
+	* source/BP2/WindowText.c: Partially converted for WASTE true.
+	
+
 2007-01-09	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	* source/BP2/BP2main.c: Converted for CarbonAccessors.
 	

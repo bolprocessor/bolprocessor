@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -61,7 +61,7 @@ int linenum,linemax,maxlines,hrect,htext,morespace,**p_morespace,
 	edge,foundone,overflow;
 long pivloc,t1,tt1,t2,endxmax,endymax,endx,y,i,j,k,yruler,
 	**p_endx,endy,**p_endy,**p_top,trbeg,trend;
-Rect r;
+Rect r, r2;
 Str255 label;
 char line[BOLSIZE+5],line2[BOLSIZE+1];
 p_list **waitlist;
@@ -97,13 +97,14 @@ hrect = WindowTextSize[w] + 3; /* height of rectangles */
 htext = WindowTextSize[w] + 2;
 leftoffset = hrect - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
 topoffset = (3 * htext) + 8;
-r = window->portRect;
+GetWindowPortBounds(window, &r);
 r.bottom = r.top + topoffset + Maxevent * (hrect + htext);
 endxmax = leftoffset + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10
 	+ BOLSIZE * CharWidth('w');
 if(endxmax < 100) endxmax = 100;
 r.right = r.left + endxmax;
-if(r.right < window->portRect.right) r.right = window->portRect.right;
+GetWindowPortBounds(window, &r2);
+if(r.right < r2.right) r.right = r2.right;
 
 if(OpenGraphic(w,&r,NO,&port,&gdh) != OK) return(ABORT);
 
@@ -286,7 +287,7 @@ CloseGraphic(w,endxmax,endymax,overflow,&r,&port,gdh);
 StopWait();
 
 QUIT:
-if(Offscreen) UnlockPixels(gMainGWorld->portPixMap);
+if(Offscreen) UnlockPixels(GetGWorldPixMap(gMainGWorld));
 MyDisposeHandle((Handle*)&p_morespace);
 MyDisposeHandle((Handle*)&p_top);
 MyDisposeHandle((Handle*)&p_endx);
@@ -465,7 +466,7 @@ if(p_graph == NULL) {
 	return(FAILED);
 	}
 GetPort(&saveport);
-SetPort(Window[w]);
+SetPortWindowPort(Window[w]);
 FramePoly(p_graph);
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err DrawGraph(). saveport == NULL");
@@ -602,7 +603,7 @@ if(j < 2 || j >= Jbol) return(OK);
 rep = OK;
 
 GetPort(&saveport);
-SetPort(Window[w]);
+SetPortWindowPort(Window[w]);
 KillDiagrams(w);
 if(p_Picture[1] != NULL) {
 	KillPicture(p_Picture[1]);
@@ -616,8 +617,8 @@ p_Picture[1] = OpenPicture(&r);
 PictureWindow[1] = w;
 PictRect[1] = r;
 
-oldsize = Window[w]->txSize;
-oldfont = Window[w]->txFont;
+oldsize = GetPortTextSize(GetWindowPort(Window[w]));
+oldfont = GetPortTextFont(GetWindowPort(Window[w]));
 TextFont(kFontIDCourier); TextSize(WindowTextSize[w]);
 PenNormal();
 
@@ -1099,7 +1100,7 @@ DrawPicture(p_Picture[1],&r);
 ValidRect(&r);
 if(Npicture < 2) Npicture = 2;
 
-r = Window[w]->portRect;
+GetWindowPortBounds(Window[w], &r);
 ClipRect(&r);
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err DrawPrototype(). saveport == NULL");
@@ -1112,18 +1113,19 @@ OpenGraphic(int w,Rect *p_r,int showpen,CGrafPtr *p_port,GDHandle *p_gdh)
 GWorldFlags flags;
 
 if(Offscreen) {
+	Rect rtemp;
 	GetGWorld(p_port,p_gdh);
 	flags = UpdateGWorld(&gMainGWorld,16,p_r,0,NULL,clipPix);
-	if(!LockPixels(gMainGWorld->portPixMap)) {
+	if(!LockPixels(GetGWorldPixMap(gMainGWorld))) {
 		Alert1("LockPixels FailedÉ ");
 		return(ABORT);
 		}
 	SetGWorld(gMainGWorld,nil);
 	SetPort((GrafPtr)gMainGWorld);
-	EraseRect(&gMainGWorld->portRect);
+	EraseRect(GetPortBounds(gMainGWorld, &rtemp));
 	}
 else {
-	SetPort(Window[w]);
+	SetPortWindowPort(Window[w]);
 	ClearWindow(TRUE,w);
 	if(p_Picture[0] != NULL) {
 		if(Beta) {
@@ -1155,9 +1157,9 @@ RGBForeColor(&Black);
 PenSize(1,1);
 PenNormal();
 
-rclip = Window[w]->portRect;
-if(OKhScroll[w]) rclip.bottom = Window[w]->portRect.bottom - SBARWIDTH - 1;
-if(OKvScroll[w]) rclip.right = Window[w]->portRect.right - SBARWIDTH - 1;
+GetWindowPortBounds(Window[w], &rclip);
+if(OKhScroll[w]) rclip.bottom -= (SBARWIDTH + 1);
+if(OKvScroll[w]) rclip.right -= (SBARWIDTH + 1);
 ClipRect(&rclip);
 
 ShowWindow(Window[w]);
@@ -1179,13 +1181,22 @@ if(!Offscreen) {
 		}
 	}
 else {
-	if(!overflow) {
+	if(!overflow) {	// FIXME ? Should we call LockPixels before CopyBits?
+		Rect rtemp;
+		RgnHandle cliprgn;
 		SetGWorld((*p_port),gdh);
-		CopyBits((BitMap*)*gMainGWorld->portPixMap,(BitMap*)&(((CGrafPtr)Window[w])
-			->portPixMap),
-			&gMainGWorld->portRect,&gMainGWorld->portRect,srcCopy,Window[w]->clipRgn);
-			}
-		}
+		GetPortBounds(gMainGWorld, &rtemp);
+		cliprgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+		GetPortClipRegion(GetWindowPort(Window[w]), cliprgn);
+		CopyBits((BitMap*)*GetGWorldPixMap(gMainGWorld),             // was (BitMap*)*gMainGWorld->portPixMap,
+			   (BitMap*)*GetPortPixMap(GetWindowPort(Window[w])),  // was (BitMap*)&(((CGrafPtr)Window[w])->portPixMap),
+			   &rtemp,                                             // was &gMainGWorld->portRect,
+			   &rtemp,                                             // was &gMainGWorld->portRect,
+			   srcCopy,
+			   cliprgn);                                           // was Window[w]->clipRgn
+		DisposeRgn(cliprgn);
+	}
+}
 
 newh = newv = FALSE;
 if(endxmin < Hmin[w]) {
@@ -1213,7 +1224,7 @@ SetMaxControlValues(w,rclip);
 if(newh) OffsetGraphs(w,Hmin[w] - rclip.left - 1,0);
 if(newv) OffsetGraphs(w,0,Vmin[w] - rclip.top - 1);
 
-rclip = Window[w]->portRect;
+GetWindowPortBounds(Window[w], &rclip);
 ClipRect(&rclip);
 DrawControls(Window[w]);
 ValidRect(&rclip);
@@ -1409,8 +1420,13 @@ DrawNoteScale(int w,int minkey,int maxkey,int hrect,int leftoffset,int topoffset
 int y,key;
 Str255 label;
 Rect therect,cliprect;
+RgnHandle cliprgn;
 
-cliprect = (*(Window[w]->clipRgn))->rgnBBox;
+// was cliprect = (*(Window[w]->clipRgn))->rgnBBox;
+cliprgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+GetPortClipRegion(GetWindowPort(Window[w]), cliprgn);
+GetRegionBounds(cliprgn, &cliprect);
+DisposeRgn(cliprgn);
 
 therect.top = topoffset - 2 - hrect;
 therect.left = 0;

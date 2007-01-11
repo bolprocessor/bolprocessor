@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -1085,10 +1085,10 @@ WRITE:
 				PleaseWait();
 				MoveDisk();
 				sprintf(LineBuff,"%ld",(long)ChangedCoordinates[w]);
-				SetPort(Window[w]);
+				SetPortWindowPort(Window[w]);
 				WriteToFile(NO,MAC,LineBuff,refnum);
 				if(ChangedCoordinates[w]) {
-					r = Window[w]->portRect;
+					GetWindowPortBounds(Window[w], &r);
 					p = topLeft(r);
 					LocalToGlobal(&p);
 					q = botRight(r);

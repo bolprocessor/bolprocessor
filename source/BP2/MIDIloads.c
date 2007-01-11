@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -272,7 +272,7 @@ SetDialogItemText(itemhandle,c2pstr(Message));
 d = im - 1;
 
 TRY:
-ShowWindow(PatternPtr); BringToFront(PatternPtr);
+ShowWindow(GetDialogWindow(PatternPtr)); BringToFront(GetDialogWindow(PatternPtr));
 GetDialogItem(PatternPtr,fPatternName,&itemtype,&itemhandle,&r);
 GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXNAME,t,name);
@@ -299,7 +299,7 @@ while(TRUE) {
 		}
 	if(rep == OK || rep == ABORT) break;
 	}
-HideWindow(PatternPtr);
+HideWindow(GetDialogWindow(PatternPtr));
 if(rep == ABORT) goto END;
 if(strlen(name) > 0) {
 	if(!isupper(name[0])) {

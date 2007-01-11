@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -246,7 +246,7 @@ if(p_color != &None) {
 if(!manual) return(OK);
 r = LongRectToRect((**(TEH[w])).viewRect);
 GetPort(&saveport);
-SetPort(Window[w]);
+SetPortWindowPort(Window[w]);
 InvalRect(&r);
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err Reformat(). saveport == NULL");
@@ -268,7 +268,7 @@ SetSelect(ZERO,GetTextLength(w),TEH[w]);
 Reformat(w,-1,size,-1,&None,TRUE,TRUE);
 SetSelect(origin,end,TEH[w]);
 GetPort(&saveport);
-SetPort(Window[w]);
+SetPortWindowPort(Window[w]);
 TextSize(size);
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err SetFontSize(). saveport == NULL");

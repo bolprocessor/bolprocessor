@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -665,8 +665,8 @@ FOUNDNOTE1:
 			jj += (C4key - 60);
 			if(jj < 0 || jj > 127) {
 				Alert1("Simple note is out of range. (May be check “Tuning”)");
-				ShowWindow(TuningPtr);
-				SelectWindow(TuningPtr);
+				ShowWindow(GetDialogWindow(TuningPtr));
+				SelectWindow(GetDialogWindow(TuningPtr));
 				goto ERR;
 				}
 			(*p_buff)[i++] = (tokenbyte) (jj + 16384);
@@ -811,8 +811,8 @@ FOUNDNOTE2:
 		jj += (C4key - 60);
 		if(jj < 0 || jj > 127) {
 			Alert1("Simple note is out of range. (May be check “Tuning”)");
-			ShowWindow(TuningPtr);
-			SelectWindow(TuningPtr);
+			ShowWindow(GetDialogWindow(TuningPtr));
+			SelectWindow(GetDialogWindow(TuningPtr));
 			goto ERR;
 			}
 		(*p_buff)[i++] = (tokenbyte) jj;

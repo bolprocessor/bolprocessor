@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -125,8 +125,8 @@ TRYENTER:
 
 TextUpdate(wNotice);
 ShowSelect(CENTRE,wNotice);
-ShowWindow(grammarfromtableptr);
-SelectWindow(grammarfromtableptr);
+ShowWindow(GetDialogWindow(grammarfromtableptr));
+SelectWindow(GetDialogWindow(grammarfromtableptr));
 result = FAILED;
 changed = TRUE;
 while(TRUE) {
@@ -174,9 +174,16 @@ while(TRUE) {
 		else SwitchOff(grammarfromtableptr,-1,bMakeGrammarFromTableLeftRemoveSpaces);
 		if(removespacesright) SwitchOn(grammarfromtableptr,-1,bMakeGrammarFromTableRightRemoveSpaces);
 		else SwitchOff(grammarfromtableptr,-1,bMakeGrammarFromTableRightRemoveSpaces);
-		
-		UpdateDialog(grammarfromtableptr,grammarfromtableptr->visRgn);
+
+		{ GrafPtr port;
+		  RgnHandle rgn;
+		  port = GetDialogPort(grammarfromtableptr);
+		  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+		  GetPortVisibleRegion(port, rgn);
+		  UpdateDialog(grammarfromtableptr, rgn);
+		  DisposeRgn(rgn);
 		}
+	}
 	MaintainCursor();
 	ModalDialog((ModalFilterUPP) 0L,&item);
 	changed = FALSE;
@@ -830,7 +837,7 @@ BPActivateWindow(SLOW,wNotice);
 PreviewLine(p_completeline,FALSE);
 
 filepreviewptr = GetNewDialog(SelectFieldID,0L,0L);
-ShowWindow(filepreviewptr);
+ShowWindow(GetDialogWindow(filepreviewptr));
 
 GetDialogItem(filepreviewptr,fSelectFieldNumber,&itemtype,&itemhandle,&r);
 SetDialogItemText(itemhandle,"\p1");
@@ -855,8 +862,15 @@ TextUpdate(wNotice);
 ShowSelect(CENTRE,wNotice);
 TextUpdate(wHelp);
 ShowSelect(CENTRE,wHelp);
-SelectWindow(filepreviewptr);
-UpdateDialog(filepreviewptr,filepreviewptr->visRgn);
+SelectWindow(GetDialogWindow(filepreviewptr));
+{ GrafPtr port;
+  RgnHandle rgn;
+  port = GetDialogPort(filepreviewptr);
+  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+  GetPortVisibleRegion(port, rgn);
+  UpdateDialog(filepreviewptr, rgn);
+  DisposeRgn(rgn);
+}
 while(TRUE) {
 	MaintainCursor();
 	ModalDialog((ModalFilterUPP) 0L,&item);

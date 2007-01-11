@@ -38,8 +38,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -267,7 +267,7 @@ p_Instance = NULL;
 return(DoSystem());
 }
 
-
+#if 0  /* this function appears not to be called - akozar */
 ReleaseWindowSpace(void)
 {
 int i,w;
@@ -310,7 +310,7 @@ DisposeDialog(SixteenPtr);
 DisposeDialog(MIDIprogramPtr);
 return(DoSystem());
 }
-
+#endif
 
 ReleaseAlphabetSpace(void)
 {

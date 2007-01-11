@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -417,12 +417,12 @@ ENTER:
 			datemem = CompileDate;
 			ClickRuleOn = TRUE; UndoFlag = FALSE;
 			if(UndoFlag) {
-				ShowWindow(ResumeUndoStopPtr);
-				BringToFront(ResumeUndoStopPtr);
+				ShowWindow(GetDialogWindow(ResumeUndoStopPtr));
+				BringToFront(GetDialogWindow(ResumeUndoStopPtr));
 				}
 			else {
-				ShowWindow(ResumeStopPtr);
-				BringToFront(ResumeStopPtr);
+				ShowWindow(GetDialogWindow(ResumeStopPtr));
+				BringToFront(GetDialogWindow(ResumeStopPtr));
 				}
 			while((r = MainEvent()) != RESUME && r != STOP && r != EXIT) {
 				/* Hilite selected rule */
@@ -967,8 +967,8 @@ TextDelete(wTrace);
 if(DisplayStackIndex > 1) {
 	UndoFlag = TRUE;
 	datemem = CompileDate;
-	ShowWindow(ResumeUndoStopPtr);
-	BringToFront(ResumeUndoStopPtr);
+	ShowWindow(GetDialogWindow(ResumeUndoStopPtr));
+	BringToFront(GetDialogWindow(ResumeUndoStopPtr));
 	while((r=MainEvent()) != RESUME && r != STOP && r != UNDO && r != EXIT){};
 	UndoFlag = FALSE;
 	if((datemem != CompileDate) || !CompiledGr || !CompiledPt) {
@@ -1801,7 +1801,14 @@ if((grtype != SUBtype) && (((*p_lengthorigin) + dif) >= BufferSize)) {
 			ShowWindow(Window[wBufferSize]);
 		 	if(!ShownBufferSize || UseBufferLimit) BringToFront(Window[wBufferSize]);
 		 	ShownBufferSize = TRUE;
-		 	UpdateDialog(Window[wBufferSize],Window[wBufferSize]->visRgn);
+		 	{ GrafPtr port;
+			  RgnHandle rgn;
+			  port = GetDialogPort(gpDialogs[wBufferSize]);
+			  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+			  GetPortVisibleRegion(port, rgn);
+			  UpdateDialog(gpDialogs[wBufferSize], rgn);
+			  DisposeRgn(rgn);
+			}
 		 	}
 		}
 	else return(STOP);
@@ -1896,7 +1903,14 @@ if(jmax >= (BufferSize - 2L)) {
 			ShowWindow(Window[wBufferSize]);
 		 	if(!ShownBufferSize || UseBufferLimit) BringToFront(Window[wBufferSize]);
 		 	ShownBufferSize = TRUE;
-		 	UpdateDialog(Window[wBufferSize],Window[wBufferSize]->visRgn);
+		 	{ GrafPtr port;
+			  RgnHandle rgn;
+			  port = GetDialogPort(gpDialogs[wBufferSize]);
+			  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+			  GetPortVisibleRegion(port, rgn);
+			  UpdateDialog(gpDialogs[wBufferSize], rgn);
+			  DisposeRgn(rgn);
+			}
 		 	}
 		}
 	else return(STOP);
@@ -2150,12 +2164,12 @@ Interrupted = TRUE;
 datemem = CompileDate;
 if(StepProduce) {
 	if(UndoFlag) {
-		ShowWindow(ResumeUndoStopPtr);
-		BringToFront(ResumeUndoStopPtr);
+		ShowWindow(GetDialogWindow(ResumeUndoStopPtr));
+		BringToFront(GetDialogWindow(ResumeUndoStopPtr));
 		}
 	else {
-		ShowWindow(ResumeStopPtr);
-		BringToFront(ResumeStopPtr);
+		ShowWindow(GetDialogWindow(ResumeStopPtr));
+		BringToFront(GetDialogWindow(ResumeStopPtr));
 		}
 	}
 while((r = MainEvent()) != RESUME && r != STOP && r != ABORT && r != EXIT
