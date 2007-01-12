@@ -1,3 +1,15 @@
+2007-01-12	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	* source/BP2/Dialogs.c:
+	* source/BP2/MenuCommands.c:
+	* source/BP2/Misc.c:
+		Replaced Window[wRandomSequence] with gpDialogs[wRandomSequence].
+		Replaced Window[wFindReplace] with gpDialogs[wFindReplace].
+		Replaced Window[wTickDialog] with gpDialogs[wTickDialog].
+		Converted for CarbonAccessors.
+
+	* source/BP2/Interface1.c:
+		Partially converted for CarbonAccessors.
+		
 2007-01-10	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	* source/BP2/Arithmetic.c:
 	* source/BP2/Automata.c:

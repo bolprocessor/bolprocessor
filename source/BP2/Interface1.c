@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -52,8 +52,7 @@ MainEvent(void)
 {
 EventRecord event;
 int eventfound,rep;
-DialogPtr whichwindow;
-DialogPeek dp;
+WindowPtr whichwindow;
 
 if(EmergencyExit) {
 	SetTimeOn = ComputeOn = PolyOn = CompileOn = SoundOn = SelectOn
@@ -61,8 +60,8 @@ if(EmergencyExit) {
 		= FALSE;
 	if(ResumeStopOn) {
 		ResumeStopOn = FALSE;
-		HideWindow(ResumeUndoStopPtr);
-		HideWindow(ResumeStopPtr);
+		HideWindow(GetDialogWindow(ResumeUndoStopPtr));
+		HideWindow(GetDialogWindow(ResumeStopPtr));
 		}
 	}
 	
@@ -87,7 +86,7 @@ if(!AlertOn) {
 	MaintainMenus();
 	if(Nw >= 0 && Nw < WMAX) {
 		if(Editable[Nw] && !LockedWindow[Nw]) Idle(TEH[Nw]);
-		if(HasFields[Nw]) TEIdle(((DialogPeek)gpDialogs[Nw])->textH);
+		if(HasFields[Nw]) TEIdle(GetDialogTextEditHandle(gpDialogs[Nw]));
 		}
 	if((rep=ListenMIDI(0,0,0)) != OK) return(rep);
 	GetValues(0);
@@ -98,11 +97,10 @@ if(ClockOverFlow) {
 	}
 eventfound = GetNextEvent(everyEvent,&event);
 FindWindow(event.where,&whichwindow);
-dp = (DialogPeek) whichwindow;
-if(whichwindow == FileSavePreferencesPtr
-	|| whichwindow == TuningPtr
-	|| whichwindow == DefaultPerformanceValuesPtr
-	|| whichwindow == CsoundInstrMorePtr) TEIdle(dp->textH);
+if(whichwindow == GetDialogWindow(FileSavePreferencesPtr)
+	|| whichwindow == GetDialogWindow(TuningPtr)
+	|| whichwindow == GetDialogWindow(DefaultPerformanceValuesPtr)
+	|| whichwindow == GetDialogWindow(CsoundInstrMorePtr)) TEIdle(GetDialogTextEditHandle(GetDialogFromWindow(whichwindow)));
 if(eventfound) return(DoEvent(&event));
 else return(DoSystem());
 }
@@ -110,7 +108,7 @@ else return(DoSystem());
 
 DoEvent(EventRecord *p_event)
 {
-GrafPtr whichwindow;
+WindowPtr whichwindow;
 Rect r,dragrect;
 int i,j,n,w,theclick,firstchar,diffchar,rep,start,found,intext;
 long k,pos;
@@ -303,7 +301,7 @@ switch(p_event->what) {
 		for(w=0; w < WMAX; w++) {
 			if(whichwindow == Window[w]) break;
 			}
-		if(whichwindow == MIDIprogramPtr || whichwindow == SixteenPtr)
+		if(whichwindow == GetDialogWindow(MIDIprogramPtr) || whichwindow == GetDialogWindow(SixteenPtr))
 			goto DOTHECLICK;
 		if((w < 0) || (w >= WMAX) || (w == Nw)) goto DOTHECLICK;
 		switch(w) {
@@ -335,19 +333,19 @@ DOTHECLICK:
 				Help = FALSE;
 				SysBeep(10);
 				if(ResumeStopOn) {
-					if(UndoFlag) BringToFront(ResumeUndoStopPtr);
-					else BringToFront(ResumeStopPtr);
+					if(UndoFlag) BringToFront(GetDialogWindow(ResumeUndoStopPtr));
+					else BringToFront(GetDialogWindow(ResumeStopPtr));
 					}
 				break;
 			case inGoAway:
 				Help = FALSE;
-				if(whichwindow == DefaultPerformanceValuesPtr) {
+				if(whichwindow == GetDialogWindow(DefaultPerformanceValuesPtr)) {
 					if(GetDefaultPerformanceValues() != OK) return(OK);
 					}
-				if(whichwindow == FileSavePreferencesPtr) {
+				if(whichwindow == GetDialogWindow(FileSavePreferencesPtr)) {
 					if(GetFileSavePreferences() != OK) return(OK);
 					}
-				if(whichwindow == OMSinoutPtr) {
+				if(whichwindow == GetDialogWindow(OMSinoutPtr)) {
 					rep = StoreDefaultOMSinput();
 					ClearMessage();
 					if(rep == EXIT) return(rep);
@@ -359,7 +357,7 @@ DOTHECLICK:
 					if(TrackGoAway(whichwindow,p_event->where))
 						HideWindow(whichwindow);
 					}
-				if(whichwindow == (GrafPtr) SixteenPtr) HideWindow(Window[wInfo]);
+				if(whichwindow == GetDialogWindow(SixteenPtr)) HideWindow(Window[wInfo]);
 				break;
 			case inMenuBar:
 				Option = FALSE;
@@ -372,19 +370,19 @@ DOTHECLICK:
 				ResetTickFlag = TRUE;
 				rep = DoCommand(Nw,k);
 				if(ResumeStopOn) {
-					if(UndoFlag) BringToFront(ResumeUndoStopPtr);
-					else BringToFront(ResumeStopPtr);
+					if(UndoFlag) BringToFront(GetDialogWindow(ResumeUndoStopPtr));
+					else BringToFront(GetDialogWindow(ResumeStopPtr));
 					}
 				return(rep);
 				break;
 			case inSysWindow:
 				Help = FALSE;
 				GetPort(&saveport);
-				SetPort(whichwindow);
-				r = whichwindow->portRect;
+				SetPortWindowPort(whichwindow);
+				GetWindowPortBounds(whichwindow, &r);
 				InvalRect(&r);
 				r = LongRectToRect((*(TEH[LastEditWindow]))->viewRect);
-				SetPort(Window[LastEditWindow]);
+				SetPortWindowPort(Window[LastEditWindow]);
 				InvalRect(&r);
 				if(saveport != NULL) SetPort(saveport);
 				else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
@@ -392,12 +390,12 @@ DOTHECLICK:
 				ResetTickFlag = TRUE;
 				if(0 <= w && w < WMAX) BPActivateWindow(SLOW,w);
 				if(ResumeStopOn) {
-					if(UndoFlag) BringToFront(ResumeUndoStopPtr);
-					else BringToFront(ResumeStopPtr);
+					if(UndoFlag) BringToFront(GetDialogWindow(ResumeUndoStopPtr));
+					else BringToFront(GetDialogWindow(ResumeStopPtr));
 					}
 				break;
 			case inDrag:
-				if(Oms && !InitOn && whichwindow == OMSinoutPtr) {
+				if(Oms && !InitOn && whichwindow == GetDialogWindow(OMSinoutPtr)) {
 					if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
 					if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
 					}
@@ -405,7 +403,7 @@ DOTHECLICK:
 					Jcontrol = -1; ReadKeyBoardOn = FALSE;
 					}
 				if(whichwindow != FrontWindow()
-						&& ResumeStopPtr != FrontWindow()) {
+						&& GetDialogWindow(ResumeStopPtr) != FrontWindow()) {
 					Help = FALSE;
 					if(w >= 0 && w < WMAX) BPActivateWindow(SLOW,w);
 					else SelectWindow(whichwindow);
@@ -413,14 +411,14 @@ DOTHECLICK:
 				else {
 					if(w == Nw) {
 						GetPort(&saveport);
-						SetPort(whichwindow);
-						r = whichwindow->portRect;
+						SetPortWindowPort(whichwindow);
+						GetWindowPortBounds(whichwindow, &r);
 						InvalRect(&r);
 						dragrect = Set_Window_Drag_Boundaries();
 						uppercorner = topLeft(r);
 						LocalToGlobal(&uppercorner);
 						DragWindow(whichwindow,p_event->where,&dragrect);
-						r = whichwindow->portRect;
+						GetWindowPortBounds(whichwindow, &r);
 						newcorner = topLeft(r);
 						LocalToGlobal(&newcorner);
 						if(newcorner.v != uppercorner.v
@@ -433,8 +431,8 @@ DOTHECLICK:
 						if(w == wScriptDialog) BPActivateWindow(SLOW,wScript);
 						if(w == wData) ShowDuration(NO);
 						if(ResumeStopOn) {
-							if(UndoFlag) BringToFront(ResumeUndoStopPtr);
-							else BringToFront(ResumeStopPtr);
+							if(UndoFlag) BringToFront(GetDialogWindow(ResumeUndoStopPtr));
+							else BringToFront(GetDialogWindow(ResumeStopPtr));
 							}
 						}
 					else {
@@ -442,8 +440,8 @@ DOTHECLICK:
 						if(w < WMAX) BPActivateWindow(QUICK,w);
 						else {
 							GetPort(&saveport);
-							SetPort(whichwindow);
-							r = whichwindow->portRect;
+							SetPortWindowPort(whichwindow);
+							GetWindowPortBounds(whichwindow, &r);
 							InvalRect(&r);
 							if(saveport != NULL) SetPort(saveport);
 							else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
@@ -466,7 +464,7 @@ DOTHECLICK:
 			case inContent:
 				Jcontrol = -1;
 				if(LastAction == TYPEWIND || LastAction == TYPEDLG) LastAction = NO;
-				if(FAQPtr == FrontWindow()) {
+				if(GetDialogWindow(FAQPtr) == FrontWindow()) {
 					if(whichwindow != FrontWindow()) {
 						if(w < WMAX) {
 							Help = FALSE;
@@ -480,12 +478,12 @@ DOTHECLICK:
 						}
 					break;	
 					}
-				if(Oms && !InitOn && whichwindow == OMSinoutPtr) {
-					pt = p_event->where;ShowWindow(OMSinoutPtr);
-					SelectWindow(OMSinoutPtr);
+				if(Oms && !InitOn && whichwindow == GetDialogWindow(OMSinoutPtr)) {
+					pt = p_event->where;ShowWindow(GetDialogWindow(OMSinoutPtr));
+					SelectWindow(GetDialogWindow(OMSinoutPtr));
 					if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
 					if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
-					SetPort(whichwindow);
+					SetPortWindowPort(whichwindow);
 					GlobalToLocal(&pt);
 					found = FALSE;
 					if(gInputMenu != NULL && TestOMSDeviceMenu(gInputMenu,pt)) {
@@ -507,19 +505,19 @@ DOTHECLICK:
 					break;
 					}
 				if(whichwindow != FrontWindow()) {
-					if(whichwindow == ResumeStopPtr
-							|| whichwindow == FileSavePreferencesPtr
-							|| whichwindow == StrikeModePtr	
-							|| whichwindow == TuningPtr
-							|| whichwindow == DefaultPerformanceValuesPtr
-							|| whichwindow == CsoundInstrMorePtr
-							|| whichwindow == ResumeUndoStopPtr
-							|| whichwindow == MIDIkeyboardPtr
-							|| whichwindow == SixteenPtr
-							|| whichwindow == MIDIprogramPtr
-							|| whichwindow == Window[wControlPannel]
-							|| whichwindow == Window[wPrototype1]
-							|| whichwindow == Window[wScriptDialog]) {
+					if(whichwindow == GetDialogWindow(ResumeStopPtr)
+							|| whichwindow == GetDialogWindow(FileSavePreferencesPtr)
+							|| whichwindow == GetDialogWindow(StrikeModePtr)	
+							|| whichwindow == GetDialogWindow(TuningPtr)
+							|| whichwindow == GetDialogWindow(DefaultPerformanceValuesPtr)
+							|| whichwindow == GetDialogWindow(CsoundInstrMorePtr)
+							|| whichwindow == GetDialogWindow(ResumeUndoStopPtr)
+							|| whichwindow == GetDialogWindow(MIDIkeyboardPtr)
+							|| whichwindow == GetDialogWindow(SixteenPtr)
+							|| whichwindow == GetDialogWindow(MIDIprogramPtr)
+							|| whichwindow == GetDialogWindow(gpDialogs[wControlPannel])
+							|| whichwindow == GetDialogWindow(gpDialogs[wPrototype1])
+							|| whichwindow == GetDialogWindow(gpDialogs[wScriptDialog])) {
 						if(1 || !Help) {
 							if(w >= 0 && w < WMAX) BPActivateWindow(QUICK,w);
 							else {
@@ -539,7 +537,7 @@ DOTHECLICK:
 						SelectWindow(whichwindow);
 						UpdateWindow(FALSE,whichwindow);
 						}
-					if(whichwindow == FAQPtr) Help = TRUE;
+					if(whichwindow == GetDialogWindow(FAQPtr)) Help = TRUE;
 					}
 				else {
 					if(Help || w == Nw) {
@@ -555,8 +553,8 @@ DOTHECLICK:
 					if(w == wGraphic) {
 						ShowDuration(NO);
 						if(ResumeStopOn) {
-							if(UndoFlag) BringToFront(ResumeUndoStopPtr);
-							else BringToFront(ResumeStopPtr);
+							if(UndoFlag) BringToFront(GetDialogWindow(ResumeUndoStopPtr));
+							else BringToFront(GetDialogWindow(ResumeStopPtr));
 							}
 						}
 					}
@@ -628,7 +626,7 @@ DOTHECLICK:
 						LastAction = DELETEWIND;
 						}
 					if(HasFields[Nw]) {
-						DialogDelete(Window[Nw]);
+						DialogDelete(gpDialogs[Nw]);
 						LastAction = DELETEDLG;
 						UndoWindow = Nw;
 						}
@@ -653,15 +651,15 @@ DOTHECLICK:
 		if(w >= 0 && w < WMAX) {
 			if(w == Nw && OKvScroll[w]) {
 				GetPort(&saveport);
-				SetPort(Window[w]);
-				r = (Window[w])->portRect;
+				SetPortWindowPort(Window[w]);
+				GetWindowPortBounds(Window[w], &r);
 				InvalRect(&r);
 				if(saveport != NULL) SetPort(saveport);
 				else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
 				}
 			if(p_event->modifiers & activeFlag) {
 				if(Editable[w] && !LockedWindow[w]) Activate(TEH[w]);
-				if(HasFields[w]) TEActivate(((DialogPeek)gpDialogs[w])->textH);
+				if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w]));
 				if(OKvScroll[w]) ShowControl(vScroll[w]);
 				if(OKhScroll[w]) ShowControl(hScroll[w]);
 		/*		DisableItem(myMenus[editM],undoCommand); */
@@ -669,7 +667,7 @@ DOTHECLICK:
 			else {
 				if(w != Nw) {
 					if(Editable[w] && !LockedWindow[w]) Deactivate(TEH[w]);
-					if(HasFields[w]) TEDeactivate(((DialogPeek)gpDialogs[w])->textH);
+					if(HasFields[w]) TEDeactivate(GetDialogTextEditHandle(gpDialogs[w]));
 					if(OKvScroll[w]) HideControl(vScroll[w]);
 					if(OKhScroll[w]) HideControl(hScroll[w]);
 					}
@@ -706,7 +704,7 @@ if(w >= WMAX || w < 0) {
 	return(FAILED);
 	}
 GetPort(&saveport);
-SetPort(Window[w]);
+SetPortWindowPort(Window[w]);
 rep = OK;
 
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
@@ -788,7 +786,7 @@ if(w != wMessage && Editable[w] && !LockedWindow[w]) {
 if(GrafWindow[w] && reset) {
 	KillDiagrams(w);
 	if(w != wPrototype1) {
-		r = Window[w]->portRect;
+		GetWindowPortBounds(Window[w], &r);
 		if(OKhScroll[w]) r.bottom = r.bottom - SBARWIDTH - 1;
 		if(OKvScroll[w]) r.right = r.right - SBARWIDTH - 1;
 		EraseRect(&r);
@@ -1013,12 +1011,17 @@ if(Nw > -1 && Nw < WMAX) {
 		else Activate(TEH[Nw]);
 		}
 	if(HasFields[Nw]) {
-		if(Nw != newNw) TEDeactivate(((DialogPeek)gpDialogs[Nw])->textH);
-		else TEActivate(((DialogPeek)gpDialogs[Nw])->textH);
+		if(Nw != newNw) TEDeactivate(GetDialogTextEditHandle(gpDialogs[Nw]));
+		else TEActivate(GetDialogTextEditHandle(gpDialogs[Nw]));
 		}
-	SetPort(Window[Nw]);
-	r1 = (*(Window[Nw]->clipRgn))->rgnBBox;
-	r = Window[Nw]->portRect;
+	SetPortWindowPort(Window[Nw]);
+	{ RgnHandle cliprgn;
+	  cliprgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+	  GetPortClipRegion(GetWindowPort(Window[Nw]), cliprgn);
+	  GetRegionBounds(cliprgn, &r1);
+	  DisposeRgn(cliprgn);
+	}
+	GetWindowPortBounds(Window[Nw], &r);
 	if(Nw != newNw) {
 		ClipRect(&r);
 		if(OKvScroll[Nw]) HideControl(vScroll[Nw]);
@@ -1027,12 +1030,12 @@ if(Nw > -1 && Nw < WMAX) {
 		}
 	ClipRect(&r1);
 	OutlineTextInDialog(Nw,FALSE);
-	r = (*(Window[Nw])).portRect;
+	GetWindowPortBounds(Window[Nw], &r);
 	}
 else ResumeStopOn = FALSE;
 /* Help = FALSE; */
 ShowWindow(Window[newNw]);
-SetPort(Window[newNw]);
+SetPortWindowPort(Window[newNw]);
 if(Editable[newNw] && !LockedWindow[newNw]) {
 	TextSize(WindowTextSize[newNw]);
 	thestyle.tsSize = (short) WindowTextSize[newNw];
@@ -1047,8 +1050,12 @@ if(OKgrow[newNw]) DrawGrowIcon(Window[newNw]);
 
 /* DrawControls(Window[Nw]); */
 if(OKvScroll[newNw] || OKhScroll[newNw])
-	UpdateControls(Window[newNw],Window[newNw]->clipRgn);	/* Fixed 14/2/98 */
-
+{ RgnHandle cliprgn;
+  cliprgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+  GetPortClipRegion(GetWindowPort(Window[newNw]), cliprgn);
+  UpdateControls(Window[newNw], cliprgn);	/* Fixed 14/2/98 */
+  DisposeRgn(cliprgn);
+}
 Nw = newNw;
 MaintainMenus(); DrawMenuBar();
 
@@ -1074,7 +1081,7 @@ if(w < 0 || w >= WMAX) {
 	return(OK);
 	}
 GetPort(&saveport);
-SetPort(Window[w]);
+SetPortWindowPort(Window[w]);
 if(OKvScroll[w] && Editable[w]) {
 	oldScroll = (**(TEH[w])).viewRect.top - (**(TEH[w])).destRect.top;
 	newScroll = GetControlValue(vScroll[w]) * LineHeight(w);
@@ -1097,7 +1104,7 @@ FontInfo font;
 GrafPtr saveport;
 
 GetPort(&saveport);
-SetPort(Window[w]);
+SetPortWindowPort(Window[w]);
 GetFontInfo(&font);
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err LineHeight(). saveport == NULL");
@@ -1147,10 +1154,10 @@ if(w < 0 || w >= WMAX) {
 window = Window[w];
 if(GrafWindow[w]) {
 	GetPort(&saveport);
-	SetPort(window);
-	rclip = window->portRect;
-	if(OKhScroll[w]) rclip.bottom = window->portRect.bottom - SBARWIDTH - 1;
-	if(OKvScroll[w]) rclip.right = window->portRect.right - SBARWIDTH - 1;
+	SetPortWindowPort(window);
+	GetWindowPortBounds(window, &rclip);
+	if(OKhScroll[w]) rclip.bottom -= (SBARWIDTH + 1);
+	if(OKvScroll[w]) rclip.right -= (SBARWIDTH + 1);
 	ClipRect(&rclip);
 	for(n=0; n < Ndiagram; n++) {
 		if(DiagramWindow[n] == w && p_Diagram[n] != NULL) {
@@ -1173,21 +1180,31 @@ if(GrafWindow[w]) {
 				}
 			}
 		}
-	else {
-		CopyBits((BitMap *)*gMainGWorld->portPixMap,&window->portBits,
-		&gMainGWorld->portRect,&gMainGWorld->portRect,srcCopy,window->clipRgn);
+	else {	// FIXME ? Should we call LockPixels before CopyBits?
+		Rect rtemp;
+		RgnHandle cliprgn;
+		GetPortBounds(gMainGWorld, &rtemp);
+		cliprgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+		GetPortClipRegion(GetWindowPort(window), cliprgn);
+		CopyBits((BitMap*)*GetGWorldPixMap(gMainGWorld),		// was (BitMap *)*gMainGWorld->portPixMap,
+			   (BitMap*)*GetPortPixMap(GetWindowPort(window)),	// was &window->portBits,
+			   &rtemp,								// was &gMainGWorld->portRect,
+			   &rtemp,								// was &gMainGWorld->portRect,
+			   srcCopy,
+			   cliprgn);							// was window->clipRgn);
+		DisposeRgn(cliprgn);
 		}
 	if(w == wGraphic && NoteScalePicture != NULL) {
 		DrawPicture(NoteScalePicture,&NoteScaleRect);
 		}
-	rclip = window->portRect;
+	GetWindowPortBounds(window, &rclip);
 	ClipRect(&rclip);
 	if(saveport != NULL) SetPort(saveport);
 	else if(Beta) Alert1("Err ShowSelect(). saveport == NULL");
 	GotAlert = FALSE;
 	}
 
-if(HasFields[w]) TEActivate(((DialogPeek)gpDialogs[w])->textH);
+if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w]));
 if(!Editable[w]) return(OK);
 Activate(TEH[w]);
 if(!OKvScroll[w]) return(OK);
@@ -1235,7 +1252,7 @@ SetViewRect(int w)
 Rect dr,vr;
 
 if(w >= 0 && w < WMAX && Editable[w]) {
-	dr = Window[w]->portRect;
+	GetWindowPortBounds(Window[w], &dr);
 	if(HasFields[w]) InsetRect(&dr,2,2);
 	if(OKvScroll[w]) {
 		dr.right -= SBARWIDTH;
@@ -1259,31 +1276,45 @@ return(OK);
 }
 
 	
-UpdateWindow(int quick,WindowPtr theWindow)
+UpdateWindow(int quick, WindowPtr theWindow)
 {
 GrafPtr	saveport;
-WindowPeek wp;
+RgnHandle	cliprgn;
 Rect r,r1;
 int w;
 
-wp = (WindowPeek) theWindow;
-if(theWindow == NULL || !(wp->visible)) return(OK);
+if(theWindow == NULL || !IsWindowVisible(theWindow)) return(OK);
 
 for(w=0; w < WMAX; w++) {
 	if(theWindow == Window[w]) break;
 	}
 GetPort(&saveport);
-SetPort(theWindow);
+SetPortWindowPort(theWindow);
 if(!quick && w < WMAX && (!WASTE || !Editable[w])) SetViewRect(w);
-r1 = (*(theWindow->clipRgn))->rgnBBox;
-r = theWindow->portRect;
+
+// save clipping rectangle
+cliprgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+GetPortClipRegion(GetWindowPort(theWindow), cliprgn);
+GetRegionBounds(cliprgn, &r1);
+
+GetWindowPortBounds(theWindow, &r);
 ClipRect(&r);
 if(w < WMAX && GrafWindow[w] && (!quick || GotAlert)) ShowSelect(CENTRE,w);
 BeginUpdate(theWindow);	/* This should not be placed higher */
-UpdateControls(theWindow,theWindow->clipRgn);
+UpdateControls(theWindow, cliprgn);
+DisposeRgn(cliprgn);
+
 if(w < WMAX) {
-	if(IsDialog[w]) UpdateDialog(theWindow,theWindow->visRgn);
-	/* Needed to make static text visible */
+	if(IsDialog[w]) { 
+		GrafPtr port;
+		RgnHandle rgn;
+		port = GetDialogPort(gpDialogs[w]);
+		rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+		GetPortVisibleRegion(port, rgn);
+		UpdateDialog(gpDialogs[w], rgn);
+		DisposeRgn(rgn);
+		}
+	/* UpdateDialog needed to make static text visible */
 	/* É in spite of Inside Mac saying it isn't p.I-418 */
 	if(OKgrow[w]) DrawGrowIcon(theWindow);
 	if(Editable[w]) TextUpdate(w);
@@ -1291,24 +1322,30 @@ if(w < WMAX) {
 	else OutlineTextInDialog(w,FALSE);
 	}
 else {
-	if(theWindow == ReplaceCommandPtr
-			|| theWindow == FileSavePreferencesPtr
-			|| theWindow == StrikeModePtr
-			|| theWindow == TuningPtr
-			|| theWindow == DefaultPerformanceValuesPtr
-			|| theWindow == CsoundInstrMorePtr
-			|| theWindow == MIDIkeyboardPtr
-			|| theWindow == EnterPtr
-			|| theWindow == GreetingsPtr
-			|| theWindow == FAQPtr
-			|| theWindow == SixteenPtr
-			|| theWindow == MIDIprogramPtr
-			|| theWindow == OMSinoutPtr) {
-		if(Oms && !InitOn && theWindow == OMSinoutPtr) {
+	if(theWindow == GetDialogWindow(ReplaceCommandPtr)
+			|| theWindow == GetDialogWindow(FileSavePreferencesPtr)
+			|| theWindow == GetDialogWindow(StrikeModePtr)
+			|| theWindow == GetDialogWindow(TuningPtr)
+			|| theWindow == GetDialogWindow(DefaultPerformanceValuesPtr)
+			|| theWindow == GetDialogWindow(CsoundInstrMorePtr)
+			|| theWindow == GetDialogWindow(MIDIkeyboardPtr)
+			|| theWindow == GetDialogWindow(EnterPtr)
+			|| theWindow == GetDialogWindow(GreetingsPtr)
+			|| theWindow == GetDialogWindow(FAQPtr)
+			|| theWindow == GetDialogWindow(SixteenPtr)
+			|| theWindow == GetDialogWindow(MIDIprogramPtr)
+			|| theWindow == GetDialogWindow(OMSinoutPtr)) {
+		RgnHandle rgn;
+		DialogPtr dp;
+		if(Oms && !InitOn && theWindow == GetDialogWindow(OMSinoutPtr)) {
 			if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
 			if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
 			}
-		UpdateDialog(theWindow,theWindow->visRgn);
+		dp = GetDialogFromWindow(theWindow);
+		rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+		GetPortVisibleRegion(GetDialogPort(dp), rgn);
+		UpdateDialog(dp, rgn);
+		DisposeRgn(rgn);
 		}
 	}
 EndUpdate(theWindow);
@@ -1334,8 +1371,8 @@ if(Editable[Nw]) {
 			WindowTextSize[Nw] - 1;
 	}
 else {
-	pageSize =
-		(Window[Nw]->portRect.bottom - Window[Nw]->portRect.top) / 2;
+	GetWindowPortBounds(Window[Nw], &r);
+	pageSize = (r.bottom - r.top) / 2;
 	}
 oldvalue = GetControlValue(theControl);
 maxvalue = GetControlMaximum(theControl);
@@ -1366,8 +1403,9 @@ int	scrollAmt;
 TextHandle teh;
 Rect r;
 
-if(Nw < 0 || Nw >= WMAX) return ;
-pageSize = (Window[Nw]->portRect.right - Window[Nw]->portRect.left) / 2;
+if(Nw < 0 || Nw >= WMAX) return;
+GetWindowPortBounds(Window[Nw], &r);
+pageSize = (r.right - r.left) / 2;
 oldvalue = GetControlValue(theControl);
 maxvalue = GetControlMaximum(theControl);
 scrollAmt = 0;
@@ -2225,7 +2263,7 @@ if(Nw >= wRandomSequence && Nw != wScriptDialog) {
 	DisableItem(myMenus[fileM],fmSave);
 	DisableItem(myMenus[fileM],fmSaveAs);
 	}
-if((Nw < 0) || (Nw >= WMAX) || !(*(WindowPeek) Window[Nw]).visible
+if((Nw < 0) || (Nw >= WMAX) || !IsWindowVisible(Window[Nw])
 		|| (!Editable[Nw] && !HasFields[Nw] && Nw != wScriptDialog)
 		|| (Nw == wInfo) || (Nw == wGraphic) || (Nw == wMessage)) {
 	DisableItem(myMenus[fileM],fmOpen);

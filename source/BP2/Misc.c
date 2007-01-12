@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -447,7 +447,8 @@ short i,itemtype;
 Rect r;
 ControlHandle itemhandle;
 Str255 textStr;
-GrafPtr saveport;
+GrafPtr saveport, dport;
+RgnHandle rgn;
 
 for(i=1; i <= 24; i++) {
 	GetDialogItem(MIDIkeyboardPtr,i,&itemtype,(Handle*) &itemhandle,&r);
@@ -483,12 +484,16 @@ for(i=1; i <= 24; i++) {
 	SetControlTitle(itemhandle,textStr);
 	}
 SetNameChoice();
-ShowWindow(MIDIkeyboardPtr);
-SelectWindow(MIDIkeyboardPtr);
-UpdateDialog(MIDIkeyboardPtr,MIDIkeyboardPtr->visRgn); /* Needed to show static text! */
+ShowWindow(GetDialogWindow(MIDIkeyboardPtr));
+SelectWindow(GetDialogWindow(MIDIkeyboardPtr));
+dport = GetDialogPort(MIDIkeyboardPtr);
+rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+GetPortVisibleRegion(dport, rgn);
+UpdateDialog(MIDIkeyboardPtr, rgn); /* Needed to show static text! */
+DisposeRgn(rgn);
 GetPort(&saveport);
-SetPort(MIDIkeyboardPtr);
-r = MIDIkeyboardPtr->portRect;
+SetPort(dport);
+GetPortBounds(dport, &r);
 InvalRect(&r);
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err ShowMIDIkeyboard(). saveport == NULL");
@@ -762,16 +767,16 @@ else {
 if(ThisTick[iTick][jTick] > 1) {
 	SwitchOn(NULL,wTickDialog,dSpecialTick);
 	SwitchOff(NULL,wTickDialog,dDefaultTick);
-	ShowDialogItem(Window[wTickDialog],fThisTickVelocity);
-	ShowDialogItem(Window[wTickDialog],fThisTickChannel);
-	ShowDialogItem(Window[wTickDialog],fThisTickKey);
+	ShowDialogItem(gpDialogs[wTickDialog],fThisTickVelocity);
+	ShowDialogItem(gpDialogs[wTickDialog],fThisTickChannel);
+	ShowDialogItem(gpDialogs[wTickDialog],fThisTickKey);
 	}
 else {
 	SwitchOn(NULL,wTickDialog,dDefaultTick);
 	SwitchOff(NULL,wTickDialog,dSpecialTick);
-	HideDialogItem(Window[wTickDialog],fThisTickVelocity);
-	HideDialogItem(Window[wTickDialog],fThisTickChannel);
-	HideDialogItem(Window[wTickDialog],fThisTickKey);
+	HideDialogItem(gpDialogs[wTickDialog],fThisTickVelocity);
+	HideDialogItem(gpDialogs[wTickDialog],fThisTickChannel);
+	HideDialogItem(gpDialogs[wTickDialog],fThisTickKey);
 	}
 vel = TickVelocity[iTick];
 ch = TickChannel[iTick];
@@ -1362,11 +1367,11 @@ char line[MAXFIELDCONTENT];
 sprintf(line,"%ld",(long)BufferSize / 2L - 1L);
 GetDialogItem(gpDialogs[wBufferSize],fBufferSize,&itemtype,(Handle*)&itemhandle,&r);
 SetDialogItemText((Handle)itemhandle,c2pstr(line));
-TESetSelect(ZERO,ZERO,((DialogPeek)gpDialogs[wBufferSize])->textH);
+TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wBufferSize]));
 sprintf(line,"%ld",(long)DeftBufferSize / 2L - 1L);
 GetDialogItem(gpDialogs[wBufferSize],fDeftBufferSize,&itemtype,(Handle*)&itemhandle,&r);
 SetDialogItemText((Handle)itemhandle,c2pstr(line));
-TESetSelect(ZERO,ZERO,((DialogPeek)gpDialogs[wBufferSize])->textH);
+TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wBufferSize]));
 if(UseBufferLimit) {
 	GetDialogItem(gpDialogs[wBufferSize],dNoSizeLimit,&itemtype,(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,0);
@@ -1437,7 +1442,7 @@ WriteFloatToLine(line,(double) (GraphicScaleQ * 5.) / (double) GraphicScaleP);
 GetDialogItem(gpDialogs[wGraphicSettings],fGraphicScale,
 	&itemtype,&itemhandle,&r);
 SetDialogItemText(itemhandle,c2pstr(line));
-TESetSelect(ZERO,63L,((DialogPeek)gpDialogs[wGraphicSettings])->textH);
+TESetSelect(ZERO,63L,GetDialogTextEditHandle(gpDialogs[wGraphicSettings]));
 if(StartFromOne) {
 	GetDialogItem(gpDialogs[wGraphicSettings],dZero,&itemtype,&itemhandle,&r);
 	SetControlValue((ControlHandle) itemhandle,0);
@@ -1506,17 +1511,17 @@ sprintf(line,"%ld",(long)Time_res);
 GetDialogItem(gpDialogs[wTimeAccuracy],fTimeRes,&itemtype,
 	(Handle*)&itemhandle,&r);
 SetDialogItemText((Handle)itemhandle,c2pstr(line));
-TESetSelect(ZERO,ZERO,((DialogPeek)gpDialogs[wTimeAccuracy])->textH);
+TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wTimeAccuracy]));
 sprintf(line,"%ld",(long)Quantization);
 GetDialogItem(gpDialogs[wTimeAccuracy],fQuantize,&itemtype,
 	(Handle*)&itemhandle,&r);
 SetDialogItemText((Handle)itemhandle,c2pstr(line));
-TESetSelect(ZERO,ZERO,((DialogPeek)gpDialogs[wTimeAccuracy])->textH);
+TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wTimeAccuracy]));
 sprintf(line,"%ld",(long)SetUpTime);
 GetDialogItem(gpDialogs[wTimeAccuracy],fSetUpTime,&itemtype,
 	(Handle*)&itemhandle,&r);
 SetDialogItemText((Handle)itemhandle,c2pstr(line));
-TESetSelect(ZERO,ZERO,((DialogPeek)gpDialogs[wTimeAccuracy])->textH);
+TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wTimeAccuracy]));
 if(QuantizeOK) {
 	GetDialogItem(gpDialogs[wTimeAccuracy],dOff,&itemtype,
 		(Handle*)&itemhandle,&r);
@@ -1617,7 +1622,7 @@ for(i=0; i < 52; i++) {
 		GetDialogItem(gpDialogs[wKeyboard],j,&itemtype,&itemhandle,&r);
 		MystrcpyTableToString(MAXFIELDCONTENT,line,p_Token,Key(i,KeyboardType));
 		SetDialogItemText(itemhandle,c2pstr(line));
-		TESetSelect(ZERO,ZERO,((DialogPeek)gpDialogs[wKeyboard])->textH);
+		TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wKeyboard]));
 		}
 	}
 return(OK);
@@ -1690,7 +1695,7 @@ for(i=0; i < 52; i++) {
 	line[1] = c;
 	SetDialogItemText(itemhandle,line);
 	}
-TESetSelect(ZERO,ZERO,((DialogPeek)gpDialogs[wKeyboard])->textH);
+TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wKeyboard]));
 Dirty[wKeyboard] = FALSE;
 Token = SpaceOn = FALSE;
 SwitchOff(NULL,wKeyboard,dToken);
@@ -1817,6 +1822,8 @@ GetFileSavePreferences(void)
 int result;
 long p,q;
 char line[MAXFIELDCONTENT];
+GrafPtr port;
+RgnHandle rgn;
 
 if(FileSaveMode == ALLSAME || FileSaveMode == ALLSAMEPROMPT) {
 	GetCsoundScoreName();
@@ -1826,12 +1833,16 @@ if(GetField(FileSavePreferencesPtr,YES,-1,fFadeOut,LineBuff,&p,&q) != OK) {
 	p = 3L; q = 1L;
 	}
 
+port = GetDialogPort(FileSavePreferencesPtr);
 FADEOUTVALUE:
 MIDIfadeOut = ((float)p) / q;
 if(MIDIfadeOut < 0. || MIDIfadeOut > 100.) {
-	ShowWindow(FileSavePreferencesPtr);
-	BringToFront(FileSavePreferencesPtr);
-	UpdateDialog(FileSavePreferencesPtr,FileSavePreferencesPtr->visRgn);
+	ShowWindow(GetDialogWindow(FileSavePreferencesPtr));
+	BringToFront(GetDialogWindow(FileSavePreferencesPtr));
+	rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+	GetPortVisibleRegion(port, rgn);
+	UpdateDialog(FileSavePreferencesPtr, rgn);
+	DisposeRgn(rgn);
 	SelectField(FileSavePreferencesPtr,-1,fFadeOut,TRUE);
 	Alert1("Range for MIDI fade out is 0..100 seconds");
 	result = AnswerWith("Set fade out to…","0.00",line);
@@ -1841,7 +1852,10 @@ if(MIDIfadeOut < 0. || MIDIfadeOut > 100.) {
 		MIDIfadeOut = ((float)p) / q;
 		sprintf(line,"%.2f",MIDIfadeOut);
 		SetField(FileSavePreferencesPtr,-1,fFadeOut,line);
-		UpdateDialog(FileSavePreferencesPtr,FileSavePreferencesPtr->visRgn);
+		rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+		GetPortVisibleRegion(port, rgn);
+		UpdateDialog(FileSavePreferencesPtr, rgn);
+		DisposeRgn(rgn);
 		}
 	goto FADEOUTVALUE;
 	}
@@ -1849,7 +1863,10 @@ return(OK);
 
 ERR:
 SetField(FileSavePreferencesPtr,-1,fFadeOut,"[?]");
-UpdateDialog(FileSavePreferencesPtr,FileSavePreferencesPtr->visRgn);
+rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+GetPortVisibleRegion(port, rgn);
+UpdateDialog(FileSavePreferencesPtr, rgn);
+DisposeRgn(rgn);
 SelectField(FileSavePreferencesPtr,-1,fFadeOut,TRUE);
 return(FAILED);
 }
@@ -1889,8 +1906,8 @@ i = p / q;
 if(i < 2 || i > 127) {
 	sprintf(Message,"Key for C4 should be in range 2..127 (typ. 60). Can't accept %ld",(long) i);
 	Alert1(Message);
-	ShowWindow(TuningPtr);
-	SelectWindow(TuningPtr);
+	ShowWindow(GetDialogWindow(TuningPtr));
+	SelectWindow(GetDialogWindow(TuningPtr));
 	SetField(TuningPtr,-1,fC4key,"[?]");
 	return(FAILED);
 	}
@@ -1902,8 +1919,8 @@ x = ((double) p) / q;
 if(x < 25. || x > 2000.) {
 	sprintf(Message,"Frequency for A4 should be in range 25..2000 (typ. 440). Can't accept %.2f",x);
 	Alert1(Message);
-	ShowWindow(TuningPtr);
-	SelectWindow(TuningPtr);
+	ShowWindow(GetDialogWindow(TuningPtr));
+	SelectWindow(GetDialogWindow(TuningPtr));
 	SetField(TuningPtr,-1,fA4freq,"[?]");
 	return(FAILED);
 	}
@@ -1934,8 +1951,8 @@ if(i < 1 || i > 127) {
 	sprintf(Message,"Default volume should be in range 1..127 (typ. 90). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
-	ShowWindow(DefaultPerformanceValuesPtr);
-	SelectWindow(DefaultPerformanceValuesPtr);
+	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
+	SelectWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SetField(DefaultPerformanceValuesPtr,-1,fDeftVolume,"90");
 	return(FAILED);
 	}
@@ -1947,8 +1964,8 @@ if(i < 1 || i > 127) {
 	sprintf(Message,"Default velocity should be in range 1..127 (typ. 64). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
-	ShowWindow(DefaultPerformanceValuesPtr);
-	SelectWindow(DefaultPerformanceValuesPtr);
+	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
+	SelectWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SetField(DefaultPerformanceValuesPtr,-1,fDeftVelocity,"64");
 	return(FAILED);
 	}
@@ -1960,8 +1977,8 @@ if(i < 0 || i > 127) {
 	sprintf(Message,"Default panoramic should be in range 0..127 (typ. 64). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
-	ShowWindow(DefaultPerformanceValuesPtr);
-	SelectWindow(DefaultPerformanceValuesPtr);
+	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
+	SelectWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SetField(DefaultPerformanceValuesPtr,-1,fDeftPanoramic,"64");
 	return(FAILED);
 	}
@@ -1973,8 +1990,8 @@ if(i < 0 || i > 127) {
 	sprintf(Message,"Panoramic control index should be in range 0..127 (typ. 10). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
-	ShowWindow(DefaultPerformanceValuesPtr);
-	SelectWindow(DefaultPerformanceValuesPtr);
+	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
+	SelectWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SetField(DefaultPerformanceValuesPtr,-1,fPanoramicController,"10");
 	return(FAILED);
 	}
@@ -1986,8 +2003,8 @@ if(i < 0 || i > 127) {
 	sprintf(Message,"Volume control index should be in range 0..127 (typ. 7). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
-	ShowWindow(DefaultPerformanceValuesPtr);
-	SelectWindow(DefaultPerformanceValuesPtr);
+	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
+	SelectWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SetField(DefaultPerformanceValuesPtr,-1,fVolumeController,"7");
 	return(FAILED);
 	}
@@ -1999,8 +2016,8 @@ if(i < 1 || i > 500) {
 	sprintf(Message,"Default sample rate should be in range 1..500 (typ. 50). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
-	ShowWindow(DefaultPerformanceValuesPtr);
-	SelectWindow(DefaultPerformanceValuesPtr);
+	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
+	SelectWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SetField(DefaultPerformanceValuesPtr,-1,fSamplingRate,"50");
 	return(FAILED);
 	}
@@ -2314,7 +2331,7 @@ char line[MAXFIELDCONTENT];
 sprintf(line,"%.0f",(double) Seed);
 GetDialogItem(gpDialogs[wRandomSequence],fSeed,&itemtype,&itemhandle,&r);
 SetDialogItemText(itemhandle,c2pstr(line));
-TESetSelect(ZERO,63L,((DialogPeek)gpDialogs[wRandomSequence])->textH);
+TESetSelect(ZERO,63L,GetDialogTextEditHandle(gpDialogs[wRandomSequence]));
 return(OK);
 }
 
@@ -2328,9 +2345,16 @@ GetField(NULL,TRUE,wRandomSequence,fSeed,line,&p,&q);
 newseed = p / q;
 if(newseed < 0 || newseed > 32767) {
 	Alert1("Random seed must be in range [0..32767]");
-	ShowWindow(Window[wRandomSequence]);
-	BringToFront(Window[wRandomSequence]);
-	UpdateDialog(Window[wRandomSequence],Window[wRandomSequence]->visRgn);
+	ShowWindow(GetDialogWindow(gpDialogs[wRandomSequence]));
+	BringToFront(GetDialogWindow(gpDialogs[wRandomSequence]));
+	{ GrafPtr port;
+	  RgnHandle rgn;
+	  port = GetDialogPort(gpDialogs[wRandomSequence]);
+	  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+	  GetPortVisibleRegion(port, rgn);
+	  UpdateDialog(gpDialogs[wRandomSequence], rgn);
+	  DisposeRgn(rgn);
+	}
 	SelectField(NULL,wRandomSequence,fSeed,TRUE);
 	return(FAILED);
 	}
@@ -2381,9 +2405,16 @@ switch(what) {
 			SetSeed();
 			UsedRandom = FALSE;
 			if(ShowMessages) {
-				ShowWindow(Window[wRandomSequence]);
-				BringToFront(Window[wRandomSequence]);
-				UpdateDialog(Window[wRandomSequence],Window[wRandomSequence]->visRgn);
+				ShowWindow(GetDialogWindow(gpDialogs[wRandomSequence]));
+				BringToFront(GetDialogWindow(gpDialogs[wRandomSequence]));
+				{ GrafPtr port;
+				  RgnHandle rgn;
+				  port = GetDialogPort(gpDialogs[wRandomSequence]);
+				  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+				  GetPortVisibleRegion(port, rgn);
+				  UpdateDialog(gpDialogs[wRandomSequence], rgn);
+				  DisposeRgn(rgn);
+				}
 				}
 			}
 		break;

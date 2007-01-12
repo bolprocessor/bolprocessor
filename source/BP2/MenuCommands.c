@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -90,8 +90,8 @@ return(OK);
 
 mFAQ(int wind)
 {
-ShowWindow(FAQPtr);
-SelectWindow(FAQPtr);
+ShowWindow(GetDialogWindow(FAQPtr));
+SelectWindow(GetDialogWindow(FAQPtr));
 Help = TRUE;
 return(OK);
 }
@@ -207,13 +207,20 @@ return(OK);
 
 mMIDIorchestra(int wind)
 {
+GrafPtr port;
+RgnHandle rgn;
+
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 
 if(mMIDIoutputcheck(wind) != OK) return(FAILED);
 
-ShowWindow(MIDIprogramPtr);
-SelectWindow(MIDIprogramPtr);
-UpdateDialog(MIDIprogramPtr,MIDIprogramPtr->visRgn); /* Needed to make static text visible */
+ShowWindow(GetDialogWindow(MIDIprogramPtr));
+SelectWindow(GetDialogWindow(MIDIprogramPtr));
+port = GetDialogPort(MIDIprogramPtr);
+rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+GetPortVisibleRegion(port, rgn);
+UpdateDialog(MIDIprogramPtr, rgn); /* Needed to make static text visible */
+DisposeRgn(rgn);
 
 BPActivateWindow(SLOW,wMIDIorchestra);
 return(OK);
@@ -234,11 +241,11 @@ mTypeNote(wData);
 SetSelect((**(TEH[wData])).selEnd,(**(TEH[wData])).selEnd,TEH[wData]);
 ShowSelect(CENTRE,wData);
 
-ShowWindow(OMSinoutPtr);
-SelectWindow(OMSinoutPtr);
+ShowWindow(GetDialogWindow(OMSinoutPtr));
+SelectWindow(GetDialogWindow(OMSinoutPtr));
 if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
 if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
-UpdateWindow(FALSE,OMSinoutPtr);
+UpdateWindow(FALSE, GetDialogWindow(OMSinoutPtr));
 return(OK);
 }
 
@@ -256,9 +263,16 @@ ReadKeyBoardOn = FALSE; Jcontrol = -1;
 
 HideWindow(Window[wMessage]);
 
-ShowWindow(SixteenPtr);
-SelectWindow(SixteenPtr);
-UpdateDialog(SixteenPtr,SixteenPtr->visRgn); /* Needed to make static text visible */
+ShowWindow(GetDialogWindow(SixteenPtr));
+SelectWindow(GetDialogWindow(SixteenPtr));
+{ GrafPtr port;
+  RgnHandle rgn;
+  port = GetDialogPort(SixteenPtr);
+  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+  GetPortVisibleRegion(port, rgn);
+  UpdateDialog(SixteenPtr, rgn); /* Needed to make static text visible */
+  DisposeRgn(rgn);
+}
 
 return(OK);
 }
@@ -421,7 +435,7 @@ if(NoteConvention != KEYS) {
 	Dirty[iSettings] = TRUE;
 	UpdateInteraction();
 	}
-HideWindow(MIDIkeyboardPtr);
+HideWindow(GetDialogWindow(MIDIkeyboardPtr));
 return(OK);
 }
 
@@ -617,11 +631,11 @@ mOMSinout(int wind)
 {
 if(Oms && !InitOn) {
 	StopWait();
-	ShowWindow(OMSinoutPtr);
-	SelectWindow(OMSinoutPtr);
+	ShowWindow(GetDialogWindow(OMSinoutPtr));
+	SelectWindow(GetDialogWindow(OMSinoutPtr));
 	if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
 	if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
-	UpdateWindow(FALSE,OMSinoutPtr);
+	UpdateWindow(FALSE, GetDialogWindow(OMSinoutPtr));
 	}
 return(OK);
 }
@@ -694,40 +708,68 @@ return(OK);
 
 mTuning(int wind)
 {
-ShowWindow(TuningPtr);
-SelectWindow(TuningPtr);
+GrafPtr port;
+RgnHandle rgn;
+
+ShowWindow(GetDialogWindow(TuningPtr));
+SelectWindow(GetDialogWindow(TuningPtr));
 SetTuning();
-UpdateDialog(TuningPtr,TuningPtr->visRgn);
+port = GetDialogPort(TuningPtr);
+rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+GetPortVisibleRegion(port, rgn);
+UpdateDialog(TuningPtr, rgn);
+DisposeRgn(rgn);
 return(OK);
 }
 
 
 mDefaultPerformanceValues(int wind)
 {
-ShowWindow(DefaultPerformanceValuesPtr);
-SelectWindow(DefaultPerformanceValuesPtr);
+GrafPtr port;
+RgnHandle rgn;
+
+ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
+SelectWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 SetDefaultPerformanceValues();
-UpdateDialog(DefaultPerformanceValuesPtr,DefaultPerformanceValuesPtr->visRgn);
+port = GetDialogPort(DefaultPerformanceValuesPtr);
+rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+GetPortVisibleRegion(port, rgn);
+UpdateDialog(DefaultPerformanceValuesPtr, rgn);
+DisposeRgn(rgn);
 return(OK);
 }
 
 
 mFileSavePreferences(int wind)
 {
-ShowWindow(FileSavePreferencesPtr);
-SelectWindow(FileSavePreferencesPtr);
+GrafPtr port;
+RgnHandle rgn;
+
+ShowWindow(GetDialogWindow(FileSavePreferencesPtr));
+SelectWindow(GetDialogWindow(FileSavePreferencesPtr));
 SetFileSavePreferences();
-UpdateDialog(FileSavePreferencesPtr,FileSavePreferencesPtr->visRgn);
+port = GetDialogPort(FileSavePreferencesPtr);
+rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+GetPortVisibleRegion(port, rgn);
+UpdateDialog(FileSavePreferencesPtr, rgn);
+DisposeRgn(rgn);
 return(OK);
 }
 
 
 mDefaultStrikeMode(int wind)
 {
-ShowWindow(StrikeModePtr);
-SelectWindow(StrikeModePtr);
+GrafPtr port;
+RgnHandle rgn;
+
+ShowWindow(GetDialogWindow(StrikeModePtr));
+SelectWindow(GetDialogWindow(StrikeModePtr));
 SetDefaultStrikeMode();
-UpdateDialog(StrikeModePtr,StrikeModePtr->visRgn);
+port = GetDialogPort(StrikeModePtr);
+rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+GetPortVisibleRegion(port, rgn);
+UpdateDialog(StrikeModePtr, rgn);
+DisposeRgn(rgn);
 return(OK);
 }
 
@@ -1345,8 +1387,8 @@ if(Editable[wind]) {
 	SetSelect(ZERO,posmax,TEH[wind]);
 	}
 else {
-	if(HasFields[wind]) {
-		h = ((DialogPeek)(Window[wind]))->textH;
+	if(IsDialog[wind] && HasFields[wind]) {	// IsDialog just to be sure - 011207 akozar
+		h = GetDialogTextEditHandle(gpDialogs[wind]);
 		TESetSelect(ZERO,32767,h);
 		}
 	else return(FAILED);
@@ -1731,7 +1773,7 @@ WaitABit(500L);
 if(wind == wGraphic) {
 	if(!Offscreen) {
 		for(n=0; n < Npicture; n++) {
-			r = Window[wGraphic]->portRect;
+			GetWindowPortBounds(Window[wGraphic], &r);
 			if(OKhScroll[wind]) r.bottom = r.bottom - SBARWIDTH - 1;
 			if(OKvScroll[wind]) r.right = r.right - SBARWIDTH - 1;
 			PrintGraphicWindow(p_Picture[n],&r);
@@ -1766,8 +1808,8 @@ if(ScriptExecOn && ResumeStopOn) {
 	else ScriptExecOn = FALSE;
 	}
 ResumeStopOn = FALSE;
-HideWindow(ResumeStopPtr);
-HideWindow(ResumeUndoStopPtr);
+HideWindow(GetDialogWindow(ResumeStopPtr));
+HideWindow(GetDialogWindow(ResumeUndoStopPtr));
 if((r=CheckSettings()) == ABORT) return(r);
 AppendScript(8);
 for(w=0; w < WMAX; w++) {
@@ -1781,7 +1823,7 @@ return(EXIT);
 mUndo(int wind)
 {
 if(UndoFlag) {
-	HideWindow(ResumeUndoStopPtr); ResumeStopOn = FALSE;
+	HideWindow(GetDialogWindow(ResumeUndoStopPtr)); ResumeStopOn = FALSE;
 	return(UNDO);
 	}
 TextAutoView(FALSE,TRUE,TEH[UndoWindow]);
@@ -1903,8 +1945,8 @@ if(Editable[wind]) {
 		ForgetFileName(wind);
 		}
 	}
-else {
-	DialogCut(FrontWindow());
+else if(IsDialog[wind]) {	// IsDialog just to be sure - 011207 akozar
+	DialogCut(GetDialogFromWindow(FrontWindow()));
 	LastAction = CUTDLG;
 	if(FrontWindow() == Window[wind]) {
 		UndoWindow = wind;
@@ -1927,8 +1969,8 @@ if(Editable[wind]) {
 	if(LastAction == 0) LastAction = COPY;
 	LastComputeWindow = wind;
 	}
-else {
-	DialogCopy(FrontWindow());
+else if(IsDialog[wind]) {	// IsDialog just to be sure - 011207 akozar
+	DialogCopy(GetDialogFromWindow(FrontWindow()));
 	ZeroScrap(); TEToScrap();
 	}
 // if(WASTE) TEFromScrap();
@@ -1961,8 +2003,8 @@ if(Editable[wind]) {
 	UpdateDirty(FALSE,wind);
 	ShowSelect(CENTRE,wind);
 	}
-else {
-	DialogPaste(FrontWindow());
+else if(IsDialog[wind]) {	// IsDialog just to be sure - 011207 akozar
+	DialogPaste(GetDialogFromWindow(FrontWindow()));
 	LastAction = PASTEDLG;
 	if(FrontWindow() == Window[wind]) {
 		UndoWindow = wind;
@@ -2026,8 +2068,8 @@ if(Editable[wind]) {
 	TextDelete(wind);
 	UpdateDirty(FALSE,wind);
 	}
-else {
-	DialogDelete(Window[wind]);
+else if(IsDialog[wind]) {	// IsDialog just to be sure - 011207 akozar
+	DialogDelete(gpDialogs[wind]);
 	UpdateDirty(TRUE,wind);
 	}
 return(OK);
@@ -2081,29 +2123,48 @@ return(OK);
 
 mMiscSettings(int wind)
 {
+GrafPtr port;
+RgnHandle rgn;
+
 AppendScript(30);
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
 
-ShowWindow(StrikeModePtr);
-BringToFront(StrikeModePtr);
+ShowWindow(GetDialogWindow(StrikeModePtr));
+BringToFront(GetDialogWindow(StrikeModePtr));
 SetDefaultStrikeMode();
-UpdateDialog(StrikeModePtr,StrikeModePtr->visRgn);
+port = GetDialogPort(StrikeModePtr);
+rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+GetPortVisibleRegion(port, rgn);
+UpdateDialog(StrikeModePtr, rgn);
+DisposeRgn(rgn);
 
-ShowWindow(FileSavePreferencesPtr);
-BringToFront(FileSavePreferencesPtr);
+ShowWindow(GetDialogWindow(FileSavePreferencesPtr));
+BringToFront(GetDialogWindow(FileSavePreferencesPtr));
 SetFileSavePreferences();
-UpdateDialog(FileSavePreferencesPtr,FileSavePreferencesPtr->visRgn);
+port = GetDialogPort(FileSavePreferencesPtr);
+rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+GetPortVisibleRegion(port, rgn);
+UpdateDialog(FileSavePreferencesPtr, rgn);
+DisposeRgn(rgn);
 
-ShowWindow(DefaultPerformanceValuesPtr);
-BringToFront(DefaultPerformanceValuesPtr);
+ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
+BringToFront(GetDialogWindow(DefaultPerformanceValuesPtr));
 SetDefaultPerformanceValues();
-UpdateDialog(DefaultPerformanceValuesPtr,DefaultPerformanceValuesPtr->visRgn);
+port = GetDialogPort(DefaultPerformanceValuesPtr);
+rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+GetPortVisibleRegion(port, rgn);
+UpdateDialog(DefaultPerformanceValuesPtr, rgn);
+DisposeRgn(rgn);
 
-ShowWindow(TuningPtr);
-BringToFront(TuningPtr);
+ShowWindow(GetDialogWindow(TuningPtr));
+BringToFront(GetDialogWindow(TuningPtr));
 SetTuning();
-UpdateDialog(TuningPtr,TuningPtr->visRgn);
+port = GetDialogPort(TuningPtr);
+rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+GetPortVisibleRegion(port, rgn);
+UpdateDialog(TuningPtr, rgn);
+DisposeRgn(rgn);
 
 BPActivateWindow(SLOW,wSettingsTop);
 BPActivateWindow(SLOW,wSettingsBottom);
@@ -2218,6 +2279,7 @@ return(OK);
 mFind(int wind)
 {
 Rect r;
+GrafPtr port;
 
 if(wind < 0 || wind >= WMAX || !Editable[wind]) {
 	Alert1("You can search only text windowÉ");
@@ -2231,8 +2293,9 @@ SelectField(NULL,wFindReplace,fFind,TRUE);
 
 // We need the following so that typing will directly be taken as a dialog
 // event belonging to this window $$$
-SetPort(Window[wFindReplace]);
-r = Window[wFindReplace]->portRect;
+port = GetDialogPort(gpDialogs[wFindReplace]);
+SetPort(port);
+GetPortBounds(port, &r);
 InvalRect(&r);
 return(OK);
 }
@@ -2267,7 +2330,7 @@ TextCopy(wind);
 SetSelect((**(TEH[wind])).selStart,(**(TEH[wind])).selStart,TEH[wind]);
 BPActivateWindow(SLOW,wFindReplace);
 SelectField(NULL,wFindReplace,fFind,TRUE);
-DialogPaste(Window[wFindReplace]);
+DialogPaste(gpDialogs[wFindReplace]);
 ZeroScrap();
 if(rc > 0) {
 	MyLock(FALSE,myHandle);
@@ -2807,8 +2870,8 @@ return(r);
 mResume(int wind)
 {
 StartCount();
-HideWindow(ResumeStopPtr);
-HideWindow(ResumeUndoStopPtr);
+HideWindow(GetDialogWindow(ResumeStopPtr));
+HideWindow(GetDialogWindow(ResumeUndoStopPtr));
 ResumeStopOn = FALSE;
 GetDialogValues(Nw);
 SetTempo();
@@ -2824,8 +2887,8 @@ mStop(int wind)
 int s,r,result;
 
 StopCount(0);
-HideWindow(ResumeStopPtr);
-HideWindow(ResumeUndoStopPtr);
+HideWindow(GetDialogWindow(ResumeStopPtr));
+HideWindow(GetDialogWindow(ResumeUndoStopPtr));
 ResumeStopOn = FALSE;
 HideWindow(Window[wMessage]);
 

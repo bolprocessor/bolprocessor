@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -51,6 +51,7 @@
 DoDialog(EventRecord *p_event)
 {
 DialogPtr thedialog;
+WindowPtr thewindow;
 int i,ip,j,jj,improvizemem,stepProducemem,displayProducemem,traceProducemem,rs,
 	w,rep,rep2,rep3,loadgrammar,rtn,showgraphic,noconstraint,showmessages,doneit,
 	displaytimeset,vmin,vmax,changedtick,movebar,diff,oldcycle,hit,longerCsound,
@@ -75,13 +76,15 @@ longerCsound = 0;
 rtn = movebar = FALSE;
 
 if(p_event->what == keyDown) {
-	FindWindow(p_event->where,&thedialog);
-	if(Nw == wFindReplace && thedialog != Window[wFindReplace]) {
-		thedialog = Window[wFindReplace];
-		SelectWindow(thedialog);
+	FindWindow(p_event->where,&thewindow);
+	thedialog = GetDialogFromWindow(thewindow);
+	if(Nw == wFindReplace && thedialog != gpDialogs[wFindReplace]) {
+		thedialog = gpDialogs[wFindReplace];
+		thewindow = GetDialogWindow(thedialog);
+		SelectWindow(thewindow);
 		}
 	for(w=0; w < WMAX; w++) {
-		if(thedialog == Window[w]) {
+		if(thewindow == Window[w]) {
 			if(!IsDialog[w]) return(AGAIN);
 			break;
 			}
@@ -132,11 +135,12 @@ hit = DialogSelect(p_event,&thedialog,&itemHit);
 	
 if(!rtn && !hit) return(OK);
 
+thewindow = GetDialogWindow(thedialog);
 for(w=0; w < WMAX; w++) {
-	if(thedialog == Window[w]) {
-		if(!IsDialog[w]) {
-			return(AGAIN);
-			}
+	if(thewindow == Window[w]) {
+		if(!IsDialog[w]) {	// FIXME ? this loop doesn't make sense; already know its a dialog & w should be same -- akozar
+			return(AGAIN);	// Update: maybe not; previous loop is only done for keydown events;
+			}			// Still, it seems possibly wrong to call DialogSelect when the window might not be a dialog.
 		break;
 		}
 	}
@@ -174,10 +178,9 @@ if(itemtype == editText || (itemtype == statText && !Help)) {
 	return(DONE);
 	}
 SetCursor(&WatchCursor);
-if((itemtype & 127) == (ctrlItem+btnCtrl) && itemHit == 1
-											&& thedialog == FAQPtr) {
+if((itemtype & 127) == (ctrlItem+btnCtrl) && itemHit == 1 && thedialog == FAQPtr) {
 	Help = FALSE;
-	HideWindow(FAQPtr);
+	HideWindow(GetDialogWindow(FAQPtr));
 	return(DONE);
 	}
 if(Help && !rtn) {
@@ -205,7 +208,7 @@ if(w == wTickDialog) {
 	switch(itemHit) {
 		case dOK:
 			GetThisTick();
-			HideWindow(Window[wTickDialog]);
+			HideWindow(GetDialogWindow(gpDialogs[wTickDialog]));
 			BPActivateWindow(QUICK,wTimeBase);
 			jj = dPlayBeat + 55*iTick + jTick;
 			GetDialogItem(gpDialogs[wTimeBase],(short)jj,&itemtype,(Handle*)&itemhandle,&r);
@@ -224,16 +227,16 @@ if(w == wTickDialog) {
 		case dDefaultTick:
 			SwitchOn(NULL,wTickDialog,dDefaultTick);
 			SwitchOff(NULL,wTickDialog,dSpecialTick);
-			HideDialogItem(Window[wTickDialog],fThisTickVelocity);
-			HideDialogItem(Window[wTickDialog],fThisTickChannel);
-			HideDialogItem(Window[wTickDialog],fThisTickKey);
+			HideDialogItem(gpDialogs[wTickDialog],fThisTickVelocity);
+			HideDialogItem(gpDialogs[wTickDialog],fThisTickChannel);
+			HideDialogItem(gpDialogs[wTickDialog],fThisTickKey);
 			break;
 		case dSpecialTick:
 			SwitchOn(NULL,wTickDialog,dSpecialTick);
 			SwitchOff(NULL,wTickDialog,dDefaultTick);
-			ShowDialogItem(Window[wTickDialog],fThisTickVelocity);
-			ShowDialogItem(Window[wTickDialog],fThisTickChannel);
-			ShowDialogItem(Window[wTickDialog],fThisTickKey);
+			ShowDialogItem(gpDialogs[wTickDialog],fThisTickVelocity);
+			ShowDialogItem(gpDialogs[wTickDialog],fThisTickChannel);
+			ShowDialogItem(gpDialogs[wTickDialog],fThisTickKey);
 			SelectField(NULL,wTickDialog,fThisTickChannel,FALSE);
 			break;
 		case dRecordThisTick:
@@ -632,12 +635,12 @@ if(w == wFindReplace) {
 	GetFindReplace();
 	switch(itemHit) {
 		case dFind:
-			HideWindow(Window[wFindReplace]);
+			HideWindow(GetDialogWindow(gpDialogs[wFindReplace]));
 			FindReplace(FALSE);
 			return(DONE);
 			break;
 		case dCancel:
-			HideWindow(Window[wFindReplace]);
+			HideWindow(GetDialogWindow(gpDialogs[wFindReplace]));
 			BPActivateWindow(SLOW,TargetWindow);
 			return(DONE);
 			break;
@@ -648,7 +651,7 @@ if(w == wFindReplace) {
 			MatchWords = 1 - MatchWords;
 			break;
 		case dReplaceAll:
-			HideWindow(Window[wFindReplace]);
+			HideWindow(GetDialogWindow(gpDialogs[wFindReplace]));
 			FindReplace(TRUE);
 			return(DONE);
 			break;
@@ -881,13 +884,20 @@ if(thedialog == SixteenPtr) {
 	HideWindow(Window[wInfo]);
 	switch(itemHit) {
 		case bChangePatch:
-			ShowWindow(MIDIprogramPtr);
-			SelectWindow(MIDIprogramPtr);
-			UpdateDialog(MIDIprogramPtr,MIDIprogramPtr->visRgn); /* Needed to make static text visible */
+			ShowWindow(GetDialogWindow(MIDIprogramPtr));
+			SelectWindow(GetDialogWindow(MIDIprogramPtr));
+			{ GrafPtr port;
+			  RgnHandle rgn;
+			  port = GetDialogPort(MIDIprogramPtr);
+			  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+			  GetPortVisibleRegion(port, rgn);
+			  UpdateDialog(MIDIprogramPtr, rgn); /* Needed to make static text visible */
+			  DisposeRgn(rgn);
+			}
 			break;			
 		case bOKSixteen:
-			HideWindow(SixteenPtr);
-			HideWindow(MIDIprogramPtr);
+			HideWindow(GetDialogWindow(SixteenPtr));
+			HideWindow(GetDialogWindow(MIDIprogramPtr));
 //			Alert1("To check input, select the ÔDataÕ window and type cmd-J (Òtype from MIDIÓ)");
 			break;
 		default:
@@ -935,7 +945,7 @@ if(thedialog == SixteenPtr) {
 if(thedialog == MIDIkeyboardPtr) {
 	switch(itemHit) {
 		case dOKkeyboard:
-			HideWindow(MIDIkeyboardPtr);
+			HideWindow(GetDialogWindow(MIDIkeyboardPtr));
 			break;
 		default:
 			if(itemHit > 24) return(OK);
@@ -952,7 +962,7 @@ if(thedialog == MIDIkeyboardPtr) {
 if(thedialog == StrikeModePtr) {
 	switch(itemHit) {
 		case bOKSaveStrikeMode:
-			HideWindow(StrikeModePtr);
+			HideWindow(GetDialogWindow(StrikeModePtr));
 			break;
 		case bDefaultStrikeAgain:
 			StrikeAgainDefault = TRUE;
@@ -970,7 +980,7 @@ if(thedialog == FileSavePreferencesPtr) {
 	switch(itemHit) {
 		case bOKFileSavePreferences:
 			if(GetFileSavePreferences() == OK)
-				HideWindow(FileSavePreferencesPtr);
+				HideWindow(GetDialogWindow(FileSavePreferencesPtr));
 			return(DONE);
 			break;
 		case bSaveAllToSame:
@@ -1036,7 +1046,7 @@ if(thedialog == TuningPtr) {
 	if(GetTuning() != OK) return(DONE);
 	switch(itemHit) {
 		case bOKtuning:
-			HideWindow(TuningPtr);
+			HideWindow(GetDialogWindow(TuningPtr));
 			return(DONE);
 			break;
 		}
@@ -2214,10 +2224,17 @@ if(w == wPrototype6) {
 			if(GetPrototype(YES) != OK) return(DONE);
 			break;
 		case bShowDefaultStrikeMode:
-			ShowWindow(StrikeModePtr);
-			BringToFront(StrikeModePtr);
+			ShowWindow(GetDialogWindow(StrikeModePtr));
+			BringToFront(GetDialogWindow(StrikeModePtr));
 			SetDefaultStrikeMode();
-			UpdateDialog(StrikeModePtr,StrikeModePtr->visRgn);
+			{ GrafPtr port;
+			  RgnHandle rgn;
+			  port = GetDialogPort(StrikeModePtr);
+			  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+			  GetPortVisibleRegion(port, rgn);
+			  UpdateDialog(StrikeModePtr, rgn);
+			  DisposeRgn(rgn);
+			}
 			return(DONE);
 			break;
 		}
@@ -2425,9 +2442,16 @@ if(w == wCsoundInstruments) {
 			return(DONE);
 			break;
 		case bMore:
-			ShowWindow(CsoundInstrMorePtr);
-			SelectWindow(CsoundInstrMorePtr);
-			UpdateDialog(CsoundInstrMorePtr,CsoundInstrMorePtr->visRgn);
+			ShowWindow(GetDialogWindow(CsoundInstrMorePtr));
+			SelectWindow(GetDialogWindow(CsoundInstrMorePtr));
+			{ GrafPtr port;
+			  RgnHandle rgn;
+			  port = GetDialogPort(CsoundInstrMorePtr);
+			  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+			  GetPortVisibleRegion(port, rgn);
+			  UpdateDialog(CsoundInstrMorePtr, rgn);
+			  DisposeRgn(rgn);
+			}
 			return(DONE);
 			break;
 		case bCsoundTables:
