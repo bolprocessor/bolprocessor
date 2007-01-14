@@ -1,3 +1,13 @@
+2007-01-13	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	* source/BP2/Interface1.c:
+	* source/BP2/Interface2.c:
+	* source/BP2/Inits.c:
+		Converted for CarbonAccessors.
+
+	* source/BP2/Print.c:
+		Can't convert since OPAQUE_TOOLBOX_STRUCTS makes it impossible.
+		Will need to completely replace this code for the real Carbon build.
+		
 2007-01-12	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	* source/BP2/Dialogs.c:
 	* source/BP2/MenuCommands.c:

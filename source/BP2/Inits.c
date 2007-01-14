@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -784,7 +784,7 @@ MakeWindows(void)
 int i,id,im,ibot,itemtype,j,k,km,w,top,left,bottom,right,leftoffset,
 	widmax,type,proc,bad,x0,y0;
 Handle h_res;
-Rect r;
+Rect r, rw;
 Str255 title;
 long rc;
 GrafPtr saveport;
@@ -826,17 +826,21 @@ for(w=0; w < MAXWIND; w++) {
 		NoteAlert(OKAlert,0L);
 		bad = TRUE;
 		}
-	gpDialogs[w] = Window[w];  /* should probably not duplicate WindowPtrs as DialogPtrs, but may be neccessary for now -- 010907 akozar */
+	// gpDialogs[w] = Window[w];  /* should probably not duplicate WindowPtrs as DialogPtrs, but may be neccessary for now -- 010907 akozar */
+	/* By removing the above line, we invalidate any use of gpDialogs[w] where w < MAXWIND.
+	   I am not sure if this will cause problems (even crashes), but it would also be an error
+	   to try GetDialogFromWindow() on a non-Dialog WindowPtr.  011307 akozar */
+	gpDialogs[w] = NULL; // FIXME ??
 	if(!bad) SetUpWindow(w);
-	r = Window[w]->portRect;
+	GetWindowPortBounds(Window[w], &r);
 	Weird[w] = FALSE;
 	InvalRect(&r);
 	SystemTask();	/* Allows redrawing control strip */
 	}
 
-r = Window[wMessage]->portRect;
+GetWindowPortBounds(Window[wMessage], &r);
 AdjustWindow(FALSE,wMessage,r.top,r.left,r.bottom,r.right);
-r = Window[wInfo]->portRect;
+GetWindowPortBounds(Window[wInfo], &r);
 AdjustWindow(FALSE,wInfo,r.top,r.left,r.bottom,r.right);
 
 sprintf(Message,"%s",IDSTRING);
@@ -848,8 +852,8 @@ FlashInfo("¥       ¥      ¥     ¥    ¥   ¥  ¥ ¥ Accelerated for PowerPC ¥");
 FlashInfo("¥ ¥ Macintosh 68k version ¥ ¥");
 #endif
 
-SelectWindow(GreetingsPtr);
-SetPort(GreetingsPtr);
+SelectWindow(GetDialogWindow(GreetingsPtr));
+SetPortDialogPort(GreetingsPtr);
 TextSize(10); TextFont(kFontIDCourier);
 RGBForeColor(&Red);
 x0 = 253; y0 = 18;
@@ -880,9 +884,9 @@ for(w=MAXWIND; w < WMAX; w++) {
 		bad = TRUE;
 		}
 	if(bad) continue;
-	Window[w] = gpDialogs[w];  /* should probably not duplicate DialogPtrs as WindowPtrs, but may be neccessary for now -- 010907 akozar */
-	SetPort(Window[w]);
-	rc = ((DialogPeek)gpDialogs[w])->window.refCon;
+	Window[w] = GetDialogWindow(gpDialogs[w]);  /* should probably not duplicate DialogPtrs as WindowPtrs, but may be neccessary for now -- 010907 akozar */
+	SetPortWindowPort(Window[w]);
+	rc = GetWRefCon(GetDialogWindow(gpDialogs[w]));
 	if(rc != 0L) {
 		TextSize(WindowTextSize[w]);
 		type = (int) (rc % 4L);
@@ -916,14 +920,15 @@ for(w=MAXWIND; w < WMAX; w++) {
 			NoteAlert(OKAlert,0L);
 			return(FAILED);
 			}
+		GetPortBounds(GetDialogPort(gpDialogs[w]), &rw);
 		top = (int)(((rc - (rc % 536870912L)) / 536870912L) * 64)+4;
-		if(top == 0) top = ((DialogPeek)gpDialogs[w])->window.port.portRect.top;
+		if(top == 0) top = rw.top;
 		left = (int)((((rc - (rc % 67108864L)) / 67108864L) % 8) * 64)+4;
-		if(left == 0) left = ((DialogPeek)gpDialogs[w])->window.port.portRect.left;
+		if(left == 0) left = rw.left;
 		bottom = (int)(((rc - (rc % 131072L)) / 131072L) % 512);
-		if(bottom == 0) bottom = ((DialogPeek)gpDialogs[w])->window.port.portRect.bottom;
+		if(bottom == 0) bottom = rw.bottom;
 		right = (int)(((rc - (rc % 256L)) / 256L) % 512);
-		if(right == 0) right = ((DialogPeek)gpDialogs[w])->window.port.portRect.right;
+		if(right == 0) right = rw.right;
 		ibot = (bottom - top) / Buttonheight;
 		j = 2;
 		widmax = 0;
@@ -979,7 +984,7 @@ return(DoSystem());
 }
 
 
-HiliteDefault(WindowPtr thewindow)
+HiliteDefault(DialogPtr dp)
 {
 short itemtype;
 ControlHandle itemhandle;
@@ -990,12 +995,12 @@ GrafPtr	saveport;
 /* procForBorderUserItem = NewUserItemProc(DrawButtonBorder); */
 
 return(OK); /* $$$ */
-if(thewindow == NULL || !(*(WindowPeek) thewindow).visible) return(FAILED);
-GetDialogItem((DialogPtr)thewindow,1,&itemtype,(Handle*)&itemhandle,&r);
+if(dp == NULL || !IsWindowVisible(GetDialogWindow(dp))) return(FAILED);
+GetDialogItem(dp,1,&itemtype,(Handle*)&itemhandle,&r);
 itemtype = (itemtype & 127) - ctrlItem;
 if(itemhandle != NULL && itemtype == btnCtrl) {
 	GetPort(&saveport);
-	SetPort(thewindow);
+	SetPortDialogPort(dp);
 	PenSize(3,3);
 	InsetRect(&r,-2,-2);
 	FrameRoundRect(&r,16,16);
@@ -1010,7 +1015,7 @@ return(DoSystem());
 SetUpWindow(int w)
 {
 Rect destRect,viewRect;
-Rect ScrollRect,r;
+Rect scrollrect,r;
 FontInfo myInfo;
 int height,i,itemType;
 long scrapoffset,n;
@@ -1026,33 +1031,33 @@ if(w < 0 || w >= WMAX) {
 	Alert1("Internal problem in setting up windows. Restart your Mac!");
 	return(ABORT);
 	}
-SetPort(Window[w]);
+SetPortWindowPort(Window[w]);
 if(Editable[w]) TextFont(kFontIDCourier);
 SetDialogFont(systemFont);
 Charstep = 7; /* StringWidth("\pm"); */
 Nw = w;
-viewRect = thePort->portRect;
+GetPortBounds(thePort, &viewRect);
 if(OKvScroll[w]  || OKhScroll[w]) {
 	viewRect.right = viewRect.right - SBARWIDTH;
 	viewRect.bottom = viewRect.bottom - SBARWIDTH;
-	r = (Window[w])->portRect;
+	GetWindowPortBounds(Window[w], &r);
 	}
 if(OKvScroll[w]) {
-	ScrollRect.left = r.right - SBARWIDTH;
-	ScrollRect.right = r.right + 1;
-	ScrollRect.bottom = r.bottom - (SBARWIDTH - 1) - Freebottom[w];
-	ScrollRect.top = r.top - 1;
-	vScroll[w] = NewControl((WindowPtr)Window[w],&ScrollRect,"\p",(Boolean)1,(short)0,
+	scrollrect.left = r.right - SBARWIDTH;
+	scrollrect.right = r.right + 1;
+	scrollrect.bottom = r.bottom - (SBARWIDTH - 1) - Freebottom[w];
+	scrollrect.top = r.top - 1;
+	vScroll[w] = NewControl(Window[w],&scrollrect,"\p",(Boolean)1,(short)0,
 		(short)0,(short)0,(short)scrollBarProc,0L);
 	Vmin[w] = INT_MAX; Vmax[w] = - INT_MAX;
 	Vzero[w] = 0;
 	}
 if(OKhScroll[w]) {
-	ScrollRect.left = r.left - 1;
-	ScrollRect.right = r.right - (SBARWIDTH - 1);
-	ScrollRect.bottom = r.bottom - Freebottom[w];
-	ScrollRect.top = r.bottom - SBARWIDTH - Freebottom[w];
-	hScroll[w] = NewControl((WindowPtr)Window[w],&ScrollRect,"\p",(Boolean)1,(short)0,
+	scrollrect.left = r.left - 1;
+	scrollrect.right = r.right - (SBARWIDTH - 1);
+	scrollrect.bottom = r.bottom - Freebottom[w];
+	scrollrect.top = r.bottom - SBARWIDTH - Freebottom[w];
+	hScroll[w] = NewControl(Window[w],&scrollrect,"\p",(Boolean)1,(short)0,
 		(short)0,(short)0,(short)scrollBarProc,0L);
 	Hmin[w] = INT_MAX; Hmax[w] = - INT_MAX;
 	Hzero[w] = 0;
@@ -1525,10 +1530,10 @@ if(w < 0 || w >= WMAX
 		|| (!Adjustable[w] && w != wMessage && w != wInfo)) return(OK);
 if(ScriptExecOn || InitOn) PleaseWait();
 
-r = Window[w]->portRect;
+GetWindowPortBounds(Window[w], &r);
 
 GetPort(&saveport);
-SetPort(Window[w]);
+SetPortWindowPort(Window[w]);
 
 p = topLeft(r); LocalToGlobal(&p);
 q = botRight(r); LocalToGlobal(&q);
@@ -1579,19 +1584,19 @@ hresize = (bottom - top) - (q.v - p.h);
 if(Editable[w] && !LockedWindow[w]) Deactivate(TEH[w]);
 
 if((vdrag != 0) || (hdrag != 0)) {
-	r = Window[w]->portRect;
+	GetWindowPortBounds(Window[w], &r);
 	InvalRect(&r);
 	EraseRect(&r);
 	MoveWindow(Window[w],left,top,FALSE);	/* Don't activate */
-	r = (Window[w])->portRect;
+	GetWindowPortBounds(Window[w], &r);
 	InvalRect(&r);
 	}
 if((OKgrow[w] || w == wMessage || w == wInfo) && ((wresize != 0) || (hresize != 0))) {
-	r = Window[w]->portRect;
+	GetWindowPortBounds(Window[w], &r);
 	if(GrafWindow[w]) ClipRect(&r);
 	EraseRect(&r);
 	SizeWindow(Window[w],right - left,bottom - top,TRUE);	/* Update */
-	r = Window[w]->portRect;
+	GetWindowPortBounds(Window[w], &r);
 	ClipRect(&r);
 	EraseRect(&r);
 	InvalRect(&r);
@@ -1657,7 +1662,7 @@ Rect	r;
 WindowPtr	window;	
 
 window = Window[wGraphic];
-r = window->portRect;
+GetWindowPortBounds(window, &r);
 OffsetRect(&r,-r.left,-r.top);
 
 err = NewGWorld(&gMainGWorld,16,&r,nil,nil,pixPurge);

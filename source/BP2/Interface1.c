@@ -1350,7 +1350,7 @@ else {
 	}
 EndUpdate(theWindow);
 ClipRect(&r1);
-if(w < WMAX && HasFields[w] && !Editable[w]) HiliteDefault(theWindow);
+if(w < WMAX && HasFields[w] && !Editable[w]) HiliteDefault(GetDialogFromWindow(theWindow));
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err UpdateWindow(). saveport == NULL");
 return(OK);
@@ -1444,7 +1444,7 @@ for(w=0; w < WMAX; w++) {
 	}
 if(Help && w < WMAX) UpdateWindow(FALSE,Window[w]);
 GetPort(&saveport);
-SetPort(theWindow);
+SetPortWindowPort(theWindow);
 GlobalToLocal(&p_event->where);
 
 vscrollptr = NewRoutineDescriptor((ProcPtr)vScrollProc,uppControlActionProcInfo,
@@ -1513,11 +1513,15 @@ if((cntlCode=FindControl(p_event->where,theWindow,&theControl)) != 0) {
 		}
 	if(cntlCode != 0) {		/* Scrolling a graphic window */
 		if(w < WMAX) {
+			RgnHandle cliprgn;
 			SelectWindow(Window[w]);
 			GetPort(&saveport);
-			SetPort(Window[w]);
-			r1 = (*(Window[w]->clipRgn))->rgnBBox;
-			r = Window[w]->portRect;
+			SetPortWindowPort(Window[w]);
+			cliprgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+			GetPortClipRegion(GetWindowPort(Window[w]), cliprgn);
+			GetRegionBounds(cliprgn, &r1);
+			DisposeRgn(cliprgn);
+			GetWindowPortBounds(Window[w], &r);
 			ClipRect(&r);
 			if(cntlCode == inThumb) {
 				TrackControl(theControl,p_event->where,(ControlActionUPP)0L);
@@ -1568,8 +1572,8 @@ if(!redraw) return(OK);
 
 OUT:
 GetPort(&saveport);
-SetPort(Window[w]);
-r = Window[w]->portRect;
+SetPortWindowPort(Window[w]);
+GetWindowPortBounds(Window[w], &r);
 InvalRect(&r);
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err AdjustGraph(). saveport == NULL");
@@ -1621,15 +1625,15 @@ if(w < 0 || w >= WMAX) {
 result = OK;
 if(!OKgrow[w]) return(FAILED);
 GetPort(&saveport);
-SetPort(Window[w]);
+SetPortWindowPort(Window[w]);
 SetRect(&r,MINWINDOWHEIGHT,MINWINDOWWIDTH,
 	screenBits.bounds.right - screenBits.bounds.left,
 	screenBits.bounds.bottom - screenBits.bounds.top - SBARWIDTH);
 theresult = GrowWindow(Window[w],p,&r);
 if(theresult == 0) return(FAILED);
-r0 = Window[w]->portRect;
+GetWindowPortBounds(Window[w], &r0);
 SizeWindow(Window[w],LoWord(theresult),HiWord(theresult),TRUE);
-r = Window[w]->portRect;
+GetWindowPortBounds(Window[w], &r);
 if(r.top == r0.top && r.left == r0.left && r.bottom == r0.bottom
 		&& r.right == r0.right) {
 	result = FAILED;
@@ -1667,7 +1671,7 @@ if(GrafWindow[w]) {
 		}
 	SlideH[w] = SlideV[w] = 0;
 /*	ClipRect(&r); */
-	r = Window[w]->portRect;
+	GetWindowPortBounds(Window[w], &r);
 	InvalRect(&r);
 	UpdateWindow(FALSE,Window[w]);  /* 5/9/97 */
 	}
@@ -2072,7 +2076,7 @@ if(Nw > -1 && Nw < WMAX && Ours(wPtr,Window[Nw])) {
 			}
 		}
 	if(HasFields[Nw]) {
-		r = (**(((DialogPeek)gpDialogs[Nw])->textH)).viewRect;
+		r = (**(GetDialogTextEditHandle(gpDialogs[Nw]))).viewRect;
 		if(PtInRect(pt,&r)) {
 			SetCursor(&EditCursor);
 			goto OUT;
@@ -2081,32 +2085,32 @@ if(Nw > -1 && Nw < WMAX && Ours(wPtr,Window[Nw])) {
 	}
 else {
 	found = FALSE;
-	if(wPtr == EnterPtr) {
-		r = (*(((DialogPeek)EnterPtr)->textH))->viewRect;
+	if(wPtr == GetDialogWindow(EnterPtr)) {
+		r = (*(GetDialogTextEditHandle(EnterPtr)))->viewRect;
 		found = TRUE;
 		}
-	if(wPtr == TuningPtr) {
-		r = (*(((DialogPeek)TuningPtr)->textH))->viewRect;
+	if(wPtr == GetDialogWindow(TuningPtr)) {
+		r = (*(GetDialogTextEditHandle(TuningPtr)))->viewRect;
 		found = TRUE;
 		}
-	if(wPtr == DefaultPerformanceValuesPtr) {
-		r = (*(((DialogPeek)DefaultPerformanceValuesPtr)->textH))->viewRect;
+	if(wPtr == GetDialogWindow(DefaultPerformanceValuesPtr)) {
+		r = (*(GetDialogTextEditHandle(DefaultPerformanceValuesPtr)))->viewRect;
 		found = TRUE;
 		}
-	if(wPtr == CsoundInstrMorePtr) {
-		r = (*(((DialogPeek)CsoundInstrMorePtr)->textH))->viewRect;
+	if(wPtr == GetDialogWindow(CsoundInstrMorePtr)) {
+		r = (*(GetDialogTextEditHandle(CsoundInstrMorePtr)))->viewRect;
 		found = TRUE;
 		}
-	if(wPtr == PatternPtr) {
-		r = (*(((DialogPeek)PatternPtr)->textH))->viewRect;
+	if(wPtr == GetDialogWindow(PatternPtr)) {
+		r = (*(GetDialogTextEditHandle(PatternPtr)))->viewRect;
 		found = TRUE;
 		}
-	if(wPtr == FileSavePreferencesPtr) {
-		r = (*(((DialogPeek)FileSavePreferencesPtr)->textH))->viewRect;
+	if(wPtr == GetDialogWindow(FileSavePreferencesPtr)) {
+		r = (*(GetDialogTextEditHandle(FileSavePreferencesPtr)))->viewRect;
 		found = TRUE;
 		}
-	if(wPtr == MIDIprogramPtr) {
-		r = (*(((DialogPeek)MIDIprogramPtr)->textH))->viewRect;
+	if(wPtr == GetDialogWindow(MIDIprogramPtr)) {
+		r = (*(GetDialogTextEditHandle(MIDIprogramPtr)))->viewRect;
 		found = TRUE;
 		}
 	if(found && PtInRect(pt,&r)) {
@@ -2293,12 +2297,12 @@ else {
 	
 	if(((!LockedWindow[w] && FileName[w][0] != '\0'
 			&& (Dirty[w] || (w == wPrototype7 && Dirty[iObjects])))
-			|| (CsoundInstrMorePtr == FrontWindow() && Dirty[wCsoundInstruments]
+			|| (GetDialogWindow(CsoundInstrMorePtr) == FrontWindow() && Dirty[wCsoundInstruments]
 			&& FileName[wCsoundInstruments][0] != '\0')) && !ClickRuleOn)
 		EnableItem(myMenus[fileM],fmRevert);
 		
 	if(((Dirty[w] || (w == wPrototype7 && Dirty[iObjects]))
-			|| (CsoundInstrMorePtr == FrontWindow() && Dirty[wCsoundInstruments]))
+			|| (GetDialogWindow(CsoundInstrMorePtr) == FrontWindow() && Dirty[wCsoundInstruments]))
 			&& !ClickRuleOn) {
 		EnableItem(myMenus[fileM],fmSave);
 		}
@@ -2506,7 +2510,7 @@ RgnHandle  the_gray_rgn;
 Rect r;
    
 the_gray_rgn = GetGrayRgn();
-r = (**(the_gray_rgn)).rgnBBox;  
+GetRegionBounds(the_gray_rgn, &r);  
 r.left   += DRAG_EDGE;   
 r.right  -= DRAG_EDGE;    
 r.bottom -= DRAG_EDGE; 
@@ -2617,8 +2621,8 @@ Point pt;
 Rect r;
 
 if(Nw < 0 || Nw >= WMAX || !Editable[Nw]) return(OK);
-SetPort(Window[Nw]);
-r = Window[Nw]->portRect;
+SetPortWindowPort(Window[Nw]);
+GetWindowPortBounds(Window[Nw], &r);
 event.what = mouseDown;
 pt.h = r.right - r.left + SBARWIDTH/2;
 if(up) pt.v = SBARWIDTH;

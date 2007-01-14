@@ -267,7 +267,7 @@ int Inits(void);
 int SetNoteNames(void);
 int Ctrlinit(void);
 int MakeWindows(void);
-int HiliteDefault(WindowPtr);
+int HiliteDefault(DialogPtr);
 int SetUpWindow(int);
 int LoadStrings(void);
 int LoadStringResource(char*****,int***,int***,int,long*,int);

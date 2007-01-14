@@ -37,8 +37,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 #ifndef _H_BP2
@@ -60,7 +60,7 @@ Rect r;
 WindowPtr w;
 
 SetRect(&r,152,60,366,132);
-SetPort((w = NewWindow(0L,&r,"\p",1,1,NULL,0,0L)));
+SetPortWindowPort((w = NewWindow(0L,&r,"\p",1,1,NULL,0,0L)));
 TextFont(0);
 MoveTo(4,40);
 DrawString("\pCan't open resource file!");
@@ -166,7 +166,7 @@ PrintBehind(w,s);
 TextUpdate(w);
 /* GetPort(&saveport);
 SetPort(Window[w]); */
-r = Window[w]->portRect;
+GetWindowPortBounds(Window[w], &r);
 InvalRect(&r);
 /* if(saveport != NULL) SetPort(saveport); */
 SystemTask();	/* Allows redrawing control strip */
@@ -518,9 +518,9 @@ DoThings(char ****p_thing, int jmin, int jmax, int** pp_index,int widmax, IntPro
 	char failedstring[], int ctrltype)
 {
 DialogPtr p_dia;
-DialogRecord dr;
+//DialogRecord dr;
 GrafPtr saveport;
-Rect r;
+Rect r, rtemp;
 int theitem,i,im,j,jj,k,kmax,found,ibot,left,right,top,bottom,leftoffset,
 	vpitch,morecoming,numberdrawn,page,j0[maxpage],result,start[maxpage];
 ControlHandle h,h_ctrl[maxctrl];
@@ -530,30 +530,31 @@ Str255 title;
 GetPort(&saveport);
 for(i=0; i < maxctrl; i++) h_ctrl[i] = NULL;
 page = im = 0; j0[0] = jmin;
-p_dia = GetNewDialog(ObjectChartID,(Ptr)&dr,(WindowPtr)-1L);
+p_dia = GetNewDialog(ObjectChartID, NULL, (WindowPtr)-1L);
 result = OK;
 start[0] = 1;
 vpitch = Buttonheight + 5;
-ShowWindow(p_dia); SelectWindow(p_dia);
-SetPort(p_dia);
+ShowWindow(GetDialogWindow(p_dia)); SelectWindow(GetDialogWindow(p_dia));
+SetPortDialogPort(p_dia);
 TextFont(kFontIDCourier); TextSize(10);
 r.top = 10; r.left = 5; r.bottom = 30; r.right = 55;
-h_ctrl[0] = NewControl(p_dia,&r,"\p",1,0,0,1,pushButProc,0L);
+h_ctrl[0] = NewControl(GetDialogWindow(p_dia),&r,"\p",1,0,0,1,pushButProc,0L);
 top = 40;
 left = 0;
-bottom = p_dia->portRect.bottom - p_dia->portRect.top;
-right = p_dia->portRect.right - p_dia->portRect.left;
+GetPortBounds(GetDialogPort(p_dia), &rtemp);
+bottom = rtemp.bottom - rtemp.top;
+right = rtemp.right - rtemp.left;
 /* right = 150; */
 ibot = (bottom - top) / vpitch;
 r.top = 10;
-r.left = p_dia->portRect.right - p_dia->portRect.left - 60;
+r.left = rtemp.right - rtemp.left - 60;
 r.bottom = r.top + Buttonheight;
 r.right = r.left + 50;
-h_ctrl[1] = NewControl((WindowPtr)p_dia,&r,"\p==>",(Boolean)1,(short)0,(short)0,(short)1,
+h_ctrl[1] = NewControl(GetDialogWindow(p_dia),&r,"\p==>",(Boolean)1,(short)0,(short)0,(short)1,
 	(short)pushButProc,0L);
-r.left = p_dia->portRect.right - p_dia->portRect.left - 120;
+r.left = rtemp.right - rtemp.left - 120;
 r.right = r.left + 50;
-h_ctrl[2] = NewControl((WindowPtr)p_dia,&r,"\p<==",(Boolean)1,(short)0,(short)0,(short)1,
+h_ctrl[2] = NewControl(GetDialogWindow(p_dia),&r,"\p<==",(Boolean)1,(short)0,(short)0,(short)1,
 	(short)pushButProc,0L);
 ibot = (bottom - top) / vpitch;
 im = 2;
@@ -602,7 +603,7 @@ for(i=0; ; i++,j++) {
 		r.left = left + leftoffset;
 		r.right = r.left + Buttonheight + (widmax * Charstep);
 		if(r.right > right) break;
-		if((h_ctrl[++im] = NewControl(p_dia,&r,title,1,0,0,1,(ctrltype + 8),0L))
+		if((h_ctrl[++im] = NewControl(GetDialogWindow(p_dia),&r,title,1,0,0,1,(ctrltype + 8),0L))
 				== NULL) {
 			if(Beta) Alert1("Err1. DoThings()");
 			result = ABORT; goto QUIT;
@@ -649,17 +650,17 @@ else {
 	ShowControl(h_ctrl[2]);
 /*	HiliteControl(h_ctrl[2],0); */
 	}
-SelectWindow(p_dia); 
+SelectWindow(GetDialogWindow(p_dia)); 
 /* DrawControls(p_dia); */
 found = FALSE;
-SetPort(p_dia);
+SetPortDialogPort(p_dia);
 
 FlushEvents(everyEvent,0);
 
 do {
 	if(GetNextEvent(mDownMask,&theEvent)) {
 		GlobalToLocal(&(theEvent.where));
-		if(FindControl(theEvent.where,p_dia,&h) != 0) {
+		if(FindControl(theEvent.where, GetDialogWindow(p_dia), &h) != 0) {
 			TrackControl(h,theEvent.where,(ControlActionUPP)MINUSPROC);
 			for(i=0; i <= im; i++) {
 				if(h == h_ctrl[i]) {
@@ -706,11 +707,11 @@ else {
 		}
 	}
 start[page] = 0;
-SelectWindow(p_dia); 
+SelectWindow(GetDialogWindow(p_dia)); 
 goto REDRAW;
 
 QUIT:
-CloseDialog(p_dia);
+DisposeDialog(p_dia);
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err DoThings(). saveport == NULL");
 return(result);
@@ -857,15 +858,15 @@ StopWait();
 strcpy(LineBuff,message);
 GetDialogItem(EnterPtr,fMessage,&itemtype,&itemhandle,&r);
 SetDialogItemText(itemhandle,c2pstr(LineBuff));
-TESetSelect(ZERO,ZERO,((DialogPeek)EnterPtr)->textH);
+TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(EnterPtr));
 strcpy(LineBuff,defaultvalue);
 GetDialogItem(EnterPtr,fValue,&itemtype,&itemhandle,&r);
 SetDialogItemText(itemhandle,c2pstr(LineBuff));
-TESetSelect(ZERO,63L,((DialogPeek)EnterPtr)->textH);
-TEActivate(((DialogPeek)EnterPtr)->textH);
+TESetSelect(ZERO,63L,GetDialogTextEditHandle(EnterPtr));
+TEActivate(GetDialogTextEditHandle(EnterPtr));
 
-ShowWindow(EnterPtr);
-BringToFront(EnterPtr);
+ShowWindow(GetDialogWindow(EnterPtr));
+BringToFront(GetDialogWindow(EnterPtr));
 DrawDialog(EnterPtr);
 HiliteDefault(EnterPtr);
 EnterOn = TRUE;
@@ -874,7 +875,7 @@ AlertOn++;
 while(TRUE) {
 	eventfound = GetNextEvent(everyEvent,&event);
 	MaintainCursor();
-	TEIdle(((DialogPeek)EnterPtr)->textH);
+	TEIdle(GetDialogTextEditHandle(EnterPtr));
 	/* Apparently needed although Think Reference says IsDialogEvent() blinks the caret */
 	if(!IsDialogEvent(&event)) continue;
 	if(!eventfound) continue;
@@ -904,7 +905,7 @@ AlertOn--;
 GetDialogItem(EnterPtr,fValue,&itemtype,&itemhandle,&r);
 GetDialogItemText(itemhandle,t);
 MyPtoCstr(255,t,value);
-HideWindow(EnterPtr);
+HideWindow(GetDialogWindow(EnterPtr));
 UpdateWindow(FALSE,Window[wGraphic]);
 UpdateWindow(FALSE,Window[wPrototype1]);
 return(rep);
@@ -924,8 +925,8 @@ if(!EmergencyExit && !InitOn && CallUser(0) != OK) return(OK);
 SetCursor(&arrow);
 GetPort(&saveport);
 if(!EmergencyExit && !InitOn && Nw >= 0 && Nw < WMAX) {
-	SetPort(Window[Nw]);
-	r = Window[Nw]->portRect;
+	SetPortWindowPort(Window[Nw]);
+	GetWindowPortBounds(Window[Nw], &r);
 	InvalRect(&r);
 	}
 r = screenBits.bounds;
@@ -1203,22 +1204,22 @@ if((!AlertOn && !ButtonOn) || force) {
 			&& !HangOn && !ScriptExecOn && !WaitOn) {
 		if(ResumeStopOn || force) {
 			ResumeStopOn = FALSE;
-			HideWindow(ResumeUndoStopPtr);
-			HideWindow(ResumeStopPtr);
+			HideWindow(GetDialogWindow(ResumeUndoStopPtr));
+			HideWindow(GetDialogWindow(ResumeStopPtr));
 			}
 		}
 	else {
 		if(!ResumeStopOn || force) {
 			ResumeStopOn = TRUE;
 			if(UndoFlag) {
-				HideWindow(ResumeStopPtr);
-				ShowWindow(ResumeUndoStopPtr);
-				BringToFront(ResumeUndoStopPtr);
+				HideWindow(GetDialogWindow(ResumeStopPtr));
+				ShowWindow(GetDialogWindow(ResumeUndoStopPtr));
+				BringToFront(GetDialogWindow(ResumeUndoStopPtr));
 				}
 			else {
-				HideWindow(ResumeUndoStopPtr);
-				ShowWindow(ResumeStopPtr);
-				BringToFront(ResumeStopPtr);
+				HideWindow(GetDialogWindow(ResumeUndoStopPtr));
+				ShowWindow(GetDialogWindow(ResumeStopPtr));
+				BringToFront(GetDialogWindow(ResumeStopPtr));
 				}
 			}
 		}
@@ -1762,8 +1763,8 @@ do {
 		continue;
 		}
 	GetPort(&saveport);
-	SetPort(Window[TargetWindow]);
-	r = (*(Window[TargetWindow])).portRect;
+	SetPortWindowPort(Window[TargetWindow]);
+	GetWindowPortBounds(Window[TargetWindow], &r);
 	InvalRect(&r);
 	BPActivateWindow(SLOW,TargetWindow);
 	ShowSelect(CENTRE,TargetWindow);
@@ -1861,13 +1862,15 @@ Rect r;
 short theitem;
 int found;
 ControlHandle h;
+RgnHandle rgn;
 EventRecord theEvent;
 WindowPtr thewindow;
+DialogPtr thedialog;
 Point pt;
 
-ShowWindow(ReplaceCommandPtr);
-SelectWindow(ReplaceCommandPtr);
-SetPort(ReplaceCommandPtr);
+ShowWindow(GetDialogWindow(ReplaceCommandPtr));
+SelectWindow(GetDialogWindow(ReplaceCommandPtr));
+SetPortDialogPort(ReplaceCommandPtr);
 StopWait();
 found = FALSE;
 
@@ -1876,7 +1879,11 @@ FlushEvents(everyEvent,0);
 // #endif
 
 /* DrawControls(ReplaceCommandPtr); */
-UpdateDialog(ReplaceCommandPtr,ReplaceCommandPtr->visRgn);
+rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+GetPortVisibleRegion(GetDialogPort(ReplaceCommandPtr), rgn);
+UpdateDialog(ReplaceCommandPtr, rgn);
+DisposeRgn(rgn);
+
 do {
 	if(GetNextEvent(everyEvent,&theEvent)) {
 		if((theEvent.what == keyDown)
@@ -1888,13 +1895,14 @@ do {
 		found = TRUE;
 		FindWindow(theEvent.where,&thewindow);
 		GlobalToLocal(&(theEvent.where));
-		if(FindControl(theEvent.where,ReplaceCommandPtr,&h) != 0) {
+		if(FindControl(theEvent.where, GetDialogWindow(ReplaceCommandPtr), &h) != 0) {
 			TrackControl(h,theEvent.where,MINUSPROC);
 			LocalToGlobal(&(theEvent.where));
-			DialogSelect(&theEvent,&thewindow,&theitem);
+			thedialog = GetDialogFromWindow(thewindow);	// FIX ME ? not sure what window(s) are being used here?
+			DialogSelect(&theEvent,&thedialog,&theitem);
 			}
 		else {
-			if(thewindow == ReplaceCommandPtr) {
+			if(thewindow == GetDialogWindow(ReplaceCommandPtr)) {
 				SysBeep(10);
 				found = FALSE;
 				}
@@ -1903,7 +1911,7 @@ do {
 		}
 	}
 while(!found);
-HideWindow(ReplaceCommandPtr);
+HideWindow(GetDialogWindow(ReplaceCommandPtr));
 
 // #ifndef __POWERPC
 FlushEvents(everyEvent,0);
@@ -1925,12 +1933,12 @@ sprintf(line,"%s",FindString);
 GetDialogItem(gpDialogs[wFindReplace],fFind,&itemtype,
 	(Handle*)&itemhandle,&r);
 SetDialogItemText((Handle)itemhandle,c2pstr(line));
-TESetSelect(ZERO,63L,((DialogPeek)gpDialogs[wFindReplace])->textH);
+TESetSelect(ZERO,63L,GetDialogTextEditHandle(gpDialogs[wFindReplace]));
 sprintf(line,"%s",ReplaceString);
 GetDialogItem(gpDialogs[wFindReplace],fReplace,&itemtype,
 	(Handle*)&itemhandle,&r);
 SetDialogItemText((Handle)itemhandle,c2pstr(line));
-TESetSelect(ZERO,63L,((DialogPeek)gpDialogs[wFindReplace])->textH);
+TESetSelect(ZERO,63L,GetDialogTextEditHandle(gpDialogs[wFindReplace]));
 GetDialogItem(gpDialogs[wFindReplace],dIgnoreCase,&itemtype,
 	(Handle*)&itemhandle,&r);
 /* SetCtlValue(itemhandle,IgnoreCase); */
@@ -1975,7 +1983,7 @@ Handle itemhandle;
 short itemtype;
 char line[MAXFIELDCONTENT];
 DialogPtr thedialog;
-DialogRecord dr;
+// DialogRecord dr;
 
 if(ptr != NULL) {
 	thedialog = ptr; w = -1;
@@ -1987,7 +1995,6 @@ else {
 		}
 	thedialog = gpDialogs[w];
 	}
-dr =  *((DialogRecord*)thedialog);	// FIXME (use DialogPeek for now)
 
 GetDialogItem(thedialog,(short)ifield,&itemtype,&itemhandle,&r);
 if(((itemtype & 127)  != editText && (itemtype & 127)  != statText)
@@ -2002,7 +2009,7 @@ if(((itemtype & 127)  != editText && (itemtype & 127)  != statText)
 strcpy(line,string);
 SetDialogItemText(itemhandle,c2pstr(line));
 SelectDialogItemText(thedialog,ifield,0,0);
-if((itemtype & 127) == statText) TEDeactivate(dr.textH);
+if((itemtype & 127) == statText) TEDeactivate(GetDialogTextEditHandle(thedialog));
 return(DoSystem());
 }
 
@@ -2048,8 +2055,8 @@ Strip(line);
 if(forcenum && line[0] == '\0') return(FAILED);
 if(Myatof(line,p_p,p_q) < Infneg) {
 	if(forcenum && line[0] != '\0' && line[0] != '[') {
-		ShowWindow(thedialog);
-		BringToFront(thedialog);
+		ShowWindow(GetDialogWindow(thedialog));
+		BringToFront(GetDialogWindow(thedialog));
 		Alert1("Incorrect numerical value");
 		SetField(thedialog,-1,ifield,"[?]");
 		SelectField(thedialog,-1,ifield,TRUE);
@@ -2320,15 +2327,15 @@ GrafPtr saveport;
 
 if(w < 0 || w >= WMAX || !Editable[w] || !IsDialog[w] || WASTE) return(OK);
 GetPort(&saveport);
-SetPort(Window[w]);
+SetPortWindowPort(Window[w]);
 PenNormal();
 if(active) {
 	Activate(TEH[w]);
-	if(HasFields[w]) TEDeactivate(((DialogPeek)gpDialogs[w])->textH);
+	if(HasFields[w]) TEDeactivate(GetDialogTextEditHandle(gpDialogs[w]));
 	}
 else {
 	Deactivate(TEH[w]);
-	if(HasFields[w]) TEActivate(((DialogPeek)gpDialogs[w])->textH);
+	if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w]));
 	PenPat(&gray);
 	}
 RGBForeColor(&Black);

@@ -31,12 +31,9 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
-/* This is defined by both Carbon and non-Carbon prefix headers */
+/* There is no way to compile this file with OPAQUE_TOOLBOX_STRUCTS set to 1 */
+/* This file is usable in non-Carbon builds and will be replaced for Carbon builds */
 #if  !defined(TARGET_API_MAC_CARBON)
-   /* so if it is not defined yet, there is no prefix file, 
-      and we are compiling the "Transitional" build. */
-   /* Use MacHeaders.h until ready to convert this file.
-      Then change to MacHeadersTransitional.h. */
 #  include	"MacHeaders.h"
 // #  include	"MacHeadersTransitional.h"
 #endif
