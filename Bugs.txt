@@ -23,6 +23,12 @@ during this output brings up the Resume/Stop dialog and choosing Stop then
 _starts_ a silent performance for a length of time. (Equal to last performance 
 length?) ??
 
+- I had a fatal system crash ("bomb" dialog) while using the sound prototypes
+window.  First, opened prototypes, then added some names to an alphabet.  Then
+did search and replace on alphabet names.  Closed alphabet window, no save, 
+then said no when it asked me to load -mi file, then trying to browse through
+prototypes caused a crash.
+
 Anthony Kozar
 akozar@users.sourceforge.net
 
