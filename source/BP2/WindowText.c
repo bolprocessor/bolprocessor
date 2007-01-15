@@ -158,6 +158,7 @@ return(OK);
 TextUpdate(int w)
 {
 GrafPtr saveport;
+Rect r;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
 	if(Beta) Alert1("Err. TextUpdate(). Incorrect w");
@@ -169,7 +170,7 @@ SetPortWindowPort(Window[w]);
 EraseRgn((*TEH[w])->viewRgn);
 WEUpdate((*TEH[w])->viewRgn,TEH[w]);
 #else
-TEUpdate(&(Window[w]->portRect),TEH[w]);	// FIXME: Need to compile !WASTE to find some issues
+TEUpdate(GetWindowPortBounds(Window[w], &r),TEH[w]);
 #endif
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err. TextUpdate(). saveport == NULL");
