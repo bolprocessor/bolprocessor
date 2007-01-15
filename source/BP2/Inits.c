@@ -76,14 +76,14 @@ static char HTMLlatin[] /* Starting with "&#32" up to "&#255" */
 	'ë','ì','í','î','ï','\0','ñ','ò','ó','ô','õ','ö','÷','ø','ù','ú','û','ü','y',
 	'\0','ÿ'};
 
-// It would be wise to verify that these inits are the same ones used in recent projects
-
+#if !TARGET_API_MAC_CARBON
 InitGraf(&thePort);
 InitFonts();
 InitWindows();
 InitMenus();
 TEInit();
 InitDialogs(0L);
+#endif
 InitCursor();
 
 #ifndef __POWERPC
@@ -139,6 +139,7 @@ UserName[0] = UserInstitution[0] = '\0';
 
 Oms = FALSE;
 
+#if WITH_REAL_TIME_SCHEDULER
 // Space for time scheduler
 if((p_Clock = (Slice***) NewHandle((Size)CLOCKSIZE * sizeof(Slice*))) == NULL)
 	return(ABORT);
@@ -154,6 +155,7 @@ for(i=ZERO; i < MAXTIMESLICES; i++) {
 	(*p_AllSlices)[i].next = SlicePool;
 	SlicePool = &((*p_AllSlices)[i]);
 	}
+#endif
 
 for(i=0; i < MAXMESSAGE; i++) {
 	ptr = (char**) GiveSpace((Size)(MAXLIN * sizeof(char)));
@@ -971,7 +973,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 				NoteAlert(OKAlert,0L);
 				return(FAILED);
 				}
-			Hbutt[Jbutt++] = NewControl((WindowPtr)Window[w],&r,title,(Boolean)1,
+			Hbutt[Jbutt++] = NewControl(Window[w],&r,title,(Boolean)1,
 				(short)0,(short)0,(short)1,(short)(proc + 8),0L);
 			}
 		ReleaseResource(h_res);
@@ -1566,7 +1568,7 @@ d = bottom - screenheight;
 if(d > 0) {
 	bottom = screenheight;
 	top = top - d;
-	if(top < (2 * LMGetMBarHeight() + 4)) top = (2 * LMGetMBarHeight() + 4);
+	if(top < (2 * GetMBarHeight() + 4)) top = (2 * GetMBarHeight() + 4);
 	}
 	
 d = right - screenwidth;

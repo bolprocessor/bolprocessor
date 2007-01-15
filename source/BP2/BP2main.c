@@ -41,18 +41,13 @@
 #  include	"MacHeadersTransitional.h"
 #endif
 
-#ifndef _H_BP2
 #include "-BP2.h"
-#endif
-
-#ifndef _H_BP2main
 #include "-BP2main.h"
-#endif
 
 
 main(void)
 {
-int i,startupscript,what,eventfound,rep,oms,changed;
+int i,w,startupscript,what,eventfound,rep,oms,changed;
 short oldvrefnum;
 long oldparid,leak;
 EventRecord event;
@@ -66,10 +61,12 @@ TraceMemory = TRUE;
 #endif
 
 #ifdef __POWERPC
-SetZone(ApplicationZone());
-NewGrowZoneProc(MyGrowZone);
+# if !TARGET_API_MAC_CARBON
+    SetZone(ApplicationZone());
+# endif
+    NewGrowZoneProc(MyGrowZone);
 #else
-SetGrowZone((GrowZoneProcPtr) MyGrowZone);
+    SetGrowZone((GrowZoneProcPtr) MyGrowZone);
 #endif
 
 leak = 0;	/* Adjust for leak indication = 0 */
@@ -83,16 +80,17 @@ HideWindow(Window[wInfo]);
 LoadSettings(TRUE,TRUE,TRUE,FALSE,&oms);
 
 // Install time scheduler
-
+#if WITH_REAL_TIME_SCHEDULER
 if(NEWTIMER) {
 	if(InstallTMTask() != OK) {
  		Alert1("Unknown problem installing time scheduler. May be this version of BP2 is obsolete with the current system");
 		return(OK);
 		}
 	}
+#endif
 
 // OMS initialisation
-
+#if USE_OMS
 if(oms) {
 	if(InitOMS('Bel0') == noErr) {
 		Oms = TRUE;
@@ -101,6 +99,10 @@ if(oms) {
 	else Alert1("To avoid OMS warning when using internal MIDI driver, change settings ‘-se.startup’ after launching BP2");
 	ClearMessage();
 	}
+#else
+  Oms = FALSE;
+  ChangeControlValue(TRUE,Hbutt[bOMS],Oms);
+#endif
 
 PleaseWait();
 	
@@ -113,7 +115,9 @@ if(!Oms && (io = DriverOpen("\p.MIDI")) != noErr) {
 // no real-time MIDI ... what should we do?? - akozar 010307
 #endif
 	
+#if WITH_REAL_TIME_MIDI
 if(SetDriver() != OK) goto END;
+#endif
 
 ResetTicks(TRUE,TRUE,ZERO,0);
 
@@ -330,10 +334,14 @@ CloseCsScore();
 MyDisposeHandle((Handle*)&p_Oldvalue);
 ClearLockedSpace();
 
-if(Oms) ExitOMS();
-else if(InBuiltDriverOn) CloseCurrentDriver(FALSE);
-if(NEWTIMER) RemoveTMTask();
-	
+#if WITH_REAL_TIME_MIDI
+  if(Oms) ExitOMS();
+  else if(InBuiltDriverOn) CloseCurrentDriver(FALSE);
+#endif
+#if WITH_REAL_TIME_SCHEDULER
+  if(NEWTIMER) RemoveTMTask();
+#endif
+
 return(OK);
 }
 

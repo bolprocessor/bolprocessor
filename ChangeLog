@@ -1,3 +1,45 @@
+2007-01-15	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	* source/BP2/BP2main.c:
+	* source/BP2/WindowText.c:
+		Minor fixes for compiling without WASTE.
+	
+	* BP2-MacOS.cw8.mcp: New targets for CarbonAccessors/TextEdit, Carbon/WASTE,
+			and Carbon/TextEdit builds.
+		
+	* source/prefix/PrefixTransTextEdit.h:
+	* source/prefix/PrefixTransWASTE.h:
+	* source/prefix/PrefixCarbonTextEdit.h:
+	* source/prefix/PrefixCarbonWASTE.h:
+		New prefix files that set BP2 compile options for Transitional & 
+		Carbon targets.
+
+	* source/BP2/-BP2.h:
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+	* source/BP2/midi1.h:
+		Added preprocessor "guards" for each file.
+		Made it possible to set BP2 compile-time options in another file
+			while retaining the default settings if undefined.
+		Began to conditionalize for Carbon and no real-time MIDI.
+
+	* source/BP2/Dialogs.c:
+	* source/BP2/GetRelease.c:
+	* source/BP2/Graphic.c:
+	* source/BP2/Inits.c:
+	* source/BP2/Interface1.c:
+	* source/BP2/MIDIdrivers.c:
+	* source/BP2/SaveLoads1.c:
+		Removed unnecessary or dangerous casts to WindowPtr, DialogPtr, GrafPtr.
+
+	* source/BP2/Inits.c:  Replaced LMGetMBarHeight with GetMBarHeight.
+	
+	* source/BP2/BP2main.c:
+	* source/BP2/Inits.c:
+		Began to conditionalize real-time MIDI code.
+		Conditionalized some Toolbox calls in main() and Inits() that are
+			obsolete in Carbon.
+
 2007-01-13	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	* source/BP2/Interface1.c:
 	* source/BP2/Interface2.c:
