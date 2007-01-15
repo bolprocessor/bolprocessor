@@ -42,7 +42,9 @@
 // Replaced OsErr with OSErr on 1/2/93 when using Think C 5.0.2
 // Suppressed type ioParam1  (replaced with IOParam in files.h)
 
-#define _H_midi1
+#ifndef BP2_MIDI1_H
+#define BP2_MIDI1_H
+
 #define NIL 0L
 
 /* Set up addresses for the SCC registers so that we can access elegantly */
@@ -244,3 +246,5 @@ typedef struct {
 	short lastvalid;
 	
 } DriverData,*DriverDataPtr;
+
+#endif /* BP2_MIDI1_H */

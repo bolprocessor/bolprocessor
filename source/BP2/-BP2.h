@@ -35,87 +35,128 @@
 // ------  This is the common header used by Bol Processor BP2 --------
 // --------------------------------------------------------------------
 
+#ifndef _H_BP2
+#define _H_BP2
+
 #define IDSTRING "Version 2.9.5 (Jan 2007)"
 #define MAXVERSION 25
-
-#define _H_BP2
 
 #ifndef __POWERPC
 #define __POWERPC
 #endif
 
-
 // 1 for debugging memory, 0 otherwise
-#define BIGTEST 1
+#ifndef BIGTEST
+#define BIGTEST 0
+#endif
 
 // 1 to execute Beta tests for data validity, 0 otherwise
-#define COMPILING_BETA 1
+#ifndef COMPILING_BETA
+#define COMPILING_BETA 0
+#endif
 
 // Select compilation option
+#ifndef MACOS
 #define MACOS 1
+#endif
 
 // This allows the compiler to select low-level toolbox procedures.
+#ifndef _FASTCODE
 #define _FASTCODE 1
+#endif
 
 // Using CopyBits for off-screen graphics when NEWGRAPH is 1 (incomplete)
+#ifndef NEWGRAF
 #define NEWGRAF 0
+#endif
 
+#ifndef OBSOLETE
 #define OBSOLETE 0
+#endif
 
 // 1 to use WASTE for text editing, 0 to use TextEdit instead
+#ifndef WASTE
 #define WASTE 1
+#endif
 
 // See BP2 history regarding NEWTIMER
+#ifndef NEWTIMER
 #define NEWTIMER 0
+#endif
 
 // disable built-in MIDI driver at compile time (not finished yet) - 010507 akozar
+#ifndef USE_BUILT_IN_MIDI_DRIVER
 #define USE_BUILT_IN_MIDI_DRIVER 1
+#endif
 
-// These are used by OMS.
-#define InputPortID 'in  '
-#define OutputPortID 'out '
-#define DEFTMAXOMSINPUTBUFFERSIZE 5000L
+// enable or disable OMS Midi driver
+#ifndef USE_OMS
+#  if !TARGET_API_MAC_CARBON
+#    define USE_OMS 1
+#  else
+#    define USE_OMS 0
+#  endif
+#endif
+
+#if USE_BUILT_IN_MIDI_DRIVER || USE_OMS
+#  define WITH_REAL_TIME_MIDI 1
+#  define WITH_REAL_TIME_SCHEDULER 1
+#endif
 
 #ifndef __CONDITIONALMACROS__
 Hey: this code is not portable!!!
 #endif
 
 //#include <ansi_prefix.mac.h>	// commented out - 010507 akozar
-#include "OMS.h"
-#include "OMSDeviceMenu.h"
 
-#if UseMIDIMgr
-#include <MIDI.h>
+#if USE_OMS
+// These are used by OMS.
+#  define InputPortID 'in  '
+#  define OutputPortID 'out '
+#  define DEFTMAXOMSINPUTBUFFERSIZE 5000L
+
+#  include "OMS.h"
+#  include "OMSDeviceMenu.h"
 #endif
 
-#include <cstdio>
-#include <cstring>
-#include <cctype>
-#include <ctime>
-#include <cmath>
-#include <cstdlib>
-#include <cfloat>
+#if UseMIDIMgr
+#  include <MIDI.h>
+#endif
+
+#ifdef __cplusplus
+#  include <cstdio>
+#  include <cstring>
+#  include <cctype>
+#  include <ctime>
+#  include <cmath>
+#  include <cstdlib>
+#  include <cfloat>
+#else
+#  include <stdio.h>
+#  include <math.h>
+#  include <stdlib.h>
+#  include <ctype.h>
+#  include <string.h>
+#  include <float.h>
+#  include <time.h>
+//#  include <limits.h>
+#endif
+
+#if !TARGET_API_MAC_CARBON
 #include <Editions.h>
-// #include <stdio.h>
-// #include <Printing.h>
-// #include <string.h>
-// #include <Strings.h>
 // #include <Aliases.h>
+// #include <AppleEvents.h>
 // #include <ColorPicker.h>
-// #include <Sound.h>
+// #include <Files.h>
 // #include <Folders.h>
 // #include <LowMem.h>
-// #include <math.h>
-// #include <stdlib.h>
-// #include <ctype.h>
-// #include <AppleEvents.h>
-// #include <QuickDraw.h>
-// #include <Files.h>
-// #include <TextEdit.h>
-// #include <limits.h>
+// #include <Printing.h>
 // #include <QDOffscreen.h>
-// #include <float.h>
-// #include <time.h>
+// #include <QuickDraw.h>
+// #include <Sound.h>
+// #include <Strings.h>
+// #include <TextEdit.h>
+#endif
 
 #if WASTE
 #include "WASTEIntf.h"
@@ -124,9 +165,7 @@ Hey: this code is not portable!!!
 #define _NOERRORCHECK_	/* Needed in <math.h> */
 #define _NOSYNONYMS_
 
-#ifndef _H_midi1
 #include "midi1.h"
-#endif
 
 // Moved macros and enum down here to avoid potential problems with replacing names
 // in any of the above headers -- 010807 akozar
@@ -145,8 +184,8 @@ Hey: this code is not portable!!!
 
 #if !OLDROUTINENAMES
 enum {
-	inLabel						= 1,
-	inMenu						= 2,
+	inLabel					= 1,
+	inMenu					= 2,
 	inTriangle					= 4,
 	inButton					= 10,
 	inCheckBox					= 11,
@@ -154,7 +193,7 @@ enum {
 	inDownButton				= 21,
 	inPageUp					= 22,
 	inPageDown					= 23,
-	inThumb						= 129
+	inThumb					= 129
 };
 #endif
 
@@ -1524,6 +1563,7 @@ typedef WEHandle TextHandle;
 typedef TEHandle TextHandle;
 #endif
 
+#if WITH_REAL_TIME_SCHEDULER
 // Types for time scheduler
 typedef OMSAPI(void) (*voidOMSdoPacket)(OMSMIDIPacket*,short,short);
 typedef struct Slice {
@@ -1536,6 +1576,7 @@ typedef struct Slice {
 	} Slice;
 
 // end of types for time scheduler
+#endif
 
 struct s_chunck {
 	unsigned long origin,end;
@@ -1992,3 +2033,5 @@ typedef struct s_arc arc;
 
 
 #include "-BP2.proto.h"
+
+#endif /* _H_BP2 */

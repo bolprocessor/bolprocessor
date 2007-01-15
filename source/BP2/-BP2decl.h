@@ -31,15 +31,18 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define _H_BP2decl.h
+#ifndef BP2_DECL_H
+#define BP2_DECL_H
 
-#ifdef __POWERPC
+#if  defined(__POWERPC) && !TARGET_API_MAC_CARBON
 extern QDGlobals Qd;
 #endif
+
 extern GWorldPtr gMainGWorld;
 extern GDHandle gCurDev;
 extern int Version;
 
+#if USE_OMS
 // OMS globals
 extern Boolean gSignedInToMIDIMgr;		/* are we signed into MIDI Manager? */
 extern Boolean gNodesChanged;
@@ -56,14 +59,18 @@ extern char DownBuffer,OMSinputOverflow;
 extern MIDIcode **h_OMSinputMessage;
 extern char OMSinputName[MAXNAME],OMSoutputName[MAXNAME];
 // End of OMS globals
-
+#endif
 
 extern char UserName[MAXNAME],UserInstitution[MAXNAME];
 extern ProcessSerialNumber PSN;					
 extern long MemoryUsed,TempMemoryUsed,MemoryUsedInit,MaxMemoryUsed,MaxTempMemoryUsed,
 	MaxHandles,SessionTime;
 extern int CheckMem;
+
+#if !TARGET_API_MAC_CARBON
 extern THPrint hPrint;
+#endif
+
 extern IntProcPtr Menu[MAXMENU][MAXMENUITEMS];
 extern Handle h_EmergencyMemory;
 extern int EmergencyExit,LowOnMemory,TempMemory,AskedTempMemory,FixedMaxQuantization,
@@ -159,10 +166,12 @@ extern int Nplay,SynchroSignal,QuantizeOK,IgnoreCase,
 extern long Time_res,Quantization;
 extern volatile unsigned long TimeSlice;
 
+#if WITH_REAL_TIME_SCHEDULER
 extern Slice **Clock,***p_Clock,**p_AllSlices,*Slices,*SlicePool;
 extern volatile unsigned long TotalTicks;
 extern volatile char ClockOverFlow,SchedulerIsActive,OKsend;
 extern char Mute,Panic,AlertMute;
+#endif
 
 // Variables for Csound instruments
 extern CsoundInstrument **p_CsInstrument;
@@ -343,3 +352,5 @@ extern int InitOn,SetTimeOn,ComputeOn,PolyOn,CompileOn,SoundOn,SelectOn,PrintOn,
 
 extern double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 extern double MaxFrac;
+
+#endif /* BP2_DECL_H */

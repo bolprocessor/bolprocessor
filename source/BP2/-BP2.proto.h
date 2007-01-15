@@ -31,6 +31,9 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef BP2_PROTO_H
+#define BP2_PROTO_H
+
 pascal OSErr MyHandleOAPP(AppleEvent*,AppleEvent*,long);
 pascal OSErr MyHandleODOC(AppleEvent*,AppleEvent*,long);
 pascal OSErr MyHandleSectionReadEvent(AppleEvent*,AppleEvent*,long);
@@ -48,7 +51,7 @@ int RecoverEmergencyMemory(void);
 OSErr MyGotRequiredParams(AppleEvent*);
 int main(void);
 
-
+#if USE_OMS
 OSErr InitOMS(OSType appSignature);
 int ExitOMS(void);
 void CheckSignInOrOutOfMIDIManager(void);
@@ -67,11 +70,36 @@ int PullMIDIdata(MIDI_Event*);
 short FindOMSdevice(int,char*);
 short GetIDandName(char*);
 int StoreDefaultOMSinput(void);
+#endif
 
+#if WITH_REAL_TIME_SCHEDULER
 int Cause(voidOMSdoPacket,Milliseconds,OMSMIDIPacket*,short,short);
 int FlushOutputEventQueueAfter(Milliseconds);
 int InstallTMTask(void);
 int RemoveTMTask(void);
+#endif
+
+#if WITH_REAL_TIME_MIDI
+OSErr DriverOpen(unsigned char[]);
+OSErr DriverClose(void);
+int GetNextMIDIevent(MIDI_Event*,int,int);
+int FormatMIDIstream(MIDIcode**,long,MIDIcode**,int,long,long*,int);
+OSErr DriverRead(MIDI_Event*);
+OSErr DriverWrite(Milliseconds,int,MIDI_Event*);
+int WriteInBuiltDriver(OMSMIDIPacket*);
+OSErr DriverStatus(short,MIDI_Parameters*);
+OSErr DriverControl(short,MIDI_Parameters*);
+OSErr DriverKill(void);
+unsigned long GetDriverTime(void);
+int SetDriverTime(long);
+int Events(DriverDataPtr);
+int EmptyDriverInput(void);
+int DriverTime(DriverDataPtr);
+int Errors(DriverDataPtr);
+int FlushDriver(void);
+int ResetDriver(void);
+int SetDriver(void);
+#endif
 
 Boolean HasGWorlds(void);
 int GWorldInit(void);
@@ -533,25 +561,6 @@ int CompileObjectScore(int,int*);
 int FindCsoundInstrument(char*);
 int FixStringConstant(char*);
 int FixNumberConstant(char*);
-OSErr DriverOpen(unsigned char[]);
-OSErr DriverClose(void);
-int GetNextMIDIevent(MIDI_Event*,int,int);
-int FormatMIDIstream(MIDIcode**,long,MIDIcode**,int,long,long*,int);
-OSErr DriverRead(MIDI_Event*);
-OSErr DriverWrite(Milliseconds,int,MIDI_Event*);
-int WriteInBuiltDriver(OMSMIDIPacket*);
-OSErr DriverStatus(short,MIDI_Parameters*);
-OSErr DriverControl(short,MIDI_Parameters*);
-OSErr DriverKill(void);
-unsigned long GetDriverTime(void);
-int SetDriverTime(long);
-int Events(DriverDataPtr);
-int EmptyDriverInput(void);
-int DriverTime(DriverDataPtr);
-int Errors(DriverDataPtr);
-int FlushDriver(void);
-int ResetDriver(void);
-int SetDriver(void);
 int SetInputFilterWord(void);
 int SetOutputFilterWord(void);
 int GetInputFilterWord(void);
@@ -751,9 +760,11 @@ int OpenApplication(OSType);
 int FlushFile(short);
 int SaveAs(Str255,FSSpec*,int);
 int SaveFile(Str255,FSSpec*,int);
-int NewFile(Str255,StandardFileReply*);
 int OldFile(int,int,Str255,FSSpec*);
-int CreateFile(int,int,int,Str255,StandardFileReply*,short*);
+#if !TARGET_API_MAC_CARBON
+  int NewFile(Str255,StandardFileReply*);
+  int CreateFile(int,int,int,Str255,StandardFileReply*,short*);
+#endif
 int WriteFile(int,int,short,int,long);
 OSErr MyFSClose(int,short,FSSpec*);
 int WriteHeader(int,short,FSSpec);
@@ -1008,3 +1019,5 @@ Rect LongRectToRect(LongRect);
 Rect LongRectToRect(Rect);
 #endif
 long LineStartPos(int,int,int);
+
+#endif /* BP2_PROTO_H */

@@ -31,9 +31,10 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define _H_BP2main
+#ifndef BP2_MAIN_H
+#define BP2_MAIN_H
 
-#ifdef __POWERPC
+#if  defined(__POWERPC) && !TARGET_API_MAC_CARBON
 QDGlobals Qd;
 #endif
 
@@ -41,7 +42,7 @@ GWorldPtr gMainGWorld;
 GDHandle gCurDev;
 int Version = 24; /* 2.9.5 */
 
-
+#if USE_OMS
 // OMS globals
 Boolean gSignedInToMIDIMgr;		/* are we signed into MIDI Manager? */
 Boolean gNodesChanged;
@@ -58,13 +59,18 @@ char DownBuffer,OMSinputOverflow;
 MIDIcode **h_OMSinputMessage;
 char OMSinputName[MAXNAME],OMSoutputName[MAXNAME];
 // End of OMS globals
+#endif
 
 ProcessSerialNumber PSN;
 char UserName[MAXNAME],UserInstitution[MAXNAME];
 long MemoryUsed,TempMemoryUsed,MemoryUsedInit,MaxMemoryUsed,MaxTempMemoryUsed,MaxHandles,
 	SessionTime;
 int CheckMem;
-THPrint hPrint;
+
+#if !TARGET_API_MAC_CARBON
+  THPrint hPrint;
+#endif
+
 IntProcPtr Menu[][MAXMENUITEMS] =
 	{{NULLPROC,mAbout,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
 		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
@@ -204,10 +210,12 @@ int Nplay,SynchroSignal,QuantizeOK,IgnoreCase,MatchWords,
 long Time_res,Quantization;
 volatile unsigned long TimeSlice;
 
+#if WITH_REAL_TIME_SCHEDULER
 Slice **Clock,***p_Clock,**p_AllSlices,*Slices,*SlicePool;
 volatile unsigned long TotalTicks;
 volatile char ClockOverFlow,SchedulerIsActive,OKsend;
 char Mute,Panic,AlertMute;
+#endif
 
 int WaitKey[MAXWAIT+1],WaitChan[MAXWAIT+1];
 
@@ -404,3 +412,5 @@ int InitOn,SetTimeOn,ComputeOn,PolyOn,SoundOn,SelectOn,PrintOn,InputOn,ClickRule
 	ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
 double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 double MaxFrac;
+
+#endif /* BP2_MAIN_H */
