@@ -279,7 +279,7 @@ for(i=0; i < Jbutt; i++) {
 Jbutt = 0;
 for(w=0; w < MAXWIND; w++) {
 	if(Window[w] != NULL) {
-		CloseWindow(Window[w]);
+		DisposeWindow(Window[w]);
 		Window[w] = NULL;
 		}
 	else {
@@ -288,11 +288,13 @@ for(w=0; w < MAXWIND; w++) {
 		}
 	}
 for(w=MAXWIND; w < WMAX; w++) {
-	if(Window[w] != NULL) {	// FIXME ?: Why are we releasing DITLs by hand?
-		ptr = (Handle) ((DialogPeek)gpDialogs[w])->items;
+	if(gpDialogs[w] != NULL) {	// Releasing DITLs by hand seems bad, especially in Carbon - akozar
+		/*ptr = (Handle) ((DialogPeek)gpDialogs[w])->items;
 		MyDisposeHandle(&ptr);
-		((DialogPeek)gpDialogs[w])->items = NULL;
-		CloseDialog((DialogPtr) Window[w]);
+		((DialogPeek)gpDialogs[w])->items = NULL;*/
+		DisposeDialog(gpDialogs[w]);
+		gpDialogs[w] = NULL;
+		Window[w] = NULL;
 		}
 	else {
 		sprintf(Message,"Dialog #%ld is NULL. ",(long)w);

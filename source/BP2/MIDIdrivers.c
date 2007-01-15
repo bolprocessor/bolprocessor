@@ -180,12 +180,10 @@ if(SoundOn && p_e->type == TWO_BYTE_EVENT && !ConvertMIDItoCsound && !ItemCaptur
 		program = ByteToInt(p_e->data2) + 1;
 		if(CurrentMIDIprogram[channel+1] != program) {
 			if(TestMIDIChannel == (channel+1) && CurrentMIDIprogram[TestMIDIChannel] > 0) {
-				GetDialogItem((DialogPtr)MIDIprogramPtr,
-					(short)CurrentMIDIprogram[TestMIDIChannel],
-					&itemtype,(Handle*)&itemhandle,&r);
+				GetDialogItem(MIDIprogramPtr, (short)CurrentMIDIprogram[TestMIDIChannel],
+							&itemtype, (Handle*)&itemhandle, &r);
 				if(itemhandle != NULL) HiliteControl((ControlHandle) itemhandle,0);
-				GetDialogItem((DialogPtr)MIDIprogramPtr,(short)program,
-					&itemtype,(Handle*)&itemhandle,&r);
+				GetDialogItem(MIDIprogramPtr, (short)program, &itemtype, (Handle*)&itemhandle, &r);
 				if(itemhandle != NULL) HiliteControl((ControlHandle) itemhandle,kControlButtonPart);
 				WritePatchName();
 				}

@@ -2181,12 +2181,12 @@ p_line = p_completeline = NULL;
 SetField(MIDIprogramPtr,-1,fPatchName," ");
 if(TestMIDIChannel > 0 && TestMIDIChannel <= MAXCHAN) {
 	if(CurrentMIDIprogram[TestMIDIChannel] > 0) {
-		GetDialogItem((DialogPtr)MIDIprogramPtr,(short)CurrentMIDIprogram[TestMIDIChannel],
-			&itemtype,(Handle*)&itemhandle,&therect);
+		GetDialogItem(MIDIprogramPtr, (short)CurrentMIDIprogram[TestMIDIChannel],
+					&itemtype, (Handle*)&itemhandle, &therect);
 		HiliteControl((ControlHandle)itemhandle,0);
 		}
-	GetDialogItem((DialogPtr)SixteenPtr,(short)button1 + TestMIDIChannel - 1,&itemtype,
-		(Handle*)&itemhandle,&therect);
+	GetDialogItem(SixteenPtr, (short)button1 + TestMIDIChannel - 1, &itemtype,
+				(Handle*)&itemhandle, &therect);
 	HiliteControl((ControlHandle) itemhandle,0);
 	}
 	
@@ -2239,8 +2239,8 @@ READIT:
 			}
 		if(TestMIDIChannel > 0 && TestMIDIChannel <= MAXCHAN) {
 			if(CurrentMIDIprogram[TestMIDIChannel] > 0) {
-				GetDialogItem((DialogPtr)MIDIprogramPtr,(short)CurrentMIDIprogram[TestMIDIChannel],
-					&itemtype,(Handle*)&itemhandle,&therect);
+				GetDialogItem(MIDIprogramPtr, (short)CurrentMIDIprogram[TestMIDIChannel],
+							&itemtype, (Handle*)&itemhandle, &therect);
 				HiliteControl((ControlHandle) itemhandle,kControlButtonPart);
 				for(j=0; j < 128; j++) {
 					if((*p_GeneralMIDIpatchNdx)[j] == CurrentMIDIprogram[TestMIDIChannel]) {
@@ -2251,8 +2251,8 @@ READIT:
 						}
 					}
 				}
-			GetDialogItem((DialogPtr)SixteenPtr,(short)button1 + TestMIDIChannel - 1,&itemtype,
-				(Handle*)&itemhandle,&therect);
+			GetDialogItem(SixteenPtr, (short)button1 + TestMIDIChannel - 1, &itemtype,
+						(Handle*)&itemhandle, &therect);
 			HiliteControl((ControlHandle) itemhandle,kControlButtonPart);
 			}
 		goto NOERR;

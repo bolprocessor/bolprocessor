@@ -829,9 +829,8 @@ if(thedialog == MIDIprogramPtr) {
 				if(itemHit == i) {
 					if(TestMIDIChannel < 2) {
 						TestMIDIChannel = 1;
-						GetDialogItem((DialogPtr)SixteenPtr,
-							(short)button1 + TestMIDIChannel - 1,&itemtype,
-							(Handle*)&itemhandle,&r);
+						GetDialogItem(SixteenPtr, (short)button1 + TestMIDIChannel - 1, &itemtype,
+									(Handle*)&itemhandle, &r);
 						if(itemhandle != NULL) HiliteControl((ControlHandle) itemhandle,kControlButtonPart);
 						sprintf(line,"%ld",(long)TestMIDIChannel);
 						SetField(MIDIprogramPtr,-1,fMIDIchannel,line);
@@ -845,16 +844,15 @@ if(thedialog == MIDIprogramPtr) {
 					SendToDriver(Tcurr * Time_res,0,&rs,&e);
 					ChangedMIDIprogram = TRUE;
 					WaitABit(500L);	/* This is necessary notably if sending a program change */
-					GetDialogItem((DialogPtr)MIDIprogramPtr,(short)i,&itemtype,(Handle*)&itemhandle,&r);
+					GetDialogItem(MIDIprogramPtr, (short)i, &itemtype, (Handle*)&itemhandle, &r);
 					if(itemhandle != NULL) HiliteControl((ControlHandle) itemhandle,kControlButtonPart);
 					if(!changed) {
 						CheckMIDIOutPut(TestMIDIChannel-1);
 						}
 					else {
 						if(CurrentMIDIprogram[TestMIDIChannel] > 0) {
-							GetDialogItem((DialogPtr)MIDIprogramPtr,
-								(short)CurrentMIDIprogram[TestMIDIChannel],
-								&itemtype,(Handle*)&itemhandle,&r);
+							GetDialogItem(MIDIprogramPtr, (short)CurrentMIDIprogram[TestMIDIChannel],
+										&itemtype, (Handle*)&itemhandle, &r);
 							if(itemhandle != NULL) HiliteControl((ControlHandle) itemhandle,0);
 							WritePatchName();
 							}
@@ -905,29 +903,25 @@ if(thedialog == SixteenPtr) {
 				if(itemHit == (button1 + i)) {
 					if(TestMIDIChannel != (i + 1)) {
 						if(CurrentMIDIprogram[TestMIDIChannel] > 0) {
-							GetDialogItem((DialogPtr)MIDIprogramPtr,
-								(short)CurrentMIDIprogram[TestMIDIChannel],
-								&itemtype,(Handle*)&itemhandle,&r);
+							GetDialogItem(MIDIprogramPtr, (short)CurrentMIDIprogram[TestMIDIChannel],
+									&itemtype, (Handle*)&itemhandle, &r);
 							if(itemhandle != NULL) HiliteControl((ControlHandle) itemhandle,0);
 							}
 					
-						GetDialogItem((DialogPtr)SixteenPtr,
-							(short)button1 + TestMIDIChannel - 1,&itemtype,
-							(Handle*)&itemhandle,&r);
+						GetDialogItem(SixteenPtr, (short)button1 + TestMIDIChannel - 1, &itemtype,
+									(Handle*)&itemhandle, &r);
 						if(itemhandle != NULL) HiliteControl((ControlHandle) itemhandle,0);
 						}
 					TestMIDIChannel = i + 1;
 					
 					if(CurrentMIDIprogram[TestMIDIChannel] > 0) {
-						GetDialogItem((DialogPtr)MIDIprogramPtr,
-							(short)CurrentMIDIprogram[TestMIDIChannel],
-							&itemtype,(Handle*)&itemhandle,&r);
+						GetDialogItem(MIDIprogramPtr, (short)CurrentMIDIprogram[TestMIDIChannel],
+									&itemtype, (Handle*)&itemhandle, &r);
 						if(itemhandle != NULL) HiliteControl((ControlHandle) itemhandle,kControlButtonPart);
 						WritePatchName();
 						}
 					
-					GetDialogItem((DialogPtr)SixteenPtr,
-						(short)itemHit,&itemtype,(Handle*)&itemhandle,&r);
+					GetDialogItem(SixteenPtr, (short)itemHit, &itemtype, (Handle*)&itemhandle, &r);
 					if(itemhandle != NULL) HiliteControl((ControlHandle) itemhandle,kControlButtonPart);
 					
 					sprintf(line,"%ld",(long)TestMIDIChannel);
@@ -2005,7 +1999,7 @@ if(w == wPrototype5) {
 		case bRecordPrototype:
 			if(GetDialogValues(w) != OK) return(DONE);
 			Hpos = -1;
-			GetDialogItem((DialogPtr)Window[w],itemHit,&itemtype,(Handle*)&itemhandle,&r);
+			GetDialogItem(gpDialogs[w],itemHit,&itemtype,(Handle*)&itemhandle,&r);
 			HiliteControl(itemhandle,11);
 			if(RecordPrototype(iProto) == OK) UpdateDirty(TRUE,w);
 			ClearWindow(NO,wNotice);

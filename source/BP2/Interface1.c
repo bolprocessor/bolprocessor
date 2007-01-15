@@ -833,12 +833,12 @@ switch(w) {
 		SetField(MIDIprogramPtr,-1,fPatchName," ");
 		if(TestMIDIChannel > 0 && TestMIDIChannel <= MAXCHAN) {
 			if(CurrentMIDIprogram[TestMIDIChannel] > 0) {
-				GetDialogItem((DialogPtr)MIDIprogramPtr,(short)CurrentMIDIprogram[TestMIDIChannel],
-					&itemtype,(Handle*)&itemhandle,&r);
+				GetDialogItem(MIDIprogramPtr,(short)CurrentMIDIprogram[TestMIDIChannel],
+							&itemtype, (Handle*)&itemhandle, &r);
 				HiliteControl((ControlHandle) itemhandle,0);
 				}
-			GetDialogItem((DialogPtr)SixteenPtr,(short)button1 + TestMIDIChannel - 1,
-				&itemtype,(Handle*)&itemhandle,&r);
+			GetDialogItem(SixteenPtr,(short)button1 + TestMIDIChannel - 1,
+						&itemtype, (Handle*)&itemhandle, &r);
 			HiliteControl((ControlHandle) itemhandle,0);
 			}
 		for(i=1; i <= MAXCHAN; i++) {
@@ -2065,7 +2065,7 @@ if(ScriptExecOn && !ResumeStopOn) {
 	 }
 GetPort(&saveport);
 wPtr = FrontWindow();
-SetPort((GrafPtr)wPtr);
+SetPortWindowPort(wPtr);
 GetMouse(&pt);
 if(Nw > -1 && Nw < WMAX && Ours(wPtr,Window[Nw])) {
 	if(Editable[Nw] && !LockedWindow[Nw]) {

@@ -1121,7 +1121,7 @@ if(Offscreen) {
 		return(ABORT);
 		}
 	SetGWorld(gMainGWorld,nil);
-	SetPort((GrafPtr)gMainGWorld);
+	SetPort(gMainGWorld);
 	EraseRect(GetPortBounds(gMainGWorld, &rtemp));
 	}
 else {
