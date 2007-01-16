@@ -814,7 +814,7 @@ if(CallUser(0) != OK) {
 	}
 
 strcpy(line,what);
-ParamText(c2pstr(line),"\p ?","\p","\p");
+ParamText(in_place_c2pstr(line),"\p ?","\p","\p");
 if(ComputeOn || PlaySelectionOn) SndSetSysBeepState(sysBeepDisable);
 if(c == 'Y') r = Alert(YesNoCancel,0L);
 else  r = Alert(NoYesCancel,0L);
@@ -855,13 +855,13 @@ DialogPtr theDialog;
 char c;
 
 StopWait();
-strcpy(LineBuff,message);
+c2pstrcpy(PascalLine, message);
 GetDialogItem(EnterPtr,fMessage,&itemtype,&itemhandle,&r);
-SetDialogItemText(itemhandle,c2pstr(LineBuff));
+SetDialogItemText(itemhandle,PascalLine);
 TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(EnterPtr));
-strcpy(LineBuff,defaultvalue);
+c2pstrcpy(PascalLine, defaultvalue);
 GetDialogItem(EnterPtr,fValue,&itemtype,&itemhandle,&r);
-SetDialogItemText(itemhandle,c2pstr(LineBuff));
+SetDialogItemText(itemhandle,PascalLine);
 TESetSelect(ZERO,63L,GetDialogTextEditHandle(EnterPtr));
 TEActivate(GetDialogTextEditHandle(EnterPtr));
 
@@ -934,7 +934,7 @@ if(!EmergencyExit && !InitOn && Nw >= 0 && Nw < WMAX) InvalRect(&r);
 if(saveport != NULL) SetPort(saveport);
 
 strcpy(line,s);
-ParamText(c2pstr(line),"\p","\p","\p");
+ParamText(in_place_c2pstr(line),"\p","\p","\p");
 if(ComputeOn || PlaySelectionOn) SndSetSysBeepState(sysBeepDisable);
 GotAlert = TRUE;
 Interrupted = TRUE;
@@ -956,7 +956,7 @@ if(option)
 	sprintf(Message,"Open (any) file");
 else
 	sprintf(Message,"Open file");
-pStrCopy((char*)c2pstr(Message),PascalLine);
+c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[fileM],fmOpen,PascalLine);
 if(option && CompiledGr && !IsEmpty(wGrammar))
 	sprintf(Message,"Tokenized grammar");
@@ -965,7 +965,7 @@ else {
 	if(FileName[wGrammar][0] == '\0') strcpy(Message,WindowName[wGrammar]);
 	else strcat(Message,FileName[wGrammar]);
 	}
-pStrCopy((char*)c2pstr(Message),PascalLine);
+c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[windowM],grammarCommand,PascalLine);
 if(option && CompiledAl && !IsEmpty(wAlphabet))
 	sprintf(Message,"Tokenized alphabet");
@@ -974,7 +974,7 @@ else {
 	if(FileName[wAlphabet][0] == '\0') strcpy(Message,WindowName[wAlphabet]);
 	else strcat(Message,FileName[wAlphabet]);
 	}
-pStrCopy((char*)c2pstr(Message),PascalLine);
+c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[windowM],alphabetCommand,PascalLine);
 return(OK);
 }
@@ -1932,12 +1932,12 @@ long p,q;
 sprintf(line,"%s",FindString);
 GetDialogItem(gpDialogs[wFindReplace],fFind,&itemtype,
 	(Handle*)&itemhandle,&r);
-SetDialogItemText((Handle)itemhandle,c2pstr(line));
+SetDialogItemText((Handle)itemhandle,in_place_c2pstr(line));
 TESetSelect(ZERO,63L,GetDialogTextEditHandle(gpDialogs[wFindReplace]));
 sprintf(line,"%s",ReplaceString);
 GetDialogItem(gpDialogs[wFindReplace],fReplace,&itemtype,
 	(Handle*)&itemhandle,&r);
-SetDialogItemText((Handle)itemhandle,c2pstr(line));
+SetDialogItemText((Handle)itemhandle,in_place_c2pstr(line));
 TESetSelect(ZERO,63L,GetDialogTextEditHandle(gpDialogs[wFindReplace]));
 GetDialogItem(gpDialogs[wFindReplace],dIgnoreCase,&itemtype,
 	(Handle*)&itemhandle,&r);
@@ -1981,7 +1981,7 @@ SetField(DialogPtr ptr,int w,int ifield,char* string)
 Rect r;
 Handle itemhandle;
 short itemtype;
-char line[MAXFIELDCONTENT];
+Str255 line;
 DialogPtr thedialog;
 // DialogRecord dr;
 
@@ -2006,8 +2006,8 @@ if(((itemtype & 127)  != editText && (itemtype & 127)  != statText)
 		}
 	return(ABORT);
 	}
-strcpy(line,string);
-SetDialogItemText(itemhandle,c2pstr(line));
+c2pstrcpy(line,string);
+SetDialogItemText(itemhandle,line);
 SelectDialogItemText(thedialog,ifield,0,0);
 if((itemtype & 127) == statText) TEDeactivate(GetDialogTextEditHandle(thedialog));
 return(DoSystem());

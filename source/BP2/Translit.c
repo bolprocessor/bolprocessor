@@ -845,7 +845,7 @@ GetDialogItem(filepreviewptr,fSubGramStart,&itemtype,&itemhandle,&r);
 SetDialogItemText(itemhandle,"\p1");
 GetDialogItem(filepreviewptr,fSubGramEnd,&itemtype,&itemhandle,&r);
 sprintf(Message,"%ld",(long)Gram.number_gram);
-SetDialogItemText(itemhandle,c2pstr(Message));
+SetDialogItemText(itemhandle,in_place_c2pstr(Message));
 GetDialogItem(filepreviewptr,fSaveToFieldNumber,&itemtype,&itemhandle,&r);
 SetDialogItemText(itemhandle,"\p1");
 
@@ -1051,9 +1051,9 @@ if(irecordmin < 1) {
 	Alert1("You must start at least with record Ô1Õ");
 	}
 strcpy(Message,filename);
-Message[MAXNAME-5] = '\0';
+Message[MAXNAME-5] = '\0';	// FIXME: should replace MAXNAME with strlen(Message) or actually search for a file extension - 011607 akozar
 strcat(Message,".new");
-pStrCopy((char*)c2pstr(Message),fn);
+c2pstrcpy(fn, Message);
 if(!NewFile(fn,&reply)) goto OVER;
 result = CreateFile(-1,-1,1,fn,&reply,&refnumout);
 if(result != OK) goto OVER;

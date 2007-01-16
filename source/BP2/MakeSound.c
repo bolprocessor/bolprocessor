@@ -385,7 +385,7 @@ if(showpianoroll) {
 		MoveTo(leftoffset-2,y);
 		LineTo(endxmax-27,y);
 		sprintf(line,"c%ld",(long)((key - (key % 12))/12)-1L);
-		c2pstr(line); pStrCopy(line,label);
+		c2pstrcpy(label, line);
 		labelrect.top = y - 7;
 		labelrect.left = endxmax - 25;
 		labelrect.right = endxmax - 25 + StringWidth(label);
@@ -403,7 +403,7 @@ if(showpianoroll) {
 		MoveTo(leftoffset-2,y);
 		LineTo(endxmax-27,y);
 		sprintf(line,"f#%ld",(long)((key - (key % 12))/12)-1L);
-		c2pstr(line); pStrCopy(line,label);
+		c2pstrcpy(label, line);
 		labelrect.top = y - 7;
 		labelrect.left = endxmax - 25;
 		labelrect.right = endxmax - 25 + StringWidth(label);

@@ -1717,12 +1717,12 @@ if((changed || FileName[w][0] != '\0') && w != iSettings && w != wTrace
 		&& w != wPrototype7) {
 	if(FileName[w][0] == '\0') strcpy(Message,DeftName[w]);
 	else strcpy(Message,FileName[w]);
-	SetWTitle(Window[w],c2pstr(Message));
+	SetWTitle(Window[w],in_place_c2pstr(Message));
 	strcpy(Message," ");
 	/* This avoids messing the menu as name starts with '-' */
 	if(FileName[w][0] == '\0') strcpy(Message,WindowName[w]);
 	else strcat(Message,FileName[w]);
-	pStrCopy((char*)c2pstr(Message),PascalLine);
+	c2pstrcpy(PascalLine, Message);
 	switch(w) {
 		case wGrammar:
 			SetMenuItemText(myMenus[windowM],grammarCommand,PascalLine);
@@ -1762,7 +1762,7 @@ if((changed || FileName[w][0] != '\0') && w != iSettings && w != wTrace
 	}
 else {
 	strcpy(Message,DeftName[w]);
-	if(Message[0] != '\0') SetWTitle(Window[w],c2pstr(Message));
+	if(Message[0] != '\0') SetWTitle(Window[w],in_place_c2pstr(Message));
 	}
 if(record) TellOthersMyName(w);
 return(OK);
@@ -2367,7 +2367,7 @@ if(CompileOn || (CompiledGr && (CompiledGl || !LoadedGl)) || ClickRuleOn) {
 	}
 else EnableItem(myMenus[actionM],compileCommand);
 
-if(Oms) {
+if(!InBuiltDriverOn) {	// was if(Oms) - 011607 - akozar
 	CheckItem(myMenus[deviceM],modemportCommand,FALSE);
 	CheckItem(myMenus[deviceM],printerportCommand,FALSE);
 	DisableItem(myMenus[deviceM],modemportCommand);

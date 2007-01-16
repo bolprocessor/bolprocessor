@@ -717,7 +717,7 @@ short refnum;
 int rep,vref,ishtml;
 StandardFileReply reply;
 FSSpec spec;
-FInfo fndrinfo;
+// FInfo fndrinfo;
 OSErr io;
 long length;
 
@@ -727,7 +727,7 @@ if(line == NULL || line[0] == '\0') {
 	strcpy(Message,"?.sco");
 	}
 else strcpy(Message,line);
-pStrCopy((char*)c2pstr(Message),PascalLine);
+c2pstrcpy(PascalLine,Message);
 if(NewFile(PascalLine,&reply)) {
 	rep = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
 	if(rep == OK) {
@@ -735,8 +735,7 @@ if(NewFile(PascalLine,&reply)) {
 		MyPtoCstr(MAXNAME,PascalLine,CsFileName);
 		if(FixCsoundScoreName(CsFileName) == FAILED) {
 			spec = reply.sfFile;
-			strcpy(Message,CsFileName);
-			pStrCopy((char*)c2pstr(Message),PascalLine);
+			c2pstrcpy(PascalLine, CsFileName);
 			io = FSpRename(&spec,PascalLine);
 			if(io != noErr && Beta) {
 				Alert1("Err. MakeCsFile(). Can't rename");

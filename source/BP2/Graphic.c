@@ -218,7 +218,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			sprintf(line2," #%ld",(long)k);
 			strcat(line,line2);
 			}
-		c2pstr(line); pStrCopy(line,label);
+		c2pstrcpy(label, line);
 		tab = ((int) t2 - (int) t1 - StringWidth(label)) / 2;
 		if(tab < 2) tt1 = (int) t1 + leftoffset + 1 + tab;
 		if(tt1 < (*p_endx)[linenum]) {
@@ -631,7 +631,7 @@ PenNormal();
 htext = WindowTextSize[w] + 2;
 if((*p_MIDIsize)[j] <= ZERO && (*p_CsoundSize)[j] <= ZERO) {
 	sprintf(Message,"This sound-object is empty");
-	c2pstr(Message); pStrCopy(Message,label);
+	c2pstrcpy(label, Message);
 	MoveTo((p_frame->left + p_frame->right - StringWidth(label))/2,
 		(p_frame->top + p_frame->bottom - htext)/2);
 	DrawString(label);
@@ -725,12 +725,12 @@ if(scale > 0.001) {
 		}
 	y = r.top + htext + 1;
 	sprintf(line,"0");
-	c2pstr(line); pStrCopy(line,label);
+	c2pstrcpy(label, line);
 	MoveTo(xmin - StringWidth(label)/2,y); DrawString(label);
 	k = 20.; while((k * scale * p) > (xmax - xmin)) k = k / 2.;
 	for(i=1; ; i++) {
 		sprintf(line,"%.2fs",((double)i) * (k * p) / 1000.);
-		c2pstr(line); pStrCopy(line,label);
+		c2pstrcpy(label, line);
 		x = xmin + k * i * scale * p - StringWidth(label)/2;
 		if(x > xmax) break;
 		MoveTo(x,y);
@@ -757,7 +757,7 @@ r.left = p_frame->left + 2;
 if(((*p_CoverBeg)[j] && (*p_CoverEnd)[j]) || (maxcover1 == dur && maxcover2 == dur)) {
 	RGBForeColor(&Black); PenNormal();
 	sprintf(line,"This object may be entirely covered");
-	c2pstr(line); pStrCopy(line,label);
+	c2pstrcpy(label, line);
 	MoveTo((xmin + xmax - StringWidth(label))/2,r.top + htext - 2);
 	DrawString(label);
 	}
@@ -994,7 +994,7 @@ for(i=0; i < (*p_MIDIsize)[j]; i++) {
 
 // Draw label
 sprintf(Message,"%s",*((*p_Bol)[j]));
-c2pstr(Message); pStrCopy(Message,label);
+c2pstrcpy(label, Message);
 r1.left = r.left + (r.right - r.left - StringWidth(label)) / 2 - 1;
 r1.right = r.right - (r.right - r.left - StringWidth(label)) / 2 - 1;
 r1.top = r.top + 2;
@@ -1038,7 +1038,7 @@ if(xmax > xmin) {
 		LineTo(Hpos,p_frame->bottom - htext - htext);
 		RGBForeColor(&Black);
 		sprintf(Message,"%ld ms",(long)(*p_Tpict)[iProto]);
-		c2pstr(Message); pStrCopy(Message,label);
+		c2pstrcpy(label, Message);
 		if(Hpos + (StringWidth(label) / 2) > (p_frame->right - 2))
 			x = p_frame->right - 2 - StringWidth(label);
 		else x = Hpos - (StringWidth(label) / 2);
@@ -1055,7 +1055,7 @@ if((*p_Type)[iProto] & 4) {
 	   sprintf(Message,"Force to Csound instrument %ld",(long)(*p_CsoundInstr)[iProto]);
 	else if((*p_CsoundInstr)[iProto] == 0) sprintf(Message,"Force to current Csound instrument");
 		else sprintf(Message,"Never change Csound instruments");
-	c2pstr(Message); pStrCopy(Message,label);
+	c2pstrcpy(label, Message);
 	x = p_frame->right - 4 - StringWidth(label);
 	MoveTo(x,p_frame->bottom - (4 * htext));
 	DrawString(label);
@@ -1064,7 +1064,7 @@ else {
 	if((*p_CsoundAssignedInstr)[iProto] >= 1) {
 		sprintf(Message,"Send MIDI messages to Csound instrument %ld",
 			(long)(*p_CsoundAssignedInstr)[iProto]);
-		c2pstr(Message); pStrCopy(Message,label);
+		c2pstrcpy(label, Message);
 		x = p_frame->right - 4 - StringWidth(label);
 		MoveTo(x,p_frame->bottom - (4 * htext));
 		DrawString(label);
@@ -1076,7 +1076,7 @@ if((*p_DefaultChannel)[iProto] > 0)
    sprintf(Message,"Force to MIDI channel %ld",(long)(*p_DefaultChannel)[iProto]);
 else if((*p_DefaultChannel)[iProto] == 0) sprintf(Message,"Force to current MIDI channel");
 	else sprintf(Message,"Never change MIDI channels");
-c2pstr(Message); pStrCopy(Message,label);
+c2pstrcpy(label, Message);
 x = p_frame->right - 4 - StringWidth(label);
 MoveTo(x,p_frame->bottom - (3 * htext));
 DrawString(label);
@@ -1085,7 +1085,7 @@ DrawString(label);
 if(!((*p_Type)[iProto] & 1) && (*p_MIDIsize)[iProto] > ZERO) {
 	RGBForeColor(&Red);
 	sprintf(Message,"MIDI sequence is INACTIVE");
-	c2pstr(Message); pStrCopy(Message,label);
+	c2pstrcpy(label, Message);
 	x = p_frame->right - 4 - StringWidth(label);
 	MoveTo(x,p_frame->bottom - htext - htext);
 	DrawString(label);
@@ -1294,7 +1294,7 @@ for(i=j=0; ; i++,j++) {
 	}
 y = p_r->top + htext + 1;
 sprintf(line,"0");
-c2pstr(line); pStrCopy(line,label);
+c2pstrcpy(label, line);
 MoveTo(leftoffset - StringWidth(label)/2,y); DrawString(label);
 k = 10; if(k * p > 400) k = 1;
 tmem2 = - Infpos;
@@ -1308,7 +1308,7 @@ for(i = 1; ; i++) {
 		}
 	if(k == 10) sprintf(line,"%.2fs",(double)i * xscale * k / 10.);
 	if(k == 1) sprintf(line,"%.3fs",(double)i * xscale * k / 10.);
-	c2pstr(line); pStrCopy(line,label);
+	c2pstrcpy(label, line);
 	t1 = leftoffset + Round(k * i * p) - StringWidth(label)/2;
 	t2 = t1 + StringWidth(label);
 	if(t2 > xmax) break;
@@ -1351,7 +1351,7 @@ for(i=1L,rr=Ratio,k=0; i <= imax; i++,rr+=Kpress) {
 		if(t1 > tmem1) {
 			PenPat(&black);
 			sprintf(line,"%ld",(long)(k + StartFromOne));
-			c2pstr(line); pStrCopy(line,label);
+			c2pstrcpy(label, line);
 			t2 = t1 + StringWidth(label)/2;
 			if(t2 >= xmax) break;
 			MoveTo(t1 - StringWidth(label)/2,y - 1);
@@ -1449,7 +1449,7 @@ for(key=0; key < 128; key+=12) {
 	if(key < minkey || key > maxkey) continue;
 	y = (maxkey - key) * hrect + topoffset + 1;
 	sprintf(Message,"c%ld",(long)((key - (key % 12))/12)-1L);
-	c2pstr(Message); pStrCopy(Message,label);
+	c2pstrcpy(label, Message);
 	MoveTo(2,y + 3);
 	DrawString(label);
 	}
@@ -1460,7 +1460,7 @@ for(key=6; key < 128; key+=12) {
 	if(key < minkey || key > maxkey) continue;
 	y = (maxkey - key) * hrect + topoffset + 1;
 	sprintf(Message,"f#%ld",(long)((key - (key % 12))/12)-1L);
-	c2pstr(Message); pStrCopy(Message,label);
+	c2pstrcpy(label, Message);
 	MoveTo(2,y + 3);
 	DrawString(label);
 	}

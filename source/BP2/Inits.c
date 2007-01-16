@@ -426,16 +426,16 @@ io = AEInstallEventHandler(kCoreEventClass,kAEPrintDocuments,handler,0,FALSE); *
 handler = NewAEEventHandlerProc(MyHandleQUIT);
 io = AEInstallEventHandler(kCoreEventClass,kAEQuitApplication,handler,0,FALSE);
 
+#if !TARGET_API_MAC_CARBON	/* Edition Manager not in Carbon */
+  handler = NewAEEventHandlerProc(MyHandleSectionReadEvent);
+  io = AEInstallEventHandler(sectionEventMsgClass,sectionReadMsgID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(MyHandleSectionReadEvent);
-io = AEInstallEventHandler(sectionEventMsgClass,sectionReadMsgID,handler,0,FALSE);
+  handler = NewAEEventHandlerProc(MyHandleSectionWriteEvent);
+  io = AEInstallEventHandler(sectionEventMsgClass,sectionWriteMsgID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(MyHandleSectionWriteEvent);
-io = AEInstallEventHandler(sectionEventMsgClass,sectionWriteMsgID,handler,0,FALSE);
-
-handler = NewAEEventHandlerProc(MyHandleSectionScrollEvent);
-io = AEInstallEventHandler(sectionEventMsgClass,sectionScrollMsgID,handler,0,FALSE);
-
+  handler = NewAEEventHandlerProc(MyHandleSectionScrollEvent);
+  io = AEInstallEventHandler(sectionEventMsgClass,sectionScrollMsgID,handler,0,FALSE);
+#endif
 
 handler = NewAEEventHandlerProc(RemoteUseText);
 io = AEInstallEventHandler(BP2Class,PlayEventID,handler,0,FALSE);
@@ -626,7 +626,7 @@ SetField(NULL,wTimeBase,fTimeBaseComment,"[Comment on time base]");
 iTick = jTick = -1;
 ResetTickFlag = TRUE; ResetTickInItemFlag = FALSE;
 strcpy(Message,WindowName[wCsoundTables]);
-SetWTitle(Window[wCsoundTables],c2pstr(Message));
+SetWTitle(Window[wCsoundTables],in_place_c2pstr(Message));
 
 MaxHandles = ZERO;
 PedalOrigin = -1;
@@ -824,7 +824,7 @@ for(w=0; w < MAXWIND; w++) {
 		sprintf(Message,"Can't load resource window ID#%ld",
 			(long)WindowIDoffset+w);
 		EmergencyExit = TRUE;
-		ParamText(c2pstr(Message),"\p","\p","\p");
+		ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 		NoteAlert(OKAlert,0L);
 		bad = TRUE;
 		}
@@ -881,7 +881,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 		sprintf(Message,"Can't load dialog window ID#%ld",
 			(long)WindowIDoffset+w);
 		EmergencyExit = TRUE;
-		ParamText(c2pstr(Message),"\p","\p","\p");
+		ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 		NoteAlert(OKAlert,0L);
 		bad = TRUE;
 		}
@@ -899,7 +899,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 			default:
 				sprintf(Message,"Incorrect button type in window %ld",(long)w);
 				EmergencyExit = TRUE;
-				ParamText(c2pstr(Message),"\p","\p","\p");
+				ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 				NoteAlert(OKAlert,0L);
 				return(FAILED);
 			}
@@ -909,7 +909,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 			sprintf(Message,
 		"Error %ld loading resource string list for window %ld",(long)i,(long)w);
 			EmergencyExit = TRUE;
-			ParamText(c2pstr(Message),"\p","\p","\p");
+			ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 			NoteAlert(OKAlert,0L);
 			return(FAILED);
 			}
@@ -918,7 +918,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 			sprintf(Message,
 					"Error in resource string list for window %ld",(long)w);
 			EmergencyExit = TRUE;
-			ParamText(c2pstr(Message),"\p","\p","\p");
+			ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 			NoteAlert(OKAlert,0L);
 			return(FAILED);
 			}
@@ -942,7 +942,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 				sprintf(Message,
 					"Error in resource string list for window %ld",(long)w);
 				EmergencyExit = TRUE;
-				ParamText(c2pstr(Message),"\p","\p","\p");
+				ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 				NoteAlert(OKAlert,0L);
 				return(FAILED);
 				}
@@ -963,7 +963,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 					"Can't put more than %ld buttons on window %ld",
 						(long)i+1L,(long)w);
 				EmergencyExit = TRUE;
-				ParamText(c2pstr(Message),"\p","\p","\p");
+				ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 				NoteAlert(OKAlert,0L);
 				return(FAILED);
 				}
@@ -1150,7 +1150,7 @@ Handle h_res;
 h_res = GetResource('STR#',id);
 if((i=ResError()) != noErr) {
 	sprintf(Message,"Error %ld loading resource string list ID %ld",(long)i,(long)id);
-	ParamText(c2pstr(Message),"\p","\p","\p");
+	ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 	NoteAlert(OKAlert,0L);
 	EmergencyExit = TRUE;
 	return(FAILED);
@@ -1207,7 +1207,7 @@ return(OK);
 ERR:
 sprintf(Message,"Error loading %ldth string in resource list ID %ld",
 	(long)i,(long)id);
-ParamText(c2pstr(Message),"\p","\p","\p");
+ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 NoteAlert(OKAlert,0L);
 EmergencyExit = TRUE;
 return(FAILED);
@@ -1225,7 +1225,7 @@ if((i=ResError()) != noErr) {
 	sprintf(Message,"Error %ld loading resource string list ID %ld",(long) i,
 		(long)id);
 ERR1:
-	ParamText(c2pstr(Message),"\p","\p","\p");
+	ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 	NoteAlert(OKAlert,0L);
 	EmergencyExit = TRUE;
 	return(FAILED);
@@ -1332,7 +1332,7 @@ ERR:
 sprintf(Message,"Error loading %ldth string in resource list ID %ld",
 	(long)i,(long)id);
 ERR3:
-ParamText(c2pstr(Message),"\p","\p","\p");
+ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 NoteAlert(OKAlert,0L);
 EmergencyExit = TRUE;
 return(FAILED);
@@ -1494,26 +1494,26 @@ for (i = fileM; i <= MAXMENU; i++) {
 	InsertMenu(myMenus[i],0);
 	}
 sprintf(Message,"Find again %c-option A",(char) commandMark);
-pStrCopy((char*)c2pstr(Message),PascalLine);
+c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[searchM],findagainCommand,PascalLine);
 
 sprintf(Message,"Enter and find %c-option E",(char) commandMark);
-pStrCopy((char*)c2pstr(Message),PascalLine);
+c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[searchM],enterfindCommand,PascalLine);
 
 EnableItem(myMenus[searchM],enterfindCommand);
 sprintf(Message,"Use tokens [toggle] %c-option T",(char) commandMark);
-pStrCopy((char*)c2pstr(Message),PascalLine);
+c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[miscM],tokenCommand,PascalLine);
 
 EnableItem(myMenus[windowM],miscsettingsCommand);
 sprintf(Message,"Settings            %c-option-space",(char) commandMark);
-pStrCopy((char*)c2pstr(Message),PascalLine);
+c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[windowM],miscsettingsCommand,PascalLine);
 
 EnableItem(myMenus[miscM],tokenCommand);
 sprintf(Message,"Help                       %c-?",(char) commandMark);
-pStrCopy((char*)c2pstr(Message),PascalLine);
+c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[actionM],helpCommand,PascalLine);
 
 EnableItem(myMenus[actionM],helpCommand);
@@ -1698,8 +1698,7 @@ char **p_line,**p_completeline;
 long pos;
 
 p_line = p_completeline = NULL;
-strcpy(Message,"_bp2_key");
-pStrCopy((char*)c2pstr(Message),spec.name);
+c2pstrcpy(spec.name, "_bp2_key");
 spec.vRefNum = RefNumbp2;
 spec.parID = ParIDbp2;
 io = FSpGetFInfo(&spec,&fndrinfo);
@@ -1731,8 +1730,7 @@ ENTERNAME:
 	}
 else {
 	GetDateTime(&today);
-	strcpy(Message,"_bp2_startdate");
-	pStrCopy((char*)c2pstr(Message),spec.name);
+	c2pstrcpy(spec.name, "_bp2_startdate");
 	spec.vRefNum = RefNumbp2;
 	spec.parID = ParIDbp2;
 	type = 0;
@@ -1918,11 +1916,10 @@ dtrp.month = 9;
 dtrp.day = 22; */
 DateToSeconds(&dtrp,&secs);
 GetDateTime(&today);
-strcpy(Message,"y2k");
 spec.vRefNum = RefNumbp2;
 spec.parID = ParIDbp2;
 type = 0;
-pStrCopy((char*)c2pstr(Message),spec.name);
+c2pstrcpy(spec.name, "y2k");
 io = FSpGetFInfo(&spec,&fndrinfo);
 if(io == noErr) {
 	if(!(fndrinfo.fdFlags & fInvisible)) {

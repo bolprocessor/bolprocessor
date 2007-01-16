@@ -54,7 +54,6 @@ SaveAs(Str255 fn,FSSpec *p_spec,int w)
 {
 short refnum;
 int i,n;
-char line[MAXLIN];
 long count;
 StandardFileReply reply;
 
@@ -62,10 +61,8 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 	if(Beta) Alert1("Err. SaveAs(). Incorrect window index");
 	return(FAILED);
 	}
-strcpy(line,FilePrefix[w]);
-
 /* If the file name is empty, at least we insert its prefix */
-if(fn[0] == 0) pStrCopy((char*)c2pstr(line),fn);
+if(fn[0] == 0) c2pstrcpy(fn, FilePrefix[w]);
 reply.sfFile.vRefNum = TheVRefNum[w];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[w];
 if(NewFile(fn,&reply)) {
@@ -111,8 +108,8 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 	return(FAILED);
 	}
 SetCursor(&WatchCursor);
-MyPtoCstr(MAXNAME,fn,line);
-pStrCopy((char*)c2pstr(line),p_spec->name);
+MyPtoCstr(MAXNAME,fn,line);	/* limit the length of filename */
+c2pstrcpy(p_spec->name, line);
 good = ((io=MyOpen(p_spec,fsCurPerm,&refnum)) == noErr);
 if(good) {
 	UpdateWindow(FALSE,Window[w]);
@@ -127,14 +124,12 @@ if(good) {
 	ShowLengthType(w);
 	CheckTextSize(w);
 	if(w == wGrammar) {
-		strcpy(Message,FileName[wAlphabet]);
-		pStrCopy((char*)c2pstr(Message),fn);
+		c2pstrcpy(fn, FileName[wAlphabet]);
 		if(Dirty[wAlphabet]
 			&& ((GetAlphaName(wGrammar) == OK) || (GetAlphaName(wData) == OK))) {
 			StopWait();
 			if(Answer("Also save alphabet",'Y') == YES) {
-				strcpy(Message,FileName[wAlphabet]);
-				pStrCopy((char*)c2pstr(Message),p_spec->name);
+				c2pstrcpy(p_spec->name, FileName[wAlphabet]);
 				if(MyOpen(p_spec,fsCurPerm,&refnum) == noErr) {
 					UpdateWindow(FALSE,Window[wAlphabet]);
 					WriteHeader(wAlphabet,refnum,*p_spec);
@@ -1041,12 +1036,11 @@ FSSpec spec;
 char line[MAXLIN];
 
 if(HelpRefnum != -1) return(OK);	/* already open */
-strcpy(Message,"BP2 help");
-strcpy(line,Message);
+strcpy(line, "BP2 help");
+c2pstrcpy(spec.name, line);
 spec.vRefNum = RefNumbp2;
 spec.parID = ParIDbp2;
 type = gFileType[wHelp];
-pStrCopy((char*)c2pstr(Message),spec.name);
 if((io=MyOpen(&spec,fsRdPerm,&HelpRefnum)) != noErr) {
 	if((r=CheckFileName(wHelp,line,&spec,&HelpRefnum,type,TRUE)) != OK) {
 		HelpRefnum = -1;
@@ -1202,7 +1196,7 @@ else {
 	}
 InputOn++;
 HideWindow(Window[wMessage]);
-pStrCopy((char*)c2pstr(line2),p_spec->name);
+c2pstrcpy(p_spec->name, line2);
 if((io=MyOpen(p_spec,fsCurPerm,p_refnum)) != noErr && io != opWrErr) {
 	sprintf(Message,"Can't open ‘%s’",line);
 	Alert1(Message);

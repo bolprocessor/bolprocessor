@@ -79,7 +79,26 @@ return(OK);
 }
 
 
-Pstrcmp(Str255 s1,char *s2)
+StringPtr in_place_c2pstr(char* s)
+{
+	unsigned int len = 0;
+	char  cur, next;
+	char* p = s;
+	
+	cur = next = *s;
+	while (cur != '\0')	{
+		next = *(++p);
+		*p = cur;
+		cur = next;
+		++len;
+	}
+	s[0] = (unsigned char)((len>255) ? 255 : len);
+	
+	return (StringPtr)(s);
+}
+
+
+Pstrcmp(Str255 s1,Str255 s2)
 {
 int i,n1,n2;
 n1 = s1[0]; n2 = s2[0];

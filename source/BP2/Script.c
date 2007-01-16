@@ -598,10 +598,9 @@ Strip(filename);
 if(!MemberStringList(filename)) AppendStringList(filename);
 if(strcmp(filename,"+sc.startup") == 0) startup = TRUE;
 if(strcmp(filename,"+sc.shutdown") == 0) shutdown = TRUE;
-strcpy(Message,filename);
-strcpy(LineBuff,Message);
+strcpy(LineBuff, filename);
 type = gFileType[wScript];
-pStrCopy((char*)c2pstr(Message),spec.name);
+c2pstrcpy(spec.name, filename);
 spec.vRefNum = TheVRefNum[wScript];
 spec.parID = WindowParID[wScript];
 if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {

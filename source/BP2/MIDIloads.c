@@ -266,8 +266,8 @@ for(i=0; i < 4; i++) MainEvent();
 StopWait();
 GetDialogItem(PatternPtr,fPatternDuration,&itemtype,&itemhandle,&r);
 sprintf(Message,"%ld",(long)im - 1L);
-strcpy(LineBuff,Message);
-SetDialogItemText(itemhandle,c2pstr(Message));
+c2pstrcpy(PascalLine, Message);
+SetDialogItemText(itemhandle, PascalLine);
 /* SetSelect(ZERO,64L,PatternPtr->textH); $$$ works only for DialogPtr */
 d = im - 1;
 

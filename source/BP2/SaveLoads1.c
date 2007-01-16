@@ -130,7 +130,7 @@ if(FileName[iWeights][0] != '\0')
 	strcpy(Message,FileName[iWeights]);
 else
 	strcpy(Message,FilePrefix[iWeights]);
-pStrCopy((char*)c2pstr(Message),fn);
+c2pstrcpy(fn, Message);
 reply.sfFile.vRefNum = TheVRefNum[iSettings];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[iSettings];
 if(NewFile(fn,&reply)) {
@@ -241,7 +241,7 @@ StandardFileReply reply;
 GetKeyboard();
 if(FileName[wKeyboard][0] != '\0') strcpy(Message,FileName[wKeyboard]);
 else strcpy(Message,FilePrefix[wKeyboard]);
-pStrCopy((char*)c2pstr(Message),fn);
+c2pstrcpy(fn, Message);
 p_spec->vRefNum = TheVRefNum[wKeyboard];
 p_spec->parID = WindowParID[wKeyboard];
 pStrCopy((char*)fn,p_spec->name);
@@ -387,7 +387,7 @@ char line[MAXFIELDCONTENT];
 GetTimeBase(); GetTickParameters();
 if(FileName[wTimeBase][0] != '\0') strcpy(Message,FileName[wTimeBase]);
 else strcpy(Message,FilePrefix[wTimeBase]);
-pStrCopy((char*)c2pstr(Message),fn);
+c2pstrcpy(fn, Message);
 p_spec->vRefNum = TheVRefNum[wTimeBase];
 p_spec->parID = WindowParID[wTimeBase];
 pStrCopy((char*)fn,p_spec->name);
@@ -749,7 +749,7 @@ char line[MAXFIELDCONTENT];
 
 if(FileName[wCsoundInstruments][0] != '\0') strcpy(Message,FileName[wCsoundInstruments]);
 else strcpy(Message,FilePrefix[wCsoundInstruments]);
-pStrCopy((char*)c2pstr(Message),fn);
+c2pstrcpy(fn, Message);
 p_spec->vRefNum = TheVRefNum[wCsoundInstruments];
 p_spec->parID = WindowParID[wCsoundInstruments];
 pStrCopy((char*)fn,p_spec->name);
@@ -961,7 +961,7 @@ if(ScriptExecOn) return(OK);
 p_spec->vRefNum = TheVRefNum[iSettings];
 p_spec->parID = WindowParID[iSettings];
 strcpy(line,FilePrefix[iSettings]);
-if(fn[0] == 0) pStrCopy((char*)c2pstr(line),fn);
+if(fn[0] == 0) c2pstrcpy(fn, line);
 pStrCopy((char*)fn,p_spec->name);
 good = NO;
 if(now) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noErr);
@@ -1188,7 +1188,7 @@ strcpy(LineBuff,Message);
 strcpy(filename,LineBuff);
 type = gFileType[iSettings];
 if(anyfile) type = 0;
-pStrCopy((char*)c2pstr(Message),spec.name);
+c2pstrcpy(spec.name, Message);
 if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
 	rep = FAILED;
 	if(startup || (rep=CheckFileName(iSettings,LineBuff,&spec,&refnum,gFileType[iSettings],TRUE)) != OK) {
@@ -1854,7 +1854,7 @@ type = gFileType[wInteraction];
 if(anyfile) type = 0;
 spec.vRefNum = TheVRefNum[wInteraction];
 spec.parID = WindowParID[wInteraction];
-pStrCopy((char*)c2pstr(Message),spec.name);
+c2pstrcpy(spec.name, Message);
 SetSelect(ZERO,GetTextLength(wInteraction),TEH[wInteraction]);
 TextDelete(wInteraction);
 if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
@@ -2106,7 +2106,7 @@ StandardFileReply reply;
 ShowMessage(TRUE,wMessage,"Saving MIDI orchestra file…");
 if(FileName[wMIDIorchestra][0] == '\0') strcpy(Message,"-or.");
 else strcpy(Message,FileName[wMIDIorchestra]);
-pStrCopy((char*)c2pstr(Message),fn);
+c2pstrcpy(fn, Message);
 type = gFileType[wMIDIorchestra];
 
 result = FAILED;

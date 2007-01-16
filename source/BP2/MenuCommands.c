@@ -230,7 +230,7 @@ return(OK);
 mMIDIinputcheck(int wind)
 {
 if(!OutMIDI) {
-	Alert1("MIDI output is inactive (check the ‘Devices’ menu)");
+	Alert1("MIDI input is inactive (check the ‘Devices’ menu)");
 	return(FAILED);
 	}
 if(Oms) FlashInfo("OMS MIDI driver is being used");
@@ -907,8 +907,7 @@ if(Answer("Load and save MIDI data from device",'Y') == YES) {
 		}
 	sprintf(Message,"%ld bytes received. Writing them to text file.",(long)im);
 	ShowMessage(TRUE,wMessage,Message);
-	strcpy(Message,"Dump");
-	pStrCopy((char*)c2pstr(Message),fn);
+	c2pstrcpy(fn, "Dump");
 	if(NewFile(fn,&reply)) {
 		if((r=CreateFile(-1,-1,1,fn,&reply,&refnum)) != OK) goto OUT;
 		WriteToFile(NO,MAC,"BP2 decimal MIDI dump",refnum);
@@ -1415,11 +1414,9 @@ if(w == wPrototype7) {
 SetCursor(&WatchCursor);
 spec.vRefNum = TheVRefNum[w1];
 spec.parID = WindowParID[w1];
-strcpy(Message,FileName[w1]);
-pStrCopy((char*)c2pstr(Message),spec.name);
+c2pstrcpy(spec.name, FileName[w1]);
 rep = OK;
-strcpy(Message,FileName[w1]);
-pStrCopy((char*)c2pstr(Message),fn);
+c2pstrcpy(fn, FileName[w1]);
 if(!Created[w1] || Weird[w1]) {
 	if(!Editable[w1]) return(mSaveAs(w1));
 	if((rep=SaveAs(fn,&spec,w1)) == OK) {
@@ -1433,8 +1430,7 @@ if(!Created[w1] || Weird[w1]) {
 else {
 	spec.vRefNum = TheVRefNum[w1];
 	spec.parID = WindowParID[w1];
-	strcpy(Message,FileName[w1]);
-	pStrCopy((char*)c2pstr(Message),spec.name);
+	c2pstrcpy(spec.name, FileName[w1]);
 	sprintf(Message,"Saving ‘%s’…",FileName[w1]);
 	ShowMessage(TRUE,wMessage,Message);
 	switch(w1) {
@@ -1468,12 +1464,10 @@ FSSpec spec;
 
 if(w < 0 || w >= WMAX) return(FAILED);
 w = FindGoodIndex(w);
-strcpy(Message,FileName[w]);
-pStrCopy((char*)c2pstr(Message),fn);
+c2pstrcpy(fn, FileName[w]);
 spec.vRefNum = TheVRefNum[w];
 spec.parID = WindowParID[w];
-strcpy(Message,FileName[w]);
-pStrCopy((char*)c2pstr(Message),spec.name);
+c2pstrcpy(spec.name, FileName[w]);
 
 if(!Editable[w]) Created[w] = FALSE;
 
@@ -1558,12 +1552,10 @@ if(Oms && OMSinputName[0] != '\0' && OMSinputName[0] != '<') {
 		}
 	}
 	
-strcpy(Message,FileName[iSettings]);
-pStrCopy((char*)c2pstr(Message),fn);
+c2pstrcpy(fn, FileName[iSettings]);
 spec.vRefNum = TheVRefNum[iSettings];
 spec.parID = WindowParID[iSettings];
-strcpy(Message,FileName[iSettings]);
-pStrCopy((char*)c2pstr(Message),spec.name);
+c2pstrcpy(spec.name, FileName[iSettings]);
 if(SaveSettings(NO,NO,fn,&spec) == OK) {
 	TheVRefNum[iSettings] = spec.vRefNum;
 	WindowParID[iSettings] = spec.parID;
@@ -1580,10 +1572,9 @@ int rep;
 FSSpec spec;
 
 if(Answer("Save current settings as startup",'Y') != OK) return(FAILED);
-strcpy(Message,"-se.startup");
+c2pstrcpy(spec.name, "-se.startup");
 spec.vRefNum = RefNumbp2;
 spec.parID = ParIDbp2;
-pStrCopy((char*)c2pstr(Message),spec.name);
 
 TRYINPUTNAME:
 if(Oms && OMSinputName[0] != '\0') {
@@ -1644,9 +1635,7 @@ switch (rep) {
 			}
 		spec.vRefNum = TheVRefNum[wind];
 		spec.parID = WindowParID[wind];
-		strcpy(Message,FileName[wind]);
-		c2pstr(Message);
-		pStrCopy(Message,spec.name);
+		c2pstrcpy(spec.name, FileName[wind]);
 		switch(wind) {
 			case wGlossary:
 				LoadedGl = CompiledGl = FALSE;
@@ -1682,8 +1671,7 @@ switch (rep) {
 				return(OK);
 				break;
 			}
-		strcpy(Message,FileName[wind]);
-		pStrCopy((char*)c2pstr(Message),spec.name);
+		c2pstrcpy(spec.name, FileName[wind]);
 		if(FileName[wind][0] != '\0') {
 			if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
 				if(!Editable[wind]) {
@@ -2999,8 +2987,7 @@ if(r != ABORT && changed) {
 	/* Reload new version */
 	SetSelect(ZERO,GetTextLength(wScript),TEH[wScript]);
 	TextDelete(wScript);
-	strcpy(Message,FileName[wScript]);
-	pStrCopy((char*)c2pstr(Message),spec.name);
+	c2pstrcpy(spec.name, FileName[wScript]);
 	if(FileName[wScript][0] != '\0') {
 		if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
 			if(ReadFile(wScript,refnum)) {

@@ -216,10 +216,9 @@ int io;
 FSSpec spec;
 short refnum;
 
-strcpy(Message,name);
+c2pstrcpy(spec.name, name);
 spec.vRefNum = RefNumbp2;
 spec.parID = ParIDbp2;
-pStrCopy((char*)c2pstr(Message),spec.name);
 if((io=MyOpen(&spec,fsRdPerm,&refnum)) == noErr) {
 	LoadOn++;
 	ClearWindow(NO,w);
@@ -480,7 +479,7 @@ for(i=1; i <= 24; i++) {
 			break;
 		
 		}
-	pStrCopy((char*)c2pstr(Message),textStr);
+	c2pstrcpy(textStr, Message);
 	SetControlTitle(itemhandle,textStr);
 	}
 SetNameChoice();
@@ -961,7 +960,6 @@ int type,result;
 FSSpec spec;
 short refnum;
 long pos,posmax;
-Str255 fn;
 char *p,*q,line[MAXLIN];
 
 pos = ZERO;
@@ -986,8 +984,7 @@ do {
 					'N') == OK) Token = TRUE;
 				}
 			type = gFileType[wKeyboard];
-			c2pstr(line); pStrCopy(line,fn);
-			pStrCopy(line,spec.name);
+			c2pstrcpy(spec.name, line);
 			spec.vRefNum = TheVRefNum[wKeyboard];
 			spec.parID = WindowParID[wKeyboard];
 			if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {
@@ -1024,7 +1021,6 @@ int r,type;
 FSSpec spec;
 short refnum;
 long pos,posmax;
-Str255 fn;
 char *p,*q,line[MAXLIN];
 
 pos = ZERO;
@@ -1047,8 +1043,7 @@ do {
 		if(strcmp(FileName[wfile],line) != 0) {
 			strcpy(FileName[wfile],line);
 			type = gFileType[wfile];
-			c2pstr(line); pStrCopy(line,fn);
-			pStrCopy(line,spec.name);
+			c2pstrcpy(spec.name, line);
 			spec.vRefNum = TheVRefNum[wfile];
 			spec.parID = WindowParID[wfile];
 			if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {
@@ -1072,7 +1067,6 @@ int r,type;
 FSSpec spec;
 short refnum;
 long pos,posmax;
-Str255 fn;
 char *p,*q,line[MAXLIN];
 
 pos = ZERO;
@@ -1092,8 +1086,7 @@ do {
 		if(strcmp(FileName[wCsoundInstruments],line) != 0) {
 			strcpy(FileName[wCsoundInstruments],line);
 			type = gFileType[wCsoundInstruments];
-			c2pstr(line); pStrCopy(line,fn);
-			pStrCopy(line,spec.name);
+			c2pstrcpy(spec.name, line);
 			spec.vRefNum = TheVRefNum[wCsoundInstruments];
 			spec.parID = WindowParID[wCsoundInstruments];
 			if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {
@@ -1119,7 +1112,6 @@ int type;
 FSSpec spec;
 short refnum;
 long pos,posmax;
-Str255 fn;
 char *p,*q,line[MAXLIN];
 
 pos = ZERO;
@@ -1139,8 +1131,7 @@ do {
 		if(strcmp(FileName[wTimeBase],line) != 0) {
 			strcpy(FileName[wTimeBase],line);
 			type = gFileType[wTimeBase];
-			c2pstr(line); pStrCopy(line,fn);
-			pStrCopy(line,spec.name);
+			c2pstrcpy(spec.name, line);
 			spec.vRefNum = TheVRefNum[wTimeBase];
 			spec.parID = WindowParID[wTimeBase];
 			if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {
@@ -1244,7 +1235,7 @@ else {
 	sprintf(line,"%.4f", ((double)p)/q);
 	}
 GetDialogItem(gpDialogs[wMetronom],fTempo,&itemtype,(Handle*)&itemhandle,&r);
-SetDialogItemText((Handle)itemhandle,c2pstr(line));
+SetDialogItemText((Handle)itemhandle,in_place_c2pstr(line));
 
 /* Set smooth or striated */
 if(Nature_of_time == STRIATED) {
@@ -1366,11 +1357,11 @@ char line[MAXFIELDCONTENT];
 
 sprintf(line,"%ld",(long)BufferSize / 2L - 1L);
 GetDialogItem(gpDialogs[wBufferSize],fBufferSize,&itemtype,(Handle*)&itemhandle,&r);
-SetDialogItemText((Handle)itemhandle,c2pstr(line));
+SetDialogItemText((Handle)itemhandle,in_place_c2pstr(line));
 TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wBufferSize]));
 sprintf(line,"%ld",(long)DeftBufferSize / 2L - 1L);
 GetDialogItem(gpDialogs[wBufferSize],fDeftBufferSize,&itemtype,(Handle*)&itemhandle,&r);
-SetDialogItemText((Handle)itemhandle,c2pstr(line));
+SetDialogItemText((Handle)itemhandle,in_place_c2pstr(line));
 TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wBufferSize]));
 if(UseBufferLimit) {
 	GetDialogItem(gpDialogs[wBufferSize],dNoSizeLimit,&itemtype,(Handle*)&itemhandle,&r);
@@ -1441,7 +1432,7 @@ char line[MAXFIELDCONTENT];
 WriteFloatToLine(line,(double) (GraphicScaleQ * 5.) / (double) GraphicScaleP);
 GetDialogItem(gpDialogs[wGraphicSettings],fGraphicScale,
 	&itemtype,&itemhandle,&r);
-SetDialogItemText(itemhandle,c2pstr(line));
+SetDialogItemText(itemhandle,in_place_c2pstr(line));
 TESetSelect(ZERO,63L,GetDialogTextEditHandle(gpDialogs[wGraphicSettings]));
 if(StartFromOne) {
 	GetDialogItem(gpDialogs[wGraphicSettings],dZero,&itemtype,&itemhandle,&r);
@@ -1510,17 +1501,17 @@ char line[MAXFIELDCONTENT];
 sprintf(line,"%ld",(long)Time_res);
 GetDialogItem(gpDialogs[wTimeAccuracy],fTimeRes,&itemtype,
 	(Handle*)&itemhandle,&r);
-SetDialogItemText((Handle)itemhandle,c2pstr(line));
+SetDialogItemText((Handle)itemhandle,in_place_c2pstr(line));
 TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wTimeAccuracy]));
 sprintf(line,"%ld",(long)Quantization);
 GetDialogItem(gpDialogs[wTimeAccuracy],fQuantize,&itemtype,
 	(Handle*)&itemhandle,&r);
-SetDialogItemText((Handle)itemhandle,c2pstr(line));
+SetDialogItemText((Handle)itemhandle,in_place_c2pstr(line));
 TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wTimeAccuracy]));
 sprintf(line,"%ld",(long)SetUpTime);
 GetDialogItem(gpDialogs[wTimeAccuracy],fSetUpTime,&itemtype,
 	(Handle*)&itemhandle,&r);
-SetDialogItemText((Handle)itemhandle,c2pstr(line));
+SetDialogItemText((Handle)itemhandle,in_place_c2pstr(line));
 TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wTimeAccuracy]));
 if(QuantizeOK) {
 	GetDialogItem(gpDialogs[wTimeAccuracy],dOff,&itemtype,
@@ -1621,7 +1612,7 @@ for(i=0; i < 52; i++) {
 	if((*p_Token)[Key(i,KeyboardType)] != NULL) {
 		GetDialogItem(gpDialogs[wKeyboard],j,&itemtype,&itemhandle,&r);
 		MystrcpyTableToString(MAXFIELDCONTENT,line,p_Token,Key(i,KeyboardType));
-		SetDialogItemText(itemhandle,c2pstr(line));
+		SetDialogItemText(itemhandle,in_place_c2pstr(line));
 		TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wKeyboard]));
 		}
 	}
@@ -2302,6 +2293,7 @@ for(i=0; ((m=(**pp_X)[i]) != TEND) || ((**pp_X)[i+1] != TEND); i+=2) {
 return(NO);
 }
 
+#if 0
 pascal void MySoundProc(short sndNum)
 /* sndNum will range from 0 to 3 */
 {
@@ -2317,7 +2309,7 @@ err = SndPlay(myChan,mySound,FALSE);
 HUnlock((Handle) mySound);
 err = SndDisposeChannel(myChan,FALSE);
 }
-
+#endif
 
 // ------------------------  Random numbers -------------------------
 
@@ -2330,7 +2322,7 @@ char line[MAXFIELDCONTENT];
 
 sprintf(line,"%.0f",(double) Seed);
 GetDialogItem(gpDialogs[wRandomSequence],fSeed,&itemtype,&itemhandle,&r);
-SetDialogItemText(itemhandle,c2pstr(line));
+SetDialogItemText(itemhandle,in_place_c2pstr(line));
 TESetSelect(ZERO,63L,GetDialogTextEditHandle(gpDialogs[wRandomSequence]));
 return(OK);
 }

@@ -95,7 +95,7 @@ if(line == NULL || line[0] == '\0') {
 	}
 else strcpy(Message,line);
 
-pStrCopy((char*)c2pstr(Message),filename);
+c2pstrcpy(filename, Message);
 /* This converts C to Pascal string; beurk! */
 
 if(NewFile(filename,&reply)) {	/* This opens a save-file dialog */
@@ -264,8 +264,7 @@ return(OK);
 
 BAD:
 FSClose(MIDIRefNum);
-strcpy((char*)name,MIDIfileName);
-c2pstr((char*)name);
+c2pstrcpy(name, MIDIfileName);
 FSDelete(name,0);
 FlushVolume();
 return(ABORT);
@@ -294,8 +293,7 @@ if(MIDIbytestate > 0) {
 	if(Writedword(MIDIRefNum,Midi_msg,MIDIbytestate) != OK) {
 		/* Damn! We must delete this incomplete file */
 		FSClose(MIDIRefNum);
-		strcpy((char*)name,MIDIfileName);
-		c2pstr((char*)name);
+		c2pstrcpy(name, MIDIfileName);
 		FSDelete(name,0);
 		FlushVolume();
 		return(ABORT);
@@ -378,8 +376,7 @@ if(MIDIbytestate > 0) {
 	if(Writedword(MIDIRefNum,Midi_msg,MIDIbytestate) != OK) {
 		/* Damn! We must delete this incomplete file */
 		FSClose(MIDIRefNum);
-		strcpy((char*)name,MIDIfileName);
-		c2pstr((char*)name);
+		c2pstrcpy(name, MIDIfileName);
 		FSDelete(name,0);
 		FlushVolume();
 		goto OUT;

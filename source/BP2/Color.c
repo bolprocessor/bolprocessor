@@ -334,7 +334,7 @@ while(TRUE) {
 			i = PivotC; break;
 		}
 	incolor = Color[i];
-	if(GetColor(where,c2pstr(Message),&incolor,&outcolor)) {
+	if(GetColor(where,in_place_c2pstr(Message),&incolor,&outcolor)) {
 		CopyColor(&outcolor,i);
 		NewColors = TRUE;
 		if(Version > 4) Dirty[iSettings] = TRUE;

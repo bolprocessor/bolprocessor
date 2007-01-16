@@ -267,8 +267,7 @@ FSSpec spec;
 
 spec.vRefNum = RefNumbp2;
 spec.parID = ParIDbp2;
-strcpy(Message,"Register");
-pStrCopy((char*)c2pstr(Message),spec.name);
+c2pstrcpy(spec.name, "Register");
 
 return(LaunchAnApplication(spec));
 }

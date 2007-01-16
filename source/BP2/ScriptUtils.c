@@ -123,9 +123,8 @@ switch(instr) {
 				ShowSelect(CENTRE,wMessage);
 				}
 			}
-		strcpy(Message,line);
-		c2pstr(Message); pStrCopy(Message,fn);
-		pStrCopy(Message,spec.name);
+		c2pstrcpy(fn, line);
+		c2pstrcpy(spec.name, line);
 		spec.vRefNum = TheVRefNum[wGrammar];
 		spec.parID = WindowParID[wGrammar];
 		if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
@@ -395,9 +394,8 @@ GOTIT:
 				break;
 			case iObjects:
 				if(check == 2) return(OK);
-				strcpy(Message,line);
-				c2pstr(Message); pStrCopy(Message,fn);
-				pStrCopy(Message,spec.name);
+				c2pstrcpy(fn, line);
+				c2pstrcpy(spec.name, line);
 				spec.vRefNum = TheVRefNum[iObjects];
 				spec.parID = WindowParID[iObjects];
 				if(check) {
@@ -467,9 +465,8 @@ GOTIT2:
 				if(!Interactive) {
 					Interactive = TRUE; SetButtons(TRUE);
 					}
-				strcpy(Message,line);
-				c2pstr(Message); pStrCopy(Message,fn);
-				pStrCopy(Message,spec.name);
+				c2pstrcpy(fn, line);
+				c2pstrcpy(spec.name, line);
 				spec.vRefNum = TheVRefNum[wInteraction];
 				spec.parID = WindowParID[wInteraction];
 				if(check) {
@@ -514,9 +511,8 @@ GOTIT3:
 				break;
 			case wGlossary:
 				if(check == 2) return(OK);
-				strcpy(Message,line);
-				c2pstr(Message); pStrCopy(Message,fn);
-				pStrCopy(Message,spec.name);
+				c2pstrcpy(fn, line);
+				c2pstrcpy(spec.name, line);
 				spec.vRefNum = TheVRefNum[wGlossary];
 				spec.parID = WindowParID[wGlossary];
 				if(check) {
@@ -561,9 +557,8 @@ GOTIT4:
 				return(LoadGlossary(FALSE,FALSE));
 				break;
 			}
-		strcpy(Message,line);
-		c2pstr(Message); pStrCopy(Message,fn);
-		pStrCopy(Message,spec.name);
+		c2pstrcpy(fn, line);
+		c2pstrcpy(spec.name, line);
 		spec.vRefNum = TheVRefNum[w];
 		spec.parID = WindowParID[w];
 		if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
@@ -687,9 +682,8 @@ GOTIT5:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(check == 2) return(OK);
 		if(strcmp(FileName[iSettings],line) == 0) return(OK); /* Already loaded */
-		strcpy(Message,line);
-		c2pstr(Message); pStrCopy(Message,fn);
-		pStrCopy(Message,spec.name);
+		c2pstrcpy(fn, line);
+		c2pstrcpy(spec.name, line);
 		spec.vRefNum = TheVRefNum[iSettings];
 		spec.parID = WindowParID[iSettings];
 		if(check) {
@@ -988,9 +982,8 @@ GOTIT6:
 			return(ABORT);
 			}
 		if(AppendStringList(line) != OK) return(ABORT);
-		strcpy(Message,line);
-		c2pstr(Message); pStrCopy(Message,fn);
-		pStrCopy(Message,spec.name);
+		c2pstrcpy(fn, line);
+		c2pstrcpy(spec.name, line);
 		spec.vRefNum = TheVRefNum[wScript];
 		spec.parID = WindowParID[wScript];
 		if(!check) {

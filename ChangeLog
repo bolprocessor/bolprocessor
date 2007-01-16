@@ -1,3 +1,34 @@
+2007-01-16	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	* source/BP2/-BP2.h:  Temporary fix for lack of StandardFile types.
+	
+	* source/BP2/AppleEvents.c:
+	* source/BP2/Inits.c:
+		Conditionalize out Edition Manager aevents.
+
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/AppleEvents.c:
+	* source/BP2/Color.c:
+	* source/BP2/CsoundScoreMake.c:
+	* source/BP2/Graphic.c:
+	* source/BP2/Inits.c:
+	* source/BP2/Interface1.c:
+	* source/BP2/Interface2.c:
+	* source/BP2/MakeSound.c:
+	* source/BP2/MenuCommands.c:
+	* source/BP2/MIDIfiles.c:
+	* source/BP2/MIDIloads.c:
+	* source/BP2/Misc.c:
+	* source/BP2/Processes.c:
+	* source/BP2/SaveLoads1.c:
+	* source/BP2/SaveLoads2.c:
+	* source/BP2/SaveLoads3.c:
+	* source/BP2/Script.c:
+	* source/BP2/ScriptUtils.c:
+	* source/BP2/Strings.c:
+	* source/BP2/Ticks.c:
+	* source/BP2/Translit.c	:
+		Convert c2pstr() calls to Carbon-compatible equivalents.
+
 2007-01-15	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	* source/BP2/BP2main.c:
 	* source/BP2/WindowText.c:

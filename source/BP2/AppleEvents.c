@@ -69,7 +69,9 @@ GoodEvent(EventRecord *p_event)
 switch(p_event->message) {
 	case BP2Class:
 	case kCoreEventClass:
+#if !TARGET_API_MAC_CARBON	/* Edition Manager not in Carbon */
 	case sectionEventMsgClass:
+#endif
 		break;
 	default: return(NO);
 	}
@@ -77,9 +79,11 @@ switch((*((AEEventID*) (&(p_event->where))))) {
 	case kAEOpenDocuments:
 	case kAEPrintDocuments:
 	case kAEQuitApplication:
+#if !TARGET_API_MAC_CARBON	/* Edition Manager not in Carbon */
 	case sectionReadMsgID:
 	case sectionWriteMsgID:
 	case sectionScrollMsgID:
+#endif
 	case PlayEventID:
 	case ScriptLineEventID:
 	case LoadSettingsEventID:
@@ -604,8 +608,7 @@ if(size > 0) {
 	if(Message[0] != '\0' && strcmp(Message,FileName[wCsoundInstruments]) != 0) {
 		strcpy(FileName[wCsoundInstruments],Message);
 		type = gFileType[wCsoundInstruments];
-		c2pstr(Message);
-		pStrCopy(Message,spec.name);
+		c2pstrcpy(spec.name,Message);
 		spec.vRefNum = TheVRefNum[wCsoundInstruments];
 		spec.parID = WindowParID[wCsoundInstruments];
 		if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {

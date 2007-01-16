@@ -102,7 +102,7 @@ Milliseconds t;
 
 if(FileName[iObjects][0] != '\0') strcpy(Message,FileName[iObjects]);
 else strcpy(Message,FilePrefix[iObjects]);
-pStrCopy((char*)c2pstr(Message),fn);
+c2pstrcpy(fn, Message);
 
 if(Created[iObjects]) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noErr);
 else good = NO;
@@ -347,7 +347,7 @@ long k,kk;
 double r;
 short refnum,refnum2;
 FSSpec spec;
-char filename[MAXNAME+1];
+Str63 filename;
 Handle h,ptr;
 
 if(SaveCheck(iObjects) == ABORT) return(FAILED);
@@ -356,12 +356,11 @@ newinstruments = CompiledCsObjects = FALSE;
 pos = 0L;
 FileName[iObjects][0] = '\0';
 p_line = p_completeline = NULL;
-strcpy(Message,DeftName[iObjects]);
-SetWTitle(Window[iObjects],c2pstr(Message));
+c2pstrcpy(PascalLine, DeftName[iObjects]);
+SetWTitle(Window[iObjects], PascalLine);
 GetMiName();
-strcpy(Message,FileName[iObjects]);
-pStrCopy((char*)c2pstr(Message),PascalLine);
-pStrCopy(Message,spec.name);
+c2pstrcpy(PascalLine,FileName[iObjects]);
+pStrCopy((char*)PascalLine, spec.name);
 spec.vRefNum = TheVRefNum[iObjects];
 spec.parID = WindowParID[iObjects];
 if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {
@@ -384,8 +383,8 @@ FIND:
 		MyPtoCstr(MAXNAME,PascalLine,FileName[iObjects]);
 		TellOthersMyName(iObjects);
 		}
-	strcpy(filename,FileName[iObjects]);
-	if(Pstrcmp(PascalLine,(char*) c2pstr(filename)) != 0) {
+	c2pstrcpy(filename,FileName[iObjects]);
+	if(Pstrcmp(PascalLine, filename) != 0) {
 		rep = Answer("Changing sound-object file name",'Y');
 		switch(rep) {
 			case NO:
@@ -399,8 +398,7 @@ FIND:
 				return(ABORT);
 			}
 		}
-	strcpy(Message,FileName[iObjects]);
-	pStrCopy((char*)c2pstr(Message),spec.name);
+	c2pstrcpy(spec.name, FileName[iObjects]);
 	if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) return(ABORT);
 	}
 TheVRefNum[wCsoundInstruments] = TheVRefNum[iObjects] = spec.vRefNum;
@@ -444,8 +442,7 @@ if(iv > 4) {
 				if(SaveCheck(wCsoundInstruments) == ABORT) goto MAXSOUNDS;
 				strcpy(FileName[wCsoundInstruments],line);
 				type = gFileType[wCsoundInstruments];
-				c2pstr(line);
-				pStrCopy(line,spec.name);
+				c2pstrcpy(spec.name, line);
 				spec.vRefNum = TheVRefNum[wCsoundInstruments];
 				spec.parID = WindowParID[wCsoundInstruments];
 				if(MyOpen(&spec,fsCurPerm,&refnum2) != noErr) {
@@ -921,14 +918,13 @@ if(LoadedGl) return(OK);
 
 if(!ScriptExecOn) ShowWindow(Window[wGlossary]);
 result = FAILED;
-strcpy(Message,FileName[wGlossary]);
-strcpy(line,Message);
 p_line = p_completeline = NULL;
 type = gFileType[wGlossary];
 if(anyfile) type = 0;
 spec.vRefNum = TheVRefNum[wGlossary];
 spec.parID = WindowParID[wGlossary];
-pStrCopy((char*)c2pstr(Message),spec.name);
+c2pstrcpy(spec.name, FileName[wGlossary]);
+strcpy(line, FileName[wGlossary]);
 SetSelect(ZERO,GetTextLength(wGlossary),TEH[wGlossary]);
 TextDelete(wGlossary); CompiledGl = FALSE;
 if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
@@ -999,9 +995,8 @@ if(w == -1 && GetAlphaName(wData) != OK && GetAlphaName(wGrammar) != OK)
 else if(GetAlphaName(w) != OK) return(OK);
 if((rep=ClearWindow(FALSE,wAlphabet)) != OK) return(rep);
 if(!ScriptExecOn) ShowWindow(Window[wAlphabet]);
-strcpy(Message,FileName[wAlphabet]);
-strcpy(LineBuff,Message);
-pStrCopy((char*)c2pstr(Message),spec.name);
+c2pstrcpy(spec.name, FileName[wAlphabet]);
+strcpy(LineBuff, FileName[wAlphabet]);
 if(p_spec != NULL) {
 	spec.vRefNum = p_spec->vRefNum;
 	spec.parID = p_spec->parID;
