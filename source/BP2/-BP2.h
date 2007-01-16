@@ -166,6 +166,12 @@ Hey: this code is not portable!!!
 #define _NOSYNONYMS_
 
 #include "midi1.h"
+#include "NavServWrapper.h"
+
+#if TARGET_API_MAC_CARBON	/* FIXME: temporary to avoid too many errors -- remove me */
+  typedef NSWReply StandardFileReply;
+  typedef long  SFTypeList[4]; 
+#endif
 
 // Moved macros and enum down here to avoid potential problems with replacing names
 // in any of the above headers -- 010807 akozar
