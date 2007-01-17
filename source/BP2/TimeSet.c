@@ -41,7 +41,9 @@
 #  include	"MacHeadersTransitional.h"
 #endif
 
-#define DISPLAY 0
+#ifndef DISPLAY_PHASE_DIAGRAM
+#define DISPLAY_PHASE_DIAGRAM 0
+#endif
 
 #ifndef _H_BP2 
 #include "-BP2.h"
@@ -131,7 +133,7 @@ while(TRUE) {
 
 // Now display phase diagram (optional)
 
-#if DISPLAY
+#if DISPLAY_PHASE_DIAGRAM
 
 Print(wTrace,"\r");
 sprintf(Message,"Minconc = %ld    Maxconc = %ld",Minconc,Maxconc);

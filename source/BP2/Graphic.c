@@ -47,8 +47,9 @@
 
 #include "-BP2decl.h"
 
+#ifndef SHOWEVERYTHING
 #define SHOWEVERYTHING 0
-
+#endif
 
 DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	Milliseconds **p_t2,int kmax,long tmin,long tmax,
