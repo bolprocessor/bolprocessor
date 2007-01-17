@@ -360,7 +360,7 @@ c2pstrcpy(PascalLine, DeftName[iObjects]);
 SetWTitle(Window[iObjects], PascalLine);
 GetMiName();
 c2pstrcpy(PascalLine,FileName[iObjects]);
-pStrCopy((char*)PascalLine, spec.name);
+CopyPString(PascalLine, spec.name);
 spec.vRefNum = TheVRefNum[iObjects];
 spec.parID = WindowParID[iObjects];
 if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {

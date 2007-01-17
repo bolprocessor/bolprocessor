@@ -48,14 +48,14 @@
 #include "-BP2decl.h"
 
 
-void pStrCopy(char* p1,Str255 p2)
-/* copies a pascal string from p1 to p2 */
+void CopyPString(Str255 src,Str255 dest)
+/* copies a pascal string from src to dest */
 {
 int i,len;
 
 i = 0;
-len = p2[i++] = *p1++;
-while (--len >= 0) p2[i++] = *p1++;
+len = dest[i++] = *src++;
+while (--len >= 0) dest[i++] = *src++;
 }
 
 

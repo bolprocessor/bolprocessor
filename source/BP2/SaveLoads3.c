@@ -178,14 +178,14 @@ spec = p_reply->sfFile;
 /* Let's first recall the default folder in which this file had been opened, to neutralize the effect of DefaultFolder */
 /* Helas, this does not neutralize DefaultFolder! */
 /*if(fn[0] > 0) {
-	pStrCopy((char*)fn,p_reply->sfFile.name);
-	pStrCopy((char*)fn,spec.name);
+	CopyPString(fn,p_reply->sfFile.name);
+	CopyPString(fn,spec.name);
 	io = FSpOpenDF(&spec,fsRdPerm,&refnum);
 	if(io == noErr) FSClose(refnum); 
 	} */
 StandardPutFile("\pSave fileÉ",fn,p_reply);
 if(p_reply->sfGood) {
-	pStrCopy((char*)p_reply->sfFile.name,fn);
+	CopyPString(p_reply->sfFile.name,fn);
 	return(OK);
 	}
 else return(FAILED);
@@ -308,7 +308,7 @@ if(reply2.sfGood) {
 			&& Editable[w] && numtypes > -1)
 				IsText[w] = TRUE;
 		}
-	pStrCopy((char*)p_spec->name,fn);
+	CopyPString(p_spec->name,fn);
 	RecordVrefInScript(p_spec);	/* For script in learning mode */
 	return(YES);
 	}
@@ -451,7 +451,7 @@ wref = -1;
 #endif
 
 if(io == noErr) {
-	pStrCopy((char*)fn,spec.name);
+	CopyPString(fn,spec.name);
 	io = MyOpen(&spec,fsCurPerm,p_refnum);
 	if(io != noErr) {
 		if(io == opWrErr) {
@@ -1070,8 +1070,8 @@ io = FSDelete("\pBP2.temp",0);
 reply.sfFile.vRefNum = RefNumbp2;
 reply.sfFile.parID = ParIDbp2;
 reply.sfReplacing = FALSE;
-pStrCopy((char*)"\pBP2.temp",PascalLine);
-pStrCopy((char*)PascalLine,reply.sfFile.name);
+CopyPString("\pBP2.temp",PascalLine);
+CopyPString(PascalLine,reply.sfFile.name);
 rep = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
 if(rep == OK) TempRefnum = refnum;
 else {
@@ -1096,8 +1096,8 @@ FlushVolume(); */
 reply.sfFile.vRefNum = RefNumbp2;
 reply.sfFile.parID = ParIDbp2;
 reply.sfReplacing = FALSE;
-pStrCopy((char*)"\pBP2.trace",PascalLine);
-pStrCopy((char*)PascalLine,reply.sfFile.name);
+CopyPString("\pBP2.trace",PascalLine);
+CopyPString(PascalLine,reply.sfFile.name);
 rep = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
 if(rep == OK) TraceRefnum = refnum;
 else {

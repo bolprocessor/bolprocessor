@@ -359,7 +359,7 @@ int PrintBehind(int,char*);
 int PrintBehindln(int,char*);
 int SelectSomething(int);
 int AdjustWindow(int,int,int,int,int,int);
-void pStrCopy(char*,Str255);
+void CopyPString(Str255 src,Str255 dest);
 int MyPtoCstr(int,Str255,char*);
 StringPtr in_place_c2pstr(char* s);
 int Pstrcmp(Str255,Str255);
