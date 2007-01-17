@@ -1740,7 +1740,11 @@ return(OK);
 
 mPageSetup(int wind)
 {
-DoPageSetUp();
+#if !TARGET_API_MAC_CARBON
+	DoPageSetUp();
+#else
+	Alert1("Bol Processor Carbon is not able to print yet.  Sorry ...");
+#endif
 return(OK);
 }
 
@@ -1750,6 +1754,9 @@ mPrint(int wind)
 int n;
 Rect r;
 
+#if TARGET_API_MAC_CARBON
+	Alert1("Bol Processor Carbon is not able to print yet.  Sorry ...");
+#else
 if(wind < 0 || wind >= WMAX || (!Editable[wind] && !GrafWindow[wind])) return(FAILED);
 sprintf(Message,"Printing ‘%s’ window…",WindowName[wind]);
 ShowMessage(TRUE,wMessage,Message);
@@ -1779,6 +1786,8 @@ HideWindow(Window[wMessage]);
 sprintf(Message,"\"%s\"",WindowName[wind]);
 MystrcpyStringToTable(ScriptLine.arg,0,Message);
 AppendScript(7);
+#endif
+
 return(OK);
 }
 
