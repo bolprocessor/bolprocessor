@@ -375,7 +375,7 @@ DOTHECLICK:
 					}
 				return(rep);
 				break;
-			case inSysWindow:
+			case inSysWindow:	// FIXME ? Can we remove this entire event class in Carbon?
 				Help = FALSE;
 				GetPort(&saveport);
 				SetPortWindowPort(whichwindow);
@@ -386,7 +386,9 @@ DOTHECLICK:
 				InvalRect(&r);
 				if(saveport != NULL) SetPort(saveport);
 				else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
+#if !TARGET_API_MAC_CARBON
 				SystemClick(p_event,whichwindow);
+#endif
 				ResetTickFlag = TRUE;
 				if(0 <= w && w < WMAX) BPActivateWindow(SLOW,w);
 				if(ResumeStopOn) {

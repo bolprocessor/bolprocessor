@@ -1188,7 +1188,9 @@ for(i=0; i < imax; i++) {
 	}
 
 for(ifield=1; ifield <= outfields; ifield++) {
+#if !TARGET_API_MAC_CARBON
 	SystemTask();
+#endif
 	if((result=MyButton(0)) != FAILED) {
 		SetButtons(TRUE);
 		Interrupted = TRUE;

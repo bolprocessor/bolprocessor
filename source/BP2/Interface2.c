@@ -99,8 +99,10 @@ switch(imenu) {
 	case appleM:
 		Option = FALSE;
 		if(theitem == aboutCommand) return(mAbout(w));
+#if !TARGET_API_MAC_CARBON
 		GetMenuItemText(myMenus[appleM],theitem,name);
 		OpenDeskAcc(name);
+#endif
 		SelectWindow(Window[w]);
 		ResetTicks(FALSE,TRUE,ZERO,0);
 		break;
@@ -169,7 +171,10 @@ SetPort(Window[w]); */
 GetWindowPortBounds(Window[w], &r);
 InvalRect(&r);
 /* if(saveport != NULL) SetPort(saveport); */
+#if !TARGET_API_MAC_CARBON
 SystemTask();	/* Allows redrawing control strip */
+#endif
+
 return(OK);
 }
 
@@ -2360,7 +2365,9 @@ int result;
 if(Panic || EmergencyExit) return(OK);
 result = OK;
 GetPort(&saveport);
-SystemTask();
+#if !TARGET_API_MAC_CARBON
+  SystemTask();
+#endif
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err DoSystem(). saveport == NULL");
 err = MemError();
