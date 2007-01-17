@@ -108,7 +108,9 @@ FlushEvents(everyEvent,0);
 
 Time_res = 10L; /* Time resolution for MIDI messages */
 Quantization = 10L;
-TotalTicks = ZERO;
+#if WITH_REAL_TIME_SCHEDULER
+  TotalTicks = ZERO;
+#endif
 
 p_Pb = &Pb;
 Pb.ioVRefNum = 0;
@@ -188,6 +190,7 @@ for(i=0; i <= MAXCHAN; i++) {
 	}
 ChangedMIDIprogram = FALSE;
 
+#if USE_BUILT_IN_MIDI_DRIVER
 Port = 1; /* MIDI output on "Modem" port */
 /* Port = 2; MIDI output on "Printer" port */
 switch(Port) {
@@ -196,8 +199,12 @@ switch(Port) {
 	case 2:
 		Portbit = PORTB; break;
 	}
+#endif
 
-Nbytes = Tbytes2 = BytesReceived = BytesProcessed = ZERO;
+Nbytes = Tbytes2 = ZERO;
+
+#if USE_OMS
+BytesReceived = BytesProcessed = ZERO;
 MaxOMSinputBufferSize = DEFTMAXOMSINPUTBUFFERSIZE;
 OMSinputOverflow = FALSE; DownBuffer = TRUE;
 h_OMSinputMessage = NULL;
@@ -207,14 +214,21 @@ gInputMenu = gOutputMenu = NULL;
 gOutNodeRefNum = OMSInvalidRefNum;
 MIDIinputFilter = MIDIinputFilterstartup = -1L;
 MIDIoutputFilter = MIDIoutputFilterstartup = -1L;
+#endif
+#if WITH_REAL_TIME_MIDI	// FIXME: this function should be available regardless
 ResetMIDIFilter();
+#endif
 
 QuantizeOK = TRUE;
 LapWait = ZERO;
 PrefixTree.p = SuffixTree.p = NULL;
 PrefixTree.accept = SuffixTree.accept = FALSE;
-SmartCursor = Mute = Panic = ClockOverFlow = SchedulerIsActive = OKsend = FALSE;
-AlertMute = FALSE;
+SmartCursor = Mute = Panic = ClockOverFlow = SchedulerIsActive = FALSE;
+/*AlertMute = FALSE;*/
+
+#if WITH_REAL_TIME_SCHEDULER
+OKsend = FALSE;
+#endif
 
 // Limits of speed and scale values
 TokenLimit = (((double)TOKBASE) * ((double)TOKBASE)) - 1.;
@@ -359,7 +373,11 @@ for(i=0; i < 6; i++) {
 	
 NoAlphabet = TRUE;
 UseGraphicsColor = UseTextColor = TRUE;
-hPrint = NULL;
+
+#if !TARGET_API_MAC_CARBON
+  hPrint = NULL;
+#endif
+
 StartFromOne = TRUE;
 OutMIDI = TRUE;
 OutCsound = /* OutQuickTime = ToldAboutQuickTime = */ WriteMIDIfile = CsoundTrace = FALSE;
@@ -837,7 +855,9 @@ for(w=0; w < MAXWIND; w++) {
 	GetWindowPortBounds(Window[w], &r);
 	Weird[w] = FALSE;
 	InvalRect(&r);
+#if !TARGET_API_MAC_CARBON
 	SystemTask();	/* Allows redrawing control strip */
+#endif
 	}
 
 GetWindowPortBounds(Window[wMessage], &r);
@@ -859,19 +879,19 @@ SetPortDialogPort(GreetingsPtr);
 TextSize(10); TextFont(kFontIDCourier);
 RGBForeColor(&Red);
 x0 = 253; y0 = 18;
-pStrCopy((char*)"\pInternational",title);
+CopyPString("\pInternational",title);
 MoveTo(x0 - StringWidth(title)/2,y0);
 DrawString(title);
 y0 += 11;
-pStrCopy((char*)"\paward",title);
+CopyPString("\paward",title);
 MoveTo(x0 - StringWidth(title)/2,y0);
 DrawString(title);
 y0 += 11;
-pStrCopy((char*)"\pBourges",title);
+CopyPString("\pBourges",title);
 MoveTo(x0 - StringWidth(title)/2,y0);
 DrawString(title);
 y0 += 11;
-pStrCopy((char*)"\p1997",title);
+CopyPString("\p1997",title);
 MoveTo(x0 - StringWidth(title)/2,y0);
 DrawString(title);
 	
@@ -1759,8 +1779,8 @@ MAKE:
 		reply.sfFile.vRefNum = RefNumbp2;
 		reply.sfFile.parID = ParIDbp2;
 		reply.sfReplacing = FALSE;
-		pStrCopy((char*)"\p_bp2_startdate",PascalLine);
-		pStrCopy((char*)PascalLine,reply.sfFile.name);
+		CopyPString("\p_bp2_startdate",PascalLine);
+		CopyPString(PascalLine,reply.sfFile.name);
 		result = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
 		if(result != OK) {
 			Alert1("Unexpected problem creating the registration file.  Is the hard disk full?\rContact the authors");
@@ -1864,7 +1884,7 @@ if(formyself) {
 
 DisposeDialog(enternameptr);
 
-pStrCopy((char*)"\p_bp2_key",PascalLine);
+CopyPString("\p_bp2_key",PascalLine);
 if(formyself || Answer("Delete the current (invisible) activation key",'N') == YES) {
 	io = FSDelete(PascalLine,0);
 	}
@@ -1872,7 +1892,7 @@ if(formyself) {
 	reply.sfFile.vRefNum = RefNumbp2;
 	reply.sfFile.parID = ParIDbp2;
 	reply.sfReplacing = FALSE;
-	pStrCopy((char*)PascalLine,reply.sfFile.name);
+	CopyPString(PascalLine,reply.sfFile.name);
 	}
 else {
 	result = NewFile(PascalLine,&reply);

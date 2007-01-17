@@ -84,9 +84,13 @@
 #define NEWTIMER 0
 #endif
 
-// disable built-in MIDI driver at compile time (not finished yet) - 010507 akozar
+// enable or disable built-in MIDI driver at compile time (not finished yet) - 010507 akozar
 #ifndef USE_BUILT_IN_MIDI_DRIVER
-#define USE_BUILT_IN_MIDI_DRIVER 1
+#  if !TARGET_API_MAC_CARBON
+#    define USE_BUILT_IN_MIDI_DRIVER 1
+#  else
+#    define USE_BUILT_IN_MIDI_DRIVER 0
+#  endif
 #endif
 
 // enable or disable OMS Midi driver

@@ -1,3 +1,44 @@
+2007-01-17	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	* source/BP2/Graphic.c:
+	* source/BP2/TimeSet.c:
+		Enabled SHOWEVERYTHING & DISPLAY_PHASE_DIAGRAM compile-time flags to
+			be set externally.
+	
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/Strings.c:
+	* source/BP2/Inits.c:
+	* source/BP2/SaveLoads1.c:
+	* source/BP2/SaveLoads2.c:
+	* source/BP2/SaveLoads3.c:
+		Replaced pStrCopy(char*,Str255) with CopyPString(Str255,Str255).
+	
+	* resources/BP2-MacOS.rsrc:
+		Unset "System Heap" bit on affected resources.
+		Changed version to 2.9.6 development.
+		
+	* resources/MacOSFinderHelp.r:
+		New file to define 'kind' and Balloon help resources for OS 9 Finder.
+	
+	* source/BP2/MenuCommands.c:
+	* source/BP2/Inits.c:
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+		Conditionalized out printing on Carbon.
+	
+	* source/BP2/Inits.c:
+	* source/BP2/Interface1.c:
+	* source/BP2/Interface2.c:
+	* source/BP2/Translit.c:
+		Conditionalized SystemTask(), SystemClick(), and OpenDeskAcc() calls.
+	
+	* source/BP2/-BP2.h:
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+	* source/BP2/GetRelease.c:
+	* source/BP2/Inits.c:
+	* source/BP2/Misc.c:
+		More conditionalization of real-time MIDI & scheduler code.
+
 2007-01-16	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	* source/BP2/-BP2.h:  Temporary fix for lack of StandardFile types.
 	
@@ -26,7 +67,7 @@
 	* source/BP2/ScriptUtils.c:
 	* source/BP2/Strings.c:
 	* source/BP2/Ticks.c:
-	* source/BP2/Translit.c	:
+	* source/BP2/Translit.c:
 		Convert c2pstr() calls to Carbon-compatible equivalents.
 
 2007-01-15	Anthony Kozar	<anthonykozar@sbcglobal.net>

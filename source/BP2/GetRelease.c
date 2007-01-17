@@ -1580,10 +1580,12 @@ ClearLockedSpace(void)
 {
 long i;
 
+#if WITH_REAL_TIME_SCHEDULER
 MyUnlock((Handle)p_Clock);
 DisposeHandle((Handle)p_Clock);
 MyUnlock((Handle)p_AllSlices);
 DisposeHandle((Handle)p_AllSlices);
+#endif
 
 for(i=0; i < MaxProc; i++) {
 	MyUnlock((Handle)(*p_GramProcedure)[i]);

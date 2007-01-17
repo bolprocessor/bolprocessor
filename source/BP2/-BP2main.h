@@ -213,9 +213,13 @@ volatile unsigned long TimeSlice;
 #if WITH_REAL_TIME_SCHEDULER
 Slice **Clock,***p_Clock,**p_AllSlices,*Slices,*SlicePool;
 volatile unsigned long TotalTicks;
-volatile char ClockOverFlow,SchedulerIsActive,OKsend;
-char Mute,Panic,AlertMute;
+volatile char OKsend;
 #endif
+// these are part of the Scheduler but we need them for now - akozar
+volatile char ClockOverFlow,SchedulerIsActive;
+char Mute,Panic;
+
+/* char AlertMute; */   // obsolete; only used by ErrorSound callback - 011707 - akozar
 
 int WaitKey[MAXWAIT+1],WaitChan[MAXWAIT+1];
 

@@ -2257,12 +2257,14 @@ unsigned long endtime;
 
 i = 0;
 if(Oms || NEWTIMER) {
+#if WITH_REAL_TIME_SCHEDULER
 	endtime = TotalTicks + (thedelay / CLOCKRES);
 	while(TotalTicks < endtime) {
 		if(i++ > 50) {
 			PleaseWait(); i = 0;
 			}
 		}
+#endif
 	}
 else {
 	endtime = clock() + ((thedelay * 6L) / 100L);

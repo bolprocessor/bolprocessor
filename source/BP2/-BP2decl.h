@@ -169,9 +169,12 @@ extern volatile unsigned long TimeSlice;
 #if WITH_REAL_TIME_SCHEDULER
 extern Slice **Clock,***p_Clock,**p_AllSlices,*Slices,*SlicePool;
 extern volatile unsigned long TotalTicks;
-extern volatile char ClockOverFlow,SchedulerIsActive,OKsend;
-extern char Mute,Panic,AlertMute;
+extern volatile char OKsend;
 #endif
+extern volatile char ClockOverFlow,SchedulerIsActive;
+extern char Mute,Panic;
+
+/* extern char AlertMute; */
 
 // Variables for Csound instruments
 extern CsoundInstrument **p_CsInstrument;
