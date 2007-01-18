@@ -86,11 +86,20 @@ InitDialogs(0L);
 #endif
 InitCursor();
 
-#ifndef __POWERPC
-// These are old memory management calls recommended in Inside Macintosh
-// They may not be of any use now.
-MaxApplZone();
-for(i=0; i < 15; i++) MoreMasters(); /* Create more space for handle master pointers */
+ForceTextColor = ForceGraphicColor = 0;
+if(!GoodMachine()) return(ABORT);
+
+#if !defined(__POWERPC) && !TARGET_API_MAC_CARBON
+  // These are old memory management calls recommended in Inside Macintosh
+  // They may not be of any use now.
+  MaxApplZone();
+#endif
+#if !TARGET_API_MAC_CARBON
+  // Actually, MoreMasters is still useful in non-Carbon programs... - 011807 akozar
+  for(i=0; i < 15; i++) MoreMasters(); /* Create more space for handle master pointers */
+#else
+  // ... and MoreMasterPointers is helpful on OS 8/9 with CarbonLib
+  if (!RunningOnOSX)  MoreMasterPointers(15);
 #endif
 
 FlushEvents(everyEvent,0);
@@ -297,8 +306,6 @@ SetDialogFont(systemFont);
 if(InitButtons() != OK) return(ABORT);
 if(Beta) FlashInfo("This is a beta version for evaluation...");
 
-ForceTextColor = ForceGraphicColor = 0;
-if(!GoodMachine()) return(ABORT);
 #if NEWGRAF
 if(!HasGWorlds()) {
 	Alert1("Deep GWorlds not supported by this machine!");
@@ -659,6 +666,8 @@ for(i=1; i <= MAXCHAN; i++) WhichCsoundInstrument[i] = -1;
 SetCsoundInstrument(iCsoundInstrument,-1);
 /* ClearWindow(TRUE,wCsoundInstruments); */
 // ErrorSound(MySoundProc);
+{int CheckDate();
+if(!CheckDate()) return(ABORT);}
 return(DoSystem());
 }
 
@@ -808,6 +817,7 @@ Rect r, rw;
 Str255 title;
 long rc;
 GrafPtr saveport;
+OSErr err;
 
 ReplaceCommandPtr = GetNewDialog(ReplaceCommandID,NULL,0L); // could use kLastWindowOfClass instead of 0L
 ResumeStopPtr = GetNewDialog(ResumeStopID,NULL,0L);
@@ -854,8 +864,11 @@ for(w=0; w < MAXWIND; w++) {
 	if(!bad) SetUpWindow(w);
 	GetWindowPortBounds(Window[w], &r);
 	Weird[w] = FALSE;
+#if TARGET_API_MAC_CARBON
+	err = InvalWindowRect(Window[w], &r);
+	if (err != noErr) Alert1("Err MakeWindows().  InvalWindowRect returned non-zero.");
+#else
 	InvalRect(&r);
-#if !TARGET_API_MAC_CARBON
 	SystemTask();	/* Allows redrawing control strip */
 #endif
 	}
@@ -1058,7 +1071,7 @@ if(Editable[w]) TextFont(kFontIDCourier);
 SetDialogFont(systemFont);
 Charstep = 7; /* StringWidth("\pm"); */
 Nw = w;
-GetPortBounds(thePort, &viewRect);
+GetPortBounds(GetQDGlobalsThePort(), &viewRect);
 if(OKvScroll[w]  || OKhScroll[w]) {
 	viewRect.right = viewRect.right - SBARWIDTH;
 	viewRect.bottom = viewRect.bottom - SBARWIDTH;
@@ -1458,15 +1471,16 @@ if(!gestaltErr) {
 	Gestalt('cput',&gestaltAnswer);
 #ifdef __POWERPC
 	if(gestaltAnswer < 0x101) {
-		sprintf(Message,"This version of BP2 runs only on PowerMac. Use 68k version");
-		Alert1(Message);
+		ParamText("\pThis version of BP2 runs only on a PowerMac. Use the 68k version instead.", "\p", "\p", "\p");
+		StopAlert(OKAlert, NULL);
 		return(FAILED);
 		}
 #endif
 	if(gestaltAnswer < 0x002) {
 		sprintf(Message,"BP2 requires at least a 68020 processor.\rThis machine has a %s processor",
 			processor[gestaltAnswer]);
-		Alert1(Message);
+		ParamText(in_place_c2pstr(Message), "\p", "\p", "\p");
+		StopAlert(OKAlert, NULL);
 		return(FAILED);
 		}
 	
@@ -1476,7 +1490,8 @@ if(!gestaltErr) {
 	/* Determine system version */
 	Gestalt(gestaltSystemVersion,&gestaltAnswer);
 	if(gestaltAnswer < 0x00000701) {
-		Alert1("System version is too old. BP2 requires at least MacOS version 7.1");
+		ParamText("\pSystem version is too old. BP2 requires at least MacOS version 7.1", "\p", "\p", "\p");
+		StopAlert(OKAlert, NULL);
 		return(FAILED);
 		}
 	/* Check color possibility */
@@ -1487,9 +1502,16 @@ if(!gestaltErr) {
 		/* HasDepth() might be a better solution $$$ */
 		ForceTextColor = ForceGraphicColor = -1;
 		}
+	
+	/* Check for running on MacOS X */
+	Gestalt(gestaltMenuMgrAttr,&gestaltAnswer);
+	if(gestaltAnswer & gestaltMenuMgrAquaLayoutMask)  RunningOnOSX = TRUE;
+	else  RunningOnOSX = FALSE;
+	
 	return(OK);
 	}
-Alert1("System version is too old. BP2 requires at least 7.1");
+ParamText("\pSystem version is too old. BP2 requires at least System 7.1", "\p", "\p", "\p");
+StopAlert(OKAlert, NULL);
 return(FAILED);
 }
 
@@ -1547,6 +1569,7 @@ AdjustWindow(int newplace,int w,int top,int left,int bottom,int right)
 int vdrag,hdrag,wresize,hresize,height,width,screenwidth,screenheight,d;
 Rect r; Point p,q;
 GrafPtr saveport;
+BitMap  screenBits;
 
 if(w < 0 || w >= WMAX
 		|| (!Adjustable[w] && w != wMessage && w != wInfo)) return(OK);
@@ -1561,6 +1584,7 @@ p = topLeft(r); LocalToGlobal(&p);
 q = botRight(r); LocalToGlobal(&q);
 
 /* First readjust coordinates so that window will not disappear */
+GetQDGlobalsScreenBits(&screenBits);
 screenwidth = screenBits.bounds.right - screenBits.bounds.left;
 screenheight = screenBits.bounds.bottom - screenBits.bounds.top;
 
@@ -1607,11 +1631,11 @@ if(Editable[w] && !LockedWindow[w]) Deactivate(TEH[w]);
 
 if((vdrag != 0) || (hdrag != 0)) {
 	GetWindowPortBounds(Window[w], &r);
-	InvalRect(&r);
+	InvalWindowRect(Window[w], &r);
 	EraseRect(&r);
 	MoveWindow(Window[w],left,top,FALSE);	/* Don't activate */
 	GetWindowPortBounds(Window[w], &r);
-	InvalRect(&r);
+	InvalWindowRect(Window[w], &r);
 	}
 if((OKgrow[w] || w == wMessage || w == wInfo) && ((wresize != 0) || (hresize != 0))) {
 	GetWindowPortBounds(Window[w], &r);
@@ -1621,7 +1645,7 @@ if((OKgrow[w] || w == wMessage || w == wInfo) && ((wresize != 0) || (hresize != 
 	GetWindowPortBounds(Window[w], &r);
 	ClipRect(&r);
 	EraseRect(&r);
-	InvalRect(&r);
+	InvalWindowRect(Window[w], &r);
 	SetViewRect(w);
 	HidePen();
 	if(OKvScroll[w]) {
@@ -1973,3 +1997,26 @@ return(OK);
 }
 
 #endif // 0
+
+int CheckDate()
+{
+	unsigned long today,secs;
+	DateTimeRec dtrp;
+	int reply = YES;
+			
+	dtrp.year = 1984;
+	dtrp.month = 1;
+	dtrp.day = 24;
+	dtrp.hour = dtrp.minute = dtrp.second = 0; 
+	/*dtrp.year = 2007;
+	dtrp.month = 1;
+	dtrp.day = 19;*/
+	DateToSeconds(&dtrp,&secs);
+	GetDateTime(&today);
+	if(today < secs) {
+		reply = Answer("BP2 requires a 68020 processor and at least System 4 to run. "
+				   "This isn't 1984 anymore!!\rContinue anyways?", 'Y');
+	}
+	if (reply == YES)  return(OK);
+	else return(FAILED);
+}

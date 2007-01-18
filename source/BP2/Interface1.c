@@ -380,10 +380,10 @@ DOTHECLICK:
 				GetPort(&saveport);
 				SetPortWindowPort(whichwindow);
 				GetWindowPortBounds(whichwindow, &r);
-				InvalRect(&r);
+				InvalWindowRect(whichwindow, &r);
 				r = LongRectToRect((*(TEH[LastEditWindow]))->viewRect);
 				SetPortWindowPort(Window[LastEditWindow]);
-				InvalRect(&r);
+				InvalWindowRect(Window[LastEditWindow], &r);
 				if(saveport != NULL) SetPort(saveport);
 				else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
 #if !TARGET_API_MAC_CARBON
@@ -415,7 +415,7 @@ DOTHECLICK:
 						GetPort(&saveport);
 						SetPortWindowPort(whichwindow);
 						GetWindowPortBounds(whichwindow, &r);
-						InvalRect(&r);
+						InvalWindowRect(whichwindow, &r);
 						dragrect = Set_Window_Drag_Boundaries();
 						uppercorner = topLeft(r);
 						LocalToGlobal(&uppercorner);
@@ -444,7 +444,7 @@ DOTHECLICK:
 							GetPort(&saveport);
 							SetPortWindowPort(whichwindow);
 							GetWindowPortBounds(whichwindow, &r);
-							InvalRect(&r);
+							InvalWindowRect(whichwindow, &r);
 							if(saveport != NULL) SetPort(saveport);
 							else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
 							dragrect = Set_Window_Drag_Boundaries();
@@ -655,7 +655,7 @@ DOTHECLICK:
 				GetPort(&saveport);
 				SetPortWindowPort(Window[w]);
 				GetWindowPortBounds(Window[w], &r);
-				InvalRect(&r);
+				InvalWindowRect(Window[w], &r);
 				if(saveport != NULL) SetPort(saveport);
 				else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
 				}
@@ -783,7 +783,7 @@ if(w != wMessage && Editable[w] && !LockedWindow[w]) {
 		AdjustTextInWindow(w);
 		}
 	r = LongRectToRect((**(TEH[w])).viewRect);
-	InvalRect(&r);
+	InvalWindowRect(Window[w], &r);
 	}
 if(GrafWindow[w] && reset) {
 	KillDiagrams(w);
@@ -1091,7 +1091,7 @@ if(OKvScroll[w] && Editable[w]) {
 	if(delta != 0) {
 		TextScroll(0,delta,TEH[w]);
 		r = LongRectToRect((**(TEH[w])).viewRect);
-/*		ValidRect(&r); */
+/*		ValidWindowRect(Window[w], &r); */
 		}
 	}
 if(saveport != NULL) SetPort(saveport);
@@ -1177,7 +1177,7 @@ if(GrafWindow[w]) {
 				if(r1.left < rclip.left) r1.left = rclip.left;
 				if(r1.right > rclip.right) r1.right = rclip.right;
 				if(r1.bottom > rclip.bottom) r1.bottom = rclip.bottom;
-				ValidRect(&r1);
+				ValidWindowRect(window, &r1);
 				if(EmergencyExit) return(ABORT);
 				}
 			}
@@ -1486,7 +1486,7 @@ if(w < WMAX && Editable[w]) {
 			AdjustTextInWindow(w);
 			}
 		else TrackControl(theControl,p_event->where,(ControlActionUPP)vscrollptr);
-	/*	InvalRect(&r); */
+	/*	InvalWindowRect(Window[w], &r); */
 		if(saveport != NULL) SetPort(saveport);
 		else if(Beta) Alert1("Err DoContent(). saveport == NULL");
 		return(OK);
@@ -1534,7 +1534,7 @@ if((cntlCode=FindControl(p_event->where,theWindow,&theControl)) != 0) {
 				if(OKvScroll[w] && theControl == vScroll[w])
 					TrackControl(theControl,p_event->where,(ControlActionUPP)vscrollptr);
 				}
-			InvalRect(&r);
+			InvalWindowRect(Window[w], &r);
 			ClipRect(&r1);
 			EraseRect(&r1);
 			if(saveport != NULL) SetPort(saveport);
@@ -1576,7 +1576,7 @@ OUT:
 GetPort(&saveport);
 SetPortWindowPort(Window[w]);
 GetWindowPortBounds(Window[w], &r);
-InvalRect(&r);
+InvalWindowRect(Window[w], &r);
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err AdjustGraph(). saveport == NULL");
 UpdateWindow(FALSE,Window[w]);
@@ -1615,6 +1615,7 @@ return(OK);
 
 MyGrowWindow(int w, Point p)
 {
+BitMap screenBits;
 GrafPtr saveport;
 long theresult;
 Rect r,r0;
@@ -1628,6 +1629,7 @@ result = OK;
 if(!OKgrow[w]) return(FAILED);
 GetPort(&saveport);
 SetPortWindowPort(Window[w]);
+GetQDGlobalsScreenBits(&screenBits);
 SetRect(&r,MINWINDOWHEIGHT,MINWINDOWWIDTH,
 	screenBits.bounds.right - screenBits.bounds.left,
 	screenBits.bounds.bottom - screenBits.bounds.top - SBARWIDTH);
@@ -1643,7 +1645,7 @@ if(r.top == r0.top && r.left == r0.left && r.bottom == r0.bottom
 	}
 ClipRect(&r);
 EraseRect(&r);
-InvalRect(&r);
+InvalWindowRect(Window[w], &r);
 SetViewRect(w);
 HidePen();
 if(OKvScroll[w]) {
@@ -1674,7 +1676,7 @@ if(GrafWindow[w]) {
 	SlideH[w] = SlideV[w] = 0;
 /*	ClipRect(&r); */
 	GetWindowPortBounds(Window[w], &r);
-	InvalRect(&r);
+	InvalWindowRect(Window[w], &r);
 	UpdateWindow(FALSE,Window[w]);  /* 5/9/97 */
 	}
 AdjustTextInWindow(w);
@@ -1938,7 +1940,8 @@ return(OK);
 
 StopWait(void)
 {
-if(!ScriptExecOn || ResumeStopOn) SetCursor(&arrow);
+Cursor arrow;
+if(!ScriptExecOn || ResumeStopOn) SetCursor(GetQDGlobalsArrow(&arrow));
 /* else TurnWheel(); */
 return(OK);
 }
@@ -2052,6 +2055,7 @@ Rect r;
 WindowPtr wPtr;
 GrafPtr saveport;
 int found;
+Cursor arrow;
 
 if(Help) {
 	SetCursor(&HelpCursor);
@@ -2120,7 +2124,7 @@ else {
 		goto OUT;
 		}
 	}
-SetCursor(&arrow);
+SetCursor(GetQDGlobalsArrow(&arrow));
 
 OUT:
 if(saveport != NULL) SetPort(saveport);

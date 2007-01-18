@@ -762,10 +762,8 @@ int FlushFile(short);
 int SaveAs(Str255,FSSpec*,int);
 int SaveFile(Str255,FSSpec*,int);
 int OldFile(int,int,Str255,FSSpec*);
-#if !TARGET_API_MAC_CARBON
-  int NewFile(Str255,StandardFileReply*);
-  int CreateFile(int,int,int,Str255,StandardFileReply*,short*);
-#endif
+int NewFile(Str255,StandardFileReply*);
+int CreateFile(int,int,int,Str255,StandardFileReply*,short*);
 int WriteFile(int,int,short,int,long);
 OSErr MyFSClose(int,short,FSSpec*);
 int WriteHeader(int,short,FSSpec);
@@ -1020,5 +1018,12 @@ Rect LongRectToRect(LongRect);
 Rect LongRectToRect(Rect);
 #endif
 long LineStartPos(int,int,int);
+
+#if !TARGET_API_MAC_CARBON
+/* Provide backwards compatibility for System 7 in the non-Carbon build by
+   macros that convert OS 8.5/9 functions to their InterfaceLib 7.1 equivalents. */
+#define  InvalWindowRect(w,r)  InvalRect(r)
+#define  ValidWindowRect(w,r)  ValidRect(r)
+#endif
 
 #endif /* BP2_PROTO_H */

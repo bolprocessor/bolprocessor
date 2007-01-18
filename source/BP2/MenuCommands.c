@@ -128,9 +128,10 @@ return(OK);
 
 mAbout(int wind)
 {
+Cursor arrow;
 int r;
 
-SetCursor(&arrow);
+SetCursor(GetQDGlobalsArrow(&arrow));
 switch(Alert(AboutAlert,0L)) {
 	case dAboutOK:
 		r = OK;
@@ -2276,7 +2277,7 @@ return(OK);
 mFind(int wind)
 {
 Rect r;
-GrafPtr port;
+WindowPtr wp;
 
 if(wind < 0 || wind >= WMAX || !Editable[wind]) {
 	Alert1("You can search only text window…");
@@ -2290,10 +2291,10 @@ SelectField(NULL,wFindReplace,fFind,TRUE);
 
 // We need the following so that typing will directly be taken as a dialog
 // event belonging to this window $$$
-port = GetDialogPort(gpDialogs[wFindReplace]);
-SetPort(port);
-GetPortBounds(port, &r);
-InvalRect(&r);
+SetPortDialogPort(gpDialogs[wFindReplace]);
+wp = GetDialogWindow(gpDialogs[wFindReplace]);
+GetWindowPortBounds(wp, &r);
+InvalWindowRect(wp, &r);
 return(OK);
 }
 

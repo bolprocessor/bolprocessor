@@ -323,6 +323,7 @@ DrawObject(int j, Str255 label, double beta,int top, int hrect, int htext, int l
 	int *p_morespace,
 	long *p_endx, long *p_endy, PicHandle picture)
 {
+Pattern pat;
 Rect r,r1,r2,r3;
 int tab,rep;
 Point pt;
@@ -338,17 +339,17 @@ PenNormal();
 // Erase background
 InsetRect(&r,-2,-2);
 EraseRect(&r);
-// FillRect(&r,&white);
+// FillRect(&r,GetQDGlobalsWhite(&pat));
 
 // Now draw rectangle
 InsetRect(&r,2,2);
 if(UseGraphicsColor) {
 	RGBForeColor(&Color[SoundObjectC]);
-	PenPat(&ltGray);
+	PenPat(GetQDGlobalsLightGray(&pat));
 	}
 else RGBForeColor(&White);
 PaintRect(&r);
-if(j >= Jbol && j < 16384) PenPat(&gray);
+if(j >= Jbol && j < 16384) PenPat(GetQDGlobalsGray(&pat));
 else PenNormal();
 if(j < 16384) {
 	if(UseGraphicsColor) RGBForeColor(&Color[TerminalC]);
@@ -366,10 +367,10 @@ RGBForeColor(&Black);
 if(trbeg > 0L) {
 	r1.top = top; r1.left = r.left - (int)(trbeg);
 	r1.bottom = r1.top + hrect; r1.right = r.left;
-	PenPat(&gray);
+	PenPat(GetQDGlobalsGray(&pat));
 	InsetRect(&r1,-2,-2);
 	EraseRect(&r1);
-//	FillRect(&r1,&white);
+//	FillRect(&r1,GetQDGlobalsWhite(&pat));
 	InsetRect(&r1,2,2);
 	FrameRect(&r1);
 	PenNormal();
@@ -377,11 +378,11 @@ if(trbeg > 0L) {
 if(trend > 0L) {
 	r2.top = top; r2.left = r.right;
 	r2.bottom = r2.top + hrect; r2.right = r2.left + (int)trend;
-	PenPat(&gray);
+	PenPat(GetQDGlobalsGray(&pat));
 	FrameRect(&r2);
 	InsetRect(&r2,-2,-2);
 	EraseRect(&r2);
-//	FillRect(&r2,&white);
+//	FillRect(&r2,GetQDGlobalsWhite(&pat));
 	InsetRect(&r2,2,2);
 	FrameRect(&r2);
 	PenNormal();
@@ -393,7 +394,7 @@ if(objectperiod > EPSILON) {
 	objectperiod = (objectperiod * (double) GraphicScaleP) / GraphicScaleQ / 10.;
 	preperiod = (preperiod * (double) GraphicScaleP) / GraphicScaleQ / 10.;
 	xx = r.left - trbeg + preperiod;
-	PenPat(&gray);
+	PenPat(GetQDGlobalsGray(&pat));
 	while(objectperiod > 3 && xx < (r.right - 1)) {
 		MoveTo((long)xx,top+1);
 		Line(0,hrect-2);
@@ -405,7 +406,7 @@ if(objectperiod > EPSILON) {
 if(j < Jbol && (*p_Tref)[j] > EPSILON) {
 	// Erase background above pivot
 	MoveTo(r.left + (int) pivloc - 2,r.top - 8);
-	PenPat(&white); PenSize(1,4);
+	PenPat(GetQDGlobalsWhite(&pat)); PenSize(1,4);
 	Line(4,0);
 	PenNormal();
 	
@@ -446,7 +447,7 @@ else {	/* Can't write label inside rectangle */
 	r.right = r.left + StringWidth(label) + 2;
 	r.top = r.bottom - htext + 1;
 	EraseRect(&r);
-//	FillRect(&r,&white);
+//	FillRect(&r,GetQDGlobalsWhite(&pat));
 	DrawString(label);
 	GetPen(&pt);
 	*p_endx = (long) pt.h + 3;
@@ -593,6 +594,7 @@ Str255 label;
 char line[BOLSIZE+5];
 Milliseconds maxcover1,maxcover2,maxgap1,maxgap2,maxtrunc1,maxtrunc2,dur;
 short oldfont,oldsize;
+Pattern pat;
 
 if(TempMemory) return(OK);
 if(w < 0 || w >= WMAX) return(FAILED);
@@ -624,7 +626,7 @@ TextFont(kFontIDCourier); TextSize(WindowTextSize[w]);
 PenNormal();
 
 EraseRect(&r);
-// FillRect(&r,&white);
+// FillRect(&r,GetQDGlobalsWhite(&pat));
 RGBForeColor(&Black);
 PenSize(2,2);
 FrameRect(&r);
@@ -810,7 +812,7 @@ r.left = p_frame->left + 2;
 r.right = xmin + scale * (- tmin - maxgap1);
 if(maxgap1 < INT_MAX && r.right > r.left) {
 	RGBForeColor(&Color[SoundObjectC]);
-	PenPat(&gray);
+	PenPat(GetQDGlobalsGray(&pat));
 	PenMode(patOr);
 	PaintRect(&r);
 	RGBForeColor(&Black);
@@ -826,7 +828,7 @@ r.left = xmin + scale * (dur - tmin + maxgap2);
 r.right = p_frame->right - 2;
 if(maxgap2 < INT_MAX && r.right > r.left) {
 	RGBForeColor(&Color[SoundObjectC]);
-	PenPat(&gray);
+	PenPat(GetQDGlobalsGray(&pat));
 	PenMode(patOr);
 	PaintRect(&r);
 	RGBForeColor(&Black);
@@ -956,10 +958,10 @@ if(objectperiod > EPSILON) {
 
 // Draw rectangle of object
 RGBForeColor(&Color[SoundObjectC]);
-PenPat(&gray);
+PenPat(GetQDGlobalsGray(&pat));
 PenMode(patOr);
 PaintRect(&r);
-PenPat(&black);
+PenPat(GetQDGlobalsBlack(&pat));
 RGBForeColor(&Color[TerminalC]);
 FrameRect(&r);
 PenNormal();
@@ -1001,7 +1003,7 @@ r1.right = r.right - (r.right - r.left - StringWidth(label)) / 2 - 1;
 r1.top = r.top + 2;
 r1.bottom = r.bottom - 2;
 EraseRect(&r1);
-// FillRect(&r1,&white);
+// FillRect(&r1,GetQDGlobalsWhite(&pat));
 MoveTo(r.left + (r.right - r.left - StringWidth(label)) / 2,r.bottom - 3);
 DrawString(label);
 	
@@ -1098,7 +1100,7 @@ r = (*p_frame);
 TextFont(oldfont); TextSize(oldsize);
 ClosePicture();
 DrawPicture(p_Picture[1],&r);
-ValidRect(&r);
+ValidWindowRect(Window[w], &r);
 if(Npicture < 2) Npicture = 2;
 
 GetWindowPortBounds(Window[w], &r);
@@ -1228,7 +1230,7 @@ if(newv) OffsetGraphs(w,0,Vmin[w] - rclip.top - 1);
 GetWindowPortBounds(Window[w], &rclip);
 ClipRect(&rclip);
 DrawControls(Window[w]);
-ValidRect(&rclip);
+ValidWindowRect(Window[w], &rclip);
 return(OK);
 }
 
@@ -1241,6 +1243,7 @@ double x,xscale,p,rr,period;
 long i,j,k,t1,t2,y,tmem1,tmem2,xmax;
 char line[BOLSIZE+5],showsmalldivisions;
 Str255 label;
+Pattern pat;
 
 result = OK;
 RGBForeColor(&Black);
@@ -1343,14 +1346,14 @@ for(i=1L,rr=Ratio,k=0; i <= imax; i++,rr+=Kpress) {
 	if((i % 10) == 0 && (result=InterruptDraw(0,interruptok)) != OK) {
 		return(result);
 		}
-	PenPat(&gray);
+	PenPat(GetQDGlobalsGray(&pat));
 	t1 = (*p_T)[i] / CorrectionFactor;
 	if(p_delta != NULL) t1 += (*p_delta)[i];
 	t1 = leftoffset + Round(t1 * p);
 	if(rr >= Ratio) {
 		rr -= Ratio;
 		if(t1 > tmem1) {
-			PenPat(&black);
+			PenPat(GetQDGlobalsBlack(&pat));
 			sprintf(line,"%ld",(long)(k + StartFromOne));
 			c2pstrcpy(label, line);
 			t2 = t1 + StringWidth(label)/2;

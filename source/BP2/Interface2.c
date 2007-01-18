@@ -169,7 +169,7 @@ TextUpdate(w);
 /* GetPort(&saveport);
 SetPort(Window[w]); */
 GetWindowPortBounds(Window[w], &r);
-InvalRect(&r);
+InvalWindowRect(Window[w], &r);
 /* if(saveport != NULL) SetPort(saveport); */
 #if !TARGET_API_MAC_CARBON
 SystemTask();	/* Allows redrawing control strip */
@@ -922,20 +922,21 @@ Alert1(char s[])
 char line[255];
 int i;
 Rect r;
+Cursor arrow;
 GrafPtr saveport;
 OSErr io;
 
 if(!EmergencyExit && !InitOn && CallUser(0) != OK) return(OK);
 
-SetCursor(&arrow);
+SetCursor(GetQDGlobalsArrow(&arrow));
 GetPort(&saveport);
 if(!EmergencyExit && !InitOn && Nw >= 0 && Nw < WMAX) {
 	SetPortWindowPort(Window[Nw]);
 	GetWindowPortBounds(Window[Nw], &r);
-	InvalRect(&r);
+	InvalWindowRect(Window[Nw], &r);
 	}
-r = screenBits.bounds;
-if(!EmergencyExit && !InitOn && Nw >= 0 && Nw < WMAX) InvalRect(&r);
+/*r = screenBits.bounds;  // can't Carbonize since no window for screenbits -- seems unnecessary regardless - 011807 akozar
+if(!EmergencyExit && !InitOn && Nw >= 0 && Nw < WMAX) InvalRect(&r);*/
 if(saveport != NULL) SetPort(saveport);
 
 strcpy(line,s);
@@ -1770,7 +1771,7 @@ do {
 	GetPort(&saveport);
 	SetPortWindowPort(Window[TargetWindow]);
 	GetWindowPortBounds(Window[TargetWindow], &r);
-	InvalRect(&r);
+	InvalWindowRect(Window[TargetWindow], &r);
 	BPActivateWindow(SLOW,TargetWindow);
 	ShowSelect(CENTRE,TargetWindow);
 	if(saveport != NULL) SetPort(saveport);
@@ -2328,6 +2329,7 @@ return(OK);
 OutlineTextInDialog(int w,int active)
 {
 Rect r;
+Pattern pat;
 GrafPtr saveport;
 
 if(w < 0 || w >= WMAX || !Editable[w] || !IsDialog[w] || WASTE) return(OK);
@@ -2341,7 +2343,7 @@ if(active) {
 else {
 	Deactivate(TEH[w]);
 	if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w]));
-	PenPat(&gray);
+	PenPat(GetQDGlobalsGray(&pat));
 	}
 RGBForeColor(&Black);
 r = LongRectToRect((**(TEH[w])).viewRect);

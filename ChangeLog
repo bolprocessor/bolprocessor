@@ -1,3 +1,41 @@
+2007-01-18	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/Color.c:
+	* source/BP2/Graphic.c:
+	* source/BP2/Inits.c:
+	* source/BP2/Interface1.c:
+	* source/BP2/Interface2.c:
+	* source/BP2/MenuCommands.c:
+	* source/BP2/Misc.c:
+		Replaced InvalRect() with InvalWindowRect() and ValidRect() with 
+			ValidWindowRect().
+
+	* source/BP2/-BP2.proto.h:
+		Backwards compatibility macros for [Inval|Valid]WindowRect so that we
+			don't have to require OS 8.5 for the non-Carbon build.
+	
+	* source/BP2/Inits.c:  Reinstated MoreMasters() for non-Carbon build and
+		conditionalized to MoreMasterPointers() for Carbon.
+	
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+	* source/BP2/Inits.c:  
+		New global: RunningOnOSX; Moved GoodMachine() call near beginning of
+			Inits() and it now checks whether we are on OS 8/9 or OS X.
+	
+	* source/BP2/-BP2.h:
+	* source/BP2/BP2main.c:
+	* source/BP2/Graphic.c:
+	* source/BP2/Inits.c:
+	* source/BP2/Interface1.c:
+	* source/BP2/Interface2.c:
+	* source/BP2/MakeSound.c:
+	* source/BP2/MenuCommands.c:
+	* source/BP2/MIDIstuff.c:
+	* source/BP2/Print.c:
+	* source/BP2/SaveLoads1.c:
+		Converted QuickDraw globals to Carbon accessor functions.
+
 2007-01-17	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	* source/BP2/Graphic.c:
 	* source/BP2/TimeSet.c:

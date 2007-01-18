@@ -52,7 +52,8 @@
 
 DoPageSetUp(void)
 {
-SetCursor(&arrow);
+Cursor arrow;
+SetCursor(GetQDGlobalsArrow(&arrow));
 PrOpen();
 // if(PrError() != noErr) return(FAILED);
 CheckPrintHandle();

@@ -1165,7 +1165,7 @@ MIDI_Event e;
 int key,channel,c0,c1,velocity;
 long count = 12L;
 char line[MAXFIELDCONTENT];
-
+Cursor arrow;
 
 if(!OutMIDI) {
 	Alert1("Cannot record tick because MIDI output is inactive");
@@ -1199,7 +1199,7 @@ ReadKeyBoardOn = FALSE;
 FlushEvents(mDownMask+mUpMask,0);
 
 HideWindow(Window[wMessage]);
-SetCursor(&arrow);
+SetCursor(GetQDGlobalsArrow(&arrow));
 
 if(key > -1) {
 	switch(where) {

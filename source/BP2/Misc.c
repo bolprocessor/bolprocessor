@@ -493,7 +493,7 @@ DisposeRgn(rgn);
 GetPort(&saveport);
 SetPort(dport);
 GetPortBounds(dport, &r);
-InvalRect(&r);
+InvalWindowRect(GetDialogWindow(MIDIkeyboardPtr), &r);
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err ShowMIDIkeyboard(). saveport == NULL");
 return(DoSystem());

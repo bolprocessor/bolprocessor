@@ -502,7 +502,9 @@ if(!MIDIfileOn && !cswrite && OutMIDI && !ItemCapture && !FirstTime && !PlayProt
 				if(themessage == EndSysEx) exclusive = FALSE;
 				}
 			HideWindow(Window[wInfo]);
-			SetCursor(&arrow);
+			{ Cursor arrow;
+			  SetCursor(GetQDGlobalsArrow(&arrow));
+			  }
 			}
 		}
 	}

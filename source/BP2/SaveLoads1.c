@@ -1688,7 +1688,8 @@ if(result == OK) {
 	}
 else Dirty[iSettings] = FALSE;
 if(!startup) HideWindow(Window[wMessage]);
-SetCursor(&arrow);
+{ Cursor arrow;
+  SetCursor(GetQDGlobalsArrow(&arrow)); }
 LoadOn--;
 if(!connectionok) return(ABORT);
 return(result);

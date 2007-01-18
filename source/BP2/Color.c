@@ -247,7 +247,7 @@ if(!manual) return(OK);
 r = LongRectToRect((**(TEH[w])).viewRect);
 GetPort(&saveport);
 SetPortWindowPort(Window[w]);
-InvalRect(&r);
+InvalWindowRect(Window[w], &r);
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err Reformat(). saveport == NULL");
 return(OK);
