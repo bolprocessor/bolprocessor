@@ -117,16 +117,21 @@ if(psn.highLongOfPSN != PSN.highLongOfPSN || psn.lowLongOfPSN != PSN.lowLongOfPS
 
 // The current application refused to abandon its current process. Let's notify the userÉ 
 SndSetSysBeepState(sysBeepEnable);
+icon = NULL; sound = NULL;
 
+/* // None of this is used - 011907 akozar
 // In the following some features don't work: dialog and sound
 myNote.qType = nmType;	//queue type -- nmType = 8
 myNote.nmMark = 1;	//get mark in Apple menu
 
 icon = GetResource('ics8',BP2smallIconID);
 myNote.nmIcon = icon;
+*/
 
 //get the sound you want out of your resources
 sound = (SndListHandle) GetResource(soundListRsrc,kclocID);
+
+/* // None of this is used - 011907 akozar
 myNote.nmSound = (Handle) sound;	//set the sound to be played
 
 myNote.nmStr = message;
@@ -137,6 +142,7 @@ myNote.nmRefCon = SetCurrentA5();
 #else
 myNote.nmResp = (RoutineDescriptor*) NULL;	//no response procedure
 #endif
+*/
 
 if(howmany > 0 && sound != NULL) {
 	SndNewChannel(&myChan,0,0,0L);
@@ -148,12 +154,13 @@ if(howmany > 0 && sound != NULL) {
 	SndDisposeChannel(myChan,FALSE);
 	}
 
+/* // None of this is used - 011907 akozar
 #ifndef powerc
 idle = MyIdleFunction;
 #else
 idle = NewRoutineDescriptor((ProcPtr)MyIdleFunction,uppAEIdleProcInfo,
 			GetCurrentArchitecture());
-#endif
+#endif */
 idle = NULL;	/* It works but it doesn't seem useful now */
 
 // We allow the user to bring BP2 to foreground within 2400 ticks
