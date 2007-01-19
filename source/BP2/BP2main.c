@@ -63,8 +63,8 @@ TraceMemory = TRUE;
 #ifdef __POWERPC
 # if !TARGET_API_MAC_CARBON
     SetZone(ApplicationZone());
+    // NewGrowZoneProc(MyGrowZone); /* This does not seem to be used anywhere on PPC - akozar */
 # endif
-    NewGrowZoneProc(MyGrowZone);
 #else
     SetGrowZone((GrowZoneProcPtr) MyGrowZone);
 #endif
@@ -350,7 +350,7 @@ return(OK);
 
 // --------------------  MEMORY MANGEMENT -------------------------
 
-
+#ifndef __POWERPC
 pascal long MyGrowZone(Size size)
 // This doesn't seem to work any more since system 7.5.3
 {
@@ -365,7 +365,7 @@ SetA5(oldA5);
 
 return(result);
 }
-
+#endif
 
 int **GiveSpace(Size size)
 {
