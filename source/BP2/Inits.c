@@ -77,7 +77,7 @@ static char HTMLlatin[] /* Starting with "&#32" up to "&#255" */
 	'\0','Ø'};
 
 #if !TARGET_API_MAC_CARBON
-InitGraf(&thePort);
+InitGraf(&Qd.thePort);
 InitFonts();
 InitWindows();
 InitMenus();
@@ -223,6 +223,7 @@ gInputMenu = gOutputMenu = NULL;
 gOutNodeRefNum = OMSInvalidRefNum;
 MIDIinputFilter = MIDIinputFilterstartup = -1L;
 MIDIoutputFilter = MIDIoutputFilterstartup = -1L;
+OMSoutputName[0] = OMSinputName[0] = '\0';
 #endif
 #if WITH_REAL_TIME_MIDI	// FIXME: this function should be available regardless
 ResetMIDIFilter();
@@ -428,7 +429,6 @@ MIDIbytestate = MIDIfileTrackNumber = 0;
 MIDItracklength = MidiLen_pos = ZERO;
 Midi_msg = OldMIDIfileTime = 0;
 LoadedCsoundInstruments = FALSE;
-OMSoutputName[0] = OMSinputName[0] = '\0';
 
 // Allow BP2 to respond to Apple Events coming from remote machines
 
@@ -835,7 +835,7 @@ StrikeModePtr = GetNewDialog(StrikeModeID,NULL,0L);
 TuningPtr = GetNewDialog(TuningID,NULL,0L);
 DefaultPerformanceValuesPtr = GetNewDialog(DefaultID,NULL,0L);
 CsoundInstrMorePtr = GetNewDialog(CsoundInstrMoreID,NULL,0L);
-OMSinoutPtr = GetNewDialog(OMSinoutID,NULL,0L);
+OMSinoutPtr = GetNewDialog(OMSinoutID,NULL,0L); // always create for now, even when !USE_OMS - 011907 akozar
 MIDIprogramPtr = GetNewDialog(MIDIprogramID,NULL,0L);
 
 bad = FALSE;
@@ -1960,10 +1960,10 @@ dtrp.month = 9;
 dtrp.day = 22; */
 DateToSeconds(&dtrp,&secs);
 GetDateTime(&today);
-spec.vRefNum = RefNumbp2;
-spec.parID = ParIDbp2;
+// spec.vRefNum = RefNumbp2;
+// spec.parID = ParIDbp2;
 type = 0;
-c2pstrcpy(spec.name, "y2k");
+io = FSMakeFSSpec(RefNumbp2, ParIDbp2, "\py2k", &spec);
 io = FSpGetFInfo(&spec,&fndrinfo);
 if(io == noErr) {
 	if(!(fndrinfo.fdFlags & fInvisible)) {
@@ -1984,7 +1984,7 @@ if(io == noErr) {
 			Println(wNotice,"             (Click mouse to continue)");
 			while(!Button());
 			FSClose(y2krefnum);
-			io = FSDelete("\py2k",0);
+			io = FSDelete(&spec);
 			}
 		}
 	}
