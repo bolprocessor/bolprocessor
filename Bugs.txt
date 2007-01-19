@@ -29,6 +29,11 @@ did search and replace on alphabet names.  Closed alphabet window, no save,
 then said no when it asked me to load -mi file, then trying to browse through
 prototypes caused a crash.
 
+- Are MIDIfileOpened and other related globals being reset after deleting an
+aborted file write?
+
+- FlushVolume() seems wrong; could just use FlushVol from Toolbox instead.
+
 Anthony Kozar
 akozar@users.sourceforge.net
 
