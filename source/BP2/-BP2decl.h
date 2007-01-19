@@ -331,6 +331,7 @@ extern int Hmin[WMAX],Hmax[WMAX],Hzero[WMAX],Vmin[WMAX],Vmax[WMAX],Vzero[WMAX];
 extern int Created[WMAX];
 extern char FileName[WMAX][MAXNAME],CsFileName[MAXNAME],MIDIfileName[MAXNAME],
 	CsoundOrchestraName[MAXNAME];
+extern FSSpec MIDIfileSpec;
 extern float MIDIfadeOut;
 extern int CurrentVolume[MAXCHAN+1];
 extern char FilePrefix[WMAX][5];

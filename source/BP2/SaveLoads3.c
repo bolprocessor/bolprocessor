@@ -1057,7 +1057,8 @@ return(OK);
 
 OpenTemp(void)
 {
-int type,io,rep;
+OSErr err;
+int type,rep;
 StandardFileReply reply;
 short refnum;
 
@@ -1065,25 +1066,29 @@ if(TempRefnum != -1) {
 	if(Beta) Alert1("Err. OpenTemp(). TempRefnum != -1");
 	return(OK);
 	}
-io = FSDelete("\pBP2.temp",0);
-// FlushVolume();
-reply.sfFile.vRefNum = RefNumbp2;
-reply.sfFile.parID = ParIDbp2;
-reply.sfReplacing = FALSE;
-CopyPString("\pBP2.temp",PascalLine);
-CopyPString(PascalLine,reply.sfFile.name);
-rep = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
-if(rep == OK) TempRefnum = refnum;
-else {
-	rep = ABORT;
+rep = OK;	
+err = FSMakeFSSpec(RefNumbp2, ParIDbp2, "\pBP2.temp", &reply.sfFile);
+if (err == noErr)	{				// file exists, so delete it 
+	err = FSpDelete(&reply.sfFile);
+	if (err != noErr) rep = ABORT;
+	else err == fnfErr;
 	}
+if (rep == OK && err == fnfErr) {		// FSSpec is good
+	reply.sfReplacing = FALSE;
+	CopyPString("\pBP2.temp",PascalLine);
+	rep = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
+	if(rep == OK) TempRefnum = refnum;
+	else rep = ABORT;
+	}
+else rep = ABORT;
 return(rep);
 }
 
 
 OpenTrace(void)
 {
-int type,io,rep;
+OSErr err;
+int type,rep;
 StandardFileReply reply;
 short refnum;
 
@@ -1091,19 +1096,23 @@ if(TraceRefnum != -1) {
 	if(Beta) Alert1("Err. OpenTrace(). TraceRefnum != -1");
 	return(OK);
 	}
-/* io = FSDelete("\pBP2.trace",0);
-FlushVolume(); */
-reply.sfFile.vRefNum = RefNumbp2;
-reply.sfFile.parID = ParIDbp2;
-reply.sfReplacing = FALSE;
-CopyPString("\pBP2.trace",PascalLine);
-CopyPString(PascalLine,reply.sfFile.name);
-rep = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
+rep = OK;
+err = FSMakeFSSpec(RefNumbp2, ParIDbp2, "\pBP2.trace", &reply.sfFile);
+if (err == noErr)	{				// file exists
+	// err = FSpDelete(&reply.sfFile);
+	rep = ABORT;
+}
+if (rep == OK && err == fnfErr) {		// FSSpec is good
+	reply.sfReplacing = FALSE;
+	CopyPString("\pBP2.trace",PascalLine);
+	rep = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
+}
 if(rep == OK) TraceRefnum = refnum;
 else {
 	if(Beta) Alert1("Can't create ‘BP2.trace’");
 	rep = ABORT;
 	}
+
 return(rep);
 }
 
@@ -1223,7 +1232,7 @@ InputOn--;
 return(OK);
 }
 
-
+/* FIXME ? Shouldn't we be flushing the vRefNum of the file that was written ?? - akozar */
 FlushVolume()
 {
 IOParam pb;

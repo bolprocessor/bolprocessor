@@ -103,7 +103,7 @@ if(NewFile(filename,&reply)) {	/* This opens a save-file dialog */
 	if(result == OK) {
 		MIDIRefNum = refnum;
 		MIDIfileOpened = MIDIfileTrackEmpty = TRUE;
-		
+		MIDIfileSpec = reply.sfFile;
 		/* Below is some interface and scripting business */
 		MyPtoCstr(MAXNAME,filename,MIDIfileName);
 		SetField(FileSavePreferencesPtr,-1,fMIDIFileName,MIDIfileName);
@@ -222,9 +222,6 @@ return(result);
 WriteMIDIbyte(Milliseconds time,byte midi_byte)
 {
 // time is in milliseconds
-
-Str255 name;
-
 if(SoundOn && !MIDIfileOn) return(OK);
 if(!MIDIfileOpened) return(OK);
 
@@ -264,8 +261,7 @@ return(OK);
 
 BAD:
 FSClose(MIDIRefNum);
-c2pstrcpy(name, MIDIfileName);
-FSDelete(name,0);
+FSpDelete(&MIDIfileSpec);
 FlushVolume();
 return(ABORT);
 }
@@ -277,7 +273,6 @@ int i;
 long count,pos;
 unsigned long quarternotedur;
 unsigned char b0,b1,b2;
-Str255 name;
 
 if(!MIDIfileOpened) return(OK);
 
@@ -293,8 +288,7 @@ if(MIDIbytestate > 0) {
 	if(Writedword(MIDIRefNum,Midi_msg,MIDIbytestate) != OK) {
 		/* Damn! We must delete this incomplete file */
 		FSClose(MIDIRefNum);
-		c2pstrcpy(name, MIDIfileName);
-		FSDelete(name,0);
+		FSpDelete(&MIDIfileSpec);
 		FlushVolume();
 		return(ABORT);
 		}
@@ -364,7 +358,6 @@ return(OK);
 CloseMIDIFile(void)
 {
 long count,pos;
-Str255 name;
 unsigned char byte;
 
 if(!MIDIfileOpened) return(OK);
@@ -376,8 +369,7 @@ if(MIDIbytestate > 0) {
 	if(Writedword(MIDIRefNum,Midi_msg,MIDIbytestate) != OK) {
 		/* Damn! We must delete this incomplete file */
 		FSClose(MIDIRefNum);
-		c2pstrcpy(name, MIDIfileName);
-		FSDelete(name,0);
+		FSpDelete(&MIDIfileSpec);
 		FlushVolume();
 		goto OUT;
 		}

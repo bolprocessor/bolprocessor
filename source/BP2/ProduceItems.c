@@ -753,8 +753,11 @@ MyDisposeHandle((Handle*)&p_flag);
 
 AllOn = FALSE;
 if(single) {
+	FSSpec tempSpec;
 	CloseMe(&TempRefnum);
-	io = FSDelete("\pBP2.temp",0);
+	io = FSMakeFSSpec(RefNumbp2, ParIDbp2, "\pBP2.temp", &tempSpec);
+	if (io == noErr)					// file exists, so delete it 
+		io = FSpDelete(&tempSpec);
 	FlushVolume();
 	if(io != noErr && Beta) {
 		TellError(11,io);

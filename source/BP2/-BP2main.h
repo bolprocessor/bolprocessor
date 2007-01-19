@@ -388,6 +388,7 @@ char WindowName[][MAXNAME] = {"Grammar","Alphabet","Start string",
 
 char FileName[WMAX][MAXNAME],CsFileName[MAXNAME],MIDIfileName[MAXNAME],
 	CsoundOrchestraName[MAXNAME];
+FSSpec MIDIfileSpec;
 float MIDIfadeOut;
 int CurrentVolume[MAXCHAN+1];
 long WindowParID[WMAX],ParIDstartup,ParIDbp2;
