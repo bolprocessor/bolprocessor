@@ -79,11 +79,12 @@ int InstallTMTask(void);
 int RemoveTMTask(void);
 #endif
 
+int GetNextMIDIevent(MIDI_Event*,int,int);
+int FormatMIDIstream(MIDIcode**,long,MIDIcode**,int,long,long*,int);
+
 #if WITH_REAL_TIME_MIDI
 OSErr DriverOpen(unsigned char[]);
 OSErr DriverClose(void);
-int GetNextMIDIevent(MIDI_Event*,int,int);
-int FormatMIDIstream(MIDIcode**,long,MIDIcode**,int,long,long*,int);
 OSErr DriverRead(MIDI_Event*);
 OSErr DriverWrite(Milliseconds,int,MIDI_Event*);
 int WriteInBuiltDriver(OMSMIDIPacket*);

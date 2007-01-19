@@ -70,6 +70,7 @@ EventState = NO;
 /*	Use this deferral mechanism of dealing with MIDI Manager in response
 	to null events.  The appHook may be called at a level where the application's
 	resources are not available.  But now the resources are available. */
+#if USE_OMS
 if(Oms && !InitOn) {
 	CheckSignInOrOutOfMIDIManager();
 	if(gNodesChanged) {
@@ -80,7 +81,8 @@ if(Oms && !InitOn) {
 		if((rep=OutputMenuSideEffects()) != OK) return(rep);
 		}
 	}
-			
+#endif
+	
 if(!AlertOn) {
 	MaintainCursor();
 	MaintainMenus();
@@ -282,6 +284,7 @@ switch(p_event->what) {
 		if(EventState != NO) return(EventState);
 		break;
 	case app4Evt:	/* Used by OMS */
+#if USE_OMS
 		if(Oms && (p_event->message & 0x01000000)) {	/* suspend/resume */
 			if(p_event->message & 0x00000001) {
 				OMSResume('Bel0');
@@ -293,6 +296,7 @@ switch(p_event->what) {
 				/* $$$ add whatever else to suspend your application */
 				}
 			}
+#endif
 		break;
 	case mouseDown:
 		Panic = FALSE;
@@ -346,7 +350,9 @@ DOTHECLICK:
 					if(GetFileSavePreferences() != OK) return(OK);
 					}
 				if(whichwindow == GetDialogWindow(OMSinoutPtr)) {
+#if USE_OMS
 					rep = StoreDefaultOMSinput();
+#endif
 					ClearMessage();
 					if(rep == EXIT) return(rep);
 					}
@@ -398,8 +404,10 @@ DOTHECLICK:
 				break;
 			case inDrag:
 				if(Oms && !InitOn && whichwindow == GetDialogWindow(OMSinoutPtr)) {
+#if USE_OMS
 					if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
 					if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
+#endif
 					}
 				else {
 					Jcontrol = -1; ReadKeyBoardOn = FALSE;
@@ -480,6 +488,7 @@ DOTHECLICK:
 						}
 					break;	
 					}
+#if USE_OMS
 				if(Oms && !InitOn && whichwindow == GetDialogWindow(OMSinoutPtr)) {
 					pt = p_event->where;ShowWindow(GetDialogWindow(OMSinoutPtr));
 					SelectWindow(GetDialogWindow(OMSinoutPtr));
@@ -506,6 +515,7 @@ DOTHECLICK:
 						}
 					break;
 					}
+#endif
 				if(whichwindow != FrontWindow()) {
 					if(whichwindow == GetDialogWindow(ResumeStopPtr)
 							|| whichwindow == GetDialogWindow(FileSavePreferencesPtr)
@@ -1339,10 +1349,12 @@ else {
 			|| theWindow == GetDialogWindow(OMSinoutPtr)) {
 		RgnHandle rgn;
 		DialogPtr dp;
+#if USE_OMS
 		if(Oms && !InitOn && theWindow == GetDialogWindow(OMSinoutPtr)) {
 			if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
 			if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
 			}
+#endif
 		dp = GetDialogFromWindow(theWindow);
 		rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
 		GetPortVisibleRegion(GetDialogPort(dp), rgn);

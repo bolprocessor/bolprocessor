@@ -242,11 +242,14 @@ mTypeNote(wData);
 SetSelect((**(TEH[wData])).selEnd,(**(TEH[wData])).selEnd,TEH[wData]);
 ShowSelect(CENTRE,wData);
 
+#if USE_OMS
 ShowWindow(GetDialogWindow(OMSinoutPtr));
 SelectWindow(GetDialogWindow(OMSinoutPtr));
 if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
 if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
 UpdateWindow(FALSE, GetDialogWindow(OMSinoutPtr));
+#endif
+
 return(OK);
 }
 
@@ -547,6 +550,11 @@ mOMS(int wind)
 {
 OSErr io;
 
+#if !USE_OMS
+	Alert1("The OMS driver is not available in this version of Bol Processor.");
+	Oms = FALSE;
+	return OK;
+#else
 HideWindow(Window[wInfo]);
 if(Oms) {
 	if(!ScriptExecOn) {
@@ -578,6 +586,7 @@ ReadKeyBoardOn = FALSE;
 Jcontrol = -1;
 SetButtons(TRUE);
 return(OK);
+#endif
 }
 
 
@@ -608,28 +617,33 @@ return(OK);
 
 mOMSmidisetup(int wind)
 {
+#if USE_OMS
 if(Oms) {
 	StopWait();
 	OMSMIDISetupDialog();
 	/* SetDriver(); */
 	}
+#endif
 return(OK);
 }
 
 
 mOMSstudiosetup(int wind)
 {
+#if USE_OMS
 if(Oms) {
 	StopWait();
 	OMSOpenCurrentStudioSetup();
 	/* SetDriver(); */
 	}
+#endif
 return(OK);
 }
 
 
 mOMSinout(int wind)
 {
+#if USE_OMS
 if(Oms && !InitOn) {
 	StopWait();
 	ShowWindow(GetDialogWindow(OMSinoutPtr));
@@ -638,6 +652,7 @@ if(Oms && !InitOn) {
 	if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
 	UpdateWindow(FALSE, GetDialogWindow(OMSinoutPtr));
 	}
+#endif
 return(OK);
 }
 
@@ -1538,6 +1553,7 @@ FSSpec spec;
 if(Dirty[wData]) GetSeName(wData);
 if(Dirty[wGrammar]) GetSeName(wGrammar);
 
+#if USE_OMS
 TRYINPUTNAME:
 if(Oms && OMSinputName[0] != '\0' && OMSinputName[0] != '<') {
 	sprintf(Message,"The current input device is Ô%sÕ. Save it to settings",
@@ -1552,7 +1568,8 @@ if(Oms && OMSinputName[0] != '\0' && OMSinputName[0] != '<') {
 		OMSinputName[0] = '\0';
 		}
 	}
-	
+#endif
+
 c2pstrcpy(fn, FileName[iSettings]);
 spec.vRefNum = TheVRefNum[iSettings];
 spec.parID = WindowParID[iSettings];
@@ -1577,6 +1594,7 @@ c2pstrcpy(spec.name, "-se.startup");
 spec.vRefNum = RefNumbp2;
 spec.parID = ParIDbp2;
 
+#if USE_OMS
 TRYINPUTNAME:
 if(Oms && OMSinputName[0] != '\0') {
 	sprintf(Message,"The current input device is Ô%sÕ. Save it as default",
@@ -1591,6 +1609,8 @@ if(Oms && OMSinputName[0] != '\0') {
 		OMSinputName[0] = '\0';
 		}
 	}
+#endif
+
 SaveSettings(YES,YES,spec.name,&spec);
 return(OK);
 }
