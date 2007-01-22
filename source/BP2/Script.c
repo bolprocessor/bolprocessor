@@ -434,8 +434,8 @@ if(w == wInteraction || w == wGlossary) goto MATCH;
 /* First try to match script line with menu command */
 
 for(menuID=MenuIDoffset; menuID < MAXMENU + MenuIDoffset; menuID++) {
-	themenu = GetMenu(menuID);
-	iItemCnt = CountMItems(themenu);
+	themenu = GetMenuHandle(menuID);
+	iItemCnt = CountMenuItems(themenu);
 	for(itemnumber=1; itemnumber <= iItemCnt; itemnumber++) {
 		GetMenuItemText(themenu,itemnumber,itemstring);
 		MyPtoCstr(255,itemstring,Message);

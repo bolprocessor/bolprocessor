@@ -1519,11 +1519,10 @@ return(FAILED);
 SetUpMenus(void)
 {
 int	i;
-MCTableHandle hMCTbl;
+// MCTableHandle hMCTbl;
 
 ClearMenuBar();
 myMenus[appleM] = GetMenu(MenuIDoffset);
-/* myMenus[appleM] = GetMenuHandle(MenuIDoffset); $$$ new but seems to bomb */
 /* hMCTbl = GetMCInfo(); */
 InsertMenu(myMenus[appleM],0) ;
 /*	AddResMenu(myMenus[appleM],'DRVR'); */
@@ -1531,7 +1530,6 @@ AppendResMenu(myMenus[appleM],'DRVR');
 
 for (i = fileM; i <= MAXMENU; i++) {
 	/* Also loading ÔScriptÕ menu */
-/*	myMenus[i] = GetMenuHandle(MenuIDoffset + i); $$$ new but seems to bomb */
 	myMenus[i] = GetMenu(MenuIDoffset + i);
 	InsertMenu(myMenus[i],0);
 	}
@@ -1543,22 +1541,22 @@ sprintf(Message,"Enter and find %c-option E",(char) commandMark);
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[searchM],enterfindCommand,PascalLine);
 
-EnableItem(myMenus[searchM],enterfindCommand);
+EnableMenuItem(myMenus[searchM],enterfindCommand);
 sprintf(Message,"Use tokens [toggle] %c-option T",(char) commandMark);
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[miscM],tokenCommand,PascalLine);
 
-EnableItem(myMenus[windowM],miscsettingsCommand);
+EnableMenuItem(myMenus[windowM],miscsettingsCommand);
 sprintf(Message,"Settings            %c-option-space",(char) commandMark);
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[windowM],miscsettingsCommand,PascalLine);
 
-EnableItem(myMenus[miscM],tokenCommand);
+EnableMenuItem(myMenus[miscM],tokenCommand);
 sprintf(Message,"Help                       %c-?",(char) commandMark);
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[actionM],helpCommand,PascalLine);
 
-EnableItem(myMenus[actionM],helpCommand);
+EnableMenuItem(myMenus[actionM],helpCommand);
 DrawMenuBar();
 return(OK);
 }

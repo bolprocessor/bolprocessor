@@ -674,7 +674,7 @@ DOTHECLICK:
 				if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w]));
 				if(OKvScroll[w]) ShowControl(vScroll[w]);
 				if(OKhScroll[w]) ShowControl(hScroll[w]);
-		/*		DisableItem(myMenus[editM],undoCommand); */
+		/*		DisableMenuItem(myMenus[editM],undoCommand); */
 				}
 			else {
 				if(w != Nw) {
@@ -2186,146 +2186,146 @@ if(Nw < 0) w = LastEditWindow;
 else w = FindGoodIndex(Nw);
 
 if(Oms) {
-	EnableItem(myMenus[deviceM],OMSmidiCommand);
-	EnableItem(myMenus[deviceM],OMSstudioCommand);
-	EnableItem(myMenus[deviceM],OMSinoutCommand);
-	CheckItem(myMenus[deviceM],outOMSCommand,TRUE);
+	EnableMenuItem(myMenus[deviceM],OMSmidiCommand);
+	EnableMenuItem(myMenus[deviceM],OMSstudioCommand);
+	EnableMenuItem(myMenus[deviceM],OMSinoutCommand);
+	CheckMenuItem(myMenus[deviceM],outOMSCommand,TRUE);
 	}
 else {
-	DisableItem(myMenus[deviceM],OMSmidiCommand);
-	DisableItem(myMenus[deviceM],OMSstudioCommand);
-	DisableItem(myMenus[deviceM],OMSinoutCommand);
-	CheckItem(myMenus[deviceM],outOMSCommand,FALSE);
+	DisableMenuItem(myMenus[deviceM],OMSmidiCommand);
+	DisableMenuItem(myMenus[deviceM],OMSstudioCommand);
+	DisableMenuItem(myMenus[deviceM],OMSinoutCommand);
+	CheckMenuItem(myMenus[deviceM],outOMSCommand,FALSE);
 	}
 	
 if(UndoFlag || LastAction != NO)
-	EnableItem(myMenus[editM],undoCommand);
+	EnableMenuItem(myMenus[editM],undoCommand);
 else
-	DisableItem(myMenus[editM],undoCommand);
+	DisableMenuItem(myMenus[editM],undoCommand);
 if(UseGraphicsColor)
-	CheckItem(myMenus[layoutM],graphicsColorCommand,TRUE);
+	CheckMenuItem(myMenus[layoutM],graphicsColorCommand,TRUE);
 else
-	CheckItem(myMenus[layoutM],graphicsColorCommand,FALSE);
+	CheckMenuItem(myMenus[layoutM],graphicsColorCommand,FALSE);
 if(SmartCursor)
-	CheckItem(myMenus[miscM],smartcursorCommand,TRUE);
+	CheckMenuItem(myMenus[miscM],smartcursorCommand,TRUE);
 else
-	CheckItem(myMenus[miscM],smartcursorCommand,FALSE);
+	CheckMenuItem(myMenus[miscM],smartcursorCommand,FALSE);
 if(UseTextColor)
-	CheckItem(myMenus[layoutM],textColorCommand,TRUE);
+	CheckMenuItem(myMenus[layoutM],textColorCommand,TRUE);
 else
-	CheckItem(myMenus[layoutM],textColorCommand,FALSE);
+	CheckMenuItem(myMenus[layoutM],textColorCommand,FALSE);
 if(ReadKeyBoardOn)
-	CheckItem(myMenus[actionM],typenoteCommand,TRUE);
+	CheckMenuItem(myMenus[actionM],typenoteCommand,TRUE);
 else
-	CheckItem(myMenus[actionM],typenoteCommand,FALSE);
+	CheckMenuItem(myMenus[actionM],typenoteCommand,FALSE);
 
 if(UseBullet)
-	CheckItem(myMenus[layoutM],bulletCommand,TRUE);
+	CheckMenuItem(myMenus[layoutM],bulletCommand,TRUE);
 else
-	CheckItem(myMenus[layoutM],bulletCommand,FALSE);
+	CheckMenuItem(myMenus[layoutM],bulletCommand,FALSE);
 
 if(ShowPianoRoll)
-	CheckItem(myMenus[layoutM],pianorollCommand,TRUE);
+	CheckMenuItem(myMenus[layoutM],pianorollCommand,TRUE);
 else
-	CheckItem(myMenus[layoutM],pianorollCommand,FALSE);
+	CheckMenuItem(myMenus[layoutM],pianorollCommand,FALSE);
 	
 switch(KeyboardType) {
 	case AZERTY:
-		CheckItem(myMenus[layoutM],azertyCommand,TRUE);
-		CheckItem(myMenus[layoutM],qwertyCommand,FALSE);
+		CheckMenuItem(myMenus[layoutM],azertyCommand,TRUE);
+		CheckMenuItem(myMenus[layoutM],qwertyCommand,FALSE);
 		break;
 	case QWERTY:
-		CheckItem(myMenus[layoutM],azertyCommand,FALSE);
-		CheckItem(myMenus[layoutM],qwertyCommand,TRUE);
+		CheckMenuItem(myMenus[layoutM],azertyCommand,FALSE);
+		CheckMenuItem(myMenus[layoutM],qwertyCommand,TRUE);
 		break;
 	}
 if(!ComputeOn && !PolyOn && !CompileOn && !SoundOn && !SelectOn
 		&& !SetTimeOn && !GraphicOn && !PrintOn && !ScriptExecOn) {
-	EnableItem(myMenus[fileM],fmNewProject);
-	EnableItem(myMenus[fileM],fmLoadProject);
-	EnableItem(myMenus[fileM],fmReceiveMIDI);
-	EnableItem(myMenus[fileM],fmLoadPattern);
-	EnableItem(myMenus[actionM],produceCommand);
-	EnableItem(myMenus[actionM],analyzeCommand);
+	EnableMenuItem(myMenus[fileM],fmNewProject);
+	EnableMenuItem(myMenus[fileM],fmLoadProject);
+	EnableMenuItem(myMenus[fileM],fmReceiveMIDI);
+	EnableMenuItem(myMenus[fileM],fmLoadPattern);
+	EnableMenuItem(myMenus[actionM],produceCommand);
+	EnableMenuItem(myMenus[actionM],analyzeCommand);
 //	ShowPannel(wControlPannel,dProduceItems);
-	DisableItem(myMenus[actionM],resumeCommand);
-	DisableItem(myMenus[actionM],stopCommand);
-	DisableItem(myMenus[actionM],pauseCommand);
+	DisableMenuItem(myMenus[actionM],resumeCommand);
+	DisableMenuItem(myMenus[actionM],stopCommand);
+	DisableMenuItem(myMenus[actionM],pauseCommand);
 	}
 else {
-	DisableItem(myMenus[fileM],fmNewProject);
-	DisableItem(myMenus[fileM],fmLoadProject);
-	DisableItem(myMenus[fileM],fmReceiveMIDI);
-	DisableItem(myMenus[fileM],fmLoadPattern);
-	DisableItem(myMenus[actionM],produceCommand);
-	DisableItem(myMenus[actionM],analyzeCommand);
+	DisableMenuItem(myMenus[fileM],fmNewProject);
+	DisableMenuItem(myMenus[fileM],fmLoadProject);
+	DisableMenuItem(myMenus[fileM],fmReceiveMIDI);
+	DisableMenuItem(myMenus[fileM],fmLoadPattern);
+	DisableMenuItem(myMenus[actionM],produceCommand);
+	DisableMenuItem(myMenus[actionM],analyzeCommand);
 //	HidePannel(wControlPannel,dProduceItems);
-	EnableItem(myMenus[actionM],resumeCommand);
-	EnableItem(myMenus[actionM],stopCommand);
-	EnableItem(myMenus[actionM],pauseCommand);
+	EnableMenuItem(myMenus[actionM],resumeCommand);
+	EnableMenuItem(myMenus[actionM],stopCommand);
+	EnableMenuItem(myMenus[actionM],pauseCommand);
 	}
-if(PauseOn) DisableItem(myMenus[actionM],pauseCommand);
-EnableItem(myMenus[editM],graphicCommand);
-EnableItem(myMenus[editM],interactionCommand);
-EnableItem(myMenus[actionM],adjustTimeBaseCommand);
-EnableItem(myMenus[miscM],randomizeCommand);
-EnableItem(myMenus[miscM],accuracyCommand);
-EnableItem(myMenus[miscM],buffersizeCommand);
-EnableItem(myMenus[miscM],graphicsettingsCommand);
-EnableItem(myMenus[miscM],defaultPerformanceValuesCommand);
-EnableItem(myMenus[miscM],defaultStrikeModeCommand);
-EnableItem(myMenus[miscM],defaultFileSavePreferencesCommand);
-EnableItem(myMenus[miscM],tuningCommand);
-EnableItem(myMenus[editM],pasteCommand);
-DisableItem(myMenus[searchM],findagainCommand);
-DisableItem(myMenus[fileM],fmRevert);
+if(PauseOn) DisableMenuItem(myMenus[actionM],pauseCommand);
+EnableMenuItem(myMenus[editM],graphicCommand);
+EnableMenuItem(myMenus[editM],interactionCommand);
+EnableMenuItem(myMenus[actionM],adjustTimeBaseCommand);
+EnableMenuItem(myMenus[miscM],randomizeCommand);
+EnableMenuItem(myMenus[miscM],accuracyCommand);
+EnableMenuItem(myMenus[miscM],buffersizeCommand);
+EnableMenuItem(myMenus[miscM],graphicsettingsCommand);
+EnableMenuItem(myMenus[miscM],defaultPerformanceValuesCommand);
+EnableMenuItem(myMenus[miscM],defaultStrikeModeCommand);
+EnableMenuItem(myMenus[miscM],defaultFileSavePreferencesCommand);
+EnableMenuItem(myMenus[miscM],tuningCommand);
+EnableMenuItem(myMenus[editM],pasteCommand);
+DisableMenuItem(myMenus[searchM],findagainCommand);
+DisableMenuItem(myMenus[fileM],fmRevert);
 if(Nw >= wRandomSequence && Nw != wScriptDialog) {
-	DisableItem(myMenus[fileM],fmOpen);
-	DisableItem(myMenus[fileM],fmClearWindow);
-	DisableItem(myMenus[fileM],fmSave);
-	DisableItem(myMenus[fileM],fmSaveAs);
+	DisableMenuItem(myMenus[fileM],fmOpen);
+	DisableMenuItem(myMenus[fileM],fmClearWindow);
+	DisableMenuItem(myMenus[fileM],fmSave);
+	DisableMenuItem(myMenus[fileM],fmSaveAs);
 	}
 if((Nw < 0) || (Nw >= WMAX) || !IsWindowVisible(Window[Nw])
 		|| (!Editable[Nw] && !HasFields[Nw] && Nw != wScriptDialog)
 		|| (Nw == wInfo) || (Nw == wGraphic) || (Nw == wMessage)) {
-	DisableItem(myMenus[fileM],fmOpen);
-	DisableItem(myMenus[fileM],fmClearWindow);
-	DisableItem(myMenus[fileM],fmSave);
-	DisableItem(myMenus[fileM],fmSaveAs);
-	DisableItem(myMenus[editM],cutCommand);
-	DisableItem(myMenus[editM],copyCommand);
-	DisableItem(myMenus[editM],pasteCommand);
-	DisableItem(myMenus[editM],clearCommand);
+	DisableMenuItem(myMenus[fileM],fmOpen);
+	DisableMenuItem(myMenus[fileM],fmClearWindow);
+	DisableMenuItem(myMenus[fileM],fmSave);
+	DisableMenuItem(myMenus[fileM],fmSaveAs);
+	DisableMenuItem(myMenus[editM],cutCommand);
+	DisableMenuItem(myMenus[editM],copyCommand);
+	DisableMenuItem(myMenus[editM],pasteCommand);
+	DisableMenuItem(myMenus[editM],clearCommand);
 	}
 else {
-	if(Finding) EnableItem(myMenus[searchM],findagainCommand);
+	if(Finding) EnableMenuItem(myMenus[searchM],findagainCommand);
 	if(!ComputeOn && !PolyOn && !CompileOn && !SoundOn && !SelectOn
 			&& !SetTimeOn && !GraphicOn && !PrintOn && !ScriptExecOn) {
-		EnableItem(myMenus[fileM],fmOpen);
-		EnableItem(myMenus[fileM],fmClearWindow);
-		EnableItem(myMenus[fileM],fmGoAway);
+		EnableMenuItem(myMenus[fileM],fmOpen);
+		EnableMenuItem(myMenus[fileM],fmClearWindow);
+		EnableMenuItem(myMenus[fileM],fmGoAway);
 		}
 	else {
-		DisableItem(myMenus[fileM],fmOpen);
-		DisableItem(myMenus[fileM],fmClearWindow);
-		DisableItem(myMenus[fileM],fmGoAway);
+		DisableMenuItem(myMenus[fileM],fmOpen);
+		DisableMenuItem(myMenus[fileM],fmClearWindow);
+		DisableMenuItem(myMenus[fileM],fmGoAway);
 		}
 		
-	EnableItem(myMenus[fileM],fmSaveAs);
+	EnableMenuItem(myMenus[fileM],fmSaveAs);
 	
 	if(((!LockedWindow[w] && FileName[w][0] != '\0'
 			&& (Dirty[w] || (w == wPrototype7 && Dirty[iObjects])))
 			|| (GetDialogWindow(CsoundInstrMorePtr) == FrontWindow() && Dirty[wCsoundInstruments]
 			&& FileName[wCsoundInstruments][0] != '\0')) && !ClickRuleOn)
-		EnableItem(myMenus[fileM],fmRevert);
+		EnableMenuItem(myMenus[fileM],fmRevert);
 		
 	if(((Dirty[w] || (w == wPrototype7 && Dirty[iObjects]))
 			|| (GetDialogWindow(CsoundInstrMorePtr) == FrontWindow() && Dirty[wCsoundInstruments]))
 			&& !ClickRuleOn) {
-		EnableItem(myMenus[fileM],fmSave);
+		EnableMenuItem(myMenus[fileM],fmSave);
 		}
 	else {
-		DisableItem(myMenus[fileM],fmSave);
+		DisableMenuItem(myMenus[fileM],fmSave);
 		}
 	dif = ZERO;
 	if(Nw >= 0 && Nw < WMAX && Editable[Nw]) {
@@ -2336,147 +2336,147 @@ else {
 		}
 	if((Nw == wTrace && ClickRuleOn) || Nw < 0 || Nw >= WMAX
 							|| (!Editable[Nw] && !HasFields[Nw]))
-			DisableItem(myMenus[editM],pasteCommand);
-	else 	EnableItem(myMenus[editM],pasteCommand);
+			DisableMenuItem(myMenus[editM],pasteCommand);
+	else 	EnableMenuItem(myMenus[editM],pasteCommand);
 	if(dif == ZERO || (Nw == wTrace && ClickRuleOn)) {
-		DisableItem(myMenus[editM],cutCommand);
-		DisableItem(myMenus[editM],copyCommand);
-		DisableItem(myMenus[editM],clearCommand);
-		DisableItem(myMenus[searchM],enterfindCommand);
+		DisableMenuItem(myMenus[editM],cutCommand);
+		DisableMenuItem(myMenus[editM],copyCommand);
+		DisableMenuItem(myMenus[editM],clearCommand);
+		DisableMenuItem(myMenus[searchM],enterfindCommand);
 		}
 	else {
-		EnableItem(myMenus[editM],cutCommand);
-		EnableItem(myMenus[editM],copyCommand);
-		EnableItem(myMenus[editM],clearCommand);
-		EnableItem(myMenus[searchM],enterfindCommand);
+		EnableMenuItem(myMenus[editM],cutCommand);
+		EnableMenuItem(myMenus[editM],copyCommand);
+		EnableMenuItem(myMenus[editM],clearCommand);
+		EnableMenuItem(myMenus[searchM],enterfindCommand);
 		}
 	}
 if(Nw >= 0 && Nw < WMAX && (Editable[Nw] || GrafWindow[Nw]))
-	EnableItem(myMenus[fileM],fmPrint);
+	EnableMenuItem(myMenus[fileM],fmPrint);
 else
-	DisableItem(myMenus[fileM],fmPrint);
-DisableItem(myMenus[actionM],analyzeCommand);
+	DisableMenuItem(myMenus[fileM],fmPrint);
+DisableMenuItem(myMenus[actionM],analyzeCommand);
 if(((**(TEH[LastEditWindow])).selEnd
 		- (**(TEH[LastEditWindow])).selStart > 0)
 		&& !ComputeOn && !PolyOn && !CompileOn && !SoundOn && !SelectOn
 		&& !GraphicOn && !SetTimeOn && !PrintOn && !ScriptExecOn) {
-	EnableItem(myMenus[actionM],playCommand);
+	EnableMenuItem(myMenus[actionM],playCommand);
 	ShowPannel(wControlPannel,dPlaySelection);
-	EnableItem(myMenus[actionM],expandCommand);
-	EnableItem(myMenus[actionM],showPeriodsCommand);
+	EnableMenuItem(myMenus[actionM],expandCommand);
+	EnableMenuItem(myMenus[actionM],showPeriodsCommand);
 	ShowPannel(wControlPannel,dExpandSelection);
 	ShowPannel(wControlPannel,dShowPeriods);
 	ShowPannel(wControlPannel,dAnalyze);
 	ShowPannel(wControlPannel,bCaptureSelection);
-	EnableItem(myMenus[actionM],analyzeCommand);
+	EnableMenuItem(myMenus[actionM],analyzeCommand);
 	}
 else {
-	DisableItem(myMenus[actionM],playCommand);
+	DisableMenuItem(myMenus[actionM],playCommand);
 	HidePannel(wControlPannel,dPlaySelection);
-	DisableItem(myMenus[actionM],expandCommand);
-	DisableItem(myMenus[actionM],showPeriodsCommand);
+	DisableMenuItem(myMenus[actionM],expandCommand);
+	DisableMenuItem(myMenus[actionM],showPeriodsCommand);
 	HidePannel(wControlPannel,dExpandSelection);
 	HidePannel(wControlPannel,dShowPeriods);
 	HidePannel(wControlPannel,dAnalyze);
 	HidePannel(wControlPannel,bCaptureSelection);
 	}
 if(CompileOn || (CompiledGr && (CompiledGl || !LoadedGl)) || ClickRuleOn) {
-	DisableItem(myMenus[actionM],compileCommand);
+	DisableMenuItem(myMenus[actionM],compileCommand);
 	}
-else EnableItem(myMenus[actionM],compileCommand);
+else EnableMenuItem(myMenus[actionM],compileCommand);
 
 if(!InBuiltDriverOn) {	// was if(Oms) - 011607 - akozar
-	CheckItem(myMenus[deviceM],modemportCommand,FALSE);
-	CheckItem(myMenus[deviceM],printerportCommand,FALSE);
-	DisableItem(myMenus[deviceM],modemportCommand);
-	DisableItem(myMenus[deviceM],printerportCommand);
+	CheckMenuItem(myMenus[deviceM],modemportCommand,FALSE);
+	CheckMenuItem(myMenus[deviceM],printerportCommand,FALSE);
+	DisableMenuItem(myMenus[deviceM],modemportCommand);
+	DisableMenuItem(myMenus[deviceM],printerportCommand);
 	}
 else {
-	EnableItem(myMenus[deviceM],modemportCommand);
-	EnableItem(myMenus[deviceM],printerportCommand);
+	EnableMenuItem(myMenus[deviceM],modemportCommand);
+	EnableMenuItem(myMenus[deviceM],printerportCommand);
 	if(Port == 1) {
-		CheckItem(myMenus[deviceM],modemportCommand,TRUE);
-		CheckItem(myMenus[deviceM],printerportCommand,FALSE);
+		CheckMenuItem(myMenus[deviceM],modemportCommand,TRUE);
+		CheckMenuItem(myMenus[deviceM],printerportCommand,FALSE);
 		}
 	else {
-		CheckItem(myMenus[deviceM],modemportCommand,FALSE);
-		CheckItem(myMenus[deviceM],printerportCommand,TRUE);
+		CheckMenuItem(myMenus[deviceM],modemportCommand,FALSE);
+		CheckMenuItem(myMenus[deviceM],printerportCommand,TRUE);
 		}
 	}
-if(OutMIDI) CheckItem(myMenus[deviceM],outMIDICommand,TRUE);
-else CheckItem(myMenus[deviceM],outMIDICommand,FALSE);
-if(WriteMIDIfile) CheckItem(myMenus[deviceM],outMIDIfileCommand,TRUE);
-else CheckItem(myMenus[deviceM],outMIDIfileCommand,FALSE);
-if(OutCsound) CheckItem(myMenus[deviceM],outCsoundCommand,TRUE);
-else CheckItem(myMenus[deviceM],outCsoundCommand,FALSE);
+if(OutMIDI) CheckMenuItem(myMenus[deviceM],outMIDICommand,TRUE);
+else CheckMenuItem(myMenus[deviceM],outMIDICommand,FALSE);
+if(WriteMIDIfile) CheckMenuItem(myMenus[deviceM],outMIDIfileCommand,TRUE);
+else CheckMenuItem(myMenus[deviceM],outMIDIfileCommand,FALSE);
+if(OutCsound) CheckMenuItem(myMenus[deviceM],outCsoundCommand,TRUE);
+else CheckMenuItem(myMenus[deviceM],outCsoundCommand,FALSE);
 switch(NoteConvention) {
 	case ENGLISH:
-		CheckItem(myMenus[miscM],englishconventionCommand,TRUE);
-		CheckItem(myMenus[miscM],frenchconventionCommand,FALSE);
-		CheckItem(myMenus[miscM],indianconventionCommand,FALSE);
-		CheckItem(myMenus[miscM],keyconventionCommand,FALSE);
+		CheckMenuItem(myMenus[miscM],englishconventionCommand,TRUE);
+		CheckMenuItem(myMenus[miscM],frenchconventionCommand,FALSE);
+		CheckMenuItem(myMenus[miscM],indianconventionCommand,FALSE);
+		CheckMenuItem(myMenus[miscM],keyconventionCommand,FALSE);
 		break;
 	case FRENCH:
-		CheckItem(myMenus[miscM],frenchconventionCommand,TRUE);
-		CheckItem(myMenus[miscM],englishconventionCommand,FALSE);
-		CheckItem(myMenus[miscM],indianconventionCommand,FALSE);
-		CheckItem(myMenus[miscM],keyconventionCommand,FALSE);
+		CheckMenuItem(myMenus[miscM],frenchconventionCommand,TRUE);
+		CheckMenuItem(myMenus[miscM],englishconventionCommand,FALSE);
+		CheckMenuItem(myMenus[miscM],indianconventionCommand,FALSE);
+		CheckMenuItem(myMenus[miscM],keyconventionCommand,FALSE);
 		break;
 	case INDIAN:
-		CheckItem(myMenus[miscM],indianconventionCommand,TRUE);
-		CheckItem(myMenus[miscM],frenchconventionCommand,FALSE);
-		CheckItem(myMenus[miscM],englishconventionCommand,FALSE);
-		CheckItem(myMenus[miscM],keyconventionCommand,FALSE);
+		CheckMenuItem(myMenus[miscM],indianconventionCommand,TRUE);
+		CheckMenuItem(myMenus[miscM],frenchconventionCommand,FALSE);
+		CheckMenuItem(myMenus[miscM],englishconventionCommand,FALSE);
+		CheckMenuItem(myMenus[miscM],keyconventionCommand,FALSE);
 		break;
 	case KEYS:
-		CheckItem(myMenus[miscM],keyconventionCommand,TRUE);
-		CheckItem(myMenus[miscM],frenchconventionCommand,FALSE);
-		CheckItem(myMenus[miscM],indianconventionCommand,FALSE);
-		CheckItem(myMenus[miscM],englishconventionCommand,FALSE);
+		CheckMenuItem(myMenus[miscM],keyconventionCommand,TRUE);
+		CheckMenuItem(myMenus[miscM],frenchconventionCommand,FALSE);
+		CheckMenuItem(myMenus[miscM],indianconventionCommand,FALSE);
+		CheckMenuItem(myMenus[miscM],englishconventionCommand,FALSE);
 		break;
 	}
-DisableItem(myMenus[layoutM],f9Command);
-DisableItem(myMenus[layoutM],f10Command);
-DisableItem(myMenus[layoutM],f12Command);
-DisableItem(myMenus[layoutM],f14Command);
-DisableItem(myMenus[editM],selectallCommand);
+DisableMenuItem(myMenus[layoutM],f9Command);
+DisableMenuItem(myMenus[layoutM],f10Command);
+DisableMenuItem(myMenus[layoutM],f12Command);
+DisableMenuItem(myMenus[layoutM],f14Command);
+DisableMenuItem(myMenus[editM],selectallCommand);
 if(Nw >= 0 && Nw < WMAX
 			&& (Editable[Nw] || Nw == wGraphic)) {
-	EnableItem(myMenus[layoutM],f9Command);
-	EnableItem(myMenus[layoutM],f10Command);
-	EnableItem(myMenus[layoutM],f12Command);
-	EnableItem(myMenus[layoutM],f14Command);
-	CheckItem(myMenus[layoutM],f9Command,FALSE);
-	CheckItem(myMenus[layoutM],f10Command,FALSE);
-	CheckItem(myMenus[layoutM],f12Command,FALSE);
-	CheckItem(myMenus[layoutM],f14Command,FALSE);
+	EnableMenuItem(myMenus[layoutM],f9Command);
+	EnableMenuItem(myMenus[layoutM],f10Command);
+	EnableMenuItem(myMenus[layoutM],f12Command);
+	EnableMenuItem(myMenus[layoutM],f14Command);
+	CheckMenuItem(myMenus[layoutM],f9Command,FALSE);
+	CheckMenuItem(myMenus[layoutM],f10Command,FALSE);
+	CheckMenuItem(myMenus[layoutM],f12Command,FALSE);
+	CheckMenuItem(myMenus[layoutM],f14Command,FALSE);
 	switch(WindowTextSize[Nw]) {
 		case 9:
-			CheckItem(myMenus[layoutM],f9Command,TRUE); break;
+			CheckMenuItem(myMenus[layoutM],f9Command,TRUE); break;
 		case 10:
-			CheckItem(myMenus[layoutM],f10Command,TRUE); break;
+			CheckMenuItem(myMenus[layoutM],f10Command,TRUE); break;
 		case 12:
-			CheckItem(myMenus[layoutM],f12Command,TRUE); break;
+			CheckMenuItem(myMenus[layoutM],f12Command,TRUE); break;
 		case 14:
-			CheckItem(myMenus[layoutM],f14Command,TRUE); break;
+			CheckMenuItem(myMenus[layoutM],f14Command,TRUE); break;
 		}
 	}
 if(Nw >= 0 && Nw < WMAX && (Editable[Nw] || HasFields[Nw])) {
-	if(Editable[Nw]) EnableItem(myMenus[searchM],0);
-	EnableItem(myMenus[editM],selectallCommand);
+	if(Editable[Nw]) EnableMenuItem(myMenus[searchM],0);
+	EnableMenuItem(myMenus[editM],selectallCommand);
 	}
-if(SplitTimeObjects) CheckItem(myMenus[layoutM],splitTimeObjectCommand,TRUE);
-else CheckItem(myMenus[layoutM],splitTimeObjectCommand,FALSE);
-if(SplitVariables) CheckItem(myMenus[layoutM],splitVariableCommand,TRUE);
-else CheckItem(myMenus[layoutM],splitVariableCommand,FALSE);
+if(SplitTimeObjects) CheckMenuItem(myMenus[layoutM],splitTimeObjectCommand,TRUE);
+else CheckMenuItem(myMenus[layoutM],splitTimeObjectCommand,FALSE);
+if(SplitVariables) CheckMenuItem(myMenus[layoutM],splitVariableCommand,TRUE);
+else CheckMenuItem(myMenus[layoutM],splitVariableCommand,FALSE);
 if(Token) {
-	CheckItem(myMenus[miscM],tokenCommand,TRUE);
-	CheckItem(myMenus[miscM],textCommand,FALSE);
+	CheckMenuItem(myMenus[miscM],tokenCommand,TRUE);
+	CheckMenuItem(myMenus[miscM],textCommand,FALSE);
 	SwitchOn(NULL,wKeyboard,dToken);
 	}
 else {
-	CheckItem(myMenus[miscM],tokenCommand,FALSE);
-	CheckItem(myMenus[miscM],textCommand,TRUE);
+	CheckMenuItem(myMenus[miscM],tokenCommand,FALSE);
+	CheckMenuItem(myMenus[miscM],textCommand,TRUE);
 	SwitchOff(NULL,wKeyboard,dToken);
 	}
 	
@@ -2507,17 +2507,17 @@ else {
 	HidePannel(wControlPannel,dRepeatComputation);
 	HidePannel(wControlPannel,dDeriveFurther);
 	}
-DisableItem(myMenus[actionM],templatesCommand);
+DisableMenuItem(myMenus[actionM],templatesCommand);
 if(CompiledGr && Gram.trueBP) {
-	EnableItem(myMenus[actionM],templatesCommand);
+	EnableMenuItem(myMenus[actionM],templatesCommand);
 	ShowPannel(wControlPannel,dTemplates);
 	}
 else {
 /*	HidePannel(wControlPannel,dTemplates); */
-	DisableItem(myMenus[actionM],templatesCommand);
+	DisableMenuItem(myMenus[actionM],templatesCommand);
 	}
-EnableItem(myMenus[searchM],listterminalsCommand);
-EnableItem(myMenus[searchM],listvariablesCommand);
+EnableMenuItem(myMenus[searchM],listterminalsCommand);
+EnableMenuItem(myMenus[searchM],listvariablesCommand);
 return(OK);
 }
 
