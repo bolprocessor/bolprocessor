@@ -1025,6 +1025,8 @@ long LineStartPos(int,int,int);
    macros that convert OS 8.5/9 functions to their InterfaceLib 7.1 equivalents. */
 #define  InvalWindowRect(w,r)  InvalRect(r)
 #define  ValidWindowRect(w,r)  ValidRect(r)
+#define  EnableMenuItem   EnableItem
+#define  DisableMenuItem  DisableItem
 #endif
 
 #endif /* BP2_PROTO_H */
