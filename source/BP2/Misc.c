@@ -2108,18 +2108,19 @@ Date(char line[])
 unsigned long datetime;
 char dd[MAXNAME],tt[MAXNAME];
 Str255 pascalline;
-Intl1Hndl	i1h;				/* handle to an Intl1Rec */
+Handle i1h;		        /* handle to an Intl1Rec */
 
-i1h = (Intl1Hndl) GetIntlResource(1);
-GetDateTime(&datetime);	/* See TextUtils.h */
+i1h = GetIntlResource(1); /* Note: does not return a resource handle on Carbon */
+GetDateTime(&datetime);	  /* See DateTimeUtils.h */
 /* IUDateString(datetime,abbrevDate,pascalline); */
-DateString(datetime,abbrevDate,pascalline,(Handle)i1h);
+DateString(datetime,abbrevDate,pascalline, i1h);
 MyPtoCstr(MAXNAME,pascalline,dd);
-IUTimeString(datetime,0,pascalline);
-/* i1h = (Intl1Hndl) IUGetIntl(1);
-TimeString(datetime,0,pascalline,(Handle)i1h); */
+/* IUTimeString(datetime,0,pascalline); */
+/* i1h = GetIntlResource(1); */
+TimeString(datetime,0,pascalline, i1h);
 MyPtoCstr(MAXNAME,pascalline,tt);
 sprintf(line,"%s %s -- %s",DateMark,dd,tt);
+/* FIXME ? should we dispose of the i1h Handle on Carbon? - akozar */
 return(OK);
 }
 
