@@ -46,6 +46,7 @@
 #endif
 
 #include "-BP2decl.h"
+#include "CarbonCompatUtil.h"
 
 LoadGrammar(FSSpec *p_spec,short refnum)
 {
@@ -947,7 +948,7 @@ pos = ZERO;
 SetFPos(refnum,fsFromStart,pos);
 if(ReadFile(wGlossary,refnum) == OK) {
 	if(!WASTE) {
-		ZeroScrap(); TEToScrap();
+		CCUZeroScrap(); TEToScrap();
 		}
 	/* The following is only useful to erase date and version */
 	GetHeader(wGlossary);

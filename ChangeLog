@@ -1,3 +1,38 @@
+2007-01-22	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/Inits.c:
+	* source/BP2/Interface1.c:
+		Replaced [Enable|Disable]Item() with [Enable|Disable]MenuItem() and
+			CheckItem() with CheckMenuItem().
+	
+	* source/BP2/Script.c:
+		Replaced CountMItems() with CountMenuItems().
+		Fixed GetMenu() memory leak by using GetMenuHandle() instead.
+		
+	* source/BP2/-BP2.proto.h:
+		Backwards compatibility macros for [Enable|Disable]MenuItem so that we
+			don't have to require OS 8.5 for the non-Carbon build.
+	
+	* source/BP2/Misc.c (Date):	
+		Replaced IUTimeString() with TimeString(); other calls OK.
+
+	* source/BP2/SaveLoads3.c (NewFile & OldFile):
+		Conditionalized opening & saving files on Carbon to fail until we
+			can finish Navigation Services support.
+	
+	* source/BP2/NavServWrapper.[c|h]:
+		New files that create a single API for Standard File Package & 
+			Navigation Services (not done yet).
+		
+	* source/BP2/CarbonCompatUtil.[c|h]:
+		New files for cross-API compatibility including Scrap Manager.
+	
+	* source/BP2/MenuCommands.c:
+	* source/BP2/SaveLoads1.c:
+	* source/BP2/SaveLoads2.c:
+		Replaced ZeroScrap(), GetScrap(), and PutScrap() with new functions 
+			in CarbonCompatUtil.c.
+
 2007-01-19	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/-BP2.h:

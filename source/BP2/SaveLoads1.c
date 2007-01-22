@@ -46,6 +46,7 @@
 #endif
 
 #include "-BP2decl.h"
+#include "CarbonCompatUtil.h"
 
 #define OKOMS 1
 
@@ -1891,7 +1892,7 @@ else {	/* This is a text version (new format) */
 	SetFPos(refnum,fsFromStart,pos);
 	if(ReadFile(wInteraction,refnum) == OK) {
 		if(!WASTE) {
-			ZeroScrap(); TEToScrap();
+			CCUZeroScrap(); TEToScrap();
 			}
 		/* The following is only useful to erase date and version */
 		GetHeader(wInteraction);

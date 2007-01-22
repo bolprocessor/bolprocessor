@@ -46,7 +46,7 @@
 #endif
 
 #include "-BP2decl.h"
-
+#include "CarbonCompatUtil.h"
 
 mLoadTimePattern(int wind)
 {
@@ -1292,7 +1292,7 @@ if(OldFile(w,type,fn,&spec)) {
 			}
 		else {
 			if(ReadFile(w,refnum) == OK) {
-				ZeroScrap();
+				CCUZeroScrap();
 				if(!WASTE) TEToScrap();
 				if(w != wScrap) GetHeader(w);
 				if(clear) {
@@ -1955,7 +1955,7 @@ if(Editable[wind]) {
 	UndoWindow = wind;
 	UndoPos = (**(TEH[wind])).selStart;
 	if(!WASTE) {
-		ZeroScrap(); TEToScrap();
+		CCUZeroScrap(); TEToScrap();
 		}
 	UpdateDirty(FALSE,wind);
 	ShowSelect(CENTRE,wind);
@@ -1970,7 +1970,7 @@ else if(IsDialog[wind]) {	// IsDialog just to be sure - 011207 akozar
 		UndoWindow = wind;
 		GetDialogValues(wind);
 		}
-	ZeroScrap(); TEToScrap();
+	CCUZeroScrap(); TEToScrap();
 	UpdateDirty(TRUE,wind);
 	}
 return(OK);
@@ -1989,11 +1989,11 @@ if(Editable[wind]) {
 	}
 else if(IsDialog[wind]) {	// IsDialog just to be sure - 011207 akozar
 	DialogCopy(GetDialogFromWindow(FrontWindow()));
-	ZeroScrap(); TEToScrap();
+	CCUZeroScrap(); TEToScrap();
 	}
 // if(WASTE) TEFromScrap();
 if(!WASTE) {
-	ZeroScrap(); TEToScrap();
+	CCUZeroScrap(); TEToScrap();
 	}
 return(OK);
 }
@@ -2332,10 +2332,10 @@ ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
 TargetWindow = LastEditWindow = wind;
 if(!WASTE) {
-	ZeroScrap(); TEToScrap();	/* save current text edit scrap */
+	CCUZeroScrap(); TEToScrap();	/* save current text edit scrap */
 	}
 myHandle = (Handle) GiveSpace(1);
-rc = GetScrap(myHandle,'TEXT',&scrapOffset);
+rc = CCUGetScrap(myHandle,'TEXT',&scrapOffset);
 if(rc > 0) {
 	MemoryUsed += (unsigned long)(rc - 1);
 	MySetHandleSize(&myHandle,rc+1);
@@ -2349,10 +2349,10 @@ SetSelect((**(TEH[wind])).selStart,(**(TEH[wind])).selStart,TEH[wind]);
 BPActivateWindow(SLOW,wFindReplace);
 SelectField(NULL,wFindReplace,fFind,TRUE);
 DialogPaste(gpDialogs[wFindReplace]);
-ZeroScrap();
+CCUZeroScrap();
 if(rc > 0) {
 	MyLock(FALSE,myHandle);
-	PutScrap(rc+1,'TEXT',*myHandle);
+	CCUPutScrap(rc+1,'TEXT',*myHandle);
 	MyUnlock(myHandle);
 	MyDisposeHandle((Handle*)&myHandle);
 	}
