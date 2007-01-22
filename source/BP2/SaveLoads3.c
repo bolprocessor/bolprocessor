@@ -167,28 +167,33 @@ else {
 NewFile(Str255 fn,StandardFileReply *p_reply)
 // Check whether the file we're creating is a new one, and get its specs in a reply record
 {
-FSSpec spec;
-short refnum;
-OSErr io;
+	// FSSpec spec;
+	short refnum;
+	OSErr io;
 
-if(CallUser(1) != OK) return(FAILED);
+	if(CallUser(1) != OK) return(FAILED);
 
-spec = p_reply->sfFile;
+	/* spec = p_reply->sfFile; */
 
-/* Let's first recall the default folder in which this file had been opened, to neutralize the effect of DefaultFolder */
-/* Helas, this does not neutralize DefaultFolder! */
-/*if(fn[0] > 0) {
-	CopyPString(fn,p_reply->sfFile.name);
-	CopyPString(fn,spec.name);
-	io = FSpOpenDF(&spec,fsRdPerm,&refnum);
-	if(io == noErr) FSClose(refnum); 
-	} */
-StandardPutFile("\pSave fileÉ",fn,p_reply);
-if(p_reply->sfGood) {
-	CopyPString(p_reply->sfFile.name,fn);
-	return(OK);
-	}
-else return(FAILED);
+	/* Let's first recall the default folder in which this file had been opened, to neutralize the effect of DefaultFolder */
+	/* Helas, this does not neutralize DefaultFolder! */
+	/*if(fn[0] > 0) {
+		CopyPString(fn,p_reply->sfFile.name);
+		CopyPString(fn,spec.name);
+		io = FSpOpenDF(&spec,fsRdPerm,&refnum);
+		if(io == noErr) FSClose(refnum); 
+		} */
+#if TARGET_API_MAC_CARBON
+	Alert1("Saving files is not yet functional in Bol Processor Carbon.  Sorry!!");
+	return(FAILED);
+#else
+	StandardPutFile("\pSave fileÉ",fn,p_reply);
+#endif
+	if(p_reply->sfGood) {
+		CopyPString(p_reply->sfFile.name,fn);
+		return(OK);
+		}
+	else return(FAILED);
 }
 
 
@@ -294,10 +299,15 @@ switch(type) {
 		break;
 	}
 
-#ifdef __POWERPC
-StandardGetFile((struct RoutineDescriptor*)0L,numtypes,typelist,&reply2);
+#if TARGET_API_MAC_CARBON
+	Alert1("Saving files is not yet functional in Bol Processor Carbon.  Sorry!!");
+	return(FAILED);
 #else
-StandardGetFile((FileFilterProcPtr)0L,numtypes,typelist,&reply2);
+#  ifdef __POWERPC
+	StandardGetFile((struct RoutineDescriptor*)0L,numtypes,typelist,&reply2);
+#  else
+	StandardGetFile((FileFilterProcPtr)0L,numtypes,typelist,&reply2);
+#  endif
 #endif
 
 if(reply2.sfGood) {
