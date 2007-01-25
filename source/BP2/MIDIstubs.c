@@ -60,3 +60,15 @@ int GetNextMIDIevent(MIDI_Event *p_e,int loop,int force)
 	}
 	return(OK);
 }
+
+/* GetDriverTime() is generally only called after checking that OutMidi, Oms, or 
+   InBuiltDriver is true.  Therefore the results of this stub are probably not
+   important.  We just need it to link correctly (?).  - akozar */
+unsigned long GetDriverTime(void)
+{
+	unsigned long time;
+
+	time = (clock() * 60) / Time_res;
+	return(time);
+}
+
