@@ -611,6 +611,7 @@ SetButtons(int force)
 if(AllItems || Improvize) CyclicPlay = FALSE;
 if(AllItems) Improvize = FALSE;
 if(CyclicPlay || AllItems || OutCsound || WriteMIDIfile) ComputeWhilePlay = FALSE;
+if(!Oms && !InBuiltDriverOn) OutMIDI = FALSE; // added 012307 - akozar
 if((AllItems || Improvize) && !OutMIDI && !OutCsound && !WriteMIDIfile) DisplayItems = TRUE;
 if(StepTimeSet) TraceTimeSet = TRUE;
 if(TraceTimeSet) DisplayTimeSet = TRUE;

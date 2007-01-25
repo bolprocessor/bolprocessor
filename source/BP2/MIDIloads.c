@@ -159,6 +159,14 @@ Handle ptr;
 unsigned long drivertime;
 
 p_b = p_c = NULL;
+if(!InBuiltDriverOn && !Oms) {
+	if(Beta) Alert1("Err. LoadTimePattern(). Driver is OFF");
+	return(ABORT);
+	}
+
+#if !WITH_REAL_TIME_MIDI
+  return(ABORT);
+#else
 if(!OutMIDI) {
 	OutMIDI = TRUE;
 	SetButtons(TRUE);
@@ -167,10 +175,6 @@ if(ComputeOn || PolyOn || CompileOn || SoundOn || SelectOn ||
 	SetTimeOn || GraphicOn || PrintOn || ReadKeyBoardOn || HangOn || ScriptExecOn)
 	return(FAILED);
 if(wind < 0 || wind >= WMAX || !Editable[wind]) return(FAILED);
-if(!InBuiltDriverOn && !Oms) {
-	if(Beta) Alert1("Err. LoadTimePattern(). Driver is OFF");
-	return(ABORT);
-	}
 EndWriteScript();
 BPActivateWindow(SLOW,wind);
 
@@ -364,6 +368,7 @@ MyDisposeHandle((Handle*)&p_line);
 MyDisposeHandle((Handle*)&p_b);
 MyDisposeHandle((Handle*)&p_c);
 return(OK);
+#endif
 }
 
 
@@ -376,7 +381,9 @@ char thechar;
 
 BPActivateWindow(SLOW,wScript);
 SetCursor(&WatchCursor);
-ResetMIDI(FALSE);
+#if WITH_REAL_TIME_MIDI
+  ResetMIDI(FALSE);
+#endif
 
 FlushEvents(everyEvent,0);
 
@@ -385,6 +392,7 @@ i = 0;
 ReadKeyBoardOn = TRUE;
 while(!Button()) {
 	MaintainCursor();
+#if WITH_REAL_TIME_MIDI
 	if((r=GetNextMIDIevent(&e,FALSE,FALSE)) == FAILED) goto EVENT;
 	if(r == ABORT) break;
 	c0 = e.data2;
@@ -409,6 +417,7 @@ while(!Button()) {
 		AppendScript(14);
 		break;
 		}
+#endif
 EVENT:
 	eventfound = GetNextEvent(everyEvent,&event);
 	if(eventfound && (event.what == keyDown)) {
@@ -616,6 +625,9 @@ int r;
 char c;
 Str255 t;
 
+#if !WITH_REAL_TIME_MIDI
+  return(FAILED);
+#else
 r = FAILED; error = NO;
 oldfilter = MIDIinputFilter;
 SetCursor(&WatchCursor);
@@ -659,6 +671,7 @@ HideWindow(Window[wInfo]);
 MIDIinputFilter = oldfilter;
 StopWait();
 return(r);
+#endif
 }
 
 
@@ -754,6 +767,14 @@ char line[MAXFIELDCONTENT];
 unsigned long drivertime;
 
 if(SoundOn || CheckMemory() != OK) return(FAILED);
+if(!InBuiltDriverOn && !Oms) { // added this check - 012307 akozar
+	if(Beta) Alert1("Err. LoadMIDIprototype(). Driver is OFF");
+	return(FAILED);
+	}
+
+#if !WITH_REAL_TIME_MIDI
+  return(FAILED);
+#else
 if(!OutMIDI) {
 	OutMIDI = TRUE;
 	SetButtons(TRUE);
@@ -842,4 +863,5 @@ if(imax < 2L) {
 	return(FAILED);
 	}
 return(MIDItoPrototype(TRUE,TRUE,j,p_Code,imax));
+#endif
 }

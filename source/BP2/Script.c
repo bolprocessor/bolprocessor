@@ -221,7 +221,9 @@ InitWriteScript(void)
 long i;
 
 CountOn = FALSE;
-ResetMIDI(TRUE);
+#if WITH_REAL_TIME_MIDI
+  ResetMIDI(TRUE);
+#endif
 BPActivateWindow(SLOW,wScript);
 SwitchOn(NULL,wScriptDialog,bRecordScript);
 

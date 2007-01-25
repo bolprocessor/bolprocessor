@@ -69,6 +69,7 @@ if(!Oms && !InBuiltDriverOn) {
 	if(Beta) Alert1("Err. ListenMIDI(). Driver is OFF");
 	return(ABORT);
 	}
+#if WITH_REAL_TIME_MIDI
 filter = x0 + x1 + x2;
 
 // if(!Oms) return(OK);  /* $$$ */
@@ -520,6 +521,7 @@ if(Interactive && c2 > 0) {
 	r = ChangeStatus(c0,c1,c2);
 	}
 return(r);
+#endif
 }
 
 
@@ -766,6 +768,17 @@ return(OK);
 }
 
 
+ResetMIDIFilter(void)
+{
+MIDIinputFilter = MIDIinputFilterstartup;
+MIDIoutputFilter = MIDIoutputFilterstartup;
+GetInputFilterWord();
+GetOutputFilterWord();
+SetOutputFilterWord();	/* Verifies consistency */
+return(OK);
+}
+
+
 TwoByteEvent(int c)
 {
 int c0;
@@ -944,6 +957,8 @@ MIDI_Event e;
 
 if((*p_line)[0] == '\0') return(FAILED);
 i = 0; r = FAILED;
+
+#if WITH_REAL_TIME_MIDI
 MyLock(FALSE,(Handle)p_line);
 time = ZERO;
 do {
@@ -967,6 +982,8 @@ r = OK;
 
 QUIT:
 MyUnlock((Handle)p_line);
+#endif
+
 return(r);
 }
 
@@ -981,6 +998,7 @@ Milliseconds tcurr;
 if(!InBuiltDriverOn && !Oms) return(OK);
 if(!OutMIDI || MIDIfileOpened) return(OK);
 
+#if WITH_REAL_TIME_MIDI  // FIXME? do we need to reset BP's internal values anyways? - akozar
 SwitchOn(NULL,wControlPannel,bResetControllers);
 
 rs = 0;	/* Running status */
@@ -1076,6 +1094,7 @@ result = OK;
 OUT:
 SwitchOff(NULL,wControlPannel,bResetControllers);
 return(result);
+#endif
 }
 
 
@@ -1092,6 +1111,7 @@ unsigned long drivertime;
 
 if(SoundOn || CheckMemory() != OK || !OutMIDI) return(FAILED);
 
+#if WITH_REAL_TIME_MIDI
 rep = NO;
 if(!GetCtrlValue(wPrototype5,bPlayPrototypeTicks)) goto DOIT;
 key = PrototypeTickKey;
@@ -1156,6 +1176,7 @@ FlushEvents(mDownMask+mUpMask,0);
 
 HideWindow(Window[wInfo]);
 return(OK);
+#endif
 }
 
 
@@ -1171,6 +1192,7 @@ if(!OutMIDI) {
 	Alert1("Cannot record tick because MIDI output is inactive");
 	return(FAILED);
 	}
+#if WITH_REAL_TIME_MIDI
 SetCursor(&WatchCursor);
 ShowMessage(TRUE,wMessage,"Play tick on MIDI keyboard. (Click mouse to abort)");
 key = -1;
@@ -1224,6 +1246,7 @@ if(key > -1) {
 		}
 	}
 return(OK);
+#endif
 }
 
 
@@ -1615,6 +1638,12 @@ int key,duration,minkey,maxkey,stepkey,ch,stop;
 double r,x,kx;
 unsigned long drivertime;
 
+if (!OutMIDI) {
+	Alert1("MIDI output is off,  Check the Drivers menu.");
+	return(FAILED);
+}
+
+#if WITH_REAL_TIME_MIDI
 if(Mute) {
 	Alert1("The ‘Mute’ button was checked on the control pannel…");
 	Mute = FALSE;
@@ -1676,6 +1705,7 @@ FlushEvents(mDownMask+mUpMask,0);
 
 HideWindow(Window[wInfo]);
 return(OK);
+#endif
 }
 
 
@@ -1782,7 +1812,6 @@ AllNotesOffAllChannels(void)
 int rs,key,channel;
 long delay;
 MIDI_Event e;
-OMSMIDIPacket pkt;
 
 if(!Oms && !InBuiltDriverOn) {
 	Alert1("Can't send ‘AllNotesOff’ because no MIDI output is active");
@@ -1792,9 +1821,13 @@ if(!OutMIDI) {
 	Alert1("All Notes Off won't work since MIDI output is not active");	
 	return(OK);
 	}
+
+#if WITH_REAL_TIME_MIDI
 ShowMessage(TRUE,wMessage,"Sending AllNotesOffs and NoteOffs…");
 delay = 20L;
 if(Oms || NEWTIMER) {
+#if USE_OMS
+	OMSMIDIPacket pkt;
 	/* We can afford to mute the current output and send NoteOffs at a low level */
 	SchedulerIsActive--;
 	for(channel=0; channel < MAXCHAN; channel++) {
@@ -1837,8 +1870,10 @@ if(Oms || NEWTIMER) {
 		}
 	SchedulerIsActive++;
 	WaitABit(2000L);
+#endif /* USE_OMS */
 	}
 else {
+#if USE_BUILT_IN_MIDI_DRIVER
 	rs = 0;
 	for(channel=0; channel < MAXCHAN; channel++) {
 		e.time = Tcurr;
@@ -1862,8 +1897,10 @@ else {
 			SendToDriver(Tcurr * Time_res,0,&rs,&e);
 			}
 		}
+#endif /* USE_BUILT_IN_MIDI_DRIVER */
 	}
 ClearMessage();
+#endif /* WITH_REAL_TIME_MIDI */
 return(OK);
 }
 
@@ -1883,7 +1920,9 @@ for(i=1; i <= 16; i++) {
 		e.data2 = p - 1;
 		rs = 0;
 		if((InBuiltDriverOn || Oms) && !InitOn)
+#if WITH_REAL_TIME_MIDI
 			SendToDriver(Tcurr * Time_res,0,&rs,&e);
+#endif
 		}
 	}
 return(OK);

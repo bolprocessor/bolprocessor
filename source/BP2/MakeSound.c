@@ -423,7 +423,9 @@ if(showpianoroll) {
 	PenSize(1,hrect);
 	}
 
+#if WITH_REAL_TIME_MIDI
 if(!MIDIfileOn && !cswrite && OutMIDI && !showpianoroll) drivertime = GetDriverTime();
+#endif
 	
 if(Improvize && !Interrupted && !FirstTime && !ItemCapture && !showpianoroll) {
 	computetime = drivertime - ComputeStart;
@@ -432,6 +434,7 @@ if(Improvize && !Interrupted && !FirstTime && !ItemCapture && !showpianoroll) {
 else computetime = ZERO;
 if(!MIDIfileOn && !cswrite && OutMIDI && !ItemCapture && !FirstTime && !PlayPrototypeOn
 		&& !showpianoroll) {
+#if WITH_REAL_TIME_MIDI
 	if(OkWait && SynchronizeStart) {
 		drivertime = GetDriverTime();
 		if(ShowMessages && (Tcurr > drivertime))
@@ -507,6 +510,7 @@ if(!MIDIfileOn && !cswrite && OutMIDI && !ItemCapture && !FirstTime && !PlayProt
 			  }
 			}
 		}
+#endif
 	}
 if(cswrite || MIDIfileOn || ItemCapture) {
 	sprintf(Message,"Writing %ld sound-objects",(long)(*p_kmax)-2L);
@@ -589,12 +593,14 @@ for(noccurrence = 0; noccurrence < Nplay || SynchroSignal == PLAYFOREVER; noccur
 	t2tick = Infpos;
 	instrument = -1;
 	if(!MIDIfileOn && !cswrite && OutMIDI && mustwait && !ItemCapture && !showpianoroll) {
+#if WITH_REAL_TIME_MIDI
 		drivertime = GetDriverTime();
 		if(ShowMessages
 				&& (Tcurr > drivertime + ((SetUpTime + 600L) / Time_res)))
 			FlashInfo("Waiting until previous item is over…");
 		result = WaitForEmptyBuffer();
 		HideWindow(Window[wInfo]);
+#endif
 		}
 	else result = OK;
 	if(result != OK && result != RESUME && result != QUICK) goto OVER;
@@ -686,6 +692,7 @@ TRYCSFILE:
 		}
 	
 	if(!MIDIfileOn && !cswrite && OutMIDI && PlayTicks && TickThere && !ItemCapture && !showpianoroll) {
+#if WITH_REAL_TIME_MIDI
 		for(itick=0; itick < MAXTICKS; itick++) clickon[itick] = hidden[itick] = FALSE;
 		ResetTicksInItem(ZERO,tickposition,streakposition,tickdate,clickon,hidden,imaxstreak,
 			&rs,p_keyon);
@@ -693,6 +700,7 @@ TRYCSFILE:
 		if(posmin == ZERO && (*p_T)[istreak] <= t1 && ScriptLine(kcurrentinstance) == NULL)
 			InsertTickInItem(fstreak,clickon,hidden,tickdate,&rs,p_keyon,streakposition,t0,
 				tickposition,imaxstreak);
+#endif
 		}
 	
 	ItemOutPutOn = TRUE;
@@ -912,12 +920,14 @@ TRYCSFILE:
 				}
 			if(!MIDIfileOn && !cswrite && OutMIDI && PlayTicks && TickThere && !ItemCapture
 					&& !showpianoroll) {
+#if WITH_REAL_TIME_MIDI
 				for(itick=0; itick < MAXTICKS; itick++) {
 					if(tickdate[itick] < t2tick && tickposition[itick] != -1) {
 						t2tick = tickdate[itick];
 						fstreak = streakposition[itick];
 						}
 					}
+#endif
 				}
 			if(t2 > t2tick && t2 != Infpos) t2 = t2tick;
 		
@@ -1000,7 +1010,9 @@ FORGETIT:
 					/* This could be suppressed if a proper retiming during script execution occurs */
 					/* (See -da.checkWaitUntilScript) */
 					if((WhenItStarted != oldtime) && !MIDIfileOn && !cswrite && OutMIDI && !showpianoroll) {
+#if WITH_REAL_TIME_MIDI
 						SetDriverTime(Tcurr);
+#endif
 						}
 					rs = 0;
 					}
@@ -1009,21 +1021,25 @@ FORGETIT:
 				Tcurr = (t0 + t1) / Time_res;
 				if(!MIDIfileOn && !cswrite && OutMIDI && ResetTickInItemFlag && PlayTicks
 						&& TickThere && !ItemCapture && !showpianoroll) {
+#if WITH_REAL_TIME_MIDI
 					ResetTicksInItem(t1,tickposition,streakposition,tickdate,clickon,
 						hidden,imaxstreak,&rs,p_keyon);
 					ResetTickInItemFlag = FALSE;
+#endif
 					}
 					
 				/* Look at synchro tags */
 				if(!MIDIfileOn && !cswrite && OutMIDI && Interactive && !ItemCapture && !showpianoroll
 						&& (*p_ObjectSpecs)[kcurrentinstance] != NULL
 						&& (waitlist=WaitList(kcurrentinstance)) != NULL) {
+#if WITH_REAL_TIME_MIDI
 					WhenItStarted = clock();
 					if((result=WaitForTags(waitlist)) != OK && result != RESUME)
 						goto OVER;
 					LapWait += (clock() - WhenItStarted);
 					if(ScriptExecOn && CountOn && WaitEndDate > ZERO) WaitEndDate += LapWait;
 					SetDriverTime(Tcurr);
+#endif
 					}
 					
 				if((*p_Instance)[kcurrentinstance].contparameters.number
@@ -1571,6 +1587,7 @@ NEWPERIOD:
 			(*p_nextd)[kcurrentinstance] = Infpos;	/* Sound-object kcurrentinstance is OVER */
 			doneobjects++;
 			if(!MIDIfileOn && !cswrite && OutMIDI && !ItemCapture && !showpianoroll) {
+#if WITH_REAL_TIME_MIDI
 				if((result = ListenMIDI(0,0,0)) == ABORT || result == ENDREPEAT
 					|| result == EXIT) goto OVER;
 				if(result == AGAIN) {
@@ -1578,6 +1595,7 @@ NEWPERIOD:
 					sprintf(Message,"Current item will be played again…");
 					ShowMessage(TRUE,wMessage,Message);
 					}
+#endif
 				}
 				
 			else {
@@ -1656,12 +1674,14 @@ FINDNEXTEVENT:
 		
 		if(!MIDIfileOn && !cswrite && OutMIDI && PlayTicks && TickThere && !ItemCapture
 				&& !showpianoroll) {
+#if WITH_REAL_TIME_MIDI
 			for(itick=0; itick < MAXTICKS; itick++) {
 				if(tickdate[itick] < t2tick && tickposition[itick] != -1)  {
 					t2tick = tickdate[itick];
 					fstreak = streakposition[itick];
 					}
 				}
+#endif
 			}
 			
 		if(t2 > t2tick && t2 != Infpos) {
@@ -1693,6 +1713,7 @@ FINDNEXTEVENT:
 	/* Terminate ticks */
 	if(!MIDIfileOn && !cswrite && OutMIDI && PlayTicks && TickThere && !ItemCapture
 			&& !showpianoroll) {
+#if WITH_REAL_TIME_MIDI
 		for(itick=0; itick < MAXTICKS; itick++) {
 			if(clickon[itick] && !hidden[itick] && tickdate[itick] < DBL_MAX) {
 			
@@ -1714,6 +1735,7 @@ FINDNEXTEVENT:
 				}
 			hidden[itick] = clickon[itick] = FALSE;
 			}
+#endif
 		}
 	currenttime = Tcurr * Time_res;
 	mustwait = TRUE;
@@ -1740,6 +1762,7 @@ if(showpianoroll) {
 buffertime = Infpos;
 if(OutMIDI && !cswrite && !MIDIfileOn && !CyclicPlay && !ItemCapture && !showpianoroll
 		&& (!Improvize || !ComputeWhilePlay)) {
+#if WITH_REAL_TIME_MIDI
 	waitcompletion = TRUE;
 	if(Improvize) {
 		buffertime = (MaxComputeTime * 3L) / 2L;
@@ -1749,6 +1772,9 @@ if(OutMIDI && !cswrite && !MIDIfileOn && !CyclicPlay && !ItemCapture && !showpia
 			ShowMessage(TRUE,wMessage,Message);
 			}
 		}
+#else 
+	waitcompletion = FALSE;
+#endif
 	}
 else waitcompletion = FALSE;
 
@@ -1849,7 +1875,8 @@ if(showpianoroll) {
 	goto GETOUT;
 	}
 
-if(!cswrite && !Panic && (result == RESUME || (!Improvize && !CyclicPlay))) {
+if(!cswrite && !Panic && (result == RESUME || (!Improvize && !CyclicPlay))) { // FIXME ? Test OutMIDI==TRUE ?
+#if WITH_REAL_TIME_MIDI	// FIXME: is this correct to not compile all of this?
 	for(ch=0; ch < MAXCHAN; ch++) {
 		rs = 0;
 		/* Reset keys */
@@ -1891,6 +1918,7 @@ if(!cswrite && !Panic && (result == RESUME || (!Improvize && !CyclicPlay))) {
 	if(!MIDIfileOn && !cswrite && OutMIDI && !showpianoroll && !ScriptExecOn
 									&& (result == ABORT || result == EXIT))
 		if((r=ResetMIDI(FALSE)) == EXIT) result = r;
+#endif
 	}
 
 GETOUT:
@@ -1944,8 +1972,10 @@ MyDisposeHandle((Handle*)&p_currmapped);
 SoundOn = FALSE;
 
 if(!MIDIfileOn && !cswrite && OutMIDI && !showpianoroll) {
+#if WITH_REAL_TIME_MIDI
 	drivertime = GetDriverTime();
 	if(!FirstTime) ComputeStart = drivertime;
+#endif
 	}
 	
 MIDIfileOn = FALSE;
@@ -2073,6 +2103,7 @@ unsigned long drivertime;
 
 if(!OutMIDI || Panic) return(OK);
 
+#if WITH_REAL_TIME_MIDI
 result = OK;
 formertime = ZERO;
 drivertime = GetDriverTime();
@@ -2119,6 +2150,7 @@ if(WaitOn > 0) WaitOn--;
 else if(Beta) Alert1("Err. WaitForLastSounds(). WaitOn <= 0");
 ClearMessage();
 return(result);
+#endif
 }
 
 
@@ -2134,6 +2166,7 @@ if(!OutMIDI || MIDIfileOn) {
 		}
 	return(OK);
 	}
+#if WITH_REAL_TIME_MIDI
 WhenItStarted += 1L;	/* Change it slightly so that BP2 remembers WaitForEmptyBuffer() has been called */
 if(Nbytes == ZERO || Panic) return(OK);
 
@@ -2182,6 +2215,7 @@ if(WaitOn > 0) WaitOn--;
 HideWindow(Window[wMessage]);
 WhenItStarted = clock();
 return(result);
+#endif
 }
 
 

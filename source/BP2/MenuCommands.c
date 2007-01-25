@@ -56,6 +56,7 @@ if(!OutMIDI) {
 	Alert1("Cannot load time pattern because MIDI output is inactive");
 	return(FAILED);
 	}
+#if WITH_REAL_TIME_MIDI
 if(CheckMemory() != OK) return(FAILED);
 rep = NO;
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
@@ -69,6 +70,7 @@ if((LastEditWindow == wGrammar
 if(rep == ABORT) return(OK);
 if(rep == NO) Alert1("First select grammar or alphabet window");
 return(OK);
+#endif
 }
 
 
@@ -234,6 +236,8 @@ if(!OutMIDI) {
 	Alert1("MIDI input is inactive (check the ‘Devices’ menu)");
 	return(FAILED);
 	}
+
+#if WITH_REAL_TIME_MIDI
 if(Oms) FlashInfo("OMS MIDI driver is being used");
 else FlashInfo("OMS is inactive. In-built MIDI driver is used");
 
@@ -248,7 +252,8 @@ SelectWindow(GetDialogWindow(OMSinoutPtr));
 if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
 if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
 UpdateWindow(FALSE, GetDialogWindow(OMSinoutPtr));
-#endif
+#endif /* USE_OMS */
+#endif /* WITH_REAL_TIME_MIDI */
 
 return(OK);
 }
@@ -260,6 +265,8 @@ if(!OutMIDI) {
 	Alert1("MIDI output is inactive (check the ‘Devices’ menu)");
 	return(FAILED);
 	}
+
+#if WITH_REAL_TIME_MIDI
 if(Oms) FlashInfo("OMS MIDI driver is being used");
 else FlashInfo("OMS is inactive. In-built MIDI driver is used");
 
@@ -277,6 +284,7 @@ SelectWindow(GetDialogWindow(SixteenPtr));
   UpdateDialog(SixteenPtr, rgn); /* Needed to make static text visible */
   DisposeRgn(rgn);
 }
+#endif
 
 return(OK);
 }
@@ -514,16 +522,20 @@ return(OK);
 
 mMIDI(int wind)
 {
-OutMIDI = 1 - OutMIDI;
-if(OutMIDI) {
-	AppendScript(20);
-	ResetMIDI(FALSE);
-	}
-else AppendScript(21);
-Dirty[iSettings] = TRUE;
-ReadKeyBoardOn = FALSE; Jcontrol = -1;
-HideWindow(Window[wMessage]);
-SetButtons(TRUE);
+#if !WITH_REAL_TIME_MIDI
+	Alert1("Real-time MIDI output is not available in this version of Bol Processor.");
+#else
+	OutMIDI = 1 - OutMIDI;
+	if(OutMIDI) {
+		AppendScript(20);
+		ResetMIDI(FALSE);
+		}
+	else AppendScript(21);
+	Dirty[iSettings] = TRUE;
+	ReadKeyBoardOn = FALSE; Jcontrol = -1;
+	HideWindow(Window[wMessage]);
+	SetButtons(TRUE);
+#endif
 return(OK);
 }
 
@@ -690,6 +702,7 @@ if(!ReadKeyBoardOn) {
 		Alert1("Cannot type from MIDI because MIDI input/output is inactive");
 		return(FAILED);
 		}
+#if WITH_REAL_TIME_MIDI
 	if(!NoteOnIn) {
 		Alert1("Can't type from MIDI because NoteOn's are not received. Check MIDI filter");
 		mMIDIfilter(wind);
@@ -711,6 +724,7 @@ if(!ReadKeyBoardOn) {
 		EmptyBeat = FALSE;
 		}
 	ReadKeyBoardOn = TRUE;
+#endif
 	}
 else {
 	ReadKeyBoardOn = FALSE;
@@ -971,6 +985,8 @@ if(!InBuiltDriverOn && !Oms) {
 	if(Beta) Alert1("Err. mSendMIDI(). Driver is OFF");
 	return(ABORT);
 	}
+
+#if WITH_REAL_TIME_MIDI
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
 p_line = p_completeline = NULL;
@@ -1064,6 +1080,7 @@ r = FAILED;
 OUT:
 HideWindow(Window[wMessage]);
 return(r);
+#endif
 }
 
 
@@ -1106,8 +1123,10 @@ switch(w) {
 	case wInteraction:
 		if((r=ClearWindow(FALSE,w)) != OK) return(r);
 		ForgetFileName(w);
+#if WITH_REAL_TIME_MIDI // FIXME: can we load an interaction file without RT MIDI? What sd we do here? - akozar
 		Interactive = OutMIDI = TRUE; SetButtons(TRUE);
 		if(!oldoutmidi) ResetMIDI(FALSE);
+#endif
 		LoadedIn = CompiledIn = anyfile = FALSE;
 		if(Option && (r = Answer("Open any file type",'N')) == YES) anyfile = TRUE;
 		if(r == ABORT) return(FAILED);

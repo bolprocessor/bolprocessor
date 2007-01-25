@@ -325,14 +325,20 @@ GOTIT:
 	case 20:	/* MIDI sound ON */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(check) return(OK);
+#if WITH_REAL_TIME_MIDI
 		OutMIDI = TRUE;
 		SetButtons(TRUE);
 		if(OutMIDI && !oldoutmidi) ResetMIDI(FALSE);
+#else
+		return(FAILED);
+#endif
 		break;
 	case 21:	/* MIDI sound OFF */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(check) return(OK);
+#if WITH_REAL_TIME_MIDI
 		if((r=WaitForEmptyBuffer()) != OK) return(r);
+#endif
 		OutMIDI = FALSE;
 		SetButtons(TRUE);
 		break;
@@ -1543,8 +1549,12 @@ GOTIT7:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 	/*	if((r=WaitForEmptyBuffer()) != OK) return(r); */
+#if WITH_REAL_TIME_MIDI
 		OutMIDI = TRUE;  SetButtons(YES);
 		if(OutMIDI && !oldoutmidi) ResetMIDI(FALSE);
+#else
+		return(FAILED);
+#endif
 		break;
 	case 129:  	/* Synchronize start OFF */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
@@ -1656,8 +1666,13 @@ GOTIT7:
 		j = Improvize; Improvize = TRUE;
 		oldoutmidi = OutMIDI;
 		if(!OutCsound) {
+#if WITH_REAL_TIME_MIDI
 			OutMIDI = TRUE;
 			if(OutMIDI && !oldoutmidi) ResetMIDI(FALSE);
+#else
+			CyclicPlay = i; Improvize = j;
+			return(FAILED);
+#endif
 			}
 		displayitems = DisplayItems;
 		DisplayItems = FALSE;

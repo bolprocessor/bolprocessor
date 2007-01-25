@@ -1,3 +1,49 @@
+2007-01-23	Anthony Kozar	<anthonykozar@sbcglobal.net>
+(committed on 2007-01-25)
+	
+	* source/BP2/Inits.c (Inits):
+		Replaced NewAEEventHandlerProc() with NewAEEventHandlerUPP().
+	
+	* source/BP2/AppleEvents.c:
+		Added const qualifier to first parameter of all AEvent handlers.
+	
+	* source/BP2/Inits.c (Inits):
+	* source/BP2/Interface1.c (DoContent):
+		Moved allocation of ControlActionUPPs to Inits() to avoid memory leaks.
+	
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+		New globals (vScrollUPP & hScrollUPP) for scroll bar ControlActionUPPs.
+	
+	* source/BP2/MIDIdrivers.c:
+	* source/BP2/MIDIstuff.c:
+		Moved ResetMIDIFilter() from MidiDrivers.c to MIDIstuff.c.
+
+	* source/BP2/MIDIstubs.c:
+		Non-realtime replacement for GetDriverTime().
+		
+	* source/BP2/-BP2proto.h:
+		Changes to RT Midi conditionalization.
+	
+	* source/BP2/Compute.c:
+	* source/BP2/Dialogs.c:
+	* source/BP2/Inits.c:
+	* source/BP2/Interface1.c:
+	* source/BP2/MakeSound.c:
+	* source/BP2/MenuCommands.c:
+	* source/BP2/MIDIloads.c:
+	* source/BP2/MIDIstuff.c:
+	* source/BP2/Misc.c:
+	* source/BP2/Polymetric.c:
+	* source/BP2/ProduceItems.c:
+	* source/BP2/SaveLoads1.c:
+	* source/BP2/Script.c:
+	* source/BP2/ScriptUtils.c:
+	* source/BP2/Ticks.c:
+		Attempting to conditionalize out more real-time midi code.  This
+			approach needs more thought though and I may reverse some of
+			these changes.
+	
 2007-01-22	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/Inits.c:

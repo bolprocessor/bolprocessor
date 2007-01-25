@@ -76,8 +76,10 @@ ComputeOn++;
 
 SaidTooComplex = ShownBufferSize = FALSE;
 if(OutMIDI) {
+#if WITH_REAL_TIME_MIDI
 	ResetMIDI(TRUE);
 	Interrupted = FALSE;
+#endif
 	}
 if(1 || ResetControllers) {
 	for(ch=0; ch < MAXCHAN; ch++) {

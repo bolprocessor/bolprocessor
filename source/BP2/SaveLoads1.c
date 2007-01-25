@@ -1284,6 +1284,16 @@ else OutCsound = FALSE;
 if(jmax > 26) ReadInteger(refnum,p_oms,&pos);
 else *p_oms = FALSE;
 
+/* Silently reset these flags if their functionality is not available.
+   Note that this does not mark the settings file as Dirty either.
+   -- 012307 akozar */
+#if !WITH_REAL_TIME_MIDI
+  OutMIDI = FALSE;
+#endif
+#if !USE_OMS
+  Oms = FALSE;
+#endif
+
 SetButtons(TRUE);
 
 if(oldoutcsound && !OutCsound && !startup) CloseCsScore();

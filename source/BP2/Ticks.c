@@ -60,6 +60,8 @@ double fgap;
 
 if((!InBuiltDriverOn && !Oms) || !TickThere || !PlayTicks || SoundOn || ComputeOn || PlaySelectionOn
 	|| LoadOn || InitOn || !OutMIDI) return(OK);
+
+#if WITH_REAL_TIME_MIDI
 if(Pclock < 1.) {
 	PlayTicks = FALSE;
 	Alert1("Can't play ticks because there is no clock");
@@ -183,6 +185,7 @@ if(newbeat && TickCapture && allfinished) {
 		}
 	}
 return(OK);
+#endif
 }
 
 
@@ -195,6 +198,8 @@ int itick;
 
 if((!InBuiltDriverOn && !Oms) || (!force && (!TickThere || !PlayTicks
 	|| LoadOn || InitOn || !OutMIDI))) return(OK);
+
+#if WITH_REAL_TIME_MIDI
 if(zero) {
 	time = GetDriverTime() * Time_res;
 	}
@@ -210,6 +215,7 @@ BeatPosGrandCycle = ZERO;
 EmptyBeat = TRUE; TickDone = FALSE;
 ResetTickFlag = FALSE;
 return(OK);
+#endif
 }
 
 
@@ -222,6 +228,7 @@ unsigned long nexttick,maxticktime,timeleft,formertime;
 
 if(OutMIDI && PlayTicks && TickThere && (InBuiltDriverOn || Oms) && !PlaySelectionOn && !ComputeOn
 		&& !LoadOn && !SoundOn && Nbytes > ZERO) {
+#if WITH_REAL_TIME_MIDI
 	maxticktime = ZERO;
 /*	ShowMessage(TRUE,wMessage,"Playing ticks still in queue…"); */
 	for(itick=0; itick < MAXTICKS; itick++) {
@@ -252,6 +259,7 @@ if(OutMIDI && PlayTicks && TickThere && (InBuiltDriverOn || Oms) && !PlaySelecti
 		}
 	if(messageshown) HideWindow(Window[wMessage]);
 	ResetTickFlag = TRUE;
+#endif
 	}
 return(OK);
 }
@@ -279,6 +287,8 @@ double ffstreak;
 Milliseconds oldt;
 
 if(!OutMIDI) return(FAILED);
+
+#if WITH_REAL_TIME_MIDI
 for(itick=0; itick < MAXTICKS; itick++) {
 	postick = tickposition[itick];
 	time =  (t0 + tickdate[itick]) / Time_res;
@@ -359,6 +369,7 @@ for(itick=0; itick < MAXTICKS; itick++) {
 			}
 		}
 	}
+#endif
 return(OK);
 }
 
@@ -375,6 +386,8 @@ MIDI_Event e;
 long time;
 
 if(!OutMIDI) return(FAILED);
+
+#if WITH_REAL_TIME_MIDI
 for(itick=0; itick < MAXTICKS; itick++) {
 	if(clickon[itick] && !hidden[itick] && !MuteTick[itick] && !HideTicks) {
 		key = TickKey[itick];
@@ -425,6 +438,7 @@ for(itick=0; itick < MAXTICKS; itick++) {
 		tickdate[itick] = (double) DBL_MAX;
 		}
 	}
+#endif
 return(OK);
 }
 
@@ -454,6 +468,7 @@ unsigned long g,h,pmax,qmax,plcm,ppqlcm,ppq[MAXTICKS];
 if((!InBuiltDriverOn && !Oms) || SoundOn || ComputeOn || PlaySelectionOn || LoadOn || InitOn
 	|| ItemCapture || !OutMIDI) return(OK);
 	
+#if WITH_REAL_TIME_MIDI
 playticks = PlayTicks;
 PlayTicks = FALSE;
 rep = FAILED;
@@ -524,6 +539,7 @@ while(TickCapture);
 OUT:
 PlayTicks = playticks;
 return(rep);
+#endif
 }
 
 

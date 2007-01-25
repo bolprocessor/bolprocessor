@@ -416,6 +416,7 @@ QUIT:		Improvize = improvizemem;
 				Alert1("MIDI output is inactive (check the ‘Devices’ menu)");
 				return(DONE);
 				}
+#if WITH_REAL_TIME_MIDI
 			SwitchOn(NULL,wControlPannel,bMIDIpanic);
 			if(Oms || NEWTIMER) {
 				Mute++;
@@ -429,6 +430,7 @@ QUIT:		Improvize = improvizemem;
 				}
 			Panic = TRUE;
 			SwitchOff(NULL,wControlPannel,bMIDIpanic);
+#endif
 			return(DONE);
 			break;
 		case bCaptureSelection:
@@ -503,17 +505,24 @@ if(w == wTimeBase) {
 				Alert1("Can't capture ticks because MIDI output is not active");
 				return(DONE);
 				}
+#if WITH_REAL_TIME_MIDI
 			rep = CaptureTicks();
-			if(rep != EXIT) rep = DONE;
+			if(rep != EXIT) 
+				rep = DONE;
+#else
+			rep = DONE;
+#endif
 			break;
 		case dPlayTicks:
 			if(!PlayTicks && !OutMIDI) {
 				Alert1("Can't play ticks because MIDI output is not active");
 				return(DONE);
 				}
+#if WITH_REAL_TIME_MIDI
 			PlayTicks = 1 - PlayTicks;
 			if(PlayTicks) AppendScript(178);
 			else AppendScript(177);
+#endif
 			ResetTickFlag = TRUE;
 			goto DONETIMEBASE;
 		case dResetCycle:
@@ -1004,7 +1013,7 @@ if(thedialog == FileSavePreferencesPtr) {
 		case bWriteLater:
 			FileWriteMode = LATER;
 			if(!OutMIDI) {
-				OutMIDI = TRUE;
+				OutMIDI = TRUE;	// FIXME ? probably should check driver availability first! - akozar
 				SetButtons(TRUE);
 				}
 			break;
@@ -2624,7 +2633,9 @@ if(w == wFilter) {
 				ResetMIDIFilter();
 		}
 	Dirty[iSettings] = TRUE;
+#if WITH_REAL_TIME_MIDI
 	if((rep=ResetMIDI(FALSE)) != OK) return(rep);
+#endif
 	if((rep=SetFilterDialog()) != OK) return(rep);
 	rep = DONE;
 	}

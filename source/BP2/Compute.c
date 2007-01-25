@@ -355,6 +355,7 @@ while(((nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom,igram,grtype,p_
 		}
 	foundone = TRUE;
 	if(LimCompute && OutMIDI && !StepProduce && !StepGrammars) {
+#if WITH_REAL_TIME_MIDI
 		time = GetDriverTime();
 		if(Tstart + TimeMax/10L < time) {
 			sprintf(Message,"Max time elapsed!");
@@ -367,6 +368,7 @@ while(((nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom,igram,grtype,p_
 			halt = TRUE;
 			break;
 			}
+#endif
 		}
 	if(PlanProduce || (*p_repeat)) {
 		if(grtype == SUBtype && !freedom){  
@@ -859,7 +861,9 @@ if(grtype == SUBtype) {
 		SkipFlag = FALSE;
 		}
 	if(OutMIDI) {
+#if WITH_REAL_TIME_MIDI
 		Tstart = GetDriverTime();
+#endif
 		}
 	if((Varweight || Flagthere) && maxpref) {
 		for(j=0; j < maxpref; j++) {

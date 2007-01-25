@@ -975,12 +975,14 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 		if(LoadedIn && (!CompiledIn && (result=CompileInteraction()) != OK))
 			goto OUT;
 		if(OutMIDI && Dirty[wTimeAccuracy]) {
+#if WITH_REAL_TIME_MIDI
 			result = ResetMIDI(FALSE);
 			if(result == ABORT || result == EXIT) goto OUT;
 			if((result=CheckSettings()) == ABORT) goto OUT;
 			else {
 				Dirty[wTimeAccuracy] = FALSE; result = AGAIN;
 				}
+#endif
 			goto OUT;
 			}
 		}
