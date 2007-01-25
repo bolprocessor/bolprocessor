@@ -993,6 +993,7 @@ if(newNw == wTimeBase || Nw == wTimeBase) {
 	}
 if(newNw == wFilter) {
 	SetFilterDialog();
+#if WITH_REAL_TIME_MIDI
 	if(!InBuiltDriverOn && !Oms) {
 		if(Answer("The MIDI driver is not open, i.e. BP2 can't receive MIDI messages.\rDo you want to open it?",
 			'Y') == OK) {
@@ -1001,6 +1002,7 @@ if(newNw == wFilter) {
 			Alert1("The ‘Interactive’ option has been set ON.\rSee the “Settings” dialog if you don't want BP2 to receive messages");
 			}
 		}
+#endif
 	}
 if(newNw == wKeyboard || Nw == wKeyboard) SetKeyboard();
 if(newNw == wBufferSize || Nw == wBufferSize) SetBufferSize();
@@ -1451,7 +1453,6 @@ GrafPtr saveport;
 Rect r,r1;
 Str255 t;
 char line[MAXLIN];
-UniversalProcPtr vscrollptr,hscrollptr; /* ControlActionUPP */
 
 for(w=0; w < WMAX; w++) {
 	if(theWindow == Window[w]) break;
@@ -1461,10 +1462,11 @@ GetPort(&saveport);
 SetPortWindowPort(theWindow);
 GlobalToLocal(&p_event->where);
 
-vscrollptr = NewRoutineDescriptor((ProcPtr)vScrollProc,uppControlActionProcInfo,
+/* Moved allocation of UPPs to Inits() to avoid memory leaks */
+/* vscrollptr = NewRoutineDescriptor((ProcPtr)vScrollProc,uppControlActionProcInfo,
 	GetCurrentISA());
 hscrollptr = NewRoutineDescriptor((ProcPtr)hScrollProc,uppControlActionProcInfo,
-	GetCurrentISA());
+	GetCurrentISA()); */
 
 (*p_intext) = FALSE;
 	
@@ -1497,7 +1499,7 @@ if(w < WMAX && Editable[w]) {
 			TrackControl(theControl,p_event->where,(ControlActionUPP)0L);
 			AdjustTextInWindow(w);
 			}
-		else TrackControl(theControl,p_event->where,(ControlActionUPP)vscrollptr);
+		else TrackControl(theControl,p_event->where,vScrollUPP);
 	/*	InvalWindowRect(Window[w], &r); */
 		if(saveport != NULL) SetPort(saveport);
 		else if(Beta) Alert1("Err DoContent(). saveport == NULL");
@@ -1542,9 +1544,9 @@ if((cntlCode=FindControl(p_event->where,theWindow,&theControl)) != 0) {
 				}
 			else {
 				if(OKhScroll[w] && theControl == hScroll[w])
-					TrackControl(theControl,p_event->where,(ControlActionUPP)hscrollptr);
+					TrackControl(theControl,p_event->where,hScrollUPP);
 				if(OKvScroll[w] && theControl == vScroll[w])
-					TrackControl(theControl,p_event->where,(ControlActionUPP)vscrollptr);
+					TrackControl(theControl,p_event->where,vScrollUPP);
 				}
 			InvalWindowRect(Window[w], &r);
 			ClipRect(&r1);

@@ -387,7 +387,11 @@ UseGraphicsColor = UseTextColor = TRUE;
 #endif
 
 StartFromOne = TRUE;
-OutMIDI = TRUE;
+#if WITH_REAL_TIME_MIDI
+  OutMIDI = TRUE;
+#else
+  OutMIDI = FALSE;
+#endif
 OutCsound = /* OutQuickTime = ToldAboutQuickTime = */ WriteMIDIfile = CsoundTrace = FALSE;
 SetUpTime = 100L;	/* 100 ms */
 NewEnvironment = NewColors = Help = FALSE;
@@ -435,98 +439,103 @@ LoadedCsoundInstruments = FALSE;
 io = AESetInteractionAllowed(kAEInteractWithAll);
 
 // Installing Apple Event handlers. Don't forget to register in GoodEvent()
+// (We don't worry about saving UPPs since we will never dispose of them).
 
-handler = NewAEEventHandlerProc(MyHandleOAPP);
+handler = NewAEEventHandlerUPP(MyHandleOAPP);
 io = AEInstallEventHandler(kCoreEventClass,kAEOpenApplication,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(MyHandleODOC);
+handler = NewAEEventHandlerUPP(MyHandleODOC);
 io = AEInstallEventHandler(kCoreEventClass,kAEOpenDocuments,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(MyHandleODOC);
+handler = NewAEEventHandlerUPP(MyHandleODOC);
 io = AEInstallEventHandler(kCoreEventClass,kAEPrintDocuments,handler,0,FALSE);	/* Print is identified by handler */
 
-/*  = NewAEEventHandlerProc(MyHandlePDOC);
+/*  = NewAEEventHandlerUPP(MyHandlePDOC);
 io = AEInstallEventHandler(kCoreEventClass,kAEPrintDocuments,handler,0,FALSE); */
 
-handler = NewAEEventHandlerProc(MyHandleQUIT);
+handler = NewAEEventHandlerUPP(MyHandleQUIT);
 io = AEInstallEventHandler(kCoreEventClass,kAEQuitApplication,handler,0,FALSE);
 
 #if !TARGET_API_MAC_CARBON	/* Edition Manager not in Carbon */
-  handler = NewAEEventHandlerProc(MyHandleSectionReadEvent);
+  handler = NewAEEventHandlerUPP(MyHandleSectionReadEvent);
   io = AEInstallEventHandler(sectionEventMsgClass,sectionReadMsgID,handler,0,FALSE);
 
-  handler = NewAEEventHandlerProc(MyHandleSectionWriteEvent);
+  handler = NewAEEventHandlerUPP(MyHandleSectionWriteEvent);
   io = AEInstallEventHandler(sectionEventMsgClass,sectionWriteMsgID,handler,0,FALSE);
 
-  handler = NewAEEventHandlerProc(MyHandleSectionScrollEvent);
+  handler = NewAEEventHandlerUPP(MyHandleSectionScrollEvent);
   io = AEInstallEventHandler(sectionEventMsgClass,sectionScrollMsgID,handler,0,FALSE);
 #endif
 
-handler = NewAEEventHandlerProc(RemoteUseText);
+handler = NewAEEventHandlerUPP(RemoteUseText);
 io = AEInstallEventHandler(BP2Class,PlayEventID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteUseText);
+handler = NewAEEventHandlerUPP(RemoteUseText);
 io = AEInstallEventHandler(BP2Class,NameID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteUseText);
+handler = NewAEEventHandlerUPP(RemoteUseText);
 io = AEInstallEventHandler(BP2Class,GrammarID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteUseText);
+handler = NewAEEventHandlerUPP(RemoteUseText);
 io = AEInstallEventHandler(BP2Class,AlphabetID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteUseText);
+handler = NewAEEventHandlerUPP(RemoteUseText);
 io = AEInstallEventHandler(BP2Class,GlossaryID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteUseText);
+handler = NewAEEventHandlerUPP(RemoteUseText);
 io = AEInstallEventHandler(BP2Class,InteractionID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteUseText);
+handler = NewAEEventHandlerUPP(RemoteUseText);
 io = AEInstallEventHandler(BP2Class,DataID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteLoadCsoundInstruments);
+handler = NewAEEventHandlerUPP(RemoteLoadCsoundInstruments);
 io = AEInstallEventHandler(BP2Class,CsoundInstrID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteUseText);
+handler = NewAEEventHandlerUPP(RemoteUseText);
 io = AEInstallEventHandler(BP2Class,ScriptID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteControl);
+handler = NewAEEventHandlerUPP(RemoteControl);
 io = AEInstallEventHandler(BP2Class,ImprovizeID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteControl);
+handler = NewAEEventHandlerUPP(RemoteControl);
 io = AEInstallEventHandler(BP2Class,DoScriptID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteDoScriptLine);
+handler = NewAEEventHandlerUPP(RemoteDoScriptLine);
 io = AEInstallEventHandler(BP2Class,ScriptLineEventID,handler,0,FALSE);
 
 
-handler = NewAEEventHandlerProc(RemoteLoadSettings);
+handler = NewAEEventHandlerUPP(RemoteLoadSettings);
 io = AEInstallEventHandler(BP2Class,LoadSettingsEventID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteSetConvention);
+handler = NewAEEventHandlerUPP(RemoteSetConvention);
 io = AEInstallEventHandler(BP2Class,NoteConventionEventID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteControl);
+handler = NewAEEventHandlerUPP(RemoteControl);
 io = AEInstallEventHandler(BP2Class,BeepID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteControl);
+handler = NewAEEventHandlerUPP(RemoteControl);
 io = AEInstallEventHandler(BP2Class,AbortID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteControl);
+handler = NewAEEventHandlerUPP(RemoteControl);
 io = AEInstallEventHandler(BP2Class,AgainID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteControl);
+handler = NewAEEventHandlerUPP(RemoteControl);
 io = AEInstallEventHandler(BP2Class,PauseID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteControl);
+handler = NewAEEventHandlerUPP(RemoteControl);
 io = AEInstallEventHandler(BP2Class,QuickID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteControl);
+handler = NewAEEventHandlerUPP(RemoteControl);
 io = AEInstallEventHandler(BP2Class,SkipID,handler,0,FALSE);
 
-handler = NewAEEventHandlerProc(RemoteControl);
+handler = NewAEEventHandlerUPP(RemoteControl);
 io = AEInstallEventHandler(BP2Class,ResumeID,handler,0,FALSE);
 
-io = AESetInteractionAllowed(kAEInteractWithAll);
+/* io = AESetInteractionAllowed(kAEInteractWithAll); */  // duplicate call
+
+/* Allocate scroll bar action UPPs once at init time to avoid leaks */
+vScrollUPP = NewControlActionUPP(vScrollProc);
+hScrollUPP = NewControlActionUPP(hScrollProc);
 
 Maxitems = ZERO;
 p_Flag = NULL;
