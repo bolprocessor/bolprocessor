@@ -418,5 +418,6 @@ int InitOn,SetTimeOn,ComputeOn,PolyOn,SoundOn,SelectOn,PrintOn,InputOn,ClickRule
 double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 double MaxFrac;
 Boolean RunningOnOSX;
+ControlActionUPP vScrollUPP,hScrollUPP;
 
 #endif /* BP2_MAIN_H */

@@ -357,5 +357,6 @@ extern int InitOn,SetTimeOn,ComputeOn,PolyOn,CompileOn,SoundOn,SelectOn,PrintOn,
 extern double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 extern double MaxFrac;
 extern Boolean RunningOnOSX;
+extern ControlActionUPP vScrollUPP,hScrollUPP;
 
 #endif /* BP2_DECL_H */
