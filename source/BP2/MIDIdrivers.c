@@ -594,17 +594,6 @@ return(rep);
 }
 
 
-ResetMIDIFilter(void)
-{
-MIDIinputFilter = MIDIinputFilterstartup;
-MIDIoutputFilter = MIDIoutputFilterstartup;
-GetInputFilterWord();
-GetOutputFilterWord();
-SetOutputFilterWord();	/* Verifies consistency */
-return(OK);
-}
-
-
 CheckMIDIbytes(int tell)
 {
 unsigned long drivertime;
