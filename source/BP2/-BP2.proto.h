@@ -34,21 +34,21 @@
 #ifndef BP2_PROTO_H
 #define BP2_PROTO_H
 
-pascal OSErr MyHandleOAPP(AppleEvent*,AppleEvent*,long);
-pascal OSErr MyHandleODOC(AppleEvent*,AppleEvent*,long);
-pascal OSErr MyHandleSectionReadEvent(AppleEvent*,AppleEvent*,long);
-pascal OSErr MyHandleSectionWriteEvent(AppleEvent*,AppleEvent*,long);
-pascal OSErr MyHandleSectionScrollEvent(AppleEvent*,AppleEvent*,long);
-pascal OSErr MyHandlePDOC(AppleEvent*,AppleEvent*,long);
-pascal OSErr MyHandleQUIT(AppleEvent*,AppleEvent*,long);
-pascal OSErr RemoteControl(AppleEvent*,AppleEvent*,long);
-pascal OSErr RemoteUseText(AppleEvent*,AppleEvent*,long);
-pascal OSErr RemoteDoScriptLine(AppleEvent*,AppleEvent*,long);
-pascal OSErr RemoteLoadSettings(AppleEvent*,AppleEvent*,long);
-pascal OSErr RemoteLoadCsoundInstruments(AppleEvent*,AppleEvent*,long);
-pascal OSErr RemoteSetConvention(AppleEvent*,AppleEvent*,long);
+pascal OSErr MyHandleOAPP(const AppleEvent*,AppleEvent*,long);
+pascal OSErr MyHandleODOC(const AppleEvent*,AppleEvent*,long);
+pascal OSErr MyHandleSectionReadEvent(const AppleEvent*,AppleEvent*,long);
+pascal OSErr MyHandleSectionWriteEvent(const AppleEvent*,AppleEvent*,long);
+pascal OSErr MyHandleSectionScrollEvent(const AppleEvent*,AppleEvent*,long);
+/* pascal OSErr MyHandlePDOC(const AppleEvent*,AppleEvent*,long); */
+pascal OSErr MyHandleQUIT(const AppleEvent*,AppleEvent*,long);
+pascal OSErr RemoteControl(const AppleEvent*,AppleEvent*,long);
+pascal OSErr RemoteUseText(const AppleEvent*,AppleEvent*,long);
+pascal OSErr RemoteDoScriptLine(const AppleEvent*,AppleEvent*,long);
+pascal OSErr RemoteLoadSettings(const AppleEvent*,AppleEvent*,long);
+pascal OSErr RemoteLoadCsoundInstruments(const AppleEvent*,AppleEvent*,long);
+pascal OSErr RemoteSetConvention(const AppleEvent*,AppleEvent*,long);
 int RecoverEmergencyMemory(void);
-OSErr MyGotRequiredParams(AppleEvent*);
+OSErr MyGotRequiredParams(const AppleEvent*);
 int main(void);
 
 #if USE_OMS
@@ -81,6 +81,8 @@ int RemoveTMTask(void);
 
 int GetNextMIDIevent(MIDI_Event*,int,int);
 int FormatMIDIstream(MIDIcode**,long,MIDIcode**,int,long,long*,int);
+unsigned long GetDriverTime(void);
+int SendToDriver(Milliseconds,int,int*,MIDI_Event*);
 
 #if WITH_REAL_TIME_MIDI
 OSErr DriverOpen(unsigned char[]);
@@ -91,7 +93,6 @@ int WriteInBuiltDriver(OMSMIDIPacket*);
 OSErr DriverStatus(short,MIDI_Parameters*);
 OSErr DriverControl(short,MIDI_Parameters*);
 OSErr DriverKill(void);
-unsigned long GetDriverTime(void);
 int SetDriverTime(long);
 int Events(DriverDataPtr);
 int EmptyDriverInput(void);
@@ -100,6 +101,8 @@ int Errors(DriverDataPtr);
 int FlushDriver(void);
 int ResetDriver(void);
 int SetDriver(void);
+int CloseCurrentDriver(int);
+int ResetMIDI(int);
 #endif
 
 Boolean HasGWorlds(void);
@@ -526,7 +529,6 @@ int NewTrack(void);
 int ClipVelocity(int,int,int,int);
 int ChannelConvert(int);
 int TransposeKey(int*,int);
-int SendToDriver(Milliseconds,int,int*,MIDI_Event*);
 int WritePatchName(void);
 int AllNotesOffAllChannels(void);
 int WaitForLastSounds(long);
@@ -567,8 +569,6 @@ int SetInputFilterWord(void);
 int SetOutputFilterWord(void);
 int GetInputFilterWord(void);
 int GetOutputFilterWord(void);
-int CloseCurrentDriver(int);
-int ResetMIDI(int);
 int ResetMIDIFilter(void);
 int ResetCsoundInstrument(int,int);
 int CopyCsoundInstrument(int,int);
