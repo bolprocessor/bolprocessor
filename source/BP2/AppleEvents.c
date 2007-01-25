@@ -125,7 +125,7 @@ return(OK);
 }
 
 
-OSErr MyGotRequiredParams(AppleEvent *p_event)
+OSErr MyGotRequiredParams(const AppleEvent *p_event)
 {
 DescType returnedType;
 OSErr io;
@@ -140,7 +140,7 @@ else return(io);
 }
 
 
-pascal OSErr MyHandleODOC(AppleEvent *p_event, AppleEvent *p_reply,long handlerRefcon)
+pascal OSErr MyHandleODOC(const AppleEvent *p_event, AppleEvent *p_reply,long handlerRefcon)
 {
 FSSpec spec;
 AEDescList	docList;
@@ -415,14 +415,14 @@ return err;
 }
 
 
-pascal OSErr MyHandleOAPP(AppleEvent *p_event, AppleEvent *p_reply,long handlerRefcon)
+pascal OSErr MyHandleOAPP(const AppleEvent *p_event, AppleEvent *p_reply,long handlerRefcon)
 {
 return(noErr);
 }
 
 
 
-pascal OSErr MyHandleQUIT(AppleEvent *p_event, AppleEvent *p_reply,long handlerRefcon)
+pascal OSErr MyHandleQUIT(const AppleEvent *p_event, AppleEvent *p_reply,long handlerRefcon)
 {
 EventState = EXIT;
 ShowMessage(TRUE,wMessage,"Received Apple Event of class 'aevt' ID 'quit'. Quitting BP2É");
@@ -430,25 +430,25 @@ return(noErr);
 }
 
 
-pascal OSErr MyHandleSectionReadEvent(AppleEvent *p_event,AppleEvent *p_reply,long handlerRefcon)
+pascal OSErr MyHandleSectionReadEvent(const AppleEvent *p_event,AppleEvent *p_reply,long handlerRefcon)
 {
 return(noErr);
 }
 
 
-pascal OSErr MyHandleSectionWriteEvent(AppleEvent *p_event,AppleEvent *p_reply,long handlerRefcon)
+pascal OSErr MyHandleSectionWriteEvent(const AppleEvent *p_event,AppleEvent *p_reply,long handlerRefcon)
 {
 return(noErr);
 }
 
 
-pascal OSErr MyHandleSectionScrollEvent(AppleEvent *p_event,AppleEvent *p_reply,long handlerRefcon)
+pascal OSErr MyHandleSectionScrollEvent(const AppleEvent *p_event,AppleEvent *p_reply,long handlerRefcon)
 {
 return(noErr);
 }
 
 
-pascal OSErr RemoteDoScriptLine(AppleEvent *p_event,AppleEvent *p_reply,
+pascal OSErr RemoteDoScriptLine(const AppleEvent *p_event,AppleEvent *p_reply,
 	long handlerRefcon)
 {
 OSErr io;
@@ -504,7 +504,7 @@ return(io);
 }
 
 
-pascal OSErr RemoteLoadSettings(AppleEvent *p_event,AppleEvent *p_reply,long handlerRefcon)
+pascal OSErr RemoteLoadSettings(const AppleEvent *p_event,AppleEvent *p_reply,long handlerRefcon)
 {
 OSErr io;
 char **h_text;
@@ -562,7 +562,7 @@ return(io);
 }
 
 
-pascal OSErr RemoteLoadCsoundInstruments(AppleEvent *p_event,AppleEvent *p_reply,long handlerRefcon)
+pascal OSErr RemoteLoadCsoundInstruments(const AppleEvent *p_event,AppleEvent *p_reply,long handlerRefcon)
 {
 OSErr io;
 char **h_text;
@@ -632,7 +632,7 @@ return(io);
 }
 
 
-pascal OSErr RemoteSetConvention(AppleEvent *p_event,AppleEvent *p_reply,long handlerRefcon)
+pascal OSErr RemoteSetConvention(const AppleEvent *p_event,AppleEvent *p_reply,long handlerRefcon)
 {
 OSErr io;
 char **h_text;
@@ -700,7 +700,7 @@ return(io);
 }
 
 
-pascal OSErr RemoteControl(AppleEvent *p_event,AppleEvent *p_reply,long handlerRefcon)
+pascal OSErr RemoteControl(const AppleEvent *p_event,AppleEvent *p_reply,long handlerRefcon)
 {
 OSErr io;
 Size actualSize;
@@ -794,7 +794,7 @@ return(noErr);
 }
 
 
-pascal OSErr RemoteUseText(AppleEvent *p_event,AppleEvent *p_reply,long handlerRefcon)
+pascal OSErr RemoteUseText(const AppleEvent *p_event,AppleEvent *p_reply,long handlerRefcon)
 {
 OSErr io;
 char **h_text;
