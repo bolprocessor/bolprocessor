@@ -50,16 +50,88 @@
 
 #include "-BP2decl.h"
 
+static unsigned long NumEventsWritten = 0;
 
+/*  Reading a MIDI event with the Null driver always fails */
 int GetNextMIDIevent(MIDI_Event *p_e,int loop,int force)
 {
-	while(TRUE) {
+	return(FAILED);
+	
+	// The code below can loop infinitely
+	/* while(TRUE) {
 	NEXTRY:
 		if(!loop) return(FAILED);
 		if(!force && Button()) return(ABORT);
 	}
+	return(OK); */
+}
+
+
+/*  DriverWrite is the general-purpose "high-level" function for 
+    writing a MIDI event to the current driver.  This stub just increments
+    a counter of how many events have been written. */
+OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
+{
+	/* FIXME: should we do the ItemCapture bit from the original DriverWrite() ?
+		(Break it out into a function?) - akozar */
+	++NumEventsWritten;
+	
+	if(!OutMIDI || MIDIfileOn) return(noErr);
+
+	/* FIXME: should we also register program changes to the MIDI orchestra ? */
+	return noErr;
+}
+
+
+/*  ResetMIDI() mimics the basic functionality of its counterpart in
+    MIDIdrivers.c */
+int ResetMIDI(int wait)
+{
+	if(!OutMIDI || AEventOn) return(OK);
+
+	FlushDriver();
+	WaitABit(200L);
+	ResetDriver();
+
+	ResetTicks(FALSE,TRUE,ZERO,0);
+
 	return(OK);
 }
+
+
+/*  FlushDriver() is supposed to remove any pending Midi events from the
+    driver's queue (or scheduler).  Null driver just reports how many events
+    were written. */
+int FlushDriver()
+{
+	RunningStatus = 0;
+	sprintf(Message, "FlushDriver(): null driver wrote %ld events.", NumEventsWritten);
+	ShowMessage(TRUE,wMessage,Message);
+	NumEventsWritten = 0;
+	return(OK);
+}
+
+
+/*  ResetDriver() mimics the basic functionality of its counterpart in 
+    MIDIdrivers.c */
+int ResetDriver()
+{
+	if(SetOutputFilterWord() != OK) return(ABORT);
+	RunningStatus = 0;
+	return(OK);
+}
+
+
+/*  SetDriver() mimics the basic functionality of its counterpart in 
+    MIDIdrivers.c */
+int SetDriver()
+{
+	if(SetOutputFilterWord() != OK) return(ABORT);
+	SetDriverTime(ZERO);
+	RunningStatus = 0;
+	return(OK);
+}
+
 
 /* GetDriverTime() is generally only called after checking that OutMidi, Oms, or 
    InBuiltDriver is true.  Therefore the results of this stub are probably not
@@ -72,3 +144,8 @@ unsigned long GetDriverTime(void)
 	return(time);
 }
 
+int SetDriverTime(long time)
+{
+	/* do nothing */
+	return(OK);
+}
