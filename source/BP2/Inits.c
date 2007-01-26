@@ -1528,20 +1528,27 @@ return(FAILED);
 SetUpMenus(void)
 {
 int	i;
-// MCTableHandle hMCTbl;
 
 ClearMenuBar();
 myMenus[appleM] = GetMenu(MenuIDoffset);
-/* hMCTbl = GetMCInfo(); */
 InsertMenu(myMenus[appleM],0) ;
-/*	AddResMenu(myMenus[appleM],'DRVR'); */
-AppendResMenu(myMenus[appleM],'DRVR');
+#if !TARGET_API_MAC_CARBON
+  AppendResMenu(myMenus[appleM],'DRVR');
+#endif
 
 for (i = fileM; i <= MAXMENU; i++) {
 	/* Also loading ÔScriptÕ menu */
 	myMenus[i] = GetMenu(MenuIDoffset + i);
 	InsertMenu(myMenus[i],0);
 	}
+/* On OS X, remove the Quit item and separator from the File menu */ 
+#if TARGET_API_MAC_CARBON
+  if (RunningOnOSX && myMenus[fileM] != NULL) {
+  	DeleteMenuItem(myMenus[fileM], fmQuit);
+  	DeleteMenuItem(myMenus[fileM], fmQuit - 1);
+  	}
+#endif
+
 sprintf(Message,"Find again %c-option A",(char) commandMark);
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[searchM],findagainCommand,PascalLine);
