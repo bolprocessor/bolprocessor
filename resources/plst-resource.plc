@@ -1,0 +1,26 @@
+/* 	plst-resource.plc
+
+	Describes the Bol Processor application to the OS X Finder
+	Also necessary to launch as an OS X app with some versions of OS X
+ */
+
+plist
+{
+	dictionary
+	{
+		key "CFBundleInfoDictionaryVersion" value string "6.0"
+		key "CFBundleIdentifier" value string "net.sourceforge.bolprocessor"
+		key "NSHumanReadableCopyright" value string 
+		    "Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian"
+		    
+		key "CFBundleName" value string "Bol Processor"
+		key "CFBundlePackageType" value string __OUTPUT_TYPE__
+		key "CFBundleSignature" value string "Bel0"
+		
+		key "CFBundleVersion" value string "2.9.6dev"
+		key "CFBundleGetInfoString" value string "Bol Processor BP2 - Carbon development version"
+		key "CFBundleShortVersionString" value string "BP2 Carbon development version"
+		
+		key "LSPrefersCarbon" value boolean true
+	}
+}
