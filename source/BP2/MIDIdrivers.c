@@ -594,56 +594,6 @@ return(rep);
 }
 
 
-CheckMIDIbytes(int tell)
-{
-unsigned long drivertime;
-long formertime,timeleft;
-int rep,compiledmem;
-
-if((!InBuiltDriverOn && !Oms) || MIDIfileOn || !OutMIDI) return(OK);
-
-if(Nbytes > (MaxMIDIbytes / 2) && Tbytes2 == ZERO) {
-	HideWindow(Window[wInfo]); HideWindow(Window[wMessage]);
-	Tbytes2 = Tcurr;
-	}
-if(Nbytes > MaxMIDIbytes) {
-	HideWindow(Window[wInfo]); HideWindow(Window[wMessage]);
-	drivertime = GetDriverTime();
-	formertime = ZERO;
-	while((timeleft = Tbytes2 - drivertime) > ZERO) {
-		if((timeleft * Time_res / 1000L) != formertime && tell) {
-			formertime = timeleft * Time_res / 1000L;
-			sprintf(Message,"Idling (%ld sec)",(long)formertime + 1L);
-			PleaseWait();
-			ShowMessage(FALSE,wMessage,Message);
-			}
-		if((rep=MyButton(0)) != FAILED) {
-			StopCount(0);
-			SetButtons(TRUE);
-			compiledmem = CompiledGr;
-			if(rep == OK)
-				while((rep = MainEvent()) != RESUME && rep != STOP && rep != EXIT);
-			if(rep == RESUME) {
-				rep = OK; EventState = NO;
-				}
-			if(rep != OK) return(rep);
-			if(compiledmem && !CompiledGr) return(ABORT);
-			if(LoadedIn && (!CompiledIn && (rep=CompileInteraction()) != OK))
-				 return(rep);
-			}
-		rep = OK;
-		if(EventState != NO) return(EventState);
-		if((rep=ListenMIDI(0,0,0)) == ABORT || rep == ENDREPEAT
-			|| rep == EXIT) return(rep);
-		drivertime = GetDriverTime();
-		}
-	HideWindow(Window[wMessage]);
-	Tbytes2 = ZERO; Nbytes = MaxMIDIbytes/2;
-	}
-return(OK);
-}
-
-
 unsigned long GetDriverTime(void)
 {
 unsigned long time;
