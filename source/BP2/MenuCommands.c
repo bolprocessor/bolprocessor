@@ -2815,13 +2815,17 @@ return(OK);
 
 mModemPort(int wind)
 {
-return(FixPort(1));
+#if USE_BUILT_IN_MIDI_DRIVER
+  return(FixPort(1));
+#endif
 }
 
 
 mPrinterPort(int wind)
 {
-return(FixPort(2));
+#if USE_BUILT_IN_MIDI_DRIVER
+  return(FixPort(2));
+#endif
 }
 
 
