@@ -13,6 +13,9 @@
 		
 	* source/BP2/MIDIstubs.c:
 		New functions to replace "high-level" MIDI interface in MIDIdrivers.c.
+
+	* source/prefix/PrefixCarbonTextEdit.h:
+		Set WITH_REAL_TIME_MIDI to enable the Null Midi driver on Carbon.
 		
 	** 12:44 PM EST -- Compiles and links with CarbonLib !! **
 

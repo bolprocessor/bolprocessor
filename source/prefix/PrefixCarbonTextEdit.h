@@ -18,3 +18,6 @@
 // disable built-in MIDI driver and OMS Midi driver
 #define USE_BUILT_IN_MIDI_DRIVER 0
 #define USE_OMS 0
+
+// enable null MIDI driver
+#define WITH_REAL_TIME_MIDI 1
