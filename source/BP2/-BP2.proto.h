@@ -34,6 +34,7 @@
 #ifndef BP2_PROTO_H
 #define BP2_PROTO_H
 
+/* in AppleEvents.c */
 pascal OSErr MyHandleOAPP(const AppleEvent*,AppleEvent*,long);
 pascal OSErr MyHandleODOC(const AppleEvent*,AppleEvent*,long);
 pascal OSErr MyHandleSectionReadEvent(const AppleEvent*,AppleEvent*,long);
@@ -47,10 +48,14 @@ pascal OSErr RemoteDoScriptLine(const AppleEvent*,AppleEvent*,long);
 pascal OSErr RemoteLoadSettings(const AppleEvent*,AppleEvent*,long);
 pascal OSErr RemoteLoadCsoundInstruments(const AppleEvent*,AppleEvent*,long);
 pascal OSErr RemoteSetConvention(const AppleEvent*,AppleEvent*,long);
-int RecoverEmergencyMemory(void);
 OSErr MyGotRequiredParams(const AppleEvent*);
+
+/* in BP2main.c */
+int RecoverEmergencyMemory(void);
 int main(void);
 
+
+/* in OMS.c */
 #if USE_OMS
 OSErr InitOMS(OSType appSignature);
 int ExitOMS(void);
@@ -72,6 +77,7 @@ short GetIDandName(char*);
 int StoreDefaultOMSinput(void);
 #endif
 
+/* in Schedule.c */
 #if WITH_REAL_TIME_SCHEDULER
 int Cause(voidOMSdoPacket,Milliseconds,OMSMIDIPacket*,short,short);
 int FlushOutputEventQueueAfter(Milliseconds);
@@ -79,31 +85,38 @@ int InstallTMTask(void);
 int RemoveTMTask(void);
 #endif
 
-int GetNextMIDIevent(MIDI_Event*,int,int);
-int FormatMIDIstream(MIDIcode**,long,MIDIcode**,int,long,long*,int);
-unsigned long GetDriverTime(void);
-int SendToDriver(Milliseconds,int,int*,MIDI_Event*);
-
-#if WITH_REAL_TIME_MIDI
+/* in MIDIdrivers.c - these functions are only for the built-in driver */
+#if USE_BUILT_IN_MIDI_DRIVER
 OSErr DriverOpen(unsigned char[]);
 OSErr DriverClose(void);
 OSErr DriverRead(MIDI_Event*);
-OSErr DriverWrite(Milliseconds,int,MIDI_Event*);
-int WriteInBuiltDriver(OMSMIDIPacket*);
 OSErr DriverStatus(short,MIDI_Parameters*);
 OSErr DriverControl(short,MIDI_Parameters*);
 OSErr DriverKill(void);
-int SetDriverTime(long);
+int WriteInBuiltDriver(OMSMIDIPacket*);
+int FixPort(int);
+    /* these four not used */
 int Events(DriverDataPtr);
 int EmptyDriverInput(void);
 int DriverTime(DriverDataPtr);
 int Errors(DriverDataPtr);
+#endif
+
+/* in MIDIdrivers.c - used by both OMS and built-in drivers */
+#if WITH_REAL_TIME_MIDI
+int GetNextMIDIevent(MIDI_Event*,int,int);
+OSErr DriverWrite(Milliseconds,int,MIDI_Event*);
+unsigned long GetDriverTime(void);
+int SetDriverTime(long);
 int FlushDriver(void);
 int ResetDriver(void);
 int SetDriver(void);
 int CloseCurrentDriver(int);
 int ResetMIDI(int);
 #endif
+
+int FormatMIDIstream(MIDIcode**,long,MIDIcode**,int,long,long*,int);
+int SendToDriver(Milliseconds,int,int*,MIDI_Event*);
 
 Boolean HasGWorlds(void);
 int GWorldInit(void);
@@ -576,7 +589,6 @@ int Findabc(double***,int,regression*);
 int GetRegressions(int);
 double XtoY(double,regression*,int*,int);
 double YtoX(double,regression*,int*,int);
-int FixPort(int);
 int LoadTimeStampedFile(int);
 int DecodeStampedMIDI(int,int);
 int ReadNoteOn(int,int,int,int);
