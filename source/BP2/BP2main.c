@@ -336,9 +336,12 @@ CloseCsScore();
 MyDisposeHandle((Handle*)&p_Oldvalue);
 ClearLockedSpace();
 
-#if WITH_REAL_TIME_MIDI
+#if USE_OMS
   if(Oms) ExitOMS();
-  else if(InBuiltDriverOn) CloseCurrentDriver(FALSE);
+#endif
+#if USE_BUILT_IN_MIDI_DRIVER /* WITH_REAL_TIME_MIDI */
+  // FIXME: CloseCurrentDriver should eventually work for all drivers - akozar
+  if(InBuiltDriverOn) CloseCurrentDriver(FALSE);
 #endif
 #if WITH_REAL_TIME_SCHEDULER
   if(NEWTIMER) RemoveTMTask();
