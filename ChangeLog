@@ -1,3 +1,40 @@
+2007-01-26	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/BP2main.c:  Reconditionalizing driver closing calls.
+		
+	* source/BP2/MenuCommands.c:  Conditionalize out calls to FixPort().
+	
+	* source/BP2/SaveLoads1.c (SaveSettings & LoadSettings):
+		Conditionalize OMS code.  Force OutMIDI & Oms false when not available.
+	
+	* source/BP2/MIDIdrivers.c:
+	* source/BP2/MIDIstuff.c:
+		Moved CheckMIDIbytes() to MIDIstuff.c since it is a "high-level" routine.
+		
+	* source/BP2/MIDIstubs.c:
+		New functions to replace "high-level" MIDI interface in MIDIdrivers.c.
+		
+	** 12:44 PM EST -- Compiles and links with CarbonLib !! **
+
+	* source/BP2/Inits.c (SetUpMenus):
+		Don't add Apple menu items under Carbon.
+		Remove Quit & separator from File menu on OS X.
+	
+	* resources/carb.r:
+	* resources/plst-resource.plc:
+		New files for 'carb' and 'plst' resources so that BP will launch 
+			as a native OS X application.
+
+	* BP2-MacOS.cw8.mcp:
+		Updated Carbon targets for new files; configured Property List 
+			Compiler settings.
+
+2007-01-25	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2proto.h:
+		Divided up MIDI functions prototypes based on driver availability and
+			which ones are needed for any MIDI functionality.
+
 2007-01-23	Anthony Kozar	<anthonykozar@sbcglobal.net>
 (committed on 2007-01-25)
 	
