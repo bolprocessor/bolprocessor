@@ -1015,6 +1015,7 @@ WRITE:
 		sprintf(LineBuff,"%ld\r%ld",(long)GraphicScaleP,(long)GraphicScaleQ);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		
+#if USE_OMS
 		if(Oms && OMSinputName[0] != '\0' && OMSinputName[0] != '<') {
 			if(gChosenInputIDbydefault > 0)
 				sprintf(LineBuff,"%ld %s",(long)gChosenInputIDbydefault,OMSinputName);
@@ -1022,11 +1023,19 @@ WRITE:
 				sprintf(LineBuff,"%ld %s",(long)gChosenInputID,OMSinputName);
 			}
 		else sprintf(LineBuff,"<no input device>");
+#else
+		sprintf(LineBuff,"<no input device>");
+#endif
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		MoveDisk();
+
+#if USE_OMS
 		if(Oms && OMSoutputName[0] != '\0')
 			sprintf(LineBuff,"%ld %s",(long)gChosenOutputID,OMSoutputName);
 		else sprintf(LineBuff,"<no output device>");
+#else
+		sprintf(LineBuff,"<no output device>");
+#endif
 		WriteToFile(NO,MAC,LineBuff,refnum);
 			
 		sprintf(LineBuff,"%ld",(long)UseBullet); WriteToFile(NO,MAC,LineBuff,refnum);
@@ -1168,8 +1177,6 @@ FontInfo font;
 double x;
 Rect r;
 char **p_line,**p_completeline;
-OMSNodeInfoListH info;
-OMSNodeInfoList node;
 
 result = connectionok = OK;
 oldoutmidi = OutMIDI;
@@ -1291,7 +1298,8 @@ else *p_oms = FALSE;
   OutMIDI = FALSE;
 #endif
 #if !USE_OMS
-  Oms = FALSE;
+  *p_oms = FALSE;
+  // Oms = FALSE;
 #endif
 
 SetButtons(TRUE);
@@ -1333,6 +1341,7 @@ SetGraphicSettings();
 
 /* Find OMS default input device, and connect it if OMS is active */
 if(ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+#if USE_OMS
 if((*p_oms) && iv > 14 && OKOMS) {
 	oldomsinput = gChosenInputID;
 	MystrcpyHandleToString(MAXNAME,0,connectionname,p_line);
@@ -1393,10 +1402,12 @@ if((*p_oms) && iv > 14 && OKOMS) {
 			}
 		}
 	}
-	
+#endif
+
 /* Find OMS default output device, and connect it if OMS is active */
 if(iv > 5) {
 	if(ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+#if USE_OMS
 	if((*p_oms) && iv > 14 && OKOMS) {
 		oldomsoutput = gChosenOutputID;
 		MystrcpyHandleToString(MAXNAME,0,connectionname,p_line);
@@ -1422,6 +1433,9 @@ if(iv > 5) {
 						gChosenOutputID = oldomsoutput;
 						gOutNodeRefNum = OMSUniqueIDToRefNum(gChosenOutputID);
 						if(gOutNodeRefNum == OMSInvalidRefNum) {
+							OMSNodeInfoListH info;
+							OMSNodeInfoList node;
+
 							// If it doesn't work, select the first device available
 					/*		info = OMSGetNodeInfo(omsIncludeReal+omsIncludeOutputs);
 							if(info != NULL) {
@@ -1484,6 +1498,7 @@ if(iv > 5) {
 				}
 			}
 		}
+#endif
 	}
 
 if(iv > 11) {
