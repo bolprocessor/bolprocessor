@@ -1,3 +1,11 @@
+2007-01-29	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/CarbonCompatUtil.c:
+		Finished replacements for old Scrap Manager calls.
+	
+	* source/BP2/MenuCommands.c (mEnterFind):
+		Don't add null char to scrap; fixed possible memory leak.
+
 2007-01-26	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/BP2main.c:  Reconditionalizing driver closing calls.

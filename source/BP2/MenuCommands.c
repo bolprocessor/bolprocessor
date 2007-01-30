@@ -2350,6 +2350,7 @@ if(wind < 0 || wind >= WMAX || !Editable[wind]) {
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
 TargetWindow = LastEditWindow = wind;
+/* make a temporary copy of the scrap */
 if(!WASTE) {
 	CCUZeroScrap(); TEToScrap();	/* save current text edit scrap */
 	}
@@ -2357,10 +2358,11 @@ myHandle = (Handle) GiveSpace(1);
 rc = CCUGetScrap(myHandle,'TEXT',&scrapOffset);
 if(rc > 0) {
 	MemoryUsed += (unsigned long)(rc - 1);
-	MySetHandleSize(&myHandle,rc+1);
+	// adding a null char is not such a good idea - 012907 akozar
+	/* MySetHandleSize(&myHandle,rc+1);
 	MyLock(FALSE,myHandle);
 	(*myHandle)[rc] = 0;
-	MyUnlock(myHandle);
+	MyUnlock(myHandle); */
 	}
 TextCopy(wind);
 // if(WASTE) TEFromScrap();
@@ -2371,10 +2373,10 @@ DialogPaste(gpDialogs[wFindReplace]);
 CCUZeroScrap();
 if(rc > 0) {
 	MyLock(FALSE,myHandle);
-	CCUPutScrap(rc+1,'TEXT',*myHandle);
+	CCUPutScrap(rc,'TEXT',*myHandle); // was rc+1 with above null added
 	MyUnlock(myHandle);
-	MyDisposeHandle((Handle*)&myHandle);
 	}
+MyDisposeHandle((Handle*)&myHandle);
 Dirty[wFindReplace] = TRUE;
 GetFindReplace();
 return(OK);
