@@ -184,7 +184,7 @@ NewFile(Str255 fn,StandardFileReply *p_reply)
 		if(io == noErr) FSClose(refnum); 
 		} */
 #if TARGET_API_MAC_CARBON
-	Alert1("Saving files is not yet functional in Bol Processor Carbon.  Sorry!!");
+	Alert1("Saving new files is not yet functional in Bol Processor Carbon.  Sorry!!");
 	return(FAILED);
 #else
 	StandardPutFile("\pSave file…",fn,p_reply);
@@ -300,7 +300,8 @@ switch(type) {
 	}
 
 #if TARGET_API_MAC_CARBON
-	Alert1("Saving files is not yet functional in Bol Processor Carbon.  Sorry!!");
+	Alert1("The Open command is not yet functional in Bol Processor Carbon."
+		 "  You can open files from the Finder instead.");
 	return(FAILED);
 #else
 #  ifdef __POWERPC
