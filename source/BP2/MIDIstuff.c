@@ -66,7 +66,11 @@ if((r=GetHighLevelEvent()) != OK) return(r);
 if((Oms || !OutMIDI) && !Interactive && !ReadKeyBoardOn && !ScriptRecOn) return(OK);
 
 if(!Oms && !InBuiltDriverOn) {
-	if(Beta) Alert1("Err. ListenMIDI(). Driver is OFF");
+	if(Beta) {
+		Alert1("Err. ListenMIDI(). Driver is OFF");
+		OutMIDI = Interactive = ReadKeyBoardOn = ScriptRecOn = FALSE;
+		SetButtons(TRUE);
+		}
 	return(ABORT);
 	}
 #if WITH_REAL_TIME_MIDI
