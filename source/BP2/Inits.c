@@ -930,6 +930,9 @@ for(w=MAXWIND; w < WMAX; w++) {
 	if(bad) continue;
 	Window[w] = GetDialogWindow(gpDialogs[w]);  /* should probably not duplicate DialogPtrs as WindowPtrs, but may be neccessary for now -- 010907 akozar */
 	SetPortWindowPort(Window[w]);
+#if TARGET_API_MAC_CARBON
+	SetThemeWindowBackground(Window[w], kThemeBrushDialogBackgroundActive, false);
+#endif
 	rc = GetWRefCon(GetDialogWindow(gpDialogs[w]));
 	if(rc != 0L) {
 		TextSize(WindowTextSize[w]);
