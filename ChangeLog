@@ -1,3 +1,20 @@
+2007-01-30	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* resources/BP2-MacOS.rsrc:
+	* source/BP2/-BP2.h:
+		Conditionalized About alert depending on Carbon/WASTE/TextEdit.
+		
+	* resources/BP2-MacOS.rsrc:
+		Changed dialog windows that were of the old "rounded corners" desk
+			accessory type to Carbon-compliant WDEFs.
+		Removed alert, dialog, menu, and window color table resources.
+		
+	* source/BP2/Inits.c (MakeWindows):
+		Added Appearance call for Carbon to make dialogs use system colors.
+	
+	* source/BP2/MIDIstuff.c (ListenMIDI):
+		Fixed infinite loop when Beta == true and no Midi.
+	
 2007-01-29	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/CarbonCompatUtil.c:

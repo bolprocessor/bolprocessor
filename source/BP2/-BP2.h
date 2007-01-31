@@ -553,19 +553,27 @@ Hey: this code is not portable!!!
 #define SelectFieldID 567
 
 // Alert ID's
-#define WorkAlert		128
+#define	WorkAlert		128
 #define	StepAlert		142
-#define OKAlert			143
+#define 	OKAlert		143
 #define	YesNo			144
 #define	NoYes			145
 #define	YesNoCancel		146
 #define	NoYesCancel		147
-#define	AboutAlert	148
-#define SaveAsAlert 	149
-#define LoadNotesAlert	150
+#if TARGET_API_MAC_CARBON
+#  define   AboutAlert		130
+#else		/* pre-Carbon */
+#  if WASTE
+#    define	AboutAlert		148
+#  else	/* for TextEdit */
+#    define	AboutAlert		129
+#  endif
+#endif
+#define SaveAsAlert 		149
+#define LoadNotesAlert		150
 #define ColorAlert		151
-#define DisplayItemAlert 152
-#define PasteSelectionAlert 153
+#define DisplayItemAlert	152
+#define PasteSelectionAlert	153
 
 // Icon ID's
 #define BP2iconID 128
