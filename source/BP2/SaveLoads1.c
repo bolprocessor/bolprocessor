@@ -134,7 +134,7 @@ else
 c2pstrcpy(fn, Message);
 reply.sfFile.vRefNum = TheVRefNum[iSettings];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[iSettings];
-if(NewFile(fn,&reply)) {
+if(NewFile(fn,&reply,12)) {
 	i = CreateFile(-1,-1,12,fn,&reply,&refnum);
 	if(i == ABORT) return(FAILED);
 	if(i == OK) {
@@ -251,7 +251,7 @@ if(Created[wKeyboard]) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noErr);
 if(good) goto WRITE;
 reply.sfFile.vRefNum = TheVRefNum[wKeyboard];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[wKeyboard];
-if(NewFile(fn,&reply)) {
+if(NewFile(fn,&reply,gFileType[wKeyboard])) {
 	i = CreateFile(wKeyboard,-1,gFileType[wKeyboard],fn,&reply,&refnum);
 	(*p_spec) = reply.sfFile;
 	if(i == ABORT) return(FAILED);
@@ -397,7 +397,7 @@ if(Created[wTimeBase]) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noErr);
 if(good) goto WRITE;
 reply.sfFile.vRefNum = TheVRefNum[wTimeBase];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[wTimeBase];
-if(NewFile(fn,&reply)) {
+if(NewFile(fn,&reply,gFileType[wTimeBase])) {
 	i = CreateFile(wTimeBase,-1,gFileType[wTimeBase],fn,&reply,&refnum);
 	*p_spec = reply.sfFile;
 	if(i == ABORT) return(FAILED);
@@ -759,7 +759,7 @@ if(Created[wCsoundInstruments]) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noEr
 if(good) goto WRITE;
 reply.sfFile.vRefNum = TheVRefNum[wCsoundInstruments];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[wCsoundInstruments];
-if(NewFile(fn,&reply)) {
+if(NewFile(fn,&reply,gFileType[wCsoundInstruments])) {
 	i = CreateFile(wCsoundInstruments,-1,gFileType[wCsoundInstruments],fn,&reply,&refnum);
 	*p_spec = reply.sfFile;
 	if(i == ABORT) return(FAILED);
@@ -972,7 +972,7 @@ reply.sfFile.vRefNum = TheVRefNum[iSettings];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[iSettings];
 result = FAILED;
 
-if(NewFile(fn,&reply)) {
+if(NewFile(fn,&reply,gFileType[iSettings])) {
 	io = CreateFile(iSettings,iSettings,gFileType[iSettings],fn,&reply,&refnum);
 	*p_spec = reply.sfFile;
 	if(io == ABORT) return(FAILED);
@@ -1731,7 +1731,7 @@ long count;
 
 ShowMessage(TRUE,wMessage,"Creating decision file…");
 PascalLine[0] = 0;
-if(NewFile(PascalLine,&reply)) {
+if(NewFile(PascalLine,&reply,4)) {
 	i = CreateFile(-1,-1,4,PascalLine,&reply,&refnum);
 	if(i == ABORT) return(FAILED);
 	if(i == OK) {
@@ -2142,7 +2142,7 @@ if(rep == ABORT) goto OUT;
 if(rep == OK) type = 1;
 reply.sfFile.vRefNum = TheVRefNum[wMIDIorchestra];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[wMIDIorchestra];
-if(NewFile(fn,&reply)) {
+if(NewFile(fn,&reply,type)) {
 	rep = CreateFile(wMIDIorchestra,-1,type,fn,&reply,&refnum);
 	if(rep == ABORT) goto OUT;
 	if(rep == OK) {

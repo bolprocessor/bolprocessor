@@ -728,7 +728,7 @@ if(line == NULL || line[0] == '\0') {
 	}
 else strcpy(Message,line);
 c2pstrcpy(PascalLine,Message);
-if(NewFile(PascalLine,&reply)) {
+if(NewFile(PascalLine,&reply,1)) {
 	rep = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
 	if(rep == OK) {
 		CsRefNum = refnum;

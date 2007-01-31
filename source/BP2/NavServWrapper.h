@@ -13,10 +13,19 @@
 #ifndef	ANTHONY_NAVSERV_WRAPPER_H
 #define	ANTHONY_NAVSERV_WRAPPER_H
 
-#include	<Navigation.h>
-#include	<Gestalt.h>
+#if !TARGET_API_MAC_CARBON
+#  include	<Navigation.h>
+#  include	<Gestalt.h>
+#else
+#  include	<Carbon.h>
+#endif
 
 #define	kDefaultPrefKey	1
+
+/* For backwards-compatibility with StdFilePkg */
+#if TARGET_API_MAC_CARBON
+  typedef unsigned long  SFTypeList[4]; 
+#endif
 
 /* Our own file dialog reply record.
    Has fields with the same names as StandardFileReply and it is

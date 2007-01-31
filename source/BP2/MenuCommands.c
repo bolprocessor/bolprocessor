@@ -938,7 +938,7 @@ if(Answer("Load and save MIDI data from device",'Y') == YES) {
 	sprintf(Message,"%ld bytes received. Writing them to text file.",(long)im);
 	ShowMessage(TRUE,wMessage,Message);
 	c2pstrcpy(fn, "Dump");
-	if(NewFile(fn,&reply)) {
+	if(NewFile(fn,&reply,1)) {
 		if((r=CreateFile(-1,-1,1,fn,&reply,&refnum)) != OK) goto OUT;
 		WriteToFile(NO,MAC,"BP2 decimal MIDI dump",refnum);
 		sprintf(LineBuff,"%ld",(long)im);

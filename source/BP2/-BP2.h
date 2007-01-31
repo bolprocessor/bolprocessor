@@ -174,7 +174,6 @@ Hey: this code is not portable!!!
 
 #if TARGET_API_MAC_CARBON	/* FIXME: temporary to avoid too many errors -- remove me */
   typedef NSWReply StandardFileReply;
-  typedef long  SFTypeList[4]; 
 #endif
 
 // Moved macros and enum down here to avoid potential problems with replacing names

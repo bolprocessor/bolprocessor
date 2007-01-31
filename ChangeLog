@@ -1,3 +1,19 @@
+2007-01-31	Anthony Kozar	<anthonykozar@sbcglobal.net>
+		
+	* BP2-MacOS.cw8.mcp: Added NavServWrapper.c to all targets.
+
+	* source/BP2/-BP2.h:
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/CsoundScoreMake.c:
+	* source/BP2/MenuCommands.c:
+	* source/BP2/MIDIfiles.c:
+	* source/BP2/NavServWrapper.h:
+	* source/BP2/SaveLoads1.c:
+	* source/BP2/SaveLoads2.c:
+	* source/BP2/SaveLoads3.c:
+	* source/BP2/Translit.c:
+		Got rudimentary "Save As" functionality to work using Navigation Serv.
+
 2007-01-30	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* resources/BP2-MacOS.rsrc:

@@ -108,7 +108,7 @@ c2pstrcpy(fn, Message);
 if(Created[iObjects]) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noErr);
 else good = NO;
 if(good) goto WRITE;
-if(NewFile(fn,&reply)) {
+if(NewFile(fn,&reply,gFileType[iObjects])) {
 	i = CreateFile(iObjects,-1,gFileType[iObjects],fn,&reply,&refnum);
 	(*p_spec) = reply.sfFile;
 	if(i == ABORT) return(FAILED);

@@ -1054,7 +1054,7 @@ strcpy(Message,filename);
 Message[MAXNAME-5] = '\0';	// FIXME: should replace MAXNAME with strlen(Message) or actually search for a file extension - 011607 akozar
 strcat(Message,".new");
 c2pstrcpy(fn, Message);
-if(!NewFile(fn,&reply)) goto OVER;
+if(!NewFile(fn,&reply,1)) goto OVER;
 result = CreateFile(-1,-1,1,fn,&reply,&refnumout);
 if(result != OK) goto OVER;
 

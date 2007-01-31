@@ -65,7 +65,7 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 if(fn[0] == 0) c2pstrcpy(fn, FilePrefix[w]);
 reply.sfFile.vRefNum = TheVRefNum[w];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[w];
-if(NewFile(fn,&reply)) {
+if(NewFile(fn,&reply,gFileType[w])) {
 	i = CreateFile(w,w,gFileType[w],fn,&reply,&refnum);
 	SetCursor(&WatchCursor);
 	*p_spec = reply.sfFile;
@@ -163,10 +163,106 @@ else {
 	}
 }
 
+void FillTypeList(int type, SFTypeList typelist, int* numtypes)
+{
+	/* Modified 013107 by akozar: 'MOSS' is a creator not a file 
+	   type.  Use 'TEXT' instead.  'text' is not used.  */
+switch(type) {
+	case 0:				/* open any file */
+		*numtypes = -1;
+		break;
+	case 1:
+		typelist[0] = 'TEXT';
+		//typelist[1] = 'MOSS';	/* Netscape file */
+		//typelist[2] = 'text';
+		*numtypes = 1;
+		break;
+	case 2:
+		typelist[0] = 'BP02';	/* -kb file */
+		*numtypes = 1;
+		break;
+	case 3:
+		typelist[0] = 'BP03';	/* -mi file */
+		*numtypes = 1;
+		break;
+	case 4:
+		typelist[0] = 'BP04';	/* decision file */
+		*numtypes = 1;
+		break;
+	case 5:
+		typelist[0] = 'BP05';	/* grammar -gr file */
+		typelist[1] = 'TEXT';	/* Netscape file */
+		*numtypes = 2;
+		break;
+	case 6:
+		typelist[0] = 'BP06';	/* alphabet -ho file */
+		typelist[1] = 'TEXT';	/* Netscape file */
+		*numtypes = 2;
+		break;
+	case 7:
+		typelist[0] = 'TEXT';
+		typelist[1] = 'BP07';	/* data -da file */
+		//typelist[2] = 'MOSS';	/* Netscape file */
+		//typelist[3] = 'text';
+		*numtypes = 2;
+		break;
+	case 8:
+		typelist[0] = 'BP08';	/* interactive -in file */
+		typelist[1] = 'TEXT';	/* Netscape file */
+		*numtypes = 2;
+		break;
+	case 9:
+		typelist[0] = 'BP09';	/* settings -se file */
+		*numtypes = 1;
+		break;
+	case 10:
+		/* First two of these also presumably creator codes */
+		//typelist[0] = 'FSSD';	/* SoundEdit file */
+		//typelist[1] = 'jB1 ';	/* SoundEdit Pro file */
+		typelist[0] = 'AIFF';	/* AIFF file */
+		typelist[1] = 'AIFC';	/* AIFF compressed file */
+		*numtypes = 2;
+		break;
+	case 11:
+		typelist[0] = 'Midi';	/* MIDI file */
+		*numtypes = 1;
+		break;
+	case 12:
+		typelist[0] = 'BP10';	/* weights -wg file */
+		*numtypes = 1;
+		break;
+	case 13:
+		typelist[0] = 'BP11';	/* script +sc file */
+		typelist[1] = 'TEXT';	/* Netscape file */
+		*numtypes = 2;
+		break;
+	case 14:
+		typelist[0] = 'BP12';	/* glossary -gl file */
+		typelist[1] = 'TEXT';	/* Netscape file */
+		*numtypes = 2;
+		break;
+	case 15:
+		typelist[0] = 'BP13';	/* time base -tb file */
+		*numtypes = 1;
+		break;
+	case 16:
+		typelist[0] = 'BP14';	/* Csound instruments -cs file */
+		*numtypes = 1;
+		break;
+	case 17:
+		typelist[0] = 'BP15';	/* MIDI orchestra -or file */
+		*numtypes = 1;
+		break;
+	}
 
-NewFile(Str255 fn,StandardFileReply *p_reply)
+	return;
+}
+
+NewFile(Str255 fn,StandardFileReply *p_reply, int type)
 // Check whether the file we're creating is a new one, and get its specs in a reply record
 {
+	SFTypeList typelist;
+	int numtypes;
 	// FSSpec spec;
 	short refnum;
 	OSErr io;
@@ -184,8 +280,12 @@ NewFile(Str255 fn,StandardFileReply *p_reply)
 		if(io == noErr) FSClose(refnum); 
 		} */
 #if TARGET_API_MAC_CARBON
-	Alert1("Saving new files is not yet functional in Bol Processor Carbon.  Sorry!!");
-	return(FAILED);
+	if (type == 0)  type = 1;
+	FillTypeList(type, typelist, &numtypes);
+	// for now, just use first type (the primary one)
+	io = NSWPutFile(p_reply, 'Bel0', typelist[0], fn, NULL);
+	// Alert1("Saving new files is not yet functional in Bol Processor Carbon.  Sorry!!");
+	if (io != noErr) return(FAILED);
 #else
 	StandardPutFile("\pSave file…",fn,p_reply);
 #endif
@@ -212,92 +312,8 @@ if(w < -1 || w >= WMAX) {
 	if(Beta) Alert1("Err. OldFile(). Incorrect window index");
 	return(FAILED);
 	}
-switch(type) {
-	case 0:
-		numtypes = -1;
-		break;
-	case 1:
-		typelist[0] = 'TEXT';
-		typelist[1] = 'MOSS';	/* Netscape file */
-		typelist[2] = 'text';
-		numtypes = 3;
-		break;
-	case 2:
-		typelist[0] = 'BP02';	/* -kb file */
-		numtypes = 1;
-		break;
-	case 3:
-		typelist[0] = 'BP03';	/* -mi file */
-		numtypes = 1;
-		break;
-	case 4:
-		typelist[0] = 'BP04';	/* decision file */
-		numtypes = 1;
-		break;
-	case 5:
-		typelist[0] = 'BP05';	/* grammar -gr file */
-		typelist[1] = 'MOSS';	/* Netscape file */
-		numtypes = 2;
-		break;
-	case 6:
-		typelist[0] = 'BP06';	/* alphabet -ho file */
-		typelist[1] = 'MOSS';	/* Netscape file */
-		numtypes = 2;
-		break;
-	case 7:
-		typelist[0] = 'TEXT';
-		typelist[1] = 'BP07';	/* data -da file */
-		typelist[2] = 'MOSS';	/* Netscape file */
-		typelist[3] = 'text';
-		numtypes = 4;
-		break;
-	case 8:
-		typelist[0] = 'BP08';	/* interactive -in file */
-		typelist[1] = 'MOSS';	/* Netscape file */
-		numtypes = 2;
-		break;
-	case 9:
-		typelist[0] = 'BP09';	/* settings -se file */
-		numtypes = 1;
-		break;
-	case 10:
-		typelist[0] = 'FSSD';	/* SoundEdit file */
-		typelist[1] = 'jB1 ';	/* SoundEdit Pro file */
-		typelist[2] = 'AIFF';	/* AIFF file */
-		typelist[3] = 'AIFC';	/* AIFF compressed file */
-		numtypes = 4;
-		break;
-	case 11:
-		typelist[0] = 'Midi';	/* MIDI file */
-		numtypes = 1;
-		break;
-	case 12:
-		typelist[0] = 'BP10';	/* weights -wg file */
-		numtypes = 1;
-		break;
-	case 13:
-		typelist[0] = 'BP11';	/* script +sc file */
-		typelist[1] = 'MOSS';	/* Netscape file */
-		numtypes = 2;
-		break;
-	case 14:
-		typelist[0] = 'BP12';	/* glossary -gl file */
-		typelist[1] = 'MOSS';	/* Netscape file */
-		numtypes = 2;
-		break;
-	case 15:
-		typelist[0] = 'BP13';	/* time base -tb file */
-		numtypes = 1;
-		break;
-	case 16:
-		typelist[0] = 'BP14';	/* Csound instruments -cs file */
-		numtypes = 1;
-		break;
-	case 17:
-		typelist[0] = 'BP15';	/* MIDI orchestra -or file */
-		numtypes = 1;
-		break;
-	}
+
+FillTypeList(type, typelist, &numtypes);
 
 #if TARGET_API_MAC_CARBON
 	Alert1("The Open command is not yet functional in Bol Processor Carbon."
