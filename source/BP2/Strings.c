@@ -48,7 +48,7 @@
 #include "-BP2decl.h"
 
 
-void CopyPString(Str255 src,Str255 dest)
+void CopyPString(const Str255 src,Str255 dest)
 /* copies a pascal string from src to dest */
 {
 int i,len;
