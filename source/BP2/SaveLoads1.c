@@ -121,11 +121,13 @@ int i,igram,irul,w;
 short refnum;
 long count;
 Str255 fn;
-StandardFileReply reply;
+NSWReply reply;
+OSErr err;
 
 if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || GraphicOn
 	|| PolyOn) return(RESUME);
 if(CompileCheck() != OK) return(FAILED);
+err = NSWInitReply(&reply);
 ShowMessage(TRUE,wMessage,"Creating weight file…");
 if(FileName[iWeights][0] != '\0')
 	strcpy(Message,FileName[iWeights]);
@@ -136,7 +138,10 @@ reply.sfFile.vRefNum = TheVRefNum[iSettings];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[iSettings];
 if(NewFile(fn,&reply,12)) {
 	i = CreateFile(-1,-1,12,fn,&reply,&refnum);
-	if(i == ABORT) return(FAILED);
+	if(i == ABORT) {
+		err = NSWCleanupReply(&reply);
+		return(FAILED);
+		}
 	if(i == OK) {
 		SetCursor(&WatchCursor);
 		WriteHeader(iWeights,refnum,reply.sfFile);
@@ -154,6 +159,8 @@ if(NewFile(fn,&reply,12)) {
 		SetEOF(refnum,count);
 		FlushFile(refnum);
 		FSClose(refnum);
+		reply.saveCompleted = true;
+		err = NSWCleanupReply(&reply);
 		MyPtoCstr(MAXNAME,fn,FileName[iWeights]);
 		return(OK);
 		}
@@ -163,6 +170,7 @@ if(NewFile(fn,&reply,12)) {
 		Alert1(Message);
 		}
 	}
+err = NSWCleanupReply(&reply);
 return(FAILED);
 }
 
@@ -237,8 +245,10 @@ int i,good;
 short refnum;
 Str255 fn;
 long count;
-StandardFileReply reply;
+NSWReply reply;
+OSErr err;
 
+err = NSWInitReply(&reply);
 GetKeyboard();
 if(FileName[wKeyboard][0] != '\0') strcpy(Message,FileName[wKeyboard]);
 else strcpy(Message,FilePrefix[wKeyboard]);
@@ -254,7 +264,10 @@ reply.sfFile.parID = WindowParID[wKeyboard];
 if(NewFile(fn,&reply,gFileType[wKeyboard])) {
 	i = CreateFile(wKeyboard,-1,gFileType[wKeyboard],fn,&reply,&refnum);
 	(*p_spec) = reply.sfFile;
-	if(i == ABORT) return(FAILED);
+	if(i == ABORT) {
+		err = NSWCleanupReply(&reply);
+		return(FAILED);
+		}
 	if(i == OK) {
 WRITE:
 		SetCursor(&WatchCursor);
@@ -272,12 +285,14 @@ WRITE:
 		SetEOF(refnum,count);
 		FlushFile(refnum);
 		MyFSClose(wKeyboard,refnum,p_spec);
+		reply.saveCompleted = true;
 		MyPtoCstr(MAXNAME,p_spec->name,FileName[wKeyboard]);
 		TheVRefNum[wKeyboard] = p_spec->vRefNum;
 		WindowParID[wKeyboard] = p_spec->parID;
 		SetName(wKeyboard,TRUE,TRUE);
 		Created[wKeyboard] = TRUE;
 		Dirty[wKeyboard] = FALSE;
+		err = NSWCleanupReply(&reply);
 		return(OK);
 		}
 	else {
@@ -286,6 +301,7 @@ WRITE:
 		Alert1(Message);
 		}
 	}
+err = NSWCleanupReply(&reply);
 return(FAILED);
 }
 
@@ -382,9 +398,11 @@ int i,j,good;
 short refnum;
 Str255 fn;
 long x,count,p,q;
-StandardFileReply reply;
+NSWReply reply;
 char line[MAXFIELDCONTENT];
+OSErr err;
 
+err = NSWInitReply(&reply);
 GetTimeBase(); GetTickParameters();
 if(FileName[wTimeBase][0] != '\0') strcpy(Message,FileName[wTimeBase]);
 else strcpy(Message,FilePrefix[wTimeBase]);
@@ -400,7 +418,10 @@ reply.sfFile.parID = WindowParID[wTimeBase];
 if(NewFile(fn,&reply,gFileType[wTimeBase])) {
 	i = CreateFile(wTimeBase,-1,gFileType[wTimeBase],fn,&reply,&refnum);
 	*p_spec = reply.sfFile;
-	if(i == ABORT) return(FAILED);
+	if(i == ABORT) {
+		err = NSWCleanupReply(&reply);
+		return(FAILED);
+		}
 	if(i == OK) {
 WRITE:
 		SetCursor(&WatchCursor);
@@ -427,12 +448,14 @@ WRITE:
 		SetEOF(refnum,count);
 		FlushFile(refnum);
 		MyFSClose(wTimeBase,refnum,p_spec);
+		reply.saveCompleted = true;
 		MyPtoCstr(MAXNAME,p_spec->name,FileName[wTimeBase]);
 		TheVRefNum[wTimeBase] = p_spec->vRefNum;
 		WindowParID[wTimeBase] = p_spec->parID;
 		SetName(wTimeBase,TRUE,TRUE);
 		Created[wTimeBase] = TRUE;
 		Dirty[wTimeBase] = FALSE;
+		err = NSWCleanupReply(&reply);
 		return(OK);
 		}
 	else {
@@ -441,6 +464,7 @@ WRITE:
 		Alert1(Message);
 		}
 	}
+err = NSWCleanupReply(&reply);
 return(FAILED);
 }
 
@@ -745,9 +769,11 @@ int i,j,good,ishtml;
 short refnum;
 Str255 fn;
 long x,count,p,q;
-StandardFileReply reply;
+NSWReply reply;
 char line[MAXFIELDCONTENT];
+OSErr err;
 
+err = NSWInitReply(&reply);
 if(FileName[wCsoundInstruments][0] != '\0') strcpy(Message,FileName[wCsoundInstruments]);
 else strcpy(Message,FilePrefix[wCsoundInstruments]);
 c2pstrcpy(fn, Message);
@@ -762,7 +788,10 @@ reply.sfFile.parID = WindowParID[wCsoundInstruments];
 if(NewFile(fn,&reply,gFileType[wCsoundInstruments])) {
 	i = CreateFile(wCsoundInstruments,-1,gFileType[wCsoundInstruments],fn,&reply,&refnum);
 	*p_spec = reply.sfFile;
-	if(i == ABORT) return(FAILED);
+	if(i == ABORT) {
+		err = NSWCleanupReply(&reply);
+		return(FAILED);
+		}
 	if(i == OK) {
 WRITE:
 		SaveOn++;
@@ -927,6 +956,7 @@ WRITE:
 		SetEOF(refnum,count);
 		FlushFile(refnum);
 		MyFSClose(wCsoundInstruments,refnum,p_spec);
+		reply.saveCompleted = true;
 		MyPtoCstr(MAXNAME,p_spec->name,FileName[wCsoundInstruments]);
 		TheVRefNum[wCsoundInstruments] = p_spec->vRefNum;
 		WindowParID[wCsoundInstruments] = p_spec->parID;
@@ -935,6 +965,7 @@ WRITE:
 		Dirty[wCsoundInstruments] = FALSE;
 		ClearMessage();
 		if(SaveOn > 0) SaveOn--;
+		err = NSWCleanupReply(&reply);
 		return(OK);
 		}
 	else {
@@ -943,6 +974,7 @@ WRITE:
 		Alert1(Message);
 		}
 	}
+err = NSWCleanupReply(&reply);
 return(FAILED);
 }
 
@@ -951,14 +983,16 @@ SaveSettings(int startup,int now,Str255 fn,FSSpec* p_spec)
 {
 short refnum;
 int i,io,imax,j,rep,w,good,ishtml,result;
-StandardFileReply reply;
+NSWReply reply;
 long count,a,b;
 char line[MAXNAME+1];
 GrafPtr saveport;
 Rect r;
 Point p,q;
+OSErr err;
 
 if(ScriptExecOn) return(OK);
+err = NSWInitReply(&reply);
 p_spec->vRefNum = TheVRefNum[iSettings];
 p_spec->parID = WindowParID[iSettings];
 strcpy(line,FilePrefix[iSettings]);
@@ -975,7 +1009,10 @@ result = FAILED;
 if(NewFile(fn,&reply,gFileType[iSettings])) {
 	io = CreateFile(iSettings,iSettings,gFileType[iSettings],fn,&reply,&refnum);
 	*p_spec = reply.sfFile;
-	if(io == ABORT) return(FAILED);
+	if(io == ABORT) {
+		err = NSWCleanupReply(&reply);
+		return(FAILED);
+		}
 	MyPtoCstr(MAXNAME,fn,line);
 	if(io == OK) {
 WRITE:
@@ -1141,6 +1178,7 @@ LASTPART:
 		SetEOF(refnum,count);
 		FlushFile(refnum);
 		MyFSClose(iSettings,refnum,p_spec);
+		reply.saveCompleted = true;
 		Dirty[iSettings] = FALSE;
 		if(!startup) {
 			Created[iSettings] = TRUE;
@@ -1159,6 +1197,7 @@ LASTPART:
 		result = FAILED;
 		}
 	}
+err = NSWCleanupReply(&reply);
 HideWindow(Window[wMessage]);
 return(result);
 }
@@ -1725,15 +1764,20 @@ return(result);
 SaveDecisions(void)
 {
 int i,ishtml;
-StandardFileReply reply;
+NSWReply reply;
 short refnum;
 long count;
+OSErr err;
 
+err = NSWInitReply(&reply);
 ShowMessage(TRUE,wMessage,"Creating decision file…");
 PascalLine[0] = 0;
 if(NewFile(PascalLine,&reply,4)) {
 	i = CreateFile(-1,-1,4,PascalLine,&reply,&refnum);
-	if(i == ABORT) return(FAILED);
+	if(i == ABORT) {
+		err = NSWCleanupReply(&reply);
+		return(FAILED);
+		}
 	if(i == OK) {
 		SetCursor(&WatchCursor);
 		if(!ComputeOn) WriteToFile(NO,MAC,"END",refnum);
@@ -1757,7 +1801,8 @@ if(NewFile(PascalLine,&reply,4)) {
 		SetEOF(refnum,count);
 		FlushFile(refnum);
 		FSClose(refnum);
-	/*	Dirty[wInteraction] = FALSE; */
+		reply.saveCompleted = true;
+		err = NSWCleanupReply(&reply);
 		return(OK);
 		}
 	else {
@@ -1766,6 +1811,7 @@ if(NewFile(PascalLine,&reply,4)) {
 		Alert1(Message);
 		}
 	}
+err = NSWCleanupReply(&reply);
 return(FAILED);
 }
 
@@ -2128,8 +2174,10 @@ int rep,i,j,type,result;
 short refnum;
 long count;
 Str255 fn;
-StandardFileReply reply;
+NSWReply reply;
+OSErr err;
 
+err = NSWInitReply(&reply);
 ShowMessage(TRUE,wMessage,"Saving MIDI orchestra file…");
 if(FileName[wMIDIorchestra][0] == '\0') strcpy(Message,"-or.");
 else strcpy(Message,FileName[wMIDIorchestra]);
@@ -2165,6 +2213,7 @@ WRITE:
 		SetEOF(refnum,count);
 		FlushFile(refnum);
 		MyFSClose(wMIDIorchestra,refnum,&(reply.sfFile));
+		reply.saveCompleted = true;
 		MyPtoCstr(MAXNAME,reply.sfFile.name,FileName[wMIDIorchestra]);
 		TheVRefNum[wMIDIorchestra] = reply.sfFile.vRefNum;
 		WindowParID[wMIDIorchestra] = reply.sfFile.parID;
@@ -2181,6 +2230,7 @@ WRITE:
 		}
 	}
 OUT:
+err = NSWCleanupReply(&reply);
 ClearMessage();
 return(result);
 }

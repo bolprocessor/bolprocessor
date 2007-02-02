@@ -715,26 +715,31 @@ MakeCsFile(char* line)
 {
 short refnum;
 int rep,vref,ishtml;
-StandardFileReply reply;
 FSSpec spec;
 // FInfo fndrinfo;
 OSErr io;
 long length;
 
 rep = FAILED;
+
+// need to save the NSWReply record until we close the file
+CsFileReply = (NSWReply**)GiveSpace(sizeof(NSWReply));
+MyLock(FALSE, (Handle)CsFileReply);
+io = NSWInitReply(*CsFileReply);
+
 ShowMessage(TRUE,wMessage,"Create new Csound score file…");
 if(line == NULL || line[0] == '\0') {
 	strcpy(Message,"?.sco");
 	}
 else strcpy(Message,line);
 c2pstrcpy(PascalLine,Message);
-if(NewFile(PascalLine,&reply,1)) {
-	rep = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
+if(NewFile(PascalLine,*CsFileReply,1)) {
+	rep = CreateFile(-1,-1,1,PascalLine,*CsFileReply,&refnum);
 	if(rep == OK) {
 		CsRefNum = refnum;
 		MyPtoCstr(MAXNAME,PascalLine,CsFileName);
 		if(FixCsoundScoreName(CsFileName) == FAILED) {
-			spec = reply.sfFile;
+			spec = (*CsFileReply)->sfFile;
 			c2pstrcpy(PascalLine, CsFileName);
 			io = FSpRename(&spec,PascalLine);
 			if(io != noErr && Beta) {
@@ -762,6 +767,7 @@ if(NewFile(PascalLine,&reply,1)) {
 		AppendScript(180);
 		}
 	}
+if (CsFileReply) MyUnlock((Handle)CsFileReply);
 ClearMessage();
 return(rep);
 }
@@ -771,6 +777,7 @@ CloseCsScore(void)
 {
 long count;
 char line[MAXLIN];
+OSErr err;
 
 if(!CsScoreOpened) return(OK);
 
@@ -784,6 +791,12 @@ SetEOF(CsRefNum,count);
 FlushFile(CsRefNum);
 FSClose(CsRefNum);
 CsScoreOpened = FALSE;
+if (CsFileReply) {
+	MyLock(FALSE, (Handle)CsFileReply);
+	(*CsFileReply)->saveCompleted = true;
+	err = NSWCleanupReply(*CsFileReply);
+	MyDisposeHandle((Handle*)&CsFileReply);
+}
 sprintf(Message,"Closed Csound score file ‘%s’",CsFileName);
 ShowMessage(TRUE,wMessage,Message);
 CsFileName[0] = '\0';

@@ -790,8 +790,9 @@ DialogPtr filepreviewptr;
 Str255 fn;
 OSErr io;
 FieldProcess **p_fieldlist;
-StandardFileReply reply;
+NSWReply reply;
 
+io = NSWInitReply(&reply);
 p_fieldlist = NULL;
 p_line = p_completeline = NULL;
 Interrupted = FALSE;
@@ -1076,7 +1077,7 @@ while(TRUE) {
 			if(io == dskFulErr) Alert1("No more space on this disk... Task aborted");
 			else TellError(101,io);
 			result = ABORT;
-			goto OVER;
+			goto CLOSE;
 			}
 		goto READMORE;
 		}
@@ -1092,15 +1093,18 @@ READMORE:
 	if(rr == STOP) break;
 	}
 
+CLOSE:
 GetFPos(refnumout,&count);
 SetEOF(refnumout,count);
 FlushFile(refnumout);
 FSClose(refnumout);
+reply.saveCompleted = true;
 
 ComputeOn--;
 
 OVER:
 
+io = NSWCleanupReply(&reply);
 MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 MyDisposeHandle((Handle*)&p_fieldlist);
 if(FSClose(refnum) != noErr) {

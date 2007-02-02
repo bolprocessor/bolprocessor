@@ -82,13 +82,19 @@ MakeMIDIFile(char* line)
 {
 short refnum;
 int i,result,vref;
-StandardFileReply reply;
 long count,length;
 unsigned char byte,b0,b1,b2;
 Str255 filename;
 unsigned long quarternotedur,deltatimesinquarternote;
+OSErr err;
 
 result = FAILED;
+
+// need to save the NSWReply record until we close the file *sigh*
+MIDIfileReply = (NSWReply**)GiveSpace(sizeof(NSWReply));
+MyLock(FALSE, (Handle)MIDIfileReply);
+err = NSWInitReply(*MIDIfileReply);
+
 ShowMessage(TRUE,wMessage,"Create new MIDI fileÉ");
 if(line == NULL || line[0] == '\0') {
 	sprintf(Message,"?.mid%ld",(long)MIDIfileType);
@@ -98,12 +104,12 @@ else strcpy(Message,line);
 c2pstrcpy(filename, Message);
 /* This converts C to Pascal string; beurk! */
 
-if(NewFile(filename,&reply,11)) {	/* This opens a save-file dialog */
-	result = CreateFile(-1,-1,11,filename,&reply,&refnum);
+if(NewFile(filename,*MIDIfileReply,11)) {	/* This opens a save-file dialog */
+	result = CreateFile(-1,-1,11,filename,*MIDIfileReply,&refnum);
 	if(result == OK) {
 		MIDIRefNum = refnum;
 		MIDIfileOpened = MIDIfileTrackEmpty = TRUE;
-		MIDIfileSpec = reply.sfFile;
+		MIDIfileSpec = (*MIDIfileReply)->sfFile;
 		/* Below is some interface and scripting business */
 		MyPtoCstr(MAXNAME,filename,MIDIfileName);
 		SetField(FileSavePreferencesPtr,-1,fMIDIFileName,MIDIfileName);
@@ -214,6 +220,7 @@ if(NewFile(filename,&reply,11)) {	/* This opens a save-file dialog */
   	else result = ABORT;
 	}
 else result = ABORT;
+if (MIDIfileReply) MyUnlock((Handle)MIDIfileReply);
 ClearMessage();
 return(result);
 }
@@ -359,6 +366,7 @@ CloseMIDIFile(void)
 {
 long count,pos;
 unsigned char byte;
+OSErr err;
 
 if(!MIDIfileOpened) return(OK);
 
@@ -411,6 +419,12 @@ ShowMessage(TRUE,wMessage,Message);
 
 OUT:
 MIDIfileOpened = FALSE;
+if (MIDIfileReply) {
+	MyLock(FALSE, (Handle)MIDIfileReply);
+	(*MIDIfileReply)->saveCompleted = true;
+	err = NSWCleanupReply(*MIDIfileReply);
+	MyDisposeHandle((Handle*)&MIDIfileReply);
+}
 NewOrchestra = TRUE;
 MIDIfileName[0] = '\0';
 SetField(FileSavePreferencesPtr,-1,fMIDIFileName,MIDIfileName);

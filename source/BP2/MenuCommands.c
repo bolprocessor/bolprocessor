@@ -917,8 +917,9 @@ int r;
 long count,i,im;
 short refnum;
 Str255 fn;
-StandardFileReply reply;
+NSWReply reply;
 Handle ptr;
+OSErr err;
 
 if(CheckMemory() != OK) return(FAILED);
 if(ComputeOn || PolyOn || SoundOn || SelectOn ||
@@ -927,6 +928,7 @@ if(ComputeOn || PolyOn || SoundOn || SelectOn ||
 r = OK;
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
+err = NSWInitReply(&reply);
 if(Answer("Load and save MIDI data from device",'Y') == YES) {
 	if((r=LoadRawData(&im)) != OK) {
 		r = FAILED; goto OUT;
@@ -954,9 +956,11 @@ if(Answer("Load and save MIDI data from device",'Y') == YES) {
 		SetEOF(refnum,count);
 		FlushFile(refnum);
 		FSClose(refnum);
+		reply.saveCompleted = true;
 		}
 			
 OUT:	
+	err = NSWCleanupReply(&reply);
 	ptr = (Handle) p_Code;
 	MyDisposeHandle(&ptr);
 	p_Code = NULL;

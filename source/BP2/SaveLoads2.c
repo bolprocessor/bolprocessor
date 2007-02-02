@@ -97,10 +97,12 @@ long i,j;
 short refnum;
 Str255 fn;
 long count,p,q;
-StandardFileReply reply;
+NSWReply reply;
 char line[MAXLIN];
 Milliseconds t;
+OSErr err;
 
+err = NSWInitReply(&reply);
 if(FileName[iObjects][0] != '\0') strcpy(Message,FileName[iObjects]);
 else strcpy(Message,FilePrefix[iObjects]);
 c2pstrcpy(fn, Message);
@@ -111,7 +113,10 @@ if(good) goto WRITE;
 if(NewFile(fn,&reply,gFileType[iObjects])) {
 	i = CreateFile(iObjects,-1,gFileType[iObjects],fn,&reply,&refnum);
 	(*p_spec) = reply.sfFile;
-	if(i == ABORT) return(FAILED);
+	if(i == ABORT) {
+		err = NSWCleanupReply(&reply);
+		return(FAILED);
+		}
 	if(i == OK) {
 WRITE:
 		SaveOn++;
@@ -312,6 +317,7 @@ WRITE:
 		SetEOF(refnum,count);
 		FlushFile(refnum);
 		MyFSClose(iObjects,refnum,p_spec);
+		reply.saveCompleted = true;
 		MyPtoCstr(MAXNAME,p_spec->name,FileName[iObjects]);
 		TheVRefNum[iObjects] = p_spec->vRefNum;
 		WindowParID[iObjects] = p_spec->parID;
@@ -320,6 +326,7 @@ WRITE:
 		Dirty[iObjects] = FALSE;
 		HideWindow(Window[wMessage]);
 		if(SaveOn > 0) SaveOn--;
+		err = NSWCleanupReply(&reply);
 		return(OK);
 		}
 	else {
@@ -329,8 +336,8 @@ WRITE:
 		Created[iObjects] = FALSE;
 		}
 	}
-else return(FAILED);
-return(OK);
+err = NSWCleanupReply(&reply);
+return(FAILED);
 }
 
 
