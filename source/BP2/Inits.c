@@ -346,6 +346,7 @@ PointCsound = PointMIDI = FALSE;
 CsFileName[0] = MIDIfileName[0] = CsoundOrchestraName[0] = '\0';
 MIDIfadeOut = 2.;
 MIDIfileOpened = FALSE;
+MIDIfileReply = CsFileReply = NULL;
 if((p_Oldvalue = (MIDIcontrolstatus**)
 	GiveSpace((Size)MAXCHAN*sizeof(MIDIcontrolstatus))) == NULL) return(ABORT);
 	
@@ -1754,7 +1755,7 @@ OSErr io;
 FSSpec spec;
 unsigned long today,secs;
 FInfo fndrinfo;
-StandardFileReply reply;
+NSWReply reply;
 char **p_line,**p_completeline;
 long pos;
 
@@ -1854,7 +1855,7 @@ short type,refnum;
 OSErr io;
 FSSpec spec;
 FInfo fndrinfo;
-StandardFileReply reply;
+NSWReply reply;
 char line[MAXFIELDCONTENT];
 Rect r;
 Handle itemhandle;

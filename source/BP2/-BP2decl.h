@@ -358,5 +358,7 @@ extern double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 extern double MaxFrac;
 extern Boolean RunningOnOSX;
 extern ControlActionUPP vScrollUPP,hScrollUPP;
+extern NSWReply** MIDIfileReply;
+extern NSWReply** CsFileReply;
 
 #endif /* BP2_DECL_H */

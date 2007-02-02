@@ -419,5 +419,7 @@ double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 double MaxFrac;
 Boolean RunningOnOSX;
 ControlActionUPP vScrollUPP,hScrollUPP;
+NSWReply** MIDIfileReply;
+NSWReply** CsFileReply;
 
 #endif /* BP2_MAIN_H */
