@@ -1,3 +1,41 @@
+2007-02-02	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/SaveLoads1.c:
+	* source/BP2/SaveLoads2.c:
+	* source/BP2/SaveLoads3.c:
+	* source/BP2/Translit.c:
+		Revising file saving code to properly init & dispose of NSWReply records.
+
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/NavServWrapper.c:
+	* source/BP2/NavServWrapper.h:
+	* source/BP2/SaveLoads3.c:
+		Adding format popup-menu items to Save dialog.
+	
+	* source/BP2/Strings.c:
+		Made first parameter of CopyPString() "const".
+	
+2007-02-01	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2.h:
+	* source/BP2/-BP2.proto.h:
+		Replaced StandardFileReply with NSWReply.
+	
+	* source/BP2/NavServWrapper.c:
+	* source/BP2/NavServWrapper.h:
+		Improvements to Navigation Services code.
+	
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+	* source/BP2/Inits.c:
+		New globals MIDIfileReply & CsFileReply to save NSWReply's until the 
+			files are closed.  (So we can call NavCompleteSave()).
+	
+	* source/BP2/CsoundScoreMake.c:
+	* source/BP2/MIDIfiles.c:
+	* source/BP2/MenuCommands.c:
+		Revising file saving code to properly init & dispose of NSWReply records.
+
 2007-01-31	Anthony Kozar	<anthonykozar@sbcglobal.net>
 		
 	* BP2-MacOS.cw8.mcp: Added NavServWrapper.c to all targets.
