@@ -55,12 +55,14 @@ SaveAs(Str255 fn,FSSpec *p_spec,int w)
 short refnum;
 int i,n;
 long count;
-StandardFileReply reply;
+NSWReply reply;
+OSErr err;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
 	if(Beta) Alert1("Err. SaveAs(). Incorrect window index");
 	return(FAILED);
 	}
+err = NSWInitReply(&reply);
 /* If the file name is empty, at least we insert its prefix */
 if(fn[0] == 0) c2pstrcpy(fn, FilePrefix[w]);
 reply.sfFile.vRefNum = TheVRefNum[w];	/* Added 30/3/98 */
@@ -69,7 +71,10 @@ if(NewFile(fn,&reply,gFileType[w])) {
 	i = CreateFile(w,w,gFileType[w],fn,&reply,&refnum);
 	SetCursor(&WatchCursor);
 	*p_spec = reply.sfFile;
-	if(i == ABORT) return(FAILED);
+	if(i == ABORT) {
+		err = NSWCleanupReply(&reply);
+		return(FAILED);
+		}
 	if(i == OK) {
 		/* Update text length before saving */
 		UpdateWindow(FALSE,Window[w]);
@@ -80,8 +85,10 @@ if(NewFile(fn,&reply,gFileType[w])) {
 		SetEOF(refnum,count);
 		FlushFile(refnum);
 		MyFSClose(w,refnum,p_spec);
+		reply.saveCompleted = true;
 		Dirty[w] = FALSE;
 		CheckTextSize(w);
+		err = NSWCleanupReply(&reply);
 		return(OK);
 		}
 	else {
@@ -90,6 +97,7 @@ if(NewFile(fn,&reply,gFileType[w])) {
 		Alert1(LineBuff);
 		}
 	}
+err = NSWCleanupReply(&reply);
 return(FAILED);
 }
 
@@ -163,6 +171,73 @@ else {
 	}
 }
 
+/* SelectCreatorAndFileType returns the default creator and file type codes
+   for a Save file dialog */
+SelectCreatorAndFileType(int type, OSType* thecreator, OSType* thetype)
+{
+	*thecreator = 'Bel0';
+	switch(type) {
+		case 0:
+		case 1:
+			*thetype = 'TEXT';
+			break;
+		case 2:
+			*thetype = 'BP02';	/* -kb keyboard file */
+			break;
+		case 3:
+			*thetype = 'BP03';	/* -mi MIDI object file */
+			break;
+		case 4:
+			*thetype = 'BP04';	/* decision file */
+			break;
+		case 5:
+			*thetype = 'BP05';	/* -gr grammar file */
+			break;
+		case 6:
+			*thetype = 'BP06';	/* -ho alphabet file */
+			break;
+		case 7:
+			*thetype = 'TEXT';	/* -da data file.  Suppressed 'BP07' */
+			break;
+		case 8:
+			*thetype = 'BP08';	/* -in interactive code file */
+			break;
+		case 9:
+			*thetype = 'BP09';	/* -se settings file */
+			break;
+		case 10:
+			*thetype = 'AIFC';	/* AIFF compressed file */
+			break;
+		case 11:
+			*thetype = 'Midi';	/* MIDI file */
+			break;
+		case 12:
+			*thetype = 'BP10';	/* -wg weight file */
+			break;
+		case 13:
+			*thetype = 'BP11';	/* BP script file */
+			break;
+		case 14:
+			*thetype = 'BP12';	/* glossary -gl file */
+			break;
+		case 15:
+			*thetype = 'BP13';	/* time base -tb file */
+			break;
+		case 16:
+			*thetype = 'BP14';	/* Csound instruments -cs file */
+			break;
+		case 17:
+			*thetype = 'BP15';	/* MIDI orchestra -or file */
+			break;
+		case 18:
+			*thetype = 'TEXT';
+			*thecreator = 'MOSS';	/* Netscape creator */
+			break;
+		}
+	return(OK);
+}
+
+/* FillTypeList makes a list of file type codes for an Open file dialog */
 void FillTypeList(int type, SFTypeList typelist, int* numtypes)
 {
 	/* Modified 013107 by akozar: 'MOSS' is a creator not a file 
@@ -258,12 +333,45 @@ switch(type) {
 	return;
 }
 
-NewFile(Str255 fn,StandardFileReply *p_reply, int type)
+const	Str255 FormatNames[4]={	"\pBP2 native",
+					"\pBP2 native (HTML)",
+					"\pBP2 text file",
+					"Netscape HTML file"
+				    };
+
+int MakeFormatMenuItems(int type, NavMenuItemSpecArrayHandle* p_handle)
+{
+	NavMenuItemSpec* items;
+	OSType creator, filetype;
+	int i, typelist[4];
+	
+	/* resize before dereferencing */
+	if (MySetHandleSize((Handle*)p_handle, 4*sizeof(NavMenuItemSpec)) != OK)
+		return (ABORT);
+	items = **p_handle;
+	
+	typelist[0] = type;	// BP2 native format
+	typelist[1] = type;	// BP2 native format with HTML encoding
+	typelist[2] = 1;		// BP2 plain text
+	typelist[3] = 18;		// Netscape HTML
+	
+	for (i = 0; i < 4; ++i) {
+		items[i].version = kNavMenuItemSpecVersion;
+		SelectCreatorAndFileType(typelist[i], &(items[i].menuCreator), &(items[i].menuType));
+		CopyPString(FormatNames[i], items[i].menuItemName);
+	}
+	
+	return(OK);
+	
+}
+
+
+NewFile(Str255 fn,NSWReply *p_reply, int type)
 // Check whether the file we're creating is a new one, and get its specs in a reply record
 {
-	SFTypeList typelist;
-	int numtypes;
-	// FSSpec spec;
+	NavMenuItemSpecArrayHandle formatItems;
+	NSWOptions opts;
+	OSType creator, filetype;
 	short refnum;
 	OSErr io;
 
@@ -280,14 +388,22 @@ NewFile(Str255 fn,StandardFileReply *p_reply, int type)
 		if(io == noErr) FSClose(refnum); 
 		} */
 #if TARGET_API_MAC_CARBON
-	if (type == 0)  type = 1;
-	FillTypeList(type, typelist, &numtypes);
+	NSWOptionsInit(&opts);
+	opts.appName = "\pBol Processor";
+	opts.prompt = "\pSave File As:";
+	formatItems = (NavMenuItemSpecArrayHandle) GiveSpace(1);
+	if (MakeFormatMenuItems(type, &formatItems) != OK) {
+		MyDisposeHandle((Handle*)&formatItems);
+		return(FAILED);
+	}
+	opts.menuItems = formatItems;
+	SelectCreatorAndFileType(type, &creator, &filetype);
 	// for now, just use first type (the primary one)
-	io = NSWPutFile(p_reply, 'Bel0', typelist[0], fn, NULL);
+	io = NSWPutFile(p_reply, creator, filetype, fn, &opts);
 	// Alert1("Saving new files is not yet functional in Bol Processor Carbon.  Sorry!!");
 	if (io != noErr) return(FAILED);
 #else
-	StandardPutFile("\pSave fileÉ",fn,p_reply);
+	StandardPutFile("\pSave File As:",fn,p_reply);
 #endif
 	if(p_reply->sfGood) {
 		CopyPString(p_reply->sfFile.name,fn);
@@ -304,7 +420,7 @@ OldFile(int w,int type,Str255 fn,FSSpec *p_spec)
 {
 SFTypeList typelist;
 int numtypes;
-StandardFileReply reply2;
+NSWReply reply2;
 
 if(CallUser(1) != OK) return(FAILED);
 
@@ -342,8 +458,35 @@ if(reply2.sfGood) {
 else return(NO);
 }
 
+int PromptForFileFormat(int w, char* filename, int* type)
+{
+	sprintf(Message,"Saving %sÉ  In which format?", filename);
+	ShowMessage(TRUE,wMessage,Message);
+	IsHTML[w] = IsText[w] = FALSE;
+	StopWait();
+	switch(Alert(SaveAsAlert,0L)) {
+		case dBP2format:
+			break;
+		case dhtmlText:
+			IsText[w] = TRUE;
+			*type = 18;
+			IsHTML[w] = TRUE;
+			break;
+		case dhtml:
+			IsHTML[w] = TRUE;
+			break;
+		case dPlainText:
+			IsText[w] = TRUE;
+			*type = 1;
+			break;
+		}
+	Weird[w] = FALSE;
+	HideWindow(Window[wMessage]);
+	
+	return(OK);
+}
 
-CreateFile(int wref,int w,int type,Str255 fn,StandardFileReply *p_reply,short *p_refnum)
+CreateFile(int wref,int w,int type,Str255 fn,NSWReply *p_reply,short *p_refnum)
 {
 int io,already,replace;
 FSSpec spec;
@@ -371,92 +514,12 @@ if(w >= 0) {
 if(w == wScrap || w == wTrace) replace = FALSE;
 if(w >= 0 && Weird[w]) Weird[w] = replace = FALSE;
 
-if(!replace && w >= 0 && Editable[w] && w != wHelp
-		&& w != wNotice && w != wPrototype7) {
-	sprintf(Message,"Saving %sÉ  In which format?",name);
-	ShowMessage(TRUE,wMessage,Message);
-	IsHTML[w] = IsText[w] = FALSE;
-	StopWait();
-	switch(Alert(SaveAsAlert,0L)) {
-		case dBP2format:
-			break;
-		case dhtmlText:
-			IsText[w] = TRUE;
-			type = 18;
-			IsHTML[w] = TRUE;
-			break;
-		case dhtml:
-			IsHTML[w] = TRUE;
-			break;
-		case dPlainText:
-			IsText[w] = TRUE;
-			type = 1;
-			break;
-		}
-	Weird[w] = FALSE;
-	HideWindow(Window[wMessage]);
-	}
-	
-thecreator = 'Bel0';
-switch(type) {
-	case 0:
-	case 1:
-		thetype = 'TEXT';
-		break;
-	case 2:
-		thetype = 'BP02';	/* -kb keyboard file */
-		break;
-	case 3:
-		thetype = 'BP03';	/* -mi MIDI object file */
-		break;
-	case 4:
-		thetype = 'BP04';	/* decision file */
-		break;
-	case 5:
-		thetype = 'BP05';	/* -gr grammar file */
-		break;
-	case 6:
-		thetype = 'BP06';	/* -ho alphabet file */
-		break;
-	case 7:
-		thetype = 'TEXT';	/* -da data file.  Suppressed 'BP07' */
-		break;
-	case 8:
-		thetype = 'BP08';	/* -in interactive code file */
-		break;
-	case 9:
-		thetype = 'BP09';	/* -se settings file */
-		break;
-	case 10:
-		thetype = 'AIFC';	/* AIFF compressed file */
-		break;
-	case 11:
-		thetype = 'Midi';	/* MIDI file */
-		break;
-	case 12:
-		thetype = 'BP10';	/* -wg weight file */
-		break;
-	case 13:
-		thetype = 'BP11';	/* BP script file */
-		break;
-	case 14:
-		thetype = 'BP12';	/* glossary -gl file */
-		break;
-	case 15:
-		thetype = 'BP13';	/* time base -tb file */
-		break;
-	case 16:
-		thetype = 'BP14';	/* Csound instruments -cs file */
-		break;
-	case 17:
-		thetype = 'BP15';	/* MIDI orchestra -or file */
-		break;
-	case 18:
-		thetype = 'TEXT';
-		thecreator = 'MOSS';	/* Netscape creator */
-		break;
-	}
-	
+if(!p_reply->usedNavServices && !replace && w >= 0 && Editable[w] && w != wHelp
+		&& w != wNotice && w != wPrototype7)
+	PromptForFileFormat(w, name, &type);
+
+SelectCreatorAndFileType(type, &thecreator, &thetype);
+
 CREATE:
 io = FSpCreate(&spec,thecreator,thetype,p_reply->sfScript);
 already = FALSE;
@@ -1086,7 +1149,7 @@ OpenTemp(void)
 {
 OSErr err;
 int type,rep;
-StandardFileReply reply;
+NSWReply reply;
 short refnum;
 
 if(TempRefnum != -1) {
@@ -1116,7 +1179,7 @@ OpenTrace(void)
 {
 OSErr err;
 int type,rep;
-StandardFileReply reply;
+NSWReply reply;
 short refnum;
 
 if(TraceRefnum != -1) {
