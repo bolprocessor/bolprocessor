@@ -172,10 +172,6 @@ Hey: this code is not portable!!!
 #include "midi1.h"
 #include "NavServWrapper.h"
 
-#if TARGET_API_MAC_CARBON	/* FIXME: temporary to avoid too many errors -- remove me */
-  typedef NSWReply StandardFileReply;
-#endif
-
 // Moved macros and enum down here to avoid potential problems with replacing names
 // in any of the above headers -- 010807 akozar
 // Note: the following definitions must not be given before loading ColorPicker.h because they mess up CMICCProfile.h
