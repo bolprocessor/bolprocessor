@@ -56,15 +56,17 @@ typedef struct NSWOptions {
 	StringPtr	prompt;	/* dialog box prompt */
 	StringPtr	appName;	/* application name */
 	UInt32	prefKey;	/* preference key for Nav Services */
+	NavMenuItemSpecArrayHandle	menuItems;	/* items for Show/Format menu */
 } NSWOptions;
 
 
+OSErr NSWInitReply(NSWReply* reply);
+OSErr NSWCleanupReply(NSWReply* reply);
 void	NSWOptionsInit(NSWOptions* opts);
 
 OSErr NSWPutFile(NSWReply* reply, OSType creator, OSType fileType, 
 			const StringPtr defaultName, NSWOptions* opts);
 			
-OSErr NSWCleanupReply(NSWReply* reply);
 
 
 #endif

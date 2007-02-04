@@ -12,6 +12,18 @@
 
 #include	"NavServWrapper.h"
 
+/* You should call this function if there is any chance that 
+   your code will call NSWCleanupReply without first calling 
+   NSWPutFile, NSWGetFile, etc. for this NSWReply record.  */
+OSErr NSWInitReply(NSWReply* reply)
+{
+	reply->usedNavServices	= false;
+	reply->needCleanup	= false;
+	reply->saveCompleted	= false;
+
+	return noErr;
+}
+
 /* Call this function before using an NSWOptions struct so 
    that you do not have to initialize every field. */
 void	NSWOptionsInit(NSWOptions* opts)
@@ -19,6 +31,7 @@ void	NSWOptionsInit(NSWOptions* opts)
 	opts->prompt = NULL;
 	opts->appName = NULL;
 	opts->prefKey = 0;
+	opts->menuItems = NULL;
 	return;
 }
 
@@ -104,8 +117,8 @@ OSErr NSWPutFile(NSWReply* reply, OSType creator, OSType fileType, const StringP
 	err = NavGetDefaultDialogOptions(&dialogOptions);
 	dialogOptions.preferenceKey = kDefaultPrefKey;
 
-	// user might want to translate the saved doc into another format
-	// dialogOptions.dialogOptionFlags -= kNavDontAddTranslateItems;
+	// worrying about translation is too much ******* work!
+	dialogOptions.dialogOptionFlags |= kNavDontAddTranslateItems;
 
 	if (err == noErr)
 	{
@@ -114,6 +127,7 @@ OSErr NSWPutFile(NSWReply* reply, OSType creator, OSType fileType, const StringP
 			if (opts->prompt)  CopyPascalString(dialogOptions.message, opts->prompt);
 			if (opts->appName) CopyPascalString(dialogOptions.clientName, opts->appName);
 			if (opts->prefKey) dialogOptions.preferenceKey = opts->prefKey;
+			if (opts->menuItems) dialogOptions.popupExtension = opts->menuItems;
 		}
 		
 		err = NavPutFile(NULL, &reply->navReply, &dialogOptions, eventProc, fileType, creator, NULL);
@@ -136,9 +150,12 @@ OSErr NSWPutFile(NSWReply* reply, OSType creator, OSType fileType, const StringP
 				BlockMove(&spec, &(reply->sfFile), sizeof(FSSpec));
 				reply->sfReplacing = reply->navReply.replacing;
 				reply->sfScript    = reply->navReply.keyScript;
+				/* sfIsFolder & sfIsVolume are only used by StdFile in dlg hook */
 				reply->sfIsFolder  = false;	/* can't be a folder or volume */
 				reply->sfIsVolume  = false;
-				/* FIXME: need to set sfReply.sfFlags & sfType ?? */
+				/* sfReply.sfFlags & sfType are set to 0 by StandardPutFile */
+				reply->sfFlags = 0;
+				reply->sfType = 0;
 				reply->isStationery = reply->navReply.isStationery;
 			}
 		}
@@ -153,11 +170,11 @@ OSErr NSWPutFile(NSWReply* reply, OSType creator, OSType fileType, const StringP
    before calling this function. */
 OSErr NSWCleanupReply(NSWReply* reply)
 {
-	OSErr	err;
+	OSErr	err = noErr;
 	
-	if (reply->saveCompleted) {
+	if (reply->usedNavServices && reply->saveCompleted) {
 		// Always call NavCompleteSave() to complete saves
-		err = NavCompleteSave(&reply->navReply, kNavTranslateInPlace);
+		err = NavCompleteSave(&reply->navReply, kNavTranslateCopy);
 	}
 	if (reply->needCleanup)  NavDisposeReply(&reply->navReply);
 
