@@ -34,7 +34,15 @@ aborted file write?
 
 - FlushVolume() seems wrong; could just use FlushVol from Toolbox instead.
 
-Anthony Kozar
-akozar@users.sourceforge.net
+- In TextEdit build, window updates redraw the text from the top of the document
+instead of the current scroll position.
 
-January 10, 2007
+- Crashes if too much text is inserted into a TextEdit buffer.
+
+- Getting warnings about using temporary memory and running out of memory with
+the Carbon build, even running on OS X, after producing items several times 
+with a complex project.
+
+- Can't load a MIDI orchestra when (!Oms && !InBuiltDriverOn); this should be 
+allowed though for writing Midi files.
+
