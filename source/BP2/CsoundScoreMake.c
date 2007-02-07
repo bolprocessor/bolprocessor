@@ -733,7 +733,7 @@ if(line == NULL || line[0] == '\0') {
 	}
 else strcpy(Message,line);
 c2pstrcpy(PascalLine,Message);
-if(NewFile(PascalLine,*CsFileReply,1)) {
+if(NewFile(-1,1,PascalLine,*CsFileReply)) {
 	rep = CreateFile(-1,-1,1,PascalLine,*CsFileReply,&refnum);
 	if(rep == OK) {
 		CsRefNum = refnum;

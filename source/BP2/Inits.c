@@ -1818,6 +1818,7 @@ ERR:
 	else {
 MAKE:
 		io = FSDelete("\p_bp2_startdate",0);
+		err = NSWInitReply(&reply);	
 		reply.sfFile.vRefNum = RefNumbp2;
 		reply.sfFile.parID = ParIDbp2;
 		reply.sfReplacing = FALSE;
@@ -1937,7 +1938,7 @@ if(formyself) {
 	CopyPString(PascalLine,reply.sfFile.name);
 	}
 else {
-	result = NewFile(PascalLine,&reply);
+	result = NewFile(-1,1,PascalLine,&reply);
 	if(result != OK) return(FAILED);
 	}
 result = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);

@@ -104,7 +104,7 @@ else strcpy(Message,line);
 c2pstrcpy(filename, Message);
 /* This converts C to Pascal string; beurk! */
 
-if(NewFile(filename,*MIDIfileReply,11)) {	/* This opens a save-file dialog */
+if(NewFile(-1,11,filename,*MIDIfileReply)) {	/* This opens a save-file dialog */
 	result = CreateFile(-1,-1,11,filename,*MIDIfileReply,&refnum);
 	if(result == OK) {
 		MIDIRefNum = refnum;
