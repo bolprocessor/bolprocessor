@@ -1,3 +1,36 @@
+2007-02-06	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2.proto.h: New and changed functions in SaveLoads3.c.
+	
+	* source/BP2/CsoundScoreMake.c:
+	* source/BP2/Inits.c:
+	* source/BP2/MenuCommands.c:
+	* source/BP2/MIDIfiles.c:
+	* source/BP2/SaveLoads1.c:
+	* source/BP2/SaveLoads2.c:
+	* source/BP2/Translit.c:
+		Added window index argument to NewFile() calls.
+	
+	* source/BP2/SaveLoads3.c (NewFile, CreateFile, etc.):
+		String constants and code for adding Format menu items in Save dialog.
+		Factored out some of the format/type logic to new functions.
+		NewFile() chooses a single type to save for "opaque" documents or 
+			makes a list of format choices for the editable text documents.
+		CreateFile() either retrieves format choice from NSWReply (NavServices)
+			or still displays button dialog (StdFile).
+		Changed logic so that user is always presented with a choice of formats
+			when doing a "Save As" on an appropriate document type.
+		Added customized PutFileEventProc() callback routine for Nav Services.
+		
+	* source/BP2/NavServWrapper.c:
+	* source/BP2/NavServWrapper.h:
+		Customized NSWReply record for BP's use within event callback.
+		Use event filter from SaveLoads3.c instead of simple NSW one.
+		Fixed illegal access in event filter that crashed on OS X (this bug
+			was from the Apple sample code in Nav. Services documentaion).
+		Now passes the entire NSWReply as our callback user data to NavPutFile.
+		Using align=68k to fix the StandardFileReply compatibility of NSWReply.
+
 2007-02-02	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/SaveLoads1.c:

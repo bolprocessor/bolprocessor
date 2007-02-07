@@ -27,6 +27,7 @@
   typedef unsigned long  SFTypeList[4]; 
 #endif
 
+#pragma options align=mac68k
 /* Our own file dialog reply record.
    Has fields with the same names as StandardFileReply and it is
    castable to StandardFileReply for convenience in updating existing code. */
@@ -49,7 +50,12 @@ typedef struct NSWReply {
 	Boolean		usedNavServices;	/* TRUE if NavServ used --> navReply is valid */
 	Boolean		needCleanup;	/* need to call NSWCleanupReply before disposing */
 	Boolean		saveCompleted;	/* you should set this TRUE when applicable */
+	
+	/* custom fields for Bol Processor */
+	Boolean		isHTML;
+	Boolean		isText;
 } NSWReply;
+#pragma options align=reset
 
 /* Optional parameters struct -- pass NULL if you don't need any of these */
 typedef struct NSWOptions {

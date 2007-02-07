@@ -76,30 +76,48 @@ static void	CopyPascalString(StringPtr to, StringPtr from)
    the event filter procedure below. */
 extern void HandleNavServUpdateEvent(WindowPtr, EventRecord*);
 
-/* Very simplistic event filter procedure for Nav Services. */
+extern pascal void PutFileEventProc(NavEventCallbackMessage callBackSelector,
+						NavCBRecPtr callBackParms,
+						NavCallBackUserData callBackUD);
+
+#if 0
+/* Simplistic event filter procedure - customized for Bol Processor. */
 static pascal void SimpleNavServEventProc(NavEventCallbackMessage callBackSelector,
 							NavCBRecPtr callBackParms,
 							NavCallBackUserData callBackUD)
 {
-	/* FIXME: this function is crashing on OS X */
-	/*WindowPtr window = (WindowPtr)callBackParms->eventData.eventDataParms.event->message;
+	NSWReply*		reply;
+	WindowPtr		window;
+	NavMenuItemSpec*	item;
+	
+	// Be careful not to access fields in callBackParms before checking the
+	// callBackSelector; They are not valid every time this function is called!
+	
 	switch (callBackSelector)
 	{
 		case kNavCBEvent:
-			switch (((callBackParms->eventData).eventDataParms).event->what)
+   			switch (((callBackParms->eventData).eventDataParms).event->what)
 			{
 				case updateEvt:
-					HandleNavServUpdateEvent(window,
-						(EventRecord*)callBackParms->eventData.eventDataParms.event);
+					window = (WindowPtr)callBackParms->eventData.eventDataParms.event->message;
+					//HandleNavServUpdateEvent(window,
+					//	(EventRecord*)callBackParms->eventData.eventDataParms.event);
 					break;
 				default:
 					break;
 			}
 			break;
+		case kNavCBPopupMenuSelect:
+			// save the user's selection of our custom format options
+			item = (NavMenuItemSpec*) callBackParms->eventData.eventDataParms.param;
+			reply = (NSWReply*) callBackUD;
+			// do your custom stuff here ...
+			break;
 		default:
 			break;
-	}*/
+	}
 }
+#endif
 
 OSErr NSWPutFile(NSWReply* reply, OSType creator, OSType fileType, const StringPtr defaultName, NSWOptions* opts)
 {
@@ -113,7 +131,7 @@ OSErr NSWPutFile(NSWReply* reply, OSType creator, OSType fileType, const StringP
 	reply->needCleanup	= false;
 	reply->saveCompleted	= false;
 	
-	eventProc = NewNavEventUPP(SimpleNavServEventProc);
+	eventProc = NewNavEventUPP(PutFileEventProc);
 	err = NavGetDefaultDialogOptions(&dialogOptions);
 	dialogOptions.preferenceKey = kDefaultPrefKey;
 
@@ -130,7 +148,8 @@ OSErr NSWPutFile(NSWReply* reply, OSType creator, OSType fileType, const StringP
 			if (opts->menuItems) dialogOptions.popupExtension = opts->menuItems;
 		}
 		
-		err = NavPutFile(NULL, &reply->navReply, &dialogOptions, eventProc, fileType, creator, NULL);
+		// pass the entire reply as our callback user data
+		err = NavPutFile(NULL, &reply->navReply, &dialogOptions, eventProc, fileType, creator, reply);
 		DisposeNavEventUPP(eventProc);
 		reply->needCleanup = true;
 

@@ -67,7 +67,7 @@ err = NSWInitReply(&reply);
 if(fn[0] == 0) c2pstrcpy(fn, FilePrefix[w]);
 reply.sfFile.vRefNum = TheVRefNum[w];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[w];
-if(NewFile(fn,&reply,gFileType[w])) {
+if(NewFile(w,gFileType[w],fn,&reply)) {
 	i = CreateFile(w,w,gFileType[w],fn,&reply,&refnum);
 	SetCursor(&WatchCursor);
 	*p_spec = reply.sfFile;
@@ -173,7 +173,7 @@ else {
 
 /* SelectCreatorAndFileType returns the default creator and file type codes
    for a Save file dialog */
-SelectCreatorAndFileType(int type, OSType* thecreator, OSType* thetype)
+void SelectCreatorAndFileType(int type, OSType* thecreator, OSType* thetype)
 {
 	*thecreator = 'Bel0';
 	switch(type) {
@@ -234,7 +234,7 @@ SelectCreatorAndFileType(int type, OSType* thecreator, OSType* thetype)
 			*thecreator = 'MOSS';	/* Netscape creator */
 			break;
 		}
-	return(OK);
+	return;
 }
 
 /* FillTypeList makes a list of file type codes for an Open file dialog */
@@ -333,46 +333,97 @@ switch(type) {
 	return;
 }
 
-const	Str255 FormatNames[4]={	"\pBP2 native",
-					"\pBP2 native (HTML)",
-					"\pBP2 text file",
-					"Netscape HTML file"
-				    };
+const int   MAXFORMATNAMES = 19;
+const int	MFNLEN = 30;
+const char  FormatNames[MAXFORMATNAMES][MFNLEN] = {
+		"BP2 text file",	 			/* 'TEXT' */
+		"BP2 text file",				/* 'TEXT' */
+		"BP2 keyboard",				/* 'BP02' */
+		"BP2 sound-object prototypes",	/* 'BP03' */
+		"BP2 decisions",				/* 'BP04' */
+		"BP2 grammar",				/* 'BP05' */
+		"BP2 alphabet",				/* 'BP06' */
+		"BP2 data",					/* 'TEXT', 'BP07' */
+		"BP2 interaction",			/* 'BP08' */
+		"BP2 settings",				/* 'BP09' */
+		"AIFF-C sound file",			/* 'AIFC' */
+		"BP2 MIDI file",				/* 'Midi' */
+		"BP2 weights",				/* 'BP10' */
+		"BP2 script",				/* 'BP11' */
+		"BP2 glossary",				/* 'BP12' */
+		"BP2 time-base",				/* 'BP13' */
+		"BP2 Csound instruments",		/* 'BP14' */
+		"BP2 MIDI orchestra",			/* 'BP15' */
+		"Netscape HTML file"			/* 'TEXT', creator 'MOSS' */
+		};
+		
+const int	HFLEN = 8;
+const	char	HTMLFormat[HFLEN] = " (HTML)";	/* this is appended to primary name */
 
 int MakeFormatMenuItems(int type, NavMenuItemSpecArrayHandle* p_handle)
 {
 	NavMenuItemSpec* items;
-	OSType creator, filetype;
-	int i, typelist[4];
+	int i, numitems, typelist[4];
+	char HTMLname[MFNLEN+HFLEN];
+	
+	if (type < 0 || type >= MAXFORMATNAMES)  type = 1;
+	
+	typelist[0] = type;		// BP2 native format
+	typelist[1] = type;		// BP2 native format with HTML encoding
+	if (type == 0 || type == 1) {	// (skip adding plain text again)
+		typelist[2] = 18;		// Netscape HTML
+		numitems = 3;
+	}
+	else {
+		typelist[2] = 1;		// BP2 plain text
+		typelist[3] = 18;		// Netscape HTML
+		numitems = 4;
+	}
 	
 	/* resize before dereferencing */
-	if (MySetHandleSize((Handle*)p_handle, 4*sizeof(NavMenuItemSpec)) != OK)
+	if (MySetHandleSize((Handle*)p_handle, numitems*sizeof(NavMenuItemSpec)) != OK)
 		return (ABORT);
 	items = **p_handle;
 	
-	typelist[0] = type;	// BP2 native format
-	typelist[1] = type;	// BP2 native format with HTML encoding
-	typelist[2] = 1;		// BP2 plain text
-	typelist[3] = 18;		// Netscape HTML
-	
-	for (i = 0; i < 4; ++i) {
+	for (i = 0; i < numitems; ++i) {
 		items[i].version = kNavMenuItemSpecVersion;
 		SelectCreatorAndFileType(typelist[i], &(items[i].menuCreator), &(items[i].menuType));
-		CopyPString(FormatNames[i], items[i].menuItemName);
+		if (i == 1) {
+			strcpy(HTMLname, FormatNames[typelist[i]]);
+			strcat(HTMLname, HTMLFormat);
+			c2pstrcpy(items[i].menuItemName, HTMLname);
+		}
+		else  c2pstrcpy(items[i].menuItemName, FormatNames[typelist[i]]);
 	}
 	
 	return(OK);
 	
 }
 
+/* returns TRUE if this window can be saved in multiple formats */
+Boolean CanSaveMultipleFormats(int w)
+{
+	if (w == wHelp || w == wNotice || w == wPrototype7 || w == wCsoundTables)
+		return (FALSE);
+	else if (w >= 0 && w < WMAX && Editable[w])
+		return (TRUE);
+	else  return (FALSE);
+}
 
-NewFile(Str255 fn,NSWReply *p_reply, int type)
+/* NewFile()
+   type is the file type constant (see SelectCreatorAndFileType() above).
+   
+   w is the window index used in determining the possible save formats 
+   (see CreateFile() below); While w is the expected index for editable 
+   text documents, document types that use dialogs (e.g. Time-base) 
+   usually pass -1 (there are exceptions) and document types without a 
+   dedicated window pass -1 as well. */
+NewFile(int w, int type, Str255 fn, NSWReply *p_reply)
 // Check whether the file we're creating is a new one, and get its specs in a reply record
 {
-	NavMenuItemSpecArrayHandle formatItems;
+	NavMenuItemSpecArrayHandle formatItems = NULL;
 	NSWOptions opts;
 	OSType creator, filetype;
-	short refnum;
 	OSErr io;
 
 	if(CallUser(1) != OK) return(FAILED);
@@ -390,20 +441,25 @@ NewFile(Str255 fn,NSWReply *p_reply, int type)
 #if TARGET_API_MAC_CARBON
 	NSWOptionsInit(&opts);
 	opts.appName = "\pBol Processor";
-	opts.prompt = "\pSave File As:";
-	formatItems = (NavMenuItemSpecArrayHandle) GiveSpace(1);
-	if (MakeFormatMenuItems(type, &formatItems) != OK) {
-		MyDisposeHandle((Handle*)&formatItems);
+	opts.prompt  = "\pSave File As:";
+	if (CanSaveMultipleFormats(w)) {
+		formatItems = (NavMenuItemSpecArrayHandle) GiveSpace(1);
+		if (MakeFormatMenuItems(type, &formatItems) != OK) {
+			MyDisposeHandle((Handle*)&formatItems);
+			return(FAILED);
+		}
+		opts.menuItems = formatItems;
+		creator  = kNavGenericSignature;
+		filetype = kNavGenericSignature;
+	}
+	else SelectCreatorAndFileType(type, &creator, &filetype);
+	io = NSWPutFile(p_reply, creator, filetype, fn, &opts);
+	if (formatItems) MyDisposeHandle((Handle*)&formatItems);
+	if (io != noErr) {
 		return(FAILED);
 	}
-	opts.menuItems = formatItems;
-	SelectCreatorAndFileType(type, &creator, &filetype);
-	// for now, just use first type (the primary one)
-	io = NSWPutFile(p_reply, creator, filetype, fn, &opts);
-	// Alert1("Saving new files is not yet functional in Bol Processor Carbon.  Sorry!!");
-	if (io != noErr) return(FAILED);
 #else
-	StandardPutFile("\pSave File As:",fn,p_reply);
+	StandardPutFile("\pSave File As:", fn, (StandardFileReply*)p_reply);
 #endif
 	if(p_reply->sfGood) {
 		CopyPString(p_reply->sfFile.name,fn);
@@ -437,9 +493,9 @@ FillTypeList(type, typelist, &numtypes);
 	return(FAILED);
 #else
 #  ifdef __POWERPC
-	StandardGetFile((struct RoutineDescriptor*)0L,numtypes,typelist,&reply2);
+	StandardGetFile((struct RoutineDescriptor*)0L,numtypes,typelist,(StandardFileReply*)&reply2);
 #  else
-	StandardGetFile((FileFilterProcPtr)0L,numtypes,typelist,&reply2);
+	StandardGetFile((FileFilterProcPtr)0L,numtypes,typelist,(StandardFileReply*)&reply2);
 #  endif
 #endif
 
@@ -486,9 +542,20 @@ int PromptForFileFormat(int w, char* filename, int* type)
 	return(OK);
 }
 
+/* CreateFile()
+   type is the file type constant (see SelectCreatorAndFileType() above).
+   
+   w is the window index used in determining the possible save formats;
+   While w is the expected index for editable text documents, document
+   types that use dialogs (e.g. Time-base) usually pass -1 (there are exceptions)
+   and document types without a dedicated window pass -1 as well. 
+   
+   wref seems to be the index for the document window if one exists,
+   otherwise it is -1. wref is used to save the temp file FSSpec when
+   doing a safe save. (Therefore, a value of -1 does an "unsafe" save. */
 CreateFile(int wref,int w,int type,Str255 fn,NSWReply *p_reply,short *p_refnum)
 {
-int io,already,replace;
+int io,already;
 FSSpec spec;
 OSType thetype,thecreator;
 FInfo fndrinfo;
@@ -503,20 +570,29 @@ if(w < -1 || w >= WMAX) {
 	return(FAILED);
 	}
 spec = p_reply->sfFile;
-replace = p_reply->sfReplacing;
 
-if(w >= 0) {
-	MyPtoCstr(MAXNAME,spec.name,name);
-	if(strcmp(name,FileName[w]) != 0) replace = FALSE;
-	else if(IsText[w]) type = 1;
+/* If not using NavServices, we may need to prompt the user for file format */
+if (!p_reply->usedNavServices) {
+	/* FileName check doesn't work when saving to a new location with
+	   the same name -- even when saving to the same location, if the
+	   user chose "Save As", then they may want to choose a new format.
+	   -- 020607 akozar */
+	/* if(w >= 0) {
+		MyPtoCstr(MAXNAME,spec.name,name);
+		if(strcmp(name,FileName[w]) != 0) askformat = TRUE;
+		else if(IsText[w]) type = 1;
+		} */
+
+	// always ask for format if there are multiple choices
+	if(CanSaveMultipleFormats(w)) PromptForFileFormat(w, name, &type);
 	}
-
-if(w == wScrap || w == wTrace) replace = FALSE;
-if(w >= 0 && Weird[w]) Weird[w] = replace = FALSE;
-
-if(!p_reply->usedNavServices && !replace && w >= 0 && Editable[w] && w != wHelp
-		&& w != wNotice && w != wPrototype7)
-	PromptForFileFormat(w, name, &type);
+else  if (w >= 0) {  // use the values set by PutFileEventProc
+	IsHTML[w] = p_reply->isHTML;
+	IsText[w] = p_reply->isText;
+	if (IsText[w] == TRUE && IsHTML[w] == TRUE) type = 18;
+	else if (IsText[w] == TRUE) type = 1;
+	Weird[w] = FALSE;
+	}
 
 SelectCreatorAndFileType(type, &thecreator, &thetype);
 
@@ -1156,12 +1232,13 @@ if(TempRefnum != -1) {
 	if(Beta) Alert1("Err. OpenTemp(). TempRefnum != -1");
 	return(OK);
 	}
-rep = OK;	
+rep = OK;
+err = NSWInitReply(&reply);	
 err = FSMakeFSSpec(RefNumbp2, ParIDbp2, "\pBP2.temp", &reply.sfFile);
 if (err == noErr)	{				// file exists, so delete it 
 	err = FSpDelete(&reply.sfFile);
 	if (err != noErr) rep = ABORT;
-	else err == fnfErr;
+	else err = fnfErr;
 	}
 if (rep == OK && err == fnfErr) {		// FSSpec is good
 	reply.sfReplacing = FALSE;
@@ -1187,6 +1264,7 @@ if(TraceRefnum != -1) {
 	return(OK);
 	}
 rep = OK;
+err = NSWInitReply(&reply);	
 err = FSMakeFSSpec(RefNumbp2, ParIDbp2, "\pBP2.trace", &reply.sfFile);
 if (err == noErr)	{				// file exists
 	// err = FSpDelete(&reply.sfFile);
@@ -1641,4 +1719,56 @@ if(io == noErr && w >= 0 && w < WMAX) {
 	}
 if(io != noErr) TellError(86,io);
 return(io);
+}
+
+/* PutFile event filter procedure - customized for Bol Processor. */
+pascal void PutFileEventProc(NavEventCallbackMessage callBackSelector,
+					NavCBRecPtr callBackParms,
+					NavCallBackUserData callBackUD)
+{
+	NSWReply*		reply;
+	WindowPtr		window;
+	NavMenuItemSpec*	item;
+	
+	// Be careful not to access fields in callBackParms before checking the
+	// callBackSelector; They are not valid every time this function is called!
+	
+	switch (callBackSelector)
+	{
+		case kNavCBEvent:
+   			switch (((callBackParms->eventData).eventDataParms).event->what)
+			{
+				case updateEvt:
+					window = (WindowPtr)callBackParms->eventData.eventDataParms.event->message;
+					//HandleNavServUpdateEvent(window,
+					//	(EventRecord*)callBackParms->eventData.eventDataParms.event);
+					break;
+				default:
+					break;
+			}
+			break;
+		case kNavCBPopupMenuSelect:
+			{ char str[100];
+			
+			// save the user's selection of our custom format options
+			item = (NavMenuItemSpec*) callBackParms->eventData.eventDataParms.param;
+			reply = (NSWReply*) callBackUD;
+			p2cstrcpy(str, item->menuItemName);
+			if (strcmp(str, FormatNames[18]) == 0) {		// Netscape HTML
+				reply->isHTML = TRUE; reply->isText = TRUE;
+			}
+			else if (strcmp(str, FormatNames[1]) == 0) {	// plain text
+				reply->isHTML = FALSE; reply->isText = TRUE;
+			}
+			else if (strstr(str, HTMLFormat) != NULL)	{	// BP2 HTML
+				reply->isHTML = TRUE; reply->isText = FALSE;
+			}
+			else {							// BP2 native
+				reply->isHTML = FALSE; reply->isText = FALSE;
+			}
+			}
+			break;
+		default:
+			break;
+	}
 }
