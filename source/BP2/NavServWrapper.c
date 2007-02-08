@@ -4,13 +4,21 @@
 	File Package that gives them a shared interface and uses
 	Nav Services when available, or StdFile if not.
 	
-	Based on some sample Apple code.
+	Based on some sample Apple code (including SimpleText).
 	
 	Anthony Kozar
 	November 27, 2006
  */
 
 #include	"NavServWrapper.h"
+
+/* Bol Processor functions used below --
+   You can replace these with the standard MacOS calls if reusing this code. */
+extern int **GiveSpace(Size);			// replace with NewHandle
+extern int MyDisposeHandle(Handle*);	// DisposeHandle
+extern int MyLock(int high, Handle h);	// HLock (remove param 'high')
+extern int MyUnlock(Handle h);		// HUnlock
+
 
 /* You should call this function if there is any chance that 
    your code will call NSWCleanupReply without first calling 
@@ -80,7 +88,6 @@ extern pascal void PutFileEventProc(NavEventCallbackMessage callBackSelector,
 						NavCBRecPtr callBackParms,
 						NavCallBackUserData callBackUD);
 
-#if 0
 /* Simplistic event filter procedure - customized for Bol Processor. */
 static pascal void SimpleNavServEventProc(NavEventCallbackMessage callBackSelector,
 							NavCBRecPtr callBackParms,
@@ -117,8 +124,118 @@ static pascal void SimpleNavServEventProc(NavEventCallbackMessage callBackSelect
 			break;
 	}
 }
-#endif
 
+/* This function is straight out of SimpleText */
+static NavTypeListHandle NewNavTypeList(OSType creator, short numTypes, OSType typeList[])
+{
+	NavTypeListHandle open = NULL;
+	
+	if (numTypes > 0) {
+		open = (NavTypeListHandle) GiveSpace(sizeof(NavTypeList) + numTypes*sizeof(OSType));
+		if (open != NULL) {
+			(*open)->componentSignature = creator;
+			(*open)->osTypeCount        = numTypes;
+			BlockMoveData(typeList, (*open)->osType, numTypes*sizeof(OSType));
+		}
+	}
+	
+	return open;
+}
+
+/* This is modified quite a bit from SimpleText */
+OSErr NSWGetFile(NSWReply* reply, OSType creator, short numTypes, OSType typeList[], FSSpec* location, NSWOptions* opts)
+{
+	OSErr			err = noErr;
+	NavDialogOptions	dialogOptions;
+	NavTypeListHandle	openList;
+	NavEventUPP		eventUPP;
+
+	if (!IsNavServAvailable())  return -1;	/* FIXME: use StdFile instead */
+	
+	reply->usedNavServices	= true;
+	reply->needCleanup	= false;
+	reply->saveCompleted	= false;
+	
+	eventUPP = NewNavEventUPP(SimpleNavServEventProc);
+	err = NavGetDefaultDialogOptions(&dialogOptions);
+	
+	if (err == noErr) {
+		dialogOptions.preferenceKey = kDefaultPrefKey;
+		if (opts) {
+			if (opts->prompt)  CopyPascalString(dialogOptions.message, opts->prompt);
+			if (opts->appName) CopyPascalString(dialogOptions.clientName, opts->appName);
+			if (opts->prefKey) dialogOptions.preferenceKey = opts->prefKey;
+			if (opts->menuItems) dialogOptions.popupExtension = opts->menuItems;
+		}
+	
+		openList = NewNavTypeList(creator, numTypes, typeList);
+		if (openList)  MyLock(FALSE, (Handle)openList);
+		
+		// FIXME: convert location parameter to AEDesc*
+		// pass the entire reply as our callback user data
+		err = NavGetFile(/* location */ NULL, &reply->navReply, &dialogOptions, eventUPP, NULL, NULL, openList, reply);
+		DisposeNavEventUPP(eventUPP);
+		reply->needCleanup = true;
+
+		reply->sfGood = reply->navReply.validRecord;
+		if (err == noErr && reply->navReply.validRecord)
+		{
+			AEKeyword	keyword;
+			DescType	actualType;
+			Size		actualSize;
+			FSSpec	spec;
+			FInfo		fileInfo;
+			long		count;
+
+			/* There may be multiple selected items, so we count them first */
+			err = AECountItems(&(reply->navReply.selection),&count);
+			if ( err == noErr && count == 1)
+			{
+				err = AEGetNthPtr(&(reply->navReply.selection), 1, typeFSS,
+							&keyword, &actualType,
+							&spec, sizeof(spec), &actualSize);
+				if (err == noErr) {
+					/* fill in the StandardFileReply with info */
+					BlockMove(&spec, &(reply->sfFile), sizeof(FSSpec));
+					reply->sfReplacing  = reply->navReply.replacing;
+					reply->sfScript     = reply->navReply.keyScript;
+					reply->isStationery = reply->navReply.isStationery;
+					/* sfIsFolder & sfIsVolume are only used by StdFile in dlg hook */
+					reply->sfIsFolder  = false;	/* can't be a folder or volume */
+					reply->sfIsVolume  = false;
+					/* get the Finder Info to determine other fields */
+					err = FSpGetFInfo(&spec, &fileInfo);
+					if (err == noErr) {
+						reply->sfFlags = fileInfo.fdFlags;
+						reply->sfType  = fileInfo.fdType;
+					}
+					else {  /* should probably return the error ... */
+						reply->sfFlags = 0;
+						reply->sfType = 0;
+					}
+				}
+			}
+			else if ( err == noErr && count > 1) {
+				// Multiple files to open: could use AppleEvents or an array of FSSpecs
+				// err = SendOpenAE(reply->navReply.selection);
+				// OR
+				// for (index=1; index <= count; index++)  // numbered from 1 to count
+				SysBeep(30L);
+				reply->sfGood = reply->navReply.validRecord = FALSE;
+				err = -1;
+			}
+		}
+		
+		if (openList != NULL) {
+			MyUnlock((Handle)openList);
+			MyDisposeHandle((Handle*)&openList);
+		}
+	}
+	
+	return err;
+}
+
+/* This function is significantly modified from sample code in the Nav Services documentation */
 OSErr NSWPutFile(NSWReply* reply, OSType creator, OSType fileType, const StringPtr defaultName, NSWOptions* opts)
 {
 	OSErr			err = noErr;

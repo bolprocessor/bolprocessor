@@ -474,44 +474,45 @@ OldFile(int w,int type,Str255 fn,FSSpec *p_spec)
 // w is the index of the text window to which this file will be saved
 // p_spec doesn't matter on entry.  It returns the "file specs" record used afterwards
 {
-SFTypeList typelist;
-int numtypes;
-NSWReply reply2;
+	OSErr		err, err2;
+	NSWReply	reply;
+	NSWOptions	opts;
+	SFTypeList	typelist;
+	int		numtypes;
 
-if(CallUser(1) != OK) return(FAILED);
+	if(CallUser(1) != OK) return(FAILED);
 
-if(w < -1 || w >= WMAX) {
-	if(Beta) Alert1("Err. OldFile(). Incorrect window index");
-	return(FAILED);
-	}
+	if(w < -1 || w >= WMAX) {
+		if(Beta) Alert1("Err. OldFile(). Incorrect window index");
+		return(FAILED);
+		}
 
-FillTypeList(type, typelist, &numtypes);
+	FillTypeList(type, typelist, &numtypes);
 
 #if TARGET_API_MAC_CARBON
-	Alert1("The Open command is not yet functional in Bol Processor Carbon."
-		 "  You can open files from the Finder instead.");
-	return(FAILED);
+	err = NSWInitReply(&reply);
+	NSWOptionsInit(&opts);
+	opts.appName = "\pBol Processor";
+	opts.prompt  = "\pSelect a file:"; // could customize this by type
+	err = NSWGetFile(&reply, 'Bel0', numtypes, typelist, NULL, &opts);
+	err2 = NSWCleanupReply(&reply);
+	if  (err != noErr)  return (FAILED);
 #else
-#  ifdef __POWERPC
-	StandardGetFile((struct RoutineDescriptor*)0L,numtypes,typelist,(StandardFileReply*)&reply2);
-#  else
-	StandardGetFile((FileFilterProcPtr)0L,numtypes,typelist,(StandardFileReply*)&reply2);
-#  endif
+	StandardGetFile(NULL ,numtypes, typelist, (StandardFileReply*)&reply);
 #endif
 
-if(reply2.sfGood) {
-	(*p_spec) = reply2.sfFile;
-	if(w >= 0 && w < WMAX) {
-		IsText[w] = FALSE;
-		if((reply2.sfType == 'TEXT' || reply2.sfType == 'text')
-			&& Editable[w] && numtypes > -1)
+	if(reply.sfGood) {
+		(*p_spec) = reply.sfFile;
+		if(w >= 0 && w < WMAX) {
+			if(reply.sfType == 'TEXT' && Editable[w] && numtypes > -1)
 				IsText[w] = TRUE;
+			else  IsText[w] = FALSE;
 		}
-	CopyPString(p_spec->name,fn);
-	RecordVrefInScript(p_spec);	/* For script in learning mode */
-	return(YES);
+		CopyPString(p_spec->name,fn);
+		RecordVrefInScript(p_spec);	/* For script in learning mode */
+		return(YES);
 	}
-else return(NO);
+	else return(NO);
 }
 
 int PromptForFileFormat(int w, char* filename, int* type)

@@ -70,6 +70,8 @@ OSErr NSWInitReply(NSWReply* reply);
 OSErr NSWCleanupReply(NSWReply* reply);
 void	NSWOptionsInit(NSWOptions* opts);
 
+OSErr NSWGetFile(NSWReply* reply, OSType creator, short numTypes, OSType typeList[],
+			FSSpec* defaultLocation, NSWOptions* opts);
 OSErr NSWPutFile(NSWReply* reply, OSType creator, OSType fileType, 
 			const StringPtr defaultName, NSWOptions* opts);
 			
