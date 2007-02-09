@@ -295,7 +295,7 @@ while(TRUE) {
 			}
 		}
 	if(c == '\n') {
-		if(Beta) Alert1("Err. ReadLine(). c == '\n'");
+		if(Beta) Alert1("Err. ReadLine(). c == '\\n'");
 		goto NEXTCHAR;
 		}
 	if(c == '\r' && oldc != 'Â') break;
@@ -944,7 +944,8 @@ ParamText(in_place_c2pstr(line),"\p","\p","\p");
 if(ComputeOn || PlaySelectionOn) SndSetSysBeepState(sysBeepDisable);
 GotAlert = TRUE;
 Interrupted = TRUE;
-NoteAlert(OKAlert,0L);
+if(Beta && ScriptExecOn)  ShowMessage(TRUE,wMessage,s); // so we don't interrupt scripts - 020907 akozar
+else  NoteAlert(OKAlert,0L);
 if(ComputeOn || PlaySelectionOn) SndSetSysBeepState(sysBeepEnable);
 AlertOn++;
 if(!EmergencyExit && !InputOn && !AEventOn && !InitOn && !ItemCapture && !TickCapture
