@@ -43,6 +43,6 @@ instead of the current scroll position.
 the Carbon build, even running on OS X, after producing items several times 
 with a complex project.
 
-- Can't load a MIDI orchestra when (!Oms && !InBuiltDriverOn); this should be 
-allowed though for writing Midi files.
-
+- BP2 crashes if you press the "Piano roll" button in the Object prototypes
+window several times in a row.  (tries to dispose of several empty handles
+in MakeSound() first).
