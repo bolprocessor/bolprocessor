@@ -65,7 +65,7 @@ if((r=GetHighLevelEvent()) != OK) return(r);
 
 if((Oms || !OutMIDI) && !Interactive && !ReadKeyBoardOn && !ScriptRecOn) return(OK);
 
-if(!Oms && !InBuiltDriverOn) {
+if(!IsMidiDriverOn()) {
 	if(Beta) {
 		Alert1("Err. ListenMIDI(). Driver is OFF");
 		OutMIDI = Interactive = ReadKeyBoardOn = ScriptRecOn = FALSE;
@@ -534,7 +534,7 @@ Ctrl_adjust(MIDI_Event *p_e,int c0,int c1,int c2)
 int speed_change,i,j,r,c11;
 long count = 12L,oldn,dt;
 
-if(!InBuiltDriverOn && !Oms) {
+if(!IsMidiDriverOn()) {
 	if(Beta) Alert1("Err. Ctrl_adjust(). Driver is OFF");
 	return(ABORT);
 	}
@@ -587,7 +587,7 @@ ChangeStatus(int c0,int c1,int c2)
 {
 long newP,newQ;
 
-if(!InBuiltDriverOn && !Oms) {
+if(!IsMidiDriverOn()) {
 	if(Beta) Alert1("Err. ChangeStatus(). Driver is OFF");
 	return(ABORT);
 	}
@@ -999,7 +999,7 @@ MIDI_Event e;
 long count = 12L;
 Milliseconds tcurr;
 
-if(!InBuiltDriverOn && !Oms) return(OK);
+if(!IsMidiDriverOn()) return(OK);
 if(!OutMIDI || MIDIfileOpened) return(OK);
 
 #if WITH_REAL_TIME_MIDI  // FIXME? do we need to reset BP's internal values anyways? - akozar
@@ -1817,7 +1817,7 @@ int rs,key,channel;
 long delay;
 MIDI_Event e;
 
-if(!Oms && !InBuiltDriverOn) {
+if(!IsMidiDriverOn()) {
 	Alert1("Can't send ‘AllNotesOff’ because no MIDI output is active");
 	return(ABORT);
 	}
@@ -1924,7 +1924,7 @@ for(i=1; i <= 16; i++) {
 		e.data2 = p - 1;
 		rs = 0;
 #if WITH_REAL_TIME_MIDI
-		if((InBuiltDriverOn || Oms) && !InitOn)
+		if(IsMidiDriverOn() && !InitOn)
 			SendToDriver(Tcurr * Time_res,0,&rs,&e);
 #endif
 		}
@@ -1939,7 +1939,7 @@ unsigned long drivertime;
 long formertime,timeleft;
 int rep,compiledmem;
 
-if((!InBuiltDriverOn && !Oms) || MIDIfileOn || !OutMIDI) return(OK);
+if(!IsMidiDriverOn() || MIDIfileOn || !OutMIDI) return(OK);
 
 if(Nbytes > (MaxMIDIbytes / 2) && Tbytes2 == ZERO) {
 	HideWindow(Window[wInfo]); HideWindow(Window[wMessage]);

@@ -88,7 +88,7 @@ if(CheckEmergency() != OK) return(ABORT);
 
 AllSolTimeSet = StackFlag = (*p_bigitem) = ToldSkipped = FALSE;
 
-if(InBuiltDriverOn || Oms) tstart = GetDriverTime();
+if(IsMidiDriverOn()) tstart = GetDriverTime();
 	
 maxseqapprox = ((maxseqapprox / Kpress) + 6.) * 1.01;	/* This is an approximation. */
 if(ShowMessages || Maxevent > 500L) {

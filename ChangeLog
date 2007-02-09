@@ -1,4 +1,36 @@
-2007-02-06	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-02-08	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/SaveLoads1.c (LoadMIDIorchestra):
+		Fixed LoadOn not being decremented sometimes.
+		Removed the requirement for an active Midi driver to load orchestra.
+	
+	* source/BP2/FillPhaseDiagram.c:
+	* source/BP2/Interface1.c:
+	* source/BP2/MenuCommands.c:
+	* source/BP2/MIDIloads.c:
+	* source/BP2/MIDIstuff.c:
+	* source/BP2/Misc.c:
+	* source/BP2/ProduceItems.c:
+	* source/BP2/SaveLoads1.c:
+	* source/BP2/Ticks.c:
+	* source/BP2/TimeSet.c:
+	* source/BP2/TimeSetFunctions.c:
+	* source/BP2/Dialogs.c:
+		Changed all checks for an active Midi driver (such as (!OMS &&
+			!InBuiltDriverOn)) to use a new function IsMidiDriverOn().
+	
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/MIDIdrivers.c:
+	* source/BP2/MIDIstubs.c:
+		New function IsMidiDriverOn() with separate implementations for null
+			driver and OMS/built-in driver code.
+
+	* source/BP2/Dialogs.c:
+		Prevented inescapable loop when using the "Import" button in the 
+			Prototypes5 window and trying to cancel the operation.
+	
+	
+2007-02-07	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/NavServWrapper.c:
 	* source/BP2/NavServWrapper.h:

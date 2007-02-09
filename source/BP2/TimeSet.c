@@ -303,7 +303,7 @@ if((p_alphadone = (char**) GiveSpace((Size)((*p_nmax)+1)*sizeof(char))) == NULL)
 	
 result = OK; first = TRUE;
 
-if(InBuiltDriverOn || Oms) tstart = GetDriverTime();
+if(IsMidiDriverOn()) tstart = GetDriverTime();
 
 for(nseq=0; nseq <= (*p_nmax); nseq++) (*p_alphadone)[nseq] = FALSE;
 
@@ -362,7 +362,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 			goto EXIT1;
 			}
 			
-		if(InBuiltDriverOn || Oms) tstart = GetDriverTime();
+		if(IsMidiDriverOn()) tstart = GetDriverTime();
 		
 		PleaseWait();
 		}

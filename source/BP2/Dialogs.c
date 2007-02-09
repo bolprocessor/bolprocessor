@@ -412,7 +412,7 @@ QUIT:		Improvize = improvizemem;
 		case bResetControllers:
 			ResetMIDIControllers(YES,YES,NO); break;
 		case bMIDIpanic:
-			if(!InBuiltDriverOn && !Oms) {
+			if(!IsMidiDriverOn()) {
 				Alert1("MIDI output is inactive (check the ‘Devices’ menu)");
 				return(DONE);
 				}
@@ -2146,7 +2146,8 @@ if(w == wPrototype5) {
 			break;
 			
 		case bImportPrototype:
-			goto IMPORT;
+			if (rep != DONE)	// stops loop on first import - 020807 akozar
+				goto IMPORT;
 			break;
 			
 		case bPlayPrototypeTicks:

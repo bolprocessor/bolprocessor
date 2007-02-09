@@ -58,7 +58,7 @@ int i,imax,rs,itick,overflow,vel,ch,key,allzero,allfinished,newbeat;
 long gap;
 double fgap;
 
-if((!InBuiltDriverOn && !Oms) || !TickThere || !PlayTicks || SoundOn || ComputeOn || PlaySelectionOn
+if(!IsMidiDriverOn() || !TickThere || !PlayTicks || SoundOn || ComputeOn || PlaySelectionOn
 	|| LoadOn || InitOn || !OutMIDI) return(OK);
 
 #if WITH_REAL_TIME_MIDI
@@ -196,7 +196,7 @@ ResetTicks(int force,int zero,Milliseconds time,int pos)
 int i;
 int itick;
 
-if((!InBuiltDriverOn && !Oms) || (!force && (!TickThere || !PlayTicks
+if(!IsMidiDriverOn() || (!force && (!TickThere || !PlayTicks
 	|| LoadOn || InitOn || !OutMIDI))) return(OK);
 
 #if WITH_REAL_TIME_MIDI
@@ -226,7 +226,7 @@ long time;
 int itick,messageshown;
 unsigned long nexttick,maxticktime,timeleft,formertime;
 
-if(OutMIDI && PlayTicks && TickThere && (InBuiltDriverOn || Oms) && !PlaySelectionOn && !ComputeOn
+if(OutMIDI && PlayTicks && TickThere && IsMidiDriverOn() && !PlaySelectionOn && !ComputeOn
 		&& !LoadOn && !SoundOn && Nbytes > ZERO) {
 #if WITH_REAL_TIME_MIDI
 	maxticktime = ZERO;
@@ -465,7 +465,7 @@ MIDIcode **ptr1;
 int im,overflow;
 unsigned long g,h,pmax,qmax,plcm,ppqlcm,ppq[MAXTICKS];
 
-if((!InBuiltDriverOn && !Oms) || SoundOn || ComputeOn || PlaySelectionOn || LoadOn || InitOn
+if(!IsMidiDriverOn() || SoundOn || ComputeOn || PlaySelectionOn || LoadOn || InitOn
 	|| ItemCapture || !OutMIDI) return(OK);
 	
 #if WITH_REAL_TIME_MIDI

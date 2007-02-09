@@ -115,6 +115,7 @@ int CloseCurrentDriver(int);
 int ResetMIDI(int);
 #endif
 
+Boolean IsMidiDriverOn();
 int FormatMIDIstream(MIDIcode**,long,MIDIcode**,int,long,long*,int);
 int SendToDriver(Milliseconds,int,int*,MIDI_Event*);
 

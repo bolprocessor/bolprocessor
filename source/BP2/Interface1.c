@@ -862,7 +862,7 @@ switch(w) {
 				e.status = ProgramChange + i - 1;
 				e.data2 = 0;
 				rs = 0;
-				if((InBuiltDriverOn || Oms) && !InitOn)
+				if((IsMidiDriverOn()) && !InitOn)
 					SendToDriver(Tcurr * Time_res,0,&rs,&e);
 				}
 			}
@@ -994,7 +994,7 @@ if(newNw == wTimeBase || Nw == wTimeBase) {
 if(newNw == wFilter) {
 	SetFilterDialog();
 #if WITH_REAL_TIME_MIDI
-	if(!InBuiltDriverOn && !Oms) {
+	if(!IsMidiDriverOn()) {
 		if(Answer("The MIDI driver is not open, i.e. BP2 can't receive MIDI messages.\rDo you want to open it?",
 			'Y') == OK) {
 			MIDI = OutMIDI = Dirty[iSettings] = TRUE; SetButtons(TRUE);

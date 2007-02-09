@@ -209,7 +209,7 @@ if(pp_start == NULL && IsEmpty(w)) {
 		}
 	else goto QUIT;
 	}
-if(InBuiltDriverOn || Oms) {
+if(IsMidiDriverOn()) {
 	ComputeStart = GetDriverTime();
 	}
 ItemNumber = ZERO;

@@ -115,7 +115,7 @@ int notenum,octave,overflow;
 unsigned long time;
 
 if(wind < 0 || wind >= WMAX || !Editable[wind]) return(FAILED);
-if(!InBuiltDriverOn && !Oms) {
+if(!IsMidiDriverOn()) {
 	if(Beta) Alert1("Err. ReadNoteOn(). Driver is OFF");
 	return(ABORT);
 	}
@@ -159,7 +159,7 @@ Handle ptr;
 unsigned long drivertime;
 
 p_b = p_c = NULL;
-if(!InBuiltDriverOn && !Oms) {
+if(!IsMidiDriverOn()) {
 	if(Beta) Alert1("Err. LoadTimePattern(). Driver is OFF");
 	return(ABORT);
 	}
@@ -767,7 +767,7 @@ char line[MAXFIELDCONTENT];
 unsigned long drivertime;
 
 if(SoundOn || CheckMemory() != OK) return(FAILED);
-if(!InBuiltDriverOn && !Oms) { // added this check - 012307 akozar
+if(!IsMidiDriverOn()) { // added this check - 012307 akozar
 	if(Beta) Alert1("Err. LoadMIDIprototype(). Driver is OFF");
 	return(FAILED);
 	}

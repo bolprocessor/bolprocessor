@@ -50,6 +50,12 @@
 #include "-BP2decl.h"
 
 
+/*  Returns whether OMS or built-in driver is on */
+Boolean IsMidiDriverOn()
+{
+	return (Oms || InBuiltDriverOn);
+}
+
 GetNextMIDIevent(MIDI_Event *p_e,int loop,int force)
 {
 int result;

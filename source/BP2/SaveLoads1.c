@@ -2249,11 +2249,13 @@ Rect therect;
 MIDI_Event e;
 
 
-LoadOn++;
-if(!(InBuiltDriverOn || Oms)) {
+/* Removed this check since it is possible to load an orchestra without a driver;
+   The code below checks for an active driver before sending program changes - 020807 akozar */
+/* if(!IsMidiDriverOn()) {
 	Alert1("Can't load MIDI orchestra because neither OMS nor the in-built MIDI driver are active");
 	return(FAILED);
-	}
+	} */
+LoadOn++;
 p_line = p_completeline = NULL;
 SetField(MIDIprogramPtr,-1,fPatchName," ");
 if(TestMIDIChannel > 0 && TestMIDIChannel <= MAXCHAN) {
@@ -2303,7 +2305,7 @@ READIT:
 				e.status = ProgramChange + i - 1;
 				e.data2 = w - 1;
 				rs = 0;
-				if((InBuiltDriverOn || Oms) && !InitOn)
+				if(IsMidiDriverOn() && !InitOn)
 					SendToDriver(Tcurr * Time_res,0,&rs,&e);
 				for(j=0; j < 128; j++) {
 					if((*p_GeneralMIDIpatchNdx)[j] == w) {

@@ -52,6 +52,12 @@
 
 static unsigned long NumEventsWritten = 0;
 
+/*  Null driver is always on */
+Boolean IsMidiDriverOn()
+{
+	return TRUE;
+}
+
 /*  Reading a MIDI event with the Null driver always fails */
 int GetNextMIDIevent(MIDI_Event *p_e,int loop,int force)
 {

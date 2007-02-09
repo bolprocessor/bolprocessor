@@ -1207,14 +1207,14 @@ if((result=MyButton(2)) != FAILED) {
 		return(result);
 		}
 		
-	if(InBuiltDriverOn || Oms) *p_tstart = GetDriverTime();
+	if(IsMidiDriverOn()) *p_tstart = GetDriverTime();
 	
 	PleaseWait();
 	}
 result = OK;
 if(EventState != NO) return(EventState);
 else {
-	if(LimTimeSet && uselim && (InBuiltDriverOn || Oms)) {
+	if(LimTimeSet && uselim && (IsMidiDriverOn())) {
 	/*	DriverStatus(CLOCKTIME_CODE,(MIDI_Parameters*) &parms); */
 		drivertime = GetDriverTime();
 		if(*p_tstart + (TimeMax / Time_res) < drivertime) {
