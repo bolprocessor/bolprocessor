@@ -1,26 +1,23 @@
-// Bol Processor version BP2.9.3
-// Script file saved as '+sc.checkall'. Date: Mer 21 oct 1998 -- 18:18
+// Bol Processor version BP2.9.5
+// Script file saved as '+sc.checkall'. Date: Fri, Feb 9, 2007 -- 14d3
 // Script ‘+sc.checkall’
 // A complete check of BP2 procedures
 // Mostly weird noises and a few musical examples
 
 AE send normal class 'Bel0' ID 'beep' to application 'Bel0'
-AE send normal class 'aevt' ID 'oapp' to application 'Regi'
+
+// New Project
+// Set directory 67423
+// Load Project "-gr.Visser3"
+// Produce items
 
 New Project
-Set directory 12814
-Load Project "-gr.Visser3"
-Produce items
-
-New Project
-Set directory 12039
+Set directory 67075
 Load Project "-gr.tryCsound"
 Csound score ON
 Set output Csound file "a.sco"
 MIDI sound OFF
 Produce and play 2 items
-
-AE send normal class 'aevt' ID 'quit' to application 'Regi'
 
 Clear window "Data"
 Open file "-da.tryCsoundObjects"
@@ -247,7 +244,7 @@ Run script "+sc.checkTimeSet"
 
 New Project
 Clear window "Data"
-Set directory 12039
+Set directory 67075
 Open file "-da.checkPoly"
 Select all in window "Data"
 Set output window "Trace"
@@ -258,19 +255,19 @@ New Project
 Clear window "Data"
 Hide window "Graphic"
 Hide window "Data" 
-Set directory 12039
+Set directory 67075
 Load Project "-gr.765432"
 Compile project
 Play _script(MIDI program 43)
 Play Canon _script(MIDI program 1) - - - _vel(90) Part2 _script(Trace) _script(Type <return>) _script(Type "Project -gr.765432: done") _script(Type <return>)
 
-New Project
-Load Project "-gr.ShapesInRhythm"
-Activate window "Grammar"
-Load settings "-se.ShapesInRhythm.QTM"
-Non-stop improvize OFF
-Prompt OFF
-Produce items
+// New Project
+// Load Project "-gr.ShapesInRhythm"
+// Activate window "Grammar"
+// Load settings "-se.ShapesInRhythm.QTM"
+// Non-stop improvize OFF
+// Prompt OFF
+// Produce items
 
 Set output window "Trace"
 Tell session time
