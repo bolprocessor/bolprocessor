@@ -245,12 +245,14 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 			if(wind == iSettings) {
 				LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms);
 				TellOthersMyName(iSettings);
+				Created[iSettings] = TRUE; // 020907 akozar
 				goto NEWINDEX;
 				}
 			if(wind == wGlossary) {
 				LoadGlossary(FALSE,FALSE);
 				BPActivateWindow(SLOW,wind);
 				if(print) mPrint(wind);
+				Created[wGlossary] = TRUE; // 020907 akozar
 				goto NEWINDEX;
 				}
 			if(wind == wInteraction) {
@@ -258,6 +260,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 				LoadInteraction(FALSE,FALSE);
 				BPActivateWindow(SLOW,wind);
 				if(print) mPrint(wind);
+				Created[wInteraction] = TRUE; // 020907 akozar
 				goto NEWINDEX;
 				}
 			if(wind == iObjects) {
@@ -275,6 +278,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 					SetPrototype(iProto);
 					SetCsoundScore(iProto);
 					CompileObjectScore(iProto,&longerCsound);
+					Created[iObjects] = TRUE; // 020907 akozar
 					}
 				goto NEWINDEX;
 				}
@@ -317,7 +321,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 							BPActivateWindow(SLOW,wind);
 							break;
 						}
-					Created[wind] = FALSE;
+					Created[wind] = TRUE;  // changed from false - 020907 akozar
 					SetName(wind,TRUE,TRUE);
 					}
 				goto NEWINDEX;
@@ -325,7 +329,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 			if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
 				if(ReadFile(wind,refnum) == OK && (FSClose(refnum) == noErr)) {
 					ShowWindow(Window[wind]);
-					Created[wind] = FALSE;
+					Created[wind] = TRUE;  // changed from false - 020907 akozar
 					SetName(wind,FALSE,TRUE);
 					UpdateDirty(TRUE,wind);
 					Dirty[wind] = FALSE;
