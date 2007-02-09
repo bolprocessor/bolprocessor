@@ -16,6 +16,7 @@
 #if !TARGET_API_MAC_CARBON
 #  include	<Navigation.h>
 #  include	<Gestalt.h>
+#  include  <Sound.h>
 #else
 #  include	<Carbon.h>
 #endif
