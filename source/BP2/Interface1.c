@@ -1304,7 +1304,7 @@ for(w=0; w < WMAX; w++) {
 	}
 GetPort(&saveport);
 SetPortWindowPort(theWindow);
-if(!quick && w < WMAX && (!WASTE || !Editable[w])) SetViewRect(w);
+//if(!quick && w < WMAX && (!WASTE || !Editable[w])) SetViewRect(w);  // causing problems with TextEdit scroll position - 020907 akozar
 
 // save clipping rectangle
 cliprgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
@@ -1331,7 +1331,10 @@ if(w < WMAX) {
 	/* UpdateDialog needed to make static text visible */
 	/* É in spite of Inside Mac saying it isn't p.I-418 */
 	if(OKgrow[w]) DrawGrowIcon(theWindow);
-	if(Editable[w]) TextUpdate(w);
+	if(Editable[w]) {
+		// AdjustTextInWindow(w); // add this or remove SetViewRect() call - 020907
+		TextUpdate(w);
+	}
 	if(w == Nw) OutlineTextInDialog(w,TRUE);
 	else OutlineTextInDialog(w,FALSE);
 	}
