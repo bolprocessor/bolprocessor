@@ -51,6 +51,7 @@
 #include "-BP2decl.h"
 
 static unsigned long NumEventsWritten = 0;
+static unsigned long ClockZero = 0;
 
 /*  Null driver is always on */
 Boolean IsMidiDriverOn()
@@ -139,19 +140,30 @@ int SetDriver()
 }
 
 
-/* GetDriverTime() is generally only called after checking that OutMidi, Oms, or 
-   InBuiltDriver is true.  Therefore the results of this stub are probably not
-   important.  We just need it to link correctly (?).  - akozar */
+/* We do need to keep accurate time with these functions so that
+   WaitForLastSeconds, etc. will work.  - akozar */
+/* GetDriverTime() returns a value that is the number of milliseconds
+   since the driver clock's "zero point" divided by Time_res.
+   SetDriverTime() sets the current time in these units. */
+/* The null driver uses system ticks (1/60 seconds) as its internal
+   time representation. */
 unsigned long GetDriverTime(void)
 {
-	unsigned long time;
+	unsigned long time, sincezero;
 
-	time = (clock() * 60) / Time_res;
+	// time = (clock() * 60) / Time_res;  // overflows unsigned long
+	sincezero = TickCount() - ClockZero;
+	time = (unsigned long)(((double)sincezero * (1000.0/60.0)) / (double)Time_res);
 	return(time);
 }
 
 int SetDriverTime(long time)
 {
-	/* do nothing */
+	unsigned long clockcurrent, offset;
+	
+	clockcurrent = TickCount();
+	offset = (unsigned long)((double)(time * Time_res) * 0.060);
+	/* save the clock time that we are calling "zero" */
+	ClockZero = clockcurrent - offset;
 	return(OK);
 }
