@@ -1,3 +1,21 @@
+2007-02-14	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	
+	* source/BP2/Interface1.c:
+	* source/BP2/BP2main.c:
+		Make sure that BP quits on OS X.
+		
+	* source/BP2/MIDIstubs.c (GetDriverTime & SetDriverTime):
+		Use TickCount() to keep accurate time so that waiting for the end of a
+			performance will work.
+	
+2007-02-13	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	
+	* BP2-MacOS.cw8.mcp: New Mach-O target.
+
+	* source/prefix/PrefixMachO.h:  New prefix header for Mach-O build.
+	
+	* source/BP2/NavServWrapper.h:  Fix headers for Mach-O.
+	
 2007-02-09	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	
 	* source/BP2/Interface2.c:

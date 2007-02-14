@@ -372,6 +372,8 @@ DOTHECLICK:
 					SetOptionMenu(TRUE);
 					}
 				k = MenuSelect(p_event->where);
+				// On OS X, QUIT AE handler is called from MenuSelect().
+				if (EventState == EXIT) return(EXIT);
 				SetOptionMenu(FALSE);
 				ResetTickFlag = TRUE;
 				rep = DoCommand(Nw,k);

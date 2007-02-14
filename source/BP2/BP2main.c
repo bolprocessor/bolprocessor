@@ -274,7 +274,7 @@ if(MustChangeInput) {
 	}
 
 ////////////////////////////
-while(MainEvent() != EXIT) {
+while(MainEvent() != EXIT && EventState != EXIT) {
 	if(Beta && LoadOn > 0) {
 		Alert1("Err. LoadOn > 0 ");
 		LoadOn = 0;
