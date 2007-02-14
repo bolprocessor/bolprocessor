@@ -17,6 +17,8 @@
 #  include	<Navigation.h>
 #  include	<Gestalt.h>
 #  include  <Sound.h>
+#elif BP_MACHO
+// #  include  <Carbon/Carbon.h>
 #else
 #  include	<Carbon.h>
 #endif
