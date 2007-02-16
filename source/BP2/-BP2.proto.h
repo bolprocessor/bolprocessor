@@ -77,6 +77,10 @@ short GetIDandName(char*);
 int StoreDefaultOMSinput(void);
 #endif
 
+#if BP_MACHO
+OSStatus InitCoreMidiDriver();
+#endif
+
 /* in Schedule.c */
 #if WITH_REAL_TIME_SCHEDULER
 int Cause(voidOMSdoPacket,Milliseconds,OMSMIDIPacket*,short,short);
@@ -118,6 +122,8 @@ int ResetMIDI(int);
 Boolean IsMidiDriverOn();
 int FormatMIDIstream(MIDIcode**,long,MIDIcode**,int,long,long*,int);
 int SendToDriver(Milliseconds,int,int*,MIDI_Event*);
+int CaptureMidiEvent(Milliseconds time,int nseq,MIDI_Event *p_e);
+void RegisterProgramChange(MIDI_Event *p_e);
 
 Boolean HasGWorlds(void);
 int GWorldInit(void);

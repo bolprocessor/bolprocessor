@@ -130,79 +130,15 @@ if(!InBuiltDriverOn && OutMIDI && !Oms) {
 	}
 if(EmergencyExit || Panic || InitOn) return(noErr);
 if((ItemCapture && ItemOutPutOn) || TickCaptureStarted) {
-	size = (long) MyGetHandleSize((Handle)Stream.code);
-	size = (size / sizeof(MIDIcode)) - 5L;
-	if(Stream.i >= size) {
-		ptr = Stream.code;
-		if((ptr = (MIDIcode**)IncreaseSpace((Handle)ptr)) == NULL) return(noErr);
-		Stream.code = ptr;
-		}
-	if(Stream.i == ZERO) {
-		currenttime = ZERO;
-		DataOrigin = time;
-		}
-	else currenttime = time - DataOrigin;
-	switch(p_e->type) {
-		case RAW_EVENT:
-			(*Stream.code)[Stream.i].time = currenttime;
-			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->data2);
-			(*Stream.code)[Stream.i].sequence = nseq;
-			Stream.i++;
-			break;
-		case TWO_BYTE_EVENT:
-			(*Stream.code)[Stream.i].time = currenttime;
-			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->status);
-			(*Stream.code)[Stream.i].sequence = nseq;
-			Stream.i++;
-			(*Stream.code)[Stream.i].time = currenttime;
-			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->data2);
-			(*Stream.code)[Stream.i].sequence = nseq;
-			Stream.i++;
-			break;
-		case NORMAL_EVENT:
-			(*Stream.code)[Stream.i].time = currenttime;
-			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->status);
-			(*Stream.code)[Stream.i].sequence = nseq;
-			Stream.i++;
-			(*Stream.code)[Stream.i].time = currenttime;
-			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->data1);
-			(*Stream.code)[Stream.i].sequence = nseq;
-			Stream.i++;
-			(*Stream.code)[Stream.i].time = currenttime;
-			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->data2);
-			(*Stream.code)[Stream.i].sequence = nseq;
-			Stream.i++;
-		}
+	result = CaptureMidiEvent(time, nseq, p_e);
+	if (result != OK) return(noErr);
 	}
-
 if(!OutMIDI || MIDIfileOn) return(noErr);
 
 // Register program change to the MIDI orchestra
 if(SoundOn && p_e->type == TWO_BYTE_EVENT && !ConvertMIDItoCsound && !ItemCapture
 		&& !PlayPrototypeOn && ItemNumber < 2L) {
-	channel = ByteToInt(p_e->status) % 16;
-	thisevent = ByteToInt(p_e->status) - channel;
-	if(thisevent == ProgramChange) {
-		program = ByteToInt(p_e->data2) + 1;
-		if(CurrentMIDIprogram[channel+1] != program) {
-			if(TestMIDIChannel == (channel+1) && CurrentMIDIprogram[TestMIDIChannel] > 0) {
-				GetDialogItem(MIDIprogramPtr, (short)CurrentMIDIprogram[TestMIDIChannel],
-							&itemtype, (Handle*)&itemhandle, &r);
-				if(itemhandle != NULL) HiliteControl((ControlHandle) itemhandle,0);
-				GetDialogItem(MIDIprogramPtr, (short)program, &itemtype, (Handle*)&itemhandle, &r);
-				if(itemhandle != NULL) HiliteControl((ControlHandle) itemhandle,kControlButtonPart);
-				WritePatchName();
-				}
-			CurrentMIDIprogram[channel+1] = program;
-			for(j=0; j < 128; j++) {
-				if((*p_GeneralMIDIpatchNdx)[j] == program) {
-					sprintf(Message,"[%ld] %s",(long)program,*((*p_GeneralMIDIpatch)[j]));
-					SetField(NULL,wMIDIorchestra,(channel+1),Message);
-					break;
-					}
-				}
-			}
-		}
+	RegisterProgramChange(p_e);
 	}
 
 if(Oms || NEWTIMER) {

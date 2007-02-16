@@ -1734,7 +1734,11 @@ if(p_e->type == RAW_EVENT || p_e->type == TWO_BYTE_EVENT) {
 	
 /* The event is NORMAL_EVENT type */
 
-if(ItemCapture || Oms) *p_rs = 0;
+/* Don't use running status when capturing event stream, or
+   when sending to any MIDI driver that does not communicate
+   directly with a Serial port (eg. OMS, CoreMIDI, etc.) */
+/* Currently, only the MacOS 9 "built-in" driver allows rs */
+if(ItemCapture || !InBuiltDriverOn) *p_rs = 0;
 status = ByteToInt(p_e->status);
 chan = status % 16;
 c0 = status - chan;
@@ -1752,6 +1756,7 @@ if(MIDIfileOn && MIDIfileOpened) {
 	}
 	
 if(status != *p_rs || c0 == ChannelMode /* || c0 == ProgramChange */) {
+	/* Send the full Midi event */
 	/* Unexpectedly, D-50 seems to mess running status with ChannelMode */
 	*p_rs = status;
 	if(p_e->data1 > 127) {
@@ -1771,8 +1776,8 @@ if(status != *p_rs || c0 == ChannelMode /* || c0 == ProgramChange */) {
 	if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 	}
 else {
-	/* Skip running status, send only data */
-	/* This never happens with Oms */
+	/* Skip the status byte, send only data ("running status") */
+	/* This should probably only be used with direct Serial drivers */
 	if(p_e->data1 > 127) {
 		if(Beta) Println(wTrace,"Err. SendToDriver(). p_e->data1 > 127.");
 		p_e->data1 = 127;
@@ -1980,4 +1985,90 @@ if(Nbytes > MaxMIDIbytes) {
 	Tbytes2 = ZERO; Nbytes = MaxMIDIbytes/2;
 	}
 return(OK);
+}
+
+int CaptureMidiEvent(Milliseconds time,int nseq,MIDI_Event *p_e)
+{
+	MIDIcode **ptr;
+	Milliseconds currenttime;
+	long size;
+
+	size = (long) MyGetHandleSize((Handle)Stream.code);
+	size = (size / sizeof(MIDIcode)) - 5L;
+	if(Stream.i >= size) {
+		ptr = Stream.code;
+		if((ptr = (MIDIcode**)IncreaseSpace((Handle)ptr)) == NULL) return FAILED;
+		Stream.code = ptr;
+		}
+	if(Stream.i == ZERO) {
+		currenttime = ZERO;
+		DataOrigin = time;
+		}
+	else currenttime = time - DataOrigin;
+	switch(p_e->type) {
+		case RAW_EVENT:
+			(*Stream.code)[Stream.i].time = currenttime;
+			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->data2);
+			(*Stream.code)[Stream.i].sequence = nseq;
+			Stream.i++;
+			break;
+		case TWO_BYTE_EVENT:
+			(*Stream.code)[Stream.i].time = currenttime;
+			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->status);
+			(*Stream.code)[Stream.i].sequence = nseq;
+			Stream.i++;
+			(*Stream.code)[Stream.i].time = currenttime;
+			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->data2);
+			(*Stream.code)[Stream.i].sequence = nseq;
+			Stream.i++;
+			break;
+		case NORMAL_EVENT:
+			(*Stream.code)[Stream.i].time = currenttime;
+			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->status);
+			(*Stream.code)[Stream.i].sequence = nseq;
+			Stream.i++;
+			(*Stream.code)[Stream.i].time = currenttime;
+			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->data1);
+			(*Stream.code)[Stream.i].sequence = nseq;
+			Stream.i++;
+			(*Stream.code)[Stream.i].time = currenttime;
+			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->data2);
+			(*Stream.code)[Stream.i].sequence = nseq;
+			Stream.i++;
+	}
+	
+	return OK;
+}
+
+void RegisterProgramChange(MIDI_Event *p_e)
+{
+	int j, thisevent, channel, program;
+	short itemtype;
+	ControlHandle itemhandle;
+	Rect r;
+	
+	// Register program change to the MIDI orchestra
+	channel = ByteToInt(p_e->status) % 16;
+	thisevent = ByteToInt(p_e->status) - channel;
+	if(thisevent == ProgramChange) {
+		program = ByteToInt(p_e->data2) + 1;
+		if(CurrentMIDIprogram[channel+1] != program) {
+			if(TestMIDIChannel == (channel+1) && CurrentMIDIprogram[TestMIDIChannel] > 0) {
+				GetDialogItem(MIDIprogramPtr, (short)CurrentMIDIprogram[TestMIDIChannel],
+							&itemtype, (Handle*)&itemhandle, &r);
+				if(itemhandle != NULL) HiliteControl((ControlHandle) itemhandle,0);
+				GetDialogItem(MIDIprogramPtr, (short)program, &itemtype, (Handle*)&itemhandle, &r);
+				if(itemhandle != NULL) HiliteControl((ControlHandle) itemhandle,kControlButtonPart);
+				WritePatchName();
+				}
+			CurrentMIDIprogram[channel+1] = program;
+			for(j=0; j < 128; j++) {
+				if((*p_GeneralMIDIpatchNdx)[j] == program) {
+					sprintf(Message,"[%ld] %s",(long)program,*((*p_GeneralMIDIpatch)[j]));
+					SetField(NULL,wMIDIorchestra,(channel+1),Message);
+					break;
+				}
+			}
+		}
+	}
 }
