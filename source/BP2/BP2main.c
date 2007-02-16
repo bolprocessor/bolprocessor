@@ -114,7 +114,11 @@ if(!Oms && (io = DriverOpen("\p.MIDI")) != noErr) {
 #else
 // no real-time MIDI ... what should we do?? - akozar 010307
 #endif
-	
+
+#if BP_MACHO
+	InitCoreMidiDriver();
+#endif
+
 #if WITH_REAL_TIME_MIDI
 if(SetDriver() != OK) goto END;
 #endif
