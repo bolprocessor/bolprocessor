@@ -57,6 +57,8 @@ static MIDIPortRef	CMOutPort = NULL;
 static MIDIEndpointRef	CMDest = NULL;
 static MIDIClientRef	CMClient = NULL;
 
+static MIDITimeStamp	ClockZero = 0;	// CoreAudio's host time that we consider "zero"
+
 /*  Returns whether the CoreMIDI driver is on */
 Boolean IsMidiDriverOn()
 {
@@ -186,8 +188,8 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 		
 		curpkt = MIDIPacketListInit(pktlist);
 
-		nanoseconds = AudioConvertHostTimeToNanos(AudioGetCurrentHostTime());
-		nanoseconds += (time * 1000000); // add our time offset (ms) to the host clock (ns)
+		nanoseconds = AudioConvertHostTimeToNanos(ClockZero);
+		nanoseconds += ((UInt64)time * (UInt64)1000000); // add our time offset (ms) to the host clock (ns)
 		cmtime = AudioConvertNanosToHostTime(nanoseconds);
 		switch(p_e->type) {
 			case RAW_EVENT:
@@ -243,7 +245,7 @@ int ResetDriver(void)
 }
 
 
-SetDriver(void)
+int SetDriver(void)
 {
 	if(SetOutputFilterWord() != OK) return(ABORT);
 	SetDriverTime(ZERO);
@@ -255,60 +257,56 @@ SetDriver(void)
 }
 
 
-ResetMIDI(int wait)
+int ResetMIDI(int wait)
 {
-int i,ch,rep,rs,channel;
-OSErr io;
-MIDI_Event e;
+	int i,ch,rep,rs,channel;
+	OSErr io;
+	MIDI_Event e;
 
-rep = OK;
+	rep = OK;
 
-if(!OutMIDI || (AEventOn && !CoreMidiDriverOn)) return(OK);
+	if(!OutMIDI || (AEventOn && !CoreMidiDriverOn)) return(OK);
 
-if(!CoreMidiDriverOn) {
-	if(Beta) Alert1("Err. ResetMIDI(). Driver is OFF");
-	return FAILED;
-}
+	if(!CoreMidiDriverOn) {
+		if(Beta) Alert1("Err. ResetMIDI(). Driver is OFF");
+		return FAILED;
+	}
 	
-if(wait && !InitOn && !WaitOn) rep = WaitForLastTicks();
+	if(wait && !InitOn && !WaitOn) rep = WaitForLastTicks();
 
-if(wait && rep == OK && !InitOn && !WaitOn) rep = WaitForEmptyBuffer();
-	
-WaitABit(200L);
-FlushDriver();
-WaitABit(200L);
-ResetDriver();
+	if(wait && rep == OK && !InitOn && !WaitOn) rep = WaitForEmptyBuffer();
+		
+	WaitABit(200L);
+	FlushDriver();
+	WaitABit(200L);
+	ResetDriver();
 
-ResetTicks(FALSE,TRUE,ZERO,0);
+	ResetTicks(FALSE,TRUE,ZERO,0);
 
-return(rep);
+	return(rep);
 }
 
 
-/******  REPLACE THESE WITH FUNCTIONS THAT USE COREAUDIO HOST TIME ******/
 /* GetDriverTime() returns a value that is the number of milliseconds
    since the driver clock's "zero point" divided by Time_res.
    SetDriverTime() sets the current time in these units. */
-/* The null driver uses system ticks (1/60 seconds) as its internal
-   time representation. */
-static unsigned long ClockZero = 0;
 
 unsigned long GetDriverTime(void)
 {
-	unsigned long time, sincezero;
+	unsigned long time;
+	MIDITimeStamp sincezero;
 
-	// time = (clock() * 60) / Time_res;  // overflows unsigned long
-	sincezero = TickCount() - ClockZero;
-	time = (unsigned long)(((double)sincezero * (1000.0/60.0)) / (double)Time_res);
+	sincezero = AudioGetCurrentHostTime() - ClockZero;
+	time = (unsigned long)(AudioConvertHostTimeToNanos(sincezero) / ((UInt64)1000000 * (UInt64)Time_res));
 	return(time);
 }
 
 int SetDriverTime(long time)
 {
-	unsigned long clockcurrent, offset;
+	MIDITimeStamp clockcurrent, offset;
 	
-	clockcurrent = TickCount();
-	offset = (unsigned long)((double)(time * Time_res) * 0.060);
+	clockcurrent = AudioGetCurrentHostTime();
+	offset = AudioConvertNanosToHostTime(((UInt64)(time * Time_res) * (UInt64)1000000));
 	/* save the clock time that we are calling "zero" */
 	ClockZero = clockcurrent - offset;
 	return(OK);
