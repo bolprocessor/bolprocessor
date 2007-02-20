@@ -210,11 +210,11 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 		}
 		curpkt = MIDIPacketListAdd(pktlist, sizeof(pktbuf), curpkt, cmtime, len, databuf);
 
-		if (CMOutPort != NULL) {
+		if (CMDest != NULL) {
 			MIDISend(CMOutPort, CMDest, pktlist);
 			Nbytes++;
 		}
-		else FlashInfo("Output MIDI port was not found ... check CoreMIDI setup!");
+		else FlashInfo("MIDI output destination was not found ... check CoreMIDI setup!");
 	}
 	
 	return(noErr);
@@ -223,9 +223,16 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 
 int FlushDriver(void)
 {
+	OSStatus err;
+	
 	RunningStatus = 0;
 	Nbytes = Tbytes2 = ZERO;
 
+	if(!IsMidiDriverOn()) {
+		if(Beta) Alert1("Err. FlushDriver(). Driver is OFF");
+		return(ABORT);
+	}
+	if (CMDest != NULL)  err = MIDIFlushOutput(CMDest);
 	WaitABit(100L);
 
 	return(OK);
@@ -251,6 +258,7 @@ int SetDriver(void)
 	SetDriverTime(ZERO);
 
 	Tcurr = Nbytes = Tbytes2 = ZERO;
+	MaxMIDIbytes = LONG_MAX;
 	Dirty[wTimeAccuracy] = FALSE;
 	RunningStatus = 0;
 	return(OK);
