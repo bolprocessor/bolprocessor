@@ -92,6 +92,7 @@ if(Help) {
 	MyPtoCstr(255,name,line);
 	for(i=0; i < strlen(line); i++)
 		if(line[i] == '\r' || line[i] == '\n') line[i] = '\0';
+	FilterHelpSelector(line);
 	DisplayHelp(line);
 	return(OK);
 	}
@@ -789,6 +790,7 @@ int r;
 
 if((r=GetClickedWord(w,line)) != OK) return(r);
 Help = FALSE;
+FilterHelpSelector(line);
 DisplayHelp(line);
 return(OK);
 }

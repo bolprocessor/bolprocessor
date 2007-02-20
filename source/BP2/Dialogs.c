@@ -187,6 +187,7 @@ if(Help && !rtn) {
 	if(itemtype == statText) GetDialogItemText((Handle)itemhandle,t);
 	else GetControlTitle(itemhandle,t);
 	MyPtoCstr(255,t,line);
+	FilterHelpSelector(line);
 	DisplayHelp(line);
 	if(thedialog == FAQPtr && strcmp("How do I register for BP2?",line) == 0) {
 		// DisplayFile(wNotice,"License.txt");

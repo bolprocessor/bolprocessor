@@ -1,3 +1,38 @@
+2007-02-19	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	
+	* icons/BP2-OSX-appl.icns:
+	* icons/BP2-OSX-icon.pict:
+	* icons/BP2-OSX-icon.psd:
+	* resouces/plst-resource.plc:
+		New files with OS X application icon (will redesign later).
+	
+	* BP2-MacOS.cw8.mcp:  Output plist as a file for Mach-O target.
+	
+	* source/BP2/CoreMIDIdriver.c:
+		(FlushDriver) Call MIDIFlushOutput().
+		(SetDriver) Set MaxMIDIbytes so that BP schedules all events early.
+	
+	* source/BP2/Misc.c:
+	* source/BP2/Dialogs.c:
+	* source/BP2/Interface1.c:
+	* source/BP2/Interface2.c:
+	* source/BP2/-BP2.proto.h:
+		Fixed bug where DisplayHelp() would modify constant strings.  Now
+			takes a const parameter and must call FilterHelpSelector()
+			before hand if passing a string created at runtime.
+
+	* source/BP2/NavServWrapper.h (NSWInitReply):
+		Need to initialize isHTML and isText members of NSWReply.
+	
+	## Trial changes using the EXPERIMENTAL macro ##
+	
+	* source/BP2/GetRelease.c (ResetProject):  Avoid writing to Scrap window.
+	
+	* source/BP2/Interface1.c (DoEvents & BPActivateWindow):
+		Numerous changes to basic event handling to try to solve oddities
+			with window dragging, handling of content clicks, and to remove
+			redundant code. 
+	
 2007-02-16	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/CoreMIDIdriver.c:

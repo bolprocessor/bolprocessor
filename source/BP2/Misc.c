@@ -100,8 +100,22 @@ Print(wTrace,line);
 return(OK);
 }
 
+void FilterHelpSelector(char* command)
+/* The parameter to DisplayHelp() needs to be const, so
+   this function is provided for making sure that a non-
+   const string created at runtime and passed to 
+   DisplayHelp() does not contain bad characters */
+{
+int i;
+for(i=0; i < strlen(command); i++) {
+	if(isspace(command[i])) command[i] = ' ';
+	if(command[i] == '\21') command[i] = '\0'; /* Eliminate <cmd> */
+	}
+Strip(command);
+return;
+}
 
-DisplayHelp(char* command)
+DisplayHelp(const char* command)
 /* Display section of "BP2 help" relative to 'command' */
 {
 long pos,posline,posmax,pos1,pos2;
@@ -114,12 +128,6 @@ GetPort(&saveport);
 PleaseWait();
 Help = FALSE;
 if(command[0] == '\0') return(FAILED);
-command[255] = '\0';
-for(i=0; i < strlen(command); i++) {
-	if(isspace(command[i])) command[i] = ' ';
-	if(command[i] == '\21') command[i] = '\0'; /* Eliminate <cmd> */
-	}
-Strip(command);
 pos = ZERO;
 SetFPos(HelpRefnum,fsFromStart,pos);
 sprintf(target,"### %s",command);
