@@ -150,8 +150,12 @@ LastAction = NO;
 if(TraceMemory) {
 	sprintf(Message,"New project memory use: %ld [leaked: %ld]\r",
 		(long) MemoryUsed,(long)MemoryUsed - MemoryUsedInit);
+#if !EXPERIMENTAL
 	SetSelect(GetTextLength(wScrap),GetTextLength(wScrap),TEH[wScrap]);
 	Print(wScrap,Message); ShowSelect(CENTRE,wScrap);
+#else
+	ShowMessage(TRUE, wMessage, Message);
+#endif
 	}
 return(DoSystem());
 }
