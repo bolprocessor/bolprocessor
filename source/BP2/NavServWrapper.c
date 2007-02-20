@@ -28,6 +28,8 @@ OSErr NSWInitReply(NSWReply* reply)
 	reply->usedNavServices	= false;
 	reply->needCleanup	= false;
 	reply->saveCompleted	= false;
+	reply->isHTML = false;
+	reply->isText = false;
 
 	return noErr;
 }
