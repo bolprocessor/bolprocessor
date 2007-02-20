@@ -308,6 +308,7 @@ switch(p_event->what) {
 		if(whichwindow == GetDialogWindow(MIDIprogramPtr) || whichwindow == GetDialogWindow(SixteenPtr))
 			goto DOTHECLICK;
 		if((w < 0) || (w >= WMAX) || (w == Nw)) goto DOTHECLICK;
+#if !EXPERIMENTAL
 		switch(w) {
 			case wControlPannel:
 			case wScriptDialog:
@@ -324,6 +325,7 @@ switch(p_event->what) {
 				goto END;
 				break;
 			}
+#endif
 
 DOTHECLICK:
 		if(w == Nw && w == wGraphic) ShowDuration(NO);
@@ -420,12 +422,16 @@ DOTHECLICK:
 					if(w >= 0 && w < WMAX) BPActivateWindow(SLOW,w);
 					else SelectWindow(whichwindow);
 					}
+#if !EXPERIMENTAL
 				else {
+#endif
 					if(w == Nw) {
+#if !EXPERIMENTAL
 						GetPort(&saveport);
 						SetPortWindowPort(whichwindow);
 						GetWindowPortBounds(whichwindow, &r);
 						InvalWindowRect(whichwindow, &r);
+#endif
 						dragrect = Set_Window_Drag_Boundaries();
 						uppercorner = topLeft(r);
 						LocalToGlobal(&uppercorner);
@@ -437,10 +443,12 @@ DOTHECLICK:
 								|| newcorner.h != uppercorner.h) {
 							ChangedCoordinates[w] = TRUE;
 							}
+#if !EXPERIMENTAL
 						if(saveport != NULL) SetPort(saveport);
 						else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
 						if(w == wScript) BPActivateWindow(SLOW,wScriptDialog);
 						if(w == wScriptDialog) BPActivateWindow(SLOW,wScript);
+#endif
 						if(w == wData) ShowDuration(NO);
 						if(ResumeStopOn) {
 							if(UndoFlag) BringToFront(GetDialogWindow(ResumeUndoStopPtr));
@@ -451,19 +459,25 @@ DOTHECLICK:
 						Help = FALSE;
 						if(w < WMAX) BPActivateWindow(QUICK,w);
 						else {
+#if !EXPERIMENTAL
 							GetPort(&saveport);
 							SetPortWindowPort(whichwindow);
 							GetWindowPortBounds(whichwindow, &r);
 							InvalWindowRect(whichwindow, &r);
 							if(saveport != NULL) SetPort(saveport);
 							else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
+#endif
 							dragrect = Set_Window_Drag_Boundaries();
 							DragWindow(whichwindow,p_event->where,&dragrect);
+#if !EXPERIMENTAL					/* FIXME: should modify ChangedCoordinates here too? */
 							if(saveport != NULL) SetPort(saveport);
 							else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
+#endif
 							}
 						}
+#if !EXPERIMENTAL
 					}
+#endif
 				break;
 			case inGrow:
 				if(w == Nw /* && (!ClickRuleOn || w != wTrace) */) {
@@ -518,19 +532,27 @@ DOTHECLICK:
 					break;
 					}
 #endif
+#if !EXPERIMENTAL
 				if(whichwindow != FrontWindow()) {
+#endif
 					if(whichwindow == GetDialogWindow(ResumeStopPtr)
+#if !EXPERIMENTAL
 							|| whichwindow == GetDialogWindow(FileSavePreferencesPtr)
 							|| whichwindow == GetDialogWindow(StrikeModePtr)	
 							|| whichwindow == GetDialogWindow(TuningPtr)
 							|| whichwindow == GetDialogWindow(DefaultPerformanceValuesPtr)
 							|| whichwindow == GetDialogWindow(CsoundInstrMorePtr)
+#endif
 							|| whichwindow == GetDialogWindow(ResumeUndoStopPtr)
+#if !EXPERIMENTAL
 							|| whichwindow == GetDialogWindow(MIDIkeyboardPtr)
+#endif
 							|| whichwindow == GetDialogWindow(SixteenPtr)
 							|| whichwindow == GetDialogWindow(MIDIprogramPtr)
 							|| whichwindow == GetDialogWindow(gpDialogs[wControlPannel])
+#if !EXPERIMENTAL
 							|| whichwindow == GetDialogWindow(gpDialogs[wPrototype1])
+#endif
 							|| whichwindow == GetDialogWindow(gpDialogs[wScriptDialog])) {
 						if(1 || !Help) {
 							if(w >= 0 && w < WMAX) BPActivateWindow(QUICK,w);
@@ -546,6 +568,9 @@ DOTHECLICK:
 						if(rep == DONE) rep = OK;
 						return(rep);
 						}
+#if EXPERIMENTAL		/* moved this test from above for experimental build */
+				if(whichwindow != FrontWindow()) {
+#endif
 					if(w >= 0 && w < WMAX) BPActivateWindow(SLOW,w);
 					else {
 						SelectWindow(whichwindow);
@@ -658,11 +683,14 @@ DOTHECLICK:
 		break;
 	case activateEvt:
 		TEFromScrap();
+#if !EXPERIMENTAL
 		UpdateWindow(TRUE,(WindowPtr)p_event->message);
+#endif
 		for(w=0; w < WMAX; w++) {
 			if((WindowPtr) p_event->message == Window[w]) break;
 			}
 		if(w >= 0 && w < WMAX) {
+#if !EXPERIMENTAL
 			if(w == Nw && OKvScroll[w]) {
 				GetPort(&saveport);
 				SetPortWindowPort(Window[w]);
@@ -671,6 +699,7 @@ DOTHECLICK:
 				if(saveport != NULL) SetPort(saveport);
 				else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
 				}
+#endif
 			if(p_event->modifiers & activeFlag) {
 				if(Editable[w] && !LockedWindow[w]) Activate(TEH[w]);
 				if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w]));
@@ -995,7 +1024,7 @@ if(newNw == wTimeBase || Nw == wTimeBase) {
 	}
 if(newNw == wFilter) {
 	SetFilterDialog();
-#if WITH_REAL_TIME_MIDI
+#if !EXPERIMENTAL /* WITH_REAL_TIME_MIDI */
 	if(!IsMidiDriverOn()) {
 		if(Answer("The MIDI driver is not open, i.e. BP2 can't receive MIDI messages.\rDo you want to open it?",
 			'Y') == OK) {
@@ -1042,7 +1071,9 @@ if(Nw > -1 && Nw < WMAX) {
 		ClipRect(&r);
 		if(OKvScroll[Nw]) HideControl(vScroll[Nw]);
 		if(OKhScroll[Nw]) HideControl(hScroll[Nw]);
+#if !EXPERIMENTAL
 		if(OKgrow[Nw]) DrawGrowIcon(Window[Nw]);
+#endif
 		}
 	ClipRect(&r1);
 	OutlineTextInDialog(Nw,FALSE);
@@ -1517,6 +1548,7 @@ if((cntlCode=FindControl(p_event->where,theWindow,&theControl)) != 0) {
 			Help = FALSE;
 			GetControlTitle(theControl,t);
 			MyPtoCstr(255,t,Message);
+			FilterHelpSelector(Message);
 			DisplayHelp(Message);
 			}
 		else {
