@@ -14,6 +14,8 @@ plist
 		    "Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian"
 		    
 		key "CFBundleName" value string "Bol Processor"
+		key "CFBundleDisplayName" value string "Bol Processor"
+		key "CFBundleIconFile" value string "BP2-OSX-appl.icns"
 		key "CFBundlePackageType" value string __OUTPUT_TYPE__
 		key "CFBundleSignature" value string "Bel0"
 		
