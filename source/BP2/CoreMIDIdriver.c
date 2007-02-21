@@ -53,23 +53,72 @@
 #include <CoreAudio/CoreAudio.h>
 #include <CoreMIDI/CoreMIDI.h>
 
-static Boolean		CoreMidiDriverOn = 0;
+static Boolean		CoreMidiOutputOn = false;
+static Boolean		CoreMidiInputOn = false;
+static Boolean		CMMidiThruOn = false;
 static MIDIPortRef	CMOutPort = NULL;
 static MIDIEndpointRef	CMDest = NULL;
 static MIDIPortRef	CMInPort = NULL;
 static MIDIEndpointRef	CMSource = NULL;
 static MIDIClientRef	CMClient = NULL;
 
-static MIDITimeStamp	ClockZero = 0;	// CoreAudio's host time that we consider "zero"
+static MIDITimeStamp	ClockZero = 0;		// CoreAudio's host time that we consider "zero"
 
+const  Size			QueueSize = 5000L;
+static Boolean		QueueOverflowed = false;
+static Boolean		QueueEmpty = true;
+static MIDIcode*		pInputQueue = NULL;	// beginning of allocated space for storing MIDI bytes
+static MIDIcode*		pInputQueueEnd = NULL;	// one past the last allocated space for storing MIDI bytes
+static MIDIcode*		pQueueFront = NULL;	// current location to remove bytes
+static MIDIcode*		pQueueBack = NULL;	// current location to add bytes
+
+OSStatus CMCreateAndInitQueue();
+void CMReInitQueue();
+void CMDestroyQueue();
 void CMReadCallback(const MIDIPacketList* pktlist, void* readProcRefCon, void* srcConnRefCon);
+int  CMAddEventToQueue(const MIDIPacket* pkt);
+int  CMRemoveEventFromQueue(MIDI_Event* p_e);
 
 /*  Returns whether the CoreMIDI driver is on */
 Boolean IsMidiDriverOn()
 {
-	return CoreMidiDriverOn;
+	return (CoreMidiOutputOn || CoreMidiInputOn);
 }
 
+
+static OSStatus CMCreateAndInitQueue()
+{
+	OSStatus err;
+	// create queue buffer for receiving messages
+	pInputQueue = (MIDIcode*) NewPtr(QueueSize * sizeof(MIDIcode));
+	err = MemError();
+	if (pInputQueue != NULL && err == noErr)  CMReInitQueue();
+	return err;
+}
+
+static void CMReInitQueue()
+{
+	/*** FIXME: need to add thread synchronization here !! ***/
+	if (pInputQueue != NULL) {
+		pQueueFront = pQueueBack = pInputQueue;
+		pInputQueueEnd = pInputQueue + QueueSize;
+		QueueEmpty = true;
+		QueueOverflowed = false;
+	}
+	return;
+}
+
+static void CMDestroyQueue()
+{
+	if (pInputQueue != NULL) {
+		DisposePtr((Ptr)pInputQueue);
+		pInputQueue = NULL;
+	}
+	pQueueFront = pQueueBack = pInputQueueEnd = NULL;
+	QueueEmpty = true;
+	QueueOverflowed = false;
+	return;
+}
 
 void	EnumerateCMDevices()
 {
@@ -146,63 +195,121 @@ OSStatus InitCoreMidiDriver()
 				if (err != noErr || !ok) strcpy(name, "<unknown>");
 				sprintf(Message, "Sending Midi to destination: %s.", name);
 				ShowMessage(TRUE, wMessage, Message);
-				CoreMidiDriverOn = TRUE;
+				CoreMidiOutputOn = true;
 			}
 			else ShowMessage(TRUE, wMessage, "No MIDI destinations present.");
 		}
 		else ShowMessage(TRUE, wMessage, "Error: Could not create a MIDI output port.");
 		
-		// create a port so we can receive messages
-		err = MIDIInputPortCreate(CMClient, CFSTR("BP InPort"), CMReadCallback, NULL, &CMInPort);
-		if (err == noErr) {
-			// find the first source and connect to it
-			num = MIDIGetNumberOfSources();
-			if (num > 0) CMSource = MIDIGetSource(0);
-			if (CMSource != NULL) {
-				err = MIDIPortConnectSource(CMInPort, CMSource, NULL);
-				if (err == noErr) {
-					err = MIDIObjectGetStringProperty(CMSource, kMIDIPropertyName, &pname);
+		// create queue before trying to make CoreMIDI input port
+		if (CMCreateAndInitQueue() == noErr) {
+			// create a port so we can receive messages
+			err = MIDIInputPortCreate(CMClient, CFSTR("BP InPort"), CMReadCallback, NULL, &CMInPort);
+			if (err == noErr) {
+				// find the first source and connect to it
+				num = MIDIGetNumberOfSources();
+				if (num > 0) CMSource = MIDIGetSource(0);
+				if (CMSource != NULL) {
+					err = MIDIPortConnectSource(CMInPort, CMSource, NULL);
 					if (err == noErr) {
-						ok = CFStringGetCString(pname, name, sizeof(name), kCFStringEncodingMacRoman);
-						CFRelease(pname);
+						err = MIDIObjectGetStringProperty(CMSource, kMIDIPropertyName, &pname);
+						if (err == noErr) {
+							ok = CFStringGetCString(pname, name, sizeof(name), kCFStringEncodingMacRoman);
+							CFRelease(pname);
+						}
+						if (err != noErr || !ok) strcpy(name, "<unknown>");
+						err = noErr;
+						sprintf(Message, "Receiving Midi from source: %s.", name);
+						ShowMessage(TRUE, wMessage, Message);
+						CoreMidiInputOn = true;
 					}
-					if (err != noErr || !ok) strcpy(name, "<unknown>");
-					sprintf(Message, "Receiving Midi from source: %s.", name);
-					ShowMessage(TRUE, wMessage, Message);
-					CoreMidiDriverOn = TRUE;
+					else ShowMessage(TRUE, wMessage, "Error: Could not connect to MIDI input source.");
 				}
-				else ShowMessage(TRUE, wMessage, "Error: Could not connect to MIDI input source.");
+				else ShowMessage(TRUE, wMessage, "No MIDI sources present.");
 			}
-			else ShowMessage(TRUE, wMessage, "No MIDI sources present.");
-		}
-		else ShowMessage(TRUE, wMessage, "Error: Could not create a MIDI input port.");
+			else ShowMessage(TRUE, wMessage, "Error: Could not create a MIDI input port.");
+			
+			if (err != noErr) CMDestroyQueue();
+		}		
 	}
 	
 	return err;
 }
 
-void CMReadCallback(const MIDIPacketList* pktlist, void* readProcRefCon, void* srcConnRefCon)
+static void CMReadCallback(const MIDIPacketList* pktlist, void* readProcRefCon, void* srcConnRefCon)
 {
+	int i;
+	const MIDIPacket *pkt = &pktlist->packet[0];
+	
+	for (i = 0; i < pktlist->numPackets; ++i) {
+		// check if we are receiving this type of event
+		if(AcceptEvent(ByteToInt(pkt->data[0]))) {
+			if(CMMidiThruOn && PassEvent(ByteToInt(pkt->data[0]))) {
+				// should we allow Midi Thru? Make it an option?
+				/*SchedulerIsActive--;
+				OMSWritePacket2(pkt,gOutNodeRefNum,gOutputPortRefNum);
+				SchedulerIsActive++;*/
+			}
+			CMAddEventToQueue(pkt);
+		}
+		pkt = MIDIPacketNext(pkt);
+	}
+	
 	return;
 }
 
+static int CMAddEventToQueue(const MIDIPacket* pkt)
+{
+	int i;
+	UInt16 nbytes = pkt->length;
+	Milliseconds time = (unsigned long)(AudioConvertHostTimeToNanos(pkt->timeStamp) 
+					/ ((UInt64)1000000 /** (UInt64)Time_res)*/));
+	
+	/*** FIXME: need to add thread synchronization here !! ***/
+	for(i=0; i < nbytes; i++) {
+		pQueueBack->time = time;
+		pQueueBack->byte = pkt->data[i];
+		pQueueBack->sequence = 0;
+		if (++pQueueBack == pInputQueueEnd) pQueueBack = pInputQueue;
+		QueueEmpty = false;
+		if (pQueueBack == pQueueFront) {
+			// if we have filled the queue just remove the oldest event
+			// (we always leave one space "empty")
+			if (++pQueueFront == pInputQueueEnd) pQueueFront = pInputQueue;
+			QueueOverflowed = true;
+		}
+	}
+	return(OK);
+}
+
+static int CMRemoveEventFromQueue(MIDI_Event* p_e)
+{
+	/*** FIXME: need to add thread synchronization here !! ***/
+	if(QueueEmpty || pQueueBack == pQueueFront) return(FAILED);
+	p_e->type = RAW_EVENT;
+	p_e->time = pQueueFront->time; 
+	p_e->data2 = pQueueFront->byte;
+	if (++pQueueFront == pInputQueueEnd) pQueueFront = pInputQueue;
+	if (pQueueFront == pQueueBack) QueueEmpty = true;
+	return(OK);
+}
+
+
 GetNextMIDIevent(MIDI_Event *p_e,int loop,int force)
 {
-	return(FAILED);
-
-	/*if(Oms) return(PullMIDIdata(p_e)); 
-		
+	if(!CoreMidiInputOn) return(FAILED);
+	
 	while(TRUE) {
-		p_e->type = RAW_EVENT;
-		if(DriverRead(p_e) != noErr) goto NEXTRY;
-		if(p_e->type != RAW_EVENT) goto NEXTRY;
-		return(OK);
+		// p_e->type = RAW_EVENT;
+		// if(CMRemoveEventFromQueue(p_e) != OK) goto NEXTRY;
+		// if(p_e->type != RAW_EVENT) goto NEXTRY;
+		if(CMRemoveEventFromQueue(p_e) == OK) return(OK);
 		
 	NEXTRY:
 		if(!loop) return(FAILED);
-		if(!force && Button()) return(ABORT);
-		}
-	return(OK);*/
+		if(/*!force &&*/ Button()) return(ABORT);
+	}
+	return(OK);
 }
 
 
@@ -212,8 +319,8 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 	int result;
 	
 	err = noErr;
-	if(!CoreMidiDriverOn && OutMIDI) {
-		if(Beta) Println(wTrace,"Err. DriverWrite(). Driver is OFF");
+	if(!CoreMidiOutputOn && OutMIDI) {
+		if(Beta) Println(wTrace,"Err. DriverWrite(). Driver output is OFF");
 		return(noErr);
 	}
 	if(EmergencyExit || Panic || InitOn) return(noErr);
@@ -294,7 +401,7 @@ int FlushDriver(void)
 		if(Beta) Alert1("Err. FlushDriver(). Driver is OFF");
 		return(ABORT);
 	}
-	if (CMDest != NULL)  err = MIDIFlushOutput(CMDest);
+	if (CoreMidiOutputOn && CMDest != NULL)  err = MIDIFlushOutput(CMDest);
 	WaitABit(100L);
 
 	return(OK);
@@ -335,9 +442,9 @@ int ResetMIDI(int wait)
 
 	rep = OK;
 
-	if(!OutMIDI || (AEventOn && !CoreMidiDriverOn)) return(OK);
+	if(!OutMIDI || (AEventOn && !IsMidiDriverOn())) return(OK);
 
-	if(!CoreMidiDriverOn) {
+	if(!IsMidiDriverOn()) {
 		if(Beta) Alert1("Err. ResetMIDI(). Driver is OFF");
 		return FAILED;
 	}

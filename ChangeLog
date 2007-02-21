@@ -1,7 +1,10 @@
 2007-02-21	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	
 	* source/BP2/CoreMIDIdriver.c:
-	* source/BP2/-BP2.proto.h:  Added MIDI input with CoreMIDI.
+	* source/BP2/-BP2.proto.h:  Implemented MIDI input with CoreMIDI.
+
+	* source/BP2/MenuCommands.c (mMIDIinputcheck & mMIDIoutputcheck):
+		Commented out incorrect messages about null driver (need to change more).
 
 2007-02-20	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	
