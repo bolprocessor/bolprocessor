@@ -839,6 +839,9 @@ PatternPtr = GetNewDialog(PatternID,NULL,0L);
 EnterPtr = GetNewDialog(EnterID,NULL,0L);
 GreetingsPtr = GetNewDialog(GreetingsID,NULL,0L);
 DrawDialog(GreetingsPtr);
+#if TARGET_API_MAC_CARBON
+  QDFlushPortBuffer(GetDialogPort(GreetingsPtr), NULL);
+#endif
 FAQPtr = GetNewDialog(FAQDialogID,NULL,0L);
 SixteenPtr = GetNewDialog(SixteenDialogID,NULL,0L);
 StrikeModePtr = GetNewDialog(StrikeModeID,NULL,0L);
@@ -917,6 +920,9 @@ y0 += 11;
 CopyPString("\p1997",title);
 MoveTo(x0 - StringWidth(title)/2,y0);
 DrawString(title);
+#if TARGET_API_MAC_CARBON
+  QDFlushPortBuffer(GetDialogPort(GreetingsPtr), NULL);
+#endif
 	
 for(w=MAXWIND; w < WMAX; w++) {
 	PleaseWait();

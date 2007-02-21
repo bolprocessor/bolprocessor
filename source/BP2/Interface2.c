@@ -171,6 +171,9 @@ TextUpdate(w);
 SetPort(Window[w]); */
 GetWindowPortBounds(Window[w], &r);
 InvalWindowRect(Window[w], &r);
+#if TARGET_API_MAC_CARBON
+  QDFlushPortBuffer(GetWindowPort(Window[w]), NULL);
+#endif
 /* if(saveport != NULL) SetPort(saveport); */
 #if !TARGET_API_MAC_CARBON
 SystemTask();	/* Allows redrawing control strip */
@@ -198,6 +201,9 @@ PrintBehind(wInfo,s);
 ShowWindow(Window[wInfo]);
 SelectWindow(Window[wInfo]);
 TextUpdate(wInfo);
+#if TARGET_API_MAC_CARBON
+  QDFlushPortBuffer(GetWindowPort(Window[wInfo]), NULL);
+#endif
 return(OK);
 }
 
