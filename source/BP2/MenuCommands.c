@@ -146,8 +146,11 @@ switch(Alert(AboutAlert,0L)) {
 		if (DisplayFile(wNotice,"Credits") != OK)
 			DisplayFile(wNotice,"Credits.txt");
 		if(wind < 0) r = RESUME;
+		else r = OK;
+#if !EXPERIMENTAL
 		wind = wNotice;
 		BPActivateWindow(SLOW,wind);
+#endif
 		break;
 	case bRegister:
 		DisplayFile(wNotice,"License.txt");
@@ -157,8 +160,10 @@ switch(Alert(AboutAlert,0L)) {
 		else r = OK;
 		break;
 	}
-if(r == OK && wind >= 0) BPActivateWindow(SLOW,wind);
-else BPActivateWindow(SLOW,Nw);
+#if !EXPERIMENTAL
+  if(r == OK && wind >= 0) BPActivateWindow(SLOW,wind);
+  else BPActivateWindow(SLOW,Nw);
+#endif
 return(r);
 }
 
