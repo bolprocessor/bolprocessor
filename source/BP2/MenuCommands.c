@@ -245,7 +245,7 @@ if(!OutMIDI) {
 #if WITH_REAL_TIME_MIDI
 if(Oms) FlashInfo("OMS MIDI driver is being used");
 else if (InBuiltDriverOn) FlashInfo("OMS is inactive. In-built MIDI driver is being used");
-else FlashInfo("Null MIDI driver is being used");
+// else FlashInfo("Null MIDI driver is being used");
 
 Alert1("Notes played on external MIDI device will be shown in the ‘Data’ window. Otherwise select the proper input…");
 mTypeNote(wData);
@@ -275,7 +275,7 @@ if(!OutMIDI) {
 #if WITH_REAL_TIME_MIDI
 if(Oms) FlashInfo("OMS MIDI driver is being used");
 else if (InBuiltDriverOn) FlashInfo("OMS is inactive. In-built MIDI driver is being used");
-else FlashInfo("Null MIDI driver is being used");
+// else FlashInfo("Null MIDI driver is being used");
 
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 
