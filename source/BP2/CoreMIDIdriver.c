@@ -49,15 +49,20 @@
 
 #include "-BP2decl.h"
 
+#include <string.h>
 #include <CoreAudio/CoreAudio.h>
 #include <CoreMIDI/CoreMIDI.h>
 
 static Boolean		CoreMidiDriverOn = 0;
 static MIDIPortRef	CMOutPort = NULL;
 static MIDIEndpointRef	CMDest = NULL;
+static MIDIPortRef	CMInPort = NULL;
+static MIDIEndpointRef	CMSource = NULL;
 static MIDIClientRef	CMClient = NULL;
 
 static MIDITimeStamp	ClockZero = 0;	// CoreAudio's host time that we consider "zero"
+
+void CMReadCallback(const MIDIPacketList* pktlist, void* readProcRefCon, void* srcConnRefCon);
 
 /*  Returns whether the CoreMIDI driver is on */
 Boolean IsMidiDriverOn()
@@ -71,61 +76,114 @@ void	EnumerateCMDevices()
 	// Enumerate available CoreMidi devices
 	// This code is from the Echo.cpp CM example
 	int i, n;
+	OSStatus err;
+	Boolean ok;
 	CFStringRef pname, pmanuf, pmodel;
-	char name[64], manuf[64], model[64];
+	char name[64], manuf[64], model[64], line[256];
 	
+	ok = TRUE;
 	n = MIDIGetNumberOfDevices();
 	for (i = 0; i < n; ++i) {
 		MIDIDeviceRef dev = MIDIGetDevice(i);
 		
-		MIDIObjectGetStringProperty(dev, kMIDIPropertyName, &pname);
-		MIDIObjectGetStringProperty(dev, kMIDIPropertyManufacturer, &pmanuf);
-		MIDIObjectGetStringProperty(dev, kMIDIPropertyModel, &pmodel);
+		err = MIDIObjectGetStringProperty(dev, kMIDIPropertyName, &pname);
+		if (err != noErr) continue;
+		err = MIDIObjectGetStringProperty(dev, kMIDIPropertyManufacturer, &pmanuf);
+		if (err != noErr) {
+			CFRelease(pname);
+			continue;
+		}
+		err = MIDIObjectGetStringProperty(dev, kMIDIPropertyModel, &pmodel);
+		if (err != noErr) {
+			CFRelease(pname);
+			CFRelease(pmanuf);
+			continue;
+		}
 		
-		CFStringGetCString(pname, name, sizeof(name), 0);
-		CFStringGetCString(pmanuf, manuf, sizeof(manuf), 0);
-		CFStringGetCString(pmodel, model, sizeof(model), 0);
+		ok = ok & CFStringGetCString(pname, name, sizeof(name), kCFStringEncodingMacRoman);
+		ok = ok & CFStringGetCString(pmanuf, manuf, sizeof(manuf), kCFStringEncodingMacRoman);
+		ok = ok & CFStringGetCString(pmodel, model, sizeof(model), kCFStringEncodingMacRoman);
+		
 		CFRelease(pname);
 		CFRelease(pmanuf);
 		CFRelease(pmodel);
 
-		sprintf(Message, "name=%s, manuf=%s, model=%s", name, manuf, model);
-		Println(wTrace, Message);
+		if (ok) {
+			sprintf(line, "name=%s, manuf=%s, model=%s", name, manuf, model);
+			Println(wTrace, line);
+		}
 	}
 }
 
 OSStatus InitCoreMidiDriver()
 {
 	OSStatus err;
+	Boolean ok;
 	CFStringRef pname;
-	int numdest;
-	char name[64];
+	ItemCount num;
+	char name[128];
 	
 	err = MIDIClientCreate(CFSTR("Bol Processor"), NULL, NULL, &CMClient);
 	if (err == noErr) {
 		ShowMessage(TRUE, wMessage, "Signed into CoreMIDI.");
+		
+		// create a port so we can send messages
 		err = MIDIOutputPortCreate(CMClient, CFSTR("BP OutPort"), &CMOutPort);
 		if (err == noErr) {
-			EnumerateCMDevices();
+			// EnumerateCMDevices();
 			
 			// find the first destination
 			// (code adapted from the Echo.cpp CM example)
-			numdest = MIDIGetNumberOfDestinations();
-			if (numdest > 0) CMDest = MIDIGetDestination(0);
+			num = MIDIGetNumberOfDestinations();
+			if (num > 0) CMDest = MIDIGetDestination(0);
 
 			if (CMDest != NULL) {
-				MIDIObjectGetStringProperty(CMDest, kMIDIPropertyName, &pname);
-				CFStringGetCString(pname, name, sizeof(name), 0);
-				CFRelease(pname);
+				err = MIDIObjectGetStringProperty(CMDest, kMIDIPropertyName, &pname);
+				if (err == noErr) {
+					ok = CFStringGetCString(pname, name, sizeof(name), kCFStringEncodingMacRoman);
+					CFRelease(pname);
+				}
+				if (err != noErr || !ok) strcpy(name, "<unknown>");
 				sprintf(Message, "Sending Midi to destination: %s.", name);
 				ShowMessage(TRUE, wMessage, Message);
 				CoreMidiDriverOn = TRUE;
 			}
 			else ShowMessage(TRUE, wMessage, "No MIDI destinations present.");
-		}			
+		}
+		else ShowMessage(TRUE, wMessage, "Error: Could not create a MIDI output port.");
+		
+		// create a port so we can receive messages
+		err = MIDIInputPortCreate(CMClient, CFSTR("BP InPort"), CMReadCallback, NULL, &CMInPort);
+		if (err == noErr) {
+			// find the first source and connect to it
+			num = MIDIGetNumberOfSources();
+			if (num > 0) CMSource = MIDIGetSource(0);
+			if (CMSource != NULL) {
+				err = MIDIPortConnectSource(CMInPort, CMSource, NULL);
+				if (err == noErr) {
+					err = MIDIObjectGetStringProperty(CMSource, kMIDIPropertyName, &pname);
+					if (err == noErr) {
+						ok = CFStringGetCString(pname, name, sizeof(name), kCFStringEncodingMacRoman);
+						CFRelease(pname);
+					}
+					if (err != noErr || !ok) strcpy(name, "<unknown>");
+					sprintf(Message, "Receiving Midi from source: %s.", name);
+					ShowMessage(TRUE, wMessage, Message);
+					CoreMidiDriverOn = TRUE;
+				}
+				else ShowMessage(TRUE, wMessage, "Error: Could not connect to MIDI input source.");
+			}
+			else ShowMessage(TRUE, wMessage, "No MIDI sources present.");
+		}
+		else ShowMessage(TRUE, wMessage, "Error: Could not create a MIDI input port.");
 	}
 	
 	return err;
+}
+
+void CMReadCallback(const MIDIPacketList* pktlist, void* readProcRefCon, void* srcConnRefCon)
+{
+	return;
 }
 
 GetNextMIDIevent(MIDI_Event *p_e,int loop,int force)
@@ -150,8 +208,10 @@ GetNextMIDIevent(MIDI_Event *p_e,int loop,int force)
 
 OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 {
+	OSStatus err;
 	int result;
 	
+	err = noErr;
 	if(!CoreMidiDriverOn && OutMIDI) {
 		if(Beta) Println(wTrace,"Err. DriverWrite(). Driver is OFF");
 		return(noErr);
@@ -209,15 +269,17 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 				break;
 		}
 		curpkt = MIDIPacketListAdd(pktlist, sizeof(pktbuf), curpkt, cmtime, len, databuf);
-
-		if (CMDest != NULL) {
-			MIDISend(CMOutPort, CMDest, pktlist);
-			Nbytes++;
+		if (curpkt != NULL) {
+			if (CMDest != NULL) {
+				err = MIDISend(CMOutPort, CMDest, pktlist);
+				Nbytes++;
+			}
+			else FlashInfo("MIDI output destination was not found ... check CoreMIDI setup!");
 		}
-		else FlashInfo("MIDI output destination was not found ... check CoreMIDI setup!");
+		else if (Beta) Alert1("Err. DriverWrite(). MIDIPacketListAdd() failed");
 	}
 	
-	return(noErr);
+	return(err);
 }
 
 

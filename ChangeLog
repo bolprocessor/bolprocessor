@@ -1,3 +1,21 @@
+2007-02-21	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	
+	* source/BP2/CoreMIDIdriver.c:
+	* source/BP2/-BP2.proto.h:  Added MIDI input with CoreMIDI.
+
+2007-02-20	Anthony Kozar	<anthonykozar@sbcglobal.net>
+	
+	* source/BP2/CoreMIDIdriver.c:
+		Improved error checking after all CoreMIDI and CF calls.
+	
+	* source/BP2/MenuCommands.c (mAbout):
+		Stop About box from activating the wrong window (EXPERIMENTAL).
+	
+	* source/BP2/Inits.c (MakeWindows): 
+	* source/BP2/Interface2.c (ShowMessage & FlashInfo):
+		Call QDFlushPortBuffer so that welcome window and messages will be
+			drawn before update events are received on OS X.
+	
 2007-02-19	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	
 	* icons/BP2-OSX-appl.icns:
