@@ -1,3 +1,24 @@
+2007-02-23	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* resources/CoreMIDISettings.rsrc:
+		New file with dialog resources for CoreMIDI settings.
+	
+	* source/BP2/CoreMIDIdriver.c:
+	* source/BP2/Inits.c (MakeWindows): 
+	* source/BP2/-BP2.proto.h:
+	* BP2-MacOS.cw8.mcp:
+		Code for creating and updating CoreMIDI settings dialog.
+	
+2007-02-22	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2.h:
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+	* source/BP2/BP2main.c (RegisterMidiDrivers, etc.):
+	* source/BP2/Inits.c (Inits): 
+		New code for dynamically adding drivers and Devices menu items.
+			(unfinished).
+
 2007-02-21	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	
 	* source/BP2/CoreMIDIdriver.c:

@@ -72,12 +72,18 @@ static MIDIcode*		pInputQueueEnd = NULL;	// one past the last allocated space fo
 static MIDIcode*		pQueueFront = NULL;	// current location to remove bytes
 static MIDIcode*		pQueueBack = NULL;	// current location to add bytes
 
+static DialogPtr		CMSettings = NULL;
+
 OSStatus CMCreateAndInitQueue();
 void CMReInitQueue();
 void CMDestroyQueue();
+void CMNotifyCallback(const MIDINotification *message, void *refCon);
 void CMReadCallback(const MIDIPacketList* pktlist, void* readProcRefCon, void* srcConnRefCon);
 int  CMAddEventToQueue(const MIDIPacket* pkt);
 int  CMRemoveEventFromQueue(MIDI_Event* p_e);
+OSStatus UpdateCMSettingsListBoxes();
+void ResizeListBox(ListHandle list, long numRows);
+OSStatus UpdateListBox(ListHandle list, ItemCount (*countFunc)(void), MIDIEndpointRef (*getEndpointFunc)(ItemCount));
 
 /*  Returns whether the CoreMIDI driver is on */
 Boolean IsMidiDriverOn()
@@ -172,7 +178,7 @@ OSStatus InitCoreMidiDriver()
 	ItemCount num;
 	char name[128];
 	
-	err = MIDIClientCreate(CFSTR("Bol Processor"), NULL, NULL, &CMClient);
+	err = MIDIClientCreate(CFSTR("Bol Processor"), CMNotifyCallback, NULL, &CMClient);
 	if (err == noErr) {
 		ShowMessage(TRUE, wMessage, "Signed into CoreMIDI.");
 		
@@ -233,7 +239,17 @@ OSStatus InitCoreMidiDriver()
 		}		
 	}
 	
+	err = UpdateCMSettingsListBoxes();
+
 	return err;
+}
+
+static void CMNotifyCallback(const MIDINotification *message, void *refCon)
+{
+	if (message->messageID == kMIDIMsgSetupChanged)
+		UpdateCMSettingsListBoxes();
+	
+	return;
 }
 
 static void CMReadCallback(const MIDIPacketList* pktlist, void* readProcRefCon, void* srcConnRefCon)
@@ -436,9 +452,7 @@ int SetDriver(void)
 
 int ResetMIDI(int wait)
 {
-	int i,ch,rep,rs,channel;
-	OSErr io;
-	MIDI_Event e;
+	int rep;
 
 	rep = OK;
 
@@ -487,4 +501,112 @@ int SetDriverTime(long time)
 	/* save the clock time that we are calling "zero" */
 	ClockZero = clockcurrent - offset;
 	return(OK);
+}
+
+
+/* CoreMIDI settings dialog */
+const  short	CMSettingsID = 1000;
+const  short	diInputList = 4;
+const  short	diOutputList = 5;
+const  short	diCreateDestination = 6;
+const  short	diCreateSource = 7;
+const  short	diMidiThru = 8;
+
+OSStatus CreateCMSettings()
+{
+	ListHandle	inputLH, outputLH;
+	ControlRef	cntl;
+	Cell		selection;
+	
+	CMSettings = GetNewDialog(CMSettingsID, NULL, kLastWindowOfClass);
+	if (CMSettings != NULL) {
+		// get list handles
+		GetDialogItemAsControl(CMSettings, diInputList, &cntl);
+		GetControlData(cntl, kControlEntireControl, kControlListBoxListHandleTag, sizeof(inputLH), &inputLH, NULL);
+		// SetKeyboardFocus(GetDialogWindow(CMSettings), cntl, 1);
+		
+		GetDialogItemAsControl(CMSettings, diOutputList, &cntl);
+		GetControlData(cntl, kControlEntireControl, kControlListBoxListHandleTag, sizeof(outputLH), &outputLH, NULL);
+		
+		// set the selections
+		SetPt(&selection, 0, 0);
+		LSetSelect(true, selection, inputLH);
+		LSetSelect(true, selection, outputLH);
+		
+		SetThemeWindowBackground(GetDialogWindow(CMSettings), kThemeBrushDialogBackgroundActive, false);
+		DrawDialog(CMSettings);
+		ShowWindow(GetDialogWindow(CMSettings));
+		SelectWindow(GetDialogWindow(CMSettings));
+	}
+	else return -1;
+	
+	return noErr;
+}
+
+static void ResizeListBox(ListHandle list, long numRows)
+{
+	long currentRows = (*list)->dataBounds.bottom - (*list)->dataBounds.top;
+	
+	if (currentRows < numRows)
+		LAddRow(numRows-currentRows, currentRows, list);
+	else if (currentRows > numRows)
+		LDelRow(currentRows-numRows, 0, list);
+	
+	return;
+}
+
+static OSStatus UpdateListBox(ListHandle list, ItemCount (*countFunc)(void), MIDIEndpointRef (*getEndpointFunc)(ItemCount))
+{
+	OSStatus err;
+	Boolean ok;
+	CFStringRef name;
+	MIDIEndpointRef endpt;
+	ItemCount count, index;
+	char cname[128];
+	Cell cellnum;
+	
+	count = countFunc();
+	ResizeListBox(list, count);
+	for (index = 0; index < count; ++index) {
+		endpt = getEndpointFunc(index);
+		if (endpt != NULL) {
+			err = MIDIObjectGetStringProperty(endpt, kMIDIPropertyName, &name);
+			if (err == noErr) {
+				ok = CFStringGetCString(name, cname, sizeof(cname), kCFStringEncodingMacRoman);
+				CFRelease(name);
+			}
+			if (err != noErr || !ok) strcpy(cname, "<unknown>");
+			err = noErr;
+			SetPt(&cellnum, 0, index);
+			LSetCell(cname, strlen(cname), cellnum, list);
+		}
+		else if (Beta) Alert1("Err. UpdateCMSettingsListBoxes():  MIDIGetSource() returned NULL.");
+	}
+	
+	return err;
+}
+
+OSStatus UpdateCMSettingsListBoxes()
+{
+	OSStatus err;	
+	ListHandle	inputLH, outputLH;
+	ControlRef	cntl;
+	
+	if (CMSettings == NULL) return -1;
+	
+	// get list handles
+	GetDialogItemAsControl(CMSettings, diInputList, &cntl);
+	GetControlData(cntl, kControlEntireControl, kControlListBoxListHandleTag, sizeof(inputLH), &inputLH, NULL);
+	
+	GetDialogItemAsControl(CMSettings, diOutputList, &cntl);
+	GetControlData(cntl, kControlEntireControl, kControlListBoxListHandleTag, sizeof(outputLH), &outputLH, NULL);
+	
+	// update source list
+	err = UpdateListBox(inputLH, MIDIGetNumberOfSources, MIDIGetSource);
+	
+	// update destination list
+	err = UpdateListBox(outputLH, MIDIGetNumberOfDestinations, MIDIGetDestination);
+	
+	DrawDialog(CMSettings);
+	return noErr;
 }

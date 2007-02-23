@@ -199,6 +199,10 @@ for(i=0; i <= MAXCHAN; i++) {
 	}
 ChangedMIDIprogram = FALSE;
 
+NumInstalledDrivers = 0;
+InstalledDrivers = NULL;
+InstalledMenuItems = NULL;
+
 #if USE_BUILT_IN_MIDI_DRIVER
 Port = 1; /* MIDI output on "Modem" port */
 /* Port = 2; MIDI output on "Printer" port */
@@ -850,6 +854,10 @@ DefaultPerformanceValuesPtr = GetNewDialog(DefaultID,NULL,0L);
 CsoundInstrMorePtr = GetNewDialog(CsoundInstrMoreID,NULL,0L);
 OMSinoutPtr = GetNewDialog(OMSinoutID,NULL,0L); // always create for now, even when !USE_OMS - 011907 akozar
 MIDIprogramPtr = GetNewDialog(MIDIprogramID,NULL,0L);
+
+#if BP_MACHO
+  err = CreateCMSettings();
+#endif
 
 bad = FALSE;
 Jbutt = 0;

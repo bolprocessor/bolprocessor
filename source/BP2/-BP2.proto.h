@@ -80,6 +80,7 @@ int StoreDefaultOMSinput(void);
 #if BP_MACHO
 OSStatus InitCoreMidiDriver();
 void	EnumerateCMDevices();
+OSStatus CreateCMSettings();
 #endif
 
 /* in Schedule.c */
