@@ -360,5 +360,8 @@ extern Boolean RunningOnOSX;
 extern ControlActionUPP vScrollUPP,hScrollUPP;
 extern NSWReply** MIDIfileReply;
 extern NSWReply** CsFileReply;
+extern UInt32 NumInstalledDrivers;
+extern BPMidiDriver** InstalledDrivers;
+extern DynamicMenuItem** InstalledMenuItems;
 
 #endif /* BP2_DECL_H */

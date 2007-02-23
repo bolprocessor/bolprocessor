@@ -2045,6 +2045,37 @@ typedef struct s_arc arc;
 #define StringList(i) *((*p_StringList)[(i)])
 
 
+// Structures for dynamically registering devices & MIDI drivers
+
+// signature for custom menu item enable procedures
+typedef OSStatus (*MenuEnableProcPtr)(MenuItemIndex /*index*/, int* /*enable*/, int* /*check*/ );
+
+struct BPMidiDriver {
+	struct BPMidiDriver** next;
+	UInt32		id;			// a unique ID for the driver
+	char			name[64];		// driver name
+	int			initOK;		// driver installed without any errors
+	DialogPtr		settingsDialog;	// the driver's modeless settings dialog
+	MenuItemIndex	firstMItem;		// the first menu item registered
+	MenuItemIndex	lastMItem;		// the last menu item registered
+	// add function pointers for driver calls here later
+};
+typedef struct BPMidiDriver BPMidiDriver;
+
+struct DynamicMenuItem {
+	struct DynamicMenuItem** next;
+	struct BPMidiDriver**    owner;	// driver which owns this item
+	UInt32		id;			// a unique ID for this menu item
+	MenuID		menu;			// menu to which the item belongs
+	MenuItemIndex	index;		// item's position in menu
+	char			name[64];		// menu item's text
+	MenuEnableProcPtr	enableProc;		// called by MaintainMenus() to decide enabled state
+	IntProcPtr		commandProc;	// function to call when selected
+	// char*		helpText;		// ??
+};
+typedef struct DynamicMenuItem DynamicMenuItem;
+
+
 #include "-BP2.proto.h"
 
 #endif /* _H_BP2 */

@@ -421,5 +421,8 @@ Boolean RunningOnOSX;
 ControlActionUPP vScrollUPP,hScrollUPP;
 NSWReply** MIDIfileReply;
 NSWReply** CsFileReply;
+UInt32 NumInstalledDrivers;
+BPMidiDriver** InstalledDrivers;
+DynamicMenuItem** InstalledMenuItems;
 
 #endif /* BP2_MAIN_H */

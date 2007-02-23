@@ -44,6 +44,8 @@
 #include "-BP2.h"
 #include "-BP2main.h"
 
+int MakeNewDriverRecord(BPMidiDriver*** p_handle);
+int RegisterMidiDrivers();
 
 main(void)
 {
@@ -89,35 +91,7 @@ if(NEWTIMER) {
 	}
 #endif
 
-// OMS initialisation
-#if USE_OMS
-if(oms) {
-	if(InitOMS('Bel0') == noErr) {
-		Oms = TRUE;
-		ChangeControlValue(TRUE,Hbutt[bOMS],Oms);
-		}
-	else Alert1("To avoid OMS warning when using internal MIDI driver, change settings Ô-se.startupÕ after launching BP2");
-	ClearMessage();
-	}
-#else
-  Oms = FALSE;
-  ChangeControlValue(TRUE,Hbutt[bOMS],Oms);
-#endif
-
-PleaseWait();
-	
-#if USE_BUILT_IN_MIDI_DRIVER
-if(!Oms && (io = DriverOpen("\p.MIDI")) != noErr) {
-	Alert1("Unexpected error opening MIDI driver. OMS is off, but some other device might be conflicting");
-	return(OK);
-}
-#else
-// no real-time MIDI ... what should we do?? - akozar 010307
-#endif
-
-#if BP_MACHO
-	InitCoreMidiDriver();
-#endif
+RegisterMidiDrivers();
 
 #if WITH_REAL_TIME_MIDI
 if(SetDriver() != OK) goto END;
@@ -352,6 +326,75 @@ ClearLockedSpace();
 #endif
 
 return(OK);
+}
+
+/* Registering Devices, Drivers and their interfaces */
+
+static int MakeNewDriverRecord(BPMidiDriver*** p_handle)
+{
+BPMidiDriver** driver;
+driver = (BPMidiDriver**) GiveSpace(sizeof(BPMidiDriver));
+if (!driver) return(FAILED);
+
+(*driver)->id = ++NumInstalledDrivers;
+(*driver)->name[0] = '\0';
+(*driver)->initOK = false;
+(*driver)->settingsDialog = NULL;
+(*driver)->firstMItem = 0;
+(*driver)->lastMItem = 0;
+(*driver)->next = InstalledDrivers;
+
+InstalledDrivers = driver;
+*p_handle = driver;
+return(OK);
+}
+
+static int RegisterMidiDrivers()
+{
+BPMidiDriver** driver;
+
+
+/* We can only handle certain statically linked drivers for now,
+   but eventually will support dynamically loading driver plugins. */
+
+// OMS initialisation
+#if USE_OMS
+if (MakeNewDriverRecord(&driver) != OK) return(FAILED);
+strcpy((*driver)->name, "Opcode OMS");
+if(oms) {
+	if(InitOMS('Bel0') == noErr) {
+		Oms = TRUE;
+		ChangeControlValue(TRUE,Hbutt[bOMS],Oms);
+		}
+	else Alert1("To avoid OMS warning when using internal MIDI driver, change settings Ô-se.startupÕ after launching BP2");
+	ClearMessage();
+	}
+#else
+  Oms = FALSE;
+  ChangeControlValue(TRUE,Hbutt[bOMS],Oms);
+#endif
+
+PleaseWait();
+	
+#if USE_BUILT_IN_MIDI_DRIVER
+if (MakeNewDriverRecord(&driver) != OK) return(FAILED);
+strcpy((*driver)->name, "BP2 Serial Driver");
+if(!Oms && (io = DriverOpen("\p.MIDI")) != noErr) {
+	Alert1("Unexpected error opening MIDI driver. OMS is off, but some other device might be conflicting");
+	return(OK);
+}
+#else
+// no real-time MIDI ... what should we do?? - akozar 010307
+#endif
+
+#if BP_MACHO
+	if (MakeNewDriverRecord(&driver) != OK) return(FAILED);
+	strcpy((*driver)->name, "CoreMIDI");
+	InitCoreMidiDriver();
+#endif
+
+
+
 }
 
 
