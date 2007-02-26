@@ -13,6 +13,7 @@ plist
 		key "NSHumanReadableCopyright" value string 
 		    "Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian"
 		    
+		key "CFBundleExecutable" value string "Bol Processor"
 		key "CFBundleName" value string "Bol Processor"
 		key "CFBundleDisplayName" value string "Bol Processor"
 		key "CFBundleIconFile" value string "BP2-OSX-appl.icns"
@@ -23,6 +24,141 @@ plist
 		key "CFBundleGetInfoString" value string "Bol Processor BP2 - Carbon development version"
 		key "CFBundleShortVersionString" value string "BP2 Carbon development version"
 		
-		key "LSPrefersCarbon" value boolean true
+		/* key "LSPrefersCarbon" value boolean true */
+		
+		/* file types */
+		key "CFBundleDocumentTypes" value
+		array
+		[
+			dictionary {
+				key "CFBundleTypeName" value string "BP2 data"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "BP07" string "TEXT" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "bpda" ]
+				/* key "CFBundleTypeIconFile" */
+			}
+			dictionary {
+				key "CFBundleTypeName" value string "BP2 keyboard"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "BP02" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "bpkb" ]
+				/* key "CFBundleTypeIconFile" */
+			}
+			dictionary {
+				key "CFBundleTypeName" value string "BP2 sound-object prototypes"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "BP03" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "bpmi" string "bpso"]
+				/* key "CFBundleTypeIconFile" */
+			}
+			dictionary {
+				key "CFBundleTypeName" value string "BP2 decisions"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "BP04" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "bpde" ]
+				/* key "CFBundleTypeIconFile" */
+			}
+			dictionary {
+				key "CFBundleTypeName" value string "BP2 grammar"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "BP05" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "bpgr" ]
+				/* key "CFBundleTypeIconFile" */
+			}
+			dictionary {
+				key "CFBundleTypeName" value string "BP2 alphabet"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "BP06" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "bpho" string "bpal" ]
+				/* key "CFBundleTypeIconFile" */
+			}
+			dictionary {
+				key "CFBundleTypeName" value string "BP2 interaction"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "BP08" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "bpin" ]
+				/* key "CFBundleTypeIconFile" */
+			}
+			dictionary {
+				key "CFBundleTypeName" value string "BP2 settings"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "BP09" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "bpse" ]
+				/* key "CFBundleTypeIconFile" */
+			}
+			dictionary {
+				key "CFBundleTypeName" value string "BP2 weights"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "BP10" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "bpwg" ]
+				/* key "CFBundleTypeIconFile" */
+			}
+			dictionary {
+				key "CFBundleTypeName" value string "BP2 script"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "BP11" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "bpsc" ]
+				/* key "CFBundleTypeIconFile" */
+			}
+			dictionary {
+				key "CFBundleTypeName" value string "BP2 glossary"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "BP12" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "bpgl" ]
+				/* key "CFBundleTypeIconFile" */
+			}
+			dictionary {
+				key "CFBundleTypeName" value string "BP2 time-base"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "BP13" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "bptb" ]
+				/* key "CFBundleTypeIconFile" */
+			}
+			dictionary {
+				key "CFBundleTypeName" value string "BP2 Csound instruments"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "BP14" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "bpcs" ]
+				/* key "CFBundleTypeIconFile" */
+			}
+			dictionary {
+				key "CFBundleTypeName" value string "BP2 MIDI orchestra"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "BP15" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "bpor" ]
+				/* key "CFBundleTypeIconFile" */
+			}
+			dictionary {
+				key "CFBundleTypeName" value string "BP2 MIDI file"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "Midi" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "midi" string "mid" ]
+				/* key "CFBundleTypeIconFile" */
+			}
+			dictionary {
+				key "CFBundleTypeName" value string "BP2 text file"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "TEXT" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "txt"  string "html" 
+											 string "htm" string "trace" ]
+				/* key "CFBundleTypeIconFile" */
+			}
+		]
 	}
 }
