@@ -81,6 +81,8 @@ int StoreDefaultOMSinput(void);
 OSStatus InitCoreMidiDriver();
 void	EnumerateCMDevices();
 OSStatus CreateCMSettings();
+int mShowCMSettings(int);
+int mOpenAudioMidiSetup(int);
 #endif
 
 /* in Schedule.c */

@@ -72,7 +72,7 @@ static MIDIcode*		pInputQueueEnd = NULL;	// one past the last allocated space fo
 static MIDIcode*		pQueueFront = NULL;	// current location to remove bytes
 static MIDIcode*		pQueueBack = NULL;	// current location to add bytes
 
-static DialogPtr		CMSettings = NULL;
+DialogPtr			CMSettings = NULL;
 
 OSStatus CMCreateAndInitQueue();
 void CMReInitQueue();
@@ -290,8 +290,11 @@ static int CMAddEventToQueue(const MIDIPacket* pkt)
 		QueueEmpty = false;
 		if (pQueueBack == pQueueFront) {
 			// if we have filled the queue just remove the oldest event
-			// (we always leave one space "empty")
-			if (++pQueueFront == pInputQueueEnd) pQueueFront = pInputQueue;
+			// (we always leave at least one MIDIcode space "empty");
+			// must look for status byte so that we don't leave pQueueFront
+			// pointing to the middle of an event
+			do if (++pQueueFront == pInputQueueEnd) pQueueFront = pInputQueue;
+			while (pQueueFront->byte < 128);
 			QueueOverflowed = true;
 		}
 	}
@@ -534,9 +537,9 @@ OSStatus CreateCMSettings()
 		LSetSelect(true, selection, outputLH);
 		
 		SetThemeWindowBackground(GetDialogWindow(CMSettings), kThemeBrushDialogBackgroundActive, false);
-		DrawDialog(CMSettings);
-		ShowWindow(GetDialogWindow(CMSettings));
-		SelectWindow(GetDialogWindow(CMSettings));
+		// DrawDialog(CMSettings);
+		// ShowWindow(GetDialogWindow(CMSettings));
+		// SelectWindow(GetDialogWindow(CMSettings));
 	}
 	else return -1;
 	
@@ -580,7 +583,7 @@ static OSStatus UpdateListBox(ListHandle list, ItemCount (*countFunc)(void), MID
 			SetPt(&cellnum, 0, index);
 			LSetCell(cname, strlen(cname), cellnum, list);
 		}
-		else if (Beta) Alert1("Err. UpdateCMSettingsListBoxes():  MIDIGetSource() returned NULL.");
+		else if (Beta) Alert1("Err. UpdateListBox():  getEndpointFunc() returned NULL.");
 	}
 	
 	return err;

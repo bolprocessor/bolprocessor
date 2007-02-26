@@ -98,7 +98,7 @@ IntProcPtr Menu[][MAXMENUITEMS] =
 		mSmartCursor,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
 	{NULLPROC,mMIDI,mMIDIfile,mCsound,mOMS,NULLPROC,mMIDIinputcheck,mMIDIoutputcheck,mMIDIorchestra,NULLPROC,
 		mCsoundInstrumentsSpecs,NULLPROC,mOMSinout,mOMSmidisetup,mOMSstudiosetup,NULLPROC,mModemPort,
-		mPrinterPort,NULLPROC,mMIDIfilter,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
+		mPrinterPort,NULLPROC,mMIDIfilter,NULLPROC,mShowCMSettings,mOpenAudioMidiSetup,NULLPROC,NULLPROC,NULLPROC},
 	{NULLPROC,mGrammar,mAlphabet,mData,mMiscSettings,mMetronom,mTimeBase,mInteraction,mGlossary,
 		mStartString,mObjectPrototypes,mTrace,mGraphic,mControlPannel,mScript,mScrap,mKeyboard,
 		mNotice,NULLPROC,mFAQ,NULLPROC,mShowMessages,NULLPROC,NULLPROC,NULLPROC,NULLPROC}};

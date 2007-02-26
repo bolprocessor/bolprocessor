@@ -676,6 +676,28 @@ return(OK);
 }
 
 
+int mShowCMSettings(int w)
+{
+#if BP_MACHO
+	extern DialogPtr CMSettings;
+	
+	DrawDialog(CMSettings);
+	ShowWindow(GetDialogWindow(CMSettings));
+	SelectWindow(GetDialogWindow(CMSettings));
+#endif	
+	return(OK);
+}
+
+
+int mOpenAudioMidiSetup(int w)
+{
+#if BP_MACHO
+	// put some code here to launch the OS X "Audio Midi Setup" application
+#endif	
+	return(OK);
+}
+
+
 mToken(int wind)
 {
 Token = 1 - Token;
