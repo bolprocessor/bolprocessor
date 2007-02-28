@@ -1,3 +1,21 @@
+2007-02-28	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/CoreMIDIdriver.c:
+		Implemented "intelligent" tracking of MIDI endpoints as they are 
+			created and destroyed; now includes endpoints in lists that were
+			available previously but went "offline" and shows their status to
+			the user.
+		List data structures support remembering multiple selections even
+			when the endpoints change their order in the lists.
+		Sorts lists of MIDI sources and destinations in the settings dialog.
+
+2007-02-27	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/CoreMIDIdriver.c:
+		Added pthread mutex for synchronization of the Midi input queue.
+		Queue automatically increases in size on reset if it overflowed.
+		FlushDriver() now flushes the input queue too.
+	
 2007-02-26	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/CoreMIDIdriver.c:

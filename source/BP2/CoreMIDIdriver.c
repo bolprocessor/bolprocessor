@@ -49,9 +49,15 @@
 
 #include "-BP2decl.h"
 
+#include <stdlib.h>
 #include <string.h>
 #include <CoreAudio/CoreAudio.h>
 #include <CoreMIDI/CoreMIDI.h>
+
+typedef int (*CompareFuncType)(const void *, const void *);  // for qsort()
+
+/* trying the pthread library for synchronization for now */
+#include <pthread.h>
 
 static Boolean		CoreMidiOutputOn = false;
 static Boolean		CoreMidiInputOn = false;
@@ -64,26 +70,59 @@ static MIDIClientRef	CMClient = NULL;
 
 static MIDITimeStamp	ClockZero = 0;		// CoreAudio's host time that we consider "zero"
 
-const  Size			QueueSize = 5000L;
+static Size			QueueSize = 5000L;
 static Boolean		QueueOverflowed = false;
 static Boolean		QueueEmpty = true;
 static MIDIcode*		pInputQueue = NULL;	// beginning of allocated space for storing MIDI bytes
 static MIDIcode*		pInputQueueEnd = NULL;	// one past the last allocated space for storing MIDI bytes
 static MIDIcode*		pQueueFront = NULL;	// current location to remove bytes
 static MIDIcode*		pQueueBack = NULL;	// current location to add bytes
+static pthread_mutex_t	QueueMutex;
+
+typedef struct {
+	MIDIEndpointRef	endpoint;
+	MIDIUniqueID	id;
+	char**		name; 		// handle to C string
+	Boolean		selected;		// currently selected by user
+	Boolean		offline;		// previously existed; but not currently registered with CoreMIDI
+	// Boolean		stillexists;	// we use this while updating the list contents
+} CMListEntry;
+
+typedef struct {
+	ListHandle		list;
+	CMListEntry**	entries;		// handle to an array of list entry structs
+	Size			entriesSize;	// size of the array 'entries' (in CMListEntry's, not bytes)
+	Size			numEntries;		// number of entries in use
+} CMListData;
 
 DialogPtr			CMSettings = NULL;
+CMListData**		CMInputListData = NULL;
+CMListData**		CMOutputListData = NULL;
+
+const unsigned long	MAXENDPOINTNAME = 128;	// this is our own max; no guarantees from CoreMIDI!
+const unsigned long	SUFFIXSIZE = 10;
+const char			OfflineSuffix[SUFFIXSIZE] = " (offline)";
 
 OSStatus CMCreateAndInitQueue();
+OSStatus CMResizeQueue();
 void CMReInitQueue();
 void CMDestroyQueue();
+
 void CMNotifyCallback(const MIDINotification *message, void *refCon);
 void CMReadCallback(const MIDIPacketList* pktlist, void* readProcRefCon, void* srcConnRefCon);
 int  CMAddEventToQueue(const MIDIPacket* pkt);
 int  CMRemoveEventFromQueue(MIDI_Event* p_e);
-OSStatus UpdateCMSettingsListBoxes();
+
+CMListData** NewListDataHandle(ListHandle list, Size entriesSize);
+void MarkAllOffline(CMListData* ld);
+CMListEntry* FindListEntryByID(CMListData* ld, MIDIUniqueID id);
+CMListEntry* FindListEntryByName(CMListData* ld, char* endname);
+CMListEntry* FindListEntryByRef(CMListData* ld, MIDIEndpointRef endpt);
+int  GetNewListEntry(CMListData* ld, CMListEntry** p_entryptr);
+int  CompareEntryNames(const CMListEntry* a, const CMListEntry* b);
 void ResizeListBox(ListHandle list, long numRows);
-OSStatus UpdateListBox(ListHandle list, ItemCount (*countFunc)(void), MIDIEndpointRef (*getEndpointFunc)(ItemCount));
+int  UpdateListBoxEntries(CMListData** ldh, ItemCount (*countFunc)(void), MIDIEndpointRef (*getEndpointFunc)(ItemCount));
+int  UpdateCMSettingsListBoxes();
 
 /*  Returns whether the CoreMIDI driver is on */
 Boolean IsMidiDriverOn()
@@ -92,28 +131,60 @@ Boolean IsMidiDriverOn()
 }
 
 
+/* CMCreateAndInitQueue() should be called before creating a CoreMIDI input port */
 static OSStatus CMCreateAndInitQueue()
 {
 	OSStatus err;
 	// create queue buffer for receiving messages
 	pInputQueue = (MIDIcode*) NewPtr(QueueSize * sizeof(MIDIcode));
 	err = MemError();
-	if (pInputQueue != NULL && err == noErr)  CMReInitQueue();
+	if (pInputQueue != NULL && err == noErr)  {
+		err = pthread_mutex_init(&QueueMutex, PTHREAD_MUTEX_NORMAL);
+		if (err == 0)  CMReInitQueue();
+	}
+	return err;
+}
+
+/* CMResizeQueue() should only be called by CMReInitQueue() or another
+   queue function that has already obtained the mutex lock. */
+static OSStatus CMResizeQueue()
+{
+	OSStatus  err;
+	MIDIcode* newqueue;
+	Size      newsize;
+	
+	// attempt to increase queue size by 50% before releasing the old one
+	newsize = QueueSize * 3 / 2;
+	newqueue = (MIDIcode*) NewPtr(newsize * sizeof(MIDIcode));
+	err = MemError();
+	if (newqueue != NULL && err == noErr)  {
+		DisposePtr((Ptr)pInputQueue);
+		pInputQueue = newqueue;
+		QueueSize = newsize;
+	}
 	return err;
 }
 
 static void CMReInitQueue()
 {
-	/*** FIXME: need to add thread synchronization here !! ***/
+	if (pthread_mutex_lock(&QueueMutex) != 0)  return;
+	
+	// resize queue if we exceeded its size at some point
+	if (QueueOverflowed)  CMResizeQueue();
+	
+	// reinitialize all queue variables
 	if (pInputQueue != NULL) {
 		pQueueFront = pQueueBack = pInputQueue;
 		pInputQueueEnd = pInputQueue + QueueSize;
 		QueueEmpty = true;
 		QueueOverflowed = false;
 	}
+	pthread_mutex_unlock(&QueueMutex);
 	return;
 }
 
+/* Should only be called when there is no possibility of the CoreMIDI 
+   ReadCallback being called (i.e. driver input is off) */
 static void CMDestroyQueue()
 {
 	if (pInputQueue != NULL) {
@@ -176,7 +247,7 @@ OSStatus InitCoreMidiDriver()
 	Boolean ok;
 	CFStringRef pname;
 	ItemCount num;
-	char name[128];
+	char name[MAXENDPOINTNAME];
 	
 	err = MIDIClientCreate(CFSTR("Bol Processor"), CMNotifyCallback, NULL, &CMClient);
 	if (err == noErr) {
@@ -281,7 +352,7 @@ static int CMAddEventToQueue(const MIDIPacket* pkt)
 	Milliseconds time = (unsigned long)(AudioConvertHostTimeToNanos(pkt->timeStamp) 
 					/ ((UInt64)1000000 /** (UInt64)Time_res)*/));
 	
-	/*** FIXME: need to add thread synchronization here !! ***/
+	if (pthread_mutex_lock(&QueueMutex) != 0)  return(FAILED);
 	for(i=0; i < nbytes; i++) {
 		pQueueBack->time = time;
 		pQueueBack->byte = pkt->data[i];
@@ -298,18 +369,24 @@ static int CMAddEventToQueue(const MIDIPacket* pkt)
 			QueueOverflowed = true;
 		}
 	}
+	pthread_mutex_unlock(&QueueMutex);
 	return(OK);
 }
 
 static int CMRemoveEventFromQueue(MIDI_Event* p_e)
 {
-	/*** FIXME: need to add thread synchronization here !! ***/
-	if(QueueEmpty || pQueueBack == pQueueFront) return(FAILED);
+	if (pthread_mutex_lock(&QueueMutex) != 0)   return(FAILED);
+	if(QueueEmpty || pQueueBack == pQueueFront) {
+		pthread_mutex_unlock(&QueueMutex);
+		return(FAILED);
+	}
 	p_e->type = RAW_EVENT;
 	p_e->time = pQueueFront->time; 
 	p_e->data2 = pQueueFront->byte;
 	if (++pQueueFront == pInputQueueEnd) pQueueFront = pInputQueue;
 	if (pQueueFront == pQueueBack) QueueEmpty = true;
+
+	pthread_mutex_unlock(&QueueMutex);
 	return(OK);
 }
 
@@ -420,9 +497,12 @@ int FlushDriver(void)
 		if(Beta) Alert1("Err. FlushDriver(). Driver is OFF");
 		return(ABORT);
 	}
+	/* flush output */
 	if (CoreMidiOutputOn && CMDest != NULL)  err = MIDIFlushOutput(CMDest);
-	WaitABit(100L);
-
+	
+	/* flush input */
+	CMReInitQueue();
+	
 	return(OK);
 }
 
@@ -532,9 +612,15 @@ OSStatus CreateCMSettings()
 		GetControlData(cntl, kControlEntireControl, kControlListBoxListHandleTag, sizeof(outputLH), &outputLH, NULL);
 		
 		// set the selections
-		SetPt(&selection, 0, 0);
+		/*SetPt(&selection, 0, 0);
 		LSetSelect(true, selection, inputLH);
-		LSetSelect(true, selection, outputLH);
+		LSetSelect(true, selection, outputLH);*/
+		
+		// create our list data structs
+		CMInputListData = NewListDataHandle(inputLH, 1);
+		if (CMInputListData == NULL)   return memFullErr;
+		CMOutputListData = NewListDataHandle(outputLH, 1);
+		if (CMOutputListData == NULL)  return memFullErr;
 		
 		SetThemeWindowBackground(GetDialogWindow(CMSettings), kThemeBrushDialogBackgroundActive, false);
 		// DrawDialog(CMSettings);
@@ -558,44 +644,228 @@ static void ResizeListBox(ListHandle list, long numRows)
 	return;
 }
 
-static OSStatus UpdateListBox(ListHandle list, ItemCount (*countFunc)(void), MIDIEndpointRef (*getEndpointFunc)(ItemCount))
+static CMListData** NewListDataHandle(ListHandle list, Size entriesSize)
+{
+	CMListData** ldh;
+	
+	ldh = (CMListData**) GiveSpace(sizeof(CMListData));
+	if (ldh == NULL) return NULL;
+	
+	(*ldh)->list = list;
+	(*ldh)->entries = (CMListEntry**) GiveSpace(entriesSize * sizeof(CMListEntry));
+	if ((*ldh)->entries == NULL) {
+		MyDisposeHandle((Handle*)&ldh);
+		return NULL;
+	}
+	(*ldh)->entriesSize = entriesSize;
+	(*ldh)->numEntries = 0;
+	
+	return ldh;
+}
+
+static void	MarkAllOffline(CMListData* ld)
+{
+	int i;
+	CMListEntry* ep = *(ld->entries);
+	
+	// set all offline flags
+	for (i = 0; i < ld->numEntries; ++i, ++ep)
+		ep->offline = TRUE;
+	
+	return;
+}
+
+static CMListEntry* FindListEntryByID(CMListData* ld, MIDIUniqueID id)
+{
+	int i;
+	CMListEntry* ep = *(ld->entries);
+	
+	for (i = 0; i < ld->numEntries; ++i, ++ep)
+		if (ep->id == id) return ep;
+	
+	return NULL;
+}
+
+static CMListEntry* FindListEntryByName(CMListData* ld, char* endname)
+{
+	int i;
+	CMListEntry* ep = *(ld->entries);
+	
+	for (i = 0; i < ld->numEntries; ++i, ++ep)
+		if (strcmp(*(ep->name), endname) == 0) return ep;
+	
+	return NULL;
+
+}
+
+static CMListEntry* FindListEntryByRef(CMListData* ld, MIDIEndpointRef endpt)
+{
+	int i;
+	CMListEntry* ep = *(ld->entries);
+	
+	for (i = 0; i < ld->numEntries; ++i, ++ep)
+		if (ep->endpoint == endpt) return ep;
+	
+	return NULL;
+
+}
+
+/* Warning: this function may temporarily unlock ld->entries if it is locked
+   so that it can resize it; therefore, the address of ld->entries may change! */
+static int GetNewListEntry(CMListData* ld, CMListEntry** p_entryptr)
+{
+	if (ld->numEntries < ld->entriesSize) {
+		*p_entryptr = (*(ld->entries)) + ld->numEntries;
+		++ld->numEntries;
+		return (OK);
+	}
+	else {
+		int result;
+		Size newsize;
+		char hflags = HGetState((Handle)ld->entries);
+		if ((result = MyUnlock((Handle)ld->entries)) != OK) return result;
+		newsize = ld->entriesSize + 3; // increase 3 slots at a time
+		result = MySetHandleSize((Handle*)&(ld->entries), newsize * sizeof(CMListEntry));
+		HSetState((Handle)ld->entries, hflags);
+		if ( result != OK) return result;
+		ld->entriesSize= newsize;
+		*p_entryptr = (*(ld->entries)) + ld->numEntries;
+		++ld->numEntries;
+		return (OK);
+	}
+}
+
+static int CompareEntryNames(const CMListEntry* a, const CMListEntry* b)
+{
+	return strcmp(*(a->name), *(b->name));
+}
+
+static int UpdateListBoxEntries(CMListData** ldh, ItemCount (*countFunc)(void), MIDIEndpointRef (*getEndpointFunc)(ItemCount))
 {
 	OSStatus err;
 	Boolean ok;
+	int result;
+	CMListData* ld;
 	CFStringRef name;
 	MIDIEndpointRef endpt;
+	MIDIUniqueID    endID;
 	ItemCount count, index;
-	char cname[128];
+	char endname[MAXENDPOINTNAME];
 	Cell cellnum;
+	CMListEntry* entry;
 	
+	if (ldh == NULL)  {
+		if(Beta) Alert1("Err. UpdateListBox(): ldh is NULL");
+		return (FAILED);
+	}
+	if ((result = MyLock(FALSE, (Handle)ldh)) != OK)  return result;
+	ld = *ldh;
+	
+	MarkAllOffline(ld);
+	
+	// resize the list data entries
 	count = countFunc();
-	ResizeListBox(list, count);
+	{	Size newEntriesSize;			// only valid for this block
+		newEntriesSize = (count * 3) / 2;	// try to anticipate how many extra entries we may need
+		if (ld->entriesSize < newEntriesSize) {
+			result = MySetHandleSize((Handle*)&(ld->entries), newEntriesSize * sizeof(CMListEntry));
+			// we don't have to give up yet if resizing failed
+			if (result == OK) ld->entriesSize = newEntriesSize;
+		}
+	}
+	
+	if ((result = MyLock(FALSE, (Handle)ld->entries)) != OK) {
+		MyUnlock((Handle)ldh);
+		return result;
+	}
+
+	// update our CMListEntry's from CoreMIDI, adding new endpoints
+	// and keeping data for all others, including those that have went "offline" 
 	for (index = 0; index < count; ++index) {
 		endpt = getEndpointFunc(index);
 		if (endpt != NULL) {
+			// attempt to find an existing entry for this endpoint
+			entry = NULL;
+			
+			// check for matching CoreMIDI unique ID
+			err = MIDIObjectGetIntegerProperty(endpt, kMIDIPropertyUniqueID, &endID);
+			if (err == noErr)  entry = FindListEntryByID(ld, endID);
+			else endID = 0;
+			
+			// get the endpoint name & check for match if we don't have one yet
 			err = MIDIObjectGetStringProperty(endpt, kMIDIPropertyName, &name);
 			if (err == noErr) {
-				ok = CFStringGetCString(name, cname, sizeof(cname), kCFStringEncodingMacRoman);
+				ok = CFStringGetCString(name, endname, sizeof(endname), kCFStringEncodingMacRoman);
 				CFRelease(name);
+				if (entry == NULL & ok)  entry = FindListEntryByName(ld, endname);
 			}
-			if (err != noErr || !ok) strcpy(cname, "<unknown>");
+			if (err != noErr || !ok) strcpy(endname, "<unknown>");
 			err = noErr;
-			SetPt(&cellnum, 0, index);
-			LSetCell(cname, strlen(cname), cellnum, list);
+
+			// use MIDIEndpointRef as a last attempt to find it
+			if (entry == NULL)  entry = FindListEntryByRef(ld, endpt);
+			
+			// create new entry if no match
+			if (entry == NULL)  {
+				// Note: address of entries may change with this call
+				result = GetNewListEntry(ld, &entry);
+				if (result != OK) goto EXITNOW;
+				
+				// fill in the entry's data
+				entry->endpoint = endpt;
+				entry->id = endID;
+				entry->name = (char**) GiveSpace(strlen(endname)+1);
+				if (entry->name == NULL) {
+					ld->numEntries--;
+					result = FAILED;
+					goto EXITNOW;
+				}
+				strcpy(*(entry->name), endname);
+				entry->selected = FALSE;
+				entry->offline = FALSE;
+				// entry->stillexists = TRUE;
+			}
+			else {
+				entry->offline = FALSE;		// mark matching entry as online
+				entry->endpoint = endpt;	// MIDIEndPointRef may have changed ?
+			}
 		}
 		else if (Beta) Alert1("Err. UpdateListBox():  getEndpointFunc() returned NULL.");
 	}
 	
-	return err;
+	// sort the entries
+	qsort(*(ld->entries), ld->numEntries, sizeof(CMListEntry), (CompareFuncType)CompareEntryNames);
+	
+	ResizeListBox(ld->list, ld->numEntries);
+	// set text and selected status for each list box entry
+	{	char entryname[MAXENDPOINTNAME+SUFFIXSIZE];
+		entry = *(ld->entries);
+		for (index = 0; index < ld->numEntries; ++index) {
+			SetPt(&cellnum, 0, index);
+			if ((result = MyLock(FALSE, (Handle)entry->name)) != OK) goto EXITNOW;
+			strcpy(entryname, *(entry->name));
+			if (entry->offline) strcat(entryname, OfflineSuffix);
+			LSetCell(entryname, strlen(entryname), cellnum, ld->list);
+			LSetSelect(entry->selected, cellnum, ld->list);
+			MyUnlock((Handle)entry->name);
+			++entry;
+		}
+	}
+	result = OK;
+	
+EXITNOW:
+	MyUnlock((Handle)ld->entries);
+	MyUnlock((Handle)ldh);
+	return result;
 }
 
-OSStatus UpdateCMSettingsListBoxes()
+int UpdateCMSettingsListBoxes()
 {
-	OSStatus err;	
+	int result;	
 	ListHandle	inputLH, outputLH;
 	ControlRef	cntl;
 	
-	if (CMSettings == NULL) return -1;
+	if (CMSettings == NULL) return (FAILED);
 	
 	// get list handles
 	GetDialogItemAsControl(CMSettings, diInputList, &cntl);
@@ -605,11 +875,13 @@ OSStatus UpdateCMSettingsListBoxes()
 	GetControlData(cntl, kControlEntireControl, kControlListBoxListHandleTag, sizeof(outputLH), &outputLH, NULL);
 	
 	// update source list
-	err = UpdateListBox(inputLH, MIDIGetNumberOfSources, MIDIGetSource);
+	result = UpdateListBoxEntries(CMInputListData, MIDIGetNumberOfSources, MIDIGetSource);
+	if (result != OK) return result;
 	
 	// update destination list
-	err = UpdateListBox(outputLH, MIDIGetNumberOfDestinations, MIDIGetDestination);
+	result = UpdateListBoxEntries(CMOutputListData, MIDIGetNumberOfDestinations, MIDIGetDestination);
+	if (result != OK) return result;
 	
 	DrawDialog(CMSettings);
-	return noErr;
+	return (OK);
 }
