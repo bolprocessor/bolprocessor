@@ -63,9 +63,11 @@ static Boolean		CoreMidiOutputOn = false;
 static Boolean		CoreMidiInputOn = false;
 static Boolean		CMMidiThruOn = false;
 static MIDIPortRef	CMOutPort = NULL;
-static MIDIEndpointRef	CMDest = NULL;
+static MIDIEndpointRef*	CMActiveDestinations = NULL;	// NULL-terminated array of destinations
+static Size			CMActiveDestinationsSize = 8;	// allocated size of array; NOT the number of used elements
 static MIDIPortRef	CMInPort = NULL;
-static MIDIEndpointRef	CMSource = NULL;
+static MIDIEndpointRef*	CMActiveSources = NULL;		// NULL-terminated array of sources
+static Size			CMActiveSourcesSize = 8;	// allocated size of array; NOT the number of used elements	
 static MIDIClientRef	CMClient = NULL;
 
 static MIDITimeStamp	ClockZero = 0;		// CoreAudio's host time that we consider "zero"
@@ -108,6 +110,8 @@ OSStatus CMResizeQueue();
 void CMReInitQueue();
 void CMDestroyQueue();
 
+OSStatus CMConnectToSources(MIDIEndpointRef* endpoints, Boolean tellConnections);
+OSStatus CMDisconnectFromSources(MIDIEndpointRef* endpoints);
 void CMNotifyCallback(const MIDINotification *message, void *refCon);
 void CMReadCallback(const MIDIPacketList* pktlist, void* readProcRefCon, void* srcConnRefCon);
 int  CMAddEventToQueue(const MIDIPacket* pkt);
@@ -122,7 +126,9 @@ int  GetNewListEntry(CMListData* ld, CMListEntry** p_entryptr);
 int  CompareEntryNames(const CMListEntry* a, const CMListEntry* b);
 void ResizeListBox(ListHandle list, long numRows);
 int  UpdateListBoxEntries(CMListData** ldh, ItemCount (*countFunc)(void), MIDIEndpointRef (*getEndpointFunc)(ItemCount));
+int  GetListBoxSelection(CMListData** ldh);
 int  UpdateCMSettingsListBoxes();
+int  UpdateActiveEndpoints(CMListData** ldh, MIDIEndpointRef** endpoints, Size* epArraySize, Boolean* status);
 
 /*  Returns whether the CoreMIDI driver is on */
 Boolean IsMidiDriverOn()
@@ -258,23 +264,35 @@ OSStatus InitCoreMidiDriver()
 		if (err == noErr) {
 			// EnumerateCMDevices();
 			
-			// find the first destination
-			// (code adapted from the Echo.cpp CM example)
-			num = MIDIGetNumberOfDestinations();
-			if (num > 0) CMDest = MIDIGetDestination(0);
-
-			if (CMDest != NULL) {
-				err = MIDIObjectGetStringProperty(CMDest, kMIDIPropertyName, &pname);
-				if (err == noErr) {
-					ok = CFStringGetCString(pname, name, sizeof(name), kCFStringEncodingMacRoman);
-					CFRelease(pname);
+			CMActiveDestinations = (MIDIEndpointRef*) NewPtr(CMActiveDestinationsSize * sizeof(MIDIEndpointRef));		
+			if ((err = MemError()) == noErr) {
+				// find the first destination
+				// (code adapted from the Echo.cpp CM example)
+				num = MIDIGetNumberOfDestinations();
+				if (num > 0) {
+					CMActiveDestinations[0] = MIDIGetDestination(0);
+					CMActiveDestinations[1] = NULL;
 				}
-				if (err != noErr || !ok) strcpy(name, "<unknown>");
-				sprintf(Message, "Sending Midi to destination: %s.", name);
-				ShowMessage(TRUE, wMessage, Message);
-				CoreMidiOutputOn = true;
+				else  CMActiveDestinations[0] = NULL;
+				
+				if (CMActiveDestinations[0] != NULL) {
+					err = MIDIObjectGetStringProperty(CMActiveDestinations[0], kMIDIPropertyName, &pname);
+					if (err == noErr) {
+						ok = CFStringGetCString(pname, name, sizeof(name), kCFStringEncodingMacRoman);
+						CFRelease(pname);
+					}
+					if (err != noErr || !ok) strcpy(name, "<unknown>");
+					sprintf(Message, "Sending Midi to destination: %s.", name);
+					ShowMessage(TRUE, wMessage, Message);
+					CoreMidiOutputOn = true;
+					err = noErr;
+				}
+				else ShowMessage(TRUE, wMessage, "No MIDI destinations present.");
 			}
-			else ShowMessage(TRUE, wMessage, "No MIDI destinations present.");
+			else  {
+				Alert1("Not enough memory to allocate MIDI destinations array!");
+				return err;
+			}
 		}
 		else ShowMessage(TRUE, wMessage, "Error: Could not create a MIDI output port.");
 		
@@ -283,36 +301,86 @@ OSStatus InitCoreMidiDriver()
 			// create a port so we can receive messages
 			err = MIDIInputPortCreate(CMClient, CFSTR("BP InPort"), CMReadCallback, NULL, &CMInPort);
 			if (err == noErr) {
-				// find the first source and connect to it
-				num = MIDIGetNumberOfSources();
-				if (num > 0) CMSource = MIDIGetSource(0);
-				if (CMSource != NULL) {
-					err = MIDIPortConnectSource(CMInPort, CMSource, NULL);
-					if (err == noErr) {
-						err = MIDIObjectGetStringProperty(CMSource, kMIDIPropertyName, &pname);
-						if (err == noErr) {
-							ok = CFStringGetCString(pname, name, sizeof(name), kCFStringEncodingMacRoman);
-							CFRelease(pname);
-						}
-						if (err != noErr || !ok) strcpy(name, "<unknown>");
-						err = noErr;
-						sprintf(Message, "Receiving Midi from source: %s.", name);
-						ShowMessage(TRUE, wMessage, Message);
-						CoreMidiInputOn = true;
+				CMActiveSources = (MIDIEndpointRef*) NewPtr(CMActiveSourcesSize * sizeof(MIDIEndpointRef));
+				if ((err = MemError()) == noErr) {
+					// find the first source and connect to it
+					num = MIDIGetNumberOfSources();
+					if (num > 0) {
+						CMActiveSources[0] = MIDIGetSource(0);
+						CMActiveSources[1] = NULL;
 					}
-					else ShowMessage(TRUE, wMessage, "Error: Could not connect to MIDI input source.");
+					else  CMActiveSources[0] = NULL;
+				
+					if (CMActiveSources[0] != NULL) {
+						err = CMConnectToSources(CMActiveSources, true);
+					}
+					else ShowMessage(TRUE, wMessage, "No MIDI sources present.");
 				}
-				else ShowMessage(TRUE, wMessage, "No MIDI sources present.");
+				else  {
+					Alert1("Not enough memory to allocate MIDI sources array!");
+					return err;
+				}
 			}
 			else ShowMessage(TRUE, wMessage, "Error: Could not create a MIDI input port.");
 			
-			if (err != noErr) CMDestroyQueue();
+			/*if (err != noErr) CMDestroyQueue();*/
 		}		
 	}
 	
 	err = UpdateCMSettingsListBoxes();
 
 	return err;
+}
+
+static OSStatus CMConnectToSources(MIDIEndpointRef* endpoints, Boolean tellConnections)
+{
+	OSStatus err, err2, anyerr;
+	Boolean ok;
+	CFStringRef pname;
+	char name[MAXENDPOINTNAME];
+	MIDIEndpointRef* ep = endpoints;
+	
+	CoreMidiInputOn = false;
+	if (ep == NULL)  return paramErr;
+	anyerr = noErr;
+	while (*ep != NULL) {
+		err = MIDIPortConnectSource(CMInPort, *ep, NULL);
+		if (tellConnections) {
+			err2 = MIDIObjectGetStringProperty(*ep, kMIDIPropertyName, &pname);
+			if (err2 == noErr) {
+				ok = CFStringGetCString(pname, name, sizeof(name), kCFStringEncodingMacRoman);
+				CFRelease(pname);
+			}
+			if (err2 != noErr || !ok) strcpy(name, "<unknown>");
+			if (err == noErr) {
+				CoreMidiInputOn = true;
+				sprintf(Message, "Receiving Midi from source: %s.", name);
+				ShowMessage(TRUE, wMessage, Message);
+			}
+			else ShowMessage(TRUE, wMessage, "Error: Could not connect to a selected MIDI input source.");
+		}
+		if (err == noErr)  CoreMidiInputOn = true;
+		else  anyerr = err;
+		++ep;
+	}
+	
+	return anyerr;
+}
+
+static OSStatus CMDisconnectFromSources(MIDIEndpointRef* endpoints)
+{
+	OSStatus err, anyerr;
+	MIDIEndpointRef* ep = endpoints;
+	
+	if (ep == NULL)  return paramErr;
+	anyerr = noErr;
+	while (*ep != NULL) {
+		err = MIDIPortDisconnectSource(CMInPort, *ep);
+		if (err != noErr) anyerr = err;
+		++ep;
+	}
+	
+	return anyerr;
 }
 
 static void CMNotifyCallback(const MIDINotification *message, void *refCon)
@@ -328,6 +396,7 @@ static void CMReadCallback(const MIDIPacketList* pktlist, void* readProcRefCon, 
 	int i;
 	const MIDIPacket *pkt = &pktlist->packet[0];
 	
+	// if (!OutMIDI || !CoreMidiInputOn)  return;	// FIXME ? should we check these ?
 	for (i = 0; i < pktlist->numPackets; ++i) {
 		// check if we are receiving this type of event
 		if(AcceptEvent(ByteToInt(pkt->data[0]))) {
@@ -473,11 +542,12 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 		}
 		curpkt = MIDIPacketListAdd(pktlist, sizeof(pktbuf), curpkt, cmtime, len, databuf);
 		if (curpkt != NULL) {
-			if (CMDest != NULL) {
-				err = MIDISend(CMOutPort, CMDest, pktlist);
-				Nbytes++;
+			MIDIEndpointRef* dest = CMActiveDestinations;
+			while (*dest != NULL) {
+				err = MIDISend(CMOutPort, *dest, pktlist);
+				++dest;
+				++Nbytes;
 			}
-			else FlashInfo("MIDI output destination was not found ... check CoreMIDI setup!");
 		}
 		else if (Beta) Alert1("Err. DriverWrite(). MIDIPacketListAdd() failed");
 	}
@@ -498,10 +568,13 @@ int FlushDriver(void)
 		return(ABORT);
 	}
 	/* flush output */
-	if (CoreMidiOutputOn && CMDest != NULL)  err = MIDIFlushOutput(CMDest);
+	if (CoreMidiOutputOn && CMActiveDestinations != NULL) {
+		MIDIEndpointRef* dest = CMActiveDestinations;
+		while (*dest != NULL) err = MIDIFlushOutput(*dest++);
+	}
 	
 	/* flush input */
-	CMReInitQueue();
+	if (CoreMidiInputOn)  CMReInitQueue();
 	
 	return(OK);
 }
@@ -630,6 +703,39 @@ OSStatus CreateCMSettings()
 	else return -1;
 	
 	return noErr;
+}
+
+int DoCMSettingsEvent(EventRecord* event, short itemHit)
+{
+	int result;
+	
+	result = OK;
+	switch(itemHit) {
+		case	diInputList:
+			result = GetListBoxSelection(CMInputListData);
+			if (result != OK) return result;
+			result = CMDisconnectFromSources(CMActiveSources); // err result is not fatal
+			result = UpdateActiveEndpoints(CMInputListData, &CMActiveSources, &CMActiveSourcesSize, &CoreMidiInputOn);
+			if (result != OK) return result;
+			result = CMConnectToSources(CMActiveSources, true); // err result is not fatal
+			break;
+		case	diOutputList:
+			result = GetListBoxSelection(CMOutputListData);
+			if (result != OK) return result;
+			result = UpdateActiveEndpoints(CMOutputListData, &CMActiveDestinations, &CMActiveDestinationsSize, &CoreMidiOutputOn);
+			if (result != OK) return result;
+			break;
+		case	diCreateDestination:
+			break;
+		case	diCreateSource:
+			break;
+		case	diMidiThru:
+			break;
+	}
+	
+	// Dirty[iSettings] = TRUE;
+	if (result != OK) return result;
+	else  return (DONE);
 }
 
 static void ResizeListBox(ListHandle list, long numRows)
@@ -859,6 +965,39 @@ EXITNOW:
 	return result;
 }
 
+int GetListBoxSelection(CMListData** ldh)
+{
+	OSStatus err;
+	int result;
+	CMListData* ld;
+	CMListEntry* entry;
+	Size index;
+	Cell cellnum;
+	
+	if (ldh == NULL)  {
+		if(Beta) Alert1("Err. GetListBoxSelection(): ldh is NULL");
+		return (FAILED);
+	}
+	if ((result = MyLock(FALSE, (Handle)ldh)) != OK)  return result;
+	ld = *ldh;
+	if ((result = MyLock(FALSE, (Handle)ld->entries)) != OK) {
+		MyUnlock((Handle)ldh);
+		return result;
+	}
+	
+	entry = *(ld->entries);
+	for (index = 0; index < ld->numEntries; ++index) {
+		SetPt(&cellnum, 0, index);
+		entry->selected = LGetSelect(FALSE, &cellnum, ld->list);
+		++entry;
+	}
+
+EXITNOW:
+	MyUnlock((Handle)ld->entries);
+	MyUnlock((Handle)ldh);
+	return result;
+}
+
 int UpdateCMSettingsListBoxes()
 {
 	int result;	
@@ -874,14 +1013,71 @@ int UpdateCMSettingsListBoxes()
 	GetDialogItemAsControl(CMSettings, diOutputList, &cntl);
 	GetControlData(cntl, kControlEntireControl, kControlListBoxListHandleTag, sizeof(outputLH), &outputLH, NULL);
 	
+	// save list selections
+	result = GetListBoxSelection(CMInputListData);
+	if (result != OK) return result;
+	result = GetListBoxSelection(CMOutputListData);
+	if (result != OK) return result;
+	
 	// update source list
 	result = UpdateListBoxEntries(CMInputListData, MIDIGetNumberOfSources, MIDIGetSource);
 	if (result != OK) return result;
+	result = CMDisconnectFromSources(CMActiveSources); // err result is not fatal
+	result = UpdateActiveEndpoints(CMInputListData, &CMActiveSources, &CMActiveSourcesSize, &CoreMidiInputOn);
+	if (result != OK) return result;
+	result = CMConnectToSources(CMActiveSources, true); // err result is not fatal
 	
 	// update destination list
 	result = UpdateListBoxEntries(CMOutputListData, MIDIGetNumberOfDestinations, MIDIGetDestination);
 	if (result != OK) return result;
+	result = UpdateActiveEndpoints(CMOutputListData, &CMActiveDestinations, &CMActiveDestinationsSize, &CoreMidiOutputOn);
+	if (result != OK) return result;
 	
 	DrawDialog(CMSettings);
+	return (OK);
+}
+
+static int UpdateActiveEndpoints(CMListData** ldh, MIDIEndpointRef** endpoints, Size* epArraySize, Boolean* status)
+{
+	OSStatus err;
+	Size	index, newsize, numSelected, numEntries;
+	MIDIEndpointRef*	ep;
+	CMListEntry*	entry;
+	
+	// count the selected list entries that are also "online"
+	entry = *((*ldh)->entries);
+	numEntries = (*ldh)->numEntries;
+	numSelected = 0;
+	for (index = 0; index < numEntries; ++index) {
+		if (entry->selected && !entry->offline) ++numSelected;
+		++entry;
+	}
+	
+	// resize array if necessary (include space for NULL)
+	if (*epArraySize <= numSelected && numSelected > 0) {
+		if (*endpoints != NULL) DisposePtr((Ptr)*endpoints);
+		// leave some extra room in the array
+		newsize = ((numSelected*3)/2) + 1;
+		*endpoints = (MIDIEndpointRef*) NewPtr(newsize * sizeof(MIDIEndpointRef));
+		err = MemError();
+		if (err != noErr) {
+			*endpoints = NULL;
+			*epArraySize = 0;
+			*status = FALSE;
+			return (FAILED);
+		}
+		*epArraySize = newsize;
+		*status = TRUE;
+	}
+	
+	// copy selected MIDIEndpointRefs to endpoints array
+	entry = *((*ldh)->entries);
+	ep = *endpoints;
+	for (index = 0; index < numEntries; ++index) {
+		if (entry->selected && !entry->offline) *ep++ = entry->endpoint;
+		++entry;
+	}
+	*ep = NULL;	// terminate the array with NULL
+	
 	return (OK);
 }
