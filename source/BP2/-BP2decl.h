@@ -61,6 +61,11 @@ extern char OMSinputName[MAXNAME],OMSoutputName[MAXNAME];
 // End of OMS globals
 #endif
 
+#if BP_MACHO
+// CoreMIDI globals (these are allocated in CoreMIDIdriver.c)
+extern DialogPtr CMSettings;
+#endif	
+
 extern char UserName[MAXNAME],UserInstitution[MAXNAME];
 extern ProcessSerialNumber PSN;					
 extern long MemoryUsed,TempMemoryUsed,MemoryUsedInit,MaxMemoryUsed,MaxTempMemoryUsed,

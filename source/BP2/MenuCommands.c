@@ -679,8 +679,6 @@ return(OK);
 int mShowCMSettings(int w)
 {
 #if BP_MACHO
-	extern DialogPtr CMSettings;
-	
 	DrawDialog(CMSettings);
 	ShowWindow(GetDialogWindow(CMSettings));
 	SelectWindow(GetDialogWindow(CMSettings));

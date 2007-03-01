@@ -2641,6 +2641,10 @@ if(w == wFilter) {
 	if((rep=SetFilterDialog()) != OK) return(rep);
 	rep = DONE;
 	}
+if(thedialog == CMSettings) {
+	rep = DoCMSettingsEvent(p_event, itemHit);
+}
+
 HideWindow(Window[wMessage]);
 return(rep);
 }

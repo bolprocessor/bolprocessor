@@ -81,6 +81,7 @@ int StoreDefaultOMSinput(void);
 OSStatus InitCoreMidiDriver();
 void	EnumerateCMDevices();
 OSStatus CreateCMSettings();
+int DoCMSettingsEvent(EventRecord* event, short itemHit);
 int mShowCMSettings(int);
 int mOpenAudioMidiSetup(int);
 #endif
