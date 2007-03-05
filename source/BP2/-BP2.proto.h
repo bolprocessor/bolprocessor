@@ -77,14 +77,16 @@ short GetIDandName(char*);
 int StoreDefaultOMSinput(void);
 #endif
 
+/* CoreMIDI driver functions (in CoreMIDIdriver.c) */
 #if BP_MACHO
 OSStatus InitCoreMidiDriver();
 void	EnumerateCMDevices();
 OSStatus CreateCMSettings();
 int DoCMSettingsEvent(EventRecord* event, short itemHit);
+#endif
+/* menu functions for CoreMIDI (in MenuCommands.c) */
 int mShowCMSettings(int);
 int mOpenAudioMidiSetup(int);
-#endif
 
 /* in Schedule.c */
 #if WITH_REAL_TIME_SCHEDULER

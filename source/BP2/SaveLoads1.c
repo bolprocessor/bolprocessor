@@ -1891,7 +1891,7 @@ NOERR:
 	MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 	}
 else {
-	Alert1("Error reading decision file…");
+	/* Alert1("Error reading decision file…"); */  // user may have cancelled
 	HideWindow(Window[wMessage]);
 	return(FAILED);
 	}

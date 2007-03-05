@@ -1096,6 +1096,7 @@ if(OldFile(-1,1,PascalLine,&spec)) {
 		goto OUT;
 		}
 	}
+else  return (ABORT);
 
 ERR1:
 FSClose(refnum);

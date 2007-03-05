@@ -53,7 +53,6 @@ int i,w,startupscript,what,eventfound,rep,oms,changed;
 short oldvrefnum;
 long oldparid,leak;
 EventRecord event;
-OSErr io;
 
 if(Inits() != OK) return(OK);
 
@@ -91,7 +90,7 @@ if(NEWTIMER) {
 	}
 #endif
 
-RegisterMidiDrivers();
+RegisterMidiDrivers(oms);
 
 #if WITH_REAL_TIME_MIDI
 if(SetDriver() != OK) goto END;
@@ -349,10 +348,10 @@ InstalledDrivers = driver;
 return(OK);
 }
 
-static int RegisterMidiDrivers()
+static int RegisterMidiDrivers(int oms)
 {
 BPMidiDriver** driver;
-
+OSErr io;
 
 /* We can only handle certain statically linked drivers for now,
    but eventually will support dynamically loading driver plugins. */

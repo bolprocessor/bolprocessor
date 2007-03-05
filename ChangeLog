@@ -1,3 +1,25 @@
+2007-03-05	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/Dialogs.c:
+	* source/BP2/BP2main.c:
+		Minor fixes for non-Mach-O builds.
+	
+	* BP2-MacOS.cw8.mcp:  Revised link order for better locality of references.
+	
+	* source/BP2/SaveLoads1.c (LoadDecisions):
+		Don't report an error when user cancels in the Open file dialog.
+	
+	* source/BP2/MenuCommands.c (mSendMIDI):
+	* source/BP2/MIDIfiles.c (ReadMIDIfile):
+		Return without continuing when user cancels the Open file dialog.
+	
+	* source/BP2/Inits.c (Inits): Always allow ResetMIDIFilter() to be called.
+	
+	* source/BP2/MIDIstuff.c (AllNotesOffAllChannels):
+		Removed incorrect use of #if USE_BUILT_IN_MIDI_DRIVER so that All
+		Notes Off now works with all drivers.
+	
 2007-03-01	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/CoreMIDIdriver.c:

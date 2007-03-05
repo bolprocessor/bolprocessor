@@ -1882,7 +1882,6 @@ if(Oms || NEWTIMER) {
 #endif /* USE_OMS */
 	}
 else {
-#if USE_BUILT_IN_MIDI_DRIVER
 	rs = 0;
 	for(channel=0; channel < MAXCHAN; channel++) {
 		e.time = Tcurr;
@@ -1906,7 +1905,6 @@ else {
 			SendToDriver(Tcurr * Time_res,0,&rs,&e);
 			}
 		}
-#endif /* USE_BUILT_IN_MIDI_DRIVER */
 	}
 ClearMessage();
 #endif /* WITH_REAL_TIME_MIDI */

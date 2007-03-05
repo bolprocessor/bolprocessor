@@ -229,9 +229,8 @@ MIDIinputFilter = MIDIinputFilterstartup = -1L;
 MIDIoutputFilter = MIDIoutputFilterstartup = -1L;
 OMSoutputName[0] = OMSinputName[0] = '\0';
 #endif
-#if WITH_REAL_TIME_MIDI	// FIXME: this function should be available regardless
+
 ResetMIDIFilter();
-#endif
 
 QuantizeOK = TRUE;
 LapWait = ZERO;

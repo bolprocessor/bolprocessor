@@ -1045,6 +1045,10 @@ STREAM:
 		result = FAILED;
 		}
 	}
+else {
+	MyDisposeHandle((Handle*)&p_buffer);
+	return (ABORT);
+	}
 
 maxevents = ZERO;
 for(track=0; track < ntracks; track++) {

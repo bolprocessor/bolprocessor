@@ -2641,9 +2641,11 @@ if(w == wFilter) {
 	if((rep=SetFilterDialog()) != OK) return(rep);
 	rep = DONE;
 	}
+#if BP_MACHO
 if(thedialog == CMSettings) {
 	rep = DoCMSettingsEvent(p_event, itemHit);
 }
+#endif
 
 HideWindow(Window[wMessage]);
 return(rep);
