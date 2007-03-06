@@ -1,3 +1,18 @@
+2007-03-06	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/CoreMIDIdriver.c:
+		Clarify logic for CoreMIDIOutputOn & CoreMIDIInputOn.
+	
+	* source/BP2/CarbonCompatUtil.c:
+	* source/BP2/CarbonCompatUtil.h:
+		New functions for abstracting differences of TEToScrap on OS 9/X and
+		for debugging scrap changes.
+	
+	* source/BP2/MenuCommands.c (mCut, mCopy, mPaste, et al):
+		Attempting to fix Cut/Copy/Paste so that they will work correctly on
+		OS X without breaking them on OS 9.  Not sure yet if this succeeds ...
+	
+	
 2007-03-05	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/-BP2.proto.h:
