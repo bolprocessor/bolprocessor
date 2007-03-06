@@ -59,8 +59,8 @@ typedef int (*CompareFuncType)(const void *, const void *);  // for qsort()
 /* trying the pthread library for synchronization for now */
 #include <pthread.h>
 
-static Boolean		CoreMidiOutputOn = false;
-static Boolean		CoreMidiInputOn = false;
+static Boolean		CoreMidiOutputOn = false;	// true when we have an output port & CMActiveDestinations != NULL
+static Boolean		CoreMidiInputOn = false;	// true when we have an input port & CMActiveSources is not empty
 static Boolean		CMMidiThruOn = false;
 static MIDIPortRef	CMOutPort = NULL;
 static MIDIEndpointRef*	CMActiveDestinations = NULL;	// NULL-terminated array of destinations
@@ -266,6 +266,7 @@ OSStatus InitCoreMidiDriver()
 			
 			CMActiveDestinations = (MIDIEndpointRef*) NewPtr(CMActiveDestinationsSize * sizeof(MIDIEndpointRef));		
 			if ((err = MemError()) == noErr) {
+				CoreMidiOutputOn = true;
 				// find the first destination
 				// (code adapted from the Echo.cpp CM example)
 				num = MIDIGetNumberOfDestinations();
@@ -284,7 +285,6 @@ OSStatus InitCoreMidiDriver()
 					if (err != noErr || !ok) strcpy(name, "<unknown>");
 					sprintf(Message, "Sending Midi to destination: %s.", name);
 					ShowMessage(TRUE, wMessage, Message);
-					CoreMidiOutputOn = true;
 					err = noErr;
 				}
 				else ShowMessage(TRUE, wMessage, "No MIDI destinations present.");
@@ -353,7 +353,6 @@ static OSStatus CMConnectToSources(MIDIEndpointRef* endpoints, Boolean tellConne
 			}
 			if (err2 != noErr || !ok) strcpy(name, "<unknown>");
 			if (err == noErr) {
-				CoreMidiInputOn = true;
 				sprintf(Message, "Receiving Midi from source: %s.", name);
 				ShowMessage(TRUE, wMessage, Message);
 			}
@@ -484,10 +483,10 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 	int result;
 	
 	err = noErr;
-	if(!CoreMidiOutputOn && OutMIDI) {
+	/*if(!CoreMidiOutputOn && OutMIDI) {
 		if(Beta) Println(wTrace,"Err. DriverWrite(). Driver output is OFF");
 		return(noErr);
-	}
+	}*/
 	if(EmergencyExit || Panic || InitOn) return(noErr);
 	if((ItemCapture && ItemOutPutOn) || TickCaptureStarted) {
 		result = CaptureMidiEvent(time, nseq, p_e);
@@ -501,6 +500,7 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 		RegisterProgramChange(p_e);
 	}
 
+	if(!CoreMidiOutputOn)  return(noErr);
 	if(!NEWTIMER) {
 		Byte pktbuf[1024];
 		Byte databuf[4];
