@@ -92,3 +92,52 @@ OSErr	CCUPutScrap(SInt32 size, ScrapFlavorType flavor, const void* data)
 	return err;
 #endif
 }
+
+
+/*	CCUTEToScrap()
+
+	Handles clearing the desk scrap and transfering the private
+	TextEdit scrap to the desk scrap.  Works around an (undocumented?)
+	change in behavior on OS X.  Substitute your own global for 
+	RunningOnOSX if reusing this code.
+ */
+void	CCUTEToScrap()
+{
+	OSErr err;
+	extern Boolean RunningOnOSX;
+	
+	if (!RunningOnOSX) {
+		err = CCUZeroScrap();
+		TEToScrap();
+	}
+	// calling TEToScrap() on OS X does not work 
+	// and seems to be unnecessary
+	
+	return;
+}
+
+/*	CheckScrapContents()
+
+	This is a debugging function.  The contents of the global scrap
+	are retrieved but nothing is done with them.  You can call this
+	function in your debug build and set a breakpoint here ...
+ */
+void	CheckScrapContents()
+{
+	char** contents;
+	SInt32 offset;
+	long size;
+	
+	contents = NULL;
+	/* get the size first */
+	size = CCUGetScrap(NULL, 'TEXT', &offset);
+	if (size > 0) {
+		contents = NewHandle(size);
+		if (MemError() == noErr)
+			size = CCUGetScrap(contents, 'TEXT', &offset);
+	}
+	// set breakpoint on the next line
+	if (contents)  DisposeHandle(contents);
+
+	return;
+}

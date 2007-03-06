@@ -7,6 +7,7 @@
 OSErr	CCUZeroScrap();
 long	CCUGetScrap(Handle destination, ScrapFlavorType flavor, SInt32* offset);
 OSErr	CCUPutScrap(SInt32 size, ScrapFlavorType flavor, const void* data);
-
+void	CCUTEToScrap();
+void	CheckScrapContents();
 
 #endif
