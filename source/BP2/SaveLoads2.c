@@ -917,7 +917,7 @@ int i,io,maxctrl,maxwait,rep,result,iv,s,type;
 FSSpec spec;
 short refnum;
 char line[MAXNAME+1],line2[MAXNAME+1],date[MAXNAME+1];
-char **p_line,**p_completeline;
+// char **p_line,**p_completeline;
 long pos,p,q;
 long k;
 double r;
@@ -926,7 +926,7 @@ if(LoadedGl) return(OK);
 
 if(!ScriptExecOn) ShowWindow(Window[wGlossary]);
 result = FAILED;
-p_line = p_completeline = NULL;
+// p_line = p_completeline = NULL;
 type = gFileType[wGlossary];
 if(anyfile) type = 0;
 spec.vRefNum = TheVRefNum[wGlossary];
@@ -955,7 +955,7 @@ pos = ZERO;
 SetFPos(refnum,fsFromStart,pos);
 if(ReadFile(wGlossary,refnum) == OK) {
 	if(!WASTE) {
-		CCUZeroScrap(); TEToScrap();
+		CCUTEToScrap();	// WHY?
 		}
 	/* The following is only useful to erase date and version */
 	GetHeader(wGlossary);
@@ -972,7 +972,7 @@ Alert1("Error reading glossary file…");
 ForgetFileName(wGlossary); /* 1/3/97 */
 
 QUIT:
-MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
+// MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 if(FSClose(refnum) != noErr) {
 	if(Beta) Alert1("Error closing glossary code file…");
 	}

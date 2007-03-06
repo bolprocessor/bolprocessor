@@ -1343,8 +1343,7 @@ if(OldFile(w,type,fn,&spec)) {
 			}
 		else {
 			if(ReadFile(w,refnum) == OK) {
-				CCUZeroScrap();
-				if(!WASTE) TEToScrap();
+				if(!WASTE) CCUTEToScrap();	// WHY?
 				if(w != wScrap) GetHeader(w);
 				if(clear) {
 					MyPtoCstr(MAXNAME,fn,FileName[w]);
@@ -2005,9 +2004,11 @@ if(Editable[wind]) {
 	LastAction = CUTWIND;
 	UndoWindow = wind;
 	UndoPos = (**(TEH[wind])).selStart;
-	if(!WASTE) {
-		CCUZeroScrap(); TEToScrap();
-		}
+	if (Beta)  CheckScrapContents();
+	/*if(!WASTE) {
+		CCUZeroScrap(); TEToScrap();	// not necessary for multistyled TE - 030607 akozar
+		}					// and does not work correctly on OS X
+	if (Beta)  CheckScrapContents();*/
 	UpdateDirty(FALSE,wind);
 	ShowSelect(CENTRE,wind);
 	if(IsEmpty(wind)) {
@@ -2021,7 +2022,7 @@ else if(IsDialog[wind]) {	// IsDialog just to be sure - 011207 akozar
 		UndoWindow = wind;
 		GetDialogValues(wind);
 		}
-	CCUZeroScrap(); TEToScrap();
+	CCUTEToScrap();
 	UpdateDirty(TRUE,wind);
 	}
 return(OK);
@@ -2037,15 +2038,17 @@ if(Editable[wind]) {
 	TextCopy(wind);
 	if(LastAction == 0) LastAction = COPY;
 	LastComputeWindow = wind;
+	if (Beta)  CheckScrapContents();
+	/*if(!WASTE) {
+		CCUZeroScrap(); TEToScrap();
+		}
+	if (Beta)  CheckScrapContents();*/
 	}
 else if(IsDialog[wind]) {	// IsDialog just to be sure - 011207 akozar
 	DialogCopy(GetDialogFromWindow(FrontWindow()));
-	CCUZeroScrap(); TEToScrap();
+	CCUTEToScrap();
 	}
 // if(WASTE) TEFromScrap();
-if(!WASTE) {
-	CCUZeroScrap(); TEToScrap();
-	}
 return(OK);
 }
 
@@ -2062,6 +2065,7 @@ if(wind < 0 || wind >= WMAX
 	|| ((!Editable[wind] || LockedWindow[wind]) && !HasFields[wind])) return(FAILED);
 if(RecordEditWindow(wind) && wind != wScript) AppendScript(63);
 if(Editable[wind]) {
+	if (Beta)  CheckScrapContents();
 	UndoPos = (**(TEH[wind])).selStart;
 	TextAutoView(FALSE,TRUE,TEH[wind]);
 	TextPaste(wind);
@@ -2384,7 +2388,7 @@ HideWindow(Window[wMessage]);
 TargetWindow = LastEditWindow = wind;
 /* make a temporary copy of the scrap */
 if(!WASTE) {
-	CCUZeroScrap(); TEToScrap();	/* save current text edit scrap */
+	CCUTEToScrap();	/* save current text edit scrap */
 	}
 myHandle = (Handle) GiveSpace(1);
 rc = CCUGetScrap(myHandle,'TEXT',&scrapOffset);

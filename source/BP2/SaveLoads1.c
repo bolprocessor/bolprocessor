@@ -1963,7 +1963,7 @@ else {	/* This is a text version (new format) */
 	SetFPos(refnum,fsFromStart,pos);
 	if(ReadFile(wInteraction,refnum) == OK) {
 		if(!WASTE) {
-			CCUZeroScrap(); TEToScrap();
+			CCUTEToScrap();	// WHY?
 			}
 		/* The following is only useful to erase date and version */
 		GetHeader(wInteraction);
