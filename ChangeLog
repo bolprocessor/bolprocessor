@@ -3,6 +3,8 @@
 	* source/BP2/SaveLoads3.c (NewFile & OldFile):
 		Set arrow cursor before opening standard file dialogs.
 
+	* resources/CoreMIDISettings.rsrc:  Hide unused check buttons for now.
+
 2007-03-06	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/CoreMIDIdriver.c:
