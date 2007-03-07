@@ -1,3 +1,8 @@
+2007-03-07	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/SaveLoads3.c (NewFile & OldFile):
+		Set arrow cursor before opening standard file dialogs.
+
 2007-03-06	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/CoreMIDIdriver.c:

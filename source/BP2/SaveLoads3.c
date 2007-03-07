@@ -421,6 +421,7 @@ Boolean CanSaveMultipleFormats(int w)
 NewFile(int w, int type, Str255 fn, NSWReply *p_reply)
 // Check whether the file we're creating is a new one, and get its specs in a reply record
 {
+	Cursor	arrow;
 	NavMenuItemSpecArrayHandle formatItems = NULL;
 	NSWOptions opts;
 	OSType creator, filetype;
@@ -428,6 +429,7 @@ NewFile(int w, int type, Str255 fn, NSWReply *p_reply)
 
 	if(CallUser(1) != OK) return(FAILED);
 
+	SetCursor(GetQDGlobalsArrow(&arrow));
 	/* spec = p_reply->sfFile; */
 
 	/* Let's first recall the default folder in which this file had been opened, to neutralize the effect of DefaultFolder */
@@ -475,6 +477,7 @@ OldFile(int w,int type,Str255 fn,FSSpec *p_spec)
 // p_spec doesn't matter on entry.  It returns the "file specs" record used afterwards
 {
 	OSErr		err, err2;
+	Cursor	arrow;
 	NSWReply	reply;
 	NSWOptions	opts;
 	SFTypeList	typelist;
@@ -487,6 +490,7 @@ OldFile(int w,int type,Str255 fn,FSSpec *p_spec)
 		return(FAILED);
 		}
 
+	SetCursor(GetQDGlobalsArrow(&arrow));
 	FillTypeList(type, typelist, &numtypes);
 
 #if TARGET_API_MAC_CARBON
