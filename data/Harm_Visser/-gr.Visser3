@@ -1,5 +1,5 @@
-// Bol Processor version BP2.9.0
-// Grammar file saved as '-gr.Visser3'. Date: Ven 12 Juin 1998 -- 21:30
+// Bol Processor version BP2.9.5
+// Grammar file saved as '-gr.Visser3'. Date: Wed, Mar 7, 2007 -- 15d3
 -se.Visser3
 
 // By Harm Visser (March 1998)
@@ -15,7 +15,7 @@ gram#1[1] S --> M1 M2 M3 M4 M5 M6 M7 M8 M9 M10 M11
 // words
 gram#1[2] M1 --> A -
 gram#1[3] M2 --> B - M1
-gram#1[4] M3 --> C -M2
+gram#1[4] M3 --> C - M2
 gram#1[5] M4 --> D - M3
 gram#1[6] M5 --> E ¥ M4
 gram#1[7] M6 --> F - M5
