@@ -54,6 +54,9 @@ OSErr MyGotRequiredParams(const AppleEvent*);
 int RecoverEmergencyMemory(void);
 int main(void);
 
+#if BP_MACHO
+int LaunchOSXApplication(OSType signature);
+#endif
 
 /* in OMS.c */
 #if USE_OMS

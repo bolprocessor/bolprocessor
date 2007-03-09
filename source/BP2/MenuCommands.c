@@ -690,7 +690,9 @@ int mShowCMSettings(int w)
 int mOpenAudioMidiSetup(int w)
 {
 #if BP_MACHO
-	// put some code here to launch the OS X "Audio Midi Setup" application
+	// launch the Apple-supplied OS X "Audio Midi Setup" application
+	StopWait();
+	LaunchOSXApplication('AMDS');
 #endif	
 	return(OK);
 }

@@ -278,3 +278,24 @@ c2pstrcpy(spec.name, "Register");
 
 return(LaunchAnApplication(spec));
 }
+
+
+#if BP_MACHO
+/* Code for launching applications on OS X */
+
+#include <LaunchServices/LaunchServices.h>
+int LaunchOSXApplication(OSType signature)
+{
+	OSStatus err;
+	FSRef outAppRef;
+	
+	err = LSGetApplicationForInfo(kLSUnknownType, signature, nil, kLSRolesAll, &outAppRef, NULL);
+	if (err != noErr) return(FAILED);
+	
+	err = LSOpenFSRef(&outAppRef, NULL);
+	if (err != noErr) return(FAILED);
+
+	return (OK);	
+}
+
+#endif
