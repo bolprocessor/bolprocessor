@@ -51,7 +51,7 @@ plist
 				key "CFBundleTypeRole" value string "Editor"
 				key "CFBundleTypeOSTypes" value array [ string "BP03" ]
 				/* key "CFBundleTypeMIMETypes" */
-				key "CFBundleTypeExtensions" value array [ string "bpmi" string "bpso"]
+				key "CFBundleTypeExtensions" value array [ string "bpmi" ]
 				/* key "CFBundleTypeIconFile" */
 			}
 			dictionary {
@@ -75,7 +75,7 @@ plist
 				key "CFBundleTypeRole" value string "Editor"
 				key "CFBundleTypeOSTypes" value array [ string "BP06" ]
 				/* key "CFBundleTypeMIMETypes" */
-				key "CFBundleTypeExtensions" value array [ string "bpho" string "bpal" ]
+				key "CFBundleTypeExtensions" value array [ string "bpho" ]
 				/* key "CFBundleTypeIconFile" */
 			}
 			dictionary {
@@ -155,8 +155,9 @@ plist
 				key "CFBundleTypeRole" value string "Editor"
 				key "CFBundleTypeOSTypes" value array [ string "TEXT" ]
 				/* key "CFBundleTypeMIMETypes" */
-				key "CFBundleTypeExtensions" value array [ string "txt"  string "html" 
-											 string "htm" string "trace" ]
+				key "CFBundleTypeExtensions" value array [ string "txt"   string "sco"
+											 string "html"  string "htm" 
+											 string "trace" string "bptr" ]
 				/* key "CFBundleTypeIconFile" */
 			}
 		]
