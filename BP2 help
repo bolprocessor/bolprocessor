@@ -33,42 +33,49 @@ HTML files are sliced to approximately 80 character paragraphs terminated with C
 makes them compatible with DOS/Windows.
 ### Types-creators
 ¥ The following are the prefixes, file types and creators of Macintosh files handled by BP2.
-Prefix      type    creator   description
--da         TEXT    Bel0      Bol Processor BP2 data
--kb         BP02    Bel0      Bol Processor BP2 keyboard
--mi         BP03    Bel0      Bol Processor BP2 sound-object prototypes
-<none>      BP04    Bel0      Bol Processor BP2 decisions
--gr         BP05    Bel0      Bol Processor BP2 grammar
--ho         BP06    Bel0      Bol Processor BP2 alphabet
--da         BP07    Bel0      Bol Processor BP2 data (old versions)
--in         BP08    Bel0      Bol Processor BP2 interaction
--se         BP09    Bel0      Bol Processor BP2 settings
--wg         BP10    Bel0      Bol Processor BP2 weights
-+sc         BP11    Bel0      Bol Processor BP2 script
--gl         BP12    Bel0      Bol Processor BP2 glossary
--tb         BP13    Bel0      Bol Processor BP2 time base
--cs         BP14    Bel0      Bol Processor BP2 Csound instrument file
--or         BP15    Bel0      Bol Processor BP2 MIDI orchestra file
-<none>      Midi    ????      MIDI file type 0, 1 or 2
-¥ All text files may also be stored in "Hypertext (HTML)" format with signature 'MOSS'.
+¥ Starting with BP2.9.6, file extensions are also recognized for each type.  The following
+    extensions are also recognized for text files: .txt, .sco, .htm, .html, .trace, .bptr
+  Prefix    Exten.  type    creator   description
+  -da       .bpda   TEXT    Bel0      Bol Processor BP2 data
+  -kb       .bpkb   BP02    Bel0      Bol Processor BP2 keyboard
+  -mi       .bpmi   BP03    Bel0      Bol Processor BP2 sound-object prototypes
+  <none>    .bpde   BP04    Bel0      Bol Processor BP2 decisions
+  -gr       .bpgr   BP05    Bel0      Bol Processor BP2 grammar
+  -ho       .bpho   BP06    Bel0      Bol Processor BP2 alphabet
+  -da       .bpda   BP07    Bel0      Bol Processor BP2 data (old versions)
+  -in       .bpin   BP08    Bel0      Bol Processor BP2 interaction
+  -se       .bpse   BP09    Bel0      Bol Processor BP2 settings
+  -wg       .bpwg   BP10    Bel0      Bol Processor BP2 weights
+  +sc       .bpsc   BP11    Bel0      Bol Processor BP2 script
+  -gl       .bpgl   BP12    Bel0      Bol Processor BP2 glossary
+  -tb       .bptb   BP13    Bel0      Bol Processor BP2 time base
+  -cs       .bpcs   BP14    Bel0      Bol Processor BP2 Csound instrument file
+  -or       .bpor   BP15    Bel0      Bol Processor BP2 MIDI orchestra file
+  <any>     <any>   TEXT    Bel0      BP2 text file 
+  <any>     <any>   TEXT    <any>     Any text file
+  <none>    .mid    Midi    <any>     MIDI file type 0, 1 or 2 (extension .midi is OK too)
+¥ All text files may also be stored in "Hypertext (HTML)" format with creator 'MOSS'
+    (which is Netscape Navigator).
 ### BP2 file formats
 When saving a file for the first time or after changing its name, the user is given four format
 options:
 ¥ Normal BP2 file (signature 'Bel0', file type depending on type of data (see "Types-creators");
 ¥ Pure text (signature 'Bel0', file type 'TEXT');
 ¥ HTML text (signature 'MOSS', file type 'TEXT');
-¥ HTML BP2 (signature 'MOSS', file type depending on type of data (see "Types-creators");
-Signature 'Bel0' (registered with Apple) identifies BP2. Clicking such files will automatically
-    launch BP2.
-Signature 'MOSS' makes the file directly compatible with Netscape Navigator.
+¥ HTML BP2 (signature 'Bel0', file type depending on type of data (see "Types-creators");
+Signature 'Bel0' (registered with Apple) identifies a file as belonging to BP2.  Clicking 
+    such files will automatically launch BP2.
+Signature 'MOSS' makes the file open directly with Netscape Navigator.
 Use HTML BP2 if the file should be reused by BP2 while being readable by Web browsers.
-Use HTML text if the file should be in pure text format (for instance it needs to be inserted
-    in an electronic mail message).
+Use HTML text if the file should be able to be opened by other applications that
+    understand HTML.  (FFor instance, it needs to be inserted in an electronic mail message
+    or to include the file on a web site).
 ¥ Pure text files can also be opened by BP2: select 'Open' from the 'File' menu with the
-    'option' key down.
+    'option' key down.  (In BP2.9.6 and later, you can also select Show 'All Readable
+    Documents' when opening a file to open a text file created by any application).
 ¥ Csound scores are stored as Mac text files (default), or DOS or Unix depending on the
     choice in the "File saving preferences" dialog accessed from "Settings"
-¥ MIDI files are saved with type 'Midi' and creator '????'.
+¥ MIDI files are saved with type 'Midi' and creator 'Bel0'.
 ### Why don't I hear any sound?
 ¥ If you want to play music on the Mac's internal loudspeaker or via its sound output, either
     use Csound (see "Csound implementation") or QuickTime Music.
