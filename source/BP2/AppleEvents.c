@@ -188,15 +188,15 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 		sizeof(spec),&actualSize);
 	if(err) goto OUT;
 	MyPtoCstr(MAXNAME,spec.name,name);
-	Strip(name);
+	Strip(name);  // FIXME:  filenames can begin or end with spaces!
 	if(name[0] == '\0') goto NEWINDEX;
-	if(name[0] != '-'&& name[0] != '+') {	
+	/* if(name[0] != '-'&& name[0] != '+') {	
 		sprintf(Message,"File Ô%sÕ doesn't have a name that BP2 would recognizeÉ\r",name);
 		Print(wTrace,Message);
 		DisplayHelp("Types-creators");
 		failedonce = TRUE;
 		goto NEWINDEX;
-		}
+		} */
 	
 	for(wind=0; wind < WMAX; wind++) {
 		if(FilePrefix[wind][0] == '\0') continue;
@@ -208,7 +208,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 				}
 			if(loaded[wind]) {
 				sprintf(Message,"BP2 can't open several files of the same type. Ô%sÕ was ignoredÉ",name);
-				Print(wTrace,Message);
+				Println(wTrace,Message);
 				failedonce = TRUE;
 				goto NEWINDEX;
 				}
@@ -228,8 +228,8 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 				case wMIDIorchestra:
 					break;
 				default:
-					sprintf(Message,"BP2 can't open file Ô%sÕ at startupÉ",name);
-					Print(wTrace,Message);
+					sprintf(Message,"BP2 can't open file Ô%sÕ from the FinderÉ",name);
+					Println(wTrace,Message);
 					failedonce = TRUE;
 					goto NEWINDEX;
 				break;
@@ -395,7 +395,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 				TellError(39,io);
 				sprintf(Message,"BP2 was unable to open Ô%sÕÉ [Error code %ld]\r",
 					name,(long)io);
-				Print(wTrace,Message);
+				Println(wTrace,Message);
 				failedonce = TRUE;
 				FileName[wind][0] = '\0';
 				}
@@ -405,7 +405,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 		}
 	sprintf(Message,"Dragging Ô%sÕ to BP2 had no effectÉ\r",name);
 	ShowMessage(TRUE,wMessage,Message);
-	failedonce = TRUE;
+	// failedonce = TRUE;
 NEWINDEX:
 	index++;
 	}
