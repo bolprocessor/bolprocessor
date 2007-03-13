@@ -53,6 +53,7 @@
 #include <string.h>
 #include <CoreAudio/CoreAudio.h>
 #include <CoreMIDI/CoreMIDI.h>
+#include <CoreFoundation/CFString.h>
 
 typedef int (*CompareFuncType)(const void *, const void *);  // for qsort()
 
@@ -251,16 +252,19 @@ OSStatus InitCoreMidiDriver()
 {
 	OSStatus err;
 	Boolean ok;
-	CFStringRef pname;
+	CFStringRef pname, strtemp;
 	ItemCount num;
 	char name[MAXENDPOINTNAME];
 	
-	err = MIDIClientCreate(CFSTR("Bol Processor"), CMNotifyCallback, NULL, &CMClient);
+	strtemp = CFSTR("Bol Processor");
+	if (strtemp == NULL)  return -1;
+	err = MIDIClientCreate(strtemp, CMNotifyCallback, NULL, &CMClient);
 	if (err == noErr) {
 		ShowMessage(TRUE, wMessage, "Signed into CoreMIDI.");
-		
+		strtemp = CFSTR("BP OutPort");
+		if (strtemp == NULL)  return -1;
 		// create a port so we can send messages
-		err = MIDIOutputPortCreate(CMClient, CFSTR("BP OutPort"), &CMOutPort);
+		err = MIDIOutputPortCreate(CMClient, strtemp, &CMOutPort);
 		if (err == noErr) {
 			// EnumerateCMDevices();
 			
@@ -298,8 +302,10 @@ OSStatus InitCoreMidiDriver()
 		
 		// create queue before trying to make CoreMIDI input port
 		if (CMCreateAndInitQueue() == noErr) {
+			strtemp = CFSTR("BP InPort");
+			if (strtemp == NULL)  return -1;
 			// create a port so we can receive messages
-			err = MIDIInputPortCreate(CMClient, CFSTR("BP InPort"), CMReadCallback, NULL, &CMInPort);
+			err = MIDIInputPortCreate(CMClient, strtemp, CMReadCallback, NULL, &CMInPort);
 			if (err == noErr) {
 				CMActiveSources = (MIDIEndpointRef*) NewPtr(CMActiveSourcesSize * sizeof(MIDIEndpointRef));
 				if ((err = MemError()) == noErr) {
