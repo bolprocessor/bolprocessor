@@ -365,6 +365,9 @@ short gFileType[] =   {5,6,1,1,1,1,1,7,13,0,1,1,14,8,1,1,15,1,1,1,1,2,15,15,11,9
 char FilePrefix[][5] = {"-gr.","-ho.","\0","\0","\0","-tr.","\0","-da.",
 	"+sc.","\0","\0","\0","-gl.","-in.","-wg.","\0","-tb.","\0","\0","\0","\0","-kb.",
 	"\0","\0","\0","-se.","-mi.","\0","\0","\0","\0","\0","\0","\0","\0","-cs.","\0","\0","-or."};
+char FileExtension[][6] = {".bpgr",".bpho","\0","\0","\0",".bptr","\0",".bpda",
+	".bpsc","\0","\0","\0",".bpgl",".bpin",".bpwg","\0",".bptb","\0","\0","\0","\0",".bpkb",
+	"\0","\0","\0",".bpse",".bpmi","\0","\0","\0","\0","\0","\0","\0","\0",".bpcs","\0","\0",".bpor"};
 	/* See window and dialog indexes in BP2.h */
 char DeftName[][MAXNAME] = {"New Grammar","New Alphabet",
 	"Start string","Message","Graphic","Trace","Info",
