@@ -1004,7 +1004,7 @@ do {
 			goto OUT;
 			}
 		else {
-			if(Token && FilePrefix[wKeyboard][0] == 0) {
+			if(Token && FilePrefix[wKeyboard][0] == 0) { // FIXME: should be FileName?
 				if(!ScriptExecOn) Alert1("You can't use tokens (‘Misc’ menu) unless you define ‘-kb.’ file in alphabet");
 				Token = FALSE;
 				result = ABORT;
