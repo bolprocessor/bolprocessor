@@ -247,6 +247,11 @@ if(Oms) FlashInfo("OMS MIDI driver is being used");
 else if (InBuiltDriverOn) FlashInfo("OMS is inactive. In-built MIDI driver is being used");
 // else FlashInfo("Null MIDI driver is being used");
 
+#if BP_MACHO
+  FlashInfo("CoreMIDI driver is being used");
+  mShowCMSettings(wind);
+#endif
+
 Alert1("Notes played on external MIDI device will be shown in the ‘Data’ window. Otherwise select the proper input…");
 mTypeNote(wData);
 SetSelect((**(TEH[wData])).selEnd,(**(TEH[wData])).selEnd,TEH[wData]);
