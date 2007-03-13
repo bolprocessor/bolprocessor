@@ -104,7 +104,7 @@ OSErr err;
 
 err = NSWInitReply(&reply);
 if(FileName[iObjects][0] != '\0') strcpy(Message,FileName[iObjects]);
-else strcpy(Message,FilePrefix[iObjects]);
+else if (GetDefaultFileName(iObjects, Message) != OK) return(FAILED);
 c2pstrcpy(fn, Message);
 
 if(Created[iObjects]) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noErr);

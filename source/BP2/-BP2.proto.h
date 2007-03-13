@@ -792,6 +792,7 @@ int OpenApplication(OSType);
 int FlushFile(short);
 int SaveAs(Str255,FSSpec*,int);
 int SaveFile(Str255,FSSpec*,int);
+int GetDefaultFileName(int w, char* filename);
 void SelectCreatorAndFileType(int type, OSType* thecreator, OSType* thetype);
 void FillTypeList(int type, SFTypeList typeList, int* numtypes);
 int MakeFormatMenuItems(int type, NavMenuItemSpecArrayHandle* handle);

@@ -64,7 +64,10 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 	}
 err = NSWInitReply(&reply);
 /* If the file name is empty, at least we insert its prefix */
-if(fn[0] == 0) c2pstrcpy(fn, FilePrefix[w]);
+if(fn[0] == 0) {
+	if (GetDefaultFileName(w, Message) != OK) return(FAILED);
+	c2pstrcpy(fn, Message);
+}
 reply.sfFile.vRefNum = TheVRefNum[w];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[w];
 if(NewFile(w,gFileType[w],fn,&reply)) {
@@ -169,6 +172,28 @@ else {
 	ShowMessage(TRUE,wMessage,Message);
 	return(FAILED);
 	}
+}
+
+/* Returns in filename, the default save name for the specified window on this platform.
+   filename should be long enough to hold the result (at least 32 on MacOS) */
+int GetDefaultFileName(int w, char* filename)
+{
+	if(w < 0 || w >= WMAX) {
+		if(Beta) Alert1("Err. GetDefaultFileName(). Incorrect window index");
+		return(FAILED);
+	}
+	if (RunningOnOSX) {
+		// suggest file extensions on OS X
+		strcpy(filename, "untitled");
+		strcat(filename, FileExtension[w]);
+	}
+	else {
+		// suggest file prefixes on OS 9
+		strcpy(filename, FilePrefix[w]);
+		strcat(filename, "untitled");
+	}
+	
+	return(OK);	
 }
 
 /* SelectCreatorAndFileType returns the default creator and file type codes

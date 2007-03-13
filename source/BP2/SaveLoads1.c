@@ -131,8 +131,7 @@ err = NSWInitReply(&reply);
 ShowMessage(TRUE,wMessage,"Creating weight fileÉ");
 if(FileName[iWeights][0] != '\0')
 	strcpy(Message,FileName[iWeights]);
-else
-	strcpy(Message,FilePrefix[iWeights]);
+else if (GetDefaultFileName(iWeights, Message) != OK) return(FAILED);
 c2pstrcpy(fn, Message);
 reply.sfFile.vRefNum = TheVRefNum[iSettings];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[iSettings];
@@ -251,7 +250,7 @@ OSErr err;
 err = NSWInitReply(&reply);
 GetKeyboard();
 if(FileName[wKeyboard][0] != '\0') strcpy(Message,FileName[wKeyboard]);
-else strcpy(Message,FilePrefix[wKeyboard]);
+else if (GetDefaultFileName(wKeyboard, Message) != OK) return(FAILED);
 c2pstrcpy(fn, Message);
 p_spec->vRefNum = TheVRefNum[wKeyboard];
 p_spec->parID = WindowParID[wKeyboard];
@@ -405,7 +404,7 @@ OSErr err;
 err = NSWInitReply(&reply);
 GetTimeBase(); GetTickParameters();
 if(FileName[wTimeBase][0] != '\0') strcpy(Message,FileName[wTimeBase]);
-else strcpy(Message,FilePrefix[wTimeBase]);
+else if (GetDefaultFileName(wTimeBase, Message) != OK) return(FAILED);
 c2pstrcpy(fn, Message);
 p_spec->vRefNum = TheVRefNum[wTimeBase];
 p_spec->parID = WindowParID[wTimeBase];
@@ -775,7 +774,7 @@ OSErr err;
 
 err = NSWInitReply(&reply);
 if(FileName[wCsoundInstruments][0] != '\0') strcpy(Message,FileName[wCsoundInstruments]);
-else strcpy(Message,FilePrefix[wCsoundInstruments]);
+else if (GetDefaultFileName(wCsoundInstruments, Message) != OK) return(FAILED);
 c2pstrcpy(fn, Message);
 p_spec->vRefNum = TheVRefNum[wCsoundInstruments];
 p_spec->parID = WindowParID[wCsoundInstruments];
@@ -995,7 +994,7 @@ if(ScriptExecOn) return(OK);
 err = NSWInitReply(&reply);
 p_spec->vRefNum = TheVRefNum[iSettings];
 p_spec->parID = WindowParID[iSettings];
-strcpy(line,FilePrefix[iSettings]);
+if (GetDefaultFileName(iSettings, line) != OK) return(FAILED);
 if(fn[0] == 0) c2pstrcpy(fn, line);
 CopyPString(fn,p_spec->name);
 good = NO;
