@@ -59,6 +59,8 @@ while (--len >= 0) dest[i++] = *src++;
 }
 
 
+/* Copies a pascal string to a C string, truncating if necessary.
+   WARNING: this function also converts whitespace characters! */
 MyPtoCstr(int max,Str255 s,char *t)
 {
 int i,len;
@@ -334,7 +336,7 @@ return(i);
 
 
 Strip(char *word)
-// Eliminate trailing blanks
+// Eliminate leading and trailing blanks
 {
 int i,j;
 OSErr memerr;
@@ -356,7 +358,7 @@ return(OK);
 
 
 StripHandle(char **p_line)
-// Eliminate trailing blanks
+// Eliminate leading and trailing blanks
 {
 int i,im,j;
 OSErr memerr;
@@ -385,6 +387,8 @@ return(OK);
 }
 
 
+/* FIXME ? This is not "portable". Should we also convert diacriticals?
+   If not, then we should just use toupper() instead. */
 UpperCase(char c)
 {
 if(!isalpha(c)) return(c);
