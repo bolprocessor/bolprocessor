@@ -152,7 +152,7 @@ short refnum;
 Size actualSize;
 AEKeyword keywd;
 DescType returnedType;
-char name[MAXNAME+2],loaded[WMAX];
+char name[64],loaded[WMAX];	// FSSpec.name is a Str63
 AEEventID theID;
 
 // check whether the Apple Event requested to open or to print
@@ -187,8 +187,8 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 	err = AEGetNthPtr(&docList,index,typeFSS,&keywd,&returnedType,(Ptr)&spec,
 		sizeof(spec),&actualSize);
 	if(err) goto OUT;
-	MyPtoCstr(MAXNAME,spec.name,name);
-	Strip(name);  // FIXME:  filenames can begin or end with spaces!
+	p2cstrcpy(name, spec.name);	// shouldn't use MyPtoCstr(), it converts whitespace characters
+	Strip(name);  			// FIXME:  filenames can begin or end with spaces! (but currently cause problems for BP2)
 	if(name[0] == '\0') goto NEWINDEX;
 	/* if(name[0] != '-'&& name[0] != '+') {	
 		sprintf(Message,"File ‘%s’ doesn't have a name that BP2 would recognize…\r",name);
@@ -198,214 +198,205 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 		goto NEWINDEX;
 		} */
 	
-	for(wind=0; wind < WMAX; wind++) {
-		if(FilePrefix[wind][0] == '\0') continue;
-		p = name; q = FilePrefix[wind];
-		if(Match(TRUE,&p,&q,4)) {
-			if(strcmp(FileName[wind],name) == 0) {
-				if(print && Editable[wind]) mPrint(wind);
-				goto NEWINDEX;
-				}
-			if(loaded[wind]) {
-				sprintf(Message,"BP2 can't open several files of the same type. ‘%s’ was ignored…",name);
-				Println(wTrace,Message);
-				failedonce = TRUE;
-				goto NEWINDEX;
-				}
-			switch(wind) {
-				case wGrammar:
-				case wAlphabet:
-				case iSettings:
-				case wInteraction:
-				case wData:
-				case wTrace:
-				case wScript:
-				case wGlossary:
-				case iObjects:
-				case wKeyboard:
-				case wTimeBase:
-				case wCsoundInstruments:
-				case wMIDIorchestra:
-					break;
-				default:
-					sprintf(Message,"BP2 can't open file ‘%s’ from the Finder…",name);
-					Println(wTrace,Message);
-					failedonce = TRUE;
-					goto NEWINDEX;
-				break;
-				}
-			if(ClearWindow(FALSE,wind) != OK) goto NEWINDEX;
-			sprintf(Message,"Opening ‘%s’…",name);
-			ShowMessage(TRUE,wMessage,Message);
-			TheVRefNum[wind] = spec.vRefNum;
-			WindowParID[wind] = spec.parID;
-			loaded[wind] = TRUE;
-			strcpy(FileName[wind],name);
-			if(Editable[wind]) LastEditWindow = wind;
-			if(wind == iSettings) {
-				LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms);
-				TellOthersMyName(iSettings);
-				Created[iSettings] = TRUE; // 020907 akozar
-				goto NEWINDEX;
-				}
-			if(wind == wGlossary) {
-				LoadGlossary(FALSE,FALSE);
-				BPActivateWindow(SLOW,wind);
-				if(print) mPrint(wind);
-				Created[wGlossary] = TRUE; // 020907 akozar
-				goto NEWINDEX;
-				}
-			if(wind == wInteraction) {
-				Interactive = TRUE; SetButtons(TRUE);
-				LoadInteraction(FALSE,FALSE);
-				BPActivateWindow(SLOW,wind);
-				if(print) mPrint(wind);
-				Created[wInteraction] = TRUE; // 020907 akozar
-				goto NEWINDEX;
-				}
-			if(wind == iObjects) {
-				if(CompileCheck() != OK) break;
-				if(LoadObjectPrototypes(YES,YES) != OK) {
-					ObjectMode = ObjectTry = FALSE;
-					FileName[iObjects][0] = '\0';
-					SetName(iObjects,TRUE,TRUE);
-					Dirty[iObjects] = Created[iObjects] = FALSE;
-					iProto = 0;
-					}
-				else {
-					iProto = 2;
-					BPActivateWindow(SLOW,wPrototype1);
-					SetPrototype(iProto);
-					SetCsoundScore(iProto);
-					CompileObjectScore(iProto,&longerCsound);
-					Created[iObjects] = TRUE; // 020907 akozar
-					}
-				goto NEWINDEX;
-				}
-			if(wind == wKeyboard || wind == wTimeBase || wind == wCsoundInstruments
-					|| wind == wMIDIorchestra) {
-				if(MyOpen(&spec,fsCurPerm,&refnum) == noErr) {
-					switch(wind) {
-						case wKeyboard:
-							LoadKeyboard(refnum);
-							Token = TRUE; MaintainMenus();
-							mKeyboard(wind);
-							break;
-						case wTimeBase:
-							LoadTimeBase(refnum);
-							mTimeBase(wind);
-							break;
-						case wCsoundInstruments:
-							LoadCsoundInstruments(refnum,FALSE);
-							mCsoundInstrumentsSpecs(wind);
-							break;
-						case wMIDIorchestra:
-							LoadMIDIorchestra(refnum,FALSE);
-							
-						//	ShowWindow(MIDIprogramPtr);
-						//	SelectWindow(MIDIprogramPtr);
-						//	UpdateDialog(MIDIprogramPtr,MIDIprogramPtr->visRgn); /* Needed to make static text visible */
-							
-							HideWindow(Window[wMessage]);
-							
-							ShowWindow(GetDialogWindow(SixteenPtr));
-							SelectWindow(GetDialogWindow(SixteenPtr));
-							{ GrafPtr port;
-							  RgnHandle rgn;
-							  port = GetDialogPort(SixteenPtr);
-							  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-							  GetPortVisibleRegion(port, rgn);
-							  UpdateDialog(SixteenPtr, rgn); /* Needed to make static text visible */
-							  DisposeRgn(rgn);
-							}
-							BPActivateWindow(SLOW,wind);
-							break;
-						}
-					Created[wind] = TRUE;  // changed from false - 020907 akozar
-					SetName(wind,TRUE,TRUE);
-					}
-				goto NEWINDEX;
-				}
-			if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
-				if(ReadFile(wind,refnum) == OK && (FSClose(refnum) == noErr)) {
-					ShowWindow(Window[wind]);
-					Created[wind] = TRUE;  // changed from false - 020907 akozar
-					SetName(wind,FALSE,TRUE);
-					UpdateDirty(TRUE,wind);
-					Dirty[wind] = FALSE;
-#if WASTE
-					WEResetModCount(TEH[wind]);
-#endif
-					GetHeader(wind);
-					if(wind == wScript) {
-						LoadedScript = TRUE;
-						}
-					if(wind == wAlphabet) {
-						TheVRefNum[iObjects] = TheVRefNum[wKeyboard]
-							= TheVRefNum[wCsoundInstruments]
-							= TheVRefNum[wMIDIorchestra] = spec.vRefNum;
-						WindowParID[iObjects] = WindowParID[wKeyboard]
-							= WindowParID[wCsoundInstruments]
-							= WindowParID[wMIDIorchestra] = spec.parID;
-						GetMiName(); GetKbName(wAlphabet);
-						GetCsName(wAlphabet);
-						GetFileNameAndLoadIt(wMIDIorchestra,wind,LoadMIDIorchestra);
-						}
-					if(wind == wGrammar) {
-						TheVRefNum[wCsoundInstruments] = TheVRefNum[iObjects] = TheVRefNum[wKeyboard]
-							= TheVRefNum[iWeights] = TheVRefNum[wInteraction]
-							= TheVRefNum[wGlossary] = TheVRefNum[iSettings]
-							= TheVRefNum[wAlphabet] = TheVRefNum[wTimeBase]
-							= TheVRefNum[wMIDIorchestra] = spec.vRefNum;
-						WindowParID[wCsoundInstruments] = WindowParID[iObjects] = WindowParID[wKeyboard]
-							= WindowParID[iWeights] = WindowParID[wInteraction]
-							= WindowParID[wGlossary] = WindowParID[iSettings]
-							= WindowParID[wAlphabet] = WindowParID[wTimeBase]
-							= WindowParID[wMIDIorchestra] = spec.parID;
-						if(loaded[iSettings]) TellOthersMyName(iSettings);
-						else if(GetSeName(wGrammar) == OK) LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms);
-						GetTimeBaseName(wGrammar);
-						GetCsName(wGrammar);
-						GetFileNameAndLoadIt(wMIDIorchestra,wind,LoadMIDIorchestra);
-						LoadAlphabet(wGrammar,&spec);
-						}
-					if(wind == wData) {
-						TheVRefNum[iObjects] = TheVRefNum[wKeyboard]
-							= TheVRefNum[wInteraction] = TheVRefNum[wGlossary]
-							= TheVRefNum[iSettings] = TheVRefNum[wAlphabet]
-							= TheVRefNum[wTimeBase] = TheVRefNum[wCsoundInstruments]
-							= TheVRefNum[wMIDIorchestra] = spec.vRefNum;
-						WindowParID[iObjects] = WindowParID[wKeyboard]
-							= WindowParID[wInteraction] = WindowParID[wGlossary]
-							= WindowParID[iSettings] = WindowParID[wAlphabet]
-							= WindowParID[wTimeBase] = WindowParID[wCsoundInstruments]
-							= WindowParID[wMIDIorchestra] = spec.parID;
-						if(loaded[iSettings]) TellOthersMyName(iSettings);
-						else if(GetSeName(wData) == OK) LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms);
-						GetTimeBaseName(wData);
-						GetCsName(wData);
-						GetFileNameAndLoadIt(wMIDIorchestra,wind,LoadMIDIorchestra);
-						LoadAlphabet(wData,&spec);
-						}
-					BPActivateWindow(SLOW,wind);
-					if(print) mPrint(wind);
-					}
-				}
-			else {
-				TellError(39,io);
-				sprintf(Message,"BP2 was unable to open ‘%s’… [Error code %ld]\r",
-					name,(long)io);
-				Println(wTrace,Message);
-				failedonce = TRUE;
-				FileName[wind][0] = '\0';
-				}
-			Dirty[wind] = FALSE;
+	wind = IdentifyBPFileType(&spec);
+	if(wind != wUnknown) {
+		if(strcmp(FileName[wind],name) == 0) {
+			if(print && Editable[wind]) mPrint(wind);
 			goto NEWINDEX;
 			}
+		if(loaded[wind]) {
+			sprintf(Message,"BP2 can't open several files of the same type. ‘%s’ was ignored…",name);
+			Println(wTrace,Message);
+			failedonce = TRUE;
+			goto NEWINDEX;
+			}
+		switch(wind) {
+			case wGrammar:
+			case wAlphabet:
+			case iSettings:
+			case wInteraction:
+			case wData:
+			case wTrace:
+			case wScrap:	// added akozar 031407
+			case wScript:
+			case wGlossary:
+			case iObjects:
+			case wKeyboard:
+			case wTimeBase:
+			case wCsoundInstruments:
+			case wMIDIorchestra:
+				break;
+			default:
+				sprintf(Message,"BP2 can't open file ‘%s’ from the Finder…",name);
+				Println(wTrace,Message);
+				failedonce = TRUE;
+				goto NEWINDEX;
+			break;
+			}
+		if(ClearWindow(FALSE,wind) != OK) goto NEWINDEX;
+		sprintf(Message,"Opening ‘%s’…",name);
+		ShowMessage(TRUE,wMessage,Message);
+		TheVRefNum[wind] = spec.vRefNum;
+		WindowParID[wind] = spec.parID;
+		loaded[wind] = TRUE;
+		strcpy(FileName[wind],name);
+		if(Editable[wind]) LastEditWindow = wind;
+		if(wind == iSettings) {
+			LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms);
+			TellOthersMyName(iSettings);
+			Created[iSettings] = TRUE; // 020907 akozar
+			}
+		else if(wind == wGlossary) {
+			LoadGlossary(FALSE,FALSE);
+			BPActivateWindow(SLOW,wind);
+			if(print) mPrint(wind);
+			Created[wGlossary] = TRUE; // 020907 akozar
+			}
+		else if(wind == wInteraction) {
+			Interactive = TRUE; SetButtons(TRUE);
+			LoadInteraction(FALSE,FALSE);
+			BPActivateWindow(SLOW,wind);
+			if(print) mPrint(wind);
+			Created[wInteraction] = TRUE; // 020907 akozar
+			}
+		else if(wind == iObjects) {
+			if(CompileCheck() != OK) break;
+			if(LoadObjectPrototypes(YES,YES) != OK) {
+				ObjectMode = ObjectTry = FALSE;
+				FileName[iObjects][0] = '\0';
+				SetName(iObjects,TRUE,TRUE);
+				Dirty[iObjects] = Created[iObjects] = FALSE;
+				iProto = 0;
+				}
+			else {
+				iProto = 2;
+				BPActivateWindow(SLOW,wPrototype1);
+				SetPrototype(iProto);
+				SetCsoundScore(iProto);
+				CompileObjectScore(iProto,&longerCsound);
+				Created[iObjects] = TRUE; // 020907 akozar
+				}
+			}
+		else if((wind == wKeyboard || wind == wTimeBase || wind == wCsoundInstruments
+				|| wind == wMIDIorchestra) && MyOpen(&spec,fsCurPerm,&refnum) == noErr) {
+			switch(wind) {
+				case wKeyboard:
+					LoadKeyboard(refnum);
+					Token = TRUE; MaintainMenus();
+					mKeyboard(wind);
+					break;
+				case wTimeBase:
+					LoadTimeBase(refnum);
+					mTimeBase(wind);
+					break;
+				case wCsoundInstruments:
+					LoadCsoundInstruments(refnum,FALSE);
+					mCsoundInstrumentsSpecs(wind);
+					break;
+				case wMIDIorchestra:
+					LoadMIDIorchestra(refnum,FALSE);
+					
+				//	ShowWindow(MIDIprogramPtr);
+				//	SelectWindow(MIDIprogramPtr);
+				//	UpdateDialog(MIDIprogramPtr,MIDIprogramPtr->visRgn); /* Needed to make static text visible */
+					
+					HideWindow(Window[wMessage]);
+					
+					ShowWindow(GetDialogWindow(SixteenPtr));
+					SelectWindow(GetDialogWindow(SixteenPtr));
+					{ GrafPtr port;
+					  RgnHandle rgn;
+					  port = GetDialogPort(SixteenPtr);
+					  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+					  GetPortVisibleRegion(port, rgn);
+					  UpdateDialog(SixteenPtr, rgn); /* Needed to make static text visible */
+					  DisposeRgn(rgn);
+					}
+					BPActivateWindow(SLOW,wind);
+					break;
+				}
+			Created[wind] = TRUE;  // changed from false - 020907 akozar
+			SetName(wind,TRUE,TRUE);
+			}
+		else if(((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) && 
+			  (ReadFile(wind,refnum) == OK && (FSClose(refnum) == noErr))) {
+			ShowWindow(Window[wind]);
+			Created[wind] = TRUE;  // changed from false - 020907 akozar
+			SetName(wind,FALSE,TRUE);
+			UpdateDirty(TRUE,wind);
+			Dirty[wind] = FALSE;
+#if WASTE
+			WEResetModCount(TEH[wind]);
+#endif
+			GetHeader(wind);
+			if(wind == wScript) {
+				LoadedScript = TRUE;
+				}
+			if(wind == wAlphabet) {
+				TheVRefNum[iObjects] = TheVRefNum[wKeyboard]
+					= TheVRefNum[wCsoundInstruments]
+					= TheVRefNum[wMIDIorchestra] = spec.vRefNum;
+				WindowParID[iObjects] = WindowParID[wKeyboard]
+					= WindowParID[wCsoundInstruments]
+					= WindowParID[wMIDIorchestra] = spec.parID;
+				GetMiName(); GetKbName(wAlphabet);
+				GetCsName(wAlphabet);
+				GetFileNameAndLoadIt(wMIDIorchestra,wind,LoadMIDIorchestra);
+				}
+			if(wind == wGrammar) {
+				TheVRefNum[wCsoundInstruments] = TheVRefNum[iObjects] = TheVRefNum[wKeyboard]
+					= TheVRefNum[iWeights] = TheVRefNum[wInteraction]
+					= TheVRefNum[wGlossary] = TheVRefNum[iSettings]
+					= TheVRefNum[wAlphabet] = TheVRefNum[wTimeBase]
+					= TheVRefNum[wMIDIorchestra] = spec.vRefNum;
+				WindowParID[wCsoundInstruments] = WindowParID[iObjects] = WindowParID[wKeyboard]
+					= WindowParID[iWeights] = WindowParID[wInteraction]
+					= WindowParID[wGlossary] = WindowParID[iSettings]
+					= WindowParID[wAlphabet] = WindowParID[wTimeBase]
+					= WindowParID[wMIDIorchestra] = spec.parID;
+				if(loaded[iSettings]) TellOthersMyName(iSettings);
+				else if(GetSeName(wGrammar) == OK) LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms);
+				GetTimeBaseName(wGrammar);
+				GetCsName(wGrammar);
+				GetFileNameAndLoadIt(wMIDIorchestra,wind,LoadMIDIorchestra);
+				LoadAlphabet(wGrammar,&spec);
+				}
+			if(wind == wData) {
+				TheVRefNum[iObjects] = TheVRefNum[wKeyboard]
+					= TheVRefNum[wInteraction] = TheVRefNum[wGlossary]
+					= TheVRefNum[iSettings] = TheVRefNum[wAlphabet]
+					= TheVRefNum[wTimeBase] = TheVRefNum[wCsoundInstruments]
+					= TheVRefNum[wMIDIorchestra] = spec.vRefNum;
+				WindowParID[iObjects] = WindowParID[wKeyboard]
+					= WindowParID[wInteraction] = WindowParID[wGlossary]
+					= WindowParID[iSettings] = WindowParID[wAlphabet]
+					= WindowParID[wTimeBase] = WindowParID[wCsoundInstruments]
+					= WindowParID[wMIDIorchestra] = spec.parID;
+				if(loaded[iSettings]) TellOthersMyName(iSettings);
+				else if(GetSeName(wData) == OK) LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms);
+				GetTimeBaseName(wData);
+				GetCsName(wData);
+				GetFileNameAndLoadIt(wMIDIorchestra,wind,LoadMIDIorchestra);
+				LoadAlphabet(wData,&spec);
+				}
+			BPActivateWindow(SLOW,wind);
+			if(print) mPrint(wind);
+			}
+		else {
+			TellError(39,io);
+			sprintf(Message,"BP2 was unable to open ‘%s’… [Error code %ld]\r",
+				name,(long)io);
+			Println(wTrace,Message);
+			failedonce = TRUE;
+			FileName[wind][0] = '\0';
+			}
+		Dirty[wind] = FALSE;
 		}
-	sprintf(Message,"Dragging ‘%s’ to BP2 had no effect…\r",name);
-	ShowMessage(TRUE,wMessage,Message);
-	// failedonce = TRUE;
+	else {
+		sprintf(Message,"Dragging ‘%s’ to BP2 had no effect…\r",name);
+		ShowMessage(TRUE,wMessage,Message);
+		// failedonce = TRUE;
+		}
 NEWINDEX:
 	index++;
 	}

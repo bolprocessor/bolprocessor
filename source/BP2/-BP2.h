@@ -579,6 +579,7 @@ Hey: this code is not portable!!!
 #define GreetingsPictID 129
 
 // Window indexes
+#define wUnknown -1
 #define wGrammar 0
 #define wAlphabet 1
 #define wStartString 2
@@ -627,8 +628,34 @@ Hey: this code is not portable!!!
 // Additional indexes used in file types (see gFileType[] in BP2main.h)
 #define iObjects 26
 #define iWeights 14
+#define iDecisions 15	// added but not really in use, yet - akozar 031407
 #define iMIDIfile 24
 #define iSettings 25
+
+// BP File type indexes (these are the values stored in gFileType)
+typedef enum {
+	ftiAny = 0,
+	ftiText = 1,
+	ftiKeyboard = 2,
+	ftiObjects = 3,
+	ftiDecisions = 4,
+	ftiGrammar = 5,
+	ftiAlphabet = 6,
+	ftiData = 7,
+	ftiInteraction = 8,
+	ftiSettings = 9,
+	ftiAIFC = 10,
+	ftiMidi = 11,
+	ftiWeights = 12,
+	ftiScript = 13,
+	ftiGlossary = 14,
+	ftiTimeBase = 15,
+	ftiCsoundInstruments = 16,
+	ftiMIDIorchestra = 17,
+	ftiHTML = 18
+} FileTypeIndex;
+
+#define MAXFILETYPEINDEX	19
 
 // Menu indexes
 #define appleM			0

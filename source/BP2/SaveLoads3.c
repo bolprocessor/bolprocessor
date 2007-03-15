@@ -46,6 +46,7 @@
 #endif
 
 #include "-BP2decl.h"
+#include <string.h>
 
 
 SaveAs(Str255 fn,FSSpec *p_spec,int w)
@@ -542,6 +543,140 @@ OldFile(int w,int type,Str255 fn,FSSpec *p_spec)
 		return(YES);
 	}
 	else return(NO);
+}
+
+FileTypeIndex MapFileTypeCodeToFileTypeIndex(OSType type)
+{
+	switch(type) {
+		case 'AIFC':	return ftiAIFC; break;
+		case 'AIFF':	return ftiAIFC; break;
+		case 'BP02':	return ftiKeyboard; break;
+		case 'BP03':	return ftiObjects; break;
+		case 'BP04':	return ftiDecisions; break;
+		case 'BP05':	return ftiGrammar; break;
+		case 'BP06':	return ftiAlphabet; break;
+		case 'BP07':	return ftiData; break;
+		case 'BP08':	return ftiInteraction; break;
+		case 'BP09':	return ftiSettings; break;
+		case 'BP10':	return ftiWeights; break;
+		case 'BP11':	return ftiScript; break;
+		case 'BP12':	return ftiGlossary; break;
+		case 'BP13':	return ftiTimeBase; break;
+		case 'BP14':	return ftiCsoundInstruments; break;
+		case 'BP15':	return ftiMIDIorchestra; break;
+		case 'Midi':	return ftiMidi; break;
+		case 'TEXT':	return ftiText; break; // this is correct; do not change to ftiData
+		default:		return ftiAny; break;
+		}
+	
+	return ftiAny;
+}
+
+// FIXME: name should be const, but Match needs to take const char * instead of char**
+int FindMatchingFileNamePrefix(/*const*/ char* name)
+{
+	int	w;
+	char* pre;
+	
+	for (w = 0; w < WMAX; w++) {
+		if (FilePrefix[w][0] == '\0') continue;
+		// prefixes are case sensitive
+		pre = FilePrefix[w];
+		if (Match(TRUE, &name, &pre, 4)) return w;
+	}
+	
+	return wUnknown;
+}
+
+// FIXME: name should be const, but Match needs to take const char * instead of char**
+int FindMatchingFileNameExtension(/*const*/ char* name)
+{
+	int	w;
+	char  *nameExt, *ext;
+	
+	// find the last '.' in name, if any
+	nameExt = strrchr(name, '.');
+	if (nameExt == NULL)  return wUnknown;
+	
+	for (w = 0; w < WMAX; w++) {
+		if (FileExtension[w][0] == '\0') continue;
+		// extensions are case insensitive
+		ext = FileExtension[w];
+		if (Match(FALSE, &nameExt, &ext, strlen(ext))) return w;
+	}
+	
+	return wUnknown;
+}
+
+// FIXME: name and ext should be const, but Match needs to take const char * instead of char**
+Boolean MatchFileNameExtension(/*const*/ char* name, /*const*/ char* ext)
+{
+	int	w;
+	char* nameExt;
+	
+	// find the last '.' in name, if any
+	nameExt = strrchr(name, '.');
+	if (nameExt == NULL)  return FALSE;
+	
+	// extensions are case insensitive
+	return Match(FALSE, &nameExt, &ext, strlen(ext));
+}
+
+/* Attempts to determine if a file is a BP2 document, and if so, what type
+   of BP2 document.  Uses all available information starting with filetype and
+   creator codes; then examines filename prefix if any, then filename extension.
+   Finally, it (will eventually) examine the contents of the file looking for 
+   the header comments that BP2 usually writes to documents.
+   Returns the index within the gFileType array that corresponds to the document
+   type (usually the same as its window index) or it returns wUnknown (-1). */ 
+int IdentifyBPFileType(FSSpec* spec)
+{
+	OSErr err;
+	OSType thetype,thecreator;
+	FileTypeIndex typeindex;
+	int	wfindex;			// window/file index (result)
+	FInfo fndrinfo;
+	char name[64];			// FSSpec.name is a Str63
+	
+	// try to use Finder filetype code first
+	err = FSpGetFInfo(spec,&fndrinfo);
+	if (err == noErr) {
+		thetype    = fndrinfo.fdType;
+		thecreator = fndrinfo.fdCreator;
+	}
+	else  thetype = thecreator = '????';
+	
+	typeindex = MapFileTypeCodeToFileTypeIndex(thetype);
+	wfindex = FileTypeIndexToWindowFileIndex[typeindex];
+	// If wfindex is not wUnknown, then we have a positive match.
+	// Note that 'TEXT' files are "unknown" at this point.
+	if (wfindex != wUnknown)  return wfindex;
+	
+	// next try the filename's prefix, if any
+	p2cstrcpy(name, spec->name);	// MyPtoCstr() converts whitespace characters
+	wfindex = FindMatchingFileNamePrefix(name);
+	if (wfindex != wUnknown)  return wfindex;
+	
+	// next try the filename's extension, if any
+	wfindex = FindMatchingFileNameExtension(name);
+	if (wfindex != wUnknown)  return wfindex;
+	
+	// also try the other extensions that we recognize
+	if (MatchFileNameExtension(name, ".mid") ||
+	    MatchFileNameExtension(name, ".midi"))
+		return iMIDIfile;
+	if (MatchFileNameExtension(name, ".trace"))  return wTrace;
+	if (MatchFileNameExtension(name, ".txt") ||
+	    MatchFileNameExtension(name, ".sco") ||
+	    MatchFileNameExtension(name, ".htm") ||
+	    MatchFileNameExtension(name, ".html"))
+		return wScrap;
+	
+	// here, we should examine the file contents
+	// for now, if it is a text file, we assume that it is a BP2 Data file
+	if (thetype == 'TEXT')  return wData;
+	
+	return wUnknown;
 }
 
 int PromptForFileFormat(int w, char* filename, int* type)

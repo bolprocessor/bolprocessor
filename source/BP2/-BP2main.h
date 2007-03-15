@@ -345,6 +345,11 @@ int SlideH[WMAX],SlideV[WMAX],Hmin[WMAX],Hmax[WMAX],Hzero[WMAX],
 short IsHTML[WMAX],IsText[WMAX],Weird[WMAX];
 char **p_FileInfo[WMAX];
 
+// FileTypeIndexToWindowFileIndex does the reverse of gFileType below
+int	FileTypeIndexToWindowFileIndex[MAXFILETYPEINDEX] = {wUnknown, wUnknown, wKeyboard, iObjects, 
+		iDecisions, wGrammar, wAlphabet, wData, wInteraction, iSettings, wUnknown, iMIDIfile, 
+		iWeights, wScript, wGlossary, wTimeBase, wCsoundInstruments, wMIDIorchestra, wUnknown};
+		
 // In this section every array should contain WMAX values
 
 int WindowTextSize[] = {10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,
@@ -361,7 +366,9 @@ short Editable[] =	{1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 short HasFields[] =  	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,1,0,0,1,1,1,1,1,1,0,0,1,1,1,0,1}; // Note: HasFields[n] true also assumes IsDialog[n] true
 short IsDialog[] =  	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
+	// gFileType maps window/file index to a FileTypeIndex
 short gFileType[] =   {5,6,1,1,1,1,1,7,13,0,1,1,14,8,1,1,15,1,1,1,1,2,15,15,11,9,3,1,1,1,1,1,1,1,1,16,1,1,17};
+	// FilePrefix and FileExtension map window/file index to their appropriate strings
 char FilePrefix[][5] = {"-gr.","-ho.","\0","\0","\0","-tr.","\0","-da.",
 	"+sc.","\0","\0","\0","-gl.","-in.","-wg.","\0","-tb.","\0","\0","\0","\0","-kb.",
 	"\0","\0","\0","-se.","-mi.","\0","\0","\0","\0","\0","\0","\0","\0","-cs.","\0","\0","-or."};

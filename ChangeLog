@@ -1,3 +1,24 @@
+2007-03-14	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2.h:
+		Added wUnknown & iDecisions to window/file indices.
+		Added FileTypeIndex enumeration that corresponds to constants being
+			used elsewhere.
+	
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+		Array to map from FileTypeIndex to window/file indices.
+	
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/SaveLoads3.c:
+		New function IdentifyBPFileType() and friends that determine BP2
+			document type by examining filetype/creator, prefix, and filename
+			extension.
+
+	* source/BP2/AppleEvents.c (MyHandleODOC):
+		Use IdentifyBPFileType() instead of only checking filename prefix
+			to determine how to open files via AEs.
+
 2007-03-13	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/CoreMIDIdriver.c:
@@ -30,7 +51,6 @@
 	
 	* BP2 help:  Updated Types-Creators section with file extension info.
 	
-		
 2007-03-09	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/-BP2.proto.h:
