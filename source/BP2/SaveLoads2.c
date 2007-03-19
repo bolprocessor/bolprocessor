@@ -62,7 +62,7 @@ if(ReadFile(wGrammar,refnum) == OK) {
 	= WindowParID[wInteraction] = WindowParID[wGlossary] = WindowParID[iSettings]
 	= WindowParID[wAlphabet] = WindowParID[wTimeBase]
 	= WindowParID[wCsoundInstruments] = WindowParID[wMIDIorchestra] = p_spec->parID;
-	MyPtoCstr(MAXNAME,p_spec->name,FileName[wGrammar]);
+	p2cstrcpy(FileName[wGrammar],p_spec->name);
 	SetName(wGrammar,TRUE,TRUE); /* suppressed 26/2/99 */
 	CompiledPt = Dirty[wGrammar] = FALSE;
 	FSClose(refnum);
@@ -388,7 +388,7 @@ FIND:
 	type = gFileType[iObjects]; if(r == YES) type = 0;
 	if(!OldFile(iObjects,type,PascalLine,&spec)) return(ABORT);
 	if(FileName[iObjects][0] == '\0') {
-		MyPtoCstr(MAXNAME,PascalLine,FileName[iObjects]);
+		p2cstrcpy(FileName[iObjects],PascalLine);
 		TellOthersMyName(iObjects);
 		}
 	c2pstrcpy(filename,FileName[iObjects]);
@@ -398,7 +398,7 @@ FIND:
 			case NO:
 				goto FIND;
 			case YES:
-				MyPtoCstr(MAXNAME,PascalLine,FileName[iObjects]);
+				p2cstrcpy(FileName[iObjects],PascalLine);
 				TellOthersMyName(iObjects);
 				break;
 			case ABORT:
@@ -406,7 +406,7 @@ FIND:
 				return(ABORT);
 			}
 		}
-	c2pstrcpy(spec.name, FileName[iObjects]);
+	// c2pstrcpy(spec.name, FileName[iObjects]);
 	if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) return(ABORT);
 	}
 TheVRefNum[wCsoundInstruments] = TheVRefNum[iObjects] = spec.vRefNum;
@@ -997,7 +997,7 @@ LoadAlphabet(int w,FSSpec *p_spec)
 short refnum;
 FSSpec spec;
 int io,rep,result;
-char line2[MAXNAME+1];
+char line2[64];
 
 
 if(w == -1 && GetAlphaName(wData) != OK && GetAlphaName(wGrammar) != OK)
@@ -1024,7 +1024,7 @@ FIND:
 		ForgetFileName(wAlphabet);
 		return(FAILED);
 		}
-	MyPtoCstr(MAXNAME,PascalLine,line2);
+	p2cstrcpy(line2,PascalLine);
 	if(strcmp(LineBuff,line2) != 0) {
 		rep = Answer("Changing alphabet file",'Y');
 		switch(rep) {
@@ -1032,8 +1032,7 @@ FIND:
 				goto FIND;
 				break;
 			case YES:
-				MyPtoCstr(MAXNAME,PascalLine,FileName[wAlphabet]);
-				MyPtoCstr(MAXNAME,PascalLine,line2);
+				p2cstrcpy(FileName[wAlphabet],PascalLine);
 				TellOthersMyName(wAlphabet);
 				Dirty[wGrammar] = Dirty[wData] = TRUE;
 				break;
@@ -1052,7 +1051,7 @@ FIND:
 	}
 HideWindow(Window[wMessage]); LoadOn++;								
 if(ReadFile(wAlphabet,refnum) == OK) {
-	MyPtoCstr(MAXNAME,spec.name,FileName[wAlphabet]);
+	p2cstrcpy(FileName[wAlphabet],spec.name);
 	SetName(wAlphabet,TRUE,TRUE);
 	TheVRefNum[wKeyboard] = TheVRefNum[iObjects] = TheVRefNum[wAlphabet]
 		= TheVRefNum[wCsoundInstruments] = spec.vRefNum;

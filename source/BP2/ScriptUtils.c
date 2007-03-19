@@ -136,7 +136,7 @@ GOTIT:
 				return(OK);
 				}
 			if(LoadGrammar(&spec,refnum) != OK) return(ABORT);
-			MyPtoCstr(MAXNAME,spec.name,FileName[wGrammar]);
+			p2cstrcpy(FileName[wGrammar],spec.name);
 			SetName(wGrammar,TRUE,TRUE);
 			if(LoadAlphabet(wGrammar,&spec) != OK) return(ABORT);
 			BPActivateWindow(SLOW,wScript);
@@ -563,6 +563,11 @@ GOTIT4:
 				return(LoadGlossary(FALSE,FALSE));
 				break;
 			}
+		if (strlen(line) > MAXNAME) {
+			sprintf(Message,"\rFilename ‘%s’ is too long. You should check the script.\r", line);
+			Print(wTrace,Message);
+			return(ABORT);
+		}
 		c2pstrcpy(fn, line);
 		c2pstrcpy(spec.name, line);
 		spec.vRefNum = TheVRefNum[w];
@@ -593,7 +598,7 @@ GOTIT5:
 			if(w == wGrammar) {
 				r = LoadGrammar(&spec,refnum);
 				if(r == OK) {
-					MyPtoCstr(MAXNAME,spec.name,FileName[wGrammar]);
+					p2cstrcpy(FileName[wGrammar],spec.name);
 					SetName(wGrammar,TRUE,TRUE);
 					r = LoadAlphabet(wGrammar,&spec);
 					}
@@ -605,7 +610,7 @@ GOTIT5:
 				FSClose(refnum);
 				return(ABORT);
 				}
-			MyPtoCstr(MAXNAME,fn,FileName[w]);
+			p2cstrcpy(FileName[w],fn);
 			SetName(w,TRUE,TRUE);
 			if(w == wGrammar || w == wAlphabet || w == wData) {
 				TheVRefNum[wGrammar] = TheVRefNum[wInteraction] = TheVRefNum[wGlossary]

@@ -737,7 +737,7 @@ if(NewFile(-1,1,PascalLine,*CsFileReply)) {
 	rep = CreateFile(-1,-1,1,PascalLine,*CsFileReply,&refnum);
 	if(rep == OK) {
 		CsRefNum = refnum;
-		MyPtoCstr(MAXNAME,PascalLine,CsFileName);
+		p2cstrcpy(CsFileName,PascalLine);
 		if(FixCsoundScoreName(CsFileName) == FAILED) {
 			spec = (*CsFileReply)->sfFile;
 			c2pstrcpy(PascalLine, CsFileName);

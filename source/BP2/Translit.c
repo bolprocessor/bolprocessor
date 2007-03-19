@@ -55,7 +55,7 @@ char apref,bpref,ord,rnd,lin,sub,sub1,poslong,lr,lrrl,rl,appendtoalphabet,quotes
 	leftis,leftisascii,leftistext,leftisnum,rightis,rightisascii,rightistext,rightisnum,
 	removespacesleft,removespacesright;
 long p,q,pos;
-char line[MAXFIELDCONTENT],filename[MAXNAME];
+char line[MAXFIELDCONTENT],filename[64];
 Rect r;
 Handle itemhandle;
 short item,itemtype,refnum;
@@ -82,8 +82,8 @@ if(ClearWindow(NO,wScrap) != OK) return(ABORT);
 ShowMessage(TRUE,wMessage,"Open table in tabulated text format...");
 
 if(OldFile(-1,1,fn,&spec)) {
+	p2cstrcpy(filename,fn);
 	if((io=MyOpen(&spec,fsRdPerm,&refnum)) != noErr) {
-		MyPtoCstr(MAXNAME,fn,filename);
 		sprintf(Message,"Error opening %s",filename);
 		ShowMessage(TRUE,wMessage,Message);
 		TellError(100,io);
@@ -92,7 +92,6 @@ if(OldFile(-1,1,fn,&spec)) {
 		}
 	}
 else return(FAILED);
-MyPtoCstr(MAXNAME,fn,filename);
 ClearMessage();
 
 SelectBehind(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
@@ -803,7 +802,7 @@ ShowMessage(TRUE,wMessage,"Open text file or table in tabulated text format...")
 
 result = OldFile(-1,1,fn,&spec);
 if(result == OK) {
-	MyPtoCstr(MAXNAME,fn,filename);
+	p2cstrcpy(filename,fn);
 	if((io=MyOpen(&spec,fsRdPerm,&refnum)) != noErr) {
 		sprintf(Message,"Error opening %s",filename);
 		ShowMessage(TRUE,wMessage,Message);

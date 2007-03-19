@@ -89,7 +89,7 @@ if(OldFile(-1,12,PascalLine,&spec)) {
 				}
 			}
 		AdjustWeights();
-		MyPtoCstr(MAXNAME,PascalLine,FileName[iWeights]);
+		p2cstrcpy(FileName[iWeights],PascalLine);
 		goto NOERR;
 ERR:
 		Alert1("Can't read weight file…");
@@ -160,7 +160,7 @@ if(NewFile(-1,12,fn,&reply)) {
 		FSClose(refnum);
 		reply.saveCompleted = true;
 		err = NSWCleanupReply(&reply);
-		MyPtoCstr(MAXNAME,fn,FileName[iWeights]);
+		p2cstrcpy(FileName[iWeights],fn);
 		return(OK);
 		}
 	else {
@@ -287,7 +287,7 @@ WRITE:
 		FlushFile(refnum);
 		MyFSClose(wKeyboard,refnum,p_spec);
 		reply.saveCompleted = true;
-		MyPtoCstr(MAXNAME,p_spec->name,FileName[wKeyboard]);
+		p2cstrcpy(FileName[wKeyboard],p_spec->name);
 		TheVRefNum[wKeyboard] = p_spec->vRefNum;
 		WindowParID[wKeyboard] = p_spec->parID;
 		SetName(wKeyboard,TRUE,TRUE);
@@ -451,7 +451,7 @@ WRITE:
 		FlushFile(refnum);
 		MyFSClose(wTimeBase,refnum,p_spec);
 		reply.saveCompleted = true;
-		MyPtoCstr(MAXNAME,p_spec->name,FileName[wTimeBase]);
+		p2cstrcpy(FileName[wTimeBase],p_spec->name);
 		TheVRefNum[wTimeBase] = p_spec->vRefNum;
 		WindowParID[wTimeBase] = p_spec->parID;
 		SetName(wTimeBase,TRUE,TRUE);
@@ -960,7 +960,7 @@ WRITE:
 		FlushFile(refnum);
 		MyFSClose(wCsoundInstruments,refnum,p_spec);
 		reply.saveCompleted = true;
-		MyPtoCstr(MAXNAME,p_spec->name,FileName[wCsoundInstruments]);
+		p2cstrcpy(FileName[wCsoundInstruments],p_spec->name);
 		TheVRefNum[wCsoundInstruments] = p_spec->vRefNum;
 		WindowParID[wCsoundInstruments] = p_spec->parID;
 		SetName(wCsoundInstruments,TRUE,TRUE);
@@ -988,7 +988,7 @@ short refnum;
 int i,io,imax,j,rep,w,good,ishtml,result;
 NSWReply reply;
 long count,a,b;
-char line[MAXNAME+1];
+char line[64];
 GrafPtr saveport;
 Rect r;
 Point p,q;
@@ -1003,7 +1003,7 @@ if(fn[0] == 0) c2pstrcpy(fn, line);
 CopyPString(fn,p_spec->name);
 good = NO;
 if(now) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noErr);
-MyPtoCstr(MAXNAME,p_spec->name,line);
+p2cstrcpy(line,p_spec->name);
 if(good) goto WRITE;
 reply.sfFile.vRefNum = TheVRefNum[iSettings];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[iSettings];
@@ -1016,7 +1016,7 @@ if(NewFile(iSettings,gFileType[iSettings],fn,&reply)) {
 		err = NSWCleanupReply(&reply);
 		return(FAILED);
 		}
-	MyPtoCstr(MAXNAME,fn,line);
+	p2cstrcpy(line,fn);
 	if(io == OK) {
 WRITE:
 		SaveOn++;
@@ -1185,7 +1185,7 @@ LASTPART:
 		Dirty[iSettings] = FALSE;
 		if(!startup) {
 			Created[iSettings] = TRUE;
-			MyPtoCstr(MAXNAME,fn,FileName[iSettings]);
+			p2cstrcpy(FileName[iSettings],fn);
 			SetName(iSettings,TRUE,TRUE);
 			TheVRefNum[iSettings] = p_spec->vRefNum;
 			WindowParID[iSettings] = p_spec->parID;
@@ -1833,7 +1833,7 @@ char **p_line,**p_completeline;
 ShowMessage(TRUE,wMessage,"Locate decision file…");
 p_line = p_completeline = NULL;
 if(OldFile(-1,4,PascalLine,&spec)) {
-	MyPtoCstr(255,PascalLine,LineBuff);
+	p2cstrcpy(LineBuff,PascalLine);
 	if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
 		pos = ZERO;
 		CompleteDecisions = FALSE;
@@ -1876,7 +1876,7 @@ if(OldFile(-1,4,PascalLine,&spec)) {
 			}
 		if(loadgrammar) {
 			if((r=LoadGrammar(&spec,refnum)) != OK) goto ERR;
-			MyPtoCstr(MAXNAME,spec.name,FileName[wGrammar]);
+			p2cstrcpy(FileName[wGrammar],spec.name);
 			SetName(wGrammar,TRUE,TRUE);
 			if((r=LoadAlphabet(wGrammar,&spec)) != OK) goto ERR;
 			if(CompileGrammar(TRUE) != OK) goto ERR;
@@ -2219,7 +2219,7 @@ WRITE:
 		FlushFile(refnum);
 		MyFSClose(wMIDIorchestra,refnum,&(reply.sfFile));
 		reply.saveCompleted = true;
-		MyPtoCstr(MAXNAME,reply.sfFile.name,FileName[wMIDIorchestra]);
+		p2cstrcpy(FileName[wMIDIorchestra],reply.sfFile.name);
 		TheVRefNum[wMIDIorchestra] = reply.sfFile.vRefNum;
 		WindowParID[wMIDIorchestra] = reply.sfFile.parID;
 		SetName(wMIDIorchestra,TRUE,TRUE);
@@ -2280,7 +2280,7 @@ ShowMessage(TRUE,wMessage,"Locate MIDI orchestra file…");
 type = gFileType[wMIDIorchestra];
 if(Option && Answer("Import any type of file",'Y') == OK) type = 0;
 if(OldFile(-1,type,PascalLine,&spec)) {
-	MyPtoCstr(255,PascalLine,FileName[wMIDIorchestra]);
+	p2cstrcpy(FileName[wMIDIorchestra],PascalLine);
 	if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
 	
 READIT:

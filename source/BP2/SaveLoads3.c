@@ -112,7 +112,7 @@ SaveFile(Str255 fn,FSSpec *p_spec,int w)
 short refnum;
 int good,n;
 long count,k;
-char line[MAXLIN];
+// char line[MAXLIN];
 OSErr io;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
@@ -120,8 +120,10 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 	return(FAILED);
 	}
 SetCursor(&WatchCursor);
-MyPtoCstr(MAXNAME,fn,line);	/* limit the length of filename */
-c2pstrcpy(p_spec->name, line);
+// spec should already be filled-in; fn (which should == spec.name) should therefore
+// already be limited to length MAXNAME!  - akozar, 031907
+// MyPtoCstr(MAXNAME,fn,line);	/* limit the length of filename */
+// c2pstrcpy(p_spec->name, line);
 good = ((io=MyOpen(p_spec,fsCurPerm,&refnum)) == noErr);
 if(good) {
 	UpdateWindow(FALSE,Window[w]);
@@ -142,7 +144,7 @@ if(good) {
 			StopWait();
 			if(Answer("Also save alphabet",'Y') == YES) {
 				c2pstrcpy(p_spec->name, FileName[wAlphabet]);
-				if(MyOpen(p_spec,fsCurPerm,&refnum) == noErr) {
+				if(MyOpen(p_spec,fsCurPerm,&refnum) == noErr) {	// FIXME: alphabet may not be in same folder as grammar!
 					UpdateWindow(FALSE,Window[wAlphabet]);
 					WriteHeader(wAlphabet,refnum,*p_spec);
 					WriteFile(TRUE,MAC,refnum,wAlphabet,GetTextLength(wAlphabet));
@@ -743,7 +745,7 @@ if (!p_reply->usedNavServices) {
 	   user chose "Save As", then they may want to choose a new format.
 	   -- 020607 akozar */
 	/* if(w >= 0) {
-		MyPtoCstr(MAXNAME,spec.name,name);
+		p2cstrcpy(name,spec.name);
 		if(strcmp(name,FileName[w]) != 0) askformat = TRUE;
 		else if(IsText[w]) type = 1;
 		} */
@@ -768,7 +770,6 @@ if(io == dupFNErr) {
 	/* This is important: if we are replacing a file with the same name, */
 	/* we must first change its type and creator to the same ones as the new file */
 	/* otherwise the Finder may crash... */
-	MyPtoCstr(MAXNAME,fn,LineBuff);
 	FSpGetFInfo(&spec,&fndrinfo);
 	fndrinfo.fdType = thetype;
 	fndrinfo.fdCreator = thecreator;
@@ -1470,7 +1471,7 @@ CheckFileName(int w,char *line,FSSpec *p_spec,short *p_refnum,int type,int openr
 // The file couldn't be opened.  Try to find its actual name and location
 // If openreally is false it means we're just checking, not opening
 {
-char line2[MAXNAME+1],line3[MAXLIN];
+char line2[64],line3[MAXLIN];
 int rep,io;
 Str255 fn;
 
@@ -1498,7 +1499,7 @@ if(!OldFile(w,type,fn,p_spec)) {
 	HideWindow(Window[wMessage]);
 	return(FAILED);
 	}
-MyPtoCstr(MAXNAME,fn,line2);
+p2cstrcpy(line2,fn);
 if(FilePrefix[w][0] != '\0' && strstr(line2,FilePrefix[w]) != line2) {
 	sprintf(Message,"Ô%sÕ is not the right type of file. Prefix must be Ô%sÕ",
 		line2,FilePrefix[w]);
@@ -1733,7 +1734,7 @@ return(FAILED);
 
 WriteHeader(int w,short refnum,FSSpec spec)
 {
-char line[MAXLIN],name[MAXNAME+1],**p_line;
+char line[MAXLIN],name[64],**p_line;
 long count;
 
 if(w >= WMAX || (w >= 0 && !Editable[w] && !HasFields[w] && w != iSettings)) {

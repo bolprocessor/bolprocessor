@@ -1256,7 +1256,7 @@ result = FAILED;
 if(OldFile(w,type,fn,&spec)) {
 	if(gFileType[w] != ftiAny && gFileType[w] != ftiText && IdentifyBPFileType(&spec) != w) {
 		//anyfile = TRUE;
-		MyPtoCstr(MAXNAME,fn,LineBuff);
+		p2cstrcpy(LineBuff,fn);
 		sprintf(Message,"BP2 is not sure that ‘%s’ is a %s file. Do you want to load it anyway", LineBuff, 
 			DocumentTypeName[w]);
 		r = Answer(Message,'N');
@@ -1495,7 +1495,7 @@ c2pstrcpy(fn, FileName[w1]);
 if(!Created[w1] || Weird[w1]) {
 	if(!Editable[w1]) return(mSaveAs(w1));
 	if((rep=SaveAs(fn,&spec,w1)) == OK) {
-		MyPtoCstr(MAXNAME,spec.name,FileName[w1]);
+		p2cstrcpy(FileName[w1],spec.name);
 		TheVRefNum[w1] = spec.vRefNum;
 		WindowParID[w1] = spec.parID;
 		SetName(w1,TRUE,TRUE);
@@ -1503,9 +1503,9 @@ if(!Created[w1] || Weird[w1]) {
 		}
 	}
 else {
-	spec.vRefNum = TheVRefNum[w1];
-	spec.parID = WindowParID[w1];
-	c2pstrcpy(spec.name, FileName[w1]);
+	// spec.vRefNum = TheVRefNum[w1];
+	// spec.parID = WindowParID[w1];
+	// c2pstrcpy(spec.name, FileName[w1]);
 	sprintf(Message,"Saving ‘%s’…",FileName[w1]);
 	ShowMessage(TRUE,wMessage,Message);
 	switch(w1) {
@@ -1568,7 +1568,7 @@ switch(w) {
 	}
 if(!Editable[w]) return(FAILED);
 if(SaveAs(fn,&spec,w) == OK) {
-	MyPtoCstr(MAXNAME,spec.name,FileName[w]);
+	p2cstrcpy(FileName[w],spec.name);
 	TheVRefNum[w] = spec.vRefNum;
 	WindowParID[w] = spec.parID;
 	SetName(w,TRUE,TRUE);

@@ -1,3 +1,29 @@
+2007-03-19	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/Csound.c (FixCsoundScoreName):
+		Csound doesn't care if score filename ends with ".sco".
+	
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+		FileName[], CsFileName, MIDIfileName, & CsoundOrchestraName strings 
+			should be MAXNAME+1 in length instead of MAXNAME.
+	
+	* source/BP2/CsoundScoreMake.c:
+	* source/BP2/MenuCommands.c:
+	* source/BP2/MIDIfiles.c:
+	* source/BP2/SaveLoads1.c:
+	* source/BP2/SaveLoads2.c:
+	* source/BP2/SaveLoads3.c:
+	* source/BP2/ScriptUtils.c:
+	* source/BP2/Translit.c:
+		Changed all instances of MyPtoCstr() that were copying a filename to
+			p2cstrcpy() instead because the former changes some whitespace
+			characters.  (Checked that this would not cause buffer overflows).
+	
+	* source/BP2/ScriptUtils.c:
+		Prevented a buffer overflow in script command "Open file" when the
+			filename was too long.
+
 2007-03-16	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/SaveLoads1.c:

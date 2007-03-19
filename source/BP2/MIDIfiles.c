@@ -111,7 +111,7 @@ if(NewFile(-1,11,filename,*MIDIfileReply)) {	/* This opens a save-file dialog */
 		MIDIfileOpened = MIDIfileTrackEmpty = TRUE;
 		MIDIfileSpec = (*MIDIfileReply)->sfFile;
 		/* Below is some interface and scripting business */
-		MyPtoCstr(MAXNAME,filename,MIDIfileName);
+		p2cstrcpy(MIDIfileName,filename);
 		SetField(FileSavePreferencesPtr,-1,fMIDIFileName,MIDIfileName);
 		sprintf(Message,"\"%s\"",MIDIfileName);
 		MystrcpyStringToTable(ScriptLine.arg,0,Message);
@@ -680,7 +680,7 @@ if((p_buffer=(unsigned char**) GiveSpace((Size)(buffersize * sizeof(unsigned cha
 	== NULL) return(ABORT);
 
 if(OldFile(-1,type,fn,&spec)) {
-	MyPtoCstr(MAXNAME,fn,LineBuff);
+	p2cstrcpy(LineBuff,fn);
 	if((io=MyOpen(&spec,fsRdPerm,&refnum)) == noErr) {
 		sprintf(Message,"Loading MIDI file…");
 		ShowMessage(TRUE,wMessage,Message);
