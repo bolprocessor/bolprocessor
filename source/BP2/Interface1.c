@@ -571,6 +571,9 @@ DOTHECLICK:
 #if EXPERIMENTAL		/* moved this test from above for experimental build */
 				if(whichwindow != FrontWindow()) {
 #endif
+#if 0
+					/* this is just so that CodeWarrior's balancing doesn't get too confused */ }
+#endif
 					if(w >= 0 && w < WMAX) BPActivateWindow(SLOW,w);
 					else {
 						SelectWindow(whichwindow);
@@ -1864,7 +1867,20 @@ if(w < 0 || w >= WMAX) {
 	if(Beta) Alert1("Err. PutFirstLine(). ");
 	return(OK);
 	}
-strcpy(line1,s); strcpy(line2,prefix);
+/* New scheme 031607:  if filename (s) does not begin with prefix,
+   then we add prefix + ":" to the beginning of the name, thus
+   ensuring that it can be identified later.  This is just for the
+   name that gets written into the top of the window; the actual 
+   filename remains unchanged.  -- akozar */
+if (strstr(s,prefix) == s) {
+	strcpy(line1,s); strcpy(line2,prefix);
+	}
+else {
+	strcpy(line2,prefix);
+	strcpy(line1,prefix);
+	strcat(line1,":");
+	strcat(line1,s);
+	}
 origin = (**(TEH[w])).selStart; end = (**(TEH[w])).selEnd;
 pos = ZERO;
 posmax = GetTextLength(w);
@@ -1888,7 +1904,7 @@ while(TRUE);
 NOTFOUND:
 pos = posinit = ZERO;
 SetSelect(pos,pos,TEH[w]);
-PrintBehindln(w,s);
+PrintBehindln(w,line1);
 SetSelect(origin+count1+1L,end+count1+1L,TEH[w]);
 if(wasempty) Dirty[w] = dirtymem;
 return(OK);
@@ -1896,7 +1912,7 @@ return(OK);
 FOUND:	/* but it was different name */
 SetSelect(posinit,(pos - 1L),TEH[w]);
 TextDelete(w);
-PrintBehind(w,s);
+PrintBehind(w,line1);
 if(origin >= posinit) origin += count1-pos+posinit+1L;
 if(end >= posinit) end += count1-pos+posinit+1L;
 SetSelect(origin,end,TEH[w]);

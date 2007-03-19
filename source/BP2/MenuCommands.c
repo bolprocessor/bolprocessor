@@ -873,14 +873,12 @@ ShowMessage(TRUE,wMessage,"Find grammar: -gr.<name>");
 
 TRYLOAD:
 if(OldFile(wGrammar,5,fn,&spec)) {
-	MyPtoCstr(MAXNAME,fn,LineBuff);
-	p = &LineBuff[0]; q = &(FilePrefix[wGrammar][0]);
-	if(!Match(TRUE,&p,&q,4)) {
-		sprintf(Message,"File name should start with ‘%s’. Load anyway",
-			FilePrefix[wGrammar]);
+	if(IdentifyBPFileType(&spec) != wGrammar) {
+		MyPtoCstr(MAXNAME,fn,LineBuff);
+		sprintf(Message,"BP2 is not sure that ‘%s’ is a grammar file. Do you want to load it anyway", LineBuff);
 		rep = Answer(Message,'N');
 		if(rep != YES) {
-			if(rep == NO) Alert1("Use the ‘Scrap’ window to load any file…");
+			if(rep == NO) ShowMessage(TRUE,wMessage,"Hint: You can use the ‘Scrap’ window to load any file…");
 			goto TRYLOAD;
 			}
 		}
@@ -1125,7 +1123,7 @@ return(r);
 
 mOpenFile(int w)
 {
-int anyfile,r,type,result,clear,oldoutmidi,oms,i,badname;
+int anyfile,r,type,result,clear,oldoutmidi,oms,i,badname,dindex;
 FSSpec spec;
 short refnum;
 char *p,*q;
@@ -1242,58 +1240,59 @@ if(Editable[w] && !IsEmpty(w) && w != wGrammar) {
 if(r == ABORT) return(FAILED);
 if(Editable[w] && IsEmpty(w)) clear = TRUE;
 anyfile = FALSE; r = OK;
-if(w == wTrace || (w != wData && w != wScrap
+if(w == wTrace || (/*w != wData &&*/ w != wScrap
 	&& Option && (r = Answer("Open any file type",'N')) == YES)) anyfile = TRUE;
 if(r == ABORT) return(FAILED);
 
 TRYLOAD:
 LastAction = NO;
-if(FilePrefix[w][0] != '\0' && w != wTrace) {
-	sprintf(Message,"Locate ‘%s’ file…",FilePrefix[w]);
+if(DocumentTypeName[w][0] != '\0' && w != wTrace) {
+	sprintf(Message,"Select a %s file…",DocumentTypeName[w]);
 	ShowMessage(TRUE,wMessage,Message);
 	}
 type = gFileType[w];
 if(anyfile) type = 0;
 result = FAILED;
 if(OldFile(w,type,fn,&spec)) {
-	MyPtoCstr(MAXNAME,fn,LineBuff);
-	if(FilePrefix[w][0] != '\0') {
-		p = LineBuff; q = &(FilePrefix[w][0]);
-		anyfile = TRUE;
-		if(w != wTrace && !Match(TRUE,&p,&q,4)) {
-			sprintf(Message,"File name should start with ‘%s’. Load anyway",
-				FilePrefix[w]);
-			r = Answer(Message,'N');
-			if(r != YES) {
-				if(r == NO) Alert1("Use the ‘Scrap’ window to load any file…");
-				return(ABORT);
-				}
-			for(i=0; i < WMAX; i++) {
-				p = LineBuff; q = &(FilePrefix[i][0]);
-				if(i != w && Match(TRUE,&p,&q,4)) {
-					badname = TRUE;
-					break;
-					}
-				}
+	if(gFileType[w] != ftiAny && gFileType[w] != ftiText && IdentifyBPFileType(&spec) != w) {
+		//anyfile = TRUE;
+		MyPtoCstr(MAXNAME,fn,LineBuff);
+		sprintf(Message,"BP2 is not sure that ‘%s’ is a %s file. Do you want to load it anyway", LineBuff, 
+			DocumentTypeName[w]);
+		r = Answer(Message,'N');
+		if(r != YES) {
+			if(r == NO) ShowMessage(TRUE,wMessage,"Hint: You can use the ‘Scrap’ window to load any file…");
+			return(ABORT);
 			}
+		// check if file has prefix or extension of a BP
+		// document type that we are NOT loading
+		dindex = FindMatchingFileNamePrefix(LineBuff);
+		if (dindex != w && dindex != wUnknown)  badname = TRUE;
+		dindex = FindMatchingFileNameExtension(LineBuff);
+		if (dindex != w && dindex != wUnknown)  badname = TRUE;
 		}
 	if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
 		if(clear) {
 			ClearWindow(FALSE,w);
 			ForgetFileName(w);
 			}
-		else if(Editable[w])
-					SetSelect(GetTextLength(w),GetTextLength(w),TEH[w]);
-		if(badname) {
+		else if(Editable[w]) SetSelect(GetTextLength(w),GetTextLength(w),TEH[w]);
+		/* Let's not change the filename on the user, but mark it as
+		   Weird below so that they are prompted to choose a name again 
+		   when saving.  Besides, this constructed name was getting 
+		   overwritten below if clear == TRUE.  -- akozar 031507 */
+		/* if(badname) {
+			p2cstrcpy(LineBuff,spec.name);
 			for(i=0; i < strlen(FilePrefix[w]); i++)
 				FileName[w][i] = FilePrefix[w][i];
 			for(i=strlen(FilePrefix[w]); i < strlen(LineBuff); i++)
 				FileName[w][i] = LineBuff[i];
 			}
-		else strcpy(FileName[w],LineBuff);
+		else */
+		p2cstrcpy(FileName[w],spec.name);
 		TheVRefNum[w] = spec.vRefNum;
 		WindowParID[w] = spec.parID;
-		if(anyfile) Weird[w] = TRUE;
+		if(anyfile || badname) Weird[w] = TRUE;
 		else Weird[w] = FALSE;
 		if(w == wKeyboard) {
 			r = LoadKeyboard(refnum);
@@ -1353,7 +1352,7 @@ if(OldFile(w,type,fn,&spec)) {
 				if(!WASTE) CCUTEToScrap();	// WHY?
 				if(w != wScrap) GetHeader(w);
 				if(clear) {
-					MyPtoCstr(MAXNAME,fn,FileName[w]);
+					/* p2cstrcpy(FileName[w],spec.name); */
 					SetName(w,TRUE,TRUE);
 					}
 				if(w == wGrammar || w == wAlphabet || w == wData) {
@@ -1415,7 +1414,10 @@ HideWindow(Window[wMessage]);
 if(Editable[w]) SetSelect(ZERO,ZERO,TEH[w]);
 if(result == OK) {
 	result = BPActivateWindow(SLOW,w);
-	if((w == wScript || w == wData || w == wGrammar) && !anyfile) Created[w] = TRUE;
+	/*if((w == wScript || w == wData || w == wGrammar) && !anyfile)*/
+	// These windows do not change their name, so always prompt to save - akozar
+	if (w != wTrace && w != wScrap && w != wNotice && w != wHelp && w != wStartString)
+		Created[w] = TRUE;
 	}
 return(result);
 }

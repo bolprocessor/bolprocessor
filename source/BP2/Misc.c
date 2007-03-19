@@ -800,259 +800,168 @@ return(OK);
 }
 
 
-GetAlphaName(int w)
+/* Retrieve the name of a linked file of type doc from window w.
+   doc is the "document index" of the name that is being looked for.
+   filename should be storage with at least MAXNAME space. */
+GetLinkedFileName(int w, int doc, char* filename)
 {
 long pos,posmax;
-char *p,*q,**p_line;
-int i,r;
+char *p,*q,line[MAXLIN];
 
-pos = ZERO;
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. GetAlphaName()");
+if (filename == NULL) {
+	if(Beta) Alert1("Err. GetLinkedFileName(). filename == NULL.");
 	return(FAILED);
 	}
+if(w < 0 || w >= WMAX || !Editable[w]) {
+	if(Beta) Alert1("Err. GetLinkedFileName(). Bad window index.");
+	return(FAILED);
+	}
+if(doc < 0 || doc >= WMAX || FilePrefix[doc][0] == '\0') {
+	if(Beta) Alert1("Err. GetLinkedFileName(). Bad document index.");
+	return(FAILED);
+	}
+pos = ZERO;
 posmax = GetTextLength(w);
-p_line = NULL; r = FAILED;
 do {
-	if(ReadLine(YES,w,&pos,posmax,&p_line,&i) != OK) goto OUT;
-	if((*p_line)[0] == '\0') continue;
-	if((*p_line)[0] == '-' && (*p_line)[1] == '-') goto OUT;
-	p = &((*p_line)[0]); q = &(FilePrefix[wAlphabet][0]);
-	if(Match(TRUE,p_line,&q,4) && (*p_line)[4] != '<' && (*p_line)[4] != '\334'
-			&& MyHandleLen(p_line) <= MAXNAME) {
-		MystrcpyHandleToString(MAXNAME,0,FileName[wAlphabet],p_line);
-		NoAlphabet = FALSE;
-		r = OK; goto OUT;
+	if(ReadLine1(FALSE,w,&pos,posmax,line,MAXLIN) != OK) return(FAILED);
+	if(line[0] == '\0') continue;
+	if(line[0] == '-' && line[1] == '-') return(FAILED);
+	p = line; q = FilePrefix[doc];
+	if(Match(TRUE,&p,&q,4) && line[4] != '<' && line[4] != '\334') {
+		Strip(line); // does this make sense?
+		if (line[4] == ':')    // real filename does not begin with prefix
+			p = &(line[5]);  // so, skip the prefix in this line
+		else  p = line;
+		if (strlen(p) > MAXNAME) continue;
+		strcpy(filename,p);
+		return(OK);
 		}
 	}
 while(TRUE);
-
-OUT:
-MyDisposeHandle((Handle*)&p_line);
-return(r);
 }
 
+GetAlphaName(int w)
+{
+if (GetLinkedFileName(w,wAlphabet,FileName[wAlphabet]) == OK) {
+		NoAlphabet = FALSE;
+		return(OK);
+		}
+else return(FAILED);
+}
 
 GetMiName(void)
 {
-int j,found=FALSE,r;
-long pos,posmax;
-char *p,*q,**p_line;
+char name[MAXNAME];
 
-p_line = NULL;
-r = FAILED;
-pos = ZERO;
-posmax = GetTextLength(wAlphabet);
-Message[0] = '\0';
-while(pos < posmax) {
-	if(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&j) != OK) goto OUT;
-	if((*p_line)[0] == '\0') continue;
-	if((*p_line)[0] == '-' && (*p_line)[1] == '-') goto OUT;
-	p = &((*p_line)[0]); q = &(FilePrefix[iObjects][0]);
-	if(Match(TRUE,p_line,&q,4) && (*p_line)[4] != '<' && (*p_line)[4] != '\334'
-			&& MyHandleLen(p_line) <= MAXNAME) {
-		MystrcpyHandleToString(MAXLIN,0,Message,p_line);
-		Strip(Message);
-		found = TRUE;
-		break;
+if (GetLinkedFileName(wAlphabet,iObjects,name) == OK) {
+	if(strcmp(FileName[iObjects],name) != 0) {
+		strcpy(FileName[iObjects],name);
+		ObjectMode = ObjectTry = FALSE;
 		}
+	return(OK);
 	}
-if(strcmp(FileName[iObjects],Message) != 0) {
-	strcpy(FileName[iObjects],Message);
-	ObjectMode = ObjectTry = FALSE;
-	}
-r = OK;
-
-OUT:
-MyDisposeHandle((Handle*)&p_line);
-return(r);
+else return(FAILED);
 }
-
 
 GetInName(int w)
 {
-long pos,posmax;
-char *p,*q,line[MAXLIN];
+char name[MAXNAME];
 
-pos = ZERO;
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. GetInName()");
-	return(FAILED);
-	}
-posmax = GetTextLength(w);
-do {
-	if(ReadLine1(FALSE,w,&pos,posmax,line,MAXLIN) != OK) return(FAILED);
-	if(line[0] == '\0') continue;
-	if(line[0] == '-' && line[1] == '-') return(FAILED);
-	p = &(line[0]); q = &(FilePrefix[wInteraction][0]);
-	if(Match(TRUE,&p,&q,4) && line[4] != '<' && line[4] != '\334'
-			&& strlen(line) <= MAXNAME) {
-		strcpy(Message,line);
-		Strip(Message);
-		if(strcmp(FileName[wInteraction],line) != 0) {
-			strcpy(FileName[wInteraction],line);
-			LoadedIn = CompiledIn = FALSE;
-			}
-		return(OK);
+if (GetLinkedFileName(w,wInteraction,name) == OK) {
+	if(strcmp(FileName[wInteraction],name) != 0) {
+		strcpy(FileName[wInteraction],name);
+		LoadedIn = CompiledIn = FALSE;
 		}
+	return(OK);
 	}
-while(TRUE);
+else return(FAILED);
 }
-
 
 GetGlName(int w)
 {
-long pos,posmax;
-char *p,*q,line[MAXLIN];
+char name[MAXNAME];
 
-pos = ZERO;
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. GetGlName()");
-	return(FAILED);
-	}
-posmax = GetTextLength(w);
-do {
-	if(ReadLine1(FALSE,w,&pos,posmax,line,MAXLIN) != OK) return(FAILED);
-	if(line[0] == '\0') continue;
-	if(line[0] == '-' && line[1] == '-') return(FAILED);
-	p = &(line[0]); q = &(FilePrefix[wGlossary][0]);
-	if(Match(TRUE,&p,&q,4) && line[4] != '<'  && line[4] != '\334' && strlen(line) <= MAXNAME) {
-		strcpy(Message,line);
-		Strip(Message);
-		if(strcmp(FileName[wGlossary],line) != 0) {
-			strcpy(FileName[wGlossary],line);
-			LoadedGl = CompiledGl = FALSE;
-			}
-		return(OK);
+if (GetLinkedFileName(w,wGlossary,name) == OK) {
+	if(strcmp(FileName[wGlossary],name) != 0) {
+		strcpy(FileName[wGlossary],name);
+		LoadedGl = CompiledGl = FALSE;
 		}
+	return(OK);
 	}
-while(TRUE);
+else return(FAILED);
 }
-
 
 GetSeName(int w)
 {
-long pos,posmax;
-char *p,*q,line[MAXLIN];
+char name[MAXNAME];
 
-pos = ZERO;
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. GetSeName()");
-	return(FAILED);
-	}
-posmax = GetTextLength(w);
-do {
-	if(ReadLine1(FALSE,w,&pos,posmax,line,MAXLIN) != OK) return(FAILED);
-	if(line[0] == '\0') continue;
-	if(line[0] == '-' && line[1] == '-') return(FAILED);
-	p = &(line[0]); q = &(FilePrefix[iSettings][0]);
-	if(Match(TRUE,&p,&q,4) && line[4] != '<' && line[4] != '\334'
-			&& strlen(line) <= MAXNAME) {
-		strcpy(Message,line);
-		Strip(Message);
-		if(strcmp(FileName[iSettings],line) != 0 || Dirty[iSettings]) {
-			strcpy(FileName[iSettings],line);
-			Created[iSettings] = FALSE;
-			TellOthersMyName(iSettings);
-			return(OK);
-			}
-		else return(FAILED); 	/* Name is unchanged: no need to reload */
+if (GetLinkedFileName(w,iSettings,name) == OK) {
+	if(strcmp(FileName[iSettings],name) != 0 || Dirty[iSettings]) {
+		strcpy(FileName[iSettings],name);
+		Created[iSettings] = FALSE;
+		TellOthersMyName(iSettings);
+		return(OK);
 		}
+	else return(FAILED); 	/* Name is unchanged: no need to reload */
 	}
-while(TRUE);
+else return(FAILED);
 }
-
 
 GetKbName(int w)
 {
 int type,result;
 FSSpec spec;
 short refnum;
-long pos,posmax;
-char *p,*q,line[MAXLIN];
+char name[MAXNAME];
 
-pos = ZERO;
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. GetKbName()");
-	return(FAILED);
-	}
-posmax = GetTextLength(w);
 result = FAILED;
-do {
-	if(ReadLine1(FALSE,w,&pos,posmax,line,MAXLIN) != OK) goto OUT;
-	if(line[0] == '\0') continue;
-	if(line[0] == '-' && line[1] == '-') goto OUT;
-	p = &(line[0]); q = &(FilePrefix[wKeyboard][0]);
-	if(Match(TRUE,&p,&q,4) && line[4] != '<' && line[4] != '\334' && strlen(line) <= MAXNAME) {
-		strcpy(Message,line);
-		Strip(Message);
-		if(strcmp(FileName[wKeyboard],line) != 0) {
-			strcpy(FileName[wKeyboard],line);
-			if(Token == FALSE && !ScriptExecOn) {
-				if(Answer("Alphabet file indicated keyboard encoding.\rType tokens instead of normal text",
-					'N') == OK) Token = TRUE;
-				}
-			type = gFileType[wKeyboard];
-			c2pstrcpy(spec.name, line);
-			spec.vRefNum = TheVRefNum[wKeyboard];
-			spec.parID = WindowParID[wKeyboard];
-			if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {
-				if(CheckFileName(wKeyboard,FileName[wKeyboard],&spec,&refnum,type,TRUE)
-					!= OK) goto OUT;
-				}
-			result = LoadKeyboard(refnum);
-			goto OUT;
+if (GetLinkedFileName(w,wKeyboard,name) == OK) {
+	if(strcmp(FileName[wKeyboard],name) != 0) {
+		strcpy(FileName[wKeyboard],name);
+		if(Token == FALSE && !ScriptExecOn) {
+			if(Answer("Alphabet file indicated keyboard encoding.\rType tokens instead of normal text",
+				'N') == OK) Token = TRUE;
 			}
-		else {
-			if(Token && FilePrefix[wKeyboard][0] == 0) { // FIXME: should be FileName?
-				if(!ScriptExecOn) Alert1("You can't use tokens (ÔMiscÕ menu) unless you define Ô-kb.Õ file in alphabet");
-				Token = FALSE;
-				result = ABORT;
-				goto OUT;
-				}
-			goto OUT;
+		type = gFileType[wKeyboard];
+		c2pstrcpy(spec.name, name);
+		spec.vRefNum = TheVRefNum[wKeyboard];
+		spec.parID = WindowParID[wKeyboard];
+		if (MyOpen(&spec,fsCurPerm,&refnum) == noErr ||
+		    CheckFileName(wKeyboard,FileName[wKeyboard],&spec,&refnum,type,TRUE) == OK) {
+			result = LoadKeyboard(refnum);
 			}
 		}
-	}
-while(TRUE);
-
-OUT:
+	else {
+		if(Token && FileName[wKeyboard][0] == '\0') {
+			if(!ScriptExecOn) Alert1("You can't use tokens (ÔMiscÕ menu) unless you define Ô-kb.Õ file in alphabet");
+			Token = FALSE;
+			result = ABORT;
+			}
+		}
+}
 if(Token && LoadOn && FileName[wKeyboard][0] == '\0') {
 	Token = FALSE; MaintainMenus();
 	}
 return(result);
 }
 
-
 GetFileNameAndLoadIt(int wfile,int w,Int2ProcPtr loadit)
 {
 int r,type;
 FSSpec spec;
 short refnum;
-long pos,posmax;
-char *p,*q,line[MAXLIN];
+char name[MAXNAME];
 
-pos = ZERO;
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. GetFileNameAndLoadIt(). w < 0 || w >= WMAX || !Editable[w]");
-	return(FAILED);
-	}
 if(wfile < 0 || wfile >= WMAX) {
 	if(Beta) Alert1("Err. GetFileNameAndLoadIt().(wfile < 0 || wfile >= WMAX");
 	return(FAILED);
 	}
-posmax = GetTextLength(w);
-do {
-	if(ReadLine1(FALSE,w,&pos,posmax,line,MAXLIN) != OK) return(FAILED);
-	if(line[0] == '\0') continue;
-	if(line[0] == '-' && line[1] == '-') return(FAILED);
-	p = &(line[0]); q = &(FilePrefix[wfile][0]);
-	if(Match(TRUE,&p,&q,4) && line[4] != '<' && line[4] != '\334' && strlen(line) <= MAXNAME) {
-		Strip(line);
-		if(strcmp(FileName[wfile],line) != 0) {
-			strcpy(FileName[wfile],line);
+
+if (GetLinkedFileName(w,wfile,name) == OK) {
+		if(strcmp(FileName[wfile],name) != 0) {
+			strcpy(FileName[wfile],name);
 			type = gFileType[wfile];
-			c2pstrcpy(spec.name, line);
+			c2pstrcpy(spec.name, name);
 			spec.vRefNum = TheVRefNum[wfile];
 			spec.parID = WindowParID[wfile];
 			if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {
@@ -1063,98 +972,62 @@ do {
 			if(r == OK) SetName(wfile,TRUE,FALSE);
 			return(r);
 			}
-		else return(FAILED);
+		else return(FAILED); // is this correct? -- akozar
 		}
-	}
-while(TRUE);
+else return(FAILED);
 }
-
 
 GetCsName(int w)
 {
 int r,type;
 FSSpec spec;
 short refnum;
-long pos,posmax;
-char *p,*q,line[MAXLIN];
+char name[MAXNAME];
 
-pos = ZERO;
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. GetCsName()");
-	return(FAILED);
-	}
-posmax = GetTextLength(w);
-do {
-	if(ReadLine1(FALSE,w,&pos,posmax,line,MAXLIN) != OK) return(FAILED);
-	if(line[0] == '\0') continue;
-	if(line[0] == '-' && line[1] == '-') return(FAILED);
-	p = &(line[0]); q = &(FilePrefix[wCsoundInstruments][0]);
-	if(Match(TRUE,&p,&q,4) && line[4] != '<' && line[4] != '\334'
-			&& strlen(line) <= MAXNAME) {
-		Strip(line);
-		if(strcmp(FileName[wCsoundInstruments],line) != 0) {
-			strcpy(FileName[wCsoundInstruments],line);
-			type = gFileType[wCsoundInstruments];
-			c2pstrcpy(spec.name, line);
-			spec.vRefNum = TheVRefNum[wCsoundInstruments];
-			spec.parID = WindowParID[wCsoundInstruments];
-			if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {
-				if(CheckFileName(wCsoundInstruments,FileName[wCsoundInstruments],&spec,&refnum,type,TRUE)
-					!= OK) return(FAILED);
-				}
-			r = LoadCsoundInstruments(refnum,FALSE);
-			if(r == OK) SetName(wCsoundInstruments,TRUE,FALSE);
-			return(r);
+if (GetLinkedFileName(w,wCsoundInstruments,name) == OK) {
+	if(strcmp(FileName[wCsoundInstruments],name) != 0) {
+		strcpy(FileName[wCsoundInstruments],name);
+		type = gFileType[wCsoundInstruments];
+		c2pstrcpy(spec.name, name);
+		spec.vRefNum = TheVRefNum[wCsoundInstruments];
+		spec.parID = WindowParID[wCsoundInstruments];
+		if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {
+			if(CheckFileName(wCsoundInstruments,FileName[wCsoundInstruments],&spec,&refnum,type,TRUE)
+				!= OK) return(FAILED);
 			}
-		else {
-			return(FAILED);
-			}
+		r = LoadCsoundInstruments(refnum,FALSE);
+		if(r == OK) SetName(wCsoundInstruments,TRUE,FALSE);
+		return(r);
 		}
+	else return(FAILED); // is this right? -- akozar
 	}
-while(TRUE);
+else return(FAILED);
 }
-
 
 GetTimeBaseName(int w)
 {
 int type;
 FSSpec spec;
 short refnum;
-long pos,posmax;
-char *p,*q,line[MAXLIN];
+char name[MAXNAME];
 
-pos = ZERO;
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. GetTimeBaseName()");
-	return(FAILED);
-	}
-posmax = GetTextLength(w);
-do {
-	if(ReadLine1(FALSE,w,&pos,posmax,line,MAXLIN) != OK) return(FAILED);
-	if(line[0] == '\0') continue;
-	if(line[0] == '-' && line[1] == '-') return(FAILED);
-	p = &(line[0]); q = &(FilePrefix[wTimeBase][0]);
-	if(Match(TRUE,&p,&q,4) && line[4] != '<' && line[4] != '\334'
-			&& strlen(line) <= MAXNAME) {
-		Strip(line);
-		if(strcmp(FileName[wTimeBase],line) != 0) {
-			strcpy(FileName[wTimeBase],line);
-			type = gFileType[wTimeBase];
-			c2pstrcpy(spec.name, line);
-			spec.vRefNum = TheVRefNum[wTimeBase];
-			spec.parID = WindowParID[wTimeBase];
-			if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {
-				if(CheckFileName(wTimeBase,FileName[wTimeBase],&spec,&refnum,type,TRUE)
-					!= OK) return(FAILED);
-				}
-			LoadTimeBase(refnum);
-			break;
+if (GetLinkedFileName(w,wTimeBase,name) == OK) {
+	if(strcmp(FileName[wTimeBase],name) != 0) {
+		strcpy(FileName[wTimeBase],name);
+		type = gFileType[wTimeBase];
+		c2pstrcpy(spec.name, name);
+		spec.vRefNum = TheVRefNum[wTimeBase];
+		spec.parID = WindowParID[wTimeBase];
+		if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {
+			if(CheckFileName(wTimeBase,FileName[wTimeBase],&spec,&refnum,type,TRUE)
+				!= OK) return(FAILED);
 			}
-		else return(FAILED);
+		LoadTimeBase(refnum);
+		return(OK);
 		}
+	else return(FAILED);  // is this correct? -- akozar
 	}
-while(TRUE);
-return(OK);
+else return(FAILED);
 }
 
 

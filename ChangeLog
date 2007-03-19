@@ -1,3 +1,41 @@
+2007-03-16	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/SaveLoads1.c:
+	* source/BP2/SaveLoads2.c:
+		Setting Created[w] whenever a file is loaded into a window that changes
+			its title.
+	
+	* source/BP2/MenuCommands.c (mOpenFile):
+		Allow opening any file in Data window with Option key.
+		Change prompts to use DocumentTypeName[] instead of FilePrefix[].
+		Use IdentifyBPFileType() instead of checking for prefixes.
+		Set Weird[] when loading files with conflicting prefix or extension,
+			but don't change the filename.
+		Copy filenames without changing any characters (MyPtoCstr changes them).
+		
+	* source/BP2/Interface1.c (PutFirstLine):
+		When adding filenames to windows, include prefix + ":" before any
+			name that does not start with the correct prefix.
+
+	* source/BP2/Misc.c:
+		Abstracted out the similarities between all Get*Name() functions
+			into new function GetLinkedFileName().
+		GetLinkedFileName() checks for ":" after the prefix in file links
+			and strips the prefix if found, thus reversing the "encoding"
+			performed by PutFirstLine().
+
+2007-03-15	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+		New array DocumentTypeName[].
+	
+	* source/BP2/Interface2.c (DoSystem):
+		Commented out erroneous use of MemError().
+
+	* source/BP2/MenuCommands.c (mLoadProject):
+		Use IdentifyBPFileType() instead of checking for prefixes.
+			
 2007-03-14	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/-BP2.h:
