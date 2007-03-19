@@ -2381,11 +2381,11 @@ GetPort(&saveport);
 #endif
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err DoSystem(). saveport == NULL");
-err = MemError();
+/* err = MemError();
 if(err != noErr) {
 	if(Beta) TellError(57,err);
 	result = FAILED;
-	}
+	} */
 if(!SoundOn) return(PlayTick(FALSE));
 return(result);
 }
