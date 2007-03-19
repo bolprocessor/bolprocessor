@@ -1263,7 +1263,8 @@ if(p_line == NULL) {
 	return(OK);
 	}
 while(TRUE) {
-	while(i < im && (isspace(c=(*p_line)[i]) || c == '\0')) i++;  // FIXME: filenames can contain spaces
+	// names are separated by spaces or returns (which excludes settings a name containing a space)
+	while(i < im && (isspace(c=(*p_line)[i]) || c == '\0')) i++;
 	i0 = i;
 	if(i >= im) break;
 	j=0;
