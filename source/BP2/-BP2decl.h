@@ -335,8 +335,8 @@ extern int Dirty[WMAX],CompiledGr,CompiledPt,CompiledAl,CompiledIn,CompiledGl,
 extern int NotBPCase[MAXNOTBPCASES];
 extern int Hmin[WMAX],Hmax[WMAX],Hzero[WMAX],Vmin[WMAX],Vmax[WMAX],Vzero[WMAX];
 extern int Created[WMAX];
-extern char FileName[WMAX][MAXNAME],CsFileName[MAXNAME],MIDIfileName[MAXNAME],
-	CsoundOrchestraName[MAXNAME];
+extern char FileName[WMAX][MAXNAME+1],CsFileName[MAXNAME+1],MIDIfileName[MAXNAME+1],
+	CsoundOrchestraName[MAXNAME+1];
 extern FSSpec MIDIfileSpec;
 extern float MIDIfadeOut;
 extern int CurrentVolume[MAXCHAN+1];
