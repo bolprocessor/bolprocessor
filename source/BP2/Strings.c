@@ -153,7 +153,7 @@ do	{
 	}
 while(s[i] != '\0' && i < imax-1);
 s[i] = '\0';	/* The content might get truncated */
-if((memerr=MemError()) != noErr) TellError(60,memerr);
+if((memerr=MemError()) != noErr) TellError(60,memerr); // FIXME: probably wrong
 return(OK);
 }
 
@@ -199,7 +199,7 @@ if (i >= imax) i = imax - 1;
 s[i] = '\0';	/* The content might get truncated */
 
 OUT:
-if((memerr=MemError()) != noErr) TellError(62,memerr);
+if((memerr=MemError()) != noErr) TellError(62,memerr); // FIXME: probably wrong
 return(OK);
 }
 
@@ -288,7 +288,7 @@ if(p_t == NULL) {
 do 
 	if((*p_t)[i] != s[i]) return(1);
 while(s[i++] != '\0');
-if((memerr=MemError()) != noErr) TellError(64,memerr);
+if((memerr=MemError()) != noErr) TellError(64,memerr); // FIXME: probably wrong
 return(0);
 }
 
@@ -306,7 +306,7 @@ if(p_t == NULL || p_s == NULL) {
 do 
 	if((*p_t)[i] != (*p_s)[i]) return(1);
 while((*p_s)[i++] != '\0');
-if((memerr=MemError()) != noErr) TellError(65,memerr);
+if((memerr=MemError()) != noErr) TellError(65,memerr); // FIXME: probably wrong
 return(0);
 }
 
@@ -352,7 +352,7 @@ i = strlen(word) - 1;
 while(isspace(word[i])) {
 	word[i] = '\0'; i--;
 	}
-if((memerr=MemError()) != noErr) TellError(67,memerr);
+if((memerr=MemError()) != noErr) TellError(67,memerr); // FIXME: probably wrong
 return(OK);
 }
 
