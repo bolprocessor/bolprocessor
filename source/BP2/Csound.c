@@ -1610,12 +1610,14 @@ return(OK);
 
 FixCsoundScoreName(char* line)
 {
-if(strcmp(strstr(line,".sco"),".sco") == 0) return(OK);
+return(OK);	// Csound doesn't care! -- akozar 031907
+/* if(strcmp(strstr(line,".sco"),".sco") == 0) return(OK);
 line[MAXNAME - 1 - strlen(".sco")] = '\0';
 strcat(line,".sco");
 sprintf(Message,"Csound score file was renamed ‘%s’",line);
 ShowMessage(TRUE,wMessage,Message);
 return(FAILED);
+*/
 }
 
 
