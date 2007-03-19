@@ -24,6 +24,11 @@
 		Prevented a buffer overflow in script command "Open file" when the
 			filename was too long.
 
+	* source/BP2/SaveLoads3.c (CheckFileName):
+		Revised to not require filename prefixes.
+		Don't ask when changing filename.
+		Temporarily turn off ScriptExecOn to confirm wrong filetype.
+
 2007-03-16	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/SaveLoads1.c:

@@ -1467,28 +1467,28 @@ return(OK);
 }
 
 
-CheckFileName(int w,char *line,FSSpec *p_spec,short *p_refnum,int type,int openreally)
+CheckFileName(int w,char *filename,FSSpec *p_spec,short *p_refnum,int type,int openreally)
 // The file couldn't be opened.  Try to find its actual name and location
 // If openreally is false it means we're just checking, not opening
 {
 char line2[64],line3[MAXLIN];
-int rep,io;
+int rep,io, memexec;
 Str255 fn;
 
 /* Usually, type = gFileType[w] */
 
 FIND:
-if(line[0] != '\0') {
-	if(FilePrefix[w][0] != '\0' && w != wTrace)
-		sprintf(line3,"Locate ‘%s’ or other ‘%s’ file",line,FilePrefix[w]);
+if(filename[0] != '\0') {
+	if(DocumentTypeName[w][0] != '\0' && w != wTrace)
+		sprintf(line3,"Locate ‘%s’ or other %s file",filename,DocumentTypeName[w]);
 	else
-		sprintf(line3,"Locate ‘%s’",line);
+		sprintf(line3,"Locate ‘%s’",filename);
 	}
 else {
-	if(FilePrefix[w][0] != '\0' && w != wTrace)
-		sprintf(line3,"Locate ‘%s’ file",FilePrefix[w]);
+	if(DocumentTypeName[w][0] != '\0' && w != wTrace)
+		sprintf(line3,"Select a(n) %s file",DocumentTypeName[w]);
 	else
-		sprintf(line3,"Locate file");
+		sprintf(line3,"Select a file");
 	}
 
 ShowMessage(TRUE,wMessage,line3);
@@ -1500,48 +1500,52 @@ if(!OldFile(w,type,fn,p_spec)) {
 	return(FAILED);
 	}
 p2cstrcpy(line2,fn);
-if(FilePrefix[w][0] != '\0' && strstr(line2,FilePrefix[w]) != line2) {
-	sprintf(Message,"‘%s’ is not the right type of file. Prefix must be ‘%s’",
-		line2,FilePrefix[w]);
-	Alert1(Message);
-	goto TRYOPEN;
+if(gFileType[w] != ftiAny && gFileType[w] != ftiText && IdentifyBPFileType(p_spec) != w) {
+	sprintf(Message,"BP2 is not sure that ‘%s’ is a(n) %s file. Do you want to load it anyway",
+		line2, DocumentTypeName[w]);
+	memexec = ScriptExecOn; ScriptExecOn = 0;
+	rep = Answer(Message,'Y'); // default to 'Y' in case script is running
+	ScriptExecOn = memexec;
+	if (rep == NO) goto TRYOPEN;
+	else if (rep == ABORT) return(ABORT);
 	}
 	
-Strip(line);
-if(line[0] != '\0') {
-	if(strcmp(line,line2) != 0) {
-		rep = Answer("Changing file",'N');
+// Strip(filename);
+if(filename[0] != '\0') {
+	if(strcmp(filename,line2) != 0) {
+		// Don't ask since the user already chose the file - akozar, 031907
+		/* rep = Answer("Changing file",'N');
 		switch(rep) {
 			case NO:
 				goto FIND;
 				break;
-			case YES:
-				MyPtoCstr(MAXNAME,fn,line2);
-				strcpy(line,line2);
+			case YES: */
+				strcpy(filename,line2);
 				if(openreally) {
-					MyPtoCstr(MAXNAME,fn,FileName[w]);
+					strcpy(FileName[w],filename);
 					TellOthersMyName(w);
 					}
-				break;
+				/* break;
 			case ABORT:
 				HideWindow(Window[wMessage]);
 				return(FAILED);
-			}
+			} */
 		}
 	}
 else {
-	MyPtoCstr(MAXNAME,fn,line2);
-	strcpy(line,line2);
+	strcpy(filename,line2);
 	if(openreally) {
-		MyPtoCstr(MAXNAME,fn,FileName[w]);
+		strcpy(FileName[w],filename);
 /*		TellOthersMyName(w); */
 		}
 	}
 InputOn++;
 HideWindow(Window[wMessage]);
-c2pstrcpy(p_spec->name, line2);
+// c2pstrcpy(p_spec->name, line2);
+// FIXME ? if (!openreally), should we be calling MyOpen().  If so, how does the
+//         file get closed later ?  - akozar
 if((io=MyOpen(p_spec,fsCurPerm,p_refnum)) != noErr && io != opWrErr) {
-	sprintf(Message,"Can't open ‘%s’",line);
+	sprintf(Message,"Can't open ‘%s’",filename);
 	Alert1(Message);
 	TellError(83,io);
 	InputOn--;
@@ -1550,7 +1554,7 @@ if((io=MyOpen(p_spec,fsCurPerm,p_refnum)) != noErr && io != opWrErr) {
 if(io == opWrErr) {
 	io = SetFPos(*p_refnum,fsFromStart,ZERO);
 	if(io != noErr) {
-		sprintf(Message,"Can't reopen ‘%s’",line);
+		sprintf(Message,"Can't reopen ‘%s’",filename);
 		Alert1(Message);
 		TellError(84,io);
 		InputOn--;
