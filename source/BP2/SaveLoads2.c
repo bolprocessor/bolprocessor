@@ -318,7 +318,7 @@ WRITE:
 		FlushFile(refnum);
 		MyFSClose(iObjects,refnum,p_spec);
 		reply.saveCompleted = true;
-		MyPtoCstr(MAXNAME,p_spec->name,FileName[iObjects]);
+		p2cstrcpy(FileName[iObjects],p_spec->name);
 		TheVRefNum[iObjects] = p_spec->vRefNum;
 		WindowParID[iObjects] = p_spec->parID;
 		SetName(iObjects,TRUE,TRUE);
@@ -982,7 +982,9 @@ if(result == OK) {
 	if(manual) BPActivateWindow(SLOW,wGlossary);
 	else UpdateWindow(FALSE,Window[wGlossary]);
 	LoadedGl = TRUE;
+	Created[wGlossary] = TRUE;
 	}
+else	Created[wGlossary] = FALSE;
 Dirty[wGlossary] = FALSE;
 HideWindow(Window[wMessage]);
 LoadOn--;

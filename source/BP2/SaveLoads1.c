@@ -230,8 +230,10 @@ if(FSClose(refnum) != noErr) {
 	}
 if(result == OK) {
 	SetName(wKeyboard,TRUE,TRUE);
-	Dirty[wKeyboard] = Created[wKeyboard] = FALSE;
+	Created[wKeyboard] = TRUE;
 	}
+else	Created[wKeyboard] = FALSE;
+Dirty[wKeyboard] = FALSE;
 HideWindow(Window[wMessage]);
 LoadOn--;
 return(result);
@@ -323,11 +325,11 @@ GetDateSaved(p_completeline,&(p_FileInfo[wTimeBase]));
 if(ReadInteger(refnum,&y,&pos) == FAILED) goto ERR; maxticks = y;
 if(ReadInteger(refnum,&y,&pos) == FAILED) goto ERR; maxbeats = y;
 if(maxticks > MAXTICKS) {
-	Alert1("This version of BP2 can't read selected Ô-kb.Õ file");
+	Alert1("This version of BP2 can't read selected Ô-tb.Õ file");
 	goto ERR;
 	}
 if(maxbeats > MAXBEATS) {
-	Alert1("This version of BP2 can't read selected Ô-kb.Õ file");
+	Alert1("This version of BP2 can't read selected Ô-tb.Õ file");
 	goto ERR;
 	}
 TickThere = FALSE;
@@ -381,11 +383,12 @@ if(FSClose(refnum) != noErr) {
 	}
 if(result == OK) {
 	SetName(wTimeBase,TRUE,TRUE);
-	Dirty[wTimeBase] = Created[wTimeBase] = FALSE;
+	Created[wTimeBase] = TRUE;
 	}
+else	Created[wTimeBase] = FALSE;
 HideWindow(Window[wMessage]);
 ResetTickFlag = TRUE;
-Dirty[wTimeBase] = Created[wTimeBase] = FALSE;
+Dirty[wTimeBase] = FALSE;
 LoadOn--;
 return(result);
 }
@@ -749,12 +752,13 @@ if(FSClose(refnum) != noErr) {
 	result = FAILED;
 	}
 if(result == OK) {
-	Dirty[wCsoundInstruments] = Created[wCsoundInstruments] = FALSE;
+	Created[wCsoundInstruments] = TRUE;
 	LoadedCsoundInstruments = TRUE;
 /*	No SetName(wCsoundInstruments,TRUE,TRUE); */
 	}
+else	Created[wCsoundInstruments] = FALSE;
 HideWindow(Window[wMessage]);
-Dirty[wCsoundInstruments] = Created[wCsoundInstruments] = FALSE;
+Dirty[wCsoundInstruments] = FALSE;
 if(iCsoundInstrument >= Jinstr) iCsoundInstrument = 0;
 SetCsoundInstrument(iCsoundInstrument,-1);
 LoadOn--;
@@ -2159,8 +2163,10 @@ if(result == OK) {
 			}
 		}
 	SetName(wInteraction,TRUE,TRUE);
+	Created[wInteraction] = TRUE;
 	}
-Dirty[wInteraction] = Created[wInteraction] = FALSE;
+else	Created[wInteraction] = FALSE;
+Dirty[wInteraction] = FALSE;
 HideWindow(Window[wMessage]);
 LoadOn--;
 return(result);
