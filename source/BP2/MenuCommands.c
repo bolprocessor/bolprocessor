@@ -1257,7 +1257,7 @@ if(OldFile(w,type,fn,&spec)) {
 	if(gFileType[w] != ftiAny && gFileType[w] != ftiText && IdentifyBPFileType(&spec) != w) {
 		//anyfile = TRUE;
 		p2cstrcpy(LineBuff,fn);
-		sprintf(Message,"BP2 is not sure that ‘%s’ is a %s file. Do you want to load it anyway", LineBuff, 
+		sprintf(Message,"BP2 is not sure that ‘%s’ is a(n) %s file. Do you want to load it anyway", LineBuff, 
 			DocumentTypeName[w]);
 		r = Answer(Message,'N');
 		if(r != YES) {
