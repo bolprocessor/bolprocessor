@@ -88,7 +88,7 @@ if(arg_nr == 0) {
 		}
 	}
 for(; (*pp) <= (*pp2);) {
-	if(25 * (i / 25) == i) PleaseWait();
+	if(25 * (i / 25) == i) PleaseWait();  // OPTIMIZE: i % 25 == 0
 	if((SelectOn || CompileOn) && ((*p_result)=MyButton(2)) != FAILED) {
 		if((*p_result) != OK || ((*p_result)=InterruptCompile()) != OK) goto ERR;
 		PleaseWait();
@@ -1020,7 +1020,7 @@ if((i+1) > imax) {
 	
 	goto ERR;
 	}
-imax = (int) LengthOf(&p_buff);
+imax = (int) LengthOf(&p_buff);	// OPTIMIZE: can't we just do imax = i - (1 or 2)?
 if(j=Recode(notargument,&imax,&p_buff)) {
 	ShowError(j,igram,irul);
 	DoSystem();
@@ -1028,11 +1028,13 @@ if(j=Recode(notargument,&imax,&p_buff)) {
 	}
 if((p_pi = (tokenbyte**) GiveSpace((Size)(imax+2)*sizeof(tokenbyte))) == NULL)
 	goto ERR;
-siz = imax + 2L;
+siz = imax + 2L;	// FIXME: siz is never used
+// OPTIMIZE: why make a copy of p_buff just to return the copy and dispose of p_buff ??
+// Just resizing p_buff should be faster.
 if(CopyBuf(&p_buff,&p_pi) == ABORT) p_pi = NULL;
 MyDisposeHandle((Handle*)&p_buff);
-if(DoSystem() != OK) p_pi = NULL;
-if(p_pi == NULL) return(p_pi);
+if(DoSystem() != OK) p_pi = NULL;	// FIXME ? why fail just because DoSystem() does ??
+if(p_pi == NULL) return(p_pi); 	// FIXME
 return(p_pi);
 
 ERR:
@@ -1306,6 +1308,7 @@ while(i < (*p_imax)-1) {
 		}
 
 	}
+// OPTIMIZE: does the rest of this need to be done if imaster == 0 ?
 nbmaster = 0;
 if(FindMaster(pp_buff,orgmaster,endmaster,&nbmaster,p_imax) == -1) return(16);
 /* Print(wTrace,"\rList of masters:\r");
@@ -1426,6 +1429,7 @@ MyDisposeHandle((Handle*)&p_a);
 /* Erase content of slavesÉ */
 /* É especially copies of 'ZERO' markers that are irrelevant */
 
+// OPTIMIZE: I think we can skip the rest of this if islave == 0
 i = 0; islave = 0;
 while(i < (*p_imax)-1)	{
 	if((**pp_buff)[i] == T2 && (**pp_buff)[i+1] != 0) {	/* found slave */
@@ -1453,6 +1457,8 @@ i = 0; islave = 0;
 while(i < (*p_imax)-1)	{
 	if((**pp_buff)[i] == T2 && (**pp_buff)[i+1] != 0) {	/* found slave */
 		j = i + 2; k = j + length[islave];
+		// OPTIMIZE: any way to use temp markers for deleted space so that
+		// we only need to move the rest of the buffer once ??
 		MoveDown(pp_buff,&j,&k,p_imax);
 		islave++; i=j;
 		}

@@ -1085,6 +1085,7 @@ long lOffset;
 
 if(*pp_X == NULL) return(ZERO);
 imax = MyGetHandleSize((Handle) *pp_X) / sizeof(tokenbyte);
+// OPTIMIZE: use & incr temp pointers instead of **pp_X[i]
 for(i=0,l=0; ((**pp_X)[i] != TEND) || ((**pp_X)[i+1] != TEND); i+=2, l++) {
 	if(i >= imax) {
 		sprintf(Message,"Err. LengthOf(). i=%ld  imax=%ld",(long)i,
@@ -1093,7 +1094,7 @@ for(i=0,l=0; ((**pp_X)[i] != TEND) || ((**pp_X)[i+1] != TEND); i+=2, l++) {
 		return(ZERO);
 		}
 	}
-return(l << 1);
+return(l << 1);	// OPTIMIZE: isn't this always i ?
 #else
 long lOffset;
 
