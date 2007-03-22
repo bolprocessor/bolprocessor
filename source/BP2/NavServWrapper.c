@@ -13,12 +13,13 @@
 #include	"NavServWrapper.h"
 
 /* Bol Processor functions used below --
-   You can replace these with the standard MacOS calls if reusing this code. */
+   You can replace these with the standard MacOS calls or your
+   application's equivalent if reusing this code. */
 extern int **GiveSpace(Size);			// replace with NewHandle
 extern int MyDisposeHandle(Handle*);	// DisposeHandle
 extern int MyLock(int high, Handle h);	// HLock (remove param 'high')
 extern int MyUnlock(Handle h);		// HUnlock
-
+extern int DoEvent(EventRecord *p_event);
 
 /* You should call this function if there is any chance that 
    your code will call NSWCleanupReply without first calling 
@@ -96,7 +97,7 @@ static pascal void SimpleNavServEventProc(NavEventCallbackMessage callBackSelect
 							NavCallBackUserData callBackUD)
 {
 	NSWReply*		reply;
-	WindowPtr		window;
+	//WindowPtr		window;
 	NavMenuItemSpec*	item;
 	
 	// Be careful not to access fields in callBackParms before checking the
@@ -108,9 +109,10 @@ static pascal void SimpleNavServEventProc(NavEventCallbackMessage callBackSelect
    			switch (((callBackParms->eventData).eventDataParms).event->what)
 			{
 				case updateEvt:
-					window = (WindowPtr)callBackParms->eventData.eventDataParms.event->message;
+					//window = (WindowPtr)callBackParms->eventData.eventDataParms.event->message;
 					//HandleNavServUpdateEvent(window,
 					//	(EventRecord*)callBackParms->eventData.eventDataParms.event);
+					DoEvent((EventRecord*)callBackParms->eventData.eventDataParms.event);
 					break;
 				default:
 					break;

@@ -1387,67 +1387,70 @@ return(OK);
 }
 
 
-OpenTemp(void)
+int CreateTempFileInLocalDirectory(short *filerefnum, StringPtr filename, Boolean deleteIfExists)
 {
 OSErr err;
-int type,rep;
+int rep, namecount;
 NSWReply reply;
-short refnum;
+short refnum, vrefnum;
+long parid;
 
-if(TempRefnum != -1) {
-	if(Beta) Alert1("Err. OpenTemp(). TempRefnum != -1");
-	return(OK);
-	}
 rep = OK;
-err = NSWInitReply(&reply);	
-err = FSMakeFSSpec(RefNumbp2, ParIDbp2, "\pBP2.temp", &reply.sfFile);
-if (err == noErr)	{				// file exists, so delete it 
-	err = FSpDelete(&reply.sfFile);
-	if (err != noErr) rep = ABORT;
+err = NSWInitReply(&reply);
+
+// On MacOS 7-9, try to use the application's folder
+vrefnum = RefNumbp2;
+parid = ParIDbp2;
+// FIXME: On OS X, use the user's Application Support/Bol Processor/ folder
+
+err = FSMakeFSSpec(vrefnum, parid, filename, &reply.sfFile);
+
+if (err == noErr && deleteIfExists)	{	// file exists
+	err = FSpDelete(&reply.sfFile);	// try to delete it
+	if (err != noErr) {
+		if(Beta) {
+			p2cstrcpy(LineBuff, filename);
+			sprintf(Message, "Can't delete temporary file Ô%sÕ", LineBuff);
+			Alert1(Message);
+			}
+		}
 	else err = fnfErr;
 	}
 if (rep == OK && err == fnfErr) {		// FSSpec is good
 	reply.sfReplacing = FALSE;
-	CopyPString("\pBP2.temp",PascalLine);
-	rep = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
-	if(rep == OK) TempRefnum = refnum;
-	else rep = ABORT;
+	CopyPString(filename,PascalLine);
+	rep = CreateFile(wUnknown,wUnknown,ftiText,PascalLine,&reply,&refnum);
+	if(rep == OK) *filerefnum = refnum;
+	else {
+		if(Beta) {
+			p2cstrcpy(LineBuff, filename);
+			sprintf(Message, "Can't create temporary file Ô%sÕ", LineBuff);
+			Alert1(Message);
+			}
+		return(ABORT);
+		}
 	}
 else rep = ABORT;
 return(rep);
 }
 
+OpenTemp(void)
+{
+if(TempRefnum != -1) {
+	if(Beta) Alert1("Err. OpenTemp(). TempRefnum != -1");
+	return(OK);
+	}
+return CreateTempFileInLocalDirectory(&TempRefnum, "\pBP2.temp", TRUE);
+}
+
 
 OpenTrace(void)
 {
-OSErr err;
-int type,rep;
-NSWReply reply;
-short refnum;
-
 if(TraceRefnum != -1) {
 	if(Beta) Alert1("Err. OpenTrace(). TraceRefnum != -1");
 	return(OK);
 	}
-rep = OK;
-err = NSWInitReply(&reply);	
-err = FSMakeFSSpec(RefNumbp2, ParIDbp2, "\pBP2.trace", &reply.sfFile);
-if (err == noErr)	{				// file exists
-	// err = FSpDelete(&reply.sfFile);
-	rep = ABORT;
-}
-if (rep == OK && err == fnfErr) {		// FSSpec is good
-	reply.sfReplacing = FALSE;
-	CopyPString("\pBP2.trace",PascalLine);
-	rep = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
-}
-if(rep == OK) TraceRefnum = refnum;
-else {
-	if(Beta) Alert1("Can't create ÔBP2.traceÕ");
-	rep = ABORT;
-	}
-
-return(rep);
+return CreateTempFileInLocalDirectory(&TraceRefnum, "\pBP2.trace", TRUE);
 }
 
 
@@ -1897,7 +1900,7 @@ pascal void PutFileEventProc(NavEventCallbackMessage callBackSelector,
 					NavCallBackUserData callBackUD)
 {
 	NSWReply*		reply;
-	WindowPtr		window;
+	//WindowPtr		window;
 	NavMenuItemSpec*	item;
 	
 	// Be careful not to access fields in callBackParms before checking the
@@ -1909,9 +1912,10 @@ pascal void PutFileEventProc(NavEventCallbackMessage callBackSelector,
    			switch (((callBackParms->eventData).eventDataParms).event->what)
 			{
 				case updateEvt:
-					window = (WindowPtr)callBackParms->eventData.eventDataParms.event->message;
+					//window = (WindowPtr)callBackParms->eventData.eventDataParms.event->message;
 					//HandleNavServUpdateEvent(window,
 					//	(EventRecord*)callBackParms->eventData.eventDataParms.event);
+					DoEvent((EventRecord*)callBackParms->eventData.eventDataParms.event);
 					break;
 				default:
 					break;
