@@ -1640,7 +1640,7 @@ if(wmax > 0) {
 	for(w=0; w < wmax; w++) {
 		PleaseWait();
 		if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
-		if(changewindows && WindowTextSize[w] != j) SetFontSize(w,j);
+		if(changewindows && !FreezeWindows && WindowTextSize[w] != j) SetFontSize(w,j);
 		}
 	MaintainMenus();
 	}
@@ -1702,7 +1702,7 @@ if(NewEnvironment) {
 			if(ReadInteger(refnum,&bottom,&pos) == FAILED) goto ERR;
 			if(ReadInteger(refnum,&right,&pos) == FAILED) goto ERR;
 			}
-		if(changewindows) AdjustWindow(j,w,top,left,bottom,right);
+		if(changewindows && !FreezeWindows) AdjustWindow(j,w,top,left,bottom,right);
 		}
 	}
 if(FreezeWindows) NewEnvironment = FALSE;
