@@ -820,7 +820,6 @@ for(i=1; i < MAXPARAMCTRL; i++) {
 return(OK);
 }
 
-
 MakeWindows(void)
 {
 int i,id,im,ibot,itemtype,j,k,km,w,top,left,bottom,right,leftoffset,
@@ -831,6 +830,10 @@ Str255 title;
 long rc;
 GrafPtr saveport;
 OSErr err;
+
+DialogPtr* miscdialogs[] = { &ResumeStopPtr,&ResumeUndoStopPtr,&MIDIkeyboardPtr,
+	&PatternPtr,&ReplaceCommandPtr,&EnterPtr,&FAQPtr,&SixteenPtr,&FileSavePreferencesPtr,
+	&StrikeModePtr,&TuningPtr,&DefaultPerformanceValuesPtr,&CsoundInstrMorePtr,&MIDIprogramPtr };
 
 ReplaceCommandPtr = GetNewDialog(ReplaceCommandID,NULL,0L); // could use kLastWindowOfClass instead of 0L
 ResumeStopPtr = GetNewDialog(ResumeStopID,NULL,0L);
@@ -853,6 +856,8 @@ DefaultPerformanceValuesPtr = GetNewDialog(DefaultID,NULL,0L);
 CsoundInstrMorePtr = GetNewDialog(CsoundInstrMoreID,NULL,0L);
 OMSinoutPtr = GetNewDialog(OMSinoutID,NULL,0L); // always create for now, even when !USE_OMS - 011907 akozar
 MIDIprogramPtr = GetNewDialog(MIDIprogramID,NULL,0L);
+
+for (i = 0; i < 14; ++i)  BPSetDialogAppearance(*(miscdialogs[i]));
 
 #if BP_MACHO
   err = CreateCMSettings();
@@ -944,9 +949,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 	if(bad) continue;
 	Window[w] = GetDialogWindow(gpDialogs[w]);  /* should probably not duplicate DialogPtrs as WindowPtrs, but may be neccessary for now -- 010907 akozar */
 	SetPortWindowPort(Window[w]);
-#if TARGET_API_MAC_CARBON
-	SetThemeWindowBackground(Window[w], kThemeBrushDialogBackgroundActive, false);
-#endif
+	BPSetDialogAppearance(gpDialogs[w]);
 	rc = GetWRefCon(GetDialogWindow(gpDialogs[w]));
 	if(rc != 0L) {
 		TextSize(WindowTextSize[w]);
@@ -1094,13 +1097,13 @@ if(w < 0 || w >= WMAX) {
 	}
 SetPortWindowPort(Window[w]);
 if(Editable[w]) TextFont(kFontIDCourier);
-SetDialogFont(systemFont);
+// SetDialogFont(systemFont);  // too late for this; font will be systemFont anyways - akozar
 Charstep = 7; /* StringWidth("\pm"); */
 Nw = w;
-GetPortBounds(GetQDGlobalsThePort(), &viewRect);
+GetWindowPortBounds(Window[w], &viewRect);
 if(OKvScroll[w]  || OKhScroll[w]) {
 	viewRect.right = viewRect.right - SBARWIDTH;
-	viewRect.bottom = viewRect.bottom - SBARWIDTH;
+	if (!RunningOnOSX || OKhScroll[w])  viewRect.bottom = viewRect.bottom - SBARWIDTH;
 	GetWindowPortBounds(Window[w], &r);
 	}
 if(OKvScroll[w]) {

@@ -1306,7 +1306,8 @@ if(w >= 0 && w < WMAX && Editable[w]) {
 	if(HasFields[w]) InsetRect(&dr,2,2);
 	if(OKvScroll[w]) {
 		dr.right -= SBARWIDTH;
-		dr.bottom = dr.bottom - SBARWIDTH - 1 - Freebottom[w];
+		if (!RunningOnOSX || Freebottom[w] > 0)
+			dr.bottom = dr.bottom - SBARWIDTH - 1 - Freebottom[w];
 		}
 	linesInFolder[w] = (dr.bottom - dr.top - 2) / LineHeight(w);
 	if(linesInFolder[w] > 0) {

@@ -2669,3 +2669,31 @@ for(j=0; j < 128; j++) {
 	}
 return(OK);
 }
+
+
+int BPSetDialogAppearance(DialogPtr d)
+{
+	OSErr err;
+	GrafPtr oldport;
+	ControlRef ctrl;
+	short numitems, item;
+	ControlFontStyleRec fontstyle = { kControlUseSizeMask, 0, 12, 0, 0, 0, {0,0,0}, {0,0,0} };
+	
+	GetPort(&oldport);
+	SetPortDialogPort(d);
+	
+	TextSize(12);
+	
+	numitems = CountDITL(d);
+	for (item = 1; item <= numitems; ++item) {
+		err = GetDialogItemAsControl(d, item, &ctrl);
+		if (err == noErr) SetControlFontStyle(ctrl, &fontstyle);
+	}
+	
+#if TARGET_API_MAC_CARBON
+	SetThemeWindowBackground(GetDialogWindow(d), kThemeBrushDialogBackgroundActive, false);
+#endif
+
+	SetPort(oldport);
+	return (OK);
+}
