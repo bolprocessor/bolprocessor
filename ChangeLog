@@ -1,3 +1,33 @@
+2007-03-22	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/NavServWrapper.c (SimpleNavServEventProc):
+	* source/BP2/SaveLoads3.c (PutFileEventProc):
+		Call BP's DoEvent() when an update event occurs in Nav. Serv. dialogs.
+
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/SaveLoads3.c (OpenTemp & OpenTrace):
+		Abstracted out similarities of these two functions into 
+			CreateTempFileInLocalDirectory().
+		Delete BP2.trace if it exists when OpenTrace() is called.
+
+	* source/BP2/SaveLoads1.c (LoadSettings):
+		Don't change window size or text size when FreezeWindows is true.
+	
+	* scripts/+sc.checkall:  Wrapped script with 'Freeze windows ON/OFF'.
+
+2007-03-21	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/Inits.c (SetupWindow):
+	* source/BP2/Interface1.c (SetViewRect):
+		On OS X, do not leave extra space at bottom of window for non-existent
+			horizontal scroll bar.  (TextEdit doesn't outline the view Rect).
+	
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/Inits.c (SetupWindow):
+	* source/BP2/Dialogs.c (BPSetDialogAppearance):
+		Set theme background for all dialogs and set font size of all controls
+			for better appearance on OS X.
+
 2007-03-19	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/Csound.c (FixCsoundScoreName):
