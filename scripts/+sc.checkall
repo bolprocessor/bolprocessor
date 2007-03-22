@@ -1,10 +1,11 @@
 // Bol Processor version BP2.9.5
-// Script file saved as '+sc.checkall'. Date: Fri, Feb 9, 2007 -- 14d3
+// Script file saved as '+sc.checkall'. Date: Thu, Mar 22, 2007 -- 17d12
 // Script ‘+sc.checkall’
 // A complete check of BP2 procedures
 // Mostly weird noises and a few musical examples
 
 AE send normal class 'Bel0' ID 'beep' to application 'Bel0'
+Freeze windows ON
 
 // New Project
 // Set directory 67423
@@ -269,6 +270,7 @@ Play Canon _script(MIDI program 1) - - - _vel(90) Part2 _script(Trace) _script(T
 // Prompt OFF
 // Produce items
 
+Freeze windows OFF
 Set output window "Trace"
 Tell session time
 
