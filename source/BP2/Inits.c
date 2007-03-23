@@ -306,7 +306,7 @@ for(i=32; i < 256; i++) (*p_HTMLchar2)[i] = HTMLlatin[i-32];
 h_EmergencyMemory = NewHandle(EMERGENCYMEMORYSIZE);
 
 if(MakeWindows() != OK) return(ABORT);
-SetDialogFont(systemFont);
+// SetDialogFont(systemFont);
 if(InitButtons() != OK) return(ABORT);
 if(Beta) FlashInfo("This is a beta version for evaluation...");
 
@@ -1096,7 +1096,7 @@ if(w < 0 || w >= WMAX) {
 	return(ABORT);
 	}
 SetPortWindowPort(Window[w]);
-if(Editable[w]) TextFont(kFontIDCourier);
+if(Editable[w]) { TextFont(kFontIDCourier); TextSize(WindowTextSize[w]); }
 // SetDialogFont(systemFont);  // too late for this; font will be systemFont anyways - akozar
 Charstep = 7; /* StringWidth("\pm"); */
 Nw = w;

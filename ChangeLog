@@ -1,3 +1,16 @@
+2007-03-23	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/Dialogs.c (BPSetDialogAppearance):
+		Only change font size on OS X; use size 11.
+	
+	* source/BP2/Inits.c (SetupWindow):
+		Set initial font size for text windows using TextSize().  (This seems
+			to fix the issues with incorrect font size & TextEdit on OS X).
+	
+	* source/BP2/SaveLoads3.c (NewFile & OldFile):
+		Set AlertOn to true before opening Nav. Serv. dialogs to avoid the
+			Resume/Stop dialog appearing.
+
 2007-03-22	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/NavServWrapper.c (SimpleNavServEventProc):
