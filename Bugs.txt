@@ -93,6 +93,13 @@ clicking the close box of wPrototype1.  Details below:
 correctly all of the time (especially to/from other apps).
 
 - Auto-scrolling in text windows (by dragging beyond the current view rect)
-does not move the scroll bar.  (TE only?)
+does not move the scroll bar.  (TE or WASTE)
 
 - TE windows do not always display all text in the same font size.
+
+- Mouse downs in Control Panel & Script Control dialogs are processed as "hits"
+  even if the user drags out of the control to cancel the click.  This does not
+  happen if the dialog is an inactive window.  Buttons in other dialogs "flash"
+  after cancelling a click but their actions are not taken.
+ 
+
