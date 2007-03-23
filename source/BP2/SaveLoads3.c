@@ -483,7 +483,9 @@ NewFile(int w, int type, Str255 fn, NSWReply *p_reply)
 		filetype = kNavGenericSignature;
 	}
 	else SelectCreatorAndFileType(type, &creator, &filetype);
+	AlertOn = TRUE; // prevent ResumeStop from showing
 	io = NSWPutFile(p_reply, creator, filetype, fn, &opts);
+	AlertOn = FALSE;
 	if (formatItems) MyDisposeHandle((Handle*)&formatItems);
 	if (io != noErr) {
 		return(FAILED);
@@ -526,7 +528,9 @@ OldFile(int w,int type,Str255 fn,FSSpec *p_spec)
 	NSWOptionsInit(&opts);
 	opts.appName = "\pBol Processor";
 	opts.prompt  = "\pSelect a file:"; // could customize this by type
+	AlertOn = TRUE; // prevent ResumeStop from showing
 	err = NSWGetFile(&reply, 'Bel0', numtypes, typelist, NULL, &opts);
+	AlertOn = FALSE;
 	err2 = NSWCleanupReply(&reply);
 	if  (err != noErr)  return (FAILED);
 #else
