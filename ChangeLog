@@ -1,3 +1,21 @@
+2007-03-26	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* resources/BP2-MacOS.rsrc:
+		Respaced about & "work" alerts so that all is readable.
+		Updated version number & date in about box for beta release.
+
+	* resources/BP2-MacOS.rsrc:
+	* resources/plst-resource.plc:
+		Updated Finder version numbers to 2.9.6 beta.
+	
+	* -se.startup:  Changed window positions, settings for OS X.
+
+	* BP2 help:  Updated "Freeze windows" entries.
+
+	* source/BP2/CoreMIDIdriver.c (InitCoreMidiDriver):
+		Connects again on startup to the first source & destination found.
+		New function SelectListBoxItem().
+	
 2007-03-23	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/Dialogs.c (BPSetDialogAppearance):

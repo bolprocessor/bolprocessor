@@ -20,9 +20,9 @@ plist
 		key "CFBundlePackageType" value string __OUTPUT_TYPE__
 		key "CFBundleSignature" value string "Bel0"
 		
-		key "CFBundleVersion" value string "2.9.6dev"
-		key "CFBundleGetInfoString" value string "Bol Processor BP2 - Carbon development version"
-		key "CFBundleShortVersionString" value string "BP2 Carbon development version"
+		key "CFBundleVersion" value string "2.9.6 beta"
+		key "CFBundleGetInfoString" value string "Bol Processor BP2 - Carbon 2.9.6 beta"
+		key "CFBundleShortVersionString" value string "BP2 Carbon version 2.9.6 beta"
 		
 		/* key "LSPrefersCarbon" value boolean true */
 		
