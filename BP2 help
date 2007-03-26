@@ -878,15 +878,14 @@ When encountered in a script, all "wait for..." instructions and
     interactive commands are bypassed until the "Prompt ON" instruction resets interactivity
     to normal. This is a useful debugging technique allowing a script to be executed
     without interruption.
-### Freeze windows OFF [Script command]
-Cancels the effect of Freeze windows ON.
 ### Freeze windows ON [Script command]
-See "Freeze windows".
-### Freeze windows (toggle)
-"Freeze windows on" prevents BP2 from recording the new positions ans sizes of windows
-    along with the settings of the current project.  It also prevents windows to be moved
-    or resized when new settings are loaded.  This was only useful for saving time on old
-    Mac+ screens.
+"Freeze windows on" prevents BP2 from recording the new positions and sizes of windows
+    when saving the settings of the current project.  It also prevents windows from being moved
+    or resized when new settings are loaded.  This is very useful when running a script that
+    sequentially loads and plays several projects.  You can reverse the effects of this command
+    with "Freeze windows OFF".
+### Freeze windows OFF [Script command]
+Cancels the effects of Freeze windows ON.
 ### Graphic scale «long» pixels = «long» milliseconds [Script command]
 Changes settings of the graphics window. (See "Graphic settings" dialog)
 ### Open file «filename» [Script command]
