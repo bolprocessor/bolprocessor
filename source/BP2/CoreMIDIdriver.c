@@ -127,6 +127,7 @@ int  GetNewListEntry(CMListData* ld, CMListEntry** p_entryptr);
 int  CompareEntryNames(const CMListEntry* a, const CMListEntry* b);
 void ResizeListBox(ListHandle list, long numRows);
 int  UpdateListBoxEntries(CMListData** ldh, ItemCount (*countFunc)(void), MIDIEndpointRef (*getEndpointFunc)(ItemCount));
+int  SelectListBoxItem(CMListData** ldh, Size itemnumber);
 int  GetListBoxSelection(CMListData** ldh);
 int  UpdateCMSettingsListBoxes();
 int  UpdateActiveEndpoints(CMListData** ldh, MIDIEndpointRef** endpoints, Size* epArraySize, Boolean* status);
@@ -251,11 +252,14 @@ void	EnumerateCMDevices()
 OSStatus InitCoreMidiDriver()
 {
 	OSStatus err;
-	Boolean ok;
+	int result;
+	Boolean ok, haveInputPort;
+	MIDIEndpointRef endpt;
 	CFStringRef pname, strtemp;
 	ItemCount num;
 	char name[MAXENDPOINTNAME];
 	
+	haveInputPort = false;
 	strtemp = CFSTR("Bol Processor");
 	if (strtemp == NULL)  return -1;
 	err = MIDIClientCreate(strtemp, CMNotifyCallback, NULL, &CMClient);
@@ -267,31 +271,10 @@ OSStatus InitCoreMidiDriver()
 		err = MIDIOutputPortCreate(CMClient, strtemp, &CMOutPort);
 		if (err == noErr) {
 			// EnumerateCMDevices();
-			
 			CMActiveDestinations = (MIDIEndpointRef*) NewPtr(CMActiveDestinationsSize * sizeof(MIDIEndpointRef));		
 			if ((err = MemError()) == noErr) {
 				CoreMidiOutputOn = true;
-				// find the first destination
-				// (code adapted from the Echo.cpp CM example)
-				num = MIDIGetNumberOfDestinations();
-				if (num > 0) {
-					CMActiveDestinations[0] = MIDIGetDestination(0);
-					CMActiveDestinations[1] = NULL;
-				}
-				else  CMActiveDestinations[0] = NULL;
-				
-				if (CMActiveDestinations[0] != NULL) {
-					err = MIDIObjectGetStringProperty(CMActiveDestinations[0], kMIDIPropertyName, &pname);
-					if (err == noErr) {
-						ok = CFStringGetCString(pname, name, sizeof(name), kCFStringEncodingMacRoman);
-						CFRelease(pname);
-					}
-					if (err != noErr || !ok) strcpy(name, "<unknown>");
-					sprintf(Message, "Sending Midi to destination: %s.", name);
-					ShowMessage(TRUE, wMessage, Message);
-					err = noErr;
-				}
-				else ShowMessage(TRUE, wMessage, "No MIDI destinations present.");
+				CMActiveDestinations[0] = NULL;
 			}
 			else  {
 				Alert1("Not enough memory to allocate MIDI destinations array!");
@@ -309,18 +292,8 @@ OSStatus InitCoreMidiDriver()
 			if (err == noErr) {
 				CMActiveSources = (MIDIEndpointRef*) NewPtr(CMActiveSourcesSize * sizeof(MIDIEndpointRef));
 				if ((err = MemError()) == noErr) {
-					// find the first source and connect to it
-					num = MIDIGetNumberOfSources();
-					if (num > 0) {
-						CMActiveSources[0] = MIDIGetSource(0);
-						CMActiveSources[1] = NULL;
-					}
-					else  CMActiveSources[0] = NULL;
-				
-					if (CMActiveSources[0] != NULL) {
-						err = CMConnectToSources(CMActiveSources, true);
-					}
-					else ShowMessage(TRUE, wMessage, "No MIDI sources present.");
+					haveInputPort = true;
+					CMActiveSources[0] = NULL;
 				}
 				else  {
 					Alert1("Not enough memory to allocate MIDI sources array!");
@@ -332,9 +305,51 @@ OSStatus InitCoreMidiDriver()
 			/*if (err != noErr) CMDestroyQueue();*/
 		}		
 	}
+	else {
+		ShowMessage(TRUE, wMessage, "Error: Could not sign into CoreMIDI.");
+		return err;
+	}
 	
-	err = UpdateCMSettingsListBoxes();
-
+	// populate the list boxes with sources and destinations
+	result = UpdateListBoxEntries(CMInputListData, MIDIGetNumberOfSources, MIDIGetSource);
+	if (result != OK) return -1;
+	result = UpdateListBoxEntries(CMOutputListData, MIDIGetNumberOfDestinations, MIDIGetDestination);
+	if (result != OK) return -1;
+	
+	if (CoreMidiOutputOn) {
+		// find the first destination
+		// (code adapted from the Echo.cpp CM example)
+		num = MIDIGetNumberOfDestinations();
+		if (num > 0 && (endpt = MIDIGetDestination(0)) != NULL) {
+			err = MIDIObjectGetStringProperty(endpt, kMIDIPropertyName, &pname);
+			if (err == noErr) {
+				ok = CFStringGetCString(pname, name, sizeof(name), kCFStringEncodingMacRoman);
+				CFRelease(pname);
+			}
+			if (err != noErr || !ok) strcpy(name, "<unknown>");
+			sprintf(Message, "Sending Midi to destination: %s.", name);
+			ShowMessage(TRUE, wMessage, Message);
+			err = noErr;
+			
+			// select the first destination in our list box
+			SelectListBoxItem(CMOutputListData, 0);
+		}
+		else ShowMessage(TRUE, wMessage, "No MIDI destinations present.");
+	}
+	if (haveInputPort) {
+		// find the first source and connect to it
+		num = MIDIGetNumberOfSources();
+		if (num > 0) {
+			// select the first source in our list box
+			SelectListBoxItem(CMInputListData, 0);
+		}
+		else ShowMessage(TRUE, wMessage, "No MIDI sources present.");
+	}
+	
+	// do a full update of list boxes to connect to the selections made (if any)
+	result = UpdateCMSettingsListBoxes();
+	if (result != OK) return -1;
+	
 	return err;
 }
 
@@ -678,7 +693,6 @@ OSStatus CreateCMSettings()
 {
 	ListHandle	inputLH, outputLH;
 	ControlRef	cntl;
-	Cell		selection;
 	
 	CMSettings = GetNewDialog(CMSettingsID, NULL, kLastWindowOfClass);
 	if (CMSettings != NULL) {
@@ -689,11 +703,6 @@ OSStatus CreateCMSettings()
 		
 		GetDialogItemAsControl(CMSettings, diOutputList, &cntl);
 		GetControlData(cntl, kControlEntireControl, kControlListBoxListHandleTag, sizeof(outputLH), &outputLH, NULL);
-		
-		// set the selections
-		/*SetPt(&selection, 0, 0);
-		LSetSelect(true, selection, inputLH);
-		LSetSelect(true, selection, outputLH);*/
 		
 		// create our list data structs
 		CMInputListData = NewListDataHandle(inputLH, 1);
@@ -971,6 +980,29 @@ EXITNOW:
 	return result;
 }
 
+/* Selects one item of one of our CM lists; does not affect the selection
+   status of other items */
+int SelectListBoxItem(CMListData** ldh, Size itemnumber)
+{
+	OSStatus err;
+	int result;
+	Cell selection;
+
+	// set the list selection
+	if (ldh != NULL && (*ldh)->list != NULL) {
+		SetPt(&selection, 0, itemnumber);
+		LSetSelect(true, selection, (*ldh)->list);
+	}
+	else return (FAILED);
+
+	// set CMListEntry to selected (if it exists)
+	if ((*ldh)->numEntries > itemnumber) {
+		(*(*ldh)->entries)->selected = true;
+	}
+	
+	return (OK);
+}
+	
 int GetListBoxSelection(CMListData** ldh)
 {
 	OSStatus err;
@@ -1006,6 +1038,7 @@ EXITNOW:
 
 int UpdateCMSettingsListBoxes()
 {
+	OSStatus err;
 	int result;	
 	ListHandle	inputLH, outputLH;
 	ControlRef	cntl;
@@ -1028,10 +1061,10 @@ int UpdateCMSettingsListBoxes()
 	// update source list
 	result = UpdateListBoxEntries(CMInputListData, MIDIGetNumberOfSources, MIDIGetSource);
 	if (result != OK) return result;
-	result = CMDisconnectFromSources(CMActiveSources); // err result is not fatal
+	err = CMDisconnectFromSources(CMActiveSources);  // err result is not fatal
 	result = UpdateActiveEndpoints(CMInputListData, &CMActiveSources, &CMActiveSourcesSize, &CoreMidiInputOn);
 	if (result != OK) return result;
-	result = CMConnectToSources(CMActiveSources, true); // err result is not fatal
+	err = CMConnectToSources(CMActiveSources, true); // err result is not fatal
 	
 	// update destination list
 	result = UpdateListBoxEntries(CMOutputListData, MIDIGetNumberOfDestinations, MIDIGetDestination);
