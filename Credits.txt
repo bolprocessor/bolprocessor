@@ -12,6 +12,9 @@ Further development between 1986 and 1998 was part of research projects under th
 - Association ISTAR France
 - Centre de Sciences Humaines (CSH, French Ministry of External Affairs, New Delhi)
 
-Version 2.9.5 of Bol Processor has been developed thanks to feedback and cooperation of several musicians and computer scientists.
+Version 2.9.6 of Bol Processor has been developed thanks to feedback and cooperation of several musicians and computer scientists.
 
 Thanks to Harm Visser, Jim Ross, Tom Demeyer, Nadaka and Didier, Paul Sheldon, and Sterling Beckwith for musical material, comments, code examples, help in uploading and distributing.  To Otto Laske and Jim Kippen for supporting the underlying research work.  To Srikumar Karaikudi Subramanian for additional development of BP2.  To Barry Vercoe for encouraging work with Csound.  And to the GMEB folks in Bourges for their 1997 award...
+
+MacOS X and Carbon porting by Anthony Kozar (with much assistance from 
+Bernard, of course :)
