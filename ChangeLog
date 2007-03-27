@@ -1,3 +1,20 @@
+2007-03-27	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	*source/BP2/BP2main.c:
+		Changed reporting of memory leaks to depend on TraceMemory instead of
+			CheckMem since TraceMemory can be controlled by BIGTEST macro.
+	
+	*source/BP2/-BP2.h:
+	*source/BP2/-BP2main.h:
+		Added "BP2.9.6beta" to VersionName[] and updated Version, IDSTRING, 
+			MAXVERSION, and VERSIONLENGTH.
+	
+	* resources/BP2-MacOS.rsrc:
+		Added myself to developers in the about box.
+		Added mapping for Data icon to type 'TEXT' in BNDL resource.
+
+	* Credits.txt:  Added note about Carbon porting.
+
 2007-03-26	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* resources/BP2-MacOS.rsrc:

@@ -38,8 +38,8 @@
 #ifndef _H_BP2
 #define _H_BP2
 
-#define IDSTRING "Version 2.9.5 (Jan 2007)"
-#define MAXVERSION 25
+#define IDSTRING "Version 2.9.6 beta (Mar 2007)"
+#define MAXVERSION 26
 
 #ifndef __POWERPC
 #define __POWERPC
@@ -1560,7 +1560,7 @@ typedef enum {
 #define ARROWLENGTH 4
 #define MAXCODE 21		/* number of special characters: ()+;=:/ etc. accessible to users */
 #define MAXCODE2 24		/* number of special characters: ()+;=:/ etc. used by BP2 */
-#define VERSIONLENGTH 10
+#define VERSIONLENGTH 15
 #define MAXKEY 128		/* number of keys in MIDI standard */
 
 // ----------------  MIDI Status bytes -----------------
