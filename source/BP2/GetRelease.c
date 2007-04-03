@@ -858,6 +858,7 @@ for(j=2; j < max; j++) {
 	ptr = (Handle) (*pp_MIDIcode)[j];
 	if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 	(*pp_MIDIcode)[j] = NULL;
+	(*p_MIDIsize)[j]  = ZERO; /* Added 30/3/2007 */
 	ptr = (Handle) (*pp_CsoundTime)[j];
 	if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 	(*pp_CsoundTime)[j] = NULL;

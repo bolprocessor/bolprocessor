@@ -858,9 +858,9 @@ switch(w) {
 			}
 		break;
 	case iObjects:
-		if(ReleaseObjectPrototypes() != OK) {
+	/*	if(ReleaseObjectPrototypes() != OK) {  Suppressed 30/3/2007
 			rep = FAILED; goto OUT;
-			}
+			} */
 		break;
 	case wCsoundTables:
 		Dirty[wCsoundInstruments] = Created[wCsoundInstruments] = FALSE;

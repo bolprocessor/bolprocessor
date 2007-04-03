@@ -1,3 +1,22 @@
+2007-04-03	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	*scripts/+sc.checkall:
+		Uncommented grammars that were causing errors in FillPhaseDiagram.
+
+2007-04-03	Bernard Bel	<bel@lpl.univ-aix.fr>
+(Commited by Anthony)
+
+	*source/BP2/GetRelease.c (ReleaseObjectPrototypes):
+		Set (*p_MIDIsize)[j] to 0 when disposing of (*pp_MIDIcode)[j] handles.
+	
+	*source/BP2/Interface1.c (ClearWindow):
+		Don't call ReleaseObjectPrototypes() from ClearWindow(); fixes crash.
+
+	*source/BP2/FillPhaseDiagram.c (Class & FillPhaseDiagram):
+		Rounded the calculation in Class() to avoid errors.
+		Redeclared **p_currobject, **p_objectsfound, objectsfound as double.
+		Removed unused variables throughout this file.
+
 2007-04-02	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	*source/BP2/BP2main.c:

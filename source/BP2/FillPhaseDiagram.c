@@ -52,28 +52,26 @@ FillPhaseDiagram(tokenbyte ***pp_buff,int* p_numberobjects,unsigned long *p_maxs
 	int* p_nmax,unsigned long **p_imaxseq,
 	double maxseqapprox,int *p_bigitem,short **p_articul)
 {
-OSErr oserr;
 unsigned long id,iseq,ip,iplot,**p_maxcol,classofinext,currswitchstate[MAXCHAN],
-	tstart,kpmax,imax;
-long in,lastbyte;
+	tstart,imax;
 float maxbeats,ibeatsvel,maxbeatsvel,**p_deftmaxbeatsvel,ibeatsarticul,maxbeatsarticul,
-	**p_deftibeatsarticul,**p_deftmaxbeatsarticul,**p_deftibeatsvel,**p_currobject,
-	**p_deftibeatsmap,**p_deftmaxbeatsmap,ibeatsmap,maxbeatsmap,**p_objectsfound,
-	objectsfound,value,orgval,newval,endvel,endarticul,modincrement,startmod,pressincrement,
-	startpress,volumeincrement,startvolume,panincrement,startpan,endval,
+	**p_deftibeatsarticul,**p_deftmaxbeatsarticul,**p_deftibeatsvel,
+	**p_deftibeatsmap,**p_deftmaxbeatsmap,ibeatsmap,maxbeatsmap,
+	value,orgval,newval,endvel,endarticul,endval,
 	starttranspose,transposeincrement,endtranspose,ibeatstranspose,maxbeatstranspose,
 	**p_deftmaxbeatstranspose,**p_deftibeatstranspose,**p_deftstarttranspose,**p_defttransposeincrement;
-double objectduration,**p_im,**p_origin,imaxseq,step,pitchratio,pressratio,scale,inext,
-	modratio,volumeratio,panratio,ratio,f,tempo,tempomax,prodtempo,speed,s,numberzeros;
-short **ptr,rndvel,velcontrol,**p_deftrndvel,**p_deftvelcontrol,**p_deftstartvel,
+double objectduration,**p_im,**p_origin,scale,inext,
+	tempo,tempomax,prodtempo,speed,s,numberzeros,
+	**p_currobject,**p_objectsfound,objectsfound;
+short rndvel,velcontrol,**p_deftrndvel,**p_deftvelcontrol,**p_deftstartvel,
 	velincrement,**p_deftvelincrement,**p_deftarticulincrement,**p_deftstartarticul;
-int i,j,k,kobj,pp,nseq,nseqmem,nseqmem2,newswitch,v,ch,mm,gotnewline,foundobject,
+int i,j,k,kobj,nseq,nseqmem,nseqmem2,newswitch,v,ch,gotnewline,foundobject,
 	failed,paramnameindex,paramvalueindex,maxparam,newxpandval,
 	**p_deftxpandval,**p_deftxpandkey,
 	r,rest,oldm,oldp,**p_seq,**p_deftnseq,startvel,articulincrement,
 	startarticul,istop,result,level,nseqplot;
 Handle h;
-char rep,datafile[MAXNAME+1],name[MAXNAME+1],line[MAXLIN],toofast,skipzeros,foundconcatenation,
+char  line[MAXLIN],toofast,skipzeros,foundconcatenation,
 	iscontinuous,isMIDIcontinuous,overstrike;
 
 tokenbyte m,p;
@@ -130,13 +128,13 @@ if((p_scriptlist = (p_list****) GiveSpace((Size)Maxconc*sizeof(p_list**))) == NU
 	
 if((p_origin = (double**) GiveSpace((Size)Maxlevel*sizeof(double))) == NULL)
 	return(ABORT);
-if((p_objectsfound = (float**) GiveSpace((Size)Maxlevel*sizeof(float))) == NULL)
+if((p_objectsfound = (double**) GiveSpace((Size)Maxlevel*sizeof(double))) == NULL)
 	return(ABORT);
 if((p_seq = (int**) GiveSpace((Size)Maxlevel*sizeof(int))) == NULL)
 	return(ABORT);
 if((p_deftnseq = (int**) GiveSpace((Size)Maxlevel*sizeof(int))) == NULL)
 	return(ABORT);
-if((p_currobject = (float**) GiveSpace((Size)Maxlevel*sizeof(float))) == NULL)
+if((p_currobject = (double**) GiveSpace((Size)Maxlevel*sizeof(double))) == NULL)
 	return(ABORT);
 if((p_deftcurrentparameters = (CurrentParameters**)
 			GiveSpace((Size)Maxlevel*sizeof(CurrentParameters))) == NULL)
@@ -1701,7 +1699,6 @@ Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,int fo
 	short ****p_seq,int *p_nseq,double maxseq,unsigned long iplot,int newk)
 {
 int oldk,gotnewline,nseq;
-double inext;
 
 (*p_overstrike) = FALSE;
 
@@ -1804,6 +1801,8 @@ return(OK);
 
 unsigned long Class(double i)
 {
+unsigned long result;
+
 if(i < 0.) {
 	/* Happens in beginning of table */
 	return(ZERO);
@@ -1813,7 +1812,8 @@ if(Kpress < 1.) {
 	Kpress = 1.;
 	}
 if(Kpress < 2. || i < 1.) return((unsigned long)i);
-return(1L + ((unsigned long)((i - 1.) / Kpress)));
+result = 1L + ((unsigned long)((ceil(i) - 1.) / Kpress));
+return(result);
 }
 
 
