@@ -1,3 +1,20 @@
+2007-04-02	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	*source/BP2/BP2main.c:
+		Revised memory management scheme when running on OS X:
+		 No longer uses FreeMem() or MaxMem() since they are inaccurate.
+		 No longer uses temporary memory functions since they are no different
+			than "regular memory" on OS X.
+		 Does not keep a reserve of "emergency memory" on OS X.
+		 Gives up immediately if an allocation fails on OS X but does not set
+		 	EmergencyExit.  (Perhaps this could be improved).
+		 Might be a good idea to stop and warn the user when total allocations
+		 	are nearly equal to the size of physical memory (to prevent a
+		 	massive slowdown when using too much virtual memory).
+	
+	*source/BP2/Inits.c:
+		Do not allocate space for h_EmergencyMemory on OS X.
+
 2007-03-27	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	*source/BP2/BP2main.c:

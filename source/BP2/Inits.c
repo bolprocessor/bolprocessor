@@ -303,7 +303,8 @@ for(i=32; i < 256; i++) (*p_HTMLchar2)[i] = HTMLlatin[i-32];
 
 // This is some extra memory used in case memory gets low
 // Helas it doesn't seem to work any more.
-h_EmergencyMemory = NewHandle(EMERGENCYMEMORYSIZE);
+if (!RunningOnOSX) h_EmergencyMemory = NewHandle(EMERGENCYMEMORYSIZE);
+else			 h_EmergencyMemory = NULL;
 
 if(MakeWindows() != OK) return(ABORT);
 // SetDialogFont(systemFont);

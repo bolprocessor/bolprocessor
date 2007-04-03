@@ -423,7 +423,7 @@ OSErr err,memerr;
 long totalbytes,contigbytes,grow,dummy;
 
 TRY:
-if(TempMemory) {
+if(!RunningOnOSX && TempMemory) { // temp mem functions the same on X as non-temp mem - akozar
 	/* We are using memory outside BP2's partition */
 	SchedulerIsActive--;
 	totalbytes = TempFreeMem();
@@ -449,7 +449,7 @@ if(TempMemory) {
 		}
 	}
 else {
-	if(LowOnMemory) {
+	if(!RunningOnOSX && LowOnMemory) { // FreeMem() and MaxMem() aren't very useful on X - akozar
 		totalbytes = FreeMem();
 		grow = ZERO;
 		contigbytes = size;
@@ -463,15 +463,20 @@ else {
 	p = (int**) NewHandle(size);
 	}
 
-MaxHandles++;
-
-if(p == NULL || (Beta && ((memerr=MemError()) != noErr))) {
-	MaxHandles--;
-	rep = GetMoreSpace(size);
-	if(rep == OK) goto TRY;
-	else return(NULL);
+if(p == NULL || /*(Beta &&*/ ((memerr=MemError()) != noErr)) { // should always check MemError - akozar
+	if (!RunningOnOSX) { // on OS 9, we might be able to find more space
+		rep = GetMoreSpace(size);
+		if(rep == OK) goto TRY;
+		else return(NULL);
+		}
+	else { // on OS X, this is pretty much the end of the road ?? - akozar 040207
+		Alert1("BP2 ran out of memory before completing the current task."
+			 "You may want to save your work before continuing.");
+		return NULL;
+		}
 	}
 else {
+	MaxHandles++;
 	MemoryUsed += (unsigned long) size;
 	if(MemoryUsed > MaxMemoryUsed) {
 		MaxMemoryUsed = MemoryUsed;
@@ -491,13 +496,25 @@ return(p);
 }
 
 
+/* CheckGrowingHandle() assesses how much memory is free to determine
+   whether p_h can grow to the new desired size.  The logic here may not
+   always accurately predict whether enough memory is available because
+   it does not take into account that the handle may need to be moved
+   to be resized (i.e. comparing available memory to 'resize' is not enough
+   to guarantee that memory can by combined with this handle.
+   If CheckGrowingHandle() does not think there is enough memory in the
+   application heap (or we already exhausted that route), then it tries
+   using temporary memory (with the user's permission).
+   
+   On OS X, this is all pretty much irrelevant, so we just return OK.
+ */
 CheckGrowingHandle(Handle *p_h,Size oldsize,Size size)
 {
 long contigbytes,grow,totalbytes,rep,dummy,resize;
 Handle p;
 OSErr memerr;
 
-if(size < oldsize) return(OK);
+if (RunningOnOSX || size < oldsize) return(OK);
 
 resize = size - oldsize;
 
@@ -617,13 +634,20 @@ if(TempMemory) {
 		}
 	}
 SchedulerIsActive--;
-SetHandleSize(h,newsize);
+SetHandleSize(h,newsize);  // FIXME: this could fail if the handle is locked and we are not really too low on memory - akozar
 SchedulerIsActive++;
 
 if((memerr=MemError()) != noErr) {
-	rep = GetMoreSpace(newsize);
-	if(rep == OK) goto TRY;
-	else return(NULL);
+	if (!RunningOnOSX) { // on OS 9, we might be able to find more space
+		rep = GetMoreSpace(newsize);
+		if(rep == OK) goto TRY;
+		else return(NULL);
+		}
+	else { // on OS X, this is pretty much the end of the road ?? - akozar 040207
+		Alert1("BP2 ran out of memory before completing the current task."
+			 "You may want to save your work before continuing.");
+		return NULL;
+		}
 	}
 return(h);
 }
@@ -648,7 +672,7 @@ else {
 if((*p_h) != NULL && oldsize > ZERO) {
 	if(CheckGrowingHandle(p_h,oldsize,size) != OK) return(ABORT);
 	SchedulerIsActive--;
-	SetHandleSize(*p_h,size);
+	SetHandleSize(*p_h,size);  // FIXME: this could fail if the handle is locked and we are not really too low on memory - akozar
 	SchedulerIsActive++;
 	}
 else {
@@ -674,9 +698,16 @@ if((memerr=MemError()) == noErr) {
 	return(OK);
 	}
 else {
-	rep = GetMoreSpace(size);
-	if(rep == OK) goto TRY;
-	else return(ABORT);
+	if (!RunningOnOSX) { // on OS 9, we might be able to find more space
+		rep = GetMoreSpace(size);
+		if(rep == OK) goto TRY;
+		else return(ABORT);
+		}
+	else { // on OS X, this is pretty much the end of the road ?? - akozar 040207
+		Alert1("BP2 ran out of memory before completing the current task."
+			 "You may want to save your work before continuing.");
+		return (ABORT);
+		}
 	}
 }
 
@@ -685,6 +716,7 @@ IsMemoryAvailable(long memrequest)	/* Not used here */
 {
 long total,contig;
 
+if (RunningOnOSX)  return (TRUE);
 if(!IsEmergencyMemory()) return(FALSE);
 PurgeSpace(&total,&contig);
 if(memrequest > /* EMERGENCYMEMORYSIZE + */ contig) return(FALSE);
@@ -702,7 +734,7 @@ return((h_EmergencyMemory != NULL) && (*h_EmergencyMemory != NULL)
 
 RecoverEmergencyMemory()
 {
-if((h_EmergencyMemory != NULL) && (*h_EmergencyMemory != NULL)) return(OK);
+if(RunningOnOSX || (h_EmergencyMemory != NULL) && (*h_EmergencyMemory != NULL)) return(OK);
 ShowMessage(TRUE,wMessage,"Recovered emergency memory…");
 // h_EmergencyMemory = NewHandle(EMERGENCYMEMORYSIZE);
 ReallocateHandle(h_EmergencyMemory,EMERGENCYMEMORYSIZE);
@@ -768,11 +800,17 @@ return(OK);
 }
 
 
+/* GetMoreSpace() just releases the small reserve in h_EmergencyMemory
+   and asks the user if they want to use temporary memory if this is
+   not enough (but does not allocate temp mem).
+   This is irrelevant on OS X (and h_EmergencyMemory is NULL). */
 GetMoreSpace(Size size)
 {
 long contigbytes,grow;
 int rep,result;
 RgnHandle rgnH;
+
+if (RunningOnOSX)  return (OK);
 
 SchedulerIsActive--;
 if(IsEmergencyMemory() && (h_EmergencyMemory != GZSaveHnd())) {
@@ -804,9 +842,10 @@ NOSPACE:
 			Alert1("Graphics will not be displayed because of lack of memory");
 		ShowWindow(Window[wTimeAccuracy]);
 		BringToFront(Window[wTimeAccuracy]);
-		rgnH = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
+		// since updating allocates memory, it is not essential right now -- akozar 040207
+		/*rgnH = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
 		UpdateDialog(gpDialogs[wTimeAccuracy], GetPortVisibleRegion(GetDialogPort(gpDialogs[wTimeAccuracy]),rgnH));
-		DisposeRgn(rgnH);
+		DisposeRgn(rgnH);*/
 		if(!ScriptExecOn)
 			Alert1("You should size up the memory allocation for BP2, or increase the quantization");
 USEIT:		
