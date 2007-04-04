@@ -88,7 +88,7 @@ AllSolTimeSet = StackFlag = (*p_bigitem) = ToldSkipped = FALSE;
 
 if(IsMidiDriverOn()) tstart = GetDriverTime();
 	
-maxseqapprox = ((maxseqapprox / Kpress) + 6.) * 1.01;	/* This is an approximation. */
+maxseqapprox = ((ceil(maxseqapprox) / Kpress) + 6.) * 1.01;	/* This is an approximation. */
 if(ShowMessages || Maxevent > 500L) {
 	if(Kpress > 1.) {
 		ShowWindow(Window[wTimeAccuracy]);
