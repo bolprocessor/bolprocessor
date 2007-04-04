@@ -74,9 +74,19 @@
 #define OBSOLETE 0
 #endif
 
-// 1 to use WASTE for text editing, 0 to use TextEdit instead
+// 1 to use WASTE for text editing, 0 to use TextEdit or MLTE instead
 #ifndef WASTE
-#define WASTE 1
+#define WASTE 0
+#endif
+
+// 1 to use Multilingual Text Engine for text editing, 0 to use TextEdit or WASTE instead
+#ifndef USE_MLTE
+#define USE_MLTE 0
+#endif
+
+// if both WASTE and USE_MLTE are 0, then TextEdit is used
+#if WASTE && USE_MLTE
+#error Cannot use both WASTE and MLTE for text editing.
 #endif
 
 // See BP2 history regarding NEWTIMER
@@ -1597,10 +1607,23 @@ typedef enum {
 //	#define MyDisposeHandle((handle*)&p_(x)) DisposPointer((x))
 // #endif
 
+#if USE_MLTE
+typedef struct {
+	TXNObject	textobj;
+	TXNFrameID	id;
+	Rect		viewRect;
+} OurMLTERecord;
+#endif
+
 #if WASTE
 typedef WEHandle TextHandle;
+typedef long TextOffset;
+#elif USE_MLTE
+typedef OurMLTERecord** TextHandle;
+typedef long TextOffset;	// should be TXNOffset (unsigned long), but there are many incompatible assumptions of long - akozar
 #else
 typedef TEHandle TextHandle;
+typedef long TextOffset;	// should be short, but there are many assumptions of long - akozar
 #endif
 
 #if WITH_REAL_TIME_SCHEDULER

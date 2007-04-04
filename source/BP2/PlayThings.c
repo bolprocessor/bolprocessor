@@ -75,8 +75,7 @@ if(w == wScript) {
 // if(WillRandomize) ReseedOrShuffle(RANDOMIZE);
 
 BPActivateWindow(SLOW,w);
-origin = (**(TEH[w])).selStart;
-end = (**(TEH[w])).selEnd;
+TextGetSelection(&origin, &end, TEH[w]);
 improvize = FALSE;
 if(Improvize) {
 	improvize = TRUE;
@@ -158,8 +157,7 @@ while((originmem=origin) < end) {
 		if((r=CompileCheck()) != OK) goto END;
 		/* Selection may be changed while compiling if w = wGrammar */
 		origin = Sel1; firstorigin = Sel2;
-		originmem = (**(TEH[w])).selStart;
-		end = (**(TEH[w])).selEnd;
+		TextGetSelection(&originmem, &end, TEH[w]);
 		Ctrlinit();
 		if(!AllowRandomize) ResetRandom();
 		else {
@@ -536,8 +534,7 @@ if(!StrikeAgainDefault) {
 		return(ABORT);
 		}
 	}
-origin = (**(TEH[w])).selStart;
-end = (**(TEH[w])).selEnd;
+TextGetSelection(&origin, &end, TEH[w]);
 if(end <= origin) {
 	Alert1("Selection is empty");
 	BPActivateWindow(SLOW,w);
@@ -928,7 +925,7 @@ ExpandSelection(int w)
 {
 int r,wout,finish,ifunc,newitem,dirtymem,hastabs;
 tokenbyte **p_a;
-long origin,end,neworigin,newend,length;
+long origin,end,neworigin,newend,dummy,length;
 double maxseq;
 
 if(CheckMemory() != OK) return(ABORT);
@@ -939,13 +936,14 @@ if(w < 0 || w >= WMAX) {
 if(w != LastEditWindow && Editable[w]) LastEditWindow = w;
 w = LastEditWindow;
 wout = w; if(ScriptExecOn) wout = OutputWindow;
-origin = (**(TEH[w])).selStart; end = (**(TEH[w])).selEnd;
+TextGetSelection(&origin, &end, TEH[w]);
 if(origin >= end) return(FAILED);
 if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 	CompiledAl = FALSE;
 	if(CompileAlphabet() != OK) return(FAILED);
 	}
-neworigin = newend = (**(TEH[wout])).selEnd;
+TextGetSelection(&dummy, &newend, TEH[wout]);
+neworigin = newend;
 p_a = NULL; newitem = FALSE;
 
 ExpandOn = TRUE;
@@ -979,7 +977,7 @@ while(origin < end) {
 	if(r == OK) {
 		SetSelect(newend,newend,TEH[wout]);
 		if(newitem) Print(wout,"\r");
-		else neworigin = (**(TEH[wout])).selEnd;
+		else TextGetSelection(&dummy, &neworigin, TEH[wout]);
 		Print(wout,"\r");
 		sprintf(Message,"Ratio = %u, Prod = %u",(unsigned long)Ratio,(unsigned long)Prod);
 		ShowMessage(TRUE,wMessage,Message);
@@ -991,7 +989,7 @@ while(origin < end) {
 			}
 		if(OkShowExpand)
 			r = PrintArg(DisplayMode(&p_a,&ifunc,&hastabs),FALSE,FALSE,TRUE,FALSE,FALSE,stdout,wout,pp_Scrap,&p_a);
-		newend = (**(TEH[wout])).selEnd;
+		TextGetSelection(&dummy, &newend, TEH[wout]);
 		BPActivateWindow(SLOW,wout);
 		}
 	MyDisposeHandle((Handle*)&p_a);
@@ -1014,7 +1012,7 @@ ShowPeriods(int w)
 {
 int r,finish,ifunc,hastabs;
 tokenbyte **p_a;
-long origin,end,oldorigin,neworigin,oldend,newend,length;
+long origin,end,oldorigin,neworigin,oldend,newend,dummy,length;
 double maxseq;
 
 if(CheckMemory() != OK) return(ABORT);
@@ -1024,7 +1022,7 @@ if(w < 0 || w >= WMAX) {
 	}
 if(w != LastEditWindow && Editable[w]) LastEditWindow = w;
 w = LastEditWindow;
-origin = (**(TEH[w])).selStart; end = (**(TEH[w])).selEnd;
+TextGetSelection(&origin, &end, TEH[w]);
 if(origin >= end) return(FAILED);
 if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 	CompiledAl = FALSE;
@@ -1048,7 +1046,7 @@ while(origin < end) {
 		TextCopy(w);
 		LastAction = SPACESELECTION;
 		UndoWindow = w;
-		UndoPos = (**(TEH[w])).selStart;
+		TextGetSelection(&UndoPos, &dummy, TEH[w]);
 		TextDelete(w);
 		while((r=PolyMake(&p_a,&maxseq,NO)) == AGAIN);
 		if(r == ABORT || r == EXIT) goto BAD;
@@ -1056,7 +1054,7 @@ while(origin < end) {
 		if(r != OK) goto BAD;
 		BPActivateWindow(SLOW,w);
 		UpdateDirty(TRUE,w);
-		newend = (**(TEH[w])).selEnd;
+		TextGetSelection(&dummy, &newend, TEH[w]);
 		end += newend - oldend;
 		origin += newend - oldend;
 		}
@@ -1214,8 +1212,8 @@ rep = FAILED;
 MyDisposeHandle((Handle*)pp_X);
 pp_buff = &p_buff; p_buff = NULL;
 if(!Editable[w]) return(FAILED);
-origin = (**(TEH[w])).selStart;
-*p_end = end = (**(TEH[w])).selEnd;
+TextGetSelection(&origin, &end, TEH[w]);
+*p_end = end;
 SelectOn = TRUE;
 
 POSITION:

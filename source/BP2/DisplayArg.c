@@ -371,6 +371,7 @@ int h,j,k,r,newtempo,forceshowtempo,key,new_depth[MAXLEVEL],compiledmem,maxpoly,
 	datamode,istemplate,wind,ifunc,nocode,levpar,nhomo;
 unsigned long i,ii,ia,numberprolongations,oldnumberprolongations;
 char c,line[MAXLIN],**p_sequence;
+TextOffset dummy;
 long posmem,n;
 double tempo,x,y,scale,speed,s,perioddivision,firstscale,prodtempo;
 Handle ptr;
@@ -421,7 +422,7 @@ for(i=ia; ; i+=2L) {
 				WEFeatureFlag(weFInhibitRecal,weBitClear,th);
 	#endif
 				AdjustTextInWindow(wind);
-				posmem = (**th).selEnd;
+				TextGetSelection(&dummy, &posmem, th);
 				}
 			Interrupted = TRUE; SetButtons(TRUE);
 			compiledmem = CompiledGr;

@@ -331,6 +331,7 @@ int SetNoteNames(void);
 int Ctrlinit(void);
 int MakeWindows(void);
 int HiliteDefault(DialogPtr);
+int CreateMLTEObject(int w, Rect* frame);
 int SetUpWindow(int);
 int LoadStrings(void);
 int LoadStringResource(char*****,int***,int***,int,long*,int);
@@ -1032,6 +1033,8 @@ int CheckRegistration(void);
 int CheckDeterminism(t_gram*);
 int SameBuffer(tokenbyte**,tokenbyte**);
 
+Boolean TextIsSelectionEmpty(TextHandle th);
+int TextGetSelection(TextOffset* start,TextOffset* end, TextHandle th);
 int SetSelect(long,long,TextHandle);
 int Activate(TextHandle);
 int Deactivate(TextHandle);
@@ -1057,9 +1060,11 @@ int SetTextDestRect(Rect*,TextHandle);
 int GetTextStyle(TextStyle*,short*,short*,TextHandle);
 char** WindowTextHandle(TextHandle);
 #if WASTE
+LongRect TextGetViewRect(TextHandle th);
 Rect LongRectToRect(LongRect);
 #else
 Rect LongRectToRect(Rect);
+Rect TextGetViewRect(TextHandle th);
 #endif
 long LineStartPos(int,int,int);
 

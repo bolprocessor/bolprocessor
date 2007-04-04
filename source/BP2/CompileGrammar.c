@@ -71,8 +71,9 @@ if(mode == 1 && IsEmpty(wGrammar)) {
 	return(FAILED);
 	}
 
-startsel = GramSelStart = (**(TEH[wGrammar])).selStart;
-endsel = GramSelEnd = (**(TEH[wGrammar])).selEnd;
+TextGetSelection(&GramSelStart, &GramSelEnd, TEH[wGrammar]);
+startsel = GramSelStart;
+endsel = GramSelEnd;
 
 GetDateTime((unsigned long*)&CompileDate);
 NoAlphabet = TRUE;

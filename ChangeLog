@@ -1,3 +1,36 @@
+2007-04-04	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* BP2-MacOS.cw8.mcp:  New target for Carbon MLTE build.
+	
+	* source/BP2/BP2main.c (main):
+	* source/BP2/Inits.c (Inits, SetUpWindow, CreateMLTEObject):
+	* source/BP2/WindowText.c:
+	* source/BP2/-BP2.h:
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+	* source/BP2/Color.c:
+	* source/BP2/CompileGrammar.c:
+	* source/BP2/Compute.c:
+	* source/BP2/Dialogs.c:
+	* source/BP2/DisplayArg.c:
+	* source/BP2/Interface1.c:
+	* source/BP2/Interface2.c:
+	* source/BP2/MenuCommands.c:
+	* source/BP2/MIDIstuff.c:
+	* source/BP2/PlayThings.c:
+	* source/BP2/ProduceItems.c:
+	* source/BP2/Script.c:
+	* source/BP2/ScriptUtils.c:
+		Initial support for Multilingual Text Engine.
+		TextHandle typedef is defined as our own record with MLTE.
+		SetUpWindow() creates MLTE objects to associate with text windows.
+		Replaced all accesses of TextEdit/WASTE record fields with calls
+			to new functions TextGetViewRect(), TextIsSelectionEmpty(), and
+			TextGetSelection().
+		Conditionalized some of the code in WindowText.c and some of the
+			event handling in Interface1.c to make equivalent MLTE calls.
+		
 2007-04-04	Bernard Bel	<bel@lpl.univ-aix.fr>
 (Commited by Anthony)
 
@@ -47,6 +80,13 @@
 	* source/BP2/Inits.c:
 		Do not allocate space for h_EmergencyMemory on OS X.
 
+2007-03-28	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/Dialogs.c (BPSetDialogAppearance):
+		Fix for non-Carbon builds.
+	
+	* BP2-MacOS.cw8.mcp:  Weak link NavigationLib & other non-required libs.
+	
 2007-03-27	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/BP2main.c:

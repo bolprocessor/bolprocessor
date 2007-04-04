@@ -90,8 +90,8 @@ if(FileName[w][0] == '\0') {
 DOIT:
 if(w != wInteraction && w != wGlossary && (r=ClearWindow(TRUE,wTrace)) != OK) goto QUIT1;
 else SelectBehind(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
-pos = posline = (*(TEH[w]))->selStart;
-posmax = (*(TEH[w]))->selEnd;
+TextGetSelection(&posline, &posmax, TEH[w]);
+pos = posline;
 if(w == wScript) {
 	if(ResetScriptQueue() != OK) {
 		r = ABORT; goto QUIT1;
@@ -567,6 +567,8 @@ return(OK);
 
 RecordEditWindow(int w)
 {
+TextOffset selbegin, selend;
+
 if(!ScriptRecOn) return(OK);
 if(w < 0 || w >= WMAX || !Editable[w] || w == wScript) {
 	return(FAILED);
@@ -574,10 +576,11 @@ if(w < 0 || w >= WMAX || !Editable[w] || w == wScript) {
 sprintf(Message,"\"%s\"",WindowName[w]);
 MystrcpyStringToTable(ScriptLine.arg,0,Message);
 AppendScript(42);
-sprintf(Message,"%ld",(long)(*(TEH[w]))->selStart);
+TextGetSelection(&selbegin, &selend, TEH[w]);
+sprintf(Message,"%ld",(long)selbegin);
 MystrcpyStringToTable(ScriptLine.arg,0,Message);
 AppendScript(59);
-sprintf(Message,"%ld",(long)(*(TEH[w]))->selEnd);
+sprintf(Message,"%ld",(long)selend);
 MystrcpyStringToTable(ScriptLine.arg,0,Message);
 AppendScript(60);
 ShowSelect(CENTRE,wScript);

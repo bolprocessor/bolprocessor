@@ -269,8 +269,9 @@ extern int DeriveFurther,DeriveFurtherKey,DeriveFurtherChan,ResetWeights,NeverRe
 	ParamValue[MAXPARAMCTRL],ParamInit[MAXPARAMCTRL],SaidTooComplex,ToldSkipped,
 	ParamControlChan,Newstatus,ShowMessages,ScriptSyncKey,ScriptSyncChan,
 	SUBthere,DisplayItems,ShowGraphic,NoteConvention,FunctionTable,
-	ScriptRecOn,ScriptExecOn,DefaultVolume,LastAction,UndoWindow,UndoPos,
+	ScriptRecOn,ScriptExecOn,DefaultVolume,LastAction,UndoWindow,
 	PedalOrigin,PedalPosition,HangOn,NoRepeat,ConvertMIDItoCsound;
+extern TextOffset UndoPos;
 extern long CountOn;
 extern unsigned long WaitStartDate,WaitEndDate;
 extern char Message[MAXLIN],TheName[MAXNAME];

@@ -123,7 +123,7 @@ if(p_event->what == keyDown) {
 		}
 	else {
 		if(w >= 0 && w < WMAX && Editable[w]) {
-			r = LongRectToRect((**(TEH[w])).viewRect);
+			r = LongRectToRect(TextGetViewRect(TEH[w]));
 			if(PtInRect(p_event->where,&r)) return(AGAIN);
 			/* Typing in text area */
 			}
@@ -2682,6 +2682,9 @@ int BPSetDialogAppearance(DialogPtr d)
 	GetPort(&oldport);
 	SetPortDialogPort(d);
 	
+	// these calls only require AppearanceLib, not CarbonLib
+	// but we only are using them in the Carbon build for now
+#if TARGET_API_MAC_CARBON
 	if (RunningOnOSX) {
 		TextSize(11);
 		
@@ -2691,7 +2694,6 @@ int BPSetDialogAppearance(DialogPtr d)
 			if (err == noErr) SetControlFontStyle(ctrl, &fontstyle);
 		}
 	}
-#if TARGET_API_MAC_CARBON
 	SetThemeWindowBackground(GetDialogWindow(d), kThemeBrushDialogBackgroundActive, false);
 #endif
 

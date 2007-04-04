@@ -1395,8 +1395,7 @@ int i,ii,j,ok,n;
 long iorg,iend,length;
 char c;
 
-iorg = (**(TEH[w])).selStart;
-iend = (**(TEH[w])).selEnd;
+TextGetSelection(&iorg, &iend, TEH[w]);
 length = GetTextLength(w);
 if(line[0] == '\0') return(FAILED);
 
@@ -1589,9 +1588,15 @@ switch(Jcontrol) {
 	}
 sprintf(Message,"%ld",(long)x);
 TextDelete(LastEditWindow);
+#if USE_MLTE
+// FIXME ? Is there a reason the Print() call is inbetween getting origin & end below ?
+TextGetSelection(&origin, &end, TEH[LastEditWindow]);
+Print(LastEditWindow,Message);
+#else
 origin = (**(TEH[LastEditWindow])).selStart;
 Print(LastEditWindow,Message);
 end = (**(TEH[LastEditWindow])).selEnd;
+#endif
 SetSelect(origin,end,TEH[LastEditWindow]);
 return(OK);
 }

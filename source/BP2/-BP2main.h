@@ -303,8 +303,9 @@ int DeriveFurther,DeriveFurtherKey,DeriveFurtherChan,ResetWeights,NeverResetWeig
 	ParamValue[MAXPARAMCTRL],ParamInit[MAXPARAMCTRL],SaidTooComplex,ToldSkipped,
 	ParamControlChan,Newstatus,ShowMessages,ScriptSyncKey,ScriptSyncChan,
 	SUBthere,DisplayItems,ShowGraphic,NoteConvention,FunctionTable,
-	ScriptRecOn,ScriptExecOn,DefaultVolume,LastAction,UndoWindow,UndoPos,
+	ScriptRecOn,ScriptExecOn,DefaultVolume,LastAction,UndoWindow,
 	PedalOrigin,PedalPosition,HangOn,NoRepeat,ConvertMIDItoCsound;
+TextOffset UndoPos;
 long CountOn;
 unsigned long WaitStartDate,WaitEndDate;
 char Message[MAXLIN],TheName[MAXNAME];

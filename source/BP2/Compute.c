@@ -373,11 +373,12 @@ while(((nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom,igram,grtype,p_
 #endif
 		}
 	if(PlanProduce || (*p_repeat)) {
+		TextOffset dummy, selend;
 		if(grtype == SUBtype && !freedom){  
 			j = 0;
 			goto DOIT;
 			}
-		firstposition = (**(TEH[wTrace])).selEnd;
+		TextGetSelection(&dummy, &firstposition, TEH[wTrace]);
 		if(TraceProduce) {
 			if(grtype == ORDtype) {
 				sprintf(Message,"ÔORDÕ grammar: selecting first candidate rule:\r");
@@ -395,13 +396,13 @@ while(((nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom,igram,grtype,p_
 		for(j=0; j < nb_candidates; j++) {
 			irul = (*p_candidate)[j];
 			if(TraceProduce) {
-				(*p_origin)[j] = (**(TEH[wTrace])).selEnd;
+				TextGetSelection(&dummy, &((*p_origin)[j]), TEH[wTrace]);
 				Print(wTrace,"Candidate: ");
 				ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,TRUE,TRUE);
 				ShowSelect(CENTRE,wTrace);
 				}
 			}
-		(*p_origin)[nb_candidates] = (**(TEH[wTrace])).selEnd;
+		TextGetSelection(&dummy, &((*p_origin)[nb_candidates]), TEH[wTrace]);
 ENTER:
 		if(grtype == ORDtype || grtype == SUB1type || grtype == POSLONGtype) j = 0;
 		else {
@@ -416,7 +417,8 @@ ENTER:
 				}
 			ShowMessage(TRUE,wMessage,"Click on selected derivation and resume!");
 			BPActivateWindow(SLOW,wTrace);
-			SetSelect((**(TEH[wTrace])).selEnd,(**(TEH[wTrace])).selEnd,TEH[wTrace]);
+			TextGetSelection(&dummy, &selend, TEH[wTrace]);
+			SetSelect(selend,selend,TEH[wTrace]);
 			ShowSelect(CENTRE,wTrace);
 			datemem = CompileDate;
 			ClickRuleOn = TRUE; UndoFlag = FALSE;
@@ -430,8 +432,7 @@ ENTER:
 				}
 			while((r = MainEvent()) != RESUME && r != STOP && r != EXIT) {
 				/* Hilite selected rule */
-				firstposition = (**(TEH[wTrace])).selStart;
-				position = (**(TEH[wTrace])).selEnd;
+				TextGetSelection(&firstposition, &position, TEH[wTrace]);
 				i = firstposition;
 				if(i > (*p_origin)[0]) {
 					for(i=i; i > 0; i--) {
@@ -473,7 +474,8 @@ ENTER:
 					(long)igram + 1);
 				if((r=Answer(Message,'Y')) == OK) {
 					r = FINISH;
-					SetSelect((**(TEH[wTrace])).selEnd,(**(TEH[wTrace])).selEnd,TEH[wTrace]);
+					TextGetSelection(&dummy, &selend, TEH[wTrace]);
+					SetSelect(selend,selend,TEH[wTrace]);
 					if(StepProduce
 						&& ((rep=Answer("Terminate step by step",'N')) != OK)) {
 						if(rep == ABORT) goto ENTER;
@@ -497,7 +499,7 @@ ENTER:
 				MyDisposeHandle((Handle*)&p_origin);
 				goto QUIT;
 				}
-			position = (**(TEH[wTrace])).selStart;
+			TextGetSelection(&position, &dummy, TEH[wTrace]);
 			for(j=0; j <= nb_candidates; j++) {
 				if(position < (*p_origin)[j]) break;
 				}
@@ -2208,9 +2210,10 @@ if(r == STOP && mode == PROD) {
 				sprintf(Message,"Jump to subgrammar #%ld\rand terminate computation",
 					(long)igram + 1L);
 			if((r=Answer(Message,'Y')) == OK) {
+				TextOffset dummy, selend;
 				r = FINISH;
-				SetSelect((**(TEH[wTrace])).selEnd,
-					(**(TEH[wTrace])).selEnd,TEH[wTrace]);
+				TextGetSelection(&dummy, &selend, TEH[wTrace]);
+				SetSelect(selend,selend,TEH[wTrace]);
 				if(StepProduce
 					&& ((rep=Answer("Terminate step by step",'N')) != OK)) {
 					if(rep == ABORT) return(AGAIN);

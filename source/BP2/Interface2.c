@@ -211,14 +211,13 @@ return(OK);
 SelectSomething(int w)
 /* Select line on which cursor is flashing */
 {
-int startpos,endpos,length;
+long startpos,endpos,length;
 char c;
 int j;
 
 if(w < 0 || w >= WMAX || !Editable[w]) return(FAILED);
 if(w != wStartString) return(OK);
-startpos = (**(TEH[w])).selStart;
-endpos = (**(TEH[w])).selEnd;
+TextGetSelection(&startpos,&endpos,TEH[w]);
 length = GetTextLength(w);
 if(startpos > length - 2) startpos = length - 2;
 if(endpos > length - 1) endpos = length - 1;
@@ -438,6 +437,7 @@ int i,j,cutall,arrowkey;
 char firstchar,diffchar;
 long orgsel;
 TextHandle th;
+TextOffset selbegin, selend;
 
 if(Nw < 0 || Nw >= WMAX) {
 	if(Beta) Alert1("Err. TypeChar()");
@@ -447,8 +447,8 @@ if(!Editable[Nw] && !HasFields[Nw]) return(OK);
 cutall = arrowkey = FALSE;
 if(Editable[Nw]) {
 	th = TEH[Nw];
-	if(thechar == '\b' && GetTextLength(Nw) == (*th)->selEnd
-												&& (*th)->selStart == 0) {
+	TextGetSelection(&selbegin, &selend, th);
+	if(thechar == '\b' && GetTextLength(Nw) == selend && selbegin == 0) {
 		if(SaveCheck(Nw) == ABORT) return(FAILED);
 		cutall = TRUE;
 		}
@@ -470,16 +470,17 @@ if(Editable[Nw]) {
 		}
 	else {
 		if(!arrowkey && thechar != '\b' && (LastAction != TYPEWIND || UndoWindow != Nw)) {
-			if((*th)->selEnd > (*th)->selStart) {
+			TextOffset dummy;
+			if(!TextIsSelectionEmpty(th)) {
 				TextCut(Nw);
 				LastAction = CUTWIND;
 				UndoWindow = Nw;
-				UndoPos = (*th)->selStart;
+				TextGetSelection(&UndoPos, &dummy, th);
 				}
 			else {
 				LastAction = TYPEWIND;
 				UndoWindow = Nw;
-				UndoPos = (*th)->selStart;
+				TextGetSelection(&UndoPos, &dummy, th);
 				}
 			}
 		}
@@ -736,8 +737,7 @@ GetClickedWord(int w,char* line)
 char c;
 long i,iorg,iend,length,start1,start2,end1,end2;
 
-iorg = (**(TEH[w])).selStart;
-iend = (**(TEH[w])).selEnd;
+TextGetSelection(&iorg, &iend, TEH[w]);
 length = GetTextLength(w);
 
 start1 = end1 = start2 = end2 = -1L;
@@ -1023,8 +1023,7 @@ long i,pos,posend,posmax;
 
 if(w < 0 || w >= WMAX || !Editable[w]) return(FAILED);
 if(n == 0) return(OK);
-pos = (*(TEH[w]))->selStart;
-posend = (*(TEH[w]))->selEnd;
+TextGetSelection(&pos, &posend, TEH[w]);
 posmax = GetTextLength(w);
 oldc = '\0';
 if(n < 0) {
@@ -1065,8 +1064,7 @@ long i,pos,posend,posmax;
 
 if(w < 0 || w >= WMAX || !Editable[w]) return(FAILED);
 if(n == 0) return(OK);
-pos = (*(TEH[w]))->selStart;
-posend = (*(TEH[w]))->selEnd;
+TextGetSelection(&pos, &posend, TEH[w]);
 posmax = GetTextLength(w);
 if(n < 0) {
 	i = pos - 1;
@@ -1124,12 +1122,12 @@ return(OK);
 MovePage(int w,int n)
 // Move cursor n pages down
 {
-long pos,length,linelength,pagejump;
+long pos,posend,length,linelength,pagejump;
 
 length = GetTextLength(w);
 linelength = length / LinesInText(w);	/* This is an approximation */
 pagejump = (linelength * linesInFolder[w] * 2L) / 3L;
-pos = (*(TEH[w]))->selStart;
+TextGetSelection(&pos, &posend, TEH[w]);
 pos += (n * pagejump);
 if(pos < ZERO) pos = ZERO;
 if(pos > length) pos = length;
@@ -1152,8 +1150,8 @@ int dir;
 if(w < 0 || w >= WMAX || !Editable[w]) return(FAILED);
 if(n == 0) return(OK);
 dir = n;
-i = pos = (*(TEH[w]))->selStart;
-posend = (*(TEH[w]))->selEnd;
+TextGetSelection(&pos, &posend, TEH[w]);
+i = pos;
 posmax = GetTextLength(w);
 oldc = '\0';
 if(n < 0) {
@@ -1198,7 +1196,11 @@ return(OK);
 SelectBehind(long pos1,long pos2,TextHandle teh)
 /* Doesn't force selection to scroll */
 {
+#if !USE_MLTE
 (*teh)->selStart = pos1; (*teh)->selEnd = pos2;
+#else // FIXME: how do we do this with MLTE ?
+if (Beta) Alert1("Err.  SelectBehind() not implemented for MLTE!");
+#endif
 return(OK);
 }
 
@@ -1814,12 +1816,12 @@ return(OK);
 GetNextOccurrence(int *p_redo,int start)
 {
 int i,j,k,w,jmax,rep;
-long pos,posmax;
+long dummy,pos,posmax;
 
 if((w = TargetWindow) < 0 || w >= WMAX || !Editable[w]) return(ABORT);
 rep = FAILED;
-pos = (int) (**(TEH[w])).selEnd;
-posmax = (int) GetTextLength(w);
+TextGetSelection(&dummy, &pos, TEH[w]);
+posmax = GetTextLength(w);
 jmax = strlen(FindString); if(jmax == 0) return(ABORT);
 
 START:
@@ -2356,7 +2358,7 @@ else {
 	PenPat(GetQDGlobalsGray(&pat));
 	}
 RGBForeColor(&Black);
-r = LongRectToRect((**(TEH[w])).viewRect);
+r = LongRectToRect(TextGetViewRect(TEH[w]));
 InsetRect(&r,-1,-1);
 FrameRect(&r);
 PenNormal();

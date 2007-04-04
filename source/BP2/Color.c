@@ -244,7 +244,7 @@ if(p_color != &None) {
 	TextSetStyle(doColor,&thestyle,manual,TEH[w]);
 	}
 if(!manual) return(OK);
-r = LongRectToRect((**(TEH[w])).viewRect);
+r = LongRectToRect(TextGetViewRect(TEH[w]));
 GetPort(&saveport);
 SetPortWindowPort(Window[w]);
 InvalWindowRect(Window[w], &r);
@@ -256,13 +256,13 @@ return(OK);
 
 SetFontSize(int w,int size)
 {
-long origin,end;
+TextOffset origin,end;
 GrafPtr saveport;
 
 if(w < 0 || w >= WMAX) return(FAILED);
 WindowTextSize[w] = size;
 if(!Editable[w]) return(OK);
-origin = (**(TEH[w])).selStart; end = (**(TEH[w])).selEnd;
+TextGetSelection(&origin, &end, TEH[w]);
 Deactivate(TEH[w]);
 SetSelect(ZERO,GetTextLength(w),TEH[w]);
 Reformat(w,-1,size,-1,&None,TRUE,TRUE);

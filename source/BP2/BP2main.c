@@ -324,6 +324,10 @@ ClearLockedSpace();
   if(NEWTIMER) RemoveTMTask();
 #endif
 
+#if USE_MLTE
+TXNTerminateTextension();
+#endif
+
 return(OK);
 }
 

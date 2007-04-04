@@ -406,7 +406,7 @@ if(!CompiledGr) return(FAILED);
 w = LastEditWindow;
 BPActivateWindow(SLOW,w);
 p_a = NULL; pp_a = &p_a;
-origin = (**(TEH[w])).selStart; end = (**(TEH[w])).selEnd;
+TextGetSelection(&origin, &end, TEH[w]);
 SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 if(end <= origin) {
 	if(ScriptExecOn) Print(wTrace,"\r¤¤¤ Can't analyze.  No item selectedÉ\r");

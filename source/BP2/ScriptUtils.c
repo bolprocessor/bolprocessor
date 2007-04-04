@@ -70,6 +70,7 @@ AppleEvent theAppleEvent,reply;
 AESendPriority priority;
 ProcessSerialNumber psn;
 ProcessInfoRec info;
+TextOffset selbegin, selend;
 
 r = OK; rs = 0;
 oldoutmidi = OutMIDI;
@@ -897,8 +898,9 @@ GOTIT6:
 		j= (*(ScriptLine.intarg))[0];
 		if(Editable[ScriptW]) {
 			if(check) return(OK);
-			if((*(TEH[ScriptW]))->selEnd >= j)
-				SelectBehind((long)j,(*(TEH[ScriptW]))->selEnd,TEH[ScriptW]);
+			TextGetSelection(&selbegin, &selend, TEH[ScriptW]);
+			if(selend >= j)
+				SelectBehind((long)j,selend,TEH[ScriptW]);
 			else
 				SelectBehind((long)j,(long)j,TEH[ScriptW]);
 			}
@@ -913,8 +915,9 @@ GOTIT6:
 		j= (*(ScriptLine.intarg))[0];
 		if(Editable[ScriptW]) {
 			if(check) return(OK);
-			if((*(TEH[ScriptW]))->selStart <= j)
-				SelectBehind((*(TEH[ScriptW]))->selStart,(long)j,TEH[ScriptW]);
+			TextGetSelection(&selbegin, &selend, TEH[ScriptW]);
+			if(selbegin <= j)
+				SelectBehind(selbegin,(long)j,TEH[ScriptW]);
 			else
 				SelectBehind((long)j,(long)j,TEH[ScriptW]);
 			ShowSelect(CENTRE,ScriptW);
@@ -950,7 +953,8 @@ GOTIT6:
 	case 70:	/* Set directory: */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		CurrentDir = (*(ScriptLine.intarg))[0];
-		*p_posdir = (*(TEH[wTrace]))->selStart;
+		TextGetSelection(&selbegin, &selend, TEH[wTrace]);
+		*p_posdir = selbegin;
 		if(check) {
 			for(w=0; w < WMAX; w++) {
 				if(w == wScript) continue;
@@ -1154,7 +1158,8 @@ GOTIT7:
 		if(check == 2) {	/* Compiling ÔINIT:Õ in grammar */
 			/* Here *p_Posdir is actually line position in grammar window. */
 			*p_posdir += MyHandleLen((p_ScriptLabelPart(85,0)));
-			SelectBehind(*p_posdir,(**(TEH[wGrammar])).selEnd,TEH[wGrammar]);
+			TextGetSelection(&selbegin, &selend, TEH[wGrammar]);
+			SelectBehind(*p_posdir,selend,TEH[wGrammar]);
 			if(SelectionToBuffer(FALSE,FALSE,wGrammar,&p_Initbuff,p_posdir,PROD) == OK)
 				InitThere = ((int) LengthOf(&p_Initbuff) > 0);
 			else {
@@ -2311,6 +2316,7 @@ return(r);
 
 ChangeDirInfo(long dir,int vref,long *p_posdir)
 {
+TextOffset dummy;
 long pos,posmax;
 int i,j;
 
@@ -2327,7 +2333,10 @@ if(pos < posmax) {
 				}
 			}
 		}
-	else pos = i = (*(TEH[wTrace]))->selStart;
+	else {
+		TextGetSelection(&pos, &dummy, TEH[wTrace]);
+		i = pos;
+		}
 	SelectBehind(pos,(long)i,TEH[wTrace]);
 	TextDelete(wTrace);
 	if(vref != CurrentVref) {

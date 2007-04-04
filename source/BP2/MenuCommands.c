@@ -237,6 +237,8 @@ return(OK);
 
 mMIDIinputcheck(int wind)
 {
+TextOffset selbegin, selend;
+
 if(!OutMIDI) {
 	Alert1("MIDI input is inactive (check the ‘Devices’ menu)");
 	return(FAILED);
@@ -254,7 +256,8 @@ else if (InBuiltDriverOn) FlashInfo("OMS is inactive. In-built MIDI driver is be
 
 Alert1("Notes played on external MIDI device will be shown in the ‘Data’ window. Otherwise select the proper input…");
 mTypeNote(wData);
-SetSelect((**(TEH[wData])).selEnd,(**(TEH[wData])).selEnd,TEH[wData]);
+TextGetSelection(&selbegin, &selend, TEH[wData]);
+SetSelect(selend, selend,TEH[wData]);
 ShowSelect(CENTRE,wData);
 
 #if USE_OMS
@@ -1694,7 +1697,7 @@ return(OK);
 mRevert(int wind)
 {
 int rep,longerCsound;
-long pos;
+TextOffset selbegin, selend;
 short refnum;
 FSSpec spec;
 OSErr io;
@@ -1709,7 +1712,7 @@ switch (rep) {
 	case YES:
 		Dirty[wind] = FALSE;
 		if(Editable[wind]) {
-			pos = (**(TEH[wind])).selStart;
+			TextGetSelection(&selbegin, &selend, TEH[wind]);
 			SetSelect(ZERO,GetTextLength(wind),TEH[wind]);
 			TextDelete(wind);
 			}
@@ -1811,7 +1814,7 @@ switch (rep) {
 
 OUT:
 if(Editable[wind]) {
-	SetSelect(pos,pos,TEH[wind]);
+	SetSelect(selbegin,selbegin,TEH[wind]);
 	ShowSelect(CENTRE,wind);
 	}
 return(OK);
@@ -1899,6 +1902,7 @@ return(EXIT);
 
 mUndo(int wind)
 {
+#if !USE_MLTE  /* FIXME:  use MLTE's built-in Undo */
 if(UndoFlag) {
 	HideWindow(GetDialogWindow(ResumeUndoStopPtr)); ResumeStopOn = FALSE;
 	return(UNDO);
@@ -1997,6 +2001,7 @@ switch(LastAction) {
 		break;
 	}
 TextAutoView(FALSE,FALSE,TEH[UndoWindow]);
+#endif
 
 return(OK);
 }
@@ -2007,12 +2012,13 @@ mCut(int wind)
 if(wind < 0 || wind >= WMAX || (!Editable[wind] && !HasFields[wind])) return(FAILED);
 if(RecordEditWindow(wind) && wind != wScript) AppendScript(61);
 if(Editable[wind]) {
+	TextOffset dummy;
 	TextAutoView(FALSE,TRUE,TEH[wind]);
 	TextCut(wind);
 	TextAutoView(FALSE,FALSE,TEH[wind]);
 	LastAction = CUTWIND;
 	UndoWindow = wind;
-	UndoPos = (**(TEH[wind])).selStart;
+	TextGetSelection(&UndoPos, &dummy, TEH[wind]);
 	if (Beta)  CheckScrapContents();
 	/*if(!WASTE) {
 		CCUZeroScrap(); TEToScrap();	// not necessary for multistyled TE - 030607 akozar
@@ -2074,8 +2080,9 @@ if(wind < 0 || wind >= WMAX
 	|| ((!Editable[wind] || LockedWindow[wind]) && !HasFields[wind])) return(FAILED);
 if(RecordEditWindow(wind) && wind != wScript) AppendScript(63);
 if(Editable[wind]) {
+	TextOffset dummy;
 	if (Beta)  CheckScrapContents();
-	UndoPos = (**(TEH[wind])).selStart;
+	TextGetSelection(&UndoPos, &dummy, TEH[wind]);
 	TextAutoView(FALSE,TRUE,TEH[wind]);
 	TextPaste(wind);
 	TextAutoView(FALSE,FALSE,TEH[wind]);
@@ -2387,6 +2394,7 @@ mEnterFind(int wind)
 {
 Handle myHandle;
 long scrapOffset, rc;
+TextOffset selbegin, selend;
 
 if(wind < 0 || wind >= WMAX || !Editable[wind]) {
 	Alert1("You can search only text window…");
@@ -2411,7 +2419,8 @@ if(rc > 0) {
 	}
 TextCopy(wind);
 // if(WASTE) TEFromScrap();
-SetSelect((**(TEH[wind])).selStart,(**(TEH[wind])).selStart,TEH[wind]);
+TextGetSelection(&selbegin, &selend, TEH[wind]);
+SetSelect(selbegin,selbegin,TEH[wind]);
 BPActivateWindow(SLOW,wFindReplace);
 SelectField(NULL,wFindReplace,fFind,TRUE);
 DialogPaste(gpDialogs[wFindReplace]);
@@ -2596,13 +2605,15 @@ return(OK);
 
 mBalance(int w)
 {
+TextOffset selbegin, selend;
 long i,iorg,startpos,endpos,length;
 int levelbracket,levelsquare,levelcurled,
 	isbracket,issquare,iscurled;
 char c;
 
 if(w < 0 || w >= WMAX || !Editable[w]) return(OK);
-iorg = (**(TEH[w])).selStart - 1;
+TextGetSelection(&selbegin, &selend, TEH[w]);
+iorg = selbegin - 1;
 length = GetTextLength(w);
 levelbracket = levelsquare = levelcurled = 0;
 isbracket = issquare = iscurled = FALSE;
@@ -2792,7 +2803,7 @@ if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || Grap
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 if(wind < 0 || wind >= WMAX || !Editable[wind]) wind = LastEditWindow;
 HideWindow(Window[wMessage]);
-origin = (**(TEH[wind])).selStart; end = (**(TEH[wind])).selEnd;
+TextGetSelection(&origin, &end, TEH[wind]);
 if(Nw == wScript) goto DOIT;
 if(RecordEditWindow(wind)) {
 	sprintf(Message,"\"%s\"",WindowName[wind]);

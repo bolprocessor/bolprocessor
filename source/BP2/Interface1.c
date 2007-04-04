@@ -391,7 +391,7 @@ DOTHECLICK:
 				SetPortWindowPort(whichwindow);
 				GetWindowPortBounds(whichwindow, &r);
 				InvalWindowRect(whichwindow, &r);
-				r = LongRectToRect((*(TEH[LastEditWindow]))->viewRect);
+				r = LongRectToRect(TextGetViewRect(TEH[LastEditWindow]));
 				SetPortWindowPort(Window[LastEditWindow]);
 				InvalWindowRect(Window[LastEditWindow], &r);
 				if(saveport != NULL) SetPort(saveport);
@@ -481,6 +481,10 @@ DOTHECLICK:
 				break;
 			case inGrow:
 				if(w == Nw /* && (!ClickRuleOn || w != wTrace) */) {
+					if (USE_MLTE && w < MAXWIND && OKgrow[w]) { // growable text windows are all < MAXWIND
+						TXNGrowWindow((*(TEH[w]))->textobj, p_event);
+						}
+					else
 					if(MyGrowWindow(w,p_event->where) == OK) {
 						if(w < WMAX) BPActivateWindow(SLOW,w);
 						NewEnvironment = ChangedCoordinates[w] = TRUE;
@@ -626,9 +630,13 @@ DOTHECLICK:
 		Help = FALSE;
 		if(Nw >= 0 && Nw < WMAX) {
 			ScriptKeyStroke(Nw,p_event);
-			if(thechar == '\b') {
-				if(!WASTE && Editable[Nw] && !LockedWindow[Nw]) {
-					if((start=(**(TEH[Nw])).selStart) < (**(TEH[Nw])).selEnd) {
+			if(thechar == '\b') {	// delete key
+				// FIXME: with TextEdit, this destroys the contents of the clipboard
+				// so we need another way to remember the deleted text for Undo-ing
+				if(!USE_MLTE && !WASTE && Editable[Nw] && !LockedWindow[Nw]) {
+					TextOffset selbegin, selend;
+					TextGetSelection(&selbegin, &selend, TEH[Nw]);
+					if((start=selbegin) < selend) {
 						if(LastAction != COPY && LastAction != CUTWIND
 													&& LastAction != PASTEWIND) {
 							TextCopy(Nw);
@@ -644,7 +652,7 @@ DOTHECLICK:
 							}
 						}
 					else {
-						if((start=(**(TEH[Nw])).selStart) > 0 && LastAction != COPY
+						if((start=selbegin) > 0 && LastAction != COPY
 								&& LastAction != CUTWIND && LastAction != PASTEWIND) {
 							
 							SetSelect(start - 1,start,TEH[Nw]);
@@ -721,8 +729,16 @@ DOTHECLICK:
 			}
 		break;
 	case updateEvt:
-		TEFromScrap();
-		UpdateWindow(FALSE,(WindowPtr)p_event->message);
+		for(w=0; w < WMAX; w++) {
+			if((WindowPtr) p_event->message == Window[w]) break;
+			}
+		if(w >= 0 && w < MAXWIND) {
+			TXNUpdate((*(TEH[w]))->textobj);
+			}
+		else {
+			TEFromScrap();
+			UpdateWindow(FALSE,(WindowPtr)p_event->message);
+			}
 		break;
 	default: ;
 	}
@@ -826,7 +842,7 @@ if(w != wMessage && Editable[w] && !LockedWindow[w]) {
 		SetVScroll(w);
 		AdjustTextInWindow(w);
 		}
-	r = LongRectToRect((**(TEH[w])).viewRect);
+	r = LongRectToRect(TextGetViewRect(TEH[w]));
 	InvalWindowRect(Window[w], &r);
 	}
 if(GrafWindow[w] && reset) {
@@ -1133,14 +1149,16 @@ if(w < 0 || w >= WMAX) {
 GetPort(&saveport);
 SetPortWindowPort(Window[w]);
 if(OKvScroll[w] && Editable[w]) {
+#if !USE_MLTE
 	oldScroll = (**(TEH[w])).viewRect.top - (**(TEH[w])).destRect.top;
 	newScroll = GetControlValue(vScroll[w]) * LineHeight(w);
 	delta = oldScroll - newScroll;
 	if(delta != 0) {
 		TextScroll(0,delta,TEH[w]);
-		r = LongRectToRect((**(TEH[w])).viewRect);
-/*		ValidWindowRect(Window[w], &r); */
+/*		r = LongRectToRect(TextGetViewRect(TEH[w]));
+		ValidWindowRect(Window[w], &r); */
 		}
+#endif
 	}
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err AdjustTextInWindow(). saveport == NULL");
@@ -1186,7 +1204,7 @@ return(OK);
 ShowSelect(int dir,int w)
 {
 /* register */ int topLine,bottomLine,startline,endline,n,rep;
-long selstart,selend;
+TextOffset selstart,selend;
 short height;
 Point pt1,pt2;
 Rect r,rclip,r1;
@@ -1267,6 +1285,9 @@ WEGetPoint(selstart,&startpoint,&height,TEH[w]);
 startline = topLine + (startpoint.v / height);
 WEGetPoint(selend,&endpoint,&height,TEH[w]);
 endline = topLine + (endpoint.v / height);
+#elif USE_MLTE
+TextGetSelection(&selstart,&selend,TEH[w]);
+// FIXME: what else needs to be done for MLTE ??
 #else
 selstart = (**(TEH[w])).selStart;
 selend = (**(TEH[w])).selEnd;
@@ -1419,11 +1440,17 @@ int	pageSize;
 int	scrollAmt,oldvalue,maxvalue;
 TextHandle teh;
 Rect r;
+#if WASTE
+  LongRect lr;
+#else
+  Rect lr;
+#endif
 
 if(Nw < 0 || Nw >= WMAX) return ;
 if(Editable[Nw]) {
 	teh = TEH[Nw];
-	pageSize = ((**teh).viewRect.bottom-(**teh).viewRect.top) / 
+	lr = TextGetViewRect(teh);
+	pageSize = (lr.bottom-lr.top) / 
 			WindowTextSize[Nw] - 1;
 	}
 else {
@@ -1513,7 +1540,7 @@ hscrollptr = NewRoutineDescriptor((ProcPtr)hScrollProc,uppControlActionProcInfo,
 if(w < WMAX && Editable[w]) {
 	if((cntlCode = FindControl(p_event->where,theWindow,&theControl)) == 0) {
 		MyLock(FALSE,(Handle)TEH[w]);
-		r = LongRectToRect((**(TEH[w])).viewRect);
+		r = LongRectToRect(TextGetViewRect(TEH[w]));
 		if(PtInRect(p_event->where,&r)) {
 			VariableOn = FALSE;
 			TextAutoView(TRUE,TRUE,TEH[w]);
@@ -1882,7 +1909,7 @@ else {
 	strcat(line1,":");
 	strcat(line1,s);
 	}
-origin = (**(TEH[w])).selStart; end = (**(TEH[w])).selEnd;
+TextGetSelection(&origin,&end,TEH[w]);
 pos = ZERO;
 posmax = GetTextLength(w);
 count1 = strlen(line1); count2 = strlen(line2);
@@ -1938,7 +1965,7 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 dirtymem = Dirty[w];
 if(w == wAlphabet) compilemem = CompiledAl;
 if(w == wGrammar) compilemem = CompiledGr;
-origin = (**(TEH[w])).selStart; end = (**(TEH[w])).selEnd;
+TextGetSelection(&origin,&end,TEH[w]);
 pos = ZERO;
 posmax = GetTextLength(w);
 strcpy(line,prefix);
@@ -2143,7 +2170,7 @@ SetPortWindowPort(wPtr);
 GetMouse(&pt);
 if(Nw > -1 && Nw < WMAX && Ours(wPtr,Window[Nw])) {
 	if(Editable[Nw] && !LockedWindow[Nw]) {
-		r = LongRectToRect((**(TEH[Nw])).viewRect);
+		r = LongRectToRect(TextGetViewRect(TEH[Nw]));
 		if(PtInRect(pt,&r)) {
 			SetCursor(&EditCursor);
 			goto OUT;
@@ -2232,7 +2259,7 @@ MaintainMenus(void)
 {
 Rect r;
 short itemtype;
-long dif;
+Boolean haveSelection;
 Handle itemhandle;
 int w;
 
@@ -2383,18 +2410,18 @@ else {
 	else {
 		DisableMenuItem(myMenus[fileM],fmSave);
 		}
-	dif = ZERO;
+	haveSelection = FALSE;
 	if(Nw >= 0 && Nw < WMAX && Editable[Nw]) {
-		dif = (**(TEH[Nw])).selEnd - (**(TEH[Nw])).selStart;
+		haveSelection = !TextIsSelectionEmpty(TEH[Nw]);
 		}
 	else {
-		if(Nw >= 0 && Nw < WMAX) dif = (long) HasFields[Nw];
+		if(Nw >= 0 && Nw < WMAX) haveSelection = HasFields[Nw];
 		}
 	if((Nw == wTrace && ClickRuleOn) || Nw < 0 || Nw >= WMAX
 							|| (!Editable[Nw] && !HasFields[Nw]))
 			DisableMenuItem(myMenus[editM],pasteCommand);
 	else 	EnableMenuItem(myMenus[editM],pasteCommand);
-	if(dif == ZERO || (Nw == wTrace && ClickRuleOn)) {
+	if(!haveSelection || (Nw == wTrace && ClickRuleOn)) {
 		DisableMenuItem(myMenus[editM],cutCommand);
 		DisableMenuItem(myMenus[editM],copyCommand);
 		DisableMenuItem(myMenus[editM],clearCommand);
@@ -2412,8 +2439,7 @@ if(Nw >= 0 && Nw < WMAX && (Editable[Nw] || GrafWindow[Nw]))
 else
 	DisableMenuItem(myMenus[fileM],fmPrint);
 DisableMenuItem(myMenus[actionM],analyzeCommand);
-if(((**(TEH[LastEditWindow])).selEnd
-		- (**(TEH[LastEditWindow])).selStart > 0)
+if (!TextIsSelectionEmpty(TEH[LastEditWindow])
 		&& !ComputeOn && !PolyOn && !CompileOn && !SoundOn && !SelectOn
 		&& !GraphicOn && !SetTimeOn && !PrintOn && !ScriptExecOn) {
 	EnableMenuItem(myMenus[actionM],playCommand);

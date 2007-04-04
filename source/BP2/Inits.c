@@ -51,7 +51,7 @@
 Inits(void)
 {
 int i,j,ch;
-OSErr io;
+OSStatus io;
 WDPBRec pb;
 char **ptr;
 Rect r;
@@ -85,6 +85,16 @@ TEInit();
 InitDialogs(0L);
 #endif
 InitCursor();
+
+#if USE_MLTE
+io = TXNInitTextension(NULL, 0, 0);
+if (io != noErr) {
+	ParamText("\pBP could not initialize the Multilingual Text Engine library.  Quitting ...",
+	          "\p", "\p", "\p");
+	StopAlert(OKAlert,0L);
+	return EXIT;
+}
+#endif
 
 ForceTextColor = ForceGraphicColor = 0;
 if(!GoodMachine()) return(ABORT);
@@ -1102,6 +1112,7 @@ if(Editable[w]) { TextFont(kFontIDCourier); TextSize(WindowTextSize[w]); }
 Charstep = 7; /* StringWidth("\pm"); */
 Nw = w;
 GetWindowPortBounds(Window[w], &viewRect);
+if (!USE_MLTE) {
 if(OKvScroll[w]  || OKhScroll[w]) {
 	viewRect.right = viewRect.right - SBARWIDTH;
 	if (!RunningOnOSX || OKhScroll[w])  viewRect.bottom = viewRect.bottom - SBARWIDTH;
@@ -1127,9 +1138,11 @@ if(OKhScroll[w]) {
 	Hmin[w] = INT_MAX; Hmax[w] = - INT_MAX;
 	Hzero[w] = 0;
 	}
+  }
 viewRect.bottom -= Freebottom[w];
 destRect = viewRect;
 if(Editable[w]) {
+#if WASTE
 	dr.top = destRect.top;
 	dr.left = destRect.left;
 	dr.bottom = destRect.bottom;
@@ -1138,7 +1151,6 @@ if(Editable[w]) {
 	vr.left = viewRect.left;
 	vr.bottom = viewRect.bottom;
 	vr.right = viewRect.right;
-#if WASTE
 	err = WENew((const LongRect*)&dr,(const LongRect*)&vr,/* weFUseTempMem */ 0,
 		&TEH[w]);
 	if(err != noErr) {
@@ -1153,6 +1165,8 @@ if(Editable[w]) {
 		WESetAlignment(weFlushLeft,TEH[w]);
 	else
 		WESetAlignment(weFlushRight,TEH[w]);
+#elif USE_MLTE
+	if (CreateMLTEObject(w, &viewRect) != OK) return (FAILED);
 #else
 	TEH[w] = TEStyleNew(&destRect,&viewRect);
 	// StyleHandle[w] = TEGetStyleHandle(TEH[w]);
@@ -1172,6 +1186,56 @@ if(Editable[w]) PrintBehind(w," ");	/* Needed to record size into windowscrap */
 #endif
 return(DoSystem());
 }
+
+
+#if USE_MLTE
+int CreateMLTEObject(int w, Rect* frame)
+{
+	OSStatus err;
+	TXNObject textObject;
+	TXNFrameID id;
+	TXNFrameOptions frameOptions = 0;
+
+	// use Ptrs so we don't have to worry about locking, etc.
+	TEH[w] = (OurMLTERecord**) NewHandle(sizeof(OurMLTERecord));
+	if (MemError() != noErr)  return (FAILED);
+	
+	(*TEH[w])->textobj = NULL;
+	(*TEH[w])->id = 0;
+	(*TEH[w])->viewRect = *frame;
+	
+	if (OKgrow[w])     frameOptions |= kTXNDrawGrowIconMask;
+	if (OKvScroll[w])  frameOptions |= kTXNWantVScrollBarMask;
+	if (OKhScroll[w])  frameOptions |= kTXNWantHScrollBarMask;
+	
+	frameOptions |= kTXNAlwaysWrapAtViewEdgeMask;
+	
+	// we use MacOS text encoding, not kTXNSystemDefaultEncoding which defaults to Unicode
+	// pass window index as the refcon
+	err =TXNNewObject(NULL, Window[w], frame, frameOptions, kTXNTextEditStyleFrameType,	
+				kTXNTextFile, kTXNMacOSEncoding, &textObject, &id, (TXNObjectRefcon)w);
+	if (err != noErr)  return (FAILED);
+	
+	(*TEH[w])->textobj = textObject;
+	(*TEH[w])->id = id;
+
+	{ // this block hopefully turns off auto-handling of keyboard events
+	TXNControlTag  iControlTags [] = {kTXNUseCarbonEvents};
+	TXNControlData iControlData [1];
+	TXNCarbonEventInfo carbonEventInfo;
+	
+	carbonEventInfo.useCarbonEvents = false;
+	carbonEventInfo.filler = 0;
+	carbonEventInfo.flags = 0;
+	carbonEventInfo.fDictionary = NULL;
+	
+	iControlData [0 ].uValue = (UInt32)&carbonEventInfo;
+	err =TXNSetTXNObjectControls(textObject, false, 1, iControlTags, iControlData);
+	}
+	
+	return (OK);
+}
+#endif
 
 
 LoadStrings(void)
