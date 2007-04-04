@@ -55,7 +55,9 @@ int r,igram,inrul,finish,again,outgram,outrul,displayproducemem,level;
 unsigned long ix;
 
 
-if((p_ItemStart == NULL) && MakeComputeSpace(MaxDeriv) != OK) return(ABORT);
+ReleaseProduceStackSpace();
+MaxDeriv = MAXDERIV;
+if(MakeComputeSpace(MaxDeriv) != OK) return(ABORT);
 displayproducemem = DisplayProduce;
 if(DisplayProduce && !ScriptExecOn) {
 	BPActivateWindow(QUICK,wTrace);
@@ -663,7 +665,7 @@ NOPROD:
 			(Answer("End of known computation.\rContinue",'Y') == YES
 				&& (PlanProduce=Answer("Choose candidate rules",'N')) != ABORT)) {
 			TraceProduce = DisplayProduce = TRUE;
-			continue;
+			goto MORE;
 			}
 		else {
 			rep = FAILED;
@@ -705,7 +707,8 @@ NOPROD:
 			}
 		}
 	if(learn) (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].w++;
-	
+
+MORE:	
 	if(Varweight && (grtype != SUBtype) && !shootagain) {
 		w = rule.w;
 		w = w + rule.incweight;

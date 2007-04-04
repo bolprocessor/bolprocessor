@@ -1,25 +1,38 @@
+2007-04-04	Bernard Bel	<bel@lpl.univ-aix.fr>
+(Commited by Anthony)
+
+	* source/BP2/Compute.c:
+		Call ReleaseProduceStackSpace() and reset MaxDeriv at the beginning of
+			Compute() to avoid allocating too much memory in 
+			IncreaseComputeSpace().
+		Changes to ComputeInGram() so that Repeat Production does not perform
+			an extra step (rule weight was not being decreased in last step).
+	
+	* source/BP2/FillPhaseDiagram.c (FillPhaseDiagram):
+		Round the value of maxseqapprox up with ceil().
+
 2007-04-03	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
-	*scripts/+sc.checkall:
+	* scripts/+sc.checkall:
 		Uncommented grammars that were causing errors in FillPhaseDiagram.
 
 2007-04-03	Bernard Bel	<bel@lpl.univ-aix.fr>
 (Commited by Anthony)
 
-	*source/BP2/GetRelease.c (ReleaseObjectPrototypes):
+	* source/BP2/GetRelease.c (ReleaseObjectPrototypes):
 		Set (*p_MIDIsize)[j] to 0 when disposing of (*pp_MIDIcode)[j] handles.
 	
-	*source/BP2/Interface1.c (ClearWindow):
+	* source/BP2/Interface1.c (ClearWindow):
 		Don't call ReleaseObjectPrototypes() from ClearWindow(); fixes crash.
 
-	*source/BP2/FillPhaseDiagram.c (Class & FillPhaseDiagram):
+	* source/BP2/FillPhaseDiagram.c (Class & FillPhaseDiagram):
 		Rounded the calculation in Class() to avoid errors.
 		Redeclared **p_currobject, **p_objectsfound, objectsfound as double.
 		Removed unused variables throughout this file.
 
 2007-04-02	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
-	*source/BP2/BP2main.c:
+	* source/BP2/BP2main.c:
 		Revised memory management scheme when running on OS X:
 		 No longer uses FreeMem() or MaxMem() since they are inaccurate.
 		 No longer uses temporary memory functions since they are no different
@@ -31,17 +44,17 @@
 		 	are nearly equal to the size of physical memory (to prevent a
 		 	massive slowdown when using too much virtual memory).
 	
-	*source/BP2/Inits.c:
+	* source/BP2/Inits.c:
 		Do not allocate space for h_EmergencyMemory on OS X.
 
 2007-03-27	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
-	*source/BP2/BP2main.c:
+	* source/BP2/BP2main.c:
 		Changed reporting of memory leaks to depend on TraceMemory instead of
 			CheckMem since TraceMemory can be controlled by BIGTEST macro.
 	
-	*source/BP2/-BP2.h:
-	*source/BP2/-BP2main.h:
+	* source/BP2/-BP2.h:
+	* source/BP2/-BP2main.h:
 		Added "BP2.9.6beta" to VersionName[] and updated Version, IDSTRING, 
 			MAXVERSION, and VERSIONLENGTH.
 	
