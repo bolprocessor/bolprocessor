@@ -4,14 +4,6 @@ Here is a short list of known issues since I began working on the project:
 noticeably, selecting "New Project" causes an infinite loop in setting the
 Midi output port?
 
-- Can't successfully run +sc.checkall because -gr.Visser3 fails on these
-lines of code in FillPhaseDiagram.c (line 902):
-		if(nseq >= Minconc) {
-			if(Beta) {
-				Alert1("Err. FillPhaseDiagram(). nseq >= Minconc");
-				goto ENDDIAGRAM;
-				}
-
 - Several "variable used before initialized" warnings should be investigated.
 
 - These dialogs cannot be closed with Command-W: Tuning, Default performance
@@ -34,72 +26,56 @@ aborted file write?
 
 - FlushVolume() seems wrong; could just use FlushVol from Toolbox instead.
 
-- In TextEdit build, window updates redraw the text from the top of the document
-instead of the current scroll position.
-
 - Crashes if too much text is inserted into a TextEdit buffer.
-
-- Getting warnings about using temporary memory and running out of memory with
-the Carbon build, even running on OS X, after producing items several times 
-with a complex project.
 
 - BP2 crashes if you press the "Piano roll" button in the Object prototypes
 window several times in a row.  (tries to dispose of several empty handles
 in MakeSound() first).
 
-- Not sure about the source of this one.  Had a memory access exception (OS X)
-clicking the close box of wPrototype1.  Details below:
-
-	Had loaded -ho.abc1 & -mi.abc1, then loaded -gr.koto3 to try and test 
-	-in.abc1.  After browsing the prototypes (playing a few of them by 
-	themselves), I tried to close the prototype window.
-	
-	Stack trace:
-		GoAway() - line 939:	wmem = 26 (wPrototype1)  w = 17 (wBufferSize)
-		BPActivateWindow() - line 1014:   Nw = 26 (wPrototype1)
-		GetDialogValues(force = YES) - last line (342):  iProto = 2
-		CheckConsistency(j = 2, check = TRUE) - line 450:  longerCsound = 0
-		SetPrototypeDuration(j = 2) - line 1051
-		DurationToPoint(pp_MIDIcode,NULL,p_MIDIsize,j = 2) - line 768
-		
-	in DurationToPoint (line 766):
-		if(pp_midicode != NULL) {
-			for(i=0,time = ZERO; i < (*p_size)[j]; i++) {
-				time += (*((*pp_midicode)[j]))[i].time;
-				(*((*pp_midicode)[j]))[i].time = time;
-				}
-				
-		(*pp_midicode)[0] is NULL (to be expected, I think)
-		(*pp_midicode)[1] is not NULL and points to MIDIcodes with 
-			the first two bytes = 248 * 0.
-		(*pp_midicode)[2 thru 35] are all NULL.
-		
-		But Jbol is 19, and several of these prototypes are supposed
-		to contain MIDI data, so this does not seem correct.
-		
-		(*p_size)[0 and 1] are 0 (to be expected, I think)
-		(*p_size)[2 thru 18] are 28,6,30,12,75,6,1,32,0,0,6,0,0,0,36,6,6
-		
-		So, it seems to me that many of the MIDIcode arrays are NULL but
-		are supposed to contain data.
-		
-		(*p_Bol)[0 thru 18] are _, -, chik, a, a', b, b', c, c', d, d', e,
-			f, f', g, g', cycle1, sync, cycle2
-		
-
 - Colored text displays as black on OS X.
 
 - TEToScrap() does not work on OS X; Cut and Copy commands may not work
-correctly all of the time (especially to/from other apps).
+  correctly all of the time (especially to/from other apps). (Made an attempt
+  at fixing this -- needs more testing).
 
 - Auto-scrolling in text windows (by dragging beyond the current view rect)
-does not move the scroll bar.  (TE or WASTE)
+  does not move the scroll bar.  (TE or WASTE)
 
-- TE windows do not always display all text in the same font size.
+- TE windows do not always display all text in the same font size. (Fixed?)
 
 - Mouse downs in Control Panel & Script Control dialogs are processed as "hits"
   even if the user drags out of the control to cancel the click.  This does not
   happen if the dialog is an inactive window.  Buttons in other dialogs "flash"
   after cancelling a click but their actions are not taken.
+
+- With TextEdit, BP2 uses TextCopy() to save the last character deleted with
+  the delete key.  This replaces the contents of the clipboard, of course, 
+  which should not happen.  (See about line 630 in Interface1.c -- the keyDown
+  case of DoEvent()).
+
+- Selecting a miscellaneous dialog (one not in gpDialogs[]) when a text window
+  is active leaves the edit record active.  With "Default strike mode", this 
+  allows typing, deleting, pasting, etc. in the last edit window.
+
+- In general, many menu/key commands work in the previously selected window
+  after selecting a miscellaneous dialog.  (This may be desirable in some
+  cases ?? but certainly not in all).
+
+- When a miscellaneous dialog is the active window, the insertion point only 
+  blinks in edit boxes if the mouse cursor is over the window.  Also if the
+  previously active window was a text window, the insertion point continues
+  to blink in that window.
  
+- Probably should make it so that the message and info windows are not able to
+  be selected as the front window.  (It is useful to do so to change their text
+  size but then the window is usually not tall enough anyways).
+  
+- BringToFront() seems to work differently on OS X, causing the currently 
+  highlighted window to be unselected.  This is problematic with the 
+  message window during playback because it becomes very difficult to keep
+  a window active long enough to do anything in it.  Perhaps using 
+  SendBehind(FrontWindow()) would be a good workaround until we can make 
+  real floating windows.
+
+- Arrow keys do not move properly when some text is already selected.
 
