@@ -1199,7 +1199,7 @@ SelectBehind(long pos1,long pos2,TextHandle teh)
 #if !USE_MLTE
 (*teh)->selStart = pos1; (*teh)->selEnd = pos2;
 #else // FIXME: how do we do this with MLTE ?
-if (Beta) Alert1("Err.  SelectBehind() not implemented for MLTE!");
+if (Beta) printf("Err.  SelectBehind() not implemented for MLTE!\n");
 #endif
 return(OK);
 }

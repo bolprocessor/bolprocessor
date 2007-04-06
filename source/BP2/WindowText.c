@@ -157,6 +157,7 @@ CalText(TextHandle th)
 #if WASTE
 WECalText(th);
 #elif USE_MLTE
+PrintCall("CalText()", NULL);
 TXNRecalcTextLayout((*th)->textobj);
 // TXNForceUpdate((*th)->textobj);
 #else
@@ -254,6 +255,7 @@ SetPortWindowPort(Window[w]);
 EraseRgn((*TEH[w])->viewRgn);
 WEUpdate((*TEH[w])->viewRgn,TEH[w]);
 #elif USE_MLTE
+PrintCall("TextUpdate()", Window[w]);
 TXNUpdate((*TEH[w])->textobj);
 #else
 TEUpdate(GetWindowPortBounds(Window[w], &r),TEH[w]);
@@ -389,6 +391,7 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 #if WASTE
 WEClick(p_event->where,p_event->modifiers,p_event->when,TEH[w]);
 #elif USE_MLTE
+PrintEvent(p_event, "TextClick()", Window[w]);
 LocalToGlobal(&p_event->where);
 TXNClick((*TEH[w])->textobj, p_event);
 #else

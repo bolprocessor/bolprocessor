@@ -1729,44 +1729,25 @@ hresize = (bottom - top) - (q.v - p.h);
 if(Editable[w] && !LockedWindow[w]) Deactivate(TEH[w]);
 
 if((vdrag != 0) || (hdrag != 0)) {
+#if !EXPERIMENTAL
 	GetWindowPortBounds(Window[w], &r);
 	InvalWindowRect(Window[w], &r);
 	EraseRect(&r);
+#endif
 	MoveWindow(Window[w],left,top,FALSE);	/* Don't activate */
+#if !EXPERIMENTAL
 	GetWindowPortBounds(Window[w], &r);
 	InvalWindowRect(Window[w], &r);
+#endif
 	}
 if((OKgrow[w] || w == wMessage || w == wInfo) && ((wresize != 0) || (hresize != 0))) {
+#if !EXPERIMENTAL
 	GetWindowPortBounds(Window[w], &r);
 	if(GrafWindow[w]) ClipRect(&r);
 	EraseRect(&r);
+#endif
 	SizeWindow(Window[w],right - left,bottom - top,TRUE);	/* Update */
-	GetWindowPortBounds(Window[w], &r);
-	ClipRect(&r);
-	EraseRect(&r);
-	InvalWindowRect(Window[w], &r);
-	SetViewRect(w);
-	HidePen();
-	if(OKvScroll[w]) {
-		MoveControl(vScroll[w],r.right - SBARWIDTH,r.top - 1);
-		SizeControl(vScroll[w],SBARWIDTH + 1,r.bottom - r.top - (SBARWIDTH - 2)
-			- Freebottom[w]);
-		}
-	if(OKhScroll[w]) {
-		MoveControl(hScroll[w],r.left - 1,r.bottom - SBARWIDTH);
-		SizeControl(hScroll[w],r.right - r.left - (SBARWIDTH - 2),SBARWIDTH + 1);
-		r.bottom -= SBARWIDTH;
-		}
-	if(OKvScroll[w]) {
-		r.right -= SBARWIDTH;
-		SetVScroll(w);
-		}
-	ShowPen();
-	if(GrafWindow[w]) {
-		SetMaxControlValues(w,r);
-		ClipRect(&r);
-		}
-	AdjustTextInWindow(w);
+	AdjustWindowContents(w);
 	}
 if(w == wScript && ScriptExecOn) {
 	BPActivateWindow(SLOW,w);

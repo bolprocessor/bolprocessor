@@ -52,6 +52,7 @@ DoHighLevelEvent(EventRecord *p_event)
 {
 OSErr io;
 
+PrintEvent(p_event, "DoHighLevelEvent()", NULL);
 if(GoodEvent(p_event)) {
 	AEventOn++;
 	io = AEProcessAppleEvent(p_event);

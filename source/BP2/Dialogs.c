@@ -132,6 +132,7 @@ if(p_event->what == keyDown) {
 	}
 	
 hit = DialogSelect(p_event,&thedialog,&itemHit);
+PrintEvent(p_event, "DoDialog()", GetDialogWindow(thedialog));
 	
 if(!rtn && !hit) return(OK);
 
@@ -145,6 +146,7 @@ for(w=0; w < WMAX; w++) {
 		}
 	}
 
+PrintEvent(p_event, "DoDialog() cont...", GetDialogWindow(thedialog));
 if(w < WMAX && rtn) {
 	if(FindGoodIndex(w) == wPrototype1) {
 		if(GetDialogValues(w) != OK) return(DONE);

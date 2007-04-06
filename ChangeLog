@@ -1,3 +1,34 @@
+2007-04-05	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/AppleEvents.c:
+	* source/BP2/Dialogs.c:
+	* source/BP2/Interface1.c:
+	* source/BP2/WindowText.c:
+		Added debugging code for printing event info when TRACE_EVENTS defined.
+	
+	* source/BP2/Interface1.c (DoEvent):
+		In 'case inContent', commented out problematic code switching windows
+			when FAQPtr is the front window; did not work for all dialogs.
+
+	* source/BP2/Interface1.c (BPActivateWindow):
+		Reverted to original code that calls DrawGrowIcon() for a window that
+			is becoming inactive.  This is correct according to Inside Mac.
+
+	* source/BP2/Interface1.c (DoEvent & SetViewRect):
+		Changes to fix setting MLTE frame bounds.
+		
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/Inits.c (AdjustWindow):
+	* source/BP2/Interface1.c (MyGrowWindow):
+		Simplifications to MyGrowWindow() and separated code that was shared
+			with AdjustWindow() into new functions AdjustWindowContents()
+			and MoveScrollbars().
+
+	* source/BP2/Interface1.c (Set_Window_Drag_Boundaries):
+		Don't reduce the drag region by DRAG_EDGE constant.  (Seemed to
+			have no effect anyways).  (EXPERIMENTAL)
+	
 2007-04-04	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* BP2-MacOS.cw8.mcp:  New target for Carbon MLTE build.

@@ -47,6 +47,7 @@
 
 #include "-BP2decl.h"
 
+static unsigned long gEventCount = 0;
 
 MainEvent(void)
 {
@@ -103,7 +104,12 @@ if(whichwindow == GetDialogWindow(FileSavePreferencesPtr)
 	|| whichwindow == GetDialogWindow(TuningPtr)
 	|| whichwindow == GetDialogWindow(DefaultPerformanceValuesPtr)
 	|| whichwindow == GetDialogWindow(CsoundInstrMorePtr)) TEIdle(GetDialogTextEditHandle(GetDialogFromWindow(whichwindow)));
-if(eventfound) return(DoEvent(&event));
+if(eventfound) { 
+	++gEventCount; 
+	rep = DoEvent(&event);
+	PrintWindowState();
+	return(rep);
+	}
 else return(DoSystem());
 }
 
@@ -302,6 +308,7 @@ switch(p_event->what) {
 		Panic = FALSE;
 		if(!ScriptRecOn) SwitchOff(NULL,wScriptDialog,bRecordScript);
 		theclick = FindWindow(p_event->where,&whichwindow);
+		PrintEvent(p_event, "case mouseDown", whichwindow);
 		for(w=0; w < WMAX; w++) {
 			if(whichwindow == Window[w]) break;
 			}
@@ -344,6 +351,7 @@ DOTHECLICK:
 					}
 				break;
 			case inGoAway:
+				PrintEvent(p_event, "case inGoAway", whichwindow);
 				Help = FALSE;
 				if(whichwindow == GetDialogWindow(DefaultPerformanceValuesPtr)) {
 					if(GetDefaultPerformanceValues() != OK) return(OK);
@@ -368,6 +376,7 @@ DOTHECLICK:
 				if(whichwindow == GetDialogWindow(SixteenPtr)) HideWindow(Window[wInfo]);
 				break;
 			case inMenuBar:
+				PrintEvent(p_event, "case inMenuBar", whichwindow);
 				Option = FALSE;
 				if((p_event->modifiers & optionKey) != 0) {
 					Option = TRUE;
@@ -407,6 +416,7 @@ DOTHECLICK:
 					}
 				break;
 			case inDrag:
+				PrintEvent(p_event, "case inDrag", whichwindow);
 				if(Oms && !InitOn && whichwindow == GetDialogWindow(OMSinoutPtr)) {
 #if USE_OMS
 					if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
@@ -480,11 +490,14 @@ DOTHECLICK:
 #endif
 				break;
 			case inGrow:
+				PrintEvent(p_event, "case inGrow", whichwindow);
 				if(w == Nw /* && (!ClickRuleOn || w != wTrace) */) {
-					if (USE_MLTE && w < MAXWIND && OKgrow[w]) { // growable text windows are all < MAXWIND
+#if USE_MLTE
+					if (w < MAXWIND && OKgrow[w]) { // growable text windows are all < MAXWIND
 						TXNGrowWindow((*(TEH[w]))->textobj, p_event);
 						}
 					else
+#endif
 					if(MyGrowWindow(w,p_event->where) == OK) {
 						if(w < WMAX) BPActivateWindow(SLOW,w);
 						NewEnvironment = ChangedCoordinates[w] = TRUE;
@@ -492,21 +505,22 @@ DOTHECLICK:
 					}
 				break;
 			case inContent:
+				PrintEvent(p_event, "case inContent", whichwindow);
 				Jcontrol = -1;
 				if(LastAction == TYPEWIND || LastAction == TYPEDLG) LastAction = NO;
 				if(GetDialogWindow(FAQPtr) == FrontWindow()) {
 					if(whichwindow != FrontWindow()) {
-						if(w < WMAX) {
-							Help = FALSE;
-							BPActivateWindow(SLOW,w);
-							}
-						else SysBeep(10);
+						//if(w < WMAX) {
+						//	Help = FALSE;
+						//	BPActivateWindow(SLOW,w);
+						//	}
+						//else SysBeep(10);
 						}
 					else {
 						Help = TRUE;
 						DoContent(whichwindow,p_event,&intext);
+						break;	
 						}
-					break;	
 					}
 #if USE_OMS
 				if(Oms && !InitOn && whichwindow == GetDialogWindow(OMSinoutPtr)) {
@@ -611,6 +625,7 @@ DOTHECLICK:
 		break;
 	case keyDown:
 	case autoKey:
+		PrintEvent(p_event, "case keyDown", NULL);
 		Panic = FALSE;
 		if(Jcontrol != -1 || EnterOn) {
 			Jcontrol = -1; ReadKeyBoardOn = FALSE;
@@ -693,6 +708,7 @@ DOTHECLICK:
 		if(Nw >= 0 && Nw < WMAX) TypeChar((int)thechar,(int)(p_event->modifiers & shiftKey));
 		break;
 	case activateEvt:
+		PrintEvent(p_event, "case activateEvt", (WindowPtr)p_event->message);
 		TEFromScrap();
 #if !EXPERIMENTAL
 		UpdateWindow(TRUE,(WindowPtr)p_event->message);
@@ -729,13 +745,17 @@ DOTHECLICK:
 			}
 		break;
 	case updateEvt:
+		PrintEvent(p_event, "case updateEvt", (WindowPtr)p_event->message);
 		for(w=0; w < WMAX; w++) {
 			if((WindowPtr) p_event->message == Window[w]) break;
 			}
-		if(w >= 0 && w < MAXWIND) {
+#if USE_MLTE
+		if(USE_MLTE && w >= 0 && w < MAXWIND) {
 			TXNUpdate((*(TEH[w]))->textobj);
 			}
-		else {
+		else
+#endif
+		{
 			TEFromScrap();
 			UpdateWindow(FALSE,(WindowPtr)p_event->message);
 			}
@@ -1023,6 +1043,7 @@ char line[MAXFIELDCONTENT];
 
 if((Nw == newNw && mode != SLOW && mode != AGAIN)  || newNw < 0) return(OK);
 if(Nw >= WMAX || newNw >= WMAX) return(OK);
+PrintCall("BPActivateWindow()", Window[newNw]);
 if((LastAction == TYPEWIND || LastAction == TYPEDLG)
 	&& (Editable[newNw] || HasFields[newNw]) && Nw != newNw) LastAction = NO;
 if(TypeScript && ScriptRecOn && Nw != newNw) {
@@ -1090,9 +1111,9 @@ if(Nw > -1 && Nw < WMAX) {
 		ClipRect(&r);
 		if(OKvScroll[Nw]) HideControl(vScroll[Nw]);
 		if(OKhScroll[Nw]) HideControl(hScroll[Nw]);
-#if !EXPERIMENTAL
+//#if !EXPERIMENTAL
 		if(OKgrow[Nw]) DrawGrowIcon(Window[Nw]);
-#endif
+//#endif
 		}
 	ClipRect(&r1);
 	OutlineTextInDialog(Nw,FALSE);
@@ -1324,6 +1345,7 @@ Rect dr,vr;
 
 if(w >= 0 && w < WMAX && Editable[w]) {
 	GetWindowPortBounds(Window[w], &dr);
+#if !USE_MLTE
 	if(HasFields[w]) InsetRect(&dr,2,2);
 	if(OKvScroll[w]) {
 		dr.right -= SBARWIDTH;
@@ -1335,6 +1357,9 @@ if(w >= 0 && w < WMAX && Editable[w]) {
 		dr.bottom = dr.top + 1 + LineHeight(w) * linesInFolder[w];
 		}
 	else linesInFolder[w] = 1;
+#else // FIXME: not sure we should do the rest of this for MLTE
+	linesInFolder[w] = 1;
+#endif
 	if(w == wMessage) InsetRect(&dr,16,0);
 //	if(w == wInfo) InsetRect(&dr,4,0); 
 	vr = dr;
@@ -1357,6 +1382,7 @@ int w;
 
 if(theWindow == NULL || !IsWindowVisible(theWindow)) return(OK);
 
+PrintCall("UpdateWindow()", theWindow);
 for(w=0; w < WMAX; w++) {
 	if(theWindow == Window[w]) break;
 	}
@@ -1700,7 +1726,7 @@ MyGrowWindow(int w, Point p)
 BitMap screenBits;
 GrafPtr saveport;
 long theresult;
-Rect r,r0;
+Rect r;
 int result;
 
 if(w < 0 || w >= WMAX) {
@@ -1716,37 +1742,35 @@ SetRect(&r,MINWINDOWHEIGHT,MINWINDOWWIDTH,
 	screenBits.bounds.right - screenBits.bounds.left,
 	screenBits.bounds.bottom - screenBits.bounds.top - SBARWIDTH);
 theresult = GrowWindow(Window[w],p,&r);
-if(theresult == 0) return(FAILED);
-GetWindowPortBounds(Window[w], &r0);
-SizeWindow(Window[w],LoWord(theresult),HiWord(theresult),TRUE);
-GetWindowPortBounds(Window[w], &r);
-if(r.top == r0.top && r.left == r0.left && r.bottom == r0.bottom
-		&& r.right == r0.right) {
+if(theresult == 0)	// 0 means window did not change size
 	result = FAILED;
-	goto QUIT;
+else	{
+	SizeWindow(Window[w],LoWord(theresult),HiWord(theresult),TRUE);
+	AdjustWindowContents(w);
 	}
+if(saveport != NULL) SetPort(saveport);
+else if(Beta) Alert1("Err MyGrowWindow(). saveport == NULL");
+return(result);
+}
+
+
+/* Called after resizing a window (either in AdjustWindow() or MyGrowWindow()).
+   You should set the window port before calling this function */
+void AdjustWindowContents(int w)
+{
+Rect r;
+
+GetWindowPortBounds(Window[w], &r);
 ClipRect(&r);
 EraseRect(&r);
 InvalWindowRect(Window[w], &r);
 SetViewRect(w);
-HidePen();
-if(OKvScroll[w]) {
-	MoveControl(vScroll[w],r.right - SBARWIDTH,r.top - 1);
-	SizeControl(vScroll[w],SBARWIDTH + 1,r.bottom - r.top - (SBARWIDTH - 2)
-		- Freebottom[w]);
-	}
-if(OKhScroll[w]) {
-	MoveControl(hScroll[w],r.left - 1,r.bottom - SBARWIDTH);
-	SizeControl(hScroll[w],r.right - r.left - (SBARWIDTH - 2),SBARWIDTH + 1);
-	r.bottom -= SBARWIDTH;
-	}
-if(OKvScroll[w]) {
-	r.right -= SBARWIDTH;
-	SetVScroll(w);
-	}
-ShowPen();
-if(GrafWindow[w]) {
-	SetMaxControlValues(w,r);
+MoveScrollBars(w, &r);
+/* This next line was only in AdjustWindow() */
+if(GrafWindow[w]) ClipRect(&r);
+/* the following commented code was only in MyGrowWindow() */
+/* suppressed resetting scroll position on 040507 - akozar */
+/*if(GrafWindow[w]) {
 	if(OKvScroll[w]) {
 		SetControlValue(vScroll[w],0);
 		AdjustGraph(FALSE,w,vScroll[w]);
@@ -1756,19 +1780,42 @@ if(GrafWindow[w]) {
 		AdjustGraph(FALSE,w,hScroll[w]);
 		}
 	SlideH[w] = SlideV[w] = 0;
-/*	ClipRect(&r); */
+/*	ClipRect(&r); *\/
 	GetWindowPortBounds(Window[w], &r);
 	InvalWindowRect(Window[w], &r);
-	UpdateWindow(FALSE,Window[w]);  /* 5/9/97 */
-	}
+	UpdateWindow(FALSE,Window[w]);  /* 5/9/97 *\/
+	}*/
 AdjustTextInWindow(w);
 
-QUIT:
-if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err MyGrowWindow(). saveport == NULL");
-return(result);
+return;
 }
 
+/* Pass the window bounds for w in r; MoveScrollbars moves and
+   resizes the scroll bars and returns in r the bounds of the 
+   content rectangle not occupied by the scroll bars. 
+   You should set the window port before calling this function */
+void MoveScrollBars(int w, Rect* r)
+{
+	HidePen();
+	if(OKvScroll[w]) {
+		MoveControl(vScroll[w],r->right - SBARWIDTH,r->top - 1);
+		SizeControl(vScroll[w],SBARWIDTH + 1,r->bottom - r->top - (SBARWIDTH - 2)
+			- Freebottom[w]);
+		}
+	if(OKhScroll[w]) {
+		MoveControl(hScroll[w],r->left - 1,r->bottom - SBARWIDTH);
+		SizeControl(hScroll[w],r->right - r->left - (SBARWIDTH - 2),SBARWIDTH + 1);
+		r->bottom -= SBARWIDTH;
+		}
+	if(OKvScroll[w]) {
+		r->right -= SBARWIDTH;
+		SetVScroll(w);
+		}
+	ShowPen();
+	if(GrafWindow[w]) SetMaxControlValues(w,*r);
+	
+	return;
+}
 
 SetMaxControlValues(int w, Rect r)
 {
@@ -2611,9 +2658,11 @@ Rect r;
    
 the_gray_rgn = GetGrayRgn();
 GetRegionBounds(the_gray_rgn, &r);  
-r.left   += DRAG_EDGE;   
-r.right  -= DRAG_EDGE;    
-r.bottom -= DRAG_EDGE; 
+#if !EXPERIMENTAL
+  r.left   += DRAG_EDGE;   
+  r.right  -= DRAG_EDGE;    
+  r.bottom -= DRAG_EDGE;
+#endif
 return(r);  
 }
 
@@ -2714,6 +2763,7 @@ return(OK);
 }
 
 
+#if 0
 PageClick(int up)
 {
 EventRecord event;
@@ -2732,3 +2782,86 @@ event.where = pt;
 DoEvent(&event);
 return(OK);
 }
+#endif
+
+
+#if TRACE_EVENTS
+/* Functions for tracing event handling via the console */
+/* Added 040507 by akozar. */
+
+
+const char	EVENT_NAMES[25][20] = { "nullEvent", "mouseDown", "mouseUp", "keyDown", "keyUp", "autoKey",
+						"updateEvt", "diskEvt", "activateEvt", "", "", "", "", "", "",
+						"osEvt", "", "", "", "", "", "", "", "highLvlEvt", "unknown" };
+
+char* TEWindowName(WindowPtr wp)
+{
+	int w;
+	
+	for(w=0; w < WMAX; w++)
+		if(wp == Window[w]) break;
+	if(w >= 0 && w < WMAX)  return WindowName[w];
+	else if (wp == GetDialogWindow(GreetingsPtr))				return "Greetings";
+	else if (wp == GetDialogWindow(FAQPtr))					return "FAQ";
+	else if (wp == GetDialogWindow(EnterPtr))					return "Enter";
+	else if (wp == GetDialogWindow(ReplaceCommandPtr))			return "Replace-Next-Stop";
+	else if (wp == GetDialogWindow(ResumeStopPtr))				return "Resume-Stop";
+	else if (wp == GetDialogWindow(ResumeUndoStopPtr))			return "Resume-Undo-Stop";
+	else if (wp == GetDialogWindow(FileSavePreferencesPtr))		return "File Save Prefs";
+	else if (wp == GetDialogWindow(PatternPtr))				return "Pattern";
+	else if (wp == GetDialogWindow(StrikeModePtr))				return "Default Strike Mode";
+	else if (wp == GetDialogWindow(TuningPtr))				return "Tuning";
+	else if (wp == GetDialogWindow(DefaultPerformanceValuesPtr))	return "Default Perf Values";
+	else if (wp == GetDialogWindow(CsoundInstrMorePtr))			return "Csound Instr More";
+	else if (wp == GetDialogWindow(MIDIkeyboardPtr))			return "Note Conventions";
+	else if (wp == GetDialogWindow(SixteenPtr))				return "MIDI Channels";
+	else if (wp == GetDialogWindow(MIDIprogramPtr))				return "MIDI programs";
+	else return "";
+}
+
+void	PrintEvent(EventRecord* e, char* funcname, WindowPtr wp)
+{
+	static int lastwhat = -1, lastwhen = -1;
+	int	type = e->what, when = gEventCount;
+	
+	if	(lastwhat == nullEvent && type == nullEvent && lastwhen != when)	{
+		// don't print > 1 null event in a row but trace the first null event
+		lastwhat = type;
+		lastwhen = when;
+		return;
+	}
+	printf("%3d  %-20s:  ", when, funcname);			// print event count and calling function's name
+	if	(type < 0 || type > 23)  type = 24;			// unknown event type
+	printf("%-11s  %10d", EVENT_NAMES[type], e->message);	// print type and message, and act/deact
+	if	(type == activateEvt)
+		printf(" %s", (e->modifiers&1)?"act  ":"deact"); // activate or deactivate?
+	else  printf("      ");
+	if 	(wp != NULL)  printf("  %s", TEWindowName(wp));	// print window title
+	printf("\n");
+	fflush(stdout);
+	
+	lastwhat = type;
+	lastwhen = when;
+	return;
+}
+
+void	PrintWindowState()
+{
+	printf("     FrontWindow() == %-20s Nw == %2d       %s\n", TEWindowName(FrontWindow()), 
+		Nw, ((Nw >= 0 && Nw < WMAX) ? TEWindowName(Window[Nw]) : ""));
+	return;
+}
+
+void	PrintCall(char* funcname, WindowPtr wp)
+{
+	printf("     %-20s:  ", funcname);				// print calling function's name
+	printf("                                ");		// leave space
+	if 	(wp != NULL)  printf("%s", TEWindowName(wp));	// print window title
+	printf("\n");
+	fflush(stdout);
+	return;
+}
+
+
+#endif
+

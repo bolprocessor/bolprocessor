@@ -135,6 +135,17 @@ int SendToDriver(Milliseconds,int,int*,MIDI_Event*);
 int CaptureMidiEvent(Milliseconds time,int nseq,MIDI_Event *p_e);
 void RegisterProgramChange(MIDI_Event *p_e);
 
+#if TRACE_EVENTS
+char* TEWindowName(WindowPtr wp);
+void	PrintEvent(EventRecord* e, char* funcname, WindowPtr wp);
+void	PrintWindowState();
+void	PrintCall(char* funcname, WindowPtr wp);
+#else
+#define PrintEvent(x,y,z)
+#define PrintWindowState()
+#define PrintCall(x,y)
+#endif
+
 Boolean HasGWorlds(void);
 int GWorldInit(void);
 short GetDepth(GDHandle);
@@ -363,6 +374,8 @@ int DoContent(WindowPtr,EventRecord*,int*);
 int AdjustGraph(int,int,ControlHandle);
 int OffsetGraphs(int,int,int);
 int MyGrowWindow(int,Point);
+void AdjustWindowContents(int w);
+void MoveScrollBars(int w, Rect* r);
 int SetMaxControlValues(int,Rect);
 int ForgetFileName(int);
 int SetName(int,int,int);
