@@ -982,7 +982,7 @@ return(FAILED);
 }
 
 
-SaveSettings(int startup,int now,Str255 fn,FSSpec* p_spec)
+SaveSettings(int startup,int openexisting,Str255 fn,FSSpec* p_spec)
 {
 short refnum;
 int i,io,imax,j,rep,w,good,ishtml,result;
@@ -996,13 +996,17 @@ OSErr err;
 
 if(ScriptExecOn) return(OK);
 err = NSWInitReply(&reply);
-p_spec->vRefNum = TheVRefNum[iSettings];
-p_spec->parID = WindowParID[iSettings];
-if (GetDefaultFileName(iSettings, line) != OK) return(FAILED);
-if(fn[0] == 0) c2pstrcpy(fn, line);
-CopyPString(fn,p_spec->name);
+if(fn[0] == 0) {
+	if (GetDefaultFileName(iSettings, line) != OK) return(FAILED);
+	c2pstrcpy(fn, line);
+	CopyPString(fn,p_spec->name);
+	}
 good = NO;
-if(now) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noErr);
+if(openexisting) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noErr);
+if(startup && !good) {
+	Alert1("Could not open startup settings file -se.startup.");
+	return(FAILED);
+	}
 p2cstrcpy(line,p_spec->name);
 if(good) goto WRITE;
 reply.sfFile.vRefNum = TheVRefNum[iSettings];	/* Added 30/3/98 */
@@ -1206,6 +1210,147 @@ return(result);
 }
 
 
+/* FindBPPrefsFolder() gets an FSSpec for the folder named "Bol Processor"
+   in the system (or user) preferences folder.  If this folder does not
+   exist, it is created.  */
+OSErr	FindBPPrefsFolder(FSSpecPtr location)
+{
+	OSErr	err;
+	short	systemVRefNum;
+	long	prefDirID;
+	long	bpDirID;
+	
+	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, kCreateFolder, 
+			&systemVRefNum, &prefDirID);
+	if (err != noErr) return err;
+	
+	err = FSMakeFSSpec(systemVRefNum, prefDirID, kBPPrefsFolder, location);
+	if (err == fnfErr) {
+		// need to create the "Bol Processor" folder in the Preferences folder
+		err = FSpDirCreate(location, smSystemScript, &bpDirID);
+		if (err != noErr) return err;
+		location->parID = bpDirID;
+		err = FSMakeFSSpec(systemVRefNum, prefDirID, kBPPrefsFolder, location);
+	}
+	else if (err != noErr) return err;
+	else {
+		Boolean targetIsFolder;
+		Boolean wasAliased;
+
+		err = ResolveAliasFile(location, true, &targetIsFolder, &wasAliased);
+		if (err != noErr) return err;
+		if (!targetIsFolder) return paramErr; // "Bol Processor" is a file, not a folder
+	}
+
+	return noErr;
+}
+
+/* FindFileInPrefsFolder() gets an FSSpec for the file named filename that
+   should be in the "Bol Processor" sub-folder of the system (or user) preferences 
+   folder.  If this file does not exist, an error is returned.  */
+OSErr	FindFileInPrefsFolder(FSSpecPtr location, StringPtr filename)
+{
+	OSErr	 err;
+	short	 prefVRefNum;
+	long	 bpDirID;
+	
+	err = FindBPPrefsFolder(location);
+	if (err != noErr)	return err;
+	
+	err = GetFolderID(location, &bpDirID);
+	if (err != noErr)	return err;
+	prefVRefNum = location->vRefNum;
+	err = FSMakeFSSpec(prefVRefNum, bpDirID, filename, location);
+	if (err != noErr) return err;
+	else	{
+		Boolean targetIsFolder;
+		Boolean wasAliased;
+
+		err = ResolveAliasFile(location, true, &targetIsFolder, &wasAliased);
+		if (targetIsFolder) return paramErr; // there is a folder where the file should be
+	}
+
+	return noErr;
+}
+
+/* GetFolderID() gets the folder ID for a directory specified via a full FSSpec. */
+OSErr	GetFolderID(const FSSpecPtr loc, long* dirID)
+{
+	OSErr	err;
+	CInfoPBRec	catinfo;
+	Str255	name;
+	
+	CopyPString(loc->name, name);
+	catinfo.dirInfo.ioCompletion = NULL;
+	catinfo.dirInfo.ioNamePtr = name;
+	catinfo.dirInfo.ioVRefNum = loc->vRefNum;
+	catinfo.dirInfo.ioFDirIndex = 0;	// we want info about the named folder
+	catinfo.dirInfo.ioDrDirID = loc->parID;
+	
+	err = PBGetCatInfo(&catinfo, false);
+	*dirID = catinfo.dirInfo.ioDrDirID;
+	return err;
+}
+
+
+/* Copy -se.startup from BP application bundle to "Bol Processor" subfolder of the
+   user's preferences folder if it does not exist there already - akozar 040607 
+   (If called on OS 9, this would copy from BP app's folder to system prefs) */
+int CopyStartupSettings()
+{
+	OSErr  err;
+	long	 prefDirID;
+	FSSpec existing, copy;
+	
+	// locate the file in BP's bundle
+	err = FSMakeFSSpec(RefNumbp2, ParIDbp2, kBPSeStartup, &existing);
+	if (err != noErr) return (FAILED);
+	
+	// make an FSSpec for the copy to be made in prefs folder
+	err = FindBPPrefsFolder(&copy);
+	if (err != noErr)	return err;
+	err = GetFolderID(&copy, &prefDirID);
+	if (err != noErr)	return err;
+	err = FSMakeFSSpec(copy.vRefNum, prefDirID, kBPSeStartup, &copy);
+
+	if (err == noErr)  return (OK);	// already exists
+	if (err != fnfErr) return (FAILED);
+	
+	err = CopyFile(&existing, &copy);
+	if (err != noErr) return (FAILED);
+	return (OK);
+}
+
+void GetStartupSettingsSpec(FSSpecPtr spec)
+{
+	OSErr err;
+	Boolean haveStartupSpec = FALSE;
+	
+	// on OS X, check the user's preferences folder first
+	if (RunningOnOSX) {
+		if (FindFileInPrefsFolder(spec, kBPSeStartup) == noErr)
+			haveStartupSpec = TRUE;
+		else {  
+			if (CopyStartupSettings() == OK &&
+			    FindFileInPrefsFolder(spec, kBPSeStartup) == noErr)
+				haveStartupSpec = TRUE;
+			}
+		}
+	if (!haveStartupSpec) {
+		// use the BP2 application folder copy if needed
+		err = FSMakeFSSpec(RefNumbp2, ParIDbp2, kBPSeStartup, spec);
+		// if err, fill in spec ourselves (will probably fail to open, 
+		// but we need to avoid returning completely random values
+		if (err != noErr && err != fnfErr) {
+			spec->vRefNum = RefNumbp2;
+			spec->parID = ParIDbp2;
+			CopyPString(kBPSeStartup, spec->name);
+			}
+		}
+
+	return;
+}
+
 LoadSettings(int anyfile,int changewindows,int startup,int manual,int *p_oms)
 {
 int i,ii,imax,j,jmax,io,rep,result,iv,s,type,top,left,bottom,right,w,wmax,connectionok,
@@ -1224,21 +1369,19 @@ result = connectionok = OK;
 oldoutmidi = OutMIDI;
 p_line = p_completeline = NULL;
 if((rep=ClearWindow(FALSE,wStartString)) != OK) return(rep);
-strcpy(Message,FileName[iSettings]);
 if(startup) {
-	sprintf(Message,"%sstartup",FilePrefix[iSettings]);
-	spec.vRefNum = RefNumbp2;
-	spec.parID = ParIDbp2;
+	GetStartupSettingsSpec(&spec);
+	p2cstrcpy(LineBuff, spec.name);
 	}
 else {
 	spec.vRefNum = TheVRefNum[iSettings];
 	spec.parID = WindowParID[iSettings];
+	strcpy(LineBuff,FileName[iSettings]);
+	c2pstrcpy(spec.name, FileName[iSettings]);
 	}
-strcpy(LineBuff,Message);
 strcpy(filename,LineBuff);
 type = gFileType[iSettings];
 if(anyfile) type = 0;
-c2pstrcpy(spec.name, Message);
 if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
 	rep = FAILED;
 	if(startup || (rep=CheckFileName(iSettings,LineBuff,&spec,&refnum,gFileType[iSettings],TRUE)) != OK) {
@@ -1749,10 +1892,10 @@ if(result == OK) {
 		TheVRefNum[iSettings] = spec.vRefNum;
 		WindowParID[iSettings] = spec.parID;
 		}
-	else {
+	/*else {  // suppressed since can impair finding other files - akozar 040907
 		RefNumbp2 = spec.vRefNum;
 		ParIDbp2 = spec.parID;
-		}
+		}*/
 	}
 else Dirty[iSettings] = FALSE;
 if(!startup) HideWindow(Window[wMessage]);

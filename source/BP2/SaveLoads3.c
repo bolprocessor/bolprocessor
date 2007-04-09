@@ -1382,10 +1382,10 @@ if((io=MyOpen(&spec,fsRdPerm,&HelpRefnum)) != noErr) {
 		HelpRefnum = -1;
 		return(r);
 		}
-	else {
+	/*else {  // suppressed since can impair finding other files - akozar 040907
 		RefNumbp2 = spec.vRefNum;
 		ParIDbp2 = spec.parID;
-		}
+		}*/
 	}
 return(OK);
 }
@@ -1949,4 +1949,124 @@ pascal void PutFileEventProc(NavEventCallbackMessage callBackSelector,
 		default:
 			break;
 	}
+}
+
+/*----------------------------------------------------------------------------
+
+	The next two functions (CopyOneFork & CopyFile) are by John Norstad
+	and are freely reusable and redistributable with his permission.
+	(I have modified them a little to not rely on his other utility files).
+	
+	fileutil.c   (from Norstad's Reusables)
+	
+	Copyright © 1994-1995, Northwestern University.
+
+----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+	CopyOneFork
+	
+	Copy one fork of a file.
+	
+	Entry:	source = pointer to source file spec.
+			dest = pointer to destination file spec.
+			resourceFork = true to copy resource fork, false to copy
+				data fork.
+	
+	Exit:	function result = error code.
+----------------------------------------------------------------------------*/
+
+static OSErr CopyOneFork (FSSpec *source, FSSpec *dest, Boolean resourceFork)
+{
+	const Size bufferSize = 1024;
+	short sourceRefNum = 0;
+	short destRefNum = 0;
+	long fileSize, len;
+	Ptr buf;
+	FInfo fInfo;
+	OSErr err = noErr;
+	
+	/* Open source fork. */
+	
+	if (resourceFork) {
+		err = FSpOpenRF(source, fsRdPerm, &sourceRefNum);
+	} else {
+		err = FSpOpenDF(source, fsRdPerm, &sourceRefNum);
+	}
+	if (err == fnfErr) return noErr;
+	if (err != noErr) goto exit;
+	err = GetEOF(sourceRefNum, &fileSize);
+	if (err != noErr) goto exit;
+	
+	/* Open destination fork. Create the fork if it is missing. */
+	
+	if (resourceFork) {
+		err = FSpOpenRF(dest, fsRdWrPerm, &destRefNum);
+	} else {
+		err = FSpOpenDF(dest, fsRdWrPerm, &destRefNum);
+	}
+	if (err == fnfErr) {
+		err = FSpGetFInfo(source, &fInfo);
+		if (err != noErr) goto exit;
+		if (resourceFork) {
+			FSpCreateResFile(dest, fInfo.fdCreator, fInfo.fdType, smSystemScript);
+			err = ResError();
+		} else {
+			err = FSpCreate(dest, fInfo.fdCreator, fInfo.fdType, smSystemScript);
+		}
+		if (err != noErr) goto exit;
+		if (resourceFork) {
+			err = FSpOpenRF(dest, fsRdWrPerm, &destRefNum);
+		} else {
+			err = FSpOpenDF(dest, fsRdWrPerm, &destRefNum);
+		}
+	}
+	if (err != noErr) goto exit;
+	err = SetFPos(destRefNum, fsFromStart, 0);
+	if (err != noErr) goto exit;
+	
+	/* Copy the source fork to the destination fork. */
+	buf = NewPtr(bufferSize);
+	err = MemError();
+	if (err != noErr) goto exit;
+	while (fileSize > 0) {
+		len = fileSize > bufferSize ? bufferSize : fileSize;
+		err = FSRead(sourceRefNum, &len, buf);
+		if (err != noErr) goto exit;
+		err = FSWrite(destRefNum, &len, buf);
+		if (err != noErr) goto exit;
+		fileSize -= len;
+	}
+	
+exit:
+
+	if (sourceRefNum != 0) err = FSClose(sourceRefNum);
+	if (destRefNum != 0) {
+		FSClose(destRefNum);
+		err = FlushVol(NULL, dest->vRefNum);
+	}
+	if (buf != nil) DisposePtr(buf);
+	return err;
+}
+
+
+
+/*----------------------------------------------------------------------------
+	CopyFile
+	
+	Make a copy of a file (both forks).
+	
+	Entry:	source = pointer to source file spec.
+			dest = pointer to destination file spec.
+	
+	Exit:	function result = error code.
+----------------------------------------------------------------------------*/
+
+OSErr CopyFile (FSSpec *source, FSSpec *dest)
+{
+	OSErr err = noErr;
+
+	err = CopyOneFork(source, dest, true);
+	if (err != noErr) return err;
+	return CopyOneFork(source, dest, false);
 }

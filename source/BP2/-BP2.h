@@ -249,6 +249,14 @@ Hey: this code is not portable!!!
 #define CLOCKSIZE 256	/* must be a power of 2 */
 #define CLOCKLOG 8		/* log base 2 of CLOCKSIZE */
 
+// Constants for BP's special file and folder names
+
+#define	kBPPrefsFolder	"\pBol Processor"
+#define	kBPSeStartup	"\p-se.startup"
+#define	kBPStartupScript	"\p+sc.startup"
+#define	kBPShutdownScript	"\p+sc.shutdown"
+
+
 // Constants used in function returns
 
 #define DONE 5

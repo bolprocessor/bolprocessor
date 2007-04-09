@@ -1652,9 +1652,6 @@ int rep;
 FSSpec spec;
 
 if(Answer("Save current settings as startup",'Y') != OK) return(FAILED);
-c2pstrcpy(spec.name, "-se.startup");
-spec.vRefNum = RefNumbp2;
-spec.parID = ParIDbp2;
 
 #if USE_OMS
 TRYINPUTNAME:
@@ -1673,6 +1670,7 @@ if(Oms && OMSinputName[0] != '\0') {
 	}
 #endif
 
+GetStartupSettingsSpec(&spec);
 SaveSettings(YES,YES,spec.name,&spec);
 return(OK);
 }
