@@ -236,7 +236,7 @@ if((io=MyOpen(&spec,fsRdPerm,&refnum)) == noErr) {
 	SetSelect(ZERO,ZERO,TEH[w]);
 	ShowSelect(UP,w);
 	BPActivateWindow(QUICK,w);
-	BringToFront(Window[w]);
+	// BringToFront(Window[w]); // BPAct.Win.() makes it the front window - akozar
 	LoadOn--;
 	return(OK);
 	}
