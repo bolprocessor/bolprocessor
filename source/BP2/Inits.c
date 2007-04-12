@@ -614,8 +614,11 @@ for(i=0; i < 52; i++) (*p_Token)[i] = NULL;
 ResetKeyboard(TRUE);
 
 // Find current directory and volume
-pb.ioCompletion = ZERO;
-pb.ioNamePtr = (StringPtr) DeftVolName;
+/* FIXME ? I think these values are always the same as GetCurrentProcess()
+   returns below.  So, could remove this call and replace ParID/RefNumStartup
+   with ParID/RefNumbp2 throughout entire program. - akozar */
+pb.ioCompletion = NULL;
+pb.ioNamePtr = NULL; // (StringPtr) DeftVolName;
 io = PBHGetVol(&pb,(Boolean)FALSE);
 LastDir = ParIDstartup = pb.ioWDDirID;
 LastVref = RefNumStartUp = pb.ioWDVRefNum;
