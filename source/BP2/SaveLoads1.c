@@ -1247,7 +1247,9 @@ OSErr	FindBPPrefsFolder(FSSpecPtr location)
 
 /* FindFileInPrefsFolder() gets an FSSpec for the file named filename that
    should be in the "Bol Processor" sub-folder of the system (or user) preferences 
-   folder.  If this file does not exist, an error is returned.  */
+   folder.  If this file does not exist, an error is returned.
+   filename may be a relative pathname up to 255 chars long. 
+   FSSpec returned may not be in prefs folder if the file was aliased. */
 OSErr	FindFileInPrefsFolder(FSSpecPtr location, StringPtr filename)
 {
 	OSErr	 err;
