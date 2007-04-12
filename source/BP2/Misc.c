@@ -619,7 +619,7 @@ SetButtons(int force)
 if(AllItems || Improvize) CyclicPlay = FALSE;
 if(AllItems) Improvize = FALSE;
 if(CyclicPlay || AllItems || OutCsound || WriteMIDIfile) ComputeWhilePlay = FALSE;
-if(!IsMidiDriverOn()) OutMIDI = FALSE; // added 012307 - akozar
+if(!InitOn && !IsMidiDriverOn()) OutMIDI = FALSE; // added 012307 - akozar
 if((AllItems || Improvize) && !OutMIDI && !OutCsound && !WriteMIDIfile) DisplayItems = TRUE;
 if(StepTimeSet) TraceTimeSet = TRUE;
 if(TraceTimeSet) DisplayTimeSet = TRUE;
@@ -1990,19 +1990,24 @@ Date(char line[])
 unsigned long datetime;
 char dd[MAXNAME],tt[MAXNAME];
 Str255 pascalline;
-Handle i1h;		        /* handle to an Intl1Rec */
+Handle i1h;		        /* handle to an Intl1 or Intl0 Rec  */
 
+/* GetIntlResource() seems to always return the same handles with Carbon,
+   so I do not think that they need to be deallocated - akozar */
 i1h = GetIntlResource(1); /* Note: does not return a resource handle on Carbon */
 GetDateTime(&datetime);	  /* See DateTimeUtils.h */
-/* IUDateString(datetime,abbrevDate,pascalline); */
-DateString(datetime,abbrevDate,pascalline, i1h);
-MyPtoCstr(MAXNAME,pascalline,dd);
-/* IUTimeString(datetime,0,pascalline); */
-/* i1h = GetIntlResource(1); */
-TimeString(datetime,0,pascalline, i1h);
-MyPtoCstr(MAXNAME,pascalline,tt);
+if (i1h != NULL) {
+	DateString(datetime,abbrevDate,pascalline, i1h);
+	MyPtoCstr(MAXNAME,pascalline,dd);
+	}
+else  dd[0] = '\0';
+i1h = GetIntlResource(0);
+if (i1h != NULL) {
+	TimeString(datetime,FALSE,pascalline, i1h);
+	MyPtoCstr(MAXNAME,pascalline,tt);
+	}
+else  tt[0] = '\0';
 sprintf(line,"%s %s -- %s",DateMark,dd,tt);
-/* FIXME ? should we dispose of the i1h Handle on Carbon? - akozar */
 return(OK);
 }
 
