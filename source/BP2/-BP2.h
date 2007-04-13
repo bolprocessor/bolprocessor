@@ -255,7 +255,8 @@ Hey: this code is not portable!!!
 #define	kBPSeStartup	"\p-se.startup"
 #define	kBPStartupScript	"\p+sc.startup"
 #define	kBPShutdownScript	"\p+sc.shutdown"
-
+#define	kBPTempFile		"\pBP2.temp"
+#define	kBPTraceFile	"\pBP2.trace"
 
 // Constants used in function returns
 

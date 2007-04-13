@@ -190,7 +190,8 @@ char ****p_Bol,****p_Patt,****p_Flagname,****p_Script,****p_Var,****p_Homo,****p
 tokenbyte ***pp_Scrap,**p_Scrap,**p_Initbuff;
 char **p_InitScriptLine;
 unsigned Seed,UsedRandom;
-int ScriptW,CurrentVref,LastVref,CurrentChannel;
+short CurrentVref,LastVref;
+int ScriptW,CurrentChannel;
 long CurrentDir,LastDir,OldModulation;
 int PitchbendRange[MAXCHAN+1],DeftPitchbendRange,PitchbendRate[MAXCHAN+1],ModulationRate[MAXCHAN+1],PressRate[MAXCHAN+1],
 	VolumeRate[MAXCHAN+1],VolumeControl[MAXCHAN+1],PanoramicRate[MAXCHAN+1],PanoramicControl[MAXCHAN+1],
@@ -407,7 +408,7 @@ FSSpec MIDIfileSpec;
 float MIDIfadeOut;
 int CurrentVolume[MAXCHAN+1];
 long WindowParID[WMAX],ParIDstartup,ParIDbp2;
-Str255 DeftVolName;
+// Str255 DeftVolName;
 Cursor EditCursor,WatchCursor,CrossCursor,HelpCursor,KeyboardCursor,WheelCursor[4],
 	FootCursor[8],DiskCursor[2];
 int Jwheel,Jfeet,Jdisk;
@@ -436,6 +437,7 @@ Boolean RunningOnOSX;
 ControlActionUPP vScrollUPP,hScrollUPP;
 NSWReply** MIDIfileReply;
 NSWReply** CsFileReply;
+FSSpec TempSpec;
 UInt32 NumInstalledDrivers;
 BPMidiDriver** InstalledDrivers;
 DynamicMenuItem** InstalledMenuItems;

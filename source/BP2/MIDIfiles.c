@@ -269,7 +269,7 @@ return(OK);
 BAD:
 FSClose(MIDIRefNum);
 FSpDelete(&MIDIfileSpec);
-FlushVolume();
+FlushVol(NULL, MIDIfileSpec.vRefNum);
 return(ABORT);
 }
 
@@ -296,7 +296,7 @@ if(MIDIbytestate > 0) {
 		/* Damn! We must delete this incomplete file */
 		FSClose(MIDIRefNum);
 		FSpDelete(&MIDIfileSpec);
-		FlushVolume();
+		FlushVol(NULL, MIDIfileSpec.vRefNum);
 		return(ABORT);
 		}
 	MIDItracklength += MIDIbytestate;
@@ -378,7 +378,7 @@ if(MIDIbytestate > 0) {
 		/* Damn! We must delete this incomplete file */
 		FSClose(MIDIRefNum);
 		FSpDelete(&MIDIfileSpec);
-		FlushVolume();
+		FlushVol(NULL, MIDIfileSpec.vRefNum);
 		goto OUT;
 		}
 	MIDItracklength += MIDIbytestate;

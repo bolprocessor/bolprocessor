@@ -1315,6 +1315,7 @@ Boolean targetIsFolder,wasAliased;
 (*p_refnum) = -1;	// initialize fRefNum
 
 io = ResolveAliasFile(p_spec,TRUE,&targetIsFolder,&wasAliased);
+if (io != noErr) return (io);
 
 if(targetIsFolder)
 	io = paramErr;	// cannot open a folder
@@ -1367,7 +1368,8 @@ return(OK);
 
 OpenHelp(void)
 {
-int type,io,r;
+OSErr io;
+int type,r;
 FSSpec spec;
 char line[MAXLIN];
 
@@ -1391,7 +1393,11 @@ return(OK);
 }
 
 
-int CreateTempFileInLocalDirectory(short *filerefnum, StringPtr filename, Boolean deleteIfExists)
+/* Tries to create a file in the temporary directory returned by FindFolder() or
+   in the BP2 application folder if FindFolder() fails.  You only need to provide
+   a pascal string filename and space for spec and filerefnum which are returned 
+   to the caller */
+int CreateTemporaryFile(FSSpecPtr spec, short *filerefnum, StringPtr filename, Boolean deleteIfExists)
 {
 OSErr err;
 int rep, namecount;
@@ -1402,11 +1408,15 @@ long parid;
 rep = OK;
 err = NSWInitReply(&reply);
 
-// On MacOS 7-9, try to use the application's folder
-vrefnum = RefNumbp2;
-parid = ParIDbp2;
-// FIXME: On OS X, use the user's Application Support/Bol Processor/ folder
 
+// find the temporary folder on the System disk
+err = FindFolder(kOnSystemDisk, kTemporaryFolderType, kCreateFolder, &vrefnum, &parid);
+if(err != noErr) {
+	// try to use the application's folder (FIXME ? not a great choice on OS X)
+	vrefnum = RefNumbp2;
+	parid = ParIDbp2;
+	}
+	
 err = FSMakeFSSpec(vrefnum, parid, filename, &reply.sfFile);
 
 if (err == noErr && deleteIfExists)	{	// file exists
@@ -1424,7 +1434,10 @@ if (rep == OK && err == fnfErr) {		// FSSpec is good
 	reply.sfReplacing = FALSE;
 	CopyPString(filename,PascalLine);
 	rep = CreateFile(wUnknown,wUnknown,ftiText,PascalLine,&reply,&refnum);
-	if(rep == OK) *filerefnum = refnum;
+	if(rep == OK) {
+		*filerefnum = refnum;
+		*spec = reply.sfFile;
+		}
 	else {
 		if(Beta) {
 			p2cstrcpy(LineBuff, filename);
@@ -1444,24 +1457,65 @@ if(TempRefnum != -1) {
 	if(Beta) Alert1("Err. OpenTemp(). TempRefnum != -1");
 	return(OK);
 	}
-return CreateTempFileInLocalDirectory(&TempRefnum, "\pBP2.temp", TRUE);
+return CreateTemporaryFile(&TempSpec, &TempRefnum, kBPTempFile, TRUE);
 }
 
 
 OpenTrace(void)
 {
+FSSpec tracespec;	// not saved
+
 if(TraceRefnum != -1) {
 	if(Beta) Alert1("Err. OpenTrace(). TraceRefnum != -1");
 	return(OK);
 	}
-return CreateTempFileInLocalDirectory(&TraceRefnum, "\pBP2.trace", TRUE);
+return CreateTemporaryFile(&tracespec, &TraceRefnum, kBPTraceFile, TRUE);
 }
 
 
-CloseMe(short *p_refnum)
+OSErr CloseAndDeleteTemp()
+{
+	OSErr io;
+
+	io = noErr;
+	if(TraceRefnum != -1) {
+		io = CloseMe(&TempRefnum);
+		io = FSpDelete(&TempSpec);
+		FlushVol(NULL, TempSpec.vRefNum);
+		if(io != noErr && Beta) {
+			TellError(11,io);
+			Alert1("Err. deleting ÔBP2.tempÕ");
+		}
+	}
+
+	return io;
+}
+
+/* Closes an open file that has been written to, flushing the volume.
+   Requires only the file refnum. */
+OSErr CloseFileAndUpdateVolume(short *p_refnum)
+{
+	OSErr err;
+	short vrefnum;
+
+	if(*p_refnum != -1) {
+		err = GetVRefNum(*p_refnum, &vrefnum);
+		if (err == noErr) {
+			err = CloseMe(p_refnum);
+			FlushVol(NULL, vrefnum);
+		}
+	}	
+	return err;
+}
+
+/* Closes an open file using the file refnum.
+   Call this function for a file that was opened for reading only.
+   Use CloseFileAndUpdateVolume() for files opened for writing. */
+OSErr CloseMe(short *p_refnum)
 {
 OSErr io;
 	
+io = noErr;
 if(*p_refnum != -1) {
 	io = FSClose(*p_refnum);
 	if(io != noErr && Beta) {
@@ -1470,7 +1524,7 @@ if(*p_refnum != -1) {
 		}
 	}
 *p_refnum = -1;
-return(OK);
+return(io);
 }
 
 
@@ -1577,6 +1631,8 @@ InputOn--;
 return(OK);
 }
 
+
+#if 0
 /* FIXME ? Shouldn't we be flushing the vRefNum of the file that was written ?? - akozar */
 FlushVolume()
 {
@@ -1593,6 +1649,7 @@ pb.ioVRefNum = 0;
 io = PBFlushVol((ParmBlkPtr)&pb,async);
 return(io == noErr);
 }
+#endif
 
 
 FlushFile(short refnum)
@@ -1893,6 +1950,7 @@ if(io == noErr && w >= 0 && w < WMAX) {
 		if(io == noErr) io = FSpDelete(&spec);
 		}
 	(*p_TempFSspec)[w].name[0] = 0;
+	io = FlushVol(NULL, p_spec->vRefNum);
 	}
 if(io != noErr) TellError(86,io);
 return(io);

@@ -151,7 +151,8 @@ extern char ****p_Bol,****p_Patt,****p_Flagname,****p_Script,
 extern tokenbyte ***pp_Scrap,**p_Scrap,**p_Initbuff;
 extern char **p_InitScriptLine;
 extern unsigned Seed,UsedRandom;
-extern int ScriptW,CurrentVref,LastVref,CurrentChannel;
+extern short CurrentVref,LastVref;
+extern int ScriptW,CurrentChannel;
 extern long CurrentDir,LastDir,OldModulation;
 extern int PitchbendRange[MAXCHAN+1],DeftPitchbendRange,PitchbendRate[MAXCHAN+1],ModulationRate[MAXCHAN+1],PressRate[MAXCHAN+1],
 	VolumeRate[MAXCHAN+1],VolumeControl[MAXCHAN+1],PanoramicRate[MAXCHAN+1],PanoramicControl[MAXCHAN+1],
@@ -347,7 +348,7 @@ extern char DocumentTypeName[WMAX][18];
 extern char DeftName[WMAX][MAXNAME];
 extern char WindowName[WMAX][MAXNAME];
 extern long WindowParID[WMAX],ParIDstartup,ParIDbp2;
-extern Str255 DeftVolName;
+// extern Str255 DeftVolName;
 extern short TheVRefNum[WMAX],RefNumStartUp,RefNumbp2;
 
 extern int Nature_of_time,UseBufferLimit,NeedAlphabet,CompleteDecisions,OkWait;
@@ -369,6 +370,7 @@ extern Boolean RunningOnOSX;
 extern ControlActionUPP vScrollUPP,hScrollUPP;
 extern NSWReply** MIDIfileReply;
 extern NSWReply** CsFileReply;
+extern FSSpec TempSpec;
 extern UInt32 NumInstalledDrivers;
 extern BPMidiDriver** InstalledDrivers;
 extern DynamicMenuItem** InstalledMenuItems;

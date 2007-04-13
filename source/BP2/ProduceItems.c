@@ -731,7 +731,7 @@ else r = YES;
 if(r == YES) {
 	single = TRUE;
 	if(OpenTemp() != OK) {
-		Alert1("Couldn't create ÔBP2.tempÕ file in BP2's folderÉ  No possibility to reject identical items");
+		Alert1("Couldn't create ÔBP2.tempÕ file in temporary folderÉ  No possibility to reject identical items");
 		single = FALSE;
 		}
 	}
@@ -754,18 +754,7 @@ MyDisposeHandle((Handle*)&p_weight);
 MyDisposeHandle((Handle*)&p_flag);
 
 AllOn = FALSE;
-if(single) {
-	FSSpec tempSpec;
-	CloseMe(&TempRefnum);
-	io = FSMakeFSSpec(RefNumbp2, ParIDbp2, "\pBP2.temp", &tempSpec);
-	if (io == noErr)					// file exists, so delete it 
-		io = FSpDelete(&tempSpec);
-	FlushVolume();
-	if(io != noErr && Beta) {
-		TellError(11,io);
-		Alert1("Err. deleting ÔBP2.tempÕ");
-		}
-	}
+if(single) CloseAndDeleteTemp();
 if(template && ItemNumber > 10L) SysBeep(10);
 HideWindow(Window[wInfo]);
 if((*p_gram).hasTEMP && template) {
