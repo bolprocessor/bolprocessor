@@ -1528,8 +1528,12 @@ else {
 			rep = SaveFile(fn,&spec,w1); break;
 		}
 	}
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]); // was hiding error messages
 /* BPActivateWindow(SLOW,w); */
+if (rep == OK) {
+	sprintf(Message,"Successfully saved ‘%s’", FileName[w1]);
+	ShowMessage(TRUE,wMessage,Message);
+	}
 return(rep);
 }
 
@@ -3061,7 +3065,7 @@ EndWriteScript();
 BPActivateWindow(wScript,SLOW);
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 if(Dirty[wScript]) {
-	if(FileName[wScript][0] != '\0') Created[wScript] = TRUE;
+	// if(FileName[wScript][0] != '\0') Created[wScript] = TRUE;  // suppressed 041207 akozar
 	if(mSaveFile(wScript) != OK) goto END;
 	}
 if(FileName[wScript][0] == '\0') {
