@@ -378,7 +378,7 @@ GOTIT:
 				ShowSelect(CENTRE,wMessage);
 				}
 			}
-		for(w=0; w < WMAX; w++) {
+		for(w=0; w < WMAX; w++) {  // FIXME: need to match if no prefix
 			if(FilePrefix[w][0] == '\0') continue;
 			p = &(line[0]); q = &(FilePrefix[w][0]);
 			if(Match(TRUE,&p,&q,4)) break;
@@ -611,7 +611,7 @@ GOTIT5:
 				FSClose(refnum);
 				return(ABORT);
 				}
-			p2cstrcpy(FileName[w],fn);
+			p2cstrcpy(FileName[w],fn);  // FIXME ? should copy spec.name ?? (delete fn then)
 			SetName(w,TRUE,TRUE);
 			if(w == wGrammar || w == wAlphabet || w == wData) {
 				TheVRefNum[wGrammar] = TheVRefNum[wInteraction] = TheVRefNum[wGlossary]
@@ -789,7 +789,7 @@ GOTIT6:
 		break;
 	case 39:	/* Set vref: */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		CurrentVref = (*(ScriptLine.intarg))[0];
+		CurrentVref = (short)(*(ScriptLine.intarg))[0];
 		break;
 	case 40:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
@@ -2035,7 +2035,7 @@ RecordVrefInScript(FSSpec *p_spec)
 {
 char line[20];
 long parid;
-int vref;
+short vref;
 
 if(!ScriptRecOn) return(OK);
 parid = p_spec->parID;
@@ -2314,7 +2314,7 @@ return(r);
 }
 
 
-ChangeDirInfo(long dir,int vref,long *p_posdir)
+ChangeDirInfo(long dir,short vref,long *p_posdir)
 {
 TextOffset dummy;
 long pos,posmax;
