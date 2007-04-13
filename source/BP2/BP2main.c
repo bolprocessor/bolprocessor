@@ -49,9 +49,8 @@ int RegisterMidiDrivers();
 
 main(void)
 {
-int i,w,startupscript,what,eventfound,rep,oms,changed;
-short oldvrefnum;
-long oldparid,leak;
+int i,w,startupscript,what,eventfound,rep,oms;
+long leak;
 EventRecord event;
 
 if(Inits() != OK) return(OK);
@@ -167,11 +166,11 @@ if(eventfound && ((event.what == keyDown && (event.modifiers & cmdKey) != 0)
 else {
 NOEVENT:
 	InitOn = FirstTimeAE = FALSE;
-	if(!MustChangeInput && AppendStringList("+sc.startup") == OK) {
-		if(RunScriptOnDisk(FALSE,"+sc.startup",&changed) == OK) startupscript = TRUE;
+	if(!MustChangeInput) {
+		if (RunScriptInPrefsOrAppFolder(kBPStartupScript, &startupscript) != OK) goto END;
 		ScriptExecOn = 0;
 		}
-	if(ResetScriptQueue() != OK) goto END;
+
 	ShowMessage(TRUE,wMessage,"Type Ôð-?Õ and select button, word or menu item for help");
 	if(!startupscript && !MustChangeInput) {
 		ClearWindow(TRUE,wGrammar);
@@ -259,14 +258,10 @@ while(MainEvent() != EXIT && EventState != EXIT) {
 	}
 ////////////////////////////
 
-oldparid = WindowParID[wScript];
-oldvrefnum = TheVRefNum[wScript];
-CurrentDir = WindowParID[wScript] = ParIDstartup;
-CurrentVref = TheVRefNum[wScript] = RefNumStartUp;
-if(!EmergencyExit && !MustChangeInput && !ScriptExecOn && AppendStringList("+sc.shutdown") == OK) {
-	RunScriptOnDisk(FALSE,"+sc.shutdown",&changed);
+if(!EmergencyExit && !MustChangeInput && !ScriptExecOn) {
+	EventState = NO;  // necessary so that script will run
+	RunScriptInPrefsOrAppFolder(kBPShutdownScript, &startupscript);
 	}
-if(!ScriptExecOn) ResetScriptQueue();
 StopWait();
 /* KillSubTree(PrefixTree); KillSubTree(SuffixTree); $$$ */
 MyDisposeHandle((Handle*)&Stream.code);
@@ -289,8 +284,6 @@ if(TraceMemory && Beta && !MustChangeInput) {  // replaced CheckMem with TraceMe
 StopWait();
 if(!ScriptExecOn && !AEventOn && !EmergencyExit && !MustChangeInput) {
 	if(mAbout(-1) == RESUME) {
-		WindowParID[wScript] = oldparid;
-		TheVRefNum[wScript] = oldvrefnum;
 		InitButtons();
 		goto START;
 		}
@@ -307,8 +300,8 @@ END:
 
 CloseMIDIFile();
 CloseMe(&HelpRefnum);
-CloseMe(&TraceRefnum);
-CloseMe(&TempRefnum);
+CloseFileAndUpdateVolume(&TraceRefnum);
+CloseFileAndUpdateVolume(&TempRefnum);
 CloseCsScore();
 MyDisposeHandle((Handle*)&p_Oldvalue);
 ClearLockedSpace();

@@ -77,7 +77,7 @@ if(w == wInteraction || w == wGlossary) goto DOIT;
 OutputWindow = wData;
 StepScript = FALSE;
 ScriptW = 0;
-Created[w] = FALSE;
+// Created[w] = FALSE;  // suppressed 041207 akozar
 if(quick) goto DOIT;
 BPActivateWindow(SLOW,wScriptDialog);
 BPActivateWindow(SLOW,w);
@@ -99,9 +99,9 @@ if(w == wScript) {
 	if(AppendStringList(FileName[wScript]) != OK) goto QUIT1;
 	if((posmax > pos) && !quick) {
 		ShowSelect(CENTRE,w);
-		sprintf(Message,"Execute script Ô%sÕ",FileName[w]);
-		if(Answer(Message,'Y') != OK) goto QUIT1;
-		if((r=Answer("Execute only selection",'Y')) == ABORT) goto QUIT1;
+		// sprintf(Message,"Execute script Ô%sÕ",FileName[w]);  // suppressed 041007, akozar
+		// if(Answer(Message,'Y') != OK) goto QUIT1;
+		if((r=Answer("Execute only the current selection",'Y')) == ABORT) goto QUIT1;
 		if(r == YES) {
 			for(i=pos; i > 0; i--) {
 				if(GetTextChar(wScript,i) == '\r') {
@@ -126,7 +126,7 @@ if(Beta && w == wScript) {
 	}
 r = OK;
 if(w != wScript) goto HERE;
-sprintf(Message,"Runing script Ô%sÕ\rExecute step by step",FileName[w]);
+sprintf(Message,"Running script Ô%sÕ\rExecute step by step",FileName[w]);
 if(!quick && (r=Answer(Message,'N')) == OK) StepScript = TRUE;
 if(r == ABORT) goto QUIT1;
 ScriptExecOn = 1; OkWait = OK;
@@ -303,10 +303,7 @@ EndScript(void)
 HideWindow(Window[wMessage]);
 if(ScriptExecOn > 0) ScriptExecOn--;
 if(ScriptExecOn == 0) {
-	if(Beta) {
-		CloseMe(&TraceRefnum);
-		FlushVolume();
-		}
+	if(Beta) CloseFileAndUpdateVolume(&TraceRefnum);
 	ShowPannel(wScriptDialog,bExecScript);
 	ShowPannel(wScriptDialog,bLoadScript);
 	ShowPannel(wScriptDialog,bClearScript);
@@ -588,6 +585,51 @@ return(OK);
 }
 
 
+/* Returns an error code if anything goes wrong other than not
+   finding or executing the script.  If the script was found
+   and successfully executed, then returns TRUE in scriptCompleted.
+   filename may be a relative pathname up to 255 chars long. */
+int RunScriptInPrefsOrAppFolder(StringPtr filename, int* scriptCompleted)
+{
+	OSErr  err;
+	FSSpec scriptloc;
+	char   cname[64];		// size of FSSpec.name
+	int    rep, changed;
+	short  oldvrefnum;
+	long   oldparid;
+
+	*scriptCompleted = FALSE;
+	rep = OK;
+	
+	/* Look first in the "Bol Processor" subfolder of the user (or system on OS 9)
+	   preferences folder.  If not found there, try the BP2 application folder */
+	err = FindFileInPrefsFolder(&scriptloc, filename);
+	if (err != noErr) {
+		err = FSMakeFSSpec(RefNumbp2, ParIDbp2, filename, &scriptloc);
+	}
+	if (err == noErr) {
+		// above func calls may have modified the name, so use scriptloc.name
+		p2cstrcpy(cname, scriptloc.name);
+		if ((rep = AppendStringList(cname)) == OK) {
+			oldparid = WindowParID[wScript];
+			oldvrefnum = TheVRefNum[wScript];
+			
+			CurrentDir = WindowParID[wScript] = scriptloc.parID;
+			CurrentVref = TheVRefNum[wScript] = scriptloc.vRefNum;
+					
+			if (RunScriptOnDisk(FALSE, cname, &changed) == OK) *scriptCompleted = TRUE;
+			
+			WindowParID[wScript] = oldparid;
+			TheVRefNum[wScript] = oldvrefnum;
+			
+			rep = ResetScriptQueue();
+		}
+	}
+	
+	return rep;
+}
+
+
 RunScriptOnDisk(int check,char* filename,int *p_changed)
 {
 int i,iv,io,r,rr,result,type,startup,shutdown,good,changed,keep,dirtymem,wmem;
@@ -599,7 +641,7 @@ char **p_line,**p_completeline;
 
 result = OK; startup = shutdown = FALSE;
 p_line = p_completeline = NULL;
-Strip(filename);
+// Strip(filename);
 if(!MemberStringList(filename)) AppendStringList(filename);
 if(strcmp(filename,"+sc.startup") == 0) startup = TRUE;
 if(strcmp(filename,"+sc.shutdown") == 0) shutdown = TRUE;

@@ -1,3 +1,58 @@
+2007-04-12	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-04-11	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-04-10	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/Misc.c:
+		Fixed bug in SetButtons() that turned off OutMIDI before driver inits.
+		Fixed bug in Date() that returned corrupted time string.
+		
+	* resources/BP2-MacOS.rsrc:
+		Changed version resource's country code to "U.S.".
+		Made sure window and dialog positions are below menu bar.
+		 
+	* source/BP2/BP2main.c:
+	* source/BP2/Script.c:
+		Replaced calls to RunScriptOnDisk() for +sc.startup and +sc.shutdown
+			with new function RunScriptInPrefsOrAppFolder().
+		RunScriptInPrefsOrAppFolder() encapsulates all of the setup for 
+			running and now searches for special scripts in the user or 
+			system preferences folder (or BP's folder if not found).
+		Fixed bug with EventState that prevented shutdown script from running.
+		
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+	* source/BP2/ScriptUtils.c:
+		Corrections where int was used instead of short for vRefNums.
+		
+	* source/BP2/SaveLoads3.c (MyOpen):  Return correct error codes.
+
+	* source/BP2/MenuCommands.c:
+	* source/BP2/Script.c:
+		Make sure error messages are not hidden when saving a file.
+		Changes to make sure that Created[w] is maintained when checking
+			or executing a script.
+	
+	* source/BP2/-BP2.h:
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+	* source/BP2/BP2main.c:
+	* source/BP2/MIDIfiles.c:
+	* source/BP2/ProduceItems.c:
+	* source/BP2/SaveLoads3.c:
+	* source/BP2/Script.c:
+		CreateTemporaryFile() now uses system Temp folder and returns FSSpec.
+		OpenTemp() saves spec to new global TempSpec.
+		New constants for temp file names: kBPTempFile, kBPTraceFile.
+		Moved code for removing BP2.temp from ProduceItems.c to 
+			CloseAndDeleteTemp() in SaveLoads3.c
+		New func CloseFileAndUpdateVolume() for closing temps that 
+			retrieves the vRefNum and flushes the volume.
+		Close BP2.temp & BP2.trace with CloseFileAndUpdateVolume() in main().
+		Replaced BP's FlushVolume() with File Mngr's FlushVol() and made
+			other changes so that we are always flushing the correct volume.
+
 2007-04-09	Anthony Kozar	<anthonykozar@sbcglobal.net>
 2007-04-06	Anthony Kozar	<anthonykozar@sbcglobal.net>
 	
