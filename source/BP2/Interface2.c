@@ -162,19 +162,20 @@ if(Beta && ScriptExecOn && TraceRefnum != -1 /* && Tracefile != (FILE*) NULL */)
 	WriteToFile(NO,MAC,s,TraceRefnum);
 
 ShowWindow(Window[w]);
-BringToFront(Window[w]);
+if (RunningOnOSX) SendBehind(Window[w], FrontWindow()); // BringToFront() sometimes activates window on OS X
+else BringToFront(Window[w]);
 SetSelect(ZERO,GetTextLength(w),TEH[w]);
 TextDelete(w);
 PrintBehind(w,s);
 TextUpdate(w);
-/* GetPort(&saveport);
-SetPort(Window[w]); */
+GetPort(&saveport);
+SetPortWindowPort(Window[w]);
 GetWindowPortBounds(Window[w], &r);
 InvalWindowRect(Window[w], &r);
 #if TARGET_API_MAC_CARBON
   QDFlushPortBuffer(GetWindowPort(Window[w]), NULL);
 #endif
-/* if(saveport != NULL) SetPort(saveport); */
+if(saveport != NULL) SetPort(saveport);
 #if !TARGET_API_MAC_CARBON
 SystemTask();	/* Allows redrawing control strip */
 #endif
@@ -199,7 +200,8 @@ SelectBehind(ZERO,GetTextLength(wInfo),TEH[wInfo]);
 TextDelete(wInfo);
 PrintBehind(wInfo,s);
 ShowWindow(Window[wInfo]);
-SelectWindow(Window[wInfo]);
+if (RunningOnOSX) SendBehind(Window[wInfo], FrontWindow());
+else BringToFront(Window[wInfo]);
 TextUpdate(wInfo);
 #if TARGET_API_MAC_CARBON
   QDFlushPortBuffer(GetWindowPort(Window[wInfo]), NULL);
@@ -991,6 +993,10 @@ else {
 	}
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[windowM],alphabetCommand,PascalLine);
+
+if (option)	SetMenuItemText(myMenus[windowM],miscsettingsCommand,"\pComputation & IO Settings");
+else		SetMenuItemText(myMenus[windowM],miscsettingsCommand,"\pSettings");
+
 return(OK);
 }
 
@@ -1880,7 +1886,6 @@ Rect r;
 short theitem;
 int found;
 ControlHandle h;
-RgnHandle rgn;
 EventRecord theEvent;
 WindowPtr thewindow;
 DialogPtr thedialog;
@@ -1897,10 +1902,7 @@ FlushEvents(everyEvent,0);
 // #endif
 
 /* DrawControls(ReplaceCommandPtr); */
-rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-GetPortVisibleRegion(GetDialogPort(ReplaceCommandPtr), rgn);
-UpdateDialog(ReplaceCommandPtr, rgn);
-DisposeRgn(rgn);
+BPUpdateDialog(ReplaceCommandPtr);
 
 do {
 	if(GetNextEvent(everyEvent,&theEvent)) {
