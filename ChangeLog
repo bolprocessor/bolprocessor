@@ -1,3 +1,43 @@
+2007-04-19	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/Interface2.c (ShowMessage & FlashInfo):
+		Use SendBehind(FrontWindow()) instead of BringToFront() on OS X
+			because the latter sometimes activates the window.
+
+2007-04-16	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/AppleEvents.c:
+	* source/BP2/BP2main.c:
+	* source/BP2/Compute.c:
+	* source/BP2/Csound.c:
+	* source/BP2/Dialogs.c:
+	* source/BP2/Interface1.c:
+	* source/BP2/Interface2.c:
+	* source/BP2/MenuCommands.c:
+	* source/BP2/Misc.c:
+	* source/BP2/PlayThings.c:
+	* source/BP2/Polymetric.c:
+	* source/BP2/Translit.c:
+		New function BPUpdateDialog() to replace all of the many instances
+			where I added NewRgn() ... GetWindowVisibleRegion() for Carbon.
+		Fixed a minor bug setting the clip region in UpdateWindow() that I 
+			introduced while porting to Carbon.
+		
+	* source/BP2/Misc.c (ShowMIDIkeyboard): EXPERIMENTAL removal of InvalRect.
+
+	* resources/BP2-MacOS.rsrc (MENU #132 & #136):
+	* source/BP2/Inits.c (SetUpMenus):
+	* source/BP2/Interface1.c (DoEvent):
+	* source/BP2/Interface2.c (SetOptionMenu):
+	* source/BP2/MenuCommands.c (mMiscSettings):
+		Added Help shortcut (Cmd-?) and new Settings shortcut (Cmd-;) to 
+			menu resources and removed the code in SetUpMenus() that
+			changed the text of these menu items.
+		Only display top & bottom settings when option key down -- menu
+			text changes to "Computation & IO Settings".
+		Added Command-Opt-; case to DoEvents().
+
 2007-04-12	Anthony Kozar	<anthonykozar@sbcglobal.net>
 2007-04-11	Anthony Kozar	<anthonykozar@sbcglobal.net>
 2007-04-10	Anthony Kozar	<anthonykozar@sbcglobal.net>
