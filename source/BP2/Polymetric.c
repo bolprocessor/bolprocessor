@@ -375,14 +375,7 @@ if(Pclock > 0.) {
 				QuantizeOK = TRUE;
 				UpdateDirty(TRUE,iSettings);
 				SetTimeAccuracy();
-				{ GrafPtr port;
-				  RgnHandle rgn;
-				  port = GetDialogPort(gpDialogs[wTimeAccuracy]);
-				  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-				  GetPortVisibleRegion(port, rgn);
-				  UpdateDialog(gpDialogs[wTimeAccuracy], rgn);
-				  DisposeRgn(rgn);
-				}
+				BPUpdateDialog(gpDialogs[wTimeAccuracy]);
 				goto FINDCOMPRESSION;
 				}
 			r = OK;

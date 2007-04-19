@@ -446,6 +446,7 @@ int SetResumeStop(int);
 int ChangeNames(char**);
 int FindGoodIndex(int);
 int DoDialog(EventRecord*);
+int BPUpdateDialog(DialogPtr dp);
 int BPSetDialogAppearance(DialogPtr d);
 int CompileGrammar(int);
 int InsertSubgramTypes(void);

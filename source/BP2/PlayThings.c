@@ -521,16 +521,9 @@ if(!StrikeAgainDefault) {
 	if(r == ABORT) return(r);
 	if(r == YES) {
 		ShowWindow(GetDialogWindow(StrikeModePtr));
-		BringToFront(GetDialogWindow(StrikeModePtr));
+		SelectWindow(GetDialogWindow(StrikeModePtr));
 		SetDefaultStrikeMode();
-		{ GrafPtr port;
-		  RgnHandle rgn;
-		  port = GetDialogPort(StrikeModePtr);
-		  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-		  GetPortVisibleRegion(port, rgn);
-		  UpdateDialog(StrikeModePtr, rgn);
-		  DisposeRgn(rgn);
-		}
+		BPUpdateDialog(StrikeModePtr);
 		return(ABORT);
 		}
 	}

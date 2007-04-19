@@ -1348,14 +1348,7 @@ NOSTARTINDEX:
 			Alert1("Start index should be specified");
 			ShowWindow(GetDialogWindow(CsoundInstrMorePtr));
 			SelectWindow(GetDialogWindow(CsoundInstrMorePtr));
-			{ GrafPtr port;
-			  RgnHandle rgn;
-			  port = GetDialogPort(CsoundInstrMorePtr);
-			  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-			  GetPortVisibleRegion(port, rgn);
-			  UpdateDialog(CsoundInstrMorePtr, rgn);
-			  DisposeRgn(rgn);
-			}
+			BPUpdateDialog(CsoundInstrMorePtr);
 			SetField(CsoundInstrMorePtr,-1,fMoreStartIndex + (7*ip),"[?]");
 			SelectField(CsoundInstrMorePtr,-1,fMoreStartIndex + (7*ip),TRUE);
 			(*paramlist)[ip].nameindex = -1;

@@ -1810,14 +1810,7 @@ if((grtype != SUBtype) && (((*p_lengthorigin) + dif) >= BufferSize)) {
 			ShowWindow(Window[wBufferSize]);
 		 	if(!ShownBufferSize || UseBufferLimit) BringToFront(Window[wBufferSize]);
 		 	ShownBufferSize = TRUE;
-		 	{ GrafPtr port;
-			  RgnHandle rgn;
-			  port = GetDialogPort(gpDialogs[wBufferSize]);
-			  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-			  GetPortVisibleRegion(port, rgn);
-			  UpdateDialog(gpDialogs[wBufferSize], rgn);
-			  DisposeRgn(rgn);
-			}
+			BPUpdateDialog(gpDialogs[wBufferSize]);
 		 	}
 		}
 	else return(STOP);
@@ -1912,14 +1905,7 @@ if(jmax >= (BufferSize - 2L)) {
 			ShowWindow(Window[wBufferSize]);
 		 	if(!ShownBufferSize || UseBufferLimit) BringToFront(Window[wBufferSize]);
 		 	ShownBufferSize = TRUE;
-		 	{ GrafPtr port;
-			  RgnHandle rgn;
-			  port = GetDialogPort(gpDialogs[wBufferSize]);
-			  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-			  GetPortVisibleRegion(port, rgn);
-			  UpdateDialog(gpDialogs[wBufferSize], rgn);
-			  DisposeRgn(rgn);
-			}
+			BPUpdateDialog(gpDialogs[wBufferSize]);
 		 	}
 		}
 	else return(STOP);

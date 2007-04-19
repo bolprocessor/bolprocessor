@@ -805,7 +805,6 @@ GetMoreSpace(Size size)
 {
 long contigbytes,grow;
 int rep,result;
-RgnHandle rgnH;
 
 if (RunningOnOSX)  return (OK);
 
@@ -840,9 +839,7 @@ NOSPACE:
 		ShowWindow(Window[wTimeAccuracy]);
 		BringToFront(Window[wTimeAccuracy]);
 		// since updating allocates memory, it is not essential right now -- akozar 040207
-		/*rgnH = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-		UpdateDialog(gpDialogs[wTimeAccuracy], GetPortVisibleRegion(GetDialogPort(gpDialogs[wTimeAccuracy]),rgnH));
-		DisposeRgn(rgnH);*/
+		// BPUpdateDialog(gpDialogs[wTimeAccuracy]);
 		if(!ScriptExecOn)
 			Alert1("You should size up the memory allocation for BP2, or increase the quantization");
 USEIT:		

@@ -174,14 +174,7 @@ while(TRUE) {
 		if(removespacesright) SwitchOn(grammarfromtableptr,-1,bMakeGrammarFromTableRightRemoveSpaces);
 		else SwitchOff(grammarfromtableptr,-1,bMakeGrammarFromTableRightRemoveSpaces);
 
-		{ GrafPtr port;
-		  RgnHandle rgn;
-		  port = GetDialogPort(grammarfromtableptr);
-		  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-		  GetPortVisibleRegion(port, rgn);
-		  UpdateDialog(grammarfromtableptr, rgn);
-		  DisposeRgn(rgn);
-		}
+		BPUpdateDialog(grammarfromtableptr);
 	}
 	MaintainCursor();
 	ModalDialog((ModalFilterUPP) 0L,&item);
@@ -863,14 +856,7 @@ ShowSelect(CENTRE,wNotice);
 TextUpdate(wHelp);
 ShowSelect(CENTRE,wHelp);
 SelectWindow(GetDialogWindow(filepreviewptr));
-{ GrafPtr port;
-  RgnHandle rgn;
-  port = GetDialogPort(filepreviewptr);
-  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-  GetPortVisibleRegion(port, rgn);
-  UpdateDialog(filepreviewptr, rgn);
-  DisposeRgn(rgn);
-}
+BPUpdateDialog(filepreviewptr);
 while(TRUE) {
 	MaintainCursor();
 	ModalDialog((ModalFilterUPP) 0L,&item);

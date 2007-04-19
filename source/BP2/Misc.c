@@ -455,7 +455,6 @@ Rect r;
 ControlHandle itemhandle;
 Str255 textStr;
 GrafPtr saveport, dport;
-RgnHandle rgn;
 
 for(i=1; i <= 24; i++) {
 	GetDialogItem(MIDIkeyboardPtr,i,&itemtype,(Handle*) &itemhandle,&r);
@@ -493,17 +492,16 @@ for(i=1; i <= 24; i++) {
 SetNameChoice();
 ShowWindow(GetDialogWindow(MIDIkeyboardPtr));
 SelectWindow(GetDialogWindow(MIDIkeyboardPtr));
+BPUpdateDialog(MIDIkeyboardPtr); /* Needed to show static text! */
+#if !EXPERIMENTAL
 dport = GetDialogPort(MIDIkeyboardPtr);
-rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-GetPortVisibleRegion(dport, rgn);
-UpdateDialog(MIDIkeyboardPtr, rgn); /* Needed to show static text! */
-DisposeRgn(rgn);
 GetPort(&saveport);
 SetPort(dport);
 GetPortBounds(dport, &r);
 InvalWindowRect(GetDialogWindow(MIDIkeyboardPtr), &r);
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err ShowMIDIkeyboard(). saveport == NULL");
+#endif
 return(DoSystem());
 }
 
@@ -1695,8 +1693,6 @@ GetFileSavePreferences(void)
 int result;
 long p,q;
 char line[MAXFIELDCONTENT];
-GrafPtr port;
-RgnHandle rgn;
 
 if(FileSaveMode == ALLSAME || FileSaveMode == ALLSAMEPROMPT) {
 	GetCsoundScoreName();
@@ -1706,16 +1702,12 @@ if(GetField(FileSavePreferencesPtr,YES,-1,fFadeOut,LineBuff,&p,&q) != OK) {
 	p = 3L; q = 1L;
 	}
 
-port = GetDialogPort(FileSavePreferencesPtr);
 FADEOUTVALUE:
 MIDIfadeOut = ((float)p) / q;
 if(MIDIfadeOut < 0. || MIDIfadeOut > 100.) {
 	ShowWindow(GetDialogWindow(FileSavePreferencesPtr));
 	BringToFront(GetDialogWindow(FileSavePreferencesPtr));
-	rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-	GetPortVisibleRegion(port, rgn);
-	UpdateDialog(FileSavePreferencesPtr, rgn);
-	DisposeRgn(rgn);
+	BPUpdateDialog(FileSavePreferencesPtr);
 	SelectField(FileSavePreferencesPtr,-1,fFadeOut,TRUE);
 	Alert1("Range for MIDI fade out is 0..100 seconds");
 	result = AnswerWith("Set fade out to…","0.00",line);
@@ -1725,10 +1717,7 @@ if(MIDIfadeOut < 0. || MIDIfadeOut > 100.) {
 		MIDIfadeOut = ((float)p) / q;
 		sprintf(line,"%.2f",MIDIfadeOut);
 		SetField(FileSavePreferencesPtr,-1,fFadeOut,line);
-		rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-		GetPortVisibleRegion(port, rgn);
-		UpdateDialog(FileSavePreferencesPtr, rgn);
-		DisposeRgn(rgn);
+		BPUpdateDialog(FileSavePreferencesPtr);
 		}
 	goto FADEOUTVALUE;
 	}
@@ -1736,10 +1725,7 @@ return(OK);
 
 ERR:
 SetField(FileSavePreferencesPtr,-1,fFadeOut,"[?]");
-rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-GetPortVisibleRegion(port, rgn);
-UpdateDialog(FileSavePreferencesPtr, rgn);
-DisposeRgn(rgn);
+BPUpdateDialog(FileSavePreferencesPtr);
 SelectField(FileSavePreferencesPtr,-1,fFadeOut,TRUE);
 return(FAILED);
 }
@@ -2229,14 +2215,7 @@ if(newseed < 0 || newseed > 32767) {
 	Alert1("Random seed must be in range [0..32767]");
 	ShowWindow(GetDialogWindow(gpDialogs[wRandomSequence]));
 	BringToFront(GetDialogWindow(gpDialogs[wRandomSequence]));
-	{ GrafPtr port;
-	  RgnHandle rgn;
-	  port = GetDialogPort(gpDialogs[wRandomSequence]);
-	  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-	  GetPortVisibleRegion(port, rgn);
-	  UpdateDialog(gpDialogs[wRandomSequence], rgn);
-	  DisposeRgn(rgn);
-	}
+	BPUpdateDialog(gpDialogs[wRandomSequence]);
 	SelectField(NULL,wRandomSequence,fSeed,TRUE);
 	return(FAILED);
 	}
@@ -2289,14 +2268,7 @@ switch(what) {
 			if(ShowMessages) {
 				ShowWindow(GetDialogWindow(gpDialogs[wRandomSequence]));
 				BringToFront(GetDialogWindow(gpDialogs[wRandomSequence]));
-				{ GrafPtr port;
-				  RgnHandle rgn;
-				  port = GetDialogPort(gpDialogs[wRandomSequence]);
-				  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-				  GetPortVisibleRegion(port, rgn);
-				  UpdateDialog(gpDialogs[wRandomSequence], rgn);
-				  DisposeRgn(rgn);
-				}
+				BPUpdateDialog(gpDialogs[wRandomSequence]);
 				}
 			}
 		break;

@@ -896,14 +896,7 @@ if(thedialog == SixteenPtr) {
 		case bChangePatch:
 			ShowWindow(GetDialogWindow(MIDIprogramPtr));
 			SelectWindow(GetDialogWindow(MIDIprogramPtr));
-			{ GrafPtr port;
-			  RgnHandle rgn;
-			  port = GetDialogPort(MIDIprogramPtr);
-			  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-			  GetPortVisibleRegion(port, rgn);
-			  UpdateDialog(MIDIprogramPtr, rgn); /* Needed to make static text visible */
-			  DisposeRgn(rgn);
-			}
+			BPUpdateDialog(MIDIprogramPtr); /* Needed to make static text visible */
 			break;			
 		case bOKSixteen:
 			HideWindow(GetDialogWindow(SixteenPtr));
@@ -2234,14 +2227,7 @@ if(w == wPrototype6) {
 			ShowWindow(GetDialogWindow(StrikeModePtr));
 			BringToFront(GetDialogWindow(StrikeModePtr));
 			SetDefaultStrikeMode();
-			{ GrafPtr port;
-			  RgnHandle rgn;
-			  port = GetDialogPort(StrikeModePtr);
-			  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-			  GetPortVisibleRegion(port, rgn);
-			  UpdateDialog(StrikeModePtr, rgn);
-			  DisposeRgn(rgn);
-			}
+			BPUpdateDialog(StrikeModePtr);
 			return(DONE);
 			break;
 		}
@@ -2451,14 +2437,7 @@ if(w == wCsoundInstruments) {
 		case bMore:
 			ShowWindow(GetDialogWindow(CsoundInstrMorePtr));
 			SelectWindow(GetDialogWindow(CsoundInstrMorePtr));
-			{ GrafPtr port;
-			  RgnHandle rgn;
-			  port = GetDialogPort(CsoundInstrMorePtr);
-			  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-			  GetPortVisibleRegion(port, rgn);
-			  UpdateDialog(CsoundInstrMorePtr, rgn);
-			  DisposeRgn(rgn);
-			}
+			BPUpdateDialog(CsoundInstrMorePtr);
 			return(DONE);
 			break;
 		case bCsoundTables:
@@ -2670,6 +2649,22 @@ for(j=0; j < 128; j++) {
 		}
 	}
 return(OK);
+}
+
+
+/* This function may move memory on OS 9 and earlier */
+int BPUpdateDialog(DialogPtr dp)
+{
+	RgnHandle rgn;
+
+	rgn = NULL;
+	rgn = NewRgn();
+	if (rgn == NULL) return (FAILED);	// how are we supposed to check that NewRgn failed?
+	GetPortVisibleRegion(GetDialogPort(dp), rgn);
+	UpdateDialog(dp, rgn);
+	DisposeRgn(rgn);
+
+	return (OK);
 }
 
 

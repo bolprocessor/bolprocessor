@@ -299,20 +299,13 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 					
 				//	ShowWindow(MIDIprogramPtr);
 				//	SelectWindow(MIDIprogramPtr);
-				//	UpdateDialog(MIDIprogramPtr,MIDIprogramPtr->visRgn); /* Needed to make static text visible */
+				//	BPUpdateDialog(MIDIprogramPtr); /* Needed to make static text visible */
 					
 					HideWindow(Window[wMessage]);
 					
 					ShowWindow(GetDialogWindow(SixteenPtr));
 					SelectWindow(GetDialogWindow(SixteenPtr));
-					{ GrafPtr port;
-					  RgnHandle rgn;
-					  port = GetDialogPort(SixteenPtr);
-					  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-					  GetPortVisibleRegion(port, rgn);
-					  UpdateDialog(SixteenPtr, rgn); /* Needed to make static text visible */
-					  DisposeRgn(rgn);
-					}
+					BPUpdateDialog(SixteenPtr); /* Needed to make static text visible */
 					BPActivateWindow(SLOW,wind);
 					break;
 				}
