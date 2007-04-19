@@ -132,8 +132,12 @@ if(!AlertOn && (p_event->what == keyDown && ((p_event->modifiers & cmdKey) != 0)
 		}
 	Option = FALSE;
 	switch(thechar) {
-		case -54:	/* cmd option space */
+		case -54:	/* cmd option space (only received on OS 9) - don't set Option */
 			return(mMiscSettings(Nw));
+			break;
+		case 'É':	/* cmd option ; */
+			Option = TRUE;
+			thechar = ';';
 			break;
 		case '©':	/* cmd option G */
 		case 'Þ':
@@ -145,7 +149,7 @@ if(!AlertOn && (p_event->what == keyDown && ((p_event->modifiers & cmdKey) != 0)
 			Option = TRUE;
 			thechar = 'h';
 			break;
-		case ' ':
+		case ' ':	/* cmd space (only received on OS 9) */
 			if(iProto > 1 && iProto < Jbol && Nw >= wPrototype1 && Nw <= wPrototype7) {
 				if((*p_MIDIsize)[iProto] > ZERO) return(PlayPrototype(iProto));
 				else if((*p_CsoundSize)[iProto] > ZERO) DeCompileObjectScore(iProto);
@@ -1111,9 +1115,7 @@ if(Nw > -1 && Nw < WMAX) {
 		ClipRect(&r);
 		if(OKvScroll[Nw]) HideControl(vScroll[Nw]);
 		if(OKhScroll[Nw]) HideControl(hScroll[Nw]);
-//#if !EXPERIMENTAL
-		if(OKgrow[Nw]) DrawGrowIcon(Window[Nw]);
-//#endif
+		if(OKgrow[Nw]) DrawGrowIcon(Window[Nw]); // draws scrollbar outlines in inactive windows
 		}
 	ClipRect(&r1);
 	OutlineTextInDialog(Nw,FALSE);
@@ -1399,19 +1401,12 @@ GetWindowPortBounds(theWindow, &r);
 ClipRect(&r);
 if(w < WMAX && GrafWindow[w] && (!quick || GotAlert)) ShowSelect(CENTRE,w);
 BeginUpdate(theWindow);	/* This should not be placed higher */
+GetPortClipRegion(GetWindowPort(theWindow), cliprgn);
 UpdateControls(theWindow, cliprgn);
 DisposeRgn(cliprgn);
 
 if(w < WMAX) {
-	if(IsDialog[w]) { 
-		GrafPtr port;
-		RgnHandle rgn;
-		port = GetDialogPort(gpDialogs[w]);
-		rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-		GetPortVisibleRegion(port, rgn);
-		UpdateDialog(gpDialogs[w], rgn);
-		DisposeRgn(rgn);
-		}
+	if(IsDialog[w]) BPUpdateDialog(gpDialogs[w]);
 	/* UpdateDialog needed to make static text visible */
 	/* É in spite of Inside Mac saying it isn't p.I-418 */
 	if(OKgrow[w]) DrawGrowIcon(theWindow);
@@ -1436,19 +1431,13 @@ else {
 			|| theWindow == GetDialogWindow(SixteenPtr)
 			|| theWindow == GetDialogWindow(MIDIprogramPtr)
 			|| theWindow == GetDialogWindow(OMSinoutPtr)) {
-		RgnHandle rgn;
-		DialogPtr dp;
 #if USE_OMS
 		if(Oms && !InitOn && theWindow == GetDialogWindow(OMSinoutPtr)) {
 			if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
 			if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
 			}
 #endif
-		dp = GetDialogFromWindow(theWindow);
-		rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-		GetPortVisibleRegion(GetDialogPort(dp), rgn);
-		UpdateDialog(dp, rgn);
-		DisposeRgn(rgn);
+		BPUpdateDialog(GetDialogFromWindow(theWindow));
 		}
 	}
 EndUpdate(theWindow);

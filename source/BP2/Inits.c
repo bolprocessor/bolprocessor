@@ -1644,23 +1644,23 @@ SetMenuItemText(myMenus[searchM],findagainCommand,PascalLine);
 sprintf(Message,"Enter and find %c-option E",(char) commandMark);
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[searchM],enterfindCommand,PascalLine);
-
 EnableMenuItem(myMenus[searchM],enterfindCommand);
+
 sprintf(Message,"Use tokens [toggle] %c-option T",(char) commandMark);
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[miscM],tokenCommand,PascalLine);
+EnableMenuItem(myMenus[miscM],tokenCommand);
 
-EnableMenuItem(myMenus[windowM],miscsettingsCommand);
+/*EnableMenuItem(myMenus[windowM],miscsettingsCommand);
 sprintf(Message,"Settings            %c-option-space",(char) commandMark);
 c2pstrcpy(PascalLine, Message);
-SetMenuItemText(myMenus[windowM],miscsettingsCommand,PascalLine);
+SetMenuItemText(myMenus[windowM],miscsettingsCommand,PascalLine);*/
 
-EnableMenuItem(myMenus[miscM],tokenCommand);
-sprintf(Message,"Help                       %c-?",(char) commandMark);
+/*sprintf(Message,"Help                       %c-?",(char) commandMark);
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[actionM],helpCommand,PascalLine);
+EnableMenuItem(myMenus[actionM],helpCommand);*/
 
-EnableMenuItem(myMenus[actionM],helpCommand);
 DrawMenuBar();
 return(OK);
 }

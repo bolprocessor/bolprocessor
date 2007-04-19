@@ -215,20 +215,13 @@ return(OK);
 
 mMIDIorchestra(int wind)
 {
-GrafPtr port;
-RgnHandle rgn;
-
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 
 if(mMIDIoutputcheck(wind) != OK) return(FAILED);
 
 ShowWindow(GetDialogWindow(MIDIprogramPtr));
 SelectWindow(GetDialogWindow(MIDIprogramPtr));
-port = GetDialogPort(MIDIprogramPtr);
-rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-GetPortVisibleRegion(port, rgn);
-UpdateDialog(MIDIprogramPtr, rgn); /* Needed to make static text visible */
-DisposeRgn(rgn);
+BPUpdateDialog(MIDIprogramPtr); /* Needed to make static text visible */
 
 BPActivateWindow(SLOW,wMIDIorchestra);
 return(OK);
@@ -291,14 +284,7 @@ HideWindow(Window[wMessage]);
 
 ShowWindow(GetDialogWindow(SixteenPtr));
 SelectWindow(GetDialogWindow(SixteenPtr));
-{ GrafPtr port;
-  RgnHandle rgn;
-  port = GetDialogPort(SixteenPtr);
-  rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-  GetPortVisibleRegion(port, rgn);
-  UpdateDialog(SixteenPtr, rgn); /* Needed to make static text visible */
-  DisposeRgn(rgn);
-}
+BPUpdateDialog(SixteenPtr); /* Needed to make static text visible */
 #endif
 
 return(OK);
@@ -775,68 +761,40 @@ return(OK);
 
 mTuning(int wind)
 {
-GrafPtr port;
-RgnHandle rgn;
-
 ShowWindow(GetDialogWindow(TuningPtr));
 SelectWindow(GetDialogWindow(TuningPtr));
 SetTuning();
-port = GetDialogPort(TuningPtr);
-rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-GetPortVisibleRegion(port, rgn);
-UpdateDialog(TuningPtr, rgn);
-DisposeRgn(rgn);
+BPUpdateDialog(TuningPtr);
 return(OK);
 }
 
 
 mDefaultPerformanceValues(int wind)
 {
-GrafPtr port;
-RgnHandle rgn;
-
 ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 SelectWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 SetDefaultPerformanceValues();
-port = GetDialogPort(DefaultPerformanceValuesPtr);
-rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-GetPortVisibleRegion(port, rgn);
-UpdateDialog(DefaultPerformanceValuesPtr, rgn);
-DisposeRgn(rgn);
+BPUpdateDialog(DefaultPerformanceValuesPtr);
 return(OK);
 }
 
 
 mFileSavePreferences(int wind)
 {
-GrafPtr port;
-RgnHandle rgn;
-
 ShowWindow(GetDialogWindow(FileSavePreferencesPtr));
 SelectWindow(GetDialogWindow(FileSavePreferencesPtr));
 SetFileSavePreferences();
-port = GetDialogPort(FileSavePreferencesPtr);
-rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-GetPortVisibleRegion(port, rgn);
-UpdateDialog(FileSavePreferencesPtr, rgn);
-DisposeRgn(rgn);
+BPUpdateDialog(FileSavePreferencesPtr);
 return(OK);
 }
 
 
 mDefaultStrikeMode(int wind)
 {
-GrafPtr port;
-RgnHandle rgn;
-
 ShowWindow(GetDialogWindow(StrikeModePtr));
 SelectWindow(GetDialogWindow(StrikeModePtr));
 SetDefaultStrikeMode();
-port = GetDialogPort(StrikeModePtr);
-rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-GetPortVisibleRegion(port, rgn);
-UpdateDialog(StrikeModePtr, rgn);
-DisposeRgn(rgn);
+BPUpdateDialog(StrikeModePtr);
 return(OK);
 }
 
@@ -2214,52 +2172,36 @@ return(OK);
 
 mMiscSettings(int wind)
 {
-GrafPtr port;
-RgnHandle rgn;
-
 AppendScript(30);
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
 
+/* only display Top & Bottom settings when option key down on OS X */
+if (!Option) {
 ShowWindow(GetDialogWindow(StrikeModePtr));
 BringToFront(GetDialogWindow(StrikeModePtr));
 SetDefaultStrikeMode();
-port = GetDialogPort(StrikeModePtr);
-rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-GetPortVisibleRegion(port, rgn);
-UpdateDialog(StrikeModePtr, rgn);
-DisposeRgn(rgn);
+BPUpdateDialog(StrikeModePtr);
 
 ShowWindow(GetDialogWindow(FileSavePreferencesPtr));
 BringToFront(GetDialogWindow(FileSavePreferencesPtr));
 SetFileSavePreferences();
-port = GetDialogPort(FileSavePreferencesPtr);
-rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-GetPortVisibleRegion(port, rgn);
-UpdateDialog(FileSavePreferencesPtr, rgn);
-DisposeRgn(rgn);
+BPUpdateDialog(FileSavePreferencesPtr);
 
 ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 BringToFront(GetDialogWindow(DefaultPerformanceValuesPtr));
 SetDefaultPerformanceValues();
-port = GetDialogPort(DefaultPerformanceValuesPtr);
-rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-GetPortVisibleRegion(port, rgn);
-UpdateDialog(DefaultPerformanceValuesPtr, rgn);
-DisposeRgn(rgn);
+BPUpdateDialog(DefaultPerformanceValuesPtr);
 
 ShowWindow(GetDialogWindow(TuningPtr));
 BringToFront(GetDialogWindow(TuningPtr));
 SetTuning();
-port = GetDialogPort(TuningPtr);
-rgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-GetPortVisibleRegion(port, rgn);
-UpdateDialog(TuningPtr, rgn);
-DisposeRgn(rgn);
+BPUpdateDialog(TuningPtr);
+}
 
 BPActivateWindow(SLOW,wSettingsTop);
 BPActivateWindow(SLOW,wSettingsBottom);
-BPActivateWindow(SLOW,wTimeAccuracy);
+if (!Option) BPActivateWindow(SLOW,wTimeAccuracy);
 return(OK);
 }
 
