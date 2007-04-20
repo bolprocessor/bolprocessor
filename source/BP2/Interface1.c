@@ -150,10 +150,8 @@ if(!AlertOn && (p_event->what == keyDown && ((p_event->modifiers & cmdKey) != 0)
 			thechar = 'h';
 			break;
 		case ' ':	/* cmd space (only received on OS 9) */
-			if(iProto > 1 && iProto < Jbol && Nw >= wPrototype1 && Nw <= wPrototype7) {
-				if((*p_MIDIsize)[iProto] > ZERO) return(PlayPrototype(iProto));
-				else if((*p_CsoundSize)[iProto] > ZERO) DeCompileObjectScore(iProto);
-				}
+			if(RunningOnOSX && (Nw >= wPrototype1 && Nw <= wPrototype7) || Nw == wPrototype8)
+				return(mPlaySelectionOrPrototype(Nw));
 			else if((Oms || NEWTIMER) && (SoundOn || ComputeOn || PlaySelectionOn)
 					&& OutMIDI && !PlayPrototypeOn) {
 				Mute = 1 - Mute;
@@ -2498,6 +2496,16 @@ else {
 	HidePannel(wControlPannel,dAnalyze);
 	HidePannel(wControlPannel,bCaptureSelection);
 	}
+
+// change 'Play selection' to 'Play sound-object' if one of the prototype windows is active
+if((Nw >= wPrototype1 && Nw <= wPrototype7) || Nw == wPrototype8) {
+	SetMenuItemText(myMenus[actionM], playCommand, "\pPlay sound-object");
+	// only enable if there is prototype to play
+	if(iProto > 1 && iProto < Jbol) EnableMenuItem(myMenus[actionM],playCommand);
+	else DisableMenuItem(myMenus[actionM],playCommand);
+	}
+else	SetMenuItemText(myMenus[actionM], playCommand, "\pPlay selection");
+
 if(CompileOn || (CompiledGr && (CompiledGl || !LoadedGl)) || ClickRuleOn) {
 	DisableMenuItem(myMenus[actionM],compileCommand);
 	}

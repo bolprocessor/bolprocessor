@@ -1,3 +1,18 @@
+2007-04-20	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/-BP2main.h:
+	* source/BP2/Interface1.c (DoEvent & MaintainMenus):
+	* source/BP2/MenuCommands.c (mPlaySelectionOrPrototype):
+		Don't use Command-space to play the current sound-object on OS X.
+		When any of the prototypes windows are active, the 'Play selection'
+			menu item (but not the button on the Control Panel) changes to
+			'Play sound-object' and is enabled if there is a current object.
+		Choosing this item or pressing Cmd-P will call the new function 
+			mPlaySelectionOrPrototype() that determines the context and then
+			plays either the current sound-object or the text selection within 
+			the last active edit window. (Usual problems with Nw apply).
+
 2007-04-19	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/Interface2.c (ShowMessage & FlashInfo):

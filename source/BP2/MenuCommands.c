@@ -2736,6 +2736,21 @@ return(result);
 
 /* int TestIt(void); $$$ */
 
+mPlaySelectionOrPrototype(int wind)
+{
+	// play the current sound-object if one of the prototype windows is active
+	if((Nw >= wPrototype1 && Nw <= wPrototype7) || Nw == wPrototype8) {
+		if(iProto > 1 && iProto < Jbol) {
+			if((*p_MIDIsize)[iProto] > ZERO) return(PlayPrototype(iProto));
+			else if((*p_CsoundSize)[iProto] > ZERO) DeCompileObjectScore(iProto);
+		}
+	}
+	// otherwise, play the text selection in the last edit window
+	else return mPlaySelect(wind);
+
+	return (OK);
+}
+
 mPlaySelect(int wind)
 {
 int r;

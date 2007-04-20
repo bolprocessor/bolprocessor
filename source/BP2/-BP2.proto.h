@@ -755,6 +755,7 @@ int mProduce(int);
 int mCheckDeterminism(int);
 int mTemplates(int);
 int mAnalyze(int);
+int mPlaySelectionOrPrototype(int);
 int mPlaySelect(int);
 int mRandomSequence(int);
 int mTimeBase(int);
