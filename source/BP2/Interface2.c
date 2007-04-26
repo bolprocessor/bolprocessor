@@ -64,6 +64,9 @@ SetPortWindowPort((w = NewWindow(0L,&r,"\p",1,1,NULL,0,0L)));
 TextFont(0);
 MoveTo(4,40);
 DrawString("\pCan't open resource file!");
+#if TARGET_API_MAC_CARBON
+  QDFlushPortBuffer(GetWindowPort(w), NULL);
+#endif
 while(!Button());
 return(OK);
 }

@@ -1,3 +1,11 @@
+2007-04-25	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/Dialogs.c (DoDialog):
+	* source/BP2/Interface2.c (CantOpen):
+		Call QDFlushPortBuffer() so that button hiliting changes in the MIDI 
+			Channel and Program Change dialogs before testing output.  Also, 
+			so that the message in CantOpen() is drawn.
+ 
 2007-04-24	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* resources/BP2-MacOS.rsrc:

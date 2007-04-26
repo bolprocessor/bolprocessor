@@ -139,9 +139,9 @@ if(!rtn && !hit) return(OK);
 thewindow = GetDialogWindow(thedialog);
 for(w=0; w < WMAX; w++) {
 	if(thewindow == Window[w]) {
-		if(!IsDialog[w]) {	// FIXME ? this loop doesn't make sense; already know its a dialog & w should be same -- akozar
-			return(AGAIN);	// Update: maybe not; previous loop is only done for keydown events;
-			}			// Still, it seems possibly wrong to call DialogSelect when the window might not be a dialog.
+		if(!IsDialog[w]) {	// FIXME ? already know its a dialog ? -- akozar
+			return(AGAIN);
+			}
 		break;
 		}
 	}
@@ -931,6 +931,10 @@ if(thedialog == SixteenPtr) {
 					
 					sprintf(line,"%ld",(long)TestMIDIChannel);
 					SetField(MIDIprogramPtr,-1,fMIDIchannel,line);
+#if TARGET_API_MAC_CARBON
+					QDFlushPortBuffer(GetDialogPort(SixteenPtr), NULL);
+					QDFlushPortBuffer(GetDialogPort(MIDIprogramPtr), NULL);
+#endif
 					
 					CheckMIDIOutPut(TestMIDIChannel-1);
 					
