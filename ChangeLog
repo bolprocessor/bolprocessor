@@ -1,3 +1,25 @@
+2007-04-26	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2main.h:
+	* source/BP2/-BP2decl.h:
+	* source/BP2/Inits.c (GoodMachine):
+		Check for Appearance Manager and set new global HaveAppearanceManager.
+
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/Inits.c (SetUpMenus):
+	* source/BP2/Interface1.c (DoEvent):
+	* source/BP2/Interface2.c (SetOptionMenu):
+		Moved code for help key shortcuts to new function DoHelpKey().
+		When the Appearance Mgr is available, SetUpMenus() and SetOptionMenu()
+			now use it to set the keyboard equivalents for menu items with
+			option-key shortcuts (without changing the menu item text). 
+		Moved code for handling Command-key shortcuts to new functions
+			DoKeyCommand() & DoPreMacOS8KeyCommand().  The latter handles
+			option-key combinations without the Appearance Mgr.
+			DoKeyCommand() first filters non-menu commands then uses
+			MenuEvent() if Appearance Mgr is available so that all Roman-
+			script keyboard layouts work correctly with option-key shortcuts.
+
 2007-04-25	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/Dialogs.c (DoDialog):

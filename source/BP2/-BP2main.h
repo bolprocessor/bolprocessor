@@ -433,6 +433,7 @@ int InitOn,SetTimeOn,ComputeOn,PolyOn,SoundOn,SelectOn,PrintOn,InputOn,ClickRule
 	ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
 double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 double MaxFrac;
+Boolean HaveAppearanceManager;
 Boolean RunningOnOSX;
 ControlActionUPP vScrollUPP,hScrollUPP;
 NSWReply** MIDIfileReply;

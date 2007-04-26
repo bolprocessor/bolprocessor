@@ -366,6 +366,7 @@ extern int InitOn,SetTimeOn,ComputeOn,PolyOn,CompileOn,SoundOn,SelectOn,PrintOn,
 
 extern double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 extern double MaxFrac;
+extern Boolean HaveAppearanceManager;
 extern Boolean RunningOnOSX;
 extern ControlActionUPP vScrollUPP,hScrollUPP;
 extern NSWReply** MIDIfileReply;

@@ -125,156 +125,11 @@ Point pt,newcorner,uppercorner;
 GrafPtr saveport;
 
 if(!AlertOn && (p_event->what == keyDown && ((p_event->modifiers & cmdKey) != 0))) {
-	thechar = (char)(p_event->message & charCodeMask);
 	if(Jcontrol != -1) {
 		Jcontrol = -1; ReadKeyBoardOn = FALSE; HideWindow(Window[wMessage]);
 		return(OK);
 		}
-	Option = FALSE;
-	switch(thechar) {
-		case -54:	/* cmd option space (only received on OS 9) - don't set Option */
-			return(mMiscSettings(Nw));
-			break;
-		case 'É':	/* cmd option ; */
-			Option = TRUE;
-			thechar = ';';
-			break;
-		case '©':	/* cmd option G */
-		case 'Þ':
-			Option = TRUE;
-			thechar = 'g';
-			break;
-		case 'í':	/* cmd option H */
-		case 'ú':
-			Option = TRUE;
-			thechar = 'h';
-			break;
-		case ' ':	/* cmd space (only received on OS 9) */
-			if(RunningOnOSX && (Nw >= wPrototype1 && Nw <= wPrototype7) || Nw == wPrototype8)
-				return(mPlaySelectionOrPrototype(Nw));
-			else if((Oms || NEWTIMER) && (SoundOn || ComputeOn || PlaySelectionOn)
-					&& OutMIDI && !PlayPrototypeOn) {
-				Mute = 1 - Mute;
-				MaintainMenus();
-				BPActivateWindow(SLOW,wControlPannel);
-				if(Mute) {
-					sprintf(Message,"MUTE is ONÉÊ  cmd-space will turn if off");
-					FlashInfo(Message);
-					ShowMessage(TRUE,wMessage,Message);
-					}
-				else {
-					HideWindow(Window[wInfo]);
-					ClearMessage();
-					}
-				}
-			break;
-		case '¿':	/* cmd option O */
-		case 'Ï':
-			Option = TRUE;
-			thechar = 'o';
-			break;
-		case '¾':	/* cmd option A */
-		case 'Œ':
-			if(Finding) return(mFindAgain(Nw));
-			break;
-		case '«':	/* cmd option E */
-		case '':
-			return(mEnterFind(Nw));
-			break;
-		case ' ':	/* cmd option T */
-			Token = 1 - Token;
-			if(Token) sprintf(Message,"Type tokens enabled");
-			else sprintf(Message,"Type tokens disabled");
-			Alert1(Message);
-			break;
-		case 'é':	/* cmd option K */
-		case 'û':
-#if 0
-			if(Beta) {
-				if(Answer("Create a new key",'N') == YES) {
-					rep = AnswerWith("Enter admin passwordÉ","\0",Message);
-					if(rep != OK) break;
-					if(strcmp("bell95",Message) != 0) {
-						Alert1("Sorry, wrong password!");
-						break;
-						}
-					MakeNewKeyFile(FALSE);
-					}
-				}
-#endif
-			break;
-		case '?':
-		case '/':
-HELP:
-			if(!Help) return(mHelp(Nw));
-			else {
-				Help = FALSE;
-				DisplayHelp("Help");
-				}
-			return(OK);
-			break;
-		case '\34':	/* Left arrow */
-			if(Nw >= 0 && Nw < WMAX && Editable[Nw]) {
-				MoveLine(Nw,-1,(int) (p_event->modifiers & shiftKey));
-				}
-			else {
-				if((*p_Tpict)[iProto] != Infneg) {
-					(*p_Tpict)[iProto] -= 1;
-					DrawPrototype(iProto,wPrototype1,&PictFrame);
-					}
-				}
-			return(OK);
-			break;
-		case '\35':	/* Right arrow */
-			if(Nw >= 0 && Nw < WMAX && Editable[Nw]) {
-				MoveLine(Nw,+1,(int) (p_event->modifiers & shiftKey));
-				}
-			else {
-				if((*p_Tpict)[iProto] != Infneg) {
-					(*p_Tpict)[iProto] += 1;
-					DrawPrototype(iProto,wPrototype1,&PictFrame);
-					}
-				}
-			return(OK);
-			break;
-		case '\36':	/* Up arrow */
-			if(Nw >= 0 && Nw < WMAX && OKvScroll[Nw]) {
-				SetControlValue(vScroll[Nw],0);
-				if(Editable[Nw]) {
-					AdjustTextInWindow(Nw);
-					SetSelect(ZERO,ZERO,TEH[Nw]);
-					}
-				else if(GrafWindow[Nw]) AdjustGraph(TRUE,Nw,vScroll[Nw]);
-				}
-			else {
-				if((*p_Tpict)[iProto] != Infneg) {
-					(*p_Tpict)[iProto] -= 10;
-					DrawPrototype(iProto,wPrototype1,&PictFrame);
-					}
-				}
-			return(OK);
-			break;
-		case '\37':	/* Down arrow */
-			if(Nw >= 0 && Nw < WMAX && OKvScroll[Nw]) {
-				SetControlValue(vScroll[Nw],GetControlMaximum(vScroll[Nw]));
-				if(Editable[Nw]) {
-					AdjustTextInWindow(Nw);
-					SetSelect(GetTextLength(Nw),GetTextLength(Nw),TEH[Nw]);
-					}
-				else if(GrafWindow[Nw]) AdjustGraph(TRUE,Nw,vScroll[Nw]);
-				}
-			else {
-				if((*p_Tpict)[iProto] != Infneg) {
-					(*p_Tpict)[iProto] += 10;
-					DrawPrototype(iProto,wPrototype1,&PictFrame);
-					}
-				}
-			return(OK);
-			break;
-		}
-	if((LastAction == TYPEWIND || LastAction == TYPEDLG) && thechar != 'z')
-		LastAction = NO;
-	rep = DoCommand(Nw,MenuKey(thechar));
+	rep = DoKeyCommand(p_event);
 	return(rep);
 	}
 if(IsDialogEvent(p_event) && !AlertOn) {
@@ -639,7 +494,7 @@ DOTHECLICK:
 			break;
 			}
 		thechar = p_event->message & charCodeMask;
-		if(thechar == '\5') goto HELP;
+		if(thechar == '\5') return DoHelpKey();
 		if(thechar >= 0 && thechar < 10 && thechar != '\b') {
 			SysBeep(10);
 			break;
@@ -769,6 +624,166 @@ rep = OK;
 END:
 SetResumeStop(FALSE);
 return(rep);
+}
+
+
+int DoPreMacOS8KeyCommand(char thechar)
+{
+	/* On pre-MacOS 8 systems, we must trap commands that only have
+	   an option-key shortcut and for commands that the option key modifies
+	   we must map characters typed with the option key to their
+	   non-modified keyboard equivalent.  This code only maps characters
+	   typed with an American or French keyboard layout. */
+	switch(thechar) {
+		case 'É':	/* cmd option ; */
+			Option = TRUE;
+			thechar = ';';
+			break;
+		case '©':	/* cmd option G */
+		case 'Þ':
+			Option = TRUE;
+			thechar = 'g';
+			break;
+		case 'í':	/* cmd option H */
+		case 'ú':
+			Option = TRUE;
+			thechar = 'h';
+			break;
+		case '¿':	/* cmd option O */
+		case 'Ï':
+			Option = TRUE;
+			thechar = 'o';
+			break;
+		case '¾':	/* cmd option A */
+		case 'Œ':
+			if(Finding) return(mFindAgain(Nw));
+			break;
+		case '«':	/* cmd option E */
+		case '':
+			return(mEnterFind(Nw));
+			break;
+		case ' ':	/* cmd option T */
+			Token = 1 - Token;
+			if(Token) sprintf(Message,"Type tokens enabled");
+			else sprintf(Message,"Type tokens disabled");
+			Alert1(Message);
+			return (OK);
+			break;
+	}
+	
+	return DoCommand(Nw,MenuKey(thechar));
+}
+
+
+int DoKeyCommand(EventRecord *p_event)
+{
+	char thechar;
+	int  rep;
+
+	thechar = (char)(p_event->message & charCodeMask);
+	Option = FALSE;
+	/* trap key commands without menu equivalents or with special requirements */
+	switch(thechar) {
+		case -54:	/* cmd option space (only received on pre-OS X) - don't set Option */
+			return(mMiscSettings(Nw));
+			break;
+		case ' ':	/* cmd space (only received on pre-OS X) */
+			if(!RunningOnOSX && (Nw >= wPrototype1 && Nw <= wPrototype7) || Nw == wPrototype8)
+				return(mPlaySelectionOrPrototype(Nw));
+			else if((Oms || NEWTIMER) && (SoundOn || ComputeOn || PlaySelectionOn)
+					&& OutMIDI && !PlayPrototypeOn) {
+				Mute = 1 - Mute;
+				MaintainMenus();
+				BPActivateWindow(SLOW,wControlPannel);
+				if(Mute) {
+					sprintf(Message,"MUTE is ONÉÊ  cmd-space will turn if off");
+					FlashInfo(Message);
+					ShowMessage(TRUE,wMessage,Message);
+					}
+				else {
+					HideWindow(Window[wInfo]);
+					ClearMessage();
+					}
+				}
+			break;
+		case '?':
+		case '/':
+			return DoHelpKey();
+			break;
+		case '\34':	/* Left arrow */
+			if(Nw >= 0 && Nw < WMAX && Editable[Nw]) {
+				MoveLine(Nw,-1,(int) (p_event->modifiers & shiftKey));
+				}
+			else {
+				if((*p_Tpict)[iProto] != Infneg) {
+					(*p_Tpict)[iProto] -= 1;
+					DrawPrototype(iProto,wPrototype1,&PictFrame);
+					}
+				}
+			return(OK);
+			break;
+		case '\35':	/* Right arrow */
+			if(Nw >= 0 && Nw < WMAX && Editable[Nw]) {
+				MoveLine(Nw,+1,(int) (p_event->modifiers & shiftKey));
+				}
+			else {
+				if((*p_Tpict)[iProto] != Infneg) {
+					(*p_Tpict)[iProto] += 1;
+					DrawPrototype(iProto,wPrototype1,&PictFrame);
+					}
+				}
+			return(OK);
+			break;
+		case '\36':	/* Up arrow */
+			if(Nw >= 0 && Nw < WMAX && OKvScroll[Nw]) {
+				SetControlValue(vScroll[Nw],0);
+				if(Editable[Nw]) {
+					AdjustTextInWindow(Nw);
+					SetSelect(ZERO,ZERO,TEH[Nw]);
+					}
+				else if(GrafWindow[Nw]) AdjustGraph(TRUE,Nw,vScroll[Nw]);
+				}
+			else {
+				if((*p_Tpict)[iProto] != Infneg) {
+					(*p_Tpict)[iProto] -= 10;
+					DrawPrototype(iProto,wPrototype1,&PictFrame);
+					}
+				}
+			return(OK);
+			break;
+		case '\37':	/* Down arrow */
+			if(Nw >= 0 && Nw < WMAX && OKvScroll[Nw]) {
+				SetControlValue(vScroll[Nw],GetControlMaximum(vScroll[Nw]));
+				if(Editable[Nw]) {
+					AdjustTextInWindow(Nw);
+					SetSelect(GetTextLength(Nw),GetTextLength(Nw),TEH[Nw]);
+					}
+				else if(GrafWindow[Nw]) AdjustGraph(TRUE,Nw,vScroll[Nw]);
+				}
+			else {
+				if((*p_Tpict)[iProto] != Infneg) {
+					(*p_Tpict)[iProto] += 10;
+					DrawPrototype(iProto,wPrototype1,&PictFrame);
+					}
+				}
+			return(OK);
+			break;
+		}
+	if((LastAction == TYPEWIND || LastAction == TYPEDLG) && thechar != 'z')
+		LastAction = NO;
+	// On pre-MacOS 8 systems without the Appearance manager, 
+	// we must use the old code that only works for some keyboard layouts
+	if (!HaveAppearanceManager)  rep = DoPreMacOS8KeyCommand(thechar);
+	else {
+		if((p_event->modifiers & optionKey) != 0) {
+			Option = TRUE;
+			SetOptionMenu(TRUE);
+			}
+		// MenuEvent() handles mapping option-key shortcuts correctly
+		rep = DoCommand(Nw,MenuEvent(p_event));
+		SetOptionMenu(FALSE);
+		}
+	return(rep);
 }
 
 
@@ -2757,6 +2772,17 @@ if(Pduration > 0.) {
 		}
 	}
 return(OK);
+}
+
+
+int DoHelpKey()
+{
+	if(!Help) return(mHelp(Nw));
+	else {
+		Help = FALSE;
+		DisplayHelp("Help");
+		}
+	return(OK);
 }
 
 

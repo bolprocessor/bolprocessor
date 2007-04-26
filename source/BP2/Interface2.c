@@ -1000,6 +1000,16 @@ SetMenuItemText(myMenus[windowM],alphabetCommand,PascalLine);
 if (option)	SetMenuItemText(myMenus[windowM],miscsettingsCommand,"\pComputation & IO Settings");
 else		SetMenuItemText(myMenus[windowM],miscsettingsCommand,"\pSettings");
 
+// use Appearance Mgr features to set option-key shortcuts
+if (HaveAppearanceManager) {
+	SInt16 modifiers = (option ? kMenuOptionModifier : kMenuNoModifiers);
+	
+	SetMenuItemModifiers(myMenus[fileM], fmOpen, modifiers);
+	SetMenuItemModifiers(myMenus[windowM], grammarCommand, modifiers);
+	SetMenuItemModifiers(myMenus[windowM], alphabetCommand, modifiers);
+	SetMenuItemModifiers(myMenus[windowM], miscsettingsCommand, modifiers);
+	}
+
 return(OK);
 }
 

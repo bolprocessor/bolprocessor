@@ -1600,6 +1600,11 @@ if(!gestaltErr) {
 		ForceTextColor = ForceGraphicColor = -1;
 		}
 	
+	/* Check for Appearance Manager */
+	Gestalt(gestaltAppearanceAttr, &gestaltAnswer);
+	if (gestaltAnswer & (1 << gestaltAppearanceExists))  HaveAppearanceManager = TRUE;
+	else  HaveAppearanceManager = FALSE;
+
 	/* Check for running on MacOS X */
 	Gestalt(gestaltMenuMgrAttr,&gestaltAnswer);
 	if(gestaltAnswer & gestaltMenuMgrAquaLayoutMask)  RunningOnOSX = TRUE;
@@ -1637,18 +1642,32 @@ for (i = fileM; i <= MAXMENU; i++) {
   	}
 #endif
 
-sprintf(Message,"Find again %c-option A",(char) commandMark);
-c2pstrcpy(PascalLine, Message);
-SetMenuItemText(myMenus[searchM],findagainCommand,PascalLine);
+if (!HaveAppearanceManager) {
+	sprintf(Message,"Find again %c-option A",(char) commandMark);
+	c2pstrcpy(PascalLine, Message);
+	SetMenuItemText(myMenus[searchM],findagainCommand,PascalLine);
 
-sprintf(Message,"Enter and find %c-option E",(char) commandMark);
-c2pstrcpy(PascalLine, Message);
-SetMenuItemText(myMenus[searchM],enterfindCommand,PascalLine);
+	sprintf(Message,"Enter and find %c-option E",(char) commandMark);
+	c2pstrcpy(PascalLine, Message);
+	SetMenuItemText(myMenus[searchM],enterfindCommand,PascalLine);
+	}
+else {  // use Appearance Mgr features to set option-key shortcuts
+	SetItemCmd(myMenus[searchM],enterfindCommand,'E');
+	SetMenuItemModifiers(myMenus[searchM],enterfindCommand,kMenuOptionModifier);
+	SetItemCmd(myMenus[searchM],findagainCommand,'A');
+	SetMenuItemModifiers(myMenus[searchM],findagainCommand,kMenuOptionModifier);
+	}
 EnableMenuItem(myMenus[searchM],enterfindCommand);
 
-sprintf(Message,"Use tokens [toggle] %c-option T",(char) commandMark);
-c2pstrcpy(PascalLine, Message);
-SetMenuItemText(myMenus[miscM],tokenCommand,PascalLine);
+if (!HaveAppearanceManager) {
+	sprintf(Message,"Use tokens [toggle] %c-option T",(char) commandMark);
+	c2pstrcpy(PascalLine, Message);
+	SetMenuItemText(myMenus[miscM],tokenCommand,PascalLine);
+	}
+else {  // use Appearance Mgr features to set option-key shortcuts
+	SetItemCmd(myMenus[miscM],tokenCommand,'T');
+	SetMenuItemModifiers(myMenus[miscM],tokenCommand,kMenuOptionModifier);
+	}
 EnableMenuItem(myMenus[miscM],tokenCommand);
 
 /*EnableMenuItem(myMenus[windowM],miscsettingsCommand);
