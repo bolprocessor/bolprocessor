@@ -1,3 +1,10 @@
+2007-04-27	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* resources/ClassicDialogs.rsrc:
+		New resource file with the old color tables and dialog layouts for
+			the non-Carbon build.  Also includes the rounded-corner "desk
+			accessory" DLOG resources -- these are incompatible with OS X.
+
 2007-04-26	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/-BP2main.h:
