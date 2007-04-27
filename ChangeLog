@@ -5,6 +5,17 @@
 			the non-Carbon build.  Also includes the rounded-corner "desk
 			accessory" DLOG resources -- these are incompatible with OS X.
 
+	* resources/BP2-MacOS.rsrc (DLOG #546, DITL #643 & #650):
+		Respaced the buttons and edit boxes in the Csound Instruments dialog.
+		Minor cleanup of the MIDI Programs dialog.
+	
+	* source/BP2/Interface1.c (DoEvent):
+		Prevent Cmd-opt-shift-space from doing anything on OS X.
+	 
+	* source/BP2/Interface2.c (DoThings):
+		Enlarged the Cancel and arrow buttons of the dynamic button dialogs.
+		Check the return value of TrackControl for a positive "hit".
+	
 2007-04-26	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/-BP2main.h:
