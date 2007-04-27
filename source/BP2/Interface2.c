@@ -539,6 +539,7 @@ DialogPtr p_dia;
 //DialogRecord dr;
 GrafPtr saveport;
 Rect r, rtemp;
+short part;
 int theitem,i,im,j,jj,k,kmax,found,ibot,left,right,top,bottom,leftoffset,
 	vpitch,morecoming,numberdrawn,page,j0[maxpage],result,start[maxpage];
 ControlHandle h,h_ctrl[maxctrl];
@@ -555,7 +556,7 @@ vpitch = Buttonheight + 5;
 ShowWindow(GetDialogWindow(p_dia)); SelectWindow(GetDialogWindow(p_dia));
 SetPortDialogPort(p_dia);
 TextFont(kFontIDCourier); TextSize(10);
-r.top = 10; r.left = 5; r.bottom = 30; r.right = 55;
+r.top = 10; r.left = 5; r.bottom = 30; r.right = 74;	// std Cancel buttonwidth is 69 on OS X
 h_ctrl[0] = NewControl(GetDialogWindow(p_dia),&r,"\p",1,0,0,1,pushButProc,0L);
 top = 40;
 left = 0;
@@ -566,7 +567,7 @@ right = rtemp.right - rtemp.left;
 ibot = (bottom - top) / vpitch;
 r.top = 10;
 r.left = rtemp.right - rtemp.left - 60;
-r.bottom = r.top + Buttonheight;
+r.bottom = r.top + 20;
 r.right = r.left + 50;
 h_ctrl[1] = NewControl(GetDialogWindow(p_dia),&r,"\p==>",(Boolean)1,(short)0,(short)0,(short)1,
 	(short)pushButProc,0L);
@@ -679,13 +680,14 @@ do {
 	if(GetNextEvent(mDownMask,&theEvent)) {
 		GlobalToLocal(&(theEvent.where));
 		if(FindControl(theEvent.where, GetDialogWindow(p_dia), &h) != 0) {
-			TrackControl(h,theEvent.where,(ControlActionUPP)MINUSPROC);
-			for(i=0; i <= im; i++) {
+			if (TrackControl(h,theEvent.where,NULL) != 0) {
+			  for(i=0; i <= im; i++) {
 				if(h == h_ctrl[i]) {
 					found = TRUE;
 					theitem = i;
 					}
 				}
+			  }
 			}
 		else SysBeep(10);
 		}
