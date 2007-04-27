@@ -684,10 +684,10 @@ int DoKeyCommand(EventRecord *p_event)
 	Option = FALSE;
 	/* trap key commands without menu equivalents or with special requirements */
 	switch(thechar) {
-		case -54:	/* cmd option space (only received on pre-OS X) - don't set Option */
-			return(mMiscSettings(Nw));
+		case -54:	/* cmd option space - don't set Option */
+			if (!RunningOnOSX) return(mMiscSettings(Nw));
 			break;
-		case ' ':	/* cmd space (only received on pre-OS X) */
+		case ' ':	/* cmd space */
 			if(!RunningOnOSX && (Nw >= wPrototype1 && Nw <= wPrototype7) || Nw == wPrototype8)
 				return(mPlaySelectionOrPrototype(Nw));
 			else if((Oms || NEWTIMER) && (SoundOn || ComputeOn || PlaySelectionOn)
