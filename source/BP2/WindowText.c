@@ -46,7 +46,7 @@
 #endif
 
 #include "-BP2decl.h"
-
+#include "CarbonCompatUtil.h"
 
 #if WASTE
 LongRect TextGetViewRect(TextHandle th)
@@ -178,6 +178,16 @@ WEKey((short)c,modifiers,th);
   	e.
 TXNKeyDown((*th)->textobj, const EventRecord * iEvent);*/
 #else
+// check length of text edit buffer first
+long len = (long) (*(th))->teLength;
+// if full, only allow backspace, delete, and arrow keys
+if ((len >= TEXTEDIT_MAXCHARS || len < 0) && c != '\b' && c != 0x7F
+    && c != '\34' && c != '\35' && c != '\36' && c != '\37') {
+	sprintf(Message, "Text window is full! (It has %d characters). "
+	          "No more text can be entered.", len);
+	Alert1(Message);
+	return(FAILED);
+	}
 TEKey(c,th);
 #endif
 return(OK);
@@ -295,6 +305,19 @@ WEPaste(TEH[w]);
 #elif USE_MLTE
 TXNPaste((*TEH[w])->textobj);
 #else
+{ SInt32 offset;
+  long size, textlen;
+
+  /* first check that the clipboard contents are not too large */
+  size = CCUGetScrap(NULL, 'TEXT', &offset);
+  textlen = GetTextLength(w);
+  if (textlen < 0 || (size+textlen) > TEXTEDIT_MAXCHARS) {
+  	sprintf(Message, "The contents of the clipboard are too large to paste into window '%s'! (%d "
+  	        "characters max)", (FileName[w][0] ? FileName[w] : WindowName[w]), TEXTEDIT_MAXCHARS);
+	Alert1(Message);
+	return(FAILED);
+	}
+  }
 TEStylePaste(TEH[w]);
 #endif
 return(OK);

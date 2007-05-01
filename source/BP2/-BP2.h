@@ -221,7 +221,7 @@ Hey: this code is not portable!!!
 #define NULLSTR ((char*) 0)
 #define NULLPROC ((IntProcPtr) -1L)
 #define EMERGENCYMEMORYSIZE 200000L
-
+#define TEXTEDIT_MAXCHARS 32000L
 #define DRAG_EDGE 20
 
 #define MAXDIAGRAM 1	/* number of diagrams displayed in graphic windows */

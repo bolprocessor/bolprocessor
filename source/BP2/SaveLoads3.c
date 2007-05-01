@@ -942,7 +942,7 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 	return(FAILED);
 	}
 SetSelect(GetTextLength(w),GetTextLength(w),TEH[w]);
-if((p_buffer = (char**) GiveSpace((Size)(32000L * sizeof(char)))) == NULL) {
+if((p_buffer = (char**) GiveSpace((Size)(TEXTEDIT_MAXCHARS * sizeof(char)))) == NULL) {
 	return(ABORT);
 	}
 dos = html = FALSE; totalcount = ZERO;
@@ -950,16 +950,16 @@ dos = html = FALSE; totalcount = ZERO;
 LoadOn++;
 
 do {
-	count = 32000L;
+	count = TEXTEDIT_MAXCHARS;
 	MyLock(NO,(Handle) p_buffer);
 	io = FSRead(refnum,&count,*p_buffer);
 	MyUnlock((Handle) p_buffer);
 	CleanLF(p_buffer,&count,&dos);
 	if(Editable[w]) CheckHTML(w,p_buffer,&count,&html);
 	totalcount += count;
-	if(!WASTE && totalcount >= 32000L) {
-		sprintf(Message,
-			"Beware! file is larger than 32000 chars and cannot be entirely loaded");
+	if(!WASTE && totalcount >= TEXTEDIT_MAXCHARS) {
+		sprintf(Message, "Beware! file is larger than %d chars and cannot be entirely loaded", 
+		          TEXTEDIT_MAXCHARS);
 		if(!ScriptExecOn) Alert1(Message);
 		else Println(wTrace,Message);
 		io = eofErr;
@@ -1295,12 +1295,18 @@ long n;
 
 if(WASTE || w < 0 || w >= WMAX || !Editable[w]) return(OK);
 n = GetTextLength(w);
-if(n > 31900) {
+if(n > (TEXTEDIT_MAXCHARS - 100)) {
 	if(FileName[w][0] != '\0')
 		sprintf(Message,"Window ‘%s’ is almost full",FileName[w]);
 	else
 		sprintf(Message,"Window ‘%s’ is almost full",WindowName[w]);
 	Alert1(Message);
+	}
+if (n < 0) {
+	sprintf(Message, "Text has overflowed the ‘%s’ window! Save your work and quit...", WindowName[w]);
+	Alert1(Message);
+	EmergencyExit = TRUE;
+	return(FAILED);
 	}
 return(OK);
 }
