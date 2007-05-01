@@ -837,7 +837,7 @@ return(OK);
 MakeWindows(void)
 {
 int i,id,im,ibot,itemtype,j,k,km,w,top,left,bottom,right,leftoffset,
-	widmax,type,proc,bad,x0,y0;
+	widmax,type,proc,bad,x0,y0, oldheight;
 Handle h_res;
 Rect r, rw;
 Str255 title;
@@ -998,6 +998,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 			NoteAlert(OKAlert,0L);
 			return(FAILED);
 			}
+		if (RunningOnOSX)  { oldheight = Buttonheight; Buttonheight = 18; }
 		GetPortBounds(GetDialogPort(gpDialogs[w]), &rw);
 		top = (int)(((rc - (rc % 536870912L)) / 536870912L) * 64)+4;
 		if(top == 0) top = rw.top;
@@ -1052,6 +1053,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 			Hbutt[Jbutt++] = NewControl(Window[w],&r,title,(Boolean)1,
 				(short)0,(short)0,(short)1,(short)(proc + 8),0L);
 			}
+		if (RunningOnOSX)  { Buttonheight = oldheight; }
 		ReleaseResource(h_res);
 		}
 	SetUpWindow(w);
