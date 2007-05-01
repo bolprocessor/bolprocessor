@@ -1,3 +1,19 @@
+2007-04-30	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* resources/BP2-MacOS.rsrc (DLOG #535 & #536):
+	* source/BP2/Inits.c (MakeWindows):
+		Resize Top & Bottom Settings windows and adjust Buttonheight to 18
+			while creating them on OS X.
+
+	* source/BP2/-BP2.h:
+	* source/BP2/SaveLoads3.c (CheckTextSize):
+	* source/BP2/WindowText.c (DoKey & TextPaste):
+		#define TEXTEDIT_MAXCHARS 32000L char limit in TextEdit windows.
+		(while TextEdit does not crash until > 32767 chars are in the TERec,
+		  there appears to be an implied limit of 32000 chars in TextEdit.h?) 
+		DoKey(), TextPaste() check if limit would be exceeded.
+		CheckTextSize() checks if TERec length is < 0, indicating overflow.
+
 2007-04-27	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* resources/ClassicDialogs.rsrc:
