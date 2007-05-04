@@ -1,3 +1,63 @@
+2007-05-04	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-05-03	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-05-02	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-05-01	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+	* source/BP2/Inits.c:
+	* source/BP2/Interface1.c (ClearWindow):
+	* source/BP2/SaveLoads3.c (CheckTextSize):
+	* source/BP2/WindowText.c (TextInsert & DoKey):
+		Further revisions to keep from overflowing TextEdit buffer and so
+			that BP2 only reports the error once (until not full again). 
+
+	* BP2-MacOS.cw8.mcp:
+		New target for building MachO binary with WASTE.
+		Removed WEDebug.c, WEObjectHandlers.c, WEObjects.c, WETabHooks.c, 
+			and WETabs.c from all WASTE targets as they are not used.
+	
+	* source/prefix/PrefixCarbonWASTE.h:  Turned off unused WASTE features.
+	
+	* source/prefix/PrefixMachOWASTE.h:  New prefix file.
+
+	* source/WASTE/WASTE.h:
+	* source/WASTE/WASTEIntf.h:
+	* source/WASTE/WEArrays.c:
+	* source/WASTE/WEBirthDeath.c:
+	* source/WASTE/WEDebug.c:
+	* source/WASTE/WEDrawing.c:
+	* source/WASTE/WEHighLevelEditing.c:
+	* source/WASTE/WEInlineInput.c:
+	* source/WASTE/WELineLayout.c:
+	* source/WASTE/WELongCoords.c:
+	* source/WASTE/WELowLevelEditing.c:
+	* source/WASTE/WEMouse.c:
+	* source/WASTE/WEObjects.c:
+	* source/WASTE/WEScraps.c:
+	* source/WASTE/WESelecting.c:
+	* source/WASTE/WESelectors.c:
+	* source/WASTE/WEUtilities.c:
+		Carbonized the portions of WASTE that BP2 is using.
+
+	* source/BP2/MenuCommands.c (mGlossary):
+	* source/BP2/Interface2.c (SetOptionMenu & Replace):
+		Change 'Glossary' item to 'Tokenized Glossary' with Option key.
+		Alert user when replacement fails.  (Redundant error message?)
+	
+	* source/BP2/Interface1.c (BPActivateWindow):
+		EXPERIMENTAL-ly removed two lines: ShowSelect() when activating
+			window (WASTE-only); UpdateWindow() (!WASTE).  The latter
+			of these was causing static/edit text in wPrototypes1 to not
+			be redrawn sometimes? (and it seems otherwise unnecessary)
+
+	* source/BP2/SaveLoads3.c:
+		Changed "Netscape HTML" to "Standard HTML" in Save format menu.
+		Use creator type '\0\0\0\0' on OS X for HTML files.
+
+	* source/BP2/ProduceItems.c (ProduceItems):
+		Don't mark Start String window as Dirty when inserting "S".
+	
 2007-04-30	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* resources/BP2-MacOS.rsrc (DLOG #535 & #536):
