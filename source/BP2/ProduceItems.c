@@ -206,6 +206,7 @@ if(pp_start == NULL && IsEmpty(w)) {
 		SetSelect(ZERO,GetTextLength(wStartString),TEH[wStartString]);
 		TextDelete(wStartString);
 		Print(wStartString,"S\r");
+		Dirty[wStartString] = FALSE;
 		}
 	else goto QUIT;
 	}
