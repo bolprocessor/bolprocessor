@@ -980,6 +980,7 @@ else
 	sprintf(Message,"Open file");
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[fileM],fmOpen,PascalLine);
+
 if(option && CompiledGr && !IsEmpty(wGrammar))
 	sprintf(Message,"Tokenized grammar");
 else {
@@ -989,6 +990,7 @@ else {
 	}
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[windowM],grammarCommand,PascalLine);
+
 if(option && CompiledAl && !IsEmpty(wAlphabet))
 	sprintf(Message,"Tokenized alphabet");
 else {
@@ -998,6 +1000,16 @@ else {
 	}
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[windowM],alphabetCommand,PascalLine);
+
+if(option && CompiledGl && GlossGram.p_subgram != NULL)
+	sprintf(Message,"Tokenized glossary");
+else {
+	strcpy(Message," ");	/* This avoids messing the menu as name starts with '-' */
+	if(FileName[wGlossary][0] == '\0') strcpy(Message,WindowName[wGlossary]);
+	else strcat(Message,FileName[wGlossary]);
+	}
+c2pstrcpy(PascalLine, Message);
+SetMenuItemText(myMenus[windowM],glossaryCommand,PascalLine);
 
 if (option)	SetMenuItemText(myMenus[windowM],miscsettingsCommand,"\pComputation & IO Settings");
 else		SetMenuItemText(myMenus[windowM],miscsettingsCommand,"\pSettings");
@@ -1886,9 +1898,13 @@ Replace(void)
 {
 long count;
 
+// FIXME: should make temp copy of the deleted text in case insertion fails
 TextDelete(TargetWindow);
 count = (long) strlen(ReplaceString);
-TextInsert(ReplaceString,count,TEH[TargetWindow]);
+if (TextInsert(ReplaceString,count,TEH[TargetWindow]) != OK) {
+	Alert1("The text replacement failed; probably because the window is too full.");
+	return(FAILED);
+	}
 UpdateDirty(TRUE,TargetWindow);
 LastEditWindow = TargetWindow;
 return(OK);

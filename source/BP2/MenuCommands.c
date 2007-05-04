@@ -2220,7 +2220,7 @@ mGlossary(int wind)
 int r;
 
 if(CompiledGl && GlossGram.p_subgram != NULL && (CheckMemory() == OK)) {
-	if(Option && (r=Answer("Display tokenized glossary",'N')) == YES) {
+	if(Option && (r=Answer("Display tokenized glossary",'Y')) == YES) {
 		DisplayGrammar(&GlossGram,wTrace,FALSE,FALSE,FALSE);
 		return(OK);
 		}
