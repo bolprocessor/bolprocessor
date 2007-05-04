@@ -14,7 +14,17 @@
 
 // 1 to use WASTE for text editing, 0 to use TextEdit instead
 #define WASTE 1
+// this is used by WASTE to cut out some non-Carbon-compliant code
+#define SystemSevenFiveOrLater 1
+// turn off WASTE features that we do not need
+#define WASTE_OBJECTS  0
+#define WASTE_USE_UPPS 0
 
 // disable built-in MIDI driver and OMS Midi driver
 #define USE_BUILT_IN_MIDI_DRIVER 0
 #define USE_OMS 0
+
+// enable null MIDI driver
+#define WITH_REAL_TIME_MIDI 1
+
+#define EXPERIMENTAL 1
