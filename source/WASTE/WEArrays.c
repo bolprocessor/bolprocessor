@@ -4,8 +4,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 /*
@@ -29,7 +29,7 @@ pascal OSErr _WEInsertBlock(Handle h, const void *blockPtr, long blockSize, long
 	OSErr err;
 
 // get handle size
-	oldSize = InlineGetHandleSize(h);
+	oldSize = GetHandleSize(h);
 	WEASSERT((offset >= 0) && (offset <= oldSize), "\p_WEInsertBlock: bad offset");
 
 // make room for the block to be inserted
@@ -49,7 +49,7 @@ pascal void _WERemoveBlock(Handle h, long blockSize, long offset)
 	long newSize;
 
 // get handle size minus a "slot"
-	newSize = InlineGetHandleSize(h) - blockSize;
+	newSize = GetHandleSize(h) - blockSize;
 	WEASSERT((offset >= 0) && (offset <= newSize), "\p_WERemoveBlock: bad offset");
 
 // compact the handle (this should never fail)

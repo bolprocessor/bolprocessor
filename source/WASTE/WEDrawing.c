@@ -4,8 +4,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 /*
@@ -507,12 +507,13 @@ pascal void _WEDrawTSMHilite(Rect *segmentRect, short tsFlags)
 	RGBColor background, foreground, saveForeground;
 	Boolean isColorPort;
 	Boolean usingTrueGray;
+	Pattern pat;
 
-	isColorPort = (((CGrafPtr)(qd.thePort))->portVersion < 0);
+	isColorPort = IsPortColor(GetQDGlobalsThePort());
 	usingTrueGray = false;
 
 	// by default, the pen pattern is solid
-	PenPat(&qd.black);
+	PenPat(GetQDGlobalsBlack(&pat));
 
 	// if we're drawing in color, set the foreground color
 	if (isColorPort) 
@@ -542,7 +543,7 @@ pascal void _WEDrawTSMHilite(Rect *segmentRect, short tsFlags)
 	{
 		if (!usingTrueGray)
 		{ 
-			PenPat(&qd.gray);
+			PenPat(GetQDGlobalsGray(&pat));
 		}
 	}
 	// use a 2-pixel tall underline if text is "selected", else use a 1-pixel tall underline
@@ -588,7 +589,7 @@ static Boolean SLDraw (LinePtr pLine, const WERunAttributes *pAttrs,
 
 		// calculate the visible portion of this rectangle
 		// we do this by intersecting the line rectangle with the view rectangle
-		p->drawRect = (*pWE->viewRgn)->rgnBBox;
+		GetRegionBounds(pWE->viewRgn, &(p->drawRect));
 		if (SectRect(&(p->lineRect), &(p->drawRect), &(p->drawRect)))
 		{ 
 			;
@@ -718,7 +719,11 @@ static Boolean SLDraw (LinePtr pLine, const WERunAttributes *pAttrs,
 			}
 			
 			// copy the offscreen image of the [visible portion of the] line to the screen
-			CopyBits(&pWE->offscreenPort->portBits, &p->screenPort->portBits, &p->drawRect,
+//			CopyBits(&pWE->offscreenPort->portBits, &p->screenPort->portBits, &p->drawRect,
+//					&p->drawRect, srcCopy, (RgnHandle)NULL);
+			// modified by akozar on 050207
+			CopyBits(GetPortBitMapForCopyBits(pWE->offscreenPort), 
+					GetPortBitMapForCopyBits(p->screenPort), &p->drawRect,
 					&p->drawRect, srcCopy, (RgnHandle)NULL);
 
 			// restore the original offscreen coordinate system and unlock the pixel image
@@ -751,17 +756,22 @@ pascal void _WEDrawLines (long firstLine, long lastLine, Boolean doErase, WEHand
 	struct SLDrawData callbackData;
 	GDHandle screenDevice;
 	GrafPtr screenPort;
-
+	RgnHandle rgn;
+	
 	usingOffscreen = false;
 	drawingOffscreen = false;
 	usingColor = (BTST(pWE->flags, weFHasColorQD) &&
 				 !BTST(pWE->features, weFInhibitColor)) ? true : false;
 		
 	// do nothing if our graphics port is not visible
-	if (EmptyRgn(pWE->port->visRgn))
+	rgn = NewRgn();
+	if (rgn == NULL) return;
+	GetPortVisibleRegion(pWE->port, rgn);
+	if (EmptyRgn(rgn))
 	{
 		return;
 	}
+	DisposeRgn(rgn);
 
 	// save graphics world
 	GetGWorld((GWorldPtr *)&screenPort, &screenDevice);
@@ -830,15 +840,15 @@ pascal void _WESaveQDEnvironment(GrafPtr port, Boolean saveColor, QDEnvironment 
 	SetPort(port);
 	GetPenState(&theEnvironment->envPen);
 	PenNormal();
-	theEnvironment->envStyle.tsFont = port->txFont;
-	theEnvironment->envStyle.tsFace = port->txFace;
+	theEnvironment->envStyle.tsFont = GetPortTextFont(port);
+	theEnvironment->envStyle.tsFace = GetPortTextFace(port);
 	theEnvironment->envStyle.tsFlags = saveColor;		// remember if color was saved
-	theEnvironment->envStyle.tsSize = port->txSize;
+	theEnvironment->envStyle.tsSize = GetPortTextSize(port);
 	if (saveColor) 
 	{
 		GetForeColor(&theEnvironment->envStyle.tsColor);
 	}
-	theEnvironment->envMode = port->txMode;
+	theEnvironment->envMode = GetPortTextMode(port);
 	TextMode(srcOr);
 }
 

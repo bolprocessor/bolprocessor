@@ -4,8 +4,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 /*
@@ -23,6 +23,7 @@
 
 
 #include "WASTEIntf.h"
+#include "CarbonCompatUtil.h"
 
 typedef struct DoubleByte {
 	char firstByte;
@@ -1003,7 +1004,7 @@ pascal Boolean WECanPaste(WEHandle hWE)
 	if (!BTST((*hWE)->features, weFReadOnly))
 	{
 		// return true if the desk scrap contains a text flavor
-		if (GetScrap(NULL, kTypeText, &scrapOffset) > 0)
+		if (CCUGetScrap(NULL, kTypeText, &scrapOffset) > 0)
 			return true;
 
 #if WASTE_OBJECTS
@@ -1011,7 +1012,7 @@ pascal Boolean WECanPaste(WEHandle hWE)
 		index = 0;
 		while (_WEGetIndObjectType(index, &objectType, hWE) == noErr)
 		{
-			if (GetScrap(NULL, objectType, &scrapOffset) > 0)
+			if (CCUGetScrap(NULL, objectType, &scrapOffset) > 0)
 				return true;
 			index++;
 		} // while
@@ -1037,7 +1038,7 @@ pascal OSErr WEPaste(WEHandle hWE)
 		goto cleanup;
 
 	// look for a text flavor
-	if (GetScrap(hItem, kTypeText, &scrapOffset) <= 0) 
+	if (CCUGetScrap(hItem, kTypeText, &scrapOffset) <= 0) 
 	{
 
 #if WASTE_OBJECTS
@@ -1045,7 +1046,7 @@ pascal OSErr WEPaste(WEHandle hWE)
 		index = 0;
 		while (_WEGetIndObjectType(index, &objectType, hWE) == noErr)
 		{
-			if (GetScrap(hItem, objectType, &scrapOffset) > 0) 
+			if (CCUGetScrap(hItem, objectType, &scrapOffset) > 0) 
 			{
 				Point objectSize;
 				* (long *) &objectSize = 0;
@@ -1076,7 +1077,7 @@ pascal OSErr WEPaste(WEHandle hWE)
 			goto cleanup;
 	
 		// look for a 'styl' item accompanying the text
-		if (GetScrap(hStyles, kTypeStyles, &scrapOffset) <= 0) 
+		if (CCUGetScrap(hStyles, kTypeStyles, &scrapOffset) <= 0) 
 			// forget the handle if nothing was found or an error occurred
 			_WEForgetHandle(&hStyles);
 
@@ -1086,7 +1087,7 @@ pascal OSErr WEPaste(WEHandle hWE)
 			goto cleanup;
 	
 		// look for a 'SOUP' item accompanying the text
-		if (GetScrap(hSoup, kTypeSoup, &scrapOffset) <= 0) 
+		if (CCUGetScrap(hSoup, kTypeSoup, &scrapOffset) <= 0) 
 			// forget the handle if nothing was found or an error occurred
 			_WEForgetHandle(&hSoup);
 #endif
@@ -1130,7 +1131,7 @@ pascal OSErr _WESmartSetFont(WEStyleMode mode, const TextStyle *ts, WEHandle hWE
 	// set up the graphics port
 	GetPort(&savePort);
 	SetPort(pWE->port);
-	saveFont = pWE->port->txFont;
+	saveFont = GetPortTextFont(pWE->port);
 
 	// get the script corresponding to the font we're applying
 	script = FontToScript(ts->tsFont);

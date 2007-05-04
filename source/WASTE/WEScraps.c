@@ -4,8 +4,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 /*
@@ -23,6 +23,7 @@
 
 
 #include "WASTEIntf.h"
+#include "CarbonCompatUtil.h"
 
 pascal OSErr _WEPrependStyle(Handle hStyleScrap, const WERunInfo *info, long offsetDelta)
 {
@@ -390,7 +391,7 @@ pascal OSErr WECopy(WEHandle hWE)
 	}
 	
 	// clear the desk scrap
-	if ((err = ZeroScrap()) != noErr)
+	if ((err = CCUZeroScrap()) != noErr)
 		goto cleanup;
 
 #if WASTE_OBJECTS
@@ -402,7 +403,7 @@ pascal OSErr WECopy(WEHandle hWE)
 	// allocate some temporary handles
 	for ( i = 0; i < numTypes; i++ )
 	{
-		if ((err = _WEAllocate(0, kAllocTemp, &d[i].dataHandle)) != noErr)
+		if ((err = _WEAllocate(0, kAllocTemp, (Handle*)&d[i].dataHandle)) != noErr)	// added (Handle*) - akozar
 			goto cleanup;
 	}
 
@@ -418,19 +419,19 @@ pascal OSErr WECopy(WEHandle hWE)
 	{
 		// make a copy of the selection text and styles and create an object "soup"
 		if ((err = WECopyRange(pWE->selStart, pWE->selEnd,
-			d[0].dataHandle, d[1].dataHandle, d[2].dataHandle, hWE)) != noErr)
+			(Handle)d[0].dataHandle, (Handle)d[1].dataHandle, (Handle)d[2].dataHandle, hWE)) != noErr)	// added (Handle)s - akozar
 			goto cleanup;
 	}
 	
 	// copy the items to the desk scrap
 	for ( i = 0; i < numTypes; i++ )
 	{
-		hItem = d[i].dataHandle;
+		hItem = (Handle)d[i].dataHandle;	// added (Handle) - akozar
 		itemSize = GetHandleSize(hItem);
 		if (itemSize > 0)
 		{
 			saveDataLock = _WESetHandleLock(hItem, true);
-			err = PutScrap(itemSize, d[i].descriptorType, *hItem);
+			err = CCUPutScrap(itemSize, d[i].descriptorType, *hItem);
 			_WESetHandleLock(hItem, saveDataLock);
 			if (err != noErr)
 				goto cleanup;
@@ -444,9 +445,9 @@ cleanup:
 	// clean up
 	if (disposeData)
 	{
-		_WEForgetHandle(&d[0].dataHandle);
-		_WEForgetHandle(&d[1].dataHandle);
-		_WEForgetHandle(&d[2].dataHandle);
+		_WEForgetHandle((Handle*)&d[0].dataHandle);	// added (Handle*)s - akozar
+		_WEForgetHandle((Handle*)&d[1].dataHandle);
+		_WEForgetHandle((Handle*)&d[2].dataHandle);
 	}
 	_WESetHandleLock((Handle) hWE, saveWELock);
 	return err;

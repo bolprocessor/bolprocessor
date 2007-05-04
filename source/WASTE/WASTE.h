@@ -421,7 +421,7 @@ enum {
 
 */
 
-#if GENERATINGCFM
+#if TARGET_RT_MAC_CFM
 
 typedef UniversalProcPtr WEClickLoopUPP;
 typedef UniversalProcPtr WEScrollUPP;

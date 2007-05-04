@@ -4,8 +4,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 /*
@@ -154,7 +154,7 @@ pascal OSErr _WEHandleUpdateActiveInputArea(const AppleEvent *ae, AppleEvent *re
 	}
 	
 	// get total length of text in the active input area
-	totalLength = GetHandleSize(text.dataHandle);
+	totalLength = GetHandleSize((Handle)text.dataHandle);	// added (Handle) - akozar
 
 	// extract the length of confirmed text in the active input area
 	if ((err = AEGetParamPtr(ae, keyAEFixLength, typeLongInteger, &returnedType,
@@ -212,16 +212,16 @@ pascal OSErr _WEHandleUpdateActiveInputArea(const AppleEvent *ae, AppleEvent *re
 	SetPort(savePort);
 
 	// temporarily lock the text
-	saveTextLock = _WESetHandleLock(text.dataHandle, true);
+	saveTextLock = _WESetHandleLock((Handle)text.dataHandle, true);		// added (Handle) - akozar
 
 	// insert the text
-	if ((err = _WEInsertText(tsmOffset, *(text.dataHandle), totalLength, hWE)) != noErr)
+	if ((err = _WEInsertText(tsmOffset, (Ptr)*(text.dataHandle), totalLength, hWE)) != noErr)	// added (Ptr) - akozar
 	{
 		goto cleanup;
 	}
 
 	// unlock the text
-	_WESetHandleLock(text.dataHandle, saveTextLock);
+	_WESetHandleLock((Handle)text.dataHandle, saveTextLock);	// added (Handle) - akozar
 
 	// extract pin range
 	if ((err = AEGetParamPtr(ae, keyAEPinRange, typeTextRange, &returnedType,
@@ -574,9 +574,9 @@ pascal OSErr WEInstallTSMHandlers(void)
 	// the first time we're called, create routine descriptors for our Apple event handlers
 	if (_weUpdateActiveInputAreaHandler == NULL)
 	{
-		_weUpdateActiveInputAreaHandler = NewAEEventHandlerProc(_WEHandleUpdateActiveInputArea);
-		_wePositionToOffsetHandler = NewAEEventHandlerProc(_WEHandlePositionToOffset);
-		_weOffsetToPositionHandler = NewAEEventHandlerProc(_WEHandleOffsetToPosition);
+		_weUpdateActiveInputAreaHandler = NewAEEventHandlerUPP(_WEHandleUpdateActiveInputArea);
+		_wePositionToOffsetHandler = NewAEEventHandlerUPP(_WEHandlePositionToOffset);
+		_weOffsetToPositionHandler = NewAEEventHandlerUPP(_WEHandleOffsetToPosition);
 	}
 
 	// install Apple Event handlers to be used by Text Service components

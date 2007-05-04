@@ -4,8 +4,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 /*
@@ -24,7 +24,7 @@
 
 #include "WASTEIntf.h"
 
-#if GENERATINGCFM
+#if TARGET_RT_MAC_CFM
 #ifndef __CODEFRAGMENTS__
 #include <CodeFragments.h>
 #endif
@@ -140,7 +140,7 @@ pascal void _WEOldWordBreak(Ptr pText, short textLength, short offset,
 	SetPort(tempPort);
 
 	// then set the txFont field to a font number in the specified script range
-	saveFont = tempPort->txFont;
+	saveFont = GetPortTextFont(tempPort);
 	TextFont(_WEScriptToFont(script));
 
 	// call _FindWord
@@ -166,7 +166,7 @@ pascal short _WEOldCharByte(Ptr pText, short textOffset, ScriptCode script,
 	SetPort(tempPort);
 
 	// then set the txFont field to a font number in the specified script range
-	saveFont = tempPort->txFont;
+	saveFont = GetPortTextFont(tempPort);
 	TextFont(_WEScriptToFont(script));
 
 	// call _CharByte
@@ -193,7 +193,7 @@ pascal short _WEOldCharType(Ptr pText, short textOffset, ScriptCode script,
 	SetPort(tempPort);
 
 	// then set the txFont field to a font number in the specified script range
-	saveFont = tempPort->txFont;
+	saveFont = GetPortTextFont(tempPort);
 	TextFont(_WEScriptToFont(script));
 
 	// call _CharType
@@ -482,7 +482,7 @@ pascal OSErr WENew(const LongRect *destRect, const LongRect *viewRect, unsigned 
 	// determine whether the Drag Manager is available
 	if ((Gestalt(gestaltDragMgrAttr, &response) == noErr) && BTST(response, gestaltDragMgrPresent))
 	{
-#if GENERATINGCFM
+#if TARGET_RT_MAC_CFM
 		if ((unsigned long) NewDrag != kUnresolvedCFragSymbolAddress)
 #endif
 			BSET(pWE->flags, weFHasDragManager);
@@ -502,7 +502,7 @@ pascal OSErr WENew(const LongRect *destRect, const LongRect *viewRect, unsigned 
 		// determine whether a double-byte script is installed
 		if (GetScriptManagerVariable(smDoubleByte) != 0)
 		{
-#if GENERATING68K
+#if TARGET_CPU_68K
 			BSET(pWE->flags, weFDoubleByte);	// the WorldScript Power Adapter breaks this :-(
 #else
 			ScriptCode script;
@@ -558,9 +558,9 @@ pascal OSErr WENew(const LongRect *destRect, const LongRect *viewRect, unsigned 
 	(*pWE->hStyles)[0].refCount = 1;
 
 	// copy text attributes from the active graphics port
-	(*pWE->hStyles)[0].info.runStyle.tsFont = pWE->port->txFont;
-	(*pWE->hStyles)[0].info.runStyle.tsSize = pWE->port->txSize;
-	(*pWE->hStyles)[0].info.runStyle.tsFace = pWE->port->txFace;
+	(*pWE->hStyles)[0].info.runStyle.tsFont = GetPortTextFont(pWE->port);
+	(*pWE->hStyles)[0].info.runStyle.tsSize = GetPortTextSize(pWE->port);
+	(*pWE->hStyles)[0].info.runStyle.tsFace = GetPortTextFace(pWE->port);
 	if (BTST(pWE->flags, weFHasColorQD))
 	{ 
 		GetForeColor(&(*pWE->hStyles)[0].info.runStyle.tsColor);

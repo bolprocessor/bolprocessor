@@ -4,8 +4,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 /*
@@ -1149,7 +1149,7 @@ pascal Boolean WEAdjustCursor(Point mouseLoc, RgnHandle mouseRgn, WEHandle hWE)
 	// Your application should set the cursor only if WEAdjustCursor returns false.
 
 	WEPtr pWE;
-	RgnHandle auxRgn, hiliteRgn;
+	RgnHandle auxRgn, hiliteRgn, portRgn;
 	enum { kIBeam, kArrow} cursorType;
 	Point portDelta;
 	GrafPtr savePort;
@@ -1174,9 +1174,12 @@ pascal Boolean WEAdjustCursor(Point mouseLoc, RgnHandle mouseRgn, WEHandle hWE)
 
 	// calculate the visible portion of the view rectangle, in global coordinates
 	auxRgn = NewRgn();
+	portRgn = NewRgn();
+	GetPortVisibleRegion(pWE->port, portRgn);
 	CopyRgn(pWE->viewRgn, auxRgn);
-	SectRgn(auxRgn, pWE->port->visRgn, auxRgn);
+	SectRgn(auxRgn, portRgn, auxRgn);
 	OffsetRgn(auxRgn, portDelta.h, portDelta.v);
+	DisposeRgn(portRgn);
 
 	if (PtInRgn(mouseLoc, auxRgn)) 
 	{
@@ -1218,9 +1221,10 @@ pascal Boolean WEAdjustCursor(Point mouseLoc, RgnHandle mouseRgn, WEHandle hWE)
 		// set the cursor
 		if (cursorType == kIBeam)
 			SetCursor(*GetCursor(iBeamCursor));
-		else
-			SetCursor(&qd.arrow);
-
+		else	{
+			Cursor arrow;
+			SetCursor(GetQDGlobalsArrow(&arrow));
+		}
 		// set mouseRgn, if provided
 		if (mouseRgn != NULL) 
 		{
@@ -1333,7 +1337,7 @@ pascal void WEUpdate(RgnHandle updateRgn, WEHandle hWE)
 	if (!EmptyRgn(auxRgn))
 	{
 		// calculate the rectangle to update
-		r = (*auxRgn)->rgnBBox;
+		GetRegionBounds(auxRgn, &r);
 		WERectToLongRect(&r, &updateRect);
 
 		// find out which lines need to be redrawn and draw them
@@ -1471,7 +1475,7 @@ pascal void WEScroll(long hOffset, long vOffset, WEHandle hWE)
 	SetPort(pWE->port);
 
 	// get view rect in short coordinates
-	viewRect = (*pWE->viewRgn)->rgnBBox;
+	GetRegionBounds(pWE->viewRgn, &viewRect);
 
 	// hide the caret if it's showing
 	if (BTST(pWE->flags, weFCaretVisible))

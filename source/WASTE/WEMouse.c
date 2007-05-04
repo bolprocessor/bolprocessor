@@ -4,8 +4,8 @@
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.
       Then change to MacHeadersTransitional.h. */
-#  include	"MacHeaders.h"
-// #  include	"MacHeadersTransitional.h"
+// #  include	"MacHeaders.h"
+#  include	"MacHeadersTransitional.h"
 #endif
 
 /*
@@ -710,17 +710,17 @@ cleanup:
 	return err;
 
 } // WEReceiveDrag
-
-pascal OSErr _WESendFlavor(FlavorType requestedType, void *dragSendRefCon, WEHandle hWE, DragReference theDrag)
+									// hWE below was type WEHandle -- 050107 akozar  
+pascal OSErr _WESendFlavor(FlavorType requestedType, void *dragSendRefCon, unsigned long hWE, DragReference theDrag)
 {
 #pragma unused(dragSendRefCon)
 	
-#if !GENERATINGCFM
+#if !TARGET_RT_MAC_CFM && !TARGET_RT_MAC_MACHO
 	long saveA5 = SetCurrentA5();	// this fixes a conflict with HoverBar
 									// (well, probably a bug in the Drag Manager)
 #endif
 
-	WEPtr pWE = *hWE;
+	WEPtr pWE = *((WEHandle)hWE);
 	long selStart = pWE->selStart;
 	long selEnd = pWE->selEnd;
 	Handle hItem = NULL;
@@ -736,7 +736,7 @@ pascal OSErr _WESendFlavor(FlavorType requestedType, void *dragSendRefCon, WEHan
 
 #if WASTE_OBJECTS
 	// see if the selection contains an embedded object whose type matches the flavortype
-	if (WEGetSelectedObject(&hObjectDesc, hWE) == noErr)
+	if (WEGetSelectedObject(&hObjectDesc, (WEHandle)hWE) == noErr)
 	{
 		FlavorType theType;
 
@@ -753,12 +753,12 @@ pascal OSErr _WESendFlavor(FlavorType requestedType, void *dragSendRefCon, WEHan
 	{
 		// identify the requested flavor type as either 'TEXT', 'styl' or 'SOUP'
 		if (requestedType == kTypeText)
-			err = WECopyRange(selStart, selEnd, hItem, NULL, NULL, hWE);
+			err = WECopyRange(selStart, selEnd, hItem, NULL, NULL, (WEHandle)hWE);
 		else if (requestedType == kTypeStyles)
-			err = WECopyRange(selStart, selEnd, NULL, hItem, NULL, hWE);
+			err = WECopyRange(selStart, selEnd, NULL, hItem, NULL, (WEHandle)hWE);
 #if WASTE_OBJECTS
 		else if (requestedType == kTypeSoup)
-			err = WECopyRange(selStart, selEnd, NULL, NULL, hItem,hWE);
+			err = WECopyRange(selStart, selEnd, NULL, NULL, hItem, (WEHandle)hWE);
 #endif
 		else
 			err = badDragFlavorErr;
@@ -778,7 +778,7 @@ cleanup:
 	if (disposeItem)
 		_WEForgetHandle(&hItem);
 
-#if !GENERATINGCFM
+#if !TARGET_RT_MAC_CFM && !TARGET_RT_MAC_MACHO
 	SetA5(saveA5);
 #endif
 
@@ -818,7 +818,7 @@ pascal Boolean WEDraggedToTrash(DragReference theDrag)
 		goto cleanup;
 
 	// lock the data handle of the coerced descriptor
-	HLock(coercedDropLocation.dataHandle);
+	HLock((Handle)coercedDropLocation.dataHandle);	// added (Handle) - akozar
 	pSpec = *(FSSpecHandle)coercedDropLocation.dataHandle;
 
 	// determine the directory ID of the drop location (assuming it's a folder!)
@@ -859,6 +859,7 @@ pascal OSErr _WEDrag(Point mouseLoc, EventModifiers modifiers, unsigned long cli
 	EventRecord theEvent;
 	Rect dragBounds;
 	Point portDelta;
+	Cursor arrow;
 	GrafPtr savePort;
 	OSErr err;
 #if WASTE_OBJECTS
@@ -870,7 +871,7 @@ pascal OSErr _WEDrag(Point mouseLoc, EventModifiers modifiers, unsigned long cli
 	SetPort(pWE->port);
 	
 	// turn the cursor into an arrow
-	SetCursor(&qd.arrow);
+	SetCursor(GetQDGlobalsArrow(&arrow));
 
 	// fabricate an EventRecord for TrackDrag
 	theEvent.what = mouseDown;
@@ -931,7 +932,7 @@ pascal OSErr _WEDrag(Point mouseLoc, EventModifiers modifiers, unsigned long cli
 	// since we didn't provide the flavor data for any of the above flavors,
 	// we need supply a data send callback
 	if (_weFlavorSender == NULL)
-		_weFlavorSender = NewDragSendDataProc(_WESendFlavor);
+		_weFlavorSender = NewDragSendDataUPP(_WESendFlavor);
 
 	if ((err = SetDragSendProc(theDrag, _weFlavorSender, 0)) != noErr)
 		goto cleanup;
@@ -953,7 +954,7 @@ pascal OSErr _WEDrag(Point mouseLoc, EventModifiers modifiers, unsigned long cli
 	OffsetRgn(dragRgn, portDelta.h, portDelta.v);
 
 	// set the bounds of the drag
-	dragBounds = (*dragRgn)->rgnBBox;
+	GetRegionBounds(dragRgn, &dragBounds);
 	if ((err = SetDragItemBounds(theDrag, (ItemReference)hWE, &dragBounds)) != noErr)
 		goto cleanup;
 

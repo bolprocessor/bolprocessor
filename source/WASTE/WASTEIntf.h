@@ -15,6 +15,12 @@
 
 //	Toolbox #includes
 
+#if TARGET_API_MAC_CARBON
+
+// #include <Carbon/Carbon.h>  // included correctly by CW headers
+
+#else  /* non-Carbon includes */
+
 #ifndef __CONDITIONALMACROS__
 #include <ConditionalMacros.h>
 #endif
@@ -32,7 +38,7 @@
 #endif
 
 #ifndef __ERRORS__
-#include <Errors.h>
+#include <MacErrors.h>
 #endif
 
 #ifndef __GESTALT__
@@ -95,13 +101,15 @@
 #include <AERegistry.h>
 #endif
 
-#ifndef __DRAG__
-#include "Drag.h"
-#endif
+// #ifndef __DRAG__
+// #include "Drag.h"
+// #endif
 
 #ifndef __TEXTSERVICES__
 #include <TextServices.h>
 #endif
+
+#endif /* TARGET_API_MAC_CARBON */
 
 //	ANSI #includes
 
@@ -158,7 +166,7 @@
 
 // set WASTE_USE_UPPS to 0 if you don't need UPPs
 #ifndef WASTE_USE_UPPS
-#define WASTE_USE_UPPS			GENERATINGCFM
+#define WASTE_USE_UPPS			TARGET_RT_MAC_CFM
 #endif
 
 // set WASTE_REDRAW_SPEED to 1 to use Mark Alldritt's optimizations of _WERedraw
@@ -1293,7 +1301,7 @@ pascal OSErr WETrackDrag(DragTrackingMessage theMessage,DragReference theDrag,
 									WEHandle hWE);
 pascal OSErr WEReceiveDrag(DragReference theDrag, WEHandle hWE);
 pascal OSErr _WESendFlavor(FlavorType requestedType, void *dragSendRefCon,
-									WEHandle hWE, DragReference theDrag);
+									unsigned long hWE, DragReference theDrag); // hWE was type WEHandle - 050107 akozar
 pascal Boolean WEDraggedToTrash(DragReference theDrag);
 pascal OSErr _WEDrag(Point mouseLoc, EventModifiers modifiers, unsigned long clickTime, WEHandle hWE);
 pascal void _WEResolveURL(EventModifiers modifiers, long urlStart, long urlEnd, WEHandle hWE);
