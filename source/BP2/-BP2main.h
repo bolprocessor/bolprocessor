@@ -337,6 +337,7 @@ DialogPtr gpDialogs[WMAX];
 TextHandle TEH[WMAX];
 
 int linesInFolder[WMAX];
+Boolean WindowFullAlertLevel[WMAX];	// used in TextEdit build to track which alerts have been shown
 MenuHandle myMenus[MAXMENU+1];
 int Buttonheight = 14;
 int NewEnvironment,NewColors,ShowPianoRoll,ToldAboutPianoRoll,ShowObjectGraph,Help,ChangedCoordinates[WMAX];

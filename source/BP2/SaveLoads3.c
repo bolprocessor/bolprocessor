@@ -259,7 +259,8 @@ void SelectCreatorAndFileType(int type, OSType* thecreator, OSType* thetype)
 			break;
 		case 18:
 			*thetype = 'TEXT';
-			*thecreator = 'MOSS';	/* Netscape creator */
+			if (RunningOnOSX)	*thecreator = '\0\0\0\0';	/* use user's default browser? */
+			else			*thecreator = 'MOSS';		/* Netscape creator */
 			break;
 		}
 	return;
@@ -294,12 +295,12 @@ switch(type) {
 		break;
 	case 5:
 		typelist[0] = 'BP05';	/* grammar -gr file */
-		typelist[1] = 'TEXT';	/* Netscape file */
+		typelist[1] = 'TEXT';
 		*numtypes = 2;
 		break;
 	case 6:
 		typelist[0] = 'BP06';	/* alphabet -ho file */
-		typelist[1] = 'TEXT';	/* Netscape file */
+		typelist[1] = 'TEXT';
 		*numtypes = 2;
 		break;
 	case 7:
@@ -311,7 +312,7 @@ switch(type) {
 		break;
 	case 8:
 		typelist[0] = 'BP08';	/* interactive -in file */
-		typelist[1] = 'TEXT';	/* Netscape file */
+		typelist[1] = 'TEXT';
 		*numtypes = 2;
 		break;
 	case 9:
@@ -336,12 +337,12 @@ switch(type) {
 		break;
 	case 13:
 		typelist[0] = 'BP11';	/* script +sc file */
-		typelist[1] = 'TEXT';	/* Netscape file */
+		typelist[1] = 'TEXT';
 		*numtypes = 2;
 		break;
 	case 14:
 		typelist[0] = 'BP12';	/* glossary -gl file */
-		typelist[1] = 'TEXT';	/* Netscape file */
+		typelist[1] = 'TEXT';
 		*numtypes = 2;
 		break;
 	case 15:
@@ -382,7 +383,7 @@ const char  FormatNames[MAXFORMATNAMES][MFNLEN] = {
 		"BP2 time-base",				/* 'BP13' */
 		"BP2 Csound instruments",		/* 'BP14' */
 		"BP2 MIDI orchestra",			/* 'BP15' */
-		"Netscape HTML file"			/* 'TEXT', creator 'MOSS' */
+		"Standard HTML file"			/* 'TEXT', creator depends on OS or browser */
 		};
 		
 const int	HFLEN = 8;
@@ -399,12 +400,12 @@ int MakeFormatMenuItems(int type, NavMenuItemSpecArrayHandle* p_handle)
 	typelist[0] = type;		// BP2 native format
 	typelist[1] = type;		// BP2 native format with HTML encoding
 	if (type == 0 || type == 1) {	// (skip adding plain text again)
-		typelist[2] = 18;		// Netscape HTML
+		typelist[2] = 18;		// HTML
 		numitems = 3;
 	}
 	else {
 		typelist[2] = 1;		// BP2 plain text
-		typelist[3] = 18;		// Netscape HTML
+		typelist[3] = 18;		// HTML
 		numitems = 4;
 	}
 	
@@ -1296,18 +1297,24 @@ long n;
 if(WASTE || w < 0 || w >= WMAX || !Editable[w]) return(OK);
 n = GetTextLength(w);
 if(n > (TEXTEDIT_MAXCHARS - 100)) {
-	if(FileName[w][0] != '\0')
-		sprintf(Message,"Window ‘%s’ is almost full",FileName[w]);
-	else
-		sprintf(Message,"Window ‘%s’ is almost full",WindowName[w]);
-	Alert1(Message);
+	if (WindowFullAlertLevel[w] < 1) {	// this test cannot be in the previous 'if'
+		if(FileName[w][0] != '\0')
+			sprintf(Message,"Window ‘%s’ is almost full",FileName[w]);
+		else
+			sprintf(Message,"Window ‘%s’ is almost full",WindowName[w]);
+		Alert1(Message);
+		WindowFullAlertLevel[w] = 1;	// 1 means we've warned about being almost full
+		}
 	}
-if (n < 0) {
+else if (n < 0) {
 	sprintf(Message, "Text has overflowed the ‘%s’ window! Save your work and quit...", WindowName[w]);
 	Alert1(Message);
 	EmergencyExit = TRUE;
+	WindowFullAlertLevel[w] = 3;	// 3 means overflowed
 	return(FAILED);
 	}
+else WindowFullAlertLevel[w] = 0;	// reset if in normal bounds
+
 return(OK);
 }
 
@@ -1996,7 +2003,7 @@ pascal void PutFileEventProc(NavEventCallbackMessage callBackSelector,
 			item = (NavMenuItemSpec*) callBackParms->eventData.eventDataParms.param;
 			reply = (NSWReply*) callBackUD;
 			p2cstrcpy(str, item->menuItemName);
-			if (strcmp(str, FormatNames[18]) == 0) {		// Netscape HTML
+			if (strcmp(str, FormatNames[18]) == 0) {		// HTML
 				reply->isHTML = TRUE; reply->isText = TRUE;
 			}
 			else if (strcmp(str, FormatNames[1]) == 0) {	// plain text

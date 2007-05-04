@@ -183,9 +183,7 @@ long len = (long) (*(th))->teLength;
 // if full, only allow backspace, delete, and arrow keys
 if ((len >= TEXTEDIT_MAXCHARS || len < 0) && c != '\b' && c != 0x7F
     && c != '\34' && c != '\35' && c != '\36' && c != '\37') {
-	sprintf(Message, "Text window is full! (It has %d characters). "
-	          "No more text can be entered.", len);
-	Alert1(Message);
+  	TextFullError(th, 1);
 	return(FAILED);
 	}
 TEKey(c,th);
@@ -244,9 +242,51 @@ WEInsert((Ptr)s,length,(StScrpHandle)NULL,NULL,th);
   TXNSetData((*th)->textobj, kTXNTextData, s, length, start, end);
 }
 #else
+{ long textlen;
+
+  /* first check that there is enough room in the TextEdit handle */
+  textlen = (long) (*(th))->teLength;
+  if (textlen < 0 || (length+textlen) > TEXTEDIT_MAXCHARS) {
+  	TextFullError(th, 0);
+	return(FAILED);
+	}
+  }
 TEInsert(s,length,th);
 #endif
 return(OK);
+}
+
+
+/* Controls reporting of errors if using TextEdit and the window is full */
+int TextFullError(TextHandle th, int messageNum)
+{
+	int w;
+	long len;
+	
+#if !WASTE && !USE_MLTE
+	// get a window index from the TextHandle
+	for (w = 0; w < WMAX; ++w)  if (th == TEH[w]) break;
+	if (w < 0 || w >= WMAX || !Editable[w])  return (FAILED);
+	if (WindowFullAlertLevel[w] < 2) {
+		switch (messageNum) {
+			case 1:  // for DoKey()
+				len = (long) (*(th))->teLength;
+				sprintf(Message, "Text window is full! (It has %d characters). "
+					  "No more text can be typed.", len);
+				break;
+			case 0:  // for TextInsert()
+			default:
+	  			sprintf(Message, "BP2 cannot insert text into window '%s' because it is too full."
+					  " (%d characters max)", (FileName[w][0] ? FileName[w] : WindowName[w]),
+					  TEXTEDIT_MAXCHARS);
+				break;
+		}
+		Alert1(Message);
+		WindowFullAlertLevel[w] = 2;	// 2 means we've warned about being full
+	}
+#endif	
+
+	return(OK);
 }
 
 
@@ -312,6 +352,7 @@ TXNPaste((*TEH[w])->textobj);
   size = CCUGetScrap(NULL, 'TEXT', &offset);
   textlen = GetTextLength(w);
   if (textlen < 0 || (size+textlen) > TEXTEDIT_MAXCHARS) {
+  	// we want to display an error each time 'Paste' fails (unlike DoKey and TextInsert)
   	sprintf(Message, "The contents of the clipboard are too large to paste into window '%s'! (%d "
   	        "characters max)", (FileName[w][0] ? FileName[w] : WindowName[w]), TEXTEDIT_MAXCHARS);
 	Alert1(Message);

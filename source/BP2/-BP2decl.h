@@ -305,6 +305,7 @@ extern DialogPtr gpDialogs[WMAX];
 extern TextHandle TEH[WMAX];
 
 extern int linesInFolder[WMAX];
+extern Boolean WindowFullAlertLevel[WMAX];
 extern MenuHandle myMenus[MAXMENU+1];
 extern int Buttonheight;
 extern int NewEnvironment,NewColors,ShowPianoRoll,ToldAboutPianoRoll,ShowObjectGraph,

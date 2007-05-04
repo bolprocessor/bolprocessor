@@ -883,6 +883,7 @@ for(w=0; w < WMAX; w++) {
 	Window[w] = NULL;
 	CurrentColor[w] = Black;
 	IsHTML[w] = FALSE;
+	WindowFullAlertLevel[w] = 0;
 	}
 IsHTML[wCsoundTables] = TRUE;
 for(w=0; w < MAXWIND; w++) {

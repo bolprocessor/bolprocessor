@@ -816,6 +816,7 @@ if(w != wMessage && Editable[w] && !LockedWindow[w]) {
 	SetSelect(ZERO,GetTextLength(w),TEH[w]);
 	TextDelete(w);
 	SetSelect(ZERO,ZERO,TEH[w]);
+	WindowFullAlertLevel[w] = 0;
 	if(reset) {
 		switch(w) {
 			case wCsoundTables:
@@ -1163,8 +1164,10 @@ MaintainMenus(); DrawMenuBar();
 
 if(Nw < 0 || Nw >= WMAX) return(OK);
 
-if(!WASTE) UpdateWindow(FALSE,Window[Nw]);
-else if(mode == SLOW && Editable[Nw]) ShowSelect(CENTRE,Nw);
+#if !EXPERIMENTAL  // strange difference in behavior between TE & WASTE; neither is necessary? - akozar
+  if(!WASTE) UpdateWindow(FALSE,Window[Nw]);
+  else if(mode == SLOW && Editable[Nw]) ShowSelect(CENTRE,Nw);
+#endif
 if((mode == SLOW || mode == AGAIN) && Nw == wPrototype1)
 	DrawPrototype(iProto,wPrototype1,&PictFrame);
 
