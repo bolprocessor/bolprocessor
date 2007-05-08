@@ -371,7 +371,7 @@ c2pstrcpy(PascalLine,FileName[iObjects]);
 CopyPString(PascalLine, spec.name);
 spec.vRefNum = TheVRefNum[iObjects];
 spec.parID = WindowParID[iObjects];
-if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {
+if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {	// FIXME: don't use MyOpen if no FileName[iObjects] ??
 FIND:
 	if(!tryname) return(FAILED);
 	if(FileName[iObjects][0] == '\0') {
@@ -389,7 +389,7 @@ FIND:
 	if(!OldFile(iObjects,type,PascalLine,&spec)) return(ABORT);
 	if(FileName[iObjects][0] == '\0') {
 		p2cstrcpy(FileName[iObjects],PascalLine);
-		TellOthersMyName(iObjects);
+		// TellOthersMyName(iObjects); // this is taken care of by SetName() at end - akozar 050707
 		}
 	c2pstrcpy(filename,FileName[iObjects]);
 	if(Pstrcmp(PascalLine, filename) != 0) {
@@ -399,7 +399,7 @@ FIND:
 				goto FIND;
 			case YES:
 				p2cstrcpy(FileName[iObjects],PascalLine);
-				TellOthersMyName(iObjects);
+				// TellOthersMyName(iObjects); // this is taken care of by SetName() at end - akozar 050707
 				break;
 			case ABORT:
 				HideWindow(Window[wMessage]);
@@ -482,8 +482,8 @@ MAXSOUNDS:
 else {
 	if(checkversion && (Jbol < 3 || p_Bol == NULL)) {
 		Alert1("This is an old type of object prototype file. To load it you must first load or create the corresponding alphabet");
-		FileName[iObjects][0] = '\0';
-		goto ERR;
+		FileName[iObjects][0] = '\0';	// FIXME: this wasn't enough when TellOthersMyName() was called above; is it OK now ?
+		goto OUT;	// changed from goto ERR - akozar 050707
 		}
 	if(ResizeObjectSpace(YES,Jbol + Jpatt,0) != OK) goto ERR;
 	}
