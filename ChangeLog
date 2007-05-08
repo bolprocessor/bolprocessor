@@ -1,3 +1,17 @@
+2007-05-07	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/Dialogs.c (DoDialog):
+		Changed case bSampledSound of wPrototypes1 so that the button does not
+			switch on.
+		
+	* source/BP2/SaveLoads2.c (LoadObjectPrototypes):
+		Fixed being unable to load any prototypes files after a failed attempt
+			to load an old -mi file with no alphabet.
+
+	* source/BP2/-BP2main.h:
+		Modified Adjustable[] so that all windows are repositioned by 
+			LoadSettings() except wMessage and wInfo.
+
 2007-05-04	Anthony Kozar	<anthonykozar@sbcglobal.net>
 2007-05-03	Anthony Kozar	<anthonykozar@sbcglobal.net>
 2007-05-02	Anthony Kozar	<anthonykozar@sbcglobal.net>
