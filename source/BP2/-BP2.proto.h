@@ -1072,6 +1072,7 @@ int CalText(TextHandle);
 long GetTextLength(int);
 int TextDelete(int);
 int TextInsert(char*,long,TextHandle);
+int TextFullError(TextHandle, int);
 int TextUpdate(int);
 int TextCut(int);
 int TextPaste(int);
