@@ -1234,9 +1234,9 @@ if(w == wPrototype1) {
 		case bSampledSound:
 			if(CheckiProto() != OK) return(DONE);
 			if((*p_Type)[iProto] & 2) (*p_Type)[iProto] &= (255-2);
-			else (*p_Type)[iProto] |= 2;
-			UpdateDirty(TRUE,wPrototype1);
-			Alert1("This type of object is not yet supported…");
+			else // (*p_Type)[iProto] |= 2;	// comment out until implemented - akozar 050707
+				Alert1("This type of object is not yet supported…");
+			// UpdateDirty(TRUE,wPrototype1);
 			break;
 		case bCsoundInstrument:
 			if(CheckiProto() != OK) return(DONE);
