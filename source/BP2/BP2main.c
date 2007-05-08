@@ -355,8 +355,8 @@ OSErr io;
 
 // OMS initialisation
 #if USE_OMS
-if (MakeNewDriverRecord(&driver) != OK) return(FAILED);
-strcpy((*driver)->name, "Opcode OMS");
+// if (MakeNewDriverRecord(&driver) != OK) return(FAILED);
+// strcpy((*driver)->name, "Opcode OMS");
 if(oms) {
 	if(InitOMS('Bel0') == noErr) {
 		Oms = TRUE;
@@ -373,8 +373,8 @@ if(oms) {
 PleaseWait();
 	
 #if USE_BUILT_IN_MIDI_DRIVER
-if (MakeNewDriverRecord(&driver) != OK) return(FAILED);
-strcpy((*driver)->name, "BP2 Serial Driver");
+// if (MakeNewDriverRecord(&driver) != OK) return(FAILED);
+// strcpy((*driver)->name, "BP2 Serial Driver");
 if(!Oms && (io = DriverOpen("\p.MIDI")) != noErr) {
 	Alert1("Unexpected error opening MIDI driver. OMS is off, but some other device might be conflicting");
 	return(OK);
@@ -384,8 +384,8 @@ if(!Oms && (io = DriverOpen("\p.MIDI")) != noErr) {
 #endif
 
 #if BP_MACHO
-	if (MakeNewDriverRecord(&driver) != OK) return(FAILED);
-	strcpy((*driver)->name, "CoreMIDI");
+//	if (MakeNewDriverRecord(&driver) != OK) return(FAILED);
+//	strcpy((*driver)->name, "CoreMIDI");
 	InitCoreMidiDriver();
 #endif
 
