@@ -1,3 +1,28 @@
+2007-05-09	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-05-08	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2.h:
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+	* resources/plst-resource.plc:
+	* source/BP2/SaveLoads3.c:
+		Added a new file type for Midi driver settings (-md, .bpmd, 'BP16').
+
+	* resources/CoreMIDISettings.rsrc:  Load, Save, and Save Startup buttons.
+	
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/CoreMIDIdriver.c:
+	* source/BP2/Dialogs.c (DoDialog):
+	* source/BP2/Interface1.c (TellOthersMyName):
+	* source/BP2/SaveLoads1.c:
+		New functions for loading and saving the Midi driver settings.
+		Work is divided between SaveLoads1.c which handles the "BP2 side" of
+			displaying Open/Save dialogs, opening files, reading and writing
+			headers, etc.  The "driver side" code (CoreMIDIdriver.c only
+			for now) handles reading and writing only the informations specific
+			to that driver's configuration.
+		Functions for loading/saving a default "-md.startup" file.
+
 2007-05-07	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/Dialogs.c (DoDialog):

@@ -135,6 +135,12 @@ int SendToDriver(Milliseconds,int,int*,MIDI_Event*);
 int CaptureMidiEvent(Milliseconds time,int nseq,MIDI_Event *p_e);
 void RegisterProgramChange(MIDI_Event *p_e);
 
+int LoadMidiDriverSettings();
+int ReadMidiDriverSettings(short refnum);
+int SaveMidiDriverStartup();
+int SaveMidiDriverSettings();
+int WriteMidiDriverSettings(short refnum, FSSpec* spec);
+
 #if TRACE_EVENTS
 char* TEWindowName(WindowPtr wp);
 void	PrintEvent(EventRecord* e, char* funcname, WindowPtr wp);

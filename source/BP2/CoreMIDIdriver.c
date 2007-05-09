@@ -132,6 +132,10 @@ int  GetListBoxSelection(CMListData** ldh);
 int  UpdateCMSettingsListBoxes();
 int  UpdateActiveEndpoints(CMListData** ldh, MIDIEndpointRef** endpoints, Size* epArraySize, Boolean* status);
 
+int WriteActiveEndpoints(CMListData** ldh, short refnum);
+int WriteCoreMIDISettings(short refnum);
+int ReadCoreMIDISettings(short refnum, long* pos);
+
 /*  Returns whether the CoreMIDI driver is on */
 Boolean IsMidiDriverOn()
 {
@@ -688,6 +692,9 @@ const  short	diOutputList = 5;
 const  short	diCreateDestination = 6;
 const  short	diCreateSource = 7;
 const  short	diMidiThru = 8;
+const  short	diSaveStartup = 9;
+const  short	diSaveSettings = 10;
+const  short	diLoadSettings = 11;
 
 OSStatus CreateCMSettings()
 {
@@ -745,6 +752,15 @@ int DoCMSettingsEvent(EventRecord* event, short itemHit)
 		case	diCreateSource:
 			break;
 		case	diMidiThru:
+			break;
+		case	diSaveStartup:
+			result = SaveMidiDriverStartup();
+			break;
+		case	diSaveSettings:
+			result = SaveMidiDriverSettings();
+			break;
+		case	diLoadSettings:
+			result = LoadMidiDriverSettings();
 			break;
 	}
 	
@@ -1119,4 +1135,79 @@ static int UpdateActiveEndpoints(CMListData** ldh, MIDIEndpointRef** endpoints, 
 	*ep = NULL;	// terminate the array with NULL
 	
 	return (OK);
+}
+
+static int WriteActiveEndpoints(CMListData** ldh, short refnum)
+{
+	OSStatus err;
+	int result;
+	Size	index, newsize, numSelected, numEntries;
+	MIDIEndpointRef*	ep;
+	CMListEntry*	entry;
+	char			line[32];	// only used for writing numbers
+	
+	// count the selected list entries that are also "online"
+	entry = *((*ldh)->entries);
+	numEntries = (*ldh)->numEntries;
+	numSelected = 0;
+	for (index = 0; index < numEntries; ++index) {
+		if (entry->selected && !entry->offline) ++numSelected;
+		++entry;
+	}
+
+	// write the number of endpoints to save
+	sprintf(line, "%ld", (long)numSelected);
+	WriteToFile(NO,MAC,line,refnum);
+
+	// write only the selected list entries that are also "online"
+	if ((result = MyLock(FALSE, (Handle)(*ldh)->entries)) != OK)  return result;
+	entry = *((*ldh)->entries);
+	for (index = 0; index < numEntries; ++index) {
+		if (entry->selected && !entry->offline) {
+			sprintf(line, "%ld", entry->id);
+			WriteToFile(NO,MAC,line,refnum);
+			if ((result = MyLock(FALSE, (Handle)entry->name)) != OK)  return result;
+			WriteToFile(NO,MAC,*(entry->name),refnum);			
+			if ((result = MyUnlock((Handle)entry->name)) != OK)  return result;
+		}
+		++entry;
+	}
+	if ((result = MyUnlock((Handle)(*ldh)->entries)) != OK)  return result;
+
+	return (OK);
+}
+
+int WriteCoreMIDISettings(short refnum)
+{
+	int result;
+	
+	// write general settings first (none of these are implemented yet)
+	WriteToFile(NO,MAC,"1",refnum);	// MIDI Thru
+	WriteToFile(NO,MAC,"0",refnum);	// Create virtual input
+	WriteToFile(NO,MAC,"0",refnum);	// Create virtual output
+	WriteToFile(NO,MAC,"0",refnum);	// Reserved 1
+	WriteToFile(NO,MAC,"0",refnum);	// Reserved 2
+	WriteToFile(NO,MAC,"0",refnum);	// Reserved 3
+	
+	result = WriteActiveEndpoints(CMInputListData, refnum);
+	if (result != OK) return result;
+	result = WriteActiveEndpoints(CMOutputListData, refnum);
+	if (result != OK) return result;
+	
+	return OK;
+}
+
+int ReadCoreMIDISettings(short refnum, long* pos)
+{
+	int dummy;
+	
+	// read general settings first (none of these are implemented yet)
+	if (ReadInteger(refnum, &dummy, pos) == FAILED) return (FAILED);		// MIDI Thru
+	if (ReadInteger(refnum, &dummy, pos) == FAILED) return (FAILED);		// Create virtual input
+	if (ReadInteger(refnum, &dummy, pos) == FAILED) return (FAILED);		// Create virtual output
+	if (ReadInteger(refnum, &dummy, pos) == FAILED) return (FAILED);		// Reserved 1
+	if (ReadInteger(refnum, &dummy, pos) == FAILED) return (FAILED);		// Reserved 2
+	if (ReadInteger(refnum, &dummy, pos) == FAILED) return (FAILED);		// Reserved 3
+	
+	return OK;
 }

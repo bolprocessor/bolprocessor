@@ -2629,6 +2629,7 @@ if(w == wFilter) {
 #if BP_MACHO
 if(thedialog == CMSettings) {
 	rep = DoCMSettingsEvent(p_event, itemHit);
+	return(rep); // avoid hiding Message window
 }
 #endif
 

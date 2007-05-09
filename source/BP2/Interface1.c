@@ -1915,6 +1915,7 @@ if(FileName[w][0] != '\0') {
 		case wInteraction:
 		case wGlossary:
 		case iSettings:
+		case iMidiDriver:
 		case wTimeBase:
 			PutFirstLine(wGrammar,FileName[w],FilePrefix[w]);
 			PutFirstLine(wData,FileName[w],FilePrefix[w]);

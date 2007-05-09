@@ -1247,7 +1247,7 @@ OSErr	FindBPPrefsFolder(FSSpecPtr location)
 
 /* FindFileInPrefsFolder() gets an FSSpec for the file named filename that
    should be in the "Bol Processor" sub-folder of the system (or user) preferences 
-   folder.  If this file does not exist, an error is returned.
+   folder.  If this file does not exist, fnfErr is returned and location is valid (?).
    filename may be a relative pathname up to 255 chars long. 
    FSSpec returned may not be in prefs folder if the file was aliased. */
 OSErr	FindFileInPrefsFolder(FSSpecPtr location, StringPtr filename)
@@ -1342,7 +1342,7 @@ void GetStartupSettingsSpec(FSSpecPtr spec)
 		// use the BP2 application folder copy if needed
 		err = FSMakeFSSpec(RefNumbp2, ParIDbp2, kBPSeStartup, spec);
 		// if err, fill in spec ourselves (will probably fail to open, 
-		// but we need to avoid returning completely random values
+		// but we need to avoid returning completely random values)
 		if (err != noErr && err != fnfErr) {
 			spec->vRefNum = RefNumbp2;
 			spec->parID = ParIDbp2;
@@ -2507,4 +2507,195 @@ else {
 LoadOn--;
 HideWindow(Window[wMessage]);
 return(OK);
+}
+
+
+static OSErr GetMidiDriverStartupSpec(FSSpecPtr spec, Boolean saving)
+{
+	OSErr err;
+	Boolean haveStartupSpec = FALSE;
+	
+	// on OS X, check the user's preferences folder first
+	if (RunningOnOSX) {
+		if ((err = FindFileInPrefsFolder(spec, kBPMdStartup)) == noErr)
+			haveStartupSpec = TRUE;
+		else if (saving)  return err;  // stop here if getting spec to save
+	}
+	if (!haveStartupSpec) {
+		// look in the BP2 application folder on OS 9 or if not found yet
+		err = FSMakeFSSpec(RefNumbp2, ParIDbp2, kBPMdStartup, spec);
+	}
+
+	return err;
+}
+
+int LoadMidiDriverStartup()
+{
+	OSErr	err;
+	int	result;
+	short	refnum;
+	FSSpec mdStartup;
+	
+	err = GetMidiDriverStartupSpec(&mdStartup, FALSE);
+	if (err != noErr)  return (FAILED);	// the file is optional, so don't report to user
+	
+	err = MyOpen(&mdStartup, fsRdPerm, &refnum);
+	if (err != noErr)  {	// do report the failure to open an existing file
+		ShowMessage(TRUE, wMessage, "Error opening '-md.startup' file.");
+		return (FAILED);
+	}
+	
+	result = ReadMidiDriverSettings(refnum);
+	if (result != OK) ShowMessage(TRUE, wMessage, "Error reading '-md.startup' file.");
+	return result; 
+}
+
+int LoadMidiDriverSettings()
+{
+	OSErr		err;
+	int		result;
+	short		refnum;
+	FSSpec	mdfile;
+	char		cname[64];	// size of FSSpec.name
+	
+	char * temp = DocumentTypeName[iMidiDriver];
+	sprintf(Message, "Select a %s file…", DocumentTypeName[iMidiDriver]);
+	ShowMessage(TRUE,wMessage,Message);
+	result = OldFile(wUnknown, ftiMidiDriver, PascalLine, &mdfile);
+	HideWindow(Window[wMessage]);
+	if (result != OK)  return result;
+	
+	err = MyOpen(&mdfile, fsRdPerm, &refnum);
+	if (err != noErr)  {
+		p2cstrcpy(cname, mdfile.name);
+		sprintf(Message,"Error opening the file '%s'.", cname);
+		Alert1(Message);
+		return (FAILED);
+	}
+	
+	result = ReadMidiDriverSettings(refnum);
+	if (result != OK) {
+		p2cstrcpy(cname, mdfile.name);
+		sprintf(Message,"Error reading the file '%s'.", cname);
+		Alert1(Message);
+		return (FAILED);
+	}
+	return result; 
+}
+
+int ReadMidiDriverSettings(short refnum)
+{
+	return OK;
+}
+
+int SaveMidiDriverStartup()
+{
+	OSErr	err;
+	int	result;
+	short	refnum;
+	OSType thecreator, thetype;
+	FSSpec mdStartup;
+	
+	err = GetMidiDriverStartupSpec(&mdStartup, TRUE);
+	if (err == fnfErr) {
+		SelectCreatorAndFileType(ftiMidiDriver, &thecreator, &thetype);
+		err = FSpCreate(&mdStartup, thecreator, thetype, smSystemScript);
+	}
+	if (err != noErr)  return (FAILED);
+	
+	err = MyOpen(&mdStartup, fsRdWrPerm, &refnum);
+	if (err != noErr)  return (FAILED);
+
+	result = WriteMidiDriverSettings(refnum, &mdStartup);
+	if (result == OK) {
+		ShowMessage(TRUE, wMessage, 
+			(RunningOnOSX ? "Saved '-md.startup' to your Library/Preferences/Bol Processor/ folder."
+			              : "Saved '-md.startup' to the BP2 application folder."));
+	}
+	return result; 
+}
+
+/* Display a Save file dialog and save the current Midi driver's settings */
+int SaveMidiDriverSettings()
+{
+	OSErr		err;
+	short		refnum;
+	int		io;
+	NSWReply	reply;
+	char		defaultname[64];
+	Str255	fn;
+	
+	err = NSWInitReply(&reply);
+	
+	// suggest last saved filename if we have one
+	if (FileName[iMidiDriver][0] != '\0')  c2pstrcpy(fn, FileName[iMidiDriver]);
+	else if (GetDefaultFileName(iMidiDriver, defaultname) == OK) {
+		c2pstrcpy(fn, defaultname);
+	}
+	else return(FAILED);
+	
+	if (io = NewFile(iMidiDriver,gFileType[iMidiDriver],fn,&reply)) {
+		io = CreateFile(iMidiDriver,iMidiDriver,gFileType[iMidiDriver],fn,&reply,&refnum);
+		if (io == OK) {
+			io = WriteMidiDriverSettings(refnum, &(reply.sfFile));
+			if (io == OK) {
+				reply.saveCompleted = true;
+				p2cstrcpy(FileName[iMidiDriver], fn);
+				TellOthersMyName(iMidiDriver);
+				TheVRefNum[iMidiDriver] = reply.sfFile.vRefNum;
+				WindowParID[iMidiDriver] = reply.sfFile.parID;
+				sprintf(Message,"Successfully saved ‘%s’", defaultname);
+				ShowMessage(TRUE,wMessage,Message);
+			}
+			else {
+				p2cstrcpy(defaultname, fn);
+				sprintf(Message, "Error writing file ‘%s’", defaultname);
+				Alert1(Message);
+				HideWindow(Window[wMessage]);
+			}
+		}
+		else {
+			MyPtoCstr(MAXNAME,fn,defaultname);
+			sprintf(Message, "Error creating file ‘%s’", defaultname);
+			Alert1(Message);
+		}
+	}		
+	// no error message if NewFile() fails (probably user cancelled)
+	
+	err = NSWCleanupReply(&reply);
+	return io;
+}
+
+extern int WriteCoreMIDISettings(short refnum);
+
+/* Write the current Midi driver's settings to an already open file */
+int WriteMidiDriverSettings(short refnum, FSSpec* spec)
+{
+	char	fname[64];
+	long	flength;
+	
+	SaveOn++;
+	p2cstrcpy(fname, spec->name);
+	sprintf(Message,"Saving ‘%s’...", fname);
+	ShowMessage(TRUE,wMessage,Message);
+	PleaseWait();
+	
+	// write the file, starting with the standard BP2 header
+	WriteHeader(wUnknown, refnum, *spec); // use wUnknown instead of iMidiDriver until we fix WindowName[] issues
+	// write the name of the driver
+	WriteToFile(NO,MAC,"CoreMIDI",refnum);
+	// call the driver's own save settings function
+#if BP_MACHO
+	WriteCoreMIDISettings(refnum);
+#endif
+	// this doesn't actually do anything ...
+	WriteEnd(wUnknown, refnum);
+	
+	GetFPos(refnum,&flength);
+	SetEOF(refnum,flength);
+	FlushFile(refnum);
+	MyFSClose(iMidiDriver, refnum, spec);
+	SaveOn--;
+	
+	return OK;
 }
