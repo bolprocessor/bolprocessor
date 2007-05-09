@@ -835,14 +835,8 @@ Musical Instrument Digital Interface: a communication device between computers a
     of musical items, grammars and scripts, and a minimum amount of information about
     the arguments expected by instruments in the Csound orchestra file.
 • Related topic: "Csound implementation"
-### Csound OFF [script command]
-Cancels effect of Csound ON
-### Csound ON [script command]
-Allows "production" and analysis of Csound files. [Not implemented]
 ### Delete «unsigned» chars [Script command]
 Deletes specified number of chars in current edit window
-### Don't use tokens for key strokes [Script command]
-Cancels the effect of "Use tokens"
 ### Expand selection window «windowname»
 Displays selected "polymetric structure" as interpreted by BP2.
 • Two equivalent interprations are displayed.  The first one is the most compact
@@ -1238,6 +1232,14 @@ When checked, marks variables with vertical lines in items produced by the gramm
 • This is only useful with black and white display.
 ### Type text
 When checked, cancels the effect of "Use tokens".
+### RECEIVE... [MIDI filter]
+Items checked in this list indicate the types of MIDI messages that BP2 should receive.
+• Related topic: "TRANSMIT"
+### TRANSMIT... [MIDI filter]
+Items checked in this list indicate the types of MIDI messages that BP2 should transmit.
+• Every transmitted message must have been received.  Therefore the 'receive' box is
+    also checked.
+• Related topic: "RECEIVE"
 ### Receive MIDI data to file
 This command allows you to store in-coming MIDI data to a text file. It may be used,
     for instance, to save the set-up of any MIDI device using its bulk transfer facility.
@@ -1645,10 +1647,6 @@ Uses specified time limit, if any, to perform "computations".
 Cancels the effect of "Use time limit ON".
 ### Use time limit ON [Script command]
 See "Use time limit".
-### Use tokens ON [Script command]
-See "Use tokens".
-### Use tokens OFF [Script command]
-Cancels the effect of "Use tokens ON". (See "Use tokens")
 ### Computations
 Computation comprizes:
 • the "production" of an item by a grammar, or the interpretation
@@ -1659,12 +1657,16 @@ Computation comprizes:
 Instead of typing the characters indicated on the computer's keyboard, "Use tokens"
     allows you to type tokens defined in a 'keyboard' file (-kb.filename).
 • To edit, save and load tokens, display the "Keyboard" window.
+### Use tokens ON [Script command]
+See "Use tokens".
+### Use tokens OFF [Script command]
+Cancels the effect of "Use tokens ON". (See "Use tokens")
 ### Use these tokens (Keyboard window)
 See "Use tokens".
 ### OK
 Means that changes done in the current window are valid.
 ### New seed (Random sequence)
-Creates an arbitray new seed that will be used for random generation. This is the
+Creates an arbitrary new seed that will be used for random generation. This is the
     'randomize' procedure used by programmers. The new seed will be displayed and may
     be reused to produce exactly the same sequence (with exactly the same grammar).
 • This reseeding can be automated if the "_randomize" procedure is placed on top of
@@ -1674,7 +1676,7 @@ Creates an arbitray new seed that will be used for random generation. This is th
 ### Use buffer limit OFF
 Ignore specified buffer limit: the "work string" may grow forever.
 ### Use buffer limit ON
-Use the specified value to limitate the length of the "work string" during "production".
+Use the specified value to limit the length of the "work string" during "production".
 ### Rule arrows
 <-> --> and <-- are the three derive modes in grammars.
 --> means that the rule may be used in "production" only
@@ -1707,15 +1709,31 @@ Play "sound-object prototype" at specified tempo.
 ### Play expression:
 Play item typed in the <any expression> field.
 ### MIDI sequence
-This "sound-object prototype" is a sequence of MIDI codes.
+When checked, indicates that this "sound-object prototype" contains a sequence of MIDI 
+events that is 'active'. If unchecked, it can mean either that there is no MIDI 
+sequence in this "sound-object prototype" or that there is a sequence and it is 
+'inactive' (i.e. the prototype's MIDI events will not be played).  A warning is shown
+in the diagram of the prototype when it is inactive.
 ### Sampled sound
-This "sound-object prototype" is a sound file, or part thereof.
-### Csound instrument
-This "sound-object prototype" is a Csound instrument.
+When checked, indicates that this "sound-object prototype" contains a sound file, 
+or part thereof.  (This feature is not yet implemented).
+### Csound score
+When checked, indicates that this "sound-object prototype" contains a Csound score.
+To create or edit a Csound score for this object, click the "Csound" button.
+• Related topics: "Csound format", "Csound implementation", "Csound"
+### Csound score OFF [script command]
+Cancels the effect of Csound score ON
+### Csound score ON [script command]
+Allows writing musical items as Csound scores.
+• Related topics: "Csound format", "Csound implementation"
+### Csound scores [Devices menu]
+Allows writing musical items as Csound scores. (Same as "Write Csound scores"
+option).
+• Related topics: "Csound format", "Csound implementation"
 ### Copy from ...
 Copy part of properties from specified "sound-object prototype".
 ### Go to ...
-Jumps to specified "sound-object prototype".
+Jumps to specified "sound-object prototype" or "Csound instrument".
 ### Edit/record MIDI stream
 Opens dialog for recording and editing MIDI codes for this sound-object prototype.
 ### (striated time)
@@ -2263,11 +2281,12 @@ Allows writing musical items as Csound scores.
 • Related topics: "Csound format", "Csound implementation"
 ### Csound implementation
 • Csound is a 100% software environment for the design and transformation of digitized
-    sounds.  It runs on different platforms, notably Unix, NeXT and MacOS.
-• To download Csound, connect to ftp://cecelia.media.mit.edu/pub/Csound/
+    sounds.  It runs on most platforms, including MacOS 9 & X, Linux, and Windows.
+    Csound is "free software" (open source) distributed under the GNU LGPL license.
+• To download Csound, connect to http://csound.sourceforge.net/
 • BP2 produces Csound scores in the same way it produces MIDI files or real-time MIDI:
-    the Csound option may be selected in the "Output" menu and is saved with the options
-    of the current project or data.
+    the "Csound scores" option may be selected in the "Output" menu and is saved with 
+    the options of the current project or data.
 • Once the option has been selected you may produce a Csound score for each musical item
     produced by a grammar or played from its text representation (a BP2 "score").  Items
     may be played on real-time MIDI, saved to Csound scores, to MIDI files, or any
@@ -2276,7 +2295,7 @@ Allows writing musical items as Csound scores.
     messages, BP2 converts the stream to a sequence of Csound events, using the
     specifications of Csound instruments defined in a "Csound instrument file".  This file
     can be created and edited in the "Csound instruments" dialog accessible from the
-    "Output" menu.  Csound instrument specifications should contain data that is
+    "Devices" menu.  Csound instrument specifications should contain data that is
     consistent with the "orchestra" file that will be invoked by Csound when compiling
     the score produced by BP2.
 • If no "Csound instrument file" is loaded, BP2 uses a default instrument which has only
@@ -2296,9 +2315,11 @@ Allows writing musical items as Csound scores.
     mapping if requested to do so.
 • In addition, BP2 handles "Performance parameters" with arbitrary names the values
     of which may be taken as arguments by Csound instruments.
-• Forthcoming development work on BP2 will focus on communication with the real-time
-    Csound card developed by Analog Devices Inc.
 • Related topic: "Csound format"
+### Devices [menu]
+Contains menu commands for turning on or off BP2's various output options ("MIDI",
+"MIDI files", and "Csound scores"), choosing between multiple MIDI drivers when
+available, and for configuring MIDI and Csound output options.
 ### Pitch argument:
 Put here the index of the argument controlling pitch in this Csound instrument.
 ### Check orchestra file
@@ -2588,14 +2609,6 @@ The default value of this Csound parameter.  It is used when "sound-objects" con
 ### MIDI filter
 Displays the MIDI filter dialog.
 • Related topics: "RECEIVE", "TRANSMIT"
-### RECEIVE... [MIDI filter]
-Items checked in this list indicate the types of MIDI messages that BP2 should receive.
-• Related topic: "TRANSMIT"
-### TRANSMIT... [MIDI filter]
-Items checked in this list indicate the types of MIDI messages that BP2 should transmit.
-• Every transmitted message must have been received.  Therefore the 'receive' box is
-    also checked.
-• Related topic: "RECEIVE"
 ### Number streaks from:
 Decides whether time streaks should start from 0 or 1.
 ### 500 pixels represent:
