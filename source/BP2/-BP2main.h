@@ -351,7 +351,8 @@ char **p_FileInfo[WMAX];
 // FileTypeIndexToWindowFileIndex does the reverse of gFileType below
 int	FileTypeIndexToWindowFileIndex[MAXFILETYPEINDEX] = {wUnknown, wUnknown, wKeyboard, iObjects, 
 		iDecisions, wGrammar, wAlphabet, wData, wInteraction, iSettings, wUnknown, iMIDIfile, 
-		iWeights, wScript, wGlossary, wTimeBase, wCsoundInstruments, wMIDIorchestra, wUnknown};
+		iWeights, wScript, wGlossary, wTimeBase, wCsoundInstruments, wMIDIorchestra, wUnknown,
+		iMidiDriver};
 		
 // In this section every array should contain WMAX values
 
@@ -370,17 +371,17 @@ short HasFields[] =  	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,1,0,0,1,1,1
 short IsDialog[] =  	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
 	// gFileType maps window/file index to a FileTypeIndex
-short gFileType[] =   {5,6,1,1,1,1,1,7,13,0,1,1,14,8,1,1,15,1,1,1,1,2,15,15,11,9,3,1,1,1,1,1,1,1,1,16,1,1,17};
+short gFileType[] =   {5,6,1,1,1,1,1,7,13,0,1,1,14,8,1,1,15,19,1,1,1,2,15,15,11,9,3,1,1,1,1,1,1,1,1,16,1,1,17};
 	// FilePrefix, FileExtension, and DocumentTypeName map window/file index to their appropriate strings
 char FilePrefix[][5] = {"-gr.","-ho.","\0","\0","\0","-tr.","\0","-da.",
-	"+sc.","\0","\0","\0","-gl.","-in.","-wg.","\0","-tb.","\0","\0","\0","\0","-kb.",
+	"+sc.","\0","\0","\0","-gl.","-in.","-wg.","\0","-tb.","-md.","\0","\0","\0","-kb.",
 	"\0","\0","\0","-se.","-mi.","\0","\0","\0","\0","\0","\0","\0","\0","-cs.","\0","\0","-or."};
 char FileExtension[][6] = {".bpgr",".bpho","\0","\0","\0",".bptr","\0",".bpda",
-	".bpsc","\0","\0","\0",".bpgl",".bpin",".bpwg","\0",".bptb","\0","\0","\0","\0",".bpkb",
+	".bpsc","\0","\0","\0",".bpgl",".bpin",".bpwg","\0",".bptb",".bpmd","\0","\0","\0",".bpkb",
 	"\0","\0","\0",".bpse",".bpmi","\0","\0","\0","\0","\0","\0","\0","\0",".bpcs","\0","\0",".bpor"};
-char DocumentTypeName[][18] = {"grammar","alphabet","\0","\0","\0","trace","\0","data",
-	"script","\0","\0","\0","glossary","interaction","weights","decisions","time-base","\0","\0","\0","\0",
-	"keyboard","\0","\0","MIDI","settings","sound-objects","\0","\0","\0","\0","\0","\0","\0","\0",
+char DocumentTypeName[][21] = {"grammar","alphabet","\0","\0","\0","trace","\0","data",
+	"script","\0","\0","\0","glossary","interaction","weights","decisions","time-base","MIDI driver settings",
+	"\0","\0","\0","keyboard","\0","\0","MIDI","settings","sound-objects","\0","\0","\0","\0","\0","\0","\0","\0",
 	"csound instruments","\0","\0","MIDI orchestra"};
 	/* See window and dialog indexes in BP2.h */
 char DeftName[][MAXNAME] = {"New Grammar","New Alphabet",

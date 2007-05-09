@@ -143,6 +143,14 @@ plist
 				/* key "CFBundleTypeIconFile" */
 			}
 			dictionary {
+				key "CFBundleTypeName" value string "BP2 MIDI driver settings"
+				key "CFBundleTypeRole" value string "Editor"
+				key "CFBundleTypeOSTypes" value array [ string "BP16" ]
+				/* key "CFBundleTypeMIMETypes" */
+				key "CFBundleTypeExtensions" value array [ string "bpmd" ]
+				/* key "CFBundleTypeIconFile" */
+			}
+			dictionary {
 				key "CFBundleTypeName" value string "BP2 MIDI file"
 				key "CFBundleTypeRole" value string "Editor"
 				key "CFBundleTypeOSTypes" value array [ string "Midi" ]

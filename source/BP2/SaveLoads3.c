@@ -262,6 +262,9 @@ void SelectCreatorAndFileType(int type, OSType* thecreator, OSType* thetype)
 			if (RunningOnOSX)	*thecreator = '\0\0\0\0';	/* use user's default browser? */
 			else			*thecreator = 'MOSS';		/* Netscape creator */
 			break;
+		case 19:
+			*thetype = 'BP16';	/* MIDI driver settings (-md) file */
+			break;
 		}
 	return;
 }
@@ -357,12 +360,19 @@ switch(type) {
 		typelist[0] = 'BP15';	/* MIDI orchestra -or file */
 		*numtypes = 1;
 		break;
+	case 18:
+		if (Beta) Alert1("Err. FillTypeList(): type 18 not allowed.");
+		break;
+	case 19:
+		typelist[0] = 'BP16';	/* MIDI driver settings (-md) file */
+		*numtypes = 1;
+		break;
 	}
 
 	return;
 }
 
-const int   MAXFORMATNAMES = 19;
+const int   MAXFORMATNAMES = 20;
 const int	MFNLEN = 30;
 const char  FormatNames[MAXFORMATNAMES][MFNLEN] = {
 		"BP2 text file",	 			/* 'TEXT' */
@@ -383,7 +393,8 @@ const char  FormatNames[MAXFORMATNAMES][MFNLEN] = {
 		"BP2 time-base",				/* 'BP13' */
 		"BP2 Csound instruments",		/* 'BP14' */
 		"BP2 MIDI orchestra",			/* 'BP15' */
-		"Standard HTML file"			/* 'TEXT', creator depends on OS or browser */
+		"Standard HTML file",			/* 'TEXT', creator depends on OS or browser */
+		"BP2 MIDI driver settings"		/* 'BP16' */
 		};
 		
 const int	HFLEN = 8;
@@ -571,6 +582,7 @@ FileTypeIndex MapFileTypeCodeToFileTypeIndex(OSType type)
 		case 'BP13':	return ftiTimeBase; break;
 		case 'BP14':	return ftiCsoundInstruments; break;
 		case 'BP15':	return ftiMIDIorchestra; break;
+		case 'BP16':	return ftiMidiDriver; break;
 		case 'Midi':	return ftiMidi; break;
 		case 'TEXT':	return ftiText; break; // this is correct; do not change to ftiData
 		default:		return ftiAny; break;

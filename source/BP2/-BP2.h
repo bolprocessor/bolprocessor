@@ -253,6 +253,7 @@ Hey: this code is not portable!!!
 
 #define	kBPPrefsFolder	"\pBol Processor"
 #define	kBPSeStartup	"\p-se.startup"
+#define	kBPMdStartup	"\p-md.startup"
 #define	kBPStartupScript	"\p+sc.startup"
 #define	kBPShutdownScript	"\p+sc.shutdown"
 #define	kBPTempFile		"\pBP2.temp"
@@ -648,6 +649,7 @@ Hey: this code is not portable!!!
 #define iObjects 26
 #define iWeights 14
 #define iDecisions 15	// added but not really in use, yet - akozar 031407
+#define iMidiDriver 17
 #define iMIDIfile 24
 #define iSettings 25
 
@@ -671,10 +673,11 @@ typedef enum {
 	ftiTimeBase = 15,
 	ftiCsoundInstruments = 16,
 	ftiMIDIorchestra = 17,
-	ftiHTML = 18
+	ftiHTML = 18,
+	ftiMidiDriver = 19
 } FileTypeIndex;
 
-#define MAXFILETYPEINDEX	19
+#define MAXFILETYPEINDEX	20
 
 // Menu indexes
 #define appleM			0

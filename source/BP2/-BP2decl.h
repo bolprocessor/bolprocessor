@@ -345,7 +345,7 @@ extern float MIDIfadeOut;
 extern int CurrentVolume[MAXCHAN+1];
 extern char FilePrefix[WMAX][5];
 extern char FileExtension[WMAX][6];
-extern char DocumentTypeName[WMAX][18];
+extern char DocumentTypeName[WMAX][21];
 extern char DeftName[WMAX][MAXNAME];
 extern char WindowName[WMAX][MAXNAME];
 extern long WindowParID[WMAX],ParIDstartup,ParIDbp2;
