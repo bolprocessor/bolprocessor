@@ -95,6 +95,8 @@ RegisterMidiDrivers(oms);
 if(SetDriver() != OK) goto END;
 #endif
 
+LoadMidiDriverStartup();
+
 ResetTicks(TRUE,TRUE,ZERO,0);
 
 #if !WASTE
