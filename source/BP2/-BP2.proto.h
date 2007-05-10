@@ -135,8 +135,9 @@ int SendToDriver(Milliseconds,int,int*,MIDI_Event*);
 int CaptureMidiEvent(Milliseconds time,int nseq,MIDI_Event *p_e);
 void RegisterProgramChange(MIDI_Event *p_e);
 
+int LoadMidiDriverStartup();
 int LoadMidiDriverSettings();
-int ReadMidiDriverSettings(short refnum);
+int ReadMidiDriverSettings(short refnum, FSSpec* spec);
 int SaveMidiDriverStartup();
 int SaveMidiDriverSettings();
 int WriteMidiDriverSettings(short refnum, FSSpec* spec);

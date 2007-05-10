@@ -104,7 +104,7 @@ CMListData**		CMOutputListData = NULL;
 
 const unsigned long	MAXENDPOINTNAME = 128;	// this is our own max; no guarantees from CoreMIDI!
 const unsigned long	SUFFIXSIZE = 10;
-const char			OfflineSuffix[SUFFIXSIZE] = " (offline)";
+const char			OfflineSuffix[SUFFIXSIZE+1] = " (offline)";
 
 OSStatus CMCreateAndInitQueue();
 OSStatus CMResizeQueue();
@@ -118,22 +118,35 @@ void CMReadCallback(const MIDIPacketList* pktlist, void* readProcRefCon, void* s
 int  CMAddEventToQueue(const MIDIPacket* pkt);
 int  CMRemoveEventFromQueue(MIDI_Event* p_e);
 
+void ResizeListBox(ListHandle list, long numRows);
 CMListData** NewListDataHandle(ListHandle list, Size entriesSize);
 void MarkAllOffline(CMListData* ld);
+void MarkAllNotSelected(CMListData* ld);
 CMListEntry* FindListEntryByID(CMListData* ld, MIDIUniqueID id);
 CMListEntry* FindListEntryByName(CMListData* ld, char* endname);
 CMListEntry* FindListEntryByRef(CMListData* ld, MIDIEndpointRef endpt);
 int  GetNewListEntry(CMListData* ld, CMListEntry** p_entryptr);
+int  InitNewListEntry(CMListData* ld, CMListEntry** p_entryptr, MIDIEndpointRef endpt, MIDIUniqueID endID, 
+                        char* endname, Boolean selected, Boolean offline);
 int  CompareEntryNames(const CMListEntry* a, const CMListEntry* b);
 void ResizeListBox(ListHandle list, long numRows);
 int  UpdateListBoxEntries(CMListData** ldh, ItemCount (*countFunc)(void), MIDIEndpointRef (*getEndpointFunc)(ItemCount));
 int  SelectListBoxItem(CMListData** ldh, Size itemnumber);
 int  GetListBoxSelection(CMListData** ldh);
+int  SetListBoxContentsAndSelection(CMListData** ldh);
 int  UpdateCMSettingsListBoxes();
 int  UpdateActiveEndpoints(CMListData** ldh, MIDIEndpointRef** endpoints, Size* epArraySize, Boolean* status);
 
+/* Increment SETTINGS_FILE_VERSION for each change to the CoreMIDI settings file format.
+   Change OLDEST_COMPATIBLE_VERSION to the current version whenever making an incompatible change.
+   Compatible changes including adding extra fields to the end of the file or reinterpreting
+   an existing field but continuing to write that field in a way that older versions will understand */
+const int	SETTINGS_FILE_VERSION = 1;	 // the current version of the CoreMIDI settings file format
+const int	OLDEST_COMPATIBLE_VERSION = 1; // the oldest version of the format that the current version is compatible with
+
 int WriteActiveEndpoints(CMListData** ldh, short refnum);
 int WriteCoreMIDISettings(short refnum);
+int ReadActiveEndpoints(CMListData** ldh, short refnum, long* pos);
 int ReadCoreMIDISettings(short refnum, long* pos);
 
 /*  Returns whether the CoreMIDI driver is on */
@@ -407,6 +420,8 @@ static OSStatus CMDisconnectFromSources(MIDIEndpointRef* endpoints)
 	return anyerr;
 }
 
+/* This callback seems to always be called in our main thread (via GetNextEvent),
+   so I do not think that it is a synchronization risk. */
 static void CMNotifyCallback(const MIDINotification *message, void *refCon)
 {
 	if (message->messageID == kMIDIMsgSetupChanged)
@@ -812,6 +827,18 @@ static void	MarkAllOffline(CMListData* ld)
 	return;
 }
 
+static void	MarkAllNotSelected(CMListData* ld)
+{
+	int i;
+	CMListEntry* ep = *(ld->entries);
+	
+	// clear all selected flags
+	for (i = 0; i < ld->numEntries; ++i, ++ep)
+		ep->selected = FALSE;
+	
+	return;
+}
+
 static CMListEntry* FindListEntryByID(CMListData* ld, MIDIUniqueID id)
 {
 	int i;
@@ -848,7 +875,8 @@ static CMListEntry* FindListEntryByRef(CMListData* ld, MIDIEndpointRef endpt)
 }
 
 /* Warning: this function may temporarily unlock ld->entries if it is locked
-   so that it can resize it; therefore, the address of ld->entries may change! */
+   so that it can resize it; therefore, the address of ld->entries may change! 
+   (ld should be locked since this function allocates memory) */
 static int GetNewListEntry(CMListData* ld, CMListEntry** p_entryptr)
 {
 	if (ld->numEntries < ld->entriesSize) {
@@ -872,6 +900,36 @@ static int GetNewListEntry(CMListData* ld, CMListEntry** p_entryptr)
 	}
 }
 
+/* Calls GetNewListEntry() and then sets the values for the new entry record.
+   Maintains numEntries if a failure occurs.  See caveats for GetNewListEntry() above. 
+   (ld should be locked since this function allocates memory) */
+static int InitNewListEntry(CMListData* ld, CMListEntry** p_entryptr, MIDIEndpointRef endpt, MIDIUniqueID endID, 
+                            char* endname, Boolean selected, Boolean offline)
+{
+	int result;
+	CMListEntry* entry;
+	
+	// Note: address of ld->entries may change with this call
+	result = GetNewListEntry(ld, &entry);
+	if (result != OK) return result;
+	
+	// fill in the entry's data
+	entry->endpoint = endpt;
+	entry->id = endID;
+	entry->name = (char**) GiveSpace(strlen(endname)+1);
+	if (entry->name == NULL) {
+		ld->numEntries--;
+		return FAILED;
+	}
+	strcpy(*(entry->name), endname);
+	entry->selected = selected;
+	entry->offline = offline;
+	// entry->stillexists = TRUE;
+	
+	*p_entryptr = entry;
+	return OK;
+}
+
 static int CompareEntryNames(const CMListEntry* a, const CMListEntry* b)
 {
 	return strcmp(*(a->name), *(b->name));
@@ -888,7 +946,6 @@ static int UpdateListBoxEntries(CMListData** ldh, ItemCount (*countFunc)(void), 
 	MIDIUniqueID    endID;
 	ItemCount count, index;
 	char endname[MAXENDPOINTNAME];
-	Cell cellnum;
 	CMListEntry* entry;
 	
 	if (ldh == NULL)  {
@@ -944,23 +1001,9 @@ static int UpdateListBoxEntries(CMListData** ldh, ItemCount (*countFunc)(void), 
 			
 			// create new entry if no match
 			if (entry == NULL)  {
-				// Note: address of entries may change with this call
-				result = GetNewListEntry(ld, &entry);
+				// Note: address of ld->entries may change with this call
+				result = InitNewListEntry(ld, &entry, endpt, endID, endname, FALSE, FALSE);
 				if (result != OK) goto EXITNOW;
-				
-				// fill in the entry's data
-				entry->endpoint = endpt;
-				entry->id = endID;
-				entry->name = (char**) GiveSpace(strlen(endname)+1);
-				if (entry->name == NULL) {
-					ld->numEntries--;
-					result = FAILED;
-					goto EXITNOW;
-				}
-				strcpy(*(entry->name), endname);
-				entry->selected = FALSE;
-				entry->offline = FALSE;
-				// entry->stillexists = TRUE;
 			}
 			else {
 				entry->offline = FALSE;		// mark matching entry as online
@@ -970,25 +1013,10 @@ static int UpdateListBoxEntries(CMListData** ldh, ItemCount (*countFunc)(void), 
 		else if (Beta) Alert1("Err. UpdateListBox():  getEndpointFunc() returned NULL.");
 	}
 	
-	// sort the entries
-	qsort(*(ld->entries), ld->numEntries, sizeof(CMListEntry), (CompareFuncType)CompareEntryNames);
-	
-	ResizeListBox(ld->list, ld->numEntries);
-	// set text and selected status for each list box entry
-	{	char entryname[MAXENDPOINTNAME+SUFFIXSIZE];
-		entry = *(ld->entries);
-		for (index = 0; index < ld->numEntries; ++index) {
-			SetPt(&cellnum, 0, index);
-			if ((result = MyLock(FALSE, (Handle)entry->name)) != OK) goto EXITNOW;
-			strcpy(entryname, *(entry->name));
-			if (entry->offline) strcat(entryname, OfflineSuffix);
-			LSetCell(entryname, strlen(entryname), cellnum, ld->list);
-			LSetSelect(entry->selected, cellnum, ld->list);
-			MyUnlock((Handle)entry->name);
-			++entry;
-		}
-	}
-	result = OK;
+	MyUnlock((Handle)ld->entries);
+	MyUnlock((Handle)ldh);
+	result = SetListBoxContentsAndSelection(ldh);
+	return result;
 	
 EXITNOW:
 	MyUnlock((Handle)ld->entries);
@@ -1000,8 +1028,6 @@ EXITNOW:
    status of other items */
 int SelectListBoxItem(CMListData** ldh, Size itemnumber)
 {
-	OSStatus err;
-	int result;
 	Cell selection;
 
 	// set the list selection
@@ -1021,7 +1047,6 @@ int SelectListBoxItem(CMListData** ldh, Size itemnumber)
 	
 int GetListBoxSelection(CMListData** ldh)
 {
-	OSStatus err;
 	int result;
 	CMListData* ld;
 	CMListEntry* entry;
@@ -1052,21 +1077,60 @@ EXITNOW:
 	return result;
 }
 
+/* Sorts the entries, resizes the list box, and then fills the box with entry names,
+   marking their selection status.  */
+static int SetListBoxContentsAndSelection(CMListData** ldh)
+{
+	int result;
+	CMListData* ld;
+	CMListEntry* entry;
+	Size index;
+	Cell cellnum;
+
+	if (ldh == NULL)  {
+		if(Beta) Alert1("Err. SetListBoxContentsAndSelection(): ldh is NULL");
+		return (FAILED);
+	}
+	if ((result = MyLock(FALSE, (Handle)ldh)) != OK)  return result;
+	ld = *ldh;
+	if ((result = MyLock(FALSE, (Handle)ld->entries)) != OK) {
+		MyUnlock((Handle)ldh);
+		return result;
+	}
+	
+	// sort the entries
+	qsort(*(ld->entries), ld->numEntries, sizeof(CMListEntry), (CompareFuncType)CompareEntryNames);
+	
+	ResizeListBox(ld->list, ld->numEntries);
+	// set text and selected status for each list box entry
+	{	char entryname[MAXENDPOINTNAME+SUFFIXSIZE];
+		entry = *(ld->entries);
+		for (index = 0; index < ld->numEntries; ++index) {
+			SetPt(&cellnum, 0, index);
+			if ((result = MyLock(FALSE, (Handle)entry->name)) != OK) goto EXITNOW;
+			strcpy(entryname, *(entry->name));
+			if (entry->offline) strcat(entryname, OfflineSuffix);
+			LSetCell(entryname, strlen(entryname), cellnum, ld->list);
+			LSetSelect(entry->selected, cellnum, ld->list);
+			MyUnlock((Handle)entry->name);
+			++entry;
+		}
+	}
+
+	result = OK;
+	
+EXITNOW:
+	MyUnlock((Handle)ld->entries);
+	MyUnlock((Handle)ldh);
+	return result;
+}
+
 int UpdateCMSettingsListBoxes()
 {
 	OSStatus err;
 	int result;	
-	ListHandle	inputLH, outputLH;
-	ControlRef	cntl;
 	
 	if (CMSettings == NULL) return (FAILED);
-	
-	// get list handles
-	GetDialogItemAsControl(CMSettings, diInputList, &cntl);
-	GetControlData(cntl, kControlEntireControl, kControlListBoxListHandleTag, sizeof(inputLH), &inputLH, NULL);
-	
-	GetDialogItemAsControl(CMSettings, diOutputList, &cntl);
-	GetControlData(cntl, kControlEntireControl, kControlListBoxListHandleTag, sizeof(outputLH), &outputLH, NULL);
 	
 	// save list selections
 	result = GetListBoxSelection(CMInputListData);
@@ -1139,10 +1203,8 @@ static int UpdateActiveEndpoints(CMListData** ldh, MIDIEndpointRef** endpoints, 
 
 static int WriteActiveEndpoints(CMListData** ldh, short refnum)
 {
-	OSStatus err;
 	int result;
-	Size	index, newsize, numSelected, numEntries;
-	MIDIEndpointRef*	ep;
+	Size	index, numSelected, numEntries;
 	CMListEntry*	entry;
 	char			line[32];	// only used for writing numbers
 	
@@ -1179,10 +1241,20 @@ static int WriteActiveEndpoints(CMListData** ldh, short refnum)
 
 int WriteCoreMIDISettings(short refnum)
 {
-	int result;
+	int  result;
+	char line[32];	// only used for writing numbers
 	
-	// write general settings first (none of these are implemented yet)
-	WriteToFile(NO,MAC,"1",refnum);	// MIDI Thru
+	/**** IF YOU CHANGE ANY PART OF THE FILE FORMAT, CHANGE THE VERSION CONSTANTS ABOVE ****/
+	
+	// write version numbers
+	sprintf(line, "%d", SETTINGS_FILE_VERSION);
+	WriteToFile(NO,MAC,line,refnum);
+	sprintf(line, "%d", OLDEST_COMPATIBLE_VERSION);
+	WriteToFile(NO,MAC,line,refnum);
+
+	// write general settings next (none of these are implemented yet)
+	sprintf(line, "%d", (int)CMMidiThruOn);
+	WriteToFile(NO,MAC,line,refnum);	// MIDI Thru
 	WriteToFile(NO,MAC,"0",refnum);	// Create virtual input
 	WriteToFile(NO,MAC,"0",refnum);	// Create virtual output
 	WriteToFile(NO,MAC,"0",refnum);	// Reserved 1
@@ -1197,17 +1269,96 @@ int WriteCoreMIDISettings(short refnum)
 	return OK;
 }
 
+static int ReadActiveEndpoints(CMListData** ldh, short refnum, long* pos)
+{
+	int  result, rep;
+	long i, endID, epcount;
+	char **p_line, **nameStrHandle;
+	CMListEntry* matchingEntry = NULL;
+	
+	p_line = nameStrHandle = NULL;
+	result = FAILED;
+	
+	// read the number of endpoints
+	if (ReadLong(refnum, &epcount, pos) == FAILED) return FAILED;
+	
+	if (MyLock(FALSE, (Handle)ldh) != OK) return FAILED;
+	MarkAllNotSelected(*ldh);
+	
+	// read each endpoint id & name pair
+	for (i = 0; i < epcount; ++i) {
+		if (ReadLong(refnum, &endID, pos) == FAILED) goto ERR;
+		if (ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&nameStrHandle,pos) == FAILED) goto ERR;
+		// try to match values to an existing list entry
+		matchingEntry = FindListEntryByID(*ldh, endID);
+		if (matchingEntry == NULL)  matchingEntry = FindListEntryByName(*ldh, *nameStrHandle);
+		if (matchingEntry == NULL)  {
+			// if there is no match, create a new entry that is selected and offline
+			// Note: address of (*ldh)->entries may change with this call
+			rep = InitNewListEntry(*ldh, &matchingEntry, NULL, endID, *nameStrHandle, TRUE, TRUE);
+			if (rep != OK) goto ERR;
+			
+		}
+		else {
+			matchingEntry->selected = TRUE;	// mark matching entry as selected
+		}
+	}
+	
+	result = OK;
+ERR:
+	MyUnlock((Handle)ldh);
+	MyDisposeHandle((Handle*)&p_line);
+	MyDisposeHandle((Handle*)&nameStrHandle);
+	return result;
+}
+
 int ReadCoreMIDISettings(short refnum, long* pos)
 {
-	int dummy;
+	OSErr err;
+	int   dummy;
+	int   value, result;
 	
-	// read general settings first (none of these are implemented yet)
-	if (ReadInteger(refnum, &dummy, pos) == FAILED) return (FAILED);		// MIDI Thru
+	// read and check the file's version numbers
+	if (ReadInteger(refnum, &value, pos) == FAILED) return (FAILED);		// file version
+	// sanity check
+	if (value < 1) return (FAILED);	
+	// if code below is incapable of reading versions older than OLDEST_COMPATIBLE_VERSION
+	// then we should check that file version is not less than that version
+	// if (value < OLDEST_COMPATIBLE_VERSION) return (FAILED);
+	if (ReadInteger(refnum, &value, pos) == FAILED) return (FAILED);		// compatible version
+	if (value > SETTINGS_FILE_VERSION) return (FAILED);				// file is incompatible
+	
+	// read general settings next (none of these are implemented yet)
+	if (ReadInteger(refnum, &value, pos) == FAILED) return (FAILED);		// MIDI Thru
+	// CMMidiThruOn = (value != 0);
 	if (ReadInteger(refnum, &dummy, pos) == FAILED) return (FAILED);		// Create virtual input
 	if (ReadInteger(refnum, &dummy, pos) == FAILED) return (FAILED);		// Create virtual output
 	if (ReadInteger(refnum, &dummy, pos) == FAILED) return (FAILED);		// Reserved 1
 	if (ReadInteger(refnum, &dummy, pos) == FAILED) return (FAILED);		// Reserved 2
 	if (ReadInteger(refnum, &dummy, pos) == FAILED) return (FAILED);		// Reserved 3
 	
+	// read information for MIDI sources
+	result = ReadActiveEndpoints(CMInputListData, refnum, pos);
+	if (result != OK) return result;
+	
+	// update sources
+	result = SetListBoxContentsAndSelection(CMInputListData);
+	if (result != OK) return result;
+	err = CMDisconnectFromSources(CMActiveSources);  // err result is not fatal
+	result = UpdateActiveEndpoints(CMInputListData, &CMActiveSources, &CMActiveSourcesSize, &CoreMidiInputOn);
+	if (result != OK) return result;
+	err = CMConnectToSources(CMActiveSources, true); // err result is not fatal
+
+	// read information for MIDI destinations
+	result = ReadActiveEndpoints(CMOutputListData, refnum, pos);
+	if (result != OK) return result;
+	
+	// update destinations
+	result = SetListBoxContentsAndSelection(CMOutputListData);
+	if (result != OK) return result;
+	result = UpdateActiveEndpoints(CMOutputListData, &CMActiveDestinations, &CMActiveDestinationsSize, &CoreMidiOutputOn);
+	if (result != OK) return result;
+	
+	DrawDialog(CMSettings);
 	return OK;
 }

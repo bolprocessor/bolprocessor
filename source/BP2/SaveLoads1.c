@@ -1886,7 +1886,7 @@ QUIT:
 MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 if(FSClose(refnum) != noErr) {
 	sprintf(Message,"Error closing ‘%s’ settings file…",filename);
-	result = FAILED;
+	result = FAILED;	// FIXME: does this really require failure?
 	}
 if(result == OK) {
 	SetName(iSettings,TRUE,manual && !startup);
@@ -2529,6 +2529,15 @@ static OSErr GetMidiDriverStartupSpec(FSSpecPtr spec, Boolean saving)
 	return err;
 }
 
+static void RememberMdFile(FSSpecPtr spec)
+{
+	p2cstrcpy(FileName[iMidiDriver], spec->name);
+	TellOthersMyName(iMidiDriver);
+	TheVRefNum[iMidiDriver] = spec->vRefNum;
+	WindowParID[iMidiDriver] = spec->parID;
+	return;
+}
+
 int LoadMidiDriverStartup()
 {
 	OSErr	err;
@@ -2545,7 +2554,7 @@ int LoadMidiDriverStartup()
 		return (FAILED);
 	}
 	
-	result = ReadMidiDriverSettings(refnum);
+	result = ReadMidiDriverSettings(refnum, &mdStartup);
 	if (result != OK) ShowMessage(TRUE, wMessage, "Error reading '-md.startup' file.");
 	return result; 
 }
@@ -2558,7 +2567,6 @@ int LoadMidiDriverSettings()
 	FSSpec	mdfile;
 	char		cname[64];	// size of FSSpec.name
 	
-	char * temp = DocumentTypeName[iMidiDriver];
 	sprintf(Message, "Select a %s file…", DocumentTypeName[iMidiDriver]);
 	ShowMessage(TRUE,wMessage,Message);
 	result = OldFile(wUnknown, ftiMidiDriver, PascalLine, &mdfile);
@@ -2573,19 +2581,60 @@ int LoadMidiDriverSettings()
 		return (FAILED);
 	}
 	
-	result = ReadMidiDriverSettings(refnum);
-	if (result != OK) {
+	result = ReadMidiDriverSettings(refnum, &mdfile);
+	if (result == OK) RememberMdFile(&mdfile);
+	else {
 		p2cstrcpy(cname, mdfile.name);
 		sprintf(Message,"Error reading the file '%s'.", cname);
 		Alert1(Message);
 		return (FAILED);
 	}
+	
 	return result; 
 }
 
-int ReadMidiDriverSettings(short refnum)
+extern int ReadCoreMIDISettings(short refnum, long* pos);
+
+int ReadMidiDriverSettings(short refnum, FSSpec* spec)
 {
-	return OK;
+	int  iv, result;
+	long pos;
+	char **p_line,**p_completeline;
+	// char cname[64]; // size of FSSpec.name
+	
+	p_line = p_completeline = NULL;
+	pos = ZERO;
+	PleaseWait();
+	LoadOn++;
+	
+	result = FAILED;
+	// read BP version comment
+	if (ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+	// for now, CoreMIDI driver checks its own version number
+	// p2cstrcpy(cname, spec->name);
+	// if (CheckVersion(&iv, p_line, cname) != OK) goto ERR;
+	// read "File saved as ..." & date comment
+	if (ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+
+	// read the name of the driver
+	if (ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+	// call the driver's own read settings function
+#if BP_MACHO
+	if (p_completeline != NULL && strcmp(*p_completeline, "CoreMIDI") == 0) {
+		result = ReadCoreMIDISettings(refnum, &pos);
+	}
+#endif
+	
+ERR:
+	MyDisposeHandle((Handle*)&p_line);
+	MyDisposeHandle((Handle*)&p_completeline);
+	if (FSClose(refnum) != noErr && Beta) {
+		Alert1("Error closing Midi driver settings file.");
+	}
+	LoadOn--;
+	StopWait();
+	
+	return result;
 }
 
 int SaveMidiDriverStartup()
@@ -2640,11 +2689,8 @@ int SaveMidiDriverSettings()
 			io = WriteMidiDriverSettings(refnum, &(reply.sfFile));
 			if (io == OK) {
 				reply.saveCompleted = true;
-				p2cstrcpy(FileName[iMidiDriver], fn);
-				TellOthersMyName(iMidiDriver);
-				TheVRefNum[iMidiDriver] = reply.sfFile.vRefNum;
-				WindowParID[iMidiDriver] = reply.sfFile.parID;
-				sprintf(Message,"Successfully saved ‘%s’", defaultname);
+				RememberMdFile(&(reply.sfFile));
+				sprintf(Message,"Successfully saved ‘%s’", FileName[iMidiDriver]);
 				ShowMessage(TRUE,wMessage,Message);
 			}
 			else {

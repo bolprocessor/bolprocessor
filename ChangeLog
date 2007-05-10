@@ -1,3 +1,16 @@
+2007-05-10	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/CoreMIDIdriver.c:
+	* source/BP2/SaveLoads1.c:
+		Finished implementing reading of CoreMIDI settings from -md files.
+		Added version numbers to CoreMIDI settings files.
+		Fixed incorrect size of OfflineSuffix[].
+		Set default value of CMMidiThruOn to false.
+		
+	* source/BP2/BP2main.c (main):
+		Call LoadMidiDriverStartup() to load -md.startup after initing driver.
+	
 2007-05-09	Anthony Kozar	<anthonykozar@sbcglobal.net>
 2007-05-08	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
