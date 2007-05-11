@@ -410,7 +410,7 @@ pascal OSErr WECopy(WEHandle hWE)
 #if WASTE_OBJECTS
 	if (hObjectDesc != NULL)
 	{
-		if ((err = _WEStreamObject(weToScrap, &d[0].descriptorType, &d[0].dataHandle,
+		if ((err = _WEStreamObject(weToScrap, &d[0].descriptorType, (Handle*)&d[0].dataHandle,	// added (Handle*) - akozar
 					&disposeData, hObjectDesc)) != noErr)
 			goto cleanup;
 	}
