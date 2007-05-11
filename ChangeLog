@@ -1,3 +1,16 @@
+2007-05-11	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/SaveLoads3.c (NewFile & OldFile):
+		Removed #ifdefs for Carbon and Standard File Package code so that 
+			NavServWrapper code is always used in all builds.
+	
+	* source/BP2/NavServWrapper.c (NSWGetFile & NSWPutFile):
+		Finished the backwards-compatible support for using StdFilePkg
+			when Nav Serv. is not available. (non-Carbon only)
+	
+	* source/prefix/PrefixTransWASTE.h:
+		#defines for turning off unneeded WASTE features.
+
 2007-05-10	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/-BP2.proto.h:

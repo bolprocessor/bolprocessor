@@ -480,10 +480,9 @@ NewFile(int w, int type, Str255 fn, NSWReply *p_reply)
 		io = FSpOpenDF(&spec,fsRdPerm,&refnum);
 		if(io == noErr) FSClose(refnum); 
 		} */
-#if TARGET_API_MAC_CARBON
 	NSWOptionsInit(&opts);
 	opts.appName = "\pBol Processor";
-	opts.prompt  = "\pSave File As:";
+	opts.prompt  = "\pSave file as:";
 	if (CanSaveMultipleFormats(w)) {
 		formatItems = (NavMenuItemSpecArrayHandle) GiveSpace(1);
 		if (MakeFormatMenuItems(type, &formatItems) != OK) {
@@ -502,9 +501,6 @@ NewFile(int w, int type, Str255 fn, NSWReply *p_reply)
 	if (io != noErr) {
 		return(FAILED);
 	}
-#else
-	StandardPutFile("\pSave File As:", fn, (StandardFileReply*)p_reply);
-#endif
 	if(p_reply->sfGood) {
 		CopyPString(p_reply->sfFile.name,fn);
 		return(OK);
@@ -534,8 +530,6 @@ OldFile(int w,int type,Str255 fn,FSSpec *p_spec)
 
 	SetCursor(GetQDGlobalsArrow(&arrow));
 	FillTypeList(type, typelist, &numtypes);
-
-#if TARGET_API_MAC_CARBON
 	err = NSWInitReply(&reply);
 	NSWOptionsInit(&opts);
 	opts.appName = "\pBol Processor";
@@ -545,10 +539,6 @@ OldFile(int w,int type,Str255 fn,FSSpec *p_spec)
 	AlertOn = FALSE;
 	err2 = NSWCleanupReply(&reply);
 	if  (err != noErr)  return (FAILED);
-#else
-	StandardGetFile(NULL ,numtypes, typelist, (StandardFileReply*)&reply);
-#endif
-
 	if(reply.sfGood) {
 		(*p_spec) = reply.sfFile;
 		if(w >= 0 && w < WMAX) {

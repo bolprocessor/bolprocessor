@@ -10,6 +10,10 @@
 	November 27, 2006
  */
 
+#if !TARGET_API_MAC_CARBON
+#  include	<StandardFile.h>
+#endif
+
 #include	"NavServWrapper.h"
 
 /* Bol Processor functions used below --
@@ -154,12 +158,22 @@ OSErr NSWGetFile(NSWReply* reply, OSType creator, short numTypes, OSType typeLis
 	NavTypeListHandle	openList;
 	NavEventUPP		eventUPP;
 
-	if (!IsNavServAvailable())  return -1;	/* FIXME: use StdFile instead */
-	
-	reply->usedNavServices	= true;
 	reply->needCleanup	= false;
 	reply->saveCompleted	= false;
 	
+	/* Nav Serv is guaranteed to be available with Carbon, but we need
+	  to test for its presence in non-Carbon environment. */
+#if !TARGET_API_MAC_CARBON
+	if (!IsNavServAvailable())  {
+		// use StdFilePackage
+		reply->usedNavServices = false;
+		StandardGetFile(NULL, numTypes, typeList, (StandardFileReply*)reply);
+		reply->isStationery = ((reply->sfFlags & kIsStationery) != 0);
+		return noErr;
+	}
+#endif
+	
+	reply->usedNavServices	= true;
 	eventUPP = NewNavEventUPP(SimpleNavServEventProc);
 	err = NavGetDefaultDialogOptions(&dialogOptions);
 	
@@ -246,12 +260,25 @@ OSErr NSWPutFile(NSWReply* reply, OSType creator, OSType fileType, const StringP
 	NavDialogOptions	dialogOptions;
 	NavEventUPP		eventProc;
 	
-	if (!IsNavServAvailable())  return -1;	/* FIXME: use StdFile instead */
-	
-	reply->usedNavServices	= true;
 	reply->needCleanup	= false;
 	reply->saveCompleted	= false;
 	
+	/* Nav Serv is guaranteed to be available with Carbon, but we need
+	  to test for its presence in non-Carbon environment. */
+#if !TARGET_API_MAC_CARBON
+	if (!IsNavServAvailable())  {
+		StringPtr	prompt;
+		// use StdFilePackage
+		reply->usedNavServices = false;
+		if (opts && opts->prompt)  prompt = opts->prompt;
+		else                       prompt = "\pSave file as:";
+		StandardPutFile(prompt, defaultName, (StandardFileReply*)reply);
+		reply->isStationery = false;
+		return noErr;
+	}
+#endif
+		
+	reply->usedNavServices	= true;
 	eventProc = NewNavEventUPP(PutFileEventProc);
 	err = NavGetDefaultDialogOptions(&dialogOptions);
 	dialogOptions.preferenceKey = kDefaultPrefKey;
