@@ -15,3 +15,8 @@
 
 // disable built-in MIDI driver at compile time (not finished yet) - 010507 akozar
 #define USE_BUILT_IN_MIDI_DRIVER 1
+
+// use pre-Appearance edit text boxes
+#define USE_OLD_EDIT_TEXT 1
+
+#define EXPERIMENTAL 1
