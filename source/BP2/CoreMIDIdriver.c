@@ -721,7 +721,7 @@ OSStatus CreateCMSettings()
 		// get list handles
 		GetDialogItemAsControl(CMSettings, diInputList, &cntl);
 		GetControlData(cntl, kControlEntireControl, kControlListBoxListHandleTag, sizeof(inputLH), &inputLH, NULL);
-		// SetKeyboardFocus(GetDialogWindow(CMSettings), cntl, 1);
+		SetKeyboardFocus(GetDialogWindow(CMSettings), cntl, 1);
 		
 		GetDialogItemAsControl(CMSettings, diOutputList, &cntl);
 		GetControlData(cntl, kControlEntireControl, kControlListBoxListHandleTag, sizeof(outputLH), &outputLH, NULL);
