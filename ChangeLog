@@ -1,3 +1,89 @@
+2007-05-22	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-05-21	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-05-17	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-05-16	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-05-15	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* BP2-MacOS.cw8.mcp:
+		Added dlgxs.rsrc to Carbon builds (but not Transitional builds).
+	
+	* source/BP2/Interface2.c (Answer & Alert1):
+		Don't call MainEvent() with AlertOn from here, because it prevents
+			the reactivation of dialogs.  (#if !EXPERIMENTAL for now)
+	
+	* source/BP2/Strings.c (TooLongFileName):  Don't Strip() filenames.
+	
+	* source/BP2/MIDIloads.c (LoadTimePattern):
+		Made sure pattern duration not set to 0 in dialog and that the values
+			are retrieved from edit texts after dismissing dialog so that
+			it does not erroneously report "bad characters".
+		Changed BringToFront() to SelectWindow().
+		
+	* source/BP2/Interface2.c (AnswerWith):
+		Replaced custom event loop with ModalDialog() call.
+		Changed BringToFront() to SelectWindow().
+	
+	* source/prefix/PrefixTransTextEdit.h:
+	* source/prefix/PrefixTransWASTE.h:
+		Added #define USE_OLD_EDIT_TEXT 1 for pre-OS 8 edit text boxes.
+
+	* source/BP2/Interface2.c (SetField):
+		Use GetDialogItemAsControl() instead of GetDialogItem() when building
+			with Appearance-compliant static & edit text controls.  Fixes
+			the text not updating sometimes.  (#if !USE_OLD_EDIT_TEXT).
+		Don't change text selection or deactivate the dialog's TE handle.
+	
+	* source/BP2/Interface2.c (AnswerWith, SetFindReplace):
+	* source/BP2/MIDIloads.c (LoadTimePattern):
+	* source/BP2/Misc.c (SetTempo, SetBufferSize, SetGraphicsSettings, 
+						 SetTimeAccuracy, SetKeyboard, & SetSeed):
+	* source/BP2/Ticks.c (SetTimeBase):
+		Replace direct calls to SetDialogItemText() with our SetField()
+			instead (propagating the fix for text controls).
+		Remove erroneous calls to TESetSelect().
+		
+	* resources/dlgxs.rsrc:
+		New file with dlgx resources. Most dialogs now have Appearance Mngr.
+		features including automatically setting the theme background, 
+		creating an embedding hierarchy, and making all dialog items real 
+		controls.  These features improve the edit text boxes and cause
+		controls to be automagically activated and deactivated with the 
+		window.  Exceptions in our dlgx's include not creating embedding
+		hierarchy for "floating" dialogs so that they will not be deactivated
+		and not using theme background for Prototype7 and Csound Tables.
+	  
+	* source/BP2/BP2main.c (main):
+	* source/BP2/AppleEvents.c (DoHighLevelEvent, GoodEvent, MyHandleOAPP):
+		Made GoodEvent() always return YES so that all Apple events are passed
+			to system handler.  This fixes incompatibility with Default Folder.
+		Suppressed unhandled event error reporting and fixed OAPP event.
+
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+	* source/BP2/Inits.c (Inits):
+		Reversed semantics of FirstTimeAE and renamed it ReceivedOpenAppEvent.
+
+	* source/BP2/CoreMIDIdriver.c (CreateCMSettings):  Set keyboard focus.
+	* resources/CoreMIDISettings.rsrc:  Added dlgx #1000 resource.
+	
+	* BP2 help:
+		Updated "Types-creators" and "Where can I get the latest version..."
+	 
+2007-05-12	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2decl.h:
+	* source/BP2/-BP2main.h:
+		New global WindowUsesThemeBkgd[WMAX] for choosing whether windows get
+			the default dialog background ("pin-stripped" on OS X).
+			
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/Dialogs.c (BPSetDialogAppearance):
+	* source/BP2/Inits.c (MakeWindows):
+		BPSetDialogAppearance() takes an extra parameter controlling whether
+			the dialog gets painted with the default background.
+		MakeWindows() modified so that all dialogs with edit text boxes do
+			not use the default background.
+
 2007-05-11	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/SaveLoads3.c (NewFile & OldFile):
