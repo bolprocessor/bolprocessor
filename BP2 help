@@ -51,6 +51,7 @@ makes them compatible with DOS/Windows.
   -tb       .bptb   BP13    Bel0      Bol Processor BP2 time base
   -cs       .bpcs   BP14    Bel0      Bol Processor BP2 Csound instrument file
   -or       .bpor   BP15    Bel0      Bol Processor BP2 MIDI orchestra file
+  -md       .bpmd   BP16    Bel0      Bol Processor BP2 MIDI driver settings
   <any>     <any>   TEXT    Bel0      BP2 text file 
   <any>     <any>   TEXT    <any>     Any text file
   <none>    .mid    Midi    <any>     MIDI file type 0, 1 or 2 (extension .midi is OK too)
@@ -203,23 +204,16 @@ Assignments are listed as script instructions in the "Interaction" window.
 ¥ The Bol Processor project is now hosted by Sourceforge at 
    <http://bolprocessor.sourceforge.net/>
   You can obtain the latest versions and information from this site.
-¥ Older versions of Bol Processor BP2 may still be available on Info-Mac mirror sites
-   (list available under <ftp://ftp.hawaii.edu/mirrors/info-mac/help/>)
+¥ Older versions of Bol Processor BP2 used to be available on Info-Mac mirror sites.
+  The official info-mac.org site has been retired and most of the mirror sites are no
+  longer available; but you can try the links below which were still available as of
+  May 2007.  For a list of mirrors: <http://www.macmaps.com/imacarchives496.html>
 ¥ A few sites in Europe:
-   <ftp://ftp.uni-stuttgart.de/pub/systems/mac/info-mac/>
-   <ftp://ftp.ibp.fr/pub/mac/info-mac/>
 ¥ In North America:
    <ftp://ftp.agt.net/pub/info-mac/>
-   <http://mirror.apple.com/>
    <http://hyperarchive.lcs.mit.edu/HyperArchive.html>
 ¥ In Africa:
-   <ftp://ftp.is.co.za/info-mac/>
 ¥ In Asia and Pacific:
-   <ftp://ftp.hk.super.net/pub/mirror/info-mac/>
-   <ftp://ftp.center.osaka-u.ac.jp/info-mac/>
-   <http://mirrors.vuw.ac.nz/info-mac/>
-   <ftp://ftp.nus.sg/pub/mac/>
-   <ftp://ftp.hawaii.edu/mirrors/info-mac/gst/midi/>
 ### How do I register for BP2?
 Bol Processor BP2 used to be a shareware product, but is now open source software (a.k.a
 "free software", refering to the freedoms granted to the user, not necessarily the price).
