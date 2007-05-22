@@ -165,9 +165,9 @@ if(eventfound && ((event.what == keyDown && (event.modifiers & cmdKey) != 0)
 		}
 	if(ResetScriptQueue() != OK) goto END;
 	}
-else {
+if (ReceivedOpenAppEvent) {
 NOEVENT:
-	InitOn = FirstTimeAE = FALSE;
+	InitOn = FALSE;
 	if(!MustChangeInput) {
 		if (RunScriptInPrefsOrAppFolder(kBPStartupScript, &startupscript) != OK) goto END;
 		ScriptExecOn = 0;

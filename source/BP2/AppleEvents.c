@@ -58,19 +58,21 @@ if(GoodEvent(p_event)) {
 	io = AEProcessAppleEvent(p_event);
 	if(EventState == EXIT) return(OK);
 	if(AEventOn > 0) AEventOn--;
-	if(io != noErr) TellError(38,io);
+	// if(io != noErr) TellError(38,io); // it's ok if the event was not handled - akozar
 	}
-else return(HandleMySpecialHLEvent(p_event));
+// else return(HandleMySpecialHLEvent(p_event));
 return(OK);
 }
 
 
 GoodEvent(EventRecord *p_event)
 {
-switch(p_event->message) {
+/* must process all events whether we recognize them or not. This is necessary
+   for scripting additions to work and notably Default Folder - akozar */
+/* switch(p_event->message) {
 	case BP2Class:
 	case kCoreEventClass:
-#if !TARGET_API_MAC_CARBON	/* Edition Manager not in Carbon */
+#if !TARGET_API_MAC_CARBON	/* Edition Manager not in Carbon *\/
 	case sectionEventMsgClass:
 #endif
 		break;
@@ -80,7 +82,7 @@ switch((*((AEEventID*) (&(p_event->where))))) {
 	case kAEOpenDocuments:
 	case kAEPrintDocuments:
 	case kAEQuitApplication:
-#if !TARGET_API_MAC_CARBON	/* Edition Manager not in Carbon */
+#if !TARGET_API_MAC_CARBON	/* Edition Manager not in Carbon *\/
 	case sectionReadMsgID:
 	case sectionWriteMsgID:
 	case sectionScrollMsgID:
@@ -108,22 +110,24 @@ switch((*((AEEventID*) (&(p_event->where))))) {
 	case CsoundInstrID:
 		break;
 	case kAEOpenApplication:
-		if(InitOn || FirstTimeAE) {
-			FirstTimeAE = FALSE;
+		if(InitOn || !ReceivedOpenAppEvent) {
+			ReceivedOpenAppEvent = TRUE;
 			return(NO);
 			}
 		break;
 	default: return(NO);
 	}
+ */
 return(YES);
 }
 
-
+#if 0
 HandleMySpecialHLEvent(EventRecord *p_event)
 {
 
 return(OK);
 }
+#endif
 
 
 OSErr MyGotRequiredParams(const AppleEvent *p_event)
@@ -406,6 +410,7 @@ return err;
 
 pascal OSErr MyHandleOAPP(const AppleEvent *p_event, AppleEvent *p_reply,long handlerRefcon)
 {
+ReceivedOpenAppEvent = TRUE;
 return(noErr);
 }
 
