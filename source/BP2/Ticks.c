@@ -561,12 +561,10 @@ else {
 	sprintf(line,"1");
 	Qclock = 1L;
 	}
-GetDialogItem(gpDialogs[wTimeBase],fP,&itemtype,&itemhandle,&r);
-SetDialogItemText(itemhandle,in_place_c2pstr(line));
+SetField(NULL, wTimeBase, fP, line);
 if(Pclock > 0.) sprintf(line,"%.0f",Qclock);
 else sprintf(line,"[no clock]");
-GetDialogItem(gpDialogs[wTimeBase],fQ,&itemtype,&itemhandle,&r);
-SetDialogItemText(itemhandle,in_place_c2pstr(line));
+SetField(NULL, wTimeBase, fQ, line);
 return(OK);
 }
 

@@ -839,11 +839,13 @@ if(ComputeOn || PlaySelectionOn) SndSetSysBeepState(sysBeepDisable);
 if(c == 'Y') r = Alert(YesNoCancel,0L);
 else  r = Alert(NoYesCancel,0L);
 SndSetSysBeepState(sysBeepEnable);
+#if !EXPERIMENTAL
 AlertOn++;
 Interrupted = TRUE;
 if(!EmergencyExit && !InputOn)
 	for(i=0; i < 5; i++) MainEvent();
 AlertOn--;
+#endif
 switch(r) {
 	case dDefault:
 		if(c == 'Y') rep = YES;
@@ -875,42 +877,20 @@ DialogPtr theDialog;
 char c;
 
 StopWait();
-c2pstrcpy(PascalLine, message);
-GetDialogItem(EnterPtr,fMessage,&itemtype,&itemhandle,&r);
-SetDialogItemText(itemhandle,PascalLine);
-TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(EnterPtr));
-c2pstrcpy(PascalLine, defaultvalue);
-GetDialogItem(EnterPtr,fValue,&itemtype,&itemhandle,&r);
-SetDialogItemText(itemhandle,PascalLine);
-TESetSelect(ZERO,63L,GetDialogTextEditHandle(EnterPtr));
-TEActivate(GetDialogTextEditHandle(EnterPtr));
+SetField(EnterPtr, wUnknown, fMessage, message);
+SetField(EnterPtr, wUnknown, fValue, defaultvalue);
+SelectField(EnterPtr, wUnknown, fValue, TRUE);
 
 ShowWindow(GetDialogWindow(EnterPtr));
-BringToFront(GetDialogWindow(EnterPtr));
+SelectWindow(GetDialogWindow(EnterPtr)); // was BringToFront() - akozar 052107
 DrawDialog(EnterPtr);
 HiliteDefault(EnterPtr);
 EnterOn = TRUE;
 Interrupted = TRUE;
 AlertOn++;
-while(TRUE) {
-	eventfound = GetNextEvent(everyEvent,&event);
-	MaintainCursor();
-	TEIdle(GetDialogTextEditHandle(EnterPtr));
-	/* Apparently needed although Think Reference says IsDialogEvent() blinks the caret */
-	if(!IsDialogEvent(&event)) continue;
-	if(!eventfound) continue;
-	if(event.what == keyDown) {
-		c = (char)(event.message & charCodeMask);
-		if(c == '\r' || c == '\3') {	/* Return or Enter */
-			rep = OK; break;
-			}
-		}
-	if(!DialogSelect(&event,&theDialog,&item) || theDialog != EnterPtr) continue;
-	GetDialogItem(theDialog,item,&itemtype,(Handle*)&itemhandle,&r);
-	if(itemtype == editText) continue;
-	if(itemtype != 4) {
-		SysBeep(10); continue;
-		}
+do {
+	MaintainCursor();	// FIXME: this needs to be in an event filter procedure to work
+	ModalDialog(NULL, &item);
 	rep = RESUME;
 	switch(item) {
 		case dEnterCancel:
@@ -918,8 +898,8 @@ while(TRUE) {
 		case dEnterOK:
 			rep = OK; break;
 		}
-	if(rep == OK || rep == ABORT) break;
 	}
+while (rep != OK && rep != ABORT);
 EnterOn = FALSE;
 AlertOn--;
 GetDialogItem(EnterPtr,fValue,&itemtype,&itemhandle,&r);
@@ -962,10 +942,12 @@ Interrupted = TRUE;
 if(Beta && ScriptExecOn)  ShowMessage(TRUE,wMessage,s); // so we don't interrupt scripts - 020907 akozar
 else  NoteAlert(OKAlert,0L);
 if(ComputeOn || PlaySelectionOn) SndSetSysBeepState(sysBeepEnable);
+#if !EXPERIMENTAL
 AlertOn++;
 if(!EmergencyExit && !InputOn && !AEventOn && !InitOn && !ItemCapture && !TickCapture
 		&& EventState == NO) for(i=0; i < 5; i++) MainEvent();
 AlertOn--;
+#endif
 if(!EmergencyExit && !InitOn) UpdateWindow(FALSE,Window[wGraphic]);
 if(!EmergencyExit && !InitOn) UpdateWindow(FALSE,Window[wPrototype1]);
 return(OK);
@@ -1980,23 +1962,13 @@ short itemtype;
 char line[256];
 long p,q;
 
-sprintf(line,"%s",FindString);
-GetDialogItem(gpDialogs[wFindReplace],fFind,&itemtype,
-	(Handle*)&itemhandle,&r);
-SetDialogItemText((Handle)itemhandle,in_place_c2pstr(line));
-TESetSelect(ZERO,63L,GetDialogTextEditHandle(gpDialogs[wFindReplace]));
-sprintf(line,"%s",ReplaceString);
-GetDialogItem(gpDialogs[wFindReplace],fReplace,&itemtype,
-	(Handle*)&itemhandle,&r);
-SetDialogItemText((Handle)itemhandle,in_place_c2pstr(line));
-TESetSelect(ZERO,63L,GetDialogTextEditHandle(gpDialogs[wFindReplace]));
+SetField(NULL, wFindReplace, fFind, FindString);
+SetField(NULL, wFindReplace, fReplace, ReplaceString);
 GetDialogItem(gpDialogs[wFindReplace],dIgnoreCase,&itemtype,
 	(Handle*)&itemhandle,&r);
-/* SetCtlValue(itemhandle,IgnoreCase); */
 SetControlValue(itemhandle,IgnoreCase);
 GetDialogItem(gpDialogs[wFindReplace],dMatchWords,&itemtype,
 	(Handle*)&itemhandle,&r);
-/* SetCtlValue(itemhandle,MatchWords); */
 SetControlValue(itemhandle,MatchWords);
 return(OK);
 }
@@ -2029,6 +2001,7 @@ return(OK);
 
 SetField(DialogPtr ptr,int w,int ifield,char* string)
 {
+OSErr err;
 Rect r;
 Handle itemhandle;
 short itemtype;
@@ -2047,6 +2020,11 @@ else {
 	thedialog = gpDialogs[w];
 	}
 
+#if !USE_OLD_EDIT_TEXT
+  // must get edit text handle this way when it is a real control
+  err = GetDialogItemAsControl(thedialog, (short)ifield, (ControlRef*)&itemhandle);
+  if (err != noErr) return(ABORT);
+#else
 GetDialogItem(thedialog,(short)ifield,&itemtype,&itemhandle,&r);
 if(((itemtype & 127)  != editText && (itemtype & 127)  != statText)
 		|| itemhandle == NULL) {
@@ -2057,10 +2035,15 @@ if(((itemtype & 127)  != editText && (itemtype & 127)  != statText)
 		}
 	return(ABORT);
 	}
+#endif
+if (strlen(string) > 255) {
+	if (Beta)  Alert1("Err SetField(): string is too long");
+	return (ABORT);
+	}
 c2pstrcpy(line,string);
 SetDialogItemText(itemhandle,line);
-SelectDialogItemText(thedialog,ifield,0,0);
-if((itemtype & 127) == statText) TEDeactivate(GetDialogTextEditHandle(thedialog));
+// SelectDialogItemText(thedialog,ifield,0,0); // don't change keyboard focus - akozar 052107
+// if((itemtype & 127) == statText) TEDeactivate(GetDialogTextEditHandle(thedialog)); // we should not mess with Dialog Manager's state? - akozar 051707
 return(DoSystem());
 }
 
@@ -2383,11 +2366,11 @@ SetPortWindowPort(Window[w]);
 PenNormal();
 if(active) {
 	Activate(TEH[w]);
-	if(HasFields[w]) TEDeactivate(GetDialogTextEditHandle(gpDialogs[w]));
+	if(HasFields[w]) TEDeactivate(GetDialogTextEditHandle(gpDialogs[w])); // FIXME: we should not mess with Dialog Manager's state?
 	}
 else {
 	Deactivate(TEH[w]);
-	if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w]));
+	if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w])); // FIXME: we should not mess with Dialog Manager's state?
 	PenPat(GetQDGlobalsGray(&pat));
 	}
 RGBForeColor(&Black);

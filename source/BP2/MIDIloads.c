@@ -268,15 +268,15 @@ HideWindow(Window[wInfo]);
 	} */
 for(i=0; i < 4; i++) MainEvent();
 StopWait();
-GetDialogItem(PatternPtr,fPatternDuration,&itemtype,&itemhandle,&r);
-sprintf(Message,"%ld",(long)im - 1L);
-c2pstrcpy(PascalLine, Message);
-SetDialogItemText(itemhandle, PascalLine);
-/* SetSelect(ZERO,64L,PatternPtr->textH); $$$ works only for DialogPtr */
 d = im - 1;
+if (d < 1)  d = 1;
+sprintf(Message, "%d", d);
+SetField(PatternPtr, wUnknown, fPatternDuration, Message);
+SelectField(PatternPtr, wUnknown, fPatternName, TRUE);
 
 TRY:
-ShowWindow(GetDialogWindow(PatternPtr)); BringToFront(GetDialogWindow(PatternPtr));
+ShowWindow(GetDialogWindow(PatternPtr)); 
+SelectWindow(GetDialogWindow(PatternPtr)); // was BringToFront() - akozar 052107
 GetDialogItem(PatternPtr,fPatternName,&itemtype,&itemhandle,&r);
 GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXNAME,t,name);
@@ -290,21 +290,23 @@ while(TRUE) {
 		case dPatternOK:
 			rep = OK; break;
 		case fPatternName:
-			GetDialogItem(PatternPtr,fPatternName,&itemtype,&itemhandle,&r);
-			GetDialogItemText(itemhandle,t);
-			MyPtoCstr(MAXNAME,t,name);
 			break;
 		case fPatternDuration:
-			GetDialogItem(PatternPtr,fPatternDuration,&itemtype,&itemhandle,&r);
-			GetDialogItemText(itemhandle,t);
-			MyPtoCstr(MAXNAME,t,LineBuff);
-			d = (int) atol(LineBuff);	/* Don't use atoi() because int's could be 4 bytes */
 			break;
 		}
 	if(rep == OK || rep == ABORT) break;
 	}
 HideWindow(GetDialogWindow(PatternPtr));
 if(rep == ABORT) goto END;
+// reading the text boxes was moved from the switch cases above
+// for efficiency and to prevent bug where LineBuff is not changed - akozar 052107
+GetDialogItem(PatternPtr,fPatternName,&itemtype,&itemhandle,&r);
+GetDialogItemText(itemhandle,t);
+MyPtoCstr(MAXNAME,t,name);
+GetDialogItem(PatternPtr,fPatternDuration,&itemtype,&itemhandle,&r);
+GetDialogItemText(itemhandle,t);
+MyPtoCstr(MAXNAME,t,LineBuff);
+d = (int) atol(LineBuff);	/* Don't use atoi() because int's could be 4 bytes */
 if(strlen(name) > 0) {
 	if(!isupper(name[0])) {
 		Alert1("Pattern name is a variable and should start with uppercase character");
@@ -320,17 +322,17 @@ if(strlen(name) > 0) {
 			}
 		}
 	}
-for(i=0; i < strlen(LineBuff); i++) {
+for(i=0; i < strlen(LineBuff); i++) { // FIXME: This check seems unnecessary - akozar
 	c = LineBuff[i];
 	if(!isdigit(c)) {
 		sprintf(Message,
-	"Incorrect digit in duration.\rOnly positive integer allowed.\rCan't accept Ô%cÕ",c);
+		 "Unexpected character Ô%cÕ.\rThe symbolic duration must be a positive integer.",c);
 		Alert1(Message);
 		goto TRY;
 		}
 	}
 if(d <= 0) {
-	Alert1("Incorrect durationÉ");
+	Alert1("The symbolic duration must be a positive integer.");
 	goto TRY;
 	}
 	

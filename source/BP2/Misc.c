@@ -1114,8 +1114,7 @@ else {
 		Simplify((double)INT_MAX,Qclock,floor((double)Pclock/60.),&p,&q);
 	sprintf(line,"%.4f", ((double)p)/q);
 	}
-GetDialogItem(gpDialogs[wMetronom],fTempo,&itemtype,(Handle*)&itemhandle,&r);
-SetDialogItemText((Handle)itemhandle,in_place_c2pstr(line));
+SetField(NULL, wMetronom, fTempo, line);
 
 /* Set smooth or striated */
 if(Nature_of_time == STRIATED) {
@@ -1236,13 +1235,9 @@ short itemtype;
 char line[MAXFIELDCONTENT];
 
 sprintf(line,"%ld",(long)BufferSize / 2L - 1L);
-GetDialogItem(gpDialogs[wBufferSize],fBufferSize,&itemtype,(Handle*)&itemhandle,&r);
-SetDialogItemText((Handle)itemhandle,in_place_c2pstr(line));
-TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wBufferSize]));
+SetField(NULL, wBufferSize, fBufferSize, line);
 sprintf(line,"%ld",(long)DeftBufferSize / 2L - 1L);
-GetDialogItem(gpDialogs[wBufferSize],fDeftBufferSize,&itemtype,(Handle*)&itemhandle,&r);
-SetDialogItemText((Handle)itemhandle,in_place_c2pstr(line));
-TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wBufferSize]));
+SetField(NULL, wBufferSize, fDeftBufferSize, line);
 if(UseBufferLimit) {
 	GetDialogItem(gpDialogs[wBufferSize],dNoSizeLimit,&itemtype,(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,0);
@@ -1310,10 +1305,7 @@ short itemtype;
 char line[MAXFIELDCONTENT];
 
 WriteFloatToLine(line,(double) (GraphicScaleQ * 5.) / (double) GraphicScaleP);
-GetDialogItem(gpDialogs[wGraphicSettings],fGraphicScale,
-	&itemtype,&itemhandle,&r);
-SetDialogItemText(itemhandle,in_place_c2pstr(line));
-TESetSelect(ZERO,63L,GetDialogTextEditHandle(gpDialogs[wGraphicSettings]));
+SetField(NULL, wGraphicSettings, fGraphicScale, line);
 if(StartFromOne) {
 	GetDialogItem(gpDialogs[wGraphicSettings],dZero,&itemtype,&itemhandle,&r);
 	SetControlValue((ControlHandle) itemhandle,0);
@@ -1379,20 +1371,11 @@ short itemtype;
 char line[MAXFIELDCONTENT];
 
 sprintf(line,"%ld",(long)Time_res);
-GetDialogItem(gpDialogs[wTimeAccuracy],fTimeRes,&itemtype,
-	(Handle*)&itemhandle,&r);
-SetDialogItemText((Handle)itemhandle,in_place_c2pstr(line));
-TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wTimeAccuracy]));
+SetField(NULL, wTimeAccuracy, fTimeRes, line);
 sprintf(line,"%ld",(long)Quantization);
-GetDialogItem(gpDialogs[wTimeAccuracy],fQuantize,&itemtype,
-	(Handle*)&itemhandle,&r);
-SetDialogItemText((Handle)itemhandle,in_place_c2pstr(line));
-TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wTimeAccuracy]));
+SetField(NULL, wTimeAccuracy, fQuantize, line);
 sprintf(line,"%ld",(long)SetUpTime);
-GetDialogItem(gpDialogs[wTimeAccuracy],fSetUpTime,&itemtype,
-	(Handle*)&itemhandle,&r);
-SetDialogItemText((Handle)itemhandle,in_place_c2pstr(line));
-TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wTimeAccuracy]));
+SetField(NULL, wTimeAccuracy, fSetUpTime, line);
 if(QuantizeOK) {
 	GetDialogItem(gpDialogs[wTimeAccuracy],dOff,&itemtype,
 		(Handle*)&itemhandle,&r);
@@ -1490,10 +1473,8 @@ for(i=0; i < 52; i++) {
 	if(i < 26) j = i + fA;
 	else j = i - 26 + fa;
 	if((*p_Token)[Key(i,KeyboardType)] != NULL) {
-		GetDialogItem(gpDialogs[wKeyboard],j,&itemtype,&itemhandle,&r);
 		MystrcpyTableToString(MAXFIELDCONTENT,line,p_Token,Key(i,KeyboardType));
-		SetDialogItemText(itemhandle,in_place_c2pstr(line));
-		TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wKeyboard]));
+		SetField(NULL, wKeyboard, j, line);
 		}
 	}
 return(OK);
@@ -1549,24 +1530,22 @@ ResetKeyboard(int quick)
 Rect r;
 Handle itemhandle;
 short itemtype;
-Str255 line;
+char line[2];
 int i,j,c,rep;
 
 if(!quick && (rep=Answer("Suppress all tokens",'N')) != OK) return(rep);
 
 DOIT:
 if(SaveCheck(wKeyboard) == ABORT) return(ABORT);
-line[0] = 1;
+line[1] = '\0';
 for(i=0; i < 52; i++) {
 	if(i <= 25) c = i + 'A';
 	else c = '.';
 	if(i < 26) j = i + fA;
 	else j = i - 26 + fa;
-	GetDialogItem(gpDialogs[wKeyboard],j,&itemtype,&itemhandle,&r);
-	line[1] = c;
-	SetDialogItemText(itemhandle,line);
+	line[0] = c;
+	SetField(NULL, wKeyboard, j, line);
 	}
-TESetSelect(ZERO,ZERO,GetDialogTextEditHandle(gpDialogs[wKeyboard]));
 Dirty[wKeyboard] = FALSE;
 Token = SpaceOn = FALSE;
 SwitchOff(NULL,wKeyboard,dToken);
@@ -2197,9 +2176,7 @@ short itemtype;
 char line[MAXFIELDCONTENT];
 
 sprintf(line,"%.0f",(double) Seed);
-GetDialogItem(gpDialogs[wRandomSequence],fSeed,&itemtype,&itemhandle,&r);
-SetDialogItemText(itemhandle,in_place_c2pstr(line));
-TESetSelect(ZERO,63L,GetDialogTextEditHandle(gpDialogs[wRandomSequence]));
+SetField(NULL, wRandomSequence, fSeed, line);
 return(OK);
 }
 
