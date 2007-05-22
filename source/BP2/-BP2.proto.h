@@ -457,7 +457,7 @@ int ChangeNames(char**);
 int FindGoodIndex(int);
 int DoDialog(EventRecord*);
 int BPUpdateDialog(DialogPtr dp);
-int BPSetDialogAppearance(DialogPtr d);
+int BPSetDialogAppearance(DialogPtr d, Boolean useThemeBackground);
 int CompileGrammar(int);
 int InsertSubgramTypes(void);
 int Renumber(char**,long,long*,int,int,long*,int*);

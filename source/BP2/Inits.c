@@ -137,7 +137,8 @@ InBuiltDriverOn = FALSE;
 
 Nw = 0;
  
-InitOn = NoCursor = FirstTimeAE = NotSaidKpress = TRUE;
+InitOn = NoCursor = NotSaidKpress = TRUE;
+ReceivedOpenAppEvent = FALSE;
 CheckMem = TRUE; EmergencyExit = LowOnMemory = TempMemory = AskedTempMemory
 	= FixedMaxQuantization = FALSE;
 TempMemoryUsed = ZERO;
@@ -848,6 +849,7 @@ OSErr err;
 DialogPtr* miscdialogs[] = { &ResumeStopPtr,&ResumeUndoStopPtr,&MIDIkeyboardPtr,
 	&PatternPtr,&ReplaceCommandPtr,&EnterPtr,&FAQPtr,&SixteenPtr,&FileSavePreferencesPtr,
 	&StrikeModePtr,&TuningPtr,&DefaultPerformanceValuesPtr,&CsoundInstrMorePtr,&MIDIprogramPtr };
+Boolean miscdlgThemed[] = { 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0 };
 
 ReplaceCommandPtr = GetNewDialog(ReplaceCommandID,NULL,0L); // could use kLastWindowOfClass instead of 0L
 ResumeStopPtr = GetNewDialog(ResumeStopID,NULL,0L);
@@ -871,7 +873,7 @@ CsoundInstrMorePtr = GetNewDialog(CsoundInstrMoreID,NULL,0L);
 OMSinoutPtr = GetNewDialog(OMSinoutID,NULL,0L); // always create for now, even when !USE_OMS - 011907 akozar
 MIDIprogramPtr = GetNewDialog(MIDIprogramID,NULL,0L);
 
-for (i = 0; i < 14; ++i)  BPSetDialogAppearance(*(miscdialogs[i]));
+for (i = 0; i < 14; ++i)  BPSetDialogAppearance(*(miscdialogs[i]), miscdlgThemed[i]);
 
 #if BP_MACHO
   err = CreateCMSettings();
@@ -964,7 +966,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 	if(bad) continue;
 	Window[w] = GetDialogWindow(gpDialogs[w]);  /* should probably not duplicate DialogPtrs as WindowPtrs, but may be neccessary for now -- 010907 akozar */
 	SetPortWindowPort(Window[w]);
-	BPSetDialogAppearance(gpDialogs[w]);
+	BPSetDialogAppearance(gpDialogs[w], WindowUsesThemeBkgd[w]);
 	rc = GetWRefCon(GetDialogWindow(gpDialogs[w]));
 	if(rc != 0L) {
 		TextSize(WindowTextSize[w]);

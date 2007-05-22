@@ -324,6 +324,7 @@ extern int Freebottom[WMAX];
 extern short Editable[WMAX],IsHTML[WMAX],IsText[WMAX],Weird[WMAX];
 extern short HasFields[WMAX];
 extern short IsDialog[WMAX];
+extern Boolean WindowUsesThemeBkgd[WMAX];
 extern int FileTypeIndexToWindowFileIndex[MAXFILETYPEINDEX];
 extern short gFileType[WMAX];
 extern char **p_FileInfo[WMAX];
@@ -361,7 +362,7 @@ extern int TickChannel[MAXTICKS],TickKey[MAXTICKS],TickVelocity[MAXTICKS],MuteTi
 extern long ThisTick[MAXTICKS][MAXBEATS];
 extern int InitOn,SetTimeOn,ComputeOn,PolyOn,CompileOn,SoundOn,SelectOn,PrintOn,InputOn,
 	ClickRuleOn,GraphicOn,ReadKeyBoardOn,ButtonOn,PauseOn,AlertOn,AllOn,PlaySelectionOn,
-	PlayPrototypeOn,MIDIfileOn,WaitOn,ExpandOn,FirstTimeAE,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram,
+	PlayPrototypeOn,MIDIfileOn,WaitOn,ExpandOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram,
 	AEventOn,LoadOn,SaveOn,SelectPictureOn,InBuiltDriverOn,EnterOn,Option,EmptyBeat,TickDone,TickThere,
 	FoundNote,NoCursor,ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
 

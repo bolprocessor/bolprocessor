@@ -369,6 +369,8 @@ int Freebottom[] =	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 short Editable[] =	{1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0};
 short HasFields[] =  	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,1,0,0,1,1,1,1,1,1,0,0,1,1,1,0,1}; // Note: HasFields[n] true also assumes IsDialog[n] true
 short IsDialog[] =  	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+Boolean WindowUsesThemeBkgd[] = 
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,1,0,0,0,0,0,0,0,1,0,0,0,0,1};
 
 	// gFileType maps window/file index to a FileTypeIndex
 short gFileType[] =   {5,6,1,1,1,1,1,7,13,0,1,1,14,8,1,1,15,19,1,1,1,2,15,15,11,9,3,1,1,1,1,1,1,1,1,16,1,1,17};
@@ -431,7 +433,7 @@ long ThisTick[MAXTICKS][MAXBEATS];
 int InitOn,SetTimeOn,ComputeOn,PolyOn,SoundOn,SelectOn,PrintOn,InputOn,ClickRuleOn,InBuiltDriverOn,
 	EnterOn,Option,CompileOn,GraphicOn,ReadKeyBoardOn,ButtonOn,LoadOn,SaveOn,PauseOn,AlertOn,AllOn,
 	PlaySelectionOn,PlayPrototypeOn,AEventOn,ExpandOn,SelectPictureOn,EmptyBeat,TickDone,TickThere,
-	FoundNote,NoCursor,MIDIfileOn,WaitOn,FirstTimeAE,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram,
+	FoundNote,NoCursor,MIDIfileOn,WaitOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram,
 	ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
 double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 double MaxFrac;

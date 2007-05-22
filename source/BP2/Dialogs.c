@@ -2673,7 +2673,7 @@ int BPUpdateDialog(DialogPtr dp)
 }
 
 
-int BPSetDialogAppearance(DialogPtr d)
+int BPSetDialogAppearance(DialogPtr d, Boolean useThemeBackground)
 {
 	OSErr err;
 	GrafPtr oldport;
@@ -2696,7 +2696,8 @@ int BPSetDialogAppearance(DialogPtr d)
 			if (err == noErr) SetControlFontStyle(ctrl, &fontstyle);
 		}
 	}
-	SetThemeWindowBackground(GetDialogWindow(d), kThemeBrushDialogBackgroundActive, false);
+	if (useThemeBackground)
+		SetThemeWindowBackground(GetDialogWindow(d), kThemeBrushDialogBackgroundActive, false);
 #endif
 
 	SetPort(oldport);
