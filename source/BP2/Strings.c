@@ -496,7 +496,7 @@ else {
 		}
 	thedialog = gpDialogs[w];
 	}
-Strip(line);
+// Strip(line); // don't strip filenames - akozar
 if(strlen(line) >= MAXNAME) {
 	line[MAXNAME-2] = 'É';
 	line[MAXNAME-1] = '\0';
