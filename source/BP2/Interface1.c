@@ -586,7 +586,7 @@ DOTHECLICK:
 #endif
 			if(p_event->modifiers & activeFlag) {
 				if(Editable[w] && !LockedWindow[w]) Activate(TEH[w]);
-				if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w]));
+				if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w])); // FIXME: Dialog Manager is responsible for this?
 				if(OKvScroll[w]) ShowControl(vScroll[w]);
 				if(OKhScroll[w]) ShowControl(hScroll[w]);
 		/*		DisableMenuItem(myMenus[editM],undoCommand); */
@@ -594,7 +594,7 @@ DOTHECLICK:
 			else {
 				if(w != Nw) {
 					if(Editable[w] && !LockedWindow[w]) Deactivate(TEH[w]);
-					if(HasFields[w]) TEDeactivate(GetDialogTextEditHandle(gpDialogs[w]));
+					if(HasFields[w]) TEDeactivate(GetDialogTextEditHandle(gpDialogs[w])); // FIXME: Dialog Manager is responsible for this?
 					if(OKvScroll[w]) HideControl(vScroll[w]);
 					if(OKhScroll[w]) HideControl(hScroll[w]);
 					}
@@ -1113,7 +1113,7 @@ if(Nw > -1 && Nw < WMAX) {
 		if(Nw != newNw) Deactivate(TEH[Nw]);
 		else Activate(TEH[Nw]);
 		}
-	if(HasFields[Nw]) {
+	if(HasFields[Nw]) { // FIXME: we should not mess with Dialog Manager's state? - akozar 051707
 		if(Nw != newNw) TEDeactivate(GetDialogTextEditHandle(gpDialogs[Nw]));
 		else TEActivate(GetDialogTextEditHandle(gpDialogs[Nw]));
 		}
@@ -1311,7 +1311,7 @@ if(GrafWindow[w]) {
 	GotAlert = FALSE;
 	}
 
-if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w]));
+if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w])); // FIXME: we should not mess with Dialog Manager's state?
 if(!Editable[w]) return(OK);
 Activate(TEH[w]);
 if(!OKvScroll[w]) return(OK);
