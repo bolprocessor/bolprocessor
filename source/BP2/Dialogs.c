@@ -53,32 +53,33 @@ DoDialog(EventRecord *p_event)
 DialogPtr thedialog;
 WindowPtr thewindow;
 int i,ip,j,jj,improvizemem,stepProducemem,displayProducemem,traceProducemem,rs,
-	w,rep,rep2,rep3,loadgrammar,rtn,showgraphic,noconstraint,showmessages,doneit,
-	displaytimeset,vmin,vmax,changedtick,movebar,diff,oldcycle,hit,longerCsound,
-	channel,changed;
+	w,rep,rep2,loadgrammar,rtn,showgraphic,noconstraint,showmessages,doneit,
+	displaytimeset,vmin,vmax,changedtick,diff,oldcycle,hit,longerCsound,
+	changed;
 short itemHit,itemtype,nature_time;
-long pos;
 double dur;
 Str255 t;
-Rect r,r1;
+Rect r;
 ControlHandle itemhandle;
-char line[MAXFIELDCONTENT],c,**h,key;
+char line[MAXFIELDCONTENT],c,**h;//, key;
 unsigned long pclock,qclock;
-long p,q,im;
+long p,q;
 Point point;
 Handle ptr;
-OSErr io;
 MIDI_Event e;
 
 longerCsound = 0;
 
 /* Trap ÔreturnÕ */
-rtn = movebar = FALSE;
+rtn = FALSE;
 
 if(p_event->what == keyDown) {
-	FindWindow(p_event->where,&thewindow);
+	/* Does not matter where mouse cursor is; key events should 
+	   always go to the active window - akozar 052307 */
+	// FindWindow(p_event->where,&thewindow);
+	thewindow = FrontWindow();
 	thedialog = GetDialogFromWindow(thewindow);
-	if(Nw == wFindReplace && thedialog != gpDialogs[wFindReplace]) {
+	if(Nw == wFindReplace && thedialog != gpDialogs[wFindReplace]) { // FIXME ??
 		thedialog = gpDialogs[wFindReplace];
 		thewindow = GetDialogWindow(thedialog);
 		SelectWindow(thewindow);
@@ -90,12 +91,12 @@ if(p_event->what == keyDown) {
 			}
 		}
 	c = (char)(p_event->message & charCodeMask);
-	key = (char)(p_event->message & keyCodeMask) >> 8; 
+	// key = (char)(p_event->message & keyCodeMask) >> 8; 
 	if(c == '\r' || c == '\3') {	/* Return or Enter */
 		if(w >= 0 && w < WMAX && Editable[w]
 				&& w != wTimeBase  && w != wCsoundInstruments)
 			return(AGAIN);  /* Return in editable text */
-		switch(w) {
+		switch(w) { // FIXME ? This switch statement is suspect ...
 			case wTimeBase:
 			case wMetronom:
 			case wCsoundInstruments:
@@ -123,8 +124,10 @@ if(p_event->what == keyDown) {
 		}
 	else {
 		if(w >= 0 && w < WMAX && Editable[w]) {
-			r = LongRectToRect(TextGetViewRect(TEH[w]));
-			if(PtInRect(p_event->where,&r)) return(AGAIN);
+			// Don't check mouse location! - akozar 052307
+			/* r = LongRectToRect(TextGetViewRect(TEH[w]));
+			if(PtInRect(p_event->where,&r)) */
+			return(AGAIN);
 			/* Typing in text area */
 			}
 		}
@@ -168,7 +171,7 @@ if(itemtype == editText || (itemtype == statText && !Help)) {
 	if(itemtype == editText && w < WMAX && Editable[w]) {
 		OutlineTextInDialog(w,FALSE);
 		}
-	if(movebar || itemtype == statText) return(OK);
+	if(itemtype == statText) return(OK);
 	if(p_event->what == keyDown) {
 		if(thedialog == CsoundInstrMorePtr) UpdateDirty(TRUE,wCsoundInstruments);
 		if(thedialog == FileSavePreferencesPtr
