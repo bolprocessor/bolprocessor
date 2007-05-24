@@ -1,3 +1,27 @@
+2007-05-24	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/Dialogs.c (DoDialog):
+		Use FrontWindow() instead of FindWindow() -- which uses the mouse
+			location -- to determine the window for doing key events.
+			(Key strokes may still go to the wrong window if the front
+			window is not the "active" one, but we cannot use Nw yet for
+			this since that will exclude the dialogs not in Windows[w]).
+		Don't check whether mouse location is in TEH[w] view rect when
+			processing key events for Editable windows; this prevents 
+			'return's from activating the OK button in Editable dialogs.
+		Removed useless movebar variable and other unused variables.
+
+	* source/BP2/Interface1.c (UpdateWindow):
+		Invalidate text view in our Editable dialogs so that the text is
+			properly redrawn.  (see source code comment for details).
+
+	* source/BP2/MenuCommands.c (mControlPannel):
+		Replaced BringToFront() with BPActivateWindow() to help avoid
+			confusing issues with typing and dragging this window.
+			(#if EXPERIMENTAL for now).
+	
+	* source/WASTE/WEDrawing.c (_WEDrawLines):  Minor optimization.
+
 2007-05-22	Anthony Kozar	<anthonykozar@sbcglobal.net>
 2007-05-21	Anthony Kozar	<anthonykozar@sbcglobal.net>
 2007-05-17	Anthony Kozar	<anthonykozar@sbcglobal.net>
