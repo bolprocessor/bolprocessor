@@ -2253,8 +2253,12 @@ return(OK);
 mControlPannel(int wind)
 {
 AppendScript(36);
+#if EXPERIMENTAL
+  BPActivateWindow(SLOW, wControlPannel);
+#else
 ShowWindow(Window[wControlPannel]);
 BringToFront(Window[wControlPannel]);
+#endif
 return(OK);
 }
 
