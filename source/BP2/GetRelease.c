@@ -811,6 +811,14 @@ for(j=Jinstr; j < howmany; j++) {
 	(*p_CsInstrument)[j].rPitchBend.islogx = TRUE;
 	(*p_CsInstrument)[j].pitchbendrange = -1.;
 	
+	(*p_CsInstrument)[j].pitchbendtable = (*p_CsInstrument)[j].volumetable
+		= (*p_CsInstrument)[j].pressuretable = (*p_CsInstrument)[j].modulationtable
+		= (*p_CsInstrument)[j].panoramictable = -1;
+	
+	(*p_CsInstrument)[j].pitchbendGEN = (*p_CsInstrument)[j].volumeGEN
+		= (*p_CsInstrument)[j].pressureGEN = (*p_CsInstrument)[j].modulationGEN
+		= (*p_CsInstrument)[j].panoramicGEN = 7;
+	
 	(*p_CsInstrument)[j].iargmax = 5;
 	(*p_CsInstrument)[j].paramlist = NULL;
 	(*p_CsInstrument)[j].ipmax = 0;
