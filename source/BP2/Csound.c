@@ -551,7 +551,6 @@ for(ip=0; ip < IPMAX; ip++) {
 			SetField(CsoundInstrMorePtr,-1,fMoreStartIndex + (7*ip),"\0");
 			SetField(CsoundInstrMorePtr,-1,fMoreEndIndex + (7*ip),"\0");
 			SetField(CsoundInstrMorePtr,-1,fMoreTable + ip,"\0");
-			SetField(CsoundInstrMorePtr,-1,fDefaultCsoundParameterValue + (4*ip),"0");
 			SetField(CsoundInstrMorePtr,-1,fMoreName + (7*ip),"\0");
 			SetField(CsoundInstrMorePtr,-1,fMoreComment + (7*ip),"[Comment]");
 			SetField(CsoundInstrMorePtr,-1,fDefaultCsoundParameterValue + (4*ip),"0.00");
