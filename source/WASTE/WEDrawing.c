@@ -756,7 +756,7 @@ pascal void _WEDrawLines (long firstLine, long lastLine, Boolean doErase, WEHand
 	struct SLDrawData callbackData;
 	GDHandle screenDevice;
 	GrafPtr screenPort;
-	RgnHandle rgn;
+	// RgnHandle rgn;
 	
 	usingOffscreen = false;
 	drawingOffscreen = false;
@@ -764,14 +764,15 @@ pascal void _WEDrawLines (long firstLine, long lastLine, Boolean doErase, WEHand
 				 !BTST(pWE->features, weFInhibitColor)) ? true : false;
 		
 	// do nothing if our graphics port is not visible
-	rgn = NewRgn();
+	/* rgn = NewRgn();
 	if (rgn == NULL) return;
 	GetPortVisibleRegion(pWE->port, rgn);
-	if (EmptyRgn(rgn))
+	if (EmptyRgn(rgn)) */
+	if (IsPortVisibleRegionEmpty(pWE->port)) // this is easier - akozar 052307
 	{
 		return;
 	}
-	DisposeRgn(rgn);
+	// DisposeRgn(rgn);
 
 	// save graphics world
 	GetGWorld((GWorldPtr *)&screenPort, &screenDevice);
