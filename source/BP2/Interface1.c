@@ -1408,6 +1408,14 @@ GetPort(&saveport);
 SetPortWindowPort(theWindow);
 //if(!quick && w < WMAX && (!WASTE || !Editable[w])) SetViewRect(w);  // causing problems with TextEdit scroll position - 020907 akozar
 
+// Because the Dialog manager has already updated our dialog with a text handle, 
+// the update region may be empty.  Thus, this hack is needed to get the text to
+// redraw.  A better solution might be to use a UserItem in the dialog - akozar 052307
+if (w < WMAX && IsDialog[w] && Editable[w]) {
+	r = LongRectToRect(TextGetViewRect(TEH[w]));
+	InvalWindowRect(Window[w], &r);
+	} 
+
 // save clipping rectangle
 cliprgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
 GetPortClipRegion(GetWindowPort(theWindow), cliprgn);
