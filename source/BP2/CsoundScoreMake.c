@@ -729,7 +729,13 @@ io = NSWInitReply(*CsFileReply);
 
 ShowMessage(TRUE,wMessage,"Create new Csound score fileÉ");
 if(line == NULL || line[0] == '\0') {
-	strcpy(Message,"?.sco");
+	// make a new filename based on the project's name
+	if (GetProjectBaseName(Message) == OK) {
+		// truncate the base filename, leaving enough room for the extension
+		if (strlen(Message) > (MAXNAME-4))  Message[MAXNAME-4] = '\0';
+		strcat(Message, ".sco");
+		}
+	else strcpy(Message, "untitled.sco");
 	}
 else strcpy(Message,line);
 c2pstrcpy(PascalLine,Message);

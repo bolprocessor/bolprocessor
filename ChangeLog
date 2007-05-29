@@ -1,3 +1,22 @@
+2007-05-25	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/SaveLoads3.c (GetProjectBaseName, et al.):
+		New function GetProjectBaseName() checks names of grammar, data,
+			etc. files and strips the first one found of its prefix
+			and extension to obtain the name of the current "project".
+		Fixed FindMatchingFileNameExtension() & MatchFileNameExtension() to
+			check that the length of the extension matches too.
+
+	* source/BP2/CsoundScoreMake.c (MakeCsFile):
+	* source/BP2/MIDIfiles.c (MakeMIDIFile):
+		Use .mid extension for Midi files instead of .mid0, .mid1, .mid2.
+		Suggest names for Midi files and Csound scores based on the 
+			current "project" name instead of ?.mid or ?.sco.
+
+	* source/BP2/Strings.c (TooLongFileName):
+		Allow up to 31 characters in filenames instead of only 30.
+
 2007-05-24	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/GetRelease.c (ResizeCsoundInstrumentsSpace):

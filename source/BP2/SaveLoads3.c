@@ -199,6 +199,46 @@ int GetDefaultFileName(int w, char* filename)
 	return(OK);	
 }
 
+/* Returns in basename the current project's file name without any prefix or extension.
+   The following filenames are checked in order: grammar, data, alphabet, settings.
+   basename should be long enough to hold the result (at least MAXNAME+1) */
+int GetProjectBaseName(char* basename)
+{
+	int  len, index;
+	char workstr[MAXNAME+1];
+	char *pre, *p_workstr;
+	
+	if      ((len = strlen(FileName[wGrammar])) > 0)   index = wGrammar;
+	else if ((len = strlen(FileName[wData])) > 0)      index = wData;
+	else if ((len = strlen(FileName[wAlphabet])) > 0)  index = wAlphabet;
+	else if ((len = strlen(FileName[iSettings])) > 0)  index = iSettings;
+	else return (FAILED);
+	
+	if (len > MAXNAME) {
+		if (Beta)  Alert1("Err. GetProjectBaseName(): len > MAXNAME)");
+		return (FAILED);
+	}
+	
+	// copy everything but the extension for this file type
+	if (MatchFileNameExtension(FileName[index], FileExtension[index])) {
+		len -= strlen(FileExtension[index]);
+		strncpy(workstr, FileName[index], len);
+		workstr[len] = '\0'; // strncpy doesn't terminate the string
+	}
+	else  strcpy(workstr, FileName[index]);
+	
+	// now, copy everything but the prefix for this file type
+	// (note, that we allow for both just in case ...)
+	pre = FilePrefix[index];
+	p_workstr = workstr; 
+	len = strlen(pre);
+	if (Match(TRUE, &p_workstr, &pre, len))
+		strcpy(basename, &workstr[len]);
+	else  strcpy(basename, workstr);
+	
+	return(OK);	
+}
+
 /* SelectCreatorAndFileType returns the default creator and file type codes
    for a Save file dialog */
 void SelectCreatorAndFileType(int type, OSType* thecreator, OSType* thetype)
@@ -591,7 +631,7 @@ int FindMatchingFileNamePrefix(/*const*/ char* name)
 		if (FilePrefix[w][0] == '\0') continue;
 		// prefixes are case sensitive
 		pre = FilePrefix[w];
-		if (Match(TRUE, &name, &pre, 4)) return w;
+		if (Match(TRUE, &name, &pre, strlen(pre))) return w;
 	}
 	
 	return wUnknown;
@@ -600,17 +640,20 @@ int FindMatchingFileNamePrefix(/*const*/ char* name)
 // FIXME: name should be const, but Match needs to take const char * instead of char**
 int FindMatchingFileNameExtension(/*const*/ char* name)
 {
-	int	w;
+	int	w, len;
 	char  *nameExt, *ext;
 	
 	// find the last '.' in name, if any
 	nameExt = strrchr(name, '.');
 	if (nameExt == NULL)  return wUnknown;
 	
+	len = strlen(nameExt);
 	for (w = 0; w < WMAX; w++) {
 		if (FileExtension[w][0] == '\0') continue;
-		// extensions are case insensitive
 		ext = FileExtension[w];
+		// extensions must be the same length
+		if (len != strlen(ext))  continue;
+		// extensions are case insensitive
 		if (Match(FALSE, &nameExt, &ext, strlen(ext))) return w;
 	}
 	
@@ -626,6 +669,9 @@ Boolean MatchFileNameExtension(/*const*/ char* name, /*const*/ char* ext)
 	// find the last '.' in name, if any
 	nameExt = strrchr(name, '.');
 	if (nameExt == NULL)  return FALSE;
+	
+	// extensions must be the same length
+	if (strlen(nameExt) != strlen(ext))  return FALSE;
 	
 	// extensions are case insensitive
 	return Match(FALSE, &nameExt, &ext, strlen(ext));

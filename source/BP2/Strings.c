@@ -497,10 +497,10 @@ else {
 	thedialog = gpDialogs[w];
 	}
 // Strip(line); // don't strip filenames - akozar
-if(strlen(line) >= MAXNAME) {
-	line[MAXNAME-2] = '…';
-	line[MAXNAME-1] = '\0';
-	sprintf(Message,"File name is too long. Can't accept ‘%s’",line);
+if(strlen(line) > MAXNAME) {
+	line[MAXNAME-1] = '…';
+	line[MAXNAME] = '\0';
+	sprintf(Message,"File name is too long. Truncating to ‘%s’",line);
 	Alert1(Message);
 	BPActivateWindow(QUICK,w);
 	SetField(thedialog,w,field,line);

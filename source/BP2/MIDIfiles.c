@@ -97,7 +97,13 @@ err = NSWInitReply(*MIDIfileReply);
 
 ShowMessage(TRUE,wMessage,"Create new MIDI fileÉ");
 if(line == NULL || line[0] == '\0') {
-	sprintf(Message,"?.mid%ld",(long)MIDIfileType);
+	// make a new filename based on the project's name
+	if (GetProjectBaseName(Message) == OK) {
+		// truncate the base filename, leaving enough room for the extension
+		if (strlen(Message) > (MAXNAME-4))  Message[MAXNAME-4] = '\0';
+		strcat(Message, ".mid");
+		}
+	else strcpy(Message, "untitled.mid");
 	}
 else strcpy(Message,line);
 
