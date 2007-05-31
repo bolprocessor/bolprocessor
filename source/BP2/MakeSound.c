@@ -357,6 +357,7 @@ if(showpianoroll) {
 		}
 	minkey = (minkey / 6) * 6;
 	maxkey = 6 + ((maxkey / 6) * 6);
+	if (minkey > maxkey)  minkey = maxkey = 60;
 	hrect = 3;
 	htext = WindowTextSize[w] + 2;
 	leftoffset = 13 + StringWidth("\pmmm") - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
@@ -373,7 +374,7 @@ if(showpianoroll) {
 	if((result=OpenGraphic(w,&graphrect,NO,&port,&gdh)) != OK) goto GETOUT;
 	
 	if((result=DrawItemBackground(&graphrect,imaxstreak,htext,hrect,leftoffset,NO,
-		p_delta,&yruler,topoffset,&overflow)) != OK || overflow) goto GETOUT;
+		p_delta,&yruler,topoffset,&overflow)) != OK || overflow) goto OUTGRAPHIC;
 	
 	topoffset += 3;
 	PenSize(1,1);
@@ -1749,15 +1750,7 @@ FINDNEXTEVENT:
 
 LastTcurr = Tcurr;
 
-if(showpianoroll) {
-	CloseGraphic(w,endxmax,endymax,overflow,&graphrect,&port,gdh);
-	if(!overflow) DrawNoteScale(w,minkey,maxkey,hrect,leftoffset,topoffset);
-	if(Offscreen) UnlockPixels(GetGWorldPixMap(gMainGWorld));
-	if(saveport != NULL) SetPort(saveport);
-	else if(Beta) Alert1("Err MakeSound(). saveport == NULL");
-	if(ShowMessage) ClearMessage();
-	goto GETOUT;
-	}
+if(showpianoroll) goto OUTGRAPHIC;
 	
 buffertime = Infpos;
 if(OutMIDI && !cswrite && !MIDIfileOn && !CyclicPlay && !ItemCapture && !showpianoroll
@@ -1865,6 +1858,7 @@ HideWindow(Window[wInfo]);
 if(result == ENDREPEAT) result = OK;
 if(result == STOP) result = ABORT;
 
+OUTGRAPHIC:
 if(showpianoroll) {
 	CloseGraphic(w,endxmax,endymax,overflow,&graphrect,&port,gdh);
 	if(!overflow) DrawNoteScale(w,minkey,maxkey,hrect,leftoffset,topoffset);
