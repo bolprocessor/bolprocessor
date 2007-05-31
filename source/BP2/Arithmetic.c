@@ -169,9 +169,11 @@ return(0);
 
 
 Simplify(double limit,double p,double q,double *p_p,double *p_q)
+/* Fixed 24 May 2007 by BB */
 {
 unsigned long gcd;
 int neg,result;
+double x,y;
 
 result = OK;
 if(p < 0.) {
@@ -193,14 +195,29 @@ if(q == 0.) {
 	}
 
 if(p < 1.) {
-	q = Round(q / p);
-	p = 1.;
+	q = Round(1000. * q / p); 
+	p = 1000.;
+	goto INTEGERRATIO;
 	}
 if(q < 1.) {
-	p = Round(p / q);
-	q = 1.;
+	p = Round(1000. * p / q);
+	q = 1000.;
+	goto INTEGERRATIO;
+	}
+	
+y = modf(p,&x);
+if(fabs(y-x) > 0.001) {
+	p = Round(1000. * p);
+	q = 1000. * q;
+	}
+	
+y = modf(q,&x);
+if(fabs(y-x) > 0.001) {
+	p = 1000. * p;
+	q = Round(1000. * q);
 	}
 
+INTEGERRATIO:
 if((gcd=GCD(p,q)) > 1.) {
 	p = p / gcd;
 	q = q / gcd;
