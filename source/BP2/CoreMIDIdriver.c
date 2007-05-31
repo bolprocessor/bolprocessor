@@ -122,6 +122,8 @@ void ResizeListBox(ListHandle list, long numRows);
 CMListData** NewListDataHandle(ListHandle list, Size entriesSize);
 void MarkAllOffline(CMListData* ld);
 void MarkAllNotSelected(CMListData* ld);
+Size CountMatchingEntries(CMListData* ld, Boolean selected, Boolean offline);
+Size CountSelectedEntries(CMListData* ld);
 CMListEntry* FindListEntryByID(CMListData* ld, MIDIUniqueID id);
 CMListEntry* FindListEntryByName(CMListData* ld, char* endname);
 CMListEntry* FindListEntryByRef(CMListData* ld, MIDIEndpointRef endpt);
@@ -139,14 +141,14 @@ int  UpdateActiveEndpoints(CMListData** ldh, MIDIEndpointRef** endpoints, Size* 
 
 /* Increment SETTINGS_FILE_VERSION for each change to the CoreMIDI settings file format.
    Change OLDEST_COMPATIBLE_VERSION to the current version whenever making an incompatible change.
-   Compatible changes including adding extra fields to the end of the file or reinterpreting
-   an existing field but continuing to write that field in a way that older versions will understand */
-const int	SETTINGS_FILE_VERSION = 1;	 // the current version of the CoreMIDI settings file format
-const int	OLDEST_COMPATIBLE_VERSION = 1; // the oldest version of the format that the current version is compatible with
+   Compatible changes include adding extra fields to the end of the file or reinterpreting an
+   existing field but continuing to write that field in a way that older versions will understand */
+const int	SETTINGS_FILE_VERSION = 2;	 // the current version of the CoreMIDI settings file format
+const int	OLDEST_COMPATIBLE_VERSION = 2; // the oldest version of the format that the current version is compatible with
 
 int WriteActiveEndpoints(CMListData** ldh, short refnum);
 int WriteCoreMIDISettings(short refnum);
-int ReadActiveEndpoints(CMListData** ldh, short refnum, long* pos);
+int ReadActiveEndpoints(CMListData** ldh, short refnum, long* pos, int fileVersion);
 int ReadCoreMIDISettings(short refnum, long* pos);
 
 /*  Returns whether the CoreMIDI driver is on */
@@ -839,6 +841,40 @@ static void	MarkAllNotSelected(CMListData* ld)
 	return;
 }
 
+static Size CountMatchingEntries(CMListData* ld, Boolean selected, Boolean offline)
+{
+	CMListEntry*	entry;
+	Size	index, numSelected, numEntries;
+	
+	// count the list entries that match the criteria
+	entry = *(ld->entries);
+	numEntries = ld->numEntries;
+	numSelected = 0;
+	for (index = 0; index < numEntries; ++index) {
+		if ((entry->selected == selected) && (entry->offline == offline)) ++numSelected;
+		++entry;
+	}
+	
+	return numSelected;
+}
+
+static Size CountSelectedEntries(CMListData* ld)
+{
+	CMListEntry*	entry;
+	Size	index, numSelected, numEntries;
+	
+	// count the list entries that match the criteria
+	entry = *(ld->entries);
+	numEntries = ld->numEntries;
+	numSelected = 0;
+	for (index = 0; index < numEntries; ++index) {
+		if (entry->selected) ++numSelected;
+		++entry;
+	}
+	
+	return numSelected;
+}
+
 static CMListEntry* FindListEntryByID(CMListData* ld, MIDIUniqueID id)
 {
 	int i;
@@ -1164,13 +1200,7 @@ static int UpdateActiveEndpoints(CMListData** ldh, MIDIEndpointRef** endpoints, 
 	CMListEntry*	entry;
 	
 	// count the selected list entries that are also "online"
-	entry = *((*ldh)->entries);
-	numEntries = (*ldh)->numEntries;
-	numSelected = 0;
-	for (index = 0; index < numEntries; ++index) {
-		if (entry->selected && !entry->offline) ++numSelected;
-		++entry;
-	}
+	numSelected = CountMatchingEntries(*ldh, TRUE, FALSE);
 	
 	// resize array if necessary (include space for NULL)
 	if (*epArraySize <= numSelected && numSelected > 0) {
@@ -1190,6 +1220,7 @@ static int UpdateActiveEndpoints(CMListData** ldh, MIDIEndpointRef** endpoints, 
 	}
 	
 	// copy selected MIDIEndpointRefs to endpoints array
+	numEntries = (*ldh)->numEntries;
 	entry = *((*ldh)->entries);
 	ep = *endpoints;
 	for (index = 0; index < numEntries; ++index) {
@@ -1208,29 +1239,26 @@ static int WriteActiveEndpoints(CMListData** ldh, short refnum)
 	CMListEntry*	entry;
 	char			line[32];	// only used for writing numbers
 	
-	// count the selected list entries that are also "online"
-	entry = *((*ldh)->entries);
-	numEntries = (*ldh)->numEntries;
-	numSelected = 0;
-	for (index = 0; index < numEntries; ++index) {
-		if (entry->selected && !entry->offline) ++numSelected;
-		++entry;
-	}
+	// count all of the selected list entries ("online" and "offline")
+	numSelected = CountSelectedEntries(*ldh);
 
 	// write the number of endpoints to save
 	sprintf(line, "%ld", (long)numSelected);
 	WriteToFile(NO,MAC,line,refnum);
 
-	// write only the selected list entries that are also "online"
+	// write all selected list entries
 	if ((result = MyLock(FALSE, (Handle)(*ldh)->entries)) != OK)  return result;
+	numEntries = (*ldh)->numEntries;
 	entry = *((*ldh)->entries);
 	for (index = 0; index < numEntries; ++index) {
-		if (entry->selected && !entry->offline) {
+		if (entry->selected) {
 			sprintf(line, "%ld", entry->id);
 			WriteToFile(NO,MAC,line,refnum);
 			if ((result = MyLock(FALSE, (Handle)entry->name)) != OK)  return result;
 			WriteToFile(NO,MAC,*(entry->name),refnum);			
 			if ((result = MyUnlock((Handle)entry->name)) != OK)  return result;
+			sprintf(line, "%ld", 65535L);		// Midi channel mask; all "active" for now; added with version 2
+			WriteToFile(NO,MAC,line,refnum);
 		}
 		++entry;
 	}
@@ -1269,10 +1297,10 @@ int WriteCoreMIDISettings(short refnum)
 	return OK;
 }
 
-static int ReadActiveEndpoints(CMListData** ldh, short refnum, long* pos)
+static int ReadActiveEndpoints(CMListData** ldh, short refnum, long* pos, int fileVersion)
 {
 	int  result, rep;
-	long i, endID, epcount;
+	long i, endID, epcount, channelmask;
 	char **p_line, **nameStrHandle;
 	CMListEntry* matchingEntry = NULL;
 	
@@ -1289,6 +1317,8 @@ static int ReadActiveEndpoints(CMListData** ldh, short refnum, long* pos)
 	for (i = 0; i < epcount; ++i) {
 		if (ReadLong(refnum, &endID, pos) == FAILED) goto ERR;
 		if (ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&nameStrHandle,pos) == FAILED) goto ERR;
+		if (fileVersion >= 2)
+			if (ReadLong(refnum, &channelmask, pos) == FAILED) goto ERR;
 		// try to match values to an existing list entry
 		matchingEntry = FindListEntryByID(*ldh, endID);
 		if (matchingEntry == NULL)  matchingEntry = FindListEntryByName(*ldh, *nameStrHandle);
@@ -1316,17 +1346,17 @@ int ReadCoreMIDISettings(short refnum, long* pos)
 {
 	OSErr err;
 	int   dummy;
-	int   value, result;
+	int   value, result, fileVersion, compatibleVersion;
 	
 	// read and check the file's version numbers
-	if (ReadInteger(refnum, &value, pos) == FAILED) return (FAILED);		// file version
+	if (ReadInteger(refnum, &fileVersion, pos) == FAILED) return (FAILED);	// file version
 	// sanity check
-	if (value < 1) return (FAILED);	
+	if (fileVersion < 1) return (FAILED);	
 	// if code below is incapable of reading versions older than OLDEST_COMPATIBLE_VERSION
 	// then we should check that file version is not less than that version
-	// if (value < OLDEST_COMPATIBLE_VERSION) return (FAILED);
-	if (ReadInteger(refnum, &value, pos) == FAILED) return (FAILED);		// compatible version
-	if (value > SETTINGS_FILE_VERSION) return (FAILED);				// file is incompatible
+	// if (fileVersion < OLDEST_COMPATIBLE_VERSION) return (FAILED);
+	if (ReadInteger(refnum, &compatibleVersion, pos) == FAILED) return (FAILED);
+	if (compatibleVersion > SETTINGS_FILE_VERSION) return (FAILED);		// file is incompatible
 	
 	// read general settings next (none of these are implemented yet)
 	if (ReadInteger(refnum, &value, pos) == FAILED) return (FAILED);		// MIDI Thru
@@ -1338,7 +1368,7 @@ int ReadCoreMIDISettings(short refnum, long* pos)
 	if (ReadInteger(refnum, &dummy, pos) == FAILED) return (FAILED);		// Reserved 3
 	
 	// read information for MIDI sources
-	result = ReadActiveEndpoints(CMInputListData, refnum, pos);
+	result = ReadActiveEndpoints(CMInputListData, refnum, pos, fileVersion);
 	if (result != OK) return result;
 	
 	// update sources
@@ -1350,7 +1380,7 @@ int ReadCoreMIDISettings(short refnum, long* pos)
 	err = CMConnectToSources(CMActiveSources, true); // err result is not fatal
 
 	// read information for MIDI destinations
-	result = ReadActiveEndpoints(CMOutputListData, refnum, pos);
+	result = ReadActiveEndpoints(CMOutputListData, refnum, pos, fileVersion);
 	if (result != OK) return result;
 	
 	// update destinations
