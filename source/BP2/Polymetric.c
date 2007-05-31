@@ -1115,7 +1115,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+				(*((*pp_c)[a]))[ic++] = (tokenbyte) scale - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 				}
 			else {
 				y = modf(((1./scale)/(double)TOKBASE),&x);
@@ -1124,7 +1124,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+				(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./scale) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 				}
 			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 				result = ABORT; goto OUT;
@@ -1136,7 +1136,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+				(*((*pp_c)[a]))[ic++] = (tokenbyte) speed - (((tokenbyte) x) * TOKBASE);  /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 				}
 			else  {
 				y = modf((1. / speed / (double)TOKBASE),&x);
@@ -1145,7 +1145,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+				(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./speed) - (((tokenbyte) x) * TOKBASE);  /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 				}
 			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 				result = ABORT; goto OUT;
@@ -1207,7 +1207,7 @@ FIXTEMP:
 					(*((*pp_c)[a]))[ic++] = T1;
 					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 					(*((*pp_c)[a]))[ic++] = T1;
-					(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) scale - (((tokenbyte) x) * TOKBASE);  /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 					}
 				else {
 					y = modf(((1./scale)/(double)TOKBASE),&x);
@@ -1216,7 +1216,7 @@ FIXTEMP:
 					(*((*pp_c)[a]))[ic++] = T1;
 					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 					(*((*pp_c)[a]))[ic++] = T1;
-					(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./scale) - (((tokenbyte) x) * TOKBASE);  /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 					}
 				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 					result = ABORT; goto OUT;
@@ -1228,7 +1228,7 @@ FIXTEMP:
 					(*((*pp_c)[a]))[ic++] = T1;
 					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 					(*((*pp_c)[a]))[ic++] = T1;
-					(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) speed - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 					}
 				else  {
 					y = modf((1. / speed / (double)TOKBASE),&x);
@@ -1237,7 +1237,7 @@ FIXTEMP:
 					(*((*pp_c)[a]))[ic++] = T1;
 					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 					(*((*pp_c)[a]))[ic++] = T1;
-					(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./speed) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 					}
 				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 					result = ABORT; goto OUT;
@@ -1304,7 +1304,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+				(*((*pp_c)[a]))[ic++] = (tokenbyte) scale - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 				}
 			else {
 				y = modf(((1. / scale) / (double)TOKBASE),&x);
@@ -1313,7 +1313,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+				(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./scale) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 				}
 			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 				result = ABORT; goto OUT;
@@ -1325,7 +1325,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+				(*((*pp_c)[a]))[ic++] = (tokenbyte)  speed - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 				}
 			else {
 				y = modf((1. / speed / (double)TOKBASE),&x);
@@ -1334,7 +1334,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+				(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./speed) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 				}
 			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 				result = ABORT; goto OUT;
@@ -1422,7 +1422,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+				(*((*pp_c)[a]))[ic++] = (tokenbyte)  scale - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 				}
 			else {
 				y = modf(((1. / scale) / (double)TOKBASE),&x);
@@ -1431,7 +1431,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+				(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./scale) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 				}
 			prevscale = scale;
 			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
@@ -1444,7 +1444,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+				(*((*pp_c)[a]))[ic++] = (tokenbyte)  speed - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 				}
 			else {
 				(*((*pp_c)[a]))[ic++] = T0;
@@ -1453,7 +1453,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+				(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./speed) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 				}
 			prevspeed = speed;
 			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
@@ -1511,7 +1511,7 @@ FIXTEMP:
 			(*((*pp_c)[a]))[ic++] = T1;
 			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 			(*((*pp_c)[a]))[ic++] = T1;
-			(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+			(*((*pp_c)[a]))[ic++] = (tokenbyte)  scale - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 			}
 		else {
 			y = modf(((1. / scale) / (double)TOKBASE),&x);
@@ -1520,7 +1520,7 @@ FIXTEMP:
 			(*((*pp_c)[a]))[ic++] = T1;
 			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 			(*((*pp_c)[a]))[ic++] = T1;
-			(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+			(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./scale) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 			}
 		if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 			result = ABORT; goto OUT;
@@ -1532,7 +1532,7 @@ FIXTEMP:
 			(*((*pp_c)[a]))[ic++] = T1;
 			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 			(*((*pp_c)[a]))[ic++] = T1;
-			(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+			(*((*pp_c)[a]))[ic++] = (tokenbyte) speed - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 			}
 		else {
 			(*((*pp_c)[a]))[ic++] = T0;
@@ -1541,7 +1541,7 @@ FIXTEMP:
 			(*((*pp_c)[a]))[ic++] = T1;
 			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 			(*((*pp_c)[a]))[ic++] = T1;
-			(*((*pp_c)[a]))[ic++] = (tokenbyte) (y * TOKBASE);
+			(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./speed) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 			}
 		if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 			result = ABORT; goto OUT;
@@ -1813,7 +1813,7 @@ ss = 1.;
 
 scaledown = scaleup = 1.;
 
-xp = (*p_r)[a0]; /* * ss  * scaleup / scaledown); */
+xp = (*p_r)[a0];
 
 rescale = xp;
 
@@ -1851,7 +1851,7 @@ for(a=0; a < k; a++) {
 			(**pp_a)[id++] = T1;
 			(**pp_a)[id++] = (tokenbyte) x;
 			(**pp_a)[id++] = T1;
-			(**pp_a)[id++] = (tokenbyte) (y * TOKBASE);
+			(**pp_a)[id++] = (tokenbyte)  scale - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 			}
 		else {
 			y = modf(((1. / scale) / (double)TOKBASE),&x);
@@ -1860,7 +1860,7 @@ for(a=0; a < k; a++) {
 			(**pp_a)[id++] = T1;
 			(**pp_a)[id++] = (tokenbyte) x;
 			(**pp_a)[id++] = T1;
-			(**pp_a)[id++] = (tokenbyte) (y * TOKBASE);
+			(**pp_a)[id++] = (tokenbyte)  (1./scale) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 			}
 		if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto OUT;
 		if(speed >= 1.) {
@@ -1870,7 +1870,7 @@ for(a=0; a < k; a++) {
 			(**pp_a)[id++] = T1;
 			(**pp_a)[id++] = (tokenbyte) x;
 			(**pp_a)[id++] = T1;
-			(**pp_a)[id++] = (tokenbyte) (y * TOKBASE);
+			(**pp_a)[id++] = (tokenbyte)  speed - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 			}
 		else  {
 			y = modf((1. / speed / (double)TOKBASE),&x);
@@ -1879,7 +1879,7 @@ for(a=0; a < k; a++) {
 			(**pp_a)[id++] = T1;
 			(**pp_a)[id++] = (tokenbyte) x;
 			(**pp_a)[id++] = T1;
-			(**pp_a)[id++] = (tokenbyte) (y * TOKBASE);
+			(**pp_a)[id++] = (tokenbyte)  (1./speed) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 			}
 		if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto OUT;
 		}
@@ -1922,22 +1922,22 @@ for(a=0; a < k; a++) {
 					break;
 				case 21:	/* Ô*Õ scale up */
 					s = GetScalingValue(((*pp_c)[a]),ic);
-					scale = rescale /* * oldscale */ * s;
+					scale = rescale * s;
 					ic += 4L;
 					break;
 				case 24:	/* Ô**Õ scale down */
 					s = GetScalingValue(((*pp_c)[a]),ic);
-					scale = rescale /* * oldscale */ / s;
+					scale = rescale / s;
 					ic += 4L;
 					break;
 				case 11:	/* Ô/Õ speed up */
 					speed = GetScalingValue(((*pp_c)[a]),ic);
-					speed = speed * ((*p_r)[a]) /* * oldscale */;
+					speed = speed * ((*p_r)[a]);
 					break;
 				case 25:	/* Ô\Õ speed down */
 					speed = GetScalingValue(((*pp_c)[a]),ic);
 					speed = 1. / speed;
-					speed = speed * ((*p_r)[a]) /* * oldscale */;
+					speed = speed * ((*p_r)[a]);
 					break;
 				default:
 					goto COPYIT;
@@ -1972,7 +1972,7 @@ for(a=0; a < k; a++) {
 							(**pp_a)[id++] = T1;
 							(**pp_a)[id++] = (tokenbyte) x;
 							(**pp_a)[id++] = T1;
-							(**pp_a)[id++] = (tokenbyte) (y * TOKBASE);
+							(**pp_a)[id++] = (tokenbyte)  xq - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 							}
 						else  {
 							y = modf((1. / xq / (double)TOKBASE),&x);
@@ -1981,7 +1981,7 @@ for(a=0; a < k; a++) {
 							(**pp_a)[id++] = T1;
 							(**pp_a)[id++] = (tokenbyte) x;
 							(**pp_a)[id++] = T1;
-							(**pp_a)[id++] = (tokenbyte) (y * TOKBASE);
+							(**pp_a)[id++] = (tokenbyte)  (1. / xq) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 							}
 						if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto OUT;
 						if(xp >= 1.) {
@@ -1991,7 +1991,7 @@ for(a=0; a < k; a++) {
 							(**pp_a)[id++] = T1;
 							(**pp_a)[id++] = (tokenbyte) x;
 							(**pp_a)[id++] = T1;
-							(**pp_a)[id++] = (tokenbyte) (y * TOKBASE);
+							(**pp_a)[id++] = (tokenbyte)  xp - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 							}
 						else  {
 							y = modf((1. / xp / (double)TOKBASE),&x);
@@ -2000,7 +2000,7 @@ for(a=0; a < k; a++) {
 							(**pp_a)[id++] = T1;
 							(**pp_a)[id++] = (tokenbyte) x;
 							(**pp_a)[id++] = T1;
-							(**pp_a)[id++] = (tokenbyte) (y * TOKBASE);
+							(**pp_a)[id++] = (tokenbyte)  (1./xp) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 							}
 						if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto OUT;
 						}
