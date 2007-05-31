@@ -1,3 +1,45 @@
+2007-05-31	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-05-30	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/CoreMIDIdriver.c:
+		Now saves "offline" selections to the Midi settings file.
+		New functions CountSelectedEntries() and CountMatchingEntries().
+		Save "channel mask" values for each Midi source and destination so
+			that we can filter Midi by channel in the future.
+		CoreMIDI settings file at version 2.
+		
+	* source/BP2/MakeSound.c (MakeSound):
+		Properly closes the QD picture in MakeSound() if an error or
+			overflow occurs when DrawItemBackground() is called.
+		Insures that the picture frame rect is not empty when a prototype
+			contains no Midi Note On/Off events.
+	
+	* source/BP2/FillPhaseDiagram.c:  Suppressed alert about piano roll.
+
+2007-05-30	Bernard Bel	<bel@lpl.univ-aix.fr>
+(Commited by Anthony)
+
+	* source/BP2/Graphic.c (GraphOverflow):
+		'Piano roll' button in Object Prototypes window will now work.
+
+	* source/BP2/AppleEvents.c (MyHandleODOC):
+		Set NeedAlphabet = TRUE after successfully opening a prototypes file.
+		(Should prevent the file from being opened twice?)
+
+2007-05-29	Bernard Bel	<bel@lpl.univ-aix.fr>
+(Commited by Anthony)
+
+	* source/BP2/Arithmetic.c (Simplify):
+	* source/BP2/Polymetric.c (PolyExpand):
+		"When we call Simplify() on an overflowing structures, it happens that
+			p and/or q are not close to their integer values.  The old function
+			would simplify "too much"!  So, the first thing to do is to convert
+			p/q to a true integer ratio."
+		Fixes for possible inaccuracies in PolyExpand().
+	
+	* source/BP2/SaveLoads2.c (LoadObjectPrototypes):
+		Fix so that -mi files may be directly loaded by ODOC Apple events.
+		
 2007-05-25	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/-BP2.proto.h:
