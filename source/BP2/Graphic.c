@@ -529,10 +529,14 @@ GraphOverflow(PicHandle picture)
 Rect r;
 int rep;
 
-if(TempMemory || EmergencyExit || !ShowGraphic) return(TRUE);
+if(TempMemory || EmergencyExit /* || !ShowGraphic */) return(TRUE); // BB 20070529
 if(picture == NULL) return(FALSE);
 r = (*picture)->picFrame;
-if(QDError() == insufficientStackErr || EmptyRect(&r)) {
+if (EmptyRect(&r))  {
+	if (Beta) Alert1("Err. GraphOverflow(): picFrame is empty");
+	return(TRUE);
+	}
+if (QDError() == insufficientStackErr) {
 	rep = Answer("Picture is too large. Disable graphics",'Y');
 	if(rep == YES) {
 		ShowGraphic = FALSE;
