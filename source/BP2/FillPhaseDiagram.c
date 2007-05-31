@@ -1684,8 +1684,8 @@ if(!foundobject && ShowGraphic && !ShowPianoRoll && !ScriptExecOn && Jbol < 3
 	ToldAboutPianoRoll = TRUE;
 	result = Answer("This project doesn't require sound-objects. Use piano roll display",'Y');
 	if(result == YES) {
-		if(!ScriptExecOn && (!AEventOn || OkWait))
-			Alert1("The piano roll option will be saved with the project settings");
+		//if(!ScriptExecOn && (!AEventOn || OkWait)) // suppressed 053007 akozar
+		//	Alert1("The piano roll option will be saved with the project settings");
 		ShowPianoRoll = TRUE;
 		MaintainMenus();
 		}
