@@ -274,6 +274,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 				iProto = 0;
 				}
 			else {
+				NeedAlphabet = TRUE;    // Fixed by BB 28 May 2007
 				iProto = 2;
 				BPActivateWindow(SLOW,wPrototype1);
 				SetPrototype(iProto);
