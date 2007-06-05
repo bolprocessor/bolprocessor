@@ -713,7 +713,7 @@ if(w == wKeyboard) {
 			break;
 		case dOK:
 			HideWindow(Window[w]);
-			BPActivateWindow(SLOW,LastEditWindow);
+			// BPActivateWindow(SLOW,LastEditWindow); // suppressed 060107 akozar
 			break;
 		case dToken:
 			Token = 1 - Token;
