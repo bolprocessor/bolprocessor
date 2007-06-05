@@ -2366,11 +2366,15 @@ SetPortWindowPort(Window[w]);
 PenNormal();
 if(active) {
 	Activate(TEH[w]);
+#if !EXPERIMENTAL
 	if(HasFields[w]) TEDeactivate(GetDialogTextEditHandle(gpDialogs[w])); // FIXME: we should not mess with Dialog Manager's state?
+#endif
 	}
 else {
 	Deactivate(TEH[w]);
+#if !EXPERIMENTAL
 	if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w])); // FIXME: we should not mess with Dialog Manager's state?
+#endif
 	PenPat(GetQDGlobalsGray(&pat));
 	}
 RGBForeColor(&Black);

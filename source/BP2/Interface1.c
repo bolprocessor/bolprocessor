@@ -586,7 +586,9 @@ DOTHECLICK:
 #endif
 			if(p_event->modifiers & activeFlag) {
 				if(Editable[w] && !LockedWindow[w]) Activate(TEH[w]);
+#if !EXPERIMENTAL
 				if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w])); // FIXME: Dialog Manager is responsible for this?
+#endif
 				if(OKvScroll[w]) ShowControl(vScroll[w]);
 				if(OKhScroll[w]) ShowControl(hScroll[w]);
 		/*		DisableMenuItem(myMenus[editM],undoCommand); */
@@ -594,7 +596,9 @@ DOTHECLICK:
 			else {
 				if(w != Nw) {
 					if(Editable[w] && !LockedWindow[w]) Deactivate(TEH[w]);
+#if !EXPERIMENTAL
 					if(HasFields[w]) TEDeactivate(GetDialogTextEditHandle(gpDialogs[w])); // FIXME: Dialog Manager is responsible for this?
+#endif
 					if(OKvScroll[w]) HideControl(vScroll[w]);
 					if(OKhScroll[w]) HideControl(hScroll[w]);
 					}
@@ -1113,10 +1117,12 @@ if(Nw > -1 && Nw < WMAX) {
 		if(Nw != newNw) Deactivate(TEH[Nw]);
 		else Activate(TEH[Nw]);
 		}
+#if !EXPERIMENTAL
 	if(HasFields[Nw]) { // FIXME: we should not mess with Dialog Manager's state? - akozar 051707
 		if(Nw != newNw) TEDeactivate(GetDialogTextEditHandle(gpDialogs[Nw]));
 		else TEActivate(GetDialogTextEditHandle(gpDialogs[Nw]));
 		}
+#endif
 	SetPortWindowPort(Window[Nw]);
 	{ RgnHandle cliprgn;
 	  cliprgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
@@ -1311,7 +1317,9 @@ if(GrafWindow[w]) {
 	GotAlert = FALSE;
 	}
 
-if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w])); // FIXME: we should not mess with Dialog Manager's state?
+#if !EXPERIMENTAL
+  if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w])); // FIXME: we should not mess with Dialog Manager's state?
+#endif
 if(!Editable[w]) return(OK);
 Activate(TEH[w]);
 if(!OKvScroll[w]) return(OK);
@@ -1364,7 +1372,7 @@ Rect dr,vr;
 if(w >= 0 && w < WMAX && Editable[w]) {
 	GetWindowPortBounds(Window[w], &dr);
 #if !USE_MLTE
-	if(HasFields[w]) InsetRect(&dr,2,2);
+	if(HasFields[w]) InsetRect(&dr,2,2); // Remove since it does nothing?
 	if(OKvScroll[w]) {
 		dr.right -= SBARWIDTH;
 		if (!RunningOnOSX || Freebottom[w] > 0)
@@ -2067,18 +2075,20 @@ switch(w) {
 	case wGlossary:
 	case wAlphabet:
 	case wInteraction:
+	case iMidiDriver:
 	case wTimeBase:
 		RemoveFirstLine(wGrammar,FilePrefix[w]);
 		RemoveFirstLine(wData,FilePrefix[w]);
 		break;
+	case wCsoundInstruments:
+		SetField(NULL,wPrototype1,fInstrumentFileName,"[no file]");
+		// no break
 	case wKeyboard:
 	case iObjects:
-	case wCsoundInstruments:
 	case wMIDIorchestra:
 		RemoveFirstLine(wAlphabet,FilePrefix[w]);
 		RemoveFirstLine(wData,FilePrefix[w]);
 		RemoveFirstLine(wGrammar,FilePrefix[w]);
-		if(w != wKeyboard) SetField(NULL,wPrototype1,fInstrumentFileName,"[no file]");
 		break;
 	}
 return(OK);
@@ -2204,6 +2214,21 @@ return(OK);
 }
 
 
+Boolean PointIsInEditTextItem(DialogRef dp, Point pt)
+{
+	Handle		itemH;
+	Rect			itemrect;
+	DialogItemType	itemtype;
+	DialogItemIndex	item;
+	
+	item = FindDialogItem(dp, pt) + 1; // + 1 because number returned is one less than needed
+	GetDialogItem(dp, item, &itemtype, &itemH, &itemrect);
+	if(itemtype == kEditTextDialogItem && PtInRect(pt,&itemrect))
+		return TRUE;
+	else	return FALSE;
+}
+
+
 MaintainCursor(void)
 {
 Point pt;
@@ -2211,7 +2236,7 @@ Rect r;
 WindowPtr wPtr;
 GrafPtr saveport;
 int found;
-Cursor arrow;
+Cursor arrow, *newcursor;
 
 if(Help) {
 	SetCursor(&HelpCursor);
@@ -2225,6 +2250,7 @@ if(ScriptExecOn && !ResumeStopOn) {
 	 SetCursor(&(WheelCursor[Jwheel]));
 	 return(OK);
 	 }
+newcursor = GetQDGlobalsArrow(&arrow);
 GetPort(&saveport);
 wPtr = FrontWindow();
 SetPortWindowPort(wPtr);
@@ -2233,56 +2259,30 @@ if(Nw > -1 && Nw < WMAX && Ours(wPtr,Window[Nw])) {
 	if(Editable[Nw] && !LockedWindow[Nw]) {
 		r = LongRectToRect(TextGetViewRect(TEH[Nw]));
 		if(PtInRect(pt,&r)) {
-			SetCursor(&EditCursor);
-			goto OUT;
+			newcursor = &EditCursor;
 			}
 		}
-	if(HasFields[Nw]) {
-		r = (**(GetDialogTextEditHandle(gpDialogs[Nw]))).viewRect;
-		if(PtInRect(pt,&r)) {
-			SetCursor(&EditCursor);
-			goto OUT;
+	else if(HasFields[Nw]) {
+		/* r = (**(GetDialogTextEditHandle(gpDialogs[Nw]))).viewRect;
+		if(PtInRect(pt,&r)) { */
+		if (PointIsInEditTextItem(gpDialogs[Nw], pt)) {
+			newcursor = &EditCursor;
 			}
 		}
 	}
-else {
-	found = FALSE;
-	if(wPtr == GetDialogWindow(EnterPtr)) {
-		r = (*(GetDialogTextEditHandle(EnterPtr)))->viewRect;
-		found = TRUE;
-		}
-	if(wPtr == GetDialogWindow(TuningPtr)) {
-		r = (*(GetDialogTextEditHandle(TuningPtr)))->viewRect;
-		found = TRUE;
-		}
-	if(wPtr == GetDialogWindow(DefaultPerformanceValuesPtr)) {
-		r = (*(GetDialogTextEditHandle(DefaultPerformanceValuesPtr)))->viewRect;
-		found = TRUE;
-		}
-	if(wPtr == GetDialogWindow(CsoundInstrMorePtr)) {
-		r = (*(GetDialogTextEditHandle(CsoundInstrMorePtr)))->viewRect;
-		found = TRUE;
-		}
-	if(wPtr == GetDialogWindow(PatternPtr)) {
-		r = (*(GetDialogTextEditHandle(PatternPtr)))->viewRect;
-		found = TRUE;
-		}
-	if(wPtr == GetDialogWindow(FileSavePreferencesPtr)) {
-		r = (*(GetDialogTextEditHandle(FileSavePreferencesPtr)))->viewRect;
-		found = TRUE;
-		}
-	if(wPtr == GetDialogWindow(MIDIprogramPtr)) {
-		r = (*(GetDialogTextEditHandle(MIDIprogramPtr)))->viewRect;
-		found = TRUE;
-		}
-	if(found && PtInRect(pt,&r)) {
-		SetCursor(&EditCursor);
-		goto OUT;
+else if (wPtr == GetDialogWindow(EnterPtr) ||
+         wPtr == GetDialogWindow(TuningPtr) ||
+         wPtr == GetDialogWindow(DefaultPerformanceValuesPtr) ||
+         wPtr == GetDialogWindow(CsoundInstrMorePtr) ||
+         wPtr == GetDialogWindow(PatternPtr) ||
+         wPtr == GetDialogWindow(FileSavePreferencesPtr) ||
+         wPtr == GetDialogWindow(MIDIprogramPtr)) {
+	if (PointIsInEditTextItem(GetDialogFromWindow(wPtr), pt)) {
+		newcursor = &EditCursor;
 		}
 	}
-SetCursor(GetQDGlobalsArrow(&arrow));
+SetCursor(newcursor);
 
-OUT:
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err MaintainCursor(). saveport == NULL");
 return(OK);
