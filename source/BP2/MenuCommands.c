@@ -128,12 +128,62 @@ return(OK);
 }
 
 
+/* About box strings */
+
+/* Item #2 displays the version and compilation date like this:
+       Bol Processor Carbon 2.9.6 beta (debug)
+       • Jun  1 2007 •
+ */
+static const char Carbon_Text[] = "Carbon ";
+static const char Beta_Text[]   = " (debug)";  // "debug" since SHORT_VERSION may contain "beta"
+
+static const unsigned char WASTE_Notice[]  = "\pWASTE text engine © 1993-1996 • Marco Piovanelli";
+static const unsigned char TE_Notice[]     = "\pUsing TextEdit for editing.";
+static const unsigned char MLTE_Notice[]   = "\pUsing Multi-Lingual Text Engine for editing.";
+
+static const unsigned char MWERKS_Notice[] = "\pPortions © Metrowerks, Corp.";
+
 mAbout(int wind)
 {
 Cursor arrow;
 int r;
+Str255 versionstr = "\p";
+Str255 datestr = "\p";
+ConstStr255Param textenginestr;
+ConstStr255Param compilerstr;
+
+// set variable strings in the About box indicating compile-time features
+Message[0] = '\0';
+if (strlen(Carbon_Text) + strlen(SHORT_VERSION) + strlen(Beta_Text) > MAXLIN) {
+	if (Beta) Alert1("Err. mAbout(): version string too long for Message.");
+	}
+else {
+#if TARGET_API_MAC_CARBON
+	strcat(Message, Carbon_Text);
+#endif
+	strcat(Message, SHORT_VERSION);
+	if (Beta) strcat(Message, Beta_Text);
+	}
+c2pstrcpy(versionstr, Message);
+
+c2pstrcpy(datestr, __DATE__);
+
+#if WASTE
+  textenginestr = WASTE_Notice;
+#elif USE_MLTE
+  textenginestr = MLTE_Notice;
+#else
+  textenginestr = TE_Notice;
+#endif
+
+#ifdef __MWERKS__
+  compilerstr = MWERKS_Notice;
+#else
+  compilerstr = "\p";
+#endif
 
 SetCursor(GetQDGlobalsArrow(&arrow));
+ParamText(versionstr, datestr, textenginestr, compilerstr);
 switch(Alert(AboutAlert,0L)) {
 	case dAboutOK:
 		r = OK;
@@ -1308,7 +1358,7 @@ if(OldFile(w,type,fn,&spec)) {
 			BPActivateWindow(QUICK,wStartString);
 			result = OK;
 			}
-		else {
+		else {  // FIXME: tries to load grammar again if first time failed ?
 			if(ReadFile(w,refnum) == OK) {
 				if(!WASTE) CCUTEToScrap();	// WHY?
 				if(w != wScrap) GetHeader(w);
@@ -1352,6 +1402,7 @@ if(OldFile(w,type,fn,&spec)) {
 				if(w == wData) {
 					if(GetSeName(w) == OK)
 						result = LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms);
+					LoadLinkedMidiDriverSettings(w);
 					GetTimeBaseName(w);
 					GetGlName(w);
 					GetInName(w);
@@ -1745,8 +1796,9 @@ switch (rep) {
 			}
 		UpdateWindow(FALSE,Window[wind]);
 		GetHeader(wind);
-		if(wind == wGrammar) {
+		if(wind == wGrammar || wind == wData) {
 			GetSeName(wind);
+			LoadLinkedMidiDriverSettings(wind);
 			GetTimeBaseName(wind);
 			GetAlphaName(wind);
 			GetCsName(wind);
@@ -1755,13 +1807,6 @@ switch (rep) {
 		if(wind == wAlphabet) {
 			GetMiName();
 			GetKbName(wind);
-			GetCsName(wind);
-			GetFileNameAndLoadIt(wMIDIorchestra,wind,LoadMIDIorchestra);
-			}
-		if(wind == wData) {
-			GetSeName(wind);
-			GetTimeBaseName(wind);
-			GetAlphaName(wind);
 			GetCsName(wind);
 			GetFileNameAndLoadIt(wMIDIorchestra,wind,LoadMIDIorchestra);
 			}
@@ -1786,7 +1831,7 @@ mPageSetup(int wind)
 #if !TARGET_API_MAC_CARBON
 	DoPageSetUp();
 #else
-	Alert1("Bol Processor Carbon is not able to print yet.  Sorry ...");
+	Alert1("Bol Processor Carbon is not able to print yet.  Try opening your documents in a text editor.");
 #endif
 return(OK);
 }
@@ -1798,7 +1843,7 @@ int n;
 Rect r;
 
 #if TARGET_API_MAC_CARBON
-	Alert1("Bol Processor Carbon is not able to print yet.  Sorry ...");
+	Alert1("Bol Processor Carbon is not able to print yet.  Try opening your documents in a text editor.");
 #else
 if(wind < 0 || wind >= WMAX || (!Editable[wind] && !GrafWindow[wind])) return(FAILED);
 sprintf(Message,"Printing ‘%s’ window…",WindowName[wind]);

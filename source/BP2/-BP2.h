@@ -38,7 +38,8 @@
 #ifndef _H_BP2
 #define _H_BP2
 
-#define IDSTRING "Version 2.9.6 beta (Mar 2007)"
+#define SHORT_VERSION "2.9.6 beta"
+#define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ ")" )
 #define MAXVERSION 26
 
 #ifndef __POWERPC
@@ -575,15 +576,7 @@ Hey: this code is not portable!!!
 #define	NoYes			145
 #define	YesNoCancel		146
 #define	NoYesCancel		147
-#if TARGET_API_MAC_CARBON
-#  define   AboutAlert		130
-#else		/* pre-Carbon */
-#  if WASTE
-#    define	AboutAlert		148
-#  else	/* for TextEdit */
-#    define	AboutAlert		129
-#  endif
-#endif
+#define AboutAlert		129
 #define SaveAsAlert 		149
 #define LoadNotesAlert		150
 #define ColorAlert		151
