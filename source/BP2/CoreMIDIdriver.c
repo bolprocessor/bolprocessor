@@ -777,7 +777,7 @@ int DoCMSettingsEvent(EventRecord* event, short itemHit)
 			result = SaveMidiDriverSettings();
 			break;
 		case	diLoadSettings:
-			result = LoadMidiDriverSettings();
+			result = OpenMidiDriverSettings();
 			break;
 	}
 	

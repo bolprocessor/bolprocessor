@@ -628,10 +628,11 @@ GOTIT5:
 				}
 			GetHeader(w);
 			SelectBehind(ZERO,ZERO,TEH[w]);
-			if(w == wGrammar) {
+			if(w == wGrammar) {  // FIXME: remove block since it is never run ?
 				if(GetSeName(w) == OK) {
 					if((r=LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms)) != OK) return(r);
 					}
+				LoadLinkedMidiDriverSettings(w);
 				GetTimeBaseName(w);
 				GetCsName(w);
 				GetFileNameAndLoadIt(wMIDIorchestra,w,LoadMIDIorchestra);
@@ -644,6 +645,7 @@ GOTIT5:
 				if(GetSeName(w) == OK) {
 					if((r=LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms)) != OK) return(r);
 					}
+				LoadLinkedMidiDriverSettings(w);
 				GetTimeBaseName(w);
 				GetCsName(w);
 				GetFileNameAndLoadIt(wMIDIorchestra,w,LoadMIDIorchestra);

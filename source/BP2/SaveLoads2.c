@@ -77,6 +77,7 @@ else {
 GetHeader(wGrammar);
 CompiledAl = FALSE;	/* Because grammar may contain new terminal symbols */
 if(GetSeName(wGrammar) == OK) r = LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms);
+LoadLinkedMidiDriverSettings(wGrammar);
 GetFileNameAndLoadIt(wMIDIorchestra,wGrammar,LoadMIDIorchestra);
 if(GetInName(wGrammar) == OK) LoadInteraction(TRUE,FALSE);
 if(GetGlName(wGrammar) == OK) CompiledGl = LoadedGl = FALSE;

@@ -2329,7 +2329,7 @@ OSErr err;
 
 err = NSWInitReply(&reply);
 ShowMessage(TRUE,wMessage,"Saving MIDI orchestra fileÉ");
-if(FileName[wMIDIorchestra][0] == '\0') strcpy(Message,"-or.");
+if(FileName[wMIDIorchestra][0] == '\0') GetDefaultFileName(wMIDIorchestra, Message);
 else strcpy(Message,FileName[wMIDIorchestra]);
 c2pstrcpy(fn, Message);
 type = gFileType[wMIDIorchestra];
@@ -2559,32 +2559,60 @@ int LoadMidiDriverStartup()
 	return result; 
 }
 
-int LoadMidiDriverSettings()
+/* Retrieves the name (and vRefNum/parID) of an -md file from window w
+   and then tries to load a file with those specs. */
+int LoadLinkedMidiDriverSettings(int w)
 {
-	OSErr		err;
+	OSErr  err;
+	char   name[MAXNAME];
+	FSSpec mdfile;
+	
+	if (GetLinkedFileName(w, iMidiDriver, name) == OK) {
+		err = FSMakeFSSpec(TheVRefNum[w], WindowParID[w], in_place_c2pstr(name), &mdfile);
+		if (err != noErr) return (FAILED);
+		return LoadMidiDriverSettings(&mdfile);
+	}
+	
+	return (FAILED);
+}
+
+/* OpenMidiDriverSettings() displays a standard Open file dialog to get
+   a FSSpec for an -md file before calling Load... */ 
+int OpenMidiDriverSettings()
+{
 	int		result;
-	short		refnum;
 	FSSpec	mdfile;
-	char		cname[64];	// size of FSSpec.name
 	
 	sprintf(Message, "Select a %s fileÉ", DocumentTypeName[iMidiDriver]);
 	ShowMessage(TRUE,wMessage,Message);
 	result = OldFile(wUnknown, ftiMidiDriver, PascalLine, &mdfile);
 	HideWindow(Window[wMessage]);
-	if (result != OK)  return result;
+	if (result == OK) result = LoadMidiDriverSettings(&mdfile);
 	
-	err = MyOpen(&mdfile, fsRdPerm, &refnum);
+	return result;
+}
+
+/* LoadMidiDriverSettings() opens and loads the Midi Driver settings file
+   specified by mdfile. */ 
+int LoadMidiDriverSettings(FSSpec* mdfile)
+{
+	OSErr		err;
+	int		result;
+	short		refnum;
+	char		cname[64];	// size of FSSpec.name
+	
+	err = MyOpen(mdfile, fsRdPerm, &refnum);
 	if (err != noErr)  {
-		p2cstrcpy(cname, mdfile.name);
+		p2cstrcpy(cname, mdfile->name);
 		sprintf(Message,"Error opening the file '%s'.", cname);
 		Alert1(Message);
 		return (FAILED);
 	}
 	
-	result = ReadMidiDriverSettings(refnum, &mdfile);
-	if (result == OK) RememberMdFile(&mdfile);
+	result = ReadMidiDriverSettings(refnum, mdfile);
+	if (result == OK) RememberMdFile(mdfile);
 	else {
-		p2cstrcpy(cname, mdfile.name);
+		p2cstrcpy(cname, mdfile->name);
 		sprintf(Message,"Error reading the file '%s'.", cname);
 		Alert1(Message);
 		return (FAILED);
@@ -2595,6 +2623,7 @@ int LoadMidiDriverSettings()
 
 extern int ReadCoreMIDISettings(short refnum, long* pos);
 
+/* Read the current Midi driver's settings from an already open file */
 int ReadMidiDriverSettings(short refnum, FSSpec* spec)
 {
 	int  iv, result;

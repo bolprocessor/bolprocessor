@@ -1,3 +1,43 @@
+2007-06-05	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-06-04	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-06-01	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/AppleEvents.c (MyHandleODOC & RemoteUseText):
+	* source/BP2/MenuCommands.c (mOpenFile & mRevert):
+	* source/BP2/CoreMIDIdriver.c (DoCMSettingsEvent):
+	* source/BP2/SaveLoads1.c (LoadGrammar):
+	* source/BP2/SaveLoads2.c (LoadLinkedMidiDriverSettings, etc.):
+	* source/BP2/ScriptUtils.c (DoScript):
+		Allow directly opening "-md" files from Finder and loading them when a
+			Grammar or Data file is loaded (by user, Apple Event, or script).
+	
+	* source/BP2/Dialogs.c (DoDialog):
+		Don't activate any windows when closing the Keyboard dialog.
+
+	* source/BP2/Interface1.c (RemoveWindowName):
+		Small bug where CsoundInstr. name incorrectly removed from wPrototype1.
+
+	* source/BP2/Interface1.c (MaintainCursor & PointIsInEditTextItem):
+		Revised MaintainCursor() to change to I-beam when over any text edit
+			box, not just the one with keyboard focus.
+
+	* source/BP2/Interface1.c (DoEvent, BPActivateWindow, ShowSelect):
+	* source/BP2/Interface2.c (OutlineTextInDialog):
+		#if !EXPERIMENTAL several unnecessary places where BP2 was 
+			(de)activating the TextEdit records in dialogs.  This should be
+			managed by the Dialog Mgr, and was probably causing a bug where
+			we would get a text caret in the MIDI orchestra dialog.
+ 
+	* source/BP2/BP2main.c:  Only show About box on quitting when Beta is true.
+	* source/BP2/-BP2.h:  Changes to version constants and About box ID.
+	
+	* resources/BP2-MacOS.rsrc (ALRT #129, #130 & #148):
+	* source/BP2/MenuCommands.c (mAbout):
+		Made the version, date, compiler copyright, and text-engine strings in
+			the About box settable from mAbout() based on compile-time flags.
+		Removed the extra About 'ALRT' resources for different builds.
+	
 2007-05-31	Anthony Kozar	<anthonykozar@sbcglobal.net>
 2007-05-30	Anthony Kozar	<anthonykozar@sbcglobal.net>
 

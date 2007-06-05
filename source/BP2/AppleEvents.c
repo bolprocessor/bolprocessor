@@ -205,7 +205,8 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 	
 	wind = IdentifyBPFileType(&spec);
 	if(wind != wUnknown) {
-		if(strcmp(FileName[wind],name) == 0) {
+		// don't reload an already open document (FIXME: should compare FSSpecs, not just names)
+		if(wind != iMidiDriver && strcmp(FileName[wind],name) == 0) {
 			if(print && Editable[wind]) mPrint(wind);
 			goto NEWINDEX;
 			}
@@ -230,6 +231,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 			case wTimeBase:
 			case wCsoundInstruments:
 			case wMIDIorchestra:
+			case iMidiDriver:
 				break;
 			default:
 				sprintf(Message,"BP2 can't open file Ô%sÕ from the FinderÉ",name);
@@ -241,15 +243,22 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 		if(ClearWindow(FALSE,wind) != OK) goto NEWINDEX;
 		sprintf(Message,"Opening Ô%sÕÉ",name);
 		ShowMessage(TRUE,wMessage,Message);
-		TheVRefNum[wind] = spec.vRefNum;
-		WindowParID[wind] = spec.parID;
+		if (wind != iMidiDriver) { // don't change stored FSSpec for iMidiDriver until the file is successfully opened
+						   // eventually, I would like for all loads to work this way -- akozar
+			TheVRefNum[wind] = spec.vRefNum;
+			WindowParID[wind] = spec.parID;
+			strcpy(FileName[wind],name);
+			}
 		loaded[wind] = TRUE;
-		strcpy(FileName[wind],name);
 		if(Editable[wind]) LastEditWindow = wind;
 		if(wind == iSettings) {
 			LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms);
 			TellOthersMyName(iSettings);
 			Created[iSettings] = TRUE; // 020907 akozar
+			}
+		else if(wind == iMidiDriver) {
+			LoadMidiDriverSettings(&spec);  // this handles all necessary changes to globals
+			// Created[iMidiDriver] = TRUE; // not needed as we don't ever Save to the stored FSSpec
 			}
 		else if(wind == wGlossary) {
 			LoadGlossary(FALSE,FALSE);
@@ -355,6 +364,8 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 					= WindowParID[wMIDIorchestra] = spec.parID;
 				if(loaded[iSettings]) TellOthersMyName(iSettings);
 				else if(GetSeName(wGrammar) == OK) LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms);
+				if(loaded[iMidiDriver]) TellOthersMyName(iMidiDriver);
+				else LoadLinkedMidiDriverSettings(wGrammar);
 				GetTimeBaseName(wGrammar);
 				GetCsName(wGrammar);
 				GetFileNameAndLoadIt(wMIDIorchestra,wind,LoadMIDIorchestra);
@@ -373,6 +384,8 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 					= WindowParID[wMIDIorchestra] = spec.parID;
 				if(loaded[iSettings]) TellOthersMyName(iSettings);
 				else if(GetSeName(wData) == OK) LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms);
+				if(loaded[iMidiDriver]) TellOthersMyName(iMidiDriver);
+				else LoadLinkedMidiDriverSettings(wData);
 				GetTimeBaseName(wData);
 				GetCsName(wData);
 				GetFileNameAndLoadIt(wMIDIorchestra,wind,LoadMIDIorchestra);
@@ -900,6 +913,7 @@ if(ClearWindow(NO,w) == OK) {
 		case wGrammar:
 			CompiledAl = FALSE;	/* Because grammar may contain new terminal symbols */
 			if(GetSeName(w) == OK) LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms);
+			LoadLinkedMidiDriverSettings(w);
 			if(GetInName(w) == OK) LoadInteraction(TRUE,FALSE);
 			if(GetGlName(w) == OK) CompiledGl = LoadedGl = FALSE;
 			GetAlphaName(w);
@@ -921,6 +935,7 @@ if(ClearWindow(NO,w) == OK) {
 			break;
 		case wData:
 			if(GetSeName(w) == OK) LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms);
+			LoadLinkedMidiDriverSettings(w);
 			if(GetInName(w) == OK) LoadInteraction(TRUE,FALSE);
 			if(GetGlName(w) == OK) CompiledGl = LoadedGl = FALSE;
 			GetCsName(wData);

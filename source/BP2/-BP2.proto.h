@@ -136,7 +136,9 @@ int CaptureMidiEvent(Milliseconds time,int nseq,MIDI_Event *p_e);
 void RegisterProgramChange(MIDI_Event *p_e);
 
 int LoadMidiDriverStartup();
-int LoadMidiDriverSettings();
+int LoadLinkedMidiDriverSettings(int w);
+int OpenMidiDriverSettings();
+int LoadMidiDriverSettings(FSSpec* spec);
 int ReadMidiDriverSettings(short refnum, FSSpec* spec);
 int SaveMidiDriverStartup();
 int SaveMidiDriverSettings();
@@ -399,6 +401,7 @@ int StopWait(void);
 int IsEmpty(int);
 int SetUpMenus(void);
 int UpdateDirty(int,int);
+Boolean PointIsInEditTextItem(DialogRef dp, Point pt);
 int MaintainCursor(void);
 int TurnWheel(void);
 int MoveFeet(void);
