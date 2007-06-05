@@ -285,7 +285,7 @@ if(TraceMemory && Beta && !MustChangeInput) {  // replaced CheckMem with TraceMe
 	}
 StopWait();
 if(!ScriptExecOn && !AEventOn && !EmergencyExit && !MustChangeInput) {
-	if(mAbout(-1) == RESUME) {
+	if(Beta && mAbout(wUnknown) == RESUME) {  // only display About in beta builds -- akozar 060107
 		InitButtons();
 		goto START;
 		}
