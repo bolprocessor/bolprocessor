@@ -823,7 +823,7 @@ if(thedialog == MIDIprogramPtr) {
 			ResetMIDI(FALSE); */
 			break;
 		case bShowMIDIorchestra:
-			mMIDIorchestra(Nw);
+			BPActivateWindow(SLOW,wMIDIorchestra); // was mMIDIorchestra(Nw); - akozar 060707
 			break;
 		case bMIDItest:
 			CheckMIDIOutPut(TestMIDIChannel - 1);
