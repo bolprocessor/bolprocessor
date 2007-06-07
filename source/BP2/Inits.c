@@ -1685,6 +1685,24 @@ c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[actionM],helpCommand,PascalLine);
 EnableMenuItem(myMenus[actionM],helpCommand);*/
 
+#if EXPERIMENTAL
+{ Handle iconsuite;
+  OSErr  err;
+  // reorganized menu
+  // ResID  iconIDs[] = { 10, 129, 130, 132, 133, 138, 139, 131, 140, 136, 137 };
+  // original menu
+  ResID  iconIDs[] = { 17, 129, 130, 132, 133, 0, 140, 139, 138, 0, 131, 0, 0, 0, 137, 0, 136, 0 };
+  
+  for (i = 1; i <= iconIDs[0]; ++i) {
+    if (iconIDs[i] > 0) {
+      err = GetIconSuite(&iconsuite, iconIDs[i], kSelectorAllSmallData);
+      if (err == noErr)
+        err =  SetMenuItemIconHandle(myMenus[windowM], i, kMenuIconSuiteType,iconsuite);
+    }
+  }
+#endif
+}
+
 DrawMenuBar();
 return(OK);
 }
