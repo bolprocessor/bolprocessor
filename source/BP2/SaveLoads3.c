@@ -446,11 +446,11 @@ int MakeFormatMenuItems(int type, NavMenuItemSpecArrayHandle* p_handle)
 	int i, numitems, typelist[4];
 	char HTMLname[MFNLEN+HFLEN];
 	
-	if (type < 0 || type >= MAXFORMATNAMES)  type = 1;
+	if (type < 0 || type >= MAXFORMATNAMES)  type = ftiText;
 	
 	typelist[0] = type;		// BP2 native format
 	typelist[1] = type;		// BP2 native format with HTML encoding
-	if (type == 0 || type == 1) {	// (skip adding plain text again)
+	if (type == ftiAny || type == ftiText) {	// (skip adding plain text again)
 		typelist[2] = 18;		// HTML
 		numitems = 3;
 	}
@@ -745,7 +745,7 @@ int PromptForFileFormat(int w, char* filename, int* type)
 			break;
 		case dhtmlText:
 			IsText[w] = TRUE;
-			*type = 18;
+			*type = ftiHTML;
 			IsHTML[w] = TRUE;
 			break;
 		case dhtml:
@@ -753,7 +753,7 @@ int PromptForFileFormat(int w, char* filename, int* type)
 			break;
 		case dPlainText:
 			IsText[w] = TRUE;
-			*type = 1;
+			*type = ftiText;
 			break;
 		}
 	Weird[w] = FALSE;
@@ -800,7 +800,7 @@ if (!p_reply->usedNavServices) {
 	/* if(w >= 0) {
 		p2cstrcpy(name,spec.name);
 		if(strcmp(name,FileName[w]) != 0) askformat = TRUE;
-		else if(IsText[w]) type = 1;
+		else if(IsText[w]) type = ftiText;
 		} */
 
 	// always ask for format if there are multiple choices
@@ -809,8 +809,8 @@ if (!p_reply->usedNavServices) {
 else  if (w >= 0) {  // use the values set by PutFileEventProc
 	IsHTML[w] = p_reply->isHTML;
 	IsText[w] = p_reply->isText;
-	if (IsText[w] == TRUE && IsHTML[w] == TRUE) type = 18;
-	else if (IsText[w] == TRUE) type = 1;
+	if (IsText[w] == TRUE && IsHTML[w] == TRUE) type = ftiHTML;
+	else if (IsText[w] == TRUE) type = ftiText;
 	Weird[w] = FALSE;
 	}
 

@@ -1262,7 +1262,7 @@ if(DocumentTypeName[w][0] != '\0' && w != wTrace) {
 	ShowMessage(TRUE,wMessage,Message);
 	}
 type = gFileType[w];
-if(anyfile) type = 0;
+if(anyfile) type = ftiAny;
 result = FAILED;
 if(OldFile(w,type,fn,&spec)) {
 	if(gFileType[w] != ftiAny && gFileType[w] != ftiText && IdentifyBPFileType(&spec) != w) {

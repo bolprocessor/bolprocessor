@@ -1,3 +1,22 @@
+2007-06-07	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-06-06	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/MenuCommands.c (mOpenFile):
+	* source/BP2/SaveLoads1.c (LoadSettings & LoadInteraction):
+	* source/BP2/SaveLoads2.c (LoadGlossary):
+	* source/BP2/SaveLoads3.c (SelectCreatorAndFileType, FillTypeList, etc.):
+		Use FileTypeIndex constants instead of literals.
+		Fix opening any file type in LoadGlossary(), LoadInteraction(), and 
+			LoadSettings().
+
+	* resources/dlgxs.rsrc (dlgx #563):
+		MIDI Programs needs an embedding hierarchy so that edit text can be set.
+
+	* source/BP2/CompileGrammar.c (CompileGrammar):  Skip -md.name link line.
+
+	* source/BP2/Inits.c (SetUpMenus):
+		Added EXPERIMENTAL code to set document icons for Windows menu items.
+	
 2007-06-05	Anthony Kozar	<anthonykozar@sbcglobal.net>
 2007-06-04	Anthony Kozar	<anthonykozar@sbcglobal.net>
 2007-06-01	Anthony Kozar	<anthonykozar@sbcglobal.net>

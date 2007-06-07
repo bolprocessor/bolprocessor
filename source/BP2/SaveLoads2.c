@@ -386,7 +386,7 @@ FIND:
 	if(Option) r = Answer("Open old sound-object prototype file (text created by HyperMIDI)",'N');
 	else r = NO;
 	if(r == ABORT) return(r);
-	type = gFileType[iObjects]; if(r == YES) type = 0;
+	type = gFileType[iObjects]; if(r == YES) type = ftiAny;
 	if(!OldFile(iObjects,type,PascalLine,&spec)) return(ABORT);
 	if(FileName[iObjects][0] == '\0') {
 		p2cstrcpy(FileName[iObjects],PascalLine);
@@ -929,7 +929,7 @@ if(!ScriptExecOn) ShowWindow(Window[wGlossary]);
 result = FAILED;
 // p_line = p_completeline = NULL;
 type = gFileType[wGlossary];
-if(anyfile) type = 0;
+if(anyfile) type = ftiAny;
 spec.vRefNum = TheVRefNum[wGlossary];
 spec.parID = WindowParID[wGlossary];
 c2pstrcpy(spec.name, FileName[wGlossary]);
@@ -937,7 +937,7 @@ strcpy(line, FileName[wGlossary]);
 SetSelect(ZERO,GetTextLength(wGlossary),TEH[wGlossary]);
 TextDelete(wGlossary); CompiledGl = FALSE;
 if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-	if(CheckFileName(wGlossary,line,&spec,&refnum,gFileType[wGlossary],TRUE) != OK) {
+	if(CheckFileName(wGlossary,line,&spec,&refnum,type,TRUE) != OK) {
 		return(FAILED);
 		}
 	}

@@ -176,7 +176,7 @@ return(FAILED);
 
 LoadKeyboard(short refnum)
 {
-int i,io,iv,imax,j,type,result;
+int i,io,iv,imax,j,result;
 char **ptr;
 long pos;
 char **p_line,**p_completeline;
@@ -309,7 +309,7 @@ return(FAILED);
 
 LoadTimeBase(short refnum)
 {
-int i,io,iv,imax,j,type,result,y,maxticks,maxbeats,arg;
+int i,io,iv,imax,j,result,y,maxticks,maxbeats,arg;
 char **ptr;
 long pos,x;
 char **p_line,**p_completeline;
@@ -473,7 +473,7 @@ return(FAILED);
 
 LoadCsoundInstruments(short refnum,int manual)
 {
-int i,io,iv,ip,jmax,j,type,result,y,maxticks,maxbeats,arg,length;
+int i,io,iv,ip,jmax,j,result,y,maxticks,maxbeats,arg,length;
 char **ptr;
 Handle **ptr2;
 CsoundParam **ptr3;
@@ -1383,10 +1383,10 @@ else {
 	}
 strcpy(filename,LineBuff);
 type = gFileType[iSettings];
-if(anyfile) type = 0;
+if(anyfile) type = ftiAny;
 if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
 	rep = FAILED;
-	if(startup || (rep=CheckFileName(iSettings,LineBuff,&spec,&refnum,gFileType[iSettings],TRUE)) != OK) {
+	if(startup || (rep=CheckFileName(iSettings,LineBuff,&spec,&refnum,type,TRUE)) != OK) {
 		sprintf(Message,"Can't find ‘%s’ setting file...",LineBuff);
 		ShowMessage(TRUE,wMessage,Message);
 		return(rep);
@@ -2072,14 +2072,14 @@ p_line = p_completeline = NULL;
 strcpy(Message,FileName[wInteraction]);
 strcpy(line,Message);
 type = gFileType[wInteraction];
-if(anyfile) type = 0;
+if(anyfile) type = ftiAny;
 spec.vRefNum = TheVRefNum[wInteraction];
 spec.parID = WindowParID[wInteraction];
 c2pstrcpy(spec.name, Message);
 SetSelect(ZERO,GetTextLength(wInteraction),TEH[wInteraction]);
 TextDelete(wInteraction);
 if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-	if(CheckFileName(wInteraction,line,&spec,&refnum,gFileType[wInteraction],TRUE) != OK) {
+	if(CheckFileName(wInteraction,line,&spec,&refnum,type,TRUE) != OK) {
 		Interactive = FALSE;
 		SetButtons(TRUE);
 		UpdateDirty(TRUE,iSettings);
@@ -2337,7 +2337,7 @@ type = gFileType[wMIDIorchestra];
 result = FAILED;
 rep = Answer("Export as text file",'N');
 if(rep == ABORT) goto OUT;
-if(rep == OK) type = 1;
+if(rep == OK) type = ftiText;
 reply.sfFile.vRefNum = TheVRefNum[wMIDIorchestra];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[wMIDIorchestra];
 if(NewFile(-1,type,fn,&reply)) {
@@ -2423,7 +2423,7 @@ if(!manual) goto READIT;
 
 ShowMessage(TRUE,wMessage,"Locate MIDI orchestra file…");
 type = gFileType[wMIDIorchestra];
-if(Option && Answer("Import any type of file",'Y') == OK) type = 0;
+if(Option && Answer("Import any type of file",'Y') == OK) type = ftiAny;
 if(OldFile(-1,type,PascalLine,&spec)) {
 	p2cstrcpy(FileName[wMIDIorchestra],PascalLine);
 	if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
