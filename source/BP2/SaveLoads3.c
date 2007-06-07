@@ -245,64 +245,64 @@ void SelectCreatorAndFileType(int type, OSType* thecreator, OSType* thetype)
 {
 	*thecreator = 'Bel0';
 	switch(type) {
-		case 0:
-		case 1:
+		case ftiAny:
+		case ftiText:
 			*thetype = 'TEXT';
 			break;
-		case 2:
+		case ftiKeyboard:
 			*thetype = 'BP02';	/* -kb keyboard file */
 			break;
-		case 3:
+		case ftiObjects:
 			*thetype = 'BP03';	/* -mi MIDI object file */
 			break;
-		case 4:
+		case ftiDecisions:
 			*thetype = 'BP04';	/* decision file */
 			break;
-		case 5:
+		case ftiGrammar:
 			*thetype = 'BP05';	/* -gr grammar file */
 			break;
-		case 6:
+		case ftiAlphabet:
 			*thetype = 'BP06';	/* -ho alphabet file */
 			break;
-		case 7:
+		case ftiData:
 			*thetype = 'TEXT';	/* -da data file.  Suppressed 'BP07' */
 			break;
-		case 8:
+		case ftiInteraction:
 			*thetype = 'BP08';	/* -in interactive code file */
 			break;
-		case 9:
+		case ftiSettings:
 			*thetype = 'BP09';	/* -se settings file */
 			break;
-		case 10:
+		case ftiAIFC:
 			*thetype = 'AIFC';	/* AIFF compressed file */
 			break;
-		case 11:
+		case ftiMidi:
 			*thetype = 'Midi';	/* MIDI file */
 			break;
-		case 12:
+		case ftiWeights:
 			*thetype = 'BP10';	/* -wg weight file */
 			break;
-		case 13:
+		case ftiScript:
 			*thetype = 'BP11';	/* BP script file */
 			break;
-		case 14:
+		case ftiGlossary:
 			*thetype = 'BP12';	/* glossary -gl file */
 			break;
-		case 15:
+		case ftiTimeBase:
 			*thetype = 'BP13';	/* time base -tb file */
 			break;
-		case 16:
+		case ftiCsoundInstruments:
 			*thetype = 'BP14';	/* Csound instruments -cs file */
 			break;
-		case 17:
+		case ftiMIDIorchestra:
 			*thetype = 'BP15';	/* MIDI orchestra -or file */
 			break;
-		case 18:
+		case ftiHTML:
 			*thetype = 'TEXT';
 			if (RunningOnOSX)	*thecreator = '\0\0\0\0';	/* use user's default browser? */
 			else			*thecreator = 'MOSS';		/* Netscape creator */
 			break;
-		case 19:
+		case ftiMidiDriver:
 			*thetype = 'BP16';	/* MIDI driver settings (-md) file */
 			break;
 		}
@@ -315,54 +315,54 @@ void FillTypeList(int type, SFTypeList typelist, int* numtypes)
 	/* Modified 013107 by akozar: 'MOSS' is a creator not a file 
 	   type.  Use 'TEXT' instead.  'text' is not used.  */
 switch(type) {
-	case 0:				/* open any file */
+	case ftiAny:				/* open any file */
 		*numtypes = -1;
 		break;
-	case 1:
+	case ftiText:
 		typelist[0] = 'TEXT';
 		//typelist[1] = 'MOSS';	/* Netscape file */
 		//typelist[2] = 'text';
 		*numtypes = 1;
 		break;
-	case 2:
+	case ftiKeyboard:
 		typelist[0] = 'BP02';	/* -kb file */
 		*numtypes = 1;
 		break;
-	case 3:
+	case ftiObjects:
 		typelist[0] = 'BP03';	/* -mi file */
 		*numtypes = 1;
 		break;
-	case 4:
+	case ftiDecisions:
 		typelist[0] = 'BP04';	/* decision file */
 		*numtypes = 1;
 		break;
-	case 5:
+	case ftiGrammar:
 		typelist[0] = 'BP05';	/* grammar -gr file */
 		typelist[1] = 'TEXT';
 		*numtypes = 2;
 		break;
-	case 6:
+	case ftiAlphabet:
 		typelist[0] = 'BP06';	/* alphabet -ho file */
 		typelist[1] = 'TEXT';
 		*numtypes = 2;
 		break;
-	case 7:
+	case ftiData:
 		typelist[0] = 'TEXT';
 		typelist[1] = 'BP07';	/* data -da file */
 		//typelist[2] = 'MOSS';	/* Netscape file */
 		//typelist[3] = 'text';
 		*numtypes = 2;
 		break;
-	case 8:
+	case ftiInteraction:
 		typelist[0] = 'BP08';	/* interactive -in file */
 		typelist[1] = 'TEXT';
 		*numtypes = 2;
 		break;
-	case 9:
+	case ftiSettings:
 		typelist[0] = 'BP09';	/* settings -se file */
 		*numtypes = 1;
 		break;
-	case 10:
+	case ftiAIFC:
 		/* First two of these also presumably creator codes */
 		//typelist[0] = 'FSSD';	/* SoundEdit file */
 		//typelist[1] = 'jB1 ';	/* SoundEdit Pro file */
@@ -370,40 +370,40 @@ switch(type) {
 		typelist[1] = 'AIFC';	/* AIFF compressed file */
 		*numtypes = 2;
 		break;
-	case 11:
+	case ftiMidi:
 		typelist[0] = 'Midi';	/* MIDI file */
 		*numtypes = 1;
 		break;
-	case 12:
+	case ftiWeights:
 		typelist[0] = 'BP10';	/* weights -wg file */
 		*numtypes = 1;
 		break;
-	case 13:
+	case ftiScript:
 		typelist[0] = 'BP11';	/* script +sc file */
 		typelist[1] = 'TEXT';
 		*numtypes = 2;
 		break;
-	case 14:
+	case ftiGlossary:
 		typelist[0] = 'BP12';	/* glossary -gl file */
 		typelist[1] = 'TEXT';
 		*numtypes = 2;
 		break;
-	case 15:
+	case ftiTimeBase:
 		typelist[0] = 'BP13';	/* time base -tb file */
 		*numtypes = 1;
 		break;
-	case 16:
+	case ftiCsoundInstruments:
 		typelist[0] = 'BP14';	/* Csound instruments -cs file */
 		*numtypes = 1;
 		break;
-	case 17:
+	case ftiMIDIorchestra:
 		typelist[0] = 'BP15';	/* MIDI orchestra -or file */
 		*numtypes = 1;
 		break;
-	case 18:
+	case ftiHTML:
 		if (Beta) Alert1("Err. FillTypeList(): type 18 not allowed.");
 		break;
-	case 19:
+	case ftiMidiDriver:
 		typelist[0] = 'BP16';	/* MIDI driver settings (-md) file */
 		*numtypes = 1;
 		break;
