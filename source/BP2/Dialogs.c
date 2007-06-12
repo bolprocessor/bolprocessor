@@ -55,7 +55,7 @@ WindowPtr thewindow;
 int i,ip,j,jj,improvizemem,stepProducemem,displayProducemem,traceProducemem,rs,
 	w,rep,rep2,loadgrammar,rtn,showgraphic,noconstraint,showmessages,doneit,
 	displaytimeset,vmin,vmax,changedtick,diff,oldcycle,hit,longerCsound,
-	changed;
+	changed, tab;
 short itemHit,itemtype,nature_time;
 double dur;
 Str255 t;
@@ -70,8 +70,8 @@ MIDI_Event e;
 
 longerCsound = 0;
 
-/* Trap ÔreturnÕ */
-rtn = FALSE;
+/* Trap ÔreturnÕ; and 'tab' now too (akozar 061207) */
+rtn = tab = FALSE;
 
 if(p_event->what == keyDown) {
 	/* Does not matter where mouse cursor is; key events should 
@@ -91,7 +91,8 @@ if(p_event->what == keyDown) {
 			}
 		}
 	c = (char)(p_event->message & charCodeMask);
-	// key = (char)(p_event->message & keyCodeMask) >> 8; 
+	// key = (char)(p_event->message & keyCodeMask) >> 8;
+	if(c == '\t') tab = TRUE;
 	if(c == '\r' || c == '\3') {	/* Return or Enter */
 		if(w >= 0 && w < WMAX && Editable[w]
 				&& w != wTimeBase  && w != wCsoundInstruments)
@@ -134,15 +135,17 @@ if(p_event->what == keyDown) {
 	if(w >= 0 && w < WMAX && !rtn && HasFields[w]) UpdateDirty(TRUE,w);
 	}
 	
+/* Note: DialogSelect returns FALSE for tab key events but TRUE for all(?) others. */
 hit = DialogSelect(p_event,&thedialog,&itemHit);
 PrintEvent(p_event, "DoDialog()", GetDialogWindow(thedialog));
 	
+if(tab && !hit)  return(DONE);  // this hack prevents BP from beeping when tabbing to disabled edit text
 if(!rtn && !hit) return(OK);
 
 thewindow = GetDialogWindow(thedialog);
 for(w=0; w < WMAX; w++) {
 	if(thewindow == Window[w]) {
-		if(!IsDialog[w]) {	// FIXME ? already know its a dialog ? -- akozar
+		if(!IsDialog[w]) {
 			return(AGAIN);
 			}
 		break;
@@ -167,6 +170,9 @@ else {
 	itemtype = (ctrlItem+btnCtrl); /* Replace with button type */
 	rep = OK;
 	}
+/* FIXME: this next line only detects enabled edit text or static text items,
+   thus events in disabled items are passed thru to the dialog handlers below.
+   Probably should compare to (itemtype & 127) to remove the disable bit. */
 if(itemtype == editText || (itemtype == statText && !Help)) {
 	if(itemtype == editText && w < WMAX && Editable[w]) {
 		OutlineTextInDialog(w,FALSE);
