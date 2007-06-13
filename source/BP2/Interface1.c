@@ -1868,7 +1868,7 @@ int i,j,k;
 
 if((changed || FileName[w][0] != '\0') && w != iSettings && w != wTrace
 		&& w != wStartString && w != wHelp && w != wScrap && w != wNotice
-		&& w != wPrototype7) {
+		&& w != wPrototype7 && w != wCsoundTables) {
 	if(FileName[w][0] == '\0') strcpy(Message,DeftName[w]);
 	else strcpy(Message,FileName[w]);
 	SetWTitle(Window[w],in_place_c2pstr(Message));
@@ -1914,6 +1914,14 @@ if((changed || FileName[w][0] != '\0') && w != iSettings && w != wTrace
 		}
 	DrawMenuBar();
 	}
+else if (w == iSettings) {
+	if (Created[iSettings] && FileName[iSettings][0] != 0) {
+		sprintf(Message, "Save ‘%s’", FileName[iSettings]);
+		c2pstrcpy(PascalLine, Message);
+		SetMenuItemText(myMenus[fileM], fmSaveSettings, PascalLine);
+		}
+	else  SetMenuItemText(myMenus[fileM], fmSaveSettings, "\pSave settings");
+	}	
 else {
 	strcpy(Message,DeftName[w]);
 	if(Message[0] != '\0') SetWTitle(Window[w],in_place_c2pstr(Message));

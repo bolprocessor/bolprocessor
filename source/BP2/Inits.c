@@ -1623,6 +1623,28 @@ return(FAILED);
 }
 
 
+/* The first element of iconlist should be the number of sequential items
+   in the menu to set icons for, and the rest of the array should be the
+   resource IDs for the icon families of the first, second, etc. menu items. 
+   You can set an array element to 0 to skip that menu item. */
+int BPSetMenuItemIcons(MenuHandle menu, ResID iconIDs[])
+{
+	Handle iconsuite;
+	OSErr  err;
+	int    i;
+
+	for (i = 1; i <= iconIDs[0]; ++i) {
+		if (iconIDs[i] > 0) {
+			err = GetIconSuite(&iconsuite, iconIDs[i], kSelectorAllSmallData);
+			if (err == noErr)
+				err =  SetMenuItemIconHandle(menu, i, kMenuIconSuiteType, iconsuite);
+		}
+	}
+	
+	return (OK);
+}
+
+
 SetUpMenus(void)
 {
 int	i;
@@ -1685,24 +1707,8 @@ c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[actionM],helpCommand,PascalLine);
 EnableMenuItem(myMenus[actionM],helpCommand);*/
 
-#if EXPERIMENTAL
-{ Handle iconsuite;
-  OSErr  err;
-  // reorganized menu
-  // ResID  iconIDs[] = { 10, 129, 130, 132, 133, 138, 139, 131, 140, 136, 137 };
-  // original menu
-  ResID  iconIDs[] = { 17, 129, 130, 132, 133, 0, 140, 139, 138, 0, 131, 0, 0, 0, 137, 0, 136, 0 };
-  
-  for (i = 1; i <= iconIDs[0]; ++i) {
-    if (iconIDs[i] > 0) {
-      err = GetIconSuite(&iconsuite, iconIDs[i], kSelectorAllSmallData);
-      if (err == noErr)
-        err =  SetMenuItemIconHandle(myMenus[windowM], i, kMenuIconSuiteType,iconsuite);
-    }
-  }
-#endif
-}
-
+BPSetMenuItemIcons(myMenus[windowM], WindowMenuIcons);
+BPSetMenuItemIcons(myMenus[deviceM], DeviceMenuIcons);
 DrawMenuBar();
 return(OK);
 }

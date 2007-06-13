@@ -1889,8 +1889,8 @@ if(FSClose(refnum) != noErr) {
 	result = FAILED;	// FIXME: does this really require failure?
 	}
 if(result == OK) {
-	SetName(iSettings,TRUE,manual && !startup);
 	if(!startup) {
+		Created[iSettings] = TRUE;
 		TheVRefNum[iSettings] = spec.vRefNum;
 		WindowParID[iSettings] = spec.parID;
 		}
@@ -1898,6 +1898,7 @@ if(result == OK) {
 		RefNumbp2 = spec.vRefNum;
 		ParIDbp2 = spec.parID;
 		}*/
+	SetName(iSettings,TRUE,manual && !startup);
 	}
 else Dirty[iSettings] = FALSE;
 if(!startup) HideWindow(Window[wMessage]);
@@ -2318,7 +2319,7 @@ return(result);
 }
 
 
-SaveMIDIorchestra(void)
+SaveMIDIorchestra(Boolean doSaveAs)
 {
 int rep,i,j,type,result;
 short refnum;
@@ -2328,20 +2329,29 @@ NSWReply reply;
 OSErr err;
 
 err = NSWInitReply(&reply);
+result = FAILED;
+if(Created[wMIDIorchestra] && !doSaveAs) {  // try the existing file first
+	c2pstrcpy(fn, FileName[wMIDIorchestra]);
+	err = FSMakeFSSpec(TheVRefNum[wMIDIorchestra], WindowParID[wMIDIorchestra], fn, &(reply.sfFile));
+	if (err == noErr) {
+		err = MyOpen(&(reply.sfFile), fsCurPerm, &refnum);
+		if (err == noErr) goto WRITE;
+		}
+	}
+// else do a "Save As"
 ShowMessage(TRUE,wMessage,"Saving MIDI orchestra file…");
 if(FileName[wMIDIorchestra][0] == '\0') GetDefaultFileName(wMIDIorchestra, Message);
 else strcpy(Message,FileName[wMIDIorchestra]);
 c2pstrcpy(fn, Message);
 type = gFileType[wMIDIorchestra];
 
-result = FAILED;
-rep = Answer("Export as text file",'N');
+/* rep = Answer("Export as text file",'N');
 if(rep == ABORT) goto OUT;
-if(rep == OK) type = ftiText;
+if(rep == OK) type = ftiText; */
 reply.sfFile.vRefNum = TheVRefNum[wMIDIorchestra];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[wMIDIorchestra];
-if(NewFile(-1,type,fn,&reply)) {
-	rep = CreateFile(wMIDIorchestra,-1,type,fn,&reply,&refnum);
+if(NewFile(wMIDIorchestra,type,fn,&reply)) {
+	rep = CreateFile(wMIDIorchestra,wMIDIorchestra,type,fn,&reply,&refnum);
 	if(rep == ABORT) goto OUT;
 	if(rep == OK) {
 
@@ -2369,9 +2379,10 @@ WRITE:
 		WindowParID[wMIDIorchestra] = reply.sfFile.parID;
 		SetName(wMIDIorchestra,TRUE,TRUE);
 		Dirty[wMIDIorchestra] = FALSE;
+		Created[wMIDIorchestra] = TRUE;
 		result = OK;
-		if(type == 1)
-			Alert1("To open this file, click the ‘Load’ button with the ‘option’ key down");
+		/* if(type == 1)
+			Alert1("To open this file, click the ‘Load’ button with the ‘option’ key down"); */
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
@@ -2423,7 +2434,7 @@ if(!manual) goto READIT;
 
 ShowMessage(TRUE,wMessage,"Locate MIDI orchestra file…");
 type = gFileType[wMIDIorchestra];
-if(Option && Answer("Import any type of file",'Y') == OK) type = ftiAny;
+if(Option /* && Answer("Import any type of file",'Y') == OK */) type = ftiAny;
 if(OldFile(-1,type,PascalLine,&spec)) {
 	p2cstrcpy(FileName[wMIDIorchestra],PascalLine);
 	if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
@@ -2494,6 +2505,7 @@ NOERR:
 			WindowParID[wMIDIorchestra] = spec.parID;
 			}
 		Dirty[wMIDIorchestra] = FALSE;
+		Created[wMIDIorchestra] = TRUE;
 		NewOrchestra = TRUE;
 		}
 	else TellError(35,io);

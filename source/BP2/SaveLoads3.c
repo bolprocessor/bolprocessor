@@ -398,7 +398,8 @@ switch(type) {
 		break;
 	case ftiMIDIorchestra:
 		typelist[0] = 'BP15';	/* MIDI orchestra -or file */
-		*numtypes = 1;
+		typelist[1] = 'TEXT';	// added 060807 because "Text file" is now an option in Save dialog
+		*numtypes = 2;
 		break;
 	case ftiHTML:
 		if (Beta) Alert1("Err. FillTypeList(): type 18 not allowed.");
@@ -448,16 +449,24 @@ int MakeFormatMenuItems(int type, NavMenuItemSpecArrayHandle* p_handle)
 	
 	if (type < 0 || type >= MAXFORMATNAMES)  type = ftiText;
 	
-	typelist[0] = type;		// BP2 native format
-	typelist[1] = type;		// BP2 native format with HTML encoding
-	if (type == ftiAny || type == ftiText) {	// (skip adding plain text again)
-		typelist[2] = 18;		// HTML
-		numitems = 3;
+	// MIDI orchestra does not support HTML
+	if (type == ftiMIDIorchestra) {
+		typelist[0] = type;				// BP2 native format
+		typelist[1] = ftiText;				// BP2 plain text
+		numitems = 2;
 	}
 	else {
-		typelist[2] = 1;		// BP2 plain text
-		typelist[3] = 18;		// HTML
-		numitems = 4;
+		typelist[0] = type;				// BP2 native format
+		typelist[1] = type;				// BP2 native format with HTML encoding
+		if (type == ftiAny || type == ftiText) {	// (skip adding plain text again)
+			typelist[2] = ftiHTML;			// HTML
+			numitems = 3;
+		}
+		else {
+			typelist[2] = ftiText;			// BP2 plain text
+			typelist[3] = ftiHTML;			// HTML
+			numitems = 4;
+		}
 	}
 	
 	/* resize before dereferencing */
@@ -465,10 +474,12 @@ int MakeFormatMenuItems(int type, NavMenuItemSpecArrayHandle* p_handle)
 		return (ABORT);
 	items = **p_handle;
 	
+	/* This loop assumes that if numitems is greater than 2, then the item with index
+	   1 is "native HTML" format, otherwise all items are "as advertised". */
 	for (i = 0; i < numitems; ++i) {
 		items[i].version = kNavMenuItemSpecVersion;
 		SelectCreatorAndFileType(typelist[i], &(items[i].menuCreator), &(items[i].menuType));
-		if (i == 1) {
+		if (i == 1 && numitems > 2) {
 			strcpy(HTMLname, FormatNames[typelist[i]]);
 			strcat(HTMLname, HTMLFormat);
 			c2pstrcpy(items[i].menuItemName, HTMLname);
@@ -485,7 +496,7 @@ Boolean CanSaveMultipleFormats(int w)
 {
 	if (w == wHelp || w == wNotice || w == wPrototype7 || w == wCsoundTables)
 		return (FALSE);
-	else if (w >= 0 && w < WMAX && Editable[w])
+	else if (w >= 0 && w < WMAX && Editable[w] || w == wMIDIorchestra)
 		return (TRUE);
 	else  return (FALSE);
 }

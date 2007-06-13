@@ -1,3 +1,69 @@
+2007-06-12	Bernard Bel	<bel@lpl.univ-aix.fr>
+(Commited by Anthony)
+
+	* source/BP2/SoundObjects1.c (CheckLoadedPrototypes):
+		Inform the user why they may need to load prototypes if there is an
+			alphabet when using Midi, Midi file, or Csound output.
+
+2007-06-12	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* resources/BP2-MacOS.rsrc (MENU #136):
+	* source/BP2/-BP2.h:
+	* source/BP2/Inits.c (SetUpMenus):
+		Finalized the adding of document icons to the 'Windows' and 'Devices'
+			menus.  Rearranged 'Windows' menu for aethestics and coherency.
+
+	* source/BP2/MenuCommands.c:
+	* source/BP2/SaveLoads2.c:
+	* source/BP2/SaveLoads1.c:
+		Commented out all confirmation alerts for opening any file type or
+			displaying tokenized grammar, alphabet, and glossary.
+
+	* source/BP2/Dialogs.c (DoDialog):
+		Now traps the tab key and returns DONE after calling DialogSelect() to
+			prevent all beeps when tabbing between disabled edit text boxes.
+
+	* resources/BP2-MacOS.rsrc (DLOG #526):
+		EXPERIMENTAL: Set the enable flag on the 'Quantization' edit box as 
+			this stops BP from beeping when tabbing to this field.  It also
+			prevents BP from running the if(w == wTimeAccuracy) block of
+			DoDialog() and complaining immediately if an invalid value is 
+			temporarily entered (Note: this enabled vs. disabled behavior is
+			backwards!).  Several other dialogs have this problem including
+			Buffer Size, Random Seed, Metronome, and Graphic Settings but I have
+			not changed these because I am concerned that values may not be
+			updated internally before they are used.  This requires more testing.
+
+2007-06-11	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-06-08	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* resources/BP2-MacOS.rsrc (MENU #129):
+	* source/BP2/-BP2.h:
+	* source/BP2/-BP2main.h:
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/Interface1.c (SetName):
+	* source/BP2/Interface2.c (CheckSettings):
+	* source/BP2/MenuCommands.c (mSaveFile, mSaveAs, mSaveSettings):
+	* source/BP2/SaveLoads1.c (LoadSettings):
+		Added new command to File menu for saving current settings file; 
+			renamed 'Save settings' to 'Save settings as...' and reorganized
+			the menu.  Name of new item changes from 'Save settings' to
+			'Save ‘-se.NameOfFile’' when a settings file is loaded/saved.
+		Rename mSaveSettings() to mSaveSettingsAs() as create a new function
+			mSaveSettings() to save to loaded settings file without prompting.
+		Modified calls to SaveMIDIorchestra() to specify "Save" or "Save As".
+		Fixed bug in SetName() where Csound Tables window title would be set
+			cleared if the window contents were cleared.
+	
+	* source/BP2/SaveLoads3.c (FillTypeList, MakeFormatMenuItems, etc.):
+		Allow choosing "native" or "text" formats in the Save dialog for MIDI 
+			orchestra files, and allow reopening 'TEXT' files in Open dialogs.
+
+	* source/BP2/SaveLoads1.c (SaveMIDIorchestra, LoadMIDIorchestra):
+		Suppressed prompts for "exporting as text", set Created[wMIDIorchestra]
+			after loading or saving, and new parameter to SaveMIDIorchestra()
+			to control whether we are doing a "Save" or "Save As" command.
+	
 2007-06-07	Anthony Kozar	<anthonykozar@sbcglobal.net>
 2007-06-06	Anthony Kozar	<anthonykozar@sbcglobal.net>
 

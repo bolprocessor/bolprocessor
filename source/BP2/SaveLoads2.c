@@ -383,7 +383,7 @@ FIND:
 	else
 	sprintf(Message,"Find ‘%s’ or other sound-object prototype file",FileName[iObjects]);
 	ShowMessage(TRUE,wMessage,Message);
-	if(Option) r = Answer("Open old sound-object prototype file (text created by HyperMIDI)",'N');
+	if(Option) r = YES; /* Answer("Open old sound-object prototype file (text created by HyperMIDI)",'N'); */
 	else r = NO;
 	if(r == ABORT) return(r);
 	type = gFileType[iObjects]; if(r == YES) type = ftiAny;

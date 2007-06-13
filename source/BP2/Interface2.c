@@ -957,9 +957,9 @@ return(OK);
 SetOptionMenu(int option)
 {
 if(option)
-	sprintf(Message,"Open (any) file");
+	sprintf(Message,"Open (any) file...");
 else
-	sprintf(Message,"Open file");
+	sprintf(Message,"Open file...");
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[fileM],fmOpen,PascalLine);
 
@@ -1671,10 +1671,10 @@ if(!ScriptExecOn && Dirty[iSettings]) {
 	rep = Answer("Save settings",'Y');
 	if(rep == ABORT) return(rep);
 	if(rep == OK) {
-		rep = mSaveSettings(0);
+		rep = mSaveSettingsAs(wUnknown);
 		if(rep != OK) return(rep);
 		}
-	Dirty[iSettings] = FALSE;
+	// Dirty[iSettings] = FALSE; // not true if user pressed 'No' - akozar 061107
 	}
 return(rep);
 }

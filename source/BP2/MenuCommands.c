@@ -1176,7 +1176,7 @@ switch(w) {
 		if(!oldoutmidi) ResetMIDI(FALSE);
 #endif
 		LoadedIn = CompiledIn = anyfile = FALSE;
-		if(Option && (r = Answer("Open any file type",'N')) == YES) anyfile = TRUE;
+		if(Option /* && (r = Answer("Open any file type",'N')) == YES */) anyfile = TRUE;
 		if(r == ABORT) return(FAILED);
 		r = LoadInteraction(anyfile,TRUE);
 		if(r == OK && ScriptRecOn) {
@@ -1190,7 +1190,7 @@ switch(w) {
 		if((r=ClearWindow(FALSE,w)) != OK) return(r);
 		ForgetFileName(w);
 		LoadedGl = CompiledGl = anyfile = FALSE;
-		if(Option && (r = Answer("Open any file type",'N')) == YES) anyfile = TRUE;
+		if(Option /* && (r = Answer("Open any file type",'N')) == YES */) anyfile = TRUE;
 		if(r == ABORT) return(FAILED);
 		r = LoadGlossary(anyfile,TRUE);
 		if(r == OK && ScriptRecOn) {
@@ -1252,7 +1252,7 @@ if(r == ABORT) return(FAILED);
 if(Editable[w] && IsEmpty(w)) clear = TRUE;
 anyfile = FALSE; r = OK;
 if(w == wTrace || (/*w != wData &&*/ w != wScrap
-	&& Option && (r = Answer("Open any file type",'N')) == YES)) anyfile = TRUE;
+	&& Option /* && (r = Answer("Open any file type",'N')) == YES */)) anyfile = TRUE;
 if(r == ABORT) return(FAILED);
 
 TRYLOAD:
@@ -1530,9 +1530,9 @@ else {
 		case wCsoundInstruments:
 			rep = SaveCsoundInstruments(&spec); break;
 		case iSettings:
-			rep = mSaveSettings(w1); return(rep);
+			rep = mSaveSettings(w1); break;
 		case wMIDIorchestra:
-			rep = SaveMIDIorchestra();
+			rep = SaveMIDIorchestra(FALSE); break;
 		default:
 			rep = SaveFile(fn,&spec,w1); break;
 		}
@@ -1576,10 +1576,10 @@ switch(w) {
 		r = SaveCsoundInstruments(&spec); return(r);
 		break;
 	case iSettings:
-		r = mSaveSettings(w); return(r);
+		r = mSaveSettingsAs(w); return(r);
 		break;
 	case wMIDIorchestra:
-		r = SaveMIDIorchestra(); return(r);
+		r = SaveMIDIorchestra(TRUE); return(r);
 		break;
 	}
 if(!Editable[w]) return(FAILED);
@@ -1600,15 +1600,16 @@ mLoadSettings(int wind)
 int rep,oms,anyfile;
 
 if(CheckMemory() != OK) return(FAILED);
-if(Dirty[iSettings]) {
-	if((rep=Answer("Save changes in current settings",'Y')) == OK) mSaveSettings(wind);
+if(Dirty[iSettings] && Created[iSettings] && FileName[iSettings][0] != 0) {
+	sprintf(Message, "Save changes in current settings to file Ô%sÕ", FileName[iSettings]);
+	if((rep=Answer(Message, 'Y')) == OK) mSaveSettings(wind);
 	if(rep == ABORT) return(FAILED);
-	Dirty[iSettings] = FALSE;
+	// Dirty[iSettings] = FALSE; // not true yet - akozar 061107
 	}
 FileName[iSettings][0] = '\0';
 anyfile = FALSE;
 rep = OK;
-if(Option && (rep=Answer("Open any file type",'N')) == YES) anyfile = TRUE;
+if(Option /* && (rep=Answer("Open any file type",'N')) == YES */) anyfile = TRUE;
 if(rep == ABORT) return(OK);
 LoadSettings(anyfile,TRUE,FALSE,TRUE,&oms);
 sprintf(Message,"\"%s\"",FileName[iSettings]);
@@ -1620,6 +1621,27 @@ return(OK);
 
 
 mSaveSettings(int wind)
+{
+	int result;
+	Str255 fn;
+	FSSpec spec;
+	
+	result = FAILED;
+	if (Created[iSettings] && FileName[iSettings][0] != 0) {
+		c2pstrcpy(fn, FileName[iSettings]);
+		spec.vRefNum = TheVRefNum[iSettings];
+		spec.parID = WindowParID[iSettings];
+		c2pstrcpy(spec.name, FileName[iSettings]);
+		result = SaveSettings(NO,YES,fn,&spec);
+	}
+	else return mSaveSettingsAs(wind);
+	
+	BPActivateWindow(SLOW,wind);
+	return (result);
+}
+
+
+mSaveSettingsAs(int wind)
 {
 int rep;
 Str255 fn;
@@ -1649,11 +1671,7 @@ c2pstrcpy(fn, FileName[iSettings]);
 spec.vRefNum = TheVRefNum[iSettings];
 spec.parID = WindowParID[iSettings];
 c2pstrcpy(spec.name, FileName[iSettings]);
-if(SaveSettings(NO,NO,fn,&spec) == OK) {
-	TheVRefNum[iSettings] = spec.vRefNum;
-	WindowParID[iSettings] = spec.parID;
-	Created[iSettings] = TRUE;
-	}
+rep = SaveSettings(NO,NO,fn,&spec);
 BPActivateWindow(SLOW,wind);
 return(OK);
 }
@@ -2175,7 +2193,7 @@ mGrammar(int wind)
 int r;
 
 r = OK;
-if(Option && (r=Answer("Display tokenized grammar",'Y')) == YES) {
+if(Option /* && (r=Answer("Display tokenized grammar",'Y')) == YES */) {
 	if(!CompiledGr) r = CompileGrammar(1);
 	if((CompiledGr || N_err > 0) && Gram.number_gram > 0) {
 		DisplayGrammar(&Gram,wTrace,FALSE,TRUE,TRUE);
@@ -2192,7 +2210,7 @@ return(OK);
 
 mAlphabet(int wind)
 {
-if(Option && Answer("Display tokenized alphabet",'Y') == YES) {
+if(Option /* && Answer("Display tokenized alphabet",'Y') == YES */) {
 	if(CompiledAl || CompileAlphabet() == OK) {
 		ShowAlphabet();
 		return(OK);
@@ -2265,7 +2283,7 @@ mGlossary(int wind)
 int r;
 
 if(CompiledGl && GlossGram.p_subgram != NULL && (CheckMemory() == OK)) {
-	if(Option && (r=Answer("Display tokenized glossary",'Y')) == YES) {
+	if(Option /* && (r=Answer("Display tokenized glossary",'Y')) == YES */) {
 		DisplayGrammar(&GlossGram,wTrace,FALSE,FALSE,FALSE);
 		return(OK);
 		}

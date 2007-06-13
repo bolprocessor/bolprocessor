@@ -75,9 +75,9 @@ IntProcPtr Menu[][MAXMENUITEMS] =
 	{{NULLPROC,mAbout,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
 		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
 		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
-	{NULLPROC,mNewProject,mLoadProject,NULLPROC,mMakeGrammarFromTable,mReceiveMIDI,mSendMIDI,mLoadTimePattern,mGetInfo,
-		NULLPROC,mOpenFile,mClearWindow,mGoAway,mSaveFile,mSaveAs,mRevert,NULLPROC,mLoadSettings,
-		mSaveSettings,mSaveStartup,NULLPROC,mPageSetup,mPrint,NULLPROC,mQuit,NULLPROC},
+	{NULLPROC,mNewProject,mLoadProject,NULLPROC,mOpenFile,mClearWindow,mGoAway,mSaveFile,mSaveAs,mRevert,
+		mGetInfo,NULLPROC,mLoadSettings,mSaveSettings,mSaveSettingsAs,mSaveStartup,NULLPROC,mMakeGrammarFromTable,
+		mReceiveMIDI,mSendMIDI,mLoadTimePattern,NULLPROC,mPageSetup,mPrint,NULLPROC,mQuit},
 	{NULLPROC,mUndo,NULLPROC,mCut,mCopy,mPaste,mClear,NULLPROC,mSelectAll,NULLPROC,
 		mPickPerformanceControl,mPickGrammarProcedure,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
 		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
@@ -99,10 +99,12 @@ IntProcPtr Menu[][MAXMENUITEMS] =
 	{NULLPROC,mMIDI,mMIDIfile,mCsound,mOMS,NULLPROC,mMIDIinputcheck,mMIDIoutputcheck,mMIDIorchestra,NULLPROC,
 		mCsoundInstrumentsSpecs,NULLPROC,mOMSinout,mOMSmidisetup,mOMSstudiosetup,NULLPROC,mModemPort,
 		mPrinterPort,NULLPROC,mMIDIfilter,NULLPROC,mShowCMSettings,mOpenAudioMidiSetup,NULLPROC,NULLPROC,NULLPROC},
-	{NULLPROC,mGrammar,mAlphabet,mData,mMiscSettings,mMetronom,mTimeBase,mInteraction,mGlossary,
-		mStartString,mObjectPrototypes,mTrace,mGraphic,mControlPannel,mScript,mScrap,mKeyboard,
-		mNotice,NULLPROC,mFAQ,NULLPROC,mShowMessages,NULLPROC,NULLPROC,NULLPROC,NULLPROC}};
+	{NULLPROC,mGrammar,mAlphabet,mData,mMiscSettings,mObjectPrototypes,mTimeBase,mInteraction,mScript,mGlossary,
+		mKeyboard,NULLPROC,mControlPannel,mMetronom,NULLPROC,mGraphic,mTrace,mStartString,mScrap,
+		mNotice,NULLPROC,mFAQ,NULLPROC,mShowMessages,NULLPROC,NULLPROC}};
 
+ResID  WindowMenuIcons[11] = { 10, 129, 130, 132, 133, 131, 140, 139, 137, 138, 136 };
+ResID  DeviceMenuIcons[11] = { 10, 0, 0, 0, 0, 0, 0, 0, 144, 0, 142 };
 
 Handle h_EmergencyMemory;
 int EmergencyExit,LowOnMemory,TempMemory,AskedTempMemory,FixedMaxQuantization,TraceMemory,

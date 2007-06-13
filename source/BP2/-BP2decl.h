@@ -77,6 +77,9 @@ extern THPrint hPrint;
 #endif
 
 extern IntProcPtr Menu[MAXMENU][MAXMENUITEMS];
+extern ResID WindowMenuIcons[11];
+extern ResID DeviceMenuIcons[11];
+
 extern Handle h_EmergencyMemory;
 extern int EmergencyExit,LowOnMemory,TempMemory,AskedTempMemory,FixedMaxQuantization,
 	TraceMemory,EventState,Beta;
