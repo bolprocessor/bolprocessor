@@ -1,5 +1,16 @@
 2007-06-13	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
+	* resources/BP2-MacOS.rsrc (MENU #135):
+	* resources/CoreMIDISettings.rsrc (MENU #135):
+	* source/BP2/-BP2main.h:
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/Interface1.c (MaintainMenus):
+	* source/BP2/SaveLoads1.c (SaveMidiDriverStartup):
+		Removed OMS and serial driver menu items in the Mach-O build.
+		Rearranged the Devices menu for all builds.
+		Added button to CoreMIDI settings to open the MIDI filter dialog.
+		Ask the user to confirm saving the -md.startup file.
+		
 	* resources/BP2-MacOS.rsrc (DLOG #544 & DITL #638):
 	* source/BP2/-BP2.h:
 	* source/BP2/Inits.c (Inits):

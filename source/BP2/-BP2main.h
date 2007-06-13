@@ -96,15 +96,21 @@ IntProcPtr Menu[][MAXMENUITEMS] =
 		mEnglishConvention,mIndianConvention,
 		mKeyConvention,NULLPROC,mText,mToken,
 		mSmartCursor,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
-	{NULLPROC,mMIDI,mMIDIfile,mCsound,mOMS,NULLPROC,mMIDIinputcheck,mMIDIoutputcheck,mMIDIorchestra,NULLPROC,
-		mCsoundInstrumentsSpecs,NULLPROC,mOMSinout,mOMSmidisetup,mOMSstudiosetup,NULLPROC,mModemPort,
-		mPrinterPort,NULLPROC,mMIDIfilter,NULLPROC,mShowCMSettings,mOpenAudioMidiSetup,NULLPROC,NULLPROC,NULLPROC},
+#if BP_MACHO
+	{NULLPROC,mMIDI,mMIDIfile,mCsound,NULLPROC,NULLPROC,mMIDIinputcheck,mMIDIoutputcheck,mMIDIfilter,NULLPROC,
+		mMIDIorchestra,mCsoundInstrumentsSpecs,NULLPROC,mShowCMSettings,mOpenAudioMidiSetup,NULLPROC,NULLPROC,
+		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
+#else
+	{NULLPROC,mMIDI,mMIDIfile,mCsound,mOMS,NULLPROC,mMIDIinputcheck,mMIDIoutputcheck,mMIDIfilter,NULLPROC,
+		mMIDIorchestra,mCsoundInstrumentsSpecs,NULLPROC,mOMSinout,mOMSmidisetup,mOMSstudiosetup,NULLPROC,
+		mModemPort,mPrinterPort,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
+#endif
 	{NULLPROC,mGrammar,mAlphabet,mData,mMiscSettings,mObjectPrototypes,mTimeBase,mInteraction,mScript,mGlossary,
 		mKeyboard,NULLPROC,mControlPannel,mMetronom,NULLPROC,mGraphic,mTrace,mStartString,mScrap,
 		mNotice,NULLPROC,mFAQ,NULLPROC,mShowMessages,NULLPROC,NULLPROC}};
 
 ResID  WindowMenuIcons[11] = { 10, 129, 130, 132, 133, 131, 140, 139, 137, 138, 136 };
-ResID  DeviceMenuIcons[11] = { 10, 0, 0, 0, 0, 0, 0, 0, 144, 0, 142 };
+ResID  DeviceMenuIcons[12] = { 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 144, 142 };
 
 Handle h_EmergencyMemory;
 int EmergencyExit,LowOnMemory,TempMemory,AskedTempMemory,FixedMaxQuantization,TraceMemory,

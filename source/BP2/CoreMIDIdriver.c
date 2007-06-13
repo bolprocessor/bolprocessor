@@ -712,6 +712,7 @@ const  short	diMidiThru = 8;
 const  short	diSaveStartup = 9;
 const  short	diSaveSettings = 10;
 const  short	diLoadSettings = 11;
+const  short	diMidiFilter = 12;
 
 OSStatus CreateCMSettings()
 {
@@ -778,6 +779,9 @@ int DoCMSettingsEvent(EventRecord* event, short itemHit)
 			break;
 		case	diLoadSettings:
 			result = OpenMidiDriverSettings();
+			break;
+		case	diMidiFilter:
+			mMIDIfilter(wUnknown);
 			break;
 	}
 	

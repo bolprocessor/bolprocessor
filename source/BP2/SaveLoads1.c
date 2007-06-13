@@ -2686,6 +2686,9 @@ int SaveMidiDriverStartup()
 	OSType thecreator, thetype;
 	FSSpec mdStartup;
 	
+	if (Answer("Save the current Midi driver settings as your startup settings", 'Y')
+		!= YES)  return (FAILED);
+	
 	err = GetMidiDriverStartupSpec(&mdStartup, TRUE);
 	if (err == fnfErr) {
 		SelectCreatorAndFileType(ftiMidiDriver, &thecreator, &thetype);

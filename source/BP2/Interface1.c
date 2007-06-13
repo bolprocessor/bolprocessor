@@ -2231,7 +2231,7 @@ Boolean PointIsInEditTextItem(DialogRef dp, Point pt)
 	
 	item = FindDialogItem(dp, pt) + 1; // + 1 because number returned is one less than needed
 	GetDialogItem(dp, item, &itemtype, &itemH, &itemrect);
-	if(itemtype == kEditTextDialogItem && PtInRect(pt,&itemrect))
+	if((itemtype & 127) == kEditTextDialogItem && PtInRect(pt,&itemrect))
 		return TRUE;
 	else	return FALSE;
 }
@@ -2337,6 +2337,7 @@ if(InitOn) return(OK);
 if(Nw < 0) w = LastEditWindow;
 else w = FindGoodIndex(Nw);
 
+#if !BP_MACHO // currently, these menu items are in all builds except Mach-O
 if(Oms) {
 	EnableMenuItem(myMenus[deviceM],OMSmidiCommand);
 	EnableMenuItem(myMenus[deviceM],OMSstudioCommand);
@@ -2349,7 +2350,8 @@ else {
 	DisableMenuItem(myMenus[deviceM],OMSinoutCommand);
 	CheckMenuItem(myMenus[deviceM],outOMSCommand,FALSE);
 	}
-	
+#endif
+
 if(UndoFlag || LastAction != NO)
 	EnableMenuItem(myMenus[editM],undoCommand);
 else
@@ -2546,6 +2548,7 @@ if(CompileOn || (CompiledGr && (CompiledGl || !LoadedGl)) || ClickRuleOn) {
 	}
 else EnableMenuItem(myMenus[actionM],compileCommand);
 
+#if !BP_MACHO // currently, these menu items are in all builds except Mach-O
 if(!InBuiltDriverOn) {	// was if(Oms) - 011607 - akozar
 	CheckMenuItem(myMenus[deviceM],modemportCommand,FALSE);
 	CheckMenuItem(myMenus[deviceM],printerportCommand,FALSE);
@@ -2564,6 +2567,8 @@ else {
 		CheckMenuItem(myMenus[deviceM],printerportCommand,TRUE);
 		}
 	}
+#endif
+
 if(OutMIDI) CheckMenuItem(myMenus[deviceM],outMIDICommand,TRUE);
 else CheckMenuItem(myMenus[deviceM],outMIDICommand,FALSE);
 if(WriteMIDIfile) CheckMenuItem(myMenus[deviceM],outMIDIfileCommand,TRUE);
