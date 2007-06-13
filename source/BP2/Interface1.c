@@ -926,7 +926,7 @@ switch(w) {
 	case wCsoundInstruments:
 		ClearWindow(YES,wCsoundTables);
 		ResizeCsoundInstrumentsSpace(1);
-		if(newinstruments) ResetCsoundInstrument(iCsoundInstrument,YES);
+		if(newinstruments) ResetCsoundInstrument(iCsoundInstrument,YES,NO);
 		for(i=1; i <= MAXCHAN; i++) WhichCsoundInstrument[i] = -1;
 		if(newinstruments) SetCsoundInstrument(iCsoundInstrument,-1);
 		maxsounds = MyGetHandleSize((Handle)p_CompiledCsoundScore) / sizeof(char);

@@ -689,8 +689,8 @@ NeedZouleb = 0;
 UseBullet = TRUE;  Code[7] = '¥';
 if(ResizeCsoundInstrumentsSpace(1) != OK) return(ABORT);
 iCsoundInstrument = 0;
-ResetCsoundInstrument(iCsoundInstrument,YES);
-for(i=1; i <= MAXCHAN; i++) WhichCsoundInstrument[i] = -1;
+ResetCsoundInstrument(iCsoundInstrument,YES,NO);
+for(i=1; i <= MAXCHAN; i++) WhichCsoundInstrument[i] = -1; // FIXME: this is done above too?
 SetCsoundInstrument(iCsoundInstrument,-1);
 /* ClearWindow(TRUE,wCsoundInstruments); */
 // ErrorSound(MySoundProc);

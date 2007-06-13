@@ -2318,7 +2318,7 @@ if(w == wCsoundInstruments) {
 			if((rep=SaveCheck(w)) != OK) return(rep);
 			if(Answer("Reset all settings of this instrument",'N') != OK)
 				return(DONE);
-			ResetCsoundInstrument(iCsoundInstrument,NO);
+			ResetCsoundInstrument(iCsoundInstrument,NO,NO);
 			UpdateDirty(TRUE,w);
 			break;
 		case bCopyCsoundInstrumentFrom:

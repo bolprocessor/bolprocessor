@@ -790,61 +790,9 @@ for(j=Jinstr; j < howmany; j++) {
 	if((ptr=(char**) GiveSpace((Size)2L * sizeof(char))) == NULL) return(ABORT);
 	(*pp_CsInstrumentComment)[j] = ptr;
 	(*((*pp_CsInstrumentComment)[j]))[0] = '\0';
-	(*p_CsInstrumentIndex)[j] = (*p_CsDilationRatioIndex)[j] = (*p_CsAttackVelocityIndex)[j]
-		= (*p_CsReleaseVelocityIndex)[j] = (*p_CsPitchBendStartIndex)[j]
-		= (*p_CsPressureStartIndex)[j] = (*p_CsModulationStartIndex)[j]
-		= (*p_CsPanoramicStartIndex)[j] = (*p_CsPitchBendEndIndex)[j] = (*p_CsVolumeEndIndex)[j]
-		= (*p_CsPressureEndIndex)[j] = (*p_CsModulationEndIndex)[j]
-		= (*p_CsPanoramicEndIndex)[j] = -1;
-	
-	(*p_CsPitchIndex)[j] = 4;
-	(*p_CsPitchFormat)[j] = OPPC;
-	
-	(*p_CsVolumeStartIndex)[j] = 5;
-
-	(*p_CsInstrument)[j].rPitchBend.islogy = (*p_CsInstrument)[j].rVolume.islogx
-		= (*p_CsInstrument)[j].rVolume.islogy
-		= (*p_CsInstrument)[j].rPressure.islogx = (*p_CsInstrument)[j].rPressure.islogy
-		= (*p_CsInstrument)[j].rModulation.islogx
-		= (*p_CsInstrument)[j].rModulation.islogy = (*p_CsInstrument)[j].rPanoramic.islogx
-		= (*p_CsInstrument)[j].rPanoramic.islogy = FALSE;
-	(*p_CsInstrument)[j].rPitchBend.islogx = TRUE;
-	(*p_CsInstrument)[j].pitchbendrange = -1.;
-	
-	(*p_CsInstrument)[j].pitchbendtable = (*p_CsInstrument)[j].volumetable
-		= (*p_CsInstrument)[j].pressuretable = (*p_CsInstrument)[j].modulationtable
-		= (*p_CsInstrument)[j].panoramictable = -1;
-	
-	(*p_CsInstrument)[j].pitchbendGEN = (*p_CsInstrument)[j].volumeGEN
-		= (*p_CsInstrument)[j].pressureGEN = (*p_CsInstrument)[j].modulationGEN
-		= (*p_CsInstrument)[j].panoramicGEN = 7;
-	
-	(*p_CsInstrument)[j].iargmax = 5;
-	(*p_CsInstrument)[j].paramlist = NULL;
-	(*p_CsInstrument)[j].ipmax = 0;
-	
-	(*(p_CsPitchBend[0]))[j] = 0.; (*(p_CsPitchBend[1]))[j] = DEFTPITCHBEND;
-	(*(p_CsPitchBend[2]))[j] = 16383.;
-	(*(p_CsVolume[0]))[j] = 0.; (*(p_CsVolume[1]))[j] = 64.;
-	(*(p_CsVolume[2]))[j] = 127.;
-	(*(p_CsPressure[0]))[j] = 0.; (*(p_CsPressure[1]))[j] = 64.;
-	(*(p_CsPressure[2]))[j] = 127.;
-	(*(p_CsModulation[0]))[j] = 0.; (*(p_CsModulation[1]))[j] = 8192.;
-	(*(p_CsModulation[2]))[j] = 16383.;
-	(*(p_CsPanoramic[0]))[j] = 0.; (*(p_CsPanoramic[1]))[j] = 64.;
-	(*(p_CsPanoramic[2]))[j] = 127.;
-	
-	(*(p_CsPitchBend[3]))[j] = Infpos1; (*(p_CsPitchBend[4]))[j] = Infpos1;
-	(*(p_CsPitchBend[5]))[j] = Infpos1;
-	(*(p_CsVolume[3]))[j] = Infpos1; (*(p_CsVolume[4]))[j] = Infpos1;
-	(*(p_CsVolume[5]))[j] = Infpos1;
-	(*(p_CsPressure[3]))[j] = Infpos1; (*(p_CsPressure[4]))[j] = Infpos1;
-	(*(p_CsPressure[5]))[j] = Infpos1;
-	(*(p_CsModulation[3]))[j] = Infpos1; (*(p_CsModulation[4]))[j] = Infpos1;
-	(*(p_CsModulation[5]))[j] = Infpos1;
-	(*(p_CsPanoramic[3]))[j] = Infpos1; (*(p_CsPanoramic[4]))[j] = Infpos1;
-	(*(p_CsPanoramic[5]))[j] = Infpos1;
+	ResetCsoundInstrument(j,NO,YES);
 	}
+	
 Jinstr = howmany;
 if(iCsoundInstrument >= Jinstr) iCsoundInstrument = 0;
 SetCsoundInstrument(iCsoundInstrument,-1);

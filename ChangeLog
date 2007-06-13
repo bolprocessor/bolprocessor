@@ -1,3 +1,16 @@
+2007-06-13	Bernard Bel	<bel@lpl.univ-aix.fr>
+(Commited by Anthony)
+
+	* source/-BP2.proto.h:
+	* source/Inits.c:
+	* source/Dialogs.c:
+	* source/Interface1.c:
+	* source/BP2/GetRelease.c (ResizeCsoundInstrumentsSpace):
+	* source/BP2/Csound.c (ResetCsoundInstrument):
+		Removed duplicate code in ResizeCsoundInstrumentsSpace() for 
+			initializing new Csound instruments and made modifications to 
+			ResetCsoundInstrument() so that it can be called from there.
+
 2007-06-12	Bernard Bel	<bel@lpl.univ-aix.fr>
 (Commited by Anthony)
 

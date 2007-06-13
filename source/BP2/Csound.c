@@ -732,22 +732,30 @@ return(OK);
 }
 
 
-ResetCsoundInstrument(int j,int all)
+/* 061307: New argument "newinstr" should be YES when the instrument space
+   is newly allocated and uninitialized.  This is the case when called from 
+   ResizeCsoundInstrumentsSpace().  When "all" is NO, then the instrument
+   index, name, and comment are preserved.  Changes by BB. */
+ResetCsoundInstrument(int j,int all, int newinstr)
 {
 Handle ptr;
 int i,channel;
 
-if(j < 0 || j >= Jinstr) {
-	if(Beta) Alert1("Err. ResetCsoundInstrument(). Incorrect index");
-	return(FAILED);
-	}
-for(channel=1; channel <= MAXCHAN; channel++) {
-	if(WhichCsoundInstrument[channel] == (*p_CsInstrumentIndex)[j]) {
-		WhichCsoundInstrument[channel] = -1;
-		break;
+if(!newinstr) {
+	// Jinstr has not been adjusted yet when resizing
+	if(j < 0 || j >= Jinstr) {
+		if(Beta) Alert1("Err. ResetCsoundInstrument(). Incorrect index");
+		return(FAILED);
+		}
+	for(channel=1; channel <= MAXCHAN; channel++) {
+		if(WhichCsoundInstrument[channel] == (*p_CsInstrumentIndex)[j]) {
+			WhichCsoundInstrument[channel] = -1;
+			break;
+			}
 		}
 	}
-if(all) (*p_CsInstrumentIndex)[j] = -1;
+
+if(all || newinstr) (*p_CsInstrumentIndex)[j] = -1;
 (*p_CsDilationRatioIndex)[j] = (*p_CsAttackVelocityIndex)[j]
 	= (*p_CsReleaseVelocityIndex)[j]
 	= (*p_CsPressureStartIndex)[j] = (*p_CsModulationStartIndex)[j]
@@ -784,18 +792,21 @@ if(all) (*p_CsInstrumentIndex)[j] = -1;
 
 (*p_CsInstrument)[j].iargmax = 10;	/* Three Arguments are compulsory */
 
-for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
-	if((*p_CsInstrument)[j].paramlist == NULL) {
-		if(Beta) Alert1("Err. ResetCsoundInstrument(). (*p_CsInstrument)[j].paramlist == NULL");
-		continue;
+if(!newinstr) {
+	for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
+		if((*p_CsInstrument)[j].paramlist == NULL) {
+			if(Beta) Alert1("Err. ResetCsoundInstrument(). (*p_CsInstrument)[j].paramlist == NULL");
+			continue;
+			}
+		ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].name;
+		MyDisposeHandle(&ptr);
+		ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].comment;
+		MyDisposeHandle(&ptr);
 		}
-	ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].name;
-	MyDisposeHandle(&ptr);
-	ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].comment;
+	ptr = (Handle) (*p_CsInstrument)[j].paramlist;
 	MyDisposeHandle(&ptr);
 	}
-ptr = (Handle) (*p_CsInstrument)[j].paramlist;
-MyDisposeHandle(&ptr);
+	
 (*p_CsInstrument)[j].paramlist = NULL;
 (*p_CsInstrument)[j].ipmax = 0;
 
