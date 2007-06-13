@@ -53,7 +53,7 @@ CheckLoadedPrototypes(void)
 int r;
 GrafPtr saveport;
 
-GetPort(&saveport);
+GetPort(&saveport);  // FIXME ? is this necessary?
 r = OK;
 if(!ObjectMode && !ObjectTry && (OutMIDI || OutCsound || WriteMIDIfile)) {
    ObjectTry = TRUE;
@@ -61,7 +61,10 @@ if(!ObjectMode && !ObjectTry && (OutMIDI || OutCsound || WriteMIDIfile)) {
       r = ABORT; goto OUT;
       }
    if(NeedAlphabet) {
-      if((r=LoadObjectPrototypes(NO,YES)) != OK) {
+      if((FileName[iObjects][0] == '\0'
+   	     && Answer("Since MIDI, MIDI file, or Csound output is active, you may need to "
+   	               "load an object prototypes file. Would you like to do so", 'Y') != YES)
+   	   || (r=LoadObjectPrototypes(NO,YES)) != OK) {
          ObjectMode = FALSE;
          FileName[iObjects][0] = '\0';
          SetName(iObjects,TRUE,TRUE);
