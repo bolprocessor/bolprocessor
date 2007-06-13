@@ -1,3 +1,17 @@
+2007-06-13	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* resources/BP2-MacOS.rsrc (DLOG #544 & DITL #638):
+	* source/BP2/-BP2.h:
+	* source/BP2/Inits.c (Inits):
+	* source/Dialogs.c (DoDialog):
+		Turn off all Transmit checkboxes in MIDI Filter by default.
+		Added "Set All" and "Clear" buttons for Receive and Transmit columns.
+		Only call ResetMIDI() after filter changes when the built-in serial
+			driver is being used.
+	
+	* source/Interface1.c (PointIsInEditTextItem):
+		Recognize disabled edit text boxes too.
+
 2007-06-13	Bernard Bel	<bel@lpl.univ-aix.fr>
 (Commited by Anthony)
 

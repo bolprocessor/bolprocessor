@@ -250,6 +250,10 @@ Hey: this code is not portable!!!
 #define CLOCKSIZE 256	/* must be a power of 2 */
 #define CLOCKLOG 8		/* log base 2 of CLOCKSIZE */
 
+// MIDI filter constants
+#define FILTER_ALL_ON	(-1L)
+#define FILTER_ALL_OFF	(0L)
+
 // Constants for BP's special file and folder names
 
 #define	kBPPrefsFolder	"\pBol Processor"
@@ -1390,6 +1394,10 @@ typedef enum {
 #define bSystemResetPass 30
 
 #define bFilterReset 48
+#define bFilterReceiveSetAll	49
+#define bFilterReceiveClear	50
+#define bFilterTransmitSetAll	51
+#define bFilterTransmitClear	52
 
 // MakeGrammarFromTable dialog indexes
 #define bMakeGrammarFromTableProceed 1

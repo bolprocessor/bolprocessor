@@ -236,11 +236,11 @@ gChosenInputID = gChosenInputIDbydefault = 0;
 gChosenOutputID = 0;
 gInputMenu = gOutputMenu = NULL;
 gOutNodeRefNum = OMSInvalidRefNum;
-MIDIinputFilter = MIDIinputFilterstartup = -1L;
-MIDIoutputFilter = MIDIoutputFilterstartup = -1L;
 OMSoutputName[0] = OMSinputName[0] = '\0';
 #endif
 
+MIDIinputFilter = MIDIinputFilterstartup = FILTER_ALL_ON;
+MIDIoutputFilter = MIDIoutputFilterstartup = FILTER_ALL_OFF; // turn off Midi-thru by default - 061307 akozar
 ResetMIDIFilter();
 
 QuantizeOK = TRUE;

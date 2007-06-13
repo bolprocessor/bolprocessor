@@ -2627,10 +2627,34 @@ if(w == wFilter) {
 		case bFilterReset:
 			if(Answer("Reset filter to startup settings",'N') == YES)
 				ResetMIDIFilter();
+			break;
+		case bFilterReceiveSetAll:
+			MIDIinputFilter = FILTER_ALL_ON;
+			GetInputFilterWord();
+			break;
+		case bFilterReceiveClear:
+			MIDIinputFilter = FILTER_ALL_OFF;
+			GetInputFilterWord();
+			// To be consistent for now, turn off transmit buttons too
+			MIDIoutputFilter = FILTER_ALL_OFF;
+			GetOutputFilterWord();
+			break;
+		case bFilterTransmitSetAll:
+			MIDIoutputFilter = FILTER_ALL_ON;
+			GetOutputFilterWord();
+			// To be consistent for now, turn on receive buttons too
+			MIDIinputFilter = FILTER_ALL_ON;
+			GetInputFilterWord();
+			break;
+		case bFilterTransmitClear:
+			MIDIoutputFilter = FILTER_ALL_OFF;
+			GetOutputFilterWord();
+			break;
 		}
 	Dirty[iSettings] = TRUE;
-#if WITH_REAL_TIME_MIDI
-	if((rep=ResetMIDI(FALSE)) != OK) return(rep);
+#if USE_BUILT_IN_MIDI_DRIVER
+	// only necessary to send the filter settings to the serial driver - akozar
+	if(InBuiltDriverOn && (rep=ResetMIDI(FALSE)) != OK) return(rep);
 #endif
 	if((rep=SetFilterDialog()) != OK) return(rep);
 	rep = DONE;
