@@ -684,7 +684,7 @@ else {
 	}
 
 if((memerr=MemError()) == noErr) {
-	MemoryUsed += (unsigned long)(size - oldsize);
+	MemoryUsed += (unsigned long)(size - oldsize);	// FIXME ? oldsize can be > size (but seems to work anyways?)
 	if(MemoryUsed > MaxMemoryUsed) {
 		MaxMemoryUsed = MemoryUsed;
 		}
