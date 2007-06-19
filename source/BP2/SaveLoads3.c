@@ -1550,7 +1550,7 @@ OSErr CloseAndDeleteTemp()
 	OSErr io;
 
 	io = noErr;
-	if(TraceRefnum != -1) {
+	if(TempRefnum != -1) {
 		io = CloseMe(&TempRefnum);
 		io = FSpDelete(&TempSpec);
 		FlushVol(NULL, TempSpec.vRefNum);
