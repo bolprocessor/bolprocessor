@@ -1,3 +1,16 @@
+2007-06-18	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/CoreMIDIdriver.c (InitCoreMidiDriver, UpdateCMSettingsListBoxes):
+ 		Fixed InitCoreMidiDriver() when allocating active arrays fails.
+ 		Moved logic for auto-connecting to UpdateCMSettingsListBoxes() and now
+ 			will auto-connect to new sources and destinations after launch if
+ 			the source or destination list was empty before the update.
+ 		New function TellDestinations(); now only reports connections to 
+ 			endpoints that were automatically made.
+
+	* source/BP2/SaveLoads1.c (CloseAndDeleteTemp):
+		Correctly check TempRefnum, not TraceRefnum.
+	
 2007-06-13	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* resources/BP2-MacOS.rsrc (MENU #135):
