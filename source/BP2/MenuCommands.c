@@ -2875,6 +2875,22 @@ return(OK);
 }
 
 
+int mComputationSettings(int wind)
+{
+BPActivateWindow(SLOW,wSettingsTop);
+// AppendScript(??);
+return(OK);
+}
+
+
+int mInputOutputSettings(int wind)
+{
+BPActivateWindow(SLOW,wSettingsBottom);
+// AppendScript(??);
+return(OK);
+}
+
+
 mTimeAccuracy(int wind)
 {
 BPActivateWindow(SLOW,wTimeAccuracy);

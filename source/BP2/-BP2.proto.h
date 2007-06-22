@@ -775,6 +775,8 @@ int mPlaySelect(int);
 int mRandomSequence(int);
 int mTimeBase(int);
 int mMetronom(int);
+int mComputationSettings(int);
+int mInputOutputSettings(int);
 int mTimeAccuracy(int);
 int mBufferSize(int);
 int mGraphicSettings(int);
