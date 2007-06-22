@@ -1633,6 +1633,9 @@ int BPSetMenuItemIcons(MenuHandle menu, ResID iconIDs[])
 	OSErr  err;
 	int    i;
 
+	// SetMenuItemIconHandle() only available with Appearance Mgr
+	if (!HaveAppearanceManager)  return (FAILED);
+
 	for (i = 1; i <= iconIDs[0]; ++i) {
 		if (iconIDs[i] > 0) {
 			err = GetIconSuite(&iconsuite, iconIDs[i], kSelectorAllSmallData);
@@ -1687,7 +1690,7 @@ else {  // use Appearance Mgr features to set option-key shortcuts
 EnableMenuItem(myMenus[searchM],enterfindCommand);
 
 if (!HaveAppearanceManager) {
-	sprintf(Message,"Use tokens [toggle] %c-option T",(char) commandMark);
+	sprintf(Message,"Type tokens [toggle] %c-option T",(char) commandMark);
 	c2pstrcpy(PascalLine, Message);
 	SetMenuItemText(myMenus[miscM],tokenCommand,PascalLine);
 	}
