@@ -749,36 +749,40 @@ typedef enum {
 #define showPeriodsCommand 9
 #define executescriptCommand 10
 #define transliterateCommand 11
-
-#define adjustTimeBaseCommand 13
-
-#define pauseCommand 15
-#define resumeCommand 16
-#define stopCommand 17
-
-#define resetsessiontimeCommand 19
-#define tellsessiontime 20
-
-#define typenoteCommand 22
-
-#define helpCommand 24
+// --------------------------		12
+#define pauseCommand			13
+#define resumeCommand			14
+#define stopCommand			15
+// --------------------------		16
+#define resetsessiontimeCommand	17
+#define tellsessiontime			18
+// --------------------------		19
+#define helpCommand			20
 
 // Misc menu command indexes
-#define randomizeCommand    1
-#define accuracyCommand 	2
-#define buffersizeCommand 	3
-#define graphicsettingsCommand 4
-#define defaultPerformanceValuesCommand 5
-#define defaultStrikeModeCommand 6
-#define defaultFileSavePreferencesCommand 7
-#define tuningCommand 8
-#define frenchconventionCommand 10
-#define englishconventionCommand 11
-#define indianconventionCommand 12
-#define keyconventionCommand 13
-#define textCommand 15
-#define tokenCommand 16
-#define smartcursorCommand 17
+#define metronomCommand				1
+#define computationSettingsCommand		2
+#define inoutSettingsCommand			3
+#define randomizeCommand			4
+#define accuracyCommand				5
+#define buffersizeCommand 			6
+#define graphicsettingsCommand		7
+#define defaultPerformanceValuesCommand	8
+#define defaultStrikeModeCommand		9
+#define defaultFileSavePreferencesCommand	10
+#define tuningCommand				11
+// --------------------------			12
+#define frenchconventionCommand		13
+#define englishconventionCommand		14
+#define indianconventionCommand		15
+#define keyconventionCommand			16
+// --------------------------			17
+#define pianorollCommand			18
+// --------------------------			19
+#define textCommand				20
+#define tokenCommand				21
+// --------------------------			22
+#define typenoteCommand				23
 
 // Layout menu command indexes
 #define f9Command	1
@@ -791,25 +795,35 @@ typedef enum {
 #define azertyCommand 10
 #define qwertyCommand 11
 #define bulletCommand 13
-#define pianorollCommand 15
-#define splitTimeObjectCommand 17
-#define splitVariableCommand 18
+// --------------------------	 14
+#define splitTimeObjectCommand 15
+#define splitVariableCommand	 16
 
 // Devices menu command indexes
 #define outMIDICommand 1
 #define outMIDIfileCommand 2
 #define outCsoundCommand 3
 #define outOMSCommand 4
+// --------------------------		5
 #define checkMIDIinputcommand 6
 #define checkMIDIoutputcommand 7
-#define MIDIorchestracommand 8
-#define CsoundInstrumentSpecsCommand 10
-#define OMSinoutCommand 12
-#define OMSmidiCommand 13
-#define OMSstudioCommand 14
-#define modemportCommand 16
-#define printerportCommand 17
-#define midifilterCommand 19
+#define midifilterCommand		8
+// --------------------------		9
+#define MIDIorchestracommand		10
+#define CsoundInstrumentSpecsCommand 11
+// --------------------------		12
+#define OMSinoutCommand			13
+#define OMSmidiCommand			14
+#define OMSstudioCommand		15
+// --------------------------		16
+#define modemportCommand		17
+#define printerportCommand		18
+
+#if BP_MACHO
+// alternate Device menu indices for CoreMIDI
+#define CMsettingsCommand		13
+#define OpenAudioMidiSetupCommand	14
+#endif
 
 // Window menu command indexes
 #define grammarCommand		1
@@ -824,17 +838,16 @@ typedef enum {
 #define keyboardCommand		10
 // -------------------------- 11
 #define controlpannelCommand	12
-#define metronomCommand		13
-// -------------------------- 14
-#define graphicCommand		15
-#define traceCommand		16
-#define startstringCommand	17
-#define scrapCommand		18
-#define noticeCommand		19
-// -------------------------- 20
-#define FAQCommand		21
-// -------------------------- 22
-#define showmessagesCommand	23
+// -------------------------- 13
+#define graphicCommand		14
+#define traceCommand		15
+#define startstringCommand	16
+#define scrapCommand		17
+#define noticeCommand		18
+// -------------------------- 19
+#define FAQCommand		20
+// -------------------------- 21
+#define showmessagesCommand	22
 
 // AboutAlert indexes
 #define dAboutOK		1

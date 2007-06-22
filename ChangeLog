@@ -1,3 +1,37 @@
+2007-06-19	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-06-20	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-06-21	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* BP2 help:  Updates to help for menu changes and new features, etc.
+	
+	* source/BP2/Inits.c (BPSetMenuItemIcons):
+		Now does nothing when Appearance Manager not available.
+	
+	* source/BP2/-BP2.h:
+	* source/BP2/-BP2main.h:
+	* source/BP2/Interface1.c (MaintainMenus):
+	* resources/BP2-MacOS.rsrc (BNDL #152; DITL #622, 626, 633, 643; 
+					    DLOG #535 & 536; Icon family #148;
+					    vers #1; MENU #128, 130, 132, 133, 134, 136):
+	* resources/CoreMIDISettings.rsrc (MENU #135):
+		Changed radio buttons to checkboxes and vice versa where they were
+			being used incorrectly.
+		New icon for -md files and added to BNDL.
+		Changed version to 2.9.6 final.
+		Fixed Devices menu constants in -BP2.h.
+		Renamed "About BP2..." to "About Bol Processor..."
+		Renamed "Misc" menu to "Settings".
+		Moved "Metronome" to Settings menu; removed "Adjust metronom".
+		Moved "Piano roll" & "Type from MIDI" to Settings menu.
+		Renamed "Use tokens" to "Type tokens".
+		New items "Computation settings" and "Input-output settings".
+		Added "..." to "Pick" item names in Edit menu.
+		Removed "..." from "Open Audio MIDI Setup".
+
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/MenuCommands.c (mComputationSettings & mInputOutputSettings):
+		New functions for showing just Top or Bottom settings windows.
+	
 2007-06-18	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* source/BP2/CoreMIDIdriver.c (InitCoreMidiDriver, UpdateCMSettingsListBoxes):

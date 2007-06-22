@@ -2360,18 +2360,22 @@ if(UseGraphicsColor)
 	CheckMenuItem(myMenus[layoutM],graphicsColorCommand,TRUE);
 else
 	CheckMenuItem(myMenus[layoutM],graphicsColorCommand,FALSE);
+
+#if 0 // smart cursor not implemented -- akozar
 if(SmartCursor)
 	CheckMenuItem(myMenus[miscM],smartcursorCommand,TRUE);
 else
 	CheckMenuItem(myMenus[miscM],smartcursorCommand,FALSE);
+#endif
+
 if(UseTextColor)
 	CheckMenuItem(myMenus[layoutM],textColorCommand,TRUE);
 else
 	CheckMenuItem(myMenus[layoutM],textColorCommand,FALSE);
 if(ReadKeyBoardOn)
-	CheckMenuItem(myMenus[actionM],typenoteCommand,TRUE);
+	CheckMenuItem(myMenus[miscM],typenoteCommand,TRUE);
 else
-	CheckMenuItem(myMenus[actionM],typenoteCommand,FALSE);
+	CheckMenuItem(myMenus[miscM],typenoteCommand,FALSE);
 
 if(UseBullet)
 	CheckMenuItem(myMenus[layoutM],bulletCommand,TRUE);
@@ -2379,9 +2383,9 @@ else
 	CheckMenuItem(myMenus[layoutM],bulletCommand,FALSE);
 
 if(ShowPianoRoll)
-	CheckMenuItem(myMenus[layoutM],pianorollCommand,TRUE);
+	CheckMenuItem(myMenus[miscM],pianorollCommand,TRUE);
 else
-	CheckMenuItem(myMenus[layoutM],pianorollCommand,FALSE);
+	CheckMenuItem(myMenus[miscM],pianorollCommand,FALSE);
 	
 switch(KeyboardType) {
 	case AZERTY:
@@ -2419,9 +2423,7 @@ else {
 	EnableMenuItem(myMenus[actionM],pauseCommand);
 	}
 if(PauseOn) DisableMenuItem(myMenus[actionM],pauseCommand);
-EnableMenuItem(myMenus[editM],graphicCommand);
-EnableMenuItem(myMenus[editM],interactionCommand);
-EnableMenuItem(myMenus[actionM],adjustTimeBaseCommand);
+// FIXME ? Enabling these miscM items unnecessary ??
 EnableMenuItem(myMenus[miscM],randomizeCommand);
 EnableMenuItem(myMenus[miscM],accuracyCommand);
 EnableMenuItem(myMenus[miscM],buffersizeCommand);

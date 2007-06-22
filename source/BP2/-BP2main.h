@@ -85,17 +85,15 @@ IntProcPtr Menu[][MAXMENUITEMS] =
 		mBalance,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
 		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
 	{NULLPROC,mCompile,mProduce,mCheckDeterminism,mTemplates,mAnalyze,mPlaySelectionOrPrototype,mExpandSelection,
-		mCaptureSelection,mShowPeriods,mExecuteScript,mTransliterateFile,NULLPROC,mMetronom,NULLPROC,mPause,
-		mResume,mStop,NULLPROC,mResetSessionTime,mTellSessionTime,NULLPROC,mTypeNote,NULLPROC,mHelp,NULLPROC},
+		mCaptureSelection,mShowPeriods,mExecuteScript,mTransliterateFile,NULLPROC,mPause,mResume,mStop,
+		NULLPROC,mResetSessionTime,mTellSessionTime,NULLPROC,mHelp,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
 	{NULLPROC,m9pt,m10pt,m12pt,m14pt,NULLPROC,mChangeColor,mUseGraphicsColor,mUseTextColor,
-		NULLPROC,mAzerty,mQwerty,NULLPROC,mUseBullet,NULLPROC,mPianoRoll,NULLPROC,
-		mSplitTimeObjects,mSplitVariables,NULLPROC,NULLPROC,
-		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
-	{NULLPROC,mRandomSequence,mTimeAccuracy,mBufferSize,mGraphicSettings,mDefaultPerformanceValues,mDefaultStrikeMode,
-		mFileSavePreferences,mTuning,NULLPROC,mFrenchConvention,
-		mEnglishConvention,mIndianConvention,
-		mKeyConvention,NULLPROC,mText,mToken,
-		mSmartCursor,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
+		NULLPROC,mAzerty,mQwerty,NULLPROC,mUseBullet,NULLPROC,mSplitTimeObjects,mSplitVariables,
+		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
+	{NULLPROC,mMetronom,mComputationSettings,mInputOutputSettings,mRandomSequence,mTimeAccuracy,mBufferSize,
+		mGraphicSettings,mDefaultPerformanceValues,mDefaultStrikeMode,mFileSavePreferences,mTuning,NULLPROC,
+		mFrenchConvention,mEnglishConvention,mIndianConvention,mKeyConvention,NULLPROC,mPianoRoll,NULLPROC,
+		mText,mToken,NULLPROC,mTypeNote,NULLPROC,NULLPROC},
 #if BP_MACHO
 	{NULLPROC,mMIDI,mMIDIfile,mCsound,NULLPROC,NULLPROC,mMIDIinputcheck,mMIDIoutputcheck,mMIDIfilter,NULLPROC,
 		mMIDIorchestra,mCsoundInstrumentsSpecs,NULLPROC,mShowCMSettings,mOpenAudioMidiSetup,NULLPROC,NULLPROC,
@@ -106,8 +104,8 @@ IntProcPtr Menu[][MAXMENUITEMS] =
 		mModemPort,mPrinterPort,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
 #endif
 	{NULLPROC,mGrammar,mAlphabet,mData,mMiscSettings,mObjectPrototypes,mTimeBase,mInteraction,mScript,mGlossary,
-		mKeyboard,NULLPROC,mControlPannel,mMetronom,NULLPROC,mGraphic,mTrace,mStartString,mScrap,
-		mNotice,NULLPROC,mFAQ,NULLPROC,mShowMessages,NULLPROC,NULLPROC}};
+		mKeyboard,NULLPROC,mControlPannel,NULLPROC,mGraphic,mTrace,mStartString,mScrap,
+		mNotice,NULLPROC,mFAQ,NULLPROC,mShowMessages,NULLPROC,NULLPROC,NULLPROC}};
 
 ResID  WindowMenuIcons[11] = { 10, 129, 130, 132, 133, 131, 140, 139, 137, 138, 136 };
 ResID  DeviceMenuIcons[12] = { 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 144, 142 };
