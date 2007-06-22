@@ -115,13 +115,16 @@ switch(instr) {
 			sprintf(Message,"Loading project: ‘%s’",line);
 			ShowMessage(TRUE,wMessage,Message);
 			if(TraceMemory) {
+				sprintf(LineBuff,"%s %ld [%ld]\r", Message,
+					(long) MemoryUsed,(long)MemoryUsed - MemoryUsedInit);
+#if !EXPERIMENTAL
 				SetSelect(GetTextLength(wScrap),GetTextLength(wScrap),
 					TEH[wScrap]);
-				Print(wScrap,Message);
-				sprintf(Message," %ld [%ld]\r",
-					(long) MemoryUsed,(long)MemoryUsed - MemoryUsedInit);
-				Print(wScrap,Message);
-				ShowSelect(CENTRE,wMessage);
+				Print(wScrap,LineBuff);
+				ShowSelect(CENTRE,wScrap);
+#else
+				ShowMessage(TRUE, wMessage, LineBuff);
+#endif
 				}
 			}
 		c2pstrcpy(fn, line);
@@ -370,12 +373,15 @@ GOTIT:
 			sprintf(Message,"Loading file: ‘%s’",line);
 			ShowMessage(TRUE,wMessage,Message);
 			if(TraceMemory) {
+				sprintf(LineBuff,"%s %ld [%ld]\r", Message,
+					(long) MemoryUsed,(long)MemoryUsed - MemoryUsedInit);
+#if !EXPERIMENTAL
 				SetSelect(GetTextLength(wScrap),GetTextLength(wScrap),TEH[wScrap]);
 				Print(wScrap,Message);
-				sprintf(Message," %ld [%ld]\r",
-					(long) MemoryUsed,(long)MemoryUsed - MemoryUsedInit);
-				Print(wScrap,Message);
-				ShowSelect(CENTRE,wMessage);
+				ShowSelect(CENTRE,wScrap);
+#else
+				ShowMessage(TRUE,wMessage,LineBuff);
+#endif
 				}
 			}
 		for(w=0; w < WMAX; w++) {  // FIXME: need to match if no prefix
