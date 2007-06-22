@@ -21,3 +21,5 @@
 
 // enable null MIDI driver
 #define WITH_REAL_TIME_MIDI 1
+
+#define EXPERIMENTAL 1
