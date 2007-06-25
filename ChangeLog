@@ -1,6 +1,43 @@
-2007-06-19	Anthony Kozar	<anthonykozar@sbcglobal.net>
-2007-06-20	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-06-25	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* -se.startup:  Reset to "Factory settings" but with Show Graphics on,
+		Display Items off, and windows arranged for a wider screen.
+
+	* source/BP2/Inits.c (Inits & InitButtons):
+		Moved initialization of OutMIDI to InitButtons().
+	
+	* source/BP2/-BP2.h:
+	* source/BP2/-BP2main.h:
+	* source/BP2/Inits.c (SetUpMenus):
+	* source/BP2/Interface1.c (MaintainMenus):
+	* resources/BP2-MacOS.rsrc (MENU #130 & #134): 
+		Moved "Type text", "Type tokens", and "Type from MIDI" menu items
+			from the Settings menu to the Edit menu.
+
+	* source/BP2/-BP2.h:
+	* source/BP2/-BP2main.h:
+		Updated version strings and constants to "2.9.6" final.
+
+	* source/prefix/PrefixReleaseMachOWASTE.h:
+	* source/prefix/PrefixReleaseTransWASTE.h:
+		New prefix files for MacOS X Release and MacOS 9 Release targets.
+
+	* BP2-MacOS.cw8.mcp:
+		New targets "MacOS X Release" and "MacOS 9 Release".  The former
+			is based on the Mach-O WASTE target and the latter on the
+			"Transitional WASTE" target.  These have optimizations turned
+			on, no debugging data, and they are compiled without BIGTEST
+			or COMPILING_BETA on.
+
+2007-06-22	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* source/BP2/ScriptUtils.c (DoScript):
+		#if EXPERIMENTAL changes so that TraceMemory messages go to the
+			Message window instead of Scrap.
+
 2007-06-21	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-06-20	Anthony Kozar	<anthonykozar@sbcglobal.net>
+2007-06-19	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* BP2 help:  Updates to help for menu changes and new features, etc.
 	

@@ -38,9 +38,9 @@
 #ifndef _H_BP2
 #define _H_BP2
 
-#define SHORT_VERSION "2.9.6 beta"
+#define SHORT_VERSION "2.9.6"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ ")" )
-#define MAXVERSION 26
+#define MAXVERSION 27
 
 #ifndef __POWERPC
 #define __POWERPC
@@ -725,8 +725,14 @@ typedef enum {
 #define pasteCommand	5
 #define clearCommand	6
 #define selectallCommand 8
-#define pickperfctrlCommand 10
-#define pickgramprocCommand 11
+// --------------------------	9
+#define textCommand		10
+#define tokenCommand		11
+// --------------------------	12
+#define typenoteCommand		13
+// --------------------------	14
+#define pickperfctrlCommand	15
+#define pickgramprocCommand	16
 
 // Search menu command indexes
 #define findCommand			1
@@ -778,11 +784,6 @@ typedef enum {
 #define keyconventionCommand			16
 // --------------------------			17
 #define pianorollCommand			18
-// --------------------------			19
-#define textCommand				20
-#define tokenCommand				21
-// --------------------------			22
-#define typenoteCommand				23
 
 // Layout menu command indexes
 #define f9Command	1

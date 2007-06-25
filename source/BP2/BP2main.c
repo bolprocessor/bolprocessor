@@ -391,8 +391,7 @@ if(!Oms && (io = DriverOpen("\p.MIDI")) != noErr) {
 	InitCoreMidiDriver();
 #endif
 
-
-
+return (OK);
 }
 
 

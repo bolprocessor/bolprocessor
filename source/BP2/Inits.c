@@ -403,12 +403,6 @@ UseGraphicsColor = UseTextColor = TRUE;
 #endif
 
 StartFromOne = TRUE;
-#if WITH_REAL_TIME_MIDI
-  OutMIDI = TRUE;
-#else
-  OutMIDI = FALSE;
-#endif
-OutCsound = /* OutQuickTime = ToldAboutQuickTime = */ WriteMIDIfile = CsoundTrace = FALSE;
 SetUpTime = 100L;	/* 100 ms */
 NewEnvironment = NewColors = Help = FALSE;
 for(i=0; i < WMAX; i++) ChangedCoordinates[i] = Dirty[i] = FALSE;
@@ -1517,6 +1511,11 @@ return(DoSystem());
 
 InitButtons(void)
 {
+#if WITH_REAL_TIME_MIDI
+  OutMIDI = TRUE;
+#else
+  OutMIDI = FALSE;
+#endif
 ObjectMode = ObjectTry = Improvize = StepProduce = StepGrammars
 	= PlanProduce = DisplayProduce = UseEachSub
 	= TraceProduce = DisplayTimeSet = StepTimeSet = TraceTimeSet
@@ -1692,13 +1691,13 @@ EnableMenuItem(myMenus[searchM],enterfindCommand);
 if (!HaveAppearanceManager) {
 	sprintf(Message,"Type tokens [toggle] %c-option T",(char) commandMark);
 	c2pstrcpy(PascalLine, Message);
-	SetMenuItemText(myMenus[miscM],tokenCommand,PascalLine);
+	SetMenuItemText(myMenus[editM],tokenCommand,PascalLine);
 	}
 else {  // use Appearance Mgr features to set option-key shortcuts
-	SetItemCmd(myMenus[miscM],tokenCommand,'T');
-	SetMenuItemModifiers(myMenus[miscM],tokenCommand,kMenuOptionModifier);
+	SetItemCmd(myMenus[editM],tokenCommand,'T');
+	SetMenuItemModifiers(myMenus[editM],tokenCommand,kMenuOptionModifier);
 	}
-EnableMenuItem(myMenus[miscM],tokenCommand);
+EnableMenuItem(myMenus[editM],tokenCommand);
 
 /*EnableMenuItem(myMenus[windowM],miscsettingsCommand);
 sprintf(Message,"Settings            %c-option-space",(char) commandMark);

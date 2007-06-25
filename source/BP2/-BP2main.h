@@ -40,7 +40,7 @@ QDGlobals Qd;
 
 GWorldPtr gMainGWorld;
 GDHandle gCurDev;
-int Version = 25; /* 2.9.6 beta */
+int Version = 26; /* 2.9.6 final */
 
 #if USE_OMS
 // OMS globals
@@ -78,9 +78,9 @@ IntProcPtr Menu[][MAXMENUITEMS] =
 	{NULLPROC,mNewProject,mLoadProject,NULLPROC,mOpenFile,mClearWindow,mGoAway,mSaveFile,mSaveAs,mRevert,
 		mGetInfo,NULLPROC,mLoadSettings,mSaveSettings,mSaveSettingsAs,mSaveStartup,NULLPROC,mMakeGrammarFromTable,
 		mReceiveMIDI,mSendMIDI,mLoadTimePattern,NULLPROC,mPageSetup,mPrint,NULLPROC,mQuit},
-	{NULLPROC,mUndo,NULLPROC,mCut,mCopy,mPaste,mClear,NULLPROC,mSelectAll,NULLPROC,
-		mPickPerformanceControl,mPickGrammarProcedure,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
-		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
+	{NULLPROC,mUndo,NULLPROC,mCut,mCopy,mPaste,mClear,NULLPROC,mSelectAll,NULLPROC,mText,mToken,NULLPROC,mTypeNote,
+		NULLPROC,mPickPerformanceControl,mPickGrammarProcedure,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
+		NULLPROC,NULLPROC,NULLPROC,NULLPROC},
 	{NULLPROC,mFind,mEnterFind,mFindAgain,NULLPROC,mCheckVariables,mListTerminals,mListReserved,
 		mBalance,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
 		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
@@ -93,7 +93,7 @@ IntProcPtr Menu[][MAXMENUITEMS] =
 	{NULLPROC,mMetronom,mComputationSettings,mInputOutputSettings,mRandomSequence,mTimeAccuracy,mBufferSize,
 		mGraphicSettings,mDefaultPerformanceValues,mDefaultStrikeMode,mFileSavePreferences,mTuning,NULLPROC,
 		mFrenchConvention,mEnglishConvention,mIndianConvention,mKeyConvention,NULLPROC,mPianoRoll,NULLPROC,
-		mText,mToken,NULLPROC,mTypeNote,NULLPROC,NULLPROC},
+		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
 #if BP_MACHO
 	{NULLPROC,mMIDI,mMIDIfile,mCsound,NULLPROC,NULLPROC,mMIDIinputcheck,mMIDIoutputcheck,mMIDIfilter,NULLPROC,
 		mMIDIorchestra,mCsoundInstrumentsSpecs,NULLPROC,mShowCMSettings,mOpenAudioMidiSetup,NULLPROC,NULLPROC,
@@ -153,7 +153,7 @@ char Code[] = {'\0','?','#','+',':',';','=','¥','(',')','S','/','{','}',',','<',
 char VersionName[][VERSIONLENGTH] = {"-","V.2.1","V.2.2","V.2.3","V.2.4","V.2.5",
 	"V.2.5.1","V.2.5.2","V.2.6","BP2.6.1","BP2.6.2","BP2.6.3","BP2.7","BP2.7.1","BP2.7.2",
 	"BP2.7.3","BP2.7.4","BP2.8.0","BP2.8.1","BP2.9.0","BP2.9.1","BP2.9.2","BP2.9.3","BP2.9.4",
-	"BP2.9.5", "BP2.9.6beta"};
+	"BP2.9.5", "BP2.9.6beta", "BP2.9.6"};
 char Arrowstring[] = "-->",GRAMstring[] = "gram#";
 char Portname[][8] = {"\0","Modem","Printer"};
 char ConventionString[][20] = {"ENGLISH","FRENCH","INDIAN","KEYS"};

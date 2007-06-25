@@ -2373,9 +2373,9 @@ if(UseTextColor)
 else
 	CheckMenuItem(myMenus[layoutM],textColorCommand,FALSE);
 if(ReadKeyBoardOn)
-	CheckMenuItem(myMenus[miscM],typenoteCommand,TRUE);
+	CheckMenuItem(myMenus[editM],typenoteCommand,TRUE);
 else
-	CheckMenuItem(myMenus[miscM],typenoteCommand,FALSE);
+	CheckMenuItem(myMenus[editM],typenoteCommand,FALSE);
 
 if(UseBullet)
 	CheckMenuItem(myMenus[layoutM],bulletCommand,TRUE);
@@ -2638,13 +2638,13 @@ else CheckMenuItem(myMenus[layoutM],splitTimeObjectCommand,FALSE);
 if(SplitVariables) CheckMenuItem(myMenus[layoutM],splitVariableCommand,TRUE);
 else CheckMenuItem(myMenus[layoutM],splitVariableCommand,FALSE);
 if(Token) {
-	CheckMenuItem(myMenus[miscM],tokenCommand,TRUE);
-	CheckMenuItem(myMenus[miscM],textCommand,FALSE);
+	CheckMenuItem(myMenus[editM],tokenCommand,TRUE);
+	CheckMenuItem(myMenus[editM],textCommand,FALSE);
 	SwitchOn(NULL,wKeyboard,dToken);
 	}
 else {
-	CheckMenuItem(myMenus[miscM],tokenCommand,FALSE);
-	CheckMenuItem(myMenus[miscM],textCommand,TRUE);
+	CheckMenuItem(myMenus[editM],tokenCommand,FALSE);
+	CheckMenuItem(myMenus[editM],textCommand,TRUE);
 	SwitchOff(NULL,wKeyboard,dToken);
 	}
 	
