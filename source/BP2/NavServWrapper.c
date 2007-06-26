@@ -339,6 +339,8 @@ OSErr NSWCleanupReply(NSWReply* reply)
 {
 	OSErr	err = noErr;
 	
+	if (!IsNavServAvailable()) return noErr;
+	
 	if (reply->usedNavServices && reply->saveCompleted) {
 		// Always call NavCompleteSave() to complete saves
 		err = NavCompleteSave(&reply->navReply, kNavTranslateCopy);
