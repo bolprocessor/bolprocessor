@@ -1,3 +1,16 @@
+2007-06-26	Anthony Kozar	<anthonykozar@sbcglobal.net>
+
+	* resources/ClassicDialogs.rsrc (DLOG #535, 536, 544, 546, 551, 552, 554;
+	                                 mctb #129 & 136):
+		Synchrnize changed DLOG resources with BP2-MacOS.rsrc.
+		Added DLOG #541 (ResumeStop) and moved it and 552,554 down a little.
+		Updated menu color tables for new menu item lists.
+
+	* BP2-MacOS.cw8.mcp:
+		Add ClassicDialogs.rsrc to MacOS 9 builds to add color resources
+			and override certain DLOG and DITL resources to have their
+			original layouts.
+
 2007-06-25	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* -se.startup:  Reset to "Factory settings" but with Show Graphics on,
