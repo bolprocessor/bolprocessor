@@ -1,5 +1,7 @@
 2007-06-26	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
+	* VERSION 2.9.6 (FINAL)
+	
 	* resources/ClassicDialogs.rsrc (DLOG #535, 536, 544, 546, 551, 552, 554;
 	                                 mctb #129 & 136):
 		Synchrnize changed DLOG resources with BP2-MacOS.rsrc.
