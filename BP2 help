@@ -78,40 +78,125 @@ Use HTML text if the file should be able to be opened by other applications that
     choice in the "File saving preferences" dialog accessed from "Settings"
 ¥ MIDI files are saved with type 'Midi' and creator 'Bel0'.
 ### Why don't I hear any sound?
-¥ If you want to play music on the Mac's internal loudspeaker or via its sound output, either
-    use Csound (see "Csound implementation") or QuickTime Music.
-    BP2 works with QuickTime Music only if both "Opcode OMS" (Open Music System)
-    and QuickTime Music are installed and active.  QuickTime Music is supplied with MacOS.
-¥ "Opcode OMS" (Open Music System) is supplied free of charge by Opcode.
-    <http://www.opcode.com> or <ftp://ftp.opcode.com/pub/oms/mac>
-¥ Open the "Control panel" in the "Windows" menu and click "MIDI check output" button. Choose channel 1.
-¥ When QuickTime Music is not used, BP2 produces sounds on a MIDI system.
-    A MIDI device (synthesizer or sampler) should be hooked to the Macintosh via a
-    standard MIDI interface plugged into the 'modem' port.
-¥ If no sound is heard check the entire MIDI setup: cables, input/output, volume faders,
-    channel assignments, etc.  Remember that the interface, MIDI device(s) and amplifiers should
-    be powered! If things still don't work, read on...
-¥ If a MIDI keyboard connected to the MIDI input should control a sound device connected to the
-    output, it is wise to make sure that MIDI messages are properly received and transmitted by BP2.
-    Display the "MIDI filter" in the 'Devices' menu and make sure that required messages are
-    transmitted.
-¥ The modem/printer port on some portable computers does not work well with a MIDI interface
-    unless "Opcode OMS" (Open Music System) is installed and active.
-    Installing OMS is therefore strongly recommended.  (See above)
-¥ If you use OMS and run BP2 in background, e.g. from a FileMaker Pro data-base, make sure that
-    "Run MIDI in background" is checked in the "OMS MIDI setup" (see the "Devices" menu).
-¥ When "Opcode OMS" is not active, BP2 uses its in-built MIDI driver.
-¥ To use the built-in MIDI driver with a combined modem/printer port, try this:
-    1) PowerBook 150/190: no hope.
-    2) PowerBook 5300cs, PowerBook 1400: AppleTalk on and 'Alternate Ethernet' or 'IRTalk' chosen in
-        the 'Network' or 'AppleTalk' Control Panel.
-        Use BP2's default MIDI output ('modem').
-    Choosing Ethernet may result in an error message unless the Mac is really connected to an Ethernet
-    adapter with a valid network.  Therefore 'IRTalk' (the infra-red port) is the best solution if
-    the machine has an infra-red communication device and the 'IRTalk' extension has been activated
-    at startup.
-¥ Read the beginning of the "QuickStart" manual in the documentation for more detailed procedures.
-¥ Related topics: "OMS input-output", "Opcode OMS"
+
+    To hear sound interactively from Bol Processor, you generally need to
+  have MIDI output turned on.  Go to the 'Devices' menu and select "MIDI" to
+  turn it on if it does not have a checkmark next to it.  (A checkmark means
+  that it is on).
+  
+    When using MIDI output, you can either play music with an external MIDI
+  device such as a electronic keyboard or you can play it through your Mac's
+  internal speaker (or audio output jack).
+
+  USING YOUR MAC'S INTERNAL SPEAKER ON MACOS X:
+
+    Bol Processor uses CoreMIDI on MacOS X and QuickTime MIDI instruments are
+  not directly available as an output destination.  To use your Mac's internal
+  speaker for playback, you will need to install and run a software
+  synthesizer.  A good free one is SimpleSynth by Pete Yandell.  You can
+  download SimpleSynth from <http://pete.yandell.com/software/>.
+  
+    After you download and install SimpleSynth, launch it, then launch BP2 if
+  it is not already running.  Go to the 'Devices' menu and choose "CoreMIDI
+  settings...". In the window that appears, make sure that "SimpleSynth virtual
+  input" is selected.
+
+    To use a different program to play BP2's MIDI output, run that program and
+  select its name in the output list of BP2's "CoreMIDI settings".  If the
+  program does not appear in BP2's output destinations list, then you will need
+  to configure a MIDI "Interapplication Communications Bus".  Choose "Open
+  Audio Midi Setup" from BP2's 'Devices' menu and use this utility to create an
+  IAC Bus.  You can then choose the IAC Bus as BP2's output and the softsynth's
+  input.  (IAC Bus's are not available on MacOS X 10.2.  You can instead use a
+  program named MIDI Patchbay available from the same web site as Pete
+  Yandell's SimpleSynth above).
+
+    If you are still not hearing sound after configuring a softsynth, see below.
+  
+  USING YOUR MAC'S INTERNAL SPEAKER ON MACOS 7-9:
+
+    On MacOS 7-9, you need QuickTime Musical Instruments.  BP2 works with
+  QuickTime Music only if both "Opcode OMS" (Open Music System) and QuickTime
+  are installed and active.  QuickTime is supplied with MacOS 8 and later. You
+  may need to install it with System 7.  You can confirm that they are
+  installed by looking for the 'QuickTimeª Musical Instruments' and 'Open Music
+  System' extensions in the Extensions folder.
+
+    The last version of OMS available was 2.3.8 and you can find it on popular
+  Mac download sites such as <http://www.tucows.com/preview/206415>.  After
+  installing OMS, you should run the OMS Setup application and save a studio
+  setup with QuickTime Music enabled.  (QuickTime Music is disabled if you do
+  not see an icon for it or if the icon has a red slash through it.  In the
+  latter case, you can double-click the icon and turn it on).
+
+    Next, confirm that "MIDI" and "Opcode OMS" are both checked in BP2's 
+  'Devices' menu.  Then choose "OMS input-output" from BP2's 'Devices' menu 
+  and confirm that "QuickTime Music" is selected.  Finally, to test that the
+  output is working, open the "Control panel" in BP2's "Windows" menu and click
+  the "MIDI check output" button.  Choose channel 1 and a stream of notes will
+  be played.
+
+  USING AN EXTERNAL MIDI DEVICE:
+
+    Instead of using QuickTime Music or another softsynth, BP2 can also produce
+  sounds on external MIDI hardware.  A MIDI device (synthesizer or sampler)
+  should be hooked to the Macintosh via a standard MIDI interface plugged into
+  one of its serial ports.  (A USB port on most computers today or the modem or
+  printer port on old Macs).
+  
+    On MacOS X, you should create a studio setup using the Audio Midi Setup
+  application in the Applications/Utilities folder of your hard drive.  Then
+  go to BP2's 'Devices' menu and choose "CoreMIDI settings...". In the window
+  that appears, select the name(s) of the output devices that you want to use.
+  
+    On MacOS 9 or earlier, if you are using OMS, you should first create a
+  studio setup using the OMS Setup application and then select the correct
+  output device in BP2's "OMS input-output" window.  When "Opcode OMS" is not
+  active, BP2 uses its built-in MIDI driver.  When using the built-in serial
+  driver, make sure that the correct port (modem or printer) is selected in
+  BP2's 'Devices' menu.
+
+  MORE TROUBLESHOOTING
+  
+    If no sound is heard check the entire MIDI setup: cables, input/output,
+  volume faders, channel assignments, etc.  Remember that the interface, MIDI
+  device(s) and amplifiers should be powered! If things still don't work, read
+  on...
+
+    Starting with BP 2.9.6, relaying of messages, i.e. 'MIDI thru', is OFF by
+  default to prevent some unpleasant problems when the same program or device
+  is connected to both the input and output.  Thus if a MIDI keyboard connected
+  to the MIDI input should control a different sound device (or MIDI softsynth)
+  connected to the output, it is wise to make sure that MIDI messages are
+  properly received and transmitted by BP2.  Open the "MIDI filter" window from
+  the 'Devices' menu and make sure that the required messages are transmitted.
+
+    If using the internal speaker for playback, is the sound muted or the volume
+  set too low?
+  
+    If you use OMS and run BP2 in background, e.g. from a FileMaker Pro 
+  data-base, make sure that "Run MIDI in background" is checked in the "OMS
+  MIDI setup" (see the "Devices" menu).
+
+    The modem/printer port on some portable computers does not work well with a 
+  MIDI interface unless "Opcode OMS" (Open Music System) is installed and
+  active. Installing OMS is therefore strongly recommended.  (See above)
+
+    To use the built-in MIDI driver with a combined modem/printer port, try this:
+  1) PowerBook 150/190: no hope.
+  2) PowerBook 5300cs, PowerBook 1400: AppleTalk on and 'Alternate Ethernet' 
+     'Remote Only', or 'IRTalk' chosen in the 'Network' or 'AppleTalk' 
+     Control Panel.  Use BP2's default MIDI output ('modem').
+    
+    Choosing Ethernet may result in an error message unless the Mac is really
+    connected to an Ethernet adapter with a valid network.  Therefore 'Remote
+    Only' is often the best choice.
+    
+    Read the beginning of the "QuickStart" manual in the documentation for more
+  detailed procedures.
+
+¥ Related topics: "OMS input-output", "Opcode OMS", "CoreMIDI settings..."
+
 ### OMS setting default input device
 ¥ BP2 needs to access an existing input MIDI device at startup in order to open the OMS input port.
     This may create a problem when an old device is no longer available and is still recorded in
