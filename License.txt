@@ -1,6 +1,7 @@
 Bol Processor 2
 Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen 
               and Srikumar Karaikudi Subramanian
+Copyright (c) 2006-2008 by Bernard Bel and Anthony Kozar
 All rights reserved. 
 
 Redistribution and use in source and binary forms, with or without

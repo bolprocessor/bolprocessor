@@ -1,3 +1,8 @@
+Note:  The information below only applies to building Bol Processor for Mac OS 9.
+On Mac OS X, BP2 uses CoreMIDI exclusively and the OMS SDK is not needed.
+
+-------------
+
 Bol Processor currently requires the headers and libraries for Opcode's OMS
 Midi software to compile.  The most recent version of these are found in the
 OMS 2.0 SDK dated 28-Jan-98.
