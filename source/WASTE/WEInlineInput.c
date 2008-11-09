@@ -24,6 +24,22 @@
 
 #include "WASTEIntf.h"
 
+/* These constants were renamed in the 10.4 headers, so
+   I copied the old names from AERegistry.h. -- akozar */
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+/* Hilite styles */
+enum {
+  kCaretPosition                = kTSMHiliteCaretPosition,
+  kRawText                      = kTSMHiliteRawText,
+  kSelectedRawText              = kTSMHiliteSelectedRawText,
+  kConvertedText                = kTSMHiliteConvertedText,
+  kSelectedConvertedText        = kTSMHiliteSelectedConvertedText,
+  kBlockFillText                = kTSMHiliteBlockFillText,
+  kOutlineText                  = kTSMHiliteOutlineText,
+  kSelectedText                 = kTSMHiliteSelectedText
+};
+#endif
+
 // static variables
 
 static AEEventHandlerUPP _weUpdateActiveInputAreaHandler = NULL;
