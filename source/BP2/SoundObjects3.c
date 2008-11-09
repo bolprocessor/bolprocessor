@@ -231,10 +231,10 @@ else
    rep = GetField(NULL,TRUE,wPrototype4,fAllowGapEndPC,line,&p,&q);
 if(rep == OK) (*p_MaxEndGap)[iProto] = (long) p/q;
 
-if(rep = GetField(NULL,TRUE,wPrototype4,fPreRollms,line,&p,&q) == OK)
+if(rep = GetField(NULL,TRUE,wPrototype4,fPreRollms,line,&p,&q) == OK)	// FIXME ?
    (*p_PreRoll)[iProto] = (long) p/q;
 
-if(rep = GetField(NULL,TRUE,wPrototype4,fPostRollms,line,&p,&q) == OK)
+if(rep = GetField(NULL,TRUE,wPrototype4,fPostRollms,line,&p,&q) == OK)	// FIXME ?
    (*p_PostRoll)[iProto] = (long) p/q;
 
 if(GetCtrlValue(wPrototype5,bStriatedObject) > 0) {

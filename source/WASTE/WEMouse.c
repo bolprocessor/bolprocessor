@@ -853,7 +853,7 @@ cleanup:
 pascal OSErr _WEDrag(Point mouseLoc, EventModifiers modifiers, unsigned long clickTime, WEHandle hWE)
 {
 	WEPtr pWE = *hWE;
-	DragReference theDrag = kNullDrag;
+	DragReference theDrag = (DragReference) kNullDrag;
 	RgnHandle dragRgn = NULL;
 	RgnHandle tmpRgn = NULL;
 	EventRecord theEvent;
@@ -964,7 +964,7 @@ pascal OSErr _WEDrag(Point mouseLoc, EventModifiers modifiers, unsigned long cli
 
 	// track the drag
 	err = TrackDrag(theDrag, &theEvent, dragRgn);
-	pWE->currentDrag = kNullDrag;
+	pWE->currentDrag = (DragReference) kNullDrag;
 	if (err != noErr)
 		goto cleanup;
 

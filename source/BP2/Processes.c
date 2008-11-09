@@ -283,7 +283,7 @@ return(LaunchAnApplication(spec));
 #if BP_MACHO
 /* Code for launching applications on OS X */
 
-#include <LaunchServices/LaunchServices.h>
+#include <ApplicationServices/ApplicationServices.h>	// for <LaunchServices/LaunchServices.h>
 int LaunchOSXApplication(OSType signature)
 {
 	OSStatus err;

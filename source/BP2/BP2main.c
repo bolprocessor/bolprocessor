@@ -44,8 +44,8 @@
 #include "-BP2.h"
 #include "-BP2main.h"
 
-int MakeNewDriverRecord(BPMidiDriver*** p_handle);
-int RegisterMidiDrivers();
+static int MakeNewDriverRecord(BPMidiDriver*** p_handle);
+static int RegisterMidiDrivers(int oms);
 
 main(void)
 {

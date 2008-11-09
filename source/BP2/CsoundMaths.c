@@ -255,7 +255,7 @@ if(xin < p_r->x2) {
 	if(p_r->isquadra12) {
 FINDQUADRA:
 		xmin = - p_r->b / 2. / p_r->a;
-		if((xmin - p_r->x2) * (xmin - xin) < 0.) goto OVERFLOW;
+		if((xmin - p_r->x2) * (xmin - xin) < 0.) goto DO_OVERFLOW;
 		y = (((p_r->a * x) + p_r->b) * x) + p_r->c;
 		}
 	else y = (p_r->a12 * x) + p_r->b12;
@@ -266,12 +266,12 @@ else {
 	}
 
 if(p_r->islogy && !p_r->islogx) {
-	if(y <= 0.) goto OVERFLOW;
+	if(y <= 0.) goto DO_OVERFLOW;
 	y = log(y) / p_r->scaley;
 	}
 return(y);
 
-OVERFLOW:
+DO_OVERFLOW:
 sprintf(Message,
 	"Parameter value ‘%.2f’ is out of range…\rCheck parameter mappings in Csound instrument %ld",
 	xin,(long)(*p_CsInstrumentIndex)[ins]);
@@ -299,21 +299,21 @@ FINDQUADRA:
 		delta = (p_r->b * p_r->b) - 4.* p_r->a * (p_r->c - y);
 		if(delta < 0.) {
 			if(Beta) Alert1("Err. YtoX(). delta < 0");
-			goto OVERFLOW;
+			goto DO_OVERFLOW;
 			}
 		x = (- p_r->b - sqrt(delta)) / 2. / p_r->a;
 		if((xmin - p_r->x2) * (xmin - x) < 0.) {
 			x = (- p_r->b + sqrt(delta)) / 2. / p_r->a;
 			if((xmin - p_r->x2) * (xmin - x) < 0.) {
 				if(Beta) Alert1("Err. YtoX(). ((xmin - p_r->x2) * (xmin - x) < 0.)"); 
-				goto OVERFLOW;
+				goto DO_OVERFLOW;
 				}
 			}
 		}
 	else {
 		if(p_r->a12 == 0.) {
 			if(Beta) Alert1("Err. YtoX(). p_r->a12 == 0");
-			goto OVERFLOW;
+			goto DO_OVERFLOW;
 			}
 		x = (y - p_r->b12) / p_r->a12;
 		}
@@ -323,7 +323,7 @@ else {
 	else {
 		if(p_r->a23 == 0.) {
 			if(Beta) Alert1("Err. YtoX(). p_r->a23 == 0");
-			goto OVERFLOW;
+			goto DO_OVERFLOW;
 			}
 		x = (y - p_r->b23) / p_r->a23;
 		}
@@ -332,13 +332,13 @@ else {
 if(p_r->islogx && !p_r->islogy) {
 	if(x <= 0.) {
 		if(Beta) Alert1("Overflow in parameter mapping (log of a negative number)");
-		goto OVERFLOW;
+		goto DO_OVERFLOW;
 		}
 	x = log(x) / p_r->scalex;
 	}
 return(x);
 
-OVERFLOW:
+DO_OVERFLOW:
 sprintf(Message,
 	"Parameter value ‘%.2f’ does not match specified range: check parameter mappings in Csound instrument %ld",
 	yin,(long)(*p_CsInstrumentIndex)[ins]);

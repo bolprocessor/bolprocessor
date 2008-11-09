@@ -214,7 +214,7 @@ OSErr memerr;
 
 if(p_t == NULL) {
 	if(Beta) Alert1("Err. MystrcpyHandleToHandle(). p_t = NULL");
-	if(*pp_s != NULL) (**pp_s)[i] = '\0';
+	if(*pp_s != NULL) (**pp_s)[i] = '\0';	/* FIXME: i used before inited */
 	goto OUT;
 	}
 if(*pp_s != NULL) ims = (long) MyGetHandleSize((Handle)*pp_s);

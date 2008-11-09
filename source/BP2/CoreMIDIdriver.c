@@ -102,43 +102,44 @@ DialogPtr			CMSettings = NULL;
 CMListData**		CMInputListData = NULL;
 CMListData**		CMOutputListData = NULL;
 
-const unsigned long	MAXENDPOINTNAME = 128;	// this is our own max; no guarantees from CoreMIDI!
-const unsigned long	SUFFIXSIZE = 10;
+// const unsigned long	MAXENDPOINTNAME = 128;	// this is our own max; no guarantees from CoreMIDI!
+// const unsigned long	SUFFIXSIZE = 10;
+#define	MAXENDPOINTNAME	(128)	// this is our own max; no guarantees from CoreMIDI!
+#define	SUFFIXSIZE		(10)
 const char			OfflineSuffix[SUFFIXSIZE+1] = " (offline)";
 
-OSStatus CMCreateAndInitQueue();
-OSStatus CMResizeQueue();
-void CMReInitQueue();
-void CMDestroyQueue();
+static OSStatus CMCreateAndInitQueue();
+static OSStatus CMResizeQueue();
+static void CMReInitQueue();
+static void CMDestroyQueue();
 
-OSStatus TellDestinations(MIDIEndpointRef* endpoints);
-OSStatus CMConnectToSources(MIDIEndpointRef* endpoints, Boolean tellConnections);
-OSStatus CMDisconnectFromSources(MIDIEndpointRef* endpoints);
-void CMNotifyCallback(const MIDINotification *message, void *refCon);
-void CMReadCallback(const MIDIPacketList* pktlist, void* readProcRefCon, void* srcConnRefCon);
-int  CMAddEventToQueue(const MIDIPacket* pkt);
-int  CMRemoveEventFromQueue(MIDI_Event* p_e);
+static OSStatus TellDestinations(MIDIEndpointRef* endpoints);
+static OSStatus CMConnectToSources(MIDIEndpointRef* endpoints, Boolean tellConnections);
+static OSStatus CMDisconnectFromSources(MIDIEndpointRef* endpoints);
+static void CMNotifyCallback(const MIDINotification *message, void *refCon);
+static void CMReadCallback(const MIDIPacketList* pktlist, void* readProcRefCon, void* srcConnRefCon);
+static int  CMAddEventToQueue(const MIDIPacket* pkt);
+static int  CMRemoveEventFromQueue(MIDI_Event* p_e);
 
-void ResizeListBox(ListHandle list, long numRows);
-CMListData** NewListDataHandle(ListHandle list, Size entriesSize);
-void MarkAllOffline(CMListData* ld);
-void MarkAllNotSelected(CMListData* ld);
-Size CountMatchingEntries(CMListData* ld, Boolean selected, Boolean offline);
-Size CountSelectedEntries(CMListData* ld);
-CMListEntry* FindListEntryByID(CMListData* ld, MIDIUniqueID id);
-CMListEntry* FindListEntryByName(CMListData* ld, char* endname);
-CMListEntry* FindListEntryByRef(CMListData* ld, MIDIEndpointRef endpt);
-int  GetNewListEntry(CMListData* ld, CMListEntry** p_entryptr);
-int  InitNewListEntry(CMListData* ld, CMListEntry** p_entryptr, MIDIEndpointRef endpt, MIDIUniqueID endID, 
+static void ResizeListBox(ListHandle list, long numRows);
+static CMListData** NewListDataHandle(ListHandle list, Size entriesSize);
+static void MarkAllOffline(CMListData* ld);
+static void MarkAllNotSelected(CMListData* ld);
+static Size CountMatchingEntries(CMListData* ld, Boolean selected, Boolean offline);
+static Size CountSelectedEntries(CMListData* ld);
+static CMListEntry* FindListEntryByID(CMListData* ld, MIDIUniqueID id);
+static CMListEntry* FindListEntryByName(CMListData* ld, char* endname);
+static CMListEntry* FindListEntryByRef(CMListData* ld, MIDIEndpointRef endpt);
+static int  GetNewListEntry(CMListData* ld, CMListEntry** p_entryptr);
+static int  InitNewListEntry(CMListData* ld, CMListEntry** p_entryptr, MIDIEndpointRef endpt, MIDIUniqueID endID, 
                         char* endname, Boolean selected, Boolean offline);
-int  CompareEntryNames(const CMListEntry* a, const CMListEntry* b);
-void ResizeListBox(ListHandle list, long numRows);
-int  UpdateListBoxEntries(CMListData** ldh, ItemCount (*countFunc)(void), MIDIEndpointRef (*getEndpointFunc)(ItemCount));
+static int  CompareEntryNames(const CMListEntry* a, const CMListEntry* b);
+static int  UpdateListBoxEntries(CMListData** ldh, ItemCount (*countFunc)(void), MIDIEndpointRef (*getEndpointFunc)(ItemCount));
 int  SelectListBoxItem(CMListData** ldh, Size itemnumber);
 int  GetListBoxSelection(CMListData** ldh);
-int  SetListBoxContentsAndSelection(CMListData** ldh);
+static int  SetListBoxContentsAndSelection(CMListData** ldh);
 int  UpdateCMSettingsListBoxes(Boolean autoconnect);
-int  UpdateActiveEndpoints(CMListData** ldh, MIDIEndpointRef** endpoints, Size* epArraySize, Boolean* status);
+static int  UpdateActiveEndpoints(CMListData** ldh, MIDIEndpointRef** endpoints, Size* epArraySize, Boolean* status);
 
 /* Increment SETTINGS_FILE_VERSION for each change to the CoreMIDI settings file format.
    Change OLDEST_COMPATIBLE_VERSION to the current version whenever making an incompatible change.
@@ -147,9 +148,9 @@ int  UpdateActiveEndpoints(CMListData** ldh, MIDIEndpointRef** endpoints, Size* 
 const int	SETTINGS_FILE_VERSION = 2;	 // the current version of the CoreMIDI settings file format
 const int	OLDEST_COMPATIBLE_VERSION = 2; // the oldest version of the format that the current version is compatible with
 
-int WriteActiveEndpoints(CMListData** ldh, short refnum);
+static int WriteActiveEndpoints(CMListData** ldh, short refnum);
 int WriteCoreMIDISettings(short refnum);
-int ReadActiveEndpoints(CMListData** ldh, short refnum, long* pos, int fileVersion);
+static int ReadActiveEndpoints(CMListData** ldh, short refnum, long* pos, int fileVersion);
 int ReadCoreMIDISettings(short refnum, long* pos);
 
 /*  Returns whether the CoreMIDI driver is on */
@@ -700,6 +701,8 @@ int SetDriverTime(long time)
 
 
 /* CoreMIDI settings dialog */
+
+/* GCC does not think const shorts are constants ...
 const  short	CMSettingsID = 1000;
 const  short	diInputList = 4;
 const  short	diOutputList = 5;
@@ -709,7 +712,18 @@ const  short	diMidiThru = 8;
 const  short	diSaveStartup = 9;
 const  short	diSaveSettings = 10;
 const  short	diLoadSettings = 11;
-const  short	diMidiFilter = 12;
+const  short	diMidiFilter = 12; */
+
+#define	CMSettingsID		(1000)
+#define	diInputList			(4)
+#define	diOutputList		(5)
+#define	diCreateDestination	(6)
+#define	diCreateSource		(7)
+#define	diMidiThru			(8)
+#define	diSaveStartup		(9)
+#define	diSaveSettings		(10)
+#define	diLoadSettings		(11)
+#define	diMidiFilter		(12)
 
 OSStatus CreateCMSettings()
 {
