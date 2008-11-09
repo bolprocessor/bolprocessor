@@ -24,8 +24,6 @@ prototypes caused a crash.
 - Are MIDIfileOpened and other related globals being reset after deleting an
 aborted file write?
 
-- FlushVolume() seems wrong; could just use FlushVol from Toolbox instead.
-
 - Crashes if too much text is inserted into a TextEdit buffer.
 
 - BP2 crashes if you press the "Piano roll" button in the Object prototypes
@@ -70,12 +68,88 @@ in MakeSound() first).
   be selected as the front window.  (It is useful to do so to change their text
   size but then the window is usually not tall enough anyways).
   
-- BringToFront() seems to work differently on OS X, causing the currently 
-  highlighted window to be unselected.  This is problematic with the 
-  message window during playback because it becomes very difficult to keep
-  a window active long enough to do anything in it.  Perhaps using 
-  SendBehind(FrontWindow()) would be a good workaround until we can make 
-  real floating windows.
-
 - Arrow keys do not move properly when some text is already selected.
+  Option-arrow-keys do not move from word to word the same as other apps.
+
+- When executing only the current selection of a script, the next line after 
+  the selection is added to the selection if the last character in the selection
+  is a carriage return.
+
+- Opening a non-grammar alias file via the 'Open file' script command saves the 
+  name of the alias as in Filename[w] (and thus the window title) instead of the
+  name of the target of the alias.  Is this desireable?  (When an alias is 
+  opened via a link in another BP document, the link changes.  Is this desirable?).
+
+- 'Open file' script command chooses the target window based on file prefix.
+
+- ChangeNames() in Interface2.c (used only by 'name' AE), chooses the target 
+  windows based on file prefixes.
+
+- Loading a file into the Data window (and presumably others) without clearing
+  the window (when BP2 asks) does not change the window title to the new file's
+  name BUT that file will be saved to when choosing the 'Save' command without
+  displaying a Save dialog.  (Is this bug because we are now setting Created[w]
+  when loading a file (and perhaps should not when window is not cleared) or is
+  it just a misconception about how to handle this situation??)   I believe that
+  that the window title should ALWAYS match the Save target; if the title is
+  "New Data" (or other "untitled" equivalent) then 'Save' should display the 
+  file dialog.  The best solution here might be to create a new command in the
+  File menu 'Insert file...' and not ever ask about clearing a window when
+  'Open' is chosen!
+
+- Command-= must be pressed twice to make the Control Panel the active window;
+  but it is brought to the front the first time so maybe this is OK?.
+
+- Some of the fields in the Csound Instruments window are not initialized when
+  'New Instrument' is chosen.  (GEN routines, some of the p-field numbers).
+ 
+- Usability issue:  Clicking in another window or (especially) the menu bar 
+  with the Csound Instruments window active can cause alerts to appear when
+  any of the parameters are wrong.  If the number of p-fields box is wrong,
+  an alert appears but GetCsoundInstruments() returns OK anyways, so the 
+  event is handled after the alert is dismissed (even the menu bar click!).
+
+- Usability issue:  Menus are not hilited for 8 ticks after pressing a
+  keyboard shortcut.
+
+- The output of 'Trace production' includes null characters.
+
+- Usability issue:  The selection hiliting is hidden when switching to another
+  BP2 window but not when switching to another application.  Would be best to
+  change hiliting to an outline.
+
+- Load Settings() does not allow opening of any file type when anyfile is TRUE.
+  It sets type to 0 but then passes gFileType[iSettings] to CheckFileName().
+  Also, it displays an error message when the user chooses 'Cancel' in the 
+  open file dialog.  Probably should rework mLoadSettings() to call OldFile()
+  before calling LoadSettings and pass a spec or something??  (Needs to somehow
+  tell the difference between a call from the menu command and a call because
+  another file was opened with a link to a settings file).
+
+- Command-Shift-(Up or Down)-arrow moves the cursor instead of selecting text.
+
+- It would be nice if Command-arrows in Prototypes window would auto-repeat.
+  (Be careful that no other keyboard command shortcuts do though!).
+
+- Some of the static text and edit text items in main Object Prototypes window
+  do not get drawn when activating the window (particularly from the menu).
+  This seems to only be a problem in the TextEdit build and may be fixed by
+  removing the call to UpdateWindow() at the end of BPActivateWindow() ??
+
+- In WASTE build, deleting text selection by typing and then immediately 
+  Undo-ing only removes the typed char(s); it does not restore the lost text.
+  (Undo works OK with left delete key but not the right delete key). (In 
+  TextEdit build, the deleted selection is copied to the clipboard but this
+  is also incorrect).
+
+- 'Help', 'Home', 'End', 'Esc', 'Page up', 'Page down', 'Clear' and 'Enter'
+  keys get typed into edit boxes in dialogs.
+
+- DisplayHelp() may not show the correct help text if the item sought for
+  is an initial substring of an item already displayed in the Help window.
+  (eg.  Do help on 'Csound implementation', then try getting help on the
+  'Csound' button in wPrototypes1).
+
+- Closing the 'Random Sequence' window while recording a script writes 'Hide
+  window "Weight"' to the script.  (This command does close the Random window).
 
