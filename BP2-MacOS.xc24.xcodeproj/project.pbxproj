@@ -1,0 +1,1290 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		927DEBDD0EC6AE330036A79B /* -se.startup in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A1133F0EC39232006B5F38 /* -se.startup */; };
+		927DEBDE0EC6AE330036A79B /* BP2 help in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A113400EC39232006B5F38 /* BP2 help */; };
+		927DEBDF0EC6AE330036A79B /* Credits.txt in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A113410EC39232006B5F38 /* Credits.txt */; };
+		927DEBE00EC6AE330036A79B /* License.txt in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A113420EC39232006B5F38 /* License.txt */; };
+		927DEBE10EC6AE330036A79B /* -se.startup in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A1133F0EC39232006B5F38 /* -se.startup */; };
+		927DEBE20EC6AE330036A79B /* BP2 help in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A113400EC39232006B5F38 /* BP2 help */; };
+		927DEBE30EC6AE330036A79B /* Credits.txt in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A113410EC39232006B5F38 /* Credits.txt */; };
+		927DEBE40EC6AE330036A79B /* License.txt in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A113420EC39232006B5F38 /* License.txt */; };
+		927DEBE50EC6AE340036A79B /* -se.startup in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A1133F0EC39232006B5F38 /* -se.startup */; };
+		927DEBE60EC6AE340036A79B /* BP2 help in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A113400EC39232006B5F38 /* BP2 help */; };
+		927DEBE70EC6AE340036A79B /* Credits.txt in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A113410EC39232006B5F38 /* Credits.txt */; };
+		927DEBE80EC6AE340036A79B /* License.txt in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A113420EC39232006B5F38 /* License.txt */; };
+		927DEBEB0EC6AF9E0036A79B /* BP2-OSX-appl.icns in Resources */ = {isa = PBXBuildFile; fileRef = 927DEBEA0EC6AF9E0036A79B /* BP2-OSX-appl.icns */; };
+		927DEBEC0EC6AF9E0036A79B /* BP2-OSX-appl.icns in Resources */ = {isa = PBXBuildFile; fileRef = 927DEBEA0EC6AF9E0036A79B /* BP2-OSX-appl.icns */; };
+		927DEBED0EC6AF9E0036A79B /* BP2-OSX-appl.icns in Resources */ = {isa = PBXBuildFile; fileRef = 927DEBEA0EC6AF9E0036A79B /* BP2-OSX-appl.icns */; };
+		92A112B60EC39230006B5F38 /* PrefixMachO-Import.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112B50EC39230006B5F38 /* PrefixMachO-Import.h */; };
+		92A112C10EC39231006B5F38 /* PrefixMachOWASTE-Import.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112C00EC39231006B5F38 /* PrefixMachOWASTE-Import.h */; };
+		92A112CC0EC39231006B5F38 /* PrefixReleaseMachOWASTE-Import.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112CB0EC39231006B5F38 /* PrefixReleaseMachOWASTE-Import.h */; };
+		92A113490EC39232006B5F38 /* libSystem.B.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A113480EC39232006B5F38 /* libSystem.B.dylib */; };
+		92A1134A0EC39232006B5F38 /* BP2main.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112D70EC39231006B5F38 /* BP2main.c */; };
+		92A1134B0EC39232006B5F38 /* Inits.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112D80EC39231006B5F38 /* Inits.c */; };
+		92A1134C0EC39232006B5F38 /* GetRelease.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112DD0EC39231006B5F38 /* GetRelease.c */; };
+		92A1134D0EC39232006B5F38 /* AppleEvents.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112DE0EC39231006B5F38 /* AppleEvents.c */; };
+		92A1134E0EC39232006B5F38 /* Interface1.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E10EC39231006B5F38 /* Interface1.c */; };
+		92A1134F0EC39232006B5F38 /* Interface2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E20EC39231006B5F38 /* Interface2.c */; };
+		92A113500EC39232006B5F38 /* MenuCommands.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112DF0EC39231006B5F38 /* MenuCommands.c */; };
+		92A113510EC39232006B5F38 /* Dialogs.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E00EC39231006B5F38 /* Dialogs.c */; };
+		92A113520EC39232006B5F38 /* DisplayThings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F00EC39232006B5F38 /* DisplayThings.c */; };
+		92A113530EC39232006B5F38 /* Misc.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E30EC39231006B5F38 /* Misc.c */; };
+		92A113540EC39232006B5F38 /* Color.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113010EC39232006B5F38 /* Color.c */; };
+		92A113550EC39232006B5F38 /* Graphic.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113020EC39232006B5F38 /* Graphic.c */; };
+		92A113560EC39232006B5F38 /* Processes.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E40EC39231006B5F38 /* Processes.c */; };
+		92A113570EC39232006B5F38 /* SaveLoads1.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E50EC39231006B5F38 /* SaveLoads1.c */; };
+		92A113580EC39233006B5F38 /* SaveLoads2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E60EC39231006B5F38 /* SaveLoads2.c */; };
+		92A113590EC39233006B5F38 /* SaveLoads3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E70EC39232006B5F38 /* SaveLoads3.c */; };
+		92A1135A0EC39233006B5F38 /* NavServWrapper.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112D90EC39231006B5F38 /* NavServWrapper.c */; };
+		92A1135B0EC39233006B5F38 /* NavServWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112DA0EC39231006B5F38 /* NavServWrapper.h */; };
+		92A1135C0EC39233006B5F38 /* HTML.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E80EC39232006B5F38 /* HTML.c */; };
+		92A1135D0EC39233006B5F38 /* Strings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EE0EC39232006B5F38 /* Strings.c */; };
+		92A1135E0EC39233006B5F38 /* WindowText.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130E0EC39232006B5F38 /* WindowText.c */; };
+		92A1135F0EC39233006B5F38 /* CarbonCompatUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112DB0EC39231006B5F38 /* CarbonCompatUtil.c */; };
+		92A113600EC39233006B5F38 /* CarbonCompatUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112DC0EC39231006B5F38 /* CarbonCompatUtil.h */; };
+		92A113610EC39233006B5F38 /* SetObjectFeatures.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130A0EC39232006B5F38 /* SetObjectFeatures.c */; };
+		92A113620EC39233006B5F38 /* SoundObjects1.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113070EC39232006B5F38 /* SoundObjects1.c */; };
+		92A113630EC39233006B5F38 /* SoundObjects2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113080EC39232006B5F38 /* SoundObjects2.c */; };
+		92A113640EC39233006B5F38 /* SoundObjects3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113090EC39232006B5F38 /* SoundObjects3.c */; };
+		92A113650EC39233006B5F38 /* Csound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FB0EC39232006B5F38 /* Csound.c */; };
+		92A113660EC39233006B5F38 /* CsoundMaths.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FC0EC39232006B5F38 /* CsoundMaths.c */; };
+		92A113670EC39233006B5F38 /* CsoundScoreMake.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FD0EC39232006B5F38 /* CsoundScoreMake.c */; };
+		92A113680EC39233006B5F38 /* MIDIfiles.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EC0EC39232006B5F38 /* MIDIfiles.c */; };
+		92A113690EC39233006B5F38 /* MIDIloads.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112ED0EC39232006B5F38 /* MIDIloads.c */; };
+		92A1136A0EC39233006B5F38 /* CoreMIDIdriver.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EB0EC39232006B5F38 /* CoreMIDIdriver.c */; };
+		92A1136B0EC39233006B5F38 /* MIDIstuff.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EA0EC39232006B5F38 /* MIDIstuff.c */; };
+		92A1136C0EC39233006B5F38 /* MakeSound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113060EC39232006B5F38 /* MakeSound.c */; };
+		92A1136D0EC39233006B5F38 /* PlayThings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F90EC39232006B5F38 /* PlayThings.c */; };
+		92A1136E0EC39233006B5F38 /* TimeSet.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130D0EC39232006B5F38 /* TimeSet.c */; };
+		92A1136F0EC39233006B5F38 /* TimeSetFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130B0EC39232006B5F38 /* TimeSetFunctions.c */; };
+		92A113700EC39233006B5F38 /* FillPhaseDiagram.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F60EC39232006B5F38 /* FillPhaseDiagram.c */; };
+		92A113710EC39233006B5F38 /* Arithmetic.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E90EC39232006B5F38 /* Arithmetic.c */; };
+		92A113720EC39233006B5F38 /* Automata.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F10EC39232006B5F38 /* Automata.c */; };
+		92A113730EC39233006B5F38 /* DisplayArg.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EF0EC39232006B5F38 /* DisplayArg.c */; };
+		92A113740EC39233006B5F38 /* CompileGrammar.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F20EC39232006B5F38 /* CompileGrammar.c */; };
+		92A113750EC39233006B5F38 /* CompileProcs.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F30EC39232006B5F38 /* CompileProcs.c */; };
+		92A113760EC39233006B5F38 /* Compute.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F40EC39232006B5F38 /* Compute.c */; };
+		92A113770EC39233006B5F38 /* Encode.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F50EC39232006B5F38 /* Encode.c */; };
+		92A113780EC39233006B5F38 /* Polymetric.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F70EC39232006B5F38 /* Polymetric.c */; };
+		92A113790EC39233006B5F38 /* ProduceItems.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F80EC39232006B5F38 /* ProduceItems.c */; };
+		92A1137A0EC39233006B5F38 /* Zouleb.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113000EC39232006B5F38 /* Zouleb.c */; };
+		92A1137B0EC39233006B5F38 /* Glossary.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FE0EC39232006B5F38 /* Glossary.c */; };
+		92A1137C0EC39233006B5F38 /* Interaction.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FF0EC39232006B5F38 /* Interaction.c */; };
+		92A1137D0EC39233006B5F38 /* Ticks.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130C0EC39232006B5F38 /* Ticks.c */; };
+		92A1137E0EC39233006B5F38 /* Translit.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FA0EC39232006B5F38 /* Translit.c */; };
+		92A1137F0EC39233006B5F38 /* Script.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113030EC39232006B5F38 /* Script.c */; };
+		92A113800EC39233006B5F38 /* ScriptAlgo.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113040EC39232006B5F38 /* ScriptAlgo.c */; };
+		92A113810EC39233006B5F38 /* ScriptUtils.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113050EC39232006B5F38 /* ScriptUtils.c */; };
+		92A113820EC39233006B5F38 /* CoreMIDISettings.rsrc in Rez */ = {isa = PBXBuildFile; fileRef = 92A1133C0EC39232006B5F38 /* CoreMIDISettings.rsrc */; };
+		92A113830EC39233006B5F38 /* BP2-MacOS.rsrc in Rez */ = {isa = PBXBuildFile; fileRef = 92A1133A0EC39232006B5F38 /* BP2-MacOS.rsrc */; };
+		92A113840EC39233006B5F38 /* dlgxs.rsrc in Rez */ = {isa = PBXBuildFile; fileRef = 92A1133D0EC39232006B5F38 /* dlgxs.rsrc */; };
+		92A113890EC3924E006B5F38 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A113880EC3924E006B5F38 /* Carbon.framework */; };
+		92A1138A0EC3924E006B5F38 /* -BP2.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113100EC39232006B5F38 /* -BP2.h */; };
+		92A1138B0EC3924F006B5F38 /* -BP2main.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113130EC39232006B5F38 /* -BP2main.h */; };
+		92A1138C0EC3924F006B5F38 /* -BP2decl.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113120EC39232006B5F38 /* -BP2decl.h */; };
+		92A1138E0EC3924F006B5F38 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A1138D0EC3924F006B5F38 /* ApplicationServices.framework */; };
+		92A113900EC3924F006B5F38 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A1138F0EC3924F006B5F38 /* CoreAudio.framework */; };
+		92A113920EC3924F006B5F38 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A113910EC3924F006B5F38 /* CoreMIDI.framework */; };
+		92A113940EC3924F006B5F38 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A113930EC3924F006B5F38 /* CoreFoundation.framework */; };
+		92A113950EC3924F006B5F38 /* WASTEIntf.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113370EC39232006B5F38 /* WASTEIntf.h */; };
+		92A113960EC3924F006B5F38 /* midi1.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113140EC39232006B5F38 /* midi1.h */; };
+		92A113970EC3924F006B5F38 /* -BP2.proto.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113110EC39232006B5F38 /* -BP2.proto.h */; };
+		92A113980EC3924F006B5F38 /* LongCoords.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113350EC39232006B5F38 /* LongCoords.h */; };
+		92A1139A0EC3924F006B5F38 /* BP2main.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112D70EC39231006B5F38 /* BP2main.c */; };
+		92A1139B0EC3924F006B5F38 /* Inits.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112D80EC39231006B5F38 /* Inits.c */; };
+		92A1139C0EC3924F006B5F38 /* GetRelease.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112DD0EC39231006B5F38 /* GetRelease.c */; };
+		92A1139D0EC3924F006B5F38 /* AppleEvents.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112DE0EC39231006B5F38 /* AppleEvents.c */; };
+		92A1139E0EC3924F006B5F38 /* Interface1.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E10EC39231006B5F38 /* Interface1.c */; };
+		92A1139F0EC3924F006B5F38 /* Interface2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E20EC39231006B5F38 /* Interface2.c */; };
+		92A113A00EC3924F006B5F38 /* MenuCommands.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112DF0EC39231006B5F38 /* MenuCommands.c */; };
+		92A113A10EC3924F006B5F38 /* Dialogs.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E00EC39231006B5F38 /* Dialogs.c */; };
+		92A113A20EC3924F006B5F38 /* DisplayThings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F00EC39232006B5F38 /* DisplayThings.c */; };
+		92A113A30EC3924F006B5F38 /* Misc.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E30EC39231006B5F38 /* Misc.c */; };
+		92A113A40EC3924F006B5F38 /* Color.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113010EC39232006B5F38 /* Color.c */; };
+		92A113A50EC3924F006B5F38 /* Graphic.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113020EC39232006B5F38 /* Graphic.c */; };
+		92A113A60EC3924F006B5F38 /* Processes.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E40EC39231006B5F38 /* Processes.c */; };
+		92A113A70EC3924F006B5F38 /* SaveLoads1.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E50EC39231006B5F38 /* SaveLoads1.c */; };
+		92A113A80EC3924F006B5F38 /* SaveLoads2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E60EC39231006B5F38 /* SaveLoads2.c */; };
+		92A113A90EC3924F006B5F38 /* SaveLoads3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E70EC39232006B5F38 /* SaveLoads3.c */; };
+		92A113AA0EC3924F006B5F38 /* NavServWrapper.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112D90EC39231006B5F38 /* NavServWrapper.c */; };
+		92A113AB0EC3924F006B5F38 /* NavServWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112DA0EC39231006B5F38 /* NavServWrapper.h */; };
+		92A113AC0EC3924F006B5F38 /* HTML.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E80EC39232006B5F38 /* HTML.c */; };
+		92A113AD0EC3924F006B5F38 /* Strings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EE0EC39232006B5F38 /* Strings.c */; };
+		92A113AE0EC3924F006B5F38 /* WindowText.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130E0EC39232006B5F38 /* WindowText.c */; };
+		92A113AF0EC3924F006B5F38 /* WEArrays.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1131F0EC39232006B5F38 /* WEArrays.c */; };
+		92A113B00EC3924F006B5F38 /* WEBirthDeath.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113200EC39232006B5F38 /* WEBirthDeath.c */; };
+		92A113B10EC3924F006B5F38 /* WEDrawing.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113220EC39232006B5F38 /* WEDrawing.c */; };
+		92A113B20EC3924F006B5F38 /* WEHighLevelEditing.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113230EC39232006B5F38 /* WEHighLevelEditing.c */; };
+		92A113B30EC3924F006B5F38 /* WEInlineInput.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113240EC39232006B5F38 /* WEInlineInput.c */; };
+		92A113B40EC3924F006B5F38 /* WELineLayout.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113250EC39232006B5F38 /* WELineLayout.c */; };
+		92A113B50EC3924F006B5F38 /* WELongCoords.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113260EC39232006B5F38 /* WELongCoords.c */; };
+		92A113B60EC3924F006B5F38 /* WELowLevelEditing.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113270EC39232006B5F38 /* WELowLevelEditing.c */; };
+		92A113B70EC3924F006B5F38 /* WEMouse.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113280EC39232006B5F38 /* WEMouse.c */; };
+		92A113B80EC3924F006B5F38 /* WEScraps.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1132C0EC39232006B5F38 /* WEScraps.c */; };
+		92A113B90EC3924F006B5F38 /* WESelecting.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1132D0EC39232006B5F38 /* WESelecting.c */; };
+		92A113BA0EC3924F006B5F38 /* WESelectors.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1132E0EC39232006B5F38 /* WESelectors.c */; };
+		92A113BB0EC3924F006B5F38 /* WEUtilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113330EC39232006B5F38 /* WEUtilities.c */; };
+		92A113BC0EC3924F006B5F38 /* CarbonCompatUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112DB0EC39231006B5F38 /* CarbonCompatUtil.c */; };
+		92A113BD0EC3924F006B5F38 /* CarbonCompatUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112DC0EC39231006B5F38 /* CarbonCompatUtil.h */; };
+		92A113BE0EC3924F006B5F38 /* SetObjectFeatures.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130A0EC39232006B5F38 /* SetObjectFeatures.c */; };
+		92A113BF0EC3924F006B5F38 /* SoundObjects1.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113070EC39232006B5F38 /* SoundObjects1.c */; };
+		92A113C00EC3924F006B5F38 /* SoundObjects2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113080EC39232006B5F38 /* SoundObjects2.c */; };
+		92A113C10EC3924F006B5F38 /* SoundObjects3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113090EC39232006B5F38 /* SoundObjects3.c */; };
+		92A113C20EC3924F006B5F38 /* Csound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FB0EC39232006B5F38 /* Csound.c */; };
+		92A113C30EC3924F006B5F38 /* CsoundMaths.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FC0EC39232006B5F38 /* CsoundMaths.c */; };
+		92A113C40EC3924F006B5F38 /* CsoundScoreMake.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FD0EC39232006B5F38 /* CsoundScoreMake.c */; };
+		92A113C50EC3924F006B5F38 /* MIDIfiles.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EC0EC39232006B5F38 /* MIDIfiles.c */; };
+		92A113C60EC3924F006B5F38 /* MIDIloads.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112ED0EC39232006B5F38 /* MIDIloads.c */; };
+		92A113C70EC3924F006B5F38 /* CoreMIDIdriver.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EB0EC39232006B5F38 /* CoreMIDIdriver.c */; };
+		92A113C80EC3924F006B5F38 /* MIDIstuff.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EA0EC39232006B5F38 /* MIDIstuff.c */; };
+		92A113C90EC3924F006B5F38 /* MakeSound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113060EC39232006B5F38 /* MakeSound.c */; };
+		92A113CA0EC3924F006B5F38 /* PlayThings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F90EC39232006B5F38 /* PlayThings.c */; };
+		92A113CB0EC3924F006B5F38 /* TimeSet.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130D0EC39232006B5F38 /* TimeSet.c */; };
+		92A113CC0EC3924F006B5F38 /* TimeSetFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130B0EC39232006B5F38 /* TimeSetFunctions.c */; };
+		92A113CD0EC3924F006B5F38 /* FillPhaseDiagram.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F60EC39232006B5F38 /* FillPhaseDiagram.c */; };
+		92A113CE0EC3924F006B5F38 /* Arithmetic.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E90EC39232006B5F38 /* Arithmetic.c */; };
+		92A113CF0EC3924F006B5F38 /* Automata.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F10EC39232006B5F38 /* Automata.c */; };
+		92A113D00EC3924F006B5F38 /* DisplayArg.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EF0EC39232006B5F38 /* DisplayArg.c */; };
+		92A113D10EC3924F006B5F38 /* CompileGrammar.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F20EC39232006B5F38 /* CompileGrammar.c */; };
+		92A113D20EC3924F006B5F38 /* CompileProcs.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F30EC39232006B5F38 /* CompileProcs.c */; };
+		92A113D30EC3924F006B5F38 /* Compute.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F40EC39232006B5F38 /* Compute.c */; };
+		92A113D40EC3924F006B5F38 /* Encode.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F50EC39232006B5F38 /* Encode.c */; };
+		92A113D50EC3924F006B5F38 /* Polymetric.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F70EC39232006B5F38 /* Polymetric.c */; };
+		92A113D60EC3924F006B5F38 /* ProduceItems.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F80EC39232006B5F38 /* ProduceItems.c */; };
+		92A113D70EC3924F006B5F38 /* Zouleb.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113000EC39232006B5F38 /* Zouleb.c */; };
+		92A113D80EC3924F006B5F38 /* Glossary.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FE0EC39232006B5F38 /* Glossary.c */; };
+		92A113D90EC3924F006B5F38 /* Interaction.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FF0EC39232006B5F38 /* Interaction.c */; };
+		92A113DA0EC3924F006B5F38 /* Ticks.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130C0EC39232006B5F38 /* Ticks.c */; };
+		92A113DB0EC3924F006B5F38 /* Translit.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FA0EC39232006B5F38 /* Translit.c */; };
+		92A113DC0EC3924F006B5F38 /* Script.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113030EC39232006B5F38 /* Script.c */; };
+		92A113DD0EC3924F006B5F38 /* ScriptAlgo.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113040EC39232006B5F38 /* ScriptAlgo.c */; };
+		92A113DE0EC3924F006B5F38 /* ScriptUtils.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113050EC39232006B5F38 /* ScriptUtils.c */; };
+		92A113DF0EC3924F006B5F38 /* CoreMIDISettings.rsrc in Rez */ = {isa = PBXBuildFile; fileRef = 92A1133C0EC39232006B5F38 /* CoreMIDISettings.rsrc */; };
+		92A113E00EC3924F006B5F38 /* BP2-MacOS.rsrc in Rez */ = {isa = PBXBuildFile; fileRef = 92A1133A0EC39232006B5F38 /* BP2-MacOS.rsrc */; };
+		92A113E10EC3924F006B5F38 /* dlgxs.rsrc in Rez */ = {isa = PBXBuildFile; fileRef = 92A1133D0EC39232006B5F38 /* dlgxs.rsrc */; };
+		92A113E30EC39254006B5F38 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A113880EC3924E006B5F38 /* Carbon.framework */; };
+		92A113E40EC39254006B5F38 /* -BP2.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113100EC39232006B5F38 /* -BP2.h */; };
+		92A113E50EC39254006B5F38 /* -BP2main.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113130EC39232006B5F38 /* -BP2main.h */; };
+		92A113E60EC39254006B5F38 /* -BP2decl.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113120EC39232006B5F38 /* -BP2decl.h */; };
+		92A113E70EC39254006B5F38 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A1138D0EC3924F006B5F38 /* ApplicationServices.framework */; };
+		92A113E80EC39254006B5F38 /* WASTEIntf.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113370EC39232006B5F38 /* WASTEIntf.h */; };
+		92A113E90EC39254006B5F38 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A1138F0EC3924F006B5F38 /* CoreAudio.framework */; };
+		92A113EA0EC39254006B5F38 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A113910EC3924F006B5F38 /* CoreMIDI.framework */; };
+		92A113EB0EC39254006B5F38 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A113930EC3924F006B5F38 /* CoreFoundation.framework */; };
+		92A113EC0EC39254006B5F38 /* midi1.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113140EC39232006B5F38 /* midi1.h */; };
+		92A113ED0EC39254006B5F38 /* -BP2.proto.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113110EC39232006B5F38 /* -BP2.proto.h */; };
+		92A113EE0EC39254006B5F38 /* LongCoords.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113350EC39232006B5F38 /* LongCoords.h */; };
+		92A113EF0EC39255006B5F38 /* libSystem.B.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A113480EC39232006B5F38 /* libSystem.B.dylib */; };
+		92A113F00EC39255006B5F38 /* BP2main.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112D70EC39231006B5F38 /* BP2main.c */; };
+		92A113F10EC39255006B5F38 /* Inits.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112D80EC39231006B5F38 /* Inits.c */; };
+		92A113F20EC39255006B5F38 /* GetRelease.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112DD0EC39231006B5F38 /* GetRelease.c */; };
+		92A113F30EC39255006B5F38 /* AppleEvents.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112DE0EC39231006B5F38 /* AppleEvents.c */; };
+		92A113F40EC39255006B5F38 /* Interface1.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E10EC39231006B5F38 /* Interface1.c */; };
+		92A113F50EC39255006B5F38 /* Interface2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E20EC39231006B5F38 /* Interface2.c */; };
+		92A113F60EC39255006B5F38 /* MenuCommands.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112DF0EC39231006B5F38 /* MenuCommands.c */; };
+		92A113F70EC39255006B5F38 /* Dialogs.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E00EC39231006B5F38 /* Dialogs.c */; };
+		92A113F80EC39255006B5F38 /* DisplayThings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F00EC39232006B5F38 /* DisplayThings.c */; };
+		92A113F90EC39255006B5F38 /* Misc.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E30EC39231006B5F38 /* Misc.c */; };
+		92A113FA0EC39255006B5F38 /* Color.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113010EC39232006B5F38 /* Color.c */; };
+		92A113FB0EC39255006B5F38 /* Graphic.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113020EC39232006B5F38 /* Graphic.c */; };
+		92A113FC0EC39255006B5F38 /* Processes.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E40EC39231006B5F38 /* Processes.c */; };
+		92A113FD0EC39255006B5F38 /* SaveLoads1.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E50EC39231006B5F38 /* SaveLoads1.c */; };
+		92A113FE0EC39255006B5F38 /* SaveLoads2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E60EC39231006B5F38 /* SaveLoads2.c */; };
+		92A113FF0EC39255006B5F38 /* SaveLoads3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E70EC39232006B5F38 /* SaveLoads3.c */; };
+		92A114000EC39255006B5F38 /* NavServWrapper.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112D90EC39231006B5F38 /* NavServWrapper.c */; };
+		92A114010EC39255006B5F38 /* NavServWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112DA0EC39231006B5F38 /* NavServWrapper.h */; };
+		92A114020EC39255006B5F38 /* HTML.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E80EC39232006B5F38 /* HTML.c */; };
+		92A114030EC39255006B5F38 /* Strings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EE0EC39232006B5F38 /* Strings.c */; };
+		92A114040EC39255006B5F38 /* WindowText.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130E0EC39232006B5F38 /* WindowText.c */; };
+		92A114050EC39255006B5F38 /* WEArrays.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1131F0EC39232006B5F38 /* WEArrays.c */; };
+		92A114060EC39255006B5F38 /* WEBirthDeath.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113200EC39232006B5F38 /* WEBirthDeath.c */; };
+		92A114070EC39255006B5F38 /* WEDrawing.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113220EC39232006B5F38 /* WEDrawing.c */; };
+		92A114080EC39255006B5F38 /* WEHighLevelEditing.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113230EC39232006B5F38 /* WEHighLevelEditing.c */; };
+		92A114090EC39255006B5F38 /* WEInlineInput.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113240EC39232006B5F38 /* WEInlineInput.c */; };
+		92A1140A0EC39255006B5F38 /* WELineLayout.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113250EC39232006B5F38 /* WELineLayout.c */; };
+		92A1140B0EC39255006B5F38 /* WELongCoords.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113260EC39232006B5F38 /* WELongCoords.c */; };
+		92A1140C0EC39255006B5F38 /* WELowLevelEditing.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113270EC39232006B5F38 /* WELowLevelEditing.c */; };
+		92A1140D0EC39255006B5F38 /* WEMouse.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113280EC39232006B5F38 /* WEMouse.c */; };
+		92A1140E0EC39255006B5F38 /* WEScraps.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1132C0EC39232006B5F38 /* WEScraps.c */; };
+		92A1140F0EC39255006B5F38 /* WESelecting.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1132D0EC39232006B5F38 /* WESelecting.c */; };
+		92A114100EC39255006B5F38 /* WESelectors.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1132E0EC39232006B5F38 /* WESelectors.c */; };
+		92A114110EC39255006B5F38 /* WEUtilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113330EC39232006B5F38 /* WEUtilities.c */; };
+		92A114120EC39255006B5F38 /* CarbonCompatUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112DB0EC39231006B5F38 /* CarbonCompatUtil.c */; };
+		92A114130EC39255006B5F38 /* CarbonCompatUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112DC0EC39231006B5F38 /* CarbonCompatUtil.h */; };
+		92A114140EC39255006B5F38 /* SetObjectFeatures.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130A0EC39232006B5F38 /* SetObjectFeatures.c */; };
+		92A114150EC39255006B5F38 /* SoundObjects1.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113070EC39232006B5F38 /* SoundObjects1.c */; };
+		92A114160EC39255006B5F38 /* SoundObjects2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113080EC39232006B5F38 /* SoundObjects2.c */; };
+		92A114170EC39255006B5F38 /* SoundObjects3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113090EC39232006B5F38 /* SoundObjects3.c */; };
+		92A114180EC39255006B5F38 /* Csound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FB0EC39232006B5F38 /* Csound.c */; };
+		92A114190EC39255006B5F38 /* CsoundMaths.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FC0EC39232006B5F38 /* CsoundMaths.c */; };
+		92A1141A0EC39255006B5F38 /* CsoundScoreMake.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FD0EC39232006B5F38 /* CsoundScoreMake.c */; };
+		92A1141B0EC39255006B5F38 /* MIDIfiles.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EC0EC39232006B5F38 /* MIDIfiles.c */; };
+		92A1141C0EC39255006B5F38 /* MIDIloads.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112ED0EC39232006B5F38 /* MIDIloads.c */; };
+		92A1141D0EC39255006B5F38 /* CoreMIDIdriver.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EB0EC39232006B5F38 /* CoreMIDIdriver.c */; };
+		92A1141E0EC39255006B5F38 /* MIDIstuff.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EA0EC39232006B5F38 /* MIDIstuff.c */; };
+		92A1141F0EC39255006B5F38 /* MakeSound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113060EC39232006B5F38 /* MakeSound.c */; };
+		92A114200EC39255006B5F38 /* PlayThings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F90EC39232006B5F38 /* PlayThings.c */; };
+		92A114210EC39255006B5F38 /* TimeSet.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130D0EC39232006B5F38 /* TimeSet.c */; };
+		92A114220EC39255006B5F38 /* TimeSetFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130B0EC39232006B5F38 /* TimeSetFunctions.c */; };
+		92A114230EC39255006B5F38 /* FillPhaseDiagram.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F60EC39232006B5F38 /* FillPhaseDiagram.c */; };
+		92A114240EC39255006B5F38 /* Arithmetic.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E90EC39232006B5F38 /* Arithmetic.c */; };
+		92A114250EC39255006B5F38 /* Automata.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F10EC39232006B5F38 /* Automata.c */; };
+		92A114260EC39255006B5F38 /* DisplayArg.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EF0EC39232006B5F38 /* DisplayArg.c */; };
+		92A114270EC39255006B5F38 /* CompileGrammar.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F20EC39232006B5F38 /* CompileGrammar.c */; };
+		92A114280EC39255006B5F38 /* CompileProcs.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F30EC39232006B5F38 /* CompileProcs.c */; };
+		92A114290EC39255006B5F38 /* Compute.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F40EC39232006B5F38 /* Compute.c */; };
+		92A1142A0EC39255006B5F38 /* Encode.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F50EC39232006B5F38 /* Encode.c */; };
+		92A1142B0EC39255006B5F38 /* Polymetric.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F70EC39232006B5F38 /* Polymetric.c */; };
+		92A1142C0EC39255006B5F38 /* ProduceItems.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F80EC39232006B5F38 /* ProduceItems.c */; };
+		92A1142D0EC39255006B5F38 /* Zouleb.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113000EC39232006B5F38 /* Zouleb.c */; };
+		92A1142E0EC39255006B5F38 /* Glossary.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FE0EC39232006B5F38 /* Glossary.c */; };
+		92A1142F0EC39255006B5F38 /* Interaction.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FF0EC39232006B5F38 /* Interaction.c */; };
+		92A114300EC39255006B5F38 /* Ticks.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130C0EC39232006B5F38 /* Ticks.c */; };
+		92A114310EC39255006B5F38 /* Translit.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FA0EC39232006B5F38 /* Translit.c */; };
+		92A114320EC39255006B5F38 /* Script.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113030EC39232006B5F38 /* Script.c */; };
+		92A114330EC39255006B5F38 /* ScriptAlgo.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113040EC39232006B5F38 /* ScriptAlgo.c */; };
+		92A114340EC39255006B5F38 /* ScriptUtils.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113050EC39232006B5F38 /* ScriptUtils.c */; };
+		92A114350EC39255006B5F38 /* CoreMIDISettings.rsrc in Rez */ = {isa = PBXBuildFile; fileRef = 92A1133C0EC39232006B5F38 /* CoreMIDISettings.rsrc */; };
+		92A114360EC39255006B5F38 /* BP2-MacOS.rsrc in Rez */ = {isa = PBXBuildFile; fileRef = 92A1133A0EC39232006B5F38 /* BP2-MacOS.rsrc */; };
+		92A114370EC39255006B5F38 /* dlgxs.rsrc in Rez */ = {isa = PBXBuildFile; fileRef = 92A1133D0EC39232006B5F38 /* dlgxs.rsrc */; };
+		92A1143A0EC3925A006B5F38 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A113880EC3924E006B5F38 /* Carbon.framework */; };
+		92A1143B0EC3925A006B5F38 /* -BP2.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113100EC39232006B5F38 /* -BP2.h */; };
+		92A1143C0EC3925A006B5F38 /* -BP2main.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113130EC39232006B5F38 /* -BP2main.h */; };
+		92A1143D0EC3925A006B5F38 /* -BP2decl.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113120EC39232006B5F38 /* -BP2decl.h */; };
+		92A1143E0EC3925A006B5F38 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A1138D0EC3924F006B5F38 /* ApplicationServices.framework */; };
+		92A1143F0EC3925A006B5F38 /* WASTEIntf.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113370EC39232006B5F38 /* WASTEIntf.h */; };
+		92A114400EC3925A006B5F38 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A1138F0EC3924F006B5F38 /* CoreAudio.framework */; };
+		92A114410EC3925A006B5F38 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A113910EC3924F006B5F38 /* CoreMIDI.framework */; };
+		92A114420EC3925A006B5F38 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A113930EC3924F006B5F38 /* CoreFoundation.framework */; };
+		92A114430EC3925A006B5F38 /* midi1.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113140EC39232006B5F38 /* midi1.h */; };
+		92A114440EC3925A006B5F38 /* -BP2.proto.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113110EC39232006B5F38 /* -BP2.proto.h */; };
+		92A114450EC3925A006B5F38 /* LongCoords.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113350EC39232006B5F38 /* LongCoords.h */; };
+		92A114470EC3925B006B5F38 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A114460EC3925B006B5F38 /* CoreServices.framework */; };
+		92A114480EC3925B006B5F38 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A114460EC3925B006B5F38 /* CoreServices.framework */; };
+		92A114490EC3925B006B5F38 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A114460EC3925B006B5F38 /* CoreServices.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		92A114900EC64CB4006B5F38 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.gcc.4_0;
+			fileType = sourcecode.c;
+			isEditable = 1;
+			outputFiles = (
+			);
+		};
+		92A114910EC64CD3006B5F38 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.gcc.4_0;
+			fileType = sourcecode.asm;
+			isEditable = 1;
+			outputFiles = (
+			);
+		};
+		92A114FA0EC64E2A006B5F38 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.gcc.3_3;
+			fileType = sourcecode.asm.asm;
+			isEditable = 1;
+			outputFiles = (
+			);
+		};
+		92A114FB0EC64E43006B5F38 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.gcc.3_3;
+			fileType = sourcecode.c;
+			isEditable = 1;
+			outputFiles = (
+			);
+		};
+		92A114FE0EC651FE006B5F38 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.gcc.3_3;
+			fileType = sourcecode.c;
+			isEditable = 1;
+			outputFiles = (
+			);
+		};
+		92A114FF0EC65205006B5F38 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.gcc.3_3;
+			fileType = sourcecode.asm;
+			isEditable = 1;
+			outputFiles = (
+			);
+		};
+/* End PBXBuildRule section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		927DEC400EC6DB1D0036A79B /* Copy Extra Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			comments = "Bol Processor needs certain files such as \"BP2 Help\" and \"-se.startup\" to be in the same directory as the executable.  This build phase copies these files to the correct location.";
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				927DEBDD0EC6AE330036A79B /* -se.startup in Copy Extra Files */,
+				927DEBDE0EC6AE330036A79B /* BP2 help in Copy Extra Files */,
+				927DEBDF0EC6AE330036A79B /* Credits.txt in Copy Extra Files */,
+				927DEBE00EC6AE330036A79B /* License.txt in Copy Extra Files */,
+			);
+			name = "Copy Extra Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		927DEC470EC6DD220036A79B /* Copy Extra Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			comments = "Bol Processor needs certain files such as \"BP2 Help\" and \"-se.startup\" to be in the same directory as the executable.  This build phase copies these files to the correct location.";
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				927DEBE10EC6AE330036A79B /* -se.startup in Copy Extra Files */,
+				927DEBE20EC6AE330036A79B /* BP2 help in Copy Extra Files */,
+				927DEBE30EC6AE330036A79B /* Credits.txt in Copy Extra Files */,
+				927DEBE40EC6AE330036A79B /* License.txt in Copy Extra Files */,
+			);
+			name = "Copy Extra Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		927DEC4B0EC6DD880036A79B /* Copy Extra Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			comments = "Bol Processor needs certain files such as \"BP2 Help\" and \"-se.startup\" to be in the same directory as the executable.  This build phase copies these files to the correct location.";
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				927DEBE50EC6AE340036A79B /* -se.startup in Copy Extra Files */,
+				927DEBE60EC6AE340036A79B /* BP2 help in Copy Extra Files */,
+				927DEBE70EC6AE340036A79B /* Credits.txt in Copy Extra Files */,
+				927DEBE80EC6AE340036A79B /* License.txt in Copy Extra Files */,
+			);
+			name = "Copy Extra Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		927DEBEA0EC6AF9E0036A79B /* BP2-OSX-appl.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = "BP2-OSX-appl.icns"; path = "icons/BP2-OSX-appl.icns"; sourceTree = "<group>"; };
+		92A112B10EC39230006B5F38 /* Bol Processor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bol Processor.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		92A112B50EC39230006B5F38 /* PrefixMachO-Import.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "PrefixMachO-Import.h"; path = "source/prefix/PrefixMachO-Import.h"; sourceTree = "<group>"; };
+		92A112BE0EC39230006B5F38 /* Bol Processor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bol Processor.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		92A112C00EC39231006B5F38 /* PrefixMachOWASTE-Import.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "PrefixMachOWASTE-Import.h"; path = "source/prefix/PrefixMachOWASTE-Import.h"; sourceTree = "<group>"; };
+		92A112C90EC39231006B5F38 /* Bol Processor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bol Processor.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		92A112CB0EC39231006B5F38 /* PrefixReleaseMachOWASTE-Import.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "PrefixReleaseMachOWASTE-Import.h"; path = "source/prefix/PrefixReleaseMachOWASTE-Import.h"; sourceTree = "<group>"; };
+		92A112D70EC39231006B5F38 /* BP2main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = BP2main.c; path = source/BP2/BP2main.c; sourceTree = SOURCE_ROOT; };
+		92A112D80EC39231006B5F38 /* Inits.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Inits.c; path = source/BP2/Inits.c; sourceTree = SOURCE_ROOT; };
+		92A112D90EC39231006B5F38 /* NavServWrapper.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = NavServWrapper.c; path = source/BP2/NavServWrapper.c; sourceTree = SOURCE_ROOT; };
+		92A112DA0EC39231006B5F38 /* NavServWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NavServWrapper.h; path = source/BP2/NavServWrapper.h; sourceTree = "<group>"; };
+		92A112DB0EC39231006B5F38 /* CarbonCompatUtil.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = CarbonCompatUtil.c; path = source/BP2/CarbonCompatUtil.c; sourceTree = SOURCE_ROOT; };
+		92A112DC0EC39231006B5F38 /* CarbonCompatUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CarbonCompatUtil.h; path = source/BP2/CarbonCompatUtil.h; sourceTree = "<group>"; };
+		92A112DD0EC39231006B5F38 /* GetRelease.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = GetRelease.c; path = source/BP2/GetRelease.c; sourceTree = SOURCE_ROOT; };
+		92A112DE0EC39231006B5F38 /* AppleEvents.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = AppleEvents.c; path = source/BP2/AppleEvents.c; sourceTree = SOURCE_ROOT; };
+		92A112DF0EC39231006B5F38 /* MenuCommands.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = MenuCommands.c; path = source/BP2/MenuCommands.c; sourceTree = SOURCE_ROOT; };
+		92A112E00EC39231006B5F38 /* Dialogs.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Dialogs.c; path = source/BP2/Dialogs.c; sourceTree = SOURCE_ROOT; };
+		92A112E10EC39231006B5F38 /* Interface1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Interface1.c; path = source/BP2/Interface1.c; sourceTree = SOURCE_ROOT; };
+		92A112E20EC39231006B5F38 /* Interface2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Interface2.c; path = source/BP2/Interface2.c; sourceTree = SOURCE_ROOT; };
+		92A112E30EC39231006B5F38 /* Misc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Misc.c; path = source/BP2/Misc.c; sourceTree = SOURCE_ROOT; };
+		92A112E40EC39231006B5F38 /* Processes.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Processes.c; path = source/BP2/Processes.c; sourceTree = SOURCE_ROOT; };
+		92A112E50EC39231006B5F38 /* SaveLoads1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = SaveLoads1.c; path = source/BP2/SaveLoads1.c; sourceTree = SOURCE_ROOT; };
+		92A112E60EC39231006B5F38 /* SaveLoads2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = SaveLoads2.c; path = source/BP2/SaveLoads2.c; sourceTree = SOURCE_ROOT; };
+		92A112E70EC39232006B5F38 /* SaveLoads3.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = SaveLoads3.c; path = source/BP2/SaveLoads3.c; sourceTree = SOURCE_ROOT; };
+		92A112E80EC39232006B5F38 /* HTML.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = HTML.c; path = source/BP2/HTML.c; sourceTree = SOURCE_ROOT; };
+		92A112E90EC39232006B5F38 /* Arithmetic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Arithmetic.c; path = source/BP2/Arithmetic.c; sourceTree = SOURCE_ROOT; };
+		92A112EA0EC39232006B5F38 /* MIDIstuff.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = MIDIstuff.c; path = source/BP2/MIDIstuff.c; sourceTree = SOURCE_ROOT; };
+		92A112EB0EC39232006B5F38 /* CoreMIDIdriver.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = CoreMIDIdriver.c; path = source/BP2/CoreMIDIdriver.c; sourceTree = SOURCE_ROOT; };
+		92A112EC0EC39232006B5F38 /* MIDIfiles.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = MIDIfiles.c; path = source/BP2/MIDIfiles.c; sourceTree = SOURCE_ROOT; };
+		92A112ED0EC39232006B5F38 /* MIDIloads.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = MIDIloads.c; path = source/BP2/MIDIloads.c; sourceTree = SOURCE_ROOT; };
+		92A112EE0EC39232006B5F38 /* Strings.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Strings.c; path = source/BP2/Strings.c; sourceTree = SOURCE_ROOT; };
+		92A112EF0EC39232006B5F38 /* DisplayArg.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = DisplayArg.c; path = source/BP2/DisplayArg.c; sourceTree = SOURCE_ROOT; };
+		92A112F00EC39232006B5F38 /* DisplayThings.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = DisplayThings.c; path = source/BP2/DisplayThings.c; sourceTree = SOURCE_ROOT; };
+		92A112F10EC39232006B5F38 /* Automata.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Automata.c; path = source/BP2/Automata.c; sourceTree = SOURCE_ROOT; };
+		92A112F20EC39232006B5F38 /* CompileGrammar.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = CompileGrammar.c; path = source/BP2/CompileGrammar.c; sourceTree = SOURCE_ROOT; };
+		92A112F30EC39232006B5F38 /* CompileProcs.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = CompileProcs.c; path = source/BP2/CompileProcs.c; sourceTree = SOURCE_ROOT; };
+		92A112F40EC39232006B5F38 /* Compute.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Compute.c; path = source/BP2/Compute.c; sourceTree = SOURCE_ROOT; };
+		92A112F50EC39232006B5F38 /* Encode.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Encode.c; path = source/BP2/Encode.c; sourceTree = SOURCE_ROOT; };
+		92A112F60EC39232006B5F38 /* FillPhaseDiagram.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = FillPhaseDiagram.c; path = source/BP2/FillPhaseDiagram.c; sourceTree = SOURCE_ROOT; };
+		92A112F70EC39232006B5F38 /* Polymetric.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Polymetric.c; path = source/BP2/Polymetric.c; sourceTree = SOURCE_ROOT; };
+		92A112F80EC39232006B5F38 /* ProduceItems.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ProduceItems.c; path = source/BP2/ProduceItems.c; sourceTree = SOURCE_ROOT; };
+		92A112F90EC39232006B5F38 /* PlayThings.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = PlayThings.c; path = source/BP2/PlayThings.c; sourceTree = SOURCE_ROOT; };
+		92A112FA0EC39232006B5F38 /* Translit.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Translit.c; path = source/BP2/Translit.c; sourceTree = SOURCE_ROOT; };
+		92A112FB0EC39232006B5F38 /* Csound.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Csound.c; path = source/BP2/Csound.c; sourceTree = SOURCE_ROOT; };
+		92A112FC0EC39232006B5F38 /* CsoundMaths.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = CsoundMaths.c; path = source/BP2/CsoundMaths.c; sourceTree = SOURCE_ROOT; };
+		92A112FD0EC39232006B5F38 /* CsoundScoreMake.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = CsoundScoreMake.c; path = source/BP2/CsoundScoreMake.c; sourceTree = SOURCE_ROOT; };
+		92A112FE0EC39232006B5F38 /* Glossary.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Glossary.c; path = source/BP2/Glossary.c; sourceTree = SOURCE_ROOT; };
+		92A112FF0EC39232006B5F38 /* Interaction.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Interaction.c; path = source/BP2/Interaction.c; sourceTree = SOURCE_ROOT; };
+		92A113000EC39232006B5F38 /* Zouleb.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Zouleb.c; path = source/BP2/Zouleb.c; sourceTree = SOURCE_ROOT; };
+		92A113010EC39232006B5F38 /* Color.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Color.c; path = source/BP2/Color.c; sourceTree = SOURCE_ROOT; };
+		92A113020EC39232006B5F38 /* Graphic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Graphic.c; path = source/BP2/Graphic.c; sourceTree = SOURCE_ROOT; };
+		92A113030EC39232006B5F38 /* Script.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Script.c; path = source/BP2/Script.c; sourceTree = SOURCE_ROOT; };
+		92A113040EC39232006B5F38 /* ScriptAlgo.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScriptAlgo.c; path = source/BP2/ScriptAlgo.c; sourceTree = SOURCE_ROOT; };
+		92A113050EC39232006B5F38 /* ScriptUtils.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScriptUtils.c; path = source/BP2/ScriptUtils.c; sourceTree = SOURCE_ROOT; };
+		92A113060EC39232006B5F38 /* MakeSound.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = MakeSound.c; path = source/BP2/MakeSound.c; sourceTree = SOURCE_ROOT; };
+		92A113070EC39232006B5F38 /* SoundObjects1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = SoundObjects1.c; path = source/BP2/SoundObjects1.c; sourceTree = SOURCE_ROOT; };
+		92A113080EC39232006B5F38 /* SoundObjects2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = SoundObjects2.c; path = source/BP2/SoundObjects2.c; sourceTree = SOURCE_ROOT; };
+		92A113090EC39232006B5F38 /* SoundObjects3.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = SoundObjects3.c; path = source/BP2/SoundObjects3.c; sourceTree = SOURCE_ROOT; };
+		92A1130A0EC39232006B5F38 /* SetObjectFeatures.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = SetObjectFeatures.c; path = source/BP2/SetObjectFeatures.c; sourceTree = SOURCE_ROOT; };
+		92A1130B0EC39232006B5F38 /* TimeSetFunctions.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = TimeSetFunctions.c; path = source/BP2/TimeSetFunctions.c; sourceTree = SOURCE_ROOT; };
+		92A1130C0EC39232006B5F38 /* Ticks.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Ticks.c; path = source/BP2/Ticks.c; sourceTree = SOURCE_ROOT; };
+		92A1130D0EC39232006B5F38 /* TimeSet.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = TimeSet.c; path = source/BP2/TimeSet.c; sourceTree = SOURCE_ROOT; };
+		92A1130E0EC39232006B5F38 /* WindowText.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WindowText.c; path = source/BP2/WindowText.c; sourceTree = SOURCE_ROOT; };
+		92A113100EC39232006B5F38 /* -BP2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "-BP2.h"; path = "source/BP2/-BP2.h"; sourceTree = SOURCE_ROOT; };
+		92A113110EC39232006B5F38 /* -BP2.proto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "-BP2.proto.h"; path = "source/BP2/-BP2.proto.h"; sourceTree = SOURCE_ROOT; };
+		92A113120EC39232006B5F38 /* -BP2decl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "-BP2decl.h"; path = "source/BP2/-BP2decl.h"; sourceTree = SOURCE_ROOT; };
+		92A113130EC39232006B5F38 /* -BP2main.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "-BP2main.h"; path = "source/BP2/-BP2main.h"; sourceTree = SOURCE_ROOT; };
+		92A113140EC39232006B5F38 /* midi1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = midi1.h; path = source/BP2/midi1.h; sourceTree = SOURCE_ROOT; };
+		92A113150EC39232006B5F38 /* PrefixReleaseMachOWASTE.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PrefixReleaseMachOWASTE.h; path = source/prefix/PrefixReleaseMachOWASTE.h; sourceTree = SOURCE_ROOT; };
+		92A113160EC39232006B5F38 /* PrefixReleaseTransWASTE.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PrefixReleaseTransWASTE.h; path = source/prefix/PrefixReleaseTransWASTE.h; sourceTree = SOURCE_ROOT; };
+		92A113170EC39232006B5F38 /* PrefixTransTextEdit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PrefixTransTextEdit.h; path = source/prefix/PrefixTransTextEdit.h; sourceTree = SOURCE_ROOT; };
+		92A113180EC39232006B5F38 /* PrefixTransWASTE.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PrefixTransWASTE.h; path = source/prefix/PrefixTransWASTE.h; sourceTree = SOURCE_ROOT; };
+		92A113190EC39232006B5F38 /* PrefixCarbonTextEdit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PrefixCarbonTextEdit.h; path = source/prefix/PrefixCarbonTextEdit.h; sourceTree = SOURCE_ROOT; };
+		92A1131A0EC39232006B5F38 /* PrefixCarbonMLTE.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PrefixCarbonMLTE.h; path = source/prefix/PrefixCarbonMLTE.h; sourceTree = SOURCE_ROOT; };
+		92A1131B0EC39232006B5F38 /* PrefixCarbonWASTE.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PrefixCarbonWASTE.h; path = source/prefix/PrefixCarbonWASTE.h; sourceTree = SOURCE_ROOT; };
+		92A1131C0EC39232006B5F38 /* PrefixMachO.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PrefixMachO.h; path = source/prefix/PrefixMachO.h; sourceTree = SOURCE_ROOT; };
+		92A1131D0EC39232006B5F38 /* PrefixMachOWASTE.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PrefixMachOWASTE.h; path = source/prefix/PrefixMachOWASTE.h; sourceTree = SOURCE_ROOT; };
+		92A1131F0EC39232006B5F38 /* WEArrays.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEArrays.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WEArrays.c; sourceTree = "<absolute>"; };
+		92A113200EC39232006B5F38 /* WEBirthDeath.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEBirthDeath.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WEBirthDeath.c; sourceTree = "<absolute>"; };
+		92A113210EC39232006B5F38 /* WEDebug.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEDebug.c; path = source/WASTE/WEDebug.c; sourceTree = SOURCE_ROOT; };
+		92A113220EC39232006B5F38 /* WEDrawing.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEDrawing.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WEDrawing.c; sourceTree = "<absolute>"; };
+		92A113230EC39232006B5F38 /* WEHighLevelEditing.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEHighLevelEditing.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WEHighLevelEditing.c; sourceTree = "<absolute>"; };
+		92A113240EC39232006B5F38 /* WEInlineInput.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEInlineInput.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WEInlineInput.c; sourceTree = "<absolute>"; };
+		92A113250EC39232006B5F38 /* WELineLayout.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WELineLayout.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WELineLayout.c; sourceTree = "<absolute>"; };
+		92A113260EC39232006B5F38 /* WELongCoords.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WELongCoords.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WELongCoords.c; sourceTree = "<absolute>"; };
+		92A113270EC39232006B5F38 /* WELowLevelEditing.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WELowLevelEditing.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WELowLevelEditing.c; sourceTree = "<absolute>"; };
+		92A113280EC39232006B5F38 /* WEMouse.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEMouse.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WEMouse.c; sourceTree = "<absolute>"; };
+		92A113290EC39232006B5F38 /* WEObjectHandlers.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEObjectHandlers.c; path = source/WASTE/WEObjectHandlers.c; sourceTree = SOURCE_ROOT; };
+		92A1132A0EC39232006B5F38 /* WEObjectHandlers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WEObjectHandlers.h; path = source/WASTE/WEObjectHandlers.h; sourceTree = SOURCE_ROOT; };
+		92A1132B0EC39232006B5F38 /* WEObjects.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEObjects.c; path = source/WASTE/WEObjects.c; sourceTree = SOURCE_ROOT; };
+		92A1132C0EC39232006B5F38 /* WEScraps.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEScraps.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WEScraps.c; sourceTree = "<absolute>"; };
+		92A1132D0EC39232006B5F38 /* WESelecting.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WESelecting.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WESelecting.c; sourceTree = "<absolute>"; };
+		92A1132E0EC39232006B5F38 /* WESelectors.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WESelectors.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WESelectors.c; sourceTree = "<absolute>"; };
+		92A1132F0EC39232006B5F38 /* WETabHooks.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WETabHooks.c; path = source/WASTE/WETabHooks.c; sourceTree = SOURCE_ROOT; };
+		92A113300EC39232006B5F38 /* WETabHooks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WETabHooks.h; path = source/WASTE/WETabHooks.h; sourceTree = SOURCE_ROOT; };
+		92A113310EC39232006B5F38 /* WETabs.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WETabs.c; path = source/WASTE/WETabs.c; sourceTree = SOURCE_ROOT; };
+		92A113320EC39232006B5F38 /* WETabs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WETabs.h; path = source/WASTE/WETabs.h; sourceTree = SOURCE_ROOT; };
+		92A113330EC39232006B5F38 /* WEUtilities.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEUtilities.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WEUtilities.c; sourceTree = "<absolute>"; };
+		92A113350EC39232006B5F38 /* LongCoords.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LongCoords.h; path = source/WASTE/LongCoords.h; sourceTree = SOURCE_ROOT; };
+		92A113360EC39232006B5F38 /* WASTE.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WASTE.h; path = source/WASTE/WASTE.h; sourceTree = SOURCE_ROOT; };
+		92A113370EC39232006B5F38 /* WASTEIntf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WASTEIntf.h; path = source/WASTE/WASTEIntf.h; sourceTree = SOURCE_ROOT; };
+		92A1133A0EC39232006B5F38 /* BP2-MacOS.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; name = "BP2-MacOS.rsrc"; path = "resources/BP2-MacOS.rsrc"; sourceTree = SOURCE_ROOT; };
+		92A1133C0EC39232006B5F38 /* CoreMIDISettings.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; name = CoreMIDISettings.rsrc; path = resources/CoreMIDISettings.rsrc; sourceTree = SOURCE_ROOT; };
+		92A1133D0EC39232006B5F38 /* dlgxs.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; name = dlgxs.rsrc; path = resources/dlgxs.rsrc; sourceTree = SOURCE_ROOT; };
+		92A1133F0EC39232006B5F38 /* -se.startup */ = {isa = PBXFileReference; lastKnownFileType = text; path = "-se.startup"; sourceTree = SOURCE_ROOT; };
+		92A113400EC39232006B5F38 /* BP2 help */ = {isa = PBXFileReference; lastKnownFileType = text; path = "BP2 help"; sourceTree = SOURCE_ROOT; };
+		92A113410EC39232006B5F38 /* Credits.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Credits.txt; sourceTree = SOURCE_ROOT; };
+		92A113420EC39232006B5F38 /* License.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = License.txt; sourceTree = SOURCE_ROOT; };
+		92A113480EC39232006B5F38 /* libSystem.B.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSystem.B.dylib; path = /usr/lib/libSystem.B.dylib; sourceTree = "<absolute>"; };
+		92A113880EC3924E006B5F38 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
+		92A1138D0EC3924F006B5F38 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
+		92A1138F0EC3924F006B5F38 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
+		92A113910EC3924F006B5F38 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = /System/Library/Frameworks/CoreMIDI.framework; sourceTree = "<absolute>"; };
+		92A113930EC3924F006B5F38 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
+		92A114460EC3925B006B5F38 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		92A112AC0EC39230006B5F38 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92A113490EC39232006B5F38 /* libSystem.B.dylib in Frameworks */,
+				92A113890EC3924E006B5F38 /* Carbon.framework in Frameworks */,
+				92A1138E0EC3924F006B5F38 /* ApplicationServices.framework in Frameworks */,
+				92A113900EC3924F006B5F38 /* CoreAudio.framework in Frameworks */,
+				92A113920EC3924F006B5F38 /* CoreMIDI.framework in Frameworks */,
+				92A113940EC3924F006B5F38 /* CoreFoundation.framework in Frameworks */,
+				92A114470EC3925B006B5F38 /* CoreServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92A112BB0EC39230006B5F38 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92A113EF0EC39255006B5F38 /* libSystem.B.dylib in Frameworks */,
+				92A1143A0EC3925A006B5F38 /* Carbon.framework in Frameworks */,
+				92A1143E0EC3925A006B5F38 /* ApplicationServices.framework in Frameworks */,
+				92A114400EC3925A006B5F38 /* CoreAudio.framework in Frameworks */,
+				92A114410EC3925A006B5F38 /* CoreMIDI.framework in Frameworks */,
+				92A114420EC3925A006B5F38 /* CoreFoundation.framework in Frameworks */,
+				92A114480EC3925B006B5F38 /* CoreServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92A112C60EC39231006B5F38 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92A113E30EC39254006B5F38 /* Carbon.framework in Frameworks */,
+				92A113E70EC39254006B5F38 /* ApplicationServices.framework in Frameworks */,
+				92A113E90EC39254006B5F38 /* CoreAudio.framework in Frameworks */,
+				92A113EA0EC39254006B5F38 /* CoreMIDI.framework in Frameworks */,
+				92A113EB0EC39254006B5F38 /* CoreFoundation.framework in Frameworks */,
+				92A114490EC3925B006B5F38 /* CoreServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		92A112A10EC3922F006B5F38 = {
+			isa = PBXGroup;
+			children = (
+				92A112D60EC39231006B5F38 /* Sources */,
+				92A1130F0EC39232006B5F38 /* Headers */,
+				92A1131E0EC39232006B5F38 /* WASTE */,
+				92A113340EC39232006B5F38 /* WASTE Headers */,
+				92A113390EC39232006B5F38 /* Resources */,
+				92A1133E0EC39232006B5F38 /* Package extras */,
+				92A113470EC39232006B5F38 /* 10.2 Libraries */,
+				92A113870EC3924E006B5F38 /* Frameworks */,
+				92A112B20EC39230006B5F38 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		92A112B20EC39230006B5F38 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				92A112B10EC39230006B5F38 /* Bol Processor.app */,
+				92A112BE0EC39230006B5F38 /* Bol Processor.app */,
+				92A112C90EC39231006B5F38 /* Bol Processor.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		92A112D60EC39231006B5F38 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				92A112D70EC39231006B5F38 /* BP2main.c */,
+				92A112D80EC39231006B5F38 /* Inits.c */,
+				92A112D90EC39231006B5F38 /* NavServWrapper.c */,
+				92A112DB0EC39231006B5F38 /* CarbonCompatUtil.c */,
+				92A112DD0EC39231006B5F38 /* GetRelease.c */,
+				92A112DE0EC39231006B5F38 /* AppleEvents.c */,
+				92A112DF0EC39231006B5F38 /* MenuCommands.c */,
+				92A112E00EC39231006B5F38 /* Dialogs.c */,
+				92A112E10EC39231006B5F38 /* Interface1.c */,
+				92A112E20EC39231006B5F38 /* Interface2.c */,
+				92A112E30EC39231006B5F38 /* Misc.c */,
+				92A112E40EC39231006B5F38 /* Processes.c */,
+				92A112E50EC39231006B5F38 /* SaveLoads1.c */,
+				92A112E60EC39231006B5F38 /* SaveLoads2.c */,
+				92A112E70EC39232006B5F38 /* SaveLoads3.c */,
+				92A112E80EC39232006B5F38 /* HTML.c */,
+				92A112E90EC39232006B5F38 /* Arithmetic.c */,
+				92A112EA0EC39232006B5F38 /* MIDIstuff.c */,
+				92A112EB0EC39232006B5F38 /* CoreMIDIdriver.c */,
+				92A112EC0EC39232006B5F38 /* MIDIfiles.c */,
+				92A112ED0EC39232006B5F38 /* MIDIloads.c */,
+				92A112EE0EC39232006B5F38 /* Strings.c */,
+				92A112EF0EC39232006B5F38 /* DisplayArg.c */,
+				92A112F00EC39232006B5F38 /* DisplayThings.c */,
+				92A112F10EC39232006B5F38 /* Automata.c */,
+				92A112F20EC39232006B5F38 /* CompileGrammar.c */,
+				92A112F30EC39232006B5F38 /* CompileProcs.c */,
+				92A112F40EC39232006B5F38 /* Compute.c */,
+				92A112F50EC39232006B5F38 /* Encode.c */,
+				92A112F60EC39232006B5F38 /* FillPhaseDiagram.c */,
+				92A112F70EC39232006B5F38 /* Polymetric.c */,
+				92A112F80EC39232006B5F38 /* ProduceItems.c */,
+				92A112F90EC39232006B5F38 /* PlayThings.c */,
+				92A112FA0EC39232006B5F38 /* Translit.c */,
+				92A112FB0EC39232006B5F38 /* Csound.c */,
+				92A112FC0EC39232006B5F38 /* CsoundMaths.c */,
+				92A112FD0EC39232006B5F38 /* CsoundScoreMake.c */,
+				92A112FE0EC39232006B5F38 /* Glossary.c */,
+				92A112FF0EC39232006B5F38 /* Interaction.c */,
+				92A113000EC39232006B5F38 /* Zouleb.c */,
+				92A113010EC39232006B5F38 /* Color.c */,
+				92A113020EC39232006B5F38 /* Graphic.c */,
+				92A113030EC39232006B5F38 /* Script.c */,
+				92A113040EC39232006B5F38 /* ScriptAlgo.c */,
+				92A113050EC39232006B5F38 /* ScriptUtils.c */,
+				92A113060EC39232006B5F38 /* MakeSound.c */,
+				92A113070EC39232006B5F38 /* SoundObjects1.c */,
+				92A113080EC39232006B5F38 /* SoundObjects2.c */,
+				92A113090EC39232006B5F38 /* SoundObjects3.c */,
+				92A1130A0EC39232006B5F38 /* SetObjectFeatures.c */,
+				92A1130B0EC39232006B5F38 /* TimeSetFunctions.c */,
+				92A1130C0EC39232006B5F38 /* Ticks.c */,
+				92A1130D0EC39232006B5F38 /* TimeSet.c */,
+				92A1130E0EC39232006B5F38 /* WindowText.c */,
+			);
+			name = Sources;
+			sourceTree = "<group>";
+		};
+		92A1130F0EC39232006B5F38 /* Headers */ = {
+			isa = PBXGroup;
+			children = (
+				92A113100EC39232006B5F38 /* -BP2.h */,
+				92A113110EC39232006B5F38 /* -BP2.proto.h */,
+				92A113120EC39232006B5F38 /* -BP2decl.h */,
+				92A113130EC39232006B5F38 /* -BP2main.h */,
+				92A113140EC39232006B5F38 /* midi1.h */,
+				92A112DC0EC39231006B5F38 /* CarbonCompatUtil.h */,
+				92A112DA0EC39231006B5F38 /* NavServWrapper.h */,
+				92A112B50EC39230006B5F38 /* PrefixMachO-Import.h */,
+				92A112C00EC39231006B5F38 /* PrefixMachOWASTE-Import.h */,
+				92A112CB0EC39231006B5F38 /* PrefixReleaseMachOWASTE-Import.h */,
+				92A113150EC39232006B5F38 /* PrefixReleaseMachOWASTE.h */,
+				92A113160EC39232006B5F38 /* PrefixReleaseTransWASTE.h */,
+				92A113170EC39232006B5F38 /* PrefixTransTextEdit.h */,
+				92A113180EC39232006B5F38 /* PrefixTransWASTE.h */,
+				92A113190EC39232006B5F38 /* PrefixCarbonTextEdit.h */,
+				92A1131A0EC39232006B5F38 /* PrefixCarbonMLTE.h */,
+				92A1131B0EC39232006B5F38 /* PrefixCarbonWASTE.h */,
+				92A1131C0EC39232006B5F38 /* PrefixMachO.h */,
+				92A1131D0EC39232006B5F38 /* PrefixMachOWASTE.h */,
+			);
+			name = Headers;
+			sourceTree = "<group>";
+		};
+		92A1131E0EC39232006B5F38 /* WASTE */ = {
+			isa = PBXGroup;
+			children = (
+				92A1131F0EC39232006B5F38 /* WEArrays.c */,
+				92A113200EC39232006B5F38 /* WEBirthDeath.c */,
+				92A113210EC39232006B5F38 /* WEDebug.c */,
+				92A113220EC39232006B5F38 /* WEDrawing.c */,
+				92A113230EC39232006B5F38 /* WEHighLevelEditing.c */,
+				92A113240EC39232006B5F38 /* WEInlineInput.c */,
+				92A113250EC39232006B5F38 /* WELineLayout.c */,
+				92A113260EC39232006B5F38 /* WELongCoords.c */,
+				92A113270EC39232006B5F38 /* WELowLevelEditing.c */,
+				92A113280EC39232006B5F38 /* WEMouse.c */,
+				92A1132A0EC39232006B5F38 /* WEObjectHandlers.h */,
+				92A113290EC39232006B5F38 /* WEObjectHandlers.c */,
+				92A1132B0EC39232006B5F38 /* WEObjects.c */,
+				92A1132C0EC39232006B5F38 /* WEScraps.c */,
+				92A1132D0EC39232006B5F38 /* WESelecting.c */,
+				92A1132E0EC39232006B5F38 /* WESelectors.c */,
+				92A113300EC39232006B5F38 /* WETabHooks.h */,
+				92A1132F0EC39232006B5F38 /* WETabHooks.c */,
+				92A113320EC39232006B5F38 /* WETabs.h */,
+				92A113310EC39232006B5F38 /* WETabs.c */,
+				92A113330EC39232006B5F38 /* WEUtilities.c */,
+			);
+			name = WASTE;
+			sourceTree = "<group>";
+		};
+		92A113340EC39232006B5F38 /* WASTE Headers */ = {
+			isa = PBXGroup;
+			children = (
+				92A113350EC39232006B5F38 /* LongCoords.h */,
+				92A113360EC39232006B5F38 /* WASTE.h */,
+				92A113370EC39232006B5F38 /* WASTEIntf.h */,
+			);
+			name = "WASTE Headers";
+			sourceTree = "<group>";
+		};
+		92A113390EC39232006B5F38 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				92A1133A0EC39232006B5F38 /* BP2-MacOS.rsrc */,
+				92A1133C0EC39232006B5F38 /* CoreMIDISettings.rsrc */,
+				92A1133D0EC39232006B5F38 /* dlgxs.rsrc */,
+				927DEBEA0EC6AF9E0036A79B /* BP2-OSX-appl.icns */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		92A1133E0EC39232006B5F38 /* Package extras */ = {
+			isa = PBXGroup;
+			children = (
+				92A1133F0EC39232006B5F38 /* -se.startup */,
+				92A113400EC39232006B5F38 /* BP2 help */,
+				92A113410EC39232006B5F38 /* Credits.txt */,
+				92A113420EC39232006B5F38 /* License.txt */,
+			);
+			name = "Package extras";
+			sourceTree = "<group>";
+		};
+		92A113470EC39232006B5F38 /* 10.2 Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				92A113480EC39232006B5F38 /* libSystem.B.dylib */,
+			);
+			name = "10.2 Libraries";
+			sourceTree = "<group>";
+		};
+		92A113870EC3924E006B5F38 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				92A113880EC3924E006B5F38 /* Carbon.framework */,
+				92A1138D0EC3924F006B5F38 /* ApplicationServices.framework */,
+				92A1138F0EC3924F006B5F38 /* CoreAudio.framework */,
+				92A113910EC3924F006B5F38 /* CoreMIDI.framework */,
+				92A113930EC3924F006B5F38 /* CoreFoundation.framework */,
+				92A114460EC3925B006B5F38 /* CoreServices.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		92A112A90EC39230006B5F38 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92A112B60EC39230006B5F38 /* PrefixMachO-Import.h in Headers */,
+				92A1135B0EC39233006B5F38 /* NavServWrapper.h in Headers */,
+				92A113600EC39233006B5F38 /* CarbonCompatUtil.h in Headers */,
+				92A1138A0EC3924E006B5F38 /* -BP2.h in Headers */,
+				92A1138B0EC3924F006B5F38 /* -BP2main.h in Headers */,
+				92A1138C0EC3924F006B5F38 /* -BP2decl.h in Headers */,
+				92A113950EC3924F006B5F38 /* WASTEIntf.h in Headers */,
+				92A113960EC3924F006B5F38 /* midi1.h in Headers */,
+				92A113970EC3924F006B5F38 /* -BP2.proto.h in Headers */,
+				92A113980EC3924F006B5F38 /* LongCoords.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92A112B80EC39230006B5F38 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92A112C10EC39231006B5F38 /* PrefixMachOWASTE-Import.h in Headers */,
+				92A114010EC39255006B5F38 /* NavServWrapper.h in Headers */,
+				92A114130EC39255006B5F38 /* CarbonCompatUtil.h in Headers */,
+				92A1143B0EC3925A006B5F38 /* -BP2.h in Headers */,
+				92A1143C0EC3925A006B5F38 /* -BP2main.h in Headers */,
+				92A1143D0EC3925A006B5F38 /* -BP2decl.h in Headers */,
+				92A1143F0EC3925A006B5F38 /* WASTEIntf.h in Headers */,
+				92A114430EC3925A006B5F38 /* midi1.h in Headers */,
+				92A114440EC3925A006B5F38 /* -BP2.proto.h in Headers */,
+				92A114450EC3925A006B5F38 /* LongCoords.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92A112C30EC39231006B5F38 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92A112CC0EC39231006B5F38 /* PrefixReleaseMachOWASTE-Import.h in Headers */,
+				92A113AB0EC3924F006B5F38 /* NavServWrapper.h in Headers */,
+				92A113BD0EC3924F006B5F38 /* CarbonCompatUtil.h in Headers */,
+				92A113E40EC39254006B5F38 /* -BP2.h in Headers */,
+				92A113E50EC39254006B5F38 /* -BP2main.h in Headers */,
+				92A113E60EC39254006B5F38 /* -BP2decl.h in Headers */,
+				92A113E80EC39254006B5F38 /* WASTEIntf.h in Headers */,
+				92A113EC0EC39254006B5F38 /* midi1.h in Headers */,
+				92A113ED0EC39254006B5F38 /* -BP2.proto.h in Headers */,
+				92A113EE0EC39254006B5F38 /* LongCoords.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		92A112AE0EC39230006B5F38 /* PPC TE 10.2 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 92A112D20EC39231006B5F38 /* Build configuration list for PBXNativeTarget "PPC TE 10.2" */;
+			buildPhases = (
+				92A112A90EC39230006B5F38 /* Headers */,
+				92A112AA0EC39230006B5F38 /* Sources */,
+				92A112AB0EC39230006B5F38 /* Resources */,
+				92A112AC0EC39230006B5F38 /* Frameworks */,
+				92A112AD0EC39230006B5F38 /* Rez */,
+				927DEC4B0EC6DD880036A79B /* Copy Extra Files */,
+			);
+			buildRules = (
+				92A114FE0EC651FE006B5F38 /* PBXBuildRule */,
+				92A114FF0EC65205006B5F38 /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = "PPC TE 10.2";
+			productName = "Carbon Mach-O TE";
+			productReference = 92A112B10EC39230006B5F38 /* Bol Processor.app */;
+			productType = "com.apple.product-type.application";
+		};
+		92A112BD0EC39230006B5F38 /* PPC WASTE 10.2 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 92A112D00EC39231006B5F38 /* Build configuration list for PBXNativeTarget "PPC WASTE 10.2" */;
+			buildPhases = (
+				92A112B80EC39230006B5F38 /* Headers */,
+				92A112B90EC39230006B5F38 /* Sources */,
+				92A112BA0EC39230006B5F38 /* Resources */,
+				92A112BB0EC39230006B5F38 /* Frameworks */,
+				92A112BC0EC39230006B5F38 /* Rez */,
+				927DEC470EC6DD220036A79B /* Copy Extra Files */,
+			);
+			buildRules = (
+				92A114FB0EC64E43006B5F38 /* PBXBuildRule */,
+				92A114FA0EC64E2A006B5F38 /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = "PPC WASTE 10.2";
+			productName = "Carbon Mach-O WASTE";
+			productReference = 92A112BE0EC39230006B5F38 /* Bol Processor.app */;
+			productType = "com.apple.product-type.application";
+		};
+		92A112C80EC39231006B5F38 /* Universal (10.4) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 92A112CE0EC39231006B5F38 /* Build configuration list for PBXNativeTarget "Universal (10.4)" */;
+			buildPhases = (
+				92A112C30EC39231006B5F38 /* Headers */,
+				92A112C40EC39231006B5F38 /* Sources */,
+				92A112C50EC39231006B5F38 /* Resources */,
+				92A112C60EC39231006B5F38 /* Frameworks */,
+				92A112C70EC39231006B5F38 /* Rez */,
+				927DEC400EC6DB1D0036A79B /* Copy Extra Files */,
+			);
+			buildRules = (
+				92A114900EC64CB4006B5F38 /* PBXBuildRule */,
+				92A114910EC64CD3006B5F38 /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = "Universal (10.4)";
+			productName = "MacOS X Release";
+			productReference = 92A112C90EC39231006B5F38 /* Bol Processor.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		92A112A30EC3922F006B5F38 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 92A112A40EC3922F006B5F38 /* Build configuration list for PBXProject "BP2-MacOS.xc24" */;
+			compatibilityVersion = "Xcode 2.4";
+			hasScannedForEncodings = 0;
+			mainGroup = 92A112A10EC3922F006B5F38;
+			productRefGroup = 92A112B20EC39230006B5F38 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				92A112C80EC39231006B5F38 /* Universal (10.4) */,
+				92A112BD0EC39230006B5F38 /* PPC WASTE 10.2 */,
+				92A112AE0EC39230006B5F38 /* PPC TE 10.2 */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		92A112AB0EC39230006B5F38 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				927DEBED0EC6AF9E0036A79B /* BP2-OSX-appl.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92A112BA0EC39230006B5F38 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				927DEBEB0EC6AF9E0036A79B /* BP2-OSX-appl.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92A112C50EC39231006B5F38 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				927DEBEC0EC6AF9E0036A79B /* BP2-OSX-appl.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXRezBuildPhase section */
+		92A112AD0EC39230006B5F38 /* Rez */ = {
+			isa = PBXRezBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92A113820EC39233006B5F38 /* CoreMIDISettings.rsrc in Rez */,
+				92A113830EC39233006B5F38 /* BP2-MacOS.rsrc in Rez */,
+				92A113840EC39233006B5F38 /* dlgxs.rsrc in Rez */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92A112BC0EC39230006B5F38 /* Rez */ = {
+			isa = PBXRezBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92A114350EC39255006B5F38 /* CoreMIDISettings.rsrc in Rez */,
+				92A114360EC39255006B5F38 /* BP2-MacOS.rsrc in Rez */,
+				92A114370EC39255006B5F38 /* dlgxs.rsrc in Rez */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92A112C70EC39231006B5F38 /* Rez */ = {
+			isa = PBXRezBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92A113DF0EC3924F006B5F38 /* CoreMIDISettings.rsrc in Rez */,
+				92A113E00EC3924F006B5F38 /* BP2-MacOS.rsrc in Rez */,
+				92A113E10EC3924F006B5F38 /* dlgxs.rsrc in Rez */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXRezBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		92A112AA0EC39230006B5F38 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92A1134A0EC39232006B5F38 /* BP2main.c in Sources */,
+				92A1134B0EC39232006B5F38 /* Inits.c in Sources */,
+				92A1134C0EC39232006B5F38 /* GetRelease.c in Sources */,
+				92A1134D0EC39232006B5F38 /* AppleEvents.c in Sources */,
+				92A1134E0EC39232006B5F38 /* Interface1.c in Sources */,
+				92A1134F0EC39232006B5F38 /* Interface2.c in Sources */,
+				92A113500EC39232006B5F38 /* MenuCommands.c in Sources */,
+				92A113510EC39232006B5F38 /* Dialogs.c in Sources */,
+				92A113520EC39232006B5F38 /* DisplayThings.c in Sources */,
+				92A113530EC39232006B5F38 /* Misc.c in Sources */,
+				92A113540EC39232006B5F38 /* Color.c in Sources */,
+				92A113550EC39232006B5F38 /* Graphic.c in Sources */,
+				92A113560EC39232006B5F38 /* Processes.c in Sources */,
+				92A113570EC39232006B5F38 /* SaveLoads1.c in Sources */,
+				92A113580EC39233006B5F38 /* SaveLoads2.c in Sources */,
+				92A113590EC39233006B5F38 /* SaveLoads3.c in Sources */,
+				92A1135A0EC39233006B5F38 /* NavServWrapper.c in Sources */,
+				92A1135C0EC39233006B5F38 /* HTML.c in Sources */,
+				92A1135D0EC39233006B5F38 /* Strings.c in Sources */,
+				92A1135E0EC39233006B5F38 /* WindowText.c in Sources */,
+				92A1135F0EC39233006B5F38 /* CarbonCompatUtil.c in Sources */,
+				92A113610EC39233006B5F38 /* SetObjectFeatures.c in Sources */,
+				92A113620EC39233006B5F38 /* SoundObjects1.c in Sources */,
+				92A113630EC39233006B5F38 /* SoundObjects2.c in Sources */,
+				92A113640EC39233006B5F38 /* SoundObjects3.c in Sources */,
+				92A113650EC39233006B5F38 /* Csound.c in Sources */,
+				92A113660EC39233006B5F38 /* CsoundMaths.c in Sources */,
+				92A113670EC39233006B5F38 /* CsoundScoreMake.c in Sources */,
+				92A113680EC39233006B5F38 /* MIDIfiles.c in Sources */,
+				92A113690EC39233006B5F38 /* MIDIloads.c in Sources */,
+				92A1136A0EC39233006B5F38 /* CoreMIDIdriver.c in Sources */,
+				92A1136B0EC39233006B5F38 /* MIDIstuff.c in Sources */,
+				92A1136C0EC39233006B5F38 /* MakeSound.c in Sources */,
+				92A1136D0EC39233006B5F38 /* PlayThings.c in Sources */,
+				92A1136E0EC39233006B5F38 /* TimeSet.c in Sources */,
+				92A1136F0EC39233006B5F38 /* TimeSetFunctions.c in Sources */,
+				92A113700EC39233006B5F38 /* FillPhaseDiagram.c in Sources */,
+				92A113710EC39233006B5F38 /* Arithmetic.c in Sources */,
+				92A113720EC39233006B5F38 /* Automata.c in Sources */,
+				92A113730EC39233006B5F38 /* DisplayArg.c in Sources */,
+				92A113740EC39233006B5F38 /* CompileGrammar.c in Sources */,
+				92A113750EC39233006B5F38 /* CompileProcs.c in Sources */,
+				92A113760EC39233006B5F38 /* Compute.c in Sources */,
+				92A113770EC39233006B5F38 /* Encode.c in Sources */,
+				92A113780EC39233006B5F38 /* Polymetric.c in Sources */,
+				92A113790EC39233006B5F38 /* ProduceItems.c in Sources */,
+				92A1137A0EC39233006B5F38 /* Zouleb.c in Sources */,
+				92A1137B0EC39233006B5F38 /* Glossary.c in Sources */,
+				92A1137C0EC39233006B5F38 /* Interaction.c in Sources */,
+				92A1137D0EC39233006B5F38 /* Ticks.c in Sources */,
+				92A1137E0EC39233006B5F38 /* Translit.c in Sources */,
+				92A1137F0EC39233006B5F38 /* Script.c in Sources */,
+				92A113800EC39233006B5F38 /* ScriptAlgo.c in Sources */,
+				92A113810EC39233006B5F38 /* ScriptUtils.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92A112B90EC39230006B5F38 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92A113F00EC39255006B5F38 /* BP2main.c in Sources */,
+				92A113F10EC39255006B5F38 /* Inits.c in Sources */,
+				92A113F20EC39255006B5F38 /* GetRelease.c in Sources */,
+				92A113F30EC39255006B5F38 /* AppleEvents.c in Sources */,
+				92A113F40EC39255006B5F38 /* Interface1.c in Sources */,
+				92A113F50EC39255006B5F38 /* Interface2.c in Sources */,
+				92A113F60EC39255006B5F38 /* MenuCommands.c in Sources */,
+				92A113F70EC39255006B5F38 /* Dialogs.c in Sources */,
+				92A113F80EC39255006B5F38 /* DisplayThings.c in Sources */,
+				92A113F90EC39255006B5F38 /* Misc.c in Sources */,
+				92A113FA0EC39255006B5F38 /* Color.c in Sources */,
+				92A113FB0EC39255006B5F38 /* Graphic.c in Sources */,
+				92A113FC0EC39255006B5F38 /* Processes.c in Sources */,
+				92A113FD0EC39255006B5F38 /* SaveLoads1.c in Sources */,
+				92A113FE0EC39255006B5F38 /* SaveLoads2.c in Sources */,
+				92A113FF0EC39255006B5F38 /* SaveLoads3.c in Sources */,
+				92A114000EC39255006B5F38 /* NavServWrapper.c in Sources */,
+				92A114020EC39255006B5F38 /* HTML.c in Sources */,
+				92A114030EC39255006B5F38 /* Strings.c in Sources */,
+				92A114040EC39255006B5F38 /* WindowText.c in Sources */,
+				92A114050EC39255006B5F38 /* WEArrays.c in Sources */,
+				92A114060EC39255006B5F38 /* WEBirthDeath.c in Sources */,
+				92A114070EC39255006B5F38 /* WEDrawing.c in Sources */,
+				92A114080EC39255006B5F38 /* WEHighLevelEditing.c in Sources */,
+				92A114090EC39255006B5F38 /* WEInlineInput.c in Sources */,
+				92A1140A0EC39255006B5F38 /* WELineLayout.c in Sources */,
+				92A1140B0EC39255006B5F38 /* WELongCoords.c in Sources */,
+				92A1140C0EC39255006B5F38 /* WELowLevelEditing.c in Sources */,
+				92A1140D0EC39255006B5F38 /* WEMouse.c in Sources */,
+				92A1140E0EC39255006B5F38 /* WEScraps.c in Sources */,
+				92A1140F0EC39255006B5F38 /* WESelecting.c in Sources */,
+				92A114100EC39255006B5F38 /* WESelectors.c in Sources */,
+				92A114110EC39255006B5F38 /* WEUtilities.c in Sources */,
+				92A114120EC39255006B5F38 /* CarbonCompatUtil.c in Sources */,
+				92A114140EC39255006B5F38 /* SetObjectFeatures.c in Sources */,
+				92A114150EC39255006B5F38 /* SoundObjects1.c in Sources */,
+				92A114160EC39255006B5F38 /* SoundObjects2.c in Sources */,
+				92A114170EC39255006B5F38 /* SoundObjects3.c in Sources */,
+				92A114180EC39255006B5F38 /* Csound.c in Sources */,
+				92A114190EC39255006B5F38 /* CsoundMaths.c in Sources */,
+				92A1141A0EC39255006B5F38 /* CsoundScoreMake.c in Sources */,
+				92A1141B0EC39255006B5F38 /* MIDIfiles.c in Sources */,
+				92A1141C0EC39255006B5F38 /* MIDIloads.c in Sources */,
+				92A1141D0EC39255006B5F38 /* CoreMIDIdriver.c in Sources */,
+				92A1141E0EC39255006B5F38 /* MIDIstuff.c in Sources */,
+				92A1141F0EC39255006B5F38 /* MakeSound.c in Sources */,
+				92A114200EC39255006B5F38 /* PlayThings.c in Sources */,
+				92A114210EC39255006B5F38 /* TimeSet.c in Sources */,
+				92A114220EC39255006B5F38 /* TimeSetFunctions.c in Sources */,
+				92A114230EC39255006B5F38 /* FillPhaseDiagram.c in Sources */,
+				92A114240EC39255006B5F38 /* Arithmetic.c in Sources */,
+				92A114250EC39255006B5F38 /* Automata.c in Sources */,
+				92A114260EC39255006B5F38 /* DisplayArg.c in Sources */,
+				92A114270EC39255006B5F38 /* CompileGrammar.c in Sources */,
+				92A114280EC39255006B5F38 /* CompileProcs.c in Sources */,
+				92A114290EC39255006B5F38 /* Compute.c in Sources */,
+				92A1142A0EC39255006B5F38 /* Encode.c in Sources */,
+				92A1142B0EC39255006B5F38 /* Polymetric.c in Sources */,
+				92A1142C0EC39255006B5F38 /* ProduceItems.c in Sources */,
+				92A1142D0EC39255006B5F38 /* Zouleb.c in Sources */,
+				92A1142E0EC39255006B5F38 /* Glossary.c in Sources */,
+				92A1142F0EC39255006B5F38 /* Interaction.c in Sources */,
+				92A114300EC39255006B5F38 /* Ticks.c in Sources */,
+				92A114310EC39255006B5F38 /* Translit.c in Sources */,
+				92A114320EC39255006B5F38 /* Script.c in Sources */,
+				92A114330EC39255006B5F38 /* ScriptAlgo.c in Sources */,
+				92A114340EC39255006B5F38 /* ScriptUtils.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92A112C40EC39231006B5F38 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92A1139A0EC3924F006B5F38 /* BP2main.c in Sources */,
+				92A1139B0EC3924F006B5F38 /* Inits.c in Sources */,
+				92A1139C0EC3924F006B5F38 /* GetRelease.c in Sources */,
+				92A1139D0EC3924F006B5F38 /* AppleEvents.c in Sources */,
+				92A1139E0EC3924F006B5F38 /* Interface1.c in Sources */,
+				92A1139F0EC3924F006B5F38 /* Interface2.c in Sources */,
+				92A113A00EC3924F006B5F38 /* MenuCommands.c in Sources */,
+				92A113A10EC3924F006B5F38 /* Dialogs.c in Sources */,
+				92A113A20EC3924F006B5F38 /* DisplayThings.c in Sources */,
+				92A113A30EC3924F006B5F38 /* Misc.c in Sources */,
+				92A113A40EC3924F006B5F38 /* Color.c in Sources */,
+				92A113A50EC3924F006B5F38 /* Graphic.c in Sources */,
+				92A113A60EC3924F006B5F38 /* Processes.c in Sources */,
+				92A113A70EC3924F006B5F38 /* SaveLoads1.c in Sources */,
+				92A113A80EC3924F006B5F38 /* SaveLoads2.c in Sources */,
+				92A113A90EC3924F006B5F38 /* SaveLoads3.c in Sources */,
+				92A113AA0EC3924F006B5F38 /* NavServWrapper.c in Sources */,
+				92A113AC0EC3924F006B5F38 /* HTML.c in Sources */,
+				92A113AD0EC3924F006B5F38 /* Strings.c in Sources */,
+				92A113AE0EC3924F006B5F38 /* WindowText.c in Sources */,
+				92A113AF0EC3924F006B5F38 /* WEArrays.c in Sources */,
+				92A113B00EC3924F006B5F38 /* WEBirthDeath.c in Sources */,
+				92A113B10EC3924F006B5F38 /* WEDrawing.c in Sources */,
+				92A113B20EC3924F006B5F38 /* WEHighLevelEditing.c in Sources */,
+				92A113B30EC3924F006B5F38 /* WEInlineInput.c in Sources */,
+				92A113B40EC3924F006B5F38 /* WELineLayout.c in Sources */,
+				92A113B50EC3924F006B5F38 /* WELongCoords.c in Sources */,
+				92A113B60EC3924F006B5F38 /* WELowLevelEditing.c in Sources */,
+				92A113B70EC3924F006B5F38 /* WEMouse.c in Sources */,
+				92A113B80EC3924F006B5F38 /* WEScraps.c in Sources */,
+				92A113B90EC3924F006B5F38 /* WESelecting.c in Sources */,
+				92A113BA0EC3924F006B5F38 /* WESelectors.c in Sources */,
+				92A113BB0EC3924F006B5F38 /* WEUtilities.c in Sources */,
+				92A113BC0EC3924F006B5F38 /* CarbonCompatUtil.c in Sources */,
+				92A113BE0EC3924F006B5F38 /* SetObjectFeatures.c in Sources */,
+				92A113BF0EC3924F006B5F38 /* SoundObjects1.c in Sources */,
+				92A113C00EC3924F006B5F38 /* SoundObjects2.c in Sources */,
+				92A113C10EC3924F006B5F38 /* SoundObjects3.c in Sources */,
+				92A113C20EC3924F006B5F38 /* Csound.c in Sources */,
+				92A113C30EC3924F006B5F38 /* CsoundMaths.c in Sources */,
+				92A113C40EC3924F006B5F38 /* CsoundScoreMake.c in Sources */,
+				92A113C50EC3924F006B5F38 /* MIDIfiles.c in Sources */,
+				92A113C60EC3924F006B5F38 /* MIDIloads.c in Sources */,
+				92A113C70EC3924F006B5F38 /* CoreMIDIdriver.c in Sources */,
+				92A113C80EC3924F006B5F38 /* MIDIstuff.c in Sources */,
+				92A113C90EC3924F006B5F38 /* MakeSound.c in Sources */,
+				92A113CA0EC3924F006B5F38 /* PlayThings.c in Sources */,
+				92A113CB0EC3924F006B5F38 /* TimeSet.c in Sources */,
+				92A113CC0EC3924F006B5F38 /* TimeSetFunctions.c in Sources */,
+				92A113CD0EC3924F006B5F38 /* FillPhaseDiagram.c in Sources */,
+				92A113CE0EC3924F006B5F38 /* Arithmetic.c in Sources */,
+				92A113CF0EC3924F006B5F38 /* Automata.c in Sources */,
+				92A113D00EC3924F006B5F38 /* DisplayArg.c in Sources */,
+				92A113D10EC3924F006B5F38 /* CompileGrammar.c in Sources */,
+				92A113D20EC3924F006B5F38 /* CompileProcs.c in Sources */,
+				92A113D30EC3924F006B5F38 /* Compute.c in Sources */,
+				92A113D40EC3924F006B5F38 /* Encode.c in Sources */,
+				92A113D50EC3924F006B5F38 /* Polymetric.c in Sources */,
+				92A113D60EC3924F006B5F38 /* ProduceItems.c in Sources */,
+				92A113D70EC3924F006B5F38 /* Zouleb.c in Sources */,
+				92A113D80EC3924F006B5F38 /* Glossary.c in Sources */,
+				92A113D90EC3924F006B5F38 /* Interaction.c in Sources */,
+				92A113DA0EC3924F006B5F38 /* Ticks.c in Sources */,
+				92A113DB0EC3924F006B5F38 /* Translit.c in Sources */,
+				92A113DC0EC3924F006B5F38 /* Script.c in Sources */,
+				92A113DD0EC3924F006B5F38 /* ScriptAlgo.c in Sources */,
+				92A113DE0EC3924F006B5F38 /* ScriptUtils.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		92A112A50EC3922F006B5F38 /* Imported CodeWarrior Settings */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = resources/Info.plist;
+				SDKROOT = /Developer/SDKs/MacOSX10.2.8.sdk;
+			};
+			name = "Imported CodeWarrior Settings";
+		};
+		92A112CF0EC39231006B5F38 /* Imported CodeWarrior Settings */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = (
+					i386,
+					ppc,
+				);
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "source/prefix/PrefixReleaseMachOWASTE-Import.h";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				HEADER_SEARCH_PATHS = /Developer/Headers/FlatCarbon;
+				OTHER_CFLAGS = "-fno-inline";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					warning,
+				);
+				PREBINDING = YES;
+				PRODUCT_NAME = "Bol Processor";
+				REZ_SCRIPT_TYPE = Roman;
+				REZ_SUPPRESS_REDECLARED_RESOURCE_TYPE_WARNINGS = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = "Imported CodeWarrior Settings";
+		};
+		92A112D10EC39231006B5F38 /* Imported CodeWarrior Settings */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/WASTE-10.2";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/WASTE-10.2";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "source/prefix/PrefixMachOWASTE-Import.h";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /Developer/Headers/FlatCarbon;
+				OTHER_CFLAGS = "-fno-inline";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					warning,
+				);
+				PREBINDING = YES;
+				PRODUCT_NAME = "Bol Processor";
+				REZ_SCRIPT_TYPE = Roman;
+				REZ_SUPPRESS_REDECLARED_RESOURCE_TYPE_WARNINGS = NO;
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = "Imported CodeWarrior Settings";
+		};
+		92A112D30EC39231006B5F38 /* Imported CodeWarrior Settings */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/TE-10.2";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/TE-10.2";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "source/prefix/PrefixMachO-Import.h";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /Developer/Headers/FlatCarbon;
+				OTHER_CFLAGS = "-fno-inline";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					warning,
+				);
+				PREBINDING = YES;
+				PRODUCT_NAME = "Bol Processor";
+				REZ_SCRIPT_TYPE = Roman;
+				REZ_SUPPRESS_REDECLARED_RESOURCE_TYPE_WARNINGS = NO;
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = "Imported CodeWarrior Settings";
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		92A112A40EC3922F006B5F38 /* Build configuration list for PBXProject "BP2-MacOS.xc24" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92A112A50EC3922F006B5F38 /* Imported CodeWarrior Settings */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = "Imported CodeWarrior Settings";
+		};
+		92A112CE0EC39231006B5F38 /* Build configuration list for PBXNativeTarget "Universal (10.4)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92A112CF0EC39231006B5F38 /* Imported CodeWarrior Settings */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "Imported CodeWarrior Settings";
+		};
+		92A112D00EC39231006B5F38 /* Build configuration list for PBXNativeTarget "PPC WASTE 10.2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92A112D10EC39231006B5F38 /* Imported CodeWarrior Settings */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "Imported CodeWarrior Settings";
+		};
+		92A112D20EC39231006B5F38 /* Build configuration list for PBXNativeTarget "PPC TE 10.2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92A112D30EC39231006B5F38 /* Imported CodeWarrior Settings */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "Imported CodeWarrior Settings";
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 92A112A30EC3922F006B5F38 /* Project object */;
+}
