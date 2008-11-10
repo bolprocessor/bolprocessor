@@ -413,8 +413,12 @@ switch(type) {
 	return;
 }
 
-const int   MAXFORMATNAMES = 20;
-const int	MFNLEN = 30;
+// GCC does not like const values as global array sizes
+// const int	MAXFORMATNAMES = 20;
+// const int	MFNLEN = 30;
+#define	MAXFORMATNAMES	(20)
+#define	MFNLEN	(30)
+
 const char  FormatNames[MAXFORMATNAMES][MFNLEN] = {
 		"BP2 text file",	 			/* 'TEXT' */
 		"BP2 text file",				/* 'TEXT' */
@@ -438,7 +442,8 @@ const char  FormatNames[MAXFORMATNAMES][MFNLEN] = {
 		"BP2 MIDI driver settings"		/* 'BP16' */
 		};
 		
-const int	HFLEN = 8;
+// const int	HFLEN = 8;
+#define	HFLEN	(8)
 const	char	HTMLFormat[HFLEN] = " (HTML)";	/* this is appended to primary name */
 
 int MakeFormatMenuItems(int type, NavMenuItemSpecArrayHandle* p_handle)
