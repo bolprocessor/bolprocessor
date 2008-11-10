@@ -1,3 +1,33 @@
+2008-11-09	Anthony Kozar	<akozar@users.sourceforge.net>
+
+	* BP2-MacOS.xc24.xcodeproj:  XCode 2.4 project created by importing a
+		pared down version of the CW8 project.  Contains targets for a
+		universal binary build (10.4 and later), a 10.2 WASTE build, and
+		a 10.2 TE build.  This is the preferred project file for now.
+	
+	* resources/Info.plist:  Compiled version of plst-resource.plc for Xcode.
+	
+	* source/prefix/PrefixMachO-Import.h:
+	* source/prefix/PrefixMachOWASTE-Import.h:
+	* source/prefix/PrefixReleaseMachOWASTE-Import.h:
+		Duplicates of CW prefix files for XCode project. (temporary?)
+	
+	* source/BP2/BP2main.c:
+	* source/BP2/CoreMIDIdriver.c:
+	* source/BP2/CsoundMaths.c:
+	* source/BP2/Processes.c:
+	* source/BP2/SaveLoads3.c:
+	* source/BP2/SoundObjects3.c:
+	* source/BP2/Strings.c:
+	* source/BP2/WEMouse.c:
+		Changes needed for the GCC compiler including using "static" in 
+		some functions prototypes, replacing "const" globals with macros, 
+		and renaming of conflicting symbols.
+
+	* source/BP2/WEInlineInput.c:
+		Constants kCaretPosition and kRawText were renamed in the 10.4
+		version of Apple's AERegistry.h header.
+
 2007-06-26	Anthony Kozar	<anthonykozar@sbcglobal.net>
 
 	* VERSION 2.9.6 (FINAL)
