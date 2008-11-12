@@ -371,19 +371,19 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		927DEBEA0EC6AF9E0036A79B /* BP2-OSX-appl.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = "BP2-OSX-appl.icns"; path = "icons/BP2-OSX-appl.icns"; sourceTree = "<group>"; };
+		927DEBEA0EC6AF9E0036A79B /* BP2-OSX-appl.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = "BP2-OSX-appl.icns"; path = "icons/BP2-OSX-appl.icns"; sourceTree = SOURCE_ROOT; };
 		92A112B10EC39230006B5F38 /* Bol Processor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bol Processor.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		92A112B50EC39230006B5F38 /* PrefixMachO-Import.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "PrefixMachO-Import.h"; path = "source/prefix/PrefixMachO-Import.h"; sourceTree = "<group>"; };
+		92A112B50EC39230006B5F38 /* PrefixMachO-Import.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "PrefixMachO-Import.h"; path = "source/prefix/PrefixMachO-Import.h"; sourceTree = SOURCE_ROOT; };
 		92A112BE0EC39230006B5F38 /* Bol Processor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bol Processor.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		92A112C00EC39231006B5F38 /* PrefixMachOWASTE-Import.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "PrefixMachOWASTE-Import.h"; path = "source/prefix/PrefixMachOWASTE-Import.h"; sourceTree = "<group>"; };
+		92A112C00EC39231006B5F38 /* PrefixMachOWASTE-Import.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "PrefixMachOWASTE-Import.h"; path = "source/prefix/PrefixMachOWASTE-Import.h"; sourceTree = SOURCE_ROOT; };
 		92A112C90EC39231006B5F38 /* Bol Processor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bol Processor.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		92A112CB0EC39231006B5F38 /* PrefixReleaseMachOWASTE-Import.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "PrefixReleaseMachOWASTE-Import.h"; path = "source/prefix/PrefixReleaseMachOWASTE-Import.h"; sourceTree = "<group>"; };
+		92A112CB0EC39231006B5F38 /* PrefixReleaseMachOWASTE-Import.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "PrefixReleaseMachOWASTE-Import.h"; path = "source/prefix/PrefixReleaseMachOWASTE-Import.h"; sourceTree = SOURCE_ROOT; };
 		92A112D70EC39231006B5F38 /* BP2main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = BP2main.c; path = source/BP2/BP2main.c; sourceTree = SOURCE_ROOT; };
 		92A112D80EC39231006B5F38 /* Inits.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Inits.c; path = source/BP2/Inits.c; sourceTree = SOURCE_ROOT; };
 		92A112D90EC39231006B5F38 /* NavServWrapper.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = NavServWrapper.c; path = source/BP2/NavServWrapper.c; sourceTree = SOURCE_ROOT; };
-		92A112DA0EC39231006B5F38 /* NavServWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NavServWrapper.h; path = source/BP2/NavServWrapper.h; sourceTree = "<group>"; };
+		92A112DA0EC39231006B5F38 /* NavServWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NavServWrapper.h; path = source/BP2/NavServWrapper.h; sourceTree = SOURCE_ROOT; };
 		92A112DB0EC39231006B5F38 /* CarbonCompatUtil.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = CarbonCompatUtil.c; path = source/BP2/CarbonCompatUtil.c; sourceTree = SOURCE_ROOT; };
-		92A112DC0EC39231006B5F38 /* CarbonCompatUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CarbonCompatUtil.h; path = source/BP2/CarbonCompatUtil.h; sourceTree = "<group>"; };
+		92A112DC0EC39231006B5F38 /* CarbonCompatUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CarbonCompatUtil.h; path = source/BP2/CarbonCompatUtil.h; sourceTree = SOURCE_ROOT; };
 		92A112DD0EC39231006B5F38 /* GetRelease.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = GetRelease.c; path = source/BP2/GetRelease.c; sourceTree = SOURCE_ROOT; };
 		92A112DE0EC39231006B5F38 /* AppleEvents.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = AppleEvents.c; path = source/BP2/AppleEvents.c; sourceTree = SOURCE_ROOT; };
 		92A112DF0EC39231006B5F38 /* MenuCommands.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = MenuCommands.c; path = source/BP2/MenuCommands.c; sourceTree = SOURCE_ROOT; };
@@ -448,27 +448,27 @@
 		92A1131B0EC39232006B5F38 /* PrefixCarbonWASTE.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PrefixCarbonWASTE.h; path = source/prefix/PrefixCarbonWASTE.h; sourceTree = SOURCE_ROOT; };
 		92A1131C0EC39232006B5F38 /* PrefixMachO.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PrefixMachO.h; path = source/prefix/PrefixMachO.h; sourceTree = SOURCE_ROOT; };
 		92A1131D0EC39232006B5F38 /* PrefixMachOWASTE.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PrefixMachOWASTE.h; path = source/prefix/PrefixMachOWASTE.h; sourceTree = SOURCE_ROOT; };
-		92A1131F0EC39232006B5F38 /* WEArrays.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEArrays.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WEArrays.c; sourceTree = "<absolute>"; };
-		92A113200EC39232006B5F38 /* WEBirthDeath.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEBirthDeath.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WEBirthDeath.c; sourceTree = "<absolute>"; };
+		92A1131F0EC39232006B5F38 /* WEArrays.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEArrays.c; path = source/WASTE/WEArrays.c; sourceTree = SOURCE_ROOT; };
+		92A113200EC39232006B5F38 /* WEBirthDeath.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEBirthDeath.c; path = source/WASTE/WEBirthDeath.c; sourceTree = SOURCE_ROOT; };
 		92A113210EC39232006B5F38 /* WEDebug.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEDebug.c; path = source/WASTE/WEDebug.c; sourceTree = SOURCE_ROOT; };
-		92A113220EC39232006B5F38 /* WEDrawing.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEDrawing.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WEDrawing.c; sourceTree = "<absolute>"; };
-		92A113230EC39232006B5F38 /* WEHighLevelEditing.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEHighLevelEditing.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WEHighLevelEditing.c; sourceTree = "<absolute>"; };
-		92A113240EC39232006B5F38 /* WEInlineInput.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEInlineInput.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WEInlineInput.c; sourceTree = "<absolute>"; };
-		92A113250EC39232006B5F38 /* WELineLayout.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WELineLayout.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WELineLayout.c; sourceTree = "<absolute>"; };
-		92A113260EC39232006B5F38 /* WELongCoords.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WELongCoords.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WELongCoords.c; sourceTree = "<absolute>"; };
-		92A113270EC39232006B5F38 /* WELowLevelEditing.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WELowLevelEditing.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WELowLevelEditing.c; sourceTree = "<absolute>"; };
-		92A113280EC39232006B5F38 /* WEMouse.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEMouse.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WEMouse.c; sourceTree = "<absolute>"; };
+		92A113220EC39232006B5F38 /* WEDrawing.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEDrawing.c; path = source/WASTE/WEDrawing.c; sourceTree = SOURCE_ROOT; };
+		92A113230EC39232006B5F38 /* WEHighLevelEditing.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEHighLevelEditing.c; path = source/WASTE/WEHighLevelEditing.c; sourceTree = SOURCE_ROOT; };
+		92A113240EC39232006B5F38 /* WEInlineInput.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEInlineInput.c; path = source/WASTE/WEInlineInput.c; sourceTree = SOURCE_ROOT; };
+		92A113250EC39232006B5F38 /* WELineLayout.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WELineLayout.c; path = source/WASTE/WELineLayout.c; sourceTree = SOURCE_ROOT; };
+		92A113260EC39232006B5F38 /* WELongCoords.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WELongCoords.c; path = source/WASTE/WELongCoords.c; sourceTree = SOURCE_ROOT; };
+		92A113270EC39232006B5F38 /* WELowLevelEditing.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WELowLevelEditing.c; path = source/WASTE/WELowLevelEditing.c; sourceTree = SOURCE_ROOT; };
+		92A113280EC39232006B5F38 /* WEMouse.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEMouse.c; path = source/WASTE/WEMouse.c; sourceTree = SOURCE_ROOT; };
 		92A113290EC39232006B5F38 /* WEObjectHandlers.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEObjectHandlers.c; path = source/WASTE/WEObjectHandlers.c; sourceTree = SOURCE_ROOT; };
 		92A1132A0EC39232006B5F38 /* WEObjectHandlers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WEObjectHandlers.h; path = source/WASTE/WEObjectHandlers.h; sourceTree = SOURCE_ROOT; };
 		92A1132B0EC39232006B5F38 /* WEObjects.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEObjects.c; path = source/WASTE/WEObjects.c; sourceTree = SOURCE_ROOT; };
-		92A1132C0EC39232006B5F38 /* WEScraps.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEScraps.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WEScraps.c; sourceTree = "<absolute>"; };
-		92A1132D0EC39232006B5F38 /* WESelecting.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WESelecting.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WESelecting.c; sourceTree = "<absolute>"; };
-		92A1132E0EC39232006B5F38 /* WESelectors.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WESelectors.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WESelectors.c; sourceTree = "<absolute>"; };
+		92A1132C0EC39232006B5F38 /* WEScraps.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEScraps.c; path = source/WASTE/WEScraps.c; sourceTree = SOURCE_ROOT; };
+		92A1132D0EC39232006B5F38 /* WESelecting.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WESelecting.c; path = source/WASTE/WESelecting.c; sourceTree = SOURCE_ROOT; };
+		92A1132E0EC39232006B5F38 /* WESelectors.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WESelectors.c; path = source/WASTE/WESelectors.c; sourceTree = SOURCE_ROOT; };
 		92A1132F0EC39232006B5F38 /* WETabHooks.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WETabHooks.c; path = source/WASTE/WETabHooks.c; sourceTree = SOURCE_ROOT; };
 		92A113300EC39232006B5F38 /* WETabHooks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WETabHooks.h; path = source/WASTE/WETabHooks.h; sourceTree = SOURCE_ROOT; };
 		92A113310EC39232006B5F38 /* WETabs.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WETabs.c; path = source/WASTE/WETabs.c; sourceTree = SOURCE_ROOT; };
 		92A113320EC39232006B5F38 /* WETabs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WETabs.h; path = source/WASTE/WETabs.h; sourceTree = SOURCE_ROOT; };
-		92A113330EC39232006B5F38 /* WEUtilities.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEUtilities.c; path = /Volumes/Data/Users/anthony/Developer/devprojects/BP_CVS/cvs/bolprocessor/source/WASTE/WEUtilities.c; sourceTree = "<absolute>"; };
+		92A113330EC39232006B5F38 /* WEUtilities.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = WEUtilities.c; path = source/WASTE/WEUtilities.c; sourceTree = SOURCE_ROOT; };
 		92A113350EC39232006B5F38 /* LongCoords.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LongCoords.h; path = source/WASTE/LongCoords.h; sourceTree = SOURCE_ROOT; };
 		92A113360EC39232006B5F38 /* WASTE.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WASTE.h; path = source/WASTE/WASTE.h; sourceTree = SOURCE_ROOT; };
 		92A113370EC39232006B5F38 /* WASTEIntf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WASTEIntf.h; path = source/WASTE/WASTEIntf.h; sourceTree = SOURCE_ROOT; };
@@ -1142,9 +1142,199 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		92456DE20EC96270001BD76F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G4;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				INFOPLIST_FILE = resources/Info.plist;
+				SDKROOT = /Developer/SDKs/MacOSX10.2.8.sdk;
+			};
+			name = Release;
+		};
+		92456DE30EC96270001BD76F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "source/prefix/PrefixReleaseMachOWASTE-Import.h";
+				HEADER_SEARCH_PATHS = /Developer/Headers/FlatCarbon;
+				OTHER_CFLAGS = "-fno-inline";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					warning,
+				);
+				PREBINDING = YES;
+				PRODUCT_NAME = "Bol Processor";
+				REZ_SCRIPT_TYPE = Roman;
+				REZ_SUPPRESS_REDECLARED_RESOURCE_TYPE_WARNINGS = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Release;
+		};
+		92456DE40EC96270001BD76F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/WASTE-10.2/Release";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/WASTE-10.2/Release";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "source/prefix/PrefixMachOWASTE-Import.h";
+				HEADER_SEARCH_PATHS = /Developer/Headers/FlatCarbon;
+				OTHER_CFLAGS = "-fno-inline";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					warning,
+				);
+				PREBINDING = YES;
+				PRODUCT_NAME = "Bol Processor";
+				REZ_SCRIPT_TYPE = Roman;
+				REZ_SUPPRESS_REDECLARED_RESOURCE_TYPE_WARNINGS = NO;
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Release;
+		};
+		92456DE50EC96270001BD76F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/TE-10.2";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/TE-10.2";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "source/prefix/PrefixMachO-Import.h";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /Developer/Headers/FlatCarbon;
+				OTHER_CFLAGS = "-fno-inline";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					warning,
+				);
+				PREBINDING = YES;
+				PRODUCT_NAME = "Bol Processor";
+				REZ_SCRIPT_TYPE = Roman;
+				REZ_SUPPRESS_REDECLARED_RESOURCE_TYPE_WARNINGS = NO;
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Release;
+		};
+		92456DE60EC96278001BD76F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = "";
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VALUE = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = resources/Info.plist;
+				SDKROOT = /Developer/SDKs/MacOSX10.2.8.sdk;
+			};
+			name = Debug;
+		};
+		92456DE70EC96278001BD76F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "source/prefix/PrefixReleaseMachOWASTE-Import.h";
+				HEADER_SEARCH_PATHS = /Developer/Headers/FlatCarbon;
+				OTHER_CFLAGS = "-fno-inline";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					warning,
+				);
+				PREBINDING = YES;
+				PRODUCT_NAME = "Bol Processor";
+				REZ_SCRIPT_TYPE = Roman;
+				REZ_SUPPRESS_REDECLARED_RESOURCE_TYPE_WARNINGS = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Debug;
+		};
+		92456DE80EC96278001BD76F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/WASTE-10.2/Debug";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/WASTE-10.2/Debug";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "source/prefix/PrefixMachOWASTE-Import.h";
+				HEADER_SEARCH_PATHS = /Developer/Headers/FlatCarbon;
+				OTHER_CFLAGS = "-fno-inline";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					warning,
+				);
+				PREBINDING = YES;
+				PRODUCT_NAME = "Bol Processor";
+				REZ_SCRIPT_TYPE = Roman;
+				REZ_SUPPRESS_REDECLARED_RESOURCE_TYPE_WARNINGS = NO;
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Debug;
+		};
+		92456DE90EC96278001BD76F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/TE-10.2";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/TE-10.2";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "source/prefix/PrefixMachO-Import.h";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /Developer/Headers/FlatCarbon;
+				OTHER_CFLAGS = "-fno-inline";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					warning,
+				);
+				PREBINDING = YES;
+				PRODUCT_NAME = "Bol Processor";
+				REZ_SCRIPT_TYPE = Roman;
+				REZ_SUPPRESS_REDECLARED_RESOURCE_TYPE_WARNINGS = NO;
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Debug;
+		};
 		92A112A50EC3922F006B5F38 /* Imported CodeWarrior Settings */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				INFOPLIST_FILE = resources/Info.plist;
 				SDKROOT = /Developer/SDKs/MacOSX10.2.8.sdk;
 			};
@@ -1154,22 +1344,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = (
-					i386,
-					ppc,
-				);
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "source/prefix/PrefixReleaseMachOWASTE-Import.h";
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
-				GCC_WARN_MISSING_PARENTHESES = YES;
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				GCC_WARN_UNKNOWN_PRAGMAS = YES;
-				GCC_WARN_UNUSED_PARAMETER = NO;
-				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = /Developer/Headers/FlatCarbon;
 				OTHER_CFLAGS = "-fno-inline";
 				OTHER_LDFLAGS = (
@@ -1191,18 +1367,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/WASTE-10.2";
 				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/WASTE-10.2";
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "source/prefix/PrefixMachOWASTE-Import.h";
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
-				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
-				GCC_WARN_SIGN_COMPARE = YES;
-				GCC_WARN_UNKNOWN_PRAGMAS = YES;
-				GCC_WARN_UNUSED_PARAMETER = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /Developer/Headers/FlatCarbon;
 				OTHER_CFLAGS = "-fno-inline";
 				OTHER_LDFLAGS = (
@@ -1256,33 +1422,41 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				92A112A50EC3922F006B5F38 /* Imported CodeWarrior Settings */,
+				92456DE20EC96270001BD76F /* Release */,
+				92456DE60EC96278001BD76F /* Debug */,
 			);
 			defaultConfigurationIsVisible = 1;
-			defaultConfigurationName = "Imported CodeWarrior Settings";
+			defaultConfigurationName = Release;
 		};
 		92A112CE0EC39231006B5F38 /* Build configuration list for PBXNativeTarget "Universal (10.4)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				92A112CF0EC39231006B5F38 /* Imported CodeWarrior Settings */,
+				92456DE30EC96270001BD76F /* Release */,
+				92456DE70EC96278001BD76F /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Imported CodeWarrior Settings";
+			defaultConfigurationName = Release;
 		};
 		92A112D00EC39231006B5F38 /* Build configuration list for PBXNativeTarget "PPC WASTE 10.2" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				92A112D10EC39231006B5F38 /* Imported CodeWarrior Settings */,
+				92456DE40EC96270001BD76F /* Release */,
+				92456DE80EC96278001BD76F /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Imported CodeWarrior Settings";
+			defaultConfigurationName = Release;
 		};
 		92A112D20EC39231006B5F38 /* Build configuration list for PBXNativeTarget "PPC TE 10.2" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				92A112D30EC39231006B5F38 /* Imported CodeWarrior Settings */,
+				92456DE50EC96270001BD76F /* Release */,
+				92456DE90EC96278001BD76F /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Imported CodeWarrior Settings";
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
