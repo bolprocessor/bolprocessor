@@ -677,7 +677,7 @@ SetPortDialogPort(p_dia);
 FlushEvents(everyEvent,0);
 
 do {
-	if(GetNextEvent(mDownMask,&theEvent)) {
+	if(WaitNextEvent(mDownMask,&theEvent,60L,NULL)) {
 		GlobalToLocal(&(theEvent.where));
 		if(FindControl(theEvent.where, GetDialogWindow(p_dia), &h) != 0) {
 			if (TrackControl(h,theEvent.where,NULL) != 0) {
@@ -1391,6 +1391,7 @@ MyButton(int quick)
 EventRecord event;
 int w,eventfound,theclick,what,mousedown,result,intext,hit;
 short itemHit,itemtype;
+long sleeptime;
 WindowPtr whichwindow;
 DialogPtr thedialog;
 GrafPtr saveport;
@@ -1405,7 +1406,9 @@ if(quick >= 2) return(FAILED);
 
 DOEVENT:
 MaintainMenus();
-eventfound = GetNextEvent(everyEvent,&event);
+if ((ComputeOn || CompileOn) && !WaitOn)  sleeptime = 1L;
+else  sleeptime = GetCaretTime();
+eventfound = WaitNextEvent(everyEvent,&event, sleeptime, NULL);
 what = event.what;
 if(!eventfound || (what != mouseDown
 		&& (what != keyDown || ((event.modifiers & cmdKey) == 0))
@@ -1601,7 +1604,7 @@ char c;
 int i = 0;  
 EventRecord theEvent;
 do {
-	while(!GetNextEvent(everyEvent,&theEvent) || ((theEvent.what != keyDown)
+	while(!WaitNextEvent(everyEvent,&theEvent,60L,NULL) || ((theEvent.what != keyDown)
 		&& (theEvent.what != autoKey))) ;
   	c = (char) (theEvent.message & charCodeMask);
 /*  	Print(wTrace,c); */
@@ -1918,7 +1921,7 @@ FlushEvents(everyEvent,0);
 BPUpdateDialog(ReplaceCommandPtr);
 
 do {
-	if(GetNextEvent(everyEvent,&theEvent)) {
+	if(WaitNextEvent(everyEvent,&theEvent,60L,NULL)) {
 		if((theEvent.what == keyDown)
 			&& ((char)(theEvent.message & charCodeMask) == '\r')) {
 			theitem = dDontChange;
@@ -1931,7 +1934,7 @@ do {
 		if(FindControl(theEvent.where, GetDialogWindow(ReplaceCommandPtr), &h) != 0) {
 			TrackControl(h,theEvent.where,MINUSPROC);
 			LocalToGlobal(&(theEvent.where));
-			thedialog = GetDialogFromWindow(thewindow);	// FIX ME ? not sure what window(s) are being used here?
+			thedialog = GetDialogFromWindow(thewindow);	// FIXME ? not sure what window(s) are being used here?
 			DialogSelect(&theEvent,&thedialog,&theitem);
 			}
 		else {

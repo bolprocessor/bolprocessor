@@ -423,7 +423,7 @@ while(TRUE) {
 			break;
 		case APPLEVENT:
 		case KEYBOARDEVENT:
-			eventfound = GetNextEvent(everyEvent,&event);
+			eventfound = WaitNextEvent(everyEvent,&event,30L,NULL);
 			if(!eventfound) continue;
 			if(eventtype == APPLEVENT) {
 				if(event.what == kHighLevelEvent && event.message == theclass) {

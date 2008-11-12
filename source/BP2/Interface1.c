@@ -53,6 +53,7 @@ MainEvent(void)
 {
 EventRecord event;
 int eventfound,rep;
+long sleeptime;
 WindowPtr whichwindow;
 
 if(EmergencyExit) {
@@ -98,7 +99,9 @@ if(ClockOverFlow) {
 	ClockOverFlow = FALSE;
 	if(Beta) Alert1("Clock overflow. Increase CLOCKSIZE!");
 	}
-eventfound = GetNextEvent(everyEvent,&event);
+if ((ComputeOn || CompileOn) && !WaitOn)  sleeptime = 1L;
+else  sleeptime = GetCaretTime();
+eventfound = WaitNextEvent(everyEvent,&event, sleeptime, NULL);
 FindWindow(event.where,&whichwindow);
 if(whichwindow == GetDialogWindow(FileSavePreferencesPtr)
 	|| whichwindow == GetDialogWindow(TuningPtr)

@@ -421,7 +421,7 @@ while(!Button()) {
 		}
 #endif
 EVENT:
-	eventfound = GetNextEvent(everyEvent,&event);
+	eventfound = WaitNextEvent(everyEvent,&event,30L,NULL);
 	if(eventfound && (event.what == keyDown)) {
 		thechar = event.message & charCodeMask;
 		if(thechar == ' ') {

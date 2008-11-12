@@ -1925,7 +1925,7 @@ int r,compiledmem,dirtymem;
 ShowSelect(CENTRE,wTrace);
 BPActivateWindow(SLOW,wTrace);
 ShowMessage(TRUE,wMessage,"Type answer!");
-while(!GetNextEvent(everyEvent,&theEvent) || ((theEvent.what != keyDown)
+while(!WaitNextEvent(everyEvent,&theEvent,3L,NULL) || ((theEvent.what != keyDown)
 		&& (theEvent.what != autoKey))) {
 	ListenMIDI(0,0,0);
 	if(Button()) {

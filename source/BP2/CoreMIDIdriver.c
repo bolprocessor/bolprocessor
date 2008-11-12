@@ -420,7 +420,7 @@ static OSStatus CMDisconnectFromSources(MIDIEndpointRef* endpoints)
 	return anyerr;
 }
 
-/* This callback seems to always be called in our main thread (via GetNextEvent),
+/* This callback seems to always be called in our main thread (via WaitNextEvent),
    so I do not think that it is a synchronization risk. */
 static void CMNotifyCallback(const MIDINotification *message, void *refCon)
 {

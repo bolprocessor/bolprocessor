@@ -1,3 +1,23 @@
+2008-11-11	Anthony Kozar	<akozar@users.sourceforge.net>
+
+	* source/BP2/Interface1.c (MainEvent):
+	* source/BP2/Interface2.c (DoThings, MyButton, GetString1, GetReplaceCommand):
+	* source/BP2/CoreMIDIdriver.c:
+	* source/BP2/Interaction.c (WaitKeyStrokeOrAppleEvent):
+	* source/BP2/MIDIloads.c (LoadMIDIsyncOrKey):
+	* source/BP2/Misc.c (GetCap):
+		Replaced most occurrences of GetNextEvent() with WaitNextEvent().
+
+2008-11-10	Anthony Kozar	<akozar@users.sourceforge.net>
+
+	* source/BP2/Inits.c (MakeWindows, LoadStringResource, LoadScriptCommands):
+		Fixed reading of 'STR#' resources on Intel processors.
+
+	* BP2-MacOS.xc24.xcodeproj:
+		Made all file references relative to project file.
+		Created 'Release' and 'Debug' configurations.
+		Reorganized build settings.
+
 2008-11-09	Anthony Kozar	<akozar@users.sourceforge.net>
 
 	* BP2-MacOS.xc24.xcodeproj:  XCode 2.4 project created by importing a
