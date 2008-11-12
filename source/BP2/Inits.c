@@ -986,7 +986,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 			NoteAlert(OKAlert,0L);
 			return(FAILED);
 			}
-		im = (*h_res)[1];
+		im = **((short**)h_res); // (*h_res)[1];
 		if(im < 1) {
 			sprintf(Message,
 					"Error in resource string list for window %ld",(long)w);
@@ -1284,8 +1284,8 @@ if((i=ResError()) != noErr) {
 	EmergencyExit = TRUE;
 	return(FAILED);
 	}
-im = (*h_res)[1];
-if(im < 0) im += 256;
+im = **((short**)h_res); // (*h_res)[1];
+// if(im < 0) im += 256;
 *p_max = im;
 	
 if((*pp_str = (char****) GiveSpace((Size)im * sizeof(char**))) == NULL)
@@ -1360,7 +1360,7 @@ ERR1:
 	return(FAILED);
 	}
 j = 1; nmax = 0;
-im = (*h_res)[j]; if(im < 0) im += 256;
+im = **((short**)h_res); // (*h_res)[j]; if(im < 0) im += 256;
 MaxScriptInstructions = im;
 if(im < 1 || im > 255) {
 	sprintf(Message,"Error im=%ld loading resource string list ID %ld",
