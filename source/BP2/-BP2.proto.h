@@ -1085,6 +1085,7 @@ int Idle(TextHandle);
 int DoKey(char,EventModifiers,TextHandle);
 int CalText(TextHandle);
 long GetTextLength(int);
+long GetTextHandleLength(TextHandle);
 int TextDelete(int);
 int TextInsert(char*,long,TextHandle);
 int TextFullError(TextHandle, int);

@@ -100,6 +100,29 @@ return(OK);
 
 SetSelect(TextOffset start,TextOffset end, TextHandle th)
 {
+	long maxoffset;
+
+#if !WASTE	
+	/* clamp range to text bounds (WASTE does these checks) */
+	maxoffset = GetTextHandleLength(th);
+	if (start < ZERO) {
+		if(Beta) Alert1("Err. SetSelect(). start < ZERO");
+		start = ZERO;
+	}
+	else if (start > maxoffset) {
+		if(Beta) Alert1("Err. SetSelect(). start > maxoffset");
+		start = maxoffset;
+	}
+	if (end < ZERO) {
+		if(Beta) Alert1("Err. SetSelect(). end < ZERO");
+		end = ZERO;
+	}
+	else if (end > maxoffset) {
+		if(Beta) Alert1("Err. SetSelect(). end > maxoffset");
+		end = maxoffset;
+	}
+#endif
+
 #if WASTE
 WESetSelection(start,end,th);
 #elif USE_MLTE
@@ -194,18 +217,28 @@ return(OK);
 
 long GetTextLength(int w)
 {
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. GetTextLength(). Incorrect w");
-	return(ZERO);
+	if(w < 0 || w >= WMAX || !Editable[w]) {
+		if(Beta) Alert1("Err. GetTextLength(). Incorrect w");
+		return(ZERO);
+		}
+	return GetTextHandleLength(TEH[w]);
+}
+
+long GetTextHandleLength(TextHandle th)
+{
+	if (th == NULL) {
+		if(Beta) Alert1("Err. GetTextHandleLength(). NULL handle");
+		return(ZERO);
 	}
+	
 #if WASTE
-return(WEGetTextLength(TEH[w]));
+return(WEGetTextLength(th));
 #elif USE_MLTE
 // TXNDataSize returns a byte count which we assume is the number
 // of characters since we are using the Mac Roman encoding.
-return (long) TXNDataSize((*(TEH[w]))->textobj);
+return (long) TXNDataSize((*th)->textobj);
 #else
-return((*(TEH[w]))->teLength);
+return((*th)->teLength);
 #endif
 }
 
