@@ -153,3 +153,24 @@ in MakeSound() first).
 - Closing the 'Random Sequence' window while recording a script writes 'Hide
   window "Weight"' to the script.  (This command does close the Random window).
 
+- Clicking in one of the edit text boxes in the "Buffer size" window when BP help
+  is on looks up a help string containing "garbage" characters.
+
+- Usability issue:  Help window is brought to the front instead of becoming the 
+  active window when displaying help items if the active window is not in
+  Windows[w].  This can produce some unintuitive situations.
+
+- Seem to have gotten rid of the issue with bad values in Csound Instruments
+  preventing the menus from being pulled down.  However, still shows alerts
+  when switching to other windows in Windows[w].  If you switch to a non-Windows[w]
+  dialog, then you get the alert while trying to switch to windows other 
+  than Csound Instruments which is very confusing.
+
+- NEW BUG 11/15?  "Clear", "Load", "REC", and "Execute" buttons on Script Control 
+  Panel are dimmed when first opened after loading a project (try -gr.koto3). 
+  Can only load and run using the menus. Buttons become active after running the 
+  script.
+
+- Script records this command:  Hide window "Time accuracy"
+  but this command is not accepted as valid; "Missing terminating quote"
+
