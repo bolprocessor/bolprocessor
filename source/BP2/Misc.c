@@ -493,15 +493,6 @@ SetNameChoice();
 ShowWindow(GetDialogWindow(MIDIkeyboardPtr));
 SelectWindow(GetDialogWindow(MIDIkeyboardPtr));
 BPUpdateDialog(MIDIkeyboardPtr); /* Needed to show static text! */
-#if !EXPERIMENTAL
-dport = GetDialogPort(MIDIkeyboardPtr);
-GetPort(&saveport);
-SetPort(dport);
-GetPortBounds(dport, &r);
-InvalWindowRect(GetDialogWindow(MIDIkeyboardPtr), &r);
-if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err ShowMIDIkeyboard(). saveport == NULL");
-#endif
 return(DoSystem());
 }
 

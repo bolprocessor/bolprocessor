@@ -197,10 +197,6 @@ switch(Alert(AboutAlert,0L)) {
 			DisplayFile(wNotice,"Credits.txt");
 		if(wind < 0) r = RESUME;
 		else r = OK;
-#if !EXPERIMENTAL
-		wind = wNotice;
-		BPActivateWindow(SLOW,wind);
-#endif
 		break;
 	case bRegister:
 		DisplayFile(wNotice,"License.txt");
@@ -210,10 +206,6 @@ switch(Alert(AboutAlert,0L)) {
 		else r = OK;
 		break;
 	}
-#if !EXPERIMENTAL
-  if(r == OK && wind >= 0) BPActivateWindow(SLOW,wind);
-  else BPActivateWindow(SLOW,Nw);
-#endif
 return(r);
 }
 
@@ -2316,12 +2308,7 @@ return(OK);
 mControlPannel(int wind)
 {
 AppendScript(36);
-#if EXPERIMENTAL
-  BPActivateWindow(SLOW, wControlPannel);
-#else
-ShowWindow(Window[wControlPannel]);
-BringToFront(Window[wControlPannel]);
-#endif
+BPActivateWindow(SLOW, wControlPannel);
 return(OK);
 }
 

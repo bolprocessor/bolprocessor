@@ -172,30 +172,9 @@ switch(p_event->what) {
 		for(w=0; w < WMAX; w++) {
 			if(whichwindow == Window[w]) break;
 			}
-		if(whichwindow == GetDialogWindow(MIDIprogramPtr) || whichwindow == GetDialogWindow(SixteenPtr))
-			goto DOTHECLICK;
-		if((w < 0) || (w >= WMAX) || (w == Nw)) goto DOTHECLICK;
-#if !EXPERIMENTAL
-		switch(w) {
-			case wControlPannel:
-			case wScriptDialog:
-			case wPrototype1:
-				goto DOTHECLICK;
-				break;
-			default:
-				if(GrafWindow[w]) {
-					if(w == wGraphic) ShowDuration(NO);
-					BPActivateWindow(SLOW,w);
-					}
-				else BPActivateWindow(QUICK,w);
-				rep = DoContent(whichwindow,p_event,&intext);
-				goto END;
-				break;
-			}
-#endif
-
-DOTHECLICK:
 		if(w == Nw && w == wGraphic) ShowDuration(NO);
+		/* FIXME: This check can cause an alert box when the user 
+		   clicks in the menubar or tries to switch windows. */
 		if(Nbytes == ZERO
 			&& Nw >= 0
 			&& Nw < WMAX
@@ -292,62 +271,33 @@ DOTHECLICK:
 					if(w >= 0 && w < WMAX) BPActivateWindow(SLOW,w);
 					else SelectWindow(whichwindow);
 					}
-#if !EXPERIMENTAL
-				else {
-#endif
-					if(w == Nw) {
-#if !EXPERIMENTAL
-						GetPort(&saveport);
-						SetPortWindowPort(whichwindow);
-						GetWindowPortBounds(whichwindow, &r);
-						InvalWindowRect(whichwindow, &r);
-#endif
-						dragrect = Set_Window_Drag_Boundaries();
-						uppercorner = topLeft(r);
-						LocalToGlobal(&uppercorner);
-						DragWindow(whichwindow,p_event->where,&dragrect);
-						GetWindowPortBounds(whichwindow, &r);
-						newcorner = topLeft(r);
-						LocalToGlobal(&newcorner);
-						if(newcorner.v != uppercorner.v
-								|| newcorner.h != uppercorner.h) {
-							ChangedCoordinates[w] = TRUE;
-							}
-#if !EXPERIMENTAL
-						if(saveport != NULL) SetPort(saveport);
-						else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
-						if(w == wScript) BPActivateWindow(SLOW,wScriptDialog);
-						if(w == wScriptDialog) BPActivateWindow(SLOW,wScript);
-#endif
-						if(w == wData) ShowDuration(NO);
-						if(ResumeStopOn) {
-							if(UndoFlag) BringToFront(GetDialogWindow(ResumeUndoStopPtr));
-							else BringToFront(GetDialogWindow(ResumeStopPtr));
-							}
+				if(w == Nw) {
+					dragrect = Set_Window_Drag_Boundaries();
+					uppercorner = topLeft(r);
+					LocalToGlobal(&uppercorner);
+					DragWindow(whichwindow,p_event->where,&dragrect);
+					GetWindowPortBounds(whichwindow, &r);
+					newcorner = topLeft(r);
+					LocalToGlobal(&newcorner);
+					if(newcorner.v != uppercorner.v
+							|| newcorner.h != uppercorner.h) {
+						ChangedCoordinates[w] = TRUE;
 						}
-					else {
-						Help = FALSE;
-						if(w < WMAX) BPActivateWindow(QUICK,w);
-						else {
-#if !EXPERIMENTAL
-							GetPort(&saveport);
-							SetPortWindowPort(whichwindow);
-							GetWindowPortBounds(whichwindow, &r);
-							InvalWindowRect(whichwindow, &r);
-							if(saveport != NULL) SetPort(saveport);
-							else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
-#endif
-							dragrect = Set_Window_Drag_Boundaries();
-							DragWindow(whichwindow,p_event->where,&dragrect);
-#if !EXPERIMENTAL					/* FIXME: should modify ChangedCoordinates here too? */
-							if(saveport != NULL) SetPort(saveport);
-							else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
-#endif
-							}
+					if(w == wData) ShowDuration(NO);
+					if(ResumeStopOn) {
+						if(UndoFlag) BringToFront(GetDialogWindow(ResumeUndoStopPtr));
+						else BringToFront(GetDialogWindow(ResumeStopPtr));
 						}
-#if !EXPERIMENTAL
 					}
-#endif
+				else {
+					Help = FALSE;
+					if(w < WMAX) BPActivateWindow(QUICK,w);
+					else {
+						dragrect = Set_Window_Drag_Boundaries();
+						DragWindow(whichwindow,p_event->where,&dragrect);
+						/* FIXME: should modify ChangedCoordinates here too? */
+						}
+					}
 				break;
 			case inGrow:
 				PrintEvent(p_event, "case inGrow", whichwindow);
@@ -410,34 +360,17 @@ DOTHECLICK:
 					break;
 					}
 #endif
-#if !EXPERIMENTAL
-				if(whichwindow != FrontWindow()) {
-#endif
-					if(whichwindow == GetDialogWindow(ResumeStopPtr)
-#if !EXPERIMENTAL
-							|| whichwindow == GetDialogWindow(FileSavePreferencesPtr)
-							|| whichwindow == GetDialogWindow(StrikeModePtr)	
-							|| whichwindow == GetDialogWindow(TuningPtr)
-							|| whichwindow == GetDialogWindow(DefaultPerformanceValuesPtr)
-							|| whichwindow == GetDialogWindow(CsoundInstrMorePtr)
-#endif
+				/* These windows "float", so we do content clicks when not the front window */
+				if(whichwindow == GetDialogWindow(ResumeStopPtr)
 							|| whichwindow == GetDialogWindow(ResumeUndoStopPtr)
-#if !EXPERIMENTAL
-							|| whichwindow == GetDialogWindow(MIDIkeyboardPtr)
-#endif
 							|| whichwindow == GetDialogWindow(SixteenPtr)
 							|| whichwindow == GetDialogWindow(MIDIprogramPtr)
 							|| whichwindow == GetDialogWindow(gpDialogs[wControlPannel])
-#if !EXPERIMENTAL
-							|| whichwindow == GetDialogWindow(gpDialogs[wPrototype1])
-#endif
 							|| whichwindow == GetDialogWindow(gpDialogs[wScriptDialog])) {
-						if(1 || !Help) {
-							if(w >= 0 && w < WMAX) BPActivateWindow(QUICK,w);
-							else {
-								SelectWindow(whichwindow);
-								UpdateWindow(FALSE,whichwindow);
-								}
+						if(w >= 0 && w < WMAX) BPActivateWindow(QUICK,w);
+						else {
+							SelectWindow(whichwindow);
+							UpdateWindow(FALSE,whichwindow);
 							}
 						rep = DoDialog(p_event);
 						if((rep == OK || rep == AGAIN) && w < WMAX) {
@@ -445,13 +378,8 @@ DOTHECLICK:
 							}
 						if(rep == DONE) rep = OK;
 						return(rep);
-						}
-#if EXPERIMENTAL		/* moved this test from above for experimental build */
+					}
 				if(whichwindow != FrontWindow()) {
-#endif
-#if 0
-					/* this is just so that CodeWarrior's balancing doesn't get too confused */ }
-#endif
 					if(w >= 0 && w < WMAX) BPActivateWindow(SLOW,w);
 					else {
 						SelectWindow(whichwindow);
@@ -466,7 +394,7 @@ DOTHECLICK:
 						else SysBeep(10);
 						if(w >= 0 && w < WMAX) UpdateWindow(TRUE,Window[w]);
 						}
-					else {
+					else {	// FIXME: what is this clause for?
 						Help = FALSE;
 						if(w < WMAX) BPActivateWindow(QUICK,w);
 						}
@@ -570,38 +498,19 @@ DOTHECLICK:
 	case activateEvt:
 		PrintEvent(p_event, "case activateEvt", (WindowPtr)p_event->message);
 		TEFromScrap();
-#if !EXPERIMENTAL
-		UpdateWindow(TRUE,(WindowPtr)p_event->message);
-#endif
 		for(w=0; w < WMAX; w++) {
 			if((WindowPtr) p_event->message == Window[w]) break;
 			}
 		if(w >= 0 && w < WMAX) {
-#if !EXPERIMENTAL
-			if(w == Nw && OKvScroll[w]) {
-				GetPort(&saveport);
-				SetPortWindowPort(Window[w]);
-				GetWindowPortBounds(Window[w], &r);
-				InvalWindowRect(Window[w], &r);
-				if(saveport != NULL) SetPort(saveport);
-				else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
-				}
-#endif
 			if(p_event->modifiers & activeFlag) {
 				if(Editable[w] && !LockedWindow[w]) Activate(TEH[w]);
-#if !EXPERIMENTAL
-				if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w])); // FIXME: Dialog Manager is responsible for this?
-#endif
 				if(OKvScroll[w]) ShowControl(vScroll[w]);
 				if(OKhScroll[w]) ShowControl(hScroll[w]);
-		/*		DisableMenuItem(myMenus[editM],undoCommand); */
+				/* DisableMenuItem(myMenus[editM],undoCommand); */
 				}
 			else {
 				if(w != Nw) {
 					if(Editable[w] && !LockedWindow[w]) Deactivate(TEH[w]);
-#if !EXPERIMENTAL
-					if(HasFields[w]) TEDeactivate(GetDialogTextEditHandle(gpDialogs[w])); // FIXME: Dialog Manager is responsible for this?
-#endif
 					if(OKvScroll[w]) HideControl(vScroll[w]);
 					if(OKhScroll[w]) HideControl(hScroll[w]);
 					}
@@ -627,8 +536,6 @@ DOTHECLICK:
 	default: ;
 	}
 rep = OK;
-
-END:
 SetResumeStop(FALSE);
 return(rep);
 }
@@ -1089,16 +996,6 @@ if(newNw == wTimeBase || Nw == wTimeBase) {
 	}
 if(newNw == wFilter) {
 	SetFilterDialog();
-#if !EXPERIMENTAL /* WITH_REAL_TIME_MIDI */
-	if(!IsMidiDriverOn()) {
-		if(Answer("The MIDI driver is not open, i.e. BP2 can't receive MIDI messages.\rDo you want to open it?",
-			'Y') == OK) {
-			MIDI = OutMIDI = Dirty[iSettings] = TRUE; SetButtons(TRUE);
-			ResetMIDI(FALSE);
-			Alert1("The ÔInteractiveÕ option has been set ON.\rSee the ÒSettingsÓ dialog if you don't want BP2 to receive messages");
-			}
-		}
-#endif
 	}
 if(newNw == wKeyboard || Nw == wKeyboard) SetKeyboard();
 if(newNw == wBufferSize || Nw == wBufferSize) SetBufferSize();
@@ -1120,12 +1017,6 @@ if(Nw > -1 && Nw < WMAX) {
 		if(Nw != newNw) Deactivate(TEH[Nw]);
 		else Activate(TEH[Nw]);
 		}
-#if !EXPERIMENTAL
-	if(HasFields[Nw]) { // FIXME: we should not mess with Dialog Manager's state? - akozar 051707
-		if(Nw != newNw) TEDeactivate(GetDialogTextEditHandle(gpDialogs[Nw]));
-		else TEActivate(GetDialogTextEditHandle(gpDialogs[Nw]));
-		}
-#endif
 	SetPortWindowPort(Window[Nw]);
 	{ RgnHandle cliprgn;
 	  cliprgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
@@ -1171,9 +1062,8 @@ if(OKvScroll[newNw] || OKhScroll[newNw])
 Nw = newNw;
 MaintainMenus(); DrawMenuBar();
 
+#if 0  // strange difference in behavior between TE & WASTE; neither is necessary? - akozar
 if(Nw < 0 || Nw >= WMAX) return(OK);
-
-#if !EXPERIMENTAL  // strange difference in behavior between TE & WASTE; neither is necessary? - akozar
   if(!WASTE) UpdateWindow(FALSE,Window[Nw]);
   else if(mode == SLOW && Editable[Nw]) ShowSelect(CENTRE,Nw);
 #endif
@@ -1320,9 +1210,6 @@ if(GrafWindow[w]) {
 	GotAlert = FALSE;
 	}
 
-#if !EXPERIMENTAL
-  if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w])); // FIXME: we should not mess with Dialog Manager's state?
-#endif
 if(!Editable[w]) return(OK);
 Activate(TEH[w]);
 if(!OKvScroll[w]) return(OK);
@@ -2700,11 +2587,6 @@ Rect r;
    
 the_gray_rgn = GetGrayRgn();
 GetRegionBounds(the_gray_rgn, &r);  
-#if !EXPERIMENTAL
-  r.left   += DRAG_EDGE;   
-  r.right  -= DRAG_EDGE;    
-  r.bottom -= DRAG_EDGE;
-#endif
 return(r);  
 }
 

@@ -1699,11 +1699,6 @@ else {  // use Appearance Mgr features to set option-key shortcuts
 	}
 EnableMenuItem(myMenus[editM],tokenCommand);
 
-/*EnableMenuItem(myMenus[windowM],miscsettingsCommand);
-sprintf(Message,"Settings            %c-option-space",(char) commandMark);
-c2pstrcpy(PascalLine, Message);
-SetMenuItemText(myMenus[windowM],miscsettingsCommand,PascalLine);*/
-
 /*sprintf(Message,"Help                       %c-?",(char) commandMark);
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[actionM],helpCommand,PascalLine);
@@ -1782,23 +1777,9 @@ hresize = (bottom - top) - (q.v - p.h);
 if(Editable[w] && !LockedWindow[w]) Deactivate(TEH[w]);
 
 if((vdrag != 0) || (hdrag != 0)) {
-#if !EXPERIMENTAL
-	GetWindowPortBounds(Window[w], &r);
-	InvalWindowRect(Window[w], &r);
-	EraseRect(&r);
-#endif
 	MoveWindow(Window[w],left,top,FALSE);	/* Don't activate */
-#if !EXPERIMENTAL
-	GetWindowPortBounds(Window[w], &r);
-	InvalWindowRect(Window[w], &r);
-#endif
 	}
 if((OKgrow[w] || w == wMessage || w == wInfo) && ((wresize != 0) || (hresize != 0))) {
-#if !EXPERIMENTAL
-	GetWindowPortBounds(Window[w], &r);
-	if(GrafWindow[w]) ClipRect(&r);
-	EraseRect(&r);
-#endif
 	SizeWindow(Window[w],right - left,bottom - top,TRUE);	/* Update */
 	AdjustWindowContents(w);
 	}
