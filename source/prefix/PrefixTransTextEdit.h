@@ -19,4 +19,4 @@
 // use pre-Appearance edit text boxes
 #define USE_OLD_EDIT_TEXT 1
 
-#define EXPERIMENTAL 1
+#define EXPERIMENTAL 0

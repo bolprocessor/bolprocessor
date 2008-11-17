@@ -30,6 +30,4 @@
 // use pre-Appearance edit text boxes
 #define USE_OLD_EDIT_TEXT 1
 
-// "EXPERIMENTAL" code has been pretty well tested, but the macros have not
-// been removed yet
-#define EXPERIMENTAL 1
+#define EXPERIMENTAL 0

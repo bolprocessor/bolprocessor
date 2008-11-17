@@ -43,6 +43,4 @@
 // enable real-time MIDI driver (CoreMIDI in this case)
 #define WITH_REAL_TIME_MIDI 1
 
-// "EXPERIMENTAL" code has been pretty well tested, but the macros have not
-// been removed yet
-#define EXPERIMENTAL 1
+#define EXPERIMENTAL 0

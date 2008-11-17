@@ -1,4 +1,4 @@
-/*	PrefixCarbonWASTE.h
+/*	PrefixMachOWASTE.h
 
 	BP2 Mac Carbon Mach-O Prefix Header 
 	Using WASTE
@@ -40,6 +40,6 @@
 // enable null MIDI driver
 #define WITH_REAL_TIME_MIDI 1
 
-#define EXPERIMENTAL 1
+#define EXPERIMENTAL 0
 
 #define TRACE_EVENTS 1
