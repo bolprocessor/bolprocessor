@@ -839,7 +839,7 @@ if(ComputeOn || PlaySelectionOn) SndSetSysBeepState(sysBeepDisable);
 if(c == 'Y') r = Alert(YesNoCancel,0L);
 else  r = Alert(NoYesCancel,0L);
 SndSetSysBeepState(sysBeepEnable);
-#if !EXPERIMENTAL
+#if 0
 AlertOn++;
 Interrupted = TRUE;
 if(!EmergencyExit && !InputOn)
@@ -942,7 +942,7 @@ Interrupted = TRUE;
 if(Beta && ScriptExecOn)  ShowMessage(TRUE,wMessage,s); // so we don't interrupt scripts - 020907 akozar
 else  NoteAlert(OKAlert,0L);
 if(ComputeOn || PlaySelectionOn) SndSetSysBeepState(sysBeepEnable);
-#if !EXPERIMENTAL
+#if 0
 AlertOn++;
 if(!EmergencyExit && !InputOn && !AEventOn && !InitOn && !ItemCapture && !TickCapture
 		&& EventState == NO) for(i=0; i < 5; i++) MainEvent();
@@ -1212,7 +1212,26 @@ SelectBehind(long pos1,long pos2,TextHandle teh)
 /* Doesn't force selection to scroll */
 {
 #if !USE_MLTE
-(*teh)->selStart = pos1; (*teh)->selEnd = pos2;
+	long maxoffset;
+	/* clamp range to text bounds (needed for WASTE since we are bypassing its checks) */
+	maxoffset = GetTextHandleLength(teh);
+	if (pos1 < ZERO) {
+		if(Beta) Alert1("Err. SelectBehind(). pos1 < ZERO");
+		pos1 = ZERO;
+	}
+	else if (pos1 > maxoffset) {
+		if(Beta) Alert1("Err. SelectBehind(). pos1 > maxoffset");
+		pos1 = maxoffset;
+	}
+	if (pos2 < ZERO) {
+		if(Beta) Alert1("Err. SelectBehind(). pos2 < ZERO");
+		pos2 = ZERO;
+	}
+	else if (pos2 > maxoffset) {
+		if(Beta) Alert1("Err. SelectBehind(). pos2 > maxoffset");
+		pos2 = maxoffset;
+	}
+	(*teh)->selStart = pos1; (*teh)->selEnd = pos2;
 #else // FIXME: how do we do this with MLTE ?
 if (Beta) printf("Err.  SelectBehind() not implemented for MLTE!\n");
 #endif
@@ -2369,15 +2388,9 @@ SetPortWindowPort(Window[w]);
 PenNormal();
 if(active) {
 	Activate(TEH[w]);
-#if !EXPERIMENTAL
-	if(HasFields[w]) TEDeactivate(GetDialogTextEditHandle(gpDialogs[w])); // FIXME: we should not mess with Dialog Manager's state?
-#endif
 	}
 else {
 	Deactivate(TEH[w]);
-#if !EXPERIMENTAL
-	if(HasFields[w]) TEActivate(GetDialogTextEditHandle(gpDialogs[w])); // FIXME: we should not mess with Dialog Manager's state?
-#endif
 	PenPat(GetQDGlobalsGray(&pat));
 	}
 RGBForeColor(&Black);

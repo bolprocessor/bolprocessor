@@ -117,14 +117,7 @@ switch(instr) {
 			if(TraceMemory) {
 				sprintf(LineBuff,"%s %ld [%ld]\r", Message,
 					(long) MemoryUsed,(long)MemoryUsed - MemoryUsedInit);
-#if !EXPERIMENTAL
-				SetSelect(GetTextLength(wScrap),GetTextLength(wScrap),
-					TEH[wScrap]);
-				Print(wScrap,LineBuff);
-				ShowSelect(CENTRE,wScrap);
-#else
 				ShowMessage(TRUE, wMessage, LineBuff);
-#endif
 				}
 			}
 		c2pstrcpy(fn, line);
@@ -375,13 +368,7 @@ GOTIT:
 			if(TraceMemory) {
 				sprintf(LineBuff,"%s %ld [%ld]\r", Message,
 					(long) MemoryUsed,(long)MemoryUsed - MemoryUsedInit);
-#if !EXPERIMENTAL
-				SetSelect(GetTextLength(wScrap),GetTextLength(wScrap),TEH[wScrap]);
-				Print(wScrap,Message);
-				ShowSelect(CENTRE,wScrap);
-#else
 				ShowMessage(TRUE,wMessage,LineBuff);
-#endif
 				}
 			}
 		for(w=0; w < WMAX; w++) {  // FIXME: need to match if no prefix
@@ -906,6 +893,12 @@ GOTIT6:
 		j= (*(ScriptLine.intarg))[0];
 		if(Editable[ScriptW]) {
 			if(check) return(OK);
+			if (j > GetTextLength(ScriptW)) {
+				sprintf(Message,"Selection start value ‘%d’ is out of bounds.\r", j);
+				Print(wTrace,Message);
+				r = ABORT;
+				break;
+				}
 			TextGetSelection(&selbegin, &selend, TEH[ScriptW]);
 			if(selend >= j)
 				SelectBehind((long)j,selend,TEH[ScriptW]);
@@ -923,6 +916,12 @@ GOTIT6:
 		j= (*(ScriptLine.intarg))[0];
 		if(Editable[ScriptW]) {
 			if(check) return(OK);
+			if (j > GetTextLength(ScriptW)) {
+				sprintf(Message,"Selection end value ‘%d’ is out of bounds.\r", j);
+				Print(wTrace,Message);
+				r = ABORT;
+				break;
+			}
 			TextGetSelection(&selbegin, &selend, TEH[ScriptW]);
 			if(selbegin <= j)
 				SelectBehind(selbegin,(long)j,TEH[ScriptW]);

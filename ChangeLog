@@ -1,3 +1,24 @@
+2008-11-17	Anthony Kozar	<akozar@users.sourceforge.net>
+
+	* source/BP2/-BP2.proto.h:
+	* source/BP2/Interface2.c (SelectBehind):
+	* source/BP2/ScriptUtils.c (DoScript, cases 59 and 60):
+	* source/BP2/WindowText.c (SetSelect, GetTextHandleLength):
+		Protect against setting selection range beyond text buffer length.
+
+2008-11-15	Anthony Kozar	<akozar@users.sourceforge.net>
+
+	* source/BP2/GetRelease.c (ResetProject):
+	* source/BP2/Inits.c (AdjustWindow):
+	* source/BP2/Interface1.c (DoEvent, BPActivateWindow, ShowSelect, etc.):
+	* source/BP2/Interface2.c (Answer,Alert1, OutlineTextInDialog):
+	* source/BP2/MenuCommands.c (mAbout, mControlPannel):
+	* source/BP2/Misc.c (ShowMIDIkeyboard):
+	* source/BP2/ScriptUtils.c (DoScript, cases 5 and 24):
+		Made most EXPERIMENTAL code permanent.
+	
+	* source/prefix/Prefix*.h:  Define EXPERIMENTAL to 0 in all prefix files.
+
 2008-11-11	Anthony Kozar	<akozar@users.sourceforge.net>
 
 	* source/BP2/Interface1.c (MainEvent):
