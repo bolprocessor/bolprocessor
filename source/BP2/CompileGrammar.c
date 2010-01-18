@@ -1234,7 +1234,7 @@ return(FALSE);
 OkBolChar(char c)
 // Characters accepted as first one of terminal name
 {
-if(islower(c)) return(YES);	/* Modified 13/2/99 -- was isalpha() */
+if(islower(c) || isupper(c)) return(YES); /* Modified 23/11/2009 BB */
 switch(c) {
 	case 'Ä':
 	case 'Å':
