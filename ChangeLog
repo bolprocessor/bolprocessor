@@ -1,3 +1,22 @@
+2010-01-18	Anthony Kozar	<akozar@users.sourceforge.net>
+
+	* VERSION 2.9.7 (BETA)
+
+	* source/BP2/-BP2.h:
+	* source/BP2/-BP2main.h:
+	* resources/Info.plist:
+	* resources/plst-resource.plc:
+	* License.txt:
+		Updated version strings and constants to "2.9.7 beta".
+		Updated copyright years through 2010.
+	
+	* source/BP2/CompileGrammar.c (OkBolChar):
+		Modified to accept uppercase letters as the first character of
+			terminal symbols again because English notenames require it.
+			(Fixed by Bernard Bel 2009-11-28).
+
+	* source/BP2/BP2main.c (main):  Return EXIT_SUCCESS at the end of main().
+
 2008-11-17	Anthony Kozar	<akozar@users.sourceforge.net>
 
 	* source/BP2/-BP2.proto.h:

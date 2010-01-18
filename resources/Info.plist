@@ -289,7 +289,7 @@
 	<key>CFBundleExecutable</key>
 	<string>Bol Processor</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Bol Processor BP2 - Carbon 2.9.6</string>
+	<string>Bol Processor BP2 - Carbon 2.9.7 beta</string>
 	<key>CFBundleIconFile</key>
 	<string>BP2-OSX-appl.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -301,12 +301,12 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>BP2 Carbon version 2.9.6</string>
+	<string>BP2 Carbon version 2.9.7 beta</string>
 	<key>CFBundleSignature</key>
 	<string>Bel0</string>
 	<key>CFBundleVersion</key>
-	<string>2.9.6</string>
+	<string>2.9.7 beta</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright (c) 1990-2008 by Bernard Bel, Jim Kippen, Srikumar K. Subramanian, and Anthony Kozar</string>
+	<string>Copyright (c) 1990-2010 by Bernard Bel, Jim Kippen, Srikumar K. Subramanian, and Anthony Kozar</string>
 </dict>
 </plist>
