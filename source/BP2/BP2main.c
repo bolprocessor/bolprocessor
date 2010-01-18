@@ -323,7 +323,7 @@ ClearLockedSpace();
 TXNTerminateTextension();
 #endif
 
-return(OK);
+return(EXIT_SUCCESS);
 }
 
 /* Registering Devices, Drivers and their interfaces */
