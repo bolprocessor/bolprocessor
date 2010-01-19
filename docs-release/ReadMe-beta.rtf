@@ -1,0 +1,78 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
+{\fonttbl\f0\fnil\fcharset0 LucidaGrande;\f1\fmodern\fcharset0 Courier;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue255;}
+\margl1440\margr1440\vieww11120\viewh13100\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\f0\b\fs28 \cf0 Bol Processor 2.9.7 beta Read Me\
+
+\fs24 January 18, 2010\
+
+\b0 \
+Bol Processor is a program for music composition and improvisation with real-time MIDI, MIDI file, and Csound output.  It produces music from a set of rules (a compositional grammar) or from text scores typed or captured from a MIDI instrument.  Bol Processor 2 began as a shareware application for Macintosh computers developed by Bernard Bel and Srikumar Karaikudi Subramanian.  The original Bol Processor program was developed by Bernard Bel and Jim Kippen on an Apple IIc.\
+\
+Bol Processor 2 is now distributed as free software (open source) under a BSD-style license (please see the License.txt file for complete terms).  BP development is hosted by Sourceforge at <{\field{\*\fldinst{HYPERLINK "http://bolprocessor.sourceforge.net/"}}{\fldrslt \cf2 http://bolprocessor.sourceforge.net/}}>.  Developers interested in joining the project are most welcome to do so.  Please email us for more information.\
+\
+This package contains a beta release of Bol Processor 2.9.7 for Mac OS X.  Full documentation and a set of examples is included with this package.  This is a beta release because recent changes have not been sufficiently tested for us to feel confident that they are working as intended.  As such, you may come across significant bugs of which we are not yet aware.  We would greatly appreciate your help in identifying any problems with this release.  Even though there may be (more) bugs (than usual), we feel that the changes in this release are important enough that most users will want to use it.\
+\
+
+\b\fs26 Important Changes in this Version\
+
+\b0\fs24 \
+
+\b Bol Processor is now a "universal binary".
+\b0   This means that it runs natively on all Mac OS X computers (with either an Intel or PowerPC processor).  We are aware of a problem with BP2's graphics on Intel Macs (see 
+\b Known Issues.rtf)
+\b0 .  There may still be other problems from the conversion to Intel Macs, so let us know if you encounter any.\
+\
+
+\b This beta release requires Mac OS X 10.4 or later
+\b0  to run whereas previous releases ran on 10.2 or later.  It should still be possible to compile BP for 10.2 or 10.3 but it is more work to make a universal binary that supports those versions and we have not yet completed that task.  Please let us know if you are still using OS X 10.2 or 10.3, otherwise we may conclude that there is no interest.  In the meantime, BP 2.9.6 fully supports 10.2 or later.\
+
+\b\fs26 \
+
+\fs24 This version is no longer compatible with the "Classic" Mac OS (Mac OS 9 and earlier).  
+\b0 Please use BP 2.9.6 if you need Classic support.  
+\b \
+
+\b0 \
+Please see the document 
+\b Recent Changes.rtf
+\b0  for more details about the changes in this and prior releases.  For information about known problems with this release, please read the document 
+\b Known Issues.rtf
+\b0 .\
+\
+
+\b\fs26 Installing Bol Processor on OS X\
+
+\b0\fs24 \
+There are no special installation requirements other than a minimum system version of OS X 10.4.  You can just drag the Bol Processor application wherever you like onto your hard drive.  You can also copy the documentation and example files wherever you would like.\
+\
+QuickTime MIDI instruments are not available via CoreMIDI.  To use your Mac's internal speaker for playback, you will need to install and run a software synthesizer.  A good free one is SimpleSynth by Pete Yandell.  You can download SimpleSynth from <{\field{\*\fldinst{HYPERLINK "http://notahat.com/simplesynth"}}{\fldrslt http://notahat.com/simplesynth}}>.  For Midi input without an external keyboard, we recommend MidiKeys by Chris Reed.  You can download MidiKeys from <{\field{\*\fldinst{HYPERLINK "http://www.manyetas.com/creed/midikeys.html"}}{\fldrslt http://www.manyetas.com/creed/midikeys.html}}>.\
+\
+
+\b\fs26 Obtaining Help for Bol Processor\
+
+\b0\fs24 \
+Bol Processor comes with a comprehensive Quick-start Guide and Reference Manual in HTML format that you can read with any web browser.  In addition, BP2 documents most items with a built-in help system: just press the Help key or Command-? and the mouse cursor will change to a question mark.  Then click on any button or label, choose any menu item, or select words in any text window and BP2 will display help on that item.  Browsing through the many included example files can also be a good way to learn about new concepts.\
+\
+For additional assistance and information, there is a forum for general discussion of Bol Processor at <{\field{\*\fldinst{HYPERLINK "http://sourceforge.net/forum/forum.php?forum_id=555616"}}{\fldrslt \cf2 http://sourceforge.net/forum/forum.php?forum_id=555616}}> and a developer mailing list at <{\field{\*\fldinst{HYPERLINK "http://lists.sourceforge.net/mailman/listinfo/bolprocessor-devel"}}{\fldrslt \cf2 http://lists.sourceforge.net/mailman/listinfo/bolprocessor-devel}}> \'97 both hosted by the Sourceforge project.  Regular announcements are posted on a special "read-only" announcement list: <{\field{\*\fldinst{HYPERLINK "http://lists.sourceforge.net/mailman/listinfo/bolprocessor-announce"}}{\fldrslt \cf2 http://lists.sourceforge.net/mailman/listinfo/bolprocessor-announce}}>.\
+\
+A shared space for documentation and users' feedback is available on the website <{\field{\*\fldinst{HYPERLINK "http://crdo.fr/phpwiki/index.php?pagename=BolProcessor"}}{\fldrslt \cf2 http://crdo.fr/phpwiki/index.php?pagename=BolProcessor}}\cf2 >.  \cf0 Anyone can create a user login and contribute.\
+\
+Finally, you can contact the developers of Bol Processor at the email addresses given near the end of this file.\
+\
+
+\b\fs26 Future Directions\
+
+\b0\fs24 \
+Now that we have a working Mac OS X version of BP2, there are several options for further development of Bol Processor.  We plan to continue developing and improving the OS X user experience by taking advantage of newer operating system features.  We also expect to add new options for output such as performing musical items with Supercollider or linking BP2 to a speech synthesizer.  These features will likely be a part of "Bol Processor 3".\
+\
+We expect that a completed version of Bol Processor 3 will continue to run on Mac OS X but probably not Mac OS 9 and earlier.  Porting some or all of BP3 to Linux and Windows would be wonderful too.  But to make all of this happen, we need help from other programmers as well as feedback and suggestions from our users.\
+\
+Please join and help us determine the future of Bol Processor !!\
+\
+
+\f1 Bernard Bel                           Anthony Kozar\
+belbernard@users.sourceforge.net      akozar@users.sourceforge.net\
+}

@@ -1,0 +1,123 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
+{\fonttbl\f0\fnil\fcharset0 LucidaGrande;\f1\fmodern\fcharset0 Courier-Oblique;\f2\fmodern\fcharset0 Courier;
+}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww11440\viewh12980\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\f0\b\fs28 \cf0 Recent Changes to Bol Processor\
+
+\b0\fs24 \
+This document describes changes to the Bol Processor application that are not yet described in the HTML manual.  Many of the changes are documented in BP's online help database though.
+\b\fs26 \
+\
+Version 2.9.7 beta\
+
+\b0\fs24 \
+Bol Processor is now a "universal binary".  This means that it runs natively on all Mac OS X computers (with either an Intel or PowerPC processor).  There may still be problems from the conversion to Intel Macs, so let us know if you encounter any.\
+\
+This beta release requires Mac OS X 10.4 or later to run whereas previous releases ran on 10.2 or later.  It should still be possible to compile BP for 10.2 or 10.3 but it is more work to make a universal binary that supports those versions and we have not yet completed that task.  Please let us know if you are still using OS X 10.2 or 10.3, otherwise we may conclude that there is no interest.  In the meantime, BP 2.9.6 fully supports 10.2 or later.\
+
+\fs26 \
+
+\fs24 This version is no longer compatible with the "Classic" Mac OS (Mac OS 9 and earlier).  Please use BP 2.9.6 if you need Classic support.  \
+\
+Bol Processor is now built with Apple's Xcode tools which are included with Mac OS X or can be downloaded for free from <{\field{\*\fldinst{HYPERLINK "http://developer.apple.com/tools/xcode/"}}{\fldrslt http://developer.apple.com/tools/xcode/}}>.  This makes it much easier for all of you to help us improve Bol Processor!\
+\
+Fixed a problem where transforms could not be defined on English convention note symbols (like C1, D2, etc.).  It is now possible for any terminal symbol to begin with an uppercase letter. \
+
+\b \
+
+\b0 Fixed some other problems including BP2 using WAY too much CPU time when it was doing nothing.  BP 2.9.7 will still consume around 5% of CPU time when idling until we can overhaul its legacy event handling code.\
+
+\b \
+\
+
+\fs26 Version 2.9.6\
+
+\b0\fs24 \
+MIDI settings on Mac OS X can be saved to a new file type: BP2 MIDI driver settings.  The suggested filename prefix and extension for these files are "-md." and ".bpmd".  You can save and load MIDI driver settings using the buttons in the 
+\b CoreMIDI settings
+\b0  window.  If you use the 
+\b Save Startup...
+\b0  button, then a "startup MIDI settings file" named 
+\b -md.startup
+\b0  is created.  When BP is launched and finds this file on your computer, the default behavior of connecting to the first CoreMIDI input and output sources is overridden, and instead, the connections saved in \
+
+\b -md.startup
+\b0  are restored.  In the future, this file type will be able to store the settings for any available MIDI driver (CoreMIDI, OMS, or any that are added in the future).\
+\
+On OS 9 and earlier, BP2 continues to use Opcode's OMS for MIDI input and output and you can select QuickTime as the output destination.  The selected OMS input and output devices are still stored in the general settings file for now.\
+\
+MIDI thru (i.e. the relaying of messages received from the MIDI input to the output) is now OFF by default.  This prevents some unpleasant problems when the same program or device is automatically connected to both the input and output.  You can turn MIDI thru back on in the 
+\b MIDI filter
+\b0  window by checking all of the "transmit" boxes.  The MIDI filter settings are saved when you save a (general) settings file.\
+\
+BP2's menu commands have been rearranged and icons have been added to the Windows menu in the hope of making them a little easier to use.  A new command for saving the current settings file has been added to the File menu and its name will change to reflect the name of the current file.  Use 
+\b Save settings as...
+\b0  to save to a different file.  \
+\
+A few keyboard shortcuts have been changed because of conflicts with Mac OS X (see below) and BP2 now correctly recognizes shortcuts using the Option key on all international keyboard layouts that use the Roman script system (except on System 7).   \
+\
+On Mac OS 8, 9, and X, you can now choose from among BP2's several formats for saving files directly in the 
+\b Save dialog
+\b0  instead of having to respond to a separate dialog afterwards.  Just select the format you want in the pop-up menu labeled 
+\b Format
+\b0 .  And when opening files, there are sometimes several choices in the 
+\b Show
+\b0  pop-up menu allowing you to filter the files that are shown.  Choosing 
+\b All Readable Documents
+\b0  will allow you to open any appropriate BP2 file or any text file for BP2's text-based document types (grammar, alphabet, etc.).\
+\
+On Mac OS X, BP2 will now look for the 
+\b -se.startup
+\b0 , 
+\b +sc.startup
+\b0 , and 
+\b +sc.shutdown
+\b0  files in your user preferences folder instead of the BP2 application folder.  The exact location of these files should be 
+\b (your home folder) -> Library -> Preferences -> Bol Processor
+\b0 .  BP2 will also look for a new file named 
+\b -md.startup
+\b0  in the same location as the other startup files when launched.  This file stores your default Midi driver settings.  (Currently, you can only create this file when using CoreMIDI on OS X).\
+\
+In addition, there have been many changes to make BP2's interface more consistent in appearance and behavior with itself and with the system.  The online help has been updated for most of the new and changed features.  And numerous other bug fixes and improvements have been made.\
+\
+List of changed keyboard shortcuts (old shortcuts still work on OS 9):\
+\
+
+\f1\i Show all settings windows:
+\f2\i0                         Command-;\
+                                                  [was Command-Option-space]\
+
+\f1\i Show just Computation and Input-output settings:
+\f2\i0   Command-Option-;\
+
+\f1\i Play the current sound-object prototype: 
+\f2\i0          Command-P\
+ (only when prototypes window is active)          [was Command-space]\
+\
+\
+
+\f0\b\fs26 Version 2.9.6 beta\
+\pard\pardeftab720\ql\qnatural
+
+\f2\b0\fs24 \cf0 \
+
+\f0 Now runs on Mac OS X!!\
+\
+Bol Processor uses CoreMIDI for Midi input and output on OS X.  You can choose input sources and output destinations by going to the 
+\b Devices
+\b0  menu and choosing 
+\b CoreMIDI settings
+\b0 .  If you are using external Midi devices, you may need to configure your studio first by opening the Audio Midi Setup program that comes with OS X.  When you launch BP 2.9.6, it will automatically connect to the first Midi source and destination that it finds.\
+\
+QuickTime MIDI instruments are not available via CoreMIDI. To use your Mac's internal speaker for playback, you will need to install and run a software synthesizer.  A good free one is SimpleSynth by Pete Yandell.  You can download SimpleSynth from <{\field{\*\fldinst{HYPERLINK "http://notahat.com/simplesynth"}}{\fldrslt http://notahat.com/simplesynth}}>.  For Midi input without an external keyboard, I recommend MidiKeys by Chris Reed.  You can download MidiKeys from <{\field{\*\fldinst{HYPERLINK "http://www.manyetas.com/creed/midikeys.html"}}{\fldrslt http://www.manyetas.com/creed/midikeys.html}}>.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 Bol Processor no longer requires filenames to have prefixes (-gr, -ho, etc.).  You can still use the prefixes if you like, but for cross-platform compatibility we are encouraging the use of new filename extensions (.bpgr, .bpho, etc.).  Extensions are optional as well.  For a list of extensions that BP 2.9.6 uses, see the 
+\b Types-creators
+\b0  entry in the online help.  Note that when using a file without a prefix, and BP2 adds its name to the top of other windows for opening again later, that the prefix and a colon (":") will be added before the file's actual name.  For example, if you save an alphabet file with the name 
+\b myalphabet.bpho
+\b0 , then BP2 will add the line "-ho.:myalphabet.bpho" to the top of the grammar window.  This convention is required for BP 2.9.6 to recognize that it should load the alphabet file, and the correct filename will be automatically determined.\
+}
