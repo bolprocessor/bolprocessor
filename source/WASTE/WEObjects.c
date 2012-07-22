@@ -228,6 +228,7 @@ pascal OSErr _WEDrawObject(WEObjectDescHandle hObjectDesc)
 	PenState state;
 	Boolean saveDescLock;
 	OSErr err = noErr;
+	SInt32 difference;
 	
 	// lock the object descriptor
 	saveDescLock = _WESetHandleLock((Handle)hObjectDesc, true);
@@ -241,7 +242,12 @@ pascal OSErr _WEDrawObject(WEObjectDescHandle hObjectDesc)
 	state.pnLoc.h += pDesc->objectSize.h;
 
 	// calculate the destination rectangle
-	*(long *)(&topLeft(destRect)) = DeltaPoint(state.pnLoc, pDesc->objectSize);
+	// cannot cast DeltaPoint to a Point on Intel Macs
+	// *(long *)(&topLeft(destRect)) = DeltaPoint(state.pnLoc, pDesc->objectSize);
+	// hopefully, the fix below is correct - akozar 20120603
+	difference = DeltaPoint(state.pnLoc, pDesc->objectSize);
+	destRect.left = LoWord(difference);
+	destRect.top = HiWord(difference);
 	botRight(destRect) = state.pnLoc;
 
 	if (pDesc->objectTable != NULL) 

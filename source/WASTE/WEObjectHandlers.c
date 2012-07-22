@@ -37,7 +37,7 @@ pascal OSErr HandleNewPicture(Point *defaultObjectSize, WEObjectReference object
 	thePicture = (PicHandle) WEGetObjectDataHandle(objectRef);
 	
 	/* figure out the default object size by looking at the picFrame record */
-	frame = (*thePicture)->picFrame;
+	QDGetPictureBounds(thePicture, &frame);	// requires 10.3 or later - akozar 20120603
 	OffsetRect(&frame, -frame.left, -frame.top);
 	defaultObjectSize->v = frame.bottom;
 	defaultObjectSize->h = frame.right;
