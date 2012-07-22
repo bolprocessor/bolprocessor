@@ -22,6 +22,7 @@
 		927DEBEB0EC6AF9E0036A79B /* BP2-OSX-appl.icns in Resources */ = {isa = PBXBuildFile; fileRef = 927DEBEA0EC6AF9E0036A79B /* BP2-OSX-appl.icns */; };
 		927DEBEC0EC6AF9E0036A79B /* BP2-OSX-appl.icns in Resources */ = {isa = PBXBuildFile; fileRef = 927DEBEA0EC6AF9E0036A79B /* BP2-OSX-appl.icns */; };
 		927DEBED0EC6AF9E0036A79B /* BP2-OSX-appl.icns in Resources */ = {isa = PBXBuildFile; fileRef = 927DEBEA0EC6AF9E0036A79B /* BP2-OSX-appl.icns */; };
+		92832054157B209D00EADF2F /* PrefixMachOWASTE-Import.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112C00EC39231006B5F38 /* PrefixMachOWASTE-Import.h */; };
 		92A112B60EC39230006B5F38 /* PrefixMachO-Import.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112B50EC39230006B5F38 /* PrefixMachO-Import.h */; };
 		92A112C10EC39231006B5F38 /* PrefixMachOWASTE-Import.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112C00EC39231006B5F38 /* PrefixMachOWASTE-Import.h */; };
 		92A112CC0EC39231006B5F38 /* PrefixReleaseMachOWASTE-Import.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112CB0EC39231006B5F38 /* PrefixReleaseMachOWASTE-Import.h */; };
@@ -777,6 +778,7 @@
 				92A113EC0EC39254006B5F38 /* midi1.h in Headers */,
 				92A113ED0EC39254006B5F38 /* -BP2.proto.h in Headers */,
 				92A113EE0EC39254006B5F38 /* LongCoords.h in Headers */,
+				92832054157B209D00EADF2F /* PrefixMachOWASTE-Import.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1261,7 +1263,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "source/prefix/PrefixReleaseMachOWASTE-Import.h";
+				GCC_PREFIX_HEADER = "source/prefix/PrefixMachOWASTE-Import.h";
 				HEADER_SEARCH_PATHS = /Developer/Headers/FlatCarbon;
 				OTHER_CFLAGS = "-fno-inline";
 				OTHER_LDFLAGS = (
