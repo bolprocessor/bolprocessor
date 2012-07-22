@@ -113,7 +113,7 @@ kamp		=	kvol * ivolscale
 		display kvol, 2
 asignal	pluck kamp,	kcpspitch, icpspitch,	1,	5, 0.916, 0.083
 
-	out	asignal
+	out	asignal * 0.5
 	
 	endin
 
