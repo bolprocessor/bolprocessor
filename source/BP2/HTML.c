@@ -178,7 +178,7 @@ FOUNDTOKEN:
 					(*p_buffer)[i] = '\r';
 					goto GOOD;
 					}
-				if(line[0] == '/' & line[1] == 'H') {
+				if(line[0] == '/' && line[1] == 'H') {
 					for(k=2; k < strlen(line); k++) {
 						if(!isdigit(line[k])) goto BAD;
 						}

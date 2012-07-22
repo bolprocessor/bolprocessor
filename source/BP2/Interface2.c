@@ -1299,7 +1299,7 @@ if(p_line == NULL) {
 	return(OK);
 	}
 while(TRUE) {
-	// names are separated by spaces or returns (which excludes settings a name containing a space)
+	// names are separated by spaces or returns (which excludes setting a name containing a space)
 	while(i < im && (isspace(c=(*p_line)[i]) || c == '\0')) i++;
 	i0 = i;
 	if(i >= im) break;
@@ -1309,8 +1309,7 @@ while(TRUE) {
 		i++; j++;
 		if(j >= MAXNAME) {
 			line[j] = '\0';
-			sprintf(Message,"\rToo long name: %s… [max %ld chars]\r",
-				(long)line,(long)MAXNAME);
+			sprintf(Message,"\rToo long name: %s… [max %ld chars]\r", line,(long)MAXNAME);
 			Print(wTrace,Message);
 			return(FAILED);
 			}
