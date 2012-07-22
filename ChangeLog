@@ -1,3 +1,40 @@
+[Changes from 2012-06-07 and 2012-06-03 committed on 2012-07-21]
+
+2012-06-07	Anthony Kozar	<akozar@users.sourceforge.net>
+
+	* source/BP2/HTML.c (CheckHTML):  Replaced & with && in if condition.
+	* source/BP2/Interface2.c (ChangeNames):  Removed a spurious cast.
+
+2012-06-03	Anthony Kozar	<akozar@users.sourceforge.net>
+
+	* source/WASTE/WEObjectHandlers.c (HandleNewPicture):
+	* source/WASTE/WEObjects.c (_WEDrawObject):
+		Fixed similar QD problems in WASTE.
+
+	* BP2-MacOS.xc24.xcodeproj:  Changed prefix header for Debug target.
+	
+	* data/new-vina.orc:  Prevent clipping in instr 1 output.
+
+	* BP2 help ("Why don't I hear any sound?"): 
+		Added note to check "Default performance values" window
+
+2012-06-03	Srikumar Karaikudi Subramanian	<srikumar-ks@users...>
+(Commited by Anthony)
+	
+	* source/BP2/Graphic.c (GraphOverflow):
+		Tracked down the QuickDraw graphics issue to a problem reading
+		the picFrame field.  Fixed with QDGetPictureBounds().
+		
+		*** Source code now requires 10.3 or later to compile *** 
+
+	* source/BP2/MakeSound.c (MakeSound):  Fix overflow in "line" variable.
+	
+	* source/BP2/ProduceItems.c (CheckItemProduced):  Remove duplicate case.
+	
+	* source/BP2/CoreMIDIdriver.c:	Move #includes to compile on Lion.
+	
+	* BP2-MacOS.xc43.xcodeproj:  New project to compile with XCode 4.3 on Lion.
+
 2010-01-18	Anthony Kozar	<akozar@users.sourceforge.net>
 
 	* VERSION 2.9.7 (BETA)
