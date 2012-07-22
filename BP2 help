@@ -171,8 +171,10 @@ Use HTML text if the file should be able to be opened by other applications that
   properly received and transmitted by BP2.  Open the "MIDI filter" window from
   the 'Devices' menu and make sure that the required messages are transmitted.
 
-    If using the internal speaker for playback, is the sound muted or the volume
-  set too low?
+    If using the internal speaker for playback, is the sound muted or the 
+  volume set too low?  Check BP2's "Default performance values" window (under 
+  the "Settings" menu) and increase the "Default volume" or "Default velocity" 
+  values.  (They are initially set rather conservatively). 
   
     If you use OMS and run BP2 in background, e.g. from a FileMaker Pro 
   data-base, make sure that "Run MIDI in background" is checked in the "OMS
