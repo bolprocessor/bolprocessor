@@ -174,5 +174,3 @@ in MakeSound() first).
 - Script records this command:  Hide window "Time accuracy"
   but this command is not accepted as valid; "Missing terminating quote"
 
-- QuickDraw graphics do not work in the Intel build.  Need to convert to Quartz.
-
