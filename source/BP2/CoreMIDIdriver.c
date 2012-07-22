@@ -43,17 +43,21 @@
 
 // This file should be the only one that includes CoreMIDI calls
 
-#ifndef _H_BP2
-#include "-BP2.h"
-#endif
-
-#include "-BP2decl.h"
-
 #include <stdlib.h>
 #include <string.h>
 #include <CoreAudio/CoreAudio.h>
 #include <CoreMIDI/CoreMIDI.h>
 #include <CoreFoundation/CFString.h>
+
+// WARNING: Our files better be imported after system headers always.
+// There is a conflict in the "Start" symbol as defined in CoreMIDI.h
+// and in -BP2.h.
+// -kumar (2 June 2012)
+#ifndef _H_BP2
+#include "-BP2.h"
+#endif
+
+#include "-BP2decl.h"
 
 typedef int (*CompareFuncType)(const void *, const void *);  // for qsort()
 
@@ -255,9 +259,9 @@ void	EnumerateCMDevices()
 			continue;
 		}
 		
-		ok = ok & CFStringGetCString(pname, name, sizeof(name), kCFStringEncodingMacRoman);
-		ok = ok & CFStringGetCString(pmanuf, manuf, sizeof(manuf), kCFStringEncodingMacRoman);
-		ok = ok & CFStringGetCString(pmodel, model, sizeof(model), kCFStringEncodingMacRoman);
+		ok = ok && CFStringGetCString(pname, name, sizeof(name), kCFStringEncodingMacRoman);
+		ok = ok && CFStringGetCString(pmanuf, manuf, sizeof(manuf), kCFStringEncodingMacRoman);
+		ok = ok && CFStringGetCString(pmodel, model, sizeof(model), kCFStringEncodingMacRoman);
 		
 		CFRelease(pname);
 		CFRelease(pmanuf);
@@ -1042,7 +1046,7 @@ static int UpdateListBoxEntries(CMListData** ldh, ItemCount (*countFunc)(void), 
 			if (err == noErr) {
 				ok = CFStringGetCString(name, endname, sizeof(endname), kCFStringEncodingMacRoman);
 				CFRelease(name);
-				if (entry == NULL & ok)  entry = FindListEntryByName(ld, endname);
+				if (entry == NULL && ok)  entry = FindListEntryByName(ld, endname);
 			}
 			if (err != noErr || !ok) strcpy(endname, "<unknown>");
 			err = noErr;

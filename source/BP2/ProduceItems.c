@@ -1950,7 +1950,6 @@ START:		j = 0; sign = 1;
 				c = buffer[0];
 				switch(c) {
 					case -1:
-					case 255:
 					case '\0':
 						goto WRITE;
 						break;
@@ -1983,7 +1982,7 @@ COMPARE:
 					r = ABORT; goto END;
 					}
 				c = buffer[0];
-				if(c == '\0' || c == -1 || c == 255) goto WRITE;
+				if(c == '\0' || c == -1) goto WRITE;
 				}
 			while(c != '\n');
 			}

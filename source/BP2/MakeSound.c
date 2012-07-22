@@ -74,7 +74,7 @@ Milliseconds time,buffertime,torigin,t0,t1,t11,t2,t2obj,
 	**p_nextd,computetime,currenttime,objectduration,objectstarttime;
 
 Handle h;
-char **p_keyon[MAXCHAN],**p_onoff,**p_active[MAXCHAN],line[3];
+char **p_keyon[MAXCHAN],**p_onoff,**p_active[MAXCHAN],line[4];
 long timeleft,formertime,size,istreak,posmin,localperiod,endxmax,endymax,oldtcurr,
 	i1,i2,oldi2,imap,gap,maxmapped,i,im,ievent,yruler;
 unsigned long currswitchstate[MAXCHAN],oldtime,maxmidibytes5,drivertime;
@@ -2057,7 +2057,7 @@ if(x < 1 || x >= MAXPARAMCTRL) {
 ch = ParamValue[x];
 if(ch < 1 || ch > MAXCHAN) {
 	if(ParamControl[x] >= 0) {
-		sprintf(Message,"Trying to assign channel #%ld by K%ld (MIDI controller #%ld).\rValue should be 1..MAXCHAN",
+		sprintf(Message,"Trying to assign channel #%ld by K%ld (MIDI controller #%ld).\rValue should be 1..%ld",
 			(long)ch,(long)x,(long)ParamControl[x],(long)MAXCHAN);
 		}
 	else {
