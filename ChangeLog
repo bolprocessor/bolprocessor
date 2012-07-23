@@ -1,3 +1,13 @@
+2012-07-23	Anthony Kozar	<akozar@users.sourceforge.net>
+
+	* icons/BP2-OSX-appl.icns:
+		Reverting to revision 1.1 (1.2 corrupted by line-ending translation)
+
+	* Credits.txt:
+	* License.txt:
+		These need to have Mac line endings to display correctly when checked 
+		out of CVS without line-ending translation.
+
 [Changes from 2012-06-07 and 2012-06-03 committed on 2012-07-21]
 
 2012-06-07	Anthony Kozar	<akozar@users.sourceforge.net>
