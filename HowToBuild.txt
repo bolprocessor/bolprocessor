@@ -1,0 +1,48 @@
+BUILDING BOL PROCESSOR
+======================
+
+This is a brief introduction to obtaining the Bol Processor source code from CVS and building that code on Mac OS X with XCode.
+
+
+0. Install XCode and the proper SDK
+
+	Most versions of XCode that I have seen only include the SDKs (software development kits) for targeting the latest two releases of Mac OS X (based on when that version of XCode was released).  Usually, at least one SDK for older versions of Mac OS X is available as an optional install with XCode or as a separate download from the Apple Developer Center.
+	
+	If you are just building BP2 for yourself, target whichever version of OS X you wish.  If you are working on BP2 development, we are currently trying to maintain compatibility with 10.5 Leopard (Universal), so if you are developing on 10.7 or 10.8, you will probably have to install a 10.5 SDK.
+	
+	(The current XCode project targets 10.4, so if you can, you may want to install the 10.4 SDK).
+
+1. Check out code from CVS
+
+2. Decode the resource files
+
+3. Open XCode project file
+
+	I am currently building BP2 with XCode 2.5 on Mac OS X 10.5 Leopard.
+	The most up-to-date project file (as of July 28, 2012) is 
+	
+		BP2-MacOS.xc24.xcodeproj
+	
+	This project file is set to target 10.4.
+	
+	There is also an XCode 4.3 project for Mac OS X 10.7 Lion from Kumar that does not contain the changes to look for resource files in resources/decoded_resources/.  It also is set to target 10.7, I think.
+	
+		BP2-MacOS.xc43.xcodeproj
+	
+	I recommend opening the BP2-MacOS.xc24.xcodeproj project even on Lion and then making the following change if the 10.4 SDK is not available:
+	
+	a. Choose "Edit Project Settings" from the "Project" menu
+	b. Set "Cross-Develop Using Target SDK" to the oldest compatible SDK
+	   available (10.3 or newer should work).
+	c. You may wish to "Enable SCM", set it to CVS, and configure so that you 
+	   can perform CVS operations from XCode.
+	
+	IMPORTANT: If you modify the "xc24" project in a newer version of XCode, please rename it before committing to CVS.  If you update the "xc24" project to work with XCode 4.3, feel free to rename it to "BP2-MacOS.xc43.xcodeproj" and commit the changes.
+	
+4. Build the application
+
+	My latest XCode project has one target (name "Universal (10.4)") and two build configurations: "Release" and "Debug".  The release build turns on optimizations and builds for both PowerPC and Intel architectures.  The Debug build enables more code warnings and builds only the current architecture.  The Debug prefix header also turns on BP2's conditional macros for performing more internal tests and debugging (BIGTEST, COMPILING_BETA, and TRACE_EVENTS).  Generally, you will use the Debug target when developing BP2 and the Release target to build the application for public releases or for personal use.
+	
+	Choose a build configuration and click "Build".
+	
+	You will receive lots of warnings but that is OK.  The code has been updated, thanks to Kumar, to build on Lion so I hope there won't be any errors.
