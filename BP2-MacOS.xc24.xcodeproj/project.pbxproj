@@ -473,9 +473,9 @@
 		92A113350EC39232006B5F38 /* LongCoords.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LongCoords.h; path = source/WASTE/LongCoords.h; sourceTree = SOURCE_ROOT; };
 		92A113360EC39232006B5F38 /* WASTE.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WASTE.h; path = source/WASTE/WASTE.h; sourceTree = SOURCE_ROOT; };
 		92A113370EC39232006B5F38 /* WASTEIntf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WASTEIntf.h; path = source/WASTE/WASTEIntf.h; sourceTree = SOURCE_ROOT; };
-		92A1133A0EC39232006B5F38 /* BP2-MacOS.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; name = "BP2-MacOS.rsrc"; path = "resources/BP2-MacOS.rsrc"; sourceTree = SOURCE_ROOT; };
-		92A1133C0EC39232006B5F38 /* CoreMIDISettings.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; name = CoreMIDISettings.rsrc; path = resources/CoreMIDISettings.rsrc; sourceTree = SOURCE_ROOT; };
-		92A1133D0EC39232006B5F38 /* dlgxs.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; name = dlgxs.rsrc; path = resources/dlgxs.rsrc; sourceTree = SOURCE_ROOT; };
+		92A1133A0EC39232006B5F38 /* BP2-MacOS.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; name = "BP2-MacOS.rsrc"; path = "resources/decoded_resources/BP2-MacOS.rsrc"; sourceTree = SOURCE_ROOT; };
+		92A1133C0EC39232006B5F38 /* CoreMIDISettings.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; name = CoreMIDISettings.rsrc; path = resources/decoded_resources/CoreMIDISettings.rsrc; sourceTree = SOURCE_ROOT; };
+		92A1133D0EC39232006B5F38 /* dlgxs.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; name = dlgxs.rsrc; path = resources/decoded_resources/dlgxs.rsrc; sourceTree = SOURCE_ROOT; };
 		92A1133F0EC39232006B5F38 /* -se.startup */ = {isa = PBXFileReference; lastKnownFileType = text; path = "-se.startup"; sourceTree = SOURCE_ROOT; };
 		92A113400EC39232006B5F38 /* BP2 help */ = {isa = PBXFileReference; lastKnownFileType = text; path = "BP2 help"; sourceTree = SOURCE_ROOT; };
 		92A113410EC39232006B5F38 /* Credits.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Credits.txt; sourceTree = SOURCE_ROOT; };
