@@ -1,3 +1,14 @@
+2012-07-28 	Anthony Kozar	<akozar@users.sourceforge.net>
+
+	* HowToBuild.txt:  Preliminary documentation on building BP2.
+
+	* BP2-MacOS.xc24.xcodeproj:
+		Removed 10.2 targets and "Imported CodeWarrior Settings" config.
+		Cross-development target now set to 10.4.
+		(This is a separate commit from the changes below).
+
+	* BP2-MacOS.xc24.xcodeproj:  Look for resources in resources/decoded_resources/
+	
 2012-07-23	Anthony Kozar	<akozar@users.sourceforge.net>
 
 	* icons/BP2-OSX-appl.icns:
@@ -7,6 +18,12 @@
 	* License.txt:
 		These need to have Mac line endings to display correctly when checked 
 		out of CVS without line-ending translation.
+
+2012-07-21	Anthony Kozar	<akozar@users.sourceforge.net>
+
+	* resources/decodersrcs.sh:
+	* resources/encodersrcs.sh:
+		New shell scripts to decode/encode the resource files
 
 [Changes from 2012-06-07 and 2012-06-03 committed on 2012-07-21]
 
@@ -29,7 +46,7 @@
 		Added note to check "Default performance values" window
 
 2012-06-03	Srikumar Karaikudi Subramanian	<srikumar-ks@users...>
-(Commited by Anthony)
+(Committed by Anthony)
 	
 	* source/BP2/Graphic.c (GraphOverflow):
 		Tracked down the QuickDraw graphics issue to a problem reading
@@ -260,7 +277,7 @@
 		Recognize disabled edit text boxes too.
 
 2007-06-13	Bernard Bel	<bel@lpl.univ-aix.fr>
-(Commited by Anthony)
+(Committed by Anthony)
 
 	* source/-BP2.proto.h:
 	* source/Inits.c:
@@ -273,7 +290,7 @@
 			ResetCsoundInstrument() so that it can be called from there.
 
 2007-06-12	Bernard Bel	<bel@lpl.univ-aix.fr>
-(Commited by Anthony)
+(Committed by Anthony)
 
 	* source/BP2/SoundObjects1.c (CheckLoadedPrototypes):
 		Inform the user why they may need to load prototypes if there is an
@@ -416,7 +433,7 @@
 	* source/BP2/FillPhaseDiagram.c:  Suppressed alert about piano roll.
 
 2007-05-30	Bernard Bel	<bel@lpl.univ-aix.fr>
-(Commited by Anthony)
+(Committed by Anthony)
 
 	* source/BP2/Graphic.c (GraphOverflow):
 		'Piano roll' button in Object Prototypes window will now work.
@@ -426,7 +443,7 @@
 		(Should prevent the file from being opened twice?)
 
 2007-05-29	Bernard Bel	<bel@lpl.univ-aix.fr>
-(Commited by Anthony)
+(Committed by Anthony)
 
 	* source/BP2/Arithmetic.c (Simplify):
 	* source/BP2/Polymetric.c (PolyExpand):
@@ -961,7 +978,7 @@
 			event handling in Interface1.c to make equivalent MLTE calls.
 		
 2007-04-04	Bernard Bel	<bel@lpl.univ-aix.fr>
-(Commited by Anthony)
+(Committed by Anthony)
 
 	* source/BP2/Compute.c:
 		Call ReleaseProduceStackSpace() and reset MaxDeriv at the beginning of
@@ -979,7 +996,7 @@
 		Uncommented grammars that were causing errors in FillPhaseDiagram.
 
 2007-04-03	Bernard Bel	<bel@lpl.univ-aix.fr>
-(Commited by Anthony)
+(Committed by Anthony)
 
 	* source/BP2/GetRelease.c (ReleaseObjectPrototypes):
 		Set (*p_MIDIsize)[j] to 0 when disposing of (*pp_MIDIcode)[j] handles.
