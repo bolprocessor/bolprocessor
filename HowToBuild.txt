@@ -14,9 +14,50 @@ This is a brief introduction to obtaining the Bol Processor source code from CVS
 
 1. Check out code from CVS
 
+	(Skip this step if you downloaded the source code archive for a particular version of BP2 and just want to build that).
+	
+	The latest source code for Bol Processor is stored in a "repository" on the Sourceforge site using CVS (a server application that tracks changes to the code).  To "check out" a local copy of the code, you will need a CVS client application.  I briefly show how to do so below with the command-line CVS client that comes with Mac OS X and other Unix-like systems.
+	
+	a. On OS X, open the Terminal application (in /Applications/Utilities/).
+	b. Change the working directory ("cd") to the folder in which you want to create a working copy of the BP2 code.
+
+	There are two access methods for checking out the code: "developer" access for registered members of the BP2 development team and "anonymous" access for people without permission to make changes to the repository.  Sourceforge provides help on the CVS commands to use on this page:
+	
+		http://sourceforge.net/scm/?type=cvs&group_id=163664
+	
+	You will only see anonymous access instructions there unless you are logged in as a BP2 developer.  You must check out the code with developer access if you want to be able to commit changes later.
+	
+	c. Here are the commands to use for developer access:
+	
+		export CVS_RSH=ssh
+	
+		cvs -z3 -d:ext:USER@bolprocessor.cvs.sourceforge.net:/cvsroot/bolprocessor co -P bolprocessor
+	
+	The second command is all one line.  Be sure to replace USER with your Sourceforge ID.  You can add the export command to your shell configuration file (~/.bash_profile on OS X) so that you don't have to execute it in the future.  You may also want to define an editor to use for CVS commit messages like this:
+	
+		export CVSEDITOR=emacs      [or whatever editor you prefer]
+
+
+	c'. Here are the commands for anonymous access:
+	
+		cvs -d:pserver:anonymous@bolprocessor.cvs.sourceforge.net:/cvsroot/bolprocessor login
+
+		cvs -z3 -d:pserver:anonymous@bolprocessor.cvs.sourceforge.net:/cvsroot/bolprocessor co -P bolprocessor
+	
+	Each of those two commands should be typed all on one line.
+
+	(There is a second module in CVS named QAVAID which you may wish to look at if you are curious but it is not currently in use.  Simply replace "bolprocessor" with "QAVAID" at the end of the "co" commands above).
+
 2. Decode the resource files
 
-3. Open XCode project file
+	The Bol Processor resource files are encoded in the AppleSingle format within the CVS repository to preserve their resource forks.  Before building or trying to edit these files you MUST run the decodersrcs.sh script from the commandline like this:
+	
+		cd {YOUR_CVS_DIR}/bolprocessor/resources
+		./decodersrcs.sh
+
+	This creates a new directory bolprocessor/resources/decoded_resources/ and places the decoded resource files inside of it.
+
+3. Open and configure the XCode project file
 
 	I am currently building BP2 with XCode 2.5 on Mac OS X 10.5 Leopard.
 	The most up-to-date project file (as of July 28, 2012) is 
@@ -41,8 +82,32 @@ This is a brief introduction to obtaining the Bol Processor source code from CVS
 	
 4. Build the application
 
-	My latest XCode project has one target (name "Universal (10.4)") and two build configurations: "Release" and "Debug".  The release build turns on optimizations and builds for both PowerPC and Intel architectures.  The Debug build enables more code warnings and builds only the current architecture.  The Debug prefix header also turns on BP2's conditional macros for performing more internal tests and debugging (BIGTEST, COMPILING_BETA, and TRACE_EVENTS).  Generally, you will use the Debug target when developing BP2 and the Release target to build the application for public releases or for personal use.
+	My latest XCode project has one target (named "Universal (10.4)") and two build configurations: "Release" and "Debug".  The release build turns on optimizations and builds for both PowerPC and Intel architectures.  The Debug build enables more code warnings and builds only the current architecture.  The Debug prefix header also turns on BP2's conditional macros for performing more internal tests and debugging (BIGTEST, COMPILING_BETA, and TRACE_EVENTS).  Generally, you will use the Debug target when developing BP2 and the Release target to build the application for public releases or for personal use.
 	
-	Choose a build configuration and click "Build".
+	a. Choose a build configuration and click "Build".
 	
 	You will receive lots of warnings but that is OK.  The code has been updated, thanks to Kumar, to build on Lion so I hope there won't be any errors.
+
+
+5. Committing changes
+
+	If you are not a BP2 developer on Sourceforge, you can send patches to Anthony or Bernard to be integrated into the CVS repository.
+	
+	If you are a BP2 developer, here are a few tips for committing your changes to CVS:
+	
+	- It is a good idea to do "cvs update" before "cvs commit" to avoid 
+	  conflicts with changes from other developers
+	- I always specify the exact filenames to "cvs commit" that I want to commit
+	  to avoid uploading files with temporary/personal changes. 
+	- Note that XCode project files are really directories! 
+	- Don't commit files in XCode projects whose names include your username.
+	- Before committing changed resource files, be sure to re-encode them in the 
+	  AppleSingle format by running this script:
+	  
+			cd {YOUR_CVS_DIR}/bolprocessor/resources
+			./encodersrcs.sh
+
+
+Anthony Kozar
+akozar@users.sourceforge.net
+July 30, 2012
