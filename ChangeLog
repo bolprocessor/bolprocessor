@@ -1,5 +1,13 @@
 2012-08-06 	Anthony Kozar	<akozar@users.sourceforge.net>
 
+	* VERSION 2.9.8 (FINAL)
+
+	* source/BP2/-BP2.h:
+	* source/BP2/-BP2main.h:
+	* resources/Info.plist:
+		Updated version strings and constants to "2.9.8".
+		Updated copyright years through 2012.
+	
 	* Credits.txt:
 	* ReadMe.txt:
 	* docs-release/Known Issues.rtf:
