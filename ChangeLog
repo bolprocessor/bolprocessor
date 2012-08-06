@@ -1,3 +1,14 @@
+2012-08-06 	Anthony Kozar	<akozar@users.sourceforge.net>
+
+	* Credits.txt:
+	* ReadMe.txt:
+	* docs-release/Known Issues.rtf:
+	* docs-release/ReadMe-beta.rtf:
+	* docs-release/ReadMe.rtf:
+	* docs-release/Recent Changes.rtf:
+		Updated with info for 2.9.8 release and revised to reflect the fact
+		that BP2 is now Mac OS X-only.
+
 2012-07-30 	Anthony Kozar	<akozar@users.sourceforge.net>
 
 	* HowToBuild.txt:  Finished basic documentation on building BP2.

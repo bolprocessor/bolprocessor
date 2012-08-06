@@ -15,23 +15,32 @@ BP development is now hosted by Sourceforge at
 Developers interested in joining the project are most welcome to do so. 
 Please email us for more information.
 
-This is version 2.9.7 beta of the BP2 project.  This release adds support
-for building a universal binary with Apple's Xcode IDE, version 2.4 or
-later.
+This is version 2.9.8 of the BP2 project.  This release fixes the problem
+that prevented QuickDraw graphics from displaying in the Graphics window on
+Intel Macs.  This fix does increase the minimum compilation requirement of
+BP2 to Mac OS X 10.3.  Changes have also been made to the build process to
+support checking the code out of CVS using the command-line CVS client with
+new scripts for decoding and encoding the resource files.
 
-BP2 2.9.7 will only compile on Mac OS X at this time.  We are currently
-using Xcode 2.5 on Mac OS X 10.5.  Previously, we were using Metrowerks
+There are two new documents of interest to developers in this directory:
+
+	HowToBuild.txt
+	HowToMakeARelease.txt
+
+BP2 2.9.8 will only compile on Mac OS X at this time.  We are currently
+using XCode 2.5 on Mac OS X 10.5.  Previously, we were using Metrowerks
 CodeWarrior to compile binaries for Mac OS Classic and for Mac OS X 10.2 or
 later. The last version of the source code to fully support this was 2.9.6.
-The changes so far in 2.9.7 are not so significant that a knowledgable
-person could not manage to get the source to work with CodeWarrior again.
 
 One of the goals of the open-source project has been to port BP2 to other
 platforms. Stage one of this process is now mostly complete and involved
 porting BP2 to the Carbon API from Apple so that it could run under Mac OS
 X. Stage two has been to further update the code for compatibility with
-Intel Macs and the latest build tools.  We are still evaluating how much
-more work is needed to complete stage two.
+Intel Macs and the latest build tools.  The minimum amount of work needed to
+complete stage two appears to be done now unless there are lurking
+incompatibilities with Intel Macs that remain unfound by us.  Further
+updating of BP2 to use newer Mac OS technologies such as Quartz is about to
+begin.
 
 Stage three will be to begin separating the Mac OS platform-specific code
 from the computational portions of the code that can be made cross-platform,
@@ -52,17 +61,13 @@ If you want to get started understanding the source code, look in the
 "docs-developer" directory; particularly the files "BP2-info.txt" and
 "BP2-history.txt".
 
-The current Xcode project file is	BP2-MacOS.xc24.xcodeproj
-The latest CodeWarrior project is	BP2-MacOS.cw8.mcp
-
-We will probably add an Xcode 3.x project in the near future.
-
-If you need to create your own project file for a different version of
+See the doc "HowToBuild.txt" for information on which IDE project files to
+use.  If you need to create your own project file for a different version of
 Xcode, CodeWarrior, or a different IDE, just add all of the files in
 source/BP2 to an appropriate project template.  (The other directories are
-not needed).  If you are compiling for Mac OS (X), then you will
-also want to add source/WASTE and the following resource files from the
-"resources" directory:
+not needed).  If you are compiling for Mac OS (X), then you will also want
+to add source/WASTE and the following resource files from the "resources"
+and "resources/decoded_resources" directories:
 
 	BP2-MacOS.rsrc
 	Info.plist or plst-resource.plc
@@ -78,10 +83,10 @@ also want to add source/WASTE and the following resource files from the
 
 The project still uses Mac OS Classic-style resource files instead of
 Interface Builder NIBs.  Because of this, if you are compiling for Mac OS
-(X), then you must be sure to checkout the source code using a CVS client
-that knows how to handle MacBinary-encoded .rsrc files or obtain a source
-code package from Sourceforge in a Mac OS disk image format.  Please ask us
-for help if you are having trouble with this.
+(X), then you must either checkout the source code using a CVS client that
+knows how to handle AppleSingle-encoded .rsrc files (such as MacCVS Pro) or
+use the shell scripts in the "resources" directory to decode and encode
+these files.  Please ask us for help if you are having trouble with this.
 
 The file "BP2-RMaker.R" is a text version of most of the resources but the
 application that compiles them came with Symantec C, so we will probably not
@@ -120,4 +125,4 @@ Thanks for checking out Bol Processor!
 Bernard Bel                           Anthony Kozar
 belbernard@users.sourceforge.net      akozar@users.sourceforge.net
 
-January 19, 2010
+August 5, 2012
