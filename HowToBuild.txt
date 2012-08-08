@@ -1,31 +1,78 @@
 BUILDING BOL PROCESSOR
 ======================
 
-This is a brief introduction to obtaining the Bol Processor source code from CVS and building that code on Mac OS X with XCode.
+This is a brief introduction to obtaining the Bol Processor source code from
+CVS and building that code on Mac OS X with Xcode.
 
 
-0. Install XCode and the proper SDK
+0. Install Xcode and the proper SDK
 
-	Most versions of XCode that I have seen only include the SDKs (software development kits) for targeting the latest two releases of Mac OS X (based on when that version of XCode was released).  Usually, at least one SDK for older versions of Mac OS X is available as an optional install with XCode or as a separate download from the Apple Developer Center.
+	The most recent version of Apple's Xcode development suite is available
+	for free from the Mac App Store.  Older versions of the Xcode tools
+	(especially for older versions of Mac OS X) can be obtained through the
+	Apple Developer Center (free registration required):
 	
-	If you are just building BP2 for yourself, target whichever version of OS X you wish.  If you are working on BP2 development, we are currently trying to maintain compatibility with 10.5 Leopard (Universal), so if you are developing on 10.7 or 10.8, you will probably have to install a 10.5 SDK.
+                        https://developer.apple.com/
 	
-	(The current XCode project targets 10.4, so if you can, you may want to install the 10.4 SDK).
+	We are currently using two different versions of Xcode to build BP2:
+	
+		Xcode 2.5    on OS X 10.5 Leopard   targeting Mac OS X 10.4
+		Xcode 4.3.3  on OS X 10.7 Lion      targeting Mac OS X 10.6
+	
+	Most versions of Xcode that I have seen only include the SDKs (software
+	development kits) for targeting the latest two releases of Mac OS X
+	(based on when that version of Xcode was released).  For example, the
+	current version, Xcode 4.3.3, includes the 10.6 and 10.7 SDKs.
+
+	For prior versions of Xcode, one or more SDKs for older versions of Mac
+	OS X may be available as optional installs with Xcode or as separate
+	downloads from the Apple Developer Center.  But there are no additional
+	SDKs available for Xcode 4.
+
+	If you are just building BP2 for yourself, target whichever version of
+	OS X you wish.  You will have an easier time using our Xcode projects
+	though if your configuration supports one of the target SDKs listed
+	above.
+
+	NOTE FOR XCODE 4: In Xcode's Preferences/Downloads, make sure that the
+	Command line tools have been installed.  If not, click the "Install"
+	button. Once the C compiler is available you will see a file called
+	"gcc" under /usr/bin/.
+
 
 1. Check out code from CVS
 
-	(Skip this step if you downloaded the source code archive for a particular version of BP2 and just want to build that).
-	
-	The latest source code for Bol Processor is stored in a "repository" on the Sourceforge site using CVS (a server application that tracks changes to the code).  To "check out" a local copy of the code, you will need a CVS client application.  I briefly show how to do so below with the command-line CVS client that comes with Mac OS X and other Unix-like systems.
-	
-	a. On OS X, open the Terminal application (in /Applications/Utilities/).
-	b. Change the working directory ("cd") to the folder in which you want to create a working copy of the BP2 code.
+	(Skip this step if you downloaded the source code archive for a
+	particular version of BP2 and just want to build that).
 
-	There are two access methods for checking out the code: "developer" access for registered members of the BP2 development team and "anonymous" access for people without permission to make changes to the repository.  Sourceforge provides help on the CVS commands to use on this page:
+	The latest source code for Bol Processor is stored in a "repository" on
+	the Sourceforge site using CVS (a server application that tracks changes
+	to the code).  To "check out" a local copy of the code, you will need a
+	CVS client application.  I briefly show how to do so below with the
+	command-line CVS client that comes with most versions of Mac OS X and
+	other Unix-like systems.  If you get an error trying to use the "cvs"
+	commands below, you may have to install the software.  Try the Fink
+	project: http://www.finkproject.org
+
+	a. On OS X, open the Terminal application (in /Applications/Utilities/).
+	b. Change the working directory ("cd") to the folder in which you want
+	to create a working copy of the BP2 code.
+
+	NOTE: The full path to the BP2 code folder must not contain any spaces
+	or Xcode will be unable to build the project.  Probably best to avoid
+	other characters which have special meanings to the Unix shell as well.
+
+	There are two access methods for checking out the code: "developer"
+	access for registered members of the BP2 development team and
+	"anonymous" access for people without permission to make changes to the
+	repository.  Sourceforge provides help on the CVS commands to use on
+	this page:
 	
 		http://sourceforge.net/scm/?type=cvs&group_id=163664
 	
-	You will only see anonymous access instructions there unless you are logged in as a BP2 developer.  You must check out the code with developer access if you want to be able to commit changes later.
+	You will only see anonymous access instructions there unless you are
+	logged in as a BP2 developer.  You must check out the code with
+	developer access if you want to be able to commit changes later.
 	
 	c. Here are the commands to use for developer access:
 	
@@ -33,7 +80,11 @@ This is a brief introduction to obtaining the Bol Processor source code from CVS
 	
 		cvs -z3 -d:ext:USER@bolprocessor.cvs.sourceforge.net:/cvsroot/bolprocessor co -P bolprocessor
 	
-	The second command is all one line.  Be sure to replace USER with your Sourceforge ID.  You can add the export command to your shell configuration file (~/.bash_profile on OS X) so that you don't have to execute it in the future.  You may also want to define an editor to use for CVS commit messages like this:
+	The second command is all one line.  Be sure to replace USER with your
+	Sourceforge login name.  You can add the export command to your shell
+	configuration file (~/.bash_profile on OS X) so that you don't have to
+	execute it in the future.  You may also want to define an editor to use
+	for CVS commit messages like this:
 	
 		export CVSEDITOR=emacs      [or whatever editor you prefer]
 
@@ -46,63 +97,86 @@ This is a brief introduction to obtaining the Bol Processor source code from CVS
 	
 	Each of those two commands should be typed all on one line.
 
-	(There is a second module in CVS named QAVAID which you may wish to look at if you are curious but it is not currently in use.  Simply replace "bolprocessor" with "QAVAID" at the end of the "co" commands above).
+	(There is a second module in CVS named QAVAID which you may wish to look
+	at if you are curious but it is not currently in use.  Simply replace
+	"bolprocessor" with "QAVAID" at the end of the "co" commands above).
+
+	A simple introduction to CVS is available at
+	<http://www.cs.umb.edu/~srevilak/cvs.html>.
+
+	The CVS manual is at <http://ximbiot.com/cvs/manual/feature>.
 
 2. Decode the resource files
 
-	The Bol Processor resource files are encoded in the AppleSingle format within the CVS repository to preserve their resource forks.  Before building or trying to edit these files you MUST run the decodersrcs.sh script from the commandline like this:
+	The Bol Processor resource files are encoded in the AppleSingle format
+	within the CVS repository to preserve their resource forks.  Before
+	building or trying to edit these files you MUST run the decodersrcs.sh
+	script from the commandline like this:
 	
 		cd {YOUR_CVS_DIR}/bolprocessor/resources
 		./decodersrcs.sh
 
-	This creates a new directory bolprocessor/resources/decoded_resources/ and places the decoded resource files inside of it.
+	This creates a new directory bolprocessor/resources/decoded_resources/
+	and places the decoded resource files inside of it.
 
-3. Open and configure the XCode project file
+3. Open and configure the Xcode project file
 
-	I am currently building BP2 with XCode 2.5 on Mac OS X 10.5 Leopard.
-	The most up-to-date project file (as of July 28, 2012) is 
+	Two project files are available (as of August 2012): 
 	
-		BP2-MacOS.xc24.xcodeproj
+		BP2-MacOS.xc43.xcodeproj	for Xcode 4.3 or later with 10.6 SDK
+		BP2-MacOS.xc24.xcodeproj	for Xcode 2.4 or later with 10.4 SDK
 	
-	This project file is set to target 10.4.
-	
-	There is also an XCode 4.3 project for Mac OS X 10.7 Lion from Kumar that does not contain the changes to look for resource files in resources/decoded_resources/.  It also is set to target 10.7, I think.
-	
-		BP2-MacOS.xc43.xcodeproj
-	
-	I recommend opening the BP2-MacOS.xc24.xcodeproj project even on Lion and then making the following change if the 10.4 SDK is not available:
+	Open the file that best fits your version of Xcode.  If you do not have
+	the SDK that the project supports, you will need to make changes along
+	these lines.  (These instructions are for Xcode 2.5):
 	
 	a. Choose "Edit Project Settings" from the "Project" menu
 	b. Set "Cross-Develop Using Target SDK" to the oldest compatible SDK
-	   available (10.3 or newer should work).
-	c. You may wish to "Enable SCM", set it to CVS, and configure so that you 
-	   can perform CVS operations from XCode.
-	
-	IMPORTANT: If you modify the "xc24" project in a newer version of XCode, please rename it before committing to CVS.  If you update the "xc24" project to work with XCode 4.3, feel free to rename it to "BP2-MacOS.xc43.xcodeproj" and commit the changes.
-	
+	   available (10.3 thru 10.6 should work).
+
+	NOTE:  BP2 currently does not build with the 10.7 SDK!!
+
 4. Build the application
 
-	My latest XCode project has one target (named "Universal (10.4)") and two build configurations: "Release" and "Debug".  The release build turns on optimizations and builds for both PowerPC and Intel architectures.  The Debug build enables more code warnings and builds only the current architecture.  The Debug prefix header also turns on BP2's conditional macros for performing more internal tests and debugging (BIGTEST, COMPILING_BETA, and TRACE_EVENTS).  Generally, you will use the Debug target when developing BP2 and the Release target to build the application for public releases or for personal use.
-	
+	My latest Xcode (2.5) project has one target (named "Universal (10.4)")
+	and two build configurations: "Release" and "Debug".  The release build
+	turns on optimizations and builds for both PowerPC and Intel
+	architectures.  The Debug build enables more code warnings and builds
+	only the current architecture.  The Debug prefix header also turns on
+	BP2's conditional macros for performing more internal tests and
+	debugging (BIGTEST, COMPILING_BETA, and TRACE_EVENTS).  Generally, you
+	will use the Debug target when developing BP2 and the Release target to
+	build the application for public releases or for personal use.
+
 	a. Choose a build configuration and click "Build".
-	
-	You will receive lots of warnings but that is OK.  The code has been updated, thanks to Kumar, to build on Lion so I hope there won't be any errors.
+
+	You will receive lots of warnings but that is OK.  The code has been
+	updated, thanks to Kumar, to build with the 10.6 SDK so I hope that
+	there won't be any errors.
 
 
 5. Committing changes
 
-	If you are not a BP2 developer on Sourceforge, you can send patches to Anthony or Bernard to be integrated into the CVS repository.
-	
-	If you are a BP2 developer, here are a few tips for committing your changes to CVS:
+	If you are not a BP2 developer on Sourceforge, you can send patches to
+	Anthony or Bernard to be integrated into the CVS repository.
+
+	If you are a BP2 developer, here are a few tips for committing your
+	changes to CVS:
 	
 	- It is a good idea to do "cvs update" before "cvs commit" to avoid 
-	  conflicts with changes from other developers
-	- I always specify the exact filenames to "cvs commit" that I want to commit
-	  to avoid uploading files with temporary/personal changes. 
-	- Note that XCode project files are really directories! 
-	- Don't commit files in XCode projects whose names include your username.
-	- Before committing changed resource files, be sure to re-encode them in the 
-	  AppleSingle format by running this script:
+	  conflicts with changes from other developers:
+	
+		cvs update -d -P		[from the top-level source directory]
+	    
+	- I always specify the exact filenames to "cvs commit" that I want to
+	  commit to avoid uploading files with temporary/personal changes.
+	    
+		cvs commit filename1 filename2  etc.
+	    
+	- Note that Xcode project files are really directories! 
+	- Don't commit files in Xcode projects whose names include your username.
+	- Before committing changed resource files, be sure to re-encode them in
+	  the AppleSingle format by running this script:
 	  
 			cd {YOUR_CVS_DIR}/bolprocessor/resources
 			./encodersrcs.sh
@@ -110,4 +184,4 @@ This is a brief introduction to obtaining the Bol Processor source code from CVS
 
 Anthony Kozar
 akozar@users.sourceforge.net
-July 30, 2012
+August 8, 2012
