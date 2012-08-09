@@ -229,6 +229,17 @@ file
 
 16.	Upload all three archives to the Sourceforge File Release system.
 
+Create a new subfolder in the SF File Release system named after the release
+version.  I put stable releases into subfolders of the "bolprocessor" folder
+and beta releases and other snapshots into subfolders of the "snapshots"
+folder.  Then add all three archives to the new subfolder.
+
+After uploading the archives, click on the "i" button next to the main
+application download and select the Mac icon to designate this new release
+as the "Default Download" for Mac computers.  Also, fill-in the "Download
+Button" with a description such as "BP [version] for Mac OS X 10.4 or later"
+to help visitors understand what they are downloading.
+
 It is a good idea to create a "release notes" document and add it to the
 file release folder on Sourceforge with the name "README.txt".  Sourceforge
 will automatically display this file below the downloads.  You can also use
