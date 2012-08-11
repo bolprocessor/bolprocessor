@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 42;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -11,7 +11,6 @@
 		927DEBDE0EC6AE330036A79B /* BP2 help in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A113400EC39232006B5F38 /* BP2 help */; };
 		927DEBDF0EC6AE330036A79B /* Credits.txt in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A113410EC39232006B5F38 /* Credits.txt */; };
 		927DEBE00EC6AE330036A79B /* License.txt in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A113420EC39232006B5F38 /* License.txt */; };
-		927DEBEC0EC6AF9E0036A79B /* BP2-OSX-appl.icns in Resources */ = {isa = PBXBuildFile; fileRef = 927DEBEA0EC6AF9E0036A79B /* BP2-OSX-appl.icns */; };
 		92832054157B209D00EADF2F /* PrefixMachOWASTE-Import.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112C00EC39231006B5F38 /* PrefixMachOWASTE-Import.h */; };
 		92A112CC0EC39231006B5F38 /* PrefixReleaseMachOWASTE-Import.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112CB0EC39231006B5F38 /* PrefixReleaseMachOWASTE-Import.h */; };
 		92A1139A0EC3924F006B5F38 /* BP2main.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112D70EC39231006B5F38 /* BP2main.c */; };
@@ -83,9 +82,6 @@
 		92A113DC0EC3924F006B5F38 /* Script.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113030EC39232006B5F38 /* Script.c */; };
 		92A113DD0EC3924F006B5F38 /* ScriptAlgo.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113040EC39232006B5F38 /* ScriptAlgo.c */; };
 		92A113DE0EC3924F006B5F38 /* ScriptUtils.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113050EC39232006B5F38 /* ScriptUtils.c */; };
-		92A113DF0EC3924F006B5F38 /* CoreMIDISettings.rsrc in Rez */ = {isa = PBXBuildFile; fileRef = 92A1133C0EC39232006B5F38 /* CoreMIDISettings.rsrc */; };
-		92A113E00EC3924F006B5F38 /* BP2-MacOS.rsrc in Rez */ = {isa = PBXBuildFile; fileRef = 92A1133A0EC39232006B5F38 /* BP2-MacOS.rsrc */; };
-		92A113E10EC3924F006B5F38 /* dlgxs.rsrc in Rez */ = {isa = PBXBuildFile; fileRef = 92A1133D0EC39232006B5F38 /* dlgxs.rsrc */; };
 		92A113E30EC39254006B5F38 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A113880EC3924E006B5F38 /* Carbon.framework */; };
 		92A113E40EC39254006B5F38 /* -BP2.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113100EC39232006B5F38 /* -BP2.h */; };
 		92A113E50EC39254006B5F38 /* -BP2main.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113130EC39232006B5F38 /* -BP2main.h */; };
@@ -99,6 +95,10 @@
 		92A113ED0EC39254006B5F38 /* -BP2.proto.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113110EC39232006B5F38 /* -BP2.proto.h */; };
 		92A113EE0EC39254006B5F38 /* LongCoords.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113350EC39232006B5F38 /* LongCoords.h */; };
 		92A114490EC3925B006B5F38 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A114460EC3925B006B5F38 /* CoreServices.framework */; };
+		CC17C80E15D63C69005AD342 /* CoreMIDISettings.rsrc in Rez */ = {isa = PBXBuildFile; fileRef = CC17C80D15D63C69005AD342 /* CoreMIDISettings.rsrc */; };
+		CC17C81015D63C7F005AD342 /* BP2-MacOS.rsrc in Rez */ = {isa = PBXBuildFile; fileRef = CC17C80F15D63C7F005AD342 /* BP2-MacOS.rsrc */; };
+		CC17C81215D63C91005AD342 /* dlgxs.rsrc in Rez */ = {isa = PBXBuildFile; fileRef = CC17C81115D63C91005AD342 /* dlgxs.rsrc */; };
+		CC77091415D3BE120071D909 /* BP2-OSX-appl.icns in Resources */ = {isa = PBXBuildFile; fileRef = CC77091315D3BE120071D909 /* BP2-OSX-appl.icns */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -139,7 +139,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		927DEBEA0EC6AF9E0036A79B /* BP2-OSX-appl.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = "BP2-OSX-appl.icns"; path = "icons/BP2-OSX-appl.icns"; sourceTree = SOURCE_ROOT; };
 		92A112B50EC39230006B5F38 /* PrefixMachO-Import.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "PrefixMachO-Import.h"; path = "source/prefix/PrefixMachO-Import.h"; sourceTree = SOURCE_ROOT; };
 		92A112C00EC39231006B5F38 /* PrefixMachOWASTE-Import.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "PrefixMachOWASTE-Import.h"; path = "source/prefix/PrefixMachOWASTE-Import.h"; sourceTree = SOURCE_ROOT; };
 		92A112C90EC39231006B5F38 /* Bol Processor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bol Processor.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -238,9 +237,6 @@
 		92A113350EC39232006B5F38 /* LongCoords.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LongCoords.h; path = source/WASTE/LongCoords.h; sourceTree = SOURCE_ROOT; };
 		92A113360EC39232006B5F38 /* WASTE.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WASTE.h; path = source/WASTE/WASTE.h; sourceTree = SOURCE_ROOT; };
 		92A113370EC39232006B5F38 /* WASTEIntf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WASTEIntf.h; path = source/WASTE/WASTEIntf.h; sourceTree = SOURCE_ROOT; };
-		92A1133A0EC39232006B5F38 /* BP2-MacOS.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; name = "BP2-MacOS.rsrc"; path = "resources/decoded_resources/BP2-MacOS.rsrc"; sourceTree = SOURCE_ROOT; };
-		92A1133C0EC39232006B5F38 /* CoreMIDISettings.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; name = CoreMIDISettings.rsrc; path = resources/decoded_resources/CoreMIDISettings.rsrc; sourceTree = SOURCE_ROOT; };
-		92A1133D0EC39232006B5F38 /* dlgxs.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; name = dlgxs.rsrc; path = resources/decoded_resources/dlgxs.rsrc; sourceTree = SOURCE_ROOT; };
 		92A1133F0EC39232006B5F38 /* -se.startup */ = {isa = PBXFileReference; lastKnownFileType = text; path = "-se.startup"; sourceTree = SOURCE_ROOT; };
 		92A113400EC39232006B5F38 /* BP2 help */ = {isa = PBXFileReference; lastKnownFileType = text; path = "BP2 help"; sourceTree = SOURCE_ROOT; };
 		92A113410EC39232006B5F38 /* Credits.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Credits.txt; sourceTree = SOURCE_ROOT; };
@@ -252,6 +248,10 @@
 		92A113910EC3924F006B5F38 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = /System/Library/Frameworks/CoreMIDI.framework; sourceTree = "<absolute>"; };
 		92A113930EC3924F006B5F38 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
 		92A114460EC3925B006B5F38 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
+		CC17C80D15D63C69005AD342 /* CoreMIDISettings.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; name = CoreMIDISettings.rsrc; path = resources/decoded_resources/CoreMIDISettings.rsrc; sourceTree = "<group>"; };
+		CC17C80F15D63C7F005AD342 /* BP2-MacOS.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; name = "BP2-MacOS.rsrc"; path = "resources/decoded_resources/BP2-MacOS.rsrc"; sourceTree = "<group>"; };
+		CC17C81115D63C91005AD342 /* dlgxs.rsrc */ = {isa = PBXFileReference; lastKnownFileType = archive.rsrc; name = dlgxs.rsrc; path = resources/decoded_resources/dlgxs.rsrc; sourceTree = "<group>"; };
+		CC77091315D3BE120071D909 /* BP2-OSX-appl.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = "BP2-OSX-appl.icns"; path = "icons/BP2-OSX-appl.icns"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -422,10 +422,10 @@
 		92A113390EC39232006B5F38 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				92A1133A0EC39232006B5F38 /* BP2-MacOS.rsrc */,
-				92A1133C0EC39232006B5F38 /* CoreMIDISettings.rsrc */,
-				92A1133D0EC39232006B5F38 /* dlgxs.rsrc */,
-				927DEBEA0EC6AF9E0036A79B /* BP2-OSX-appl.icns */,
+				CC17C80D15D63C69005AD342 /* CoreMIDISettings.rsrc */,
+				CC17C80F15D63C7F005AD342 /* BP2-MacOS.rsrc */,
+				CC17C81115D63C91005AD342 /* dlgxs.rsrc */,
+				CC77091315D3BE120071D909 /* BP2-OSX-appl.icns */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -486,9 +486,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		92A112C80EC39231006B5F38 /* Universal (10.4) */ = {
+		92A112C80EC39231006B5F38 /* Universal (10.7) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 92A112CE0EC39231006B5F38 /* Build configuration list for PBXNativeTarget "Universal (10.4)" */;
+			buildConfigurationList = 92A112CE0EC39231006B5F38 /* Build configuration list for PBXNativeTarget "Universal (10.7)" */;
 			buildPhases = (
 				92A112C30EC39231006B5F38 /* Headers */,
 				92A112C40EC39231006B5F38 /* Sources */,
@@ -503,7 +503,7 @@
 			);
 			dependencies = (
 			);
-			name = "Universal (10.4)";
+			name = "Universal (10.7)";
 			productName = "MacOS X Release";
 			productReference = 92A112C90EC39231006B5F38 /* Bol Processor.app */;
 			productType = "com.apple.product-type.application";
@@ -513,15 +513,22 @@
 /* Begin PBXProject section */
 		92A112A30EC3922F006B5F38 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = 92A112A40EC3922F006B5F38 /* Build configuration list for PBXProject "BP2-MacOS.xc24" */;
-			compatibilityVersion = "Xcode 2.4";
+			attributes = {
+				LastUpgradeCheck = 0430;
+			};
+			buildConfigurationList = 92A112A40EC3922F006B5F38 /* Build configuration list for PBXProject "BP2-MacOS.xc43" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
 			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
 			mainGroup = 92A112A10EC3922F006B5F38;
 			productRefGroup = 92A112B20EC39230006B5F38 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				92A112C80EC39231006B5F38 /* Universal (10.4) */,
+				92A112C80EC39231006B5F38 /* Universal (10.7) */,
 			);
 		};
 /* End PBXProject section */
@@ -531,7 +538,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				927DEBEC0EC6AF9E0036A79B /* BP2-OSX-appl.icns in Resources */,
+				CC77091415D3BE120071D909 /* BP2-OSX-appl.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -542,9 +549,9 @@
 			isa = PBXRezBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				92A113DF0EC3924F006B5F38 /* CoreMIDISettings.rsrc in Rez */,
-				92A113E00EC3924F006B5F38 /* BP2-MacOS.rsrc in Rez */,
-				92A113E10EC3924F006B5F38 /* dlgxs.rsrc in Rez */,
+				CC17C80E15D63C69005AD342 /* CoreMIDISettings.rsrc in Rez */,
+				CC17C81015D63C7F005AD342 /* BP2-MacOS.rsrc in Rez */,
+				CC17C81215D63C91005AD342 /* dlgxs.rsrc in Rez */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -631,19 +638,32 @@
 		92456DE20EC96270001BD76F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_MODEL_TUNING = G4;
-				GCC_OPTIMIZATION_LEVEL = s;
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				"GCC_MODEL_TUNING[sdk=macosx10.6]" = "MacBook PRO";
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VALUE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = resources/Info.plist;
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				ONLY_ACTIVE_ARCH = NO;
+				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = YES;
+				SDKROOT = macosx10.6;
+				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 			};
 			name = Release;
 		};
@@ -651,18 +671,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "source/prefix/PrefixReleaseMachOWASTE-Import.h";
 				HEADER_SEARCH_PATHS = /Developer/Headers/FlatCarbon;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_CFLAGS = "-fno-inline";
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					warning,
 				);
-				PREBINDING = YES;
 				PRODUCT_NAME = "Bol Processor";
 				REZ_SCRIPT_TYPE = Roman;
-				REZ_SUPPRESS_REDECLARED_RESOURCE_TYPE_WARNINGS = NO;
+				REZ_SUPPRESS_REDECLARED_RESOURCE_TYPE_WARNINGS = "";
+				"REZ_SUPPRESS_REDECLARED_RESOURCE_TYPE_WARNINGS[sdk=macosx10.6]" = "";
+				SDKROOT = macosx10.6;
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Release;
@@ -670,20 +693,30 @@
 		92456DE60EC96278001BD76F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_MODEL_TUNING = "";
+				"GCC_MODEL_TUNING[sdk=macosx10.6]" = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNKNOWN_PRAGMAS = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
-				GCC_WARN_UNUSED_VALUE = NO;
+				GCC_WARN_UNUSED_VALUE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = resources/Info.plist;
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				ONLY_ACTIVE_ARCH = NO;
+				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = YES;
+				SDKROOT = macosx10.6;
+				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 			};
 			name = Debug;
 		};
@@ -691,18 +724,22 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"GCC_MODEL_TUNING[sdk=macosx10.7]" = "Universal (10.7)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "source/prefix/PrefixMachOWASTE-Import.h";
 				HEADER_SEARCH_PATHS = /Developer/Headers/FlatCarbon;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_CFLAGS = "-fno-inline";
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
 					warning,
 				);
-				PREBINDING = YES;
 				PRODUCT_NAME = "Bol Processor";
 				REZ_SCRIPT_TYPE = Roman;
-				REZ_SUPPRESS_REDECLARED_RESOURCE_TYPE_WARNINGS = NO;
+				REZ_SUPPRESS_REDECLARED_RESOURCE_TYPE_WARNINGS = "";
+				"REZ_SUPPRESS_REDECLARED_RESOURCE_TYPE_WARNINGS[sdk=macosx10.6]" = "";
+				SDKROOT = macosx10.6;
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Debug;
@@ -710,7 +747,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		92A112A40EC3922F006B5F38 /* Build configuration list for PBXProject "BP2-MacOS.xc24" */ = {
+		92A112A40EC3922F006B5F38 /* Build configuration list for PBXProject "BP2-MacOS.xc43" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				92456DE20EC96270001BD76F /* Release */,
@@ -719,7 +756,7 @@
 			defaultConfigurationIsVisible = 1;
 			defaultConfigurationName = Release;
 		};
-		92A112CE0EC39231006B5F38 /* Build configuration list for PBXNativeTarget "Universal (10.4)" */ = {
+		92A112CE0EC39231006B5F38 /* Build configuration list for PBXNativeTarget "Universal (10.7)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				92456DE30EC96270001BD76F /* Release */,
