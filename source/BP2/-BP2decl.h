@@ -72,10 +72,6 @@ extern long MemoryUsed,TempMemoryUsed,MemoryUsedInit,MaxMemoryUsed,MaxTempMemory
 	MaxHandles,SessionTime;
 extern int CheckMem;
 
-#if !TARGET_API_MAC_CARBON
-extern THPrint hPrint;
-#endif
-
 extern IntProcPtr Menu[MAXMENU][MAXMENUITEMS];
 extern ResID WindowMenuIcons[11];
 extern ResID DeviceMenuIcons[12];
@@ -94,8 +90,6 @@ extern FSSpec **p_TempFSspec;
 
 extern char **p_MessageMem[MAXMESSAGE],**p_HTMLchar1,**p_HTMLchar2,**p_HTMLdiacritical;
 extern MIDIstream Stream;
-
-extern IOParam Pb,*p_Pb;
 
 extern RGBColor White,Black,Red,Green,Blue,Yellow,Magenta,Cyan,Brown,None,
 	NoteScaleColor1,NoteScaleColor2;

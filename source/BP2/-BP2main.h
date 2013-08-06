@@ -67,10 +67,6 @@ long MemoryUsed,TempMemoryUsed,MemoryUsedInit,MaxMemoryUsed,MaxTempMemoryUsed,Ma
 	SessionTime;
 int CheckMem;
 
-#if !TARGET_API_MAC_CARBON
-  THPrint hPrint;
-#endif
-
 IntProcPtr Menu[][MAXMENUITEMS] =
 	{{NULLPROC,mAbout,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
 		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
@@ -124,8 +120,6 @@ FSSpec **p_TempFSspec;
 
 char **p_MessageMem[MAXMESSAGE],**p_HTMLchar1,**p_HTMLchar2,**p_HTMLdiacritical;
 MIDIstream Stream;
-
-IOParam Pb,*p_Pb;
 
 RGBColor White,Black,Red,Green,Blue,Yellow,Magenta,Cyan,Brown,None,NoteScaleColor1,NoteScaleColor2;
 RGBColor Color[MAXCOLOR],PianoColor[MAXCHAN],**p_ObjectColor;
