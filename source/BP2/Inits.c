@@ -131,8 +131,6 @@ Quantization = 10L;
   TotalTicks = ZERO;
 #endif
 
-p_Pb = &Pb;
-Pb.ioVRefNum = 0;
 InBuiltDriverOn = FALSE;
 
 Nw = 0;
@@ -397,10 +395,6 @@ for(i=0; i < 6; i++) {
 	
 NoAlphabet = TRUE;
 UseGraphicsColor = UseTextColor = TRUE;
-
-#if !TARGET_API_MAC_CARBON
-  hPrint = NULL;
-#endif
 
 StartFromOne = TRUE;
 SetUpTime = 100L;	/* 100 ms */
