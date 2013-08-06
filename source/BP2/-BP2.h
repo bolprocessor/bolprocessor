@@ -146,6 +146,7 @@ Hey: this code is not portable!!!
 #  include <cmath>
 #  include <cstdlib>
 #  include <cfloat>
+#  include <climits>
 #else
 #  include <stdio.h>
 #  include <math.h>
@@ -154,23 +155,7 @@ Hey: this code is not portable!!!
 #  include <string.h>
 #  include <float.h>
 #  include <time.h>
-//#  include <limits.h>
-#endif
-
-#if !TARGET_API_MAC_CARBON
-#include <Editions.h>
-// #include <Aliases.h>
-// #include <AppleEvents.h>
-// #include <ColorPicker.h>
-// #include <Files.h>
-// #include <Folders.h>
-// #include <LowMem.h>
-// #include <Printing.h>
-// #include <QDOffscreen.h>
-// #include <QuickDraw.h>
-// #include <Sound.h>
-// #include <Strings.h>
-// #include <TextEdit.h>
+#  include <limits.h>
 #endif
 
 #if WASTE
