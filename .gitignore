@@ -1,0 +1,16 @@
+# Top-level .gitignore for Bol Processor repository
+# Git will ignore these files and directories
+
+# Finder and OS X metadata files
+.DS_Store
+
+# Xcode per-user settings
+*.mode1
+*.mode1v3
+*.pbxuser
+
+# Xcode build artifacts
+build/
+
+# BP2 decoded resource files
+resources/decoded_resources/
