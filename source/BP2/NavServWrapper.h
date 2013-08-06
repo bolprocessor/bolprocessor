@@ -13,16 +13,6 @@
 #ifndef	ANTHONY_NAVSERV_WRAPPER_H
 #define	ANTHONY_NAVSERV_WRAPPER_H
 
-#if !TARGET_API_MAC_CARBON
-#  include	<Navigation.h>
-#  include	<Gestalt.h>
-#  include  <Sound.h>
-#elif BP_MACHO
-// #  include  <Carbon/Carbon.h>
-#else
-#  include	<Carbon.h>
-#endif
-
 #define	kDefaultPrefKey	1
 
 /* For backwards-compatibility with StdFilePkg */
