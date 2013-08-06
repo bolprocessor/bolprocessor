@@ -118,10 +118,6 @@
 #  define WITH_REAL_TIME_SCHEDULER 1
 #endif
 
-#ifndef __CONDITIONALMACROS__
-Hey: this code is not portable!!!
-#endif
-
 //#include <ansi_prefix.mac.h>	// commented out - 010507 akozar
 
 #if USE_OMS
@@ -196,10 +192,6 @@ enum {
 	inPageDown					= 23,
 	inThumb					= 129
 };
-#endif
-
-#ifndef __CONDITIONALMACROS__
-Hey: this code is not portable!!!
 #endif
 
 // --------------------- General constants   --------------------------
