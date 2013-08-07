@@ -43,12 +43,14 @@ Inits(void)
 {
 int i,j,ch;
 OSStatus io;
-WDPBRec pb;
 char **ptr;
 Rect r;
 long handlerRefcon;
+#if BP_CARBON_GUI
+WDPBRec pb;
 AEEventHandlerUPP handler;
 ProcessInfoRec info;
+#endif /* BP_CARBON_GUI */
 FSSpec spec;
 long t;
 
@@ -67,15 +69,9 @@ static char HTMLlatin[] /* Starting with "&#32" up to "&#255" */
 	'ë','ì','í','î','ï','\0','ñ','ò','ó','ô','õ','ö','÷','ø','ù','ú','û','ü','y',
 	'\0','ÿ'};
 
-#if !TARGET_API_MAC_CARBON
-InitGraf(&Qd.thePort);
-InitFonts();
-InitWindows();
-InitMenus();
-TEInit();
-InitDialogs(0L);
-#endif
+#if BP_CARBON_GUI
 InitCursor();
+#endif /* BP_CARBON_GUI */
 
 #if USE_MLTE
 io = TXNInitTextension(NULL, 0, 0);
@@ -88,22 +84,11 @@ if (io != noErr) {
 #endif
 
 ForceTextColor = ForceGraphicColor = 0;
+
+#if BP_CARBON_GUI
 if(!GoodMachine()) return(ABORT);
-
-#if !defined(__POWERPC) && !TARGET_API_MAC_CARBON
-  // These are old memory management calls recommended in Inside Macintosh
-  // They may not be of any use now.
-  MaxApplZone();
-#endif
-#if !TARGET_API_MAC_CARBON
-  // Actually, MoreMasters is still useful in non-Carbon programs... - 011807 akozar
-  for(i=0; i < 15; i++) MoreMasters(); /* Create more space for handle master pointers */
-#else
-  // ... and MoreMasterPointers is helpful on OS 8/9 with CarbonLib
-  if (!RunningOnOSX)  MoreMasterPointers(15);
-#endif
-
 FlushEvents(everyEvent,0);
+#endif /* BP_CARBON_GUI */
 
 ////////////////////////////////////
 ////   Is this a beta version?  ////
@@ -253,6 +238,8 @@ InvMaxTempo = 1. / MaxTempo;
 
 Stream.code = NULL;
 Stream.imax = ZERO; Stream.cyclic = FALSE; Stream.period = ZERO;
+
+#if BP_CARBON_GUI
 if(GetResource('MENU',MenuIDoffset) == NULL) {
 	SysBeep(20);
 	CantOpen();
@@ -270,6 +257,8 @@ if(SetUpCursors() != OK) {
 	}
 SetUpMenus();
 InitColors();
+#endif /* BP_CARBON_GUI */
+
 if(LoadStrings() != OK) return(ABORT);
 
 if((p_Diacritical = (char****) NewHandle((Size)(MAXHTMLDIACR) * sizeof(char**)))
@@ -301,10 +290,8 @@ DisposeHandle((Handle)p_HTMLdiacrList);
 for(i=0; i < 32; i++) (*p_HTMLchar2)[i] = '\0';
 for(i=32; i < 256; i++) (*p_HTMLchar2)[i] = HTMLlatin[i-32];
 
-// This is some extra memory used in case memory gets low
-// Helas it doesn't seem to work any more.
-if (!RunningOnOSX) h_EmergencyMemory = NewHandle(EMERGENCYMEMORYSIZE);
-else			 h_EmergencyMemory = NULL;
+// FIXME: should completely remove all uses of h_EmergencyMemory
+h_EmergencyMemory = NULL;
 
 if(MakeWindows() != OK) return(ABORT);
 // SetDialogFont(systemFont);
@@ -429,6 +416,7 @@ MIDItracklength = MidiLen_pos = ZERO;
 Midi_msg = OldMIDIfileTime = 0;
 LoadedCsoundInstruments = FALSE;
 
+#if BP_CARBON_GUI
 // Allow BP2 to respond to Apple Events coming from remote machines
 
 io = AESetInteractionAllowed(kAEInteractWithAll);
@@ -531,6 +519,7 @@ io = AEInstallEventHandler(BP2Class,ResumeID,handler,0,FALSE);
 /* Allocate scroll bar action UPPs once at init time to avoid leaks */
 vScrollUPP = NewControlActionUPP(vScrollProc);
 hScrollUPP = NewControlActionUPP(hScrollProc);
+#endif /* BP_CARBON_GUI */
 
 Maxitems = ZERO;
 p_Flag = NULL;
@@ -593,6 +582,7 @@ if((p_Token = (char****) GiveSpace((Size) 52 * sizeof(char**))) == NULL) return(
 for(i=0; i < 52; i++) (*p_Token)[i] = NULL;
 ResetKeyboard(TRUE);
 
+#if BP_CARBON_GUI
 // Find current directory and volume
 /* FIXME ? I think these values are always the same as GetCurrentProcess()
    returns below.  So, could remove this call and replace ParID/RefNumStartup
@@ -611,6 +601,7 @@ info.processInfoLength = sizeof(ProcessInfoRec);
 io = GetProcessInformation(&PSN,&info);
 ParIDbp2 = info.processAppSpec->parID;
 RefNumbp2 = info.processAppSpec->vRefNum;
+#endif /* BP_CARBON_GUI */
 
 MIDIRefNum = HelpRefnum = TempRefnum = TraceRefnum = -1;
 CsRefNum = -1; CsScoreOpened = MIDIfileTrackEmpty = FALSE;
@@ -658,7 +649,9 @@ SetField(NULL,wTimeBase,fTimeBaseComment,"[Comment on time base]");
 iTick = jTick = -1;
 ResetTickFlag = TRUE; ResetTickInItemFlag = FALSE;
 strcpy(Message,WindowName[wCsoundTables]);
+#if BP_CARBON_GUI
 SetWTitle(Window[wCsoundTables],in_place_c2pstr(Message));
+#endif /* BP_CARBON_GUI */
 
 MaxHandles = ZERO;
 PedalOrigin = -1;
@@ -673,8 +666,10 @@ for(i=1; i <= MAXCHAN; i++) WhichCsoundInstrument[i] = -1; // FIXME: this is don
 SetCsoundInstrument(iCsoundInstrument,-1);
 /* ClearWindow(TRUE,wCsoundInstruments); */
 // ErrorSound(MySoundProc);
+#if BP_CARBON_GUI
 {int CheckDate();
 if(!CheckDate()) return(ABORT);}
+#endif /* BP_CARBON_GUI */
 return(DoSystem());
 }
 
@@ -825,6 +820,7 @@ long rc;
 GrafPtr saveport;
 OSErr err;
 
+#if BP_CARBON_GUI
 DialogPtr* miscdialogs[] = { &ResumeStopPtr,&ResumeUndoStopPtr,&MIDIkeyboardPtr,
 	&PatternPtr,&ReplaceCommandPtr,&EnterPtr,&FAQPtr,&SixteenPtr,&FileSavePreferencesPtr,
 	&StrikeModePtr,&TuningPtr,&DefaultPerformanceValuesPtr,&CsoundInstrMorePtr,&MIDIprogramPtr };
@@ -832,7 +828,6 @@ Boolean miscdlgThemed[] = { 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0 };
 
 ReplaceCommandPtr = GetNewDialog(ReplaceCommandID,NULL,0L); // could use kLastWindowOfClass instead of 0L
 ResumeStopPtr = GetNewDialog(ResumeStopID,NULL,0L);
-ResumeStopOn = FALSE;
 ResumeUndoStopPtr = GetNewDialog(ResumeUndoStopID,NULL,0L);
 MIDIkeyboardPtr = GetNewDialog(MIDIkeyboardID,NULL,0L);
 FileSavePreferencesPtr = GetNewDialog(FileSavePreferencesID,NULL,0L);
@@ -859,6 +854,10 @@ for (i = 0; i < 14; ++i)  BPSetDialogAppearance(*(miscdialogs[i]), miscdlgThemed
 #endif
 
 bad = FALSE;
+#endif /* BP_CARBON_GUI */
+
+/* This initialization needs to occur even in non-GUI builds ?? */
+ResumeStopOn = FALSE;
 Jbutt = 0;
 for(w=0; w < WMAX; w++) {
 	Window[w] = NULL;
@@ -867,6 +866,8 @@ for(w=0; w < WMAX; w++) {
 	WindowFullAlertLevel[w] = 0;
 	}
 IsHTML[wCsoundTables] = TRUE;
+
+#if BP_CARBON_GUI
 for(w=0; w < MAXWIND; w++) {
 	PleaseWait();
 	if((Window[w] = GetNewCWindow(WindowIDoffset+w, NULL, 0L)) == NULL) {
@@ -898,16 +899,18 @@ GetWindowPortBounds(Window[wMessage], &r);
 AdjustWindow(FALSE,wMessage,r.top,r.left,r.bottom,r.right);
 GetWindowPortBounds(Window[wInfo], &r);
 AdjustWindow(FALSE,wInfo,r.top,r.left,r.bottom,r.right);
+#endif /* BP_CARBON_GUI */
 
 sprintf(Message,"%s",IDSTRING);
 ShowMessage(TRUE,wMessage,Message);
 
-#ifdef __POWERPC
-FlashInfo("•       •      •     •    •   •  • • Accelerated for PowerPC •");
+#if BP_CARBON_GUI
+FlashInfo("Bol Processor Mac OS X (Carbon) GUI");
 #else
-FlashInfo("• • Macintosh 68k version • •");
+FlashInfo("Bol Processor console app");
 #endif
 
+#if BP_CARBON_GUI
 SelectWindow(GetDialogWindow(GreetingsPtr));
 SetPortDialogPort(GreetingsPtr);
 TextSize(10); TextFont(kFontIDCourier);
@@ -1042,9 +1045,10 @@ for(w=MAXWIND; w < WMAX; w++) {
 	}
 if(bad) return(FAILED);
 ClearWindow(TRUE,wMIDIorchestra);
+#endif /* BP_CARBON_GUI */
+
 return(DoSystem());
 }
-
 
 #if 0
 HiliteDefault(DialogPtr dp)
@@ -1076,6 +1080,7 @@ return(DoSystem());
 #endif
 
 
+#if BP_CARBON_GUI
 SetUpWindow(int w)
 {
 Rect destRect,viewRect;
@@ -1175,6 +1180,7 @@ if(Editable[w]) PrintBehind(w," ");	/* Needed to record size into windowscrap */
 #endif
 return(DoSystem());
 }
+#endif /* BP_CARBON_GUI */
 
 
 #if USE_MLTE
@@ -1459,6 +1465,7 @@ goto ERR3;
 }
 
 
+#if BP_CARBON_GUI
 SetUpCursors(void)
 {
 CursHandle	hCurs;
@@ -1494,6 +1501,7 @@ for(i=0; i < 2; i++) {
 NoCursor = FALSE;
 return(DoSystem());
 }
+#endif /* BP_CARBON_GUI */
 
 
 InitButtons(void)
@@ -1531,6 +1539,8 @@ ShowPannel(wControlPannel,dTemplates);
 return(DoSystem());
 }
 
+
+#if BP_CARBON_GUI
 
 GoodMachine(void)
 {
@@ -1829,6 +1839,8 @@ if(gdevice && (*gdevice)->gdPMap) depth = (*((*gdevice)->gdPMap))->pixelSize;
 return(depth);
 }
 
+#endif /* BP_CARBON_GUI */
+
 #if 0
 CheckRegistration(void)
 {
@@ -2100,6 +2112,7 @@ return(OK);
 
 #endif // 0
 
+#if BP_CARBON_GUI
 int CheckDate()
 {
 	unsigned long today,secs;
@@ -2122,3 +2135,4 @@ int CheckDate()
 	if (reply == YES)  return(OK);
 	else return(FAILED);
 }
+#endif /* BP_CARBON_GUI */
