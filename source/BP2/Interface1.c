@@ -1355,7 +1355,7 @@ else {
 	}
 EndUpdate(theWindow);
 ClipRect(&r1);
-if(w < WMAX && HasFields[w] && !Editable[w]) HiliteDefault(GetDialogFromWindow(theWindow));
+// if(w < WMAX && HasFields[w] && !Editable[w]) HiliteDefault(GetDialogFromWindow(theWindow));
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err UpdateWindow(). saveport == NULL");
 return(OK);

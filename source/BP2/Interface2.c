@@ -875,7 +875,7 @@ SelectField(EnterPtr, wUnknown, fValue, TRUE);
 ShowWindow(GetDialogWindow(EnterPtr));
 SelectWindow(GetDialogWindow(EnterPtr)); // was BringToFront() - akozar 052107
 DrawDialog(EnterPtr);
-HiliteDefault(EnterPtr);
+// HiliteDefault(EnterPtr);
 EnterOn = TRUE;
 Interrupted = TRUE;
 AlertOn++;

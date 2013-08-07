@@ -1046,6 +1046,7 @@ return(DoSystem());
 }
 
 
+#if 0
 HiliteDefault(DialogPtr dp)
 {
 short itemtype;
@@ -1072,6 +1073,7 @@ if(itemhandle != NULL && itemtype == btnCtrl) {
 	}
 return(DoSystem());
 }
+#endif
 
 
 SetUpWindow(int w)
