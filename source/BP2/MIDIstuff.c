@@ -1092,6 +1092,9 @@ return(result);
 #endif
 }
 
+#if BP_CARBON_GUI
+// I'm not sure whether we need PlayPrototypeTicks() and RecordTick()
+// in ANSI console build, but seems unlikely.  - akozar
 
 PlayPrototypeTicks(int j)
 {
@@ -1244,6 +1247,7 @@ return(OK);
 #endif
 }
 
+#endif /* BP_CARBON_GUI */
 
 MIDItoPrototype(int zerostart,int filter,int j,MIDIcode **p_b,long imax)
 // Store MIDI codes to prototype j
@@ -1528,6 +1532,9 @@ ReadMIDIparameter(int c0, int c1, int c2, int wind)
 int x,chan,c;
 long origin,end;
 
+#if !BP_CARBON_GUI
+	return(FAILED);
+#else
 if(Jcontrol == -1) return(FAILED);
 chan = c0 % 16;
 c = c0 - chan;
@@ -1590,6 +1597,7 @@ end = (**(TEH[LastEditWindow])).selEnd;
 #endif
 SetSelect(origin,end,TEH[LastEditWindow]);
 return(OK);
+#endif /* BP_CARBON_GUI */
 }
 
 
@@ -2047,6 +2055,7 @@ void RegisterProgramChange(MIDI_Event *p_e)
 	if(thisevent == ProgramChange) {
 		program = ByteToInt(p_e->data2) + 1;
 		if(CurrentMIDIprogram[channel+1] != program) {
+#if BP_CARBON_GUI
 			if(TestMIDIChannel == (channel+1) && CurrentMIDIprogram[TestMIDIChannel] > 0) {
 				GetDialogItem(MIDIprogramPtr, (short)CurrentMIDIprogram[TestMIDIChannel],
 							&itemtype, (Handle*)&itemhandle, &r);
@@ -2055,6 +2064,7 @@ void RegisterProgramChange(MIDI_Event *p_e)
 				if(itemhandle != NULL) HiliteControl((ControlHandle) itemhandle,kControlButtonPart);
 				WritePatchName();
 				}
+#endif /* BP_CARBON_GUI */
 			CurrentMIDIprogram[channel+1] = program;
 			for(j=0; j < 128; j++) {
 				if((*p_GeneralMIDIpatchNdx)[j] == program) {

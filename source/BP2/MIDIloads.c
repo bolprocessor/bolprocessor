@@ -127,6 +127,9 @@ if(NoteOn <= c0  &&  c0 < (NoteOn+16) && c2 > 0) {   /* NoteOn */
 else return(FAILED);
 }
 
+#if BP_CARBON_GUI
+// I'm not sure whether we need LoadTimePattern() and LoadMIDIsyncOrKey()
+// in ANSI console build, but seems unlikely.  - akozar
 
 LoadTimePattern(int wind)
 {
@@ -440,6 +443,7 @@ FlushEvents(mDownMask+mUpMask,0);
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
 PrintNote(int key,int channel,int wind,char* line)
 {
@@ -606,6 +610,9 @@ if((*p_channel=GetInteger(YES,line2,&i)) == INT_MAX) return(FAILED);
 return(OK);
 }
 
+#if BP_CARBON_GUI
+// I'm not sure whether we need LoadRawData()
+// in ANSI console build, but seems unlikely.  - akozar
 
 LoadRawData(long *p_im)
 {
@@ -667,6 +674,7 @@ return(r);
 #endif
 }
 
+#endif /* BP_CARBON_GUI */
 
 TranslateMIDIdata(int w,long im)
 {
@@ -747,6 +755,9 @@ QUIT:
 return(OK);
 }
 
+#if BP_CARBON_GUI
+// I'm not sure whether we need LoadMIDIprototype()
+// in ANSI console build, but seems unlikely.  - akozar
 
 LoadMIDIprototype(int j,long isize) 
 {
@@ -858,3 +869,5 @@ if(imax < 2L) {
 return(MIDItoPrototype(TRUE,TRUE,j,p_Code,imax));
 #endif
 }
+
+#endif /* BP_CARBON_GUI */
