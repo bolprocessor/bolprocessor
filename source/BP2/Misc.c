@@ -91,6 +91,8 @@ Print(wTrace,line);
 return(OK);
 }
 
+#if BP_CARBON_GUI
+
 void FilterHelpSelector(char* command)
 /* The parameter to DisplayHelp() needs to be const, so
    this function is provided for making sure that a non-
@@ -234,6 +236,7 @@ if((io=MyOpen(&spec,fsRdPerm,&refnum)) == noErr) {
 else return(FAILED);
 }
 
+#endif /* BP_CARBON_GUI */
 
 GetInteger(int test,char* line,int* p_i)
 {
@@ -1907,6 +1910,8 @@ int r,compiledmem,dirtymem;
 ShowSelect(CENTRE,wTrace);
 BPActivateWindow(SLOW,wTrace);
 ShowMessage(TRUE,wMessage,"Type answer!");
+
+#if BP_CARBON_GUI
 while(!WaitNextEvent(everyEvent,&theEvent,3L,NULL) || ((theEvent.what != keyDown)
 		&& (theEvent.what != autoKey))) {
 	ListenMIDI(0,0,0);
@@ -1929,6 +1934,10 @@ while(!WaitNextEvent(everyEvent,&theEvent,3L,NULL) || ((theEvent.what != keyDown
 		}
 	}
 return(UpperCase((char) (theEvent.message & charCodeMask)));
+#else
+// FIXME: do we need a console equivalent of this function ??
+return ('Q');
+#endif
 }
 
 
@@ -1936,6 +1945,8 @@ Date(char line[])
 {
 unsigned long datetime;
 char dd[MAXNAME],tt[MAXNAME];
+
+#if BP_CARBON_GUI
 Str255 pascalline;
 Handle i1h;		        /* handle to an Intl1 or Intl0 Rec  */
 
@@ -1954,6 +1965,12 @@ if (i1h != NULL) {
 	MyPtoCstr(MAXNAME,pascalline,tt);
 	}
 else  tt[0] = '\0';
+#else
+// FIXME: we need a cross-platform equivalent of this function!
+dd[0] = '\0';
+tt[0] = '\0';
+#endif
+
 sprintf(line,"%s %s -- %s",DateMark,dd,tt);
 return(OK);
 }

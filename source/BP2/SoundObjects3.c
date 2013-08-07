@@ -585,6 +585,7 @@ switch(w) {
 return(FALSE);
 }
 
+#if BP_CARBON_GUI
 
 CopyFrom(int w)
 {
@@ -665,6 +666,7 @@ GetPrototype(YES);
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
 CopyPage1(int i,int j)
 {

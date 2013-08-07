@@ -1784,7 +1784,9 @@ QUESTION:
 HideWindow(Window[wInfo]);
 rep = OK; rep1 = rep2 = rep3 = NO;
 if(!CyclicPlay && !ScriptExecOn) StopWait();
+#if BP_CARBON_GUI
 SndSetSysBeepState(sysBeepDisable);
+#endif
 ShowDuration(YES);
 if(!FirstTime && !PlayPrototypeOn
 	&& (CyclicPlay || (!Improvize && !ScriptExecOn && (DisplayItems || PlaySelectionOn)
@@ -1969,7 +1971,9 @@ if(showpianoroll) Tcurr = oldtcurr;
 
 if(cswrite && CsoundTrace) ShowSelect(CENTRE,wTrace);
 Interrupted = FALSE;
+#if BP_CARBON_GUI
 SndSetSysBeepState(sysBeepEnable);
+#endif
 return(result);
 }
 

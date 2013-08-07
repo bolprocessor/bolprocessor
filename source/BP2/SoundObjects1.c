@@ -74,7 +74,7 @@ else if(Beta) Alert1("Err CheckLoadedPrototypes(). saveport == NULL");
 return(r);
 }
 
-
+#if BP_CARBON_GUI
 ShowObjects(int w)
 {
 char failedstring[15];
@@ -90,7 +90,7 @@ r = DoThings(p_Bol,2,Jbol,NULL,16,MINUSPROC,failedstring,(int) pushButProc);
 if(r > 0) iProto = r;
 return(OK);
 }
-
+#endif
 
 SetPrototype(int j)
 // Copying from memory to dialogs
