@@ -75,7 +75,12 @@ typedef Handle	PicHandle, PolyHandle, RgnHandle;
 typedef Handle	MenuHandle;
 typedef Handle	ControlHandle;
 
+// FSSpec is not defined here to be compatible with Mac OS
+// I am assuming that this struct will be replaced in BP3 at some point ...
 typedef struct {
+	int		vRefNum;
+	int		parID;
+	Str255	name;
 } FSSpec, *FSSpecPtr;
 
 typedef struct {
@@ -94,7 +99,21 @@ typedef struct {
 } AppleEvent;
 
 typedef struct {
-} QDGlobals, Rect, Point, RGBColor, *GrafPtr, *CGrafPtr, *GWorldPtr, **GDHandle, Cursor;
+} QDGlobals, Point, *GrafPtr, *CGrafPtr, *GWorldPtr, **GDHandle, Cursor;
+
+// fields are larger than in Mac OS (32-bit instead of 16-bit)
+typedef struct Rect {
+	int32_t top;
+	int32_t left;
+	int32_t bottom;
+	int32_t right;
+} Rect;
+
+typedef struct RGBColor {
+	uint16_t red;
+	uint16_t green;
+	uint16_t blue;
+} RGBColor;
 
 typedef struct {
 } TextStyle;
@@ -103,8 +122,15 @@ typedef struct {
 } ProcessSerialNumber;
 
 
-/* Missing macros and constants from Mac OS */
+/* Missing macros and constants from Mac OS --
+   probably should replace/eliminate most of these.
+ */
 #define	pascal
 
 enum { noErr = 0, eofErr, dskFulErr };
 
+enum { fsCurPerm, fsRdPerm, fsFromStart };
+
+enum { normal, bold, kFontIDCourier };
+
+enum { mDownMask, mUpMask };
