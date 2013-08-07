@@ -38,7 +38,7 @@
 static int MakeNewDriverRecord(BPMidiDriver*** p_handle);
 static int RegisterMidiDrivers(int oms);
 
-main(void)
+int main (int argc, char* args[])
 {
 int i,w,startupscript,what,eventfound,rep,oms;
 long leak;

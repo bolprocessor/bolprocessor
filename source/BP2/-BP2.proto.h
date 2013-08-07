@@ -52,7 +52,7 @@ OSErr MyGotRequiredParams(const AppleEvent*);
 
 /* in BP2main.c */
 int RecoverEmergencyMemory(void);
-int main(void);
+int main (int, char*[]);
 
 #if BP_MACHO
 int LaunchOSXApplication(OSType signature);
