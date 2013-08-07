@@ -56,9 +56,16 @@
 #define COMPILING_BETA 0
 #endif
 
-// Select compilation option
+// Select compilation options
+
+// MACOS is currently unused 
 #ifndef MACOS
 #define MACOS 1
+#endif
+
+// 1 if building the OS X Carbon GUI, 0 otherwise
+#ifndef BP_CARBON_GUI
+#define BP_CARBON_GUI 1
 #endif
 
 // This allows the compiler to select low-level toolbox procedures.

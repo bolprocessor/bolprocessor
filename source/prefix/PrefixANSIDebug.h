@@ -6,6 +6,9 @@
 // our replacements for various Mac types
 #include "MissingMacTypes.h"
 
+// don't compile any GUI-specific code
+#define BP_CARBON_GUI 0
+
 // our macro to indicate a Mach-O compile
 #define BP_MACHO 1
 
