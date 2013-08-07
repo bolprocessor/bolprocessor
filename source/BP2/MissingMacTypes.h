@@ -33,39 +33,41 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 /* This file contains type definitions from Mac OS that are used by BP2 */
 
 // FIXME: these integer types should be defined using Std. C header types
-typedef unsigned char	UInt8;
-typedef signed char		SInt8;
-typedef unsigned short	UInt16;
-typedef signed short	SInt16;
-typedef unsigned int	UInt32;
-typedef signed int		SInt32;
+typedef uint8_t		UInt8;
+typedef int8_t		SInt8;
+typedef uint16_t	UInt16;
+typedef int16_t		SInt16;
+typedef uint32_t	UInt32;
+typedef int32_t		SInt32;
 
 typedef long (*ProcPtr)();
 typedef ProcPtr	ControlActionUPP, ModalFilterUPP;
 
-typedef char*	Ptr;
-typedef char**	Handle;
+typedef	int8_t	sbyte;
+typedef sbyte*	Ptr;
+typedef sbyte**	Handle;
 typedef	size_t	Size;
 
 // these are unsigned on Mac OS, but might be better replaced as "plain" char ??
-typedef	unsigned char	Str255[256], Str63[64], Str31[32];
-typedef unsigned char*	StringPtr;
+typedef	uint8_t		Str255[256], Str63[64], Str31[32];
+typedef uint8_t*	StringPtr;
 
-typedef UInt8	Boolean;
-typedef SInt16	OSErr;
-typedef SInt32	OSStatus;
-typedef UInt32	OSType, AEEventClass, AEEventID;	// must be a 32-bit unsigned int
-typedef OSType	SFTypeList[4];
-typedef SInt16	ResID;
-typedef SInt16	ScriptCode;
-typedef UInt16	EventModifiers;
+typedef uint8_t		Boolean;
+typedef int16_t		OSErr;
+typedef int32_t		OSStatus;
+typedef uint32_t	OSType, AEEventClass, AEEventID;	// must be a 32-bit unsigned int
+typedef OSType		SFTypeList[4];
+typedef int16_t		ResID;
+typedef int16_t		ScriptCode;
+typedef uint16_t	EventModifiers;
 
-typedef SInt16	MenuID;
-typedef UInt16	MenuItemIndex;
+typedef int16_t		MenuID;
+typedef uint16_t	MenuItemIndex;
 
 typedef Handle	NavMenuItemSpecArrayHandle;
 typedef Handle	TEHandle;
