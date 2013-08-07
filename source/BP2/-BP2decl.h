@@ -72,9 +72,11 @@ extern long MemoryUsed,TempMemoryUsed,MemoryUsedInit,MaxMemoryUsed,MaxTempMemory
 	MaxHandles,SessionTime;
 extern int CheckMem;
 
+#if BP_CARBON_GUI
 extern IntProcPtr Menu[MAXMENU][MAXMENUITEMS];
 extern ResID WindowMenuIcons[11];
 extern ResID DeviceMenuIcons[12];
+#endif /* BP_CARBON_GUI */
 
 extern Handle h_EmergencyMemory;
 extern int EmergencyExit,LowOnMemory,TempMemory,AskedTempMemory,FixedMaxQuantization,

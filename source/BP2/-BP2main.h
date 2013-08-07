@@ -67,6 +67,7 @@ long MemoryUsed,TempMemoryUsed,MemoryUsedInit,MaxMemoryUsed,MaxTempMemoryUsed,Ma
 	SessionTime;
 int CheckMem;
 
+#if BP_CARBON_GUI
 IntProcPtr Menu[][MAXMENUITEMS] =
 	{{NULLPROC,mAbout,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
 		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
@@ -105,6 +106,7 @@ IntProcPtr Menu[][MAXMENUITEMS] =
 
 ResID  WindowMenuIcons[11] = { 10, 129, 130, 132, 133, 131, 140, 139, 137, 138, 136 };
 ResID  DeviceMenuIcons[12] = { 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 144, 142 };
+#endif /* BP_CARBON_GUI */
 
 Handle h_EmergencyMemory;
 int EmergencyExit,LowOnMemory,TempMemory,AskedTempMemory,FixedMaxQuantization,TraceMemory,
