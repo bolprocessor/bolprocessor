@@ -113,11 +113,11 @@ Nw = 0;
  
 InitOn = NoCursor = NotSaidKpress = TRUE;
 ReceivedOpenAppEvent = FALSE;
-CheckMem = TRUE; EmergencyExit = LowOnMemory = TempMemory = AskedTempMemory
+CheckMem = TRUE; EmergencyExit = TempMemory = AskedTempMemory
 	= FixedMaxQuantization = FALSE;
 TempMemoryUsed = ZERO;
 EventState = NO;
-MemoryUsed = TempMemoryUsed = MaxMemoryUsed = MaxTempMemoryUsed = ZERO;
+MemoryUsed = TempMemoryUsed = MaxMemoryUsed = ZERO;
 SetTimeOn = ComputeOn = PolyOn = CompileOn = SoundOn = SelectOn = ButtonOn = ExpandOn
 	= PrintOn = ClickRuleOn = GraphicOn = CompleteDecisions = LoadOn = SaveOn = MIDIfileOn
 	= ReadKeyBoardOn = AlertOn = AllOn = HangOn = ScriptRecOn = PlayPrototypeOn
@@ -289,9 +289,6 @@ DisposeHandle((Handle)p_HTMLdiacrList);
 
 for(i=0; i < 32; i++) (*p_HTMLchar2)[i] = '\0';
 for(i=32; i < 256; i++) (*p_HTMLchar2)[i] = HTMLlatin[i-32];
-
-// FIXME: should completely remove all uses of h_EmergencyMemory
-h_EmergencyMemory = NULL;
 
 if(MakeWindows() != OK) return(ABORT);
 // SetDialogFont(systemFont);

@@ -63,7 +63,7 @@ char OMSinputName[MAXNAME],OMSoutputName[MAXNAME];
 
 ProcessSerialNumber PSN;
 char UserName[MAXNAME],UserInstitution[MAXNAME];
-long MemoryUsed,TempMemoryUsed,MemoryUsedInit,MaxMemoryUsed,MaxTempMemoryUsed,MaxHandles,
+long MemoryUsed,TempMemoryUsed,MemoryUsedInit,MaxMemoryUsed,MaxHandles,
 	SessionTime;
 int CheckMem;
 
@@ -108,8 +108,8 @@ ResID  WindowMenuIcons[11] = { 10, 129, 130, 132, 133, 131, 140, 139, 137, 138, 
 ResID  DeviceMenuIcons[12] = { 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 144, 142 };
 #endif /* BP_CARBON_GUI */
 
-Handle h_EmergencyMemory;
-int EmergencyExit,LowOnMemory,TempMemory,AskedTempMemory,FixedMaxQuantization,TraceMemory,
+// FIXME: figure out how to completely remove TempMemory, AskedTempMemory, TempMemoryUsed (& FixedMaxQuantization?)
+int EmergencyExit,TempMemory,AskedTempMemory,FixedMaxQuantization,TraceMemory,
 	EventState,Beta;
 int SetUpTime;  /* Time needed to set-up driver (ms) */
 int LoadedScript;

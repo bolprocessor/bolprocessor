@@ -68,7 +68,7 @@ extern DialogPtr CMSettings;
 
 extern char UserName[MAXNAME],UserInstitution[MAXNAME];
 extern ProcessSerialNumber PSN;					
-extern long MemoryUsed,TempMemoryUsed,MemoryUsedInit,MaxMemoryUsed,MaxTempMemoryUsed,
+extern long MemoryUsed,TempMemoryUsed,MemoryUsedInit,MaxMemoryUsed,
 	MaxHandles,SessionTime;
 extern int CheckMem;
 
@@ -78,8 +78,7 @@ extern ResID WindowMenuIcons[11];
 extern ResID DeviceMenuIcons[12];
 #endif /* BP_CARBON_GUI */
 
-extern Handle h_EmergencyMemory;
-extern int EmergencyExit,LowOnMemory,TempMemory,AskedTempMemory,FixedMaxQuantization,
+extern int EmergencyExit,TempMemory,AskedTempMemory,FixedMaxQuantization,
 	TraceMemory,EventState,Beta;
 extern int SetUpTime;
 extern int LoadedScript;

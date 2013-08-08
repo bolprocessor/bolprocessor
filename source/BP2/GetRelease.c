@@ -836,7 +836,6 @@ KillDiagrams(wPrototype1);
 Dirty[iObjects] = Created[iObjects] = FALSE;
 ObjectMode = ObjectTry = TempMemory = AskedTempMemory = FixedMaxQuantization = FALSE;
 TempMemoryUsed = ZERO;
-if(LowOnMemory) RecoverEmergencyMemory();
 
 return(DoSystem());
 }
