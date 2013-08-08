@@ -2397,24 +2397,7 @@ return(OK);
 
 DoSystem(void)
 {
-OSErr oserr;
-GrafPtr saveport;
-OSErr err;
-int result;
-
 if(Panic || EmergencyExit) return(OK);
-result = OK;
-GetPort(&saveport);
-#if !TARGET_API_MAC_CARBON
-  SystemTask();
-#endif
-if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err DoSystem(). saveport == NULL");
-/* err = MemError();
-if(err != noErr) {
-	if(Beta) TellError(57,err);
-	result = FAILED;
-	} */
 if(!SoundOn) return(PlayTick(FALSE));
-return(result);
+return(OK);
 }
