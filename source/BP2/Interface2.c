@@ -166,13 +166,8 @@ GetPort(&saveport);
 SetPortWindowPort(Window[w]);
 GetWindowPortBounds(Window[w], &r);
 InvalWindowRect(Window[w], &r);
-#if TARGET_API_MAC_CARBON
-  QDFlushPortBuffer(GetWindowPort(Window[w]), NULL);
-#endif
+QDFlushPortBuffer(GetWindowPort(Window[w]), NULL);
 if(saveport != NULL) SetPort(saveport);
-#if !TARGET_API_MAC_CARBON
-SystemTask();	/* Allows redrawing control strip */
-#endif
 
 return(OK);
 }
@@ -183,7 +178,6 @@ ClearMessage(void)
 SelectBehind(ZERO,GetTextLength(wMessage),TEH[wMessage]);
 TextDelete(wMessage);
 TextUpdate(wMessage);
-/* SystemTask();	Allows redrawing control strip */
 return(OK);
 }
 

@@ -886,13 +886,8 @@ for(w=0; w < MAXWIND; w++) {
 	if(!bad) SetUpWindow(w);
 	GetWindowPortBounds(Window[w], &r);
 	Weird[w] = FALSE;
-#if TARGET_API_MAC_CARBON
 	err = InvalWindowRect(Window[w], &r);
 	if (err != noErr) Alert1("Err MakeWindows().  InvalWindowRect returned non-zero.");
-#else
-	InvalRect(&r);
-	SystemTask();	/* Allows redrawing control strip */
-#endif
 	}
 
 GetWindowPortBounds(Window[wMessage], &r);
