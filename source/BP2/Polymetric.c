@@ -709,10 +709,11 @@ Maxlevel++;
 Maxconc = Minconc + 1 + longestseqouttime + longestnumbertoofast;
 
 CHECKSIZE:
-
+// FIXME: This whole section needs reconsideration on OS X
+// Allow unlimited mem growth or could allow user to set max mem usage ? 
 if(!TempMemory && !AskedTempMemory && !FixedMaxQuantization
 		&& (imax > 10000. || (imax * Maxconc) > 20000.)) {
-	contigbytes = MaxMem(&grow);
+	contigbytes = MaxMem(&grow);	// MaxMem() no longer useful ("always returns a large value")
 	totalbytes = contigbytes + grow;
 	limit1 = totalbytes / 70L;
 	limit2 = (40L * limit1) / Maxconc;
