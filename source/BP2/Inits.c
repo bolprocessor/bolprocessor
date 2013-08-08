@@ -1381,10 +1381,12 @@ for(i=0; i < im; i++) {
 	(*h_ScriptIndex)[i] = ic = k;
 	MyUnlock((Handle)h_res);
 	
+#if BP_CARBON_GUI
 	/* Insert script command into script menu */
 	for(k=j+1; k < km; k++) PascalLine[k-j] = (*h_res)[k];
 	PascalLine[0] = km - j - 1;
 	AppendMenu(myMenus[scriptM],PascalLine);
+#endif /* BP_CARBON_GUI */
 	
 	ilabel = iarg = n = 0;
 	for(k=j; k < km; k++) {
