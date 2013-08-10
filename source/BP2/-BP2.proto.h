@@ -521,6 +521,7 @@ int OkContext(tokenbyte***,int,t_rule,long,long,tokenbyte[],tokenbyte[],int);
 long FindArg(tokenbyte***,int,tokenbyte**,int,long*,tokenbyte[],tokenbyte[],t_rule,int);
 int Found(tokenbyte***,int,tokenbyte**,long,int,long*,long,int,tokenbyte[],tokenbyte[],tokenbyte[],long*,long*,long*,int);
 long Derive(tokenbyte***,t_gram*,tokenbyte***,long*,int,int,long,long*,int,int,int*,long*,long*,int);
+void ExpandBufferLimit(long requiredSize);
 long Insert(int,tokenbyte***,tokenbyte***,t_rule,long,long,long,tokenbyte**,tokenbyte**,long*,long*,int,long,long*,long*,int,int);
 int Cormark(tokenbyte***,long,long);
 long CountMarkers(long*,tokenbyte**,tokenbyte**);

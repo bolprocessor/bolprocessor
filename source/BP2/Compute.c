@@ -1770,6 +1770,27 @@ return(pos1);
 }
 
 
+void ExpandBufferLimit(long requiredSize)
+{
+	while(requiredSize >= (BufferSize - 2L))
+		BufferSize = (BufferSize * 3L) / 2L;
+#if !BP_CARBON_GUI
+	sprintf(Message,"Buffer limit expanded to %ld", BufferSize);
+	ShowMessage(TRUE, wMessage, Message);
+#else
+	SetBufferSize();
+	if(ShowMessages) {
+		FlashInfo("Buffer limit expanded…");
+		ShowWindow(Window[wBufferSize]);
+		if(!ShownBufferSize || UseBufferLimit) BringToFront(Window[wBufferSize]);
+		ShownBufferSize = TRUE;
+		BPUpdateDialog(gpDialogs[wBufferSize]);
+	}
+#endif /* BP_CARBON_GUI */	
+	return;
+}
+
+
 long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,long pos,
 	long offset,long dif,tokenbyte **p_arg1,tokenbyte **p_arg2,long *p_lengthorigin,
 	long *p_leftpos,int imode,long inmark,long *p_lastpos,long *p_incmark,
@@ -1793,16 +1814,7 @@ if((grtype != SUBtype) && (((*p_lengthorigin) + dif) >= BufferSize)) {
 	if(repeat || !UseBufferLimit
 			|| Answer("Buffer limit reached. Expand buffer and continue",'N') == YES) {
 		PleaseWait();
-		while(((*p_lengthorigin) + dif) >= BufferSize)
-			BufferSize = (BufferSize * 3L) / 2L;
-		SetBufferSize();
-		if(ShowMessages) {
-			FlashInfo("Buffer limit expanded…");
-			ShowWindow(Window[wBufferSize]);
-		 	if(!ShownBufferSize || UseBufferLimit) BringToFront(Window[wBufferSize]);
-		 	ShownBufferSize = TRUE;
-			BPUpdateDialog(gpDialogs[wBufferSize]);
-		 	}
+		ExpandBufferLimit((*p_lengthorigin) + dif);
 		}
 	else return(STOP);
 	}
@@ -1888,16 +1900,7 @@ if(jmax >= (BufferSize - 2L)) {
 	if(repeat || !UseBufferLimit
 			|| Answer("Buffer limit reached. Expand buffer and continue",'N') == YES) {
 		PleaseWait();
-		while(jmax >= (BufferSize - 2L))
-			 BufferSize = (BufferSize * 3L) / 2L;
-		SetBufferSize();
-		if(ShowMessages) {
-			FlashInfo("Buffer limit expanded…");
-			ShowWindow(Window[wBufferSize]);
-		 	if(!ShownBufferSize || UseBufferLimit) BringToFront(Window[wBufferSize]);
-		 	ShownBufferSize = TRUE;
-			BPUpdateDialog(gpDialogs[wBufferSize]);
-		 	}
+		ExpandBufferLimit(jmax);
 		}
 	else return(STOP);
 	}
