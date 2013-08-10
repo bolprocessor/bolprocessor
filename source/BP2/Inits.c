@@ -575,11 +575,12 @@ for(i=0; i <= MAXCHAN; i++) {
 	PanoramicControl[i] = PanoramicController;
 	}
 ForceRatio = -1.; PlayFromInsertionPoint = FALSE;
+
+#if BP_CARBON_GUI
 if((p_Token = (char****) GiveSpace((Size) 52 * sizeof(char**))) == NULL) return(ABORT);
 for(i=0; i < 52; i++) (*p_Token)[i] = NULL;
 ResetKeyboard(TRUE);
 
-#if BP_CARBON_GUI
 // Find current directory and volume
 /* FIXME ? I think these values are always the same as GetCurrentProcess()
    returns below.  So, could remove this call and replace ParID/RefNumStartup
@@ -609,10 +610,13 @@ for(i=0; i < WMAX; i++) {
 FileName[wScript][0] = '\0';
 CurrentChannel = 1;	/* Used for program changes,by default. */
 Seed = 1;
-SetSeed(); ResetRandom();
+ResetRandom();
+#if BP_CARBON_GUI
+SetSeed();
 if(ResetInteraction() != OK) return(ABORT);
 if(SetFindReplace() != OK) return(ABORT);
 if(ResetPannel() != OK) return(ABORT);
+#endif /* BP_CARBON_GUI */
 if(SetNoteNames() != OK) return(ABORT);
 NeedAlphabet = FALSE;
 for(i=0; i < MAXCHAN; i++) {
@@ -775,7 +779,11 @@ for(i=0; i < MAXCONVENTIONS; i++) {
 		}
 	}
 for(i=0; i < 12; i++) NameChoice[i] = 0;
+#if BP_CARBON_GUI
 return(SetNameChoice());
+#else
+return(OK);
+#endif /* BP_CARBON_GUI */
 }
 
 
@@ -1519,6 +1527,8 @@ return(DoSystem());
 }
 
 
+#if BP_CARBON_GUI
+
 ResetPannel(void)
 {
 HidePannel(wControlPannel,dDeriveFurther);
@@ -1533,8 +1543,6 @@ ShowPannel(wControlPannel,dTemplates);
 return(DoSystem());
 }
 
-
-#if BP_CARBON_GUI
 
 GoodMachine(void)
 {

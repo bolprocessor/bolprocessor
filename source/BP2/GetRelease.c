@@ -60,7 +60,9 @@ PleaseWait();
 if((r=ClearWindow(init,wCsoundInstruments)) != OK) return(r);
 if((r=ClearWindow(init,wTimeBase)) != OK) return(r);
 if((r=ClearWindow(init,wMIDIorchestra)) != OK) return(r);
+#if BP_CARBON_GUI
 if((r=ResetKeyboard(YES)) != OK) return(r);
+#endif /* BP_CARBON_GUI */
 for(w=0; w < WMAX; w++) {
 	PleaseWait();
 	if(FileName[w][0] == '\0') continue;
@@ -106,7 +108,9 @@ if(init && !ScriptExecOn) {
 			}
 		}
 	}
+#if BP_CARBON_GUI
 if(ResetPannel() != OK) return(FAILED);
+#endif /* BP_CARBON_GUI */
 PleaseWait();
 if(ReleaseProduceStackSpace() != OK) return(FAILED);
 if(ReleaseObjectPrototypes() != OK) return(FAILED);
@@ -121,7 +125,9 @@ if(ReleaseGlossarySpace() != OK) return(FAILED);
 if(ReleaseScriptSpace() != OK) return(FAILED);
 if(ReleaseConstants() != OK) return(FAILED);
 PleaseWait();
+#if BP_CARBON_GUI
 if(ResetInteraction() != OK) return(FAILED);
+#endif /* BP_CARBON_GUI */
 ItemNumber = 0L;
 ptr = (Handle) p_Initbuff;
 MyDisposeHandle(&ptr);

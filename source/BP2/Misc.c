@@ -441,6 +441,7 @@ if(!done) {
 return(n * sign);
 }
 
+#if BP_CARBON_GUI
 
 ShowMIDIkeyboard(void)
 {
@@ -514,6 +515,7 @@ for(i=1; i <= 12; i++) {
 return(DoSystem());
 }
 
+#endif /* BP_CARBON_GUI */
 
 MySpace(char c)
 {
@@ -545,6 +547,7 @@ while((*p_k) < (*p_imax)+2) (**pp_buff)[j++] = (**pp_buff)[(*p_k)++];
 return(OK);
 }
 
+#if BP_CARBON_GUI
 
 GetValues(int force)
 {
@@ -651,6 +654,7 @@ if(ib != GetControlValue(hbutt)) {
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
 
 ConvertSpecialChars(char* line) {
@@ -684,6 +688,7 @@ for(i=j=0;; i++) {
 return(OK);
 }
 
+#if BP_CARBON_GUI
 
 GetThisTick(void)
 {
@@ -782,6 +787,7 @@ SetField(NULL,wTickDialog,fThisTickKey,line);
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
 /* Retrieve the name of a linked file of type doc from window w.
    doc is the "document index" of the name that is being looked for.
@@ -889,6 +895,8 @@ if (GetLinkedFileName(w,iSettings,name) == OK) {
 	}
 else return(FAILED);
 }
+
+#if BP_CARBON_GUI
 
 GetKbName(int w)
 {
@@ -1013,6 +1021,7 @@ if (GetLinkedFileName(w,wTimeBase,name) == OK) {
 else return(FAILED);
 }
 
+#endif /* BP_CARBON_GUI */
 
 ChangeMetronom(int j,double x)
 {
@@ -1061,8 +1070,10 @@ MAKECHANGE:
 	else Nature_of_time = SMOOTH;
 	SetTempo();
 	SetTimeBase();
+#if BP_CARBON_GUI
 	ShowWindow(Window[wMetronom]);
 	BringToFront(Window[wMetronom]);
+#endif /* BP_CARBON_GUI */
 	SetTickParameters(0,MAXBEATS);
 	ResetTickFlag = TRUE;
 	UpdateDirty(TRUE,iSettings);
@@ -1099,6 +1110,8 @@ else {
 		Simplify((double)INT_MAX,Qclock,floor((double)Pclock/60.),&p,&q);
 	sprintf(line,"%.4f", ((double)p)/q);
 	}
+
+#if BP_CARBON_GUI
 SetField(NULL, wMetronom, fTempo, line);
 
 /* Set smooth or striated */
@@ -1114,9 +1127,11 @@ else {
 	GetDialogItem(gpDialogs[wMetronom],dStriated,&itemtype,(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,0);
 	}
+#endif /* BP_CARBON_GUI */
 return(OK);
 }
 
+#if BP_CARBON_GUI
 
 GetTempo(void)
 {
@@ -1153,6 +1168,7 @@ SetGrammarTempo();
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
 SetGrammarTempo(void)
 // Here we only erase the line containing "_mm()" and tell BP2 that the grammar is not compiled
@@ -1211,6 +1227,7 @@ MyDisposeHandle((Handle*)&p_line);
 return(OK);
 }
 
+#if BP_CARBON_GUI
 
 SetBufferSize(void)
 {
@@ -1872,7 +1889,9 @@ SetField(DefaultPerformanceValuesPtr,-1,fSamplingRate,Message);
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
+#if 0
 pascal void DrawButtonBorder(DialogPtr thedialog)
 {
 Handle thecontrol;
@@ -1884,6 +1903,7 @@ PenSize(3,3);
 InsetRect(&r,-2,-2);
 FrameRoundRect(&r,16,16);
 }
+#endif
 
 
 Pause(void)
@@ -2167,6 +2187,8 @@ err = SndDisposeChannel(myChan,FALSE);
 
 // ------------------------  Random numbers -------------------------
 
+#if BP_CARBON_GUI
+
 SetSeed(void)
 {
 Rect r;
@@ -2199,6 +2221,7 @@ Seed = (unsigned int) newseed;
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
 ResetRandom(void)
 {
@@ -2239,13 +2262,15 @@ switch(what) {
 		UsedRandom = TRUE;
 		if(what == NEWSEED) {
 			Seed = seed;
-			SetSeed();
 			UsedRandom = FALSE;
+#if BP_CARBON_GUI
+			SetSeed();
 			if(ShowMessages) {
 				ShowWindow(GetDialogWindow(gpDialogs[wRandomSequence]));
 				BringToFront(GetDialogWindow(gpDialogs[wRandomSequence]));
 				BPUpdateDialog(gpDialogs[wRandomSequence]);
 				}
+#endif /* BP_CARBON_GUI */
 			}
 		break;
 	default:

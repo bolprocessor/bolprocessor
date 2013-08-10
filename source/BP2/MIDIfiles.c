@@ -1186,7 +1186,9 @@ float fadeout;
 Milliseconds time,timeorigin;
 MIDI_Event e;
 
+#if BP_CARBON_GUI
 GetFileSavePreferences();
+#endif /* BP_CARBON_GUI */
 
 if(MIDIfadeOut > 0.) {
 	maxfadeout = MIDIfadeOut * SamplingRate;

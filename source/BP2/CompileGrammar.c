@@ -50,8 +50,10 @@ Handle ptr1;
 
 dummy = ZERO;
 if(CheckMemory() != OK || CheckEmergency() != OK) return(ABORT);
+#if BP_CARBON_GUI
 if(GetTuning() != OK) return(ABORT);
 ResetPannel();
+#endif /* BP_CARBON_GUI */
 SelectBehind(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 if(!ScriptExecOn) PrintBehind(wTrace,"\r");
 fatal = changednumber = FALSE;
@@ -846,16 +848,22 @@ int rep;
 rep = FAILED;
 N_err = 0;
 
+#if BP_CARBON_GUI
 if(GetTuning() != OK) return(ABORT);
+#endif /* BP_CARBON_GUI */
 if(ReleaseObjectPrototypes() != OK) return(ABORT);
 ShowMessage(TRUE,wMessage,"Compiling alphabet…");
 if(!NoAlphabet && IsEmpty(wAlphabet) && (LoadAlphabet(-1,NULL) != OK)) goto ERR;
 
-GetMiName(); GetKbName(wAlphabet);
+GetMiName();
+#if BP_CARBON_GUI
+GetKbName(wAlphabet);
+// FIXME ? Probably will want to get Cs instr. & Midi orch. in console build ?
 if(GetCsName(wAlphabet) != OK && GetCsName(wData) != OK) GetCsName(wGrammar);
 if(GetFileNameAndLoadIt(wMIDIorchestra,wAlphabet,LoadMIDIorchestra) != OK
 		&& GetFileNameAndLoadIt(wMIDIorchestra,wData,LoadMIDIorchestra) != OK) 
 	GetFileNameAndLoadIt(wMIDIorchestra,wGrammar,LoadMIDIorchestra);
+#endif /* BP_CARBON_GUI */
 if(ReleaseAlphabetSpace() != OK) return(ABORT);
 Jhomo = 0; Jbol = 2;	/* Counting will not include "_" and "-" */
 if((rep=ReadAlphabet(TRUE)) != OK){		/* Just count */

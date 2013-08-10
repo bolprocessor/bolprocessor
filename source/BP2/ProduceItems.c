@@ -57,7 +57,9 @@ if(SaveCheck(wGlossary) == ABORT) return(FAILED);
 if(CompileCheck() != OK) return(FAILED);
 if(!template && CheckLoadedPrototypes() != OK) return(FAILED);
 
+#if BP_CARBON_GUI
 if(GetTuning() != OK) return(ABORT);
+#endif /* BP_CARBON_GUI */
 
 p_a = NULL; pp_a = &p_a;
 pp_buff = &p_buff; p_buff = NULL;
@@ -130,7 +132,9 @@ if(undefined && !repeat && !IgnoreUndefinedVariables) {
 	}
 PedalOrigin = -1;
 if(Jflag > 0) for(i=1; i <= Jflag; i++) (*p_Flag)[i] = ZERO;
+#if BP_CARBON_GUI
 if(!repeat && !DeriveFurther) GetValues(TRUE);
+#endif /* BP_CARBON_GUI */
 MaxDeriv = MAXDERIV;
 if(pp_start != NULL) pp_a = pp_start;
 else if(CreateBuffer(pp_a) != OK)  {

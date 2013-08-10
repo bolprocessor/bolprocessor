@@ -46,7 +46,9 @@ tokenbyte **p_a;
 long origin,originmem,firstorigin,end,x;
 
 if(CheckMemory() != OK) return(ABORT);
+#if BP_CARBON_GUI
 if(GetTuning() != OK) return(ABORT);
+#endif /* BP_CARBON_GUI */
 if(!OutMIDI && !OutCsound) {
 	Alert1("Both MIDI and Csound outputs are inactive. Selection can't be played");
 	BPActivateWindow(SLOW,wSettingsBottom);
@@ -363,7 +365,9 @@ if(p_line == NULL) {
 	}
 if((*p_line)[0] == '\0') return(OK);
 
+#if BP_CARBON_GUI
 if(GetTuning() != OK) return(ABORT);
+#endif /* BP_CARBON_GUI */
 if(!OutMIDI && !OutCsound && !onlypianoroll) {
 	Alert1("Both MIDI and Csound outputs are inactive. Item can't be played");
 	BPActivateWindow(SLOW,wSettingsBottom);
