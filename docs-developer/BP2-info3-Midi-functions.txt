@@ -1,0 +1,134 @@
+** THESE NOTES WERE MADE BEFORE THE CodeMIDI DRIVER WAS IMPLEMENTED **
+** Some details may be inaccurate now **
+
+in MIDIdrivers.c:
+	GetNextMIDIevent() - reads one Midi event by calling either PullMIDIdata()
+		in OMS.c or DriverRead() for built-in driver. ("high level")
+	
+	DriverRead() - low-level read of Midi event from the built-in driver (only).
+	
+	DriverWrite() - adds Midi event to Stream global array (?) and then stops
+		if !OutMIDI.  Traps program changes and modifies BP's orchestra.
+		Then, if (Oms || NEWTIMER), it calls Cause() to schedule the event
+		with the real-time scheduler, else it executes the low-level code
+		to write the event to the built-in driver.  (Both low & high level).
+	
+	WriteInBuiltDriver(OMSMIDIPacket *p_pkt) - low-level write of an (OMS)
+		Midi packet to the **built-in** driver.  Presumably for use with
+		Cause() and NEWTIMER.  (Only used in TDecr).
+		
+	FixPort() - choose serial port for built-in driver and call ResetDriver().
+		** Called in MenuCommands.c **
+	
+	SetReceiveRaw() - sets built-in driver to receive raw events. Called
+		by ResetDriver() and SetDriver().  Only called in MIDIdrivers.c
+		
+	FlushDriver() - if (Oms || NEWTIMER), calls FlushOutputEventQueueAfter
+		(in Schedule.c) and clears some Oms globals.  Else it makes low-
+		level calls to built-in driver to flush its queue. (high & low).
+		Called from various places.
+	
+	ResetDriver() - if (Oms || NEWTIMER), it just calls SetDriverTime()
+		and resets a few globals.  If (InBuiltDriverOn), it makes low-
+		level calls to reset the built-in driver.  Called by ResetMIDI()
+		and a couple of places outside MIDIdrivers.c.
+		(FIXME ? Calls SetReceiveRaw() even when built-in is off).
+		
+	SetDriver() - if (Oms), calls SetOMSdriver() in OMS.c to make OMS the
+		active driver.  Else, it makes low-level calls to set up the 
+		built-in driver.  (Both low & high level).  Called by main(), 
+		mOMS() in MenuCommands.c, and RecordPrototypes() in 
+		SoundObjects2.c.  Relies on globals to know which driver to set.
+	
+	CloseCurrentDriver() - calls FlushDriver(), ResetDriver(), and 
+		DriverClose().  (Seems to assume that Oms is false).
+		
+	ResetMIDI() - returns if !OutMIDI or no active driver.  May or may not
+		wait for output to finish, then calls FlushDriver, ResetDriver, 
+		and ResetTicks().  "High-level" function called many places.
+		
+	CheckMIDIbytes() - called only by MakeSound().  Seems to be a high-
+		level function for preventing overflow of Midi output buffers
+		???  It checks for mouse button to stop playing, and calls
+		GetDriverTime() and ListenMIDI (why?).  
+		*** Should probably be moved outside of MIDIdrivers.c ***
+		
+	GetDriverTime() - high- & low-level function for checking driver clock.
+	SetDriverTime() - high- & low-level function for setting driver clock.
+		The Oms code for these changes globals but doesn't make OMS calls.
+	
+	Low-level built-in driver calls:
+		DriverStatus() - not called outside MIDIdrivers.c
+		DriverOpen() - called by main() and mOMS().
+		DriverClose() - only called by CloseCurrentDriver() in MIDIdrivers.c
+		DriverKill() - not called outside MIDIdrivers.c
+		DriverControl() - not called outside MIDIdrivers.c
+		
+		Errors() - error reporting for built-in driver (**never used*)
+		EmptyDriverInput() - ??? **never used**
+		Events() - ??? **never used**
+		DriverTime() - displays driver time.  **never used**
+		
+	
+in MIDIstuff.c:
+	Functions with no RT midi calls:
+		AcceptEvent - (YES or NO)
+		PassEvent - (YES or NO)
+		TwoByteEvent - (YES or NO)
+		ThreeByteEvent - (YES or NO)
+		ThreeByteChannelEvent - (YES or NO)
+		ChannelEvent - (YES or NO)
+		SetInputFilterWord
+		SetOutputFilterWord
+		GetInputFilterWord
+		GetOutputFilterWord
+		ResetMIDIFilter
+		
+		
+	AllNotesOffAllChannels() - directly calls OMSWritePacket2() instead of
+		using BP's interfaces!!  Should probably be moved to MIDIdrivers.c.
+		Also allocates a local OMSMIDIPacket variable.
+		Calls SendToDriver() instead if !Oms (for built-in driver).
+	
+	ChangeStatus() - tests (!InBuiltDriverOn && !Oms) before continuing.
+		Not sure what this actually does ...
+		
+	CheckMIDIOutPut() - tests !OutMIDI before continuing; calls 
+		ResetMIDIControllers(), ResetMIDI(), DriverWrite(), and
+		GetDriverTime().
+	
+	Ctrl_adjust() - tests (!InBuiltDriverOn && !Oms) before continuing.
+		Adjusts internal MIDI controller values in response to an event??
+		Also calls GetNextMIDIevent() for some reason ...
+	
+	ListenMIDI() - reads events from driver with GetNextMIDIevent, processes
+		them (including "interactions"), and does "Midi Thru" for built-in
+		driver when !Oms by calling DriverWrite().
+		Also calls GetControlParameter() in Misc.c (?), and ReadNoteOn()
+		in MIDIloads.c, and ReadMIDIparameter() in MIDIstuff.c
+
+	PlayPrototypeTicks() - calls ResetMIDI(), SendToDriver(), and
+		GetDriverTime().
+		(note: messages after DOIT: seem wrong unless the function is 
+		 really recording ticks?).
+	
+	RecordTick() - calls ResetMIDI() and GetNextMIDIevent().
+	
+	ResetMIDIControllers() - calls SendToDriver() but returns at beginning
+		if no driver, no OutMIDI, or if MIDIfileOpened.
+	
+	SendMIDIstream() - calls DriverWrite().
+	
+	SendToDriver() - write events to BOTH RT driver & Midifile.
+		Calls DriverWrite() and WriteMIDIbyte().
+	
+	SetMIDIPrograms() - sends program change messages on all MIDI channels
+		using SendToDriver() but only if (InBuiltDriverOn || Oms).
+	
+
+in MenuCommands.c:
+	mReceiveMIDI() - records raw MIDI dumps to file by calling LoadRawData() 
+		in MIDIloads.c
+	mSendMIDI() - reads file containing raw MIDI dump and sends it to RT
+		driver via DriverWrite().  Also calls GetDriverTime().
+	

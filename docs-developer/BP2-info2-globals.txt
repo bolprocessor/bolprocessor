@@ -1,0 +1,15 @@
+short CurrentVref
+long CurrentDir
+int ScriptW,CurrentChannel;
+
+These are only used by running scripts (or when setting up to run a script).
+CurrentDir/Vref are used to make specs for loading files.
+
+
+short LastVref
+long LastDir
+
+These are initialized to BP2's startup folder, and afterwards updated everytime
+that MyOpen() opens a file, but they are never used for anything.  (Could be
+used to set the default folder for open/save dialogs).
+

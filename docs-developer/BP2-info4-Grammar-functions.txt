@@ -1,0 +1,221 @@
+Anthony's notes on functions related to grammars and computing items
+====================================================================
+
+NOTE: See "Variables and terminals" in BP2-info.txt
+
+
+in MenuCommands.c:
+------------------
+
+int mCompile(int wind)
+
+	This function is called when the "Compile project" menu item is selected.
+	Other than GUI functions, it just calls CompileCheck().
+
+
+int mProduce(int wind)
+
+	This function is called when the "Produce items" menu item or button is selected.
+	It updates settings from the GUI, loads an interaction file if necessary,
+	then it calls in order (ignoring GUI functionality):
+		CompileCheck()
+		if(!WillRandomize && !AllowRandomize) ResetRandom(); // this is a simplification
+		Ctrlinit()
+		ProduceItems(wStartString,FALSE,FALSE,NULL)
+	
+	If ProduceItems() returns RESUME, then it calls mResume(wind).
+
+
+int mResume(int wind)
+
+	???  Not really sure why mProduce calls this.
+
+
+in Inits.c:
+-----------
+
+int Ctrlinit(void)
+
+	Resets real-time controller values for the grammar production (ParamValue[i])
+	to their initial values (ParamInit[i]).
+	
+	NOTE: See "Parameter controllers" in BP2-info.txt for an explanation!
+
+
+in Interface2.c:
+----------------
+
+int CompileCheck(void)
+
+	Checks whether the alphabet, grammar, Csound objects, interaction, and time patterns
+	need to be (re)compiled and does so when needed.  Usually calls UpdateGlossary() but
+	never calls UpdateAutomata() since the smart cursor feature is unfinished.
+	
+	Calls AddBolsInGrammar() if the grammar is uncompiled.  Could this step be skipped
+	when CompiledAl is already FALSE since the only(?) result is to set 
+	CompiledAl = FALSE in this line??
+	
+		if(!CompiledGr && (AddBolsInGrammar() > BolsInGrammar)) CompiledAl = FALSE;
+		
+	(!CompiledAl is checked everywhere else before calling AddBolsInGrammar() EXCEPT in
+	ScriptUtils.c).
+
+
+in CompileGrammar.c:
+--------------------
+
+int AddBolsInGrammar(void)
+
+	Appears to merely *count* the number of bols (terminal symbols?) in the grammar ??
+	Returns the number of bols.
+
+	'\334' (220 or 0xDC) is a left single angle quote mark or "guillemet" (in Mac OS Roman)
+	'\335' (221 or 0xDD) is a right single angle quote mark
+	The "French" double angle quotation marks « » are 199 and 200 (0xC7 and 0xC8) 
+	
+	
+int CompileGrammar(int mode)
+
+	mode can be
+		1	"normal"?; skips if gram empty; compiles time patterns if necc.
+		2	compiles gram even if empty (to create needed var. for glossary?)
+			skips compiling patterns and prevents tracing ?
+
+	tracecompile never set to TRUE (because of "&& 0" in if statement) ??
+	
+	Saves current time in CompileDate and sets CompileOn++.
+	Compiles the alphabet and time patterns if necessary.
+	Calls ReleaseGrammarSpace(), GetGrammarSpace(), and ResetVariables(wGrammar).
+	
+
+int CompileAlphabet(void)
+
+	Calls ReleaseObjectPrototypes() and ReleaseAlphabetSpace() before counting the
+	bols and homomorphisms in the alphabet, allocating space(GetAlphabetSpace()), 
+	and finally creating the bols and homomorphisms in memory.
+
+
+int ReadAlphabet(int justcount)
+
+	Called twice when compiling the alphabet, the first time with justcount = TRUE to
+	count the bols and homomorphisms and then with justcount = FALSE to acutally 
+	process the alphabet and create the "compiled" data structures.
+	Sets CompileOn++.
+	
+
+in CompileProcs.c:
+------------------
+
+int CompilePatterns(void)
+
+	Calls ReleasePatternSpace() before looking for time patterns in both the alphabet
+	and grammar.  Like CompileAlphabet(), it first counts the patterns, then allocates
+	space (GetPatternSpace()) before finally creating the patterns in memory.
+
+	Jpatt is the number of time patterns.
+	Sets CompileOn++.
+
+
+int GetPatterns(int w, int justcount)
+
+	Called four times when compiling patterns, once with justcount = TRUE for each the
+	alphabet and grammar, and again for each with justcount = FALSE.
+	
+	Locates the string "TIMEPATTERNS:" (skipping over templates if present) and then 
+	calls ReadPatterns() for each line afterwards until a line beginning with "--" is
+	found ?
+
+
+int ReadPatterns(char **p_line,int justcount)
+
+	Does the work of extracting the patterns from each line and creating data structures.
+
+
+in Glossary.c:
+--------------
+
+	// A glossary is a mixture of certain script commands and ‘Define…’ commands
+	// that are compiled as a context-free grammar the left arguments of which
+	// must be a single variable.
+
+int CompileGlossary(void)
+
+	"Checks that grammar is compiled so that grammar variables, if any, are created".
+	Calls CompileGrammar(mode=2)
+	Sets CompileOn++.
+
+
+int UpdateGlossary(void)
+
+	Loads a glossary file if specified and compiles it if necessary.
+
+
+in GetRelease.c:
+----------------
+
+int GetAlphabetSpace()
+
+	NOTE: See "Variables and terminals" in BP2-info.txt
+	
+	Allocates the p_Bol handle, an array of Jbol handles to C-strings, but does not 
+	allocate space for the strings except the first two ("_" and "-").
+	
+	Allocates handles p_Image, p_NoteImage, and p_Homo, all arrays of Jhomo handles
+	which GetAlphabetSpace() DOES allocate.
+	
+	p_Homo stores Jhomo handles to C-strings (length 20) which are the homomorphism
+	names (identifiers) ?
+	
+	p_Image and p_NoteImage store Jhomo handles to integer arrays which are size 
+	Jbol in p_Image and size 128 in p_NoteImage.  Presumably, each array of p_Image 
+	is a map from the bols onto themselves, and p_NoteImage the same for MIDI notes??
+
+	Why does it set Jbol = 0; Jhomo = 0; at the end ??
+
+
+in ProduceItems.c:
+------------------
+
+int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start)
+
+	/* Start string is selection in window w or in buffer p_start */
+	
+	Calls SaveCheck() for wGrammar, wAlphabet, wInteraction, wGlossary.
+	Calls CompileCheck().  Also called in mProduce! (unnecessarily??)
+	if(!template), calls CheckLoadedPrototypes().
+	Sets ComputeOn++;
+	
+	Always resets MIDIcontrolstatus array p_Oldvalue[]'s controllers to -1.
+	if(!PlaySelectionOn && ResetControllers) ResetMIDIControllers(YES,YES,NO);
+	
+	
+	
+
+in SoundObjects1.c:
+-------------------
+
+int CheckLoadedPrototypes(void)
+
+	If prototypes haven't been loaded or looked for yet (?), then this calls:
+		ResizeObjectSpace(YES,Jbol + Jpatt,0) (YES for reset)
+		LoadObjectPrototypes(NO,YES) if needed and the user approves
+	
+	Always calls CompileCsoundObjects() unless something above failed.
+
+
+in Csound.c:
+------------
+
+int CompileCsoundObjects(void)
+
+	// Tokenize Csound scores in sound-object prototypes
+	Sets CompileOn++ while working and CompiledCsObjects = TRUE when done.
+	Calls CompileObjectScore() for each prototype with a Csound score.
+
+
+int CompileObjectScore(int j,int *p_longerCsound)
+
+	Does the actual work of "compiling" a text score into BP2 data structures.
+	Also sets CompileOn++.
+
+
