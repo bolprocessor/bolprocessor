@@ -796,6 +796,10 @@ if(Gram.p_subgram == NULL || Gram.number_gram < 1) return(OK);
 for(i=1; i < MAXPARAMCTRL; i++) {
 	k = ParamValue[i] = ParamInit[i];
 	if(k == INT_MAX) continue;
+	// FIXME ? Can we make this more efficient by resetting all ParamValue[],
+	// then only looping over the grammar rules once, and if ctrl > 0 or
+	// repeatcontrol > 0, then set w/weight or repeat to the appropriate 
+	// ParamValue[ctrl or repeatcontrol] (if not INT_MAX)?
 	for(igram=1; igram <= Gram.number_gram; igram++) {
 		for(irul=0; irul <= (*(Gram.p_subgram))[igram]
 										.number_rule; irul++) {
