@@ -536,15 +536,6 @@ else {
 }
 
 
-CheckMemory(void)
-{
-int r;
-
-if((r=DoSystem()) != OK) return(r);
-return(OK);
-}
-
-
 ThreeOverTwo(long *p_x)
 {
 long y;

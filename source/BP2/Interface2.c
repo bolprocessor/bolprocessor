@@ -1753,7 +1753,7 @@ int r,compiledgl;
 
 r = OK;
 compiledgl = CompiledGl;
-if(CheckMemory() != OK) return(ABORT);
+if(CheckEmergency() != OK) return(ABORT);
 if(!CompiledGr && (AddBolsInGrammar() > BolsInGrammar)) CompiledAl = FALSE;
 if(!CompiledGr || !CompiledAl) {
 /*	KillSubTree(PrefixTree); KillSubTree(SuffixTree); $$$ */

@@ -86,7 +86,7 @@ w = wGraphic;
 maxmidibytes5 = MaxMIDIbytes / 5L;
 oldtcurr = Tcurr;
 
-if(Panic || CheckMemory() != OK || CheckEmergency() != OK) return(ABORT);
+if(Panic || CheckEmergency() != OK) return(ABORT);
 if(SoundOn) return(OK);
 
 if(CompileRegressions() != OK) return(ABORT);

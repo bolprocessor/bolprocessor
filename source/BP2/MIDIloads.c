@@ -770,7 +770,7 @@ long p,q;
 char line[MAXFIELDCONTENT];
 unsigned long drivertime;
 
-if(SoundOn || CheckMemory() != OK) return(FAILED);
+if(SoundOn || CheckEmergency() != OK) return(FAILED);
 if(!IsMidiDriverOn()) { // added this check - 012307 akozar
 	if(Beta) Alert1("Err. LoadMIDIprototype(). Driver is OFF");
 	return(FAILED);

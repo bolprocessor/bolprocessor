@@ -45,7 +45,7 @@ int i,ch,r,improvize,asked,askedvariables,derivevariables;
 tokenbyte **p_a;
 long origin,originmem,firstorigin,end,x;
 
-if(CheckMemory() != OK) return(ABORT);
+if(CheckEmergency() != OK) return(ABORT);
 #if BP_CARBON_GUI
 if(GetTuning() != OK) return(ABORT);
 #endif /* BP_CARBON_GUI */
@@ -203,7 +203,7 @@ PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll)
 int r;
 
 if(SoundOn) return(FAILED);
-if(CheckMemory() != OK) return(ABORT);
+if(CheckEmergency() != OK) return(ABORT);
 
 if(Jbol < 3) NoAlphabet = TRUE;	/*  Added 7/10/97 */
 else NoAlphabet = FALSE;
@@ -503,7 +503,7 @@ MIDIcode **ptr1;
 tokenbyte **p_a;
 long origin,end,tr,x;
 
-if(CheckMemory() != OK) return(ABORT);
+if(CheckEmergency() != OK) return(ABORT);
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
 	if(Beta)
@@ -916,7 +916,7 @@ tokenbyte **p_a;
 long origin,end,neworigin,newend,dummy,length;
 double maxseq;
 
-if(CheckMemory() != OK) return(ABORT);
+if(CheckEmergency() != OK) return(ABORT);
 if(w < 0 || w >= WMAX) {
 	if(Beta) Alert1("Err. ExpandSelection(). Incorrect window index");
 	return(FAILED);
@@ -1003,7 +1003,7 @@ tokenbyte **p_a;
 long origin,end,oldorigin,neworigin,oldend,newend,dummy,length;
 double maxseq;
 
-if(CheckMemory() != OK) return(ABORT);
+if(CheckEmergency() != OK) return(ABORT);
 if(w < 0 || w >= WMAX) {
 	if(Beta) Alert1("Err. ShowPeriods(). Incorrect window index");
 	return(FAILED);

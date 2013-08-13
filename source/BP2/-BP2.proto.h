@@ -259,7 +259,6 @@ int **GiveSpace(Size);
 Size MyGetHandleSize(Handle);
 int MyDisposeHandle(Handle*);
 int CheckEmergency(void);
-int CheckMemory(void);
 int DoSystem(void);
 // int FlushVolume(void);
 int TellError(int,OSErr);

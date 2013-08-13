@@ -1107,7 +1107,7 @@ long p,q;
 char line[MAXFIELDCONTENT];
 unsigned long drivertime;
 
-if(SoundOn || CheckMemory() != OK || !OutMIDI) return(FAILED);
+if(SoundOn || !OutMIDI || CheckEmergency() != OK) return(FAILED);
 
 #if WITH_REAL_TIME_MIDI
 rep = NO;

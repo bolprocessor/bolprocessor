@@ -49,7 +49,7 @@ t_rule **ptr;
 Handle ptr1;
 
 dummy = ZERO;
-if(CheckMemory() != OK || CheckEmergency() != OK) return(ABORT);
+if(CheckEmergency() != OK) return(ABORT);
 #if BP_CARBON_GUI
 if(GetTuning() != OK) return(ABORT);
 ResetPannel();

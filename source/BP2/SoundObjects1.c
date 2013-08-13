@@ -80,7 +80,6 @@ ShowObjects(int w)
 char failedstring[15];
 int r;
 
-if(CheckMemory() != OK) return(ABORT);
 if(Jbol < 3) {
    Alert1("No sound-object prototype has been created/loaded");
    return(OK);

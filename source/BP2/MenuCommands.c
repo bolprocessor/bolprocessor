@@ -48,7 +48,7 @@ if(!OutMIDI) {
 	return(FAILED);
 	}
 #if WITH_REAL_TIME_MIDI
-if(CheckMemory() != OK) return(FAILED);
+if(CheckEmergency() != OK) return(FAILED);
 rep = NO;
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
@@ -836,7 +836,7 @@ mNewProject(int wind)
 {
 int rep;
 
-if(CheckMemory() != OK) return(FAILED);
+if(CheckEmergency() != OK) return(FAILED);
 if((rep=CheckSettings()) == ABORT) return(rep);
 if(ResetProject(TRUE) != OK) return(FAILED);
 if(!ScriptExecOn) {
@@ -857,7 +857,7 @@ char *p,*q;
 Str255 fn;
 OSErr io;
 
-if(CheckMemory() != OK) return(FAILED);
+if(CheckEmergency() != OK) return(FAILED);
 if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn
 	|| CompileOn || GraphicOn || PolyOn || LoadOn) return(FAILED);
 if((rep=CheckSettings()) == ABORT) return(rep);
@@ -914,7 +914,7 @@ mMakeGrammarFromTable(int wind)
 {
 int append;
 
-if(CheckMemory() != OK) return(FAILED);
+if(CheckEmergency() != OK) return(FAILED);
 if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn
 	|| CompileOn || GraphicOn || PolyOn || LoadOn) return(FAILED);
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
@@ -947,7 +947,7 @@ NSWReply reply;
 Handle ptr;
 OSErr err;
 
-if(CheckMemory() != OK) return(FAILED);
+if(CheckEmergency() != OK) return(FAILED);
 if(ComputeOn || PolyOn || SoundOn || SelectOn ||
 	SetTimeOn || GraphicOn || PrintOn || ReadKeyBoardOn || HangOn || ScriptExecOn)
 	return(FAILED);
@@ -1010,7 +1010,7 @@ Handle ptr;
 char **p_line,**p_completeline;
 unsigned long drivertime;
 
-if(CheckMemory() != OK) return(FAILED);
+if(CheckEmergency() != OK) return(FAILED);
 if(!IsMidiDriverOn()) {
 	if(Beta) Alert1("Err. mSendMIDI(). Driver is OFF");
 	return(ABORT);
@@ -1125,7 +1125,7 @@ Str255 fn;
 OSErr io;
 
 w = FindGoodIndex(w);
-if(CheckMemory() != OK) return(FAILED);
+if(CheckEmergency() != OK) return(FAILED);
 oldoutmidi = OutMIDI;
 badname = FALSE;
 if(w == wControlPannel || (!Editable[w] && !HasFields[w])) {
@@ -1582,7 +1582,7 @@ mLoadSettings(int wind)
 {
 int rep,oms,anyfile;
 
-if(CheckMemory() != OK) return(FAILED);
+if(CheckEmergency() != OK) return(FAILED);
 if(Dirty[iSettings] && Created[iSettings] && FileName[iSettings][0] != 0) {
 	sprintf(Message, "Save changes in current settings to file ‘%s’", FileName[iSettings]);
 	if((rep=Answer(Message, 'Y')) == OK) mSaveSettings(wind);
@@ -2265,7 +2265,7 @@ mGlossary(int wind)
 {
 int r;
 
-if(CompiledGl && GlossGram.p_subgram != NULL && (CheckMemory() == OK)) {
+if(CompiledGl && GlossGram.p_subgram != NULL) {
 	if(Option /* && (r=Answer("Display tokenized glossary",'Y')) == YES */) {
 		DisplayGrammar(&GlossGram,wTrace,FALSE,FALSE,FALSE);
 		return(OK);
@@ -2801,7 +2801,7 @@ mPlaySelect(int wind)
 int r;
 long origin,end;
 
-if(CheckMemory() != OK) return(FAILED);
+if(CheckEmergency() != OK) return(FAILED);
 if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || GraphicOn
 	|| PolyOn) return(FAILED);
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
