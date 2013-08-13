@@ -2149,4 +2149,7 @@ typedef struct DynamicMenuItem DynamicMenuItem;
 
 #include "-BP2.proto.h"
 
+// This macro is used to avoid "unused parameter" warnings
+#define BP_NOT_USED(x) (void)(x)
+
 #endif /* _H_BP2 */

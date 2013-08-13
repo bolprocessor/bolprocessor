@@ -158,7 +158,7 @@ Handle IncreaseSpace(Handle h)
 }
 
 
-MySetHandleSize(Handle* p_h,Size size)
+int MySetHandleSize(Handle* p_h,Size size)
 {
 	s_handle_priv*	h;
 	Size oldsize;
@@ -170,7 +170,7 @@ MySetHandleSize(Handle* p_h,Size size)
 	}
 	if(*p_h != NULL) {
 		// if the handle exists, just resize its memory block
-		s_handle_priv*	h = (s_handle_priv*) *p_h;
+		h = (s_handle_priv*) *p_h;
 		oldsize = h->size;
 		if(Beta && !InitOn && oldsize < (Size)1) {
 			sprintf(Message,"Err. MySetHandleSize(). oldsize = %ld", (long) oldsize);
@@ -207,7 +207,10 @@ int MyLock(int high,Handle h)
 		if(Beta) Alert1("Attempted to lock NULL handle");
 		return(ABORT);
 	}
+#else
+	BP_NOT_USED(h);
 #endif
+	BP_NOT_USED(high);
 	// do nothing
 	return(OK);
 }
@@ -220,6 +223,8 @@ int MyUnlock(Handle h)
 		if(Beta) Alert1("Attempted to unlock NULL handle");
 		return(ABORT);
 	}
+#else
+	BP_NOT_USED(h);
 #endif
 	// do nothing
 	return(OK);

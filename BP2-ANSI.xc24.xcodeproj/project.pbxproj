@@ -12,6 +12,7 @@
 		92246A5E17B2A5EC00D0439B /* Inits.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112D80EC39231006B5F38 /* Inits.c */; };
 		9224724117B7E9CF00D0439B /* ConsoleStubs.c in Sources */ = {isa = PBXBuildFile; fileRef = 9224724017B7E9CF00D0439B /* ConsoleStubs.c */; };
 		9224732917B97A1100D0439B /* ConsoleMemory.c in Sources */ = {isa = PBXBuildFile; fileRef = 9224732817B97A1100D0439B /* ConsoleMemory.c */; };
+		92248DCF17BA8C0E00D0439B /* MissingMacPrototypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 92248DCE17BA8C0E00D0439B /* MissingMacPrototypes.h */; };
 		9267C69517B06BC600119CEA /* MissingMacTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 9267C69217B06BC600119CEA /* MissingMacTypes.h */; };
 		927DEBDD0EC6AE330036A79B /* -se.startup in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A1133F0EC39232006B5F38 /* -se.startup */; };
 		927DEBDE0EC6AE330036A79B /* BP2 help in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 92A113400EC39232006B5F38 /* BP2 help */; };
@@ -101,6 +102,7 @@
 		92246A4317B29E5A00D0439B /* ConsoleMain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ConsoleMain.c; path = source/BP2/ConsoleMain.c; sourceTree = "<group>"; };
 		9224724017B7E9CF00D0439B /* ConsoleStubs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ConsoleStubs.c; path = source/BP2/ConsoleStubs.c; sourceTree = "<group>"; };
 		9224732817B97A1100D0439B /* ConsoleMemory.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ConsoleMemory.c; path = source/BP2/ConsoleMemory.c; sourceTree = "<group>"; };
+		92248DCE17BA8C0E00D0439B /* MissingMacPrototypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MissingMacPrototypes.h; path = source/BP2/MissingMacPrototypes.h; sourceTree = "<group>"; };
 		9267C69217B06BC600119CEA /* MissingMacTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MissingMacTypes.h; path = source/BP2/MissingMacTypes.h; sourceTree = "<group>"; };
 		928320F9157C5CE600EADF2F /* MIDIstubs.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = MIDIstubs.c; path = source/BP2/MIDIstubs.c; sourceTree = "<group>"; };
 		92A112B50EC39230006B5F38 /* PrefixMachO-Import.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "PrefixMachO-Import.h"; path = "source/prefix/PrefixMachO-Import.h"; sourceTree = SOURCE_ROOT; };
@@ -324,6 +326,7 @@
 		92A1130F0EC39232006B5F38 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
+				92248DCE17BA8C0E00D0439B /* MissingMacPrototypes.h */,
 				92A113100EC39232006B5F38 /* -BP2.h */,
 				92A113110EC39232006B5F38 /* -BP2.proto.h */,
 				92A113120EC39232006B5F38 /* -BP2decl.h */,
@@ -427,6 +430,7 @@
 				92A113ED0EC39254006B5F38 /* -BP2.proto.h in Headers */,
 				92832054157B209D00EADF2F /* PrefixANSIDebug.h in Headers */,
 				9267C69517B06BC600119CEA /* MissingMacTypes.h in Headers */,
+				92248DCF17BA8C0E00D0439B /* MissingMacPrototypes.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

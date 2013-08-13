@@ -1,8 +1,6 @@
-/* ConsoleStubs.c (BP2 version CVS) */
-/* August 11, 2013 */
+/*  MissingMacPrototypes.h (BP2 version CVS) */
 
 /*  This file is a part of Bol Processor 2
-Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
 Copyright (c) 2013 by Anthony Kozar
 All rights reserved. 
 
@@ -33,33 +31,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "-BP2.h"
+/*	This file contains prototypes and macros for missing Mac OS functions 
+	that are used by BP2.  If there is a stub or replacement implementation
+	for the function, it will probably be in ConsoleStubs.c.
+ */
 
-/* Stubs to replace missing functions from BP2 Carbon GUI and from Mac OS X Carbon libraries */
-
-/* These are BP2 functions -- some of these may end up utilizing callbacks
-   set by host application using the client API ... */
-
-int PleaseWait(void)
-{
-	return(OK);
-}
-
-
-int StopWait(void)
-{
-	return(OK);
-}
-
-
-/* These are Mac OS X Carbon calls that could have useful replacements in
-   the console/library build or that are too numerous in the BP2 source code
-   to conditionalize with the preprocessor. */
-
-void SysBeep(short duration)
-{
-	BP_NOT_USED(duration);
-	// FIXME: should replace printf with a messaging API
-	printf("\007Beep!\n");
-}
-
+void SysBeep(short duration);
