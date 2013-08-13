@@ -297,6 +297,8 @@ for(k=2; k <= (*p_kmax); k++) {
 SoundOn = TRUE;
 
 if(showpianoroll) {
+#if BP_CARBON_GUI
+	// FIXME:  Would like to figure out how to move all of the piano roll code elsewhere ...
 	if(ShowMessages || PlayPrototypeOn) ShowMessage(TRUE,wMessage,"Preparing piano rollÉ");
 	GetPort(&saveport);
 	minkey = 127; maxkey = 0;
@@ -413,6 +415,7 @@ if(showpianoroll) {
 	PenNormal();
 	RGBForeColor(&Black);
 	PenSize(1,hrect);
+#endif /* BP_CARBON_GUI */
 	}
 
 #if WITH_REAL_TIME_MIDI
@@ -1221,10 +1224,12 @@ SWITCHES:
 		CscoreWrite(strikeagain,OFF,beta,(t0 + t1),-1,c1,c2,localchan,instrument,j,
 			nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 										if(showpianoroll) {
+#if BP_CARBON_GUI
 											result = DrawPianoNote(c1,nseq,localchan,(t0 + t1),
 												pp_currentparams,leftoffset,topoffset,hrect,
 												minkey,maxkey,&graphrect,&overflow);
 											if(result != OK || overflow) goto OVER;
+#endif /* BP_CARBON_GUI */
 											}
 										}
 									}
@@ -1275,7 +1280,9 @@ SWITCHES:
 		CscoreWrite(strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 									if(showpianoroll) {
+#if BP_CARBON_GUI
 										(*((*pp_currentparams)[nseq]))->starttime[c1] = (t0 + t1);
+#endif /* BP_CARBON_GUI */
 										}
 									}
 								}
@@ -1419,10 +1426,12 @@ SENDNOTEOFF:
 		CscoreWrite(strikeagain,OFF,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 								if(showpianoroll) {
+#if BP_CARBON_GUI
 									result = DrawPianoNote(c1,nseq,localchan,(t0 + t1),
 										pp_currentparams,leftoffset,topoffset,hrect,
 										minkey,maxkey,&graphrect,&overflow);
 									if(result != OK || overflow) goto OVER;
+#endif /* BP_CARBON_GUI */
 									}
 								}
 							}
@@ -1481,7 +1490,9 @@ SENDNOTEOFF:
 		CscoreWrite(strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 							if(showpianoroll) {
+#if BP_CARBON_GUI
 								(*((*pp_currentparams)[nseq]))->starttime[c1] = (t0 + t1);
+#endif /* BP_CARBON_GUI */
 								}
 							}
 						}
@@ -1741,7 +1752,9 @@ FINDNEXTEVENT:
 
 LastTcurr = Tcurr;
 
+#if BP_CARBON_GUI
 if(showpianoroll) goto OUTGRAPHIC;
+#endif /* BP_CARBON_GUI */
 	
 buffertime = Infpos;
 if(OutMIDI && !cswrite && !MIDIfileOn && !CyclicPlay && !ItemCapture && !showpianoroll
@@ -1853,6 +1866,7 @@ if(result == STOP) result = ABORT;
 
 OUTGRAPHIC:
 if(showpianoroll) {
+#if BP_CARBON_GUI
 	CloseGraphic(w,endxmax,endymax,overflow,&graphrect,&port,gdh);
 	if(!overflow) DrawNoteScale(w,minkey,maxkey,hrect,leftoffset,topoffset);
 #if NEWGRAF
@@ -1862,6 +1876,7 @@ if(showpianoroll) {
 	else if(Beta) Alert1("Err MakeSound(). saveport == NULL");
 	if(ShowMessage) ClearMessage();
 	goto GETOUT;
+#endif /* BP_CARBON_GUI */
 	}
 
 if(!cswrite && !Panic && (result == RESUME || (!Improvize && !CyclicPlay))) { // FIXME ? Test OutMIDI==TRUE ?
@@ -1969,7 +1984,9 @@ if(!MIDIfileOn && !cswrite && OutMIDI && !showpianoroll) {
 	
 MIDIfileOn = FALSE;
 
+#if BP_CARBON_GUI
 if(showpianoroll) Tcurr = oldtcurr;
+#endif /* BP_CARBON_GUI */
 
 if(cswrite && CsoundTrace) ShowSelect(CENTRE,wTrace);
 Interrupted = FALSE;
