@@ -1178,6 +1178,7 @@ if(GrafWindow[w]) {
 			}
 		}
 	else {	// FIXME ? Should we call LockPixels before CopyBits?
+#if NEWGRAF
 		Rect rtemp;
 		RgnHandle cliprgn;
 		GetPortBounds(gMainGWorld, &rtemp);
@@ -1190,6 +1191,7 @@ if(GrafWindow[w]) {
 			   srcCopy,
 			   cliprgn);							// was window->clipRgn);
 		DisposeRgn(cliprgn);
+#endif
 		}
 	if(w == wGraphic && NoteScalePicture != NULL) {
 		DrawPicture(NoteScalePicture,&NoteScaleRect);

@@ -1855,7 +1855,9 @@ OUTGRAPHIC:
 if(showpianoroll) {
 	CloseGraphic(w,endxmax,endymax,overflow,&graphrect,&port,gdh);
 	if(!overflow) DrawNoteScale(w,minkey,maxkey,hrect,leftoffset,topoffset);
+#if NEWGRAF
 	if(Offscreen) UnlockPixels(GetGWorldPixMap(gMainGWorld));
+#endif
 	if(saveport != NULL) SetPort(saveport);
 	else if(Beta) Alert1("Err MakeSound(). saveport == NULL");
 	if(ShowMessage) ClearMessage();

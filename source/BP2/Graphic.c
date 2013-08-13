@@ -279,7 +279,9 @@ CloseGraphic(w,endxmax,endymax,overflow,&r,&port,gdh);
 StopWait();
 
 QUIT:
+#if NEWGRAF
 if(Offscreen) UnlockPixels(GetGWorldPixMap(gMainGWorld));
+#endif
 MyDisposeHandle((Handle*)&p_morespace);
 MyDisposeHandle((Handle*)&p_top);
 MyDisposeHandle((Handle*)&p_endx);
@@ -1111,6 +1113,7 @@ OpenGraphic(int w,Rect *p_r,int showpen,CGrafPtr *p_port,GDHandle *p_gdh)
 GWorldFlags flags;
 
 if(Offscreen) {
+#if NEWGRAF
 	Rect rtemp;
 	GetGWorld(p_port,p_gdh);
 	flags = UpdateGWorld(&gMainGWorld,16,p_r,0,NULL,clipPix);
@@ -1121,6 +1124,7 @@ if(Offscreen) {
 	SetGWorld(gMainGWorld,nil);
 	SetPort(gMainGWorld);
 	EraseRect(GetPortBounds(gMainGWorld, &rtemp));
+#endif
 	}
 else {
 	SetPortWindowPort(Window[w]);
@@ -1179,6 +1183,7 @@ if(!Offscreen) {
 		}
 	}
 else {
+#if NEWGRAF
 	if(!overflow) {	// FIXME ? Should we call LockPixels before CopyBits?
 		Rect rtemp;
 		RgnHandle cliprgn;
@@ -1194,6 +1199,7 @@ else {
 			   cliprgn);                                           // was Window[w]->clipRgn
 		DisposeRgn(cliprgn);
 	}
+#endif
 }
 
 newh = newv = FALSE;
