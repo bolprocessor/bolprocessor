@@ -385,13 +385,12 @@ return (OK);
 // schemes shouldn't be necessary anymore -- akozar, 20130808
 // (but still using Handles in the Carbon GUI for now ...)
 
-// FIXME: can we return a Handle without too much trouble ??
-int **GiveSpace(Size size)
+Handle GiveSpace(Size size)
 {
-	int **p;
+	Handle p;
 	OSErr memerr;
 	
-	p = (int**) NewHandle(size);
+	p = NewHandle(size);
 
 	if(p == NULL || ((memerr=MemError()) != noErr)) { // should always check MemError - akozar
 		// on OS X, this is pretty much the end of the road ?? - akozar 040207
