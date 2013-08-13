@@ -233,7 +233,9 @@ if(ReadKeyBoardOn && LastEditWindow != wScript) {
 		}
 	else {
 		if(Jcontrol == -1) {
+#if BP_CARBON_GUI
 			GetControlParameters();
+#endif /* BP_CARBON_GUI */
 			if(ReadNoteOn(c0,c1,c2,LastEditWindow) == OK) {
 				ShowSelect(CENTRE,LastEditWindow);
 				return(OK);

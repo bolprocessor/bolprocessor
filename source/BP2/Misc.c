@@ -599,9 +599,14 @@ if(force || Nw == wSettingsTop || Nw == wSettingsBottom) {
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
 SetButtons(int force)
 {
+  /* Might prefer #if BP_CARBON_GUI here b/c changing settings in non-GUI build 
+     might be undesirable (better to just report incompatible options and exit?)
+	 -- akozar 20130813
+   */
 if(AllItems || Improvize) CyclicPlay = FALSE;
 if(AllItems) Improvize = FALSE;
 if(CyclicPlay || AllItems || OutCsound || WriteMIDIfile) ComputeWhilePlay = FALSE;
@@ -611,6 +616,7 @@ if(StepTimeSet) TraceTimeSet = TRUE;
 if(TraceTimeSet) DisplayTimeSet = TRUE;
 if(PlanProduce) TraceProduce = StepProduce = TRUE;
 if(TraceProduce || StepProduce || StepGrammars) DisplayProduce = TRUE;
+#if BP_CARBON_GUI
 if(force || (Nw == wSettingsTop) || (Nw == wSettingsBottom)) {
 	ChangeControlValue(force,Hbutt[bMIDI],OutMIDI);
 	ChangeControlValue(force,Hbutt[bImprovize],Improvize);
@@ -641,9 +647,12 @@ if(force || (Nw == wSettingsTop) || (Nw == wSettingsBottom)) {
 	ChangeControlValue(force,Hbutt[bCsoundTrace],CsoundTrace);
 	ChangeControlValue(force,Hbutt[bOMS],Oms);
 	}
+#endif /* BP_CARBON_GUI */
 return(OK);
 }
 
+
+#if BP_CARBON_GUI
 
 ChangeControlValue(int force,ControlHandle hbutt,int ib)
 {

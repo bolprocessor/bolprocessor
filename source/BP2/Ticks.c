@@ -552,13 +552,17 @@ else {
 	sprintf(line,"1");
 	Qclock = 1L;
 	}
+#if BP_CARBON_GUI
 SetField(NULL, wTimeBase, fP, line);
 if(Pclock > 0.) sprintf(line,"%.0f",Qclock);
 else sprintf(line,"[no clock]");
 SetField(NULL, wTimeBase, fQ, line);
+#endif /* BP_CARBON_GUI */
 return(OK);
 }
 
+
+#if BP_CARBON_GUI
 
 GetTimeBase(void)
 {
@@ -780,6 +784,8 @@ InputOn--;
 return(result);
 }
 
+#endif /* BP_CARBON_GUI */
+
 
 SetTickParameters(int itick,int oldcycle)
 {
@@ -792,6 +798,7 @@ unsigned long g,h,pmax,qmax,plcm,ppqlcm,ppq[MAXTICKS];
 
 PleaseWait();
 if(itick > 0) {
+#if BP_CARBON_GUI
 	i = itick - 1;
 	for(j=0; j < TickCycle[i]; j++) {
 		jj = dPlayBeat + 55*i + j;
@@ -809,8 +816,10 @@ if(itick > 0) {
 		GetDialogItem(gpDialogs[wTimeBase],(short)jj,&itemtype,&itemhandle,&r);
 		HiliteControl((ControlHandle) itemhandle,0);
 		}
+#endif /* BP_CARBON_GUI */
 	}
 else {
+#if BP_CARBON_GUI
 	for(i=0; i < MAXTICKS; i++) {
 		PleaseWait();
 		sprintf(line,"%ld",(long)TickKey[i]);
@@ -828,6 +837,7 @@ else {
 		sprintf(line,"%ld",(long)TickDuration[i]);
 		SetField(NULL,wTimeBase,fTickDuration+3*i,line);
 		}
+#endif /* BP_CARBON_GUI */
 	plcm = LCMofTable(Ptick,MAXTICKS,&overflow);
 	if(plcm == ZERO || overflow) {
 		pmax = ZERO;
@@ -888,12 +898,14 @@ else {
 		}
 	}
 OUT:
+#if BP_CARBON_GUI
 if(PlayTicks) SwitchOn(NULL,wTimeBase,dPlayTicks);
 else SwitchOff(NULL,wTimeBase,dPlayTicks);
 for(i=0; i < MAXTICKS; i++) {
 	if(MuteTick[i]) SwitchOn(NULL,wTimeBase,dMute + 5*i);
 	else SwitchOff(NULL,wTimeBase,dMute + 5*i);
 	}
+#endif /* BP_CARBON_GUI */
 /* StopWait(); */
 return(OK);
 }

@@ -511,6 +511,9 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 	return(FAILED);
 	}
 if(!StrikeAgainDefault) {
+#if !BP_CARBON_GUI
+	r = Alert1("The strike mode setting is \"Don't strike again NoteOn's\", which is unusual.");
+#else
 	r = Answer("The strike mode setting is ‘Don't strike again NoteOn's’, which is unusual. Change it?",
 		'N');
 	if(r == ABORT) return(r);
@@ -521,6 +524,7 @@ if(!StrikeAgainDefault) {
 		BPUpdateDialog(StrikeModePtr);
 		return(ABORT);
 		}
+#endif /* BP_CARBON_GUI */
 	}
 TextGetSelection(&origin, &end, TEH[w]);
 if(end <= origin) {

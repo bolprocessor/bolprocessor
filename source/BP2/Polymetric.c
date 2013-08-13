@@ -364,9 +364,11 @@ if(Pclock > 0.) {
 				}
 			if(r == YES) {
 				QuantizeOK = TRUE;
+#if BP_CARBON_GUI
 				UpdateDirty(TRUE,iSettings);
 				SetTimeAccuracy();
 				BPUpdateDialog(gpDialogs[wTimeAccuracy]);
+#endif /* BP_CARBON_GUI */
 				goto FINDCOMPRESSION;
 				}
 			r = OK;
@@ -695,9 +697,11 @@ WANTABORT:
 		
 SETQUANTIZE:
 		Quantization = newquantize;
+#if BP_CARBON_GUI
 		UpdateDirty(TRUE,iSettings);
 		SetTimeAccuracy();
 		BPActivateWindow(SLOW,wTimeAccuracy);
+#endif /* BP_CARBON_GUI */
 		MyDisposeHandle((Handle*)&p_nseq);
 		MyDisposeHandle((Handle*)&p_nseqmax);
 		goto FINDCOMPRESSION;
