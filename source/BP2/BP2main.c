@@ -462,6 +462,7 @@ if(hstate & kHandleLockedBit) {
 	if(Beta) Alert1("Err. IncreaseSpace(). Trying to resize a locked handle!");
 	}
 oldsize = MyGetHandleSize(h);
+// FIXME: how do we keep this calc from overflowing?
 newsize = 2L + ((oldsize * 3L) / 2L);
 SchedulerIsActive--;
 SetHandleSize(h,newsize);  // NOTE: this could fail if the handle is locked ? - akozar
@@ -520,7 +521,8 @@ else {
 	}
 
 if((memerr=MemError()) == noErr) {
-	MemoryUsed += (unsigned long)(size - oldsize);	// FIXME ? oldsize can be > size (but seems to work anyways?)
+	if (size > oldsize)  MemoryUsed += (unsigned long)(size - oldsize);
+	else  MemoryUsed -= (unsigned long)(oldsize - size);
 	if(MemoryUsed > MaxMemoryUsed) {
 		MaxMemoryUsed = MemoryUsed;
 		}
