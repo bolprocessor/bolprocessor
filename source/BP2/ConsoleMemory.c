@@ -143,14 +143,11 @@ Handle IncreaseSpace(Handle h)
 		return(NULL);
 	}
 	oldsize = MyGetHandleSize(h);
-	newsize = 2L + ((oldsize * 3L) / 2L);
+	// increase existing space by 50 percent
+	// FIXME: how do we keep this calc from overflowing?
+	newsize = (Size)2 + ((oldsize * (Size)3) / (Size)2);
 	rep = MySetHandleSize(&h, newsize);
-	
-	if(rep != OK) {
-		Alert1("BP2 ran out of memory before completing the current task."
-			   "You may want to save your work before continuing.");
-		return NULL;
-	}
+	if(rep != OK) return NULL;
 	
 	MemoryUsed += (newsize - oldsize);
 	if(MemoryUsed > MaxMemoryUsed) {
@@ -158,4 +155,72 @@ Handle IncreaseSpace(Handle h)
 	}
 	
 	return(h);
+}
+
+
+MySetHandleSize(Handle* p_h,Size size)
+{
+	s_handle_priv*	h;
+	Size oldsize;
+	
+	if(p_h == NULL) {
+		sprintf(Message,"Err. MySetHandleSize(). p_h == NULL");
+		if(Beta) Alert1(Message);
+		return(ABORT);
+	}
+	if(*p_h != NULL) {
+		// if the handle exists, just resize its memory block
+		s_handle_priv*	h = (s_handle_priv*) *p_h;
+		oldsize = h->size;
+		if(Beta && !InitOn && oldsize < (Size)1) {
+			sprintf(Message,"Err. MySetHandleSize(). oldsize = %ld", (long) oldsize);
+			Alert1(Message);
+		}
+		h->memblock = realloc(h->memblock, size);
+		if (h->memblock == NULL) {
+			Alert1("BP2 ran out of memory before completing the current task."
+				   "You may want to save your work before continuing.");
+			return (ABORT);
+		}
+		else {
+			if (size > oldsize)  MemoryUsed += (unsigned long)(size - oldsize);
+			else  MemoryUsed -= (unsigned long)(oldsize - size);
+			if(MemoryUsed > MaxMemoryUsed) {
+				MaxMemoryUsed = MemoryUsed;
+			}
+		}
+	}
+	else {
+		// handle was NULL, so just do a fresh alloc
+		if((*p_h = GiveSpace(size)) == NULL) return(ABORT);
+	}
+	
+	return(OK);
+}
+
+
+inline
+int MyLock(int high,Handle h)
+{
+#if	COMPILING_BETA
+	if(h == NULL) {
+		if(Beta) Alert1("Attempted to lock NULL handle");
+		return(ABORT);
+	}
+#endif
+	// do nothing
+	return(OK);
+}
+
+inline
+int MyUnlock(Handle h)
+{
+#if	COMPILING_BETA
+	if(h == NULL) {
+		if(Beta) Alert1("Attempted to unlock NULL handle");
+		return(ABORT);
+	}
+#endif
+	// do nothing
+	return(OK);
 }
