@@ -535,15 +535,6 @@ else {
 }
 
 
-ThreeOverTwo(long *p_x)
-{
-long y;
-
-y = ((*p_x) * 3L) / 2L;
-*p_x = y;
-return(OK);
-}
-
 int MyLock(int high,Handle h)
 {
 OSErr memerr;

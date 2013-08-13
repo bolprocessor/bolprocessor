@@ -1596,6 +1596,21 @@ return(OK);
 }
 
 
+/*	FIXME ? The return value of ThreeOverTwo() is being used to abort every
+	function that it is called from.  (It is called before calls to 
+	IncreaseSpace()).  Should it check to make sure the calculation does 
+	not overflow ?? -- akozar, 20130812
+ */
+ThreeOverTwo(long *p_x)
+{
+	long y;
+	
+	y = ((*p_x) * 3L) / 2L;
+	*p_x = y;
+	return(OK);
+}
+
+
 int CheckEmergency(void)
 {
 if(EmergencyExit) {
