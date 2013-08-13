@@ -2387,11 +2387,3 @@ if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err OutlineTextInDialog(). saveport == NULL");
 return(OK);
 }
-
-
-DoSystem(void)
-{
-if(Panic || EmergencyExit) return(OK);
-if(!SoundOn) return(PlayTick(FALSE));
-return(OK);
-}

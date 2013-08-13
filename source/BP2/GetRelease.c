@@ -1604,3 +1604,29 @@ if(EmergencyExit) {
 	}
 return(OK);
 }
+
+
+/*	FIXME ? There are about 60 calls to this function left,
+	mostly as the last step in a function:
+		return(DoSystem());
+	It used to call SystemTask() and MemError() but now
+	obviously only calls PlayTick().  It is not clear to me
+	though whether those calls are needed or not.  PlayTick()
+	always returns OK except after finishing capturing a 
+	"tick cycle" when it returns STOP.  I don't see why dozens
+	of other functions should potentially fail randomly in that
+	rare case.
+	
+	So, should we 
+		1.  Replace all/most calls to DoSystem() with PlayTick(FALSE), or
+		2.  Remove all calls to DoSystem() by replacing calls in return
+			statements with OK and by (carefully!) editing out other calls.
+			EXCEPTION: The call from MainEvent() should be changed to
+					   PlayTick(FALSE) or else it won't get called!
+ */
+DoSystem(void)
+{
+	if(Panic || EmergencyExit) return(OK);
+	if(!SoundOn) return(PlayTick(FALSE));
+	return(OK);
+}
