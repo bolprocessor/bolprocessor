@@ -671,7 +671,7 @@ SetCsoundInstrument(iCsoundInstrument,-1);
 {int CheckDate();
 if(!CheckDate()) return(ABORT);}
 #endif /* BP_CARBON_GUI */
-return(DoSystem());
+return(OK);
 }
 
 
@@ -1051,7 +1051,7 @@ if(bad) return(FAILED);
 ClearWindow(TRUE,wMIDIorchestra);
 #endif /* BP_CARBON_GUI */
 
-return(DoSystem());
+return(OK);
 }
 
 #if 0
@@ -1079,7 +1079,7 @@ if(itemhandle != NULL && itemtype == btnCtrl) {
 	if(saveport != NULL) SetPort(saveport);
 	else if(Beta) Alert1("Err HiliteDefault(). saveport == NULL");
 	}
-return(DoSystem());
+return(OK);
 }
 #endif
 
@@ -1182,7 +1182,7 @@ SetViewRect(w);
 #if !WASTE
 if(Editable[w]) PrintBehind(w," ");	/* Needed to record size into windowscrap */
 #endif
-return(DoSystem());
+return(OK);
 }
 #endif /* BP_CARBON_GUI */
 
@@ -1262,7 +1262,7 @@ if(LoadStringResource(&p_HTMLdiacrList,NULL,NULL,
 	
 if(LoadStringResource(&p_Str,NULL,NULL,MiscStringsID,&max,NO) != OK) return(ABORT);
 if(LoadScriptCommands(ScriptStringsID) != OK) return(ABORT);
-return(DoSystem());
+return(OK);
 }
 
 
@@ -1505,7 +1505,7 @@ for(i=0; i < 2; i++) {
 	DiskCursor[i] = **hCurs;
 	}
 NoCursor = FALSE;
-return(DoSystem());
+return(OK);
 }
 #endif /* BP_CARBON_GUI */
 
@@ -1527,7 +1527,7 @@ ResetWeights = ResetFlags = ResetControllers = DisplayItems = ShowMessages
 	= AllowRandomize = TRUE;
 NoteConvention = ENGLISH;
 SetButtons(TRUE);
-return(DoSystem());
+return(OK);
 }
 
 
@@ -1544,7 +1544,7 @@ HidePannel(wControlPannel,dLearnWeights);
 HidePannel(wControlPannel,dSaveWeights);
 HidePannel(wControlPannel,dSetWeights); */
 ShowPannel(wControlPannel,dTemplates);
-return(DoSystem());
+return(OK);
 }
 
 
