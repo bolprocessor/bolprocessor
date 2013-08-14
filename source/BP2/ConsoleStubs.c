@@ -45,10 +45,14 @@ int PleaseWait(void)
 	return(OK);
 }
 
-
 int StopWait(void)
 {
 	return(OK);
+}
+
+void SetDefaultCursor()
+{	
+	return;
 }
 
 

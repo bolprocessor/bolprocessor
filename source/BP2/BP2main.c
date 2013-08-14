@@ -108,9 +108,7 @@ HideWindow(GetDialogWindow(GreetingsPtr));
 MemoryUsedInit = MemoryUsed + leak;
 ForceTextColor = ForceGraphicColor = 0;
 BPActivateWindow(SLOW,wMessage);
-{ Cursor arrow;
-  SetCursor(GetQDGlobalsArrow(&arrow));
-}
+SetDefaultCursor();
 
 ClearWindow(TRUE,wInteraction);
 ClearWindow(TRUE,wGlossary);

@@ -1997,8 +1997,7 @@ return(OK);
 
 StopWait(void)
 {
-Cursor arrow;
-if(!ScriptExecOn || ResumeStopOn) SetCursor(GetQDGlobalsArrow(&arrow));
+if(!ScriptExecOn || ResumeStopOn) SetDefaultCursor();
 /* else TurnWheel(); */
 return(OK);
 }
@@ -2177,6 +2176,14 @@ SetCursor(newcursor);
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err MaintainCursor(). saveport == NULL");
 return(OK);
+}
+
+
+void SetDefaultCursor()
+{	
+	Cursor arrow;
+	SetCursor(GetQDGlobalsArrow(&arrow));
+	return;
 }
 
 

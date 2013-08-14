@@ -399,6 +399,7 @@ int SetUpMenus(void);
 int UpdateDirty(int,int);
 Boolean PointIsInEditTextItem(DialogRef dp, Point pt);
 int MaintainCursor(void);
+void SetDefaultCursor();
 int TurnWheel(void);
 int MoveFeet(void);
 int MoveDisk(void);

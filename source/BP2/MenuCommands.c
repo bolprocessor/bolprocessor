@@ -136,7 +136,6 @@ static const unsigned char MWERKS_Notice[] = "\pPortions © Metrowerks, Corp.";
 
 mAbout(int wind)
 {
-Cursor arrow;
 int r;
 Str255 versionstr = "\p";
 Str255 datestr = "\p";
@@ -173,7 +172,7 @@ c2pstrcpy(datestr, __DATE__);
   compilerstr = "\p";
 #endif
 
-SetCursor(GetQDGlobalsArrow(&arrow));
+SetDefaultCursor();
 ParamText(versionstr, datestr, textenginestr, compilerstr);
 switch(Alert(AboutAlert,0L)) {
 	case dAboutOK:

@@ -902,13 +902,12 @@ Alert1(char s[])
 char line[255];
 int i;
 Rect r;
-Cursor arrow;
 GrafPtr saveport;
 OSErr io;
 
 if(!EmergencyExit && !InitOn && CallUser(0) != OK) return(OK);
 
-SetCursor(GetQDGlobalsArrow(&arrow));
+SetDefaultCursor();
 GetPort(&saveport);
 if(!EmergencyExit && !InitOn && Nw >= 0 && Nw < WMAX) {
 	SetPortWindowPort(Window[Nw]);

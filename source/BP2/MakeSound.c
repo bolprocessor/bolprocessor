@@ -480,7 +480,9 @@ if(!MIDIfileOn && !cswrite && OutMIDI && !ItemCapture && !FirstTime && !PlayProt
 			}
 		else {		/* No MIDI sync key */
 			FlashInfo("Waiting for ‘Start’ or ‘Continue’ MIDI message. Click mouse to resume…");
+#if BP_CARBON_GUI
 			SetCursor(&KeyboardCursor);
+#endif /* BP_CARBON_GUI */
 			exclusive = FALSE;
 			while(Button());
 			while(!Button()) {
@@ -500,9 +502,7 @@ if(!MIDIfileOn && !cswrite && OutMIDI && !ItemCapture && !FirstTime && !PlayProt
 				if(themessage == EndSysEx) exclusive = FALSE;
 				}
 			HideWindow(Window[wInfo]);
-			{ Cursor arrow;
-			  SetCursor(GetQDGlobalsArrow(&arrow));
-			  }
+			SetDefaultCursor();
 			}
 		}
 #endif
