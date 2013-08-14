@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
 
-
+#if 0	/* this is never called */
 DecodeStampedMIDI(int w1, int w2)
 {
 char c;
@@ -97,7 +97,7 @@ END:
 Print(w2,"\r");
 return(r);
 }
-
+#endif
 
 ReadNoteOn(int c0, int c1, int c2, int wind)
 {
@@ -676,6 +676,7 @@ return(r);
 
 #endif /* BP_CARBON_GUI */
 
+#if 0	/* this is never called */
 TranslateMIDIdata(int w,long im)
 {
 int b,br,channel,key,vel;
@@ -754,6 +755,7 @@ goto NEXTBYTE;
 QUIT:
 return(OK);
 }
+#endif
 
 #if BP_CARBON_GUI
 // I'm not sure whether we need LoadMIDIprototype()
