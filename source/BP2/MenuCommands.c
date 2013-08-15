@@ -201,27 +201,51 @@ return(r);
 }
 
 
-m9pt(int wind)
+int m9pt(int wind)
 {
 return(SetFontSize(wind,9));
 }
 
 
-m10pt(int wind)
+int m10pt(int wind)
 {
 return(SetFontSize(wind,10));
 }
 
 
-m12pt(int wind)
+int m11pt(int wind)
+{
+	return(SetFontSize(wind,11));
+}
+
+
+int m12pt(int wind)
 {
 return(SetFontSize(wind,12));
 }
 
 
-m14pt(int wind)
+int m13pt(int wind)
+{
+	return(SetFontSize(wind,13));
+}
+
+
+int m14pt(int wind)
 {
 return(SetFontSize(wind,14));
+}
+
+
+int m16pt(int wind)
+{
+	return(SetFontSize(wind,16));
+}
+
+
+int m18pt(int wind)
+{
+	return(SetFontSize(wind,18));
 }
 
 

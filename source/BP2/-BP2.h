@@ -773,17 +773,24 @@ typedef enum {
 // Layout menu command indexes
 #define f9Command	1
 #define f10Command	2
-#define f12Command	3
-#define f14Command	4
-#define changeColorCommand 6
-#define graphicsColorCommand 7
-#define textColorCommand 8
-#define azertyCommand 10
-#define qwertyCommand 11
-#define bulletCommand 13
-// --------------------------	 14
-#define splitTimeObjectCommand 15
-#define splitVariableCommand	 16
+#define f11Command	3
+#define f12Command	4
+#define f13Command	5
+#define f14Command	6
+#define f16Command	7
+#define f18Command	8
+// --------------------------	9
+#define changeColorCommand 10
+#define graphicsColorCommand 11
+#define textColorCommand 12
+// --------------------------	13
+#define azertyCommand 14
+#define qwertyCommand 15
+// --------------------------	16
+#define bulletCommand 17
+// --------------------------	18
+#define splitTimeObjectCommand	19
+#define splitVariableCommand	20
 
 // Devices menu command indexes
 #define outMIDICommand 1

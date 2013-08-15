@@ -2486,28 +2486,48 @@ switch(NoteConvention) {
 	}
 DisableMenuItem(myMenus[layoutM],f9Command);
 DisableMenuItem(myMenus[layoutM],f10Command);
+DisableMenuItem(myMenus[layoutM],f11Command);
 DisableMenuItem(myMenus[layoutM],f12Command);
+DisableMenuItem(myMenus[layoutM],f13Command);
 DisableMenuItem(myMenus[layoutM],f14Command);
+DisableMenuItem(myMenus[layoutM],f16Command);
+DisableMenuItem(myMenus[layoutM],f18Command);
 DisableMenuItem(myMenus[editM],selectallCommand);
 if(Nw >= 0 && Nw < WMAX
 			&& (Editable[Nw] || Nw == wGraphic)) {
 	EnableMenuItem(myMenus[layoutM],f9Command);
 	EnableMenuItem(myMenus[layoutM],f10Command);
+	EnableMenuItem(myMenus[layoutM],f11Command);
 	EnableMenuItem(myMenus[layoutM],f12Command);
+	EnableMenuItem(myMenus[layoutM],f13Command);
 	EnableMenuItem(myMenus[layoutM],f14Command);
+	EnableMenuItem(myMenus[layoutM],f16Command);
+	EnableMenuItem(myMenus[layoutM],f18Command);
 	CheckMenuItem(myMenus[layoutM],f9Command,FALSE);
 	CheckMenuItem(myMenus[layoutM],f10Command,FALSE);
+	CheckMenuItem(myMenus[layoutM],f11Command,FALSE);
 	CheckMenuItem(myMenus[layoutM],f12Command,FALSE);
+	CheckMenuItem(myMenus[layoutM],f13Command,FALSE);
 	CheckMenuItem(myMenus[layoutM],f14Command,FALSE);
+	CheckMenuItem(myMenus[layoutM],f16Command,FALSE);
+	CheckMenuItem(myMenus[layoutM],f18Command,FALSE);
 	switch(WindowTextSize[Nw]) {
 		case 9:
 			CheckMenuItem(myMenus[layoutM],f9Command,TRUE); break;
 		case 10:
 			CheckMenuItem(myMenus[layoutM],f10Command,TRUE); break;
+		case 11:
+			CheckMenuItem(myMenus[layoutM],f11Command,TRUE); break;
 		case 12:
 			CheckMenuItem(myMenus[layoutM],f12Command,TRUE); break;
+		case 13:
+			CheckMenuItem(myMenus[layoutM],f13Command,TRUE); break;
 		case 14:
 			CheckMenuItem(myMenus[layoutM],f14Command,TRUE); break;
+		case 16:
+			CheckMenuItem(myMenus[layoutM],f16Command,TRUE); break;
+		case 18:
+			CheckMenuItem(myMenus[layoutM],f18Command,TRUE); break;
 		}
 	}
 if(Nw >= 0 && Nw < WMAX && (Editable[Nw] || HasFields[Nw])) {
