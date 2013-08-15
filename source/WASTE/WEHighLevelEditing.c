@@ -1061,6 +1061,8 @@ pascal OSErr WEPaste(WEHandle hWE)
 		goto cleanup;
 	}
 
+#if 0
+	// ignore styles when pasting! -- akozar, 201308014
 	if (!BTST((*hWE)->features, weFMonoStyled))
 	{
 		// allocate a handle to hold the style scrap, if any
@@ -1083,6 +1085,7 @@ pascal OSErr WEPaste(WEHandle hWE)
 			_WEForgetHandle(&hSoup);
 #endif
 	} // if not mono-styled
+#endif
 
 	// lock down the text
 	HLock(hItem);
