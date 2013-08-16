@@ -92,6 +92,7 @@ GetFrontProcess(&psn);
 if(psn.highLongOfPSN == PSN.highLongOfPSN && psn.lowLongOfPSN == PSN.lowLongOfPSN)
 	return(OK);
 
+/* Don't force BP2 to the front! -- akozar, 20130816
 ierr = SetFrontProcess(&PSN);
 if(Beta && ierr!= noErr) TellError(87,ierr);
 
@@ -99,12 +100,13 @@ GetFrontProcess(&psn);
 if(psn.highLongOfPSN != PSN.highLongOfPSN || psn.lowLongOfPSN != PSN.lowLongOfPSN) {
 	for(i=0; i < 5; i++) {
 		WaitABit(500L);
-		/* Give some time to current 'psn' process to call WaitNextEvent() */
+		// Give some time to current 'psn' process to call WaitNextEvent()
 		GetFrontProcess(&psn);
 		if(psn.highLongOfPSN == PSN.highLongOfPSN && psn.lowLongOfPSN == PSN.lowLongOfPSN)
 			return(OK);
 		}
 	}
+*/
 
 // The current application refused to abandon its current process. Let's notify the userÉ 
 SndSetSysBeepState(sysBeepEnable);
@@ -120,7 +122,7 @@ myNote.nmIcon = icon;
 */
 
 //get the sound you want out of your resources
-sound = (SndListHandle) GetResource(soundListRsrc,kclocID);
+//sound = (SndListHandle) GetResource(soundListRsrc,kclocID);
 
 /* // None of this is used - 011907 akozar
 myNote.nmSound = (Handle) sound;	//set the sound to be played
@@ -135,6 +137,7 @@ myNote.nmResp = (RoutineDescriptor*) NULL;	//no response procedure
 #endif
 */
 
+/*  THIS SOUND WAS LOUD AND STARTLING WHEN IT (RARELY) OCCURED! - akozar 
 if(howmany > 0 && sound != NULL) {
 	SndNewChannel(&myChan,0,0,0L);
 	HLock((Handle)sound);
@@ -144,6 +147,7 @@ if(howmany > 0 && sound != NULL) {
 	HUnlock((Handle)sound);
 	SndDisposeChannel(myChan,FALSE);
 	}
+*/
 
 /* // None of this is used - 011907 akozar
 #ifndef powerc
