@@ -164,7 +164,8 @@ in MakeSound() first).
   preventing the menus from being pulled down.  However, still shows alerts
   when switching to other windows in Windows[w].  If you switch to a non-Windows[w]
   dialog, then you get the alert while trying to switch to windows other 
-  than Csound Instruments which is very confusing.
+  than Csound Instruments which is very confusing.  IDEA 8/15/13:  Maybe the 
+  solution should be to just initialize the settings with good values! 
 
 - NEW BUG 11/15?  "Clear", "Load", "REC", and "Execute" buttons on Script Control 
   Panel are dimmed when first opened after loading a project (try -gr.koto3). 
@@ -174,3 +175,16 @@ in MakeSound() first).
 - Script records this command:  Hide window "Time accuracy"
   but this command is not accepted as valid; "Missing terminating quote"
 
+- When a new startup settings file (-se.startup) is saved, its creator and filetype
+  codes are not set ?
+
+- Usability issue:  Can we easily replace non-movable modal alerts with standard
+  movable ones ? (see StandardAlert() API in Appearance API ?)
+
+- Usability issue:  The Resume/Stop dialog should be replaced with a movable playback
+  transport that appears at the beginning of playback.
+
+- Usability issue:  Program logic should be revised to save the results of computations
+  so that the cyclic modal dialog after playback ("Play again"/"Produce more"/"Display
+  item"/"Cancel") can be removed.  These options could then be added to the playback
+  transport mentioned above.
