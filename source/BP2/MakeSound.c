@@ -431,6 +431,9 @@ if(!MIDIfileOn && !cswrite && OutMIDI && !ItemCapture && !FirstTime && !PlayProt
 		&& !showpianoroll) {
 #if WITH_REAL_TIME_MIDI
 	if(OkWait && SynchronizeStart) {
+#if !BP_CARBON_GUI
+		FlashInfo("Synchronized start is not currently enabled in non-Carbon builds!");
+#else
 		drivertime = GetDriverTime();
 		if(ShowMessages && (Tcurr > drivertime))
 			FlashInfo("Waiting until previous item is over…");
@@ -504,8 +507,9 @@ if(!MIDIfileOn && !cswrite && OutMIDI && !ItemCapture && !FirstTime && !PlayProt
 			HideWindow(Window[wInfo]);
 			SetDefaultCursor();
 			}
+#endif /* BP_CARBON_GUI */
 		}
-#endif
+#endif /* WITH_REAL_TIME_MIDI */
 	}
 if(cswrite || MIDIfileOn || ItemCapture) {
 	sprintf(Message,"Writing %ld sound-objects",(long)(*p_kmax)-2L);
@@ -2117,6 +2121,7 @@ formertime = ZERO;
 drivertime = GetDriverTime();
 WaitOn++;
 while(Button() || (timeleft = (Tcurr - drivertime)) > buffertime) {
+#if BP_CARBON_GUI	/* not sure about cutting out this code ... akozar 20130817 */
 	if(MyButton(0)) {
 		StopCount(0);
 		SetButtons(TRUE);
@@ -2134,6 +2139,7 @@ while(Button() || (timeleft = (Tcurr - drivertime)) > buffertime) {
 		if(LoadedIn && (!CompiledIn && (result=CompileInteraction()) != OK))
 			goto OVER;
 		}
+#endif /* BP_CARBON_GUI */
 	if((timeleft * Time_res / 1000L) != formertime) {
 		formertime = timeleft * Time_res / 1000L;
 		sprintf(Message,"Remaining performance time: %ld sec…",

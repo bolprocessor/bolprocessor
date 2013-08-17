@@ -65,5 +65,12 @@ void SysBeep(short duration)
 	BP_NOT_USED(duration);
 	// FIXME: should replace printf with a messaging API
 	printf("\007Beep!\n");
+	return;
 }
 
+Boolean Button()
+{
+	// See docs-developer/Uses-of-Button.txt for a discussion of this function
+	// and why this return value may not be OK in the future! 
+	return FALSE;
+}

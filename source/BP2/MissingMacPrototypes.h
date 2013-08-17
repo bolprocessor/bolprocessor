@@ -37,3 +37,4 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 
 void SysBeep(short duration);
+Boolean Button();

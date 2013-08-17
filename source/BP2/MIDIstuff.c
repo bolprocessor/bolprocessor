@@ -1601,6 +1601,7 @@ return(OK);
 #endif /* BP_CARBON_GUI */
 }
 
+#if BP_CARBON_GUI
 
 SetFilterDialog(void)
 // Set buttons in MIDI filter dialog
@@ -1717,6 +1718,7 @@ return(OK);
 #endif
 }
 
+#endif /* BP_CARBON_GUI */
 
 SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e)
 {
