@@ -1,0 +1,180 @@
+Uses of Button()
+=================
+
+Last reviewed:  August 17, 2013
+
+This is a review of BP2's usage of the Mac OS Button() function which reads the current
+hardware (?) state of the mouse button.  Many of the uses occur in code that will or 
+probably should be excluded from any non-Carbon builds.  These include uses in GUI
+features where a mouse click is the normal signal to end an operation (like recording 
+MIDI data) or to signal that the user is ready to proceed (the script command "Wait for").
+
+Also, during long operations, a mouse click is sometimes interpreted as a signal that the
+user wants to cancel an operation.  This accounts for some of the occurences of Button() 
+that remain in non-Carbon code.
+
+The main problem with the usage of Button() for non-Carbon builds is that both of the 
+following occur in the code:
+
+		while(Button());
+		while(!Button());   (or more commonly while(!Button()) { // some task })
+
+Therefore this review was necessary to determine whether a simple stub of
+
+	Boolean Button() { return FALSE; }
+
+will be ok in non-Carbon builds.
+
+Conclusion:
+
+Always returning FALSE is acceptable for now but it could be problematic in the future
+if some of the disabled "interactive" code is re-enabled for non-Carbon builds. Several
+different solutions may need to be applied to different parts of the code.
+
+For example, the use of Button() to cancel an operation should perhaps be replaced with 
+a more general UserCanceled() function that could check for standard cancellation events
+in the Carbon GUI (Command-period, Esc, others?) but would call a host application 
+callback in non-Carbon builds.
+
+* Exceptions:  Calls like while(Button()); cannot be changed to UserCanceled().
+               These are marked below with *.
+
+
+Review of individual files
+--------------------------
+
+MIDIstubs.c
+	// ALL OK since commented out
+	
+	MIDIstubs.c: 		if(!force && Button()) return(ABORT);
+
+MakeSound.c
+	// Conditionalized out some calls; remaining should be OK if Button() always returns FALSE
+	
+*	MakeSound.c: 			while(Button());
+	MakeSound.c: 			while(!Button()) {
+*	MakeSound.c: 		while(Button());
+*	MakeSound.c: 	while(Button());
+	MakeSound.c: while(Button() || (timeleft = (Tcurr - drivertime)) > buffertime) {
+
+MIDIstuff.c
+	// ALL OK since #if BP_CARBON_GUI
+	// Used in:
+		PlayPrototypeTicks()
+		RecordTick()
+		CheckMIDIOutPut()
+
+	MIDIstuff.c: 	while((Tcurr > drivertime + (SetUpTime / Time_res)) && !Button()) {
+	MIDIstuff.c: 	if(Button()) break;
+	MIDIstuff.c: while(Button());
+	MIDIstuff.c: while(!Button()) {
+	MIDIstuff.c: 	if(Button()) stop = TRUE;
+	MIDIstuff.c: 		if(Button()) stop = TRUE;
+	MIDIstuff.c: while(Button());
+
+FillPhaseDiagram.c
+	// ALL OK if Button() always returns FALSE
+	
+	FillPhaseDiagram.c: 	if((istop == 0 && Button()) && (r=InterruptTimeSet(FALSE,&tstart)) != OK) {
+
+Inits.c
+	// ALL OK since #if 0 -- used in Y2K()
+
+	Inits.c: 			while(Button());
+	Inits.c: 			while(!Button());
+
+MIDIloads.c
+	// ALL OK since #if BP_CARBON_GUI
+	// Used in:
+		LoadTimePattern()
+		LoadMIDIsyncOrKey()
+		LoadRawData()
+		LoadMIDIprototype()
+	
+	// Only LoadMIDIsyncOrKey()'s use of while(!Button()) might be OK since the while 
+	// loop breaks when a Midi or keyboard event is received.
+	// All four should be modified to use a UserCanceled()-type method though if they
+	// are to be included in non-Carbon builds in the future. 
+
+	MIDIloads.c: while(Button());
+	MIDIloads.c: while(!Button()) {
+	MIDIloads.c: while(!Button()) {
+	MIDIloads.c: while(Button());
+	MIDIloads.c: while(!Button()) {
+	MIDIloads.c: 	while((Tcurr > drivertime) && !Button()) {
+	MIDIloads.c: 	if(error || Button()) break;
+	MIDIloads.c: while(Button());
+
+Misc.c
+	// ALL OK since #if BP_CARBON_GUI
+	
+	Misc.c: 	if(Button()) {
+
+Ticks.c
+	// ALL OK if Button() always returns FALSE, but CaptureTicks() will not work correctly!
+	
+	Ticks.c: 		if(Button()) break;
+	Ticks.c: 	if(Button()) {
+
+TimeSet.c
+	// ALL OK for now since none of this code is compiled unless #if DISPLAY_PHASE_DIAGRAM true.
+	// These would also all be OK if Button() always returns FALSE.
+	
+	TimeSet.c: while(Button());
+	TimeSet.c: 	if(Button()) break;
+	TimeSet.c: 	if(Button()) break;
+	TimeSet.c: 		if(Button()) break;
+	TimeSet.c: 	if(Button()) break;
+	TimeSet.c: 	if(Button()) break;
+	TimeSet.c: 		if(Button()) break;
+
+----------  THESE FILE ARE NOT BEING COMPILED IN NON-CARBON BUILD ------------
+
+MenuCommands.c
+	// ALL OK since MenuCommands.c is not compiled -- these are in mSendMIDI()
+	
+	MenuCommands.c: 		while(Button()){};
+	MenuCommands.c: 			if(Button() && Answer("Continue reading",'Y') != OK) break;
+	MenuCommands.c: 			if(Button() && Answer("Continue sending",'Y') != OK) break;
+
+Interface2.c
+	// ALL OK since Interface2.c is not compiled
+	// used in CantOpen(), MyButton(), and FindReplace()
+
+	Interface2.c: while(!Button());
+	Interface2.c: mousedown = Button();
+	Interface2.c: while(Button());
+	Interface2.c: 		if(Button()) {
+
+SaveLoads2.c
+	// called from LoadObjectPrototypes();  will be OK if Button() returns FALSE
+	
+	SaveLoads2.c: if(Button() && (Answer("Stop reading sound-object file",'N') == YES)) {
+
+CoreMIDIdriver.c
+	// ALL OK since CoreMIDIdriver.c is not compiled
+
+	CoreMIDIdriver.c: 		if(/*!force &&*/ Button()) return(ABORT);
+
+Interaction.c
+	// ALL OK as long as the WaitFor...() functions are not compiled
+	// Uses both while(Button()); and while(!Button()); !!
+	// If code calling the WaitFor...() functions is ever included, then
+	// WaitFor...() ought to be replaced by callbacks to host application.
+	
+	Interaction.c: while(Button());
+	Interaction.c: while(!Button());
+	Interaction.c: while(Button());
+	Interaction.c: while(Button());
+	Interaction.c: while(Button());
+	Interaction.c: 	if(Button()) break;
+
+Graphic.c
+	// ALL OK since Graphic.c is not compiled -- called from InterruptDraw()
+
+	Graphic.c: if(TempMemory || (interruptok && Button())) {
+
+Script.c
+	// ALL OK since Script.c is not compiled
+
+	Script.c: while(Button());

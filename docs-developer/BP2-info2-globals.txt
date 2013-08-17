@@ -13,3 +13,13 @@ These are initialized to BP2's startup folder, and afterwards updated everytime
 that MyOpen() opens a file, but they are never used for anything.  (Could be
 used to set the default folder for open/save dialogs).
 
+
+int OkWait
+
+Usually TRUE but set FALSE by the "Prompt OFF" script command.  WaitForNoteOn(),
+WaitForTags(), and WaitKeyStrokeOrAppleEvent() will not run if this is set to
+FALSE and MakeSound() will not wait for a "synchronized start" if FALSE. 
+Answer() will return its default choice when (AEventOn && !OkWait).  This could
+be a good mechanism to prevent user interaction in console/library build (??)
+but notes that OkWait is also frequently reset to TRUE or 'OK' at the end of
+processes.  (A console option could reenable?)
