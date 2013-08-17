@@ -1798,9 +1798,9 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 {
 int randomnumber;
 tokenbyte m,p;
-long i,ii,j,jmax,i0,j0,pos1,xi,sizedest,blocksize,istart,jstart,length,length1;
+long i,ii,j,jmax,i0,j0,pos1,xi,sizedest,istart,jstart,length,length1;
 tokenbyte *ptr1,*ptr2,posdif,instan[MAXLIN],meta[MAXMETA2],meta1[MAXMETA2];
-Size oldsize,newsize,lenc1,incmark;
+Size oldsize,newsize,lenc1,incmark,blocksize;
 
 /* *pp_origin = *pp_dest except in ÔSUBÕ subgrammars. */
 
@@ -1932,7 +1932,7 @@ if(grtype != SUBtype) {
 		blocksize = (LengthOf(pp_dest) - i0 + 2) * sizeof(tokenbyte);
 		MyLock(FALSE,(Handle)*pp_dest);
 		ptr1 = &(**pp_dest)[i0]; ptr2 = &(**pp_dest)[j0];
-		BlockMoveData(ptr1,ptr2,blocksize);
+		memmove(ptr2, ptr1, blocksize);
 		MyUnlock((Handle)*pp_dest);
 		}
 #endif

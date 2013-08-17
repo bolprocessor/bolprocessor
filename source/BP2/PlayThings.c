@@ -1146,12 +1146,12 @@ return(l+l);
 }
 #else
 {
-long length;
-long blocksize,maxsize;
+Size length;
+Size blocksize,maxsize;
 tokenbyte *ptr1,*ptr2;
 Size oldsize;
 
-length = (long) LengthOf(pp_X);
+length = (Size) LengthOf(pp_X);
 blocksize = (length + 2L) * sizeof(tokenbyte);
 if(*pp_X == NULL) {
 	if(Beta) Alert1("Err. CopyBuf(). *pp_X = NULL");
@@ -1164,7 +1164,7 @@ if(maxsize < blocksize) {
 	if(MemoryUsed > MaxMemoryUsed) {
 		MaxMemoryUsed = MemoryUsed;
 		} */
-	if(MySetHandleSize((Handle*)pp_X,(Size)maxsize) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)pp_X, maxsize) != OK) return(ABORT);
 	}
 if((*pp_Y) == NULL) {
 	if(Beta) Alert1("Err. CopyBuf(). *pp_Y = NULL");
@@ -1177,12 +1177,12 @@ if(maxsize < blocksize) {
 	if(MemoryUsed > MaxMemoryUsed) {
 		MaxMemoryUsed = MemoryUsed;
 		} */
-	if(MySetHandleSize((Handle*)pp_Y,(Size)maxsize) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)pp_Y, maxsize) != OK) return(ABORT);
 	}
 MyLock(FALSE,(Handle)*pp_X);
 MyLock(FALSE,(Handle)*pp_Y);
 ptr1 = &(**pp_X)[0]; ptr2 = &(**pp_Y)[0];
-BlockMoveData(ptr1,ptr2,blocksize);
+memmove(ptr2, ptr1, blocksize);
 MyUnlock((Handle)*pp_X);
 MyUnlock((Handle)*pp_Y);
 return(length);
