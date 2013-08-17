@@ -525,6 +525,8 @@ do {
 		i = 0; PleaseWait();
 		}
 	}
+// WARNING: This loop appears to rely on DoSystem() calling PlayTick()
+// which can set TickCapture to FALSE in order to exit.
 while(TickCapture);
 
 OUT:
