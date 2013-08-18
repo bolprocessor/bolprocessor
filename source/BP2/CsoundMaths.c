@@ -106,7 +106,9 @@ if((result=Findabc(p_CsPanoramic,j,&r)) == ABORT) {
 if(result == FAILED)
 	(*p_CsInstrument)[j].rPanoramic.islogx = (*p_CsInstrument)[j].rPanoramic.islogy = FALSE;
 
+#if BP_CARBON_GUI
 SetCsoundLogButtons(j);
+#endif /* BP_CARBON_GUI */
 
 return(OK);
 
@@ -268,7 +270,9 @@ sprintf(Message,
 	xin,(long)(*p_CsInstrumentIndex)[ins]);
 Alert1(Message);
 iCsoundInstrument = ins;
+#if BP_CARBON_GUI
 SetCsoundInstrument(iCsoundInstrument,-1);
+#endif /* BP_CARBON_GUI */
 *p_overflow = TRUE;
 return(0.);
 }
@@ -334,7 +338,9 @@ sprintf(Message,
 	"Parameter value ‘%.2f’ does not match specified range: check parameter mappings in Csound instrument %ld",
 	yin,(long)(*p_CsInstrumentIndex)[ins]);
 iCsoundInstrument = ins;
+#if BP_CARBON_GUI
 SetCsoundInstrument(iCsoundInstrument,-1);
+#endif /* BP_CARBON_GUI */
 Alert1(Message);
 *p_overflow = TRUE;
 return(0.);

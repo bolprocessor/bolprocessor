@@ -38,6 +38,7 @@
 
 #include "-BP2decl.h"
 
+#if BP_CARBON_GUI
 
 SetCsoundInstrument(int j,int w)
 /* If w > 0 this procedure also displays instrument specs to window w */
@@ -637,6 +638,7 @@ if(w > 0) Println(w,"\r----------------------------------");
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
 CopyCsoundInstrument(int i,int j)
 {
@@ -838,6 +840,7 @@ CompiledRegressions = FALSE;
 return(OK);
 }
 
+#if BP_CARBON_GUI
 
 GetCsoundInstrument(int j)
 {
@@ -1601,6 +1604,7 @@ if(strcmp(CsFileName,line) != 0) {
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
 FixCsoundScoreName(char* line)
 {
@@ -1634,11 +1638,13 @@ for(j=2; j < maxsounds; j++) {
 	if((rep=CompileObjectScore(j,&longerCsound)) != OK) {
 		if(rep == ABORT) goto OUT;
 		iProto = j;
+#if BP_CARBON_GUI
 		SetPrototype(iProto);
 		SetCsoundScore(iProto);
 		ShowWindow(Window[wPrototype1]);
 		BringToFront(Window[wPrototype1]);
 		BPActivateWindow(SLOW,wPrototype7);
+#endif /* BP_CARBON_GUI */
 		CompiledCsObjects = FALSE;
 		rep = FAILED;
 		goto OUT;
@@ -1664,11 +1670,13 @@ Handle ptr,ptr2;
 CsoundParam **paramlist;
 
 if(j < 2 || j >= Jbol) return(OK);
+#if BP_CARBON_GUI
 if(iProto == j && (result=GetCsoundInstrument(iCsoundInstrument)) != OK) {
 /*	ShowWindow(Window[wCsoundInstruments]);
 	BringToFront(Window[wCsoundInstruments]); */
 	return(result);
 	}
+#endif /* BP_CARBON_GUI */
 if((result=CompileRegressions()) != OK) return(result);
 if((*p_CompiledCsoundScore)[j]) return(OK);
 
@@ -1730,9 +1738,11 @@ ipos = 0; im = MyHandleLen(p_line);
 if(ShowMessages && !LoadOn) ShowMessage(TRUE,wMessage,"Compiling Csound score…");
 
 while(TRUE) {
+#if BP_CARBON_GUI
 	if((result=MyButton(1)) != FAILED) {
 		if(result != OK || (result=InterruptCompileCscore()) != OK) goto OUT;
 		}
+#endif /* BP_CARBON_GUI */
 	result = OK;
 	while(ipos < im && (isspace(c=(*p_line)[ipos]) || c == '\0')) ipos++;
 	i0 = ipos;
@@ -1828,10 +1838,12 @@ NEWPARAMETER:
 							(long)param);
 						Alert1(Message);
 						if((*p_CsoundInstr)[j] > 0) {
+#if BP_CARBON_GUI
 							ShowWindow(Window[wPrototype1]);
 							BringToFront(Window[wPrototype1]);
 							BPActivateWindow(SLOW,wPrototype8);
 							SelectField(NULL,wPrototype8,fForceToInstrument,TRUE);
+#endif /* BP_CARBON_GUI */
 							sprintf(Message,"Perhaps the problem is that you forced this sound-object to use instrument %ld",
 								(long)param);
 							Alert1(Message);
@@ -1892,6 +1904,7 @@ NEWPARAMETER:
 				break;
 			case 3:
 				if(param < 0) {
+					// FIXME ? any way to allow neg. dur? This has multiple uses with Csound -- akozar
 					Alert1("Can't compile Csound score because a negative duration was found.\r(3d argument)");
 					result = FAILED; goto OUT;
 					}
@@ -1974,10 +1987,12 @@ NEXTLINE:
 			if(Jinstr < 2)
 				Alert1("You probably forgot to create or load a ‘-cs’ instrument file");
 			if((*p_CsoundInstr)[j] > 0) {
+#if BP_CARBON_GUI
 				ShowWindow(Window[wPrototype1]);
 				BringToFront(Window[wPrototype1]);
 				BPActivateWindow(SLOW,wPrototype8);
 				SelectField(NULL,wPrototype8,fForceToInstrument,TRUE);
+#endif /* BP_CARBON_GUI */
 				sprintf(Message,"Perhaps the problem is that this sound-object is instructed to use instrument %ld",
 					(long)param);
 				Alert1(Message);
@@ -2075,9 +2090,11 @@ WriteFloatToLine(LineBuff,(double)(*p_CsoundTempo)[j]);
 PrintBehindln(wPrototype7,LineBuff);
 for(ievent=ZERO; ievent < (*p_CsoundSize)[j]; ievent++) {
 	PleaseWait();
+#if BP_CARBON_GUI
 	if((result=MyButton(1)) != FAILED) {
 		if(result != OK || (result=InterruptCompileCscore()) != OK) goto OUT;
 		}
+#endif /* BP_CARBON_GUI */
 	result = OK;
 	instrumentindex = (*((*pp_CsoundScore)[j]))[ievent].instrument;
 	for(ins=0; ins < Jinstr; ins++) {
@@ -2152,7 +2169,9 @@ PrintBehind(wPrototype7,"\re\r");
 OUT:
 
 if(PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) result = ABORT;
+#if BP_CARBON_GUI
 if(result == OK) result = GetCsoundScore(j);
+#endif /* BP_CARBON_GUI */
 if(result == OK) result = CompileObjectScore(j,&longerCsound);
 
 if(CompileOn) CompileOn--;
@@ -2162,6 +2181,7 @@ HideWindow(Window[wMessage]);
 return(result);
 }
 
+#if BP_CARBON_GUI
 
 InterruptCompileCscore(void)
 {
@@ -2177,6 +2197,7 @@ if(r == RESUME) {
 return(r);
 }
 
+#endif /* BP_CARBON_GUI */
 
 FindCsoundInstrument(char* line)
 {

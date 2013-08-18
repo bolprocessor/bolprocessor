@@ -999,7 +999,9 @@ r = PlayHandle(h,NO);
 NoRepeat = PlayPrototypeOn = FALSE;
 if(MyDisposeHandle((Handle*)&h) != OK) goto OUT;
 
+#if BP_CARBON_GUI
 if(ConvertMIDItoCsound) GetCsoundScore(iProto);
+#endif /* BP_CARBON_GUI */
 
 OUT:
 PlayFromInsertionPoint = FALSE;

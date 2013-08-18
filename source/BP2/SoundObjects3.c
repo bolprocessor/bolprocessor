@@ -313,7 +313,9 @@ if((*p_CsoundInstr)[iProto] > 0) {
       }
    }
 
+#if BP_CARBON_GUI
 GetCsoundScore(iProto);
+#endif /* BP_CARBON_GUI */
 
 if((GetField(NULL,TRUE,wPrototype8,fAssignInstrument,line,&p,&q) != OK) || p < ZERO) {
    SetField(NULL,wPrototype8,fAssignInstrument,"[None]");
@@ -366,7 +368,9 @@ if(!ObjectMode && !ObjectTry) {
    else {
       if(iProto >= Jbol) iProto = 2;
       SetPrototype(iProto);
+#if BP_CARBON_GUI
       SetCsoundScore(iProto);
+#endif /* BP_CARBON_GUI */
       if((r=CompileObjectScore(iProto,&longerCsound)) != OK) goto END;
       StopWait();
       }
@@ -803,7 +807,9 @@ else {
    (*p_CsoundSize)[j] = 0;
    CompiledCsObjects = (*p_CompiledCsoundScore)[j] = FALSE;
    }
+#if BP_CARBON_GUI
 SetCsoundScore(j);
+#endif /* BP_CARBON_GUI */
 return(OK);
 }
 

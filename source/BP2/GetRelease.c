@@ -787,7 +787,9 @@ for(j=Jinstr; j < howmany; j++) {
 	
 Jinstr = howmany;
 if(iCsoundInstrument >= Jinstr) iCsoundInstrument = 0;
+#if BP_CARBON_GUI
 SetCsoundInstrument(iCsoundInstrument,-1);
+#endif /* BP_CARBON_GUI */
 return(OK);
 }
 

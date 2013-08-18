@@ -680,7 +680,10 @@ PrepareCsFile(void)
 int rep;
 
 if(!CsScoreOpened) {
-	if((rep=GetCsoundScoreName()) == OK) return(MakeCsFile(CsFileName));
+#if BP_CARBON_GUI
+	if((rep=GetCsoundScoreName()) == OK) 
+#endif /* BP_CARBON_GUI */
+		return(MakeCsFile(CsFileName));
 	if(rep == FAILED) return(FAILED);
 	}
 switch(FileSaveMode) {
