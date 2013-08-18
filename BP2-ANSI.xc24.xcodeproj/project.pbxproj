@@ -53,7 +53,6 @@
 		92A113D70EC3924F006B5F38 /* Zouleb.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113000EC39232006B5F38 /* Zouleb.c */; };
 		92A113D80EC3924F006B5F38 /* Glossary.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FE0EC39232006B5F38 /* Glossary.c */; };
 		92A113DA0EC3924F006B5F38 /* Ticks.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130C0EC39232006B5F38 /* Ticks.c */; };
-		92A113DB0EC3924F006B5F38 /* Translit.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FA0EC39232006B5F38 /* Translit.c */; };
 		92A113E40EC39254006B5F38 /* -BP2.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113100EC39232006B5F38 /* -BP2.h */; };
 		92A113E50EC39254006B5F38 /* -BP2main.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113130EC39232006B5F38 /* -BP2main.h */; };
 		92A113E60EC39254006B5F38 /* -BP2decl.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113120EC39232006B5F38 /* -BP2decl.h */; };
@@ -207,6 +206,12 @@
 		92A113400EC39232006B5F38 /* BP2 help */ = {isa = PBXFileReference; lastKnownFileType = text; path = "BP2 help"; sourceTree = SOURCE_ROOT; };
 		92A113410EC39232006B5F38 /* Credits.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Credits.txt; sourceTree = SOURCE_ROOT; };
 		92A113420EC39232006B5F38 /* License.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = License.txt; sourceTree = SOURCE_ROOT; };
+		92DA02DD17BEAC8300140F5B /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
+		92DA02DE17BEAC8300140F5B /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
+		92DA02DF17BEAC8300140F5B /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
+		92DA02E017BEAC8300140F5B /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
+		92DA02E117BEAC8300140F5B /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = /System/Library/Frameworks/CoreMIDI.framework; sourceTree = "<absolute>"; };
+		92DA02E217BEAC8300140F5B /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -239,7 +244,6 @@
 				928320F9157C5CE600EADF2F /* MIDIstubs.c */,
 				92A112F90EC39232006B5F38 /* PlayThings.c */,
 				92A113060EC39232006B5F38 /* MakeSound.c */,
-				92A112FA0EC39232006B5F38 /* Translit.c */,
 				92A112FB0EC39232006B5F38 /* Csound.c */,
 				92A112FC0EC39232006B5F38 /* CsoundMaths.c */,
 				92A112F10EC39232006B5F38 /* Automata.c */,
@@ -287,6 +291,7 @@
 				92A113030EC39232006B5F38 /* Script.c */,
 				92A113040EC39232006B5F38 /* ScriptAlgo.c */,
 				92A113050EC39232006B5F38 /* ScriptUtils.c */,
+				92A112FA0EC39232006B5F38 /* Translit.c */,
 				92A1130E0EC39232006B5F38 /* WindowText.c */,
 			);
 			name = Disabled;
@@ -410,6 +415,12 @@
 		92A113870EC3924E006B5F38 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				92DA02DD17BEAC8300140F5B /* ApplicationServices.framework */,
+				92DA02DE17BEAC8300140F5B /* Carbon.framework */,
+				92DA02DF17BEAC8300140F5B /* CoreAudio.framework */,
+				92DA02E017BEAC8300140F5B /* CoreFoundation.framework */,
+				92DA02E117BEAC8300140F5B /* CoreMIDI.framework */,
+				92DA02E217BEAC8300140F5B /* CoreServices.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -533,7 +544,6 @@
 				92A113D70EC3924F006B5F38 /* Zouleb.c in Sources */,
 				92A113D80EC3924F006B5F38 /* Glossary.c in Sources */,
 				92A113DA0EC3924F006B5F38 /* Ticks.c in Sources */,
-				92A113DB0EC3924F006B5F38 /* Translit.c in Sources */,
 				928320FB157C5CE600EADF2F /* MIDIstubs.c in Sources */,
 				92246A4417B29E5A00D0439B /* ConsoleMain.c in Sources */,
 				92246A5B17B2A5C700D0439B /* GetRelease.c in Sources */,
