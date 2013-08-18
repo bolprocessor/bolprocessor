@@ -70,10 +70,12 @@ wasactive = TRUE;
 
 if(wind >= 0 && wind < WMAX && Editable[wind]) {
 	th = TEH[wind];
+#if BP_CARBON_GUI
 	GetPort(&saveport);
 	SetPortWindowPort(Window[wind]);
 	TextSize(WindowTextSize[wind]);
 	Reformat(wind,-1,WindowTextSize[wind],(int)normal,&Black,NO,NO);
+#endif /* BP_CARBON_GUI */
 #if WASTE
 	wasactive = WEIsActive(th);
 	Deactivate(th);

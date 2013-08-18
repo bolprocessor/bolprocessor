@@ -55,6 +55,11 @@ void SetDefaultCursor()
 	return;
 }
 
+int BPActivateWindow(int mode,int newNw)
+{
+	return OK;
+}
+
 
 /* These are Mac OS X Carbon calls that could have useful replacements in
    the console/library build or that are too numerous in the BP2 source code

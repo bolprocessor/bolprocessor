@@ -38,3 +38,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 void SysBeep(short duration);
 Boolean Button();
+
+
+#define	BringToFront(windowPtr)
+#define	HideWindow(windowPtr)
+#define	ShowWindow(windowPtr)
+#define	SelectWindow(windowPtr)
