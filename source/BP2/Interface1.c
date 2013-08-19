@@ -2673,15 +2673,7 @@ if(Pduration > 0.) {
 	
 	if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
 	
-	ShowWindow(Window[wMessage]);
-	SetSelect(ZERO,GetTextLength(wMessage),TEH[wMessage]);
-	TextDelete(wMessage);
-	PrintBehind(wMessage,Message);
-	TextUpdate(wMessage);
-	if(store) {
-		Jmessage++; if(Jmessage >= MAXMESSAGE) Jmessage = 0;
-		MystrcpyStringToHandle(&(p_MessageMem[Jmessage]),Message);
-		}
+	ShowMessage(store, wMessage, Message);
 	}
 return(OK);
 }
