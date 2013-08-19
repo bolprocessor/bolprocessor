@@ -1792,8 +1792,8 @@ result = OK;
 if(buffertime < Infpos) result = WaitForLastSounds((long) buffertime);
 else if(waitcompletion) result = WaitForEmptyBuffer();
 if(result != OK) goto OVER;
-result = OK;
 
+#if BP_CARBON_GUI
 HideWindow(Window[wMessage]);
 
 QUESTION:
@@ -1801,13 +1801,11 @@ QUESTION:
 HideWindow(Window[wInfo]);
 rep = OK; rep1 = rep2 = rep3 = NO;
 if(!CyclicPlay && !ScriptExecOn) StopWait();
-#if BP_CARBON_GUI
 SndSetSysBeepState(sysBeepDisable);
-#endif
 ShowDuration(YES);
 if(!FirstTime && !PlayPrototypeOn
-	&& (CyclicPlay || (!Improvize && !ScriptExecOn && (DisplayItems || PlaySelectionOn)
-			&& OkWait
+	&& (CyclicPlay 
+		|| (!Improvize && !ScriptExecOn && (DisplayItems || PlaySelectionOn) && OkWait
 			&& !NoRepeat && (rep1=rep=Answer("Play again",'N')) != NO)
 		|| (Improvize && interruptedonce
 			&& !NoRepeat && (rep1=rep=Answer("Play again",'N')) != NO)
@@ -1861,6 +1859,9 @@ if(!FirstTime && !PlayPrototypeOn
 		}
 	}
 if(rep == ABORT) result = ABORT;
+#else
+// seems likely if result == OK here, then MakeSound() will end properly in non-GUI build  
+#endif /* BP_CARBON_GUI */
 
 OVER:
 HideWindow(Window[wMessage]);
