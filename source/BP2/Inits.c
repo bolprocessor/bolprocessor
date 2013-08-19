@@ -357,8 +357,13 @@ p_CsInstrumentIndex = p_CsDilationRatioIndex = p_CsAttackVelocityIndex = p_CsRel
 p_CsPitchFormat = NULL;
 pp_CsInstrumentName = pp_CsInstrumentComment = p_StringConstant = NULL;
 p_NumberConstant = NULL;
+#if BP_CARBON_GUI
 FileSaveMode = ALLSAMEPROMPT;
 FileWriteMode = LATER;
+#else
+FileSaveMode = ALLSAME;
+FileWriteMode = NOW;
+#endif /* BP_CARBON_GUI */
 ConvertMIDItoCsound = FALSE;
 MIDIfileType = 0;
 CsoundFileFormat = MAC;
