@@ -615,7 +615,7 @@ if(ReadMIDIfile(&preservechannel) != OK) return(DONE);
 
 (*p_Tref)[j] = ((double)Stream.pclock * 1000.) / Stream.qclock;
 
-result = PasteStreamToPrototype(j);
+result = PasteStreamToPrototype(j, bDeleteReplace);
 MyDisposeHandle((Handle*)&Stream.code);
 Stream.imax = ZERO;
 

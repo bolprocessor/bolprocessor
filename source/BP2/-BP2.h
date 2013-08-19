@@ -1470,6 +1470,9 @@ typedef enum {
 #define dCancelPlay 4
 
 // PasteSelectionAlert button indexes
+// These values are now also used as parameters to PasteStreamToPrototype()
+// bAskPasteAction is not a button index but indicates to ask user for action.
+#define bAskPasteAction -1
 #define bCancelPasteSelection 1
 #define bInsertBefore 2
 #define bAppend 3

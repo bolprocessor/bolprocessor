@@ -1424,7 +1424,7 @@ if(w == wPrototype1) {
 		
 		case bPasteSelection:
 			if(CheckiProto() != OK) return(DONE);
-			if((rep=PasteStreamToPrototype(iProto)) != OK) return(rep);
+			if((rep=PasteStreamToPrototype(iProto, bAskPasteAction)) != OK) return(rep);
 			else rep = DONE;
 			break;
 		case bUndoPasteSelection:

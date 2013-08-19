@@ -594,7 +594,7 @@ int WaitForLastSounds(long);
 int CheckLoadedPrototypes(void);
 int CheckMIDIOutPut(int);
 int TextToMIDIstream(int);
-int PasteStreamToPrototype(int);
+int PasteStreamToPrototype(int,int);
 int ChangedProtoType(int);
 int UndoPasteSelection(int);
 long FindGoodInsertPoint(int,long);

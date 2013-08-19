@@ -604,12 +604,16 @@ return(r);
 }
 
 
-PasteStreamToPrototype(int j)
+/* 20130819: Allowed 'what' (the paste action) to be passed as a parameter.
+   Valid values are listed in -BP2.h as "PasteSelectionAlert button indexes".
+   A new value (bAskPasteAction) indicates to ask the user for how to paste.
+ */
+PasteStreamToPrototype(int j, int what)
 {
 long maxsize,newsize,i,ifrom,ito,k,p,offset;
 Size n;
 MIDIcode **ptr1;
-int what,longerCsound;
+int longerCsound;
 Milliseconds gap,tfrom,tto,datestream,dateproto;
 double alpha;
 
@@ -646,7 +650,9 @@ if((*p_Tpict)[j] != Infneg) {
 StopWait();
 
 if((*p_MIDIsize)[j] == ZERO) what = bDeleteReplace;
-else what = Alert(PasteSelectionAlert,0L);
+#if BP_CARBON_GUI
+else if (what == bAskPasteAction) what = Alert(PasteSelectionAlert,0L);
+#endif /* BP_CARBON_GUI */
 switch(what) {
 	case bCancelPasteSelection:
 		if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
@@ -709,6 +715,12 @@ switch(what) {
 		break;
 	case bHelpPasteSelection:
 		DisplayHelp("Paste text selection to sound-object prototype");
+		if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+		goto OUT;
+		break;
+	default:
+		sprintf(Message, "Err. PasteStreamToPrototype(): Invalid value for parameter 'what' (%d).", what);
+		if(Beta) Alert1(Message);
 		if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 		goto OUT;
 		break;
