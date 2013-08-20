@@ -99,6 +99,8 @@ return(r);
 }
 #endif
 
+#if BP_CARBON_GUI
+
 ReadNoteOn(int c0, int c1, int c2, int wind)
 {
 int notenum,octave,overflow;
@@ -127,7 +129,6 @@ if(NoteOn <= c0  &&  c0 < (NoteOn+16) && c2 > 0) {   /* NoteOn */
 else return(FAILED);
 }
 
-#if BP_CARBON_GUI
 // I'm not sure whether we need LoadTimePattern() and LoadMIDIsyncOrKey()
 // in ANSI console build, but seems unlikely.  - akozar
 

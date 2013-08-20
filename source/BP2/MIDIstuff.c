@@ -50,9 +50,11 @@ char **p_line;
 
 r = OK;
 if(EmergencyExit || Panic) return(OK);
-if(Panic || CheckEndOfWait() != OK) return(ABORT);
 
+#if BP_CARBON_GUI
+if(Panic || CheckEndOfWait() != OK) return(ABORT);
 if((r=GetHighLevelEvent()) != OK) return(r);  
+#endif /* BP_CARBON_GUI */
 
 if((Oms || !OutMIDI) && !Interactive && !ReadKeyBoardOn && !ScriptRecOn) return(OK);
 
@@ -109,11 +111,13 @@ if(!ThreeByteChannelEvent(c)) {
 		if(!Oms && SysExPass) DriverWrite(ZERO,0,&e);
 		return(OK);
 		}
+#if BP_CARBON_GUI
 	if(ReadKeyBoardOn && Jcontrol == -1 && LastEditWindow != wScript) {
 		if(c0 == Start) Print(LastEditWindow," Start");
 		if(c0 == Stop) Print(LastEditWindow," Stop");
 		if(c0 == Continue) Print(LastEditWindow," Continue");
 		}
+#endif /* BP_CARBON_GUI */
 	if(c0 == SongPosition) {
 		for(i=0; i < 2; i++) {
 			e.time = 0;
@@ -156,6 +160,7 @@ if(!ThreeByteChannelEvent(c)) {
 		sprintf(Message,"%ld",(long)((c0 % 16) + 1));
 		if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,1,Message);
 		if(!ScriptExecOn) AppendScript(71);
+#if BP_CARBON_GUI
 		if(ReadKeyBoardOn && Jcontrol == -1 && LastEditWindow != wScript) {
 			sprintf(Message,"%s(",*((*p_PerformanceControl)[4]));
 			Print(LastEditWindow,Message);
@@ -170,6 +175,7 @@ if(!ThreeByteChannelEvent(c)) {
 			Print(LastEditWindow,") ");
 			ShowSelect(CENTRE,LastEditWindow);
 			}
+#endif /* BP_CARBON_GUI */
 		return(OK);
 		}
 	if(c == ChannelPressure) {
@@ -180,8 +186,7 @@ if(!ThreeByteChannelEvent(c)) {
 		e.type = TWO_BYTE_EVENT;
 		e.status = c;
 		if(!Oms && ChannelPressurePass) DriverWrite(ZERO,0,&e);
-		if(Jcontrol >= 0) ReadMIDIparameter(c0,c1,0,LastEditWindow);
-		else {
+		if(Jcontrol < 0) {
 			sprintf(Message,"Pressure = %ld channel %ld",(long)c1,
 				(long)(c0 - c + 1));
 			if(Interactive && ShowMessages) ShowMessage(TRUE,wMessage,Message);
@@ -190,6 +195,9 @@ if(!ThreeByteChannelEvent(c)) {
 				ChangedPressure[c0-c] = TRUE;
 				}
 			}		
+#if BP_CARBON_GUI
+		else  ReadMIDIparameter(c0,c1,0,LastEditWindow);
+#endif /* BP_CARBON_GUI */
 		
 		return(OK);
 		}
@@ -221,6 +229,7 @@ if(!Oms && PassEvent(c0)) {
 	}
 if(filter && c2 != 0 && (x0 == 0 || x0 == c0) && (x1 == 0 || x1 == c1)
 			&& (x2 == 0 || x2 == c2)) return(RESUME);
+#if BP_CARBON_GUI
 if(ReadKeyBoardOn && LastEditWindow != wScript) {
 	if(c == ControlChange && c1 == 64 && Jcontrol == -1) {
 		if(c2 > 0) {	/* Pushed hold pedal */
@@ -233,9 +242,7 @@ if(ReadKeyBoardOn && LastEditWindow != wScript) {
 		}
 	else {
 		if(Jcontrol == -1) {
-#if BP_CARBON_GUI
 			GetControlParameters();
-#endif /* BP_CARBON_GUI */
 			if(ReadNoteOn(c0,c1,c2,LastEditWindow) == OK) {
 				ShowSelect(CENTRE,LastEditWindow);
 				return(OK);
@@ -250,6 +257,7 @@ if(ReadKeyBoardOn && LastEditWindow != wScript) {
 			}
 		}
 	}
+#endif /* BP_CARBON_GUI */
 
 if((Interactive || ScriptRecOn || ReadKeyBoardOn) && c == ControlChange && c1 > 95
 		&& c1 < 122) {
@@ -266,6 +274,7 @@ if((Interactive || ScriptRecOn || ReadKeyBoardOn) && c == ControlChange && c1 > 
 	sprintf(LineBuff,"Controller #%ld = %ld channel %ld",(long)c1,(long)c2,
 		(long)c0-c+1);
 	if(Interactive && ShowMessages) ShowMessage(TRUE,wMessage,LineBuff);
+#if BP_CARBON_GUI
 	if(ReadKeyBoardOn && Jcontrol == -1 && LastEditWindow != wScript) {
 		sprintf(Message,"%s(",*((*p_PerformanceControl)[4]));
 		Print(LastEditWindow,Message);
@@ -280,6 +289,7 @@ if((Interactive || ScriptRecOn || ReadKeyBoardOn) && c == ControlChange && c1 > 
 		Print(LastEditWindow,") ");
 		ShowSelect(CENTRE,LastEditWindow);
 		}
+#endif /* BP_CARBON_GUI */
 	return(OK);
 	}
 if((Interactive || ScriptRecOn) && c == ChannelMode && c1 > 121) {
@@ -1384,6 +1394,7 @@ QUIT:
 return(OK);
 }
 
+#if BP_CARBON_GUI
 
 SelectControlArgument(int w,char* line)
 {
@@ -1533,9 +1544,6 @@ ReadMIDIparameter(int c0, int c1, int c2, int wind)
 int x,chan,c;
 long origin,end;
 
-#if !BP_CARBON_GUI
-	return(FAILED);
-#else
 if(Jcontrol == -1) return(FAILED);
 chan = c0 % 16;
 c = c0 - chan;
@@ -1598,10 +1606,8 @@ end = (**(TEH[LastEditWindow])).selEnd;
 #endif
 SetSelect(origin,end,TEH[LastEditWindow]);
 return(OK);
-#endif /* BP_CARBON_GUI */
 }
 
-#if BP_CARBON_GUI
 
 SetFilterDialog(void)
 // Set buttons in MIDI filter dialog
