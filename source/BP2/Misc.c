@@ -1915,18 +1915,27 @@ FrameRoundRect(&r,16,16);
 #endif
 
 
+/* Pause() and GetCap() are used to get user input while stepping thru timesetting.
+   Will need to provide an alternative for user-interactivity OR create a "stepping
+   API" for the timesetting code if we want to retain step functionality. */
+
+// NOTE: the return value of this function is not checked in several places ...
 Pause(void)
 {
 char c;
 
 c = 0;
 StopWait();
+#if BP_CARBON_GUI
 switch(Alert(StepAlert,0L)) {
 	case aContinue: return(' ');
 	case aStep: return('S');
 	case aUndo: return('U');
 	case aAbort: return('Q');
 	}
+#else
+// FIXME: do we need a console equivalent of this function ??
+#endif
 return(' ');
 }
 

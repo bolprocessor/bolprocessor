@@ -119,7 +119,9 @@ while((originmem=origin) < end) {
 	PleaseWait();
 	r = OK;
 	SetSelect(origin,end,TEH[w]);
+#if BP_CARBON_GUI
 	ShowSelect(CENTRE,w); Activate(TEH[w]);
+#endif /* BP_CARBON_GUI */
 	ShowMessage(TRUE,wMessage,"Playing selectionÉ");
 	Nplay = 1;
 	SaidTooComplex = ShownBufferSize = FALSE;
