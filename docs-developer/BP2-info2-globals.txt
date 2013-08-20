@@ -23,3 +23,23 @@ Answer() will return its default choice when (AEventOn && !OkWait).  This could
 be a good mechanism to prevent user interaction in console/library build (??)
 but notes that OkWait is also frequently reset to TRUE or 'OK' at the end of
 processes.  (A console option could reenable?)
+
+
+int ReadKeyBoardOn
+int Jcontrol
+int Interactive
+
+ReadKeyBoardOn is set to TRUE whenever BP2 is reading Midi input as an immediate
+user input source (eg. typing note names, getting the # or value of a controller
+to enter into a document or dialog field(?)).
+
+Jcontrol is the number of the performance control being read. (-1 == none)
+
+Interactive is TRUE when the "Interactive (use input)" button is checked on the 
+lower "Settings" dialog and BP2 is listening to Midi input for triggers and
+parameter controllers (K1, etc.) set in the Interaction and Grammar(?) files.
+
+When OMS was the Midi driver, ListenMIDI() would not proceed unless at least one
+of ReadKeyBoardOn, Interactive, or ScriptRecOn was TRUE.  (The CoreMIDI driver
+should perhaps be changed to work like the OMS one).
+
