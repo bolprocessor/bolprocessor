@@ -57,9 +57,27 @@ void SetDefaultCursor()
 
 int BPActivateWindow(int mode,int newNw)
 {
+	BP_NOT_USED(mode);
+	BP_NOT_USED(newNw);
 	return OK;
 }
 
+int AppendScript(int command)
+{
+	BP_NOT_USED(command);
+	return OK;
+}
+
+int StartCount(void)
+{
+	return OK;
+}
+
+int StopCount(int i)
+{
+	BP_NOT_USED(i);
+	return OK;
+}
 
 /* These are Mac OS X Carbon calls that could have useful replacements in
    the console/library build or that are too numerous in the BP2 source code
