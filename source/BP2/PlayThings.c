@@ -1261,6 +1261,7 @@ if(ReadToBuff(YES,noreturn,w,&origin,end,pp_buff) != OK) goto BAD;
 *p_end = origin;
 MyLock(TRUE,(Handle)*pp_buff);
 p1 = **pp_buff; p2 = p1; i = 0; ret = FALSE;
+// OPTIMIZE? Is all of this "re-checking" necessary? Look at ReadToBuff() - akozar
 while(((*p2) != '\0') && (ret || (*p2) != '\r')) {
 	if((*p2) == 'Â') ret = TRUE;
 	else if(!MySpace((*p2))) ret = FALSE;

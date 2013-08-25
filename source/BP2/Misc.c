@@ -521,6 +521,8 @@ MySpace(char c)
 {
 if(c == '\r' || c == '\n' || c == '\0') return(NO);
 if(isspace(c)) return(YES);
+// -54 = 0xCA (202) which is a non-breaking space (in Mac Roman)
+// '\20' = 0x10 (16) which is control-P and ???
 if(c == (char) -54 || c == '\20') return(YES);	/* option space, ctrl-p */
 return(NO);
 }

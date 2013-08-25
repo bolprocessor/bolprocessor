@@ -1301,6 +1301,7 @@ while(i < (*p_imax)-1) {
 	}
 // OPTIMIZE: does the rest of this need to be done if imaster == 0 ?
 nbmaster = 0;
+// FIXME ? FindMaster() currently always returns 0; should it return -1 if LastSymbol() returns 0 ?
 if(FindMaster(pp_buff,orgmaster,endmaster,&nbmaster,p_imax) == -1) return(16);
 /* Print(wTrace,"\rList of masters:\r");
 if(nbmaster == 0) Print(wTrace,"none\r");
@@ -1392,7 +1393,7 @@ for(i=levpar=nhomo=islave=0; i < (*p_imax)-1; i+=2) {
 		if(nhomo >= MAXLEVEL) {
 			if(Beta) Alert1("Increase ÔMAXLEVELÕ.  Err Recode()");
 			MyDisposeHandle((Handle*)&p_a);
-			return(20);
+			return(20);	// should this be error 25 or 40 ? - akozar
 			}
 		depth[nhomo] = levpar;
 		homoname[nhomo] = (int)(**pp_buff)[i+1];
@@ -1414,7 +1415,7 @@ for(i=levpar=nhomo=islave=0; i < (*p_imax)-1; i+=2) {
 		continue;
 		}
 	}
-if(CopyBuf(&p_a,pp_buff) == ABORT) return(17);
+if(CopyBuf(&p_a,pp_buff) == ABORT) return(17);  // should this return ABORT as above? - akozar
 MyDisposeHandle((Handle*)&p_a);
 
 /* Erase content of slavesÉ */
@@ -1448,8 +1449,9 @@ i = 0; islave = 0;
 while(i < (*p_imax)-1)	{
 	if((**pp_buff)[i] == T2 && (**pp_buff)[i+1] != 0) {	/* found slave */
 		j = i + 2; k = j + length[islave];
-		// OPTIMIZE: any way to use temp markers for deleted space so that
-		// we only need to move the rest of the buffer once ??
+		// OPTIMIZE: save & use p_a above and copy back to pp_buff here instead, skipping
+		// slave contents, so we only need to move the rest of the buffer once ??
+		// See longer explanation in BP2-info4-Grammar-functions.txt - akozar
 		MoveDown(pp_buff,&j,&k,p_imax);
 		islave++; i=j;
 		}
