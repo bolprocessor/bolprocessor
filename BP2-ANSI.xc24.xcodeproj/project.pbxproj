@@ -212,6 +212,16 @@
 		92DA02E017BEAC8300140F5B /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
 		92DA02E117BEAC8300140F5B /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = /System/Library/Frameworks/CoreMIDI.framework; sourceTree = "<absolute>"; };
 		92DA02E217BEAC8300140F5B /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
+		92DA090D17C445ED00140F5B /* Sound-Object-files.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = "Sound-Object-files.txt"; path = "docs-developer/Sound-Object-files.txt"; sourceTree = "<group>"; };
+		92DA090E17C445ED00140F5B /* BP2-info2-globals.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = "BP2-info2-globals.txt"; path = "docs-developer/BP2-info2-globals.txt"; sourceTree = "<group>"; };
+		92DA090F17C445ED00140F5B /* BP2-info4-Grammar-functions.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = "BP2-info4-Grammar-functions.txt"; path = "docs-developer/BP2-info4-Grammar-functions.txt"; sourceTree = "<group>"; };
+		92DA091017C445ED00140F5B /* BP2-info.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = "BP2-info.txt"; path = "docs-developer/BP2-info.txt"; sourceTree = "<group>"; };
+		92DA091117C445ED00140F5B /* BP2-history.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = "BP2-history.txt"; path = "docs-developer/BP2-history.txt"; sourceTree = "<group>"; };
+		92DA091217C445ED00140F5B /* Uses-of-Button.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = "Uses-of-Button.txt"; path = "docs-developer/Uses-of-Button.txt"; sourceTree = "<group>"; };
+		92DA091317C445ED00140F5B /* BP2-info3-Midi-functions.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = "BP2-info3-Midi-functions.txt"; path = "docs-developer/BP2-info3-Midi-functions.txt"; sourceTree = "<group>"; };
+		92DA091917C4462400140F5B /* BP2-info5-special-characters.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "BP2-info5-special-characters.txt"; path = "docs-developer/BP2-info5-special-characters.txt"; sourceTree = "<group>"; };
+		92DA091A17C4466500140F5B /* Bugs.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Bugs.txt; sourceTree = "<group>"; };
+		92DA091B17C4467600140F5B /* ChangeLog */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ChangeLog; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -308,6 +318,7 @@
 				92A1133E0EC39232006B5F38 /* Package extras */,
 				92A113870EC3924E006B5F38 /* Frameworks */,
 				92A112B20EC39230006B5F38 /* Products */,
+				92DA090517C4453400140F5B /* docs-developer */,
 			);
 			sourceTree = "<group>";
 		};
@@ -423,6 +434,23 @@
 				92DA02E217BEAC8300140F5B /* CoreServices.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		92DA090517C4453400140F5B /* docs-developer */ = {
+			isa = PBXGroup;
+			children = (
+				92DA091A17C4466500140F5B /* Bugs.txt */,
+				92DA091B17C4467600140F5B /* ChangeLog */,
+				92DA091117C445ED00140F5B /* BP2-history.txt */,
+				92DA091017C445ED00140F5B /* BP2-info.txt */,
+				92DA090E17C445ED00140F5B /* BP2-info2-globals.txt */,
+				92DA091317C445ED00140F5B /* BP2-info3-Midi-functions.txt */,
+				92DA090F17C445ED00140F5B /* BP2-info4-Grammar-functions.txt */,
+				92DA091917C4462400140F5B /* BP2-info5-special-characters.txt */,
+				92DA090D17C445ED00140F5B /* Sound-Object-files.txt */,
+				92DA091217C445ED00140F5B /* Uses-of-Button.txt */,
+			);
+			name = "docs-developer";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
