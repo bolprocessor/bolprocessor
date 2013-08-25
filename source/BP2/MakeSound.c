@@ -1879,7 +1879,7 @@ if(showpianoroll) {
 #endif
 	if(saveport != NULL) SetPort(saveport);
 	else if(Beta) Alert1("Err MakeSound(). saveport == NULL");
-	if(ShowMessage) ClearMessage();
+	if(ShowMessages) ClearMessage();
 	goto GETOUT;
 #endif /* BP_CARBON_GUI */
 	}
