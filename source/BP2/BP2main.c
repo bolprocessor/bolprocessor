@@ -411,7 +411,17 @@ Handle GiveSpace(Size size)
 Size MyGetHandleSize(Handle h)
 {
 if(h == NULL) return((Size) ZERO);
-else return(GetHandleSize(h));
+else {
+	Size size;
+	OSErr memerr;
+	
+	size = GetHandleSize(h);
+	if((memerr=MemError()) != noErr) {
+		TellError(1, memerr);
+		if (Beta) Alert1("Memory error in MyGetHandleSize().");
+		}
+	return(size);
+	}
 }
 
 
