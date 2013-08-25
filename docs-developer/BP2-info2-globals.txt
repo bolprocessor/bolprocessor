@@ -43,3 +43,15 @@ When OMS was the Midi driver, ListenMIDI() would not proceed unless at least one
 of ReadKeyBoardOn, Interactive, or ScriptRecOn was TRUE.  (The CoreMIDI driver
 should perhaps be changed to work like the OMS one).
 
+
+int Varweight
+int Flagthere
+int ResetDone
+
+Varweight is TRUE if any grammar rule has a weight with an increment.
+Flagthere is TRUE if any grammar rule has a flag.
+
+ResetDone is set TRUE at the end of ResetRuleWeights() and FALSE after computing
+in ProduceItems() and CheckItemProduced().  It's value does not actually seem to 
+be checked and used anywhere though.
+

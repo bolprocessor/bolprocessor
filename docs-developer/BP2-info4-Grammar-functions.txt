@@ -173,6 +173,20 @@ int GetAlphabetSpace()
 	Why does it set Jbol = 0; Jhomo = 0; at the end ??
 
 
+int CreateBuffer(tokenbyte*** pp_buff)
+
+	Sets global BufferSize = DeftBufferSize.
+	Allocates or resizes the buffer for the grammar derivation string (?) to a 
+	default size of MAXDISPL (1000) and initializes first two entries to TEND.
+
+
+int MakeComputeSpace(int maxderiv)
+
+	Allocates maxderiv space for each of p_MemGram, p_MemRul, p_MemPos, 
+	p_LastStackIndex, p_ItemStart, and p_ItemEnd but skips individual allocations
+	if the handle already exists.
+
+
 in ProduceItems.c:
 ------------------
 
@@ -188,8 +202,243 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start)
 	Always resets MIDIcontrolstatus array p_Oldvalue[]'s controllers to -1.
 	if(!PlaySelectionOn && ResetControllers) ResetMIDIControllers(YES,YES,NO);
 	
+	Does something with the script if(!PlaySelectionOn && (InitThere == 2)) ??
+	Calls LoadInteraction(TRUE,FALSE).
+	
+	Searches array (*p_VarStatus)[1 to Jvar] for any undefined variables, ignores
+	them if IgnoreUndefinedVariables, ScriptExecOn, or AEventOn is TRUE, else 
+	asks the user if they want to continue and ignore in the future.
+	
+	Resets PedalOrigin to -1 and grammar flags (*p_Flag)[1 to Jflag] to ZERO.
+	
+	Reuses the buffer pp_start for the derivation string (type tokenbyte**) if it
+	exists or calls CreateBuffer(), then calls MakeComputeSpace(MAXDERIV).
+	pp_a is set to either pp_start or the new buffer.
+	
+	Asks to reset rule weights if several conditions are met (including
+	!ResetWeights) but does not reset them (yet) if ResetWeights is already TRUE.
+	
+	(This only gets us to line 156 or so; skipping ahead ...)
+	
+	Line 195:
+	Calls ProduceAll() if (AllItems || template) and then gotos QUIT.
+	
+	Otherwise, if pp_start doesn't contain a starting token buffer and the Start
+	window is empty, then it prints "S" into the Start window.
+	
+	Sets ItemNumber = ZERO.
 	
 	
+	*** Label MAKE (line 216):
+	
+	** Refactoring Note: Almost everything before this could probably be broken out 
+	into a (pre?-)initialization function.  Separate strictly production-related
+	init code from GUI and interactive code.  (InitProduction() ??)
+	
+	This section still just resets more/same values and gets the start string if
+	necessary. Resetting is necessary because sometimes jumps back to MAKE!
+	(Break this out and call it ResetProduction() or PrepareNextProduction()??)
+	
+	Depending on several global flags, it does (again):
+		BufferSize = DeftBufferSize (possibly already done by CreateBuffer())
+		ResetRuleWeights(0) and CompileCheck() if that fails.
+		Resets grammar flags (*p_Flag)[1 to Jflag] to ZERO.
+		
+	If pp_start does contain a starting token buffer, skips to DOIT.
+	Otherwise, calls SelectionToBuffer() on window 'w' (in "normal mode") or 
+	on OutputWindow when DeriveFurther is TRUE.  In the former case, it tries
+	to make sure that something is selected in window 'w' and if that fails, it 
+	constructs the token buffer for "S" directly (T0 10 TEND TEND).
+	
+	** In console build we may be able to avoid calling SelectionToBuffer() or read Start
+	window by first Encode()-ing a properly-formatted string and passing that as pp_start.
+	This is essentially what PlayHandle() does.  (String must be commentless, not start
+	with spaces or contain returns??). Or should we just call Compute() directly?  (How
+	much initialization is skipped that way?)
+	
+	Result of SelectionToBuffer() is in pp_buff and is copied to pp_a.
+	
+
+	*** Label DOIT (line 273):
+	
+	Finally calls Compute(pp_a,1,Gram.number_gram,&lengthA,&repeat)) !!
+	
+	Then depending on several global flags, it displays the results and/or plays
+	the items by calling DisplayMode()/PrintResult(), ShowItem(), and PlayBuffer().
+	
+	Nearly everything after Compute() and before QUIT is logic that could be 
+	considered specific to the Carbon GUI (i.e. a host application using an API
+	could choose how and when to call these additional operations).
+	
+	
+	*** Label QUIT (line 331):
+	
+	Sets ComputeOn-- and calls SetButtons(TRUE).
+	Then in order:
+		ResetMIDIfile();
+		ResetMIDI(TRUE)
+		if(ResetControllers) ResetMIDIControllers(YES,NO,YES);
+		PedalOrigin = -1;
+		Maxitems = ZERO;
+	
+	Some final GUI/script stuff, disposes of pp_a (which may point to pp_start!),
+	and returns!
+
+	
+
+in PlayThings.c:
+----------------
+
+int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,long *p_end,int mode)
+
+	Takes the text selection in window w and converts it into a tokenbyte buffer.
+	
+	First, calls CompilePatterns() if !CompiledPt (why?)
+	Skips over any initial spaces and [comments]
+	Calls ReadToBuff() to get the rest of the text into a string buffer.
+	Calls Encode() to convert string to tokenbytes.
+	
+	Fails if more than 32000 characters (should this limit only apply when using TextEdit?)
+	('mode' is unused)
+	
+
+int ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buff)
+
+	Reads text from window w's text buffer starting at *p_i up to im and copies chars to
+	pp_buff (with null).  Reads a single line of text (stops at 'r') unless noreturn is
+	TRUE. Considers lines ending with '¬' to continue on the next line.
+	
+	Skips /* multi-line comments */ when nocomment is TRUE but stops if it encounters 
+	the beginning of a single-line [comment] (??).
+	
+	
+
+in Encode.c:
+------------
+
+tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1, char **pp2,
+	p_context *p_pleftcontext, p_context *p_prightcontext, int *p_meta, int arg_nr,
+	p_flaglist ***ph_flag,int quick,int *p_result)
+
+	Encodes a text string using the compiled tokens of the current grammar & alphabet (?).
+	
+	Parameters:
+		sequence			unused boolean
+		notargument			?? boolean
+		igram				number of (sub?)grammar
+		irul				number of rule within that (sub?)grammar
+		pp1					beginning of the text buffer to encode
+		pp2					end of the text buffer to encode
+		p_pleftcontext		?
+		p_prightcontext		?
+		p_meta				
+		arg_nr				type of argument (see comments in Encode.c)
+		ph_flag				? (can be NULL)
+		quick				?? boolean
+		p_result			return error code
+		
+	Return value:			handle to tokenbyte array encoding the text buffer
+	
+	After Encode() finishes converting the string to tokenbytes, it calls Recode() on
+	the new token array.
+	
+	Finishes by copying token array to a new handle sized "just right" and returning that.
+
+
+int Recode(int notargument,long *p_imax,tokenbyte ***pp_buff)
+
+	Searches pp_buff for the sequences T0 8 T0 6 ("(=") and T0 8 T0 4 ("(:") and 
+	replaces T0 6 with T2 0 and T0 4 with T2 1 (master and slave parenthesis markers).
+	Then calls FindMaster() and BindSlaves().
+	
+	*p_imax is the result of LengthOf(&p_buff); ('notargument' is unused)
+
+	** Optimize by counting masters and slaves and not calling FindMaster() and 
+	BindSlaves() if zero or alternatively, call as needed.  (If Encode() kept a 
+	boolean for "found master/slave", could we skip Recode() entirely ?) 
+
+
+int FindMaster(tokenbyte ***pp_buff, long orgmaster[], long endmaster[], int *p_nbmaster, long *p_imax)
+
+	Searches pp_buff (again) for the sequence T0 8 T2 0 ("(=") and for each instance:
+		calls LastSymbol()
+		saves the index of first token after parenthesis to orgmaster[]
+		saves the index of last token after parenthesis to endmaster[]
+	
+	** Seems to me that Recode() could just call FindMaster() as it finds each matching
+	token sequence so that FindMaster() does not have to iterate over pp_buff again.
+
+
+int LastSymbol(tokenbyte ***pp_buff, long iorg, long *p_imax)
+
+	Called after finding a master parenthesis marker.  Searches for the matching ')'
+	token (counting nested pairs of parentheses) and returns the index of the previous
+	token.
+
+
+int BindSlaves(tokenbyte ***pp_buff,long *orgmaster,long *endmaster,int *p_nbmaster,long *p_imax)
+
+	Pass 1:
+	Makes a copy (p_a) of pp_buff and searches it for slave parenthesis markers (T2 1)
+	and homomorphisms (T5), remembering the parentheses depth of each homo found.  For
+	each slave marker: 
+		calls Reference() to identify its master(?)
+		changes 2nd tokenbyte of T2 1 in to the result of Reference() (which is?)
+		remembers the length of tokens in the master
+	
+	Then copies p_a back to pp_buff.  (**Investigate: why is the copy needed ?)
+	
+	Iterates over pp_buff 3 more times (?) to "erase content of slaves" even when there
+	are none ?  
+		
+		Pass 2 fills in slave contents with TEND.  Is this important to do before
+		pass 3 (eg. in case slaves contain nested masters/slaves?) ??
+		
+		Pass 3 says /* Count ZERO markers and write true slave markers */
+		I'm not sure what that means.  Pass 3 appears to find each slave, then 
+		count the number of master markers between that slave's master and the slave ??
+		That count ('mark') is then stored in 2nd tokenbyte of T2 n (which was changed
+		above to the result of Reference()).  2nd part of this comment may be a clue:
+				/* Erase content of slaves… */
+				/* … especially copies of 'ZERO' markers that are irrelevant */
+		
+		Pass 4 finds each slave again, calculates the beginning and end of its
+		contents (as done in 1st pass), then calls MoveDown() to shift the rest of the
+		token buffer, deleting the slave contents.
+		
+	*** Optimizations:
+	
+		I'm not sure why the copy in Pass 1 is necessary (although see next idea).
+		
+		Since MoveDown() is called for each slave, many tokens could be moved multiple
+		times.  Should be easy to make this more efficient by copying all tokens to a
+		second buffer and just skipping the slave contents as they are found.  If Pass 2 &
+		3 operate on p_a instead of pp_buff, then the earlier copy from p_a back to
+		pp_buff could be rolled into Pass 4 (obviously not deleting p_a until the end of
+		BindSlaves()).
+
+		Seems like passes 2-4 can be skipped if there are no slaves.  Even better, 
+		Recode() could count the number of slaves and skip BindSlaves() entirely if 0.
+		
+		Further, could we combine some of Passes 2-4 (or even 1-4) so that the buffer is
+		traversed fewer times ?
+	
+	
+int Reference(tokenbyte ***pp_buff, long orgmaster[], long endmaster[], int *p_nbmaster,
+	long *p_imax, long iorg, int nhomo, int levpar, int depth[], int homoname[])
+
+	Identifies the master of a slave parenthesis marker ??
+
+
+
+in Compute.c:
+-------------
+
+int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_repeat)
+
+	Does the actual work (?) of computing items with the grammar.
+	
+
 
 in SoundObjects1.c:
 -------------------

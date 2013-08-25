@@ -1,0 +1,31 @@
+Non-ASCII Character Usage in Bol Processor
+==========================================
+
+Bol Processor makes use of many special characters that were available in the 
+Mac OS Roman character set.  Here are some notes to help identify these
+characters in the code and to suggest how to migrate to Unicode UTF-8.
+
+See http://en.wikipedia.org/wiki/Mac_OS_Roman
+
+Note: This document is encoded using Unicode UTF-8.
+
+
+--------------
+in Misc.c:
+
+MySpace(char c)
+{
+if(c == '\r' || c == '\n' || c == '\0') return(NO);
+if(isspace(c)) return(YES);
+if(c == (char) -54 || c == '\20') return(YES);	/* option space, ctrl-p */
+return(NO);
+}
+
+-54 = 0xCA (202) which is a non-breaking space (in Mac Roman).
+'\20' = 0x10 (16) which is the DLE (Data Link Escape) control character.
+
+The comment notes that '\20' is also Control-P, which must have had some
+other use on Mac OS? (In TextWrangler it functions like the up arrow key(?)
+but only if Emacs key bindings are enabled).
+
+--------------
