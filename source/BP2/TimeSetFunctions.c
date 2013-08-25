@@ -73,7 +73,6 @@ long **p_Ts,**p_tscover,**p_tsgap,Tsm;
 p_list2 **s0,**s,**olds,**ss;
 solset **p_sol_set1,sol_set2,**ptr;
 Milliseconds maxmove,maxcover1,maxcover2;
-OSErr memerr;
 
 if(nseq >= Maxconc) {
 	if(Beta) Alert1("Err. Locate(). nseq >= Maxconc");
@@ -325,10 +324,6 @@ if(kmax > 100 && ++n > 10) {
 if(redo && ((*p_choice1)[i] > 1)) {
 	sol1 = Get_choice((*p_sol_set1)[i],&s,&olds,&redo,&stack_depth,1,i,j,
 			(*p_tp1)[i],(*p_tp2)[i],(*p_Ts)[i],shift1);
-	if((memerr=MemError()) != noErr) {
-		TellError(37,memerr);
-		if(Beta) Alert1("MemError in Locate()"); goto QUIT;
-		}
 	if(sol1 == BACKTRACK) goto FINDMORE;
 	if(sol1 == ABORT) {
 		result = BACKTRACK;

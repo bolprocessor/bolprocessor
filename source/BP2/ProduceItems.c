@@ -769,12 +769,6 @@ AllFollowingItems(t_gram *p_gram,tokenbyte ***pp_a,long ****p_weight,long ****p_
 int icandidate,irul,r,w,repeat,changed,grtype,irep,nrep;
 long ipos,leftpos,lastpos,incmark;
 
-OSErr memerr;
-
-if((memerr=MemError()) != noErr) {
-	TellError(93,memerr);
-	return(ABORT);
-	}
 icandidate = 0;
 ipos = ZERO;
 if((r=MyButton(2)) != FAILED) {
@@ -788,19 +782,11 @@ if(EventState != NO) {
 	}
 
 NEXTPOS:
-if((memerr=MemError()) != noErr) {
-	TellError(12,memerr);
-	goto END;
-	}
 (*p_length) = LengthOf(pp_a);
 PleaseWait();
 if((r=NextDerivation(pp_a,p_length,&igram,&irul,&ipos,&icandidate,mode)) == OK) {
 	if((r=PushStack(pp_a,&p_weight,&p_flag,p_length,&p_stack,p_depth,p_maxdepth)) != OK)
 		goto END;
-	if((memerr=MemError()) != noErr) {
-		TellError(13,memerr);
-		goto ENDPULL;
-		}
 	if(igram > (*p_gram).number_gram) {
 		if(Beta) Alert1("Err. AllFollowingItems(). igram > number_gram [1]");
 		r = ABORT; goto ENDPULL;
@@ -822,10 +808,6 @@ TRY:
 			&leftpos,grtype,repeat,&changed,&lastpos,&incmark,mode)) < ZERO) {
 		goto ENDPULL; /* Happens if buffer problem */
 		}
-	if((memerr=MemError()) != noErr) {
-		TellError(14,memerr);
-		goto ENDPULL;
-		}
 	if((r=ShowItem(igram,p_gram,FALSE,pp_a,FALSE,mode,TRUE)) != OK) goto ENDPULL;
 	
 	/* Check Ô_repeatÕ */
@@ -834,10 +816,6 @@ TRY:
 TRYAGAIN:
 		if((r=NextDerivation(pp_a,p_length,&igram,&irul,&ipos,&icandidate,mode)) == OK) {
 			irep++;
-			if((memerr=MemError()) != noErr) {
-				TellError(15,memerr);
-				goto ENDPULL;
-				}
 			goto TRY;	/* $$$ This needs to be revised */
 			}
 		if(r == ABORT || r == EXIT) return(r);
@@ -875,17 +853,9 @@ TRYAGAIN:
 		r = AllFollowingItems(p_gram,pp_a,p_weight,p_flag,p_length,igram,
 			all,template,endgram,p_stack,p_depth,p_maxdepth,single,mode);
 		}
-	if((memerr=MemError()) != noErr) {
-		TellError(16,memerr);
-		goto ENDPULL;
-		}
 	if(PullStack(pp_a,p_weight,p_flag,p_length,p_stack,p_depth,p_maxdepth) != OK) {
 		if(Beta) Alert1("PullStack() != OK in AllFollowingItems()");
 		return(ABORT);
-		}
-	if((memerr=MemError()) != noErr) {
-		TellError(17,memerr);
-		goto END;
 		}
 	if(r == ABORT || r == EXIT) goto END;
 	ipos += 2L;
@@ -911,13 +881,7 @@ long i,igram,irul,**ptr4;
 Handle ptr;
 tokenbyte **ptr2;
 long **ptr3;
-OSErr memerr;
 
-
-if((memerr=MemError()) != noErr) {
-	TellError(92,memerr);
-	return(ABORT);
-	}
 if((++(*p_depth)) >= (*p_maxdepth)) {
 	if(ThreeOverTwo(p_maxdepth) != OK) return(ABORT);
 	ptr = (Handle) (*pp_stack);
@@ -945,20 +909,12 @@ if((*pp_flag) != NULL) {
 if((ptr3=(long**) GiveSpace((Size)(MaxRul+1) * (Gram.number_gram + 1) * sizeof(long)))
 	== NULL) return(ABORT);
 
-if((memerr=MemError()) != noErr) {
-	TellError(24,memerr);
-	return(ABORT);
-	}
 (**pp_weight)[(*p_depth)] = ptr3;
 for(igram=1,i=0; igram <= Gram.number_gram; igram++) {
 	for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
 		(*((**pp_weight)[(*p_depth)]))[i] = (*((*(Gram.p_subgram))[igram].p_rule))[irul].w;
 		i++;
 		}
-	}
-if((memerr=MemError()) != noErr) {
-	TellError(25,memerr);
-	return(ABORT);
 	}
 return(OK);
 }
@@ -970,7 +926,6 @@ PullStack(tokenbyte ***pp_a,long ****p_weight,long ****p_flag,long *p_length,
 int p,q;
 long i,igram,irul;
 Handle ptr;
-OSErr memerr;
 
 if((*p_depth) < 0  || (*p_depth) >= *p_maxdepth) {
 	if(Beta) Alert1("Err. PullStack(). *p_depth < 0  || (*p_depth) >= *p_maxdepth");
@@ -985,10 +940,6 @@ for(i=0; ; i+=2) {
 	(*p_length) += 2;
 	}
 (**pp_a)[i] = (**pp_a)[i+1] = TEND;
-if((memerr=MemError()) != noErr) {
-	TellError(26,memerr);
-	return(ABORT);
-	}
 ptr = (Handle) (*p_stack)[(*p_depth)];
 MyDisposeHandle(&ptr);
 (*p_stack)[(*p_depth)] = NULL;
@@ -1005,10 +956,6 @@ for(igram=1,i=0; igram <= Gram.number_gram; igram++) {
 		(*((*(Gram.p_subgram))[igram].p_rule))[irul].w = (*((*p_weight)[(*p_depth)]))[i];
 		i++;
 		}
-	}
-if((memerr=MemError()) != noErr) {
-	TellError(27,memerr);
-	return(ABORT);
 	}
 ptr = (Handle) (*p_weight)[(*p_depth)];
 MyDisposeHandle(&ptr);
@@ -1052,12 +999,7 @@ int r,nb_candidates,**p_prefrule,**p_candidate,maxpref,freedom,equalweight,maxru
 	repeat;
 tokenbyte instan[MAXLIN],meta[MAXMETA2],meta1[MAXMETA2];
 long **p_pos,leftpos,istart,jstart,pos,length,lenc1,**p_totwght;
-OSErr memerr;
 
-if((memerr=MemError()) != noErr) {
-	TellError(98,memerr);
-	return(ABORT);
-	}
 maxrul = (*(Gram.p_subgram))[*p_igram].number_rule + 1;
 if((p_totwght = (long**) GiveSpace((Size)maxrul * sizeof(long))) == NULL)
 	return(ABORT);
@@ -1217,12 +1159,7 @@ MakeTemplate(tokenbyte ***pp_a)
 {
 unsigned long i;
 tokenbyte m,p;
-OSErr memerr;
 
-if((memerr=MemError()) != noErr) {
-	TellError(94,memerr);
-	return(ABORT);
-	}
 ClearMarkers(pp_a);
 for(i=ZERO; ((m=(**pp_a)[i]) != TEND || (**pp_a)[i+1] != TEND); i+=2L) {
 	p = (**pp_a)[i+1];
@@ -1242,13 +1179,8 @@ ClearMarkers(tokenbyte ***pp_a)
 {
 unsigned long i,k;
 tokenbyte m,p;
-OSErr memerr;
 int setting_sections;
 
-if((memerr=MemError()) != noErr) {
-	TellError(95,memerr);
-	return(ABORT);
-	}
 if(pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL) {
 	if(Beta) Alert1("Err. ClearMarkers(). pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL");
 	return(OK);
@@ -1281,12 +1213,7 @@ tokenbyte m,p;
 int foundspeed,foundscale,setting_section;
 long speed;
 char line[MAXLIN];
-OSErr memerr;
 
-if((memerr=MemError()) != noErr) {
-	TellError(96,memerr);
-	return(ABORT);
-	}
 if(pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL) {
 	if(Beta) Alert1("Err. WriteTemplate(). pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL");
 	return(OK);
@@ -1370,13 +1297,8 @@ long im,u,v;
 unsigned long k;
 char c,d,*p,**qq,**h;
 tokenbyte **ptr;
-OSErr memerr;
 KeyNumberMap map;
 
-if((memerr=MemError()) != noErr) {
-	TellError(97,memerr);
-	return(ABORT);
-	}
 (*p_posend) = pos;
 if(*pp_a == NULL) {
 	if(Beta) Alert1("Err. ReadTemplate(). *pp_a = NULL");
@@ -1912,7 +1834,7 @@ CheckItemProduced(t_gram *p_gram,tokenbyte ***pp_a,long *p_length,int single,
 int j,sign,r,datamode,ifunc,hastabs;
 unsigned long i,imax;
 long count;
-OSErr io,memerr;
+OSErr io;
 char c,buffer[2];
 
 r = OK;
@@ -1925,10 +1847,6 @@ if(NoVariable(pp_a)) {
 		} */
 	(*p_length) = LengthOf(pp_a);
 	if(template) MakeTemplate(pp_a);
-	if((memerr=MemError()) != noErr) {
-		TellError(18,memerr);
-		goto END;
-		}
 	if(single) {
 		SetFPos(TempRefnum,fsFromStart,ZERO);
 		imax = (*p_length+2);
@@ -2011,10 +1929,6 @@ WRITE:
 	sprintf(Message,"Item #%ld",(long)ItemNumber);
 	FlashInfo(Message);
 //	ShowMessage(TRUE,wMessage,Message);
-	if((memerr=MemError()) != noErr) {
-		TellError(21,memerr);
-		goto END;
-		}
 	ResetDone = ifunc = FALSE;
 	OkShowExpand = FALSE;
 	if(template || DisplayItems) {
@@ -2025,10 +1939,6 @@ WRITE:
 		else {
 			if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto END;
 			Dirty[OutputWindow] = TRUE;
-			}
-		if((memerr=MemError()) != noErr) {
-			TellError(22,memerr);
-			goto END;
 			}
 		if((r=MyButton(1)) != FAILED || StepProduce) {
 			if(r == ABORT || r == EXIT) goto END;
@@ -2049,10 +1959,6 @@ WRITE:
 			}
 		}
 	if(!template && (OutMIDI || OutCsound || WriteMIDIfile)) r = PlayBuffer(pp_a,NO);
-	if((memerr=MemError()) != noErr) {
-		TellError(23,memerr);
-		goto END;
-		}
 	}
 END:
 return(r);

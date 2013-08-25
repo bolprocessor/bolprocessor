@@ -890,7 +890,6 @@ if(size > 0) {
 			goto PASTE;
 			break;
 		}
-	if((io=MemError()) != noErr) TellError(50,io);
 	}
 goto OUT;
 

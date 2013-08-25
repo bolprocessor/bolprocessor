@@ -107,7 +107,6 @@ MystrcpyStringToTable(char ****p_t,int j,char *s)
 {
 /* register */ int i;
 int imax;
-OSErr memerr;
 
 if(p_t == NULL) {
 	if(Beta) Alert1("Err. MystrcpyStringToTable(). p_t = NULL");
@@ -124,7 +123,6 @@ if(s[i] != '\0') {
 	(*((*p_t)[j]))[i] = '\0';
 	if(Beta && s[i] != '\0') Alert1("Err. MystrcpyStringToTable(). s[i] incomplete");
 	}
-if((memerr=MemError()) != noErr) TellError(59,memerr);
 return(OK);
 }
 
@@ -132,7 +130,6 @@ return(OK);
 MystrcpyTableToString(int imax,char *s,char ****p_t,int j)
 {
 /* register */ int i;
-OSErr memerr;
 
 if(p_t == NULL) {
 	if(Beta) Alert1("Err. MystrcpyTableToString(). p_t = NULL");
@@ -144,7 +141,6 @@ do	{
 	}
 while(s[i] != '\0' && i < imax-1);
 s[i] = '\0';	/* The content might get truncated */
-if((memerr=MemError()) != noErr) TellError(60,memerr); // FIXME: probably wrong
 return(OK);
 }
 
@@ -152,7 +148,6 @@ return(OK);
 MystrcpyStringToHandle(char ***pp_t,char *s)
 {
 long i,imt,ims;
-OSErr memerr;
 
 ims = (long) strlen(s) + 1L;
 if(*pp_t == NULL) {
@@ -168,7 +163,6 @@ else {
 i = ZERO;
 do (**pp_t)[i] = s[i];
 while(s[i++] != '\0');
-if((memerr=MemError()) != noErr) TellError(61,memerr);
 return(OK);
 }
 
@@ -176,12 +170,11 @@ return(OK);
 MystrcpyHandleToString(int imax,int offset,char *s,char **p_t)
 {
 long i;
-OSErr memerr;
 char c;
 
 if(p_t == NULL) {
 	s[0] = '\0';
-	goto OUT;
+	return(OK);
 	}
 i = 0;
 while((c = (*p_t)[offset++]) != '\0' && i < imax)
@@ -189,8 +182,6 @@ while((c = (*p_t)[offset++]) != '\0' && i < imax)
 if (i >= imax) i = imax - 1;
 s[i] = '\0';	/* The content might get truncated */
 
-OUT:
-if((memerr=MemError()) != noErr) TellError(62,memerr); // FIXME: probably wrong
 return(OK);
 }
 
@@ -200,8 +191,6 @@ MystrcpyHandleToHandle(int offset,char ***pp_s,char **p_t)
 {
 long i;
 Size ims,imt;
-OSErr memerr;
-
 
 if(p_t == NULL) {
 	if(Beta) Alert1("Err. MystrcpyHandleToHandle(). p_t = NULL");
@@ -233,7 +222,6 @@ do {
 while((*p_t)[offset++] != '\0');
 
 OUT:
-if((memerr=MemError()) != noErr) TellError(63,memerr);
 return(OK);
 }
 
@@ -269,7 +257,6 @@ return(OK);
 Mystrcmp(char **p_t,char *s)
 {
 long i;
-OSErr memerr;
 
 i = ZERO;
 if(p_t == NULL) {
@@ -279,7 +266,6 @@ if(p_t == NULL) {
 do 
 	if((*p_t)[i] != s[i]) return(1);
 while(s[i++] != '\0');
-if((memerr=MemError()) != noErr) TellError(64,memerr); // FIXME: probably wrong
 return(0);
 }
 
@@ -287,7 +273,6 @@ return(0);
 MyHandlecmp(char **p_t,char **p_s)
 {
 long i;
-OSErr memerr;
 
 i = ZERO;
 if(p_t == NULL || p_s == NULL) {
@@ -297,7 +282,6 @@ if(p_t == NULL || p_s == NULL) {
 do 
 	if((*p_t)[i] != (*p_s)[i]) return(1);
 while((*p_s)[i++] != '\0');
-if((memerr=MemError()) != noErr) TellError(65,memerr); // FIXME: probably wrong
 return(0);
 }
 
@@ -305,7 +289,6 @@ return(0);
 MyHandleLen(char **p_t)
 {
 long i,im;
-OSErr memerr;
 
 i = ZERO;
 if(p_t == NULL) {
@@ -321,7 +304,6 @@ while((*p_t)[i] != '\0') {
 if((*p_t)[i] != '\0') {
 	if(Beta) Alert1("Err. MyHandleLen(). (*p_t)[i] != nullchar");
 	}
-if((memerr=MemError()) != noErr) TellError(66,memerr);
 return(i);
 }
 
@@ -330,7 +312,6 @@ Strip(char *word)
 // Eliminate leading and trailing blanks
 {
 int i,j;
-OSErr memerr;
 
 if(word[0] == '\0') return(OK);
 j = 0; while(isspace(word[j])) j++;
@@ -343,7 +324,6 @@ i = strlen(word) - 1;
 while(isspace(word[i])) {
 	word[i] = '\0'; i--;
 	}
-if((memerr=MemError()) != noErr) TellError(67,memerr); // FIXME: probably wrong
 return(OK);
 }
 
@@ -352,7 +332,6 @@ StripHandle(char **p_line)
 // Eliminate leading and trailing blanks
 {
 int i,im,j;
-OSErr memerr;
 
 if(p_line == NULL) {
 	if(Beta) Alert1("Err. StripHandle(). p_line = NULL");
@@ -373,7 +352,6 @@ i = MyHandleLen(p_line) - 1;
 while(isspace((*p_line)[i])) {
 	(*p_line)[i] = '\0'; i--;
 	}
-if((memerr=MemError()) != noErr) TellError(68,memerr);
 return(OK);
 }
 

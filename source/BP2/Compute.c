@@ -173,7 +173,6 @@ if(p_gram == NULL) {
 	return(ABORT);
 	}
 if(p_gram->p_subgram == NULL) return(OK);
-if(Beta) TellError(2,MemError());
 subgram = (*((*p_gram).p_subgram))[igram];
 grtype = subgram.type;
 pp_c = &p_c; p_c = NULL;	/* Buffer used for playing items */
@@ -193,7 +192,6 @@ if((p_pos = (long**) GiveSpace((Size)(subgram.number_rule+1) * sizeof(long))) ==
 	goto QUIT;
 if((p_prefrule = (int**) GiveSpace((Size)(subgram.number_rule+1) * sizeof(int))) == NULL)
 	goto QUIT;
-if(Beta) TellError(3,MemError());
 rep = FAILED;
 
 if(StepProduce || StepGrammars || TraceProduce) {
@@ -272,7 +270,6 @@ if(grtype == SUBtype) {
 	}
 else pp_b = pp_a;
 foundone = FALSE;
-if(Beta) TellError(4,MemError());
 
 RETRY:
 if(grtype == SUBtype)
@@ -280,7 +277,6 @@ if(grtype == SUBtype)
 	for(i=0; i < MyGetHandleSize((Handle)*pp_b)/sizeof(tokenbyte); i++)
 		(**pp_b)[i] = TEND;
 changed = FALSE;
-if(Beta) TellError(5,MemError());
 
 RETRY1:
 notsaid = TRUE; halt = FALSE;
@@ -545,7 +541,6 @@ DOIT:
 	if(grtype == SUBtype && nb_candidates > 1) {
 		(*p_prefrule)[maxpref++] = irul;
 		}
-	if(Beta) TellError(6,MemError());
 	if(equalweight && try > 0) {
 TRY2:
 // Try any rule (see doc "Random problem")
@@ -1089,12 +1084,7 @@ tokenbyte **arg,instan[MAXLIN],meta[MAXMETA2],meta1[MAXMETA2];
 long pos,posmin,posmax,length,istart,jstart,value,lenc1,**p_length,lengthmax;
 int jj,sumwght,irul,n,w,s,r,dir,weight;
 p_flaglist **h;
-OSErr memerr;
 
-if((memerr=MemError()) != noErr) {
-	TellError(99,memerr);
-	return(ABORT);
-	}
 if((rep=ListenMIDI(0,0,0)) < 0) return(rep);
 
 p_length = NULL;
@@ -1718,12 +1708,7 @@ int imode;
 unsigned long i,i1;
 long pos1,offset,dif,inmark;
 t_rule rule;
-OSErr memerr;
 
-if((memerr=MemError()) != noErr) {
-	TellError(98,memerr);
-	return(ABORT);
-	}
 PleaseWait();
 rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
 switch(mode) {
