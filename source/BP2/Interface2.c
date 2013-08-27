@@ -138,6 +138,8 @@ return(OK);
 
 #endif /* BP_CARBON_GUI */
 
+#if BP_CARBON_GUI
+
 ShowMessage(int store,int w,char *s)
 {
 int i;
@@ -199,6 +201,7 @@ TextUpdate(wInfo);
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
 SelectSomething(int w)
 /* Select line on which cursor is flashing */
