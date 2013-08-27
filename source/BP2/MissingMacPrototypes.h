@@ -31,6 +31,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef BP_MISSINGMACPROTOTYPES_H
+#define BP_MISSINGMACPROTOTYPES_H
+
 /*	This file contains prototypes and macros for missing Mac OS functions 
 	that are used by BP2.  If there is a stub or replacement implementation
 	for the function, it will probably be in ConsoleStubs.c.
@@ -44,3 +47,5 @@ Boolean Button();
 #define	HideWindow(windowPtr)
 #define	ShowWindow(windowPtr)
 #define	SelectWindow(windowPtr)
+
+#endif /* BP_MISSINGMACPROTOTYPES_H */

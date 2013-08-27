@@ -35,9 +35,11 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifndef BP_MISSINGMACTYPES_H
+#define BP_MISSINGMACTYPES_H
+
 /* This file contains type definitions from Mac OS that are used by BP2 */
 
-// FIXME: these integer types should be defined using Std. C header types
 typedef uint8_t		UInt8;
 typedef int8_t		SInt8;
 typedef uint16_t	UInt16;
@@ -133,3 +135,5 @@ enum { fsCurPerm, fsRdPerm, fsFromStart };
 enum { normal, bold, kFontIDCourier };
 
 enum { mDownMask, mUpMask };
+
+#endif /* BP_MISSINGMACTYPES_H */
