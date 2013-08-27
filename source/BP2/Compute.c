@@ -402,6 +402,11 @@ ENTER:
 				MyDisposeHandle((Handle*)&p_origin);
 				goto DOIT;
 				}
+#if !BP_CARBON_GUI
+			ShowMessage(TRUE,wMessage,"Choosing candidate rule and repeating production not supported yet!");
+			ShowMessage(TRUE,wMessage,"Selecting first rule.");
+			j = 0;
+#else
 			ShowMessage(TRUE,wMessage,"Click on selected derivation and resume!");
 			BPActivateWindow(SLOW,wTrace);
 			TextGetSelection(&dummy, &selend, TEH[wTrace]);
@@ -497,6 +502,7 @@ ENTER:
 				goto ENTER;
 				}
 			else j--;
+#endif /* BP_CARBON_GUI */
 			MyDisposeHandle((Handle*)&p_origin);
 			}
 		}

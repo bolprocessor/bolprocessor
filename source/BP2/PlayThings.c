@@ -1052,7 +1052,11 @@ while(origin < end) {
 		while(isspace(GetTextChar(w,oldend))) oldend--;
 		oldend++;
 		SetSelect(oldorigin,oldend,TEH[w]);
+#if BP_CARBON_GUI
+		// FIXME: this destroys the contents of the clipboard
+		// so we need another way to remember the deleted text for Undo-ing
 		TextCopy(w);
+#endif /* BP_CARBON_GUI */
 		LastAction = SPACESELECTION;
 		UndoWindow = w;
 		TextGetSelection(&UndoPos, &dummy, TEH[w]);

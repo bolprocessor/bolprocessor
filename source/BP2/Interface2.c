@@ -38,6 +38,7 @@
 
 #include "-BP2decl.h"
 
+#if BP_CARBON_GUI
 
 Ours(WindowPtr theWindow, WindowPtr thatWindow)
 {
@@ -135,6 +136,7 @@ Option = FALSE;
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
 ShowMessage(int store,int w,char *s)
 {
@@ -393,6 +395,7 @@ if(l > 0 && MySpace(c=line[l-1])) {
 return(OK);
 }
 
+#if BP_CARBON_GUI
 
 DoArrowKey(int w,char thechar,int shift,int option)
 {
@@ -793,6 +796,9 @@ DisplayHelp(line);
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
+
+#if BP_CARBON_GUI
 
 Answer(char *what,char c)
 {
@@ -937,6 +943,9 @@ if(!EmergencyExit && !InitOn) UpdateWindow(FALSE,Window[wPrototype1]);
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
+
+#if BP_CARBON_GUI
 
 SetOptionMenu(int option)
 {
@@ -993,6 +1002,7 @@ if (HaveAppearanceManager) {
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
 int GetInitialRemark(char** p_line,char* remark)
 {
@@ -1013,6 +1023,7 @@ return(OK);
 }
 
 
+#if BP_CARBON_GUI
 
 MoveLine(int w,int n,int select)
 // Move cursor to beginning of line (n = -1) or end of line (n = +1)
@@ -1191,6 +1202,7 @@ else ShowSelect(DOWN,w);
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
 SelectBehind(long pos1,long pos2,TextHandle teh)
 /* Doesn't force selection to scroll */
@@ -1230,6 +1242,7 @@ TextDelete(w);
 return(OK);
 }
 
+#if BP_CARBON_GUI
 
 SetResumeStop(int force)
 {
@@ -1359,6 +1372,7 @@ FIX:
 return(r);
 }
 
+#endif /* BP_CARBON_GUI */
 
 FindGoodIndex(int wind)
 {
@@ -1383,6 +1397,7 @@ switch(wind) {
 return(wind);
 }
 
+#if BP_CARBON_GUI
 
 MyButton(int quick)
 {
@@ -1487,7 +1502,7 @@ int r;
 r = OK;
 if(oserr != noErr) {
 	if(!InitOn) {
-		sprintf(Message,"\nMemory error %ld (case %ld)",(long)oserr,(long)thecase);
+		sprintf(Message,"\nMac error %ld (case %ld)",(long)oserr,(long)thecase);
 		if(TraceRefnum > -1) WriteToFile(NO,MAC,Message,TraceRefnum);
 		if(TempRefnum > -1) WriteToFile(NO,MAC,Message,TempRefnum);
 		}
@@ -1599,7 +1614,9 @@ if(oserr != noErr) {
 return(r);
 }
 
+#endif /* BP_CARBON_GUI */
 
+#if 0
 GetString1(char *s)
 {
 char c;
@@ -1616,6 +1633,7 @@ while(c != '\r' && i < 79);
 s[i] = '\0'; 
 return(OK); 
 }
+#endif /* 0 */
 
 /*
 LockRule(igram,irul)
@@ -1666,6 +1684,7 @@ return(OK);
 }
 */
 
+#if BP_CARBON_GUI
 
 CheckSettings(void)
 {
@@ -1745,6 +1764,7 @@ if(NeedSave[w] && !IsEmpty(w)) {
 return(result);
 }
 
+#endif /* BP_CARBON_GUI */
 
 CompileCheck(void)
 {
@@ -1776,6 +1796,8 @@ return(r);
 }
 
 // -----------------------  FIND - REPLACE ------------------------
+
+#if BP_CARBON_GUI
 
 FindReplace(int all)
 {
@@ -2002,7 +2024,11 @@ Dirty[wFindReplace] = FALSE;
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
+
 // -----------------  DIALOG ROUTINES ---------------------------------
+
+#if BP_CARBON_GUI
 
 SetField(DialogPtr ptr,int w,int ifield,char* string)
 {
@@ -2386,3 +2412,5 @@ if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err OutlineTextInDialog(). saveport == NULL");
 return(OK);
 }
+
+#endif /* BP_CARBON_GUI */
