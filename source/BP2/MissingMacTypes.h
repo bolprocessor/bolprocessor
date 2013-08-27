@@ -70,7 +70,6 @@ typedef int16_t		MenuID;
 typedef uint16_t	MenuItemIndex;
 
 typedef Handle	NavMenuItemSpecArrayHandle;
-typedef Handle	TEHandle;
 typedef Handle	PicHandle, PolyHandle, RgnHandle;
 typedef Handle	MenuHandle;
 typedef Handle	ControlHandle;

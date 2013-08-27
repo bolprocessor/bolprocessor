@@ -6,6 +6,7 @@
 // our replacements for various Mac types
 #include "MissingMacTypes.h"
 #include "MissingMacPrototypes.h"
+#include "CTextHandles.h"
 
 // don't compile any GUI-specific code
 #define BP_CARBON_GUI 0

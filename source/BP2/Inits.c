@@ -860,7 +860,7 @@ StrikeModePtr = GetNewDialog(StrikeModeID,NULL,0L);
 TuningPtr = GetNewDialog(TuningID,NULL,0L);
 DefaultPerformanceValuesPtr = GetNewDialog(DefaultID,NULL,0L);
 CsoundInstrMorePtr = GetNewDialog(CsoundInstrMoreID,NULL,0L);
-OMSinoutPtr = GetNewDialog(OMSinoutID,NULL,0L); // always create for now, even when !USE_OMS - 011907 akozar
+OMSinoutPtr = GetNewDialog(OMSinoutID,NULL,0L); // FIXME: should remove all OMS code - 20130826 akozar
 MIDIprogramPtr = GetNewDialog(MIDIprogramID,NULL,0L);
 
 for (i = 0; i < 14; ++i)  BPSetDialogAppearance(*(miscdialogs[i]), miscdlgThemed[i]);
@@ -880,6 +880,11 @@ for(w=0; w < WMAX; w++) {
 	CurrentColor[w] = Black;
 	IsHTML[w] = FALSE;
 	WindowFullAlertLevel[w] = 0;
+#if !BP_CARBON_GUI
+	gpDialogs[w] = NULL;
+	Weird[w] = FALSE;
+	SetUpWindow(w);		// this is to create text buffers
+#endif
 	}
 IsHTML[wCsoundTables] = TRUE;
 
@@ -1091,7 +1096,25 @@ return(OK);
 #endif
 
 
-#if BP_CARBON_GUI
+#if !BP_CARBON_GUI
+/* Non-Carbon version just creates TextHandles to use */
+SetUpWindow(int w)
+{	
+	if(w < 0 || w >= WMAX) {
+		Alert1("Internal problem in setting up text buffers!");
+		return(ABORT);
+	}
+	
+	if(Editable[w]) {
+		TEH[w] = NewTextHandle();
+		if (TEH[w] == NULL) return(ABORT);
+	}
+	else TEH[w] = NULL;
+	Dirty[w] = FALSE;
+	return(OK);
+}
+
+#else
 SetUpWindow(int w)
 {
 Rect destRect,viewRect;

@@ -59,6 +59,8 @@
 		92A113EC0EC39254006B5F38 /* midi1.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113140EC39232006B5F38 /* midi1.h */; };
 		92A113ED0EC39254006B5F38 /* -BP2.proto.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113110EC39232006B5F38 /* -BP2.proto.h */; };
 		92DA09AA17CA899800140F5B /* Interface2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E20EC39231006B5F38 /* Interface2.c */; };
+		92DA0A8C17CBB8FE00140F5B /* CTextHandles.h in Headers */ = {isa = PBXBuildFile; fileRef = 92DA0A8A17CBB8FE00140F5B /* CTextHandles.h */; };
+		92DA0A8D17CBB8FE00140F5B /* CTextHandles.c in Sources */ = {isa = PBXBuildFile; fileRef = 92DA0A8B17CBB8FE00140F5B /* CTextHandles.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -223,6 +225,8 @@
 		92DA091917C4462400140F5B /* BP2-info5-special-characters.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "BP2-info5-special-characters.txt"; path = "docs-developer/BP2-info5-special-characters.txt"; sourceTree = "<group>"; };
 		92DA091A17C4466500140F5B /* Bugs.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Bugs.txt; sourceTree = "<group>"; };
 		92DA091B17C4467600140F5B /* ChangeLog */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ChangeLog; sourceTree = "<group>"; };
+		92DA0A8A17CBB8FE00140F5B /* CTextHandles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CTextHandles.h; path = source/BP2/CTextHandles.h; sourceTree = "<group>"; };
+		92DA0A8B17CBB8FE00140F5B /* CTextHandles.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = CTextHandles.c; path = source/BP2/CTextHandles.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -277,6 +281,7 @@
 				92A112E20EC39231006B5F38 /* Interface2.c */,
 				9224724017B7E9CF00D0439B /* ConsoleStubs.c */,
 				9224732817B97A1100D0439B /* ConsoleMemory.c */,
+				92DA0A8B17CBB8FE00140F5B /* CTextHandles.c */,
 			);
 			name = Enabled;
 			sourceTree = "<group>";
@@ -343,7 +348,6 @@
 		92A1130F0EC39232006B5F38 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
-				92248DCE17BA8C0E00D0439B /* MissingMacPrototypes.h */,
 				92A113100EC39232006B5F38 /* -BP2.h */,
 				92A113110EC39232006B5F38 /* -BP2.proto.h */,
 				92A113120EC39232006B5F38 /* -BP2decl.h */,
@@ -351,6 +355,8 @@
 				92A113140EC39232006B5F38 /* midi1.h */,
 				92A112DC0EC39231006B5F38 /* CarbonCompatUtil.h */,
 				92A112DA0EC39231006B5F38 /* NavServWrapper.h */,
+				92DA0A8A17CBB8FE00140F5B /* CTextHandles.h */,
+				92248DCE17BA8C0E00D0439B /* MissingMacPrototypes.h */,
 				9267C69217B06BC600119CEA /* MissingMacTypes.h */,
 				92A112B50EC39230006B5F38 /* PrefixMachO-Import.h */,
 				92A112C00EC39231006B5F38 /* PrefixANSIDebug.h */,
@@ -471,6 +477,7 @@
 				92832054157B209D00EADF2F /* PrefixANSIDebug.h in Headers */,
 				9267C69517B06BC600119CEA /* MissingMacTypes.h in Headers */,
 				92248DCF17BA8C0E00D0439B /* MissingMacPrototypes.h in Headers */,
+				92DA0A8C17CBB8FE00140F5B /* CTextHandles.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -580,6 +587,7 @@
 				9224724117B7E9CF00D0439B /* ConsoleStubs.c in Sources */,
 				9224732917B97A1100D0439B /* ConsoleMemory.c in Sources */,
 				92DA09AA17CA899800140F5B /* Interface2.c in Sources */,
+				92DA0A8D17CBB8FE00140F5B /* CTextHandles.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
