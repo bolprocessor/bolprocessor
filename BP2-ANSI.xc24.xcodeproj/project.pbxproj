@@ -27,7 +27,6 @@
 		92A113AD0EC3924F006B5F38 /* Strings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EE0EC39232006B5F38 /* Strings.c */; };
 		92A113BD0EC3924F006B5F38 /* CarbonCompatUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112DC0EC39231006B5F38 /* CarbonCompatUtil.h */; };
 		92A113BE0EC3924F006B5F38 /* SetObjectFeatures.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130A0EC39232006B5F38 /* SetObjectFeatures.c */; };
-		92A113BF0EC3924F006B5F38 /* SoundObjects1.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113070EC39232006B5F38 /* SoundObjects1.c */; };
 		92A113C00EC3924F006B5F38 /* SoundObjects2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113080EC39232006B5F38 /* SoundObjects2.c */; };
 		92A113C10EC3924F006B5F38 /* SoundObjects3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113090EC39232006B5F38 /* SoundObjects3.c */; };
 		92A113C20EC3924F006B5F38 /* Csound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FB0EC39232006B5F38 /* Csound.c */; };
@@ -63,6 +62,22 @@
 		92DA0A8D17CBB8FE00140F5B /* CTextHandles.c in Sources */ = {isa = PBXBuildFile; fileRef = 92DA0A8B17CBB8FE00140F5B /* CTextHandles.c */; };
 		92DA0B5B17CD163300140F5B /* ConsoleMessages.c in Sources */ = {isa = PBXBuildFile; fileRef = 92DA0B5A17CD163300140F5B /* ConsoleMessages.c */; };
 		92DA0B6017CD207700140F5B /* ConsoleMessages.h in Headers */ = {isa = PBXBuildFile; fileRef = 92DA0B5F17CD207700140F5B /* ConsoleMessages.h */; };
+		92DA0C4517CD941700140F5B /* ConsoleMain.c in Sources */ = {isa = PBXBuildFile; fileRef = 92246A4317B29E5A00D0439B /* ConsoleMain.c */; };
+		92DA0C4617CD941800140F5B /* ConsoleMemory.c in Sources */ = {isa = PBXBuildFile; fileRef = 9224732817B97A1100D0439B /* ConsoleMemory.c */; };
+		92DA0C4717CD941800140F5B /* ConsoleMessages.c in Sources */ = {isa = PBXBuildFile; fileRef = 92DA0B5A17CD163300140F5B /* ConsoleMessages.c */; };
+		92DA0C4817CD941800140F5B /* ConsoleStubs.c in Sources */ = {isa = PBXBuildFile; fileRef = 9224724017B7E9CF00D0439B /* ConsoleStubs.c */; };
+		92DA0C5117CD944100140F5B /* Encode.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F50EC39232006B5F38 /* Encode.c */; };
+		92DA0C5217CD944A00140F5B /* CTextHandles.c in Sources */ = {isa = PBXBuildFile; fileRef = 92DA0A8B17CBB8FE00140F5B /* CTextHandles.c */; };
+		92DA0C5F17CD97FE00140F5B /* Strings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EE0EC39232006B5F38 /* Strings.c */; };
+		92DA0C6217CD983900140F5B /* GetRelease.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112DD0EC39231006B5F38 /* GetRelease.c */; };
+		92DA0C6417CD985400140F5B /* Inits.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112D80EC39231006B5F38 /* Inits.c */; };
+		92DA0C6617CD98D900140F5B /* Misc.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E30EC39231006B5F38 /* Misc.c */; };
+		92DA0C6917CD992600140F5B /* DisplayThings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F00EC39232006B5F38 /* DisplayThings.c */; };
+		92DA0C6B17CD99BB00140F5B /* CompileGrammar.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F20EC39232006B5F38 /* CompileGrammar.c */; };
+		92DA0C6D17CD9A0800140F5B /* CompileProcs.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F30EC39232006B5F38 /* CompileProcs.c */; };
+		92DA0C6F17CD9B2D00140F5B /* PlayThings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F90EC39232006B5F38 /* PlayThings.c */; };
+		92DA0C7417CD9D6100140F5B /* Polymetric.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F70EC39232006B5F38 /* Polymetric.c */; };
+		92DA0C7517CD9D6600140F5B /* ProduceItems.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F80EC39232006B5F38 /* ProduceItems.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -231,10 +246,19 @@
 		92DA0A8B17CBB8FE00140F5B /* CTextHandles.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = CTextHandles.c; path = source/BP2/CTextHandles.c; sourceTree = "<group>"; };
 		92DA0B5A17CD163300140F5B /* ConsoleMessages.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ConsoleMessages.c; path = source/BP2/ConsoleMessages.c; sourceTree = "<group>"; };
 		92DA0B5F17CD207700140F5B /* ConsoleMessages.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConsoleMessages.h; path = source/BP2/ConsoleMessages.h; sourceTree = "<group>"; };
+		92DA0C2317CD90FE00140F5B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = Info.plist; path = resources/Info.plist; sourceTree = "<group>"; };
+		92DA0C2A17CD926A00140F5B /* bpconsole */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = bpconsole; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		92A112C60EC39231006B5F38 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92DA0C2817CD926A00140F5B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -330,6 +354,7 @@
 				92A113870EC3924E006B5F38 /* Frameworks */,
 				92A112B20EC39230006B5F38 /* Products */,
 				92DA090517C4453400140F5B /* docs-developer */,
+				92DA0C2317CD90FE00140F5B /* Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -337,6 +362,7 @@
 			isa = PBXGroup;
 			children = (
 				92A112C90EC39231006B5F38 /* bpconsole.app */,
+				92DA0C2A17CD926A00140F5B /* bpconsole */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -513,6 +539,22 @@
 			productReference = 92A112C90EC39231006B5F38 /* bpconsole.app */;
 			productType = "com.apple.product-type.application";
 		};
+		92DA0C2917CD926A00140F5B /* bpconsole */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 92DA0C2C17CD928800140F5B /* Build configuration list for PBXNativeTarget "bpconsole" */;
+			buildPhases = (
+				92DA0C2717CD926A00140F5B /* Sources */,
+				92DA0C2817CD926A00140F5B /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = bpconsole;
+			productName = bpconsole;
+			productReference = 92DA0C2A17CD926A00140F5B /* bpconsole */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -527,6 +569,7 @@
 			projectRoot = "";
 			targets = (
 				92A112C80EC39231006B5F38 /* Universal (10.4) */,
+				92DA0C2917CD926A00140F5B /* bpconsole */,
 			);
 		};
 /* End PBXProject section */
@@ -561,7 +604,6 @@
 				92A113AC0EC3924F006B5F38 /* HTML.c in Sources */,
 				92A113AD0EC3924F006B5F38 /* Strings.c in Sources */,
 				92A113BE0EC3924F006B5F38 /* SetObjectFeatures.c in Sources */,
-				92A113BF0EC3924F006B5F38 /* SoundObjects1.c in Sources */,
 				92A113C00EC3924F006B5F38 /* SoundObjects2.c in Sources */,
 				92A113C10EC3924F006B5F38 /* SoundObjects3.c in Sources */,
 				92A113C20EC3924F006B5F38 /* Csound.c in Sources */,
@@ -596,6 +638,29 @@
 				92DA09AA17CA899800140F5B /* Interface2.c in Sources */,
 				92DA0A8D17CBB8FE00140F5B /* CTextHandles.c in Sources */,
 				92DA0B5B17CD163300140F5B /* ConsoleMessages.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92DA0C2717CD926A00140F5B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92DA0C4517CD941700140F5B /* ConsoleMain.c in Sources */,
+				92DA0C4617CD941800140F5B /* ConsoleMemory.c in Sources */,
+				92DA0C4717CD941800140F5B /* ConsoleMessages.c in Sources */,
+				92DA0C4817CD941800140F5B /* ConsoleStubs.c in Sources */,
+				92DA0C5117CD944100140F5B /* Encode.c in Sources */,
+				92DA0C5217CD944A00140F5B /* CTextHandles.c in Sources */,
+				92DA0C5F17CD97FE00140F5B /* Strings.c in Sources */,
+				92DA0C6217CD983900140F5B /* GetRelease.c in Sources */,
+				92DA0C6417CD985400140F5B /* Inits.c in Sources */,
+				92DA0C6617CD98D900140F5B /* Misc.c in Sources */,
+				92DA0C6917CD992600140F5B /* DisplayThings.c in Sources */,
+				92DA0C6B17CD99BB00140F5B /* CompileGrammar.c in Sources */,
+				92DA0C6D17CD9A0800140F5B /* CompileProcs.c in Sources */,
+				92DA0C6F17CD9B2D00140F5B /* PlayThings.c in Sources */,
+				92DA0C7417CD9D6100140F5B /* Polymetric.c in Sources */,
+				92DA0C7517CD9D6600140F5B /* ProduceItems.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -678,6 +743,51 @@
 			};
 			name = Debug;
 		};
+		92DA0C2D17CD928800140F5B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = source/prefix/PrefixANSIDebug.h;
+				INSTALL_PATH = "$(HOME)/bin";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					warning,
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = bpconsole;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		92DA0C2E17CD928800140F5B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = source/prefix/PrefixANSIDebug.h;
+				INSTALL_PATH = "$(HOME)/bin";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					warning,
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = bpconsole;
+				ZERO_LINK = NO;
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -695,6 +805,15 @@
 			buildConfigurations = (
 				92456DE30EC96270001BD76F /* Release */,
 				92456DE70EC96278001BD76F /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		92DA0C2C17CD928800140F5B /* Build configuration list for PBXNativeTarget "bpconsole" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92DA0C2D17CD928800140F5B /* Release */,
+				92DA0C2E17CD928800140F5B /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
