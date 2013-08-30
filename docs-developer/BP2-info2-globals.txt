@@ -55,3 +55,38 @@ ResetDone is set TRUE at the end of ResetRuleWeights() and FALSE after computing
 in ProduceItems() and CheckItemProduced().  It's value does not actually seem to 
 be checked and used anywhere though.
 
+
+int Ndiagram
+PolyHandle p_Diagram[MAXDIAGRAM];
+int DiagramWindow[MAXDIAGRAM];
+
+
+int ObjectMode
+int ObjectTry
+
+ObjectMode indicates that an object prototypes (-mi) file has been loaded (?).
+These two flags are almost always set, cleared, and tested together.  ObjectTry
+seems to only be set TRUE by itself in CheckLoadedPrototypes() if the user
+refuses to load prototypes or LoadObjectPrototypes() fails.  In other cases
+where LoadObjectPrototypes() fails, both are set to FALSE. Looks like if either
+is TRUE, then many attempts to load prototypes are skipped.
+
+
+int	iProto
+
+iProto is the index of the currently-displayed prototype in the GUI.
+
+
+int EventState
+
+EventState is used primarily to convey the status from received Apple Events.
+Its default value ("do nothing") is NO.  EXIT means that BP2 should quit.
+Other values like ABORT, AGAIN, QUICK, and RESUME are used to signal when
+the real-time improvisation AEs are received.
+
+
+int SkipFlag
+
+Skips playing the next item when TRUE.  Can be set by an Apple Event or a Midi
+message determined in the interaction file.
+
