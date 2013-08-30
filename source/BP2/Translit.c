@@ -512,11 +512,15 @@ SetFPos(refnum,fsFromStart,ZERO);
 
 while(TRUE) {
 	PleaseWait();
+#if BP_CARBON_GUI
+	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if(MyButton(1)) {
 		while((result = MainEvent()) != RESUME && result != STOP && result != EXIT && result != ABORT){};
 		if(result == EXIT || result == ABORT || result == STOP) goto OVER;
 		result = OK;
 		}
+#endif /* BP_CARBON_GUI */
+
 	if((rr=ReadOne(FALSE,FALSE,FALSE,refnum,FALSE,&p_line,&p_completeline,&pos)) == FAILED) break;
 	irow++;
 	if((*p_line)[0] == '\0') goto READMORE;
@@ -1168,6 +1172,8 @@ for(i=0; i < imax; i++) {
 	}
 
 for(ifield=1; ifield <= outfields; ifield++) {
+#if BP_CARBON_GUI
+	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if((result=MyButton(0)) != FAILED) {
 		SetButtons(TRUE);
 		Interrupted = TRUE;
@@ -1184,6 +1190,7 @@ for(ifield=1; ifield <= outfields; ifield++) {
 			result = ABORT; goto OUT;
 			}
 		}
+#endif /* BP_CARBON_GUI */
 	result = OK;
 	for(iwork=0; iwork < MAXDATABASEFIELDS; iwork++) {
 		if((*p_fieldlist)[iwork].savefield == ifield) goto DOFIELD;

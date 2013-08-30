@@ -775,6 +775,8 @@ long ipos,leftpos,lastpos,incmark;
 
 icandidate = 0;
 ipos = ZERO;
+#if BP_CARBON_GUI
+// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 if((r=MyButton(2)) != FAILED) {
 	if(r == OK) r = InterruptCompute(igram,p_gram,FALSE,ORDtype,mode);
 	if(r != OK) return(r);
@@ -784,6 +786,7 @@ if(EventState != NO) {
 	if(Beta) Alert1("EventState != NO in AllFollowingItems()");
 	return(EventState);
 	}
+#endif /* BP_CARBON_GUI */
 
 NEXTPOS:
 (*p_length) = LengthOf(pp_a);
@@ -1944,6 +1947,8 @@ WRITE:
 			if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto END;
 			Dirty[OutputWindow] = TRUE;
 			}
+#if BP_CARBON_GUI
+	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 		if((r=MyButton(1)) != FAILED || StepProduce) {
 			if(r == ABORT || r == EXIT) goto END;
 			if(r != OK && !StepProduce) {
@@ -1961,6 +1966,7 @@ WRITE:
 			r = EventState;
 			goto END;
 			}
+#endif /* BP_CARBON_GUI */
 		}
 	if(!template && (OutMIDI || OutCsound || WriteMIDIfile)) r = PlayBuffer(pp_a,NO);
 	}

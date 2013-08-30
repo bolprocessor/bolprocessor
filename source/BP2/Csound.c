@@ -1741,6 +1741,7 @@ if(ShowMessages && !LoadOn) ShowMessage(TRUE,wMessage,"Compiling Csound score…")
 
 while(TRUE) {
 #if BP_CARBON_GUI
+	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if((result=MyButton(1)) != FAILED) {
 		if(result != OK || (result=InterruptCompileCscore()) != OK) goto OUT;
 		}
@@ -2097,6 +2098,7 @@ PrintBehindln(wPrototype7,LineBuff);
 for(ievent=ZERO; ievent < (*p_CsoundSize)[j]; ievent++) {
 	PleaseWait();
 #if BP_CARBON_GUI
+	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if((result=MyButton(1)) != FAILED) {
 		if(result != OK || (result=InterruptCompileCscore()) != OK) goto OUT;
 		}

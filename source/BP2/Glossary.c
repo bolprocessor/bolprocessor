@@ -234,6 +234,8 @@ BADLINE:
 	errors++;
 NEXTLINE:
 	posline = pos;
+#if BP_CARBON_GUI
+	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if((r=MyButton(1)) != FAILED) {
 		if(r == OK) while((r = MainEvent()) != RESUME && r != STOP && r != EXIT);
 		if(r == EXIT) goto ERR;
@@ -247,6 +249,7 @@ NEXTLINE:
 	if(EventState) {
 		r = EventState; goto ERR;
 		}
+#endif /* BP_CARBON_GUI */
 	}
 	
 irul--;

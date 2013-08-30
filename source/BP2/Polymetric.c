@@ -940,6 +940,11 @@ if(speed > TokenLimit || (1./speed) > TokenLimit) {
 just_fill_gap = FALSE;
 		
 for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i+=2L) {
+#if BP_CARBON_GUI
+	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
+	// This block is very similar to the middle of InterruptTimeSet() and to code in
+	// SetTimeObjects().  Could we refactor the shared code into a function ?? 
+	// (or move this if block into a function InterruptExpand()) ?? -- akozar, 20130830
 	if((i % 100L) == ZERO && (result=MyButton(1)) != FAILED) {
 		StopCount(0);
 		SetButtons(TRUE);
@@ -982,6 +987,7 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 	if(Panic) {
 		result = ABORT; goto OUT;
 		}
+#endif /* BP_CARBON_GUI */
 	p = (*p_b)[i+1];
 	if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 		result = ABORT; goto OUT;

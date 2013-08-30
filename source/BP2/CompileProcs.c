@@ -1644,6 +1644,7 @@ return(r);
 }
 
 
+#if BP_CARBON_GUI
 InterruptCompile(void)
 {
 int r,dirtygrammar,dirtyalphabet;
@@ -1663,3 +1664,4 @@ if((r != ABORT && r != EXIT) && (Dirty[wGrammar] || Dirty[wAlphabet])) {
 Dirty[wGrammar] = dirtygrammar; Dirty[wAlphabet] = dirtyalphabet;
 return(r);
 }
+#endif /* BP_CARBON_GUI */

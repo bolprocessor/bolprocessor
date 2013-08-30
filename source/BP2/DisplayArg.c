@@ -407,6 +407,8 @@ else p_sequence = NULL;
 for(i=ia; ; i+=2L) {
 	m = (int)(**pp_a)[i]; p = (int)(**pp_a)[i+1];
 	if(m == TEND && p == TEND) break;
+#if BP_CARBON_GUI
+	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if(!nocode && ((i % 10L) == 0)) {
 		if((r=MyButton(2)) != FAILED) {
 			StopCount(0);
@@ -441,6 +443,7 @@ for(i=ia; ; i+=2L) {
 	if(EventState != NO) {
 		r = EventState; goto OUT;
 		}
+#endif /* BP_CARBON_GUI */
 	if(m == T3 || m == T25) {
 		if((r=CheckPeriodOrLine(print_periods,p_newline,p_newsection,f,th,&beat,numberprolongations,
 				&sp)) != OK) goto OUT;

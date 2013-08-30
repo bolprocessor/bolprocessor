@@ -309,6 +309,8 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	
 NEXTLINE:
 	posline = pos;
+#if BP_CARBON_GUI
+	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if((r=MyButton(1)) != FAILED) {
 		Interrupted = TRUE;
 		if(r != OK) goto OUT;
@@ -330,7 +332,8 @@ OUT:
 	if(EventState != NO) {
 		r = EventState; goto OUT;
 		}
-	}
+#endif /* BP_CARBON_GUI */
+	}  // while (Readline())
 
 END:
 MyDisposeHandle((Handle*)&p_line);
@@ -965,6 +968,8 @@ while(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
 			tbknown = TRUE; goto NEXTLINE;
 			}
 		}
+#if BP_CARBON_GUI
+	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if(!justcount && (rep=MyButton(1)) != FAILED) {
 		if(rep != OK || (rep=InterruptCompile()) != OK) {
 			MyDisposeHandle((Handle*)&p_line);
@@ -978,6 +983,7 @@ while(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
 		if(CompileOn) CompileOn--;
 		return(EventState);
 		}
+#endif /* BP_CARBON_GUI */
 	if(Mystrcmp(p_line,"TIMEPATTERNS:") == 0) {
 		do {
 			if(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) != OK) goto END;

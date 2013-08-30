@@ -1953,6 +1953,11 @@ return(OK);
 }
 
 
+/* ??? Not sure what the purpose of this functions is.  To prevent sending
+   too many Midi messages ?  CoreMIDI driver sets MaxMIDIbytes = LONG_MAX,
+   so not sure if this function is likely to ever do anything.
+   -- akozar 20130830
+ */
 CheckMIDIbytes(int tell)
 {
 unsigned long drivertime;
@@ -1976,6 +1981,8 @@ if(Nbytes > MaxMIDIbytes) {
 			PleaseWait();
 			ShowMessage(FALSE,wMessage,Message);
 			}
+#if BP_CARBON_GUI
+	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 		if((rep=MyButton(0)) != FAILED) {
 			StopCount(0);
 			SetButtons(TRUE);
@@ -1992,6 +1999,7 @@ if(Nbytes > MaxMIDIbytes) {
 			}
 		rep = OK;
 		if(EventState != NO) return(EventState);
+#endif /* BP_CARBON_GUI */
 		if((rep=ListenMIDI(0,0,0)) == ABORT || rep == ENDREPEAT
 			|| rep == EXIT) return(rep);
 		drivertime = GetDriverTime();

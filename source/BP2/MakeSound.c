@@ -107,7 +107,10 @@ interruptedonce = overflow = FALSE;
 rs = 0;
 resetok = TRUE;
 
+#if BP_CARBON_GUI
+// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 if((rep=MyButton(1)) != FAILED) {
+	// any reason that InterruptSound() is not used here instead ?
 	StopCount(0);
 	Interrupted = TRUE; compiledmem = CompiledGr;
 	SetButtons(TRUE);
@@ -120,6 +123,8 @@ if((rep=MyButton(1)) != FAILED) {
 	}
 rep = OK;
 if(EventState != NO) return(EventState);
+#endif /* BP_CARBON_GUI */
+
 Ke = log((double) SpeedRange) / 64.;
 t0 = ZERO;
 if(*p_kmax >= Maxevent) {
@@ -448,7 +453,9 @@ if(!MIDIfileOn && !cswrite && OutMIDI && !ItemCapture && !FirstTime && !PlayProt
 			FlashInfo("Waiting for MIDI sync code…");
 			WhenItStarted = clock();
 			do {
+				// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 				if((rep=MyButton(1)) != FAILED) {
+					// any reason that InterruptSound() is not used here instead ?
 					StopCount(0);
 					interruptedonce = TRUE;
 					SetButtons(TRUE);
@@ -565,6 +572,8 @@ for(noccurrence = 0; noccurrence < Nplay || SynchroSignal == PLAYFOREVER; noccur
 	result = OK;
 	PleaseWait();
 	if(SkipFlag) goto OVER;
+#if BP_CARBON_GUI
+	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if(!showpianoroll && (result=MyButton(1)) != FAILED) {
 		interruptedonce = TRUE;
 		if(result != OK || (result=InterruptSound()) != OK) goto OVER;
@@ -573,6 +582,7 @@ for(noccurrence = 0; noccurrence < Nplay || SynchroSignal == PLAYFOREVER; noccur
 	if(EventState != NO) {
 		result = EventState; goto OVER;
 		}
+#endif /* BP_CARBON_GUI */
 	for(k=2; k <= (*p_kmax); k++) {
 		(*p_inext)[k] = (*p_inext1)[k];
 		(*p_onoff)[k] = FALSE;
@@ -772,11 +782,14 @@ TRYCSFILE:
 
 		if(!(*p_onoff)[kcurrentinstance]) {
 			howmuch = 0.;
+#if BP_CARBON_GUI
+			// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 			if(!showpianoroll && (result=MyButton(2)) != FAILED) {
 				interruptedonce = TRUE;
 				if(result != OK || (result=InterruptSound()) != OK) goto OVER;
 				}
 			else PleaseWait();
+#endif /* BP_CARBON_GUI */
 			result = OK;
 			(*p_onoff)[kcurrentinstance] = TRUE;
 			(*p_icycle)[kcurrentinstance] = 1;
@@ -1349,10 +1362,14 @@ PLAYOBJECT:
 		while(t1 <= t2  && t1 <= t3  && ievent < im) {
 			Tcurr =  (t0 + t1) / Time_res;
 			
+#if BP_CARBON_GUI
+			// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
+			// Does the call to MyButton() happen now that maxmidibytes5 = LONG_MAX / 5 ?
 			if(Nbytes > maxmidibytes5 && !showpianoroll && (result=MyButton(1)) != FAILED) {
 				interruptedonce = TRUE;
 				if(result != OK || (result=InterruptSound()) != OK) goto OVER;
 				}
+#endif /* BP_CARBON_GUI */
 			result = OK;
 			
 			if(objectduration > ZERO) howmuch = ((float)(t1 - objectstarttime)) / objectduration;
@@ -1619,10 +1636,14 @@ NEWPERIOD:
 
 		if(!cswrite && !showpianoroll && (result=CheckMIDIbytes(YES)) != OK
 												&& result != RESUME) goto OVER;
+#if BP_CARBON_GUI
+		// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
+		// Does the call to MyButton() happen now that maxmidibytes5 = LONG_MAX / 5 ?
 		if(Nbytes > maxmidibytes5 && !showpianoroll && (result=MyButton(1)) != FAILED) {
 			interruptedonce = TRUE;
 			if(result != OK || (result=InterruptSound()) != OK) goto OVER;
 			}
+#endif /* BP_CARBON_GUI */
 		result = OK;
 		
 		if(Beta && (chancont >= MAXCHAN || icont > IPANORAMIC)) {
@@ -2148,17 +2169,21 @@ while(Button() || (timeleft = (Tcurr - drivertime)) > buffertime) {
 		ShowMessage(FALSE,wMessage,Message);
 		PleaseWait();
 		}
+#if BP_CARBON_GUI
 	if(EventState != NO) {
 		result = EventState;
 		goto OVER;
 		}
+#endif /* BP_CARBON_GUI */
 	if((result = ListenMIDI(0,0,0)) != OK && result != RESUME && result != QUICK
 			&& result != ENDREPEAT) break;
 	if(result == EXIT || result == ABORT) break;
 	
 	drivertime = GetDriverTime();
 	}
+#if BP_CARBON_GUI
 if(EventState != NO) result = EventState;
+#endif /* BP_CARBON_GUI */
 
 OVER:
 if(WaitOn > 0) WaitOn--;
@@ -2175,12 +2200,15 @@ long timeleft,formertime;
 int result,rep,compiledmem;
 unsigned long drivertime;
 
+#if BP_CARBON_GUI
 if(!OutMIDI || MIDIfileOn) {
 	if(MIDIfileOn && (result=MyButton(0)) != FAILED) {
 		return(Answer("Continue writing MIDI file",'Y'));
 		}
 	return(OK);
 	}
+#endif /* BP_CARBON_GUI */
+
 #if WITH_REAL_TIME_MIDI
 WhenItStarted += 1L;	/* Change it slightly so that BP2 remembers WaitForEmptyBuffer() has been called */
 if(Nbytes == ZERO || Panic) return(OK);
@@ -2196,6 +2224,8 @@ while((timeleft=(Tcurr - drivertime)) >  (CLOCKRES * Oms) /* (10 * CLOCKRES * Om
 		ShowMessage(FALSE,wMessage,Message);
 		PleaseWait();
 		}
+#if BP_CARBON_GUI
+	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if((rep=MyButton(0)) != FAILED) {
 		StopCount(0);
 		SetButtons(TRUE);
@@ -2216,11 +2246,14 @@ while((timeleft=(Tcurr - drivertime)) >  (CLOCKRES * Oms) /* (10 * CLOCKRES * Om
 	if(EventState != NO) {
 		result = EventState; goto OVER;
 		}
+#endif /* BP_CARBON_GUI */
 	if((result = ListenMIDI(0,0,0)) == ABORT
 		|| result == EXIT || result == ENDREPEAT || result == QUICK) goto OVER;
+#if BP_CARBON_GUI
 	if(EventState != NO) {
 		result = EventState; goto OVER;
 		}
+#endif /* BP_CARBON_GUI */
 	drivertime = GetDriverTime();
 	}
 Nbytes = 0; Tbytes2 = ZERO;
@@ -2230,10 +2263,11 @@ if(WaitOn > 0) WaitOn--;
 HideWindow(Window[wMessage]);
 WhenItStarted = clock();
 return(result);
-#endif
+#endif /* WITH_REAL_TIME_MIDI */
 }
 
 
+#if BP_CARBON_GUI
 InterruptSound(void)
 {
 int result,compiledmem;
@@ -2252,6 +2286,7 @@ if(result == STOP || (compiledmem && !CompiledGr)) return(ABORT);
 if(LoadedIn && (!CompiledIn && (result=CompileInteraction()) != OK)) return(result);
 return(OK);
 }
+#endif /* BP_CARBON_GUI */
 
 
 long Findibm(int index,Milliseconds dur,int chan)

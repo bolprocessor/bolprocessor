@@ -968,9 +968,16 @@ TextDelete(wTrace);
 if(DisplayStackIndex > 1) {
 	UndoFlag = TRUE;
 	datemem = CompileDate;
+#if !BP_CARBON_GUI
+	ShowMessage(TRUE, wMessage, "FIXME: Choosing to RESUME in function Undo().");
+	r = RESUME;
+#else
+	// FIXME: Non-Carbon builds should probably use a callback or input from user 
+	// to make a choice here.
 	ShowWindow(GetDialogWindow(ResumeUndoStopPtr));
 	BringToFront(GetDialogWindow(ResumeUndoStopPtr));
 	while((r=MainEvent()) != RESUME && r != STOP && r != UNDO && r != EXIT){};
+#endif /* BP_CARBON_GUI */
 	UndoFlag = FALSE;
 	if((datemem != CompileDate) || !CompiledGr || !CompiledPt) {
 		Alert1("Grammar changed or recompiled.  Must abortÉ");
@@ -1115,6 +1122,8 @@ if(grtype == SUBtype && (*p_maxpref) > 0) {
 	for(j=0,sumwght=0; j < *p_maxpref; j++) {
 		if(Improvize && SkipFlag) return(ABORT);
 		if(Improvize && ((rep=ListenMIDI(0,0,0)) != OK)) return(rep);
+#if BP_CARBON_GUI
+		// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 		else {
 			if((r=MyButton(2)) != FAILED) {
 				if(r == OK) r = InterruptCompute(igram,p_gram,repeat,grtype,PROD);
@@ -1123,6 +1132,7 @@ if(grtype == SUBtype && (*p_maxpref) > 0) {
 			r = OK;
 			if(EventState != NO) return(EventState);
 			}
+#endif /* BP_CARBON_GUI */
 		irul = (*p_prefrule)[j];
 		rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
 		h = rule.p_leftflag;
@@ -1218,6 +1228,8 @@ for(irul=startfrom,i=0,sumwght=0; irul >= 1 && irul <= n; irul+=dir) {
 		if(Improvize && ((rep=ListenMIDI(0,0,0)) != OK)) {
 			i = rep; goto OVER;
 			}
+#if BP_CARBON_GUI
+		// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 		else {
 			if((r=MyButton(2)) != FAILED) {
 				if(r == OK) r = InterruptCompute(igram,p_gram,repeat,grtype,mode);
@@ -1230,6 +1242,7 @@ for(irul=startfrom,i=0,sumwght=0; irul >= 1 && irul <= n; irul+=dir) {
 				i = EventState; goto OVER;
 				}
 			}
+#endif /* BP_CARBON_GUI */
 		}
 	rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
 	if(mode == PROD) {
@@ -1320,6 +1333,8 @@ for(irul=startfrom,i=0,sumwght=0; irul >= 1 && irul <= n; irul+=dir) {
 			(*p_totwght)[0] = 1; (*p_pos)[0] = pos;
 			(*p_maxpref) = 1;
 			(*p_freedom) = (*p_equalweight) = FALSE;
+#if BP_CARBON_GUI
+			// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 			if((r=MyButton(2)) != FAILED) {
 				if(r == OK) r = InterruptCompute(igram,p_gram,repeat,grtype,mode);
 				if(r != OK) {
@@ -1330,6 +1345,7 @@ for(irul=startfrom,i=0,sumwght=0; irul >= 1 && irul <= n; irul+=dir) {
 			if(EventState != NO) {
 				i = EventState; goto OVER;
 				}
+#endif /* BP_CARBON_GUI */
 			i = 1;
 			goto OVER;
 			}
@@ -2123,15 +2139,20 @@ if(mode == PROD && PlanProduce && (DisplayStackIndex > 1)) UndoFlag = TRUE;
 r = OK;
 
 QUIT:
+#if BP_CARBON_GUI
+// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
+// StepProduce should be revised as an API call that returns to host! 
 if((rep=MyButton(2)) != FAILED || StepProduce) {
 	if(rep == OK || StepProduce) return(InterruptCompute(igram,p_gram,repeat,0,mode));
 	r = rep;
 	}
 if(EventState != NO) r = EventState;
+#endif /* BP_CARBON_GUI */
 return(r);
 }
 
 
+#if BP_CARBON_GUI
 InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode)
 {
 long lastbyte;
@@ -2218,3 +2239,4 @@ if(r == RESUME) {
 PleaseWait();
 return(r);
 }
+#endif /* BP_CARBON_GUI */

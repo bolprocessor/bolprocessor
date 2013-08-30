@@ -324,6 +324,11 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 			p_maxtruncbeg,p_maxtruncend)) != OK) goto EXIT1;
 		}
 	(*p_alphadone)[nseq] = TRUE;
+
+#if BP_CARBON_GUI
+	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
+	// This block is very similar to the middle of InterruptTimeSet().  Could we
+	// refactor the shared code into a function ?? -- akozar, 20130830
 	if((r=MyButton(1)) != FAILED) {
 		StopCount(0);
 		SetButtons(TRUE);
@@ -361,6 +366,8 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	if(EventState != NO) {
 		result = EventState; goto EXIT1;
 		}
+#endif /* BP_CARBON_GUI */
+
 	if(DisplayTimeSet) {
 		sprintf(Message,"\rSequence #%ld\r",(long)(nseq+1L));
 		Print(wTrace,Message);

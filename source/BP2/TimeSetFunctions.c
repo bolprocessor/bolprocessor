@@ -38,7 +38,8 @@
 
 #include "-BP2decl.h"
 
-
+// FIXME ? These prototypes are also in -BP2.proto.h; where should they be?
+// are these funcs used outside this file? - akozar 20130829
 int Locate(int,unsigned long**,long,int,Milliseconds**,unsigned long*,Milliseconds**,Milliseconds**,Milliseconds**,
 	Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,int,int,char**);
 char Possible_choices(solset,char,int,int,int,int,int,char**,
@@ -1167,6 +1168,8 @@ if(Improvize && !WriteMIDIfile && !OutCsound) {
 	if(Improvize && (result == ABORT || SkipFlag)) return(ABORT);
 	if(result == QUICK || result == EXIT) return(result);
 	}
+#if BP_CARBON_GUI
+// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 if((result=MyButton(2)) != FAILED) {
 	StopCount(0);
 	SetButtons(TRUE);
@@ -1209,5 +1212,6 @@ else {
 			}
 		}
 	}
+#endif /* BP_CARBON_GUI */
 return(OK);
 }

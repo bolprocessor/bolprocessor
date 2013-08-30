@@ -783,11 +783,14 @@ if(OldFile(-1,type,fn,&spec)) {
 			
 			while(TRUE) {
 				PleaseWait();
+#if BP_CARBON_GUI
+				// FIXME ? Should non-Carbon builds call a "poll events" callback here ? (probably not)
 				if((result=MyButton(2)) != FAILED
 						&& Answer("Continue reading MIDI file",'Y') != OK) {
 					result = FAILED;
 					goto OUT;
 					}
+#endif /* BP_CARBON_GUI */
 				result = OK;
 				if(nbytes >= chunklength) {
 					err = 24;

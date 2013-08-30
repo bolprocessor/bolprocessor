@@ -965,6 +965,8 @@ p_a = NULL; newitem = FALSE;
 ExpandOn = TRUE;
 
 while(origin < end) {
+#if BP_CARBON_GUI
+	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if((r=MyButton(0)) != FAILED) {
 		Interrupted = TRUE;
 		dirtymem = Dirty[wAlphabet];
@@ -982,6 +984,7 @@ while(origin < end) {
 	if(EventState != NO) {
 		r = EventState; goto OUT;
 		}
+#endif /* BP_CARBON_GUI */
 	SetSelect(origin,end,TEH[w]);
 	if((r = SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
 		MyDisposeHandle((Handle*)&p_a);

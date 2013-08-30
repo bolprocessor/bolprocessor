@@ -79,13 +79,16 @@ if(arg_nr == 0) {
 		}
 	}
 for(; (*pp) <= (*pp2);) {
-	if(25 * (i / 25) == i) PleaseWait();  // OPTIMIZE: i % 25 == 0
+	if(i % 25 == 0) PleaseWait();
+#if BP_CARBON_GUI
+	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if((SelectOn || CompileOn) && ((*p_result)=MyButton(2)) != FAILED) {
 		if((*p_result) != OK || ((*p_result)=InterruptCompile()) != OK) goto ERR;
 		PleaseWait();
 		}
 	(*p_result) = OK;
 	if(EventState != NO) goto ERR;
+#endif /* BP_CARBON_GUI */
 	while(GetNilString(pp) == OK){}; /* Skip ÒlambdaÓ */
 	c = NextChar(pp);
 	if(isdigit(c)) {
