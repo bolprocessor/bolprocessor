@@ -60,6 +60,7 @@ else return(OK);
 }
 
 
+#if BP_CARBON_GUI
 RecordPrototype(int j)
 {
 int r;
@@ -92,6 +93,7 @@ p_Code = NULL;
 ChangedProtoType(j);
 return(r);
 }
+#endif /* BP_CARBON_GUI */
 
 
 AdjustDuration(int j,Milliseconds newdur)
@@ -905,6 +907,7 @@ return(OK);
 }
 
 
+#if BP_CARBON_GUI	// CheckiProto() is only called from DoDialog()
 CheckiProto(void)
 {
 int r;
@@ -935,6 +938,7 @@ if(iProto >= Jbol) {
 	}
 return(OK);
 }
+#endif /* BP_CARBON_GUI */
 
 
 PlayPrototype(int j)
@@ -1080,7 +1084,9 @@ if(PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) return(ABORT);
 
 OUT:
 if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+#if BP_CARBON_GUI
 SetPrototypePage5(j);
+#endif /* BP_CARBON_GUI */
 return(rep);
 }
 

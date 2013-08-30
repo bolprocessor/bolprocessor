@@ -91,6 +91,8 @@ return(OK);
 }
 #endif
 
+#if BP_CARBON_GUI
+
 SetPrototype(int j)
 // Copying from memory to dialogs
 {
@@ -807,4 +809,4 @@ SetField(NULL,wPrototype8,fAssignInstrument,line);
 return(DoSystem());
 }
 
-
+#endif /* BP_CARBON_GUI */

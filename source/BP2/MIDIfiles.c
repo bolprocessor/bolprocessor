@@ -623,10 +623,12 @@ if(preservechannel) (*p_DefaultChannel)[j] = -1;
 
 ChangedProtoType(j);
 
+#if BP_CARBON_GUI
 if(j == iProto && !((*p_Type)[j] & 1)) {
 	(*p_Type)[j] |= 1;
 	if(iProto == j) SwitchOn(NULL,wPrototype1,bMIDIsequence);
 	}
+#endif /* BP_CARBON_GUI */
 return(result);
 }
 

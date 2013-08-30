@@ -438,7 +438,9 @@ if(MakeComputeSpace(MaxDeriv) != OK) return(FAILED);
 if(learn) ResetRuleWeights(1);
 neworigin = origin;
 
+#if BP_CARBON_GUI
 SwitchOn(NULL,wControlPannel,dAnalyze);
+#endif /* BP_CARBON_GUI */
 
 /* Skip headers */
 p_line = NULL;
@@ -515,7 +517,9 @@ if(learn) {
 	}
 END:
 MyDisposeHandle((Handle*)&p_line);
+#if BP_CARBON_GUI
 SwitchOff(NULL,wControlPannel,dAnalyze);
+#endif /* BP_CARBON_GUI */
 return(r);
 }
 

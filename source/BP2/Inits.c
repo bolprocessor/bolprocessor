@@ -630,7 +630,9 @@ for(i=0; i < MAXCHAN; i++) {
 	WhichCsoundInstrument[i+1] = -1;
 	}
 
+#if BP_CARBON_GUI
 SwitchOn(NULL,wPrototype5,bPlayPrototypeTicks);
+#endif /* BP_CARBON_GUI */
 PrototypeTickChannel = 1; PrototypeTickKey = 84;
 TickKey[0] = 96;
 TickKey[1] = 84;

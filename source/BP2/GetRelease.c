@@ -832,6 +832,7 @@ for(j=2; j < max; j++) {
 	}
 if(DoSystem() != OK) return(ABORT);
 if(ResizeObjectSpace(YES,2,0) != OK) return(ABORT);
+#if BP_CARBON_GUI
 SetField(NULL,wPrototype1,fProtoName,"[no sound-object prototype]");
 SetField(NULL,wPrototype1,fDuration,"0");
 SetField(NULL,wPrototype1,fPrototypeFileComment,"[Comments on file]");
@@ -840,6 +841,7 @@ SwitchOff(NULL,wPrototype1,bMIDIsequence);
 SwitchOff(NULL,wPrototype1,bSampledSound);
 SwitchOff(NULL,wPrototype1,bCsoundInstrument);
 KillDiagrams(wPrototype1);
+#endif /* BP_CARBON_GUI */
 
 Dirty[iObjects] = Created[iObjects] = FALSE;
 ObjectMode = ObjectTry = TempMemory = AskedTempMemory = FixedMaxQuantization = FALSE;

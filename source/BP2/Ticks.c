@@ -171,7 +171,9 @@ if(newbeat && TickCapture && allfinished) {
 			}
 		Stream.pclock = (long) Pclock;
 		Stream.qclock = (long) Qclock;
+#if BP_CARBON_GUI
 		SetPrototypePage1(iProto);
+#endif /* BP_CARBON_GUI */
 		return(STOP);
 		}
 	}

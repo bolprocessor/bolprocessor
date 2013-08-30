@@ -117,7 +117,7 @@ CompiledCsObjects = (*p_CompiledCsoundScore)[j] = FALSE;
 return(OK);
 }
 
-
+#if BP_CARBON_GUI
 GetPrototype(int force)
 // Copying from dialogs to memory
 {
@@ -313,9 +313,7 @@ if((*p_CsoundInstr)[iProto] > 0) {
       }
    }
 
-#if BP_CARBON_GUI
 GetCsoundScore(iProto);
-#endif /* BP_CARBON_GUI */
 
 if((GetField(NULL,TRUE,wPrototype8,fAssignInstrument,line,&p,&q) != OK) || p < ZERO) {
    SetField(NULL,wPrototype8,fAssignInstrument,"[None]");
@@ -334,8 +332,10 @@ else {
 	}
 return(CheckConsistency(iProto,TRUE));
 }
+#endif /* BP_CARBON_GUI */
 
 
+#if BP_CARBON_GUI	// CheckPrototypes() is only called from CheckiProto() & mObjectPrototypes()
 CheckPrototypes(void)
 {
 int r,longerCsound;
@@ -381,6 +381,7 @@ END:
 HideWindow(Window[wMessage]);
 return(r);
 }
+#endif /* BP_CARBON_GUI */
 
 
 CheckConsistency(int j,int check)
@@ -396,25 +397,31 @@ bugg = FALSE;
 if((*p_CsoundSize)[j] <= ZERO) {
 	if((*p_Type)[j] & 4) {
 		(*p_Type)[j] &= (255-4);
-		if(iProto == j) SwitchOff(NULL,wPrototype1,bCsoundInstrument);
 		(*p_CsoundInstr)[j] = 0;
+#if BP_CARBON_GUI
 		if(iProto == j) {
+			SwitchOff(NULL,wPrototype1,bCsoundInstrument);
 	    	SwitchOn(NULL,wPrototype8,bForceCurrInstrument);
 	    	SwitchOff(NULL,wPrototype8,bDontChangeInstrument);
 	    	SwitchOff(NULL,wPrototype8,bForceToInstrument);
 			}
+#endif /* BP_CARBON_GUI */
 		}
    }
 else  {
    if(!((*p_Type)[j] & 4)) {
 		(*p_Type)[j] |= 4;
+#if BP_CARBON_GUI
 		if(iProto == j) SwitchOn(NULL,wPrototype1,bCsoundInstrument);
+#endif /* BP_CARBON_GUI */
 		}
    }
 if((*p_MIDIsize)[j] == ZERO) {
 	if((*p_Type)[j] & 1) {
 		(*p_Type)[j] &= (255-1);
+#if BP_CARBON_GUI
 		if(iProto == j) SwitchOff(NULL,wPrototype1,bMIDIsequence);
+#endif /* BP_CARBON_GUI */
 		}
 	}
 else  {

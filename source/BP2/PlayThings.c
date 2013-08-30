@@ -829,12 +829,17 @@ SetPrototypeDuration(j,&longerCsound);
 if(Stream.cyclic && what == bDeleteReplace) {
 	(*p_PeriodMode)[j] = RELATIVE;
 	(*p_BeforePeriod)[j] = ZERO;
+#if BP_CARBON_GUI
 	SetPrototypePage6(j);
+#endif /* BP_CARBON_GUI */
 	}
+
+#if BP_CARBON_GUI
 SetPrototypePage5(j);
 SetPrototype(j);
 
 UpdateDirty(TRUE,wPrototype1);
+#endif /* BP_CARBON_GUI */
 
 OUT:
 return(OK);
@@ -855,8 +860,10 @@ for(i=((*p_Ifrom)[j]+Stream.imax); i < (*p_MIDIsize)[j]; i++) {
 	}
 (*p_MIDIsize)[j] -= Stream.imax;
 SetPrototypeDuration(j,&longerCsound);
+#if BP_CARBON_GUI
 SetPrototypePage5(j);
 SetPrototype(j);
+#endif /* BP_CARBON_GUI */
 ChangedProtoType(j);
 UpdateDirty(TRUE,wPrototype1);
 return(OK);

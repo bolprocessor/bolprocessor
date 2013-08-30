@@ -1695,7 +1695,9 @@ if(p_line == NULL || (*p_line)[0] == '\0') {
 	(*p_CsoundSize)[j] = ZERO;	/* Added 5/3/98 */
 	if((*p_Type)[j] & 4) {
 		(*p_Type)[j] &= (255-4);
+#if BP_CARBON_GUI
 		if(iProto == j) SetPrototypePage1(j);
+#endif /* BP_CARBON_GUI */
 		}
 	return(OK);
 	}
@@ -2051,9 +2053,11 @@ if(PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) return(ABORT);
 SetPrototypeDuration(j,p_longerCsound);
 
 if(iProto == 0 && Jbol > 2) iProto = 2;
+#if BP_CARBON_GUI
 if(result == OK && iProto == j && j > 1 && j < Jbol) {
 	if((*p_CsoundSize)[j] > ZERO && SetPrototype(j) != OK) return(ABORT);
 	}
+#endif /* BP_CARBON_GUI */
 if(result == OK) (*p_CompiledCsoundScore)[j] = TRUE;
 
 return(result);
@@ -2084,7 +2088,9 @@ if(DurationToPoint(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) {
 	if(CompileOn) CompileOn--;
 	return(ABORT);
 	}
+#if BP_CARBON_GUI
 if(j != iProto) SetPrototype(iProto=j);
+#endif /* BP_CARBON_GUI */
 PrintBehind(wPrototype7,"t 0 "); Dirty[iObjects] = TRUE;
 WriteFloatToLine(LineBuff,(double)(*p_CsoundTempo)[j]);
 PrintBehindln(wPrototype7,LineBuff);

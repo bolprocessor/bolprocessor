@@ -1006,7 +1006,9 @@ if(!IsMidiDriverOn()) return(OK);
 if(!OutMIDI || MIDIfileOpened) return(OK);
 
 #if WITH_REAL_TIME_MIDI  // FIXME? do we need to reset BP's internal values anyways? - akozar
+#if BP_CARBON_GUI
 SwitchOn(NULL,wControlPannel,bResetControllers);
+#endif /* BP_CARBON_GUI */
 
 rs = 0;	/* Running status */
 
@@ -1099,7 +1101,9 @@ if(now) WaitABit(500L);
 result = OK;
 
 OUT:
+#if BP_CARBON_GUI
 SwitchOff(NULL,wControlPannel,bResetControllers);
+#endif /* BP_CARBON_GUI */
 return(result);
 #endif
 }

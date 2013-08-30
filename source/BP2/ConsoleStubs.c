@@ -34,6 +34,8 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "-BP2.h"
+#include "-BP2decl.h"
+#include "ConsoleMessages.h"
 
 /* Stubs to replace missing functions from BP2 Carbon GUI and from Mac OS X Carbon libraries */
 
@@ -79,6 +81,26 @@ int StopCount(int i)
 	return OK;
 }
 
+int CheckLoadedPrototypes(void)
+{
+	if (NeedAlphabet && !ObjectMode && !ObjectTry && (OutMIDI || OutCsound || WriteMIDIfile)) {
+		ObjectTry = TRUE;
+		Alert1("Loading object prototypes is not yet possible in console version, "
+		       "so MIDI and Csound output may not work correctly.");
+		return FAILED;
+	}
+	return OK; // ??
+}
+
+int ClearWindow(int reset,int w)
+{
+	BP_NOT_USED(reset);
+	BP_NOT_USED(w);
+	// do we need some of the logic from ClearWindow() in Interface1.c ?
+	return OK;
+}
+
+
 /* These are Mac OS X Carbon calls that could have useful replacements in
    the console/library build or that are too numerous in the BP2 source code
    to conditionalize with the preprocessor. */
@@ -86,8 +108,8 @@ int StopCount(int i)
 void SysBeep(short duration)
 {
 	BP_NOT_USED(duration);
-	// FIXME: should replace printf with a messaging API
-	printf("\007Beep!\n");
+	// FIXME: should probably only send \007 to a terminal ?
+	BPPrintMessage(odWarning, "\007Beep!\n");
 	return;
 }
 
