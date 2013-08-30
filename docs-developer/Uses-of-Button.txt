@@ -1,3 +1,35 @@
+Notes on MyButton()
+===================
+
+MyButton() is like an alternate, abbreviated event loop that is used to decide whether
+to interrupt long processes (??).  It ignores certain classes of events depending on 
+the parameter "quick".  (See Bugs.txt for possible problems with quick == 1 or 2).
+
+The result of MyButton() is often used to decide whether to call one of the Interrupt*()
+functions and before similar code in PolyExpand(), ExpandSelection(), MakeSound(),
+WaitForEmptyBuffer(), CheckMIDIbytes(), CompileGlossary(), SetTimeObjects(),
+MakeGrammarFromTable(), and TransliterateRecord().  All of this code generally calls the
+MainEvent() loop if an interruption has occurred until RESUME, STOP, or EXIT is returned.
+Something similar is done when step-by-step production is on.
+
+A small exception to the above is InterruptTimeSet() which includes the MyButton() call
+itself and therefore calls to it are not preceded by MyButton().  This could be a 
+reasonable model to facilitate transitioning to the API functionality described next.
+
+MyButton() and the Interrupt*() functions/code are being disabled in the console build
+for now but it will likely be desirable in the future to replace them with an API for
+host applications to set callbacks that provide at least the following functions:
+
+	- show the amount of progress an operation has made
+	- ability to cancel an operation in progress
+	- ability to pause and resume operations that can support that
+	- control over step-by-step production
+
+In the Carbon GUI, it would be nice if this functionality could be combined with a new
+"playback transport" that shows a progress bar and has buttons for Pause/Resume, Stop,
+Next Step, and Undo Step.
+
+
 Uses of Button()
 =================
 
@@ -34,7 +66,8 @@ different solutions may need to be applied to different parts of the code.
 For example, the use of Button() to cancel an operation should perhaps be replaced with 
 a more general UserCanceled() function that could check for standard cancellation events
 in the Carbon GUI (Command-period, Esc, others?) but would call a host application 
-callback in non-Carbon builds.
+callback in non-Carbon builds.  It also might be desirable to display a small (movable
+modal?) window with a standard progress bar and Cancel button during these operations.
 
 * Exceptions:  Calls like while(Button()); cannot be changed to UserCanceled().
                These are marked below with *.
