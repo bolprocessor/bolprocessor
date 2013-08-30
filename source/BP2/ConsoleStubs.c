@@ -85,8 +85,8 @@ int CheckLoadedPrototypes(void)
 {
 	if (NeedAlphabet && !ObjectMode && !ObjectTry && (OutMIDI || OutCsound || WriteMIDIfile)) {
 		ObjectTry = TRUE;
-		Alert1("Loading object prototypes is not yet possible in console version, "
-		       "so MIDI and Csound output may not work correctly.");
+		BPPrintMessage(odWarning, "Loading object prototypes is not yet possible in "
+			"console version, so MIDI and Csound output may not work correctly.");
 		return FAILED;
 	}
 	return OK; // ??
@@ -97,6 +97,22 @@ int ClearWindow(int reset,int w)
 	BP_NOT_USED(reset);
 	BP_NOT_USED(w);
 	// do we need some of the logic from ClearWindow() in Interface1.c ?
+	return OK;
+}
+
+int InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode)
+{
+	BP_NOT_USED(igram);
+	BP_NOT_USED(p_gram);
+	BP_NOT_USED(repeat);
+	BP_NOT_USED(grtype);
+	BP_NOT_USED(mode);
+	
+	if (StepProduce || StepGrammars) {
+		BPPrintMessage(odWarning, "Step-by-step production and step subgrammars options "
+			"do not work yet in console version.");
+	}
+	BPPrintMessage(odWarning, "Continuing from InterruptCompute()...");
 	return OK;
 }
 
