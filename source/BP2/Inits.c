@@ -544,9 +544,15 @@ if((p_INscript=(INscripttype**) GiveSpace((Size) Maxinscript * sizeof(INscriptty
 	== NULL) return(ABORT);
 for(i=0; i < Maxinscript; i++) ((*p_INscript)[i]).chan = -1;
 
+#if BP_CARBON_GUI
 ResetPianoRollColors();
 ShowPianoRoll = ToldAboutPianoRoll = FALSE;
 ShowObjectGraph = TRUE;
+#else
+ShowPianoRoll = FALSE;
+ToldAboutPianoRoll = TRUE;
+ShowObjectGraph = FALSE;
+#endif /* BP_CARBON_GUI */
 
 p_Instance = NULL;
 p_ObjectSpecs = NULL;

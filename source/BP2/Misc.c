@@ -899,7 +899,9 @@ if (GetLinkedFileName(w,iSettings,name) == OK) {
 	if(strcmp(FileName[iSettings],name) != 0 || Dirty[iSettings]) {
 		strcpy(FileName[iSettings],name);
 		Created[iSettings] = FALSE;
+#if BP_CARBON_GUI
 		TellOthersMyName(iSettings);
+#endif /* BP_CARBON_GUI */
 		return(OK);
 		}
 	else return(FAILED); 	/* Name is unchanged: no need to reload */

@@ -468,7 +468,9 @@ rep = FAILED;
 
 if(Pclock < 1.) {	/* Non measured smooth time */
 	Alert1("Tick cycle cannot be captured because there is no clock");
+#if BP_CARBON_GUI
 	mMetronom(Nw);
+#endif /* BP_CARBON_GUI */
 	goto OUT;
 	}
 if(!TickThere) {

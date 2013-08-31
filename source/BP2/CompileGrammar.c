@@ -380,9 +380,11 @@ if((N_err == 0) && onerulefound) {
 			}
 		}
 	InsertSubgramTypes();
+#if BP_CARBON_GUI
 	ShowPannel(wControlPannel,dSaveDecisions);
 	ShowPannel(wControlPannel,dShowGramWeights);
 	ShowPannel(wControlPannel,dAnalyze);
+#endif /* BP_CARBON_GUI */
 	ResetRuleWeights(0);
 	Dirty[wGrammar] = dirtymem;
 	if(CompileOn) CompileOn--;

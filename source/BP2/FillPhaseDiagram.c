@@ -1670,6 +1670,7 @@ MySetHandleSize((Handle*)&p_articul,(Size)Maxevent*sizeof(short));
 MySetHandleSize((Handle*)&p_T,(Size) (*p_maxseq+2)*sizeof(Milliseconds));
 
 if(DoSystem() != OK) return(ABORT);
+#if BP_CARBON_GUI
 if(!foundobject && ShowGraphic && !ShowPianoRoll && !ScriptExecOn && Jbol < 3
 		&& Jpatt == 0 && ((*p_numberobjects) > 10) && !ToldAboutPianoRoll) {
 	ToldAboutPianoRoll = TRUE;
@@ -1681,6 +1682,7 @@ if(!foundobject && ShowGraphic && !ShowPianoRoll && !ScriptExecOn && Jbol < 3
 		MaintainMenus();
 		}
 	}
+#endif /* BP_CARBON_GUI */
 return(OK);
 }
 

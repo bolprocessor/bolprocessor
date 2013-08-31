@@ -288,9 +288,11 @@ if(shift1 == ZERO) goto INCREMENT;
 if((*p_choice1)[i] > 1) goto NEWCHOICE1;
 
 if(TraceTimeSet) {
+#if BP_CARBON_GUI
 	if(StepTimeSet && (result=DrawSequence(nseq,NULL,p_ts1,p_ts2,
 				kmax,(unsigned long)i,p_imaxseq,FALSE,p_ddelta0,p_ddelta1,p_ddelta2)) != OK)
 		goto QUIT;
+#endif /* BP_CARBON_GUI */
 	if(j < 16384)
 		sprintf(Message,"\rCol#%ld side %ld  Ts=%ld t1=%ld  t2=%ld  Ò%sÓ ",
 			(long)i,1L,(long)(*p_Ts)[i],(long)(*p_tp1)[i],(long)(*p_tp2)[i],*((*p_Bol)[j]));
@@ -332,8 +334,10 @@ if(redo && ((*p_choice1)[i] > 1)) {
 		}
 	}
 else {
+#if BP_CARBON_GUI
 	if(StepTimeSet && (result=DrawSequence(nseq,NULL,p_ts1,p_ts2,kmax,(unsigned long)i,p_imaxseq,FALSE,
 		p_ddelta0,p_ddelta1,p_ddelta2)) != OK) goto QUIT;
+#endif /* BP_CARBON_GUI */
 	sol1 = Next_choice((*p_sol_set1)[i],nseq,i,i0,j,(*p_Ts)[i],(*p_ts1)[i],
 																(*p_ts2)[i],shift1,1);
 	if((*p_choice1)[i] > 5) {
@@ -414,8 +418,10 @@ if(redo && (choice2 > 1)) {
 		}
 	}
 else {
+#if BP_CARBON_GUI
 	if(StepTimeSet && (result=DrawSequence(nseq,NULL,p_ts1,p_ts2,kmax,(unsigned long)i,p_imaxseq,FALSE,p_ddelta0,p_ddelta1,p_ddelta2)) != OK)
 		goto QUIT;
+#endif /* BP_CARBON_GUI */
 	sol2 = Next_choice(sol_set2,nseq,i,i0,j,(*p_Ts)[i],(*p_ts1)[i],(*p_ts2)[i],shift2,2);
 	if(sol2 == -8) {
 		sprintf(Message,"\rnseq=%ld i=%ld side=2 j=%ld choice2=%ld sol_set=",
@@ -551,8 +557,10 @@ Tsm = (*p_Ts)[i];
 if(DisplayTimeSet) Print(wTrace,"<"); 
 if(i == i0) {
 	if(StepTimeSet) {
+#if BP_CARBON_GUI
 		if((result=DrawSequence(nseq,NULL,p_ts1,p_ts2,kmax,(unsigned long)i,p_imaxseq,FALSE,p_ddelta0,p_ddelta1,p_ddelta2)) != OK)
 			goto QUIT;
+#endif /* BP_CARBON_GUI */
 		if(Pause() == 'Q') {
 			result = ABORT; goto QUIT;
 			}
@@ -645,8 +653,10 @@ imaxseq = (*p_imaxseq)[nseq];
 if(imaxseq < 2L) return(OK);
 
 if(DisplayTimeSet) {
+#if BP_CARBON_GUI
 	if((result=DrawSequence(nseq,NULL,p_t1,p_t2,kmax,(unsigned long)(*p_imaxseq)[nseq],p_imaxseq,FALSE,p_ddelta0,p_ddelta1,p_ddelta2))
 		!= OK) return(result);
+#endif /* BP_CARBON_GUI */
 	sprintf(Message,"\rsol#%ld ---------- SEQUENCE %ld ---------------------\r",
 			(long)nsol,(long)(nseq+1));
 	Print(wTrace,Message);

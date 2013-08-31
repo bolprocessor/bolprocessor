@@ -1455,8 +1455,10 @@ int separator,gap;
 long pos,pos1,posmax;
 char **p_line;
 
+#if BP_CARBON_GUI
 UpdateWindow(FALSE,Window[wGrammar]); /* Update text length */
 ShowSelect(CENTRE,wGrammar);
+#endif /* BP_CARBON_GUI */
 pos = pos1 = ZERO;
 posmax = GetTextLength(wGrammar);
 while(posmax > 0 && GetTextChar(wGrammar,posmax-1) == '\r') posmax--;

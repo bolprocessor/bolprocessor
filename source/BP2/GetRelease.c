@@ -65,9 +65,14 @@ if((r=ResetKeyboard(YES)) != OK) return(r);
 #endif /* BP_CARBON_GUI */
 for(w=0; w < WMAX; w++) {
 	PleaseWait();
+#if BP_CARBON_GUI
 	if(FileName[w][0] == '\0') continue;
 	RemoveFirstLine(wData,FilePrefix[w]);
 	if(w != wScript && w != wData && w != wScrap) ForgetFileName(w);
+#else
+	// just clearing the name of all files enough ? - akozar 20130830
+	FileName[w][0] = '\0';
+#endif /* BP_CARBON_GUI */
 	}
 /* TellOthersMyName(wKeyboard); */
 PlayTicks = FALSE; SetTickParameters(0,MAXBEATS); ResetTickFlag = TRUE;

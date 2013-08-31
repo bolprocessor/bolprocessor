@@ -753,8 +753,10 @@ if(NewFile(-1,1,PascalLine,*CsFileReply)) {
 			return(ABORT);
 			}
 /*		WriteToFile(NO,CsoundFileFormat,"\0",CsRefNum); */
+#if BP_CARBON_GUI
 		UpdateWindow(FALSE,Window[wCsoundTables]); /* Update text length */
 		ShowSelect(CENTRE,wCsoundTables);
+#endif /* BP_CARBON_GUI */
 		length = GetTextLength(wCsoundTables);
 		ishtml = IsHTML[wCsoundTables];
 		IsHTML[wCsoundTables] = FALSE;

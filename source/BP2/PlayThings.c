@@ -716,7 +716,9 @@ switch(what) {
 		(*p_PasteDone)[j] = FALSE;
 		break;
 	case bHelpPasteSelection:
+#if BP_CARBON_GUI
 		DisplayHelp("Paste text selection to sound-object prototype");
+#endif /* BP_CARBON_GUI */
 		if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 		goto OUT;
 		break;
