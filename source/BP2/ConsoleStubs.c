@@ -100,6 +100,25 @@ int ClearWindow(int reset,int w)
 	return OK;
 }
 
+int ShowSelect(int dir,int w)
+{
+	BP_NOT_USED(dir);
+	BP_NOT_USED(w);
+	return OK;
+}
+
+int Reformat(int w,int font,int size,int face,RGBColor* p_color,int manual,int force)
+{
+	BP_NOT_USED(w);
+	BP_NOT_USED(font);
+	BP_NOT_USED(size);
+	BP_NOT_USED(face);
+	BP_NOT_USED(p_color);
+	BP_NOT_USED(manual);
+	BP_NOT_USED(force);
+	return OK;
+}
+
 int InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode)
 {
 	BP_NOT_USED(igram);
