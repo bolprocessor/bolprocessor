@@ -804,7 +804,9 @@ ReleaseObjectPrototypes(void)
 int i,j,maxsounds,max;
 Handle ptr;
 
+#if BP_CARBON_GUI
 if(SaveCheck(iObjects) != OK) return(FAILED);
+#endif /* BP_CARBON_GUI */
 maxsounds = Jbol + Jpatt;
 if(pp_MIDIcode == NULL) max = 0;
 else max = MyGetHandleSize((Handle) pp_MIDIcode) / sizeof(MIDIcode**);

@@ -50,10 +50,12 @@ long endofselection,size,lengthA;
 if(CheckEmergency() != OK) return(ABORT);
 if(((SetTimeOn || PrintOn || SoundOn || SelectOn) && !repeat)
 					|| CompileOn || GraphicOn || PolyOn) return(RESUME);
+#if BP_CARBON_GUI
 if(SaveCheck(wGrammar) == ABORT) return(FAILED);
 if(SaveCheck(wAlphabet) == ABORT) return(FAILED);
 if(SaveCheck(wInteraction) == ABORT) return(FAILED);
 if(SaveCheck(wGlossary) == ABORT) return(FAILED);
+#endif /* BP_CARBON_GUI */
 if(CompileCheck() != OK) return(FAILED);
 if(!template && CheckLoadedPrototypes() != OK) return(FAILED);
 

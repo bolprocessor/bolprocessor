@@ -80,10 +80,12 @@ PlaySelectionOn++;
 ResetMIDI(TRUE);
 
 r = ABORT;
+#if BP_CARBON_GUI
 if(SaveCheck(wAlphabet) == ABORT) goto END;
 if(SaveCheck(wGrammar) == ABORT) goto END;
 if(SaveCheck(wInteraction) == ABORT) goto END;
 if(SaveCheck(wGlossary) == ABORT) goto END;
+#endif /* BP_CARBON_GUI */
 if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 	CompiledAl = FALSE;
 	if(CompileAlphabet() != OK) goto END;
@@ -383,10 +385,12 @@ if(!OutMIDI && !OutCsound && !onlypianoroll) {
 
 r = FAILED;
 asked = FALSE;
+#if BP_CARBON_GUI
 if(SaveCheck(wAlphabet) == ABORT) return(r);
 if(SaveCheck(wInteraction) == ABORT) return(r);
 if(SaveCheck(wGlossary) == ABORT) return(r);
 if(SaveCheck(wGrammar) == ABORT) return(r);
+#endif /* BP_CARBON_GUI */
 
 if(!CompiledAl || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 	CompiledAl = FALSE;
@@ -549,15 +553,18 @@ PlaySelectionOn++;
 /* ResetMIDI(TRUE); */
 
 r = ABORT; p_a = NULL;
+#if BP_CARBON_GUI
 if(SaveCheck(wAlphabet) == ABORT) goto END;
 if(SaveCheck(wGrammar) == ABORT) goto END;
 if(SaveCheck(wInteraction) == ABORT) goto END;
 if(SaveCheck(wGlossary) == ABORT) goto END;
+#endif /* BP_CARBON_GUI */
 if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 	CompiledAl = FALSE;
 	if(CompileAlphabet() != OK) goto END;
 	}
 r = FAILED;
+// FIXME ? Why is this done a second time? - akozar 20130830
 if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 	CompiledAl = FALSE;
 	if(CompileAlphabet() != OK) goto END;
