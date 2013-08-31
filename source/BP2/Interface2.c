@@ -1791,7 +1791,9 @@ if(!CompiledGr || !CompiledAl) {
 	}
 CompiledGl = compiledgl;
 if(ObjectMode && ((r=CompileCsoundObjects()) != OK)) return(r);
+#if BP_CARBON_GUI
 if(LoadedIn && (!CompiledIn && (r=CompileInteraction()) != OK)) return(r);
+#endif /* BP_CARBON_GUI */
 if((r=UpdateGlossary()) != OK) return(r);
 if(!CompiledPt) if((r=CompilePatterns()) != OK) return(r);
 if(SmartCursor) r = UpdateAutomata();

@@ -298,7 +298,9 @@ again = FALSE;
 	
 SETTIME:
 if((result=CheckLoadedPrototypes()) != OK) goto RELEASE;
+#if BP_CARBON_GUI
 if((result=LoadInteraction(TRUE,FALSE)) != OK) goto RELEASE;
+#endif /* BP_CARBON_GUI */
 SetTimeOn = TRUE; nmax = 0;
 if((result = TimeSet(pp_buff,&kmax,&tmin,&tmax,&maxseq,&nmax,p_imaxseq,maxseqapprox))
 	 						== FAILED || result == ABORT || result == EXIT) {

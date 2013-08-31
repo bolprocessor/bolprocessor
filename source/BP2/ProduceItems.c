@@ -99,9 +99,11 @@ if(!PlaySelectionOn && (InitThere == 2)) {
 SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 ifunc = weightloss = FALSE;
 splitmem = SplitTimeObjects;
+#if BP_CARBON_GUI
 if(LoadInteraction(TRUE,FALSE) != OK) {
 	r = FAILED; goto QUIT;
 	}
+#endif /* BP_CARBON_GUI */
 undefined = FALSE;
 for(j=1; j <= Jvar; j++) {
 	if(((*p_VarStatus)[j] & 2) && !((*p_VarStatus)[j] & 1) && !((*p_VarStatus)[j] & 4)) {
