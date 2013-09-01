@@ -38,6 +38,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "-BP2.h"
 #include "-BP2main.h"
 
+// globals only for the console app
+Boolean LoadedAlphabet = FALSE;
+
 int main (int argc, char* args[])
 {
 	int  result;

@@ -85,11 +85,62 @@ int CheckLoadedPrototypes(void)
 {
 	if (NeedAlphabet && !ObjectMode && !ObjectTry && (OutMIDI || OutCsound || WriteMIDIfile)) {
 		ObjectTry = TRUE;
-		BPPrintMessage(odWarning, "Loading object prototypes is not yet possible in "
+		BPPrintMessage(odWarning, "Loading object prototypes is not yet possible in the "
 			"console version, so MIDI and Csound output may not work correctly.");
 		return FAILED;
 	}
 	return OK; // ??
+}
+
+extern Boolean LoadedAlphabet;
+
+int LoadAlphabet(int w, FSSpec *p_spec)
+{
+	BP_NOT_USED(p_spec);
+
+	// If an alphabet was loaded due to a command-line argument, or none is referenced
+	// in "window" w, the data file, or the grammar file, then everything's fine.
+	if (LoadedAlphabet) return OK;
+	if (w == -1 && GetAlphaName(wData) != OK && GetAlphaName(wGrammar) != OK)
+		return OK;
+	else if (GetAlphaName(w) != OK) return OK;
+	
+	// Otherwise, if a -ho reference was found somewhere, we should load it.
+	// FIXME: for now, we just warn the user!
+	BPPrintMessage(odWarning, "Ignoring alphabet file specified in data or grammar file!");
+	BPPrintMessage(odWarning, "(You can specify an alphabet file as a command-line argument).");
+	return FAILED;
+}	
+
+int LoadGlossary(int anyfile,int manual)
+{
+	BP_NOT_USED(anyfile);
+	BP_NOT_USED(manual);
+
+	// LoadGlossary() is called from UpdateGlossary() only if !LoadedGl and 
+	// either the data or grammar references a -gl file.
+	// Console build sets LoadedGl if a glossary was loaded due to a command-line
+	// argument, so this test is superfluous unless something changes ...
+	if (LoadedGl) return OK;
+	else {
+		// Otherwise, if a -gl reference was found somewhere, we should load it.
+		// FIXME: for now, we just warn the user!
+		BPPrintMessage(odWarning, "Ignoring glossary file specified in data or grammar file!");
+		BPPrintMessage(odWarning, "(You can specify a glossary file as a command-line argument).");
+		return FAILED;
+	}	
+}
+
+int LoadSettings(int anyfile,int changewindows,int startup,int manual,int *p_oms)
+{
+	BP_NOT_USED(anyfile);
+	BP_NOT_USED(changewindows);
+	BP_NOT_USED(startup);
+	BP_NOT_USED(manual);
+	BP_NOT_USED(p_oms);
+	// For now, this is only called from ResetProject() shortly before exiting.
+	// Keeping that call b/c might eventually make ResetProject() an API function.
+	return OK;
 }
 
 int ClearWindow(int reset,int w)
@@ -129,7 +180,7 @@ int InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode)
 	
 	if (StepProduce || StepGrammars) {
 		BPPrintMessage(odWarning, "Step-by-step production and step subgrammars options "
-			"do not work yet in console version.");
+			"do not work yet in the console version.");
 	}
 	BPPrintMessage(odWarning, "Continuing from InterruptCompute()...");
 	return OK;
