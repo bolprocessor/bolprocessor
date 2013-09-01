@@ -545,8 +545,10 @@ int r,w,igram,irul;
 
 if(CompileCheck() != OK) return(FAILED);
 if(Gram.p_subgram == NULL || Gram.number_gram < 1) return(FAILED);
+#if BP_CARBON_GUI
 if((r=Answer("Save current weights",'Y')) == ABORT) return(OK);
 if(r == OK) SaveWeights();
+#endif /* BP_CARBON_GUI */
 
 TRY:
 if((r=AnswerWith("Set weights toÉ","0",Message)) == ABORT) return(OK);
