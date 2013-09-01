@@ -31,8 +31,6 @@
 		92A113C10EC3924F006B5F38 /* SoundObjects3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113090EC39232006B5F38 /* SoundObjects3.c */; };
 		92A113C20EC3924F006B5F38 /* Csound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FB0EC39232006B5F38 /* Csound.c */; };
 		92A113C30EC3924F006B5F38 /* CsoundMaths.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FC0EC39232006B5F38 /* CsoundMaths.c */; };
-		92A113C40EC3924F006B5F38 /* CsoundScoreMake.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FD0EC39232006B5F38 /* CsoundScoreMake.c */; };
-		92A113C50EC3924F006B5F38 /* MIDIfiles.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EC0EC39232006B5F38 /* MIDIfiles.c */; };
 		92A113C60EC3924F006B5F38 /* MIDIloads.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112ED0EC39232006B5F38 /* MIDIloads.c */; };
 		92A113C80EC3924F006B5F38 /* MIDIstuff.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EA0EC39232006B5F38 /* MIDIstuff.c */; };
 		92A113C90EC3924F006B5F38 /* MakeSound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113060EC39232006B5F38 /* MakeSound.c */; };
@@ -78,6 +76,7 @@
 		92DA0C6F17CD9B2D00140F5B /* PlayThings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F90EC39232006B5F38 /* PlayThings.c */; };
 		92DA0C7417CD9D6100140F5B /* Polymetric.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F70EC39232006B5F38 /* Polymetric.c */; };
 		92DA0C7517CD9D6600140F5B /* ProduceItems.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F80EC39232006B5F38 /* ProduceItems.c */; };
+		92DA119A17D2E0B500140F5B /* CsoundScoreMake.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FD0EC39232006B5F38 /* CsoundScoreMake.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -608,8 +607,6 @@
 				92A113C10EC3924F006B5F38 /* SoundObjects3.c in Sources */,
 				92A113C20EC3924F006B5F38 /* Csound.c in Sources */,
 				92A113C30EC3924F006B5F38 /* CsoundMaths.c in Sources */,
-				92A113C40EC3924F006B5F38 /* CsoundScoreMake.c in Sources */,
-				92A113C50EC3924F006B5F38 /* MIDIfiles.c in Sources */,
 				92A113C60EC3924F006B5F38 /* MIDIloads.c in Sources */,
 				92A113C80EC3924F006B5F38 /* MIDIstuff.c in Sources */,
 				92A113C90EC3924F006B5F38 /* MakeSound.c in Sources */,
@@ -638,6 +635,7 @@
 				92DA09AA17CA899800140F5B /* Interface2.c in Sources */,
 				92DA0A8D17CBB8FE00140F5B /* CTextHandles.c in Sources */,
 				92DA0B5B17CD163300140F5B /* ConsoleMessages.c in Sources */,
+				92DA119A17D2E0B500140F5B /* CsoundScoreMake.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
