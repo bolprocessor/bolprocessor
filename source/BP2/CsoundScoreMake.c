@@ -680,9 +680,7 @@ PrepareCsFile(void)
 int rep;
 
 if(!CsScoreOpened) {
-#if BP_CARBON_GUI
 	if((rep=GetCsoundScoreName()) == OK) 
-#endif /* BP_CARBON_GUI */
 		return(MakeCsFile(CsFileName));
 	if(rep == FAILED) return(FAILED);
 	}
@@ -704,6 +702,7 @@ switch(FileSaveMode) {
 return(OK);
 }
 
+#if BP_CARBON_GUI
 
 MakeCsFile(char* line)
 {
@@ -774,6 +773,7 @@ ClearMessage();
 return(rep);
 }
 
+#endif /* BP_CARBON_GUI */
 
 CloseCsScore(void)
 {
@@ -788,20 +788,26 @@ Date(line);
 sprintf(Message,"; this score was created by Bol Processor BP2 (version %s) on %s",
 	VersionName[Version],line);
 WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);
+#if BP_CARBON_GUI
 GetFPos(CsRefNum,&count);
 SetEOF(CsRefNum,count);
 FlushFile(CsRefNum);
 FSClose(CsRefNum);
+#endif /* BP_CARBON_GUI */
 CsScoreOpened = FALSE;
+#if BP_CARBON_GUI
 if (CsFileReply) {
 	MyLock(FALSE, (Handle)CsFileReply);
 	(*CsFileReply)->saveCompleted = true;
 	err = NSWCleanupReply(*CsFileReply);
 	MyDisposeHandle((Handle*)&CsFileReply);
 }
+#endif /* BP_CARBON_GUI */
 sprintf(Message,"Closed Csound score file ‘%s’",CsFileName);
 ShowMessage(TRUE,wMessage,Message);
 CsFileName[0] = '\0';
+#if BP_CARBON_GUI
 SetField(FileSavePreferencesPtr,-1,fCsoundFileName,CsFileName);
+#endif /* BP_CARBON_GUI */
 return(OK);
 }

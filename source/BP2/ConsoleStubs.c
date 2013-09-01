@@ -33,6 +33,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <string.h>
+
 #include "-BP2.h"
 #include "-BP2decl.h"
 #include "ConsoleMessages.h"
@@ -183,6 +185,57 @@ int InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode)
 			"do not work yet in the console version.");
 	}
 	BPPrintMessage(odWarning, "Continuing from InterruptCompute()...");
+	return OK;
+}
+
+/* Console version of GetMIDIfileName() just assumes that MIDIfileName 
+   has been set by a command-line argument */
+int GetMIDIfileName(void)
+{
+	if (strlen(MIDIfileName) != 0) return OK;
+	else return FAILED;
+}
+
+int PrepareMIDIFile(void)
+{
+	BPPrintMessage(odWarning, "Midi file output does not work yet in the console version.");
+	return OK;
+}
+
+int ResetMIDIfile(void)
+{
+	return OK;
+}
+
+int WriteMIDIbyte(Milliseconds time,byte midi_byte)
+{
+	BP_NOT_USED(time);
+	BP_NOT_USED(midi_byte);
+	return OK;
+}
+
+/* Console version of GetCsoundScoreName() just assumes that CsFileName 
+   has been set by a command-line argument */
+int GetCsoundScoreName(void)
+{
+	if (strlen(CsFileName) != 0) return OK;
+	else return FAILED;
+}
+
+int MakeCsFile(char* pathname)
+{	
+	BP_NOT_USED(pathname);
+	// FIXME ? ignoring pathname and assuming odiCsScore has been set
+	ShowMessage(TRUE,wMessage,"Create new Csound score file…");
+	CsScoreOpened = YES;
+	if(WriteToFile(NO,CsoundFileFormat,"; Csound score",CsRefNum) != OK) {
+		Alert1("Can't write to Csound score file. Unknown error");
+		CloseCsScore();
+		return(ABORT);
+	}
+	
+	// FIXME: should write Csound tables here 
+	// WriteFile(TRUE,CsoundFileFormat,CsRefNum,wCsoundTables,length);
 	return OK;
 }
 

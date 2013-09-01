@@ -537,6 +537,7 @@ return(value);
 }
 
 
+#if BP_CARBON_GUI
 GetMIDIfileName(void)
 {
 char line[MAXFIELDCONTENT];
@@ -554,6 +555,7 @@ if(strcmp(MIDIfileName,line) != 0) {
 	}
 return(OK);
 }
+#endif /* BP_CARBON_GUI */
 
 
 PrepareMIDIFile(void)
