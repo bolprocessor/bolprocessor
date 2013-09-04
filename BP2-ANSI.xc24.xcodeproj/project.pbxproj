@@ -77,6 +77,7 @@
 		92DA0C7417CD9D6100140F5B /* Polymetric.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F70EC39232006B5F38 /* Polymetric.c */; };
 		92DA0C7517CD9D6600140F5B /* ProduceItems.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F80EC39232006B5F38 /* ProduceItems.c */; };
 		92DA119A17D2E0B500140F5B /* CsoundScoreMake.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FD0EC39232006B5F38 /* CsoundScoreMake.c */; };
+		92DA120717D67BB700140F5B /* SaveLoads3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E70EC39232006B5F38 /* SaveLoads3.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -306,6 +307,7 @@
 				92A112EE0EC39232006B5F38 /* Strings.c */,
 				92A113070EC39232006B5F38 /* SoundObjects1.c */,
 				92A112E20EC39231006B5F38 /* Interface2.c */,
+				92A112E70EC39232006B5F38 /* SaveLoads3.c */,
 				9224724017B7E9CF00D0439B /* ConsoleStubs.c */,
 				9224732817B97A1100D0439B /* ConsoleMemory.c */,
 				92DA0B5A17CD163300140F5B /* ConsoleMessages.c */,
@@ -327,7 +329,6 @@
 				92A112E40EC39231006B5F38 /* Processes.c */,
 				92A112E50EC39231006B5F38 /* SaveLoads1.c */,
 				92A112E60EC39231006B5F38 /* SaveLoads2.c */,
-				92A112E70EC39232006B5F38 /* SaveLoads3.c */,
 				92A112EB0EC39232006B5F38 /* CoreMIDIdriver.c */,
 				92A112FF0EC39232006B5F38 /* Interaction.c */,
 				92A113010EC39232006B5F38 /* Color.c */,
@@ -636,6 +637,7 @@
 				92DA0A8D17CBB8FE00140F5B /* CTextHandles.c in Sources */,
 				92DA0B5B17CD163300140F5B /* ConsoleMessages.c in Sources */,
 				92DA119A17D2E0B500140F5B /* CsoundScoreMake.c in Sources */,
+				92DA120717D67BB700140F5B /* SaveLoads3.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
