@@ -71,7 +71,7 @@ int AddBolsInGrammar(void)
 
 	'\334' (220 or 0xDC) is a left single angle quote mark or "guillemet" (in Mac OS Roman)
 	'\335' (221 or 0xDD) is a right single angle quote mark
-	The "French" double angle quotation marks Â« Â» are 199 and 200 (0xC7 and 0xC8) 
+	The "French" double angle quotation marks Ç È are 199 and 200 (0xC7 and 0xC8) 
 	
 	
 int CompileGrammar(int mode)
@@ -134,7 +134,7 @@ int ReadPatterns(char **p_line,int justcount)
 in Glossary.c:
 --------------
 
-	// A glossary is a mixture of certain script commands and â€˜Defineâ€¦â€™ commands
+	// A glossary is a mixture of certain script commands and ÔDefineÉÕ commands
 	// that are compiled as a context-free grammar the left arguments of which
 	// must be a single variable.
 
@@ -306,7 +306,7 @@ int ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buf
 
 	Reads text from window w's text buffer starting at *p_i up to im and copies chars to
 	pp_buff (with null).  Reads a single line of text (stops at 'r') unless noreturn is
-	TRUE. Considers lines ending with 'Â¬' to continue on the next line.
+	TRUE. Considers lines ending with 'Â' to continue on the next line.
 	
 	Skips /* multi-line comments */ when nocomment is TRUE but stops if it encounters 
 	the beginning of a single-line [comment] (??).
@@ -399,8 +399,8 @@ int BindSlaves(tokenbyte ***pp_buff,long *orgmaster,long *endmaster,int *p_nbmas
 		count the number of master markers between that slave's master and the slave ??
 		That count ('mark') is then stored in 2nd tokenbyte of T2 n (which was changed
 		above to the result of Reference()).  2nd part of this comment may be a clue:
-				/* Erase content of slavesâ€¦ */
-				/* â€¦ especially copies of 'ZERO' markers that are irrelevant */
+				/* Erase content of slavesÉ */
+				/* É especially copies of 'ZERO' markers that are irrelevant */
 		
 		Pass 4 finds each slave again, calculates the beginning and end of its
 		contents (as done in 1st pass), then calls MoveDown() to shift the rest of the
@@ -447,7 +447,7 @@ int CheckLoadedPrototypes(void)
 
 	If prototypes haven't been loaded or looked for yet (?), then this calls:
 		ResizeObjectSpace(YES,Jbol + Jpatt,0) (YES for reset)
-		LoadObjectPrototypes(NO,YES) if needed and the user approves
+		LoadObjectPrototypes(NO,YES) if needed and (name is known or the user approves)
 	
 	Always calls CompileCsoundObjects() unless something above failed.
 
