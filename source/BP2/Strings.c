@@ -192,22 +192,24 @@ MystrcpyHandleToHandle(int offset,char ***pp_s,char **p_t)
 long i;
 Size ims,imt;
 
-if(p_t == NULL) {
-	if(Beta) Alert1("Err. MystrcpyHandleToHandle(). p_t = NULL");
-	if(*pp_s != NULL) (**pp_s)[i] = '\0';	/* FIXME: i used before inited */
-	goto OUT;
-	}
 if(*pp_s != NULL) ims = (long) MyGetHandleSize((Handle)*pp_s);
 else {
 	ims = ZERO;
 	if(Beta) Alert1("Err. MystrcpyHandleToHandle(). ims = ZERO");
 	}
 imt = ZERO;
-if(p_t != NULL) {
+if(p_t == NULL) {
+	if(Beta) Alert1("Err. MystrcpyHandleToHandle(). p_t = NULL");
+	if(*pp_s != NULL && ims > ZERO) (**pp_s)[0] = '\0';
+	// FIXME ? what if *pp_s == NULL ? Will caller expect a valid handle?
+	goto OUT;
+	}
+else {
 	while((*p_t)[offset+imt] != '\0') imt++;	/* fixed 11/3/99 */
 	}
 if(imt == ZERO) {
-	if(*pp_s != NULL) (**pp_s)[0] = '\0';
+	if(*pp_s != NULL && ims > ZERO) (**pp_s)[0] = '\0';
+	// FIXME ? what if *pp_s == NULL ? Will caller expect a valid handle?
 	goto OUT;
 	}
 
