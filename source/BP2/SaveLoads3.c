@@ -31,14 +31,16 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <string.h>
 
 #ifndef _H_BP2
 #include "-BP2.h"
 #endif
 
 #include "-BP2decl.h"
-#include <string.h>
+#include "ConsoleMessages.h"
 
+#if BP_CARBON_GUI
 
 SaveAs(Str255 fn,FSSpec *p_spec,int w)
 // The "save as..." command
@@ -626,6 +628,8 @@ FileTypeIndex MapFileTypeCodeToFileTypeIndex(OSType type)
 	return ftiAny;
 }
 
+#endif /* BP_CARBON_GUI */
+
 // FIXME: name should be const, but Match needs to take const char * instead of char**
 int FindMatchingFileNamePrefix(/*const*/ char* name)
 {
@@ -645,7 +649,8 @@ int FindMatchingFileNamePrefix(/*const*/ char* name)
 // FIXME: name should be const, but Match needs to take const char * instead of char**
 int FindMatchingFileNameExtension(/*const*/ char* name)
 {
-	int	w, len;
+	int	w; 
+	size_t len;
 	char  *nameExt, *ext;
 	
 	// find the last '.' in name, if any
@@ -668,7 +673,6 @@ int FindMatchingFileNameExtension(/*const*/ char* name)
 // FIXME: name and ext should be const, but Match needs to take const char * instead of char**
 Boolean MatchFileNameExtension(/*const*/ char* name, /*const*/ char* ext)
 {
-	int	w;
 	char* nameExt;
 	
 	// find the last '.' in name, if any
@@ -681,6 +685,35 @@ Boolean MatchFileNameExtension(/*const*/ char* name, /*const*/ char* ext)
 	// extensions are case insensitive
 	return Match(FALSE, &nameExt, &ext, strlen(ext));
 }
+
+// FIXME: name should be const, but functions above need to be fixed first
+int IdentifyBPFileTypeByName(/*const*/ char* name)
+{
+	int	wfindex;	// window/file index (result)
+
+	// try the filename's prefix, if any
+	wfindex = FindMatchingFileNamePrefix(name);
+	if (wfindex != wUnknown)  return wfindex;
+	
+	// next try the filename's extension, if any
+	wfindex = FindMatchingFileNameExtension(name);
+	if (wfindex != wUnknown)  return wfindex;
+	
+	// also try the other extensions that we recognize
+	if (MatchFileNameExtension(name, ".mid") ||
+	    MatchFileNameExtension(name, ".midi"))
+		return iMIDIfile;
+	if (MatchFileNameExtension(name, ".trace"))  return wTrace;
+	if (MatchFileNameExtension(name, ".txt") ||
+	    MatchFileNameExtension(name, ".sco") ||
+	    MatchFileNameExtension(name, ".htm") ||
+	    MatchFileNameExtension(name, ".html"))
+		return wScrap;
+
+	return wUnknown;
+}
+
+#if BP_CARBON_GUI
 
 /* Attempts to determine if a file is a BP2 document, and if so, what type
    of BP2 document.  Uses all available information starting with filetype and
@@ -712,25 +745,10 @@ int IdentifyBPFileType(FSSpec* spec)
 	// Note that 'TEXT' files are "unknown" at this point.
 	if (wfindex != wUnknown)  return wfindex;
 	
-	// next try the filename's prefix, if any
+	// next try the filename's prefix or extension, if any
 	p2cstrcpy(name, spec->name);	// MyPtoCstr() converts whitespace characters
-	wfindex = FindMatchingFileNamePrefix(name);
-	if (wfindex != wUnknown)  return wfindex;
-	
-	// next try the filename's extension, if any
-	wfindex = FindMatchingFileNameExtension(name);
-	if (wfindex != wUnknown)  return wfindex;
-	
-	// also try the other extensions that we recognize
-	if (MatchFileNameExtension(name, ".mid") ||
-	    MatchFileNameExtension(name, ".midi"))
-		return iMIDIfile;
-	if (MatchFileNameExtension(name, ".trace"))  return wTrace;
-	if (MatchFileNameExtension(name, ".txt") ||
-	    MatchFileNameExtension(name, ".sco") ||
-	    MatchFileNameExtension(name, ".htm") ||
-	    MatchFileNameExtension(name, ".html"))
-		return wScrap;
+	wfindex = IdentifyBPFileTypeByName(name);
+	if (wfindex != wUnknown)  return wfindex;	
 	
 	// here, we should examine the file contents
 	// for now, if it is a text file, we assume that it is a BP2 Data file
@@ -1278,10 +1296,12 @@ MyDisposeHandle((Handle*)&p_completeline);
 return(rep);
 }
 
+#endif /* BP_CARBON_GUI */
 
 WriteToFile(int careforhtml,int format,char* line,short refnum)
 // Writes the line and a return to the file
 {
+int res;
 long count;
 OSErr io;
 char **p_line;
@@ -1291,9 +1311,12 @@ if(refnum == -1) {
 	return(FAILED);
 	}
 p_line = NULL;
-MystrcpyStringToHandle(&p_line,line);
-if(careforhtml) MacToHTML(NO,&p_line,YES);
+if ((res = MystrcpyStringToHandle(&p_line, line)) != OK) return res;
+if (careforhtml) {
+	if ((res = MacToHTML(NO, &p_line, YES)) != OK) return res;
+	}
 
+#if BP_CARBON_GUI
 count = (long) MyHandleLen(p_line);
 MyLock(FALSE,(Handle)p_line);
 io = FSWrite(refnum,&count,*p_line);
@@ -1319,6 +1342,18 @@ if(io != noErr) {
 	TellError(80,io);
 	return(ABORT);
 	}
+#else
+	// A temporary console version of file output until I decide how to rewrite
+	// the interface to support both Mac and ANSI file refs. - akozar 20130903
+	// 'refnum' is (ab)used to specify the output destination (see ConsoleMessages.h)
+
+	BP_NOT_USED(format);	// need to rethink whether this option sd be used
+
+	// I think '\n' will always print as the native line ending using fprintf
+	BPPrintMessage((int)refnum, "%s\n", *p_line);
+	MyDisposeHandle((Handle*)&p_line);
+#endif /* BP_CARBON_GUI */
+
 return(OK);
 }
 
@@ -1333,16 +1368,29 @@ if(refnum == -1) {
 	if(Beta) Alert1("Err. NoReturnWriteToFile(). refnum == -1");
 	return(FAILED);
 	}
+
+#if BP_CARBON_GUI
 count = (long) strlen(line);
 io = FSWrite(refnum,&count,line);
 if(io != noErr) {
 	TellError(81,io);
 	 return(ABORT);
 	}
+#else
+	// A temporary console version of file output until I decide how to rewrite
+	// the interface to support both Mac and ANSI file refs. - akozar 20130903
+	// 'refnum' is (ab)used to specify the output destination (see ConsoleMessages.h)
+	BPPrintMessage((int)refnum, line);
+#endif /* BP_CARBON_GUI */
+
 return(OK);
 }
 
+#if BP_CARBON_GUI
 
+/* FIXME ? CheckTextSize() is generally called after TextInsert() to see if the
+   TextEdit buffer was overrun.  Should modify this (if we want to keep TE) so 
+   that the check can occur before the TextInsert(). - akozar 20130903 */
 CheckTextSize(int w)
 {
 long n;
@@ -1397,6 +1445,7 @@ if(io == noErr) {
 return(io);
 }
 
+#endif /* BP_CARBON_GUI */
 
 CleanLF(char** p_buffer,long* p_count,int* p_dos)
 // Remove line feeds from buffer and transcode high ASCII so that
@@ -1431,6 +1480,7 @@ for(i=j=0; ; i++) {
 return(OK);
 }
 
+#if BP_CARBON_GUI
 
 OpenHelp(void)
 {
@@ -1517,6 +1567,8 @@ else rep = ABORT;
 return(rep);
 }
 
+#endif /* BP_CARBON_GUI */
+
 OpenTemp(void)
 {
 if(TempRefnum != -1) {
@@ -1538,6 +1590,7 @@ if(TraceRefnum != -1) {
 return CreateTemporaryFile(&tracespec, &TraceRefnum, kBPTraceFile, TRUE);
 }
 
+#if BP_CARBON_GUI
 
 OSErr CloseAndDeleteTemp()
 {
@@ -1697,6 +1750,7 @@ InputOn--;
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
 #if 0
 /* FIXME ? Shouldn't we be flushing the vRefNum of the file that was written ?? - akozar */
@@ -1718,6 +1772,7 @@ return(io == noErr);
 #endif
 
 
+#if BP_CARBON_GUI
 FlushFile(short refnum)
 {
 IOParam pb;
@@ -1733,6 +1788,7 @@ io = PBFlushFile((ParmBlkPtr)&pb,async);
 if(io != noErr) TellError(85,io);
 return(io == noErr);
 }
+#endif /* BP_CARBON_GUI */
 
 
 GetVersion(int w)
@@ -1865,6 +1921,7 @@ MyUnlock((Handle)p_line);
 return(FAILED);
 }
 
+#if BP_CARBON_GUI
 
 WriteHeader(int w,short refnum,FSSpec spec)
 {
@@ -1976,6 +2033,7 @@ WEResetModCount(TEH[w]);
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
 FindVersion(char **p_line,char* version)
 {
@@ -2002,6 +2060,7 @@ Strip(version);
 return(OK);
 }
 
+#if BP_CARBON_GUI
 
 OSErr MyFSClose(int w,short refnum,FSSpec *p_spec)
 {
@@ -2194,3 +2253,5 @@ OSErr CopyFile (FSSpec *source, FSSpec *dest)
 	if (err != noErr) return err;
 	return CopyOneFork(source, dest, false);
 }
+
+#endif /* BP_CARBON_GUI */

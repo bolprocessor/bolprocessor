@@ -239,6 +239,12 @@ int MakeCsFile(char* pathname)
 	return OK;
 }
 
+int CheckTextSize(int w)
+{
+	BP_NOT_USED(w);
+	return OK;
+}
+
 
 /* These are Mac OS X Carbon calls that could have useful replacements in
    the console/library build or that are too numerous in the BP2 source code

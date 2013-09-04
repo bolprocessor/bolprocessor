@@ -843,6 +843,7 @@ FileTypeIndex MapFileTypeCodeToFileTypeIndex(OSType type);
 int FindMatchingFileNamePrefix(/*const*/ char* name);
 int FindMatchingFileNameExtension(/*const*/ char* name);
 Boolean MatchFileNameExtension(/*const*/ char* name, /*const*/ char* ext);
+int IdentifyBPFileTypeByName(char* name);
 int IdentifyBPFileType(FSSpec* spec);
 Boolean CanSaveMultipleFormats(int w);
 int PromptForFileFormat(int w, char* filename, int* type);
