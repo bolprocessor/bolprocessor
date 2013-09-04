@@ -181,10 +181,96 @@ in MakeSound() first).
 - Usability issue:  Can we easily replace non-movable modal alerts with standard
   movable ones ? (see StandardAlert() API in Appearance API ?)
 
+- Usability issue:  Many confusing things happen in the user interface during
+  playback such as the Graphics window appearing to be active but the first click in
+  the window is generally ignored and it does not respond to clicks in its resize box
+  until another part of the window is clicked.  Other windows do not respond to being
+  dragged on the first click.  (The Control Panel or the window that was active
+  before choosing "Produce items" from the menu is draggable with one click at the
+  beginning of playback).  In general, it is difficult to reliably get the
+  Resume/Stop window to appear by clicking the mouse (see next item).  These
+  anomalous behaviours stop once the Resume/Stop window appears.  Is this caused by
+  calls to MyButton(1) or MyButton(2) where certain classes of events are ignored and
+  (I think) discarded ??
+  
+  This code in MyButton() is probably to blame for some of the problems:
+  
+  		switch(theclick) {
+			case inDrag:
+			case inGrow:
+				BringToFront(whichwindow);
+				break;
+			case inContent:
+				result = OK;
+				intext = FALSE;
+				if(w < WMAX && w != Nw && w != wScript) {
+					BPActivateWindow(QUICK,w);
+					}
+				else {
+					result = OK;
+					if(result != DONE) DoContent(whichwindow,&event,&intext);
+					}
+
 - Usability issue:  The Resume/Stop dialog should be replaced with a movable playback
   transport that appears at the beginning of playback.
 
-- Usability issue:  Program logic should be revised to save the results of computations
-  so that the cyclic modal dialog after playback ("Play again"/"Produce more"/"Display
-  item"/"Cancel") can be removed.  These options could then be added to the playback
-  transport mentioned above.
+- Usability issue:  Program logic should be revised to save the results of 
+  computations so that the cyclic modal dialog after playback ("Play again"/"Produce
+  more"/"Display item"/"Cancel") can be removed.  These options could then be added
+  to the playback transport mentioned above.
+
+- Doesn't show the insertion point for a sound-object prototype after clicking on the
+  graphic to move the insertion point ?
+
+- Insertion point in sound-object prototypes graphic is set incorrectly
+
+- Why is the user sometimes forced to save modified prototypes or lose all changes 
+  when the prototypes window is reactivated (i.e. the -mi file seems to be reloaded)?
+
+- "Export score" function in the "Csound object prototype" window (wPrototype7) 
+  writes BP2's header to the top of the file:
+  
+	// Bol Processor version BP2.9.8
+	// Prototypes (7) file saved as 'ambient1.sco'. Date: Thu, Aug 29, 2013 -- 12:59 PM
+
+  which are not legal comments in a Csound score and generate these error messages:
+  
+	sread: illegal opcode /
+	  section 1:  at position 1
+	  in line 1 of file input ambient1.sco
+		  remainder of line flushed
+	sread: illegal opcode /
+	  section 1:  at position 1
+	  in line 2 of file input ambient1.sco
+		  remainder of line flushed
+
+  (Not a big problem since Csound will still read the rest of the score OK and render it).
+
+- Usability issues:  The delayed loading of "linked" files specified in the Data, Grammar,
+  and Alphabet along with BP2's "desire" to keep some of those files compiled or updated
+  causes some behavior that I (akozar) find strange or confusing.
+
+  Eg.  If I load a data file that references a glossary, then open the Glossary window, it
+  is "empty" (or contains its previous contents?).  If I make no changes to the glossary
+  but merely click to activate the Data window again, BP2 then loads and compiles the
+  specified glossary.  Similar or other "unexpected" actions occur when switching from (or
+  to?) the Interaction and Object Prototypes windows as well.
+
+  Merely activating a different window should not cause a cascade of program actions in my
+  opinion.  Is the solution to always load "linked" files immediately, or to delay it further
+  until they are really needed, or some other scheme that makes it more obvious to the user
+  what will happen?  If immediately, should the user be prompted with a list of linked files
+  that will be loaded and asked which ones to load and given the opportunity to save the 
+  existing contents of any windows that will be replaced?
+  
+  All of the Set/Get procedures called in BPActivateWindow() should be reviewed to determine
+  which can unexpectedly "interrupt" the user, but see these particular lines for the above:
+  
+    if(Nw == wInteraction && !CompiledIn) if(CompileInteraction() != OK) return(OK);
+    if(Nw == wGlossary && Nw != newNw && mode == SLOW) UpdateGlossary();
+    if(newNw == wPrototype1 && !CompileOn && mode != AGAIN && (!CompiledGr || !CompiledAl))
+        return(mObjectPrototypes(Nw));
+
+  For some of the faster Set/Get procedures (non-file-based dialogs), perhaps an 
+  additional parameter with values DONT_INTERACT and ASK_TO_CORRECT could be useful?
+
