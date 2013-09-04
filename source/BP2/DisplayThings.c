@@ -865,3 +865,37 @@ for(i=ZERO; ; i+=2L) {
 	}
 return(NO);
 } */
+
+
+int ShowDuration(int store)
+{
+char line[MAXLIN];
+int i;
+
+if(Pduration > 0.) {
+	if(Qduration > 1.)
+		sprintf(Message,"Dur = %.0f/%.0f = %.1f ticks",
+			Pduration,Qduration,Pduration/Qduration);
+	else sprintf(Message,"Dur = %.0f ticks",Pduration);
+		
+	if(Ratio != Prod) {
+		if(Ratio < ULONG_MAX) sprintf(line,"  Ratio = %u",(unsigned long)Ratio);
+		else sprintf(line,"   Ratio = %.0f",Ratio);
+		if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
+		}
+		
+	sprintf(line,"  Prod = %.0f",Prod);
+	if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
+	
+	sprintf(line,"  [%ld objects]",(long)Maxevent);
+	if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
+	
+	if(Kpress > 1.) sprintf(line,"  Comp = %.0f",Kpress);
+	else sprintf(line,"  (no compression)");
+	
+	if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
+	
+	ShowMessage(store, wMessage, Message);
+	}
+return(OK);
+}
