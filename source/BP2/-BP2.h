@@ -228,11 +228,14 @@ enum {
 #define MAXCHAN 16	/* number of MIDI-BP2 channels */
 #define IPMAX 6	/* max number of additional parameters in Csound instrument */
 #define MAXDATABASEFIELDS 60 /* number of fields in database */
-
 #define MAXTIMESLICES 5000 /* max number of time slices by the OMS output time scheduling */
 #define CLOCKRES 5L /* 5ms resolution of time scheduler */
 #define CLOCKSIZE 256	/* must be a power of 2 */
 #define CLOCKLOG 8		/* log base 2 of CLOCKSIZE */
+
+// Maximum allowed memory for the phase diagram ?
+// (or whatever is being checked in PolyMake())
+#define kMaxPhaseDiagramSize (200*1024*1024)
 
 // MIDI filter constants
 #define FILTER_ALL_ON	(-1L)

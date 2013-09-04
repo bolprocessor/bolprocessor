@@ -48,7 +48,7 @@ int k,krep,rep,level,r,**p_nseq,**p_nseqmax,maxlevel,needalphabet,foundinit,over
 double P,Q,tempo,tempomax,prodtempo,fmaxseq,nsymb,lcm,kpress,thelimit,speed,scale,s,
 	limit1,limit2,imax,x,firstscale,scalespeed,maxscalespeed;
 unsigned long i,maxid,pos_init,gcd,numberprolongations;
-long newquantize,newquantize2,totalbytes,contigbytes,grow,a,b;
+long newquantize,newquantize2,totalbytes,a,b;
 
 if(CheckEmergency() != OK) return(ABORT);
 
@@ -714,11 +714,23 @@ Maxconc = Minconc + 1 + longestseqouttime + longestnumbertoofast;
 
 CHECKSIZE:
 // FIXME: This whole section needs reconsideration on OS X
-// Allow unlimited mem growth or could allow user to set max mem usage ? 
+/* Maximum allowed memory for the phase diagram (?) is set by kMaxPhaseDiagramSize (currently
+   200 MB). That is pretty arbitrary but it is 10x the 20MB limit that MaxMem() was returning. 
+   A better solution is difficult since having no upper limit can lead to extreme thrashing,
+   and limiting the size to the computer's RAM does not prevent some virtual memory from 
+   being used (which the user might be OK with).
+   
+   Would it be good to allow the user to decide an upper limit ?
+   
+   Also, note that BP2 chooses a compression rate for quantization above (at label 
+   FINDCOMPRESSION, about line 327) before it even gets to this calculation.
+      -- akozar 20130904
+ */
 if(!TempMemory && !AskedTempMemory && !FixedMaxQuantization
 		&& (imax > 10000. || (imax * Maxconc) > 20000.)) {
-	contigbytes = MaxMem(&grow);	// MaxMem() no longer useful ("always returns a large value")
-	totalbytes = contigbytes + grow;
+	// contigbytes = MaxMem(&grow);  // MaxMem() is no longer useful (always 20 MB on OS X)
+	// totalbytes = contigbytes + grow;
+	totalbytes = kMaxPhaseDiagramSize;
 	limit1 = totalbytes / 70L;
 	limit2 = (40L * limit1) / Maxconc;
 	if(limit1 < limit2) thelimit = limit1;
@@ -769,7 +781,7 @@ Maxevent += Maxconc + 1;
 
 if(ShowMessages) ShowDuration(YES);
 
-if(Maxevent >= INT_MAX) {
+if(Maxevent >= INT_MAX) {	// FIXME ? This comparison is never true with sizeof(long) == sizeof(int)
 	sprintf(Message,"Can't create %ld sound-objects. Limit: %ld",(long)Maxevent,(long)INT_MAX);
 	Alert1(Message);
 	r = FAILED;
