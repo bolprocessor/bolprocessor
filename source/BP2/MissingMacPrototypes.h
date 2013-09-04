@@ -40,7 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 
 void SysBeep(short duration);
-Boolean Button();
+Boolean Button(void);
 
 
 #define	BringToFront(windowPtr)

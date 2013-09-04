@@ -54,7 +54,7 @@ int StopWait(void)
 	return(OK);
 }
 
-void SetDefaultCursor()
+void SetDefaultCursor(void)
 {	
 	return;
 }
@@ -252,7 +252,7 @@ void SysBeep(short duration)
 	return;
 }
 
-Boolean Button()
+Boolean Button(void)
 {
 	// See docs-developer/Uses-of-Button.txt for a discussion of this function
 	// and why this return value may not be OK in the future! 

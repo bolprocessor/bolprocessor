@@ -46,7 +46,7 @@ typedef struct TERec {
 	int32_t		length;			// length of text in buffer (not buffer size)
 } TERec, **TEHandle;
 
-TEHandle NewTextHandle();
+TEHandle NewTextHandle(void);
 int CopyStringToTextHandle(TEHandle th, const char* str);
 
 #endif /* BP_CTEXTHANDLES_H */

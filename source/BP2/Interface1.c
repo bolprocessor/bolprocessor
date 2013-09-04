@@ -2179,7 +2179,7 @@ return(OK);
 }
 
 
-void SetDefaultCursor()
+void SetDefaultCursor(void)
 {	
 	Cursor arrow;
 	SetCursor(GetQDGlobalsArrow(&arrow));

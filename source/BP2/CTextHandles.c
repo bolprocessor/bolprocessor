@@ -45,7 +45,7 @@
 	Creates and inits a new TEHandle (TERec**)
 	TextHandle is a synonym for TEHandle (defined in -BP2.h)
  */
-TEHandle NewTextHandle()
+TEHandle NewTextHandle(void)
 {
 	TEHandle th;
 	TERec* tp;
@@ -219,4 +219,3 @@ int TextInsert(char *s,long length,TextHandle th)
 	fprintf(stderr, "TextInsert(): %s\n", s);
 	return OK;
 }
-
