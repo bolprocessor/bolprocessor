@@ -2008,9 +2008,21 @@ if (i1h != NULL) {
 	}
 else  tt[0] = '\0';
 #else
-// FIXME: we need a cross-platform equivalent of this function!
-dd[0] = '\0';
-tt[0] = '\0';
+time_t curtime;
+struct tm *loctime;
+
+time(&curtime);
+loctime = localtime(&curtime);
+// format the date
+if (strftime(dd, MAXNAME, "%a, %b %d, %Y", loctime) == 0) {
+	if (Beta) Alert1("Err. Date(): strftime() results were too long for dd.");
+	dd[0] = '\0';
+	}
+// format the time
+if (strftime(tt, MAXNAME, "%h:%M %p", loctime) == 0) {
+	if (Beta) Alert1("Err. Date(): strftime() results were too long for tt.");
+	tt[0] = '\0';
+	}
 #endif
 
 sprintf(line,"%s %s -- %s",DateMark,dd,tt);

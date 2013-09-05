@@ -68,7 +68,12 @@ TextGetSelection(&GramSelStart, &GramSelEnd, TEH[wGrammar]);
 startsel = GramSelStart;
 endsel = GramSelEnd;
 
+#if BP_CARBON_GUI
 GetDateTime((unsigned long*)&CompileDate);
+#else
+CompileDate = (long) time(NULL);
+#endif /* BP_CARBON_GUI */
+
 NoAlphabet = TRUE;
 GetAlphaName(wGrammar);
 N_err = 0;
