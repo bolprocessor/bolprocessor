@@ -52,6 +52,29 @@ in MIDIdrivers.c:
 		???  It checks for mouse button to stop playing, and calls
 		GetDriverTime() and ListenMIDI (why?).  
 		*** Should probably be moved outside of MIDIdrivers.c ***
+
+	Notes from Bernard (2/19/07):
+	
+		"CheckMIDIbytes() is probably useless with the new driver and therefore it
+		should return "OK" whenever it is called. I implemented it when finding
+		out that the driver might have a limitation in the number of MIDI
+		messages that can be queued.  This is the limit set by MaxMIDIbytes. BP2
+		sends Nbytes messages to the driver and it keeps checking the point when
+		Nbytes gets greater than MaxMIDIbytes/2.  At this point, the buffer is
+		"half full" and BP2 stores Tcurr as Tbytes2, which is the timing of the
+		last event in that first batch. Later, if Nbytes grows larger than
+		MaxMIDIbytes, it creates a loop, during which it displays the message
+		"Idling (... sec)" and it check mouse clicks to handle events during that
+		idling time. It waits until drivertime gets near Tbytes2, therby meaning
+		that the buffer is half full. When this point is reached, it resets
+		Nbytes to MaxMIDIbytes/2.  Otherwise Nbytes keeps growing because it is
+		incremented each time a message is sent to the driver. 
+		
+		"CheckMIDIbytes() is called from time to time in MakeSound(), yet not too
+		often because MaxMIDIbytes is just a safe estimate of the limit.
+		
+		"My suggestion is to desactivate CheckMIDIbytes() for the time being and
+		see whether it was the cause of this interruption of the performance..."
 		
 	GetDriverTime() - high- & low-level function for checking driver clock.
 	SetDriverTime() - high- & low-level function for setting driver clock.
