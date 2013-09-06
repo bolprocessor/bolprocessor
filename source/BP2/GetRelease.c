@@ -1099,8 +1099,10 @@ if(reset) {
 		(*p_BreakTempo)[j] = TRUE;
 		(*p_Type)[j] = 0;
 		}
+#if BP_CARBON_GUI
 	SetField(NULL,wPrototype5,fMinVelocity,"64");
 	SetField(NULL,wPrototype5,fMaxVelocity,"64");
+#endif /* BP_CARBON_GUI */
 	}
 
 // Create objects for time patterns

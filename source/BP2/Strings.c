@@ -453,6 +453,7 @@ return(OK);
 }
 
 
+#if BP_CARBON_GUI
 TooLongFileName(char* line,DialogPtr ptr,int w,int field)
 {
 DialogPtr thedialog;
@@ -480,3 +481,4 @@ if(strlen(line) > MAXNAME) {
 	}
 return(FALSE);
 }
+#endif /* BP_CARBON_GUI */

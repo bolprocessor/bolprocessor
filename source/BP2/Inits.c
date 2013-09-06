@@ -659,7 +659,9 @@ for(i=0; i < MAXTICKS; i++) {
 	SetTickParameters(i+1,MAXBEATS);
 	}
 SetTickParameters(0,MAXBEATS);
+#if BP_CARBON_GUI
 SetField(NULL,wTimeBase,fTimeBaseComment,"[Comment on time base]");
+#endif /* BP_CARBON_GUI */
 iTick = jTick = -1;
 ResetTickFlag = TRUE; ResetTickInItemFlag = FALSE;
 strcpy(Message,WindowName[wCsoundTables]);

@@ -2087,6 +2087,7 @@ void RegisterProgramChange(MIDI_Event *p_e)
 				}
 #endif /* BP_CARBON_GUI */
 			CurrentMIDIprogram[channel+1] = program;
+#if BP_CARBON_GUI
 			for(j=0; j < 128; j++) {
 				if((*p_GeneralMIDIpatchNdx)[j] == program) {
 					sprintf(Message,"[%ld] %s",(long)program,*((*p_GeneralMIDIpatch)[j]));
@@ -2094,6 +2095,7 @@ void RegisterProgramChange(MIDI_Event *p_e)
 					break;
 				}
 			}
+#endif /* BP_CARBON_GUI */
 		}
 	}
 }

@@ -505,7 +505,9 @@ if(ppqlcm == ZERO || overflow) {
 	sprintf(Message,"Combination of cycles is too complex. You should reduce ‘%ld’",
 		(long)Qtick[im]);
 	Alert1(Message);
+#if BP_CARBON_GUI
 	SelectField(NULL,wTimeBase,fQratio+5*im,TRUE);
+#endif /* BP_CARBON_GUI */
 	goto OUT;
 	}
 
@@ -855,7 +857,9 @@ else {
 		sprintf(Message,"Combination of cycles is too complex. You should reduce ‘%ld’",
 			(long)Ptick[im]);
 		Alert1(Message);
+#if BP_CARBON_GUI
 		SelectField(NULL,wTimeBase,fPratio+5*im,TRUE);
+#endif /* BP_CARBON_GUI */
 		PlayTicks = FALSE;
 		goto OUT;
 		}
@@ -877,7 +881,9 @@ else {
 		sprintf(Message,"Combination of cycles is too complex. You should reduce ‘%ld’",
 			(long)Qtick[im]);
 		Alert1(Message);
+#if BP_CARBON_GUI
 		SelectField(NULL,wTimeBase,fQratio+5*im,TRUE);
+#endif /* BP_CARBON_GUI */
 		PlayTicks = FALSE;
 		goto OUT;
 		}
