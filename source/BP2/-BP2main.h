@@ -129,7 +129,6 @@ int UseGraphicsColor,UseTextColor,ForceTextColor,ForceGraphicColor;
 
 node PrefixTree,SuffixTree;
 long SwitchState;
-char ****p_Str;
 char EndStr[4];
 char InitToken[] = "INIT:";
 Rect PictFrame;

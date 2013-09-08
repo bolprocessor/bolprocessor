@@ -99,7 +99,6 @@ extern int UseGraphicsColor,UseTextColor,ForceTextColor,ForceGraphicColor;
 
 extern node PrefixTree,SuffixTree;
 extern long SwitchState;
-extern char ****p_Str;
 extern char EndStr[4];
 extern char InitToken[6];
 extern Rect PictFrame;

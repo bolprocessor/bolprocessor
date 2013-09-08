@@ -1281,7 +1281,7 @@ LoadStrings(void)
 {
 long max;
 
-p_GramProcedure = p_PerformanceControl = p_GeneralMIDIpatch = p_Str = p_HTMLdiacrList = NULL;
+p_GramProcedure = p_PerformanceControl = p_GeneralMIDIpatch = p_HTMLdiacrList = NULL;
 p_ProcNdx = p_ProcNArg = p_PerfCtrlNdx = p_GeneralMIDIpatchNdx = p_PerfCtrlNArg;
 MaxProc = MaxPerformanceControl = ZERO;
 
@@ -1300,7 +1300,6 @@ MyLock(TRUE,(Handle)p_GeneralMIDIpatch);
 if(LoadStringResource(&p_HTMLdiacrList,NULL,NULL,
 	HTMLdiacriticalID,&max,YES) != OK) return(ABORT);
 	
-if(LoadStringResource(&p_Str,NULL,NULL,MiscStringsID,&max,NO) != OK) return(ABORT);
 if(LoadScriptCommands(ScriptStringsID) != OK) return(ABORT);
 return(OK);
 }
