@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		92135B3617DD1DB800B88604 /* StringLists.h in Headers */ = {isa = PBXBuildFile; fileRef = 92135B3517DD1DB800B88604 /* StringLists.h */; };
 		92246A4417B29E5A00D0439B /* ConsoleMain.c in Sources */ = {isa = PBXBuildFile; fileRef = 92246A4317B29E5A00D0439B /* ConsoleMain.c */; };
 		92246A5B17B2A5C700D0439B /* GetRelease.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112DD0EC39231006B5F38 /* GetRelease.c */; };
 		92246A5E17B2A5EC00D0439B /* Inits.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112D80EC39231006B5F38 /* Inits.c */; };
@@ -118,6 +119,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		92135B3517DD1DB800B88604 /* StringLists.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = StringLists.h; path = source/BP2/StringLists.h; sourceTree = "<group>"; };
 		92246A4317B29E5A00D0439B /* ConsoleMain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ConsoleMain.c; path = source/BP2/ConsoleMain.c; sourceTree = "<group>"; };
 		9224724017B7E9CF00D0439B /* ConsoleStubs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ConsoleStubs.c; path = source/BP2/ConsoleStubs.c; sourceTree = "<group>"; };
 		9224732817B97A1100D0439B /* ConsoleMemory.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ConsoleMemory.c; path = source/BP2/ConsoleMemory.c; sourceTree = "<group>"; };
@@ -247,7 +249,7 @@
 		92DA0B5A17CD163300140F5B /* ConsoleMessages.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ConsoleMessages.c; path = source/BP2/ConsoleMessages.c; sourceTree = "<group>"; };
 		92DA0B5F17CD207700140F5B /* ConsoleMessages.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConsoleMessages.h; path = source/BP2/ConsoleMessages.h; sourceTree = "<group>"; };
 		92DA0C2317CD90FE00140F5B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = Info.plist; path = resources/Info.plist; sourceTree = "<group>"; };
-		92DA0C2A17CD926A00140F5B /* bpconsole */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = bpconsole; sourceTree = BUILT_PRODUCTS_DIR; };
+		92DA0C2A17CD926A00140F5B /* bpconsole */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = bpconsole; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -390,6 +392,7 @@
 				92DA0A8A17CBB8FE00140F5B /* CTextHandles.h */,
 				92248DCE17BA8C0E00D0439B /* MissingMacPrototypes.h */,
 				9267C69217B06BC600119CEA /* MissingMacTypes.h */,
+				92135B3517DD1DB800B88604 /* StringLists.h */,
 				92A112B50EC39230006B5F38 /* PrefixMachO-Import.h */,
 				92A112C00EC39231006B5F38 /* PrefixANSIDebug.h */,
 				92A112CB0EC39231006B5F38 /* PrefixReleaseMachOWASTE-Import.h */,
@@ -511,6 +514,7 @@
 				92248DCF17BA8C0E00D0439B /* MissingMacPrototypes.h in Headers */,
 				92DA0A8C17CBB8FE00140F5B /* CTextHandles.h in Headers */,
 				92DA0B6017CD207700140F5B /* ConsoleMessages.h in Headers */,
+				92135B3617DD1DB800B88604 /* StringLists.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
