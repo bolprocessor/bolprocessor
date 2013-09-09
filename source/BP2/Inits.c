@@ -38,6 +38,10 @@
 
 #include "-BP2decl.h"
 
+#if !BP_CARBON_GUI
+#include "StringLists.h"
+#endif
+
 
 Inits(void)
 {
@@ -1309,9 +1313,49 @@ LoadStringResource(char***** pp_str,int ***pp_ndx,int ***pp_narg,int id,long *p_
 	int lock)
 {
 int i,im,j,j0,k,km;
-char c,**ptr;
+char **ptr;
+const char *buffer;
 Handle h_res;
 
+/* FIXME:  I would like to eventually convert the strings with multiple values in 
+   StringLists.h to appropriate data structures and then all of this code could be
+   dispensed with and accesses to all of these handles to arrays of string handles
+   and ints can be replaced with straightforward references to the constant data.
+   But for now, this will be easier (and less error-prone).
+   -- akozar  20130908
+ */
+
+#if !BP_CARBON_GUI
+const char (*strarray)[MAX_STRINGLISTS_STR_LEN];
+
+// use the resource id to select the corresponding array
+switch(id)
+{
+	case GramProcedureStringsID:
+		strarray = GramProcedure;
+		im = NUM_GRAM_PROC_STRS;
+		break;
+	case PerformanceControlStringsID:
+		strarray = PerformanceControl;
+		im = NUM_PERF_CONTROL_STRS;
+		break;
+	case GeneralMIDIpatchesID:
+		strarray = GeneralMidiPatchName;
+		im = NUM_GEN_MIDI_PATCH_STRS;
+		break;
+	case HTMLdiacriticalID:
+		strarray = HTMLdiacritical;
+		im = NUM_HTML_DIACRITICAL_STRS;
+		break;
+	default:
+		if (Beta) fprintf(stderr, "Warning! Bad STR# id in LoadStringResource().\n");
+		return FAILED;
+		break;
+}
+
+// h_res must be non-NULL when it is "locked" below to avoid an error return code
+h_res = (Handle) &buffer;	// WARNING! Dummy value -- don't use!
+#else
 h_res = GetResource('STR#',id);
 if((i=ResError()) != noErr) {
 	sprintf(Message,"Error %ld loading resource string list ID %ld",(long)i,(long)id);
@@ -1320,8 +1364,11 @@ if((i=ResError()) != noErr) {
 	EmergencyExit = TRUE;
 	return(FAILED);
 	}
-im = **((short**)h_res); // (*h_res)[1];
-// if(im < 0) im += 256;
+// resource begins with a two-byte integer which is the number of strings
+im = **((short**)h_res);
+buffer = (char*) *h_res;
+#endif /* BP_CARBON_GUI */
+
 *p_max = im;
 	
 if((*pp_str = (char****) GiveSpace((Size)im * sizeof(char**))) == NULL)
@@ -1335,14 +1382,25 @@ if(pp_narg != NULL) {
 		return(ABORT);
 	}
 
+/* In Carbon, the strings start at the 3rd byte (buffer[2]) and follow one after another
+   without any padding (they are Pascal strings, so they begin with length bytes).
+   Variable j keeps track of the current offset in buffer. */
 for(i=0,j=1; i < im; i++) {
+#if !BP_CARBON_GUI
+	// In console build, we set buffer to each consecutive C string in strarray and
+	// j to the non-existent "length byte" at position -1 (it will be incremented before use).
+	buffer = strarray[i];
+	j = -1;
+	km = strlen(buffer);
+#else
 	km = (*h_res)[++j]; /* length of P-string */
+#endif /* BP_CARBON_GUI */
 	j0 = j;
 	if(km == 0) goto ERR;
 	if(pp_ndx != NULL) {
 		j++;
 		MyLock(FALSE,(Handle)h_res);
-		k = GetInteger(NO,(char*)*h_res,&j);
+		k = GetInteger(NO,buffer,&j);
 		if(k == INT_MAX) goto ERR;
 		(**pp_ndx)[i] = k;
 		MyUnlock((Handle)h_res);
@@ -1350,7 +1408,7 @@ for(i=0,j=1; i < im; i++) {
 	if(pp_narg != NULL) {
 		j++;
 		MyLock(FALSE,(Handle)h_res);
-		k = GetInteger(NO,(char*)*h_res,&j);
+		k = GetInteger(NO,buffer,&j);
 		if(k == INT_MAX) goto ERR;
 		(**pp_narg)[i] = k;
 		MyUnlock((Handle)h_res);
@@ -1361,19 +1419,24 @@ for(i=0,j=1; i < im; i++) {
 	if(((**pp_str)[i] = ptr) == NULL) return(ABORT);
 	if(lock) MyLock(TRUE,(Handle)ptr);
 	for(k=0; k < km; k++) {
-		c = (*h_res)[++j];
-		(*((**pp_str)[i]))[k] = c;
+		(*((**pp_str)[i]))[k] = buffer[++j];
 		}
 	(*((**pp_str)[i]))[k] = '\0';
 	}
+#if BP_CARBON_GUI
 ReleaseResource(h_res);
+#endif /* BP_CARBON_GUI */
 return(OK);
 
 ERR:
 sprintf(Message,"Error loading %ldth string in resource list ID %ld",
 	(long)i,(long)id);
+#if !BP_CARBON_GUI
+fprintf(stderr, "%s\n", Message);
+#else
 ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 NoteAlert(OKAlert,0L);
+#endif /* BP_CARBON_GUI */
 EmergencyExit = TRUE;
 return(FAILED);
 }
