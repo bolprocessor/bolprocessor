@@ -238,7 +238,9 @@ else return(FAILED);
 
 #endif /* BP_CARBON_GUI */
 
-GetInteger(int test,char* line,int* p_i)
+// FIXME: GetInteger() likely originally assumed that ints were 2 bytes.
+// Change to int16_t Get2ByteInteger() ?? (needs careful checking!)
+GetInteger(int test, const char* line, int* p_i)
 {
 long n;
 int done,sign;
@@ -255,7 +257,7 @@ do {
 		}
 	if(c == '\0' || !isdigit(c)) break;
 	n = 10L * n + (long) (c - '0'); done = TRUE;
-	if(n > INT_MAX) {
+	if(n > INT_MAX) {	// FIXME: can never be true when sizeof(long) == sizeof(int)
 		sprintf(Message,"\rMaximum integer value: %ld.\r",(long)INT_MAX);
 		Print(wTrace,Message);
 		return(INT_MAX);
@@ -271,7 +273,8 @@ return((int) n * sign);
 }
 
 
-int GetHexa(char* line,int* p_i)
+// FIXME: GetHexa() likely originally assumed that ints were 2 bytes ?
+int GetHexa(const char* line, int* p_i)
 {
 long n;
 int done,j;
@@ -300,7 +303,7 @@ do {
 			break;
 		}
 	n = 16L * n + (long) j; done = TRUE;
-	if(n > INT_MAX) {
+	if(n > INT_MAX) {	// FIXME: can never be true when sizeof(long) == sizeof(int)
 		sprintf(Message,"\rMaximum integer value: %ld.\r",(long)INT_MAX);
 		Print(wTrace,Message);
 		return(INT_MAX);
@@ -317,7 +320,9 @@ return((int) n);
 }
 
 
-long GetLong(char* line,int* p_i)
+// FIXME: GetLong() likely originally assumed that longs are 4 bytes.
+// Change to int32_t Get4ByteInteger() ?? (needs careful checking!)
+long GetLong(const char* line, int* p_i)
 {
 long n;
 int done,sign;
@@ -334,7 +339,7 @@ do {
 	c = line[*p_i];
 	if(c == '\0' || !isdigit(c)) break;
 	n = 10L * n + (long) (c - '0'); done = TRUE;
-	if(n >= Infpos) {
+	if(n >= Infpos) {	// FIXME: can never be true (Infpos == LONG_MAX)
 		sprintf(Message,"\rMaximum value: %ld.\r",(long)Infpos-1);
 		Print(wTrace,Message);
 		return(Infpos);
@@ -350,14 +355,16 @@ return(n * sign);
 }
 
 
-unsigned GetUnsigned(char* line,int* p_i)
+// FIXME: GetUnsigned() likely originally assumed that unsigned ints were 2 bytes.
+// Change to uint16_t Get2ByteUnsigned() ?? (needs careful checking!)
+unsigned GetUnsigned(const char* line, int* p_i)
 {
 long n;
 int done;
 char c;
 
 n = 0; done = FALSE;
-if(*p_i >= strlen(line)) return(INT_MAX * 2L);
+if(*p_i >= strlen(line)) return(INT_MAX * 2L);	// FIXME: integer overflow (*2UL or UINT16_MAX ?)
 do {
 	c = line[*p_i];
 	if(!done && c == '-') {
@@ -367,9 +374,9 @@ do {
 	c = line[*p_i];
 	if(c == '\0' || !isdigit(c)) break;
 	n = 10L * n + (long) (c - '0'); done = TRUE;
-	if(n >= INT_MAX * 2L) {
+	if(n >= INT_MAX * 2L) {	// FIXME: use wider integers and proper max value
 		sprintf(Message,"\rMaximum unsigned value: %ld.\r",
-			(long) INT_MAX * 2L - 1L);
+			(long) INT_MAX * 2L - 1L);	// FIXME (UINT16_MAX = INT16_MAX*2 + 1)
 		Print(wTrace,Message);
 		return(INT_MAX * 2L);
 		}
@@ -384,7 +391,8 @@ return((unsigned) n);
 }
 
 
-double GetDouble(char* line,int* p_i)
+// FIXME ? Use strtod() instead ?
+double GetDouble(const char* line, int* p_i)
 {
 double n,sign;
 int done,signfound;
