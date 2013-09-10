@@ -61,10 +61,12 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 	if(Beta) Alert1("Err. PlaySelection(). Incorrect window index");
 	return(FAILED);
 	}
+#if BP_CARBON_GUI
 if(w == wScript) {
 	EndWriteScript();
 	return(RunScript(wScript,FALSE));
 	}
+#endif /* BP_CARBON_GUI */
 // if(WillRandomize) ReseedOrShuffle(RANDOMIZE);
 
 BPActivateWindow(SLOW,w);
