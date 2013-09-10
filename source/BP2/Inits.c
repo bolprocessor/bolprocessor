@@ -1286,7 +1286,7 @@ LoadStrings(void)
 long max;
 
 p_GramProcedure = p_PerformanceControl = p_GeneralMIDIpatch = p_HTMLdiacrList = NULL;
-p_ProcNdx = p_ProcNArg = p_PerfCtrlNdx = p_GeneralMIDIpatchNdx = p_PerfCtrlNArg;
+p_ProcNdx = p_ProcNArg = p_PerfCtrlNdx = p_GeneralMIDIpatchNdx = p_PerfCtrlNArg = NULL;
 MaxProc = MaxPerformanceControl = ZERO;
 
 if(LoadStringResource(&p_GramProcedure,&p_ProcNdx,&p_ProcNArg,GramProcedureStringsID,
@@ -1448,6 +1448,15 @@ int i,im,ilabel,iarg,j,k,km,kk,n,nmax,ic;
 char c,**ptr;
 Handle h_res;
 
+/* FIXME ?  The list of script commands is only used in a few isolated places
+   in code which is included in the console build.  It is possible though that
+   by not initializing this list, those places will crash.  The most likely to
+   cause problems are in CompileGlossary() and IsEmpty() which use the macro
+   p_ScriptLabelPart().  (DisplayGrammar() does also but it currently is not 
+   called anywhere).
+ */
+
+#if BP_CARBON_GUI
 h_res = GetResource('STR#',id);
 if((i=ResError()) != noErr) {
 	sprintf(Message,"Error %ld loading resource string list ID %ld",(long) i,
@@ -1540,6 +1549,11 @@ NEWARGPART:
 	}
 ReleaseResource(h_res);
 nmax++;
+#else
+nmax = 8;	// this is the value BP 2.9.8 calculates
+#endif /* BP_CARBON_GUI */
+
+// need to allocate this space in console build as many functions try to append script lines
 if((ScriptLine.label=(char****) GiveSpace((Size)(nmax) * sizeof(char**))) == NULL)
 	goto ERR2;
 if((ScriptLine.arg=(char****) GiveSpace((Size)(nmax) * sizeof(char**))) == NULL)
@@ -1562,8 +1576,12 @@ ERR:
 sprintf(Message,"Error loading %ldth string in resource list ID %ld",
 	(long)i,(long)id);
 ERR3:
+#if !BP_CARBON_GUI
+fprintf(stderr, "%s\n", Message);
+#else
 ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 NoteAlert(OKAlert,0L);
+#endif /* BP_CARBON_GUI */
 EmergencyExit = TRUE;
 return(FAILED);
 
