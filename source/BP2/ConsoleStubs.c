@@ -88,7 +88,7 @@ int CheckLoadedPrototypes(void)
 	if (NeedAlphabet && !ObjectMode && !ObjectTry && (OutMIDI || OutCsound || WriteMIDIfile)) {
 		ObjectTry = TRUE;
 		BPPrintMessage(odWarning, "Loading object prototypes is not yet possible in the "
-			"console version, so MIDI and Csound output may not work correctly.");
+			"console version, so MIDI and Csound output may not work correctly.\n");
 		return FAILED;
 	}
 	return OK; // ??
@@ -109,8 +109,8 @@ int LoadAlphabet(int w, FSSpec *p_spec)
 	
 	// Otherwise, if a -ho reference was found somewhere, we should load it.
 	// FIXME: for now, we just warn the user!
-	BPPrintMessage(odWarning, "Ignoring alphabet file specified in data or grammar file!");
-	BPPrintMessage(odWarning, "(You can specify an alphabet file as a command-line argument).");
+	BPPrintMessage(odWarning, "Ignoring alphabet file specified in data or grammar file!\n");
+	BPPrintMessage(odWarning, "(You can specify an alphabet file as a command-line argument).\n");
 	return FAILED;
 }	
 
@@ -127,8 +127,8 @@ int LoadGlossary(int anyfile,int manual)
 	else {
 		// Otherwise, if a -gl reference was found somewhere, we should load it.
 		// FIXME: for now, we just warn the user!
-		BPPrintMessage(odWarning, "Ignoring glossary file specified in data or grammar file!");
-		BPPrintMessage(odWarning, "(You can specify a glossary file as a command-line argument).");
+		BPPrintMessage(odWarning, "Ignoring glossary file specified in data or grammar file!\n");
+		BPPrintMessage(odWarning, "(You can specify a glossary file as a command-line argument).\n");
 		return FAILED;
 	}	
 }
@@ -182,9 +182,9 @@ int InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode)
 	
 	if (StepProduce || StepGrammars) {
 		BPPrintMessage(odWarning, "Step-by-step production and step subgrammars options "
-			"do not work yet in the console version.");
+			"do not work yet in the console version.\n");
 	}
-	BPPrintMessage(odWarning, "Continuing from InterruptCompute()...");
+	BPPrintMessage(odWarning, "Continuing from InterruptCompute()...\n");
 	return OK;
 }
 
@@ -198,7 +198,7 @@ int GetMIDIfileName(void)
 
 int PrepareMIDIFile(void)
 {
-	BPPrintMessage(odWarning, "Midi file output does not work yet in the console version.");
+	BPPrintMessage(odWarning, "Midi file output does not work yet in the console version.\n");
 	return OK;
 }
 
