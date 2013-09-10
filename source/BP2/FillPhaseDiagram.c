@@ -1748,7 +1748,7 @@ NEWCOLUMN:
 			}
 		for(nseq=0; nseq < Maxconc; nseq++) {
 			if(nseq > (*p_nmax)) {
-				if((*p_ObjectSpecs)[newk] == NULL && ScriptLine(newk) == NULL) {
+				if((*p_ObjectSpecs)[newk] == NULL && ObjScriptLine(newk) == NULL) {
 					(*p_overstrike) = TRUE;
 					return(OK);
 					}
@@ -1777,7 +1777,7 @@ NEWCOLUMN:
 		oldk = (*((*p_seq)[nseq]))[iplot];
 		if(oldk > 1) {
 			force = TRUE;
-			if((*p_ObjectSpecs)[newk] == NULL && ScriptLine(newk) == NULL) {
+			if((*p_ObjectSpecs)[newk] == NULL && ObjScriptLine(newk) == NULL) {
 //				(*p_Instance)[newk].object = 0;
 				(*p_overstrike) = TRUE;
 				return(OK);

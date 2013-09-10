@@ -264,7 +264,7 @@ if((*p_ObjectSpecs)[k] == NULL) {
 	SwitchState(k) = NULL;
 	}
 WaitList(k) = (*p_waitlist)[nseq];
-ScriptLine(k) = (*p_scriptlist)[nseq];
+ObjScriptLine(k) = (*p_scriptlist)[nseq];
 if(*p_newswitch) {
 	if((pts = (long**) GiveSpace((Size) MAXCHAN * sizeof(long))) == NULL) return(ABORT);
 	SwitchState(k) = pts;

@@ -230,8 +230,8 @@ if(p_ObjectSpecs != NULL) {
 					WaitList(i) = NULL;
 					}
 				}
-			if(ScriptLine(i) != NULL) {
-				ptag = ScriptLine(i);
+			if(ObjScriptLine(i) != NULL) {
+				ptag = ObjScriptLine(i);
 				if((**ptag).p != NULL) {
 					do {
 						newptag = (**ptag).p;
@@ -239,11 +239,11 @@ if(p_ObjectSpecs != NULL) {
 						ptag = newptag;
 						}
 					while(ptag != NULL);
-					ScriptLine(i) = NULL;	/* Already disposed of */
+					ObjScriptLine(i) = NULL;	/* Already disposed of */
 					}
 				else {
 					MyDisposeHandle((Handle*)&ptag);
-					ScriptLine(i) = NULL;
+					ObjScriptLine(i) = NULL;
 					}
 				}
 			if(SwitchState(i) != NULL) {

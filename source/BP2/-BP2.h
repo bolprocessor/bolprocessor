@@ -1803,7 +1803,7 @@ typedef struct {
 	} objectspecs;
 	
 #define WaitList(i) (*((*p_ObjectSpecs)[(i)]))->waitlist
-#define ScriptLine(i) (*((*p_ObjectSpecs)[(i)]))->scriptline
+#define ObjScriptLine(i) (*((*p_ObjectSpecs)[(i)]))->scriptline
 #define SwitchState(i) (*((*p_ObjectSpecs)[(i)]))->switchstate
 
 #define PitchbendStart(i) (*((*p_Instance)[i].contparameters.values))[IPITCHBEND].v0

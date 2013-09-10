@@ -706,7 +706,7 @@ TRYCSFILE:
 		ResetTicksInItem(ZERO,tickposition,streakposition,tickdate,clickon,hidden,imaxstreak,
 			&rs,p_keyon);
 		istreak = fstreak = 1.;
-		if(posmin == ZERO && (*p_T)[istreak] <= t1 && ScriptLine(kcurrentinstance) == NULL)
+		if(posmin == ZERO && (*p_T)[istreak] <= t1 && ObjScriptLine(kcurrentinstance) == NULL)
 			InsertTickInItem(fstreak,clickon,hidden,tickdate,&rs,p_keyon,streakposition,t0,
 				tickposition,imaxstreak);
 #endif
@@ -1003,7 +1003,7 @@ FORGETIT:
 				rs = 0;
 				/* Look at attached script line(s) */
 				if((*p_ObjectSpecs)[kcurrentinstance] != NULL
-						&& (scriptlist=ScriptLine(kcurrentinstance)) != NULL) {
+						&& (scriptlist=ObjScriptLine(kcurrentinstance)) != NULL) {
 				
 					WhenItStarted = oldtime = clock();
 					/* WhenItStarted may be further updated by WaitForEmptyBuffer()É */
@@ -1040,6 +1040,7 @@ FORGETIT:
 #endif
 					}
 					
+#if BP_CARBON_GUI
 				/* Look at synchro tags */
 				if(!MIDIfileOn && !cswrite && OutMIDI && Interactive && !ItemCapture && !showpianoroll
 						&& (*p_ObjectSpecs)[kcurrentinstance] != NULL
@@ -1053,6 +1054,7 @@ FORGETIT:
 					SetDriverTime(Tcurr);
 #endif
 					}
+#endif /* BP_CARBON_GUI */
 					
 				if((*p_Instance)[kcurrentinstance].contparameters.number
 						> (*p_control)[nseq].number) {
