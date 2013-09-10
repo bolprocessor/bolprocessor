@@ -344,8 +344,10 @@ PrintOn = FALSE;
 if(th != NULL) {
 /*	ShowSelect(CENTRE,wind); */
 	CheckTextSize(wind);
+#if BP_CARBON_GUI
 	if(saveport != NULL) SetPort(saveport);
 	else if(Beta) Alert1("Err PrintArg(). saveport == NULL");
+#endif /* BP_CARBON_GUI */
 	}
 return(r);
 }
