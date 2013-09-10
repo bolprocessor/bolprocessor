@@ -72,6 +72,39 @@ int AppendScript(int command)
 	return OK;
 }
 
+int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,long posline,
+                   long* p_posdir,int* p_changed,int* p_keep)
+{
+	BP_NOT_USED(p_keyon);
+	BP_NOT_USED(w);
+	BP_NOT_USED(nocomment);
+	BP_NOT_USED(posline);
+	BP_NOT_USED(p_posdir);
+	BP_NOT_USED(p_changed);
+	BP_NOT_USED(p_keep);
+	
+	if (p_line == NULL) {
+		if (Beta) Alert1("Err.ExecScriptLine(). p_line = NULL");
+		return OK;
+	}
+	if ((*p_line)[0] == '\0') return OK;
+	if (!check) {
+		BPPrintMessage(odWarning, "Ignoring script command: %s\n", *p_line);
+		BPPrintMessage(odWarning, "(Scripts do not work yet in the console version).\n");
+	}
+	else if (check == 2) {	// 	Compiling ‘INIT:’ in grammar
+		BPPrintMessage(odWarning, "INIT: scripts do not work yet in the console version.\n");
+		InitThere = 0; // ?? Need 0 instead of 1 since we aren't copying to p_Initbuff ?
+	}
+	return OK;
+}
+
+int EndScript(void)
+{
+	if(ScriptExecOn > 0) ScriptExecOn--;
+	return OK;
+}
+
 int StartCount(void)
 {
 	return OK;
