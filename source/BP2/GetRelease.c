@@ -741,14 +741,12 @@ for(j=howmany; j < Jinstr; j++) {
 			if(Beta) Alert1("Err. ResizeCsoundInstrumentsSpace(). (*p_CsInstrument)[j].paramlist == NULL");
 			break;
 			}
-		ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].name;
-		MyDisposeHandle(&ptr);
-		ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].comment;
-		MyDisposeHandle(&ptr);
+		ptr = (*((*p_CsInstrument)[j].paramlist))[i].name;
+		MyDisposeHandle((Handle*)&ptr);
+		ptr = (*((*p_CsInstrument)[j].paramlist))[i].comment;
+		MyDisposeHandle((Handle*)&ptr);
 		}
-	ptr = (Handle) (*p_CsInstrument)[j].paramlist;
-	MyDisposeHandle(&ptr);
-	(*p_CsInstrument)[j].paramlist = NULL;
+	MyDisposeHandle((Handle*)&((*p_CsInstrument)[j].paramlist));
 	}
 
 if(MySetHandleSize((Handle*)&p_CsInstrument,(Size)howmany * sizeof(CsoundInstrument)) != OK) return(ABORT);
