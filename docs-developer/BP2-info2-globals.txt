@@ -90,3 +90,85 @@ int SkipFlag
 Skips playing the next item when TRUE.  Can be set by an Apple Event or a Midi
 message determined in the interaction file.
 
+
+char ****p_GramProcedure
+int **p_ProcNdx
+int **p_ProcNArg
+long MaxProc
+
+char ****p_PerformanceControl
+int **p_PerfCtrlNdx
+int **p_PerfCtrlNArg
+long MaxPerformanceControl
+
+p_GramProcedure and p_PerformanceControl are two lists of the names of functions
+that can be used in grammars (such _goto and _volume).  p_ProcNArg and
+p_PerfCtrlNArg are arrays specifying the number of arguments that each function
+takes; MaxProc and MaxPerformanceControl are the lengths of these lists.
+
+p_ProcNdx and p_PerfCtrlNdx are the same dimensions as p_GramProcedure and
+p_PerformanceControl respectively but don't store values that "belong" to their
+corresponding functions in those lists.  Instead, they are like reverse indexes
+that are used only by DoThings() and mListReserved() to sort the grammar
+function names for display & selection.  mPickPerformanceControl() and
+mPickGrammarProcedure() use these indexes to retrieve the function selected by
+the user in DoThings().  Here is how they work:
+
+DoThings() and mListReserved() iterate over p_ProcNdx or p_PerfCtrlNdx and 
+display functions in these orders (omitting (*handle) dereferences):
+
+    p_GramProcedure[ p_ProcNdx[0 to (MaxProc-1)] ]
+    p_PerformanceControl[ p_PerfCtrlNdx[0 to (MaxPerformanceControl-1)] ]
+
+DoThings() returns the index r of the selected function from its "sorted
+order".  mPickPerformanceControl() and mPickGrammarProcedure() then use either
+
+    p_GramProcedure[ p_ProcNdx[r] ]
+    p_PerformanceControl[ p_PerfCtrlNdx[r] ]
+
+to find the correct function to insert.  For example, if the user selects
+"_destru" from the list, DoThings() returns r=0 and p_ProcNdx[0] is 11,
+so mPickGrammarProcedure() prints p_GramProcedure[11] into the window.
+
+     r    user selection    p_ProcNdx[r]    p_GramProcedure[r]
+     ---------------------------------------------------------
+     0    _destru           11              _goto
+     1    _goto             0               _failed
+     2    _failed           1               _repeat
+     3    _mm               13              _stop
+     4    _print            4               _print
+     5    _printOff         6               _printOn
+     6    _printOn          5               _printOff
+     7    _randomize        12              _stepOn
+     8    _repeat           2               _stepOff
+     9    _smooth           15              _traceOn
+    10    _srand            16              _traceOff
+    11    _stepOff          8               _destru
+    12    _stepOn           7               _randomize
+    13    _stop             3               _mm
+    14    _striated         14              _striated
+    15    _traceOff         10              _smooth
+    16    _traceOn          9               _srand
+
+Note: Since the intention of p_ProcNdx and p_PerfCtrlNdx seems to be to provide
+an alphabetically-sorted order for the function names, it would be easier to
+maintain these lists if the sort indices were generated at runtime by BP2.
+(Notice that the current order of p_ProcNdx contains an "error").
+
+IMPORTANT:  The order of these lists of names cannot currently be "pre-sorted"
+because other parts of the program use literal constants to refer to specific
+entries in p_GramProcedure and p_PerformanceControl.  These literal constants
+should be replaced by enums.
+
+
+char ****p_GeneralMIDIpatch
+int **p_GeneralMIDIpatchNdx
+
+Stores a list of General MIDI patch names and their program numbers (1 to 128).
+Like the string lists above but always 128 entries and since they are kept in
+sorted order, the value of p_GeneralMIDIpatchNdx[N] == N + 1.  The code however
+does not seem to assume they are sorted and searches for program numbers when
+needed.  Could probably simplify this by imposing a requirement that the names
+be sorted in program number order.
+
+
