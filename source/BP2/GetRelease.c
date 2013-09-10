@@ -1554,34 +1554,34 @@ DisposeHandle((Handle)p_AllSlices);
 
 for(i=0; i < MaxProc; i++) {
 	MyUnlock((Handle)(*p_GramProcedure)[i]);
-	DisposeHandle((Handle)(*p_GramProcedure)[i]);
+	MyDisposeHandle((Handle*)&(*p_GramProcedure)[i]);
 	}
 MyUnlock((Handle)p_GramProcedure);
-DisposeHandle((Handle)p_GramProcedure);
+MyDisposeHandle((Handle*)&p_GramProcedure);
 
 for(i=0; i < MaxPerformanceControl; i++) {
 	MyUnlock((Handle)(*p_PerformanceControl)[i]);
-	DisposeHandle((Handle)(*p_PerformanceControl)[i]);
+	MyDisposeHandle((Handle*)&(*p_PerformanceControl)[i]);
 	}
 MyUnlock((Handle)p_PerformanceControl);
-DisposeHandle((Handle)p_PerformanceControl);
+MyDisposeHandle((Handle*)&p_PerformanceControl);
 
 for(i=0; i < 127; i++) {
 	MyUnlock((Handle)(*p_GeneralMIDIpatch)[i]);
-	DisposeHandle((Handle)(*p_GeneralMIDIpatch)[i]);
+	MyDisposeHandle((Handle*)&(*p_GeneralMIDIpatch)[i]);
 	}
 MyUnlock((Handle)p_GeneralMIDIpatch);
-DisposeHandle((Handle)p_GeneralMIDIpatch);
+MyDisposeHandle((Handle*)&p_GeneralMIDIpatch);
 
 for(i=0; i < MAXHTMLDIACR; i++) {
 	MyUnlock((Handle)(*p_Diacritical)[i]);
-	DisposeHandle((Handle)(*p_Diacritical)[i]);
+	MyDisposeHandle((Handle*)&(*p_Diacritical)[i]);
 	}
 MyUnlock((Handle)p_Diacritical);
-DisposeHandle((Handle)p_Diacritical);
+MyDisposeHandle((Handle*)&p_Diacritical);
 
 MyUnlock((Handle)p_HTMLdiacritical);
-DisposeHandle((Handle)p_HTMLdiacritical);
+MyDisposeHandle((Handle*)&p_HTMLdiacritical);
 
 return(OK);
 }

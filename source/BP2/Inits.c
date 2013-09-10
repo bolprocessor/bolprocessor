@@ -265,21 +265,22 @@ InitColors();
 
 if(LoadStrings() != OK) return(ABORT);
 
-if((p_Diacritical = (char****) NewHandle((Size)(MAXHTMLDIACR) * sizeof(char**)))
+// Replaced NewHandle/DisposeHandle with GiveSpace/MyDisposeHandle in this section - akozar 20130910
+if((p_Diacritical = (char****) GiveSpace((Size)(MAXHTMLDIACR) * sizeof(char**)))
 	== NULL) return(ABORT);
 MyLock(TRUE,(Handle)p_Diacritical);
 
-if((p_HTMLdiacritical = (char**) NewHandle((Size)(MAXHTMLDIACR) * sizeof(char)))
+if((p_HTMLdiacritical = (char**) GiveSpace((Size)(MAXHTMLDIACR) * sizeof(char)))
 	== NULL) return(ABORT);
 MyLock(TRUE,(Handle)p_HTMLdiacritical);
 
-if((p_HTMLchar1 = (char**) NewHandle((Size)(MAXHTMLDIACR) * sizeof(char)))
+if((p_HTMLchar1 = (char**) GiveSpace((Size)(MAXHTMLDIACR) * sizeof(char)))
 	== NULL) return(ABORT);
-if((p_HTMLchar2 = (char**) NewHandle((Size)256 * sizeof(char)))
+if((p_HTMLchar2 = (char**) GiveSpace((Size)256 * sizeof(char)))
 	== NULL) return(ABORT);
 	
 for(i=0; i < MAXHTMLDIACR; i++) {
-	if((ptr = (char**) NewHandle((Size)((1 + MyHandleLen((*p_HTMLdiacrList)[i+i])) * sizeof(char))))
+	if((ptr = (char**) GiveSpace((Size)((1 + MyHandleLen((*p_HTMLdiacrList)[i+i])) * sizeof(char))))
 		== NULL) return(ABORT);
 	(*p_Diacritical)[i] = ptr;
 	MystrcpyHandleToHandle(0,&((*p_Diacritical)[i]),(*p_HTMLdiacrList)[i+i]);
@@ -289,7 +290,7 @@ for(i=0; i < MAXHTMLDIACR; i++) {
 for(i=0; i < MAXHTMLDIACR; i++) {
 	(*p_HTMLdiacritical)[i] = (*((*p_HTMLdiacrList)[i+i+1]))[0];
 	}
-DisposeHandle((Handle)p_HTMLdiacrList);
+MyDisposeHandle((Handle*)&p_HTMLdiacrList);
 
 for(i=0; i < 32; i++) (*p_HTMLchar2)[i] = '\0';
 for(i=32; i < 256; i++) (*p_HTMLchar2)[i] = HTMLlatin[i-32];
