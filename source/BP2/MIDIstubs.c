@@ -47,9 +47,16 @@
   #endif
 #endif
 
+/* There is no standard library function in ISO C for getting better
+   than one-second precision from the system clock.  Therefore, we use
+   various libraries depending on the operating system. */
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #include <stdint.h>
+#elif BP_CARBON_GUI
+// no special headers needed here to get Carbon TickCount() function
+#else
+#include <time.h>
 #endif
 
 #ifndef _H_BP2
@@ -60,11 +67,16 @@
 
 static unsigned long NumEventsWritten = 0;
 
+/* ClockZero is the time the driver considers "zero".  It is stored 
+   in different types depending on the time library being used. */
 #ifdef HAVE_SYS_TIME_H
 static int64_t ClockZero = 0;
-#else
+#elif BP_CARBON_GUI
 static unsigned long ClockZero = 0;
+#else
+static time_t ClockZero = 0;
 #endif
+
 
 /*  Null driver is always on */
 Boolean IsMidiDriverOn()
@@ -160,7 +172,7 @@ int SetDriver()
    since the driver clock's "zero point" divided by Time_res. */
 unsigned long GetDriverTime(void)
 {
-	unsigned long time;
+	unsigned long dtime;
 	
 #ifdef HAVE_SYS_TIME_H
 	// prefer Unix time functions to Carbon's TickCount()
@@ -174,17 +186,17 @@ unsigned long GetDriverTime(void)
 	clockcurrent = (int64_t)(clocktime.tv_sec) * 1000000 + clocktime.tv_usec;
 	sincezero = clockcurrent - ClockZero;
 
-	// 1 unit of 'time' = Time_res milliseconds = Time_res * 1000 microseconds
-	time = (unsigned long)(sincezero / ((int64_t)Time_res * (int64_t)1000));
+	// 1 unit of 'dtime' = Time_res milliseconds = Time_res * 1000 microseconds
+	dtime = (unsigned long)(sincezero / ((int64_t)Time_res * (int64_t)1000));
 	
 #elif BP_CARBON_GUI
 	/* The null driver on Carbon uses system ticks (1/60 seconds) as
        its internal time representation. */
 	unsigned long sincezero;
 
-	// time = (clock() * 60) / Time_res;  // overflows unsigned long
+	// dtime = (clock() * 60) / Time_res;  // overflows unsigned long
 	sincezero = TickCount() - ClockZero;
-	time = (unsigned long)(((double)sincezero * (1000.0/60.0)) / (double)Time_res);
+	dtime = (unsigned long)(((double)sincezero * (1000.0/60.0)) / (double)Time_res);
 
 // #elif WIN32
 	/* On Windows, we could use the GetSystemTime() function as described here:
@@ -193,16 +205,20 @@ unsigned long GetDriverTime(void)
 
 #else
 	// if there is no other option, then we use the Std. C time() function :(
-	#error GetDriverTime() unimplemented!
+	time_t sincezero;
+
+	sincezero = time(NULL) - ClockZero;
+	// convert sincezero (in seconds) to "driver time" (milliseconds/Time_res)
+	dtime = (unsigned long)((sincezero * 1000) / Time_res);
 #endif
 
-	return(time);
+	return(dtime);
 }
 
 
 /*  SetDriverTime() sets the current time in the same units returned
 	by GetDriverTime() above (milliseconds/Time_res) */
-int SetDriverTime(long time)
+int SetDriverTime(long dtime)
 {
 
 #ifdef HAVE_SYS_TIME_H
@@ -215,8 +231,8 @@ int SetDriverTime(long time)
 	// timeval splits clock time into two values: seconds and microseconds
 	// convert everything to microseconds
 	clockcurrent = (int64_t)(clocktime.tv_sec) * 1000000 + clocktime.tv_usec;
-	// 1 unit of 'time' = Time_res milliseconds = Time_res * 1000 microseconds
-	offset = (int64_t)(time) * Time_res * 1000;
+	// 1 unit of 'dtime' = Time_res milliseconds = Time_res * 1000 microseconds
+	offset = (int64_t)(dtime) * Time_res * 1000;
 	// save the clock time that we are calling "zero"
 	ClockZero = clockcurrent - offset;
 	
@@ -224,7 +240,7 @@ int SetDriverTime(long time)
 	unsigned long clockcurrent, offset;
 	
 	clockcurrent = TickCount();
-	offset = (unsigned long)((double)(time * Time_res) * 0.060);
+	offset = (unsigned long)((double)(dtime * Time_res) * 0.060);
 	/* save the clock time that we are calling "zero" */
 	ClockZero = clockcurrent - offset;
 
@@ -235,7 +251,12 @@ int SetDriverTime(long time)
 
 #else
 	// if there is no other option, then we use the Std. C time() function :(
-	#error SetDriverTime() unimplemented!
+	time_t clockcurrent, offset;
+
+	clockcurrent = time(NULL);
+	offset = (time_t)((dtime * Time_res) / 1000);
+	/* save the clock time that we are calling "zero" */
+	ClockZero = clockcurrent - offset;
 #endif
 
 	return(OK);
