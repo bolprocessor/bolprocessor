@@ -34,6 +34,23 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
+/* Test to see if we can use gettimeofday() in <sys/time.h> */
+#ifndef HAVE_SYS_TIME_H
+  #if defined (__unix__) || (defined (__APPLE__) && defined (__MACH__))
+    #include <unistd.h>
+    #if defined(_POSIX_VERSION) && _POSIX_VERSION > 200100L
+      /* This is a conservative test assuming that the needed features will be 
+         available if the POSIX version is 2001 or later.  You can also just
+		 define HAVE_SYS_TIME_H with your build options if you know it is available. */
+      #define HAVE_SYS_TIME_H
+	#endif
+  #endif
+#endif
+
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#include <stdint.h>
+#endif
 
 #ifndef _H_BP2
 #include "-BP2.h"
@@ -42,7 +59,12 @@
 #include "-BP2decl.h"
 
 static unsigned long NumEventsWritten = 0;
+
+#ifdef HAVE_SYS_TIME_H
+static int64_t ClockZero = 0;
+#else
 static unsigned long ClockZero = 0;
+#endif
 
 /*  Null driver is always on */
 Boolean IsMidiDriverOn()
@@ -133,28 +155,88 @@ int SetDriver()
 
 /* We do need to keep accurate time with these functions so that
    WaitForLastSeconds, etc. will work.  - akozar */
+
 /* GetDriverTime() returns a value that is the number of milliseconds
-   since the driver clock's "zero point" divided by Time_res.
-   SetDriverTime() sets the current time in these units. */
-/* The null driver uses system ticks (1/60 seconds) as its internal
-   time representation. */
+   since the driver clock's "zero point" divided by Time_res. */
 unsigned long GetDriverTime(void)
 {
-	unsigned long time, sincezero;
+	unsigned long time;
+	
+#ifdef HAVE_SYS_TIME_H
+	// prefer Unix time functions to Carbon's TickCount()
+	struct timeval clocktime;
+	struct timezone tzone;
+	int64_t clockcurrent, sincezero;
+	
+	gettimeofday(&clocktime, &tzone);
+	// timeval splits clock time into two values: seconds and microseconds
+	// convert everything to microseconds
+	clockcurrent = (int64_t)(clocktime.tv_sec) * 1000000 + clocktime.tv_usec;
+	sincezero = clockcurrent - ClockZero;
+
+	// 1 unit of 'time' = Time_res milliseconds = Time_res * 1000 microseconds
+	time = (unsigned long)(sincezero / ((int64_t)Time_res * (int64_t)1000));
+	
+#elif BP_CARBON_GUI
+	/* The null driver on Carbon uses system ticks (1/60 seconds) as
+       its internal time representation. */
+	unsigned long sincezero;
 
 	// time = (clock() * 60) / Time_res;  // overflows unsigned long
 	sincezero = TickCount() - ClockZero;
 	time = (unsigned long)(((double)sincezero * (1000.0/60.0)) / (double)Time_res);
+
+// #elif WIN32
+	/* On Windows, we could use the GetSystemTime() function as described here:
+	   http://msdn.microsoft.com/en-us/library/ms724950%28v=VS.85%29.aspx
+	 */
+
+#else
+	// if there is no other option, then we use the Std. C time() function :(
+	#error GetDriverTime() unimplemented!
+#endif
+
 	return(time);
 }
 
+
+/*  SetDriverTime() sets the current time in the same units returned
+	by GetDriverTime() above (milliseconds/Time_res) */
 int SetDriverTime(long time)
 {
+
+#ifdef HAVE_SYS_TIME_H
+	// prefer Unix time functions to Carbon's TickCount()
+	struct timeval clocktime;
+	struct timezone tzone;
+	int64_t clockcurrent, offset;
+	
+	gettimeofday(&clocktime, &tzone);
+	// timeval splits clock time into two values: seconds and microseconds
+	// convert everything to microseconds
+	clockcurrent = (int64_t)(clocktime.tv_sec) * 1000000 + clocktime.tv_usec;
+	// 1 unit of 'time' = Time_res milliseconds = Time_res * 1000 microseconds
+	offset = (int64_t)(time) * Time_res * 1000;
+	// save the clock time that we are calling "zero"
+	ClockZero = clockcurrent - offset;
+	
+#elif BP_CARBON_GUI
 	unsigned long clockcurrent, offset;
 	
 	clockcurrent = TickCount();
 	offset = (unsigned long)((double)(time * Time_res) * 0.060);
 	/* save the clock time that we are calling "zero" */
 	ClockZero = clockcurrent - offset;
+
+// #elif WIN32
+	/* On Windows, we could use the GetSystemTime() function as described here:
+	   http://msdn.microsoft.com/en-us/library/ms724950%28v=VS.85%29.aspx
+	 */
+
+#else
+	// if there is no other option, then we use the Std. C time() function :(
+	#error SetDriverTime() unimplemented!
+#endif
+
 	return(OK);
 }
