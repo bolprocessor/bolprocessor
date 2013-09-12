@@ -56,6 +56,29 @@
 		92A113E60EC39254006B5F38 /* -BP2decl.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113120EC39232006B5F38 /* -BP2decl.h */; };
 		92A113EC0EC39254006B5F38 /* midi1.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113140EC39232006B5F38 /* midi1.h */; };
 		92A113ED0EC39254006B5F38 /* -BP2.proto.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113110EC39232006B5F38 /* -BP2.proto.h */; };
+		92BD2E5C17E262220028D273 /* Arithmetic.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E90EC39232006B5F38 /* Arithmetic.c */; };
+		92BD2E5D17E262270028D273 /* Automata.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F10EC39232006B5F38 /* Automata.c */; };
+		92BD2E5E17E262280028D273 /* Compute.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F40EC39232006B5F38 /* Compute.c */; };
+		92BD2E5F17E262290028D273 /* Csound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FB0EC39232006B5F38 /* Csound.c */; };
+		92BD2E6017E2622A0028D273 /* CsoundMaths.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FC0EC39232006B5F38 /* CsoundMaths.c */; };
+		92BD2E6117E2622A0028D273 /* CsoundScoreMake.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FD0EC39232006B5F38 /* CsoundScoreMake.c */; };
+		92BD2E6217E2622B0028D273 /* DisplayArg.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EF0EC39232006B5F38 /* DisplayArg.c */; };
+		92BD2E6317E2622C0028D273 /* FillPhaseDiagram.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F60EC39232006B5F38 /* FillPhaseDiagram.c */; };
+		92BD2E6417E2622D0028D273 /* Glossary.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FE0EC39232006B5F38 /* Glossary.c */; };
+		92BD2E6517E2622E0028D273 /* HTML.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E80EC39232006B5F38 /* HTML.c */; };
+		92BD2E6617E2622F0028D273 /* Interface2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E20EC39231006B5F38 /* Interface2.c */; };
+		92BD2E6717E2622F0028D273 /* MakeSound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113060EC39232006B5F38 /* MakeSound.c */; };
+		92BD2E6817E262300028D273 /* MIDIloads.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112ED0EC39232006B5F38 /* MIDIloads.c */; };
+		92BD2E6917E262310028D273 /* MIDIstubs.c in Sources */ = {isa = PBXBuildFile; fileRef = 928320F9157C5CE600EADF2F /* MIDIstubs.c */; };
+		92BD2E6A17E262310028D273 /* MIDIstuff.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EA0EC39232006B5F38 /* MIDIstuff.c */; };
+		92BD2E6B17E262330028D273 /* SaveLoads3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E70EC39232006B5F38 /* SaveLoads3.c */; };
+		92BD2E6C17E262330028D273 /* SetObjectFeatures.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130A0EC39232006B5F38 /* SetObjectFeatures.c */; };
+		92BD2E6D17E262340028D273 /* SoundObjects2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113080EC39232006B5F38 /* SoundObjects2.c */; };
+		92BD2E6E17E262350028D273 /* SoundObjects3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113090EC39232006B5F38 /* SoundObjects3.c */; };
+		92BD2E6F17E262360028D273 /* Ticks.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130C0EC39232006B5F38 /* Ticks.c */; };
+		92BD2E7017E262360028D273 /* TimeSet.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130D0EC39232006B5F38 /* TimeSet.c */; };
+		92BD2E7117E262370028D273 /* TimeSetFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130B0EC39232006B5F38 /* TimeSetFunctions.c */; };
+		92BD2E7217E262370028D273 /* Zouleb.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113000EC39232006B5F38 /* Zouleb.c */; };
 		92DA09AA17CA899800140F5B /* Interface2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E20EC39231006B5F38 /* Interface2.c */; };
 		92DA0A8C17CBB8FE00140F5B /* CTextHandles.h in Headers */ = {isa = PBXBuildFile; fileRef = 92DA0A8A17CBB8FE00140F5B /* CTextHandles.h */; };
 		92DA0A8D17CBB8FE00140F5B /* CTextHandles.c in Sources */ = {isa = PBXBuildFile; fileRef = 92DA0A8B17CBB8FE00140F5B /* CTextHandles.c */; };
@@ -276,7 +299,6 @@
 				92A112F50EC39232006B5F38 /* Encode.c */,
 				92A112DD0EC39231006B5F38 /* GetRelease.c */,
 				92A112F40EC39232006B5F38 /* Compute.c */,
-				92A112EC0EC39232006B5F38 /* MIDIfiles.c */,
 				92A112F70EC39232006B5F38 /* Polymetric.c */,
 				92A113080EC39232006B5F38 /* SoundObjects2.c */,
 				92A112FD0EC39232006B5F38 /* CsoundScoreMake.c */,
@@ -307,7 +329,6 @@
 				92A1130C0EC39232006B5F38 /* Ticks.c */,
 				92A1130D0EC39232006B5F38 /* TimeSet.c */,
 				92A112EE0EC39232006B5F38 /* Strings.c */,
-				92A113070EC39232006B5F38 /* SoundObjects1.c */,
 				92A112E20EC39231006B5F38 /* Interface2.c */,
 				92A112E70EC39232006B5F38 /* SaveLoads3.c */,
 				9224724017B7E9CF00D0439B /* ConsoleStubs.c */,
@@ -326,11 +347,13 @@
 				92A112DB0EC39231006B5F38 /* CarbonCompatUtil.c */,
 				92A112DE0EC39231006B5F38 /* AppleEvents.c */,
 				92A112DF0EC39231006B5F38 /* MenuCommands.c */,
+				92A112EC0EC39232006B5F38 /* MIDIfiles.c */,
 				92A112E00EC39231006B5F38 /* Dialogs.c */,
 				92A112E10EC39231006B5F38 /* Interface1.c */,
 				92A112E40EC39231006B5F38 /* Processes.c */,
 				92A112E50EC39231006B5F38 /* SaveLoads1.c */,
 				92A112E60EC39231006B5F38 /* SaveLoads2.c */,
+				92A113070EC39232006B5F38 /* SoundObjects1.c */,
 				92A112EB0EC39232006B5F38 /* CoreMIDIdriver.c */,
 				92A112FF0EC39232006B5F38 /* Interaction.c */,
 				92A113010EC39232006B5F38 /* Color.c */,
@@ -665,6 +688,29 @@
 				92DA0C6F17CD9B2D00140F5B /* PlayThings.c in Sources */,
 				92DA0C7417CD9D6100140F5B /* Polymetric.c in Sources */,
 				92DA0C7517CD9D6600140F5B /* ProduceItems.c in Sources */,
+				92BD2E5C17E262220028D273 /* Arithmetic.c in Sources */,
+				92BD2E5D17E262270028D273 /* Automata.c in Sources */,
+				92BD2E5E17E262280028D273 /* Compute.c in Sources */,
+				92BD2E5F17E262290028D273 /* Csound.c in Sources */,
+				92BD2E6017E2622A0028D273 /* CsoundMaths.c in Sources */,
+				92BD2E6117E2622A0028D273 /* CsoundScoreMake.c in Sources */,
+				92BD2E6217E2622B0028D273 /* DisplayArg.c in Sources */,
+				92BD2E6317E2622C0028D273 /* FillPhaseDiagram.c in Sources */,
+				92BD2E6417E2622D0028D273 /* Glossary.c in Sources */,
+				92BD2E6517E2622E0028D273 /* HTML.c in Sources */,
+				92BD2E6617E2622F0028D273 /* Interface2.c in Sources */,
+				92BD2E6717E2622F0028D273 /* MakeSound.c in Sources */,
+				92BD2E6817E262300028D273 /* MIDIloads.c in Sources */,
+				92BD2E6917E262310028D273 /* MIDIstubs.c in Sources */,
+				92BD2E6A17E262310028D273 /* MIDIstuff.c in Sources */,
+				92BD2E6B17E262330028D273 /* SaveLoads3.c in Sources */,
+				92BD2E6C17E262330028D273 /* SetObjectFeatures.c in Sources */,
+				92BD2E6D17E262340028D273 /* SoundObjects2.c in Sources */,
+				92BD2E6E17E262350028D273 /* SoundObjects3.c in Sources */,
+				92BD2E6F17E262360028D273 /* Ticks.c in Sources */,
+				92BD2E7017E262360028D273 /* TimeSet.c in Sources */,
+				92BD2E7117E262370028D273 /* TimeSetFunctions.c in Sources */,
+				92BD2E7217E262370028D273 /* Zouleb.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
