@@ -1567,7 +1567,6 @@ else rep = ABORT;
 return(rep);
 }
 
-#endif /* BP_CARBON_GUI */
 
 OpenTemp(void)
 {
@@ -1590,7 +1589,6 @@ if(TraceRefnum != -1) {
 return CreateTemporaryFile(&tracespec, &TraceRefnum, kBPTraceFile, TRUE);
 }
 
-#if BP_CARBON_GUI
 
 OSErr CloseAndDeleteTemp()
 {

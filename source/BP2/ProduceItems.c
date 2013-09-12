@@ -689,6 +689,7 @@ if(Varweight) {
 if((r=ClearWindow(FALSE,wTrace)) != OK) return(r);
 if(!template) sprintf(Message,"Computing all possible itemsÉ");
 else sprintf(Message,"Computing templatesÉ");
+ShowMessage(TRUE,wMessage,Message);
 (**(pp_a))[0] = T0; (**(pp_a))[1] = 10;
 (**(pp_a))[2] = TEND; (**(pp_a))[3] = TEND;
 if((p_stack = (tokenbyte****) GiveSpace((Size) maxdepth * sizeof(tokenbyte**)))
@@ -722,6 +723,7 @@ if(template) {
 	}
 else {
 	mode = PROD;
+	// FIXME ? Should we bother asking this when (*p_gram).number_gram == 1 ?
 	if((r = Answer("Try all rules\rin all grammars",'Y')) == ABORT) goto END;
 	if(r == OK) endgram = (*p_gram).number_gram;
 	else {
@@ -729,6 +731,9 @@ else {
 		if((endgram=LastGrammarWanted((*p_gram).number_gram)) == ABORT) goto END;
 		}
 	}
+#if BP_CARBON_GUI
+// FIXME: Need to redo temp file I/O in order to be able to discard repeats in console build
+// FIXME: "Discard repeated items" should be an option that can be set before the operation
 if(!template) {
 	r = Answer("Discard repeated items\r(May take timeÉ)",'Y');
 	if(r == ABORT) goto END;
@@ -741,6 +746,7 @@ if(r == YES) {
 		single = FALSE;
 		}
 	}
+#endif /* BP_CARBON_GUI */
 
 igram = 1;
 AllOn = TRUE;
@@ -760,9 +766,16 @@ MyDisposeHandle((Handle*)&p_weight);
 MyDisposeHandle((Handle*)&p_flag);
 
 AllOn = FALSE;
+#if BP_CARBON_GUI
 if(single) CloseAndDeleteTemp();
+#endif /* BP_CARBON_GUI */
 if(template && ItemNumber > 10L) SysBeep(10);
 HideWindow(Window[wInfo]);
+if(!template) {
+	sprintf(Message,"Produced %ld items", ItemNumber);
+	ShowMessage(TRUE,wMessage,Message);
+	}
+else HideWindow(Window[wMessage]);
 if((*p_gram).hasTEMP && template) {
 	ShowSelect(CENTRE,wGrammar);
 	BPActivateWindow(SLOW,wGrammar);
@@ -1318,7 +1331,7 @@ if(*pp_a == NULL) {
 	return(ABORT);
 	}
 h = WindowTextHandle(TEH[w]);
-im = (long) MyGetHandleSize((char**)*pp_a);
+im = (long) MyGetHandleSize((Handle)*pp_a);
 im = (long) (im / sizeof(tokenbyte)) - 6L;
 for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\0'; pos++) {
 	if(MySpace(c)) continue;
@@ -1862,6 +1875,27 @@ if(NoVariable(pp_a)) {
 		} */
 	(*p_length) = LengthOf(pp_a);
 	if(template) MakeTemplate(pp_a);
+
+#if BP_CARBON_GUI
+	/* The code below reads/writes items as space-separated integers from/to the
+	   file "BP2.temp".  The current item is compared to each item already
+	   in the temp file (one per line) and if it finds a match, both writing
+	   the current item to the OutputWindow and the temp file are skipped.
+	   
+	   This code needs to be rewritten for cross-platform use.  At a minimum,
+	   I would break it out into a function and relace Mac OS file I/O with
+	   either our own x-platform wrappers or just Std. C routines for all.
+	   Reading items back in one character at a time and translating integers
+	   to and from text is also unnecssarily slow.  One of the following should
+	   also be implemented:
+	       1) Read the entire file back in all at once each time, or
+		   2) Write items as binary data and read them all back in at once, or
+		   3) No temp file, keep all the items in a linked list in memory, or
+		   4) #3 plus compute a hash for each item and only compare items if
+		      their hashes match.
+		   
+	   -- akozar 20130912
+	 */
 	if(single) {
 		SetFPos(TempRefnum,fsFromStart,ZERO);
 		imax = (*p_length+2);
@@ -1940,6 +1974,8 @@ WRITE:
 			r = ABORT; goto END;
 			}
 		}
+#endif /* BP_CARBON_GUI */
+
 	/* if(!(OutMIDI || OutCsound) || template) */ ItemNumber++;
 	sprintf(Message,"Item #%ld",(long)ItemNumber);
 	FlashInfo(Message);
