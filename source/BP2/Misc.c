@@ -1094,10 +1094,10 @@ MAKECHANGE:
 #if BP_CARBON_GUI
 	ShowWindow(Window[wMetronom]);
 	BringToFront(Window[wMetronom]);
+	UpdateDirty(TRUE,iSettings);
 #endif /* BP_CARBON_GUI */
 	SetTickParameters(0,MAXBEATS);
 	ResetTickFlag = TRUE;
-	UpdateDirty(TRUE,iSettings);
 	}
 return(OK);
 }

@@ -525,7 +525,9 @@ switch(NoteConvention) {
 	}
 if(wind >= 0) {
 	PrintBehind(wind,line);
+#if BP_CARBON_GUI
 	UpdateDirty(TRUE,wind);
+#endif /* BP_CARBON_GUI */
 	}
 return(OK);
 }

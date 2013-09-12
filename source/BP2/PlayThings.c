@@ -876,9 +876,9 @@ SetPrototypeDuration(j,&longerCsound);
 #if BP_CARBON_GUI
 SetPrototypePage5(j);
 SetPrototype(j);
-#endif /* BP_CARBON_GUI */
 ChangedProtoType(j);
 UpdateDirty(TRUE,wPrototype1);
+#endif /* BP_CARBON_GUI */
 return(OK);
 }
 
@@ -1088,8 +1088,10 @@ while(origin < end) {
 		if(r == ABORT || r == EXIT) goto BAD;
 		r = PrintArg(DisplayMode(&p_a,&ifunc,&hastabs),FALSE,FALSE,TRUE,FALSE,FALSE,stdout,w,pp_Scrap,&p_a);
 		if(r != OK) goto BAD;
+#if BP_CARBON_GUI
 		BPActivateWindow(SLOW,w);
 		UpdateDirty(TRUE,w);
+#endif /* BP_CARBON_GUI */
 		TextGetSelection(&dummy, &newend, TEH[w]);
 		end += newend - oldend;
 		origin += newend - oldend;
