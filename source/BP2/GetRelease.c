@@ -946,7 +946,6 @@ for(j=0; j < 2 ; j++) {
 	(*p_PeriodMode)[j] = IRRELEVANT;
 	(*p_PreRoll)[j] = (*p_PostRoll)[j] = ZERO;
 	(*p_AlphaCtrlNr)[j] = 0; (*p_AlphaCtrlChan)[j] = 1;
-	(*p_PasteDone)[j] = FALSE;
 	(*pp_MIDIcode)[j] = NULL; (*pp_CsoundTime)[j] = NULL;
 	(*pp_Comment)[j] = (*pp_CsoundScoreText)[j] = NULL;
 	(*pp_CsoundScore)[j] = NULL;
