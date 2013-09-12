@@ -398,6 +398,57 @@ if(l > 0 && MySpace(c=line[l-1])) {
 return(OK);
 }
 
+
+IsEmpty(int w)
+{
+int j,len,gap,rep;
+char c,*q,**p_line,line[MAXLIN];
+long i,pos,posmax;
+
+if(w >= 0 && w < WMAX && Editable[w]) {
+	posmax = GetTextLength(w);
+	if(w == wPrototype7) {
+		for(i=0; i < posmax; i++) {
+			if(!isspace(GetTextChar(w,i))) return(FALSE);
+			}
+		return(TRUE);
+		}
+	
+	p_line = NULL;
+	pos = ZERO; rep = TRUE;
+	
+	if(w == wScript || w == wGlossary || w == wInteraction) {
+		MystrcpyHandleToString(MAXLIN,0,line,p_ScriptLabelPart(110,0));
+		/* line is "BP2 script" */
+		}
+	if(w == wGrammar) strcpy(line,"COMMENT:");
+	len = strlen(line);
+	while(ReadLine(YES,w,&pos,posmax,&p_line,&gap) == OK) {
+		if((*p_line)[0] == '\0' || (*p_line)[0] == '\r') continue;
+		for(j=0; j < WMAX; j++) {
+			if(FilePrefix[j][0] == '\0') continue;
+			q = &(FilePrefix[j][0]);
+			if(Match(TRUE,p_line,&q,4)) goto NEXTLINE;
+			}
+		if(w == wScript || w == wGlossary || w == wInteraction) {
+			/* Discard line */
+			q = line;
+			if(Match(FALSE,p_line,&q,len)) goto NEXTLINE;
+			}
+		if(w == wGrammar) {
+			q = line;
+			if(Match(FALSE,p_line,&q,len)) break;
+			}
+		rep = FALSE;
+		break;
+NEXTLINE: ;
+		}
+	MyDisposeHandle((Handle*)&p_line);
+	return(rep);
+	}
+else return(FALSE);
+}
+
 #if BP_CARBON_GUI
 
 DoArrowKey(int w,char thechar,int shift,int option)
