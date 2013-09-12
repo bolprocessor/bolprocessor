@@ -932,14 +932,14 @@ GetWindowPortBounds(Window[wInfo], &r);
 AdjustWindow(FALSE,wInfo,r.top,r.left,r.bottom,r.right);
 #endif /* BP_CARBON_GUI */
 
-sprintf(Message,"%s",IDSTRING);
-ShowMessage(TRUE,wMessage,Message);
-
 #if BP_CARBON_GUI
 FlashInfo("Bol Processor Mac OS X (Carbon) GUI");
 #else
 FlashInfo("Bol Processor console app");
 #endif
+
+sprintf(Message,"%s",IDSTRING);
+ShowMessage(TRUE,wMessage,Message);
 
 #if BP_CARBON_GUI
 SelectWindow(GetDialogWindow(GreetingsPtr));

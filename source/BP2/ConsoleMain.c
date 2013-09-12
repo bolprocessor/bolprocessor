@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "-BP2.h"
 #include "-BP2main.h"
+#include "ConsoleMessages.h"
 
 // globals only for the console app
 Boolean LoadedAlphabet = FALSE;
@@ -44,7 +45,6 @@ Boolean LoadedAlphabet = FALSE;
 int main (int argc, char* args[])
 {
 	int  result;
-	long leak;
 	
 	if(Inits() != OK)	return EXIT_FAILURE;
 	
@@ -68,9 +68,9 @@ int main (int argc, char* args[])
 	ResetTicks(TRUE,TRUE,ZERO,0);
 */
 
-	MemoryUsedInit = MemoryUsed + leak;
+	MemoryUsedInit = MemoryUsed;
 	InitOn = FALSE;
-	printf("BP2 Console completed initialization.\n");
+	BPPrintMessage(odInfo, "BP2 Console completed initialization.\n");
 	SessionTime = clock();
 
 	/* This is where we ought to do something ... */
@@ -82,8 +82,8 @@ int main (int argc, char* args[])
 	Stream.period = ZERO; */
 	LoadedCsoundInstruments = TRUE;
 	if (TraceMemory && Beta) {
-		if ((result = ResetProject(FALSE)) != OK)	printf("ResetProject() returned %d\n", result);
-		printf("This session used %ld Kbytes maximum.  %ld handles created and released. [%ld bytes leaked]",
+		if ((result = ResetProject(FALSE)) != OK)	BPPrintMessage(odError, "ResetProject() returned %d\n", result);
+		BPPrintMessage(odInfo, "This session used %ld Kbytes maximum.  %ld handles created and released. [%ld bytes leaked]\n",
 				(long) MaxMemoryUsed/1000L,(long)MaxHandles,
 				(long) (MemoryUsed - MemoryUsedInit));
 	}
