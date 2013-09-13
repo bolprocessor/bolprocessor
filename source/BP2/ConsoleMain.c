@@ -74,7 +74,17 @@ int main (int argc, char* args[])
 	SessionTime = clock();
 
 	/* This is where we ought to do something ... */
-	
+	ReseedOrShuffle(NEWSEED);
+	CopyStringToTextHandle(TEH[wStartString], "S");
+	CopyStringToTextHandle(TEH[wGrammar],	"RND\r"
+											"S --> X Y\r"
+											"X --> C4\r"
+											"X --> D4\r"
+											"Y --> E4\r"
+											"Y --> F4\r");
+	result = ProduceItems(wStartString,FALSE,FALSE,NULL);
+	if (result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
+
 	/* Cleanup ... */
 	
 	/* MyDisposeHandle((Handle*)&Stream.code);
