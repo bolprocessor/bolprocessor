@@ -85,9 +85,9 @@ int CopyStringToTextHandle(TEHandle th, const char* str)
 	
 	// resize text buffer and copy str
 	len = strlen(str);
-	res = MySetHandleSize((Handle*)&th, len + (Size)1);	// +1 for null termination
-	if (res != OK)	return res;
 	tp = *th;
+	res = MySetHandleSize((Handle*)&(tp->hText), len + (Size)1);	// +1 for null termination
+	if (res != OK)	return res;
 	dest = (char*) *tp->hText;
 	strcpy(dest, str);
 	
@@ -202,7 +202,7 @@ int DoKey(char c,EventModifiers modifiers,TextHandle th)
 {
 	BP_NOT_USED(modifiers);
 	BP_NOT_USED(th);
-	fprintf(stderr, "Ignoring DoKey(%X)\n", c);
+	fprintf(stderr, "Ignoring DoKey(0x%X)\n", c);
 	return OK;
 }
 
@@ -214,8 +214,14 @@ int TextDelete(int w)
 
 int TextInsert(char *s,long length,TextHandle th)
 {
+	int w;
+	
 	BP_NOT_USED(length);
 	BP_NOT_USED(th);
-	fprintf(stderr, "TextInsert(): %s\n", s);
+	// find window index
+	for (w = 0; w < WMAX; ++w) {
+		if (th == TEH[w])  break;
+	}
+	fprintf(stderr, "TextInsert(%s): %s\n", (w < WMAX) ? WindowName[w] : "", s);
 	return OK;
 }
