@@ -239,6 +239,7 @@ extern short Minconc,Maxconc,Maxlevel,MaxFlag,MaxScript,PlayFromInsertionPoint,
 	MIDI;
 extern int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,StepGrammars,DisplayProduce,UseTimeLimit,
 	DisplayTimeSet,StepTimeSet,TraceProduce,UseEachSub,PlanProduce,TraceTimeSet;
+extern int InsertGramRuleNumbers, InsertGramCorrections, InsertNewBols;
 extern unsigned long Ptick[MAXTICKS],Qtick[MAXTICKS],GrandCycle[MAXTICKS],
 	PosGrandCycle[MAXTICKS],GrandPeriod,BeatGrandCycle,BeatPosGrandCycle,
 	LastCommonDate[MAXTICKS],LastCommonBeatDate;

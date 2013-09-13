@@ -278,6 +278,7 @@ short Minconc,Maxconc,Maxlevel,MaxFlag,MaxScript,Jscriptline,Final,POLYconvert,
 	Port,Portbit,****p_Seq,MIDI;
 int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,StepGrammars,DisplayProduce,TraceProduce,UseTimeLimit,
 	DisplayTimeSet,StepTimeSet,UseEachSub,PlanProduce,TraceTimeSet;
+int InsertGramRuleNumbers, InsertGramCorrections, InsertNewBols;
 unsigned long Ptick[MAXTICKS],Qtick[MAXTICKS],GrandCycle[MAXTICKS],
 	PosGrandCycle[MAXTICKS],GrandPeriod,BeatGrandCycle,BeatPosGrandCycle,
 	LastCommonDate[MAXTICKS],LastCommonBeatDate;

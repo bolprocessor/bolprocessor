@@ -307,10 +307,10 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 			break;
 			}
 		}
-	if(needsnumber && N_err == 0) {
+	if(InsertGramRuleNumbers && needsnumber && N_err == 0) {
 		Renumber(p_line,posline+gap,&pos,igram,irul,&posmax,&changednumber);
 		}
-	Dirty[wGrammar] = FALSE;
+	Dirty[wGrammar] = FALSE;  // FIXME ? What if the grammar was unsaved before CompileGrammar() ?
 	
 NEXTLINE:
 	posline = pos;
@@ -384,7 +384,7 @@ if((N_err == 0) && onerulefound) {
 			Gram.trueBP = FALSE; break;
 			}
 		}
-	InsertSubgramTypes();
+	if (InsertGramCorrections) InsertSubgramTypes();
 #if BP_CARBON_GUI
 	ShowPannel(wControlPannel,dSaveDecisions);
 	ShowPannel(wControlPannel,dShowGramWeights);

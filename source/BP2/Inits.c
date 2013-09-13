@@ -404,6 +404,7 @@ Veryneg = Infneg + 1;
 Infpos = - Veryneg;
 Infpos1 = Infpos + 1.;
 
+InsertGramRuleNumbers = InsertGramCorrections = InsertNewBols = (BP_CARBON_GUI ? TRUE : FALSE);
 SplitTimeObjects = TRUE;	/* Terminal symbols separated by spaces */
 SplitVariables = FALSE;	/* SplitVariables <=> variables displayed between '||' */
 Token = SpaceOn = FALSE;	/* Typing text, not tokens */
