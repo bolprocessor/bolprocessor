@@ -149,12 +149,6 @@ Handle IncreaseSpace(Handle h)
 	rep = MySetHandleSize(&h, newsize);
 	if(rep != OK) return NULL;
 	
-	// FIXME ? this adds the difference twice ?
-	MemoryUsed += (newsize - oldsize);
-	if(MemoryUsed > MaxMemoryUsed) {
-		MaxMemoryUsed = MemoryUsed;
-	}
-	
 	return(h);
 }
 
