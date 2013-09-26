@@ -34,19 +34,94 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "-BP2.h"
 #include "-BP2main.h"
 #include "ConsoleMessages.h"
 
+const char	SimpleGrammar[] =	
+	"RND\r"
+	"S --> X Y\r"
+	"X --> C4\r"
+	"X --> D4\r"
+	"Y --> E4\r"
+	"Y --> F4\r";
+
+const char	gr_Visser3[] = 
+	"// -gr.Visser3'\r"
+	"// By Harm Visser (March 1998)\r"
+	"\r"
+	"-se.Visser3\r"
+	"\r"
+	"ORD\r"
+	"_mm(120.0000) _striated\r"
+	"gram#1[1] S --> M1 M2 M3 M4 M5 M6 M7 M8 M9 M10 M11\r"
+	"\r"
+	"// words\r"
+	"gram#1[2] M1 --> A -\r"
+	"gram#1[3] M2 --> B - M1\r"
+	"gram#1[4] M3 --> C - M2\r"
+	"gram#1[5] M4 --> D - M3\r"
+	"gram#1[6] M5 --> E ¥ M4\r"
+	"gram#1[7] M6 --> F - M5\r"
+	"gram#1[8] M7 --> G - M6\r"
+	"gram#1[9] M8 --> H - ¥ M7\r"
+	"gram#1[10] M9 --> I - M8\r"
+	"gram#1[11] M10 --> J - ¥\r"
+	"gram#1[12] M11 --> K\r"
+	"-----------------------\r"
+	"ORD\r"
+	"// phonemes\r"
+	"gram#2[1] A --> C3\r"
+	"gram#2[2] B --> {Tr11 A}\r"
+	"gram#2[3] C --> {Tr5 {A,B}}\r"
+	"gram#2[4] D --> {Tr1 A C}\r"
+	"gram#2[5] E --> {Tr7 {A -, D -}}\r"
+	"gram#2[6] F --> {Tr6 A E D}\r"
+	"gram#2[7] G --> {Tr11 {A B C D ¥ E F E D C B A}}\r"
+	"gram#2[8] H --> {Tr-11 {G F E D C B A}}\r"
+	"gram#2[9] I --> {Tr11 G}\r"
+	"gram#2[10] J --> {G F, Tr5 G F}\r"
+	"gram#2[11] K --> {Tr-11 B C D}\r"
+	"-----------------------\r"
+	"ORD\r"
+	"gram#3[1] Tr11 -->  _transpose(11) _vel(90)\r"
+	"gram#3[2] Tr5 -->  _transpose(5) _vel(80)\r"
+	"gram#3[3] Tr1 -->  _transpose(1) _vel(70)\r"
+	"gram#3[4] Tr7 -->  _transpose(7) _vel(60)\r"
+	"gram#3[5] Tr6 -->  _transpose(6) _vel(70)\r"
+	"gram#3[6] Tr-11 -->  _transpose(-11) _vel(90)\r"
+	"\r";
+
+
+// function prototypes
+void PrintVersion(void);
+void PrintShortVersion(void);
+void PrintInputFilenames(void);
+void PrintUsage(char* programName);
+int ParsePreInitArgs(int argc, char* args[]);
+int ParsePostInitArgs(int argc, char* args[]);
+
 // globals only for the console app
 Boolean LoadedAlphabet = FALSE;
+const char *gInputFilenames[WMAX];
+
 
 int main (int argc, char* args[])
 {
 	int  result;
 	
-	if(Inits() != OK)	return EXIT_FAILURE;
+	result = ParsePreInitArgs(argc, args);
+	if (result == EXIT)  return EXIT_SUCCESS;
+	else if (result != OK)  return EXIT_FAILURE;
+	
+	if (Inits() != OK)	return EXIT_FAILURE;
+	
+	result = ParsePostInitArgs(argc, args);
+	if (result != OK)  return EXIT_FAILURE;
+	// PrintInputFilenames();
 	
 #if BIGTEST
 	TraceMemory = TRUE;
@@ -75,28 +150,268 @@ int main (int argc, char* args[])
 
 	/* This is where we ought to do something ... */
 	ReseedOrShuffle(NEWSEED);
-	CopyStringToTextHandle(TEH[wStartString], "S");
-	CopyStringToTextHandle(TEH[wGrammar],	"RND\r"
-											"S --> X Y\r"
-											"X --> C4\r"
-											"X --> D4\r"
-											"Y --> E4\r"
-											"Y --> F4\r");
+	
+	// load data
+	CopyStringToTextHandle(TEH[wStartString], "S\r");
+	CopyStringToTextHandle(TEH[wGrammar], gr_Visser3);
+	MemoryUsedInit = MemoryUsed;
+
+	// do it
 	result = ProduceItems(wStartString,FALSE,FALSE,NULL);
 	if (result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
 
 	/* Cleanup ... */
 	
+	// deallocate any remaining space obtained since Inits()
 	/* MyDisposeHandle((Handle*)&Stream.code);
 	Stream.imax = ZERO;
 	Stream.period = ZERO; */
 	LoadedCsoundInstruments = TRUE;
 	if (TraceMemory && Beta) {
+		// reset everything and report memory usage & any leaked space
 		if ((result = ResetProject(FALSE)) != OK)	BPPrintMessage(odError, "ResetProject() returned %d\n", result);
 		BPPrintMessage(odInfo, "This session used %ld Kbytes maximum.  %ld handles created and released. [%ld bytes leaked]\n",
 				(long) MaxMemoryUsed/1000L,(long)MaxHandles,
 				(long) (MemoryUsed - MemoryUsedInit));
 	}
 	
+	// close open files
+	// CloseMIDIFile();
+	// CloseFileAndUpdateVolume(&TraceRefnum);
+	// CloseFileAndUpdateVolume(&TempRefnum);
+	CloseCsScore();
+	
+	// deallocate space obtained during Inits() (not strictly necessary)
+	MyDisposeHandle((Handle*)&p_Oldvalue);
+	ClearLockedSpace();
+
+	// FIXME: CloseCurrentDriver should eventually work for all drivers - akozar
+	// CloseCurrentDriver(FALSE);
 	return EXIT_SUCCESS;
+}
+
+void PrintVersion(void)
+{
+	BPPrintMessage(odInfo, "Bol Processor console app\n");
+	BPPrintMessage(odInfo, "%s\n", IDSTRING);
+	return;
+}
+
+void PrintShortVersion(void)
+{
+	BPPrintMessage(odInfo, "%s\n", SHORT_VERSION);
+	return;
+}
+
+const char gOptionList[] = 
+	"OPTIONS (General):\n"
+	"  -h or --help     print this help information\n"
+	"  --version        print the program name, version #, and date compiled\n"
+	"  --short-version  print just the version number\n"
+	"\n"
+	"ACTIONS:  Specify which operation to perform.  They are case-insensitive.\n"
+	"  produce          produce one item from the grammar\n"
+	"  produce-items N  produce N items from the grammar\n"
+	"  produce-all      produce all items from the grammar\n"
+    "\n"
+	"  play             play the first item in the input data file\n"
+	"  play-item N      play the Nth item in the input data file\n"
+	"  play-all         play all items in the input data file\n"
+	"  analyze-item N   analyze the Nth item's derivation using the grammar\n"
+	"  expand-item N    expand the Nth item to a complete polymetric expression\n"
+	"  show-beats N     print the Nth item using periods to show the beats\n"
+	"\n"
+	"  compile          check the syntax of input files and report errors\n"
+	"  templates        produce templates from the grammar\n" 
+	"\n"
+	"FILE-TYPES: Input files are automatically recognized if they use BP's naming\n"
+	"            conventions (either prefixes or extensions).  Otherwise, specify\n"
+	"            the type of input files with the following markers.\n"
+	"\n"
+	"  These file types can currently be loaded and used:\n"
+	"\n"
+	"  -da fname        load data file 'fname'\n"
+	"  -gl fname        load glossary file 'fname'\n"
+	"  -gr fname        load grammar file 'fname'\n"
+	"  -ho fname        load alphabet file 'fname'\n"
+	"\n"
+	"  These file-type markers currently are recognized but ignored:\n"
+	"      -cs  -in  -kb  -md  -mi  -or  -se  -tb  -tr  -wg  +sc \n"
+	"\n"
+/*	"  -cs fname        load Csound instrument definitions file 'fname'\n"
+	"  -de fname        load decisions file 'fname'\n"
+	"  -in fname        load interaction file 'fname'\n"
+	"  -kb fname        load keyboard file 'fname'\n"
+	"  -md fname        load MIDI driver settings file 'fname'\n"
+	"  -mi fname        load sound-object prototypes file 'fname'\n"
+	"  -or fname        load MIDI orchestra file 'fname'\n"
+	"  -se fname        load settings file 'fname'\n"
+	"  -tb fname        load time base file 'fname'\n"
+	"  -wg fname        load weights file 'fname'\n"
+	"  +sc fname        load script file 'fname'\n"
+ */
+	"OPTIONS (Output):\n"
+	"  -D or --display        print produced items to standard output (default)\n"
+	"  -d or --no-display     don't print produced items to standard output\n"
+	"  -o outfile             write produced items to file 'outfile'\n"
+	"\n"
+	"  --csoundout outfile    write Csound score to file 'outfile' ('-' for stdout)\n"
+	"  --midiout outfile      write Midi score to file 'outfile' ('-' for stdout)\n"
+	"  --rtmidi destination   play real-time Midi on 'destination'\n"
+	"\n"
+	"OPTIONS (Computation):\n"
+	"  -s or --start string   use 'string' as the start string (default is \"S\")\n"
+	"  -S startfile           read the start string from file 'startfile'\n"
+	"\n";
+
+void PrintUsage(char* programName)
+{
+	PrintVersion();
+	BPPrintMessage(odInfo, "\nUsage:  %s action [options] { [file-type] inputfile }+\n\n", programName);
+	BPPrintMessage(odInfo, gOptionList);
+	return;
+}
+
+/*	ParsePreInitArgs()
+	
+	Parses "early" command-line arguments such as --help and --version that cause
+	BP to exit without performing other actions and for which we do not want 
+	Inits() to run.
+	
+	Returns EXIT if program should exit when no error occured, ABORT if an error
+	occured, or OK if program should continue.
+ */
+int ParsePreInitArgs(int argc, char* args[])
+{
+	int argn = 1;
+	
+	if (argc == 1) {
+		PrintUsage(args[0]);
+		BPPrintMessage(odError, "Not enough arguments...\n\n");
+		return ABORT;
+	}
+	else if (argc < 1) {
+		// can this ever happen?
+		BPPrintMessage(odError, "Error in main(): argc is %d\n", argc);
+		return ABORT;
+	}
+	
+	while (argn < argc) {
+		if (strcmp(args[argn], "-h") == 0 || strcmp(args[argn], "--help") == 0)	{
+			PrintUsage(args[0]);
+			return EXIT;
+		}
+		if (strcmp(args[argn], "--version") == 0)	{
+			PrintVersion();
+			return EXIT;
+		}
+		if (strcmp(args[argn], "--short-version") == 0)	{
+			PrintShortVersion();
+			return EXIT;
+		}
+		++argn;
+	}
+	
+	return OK;
+}
+
+/*	ParsePostInitArgs()
+	
+	Parses all command-line arguments, sets global options, and saves 
+	action and input/output details (but does not perform actions).
+	
+	Returns ABORT if an error occured or OK if program should continue.
+ */
+int ParsePostInitArgs(int argc, char* args[])
+{
+	int argn = 1, arglen, w;
+	Boolean argDone;
+
+	while (argn < argc) {
+		/* check if it is an input file */
+		argDone = FALSE;
+		if (args[argn][0] == '-' || args[argn][0] == '+') {
+			// check for matching file prefix
+			arglen = strlen(args[argn]);
+			for (w = 0; w < WMAX; w++) {
+				// This comparison assumes all prefixes are 3 chars long (not including the '.')
+				if (strncmp(args[argn], FilePrefix[w], 3) == 0) {
+					if (arglen == 3) {
+						// argument is just the file prefix (eg. "-gr"),
+						// so look at the next argument for the file name
+						if (++argn < argc)  {
+							gInputFilenames[w] = args[argn];
+							argDone = TRUE;
+						}
+						else {
+							BPPrintMessage(odError, "Missing filename after %s\n", args[argn-1]);
+							return ABORT;
+						}
+					}
+					else if (arglen > 4 && args[argn][3] == '.') {
+						//  argument is a complete file name (with 1+ chars after '.'), so just save it
+						gInputFilenames[w] = args[argn];
+						argDone = TRUE;
+					}
+					// else, check for other options below
+					break;
+				}
+			}
+		}
+		// check for matching file extension
+		else if ((w = FindMatchingFileNameExtension(args[argn])) != wUnknown) {
+			gInputFilenames[w] = args[argn];
+			argDone = TRUE;
+		}
+		
+		if (!argDone) {
+			/* check if it is an option */
+			if (args[argn][0] == '-') {
+				if (strcmp(args[argn], "-D") == 0 || strcmp(args[argn], "--display") == 0)	{
+					DisplayItems = TRUE;
+				}
+				else if (strcmp(args[argn], "-d") == 0 || strcmp(args[argn], "--no-display") == 0)	{
+					DisplayItems = FALSE;
+				}
+				else if (strcmp(args[argn], "--csoundout") == 0)	{
+					OutCsound = TRUE;
+					strcpy(CsFileName, "stdout");
+					CsRefNum = odCsScore;
+				}
+				else if (strcmp(args[argn], "--midiout") == 0)	{
+					WriteMIDIfile = TRUE;
+				}
+				else if (strcmp(args[argn], "--rtmidi") == 0)	{
+					OutMIDI = TRUE;
+				}
+				else {
+					BPPrintMessage(odError, "Unknown option '%s'\n", args[argn]);
+					BPPrintMessage(odError, "Use '%s --help' to see help information.\n", args[0]);
+					return ABORT;
+				}
+			}
+			/* check if it is an action */
+			else if (strcmp(args[argn], "produce") == 0)	{
+			}
+			else {
+				BPPrintMessage(odError, "Unknown action '%s'\n", args[argn]);
+				BPPrintMessage(odError, "If '%s' is an input file, indicate the file type (eg. -gr %s).\n", args[argn], args[argn]);
+				BPPrintMessage(odError, "Use '%s --help' to see help information.\n", args[0]);
+				return ABORT;
+			}
+		}
+		++argn;
+	}
+	
+	return OK;
+}
+
+void PrintInputFilenames(void)
+{
+	int w;
+	
+	for (w = 0; w < WMAX; w++) {
+		BPPrintMessage(odError, "gInputFilenames[%s] = %s\n", WindowName[w], gInputFilenames[w]);
+	}
+	return;
 }
