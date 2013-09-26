@@ -2027,7 +2027,7 @@ if (strftime(dd, MAXNAME, "%a, %b %d, %Y", loctime) == 0) {
 	dd[0] = '\0';
 	}
 // format the time
-if (strftime(tt, MAXNAME, "%h:%M %p", loctime) == 0) {
+if (strftime(tt, MAXNAME, "%I:%M %p", loctime) == 0) {
 	if (Beta) Alert1("Err. Date(): strftime() results were too long for tt.");
 	tt[0] = '\0';
 	}
