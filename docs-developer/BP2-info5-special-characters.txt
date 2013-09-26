@@ -11,6 +11,53 @@ Note: This document is encoded using Unicode UTF-8.
 
 
 --------------
+These characters are used thruout the code in messages or comments and print
+improperly to the terminal window:
+
+‘ ’ “ ” … §
+
+When they occur in string literals, I don't think they have any special 
+meaning (i.e. they're just punctuation).  '…' might be an exception in
+some places but I'm not sure.  Otherwise, we could replace these with
+ASCII characters:
+
+' ' " " ... *
+
+(Only necessary to replace them in files that are used in console build?)
+
+CAUTION: When doing the search/replace, must be careful to avoid replacing
+these characters where they occur as character literals!! (see next)
+
+--------------
+The following arrays and functions contain character literals with many
+non-ASCII characters:
+
+	Code[]				-BP2main.h
+	HTMLlatin[]			Inits.c
+	Filter()			Interface2.c
+	DOStoMac()			HTML.c
+	OkChar(char c)		CompileGrammar.c
+	OkBolChar(char c)	CompileGrammar.c
+	OkBolChar2(char c)	CompileGrammar.c
+
+I think we probably need to preserve the exact Mac OS Roman-encoded values
+within the code in these places for compatibility with existing BP2 documents.
+It seems likely that code editors unable to interpret the BP2 source code as Mac
+OS Roman will display the characters incorrectly.  I am uncertain whether the
+characters will compile OK on non-Mac platforms, but I think they will as long
+as the code is not edited with a code editor that tries to convert them.
+
+DOStoMac() does contain a couple of potentially problematic char codes that
+equate to 0x15 and 0x7F.  I suppose some editors may reject these or silently
+change them.  Just these (or all) of the char codes could be (automatically)
+converted to hex or octal literals to ensure correctness at the expense of
+making the meanings of the codes completely inscrutable.
+
+At some point, if BP is modified to use Unicode internally, then these lists of
+codes could change and some library or custom code for converting between text
+encodings would be needed to preserve compatibility with earlier BP2 documents.
+
+--------------
 in Misc.c:
 
 MySpace(char c)
@@ -27,5 +74,21 @@ return(NO);
 The comment notes that '\20' is also Control-P, which must have had some
 other use on Mac OS? (In TextWrangler it functions like the up arrow key(?)
 but only if Emacs key bindings are enabled).
+
+
+GetLinkedFileName(int w, int doc, char* filename)
+{
+	// ...
+	if(Match(TRUE,&p,&q,4) && line[4] != '<' && line[4] != '\334') {
+
+
+--------------
+in Encode.c, CompileGrammar.c, CompileProcs.c, & ProduceItems.c:
+
+Characters such as '\334', '\335', '≤', '≥', and '≠' occur in numerous places:
+
+	while(!MySpace(c=**pp) && c != '/' && c != '=' && c != '-' && c != '+'
+			&& c != '<' && c != '\334' && c != '>' && c != '\335'
+			&& c != '≤' && c != '≥' && c != '≠') {
 
 --------------
