@@ -259,7 +259,7 @@ int MakeCsFile(char* pathname)
 {	
 	BP_NOT_USED(pathname);
 	// FIXME ? ignoring pathname and assuming odiCsScore has been set
-	ShowMessage(TRUE,wMessage,"Create new Csound score file…");
+	ShowMessage(TRUE,wMessage,"Creating new Csound score file...");
 	CsScoreOpened = YES;
 	if(WriteToFile(NO,CsoundFileFormat,"; Csound score",CsRefNum) != OK) {
 		Alert1("Can't write to Csound score file. Unknown error");

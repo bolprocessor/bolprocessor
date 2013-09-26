@@ -589,10 +589,10 @@ if(j < 0) j = -j;
 if((*p_Ts)[i] == Tsm) {
 	if(TraceTimeSet) {
 		if(j < 16384)
-			sprintf(Message,"\rCol %ld NewTs=%ld ts1= %ld ts2=%ld Tsm=%ld Ò%sÓ  This object is not the one concerned.",
+			sprintf(Message,"\rCol %ld NewTs=%ld ts1= %ld ts2=%ld Tsm=%ld \"%s\"  This object is not the one concerned.",
 			(long)i,(long)(*p_Ts)[i],(long)(*p_ts1)[i],(long)(*p_ts2)[i],(long)Tsm,*((*p_Bol)[j]));
 		else	/* Simple note */
-			sprintf(Message,"\rCol %ld NewTs=%ld ts1= %ld ts2=%ld Tsm=%ld Ô%sÓ  This object is not the one concerned.",
+			sprintf(Message,"\rCol %ld NewTs=%ld ts1= %ld ts2=%ld Tsm=%ld \"%s\"  This object is not the one concerned.",
 			(long)i,(long)(*p_Ts)[i],(long)(*p_ts1)[i],(long)(*p_ts2)[i],(long)Tsm,
 			*((*(p_NoteName[NoteConvention]))[j-16384]));
 		Print(wTrace,Message);
