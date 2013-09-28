@@ -40,6 +40,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "-BP2.h"
 #include "-BP2main.h"
 #include "ConsoleMessages.h"
+#include "CTextHandles.h"
+
+const size_t	READ_ENTIRE_FILE = 0;
 
 const char	SimpleGrammar[] =	
 	"RND\r"
@@ -103,9 +106,14 @@ void PrintInputFilenames(void);
 void PrintUsage(char* programName);
 int ParsePreInitArgs(int argc, char* args[]);
 int ParsePostInitArgs(int argc, char* args[]);
+int LoadInputFiles(const char* pathnames[WMAX]);
+int LoadFileToTextHandle(const char* pathname, TEHandle th);
+int OpenAndReadFile(const char* pathname, char*** buffer);
+int ReadNewHandleFromFile(FILE* fin, size_t numbytes, Handle* data);
 
 // globals only for the console app
 Boolean LoadedAlphabet = FALSE;
+Boolean LoadedStartString = FALSE;
 const char *gInputFilenames[WMAX];
 
 
@@ -121,7 +129,8 @@ int main (int argc, char* args[])
 	
 	result = ParsePostInitArgs(argc, args);
 	if (result != OK)  return EXIT_FAILURE;
-	// PrintInputFilenames();
+	result = LoadInputFiles(gInputFilenames);
+	if (result != OK)  return EXIT_FAILURE;
 	
 #if BIGTEST
 	TraceMemory = TRUE;
@@ -152,8 +161,8 @@ int main (int argc, char* args[])
 	ReseedOrShuffle(NEWSEED);
 	
 	// load data
-	CopyStringToTextHandle(TEH[wStartString], "S\r");
-	CopyStringToTextHandle(TEH[wGrammar], gr_Visser3);
+	if (!LoadedStartString)  CopyStringToTextHandle(TEH[wStartString], "S\r");
+	// CopyStringToTextHandle(TEH[wGrammar], gr_Visser3);
 	MemoryUsedInit = MemoryUsed;
 
 	// do it
@@ -333,6 +342,7 @@ int ParsePostInitArgs(int argc, char* args[])
 		if (args[argn][0] == '-' || args[argn][0] == '+') {
 			// check for matching file prefix
 			arglen = strlen(args[argn]);
+			// FIXME: Need to ignore any path components before the filename when matching prefix
 			for (w = 0; w < WMAX; w++) {
 				// This comparison assumes all prefixes are 3 chars long (not including the '.')
 				if (strncmp(args[argn], FilePrefix[w], 3) == 0) {
@@ -411,7 +421,186 @@ void PrintInputFilenames(void)
 	int w;
 	
 	for (w = 0; w < WMAX; w++) {
-		BPPrintMessage(odError, "gInputFilenames[%s] = %s\n", WindowName[w], gInputFilenames[w]);
+		if (gInputFilenames[w] != NULL)
+			BPPrintMessage(odInfo, "gInputFilenames[%s] = %s\n", WindowName[w], gInputFilenames[w]);
 	}
 	return;
+}
+
+/*	LoadInputFiles()
+	
+	Calls LoadFileToTextHandle() for each file in pathnames and copies the contents
+	to the corresponding TextHandle in TEH[].  pathnames must be an array of 
+	WMAX file/path names with file types that match the window indices in -BP2.h.
+	
+	Returns FAILED if an error occured or OK if successful.
+ */
+int LoadInputFiles(const char* pathnames[WMAX])
+{
+	int w, result;
+	
+	for (w = 0; w < WMAX; w++) {
+		if (pathnames[w] != NULL) {
+			switch(w) {
+				case wGrammar:
+				case wAlphabet:
+				case wStartString:
+				case wData:
+				case wGlossary:
+					BPPrintMessage(odInfo, "Reading %s file %s...\n", DocumentTypeName[w], pathnames[w]);
+					result = LoadFileToTextHandle(pathnames[w], TEH[w]);
+					if (result != OK)  return result;
+					switch(w) {
+						case wAlphabet:			LoadedAlphabet = TRUE; break;
+						case wStartString:		LoadedStartString = TRUE; break;
+						case wGlossary:			LoadedGl = TRUE; break;
+					}
+					break;
+				default:
+					BPPrintMessage(odWarning, "Ignoring %.3s %s (%s files are currently unsupported)\n", FilePrefix[w], pathnames[w], DocumentTypeName[w]);
+					break;
+			}
+		}
+	}
+	return OK;
+}
+
+/*	LoadFileToTextHandle()
+
+	Reads in the entire contents of the file at 'pathname' and copies
+	it to the existing TEHandle th. 
+	
+	Returns OK on success, ABORT if the parameters from the caller
+	are bad, or FAILED if there was an error.
+ */
+int LoadFileToTextHandle(const char* pathname, TEHandle th)
+{
+	int result;
+	char **filecontents = NULL;
+
+	if (pathname == NULL) {
+		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): pathname == NULL");
+		return ABORT;
+	}
+	if (th == NULL) {
+		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): th == NULL");
+		return ABORT;
+	}
+
+	result = OpenAndReadFile(pathname, &filecontents);
+	if (result != OK)  return result;
+	// FIXME: Need to convert line endings and HTML -- do it here ?
+	// CleanLF(filecontents,&count,&dos);
+	// CheckHTML(w,filecontents,&count,&html);
+	result = CopyStringToTextHandle(th, *filecontents);
+	MyDisposeHandle((Handle*) &filecontents);
+	return result;
+}
+
+/*	OpenAndReadFile()
+
+	Opens the file at 'pathname' and reads the entire contents into
+	a new Handle and returns a pointer to that Handle in 'buffer'. 
+	
+	Returns OK on success, ABORT if the parameters from the caller
+	are bad, or FAILED if there was an error.
+ */
+int OpenAndReadFile(const char* pathname, char*** buffer)
+{
+	FILE *fin;
+	Handle data;
+	int result;
+	
+	if (pathname == NULL) {
+		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): pathname == NULL");
+		return ABORT;
+	}
+	if (pathname[0] == '\0') {
+		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): pathname is empty");
+		return ABORT;
+	}
+	if (buffer == NULL) {
+		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): buffer == NULL");
+		return ABORT;
+	}
+
+	// open the file for reading
+	fin = fopen(pathname, "r");
+	if (!fin) {
+		BPPrintMessage(odError, "Could not open file %s\n", pathname);
+		return FAILED;
+	}
+	
+	// read the entire file
+	result = ReadNewHandleFromFile(fin, READ_ENTIRE_FILE, &data);
+	if (result != OK) {
+		*buffer = NULL;
+		return result;
+	}
+	else *buffer = (char**) data;
+	
+	return OK;
+}
+
+/*	ReadNewHandleFromFile()
+
+	Allocates a new Handle and reads data from fin.  If numbytes is
+	READ_ENTIRE_FILE, then the file pointer is reset to the beginning
+	and the entire file is read; otherwise, ReadNewHandleFromFile reads
+	numbytes from the file pointer's current location.
+	
+	The file data is returned in 'data' and the function returns OK
+	on success or FAILED if there was an error.
+ */
+int ReadNewHandleFromFile(FILE* fin, size_t numbytes, Handle* data)
+{
+	Handle	buffer;
+	size_t	bsize;
+	long	pos;
+	
+	if (fin == NULL) {
+		if (Beta)  BPPrintMessage(odError, "Err. ReadNewHandleFromFile(): fin == NULL");
+		return ABORT;
+	}
+	if (data == NULL) {
+		if (Beta)  BPPrintMessage(odError, "Err. ReadNewHandleFromFile(): data == NULL");
+		return ABORT;
+	}
+	
+	if (numbytes == READ_ENTIRE_FILE) {
+		// find the length of the file
+		if (fseek(fin, 0L, SEEK_END) == 0) {
+			pos = ftell(fin); 
+			if (pos > 0) {
+				numbytes = (size_t)pos;			// numbytes is file length
+				fseek(fin, 0L, SEEK_SET);		// rewind to beginning
+			}
+			else {
+				BPPrintMessage(odError, "Error finding file length (input file may be empty).\n");
+				return FAILED;
+			}
+		}
+		else {
+			BPPrintMessage(odError, "Error seeking to the end of input file.\n");
+			return FAILED;
+		}
+	}
+	// else use numbytes and fin pointer as is
+	
+	// allocate space for data plus a null char
+	bsize = numbytes + 1;
+	buffer = GiveSpace(bsize);
+	if (buffer == NULL) return FAILED;
+	
+	// read from the file
+	if (fread(*buffer, 1, numbytes, fin) != numbytes) {
+		BPPrintMessage(odError, "Error reading data from file.\n");
+		MyDisposeHandle(&buffer);
+		return FAILED;
+	}
+	
+	// terminate the string and return Handle
+	((char*)*buffer)[numbytes] = '\0';
+	*data = buffer;
+	return OK;
 }
