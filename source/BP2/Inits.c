@@ -1634,7 +1634,7 @@ return(OK);
 
 InitButtons(void)
 {
-#if WITH_REAL_TIME_MIDI
+#if WITH_REAL_TIME_MIDI && BP_CARBON_GUI
   OutMIDI = TRUE;
 #else
   OutMIDI = FALSE;
