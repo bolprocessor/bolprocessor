@@ -143,7 +143,7 @@
 
 /* Begin PBXFileReference section */
 		92135B3517DD1DB800B88604 /* StringLists.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = StringLists.h; path = source/BP2/StringLists.h; sourceTree = "<group>"; };
-		92246A4317B29E5A00D0439B /* ConsoleMain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ConsoleMain.c; path = source/BP2/ConsoleMain.c; sourceTree = "<group>"; };
+		92246A4317B29E5A00D0439B /* ConsoleMain.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = ConsoleMain.c; path = source/BP2/ConsoleMain.c; sourceTree = "<group>"; };
 		9224724017B7E9CF00D0439B /* ConsoleStubs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ConsoleStubs.c; path = source/BP2/ConsoleStubs.c; sourceTree = "<group>"; };
 		9224732817B97A1100D0439B /* ConsoleMemory.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ConsoleMemory.c; path = source/BP2/ConsoleMemory.c; sourceTree = "<group>"; };
 		92248DCE17BA8C0E00D0439B /* MissingMacPrototypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MissingMacPrototypes.h; path = source/BP2/MissingMacPrototypes.h; sourceTree = "<group>"; };
