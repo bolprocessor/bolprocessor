@@ -121,6 +121,7 @@ int main (int argc, char* args[])
 {
 	int  result;
 	
+    ConsoleMessagesInit();
 	result = ParsePreInitArgs(argc, args);
 	if (result == EXIT)  return EXIT_SUCCESS;
 	else if (result != OK)  return EXIT_FAILURE;

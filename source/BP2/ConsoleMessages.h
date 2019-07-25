@@ -48,6 +48,8 @@
 
 typedef	int (*bp_message_callback_t)(void* bp, int dest, const char *format, va_list parms);
 
+void ConsoleMessagesInit(void);
+
 int BPPrintMessage(int dest, const char *format, ...);
 int BPSetMessageCallback(bp_message_callback_t func);
 

@@ -59,9 +59,22 @@ typedef enum {
 /* private globals */
 
 static FILE*	gOutDestinations[MAXOUTDEST] = 
-					{ stdout, stdout, stdout, stderr, stderr, stderr, stderr, stderr };
+					{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
 static bp_message_callback_t	gMessageCallback = NULL;
+
+void ConsoleMessagesInit()
+{
+    gOutDestinations[odiDisplay] = stdout;
+    gOutDestinations[odiMidiDump] = stdout;
+    gOutDestinations[odiCsScore] = stdout;
+    gOutDestinations[odiTrace] = stderr;
+    gOutDestinations[odiInfo] = stderr;
+    gOutDestinations[odiWarning] = stderr;
+    gOutDestinations[odiError] = stderr;
+    gOutDestinations[odiUserInt] = stderr;
+}
+
 
 /* Functions for displaying messages and writing output in the console build */
 
