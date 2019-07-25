@@ -8,6 +8,8 @@
 *.mode1
 *.mode1v3
 *.pbxuser
+*.xcworkspace
+xcuserdata/
 
 # Xcode build artifacts
 build/
