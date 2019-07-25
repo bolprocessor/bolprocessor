@@ -1376,7 +1376,7 @@ GetArg(char **pp, char **qq1, char **qq2, char **qq3, char **qq4)
 // *qq4 is the end of the second argument
 {
 int operator,i2,i3;
-char x[ARROWLENGTH];
+char x[ARROWLENGTH+1];
 
 *qq1 = *pp;
 for(operator=0; operator < MAXARROW && strlen(Arrow[operator]) > 0; operator++) {
