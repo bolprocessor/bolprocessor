@@ -395,6 +395,18 @@ int ParsePostInitArgs(int argc, char* args[])
 				else if (strcmp(args[argn], "--rtmidi") == 0)	{
 					OutMIDI = TRUE;
 				}
+				else if (strcmp(args[argn], "--english") == 0)	{
+					NoteConvention = ENGLISH;
+				}
+				else if (strcmp(args[argn], "--french") == 0)	{
+					NoteConvention = FRENCH;
+				}
+				else if (strcmp(args[argn], "--indian") == 0)	{
+					NoteConvention = INDIAN;
+				}
+				else if (strcmp(args[argn], "--keys") == 0)	{
+					NoteConvention = KEYS;
+				}
 				else {
 					BPPrintMessage(odError, "Unknown option '%s'\n", args[argn]);
 					BPPrintMessage(odError, "Use '%s --help' to see help information.\n", args[0]);
