@@ -88,6 +88,9 @@ typedef struct {
 } NavReplyRecord;
 
 typedef struct {
+} NSWReply;
+
+typedef struct {
 } WindowRecord, *WindowPtr;
 
 typedef struct {
