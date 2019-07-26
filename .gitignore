@@ -13,6 +13,10 @@ xcuserdata/
 
 # Xcode build artifacts
 build/
+DerivedData/
+bp32
+bp64
+bpconsole
 
 # BP2 decoded resource files
 resources/decoded_resources/
