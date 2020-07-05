@@ -2,7 +2,7 @@ SRCDIR = source/BP2
 PREFIX = source/prefix/PrefixANSIDebug.h
 CC     = gcc
 CFLAGS = 
-LIBS   = 
+LIBS   = -lm
 EXE    = bp
 
 all:  $(EXE)
