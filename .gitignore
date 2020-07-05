@@ -18,5 +18,9 @@ bp32
 bp64
 bpconsole
 
+# Command-line build artifacts
+*.o
+bp
+
 # BP2 decoded resource files
 resources/decoded_resources/
