@@ -49,6 +49,8 @@
 typedef	int (*bp_message_callback_t)(void* bp, int dest, const char *format, va_list parms);
 
 void ConsoleMessagesInit(void);
+void SetOutputDestinations(int dest, FILE* file);
+void CloseOutputDestination(int dest);
 
 int BPPrintMessage(int dest, const char *format, ...);
 int BPSetMessageCallback(bp_message_callback_t func);

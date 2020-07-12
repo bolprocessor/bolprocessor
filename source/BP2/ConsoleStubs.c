@@ -257,9 +257,25 @@ int GetCsoundScoreName(void)
 
 int MakeCsFile(char* pathname)
 {	
-	BP_NOT_USED(pathname);
-	// FIXME ? ignoring pathname and assuming odiCsScore has been set
-	ShowMessage(TRUE,wMessage,"Creating new Csound score file...");
+	FILE *fout;
+	
+	if (strcmp(pathname, "-") == 0)	{
+		// use stdout if pathname is "-"
+		fout = stdout;
+	}
+	else {
+		// open the file for writing
+		ShowMessage(TRUE,wMessage,"Creating new Csound score file...");
+		fout = fopen(pathname, "w");
+		if (!fout) {
+			BPPrintMessage(odError, "Could not open file %s\n", pathname);
+			return FAILED;
+		}
+	}
+	
+	// set up Csound score output
+	SetOutputDestinations(odCsScore, fout);
+	CsRefNum = odCsScore;
 	CsScoreOpened = YES;
 	if(WriteToFile(NO,CsoundFileFormat,"; Csound score",CsRefNum) != OK) {
 		Alert1("Can't write to Csound score file. Unknown error");
@@ -269,6 +285,14 @@ int MakeCsFile(char* pathname)
 	
 	// FIXME: should write Csound tables here 
 	// WriteFile(TRUE,CsoundFileFormat,CsRefNum,wCsoundTables,length);
+
+	// TEMP:
+	if(WriteToFile(NO,CsoundFileFormat,"f1 0 32768 10 1 ; This table may be changed\r",CsRefNum) != OK) {
+		Alert1("Can't write to Csound score file. Unknown error");
+		CloseCsScore();
+		return(ABORT);
+	}
+	
 	return OK;
 }
 

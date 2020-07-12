@@ -385,9 +385,15 @@ int ParsePostInitArgs(int argc, char* args[])
 					DisplayItems = FALSE;
 				}
 				else if (strcmp(args[argn], "--csoundout") == 0)	{
-					OutCsound = TRUE;
-					strcpy(CsFileName, "stdout");
-					CsRefNum = odCsScore;
+					// look at the next argument for the output file name
+					if (++argn < argc)  {
+						OutCsound = TRUE;
+						strcpy(CsFileName, args[argn]);
+					}
+					else {
+						BPPrintMessage(odError, "Missing filename after %s\n", args[argn-1]);
+						return ABORT;
+					}
 				}
 				else if (strcmp(args[argn], "--midiout") == 0)	{
 					WriteMIDIfile = TRUE;

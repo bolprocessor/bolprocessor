@@ -775,6 +775,10 @@ return(rep);
 
 #endif /* BP_CARBON_GUI */
 
+#if !BP_CARBON_GUI
+  #include "ConsoleMessages.h"
+#endif
+
 CloseCsScore(void)
 {
 long count;
@@ -793,6 +797,8 @@ GetFPos(CsRefNum,&count);
 SetEOF(CsRefNum,count);
 FlushFile(CsRefNum);
 FSClose(CsRefNum);
+#else
+CloseOutputDestination(CsRefNum);
 #endif /* BP_CARBON_GUI */
 CsScoreOpened = FALSE;
 #if BP_CARBON_GUI
