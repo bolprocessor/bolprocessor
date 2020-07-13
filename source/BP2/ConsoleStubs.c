@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "-BP2.h"
 #include "-BP2decl.h"
+#include "ConsoleGlobals.h"
 #include "ConsoleMessages.h"
 
 /* Stubs to replace missing functions from BP2 Carbon GUI and from Mac OS X Carbon libraries */
@@ -247,28 +248,39 @@ int WriteMIDIbyte(Milliseconds time,byte midi_byte)
 	return OK;
 }
 
-/* Console version of GetCsoundScoreName() just assumes that CsFileName 
+static int MakeCsoundScoreFile(OutFileInfo* finfo);
+
+/* Console version of PrepareCsFile() just assumes that score file name
    has been set by a command-line argument */
-int GetCsoundScoreName(void)
+int PrepareCsFile(void)
 {
-	if (strlen(CsFileName) != 0) return OK;
-	else return FAILED;
+	if (!CsScoreOpened)	{
+		if (gOutputFiles[ofiCsScore].name != NULL) {
+			return MakeCsoundScoreFile(&gOutputFiles[ofiCsScore]);
+		}
+	}
+
+	return OK;
 }
 
-int MakeCsFile(char* pathname)
+/* Renamed this function from "MakeCsFile" so that the parameter could be changed
+   without clashing with Carbon GUI version.  I'm not sure that it makes any more
+   sense to pass the whole OutFileInfo than just the pathname though since 
+   CloseCsScore() takes no parameter. */
+static int MakeCsoundScoreFile(OutFileInfo* finfo)
 {	
 	FILE *fout;
 	
-	if (strcmp(pathname, "-") == 0)	{
-		// use stdout if pathname is "-"
+	if (strcmp(finfo->name, "-") == 0)	{
+		// if name is "-", use stdout and don't "open" finfo
 		fout = stdout;
 	}
 	else {
 		// open the file for writing
 		ShowMessage(TRUE,wMessage,"Creating new Csound score file...");
-		fout = fopen(pathname, "w");
+		fout = OpenOutputFile(finfo, "w");
 		if (!fout) {
-			BPPrintMessage(odError, "Could not open file %s\n", pathname);
+			BPPrintMessage(odError, "Could not open file %s\n", finfo->name);
 			return FAILED;
 		}
 	}
@@ -293,6 +305,25 @@ int MakeCsFile(char* pathname)
 		return(ABORT);
 	}
 	
+	return OK;
+}
+
+int CloseCsScore(void)
+{
+	char line[MAXLIN];
+	
+	if(!CsScoreOpened) return(OK);
+	
+	WriteToFile(NO,CsoundFileFormat,"e",CsRefNum);	/* 'e' terminates a Csound score */
+	Date(line);
+	sprintf(Message,"; this score was created by BP console (version %s) on %s",
+			VersionName[Version],line);
+	WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);
+	SetOutputDestinations(odCsScore, NULL);
+	CloseOutputFile(&gOutputFiles[ofiCsScore]);
+	CsScoreOpened = FALSE;
+	BPPrintMessage(odInfo, "Closed Csound score file %s\n", gOutputFiles[ofiCsScore].name);
+
 	return OK;
 }
 

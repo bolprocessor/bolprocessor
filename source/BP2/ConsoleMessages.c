@@ -88,31 +88,6 @@ void SetOutputDestinations(int dest, FILE* file)
 	if (dest & odInfo)		gOutDestinations[odiInfo] = file;
 }
 
-void CloseOutputDestination(int dest)
-{
-	int odi;
-	
-	// only allow a single destination to avoid closing a file multiple times
-	switch (dest) {
-		case odDisplay:		odi = odiDisplay; break;
-		case odMidiDump:	odi = odiMidiDump; break;
-		case odCsScore:		odi = odiCsScore; break;
-		case odTrace:		odi = odiTrace; break;
-		case odUserInt:		odi = odiUserInt; break;
-		case odError:		odi = odiError; break;
-		case odWarning:		odi = odiWarning; break;
-		case odInfo:		odi = odiInfo; break;
-		default:
-			fprintf(stderr, "Err. CloseOutputDestination(): 'dest' is invalid: %d\n", dest);
-			return;
-	}
-	
-	if (gOutDestinations[odi] != stdout && gOutDestinations[odi] != stderr)	{
-		fclose(gOutDestinations[odi]);
-		gOutDestinations[odi] = NULL;
-	}
-}
-
 
 /* Functions for displaying messages and writing output in the console build */
 

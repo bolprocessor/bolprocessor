@@ -1,8 +1,8 @@
-/*  ConsoleMessages.h (BP2 version CVS) */
+/*  ConsoleGlobals.h (BP2 version CVS) */
 
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
-	Copyright (c) 2013 by Anthony Kozar
+	Copyright (c) 2020 by Anthony Kozar
     All rights reserved. 
     
     Redistribution and use in source and binary forms, with or without
@@ -32,27 +32,28 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef BP_CONSOLEMESSAGES_H
-#define BP_CONSOLEMESSAGES_H
+#ifndef BP_CONSOLEGLOBALS_H
+#define BP_CONSOLEGLOBALS_H
 
-// Output destinations / messages types (these may be summed)
+// indices to gOutputFilenames[]
+typedef enum {
+	ofiProdItems	= 0,	// output file for produced items (-o option)
+	ofiMidiFile		= 1,	// output Std Midi score file (--midiout option)
+	ofiCsScore		= 2,	// output Csound score file (--csoundout option)
+	ofiTraceFile	= 3,	// output file for tracing processes (no option yet)
+}	outfileidx_t;
 
-#define odDisplay	1		// for results of produce items, expand selection, etc.
-#define odMidiDump	2		// for printing Midi messages as text
-#define odCsScore	4		// for writing Csound score
-#define odTrace		8		// for tracing processes (and step-by-step ?)
-#define odInfo		16		// informational messages
-#define odWarning	32		// warning messages
-#define odError		64		// error messages
-#define odUserInt	128		// interactive messages to which a response is expected
+#define MAXOUTFILES		4
 
-typedef	int (*bp_message_callback_t)(void* bp, int dest, const char *format, va_list parms);
+typedef struct OutFileInfo {
+	const char	*name;
+	FILE		*fout;
+	Boolean		isOpen;
+} OutFileInfo;
 
-void ConsoleMessagesInit(void);
-void SetOutputDestinations(int dest, FILE* file);
+extern OutFileInfo	gOutputFiles[MAXOUTFILES];
 
-int BPPrintMessage(int dest, const char *format, ...);
-int BPSetMessageCallback(bp_message_callback_t func);
+FILE* OpenOutputFile(OutFileInfo* finfo, const char* mode);
+void CloseOutputFile(OutFileInfo* finfo);
 
-
-#endif /* BP_CONSOLEMESSAGES_H */
+#endif /* BP_CONSOLEGLOBALS_H */

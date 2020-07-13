@@ -138,6 +138,7 @@ source/BP2/ConsoleMain.o: source/BP2/-BP2.h
 source/BP2/ConsoleMain.o: source/BP2/midi1.h
 source/BP2/ConsoleMain.o: source/BP2/-BP2.proto.h source/BP2/-BP2main.h
 source/BP2/ConsoleMain.o: source/BP2/ConsoleMessages.h
+source/BP2/ConsoleMain.o: source/BP2/ConsoleGlobals.h
 source/BP2/ConsoleMemory.o: source/prefix/PrefixANSIDebug.h
 source/BP2/ConsoleMemory.o: source/BP2/MissingMacTypes.h
 source/BP2/ConsoleMemory.o: source/BP2/MissingMacPrototypes.h
@@ -161,6 +162,7 @@ source/BP2/ConsoleStubs.o: source/BP2/-BP2.h
 source/BP2/ConsoleStubs.o: source/BP2/midi1.h
 source/BP2/ConsoleStubs.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
 source/BP2/ConsoleStubs.o: source/BP2/ConsoleMessages.h
+source/BP2/ConsoleStubs.o: source/BP2/ConsoleGlobals.h
 source/BP2/Csound.o: source/prefix/PrefixANSIDebug.h
 source/BP2/Csound.o: source/BP2/MissingMacTypes.h 
 source/BP2/Csound.o: source/BP2/MissingMacPrototypes.h

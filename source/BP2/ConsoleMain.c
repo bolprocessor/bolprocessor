@@ -39,6 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "-BP2.h"
 #include "-BP2main.h"
+#include "ConsoleGlobals.h"
 #include "ConsoleMessages.h"
 #include "CTextHandles.h"
 
@@ -100,6 +101,7 @@ const char	gr_Visser3[] =
 
 
 // function prototypes
+void ConsoleInit(void);
 void PrintVersion(void);
 void PrintShortVersion(void);
 void PrintInputFilenames(void);
@@ -115,12 +117,14 @@ int ReadNewHandleFromFile(FILE* fin, size_t numbytes, Handle* data);
 Boolean LoadedAlphabet = FALSE;
 Boolean LoadedStartString = FALSE;
 const char *gInputFilenames[WMAX];
+OutFileInfo	gOutputFiles[MAXOUTFILES];
 
 
 int main (int argc, char* args[])
 {
 	int  result;
 	
+	ConsoleInit();
     ConsoleMessagesInit();
 	result = ParsePreInitArgs(argc, args);
 	if (result == EXIT)  return EXIT_SUCCESS;
@@ -198,6 +202,20 @@ int main (int argc, char* args[])
 	// FIXME: CloseCurrentDriver should eventually work for all drivers - akozar
 	// CloseCurrentDriver(FALSE);
 	return EXIT_SUCCESS;
+}
+
+void ConsoleInit(void)
+{
+	int i;
+	
+	for (i = 0; i < WMAX; i++) gInputFilenames[i] = NULL;
+	for (i = 0; i < MAXOUTFILES; i++) {
+		gOutputFiles[i].name = NULL;
+		gOutputFiles[i].fout = NULL;
+		gOutputFiles[i].isOpen = FALSE;
+	}
+	
+	return;
 }
 
 void PrintVersion(void)
@@ -388,7 +406,7 @@ int ParsePostInitArgs(int argc, char* args[])
 					// look at the next argument for the output file name
 					if (++argn < argc)  {
 						OutCsound = TRUE;
-						strcpy(CsFileName, args[argn]);
+						gOutputFiles[ofiCsScore].name = args[argn];
 					}
 					else {
 						BPPrintMessage(odError, "Missing filename after %s\n", args[argn-1]);
@@ -396,7 +414,16 @@ int ParsePostInitArgs(int argc, char* args[])
 					}
 				}
 				else if (strcmp(args[argn], "--midiout") == 0)	{
-					WriteMIDIfile = TRUE;
+					// look at the next argument for the output file name
+					if (++argn < argc)  {
+						WriteMIDIfile = TRUE;
+						gOutputFiles[ofiMidiFile].name = args[argn];
+						MIDIRefNum = odMidiDump;
+					}
+					else {
+						BPPrintMessage(odError, "Missing filename after %s\n", args[argn-1]);
+						return ABORT;
+					}
 				}
 				else if (strcmp(args[argn], "--rtmidi") == 0)	{
 					OutMIDI = TRUE;
@@ -622,4 +649,32 @@ int ReadNewHandleFromFile(FILE* fin, size_t numbytes, Handle* data)
 	((char*)*buffer)[numbytes] = '\0';
 	*data = buffer;
 	return OK;
+}
+
+/*	OpenOutputFile()
+ 
+	Open the file controlled by an OutFileInfo struct.
+ 
+	finfo->name should be set to the pathname.
+	Returns the FILE pointer referenced by finfo->fout (NULL if failed).
+ */
+FILE* OpenOutputFile(OutFileInfo* finfo, const char* mode)
+{
+	finfo->fout = fopen(finfo->name, mode);
+	if (finfo->fout != NULL)  finfo->isOpen = TRUE;
+	
+	return finfo->fout;
+}
+
+/*	CloseOutputFile()
+ 
+	Closes the file controlled by an OutFileInfo struct.
+ */
+void CloseOutputFile(OutFileInfo* finfo)
+{
+	if (finfo->isOpen && finfo->fout != NULL) {
+		fclose(finfo->fout);
+		finfo->fout = NULL;
+		finfo->isOpen = FALSE;
+	}
 }

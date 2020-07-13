@@ -292,6 +292,7 @@
 		92A113400EC39232006B5F38 /* BP2 help */ = {isa = PBXFileReference; lastKnownFileType = text; path = "BP2 help"; sourceTree = SOURCE_ROOT; };
 		92A113410EC39232006B5F38 /* Credits.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Credits.txt; sourceTree = SOURCE_ROOT; };
 		92A113420EC39232006B5F38 /* License.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = License.txt; sourceTree = SOURCE_ROOT; };
+		92CC19A224BC1BA300360EA5 /* ConsoleGlobals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ConsoleGlobals.h; path = source/BP2/ConsoleGlobals.h; sourceTree = "<group>"; };
 		92DA02DD17BEAC8300140F5B /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
 		92DA02DE17BEAC8300140F5B /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		92DA02DF17BEAC8300140F5B /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
@@ -461,6 +462,7 @@
 				92A113120EC39232006B5F38 /* -BP2decl.h */,
 				92A113130EC39232006B5F38 /* -BP2main.h */,
 				92A112DC0EC39231006B5F38 /* CarbonCompatUtil.h */,
+				92CC19A224BC1BA300360EA5 /* ConsoleGlobals.h */,
 				92DA0B5F17CD207700140F5B /* ConsoleMessages.h */,
 				92DA0A8A17CBB8FE00140F5B /* CTextHandles.h */,
 				92A113140EC39232006B5F38 /* midi1.h */,

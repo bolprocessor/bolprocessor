@@ -610,7 +610,7 @@ int FindTickValues(long x,int*,int*,int*);
 int Ctrl_adjust(MIDI_Event*,int,int,int);
 int ChangeStatus(int,int,int);
 int MakeMIDIFile(char*);
-int MakeCsFile(char*);
+int MakeCsFile(const char*);
 int CloseMIDIFile(void);
 int CloseCsScore(void);
 int SetFileSavePreferences(void);
