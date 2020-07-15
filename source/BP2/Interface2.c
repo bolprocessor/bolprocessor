@@ -295,11 +295,7 @@ while(TRUE) {
 			end++;
 			}
 		}
-	if(c == '\n') {
-		if(Beta) Alert1("Err. ReadLine(). c == '\\n'");
-		goto NEXTCHAR;
-		}
-	if(c == '\r' && oldc != 'Â') break;
+	if((c == '\r' || c == '\n') && oldc != 'Â') break;
 	if(c == '\0' || end >= im) break;
 	oldc = c;
 NEXTCHAR:
