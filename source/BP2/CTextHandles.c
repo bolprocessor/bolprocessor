@@ -39,6 +39,7 @@
 
 #include "-BP2decl.h"
 #include "CTextHandles.h"
+#include "ConsoleMessages.h"
 
 /*	NewTextHandle()
 	
@@ -178,6 +179,7 @@ char GetTextChar(int w,long pos)
 		return '\0';
 	}
 	else if (pos == (*TEH[w])->length) {
+		// length does not include the null char
 		return '\0';
 	}
 	else  return (*(*TEH[w])->hText)[pos];
@@ -203,9 +205,18 @@ int Deactivate(TextHandle th)
 
 int DoKey(char c,EventModifiers modifiers,TextHandle th)
 {
+	char cbuffer[2];
+	
 	BP_NOT_USED(modifiers);
-	BP_NOT_USED(th);
-	fprintf(stderr, "Ignoring DoKey(0x%X)\n", c);
+	if (c == '\0' || c == '\b')	{
+		// report attempts to output null or backspace
+		fprintf(stderr, "Ignoring DoKey(0x%X)\n", c);
+	}
+	else {
+		cbuffer[0] = c;
+		cbuffer[1] = '\0';
+		TextInsert(cbuffer, 1L, th);
+	}
 	return OK;
 }
 
@@ -217,7 +228,7 @@ int TextDelete(int w)
 
 int TextInsert(char *s,long length,TextHandle th)
 {
-	int w;
+	int w, od;
 	
 	BP_NOT_USED(length);
 	BP_NOT_USED(th);
@@ -225,6 +236,17 @@ int TextInsert(char *s,long length,TextHandle th)
 	for (w = 0; w < WMAX; ++w) {
 		if (th == TEH[w])  break;
 	}
-	fprintf(stderr, "TextInsert(%s): %s\n", (w < WMAX) ? WindowName[w] : "", s);
+	switch (w)	{
+		case wData:		od = odDisplay; break;
+		case wTrace:	od = odTrace; break;
+		default:		od = odInfo; break;
+	}
+	if (od == odInfo) {
+		BPPrintMessage(od, "TextInsert(%s): %s\n", (w < WMAX) ? WindowName[w] : "", s);
+	}
+	else {
+		BPPrintMessage(od, "%s", s);
+	}
+	
 	return OK;
 }
