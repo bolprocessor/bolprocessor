@@ -173,8 +173,11 @@ char GetTextChar(int w,long pos)
 		if(Beta) Alert1("Err. GetTextChar(). Incorrect w");
 		return '\0';
 	}
-	if (pos < 0 || pos >= (*TEH[w])->length) {
+	if (pos < 0 || pos > (*TEH[w])->length) {
 		Alert1("Err. GetTextChar(). pos out of range");
+		return '\0';
+	}
+	else if (pos == (*TEH[w])->length) {
 		return '\0';
 	}
 	else  return (*(*TEH[w])->hText)[pos];
