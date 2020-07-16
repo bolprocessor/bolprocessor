@@ -118,6 +118,7 @@ void CloseProdItemsFile(void);
 // globals only for the console app
 Boolean LoadedAlphabet = FALSE;
 Boolean LoadedStartString = FALSE;
+Boolean SeedProvided = FALSE;
 const char *gInputFilenames[WMAX];
 OutFileInfo	gOutputFiles[MAXOUTFILES];
 
@@ -165,7 +166,7 @@ int main (int argc, char* args[])
 	SessionTime = clock();
 
 	/* This is where we ought to do something ... */
-	ReseedOrShuffle(NEWSEED);
+	if (!SeedProvided) ReseedOrShuffle(NEWSEED);
 	
 	// load data
 	if (!LoadedStartString)  CopyStringToTextHandle(TEH[wStartString], "S\r");
@@ -458,6 +459,41 @@ int ParsePostInitArgs(int argc, char* args[])
 				else if (strcmp(args[argn], "--keys") == 0)	{
 					NoteConvention = KEYS;
 				}
+				else if (strcmp(args[argn], "--seed") == 0)	{
+					// look at the next argument for an integer seed
+					if (++argn < argc)  {
+						// FIXME: check that argument really is an integer?
+						Seed = (unsigned int) atoi(args[argn]);
+						SeedProvided = TRUE;
+						ResetRandom();
+						BPPrintMessage(odInfo, "Setting seed = %u\n", Seed);
+					}
+					else {
+						BPPrintMessage(odError, "Missing number after --seed\n");
+						return ABORT;
+					}
+				}
+				else if (strcmp(args[argn], "--show-production") == 0)	{
+					DisplayProduce = TRUE;
+				}
+				else if (strcmp(args[argn], "--trace-production") == 0)	{
+					DisplayProduce = TRUE;
+					TraceProduce = TRUE;
+				}
+				/* else if (strcmp(args[argn], "--step-production") == 0)	{
+					DisplayProduce = TRUE;
+					StepProduce = TRUE;
+				}
+				else if (strcmp(args[argn], "--step-subgrammars") == 0)	{
+					DisplayProduce = TRUE;
+					StepGrammars = TRUE;
+				}
+				else if (strcmp(args[argn], "--choose-rules") == 0)	{
+					PlanProduce = TRUE;
+					DisplayProduce = TRUE;
+					StepProduce = TRUE;
+					TraceProduce = TRUE;
+				} */
 				else {
 					BPPrintMessage(odError, "Unknown option '%s'\n", args[argn]);
 					BPPrintMessage(odError, "Use '%s --help' to see help information.\n", args[0]);
