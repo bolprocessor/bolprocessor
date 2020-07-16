@@ -112,6 +112,8 @@ int LoadInputFiles(const char* pathnames[WMAX]);
 int LoadFileToTextHandle(const char* pathname, TEHandle th);
 int OpenAndReadFile(const char* pathname, char*** buffer);
 int ReadNewHandleFromFile(FILE* fin, size_t numbytes, Handle* data);
+int PrepareProdItemsDestination(void);
+void CloseProdItemsFile(void);
 
 // globals only for the console app
 Boolean LoadedAlphabet = FALSE;
@@ -169,11 +171,15 @@ int main (int argc, char* args[])
 	if (!LoadedStartString)  CopyStringToTextHandle(TEH[wStartString], "S\r");
 	// CopyStringToTextHandle(TEH[wGrammar], gr_Visser3);
 	MemoryUsedInit = MemoryUsed;
-
+	
 	// do it
-	result = ProduceItems(wStartString,FALSE,FALSE,NULL);
-	if (result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
-
+	result = PrepareProdItemsDestination();
+	if (result == OK) {
+		result = ProduceItems(wStartString,FALSE,FALSE,NULL);
+		// fflush(stdout);
+		if (result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
+	}
+	
 	/* Cleanup ... */
 	
 	// deallocate any remaining space obtained since Inits()
@@ -190,6 +196,7 @@ int main (int argc, char* args[])
 	}
 	
 	// close open files
+	CloseProdItemsFile();
 	// CloseMIDIFile();
 	// CloseFileAndUpdateVolume(&TraceRefnum);
 	// CloseFileAndUpdateVolume(&TempRefnum);
@@ -401,6 +408,17 @@ int ParsePostInitArgs(int argc, char* args[])
 				}
 				else if (strcmp(args[argn], "-d") == 0 || strcmp(args[argn], "--no-display") == 0)	{
 					DisplayItems = FALSE;
+				}
+				else if (strcmp(args[argn], "-o") == 0)	{
+					// look at the next argument for the output file name
+					if (++argn < argc)  {
+						DisplayItems = TRUE;
+						gOutputFiles[ofiProdItems].name = args[argn];
+					}
+					else {
+						BPPrintMessage(odError, "Missing filename after %s\n", args[argn-1]);
+						return ABORT;
+					}
 				}
 				else if (strcmp(args[argn], "--csoundout") == 0)	{
 					// look at the next argument for the output file name
@@ -677,4 +695,36 @@ void CloseOutputFile(OutFileInfo* finfo)
 		finfo->fout = NULL;
 		finfo->isOpen = FALSE;
 	}
+	
+	return;
+}
+
+int PrepareProdItemsDestination(void)
+{
+	FILE *fout;
+	
+	// prepare output file if requested
+	if (DisplayItems &&	gOutputFiles[ofiProdItems].name != NULL)	{
+		BPPrintMessage(odInfo, "Opening output file %s\n", gOutputFiles[ofiProdItems].name);
+		fout = OpenOutputFile(&gOutputFiles[ofiProdItems], "w");
+		if (!fout) {
+			BPPrintMessage(odError, "Could not open file %s\n", gOutputFiles[ofiProdItems].name);
+			return FAILED;
+		}
+		SetOutputDestinations(odDisplay, fout);
+		
+	}
+	
+	return OK;
+}
+
+void CloseProdItemsFile(void)
+{
+	if (gOutputFiles[ofiProdItems].isOpen)	{
+		SetOutputDestinations(odDisplay, NULL);
+		CloseOutputFile(&gOutputFiles[ofiProdItems]);
+		BPPrintMessage(odInfo, "Closed output file %s\n", gOutputFiles[ofiProdItems].name);
+	}
+	
+	return;
 }
