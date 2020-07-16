@@ -333,10 +333,10 @@ else {
 					}
 				}
 			}
-		if(ret) DoKey('\r',0,th);
+		if(ret) DoKey(NEWLINECHAR,0,th);
 		else  DoKey('\0',0,th);	/* Forces text to be drawn and vertical scroll to be fixed */
 		}
-	else if(ret) OutChar(f,th,'\r');
+	else if(ret) OutChar(f,th,NEWLINECHAR);
 	}
 
 QUIT:
@@ -1150,7 +1150,7 @@ PRINTPROLONGATIONS:
 		}
 		
 	if(ifunc && m == T0 && p == 5) { /* interpreting grammar: ';' becomes '\r' */
-		if(OutChar(f,th,'\r') != OK) {
+		if(OutChar(f,th,NEWLINECHAR) != OK) {
 					r = ABORT; goto OUT;
 					}
 		sp = 0;
@@ -1994,7 +1994,7 @@ if(*p_newline) {
 	if(print_periods > 2) {
 		(*p_beat)++;
 		if((r=PrintPeriod(f,th)) != OK) goto OUT;
-		if(OutChar(f,th,'Â') != OK || OutChar(f,th,'\r') != OK) {
+		if(OutChar(f,th,'Â') != OK || OutChar(f,th,NEWLINECHAR) != OK) {
 			r = ABORT; goto OUT;
 			}
 		(*p_sp) = 0;
