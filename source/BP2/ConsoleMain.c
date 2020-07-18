@@ -374,7 +374,7 @@ int ParsePreInitArgs(int argc, char* args[])
 	}
 	else if (argc < 1) {
 		// can this ever happen?
-		BPPrintMessage(odError, "Error in main(): argc is %d\n", argc);
+		BPPrintMessage(odError, "Error in ParsePreInitArgs(): argc is %d\n", argc);
 		return ABORT;
 	}
 	
@@ -428,7 +428,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 							argDone = TRUE;
 						}
 						else {
-							BPPrintMessage(odError, "Missing filename after %s\n", args[argn-1]);
+							BPPrintMessage(odError, "\nMissing filename after %s\n\n", args[argn-1]);
 							return ABORT;
 						}
 					}
@@ -464,7 +464,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						gOutputFiles[ofiProdItems].name = args[argn];
 					}
 					else {
-						BPPrintMessage(odError, "Missing filename after %s\n", args[argn-1]);
+						BPPrintMessage(odError, "\nMissing filename after %s\n\n", args[argn-1]);
 						return ABORT;
 					}
 				}
@@ -475,7 +475,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						gOutputFiles[ofiCsScore].name = args[argn];
 					}
 					else {
-						BPPrintMessage(odError, "Missing filename after %s\n", args[argn-1]);
+						BPPrintMessage(odError, "\nMissing filename after %s\n\n", args[argn-1]);
 						return ABORT;
 					}
 				}
@@ -487,7 +487,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						MIDIRefNum = odMidiDump;
 					}
 					else {
-						BPPrintMessage(odError, "Missing filename after %s\n", args[argn-1]);
+						BPPrintMessage(odError, "\nMissing filename after %s\n\n", args[argn-1]);
 						return ABORT;
 					}
 				}
@@ -516,7 +516,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						BPPrintMessage(odInfo, "Setting seed = %u\n", Seed);
 					}
 					else {
-						BPPrintMessage(odError, "Missing number after --seed\n");
+						BPPrintMessage(odError, "\nMissing number after --seed\n\n");
 						return ABORT;
 					}
 				}
@@ -542,8 +542,8 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					TraceProduce = TRUE;
 				} */
 				else {
-					BPPrintMessage(odError, "Unknown option '%s'\n", args[argn]);
-					BPPrintMessage(odError, "Use '%s --help' to see help information.\n", args[0]);
+					BPPrintMessage(odError, "\nUnknown option '%s'\n", args[argn]);
+					BPPrintMessage(odError, "Use '%s --help' to see help information.\n\n", args[0]);
 					return ABORT;
 				}
 			}
@@ -702,11 +702,11 @@ int LoadFileToTextHandle(const char* pathname, TEHandle th)
 	char **filecontents = NULL;
 
 	if (pathname == NULL) {
-		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): pathname == NULL");
+		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): pathname == NULL\n");
 		return ABORT;
 	}
 	if (th == NULL) {
-		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): th == NULL");
+		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): th == NULL\n");
 		return ABORT;
 	}
 
@@ -735,15 +735,15 @@ int OpenAndReadFile(const char* pathname, char*** buffer)
 	int result;
 	
 	if (pathname == NULL) {
-		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): pathname == NULL");
+		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): pathname == NULL\n");
 		return ABORT;
 	}
 	if (pathname[0] == '\0') {
-		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): pathname is empty");
+		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): pathname is empty\n");
 		return ABORT;
 	}
 	if (buffer == NULL) {
-		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): buffer == NULL");
+		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): buffer == NULL\n");
 		return ABORT;
 	}
 
@@ -782,11 +782,11 @@ int ReadNewHandleFromFile(FILE* fin, size_t numbytes, Handle* data)
 	long	pos;
 	
 	if (fin == NULL) {
-		if (Beta)  BPPrintMessage(odError, "Err. ReadNewHandleFromFile(): fin == NULL");
+		if (Beta)  BPPrintMessage(odError, "Err. ReadNewHandleFromFile(): fin == NULL\n");
 		return ABORT;
 	}
 	if (data == NULL) {
-		if (Beta)  BPPrintMessage(odError, "Err. ReadNewHandleFromFile(): data == NULL");
+		if (Beta)  BPPrintMessage(odError, "Err. ReadNewHandleFromFile(): data == NULL\n");
 		return ABORT;
 	}
 	
