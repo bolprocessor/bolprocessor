@@ -191,15 +191,18 @@ int main (int argc, char* args[])
 		switch (gOptions.action) {
 			case compile:
 				result = CompileCheck();
-				if (result != OK)  BPPrintMessage(odError, "CompileCheck() returned %d\n", result);
+				if (Beta && result != OK)  BPPrintMessage(odError, "CompileCheck() returned %d\n", result);
 				break;
 			case produce:
 				result = ProduceItems(wStartString,FALSE,FALSE,NULL);
-				if (result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
+				if (Beta && result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
 				break;
 			case produce_items:
 				break;
 			case produce_all:
+				AllItems = TRUE;
+				result = ProduceItems(wStartString,FALSE,FALSE,NULL);
+				if (Beta && result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
 				break;
 			case play:
 				break;
@@ -208,12 +211,22 @@ int main (int argc, char* args[])
 			case play_all:
 				break;
 			case analyze:
+				if(CompileCheck() == OK && ShowNotBP() == OK)	{
+					// FIXME: Need to either set a selection or call SelectionToBuffer()
+					// and AnalyzeBuffer() similarly to AnalyzeSelection().
+					result = AnalyzeSelection(FALSE);
+					if (Beta && result != OK)  BPPrintMessage(odError, "AnalyzeSelection() returned %d\n", result);
+				}
 				break;
 			case expand:
 				break;
 			case show_beats:
 				break;
 			case templates:
+				if(CompileCheck() == OK && ShowNotBP() == OK)	{
+					result = ProduceItems(wStartString,FALSE,TRUE,NULL);
+					if (Beta && result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
+				}
 				break;
 			case no_action:
 				if (Beta)  BPPrintMessage(odError, "Err. main(): action == no_action\n");
