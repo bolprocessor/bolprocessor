@@ -99,15 +99,28 @@ const char	gr_Visser3[] =
 	"gram#3[6] Tr-11 -->  _transpose(-11) _vel(90)\r"
 	"\r";
 
+typedef enum {
+	no_action = 0, compile, produce, produce_items, produce_all, play, play_item,
+	play_all, analyze, expand, show_beats, templates
+} action_t;
+
+typedef struct BPConsoleOpts {
+	action_t	action;
+	const char	*inputFilenames[WMAX];
+	OutFileInfo	outputFiles[MAXOUTFILES];
+	Boolean		seedProvided;
+	
+} BPConsoleOpts;
 
 // function prototypes
-void ConsoleInit(void);
+void ConsoleInit(BPConsoleOpts* opts);
 void PrintVersion(void);
 void PrintShortVersion(void);
 void PrintInputFilenames(void);
 void PrintUsage(char* programName);
 int ParsePreInitArgs(int argc, char* args[]);
-int ParsePostInitArgs(int argc, char* args[]);
+int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts);
+const char* ActionTypeToStr(action_t action);
 int LoadInputFiles(const char* pathnames[WMAX]);
 int LoadFileToTextHandle(const char* pathname, TEHandle th);
 int OpenAndReadFile(const char* pathname, char*** buffer);
@@ -121,13 +134,14 @@ Boolean LoadedStartString = FALSE;
 Boolean SeedProvided = FALSE;
 const char *gInputFilenames[WMAX];
 OutFileInfo	gOutputFiles[MAXOUTFILES];
+BPConsoleOpts gOptions;
 
 
 int main (int argc, char* args[])
 {
 	int  result;
 	
-	ConsoleInit();
+	ConsoleInit(&gOptions);
     ConsoleMessagesInit();
 	result = ParsePreInitArgs(argc, args);
 	if (result == EXIT)  return EXIT_SUCCESS;
@@ -135,7 +149,7 @@ int main (int argc, char* args[])
 	
 	if (Inits() != OK)	return EXIT_FAILURE;
 	
-	result = ParsePostInitArgs(argc, args);
+	result = ParsePostInitArgs(argc, args, &gOptions);
 	if (result != OK)  return EXIT_FAILURE;
 	result = LoadInputFiles(gInputFilenames);
 	if (result != OK)  return EXIT_FAILURE;
@@ -164,8 +178,6 @@ int main (int argc, char* args[])
 	InitOn = FALSE;
 	BPPrintMessage(odInfo, "BP2 Console completed initialization.\n");
 	SessionTime = clock();
-
-	/* This is where we ought to do something ... */
 	if (!SeedProvided) ReseedOrShuffle(NEWSEED);
 	
 	// load data
@@ -173,12 +185,43 @@ int main (int argc, char* args[])
 	// CopyStringToTextHandle(TEH[wGrammar], gr_Visser3);
 	MemoryUsedInit = MemoryUsed;
 	
-	// do it
 	result = PrepareProdItemsDestination();
 	if (result == OK) {
-		result = ProduceItems(wStartString,FALSE,FALSE,NULL);
-		// fflush(stdout);
-		if (result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
+		// perform the action specified on the command line
+		switch (gOptions.action) {
+			case compile:
+				result = CompileCheck();
+				if (result != OK)  BPPrintMessage(odError, "CompileCheck() returned %d\n", result);
+				break;
+			case produce:
+				result = ProduceItems(wStartString,FALSE,FALSE,NULL);
+				if (result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
+				break;
+			case produce_items:
+				break;
+			case produce_all:
+				break;
+			case play:
+				break;
+			case play_item:
+				break;
+			case play_all:
+				break;
+			case analyze:
+				break;
+			case expand:
+				break;
+			case show_beats:
+				break;
+			case templates:
+				break;
+			case no_action:
+				if (Beta)  BPPrintMessage(odError, "Err. main(): action == no_action\n");
+				break;
+			default:
+				if (Beta)  BPPrintMessage(odError, "Err. main(): action == %d\n", gOptions.action);
+				break;
+		}
 	}
 	
 	/* Cleanup ... */
@@ -212,9 +255,11 @@ int main (int argc, char* args[])
 	return EXIT_SUCCESS;
 }
 
-void ConsoleInit(void)
+void ConsoleInit(BPConsoleOpts* opts)
 {
 	int i;
+	
+	opts->action = no_action;
 	
 	for (i = 0; i < WMAX; i++) gInputFilenames[i] = NULL;
 	for (i = 0; i < MAXOUTFILES; i++) {
@@ -222,7 +267,8 @@ void ConsoleInit(void)
 		gOutputFiles[i].fout = NULL;
 		gOutputFiles[i].isOpen = FALSE;
 	}
-	
+
+	opts->seedProvided = FALSE;
 	return;
 }
 
@@ -358,10 +404,11 @@ int ParsePreInitArgs(int argc, char* args[])
 	
 	Returns ABORT if an error occured or OK if program should continue.
  */
-int ParsePostInitArgs(int argc, char* args[])
+int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 {
 	int argn = 1, arglen, w;
 	Boolean argDone;
+	action_t action = no_action;
 
 	while (argn < argc) {
 		/* check if it is an input file */
@@ -500,20 +547,96 @@ int ParsePostInitArgs(int argc, char* args[])
 					return ABORT;
 				}
 			}
-			/* check if it is an action */
-			else if (strcmp(args[argn], "produce") == 0)	{
-			}
 			else {
-				BPPrintMessage(odError, "Unknown action '%s'\n", args[argn]);
-				BPPrintMessage(odError, "If '%s' is an input file, indicate the file type (eg. -gr %s).\n", args[argn], args[argn]);
-				BPPrintMessage(odError, "Use '%s --help' to see help information.\n", args[0]);
-				return ABORT;
+				/* check if it is an action */
+				if (strcmp(args[argn], "compile") == 0)	{
+					action = compile;
+				}
+				else if (strcmp(args[argn], "produce") == 0)	{
+					action = produce;
+				}
+				else if (strcmp(args[argn], "produce-items") == 0)	{
+					action = produce_items;
+					// FIXME: look for the item number in next arg
+				}
+				else if (strcmp(args[argn], "produce-all") == 0)	{
+					action = produce_all;
+				}
+				else if (strcmp(args[argn], "play") == 0)	{
+					action = play;
+				}
+				else if (strcmp(args[argn], "play-item") == 0)	{
+					action = play_item;
+					// FIXME: look for the item number in next arg
+				}
+				else if (strcmp(args[argn], "play-all") == 0)	{
+					action = play_all;
+				}
+				else if (strcmp(args[argn], "analyze-item") == 0)	{
+					action = analyze;
+					// FIXME: look for the item number in next arg
+				}
+				else if (strcmp(args[argn], "expand-item") == 0)	{
+					action = expand;
+					// FIXME: look for the item number in next arg
+				}
+				else if (strcmp(args[argn], "show-beats") == 0)	{
+					action = show_beats;
+					// FIXME: look for the item number in next arg
+				}
+				else if (strcmp(args[argn], "templates") == 0)	{
+					action = templates;
+				}
+				else {
+					BPPrintMessage(odError, "\nUnknown action '%s'\n", args[argn]);
+					BPPrintMessage(odError, "If '%s' is an input file, indicate the file type (eg. -gr %s).\n", args[argn], args[argn]);
+					BPPrintMessage(odError, "Use '%s --help' to see help information.\n\n", args[0]);
+					return ABORT;
+				}
+				
+				// more than one action is not allowed
+				if (action != no_action && opts->action != no_action)	{
+					BPPrintMessage(odError, "\nOnly one action is allowed but two were given: '%s' & '%s'\n\n",
+								   ActionTypeToStr(opts->action), ActionTypeToStr(action));
+					return ABORT;
+				}
+				
+				opts->action = action;
 			}
 		}
 		++argn;
 	}
 	
+	// an action is required
+	if (opts->action == no_action)	{
+		BPPrintMessage(odError, "\nMissing required action command in arguments.\n");
+		BPPrintMessage(odError, "Use '%s --help' to see help information.\n\n", args[0]);
+		return ABORT;
+	}
+	
 	return OK;
+}
+
+const char* ActionTypeToStr(action_t action)
+{
+	switch (action) {
+		case no_action:		return "none";
+		case compile:		return "compile";
+		case produce:		return "produce";
+		case produce_items:	return "produce-items";
+		case produce_all:	return "produce-all";
+		case play:			return "play";
+		case play_item:		return "play-item";
+		case play_all:		return "play-all";
+		case analyze:		return "analyze-item";
+		case expand:		return "expand-item";
+		case show_beats:	return "show-beats";
+		case templates:		return "templates";
+		default:
+			if (Beta)  BPPrintMessage(odError, "Err. ActionTypeToStr(): action == %d\n", action);
+	}
+	
+	return "";
 }
 
 void PrintInputFilenames(void)
