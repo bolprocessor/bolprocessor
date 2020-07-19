@@ -348,6 +348,7 @@ const char gOptionList[] =
 	"  -D or --display        print produced items to standard output (default)\n"
 	"  -d or --no-display     don't print produced items to standard output\n"
 	"  -o outfile             write produced items to file 'outfile'\n"
+	"  -e or --use-stderr     print messages to standard error instead of standard output\n"
 	"\n"
 	"  --csoundout outfile    write Csound score to file 'outfile' ('-' for stdout)\n"
 	"  --midiout outfile      write Midi score to file 'outfile' ('-' for stdout)\n"
@@ -356,6 +357,15 @@ const char gOptionList[] =
 	"OPTIONS (Computation):\n"
 	"  -s or --start string   use 'string' as the start string (default is \"S\")\n"
 	"  -S startfile           read the start string from file 'startfile'\n"
+	"  --seed num             seeds the random number generator with the integer 'num'\n"
+	"  --show-production      outputs the work string at each step of producing items\n"
+	"  --trace-production     outputs the work string & selected rule at each step of production\n"
+	"\n"
+	"OPTIONS (Musical):\n"
+	"  --english              specifies that the input files use English note conventions\n"
+	"  --french               specifies that the input files use French note conventions\n"
+	"  --indian               specifies that the input files use Indian note conventions\n"
+	"  --keys                 specifies that the input files use Midi note numbers\n"
 	"\n";
 
 void PrintUsage(char* programName)
