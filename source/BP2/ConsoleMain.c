@@ -105,7 +105,7 @@ void PrintVersion(void);
 void PrintShortVersion(void);
 void PrintInputFilenames(void);
 void PrintUsage(char* programName);
-int ParsePreInitArgs(int argc, char* args[]);
+int ParsePreInitArgs(int argc, char* args[], BPConsoleOpts* opts);
 int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts);
 const char* ActionTypeToStr(action_t action);
 int LoadInputFiles(const char* pathnames[WMAX]);
@@ -130,10 +130,15 @@ int main (int argc, char* args[])
 	
 	ConsoleInit(&gOptions);
     ConsoleMessagesInit();
-	result = ParsePreInitArgs(argc, args);
+	result = ParsePreInitArgs(argc, args, &gOptions);
 	if (result == EXIT)  return EXIT_SUCCESS;
 	else if (result != OK)  return EXIT_FAILURE;
 	
+	if (gOptions.useStdErr)	{
+		// split message output from "algorithmic output"
+		SetOutputDestinations(odInfo|odWarning|odError|odUserInt, stderr);
+	}
+
 	if (Inits() != OK)	return EXIT_FAILURE;
 	
 	result = ParsePostInitArgs(argc, args, &gOptions);
@@ -172,6 +177,7 @@ int main (int argc, char* args[])
 	// CopyStringToTextHandle(TEH[wGrammar], gr_Visser3);
 	MemoryUsedInit = MemoryUsed;
 	
+	// configure output destinations
 	result = PrepareProdItemsDestination(&gOptions);
 	if (result == OK) result = PrepareTraceDestination(&gOptions);
 	if (result == OK) {
@@ -274,6 +280,7 @@ void ConsoleInit(BPConsoleOpts* opts)
 	}
 
 	opts->seedProvided = FALSE;
+	opts->useStdErr = FALSE;
 	return;
 }
 
@@ -368,7 +375,7 @@ void PrintUsage(char* programName)
 	Returns EXIT if program should exit when no error occured, ABORT if an error
 	occured, or OK if program should continue.
  */
-int ParsePreInitArgs(int argc, char* args[])
+int ParsePreInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 {
 	int argn = 1;
 	
@@ -395,6 +402,11 @@ int ParsePreInitArgs(int argc, char* args[])
 		if (strcmp(args[argn], "--short-version") == 0)	{
 			PrintShortVersion();
 			return EXIT;
+		}
+		
+		// need to parse these args before Init() so that init messages are redirected
+		if (strcmp(args[argn], "-e") == 0 || strcmp(args[argn], "--use-stderr") == 0)	{
+			opts->useStdErr = TRUE;
 		}
 		++argn;
 	}
@@ -472,6 +484,9 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						BPPrintMessage(odError, "\nMissing filename after %s\n\n", args[argn-1]);
 						return ABORT;
 					}
+				}
+				else if (strcmp(args[argn], "-e") == 0 || strcmp(args[argn], "--use-stderr") == 0)	{
+					// need to parse these args a second time to avoid "unknown option" error
 				}
 				else if (strcmp(args[argn], "--traceout") == 0)	{
 					// look at the next argument for the output file name

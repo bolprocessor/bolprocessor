@@ -62,7 +62,7 @@ typedef struct BPConsoleOpts {
 	const char	*inputFilenames[WMAX];
 	OutFileInfo	outputFiles[MAXOUTFILES];
 	Boolean		seedProvided;
-	
+	Boolean		useStdErr;
 } BPConsoleOpts;
 
 extern BPConsoleOpts gOptions;
