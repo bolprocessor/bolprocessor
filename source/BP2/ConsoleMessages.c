@@ -68,11 +68,11 @@ void ConsoleMessagesInit()
     gOutDestinations[odiDisplay] = stdout;
     gOutDestinations[odiMidiDump] = stdout;
     gOutDestinations[odiCsScore] = stdout;
-    gOutDestinations[odiTrace] = stderr;
-    gOutDestinations[odiInfo] = stderr;
-    gOutDestinations[odiWarning] = stderr;
-    gOutDestinations[odiError] = stderr;
-    gOutDestinations[odiUserInt] = stderr;
+    gOutDestinations[odiTrace] = stdout;
+    gOutDestinations[odiInfo] = stdout;
+    gOutDestinations[odiWarning] = stdout;
+    gOutDestinations[odiError] = stdout;
+    gOutDestinations[odiUserInt] = stdout;
 }
 
 void SetOutputDestinations(int dest, FILE* file)
