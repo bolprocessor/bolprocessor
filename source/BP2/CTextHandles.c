@@ -237,6 +237,7 @@ int TextInsert(char *s,long length,TextHandle th)
 		if (th == TEH[w])  break;
 	}
 	switch (w)	{
+		case wGrammar:	od = odTrace; break;
 		case wData:		od = odDisplay; break;
 		case wTrace:	od = odTrace; break;
 		default:		od = odInfo; break;

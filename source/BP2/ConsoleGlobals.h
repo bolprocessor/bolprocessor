@@ -35,13 +35,19 @@
 #ifndef BP_CONSOLEGLOBALS_H
 #define BP_CONSOLEGLOBALS_H
 
-// indices to gOutputFilenames[]
+// indices to gOptions.outputFiles[]
 typedef enum {
 	ofiProdItems	= 0,	// output file for produced items (-o option)
 	ofiMidiFile		= 1,	// output Std Midi score file (--midiout option)
 	ofiCsScore		= 2,	// output Csound score file (--csoundout option)
 	ofiTraceFile	= 3,	// output file for tracing processes (no option yet)
 }	outfileidx_t;
+
+// actions that can be specified on the command line
+typedef enum {
+	no_action = 0, compile, produce, produce_items, produce_all, play, play_item,
+	play_all, analyze, expand, show_beats, templates
+} action_t;
 
 #define MAXOUTFILES		4
 
@@ -51,7 +57,15 @@ typedef struct OutFileInfo {
 	Boolean		isOpen;
 } OutFileInfo;
 
-extern OutFileInfo	gOutputFiles[MAXOUTFILES];
+typedef struct BPConsoleOpts {
+	action_t	action;
+	const char	*inputFilenames[WMAX];
+	OutFileInfo	outputFiles[MAXOUTFILES];
+	Boolean		seedProvided;
+	
+} BPConsoleOpts;
+
+extern BPConsoleOpts gOptions;
 
 FILE* OpenOutputFile(OutFileInfo* finfo, const char* mode);
 void CloseOutputFile(OutFileInfo* finfo);

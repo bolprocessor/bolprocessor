@@ -99,19 +99,6 @@ const char	gr_Visser3[] =
 	"gram#3[6] Tr-11 -->  _transpose(-11) _vel(90)\r"
 	"\r";
 
-typedef enum {
-	no_action = 0, compile, produce, produce_items, produce_all, play, play_item,
-	play_all, analyze, expand, show_beats, templates
-} action_t;
-
-typedef struct BPConsoleOpts {
-	action_t	action;
-	const char	*inputFilenames[WMAX];
-	OutFileInfo	outputFiles[MAXOUTFILES];
-	Boolean		seedProvided;
-	
-} BPConsoleOpts;
-
 // function prototypes
 void ConsoleInit(BPConsoleOpts* opts);
 void PrintVersion(void);
@@ -125,15 +112,15 @@ int LoadInputFiles(const char* pathnames[WMAX]);
 int LoadFileToTextHandle(const char* pathname, TEHandle th);
 int OpenAndReadFile(const char* pathname, char*** buffer);
 int ReadNewHandleFromFile(FILE* fin, size_t numbytes, Handle* data);
-int PrepareProdItemsDestination(void);
-void CloseProdItemsFile(void);
+int PrepareProdItemsDestination(BPConsoleOpts* opts);
+int PrepareTraceDestination(BPConsoleOpts* opts);
+void CloseOutputDestination(int dest, BPConsoleOpts* opts, outfileidx_t fileidx);
 
 // globals only for the console app
 Boolean LoadedAlphabet = FALSE;
 Boolean LoadedStartString = FALSE;
 Boolean SeedProvided = FALSE;
 const char *gInputFilenames[WMAX];
-OutFileInfo	gOutputFiles[MAXOUTFILES];
 BPConsoleOpts gOptions;
 
 
@@ -185,7 +172,8 @@ int main (int argc, char* args[])
 	// CopyStringToTextHandle(TEH[wGrammar], gr_Visser3);
 	MemoryUsedInit = MemoryUsed;
 	
-	result = PrepareProdItemsDestination();
+	result = PrepareProdItemsDestination(&gOptions);
+	if (result == OK) result = PrepareTraceDestination(&gOptions);
 	if (result == OK) {
 		// perform the action specified on the command line
 		switch (gOptions.action) {
@@ -253,7 +241,8 @@ int main (int argc, char* args[])
 	}
 	
 	// close open files
-	CloseProdItemsFile();
+	CloseOutputDestination(odDisplay, &gOptions, ofiProdItems);
+	CloseOutputDestination(odTrace, &gOptions, ofiTraceFile);
 	// CloseMIDIFile();
 	// CloseFileAndUpdateVolume(&TraceRefnum);
 	// CloseFileAndUpdateVolume(&TempRefnum);
@@ -274,11 +263,14 @@ void ConsoleInit(BPConsoleOpts* opts)
 	
 	opts->action = no_action;
 	
-	for (i = 0; i < WMAX; i++) gInputFilenames[i] = NULL;
+	for (i = 0; i < WMAX; i++)	{
+		gInputFilenames[i] = NULL;
+		opts->inputFilenames[i] = NULL;
+	}
 	for (i = 0; i < MAXOUTFILES; i++) {
-		gOutputFiles[i].name = NULL;
-		gOutputFiles[i].fout = NULL;
-		gOutputFiles[i].isOpen = FALSE;
+		opts->outputFiles[i].name = NULL;
+		opts->outputFiles[i].fout = NULL;
+		opts->outputFiles[i].isOpen = FALSE;
 	}
 
 	opts->seedProvided = FALSE;
@@ -474,7 +466,17 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					// look at the next argument for the output file name
 					if (++argn < argc)  {
 						DisplayItems = TRUE;
-						gOutputFiles[ofiProdItems].name = args[argn];
+						opts->outputFiles[ofiProdItems].name = args[argn];
+					}
+					else {
+						BPPrintMessage(odError, "\nMissing filename after %s\n\n", args[argn-1]);
+						return ABORT;
+					}
+				}
+				else if (strcmp(args[argn], "--traceout") == 0)	{
+					// look at the next argument for the output file name
+					if (++argn < argc)  {
+						opts->outputFiles[ofiTraceFile].name = args[argn];
 					}
 					else {
 						BPPrintMessage(odError, "\nMissing filename after %s\n\n", args[argn-1]);
@@ -485,7 +487,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					// look at the next argument for the output file name
 					if (++argn < argc)  {
 						OutCsound = TRUE;
-						gOutputFiles[ofiCsScore].name = args[argn];
+						opts->outputFiles[ofiCsScore].name = args[argn];
 					}
 					else {
 						BPPrintMessage(odError, "\nMissing filename after %s\n\n", args[argn-1]);
@@ -496,7 +498,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					// look at the next argument for the output file name
 					if (++argn < argc)  {
 						WriteMIDIfile = TRUE;
-						gOutputFiles[ofiMidiFile].name = args[argn];
+						opts->outputFiles[ofiMidiFile].name = args[argn];
 						MIDIRefNum = odMidiDump;
 					}
 					else {
@@ -562,6 +564,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 			}
 			else {
 				/* check if it is an action */
+				// FIXME? help says that actions are case-insensitive
 				if (strcmp(args[argn], "compile") == 0)	{
 					action = compile;
 				}
@@ -871,16 +874,31 @@ void CloseOutputFile(OutFileInfo* finfo)
 	return;
 }
 
-int PrepareProdItemsDestination(void)
+/*	CloseOutputDestination()
+ 
+	Cleans up an output destination and closes any file associated with it.
+ */
+void CloseOutputDestination(int dest, BPConsoleOpts* opts, outfileidx_t fileidx)
+{
+	if (opts->outputFiles[fileidx].isOpen)	{
+		SetOutputDestinations(dest, NULL);
+		CloseOutputFile(&(opts->outputFiles[fileidx]));
+		BPPrintMessage(odInfo, "Closed output file %s\n", opts->outputFiles[fileidx].name);
+	}
+	
+	return;
+}
+
+int PrepareProdItemsDestination(BPConsoleOpts* opts)
 {
 	FILE *fout;
 	
 	// prepare output file if requested
-	if (DisplayItems &&	gOutputFiles[ofiProdItems].name != NULL)	{
-		BPPrintMessage(odInfo, "Opening output file %s\n", gOutputFiles[ofiProdItems].name);
-		fout = OpenOutputFile(&gOutputFiles[ofiProdItems], "w");
+	if (DisplayItems &&	opts->outputFiles[ofiProdItems].name != NULL)	{
+		BPPrintMessage(odInfo, "Opening output file %s\n", opts->outputFiles[ofiProdItems].name);
+		fout = OpenOutputFile(&(opts->outputFiles[ofiProdItems]), "w");
 		if (!fout) {
-			BPPrintMessage(odError, "Could not open file %s\n", gOutputFiles[ofiProdItems].name);
+			BPPrintMessage(odError, "Could not open file %s\n", opts->outputFiles[ofiProdItems].name);
 			return FAILED;
 		}
 		SetOutputDestinations(odDisplay, fout);
@@ -890,13 +908,21 @@ int PrepareProdItemsDestination(void)
 	return OK;
 }
 
-void CloseProdItemsFile(void)
+int PrepareTraceDestination(BPConsoleOpts* opts)
 {
-	if (gOutputFiles[ofiProdItems].isOpen)	{
-		SetOutputDestinations(odDisplay, NULL);
-		CloseOutputFile(&gOutputFiles[ofiProdItems]);
-		BPPrintMessage(odInfo, "Closed output file %s\n", gOutputFiles[ofiProdItems].name);
+	FILE *fout;
+	
+	// prepare trace output file if requested
+	if (opts->outputFiles[ofiTraceFile].name != NULL)	{
+		BPPrintMessage(odInfo, "Opening trace file %s\n", opts->outputFiles[ofiTraceFile].name);
+		fout = OpenOutputFile(&(opts->outputFiles[ofiTraceFile]), "w");
+		if (!fout) {
+			BPPrintMessage(odError, "Could not open file %s\n", opts->outputFiles[ofiTraceFile].name);
+			return FAILED;
+		}
+		SetOutputDestinations(odTrace, fout);
+		
 	}
 	
-	return;
+	return OK;
 }

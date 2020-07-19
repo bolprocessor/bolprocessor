@@ -255,8 +255,8 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo);
 int PrepareCsFile(void)
 {
 	if (!CsScoreOpened)	{
-		if (gOutputFiles[ofiCsScore].name != NULL) {
-			return MakeCsoundScoreFile(&gOutputFiles[ofiCsScore]);
+		if (gOptions.outputFiles[ofiCsScore].name != NULL) {
+			return MakeCsoundScoreFile(&(gOptions.outputFiles[ofiCsScore]));
 		}
 	}
 
@@ -320,9 +320,9 @@ int CloseCsScore(void)
 			VersionName[Version],line);
 	WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);
 	SetOutputDestinations(odCsScore, NULL);
-	CloseOutputFile(&gOutputFiles[ofiCsScore]);
+	CloseOutputFile(&(gOptions.outputFiles[ofiCsScore]));
 	CsScoreOpened = FALSE;
-	BPPrintMessage(odInfo, "Closed Csound score file %s\n", gOutputFiles[ofiCsScore].name);
+	BPPrintMessage(odInfo, "Closed Csound score file %s\n", gOptions.outputFiles[ofiCsScore].name);
 
 	return OK;
 }
