@@ -174,6 +174,10 @@
 #  include "NavServWrapper.h"
 #endif
 
+#if !BP_CARBON_GUI
+#  include "ConsoleMessages.h"
+#endif
+
 // Moved macros and enum down here to avoid potential problems with replacing names
 // in any of the above headers -- 010807 akozar
 // Note: the following definitions must not be given before loading ColorPicker.h because they mess up CMICCProfile.h

@@ -2288,18 +2288,19 @@ return(OK);
 ReseedOrShuffle(int what)
 {
 unsigned int seed;
-long randomnumber;
+int randomnumber;
 
 switch(what) {
 	case NOSEED:
 		break;
 	case NEWSEED:
 	case RANDOMIZE:
-		randomnumber = clock();
-		seed = (unsigned int) randomnumber;
+		seed = (unsigned int) time(NULL);
 		srand(seed);
+		// FIXME ? Why seed a second time (with a restricted range for the seed too) ?
 		randomnumber = rand();
 		seed = (unsigned int) (randomnumber % 32768);
+		BPPrintMessage(odInfo, "Random seed = %u\n", seed);
 		srand(seed);
 		UsedRandom = TRUE;
 		if(what == NEWSEED) {
