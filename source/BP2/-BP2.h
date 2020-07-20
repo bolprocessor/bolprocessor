@@ -38,9 +38,9 @@
 #ifndef _H_BP2
 #define _H_BP2
 
-#define SHORT_VERSION "2.9.8"
+#define SHORT_VERSION "2.999..."
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ ")" )
-#define MAXVERSION 29
+#define MAXVERSION 31
 
 #ifndef __POWERPC
 #define __POWERPC
