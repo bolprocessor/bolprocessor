@@ -98,6 +98,10 @@ $(EXE): $(OBJS)
 depend: 
 	makedepend -I $(SRCDIR) -include $(PREFIX)  $(SRCS)
 
+clean:
+	rm $(EXE)
+	rm $(SRCDIR)/*.o
+
 # DO NOT DELETE
 
 source/BP2/Arithmetic.o: source/prefix/PrefixANSIDebug.h
