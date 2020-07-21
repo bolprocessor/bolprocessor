@@ -111,31 +111,12 @@
 #  endif
 #endif
 
-// enable or disable OMS Midi driver
-#ifndef USE_OMS
-#  if !TARGET_API_MAC_CARBON
-#    define USE_OMS 1
-#  else
-#    define USE_OMS 0
-#  endif
-#endif
-
-#if USE_BUILT_IN_MIDI_DRIVER || USE_OMS
+#if USE_BUILT_IN_MIDI_DRIVER
 #  define WITH_REAL_TIME_MIDI 1
 #  define WITH_REAL_TIME_SCHEDULER 1
 #endif
 
 //#include <ansi_prefix.mac.h>	// commented out - 010507 akozar
-
-#if USE_OMS
-// These are used by OMS.
-#  define InputPortID 'in  '
-#  define OutputPortID 'out '
-#  define DEFTMAXOMSINPUTBUFFERSIZE 5000L
-
-#  include "OMS.h"
-#  include "OMSDeviceMenu.h"
-#endif
 
 #if UseMIDIMgr
 #  include <MIDI.h>

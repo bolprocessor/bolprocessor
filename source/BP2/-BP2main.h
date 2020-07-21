@@ -42,25 +42,6 @@ GWorldPtr gMainGWorld;
 GDHandle gCurDev;
 int Version = 30; /* 2.999... */
 
-#if USE_OMS
-// OMS globals
-Boolean gSignedInToMIDIMgr;		/* are we signed into MIDI Manager? */
-Boolean gNodesChanged;
-short gInputPortRefNum;		/* refNum of the OMS input port */
-short gOutputPortRefNum;		/* refNum of the OMS output port */
-OMSDeviceMenuH gInputMenu,gOutputMenu;
-
-short gChosenInputID,gChosenInputIDbydefault;		/* uniqueID of selected input; 0 means none */
-short gChosenOutputID;	/* uniqueID of selected output; 0 means none */
-short gOutNodeRefNum;	/* node refNum of the selected output; -1 means non existant */
-
-long BytesReceived,BytesProcessed,MaxOMSinputBufferSize;
-char DownBuffer,OMSinputOverflow;
-MIDIcode **h_OMSinputMessage;
-char OMSinputName[MAXNAME],OMSoutputName[MAXNAME];
-// End of OMS globals
-#endif
-
 ProcessSerialNumber PSN;
 char UserName[MAXNAME],UserInstitution[MAXNAME];
 long MemoryUsed,TempMemoryUsed,MemoryUsedInit,MaxMemoryUsed,MaxHandles,
@@ -91,15 +72,9 @@ IntProcPtr Menu[][MAXMENUITEMS] =
 		mGraphicSettings,mDefaultPerformanceValues,mDefaultStrikeMode,mFileSavePreferences,mTuning,NULLPROC,
 		mFrenchConvention,mEnglishConvention,mIndianConvention,mKeyConvention,NULLPROC,mPianoRoll,NULLPROC,
 		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
-#if BP_MACHO
 	{NULLPROC,mMIDI,mMIDIfile,mCsound,NULLPROC,NULLPROC,mMIDIinputcheck,mMIDIoutputcheck,mMIDIfilter,NULLPROC,
 		mMIDIorchestra,mCsoundInstrumentsSpecs,NULLPROC,mShowCMSettings,mOpenAudioMidiSetup,NULLPROC,NULLPROC,
 		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
-#else
-	{NULLPROC,mMIDI,mMIDIfile,mCsound,mOMS,NULLPROC,mMIDIinputcheck,mMIDIoutputcheck,mMIDIfilter,NULLPROC,
-		mMIDIorchestra,mCsoundInstrumentsSpecs,NULLPROC,mOMSinout,mOMSmidisetup,mOMSstudiosetup,NULLPROC,
-		mModemPort,mPrinterPort,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
-#endif
 	{NULLPROC,mGrammar,mAlphabet,mData,mMiscSettings,mObjectPrototypes,mTimeBase,mInteraction,mScript,mGlossary,
 		mKeyboard,NULLPROC,mControlPannel,NULLPROC,mGraphic,mTrace,mStartString,mScrap,
 		mNotice,NULLPROC,mFAQ,NULLPROC,mShowMessages,NULLPROC,NULLPROC,NULLPROC}};

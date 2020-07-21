@@ -192,30 +192,7 @@ NumInstalledDrivers = 0;
 InstalledDrivers = NULL;
 InstalledMenuItems = NULL;
 
-#if USE_BUILT_IN_MIDI_DRIVER
-Port = 1; /* MIDI output on "Modem" port */
-/* Port = 2; MIDI output on "Printer" port */
-switch(Port) {
-	case 1:
-		Portbit = PORTA; break;
-	case 2:
-		Portbit = PORTB; break;
-	}
-#endif
-
 Nbytes = Tbytes2 = ZERO;
-
-#if USE_OMS
-BytesReceived = BytesProcessed = ZERO;
-MaxOMSinputBufferSize = DEFTMAXOMSINPUTBUFFERSIZE;
-OMSinputOverflow = FALSE; DownBuffer = TRUE;
-h_OMSinputMessage = NULL;
-gChosenInputID = gChosenInputIDbydefault = 0;
-gChosenOutputID = 0;
-gInputMenu = gOutputMenu = NULL;
-gOutNodeRefNum = OMSInvalidRefNum;
-OMSoutputName[0] = OMSinputName[0] = '\0';
-#endif
 
 MIDIinputFilter = MIDIinputFilterstartup = FILTER_ALL_ON;
 MIDIoutputFilter = MIDIoutputFilterstartup = FILTER_ALL_OFF; // turn off Midi-thru by default - 061307 akozar

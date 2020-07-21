@@ -290,9 +290,6 @@ CloseCsScore();
 MyDisposeHandle((Handle*)&p_Oldvalue);
 ClearLockedSpace();
 
-#if USE_OMS
-  if(Oms) ExitOMS();
-#endif
 #if USE_BUILT_IN_MIDI_DRIVER /* WITH_REAL_TIME_MIDI */
   // FIXME: CloseCurrentDriver should eventually work for all drivers - akozar
   if(InBuiltDriverOn) CloseCurrentDriver(FALSE);
@@ -337,40 +334,14 @@ OSErr io;
 /* We can only handle certain statically linked drivers for now,
    but eventually will support dynamically loading driver plugins. */
 
-// OMS initialisation
-#if USE_OMS
-// if (MakeNewDriverRecord(&driver) != OK) return(FAILED);
-// strcpy((*driver)->name, "Opcode OMS");
-if(oms) {
-	if(InitOMS('Bel0') == noErr) {
-		Oms = TRUE;
-		ChangeControlValue(TRUE,Hbutt[bOMS],Oms);
-		}
-	else Alert1("To avoid OMS warning when using internal MIDI driver, change settings Ô-se.startupÕ after launching BP2");
-	ClearMessage();
-	}
-#else
-  Oms = FALSE;
-  ChangeControlValue(TRUE,Hbutt[bOMS],Oms);
-#endif
-
 PleaseWait();
-	
-#if USE_BUILT_IN_MIDI_DRIVER
-// if (MakeNewDriverRecord(&driver) != OK) return(FAILED);
-// strcpy((*driver)->name, "BP2 Serial Driver");
-if(!Oms && (io = DriverOpen("\p.MIDI")) != noErr) {
-	Alert1("Unexpected error opening MIDI driver. OMS is off, but some other device might be conflicting");
-	return(OK);
-}
-#else
-// no real-time MIDI ... what should we do?? - akozar 010307
-#endif
 
 #if BP_MACHO
 //	if (MakeNewDriverRecord(&driver) != OK) return(FAILED);
 //	strcpy((*driver)->name, "CoreMIDI");
 	InitCoreMidiDriver();
+#else
+	// no real-time MIDI ... what should we do?? - akozar 010307
 #endif
 
 return (OK);

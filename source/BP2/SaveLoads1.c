@@ -1049,28 +1049,12 @@ WRITE:
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		sprintf(LineBuff,"%ld\r%ld",(long)GraphicScaleP,(long)GraphicScaleQ);
 		WriteToFile(NO,MAC,LineBuff,refnum);
-		
-#if USE_OMS
-		if(Oms && OMSinputName[0] != '\0' && OMSinputName[0] != '<') {
-			if(gChosenInputIDbydefault > 0)
-				sprintf(LineBuff,"%ld %s",(long)gChosenInputIDbydefault,OMSinputName);
-			else
-				sprintf(LineBuff,"%ld %s",(long)gChosenInputID,OMSinputName);
-			}
-		else sprintf(LineBuff,"<no input device>");
-#else
+
+		// old settings for OMS
 		sprintf(LineBuff,"<no input device>");
-#endif
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		MoveDisk();
-
-#if USE_OMS
-		if(Oms && OMSoutputName[0] != '\0')
-			sprintf(LineBuff,"%ld %s",(long)gChosenOutputID,OMSoutputName);
-		else sprintf(LineBuff,"<no output device>");
-#else
 		sprintf(LineBuff,"<no output device>");
-#endif
 		WriteToFile(NO,MAC,LineBuff,refnum);
 			
 		sprintf(LineBuff,"%ld",(long)UseBullet); WriteToFile(NO,MAC,LineBuff,refnum);
@@ -1397,22 +1381,18 @@ if(CheckVersion(&iv,p_line,filename) != OK) {
 	}
 if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 
-if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
-if(startup) Port = j;
-switch(Port) {
-	case 1:
-		Portbit = PORTA; break;
-	case 2:
-		Portbit = PORTB; break;
-	}
+if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;	// serial port used by old built-in Midi driver
+// if(startup) Port = j;
 
 if(ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;	/* Not used */
 if(ReadLong(refnum,&k,&pos) == FAILED) goto ERR; Quantization = k;
 if(ReadLong(refnum,&k,&pos) == FAILED) goto ERR; Time_res = k;
 if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR; SetUpTime = j;
 if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR; QuantizeOK = j;
+#if BP_CARBON_GUI
 SetTimeAccuracy();
 Dirty[wTimeAccuracy] = FALSE;
+#endif /* BP_CARBON_GUI */
 NotSaidKpress = TRUE;
 
 if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR; Nature_of_time = j;
@@ -1467,17 +1447,13 @@ if(jmax > 24) ReadInteger(refnum,&ShowMessages,&pos);
 if(jmax > 25) ReadInteger(refnum,&OutCsound,&pos);
 else OutCsound = FALSE;
 if(jmax > 26) ReadInteger(refnum,p_oms,&pos);
-else *p_oms = FALSE;
+Oms = *p_oms = FALSE;	// OMS is no more
 
-/* Silently reset these flags if their functionality is not available.
+/* Silently reset this flag if real-time Midi is not available.
    Note that this does not mark the settings file as Dirty either.
    -- 012307 akozar */
 #if !WITH_REAL_TIME_MIDI
   OutMIDI = FALSE;
-#endif
-#if !USE_OMS
-  *p_oms = FALSE;
-  // Oms = FALSE;
 #endif
 
 SetButtons(TRUE);
@@ -1517,166 +1493,11 @@ if(ReadInteger(refnum,&GraphicScaleP,&pos) == FAILED) goto ERR;
 if(ReadInteger(refnum,&GraphicScaleQ,&pos) == FAILED) goto ERR;
 SetGraphicSettings();
 
-/* Find OMS default input device, and connect it if OMS is active */
+/* Read OMS default input device, and ignore it */
 if(ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-#if USE_OMS
-if((*p_oms) && iv > 14 && OKOMS) {
-	oldomsinput = gChosenInputID;
-	MystrcpyHandleToString(MAXNAME,0,connectionname,p_line);
-	if(Beta) {
-		sprintf(Message,"MIDI input found in settings file: %s",connectionname);
-		ShowMessage(YES,wMessage,Message);
-		}
-	newomsinput = GetIDandName(connectionname);
-	if((strcmp(OMSinputName,connectionname) != 0
-			|| (connectionname[0] == '\0' && newomsinput != 0)) && connectionname[0] != '<') {
-		strcpy(oldinputname,OMSinputName);
-		if(newomsinput != 0) {
-			if(Oms) {
-				OpenOrCloseConnection(startup,FALSE);
-				OMSinputName[0] = '\0';
-				}
-			gChosenInputID = newomsinput;
-			}
-		tried = toldoms = FALSE;
-		
-	TRYOPEN:
-		if(Oms) {
-			if(newomsinput == 0) {
-				tried = TRUE; 
-				gChosenInputID = newomsinput = FindOMSdevice(YES,connectionname);
-				}
-			if(gChosenInputID > 0 && gInputMenu != NULL) {
-				SetOMSDeviceMenuSelection(gInputMenu,0,gChosenInputID,"\p",TRUE);
-				strcpy(OMSinputName,connectionname);
-				}
-			connectionok = OpenOrCloseConnection(startup,TRUE);
-			if(!connectionok) {
-				connectionok = TRUE;
-				if(!tried) {
-					newomsinput = 0;
-					goto TRYOPEN;
-					}
-				else {
-					if(oldomsinput > 0) {
-						gChosenInputID = oldomsinput;
-						if(gInputMenu != NULL)
-							SetOMSDeviceMenuSelection(gInputMenu,0,gChosenInputID,"\p",TRUE);
-						if(OpenOrCloseConnection(startup,TRUE) != OK) {
-							connectionok = FALSE;
-							}
-						else strcpy(OMSinputName,oldinputname);
-						}
-					}
-				}
-			}
-		else {
-			if(connectionname[0] != '\0' || startup) strcpy(OMSinputName,connectionname);
-			if(!startup) {
-				toldoms = TRUE;
-				if(!ScriptExecOn)
-					Alert1("Settings indicate that the intput was routed via OMS. You should install and activate itÉ");
-				}
-			}
-		}
-	}
-#endif
-
-/* Find OMS default output device, and connect it if OMS is active */
+/* Read OMS default output device, and ignore it */
 if(iv > 5) {
 	if(ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-#if USE_OMS
-	if((*p_oms) && iv > 14 && OKOMS) {
-		oldomsoutput = gChosenOutputID;
-		MystrcpyHandleToString(MAXNAME,0,connectionname,p_line);
-		if(Beta) {
-			sprintf(Message,"MIDI output found in settings file: %s",connectionname);
-			ShowMessage(YES,wMessage,Message);
-			}
-		newomsoutput = GetIDandName(connectionname);
-		if((strcmp(OMSoutputName,connectionname) != 0
-				|| (connectionname[0] == '\0' && newomsoutput != 0)) && connectionname[0] != '<') {
-			if(Oms) {
-				activemem = SchedulerIsActive;
-				SchedulerIsActive = FALSE;
-				gChosenOutputID = newomsoutput;
-				gOutNodeRefNum = OMSUniqueIDToRefNum(gChosenOutputID);
-				if(gOutNodeRefNum == OMSInvalidRefNum) {
-					gChosenOutputID = FindOMSdevice(NO,connectionname);
-					gOutNodeRefNum = OMSUniqueIDToRefNum(gChosenOutputID);
-					}
-				if(gOutNodeRefNum == OMSInvalidRefNum) {
-					if(oldomsoutput > 0) {
-						// Try to reconnect previous device
-						gChosenOutputID = oldomsoutput;
-						gOutNodeRefNum = OMSUniqueIDToRefNum(gChosenOutputID);
-						if(gOutNodeRefNum == OMSInvalidRefNum) {
-							OMSNodeInfoListH info;
-							OMSNodeInfoList node;
-
-							// If it doesn't work, select the first device available
-					/*		info = OMSGetNodeInfo(omsIncludeReal+omsIncludeOutputs);
-							if(info != NULL) {
-								node = (*info)[0];
-								if(node.numNodes > 0) {
-									gChosenOutputID = node.info[0].uniqueID;
-									if(gOutputMenu != NULL)
-										SetOMSDeviceMenuSelection(gOutputMenu,0,gChosenOutputID,"\p",TRUE);
-									gOutNodeRefNum = OMSUniqueIDToRefNum(gChosenOutputID);
-									MyPtoCstr(255,node.info[0].name,OMSoutputName);
-									}
-								OMSDisposeHandle(info);
-								} */
-							connectionok = FALSE;
-							gChosenOutputID = 0;
-							sprintf(Message,
-								"BP2 was unable to reconnect output port Ô%sÕ. Check MIDI output and save project settingsÉ",
-								connectionname);
-							if(!ScriptExecOn) Alert1(Message);
-							else Println(wTrace,Message);
-							}
-						}
-					}
-				else {
-					strcpy(OMSoutputName,connectionname);
-					io = OMSAddPort('Bel0',gChosenOutputID,omsPortTypeOutput,NULL,0L,&gOutputPortRefNum);
-					if(io != noErr) {
-						if(io == 4) {
-							sprintf(Message,"The Ô%sÕ MIDI output port was already openÉ",
-								connectionname);
-							ShowMessage(TRUE,wMessage,Message);
-							}
-						else {
-							if(Beta) TellError(33,io);
-							SetOMSDeviceMenuSelection(gOutputMenu,0,gChosenOutputID,"\p",FALSE);
-							connectionok = FALSE;
-							gChosenOutputID = 0;
-							OMSoutputName[0] = '\0';
-							sprintf(Message,
-								"BP2 was unable to open output port Ô%sÕ for this project. You may need to run OMS setup",
-								connectionname);
-							if(!ScriptExecOn) Alert1(Message);
-							else Println(wTrace,Message);
-							}
-						}
-					else {
-						sprintf(Message,"Opened MIDI output Ô%sÕÉ",connectionname);
-						ShowMessage(TRUE,wMessage,Message);
-						}
-					if(gOutputMenu != NULL && gChosenOutputID != 0)
-						SetOMSDeviceMenuSelection(gOutputMenu,0,gChosenOutputID,"\p",TRUE);
-					}
-				SchedulerIsActive = activemem;
-				}
-			else {
-				if(connectionname[0] != '\0') strcpy(OMSoutputName,connectionname);
-				if(newomsoutput > 0) gChosenOutputID = newomsoutput;
-				if(!startup && !toldoms && !ScriptExecOn)
-					Alert1("Settings indicate that the output was routed via OMS. You should install and activate itÉ");
-				}
-			}
-		}
-#endif
 	}
 
 if(iv > 11) {

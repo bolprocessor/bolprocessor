@@ -60,22 +60,6 @@ if(EmergencyExit) {
 	
 EventState = NO;
 
-/*	Use this deferral mechanism of dealing with MIDI Manager in response
-	to null events.  The appHook may be called at a level where the application's
-	resources are not available.  But now the resources are available. */
-#if USE_OMS
-if(Oms && !InitOn) {
-	CheckSignInOrOutOfMIDIManager();
-	if(gNodesChanged) {
-		gNodesChanged = FALSE;
-		if(gInputMenu != NULL) RebuildOMSDeviceMenu(gInputMenu);
-		if((rep=InputMenuSideEffects()) != OK) return(rep);
-		if(gOutputMenu != NULL) RebuildOMSDeviceMenu(gOutputMenu);
-		if((rep=OutputMenuSideEffects()) != OK) return(rep);
-		}
-	}
-#endif
-	
 if(!AlertOn) {
 	MaintainCursor();
 	MaintainMenus();
@@ -140,20 +124,7 @@ switch(p_event->what) {
 		rep = DoHighLevelEvent(p_event);
 		if(EventState != NO) return(EventState);
 		break;
-	case app4Evt:	/* Used by OMS */
-#if USE_OMS
-		if(Oms && (p_event->message & 0x01000000)) {	/* suspend/resume */
-			if(p_event->message & 0x00000001) {
-				OMSResume('Bel0');
-				// SetDriver();
-				/* $$$ add whatever else to resume your application */
-				}
-			else {
-				OMSSuspend('Bel0');
-				/* $$$ add whatever else to suspend your application */
-				}
-			}
-#endif
+	case app4Evt:	/* was used by OMS */
 		break;
 	case mouseDown:
 		Panic = FALSE;
@@ -188,13 +159,6 @@ switch(p_event->what) {
 					}
 				if(whichwindow == GetDialogWindow(FileSavePreferencesPtr)) {
 					if(GetFileSavePreferences() != OK) return(OK);
-					}
-				if(whichwindow == GetDialogWindow(OMSinoutPtr)) {
-#if USE_OMS
-					rep = StoreDefaultOMSinput();
-#endif
-					ClearMessage();
-					if(rep == EXIT) return(rep);
 					}
 				if(w == Nw) {
 					if(TrackGoAway(whichwindow,p_event->where)) GoAway(w);
@@ -247,15 +211,7 @@ switch(p_event->what) {
 				break;
 			case inDrag:
 				PrintEvent(p_event, "case inDrag", whichwindow);
-				if(Oms && !InitOn && whichwindow == GetDialogWindow(OMSinoutPtr)) {
-#if USE_OMS
-					if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
-					if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
-#endif
-					}
-				else {
-					Jcontrol = -1; ReadKeyBoardOn = FALSE;
-					}
+				Jcontrol = -1; ReadKeyBoardOn = FALSE;
 				if(whichwindow != FrontWindow()
 						&& GetDialogWindow(ResumeStopPtr) != FrontWindow()) {
 					Help = FALSE;
@@ -323,34 +279,7 @@ switch(p_event->what) {
 						break;	
 						}
 					}
-#if USE_OMS
-				if(Oms && !InitOn && whichwindow == GetDialogWindow(OMSinoutPtr)) {
-					pt = p_event->where;ShowWindow(GetDialogWindow(OMSinoutPtr));
-					SelectWindow(GetDialogWindow(OMSinoutPtr));
-					if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
-					if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
-					SetPortWindowPort(whichwindow);
-					GlobalToLocal(&pt);
-					found = FALSE;
-					if(gInputMenu != NULL && TestOMSDeviceMenu(gInputMenu,pt)) {
-						if(ClickOMSDeviceMenu(gInputMenu)) {
-							found = TRUE;
-							if((rep=InputMenuSideEffects()) == EXIT) return(EXIT);
-							}
-						}
-					else if(gOutputMenu != NULL && TestOMSDeviceMenu(gOutputMenu,pt)) {
-						if(ClickOMSDeviceMenu(gOutputMenu)) {
-							found = TRUE;
-							OutputMenuSideEffects();
-							}
-						}
-					if(!found) {
-						if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
-						if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
-						}
-					break;
-					}
-#endif
+
 				/* These windows "float", so we do content clicks when not the front window */
 				if(whichwindow == GetDialogWindow(ResumeStopPtr)
 							|| whichwindow == GetDialogWindow(ResumeUndoStopPtr)
@@ -1346,12 +1275,6 @@ else {
 			|| theWindow == GetDialogWindow(SixteenPtr)
 			|| theWindow == GetDialogWindow(MIDIprogramPtr)
 			|| theWindow == GetDialogWindow(OMSinoutPtr)) {
-#if USE_OMS
-		if(Oms && !InitOn && theWindow == GetDialogWindow(OMSinoutPtr)) {
-			if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
-			if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
-			}
-#endif
 		BPUpdateDialog(GetDialogFromWindow(theWindow));
 		}
 	}

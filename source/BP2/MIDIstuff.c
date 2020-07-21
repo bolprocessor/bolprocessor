@@ -1851,52 +1851,37 @@ if(!OutMIDI) {
 #if WITH_REAL_TIME_MIDI
 ShowMessage(TRUE,wMessage,"Sending AllNotesOffs and NoteOffs…");
 delay = 20L;
-if(Oms || NEWTIMER) {
-#if USE_OMS
-	OMSMIDIPacket pkt;
+if(NEWTIMER) {
 	/* We can afford to mute the current output and send NoteOffs at a low level */
 	SchedulerIsActive--;
 	for(channel=0; channel < MAXCHAN; channel++) {
 		PleaseWait();
-		if(Oms) {
+		/* This is the Midi data to send:
 			pkt.flags = 0;
 			pkt.len = 3;
 			pkt.data[0] = ControlChange + channel;
 			pkt.data[1] = 123;
 			pkt.data[2] = 0;
-			pkt.appConnRefCon = 'Bel0';
-			pkt.smpteTimeStamp = 0;
-			OMSWritePacket2(&pkt,gOutNodeRefNum,gOutputPortRefNum);
-			WaitABit(delay);
-			}
-		else {
-			/* $$$ write it later when NEWTIMER is 1 */
-			}
+			WaitABit(delay); */
+		/* $$$ write it later when NEWTIMER is 1 */
 		}
 	delay = 5L;
 	for(channel=0; channel < MAXCHAN; channel++) {
 		if(channel > 0 && CurrentMIDIprogram[channel+1] <= 0) continue;
 		PleaseWait();
 		for(key=0; key < 128; key++) {
-			if(Oms) {
+			/* This is the Midi data to send:
 				WaitABit(delay);
 				pkt.flags = 0;
 				pkt.len = 3;
 				pkt.data[0] = NoteOn + channel;
 				pkt.data[1] = key;
-				pkt.data[2] = 0;
-				pkt.appConnRefCon = 'Bel0';
-				pkt.smpteTimeStamp = 0;
-				OMSWritePacket2(&pkt,gOutNodeRefNum,gOutputPortRefNum); 
-				}
-			else {
-				/* $$$ write it later when NEWTIMER is 1 */
-				}
+				pkt.data[2] = 0; */
+			/* $$$ write it later when NEWTIMER is 1 */
 			}
 		}
 	SchedulerIsActive++;
 	WaitABit(2000L);
-#endif /* USE_OMS */
 	}
 else {
 	rs = 0;

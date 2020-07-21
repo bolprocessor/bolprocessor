@@ -58,28 +58,6 @@ int main (int, char*[]);
 int LaunchOSXApplication(OSType signature);
 #endif
 
-/* in OMS.c */
-#if USE_OMS
-OSErr InitOMS(OSType appSignature);
-int ExitOMS(void);
-void CheckSignInOrOutOfMIDIManager(void);
-int OpenOrCloseConnection(int,int);
-OMSAPI(void) MyAppHook(OMSAppHookMsg*,long);
-OMSAPI(void) MyReadHook(OMSMIDIPacket*,long);
-void SignOutFromMIDIMgr(void);
-void SignInToMIDIMgr(void);
-int TryOMSoutput(void);
-int SetOMSdriver(void);
-void TestClientVirtualNodes(void);
-int OutputMenuSideEffects(void);
-int InputMenuSideEffects(void);
-int PushMIDIdata(unsigned char,unsigned char*);
-int PullMIDIdata(MIDI_Event*);
-short FindOMSdevice(int,char*);
-short GetIDandName(char*);
-int StoreDefaultOMSinput(void);
-#endif
-
 /* CoreMIDI driver functions (in CoreMIDIdriver.c) */
 #if BP_MACHO
 OSStatus InitCoreMidiDriver();
@@ -777,8 +755,6 @@ int mInputOutputSettings(int);
 int mTimeAccuracy(int);
 int mBufferSize(int);
 int mGraphicSettings(int);
-int mModemPort(int);
-int mPrinterPort(int);
 int mMIDIfilter(int);
 int mObjectPrototypes(int);
 int mPause(int);

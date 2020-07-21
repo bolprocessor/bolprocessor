@@ -284,14 +284,6 @@ mTypeNote(wData);
 TextGetSelection(&selbegin, &selend, TEH[wData]);
 SetSelect(selend, selend,TEH[wData]);
 ShowSelect(CENTRE,wData);
-
-#if USE_OMS
-ShowWindow(GetDialogWindow(OMSinoutPtr));
-SelectWindow(GetDialogWindow(OMSinoutPtr));
-if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
-if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
-UpdateWindow(FALSE, GetDialogWindow(OMSinoutPtr));
-#endif /* USE_OMS */
 #endif /* WITH_REAL_TIME_MIDI */
 
 return(OK);
@@ -593,45 +585,9 @@ return(OK);
 
 mOMS(int wind)
 {
-OSErr io;
-
-#if !USE_OMS
 	Alert1("The OMS driver is not available in this version of Bol Processor.");
 	Oms = FALSE;
 	return OK;
-#else
-HideWindow(Window[wInfo]);
-if(Oms) {
-	if(!ScriptExecOn) {
-		if(Answer("Are you sure you want do disable OMS and use the built-in MIDI driver",
-			'N') != OK) return(FAILED);
-		if(!NEWTIMER && Answer("The ‘Mute’ command will be disabled, and flushing the output may be problematic. Continue",
-			'N') != OK) return(FAILED);
-		}
-	if(gSignedInToMIDIMgr) SignOutFromMIDIMgr();
-	ExitOMS();
-	if((io = DriverOpen("\p.MIDI")) != noErr) {
-		Alert1("Unexpected error opening MIDI driver. OMS is off, but some other device might be conflicting");
-		return(OK);
-		}
-	AppendScript(183);
-	ShowMessage(TRUE,wMessage,"OMS has been disabled. Built-in MIDI driver is now active.");
-	}
-else {
-	if(InBuiltDriverOn) CloseCurrentDriver(FALSE);
-	io = InitOMS('Bel0');
-	if(io!= noErr) return(FAILED);
-	Oms = TRUE;
-	ShowMessage(TRUE,wMessage,"OMS has been enabled. Built-in MIDI driver is now inactive.");
-	AppendScript(182);
-	}
-if(SetDriver() != OK && Beta) Alert1("Err. mOMS(). SetDriver() != OK");
-ResetTicks(FALSE,TRUE,ZERO,0);
-ReadKeyBoardOn = FALSE;
-Jcontrol = -1;
-SetButtons(TRUE);
-return(OK);
-#endif
 }
 
 
@@ -656,48 +612,6 @@ return(OK);
 mCsoundInstrumentsSpecs(int wind)
 {
 BPActivateWindow(SLOW,wCsoundInstruments);
-return(OK);
-}
-
-
-mOMSmidisetup(int wind)
-{
-#if USE_OMS
-if(Oms) {
-	StopWait();
-	OMSMIDISetupDialog();
-	/* SetDriver(); */
-	}
-#endif
-return(OK);
-}
-
-
-mOMSstudiosetup(int wind)
-{
-#if USE_OMS
-if(Oms) {
-	StopWait();
-	OMSOpenCurrentStudioSetup();
-	/* SetDriver(); */
-	}
-#endif
-return(OK);
-}
-
-
-mOMSinout(int wind)
-{
-#if USE_OMS
-if(Oms && !InitOn) {
-	StopWait();
-	ShowWindow(GetDialogWindow(OMSinoutPtr));
-	SelectWindow(GetDialogWindow(OMSinoutPtr));
-	if(gInputMenu != NULL) DrawOMSDeviceMenu(gInputMenu);
-	if(gOutputMenu != NULL) DrawOMSDeviceMenu(gOutputMenu);
-	UpdateWindow(FALSE, GetDialogWindow(OMSinoutPtr));
-	}
-#endif
 return(OK);
 }
 
@@ -1631,24 +1545,6 @@ FSSpec spec;
 
 if(Dirty[wData]) GetSeName(wData);
 if(Dirty[wGrammar]) GetSeName(wGrammar);
-
-#if USE_OMS
-TRYINPUTNAME:
-if(Oms && OMSinputName[0] != '\0' && OMSinputName[0] != '<') {
-	sprintf(Message,"The current input device is ‘%s’. Save it to settings",
-		OMSinputName);
-	rep = Answer(Message,'Y');
-	if(rep == CANCEL) return(FAILED);
-	if(rep == NO) {
-		rep = Answer("Set to <no input device>",'Y');
-		if(rep == CANCEL) return(FAILED);
-		if(rep == NO) goto TRYINPUTNAME;
-		OpenOrCloseConnection(FALSE,FALSE);
-		OMSinputName[0] = '\0';
-		}
-	}
-#endif
-
 c2pstrcpy(fn, FileName[iSettings]);
 spec.vRefNum = TheVRefNum[iSettings];
 spec.parID = WindowParID[iSettings];
@@ -1665,24 +1561,6 @@ int rep;
 FSSpec spec;
 
 if(Answer("Save current settings as startup",'Y') != OK) return(FAILED);
-
-#if USE_OMS
-TRYINPUTNAME:
-if(Oms && OMSinputName[0] != '\0') {
-	sprintf(Message,"The current input device is ‘%s’. Save it as default",
-		OMSinputName);
-	rep = Answer(Message,'Y');
-	if(rep == CANCEL) return(FAILED);
-	if(rep == NO) {
-		rep = Answer("Set to <no input device>",'Y');
-		if(rep == CANCEL) return(FAILED);
-		if(rep == NO) goto TRYINPUTNAME;
-		OpenOrCloseConnection(FALSE,FALSE);
-		OMSinputName[0] = '\0';
-		}
-	}
-#endif
-
 GetStartupSettingsSpec(&spec);
 SaveSettings(YES,YES,spec.name,&spec);
 return(OK);
@@ -2887,22 +2765,6 @@ mGraphicSettings(int wind)
 {
 BPActivateWindow(SLOW,wGraphicSettings);
 return(OK);
-}
-
-
-mModemPort(int wind)
-{
-#if USE_BUILT_IN_MIDI_DRIVER
-  return(FixPort(1));
-#endif
-}
-
-
-mPrinterPort(int wind)
-{
-#if USE_BUILT_IN_MIDI_DRIVER
-  return(FixPort(2));
-#endif
 }
 
 

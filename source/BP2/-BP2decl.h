@@ -42,25 +42,6 @@ extern GWorldPtr gMainGWorld;
 extern GDHandle gCurDev;
 extern int Version;
 
-#if USE_OMS
-// OMS globals
-extern Boolean gSignedInToMIDIMgr;		/* are we signed into MIDI Manager? */
-extern Boolean gNodesChanged;
-extern short gInputPortRefNum;		/* refNum of the OMS input port */
-extern short gOutputPortRefNum;		/* refNum of the OMS output port */
-extern OMSDeviceMenuH gInputMenu,gOutputMenu;
-
-extern short gChosenInputID,gChosenInputIDbydefault;		/* uniqueID of selected input; 0 means none */
-extern short gChosenOutputID;	/* uniqueID of selected output; 0 means none */
-extern short gOutNodeRefNum;	/* node refNum of the selected output; -1 means non
-									existant */
-extern long BytesReceived,BytesProcessed,MaxOMSinputBufferSize;
-extern char DownBuffer,OMSinputOverflow;
-extern MIDIcode **h_OMSinputMessage;
-extern char OMSinputName[MAXNAME],OMSoutputName[MAXNAME];
-// End of OMS globals
-#endif
-
 #if BP_MACHO
 // CoreMIDI globals (these are allocated in CoreMIDIdriver.c)
 extern DialogPtr CMSettings;
