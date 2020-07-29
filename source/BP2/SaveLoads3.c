@@ -1065,15 +1065,15 @@ else {
 
 #endif /* BP_CARBON_GUI */
 
-ReadOne(int bindlines,int careforhtml,int nocomment,short refnum,int strip,char ***pp_line,
+int ReadOne(int bindlines,int careforhtml,int nocomment,FILE* fin,int strip,char ***pp_line,
 	char ***pp_completeline,long *p_pos)
 // Read a line in the file and save it to text handle 'pp_completeline'
 // If the line starts with Ô//Õ, discard it
 {
 char c,oldc;
 long imax,oldcount,discount,count;
-int i,io,is,rep,j,jm,empty,offset,dos,firsttime,html;
-char **p_buffer;
+int i,is,rep,j,jm,empty,offset,dos,firsttime,html;
+char **p_buffer, *result;
 long size;
 
 MyDisposeHandle((Handle*)pp_line);
@@ -1089,10 +1089,15 @@ discount = 0; firsttime = TRUE;
 
 RESTART:
 imax = count = MAXLIN;
-MyLock(NO,(Handle) p_buffer);
-io = FSRead(refnum,&count,*p_buffer);
-MyUnlock((Handle) p_buffer);
-oldcount = count;
+// fgets() reads only to next newline while FSRead() always tried to read count bytes
+result = fgets(*p_buffer,count,fin);
+if (result == NULL) {
+	// at end of file; no chars were read
+	*p_buffer[0] = '\0';
+	rep = STOP;
+}
+else rep = OK;
+oldcount = count = strlen(*p_buffer);
 
 CleanLF(p_buffer,&count,&dos);
 // Here we cleaned the extra LF of DOS files
@@ -1100,13 +1105,6 @@ CleanLF(p_buffer,&count,&dos);
 discount = oldcount - count;
 if(discount > 0 && firsttime) *p_pos += 1;
 firsttime = FALSE;
-if(io == noErr) {
-	rep = OK;
-	}
-else {
-	if(io == eofErr) rep = STOP;
-	else rep = FAILED;
-	}
 is = 0;
 if(offset == 0) {
 	while(MySpace((*p_buffer)[is]) && (*p_buffer)[is] != '\r') is++;
@@ -1125,7 +1123,7 @@ for(i=is; i < count; i++) {
 	if(((oldc != 'Â' || !bindlines) && (c == '\n' || c == '\r')) || c == '\0'
 															|| j >= (size-discount-1)) {
 		(*p_pos) += (i + 1);
-		SetFPos(refnum,fsFromStart,*p_pos);
+		// SetFPos(fin,fsFromStart,*p_pos);
 		if(j >= (size-discount-1)) {
 			(**pp_line)[j] = c;
 			(**pp_completeline)[j] = c;
@@ -1176,7 +1174,7 @@ return(rep);
 }
 
 
-ReadInteger(short refnum,int* p_i,long* p_pos)
+int ReadInteger(FILE* fin,int* p_i,long* p_pos)
 // Read an integer value
 {
 int rep,i;
@@ -1184,7 +1182,7 @@ char c;
 char **p_line,**p_completeline;
 
 p_line = p_completeline = NULL;
-if((rep = ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,p_pos)) == FAILED) goto QUIT;
+if((rep = ReadOne(FALSE,FALSE,TRUE,fin,TRUE,&p_line,&p_completeline,p_pos)) == FAILED) goto QUIT;
 if(MyHandleLen(p_line) == 0) {
 	rep = FAILED; goto QUIT;
 	}
@@ -1204,14 +1202,14 @@ return(rep);
 }
 
 
-ReadLong(short refnum,long* p_i,long* p_pos)
+int ReadLong(FILE* fin,long* p_i,long* p_pos)
 {
 int rep,i;
 char c;
 char **p_line,**p_completeline;
 
 p_line = p_completeline = NULL;
-if((rep = ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,p_pos)) == FAILED) goto QUIT;
+if((rep = ReadOne(FALSE,FALSE,TRUE,fin,TRUE,&p_line,&p_completeline,p_pos)) == FAILED) goto QUIT;
 if(MyHandleLen(p_line) == 0) return(FAILED);
 i = 0; while(MySpace(c=(*p_line)[i])) i++;
 if(c != '-' && c != '+' && !isdigit(c)) {
@@ -1228,7 +1226,7 @@ return(OK);
 }
 
 
-ReadUnsignedLong(short refnum,unsigned long* p_i,long* p_pos)
+int ReadUnsignedLong(FILE* fin,unsigned long* p_i,long* p_pos)
 {
 int rep,i;
 char c,*end;
@@ -1236,7 +1234,7 @@ char **p_line,**p_completeline;
 long x;
 
 p_line = p_completeline = NULL;
-if((rep = ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,p_pos)) == FAILED) goto QUIT;
+if((rep = ReadOne(FALSE,FALSE,TRUE,fin,TRUE,&p_line,&p_completeline,p_pos)) == FAILED) goto QUIT;
 if(MyHandleLen(p_line) == 0) return(FAILED);
 i = 0; while(MySpace(c=(*p_line)[i])) i++;
 if(c != '-' && c != '+' && !isdigit(c)) {
@@ -1266,7 +1264,7 @@ return(OK);
 }
 
 
-ReadFloat(short refnum,double* p_i,long* p_pos)
+int ReadFloat(FILE* fin,double* p_i,long* p_pos)
 {
 int rep,i;
 long p,q;
@@ -1274,7 +1272,7 @@ char c;
 char **p_line,**p_completeline;
 
 p_line = p_completeline = NULL;
-if((rep = ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,p_pos)) == FAILED)  {
+if((rep = ReadOne(FALSE,FALSE,TRUE,fin,TRUE,&p_line,&p_completeline,p_pos)) == FAILED)  {
 	rep = FAILED; goto QUIT;
 	}
 if(MyHandleLen(p_line) == 0)  {
@@ -1298,7 +1296,7 @@ return(rep);
 }
 
 
-WriteToFile(int careforhtml,int format,char* line,short refnum)
+int WriteToFile(int careforhtml,int format,char* line,short refnum)
 // Writes the line and a return to the file
 {
 int res;
@@ -1358,7 +1356,7 @@ return(OK);
 }
 
 
-NoReturnWriteToFile(char* line,short refnum)
+int NoReturnWriteToFile(char* line,short refnum)
 // Writes the line and no return to the file
 {
 long count;
