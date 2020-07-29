@@ -1054,6 +1054,8 @@ for(w=MAXWIND; w < WMAX; w++) {
 	}
 if(bad) return(FAILED);
 ClearWindow(TRUE,wMIDIorchestra);
+#else
+Jbutt = 28;  // number of buttons must not be less than that found within settings files
 #endif /* BP_CARBON_GUI */
 
 return(OK);

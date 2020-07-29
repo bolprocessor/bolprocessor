@@ -1439,7 +1439,7 @@ else WriteMIDIfile = FALSE;
 if(jmax > 24) ReadInteger(sefile,&ShowMessages,&pos); 
 if(jmax > 25) ReadInteger(sefile,&OutCsound,&pos);
 else OutCsound = FALSE;
-if(jmax > 26) ReadInteger(sefile,j,&pos); // used to read p_oms
+if(jmax > 26) ReadInteger(sefile,&j,&pos); // used to read p_oms
 Oms = FALSE;	// OMS is no more
 
 /* Silently reset this flag if real-time Midi is not available.
