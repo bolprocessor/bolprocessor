@@ -720,6 +720,10 @@ int LoadInputFiles(const char* pathnames[WMAX])
 						case wGlossary:			LoadedGl = TRUE; break;
 					}
 					break;
+				case iSettings:
+					result = LoadSettings(pathnames[w], FALSE);
+					if (result != OK)  return result;
+					break;
 				default:
 					BPPrintMessage(odWarning, "Ignoring %.3s %s (%s files are currently unsupported)\n", FilePrefix[w], pathnames[w], DocumentTypeName[w]);
 					break;
