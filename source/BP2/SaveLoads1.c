@@ -1334,7 +1334,7 @@ void GetStartupSettingsSpec(FSSpecPtr spec)
 int LoadSettings(const char *filename, int startup)
 {
 int i,j,jmax,rep,result,iv,w,wmax,oldoutmidi,oldoutcsound,oldwritemidifile;
-short refnum;
+FILE* sefile;
 long pos,k;
 unsigned long kk;
 double x;
@@ -1355,7 +1355,11 @@ else {
 		return FAILED;
 	}
 }
-if((OK /* open the file here */) != OK) {
+
+// open the file for reading
+sefile = fopen(filename, "r");
+if (sefile == NULL) {
+	BPPrintMessage(odError, "Could not open settings file %s\n", filename);
 	return FAILED;
 }
 
@@ -1363,33 +1367,33 @@ pos = ZERO; Dirty[iSettings] = Created[iSettings] = FALSE;
 
 LoadOn++;
 
-if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+if(ReadOne(FALSE,FALSE,FALSE,sefile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 if(CheckVersion(&iv,p_line,filename) != OK) {
 	result = FAILED;
 	goto QUIT;
 	}
-if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+if(ReadOne(FALSE,FALSE,FALSE,sefile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 
-if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;	// serial port used by old built-in Midi driver
+if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;	// serial port used by old built-in Midi driver
 // if(startup) Port = j;
 
-if(ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;	/* Not used */
-if(ReadLong(refnum,&k,&pos) == FAILED) goto ERR; Quantization = k;
-if(ReadLong(refnum,&k,&pos) == FAILED) goto ERR; Time_res = k;
-if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR; SetUpTime = j;
-if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR; QuantizeOK = j;
+if(ReadOne(FALSE,FALSE,TRUE,sefile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;	/* Not used */
+if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR; Quantization = k;
+if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR; Time_res = k;
+if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR; SetUpTime = j;
+if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR; QuantizeOK = j;
 #if BP_CARBON_GUI
 SetTimeAccuracy();
 Dirty[wTimeAccuracy] = FALSE;
 #endif /* BP_CARBON_GUI */
 NotSaidKpress = TRUE;
 
-if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR; Nature_of_time = j;
-if(ReadUnsignedLong(refnum,&kk,&pos) == FAILED) goto ERR; Pclock = (double)kk;
-if(ReadUnsignedLong(refnum,&kk,&pos) == FAILED) goto ERR; Qclock = (double)kk;
+if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR; Nature_of_time = j;
+if(ReadUnsignedLong(sefile,&kk,&pos) == FAILED) goto ERR; Pclock = (double)kk;
+if(ReadUnsignedLong(sefile,&kk,&pos) == FAILED) goto ERR; Qclock = (double)kk;
 SetTempo(); SetTimeBase(); Dirty[wMetronom] = Dirty[wTimeBase] = FALSE;
 
-if(ReadInteger(refnum,&jmax,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&jmax,&pos) == FAILED) goto ERR;
 if(jmax > Jbutt) {
 	sprintf(Message,"Err. settings file.  jmax = %ld. ",(long)jmax);
 	if(Beta) Alert1(Message);
@@ -1399,43 +1403,43 @@ if(jmax > Jbutt) {
 oldwritemidifile = WriteMIDIfile;
 oldoutcsound = OutCsound;
 
-if(ReadInteger(refnum,&Improvize,&pos) == FAILED) goto ERR;
-if(ReadInteger(refnum,&CyclicPlay,&pos) == FAILED) goto ERR;
-if(ReadInteger(refnum,&UseEachSub,&pos) == FAILED) goto ERR;
-if(ReadInteger(refnum,&AllItems,&pos) == FAILED) goto ERR;
-if(ReadInteger(refnum,&DisplayProduce,&pos) == FAILED) goto ERR;
-if(ReadInteger(refnum,&StepProduce,&pos) == FAILED) goto ERR;
-if(ReadInteger(refnum,&StepGrammars,&pos) == FAILED) goto ERR;
-if(ReadInteger(refnum,&TraceProduce,&pos) == FAILED) goto ERR;
-if(ReadInteger(refnum,&PlanProduce,&pos) == FAILED) goto ERR;
-if(ReadInteger(refnum,&DisplayItems,&pos) == FAILED) goto ERR; 
-if(ReadInteger(refnum,&ShowGraphic,&pos) == FAILED) goto ERR; 
-if(ReadInteger(refnum,&AllowRandomize,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&Improvize,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&CyclicPlay,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&UseEachSub,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&AllItems,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&DisplayProduce,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&StepProduce,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&StepGrammars,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&TraceProduce,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&PlanProduce,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&DisplayItems,&pos) == FAILED) goto ERR; 
+if(ReadInteger(sefile,&ShowGraphic,&pos) == FAILED) goto ERR; 
+if(ReadInteger(sefile,&AllowRandomize,&pos) == FAILED) goto ERR;
 if(iv < 15) AllowRandomize = TRUE;
-if(ReadInteger(refnum,&DisplayTimeSet,&pos) == FAILED) goto ERR; 
-if(ReadInteger(refnum,&StepTimeSet,&pos) == FAILED) goto ERR; 
-if(ReadInteger(refnum,&TraceTimeSet,&pos) == FAILED) goto ERR; 
-if(jmax > 27) ReadInteger(refnum,&CsoundTrace,&pos);
+if(ReadInteger(sefile,&DisplayTimeSet,&pos) == FAILED) goto ERR; 
+if(ReadInteger(sefile,&StepTimeSet,&pos) == FAILED) goto ERR; 
+if(ReadInteger(sefile,&TraceTimeSet,&pos) == FAILED) goto ERR; 
+if(jmax > 27) ReadInteger(sefile,&CsoundTrace,&pos);
 else CsoundTrace = FALSE;
-if(ReadInteger(refnum,&OutMIDI,&pos) == FAILED) goto ERR; 
-if(ReadInteger(refnum,&SynchronizeStart,&pos) == FAILED) goto ERR; 
-if(ReadInteger(refnum,&ComputeWhilePlay,&pos) == FAILED) goto ERR; 
-if(ReadInteger(refnum,&Interactive,&pos) == FAILED) goto ERR; 
-if(jmax > 19) ReadInteger(refnum,&ResetWeights,&pos);
+if(ReadInteger(sefile,&OutMIDI,&pos) == FAILED) goto ERR; 
+if(ReadInteger(sefile,&SynchronizeStart,&pos) == FAILED) goto ERR; 
+if(ReadInteger(sefile,&ComputeWhilePlay,&pos) == FAILED) goto ERR; 
+if(ReadInteger(sefile,&Interactive,&pos) == FAILED) goto ERR; 
+if(jmax > 19) ReadInteger(sefile,&ResetWeights,&pos);
 else ResetWeights = FALSE;
 NeverResetWeights = FALSE;
-if(jmax > 20) ReadInteger(refnum,&ResetFlags,&pos);
+if(jmax > 20) ReadInteger(sefile,&ResetFlags,&pos);
 else ResetFlags = FALSE;
-if(jmax > 21) ReadInteger(refnum,&ResetControllers,&pos);
+if(jmax > 21) ReadInteger(sefile,&ResetControllers,&pos);
 else ResetControllers = FALSE; 
-if(jmax > 22) ReadInteger(refnum,&NoConstraint,&pos);
+if(jmax > 22) ReadInteger(sefile,&NoConstraint,&pos);
 else NoConstraint = FALSE;
-if(jmax > 23) ReadInteger(refnum,&WriteMIDIfile,&pos);
+if(jmax > 23) ReadInteger(sefile,&WriteMIDIfile,&pos);
 else WriteMIDIfile = FALSE; 
-if(jmax > 24) ReadInteger(refnum,&ShowMessages,&pos); 
-if(jmax > 25) ReadInteger(refnum,&OutCsound,&pos);
+if(jmax > 24) ReadInteger(sefile,&ShowMessages,&pos); 
+if(jmax > 25) ReadInteger(sefile,&OutCsound,&pos);
 else OutCsound = FALSE;
-if(jmax > 26) ReadInteger(refnum,j,&pos); // used to read p_oms
+if(jmax > 26) ReadInteger(sefile,j,&pos); // used to read p_oms
 Oms = FALSE;	// OMS is no more
 
 /* Silently reset this flag if real-time Midi is not available.
@@ -1453,53 +1457,53 @@ if(oldwritemidifile && !WriteMIDIfile && !startup) CloseMIDIFile();
 if(OutMIDI && !oldoutmidi && !InitOn && !startup) ResetMIDI(FALSE);
 #endif /* BP_CARBON_GUI */
 
-if(ReadInteger(refnum,&SplitTimeObjects,&pos) == FAILED) goto ERR;
-if(ReadInteger(refnum,&SplitVariables,&pos) == FAILED) goto ERR;
-if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&SplitTimeObjects,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&SplitVariables,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 UseTextColor = (j > 0);
-if(ReadLong(refnum,&k,&pos) == FAILED) goto ERR;
+if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR;
 DeftBufferSize = BufferSize = k;
-if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 UseGraphicsColor = (j > 0);
 if(ForceTextColor == 1) UseTextColor = TRUE;
 if(ForceTextColor == -1) UseTextColor = FALSE;
 if(ForceGraphicColor == 1) UseGraphicsColor = TRUE;
 if(ForceGraphicColor == -1) UseGraphicsColor = FALSE;
-if(ReadInteger(refnum,&UseBufferLimit,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&UseBufferLimit,&pos) == FAILED) goto ERR;
 #if BP_CARBON_GUI
 SetBufferSize();
 #endif /* BP_CARBON_GUI */
-if(ReadLong(refnum,&TimeMax,&pos) == FAILED) goto ERR;
+if(ReadLong(sefile,&TimeMax,&pos) == FAILED) goto ERR;
 
-if(ReadLong(refnum,&k,&pos) == FAILED) goto ERR;
+if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR;
 Seed = (unsigned) (k % 32768L);
 #if BP_CARBON_GUI
 SetSeed();
 #endif /* BP_CARBON_GUI */
 ResetRandom();
 
-if(ReadInteger(refnum,&Token,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&Token,&pos) == FAILED) goto ERR;
 if(Token > 0) Token = TRUE;
 else Token = FALSE;
-if(ReadInteger(refnum,&NoteConvention,&pos) == FAILED) goto ERR;
-if(ReadInteger(refnum,&StartFromOne,&pos) == FAILED) goto ERR;
-if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&NoteConvention,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&StartFromOne,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 SmartCursor = (j == 1);
-if(ReadInteger(refnum,&GraphicScaleP,&pos) == FAILED) goto ERR;
-if(ReadInteger(refnum,&GraphicScaleQ,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&GraphicScaleP,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&GraphicScaleQ,&pos) == FAILED) goto ERR;
 #if BP_CARBON_GUI
 SetGraphicSettings();
 #endif /* BP_CARBON_GUI */
 
 /* Read OMS default input device, and ignore it */
-if(ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+if(ReadOne(FALSE,FALSE,TRUE,sefile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 /* Read OMS default output device, and ignore it */
 if(iv > 5) {
-	if(ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+	if(ReadOne(FALSE,FALSE,TRUE,sefile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 	}
 
 if(iv > 11) {
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	if(iv > 15) UseBullet = j;
 	else UseBullet = TRUE;
 	if(UseBullet) Code[7] = '•';
@@ -1510,16 +1514,16 @@ PlayTicks = FALSE;
 ResetTickFlag = TRUE;
 
 if(iv > 7) {
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	PlayTicks = j;
 	if(PlayTicks && !InitOn && !startup) {
 		ResetMIDI(FALSE); // FIXME: does this make sense in the console version
 		}
 	}
 if(iv > 10) {
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	FileSaveMode = ALLSAME;  // was = j;
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	FileWriteMode = NOW;     // was = j;
 	}
 else {
@@ -1527,17 +1531,17 @@ else {
 	FileWriteMode = NOW;     // was = LATER;
 	}
 if(iv > 11) {
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	MIDIfileType = j;
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	CsoundFileFormat = j;
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	ProgNrFrom = j;
 	if(ProgNrFrom == 0) {
 /*		if(Beta) Alert1("Old program numbers"); */
 		ProgNrFrom = 1;
 		}
-	if(ReadFloat(refnum,&x,&pos) == FAILED) goto ERR;
+	if(ReadFloat(sefile,&x,&pos) == FAILED) goto ERR;
 	if(iv > 19) MIDIfadeOut = x;
 	else MIDIfadeOut = 2.;
 #if BP_CARBON_GUI
@@ -1545,14 +1549,14 @@ if(iv > 11) {
 	SetField(FileSavePreferencesPtr,-1,fFadeOut,Message);
 #endif /* BP_CARBON_GUI */
 	
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	if(j > 1 && j < 128) C4key = j;
 	else C4key = 60;
-	ReadFloat(refnum,&x,&pos);
+	ReadFloat(sefile,&x,&pos);
 	if(x > 1.) A4freq = x;
 	else A4freq = 440.;
 	
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	StrikeAgainDefault = j;
 	}
 else {
@@ -1565,17 +1569,17 @@ else {
 	A4freq = 440.0;
 	}
 if(iv > 15) {
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	DeftVolume = j;
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	VolumeController = j;
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	DeftVelocity = j;
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	DeftPanoramic = j;
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	PanoramicController = j;
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	SamplingRate = j;
 	}
 else {
@@ -1594,27 +1598,27 @@ SetDefaultStrikeMode();
 #endif /* BP_CARBON_GUI */
 
 // This block reads in font sizes for Carbon GUI text windows
-if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 wmax = j;
 if(wmax > 0) {
 	for(w=0; w < wmax; w++) {
-		if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+		if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 		}
 	}
 	
 ResetMIDIFilter();
 
 if(iv > 4) {
-	if(ReadLong(refnum,&k,&pos) == FAILED) goto ERR;
+	if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR;
 	MIDIoutputFilter = k;
 	if(startup) MIDIoutputFilterstartup = MIDIoutputFilter;
 	GetOutputFilterWord();
 	for(i=0; i < 12; i++) {
-		if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+		if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 		NameChoice[i] = j;
 		}
 	}
-if(ReadLong(refnum,&k,&pos) == FAILED) goto ERR;
+if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR;
 if(k != 0L) {
 	MIDIinputFilter = k;
 	if(startup) MIDIinputFilterstartup = MIDIinputFilter;
@@ -1628,9 +1632,9 @@ SetFilterDialog();
 #endif /* BP_CARBON_GUI */
 
 if(iv > 19) {
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	ShowObjectGraph = j;
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
+	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	ShowPianoRoll = j;
 	/**** THIS IS WHERE THE SETTINGS FILE ENDS NOW IN BP3 ****/
 	/* Removed code for reading piano roll colors */
@@ -1643,14 +1647,14 @@ else {
 /* Removed code for reading "NewEnvironment", window coordinates & text colors */
 
 /* Should we still keep the start string in the settings file? */
-/* if(ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+/* if(ReadOne(FALSE,FALSE,TRUE,sefile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 if(Mystrcmp(p_line,"STARTSTRING:") != 0) {
 	sprintf(Message,"Incorrect end in ‘%s’ settings file. May be bad version?",
 			filename);
 	if(Beta) Alert1(Message);
 	goto QUIT;
 	}
-ReadFile(wStartString,refnum);
+ReadFile(wStartString,sefile);
 ShowSelect(CENTRE,wStartString);
 Dirty[wStartString] = FALSE;
  */
@@ -1664,10 +1668,7 @@ Alert1(Message);
 
 QUIT:
 MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
-if(OK /* Close the file here */ != OK) {
-	sprintf(Message,"Error closing '%s' settings file...",filename);
-	// result = FAILED;	// FIXME: does this really require failure?
-	}
+CloseFile(sefile);
 
 LoadOn--;
 return(result);
