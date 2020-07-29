@@ -1087,6 +1087,9 @@ Rect TextGetViewRect(TextHandle th);
 #endif
 long LineStartPos(int,int,int);
 
+// new global functions in the console build
+void CloseFile(FILE* file);
+
 #if !TARGET_API_MAC_CARBON
 /* Provide backwards compatibility for System 7 in the non-Carbon build by
    macros that convert OS 8.5/9 functions to their InterfaceLib 7.1 equivalents. */

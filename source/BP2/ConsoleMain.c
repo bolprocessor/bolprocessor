@@ -799,10 +799,12 @@ int OpenAndReadFile(const char* pathname, char*** buffer)
 	result = ReadNewHandleFromFile(fin, READ_ENTIRE_FILE, &data);
 	if (result != OK) {
 		*buffer = NULL;
+		CloseFile(fin);
 		return result;
 	}
 	else *buffer = (char**) data;
 	
+	CloseFile(fin);
 	return OK;
 }
 
@@ -869,6 +871,26 @@ int ReadNewHandleFromFile(FILE* fin, size_t numbytes, Handle* data)
 	return OK;
 }
 
+/*	CloseFile()
+ 
+	Generic wrapper for closing files opened with C library.
+ */
+void CloseFile(FILE* file)
+{
+	int result;
+	
+	if (file == NULL) {
+		if (Beta)  BPPrintMessage(odError, "Err. CloseFile(): file == NULL\n");
+		return;
+	}
+	result = fclose(file);
+	if (Beta && result != 0) {
+		BPPrintMessage(odError, "Err. CloseFile(): fclose() returned an error.\n");
+	}
+	
+	return;
+}
+
 /*	OpenOutputFile()
  
 	Open the file controlled by an OutFileInfo struct.
@@ -891,7 +913,7 @@ FILE* OpenOutputFile(OutFileInfo* finfo, const char* mode)
 void CloseOutputFile(OutFileInfo* finfo)
 {
 	if (finfo->isOpen && finfo->fout != NULL) {
-		fclose(finfo->fout);
+		CloseFile(finfo->fout);
 		finfo->fout = NULL;
 		finfo->isOpen = FALSE;
 	}
