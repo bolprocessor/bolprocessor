@@ -37,6 +37,8 @@
 #endif
 
 #include "-BP2decl.h"
+
+#if BP_CARBON_GUI
 #include "CarbonCompatUtil.h"
 
 #define OKOMS 1
@@ -1327,49 +1329,36 @@ void GetStartupSettingsSpec(FSSpecPtr spec)
 
 	return;
 }
+#endif /* BP_CARBON_GUI */
 
-LoadSettings(int anyfile,int changewindows,int startup,int manual,int *p_oms)
+int LoadSettings(const char *filename, int startup)
 {
-int i,ii,imax,j,jmax,io,rep,result,iv,s,type,top,left,bottom,right,w,wmax,connectionok,
-	maxticks,maxbeats,oldoutmidi,oldoutcsound,oldwritemidifile,toldoms,tried,activemem;
-FSSpec spec;
-short refnum,oldomsinput,oldomsoutput,newomsinput,newomsoutput;
-char filename[MAXNAME+1],connectionname[MAXNAME+1],oldinputname[MAXNAME+1];
+int i,j,jmax,rep,result,iv,w,wmax,oldoutmidi,oldoutcsound,oldwritemidifile;
+short refnum;
 long pos,k;
 unsigned long kk;
-FontInfo font;
 double x;
-Rect r;
 char **p_line,**p_completeline;
 
-result = connectionok = OK;
+result = OK;
 oldoutmidi = OutMIDI;
 p_line = p_completeline = NULL;
-if((rep=ClearWindow(FALSE,wStartString)) != OK) return(rep);
+if((rep=ClearWindow(FALSE,wStartString)) != OK) return(rep);	// FIXME: remove this?
 if(startup) {
-	GetStartupSettingsSpec(&spec);
-	p2cstrcpy(LineBuff, spec.name);
-	}
+	// FIXME: set filename = location of a startup settings file and continue?
+	return OK;
+}
 else {
-	spec.vRefNum = TheVRefNum[iSettings];
-	spec.parID = WindowParID[iSettings];
-	strcpy(LineBuff,FileName[iSettings]);
-	c2pstrcpy(spec.name, FileName[iSettings]);
+	// filename cannot be NULL or empty
+	if (filename == NULL || filename[0] == '\0')	{
+		BPPrintMessage(odError, "Err. LoadSettings(): filename was NULL or empty\n");
+		return FAILED;
 	}
-strcpy(filename,LineBuff);
-type = gFileType[iSettings];
-if(anyfile) type = ftiAny;
-if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-	rep = FAILED;
-	if(startup || (rep=CheckFileName(iSettings,LineBuff,&spec,&refnum,type,TRUE)) != OK) {
-		sprintf(Message,"Can't find Ô%sÕ setting file...",LineBuff);
-		ShowMessage(TRUE,wMessage,Message);
-		return(rep);
-		}
-	else strcpy(filename,FileName[iSettings]);
-	}
-if(!startup) HideWindow(Window[wMessage]);
-PleaseWait();
+}
+if((OK /* open the file here */) != OK) {
+	return FAILED;
+}
+
 pos = ZERO; Dirty[iSettings] = Created[iSettings] = FALSE;
 
 LoadOn++;
@@ -1446,8 +1435,8 @@ else WriteMIDIfile = FALSE;
 if(jmax > 24) ReadInteger(refnum,&ShowMessages,&pos); 
 if(jmax > 25) ReadInteger(refnum,&OutCsound,&pos);
 else OutCsound = FALSE;
-if(jmax > 26) ReadInteger(refnum,p_oms,&pos);
-Oms = *p_oms = FALSE;	// OMS is no more
+if(jmax > 26) ReadInteger(refnum,j,&pos); // used to read p_oms
+Oms = FALSE;	// OMS is no more
 
 /* Silently reset this flag if real-time Midi is not available.
    Note that this does not mark the settings file as Dirty either.
@@ -1458,9 +1447,11 @@ Oms = *p_oms = FALSE;	// OMS is no more
 
 SetButtons(TRUE);
 
+#if BP_CARBON_GUI
 if(oldoutcsound && !OutCsound && !startup) CloseCsScore();
 if(oldwritemidifile && !WriteMIDIfile && !startup) CloseMIDIFile();
 if(OutMIDI && !oldoutmidi && !InitOn && !startup) ResetMIDI(FALSE);
+#endif /* BP_CARBON_GUI */
 
 if(ReadInteger(refnum,&SplitTimeObjects,&pos) == FAILED) goto ERR;
 if(ReadInteger(refnum,&SplitVariables,&pos) == FAILED) goto ERR;
@@ -1475,12 +1466,17 @@ if(ForceTextColor == -1) UseTextColor = FALSE;
 if(ForceGraphicColor == 1) UseGraphicsColor = TRUE;
 if(ForceGraphicColor == -1) UseGraphicsColor = FALSE;
 if(ReadInteger(refnum,&UseBufferLimit,&pos) == FAILED) goto ERR;
+#if BP_CARBON_GUI
 SetBufferSize();
+#endif /* BP_CARBON_GUI */
 if(ReadLong(refnum,&TimeMax,&pos) == FAILED) goto ERR;
 
 if(ReadLong(refnum,&k,&pos) == FAILED) goto ERR;
 Seed = (unsigned) (k % 32768L);
-SetSeed(); ResetRandom();
+#if BP_CARBON_GUI
+SetSeed();
+#endif /* BP_CARBON_GUI */
+ResetRandom();
 
 if(ReadInteger(refnum,&Token,&pos) == FAILED) goto ERR;
 if(Token > 0) Token = TRUE;
@@ -1491,7 +1487,9 @@ if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
 SmartCursor = (j == 1);
 if(ReadInteger(refnum,&GraphicScaleP,&pos) == FAILED) goto ERR;
 if(ReadInteger(refnum,&GraphicScaleQ,&pos) == FAILED) goto ERR;
+#if BP_CARBON_GUI
 SetGraphicSettings();
+#endif /* BP_CARBON_GUI */
 
 /* Read OMS default input device, and ignore it */
 if(ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
@@ -1509,26 +1507,24 @@ if(iv > 11) {
 	}
 
 PlayTicks = FALSE;
-SwitchOff(NULL,wTimeBase,dPlayTicks);
 ResetTickFlag = TRUE;
 
 if(iv > 7) {
 	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
 	PlayTicks = j;
 	if(PlayTicks && !InitOn && !startup) {
-		ResetMIDI(FALSE);
-		SwitchOn(NULL,wTimeBase,dPlayTicks);
+		ResetMIDI(FALSE); // FIXME: does this make sense in the console version
 		}
 	}
 if(iv > 10) {
 	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
-	FileSaveMode = j;
+	FileSaveMode = ALLSAME;  // was = j;
 	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
-	FileWriteMode = j;
+	FileWriteMode = NOW;     // was = j;
 	}
 else {
-	FileSaveMode = ALLSAMEPROMPT;
-	FileWriteMode = LATER;
+	FileSaveMode = ALLSAME;  // was = ALLSAMEPROMPT;
+	FileWriteMode = NOW;     // was = LATER;
 	}
 if(iv > 11) {
 	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
@@ -1544,8 +1540,10 @@ if(iv > 11) {
 	if(ReadFloat(refnum,&x,&pos) == FAILED) goto ERR;
 	if(iv > 19) MIDIfadeOut = x;
 	else MIDIfadeOut = 2.;
+#if BP_CARBON_GUI
 	sprintf(Message,"%.2f",MIDIfadeOut);
 	SetField(FileSavePreferencesPtr,-1,fFadeOut,Message);
+#endif /* BP_CARBON_GUI */
 	
 	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
 	if(j > 1 && j < 128) C4key = j;
@@ -1559,10 +1557,12 @@ if(iv > 11) {
 	}
 else {
 	MIDIfileType = 0;
-	CsoundFileFormat = MAC;
+	CsoundFileFormat = UNIX;
 	StrikeAgainDefault = TRUE;
-	C4key = 48;	/* Here we compensate bad convention on old projects */
-	A4freq = 220.;	/* ditto */
+	// C4key = 48;	/* Here we compensate bad convention on old projects */
+	// A4freq = 220.;	/* ditto */
+	C4key = 60;
+	A4freq = 440.0;
 	}
 if(iv > 15) {
 	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
@@ -1586,20 +1586,20 @@ else {
 	PanoramicController = PANORAMICCONTROL;
 	SamplingRate = SAMPLINGRATE;
 	}
+#if BP_CARBON_GUI
 SetFileSavePreferences();
 SetDefaultPerformanceValues();
 SetTuning();
 SetDefaultStrikeMode();
+#endif /* BP_CARBON_GUI */
 
+// This block reads in font sizes for Carbon GUI text windows
 if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
 wmax = j;
 if(wmax > 0) {
 	for(w=0; w < wmax; w++) {
-		PleaseWait();
 		if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
-		if(changewindows && !FreezeWindows && WindowTextSize[w] != j) SetFontSize(w,j);
 		}
-	MaintainMenus();
 	}
 	
 ResetMIDIFilter();
@@ -1623,61 +1623,27 @@ if(k != 0L) {
 		Alert1("Reception of NoteOn's is disabled. Most MIDI data received by BP2 will be meaningless");
 		}
 	}
+#if BP_CARBON_GUI
 SetFilterDialog();
+#endif /* BP_CARBON_GUI */
 
 if(iv > 19) {
 	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
 	ShowObjectGraph = j;
 	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
 	ShowPianoRoll = j;
-	if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
-	for(i=0; i < j; i++) {
-		if(ReadLong(refnum,&k,&pos) == FAILED) goto ERR;
-		// PianoColor[i].red = k;
-		if(ReadLong(refnum,&k,&pos) == FAILED) goto ERR;
-		// PianoColor[i].green = k;
-		if(ReadLong(refnum,&k,&pos) == FAILED) goto ERR;
-		// PianoColor[i].blue = k;
-		}
+	/**** THIS IS WHERE THE SETTINGS FILE ENDS NOW IN BP3 ****/
+	/* Removed code for reading piano roll colors */
 	}
 else {
-	ResetPianoRollColors();
 	ShowObjectGraph = TRUE;
 	ShowPianoRoll = FALSE;
 	}
 				
-if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
-NewEnvironment = j;
-if(NewEnvironment) {
-	if(ReadInteger(refnum,&wmax,&pos) == FAILED) goto ERR;
-	for(w=0; w < wmax; w++) {
-		if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
-		ChangedCoordinates[w] = j;
-		if(j) {
-			if(ReadInteger(refnum,&top,&pos) == FAILED) goto ERR;
-			if(ReadInteger(refnum,&left,&pos) == FAILED) goto ERR;
-			if(ReadInteger(refnum,&bottom,&pos) == FAILED) goto ERR;
-			if(ReadInteger(refnum,&right,&pos) == FAILED) goto ERR;
-			}
-		if(changewindows && !FreezeWindows) AdjustWindow(j,w,top,left,bottom,right);
-		}
-	}
-if(FreezeWindows) NewEnvironment = FALSE;
-if(iv > 4) {
-	if(ReadInteger(refnum,&imax,&pos) == FAILED) goto ERR;
-	if(imax > 0) {
-		NewColors = TRUE;
-		for(i=0; i < imax; i++) {
-			if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
-			Color[i].red = (unsigned) j;
-			if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
-			Color[i].green = (unsigned) j;
-			if(ReadInteger(refnum,&j,&pos) == FAILED) goto ERR;
-			Color[i].blue = (unsigned) j;
-			}
-		}
-	}
-if(ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+/* Removed code for reading "NewEnvironment", window coordinates & text colors */
+
+/* Should we still keep the start string in the settings file? */
+/* if(ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 if(Mystrcmp(p_line,"STARTSTRING:") != 0) {
 	sprintf(Message,"Incorrect end in Ô%sÕ settings file. May be bad version?",
 			filename);
@@ -1687,39 +1653,27 @@ if(Mystrcmp(p_line,"STARTSTRING:") != 0) {
 ReadFile(wStartString,refnum);
 ShowSelect(CENTRE,wStartString);
 Dirty[wStartString] = FALSE;
+ */
+
 goto QUIT;
 
 ERR:
 result = FAILED;
-sprintf(Message,"Error reading Ô%sÕ settings fileÉ",filename);
+sprintf(Message,"Error reading '%s' settings file...",filename);
 Alert1(Message);
 
 QUIT:
 MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
-if(FSClose(refnum) != noErr) {
-	sprintf(Message,"Error closing Ô%sÕ settings fileÉ",filename);
-	result = FAILED;	// FIXME: does this really require failure?
+if(OK /* Close the file here */ != OK) {
+	sprintf(Message,"Error closing '%s' settings file...",filename);
+	// result = FAILED;	// FIXME: does this really require failure?
 	}
-if(result == OK) {
-	if(!startup) {
-		Created[iSettings] = TRUE;
-		TheVRefNum[iSettings] = spec.vRefNum;
-		WindowParID[iSettings] = spec.parID;
-		}
-	/*else {  // suppressed since can impair finding other files - akozar 040907
-		RefNumbp2 = spec.vRefNum;
-		ParIDbp2 = spec.parID;
-		}*/
-	SetName(iSettings,TRUE,manual && !startup);
-	}
-else Dirty[iSettings] = FALSE;
-if(!startup) HideWindow(Window[wMessage]);
-SetDefaultCursor();
+
 LoadOn--;
-if(!connectionok) return(ABORT);
 return(result);
 }
 
+#if BP_CARBON_GUI
 
 SaveDecisions(void)
 {
@@ -2600,3 +2554,5 @@ int WriteMidiDriverSettings(short refnum, FSSpec* spec)
 	
 	return OK;
 }
+
+#endif /* BP_CARBON_GUI */

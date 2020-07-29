@@ -1063,6 +1063,7 @@ else {
 	}
 }
 
+#endif /* BP_CARBON_GUI */
 
 ReadOne(int bindlines,int careforhtml,int nocomment,short refnum,int strip,char ***pp_line,
 	char ***pp_completeline,long *p_pos)
@@ -1296,7 +1297,6 @@ MyDisposeHandle((Handle*)&p_completeline);
 return(rep);
 }
 
-#endif /* BP_CARBON_GUI */
 
 WriteToFile(int careforhtml,int format,char* line,short refnum)
 // Writes the line and a return to the file
@@ -1816,6 +1816,7 @@ if(diff) {
 	pos = ZERO;
 	}
 if(fileversion > Version) {
+	// It would be unusual for VersionName[fileversion] to exist if fileversion > Version
 	sprintf(Message,
 		"Can't use file version %s\rbecause ÔBP2Õ version is %s.\r",
 		VersionName[fileversion],VersionName[Version]);
@@ -1839,7 +1840,7 @@ return(r);
 }
 
 
-CheckVersion(int *p_iv, char **p_line, char name[])
+int CheckVersion(int *p_iv, char **p_line, const char name[])
 {
 int diff,rep,iv;
 char version[VERSIONLENGTH];

@@ -44,7 +44,7 @@
 ResetProject(int init)
 {
 long count;
-int i,w,r,oms;
+int i,w,r;
 Handle ptr;
 
 PleaseWait();
@@ -92,7 +92,7 @@ if(init && !ScriptExecOn) {
 		TheVRefNum[iSettings] = RefNumbp2;
 		}
 	if(InitButtons() != OK) return(FAILED);
-	if(LoadSettings(TRUE,FALSE,TRUE,FALSE,&oms) == ABORT) return(ABORT);
+	if(LoadSettings(NULL, TRUE) == ABORT) return(ABORT);
 	for(w=0; w < WMAX; w++) {
 		switch(w) {
 			case wGrammar:
