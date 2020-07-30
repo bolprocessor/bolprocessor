@@ -45,60 +45,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 const size_t	READ_ENTIRE_FILE = 0;
 
-const char	SimpleGrammar[] =	
-	"RND\r"
-	"S --> X Y\r"
-	"X --> C4\r"
-	"X --> D4\r"
-	"Y --> E4\r"
-	"Y --> F4\r";
-
-const char	gr_Visser3[] = 
-	"// -gr.Visser3'\r"
-	"// By Harm Visser (March 1998)\r"
-	"\r"
-	"-se.Visser3\r"
-	"\r"
-	"ORD\r"
-	"_mm(120.0000) _striated\r"
-	"gram#1[1] S --> M1 M2 M3 M4 M5 M6 M7 M8 M9 M10 M11\r"
-	"\r"
-	"// words\r"
-	"gram#1[2] M1 --> A -\r"
-	"gram#1[3] M2 --> B - M1\r"
-	"gram#1[4] M3 --> C - M2\r"
-	"gram#1[5] M4 --> D - M3\r"
-	"gram#1[6] M5 --> E ¥ M4\r"
-	"gram#1[7] M6 --> F - M5\r"
-	"gram#1[8] M7 --> G - M6\r"
-	"gram#1[9] M8 --> H - ¥ M7\r"
-	"gram#1[10] M9 --> I - M8\r"
-	"gram#1[11] M10 --> J - ¥\r"
-	"gram#1[12] M11 --> K\r"
-	"-----------------------\r"
-	"ORD\r"
-	"// phonemes\r"
-	"gram#2[1] A --> C3\r"
-	"gram#2[2] B --> {Tr11 A}\r"
-	"gram#2[3] C --> {Tr5 {A,B}}\r"
-	"gram#2[4] D --> {Tr1 A C}\r"
-	"gram#2[5] E --> {Tr7 {A -, D -}}\r"
-	"gram#2[6] F --> {Tr6 A E D}\r"
-	"gram#2[7] G --> {Tr11 {A B C D ¥ E F E D C B A}}\r"
-	"gram#2[8] H --> {Tr-11 {G F E D C B A}}\r"
-	"gram#2[9] I --> {Tr11 G}\r"
-	"gram#2[10] J --> {G F, Tr5 G F}\r"
-	"gram#2[11] K --> {Tr-11 B C D}\r"
-	"-----------------------\r"
-	"ORD\r"
-	"gram#3[1] Tr11 -->  _transpose(11) _vel(90)\r"
-	"gram#3[2] Tr5 -->  _transpose(5) _vel(80)\r"
-	"gram#3[3] Tr1 -->  _transpose(1) _vel(70)\r"
-	"gram#3[4] Tr7 -->  _transpose(7) _vel(60)\r"
-	"gram#3[5] Tr6 -->  _transpose(6) _vel(70)\r"
-	"gram#3[6] Tr-11 -->  _transpose(-11) _vel(90)\r"
-	"\r";
-
 // function prototypes
 void ConsoleInit(BPConsoleOpts* opts);
 void PrintVersion(void);
@@ -1005,7 +951,7 @@ int PrepareProdItemsDestination(BPConsoleOpts* opts)
 	FILE *fout;
 	
 	// prepare output file if requested
-	if (DisplayItems &&	opts->outputFiles[ofiProdItems].name != NULL)	{
+	if (opts->displayItems && opts->outputFiles[ofiProdItems].name != NULL)	{
 		BPPrintMessage(odInfo, "Opening output file %s\n", opts->outputFiles[ofiProdItems].name);
 		fout = OpenOutputFile(&(opts->outputFiles[ofiProdItems]), "w");
 		if (!fout) {
