@@ -103,10 +103,11 @@ const char	gr_Visser3[] =
 void ConsoleInit(BPConsoleOpts* opts);
 void PrintVersion(void);
 void PrintShortVersion(void);
-void PrintInputFilenames(void);
+void PrintInputFilenames(BPConsoleOpts* opts);
 void PrintUsage(char* programName);
 int ParsePreInitArgs(int argc, char* args[], BPConsoleOpts* opts);
 int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts);
+int ApplyArgs(BPConsoleOpts* opts);
 const char* ActionTypeToStr(action_t action);
 int LoadInputFiles(const char* pathnames[WMAX]);
 int LoadFileToTextHandle(const char* pathname, TEHandle th);
@@ -119,8 +120,6 @@ void CloseOutputDestination(int dest, BPConsoleOpts* opts, outfileidx_t fileidx)
 // globals only for the console app
 Boolean LoadedAlphabet = FALSE;
 Boolean LoadedStartString = FALSE;
-Boolean SeedProvided = FALSE;
-const char *gInputFilenames[WMAX];
 BPConsoleOpts gOptions;
 
 
@@ -143,8 +142,12 @@ int main (int argc, char* args[])
 	
 	result = ParsePostInitArgs(argc, args, &gOptions);
 	if (result != OK)  return EXIT_FAILURE;
-	result = LoadInputFiles(gInputFilenames);
+	result = LoadInputFiles(gOptions.inputFilenames);
 	if (result != OK)  return EXIT_FAILURE;
+	// some command-line options are applied after loading the settings file
+	result = ApplyArgs(&gOptions);
+	if (result != OK)  return EXIT_FAILURE;
+
 	
 #if BIGTEST
 	TraceMemory = TRUE;
@@ -170,7 +173,7 @@ int main (int argc, char* args[])
 	InitOn = FALSE;
 	BPPrintMessage(odInfo, "BP2 Console completed initialization.\n");
 	SessionTime = clock();
-	if (!SeedProvided) ReseedOrShuffle(NEWSEED);
+	if (!gOptions.seedProvided) ReseedOrShuffle(NEWSEED);
 	
 	// load data
 	if (!LoadedStartString)  CopyStringToTextHandle(TEH[wStartString], "S\r");
@@ -268,9 +271,12 @@ void ConsoleInit(BPConsoleOpts* opts)
 	int i;
 	
 	opts->action = no_action;
+	opts->itemNumber = 0;
+	opts->startString = NULL;
+	opts->midiInSource = NULL;
+	opts->midiOutDestination = NULL;
 	
 	for (i = 0; i < WMAX; i++)	{
-		gInputFilenames[i] = NULL;
 		opts->inputFilenames[i] = NULL;
 	}
 	for (i = 0; i < MAXOUTFILES; i++) {
@@ -279,8 +285,18 @@ void ConsoleInit(BPConsoleOpts* opts)
 		opts->outputFiles[i].isOpen = FALSE;
 	}
 
-	opts->seedProvided = FALSE;
 	opts->useStdErr = FALSE;
+	opts->useStartString = FALSE;
+	opts->seedProvided = FALSE;
+	opts->outOptsChanged = FALSE;
+	opts->displayItems = NOCHANGE;
+	opts->writeCsoundScore = NOCHANGE;
+	opts->writeMidiFile = NOCHANGE;
+	opts->useRealtimeMidi = NOCHANGE;
+	opts->showProduction = NOCHANGE;
+	opts->traceProduction = NOCHANGE;
+	opts->noteConvention = NOCHANGE;
+	
 	return;
 }
 
@@ -328,9 +344,10 @@ const char gOptionList[] =
 	"  -gl fname        load glossary file 'fname'\n"
 	"  -gr fname        load grammar file 'fname'\n"
 	"  -ho fname        load alphabet file 'fname'\n"
+	"  -se fname        load settings file 'fname'\n"
 	"\n"
 	"  These file-type markers currently are recognized but ignored:\n"
-	"      -cs  -in  -kb  -md  -mi  -or  -se  -tb  -tr  -wg  +sc \n"
+	"      -cs  -in  -kb  -md  -mi  -or  -tb  -tr  -wg  +sc \n"
 	"\n"
 /*	"  -cs fname        load Csound instrument definitions file 'fname'\n"
 	"  -de fname        load decisions file 'fname'\n"
@@ -339,7 +356,6 @@ const char gOptionList[] =
 	"  -md fname        load MIDI driver settings file 'fname'\n"
 	"  -mi fname        load sound-object prototypes file 'fname'\n"
 	"  -or fname        load MIDI orchestra file 'fname'\n"
-	"  -se fname        load settings file 'fname'\n"
 	"  -tb fname        load time base file 'fname'\n"
 	"  -wg fname        load weights file 'fname'\n"
 	"  +sc fname        load script file 'fname'\n"
@@ -349,6 +365,7 @@ const char gOptionList[] =
 	"  -d or --no-display     don't print produced items to standard output\n"
 	"  -o outfile             write produced items to file 'outfile'\n"
 	"  -e or --use-stderr     print messages to standard error instead of standard output\n"
+	"  --traceout tracefile   write compilation & trace output to file 'tracefile'\n"
 	"\n"
 	"  --csoundout outfile    write Csound score to file 'outfile' ('-' for stdout)\n"
 	"  --midiout outfile      write Midi score to file 'outfile' ('-' for stdout)\n"
@@ -426,7 +443,7 @@ int ParsePreInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 
 /*	ParsePostInitArgs()
 	
-	Parses all command-line arguments, sets global options, and saves 
+	Parses all command-line arguments, saves global options,
 	action and input/output details (but does not perform actions).
 	
 	Returns ABORT if an error occured or OK if program should continue.
@@ -451,7 +468,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						// argument is just the file prefix (eg. "-gr"),
 						// so look at the next argument for the file name
 						if (++argn < argc)  {
-							gInputFilenames[w] = args[argn];
+							opts->inputFilenames[w] = args[argn];
 							argDone = TRUE;
 						}
 						else {
@@ -461,7 +478,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					}
 					else if (arglen > 4 && args[argn][3] == '.') {
 						//  argument is a complete file name (with 1+ chars after '.'), so just save it
-						gInputFilenames[w] = args[argn];
+						opts->inputFilenames[w] = args[argn];
 						argDone = TRUE;
 					}
 					// else, check for other options below
@@ -471,7 +488,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 		}
 		// check for matching file extension
 		else if ((w = FindMatchingFileNameExtension(args[argn])) != wUnknown) {
-			gInputFilenames[w] = args[argn];
+			opts->inputFilenames[w] = args[argn];
 			argDone = TRUE;
 		}
 		
@@ -479,16 +496,19 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 			/* check if it is an option */
 			if (args[argn][0] == '-') {
 				if (strcmp(args[argn], "-D") == 0 || strcmp(args[argn], "--display") == 0)	{
-					DisplayItems = TRUE;
+					opts->displayItems = TRUE;
+					opts->outOptsChanged = TRUE;
 				}
 				else if (strcmp(args[argn], "-d") == 0 || strcmp(args[argn], "--no-display") == 0)	{
-					DisplayItems = FALSE;
+					opts->displayItems = FALSE;
+					opts->outOptsChanged = TRUE;
 				}
 				else if (strcmp(args[argn], "-o") == 0)	{
 					// look at the next argument for the output file name
 					if (++argn < argc)  {
-						DisplayItems = TRUE;
+						opts->displayItems = TRUE;
 						opts->outputFiles[ofiProdItems].name = args[argn];
+						opts->outOptsChanged = TRUE;
 					}
 					else {
 						BPPrintMessage(odError, "\nMissing filename after %s\n\n", args[argn-1]);
@@ -511,8 +531,9 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 				else if (strcmp(args[argn], "--csoundout") == 0)	{
 					// look at the next argument for the output file name
 					if (++argn < argc)  {
-						OutCsound = TRUE;
+						opts->writeCsoundScore = TRUE;
 						opts->outputFiles[ofiCsScore].name = args[argn];
+						opts->outOptsChanged = TRUE;
 					}
 					else {
 						BPPrintMessage(odError, "\nMissing filename after %s\n\n", args[argn-1]);
@@ -522,9 +543,9 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 				else if (strcmp(args[argn], "--midiout") == 0)	{
 					// look at the next argument for the output file name
 					if (++argn < argc)  {
-						WriteMIDIfile = TRUE;
+						opts->writeMidiFile = TRUE;
 						opts->outputFiles[ofiMidiFile].name = args[argn];
-						MIDIRefNum = odMidiDump;
+						opts->outOptsChanged = TRUE;
 					}
 					else {
 						BPPrintMessage(odError, "\nMissing filename after %s\n\n", args[argn-1]);
@@ -532,28 +553,27 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					}
 				}
 				else if (strcmp(args[argn], "--rtmidi") == 0)	{
-					OutMIDI = TRUE;
+					opts->useRealtimeMidi = TRUE;
+					opts->outOptsChanged = TRUE;
 				}
 				else if (strcmp(args[argn], "--english") == 0)	{
-					NoteConvention = ENGLISH;
+					opts->noteConvention = ENGLISH;
 				}
 				else if (strcmp(args[argn], "--french") == 0)	{
-					NoteConvention = FRENCH;
+					opts->noteConvention = FRENCH;
 				}
 				else if (strcmp(args[argn], "--indian") == 0)	{
-					NoteConvention = INDIAN;
+					opts->noteConvention = INDIAN;
 				}
 				else if (strcmp(args[argn], "--keys") == 0)	{
-					NoteConvention = KEYS;
+					opts->noteConvention = KEYS;
 				}
 				else if (strcmp(args[argn], "--seed") == 0)	{
 					// look at the next argument for an integer seed
 					if (++argn < argc)  {
 						// FIXME: check that argument really is an integer?
-						Seed = (unsigned int) atoi(args[argn]);
-						SeedProvided = TRUE;
-						ResetRandom();
-						BPPrintMessage(odInfo, "Setting seed = %u\n", Seed);
+						opts->seed = (unsigned int) atoi(args[argn]);
+						opts->seedProvided = TRUE;
 					}
 					else {
 						BPPrintMessage(odError, "\nMissing number after --seed\n\n");
@@ -561,11 +581,10 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					}
 				}
 				else if (strcmp(args[argn], "--show-production") == 0)	{
-					DisplayProduce = TRUE;
+					opts->showProduction = TRUE;
 				}
 				else if (strcmp(args[argn], "--trace-production") == 0)	{
-					DisplayProduce = TRUE;
-					TraceProduce = TRUE;
+					opts->traceProduction = TRUE;
 				}
 				/* else if (strcmp(args[argn], "--step-production") == 0)	{
 					DisplayProduce = TRUE;
@@ -658,6 +677,46 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 	return OK;
 }
 
+/*	ApplyArgs()
+	
+	Applies command-line options to global options after the settings
+	file (if any) is loaded.  This allows options in the settings file
+	to be overridden on the command line.
+	
+	Returns ABORT if an error occured or OK if program should continue.
+ */
+int ApplyArgs(BPConsoleOpts* opts)
+{
+	// If any of the score output or performance options were specified,
+	// then ignore all of those options from the settings file!
+	if (opts->outOptsChanged) {
+		DisplayItems = OutCsound = WriteMIDIfile = OutMIDI = FALSE;
+	}
+	
+	// apply options that were explicitly given on the command line
+	if (opts->displayItems != NOCHANGE)		DisplayItems = opts->displayItems;
+	if (opts->writeCsoundScore != NOCHANGE)	OutCsound = opts->writeCsoundScore;
+	if (opts->writeMidiFile != NOCHANGE)	{
+		WriteMIDIfile = opts->writeMidiFile;
+		MIDIRefNum = odMidiDump;
+	}
+	if (opts->useRealtimeMidi != NOCHANGE)	OutMIDI = opts->useRealtimeMidi;
+	if (opts->traceProduction != NOCHANGE)	{
+		DisplayProduce = opts->traceProduction;
+		TraceProduce = opts->traceProduction;
+	}
+	// showProduction could be enabled after traceProduction is disabled
+	if (opts->showProduction != NOCHANGE)	DisplayProduce = opts->showProduction;
+	if (opts->noteConvention != NOCHANGE)	NoteConvention = opts->noteConvention;
+	if (opts->seedProvided)	{
+		Seed = opts->seed;
+		ResetRandom();
+		BPPrintMessage(odInfo, "Setting seed = %u\n", Seed);
+	}
+	
+	return OK;
+}
+
 const char* ActionTypeToStr(action_t action)
 {
 	switch (action) {
@@ -680,13 +739,13 @@ const char* ActionTypeToStr(action_t action)
 	return "";
 }
 
-void PrintInputFilenames(void)
+void PrintInputFilenames(BPConsoleOpts* opts)
 {
 	int w;
 	
 	for (w = 0; w < WMAX; w++) {
-		if (gInputFilenames[w] != NULL)
-			BPPrintMessage(odInfo, "gInputFilenames[%s] = %s\n", WindowName[w], gInputFilenames[w]);
+		if (opts->inputFilenames[w] != NULL)
+			BPPrintMessage(odInfo, "opts->inputFilenames[%s] = %s\n", WindowName[w], opts->inputFilenames[w]);
 	}
 	return;
 }

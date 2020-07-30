@@ -49,6 +49,10 @@ typedef enum {
 	play_all, analyze, expand, show_beats, templates
 } action_t;
 
+// Values for CLOption type are TRUE, FALSE, and NOCHANGE
+typedef int CLOption;
+#define NOCHANGE		-1
+
 #define MAXOUTFILES		4
 
 typedef struct OutFileInfo {
@@ -59,10 +63,24 @@ typedef struct OutFileInfo {
 
 typedef struct BPConsoleOpts {
 	action_t	action;
+	int			itemNumber;
+	const char	*startString;
+	const char	*midiInSource;
+	const char	*midiOutDestination;
 	const char	*inputFilenames[WMAX];
 	OutFileInfo	outputFiles[MAXOUTFILES];
-	Boolean		seedProvided;
 	Boolean		useStdErr;
+	Boolean		useStartString;
+	Boolean		seedProvided;
+	Boolean		outOptsChanged;
+	CLOption	displayItems;
+	CLOption	writeCsoundScore;
+	CLOption	writeMidiFile;
+	CLOption	useRealtimeMidi;
+	CLOption	showProduction;
+	CLOption	traceProduction;
+	int			noteConvention;		// NOCHANGE is an option too
+	unsigned	seed;
 } BPConsoleOpts;
 
 extern BPConsoleOpts gOptions;
