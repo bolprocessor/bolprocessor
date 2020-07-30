@@ -721,6 +721,7 @@ int LoadInputFiles(const char* pathnames[WMAX])
 					}
 					break;
 				case iSettings:
+					BPPrintMessage(odInfo, "Reading settings file %s...\n", pathnames[w]);
 					result = LoadSettings(pathnames[w], FALSE);
 					if (result != OK)  return result;
 					break;

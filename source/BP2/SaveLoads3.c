@@ -1089,15 +1089,8 @@ discount = 0; firsttime = TRUE;
 
 RESTART:
 imax = count = MAXLIN;
-// fgets() reads only to next newline while FSRead() always tried to read count bytes
-result = fgets(*p_buffer,count,fin);
-if (result == NULL) {
-	// at end of file; no chars were read
-	*p_buffer[0] = '\0';
-	rep = STOP;
-}
-else rep = OK;
-oldcount = count = strlen(*p_buffer);
+count = fread(*p_buffer,sizeof(char),count,fin);
+oldcount = count;
 
 CleanLF(p_buffer,&count,&dos);
 // Here we cleaned the extra LF of DOS files
@@ -1105,6 +1098,11 @@ CleanLF(p_buffer,&count,&dos);
 discount = oldcount - count;
 if(discount > 0 && firsttime) *p_pos += 1;
 firsttime = FALSE;
+if (oldcount < MAXLIN) {
+	// at end of file
+	rep = STOP;
+}
+else rep = OK;
 is = 0;
 if(offset == 0) {
 	while(MySpace((*p_buffer)[is]) && (*p_buffer)[is] != '\r') is++;
@@ -1123,7 +1121,7 @@ for(i=is; i < count; i++) {
 	if(((oldc != 'Â' || !bindlines) && (c == '\n' || c == '\r')) || c == '\0'
 															|| j >= (size-discount-1)) {
 		(*p_pos) += (i + 1);
-		// SetFPos(fin,fsFromStart,*p_pos);
+		fseek(fin,*p_pos,SEEK_SET);
 		if(j >= (size-discount-1)) {
 			(**pp_line)[j] = c;
 			(**pp_completeline)[j] = c;
