@@ -60,7 +60,7 @@ if((*p_repeat)) {
 		Alert1(Message);
 		return(FAILED);
 		}
-	ShowMessage(TRUE,wMessage,"Repeating…");
+	ShowMessage(TRUE,wMessage,"Repeating...");
 	}
 else ProduceStackDepth = 0;
 
@@ -127,7 +127,7 @@ if(r == OK) {
 	ix = ZERO;
 	level = 0;
 	if(NeedZouleb > 0) {
-		if(ShowMessages) ShowMessage(TRUE,wMessage,"Applying serial tools…");
+		if(ShowMessages) ShowMessage(TRUE,wMessage,"Applying serial tools...");
 		do {
 			r = Zouleb(pp_a,&level,&ix,FALSE,FALSE,0,(*p_repeat),FALSE,NOSEED);
 			if(r != OK) break;
@@ -301,13 +301,13 @@ if((*p_repeat) && p_MemGram != NULL
 CHECKINRUL:
 freedom = FALSE; startfrom = 1;
 try = irep = 0;
-if(inrul > 0) {	/* Entering after ‘_goto’ or ‘_failed’ jump */
+if(inrul > 0) {	/* Entering after '_goto' or '_failed' jump */
 	irul = inrul; j = 0;
 	rule = (*(subgram.p_rule))[irul];
 	if(((*p_pos)[j] = FindArg(pp_a,grtype,rule.p_leftarg,TRUE,p_length,meta,
 		instan,rule,mode)) > -1 && !(*p_repeat)) goto TRY3;
 	if((ig=(*(subgram.p_rule))[irul].failedgram) > 0) {
-		/* Rule inrul is not candidate but it contains ‘_failed’ procedure */
+		/* Rule inrul is not candidate but it contains '_failed' procedure */
 		ir = (*(subgram.p_rule))[irul].failedrule;
 		if(ig != igram) {
 			*p_outgram = ig;
@@ -318,7 +318,7 @@ if(inrul > 0) {	/* Entering after ‘_goto’ or ‘_failed’ jump */
 		inrul = ir;
 		goto CHECKINRUL;
 		}
-	/* If ‘_goto’ and ‘_failed’ jumps failed we start looking for any candidate rule… */
+	/* If '_goto' and '_failed' jumps failed we start looking for any candidate rule… */
 	if(subgram.type == ORDtype) {
 		if(inrul < subgram.number_rule) {
 			inrul++;
@@ -368,7 +368,7 @@ while(((nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom,igram,grtype,p_
 		TextGetSelection(&dummy, &firstposition, TEH[wTrace]);
 		if(TraceProduce) {
 			if(grtype == ORDtype) {
-				sprintf(Message,"‘ORD’ grammar: selecting first candidate rule:\r");
+				sprintf(Message,"'ORD' grammar: selecting first candidate rule:\r");
 				Print(wTrace,Message);
 				}
 			else {
@@ -395,7 +395,7 @@ ENTER:
 		else {
 			if((nb_candidates == 1) || (*p_repeat)) {
 				if(!(*p_repeat) && notsaid && grtype != ORDtype) {
-					sprintf(Message,"Only one candidate rule…\r");
+					sprintf(Message,"Only one candidate rule...\r");
 					Print(wTrace,Message);
 					}
 				j = 0;
@@ -532,7 +532,7 @@ DOIT:
 	if((*p_repeat)) {
 		irul = (*p_MemRul)[ProduceStackIndex];
 		if(irul > subgram.number_rule) {
-			Alert1("New grammar does not match old one. Aborting…");
+			Alert1("New grammar does not match old one. Aborting...");
 			rep = ABORT; goto QUIT;
 			}
 		if(TraceProduce) {
@@ -591,7 +591,7 @@ TRY3:	(*p_length) = LengthOf(pp_a);	/* was changed by FindArg() */
 	if((*p_repeat)) {
 		(*p_pos)[j] = (*p_MemPos)[ProduceStackIndex++];
 		if((*p_pos)[j] > ((*p_length) - 2)) {
-			Alert1("New grammar does not match old one. Aborting…");
+			Alert1("New grammar does not match old one. Aborting...");
 			rep = ABORT; goto QUIT;
 			}
 		}
@@ -775,7 +775,7 @@ MORE:
 		}
 	if(equalweight && !(*p_repeat) && !PlanProduce) goto TRY2;
 	
-	/* Check ‘_repeat’ */
+	/* Check '_repeat' */
 	if(rule.repeatcontrol > 0) {
 		nrep = ParamValue[rule.repeatcontrol];
 		}
@@ -791,7 +791,7 @@ MORE:
 		if((*p_pos)[j] == EXIT) {
 			rep = (*p_pos)[j]; goto QUIT;
 			}
-		/* Look for ‘_failed’ */					
+		/* Look for '_failed' */					
 		if((ig=rule.failedgram) > 0) {
 			ir = rule.failedrule;
 			if(ig != igram) {
@@ -804,7 +804,7 @@ MORE:
 			goto CHECKINRUL;
 			}
 		}
-	/* Check ‘_goto’ jump */
+	/* Check '_goto' jump */
 	if((ig=rule.gotogram) > 0) {
 		ir = rule.gotorule;
 		if(ig != igram) {
@@ -874,7 +874,7 @@ if(grtype == SUBtype) {
 			if(w <= 0) {	/* stop substitutions when any prefered rule... */
 							/* ... becomes unvalid */
  				if(DisplayProduce) {
-					ShowMessage(TRUE,wMessage,"A weight has decreased to 0…");
+					ShowMessage(TRUE,wMessage,"A weight has decreased to 0...");
 					}
 				if(TraceProduce) {
  					Print(wTrace,"A weight has decreased to 0.\r");
@@ -898,7 +898,7 @@ if(grtype == SUBtype) {
 				p_pos,p_prefrule,leftpos,&maxpref,&freedom,*p_repeat,
 				mode,&equalweight,learn)) > 0) {
 		if(TraceProduce) {
-			sprintf(Message,"Trying same grammar, new rules…\r");
+			sprintf(Message,"Trying same grammar, new rules...\r");
 			Print(wTrace,Message);
 			}
 		lastpos = leftpos = ZERO; maxpref = incmark = 0;
@@ -931,7 +931,7 @@ int r;
 tokenbyte **p_x;
 
 if((*pp_a) == NULL) {
-	Alert1("No item has been produced…");
+	Alert1("No item has been produced...");
 	return(FAILED);
 	}
 if(ProduceStackDepth <= 0) {
@@ -980,7 +980,7 @@ if(DisplayStackIndex > 1) {
 #endif /* BP_CARBON_GUI */
 	UndoFlag = FALSE;
 	if((datemem != CompileDate) || !CompiledGr || !CompiledPt) {
-		Alert1("Grammar changed or recompiled.  Must abort…");
+		Alert1("Grammar changed or recompiled.  Must abort...");
 		return(ABORT);
 		}
 	if(r == STOP) {
@@ -1103,7 +1103,7 @@ if((rep=ListenMIDI(0,0,0)) < 0) return(rep);
 p_length = NULL;
 *p_freedom = FALSE; *p_equalweight = FALSE; weight = -1;
 if(AllItems && (grtype == SUBtype)) {
-	Alert1("You cannot produce all items in a ‘SUB’ subgrammar");
+	Alert1("You cannot produce all items in a 'SUB' subgrammar");
 	return(ABORT);
 	}
 if(p_candidate == NULL || p_totwght == NULL || p_pos == NULL || p_prefrule == NULL) {
@@ -1544,7 +1544,7 @@ if(ismeta) {
 		}
 	}
 
-/* Calculate “lenc” the length of leftmost neg context
+/* Calculate "lenc" the length of leftmost neg context
 for(i=(*p_lenc)= 0; (*p_arg)[i] == T0 && (*p_arg)[i+1] == 2; (*p_lenc)++, i+=4); */
 
 xi = 0; nexist = FALSE;
@@ -1787,7 +1787,7 @@ void ExpandBufferLimit(long requiredSize)
 #else
 	SetBufferSize();
 	if(ShowMessages) {
-		FlashInfo("Buffer limit expanded…");
+		FlashInfo("Buffer limit expanded...");
 		ShowWindow(Window[wBufferSize]);
 		if(!ShownBufferSize || UseBufferLimit) BringToFront(Window[wBufferSize]);
 		ShownBufferSize = TRUE;
@@ -1809,7 +1809,7 @@ long i,ii,j,jmax,i0,j0,pos1,xi,sizedest,istart,jstart,length,length1;
 tokenbyte *ptr1,*ptr2,posdif,instan[MAXLIN],meta[MAXMETA2],meta1[MAXMETA2];
 Size oldsize,newsize,lenc1,incmark,blocksize;
 
-/* *pp_origin = *pp_dest except in ‘SUB’ subgrammars. */
+/* *pp_origin = *pp_dest except in 'SUB' subgrammars. */
 
 if(*pp_dest == NULL) {
 	if(Beta) Alert1("Err. Insert(). *pp_dest = NULL");
@@ -2184,7 +2184,7 @@ if(Nw >= 0 && Nw < WMAX && Editable[Nw]) {
 	}
 if(r == ABORT || r == EXIT) return(r);
 if((datemem != CompileDate) || !CompiledGr || !CompiledPt) {
-	Alert1("Grammar changed or recompiled. Must abort…");
+	Alert1("Grammar changed or recompiled. Must abort...");
 	return(ABORT);
 	}
 if(!ComputeOn) return(ABORT); /* Happens if repeating */

@@ -67,9 +67,9 @@ SetField(NULL,wCsoundInstruments,fCsoundInstrumentName,line);
 if(w > 0) {
 	if((*((*pp_CsInstrumentName)[j]))[0] == '\0') strcpy(line,"[no name]");
 	if((*p_CsInstrumentIndex)[j] > -1)
-		sprintf(Message,"••• Instrument #%ld = %s •••\r",(long)(*p_CsInstrumentIndex)[j],line);
+		sprintf(Message,"--- Instrument #%ld = %s ---\r",(long)(*p_CsInstrumentIndex)[j],line);
 	else
-		sprintf(Message,"••• Instrument [no index] = %s •••\r",line);
+		sprintf(Message,"--- Instrument [no index] = %s ---\r",line);
 	Println(w,Message);
 	}
 	
@@ -557,7 +557,7 @@ for(ip=0; ip < IPMAX; ip++) {
 	
 	if(w > 0) {
 		PleaseWait();
-		if(line[0] != '\0') sprintf(Message,"\rParameter ‘%s’",line);
+		if(line[0] != '\0') sprintf(Message,"\rParameter '%s'",line);
 		else continue;
 		}
 	
@@ -873,7 +873,7 @@ if(GetField(NULL,TRUE,wCsoundInstruments,fCsoundInstrumentIndex,line,&p,&q) == O
 			}
 		}
 	if(index < 1) {
-		sprintf(line,"Instrument index should be a positive integer. Can't accept ‘%ld’",
+		sprintf(line,"Instrument index should be a positive integer. Can't accept '%ld'",
 			(long)index);
 BADINDEX:
 		Alert1(line);
@@ -906,7 +906,7 @@ else CsoundOrchestraName[0] = '\0';
 if(GetField(NULL,TRUE,wCsoundInstruments,fDilationRatioIndex,line,&p,&q) == OK) {
 	index = p/q;
 	if(index < 1) {
-		sprintf(line,"Argument index should be a positive integer. Can't accept ‘%ld’",(long)index);
+		sprintf(line,"Argument index should be a positive integer. Can't accept '%ld'",(long)index);
 		Alert1(line);
 		SetField(NULL,wCsoundInstruments,fDilationRatioIndex,"[?]");
 		SelectField(NULL,wCsoundInstruments,fDilationRatioIndex,TRUE);
@@ -922,7 +922,7 @@ else (*p_CsDilationRatioIndex)[j] = -1;
 if(GetField(NULL,TRUE,wCsoundInstruments,fAttackVelocityIndex,line,&p,&q) == OK) {
 	index = p/q;
 	if(index < 1) {
-		sprintf(line,"Argument should be a positive integer. Can't accept ‘%ld’",(long)index);
+		sprintf(line,"Argument should be a positive integer. Can't accept '%ld'",(long)index);
 		Alert1(line);
 		SetField(NULL,wCsoundInstruments,fAttackVelocityIndex,"[?]");
 		SelectField(NULL,wCsoundInstruments,fAttackVelocityIndex,TRUE);
@@ -938,7 +938,7 @@ else (*p_CsAttackVelocityIndex)[j] = -1;
 if(GetField(NULL,TRUE,wCsoundInstruments,fReleaseVelocityIndex,line,&p,&q) == OK) {
 	index = p/q;
 	if(index < 1) {
-		sprintf(line,"Argument index should be a positive integer. Can't accept ‘%ld’",(long)index);
+		sprintf(line,"Argument index should be a positive integer. Can't accept '%ld'",(long)index);
 		Alert1(line);
 		SetField(NULL,wCsoundInstruments,fReleaseVelocityIndex,"[?]");
 		SelectField(NULL,wCsoundInstruments,fReleaseVelocityIndex,TRUE);
@@ -954,7 +954,7 @@ else (*p_CsReleaseVelocityIndex)[j] = -1;
 if(GetField(NULL,TRUE,wCsoundInstruments,fPitchIndex,line,&p,&q) == OK) {
 	index = p/q;
 	if(index < 1) {
-		sprintf(line,"Argument index should be a positive integer. Can't accept ‘%ld’",(long)index);
+		sprintf(line,"Argument index should be a positive integer. Can't accept '%ld'",(long)index);
 		Alert1(line);
 		SetField(NULL,wCsoundInstruments,fPitchIndex,"[?]");
 		SelectField(NULL,wCsoundInstruments,fPitchIndex,TRUE);
@@ -970,7 +970,7 @@ else (*p_CsPitchIndex)[j] = -1;
 if(GetField(NULL,TRUE,wCsoundInstruments,fPitchBendIndex,line,&p,&q) == OK) {
 	index = p/q;
 	if(index < 1) {
-		sprintf(line,"Argument index should be a positive integer. Can't accept ‘%ld’",(long)index);
+		sprintf(line,"Argument index should be a positive integer. Can't accept '%ld'",(long)index);
 		Alert1(line);
 		SetField(NULL,wCsoundInstruments,fPitchBendIndex,"[?]");
 		SelectField(NULL,wCsoundInstruments,fPitchBendIndex,TRUE);
@@ -986,7 +986,7 @@ else (*p_CsPitchBendStartIndex)[j] = -1;
 if(GetField(NULL,TRUE,wCsoundInstruments,fVolumeIndex,line,&p,&q) == OK) {
 	index = p/q;
 	if(index < 1) {
-		sprintf(line,"Argument index should be a positive integer. Can't accept ‘%ld’",(long)index);
+		sprintf(line,"Argument index should be a positive integer. Can't accept '%ld'",(long)index);
 		Alert1(line);
 		SetField(NULL,wCsoundInstruments,fVolumeIndex,"[?]");
 		SelectField(NULL,wCsoundInstruments,fVolumeIndex,TRUE);
@@ -1002,7 +1002,7 @@ else (*p_CsVolumeStartIndex)[j] = -1;
 if(GetField(NULL,TRUE,wCsoundInstruments,fPressureIndex,line,&p,&q) == OK) {
 	index = p/q;
 	if(index < 1) {
-		sprintf(line,"Argument index should be a positive integer. Can't accept ‘%ld’",(long)index);
+		sprintf(line,"Argument index should be a positive integer. Can't accept '%ld'",(long)index);
 		Alert1(line);
 		SetField(NULL,wCsoundInstruments,fPressureIndex,"[?]");
 		SelectField(NULL,wCsoundInstruments,fPressureIndex,TRUE);
@@ -1018,7 +1018,7 @@ else (*p_CsPressureStartIndex)[j] = -1;
 if(GetField(NULL,TRUE,wCsoundInstruments,fModulationIndex,line,&p,&q) == OK) {
 	index = p/q;
 	if(index < 1) {
-		sprintf(line,"Argument index should be a positive integer. Can't accept ‘%ld’",(long)index);
+		sprintf(line,"Argument index should be a positive integer. Can't accept '%ld'",(long)index);
 		Alert1(line);
 		SetField(NULL,wCsoundInstruments,fModulationIndex,"[?]");
 		SelectField(NULL,wCsoundInstruments,fModulationIndex,TRUE);
@@ -1034,7 +1034,7 @@ else (*p_CsModulationStartIndex)[j] = -1;
 if(GetField(NULL,TRUE,wCsoundInstruments,fPanoramicIndex,line,&p,&q) == OK) {
 	index = p/q;
 	if(index < 1) {
-		sprintf(line,"Argument index should be a positive integer. Can't accept ‘%ld’",(long)index);
+		sprintf(line,"Argument index should be a positive integer. Can't accept '%ld'",(long)index);
 		Alert1(line);
 		SetField(NULL,wCsoundInstruments,fPanoramicIndex,"[?]");
 		SelectField(NULL,wCsoundInstruments,fPanoramicIndex,TRUE);
@@ -1050,7 +1050,7 @@ else (*p_CsPanoramicStartIndex)[j] = -1;
 if(GetField(NULL,TRUE,wCsoundInstruments,fPitchBendEndIndex,line,&p,&q) == OK) {
 	index = p/q;
 	if(index < 1) {
-		sprintf(line,"Argument index should be a positive integer. Can't accept ‘%ld’",(long)index);
+		sprintf(line,"Argument index should be a positive integer. Can't accept '%ld'",(long)index);
 		Alert1(line);
 		SetField(NULL,wCsoundInstruments,fPitchBendEndIndex,"[?]");
 		SelectField(NULL,wCsoundInstruments,fPitchBendEndIndex,TRUE);
@@ -1069,7 +1069,7 @@ if(GetField(NULL,TRUE,wCsoundInstruments,fPitchBendRange,line,&p,&q) == OK) {
 else {
 	(*p_CsInstrument)[j].pitchbendrange = -1.;
 	if((*p_CsPitchFormat)[j] == CPS && (*p_CsPitchBendStartIndex)[j] == -1) {
-		Alert1("With the ‘cps’ option either a pitchbend range or a pitchbend argument should be specified");
+		Alert1("With the 'cps' option either a pitchbend range or a pitchbend argument should be specified");
 		SetField(NULL,wCsoundInstruments,fPitchBendIndex,"[?]");
 		SetField(NULL,wCsoundInstruments,fPitchBendRange,"[?]");
 		SelectField(NULL,wCsoundInstruments,fPitchBendRange,TRUE);
@@ -1080,7 +1080,7 @@ else {
 if(GetField(NULL,TRUE,wCsoundInstruments,fVolumeEndIndex,line,&p,&q) == OK) {
 	index = p/q;
 	if(index < 1) {
-		sprintf(line,"Argument index should be a positive integer. Can't accept ‘%ld’",(long)index);
+		sprintf(line,"Argument index should be a positive integer. Can't accept '%ld'",(long)index);
 		Alert1(line);
 		SetField(NULL,wCsoundInstruments,fVolumeEndIndex,"[?]");
 		SelectField(NULL,wCsoundInstruments,fVolumeEndIndex,TRUE);
@@ -1096,7 +1096,7 @@ else (*p_CsVolumeEndIndex)[j] = -1;
 if(GetField(NULL,TRUE,wCsoundInstruments,fPressureEndIndex,line,&p,&q) == OK) {
 	index = p/q;
 	if(index < 1) {
-		sprintf(line,"Argument index should be a positive integer. Can't accept ‘%ld’",(long)index);
+		sprintf(line,"Argument index should be a positive integer. Can't accept '%ld'",(long)index);
 		Alert1(line);
 		SetField(NULL,wCsoundInstruments,fPressureEndIndex,"[?]");
 		SelectField(NULL,wCsoundInstruments,fPressureEndIndex,TRUE);
@@ -1112,7 +1112,7 @@ else (*p_CsPressureEndIndex)[j] = -1;
 if(GetField(NULL,TRUE,wCsoundInstruments,fModulationEndIndex,line,&p,&q) == OK) {
 	index = p/q;
 	if(index < 1) {
-		sprintf(line,"Argument index should be a positive integer. Can't accept ‘%ld’",(long)index);
+		sprintf(line,"Argument index should be a positive integer. Can't accept '%ld'",(long)index);
 		Alert1(line);
 		SetField(NULL,wCsoundInstruments,fModulationEndIndex,"[?]");
 		SelectField(NULL,wCsoundInstruments,fModulationEndIndex,TRUE);
@@ -1128,7 +1128,7 @@ else (*p_CsModulationEndIndex)[j] = -1;
 if(GetField(NULL,TRUE,wCsoundInstruments,fPanoramicEndIndex,line,&p,&q) == OK) {
 	index = p/q;
 	if(index < 1) {
-		sprintf(line,"Argument index should be a positive integer. Can't accept ‘%ld’",(long)index);
+		sprintf(line,"Argument index should be a positive integer. Can't accept '%ld'",(long)index);
 		Alert1(line);
 		SetField(NULL,wCsoundInstruments,fPanoramicEndIndex,"[?]");
 		SelectField(NULL,wCsoundInstruments,fPanoramicEndIndex,TRUE);
@@ -1310,7 +1310,7 @@ for(ip=0; ip < IPMAX; ip++) {
 	if(GetField(CsoundInstrMorePtr,TRUE,-1,fCsoundParameterGenType + (4*ip),line,&p,&q) == OK) {
 		index = p/q;
 /*		if(index != 7 && index != 8) {
-			sprintf(line,"GEN type should be either 7 or 8 (see Csound manual). Can't accept ‘%ld’",
+			sprintf(line,"GEN type should be either 7 or 8 (see Csound manual). Can't accept '%ld'",
 				(long)index);
 			Alert1(line);
 			SetField(CsoundInstrMorePtr,-1,fCsoundParameterGenType + (4*ip),"7");
@@ -1332,7 +1332,7 @@ for(ip=0; ip < IPMAX; ip++) {
 	if(GetField(CsoundInstrMorePtr,TRUE,-1,fMoreStartIndex + (7*ip),line,&p,&q) == OK) {
 		index = p/q;
 		if(index < 1) {
-			sprintf(line,"Argument index should be a positive integer. Can't accept ‘%ld’",(long)index);
+			sprintf(line,"Argument index should be a positive integer. Can't accept '%ld'",(long)index);
 			Alert1(line);
 			SetField(CsoundInstrMorePtr,-1,fMoreStartIndex + (7*ip),"[?]");
 			SelectField(CsoundInstrMorePtr,-1,fMoreStartIndex + (7*ip),TRUE);
@@ -1360,7 +1360,7 @@ NOSTARTINDEX:
 			}
 		index = p/q;
 		if(index < 1) {
-			sprintf(line,"Argument index should be a positive integer. Can't accept ‘%ld’",(long)index);
+			sprintf(line,"Argument index should be a positive integer. Can't accept '%ld'",(long)index);
 			Alert1(line);
 			SetField(CsoundInstrMorePtr,-1,fMoreEndIndex + (7*ip),"[?]");
 			SelectField(CsoundInstrMorePtr,-1,fMoreEndIndex + (7*ip),TRUE);
@@ -1612,7 +1612,7 @@ return(OK);	// Csound doesn't care! -- akozar 031907
 /* if(strcmp(strstr(line,".sco"),".sco") == 0) return(OK);
 line[MAXNAME - 1 - strlen(".sco")] = '\0';
 strcat(line,".sco");
-sprintf(Message,"Csound score file was renamed ‘%s’",line);
+sprintf(Message,"Csound score file was renamed '%s'",line);
 ShowMessage(TRUE,wMessage,Message);
 return(FAILED);
 */
@@ -1737,7 +1737,7 @@ CompileOn++;
 ipos = 0; im = MyHandleLen(p_line);
 (*p_CsoundTempo)[j] = tempo = 60.;
 
-if(ShowMessages && !LoadOn) ShowMessage(TRUE,wMessage,"Compiling Csound score…");
+if(ShowMessages && !LoadOn) ShowMessage(TRUE,wMessage,"Compiling Csound score...");
 
 while(TRUE) {
 #if BP_CARBON_GUI
@@ -1801,14 +1801,14 @@ NEWPARAMETER:
 	param = Myatof(line,&p,&q);
 	if(istempo) {
 		if(ip == 1 && param != 0) {
-			sprintf(Message,"BP2 can't compile this Csound score: argument following ‘t’ should be 0. Can't accept %.2f",
+			sprintf(Message,"BP2 can't compile this Csound score: argument following 't' should be 0. Can't accept %.2f",
 				param);
 			Alert1(Message);
 			result = FAILED;
 			goto OUT;
 			}
 		if(ip > 2) {
-			sprintf(Message,"BP2 can't compile this Csound score: more than %ld arguments following ‘t’",
+			sprintf(Message,"BP2 can't compile this Csound score: more than %ld arguments following 't'",
 				(long)ip-1L);
 			Alert1(Message);
 			result = FAILED;
@@ -1816,7 +1816,7 @@ NEWPARAMETER:
 			}
 		if(ip == 2) {
 			if(param <= 0.) {
-				sprintf(Message,"Incorrect Csound score: 2nd argument following ‘t’ should be positive. Can't accept %.2f",
+				sprintf(Message,"Incorrect Csound score: 2nd argument following 't' should be positive. Can't accept %.2f",
 					param);
 				Alert1(Message);
 				result = FAILED;
@@ -1837,7 +1837,7 @@ NEWPARAMETER:
 					if(Jinstr > 1 || ((*p_CsInstrumentIndex)[0] > 0
 							&& param != (*p_CsInstrumentIndex)[0])) {
 						sprintf(Message,
-							"Can't compile Csound score because instrument %ld is not defined. You may modify or load the ‘-cs’ file",
+							"Can't compile Csound score because instrument %ld is not defined. You may modify or load the '-cs' file",
 							(long)param);
 						Alert1(Message);
 						if((*p_CsoundInstr)[j] > 0) {
@@ -1988,7 +1988,7 @@ NEXTLINE:
 					(long)(ip-1));
 			Alert1(Message);
 			if(Jinstr < 2)
-				Alert1("You probably forgot to create or load a ‘-cs’ instrument file");
+				Alert1("You probably forgot to create or load a '-cs' instrument file");
 			if((*p_CsoundInstr)[j] > 0) {
 #if BP_CARBON_GUI
 				ShowWindow(Window[wPrototype1]);
@@ -2083,7 +2083,7 @@ if((rep=ClearWindow(NO,wPrototype7)) != OK) return(rep);
 CompileOn++;
 
 if(ShowMessages && !LoadOn)
-	ShowMessage(TRUE,wMessage,"The Csound score of this object is being updated…");
+	ShowMessage(TRUE,wMessage,"The Csound score of this object is being updated...");
 
 if(DurationToPoint(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) {
 	if(CompileOn) CompileOn--;
@@ -2110,7 +2110,7 @@ for(ievent=ZERO; ievent < (*p_CsoundSize)[j]; ievent++) {
 		}
 	if(ins >= Jinstr) {
 		if(instrumentindex > 1) {
-			Alert1("Can't decompile this Csound score. We need a ‘-cs’ file describing Csound instruments");
+			Alert1("Can't decompile this Csound score. We need a '-cs' file describing Csound instruments");
 			PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j);
 			BPActivateWindow(SLOW,wCsoundInstruments);
 			DurationToPoint(NULL,pp_CsoundTime,p_CsoundSize,j);
@@ -2196,7 +2196,7 @@ InterruptCompileCscore(void)
 int r;
 
 Interrupted = TRUE;
-ShowMessage(TRUE,wMessage,"Cscore compilation has been interrupted. Click ‘Resume’ or ‘Stop’");
+ShowMessage(TRUE,wMessage,"Cscore compilation has been interrupted. Click 'Resume' or 'Stop'");
 while((r = MainEvent()) != RESUME && r != STOP && r != EXIT);
 if(r == STOP) r = ABORT;
 if(r == RESUME) {
@@ -2237,11 +2237,11 @@ if(j < Jinstr) return((*p_CsInstrumentIndex)[j]);
 
 ERR:
 if(Jinstr < 2) {
-	Print(wTrace,"\rYou probably forgot to create or load a ‘-cs’ instrument file\r");
+	Print(wTrace,"\rYou probably forgot to create or load a '-cs' instrument file\r");
 	}
-if(isnumber) sprintf(Message,"Instrument %ld was not found in the ‘-cs’ instrument file\r",
+if(isnumber) sprintf(Message,"Instrument %ld was not found in the '-cs' instrument file\r",
 	(long) i);
-else sprintf(Message,"Instrument “%s” was not found in the ‘-cs’ instrument file\r",
+else sprintf(Message,"Instrument \"%s\" was not found in the '-cs' instrument file\r",
 	line);
 Print(wTrace,Message);
 return(ABORT);

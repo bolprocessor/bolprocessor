@@ -530,7 +530,7 @@ int DoKeyCommand(EventRecord *p_event)
 				MaintainMenus();
 				BPActivateWindow(SLOW,wControlPannel);
 				if(Mute) {
-					sprintf(Message,"MUTE is ON…   cmd-space will turn if off");
+					sprintf(Message,"MUTE is ON...   cmd-space will turn if off");
 					FlashInfo(Message);
 					ShowMessage(TRUE,wMessage,Message);
 					}
@@ -663,7 +663,7 @@ if(w != wMessage && Editable[w] && !LockedWindow[w]) {
 					FilePrefix[wMIDIorchestra]);
 				break;
 			case wGrammar:
-				sprintf(line,"%s<alphabet>\r%s<interactive code file>\r%s<settings file>\r%s<glossary file>\r%s<time base file>\r%s<MIDI orchestra file>\r\r// Put grammar rules here\r\rCOMMENT:\rThis is an empty grammar…",
+				sprintf(line,"%s<alphabet>\r%s<interactive code file>\r%s<settings file>\r%s<glossary file>\r%s<time base file>\r%s<MIDI orchestra file>\r\r// Put grammar rules here\r\rCOMMENT:\rThis is an empty grammar...",
 					FilePrefix[wAlphabet],FilePrefix[wInteraction],
 					FilePrefix[iSettings],FilePrefix[wGlossary],FilePrefix[wTimeBase],
 					FilePrefix[wMIDIorchestra]);
@@ -674,15 +674,15 @@ if(w != wMessage && Editable[w] && !LockedWindow[w]) {
 					FilePrefix[wMIDIorchestra]);
 				break;
 			case wInteraction:
-				sprintf(line,"BP2 script\r// Here you may write a script fixing the interactive environment (IN... instructions) or load a ‘%s’ interactive code file.\r",
+				sprintf(line,"BP2 script\r// Here you may write a script fixing the interactive environment (IN... instructions) or load a '%s' interactive code file.\r",
 					FilePrefix[wInteraction]);
 				break;
 			case wGlossary:
-				sprintf(line,"BP2 script\r// Here you may write the glossary (‘Define…’ instructions) or load a ‘%s’ glossary file.\r",
+				sprintf(line,"BP2 script\r// Here you may write the glossary ('Define...' instructions) or load a '%s' glossary file.\r",
 					FilePrefix[wGlossary]);
 				break;
 			case wScript:
-				sprintf(line,"BP2 script\r// Here you may write a script (See ‘Script’ menu) or load a ‘%s’ script file.\r",
+				sprintf(line,"BP2 script\r// Here you may write a script (See 'Script' menu) or load a '%s' script file.\r",
 					FilePrefix[wScript]);
 				break;
 			case wStartString:
@@ -1722,7 +1722,7 @@ if((changed || FileName[w][0] != '\0') && w != iSettings && w != wTrace
 	}
 else if (w == iSettings) {
 	if (Created[iSettings] && FileName[iSettings][0] != 0) {
-		sprintf(Message, "Save ‘%s’", FileName[iSettings]);
+		sprintf(Message, "Save '%s'", FileName[iSettings]);
 		c2pstrcpy(PascalLine, Message);
 		SetMenuItemText(myMenus[fileM], fmSaveSettings, PascalLine);
 		}
@@ -1970,7 +1970,7 @@ if((!Dirty[w] && !LockedWindow[w] && (NeedSave[w] || HasFields[w]))
 		|| w == iSettings) {
 	Dirty[w] = TRUE;
 	MaintainMenus();
-	DrawMenuBar();	/* Needed to update the “save” command */
+	DrawMenuBar();	/* Needed to update the "save" command */
 	}
 return(OK);
 }

@@ -78,14 +78,14 @@ Expect(char c,char* string,char d)
 char line[MAXLIN];
 
 if(isspace(d))
-	sprintf(line,"Expecting ‘%c’ after ‘%s’. Found a space instead.\r",
+	sprintf(line,"Expecting '%c' after '%s'. Found a space instead.\r",
 		c,string);
 else
 	if(isgraph(d))
-		sprintf(line,"Expecting ‘%c’ after ‘%s’. Found ‘%c’ instead.\r",
+		sprintf(line,"Expecting '%c' after '%s'. Found '%c' instead.\r",
 			c,string,d);
 	else
-		sprintf(line,"Expecting ‘%c’ after ‘%s’. Found ‘%c’ (ASCII %ld) instead.\r",
+		sprintf(line,"Expecting '%c' after '%s'. Found '%c' (ASCII %ld) instead.\r",
 			c,string,d,(long)((256L + d) % 256L));
 Print(wTrace,line);
 return(OK);
@@ -150,7 +150,7 @@ MyDisposeHandle((Handle*)&p_line);
 
 /* Load target from help file */
 
-ShowMessage(TRUE,wMessage,"Searching the ‘BP2 help’ data-base…");
+ShowMessage(TRUE,wMessage,"Searching the 'BP2 help' data-base...");
 FlashInfo(target);
 pos1 = GetTextLength(wHelp);
 SetSelect(pos1,pos1,TEH[wHelp]);
@@ -945,7 +945,7 @@ if (GetLinkedFileName(w,wKeyboard,name) == OK) {
 		}
 	else {
 		if(Token && FileName[wKeyboard][0] == '\0') {
-			if(!ScriptExecOn) Alert1("You can't use tokens (‘Misc’ menu) unless you define ‘-kb.’ file in alphabet");
+			if(!ScriptExecOn) Alert1("You can't use tokens ('Misc' menu) unless you define '-kb.' file in alphabet");
 			Token = FALSE;
 			result = ABORT;
 			}
@@ -1056,7 +1056,7 @@ switch(j) {
 	case 13:
 		MakeRatio((double)ULONG_MAX,x,&p,&q);
 		if(p < 0.) {
-			sprintf(Message,"Metronome cannot be set to negative value. ‘%.4f’ not accepted",
+			sprintf(Message,"Metronome cannot be set to negative value. '%.4f' not accepted",
 				x);
 			Alert1(Message);
 			return(ABORT);
@@ -1071,7 +1071,7 @@ switch(j) {
 		break;
 	case 14:
 		if(Pclock < 1. && !NotFoundMetronom) {
-			Alert1("Setting time to ‘striated’ is inconsistent with having no clock");
+			Alert1("Setting time to 'striated' is inconsistent with having no clock");
 			striated = FALSE;
 			goto MAKECHANGE;
 			}
@@ -1712,7 +1712,7 @@ if(MIDIfadeOut < 0. || MIDIfadeOut > 100.) {
 	BPUpdateDialog(FileSavePreferencesPtr);
 	SelectField(FileSavePreferencesPtr,-1,fFadeOut,TRUE);
 	Alert1("Range for MIDI fade out is 0..100 seconds");
-	result = AnswerWith("Set fade out to…","0.00",line);
+	result = AnswerWith("Set fade out to...","0.00",line);
 	if(result != OK) goto ERR;
 	else {
 		Myatof(line,&p,&q);
@@ -1971,12 +1971,12 @@ while(!WaitNextEvent(everyEvent,&theEvent,3L,NULL) || ((theEvent.what != keyDown
 		while((r = MainEvent()) != RESUME && r != STOP && r != EXIT){};
 		if(r == EXIT) r = STOP;
 		if(Dirty[wAlphabet]) {
-			Alert1("Alphabet changed. Must recompile…");
+			Alert1("Alphabet changed. Must recompile...");
 			return('Q');
 			}
 		Dirty[wAlphabet] = dirtymem;
 		if(compiledmem && !CompiledGr) {
-			Alert1("Grammar changed. Must recompile…");
+			Alert1("Grammar changed. Must recompile...");
 			return('Q');
 			}
 		if(r == STOP) return('Q');
@@ -2087,7 +2087,7 @@ if(found) return(j);
 
 if(j >= MAXSTRINGCONSTANTS) {
 	sprintf(Message,
-			"Too many identifiers found (max %ld)\rCan't store ‘%s’\r",
+			"Too many identifiers found (max %ld)\rCan't store '%s'\r",
 				(long)MAXSTRINGCONSTANTS,line);
 	Alert1(Message);
 	return(ABORT);
@@ -2137,7 +2137,7 @@ for(j=ZERO; j < maxparam; j++) {
 if(j < maxparam) return(j);
 if(j >= 256) {
 	sprintf(Message,
-		"Too many numeric constants found (max 256)\rCan't store ‘%s’\r",line);
+		"Too many numeric constants found (max 256)\rCan't store '%s'\r",line);
 	Alert1(Message);
 	return(ABORT);
 	}

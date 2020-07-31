@@ -472,7 +472,7 @@ else {
 if(strlen(line) > MAXNAME) {
 	line[MAXNAME-1] = '…';
 	line[MAXNAME] = '\0';
-	sprintf(Message,"File name is too long. Truncating to ‘%s’",line);
+	sprintf(Message,"File name is too long. Truncating to '%s'",line);
 	Alert1(Message);
 	BPActivateWindow(QUICK,w);
 	SetField(thedialog,w,field,line);

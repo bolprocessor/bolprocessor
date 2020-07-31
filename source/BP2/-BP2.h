@@ -1620,7 +1620,7 @@ typedef enum {
 // --------------  Types -----------------------------
 
 // Decide between pointers and handles.
-// I always notate Òp_XÓ the handle of table X
+// I always notate "p_X" the handle of table X
 // #if MACOS
 //	#define h_(x) *p_(x)
 // #else

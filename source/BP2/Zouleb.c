@@ -90,7 +90,7 @@ while(TRUE) {
 	if(m == TEND && p == TEND) {
 		break;
 		}
-	if(m == T0 && (p == 13 || p == 14 || p == 23)) {	/*  Ô,Õ or  Ô}Õ */
+	if(m == T0 && (p == 13 || p == 14 || p == 23)) {	/*  ',' or  '}' */
 		break;
 		}
 	switch(m) {
@@ -177,7 +177,7 @@ STORE:
 			m = (**pp_a)[i];
 			}
 		while(m == T1);
-		if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 11) {	/* Ô/Õ */
+		if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 11) {	/* '/' */
 			do {
 				i += 2L;
 				m = (**pp_a)[i];
@@ -189,7 +189,7 @@ STORE:
 		continue;
 		}
 	
-	if(m == T0 && (p == 11 || p == 21 || p == 24 || p == 25)) {	/* Ô/Õ Ô*Õ Ô**Õ Ô\Õ */
+	if(m == T0 && (p == 11 || p == 21 || p == 24 || p == 25)) {	/* '/' '*' '**' '\' */
 		do {
 			i += 2L;
 			m = (**pp_a)[i];
@@ -198,7 +198,7 @@ STORE:
 		continue;
 		}
 		
-	if(m == T0 && (p == 12 || p == 22)) {	/* Ô{Õ */
+	if(m == T0 && (p == 12 || p == 22)) {	/* '{' */
 		origin = i;
 		newpos = i + 2L;
 		newlevel = orglevel + 1;
@@ -266,17 +266,17 @@ while(TRUE) {
 		(*p_pos_init) = i + (2L * more);
 		break;
 		}
-	if(m == T0 && p == 14) {		/* Ô,Õ */
+	if(m == T0 && p == 14) {		/* ',' */
 		(*p_pos_init) = i + (2L * (more + 1));
 		break;
 		}
-	if(m == T0 && (p == 13 || p == 23)) {	/* Ô}Õ */
+	if(m == T0 && (p == 13 || p == 23)) {	/* '}' */
 		(*p_level)--;
 		(*p_pos_init) = i + (2L * (isbracket + more));
 		break;
 		}
 		
-	if(m == T0 && (p == 12 || p == 22)) {	/* Ô{Õ */
+	if(m == T0 && (p == 12 || p == 22)) {	/* '{' */
 		if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto OUT;
 		GetChunk(p_chunk,&ichunk,nchunks,rndseq,retro,rotate,&ib,&ibmax,&i,*pp_a,p_b,p_index,(p == 22),
 			&more);
@@ -317,7 +317,7 @@ GETITBACK:
 		break;
 		}
 	
-	if(m == T0 && (p == 11 || p == 21 || p == 24 || p == 25)) {	/* Ô/Õ Ô*Õ Ô**Õ Ô\Õ */
+	if(m == T0 && (p == 11 || p == 21 || p == 24 || p == 25)) {	/* '/' '*' '**' '\' */
 		do {
 			(*p_b)[ib++] = m; (*p_b)[ib++] = p;
 			if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto OUT;

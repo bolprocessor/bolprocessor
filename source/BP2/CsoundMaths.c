@@ -266,7 +266,7 @@ return(y);
 
 DO_OVERFLOW:
 sprintf(Message,
-	"Parameter value ‘%.2f’ is out of range…\rCheck parameter mappings in Csound instrument %ld",
+	"Parameter value '%.2f' is out of range...\rCheck parameter mappings in Csound instrument %ld",
 	xin,(long)(*p_CsInstrumentIndex)[ins]);
 Alert1(Message);
 iCsoundInstrument = ins;
@@ -335,7 +335,7 @@ return(x);
 
 DO_OVERFLOW:
 sprintf(Message,
-	"Parameter value ‘%.2f’ does not match specified range: check parameter mappings in Csound instrument %ld",
+	"Parameter value '%.2f' does not match specified range: check parameter mappings in Csound instrument %ld",
 	yin,(long)(*p_CsInstrumentIndex)[ins]);
 iCsoundInstrument = ins;
 #if BP_CARBON_GUI

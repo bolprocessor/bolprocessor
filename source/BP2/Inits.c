@@ -1763,7 +1763,7 @@ InsertMenu(myMenus[appleM],0) ;
 #endif
 
 for (i = fileM; i <= MAXMENU; i++) {
-	/* Also loading ‘Script’ menu */
+	/* Also loading 'Script' menu */
 	myMenus[i] = GetMenu(MenuIDoffset + i);
 	InsertMenu(myMenus[i],0);
 	}
@@ -2009,7 +2009,7 @@ else {
 		CloseMe(&refnum);
 //		if(Beta) goto MAKE;
 		if((today-secs) > (86400L * 30L)) {
-			Alert1("This copy of BP2 has been used for more than 30 days.\rIt's a good idea to click the ‘Register’ button...");
+			Alert1("This copy of BP2 has been used for more than 30 days.\rIt's a good idea to click the 'Register' button...");
 			goto REGISTERED;
 			}
 		goto OUT;
@@ -2039,7 +2039,7 @@ MAKE:
 		io = FSpGetFInfo(&spec,&fndrinfo);
 		fndrinfo.fdFlags |= fInvisible;
 		io = FSpSetFInfo(&spec,&fndrinfo);
-		Alert1("This is a fresh copy of BP2.\rIt's a good idea to click the ‘Register’ button...");
+		Alert1("This is a fresh copy of BP2.\rIt's a good idea to click the 'Register' button...");
 REGISTERED:
 		Alert1("If you already registered, contact <bel@kagi.com> to get an activation key");
 		}
@@ -2199,9 +2199,9 @@ if(io == noErr) {
 			BPActivateWindow(SLOW,wGrammar);
 			Println(wNotice,"\r\rPhew! BP2 survived the shock...\r");
 			Println(wNotice,"You'd better check your bank account, retirement planning, etc.\r");
-			Println(wNotice,"It's an auspicious day to click the ‘Register’ button if you never tried it and the bank hasn't screwed up your account ;-)\r\r");
+			Println(wNotice,"It's an auspicious day to click the 'Register' button if you never tried it and the bank hasn't screwed up your account ;-)\r\r");
 			Println(wNotice,"With you, forever,\r\r");
-			Println(wNotice,"•    •   •  • • Bol Processor folks • •  •   •    •\r\r");
+			Println(wNotice,"*    *   *  * * Bol Processor folks * *  *   *    *\r\r");
 			Println(wNotice,"             (Click mouse to continue)");
 			while(!Button());
 			FSClose(y2krefnum);

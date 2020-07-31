@@ -96,7 +96,7 @@ if(version < 0x02000000) {
 	return 1;
 	}
 	
-ShowMessage(TRUE,wMessage,"BP2 is signing in to OMSÉ");
+ShowMessage(TRUE,wMessage,"BP2 is signing in to OMS...");
 	
 #ifdef powerc
 	appHook = NewOMSAppHook(MyAppHook);
@@ -116,11 +116,11 @@ err = OMSSignIn(appSignature,(long)LMGetCurrentA5(),LMGetCurApName(),appHook,
 	as stored in the low-memory global CurApName. */
 
 if(err) {
-	Alert1("OMS is installed but BP2 failed to sign in.\rIt's a good idea to restart the computer and run ÔOMS SetupÕ");
+	Alert1("OMS is installed but BP2 failed to sign in.\rIt's a good idea to restart the computer and run 'OMS Setup'");
 	TellError(88,err);
 	return err;
 	}
-FlashInfo("OMS MIDI driver is openÉ");
+FlashInfo("OMS MIDI driver is open...");
 
 /*	Add an input port */
 
@@ -130,7 +130,7 @@ gChosenInputID = 0; /* $$$ */
 	err = OMSAddPort(appSignature,InputPortID,omsPortTypeInput2,(OMSReadHook2UPP)readHook,
 		(long)LMGetCurrentA5(),&gInputPortRefNum);
 	if(err) {
-		Alert1("OMS couldn't set up its MIDI input port using default settings. You will need to setup the input, modify Ô-se.startupÕ and restart");
+		Alert1("OMS couldn't set up its MIDI input port using default settings. You will need to setup the input, modify '-se.startup' and restart");
 		MustChangeInput = TRUE;
 		}
 //	}
@@ -278,7 +278,7 @@ if(opening) {
 	err = OMSOpenConnections('Bel0',InputPortID,1,&conn,FALSE);
 	switch(err) {
 		case noErr:
-			sprintf(Message,"Opened MIDI input Ô%sÕ ID = %ld",
+			sprintf(Message,"Opened MIDI input '%s' ID = %ld",
 				OMSinputName,(long)InputPortID);
 			ShowMessage(TRUE,wMessage,Message);
 			SchedulerIsActive++;
@@ -288,7 +288,7 @@ if(opening) {
 			if(!tried) {
 				tried = TRUE;
 				if(Beta) {
-					sprintf(Message,"Port not found, MIDI input Ô%sÕ ID = %ld. Trying to add itÉ",
+					sprintf(Message,"Port not found, MIDI input '%s' ID = %ld. Trying to add it...",
 						OMSinputName,(long)InputPortID);
 					ShowMessage(YES,wMessage,Message);
 					}
@@ -296,7 +296,7 @@ if(opening) {
 					(long)LMGetCurrentA5(),&gInputPortRefNum);
 				if(err == noErr) goto TRY;
 				if(Beta) {
-					sprintf(Message,"Unable to add this port, MIDI input Ô%sÕ ID = %ld",
+					sprintf(Message,"Unable to add this port, MIDI input '%s' ID = %ld",
 						OMSinputName,(long)InputPortID);
 					ShowMessage(YES,wMessage,Message);
 					}
@@ -306,14 +306,14 @@ if(opening) {
 			gChosenInputID = 0;
 			if(ScriptExecOn) {
 				sprintf(Message,
-					"\rOMS failed to find Ô%sÕ input device. You should modify project settings or Ô-se.startupÕÉ",
+					"\rOMS failed to find '%s' input device. You should modify project settings or '-se.startup'...",
 					OMSinputName);
 				Println(wTrace,Message);
 				}
 			else {
 				if(startup) {
 					sprintf(Message,
-						"OMS failed to find Ô%sÕ input device. I will help you to find it and modify Ô-se.startupÕÉ",
+						"OMS failed to find '%s' input device. I will help you to find it and modify '-se.startup'...",
 						OMSinputName);
 					Alert1(Message);
 					DisplayHelp("OMS setting default input device");
@@ -322,7 +322,7 @@ if(opening) {
 					}
 				else {
 					sprintf(Message,
-						"OMS failed to find Ô%sÕ input device. You should modify project settings or Ô-se.startupÕÉ",
+						"OMS failed to find '%s' input device. You should modify project settings or '-se.startup'...",
 						OMSinputName);
 					Alert1(Message);
 					}
@@ -340,7 +340,7 @@ if(opening) {
 		}
 	}
 else {
-	sprintf(Message,"Closed MIDI input Ô%sÕ ID = %ld",OMSinputName,(long)gChosenInputID);
+	sprintf(Message,"Closed MIDI input '%s' ID = %ld",OMSinputName,(long)gChosenInputID);
 	ShowMessage(TRUE,wMessage,Message);
 	if(gInputMenu != NULL)
 		SetOMSDeviceMenuSelection(gInputMenu,0,gChosenInputID,"\p",FALSE);
@@ -524,11 +524,11 @@ if(gOutNodeRefNum == OMSInvalidRefNum) {
 err = OMSAddPort('Bel0',OutputPortID,omsPortTypeOutput,NULL,0L,&gOutputPortRefNum);
 if(err) {
 	if(err != 4) TellError(91,err);
-	else ShowMessage(TRUE,wMessage,"This port was already openÉ");
+	else ShowMessage(TRUE,wMessage,"This port was already open...");
 	return(FAILED);
 	}
 else {
-	sprintf(Message,"Opened MIDI output Ô%sÕ ID = %ldÉ",OMSoutputName,gChosenOutputID);
+	sprintf(Message,"Opened MIDI output '%s' ID = %ld...",OMSoutputName,gChosenOutputID);
 	ShowMessage(TRUE,wMessage,Message);
 	}
 SetMIDIPrograms();
@@ -579,7 +579,7 @@ if(gOutNodeRefNum == OMSInvalidRefNum) {
 			}
 		}
 	}
-/* else gChosenOutputID had been read in Ô-se.startupÕ and it was acceptable */
+/* else gChosenOutputID had been read in '-se.startup' and it was acceptable */
 if(nodelist != NULL) OMSDisposeHandle(nodelist);
 
 if(gChosenInputID == 0) gChosenInputID = FindOMSdevice(YES,OMSinputName);
@@ -720,9 +720,9 @@ int rep;
 
 if(!MustChangeInput) return(OK);
 
-Alert1("Let us store the default MIDI input to Ô-se.startupÕ, then restart BP2É");
+Alert1("Let us store the default MIDI input to '-se.startup', then restart BP2...");
 if(mSaveStartup(0) == OK) {
-	rep = Answer("Now you should quit and restart BP2É  OK",'Y');
+	rep = Answer("Now you should quit and restart BP2...  OK",'Y');
 	if(rep == YES) return(EXIT);
 	}
 else {

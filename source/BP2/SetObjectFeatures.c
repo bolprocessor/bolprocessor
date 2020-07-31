@@ -209,7 +209,7 @@ if(j > 0 && j < Jbol) {
 		/* Here we need (*p_DefaultChannel)[1] = 0. */
 		(*p_Instance)[k].channel = (*p_DefaultChannel)[j];
 		if((*p_Instance)[k].channel > MAXCHAN || (*p_Instance)[k].channel < 1) {
-			sprintf(Message,"Ô%sÕ has channel %ld.  Should be 1..%ld\r",
+			sprintf(Message,"'%s' has channel %ld.  Should be 1..%ld\r",
 				(*((*p_Bol)[j])),(long)(*p_DefaultChannel)[j],(long)MAXCHAN);
 			Print(wTrace,Message);
 			ShowError(32,0,0);
@@ -390,7 +390,7 @@ for(i=id+2L; ; i+=2L) {
 	if(m == TEND && p == TEND) break;
 	if(m == T0) {
 		switch(p) {
-			case 11:	/* Ô/Õ speed up */
+			case 11:	/* '/' speed up */
 				speed = GetScalingValue(p_buff,i);
 				if(scale != 0.) {
 					tempo = speed / scale;
@@ -399,7 +399,7 @@ for(i=id+2L; ; i+=2L) {
 				else tempo = prodtempo = 0.;
 				i += 4;
 				break;
-			case 25:	/* Ô\Õ speed down */
+			case 25:	/* '\' speed down */
 				speed = 1. / (GetScalingValue(p_buff,i));
 				if(scale != 0.) {
 					tempo = speed / scale;
@@ -408,7 +408,7 @@ for(i=id+2L; ; i+=2L) {
 				else tempo = prodtempo = 0.;
 				i += 4;
 				break;
-			case 21:	/* Ô*Õ scale up */
+			case 21:	/* '*' scale up */
 				scale = GetScalingValue(p_buff,i);
 				if(scale != 0.) {
 					tempo = speed / scale;
@@ -418,7 +418,7 @@ for(i=id+2L; ; i+=2L) {
 				i += 4;
 				continue;
 				break;
-			case 24:	/* Ô**Õ scale down */
+			case 24:	/* '**' scale down */
 				s = GetScalingValue(p_buff,i);
 				scale = 1. / s;
 				if(scale != 0.) {
@@ -429,7 +429,7 @@ for(i=id+2L; ; i+=2L) {
 				i += 4;
 				continue;
 				break;
-			case 12:	/* Ô{Õ */
+			case 12:	/* '{' */
 			case 22:
 				if(seq == seqmem && objectsfound > 0 && !foundconcatenation) {
 					okincrease = FALSE;
@@ -449,7 +449,7 @@ for(i=id+2L; ; i+=2L) {
 					}
 				seq = 0;
 				break;
-			case 13:	/* Ô}Õ */
+			case 13:	/* '}' */
 			case 23:
 				if(seq == seqmem && objectsfound > 0 && !foundconcatenation)
 					okincrease = FALSE;
@@ -471,20 +471,20 @@ for(i=id+2L; ; i+=2L) {
 					}
 				continue;
 				break;
-			case 14:	/* Ô,Õ */
+			case 14:	/* ',' */
 				if(seq == seqmem && objectsfound > 0 && !foundconcatenation) {
 					okincrease = FALSE;
 					}
 				if(foundconcatenation && !foundclosingbracket) notinthisfield = TRUE;
 				seq++;
 				break;
-			case 18:	/* Ô&Õ following terminal */
+			case 18:	/* '&' following terminal */
 				if(level == levelmem && seq == seqmem) {
 					foundconcatenation = TRUE;
 					notinthisfield = foundclosingbracket = FALSE;
 					}
 				break;
-			case 19:	/* Ô&Õ preceding terminal */
+			case 19:	/* '&' preceding terminal */
 				if(!foundconcatenation) continue;
 				if(!notinthisfield) foundendconcatenation = TRUE;
 				break;
@@ -788,7 +788,7 @@ while(TRUE) {
 	if(k < 0) break;
 	inext = i;
 	while((*((*p_Seq)[nseq]))[++inext] == 0);
-	if(k > 1) {					/* Ignoring silences Ò-Ó except if specs attached */
+	if(k > 1) {					/* Ignoring silences "-" except if specs attached */
 		if(k >= Maxevent) {
 			if(Beta) Alert1("Err. Fix(). k >= Maxevent");
 			return(ABORT);
@@ -850,7 +850,7 @@ if(nseq >= Maxconc) {
 	if(Beta) Println(wTrace,"\rErr. Calculate_alpha(). nseq >= Maxconc");
 	return(OK);
 	}
-(*p_Instance)[0].alpha = (*p_Instance)[1].alpha = 0.;	/* Ô_Õ and Ô-Õ */
+(*p_Instance)[0].alpha = (*p_Instance)[1].alpha = 0.;	/* '_' and '-' */
 if(nature_time == SMOOTH) clockperiod = ((double) Pclock) * 1000. / Qclock;
 i = 0;
 while((k=(*((*p_Seq)[nseq]))[++i]) < 1) {
@@ -968,7 +968,7 @@ FINDNEXTMARKED:
 	for(i=iprev; i < inextm;) {			/* Calculate sigmaridi */
 		if(i < imaxseq) {
 			k = (*((*p_Seq)[nseq]))[i];
-			/* Here we will also consider silences Ò-Ó and empty objects Ò_Ó */
+			/* Here we will also consider silences "-" and empty objects "_" */
 			inext = i; while((*((*p_Seq)[nseq]))[++inext] == 0);
 			}
 		else {
@@ -1066,7 +1066,7 @@ FINDNEXTMARKED:
 			jprev = j; kprev = k;
 			}
 		if(k == 1 && !(*p_marked)[inext]) {
-			/* This is a ÒshortÓ silence beginning in the same section */
+			/* This is a "short" silence beginning in the same section */
 			(*p_T)[inext] = currenttime + alpha * dur;
 			(*p_marked)[inext] = TRUE;
 			}
@@ -1437,7 +1437,7 @@ for(i=id+2L; ; i+=2) {
 	if(m == TEND && p == TEND) break;
 	if(m == T0) {
 		switch(p) {
-			case 11:	/* Ô/Õ speed up */
+			case 11:	/* '/' speed up */
 				speed = GetScalingValue(p_buff,i);
 				if(scale != 0.) {
 					tempo = speed / scale;
@@ -1449,7 +1449,7 @@ for(i=id+2L; ; i+=2) {
 				i += 4;
 				continue;
 				break;
-			case 25:	/* Ô\Õ speed down */
+			case 25:	/* '\' speed down */
 				speed = 1. / (GetScalingValue(p_buff,i));
 				if(scale != 0.) {
 					tempo = speed / scale;
@@ -1461,7 +1461,7 @@ for(i=id+2L; ; i+=2) {
 				i += 4;
 				continue;
 				break;
-			case 21:	/* Ô*Õ scale up */
+			case 21:	/* '*' scale up */
 				scale = GetScalingValue(p_buff,i);
 				if(scale != 0.) {
 					tempo = speed / scale;
@@ -1473,7 +1473,7 @@ for(i=id+2L; ; i+=2) {
 				i += 4;
 				continue;
 				break;
-			case 24:	/* Ô**Õ scale down */
+			case 24:	/* '**' scale down */
 				s = GetScalingValue(p_buff,i);
 				scale = 1. / s;
 				if(scale != 0.) {
@@ -1486,7 +1486,7 @@ for(i=id+2L; ; i+=2) {
 				i += 4;
 				continue;
 				break;
-			case 12:	/* Ô{Õ */
+			case 12:	/* '{' */
 			case 22:
 				if(!foundconcatenation || ignoreconcat) goto OUT;
 				if(level >= 0) {
@@ -1503,7 +1503,7 @@ for(i=id+2L; ; i+=2) {
 					orgobjectduration = objectduration;
 					}
 				break;
-			case 13:	/* Ô}Õ */
+			case 13:	/* '}' */
 			case 23:
 				if(!foundconcatenation || ignoreconcat) goto OUT;
 				if(level == 0) foundclosingbracket = TRUE;
@@ -1517,7 +1517,7 @@ for(i=id+2L; ; i+=2) {
 					notinthisfield = FALSE;
 					}
 				break;
-			case 14:	/* Ô,Õ */
+			case 14:	/* ',' */
 				if(!foundconcatenation || ignoreconcat) goto OUT;
 				if(!foundclosingbracket) notinthisfield = TRUE;
 				if(!notinthisfield) {
@@ -1525,17 +1525,17 @@ for(i=id+2L; ; i+=2) {
 					}
 				seq++;
 				break;
-			case 7:		/* Ô.Õ */
+			case 7:		/* '.' */
 				if(!foundconcatenation || ignoreconcat) goto OUT;
 				break;
-			case 18:	/* Ô&Õ following terminal */
+			case 18:	/* '&' following terminal */
 				if(ignoreconcat) goto OUT;
 				if(level == 0 && seq == 0) {
 					foundconcatenation = TRUE;
 					notinthisfield = foundclosingbracket = FALSE;
 					}
 				break;
-			case 19:	/* Ô&Õ preceding terminal */
+			case 19:	/* '&' preceding terminal */
 				if(!foundconcatenation || ignoreconcat) goto OUT;
 				if(!notinthisfield)
 					foundendconcatenation = TRUE;
@@ -1569,7 +1569,7 @@ for(i=id+2L; ; i+=2) {
 
 OUT:
 if(foundconcatenation && !ignoreconcat) {
-	if(ShowMessages) Println(wTrace,"An unbound concatenation Ô&Õ was ignored");
+	if(ShowMessages) Println(wTrace,"An unbound concatenation '&' was ignored");
 	objectduration = 0.;
 	}
 MyDisposeHandle((Handle*)&p_seq);

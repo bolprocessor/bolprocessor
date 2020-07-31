@@ -99,7 +99,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 
 if(ShowMessages || bigitem) {
 	HideWindow(Window[wInfo]);
-	ShowMessage(TRUE,wMessage,"Setting time streaksÉ");
+	ShowMessage(TRUE,wMessage,"Setting time streaks...");
 	}
 	
 in = 1.; jn = ZERO;
@@ -261,7 +261,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 // End display
 
 if(ShowMessages || bigitem) {
-	sprintf(Message,"Positioning %ld sound-objectsÉ",(long)(*p_kmx));
+	sprintf(Message,"Positioning %ld sound-objects...",(long)(*p_kmx));
 	ShowMessage(TRUE,wMessage,Message);
 	}
 if(DoSystem() != OK) return(ABORT);
@@ -340,7 +340,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 			result = r; goto EXIT1;
 			}
 		if(Dirty[wAlphabet]) {
-			Alert1("Alphabet changed. Must recompileÉ");
+			Alert1("Alphabet changed. Must recompile...");
 			result = ABORT; goto EXIT1;
 			}
 		Dirty[wAlphabet] = dirtymem;
@@ -391,7 +391,7 @@ TRY:
 	if(r == FAILED || r == QUICK) {
 		result = FAILED;
 		if(ShowGraphic || !Improvize) {
-			FlashInfo("Must release constraintsÉ");
+			FlashInfo("Must release constraints...");
 			}
 		if(r == QUICK) {	/* Find a quick solution */
 			if(ShowMessages) ShowMessage(TRUE,wMessage,"Quick!");
@@ -521,7 +521,7 @@ QUEST2:
 		}
 	if(BTflag) {
 		if(ShowMessages && bigitem)
-			ShowMessage(TRUE,wMessage,"Starting again algorithm (broke tempo)É");
+			ShowMessage(TRUE,wMessage,"Starting again algorithm (broke tempo)...");
 		if(DisplayTimeSet) {
 			sprintf(Message,"\rBroke tempo. T[i], i = 1,maxseq:\r");
 			Print(wTrace,Message);

@@ -43,12 +43,12 @@ PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int nocode
 	tokenbyte ***pp_b, tokenbyte ***pp_a)
 
 /* datamode = TRUE: space according to metre, FALSE: no space */
-/* nocode = FALSE: copy pp_a to file f, if not NULL, or window ÔwindÕ */
+/* nocode = FALSE: copy pp_a to file f, if not NULL, or window 'wind' */
 /* nocode = TRUE and istemplate = FALSE: copy pp_a without structure to array pp_bÉ */
 /* istemplate = TRUE: match istemplate in pp_a against item in pp_bÉ */
-/* É and replace Ô_Õ in istemplate with terminals in pp_b. */
-/* showtempo: add prolongational gaps using ÒProdÓ */
-/* ret = TRUE: print a ÔreturnÕ at the end */
+/* É and replace '_' in istemplate with terminals in pp_b. */
+/* showtempo: add prolongational gaps using "Prod" */
+/* ret = TRUE: print a 'return' at the end */
 /* ifunc = TRUE: interpret grammar.  Jfunc is the index of '-->' */
 
 {
@@ -103,8 +103,8 @@ if(istemplate) {
 		if(m == TEND && p == TEND) break;
 		if(m == T1) continue;
 		if(m != T0) break;
-		if(p == 3) continue;	/* Ô+Õ */
-		if(p == 11) {		/* Ô/Õ */
+		if(p == 3) continue;	/* '+' */
+		if(p == 11) {		/* '/' */
 			speed = GetScalingValue((*pp_a),ia);
 			if(scale != 0.) {
 				tempo = speed / scale;
@@ -113,7 +113,7 @@ if(istemplate) {
 			ia += 4L;
 			continue;
 			}
-		if(p == 25) {		/* Ô\Õ */
+		if(p == 25) {		/* '\' */
 			speed = 1. / (GetScalingValue((*pp_a),ia));
 			if(scale != 0.) {
 				tempo = speed / scale;
@@ -122,7 +122,7 @@ if(istemplate) {
 			ia += 4L;
 			continue;
 			}
-		if(p == 11) {		/* Ô/Õ speed up */
+		if(p == 11) {		/* '/' speed up */
 			speed = 1. / (GetScalingValue((*pp_a),ia));
 			if(scale != 0.) {
 				tempo = speed / scale;
@@ -131,7 +131,7 @@ if(istemplate) {
 			ia += 4L;
 			continue;
 			}
-		if(p == 21) {		/* Ô*Õ scale up */
+		if(p == 21) {		/* '*' scale up */
 			scale = GetScalingValue((*pp_a),ia);
 			if(scale != 0.) {
 				tempo = speed / scale;
@@ -140,7 +140,7 @@ if(istemplate) {
 			ia += 4L;
 			continue;
 			}
-		if(p == 24) {		/* Ô**Õ scale down */
+		if(p == 24) {		/* '**' scale down */
 			scale = 1. / GetScalingValue((*pp_a),ia);
 			if(scale != 0.) {
 				tempo = speed / scale;
@@ -157,8 +157,8 @@ if(istemplate) {
 		if(m == TEND && p == TEND) break;
 		if(m == T1) continue;
 		if(m != T0) break;
-		if(p == 3) continue;	/* Ô+Õ */
-		if(p == 11) {		/* Ô/Õ */
+		if(p == 3) continue;	/* '+' */
+		if(p == 11) {		/* '/' */
 			speed = GetScalingValue((*pp_b),ib);
 			if(scale != 0.) {
 				tempo2 = speed / scale;
@@ -167,7 +167,7 @@ if(istemplate) {
 			ib += 4;
 			continue;
 			}
-		if(p == 25) {		/* Ô\Õ */
+		if(p == 25) {		/* '\' */
 			speed = 1. / (GetScalingValue((*pp_b),ib));
 			if(scale != 0.) {
 				tempo2 = speed / scale;
@@ -176,7 +176,7 @@ if(istemplate) {
 			ib += 4;
 			continue;
 			}
-		if(p == 21) {		/* Ô*Õ scale up */
+		if(p == 21) {		/* '*' scale up */
 			scale = GetScalingValue((*pp_b),ib);
 			if(scale != 0.) {
 				tempo2 = speed / scale;
@@ -185,7 +185,7 @@ if(istemplate) {
 			ib += 4L;
 			continue;
 			}
-		if(p == 24) {		/* Ô**Õ scale down */
+		if(p == 24) {		/* '**' scale down */
 			scale = 1. / GetScalingValue((*pp_b),ib);
 			if(scale != 0.) {
 				tempo2 = speed / scale;
@@ -222,10 +222,10 @@ if((datamode || showtempo) && !istemplate) {
 			}
 		if(m == T0) {
 			switch(p) {
-				case 3:		/* Ô+Õ */
+				case 3:		/* '+' */
 					continue;
 					break;
-				case 11:	/* Ô/Õ speed up */
+				case 11:	/* '/' speed up */
 					speed = GetScalingValue((*pp_a),i);
 					if(scale != 0.) {
 						tempo = speed / scale;
@@ -235,7 +235,7 @@ if((datamode || showtempo) && !istemplate) {
 					i += 4L;
 					continue;
 					break;
-				case 25:	/* Ô\Õ speed down */
+				case 25:	/* '\' speed down */
 					speed = 1. / (GetScalingValue((*pp_a),i));
 					if(scale != 0.) {
 						tempo = speed / scale;
@@ -245,18 +245,18 @@ if((datamode || showtempo) && !istemplate) {
 					i += 4L;
 					continue;
 					break;
-				case 21:	/* Ô*Õ scale up */
+				case 21:	/* '*' scale up */
 					s = GetScalingValue((*pp_a),i);
 					scale = s;
 					i += 4L;
 					break;
-				case 24:	/* Ô**Õ scale down */
+				case 24:	/* '**' scale down */
 					s = GetScalingValue((*pp_a),i);
 					scale = 1. / s;
 					i += 4L;
 					break;
-				case 7:		/* Ô¥Õ */
-				case 14:	/* Ô,Õ */
+				case 7:		/* '¥' */
+				case 14:	/* ',' */
 					print_periods = 0;
 					goto READY;
 				}
@@ -450,10 +450,10 @@ for(i=ia; ; i+=2L) {
 		if((r=CheckPeriodOrLine(print_periods,p_newline,p_newsection,f,th,&beat,numberprolongations,
 				&sp)) != OK) goto OUT;
 		}
-	if(m == T0 && setting_section && (p == 3 || p == 11)) {	/* Ô+Õ  or initial Ô/Õ */
+	if(m == T0 && setting_section && (p == 3 || p == 11)) {	/* '+'  or initial '/' */
 		if(datamode) {
 			if((*p_itab) >= MAXTAB) {
-				Alert1("Too many tab sections: check Ô.+.+./.Õ in begining");
+				Alert1("Too many tab sections: check '.+.+./.' in begining");
 				r = ABORT; goto OUT;
 				}
 			tab[(*p_itab)++] = n;
@@ -472,12 +472,12 @@ for(i=ia; ; i+=2L) {
 	if(m == T0 && p > 10) {
 		if(istemplate) {
 			switch(p) {
-				case 11: /* Ô/Õ speed up */
+				case 11: /* '/' speed up */
 					mm = (**pp_b)[*p_ib];
 					pp = (**pp_b)[*p_ib+1];
-					if(mm == T0 && pp == 21) { /* Ô*Õ scale up */
+					if(mm == T0 && pp == 21) { /* '*' scale up */
 						s = GetScalingValue((*pp_b),*p_ib);
-						if(s == 1.) {	/* Skip Ô*1Õ */
+						if(s == 1.) {	/* Skip '*1' */
 							(*p_ib) += 6L;
 							}
 						}
@@ -490,7 +490,7 @@ for(i=ia; ; i+=2L) {
 			continue;
 			}
 		switch(p) {
-			case 11: /* Ô/Õ speed up */
+			case 11: /* '/' speed up */
 				speed = GetScalingValue((*pp_a),i);
 				if((*p_scale) != 0.) {
 					tempo = speed / (*p_scale);
@@ -511,7 +511,7 @@ for(i=ia; ; i+=2L) {
 				(*p_firstslash) = FALSE;
 				continue;
 				break;
-			case 25:	/* Ô\Õ speed down */
+			case 25:	/* '\' speed down */
 				speed = 1. / (GetScalingValue((*pp_a),i));
 				if((*p_scale) != 0.) {
 					tempo = speed / (*p_scale);
@@ -532,7 +532,7 @@ for(i=ia; ; i+=2L) {
 				(*p_firstslash) = FALSE;
 				continue;
 				break;
-			case 21:	/* Ô*Õ scale up */
+			case 21:	/* '*' scale up */
 				scale = GetScalingValue((*pp_a),i);
 				if(scale != 0.) {
 					tempo = speed / scale;
@@ -551,7 +551,7 @@ for(i=ia; ; i+=2L) {
 				(*p_firstslash) = FALSE;
 				continue;
 				break;
-			case 24:	/* Ô**Õ scale down */
+			case 24:	/* '**' scale down */
 				s = GetScalingValue((*pp_a),i);
 				scale = 1. / s;
 				if(scale != 0.) {
@@ -732,7 +732,7 @@ TERMINAL:
 		if(p >= 16384) m = T25;
 		else m = T3;
 		if(!nocode && UseTextColor) {
-			if(p < 2) Reformat(wind,-1,-1,-1,&Black,NO,NO);	/* Ô-Õ or Ô_Õ */
+			if(p < 2) Reformat(wind,-1,-1,-1,&Black,NO,NO);	/* '-' or '_' */
 			else	if(p < 16384) Reformat(wind,-1,-1,-1,&Color[TerminalC],NO,NO);
 					else Reformat(wind,-1,-1,-1,&Color[NoteC],NO,NO);
 			}
@@ -941,7 +941,7 @@ PRINTPROLONGATIONS:
 		continue;
 		}
 		
-	if(m == T43) {	/* Performance Control Ô_tempo()Õ */
+	if(m == T43) {	/* Performance Control '_tempo()' */
 		if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
 			r = ABORT; goto OUT;
 			}
@@ -994,7 +994,7 @@ PRINTPROLONGATIONS:
 		continue;
 		}
 		
-	if(m == T37) {	/* Performance Control Ô_keymap()Õ */
+	if(m == T37) {	/* Performance Control '_keymap()' */
 		if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
 			r = ABORT; goto OUT;
 			}
@@ -1072,7 +1072,7 @@ PRINTPROLONGATIONS:
 		}
 	
 		
-	if(m == T40) {	/*Tool Ô_keyxpand()Õ */
+	if(m == T40) {	/*Tool '_keyxpand()' */
 		if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
 			r = ABORT; goto OUT;
 			}
@@ -1110,7 +1110,7 @@ PRINTPROLONGATIONS:
 		continue;
 		}
 		
-	if(m == T13) {	/* Performance Control Ô_script()Õ */
+	if(m == T13) {	/* Performance Control '_script()' */
 		if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
 			r = ABORT; goto OUT;
 			}
@@ -1199,8 +1199,8 @@ PRINTPROLONGATIONS:
 		}
 		
 	if(m == T0) {
-		if(p == 10 && th != NULL) Reformat(wind,-1,-1,(int) bold,&None,NO,NO);	/* ÔSÕ */
-		if(p == 12) {	/* Ô{Õ */
+		if(p == 10 && th != NULL) Reformat(wind,-1,-1,(int) bold,&None,NO,NO);	/* 'S' */
+		if(p == 12) {	/* '{' */
 			level++;
 			if(level >= maxpoly) {
 				maxpoly = (maxpoly * 3) / 2;
@@ -1211,16 +1211,16 @@ PRINTPROLONGATIONS:
 					}
 				}
 			}
-		if(!datamode && (p == 12 || p == 13 || p == 14 || p == 7)) /* Ô{Õ, Ô}Õ, comma, Ô¥Õ */
+		if(!datamode && (p == 12 || p == 13 || p == 14 || p == 7)) /* '{', '}', comma, '¥' */
 			forceshowtempo = TRUE;
-		if(p == 22 || p == 23) continue;	/* Temporary bracket Ô|Õ */
+		if(p == 22 || p == 23) continue;	/* Temporary bracket '|' */
 		if(nocode) {
-			if(p == 12) {	/* Ô{Õ */
+			if(p == 12) {	/* '{' */
 				(*p_sequence)[level] = FALSE;
 				}
-			if(p == 7 || (p > 11 && p < 20)) {		/* Ô¥Õ, Ô{Õ, Ô}Õ, comma */
+			if(p == 7 || (p > 11 && p < 20)) {		/* '¥', '{', '}', comma */
 				if((*p_sequence)[level]) {
-					if(p == 13 || p == 14) {				/* Ô}Õ, comma */
+					if(p == 13 || p == 14) {				/* '}', comma */
 						(*p_sequence)[level] = FALSE;
 						/* Insert closing '|' for bracketing sequential expression */
 						if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T0,
@@ -1234,7 +1234,7 @@ PRINTPROLONGATIONS:
 					goto OUT;
 					}
 				if((p == 12 || p == 14) && !(*p_sequence)[level]
-						&& SequenceField(pp_a,i+2)) {			/* Ô{Õ, comma */
+						&& SequenceField(pp_a,i+2)) {			/* '{', comma */
 					(*p_sequence)[level] = TRUE;
 					/* Insert opening '|' for bracketing sequential expression */
 					if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T0,
@@ -1284,7 +1284,7 @@ PRINTPROLONGATIONS:
 						sp = 1; break;
 					}
 				}
-			if(p == 7 || p == 14) {		/* Ô¥Õ or Ô,Õ */
+			if(p == 7 || p == 14) {		/* '¥' or ',' */
 				(*p_pos) = 0;	/* Restart sequence */
 				(*p_newsection) = FALSE;
 				}
@@ -1292,7 +1292,7 @@ PRINTPROLONGATIONS:
 		if(p == 13 && level > 0) {
 			level--;
 			}
-		if(p == 10 && th != NULL) Reformat(wind,-1,-1,(int) normal,&None,NO,NO);	/* ÔSÕ */
+		if(p == 10 && th != NULL) Reformat(wind,-1,-1,(int) normal,&None,NO,NO);	/* 'S' */
 		if(p == 8 && (++levpar) >= MAXLEVEL) {	/* '(' */
 			ShowError(40,0,0);
 			r = ABORT; goto OUT;
@@ -1781,11 +1781,11 @@ if(nocode) {
 		/* pp_a is istemplate, pp_b is item without structure */
 POSITION:
 		if((**pp_b)[*p_ib] == T0 && (**pp_b)[(*p_ib)+1] == 7) {
-			(*p_ib) += 2;		/* Skip Ô¥Õ */
+			(*p_ib) += 2;		/* Skip '¥' */
 			goto POSITION;
 			}
 		if((**pp_b)[*p_ib] == TEND && (**pp_b)[(*p_ib)+1] == TEND) return(FAILED);
-		if(m == T3 && p == 0) {	/* Ô_Õ */
+		if(m == T3 && p == 0) {	/* '_' */
 			if((**pp_b)[*p_ib] != T3 && (**pp_b)[*p_ib] != T25) return(FAILED);
 			mm = (**pp_b)[*p_ib];
 			pp = (**pp_b)[(*p_ib)+1];

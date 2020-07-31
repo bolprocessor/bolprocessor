@@ -59,7 +59,7 @@ if(ReadFile(wGrammar,refnum) == OK) {
 	FSClose(refnum);
 	}
 else {
-	sprintf(Message,"Can't read Ô%sÕÉ (no data)",FileName[wGrammar]);
+	sprintf(Message,"Can't read '%s'... (no data)",FileName[wGrammar]);
 	Alert1(Message);
 	FSClose(refnum);
 	ForgetFileName(wGrammar);
@@ -323,7 +323,7 @@ WRITE:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,line);
-		sprintf(Message,"Error creating Ô%sÕ",line);
+		sprintf(Message,"Error creating '%s'",line);
 		Alert1(Message);
 		Created[iObjects] = FALSE;
 		}
@@ -368,11 +368,11 @@ FIND:
 	if(!tryname) return(FAILED);
 	if(FileName[iObjects][0] == '\0') {
 //		if(OkWait || !ScriptExecOn)
-//			Alert1("The note convention might be incorrect because I am looking for an unspecified Ô-miÕ sound-object prototype file");
-		sprintf(Message,"Find Ô-miÕ sound-object prototype fileÉ");
+//			Alert1("The note convention might be incorrect because I am looking for an unspecified '-mi' sound-object prototype file");
+		sprintf(Message,"Find '-mi' sound-object prototype file...");
 		}
 	else
-	sprintf(Message,"Find Ô%sÕ or other sound-object prototype file",FileName[iObjects]);
+	sprintf(Message,"Find '%s' or other sound-object prototype file",FileName[iObjects]);
 	ShowMessage(TRUE,wMessage,Message);
 	if(Option) r = YES; /* Answer("Open old sound-object prototype file (text created by HyperMIDI)",'N'); */
 	else r = NO;
@@ -412,7 +412,7 @@ LoadOn++;
 if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 if(CheckVersion(&iv,p_line,FileName[iObjects]) != OK) goto ERR;
 
-sprintf(Message,"Loading %sÉ",FileName[iObjects]);
+sprintf(Message,"Loading %s...",FileName[iObjects]);
 ShowMessage(TRUE,wMessage,Message);
 
 if(iv == 0) {
@@ -493,7 +493,7 @@ if(Button() && (Answer("Stop reading sound-object file",'N') == YES)) {
 	}
 if(ReadOne(FALSE,TRUE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) {
 	if(iv > 3) {
-		sprintf(Message,"Unexpected end of Ô%sÕ fileÉ  May be old version?",
+		sprintf(Message,"Unexpected end of '%s' file...  May be old version?",
 			FileName[iObjects]);
 		Println(wTrace,Message);
 		}
@@ -873,15 +873,15 @@ if(!diff) {
 	}
 if(CheckEmergency() == OK) {
 	rep = FAILED;
-	sprintf(Message,"File Ô%sÕ may be corrupted or in some unknown format",
+	sprintf(Message,"File '%s' may be corrupted or in some unknown format",
 		FileName[iObjects]);
 	Alert1(Message);
 	if(j > 1 && j < Jbol) {
-		sprintf(Message,"An error occured while reading Ô%sÕ",*((*p_Bol)[j]));
+		sprintf(Message,"An error occured while reading '%s'",*((*p_Bol)[j]));
 		Println(wTrace,Message);
 		}
 	Println(wTrace,
-		"You may read the file to the ÔScrapÕ window and try to fix inconsistencies.");
+		"You may read the file to the 'Scrap' window and try to fix inconsistencies.");
 	}
 else rep = ABORT;
 
@@ -932,7 +932,7 @@ if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
 		return(FAILED);
 		}
 	}
-sprintf(Message,"Loading %sÉ",FileName[wGlossary]);
+sprintf(Message,"Loading %s...",FileName[wGlossary]);
 ShowMessage(TRUE,wMessage,Message);
 pos = 0L; LoadOn++;
 
@@ -960,13 +960,13 @@ else {
 
 ERR:
 result = FAILED;
-Alert1("Error reading glossary fileÉ");
+Alert1("Error reading glossary file...");
 ForgetFileName(wGlossary); /* 1/3/97 */
 
 QUIT:
 // MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 if(FSClose(refnum) != noErr) {
-	if(Beta) Alert1("Error closing glossary code fileÉ");
+	if(Beta) Alert1("Error closing glossary code file...");
 	}
 HideWindow(Window[wMessage]);
 if(result == OK) {
@@ -1009,7 +1009,7 @@ else {
 	}
 if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
 FIND:
-	sprintf(Message,"Find Ô%sÕ or other alphabet file",LineBuff);
+	sprintf(Message,"Find '%s' or other alphabet file",LineBuff);
 	ShowMessage(TRUE,wMessage,Message);
 	if(!OldFile(wAlphabet,6,PascalLine,&spec)) {
 		HideWindow(Window[wMessage]);
@@ -1034,7 +1034,7 @@ FIND:
 			}
 		}
 	if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-		sprintf(Message,"Can't open Ô%sÕ",FileName[wAlphabet]);
+		sprintf(Message,"Can't open '%s'",FileName[wAlphabet]);
 		ShowMessage(TRUE,wMessage,Message);
 		ForgetFileName(wAlphabet);
 		TellError(58,io);
@@ -1056,13 +1056,13 @@ if(ReadFile(wAlphabet,refnum) == OK) {
 	Created[wAlphabet] = TRUE;
 	}
 else {
-	sprintf(Message,"Can't read Ô%sÕÉ (no data)",FileName[wAlphabet]);
+	sprintf(Message,"Can't read '%s'... (no data)",FileName[wAlphabet]);
 	Alert1(Message);
 	ForgetFileName(wAlphabet);
 	result = FAILED;
 	}
 if(FSClose(refnum) != noErr) {
-	if(Beta) Alert1("Error closing alphabet fileÉ");
+	if(Beta) Alert1("Error closing alphabet file...");
 	}
 ShowSelect(CENTRE,wAlphabet);
 LoadOn--;

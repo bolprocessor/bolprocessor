@@ -223,7 +223,7 @@ for(igram=1; igram <= (*p_gram).number_gram; igram++) {
 	if(isgrammar && igram > 1) Print(wind,Message);
 	subgram = (*((*p_gram).p_subgram))[igram];
 	if(isgrammar && subgram.number_rule == 0) {
-		sprintf(Message,"Subgrammar %ld has no rules…",(long)igram);
+		sprintf(Message,"Subgrammar %ld has no rules...",(long)igram);
 		Alert1(Message);
 		continue;
 		}
@@ -787,11 +787,11 @@ for(i=0,setting_section=TRUE; ; i+=2) {
 			case 2:
 			case 10:
 			case 17:
-			case 24: /* ‘**’ scale down */
-			case 25: /* ‘\’ speed down */
+			case 24: /* '**' scale down */
+			case 25: /* '\' speed down */
 				break;
-			case 3:  /* ‘+’ */
-			case 11: /* ‘/’ */
+			case 3:  /* '+' */
+			case 11: /* '/' */
 				if(setting_section && founddigit) (*p_hastabs) = TRUE;
 				setting_section = FALSE;
 				continue;
@@ -839,7 +839,7 @@ for(i=ZERO; ; i+=2L) {
 		case T0:
 			switch(p) {
 				case 6:		/* master parenthesis */
-				case 8:		/* ‘(’ */
+				case 8:		/* '(' */
 					return(YES);
 					break;
 				}

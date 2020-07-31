@@ -243,8 +243,8 @@ if(!StepTimeSet) {
 //  -------------  Fill phase diagram ------------------
 
 	
-	/* kobj = 0		empty object or prolongational gap “_”		*/
-	/* kobj = 1		silence “-”							*/
+	/* kobj = 0		empty object or prolongational gap "_"		*/
+	/* kobj = 1		silence "-"							*/
 	/* kobj > 1		non-empty time-object					*/
 
 
@@ -699,7 +699,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 						}
 					}
 				if(toofast && !overstrike) {		/* Sequence is too fast, we'll store proper duration nevertheless */
-					/* We'll get the symbolic duration excluding ‘&’ concatenation */
+					/* We'll get the symbolic duration excluding '&' concatenation */
 					objectduration
 						= GetSymbolicDuration(YES,YES,*pp_buff,m,p,id,speed,
 							scale,level);
@@ -845,7 +845,7 @@ DONEOUTTIMEOBJECT:
 	switch(m) {
 		case T0:
 			switch(p) {
-				case 12:			/* ‘{’ */
+				case 12:			/* '{' */
 				case 22:
 					skipzeros = FALSE;
 					for(i=0; i < (*p_contparameters)[level].number; i++) {
@@ -915,7 +915,7 @@ DONEOUTTIMEOBJECT:
 					goto NEXTTOKEN;
 					break;
 				
-				case 13:					/* ‘}’ */
+				case 13:					/* '}' */
 				case 23:
 					skipzeros = FALSE;
 					if(level >= Maxlevel) {
@@ -937,7 +937,7 @@ DONEOUTTIMEOBJECT:
 						goto NEWSEQUENCE;
 						}
 					if(nseq > (*p_nmax)) {
-						if(Beta) Println(wTrace,"\rErr. FillPhaseDiagram(). nseq > (*p_nmax) after ‘}’");
+						if(Beta) Println(wTrace,"\rErr. FillPhaseDiagram(). nseq > (*p_nmax) after '}'");
 						if((gotnewline=MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseqapprox,p_maxcol))
 								!= OK) {
 							if(gotnewline == ABORT) goto ENDDIAGRAM;
@@ -1007,7 +1007,7 @@ DONEOUTTIMEOBJECT:
 						goto NEWSEQUENCE;
 						}
 					if(nseq > (*p_nmax)) {
-						if(Beta) Println(wTrace,"\rErr. FillPhaseDiagram(). nseq > (*p_nmax) after ‘,’");
+						if(Beta) Println(wTrace,"\rErr. FillPhaseDiagram(). nseq > (*p_nmax) after ','");
 						if((gotnewline=MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseqapprox,p_maxcol))
 								!= OK) {
 							if(gotnewline == ABORT) goto ENDDIAGRAM;
@@ -1069,7 +1069,7 @@ NEWSEQUENCE:
 					goto NEXTTOKEN;
 					break;
 					
-				case 11:				/* ‘/’ speed up */
+				case 11:				/* '/' speed up */
 					skipzeros = FALSE;
 					speed = GetScalingValue((*pp_buff),id);
 					if(speed < 1.) goto ENDDIAGRAM;
@@ -1084,7 +1084,7 @@ NEWSEQUENCE:
 					goto NEXTTOKEN;
 					break;
 					
-				case 25:				/* ‘\’ speed down */
+				case 25:				/* '\' speed down */
 					skipzeros = FALSE;
 					speed = GetScalingValue((*pp_buff),id);
 					if(speed < 1.) goto ENDDIAGRAM;
@@ -1100,7 +1100,7 @@ NEWSEQUENCE:
 					goto NEXTTOKEN;
 					break;
 					
-				case 21:				/* ‘*’ scale up */
+				case 21:				/* '*' scale up */
 					skipzeros = FALSE;
 					scale = GetScalingValue((*pp_buff),id);
 					if(scale != 0.) {
@@ -1114,7 +1114,7 @@ NEWSEQUENCE:
 					goto NEXTTOKEN;
 					break;
 					
-				case 24:				/* ‘**’ scale down */
+				case 24:				/* '**' scale down */
 					skipzeros = FALSE;
 					s = GetScalingValue((*pp_buff),id);
 					if(s < 1.) goto ENDDIAGRAM;
@@ -1131,14 +1131,14 @@ NEWSEQUENCE:
 					goto NEXTTOKEN;
 					break;
 					
-				case 18:				/* ‘&’ following terminal or simple note */
+				case 18:				/* '&' following terminal or simple note */
 	//				if(level >= Maxlevel) goto NEXTTOKEN;
 					skipzeros = FALSE;
 					inext = (*p_im)[nseq];
 					classofinext = Class(inext);
 					
 					if((oldm != T3 && oldm != T25) || oldp < 1 || id < 2L) {
-						sprintf(Message,"Concatenation ‘&’ should follow a sound-object or simple note. One of them is misplaced");
+						sprintf(Message,"Concatenation '&' should follow a sound-object or simple note. One of them is misplaced");
 						if(!ScriptExecOn) Alert1(Message);
 						else Println(wTrace,Message);
 						goto ENDDIAGRAM;
@@ -1152,7 +1152,7 @@ NEWSEQUENCE:
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
 						if(Beta) {
-							Alert1("Err. FillPhaseDiagram(). nseq >= Minconc after ‘&’");
+							Alert1("Err. FillPhaseDiagram(). nseq >= Minconc after '&'");
 							goto ENDDIAGRAM;
 							}
 						goto NEWSEQUENCE;
@@ -1516,7 +1516,7 @@ if(imax > 0.) {
 	/* This compensates errors due to overflow in calculating Prod and Ratio */
 	if(Beta) {
 		if(CorrectionFactor < 0.95 || CorrectionFactor > 1.05) {
-			sprintf(Message,"\rCorrection factor %.3f might be out of range…",CorrectionFactor);
+			sprintf(Message,"\rCorrection factor %.3f might be out of range...",CorrectionFactor);
 			Println(wTrace,Message);
 			ShowMessage(TRUE,wMessage,Message);
 			}
@@ -1932,7 +1932,7 @@ if(i < 0) {
 if(Beta) {
 	imax = MyGetHandleSize((Handle)((*p_contparameters)[level].values)) / sizeof(ContParameterSpecs);
 	if(i < 0 || i >= imax) {
-		Println(wTrace,"Err. UpdateParameter(). i < 0 || i >= imax");
+		Println(wTrace,"Err. UpdateParameter(). i < 0 || i >= imax");
 		return(ABORT);
 		}
 	}
@@ -1973,7 +1973,7 @@ if(Beta) {
 		}
 	imax = MyGetHandleSize((Handle)((*p_contparameters)[level].values)) / sizeof(ContParameterSpecs);
 	if(i < 0 || i >= imax) {
-		Println(wTrace,"Err. IncrementParameter(). i < 0 || i >= imax");
+		Println(wTrace,"Err. IncrementParameter(). i < 0 || i >= imax");
 		return(ABORT);
 		}
 	}
@@ -2117,7 +2117,7 @@ TellSkipped(void)
 {
 if(!ToldSkipped) {
 	ToldSkipped = TRUE;
-	sprintf(Message,"Some objects have been skipped…");
+	sprintf(Message,"Some objects have been skipped...");
 	ShowMessage(TRUE,wMessage,Message);
 	FlashInfo(Message);
 	}

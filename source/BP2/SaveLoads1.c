@@ -59,7 +59,7 @@ if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || Grap
 	|| PolyOn) return(RESUME);
 if(CompileCheck() != OK) return(FAILED);
 LoadOn++;
-ShowMessage(TRUE,wMessage,"Locate ‘-wg.’ file…");
+ShowMessage(TRUE,wMessage,"Locate '-wg.' file...");
 p_line = p_completeline = NULL;
 if(OldFile(-1,12,PascalLine,&spec)) {
 	MyPtoCstr(255,PascalLine,LineBuff);
@@ -85,7 +85,7 @@ if(OldFile(-1,12,PascalLine,&spec)) {
 		p2cstrcpy(FileName[iWeights],PascalLine);
 		goto NOERR;
 ERR:
-		Alert1("Can't read weight file…");
+		Alert1("Can't read weight file...");
 NOERR:
 		if(FSClose(refnum) == noErr) ;
 		}
@@ -121,7 +121,7 @@ if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || Grap
 	|| PolyOn) return(RESUME);
 if(CompileCheck() != OK) return(FAILED);
 err = NSWInitReply(&reply);
-ShowMessage(TRUE,wMessage,"Creating weight file…");
+ShowMessage(TRUE,wMessage,"Creating weight file...");
 if(FileName[iWeights][0] != '\0')
 	strcpy(Message,FileName[iWeights]);
 else if (GetDefaultFileName(iWeights, Message) != OK) return(FAILED);
@@ -158,7 +158,7 @@ if(NewFile(-1,12,fn,&reply)) {
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"Error creating ‘%s’",LineBuff);
+		sprintf(Message,"Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -184,7 +184,7 @@ if(ReadOne(FALSE,TRUE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED)
 GetDateSaved(p_completeline,&(p_FileInfo[wKeyboard]));
 if(ReadInteger(refnum,&imax,&pos) == FAILED) goto ERR;
 if(imax > 52) {
-	Alert1("This version of BP2 can't read selected ‘-kb.’ file");
+	Alert1("This version of BP2 can't read selected '-kb.' file");
 	goto ERR;
 	}
 for(i=0; i < imax; i++) {
@@ -208,7 +208,7 @@ goto QUIT;
 ERR:
 GetKeyboard();
 result = FAILED;
-sprintf(Message,"Error reading ‘%s’ keyboard file…",FileName[wKeyboard]);
+sprintf(Message,"Error reading '%s' keyboard file...",FileName[wKeyboard]);
 Alert1(Message);
 FileName[wKeyboard][0] = '\0';
 
@@ -217,7 +217,7 @@ MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 SetKeyboard();
 if(Token) AppendScript(66); else AppendScript(67);
 if(FSClose(refnum) != noErr) {
-	sprintf(Message,"Error closing ‘%s’ keyboard file…",FileName[wKeyboard]);
+	sprintf(Message,"Error closing '%s' keyboard file...",FileName[wKeyboard]);
 	Alert1(Message);
 	result = FAILED;
 	}
@@ -291,7 +291,7 @@ WRITE:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"Error creating ‘%s’",LineBuff);
+		sprintf(Message,"Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -318,11 +318,11 @@ GetDateSaved(p_completeline,&(p_FileInfo[wTimeBase]));
 if(ReadInteger(refnum,&y,&pos) == FAILED) goto ERR; maxticks = y;
 if(ReadInteger(refnum,&y,&pos) == FAILED) goto ERR; maxbeats = y;
 if(maxticks > MAXTICKS) {
-	Alert1("This version of BP2 can't read selected ‘-tb.’ file");
+	Alert1("This version of BP2 can't read selected '-tb.' file");
 	goto ERR;
 	}
 if(maxbeats > MAXBEATS) {
-	Alert1("This version of BP2 can't read selected ‘-tb.’ file");
+	Alert1("This version of BP2 can't read selected '-tb.' file");
 	goto ERR;
 	}
 TickThere = FALSE;
@@ -360,7 +360,7 @@ goto QUIT;
 ERR:
 GetTimeBase(); GetTickParameters();
 result = FAILED;
-sprintf(Message,"Error reading ‘%s’ time base file…",FileName[wTimeBase]);
+sprintf(Message,"Error reading '%s' time base file...",FileName[wTimeBase]);
 Alert1(Message);
 FileName[wTimeBase][0] = '\0';
 
@@ -370,7 +370,7 @@ MyDisposeHandle((Handle*)&p_completeline);
 for(i=0; i < MAXTICKS; i++) SetTickParameters(i+1,MAXBEATS);
 SetTickParameters(0,MAXBEATS);
 if(FSClose(refnum) != noErr) {
-	sprintf(Message,"Error closing ‘%s’ time base file…",FileName[wTimeBase]);
+	sprintf(Message,"Error closing '%s' time base file...",FileName[wTimeBase]);
 	Alert1(Message);
 	result = FAILED;
 	}
@@ -455,7 +455,7 @@ WRITE:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"Error creating ‘%s’",LineBuff);
+		sprintf(Message,"Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -656,7 +656,7 @@ for(j=0; j < jmax; j++) {
 	if(i < 1) continue;
 	if(i > IPMAX) {
 		if(Beta) Alert1("Err. LoadCsoundInstruments(). i > IPMAX");
-		Alert1("This ‘-cs’ file was created by a newer version of BP2. Some parameters may be ignored");
+		Alert1("This '-cs' file was created by a newer version of BP2. Some parameters may be ignored");
 		i = IPMAX;
 		}
 	if((ptr3=(CsoundParam**) GiveSpace((Size)(IPMAX * sizeof(CsoundParam)))) == NULL)
@@ -708,7 +708,7 @@ for(j=0; j < jmax; j++) {
 			(*((*p_CsInstrument)[j].paramlist))[ip].combinationtype = i;
 			if(i == MULT && fabs(r) < 0.01) {
 				(*((*p_CsInstrument)[j].paramlist))[ip].defaultvalue = 1.;
-				sprintf(Message,"In instrument %ld a default parameter value ‘%.3f’ was replaced with ‘1’ because its combination mode is multiplicative",
+				sprintf(Message,"In instrument %ld a default parameter value '%.3f' was replaced with '1' because its combination mode is multiplicative",
 					(long)(*p_CsInstrumentIndex)[j],r);
 				Alert1(Message);
 				}
@@ -731,7 +731,7 @@ else ClearWindow(YES,wCsoundTables);
 goto QUIT;
 
 ERR:
-sprintf(Message,"Error reading ‘%s’ Csound instrument file…",FileName[wCsoundInstruments]);
+sprintf(Message,"Error reading '%s' Csound instrument file...",FileName[wCsoundInstruments]);
 Alert1(Message);
 FileName[wCsoundInstruments][0] = '\0';
 
@@ -740,7 +740,7 @@ result = OK;
 MyDisposeHandle((Handle*)&p_line);
 MyDisposeHandle((Handle*)&p_completeline);
 if(FSClose(refnum) != noErr) {
-	sprintf(Message,"Error closing ‘%s’ Csound instrument file…",FileName[wCsoundInstruments]);
+	sprintf(Message,"Error closing '%s' Csound instrument file...",FileName[wCsoundInstruments]);
 	Alert1(Message);
 	result = FAILED;
 	}
@@ -966,7 +966,7 @@ WRITE:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"Error creating ‘%s’",LineBuff);
+		sprintf(Message,"Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -1017,7 +1017,7 @@ if(NewFile(iSettings,gFileType[iSettings],fn,&reply)) {
 	if(io == OK) {
 WRITE:
 		SaveOn++;
-		sprintf(Message,"Saving ‘%s’...",line);
+		sprintf(Message,"Saving '%s'...",line);
 		PleaseWait();
 		ShowMessage(TRUE,wMessage,Message);
 		WriteHeader(iSettings,refnum,*p_spec);
@@ -1176,7 +1176,7 @@ LASTPART:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,line);
-		sprintf(Message,"Error creating ‘%s’",line);
+		sprintf(Message,"Error creating '%s'",line);
 		Alert1(Message);
 		result = FAILED;
 		}
@@ -1649,7 +1649,7 @@ else {
 /* Should we still keep the start string in the settings file? */
 /* if(ReadOne(FALSE,FALSE,TRUE,sefile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 if(Mystrcmp(p_line,"STARTSTRING:") != 0) {
-	sprintf(Message,"Incorrect end in ‘%s’ settings file. May be bad version?",
+	sprintf(Message,"Incorrect end in '%s' settings file. May be bad version?",
 			filename);
 	if(Beta) Alert1(Message);
 	goto QUIT;
@@ -1685,7 +1685,7 @@ long count;
 OSErr err;
 
 err = NSWInitReply(&reply);
-ShowMessage(TRUE,wMessage,"Creating decision file…");
+ShowMessage(TRUE,wMessage,"Creating decision file...");
 PascalLine[0] = 0;
 if(NewFile(-1,4,PascalLine,&reply)) {
 	i = CreateFile(-1,-1,4,PascalLine,&reply,&refnum);
@@ -1722,7 +1722,7 @@ if(NewFile(-1,4,PascalLine,&reply)) {
 		}
 	else {
 		MyPtoCstr(MAXNAME,PascalLine,LineBuff);
-		sprintf(Message,"Error creating ‘%s’",LineBuff);
+		sprintf(Message,"Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -1742,7 +1742,7 @@ char *p,*q;
 OSErr io;
 char **p_line,**p_completeline;
 
-ShowMessage(TRUE,wMessage,"Locate decision file…");
+ShowMessage(TRUE,wMessage,"Locate decision file...");
 p_line = p_completeline = NULL;
 if(OldFile(-1,4,PascalLine,&spec)) {
 	p2cstrcpy(LineBuff,PascalLine);
@@ -1796,7 +1796,7 @@ if(OldFile(-1,4,PascalLine,&spec)) {
 			}
 		goto NOERR;
 ERR:
-		Alert1("Can't read decision file…");
+		Alert1("Can't read decision file...");
 NOERR:
 		if(FSClose(refnum) == noErr) ;
 		}
@@ -1806,7 +1806,7 @@ NOERR:
 	MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 	}
 else {
-	/* Alert1("Error reading decision file…"); */  // user may have cancelled
+	/* Alert1("Error reading decision file..."); */  // user may have cancelled
 	HideWindow(Window[wMessage]);
 	return(FAILED);
 	}
@@ -1853,7 +1853,7 @@ if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
 		return(FAILED);
 		}
 	}
-sprintf(Message,"Loading %s…",FileName[wInteraction]);
+sprintf(Message,"Loading %s...",FileName[wInteraction]);
 ShowMessage(TRUE,wMessage,Message);
 pos = 0L;
 LoadOn++;
@@ -2013,13 +2013,13 @@ else {
 	if(ReadUnsignedLong(refnum,&kk,&pos) != FAILED) MinPclock = (double) kk;
 	else goto ERR;
 	if(MinPclock < 1.) {
-		Alert1("Err: MinPclock < 1 in LoadInteraction().  Incorrect ‘-in’ file");
+		Alert1("Err: MinPclock < 1 in LoadInteraction().  Incorrect '-in' file");
 		goto ERR;
 		}
 	if(ReadUnsignedLong(refnum,&kk,&pos) != FAILED) MaxPclock = kk;
 	else goto ERR;
 	if(MaxPclock < 1) {
-		Alert1("Err: MaxPclock < 1 in LoadInteraction().  Incorrect ‘-in’ file");
+		Alert1("Err: MaxPclock < 1 in LoadInteraction().  Incorrect '-in' file");
 		goto ERR;
 		}
 	if(ReadUnsignedLong(refnum,&kk,&pos) != FAILED) MinQclock = kk;
@@ -2054,14 +2054,14 @@ goto QUIT;
 
 ERR:
 result = FAILED;
-Alert1("Error reading interactive code file…");
+Alert1("Error reading interactive code file...");
 ForgetFileName(wInteraction); /* 1/3/97 */
 Interactive = FALSE; SetButtons(TRUE);
 
 QUIT:
 MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 if(FSClose(refnum) != noErr) {
-	if(Beta) Alert1("Error closing interactive code file…");
+	if(Beta) Alert1("Error closing interactive code file...");
 	}
 HideWindow(Window[wMessage]);
 if(result == OK) {
@@ -2105,7 +2105,7 @@ if(Created[wMIDIorchestra] && !doSaveAs) {  // try the existing file first
 		}
 	}
 // else do a "Save As"
-ShowMessage(TRUE,wMessage,"Saving MIDI orchestra file…");
+ShowMessage(TRUE,wMessage,"Saving MIDI orchestra file...");
 if(FileName[wMIDIorchestra][0] == '\0') GetDefaultFileName(wMIDIorchestra, Message);
 else strcpy(Message,FileName[wMIDIorchestra]);
 c2pstrcpy(fn, Message);
@@ -2148,11 +2148,11 @@ WRITE:
 		Created[wMIDIorchestra] = TRUE;
 		result = OK;
 		/* if(type == 1)
-			Alert1("To open this file, click the ‘Load’ button with the ‘option’ key down"); */
+			Alert1("To open this file, click the 'Load' button with the 'option' key down"); */
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"Error creating ‘%s’",LineBuff);
+		sprintf(Message,"Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -2198,7 +2198,7 @@ if(TestMIDIChannel > 0 && TestMIDIChannel <= MAXCHAN) {
 	
 if(!manual) goto READIT;
 
-ShowMessage(TRUE,wMessage,"Locate MIDI orchestra file…");
+ShowMessage(TRUE,wMessage,"Locate MIDI orchestra file...");
 type = gFileType[wMIDIorchestra];
 if(Option /* && Answer("Import any type of file",'Y') == OK */) type = ftiAny;
 if(OldFile(-1,type,PascalLine,&spec)) {
@@ -2206,7 +2206,7 @@ if(OldFile(-1,type,PascalLine,&spec)) {
 	if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
 	
 READIT:
-		sprintf(Message,"Loading ‘%s’ orchestra file…",FileName[wMIDIorchestra]);
+		sprintf(Message,"Loading '%s' orchestra file...",FileName[wMIDIorchestra]);
 		ShowMessage(TRUE,wMessage,Message);
 		pos = ZERO;
 		if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
@@ -2263,7 +2263,7 @@ READIT:
 			}
 		goto NOERR;
 ERR:
-		Alert1("Can't read MIDI orchestra file…");
+		Alert1("Can't read MIDI orchestra file...");
 NOERR:
 		if(FSClose(refnum) == noErr) ;
 		if(manual) {
@@ -2361,7 +2361,7 @@ int OpenMidiDriverSettings()
 	int		result;
 	FSSpec	mdfile;
 	
-	sprintf(Message, "Select a %s file…", DocumentTypeName[iMidiDriver]);
+	sprintf(Message, "Select a %s file...", DocumentTypeName[iMidiDriver]);
 	ShowMessage(TRUE,wMessage,Message);
 	result = OldFile(wUnknown, ftiMidiDriver, PascalLine, &mdfile);
 	HideWindow(Window[wMessage]);
@@ -2500,19 +2500,19 @@ int SaveMidiDriverSettings()
 			if (io == OK) {
 				reply.saveCompleted = true;
 				RememberMdFile(&(reply.sfFile));
-				sprintf(Message,"Successfully saved ‘%s’", FileName[iMidiDriver]);
+				sprintf(Message,"Successfully saved '%s'", FileName[iMidiDriver]);
 				ShowMessage(TRUE,wMessage,Message);
 			}
 			else {
 				p2cstrcpy(defaultname, fn);
-				sprintf(Message, "Error writing file ‘%s’", defaultname);
+				sprintf(Message, "Error writing file '%s'", defaultname);
 				Alert1(Message);
 				HideWindow(Window[wMessage]);
 			}
 		}
 		else {
 			MyPtoCstr(MAXNAME,fn,defaultname);
-			sprintf(Message, "Error creating file ‘%s’", defaultname);
+			sprintf(Message, "Error creating file '%s'", defaultname);
 			Alert1(Message);
 		}
 	}		
@@ -2532,7 +2532,7 @@ int WriteMidiDriverSettings(short refnum, FSSpec* spec)
 	
 	SaveOn++;
 	p2cstrcpy(fname, spec->name);
-	sprintf(Message,"Saving ‘%s’...", fname);
+	sprintf(Message,"Saving '%s'...", fname);
 	ShowMessage(TRUE,wMessage,Message);
 	PleaseWait();
 	

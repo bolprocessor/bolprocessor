@@ -127,7 +127,7 @@ ratio = ((double)neweventrange) / oldeventrange;
 if(DurationToPoint(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 
 if(ShowMessages && (*p_MIDIsize)[j] > ZERO)
-	ShowMessage(TRUE,wMessage,"Adjusting durations of MIDI events…");
+	ShowMessage(TRUE,wMessage,"Adjusting durations of MIDI events...");
 for(i=ZERO; i < (*p_MIDIsize)[j]; i++) {
 	t = (*((*pp_MIDIcode)[j]))[i].time - preroll;
 	if(t >= 0.) {	/* Modify only those events within the time-span interval */
@@ -138,7 +138,7 @@ for(i=ZERO; i < (*p_MIDIsize)[j]; i++) {
 if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 
 if(ShowMessages && (*p_CsoundSize)[j] > ZERO)
-	ShowMessage(TRUE,wMessage,"Adjusting durations of Csound events…");
+	ShowMessage(TRUE,wMessage,"Adjusting durations of Csound events...");
 if((*p_CsoundSize)[j] > ZERO) {
 	if(DurationToPoint(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) return(ABORT);
 	for(i=ZERO; i < (*p_CsoundSize)[j]; i++) {
@@ -551,7 +551,7 @@ else {
 	(*pp_MIDIcode)[j] = NULL;
 	}
 if(!found) {
-	ShowMessage(TRUE,wMessage,"No ‘AllNotesOff’ message was found.");
+	ShowMessage(TRUE,wMessage,"No 'AllNotesOff' message was found.");
 	}
 else ChangedProtoType(j);
 return(OK);
@@ -631,8 +631,8 @@ else {
 if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 
 if(!found) {
-	if(tell) Alert1("No event was found. Object is unchanged…");
-	ShowMessage(TRUE,wMessage,"No event was found. Object is unchanged…");
+	if(tell) Alert1("No event was found. Object is unchanged...");
+	ShowMessage(TRUE,wMessage,"No event was found. Object is unchanged...");
 	}
 else ChangedProtoType(j);
 return(OK);
@@ -915,7 +915,7 @@ int r;
 if(Jbol < 3) {
 	if(CompileCheck() != OK) return(OK);
 	if(!ObjectMode && !ObjectTry && Jbol > 2 && LoadObjectPrototypes(YES,NO) != OK) {
-		if((r=Answer("Load a ‘-mi’ sound-object prototype file",'N')) == YES) {
+		if((r=Answer("Load a '-mi' sound-object prototype file",'N')) == YES) {
 			if((r=CheckPrototypes()) != OK) return(r);
 			}
 		else {
@@ -954,7 +954,7 @@ if(j < 2 || j >= Jbol || (*p_MIDIsize)[j] == ZERO) {
 	return(STOP);
 	}
 if(!((*p_Type)[j] & 1)) {
-	Alert1("Can't play this sound-object unless ‘MIDI sequence’ is checked");
+	Alert1("Can't play this sound-object unless 'MIDI sequence' is checked");
 	return(DONE);
 	}
 if(GetPrePostRoll(j,&preroll,&postroll) != OK) {
@@ -974,7 +974,7 @@ if(Nature_of_time == STRIATED) {
 	if(p < EPSILON) p = (*p_Dur)[j];
 	}
 else {
-	FlashInfo("Time is ‘smooth’: type cmd-T to modify");
+	FlashInfo("Time is 'smooth': type cmd-T to modify");
 	infothere = TRUE;
 	p = (*p_Dur)[j];
 	}

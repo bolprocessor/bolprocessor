@@ -690,7 +690,7 @@ switch(FileSaveMode) {
 		return(OK);
 		break;
 	case ALLSAMEPROMPT:
-		sprintf(Message,"Current Csound score file is ‘%s’. Change it",CsFileName);
+		sprintf(Message,"Current Csound score file is '%s'. Change it",CsFileName);
 		rep = Answer(Message,'N');
 		if(rep == ABORT) return(rep);
 		if(rep == NO) return(OK);
@@ -720,7 +720,7 @@ CsFileReply = (NSWReply**)GiveSpace(sizeof(NSWReply));
 MyLock(FALSE, (Handle)CsFileReply);
 io = NSWInitReply(*CsFileReply);
 
-ShowMessage(TRUE,wMessage,"Create new Csound score file…");
+ShowMessage(TRUE,wMessage,"Create new Csound score file...");
 if(line == NULL || line[0] == '\0') {
 	// make a new filename based on the project's name
 	if (GetProjectBaseName(Message) == OK) {
@@ -796,7 +796,7 @@ if (CsFileReply) {
 	err = NSWCleanupReply(*CsFileReply);
 	MyDisposeHandle((Handle*)&CsFileReply);
 }
-sprintf(Message,"Closed Csound score file ‘%s’",CsFileName);
+sprintf(Message,"Closed Csound score file '%s'",CsFileName);
 ShowMessage(TRUE,wMessage,Message);
 CsFileName[0] = '\0';
 SetField(FileSavePreferencesPtr,-1,fCsoundFileName,CsFileName);

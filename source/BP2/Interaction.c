@@ -289,7 +289,7 @@ if(channel > 0 && thekey > -1) statusbyte = NoteOn + channel - 1;
 else statusbyte = thekey = 0;
 
 while(Button());
-if(statusbyte == 0) FlashInfo("Waiting for click…");
+if(statusbyte == 0) FlashInfo("Waiting for click...");
 else {
 	FlashInfo("Waiting for ");
 	PrintNote(thekey,channel,wInfo,Message);
@@ -374,23 +374,23 @@ switch(eventtype) {
 		SetCursor(&WatchCursor);
 		break;
 	case STARTEVENT:
-		sprintf(Message,"Waiting for ‘Start’ MIDI message. Click mouse to cancel");
+		sprintf(Message,"Waiting for 'Start' MIDI message. Click mouse to cancel");
 		SetCursor(&KeyboardCursor);
 		break;
 	case STOPEVENT:
-		sprintf(Message,"Waiting for ‘Stop’ MIDI message. Click mouse to cancel");
+		sprintf(Message,"Waiting for 'Stop' MIDI message. Click mouse to cancel");
 		SetCursor(&KeyboardCursor);
 		break;
 	case CONTINUEEVENT:
-		sprintf(Message,"Waiting for ‘Continue’ MIDI message. Click mouse to cancel");
+		sprintf(Message,"Waiting for 'Continue' MIDI message. Click mouse to cancel");
 		SetCursor(&KeyboardCursor);
 		break;
 	case KEYBOARDEVENT:
 		FlushEvents(everyEvent,0);
 		if(!command)
-			sprintf(Message,"Waiting for ‘%c’ or click",thechar);
+			sprintf(Message,"Waiting for '%c' or click",thechar);
 		else
-			sprintf(Message,"Waiting for ‘cmd-%c’ or click",thechar);
+			sprintf(Message,"Waiting for 'cmd-%c' or click",thechar);
 		SetCursor(&WatchCursor);
 		break;
 	}

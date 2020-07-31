@@ -434,7 +434,7 @@ if(Interactive && c2 > 0) {
 	if(MuteOnChan > 0 && c1 == MuteOnKey && c0 == (NoteOn+MuteOnChan-1)) {
 		Mute = TRUE;
 		ShowMessage(TRUE,wMessage,"Received MIDI message telling to mute output");
-		FlashInfo("MUTE is ON…   cmd-space will turn if off");
+		FlashInfo("MUTE is ON...   cmd-space will turn if off");
 		return(OK);
 		}
 	else {
@@ -471,7 +471,7 @@ if(Interactive && c2 > 0) {
 		Nplay = c2;
 		SynchroSignal = OFF;
 		ClearMessage();
-		sprintf(Message,"Playing %ld times… (",(long)Nplay);
+		sprintf(Message,"Playing %ld times... (",(long)Nplay);
 		Print(wMessage,Message);
 		PrintNote(EndRepeatKey,EndRepeatChan,wMessage,Message);
 		Print(wMessage," will stop)");
@@ -1421,31 +1421,31 @@ for(j=0; j < MaxPerformanceControl; j++) {
 ok = YES;
 switch(Jcontrol) {
 	case 0:	/* _chan */
-		ShowMessage(TRUE,wMessage,"Waiting for MIDI message indicating channel…");
+		ShowMessage(TRUE,wMessage,"Waiting for MIDI message indicating channel...");
 		break;
 	case 1:	/* _vel */
-		ShowMessage(TRUE,wMessage,"Waiting for NoteOn message indicating velocity…");
+		ShowMessage(TRUE,wMessage,"Waiting for NoteOn message indicating velocity...");
 		break;
 	case 5:	/* _mod */
-		ShowMessage(TRUE,wMessage,"Move the modulation bender…");
+		ShowMessage(TRUE,wMessage,"Move the modulation bender...");
 		break;
 	case 8:	/* _pitchbend */
-		ShowMessage(TRUE,wMessage,"Move the pitch bender…");
+		ShowMessage(TRUE,wMessage,"Move the pitch bender...");
 		break;
 	case 11:	/* _press */
-		ShowMessage(TRUE,wMessage,"Play a note and adjust pressure…");
+		ShowMessage(TRUE,wMessage,"Play a note and adjust pressure...");
 		break;
 	case 16:	/* _volume */
-		ShowMessage(TRUE,wMessage,"Move the volume pedal…");
+		ShowMessage(TRUE,wMessage,"Move the volume pedal...");
 		break;
 	case 35:	/* _volumecontrol */
-		ShowMessage(TRUE,wMessage,"Move the controller you are using for volume…");
+		ShowMessage(TRUE,wMessage,"Move the controller you are using for volume...");
 		break;
 	case 36:	/* _pan */
-		ShowMessage(TRUE,wMessage,"Move the panoramic controller…");
+		ShowMessage(TRUE,wMessage,"Move the panoramic controller...");
 		break;
 	case 41:	/* _pancontrol */
-		ShowMessage(TRUE,wMessage,"Move the controller you are using for panoramic…");
+		ShowMessage(TRUE,wMessage,"Move the controller you are using for panoramic...");
 		break;
 	default:
 		ok = NO; break;
@@ -1665,7 +1665,7 @@ if (!OutMIDI) {
 
 #if WITH_REAL_TIME_MIDI
 if(Mute) {
-	Alert1("The ‘Mute’ button was checked on the control pannel…");
+	Alert1("The 'Mute' button was checked on the control pannel...");
 	Mute = FALSE;
 	HideWindow(Window[wInfo]);
 	MaintainMenus();
@@ -1673,12 +1673,12 @@ if(Mute) {
 	return(FAILED);
 	}
 if(SoundOn) {
-	Alert1("BP2 is already sending messages to the MIDI output…");
+	Alert1("BP2 is already sending messages to the MIDI output...");
 	return(FAILED);
 	}
 ResetMIDIControllers(YES,YES,YES);
 
-sprintf(Message,"Playing test on MIDI channel %ld… (Click to stop)",(long)(channel+1));
+sprintf(Message,"Playing test on MIDI channel %ld... (Click to stop)",(long)(channel+1));
 FlashInfo(Message);
 ShowMessage(TRUE,wMessage,"Tempo is set by the metronome. Click and type cmd-M to modify it.");
 ResetMIDI(FALSE);
@@ -1840,7 +1840,7 @@ long delay;
 MIDI_Event e;
 
 if(!IsMidiDriverOn()) {
-	Alert1("Can't send ‘AllNotesOff’ because no MIDI output is active");
+	Alert1("Can't send 'AllNotesOff' because no MIDI output is active");
 	return(ABORT);
 	}
 if(!OutMIDI) {
@@ -1849,7 +1849,7 @@ if(!OutMIDI) {
 	}
 
 #if WITH_REAL_TIME_MIDI
-ShowMessage(TRUE,wMessage,"Sending AllNotesOffs and NoteOffs…");
+ShowMessage(TRUE,wMessage,"Sending AllNotesOffs and NoteOffs...");
 delay = 20L;
 if(NEWTIMER) {
 	/* We can afford to mute the current output and send NoteOffs at a low level */

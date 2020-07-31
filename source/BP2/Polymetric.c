@@ -81,7 +81,7 @@ if(MySetHandleSize((Handle*)pp_a,(Size)(maxid * sizeof(tokenbyte))) != OK)
 
 PolyOn = TRUE;
 
-if(ShowMessages) ShowMessage(TRUE,wMessage,"Interpreting structure…");
+if(ShowMessages) ShowMessage(TRUE,wMessage,"Interpreting structure...");
 
 if(PrintArg(FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,stdout,wData,&p_b,pp_a) != OK) goto QUIT;
 	/* stdout and TEH are useless */
@@ -108,7 +108,7 @@ for(i=ZERO,level=0; (*p_b)[i] != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 		}
 	}
 if(level != 0) {	/* '{' and '}' not balanced */
-	sprintf(Message,"Incorrect polymetric expression(s): ‘{’ and ‘}’ are not balanced. Can't proceed further…");
+	sprintf(Message,"Incorrect polymetric expression(s): '{' and '}' are not balanced. Can't proceed further...");
 	if(ScriptExecOn) Println(wTrace,Message);
 	else Alert1(Message);
 	goto QUIT;
@@ -117,7 +117,7 @@ if(level != 0) {	/* '{' and '}' not balanced */
 pos_init = ZERO;
 level = 0;
 if(NeedZouleb > 0) {
-	if(ShowMessages) ShowMessage(TRUE,wMessage,"Applying serial tools…");
+	if(ShowMessages) ShowMessage(TRUE,wMessage,"Applying serial tools...");
 	do {
 		r = Zouleb(&p_b,&level,&pos_init,FALSE,FALSE,0,FALSE,FALSE,NOSEED);
 		if(r != OK) goto QUIT;
@@ -132,7 +132,7 @@ if(Beta && NeedZouleb > 0) {
 	Println(wTrace,Message);
 	}
 
-if(ShowMessages) ShowMessage(TRUE,wMessage,"Expanding polymetric expression…");
+if(ShowMessages) ShowMessage(TRUE,wMessage,"Expanding polymetric expression...");
 
 needalphabet = FALSE;
 
@@ -180,19 +180,19 @@ for(i=ZERO; ; i+=2L) {
 	(**pp_a)[i] = (tokenbyte) m;
 	(**pp_a)[i+1] = (tokenbyte) p;
 	if(m == T1) continue;
-	if(m == T0 && p == 3) {	/* ‘+’ */
+	if(m == T0 && p == 3) {	/* '+' */
 		foundinit = TRUE;
 		continue;
 		}
-	if(m == T0 && p == 11) { /* ‘/’ */
+	if(m == T0 && p == 11) { /* '/' */
 		pos_init = i;
 		break;
 		}
 	if(foundinit) {
-		/* Insert ‘/1’ speed marker because none has been found. Otherwise, the initial… */
+		/* Insert '/1' speed marker because none has been found. Otherwise, the initial… */
 		/* … section numbers might be wrongly interpreted */
 		pos_init = i;
-		(**pp_a)[i] = T0; (**pp_a)[i+1] = 11; /* ‘/’ */
+		(**pp_a)[i] = T0; (**pp_a)[i+1] = 11; /* '/' */
 		i += 2;
 		(**pp_a)[i] = T1; (**pp_a)[i+1] = 0;
 		i += 2;
@@ -226,11 +226,11 @@ for(i=ZERO; ; i+=2L) {
 		}
 	if(m == T0) {
 		switch(p) {
-			case 21:	/* ‘*’ scale up */
+			case 21:	/* '*' scale up */
 				scale = GetScalingValue((*pp_a),i);
 				i += 4L;
 				break;
-			case 24:	/* ‘**’ scale down */
+			case 24:	/* '**' scale down */
 				scale = GetScalingValue((*pp_a),i);
 				scale = 1. / scale;
 				i += 4L;
@@ -253,7 +253,7 @@ for(i=ZERO; ; i+=2L) {
 	if(m == TEND && p == TEND) break;
 	if(m == T0) {
 		switch(p) {
-			case 11: /* ‘/’ speed up */
+			case 11: /* '/' speed up */
 				speed = firstscale * GetScalingValue((*pp_a),i);
 				scalespeed = scale / speed;
 				if(maxscalespeed < scalespeed) maxscalespeed = scalespeed;
@@ -270,7 +270,7 @@ for(i=ZERO; ; i+=2L) {
 					}
 				i += 4L;
 				break;
-			case 25:	/* ‘\’ speed down */
+			case 25:	/* '\' speed down */
 				speed = firstscale / GetScalingValue((*pp_a),i);
 				scalespeed = scale / speed;
 				if(maxscalespeed < scalespeed) maxscalespeed = scalespeed;
@@ -290,13 +290,13 @@ for(i=ZERO; ; i+=2L) {
 					}
 				i += 4L;
 				break;
-			case 21:	/* ‘*’ scale up */
+			case 21:	/* '*' scale up */
 				scale = GetScalingValue((*pp_a),i);
 				scalespeed = scale / speed;
 				if(maxscalespeed < scalespeed) maxscalespeed = scalespeed;
 				i += 4L;
 				break;
-			case 24:	/* ‘**’ scale down */
+			case 24:	/* '**' scale down */
 				scale = GetScalingValue((*pp_a),i);
 				scale = 1. / scale;
 				scalespeed = scale / speed;
@@ -508,7 +508,7 @@ for(i=ZERO; ; i+=2L) {
 				continue;
 				break;
 				
-			case 11:	/* ‘/’ speed up */
+			case 11:	/* '/' speed up */
 				speed = GetScalingValue((*pp_a),i);
 				if(scale != 0.) {
 					tempo = speed / scale;
@@ -520,7 +520,7 @@ for(i=ZERO; ; i+=2L) {
 				continue;
 				break;
 				
-			case 25:	/* ‘\’ speed down */
+			case 25:	/* '\' speed down */
 				if(Beta) FlashInfo("Speed down");
 				speed = GetScalingValue((*pp_a),i);
 				if(speed < 1.) {
@@ -538,7 +538,7 @@ for(i=ZERO; ; i+=2L) {
 				continue;
 				break;
 	
-			case 21:		/* ‘*’ scale up */
+			case 21:		/* '*' scale up */
 				scale = GetScalingValue((*pp_a),i);
 				if(scale != 0.) {
 					tempo = speed / scale;
@@ -550,7 +550,7 @@ for(i=ZERO; ; i+=2L) {
 				continue;
 				break;
 				
-			case 24:		/* ‘**’ scale down */
+			case 24:		/* '**' scale down */
 				scale = GetScalingValue((*pp_a),i);
 				scale = 1. / scale;
 				if(scale < InvMaxTempo) scale = 0.;
@@ -585,7 +585,7 @@ TOOBIG:
 			}
 		
 ENTERMETRONOM:
-		rep = AnswerWith("Set metronome to…","60",Message);
+		rep = AnswerWith("Set metronome to...","60",Message);
 		if(rep == ABORT) {
 			rep = Answer("Do you really want to abort this job",'N');
 			if(rep == YES) {
@@ -610,7 +610,7 @@ SETMETRONOM:
 		}
 	if(!QuantizeOK) {
 		BPActivateWindow(SLOW,wTimeAccuracy);
-		rep = Answer("Set ‘Quantize’ to true (no other way!)",'Y');
+		rep = Answer("Set 'Quantize' to true (no other way!)",'Y');
 		if(rep != YES && Answer("Do you really want to abort this job",'Y') == YES) {
 			r = ABORT;
 			goto QUIT;
@@ -664,11 +664,11 @@ SETMETRONOM:
 		
 CHANGEQUANTIZE:
 		sprintf(Message,"%ld",(long)newquantize);
-		rep = AnswerWith("Set quantization to…",Message,Message);
+		rep = AnswerWith("Set quantization to...",Message,Message);
 		if(rep == ABORT) {
 
 WANTABORT:
-			rep = Answer("Do you want to abort this job (answer ‘no’ to get another option)",'Y');
+			rep = Answer("Do you want to abort this job (answer 'no' to get another option)",'Y');
 			if(rep == YES) {
 				r = ABORT;
 				goto QUIT;
@@ -788,11 +788,11 @@ if(Maxevent >= INT_MAX) {	// FIXME ? This comparison is never true with sizeof(l
 	goto QUIT;
 	}
 	
-OkShowExpand = TRUE;	/* OK to display prolongational gaps “_” */
+OkShowExpand = TRUE;	/* OK to display prolongational gaps "_" */
 if(nsymb > 500L || numberprolongations > 100 || ((Prod / firstscale) > 100)) {
 	if(ShowMessages) {
 		if(nsymb > 500L) {
-			sprintf(Message,"Expanded polymetric expression would contain %ld symbols…",(long)nsymb);
+			sprintf(Message,"Expanded polymetric expression would contain %ld symbols...",(long)nsymb);
 			FlashInfo(Message);
 			}
 		if(ExpandOn) ShowMessage(TRUE,wMessage,"Expanded expression is too large for display");
@@ -829,7 +829,7 @@ long level;
 unsigned long i,j,jmax,gcd,g,h,lastbyte,oldpos,ic,id,**p_maxic,useless,ptempo,qtempo;
 
 if(ShowMessages && Beta && 0) {
-	sprintf(Message,"Expanding polymetric expression [position %ul]…",(*p_pos));
+	sprintf(Message,"Expanding polymetric expression [position %ul]...",(*p_pos));
 	ShowMessage(TRUE,wMessage,Message);
 	}
 PleaseWait();
@@ -918,7 +918,7 @@ if((p_qgap = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) {
 oldpos = (*p_pos);
 restart = FALSE;
 if(period && comma) {
-	sprintf(Message,"Error in polymetric expression.\rThe same expression contains both ‘•’ and a comma…");
+	sprintf(Message,"Error in polymetric expression.\rThe same expression contains both '•' and a comma...");
 	if(ScriptExecOn) Println(wTrace,Message);
 	else Alert1(Message);
 	result = ABORT;
@@ -945,7 +945,7 @@ ptempo = qtempo = 1L;
 prevscale = scale = oldscale;
 prevspeed = speed = oldspeed;
 if(speed > TokenLimit || (1./speed) > TokenLimit) {
-	Alert1("Unexpected overflow in polymetric formula (case 14). You may send this item to the designers…");
+	Alert1("Unexpected overflow in polymetric formula (case 14). You may send this item to the designers...");
 	result = ABORT; goto OUT;
 	}
 
@@ -971,7 +971,7 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 			SetSelect(lastbyte,lastbyte,TEH[Nw]);
 			}
 		if(Dirty[wAlphabet]) {
-			Alert1("Alphabet changed. Must recompile…");
+			Alert1("Alphabet changed. Must recompile...");
 			result = ABORT; goto OUT;
 			}
 		Dirty[wAlphabet] = dirtymem;
@@ -1004,7 +1004,7 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 	if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 		result = ABORT; goto OUT;
 		}
- 	if(m == T0 && p == 21) {  /* ‘*’ scale up */
+ 	if(m == T0 && p == 21) {  /* '*' scale up */
  		scale = 0.;
  		do {
  			i += 2;
@@ -1016,7 +1016,7 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 		i -= 2;
 		continue;
  		}
- 	if(m == T0 && p == 24) {  /* ‘**’ scale down */
+ 	if(m == T0 && p == 24) {  /* '**' scale down */
  		s = 0.;
  		do {
  			i += 2;
@@ -1026,11 +1026,11 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 			}
 		while(m == T1);
 		if(s != 0.) scale = 1. / s;
-		else if(Beta) Alert1("Err. PolyExpand() after ‘**’. s = 0.");
+		else if(Beta) Alert1("Err. PolyExpand() after '**'. s = 0.");
 		i -= 2;
 		continue;
  		}
- 	if(m == T0 && p == 25) {  /* ‘\’ speed down */
+ 	if(m == T0 && p == 25) {  /* '\' speed down */
  		s = 0.;
  		do {
  			i += 2;
@@ -1040,11 +1040,11 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 			}
 		while(m == T1);
 		if(s != 0.) speed = 1. / s;
-		else if(Beta) Alert1("Err. PolyExpand() after ‘\\’. s = 0.");
+		else if(Beta) Alert1("Err. PolyExpand() after '\\'. s = 0.");
 		i -= 2;
 		continue;
  		}
- 	if(m == T0 && p == 11 && !tempomark) {	/* ‘/’ speed up */
+ 	if(m == T0 && p == 11 && !tempomark) {	/* '/' speed up */
  		tempomark = TRUE;
  		foundtokens = TRUE;
  		firstistempo = (*p_firstistempo)[a] = FALSE;
@@ -1061,7 +1061,7 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 				}
 			else {
 				tempomark = FALSE; 		/* two bytes have been read */
-				/* process ‘k’ (and perhaps ‘g’) */
+				/* process 'k' (and perhaps 'g') */
 				}
 			}
 		else {								/* fractional silence */
@@ -1071,10 +1071,10 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 				continue;		/* read next byte */
 				}
 			/* two bytes have been read */
-			if((*p_b)[i+2] == T0 && (*p_b)[i+3] == 11) {	/* ‘/’ */
+			if((*p_b)[i+2] == T0 && (*p_b)[i+3] == 11) {	/* '/' */
 				continue;
 				}
-			/* process number ‘g’: it is a silence. */	
+			/* process number 'g': it is a silence. */	
 			}
 		}
 	tempomark = FALSE;
@@ -1125,7 +1125,7 @@ FIXTEMP:
 			if(scale >= 1. || scale == 0.) {
 				y = modf((scale/(double)TOKBASE),&x);
 				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 21;	/* ‘*’ scale up */
+				(*((*pp_c)[a]))[ic++] = 21;	/* '*' scale up */
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
@@ -1134,7 +1134,7 @@ FIXTEMP:
 			else {
 				y = modf(((1./scale)/(double)TOKBASE),&x);
 				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 24;	/* ‘**’ scale down */
+				(*((*pp_c)[a]))[ic++] = 24;	/* '**' scale down */
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
@@ -1146,7 +1146,7 @@ FIXTEMP:
 			if(speed >= 1.) {
 				y = modf((speed / (double)TOKBASE),&x);
 				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 11;	/* ‘/’ speed up */
+				(*((*pp_c)[a]))[ic++] = 11;	/* '/' speed up */
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
@@ -1155,7 +1155,7 @@ FIXTEMP:
 			else  {
 				y = modf((1. / speed / (double)TOKBASE),&x);
 				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 25;	/* ‘\’ speed down */
+				(*((*pp_c)[a]))[ic++] = 25;	/* '\' speed down */
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
@@ -1217,7 +1217,7 @@ FIXTEMP:
 				if(scale >= 1. || scale == 0.) {
 					y = modf((scale/(double)TOKBASE),&x);
 					(*((*pp_c)[a]))[ic++] = T0;
-					(*((*pp_c)[a]))[ic++] = 21;	/* ‘*’ scale up */
+					(*((*pp_c)[a]))[ic++] = 21;	/* '*' scale up */
 					(*((*pp_c)[a]))[ic++] = T1;
 					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 					(*((*pp_c)[a]))[ic++] = T1;
@@ -1226,7 +1226,7 @@ FIXTEMP:
 				else {
 					y = modf(((1./scale)/(double)TOKBASE),&x);
 					(*((*pp_c)[a]))[ic++] = T0;
-					(*((*pp_c)[a]))[ic++] = 24;	/* ‘**’ scale down */
+					(*((*pp_c)[a]))[ic++] = 24;	/* '**' scale down */
 					(*((*pp_c)[a]))[ic++] = T1;
 					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 					(*((*pp_c)[a]))[ic++] = T1;
@@ -1238,7 +1238,7 @@ FIXTEMP:
 				if(speed >= 1.) {
 					y = modf((speed / (double)TOKBASE),&x);
 					(*((*pp_c)[a]))[ic++] = T0;
-					(*((*pp_c)[a]))[ic++] = 11;	/* ‘/’ speed up */
+					(*((*pp_c)[a]))[ic++] = 11;	/* '/' speed up */
 					(*((*pp_c)[a]))[ic++] = T1;
 					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 					(*((*pp_c)[a]))[ic++] = T1;
@@ -1247,7 +1247,7 @@ FIXTEMP:
 				else  {
 					y = modf((1. / speed / (double)TOKBASE),&x);
 					(*((*pp_c)[a]))[ic++] = T0;
-					(*((*pp_c)[a]))[ic++] = 25;	/* ‘\’ speed down */
+					(*((*pp_c)[a]))[ic++] = 25;	/* '\' speed down */
 					(*((*pp_c)[a]))[ic++] = T1;
 					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 					(*((*pp_c)[a]))[ic++] = T1;
@@ -1314,7 +1314,7 @@ FIXTEMP:
 			if(scale >= 1. || scale == 0.) {
 				y = modf((scale / (double)TOKBASE),&x);
 				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 21;	/* ‘*’ scale up */
+				(*((*pp_c)[a]))[ic++] = 21;	/* '*' scale up */
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
@@ -1323,7 +1323,7 @@ FIXTEMP:
 			else {
 				y = modf(((1. / scale) / (double)TOKBASE),&x);
 				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 24;	/* ‘**’ scale down */
+				(*((*pp_c)[a]))[ic++] = 24;	/* '**' scale down */
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
@@ -1335,7 +1335,7 @@ FIXTEMP:
 			if(speed >= 1.) {
 				y = modf((speed / (double)TOKBASE),&x);
 				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 11; /* ‘/’ speed up */
+				(*((*pp_c)[a]))[ic++] = 11; /* '/' speed up */
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
@@ -1344,7 +1344,7 @@ FIXTEMP:
 			else {
 				y = modf((1. / speed / (double)TOKBASE),&x);
 				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 25; /* ‘\’ speed down */
+				(*((*pp_c)[a]))[ic++] = 25; /* '\' speed down */
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
@@ -1432,7 +1432,7 @@ FIXTEMP:
 			if(scale >= 1. || scale == 0.) {
 				y = modf((scale / (double)TOKBASE),&x); 
 				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 21;	/* ‘*’ scale up */
+				(*((*pp_c)[a]))[ic++] = 21;	/* '*' scale up */
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
@@ -1441,7 +1441,7 @@ FIXTEMP:
 			else {
 				y = modf(((1. / scale) / (double)TOKBASE),&x);
 				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 24;	/* ‘**’ scale down */
+				(*((*pp_c)[a]))[ic++] = 24;	/* '**' scale down */
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
@@ -1453,7 +1453,7 @@ FIXTEMP:
 				}
 			if(speed >= 1.) {
 				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 11;	/* ‘/’ speed up */
+				(*((*pp_c)[a]))[ic++] = 11;	/* '/' speed up */
 				y = modf((speed / (double)TOKBASE),&x);
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
@@ -1462,7 +1462,7 @@ FIXTEMP:
 				}
 			else {
 				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 25;	/* ‘\’ speed down */
+				(*((*pp_c)[a]))[ic++] = 25;	/* '\' speed down */
 				y = modf((1. / speed / (double)TOKBASE),&x);
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
@@ -1521,7 +1521,7 @@ FIXTEMP:
 		if(scale >= 1. || scale == 0.) {
 			y = modf((scale / (double)TOKBASE),&x); 
 			(*((*pp_c)[a]))[ic++] = T0;
-			(*((*pp_c)[a]))[ic++] = 21;	/* ‘*’ scale up */
+			(*((*pp_c)[a]))[ic++] = 21;	/* '*' scale up */
 			(*((*pp_c)[a]))[ic++] = T1;
 			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 			(*((*pp_c)[a]))[ic++] = T1;
@@ -1530,7 +1530,7 @@ FIXTEMP:
 		else {
 			y = modf(((1. / scale) / (double)TOKBASE),&x);
 			(*((*pp_c)[a]))[ic++] = T0;
-			(*((*pp_c)[a]))[ic++] = 24;	/* ‘**’ scale down */
+			(*((*pp_c)[a]))[ic++] = 24;	/* '**' scale down */
 			(*((*pp_c)[a]))[ic++] = T1;
 			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 			(*((*pp_c)[a]))[ic++] = T1;
@@ -1541,7 +1541,7 @@ FIXTEMP:
 			}
 		if(speed >= 1.) {
 			(*((*pp_c)[a]))[ic++] = T0;
-			(*((*pp_c)[a]))[ic++] = 11;	/* ‘/’ speed up */
+			(*((*pp_c)[a]))[ic++] = 11;	/* '/' speed up */
 			y = modf((speed / (double)TOKBASE),&x);
 			(*((*pp_c)[a]))[ic++] = T1;
 			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
@@ -1550,7 +1550,7 @@ FIXTEMP:
 			}
 		else {
 			(*((*pp_c)[a]))[ic++] = T0;
-			(*((*pp_c)[a]))[ic++] = 25;	/* ‘\’ speed down */
+			(*((*pp_c)[a]))[ic++] = 25;	/* '\' speed down */
 			y = modf((1. / speed / (double)TOKBASE),&x);
 			(*((*pp_c)[a]))[ic++] = T1;
 			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
@@ -1599,17 +1599,17 @@ FIXTEMP:
 				switch(m) {
 					case T4:
 						sprintf(Message,
-							"Variable ‘%s’ was found (field level %ld)",*((*p_Var)[p]),
+							"Variable '%s' was found (field level %ld)",*((*p_Var)[p]),
 								(long)a);
 						break;
 					case T6:
 						sprintf(Message,
-							"Unreplaced wild card ‘?%ld’ was found (field level %ld)",
+							"Unreplaced wild card '?%ld' was found (field level %ld)",
 								(long)p,(long)a);
 						break;
 					case T0:
 						sprintf(Message,
-							"Unreplaced wild card ‘?’ was found (field level %ld)",
+							"Unreplaced wild card '?' was found (field level %ld)",
 								(long)a);
 						break;
 					}
@@ -1673,7 +1673,7 @@ for(a=kk=0; a < k; a++) {
 		}
 	if(!toobigitem) {
 		if((L=LCM(L,(*p_p)[a],&overflow)) < 1.) {
-			Println(wTrace,"Unexpected overflow in polymetric formula (case 1). You may send this item to the designers…");
+			Println(wTrace,"Unexpected overflow in polymetric formula (case 1). You may send this item to the designers...");
 			result = FAILED; goto OUT;
 			}
 		if(overflow) {
@@ -1685,13 +1685,13 @@ for(a=kk=0; a < k; a++) {
 		isequal = Equal(0.01,(*p_p)[a],(*p_q)[a],pmax,qmax,&overflow);
 		if(overflow) TellComplex();
 		if(isequal == ABORT) {
-			Println(wTrace,"Unexpected overflow in polymetric formula (case 5). You may send this item to the designers…");
+			Println(wTrace,"Unexpected overflow in polymetric formula (case 5). You may send this item to the designers...");
 			result = FAILED; goto OUT;
 			}
 		if(fixlength && (isequal != TRUE)) {
-			if(comma) sprintf(Message,"Conflicting field duration (field %ld)…\r",
+			if(comma) sprintf(Message,"Conflicting field duration (field %ld)...\r",
 				(long)(a+1L));
-			else sprintf(Message,"Conflicting beat duration (beat %ld)…\r",
+			else sprintf(Message,"Conflicting beat duration (beat %ld)...\r",
 				(long)(a+1L));
 			Print(wTrace,Message);
 			result = FAILED; goto OUT;
@@ -1737,7 +1737,7 @@ for(a=0; a < k; a++) {	/* Calculate undetermined rests */
 				(*p_p)[a] = (*p_p)[a] / gcd;
 				(*p_q)[a] = (*p_q)[a] * ((*p_vargap)[a] / gcd);
 				if((lcm=LCM(qmax,(*p_q)[a],&overflow)) < 1.) {
-					Println(wTrace,"Unexpected overflow in polymetric formula (case 2). You may send this item to the designers…");
+					Println(wTrace,"Unexpected overflow in polymetric formula (case 2). You may send this item to the designers...");
 					result = ABORT; goto OUT;
 					}
 				if(overflow) TellComplex();
@@ -1767,7 +1767,7 @@ if(restart) goto START;		/* Now rests are known */
 
 if(comma) {
 	if(Add((*p_P),(*p_Q),pmax,qmax,&xp,&xq,&overflow) != OK) {
-		Println(wTrace,"Unexpected overflow in polymetric formula (case 7). You may send this item to the designers…");
+		Println(wTrace,"Unexpected overflow in polymetric formula (case 7). You may send this item to the designers...");
 		result = ABORT; goto OUT;
 		}
 	if(overflow) TellComplex();
@@ -1782,7 +1782,7 @@ if(comma) {
 else {
 	if(Add((*p_P),(*p_Q),((double) kk * pmax),qmax,&xp,&xq,&overflow)
 			!= OK) {
-		Println(wTrace,"Unexpected overflow in polymetric formula (case 8). You may send this item to the designers…");
+		Println(wTrace,"Unexpected overflow in polymetric formula (case 8). You may send this item to the designers...");
 		result = ABORT; goto OUT;
 		}
 	if(overflow) TellComplex();
@@ -1802,7 +1802,7 @@ if(!toobigitem) {
 		if((*p_p)[a] == 0.) continue;
 		(*p_pp)[a] = L / (*p_p)[a];
 		if((M = LCM(M,(*p_q)[a] * (*p_pp)[a],&overflow)) < 1.) {
-			Println(wTrace,"Unexpected overflow in polymetric formula (case 10). You may send this item to the designers…");
+			Println(wTrace,"Unexpected overflow in polymetric formula (case 10). You may send this item to the designers...");
 			result = ABORT;
 			goto OUT;
 			}
@@ -1861,7 +1861,7 @@ for(a=0; a < k; a++) {
 		if(scale >= 1. || scale == 0.) {
 			y = modf((scale / (double)TOKBASE),&x);
 			(**pp_a)[id++] = T0;
-			(**pp_a)[id++] = 21;	/* ‘*’ scale up */
+			(**pp_a)[id++] = 21;	/* '*' scale up */
 			(**pp_a)[id++] = T1;
 			(**pp_a)[id++] = (tokenbyte) x;
 			(**pp_a)[id++] = T1;
@@ -1870,7 +1870,7 @@ for(a=0; a < k; a++) {
 		else {
 			y = modf(((1. / scale) / (double)TOKBASE),&x);
 			(**pp_a)[id++] = T0;
-			(**pp_a)[id++] = 24;	/* ‘**’ scale down */
+			(**pp_a)[id++] = 24;	/* '**' scale down */
 			(**pp_a)[id++] = T1;
 			(**pp_a)[id++] = (tokenbyte) x;
 			(**pp_a)[id++] = T1;
@@ -1880,7 +1880,7 @@ for(a=0; a < k; a++) {
 		if(speed >= 1.) {
 			y = modf((speed / (double)TOKBASE),&x);
 			(**pp_a)[id++] = T0;
-			(**pp_a)[id++] = 11;	/* ‘/’ speed up */
+			(**pp_a)[id++] = 11;	/* '/' speed up */
 			(**pp_a)[id++] = T1;
 			(**pp_a)[id++] = (tokenbyte) x;
 			(**pp_a)[id++] = T1;
@@ -1889,7 +1889,7 @@ for(a=0; a < k; a++) {
 		else  {
 			y = modf((1. / speed / (double)TOKBASE),&x);
 			(**pp_a)[id++] = T0;
-			(**pp_a)[id++] = 25;	/* ‘\’ speed down */
+			(**pp_a)[id++] = 25;	/* '\' speed down */
 			(**pp_a)[id++] = T1;
 			(**pp_a)[id++] = (tokenbyte) x;
 			(**pp_a)[id++] = T1;
@@ -1917,38 +1917,38 @@ for(a=0; a < k; a++) {
 		if(m == TEND && p == TEND) break;
 		if(m == T0) {
 			switch(p) {
-				case 12: /* ‘{’ */
+				case 12: /* '{' */
 					level++;
 					forceshowtempo = TRUE;
 					goto COPYIT;
 					break;
-				case 13: /* ‘}’ */
+				case 13: /* '}' */
 					level--;
 					forceshowtempo = TRUE;
 					goto COPYIT;
 					break;
-				case 14: /* ‘,’ */
+				case 14: /* ',' */
 					forceshowtempo = TRUE;
 					goto COPYIT;
 					break;
 				case 22:	/* Forget '|' */
 				case 23:
 					break;
-				case 21:	/* ‘*’ scale up */
+				case 21:	/* '*' scale up */
 					s = GetScalingValue(((*pp_c)[a]),ic);
 					scale = rescale * s;
 					ic += 4L;
 					break;
-				case 24:	/* ‘**’ scale down */
+				case 24:	/* '**' scale down */
 					s = GetScalingValue(((*pp_c)[a]),ic);
 					scale = rescale / s;
 					ic += 4L;
 					break;
-				case 11:	/* ‘/’ speed up */
+				case 11:	/* '/' speed up */
 					speed = GetScalingValue(((*pp_c)[a]),ic);
 					speed = speed * ((*p_r)[a]);
 					break;
-				case 25:	/* ‘\’ speed down */
+				case 25:	/* '\' speed down */
 					speed = GetScalingValue(((*pp_c)[a]),ic);
 					speed = 1. / speed;
 					speed = speed * ((*p_r)[a]);
@@ -1957,8 +1957,8 @@ for(a=0; a < k; a++) {
 					goto COPYIT;
 				}
 			switch(p) {
-				case 11:	/* ‘/’ speed up */
-				case 25:	/* ‘\’ speed down */
+				case 11:	/* '/' speed up */
+				case 25:	/* '\' speed down */
 					xp = speed;
 					xq = scale;
 					if(speed > MaxTempo || scale > MaxTempo) {
@@ -1982,7 +1982,7 @@ for(a=0; a < k; a++) {
 						if(xq >= 1. || xq == 0.) {
 							y = modf((xq / (double)TOKBASE),&x);
 							(**pp_a)[id++] = T0;
-							(**pp_a)[id++] = 21;	/* ‘*’ scale up */
+							(**pp_a)[id++] = 21;	/* '*' scale up */
 							(**pp_a)[id++] = T1;
 							(**pp_a)[id++] = (tokenbyte) x;
 							(**pp_a)[id++] = T1;
@@ -1991,7 +1991,7 @@ for(a=0; a < k; a++) {
 						else  {
 							y = modf((1. / xq / (double)TOKBASE),&x);
 							(**pp_a)[id++] = T0;
-							(**pp_a)[id++] = 24;	/* ‘**’ scale down */
+							(**pp_a)[id++] = 24;	/* '**' scale down */
 							(**pp_a)[id++] = T1;
 							(**pp_a)[id++] = (tokenbyte) x;
 							(**pp_a)[id++] = T1;
@@ -2001,7 +2001,7 @@ for(a=0; a < k; a++) {
 						if(xp >= 1.) {
 							y = modf((xp / (double)TOKBASE),&x);
 							(**pp_a)[id++] = T0;
-							(**pp_a)[id++] = 11;	/* ‘/’ speed up */
+							(**pp_a)[id++] = 11;	/* '/' speed up */
 							(**pp_a)[id++] = T1;
 							(**pp_a)[id++] = (tokenbyte) x;
 							(**pp_a)[id++] = T1;
@@ -2010,7 +2010,7 @@ for(a=0; a < k; a++) {
 						else  {
 							y = modf((1. / xp / (double)TOKBASE),&x);
 							(**pp_a)[id++] = T0;
-							(**pp_a)[id++] = 25;	/* ‘\’ speed down */
+							(**pp_a)[id++] = 25;	/* '\' speed down */
 							(**pp_a)[id++] = T1;
 							(**pp_a)[id++] = (tokenbyte) x;
 							(**pp_a)[id++] = T1;
@@ -2086,9 +2086,9 @@ TellComplex(void)
 {
 if(!SaidTooComplex) {
 	SaidTooComplex = TRUE;
-	FlashInfo("Formula is too complex. Roundings are performed…");
+	FlashInfo("Formula is too complex. Roundings are performed...");
 	if(ShowMessages)
-		ShowMessage(TRUE,wMessage,"Formula is too complex. Roundings are performed…");
+		ShowMessage(TRUE,wMessage,"Formula is too complex. Roundings are performed...");
 	}
 return(OK);
 }

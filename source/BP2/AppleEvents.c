@@ -171,7 +171,7 @@ if(err) goto OUT;
 // count the number of descriptor records in the list
 err = AECountItems(&docList,&itemsInList);
 
-sprintf(Message,"Opening %ld file(s)…",(long)itemsInList);
+sprintf(Message,"Opening %ld file(s)...",(long)itemsInList);
 /* PrintBehindln(wTrace,Message); */
 if(ShowMessages) ShowMessage(TRUE,wMessage,Message);
 
@@ -187,7 +187,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 	Strip(name);  			// FIXME:  filenames can begin or end with spaces! (but currently cause problems for BP2)
 	if(name[0] == '\0') goto NEWINDEX;
 	/* if(name[0] != '-'&& name[0] != '+') {	
-		sprintf(Message,"File ‘%s’ doesn't have a name that BP2 would recognize…\r",name);
+		sprintf(Message,"File '%s' doesn't have a name that BP2 would recognize...\r",name);
 		Print(wTrace,Message);
 		DisplayHelp("Types-creators");
 		failedonce = TRUE;
@@ -202,7 +202,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 			goto NEWINDEX;
 			}
 		if(loaded[wind]) {
-			sprintf(Message,"BP2 can't open several files of the same type. ‘%s’ was ignored…",name);
+			sprintf(Message,"BP2 can't open several files of the same type. '%s' was ignored...",name);
 			Println(wTrace,Message);
 			failedonce = TRUE;
 			goto NEWINDEX;
@@ -225,14 +225,14 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 			case iMidiDriver:
 				break;
 			default:
-				sprintf(Message,"BP2 can't open file ‘%s’ from the Finder…",name);
+				sprintf(Message,"BP2 can't open file '%s' from the Finder...",name);
 				Println(wTrace,Message);
 				failedonce = TRUE;
 				goto NEWINDEX;
 			break;
 			}
 		if(ClearWindow(FALSE,wind) != OK) goto NEWINDEX;
-		sprintf(Message,"Opening ‘%s’…",name);
+		sprintf(Message,"Opening '%s'...",name);
 		ShowMessage(TRUE,wMessage,Message);
 		if (wind != iMidiDriver) { // don't change stored FSSpec for iMidiDriver until the file is successfully opened
 						   // eventually, I would like for all loads to work this way -- akozar
@@ -387,7 +387,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 			}
 		else {
 			TellError(39,io);
-			sprintf(Message,"BP2 was unable to open ‘%s’… [Error code %ld]\r",
+			sprintf(Message,"BP2 was unable to open '%s'... [Error code %ld]\r",
 				name,(long)io);
 			Println(wTrace,Message);
 			failedonce = TRUE;
@@ -396,7 +396,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 		Dirty[wind] = FALSE;
 		}
 	else {
-		sprintf(Message,"Dragging ‘%s’ to BP2 had no effect…\r",name);
+		sprintf(Message,"Dragging '%s' to BP2 had no effect...\r",name);
 		ShowMessage(TRUE,wMessage,Message);
 		// failedonce = TRUE;
 		}
@@ -424,7 +424,7 @@ return(noErr);
 pascal OSErr MyHandleQUIT(const AppleEvent *p_event, AppleEvent *p_reply,long handlerRefcon)
 {
 EventState = EXIT;
-ShowMessage(TRUE,wMessage,"Received Apple Event of class 'aevt' ID 'quit'. Quitting BP2…");
+ShowMessage(TRUE,wMessage,"Received Apple Event of class 'aevt' ID 'quit'. Quitting BP2...");
 return(noErr);
 }
 
@@ -683,7 +683,7 @@ if(size > 0) {
 				}
 			}
 		if(i >= MAXCONVENTIONS) {
-			sprintf(LineBuff,"\rBP2 received a 'conv' Apple Event from a distant client, but could not interpret its data ‘%s’ as a note convention",
+			sprintf(LineBuff,"\rBP2 received a 'conv' Apple Event from a distant client, but could not interpret its data '%s' as a note convention",
 				Message);
 			Println(wTrace,LineBuff);
 			Println(wTrace,"Note conventions recognized by this version are:");
@@ -720,7 +720,7 @@ switch(theID) {
 		if(!ComputeOn && !PolyOn && !CompileOn && !SoundOn && !SelectOn &&
 			!SetTimeOn && !GraphicOn && !PrintOn /* && !ReadKeyBoardOn */
 			&& !HangOn && !ScriptExecOn) break;
-		ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'over'. Aborting…");
+		ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'over'. Aborting...");
 		EventState = ABORT;
 		mStop(0);
 		break;
@@ -740,7 +740,7 @@ switch(theID) {
 		if(!ComputeOn && !PolyOn && !CompileOn && !SoundOn && !SelectOn &&
 			!SetTimeOn && !GraphicOn && !PrintOn /* && !ReadKeyBoardOn */
 			&& !HangOn && !ScriptExecOn) break;
-		ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'skip'. Skipping next item…");
+		ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'skip'. Skipping next item...");
 		SkipFlag = TRUE; break;
 	case QuickID:
 		if(!ComputeOn && !PolyOn && !CompileOn && !SoundOn && !SelectOn &&
@@ -753,12 +753,12 @@ switch(theID) {
 			!SetTimeOn && !GraphicOn && !PrintOn /* && !ReadKeyBoardOn */
 			&& !HangOn && !ScriptExecOn) break;
 		if(!PauseOn) break;
-		ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'cont'. Resuming…");
+		ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'cont'. Resuming...");
 		mResume(0);
 		EventState = RESUME;
 		break;
 	case ImprovizeID:
-		ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'impr'. Improvizing…");
+		ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'impr'. Improvizing...");
 		ItemNumber = ZERO;
 		Maxitems = ZERO;
 		ReadKeyBoardOn = FALSE; Jcontrol = -1;
@@ -783,7 +783,7 @@ switch(theID) {
 		else EventState = NO;
 		break;
 	case DoScriptID:
-		ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'dosc'. Executing script…");
+		ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'dosc'. Executing script...");
 		r = RunScript(wScript,YES);
 		if(r != OK) EventState = r;
 		else EventState = NO;
@@ -843,49 +843,49 @@ if(size > 0) {
 	(*h_text)[size] = '\0'; /* Now it does */
 	switch(theID) {
 		case PlayEventID:
-			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'play'. Playing text score…");
+			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'play'. Playing text score...");
 			r = PlayHandle(h_text,NO);
 			if(r != OK) EventState = r;
 			else EventState = NO;
 			break;
 		case NameID:
-			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'name'. Changing names…");
+			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'name'. Changing names...");
 			r = ChangeNames(h_text);
 			if(r != OK) EventState = r;
 			else EventState = NO;
 			break;
 		case GrammarID:
-			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'gram'. Loading grammar…");
+			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'gram'. Loading grammar...");
 			w = wGrammar;
 			goto PASTE;
 			break;
 		case AlphabetID:
-			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'alph'. Loading alphabet…");
+			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'alph'. Loading alphabet...");
 			w = wAlphabet;
 			goto PASTE;
 			break;
 		case GlossaryID:
-			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'glos'. Loading glossary…");
+			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'glos'. Loading glossary...");
 			w = wGlossary;
 			goto PASTE;
 			break;
 		case InteractionID:
-			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'inte'. Loading interaction…");
+			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'inte'. Loading interaction...");
 			w = wInteraction;
 			goto PASTE;
 			break;
 		case DataID:
-			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'data'. Loading data…");
+			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'data'. Loading data...");
 			w = wData;
 			goto PASTE;
 			break;
 		case ScriptID:
-			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'scri'. Loading script…");
+			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'scri'. Loading script...");
 			w = wScript;
 			goto PASTE;
 			break;
 		case CsoundInstrID:
-			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'csin'. Loading Csound instrument file…");
+			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'csin'. Loading Csound instrument file...");
 			w = wScript;
 			goto PASTE;
 			break;

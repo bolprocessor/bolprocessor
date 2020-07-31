@@ -180,7 +180,7 @@ if(Oms || NEWTIMER) {
 		while(result == AGAIN && i < 1000);
 		Nbytes++;
 		}
-	else FlashInfo("Output MIDI port was not foundÉ Check OMS setup!");
+	else FlashInfo("Output MIDI port was not found... Check OMS setup!");
 	if(result == ABORT) {
 		if(Beta) Println(wTrace,"Err. DriverWrite(). Cause() returned ABORT");
 		io = memFullErr;
@@ -303,7 +303,7 @@ if(!InBuiltDriverOn) {
 	if(Beta) Alert1("Err. FixPort(). Driver is OFF");
 	return(ABORT);
 	}
-sprintf(Message,"MIDI output is now Ô%sÕ port",Portname[i]);
+sprintf(Message,"MIDI output is now '%s' port",Portname[i]);
 Alert1(Message);
 Dirty[iSettings] = TRUE;
 

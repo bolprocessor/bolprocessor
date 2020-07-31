@@ -90,7 +90,7 @@ if(NewFile(w,gFileType[w],fn,&reply)) {
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,Message);
-		sprintf(LineBuff,"Can't create file ‘%s’",Message);
+		sprintf(LineBuff,"Can't create file '%s'",Message);
 		Alert1(LineBuff);
 		}
 	}
@@ -147,12 +147,12 @@ if(good) {
 					FlushFile(refnum);
 					MyFSClose(wAlphabet,refnum,p_spec);
 					Dirty[wAlphabet] = FALSE;
-					sprintf(Message,"Also saved ‘%s’",FileName[wAlphabet]);
+					sprintf(Message,"Also saved '%s'",FileName[wAlphabet]);
 					ShowMessage(TRUE,wMessage,Message);
 					CheckTextSize(wAlphabet);
 					}
 				else {
-					sprintf(Message,"Error saving ‘%s’",FileName[wAlphabet]);
+					sprintf(Message,"Error saving '%s'",FileName[wAlphabet]);
 					Alert1(Message);
 					}
 				}
@@ -164,7 +164,7 @@ if(good) {
 else {
 	TellError(76,io);
 	MyPtoCstr(MAXNAME,fn,LineBuff);
-	sprintf(Message,"Error opening ‘%s’",LineBuff);
+	sprintf(Message,"Error opening '%s'",LineBuff);
 	ShowMessage(TRUE,wMessage,Message);
 	return(FAILED);
 	}
@@ -759,7 +759,7 @@ int IdentifyBPFileType(FSSpec* spec)
 
 int PromptForFileFormat(int w, char* filename, int* type)
 {
-	sprintf(Message,"Saving %s…  In which format?", filename);
+	sprintf(Message,"Saving %s...  In which format?", filename);
 	ShowMessage(TRUE,wMessage,Message);
 	IsHTML[w] = IsText[w] = FALSE;
 	StopWait();
@@ -1396,15 +1396,15 @@ n = GetTextLength(w);
 if(n > (TEXTEDIT_MAXCHARS - 100)) {
 	if (WindowFullAlertLevel[w] < 1) {	// this test cannot be in the previous 'if'
 		if(FileName[w][0] != '\0')
-			sprintf(Message,"Window ‘%s’ is almost full",FileName[w]);
+			sprintf(Message,"Window '%s' is almost full",FileName[w]);
 		else
-			sprintf(Message,"Window ‘%s’ is almost full",WindowName[w]);
+			sprintf(Message,"Window '%s' is almost full",WindowName[w]);
 		Alert1(Message);
 		WindowFullAlertLevel[w] = 1;	// 1 means we've warned about being almost full
 		}
 	}
 else if (n < 0) {
-	sprintf(Message, "Text has overflowed the ‘%s’ window! Save your work and quit...", WindowName[w]);
+	sprintf(Message, "Text has overflowed the '%s' window! Save your work and quit...", WindowName[w]);
 	Alert1(Message);
 	EmergencyExit = TRUE;
 	WindowFullAlertLevel[w] = 3;	// 3 means overflowed
@@ -1536,7 +1536,7 @@ if (err == noErr && deleteIfExists)	{	// file exists
 	if (err != noErr) {
 		if(Beta) {
 			p2cstrcpy(LineBuff, filename);
-			sprintf(Message, "Can't delete temporary file ‘%s’", LineBuff);
+			sprintf(Message, "Can't delete temporary file '%s'", LineBuff);
 			Alert1(Message);
 			}
 		}
@@ -1553,7 +1553,7 @@ if (rep == OK && err == fnfErr) {		// FSSpec is good
 	else {
 		if(Beta) {
 			p2cstrcpy(LineBuff, filename);
-			sprintf(Message, "Can't create temporary file ‘%s’", LineBuff);
+			sprintf(Message, "Can't create temporary file '%s'", LineBuff);
 			Alert1(Message);
 			}
 		return(ABORT);
@@ -1597,7 +1597,7 @@ OSErr CloseAndDeleteTemp()
 		FlushVol(NULL, TempSpec.vRefNum);
 		if(io != noErr && Beta) {
 			TellError(11,io);
-			Alert1("Err. deleting ‘BP2.temp’");
+			Alert1("Err. deleting 'BP2.temp'");
 		}
 	}
 
@@ -1654,9 +1654,9 @@ Str255 fn;
 FIND:
 if(filename[0] != '\0') {
 	if(DocumentTypeName[w][0] != '\0' && w != wTrace)
-		sprintf(line3,"Locate ‘%s’ or other %s file",filename,DocumentTypeName[w]);
+		sprintf(line3,"Locate '%s' or other %s file",filename,DocumentTypeName[w]);
 	else
-		sprintf(line3,"Locate ‘%s’",filename);
+		sprintf(line3,"Locate '%s'",filename);
 	}
 else {
 	if(DocumentTypeName[w][0] != '\0' && w != wTrace)
@@ -1675,7 +1675,7 @@ if(!OldFile(w,type,fn,p_spec)) {
 	}
 p2cstrcpy(line2,fn);
 if(gFileType[w] != ftiAny && gFileType[w] != ftiText && IdentifyBPFileType(p_spec) != w) {
-	sprintf(Message,"BP2 is not sure that ‘%s’ is a(n) %s file. Do you want to load it anyway",
+	sprintf(Message,"BP2 is not sure that '%s' is a(n) %s file. Do you want to load it anyway",
 		line2, DocumentTypeName[w]);
 	memexec = ScriptExecOn; ScriptExecOn = 0;
 	rep = Answer(Message,'Y'); // default to 'Y' in case script is running
@@ -1719,7 +1719,7 @@ HideWindow(Window[wMessage]);
 // FIXME ? if (!openreally), should we be calling MyOpen().  If so, how does the
 //         file get closed later ?  - akozar
 if((io=MyOpen(p_spec,fsCurPerm,p_refnum)) != noErr && io != opWrErr) {
-	sprintf(Message,"Can't open ‘%s’",filename);
+	sprintf(Message,"Can't open '%s'",filename);
 	Alert1(Message);
 	TellError(83,io);
 	InputOn--;
@@ -1728,7 +1728,7 @@ if((io=MyOpen(p_spec,fsCurPerm,p_refnum)) != noErr && io != opWrErr) {
 if(io == opWrErr) {
 	io = SetFPos(*p_refnum,fsFromStart,ZERO);
 	if(io != noErr) {
-		sprintf(Message,"Can't reopen ‘%s’",filename);
+		sprintf(Message,"Can't reopen '%s'",filename);
 		Alert1(Message);
 		TellError(84,io);
 		InputOn--;
@@ -1814,7 +1814,7 @@ if(diff) {
 if(fileversion > Version) {
 	// It would be unusual for VersionName[fileversion] to exist if fileversion > Version
 	sprintf(Message,
-		"Can't use file version %s\rbecause ‘BP2’ version is %s.\r",
+		"Can't use file version %s\rbecause 'BP2' version is %s.\r",
 		VersionName[fileversion],VersionName[Version]);
 	if(!ScriptExecOn) Alert1(Message);
 	else PrintBehind(wTrace,Message);
@@ -1854,7 +1854,7 @@ for(iv=0; iv < MAXVERSION; iv++)
 	if((diff = strcmp(version,VersionName[iv])) == 0) break;
 if(iv > Version && name[0] != '\0') {
 	sprintf(Message,
-		"File ‘%s’ was created with a version of BP2 more recent than %s. Try to read it anyway (risky)",
+		"File '%s' was created with a version of BP2 more recent than %s. Try to read it anyway (risky)",
 			name,VersionName[Version]);
 	rep = Answer(Message,'N');
 	if(rep != YES) goto ERR;

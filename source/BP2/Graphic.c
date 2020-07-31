@@ -133,7 +133,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			}
 		k = (*((*p_Seq)[nseq]))[i];
 		if(k < 0) if(Beta) Alert1("Err. 'k' in DrawItem(). ");
-		if(k < 2) continue;	/* Reject ‘_’ and ‘-’ */
+		if(k < 2) continue;	/* Reject '_' and '-' */
 		if(kmode) {
 			if(p_object == NULL) {
 				if(Beta) Alert1("Err. DrawObject(). p_object == NULL");
@@ -217,7 +217,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			for(linenum=linemin; linenum < linemax; linenum++) {
 				if(tt1 > (*p_endx)[linenum]) goto CONT;
 				}
-			linemax = linenum + 1;	/* here ‘linenum’ has been incremented */
+			linemax = linenum + 1;	/* here 'linenum' has been incremented */
 			foundone = TRUE;
 			if(linenum >= maxlines) {
 				sprintf(Message,
@@ -1118,7 +1118,7 @@ if(Offscreen) {
 	GetGWorld(p_port,p_gdh);
 	flags = UpdateGWorld(&gMainGWorld,16,p_r,0,NULL,clipPix);
 	if(!LockPixels(GetGWorldPixMap(gMainGWorld))) {
-		Alert1("LockPixels Failed… ");
+		Alert1("LockPixels Failed... ");
 		return(ABORT);
 		}
 	SetGWorld(gMainGWorld,nil);

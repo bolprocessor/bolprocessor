@@ -335,7 +335,7 @@ for(i=i; i < j; i++) {
 		if(dot) q = 10L * q;
 		if(p > maxp || p < ZERO) {
 			if(!dot) q = ZERO;	/* Overflow */
-			sprintf(Message,"Number Ô%sÕ creates overflow. Max value is %ldÉ",
+			sprintf(Message,"Number '%s' creates overflow. Max value is %ld...",
 				s,(long)Infpos);
 			Println(wTrace,Message);
 			goto END;
@@ -344,7 +344,7 @@ for(i=i; i < j; i++) {
 		}
 	if(c == '.' || c == ',') {
 		if(dot) {
-			sprintf(Message,"Two decimal points or commas. Can't accept Ô%sÕ as a numberÉ",
+			sprintf(Message,"Two decimal points or commas. Can't accept '%s' as a number...",
 				s);
 			Println(wTrace,Message);
 			q = ZERO;	/* Error in string */
@@ -448,7 +448,7 @@ if(q < 1.) result = FAILED;
 if(result == OK) return(result);
 
 ERR:
-if(Beta) Println(wTrace,"\rCalculation overflowÉ");
+if(Beta) Println(wTrace,"\rCalculation overflow...");
 TellComplex();
 return(result);
 }

@@ -44,7 +44,7 @@ UpdateAutomata(void)
 {
 int j,s,jmax;
 
-ShowMessage(TRUE,wMessage,"Building tree automata for ‘smart cursor’");
+ShowMessage(TRUE,wMessage,"Building tree automata for 'smart cursor'");
 for(j=0; j < MaxProc; j++) AddWordToTrees((*p_GramProcedure)[j],PROC);
 for(j=0; j < MaxPerformanceControl; j++)
 	AddWordToTrees((*p_PerformanceControl)[j],CTRL);

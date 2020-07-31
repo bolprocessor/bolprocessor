@@ -334,7 +334,7 @@ return(FAILED);
 
 
 ReadLine1(int check,int w,long *p_i,long im,char *line,int size)
-/* Read line in TExt buffer.  Old version: length is limited to ‘size’. */
+/* Read line in TExt buffer.  Old version: length is limited to 'size'. */
 {
 int j,k,l;
 char c,oldc;
@@ -373,7 +373,7 @@ for(j=*p_i; j < im; j++) {
 		line[k] = '\0';
 		*p_i = ++j;
 		if(check) {
-			sprintf(Message,"\rSelection too long, truncated: %s…\r",line);
+			sprintf(Message,"\rSelection too long, truncated: %s...\r",line);
 			if(!ScriptExecOn) Alert1(Message);
 			else PrintBehindln(wTrace,Message);
 			return(FAILED);
@@ -1356,7 +1356,7 @@ while(TRUE) {
 		i++; j++;
 		if(j >= MAXNAME) {
 			line[j] = '\0';
-			sprintf(Message,"\rToo long name: %s… [max %ld chars]\r", line,(long)MAXNAME);
+			sprintf(Message,"\rToo long name: %s... [max %ld chars]\r", line,(long)MAXNAME);
 			Print(wTrace,Message);
 			return(FAILED);
 			}
@@ -1411,7 +1411,7 @@ while(TRUE) {
 	if(Match(TRUE,p_line,&q,4)) {
 		w = wMIDIorchestra; goto FIX;
 		}
-	sprintf(Message,"\rIncorrect name: %s…\r",line);
+	sprintf(Message,"\rIncorrect name: %s...\r",line);
 	Print(wTrace,Message);
 	r = FAILED;
 	continue;
@@ -1508,7 +1508,7 @@ if(what == mouseDown) {
 						switch(itemHit) {
 							case bMute:
 								if(!Oms && !NEWTIMER)
-									Alert1("‘Mute’ only works when Opcode OMS is active");
+									Alert1("'Mute' only works when Opcode OMS is active");
 								else {
 									Mute = 1 - Mute;
 									MaintainMenus();
@@ -1560,17 +1560,17 @@ if(oserr != noErr) {
 	switch(oserr) {
 		case procNotFound: sprintf(line,"Process not found");
 			break;
-		case paramErr: sprintf(line,"paramErr: attempting to open folder instead of file, or ‘inOutCount’ was negative, or no default volume, or process serial number is invalid");
+		case paramErr: sprintf(line,"paramErr: attempting to open folder instead of file, or 'inOutCount' was negative, or no default volume, or process serial number is invalid");
 			break;
-		case badUnitErr: sprintf(line,"‘badUnitErr’ error: refNum doesn't match unit table");
+		case badUnitErr: sprintf(line,"'badUnitErr' error: refNum doesn't match unit table");
 			break;
-		case unitEmptyErr: sprintf(line,"‘UnitEmptyErr’ error: refNum specifies NIL handle in unit table");
+		case unitEmptyErr: sprintf(line,"'UnitEmptyErr' error: refNum specifies NIL handle in unit table");
 			break;
-		case notOpenErr: sprintf(line,"‘notOpenErr’ error: driver is closed");
+		case notOpenErr: sprintf(line,"'notOpenErr' error: driver is closed");
 			break;
-		case readErr: sprintf(line,"‘readErr’ error: driver can't respond to Read");
+		case readErr: sprintf(line,"'readErr' error: driver can't respond to Read");
 			break;
-		case posErr: sprintf(line,"‘posErr’ error: attempt to position before start of file");
+		case posErr: sprintf(line,"'posErr' error: attempt to position before start of file");
 			break;
 		case bdNamErr: sprintf(line,"Incorrect file name");
 			break;
@@ -1603,21 +1603,21 @@ if(oserr != noErr) {
 		case wrPermErr:
 			strcpy(line,"Write permission denied"); break;
 		case errAEDescNotFound: /* -1701 */
-			strcpy(line,"Unexpected error: ‘Apple Event descriptor not found’."); break;
+			strcpy(line,"Unexpected error: 'Apple Event descriptor not found'."); break;
 		case errAECorruptData:	/* -1702 */
-			strcpy(line,"Unexpected error: ‘Data in an Apple Event could not be read’."); break;
+			strcpy(line,"Unexpected error: 'Data in an Apple Event could not be read'."); break;
 		case errAENotAppleEvent:	/* -1707 */
-			strcpy(line,"Unexpected error: ‘Event is not Apple Event’."); break;
+			strcpy(line,"Unexpected error: 'Event is not Apple Event'."); break;
 		case errAEReplyNotValid:	/* -1709 */
-			strcpy(line,"Unexpected error: ‘AEResetTimer was passed an invalid reply parameter’."); break;
+			strcpy(line,"Unexpected error: 'AEResetTimer was passed an invalid reply parameter'."); break;
 		case errAEHandlerNotFound:	/* -1717 */
-			strcpy(line,"Unexpected error: ‘no handler in the dispatch tables fits the parameters to AEGetEventHandler or AEGetCoercionHandler’."); break;
+			strcpy(line,"Unexpected error: 'no handler in the dispatch tables fits the parameters to AEGetEventHandler or AEGetCoercionHandler'."); break;
 		case errAEEventNotHandled:	/* -1708 */
-			strcpy(line,"Unexpected error: ‘Event was not handled by an Apple Event handler’."); break;
+			strcpy(line,"Unexpected error: 'Event was not handled by an Apple Event handler'."); break;
 		case errAENewerVersion:
 			strcpy(line,"Version of Apple Event Manager is too old. Event couldn't be handled."); break;
 		case errAEParamMissed:	/* -1715 */
-			strcpy(line,"Unexpected error: ‘a required parameter was not accessed’ in Apple Event handling."); break;
+			strcpy(line,"Unexpected error: 'a required parameter was not accessed' in Apple Event handling."); break;
 		case connectionInvalid:
 			strcpy(line,"Apple Event error: invalid connection."); break;
 		case errAETimeout:
@@ -1628,29 +1628,29 @@ if(oserr != noErr) {
 			strcpy(line,"Unknown Apple Event sending mode."); break;
 		case nilHandleErr:	/* -109 */
 		/*	return(OK);  $$$ Discarding for the time being */
-			strcpy(line,"Unexpected error: ‘illegal operation on a NIL handle’"); break;
+			strcpy(line,"Unexpected error: 'illegal operation on a NIL handle'"); break;
 		case memWZErr:	/* -111 */
-			strcpy(line,"Unexpected error: ‘illegal operation on a free block’"); break;
-		case memPurErr: strcpy(line,"Unexpected error: ‘illegal operation on a locked block’"); break;
+			strcpy(line,"Unexpected error: 'illegal operation on a free block'"); break;
+		case memPurErr: strcpy(line,"Unexpected error: 'illegal operation on a locked block'"); break;
 		case memFullErr:	/* -108 */
 			EmergencyExit = TRUE;
-			strcpy(line,"Unexpected ‘memory full’ error… You should resize ‘BP2’."); break;
+			strcpy(line,"Unexpected 'memory full' error... You should resize 'BP2'."); break;
 		case memAdrErr:	/* -110 */
-			strcpy(line,"Unexpected error: ‘memAdrErr’. Ignored…"); break;
+			strcpy(line,"Unexpected error: 'memAdrErr'. Ignored..."); break;
 		case memAZErr:	/* -113 */
-			strcpy(line,"Unexpected error: ‘memAZErr’. Ignored…"); break;
+			strcpy(line,"Unexpected error: 'memAZErr'. Ignored..."); break;
 		case memPCErr:	/* -114 */
-			strcpy(line,"Unexpected error: ‘memPCErr’. Ignored…"); break;
+			strcpy(line,"Unexpected error: 'memPCErr'. Ignored..."); break;
 		case memBCErr:	/* -115 */
-			strcpy(line,"Unexpected error: ‘memBCErr’. Ignored…"); break;
+			strcpy(line,"Unexpected error: 'memBCErr'. Ignored..."); break;
 		case memSCErr:	/* -116 */
-			strcpy(line,"Unexpected error: ‘memSCErr’. Ignored…"); break;
+			strcpy(line,"Unexpected error: 'memSCErr'. Ignored..."); break;
 		case memLockedErr:	/* -117 */
-			strcpy(line,"Unexpected error: ‘memLockedErr’. Ignored…"); break;
+			strcpy(line,"Unexpected error: 'memLockedErr'. Ignored..."); break;
 		case -919:
-			strcpy(line,"Unexpected error: ‘PPC record is invalid’"); break;
+			strcpy(line,"Unexpected error: 'PPC record is invalid'"); break;
 		default:
-			sprintf(line,"Unknown OS error #%ld. Ignored…",(long)oserr);
+			sprintf(line,"Unknown OS error #%ld. Ignored...",(long)oserr);
 			r = FAILED;
 		}
 	if(!InitOn) {
@@ -1793,9 +1793,9 @@ if(!Dirty[w] || ScriptExecOn || AEventOn) return(OK);
 if(NeedSave[w] && !IsEmpty(w)) {
 	StopWait();
 	if(FileName[w][0] == '\0')
-		sprintf(Message,"Save changes for “%s”",DeftName[w]);
+		sprintf(Message,"Save changes for \"%s\"",DeftName[w]);
 	else
-		sprintf(Message,"Save changes for “%s”",FileName[w]);
+		sprintf(Message,"Save changes for \"%s\"",FileName[w]);
 	rep = Answer(Message,'Y');
 	switch(rep) {
 		case YES:
@@ -1901,7 +1901,7 @@ while(!done);
 QUIT:
 Activate(TEH[TargetWindow]);
 BPActivateWindow(SLOW,TargetWindow);
-sprintf(Message,"%ld occurrence(s) found…",(long)i);
+sprintf(Message,"%ld occurrence(s) found...",(long)i);
 ShowMessage(TRUE,wMessage,Message);
 return(OK);
 }

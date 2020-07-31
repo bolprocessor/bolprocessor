@@ -114,7 +114,7 @@ for(j=1; j <= Jvar; j++) {
 	}
 if(undefined && !repeat && !IgnoreUndefinedVariables) {
 	if(ScriptExecOn || AEventOn) {
-		PrintBehind(wTrace,"Undefined variables were found and ignored…\r");
+		PrintBehind(wTrace,"Undefined variables were found and ignored...\r");
 		}
 	else {
 		if(Answer("Found undefined variable(s). Proceed",'Y') != YES) {
@@ -219,7 +219,7 @@ if(Improvize && ShowGraphic) {
 
 MAKE:
 
-if(!Improvize || ShowMessages) ShowMessage(TRUE,wMessage,"Producing item(s)…");
+if(!Improvize || ShowMessages) ShowMessage(TRUE,wMessage,"Producing item(s)...");
 BufferSize = DeftBufferSize;
 ProduceStackIndex = DisplayStackIndex = SkipFlag = FALSE;
 /* if(!PlaySelectionOn && UseTimeLimit) {
@@ -241,8 +241,8 @@ if(!PlaySelectionOn && DisplayProduce) {
 	Print(wTrace,"\r");
 	}
 if(!PlaySelectionOn && ShowMessages) {
-	if(Improvize) sprintf(Message,"Computing item #%ld…",(long)ItemNumber);
-	else sprintf(Message,"Computing item…");
+	if(Improvize) sprintf(Message,"Computing item #%ld...",(long)ItemNumber);
+	else sprintf(Message,"Computing item...");
 	ShowMessage(TRUE,wMessage,Message);
 	}
 if(pp_start != NULL) goto DOIT;
@@ -254,7 +254,7 @@ if(!PlaySelectionOn && DeriveFurther) {
 			goto QUIT;
 			}
 		MyDisposeHandle((Handle*)pp_buff);
-		ShowMessage(TRUE,wMessage,"Deriving same item further…");
+		ShowMessage(TRUE,wMessage,"Deriving same item further...");
 		}  /* Item is already in buffer if Improvize or not displayed */
 	}
 else {
@@ -409,13 +409,13 @@ p_a = NULL; pp_a = &p_a;
 TextGetSelection(&origin, &end, TEH[w]);
 SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 if(end <= origin) {
-	if(ScriptExecOn) Print(wTrace,"\r§§§ Can't analyze.  No item selected…\r");
-	Alert1("Can't analyze. No item selected…");
+	if(ScriptExecOn) Print(wTrace,"\r*** Can't analyze.  No item selected...\r");
+	Alert1("Can't analyze. No item selected...");
 	return(FAILED);
 	}
 /*
 if(Gram.trueBP && !Gram.hasTEMP) {
-	if(ScriptExecOn) Print(wTrace,"\r§§§ Templates have not been produced.\r");
+	if(ScriptExecOn) Print(wTrace,"\r*** Templates have not been produced.\r");
 	if((r=Answer("Templates have not been produced. Will you need them",'Y'))
 		!= NO) return(ABORT);
 	} */
@@ -464,7 +464,7 @@ r = OK; p_line = NULL;
 while(origin < end) {
 	r = OK;
 	PleaseWait();
-	ShowMessage(TRUE,wMessage,"Analyzing selection…");
+	ShowMessage(TRUE,wMessage,"Analyzing selection...");
 	while(MySpace(c=GetTextChar(w,origin)) || c == '\r') {
 		origin++;
 		if(origin >= end) goto END;
@@ -551,7 +551,7 @@ if(r == OK) SaveWeights();
 #endif /* BP_CARBON_GUI */
 
 TRY:
-if((r=AnswerWith("Set weights to…","0",Message)) == ABORT) return(OK);
+if((r=AnswerWith("Set weights to...","0",Message)) == ABORT) return(OK);
 w = (int) atol(Message); 	/* Don't use atoi() because int's are 4 bytes */
 if(w < 0) {
 	Alert1("Weights should not be negative"); goto TRY;
@@ -574,7 +574,7 @@ char **p_line,*p,*q,c;
 if(IsEmpty(wGrammar)) return(0);
 pos = posline = ZERO; igram = irul = 1;
 posmax = GetTextLength(wGrammar);
-ShowMessage(TRUE,wMessage,"Copying weights to all rules…");
+ShowMessage(TRUE,wMessage,"Copying weights to all rules...");
 p_line = NULL;
 while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	PleaseWait();
@@ -687,8 +687,8 @@ if(Varweight) {
 	weightloss = TRUE;
 	}
 if((r=ClearWindow(FALSE,wTrace)) != OK) return(r);
-if(!template) sprintf(Message,"Computing all possible items…");
-else sprintf(Message,"Computing templates…");
+if(!template) sprintf(Message,"Computing all possible items...");
+else sprintf(Message,"Computing templates...");
 ShowMessage(TRUE,wMessage,Message);
 (**(pp_a))[0] = T0; (**(pp_a))[1] = 10;
 (**(pp_a))[2] = TEND; (**(pp_a))[3] = TEND;
@@ -735,14 +735,14 @@ else {
 // FIXME: Need to redo temp file I/O in order to be able to discard repeats in console build
 // FIXME: "Discard repeated items" should be an option that can be set before the operation
 if(!template) {
-	r = Answer("Discard repeated items\r(May take time…)",'Y');
+	r = Answer("Discard repeated items\r(May take time...)",'Y');
 	if(r == ABORT) goto END;
 	}
 else r = YES;
 if(r == YES) {
 	single = TRUE;
 	if(OpenTemp() != OK) {
-		Alert1("Couldn't create ‘BP2.temp’ file in temporary folder…  No possibility to reject identical items");
+		Alert1("Couldn't create 'BP2.temp' file in temporary folder...  No possibility to reject identical items");
 		single = FALSE;
 		}
 	}
@@ -822,7 +822,7 @@ if((r=NextDerivation(pp_a,p_length,&igram,&irul,&ipos,&icandidate,mode)) == OK) 
 		r = ABORT; goto ENDPULL;
 		}
 	if((grtype=(*((*p_gram).p_subgram))[igram].type) == SUBtype || grtype == SUB1type || grtype == POSLONGtype) {
-		Alert1("Can't produce all items in a ‘SUB’ or ‘SUB1’ or ‘POSLONG’ subgrammar");
+		Alert1("Can't produce all items in a 'SUB' or 'SUB1' or 'POSLONG' subgrammar");
 		r = ABORT; goto ENDPULL;
 		}
 	irep = 1;
@@ -836,7 +836,7 @@ TRY:
 		}
 	if((r=ShowItem(igram,p_gram,FALSE,pp_a,FALSE,mode,TRUE)) != OK) goto ENDPULL;
 	
-	/* Check ‘_repeat’ */
+	/* Check '_repeat' */
 	nrep = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].repeat;
 	if(irep < nrep) {
 TRYAGAIN:
@@ -862,7 +862,7 @@ TRYAGAIN:
 		if(w < 0) w = 0;
 		(*((*((*p_gram).p_subgram))[igram].p_rule))[irul].w = w;
 		}
-	/* Look for ‘_failed’  $$$ this is wrong */					
+	/* Look for '_failed'  $$$ this is wrong */					
 	if(nrep > 0 && (igram=(*((*((*p_gram).p_subgram))[igram].p_rule))[irul].failedgram) > 0) {
 		irul = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].failedrule;
 		goto TRYAGAIN;
@@ -1009,7 +1009,7 @@ if(!ScriptExecOn && !AEventOn) {
 			defaultvalue,value)) != OK) return(r);
 	wantgram = (int) atol(value); 	/* Don't use atoi() because int's are 4 bytes */
 	if(wantgram < 1 || wantgram > endgram) {
-		sprintf(Message,"Range should be [1,%ld]. Try again…",(long)endgram);
+		sprintf(Message,"Range should be [1,%ld]. Try again...",(long)endgram);
 		Alert1(Message);
 		goto TRY;
 		}
@@ -1151,12 +1151,12 @@ for(i=i0; ((*p_arg)[i] != TEND || (*p_arg)[i+1] != TEND) && i < i1; i+=2) {
 			return(TRUE);
 		case T0:
 			switch(q) {
-				case 3:		/* ‘+’ */
-				case 4:		/* ‘:’ */
-				case 5:		/* ‘;’ */
-				case 6:		/* ‘=’ */
-				case 11:	/* ‘/’ */
-				case 25:	/* ‘\’ */
+				case 3:		/* '+' */
+				case 4:		/* ':' */
+				case 5:		/* ';' */
+				case 6:		/* '=' */
+				case 11:	/* '/' */
+				case 25:	/* '\' */
 					return(TRUE);
 				}
 		}
@@ -1171,7 +1171,7 @@ NoVariable(tokenbyte ***pp_a)
 
 for(i=0;((p=(**pp_a)[i]) != TEND || (**pp_a)[i+1] != TEND);i+=2) {
 	q = (**pp_a)[i+1];
-	if(p == T0 && q == 10) return(FALSE);	/* ‘S’ */
+	if(p == T0 && q == 10) return(FALSE);	/* 'S' */
 	if(p == T4 && ((Gram.p_subgram != NULL && p_VarStatus != NULL
 		&& q <= Jvar && (((*p_VarStatus)[q] & 1) || ((*p_VarStatus)[q] & 4)))
 			|| ((*p_VarStatus)[q] == 0 && (!CompiledGr || !CompiledGl))))
@@ -1191,7 +1191,7 @@ for(i=ZERO; ((m=(**pp_a)[i]) != TEND || (**pp_a)[i+1] != TEND); i+=2L) {
 	p = (**pp_a)[i+1];
 	if(m == T3 || m == T7 || m == T25) {	/* Terminal or out-time object or simple note */
 		if(p >= 0) {
-			(**pp_a)[i] = T3; (**pp_a)[i+1] = 0;	/* ‘_’ */
+			(**pp_a)[i] = T3; (**pp_a)[i+1] = 0;	/* '_' */
 			}
 		}
 	}
@@ -1201,7 +1201,7 @@ return(OK);
 
 
 ClearMarkers(tokenbyte ***pp_a)
-/* Suppress ‘•’ beat markers */
+/* Suppress '•' beat markers */
 {
 unsigned long i,k;
 tokenbyte m,p;
@@ -1214,10 +1214,10 @@ if(pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL) {
 setting_sections = TRUE;
 for(i=k=ZERO; ;) {
 	m = (**pp_a)[i+k]; p = (**pp_a)[i+k+1L];
-	if(setting_sections && m == T0 && p == 21)	{ /* ‘*’ */
+	if(setting_sections && m == T0 && p == 21)	{ /* '*' */
 		k += 6; continue;
 		}
-//	if(m == T0 && p == 7) {		/* ‘•’ */
+//	if(m == T0 && p == 7) {		/* '•' */
 //		k += 2; continue;
 //		}
 	if(k > 0) {
@@ -1253,7 +1253,7 @@ for(i=ZERO; ; i+=2L) {
 	if(m != T1 && (m != T0 || p != 3)) setting_section = FALSE;
 	if(m == T1 || (m == T0 && (p == 3 || p == 11))) foundspeed = TRUE;
 	if(m == T0 && (p == 21 || p == 24)) {
-		foundscale = TRUE;	/* ‘*’ or ‘**’ */
+		foundscale = TRUE;	/* '*' or '**' */
 		goto TAKEIT;
 		}
 	if(!foundscale && !setting_section) {
@@ -1261,7 +1261,7 @@ for(i=ZERO; ; i+=2L) {
 		Print(w,"*1");
 		}
 	if(m == T0 && (p == 11 || p == 25)) {
-		foundspeed = TRUE;	/* ‘/’ or ‘\’ */
+		foundspeed = TRUE;	/* '/' or '\' */
 		}
 	if(!foundspeed && !setting_section) {
 		foundspeed = TRUE;
@@ -1383,7 +1383,7 @@ for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\0'; pos++) {
 				continue;
 				}
 			}
-		(**pp_a)[i++] = T3;	/* ‘_’ */
+		(**pp_a)[i++] = T3;	/* '_' */
 		(**pp_a)[i++] = (tokenbyte) 0; continue;
 		}
 		
@@ -1393,12 +1393,12 @@ for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\0'; pos++) {
 	
 	if(c == '*') {
 		if(isdigit(d=GetTextChar(w,pos+1))) {
-			(**pp_a)[i++] = T0;		/* scale up ‘*’ */
+			(**pp_a)[i++] = T0;		/* scale up '*' */
 			(**pp_a)[i++] = (tokenbyte) 21;
 			continue;
 			}
 		if(d == '*' && isdigit(GetTextChar(w,pos+2))) {
-			(**pp_a)[i++] = T0;		/* scale down ‘**’ */
+			(**pp_a)[i++] = T0;		/* scale down '**' */
 			(**pp_a)[i++] = (tokenbyte) 24;
 			pos++;
 			continue;
@@ -1630,7 +1630,7 @@ if(templates) {
 	if(ReadTemplate(wGrammar,pos,&posend,pp_b,&itemp) != OK) {
 		(*p_result) = FAILED;
 		if(!foundone) {
-			sprintf(Message,"Item matched no template…");
+			sprintf(Message,"Item matched no template...");
 			ShowMessage(TRUE,wMessage,Message);
 			if(StepProduce) {
 				r = InterruptCompute(-1,&Gram,*p_repeat,-1,ANAL);
@@ -1639,7 +1639,7 @@ if(templates) {
 					goto END;
 					}
 				}
-			sprintf(Message,"Item %smatched no template…\r\r",LineBuff);
+			sprintf(Message,"Item %smatched no template...\r\r",LineBuff);
 			Print(wTrace,Message);
 			}
 		else if(good) *p_result = OK;
@@ -1731,14 +1731,14 @@ for(i=0; ; i+=2) {
 	if(m == T1) continue;
 	break;
 	}
-if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 10) { /* ‘S’ */
+if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 10) { /* 'S' */
 	good = (*p_result) = YES;
-	if(!templates) sprintf(Message,"Item %saccepted by grammar…",LineBuff);
+	if(!templates) sprintf(Message,"Item %saccepted by grammar...",LineBuff);
 	else sprintf(Message,
-		"Item %smatching template [%ld] accepted by grammar…",LineBuff,(long)itemp);
+		"Item %smatching template [%ld] accepted by grammar...",LineBuff,(long)itemp);
 	ShowMessage(TRUE,wMessage,Message);
-	if(!templates) sprintf(Message,"Item %saccepted by grammar…\r\r",LineBuff);
-	else sprintf(Message,"Item %smatching template [%ld] accepted by grammar…\r\r",
+	if(!templates) sprintf(Message,"Item %saccepted by grammar...\r\r",LineBuff);
+	else sprintf(Message,"Item %smatching template [%ld] accepted by grammar...\r\r",
 		LineBuff,(long)itemp);
 	if(1 || all || DisplayProduce || ScriptExecOn) {
 		Print(wTrace,Message);
@@ -1751,14 +1751,14 @@ if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 10) { /* ‘S’ */
 	if(all && templates) goto NEXTTEMPLATE;
 	}
 else {
-	sprintf(Message,"Item %srejected by grammar…",LineBuff);
+	sprintf(Message,"Item %srejected by grammar...",LineBuff);
 	(*p_result) = FAILED;
 	ShowMessage(TRUE,wMessage,Message);
 	if(templates)
-		sprintf(Message,"Item %smatching template [%ld] rejected by grammar…\r",LineBuff,
+		sprintf(Message,"Item %smatching template [%ld] rejected by grammar...\r",LineBuff,
 			(long)itemp);
 	else
-		sprintf(Message,"Item %srejected by grammar…\r",LineBuff);
+		sprintf(Message,"Item %srejected by grammar...\r",LineBuff);
 	Print(wTrace,Message);
 	sprintf(Message,"Result of failed analysis:\r");
 	Print(wTrace,Message);

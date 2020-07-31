@@ -126,7 +126,7 @@ while((originmem=origin) < end) {
 #if BP_CARBON_GUI
 	ShowSelect(CENTRE,w); Activate(TEH[w]);
 #endif /* BP_CARBON_GUI */
-	ShowMessage(TRUE,wMessage,"Playing selection…");
+	ShowMessage(TRUE,wMessage,"Playing selection...");
 	Nplay = 1;
 	SaidTooComplex = ShownBufferSize = FALSE;
 	if((r=SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
@@ -527,7 +527,7 @@ if(!StrikeAgainDefault) {
 #if !BP_CARBON_GUI
 	r = Alert1("The strike mode setting is \"Don't strike again NoteOn's\", which is unusual.");
 #else
-	r = Answer("The strike mode setting is ‘Don't strike again NoteOn's’, which is unusual. Change it?",
+	r = Answer("The strike mode setting is 'Don't strike again NoteOn's', which is unusual. Change it?",
 		'N');
 	if(r == ABORT) return(r);
 	if(r == YES) {
@@ -573,7 +573,7 @@ if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 	}
 r = OK;
 SetSelect(origin,end,TEH[w]);
-ShowMessage(TRUE,wMessage,"Converting selected text to sound-object prototype…");
+ShowMessage(TRUE,wMessage,"Converting selected text to sound-object prototype...");
 Nplay = 1;
 if((r=SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
 	MyDisposeHandle((Handle*)&p_a);
@@ -599,7 +599,7 @@ else {
 	Stream.cyclic = FALSE;
 	if(r == OK) r = PlayBuffer(&p_a,NO);
 	MyDisposeHandle((Handle*)&p_a);
-	if(Stream.i <= ZERO) Alert1("No events were captured…");
+	if(Stream.i <= ZERO) Alert1("No events were captured...");
 	else Stream.imax = Stream.i;
 	Stream.pclock = (long) Pclock;
 	Stream.qclock = (long) Qclock;
@@ -988,7 +988,7 @@ while(origin < end) {
 			while((r = MainEvent()) != RESUME && r != STOP && r != EXIT);
 		if(r == STOP || r == EXIT) goto OUT;
 		if(Dirty[wAlphabet]) {
-			Alert1("Alphabet changed. Must recompile…");
+			Alert1("Alphabet changed. Must recompile...");
 			r = ABORT; goto OUT;
 			}
 		Dirty[wAlphabet] = dirtymem;

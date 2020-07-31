@@ -81,7 +81,7 @@ for(i=ZERO,space=TRUE,start=TRUE,k=0,nitem=1,runningstatus=0,
 		continue;
 		}
 	if(!isdigit(c)) {
-		ShowMessage(TRUE,wMessage,"By-passing non numeric characters…");
+		ShowMessage(TRUE,wMessage,"By-passing non numeric characters...");
 		Print(w2," ? "); space = start = TRUE; k = 0; continue;
 		}
 	if(space) {
@@ -205,7 +205,7 @@ FlushEvents(everyEvent,0);
 imax = 200L;
 if((p_b = (MIDIcode**) GiveSpace((Size)imax * sizeof(MIDIcode))) == NULL)
 	return(ABORT);
-Alert1("Click ‘OK’. Then play notes on MIDI keyboard. Click mouse to terminate");
+Alert1("Click 'OK'. Then play notes on MIDI keyboard. Click mouse to terminate");
 ReadKeyBoardOn = TRUE; MaintainCursor();
 FlashInfo("Play notes.  Click mouse to terminate.");
 
@@ -258,7 +258,7 @@ for(ibyte=i=ZERO; ibyte < nbytes; ibyte++) {
 im = i;
 HideWindow(Window[wInfo]);
 /* $$$$ if(im < 2) {
-	Alert1("No data received…");
+	Alert1("No data received...");
 	goto END;
 	} */
 for(i=0; i < 4; i++) MainEvent();
@@ -311,7 +311,7 @@ if(strlen(name) > 0) {
 		c = name[i];
 		if(!isalnum(c)) {
 			sprintf(Message,
-		"Space or incorrect character in name.  Can't accept ‘%c’",c);
+		"Space or incorrect character in name.  Can't accept '%c'",c);
 			Alert1(Message);
 			goto TRY;
 			}
@@ -321,7 +321,7 @@ for(i=0; i < strlen(LineBuff); i++) { // FIXME: This check seems unnecessary - a
 	c = LineBuff[i];
 	if(!isdigit(c)) {
 		sprintf(Message,
-		 "Unexpected character ‘%c’.\rThe symbolic duration must be a positive integer.",c);
+		 "Unexpected character '%c'.\rThe symbolic duration must be a positive integer.",c);
 		Alert1(Message);
 		goto TRY;
 		}
@@ -665,7 +665,7 @@ FlushEvents(mDownMask+mUpMask,0);
 (*p_im) = i;
 HideWindow(Window[wMessage]);
 if((*p_im) < 2L) {
-	Alert1("No data received…"); goto END;
+	Alert1("No data received..."); goto END;
 	}
 r = OK;
 
@@ -868,7 +868,7 @@ ResetMIDI(TRUE);
 HideWindow(Window[wInfo]);
 StopWait();
 if(imax < 2L) {
-	Alert1("No data received…");
+	Alert1("No data received...");
 	return(FAILED);
 	}
 return(MIDItoPrototype(TRUE,TRUE,j,p_Code,imax));

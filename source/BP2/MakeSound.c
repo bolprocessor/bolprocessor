@@ -304,7 +304,7 @@ SoundOn = TRUE;
 if(showpianoroll) {
 #if BP_CARBON_GUI
 	// FIXME:  Would like to figure out how to move all of the piano roll code elsewhere ...
-	if(ShowMessages || PlayPrototypeOn) ShowMessage(TRUE,wMessage,"Preparing piano roll…");
+	if(ShowMessages || PlayPrototypeOn) ShowMessage(TRUE,wMessage,"Preparing piano roll...");
 	GetPort(&saveport);
 	minkey = 127; maxkey = 0;
 	tmax = ZERO;
@@ -441,7 +441,7 @@ if(!MIDIfileOn && !cswrite && OutMIDI && !ItemCapture && !FirstTime && !PlayProt
 #else
 		drivertime = GetDriverTime();
 		if(ShowMessages && (Tcurr > drivertime))
-			FlashInfo("Waiting until previous item is over…");
+			FlashInfo("Waiting until previous item is over...");
 		result = WaitForEmptyBuffer();
 		if(result != OK && result != RESUME && result != QUICK) goto OVER;
 		if(result == RESUME) interruptedonce = TRUE;
@@ -450,7 +450,7 @@ if(!MIDIfileOn && !cswrite && OutMIDI && !ItemCapture && !FirstTime && !PlayProt
 			
 		Nbytes = Tbytes2 = ZERO;
 		if(PlayChan > 0) {
-			FlashInfo("Waiting for MIDI sync code…");
+			FlashInfo("Waiting for MIDI sync code...");
 			WhenItStarted = clock();
 			do {
 				// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
@@ -489,7 +489,7 @@ if(!MIDIfileOn && !cswrite && OutMIDI && !ItemCapture && !FirstTime && !PlayProt
 			if(ScriptExecOn && CountOn && WaitEndDate > ZERO) WaitEndDate += LapWait;
 			}
 		else {		/* No MIDI sync key */
-			FlashInfo("Waiting for ‘Start’ or ‘Continue’ MIDI message. Click mouse to resume…");
+			FlashInfo("Waiting for 'Start' or 'Continue' MIDI message. Click mouse to resume...");
 #if BP_CARBON_GUI
 			SetCursor(&KeyboardCursor);
 #endif /* BP_CARBON_GUI */
@@ -528,7 +528,7 @@ START2:
 if(cswrite) {
 	if((result=CompileCsoundObjects()) != OK) goto OVER;
 	if(Jinstr == 1 && (*p_CsInstrumentIndex)[0] == -1) {
-		ShowMessage(TRUE,wMessage,"Couldn't find Csound instrument index. Index ‘1’ will be assigned by default.");
+		ShowMessage(TRUE,wMessage,"Couldn't find Csound instrument index. Index '1' will be assigned by default.");
 		WaitABit(1000L);
 		}
 		
@@ -606,7 +606,7 @@ for(noccurrence = 0; noccurrence < Nplay || SynchroSignal == PLAYFOREVER; noccur
 		drivertime = GetDriverTime();
 		if(ShowMessages
 				&& (Tcurr > drivertime + ((SetUpTime + 600L) / Time_res)))
-			FlashInfo("Waiting until previous item is over…");
+			FlashInfo("Waiting until previous item is over...");
 		result = WaitForEmptyBuffer();
 		HideWindow(Window[wInfo]);
 #endif
@@ -619,7 +619,7 @@ for(noccurrence = 0; noccurrence < Nplay || SynchroSignal == PLAYFOREVER; noccur
 	mustwait = FALSE;
 	
 	if(Improvize && (Nplay > 1 || SynchroSignal == PLAYFOREVER)) {
-		sprintf(Message,"%ldth repetition…",(long)noccurrence+1L);
+		sprintf(Message,"%ldth repetition...",(long)noccurrence+1L);
 		ShowMessage(TRUE,wMessage,Message);
 		}
 		
@@ -690,7 +690,7 @@ TRYCSFILE:
 				Println(wTrace,Message);
 				}
 			if(WriteToFile(NO,CsoundFileFormat,Message,CsRefNum) != OK) {
-				sprintf(Message,"Couldn't write to file ‘%s’. May be it has been closed by another application",
+				sprintf(Message,"Couldn't write to file '%s'. May be it has been closed by another application",
 					CsFileName);
 				Alert1(Message);
 				CloseCsScore();
@@ -1618,7 +1618,7 @@ NEWPERIOD:
 					|| result == EXIT) goto OVER;
 				if(result == AGAIN) {
 					noccurrence--; /* Repeat once */
-					sprintf(Message,"Current item will be played again…");
+					sprintf(Message,"Current item will be played again...");
 					ShowMessage(TRUE,wMessage,Message);
 					}
 #endif
@@ -2166,7 +2166,7 @@ while(Button() || (timeleft = (Tcurr - drivertime)) > buffertime) {
 #endif /* BP_CARBON_GUI */
 	if((timeleft * Time_res / 1000L) != formertime) {
 		formertime = timeleft * Time_res / 1000L;
-		sprintf(Message,"Remaining performance time: %ld sec…",
+		sprintf(Message,"Remaining performance time: %ld sec...",
 			(long)formertime + 1L);
 		ShowMessage(FALSE,wMessage,Message);
 		PleaseWait();

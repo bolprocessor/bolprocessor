@@ -71,7 +71,7 @@ if(!CompiledGr || !CompiledAl) {
 	}
 if(DoSystem() != OK) return(ABORT);
 
-sprintf(Message,"Compiling ‘%s’ glossary…",FileName[wGlossary]);
+sprintf(Message,"Compiling '%s' glossary...",FileName[wGlossary]);
 ShowMessage(TRUE,wMessage,Message);
 
 if(p_Var == NULL && GetVariableSpace() != OK) return(ABORT);
@@ -86,7 +86,7 @@ CompileOn++;
 CompiledGl = TRUE; /* See remark at CompileInteraction() */
 errors = 0;
 
-/* Then create grammar using ‘Define…’ instructions */
+/* Then create grammar using 'Define…' instructions */
 pos = ZERO;
 posmax = GetTextLength(wGlossary);
 irul = (*(GlossGram.p_subgram))[1].number_rule = 0;
@@ -171,7 +171,7 @@ while(ReadLine(YES,wGlossary,&pos,posmax,&p_line,&gap) == OK) {
 	*pp1 = &(line[length]); while(MySpace(**pp1)) (*pp1)++;
 	if(((**pp1) < 'A' || (**pp1) > 'Z') && (**pp1) != '|') {
 		sprintf(Message,
-		"Left argument in glossary must be a variable, starting with uppercase character or ‘|’. Can't make sense of ‘%c’…\r",
+		"Left argument in glossary must be a variable, starting with uppercase character or '|'. Can't make sense of '%c'...\r",
 		(**pp1));
 		Print(wTrace,Message); r = FAILED;
 		goto BADLINE;
@@ -185,13 +185,13 @@ while(ReadLine(YES,wGlossary,&pos,posmax,&p_line,&gap) == OK) {
 		return(ABORT);
 		}
 	if((*p_VarStatus)[j] & 4) {
-		sprintf(Message,"Can't accept multiple definitions of variable ‘%s’ in glossary.\r",
+		sprintf(Message,"Can't accept multiple definitions of variable '%s' in glossary.\r",
 			*((*p_Var)[j]));
 		Print(wTrace,Message); r = FAILED;
 		goto BADLINE;
 		}
 	if((*p_VarStatus)[j] & 1) {
-		sprintf(Message,"Variable ‘%s’ is already derived in grammar. Probably a mistake.\r",
+		sprintf(Message,"Variable '%s' is already derived in grammar. Probably a mistake.\r",
 			*((*p_Var)[j]));
 		Print(wTrace,Message);
 		}

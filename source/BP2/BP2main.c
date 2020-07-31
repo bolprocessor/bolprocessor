@@ -162,7 +162,7 @@ NOEVENT:
 		ScriptExecOn = 0;
 		}
 
-	ShowMessage(TRUE,wMessage,"Type Ôð-?Õ and select button, word or menu item for help");
+	ShowMessage(TRUE,wMessage,"Type 'Command-?' and select button, word or menu item for help");
 	if(!startupscript && !MustChangeInput) {
 		ClearWindow(TRUE,wGrammar);
 		ClearWindow(TRUE,wAlphabet);
@@ -236,7 +236,7 @@ SessionTime = clock();
 HideWindow(Window[wInfo]);
 
 if(MustChangeInput) {
-	Alert1("Select a MIDI device on the OMS MIDI-input menu. Close window for no deviceÉ");
+	Alert1("Select a MIDI device on the OMS MIDI-input menu. Close window for no device...");
 	mOMSinout(0);
 	}
 

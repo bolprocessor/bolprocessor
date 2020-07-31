@@ -86,7 +86,7 @@ MIDIfileReply = (NSWReply**)GiveSpace(sizeof(NSWReply));
 MyLock(FALSE, (Handle)MIDIfileReply);
 err = NSWInitReply(*MIDIfileReply);
 
-ShowMessage(TRUE,wMessage,"Create new MIDI file…");
+ShowMessage(TRUE,wMessage,"Create new MIDI file...");
 if(line == NULL || line[0] == '\0') {
 	// make a new filename based on the project's name
 	if (GetProjectBaseName(Message) == OK) {
@@ -411,7 +411,7 @@ SetFPos(MIDIRefNum,fsFromStart,pos);
 
 FlushFile(MIDIRefNum);
 FSClose(MIDIRefNum);
-sprintf(Message,"Closed MIDI file ‘%s’",MIDIfileName);
+sprintf(Message,"Closed MIDI file '%s'",MIDIfileName);
 ShowMessage(TRUE,wMessage,Message);
 
 OUT:
@@ -572,7 +572,7 @@ switch(FileSaveMode) {
 		return(OK);
 		break;
 	case ALLSAMEPROMPT:
-		sprintf(Message,"Current MIDI file is ‘%s’. Change it",MIDIfileName);
+		sprintf(Message,"Current MIDI file is '%s'. Change it",MIDIfileName);
 		rep = Answer(Message,'N');
 		if(rep == ABORT) return(rep);
 		if(rep == NO) return(OK);
@@ -670,7 +670,7 @@ if(anyfile == ABORT) return(FAILED);
 TRYLOAD:
 LastAction = NO;
 
-sprintf(Message,"Locate MIDI file…");
+sprintf(Message,"Locate MIDI file...");
 ShowMessage(TRUE,wMessage,Message);
 
 type = 11;
@@ -683,7 +683,7 @@ if((p_buffer=(unsigned char**) GiveSpace((Size)(buffersize * sizeof(unsigned cha
 if(OldFile(-1,type,fn,&spec)) {
 	p2cstrcpy(LineBuff,fn);
 	if((io=MyOpen(&spec,fsRdPerm,&refnum)) == noErr) {
-		sprintf(Message,"Loading MIDI file…");
+		sprintf(Message,"Loading MIDI file...");
 		ShowMessage(TRUE,wMessage,Message);
 		
 		/* Read header */
@@ -964,13 +964,13 @@ PRESERVE:
 							(*p_preservechannel) = reply;
 							if(!(*p_preservechannel)) {
 GETCHANNEL:
-								if((reply=AnswerWith("Force to channel…","1",Message)) == ABORT) {
+								if((reply=AnswerWith("Force to channel...","1",Message)) == ABORT) {
 									result = ABORT; goto OUT;
 									}
 								if(reply == NO) goto PRESERVE;
 								uniquechan = ((int) atol(Message)) - 1;
 								if(uniquechan < 0 || uniquechan > 15) {
-									sprintf(Message,"Channel range 1..16\rCan't accept ‘%ld’",
+									sprintf(Message,"Channel range 1..16\rCan't accept '%ld'",
 										(long)uniquechan + 1L);
 									Alert1(Message);
 									goto GETCHANNEL;
@@ -1043,7 +1043,7 @@ STREAM:
 			}
 		}
 	else {
-		sprintf(Message,"Unexpected error opening ‘%s’",LineBuff);
+		sprintf(Message,"Unexpected error opening '%s'",LineBuff);
 		ShowMessage(TRUE,wMessage,Message);
 		TellError(75,io);
 		result = FAILED;
@@ -1131,27 +1131,27 @@ switch(err) {
 	case 13:
 	case 14:
 	case 15:
-		strcat(Message,"Unexpected end of file…");
+		strcat(Message,"Unexpected end of file...");
 		break;
 	case 19:
 	case 20:
-		strcat(Message,"Unexpected end of file while reading system-exclusive codes…");
+		strcat(Message,"Unexpected end of file while reading system-exclusive codes...");
 		break;
 	case 2:
-		strcat(Message,"‘MThd’ not found…");
+		strcat(Message,"'MThd' not found...");
 		break;
 	case 5:
 		strcat(Message,"Format > 2");
 		break;
 	case 9:
-		strcat(Message,"‘MTrk’ not found…");
+		strcat(Message,"'MTrk' not found...");
 		break;
 	case 6:
 	case 10:
-		strcat(Message,"Out of memory…");
+		strcat(Message,"Out of memory...");
 		break;
 	case 24:
-		strcat(Message,"Missing ‘End of track’ meta-event. May be this file is still open for writing?");
+		strcat(Message,"Missing 'End of track' meta-event. May be this file is still open for writing?");
 		break;
 	default: break;
 	}

@@ -96,14 +96,14 @@ switch(instr) {
 			return(ABORT);
 			}
 		if(check == 2) {
-			Print(wTrace,"\rYou can't open new project in ‘INIT:’.\r");
+			Print(wTrace,"\rYou can't open new project in 'INIT:'.\r");
 			return(ABORT);
 			}
 		if(!check) {
 			if(ResetProject(FALSE) != OK) return(ABORT);
 			if(Beta && ScriptExecOn  && TraceRefnum != -1)
 				WriteToFile(NO,MAC,"----------------",TraceRefnum);
-			sprintf(Message,"Loading project: ‘%s’",line);
+			sprintf(Message,"Loading project: '%s'",line);
 			ShowMessage(TRUE,wMessage,Message);
 			if(TraceMemory) {
 				sprintf(LineBuff,"%s %ld [%ld]\r", Message,
@@ -134,7 +134,7 @@ GOTIT:
 			spec.parID = CurrentDir;
 			if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) goto GOTIT;
 			if(!check) {
-				sprintf(Message,"Can't find ‘%s’. You should check script.\r",line);
+				sprintf(Message,"Can't find '%s'. You should check script.\r",line);
 				Print(wTrace,Message);
 				}
 			else {
@@ -347,14 +347,14 @@ GOTIT:
 	case 24:
 	/* Open file (only data, grammar, keyboard, interaction, glossary, prototypes or alphabet) */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
-		if(check == 2) return(OK);	/* Compiling ‘INIT:’ in grammar */
+		if(check == 2) return(OK);	/* Compiling 'INIT:' in grammar */
 		if(!check) {
 			if((r=WaitForEmptyBuffer()) != OK) return(r);
 	/*		if(Beta && ScriptExecOn && Tracefile != (FILE*) NULL)
 				fprintf(Tracefile,"\n"); */
 			if(Beta && ScriptExecOn  && TraceRefnum != -1)
 				NoReturnWriteToFile("\n",TraceRefnum);
-			sprintf(Message,"Loading file: ‘%s’",line);
+			sprintf(Message,"Loading file: '%s'",line);
 			ShowMessage(TRUE,wMessage,Message);
 			if(TraceMemory) {
 				sprintf(LineBuff,"%s %ld [%ld]\r", Message,
@@ -378,7 +378,7 @@ GOTIT:
 			case wData:
 			case wAlphabet:
 				if(SoundOn) {
-					sprintf(Message,"\rYou can't load ‘%s’ while playing.\r",line);
+					sprintf(Message,"\rYou can't load '%s' while playing.\r",line);
 					Print(wTrace,Message);
 					return(FAILED);
 					}
@@ -422,7 +422,7 @@ GOTIT2:
 					spec.parID = WindowParID[wCsoundInstruments]
 						= WindowParID[iObjects] = CurrentDir;
 					if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-						sprintf(Message,"\rCan't find ‘%s’. You should check the script.\r",
+						sprintf(Message,"\rCan't find '%s'. You should check the script.\r",
 							line);
 						Print(wTrace,Message);
 						return(ABORT);
@@ -489,7 +489,7 @@ GOTIT3:
 					spec.vRefNum = TheVRefNum[wInteraction] = CurrentVref;
 					spec.parID = WindowParID[wInteraction] = CurrentDir;
 					if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-						sprintf(Message,"\rCan't find ‘%s’. You should check the script.\r",
+						sprintf(Message,"\rCan't find '%s'. You should check the script.\r",
 							line);
 						Print(wTrace,Message);
 						return(ABORT);
@@ -535,7 +535,7 @@ GOTIT4:
 					spec.vRefNum = TheVRefNum[wGlossary] = CurrentVref;
 					spec.parID = WindowParID[wGlossary] = CurrentDir;
 					if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-						sprintf(Message,"\rCan't find ‘%s’. You should check the script.\r",
+						sprintf(Message,"\rCan't find '%s'. You should check the script.\r",
 							line);
 						Print(wTrace,Message);
 						return(ABORT);
@@ -549,7 +549,7 @@ GOTIT4:
 				break;
 			}
 		if (strlen(line) > MAXNAME) {
-			sprintf(Message,"\rFilename ‘%s’ is too long. You should check the script.\r", line);
+			sprintf(Message,"\rFilename '%s' is too long. You should check the script.\r", line);
 			Print(wTrace,Message);
 			return(ABORT);
 		}
@@ -566,7 +566,7 @@ GOTIT5:
 				return(OK);
 				}
 			if(w < 0 || w >= WMAX || !Editable[w]) {
-				sprintf(Message,"Can't load non-editable file ‘%s’\r",line);
+				sprintf(Message,"Can't load non-editable file '%s'\r",line);
 				Print(wTrace,Message);
 				FSClose(refnum);
 				return(ABORT);
@@ -590,7 +590,7 @@ GOTIT5:
 				return(r);
 				}
 			if(ReadFile(w,refnum) != OK) {
-				sprintf(Message,"Can't read ‘%s’… (no data)",FileName[w]);
+				sprintf(Message,"Can't read '%s'... (no data)",FileName[w]);
 				Alert1(Message);
 				FSClose(refnum);
 				return(ABORT);
@@ -649,7 +649,7 @@ GOTIT5:
 					spec.parID = WindowParID[ww];
 					if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) goto GOTIT5;
 					}
-				sprintf(Message,"Can't find ‘%s’. You should check script.\r",
+				sprintf(Message,"Can't find '%s'. You should check script.\r",
 					line);
 				Print(wTrace,Message);
 				}
@@ -714,7 +714,7 @@ GOTIT6:
 			spec.vRefNum = TheVRefNum[iSettings] = CurrentVref;
 			spec.parID = WindowParID[iSettings] = CurrentDir;
 			if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-				sprintf(Message,"\rCan't find ‘%s’. You should check the script.\r",
+				sprintf(Message,"\rCan't find '%s'. You should check the script.\r",
 					line);
 				Print(wTrace,Message);
 				return(ABORT);
@@ -885,7 +885,7 @@ GOTIT6:
 		if(Editable[ScriptW]) {
 			if(check) return(OK);
 			if (j > GetTextLength(ScriptW)) {
-				sprintf(Message,"Selection start value ‘%d’ is out of bounds.\r", j);
+				sprintf(Message,"Selection start value '%d' is out of bounds.\r", j);
 				Print(wTrace,Message);
 				r = ABORT;
 				break;
@@ -897,7 +897,7 @@ GOTIT6:
 				SelectBehind((long)j,(long)j,TEH[ScriptW]);
 			}
 		else {
-			sprintf(Message,"Window ‘%s’ is not editable.\r",WindowName[ScriptW]);
+			sprintf(Message,"Window '%s' is not editable.\r",WindowName[ScriptW]);
 			Print(wTrace,Message);
 			r = ABORT;
 			}
@@ -908,7 +908,7 @@ GOTIT6:
 		if(Editable[ScriptW]) {
 			if(check) return(OK);
 			if (j > GetTextLength(ScriptW)) {
-				sprintf(Message,"Selection end value ‘%d’ is out of bounds.\r", j);
+				sprintf(Message,"Selection end value '%d' is out of bounds.\r", j);
 				Print(wTrace,Message);
 				r = ABORT;
 				break;
@@ -921,7 +921,7 @@ GOTIT6:
 			ShowSelect(CENTRE,ScriptW);
 			}
 		else {
-			sprintf(Message,"Window ‘%s’ is not editable.\r",WindowName[ScriptW]);
+			sprintf(Message,"Window '%s' is not editable.\r",WindowName[ScriptW]);
 			Print(wTrace,Message);
 			r = ABORT;
 			}
@@ -989,7 +989,7 @@ GOTIT6:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(check == 2) return(OK);
 		if(MemberStringList(line)) {
-			sprintf(Message,"Script ‘%s’ is already running. Can't restart it\r",
+			sprintf(Message,"Script '%s' is already running. Can't restart it\r",
 				line);
 			Print(wTrace,Message);
 			return(ABORT);
@@ -1004,7 +1004,7 @@ GOTIT6:
 				spec.vRefNum = TheVRefNum[wScript] = CurrentVref;
 				spec.parID = WindowParID[wScript] = CurrentDir;
 				if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-					sprintf(Message,"\rCan't find ‘%s’. You should check the script.\r",
+					sprintf(Message,"\rCan't find '%s'. You should check the script.\r",
 						line);
 					Print(wTrace,Message);
 					return(FAILED);
@@ -1148,12 +1148,12 @@ GOTIT7:
 	case 85: /* Play item */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(SoundOn) {
-			sprintf(Message,"\rYou can't play ‘%s’ while playing another item.\r",
+			sprintf(Message,"\rYou can't play '%s' while playing another item.\r",
 				line);
 			Print(wTrace,Message);
 			return(FAILED);
 			}
-		if(check == 2) {	/* Compiling ‘INIT:’ in grammar */
+		if(check == 2) {	/* Compiling 'INIT:' in grammar */
 			/* Here *p_Posdir is actually line position in grammar window. */
 			*p_posdir += MyHandleLen((p_ScriptLabelPart(85,0)));
 			TextGetSelection(&selbegin, &selend, TEH[wGrammar]);
@@ -1205,7 +1205,7 @@ GOTIT7:
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && DeriveFurtherChan != -1) {
-			Print(wTrace,"‘Derive further’ is already controlled by ");
+			Print(wTrace,"'Derive further' is already controlled by ");
 			PrintNote(DeriveFurtherKey,DeriveFurtherChan,wTrace,Message);
 			Print(wTrace,"\r");
 			return(FAILED);
@@ -1218,7 +1218,7 @@ GOTIT7:
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && ResetWeightChan != -1) {
-			Print(wTrace,"‘Reset weights’ is already controlled by ");
+			Print(wTrace,"'Reset weights' is already controlled by ");
 			PrintNote(ResetWeightKey,ResetWeightChan,wTrace,Message);
 			Print(wTrace,"\r");
 			return(FAILED);
@@ -1231,7 +1231,7 @@ GOTIT7:
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && PlayChan != -1) {
-			Print(wTrace,"‘Start play’ is already controlled by ");
+			Print(wTrace,"'Start play' is already controlled by ");
 			PrintNote(PlayKey,PlayChan,wTrace,Message);
 			Print(wTrace,"\r");
 			return(FAILED);
@@ -1244,7 +1244,7 @@ GOTIT7:
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && RepeatChan != -1) {
-			Print(wTrace,"‘Repeat v times’ is already controlled by ");
+			Print(wTrace,"'Repeat v times' is already controlled by ");
 			PrintNote(RepeatKey,RepeatChan,wTrace,Message);
 			Print(wTrace,"\r");
 			return(FAILED);
@@ -1257,7 +1257,7 @@ GOTIT7:
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && EndRepeatChan != -1) {
-			Print(wTrace,"‘End repeat’ is already controlled by ");
+			Print(wTrace,"'End repeat' is already controlled by ");
 			PrintNote(EndRepeatKey,EndRepeatChan,wTrace,Message);
 			Print(wTrace,"\r");
 			return(FAILED);
@@ -1270,7 +1270,7 @@ GOTIT7:
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && EverChan != -1) {
-			Print(wTrace,"‘Repeat forever’ is already controlled by ");
+			Print(wTrace,"'Repeat forever' is already controlled by ");
 			PrintNote(EverKey,EverChan,wTrace,Message);
 			Print(wTrace,"\r");
 			return(FAILED);
@@ -1283,7 +1283,7 @@ GOTIT7:
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && QuitChan != -1) {
-			Print(wTrace,"‘Quit’ is already controlled by ");
+			Print(wTrace,"'Quit' is already controlled by ");
 			PrintNote(QuitKey,QuitChan,wTrace,Message);
 			Print(wTrace,"\r");
 			return(FAILED);
@@ -1296,7 +1296,7 @@ GOTIT7:
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && UseEachSubChan != -1) {
-			Print(wTrace,"‘Use each substitution’ is already controlled by ");
+			Print(wTrace,"'Use each substitution' is already controlled by ");
 			PrintNote(UseEachSubKey,UseEachSubChan,wTrace,Message);
 			Print(wTrace,"\r");
 			return(FAILED);
@@ -1305,11 +1305,11 @@ GOTIT7:
 		UseEachSubKey = (*(ScriptLine.intarg))[0];
 		UseEachSubChan = (*(ScriptLine.intarg))[1];
 		break;
-	case 97:	/* IN Use/ignore ‘Start play’ (toggle) key «note» channel «1..16» */
+	case 97:	/* IN Use/ignore 'Start play' (toggle) key «note» channel «1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && SynchronizeStartChan != -1) {
-			Print(wTrace,"Use/ignore ‘Start play’ is already controlled by ");
+			Print(wTrace,"Use/ignore 'Start play' is already controlled by ");
 			PrintNote(SynchronizeStartKey,SynchronizeStartChan,wTrace,Message);
 			Print(wTrace,"\r");
 			return(FAILED);
@@ -1331,11 +1331,11 @@ GOTIT7:
 		SpeedChan = (*(ScriptLine.intarg))[1];
 		SpeedRange = (*(ScriptLine.floatarg))[2];
 		break;
-	case 99:	/* IN Set computation time to ‘v’ key «note» channel «1..16» */
+	case 99:	/* IN Set computation time to 'v' key «note» channel «1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && SetTimeChan != -1) {
-			Print(wTrace,"‘Set computation time’ is already controlled by ");
+			Print(wTrace,"'Set computation time' is already controlled by ");
 			PrintNote(SetTimeKey,SetTimeChan,wTrace,Message);
 			Print(wTrace,"\r");
 			return(FAILED);
@@ -1348,7 +1348,7 @@ GOTIT7:
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && StriatedChan != -1) {
-			Print(wTrace,"‘Smooth/striated time’ is already controlled by ");
+			Print(wTrace,"'Smooth/striated time' is already controlled by ");
 			PrintNote(StriatedKey,StriatedChan,wTrace,Message);
 			Print(wTrace,"\r");
 			return(FAILED);
@@ -1361,7 +1361,7 @@ GOTIT7:
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && NoConstraintChan != -1) {
-			Print(wTrace,"‘Use/ignore object constraints’ is already controlled by ");
+			Print(wTrace,"'Use/ignore object constraints' is already controlled by ");
 			PrintNote(NoConstraintKey,NoConstraintChan,wTrace,Message);
 			Print(wTrace,"\r");
 			return(FAILED);
@@ -1374,7 +1374,7 @@ GOTIT7:
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && SkipChan != -1) {
-			Print(wTrace,"‘Skip next item’ is already controlled by ");
+			Print(wTrace,"'Skip next item' is already controlled by ");
 			PrintNote(SkipKey,SkipChan,wTrace,Message);
 			Print(wTrace,"\r");
 			return(FAILED);
@@ -1387,7 +1387,7 @@ GOTIT7:
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && AgainChan != -1) {
-			Print(wTrace,"‘Play again item’ is already controlled by ");
+			Print(wTrace,"'Play again item' is already controlled by ");
 			PrintNote(AgainKey,AgainChan,wTrace,Message);
 			Print(wTrace,"\r");
 			return(FAILED);
@@ -1429,7 +1429,7 @@ GOTIT7:
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && TclockChan != -1) {
-			Print(wTrace,"‘Adjust tempo’ is already controlled by ");
+			Print(wTrace,"'Adjust tempo' is already controlled by ");
 			PrintNote(MinTclockKey,TclockChan,wTrace,Message);
 			Print(wTrace," and ");
 			PrintNote(MaxTclockKey,TclockChan,wTrace,Message);
@@ -1651,7 +1651,7 @@ GOTIT7:
 	case 144: return(OK); break;
 	case 145:	/* Define... */
 		if(wind != wGlossary) {
-			Print(wTrace,"‘Define…’ should appear only in the “Glossary” window.\r");
+			Print(wTrace,"'Define...' should appear only in the \"Glossary\" window.\r");
 			return(FAILED);
 			}
 		break;
@@ -1851,7 +1851,7 @@ SENDAE:
 				goto SENDAE;
 				}
 BAD:		
-			sprintf(Message,"\rApple Event class '%s' ID '%s' couldn't reach application '%s'…",
+			sprintf(Message,"\rApple Event class '%s' ID '%s' couldn't reach application '%s'...",
 				type1,type2,type3);
 			Println(wTrace,Message);
 			if(OkWait) r = FAILED;
@@ -1952,14 +1952,14 @@ BAD:
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && MuteOnChan != -1) {
-			Print(wTrace,"‘Mute ON’ is already controlled by ");
+			Print(wTrace,"'Mute ON' is already controlled by ");
 			PrintNote(MuteOnKey,MuteOnChan,wTrace,Message);
 			Print(wTrace,"\r");
 			return(FAILED);
 			}
 		if(CheckUsedKey(p_keyon,0,1) != OK) return(FAILED);
 		if(!Oms && !NEWTIMER) {
-			Print(wTrace,"‘Mute’ works only with OMS, not with the in-built MIDI driver. ‘IN Mute ON’ has been ignored\r");
+			Print(wTrace,"'Mute' works only with OMS, not with the in-built MIDI driver. 'IN Mute ON' has been ignored\r");
 			return(OK);
 			}
 		MuteOnKey = (*(ScriptLine.intarg))[0];
@@ -1969,14 +1969,14 @@ BAD:
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && MuteOffChan != -1) {
-			Print(wTrace,"‘Mute OFF’ is already controlled by ");
+			Print(wTrace,"'Mute OFF' is already controlled by ");
 			PrintNote(MuteOffKey,MuteOffChan,wTrace,Message);
 			Print(wTrace,"\r");
 			return(FAILED);
 			}
 		if(CheckUsedKey(p_keyon,0,1) != OK) return(FAILED);
 		if(!Oms && !NEWTIMER) {
-			Print(wTrace,"‘Mute’ works only with OMS, not with the in-built MIDI driver. ‘IN Mute OFF’ has been ignored\r");
+			Print(wTrace,"'Mute' works only with OMS, not with the in-built MIDI driver. 'IN Mute OFF' has been ignored\r");
 			return(OK);
 			}
 		MuteOffKey = (*(ScriptLine.intarg))[0];
@@ -2170,7 +2170,7 @@ for(j=0; j < ScriptNrArg(k); j++) {
 		if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
 			goto QUIT;
 		if(n < 1 || n >= MAXPARAMCTRL) {
-			sprintf(Message,"\rController ‘Kx’ out of range: 0 < x < %ld\r",(long)MAXPARAMCTRL);
+			sprintf(Message,"\rController 'Kx' out of range: 0 < x < %ld\r",(long)MAXPARAMCTRL);
 			Print(wTrace,Message);
 			goto QUIT;
 			}
@@ -2185,7 +2185,7 @@ for(j=0; j < ScriptNrArg(k); j++) {
 		if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
 			goto QUIT;
 		if(n < 1 || n > MAXWAIT) {
-			sprintf(Message,"\rSynchro tag ‘Wx’ out of range: 0 < x < %ld\r",(long)MAXWAIT+1);
+			sprintf(Message,"\rSynchro tag 'Wx' out of range: 0 < x < %ld\r",(long)MAXWAIT+1);
 			Print(wTrace,Message);
 			goto QUIT;
 			}
@@ -2218,7 +2218,7 @@ BADVAR:
 		MystrcpyStringToTable(ScriptLine.arg,j,type);
 		continue;
 BADCLASS:
-		sprintf(Message,"\rIncorrect Apple Event class ‘%s’\r",type);
+		sprintf(Message,"\rIncorrect Apple Event class '%s'\r",type);
 		Print(wTrace,Message);
 		goto QUIT;
 		}
@@ -2236,7 +2236,7 @@ BADCLASS:
 		MystrcpyStringToTable(ScriptLine.arg,j,type);
 		continue;
 BADID:
-		sprintf(Message,"\rIncorrect Apple Event ID ‘%s’\r",type);
+		sprintf(Message,"\rIncorrect Apple Event ID '%s'\r",type);
 		Print(wTrace,Message);
 		goto QUIT;
 		}
@@ -2254,7 +2254,7 @@ BADID:
 		MystrcpyStringToTable(ScriptLine.arg,j,type);
 		continue;
 BADCREATOR:
-		sprintf(Message,"\rIncorrect application creator ‘%s’\r",type);
+		sprintf(Message,"\rIncorrect application creator '%s'\r",type);
 		Print(wTrace,Message);
 		goto QUIT;
 		}
@@ -2427,9 +2427,9 @@ int key,chan;
 key = (*(ScriptLine.intarg))[i1];
 chan = (*(ScriptLine.intarg))[i2];
 if((*p_keyon[chan])[key]) {
-	Print(wTrace,"Key ‘");
+	Print(wTrace,"Key '");
 	PrintNote(key,chan,wTrace,Message);
-	Print(wTrace,"’ is already used.\r");
+	Print(wTrace,"' is already used.\r");
 	return(FAILED);
 	}
 else (*p_keyon[chan])[key] = TRUE;

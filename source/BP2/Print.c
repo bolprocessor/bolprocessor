@@ -111,7 +111,7 @@ PrOpenPage(printport,0L);
 linebase = uplimit + lineheight;
 MoveTo(leftlimit,linebase);
 if(WindowName[w][0] != '\0')
-	sprintf(Message,"%s window / ‘%s’ / page %ld",WindowName[w],
+	sprintf(Message,"%s window / '%s' / page %ld",WindowName[w],
 		FileName[w],(long)page);
 else
 	sprintf(Message,"%s window / page %ld",WindowName[w],(long)page);

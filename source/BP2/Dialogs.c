@@ -61,7 +61,7 @@ MIDI_Event e;
 
 longerCsound = 0;
 
-/* Trap ‘return’; and 'tab' now too (akozar 061207) */
+/* Trap 'return'; and 'tab' now too (akozar 061207) */
 rtn = tab = FALSE;
 
 if(p_event->what == keyDown) {
@@ -296,21 +296,21 @@ if(w == wControlPannel) {
 				}
 			break;
 		case bMute:
-			if(!Oms && !NEWTIMER) Alert1("‘Mute’ only works when Opcode OMS is active");
+			if(!Oms && !NEWTIMER) Alert1("'Mute' only works when Opcode OMS is active");
 			else {
 				Mute = 1 - Mute;
 				MaintainMenus();
-				if(Mute) FlashInfo("MUTE is ON…   cmd-space will turn if off");
+				if(Mute) FlashInfo("MUTE is ON...   cmd-space will turn if off");
 				else HideWindow(Window[wInfo]);
 				}
 			break;
 		case dRepeatComputation:
 			if(ProduceStackDepth == -1) {
-				Alert1("Can't repeat… Decisions are lost!");
+				Alert1("Can't repeat... Decisions are lost!");
 				return(DONE);
 				}
 			if(ProduceStackDepth < 2) {
-				Alert1("Can't repeat… No item produced");
+				Alert1("Can't repeat... No item produced");
 				return(DONE);
 				}
 			if(CompileOn) {
@@ -416,7 +416,7 @@ QUIT:		Improvize = improvizemem;
 			ResetMIDIControllers(YES,YES,NO); break;
 		case bMIDIpanic:
 			if(!IsMidiDriverOn()) {
-				Alert1("MIDI output is inactive (check the ‘Devices’ menu)");
+				Alert1("MIDI output is inactive (check the 'Devices' menu)");
 				return(DONE);
 				}
 #if WITH_REAL_TIME_MIDI
@@ -879,7 +879,7 @@ if(thedialog == MIDIprogramPtr) {
 								break;
 								}
 							}
-						ShowMessage(TRUE,wMessage,"Click again this button to hear a sound sample…");
+						ShowMessage(TRUE,wMessage,"Click again this button to hear a sound sample...");
 						}
 					break;
 					}
@@ -901,7 +901,7 @@ if(thedialog == SixteenPtr) {
 		case bOKSixteen:
 			HideWindow(GetDialogWindow(SixteenPtr));
 			HideWindow(GetDialogWindow(MIDIprogramPtr));
-//			Alert1("To check input, select the ‘Data’ window and type cmd-J (“type from MIDI”)");
+//			Alert1("To check input, select the 'Data' window and type cmd-J (\"type from MIDI\")");
 			break;
 		default:
 			for(i=0; i < MAXCHAN; i++) {
@@ -1120,7 +1120,7 @@ if(w == wPrototype1) {
 				return(DONE);
 				}
 			if(!((*p_Type)[iProto] & 1)) {
-				Alert1("Can't play this sound-object unless ‘MIDI sequence’ is checked");
+				Alert1("Can't play this sound-object unless 'MIDI sequence' is checked");
 				return(DONE);
 				}
 			pclock = (unsigned long) Pclock; qclock = (unsigned long) Qclock;
@@ -1235,21 +1235,21 @@ if(w == wPrototype1) {
 			if(CheckiProto() != OK) return(DONE);
 			if((*p_Type)[iProto] & 2) (*p_Type)[iProto] &= (255-2);
 			else // (*p_Type)[iProto] |= 2;	// comment out until implemented - akozar 050707
-				Alert1("This type of object is not yet supported…");
+				Alert1("This type of object is not yet supported...");
 			// UpdateDirty(TRUE,wPrototype1);
 			break;
 		case bCsoundInstrument:
 			if(CheckiProto() != OK) return(DONE);
 			if((*p_Type)[iProto] & 4) {
 				if((*p_CsoundSize)[iProto] > ZERO) {
-					Alert1("This sound-object contains a Csound score and must remain declared as ‘Csound’");
+					Alert1("This sound-object contains a Csound score and must remain declared as 'Csound'");
 					return(DONE);
 					}
 				(*p_Type)[iProto] &= (255-4);
 				}	
 			else {
 				if((*p_CsoundSize)[iProto] <= ZERO) {
-					Alert1("This sound-object does not contain a Csound score. Click ‘Csound’ to create it");
+					Alert1("This sound-object does not contain a Csound score. Click 'Csound' to create it");
 					return(DONE);
 					}
 				(*p_Type)[iProto] |= 4;
@@ -1259,7 +1259,7 @@ if(w == wPrototype1) {
 			
 		case bResetPrototype:
 			if(CheckiProto() != OK) return(DONE);
-			sprintf(Message,"Reset prototype ‘%s’",*((*p_Bol)[iProto]));
+			sprintf(Message,"Reset prototype '%s'",*((*p_Bol)[iProto]));
 			if(Answer(Message,'N') != OK) return(DONE);
 			if(ResetPrototype(iProto) != OK) return(ABORT);
 			Hpos = -1;
@@ -1300,7 +1300,7 @@ if(w == wPrototype1) {
 				return(DONE);
 				}
 			if(!((*p_Type)[iProto] & 1)) {
-				Alert1("Can't convert this sound-object unless ‘MIDI sequence’ is checked");
+				Alert1("Can't convert this sound-object unless 'MIDI sequence' is checked");
 				return(DONE);
 				}
 			if(!IsEmpty(wPrototype7))
@@ -1442,7 +1442,7 @@ if(w == wPrototype1) {
 IMPORT:
 			if(CheckiProto() != OK) return(DONE);
 			if(GetPrototype(TRUE) != OK) return(DONE);
-			sprintf(Message,"Discard MIDI stream of prototype ‘%s’",*((*p_Bol)[iProto]));
+			sprintf(Message,"Discard MIDI stream of prototype '%s'",*((*p_Bol)[iProto]));
 			if((*pp_MIDIcode)[iProto] != NULL && Answer(Message,'Y') != OK) return(DONE);
 			rep = ImportMIDIfile(iProto);
 			if(rep == OK) rep = DONE;
@@ -1475,7 +1475,7 @@ IMPORT:
 				if((diff = MyHandlecmp((*p_Bol)[j],h)) == 0) break;
 				}
 			if(!diff) {
-				Alert1("This name is already assigned to a sound-object. Use the ‘Goto…’ button");
+				Alert1("This name is already assigned to a sound-object. Use the 'Goto...' button");
 				goto EXITNAME;
 				}
 			Jbol++;
@@ -2030,7 +2030,7 @@ if(w == wPrototype5) {
 				else (*p_Tref)[iProto] = p/q;
 				}
 			else {
-				if(Answer("Making this object ‘smooth’ will suppress its pivot. Do you want it",
+				if(Answer("Making this object 'smooth' will suppress its pivot. Do you want it",
 					'Y') != OK) ToggleButton(w,bStriatedObject);
 				}
 			if(GetPrototype(YES) != OK) return(DONE);
@@ -2211,7 +2211,7 @@ if(w == wPrototype6) {
 		case bDiscardNoteOffs:
 			(*p_DiscardNoteOffs)[iProto] = 1 - (*p_DiscardNoteOffs)[iProto];
 			if((*p_DiscardNoteOffs)[iProto] && (*p_StrikeAgain)[iProto] != FALSE) {
-				Alert1("Since some NoteOn's will be discarded it is recommended to select the ‘Don't strike again NoteOn's’ mode");
+				Alert1("Since some NoteOn's will be discarded it is recommended to select the 'Don't strike again NoteOn's' mode");
 				}
 			if(GetPrototype(YES) != OK) return(DONE);
 			break;
@@ -2449,14 +2449,14 @@ if(w == wCsoundInstruments) {
 			return(DONE);
 			break;
 		case bDisplayAsText:
-			if(Answer("Display profile of this instrument in the ‘Trace’ window",'Y') == OK) {
+			if(Answer("Display profile of this instrument in the 'Trace' window",'Y') == OK) {
 				SetCsoundInstrument(iCsoundInstrument,wTrace);
 				ShowSelect(CENTRE,wTrace);
 				}
 			return(DONE);
 			break;
 		case bExportAllInstruments:
-			if(Answer("Instrument profiles will be displayed in the ‘Trace’ window, then you may save it as text.\rProceed",'Y') == OK) {
+			if(Answer("Instrument profiles will be displayed in the 'Trace' window, then you may save it as text.\rProceed",'Y') == OK) {
 				if(ClearWindow(FALSE,wTrace) != OK) return(DONE);
 				HideWindow(Window[wCsoundInstruments]);
 				for(j=0; j < Jinstr; j++) {
