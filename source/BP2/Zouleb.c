@@ -515,7 +515,7 @@ else {
 	pos = (*p_MemPos)[ProduceStackIndex++];
 	if(ProduceStackIndex > ProduceStackDepth) {
 		repeat = FALSE;
-		if(Answer("End of known computation.\rContinue",'Y') != YES) return(ABORT);
+		if(Answer("End of known computation.\nContinue",'Y') != YES) return(ABORT);
 		}
 	}
 if(pos < (size - 1L)) {

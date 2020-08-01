@@ -195,7 +195,7 @@ if((p_prefrule = (int**) GiveSpace((Size)(subgram.number_rule+1) * sizeof(int)))
 rep = FAILED;
 
 if(StepProduce || StepGrammars || TraceProduce) {
-	sprintf(Message,"\r// Subgrammar %ld/%ld",(long)igram,(long)(*p_gram).number_gram);
+	sprintf(Message,"\n// Subgrammar %ld/%ld",(long)igram,(long)(*p_gram).number_gram);
 	Println(wTrace,Message); ShowSelect(CENTRE,wTrace);
 	}
 else {
@@ -203,7 +203,7 @@ if(DisplayProduce || (ShowMessages && (*p_gram).number_gram > 1)) {
 		sprintf(Message,"Subgrammar %ld/%ld",(long)igram,(long)(*p_gram).number_gram);
 		ShowMessage(TRUE,wMessage,Message);
 		if(DisplayProduce && !ScriptExecOn) {
-			Print(wTrace,"\r// "); Println(wTrace,Message);
+			Print(wTrace,"\n// "); Println(wTrace,Message);
 			}
 		}
 	}
@@ -368,11 +368,11 @@ while(((nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom,igram,grtype,p_
 		TextGetSelection(&dummy, &firstposition, TEH[wTrace]);
 		if(TraceProduce) {
 			if(grtype == ORDtype) {
-				sprintf(Message,"'ORD' grammar: selecting first candidate rule:\r");
+				sprintf(Message,"'ORD' grammar: selecting first candidate rule:\n");
 				Print(wTrace,Message);
 				}
 			else {
-				sprintf(Message,"\rChoice:\r");
+				sprintf(Message,"\nChoice:\n");
 				Print(wTrace,Message);
 				}
 			}
@@ -395,7 +395,7 @@ ENTER:
 		else {
 			if((nb_candidates == 1) || (*p_repeat)) {
 				if(!(*p_repeat) && notsaid && grtype != ORDtype) {
-					sprintf(Message,"Only one candidate rule...\r");
+					sprintf(Message,"Only one candidate rule...\n");
 					Print(wTrace,Message);
 					}
 				j = 0;
@@ -462,7 +462,7 @@ ENTER:
 				continue;
 				}
 			if(r == STOP && ((igram < (*p_gram).number_gram))) {
-				sprintf(Message,"Jump to subgrammar #%ld\rand terminate computation",
+				sprintf(Message,"Jump to subgrammar #%ld\nand terminate computation",
 					(long)igram + 1);
 				if((r=Answer(Message,'Y')) == OK) {
 					r = FINISH;
@@ -579,9 +579,9 @@ TRY3:	(*p_length) = LengthOf(pp_a);	/* was changed by FindArg() */
 	rule = (*(subgram.p_rule))[irul];	/* Added 24/11/97 */
 	if(TraceProduce) {
 		if(ProduceStackIndex >= 0)
-			sprintf(Message,"\r[Step #%ld] Selected: ",(long)ProduceStackIndex + 1);
+			sprintf(Message,"\n[Step #%ld] Selected: ",(long)ProduceStackIndex + 1);
 		else
-			sprintf(Message,"\rSelected: ");
+			sprintf(Message,"\nSelected: ");
 		Print(wTrace,Message);
 		ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,TRUE,TRUE);
 		}
@@ -656,7 +656,7 @@ NOPROD:
 		if((rep = ShowItem(igram,p_gram,FALSE,pp_a,(*p_repeat),mode,FALSE)) == ABORT
 			|| rep == FINISH || rep == EXIT || rep == STOP) goto QUIT;
 		if(CompleteDecisions ||
-			(Answer("End of known computation.\rContinue",'Y') == YES
+			(Answer("End of known computation.\nContinue",'Y') == YES
 				&& (PlanProduce=Answer("Choose candidate rules",'N')) != ABORT)) {
 			TraceProduce = DisplayProduce = TRUE;
 			goto MORE;
@@ -877,7 +877,7 @@ if(grtype == SUBtype) {
 					ShowMessage(TRUE,wMessage,"A weight has decreased to 0...");
 					}
 				if(TraceProduce) {
- 					Print(wTrace,"A weight has decreased to 0.\r");
+ 					Print(wTrace,"A weight has decreased to 0.\n");
 					}
 				rep = OK;
 				goto QUIT;
@@ -898,7 +898,7 @@ if(grtype == SUBtype) {
 				p_pos,p_prefrule,leftpos,&maxpref,&freedom,*p_repeat,
 				mode,&equalweight,learn)) > 0) {
 		if(TraceProduce) {
-			sprintf(Message,"Trying same grammar, new rules...\r");
+			sprintf(Message,"Trying same grammar, new rules...\n");
 			Print(wTrace,Message);
 			}
 		lastpos = leftpos = ZERO; maxpref = incmark = 0;
@@ -1193,7 +1193,7 @@ if(grtype == SUBtype && (*p_maxpref) > 0) {
 			&& OkContext(pp_a,grtype,rule,leftpos,length,meta,instan,
 				mode)) {
 			if(TraceProduce) {
-				sprintf(Message,"\rRule already selected: ");
+				sprintf(Message,"\nRule already selected: ");
 				Print(wTrace,Message);
 				ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,TRUE,TRUE);
 			 	}
@@ -1947,7 +1947,7 @@ if(grtype != SUBtype) {
 
 for(i=istart,j=jstart; j < jmax; i+=2,j+=2) {
 	if(xi > MAXLIN - 2) {
-		sprintf(Message,"Too many wild cards in a rule argument. Not more than %ld allowed.\r",
+		sprintf(Message,"Too many wild cards in a rule argument. Not more than %ld allowed.\n",
 			(long)(MAXLIN / 2 - 1));
 		Print(wTrace,Message);
 		return(ABORT);
@@ -2199,7 +2199,7 @@ if(r == STOP && mode == PROD) {
 	else {
 		if(!Improvize
 			&& (igram >= 0 && igram < (*p_gram).number_gram) && !AllOn) {
-				sprintf(Message,"Jump to subgrammar #%ld\rand terminate computation",
+				sprintf(Message,"Jump to subgrammar #%ld\nand terminate computation",
 					(long)igram + 1L);
 			if((r=Answer(Message,'Y')) == OK) {
 				TextOffset dummy, selend;

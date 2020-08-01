@@ -738,7 +738,7 @@ for(i=0; i < MAXTICKS; i++) {
 			if(p/q < minduration || p/q > maxduration) {
 				ShowWindow(Window[wTimeAccuracy]);
 				BringToFront(Window[wTimeAccuracy]);
-				sprintf(Message,"Tick duration must be in range %ld .. %ldms.\r(See time resolution)\rCan't accept '%ld'",
+				sprintf(Message,"Tick duration must be in range %ld .. %ldms.\n(See time resolution)\nCan't accept '%ld'",
 					(long)minduration,(long)maxduration,(long)(p/q));
 				Alert1(Message);
 				if(p/q > maxduration) TickDuration[i] = maxduration;

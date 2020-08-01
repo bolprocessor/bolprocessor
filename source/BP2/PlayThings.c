@@ -1008,9 +1008,9 @@ while(origin < end) {
 	if(r == ABORT || r == EXIT) goto OUT;
 	if(r == OK) {
 		SetSelect(newend,newend,TEH[wout]);
-		if(newitem) Print(wout,"\r");
+		if(newitem) Print(wout,"\n");
 		else TextGetSelection(&dummy, &neworigin, TEH[wout]);
-		Print(wout,"\r");
+		Print(wout,"\n");
 		sprintf(Message,"Ratio = %u, Prod = %u",(unsigned long)Ratio,(unsigned long)Prod);
 		ShowMessage(TRUE,wMessage,Message);
 		if(Prod == Ratio) r = PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wout,pp_Scrap,&p_a);
@@ -1277,7 +1277,7 @@ if(origin >= end) {
 length = end - origin + 4L;
 if(length > 32000L) {
 	if(!ScriptExecOn) Alert1("Selection larger than 32,000 chars.  Can't encode");
-	else PrintBehind(wTrace,"Selection larger than 32,000 chars.  Can't encode.\r");
+	else PrintBehind(wTrace,"Selection larger than 32,000 chars.  Can't encode.\n");
 	SelectOn = FALSE; return(FAILED);
 	}
 if((ptr = (char**) GiveSpace((Size)(length * sizeof(char)))) == NULL) {
@@ -1331,7 +1331,7 @@ MyDisposeHandle((Handle*)pp_buff);
 OUT:
 if(!ScriptExecOn) Alert1("No data selected");
 else {
-	PrintBehind(wTrace,"No data selected.\r");
+	PrintBehind(wTrace,"No data selected.\n");
 	}
 SelectOn = FALSE;
 return(rep);
@@ -1396,7 +1396,7 @@ for(j=*p_i,k=0; j < im; j++) {
 		if(ThreeOverTwo(&size) != OK) {
 			*p_i = ++j;
 			if(!ScriptExecOn) Alert1("Too long paragraph in selection");
-			else PrintBehind(wTrace,"Too long paragraph in selection. Aborted.\r");
+			else PrintBehind(wTrace,"Too long paragraph in selection. Aborted.\n");
 			return(FAILED);
 			}
 		ptr = *pp_buff;

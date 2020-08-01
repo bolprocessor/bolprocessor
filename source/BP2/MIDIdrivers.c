@@ -736,7 +736,7 @@ if(!InBuiltDriverOn) {
 	}
 while(i < WAIT_CACHE_SIZE) {
 	if(driver->waitQueue[i]) {
-		sprintf(Message,"\r%ld:",(long)i);
+		sprintf(Message,"\n%ld:",(long)i);
 		Print(wTrace,Message);
 		remtasks = driver->waitQueue[i];
 		while(task = remtasks) {
@@ -748,7 +748,7 @@ while(i < WAIT_CACHE_SIZE) {
 		}
 	i++;
 	}
-sprintf(Message,"\rcount = %ld\r",(long)count);
+sprintf(Message,"\ncount = %ld\n",(long)count);
 Print(wTrace,Message);
 return(OK);
 }

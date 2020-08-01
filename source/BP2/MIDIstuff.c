@@ -974,7 +974,7 @@ do {
 	if(!hexa && (n = GetInteger(YES,*p_line,&i)) == INT_MAX) break;
 	if(hexa && (n = GetHexa(*p_line,&i)) == INT_MAX) break;
 	if(n > 255 || n < 0) {
-		sprintf(Message,"\rCan't send %ld as MIDI data.\r",(long)n);
+		sprintf(Message,"\nCan't send %ld as MIDI data.\n",(long)n);
 		Print(wTrace,Message);
 		 goto QUIT;
 		}

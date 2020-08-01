@@ -1959,8 +1959,8 @@ if(EventState == AGAIN) result = AGAIN;
 
 if(cswrite && result == OK) {
 	if(!ConvertMIDItoCsound) {
-		WriteToFile(NO,CsoundFileFormat,"s\r",CsRefNum);
-		if(CsoundTrace) Println(wTrace,"s\r");
+		WriteToFile(NO,CsoundFileFormat,"s\n",CsRefNum);
+		if(CsoundTrace) Println(wTrace,"s\n");
 		}
 	else {
 		Println(wPrototype7,"e");
@@ -2081,7 +2081,7 @@ int x;
 if(ch < 0) ch += 256;
 if(ch < 128) {
 	if(ch > MAXCHAN) {
-		sprintf(Message,"Trying to assign channel #%ld.\rValue should be 1..%ld",
+		sprintf(Message,"Trying to assign channel #%ld.\nValue should be 1..%ld",
 			(long)ch,(long)MAXCHAN);
 		Alert1(Message);
 		return(ABORT);
@@ -2091,7 +2091,7 @@ if(ch < 128) {
 /* Channel is determined by Kx */
 x = ch - 128;
 if(x < 1 || x >= MAXPARAMCTRL) {
-	sprintf(Message,"Trying to fix channel with incorrect K%ld.\rValue should be 1..%ld",
+	sprintf(Message,"Trying to fix channel with incorrect K%ld.\nValue should be 1..%ld",
 		(long)x,(long)MAXPARAMCTRL-1L);
 	Alert1(Message);
 	return(ABORT);
@@ -2099,16 +2099,16 @@ if(x < 1 || x >= MAXPARAMCTRL) {
 ch = ParamValue[x];
 if(ch < 1 || ch > MAXCHAN) {
 	if(ParamControl[x] >= 0) {
-		sprintf(Message,"Trying to assign channel #%ld by K%ld (MIDI controller #%ld).\rValue should be 1..%ld",
+		sprintf(Message,"Trying to assign channel #%ld by K%ld (MIDI controller #%ld).\nValue should be 1..%ld",
 			(long)ch,(long)x,(long)ParamControl[x],(long)MAXCHAN);
 		}
 	else {
 		if(ParamKey[x] >= 0) {
-			sprintf(Message,"Trying to assign channel #%ld by K%ld (Key #%ld).\rValue should be 1..%ld",
+			sprintf(Message,"Trying to assign channel #%ld by K%ld (Key #%ld).\nValue should be 1..%ld",
 				(long)ch,(long)x,(long)ParamKey[x],(long)MAXCHAN);
 			}
 		else {
-		sprintf(Message,"Trying to assign channel #%ld by K%ld.\rValue should be 1..%ld",
+		sprintf(Message,"Trying to assign channel #%ld by K%ld.\nValue should be 1..%ld",
 			(long)ch,(long)x,(long)MAXCHAN);
 			}
 		}
@@ -2358,7 +2358,7 @@ if((*p_control)[seq].param == NULL) {
 	return(ABORT);
 	}
 if((*param)[iparam].ibm <= ZERO) {
-	if(Beta) Print(wTrace,"Err. SendControl(). (*param)[iparam].ibm <= ZERO\r");
+	if(Beta) Print(wTrace,"Err. SendControl(). (*param)[iparam].ibm <= ZERO\n");
 /*	This case was found in item #26 of -da.checkControls.html when played after the
 	two preceding ones */
 	goto INCREMENT;
@@ -2376,7 +2376,7 @@ if(value > 16383. && value < 16384.) value = 16383.;
 
 if(value < 0. || value > 16383.) {
 	if(Beta) {
-		sprintf(Message,"Err. SendControl(). value = %.2f\r",value);
+		sprintf(Message,"Err. SendControl(). value = %.2f\n",value);
 		Print(wTrace,Message);
 		}
 	return(OK);
@@ -2640,11 +2640,11 @@ c = p_map->q1
 		+ Round(((double)(key - p_map->p1) * (p_map->q2 - p_map->q1))
 									/ ((double)p_map->p2 - p_map->p1));
 if(c < 0) {
-	if(Beta) Println(wTrace,"\rErr. KeyImage(). c < 0");
+	if(Beta) Println(wTrace,"\nErr. KeyImage(). c < 0");
 	c = 0;
 	}
 if(c > 127) {
-	if(Beta) Println(wTrace,"\rErr. KeyImage(). c > 127");
+	if(Beta) Println(wTrace,"\nErr. KeyImage(). c > 127");
 	c = 127;
 	}
 return(c);

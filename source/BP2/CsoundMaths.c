@@ -266,7 +266,7 @@ return(y);
 
 DO_OVERFLOW:
 sprintf(Message,
-	"Parameter value '%.2f' is out of range...\rCheck parameter mappings in Csound instrument %ld",
+	"Parameter value '%.2f' is out of range...\nCheck parameter mappings in Csound instrument %ld",
 	xin,(long)(*p_CsInstrumentIndex)[ins]);
 Alert1(Message);
 iCsoundInstrument = ins;

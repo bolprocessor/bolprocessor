@@ -281,7 +281,7 @@ if(Situation_ok(nseq,i,i0,j,shift1,(*p_tp1)[i],(*p_tp2)[i],(*p_Ts)[i],(*p_tscove
 	(*p_maxtruncbeg)[i],(*p_maxtruncend)[i],1);
 	
 if((*p_choice1)[i] > 5) {
-	sprintf(Message,"Error1 choice1[%ld]=%ld.\r",(long)i,(long)(*p_choice1)[i]);
+	sprintf(Message,"Error1 choice1[%ld]=%ld.\n",(long)i,(long)(*p_choice1)[i]);
 	if(Beta) Alert1(Message);
 	}
 if(shift1 == ZERO) goto INCREMENT;
@@ -294,19 +294,19 @@ if(TraceTimeSet) {
 		goto QUIT;
 #endif /* BP_CARBON_GUI */
 	if(j < 16384)
-		sprintf(Message,"\rCol#%ld side %ld  Ts=%ld t1=%ld  t2=%ld  \"%s\" ",
+		sprintf(Message,"\nCol#%ld side %ld  Ts=%ld t1=%ld  t2=%ld  \"%s\" ",
 			(long)i,1L,(long)(*p_Ts)[i],(long)(*p_tp1)[i],(long)(*p_tp2)[i],*((*p_Bol)[j]));
 	else
-		sprintf(Message,"\rCol#%ld side %ld  Ts=%ld t1=%ld  t2=%ld  \"%s\" ",
+		sprintf(Message,"\nCol#%ld side %ld  Ts=%ld t1=%ld  t2=%ld  \"%s\" ",
 			(long)i,1L,(long)(*p_Ts)[i],(long)(*p_tp1)[i],(long)(*p_tp2)[i],
 			*((*(p_NoteName[NoteConvention]))[j-16384]));
 	Print(wTrace,Message);
 	if(shift1 > 0) {
-		sprintf(Message,"should spend %ld milliseconds, but no solution.\r",(long)shift1);
+		sprintf(Message,"should spend %ld milliseconds, but no solution.\n",(long)shift1);
 		Print(wTrace,Message);
 		}
 	else {
-		sprintf(Message,"should save %ld milliseconds, but no solution.\r",(long)-shift1);
+		sprintf(Message,"should save %ld milliseconds, but no solution.\n",(long)-shift1);
 		Print(wTrace,Message);
 		}
 	ShowSelect(CENTRE,wTrace);
@@ -341,12 +341,12 @@ else {
 	sol1 = Next_choice((*p_sol_set1)[i],nseq,i,i0,j,(*p_Ts)[i],(*p_ts1)[i],
 																(*p_ts2)[i],shift1,1);
 	if((*p_choice1)[i] > 5) {
-		sprintf(Message,"Error2 choice1[%ld]=%ld.\r",
+		sprintf(Message,"Error2 choice1[%ld]=%ld.\n",
 			(long)i,(long)(*p_choice1)[i]);
 		if(Beta) Alert1(Message);
 		}
 	if(sol1 == -8) {
-		sprintf(Message,"\rnseq=%ld i=%ld side=1 j=%ld choice1=%ld sol_set=",
+		sprintf(Message,"\nnseq=%ld i=%ld side=1 j=%ld choice1=%ld sol_set=",
 					(long)nseq,(long)i,(long)j,(long)(*p_choice1)[i]);
 		Print(wTrace,Message);
 		for(kk=0; kk < 5; kk++) {
@@ -424,7 +424,7 @@ else {
 #endif /* BP_CARBON_GUI */
 	sol2 = Next_choice(sol_set2,nseq,i,i0,j,(*p_Ts)[i],(*p_ts1)[i],(*p_ts2)[i],shift2,2);
 	if(sol2 == -8) {
-		sprintf(Message,"\rnseq=%ld i=%ld side=2 j=%ld choice2=%ld sol_set=",
+		sprintf(Message,"\nnseq=%ld i=%ld side=2 j=%ld choice2=%ld sol_set=",
 			(long)nseq,(long)i,(long)j,(long)choice2);
 		Print(wTrace,Message);
 		for(kk=0; kk<5; kk++) {
@@ -480,11 +480,11 @@ if(sol2 == 4) {		/* Revise preceding object(s) */
 		if((i > i0) && (okmove || ((shift2 > ZERO) && (ibreak > 0) && (ibreak < i)))) {
 			if(TraceTimeSet) {
 				if(j < 16384) {
-					sprintf(Message,"Backtracking on \"%s\" col#%ld ibreak=%ld shift2=%ld\r",
+					sprintf(Message,"Backtracking on \"%s\" col#%ld ibreak=%ld shift2=%ld\n",
 						*((*p_Bol)[j]),(long)i,(long)ibreak,(long)shift2);
 					}
 				else {
-					sprintf(Message,"Backtracking on \"%s\" col#%ld ibreak=%ld shift2=%ld\r",
+					sprintf(Message,"Backtracking on \"%s\" col#%ld ibreak=%ld shift2=%ld\n",
 						*((*(p_NoteName[NoteConvention]))[j-16384]),(long)i,(long)ibreak,(long)shift2);
 					}
 				Print(wTrace,Message);
@@ -495,11 +495,11 @@ if(sol2 == 4) {		/* Revise preceding object(s) */
 			if(TraceTimeSet) {
 				if(j < 16384)
 					sprintf(Message,
-					"No use to backtrack on \"%s\" col#%ld ibreak=%ld shift2=%ld\r",
+					"No use to backtrack on \"%s\" col#%ld ibreak=%ld shift2=%ld\n",
 						*((*p_Bol)[j]),(long)i,(long)ibreak,(long)shift2);
 				else
 					sprintf(Message,
-					"No use to backtrack on \"%s\" col#%ld ibreak=%ld shift2=%ld\r",
+					"No use to backtrack on \"%s\" col#%ld ibreak=%ld shift2=%ld\n",
 						*((*(p_NoteName[NoteConvention]))[j-16384]),(long)i,
 						(long)ibreak,(long)shift2);
 				Print(wTrace,Message);
@@ -589,10 +589,10 @@ if(j < 0) j = -j;
 if((*p_Ts)[i] == Tsm) {
 	if(TraceTimeSet) {
 		if(j < 16384)
-			sprintf(Message,"\rCol %ld NewTs=%ld ts1= %ld ts2=%ld Tsm=%ld \"%s\"  This object is not the one concerned.",
+			sprintf(Message,"\nCol %ld NewTs=%ld ts1= %ld ts2=%ld Tsm=%ld \"%s\"  This object is not the one concerned.",
 			(long)i,(long)(*p_Ts)[i],(long)(*p_ts1)[i],(long)(*p_ts2)[i],(long)Tsm,*((*p_Bol)[j]));
 		else	/* Simple note */
-			sprintf(Message,"\rCol %ld NewTs=%ld ts1= %ld ts2=%ld Tsm=%ld \"%s\"  This object is not the one concerned.",
+			sprintf(Message,"\nCol %ld NewTs=%ld ts1= %ld ts2=%ld Tsm=%ld \"%s\"  This object is not the one concerned.",
 			(long)i,(long)(*p_Ts)[i],(long)(*p_ts1)[i],(long)(*p_ts2)[i],(long)Tsm,
 			*((*(p_NoteName[NoteConvention]))[j-16384]));
 		Print(wTrace,Message);
@@ -657,7 +657,7 @@ if(DisplayTimeSet) {
 	if((result=DrawSequence(nseq,NULL,p_t1,p_t2,kmax,(unsigned long)(*p_imaxseq)[nseq],p_imaxseq,FALSE,p_ddelta0,p_ddelta1,p_ddelta2))
 		!= OK) return(result);
 #endif /* BP_CARBON_GUI */
-	sprintf(Message,"\rsol#%ld ---------- SEQUENCE %ld ---------------------\r",
+	sprintf(Message,"\nsol#%ld ---------- SEQUENCE %ld ---------------------\n",
 			(long)nsol,(long)(nseq+1));
 	Print(wTrace,Message);
 	for(i=1L; i < imaxseq; i++) {
@@ -667,13 +667,13 @@ if(DisplayTimeSet) {
 		if(j >= Jbol) {
 			if(j < 16384)
 				sprintf(Message,
-	"#%ld \"%s\" [%ld,%ld] TrBeg=%ld TrEnd=%ld alpha=%f delta=%ld DELTA=%ld\r",
+	"#%ld \"%s\" [%ld,%ld] TrBeg=%ld TrEnd=%ld alpha=%f delta=%ld DELTA=%ld\n",
 	   (long)i,*((*p_Patt)[j-Jbol]),(long)(*p_t1)[i],(long)(*p_t2)[i],(long)(*p_Instance)[k].truncbeg ,
 	   (long)(*p_Instance)[k].truncend ,(*p_Instance)[k].alpha,(long)(*p_delta)[k] ,
 	   (long)((*p_ddelta0)[i]+(*p_ddelta1)[i]+(*p_ddelta2)[i]));
 	   		else	/* Simple note */
 				sprintf(Message,
-	"#%ld \"%s\" [%ld,%ld] TrBeg=%ld TrEnd=%ld alpha=%f delta=%ld DELTA=%ld\r",
+	"#%ld \"%s\" [%ld,%ld] TrBeg=%ld TrEnd=%ld alpha=%f delta=%ld DELTA=%ld\n",
 	   (long)i,*((*(p_NoteName[NoteConvention]))[j-16384]),(long)(*p_t1)[i],
 	   (long)(*p_t2)[i],(long)(*p_Instance)[k].truncbeg ,
 	   (long)(*p_Instance)[k].truncend ,(*p_Instance)[k].alpha,(long)(*p_delta)[k],
@@ -683,7 +683,7 @@ if(DisplayTimeSet) {
    		else {
 			if(j > 0) {
 				sprintf(Message,
-	"#%ld \"%s\" [%ld,%ld] TrBeg=%ld TrEnd=%ld alpha=%f delta=%ld DELTA=%ld\r",
+	"#%ld \"%s\" [%ld,%ld] TrBeg=%ld TrEnd=%ld alpha=%f delta=%ld DELTA=%ld\n",
 	   (long)i,*((*p_Bol)[j]),(long)(*p_t1)[i],(long)(*p_t2)[i],(long)(*p_Instance)[k].truncbeg,
 	   (long)(*p_Instance)[k].truncend,(*p_Instance)[k].alpha,(long)(*p_delta)[k],
 	   (long)((*p_ddelta0)[i]+(*p_ddelta1)[i]+(*p_ddelta2)[i]) );
@@ -694,13 +694,13 @@ if(DisplayTimeSet) {
 				if(j > 1) {
 					if(j < 16384)
 						sprintf(Message,
-			"#%ld \"<<%s>>\" [%ld,%ld] TrBeg=%ld TrEnd=%ld alpha=%f delta=%ld DELTA=%ld\r",
+			"#%ld \"<<%s>>\" [%ld,%ld] TrBeg=%ld TrEnd=%ld alpha=%f delta=%ld DELTA=%ld\n",
 			   (long)i,*((*p_Bol)[j]),(long)(*p_t1)[i],(long)(*p_t2)[i],(long)(*p_Instance)[k].truncbeg,
 			   (long)(*p_Instance)[k].truncend,(*p_Instance)[k].alpha,(long)(*p_delta)[k] ,
 			   (long)((*p_ddelta0)[i]+(*p_ddelta1)[i]+(*p_ddelta2)[i]) );
 			   		else
 						sprintf(Message,
-			"#%ld \"<<%s>>\" [%ld,%ld] TrBeg=%ld TrEnd=%ld alpha=%f delta=%ld DELTA=%ld\r",
+			"#%ld \"<<%s>>\" [%ld,%ld] TrBeg=%ld TrEnd=%ld alpha=%f delta=%ld DELTA=%ld\n",
 			   (long)i,*((*(p_NoteName[NoteConvention]))[j-16384]),(long)(*p_t1)[i],
 			   (long)(*p_t2)[i],(long)(*p_Instance)[k].truncbeg,
 			   (long)(*p_Instance)[k].truncend ,(*p_Instance)[k].alpha,(long)(*p_delta)[k],
@@ -851,18 +851,18 @@ if(nseq >= Maxconc) {
 	}
 if(TraceTimeSet) {
 	if(j < 16384)
-		sprintf(Message,"\rCol#%ld side %ld Ts=%ld  t1 =%ld  t2=%ld  \"%s\" ",
+		sprintf(Message,"\nCol#%ld side %ld Ts=%ld  t1 =%ld  t2=%ld  \"%s\" ",
 			(long)i,(long)side,(long)ts,(long)t1,(long)t2,*((*p_Bol)[j]));
 	else
-		sprintf(Message,"\rCol#%ld side %ld Ts=%ld  t1 =%ld  t2=%ld  \"%s\" ",
+		sprintf(Message,"\nCol#%ld side %ld Ts=%ld  t1 =%ld  t2=%ld  \"%s\" ",
 			(long)i,(long)side,(long)ts,(long)t1,(long)t2,
 			*((*(p_NoteName[NoteConvention]))[j-16384]));
 	Print(wTrace,Message);
 	if(shift > 0) {
-		sprintf(Message,"must spend %ld milliseconds\r",(long)shift);
+		sprintf(Message,"must spend %ld milliseconds\n",(long)shift);
 		}
 	else {
-		sprintf(Message,"must save %ld milliseconds\r",(long)-shift);
+		sprintf(Message,"must save %ld milliseconds\n",(long)-shift);
 		}
 	Print(wTrace,Message);
 	}
@@ -872,42 +872,42 @@ if(StepTimeSet) {
 			&& !sol_set[0] && !sol_set[1] && !sol_set[2] && !sol_set[3]) {
 		goto REVISE;
 		}
-	if(sol_set[0]) Print(wTrace,"S)hift sound-object\r");
-	if(sol_set[1]) Print(wTrace,"B)reak tempo\r");
-	if(sol_set[2]) Print(wTrace,"T)runcate beginning\r");
-	if(sol_set[3]) Print(wTrace,"T)runcate end\r");
-	if(i > i0 && !AllSolTimeSet) Print(wTrace,"R)evise previous sound-object(s)\r");
-	Print(wTrace,"Q)uit\r");
+	if(sol_set[0]) Print(wTrace,"S)hift sound-object\n");
+	if(sol_set[1]) Print(wTrace,"B)reak tempo\n");
+	if(sol_set[2]) Print(wTrace,"T)runcate beginning\n");
+	if(sol_set[3]) Print(wTrace,"T)runcate end\n");
+	if(i > i0 && !AllSolTimeSet) Print(wTrace,"R)evise previous sound-object(s)\n");
+	Print(wTrace,"Q)uit\n");
 	
 QUEST3:
 	rep = GetCap();
 	HideWindow(Window[wMessage]);
 	if(rep == 'Q') {
-		Print(wTrace,"\rAborted...\r"); ShowSelect(CENTRE,wTrace);
+		Print(wTrace,"\nAborted...\n"); ShowSelect(CENTRE,wTrace);
 		return(ABORT);
 		}
 	if(rep == 'R'&& !AllSolTimeSet) {
 REVISE:
-		Print(wTrace,"Revising previous object(s)...\r"); ShowSelect(CENTRE,wTrace);
+		Print(wTrace,"Revising previous object(s)...\n"); ShowSelect(CENTRE,wTrace);
 		return(4);
 		}
 	if(sol_set[0] && rep == 'S') {
-		Print(wTrace,"Shifting sound-object...\r"); ShowSelect(CENTRE,wTrace);
+		Print(wTrace,"Shifting sound-object...\n"); ShowSelect(CENTRE,wTrace);
 		return(0);
 		}
 	else {
 		if((sol_set[1]) && rep == 'B') {
-			Print(wTrace,"Breaking tempo...\r"); ShowSelect(CENTRE,wTrace);
+			Print(wTrace,"Breaking tempo...\n"); ShowSelect(CENTRE,wTrace);
 			return(1);
 			}
 		else {
 			if(sol_set[2] && rep == 'T') {
-				Print(wTrace,"Truncating beginning...\r"); ShowSelect(CENTRE,wTrace);
+				Print(wTrace,"Truncating beginning...\n"); ShowSelect(CENTRE,wTrace);
 				return(2);
 				}
 			else {
 				if(sol_set[3] && rep == 'T') {
-					Print(wTrace,"Truncating end...\r"); ShowSelect(CENTRE,wTrace);
+					Print(wTrace,"Truncating end...\n"); ShowSelect(CENTRE,wTrace);
 					return(3);
 					}
 				else {
@@ -922,7 +922,7 @@ for(n=0; n < 5; n++) {
 	if(sol_set[n] > 0) return(n);
 	}
 if(Beta) Alert1("Error Next_choice()");
-Print(wTrace,"\rsol_set[n]=\r");
+Print(wTrace,"\nsol_set[n]=\n");
 for(n=0; n < 5; n++) {
 	sprintf(Message,"%ld ",(long)sol_set[n]);
 	Print(wTrace,Message);
@@ -972,19 +972,19 @@ if(shift < ZERO) {
 	
 	if(TraceTimeSet) {
 		if(j < 16384)
-			sprintf(Message,"\rCol#%ld side %ld Ts=%ld  t1 =%ld  t2=%ld  \"%s\" ",
+			sprintf(Message,"\nCol#%ld side %ld Ts=%ld  t1 =%ld  t2=%ld  \"%s\" ",
 				(long)i,1L,(long)(t1+shift),(long)t1,(long)t2,*((*p_Bol)[j]));
 		else
-			sprintf(Message,"\rCol#%ld side %ld Ts=%ld  t1 =%ld  t2=%ld  \"%s\" ",
+			sprintf(Message,"\nCol#%ld side %ld Ts=%ld  t1 =%ld  t2=%ld  \"%s\" ",
 				(long)i,1L,(long)(t1+shift),(long)t1,(long)t2,
 				*((*(p_NoteName[NoteConvention]))[j-16384]));
 		Print(wTrace,Message);
 		if(shiftmore < 0) {
-			sprintf(Message,"forces continuity. Previous object(s) must spend %ld milliseconds\r",
+			sprintf(Message,"forces continuity. Previous object(s) must spend %ld milliseconds\n",
 				(long)-shiftmore);
 			}
 		else {
-			sprintf(Message,"forces continuity. Previous object(s) must save %ld milliseconds\r",
+			sprintf(Message,"forces continuity. Previous object(s) must save %ld milliseconds\n",
 				(long)shiftmore);
 			}
 		Print(wTrace,Message);
@@ -1000,20 +1000,20 @@ if(shift > ZERO) {
 	else  shiftmore = s2;
 	if(TraceTimeSet) {
 		if(j < 16384)
-			sprintf(Message,"\rCol#%ld side %ld Ts=%ld  t1 =%ld  t2=%ld  \"%s\" ",
+			sprintf(Message,"\nCol#%ld side %ld Ts=%ld  t1 =%ld  t2=%ld  \"%s\" ",
 				(long)i,1L,(long)(t1+shift),(long)t1,(long)t2,*((*p_Bol)[j]));
 		else
-			sprintf(Message,"\rCol#%ld side %ld Ts=%ld  t1 =%ld  t2=%ld  \"%s\" ",
+			sprintf(Message,"\nCol#%ld side %ld Ts=%ld  t1 =%ld  t2=%ld  \"%s\" ",
 				(long)i,1L,(long)(t1+shift),(long)t1,(long)t2,
 				*((*(p_NoteName[NoteConvention]))[j-16384]));
 		Print(wTrace,Message);
 		if(shiftmore < 0) {
-			sprintf(Message,"can't be covered. Previous object(s) must spend %ld milliseconds. Err. Alternate_correction1().\r",
+			sprintf(Message,"can't be covered. Previous object(s) must spend %ld milliseconds. Err. Alternate_correction1().\n",
 				(long)-shiftmore);
 			if(Beta) Alert1(Message);
 			}
 		else {
-			sprintf(Message,"can't be covered. Previous object(s) must save %ld milliseconds\r",
+			sprintf(Message,"can't be covered. Previous object(s) must save %ld milliseconds\n",
 				(long)shiftmore);
 			}
 		Print(wTrace,Message);

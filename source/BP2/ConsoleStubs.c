@@ -299,7 +299,7 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo)
 	// WriteFile(TRUE,CsoundFileFormat,CsRefNum,wCsoundTables,length);
 
 	// TEMP:
-	if(WriteToFile(NO,CsoundFileFormat,"f1 0 32768 10 1 ; This table may be changed\r",CsRefNum) != OK) {
+	if(WriteToFile(NO,CsoundFileFormat,"f1 0 32768 10 1 ; This table may be changed\n",CsRefNum) != OK) {
 		Alert1("Can't write to Csound score file. Unknown error");
 		CloseCsScore();
 		return(ABORT);

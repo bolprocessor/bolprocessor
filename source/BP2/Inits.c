@@ -790,7 +790,7 @@ return(OK);
 Ctrlinit(void)
 {
 int i,igram,irul,j,k;
-/* Print(wTrace,"\rCtrl values:\r"); */
+/* Print(wTrace,"\nCtrl values:\n"); */
 
 if(Gram.p_subgram == NULL || Gram.number_gram < 1) return(OK);
 for(i=1; i < MAXPARAMCTRL; i++) {
@@ -1682,7 +1682,7 @@ if(!gestaltErr) {
 		}
 #endif
 	if(gestaltAnswer < 0x002) {
-		sprintf(Message,"BP2 requires at least a 68020 processor.\rThis machine has a %s processor",
+		sprintf(Message,"BP2 requires at least a 68020 processor.\nThis machine has a %s processor",
 			processor[gestaltAnswer]);
 		ParamText(in_place_c2pstr(Message), "\p", "\p", "\p");
 		StopAlert(OKAlert, NULL);
@@ -2009,7 +2009,7 @@ else {
 		CloseMe(&refnum);
 //		if(Beta) goto MAKE;
 		if((today-secs) > (86400L * 30L)) {
-			Alert1("This copy of BP2 has been used for more than 30 days.\rIt's a good idea to click the 'Register' button...");
+			Alert1("This copy of BP2 has been used for more than 30 days.\nIt's a good idea to click the 'Register' button...");
 			goto REGISTERED;
 			}
 		goto OUT;
@@ -2028,7 +2028,7 @@ MAKE:
 		CopyPString(PascalLine,reply.sfFile.name);
 		result = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
 		if(result != OK) {
-			Alert1("Unexpected problem creating the registration file.  Is the hard disk full?\rContact the authors");
+			Alert1("Unexpected problem creating the registration file.  Is the hard disk full?\nContact the authors");
 			goto OUT;
 			}
 		WriteHeader(-1,refnum,reply.sfFile);
@@ -2039,7 +2039,7 @@ MAKE:
 		io = FSpGetFInfo(&spec,&fndrinfo);
 		fndrinfo.fdFlags |= fInvisible;
 		io = FSpSetFInfo(&spec,&fndrinfo);
-		Alert1("This is a fresh copy of BP2.\rIt's a good idea to click the 'Register' button...");
+		Alert1("This is a fresh copy of BP2.\nIt's a good idea to click the 'Register' button...");
 REGISTERED:
 		Alert1("If you already registered, contact <bel@kagi.com> to get an activation key");
 		}
@@ -2145,7 +2145,7 @@ else {
 	}
 result = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
 if(result != OK) {
-	Alert1("Unexpected problem recording your identity. Is the hard disk full?\rContact the authors");
+	Alert1("Unexpected problem recording your identity. Is the hard disk full?\nContact the authors");
 	return(ABORT);
 	}
 WriteHeader(-1,refnum,reply.sfFile);
@@ -2193,15 +2193,15 @@ if(io == noErr) {
 		}
 	if(today > secs) {
 		if(((today-secs) < (86400L * 70L)) && (io=MyOpen(&spec,fsRdPerm,&y2krefnum)) == noErr) {
-			Alert1("Welcome to the third millennium!\r(Any idea whether this software is y2k compliant?)");
+			Alert1("Welcome to the third millennium!\n(Any idea whether this software is y2k compliant?)");
 			while(Button());
 			BPActivateWindow(SLOW,wData);
 			BPActivateWindow(SLOW,wGrammar);
-			Println(wNotice,"\r\rPhew! BP2 survived the shock...\r");
-			Println(wNotice,"You'd better check your bank account, retirement planning, etc.\r");
-			Println(wNotice,"It's an auspicious day to click the 'Register' button if you never tried it and the bank hasn't screwed up your account ;-)\r\r");
-			Println(wNotice,"With you, forever,\r\r");
-			Println(wNotice,"*    *   *  * * Bol Processor folks * *  *   *    *\r\r");
+			Println(wNotice,"\n\nPhew! BP2 survived the shock...\n");
+			Println(wNotice,"You'd better check your bank account, retirement planning, etc.\n");
+			Println(wNotice,"It's an auspicious day to click the 'Register' button if you never tried it and the bank hasn't screwed up your account ;-)\n\n");
+			Println(wNotice,"With you, forever,\n\n");
+			Println(wNotice,"*    *   *  * * Bol Processor folks * *  *   *    *\n\n");
 			Println(wNotice,"             (Click mouse to continue)");
 			while(!Button());
 			FSClose(y2krefnum);
@@ -2211,7 +2211,7 @@ if(io == noErr) {
 	}
 else {
 	if(today < secs) {
-		Alert1("You should get the y2k certificate for this program.\rContact <bel@kagi.com>");
+		Alert1("You should get the y2k certificate for this program.\nContact <bel@kagi.com>");
 		}
 	}
 return(OK);
@@ -2237,7 +2237,7 @@ int CheckDate()
 	GetDateTime(&today);
 	if(today < secs) {
 		reply = Answer("BP2 requires a 68020 processor and at least System 4 to run. "
-				   "This isn't 1984 anymore!!\rContinue anyways?", 'Y');
+				   "This isn't 1984 anymore!!\nContinue anyways?", 'Y');
 	}
 	if (reply == YES)  return(OK);
 	else return(FAILED);

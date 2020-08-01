@@ -57,7 +57,7 @@ for(i=ZERO,space=TRUE,start=TRUE,k=0,nitem=1,runningstatus=0,
 		nitem++;
 		sprintf(Message,"Attempting to read item #%ld",(long)nitem);
 		ShowMessage(TRUE,wMessage,Message);
-		Print(w2,"\r"); space = start = TRUE; k = 0;
+		Print(w2,"\n"); space = start = TRUE; k = 0;
 		continue;
 		}
 	if(MySpace(c)) {
@@ -94,7 +94,7 @@ for(i=ZERO,space=TRUE,start=TRUE,k=0,nitem=1,runningstatus=0,
 		}
 	}
 END:
-Print(w2,"\r");
+Print(w2,"\n");
 return(r);
 }
 #endif
@@ -197,7 +197,7 @@ pos1 = posmax + 1L;
 OUT:
 pos1 -= 1L;
 SetSelect(pos1,pos1,TEH[wind]);
-if(!isthere) Print(wind,"\rTIMEPATTERNS:\r------------");
+if(!isthere) Print(wind,"\nTIMEPATTERNS:\n------------");
 pos2 = pos1 + 15L;
 HideWindow(Window[wMessage]);
 ResetMIDI(FALSE);
@@ -321,7 +321,7 @@ for(i=0; i < strlen(LineBuff); i++) { // FIXME: This check seems unnecessary - a
 	c = LineBuff[i];
 	if(!isdigit(c)) {
 		sprintf(Message,
-		 "Unexpected character '%c'.\rThe symbolic duration must be a positive integer.",c);
+		 "Unexpected character '%c'.\nThe symbolic duration must be a positive integer.",c);
 		Alert1(Message);
 		goto TRY;
 		}
@@ -341,14 +341,14 @@ for(i=1; i < im; i++) {
 		(unsigned long)q);
 	Print(wind,Message); UpdateDirty(TRUE,wAlphabet);
 	if((i % 5) == 0) {
-		Print(wind,"\r"); isthere = TRUE;
+		Print(wind,"\n"); isthere = TRUE;
 		}
 	else isthere = FALSE;
 	}
-if(!isthere) Print(wind,"\r");
+if(!isthere) Print(wind,"\n");
 if(strlen(name) > 0) {
 	SetSelect(pos1,pos1,TEH[wind]);
-	sprintf(Message,"\r%s -->",name);
+	sprintf(Message,"\n%s -->",name);
 	Print(wind,Message);
 	ipatt = Jpatt;
 	for(i=1; i < im; i++) {

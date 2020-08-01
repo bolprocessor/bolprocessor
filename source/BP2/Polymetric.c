@@ -918,7 +918,7 @@ if((p_qgap = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) {
 oldpos = (*p_pos);
 restart = FALSE;
 if(period && comma) {
-	sprintf(Message,"Error in polymetric expression.\rThe same expression contains both '¥' and a comma...");
+	sprintf(Message,"Error in polymetric expression.\nThe same expression contains both '¥' and a comma...");
 	if(ScriptExecOn) Println(wTrace,Message);
 	else Alert1(Message);
 	result = ABORT;
@@ -1689,9 +1689,9 @@ for(a=kk=0; a < k; a++) {
 			result = FAILED; goto OUT;
 			}
 		if(fixlength && (isequal != TRUE)) {
-			if(comma) sprintf(Message,"Conflicting field duration (field %ld)...\r",
+			if(comma) sprintf(Message,"Conflicting field duration (field %ld)...\n",
 				(long)(a+1L));
-			else sprintf(Message,"Conflicting beat duration (beat %ld)...\r",
+			else sprintf(Message,"Conflicting beat duration (beat %ld)...\n",
 				(long)(a+1L));
 			Print(wTrace,Message);
 			result = FAILED; goto OUT;
@@ -1723,10 +1723,10 @@ for(a=0; a < k; a++) {	/* Calculate undetermined rests */
 		if(sign < 0 || xp < 1.) {
 			if((*ptr_fixtempo)[a0]) {
 				if(comma)
-					sprintf(Message,"Not enough time for undetermined rest (field %ld)\r",
+					sprintf(Message,"Not enough time for undetermined rest (field %ld)\n",
 						(long)(a+1L));
 				else
-					sprintf(Message,"Not enough time for undetermined rest (beat %ld)\r",
+					sprintf(Message,"Not enough time for undetermined rest (beat %ld)\n",
 						(long)(a+1L));
 				Print(wTrace,Message);
 				result = FAILED; goto OUT;

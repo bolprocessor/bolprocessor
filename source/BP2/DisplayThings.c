@@ -123,7 +123,7 @@ return(OK);
 PrintHandleln(int w,char** p_t)
 {
 PrintHandle(w,p_t);
-Print(w,"\r");
+Print(w,"\n");
 return(OK);
 }
 
@@ -131,7 +131,7 @@ return(OK);
 Println(int w,char* t)
 {
 Print(w,t);
-Print(w,"\r");
+Print(w,"\n");
 return(OK);
 }
 
@@ -163,7 +163,7 @@ return(OK);
 PrintBehindln(int w,char* t)
 {
 PrintBehind(w,t);
-PrintBehind(w,"\r");
+PrintBehind(w,"\n");
 return(OK);
 }
 
@@ -194,7 +194,7 @@ BPActivateWindow(SLOW,wind);
 starttrace = GetTextLength(wind);
 SetSelect(starttrace,starttrace,TEH[wind]);
 Reformat(wind,-1,-1,(int) normal,&Black,NO,NO);
-Print(wind,"\r");
+Print(wind,"\n");
 if(isgrammar) {
 	if(InitThere > 0) {
 		Reformat(wind,-1,-1,(int) bold,&None,NO,NO);
@@ -207,7 +207,7 @@ if(isgrammar) {
 			sprintf(Message,"%s  ",*(p_ScriptLabelPart(85,0)));
 			Print(wind,Message);
 			PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&p_Initbuff);
-			Print(wind,"\r");
+			Print(wind,"\n");
 			break;
 		case 2:
 			if(p_InitScriptLine != NULL) Println(wind,(*p_InitScriptLine));
@@ -215,10 +215,10 @@ if(isgrammar) {
 		}
 	}
 else {
-	Print(wind,"// ------------ GLOSSARY ------------\r\r");
+	Print(wind,"// ------------ GLOSSARY ------------\n\n");
 	}
 for(igram=1; igram <= (*p_gram).number_gram; igram++) {
-	sprintf(Message,"\r------------- SUBGRAMMAR #%ld --------------\r",
+	sprintf(Message,"\n------------- SUBGRAMMAR #%ld --------------\n",
 		(long)igram);
 	if(isgrammar && igram > 1) Print(wind,Message);
 	subgram = (*((*p_gram).p_subgram))[igram];
@@ -286,7 +286,7 @@ for(igram=1; igram <= (*p_gram).number_gram; igram++) {
 		sprintf(Message,"%s(%ld) ",*((*p_GramProcedure)[16]),(long)subgram.seed);
 		Print(wind,Message); proc = TRUE;
 		}
-	irul++; if(proc) Print(wind,"\r");
+	irul++; if(proc) Print(wind,"\n");
 	for(irul=irul; irul <= subgram.number_rule; irul++) {
 		PleaseWait();
 		if(ShowRule(p_gram,igram,irul,wind,producemode,shownctrlval,FALSE,
@@ -295,15 +295,15 @@ for(igram=1; igram <= (*p_gram).number_gram; igram++) {
 	}
 Reformat(wind,-1,-1,(int) normal,&None,NO,NO);
 if(Jpatt > 0) {
-	Print(wind,"\rTIMEPATTERNS:\r");
+	Print(wind,"\nTIMEPATTERNS:\n");
 	for(j=0; j < Jpatt; j++) {
 		sprintf(Message,"%s = %ld/%ld  ",*((*p_Patt)[j]),(long)(*p_Ppatt)[j],
 			(long)(*p_Qpatt)[j]);
 		Print(wind,Message);
 		}
-	Print(wind,"\r");
+	Print(wind,"\n");
 	}
-sprintf(Message,"// %ld error(s)\r",(long)N_err);
+sprintf(Message,"// %ld error(s)\n",(long)N_err);
 Print(wind,Message);
 
 END:
@@ -671,7 +671,7 @@ Reformat(wind,-1,-1,(int) normal,&None,NO,NO);
 r = OK;
 
 END:
-sprintf(Message,"\r");
+sprintf(Message,"\n");
 Print(wind,Message);
 ShowSelect(CENTRE,wind);
 return(r);
@@ -684,7 +684,7 @@ int i,j,jj,dirtymem;
 
 dirtymem = Dirty[wTrace];
 SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
-Println(wTrace,"\rALPHABET:");
+Println(wTrace,"\nALPHABET:");
 if(Jhomo == 0) {
 	for(j=0; j < Jbol; j++) {
 		Println(wTrace,*((*p_Bol)[j]));
@@ -692,30 +692,30 @@ if(Jhomo == 0) {
 	}
 for(i=0; i < Jhomo; i++) {
 	Reformat(wTrace,-1,-1,-1,&Color[HomomorphismC],NO,NO);
-	sprintf(Message,"%s\r",*((*p_Homo)[i]));
+	sprintf(Message,"%s\n",*((*p_Homo)[i]));
 	Print(wTrace,Message);
 	Reformat(wTrace,-1,-1,-1,&Black,NO,NO);
 	for(j=0; j < Jbol; j++){
 		jj = (*((*p_Image)[i]))[j];
 		if(jj >= 16384) {
-			sprintf(Message,"%s --> %s\r",*((*p_Bol)[j]),
+			sprintf(Message,"%s --> %s\n",*((*p_Bol)[j]),
 							*((*(p_NoteName[NoteConvention]))[jj-16384]));
 			}
 		else {
-			sprintf(Message,"%s --> %s\r",*((*p_Bol)[j]),*((*p_Bol)[jj]));
+			sprintf(Message,"%s --> %s\n",*((*p_Bol)[j]),*((*p_Bol)[jj]));
 			}
 		Print(wTrace,Message);
 		}
 	for(j=0; j < 128; j++){
 		jj = (*((*p_NoteImage)[i]))[j];
 		if(jj < Jbol) {
-			sprintf(Message,"%s --> %s\r",*((*(p_NoteName[NoteConvention]))[j]),
+			sprintf(Message,"%s --> %s\n",*((*(p_NoteName[NoteConvention]))[j]),
 				*((*p_Bol)[jj]));
 			Print(wTrace,Message);
 			}
 		if(jj >= 16384) {
 			if((jj-16384) != j) {
-				sprintf(Message,"%s --> %s\r",*((*(p_NoteName[NoteConvention]))[j]),
+				sprintf(Message,"%s --> %s\n",*((*(p_NoteName[NoteConvention]))[j]),
 					*((*(p_NoteName[NoteConvention]))[jj-16384]));
 				Print(wTrace,Message);
 				}
@@ -726,7 +726,7 @@ for(i=0; i < Jhomo; i++) {
 				return(ABORT);
 				}
 		}
-	sprintf(Message,"------------\r");
+	sprintf(Message,"------------\n");
 	Print(wTrace,Message);
 	}
 ShowSelect(CENTRE,wTrace);

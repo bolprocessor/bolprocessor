@@ -126,7 +126,7 @@ while(TRUE) {
 
 #if DISPLAY_PHASE_DIAGRAM
 
-Print(wTrace,"\r");
+Print(wTrace,"\n");
 sprintf(Message,"Minconc = %ld    Maxconc = %ld",Minconc,Maxconc);
 Println(wTrace,Message);
 while(Button());
@@ -165,7 +165,7 @@ for(k=ZERO; k < Maxevent; k++) {
 		}
 	Print(wTrace,Message);
 	}
-Print(wTrace,"\r");
+Print(wTrace,"\n");
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	if(Button()) break;
 	for(iseq=1L; iseq <= (*p_imaxseq)[nseq]; iseq++) {
@@ -219,17 +219,17 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 		else sprintf(Message,"%ld ",(long)k);
 		Print(wTrace,Message);
 		}
-	Print(wTrace,"\r");
+	Print(wTrace,"\n");
 	}
 ShowSelect(CENTRE,wTrace);
-sprintf(Message,"\rT[i], i = 1,%ul:\r",(unsigned long)maxseq);
+sprintf(Message,"\nT[i], i = 1,%ul:\n",(unsigned long)maxseq);
 Print(wTrace,Message);
 for(i=1L; i <= maxseq; i++) {
 	if(Button()) break;
 	sprintf(Message,"%ld ",(long)(*p_T)[i]);
 	Print(wTrace,Message);
 	}
-Print(wTrace,"\r");
+Print(wTrace,"\n");
 ShowSelect(CENTRE,wTrace);
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	if(Button()) break;
@@ -246,7 +246,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 				}
 			j = (*p_Instance)[k].object;
 			if(j >= Jbol+Jpatt && j < 16384) {
-				Print(wTrace,"\rERR: j >= Jbol+Jpatt\r");
+				Print(wTrace,"\nERR: j >= Jbol+Jpatt\n");
 				return(ABORT);
 				}
 			}
@@ -369,7 +369,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 #endif /* BP_CARBON_GUI */
 
 	if(DisplayTimeSet) {
-		sprintf(Message,"\rSequence #%ld\r",(long)(nseq+1L));
+		sprintf(Message,"\nSequence #%ld\n",(long)(nseq+1L));
 		Print(wTrace,Message);
 		}
 	CoverOK = DiscontinuityOK = stepthis = FALSE;
@@ -420,14 +420,14 @@ TRY:
 				}
 			goto EXIT1;
 			}
-		Print(wTrace,"\rRelease:\r\r");
-		if(!DiscontinuityOK) Print(wTrace,"C)ontinuity\r");
-		if(!CoverOK) Print(wTrace,"O)verlapping\r");
+		Print(wTrace,"\nRelease:\n\n");
+		if(!DiscontinuityOK) Print(wTrace,"C)ontinuity\n");
+		if(!CoverOK) Print(wTrace,"O)verlapping\n");
 		if(!CoverOK || !DiscontinuityOK)
-			Print(wTrace,"B)oth continuity and overlapping\r");
+			Print(wTrace,"B)oth continuity and overlapping\n");
 		if(!StepTimeSet && !stepthis)
-			Print(wTrace,"S)tep by step decision\r\r");
-		Print(wTrace,"Q)uit\r");
+			Print(wTrace,"S)tep by step decision\n\n");
+		Print(wTrace,"Q)uit\n");
 		
 QUEST1:
 		rep = GetCap();
@@ -459,12 +459,12 @@ QUEST1:
 		}
 		
 	if(r == BACKTRACK) {
-		Print(wTrace,"\rS)how again solution\r");
-		Print(wTrace,"A)ccept solution\r");
-		Print(wTrace,"Q)uit\r");
+		Print(wTrace,"\nS)how again solution\n");
+		Print(wTrace,"A)ccept solution\n");
+		Print(wTrace,"Q)uit\n");
 QUEST2:
 		rep = GetCap();
-		Print(wTrace,"\r");
+		Print(wTrace,"\n");
 		switch(rep) {
 			case 'S':	goto TRY;
 			case 'A':	break;
@@ -523,7 +523,7 @@ QUEST2:
 		if(ShowMessages && bigitem)
 			ShowMessage(TRUE,wMessage,"Starting again algorithm (broke tempo)...");
 		if(DisplayTimeSet) {
-			sprintf(Message,"\rBroke tempo. T[i], i = 1,maxseq:\r");
+			sprintf(Message,"\nBroke tempo. T[i], i = 1,maxseq:\n");
 			Print(wTrace,Message);
 			for(i=1; i <= maxseq; i++) {
 				sprintf(Message,"%ld ",(long)(*p_T)[i]);

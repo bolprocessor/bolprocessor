@@ -133,20 +133,20 @@ NOTSCALE:
 	if(c == '[') {
 		if(arg_nr == 0 || arg_nr == 2 || arg_nr == 8) break;
 		else {
-			sprintf(Message,"Misplaced comment in left argument\r");
+			sprintf(Message,"Misplaced comment in left argument\n");
 			Print(wTrace,Message);
 			goto ERR;
 			}
 		}
 	if(c == '>') {
 		sprintf(Message,
-			"Found illegal character '>'...\r");
+			"Found illegal character '>'...\n");
 		Print(wTrace,Message);
 		goto ERR;
 		}
 	if(rightcontext) {	/* Remote right context has been read */
 		sprintf(Message,
-			"Can't make sense of expression between parentheses. May be found incorrect grammar procedure, performance control, or misplaced right context...\r");
+			"Can't make sense of expression between parentheses. May be found incorrect grammar procedure, performance control, or misplaced right context...\n");
 		Print(wTrace,Message);
 		goto ERR;
 		}
@@ -347,7 +347,7 @@ NOTSCALE:
 				}
 			if((ii=(*(Gram.p_subgram))[igram].type) == SUBtype || ii == SUB1type || ii == POSLONGtype) {
 				sprintf(Message,
-					"Can't accept rule procedure '_goto', etc., in SUB or SUB1 or POSLONG subgrammar\r");
+					"Can't accept rule procedure '_goto', etc., in SUB or SUB1 or POSLONG subgrammar\n");
 				Print(wTrace,Message);
 				goto ERR;
 				}
@@ -408,7 +408,7 @@ NOTSCALE:
 			}
 		if(!isdigit(c)) { /*  not a tempo marker */
 			if(arg_nr == 0 || arg_nr > 2) {
-				sprintf(Message,"Slash is used to denote flags in grammar rules only!\r");
+				sprintf(Message,"Slash is used to denote flags in grammar rules only!\n");
 				Print(wTrace,Message);
 				goto ERR;
 				}
@@ -420,7 +420,7 @@ NOTSCALE:
 				(*p_x)[l++] = c;
 				if(l >= BOLSIZE) {
 					ShowError(4,igram,irul);
-					sprintf(Message,"Max flag length: %ld chars!\r",(long)BOLSIZE);
+					sprintf(Message,"Max flag length: %ld chars!\n",(long)BOLSIZE);
 					Print(wTrace,Message);
 					goto ERR;
 					}
@@ -461,7 +461,7 @@ NOTSCALE:
 							(*p_x)[j++] = d;
 							if(j >= BOLSIZE) {
 								ShowError(4,igram,irul);
-								sprintf(Message,"Max flag length: %ld chars!\r",(long)BOLSIZE);
+								sprintf(Message,"Max flag length: %ld chars!\n",(long)BOLSIZE);
 								Print(wTrace,Message);
 								goto ERR;
 								}
@@ -561,7 +561,7 @@ STOREFLAG:
 			while((c=(**pp)) != '>' && c != '\335') {
 				if(!isdigit(c)) {
 					sprintf(Message,
-				"Expecting integer in synchonization tag '<<Wx>>'\r");
+				"Expecting integer in synchonization tag '<<Wx>>'\n");
 					Print(wTrace,Message);
 					ShowError(42,igram,irul);
 					goto ERR;
@@ -571,7 +571,7 @@ STOREFLAG:
 				}
 			if(l > MAXWAIT){
 				sprintf(Message,
-			"Tag '<<W%ld>>' inacceptable.  Not more than %ld tags allowed\r",
+			"Tag '<<W%ld>>' inacceptable.  Not more than %ld tags allowed\n",
 					(long)l,(long)MAXWAIT);
 				Print(wTrace,Message);
 				ShowError(42,igram,irul);
@@ -594,7 +594,7 @@ STOREFLAG:
 			(*p_x)[l++] = c;
 			(*p_x)[l] = '\0';
 			sprintf(Message,
-			"Terminal <<%s...>> starts with incorrect character '%c'\r",(*p_x),c);
+			"Terminal <<%s...>> starts with incorrect character '%c'\n",(*p_x),c);
 			Print(wTrace,Message);
 			ShowError(27,igram,irul);
 			goto ERR;
@@ -604,14 +604,14 @@ STOREFLAG:
 			if(!OkBolChar2(c) || c == '-') {
 				(*p_x)[l] = '\0';
 				sprintf(Message,
-				"Terminal <<%s...>> contains incorrect character '%c'\r",(*p_x),c);
+				"Terminal <<%s...>> contains incorrect character '%c'\n",(*p_x),c);
 				Print(wTrace,Message);
 				ShowError(27,igram,irul);
 				goto ERR;
 				}
 			if(l >= BOLSIZE) {
 				(*p_x)[l] = '\0';
-				sprintf(Message,"Terminal <<%s...>> is too long. Max length: %ld chars.\r",
+				sprintf(Message,"Terminal <<%s...>> is too long. Max length: %ld chars.\n",
 					(*p_x),(long)BOLSIZE);
 				Print(wTrace,Message);
 				ShowError(22,igram,irul);
@@ -675,7 +675,7 @@ FOUNDNOTE1:
 		/* It must be an out-time sound-object */
 		if(l >= BOLSIZE) {
 			ShowError(4,igram,irul);
-			sprintf(Message,"Max length: %ld chars!\r",(long)BOLSIZE);
+			sprintf(Message,"Max length: %ld chars!\n",(long)BOLSIZE);
 			Print(wTrace,Message);
 			goto ERR;
 			}
@@ -705,7 +705,7 @@ SEARCHCONTEXT:
 		if((d != '=') && (d != ':')) {		/* Context */
 			if(arg_nr != 1) {
 				sprintf(Message,
-					"Remote context should only be in left argument of grammar rule. May be misspelled '_goto','_failed','_chan'...\r");
+					"Remote context should only be in left argument of grammar rule. May be misspelled '_goto','_failed','_chan'...\n");
 				Print(wTrace,Message);
 				goto ERR;
 				}
@@ -716,7 +716,7 @@ SEARCHCONTEXT:
 				if(GetContext(igram,irul,pp,pp2,
 					p_pleftcontext,p_meta) == FAILED) {
 					sprintf(Message,
-						"Error in left context!\r");
+						"Error in left context!\n");
 					Print(wTrace,Message);
 					goto ERR;
 					}
@@ -727,7 +727,7 @@ SEARCHCONTEXT:
 				if(GetContext(igram,irul,
 					pp,pp2,p_prightcontext,p_meta) == FAILED) {
 					sprintf(Message,
-						"Error in right context!\r");
+						"Error in right context!\n");
 					Print(wTrace,Message);
 					goto ERR;
 					}
@@ -758,7 +758,7 @@ SEARCHCONTEXT:
 			while(d >= '0' && d <= '9') {
 				n = (10 * n) + d - '0';
 				if(n > MAXMETA) {
-					sprintf(Message,"Maxi %ld wildcards!\r",(long)MAXMETA);
+					sprintf(Message,"Maxi %ld wildcards!\n",(long)MAXMETA);
 					Print(wTrace,Message);
 					ShowError(28,igram,irul);
 					
@@ -944,7 +944,7 @@ OKCODE:
 			if(l >= BOLSIZE-4) {
 				(*p_x)[++l] = '\0';
 				sprintf(Message,
-				"Terminal %s...' is too long. Max length: %ld chars.\r",(*p_x),(long)BOLSIZE);
+				"Terminal %s...' is too long. Max length: %ld chars.\n",(*p_x),(long)BOLSIZE);
 				Print(wTrace,Message);
 				ShowError(22,igram,irul);
 				
@@ -954,7 +954,7 @@ OKCODE:
 			(*pp)++;
 			if((*pp) > (*pp2)) {
 				(*p_x)[l] = '\0';
-				sprintf(Message,"Missing single quote for terminal %s...\r",(*p_x));
+				sprintf(Message,"Missing single quote for terminal %s...\n",(*p_x));
 				Print(wTrace,Message);
 				ShowError(11,igram,irul);
 				
@@ -987,7 +987,7 @@ SEARCHVAR:
 
 	if(!OkChar(c) && c != '|') {
 		ShowError(55,igram,irul);
-		sprintf(Message,"Can't accept '%c'\r",c);
+		sprintf(Message,"Can't accept '%c'\n",c);
 		Print(wTrace,Message);
 		goto ERR;
 		}
@@ -1066,7 +1066,7 @@ for(levpar = 1; (*pp) <= (*ppmax); (*pp)++) {
 	}
 /* printf("levpar=%ld",(long)levpar); Pause(0); */
 if(levpar != 0) {
-	sprintf(Message,"Incorrect bracketting.\r");
+	sprintf(Message,"Incorrect bracketting.\n");
 	Print(wTrace,Message);
 	return(FAILED);
 	}
@@ -1145,12 +1145,12 @@ if(!isupper(c) && !bracket) {
 					line[i] = **pp;
 	line[i] = '\0'; im = i;
 	sprintf(Message,
-	"\rVariable must start with uppercase character or '|'. Can't make sense of \"%s\"",
+	"\nVariable must start with uppercase character or '|'. Can't make sense of \"%s\"",
 		line);
 	Print(wTrace,Message);
 	if(OkBolChar(c)) {
 		sprintf(Message,
-			"\rMay be unknown terminal symbol, time-pattern or incorrect note convention?");
+			"\nMay be unknown terminal symbol, time-pattern or incorrect note convention?");
 		Print(wTrace,Message);
 		}
 	return(ABORT);
@@ -1306,11 +1306,11 @@ while(i < (*p_imax)-1) {
 nbmaster = 0;
 // FIXME ? FindMaster() currently always returns 0; should it return -1 if LastSymbol() returns 0 ?
 if(FindMaster(pp_buff,orgmaster,endmaster,&nbmaster,p_imax) == -1) return(16);
-/* Print(wTrace,"\rList of masters:\r");
-if(nbmaster == 0) Print(wTrace,"none\r");
+/* Print(wTrace,"\nList of masters:\n");
+if(nbmaster == 0) Print(wTrace,"none\n");
 else
 	for(j=1; j<= nbmaster; j++) {
-		sprintf(Message,"\r<%ld> ",(long)j);
+		sprintf(Message,"\n<%ld> ",(long)j);
 		Print(wTrace,Message);
 		for(i=orgmaster[j]; i <= endmaster[j]; i=i+2) {
 			sprintf(Message," %ld.%ld",(long)(**pp_buff)[i],(long)(**pp_buff)[i+1]);
@@ -1615,10 +1615,10 @@ static char* err[] = {"",
 if(i < 0) return(TRUE);
 sprintf(Message,"*** Error code %ld: %s",(long)i,err[i]);
 if(igram != 0) {
-	sprintf(t," in gram#%ld rule %ld\r",(long)igram,(long)irul);
+	sprintf(t," in gram#%ld rule %ld\n",(long)igram,(long)irul);
 	}
 else {
-	strcpy(t,"\r");
+	strcpy(t,"\n");
 	}
 strcat(Message,t);
 BPActivateWindow(SLOW,wTrace);

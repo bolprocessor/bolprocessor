@@ -448,7 +448,7 @@ if(q < 1.) result = FAILED;
 if(result == OK) return(result);
 
 ERR:
-if(Beta) Println(wTrace,"\rCalculation overflow...");
+if(Beta) Println(wTrace,"\nCalculation overflow...");
 TellComplex();
 return(result);
 }

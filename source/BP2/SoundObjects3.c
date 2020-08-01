@@ -325,7 +325,7 @@ else {
       BringToFront(Window[wPrototype8]);
       SetField(NULL,wPrototype8,fAssignInstrument,"[None]");
       SelectField(NULL,wPrototype8,fAssignInstrument,TRUE);
-      Alert1("This sound-object prototype contains a Csound score.\rConversion from MIDI will therefore never occur");
+      Alert1("This sound-object prototype contains a Csound score.\nConversion from MIDI will therefore never occur");
       (*p_CsoundAssignedInstr)[iProto] = -1;
 	  }
    else (*p_CsoundAssignedInstr)[iProto] = p/q;
@@ -572,7 +572,7 @@ if((*p_TruncBegMode)[j] == RELATIVE && (*p_MaxTruncBeg)[j] == 100L)
 if((*p_TruncEndMode)[j] == RELATIVE && (*p_MaxTruncEnd)[j] == 100L)
    (*p_TruncEnd)[j] = TRUE;
 if(check && bugg) {
-   sprintf(Message,"Found inconsistencies in sound-object prototype '%s'. These have been corrected.\r",
+   sprintf(Message,"Found inconsistencies in sound-object prototype '%s'. These have been corrected.\n",
       *((*p_Bol)[j]));
    Print(wTrace,Message);
    }

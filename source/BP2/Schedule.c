@@ -359,7 +359,7 @@ TestIt(void)
 int i;
 
 for(i=0; i < iTest; i++) {
-	sprintf(Message,"time=%ld size=%ld loops=%ld t=%ld loopstep=%ld totloops=%ld ticks=%ld totalticks=%ld tabs=%ld timeslice=%ld\r",
+	sprintf(Message,"time=%ld size=%ld loops=%ld t=%ld loopstep=%ld totloops=%ld ticks=%ld totalticks=%ld tabs=%ld timeslice=%ld\n",
 		(*p_Test)[i].time,(long)(*p_Test)[i].size,(*p_Test)[i].loops,(*p_Test)[i].t,(*p_Test)[i].loopstep,
 		(*p_Test)[i].totloops,(*p_Test)[i].ticks,(*p_Test)[i].totalticks,(*p_Test)[i].tabs,(*p_Test)[i].timeslice);
 	Print(wTrace,Message);

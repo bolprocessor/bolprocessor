@@ -273,7 +273,7 @@ if((datamode || showtempo) && !istemplate) {
 	
 READY:
 if(f == NULL) {
-	Alert1("Can't write to disk.\r(incorrect file pointer)");
+	Alert1("Can't write to disk.\n(incorrect file pointer)");
 	r = FAILED; goto OUT2;
 	}
 
@@ -434,7 +434,7 @@ for(i=ia; ; i+=2L) {
 			if(r == STOP || (compiledmem && !CompiledGr)) {
 				if(th != NULL) {
 					Reformat(wind,(int) kFontIDCourier,WindowTextSize[wind],(int) normal,&Black,TRUE,NO);
-					Print(wind,"\r");
+					Print(wind,"\n");
 					}
 				r = ABORT; goto OUT;
 				}
@@ -1944,7 +1944,7 @@ if((*p_MIDIsize)[j] > ZERO) {
 				}
 			}
 		}
-	Print(wNotice,"\r");
+	Print(wNotice,"\n");
 	}
 else Print(wNotice,"This object is empty");
 SetSelect(ZERO,ZERO,TEH[wNotice]);

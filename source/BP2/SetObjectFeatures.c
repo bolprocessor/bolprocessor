@@ -55,7 +55,7 @@ if(k < 2) {
 	return(OK);
 	}
 if(nseq >= Maxconc) {
-	if(Beta) Println(wTrace,"\rErr. SetObjectParams(). nseq >= Maxconc");
+	if(Beta) Println(wTrace,"\nErr. SetObjectParams(). nseq >= Maxconc");
 	return(OK);
 	}
 
@@ -209,7 +209,7 @@ if(j > 0 && j < Jbol) {
 		/* Here we need (*p_DefaultChannel)[1] = 0. */
 		(*p_Instance)[k].channel = (*p_DefaultChannel)[j];
 		if((*p_Instance)[k].channel > MAXCHAN || (*p_Instance)[k].channel < 1) {
-			sprintf(Message,"'%s' has channel %ld.  Should be 1..%ld\r",
+			sprintf(Message,"'%s' has channel %ld.  Should be 1..%ld\n",
 				(*((*p_Bol)[j])),(long)(*p_DefaultChannel)[j],(long)MAXCHAN);
 			Print(wTrace,Message);
 			ShowError(32,0,0);
@@ -249,7 +249,7 @@ int i;
 
 
 if(nseq >= Maxconc) {
-	if(Beta) Println(wTrace,"\rErr. AttachObjectLists(). nseq >= Maxconc");
+	if(Beta) Println(wTrace,"\nErr. AttachObjectLists(). nseq >= Maxconc");
 	return(OK);
 	}
 if((*p_waitlist)[nseq] == NULL && (*p_scriptlist)[nseq] == NULL
@@ -444,7 +444,7 @@ for(i=id+2L; ; i+=2L) {
 					}
 				level++;
 				if(level >= Maxlevel) {
-					if(Beta) Println(wTrace,"\rErr. SetVariation(). level >= Maxlevel");
+					if(Beta) Println(wTrace,"\nErr. SetVariation(). level >= Maxlevel");
 					goto ENDLOOP;
 					}
 				seq = 0;
@@ -779,7 +779,7 @@ unsigned int seed;
 
 
 if(nseq >= Maxconc) {
-	if(Beta) Println(wTrace,"\rErr. Fix(). nseq >= Maxconc");
+	if(Beta) Println(wTrace,"\nErr. Fix(). nseq >= Maxconc");
 	return(OK);
 	}
 i = 1; local_period = 0.;
@@ -847,7 +847,7 @@ Milliseconds To,ton,toff,currenttime,dur;
 
 
 if(nseq >= Maxconc) {
-	if(Beta) Println(wTrace,"\rErr. Calculate_alpha(). nseq >= Maxconc");
+	if(Beta) Println(wTrace,"\nErr. Calculate_alpha(). nseq >= Maxconc");
 	return(OK);
 	}
 (*p_Instance)[0].alpha = (*p_Instance)[1].alpha = 0.;	/* '_' and '-' */
@@ -1186,7 +1186,7 @@ int i,j,k;
 Milliseconds maxcover1,maxcover2,maxgap1,maxgap2,maxtrunc1,maxtrunc2,dur;
 
 if(nseq >= Maxconc) {
-	if(Beta) Println(wTrace,"\rErr. SetLimits(). nseq >= Maxconc");
+	if(Beta) Println(wTrace,"\nErr. SetLimits(). nseq >= Maxconc");
 	return(OK);
 	}		
 for(i=1;; i++) {
@@ -1495,7 +1495,7 @@ for(i=id+2L; ; i+=2) {
 					}
 				level++;
 				if(level >= Maxlevel) {
-					if(Beta) Println(wTrace,"\rErr. GetSymbolicDuration(). level >= Maxlevel");
+					if(Beta) Println(wTrace,"\nErr. GetSymbolicDuration(). level >= Maxlevel");
 					return(0);
 					}
 				seq = 0;

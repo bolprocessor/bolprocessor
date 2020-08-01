@@ -157,7 +157,7 @@ err = AEGetAttributePtr(p_event,keyEventIDAttr,typeWildCard,&returnedType,&theID
 if(theID == kAEPrintDocuments) print = TRUE;
 else print = FALSE;
 
-/* sprintf(Message,"Open, print option = %ld\r",(long)print);
+/* sprintf(Message,"Open, print option = %ld\n",(long)print);
 PrintBehind(wTrace,Message); */
 
 // get the direct parameter--a descriptor list--and put it into a docList
@@ -187,7 +187,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 	Strip(name);  			// FIXME:  filenames can begin or end with spaces! (but currently cause problems for BP2)
 	if(name[0] == '\0') goto NEWINDEX;
 	/* if(name[0] != '-'&& name[0] != '+') {	
-		sprintf(Message,"File '%s' doesn't have a name that BP2 would recognize...\r",name);
+		sprintf(Message,"File '%s' doesn't have a name that BP2 would recognize...\n",name);
 		Print(wTrace,Message);
 		DisplayHelp("Types-creators");
 		failedonce = TRUE;
@@ -387,7 +387,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 			}
 		else {
 			TellError(39,io);
-			sprintf(Message,"BP2 was unable to open '%s'... [Error code %ld]\r",
+			sprintf(Message,"BP2 was unable to open '%s'... [Error code %ld]\n",
 				name,(long)io);
 			Println(wTrace,Message);
 			failedonce = TRUE;
@@ -396,7 +396,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 		Dirty[wind] = FALSE;
 		}
 	else {
-		sprintf(Message,"Dragging '%s' to BP2 had no effect...\r",name);
+		sprintf(Message,"Dragging '%s' to BP2 had no effect...\n",name);
 		ShowMessage(TRUE,wMessage,Message);
 		// failedonce = TRUE;
 		}
@@ -481,7 +481,7 @@ MyLock(FALSE,(Handle)h_text);
 io = AEGetNthPtr(&docList,1L,'TEXT',&keywd,&returnedType,(Ptr)*h_text,32768,&size);
 MyUnlock((Handle)h_text);
 if(io != noErr) {
-	Println(wTrace,"\rData of 'scln' Apple Event is missing. Check client application!");
+	Println(wTrace,"\nData of 'scln' Apple Event is missing. Check client application!");
 	goto OUT;
 	}
 io = AEDisposeDesc(&docList);
@@ -683,12 +683,12 @@ if(size > 0) {
 				}
 			}
 		if(i >= MAXCONVENTIONS) {
-			sprintf(LineBuff,"\rBP2 received a 'conv' Apple Event from a distant client, but could not interpret its data '%s' as a note convention",
+			sprintf(LineBuff,"\nBP2 received a 'conv' Apple Event from a distant client, but could not interpret its data '%s' as a note convention",
 				Message);
 			Println(wTrace,LineBuff);
 			Println(wTrace,"Note conventions recognized by this version are:");
 			for(i=0; i < MAXCONVENTIONS; i++) Println(wTrace,ConventionString[i]);
-			Print(wTrace,"\r");
+			Print(wTrace,"\n");
 			}
 		}
 	}
@@ -833,7 +833,7 @@ MyLock(FALSE,(Handle)h_text);
 io = AEGetNthPtr(&docList,1L,'TEXT',&keywd,&returnedType,(Ptr)*h_text,32768,&size);
 MyUnlock((Handle)h_text);
 if(io != noErr) {
-	Println(wTrace,"\rData of Apple Event is missing. Check client application!");
+	Println(wTrace,"\nData of Apple Event is missing. Check client application!");
 	goto OUT;
 	}
 io = AEDisposeDesc(&docList);

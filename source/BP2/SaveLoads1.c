@@ -273,7 +273,7 @@ WRITE:
 			}
 		sprintf(LineBuff,"%ld",(long)KeyboardType);
 		WriteToFile(NO,MAC,LineBuff,refnum);
-		WriteToFile(NO,MAC,"1\r1\r1\r1\r0\r0\r0\r0\r\0",refnum);
+		WriteToFile(NO,MAC,"1\n1\n1\n1\n0\n0\n0\n0\n\0",refnum);
 		WriteEnd(wKeyboard,refnum);
 		GetFPos(refnum,&count);
 		SetEOF(refnum,count);
@@ -424,9 +424,9 @@ WRITE:
 		sprintf(LineBuff,"%ld",(long)MAXTICKS); WriteToFile(NO,MAC,LineBuff,refnum);
 		sprintf(LineBuff,"%ld",(long)MAXBEATS); WriteToFile(NO,MAC,LineBuff,refnum);
 		for(i=0; i < MAXTICKS; i++) {
-			sprintf(LineBuff,"1\r7");	/* '1' is the type and '4' the number of parameters */
+			sprintf(LineBuff,"1\n7");	/* '1' is the type and '4' the number of parameters */
 			WriteToFile(NO,MAC,LineBuff,refnum);
-			sprintf(LineBuff,"%ld\r%ld\r%ld\r%ld\r%ld\r%ld\r%ld",
+			sprintf(LineBuff,"%ld\n%ld\n%ld\n%ld\n%ld\n%ld\n%ld",
 				(long)TickKey[i],(long)TickChannel[i],
 				(long)TickVelocity[i],(long)TickCycle[i],(long)Ptick[i],
 				(long)Qtick[i],(long)TickDuration[i]);
@@ -918,7 +918,7 @@ WRITE:
 				MystrcpyHandleToString(MAXFIELDCONTENT,0,line,
 					(*((*p_CsInstrument)[j].paramlist))[i].comment);
 				WriteToFile(YES,MAC,line,refnum);
-				sprintf(line,"%ld\r%ld",
+				sprintf(line,"%ld\n%ld",
 					(long)(*((*p_CsInstrument)[j].paramlist))[i].startindex,
 					(long)(*((*p_CsInstrument)[j].paramlist))[i].endindex);
 				WriteToFile(NO,MAC,line,refnum);
@@ -1026,7 +1026,7 @@ WRITE:
 		
 		WriteToFile(NO,MAC," ",refnum);
 		
-		sprintf(LineBuff,"%ld\r%ld\r%ld",(long)Quantization,(long)Time_res,(long)SetUpTime);
+		sprintf(LineBuff,"%ld\n%ld\n%ld",(long)Quantization,(long)Time_res,(long)SetUpTime);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		sprintf(LineBuff,"%ld",(long)QuantizeOK); WriteToFile(NO,MAC,LineBuff,refnum);
 		sprintf(LineBuff,"%ld",(long)Nature_of_time); WriteToFile(NO,MAC,LineBuff,refnum);
@@ -1038,18 +1038,18 @@ WRITE:
 			sprintf(LineBuff,"%ld",(long)GetControlValue(Hbutt[i]));
 			WriteToFile(NO,MAC,LineBuff,refnum);
 			}
-		sprintf(LineBuff,"%ld\r%ld\r%ld\r%ld\r%ld",(long)SplitTimeObjects,(long)SplitVariables,
+		sprintf(LineBuff,"%ld\n%ld\n%ld\n%ld\n%ld",(long)SplitTimeObjects,(long)SplitVariables,
 			(long)UseTextColor,(long)DeftBufferSize,(long)UseGraphicsColor);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		sprintf(LineBuff,"%ld",(long)UseBufferLimit); WriteToFile(NO,MAC,LineBuff,refnum);
 		sprintf(LineBuff,"%ld",(long)TimeMax); WriteToFile(NO,MAC,LineBuff,refnum);
 		GetSeed();
-		sprintf(LineBuff,"%.0f\r%ld",(double)Seed,(long)Token);
+		sprintf(LineBuff,"%.0f\n%ld",(double)Seed,(long)Token);
 		WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%ld\r%ld\r%ld",(long)NoteConvention,(long)StartFromOne,
+		sprintf(LineBuff,"%ld\n%ld\n%ld",(long)NoteConvention,(long)StartFromOne,
 			(long)SmartCursor);
 		WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%ld\r%ld",(long)GraphicScaleP,(long)GraphicScaleQ);
+		sprintf(LineBuff,"%ld\n%ld",(long)GraphicScaleP,(long)GraphicScaleQ);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 
 		// old settings for OMS
@@ -1062,9 +1062,9 @@ WRITE:
 		sprintf(LineBuff,"%ld",(long)UseBullet); WriteToFile(NO,MAC,LineBuff,refnum);
 		sprintf(LineBuff,"%ld",(long)PlayTicks); WriteToFile(NO,MAC,LineBuff,refnum);
 		
-		sprintf(LineBuff,"%ld\r%ld",(long)FileSaveMode,(long)FileWriteMode);
+		sprintf(LineBuff,"%ld\n%ld",(long)FileSaveMode,(long)FileWriteMode);
 		WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%ld\r%ld\r%ld\r%.2f",(long)MIDIfileType,(long)CsoundFileFormat,
+		sprintf(LineBuff,"%ld\n%ld\n%ld\n%.2f",(long)MIDIfileType,(long)CsoundFileFormat,
 			(long)ProgNrFrom,MIDIfadeOut);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		sprintf(LineBuff,"%ld",(long)C4key);
@@ -1074,7 +1074,7 @@ WRITE:
 		sprintf(LineBuff,"%ld",(long)StrikeAgainDefault);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		
-		sprintf(LineBuff,"%ld\r%ld\r%ld\r%ld\r%ld\r%ld",(long)DeftVolume,(long)VolumeController,
+		sprintf(LineBuff,"%ld\n%ld\n%ld\n%ld\n%ld\n%ld",(long)DeftVolume,(long)VolumeController,
 			(long)DeftVelocity,(long)DeftPanoramic,(long)PanoramicController,(long)SamplingRate);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 			
@@ -1702,7 +1702,7 @@ if(NewFile(-1,4,PascalLine,&reply)) {
 		sprintf(LineBuff,"%ld",(long)ProduceStackDepth);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		for(i=0; i < ProduceStackDepth; i++) {
-			sprintf(LineBuff,"%ld\r%ld\r%ld",
+			sprintf(LineBuff,"%ld\n%ld\n%ld",
 				(long)(*p_MemGram)[i],(long)(*p_MemRul)[i],(long)(*p_MemPos)[i]);
 			WriteToFile(NO,MAC,LineBuff,refnum);
 			}
@@ -1760,7 +1760,7 @@ if(OldFile(-1,4,PascalLine,&spec)) {
 			goto ERR;
 		if(!loadgrammar && (compiledate != CompileDate)) {
 			if((r = Answer(
-	"Grammar may have changed.\rLoad old version from decision file",'Y'))
+	"Grammar may have changed.\nLoad old version from decision file",'Y'))
 														== OK) {
 				if(ResetProject(FALSE) != OK) goto NOERR;
 				loadgrammar = YES;

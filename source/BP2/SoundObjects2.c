@@ -660,7 +660,7 @@ if((*p_MIDIsize)[j] < 1) {
 	return(result);
 	}
 if(dur < ZERO) {
-	Alert1("A silence with negative duration does not make sense.\rYou perhaps want to set the pre-roll");
+	Alert1("A silence with negative duration does not make sense.\nYou perhaps want to set the pre-roll");
 	return(result);
 	}
 if(/* SelectPictureOn && */ (*p_Tpict)[j] > ZERO) {
@@ -706,7 +706,7 @@ long size;
 
 if(CheckNonEmptyMIDI(j) != OK) return(FAILED);
 if(dur < ZERO) {
-	Alert1("A silence with negative duration does not make sense.\rYou perhaps want to set the post-roll");
+	Alert1("A silence with negative duration does not make sense.\nYou perhaps want to set the post-roll");
 	return(FAILED);
 	}
 if(Answer("May be you want to set up a positive post-roll value",'Y') != 'N')

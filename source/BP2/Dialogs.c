@@ -318,7 +318,7 @@ if(w == wControlPannel) {
 				return(DONE);
 				}
 			if(!CompiledAl || !CompiledGr) {
-				if(Answer("Grammar has changed.\rTry anyway",'Y') != OK)
+				if(Answer("Grammar has changed.\nTry anyway",'Y') != OK)
 					 return(DONE);
 				if(CompileCheck() != OK)  return(DONE);
 				}
@@ -358,9 +358,9 @@ QUIT:		Improvize = improvizemem;
 			else {
 				if(!CompiledAl || !CompiledGr) {
 					GetMiName();
-					if(Answer("Grammar may have changed.\rTry anyway",'Y') != OK)
+					if(Answer("Grammar may have changed.\nTry anyway",'Y') != OK)
 						return(OK);
-					if((rep=Answer("Load grammar/alphabet\rinserted in decision file",
+					if((rep=Answer("Load grammar/alphabet\ninserted in decision file",
 							'Y')) == OK) {
 						if(ResetProject(FALSE) != OK) return(ABORT);
 						loadgrammar = YES;
@@ -827,7 +827,7 @@ if(thedialog == MIDIprogramPtr) {
 			break;
 		case bMIDIprogramList:
 			ClearWindow(NO,wNotice);
-			Println(wNotice,"List of all instruments (General MIDI)\r");
+			Println(wNotice,"List of all instruments (General MIDI)\n");
 			for(i=0; i < 128; i++) {
 				sprintf(line,"[%ld] %s",(long)(*p_GeneralMIDIpatchNdx)[i],
 					*((*p_GeneralMIDIpatch)[i]));
@@ -1492,7 +1492,7 @@ IMPORT:
 			Jbol++;
 			SelectBehind(GetTextLength(wAlphabet),GetTextLength(wAlphabet),
 																		TEH[wAlphabet]);
-			sprintf(Message,"\r%s",line);
+			sprintf(Message,"\n%s",line);
 			PrintBehind(wAlphabet,Message);
 			CompiledAl = TRUE;  Dirty[wAlphabet] = FALSE;
 			CompiledAl = CompiledGr = NeedAlphabet = TRUE;
@@ -2456,7 +2456,7 @@ if(w == wCsoundInstruments) {
 			return(DONE);
 			break;
 		case bExportAllInstruments:
-			if(Answer("Instrument profiles will be displayed in the 'Trace' window, then you may save it as text.\rProceed",'Y') == OK) {
+			if(Answer("Instrument profiles will be displayed in the 'Trace' window, then you may save it as text.\nProceed",'Y') == OK) {
 				if(ClearWindow(FALSE,wTrace) != OK) return(DONE);
 				HideWindow(Window[wCsoundInstruments]);
 				for(j=0; j < Jinstr; j++) {

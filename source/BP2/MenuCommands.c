@@ -53,9 +53,9 @@ rep = NO;
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
 if((LastEditWindow == wGrammar
-		&& (rep=Answer("Insert pattern\rin current grammar",'Y')) == OK)
+		&& (rep=Answer("Insert pattern\nin current grammar",'Y')) == OK)
 	|| (LastEditWindow == wAlphabet
-		&& (rep=Answer("Insert pattern\rin current alphabet",'Y')) == OK)) {
+		&& (rep=Answer("Insert pattern\nin current alphabet",'Y')) == OK)) {
 	LoadTimePattern(LastEditWindow);
 	}
 if(rep == ABORT) return(OK);
@@ -95,7 +95,7 @@ mShowMessages(int wind)
 int j;
 
 ClearWindow(NO,wNotice);
-Print(wNotice,"LAST MESSAGES:\r");
+Print(wNotice,"LAST MESSAGES:\n");
 if(Jmessage < MAXMESSAGE - 1) {
 	for(j=Jmessage+1; j < MAXMESSAGE; j++) {
 		if((*p_MessageMem[j])[0] != '\0') {
@@ -106,7 +106,7 @@ if(Jmessage < MAXMESSAGE - 1) {
 for(j=0; j <= Jmessage; j++) {
 	PrintHandleln(wNotice,p_MessageMem[j]);
 	}
-Print(wNotice,"\r");
+Print(wNotice,"\n");
 /* SetSelect(ZERO,ZERO,TEH[wNotice]); */
 ShowSelect(CENTRE,wNotice);
 ShowWindow(Window[wNotice]);
@@ -886,7 +886,7 @@ if(Answer("Load and save MIDI data from device",'Y') == YES) {
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		for(i=ZERO; i < im; i++) {
 			PleaseWait();
-			sprintf(Message,"%ld\r",(long)ByteToInt((*p_Code)[i].byte));
+			sprintf(Message,"%ld\n",(long)ByteToInt((*p_Code)[i].byte));
 			count = (long) strlen(Message);
 			FSWrite(refnum,&count,Message);
 			}
@@ -1098,11 +1098,11 @@ switch(w) {
 		break;
 	case iObjects:
 		if(IsEmpty(wAlphabet)) {
-			if(Answer("Your alphabet is empty. Loading prototypes will generate a new alphabet.\rFirst load an alphabet file",
+			if(Answer("Your alphabet is empty. Loading prototypes will generate a new alphabet.\nFirst load an alphabet file",
 				'N') == OK) mOpenFile(wAlphabet);
 			}
 		else {
-			if(Answer("Your alphabet is not empty. Loading prototypes will generate new symbols.\rFirst clear current alphabet and grammar",
+			if(Answer("Your alphabet is not empty. Loading prototypes will generate new symbols.\nFirst clear current alphabet and grammar",
 				'Y') == OK) {
 				if(ResetProject(FALSE) != OK) return(ABORT);
 				}
@@ -1595,7 +1595,7 @@ wind = FindGoodIndex(wind);
 if(wind == wPrototype7) wind = iObjects;
 if(wind < 0 || wind >= WMAX || LockedWindow[wind] || FileName[wind][0] == '\0')
 	return(FAILED);
-sprintf(Message,"Revert to last saved version\rof %s",FileName[wind]);
+sprintf(Message,"Revert to last saved version\nof %s",FileName[wind]);
 rep = Answer(Message,'N');
 switch (rep) {
 	case YES:
@@ -2328,7 +2328,7 @@ if(p_Var == NULL) {
 	return(OK);
 	}
 ClearWindow(NO,wNotice);
-Print(wNotice,"VARIABLES USED IN GRAMMAR:\r");
+Print(wNotice,"VARIABLES USED IN GRAMMAR:\n");
 undefined = unreachable = 0;
 for(j=1; j <= Jvar; j++) { 
 	s = (*p_VarStatus)[j];
@@ -2338,9 +2338,9 @@ for(j=1; j <= Jvar; j++) {
 	if((s & 2) && !(s & 1) && !(s & 4))
 		undefined++;
 	}
-Print(wNotice,"\r");
+Print(wNotice,"\n");
 if(undefined) {
-	Print(wNotice,"\rUNDEFINED VARIABLES:\r");
+	Print(wNotice,"\nUNDEFINED VARIABLES:\n");
 	for(j=1; j <= Jvar; j++) {
 		s = (*p_VarStatus)[j];
 		if((s & 2) && !(s & 1) && !(s & 4)) { 
@@ -2348,10 +2348,10 @@ if(undefined) {
 			Print(wNotice,Message);
 			}
 		}
-	Print(wNotice,"\r");
+	Print(wNotice,"\n");
 	}
 if(unreachable) {
-	Print(wNotice,"\rUNREACHABLE VARIABLES:\r");
+	Print(wNotice,"\nUNREACHABLE VARIABLES:\n");
 	for(j=1; j <= Jvar; j++) {
 		s = (*p_VarStatus)[j];
 		if((s & 1) && !(s & 2))  {
@@ -2371,40 +2371,40 @@ mListReserved(int wind)
 int i,j,ii;
 
 ClearWindow(NO,wNotice);
-Print(wNotice,"RESERVED WORDS:\r\r");
+Print(wNotice,"RESERVED WORDS:\n\n");
 Println(wNotice,"Miscellaneous operators and markers (see doc):");
 for(i=0; i < (MAXCODE-2); i++) {
 	sprintf(Message,"%c ",Code[i]);
 	Print(wNotice,Message);
 	}
 Print(wNotice,"* \\");
-Print(wNotice,"\r\rNote conventions used in Apple Event 'conv' (not case sensitive): ");
+Print(wNotice,"\n\nNote conventions used in Apple Event 'conv' (not case sensitive): ");
 for(i=0; i < MAXCONVENTIONS-1; i++) {
 	sprintf(Message,"%s, ",ConventionString[i]);
 	Print(wNotice,Message);
 	}
-sprintf(Message,"%s\r\r",ConventionString[MAXCONVENTIONS-1]);
+sprintf(Message,"%s\n\n",ConventionString[MAXCONVENTIONS-1]);
 Print(wNotice,Message);
-sprintf(Message,"'%s' for initialisation line on top of grammar\r\r",InitToken);
+sprintf(Message,"'%s' for initialisation line on top of grammar\n\n",InitToken);
 Print(wNotice,Message);
 Print(wNotice,"Subgrammar types: ");
 for(i=0; i < MAXTYPE; i++) {
 	sprintf(Message,"%s ",SubgramType[i]);
 	Print(wNotice,Message);
 	}
-Print(wNotice,"\r\r");
+Print(wNotice,"\n\n");
 Print(wNotice,"Rule operators: ");
 for(i=0; i < MAXARROW; i++) {
 	sprintf(Message,"%s ",Arrow[i]);
 	Print(wNotice,Message);
 	}
-Print(wNotice,"\r\r");
+Print(wNotice,"\n\n");
 Print(wNotice,"Rule derive modes: ");
 for(i=0; i < MAXMODE; i++) {
 	sprintf(Message,"%s ",Mode[i]);
 	Print(wNotice,Message);
 	}
-Print(wNotice,"\r\r");
+Print(wNotice,"\n\n");
 Print(wNotice,"Grammar procedures (not case sensitive): ");
 for(j=0; j < MaxProc; j++) {
 	i = (*p_ProcNdx)[j];
@@ -2417,7 +2417,7 @@ for(j=0; j < MaxProc; j++) {
 		}
 	else Print(wNotice," ");
 	}
-Print(wNotice,"\r\r");
+Print(wNotice,"\n\n");
 Print(wNotice,"Performance control (not case sensitive): ");
 for(j=0; j < MaxPerformanceControl; j++) {
 	i = (*p_PerfCtrlNdx)[j];
@@ -2430,13 +2430,13 @@ for(j=0; j < MaxPerformanceControl; j++) {
 		}
 	else Print(wNotice," ");
 	}
-Print(wNotice,"\r\r");
+Print(wNotice,"\n\n");
 Print(wNotice,"Null string (equivalent symbols): ");
 for(i=0; i < MAXNIL; i++) {
 	sprintf(Message,"%s ",NilString[i]);
 	Print(wNotice,Message);
 	}
-Print(wNotice,"\r\r");
+Print(wNotice,"\n\n");
 Println(wNotice,"Templates in a grammar start on a 'TEMPLATES:' header");
 Println(wNotice,"Grammars may terminate on a 'COMMENTS:' or 'DATA:' header");
 SetSelect(ZERO,ZERO,TEH[wNotice]);
@@ -2458,7 +2458,7 @@ if(Jbol < 3) {
 	return(OK);
 	}
 ClearWindow(NO,wNotice);
-Print(wNotice,"\rTERMINAL SYMBOLS (ALPHABET):\r");
+Print(wNotice,"\nTERMINAL SYMBOLS (ALPHABET):\n");
 for(j=2; j < Jbol; j++) {
 	sprintf(Message,"%s ",*((*p_Bol)[j]));
 	Print(wNotice,Message);
@@ -2920,7 +2920,7 @@ sprintf(Message,"Elapsed time in this session: %.0f seconds",
 if(ScriptExecOn) {
 	w = OutputWindow;
 	if(w < 0 || w >= WMAX || !Editable[w]) w = wTrace;
-	PrintBehind(w,"\r");
+	PrintBehind(w,"\n");
 	PrintBehindln(w,Message);
 	ShowSelect(CENTRE,w);
 	}
@@ -3010,7 +3010,7 @@ if(r != OK) {
 	ShowSelect(CENTRE,wTrace);
 	}
 else {
-	Alert1("Script syntax is OK.\r(Smooth execution is not certified)");
+	Alert1("Script syntax is OK.\n(Smooth execution is not certified)");
 	BPActivateWindow(SLOW,wScript);
 	}
 

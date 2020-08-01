@@ -67,9 +67,9 @@ SetField(NULL,wCsoundInstruments,fCsoundInstrumentName,line);
 if(w > 0) {
 	if((*((*pp_CsInstrumentName)[j]))[0] == '\0') strcpy(line,"[no name]");
 	if((*p_CsInstrumentIndex)[j] > -1)
-		sprintf(Message,"--- Instrument #%ld = %s ---\r",(long)(*p_CsInstrumentIndex)[j],line);
+		sprintf(Message,"--- Instrument #%ld = %s ---\n",(long)(*p_CsInstrumentIndex)[j],line);
 	else
-		sprintf(Message,"--- Instrument [no index] = %s ---\r",line);
+		sprintf(Message,"--- Instrument [no index] = %s ---\n",line);
 	Println(w,Message);
 	}
 	
@@ -116,7 +116,7 @@ SetField(NULL,wCsoundInstruments,fNumberParameters,line);
 
 if(w > 0) {
 	PleaseWait();
-	sprintf(Message,"%s arguments defined for this instrument\r",line);
+	sprintf(Message,"%s arguments defined for this instrument\n",line);
 	Println(w,Message);
 	}
 
@@ -146,7 +146,7 @@ SetField(NULL,wCsoundInstruments,fReleaseVelocityIndex,line);
 
 if(w > 0) {
 	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	sprintf(Message,"Release velocity argument = %s\r",line);
+	sprintf(Message,"Release velocity argument = %s\n",line);
 	Println(w,Message);
 	}
 
@@ -182,7 +182,7 @@ switch((*p_CsPitchFormat)[j]) {
 	}
 	
 if(w > 0) {
-	sprintf(Message,"Pitch format = %s\r",line);
+	sprintf(Message,"Pitch format = %s\n",line);
 	Println(w,Message);
 	}
 
@@ -234,7 +234,7 @@ SetField(NULL,wCsoundInstruments,fPitchBendRange,line);
 
 if(w > 0) {
 	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	sprintf(Message,"Pitchbend range = %s cents\r",line);
+	sprintf(Message,"Pitchbend range = %s cents\n",line);
 	Println(w,Message);
 	}
 
@@ -272,7 +272,7 @@ sprintf(line,"0%ld",(long)(*p_CsInstrument)[j].volumeGEN);
 SetField(NULL,wCsoundInstruments,fVolumeGEN,line);
 
 if(w > 0) {
-	sprintf(Message,"Volume table GEN%s\r",line);
+	sprintf(Message,"Volume table GEN%s\n",line);
 	Println(w,Message);
 	}
 
@@ -310,7 +310,7 @@ sprintf(line,"0%ld",(long)(*p_CsInstrument)[j].pressureGEN);
 SetField(NULL,wCsoundInstruments,fPressureGEN,line);
 
 if(w > 0) {
-	sprintf(Message,"Pressure table GEN%s\r",line);
+	sprintf(Message,"Pressure table GEN%s\n",line);
 	Println(w,Message);
 	}
 	
@@ -348,7 +348,7 @@ sprintf(line,"0%ld",(long)(*p_CsInstrument)[j].modulationGEN);
 SetField(NULL,wCsoundInstruments,fModulationGEN,line);
 
 if(w > 0) {
-	sprintf(Message,"Modulation table GEN%s\r",line);
+	sprintf(Message,"Modulation table GEN%s\n",line);
 	Println(w,Message);
 	}
 
@@ -386,7 +386,7 @@ sprintf(line,"0%ld",(long)(*p_CsInstrument)[j].panoramicGEN);
 SetField(NULL,wCsoundInstruments,fPanoramicGEN,line);
 
 if(w > 0) {
-	sprintf(Message,"Panoramic table GEN%s\r",line);
+	sprintf(Message,"Panoramic table GEN%s\n",line);
 	Println(w,Message);
 	}
 
@@ -412,11 +412,11 @@ if(w > 0) {
 		}
 	
 	if((*p_CsInstrument)[j].rVolume.islogx && !(*p_CsInstrument)[j].rVolume.islogy)
-		Println(w,"\rVolume mapping (log to lin):");
+		Println(w,"\nVolume mapping (log to lin):");
 	else {
 		if(!(*p_CsInstrument)[j].rVolume.islogx && (*p_CsInstrument)[j].rVolume.islogy)
-			Println(w,"\rVolume mapping (lin to log):");
-		else Println(w,"\rVolume mapping (linear):");
+			Println(w,"\nVolume mapping (lin to log):");
+		else Println(w,"\nVolume mapping (linear):");
 		}
 	for(i=0; i < 3; i++) {
 		if((*(p_CsVolume[i]))[j] < Infpos)
@@ -431,11 +431,11 @@ if(w > 0) {
 		}
 	
 	if((*p_CsInstrument)[j].rPressure.islogx && !(*p_CsInstrument)[j].rPressure.islogy)
-		Println(w,"\rPressure mapping (log to lin):");
+		Println(w,"\nPressure mapping (log to lin):");
 	else {
 		if(!(*p_CsInstrument)[j].rPressure.islogx && (*p_CsInstrument)[j].rPressure.islogy)
-			Println(w,"\rPressure mapping (lin to log):");
-		else Println(w,"\rPressure mapping (linear):");
+			Println(w,"\nPressure mapping (lin to log):");
+		else Println(w,"\nPressure mapping (linear):");
 		}
 	for(i=0; i < 3; i++) {
 		if((*(p_CsPressure[i]))[j] < Infpos)
@@ -450,11 +450,11 @@ if(w > 0) {
 		}
 	
 	if((*p_CsInstrument)[j].rModulation.islogx && !(*p_CsInstrument)[j].rModulation.islogy)
-		Println(w,"\rModulation mapping (log to lin):");
+		Println(w,"\nModulation mapping (log to lin):");
 	else {
 		if(!(*p_CsInstrument)[j].rModulation.islogx && (*p_CsInstrument)[j].rModulation.islogy)
-			Println(w,"\rModulation mapping (lin to log):");
-		else Println(w,"\rModulation mapping (linear):");
+			Println(w,"\nModulation mapping (lin to log):");
+		else Println(w,"\nModulation mapping (linear):");
 		}
 	for(i=0; i < 3; i++) {
 		if((*(p_CsModulation[i]))[j] < Infpos)
@@ -469,11 +469,11 @@ if(w > 0) {
 		}
 	
 	if((*p_CsInstrument)[j].rPanoramic.islogx && !(*p_CsInstrument)[j].rPanoramic.islogy)
-		Println(w,"\rPanoramic mapping (log to lin):");
+		Println(w,"\nPanoramic mapping (log to lin):");
 	else {
 		if(!(*p_CsInstrument)[j].rPanoramic.islogx && (*p_CsInstrument)[j].rPanoramic.islogy)
-			Println(w,"\rPanoramic mapping (lin to log):");
-		else Println(w,"\rPanoramic mapping (linear):");
+			Println(w,"\nPanoramic mapping (lin to log):");
+		else Println(w,"\nPanoramic mapping (linear):");
 		}
 	for(i=0; i < 3; i++) {
 		PleaseWait();
@@ -557,7 +557,7 @@ for(ip=0; ip < IPMAX; ip++) {
 	
 	if(w > 0) {
 		PleaseWait();
-		if(line[0] != '\0') sprintf(Message,"\rParameter '%s'",line);
+		if(line[0] != '\0') sprintf(Message,"\nParameter '%s'",line);
 		else continue;
 		}
 	
@@ -634,7 +634,7 @@ for(ip=0; ip < IPMAX; ip++) {
 		Println(w,Message);
 		}
 	}
-if(w > 0) Println(w,"\r----------------------------------");
+if(w > 0) Println(w,"\n----------------------------------");
 return(OK);
 }
 
@@ -1908,7 +1908,7 @@ NEWPARAMETER:
 			case 3:
 				if(param < 0) {
 					// FIXME ? any way to allow neg. dur? This has multiple uses with Csound -- akozar
-					Alert1("Can't compile Csound score because a negative duration was found.\r(3d argument)");
+					Alert1("Can't compile Csound score because a negative duration was found.\n(3d argument)");
 					result = FAILED; goto OUT;
 					}
 				param = (param * 60000.) / tempo;
@@ -2170,9 +2170,9 @@ for(ievent=ZERO; ievent < (*p_CsoundSize)[j]; ievent++) {
 			PrintBehind(wPrototype7,LineBuff); PrintBehind(wPrototype7," ");
 			}
 		}
-	PrintBehind(wPrototype7,"\r");
+	PrintBehind(wPrototype7,"\n");
 	}
-PrintBehind(wPrototype7,"\re\r");
+PrintBehind(wPrototype7,"\ne\n");
 
 OUT:
 
@@ -2237,11 +2237,11 @@ if(j < Jinstr) return((*p_CsInstrumentIndex)[j]);
 
 ERR:
 if(Jinstr < 2) {
-	Print(wTrace,"\rYou probably forgot to create or load a '-cs' instrument file\r");
+	Print(wTrace,"\nYou probably forgot to create or load a '-cs' instrument file\n");
 	}
-if(isnumber) sprintf(Message,"Instrument %ld was not found in the '-cs' instrument file\r",
+if(isnumber) sprintf(Message,"Instrument %ld was not found in the '-cs' instrument file\n",
 	(long) i);
-else sprintf(Message,"Instrument \"%s\" was not found in the '-cs' instrument file\r",
+else sprintf(Message,"Instrument \"%s\" was not found in the '-cs' instrument file\n",
 	line);
 Print(wTrace,Message);
 return(ABORT);

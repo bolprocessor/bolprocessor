@@ -91,7 +91,7 @@ if((version=OMSVersion()) == 0) {
 	return 1;	/* any old error number */
 	}
 if(version < 0x02000000) {
-	Alert1("BP2 requires OMS version 2.0 or higher.\rInternal MIDI driver will be used");
+	Alert1("BP2 requires OMS version 2.0 or higher.\nInternal MIDI driver will be used");
 	ShowMessage(TRUE,wInfo,"Download OMS from ftp://ftp.opcode.com/pub/oms/mac");
 	return 1;
 	}
@@ -116,7 +116,7 @@ err = OMSSignIn(appSignature,(long)LMGetCurrentA5(),LMGetCurApName(),appHook,
 	as stored in the low-memory global CurApName. */
 
 if(err) {
-	Alert1("OMS is installed but BP2 failed to sign in.\rIt's a good idea to restart the computer and run 'OMS Setup'");
+	Alert1("OMS is installed but BP2 failed to sign in.\nIt's a good idea to restart the computer and run 'OMS Setup'");
 	TellError(88,err);
 	return err;
 	}
@@ -306,7 +306,7 @@ if(opening) {
 			gChosenInputID = 0;
 			if(ScriptExecOn) {
 				sprintf(Message,
-					"\rOMS failed to find '%s' input device. You should modify project settings or '-se.startup'...",
+					"\nOMS failed to find '%s' input device. You should modify project settings or '-se.startup'...",
 					OMSinputName);
 				Println(wTrace,Message);
 				}

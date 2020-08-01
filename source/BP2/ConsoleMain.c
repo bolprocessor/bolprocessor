@@ -122,7 +122,7 @@ int main (int argc, char* args[])
 	if (!gOptions.seedProvided) ReseedOrShuffle(NEWSEED);
 	
 	// load data
-	if (!LoadedStartString)  CopyStringToTextHandle(TEH[wStartString], "S\r");
+	if (!LoadedStartString)  CopyStringToTextHandle(TEH[wStartString], "S\n");
 	// CopyStringToTextHandle(TEH[wGrammar], gr_Visser3);
 	MemoryUsedInit = MemoryUsed;
 	

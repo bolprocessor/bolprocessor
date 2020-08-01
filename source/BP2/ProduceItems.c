@@ -114,11 +114,11 @@ for(j=1; j <= Jvar; j++) {
 	}
 if(undefined && !repeat && !IgnoreUndefinedVariables) {
 	if(ScriptExecOn || AEventOn) {
-		PrintBehind(wTrace,"Undefined variables were found and ignored...\r");
+		PrintBehind(wTrace,"Undefined variables were found and ignored...\n");
 		}
 	else {
 		if(Answer("Found undefined variable(s). Proceed",'Y') != YES) {
-			Print(wTrace,"\rUndefined variables:\r");
+			Print(wTrace,"\nUndefined variables:\n");
 			for(j=1; j <= Jvar; j++) {
 				if(((*p_VarStatus)[j] & 2) && !((*p_VarStatus)[j] & 1)
 											&& !((*p_VarStatus)[j] & 4))  {
@@ -204,7 +204,7 @@ if(pp_start == NULL && IsEmpty(w)) {
 	if(w == wStartString) {
 		SetSelect(ZERO,GetTextLength(wStartString),TEH[wStartString]);
 		TextDelete(wStartString);
-		Print(wStartString,"S\r");
+		Print(wStartString,"S\n");
 		Dirty[wStartString] = FALSE;
 		}
 	else goto QUIT;
@@ -238,7 +238,7 @@ if((PlaySelectionOn || ResetFlags) && Jflag > 0)
 	for(i=1; i <= Jflag; i++) (*p_Flag)[i] = ZERO;
 if(!PlaySelectionOn && DisplayProduce) {
 	SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
-	Print(wTrace,"\r");
+	Print(wTrace,"\n");
 	}
 if(!PlaySelectionOn && ShowMessages) {
 	if(Improvize) sprintf(Message,"Computing item #%ld...",(long)ItemNumber);
@@ -409,13 +409,13 @@ p_a = NULL; pp_a = &p_a;
 TextGetSelection(&origin, &end, TEH[w]);
 SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 if(end <= origin) {
-	if(ScriptExecOn) Print(wTrace,"\r*** Can't analyze.  No item selected...\r");
+	if(ScriptExecOn) Print(wTrace,"\n*** Can't analyze.  No item selected...\n");
 	Alert1("Can't analyze. No item selected...");
 	return(FAILED);
 	}
 /*
 if(Gram.trueBP && !Gram.hasTEMP) {
-	if(ScriptExecOn) Print(wTrace,"\r*** Templates have not been produced.\r");
+	if(ScriptExecOn) Print(wTrace,"\n*** Templates have not been produced.\n");
 	if((r=Answer("Templates have not been produced. Will you need them",'Y'))
 		!= NO) return(ABORT);
 	} */
@@ -500,19 +500,19 @@ while(origin < end) {
 SetSelect(end,end,TEH[w]);
 ShowSelect(CENTRE,w);
 if(learn) {
-	if((r=Answer("Add infered weights\rto current weights",'Y'))
+	if((r=Answer("Add infered weights\nto current weights",'Y'))
 		== ABORT) {
 			ResetRuleWeights(0); r = OK; goto END;
 			}
 	if(r == OK) ResetRuleWeights(3);
 	else {
-		if((r=Answer("Keep infered weights\rin current grammar",'Y'))
+		if((r=Answer("Keep infered weights\nin current grammar",'Y'))
 			!= OK) {
 			ResetRuleWeights(0); r = OK; goto END;
 			}
 		ResetRuleWeights(2);
 		}
-	if((r=Answer("Update grammar window\rwith new weights",'Y'))
+	if((r=Answer("Update grammar window\nwith new weights",'Y'))
 		!= OK) {
 			r = OK; goto END;
 			}
@@ -716,7 +716,7 @@ if(template) {
 	endgram = LastStructuralSubgrammar();
 	if(endgram == ABORT) goto END;
 	if(endgram == 0) {
-		Alert1("This grammar has no structural rules\rand does not require templates");
+		Alert1("This grammar has no structural rules\nand does not require templates");
 		goto END;
 		}
 	if((r=DeleteTemplates()) != OK) goto END;
@@ -724,7 +724,7 @@ if(template) {
 else {
 	mode = PROD;
 	// FIXME ? Should we bother asking this when (*p_gram).number_gram == 1 ?
-	if((r = Answer("Try all rules\rin all grammars",'Y')) == ABORT) goto END;
+	if((r = Answer("Try all rules\nin all grammars",'Y')) == ABORT) goto END;
 	if(r == OK) endgram = (*p_gram).number_gram;
 	else {
 		r = OK;
@@ -735,7 +735,7 @@ else {
 // FIXME: Need to redo temp file I/O in order to be able to discard repeats in console build
 // FIXME: "Discard repeated items" should be an option that can be set before the operation
 if(!template) {
-	r = Answer("Discard repeated items\r(May take time...)",'Y');
+	r = Answer("Discard repeated items\n(May take time...)",'Y');
 	if(r == ABORT) goto END;
 	}
 else r = YES;
@@ -1005,7 +1005,7 @@ wantgram = igram;
 TRY:
 
 if(!ScriptExecOn && !AEventOn) {
-	if((r=AnswerWith("Last grammar in which\rall rules should be tried?",
+	if((r=AnswerWith("Last grammar in which\nall rules should be tried?",
 			defaultvalue,value)) != OK) return(r);
 	wantgram = (int) atol(value); 	/* Don't use atoi() because int's are 4 bytes */
 	if(wantgram < 1 || wantgram > endgram) {
@@ -1103,7 +1103,7 @@ for(igram=1; igram <= Gram.number_gram; igram++) {
 	found = FALSE;
 	for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
 		if(StructuralRule(igram,irul)) {
- /*			sprintf(Message,"igram=%ld  irul=%ld  is structural\r",(long)igram,
+ /*			sprintf(Message,"igram=%ld  irul=%ld  is structural\n",(long)igram,
 				(long)irul);
 			Println(wTrace,Message); */
 			found = TRUE; break;
@@ -1147,7 +1147,7 @@ for(i=i0; ((*p_arg)[i] != TEND || (*p_arg)[i+1] != TEND) && i < i1; i+=2) {
 				sprintf(Message,"%ld.%ld ",(long)(*p_arg)[i],(long)(*p_arg)[i+1]);
 				Print(wTrace,Message);
 				}
-			Print(wTrace,"\r");  */
+			Print(wTrace,"\n");  */
 			return(TRUE);
 		case T0:
 			switch(q) {
@@ -1310,7 +1310,7 @@ TAKEIT:
 			break;
 		}
 	}
-Print(w,"\r");
+Print(w,"\n");
 Gram.hasTEMP = TRUE;
 return(OK);
 }
@@ -1510,12 +1510,12 @@ OUT:
 MyDisposeHandle((Handle*)&p_line);
 SetSelect(pos1,pos1,TEH[wGrammar]);
 if(!separator) {
-	strcpy(Message,"\r------------");
+	strcpy(Message,"\n------------");
 	Print(wGrammar,Message);
 	pos1 += strlen(Message);
 	}
-Print(wGrammar,"\rTEMPLATES:\r------------\r");
-strcpy(Message,"\rTEMPLATES:\r");
+Print(wGrammar,"\nTEMPLATES:\n------------\n");
+strcpy(Message,"\nTEMPLATES:\n");
 pos1 += strlen(Message);
 SetSelect(pos1,pos1,TEH[wGrammar]);
 ShowSelect(CENTRE,wGrammar);
@@ -1576,7 +1576,7 @@ if((all && templates) || DisplayProduce) {
 			return(r);
 		}
 	else {
-		sprintf(Message,">>> Analyzing item [%s]\r",remark);
+		sprintf(Message,">>> Analyzing item [%s]\n",remark);
 		Print(wTrace,Message);
 		}
 	if(StepProduce) {
@@ -1639,7 +1639,7 @@ if(templates) {
 					goto END;
 					}
 				}
-			sprintf(Message,"Item %smatched no template...\r\r",LineBuff);
+			sprintf(Message,"Item %smatched no template...\n\n",LineBuff);
 			Print(wTrace,Message);
 			}
 		else if(good) *p_result = OK;
@@ -1672,14 +1672,14 @@ if(templates) {
 		lastbyte = GetTextLength(wTrace);
 		SetSelect(lastbyte,lastbyte,TEH[wTrace]);
 		if(DisplayProduce) {
-			sprintf(Message,"Item matched template [%ld], yielding:\r",(long)itemp);
+			sprintf(Message,"Item matched template [%ld], yielding:\n",(long)itemp);
 			Print(wTrace,Message);
 			if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wTrace,pp_Scrap,
 				pp_a)) != OK) goto END;
 			ShowSelect(CENTRE,wTrace);
 			}
 		else {
-			sprintf(Message,"Item %smatched template [%ld]\r",LineBuff,(long)itemp);
+			sprintf(Message,"Item %smatched template [%ld]\n",LineBuff,(long)itemp);
 			Print(wTrace,Message);
 			ShowSelect(CENTRE,wTrace);
 			}
@@ -1737,8 +1737,8 @@ if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 10) { /* 'S' */
 	else sprintf(Message,
 		"Item %smatching template [%ld] accepted by grammar...",LineBuff,(long)itemp);
 	ShowMessage(TRUE,wMessage,Message);
-	if(!templates) sprintf(Message,"Item %saccepted by grammar...\r\r",LineBuff);
-	else sprintf(Message,"Item %smatching template [%ld] accepted by grammar...\r\r",
+	if(!templates) sprintf(Message,"Item %saccepted by grammar...\n\n",LineBuff);
+	else sprintf(Message,"Item %smatching template [%ld] accepted by grammar...\n\n",
 		LineBuff,(long)itemp);
 	if(1 || all || DisplayProduce || ScriptExecOn) {
 		Print(wTrace,Message);
@@ -1755,12 +1755,12 @@ else {
 	(*p_result) = FAILED;
 	ShowMessage(TRUE,wMessage,Message);
 	if(templates)
-		sprintf(Message,"Item %smatching template [%ld] rejected by grammar...\r",LineBuff,
+		sprintf(Message,"Item %smatching template [%ld] rejected by grammar...\n",LineBuff,
 			(long)itemp);
 	else
-		sprintf(Message,"Item %srejected by grammar...\r",LineBuff);
+		sprintf(Message,"Item %srejected by grammar...\n",LineBuff);
 	Print(wTrace,Message);
-	sprintf(Message,"Result of failed analysis:\r");
+	sprintf(Message,"Result of failed analysis:\n");
 	Print(wTrace,Message);
 	if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wTrace,pp_Scrap,pp_a)) != OK)
 		goto END;

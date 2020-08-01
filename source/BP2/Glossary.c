@@ -171,7 +171,7 @@ while(ReadLine(YES,wGlossary,&pos,posmax,&p_line,&gap) == OK) {
 	*pp1 = &(line[length]); while(MySpace(**pp1)) (*pp1)++;
 	if(((**pp1) < 'A' || (**pp1) > 'Z') && (**pp1) != '|') {
 		sprintf(Message,
-		"Left argument in glossary must be a variable, starting with uppercase character or '|'. Can't make sense of '%c'...\r",
+		"Left argument in glossary must be a variable, starting with uppercase character or '|'. Can't make sense of '%c'...\n",
 		(**pp1));
 		Print(wTrace,Message); r = FAILED;
 		goto BADLINE;
@@ -185,13 +185,13 @@ while(ReadLine(YES,wGlossary,&pos,posmax,&p_line,&gap) == OK) {
 		return(ABORT);
 		}
 	if((*p_VarStatus)[j] & 4) {
-		sprintf(Message,"Can't accept multiple definitions of variable '%s' in glossary.\r",
+		sprintf(Message,"Can't accept multiple definitions of variable '%s' in glossary.\n",
 			*((*p_Var)[j]));
 		Print(wTrace,Message); r = FAILED;
 		goto BADLINE;
 		}
 	if((*p_VarStatus)[j] & 1) {
-		sprintf(Message,"Variable '%s' is already derived in grammar. Probably a mistake.\r",
+		sprintf(Message,"Variable '%s' is already derived in grammar. Probably a mistake.\n",
 			*((*p_Var)[j]));
 		Print(wTrace,Message);
 		}
@@ -210,7 +210,7 @@ while(ReadLine(YES,wGlossary,&pos,posmax,&p_line,&gap) == OK) {
 			(*pp1)++; i++;
 			}
 		if(i != strlen(Arrow[1])) {
-			Print(wTrace,"Left argument in glossary may contain only a variable\r");
+			Print(wTrace,"Left argument in glossary may contain only a variable\n");
 			r = FAILED;
 			goto BADLINE;
 			}
@@ -264,7 +264,7 @@ if(!errors && r == OK && irul > 0) {
 		if(!((*p_VarStatus)[j] & 4) && ((*p_VarStatus)[j] & 8)) undefined++;
 		}
 	if(undefined) {
-		Print(wTrace,"\rUNDEFINED VARIABLES IN GLOSSARY:\r");
+		Print(wTrace,"\nUNDEFINED VARIABLES IN GLOSSARY:\n");
 		for(j=1; j <= Jvar; j++) {
 			if(!((*p_VarStatus)[j] & 4) && ((*p_VarStatus)[j] & 8)) { 
 				sprintf(Message,"%s ",*((*p_Var)[j]));
@@ -272,7 +272,7 @@ if(!errors && r == OK && irul > 0) {
 				errors++;
 				}
 			}
-		Print(wTrace,"\r");
+		Print(wTrace,"\n");
 		}
 	}
 	
@@ -287,7 +287,7 @@ return(r);
 ERR:
 MyDisposeHandle((Handle*)&p_line);
 if(errors) {
-	Print(wTrace,"\rError(s) in 'Glossary' window.\r\r");
+	Print(wTrace,"\nError(s) in 'Glossary' window.\n\n");
 	ShowSelect(CENTRE,wTrace);
 	sprintf(Message,"Errors: %ld",(long)errors);
 	ShowMessage(TRUE,wMessage,Message);

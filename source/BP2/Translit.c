@@ -86,7 +86,7 @@ else return(FAILED);
 ClearMessage();
 
 SelectBehind(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
-PrintBehind(wTrace,"\r");
+PrintBehind(wTrace,"\n");
 SelectBehind(GetTextLength(wGrammar),GetTextLength(wGrammar),TEH[wGrammar]);
 
 LoadOn++;
@@ -476,7 +476,7 @@ if(rightisnum) rightis = 2;
 
 // Now we read the table...
 
-PrintBehind(wScrap,"Grammar with original line numbers (before compiling):\r\r");
+PrintBehind(wScrap,"Grammar with original line numbers (before compiling):\n\n");
 if(appendtoalphabet) {
 	if(!IsEmpty(wAlphabet)) {
 		if((result=Answer("Clear existing alphabet",'N')) == ABORT) return(ABORT);
@@ -487,13 +487,13 @@ if(appendtoalphabet) {
 			ForgetFileName(wAlphabet);
 			}
 		SelectBehind(GetTextLength(wAlphabet),GetTextLength(wAlphabet),TEH[wAlphabet]);
-		PrintBehind(wAlphabet,"\r");
+		PrintBehind(wAlphabet,"\n");
 		}
 	UpdateDirty(TRUE,wAlphabet);
 	}
-if(appendtogrammar) Print(wGrammar,"\r-------------\r");
+if(appendtogrammar) Print(wGrammar,"\n-------------\n");
 Date(line);
-sprintf(Message,"// Created from file '%s' - %s\r",filename,line);
+sprintf(Message,"// Created from file '%s' - %s\n",filename,line);
 Println(wGrammar,Message);
 if(rnd) Println(wGrammar,"RND");
 if(ord) Println(wGrammar,"ORD");
@@ -540,8 +540,8 @@ while(TRUE) {
 		i++;
 		}
 	if(GetArgumentInTableLine(1,p_line,i,apref,leftis,appendtoalphabet,removespacesleft) != OK) {
-		Print(wGrammar,"\r");
-		PrintBehind(wScrap,"\r");
+		Print(wGrammar,"\n");
+		PrintBehind(wScrap,"\n");
 		errors++;
 		goto READMORE;
 		}
@@ -587,8 +587,8 @@ while(TRUE) {
 			PrintBehind(wScrap,Message);
 			}
 		}
-	Print(wGrammar,"\r");
-	PrintBehind(wScrap,"\r");
+	Print(wGrammar,"\n");
+	PrintBehind(wScrap,"\n");
 
 READMORE:
 	if(rr == STOP) break;
@@ -598,7 +598,7 @@ OVER:
 
 LoadOn--;
 
-if(result != OK) Println(wGrammar,"\r\r<< Reading grammar from table aborted >>");
+if(result != OK) Println(wGrammar,"\n\n<< Reading grammar from table aborted >>");
 if(appendtoalphabet) {
 	BPActivateWindow(SLOW,wAlphabet);
 	ShowSelect(CENTRE,wAlphabet);
@@ -1052,7 +1052,7 @@ while(TRUE) {
 	if(imax == 0) {
 		if(rr == STOP) break;
 		count = 1L;
-		io = FSWrite(refnumout,&count,"\r");
+		io = FSWrite(refnumout,&count,"\n");
 		if(io != noErr)	{
 			if(io == dskFulErr) Alert1("No more space on this disk... Task aborted");
 			else TellError(101,io);
@@ -1141,7 +1141,7 @@ for(ifield=0; ifield < nfields; ifield++) {
 	(*p_field)[j] = '\0';
 	i++;
 	PrintHandleBehind(wNotice,p_field);
-	PrintBehind(wNotice,"\r");
+	PrintBehind(wNotice,"\n");
 	}
 PrintBehindln(wNotice,"------------------------");
 ShowSelect(CENTRE,wNotice);
@@ -1237,7 +1237,7 @@ DOFIELD:
 		}
 	}
 count = 1L;
-io = FSWrite(refnum,&count,"\r");
+io = FSWrite(refnum,&count,"\n");
 
 OUT:
 MyDisposeHandle((Handle*)&p_field);
@@ -1268,7 +1268,7 @@ TRYRULE:
 do {
 	irul++;
 	if(irul > subgram.number_rule) {
-		sprintf(Message,"\rNo valid rule in first subgrammar (%ld). Can't use this grammar...",
+		sprintf(Message,"\nNo valid rule in first subgrammar (%ld). Can't use this grammar...",
 			(long)subgramstart);
 		Println(wTrace,Message);
 		return(ABORT);

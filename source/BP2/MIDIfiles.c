@@ -970,7 +970,7 @@ GETCHANNEL:
 								if(reply == NO) goto PRESERVE;
 								uniquechan = ((int) atol(Message)) - 1;
 								if(uniquechan < 0 || uniquechan > 15) {
-									sprintf(Message,"Channel range 1..16\rCan't accept '%ld'",
+									sprintf(Message,"Channel range 1..16\nCan't accept '%ld'",
 										(long)uniquechan + 1L);
 									Alert1(Message);
 									goto GETCHANNEL;

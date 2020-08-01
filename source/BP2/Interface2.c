@@ -373,7 +373,7 @@ for(j=*p_i; j < im; j++) {
 		line[k] = '\0';
 		*p_i = ++j;
 		if(check) {
-			sprintf(Message,"\rSelection too long, truncated: %s...\r",line);
+			sprintf(Message,"\nSelection too long, truncated: %s...\n",line);
 			if(!ScriptExecOn) Alert1(Message);
 			else PrintBehindln(wTrace,Message);
 			return(FAILED);
@@ -859,7 +859,7 @@ char line[MAXLIN];
 if(ScriptExecOn || (AEventOn && !OkWait)) {
 	if(c == 'Y') r = YES;
 	else r = NO;
-	sprintf(line,"%s ? %c\r",what,c);
+	sprintf(line,"%s ? %c\n",what,c);
 	if(ScriptExecOn) {
 		if(wTrace != OutputWindow) PrintBehind(wTrace,line);
 		}
@@ -1356,7 +1356,7 @@ while(TRUE) {
 		i++; j++;
 		if(j >= MAXNAME) {
 			line[j] = '\0';
-			sprintf(Message,"\rToo long name: %s... [max %ld chars]\r", line,(long)MAXNAME);
+			sprintf(Message,"\nToo long name: %s... [max %ld chars]\n", line,(long)MAXNAME);
 			Print(wTrace,Message);
 			return(FAILED);
 			}
@@ -1411,7 +1411,7 @@ while(TRUE) {
 	if(Match(TRUE,p_line,&q,4)) {
 		w = wMIDIorchestra; goto FIX;
 		}
-	sprintf(Message,"\rIncorrect name: %s...\r",line);
+	sprintf(Message,"\nIncorrect name: %s...\n",line);
 	Print(wTrace,Message);
 	r = FAILED;
 	continue;

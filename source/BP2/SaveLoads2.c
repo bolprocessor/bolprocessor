@@ -539,7 +539,7 @@ if(iv > 4 && newbols) {
 			ShowMessage(TRUE,wMessage,"New terminal symbols have been appended to alphabet.");
 			SetSelect(GetTextLength(wAlphabet),GetTextLength(wAlphabet),
 				TEH[wAlphabet]);
-			PrintBehind(wAlphabet,"\r");
+			PrintBehind(wAlphabet,"\n");
 			}
 		notsaid = FALSE;
 		MystrcpyHandleToString(MAXLIN,0,Message,p_completeline);
@@ -794,7 +794,7 @@ NEXTCSOUNDSCORELINE:
 		}
 	if(!diff) {
 		PrintHandleBehind(wPrototype7,p_completeline);
-		PrintBehind(wPrototype7,"\r");
+		PrintBehind(wPrototype7,"\n");
 		Dirty[iObjects] = Dirty[wPrototype7] = FALSE;
 		CompiledCsObjects = (*p_CompiledCsoundScore)[j] = FALSE;
 		}

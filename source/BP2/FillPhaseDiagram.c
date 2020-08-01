@@ -587,7 +587,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 		ip = Class((*p_im)[nseq]);
 		if(Beta && (ip > maxseqapprox)) {
 			sprintf(Message,
-				"\rnseq=%ld Class((*p_im)[nseq])=%ul maxseqapprox=%ld",
+				"\nnseq=%ld Class((*p_im)[nseq])=%ul maxseqapprox=%ld",
 				(long)nseq,ip,(long)maxseqapprox);
 			Println(wTrace,Message);
 			ShowError(34,0,0);
@@ -937,7 +937,7 @@ DONEOUTTIMEOBJECT:
 						goto NEWSEQUENCE;
 						}
 					if(nseq > (*p_nmax)) {
-						if(Beta) Println(wTrace,"\rErr. FillPhaseDiagram(). nseq > (*p_nmax) after '}'");
+						if(Beta) Println(wTrace,"\nErr. FillPhaseDiagram(). nseq > (*p_nmax) after '}'");
 						if((gotnewline=MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseqapprox,p_maxcol))
 								!= OK) {
 							if(gotnewline == ABORT) goto ENDDIAGRAM;
@@ -1007,7 +1007,7 @@ DONEOUTTIMEOBJECT:
 						goto NEWSEQUENCE;
 						}
 					if(nseq > (*p_nmax)) {
-						if(Beta) Println(wTrace,"\rErr. FillPhaseDiagram(). nseq > (*p_nmax) after ','");
+						if(Beta) Println(wTrace,"\nErr. FillPhaseDiagram(). nseq > (*p_nmax) after ','");
 						if((gotnewline=MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseqapprox,p_maxcol))
 								!= OK) {
 							if(gotnewline == ABORT) goto ENDDIAGRAM;
@@ -1516,7 +1516,7 @@ if(imax > 0.) {
 	/* This compensates errors due to overflow in calculating Prod and Ratio */
 	if(Beta) {
 		if(CorrectionFactor < 0.95 || CorrectionFactor > 1.05) {
-			sprintf(Message,"\rCorrection factor %.3f might be out of range...",CorrectionFactor);
+			sprintf(Message,"\nCorrection factor %.3f might be out of range...",CorrectionFactor);
 			Println(wTrace,Message);
 			ShowMessage(TRUE,wMessage,Message);
 			}
@@ -1532,7 +1532,7 @@ if(imax > 0.) {
 	kobj++;
 	(*p_numberobjects) = kobj;
 	if(kobj >= Maxevent) {
-	 	if(Beta) Println(wTrace,"\rErr. FillPhaseDiagram(). kobj >= Maxevent. (1)");
+	 	if(Beta) Println(wTrace,"\nErr. FillPhaseDiagram(). kobj >= Maxevent. (1)");
 	 	kobj--; (*p_numberobjects) = kobj;
 	 	goto LASTOBJECTDONE;
 	 	}
@@ -1704,7 +1704,7 @@ switch(where) {
 			}
 		if(force && oldk > 1 && newk != 1) {
 			/* When newk == 1 with force, table contains arbitrary numbers, so oldk is irrelevant */
-			if(Beta) Print(wTrace,"Overwrote an object\r");
+			if(Beta) Print(wTrace,"Overwrote an object\n");
 			(*p_Instance)[oldk].object = 0;
 			}
 		(*((*p_seq)[*p_nseq]))[iplot] = newk;
@@ -2083,11 +2083,11 @@ if(numberzeros > 0.) {
 				}
 			else {
 				if(Beta) {
-					sprintf(Message,"\rErr. PutZeros(). nseq=%ld (*p_im)[nseq]=%.1f ip=%u  maxseq=%.1f\r",
+					sprintf(Message,"\nErr. PutZeros(). nseq=%ld (*p_im)[nseq]=%.1f ip=%u  maxseq=%.1f\n",
 						(long)nseq,i,ip,maxseq);
 					Println(wTrace,Message);
 					}
-				else Println(wTrace,"\rUnexpected overflow in PutZeros(). You may send this project to the designer");
+				else Println(wTrace,"\nUnexpected overflow in PutZeros(). You may send this project to the designer");
 				return(ABORT);
 				}
 			}

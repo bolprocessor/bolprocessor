@@ -1236,7 +1236,7 @@ if((rep = ReadOne(FALSE,FALSE,TRUE,fin,TRUE,&p_line,&p_completeline,p_pos)) == F
 if(MyHandleLen(p_line) == 0) return(FAILED);
 i = 0; while(MySpace(c=(*p_line)[i])) i++;
 if(c != '-' && c != '+' && !isdigit(c)) {
-	sprintf(Message,"\rUnexpected characters in integer: %s",(*p_line));
+	sprintf(Message,"\nUnexpected characters in integer: %s",(*p_line));
 	Println(wTrace,Message);
 	rep = FAILED;
 	goto QUIT;
@@ -1247,7 +1247,7 @@ MyLock(FALSE,(Handle)p_line);
 
 /* x = atol(*p_line);
 if(x < ZERO) {
-	sprintf(Message,"\rUnexpected negative integer: %ld",x);
+	sprintf(Message,"\nUnexpected negative integer: %ld",x);
 	Println(wTrace,Message);
 	rep = FAILED;
 	goto QUIT;
@@ -1814,7 +1814,7 @@ if(diff) {
 if(fileversion > Version) {
 	// It would be unusual for VersionName[fileversion] to exist if fileversion > Version
 	sprintf(Message,
-		"Can't use file version %s\rbecause 'BP2' version is %s.\r",
+		"Can't use file version %s\nbecause 'BP2' version is %s.\n",
 		VersionName[fileversion],VersionName[Version]);
 	if(!ScriptExecOn) Alert1(Message);
 	else PrintBehind(wTrace,Message);
@@ -1990,7 +1990,7 @@ if(refnum == -1) {
 	return(FAILED);
 	}
 if(w >= 0 && IsHTML[w]) {
-	WriteToFile(NO,DOS,"\r\n<HR>\r\n</BODY>\r\n</HTML>",refnum);
+	WriteToFile(NO,DOS,"\r\n<HR>\r\n</BODY>\r\n</HTML>",refnum); // FIXME? Will this write CR-CR-LF on Windows?
 	}
 else NoReturnWriteToFile("\0",refnum);
 return(OK);

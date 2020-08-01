@@ -150,7 +150,7 @@ for(i=0; i <= MAXCHAN; i++) {
 	}
 LastAction = NO;
 if(TraceMemory) {
-	sprintf(Message,"New project memory use: %ld [leaked: %ld]\r",
+	sprintf(Message,"New project memory use: %ld [leaked: %ld]",
 		(long) MemoryUsed,(long)MemoryUsed - MemoryUsedInit);
 	ShowMessage(TRUE, wMessage, Message);
 	}
