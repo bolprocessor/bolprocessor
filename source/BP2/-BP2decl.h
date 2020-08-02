@@ -182,8 +182,8 @@ extern long **p_Flag,BufferSize,DeftBufferSize,Maxevent;
 extern short MIDIRefNum,HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,
 	MIDIfileOpened,MIDIfileTrackEmpty;
 extern int MIDIbytestate,MIDIfileTrackNumber,StepScript,TypeScript,MoreTime;
-extern long MIDItracklength,MidiLen_pos,**p_Tref,**p_Tpict;
-extern dword Midi_msg;
+extern long MidiLen_pos,**p_Tref,**p_Tpict;
+extern dword MIDItracklength,Midi_msg;
 extern Milliseconds OldMIDIfileTime;
 extern unsigned long LapWait,WhenItStarted;
 extern int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,Token,

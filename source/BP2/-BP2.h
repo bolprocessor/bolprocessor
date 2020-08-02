@@ -1664,7 +1664,7 @@ typedef struct s_chunck ChunkPointer;
 typedef int (*IntProcPtr)(int);
 typedef int (*Int2ProcPtr)(short,int);
 
-typedef unsigned long dword;
+typedef uint32_t dword;
 typedef unsigned char byte;
 
 typedef int tokenbyte;

@@ -220,8 +220,8 @@ long **p_Flag,BufferSize,DeftBufferSize,Maxevent;
 short MIDIRefNum,HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,MIDIfileOpened,
 	MIDIfileTrackEmpty;
 int MIDIbytestate,MIDIfileTrackNumber,StepScript,TypeScript,MoreTime;
-long MIDItracklength,MidiLen_pos,**p_Tref,**p_Tpict;
-dword Midi_msg;
+long MidiLen_pos,**p_Tref,**p_Tpict;
+dword MIDItracklength,Midi_msg;
 Milliseconds OldMIDIfileTime;
 unsigned long LapWait,WhenItStarted;
 int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,Token,SpaceOn,

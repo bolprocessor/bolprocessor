@@ -397,8 +397,8 @@ MaxScript = MAXEVENTSCRIPT; Jscriptline = 0;
 p_Script = NULL;
 InitThere = 0; JustCompiled = FALSE;
 MIDIbytestate = MIDIfileTrackNumber = 0;
-MIDItracklength = MidiLen_pos = ZERO;
-Midi_msg = OldMIDIfileTime = 0;
+MidiLen_pos = ZERO;
+MIDItracklength = Midi_msg = OldMIDIfileTime = ZERO;
 LoadedCsoundInstruments = FALSE;
 
 #if BP_CARBON_GUI

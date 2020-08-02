@@ -587,7 +587,7 @@ int ResetTicksInItem(Milliseconds,int*,double*,double*,int*,int*,long,int*,char*
 int FindTickValues(long x,int*,int*,int*);
 int Ctrl_adjust(MIDI_Event*,int,int,int);
 int ChangeStatus(int,int,int);
-int MakeMIDIFile(char*);
+int MakeMIDIFile(OutFileInfo* finfo);
 int MakeCsFile(const char*);
 int CloseMIDIFile(void);
 int CloseCsScore(void);
@@ -1039,9 +1039,9 @@ int SetTimeObjects(int,unsigned long**,unsigned long,int*,int*,long*,long*,short
 Rect Set_Window_Drag_Boundaries(void);
 int MustBeSaved(int);
 int GetMIDIfileName(void);
-int WriteVarLen(short,long,long*);
-int Writedword(short,dword,int);
-int WriteReverse (short,long);
+int WriteVarLen(FILE*, dword, dword*);
+int Writedword(FILE*, dword, int);
+int WriteReverse(FILE*, dword);
 int WriteMIDIbyte(Milliseconds,byte);
 int AcceptControl(tokenbyte);
 int TellComplex(void);
