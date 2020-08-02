@@ -289,13 +289,6 @@ enum {
 #define DOS 1
 #define UNIX 2
 
-// Character for outputting line endings
-#if BP_CARBON_GUI
-  #define NEWLINECHAR '\r'
-#else
-  #define NEWLINECHAR '\n'
-#endif
-
 // More values for SynchroSignal
 #define PLAYNOW 1
 #define PLAYFOREVER 2
