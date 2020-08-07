@@ -1039,7 +1039,6 @@ int SetTimeObjects(int,unsigned long**,unsigned long,int*,int*,long*,long*,short
 Rect Set_Window_Drag_Boundaries(void);
 int MustBeSaved(int);
 int GetMIDIfileName(void);
-int WriteVarLen(FILE*, dword, dword*);
 int Writedword(FILE*, dword, int);
 int WriteReverse(FILE*, dword);
 int WriteMIDIbyte(Milliseconds,byte);

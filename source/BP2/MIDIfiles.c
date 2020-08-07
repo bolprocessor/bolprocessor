@@ -40,6 +40,11 @@
 #include "-BP2decl.h"
 #include "ConsoleGlobals.h"
 
+#define  BITS0_6    0x7F
+#define  BITS7_13   0x3F80
+#define  BITS14_20  0x1FC000
+#define  BITS21_27  0xFE00000
+
 // A few predefined things
 
 byte MTrk[] = { 'M', 'T', 'r', 'k' };
@@ -70,6 +75,7 @@ byte end_of_track[] = {0x00, 0xff, 0x2f, 0x00};
 
 static int WriteMIDIFileHeader(FILE* fout);
 static int WriteRawBytes(FILE* fout, byte* data, size_t numbytes);
+static int WriteVarLenQuantity(FILE* fout, dword value, dword *tracklen);
 
 int MakeMIDIFile(OutFileInfo* finfo)
 {
@@ -251,7 +257,7 @@ if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
 	/* This could happen with a bad rounding. Normally BP2 sorts out events */
 		
 	/* Write out variable length delta time value. */
-	if(WriteVarLen(MIDIRefNum,(dword)(time-OldMIDIfileTime),
+	if(WriteVarLenQuantity(MIDIRefNum,(dword)(time-OldMIDIfileTime),
 			&MIDItracklength) != OK) goto BAD;
 	
 	OldMIDIfileTime = time;
@@ -471,30 +477,69 @@ return(OK);
 }
 
 
-int WriteVarLen(FILE* fout, dword value, dword *pcnt)
-// Writes a dword in 'variable length' format as required by the 
-// MIDI file specs
-{
-register dword buffer;
-byte byteval;
-int result;
+/*  "Variable Length Quantities" are used in Midi files to represent
+	timestamps and other values.  They can be 1-4 bytes long depending
+	on the value to be represented.  Each byte stores only 7 significant 
+	bits of the value.  The most significant bit of each byte is 1 except 
+	for the last byte where it is 0.  The bytes of the "VLQ" are ordered
+	so that the most significant bits of the value come first.  Values
+	that can be stored in n bytes are
 	
-buffer = value & 0x7f;
-while ((value >>= 7) > 0) {
-	buffer <<= 8;
-	buffer |= 0x80;
-	buffer += (value & 0x7f);
+		# bytes		range
+		----------------------------------
+			1		0-127
+			2		128-16383
+			3		16384-2097151
+			4		2097152-268435455
+	
+	Ex. 3,500,000 (0x35 67 E0) in binary is 
+		00110101 01100111 11100000  in octets, or
+		0000001 1010101 1001111 1100000  in heptets.
+		
+		So, the VLQ encoding would be
+		10000001 11010101 11001111 01100000
+		which is 0x81 D5 CF 60 in hexadecimal.
+ */
+static int WriteVarLenQuantity(FILE* fout, dword value, dword *tracklen)
+{
+	int  result;
+	byte varlen[4];
+	long numbytes = 1;
+	
+	if (value > 268435455)	{
+		if (Beta)	{
+			BPPrintMessage(odError, "Err. WriteVarLenQuantity(): value %u is out of range.", value);
+		}
+		return FAILED;
 	}
-  
-while(TRUE) {
-	byteval = (byte)(buffer & 0xff);
-	result = WriteRawBytes(fout, &byteval, 1L);
-	if (result != OK)  return ABORT;
-	(*pcnt)++;
-	if(buffer & 0x80) buffer >>= 8;
-	else break;
+	
+	// split value into 7-bit chunks
+	varlen[3] = (byte)(value & BITS0_6);
+	varlen[2] = (byte)((value & BITS7_13) >> 7);
+	varlen[1] = (byte)((value & BITS14_20) >> 14);
+	varlen[0] = (byte)((value & BITS21_27) >> 21);
+	
+	// set the high bit of significant bytes (except least sig.)
+	if (varlen[0]) {
+		varlen[0] |= 0x80;
+		varlen[1] |= 0x80;
+		varlen[2] |= 0x80;
+		numbytes = 4;
 	}
-return(OK);
+	else if (varlen[1]) {
+		varlen[1] |= 0x80;
+		varlen[2] |= 0x80;
+		numbytes = 3;
+	}
+	else if (varlen[2]) {
+		varlen[2] |= 0x80;
+		numbytes = 2;
+	}
+	
+	// write only the significant bytes
+	result = WriteRawBytes(fout, &(varlen[4-numbytes]), numbytes);
+	*tracklen += numbytes;
+	return result;
 }
 
 
