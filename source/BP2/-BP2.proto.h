@@ -587,7 +587,7 @@ int ResetTicksInItem(Milliseconds,int*,double*,double*,int*,int*,long,int*,char*
 int FindTickValues(long x,int*,int*,int*);
 int Ctrl_adjust(MIDI_Event*,int,int,int);
 int ChangeStatus(int,int,int);
-int MakeMIDIFile(OutFileInfo* finfo);
+// int MakeMIDIFile(OutFileInfo* finfo);
 int MakeCsFile(const char*);
 int CloseMIDIFile(void);
 int CloseCsScore(void);

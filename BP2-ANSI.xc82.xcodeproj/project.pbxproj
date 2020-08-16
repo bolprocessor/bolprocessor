@@ -63,6 +63,9 @@
 		9290E9FA24C62DC40064A1A3 /* SaveLoads1.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E50EC39231006B5F38 /* SaveLoads1.c */; };
 		9290E9FB24C62DC60064A1A3 /* SaveLoads1.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E50EC39231006B5F38 /* SaveLoads1.c */; };
 		9290E9FC24C62E4B0064A1A3 /* SaveLoads1.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E50EC39231006B5F38 /* SaveLoads1.c */; };
+		92932D2924D68D2A008CECF5 /* MIDIfiles.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EC0EC39232006B5F38 /* MIDIfiles.c */; };
+		92932D2A24D68D2B008CECF5 /* MIDIfiles.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EC0EC39232006B5F38 /* MIDIfiles.c */; };
+		92932D2B24D68D2C008CECF5 /* MIDIfiles.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EC0EC39232006B5F38 /* MIDIfiles.c */; };
 		92A113A20EC3924F006B5F38 /* DisplayThings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F00EC39232006B5F38 /* DisplayThings.c */; };
 		92A113A30EC3924F006B5F38 /* Misc.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E30EC39231006B5F38 /* Misc.c */; };
 		92A113AB0EC3924F006B5F38 /* NavServWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A112DA0EC39231006B5F38 /* NavServWrapper.h */; };
@@ -218,7 +221,7 @@
 		92A112E90EC39232006B5F38 /* Arithmetic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Arithmetic.c; path = source/BP2/Arithmetic.c; sourceTree = "<group>"; };
 		92A112EA0EC39232006B5F38 /* MIDIstuff.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = MIDIstuff.c; path = source/BP2/MIDIstuff.c; sourceTree = "<group>"; };
 		92A112EB0EC39232006B5F38 /* CoreMIDIdriver.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = CoreMIDIdriver.c; path = source/BP2/CoreMIDIdriver.c; sourceTree = "<group>"; };
-		92A112EC0EC39232006B5F38 /* MIDIfiles.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = MIDIfiles.c; path = source/BP2/MIDIfiles.c; sourceTree = "<group>"; };
+		92A112EC0EC39232006B5F38 /* MIDIfiles.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = MIDIfiles.c; path = source/BP2/MIDIfiles.c; sourceTree = "<group>"; };
 		92A112ED0EC39232006B5F38 /* MIDIloads.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = MIDIloads.c; path = source/BP2/MIDIloads.c; sourceTree = "<group>"; };
 		92A112EE0EC39232006B5F38 /* Strings.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Strings.c; path = source/BP2/Strings.c; sourceTree = "<group>"; };
 		92A112EF0EC39232006B5F38 /* DisplayArg.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = DisplayArg.c; path = source/BP2/DisplayArg.c; sourceTree = "<group>"; };
@@ -371,6 +374,7 @@
 				92A112D80EC39231006B5F38 /* Inits.c */,
 				92A112E20EC39231006B5F38 /* Interface2.c */,
 				92A113060EC39232006B5F38 /* MakeSound.c */,
+				92A112EC0EC39232006B5F38 /* MIDIfiles.c */,
 				92A112ED0EC39232006B5F38 /* MIDIloads.c */,
 				928320F9157C5CE600EADF2F /* MIDIstubs.c */,
 				92A112EA0EC39232006B5F38 /* MIDIstuff.c */,
@@ -405,7 +409,6 @@
 				92A112FF0EC39232006B5F38 /* Interaction.c */,
 				92A112E10EC39231006B5F38 /* Interface1.c */,
 				92A112DF0EC39231006B5F38 /* MenuCommands.c */,
-				92A112EC0EC39232006B5F38 /* MIDIfiles.c */,
 				92A112D90EC39231006B5F38 /* NavServWrapper.c */,
 				92A112E40EC39231006B5F38 /* Processes.c */,
 				92A112E60EC39231006B5F38 /* SaveLoads2.c */,
@@ -725,6 +728,7 @@
 				9239095B22EAA72900E4C459 /* Polymetric.c in Sources */,
 				9239095C22EAA72900E4C459 /* ProduceItems.c in Sources */,
 				9239095D22EAA72900E4C459 /* Arithmetic.c in Sources */,
+				92932D2B24D68D2C008CECF5 /* MIDIfiles.c in Sources */,
 				9239095E22EAA72900E4C459 /* Automata.c in Sources */,
 				9239095F22EAA72900E4C459 /* Compute.c in Sources */,
 				9239096022EAA72900E4C459 /* Csound.c in Sources */,
@@ -772,6 +776,7 @@
 				92A113CC0EC3924F006B5F38 /* TimeSetFunctions.c in Sources */,
 				92A113CD0EC3924F006B5F38 /* FillPhaseDiagram.c in Sources */,
 				92A113CE0EC3924F006B5F38 /* Arithmetic.c in Sources */,
+				92932D2924D68D2A008CECF5 /* MIDIfiles.c in Sources */,
 				92A113CF0EC3924F006B5F38 /* Automata.c in Sources */,
 				92A113D00EC3924F006B5F38 /* DisplayArg.c in Sources */,
 				92A113D10EC3924F006B5F38 /* CompileGrammar.c in Sources */,
@@ -819,6 +824,7 @@
 				92DA0C7417CD9D6100140F5B /* Polymetric.c in Sources */,
 				92DA0C7517CD9D6600140F5B /* ProduceItems.c in Sources */,
 				92BD2E5C17E262220028D273 /* Arithmetic.c in Sources */,
+				92932D2A24D68D2B008CECF5 /* MIDIfiles.c in Sources */,
 				92BD2E5D17E262270028D273 /* Automata.c in Sources */,
 				92BD2E5E17E262280028D273 /* Compute.c in Sources */,
 				92BD2E5F17E262290028D273 /* Csound.c in Sources */,

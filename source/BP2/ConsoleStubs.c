@@ -230,24 +230,6 @@ int GetMIDIfileName(void)
 	else return FAILED;
 }
 
-int PrepareMIDIFile(void)
-{
-	BPPrintMessage(odWarning, "Midi file output does not work yet in the console version.\n");
-	return OK;
-}
-
-int ResetMIDIfile(void)
-{
-	return OK;
-}
-
-int WriteMIDIbyte(Milliseconds time,byte midi_byte)
-{
-	BP_NOT_USED(time);
-	BP_NOT_USED(midi_byte);
-	return OK;
-}
-
 static int MakeCsoundScoreFile(OutFileInfo* finfo);
 
 /* Console version of PrepareCsFile() just assumes that score file name
