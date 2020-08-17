@@ -347,7 +347,7 @@ FileSaveMode = ALLSAME;
 FileWriteMode = NOW;
 #endif /* BP_CARBON_GUI */
 ConvertMIDItoCsound = FALSE;
-MIDIfileType = 0;
+MIDIfileType = 1;
 CsoundFileFormat = MAC;
 
 for(i=0; i < 6; i++) {

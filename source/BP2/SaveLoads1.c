@@ -1560,7 +1560,7 @@ if(iv > 11) {
 	StrikeAgainDefault = j;
 	}
 else {
-	MIDIfileType = 0;
+	MIDIfileType = 1;
 	CsoundFileFormat = UNIX;
 	StrikeAgainDefault = TRUE;
 	// C4key = 48;	/* Here we compensate bad convention on old projects */
