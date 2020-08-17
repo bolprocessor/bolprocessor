@@ -222,14 +222,6 @@ int InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode)
 	return OK;
 }
 
-/* Console version of GetMIDIfileName() just assumes that MIDIfileName 
-   has been set by a command-line argument */
-int GetMIDIfileName(void)
-{
-	if (strlen(MIDIfileName) != 0) return OK;
-	else return FAILED;
-}
-
 static int MakeCsoundScoreFile(OutFileInfo* finfo);
 
 /* Console version of PrepareCsFile() just assumes that score file name

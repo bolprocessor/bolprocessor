@@ -376,7 +376,7 @@ int result;
 
 if(!MIDIfileOpened) return(OK);
 
-if(MIDIfileType < 2) {
+if(MIDIfileType != 2) {
 	if(Beta) Alert1("Err.NewTrack(). This is not a type-2 file");
 	}
 
