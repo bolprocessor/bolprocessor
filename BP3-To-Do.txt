@@ -1,0 +1,48 @@
+Bol Processor BP3 To Do List
+============================
+
+General
+-------
+
+- use only UTF-8 text encoding for text output
+
+Actions
+-------
+
+- implement produce-items N action
+- implement play, play-item, play-all actions
+- fix analyze-item action
+- implement expand-item & show-beats actions
+
+Input files
+-----------
+
+- fix crash when loading a glossary file
+- fix crash when grammar contains script commands
+- support UTF-8 text encoding for input files & output
+- port loading of -or MIDI orchestra files
+- port loading of -cs Csound instruments files
+- port loading of -mi Sound Object Prototypes files
+- implement the -s/-S options for specifying the start string
+
+MIDI files
+----------
+
+- add code to write track names
+- write 2 bytes of MIDIfileTrackNumber instead of 1 so that more than 255 tracks are possible;  add error checking to make sure it doesn't exceed 32,767(?)
+- reimplement the function ReadVarLen()
+- should "produce all" write each item to its own track in a type 2 file?  (Currently writes all items to the same track).
+- close midi files at the end of MakeSound() ? (and reopen if for each item?)
+- when writing a type 2 file, an empty track is written and the end of the file but it not counted in the final track count that is written when closing the file; best solution would be to avoid writing the track or truncate the file?
+- fix or remove the handling of FileSaveMode in PrepareMIDIFile()? The option is currently always set to ALLSAME by Inits() and LoadSettings().
+- remove  "('-' for stdout)" text from --midiout help?  Piping MIDI files probably won't work because we use ftell/fseek to write some parts of the file.
+(Alternatively, could support dumping MIDI file in a text format to stdout?)
+
+
+Real-time MIDI
+--------------
+
+- revise CoreMIDI driver and allow optionally building with it on Mac OS X
+- change the "null driver" to output MIDI messages as text
+- write a new cross-platform MIDI driver using the PortMIDI(?) library
+
