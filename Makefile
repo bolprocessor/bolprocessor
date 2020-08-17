@@ -31,6 +31,7 @@ SRCS = \
   $(SRCDIR)/Inits.c \
   $(SRCDIR)/Interface2.c \
   $(SRCDIR)/MakeSound.c \
+  $(SRCDIR)/MIDIfiles.c \
   $(SRCDIR)/MIDIloads.c \
   $(SRCDIR)/MIDIstubs.c \
   $(SRCDIR)/MIDIstuff.c \
@@ -73,6 +74,7 @@ OBJS = \
   $(SRCDIR)/Inits.o \
   $(SRCDIR)/Interface2.o \
   $(SRCDIR)/MakeSound.o \
+  $(SRCDIR)/MIDIfiles.o \
   $(SRCDIR)/MIDIloads.o \
   $(SRCDIR)/MIDIstubs.o \
   $(SRCDIR)/MIDIstuff.o \
@@ -253,6 +255,15 @@ source/BP2/MakeSound.o: source/BP2/MissingMacPrototypes.h
 source/BP2/MakeSound.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
 source/BP2/MakeSound.o: source/BP2/midi1.h
 source/BP2/MakeSound.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
+source/BP2/MIDIfiles.o: source/prefix/PrefixANSIDebug.h
+source/BP2/MIDIfiles.o: source/BP2/MissingMacTypes.h 
+source/BP2/MIDIfiles.o: source/BP2/MissingMacPrototypes.h
+source/BP2/MIDIfiles.o: source/BP2/CTextHandles.h 
+source/BP2/MIDIfiles.o: source/BP2/-BP2.h
+source/BP2/MIDIfiles.o: source/BP2/midi1.h
+source/BP2/MIDIfiles.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
+source/BP2/MIDIfiles.o: source/BP2/ConsoleMessages.h
+source/BP2/MIDIfiles.o: source/BP2/ConsoleGlobals.h
 source/BP2/MIDIloads.o: source/prefix/PrefixANSIDebug.h
 source/BP2/MIDIloads.o: source/BP2/MissingMacTypes.h 
 source/BP2/MIDIloads.o: source/BP2/MissingMacPrototypes.h
