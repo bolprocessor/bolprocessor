@@ -595,7 +595,8 @@ ParIDbp2 = info.processAppSpec->parID;
 RefNumbp2 = info.processAppSpec->vRefNum;
 #endif /* BP_CARBON_GUI */
 
-MIDIRefNum = HelpRefnum = TempRefnum = TraceRefnum = -1;
+OpenMIDIfilePtr = NULL;
+HelpRefnum = TempRefnum = TraceRefnum = -1;
 CsRefNum = -1; CsScoreOpened = MIDIfileTrackEmpty = FALSE;
 for(i=0; i < WMAX; i++) {
 	WindowParID[i] = ParIDstartup;

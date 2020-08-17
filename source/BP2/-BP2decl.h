@@ -179,7 +179,8 @@ extern SoundObjectInstanceParameters **p_Instance;
 extern objectspecs ****p_ObjectSpecs;
 extern int WaitKey[MAXWAIT+1],WaitChan[MAXWAIT+1];
 extern long **p_Flag,BufferSize,DeftBufferSize,Maxevent;
-extern short MIDIRefNum,HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,
+extern FILE* OpenMIDIfilePtr;
+extern short HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,
 	MIDIfileOpened,MIDIfileTrackEmpty;
 extern int MIDIbytestate,MIDIfileTrackNumber,StepScript,TypeScript,MoreTime;
 extern long MidiLen_pos,**p_Tref,**p_Tpict;

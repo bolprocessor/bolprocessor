@@ -39,6 +39,7 @@
 
 #include "-BP2decl.h"
 #include "ConsoleGlobals.h"
+#include "ConsoleMessages.h"
 
 #define  BITS0_6    0x7F
 #define  BITS7_13   0x3F80
@@ -97,7 +98,7 @@ FILE *fout;
 		return FAILED;
 	}
 	else {
-		MIDIRefNum = ofiMidiFile;	// ???
+		OpenMIDIfilePtr = fout;
 		MIDIfileOpened = MIDIfileTrackEmpty = TRUE;
 		MIDIfileTrackNumber = 0;
 
@@ -274,7 +275,7 @@ static int WriteEndOfTrack(FILE* fout)
 	
 	if (MIDIbytestate > 0) {
 		/* Write out the final message. */
-		result = Writedword(MIDIRefNum,Midi_msg,MIDIbytestate);
+		result = Writedword(fout, Midi_msg, MIDIbytestate);
 		if (result != OK) return result;
 		MIDItracklength += MIDIbytestate;
 		MIDIbytestate = 0;
@@ -298,7 +299,7 @@ static int WriteEndOfTrack(FILE* fout)
 	/* Write the track length at the right place. */
 	result = fseek(fout, MidiLen_pos, SEEK_SET);
 	if (result != 0) return ABORT;
-	result = WriteReverse(MIDIRefNum,(dword)MIDItracklength);
+	result = WriteReverse(fout, MIDItracklength);
 	if (result != OK) return result;
 	
 	/* Restore the position at the end of track */
@@ -333,7 +334,7 @@ PleaseWait();
 MIDIfileTrackEmpty = FALSE;
 if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
 	if(MIDIbytestate > 0) {	/* Write out the accumulated message. */
-		if(Writedword(MIDIRefNum,Midi_msg,MIDIbytestate) != OK) goto BAD;
+		if(Writedword(OpenMIDIfilePtr, Midi_msg, MIDIbytestate) != OK) goto BAD;
 		MIDItracklength += MIDIbytestate;
 		}
 		
@@ -344,7 +345,7 @@ if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
 	/* This could happen with a bad rounding. Normally BP2 sorts out events */
 		
 	/* Write out variable length delta time value. */
-	if(WriteVarLenQuantity(MIDIRefNum,(dword)(time-OldMIDIfileTime),
+	if(WriteVarLenQuantity(OpenMIDIfilePtr, (dword)(time-OldMIDIfileTime),
 			&MIDItracklength) != OK) goto BAD;
 	
 	OldMIDIfileTime = time;
@@ -372,7 +373,6 @@ return(ABORT);
 int NewTrack(void)
 {
 int result;
-FILE* fout;
 
 if(!MIDIfileOpened) return(OK);
 
@@ -381,12 +381,11 @@ if(MIDIfileType < 2) {
 	}
 
 // finish the current track
-fout = gOptions.outputFiles[ofiMidiFile].fout;
-result = WriteEndOfTrack(fout);
+result = WriteEndOfTrack(OpenMIDIfilePtr);
 if (result != OK)  return result;
 
 // make a new track
-result = WriteBeginningOfTrack(fout, TRUE, FALSE);
+result = WriteBeginningOfTrack(OpenMIDIfilePtr, TRUE, FALSE);
 return result;
 }
 
@@ -396,24 +395,22 @@ int CloseMIDIFile(void)
 {
 int result;
 byte byteval;
-FILE* fout;
 
 if(!MIDIfileOpened) return(OK);
 
-fout = gOptions.outputFiles[ofiMidiFile].fout;
-result = WriteEndOfTrack(fout);
+result = WriteEndOfTrack(OpenMIDIfilePtr);
 if (result == OK) {
 	// FIXME: Even if the track is empty, we should probably still count it, right?
 	if(MIDIfileTrackEmpty) MIDIfileTrackNumber--;
 
 	/* Write again number of tracks */
-	result = fseek(fout, sizeof(header1) + 1 + sizeof(header2), SEEK_SET);
+	result = fseek(OpenMIDIfilePtr, sizeof(header1) + 1 + sizeof(header2), SEEK_SET);
 	if (result != 0) {
 		result = FAILED;
 	}
 	else {
 		byteval = (byte) (MIDIfileTrackNumber & 0xff);
-		result = WriteRawBytes(fout, &byteval, 1L);
+		result = WriteRawBytes(OpenMIDIfilePtr, &byteval, 1L);
 	}
 }
 
@@ -435,6 +432,7 @@ if (gOptions.outputFiles[ofiMidiFile].isOpen) {
 
 MIDIfileOpened = FALSE;
 NewOrchestra = TRUE;
+OpenMIDIfilePtr = NULL;
 MIDIfileName[0] = '\0';
 return OK;
 }
@@ -608,9 +606,17 @@ int rep;
 
 WriteMIDIorchestra();
 if(!MIDIfileOpened) {
-	if((rep=GetMIDIfileName()) == OK) return(MakeMIDIFile(&(gOptions.outputFiles[ofiMidiFile])));
-	if(rep == FAILED) return(FAILED);
+	/* Console version of PrepareMIDIFile() assumes that score file name
+	   has been set by a command-line argument */
+	if (gOptions.outputFiles[ofiMidiFile].name != NULL) {
+		return MakeMIDIFile(&(gOptions.outputFiles[ofiMidiFile]));
+		}
+	else {
+		BPPrintMessage(odError, "Error in PrepareMIDIFile(): file name is NULL.\n");
+		return FAILED;
+		}
 	}
+// else MIDI file is already open
 switch(FileSaveMode) {	// FIXME !!!!
 	case ALLSAME:
 		return(OK);

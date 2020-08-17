@@ -198,7 +198,7 @@ int main (int argc, char* args[])
 	// close open files
 	CloseOutputDestination(odDisplay, &gOptions, ofiProdItems);
 	CloseOutputDestination(odTrace, &gOptions, ofiTraceFile);
-	// CloseMIDIFile();
+	CloseMIDIFile();
 	// CloseFileAndUpdateVolume(&TraceRefnum);
 	// CloseFileAndUpdateVolume(&TempRefnum);
 	CloseCsScore();
@@ -642,10 +642,7 @@ int ApplyArgs(BPConsoleOpts* opts)
 	// apply options that were explicitly given on the command line
 	if (opts->displayItems != NOCHANGE)		DisplayItems = opts->displayItems;
 	if (opts->writeCsoundScore != NOCHANGE)	OutCsound = opts->writeCsoundScore;
-	if (opts->writeMidiFile != NOCHANGE)	{
-		WriteMIDIfile = opts->writeMidiFile;
-		MIDIRefNum = odMidiDump;
-	}
+	if (opts->writeMidiFile != NOCHANGE)	WriteMIDIfile = opts->writeMidiFile;
 	if (opts->useRealtimeMidi != NOCHANGE)	OutMIDI = opts->useRealtimeMidi;
 	if (opts->traceProduction != NOCHANGE)	{
 		DisplayProduce = opts->traceProduction;

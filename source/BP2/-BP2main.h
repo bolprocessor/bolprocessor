@@ -217,7 +217,8 @@ int FileSaveMode,FileWriteMode,MIDIfileType,CsoundFileFormat;
 SoundObjectInstanceParameters **p_Instance;
 objectspecs ****p_ObjectSpecs;
 long **p_Flag,BufferSize,DeftBufferSize,Maxevent;
-short MIDIRefNum,HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,MIDIfileOpened,
+FILE* OpenMIDIfilePtr;
+short HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,MIDIfileOpened,
 	MIDIfileTrackEmpty;
 int MIDIbytestate,MIDIfileTrackNumber,StepScript,TypeScript,MoreTime;
 long MidiLen_pos,**p_Tref,**p_Tpict;
