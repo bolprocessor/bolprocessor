@@ -62,6 +62,7 @@ int ReadNewHandleFromFile(FILE* fin, size_t numbytes, Handle* data);
 int PrepareProdItemsDestination(BPConsoleOpts* opts);
 int PrepareTraceDestination(BPConsoleOpts* opts);
 void CloseOutputDestination(int dest, BPConsoleOpts* opts, outfileidx_t fileidx);
+Boolean isInteger(const char* s);
 
 // globals only for the console app
 Boolean LoadedAlphabet = FALSE;
@@ -242,6 +243,7 @@ void ConsoleInit(BPConsoleOpts* opts)
 	opts->showProduction = NOCHANGE;
 	opts->traceProduction = NOCHANGE;
 	opts->noteConvention = NOCHANGE;
+	opts->midiFileFormat = NOCHANGE;
 	
 	return;
 }
@@ -315,6 +317,7 @@ const char gOptionList[] =
 	"\n"
 	"  --csoundout outfile    write Csound score to file 'outfile' ('-' for stdout)\n"
 	"  --midiout outfile      write Midi score to file 'outfile' ('-' for stdout)\n"
+	"  --midiformat num       use Midi file format 0, 1, or 2 (default is 1)\n"
 	"  --rtmidi destination   play real-time Midi on 'destination'\n"
 	"\n"
 	"OPTIONS (Computation):\n"
@@ -514,10 +517,23 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 				else if (strcmp(args[argn], "--keys") == 0)	{
 					opts->noteConvention = KEYS;
 				}
+				else if (strcmp(args[argn], "--midiformat") == 0)	{
+					// look at the next argument for an integer
+					if (++argn < argc && isInteger(args[argn]))  {
+						opts->midiFileFormat = atoi(args[argn]);
+						if (opts->midiFileFormat < 0 || opts->midiFileFormat > 2) {
+							BPPrintMessage(odError, "\n--midiformat must be 0, 1, or 2\n\n");
+							return ABORT;
+						}
+					}
+					else {
+						BPPrintMessage(odError, "\nMissing number after --midiformat\n\n");
+						return ABORT;
+					}
+				}
 				else if (strcmp(args[argn], "--seed") == 0)	{
 					// look at the next argument for an integer seed
-					if (++argn < argc)  {
-						// FIXME: check that argument really is an integer?
+					if (++argn < argc && isInteger(args[argn]))  {
 						opts->seed = (unsigned int) atoi(args[argn]);
 						opts->seedProvided = TRUE;
 					}
@@ -651,6 +667,7 @@ int ApplyArgs(BPConsoleOpts* opts)
 	// showProduction could be enabled after traceProduction is disabled
 	if (opts->showProduction != NOCHANGE)	DisplayProduce = opts->showProduction;
 	if (opts->noteConvention != NOCHANGE)	NoteConvention = opts->noteConvention;
+	if (opts->midiFileFormat != NOCHANGE)	MIDIfileType = opts->midiFileFormat;
 	if (opts->seedProvided)	{
 		Seed = opts->seed;
 		ResetRandom();
@@ -979,4 +996,19 @@ int PrepareTraceDestination(BPConsoleOpts* opts)
 	}
 	
 	return OK;
+}
+
+/* Utility functions */
+
+/* Returns TRUE if string s is an integer, otherwise FALSE. */
+Boolean isInteger(const char* s)
+{
+	int i = 0;
+	
+	if (s[i] != '-' && s[i] != '+' && !isdigit(s[i])) return FALSE;
+	while (s[++i] != '\0') {
+		if (!isdigit(s[i])) return FALSE;
+	}
+	
+	return TRUE;
 }

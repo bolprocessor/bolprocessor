@@ -80,6 +80,7 @@ typedef struct BPConsoleOpts {
 	CLOption	showProduction;
 	CLOption	traceProduction;
 	int			noteConvention;		// NOCHANGE is an option too
+	int			midiFileFormat;		// NOCHANGE is an option too
 	unsigned	seed;
 } BPConsoleOpts;
 
