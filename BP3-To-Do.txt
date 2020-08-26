@@ -6,6 +6,15 @@ General
 
 - use only UTF-8 text encoding for text output
 
+
+Documentation
+-------------
+- write new docs for BP3 (command-line usage, differences, etc.)
+- rewrite the source code README
+- convert BP2 documentation to an (open-source) authoring system that can help maintain the organization & internal links as well as output in multiple formats (HTML, PDF, etc.) ??
+- reorganize & rewrite BP2 documentation
+
+
 Actions
 -------
 
@@ -13,6 +22,8 @@ Actions
 - implement play, play-item, play-all actions
 - fix analyze-item action
 - implement expand-item & show-beats actions
+- new action for listing RT MIDI devices ?
+
 
 Input files
 -----------
@@ -24,6 +35,9 @@ Input files
 - port loading of -cs Csound instruments files
 - port loading of -mi Sound Object Prototypes files
 - implement the -s/-S options for specifying the start string
+- identify intput files with prefixes even when they are preceded by a path
+- restore the feature that looks for names of related files in the input files and auto-loads them 
+
 
 MIDI files
 ----------
