@@ -103,10 +103,10 @@ CMListData**		CMOutputListData = NULL;
 #define	SUFFIXSIZE		(10)
 const char			OfflineSuffix[SUFFIXSIZE+1] = " (offline)";
 
-static OSStatus CMCreateAndInitQueue();
-static OSStatus CMResizeQueue();
-static void CMReInitQueue();
-static void CMDestroyQueue();
+static OSStatus CMCreateAndInitQueue(void);
+static OSStatus CMResizeQueue(void);
+static void CMReInitQueue(void);
+static void CMDestroyQueue(void);
 
 static OSStatus TellDestinations(MIDIEndpointRef* endpoints);
 static OSStatus CMConnectToSources(MIDIEndpointRef* endpoints, Boolean tellConnections);

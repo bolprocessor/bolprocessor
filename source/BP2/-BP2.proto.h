@@ -60,9 +60,9 @@ int LaunchOSXApplication(OSType signature);
 
 /* CoreMIDI driver functions (in CoreMIDIdriver.c) */
 #if BP_MACHO
-OSStatus InitCoreMidiDriver();
-void	EnumerateCMDevices();
-OSStatus CreateCMSettings();
+OSStatus InitCoreMidiDriver(void);
+void	EnumerateCMDevices(void);
+OSStatus CreateCMSettings(void);
 int DoCMSettingsEvent(EventRecord* event, short itemHit);
 #endif
 /* menu functions for CoreMIDI (in MenuCommands.c) */
@@ -107,25 +107,25 @@ int CloseCurrentDriver(int);
 int ResetMIDI(int);
 #endif
 
-Boolean IsMidiDriverOn();
+Boolean IsMidiDriverOn(void);
 int FormatMIDIstream(MIDIcode**,long,MIDIcode**,int,long,long*,int);
 int SendToDriver(Milliseconds,int,int*,MIDI_Event*);
 int CaptureMidiEvent(Milliseconds time,int nseq,MIDI_Event *p_e);
 void RegisterProgramChange(MIDI_Event *p_e);
 
-int LoadMidiDriverStartup();
+int LoadMidiDriverStartup(void);
 int LoadLinkedMidiDriverSettings(int w);
-int OpenMidiDriverSettings();
+int OpenMidiDriverSettings(void);
 int LoadMidiDriverSettings(FSSpec* spec);
 int ReadMidiDriverSettings(short refnum, FSSpec* spec);
-int SaveMidiDriverStartup();
-int SaveMidiDriverSettings();
+int SaveMidiDriverStartup(void);
+int SaveMidiDriverSettings(void);
 int WriteMidiDriverSettings(short refnum, FSSpec* spec);
 
 #if TRACE_EVENTS
 char* TEWindowName(WindowPtr wp);
 void	PrintEvent(EventRecord* e, char* funcname, WindowPtr wp);
-void	PrintWindowState();
+void	PrintWindowState(void);
 void	PrintCall(char* funcname, WindowPtr wp);
 #else
 #define PrintEvent(x,y,z)
@@ -336,7 +336,7 @@ int MakeSoundObjectSpace(void);
 int InitButtons(void);
 int ResetPannel(void);
 int ShowDuration(int);
-int DoHelpKey();
+int DoHelpKey(void);
 int GoodMachine(void);
 int MainEvent(void);
 int GetHighLevelEvent(void);
@@ -780,7 +780,7 @@ int LoadSettings(const char *filename, int startup);
 OSErr	FindBPPrefsFolder(FSSpecPtr location);
 OSErr	FindFileInPrefsFolder(FSSpecPtr location, StringPtr filename);
 OSErr	GetFolderID(const FSSpecPtr loc, long* dirID);
-int  CopyStartupSettings();
+int  CopyStartupSettings(void);
 void GetStartupSettingsSpec(FSSpecPtr spec);
 int SaveDecisions(void);
 int LoadDecisions(int);
@@ -795,7 +795,7 @@ int OpenHelp(void);
 int OpenTemp(void);
 int OpenTrace(void);
 int CreateTemporaryFile(FSSpecPtr spec, short *filerefnum, StringPtr filename, Boolean deleteIfExists);
-OSErr CloseAndDeleteTemp();
+OSErr CloseAndDeleteTemp(void);
 OSErr CloseFileAndUpdateVolume(short *p_refnum);
 OSErr CloseMe(short*);
 int CheckFileName(int,char*,FSSpec*,short*,int,int);
