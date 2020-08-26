@@ -77,6 +77,7 @@ static MIDIcode*		pQueueFront = NULL;	// current location to remove bytes
 static MIDIcode*		pQueueBack = NULL;	// current location to add bytes
 static pthread_mutex_t	QueueMutex;
 
+#if BP_CARBON_GUI
 typedef struct {
 	MIDIEndpointRef	endpoint;
 	MIDIUniqueID	id;
@@ -96,6 +97,7 @@ typedef struct {
 DialogPtr			CMSettings = NULL;
 CMListData**		CMInputListData = NULL;
 CMListData**		CMOutputListData = NULL;
+#endif /* BP_CARBON_GUI */
 
 // const unsigned long	MAXENDPOINTNAME = 128;	// this is our own max; no guarantees from CoreMIDI!
 // const unsigned long	SUFFIXSIZE = 10;
@@ -116,6 +118,7 @@ static void CMReadCallback(const MIDIPacketList* pktlist, void* readProcRefCon, 
 static int  CMAddEventToQueue(const MIDIPacket* pkt);
 static int  CMRemoveEventFromQueue(MIDI_Event* p_e);
 
+#if BP_CARBON_GUI
 static void ResizeListBox(ListHandle list, long numRows);
 static CMListData** NewListDataHandle(ListHandle list, Size entriesSize);
 static void MarkAllOffline(CMListData* ld);
@@ -147,6 +150,7 @@ static int WriteActiveEndpoints(CMListData** ldh, short refnum);
 int WriteCoreMIDISettings(short refnum);
 static int ReadActiveEndpoints(CMListData** ldh, short refnum, long* pos, int fileVersion);
 int ReadCoreMIDISettings(short refnum, long* pos);
+#endif /* BP_CARBON_GUI */
 
 /*  Returns whether the CoreMIDI driver is on */
 Boolean IsMidiDriverOn()
@@ -334,9 +338,13 @@ OSStatus InitCoreMidiDriver()
 	if (haveInputPort && MIDIGetNumberOfSources() == 0)
 		ShowMessage(TRUE, wMessage, "No MIDI sources present.");
 	
+#if BP_CARBON_GUI
 	// do a full update of list boxes autoconnecting to the first endpoints (if any)
 	result = UpdateCMSettingsListBoxes(TRUE);
 	if (result != OK) return -1;
+#else
+	BP_NOT_USED(result);
+#endif /* BP_CARBON_GUI */
 	
 	return err;
 }
@@ -419,8 +427,10 @@ static OSStatus CMDisconnectFromSources(MIDIEndpointRef* endpoints)
    so I do not think that it is a synchronization risk. */
 static void CMNotifyCallback(const MIDINotification *message, void *refCon)
 {
+#if BP_CARBON_GUI
 	if (message->messageID == kMIDIMsgSetupChanged)
 		UpdateCMSettingsListBoxes(TRUE);
+#endif /* BP_CARBON_GUI */
 	
 	return;
 }
@@ -694,6 +704,8 @@ int SetDriverTime(long time)
 	return(OK);
 }
 
+
+#if BP_CARBON_GUI
 
 /* CoreMIDI settings dialog */
 
@@ -1418,3 +1430,5 @@ int ReadCoreMIDISettings(short refnum, long* pos)
 	DrawDialog(CMSettings);
 	return OK;
 }
+
+#endif /* BP_CARBON_GUI */
