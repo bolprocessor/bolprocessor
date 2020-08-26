@@ -40,17 +40,23 @@ POSSIBILITY OF SUCH DAMAGE.
 
 /* This file contains type definitions from Mac OS that are used by BP2 */
 
+#ifndef __MACTYPES__
 typedef uint8_t		UInt8;
 typedef int8_t		SInt8;
 typedef uint16_t	UInt16;
 typedef int16_t		SInt16;
 typedef uint32_t	UInt32;
 typedef int32_t		SInt32;
+#endif
 
+#ifndef __MACTYPES__
 typedef long (*ProcPtr)();
+#endif
 typedef ProcPtr	ControlActionUPP, ModalFilterUPP;
 
 typedef	int8_t	sbyte;
+
+#ifndef __MACTYPES__
 typedef sbyte*	Ptr;
 typedef sbyte**	Handle;
 typedef	size_t	Size;
@@ -62,7 +68,10 @@ typedef uint8_t*	StringPtr;
 typedef uint8_t		Boolean;
 typedef int16_t		OSErr;
 typedef int32_t		OSStatus;
-typedef uint32_t	OSType, AEEventClass, AEEventID;	// must be a 32-bit unsigned int
+typedef uint32_t	OSType;			// must be a 32-bit unsigned int
+#endif
+
+typedef OSType		AEEventClass, AEEventID;
 typedef OSType		SFTypeList[4];
 typedef int16_t		ResID;
 typedef int16_t		ScriptCode;
@@ -76,6 +85,7 @@ typedef Handle	PicHandle, PolyHandle, RgnHandle;
 typedef Handle	MenuHandle;
 typedef Handle	ControlHandle;
 
+#ifndef __MACTYPES__
 // FSSpec is not defined here to be compatible with Mac OS
 // I am assuming that this struct will be replaced in BP3 at some point ...
 typedef struct {
@@ -83,6 +93,7 @@ typedef struct {
 	int		parID;
 	Str255	name;
 } FSSpec, *FSSpecPtr;
+#endif
 
 typedef struct {
 } NavReplyRecord;
@@ -99,11 +110,20 @@ typedef struct {
 typedef struct {
 } EventRecord, *EventPtr;
 
+#ifndef __MACTYPES__
 typedef struct {
 } AppleEvent;
+#endif
 
 typedef struct {
-} QDGlobals, Point, *GrafPtr, *CGrafPtr, *GWorldPtr, **GDHandle, Cursor;
+} QDGlobals, *GrafPtr, *CGrafPtr, *GWorldPtr, **GDHandle;
+
+typedef struct {
+} Cursor;
+
+#ifndef __MACTYPES__
+typedef struct {
+} Point;
 
 // fields are larger than in Mac OS (32-bit instead of 16-bit)
 typedef struct Rect {
@@ -112,6 +132,7 @@ typedef struct Rect {
 	int32_t bottom;
 	int32_t right;
 } Rect;
+#endif
 
 typedef struct RGBColor {
 	uint16_t red;
@@ -122,8 +143,10 @@ typedef struct RGBColor {
 typedef struct {
 } TextStyle;
 
+#ifndef __MACTYPES__
 typedef struct {
 } ProcessSerialNumber;
+#endif
 
 
 /* Missing macros and constants from Mac OS --
@@ -131,6 +154,7 @@ typedef struct {
  */
 #define	pascal
 
+#ifndef __MACTYPES__
 enum { noErr = 0, eofErr, dskFulErr };
 
 enum { fsCurPerm, fsRdPerm, fsFromStart };
@@ -138,5 +162,6 @@ enum { fsCurPerm, fsRdPerm, fsFromStart };
 enum { normal, bold, kFontIDCourier };
 
 enum { mDownMask, mUpMask };
+#endif
 
 #endif /* BP_MISSINGMACTYPES_H */
