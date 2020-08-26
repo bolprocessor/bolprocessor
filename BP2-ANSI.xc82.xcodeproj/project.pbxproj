@@ -43,7 +43,6 @@
 		9239096722EAA72900E4C459 /* Interface2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E20EC39231006B5F38 /* Interface2.c */; };
 		9239096822EAA72900E4C459 /* MakeSound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113060EC39232006B5F38 /* MakeSound.c */; };
 		9239096922EAA72900E4C459 /* MIDIloads.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112ED0EC39232006B5F38 /* MIDIloads.c */; };
-		9239096A22EAA72900E4C459 /* MIDIstubs.c in Sources */ = {isa = PBXBuildFile; fileRef = 928320F9157C5CE600EADF2F /* MIDIstubs.c */; };
 		9239096B22EAA72900E4C459 /* MIDIstuff.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EA0EC39232006B5F38 /* MIDIstuff.c */; };
 		9239096C22EAA72900E4C459 /* SaveLoads3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E70EC39232006B5F38 /* SaveLoads3.c */; };
 		9239096D22EAA72900E4C459 /* SetObjectFeatures.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130A0EC39232006B5F38 /* SetObjectFeatures.c */; };
@@ -101,6 +100,98 @@
 		92A113E60EC39254006B5F38 /* -BP2decl.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113120EC39232006B5F38 /* -BP2decl.h */; };
 		92A113EC0EC39254006B5F38 /* midi1.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113140EC39232006B5F38 /* midi1.h */; };
 		92A113ED0EC39254006B5F38 /* -BP2.proto.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A113110EC39232006B5F38 /* -BP2.proto.h */; };
+		92B70E1D24F59D350049677B /* ConsoleMain.c in Sources */ = {isa = PBXBuildFile; fileRef = 92246A4317B29E5A00D0439B /* ConsoleMain.c */; };
+		92B70E1E24F59D350049677B /* ConsoleMemory.c in Sources */ = {isa = PBXBuildFile; fileRef = 9224732817B97A1100D0439B /* ConsoleMemory.c */; };
+		92B70E1F24F59D350049677B /* ConsoleMessages.c in Sources */ = {isa = PBXBuildFile; fileRef = 92DA0B5A17CD163300140F5B /* ConsoleMessages.c */; };
+		92B70E2024F59D350049677B /* ConsoleStubs.c in Sources */ = {isa = PBXBuildFile; fileRef = 9224724017B7E9CF00D0439B /* ConsoleStubs.c */; };
+		92B70E2124F59D350049677B /* Encode.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F50EC39232006B5F38 /* Encode.c */; };
+		92B70E2224F59D350049677B /* CTextHandles.c in Sources */ = {isa = PBXBuildFile; fileRef = 92DA0A8B17CBB8FE00140F5B /* CTextHandles.c */; };
+		92B70E2324F59D350049677B /* Strings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EE0EC39232006B5F38 /* Strings.c */; };
+		92B70E2424F59D350049677B /* GetRelease.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112DD0EC39231006B5F38 /* GetRelease.c */; };
+		92B70E2524F59D350049677B /* SaveLoads1.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E50EC39231006B5F38 /* SaveLoads1.c */; };
+		92B70E2624F59D350049677B /* Inits.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112D80EC39231006B5F38 /* Inits.c */; };
+		92B70E2724F59D350049677B /* Misc.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E30EC39231006B5F38 /* Misc.c */; };
+		92B70E2824F59D350049677B /* DisplayThings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F00EC39232006B5F38 /* DisplayThings.c */; };
+		92B70E2924F59D350049677B /* CompileGrammar.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F20EC39232006B5F38 /* CompileGrammar.c */; };
+		92B70E2A24F59D350049677B /* CompileProcs.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F30EC39232006B5F38 /* CompileProcs.c */; };
+		92B70E2B24F59D350049677B /* PlayThings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F90EC39232006B5F38 /* PlayThings.c */; };
+		92B70E2C24F59D350049677B /* Polymetric.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F70EC39232006B5F38 /* Polymetric.c */; };
+		92B70E2D24F59D350049677B /* ProduceItems.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F80EC39232006B5F38 /* ProduceItems.c */; };
+		92B70E2E24F59D350049677B /* Arithmetic.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E90EC39232006B5F38 /* Arithmetic.c */; };
+		92B70E2F24F59D350049677B /* MIDIfiles.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EC0EC39232006B5F38 /* MIDIfiles.c */; };
+		92B70E3024F59D350049677B /* Automata.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F10EC39232006B5F38 /* Automata.c */; };
+		92B70E3124F59D350049677B /* Compute.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F40EC39232006B5F38 /* Compute.c */; };
+		92B70E3224F59D350049677B /* Csound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FB0EC39232006B5F38 /* Csound.c */; };
+		92B70E3324F59D350049677B /* CsoundMaths.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FC0EC39232006B5F38 /* CsoundMaths.c */; };
+		92B70E3424F59D350049677B /* CsoundScoreMake.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FD0EC39232006B5F38 /* CsoundScoreMake.c */; };
+		92B70E3524F59D350049677B /* DisplayArg.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EF0EC39232006B5F38 /* DisplayArg.c */; };
+		92B70E3624F59D350049677B /* FillPhaseDiagram.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F60EC39232006B5F38 /* FillPhaseDiagram.c */; };
+		92B70E3724F59D350049677B /* Glossary.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FE0EC39232006B5F38 /* Glossary.c */; };
+		92B70E3824F59D350049677B /* HTML.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E80EC39232006B5F38 /* HTML.c */; };
+		92B70E3924F59D350049677B /* Interface2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E20EC39231006B5F38 /* Interface2.c */; };
+		92B70E3A24F59D350049677B /* MakeSound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113060EC39232006B5F38 /* MakeSound.c */; };
+		92B70E3B24F59D350049677B /* MIDIloads.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112ED0EC39232006B5F38 /* MIDIloads.c */; };
+		92B70E3C24F59D350049677B /* MIDIstubs.c in Sources */ = {isa = PBXBuildFile; fileRef = 928320F9157C5CE600EADF2F /* MIDIstubs.c */; };
+		92B70E3D24F59D350049677B /* MIDIstuff.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EA0EC39232006B5F38 /* MIDIstuff.c */; };
+		92B70E3E24F59D350049677B /* SaveLoads3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E70EC39232006B5F38 /* SaveLoads3.c */; };
+		92B70E3F24F59D350049677B /* SetObjectFeatures.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130A0EC39232006B5F38 /* SetObjectFeatures.c */; };
+		92B70E4024F59D350049677B /* SoundObjects2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113080EC39232006B5F38 /* SoundObjects2.c */; };
+		92B70E4124F59D350049677B /* SoundObjects3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113090EC39232006B5F38 /* SoundObjects3.c */; };
+		92B70E4224F59D350049677B /* Ticks.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130C0EC39232006B5F38 /* Ticks.c */; };
+		92B70E4324F59D350049677B /* TimeSet.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130D0EC39232006B5F38 /* TimeSet.c */; };
+		92B70E4424F59D350049677B /* TimeSetFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130B0EC39232006B5F38 /* TimeSetFunctions.c */; };
+		92B70E4524F59D350049677B /* Zouleb.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113000EC39232006B5F38 /* Zouleb.c */; };
+		92B70E4E24F59D3C0049677B /* ConsoleMain.c in Sources */ = {isa = PBXBuildFile; fileRef = 92246A4317B29E5A00D0439B /* ConsoleMain.c */; };
+		92B70E4F24F59D3C0049677B /* ConsoleMemory.c in Sources */ = {isa = PBXBuildFile; fileRef = 9224732817B97A1100D0439B /* ConsoleMemory.c */; };
+		92B70E5024F59D3C0049677B /* ConsoleMessages.c in Sources */ = {isa = PBXBuildFile; fileRef = 92DA0B5A17CD163300140F5B /* ConsoleMessages.c */; };
+		92B70E5124F59D3C0049677B /* ConsoleStubs.c in Sources */ = {isa = PBXBuildFile; fileRef = 9224724017B7E9CF00D0439B /* ConsoleStubs.c */; };
+		92B70E5224F59D3C0049677B /* Encode.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F50EC39232006B5F38 /* Encode.c */; };
+		92B70E5324F59D3C0049677B /* CTextHandles.c in Sources */ = {isa = PBXBuildFile; fileRef = 92DA0A8B17CBB8FE00140F5B /* CTextHandles.c */; };
+		92B70E5424F59D3C0049677B /* Strings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EE0EC39232006B5F38 /* Strings.c */; };
+		92B70E5524F59D3C0049677B /* GetRelease.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112DD0EC39231006B5F38 /* GetRelease.c */; };
+		92B70E5624F59D3C0049677B /* SaveLoads1.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E50EC39231006B5F38 /* SaveLoads1.c */; };
+		92B70E5724F59D3C0049677B /* Inits.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112D80EC39231006B5F38 /* Inits.c */; };
+		92B70E5824F59D3C0049677B /* Misc.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E30EC39231006B5F38 /* Misc.c */; };
+		92B70E5924F59D3C0049677B /* DisplayThings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F00EC39232006B5F38 /* DisplayThings.c */; };
+		92B70E5A24F59D3C0049677B /* CompileGrammar.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F20EC39232006B5F38 /* CompileGrammar.c */; };
+		92B70E5B24F59D3C0049677B /* CompileProcs.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F30EC39232006B5F38 /* CompileProcs.c */; };
+		92B70E5C24F59D3C0049677B /* PlayThings.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F90EC39232006B5F38 /* PlayThings.c */; };
+		92B70E5D24F59D3C0049677B /* Polymetric.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F70EC39232006B5F38 /* Polymetric.c */; };
+		92B70E5E24F59D3C0049677B /* ProduceItems.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F80EC39232006B5F38 /* ProduceItems.c */; };
+		92B70E5F24F59D3C0049677B /* Arithmetic.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E90EC39232006B5F38 /* Arithmetic.c */; };
+		92B70E6024F59D3C0049677B /* MIDIfiles.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EC0EC39232006B5F38 /* MIDIfiles.c */; };
+		92B70E6124F59D3C0049677B /* Automata.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F10EC39232006B5F38 /* Automata.c */; };
+		92B70E6224F59D3C0049677B /* Compute.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F40EC39232006B5F38 /* Compute.c */; };
+		92B70E6324F59D3C0049677B /* Csound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FB0EC39232006B5F38 /* Csound.c */; };
+		92B70E6424F59D3C0049677B /* CsoundMaths.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FC0EC39232006B5F38 /* CsoundMaths.c */; };
+		92B70E6524F59D3C0049677B /* CsoundScoreMake.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FD0EC39232006B5F38 /* CsoundScoreMake.c */; };
+		92B70E6624F59D3C0049677B /* DisplayArg.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EF0EC39232006B5F38 /* DisplayArg.c */; };
+		92B70E6724F59D3C0049677B /* FillPhaseDiagram.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F60EC39232006B5F38 /* FillPhaseDiagram.c */; };
+		92B70E6824F59D3C0049677B /* Glossary.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112FE0EC39232006B5F38 /* Glossary.c */; };
+		92B70E6924F59D3C0049677B /* HTML.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E80EC39232006B5F38 /* HTML.c */; };
+		92B70E6A24F59D3C0049677B /* Interface2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E20EC39231006B5F38 /* Interface2.c */; };
+		92B70E6B24F59D3C0049677B /* MakeSound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113060EC39232006B5F38 /* MakeSound.c */; };
+		92B70E6C24F59D3C0049677B /* MIDIloads.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112ED0EC39232006B5F38 /* MIDIloads.c */; };
+		92B70E6D24F59D3C0049677B /* MIDIstubs.c in Sources */ = {isa = PBXBuildFile; fileRef = 928320F9157C5CE600EADF2F /* MIDIstubs.c */; };
+		92B70E6E24F59D3C0049677B /* MIDIstuff.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EA0EC39232006B5F38 /* MIDIstuff.c */; };
+		92B70E6F24F59D3C0049677B /* SaveLoads3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E70EC39232006B5F38 /* SaveLoads3.c */; };
+		92B70E7024F59D3C0049677B /* SetObjectFeatures.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130A0EC39232006B5F38 /* SetObjectFeatures.c */; };
+		92B70E7124F59D3C0049677B /* SoundObjects2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113080EC39232006B5F38 /* SoundObjects2.c */; };
+		92B70E7224F59D3C0049677B /* SoundObjects3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113090EC39232006B5F38 /* SoundObjects3.c */; };
+		92B70E7324F59D3C0049677B /* Ticks.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130C0EC39232006B5F38 /* Ticks.c */; };
+		92B70E7424F59D3C0049677B /* TimeSet.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130D0EC39232006B5F38 /* TimeSet.c */; };
+		92B70E7524F59D3C0049677B /* TimeSetFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130B0EC39232006B5F38 /* TimeSetFunctions.c */; };
+		92B70E7624F59D3C0049677B /* Zouleb.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113000EC39232006B5F38 /* Zouleb.c */; };
+		92B70E7D24F59E9C0049677B /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DA02DF17BEAC8300140F5B /* CoreAudio.framework */; };
+		92B70E7E24F59E9C0049677B /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DA02E017BEAC8300140F5B /* CoreFoundation.framework */; };
+		92B70E7F24F59E9C0049677B /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DA02E117BEAC8300140F5B /* CoreMIDI.framework */; };
+		92B70E8024F59E9D0049677B /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DA02DF17BEAC8300140F5B /* CoreAudio.framework */; };
+		92B70E8124F59E9D0049677B /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DA02E017BEAC8300140F5B /* CoreFoundation.framework */; };
+		92B70E8224F59E9D0049677B /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DA02E117BEAC8300140F5B /* CoreMIDI.framework */; };
+		92B70E8324F59ED20049677B /* CoreMIDIdriver.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EB0EC39232006B5F38 /* CoreMIDIdriver.c */; };
+		92B70E8424F59ED30049677B /* CoreMIDIdriver.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EB0EC39232006B5F38 /* CoreMIDIdriver.c */; };
+		92B70E8624F706F00049677B /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DA02E217BEAC8300140F5B /* CoreServices.framework */; };
+		92B70E8724F706F10049677B /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DA02E217BEAC8300140F5B /* CoreServices.framework */; };
 		92BD2E5C17E262220028D273 /* Arithmetic.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E90EC39232006B5F38 /* Arithmetic.c */; };
 		92BD2E5D17E262270028D273 /* Automata.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F10EC39232006B5F38 /* Automata.c */; };
 		92BD2E5E17E262280028D273 /* Compute.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112F40EC39232006B5F38 /* Compute.c */; };
@@ -114,7 +205,6 @@
 		92BD2E6617E2622F0028D273 /* Interface2.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E20EC39231006B5F38 /* Interface2.c */; };
 		92BD2E6717E2622F0028D273 /* MakeSound.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A113060EC39232006B5F38 /* MakeSound.c */; };
 		92BD2E6817E262300028D273 /* MIDIloads.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112ED0EC39232006B5F38 /* MIDIloads.c */; };
-		92BD2E6917E262310028D273 /* MIDIstubs.c in Sources */ = {isa = PBXBuildFile; fileRef = 928320F9157C5CE600EADF2F /* MIDIstubs.c */; };
 		92BD2E6A17E262310028D273 /* MIDIstuff.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112EA0EC39232006B5F38 /* MIDIstuff.c */; };
 		92BD2E6B17E262330028D273 /* SaveLoads3.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A112E70EC39232006B5F38 /* SaveLoads3.c */; };
 		92BD2E6C17E262330028D273 /* SetObjectFeatures.c in Sources */ = {isa = PBXBuildFile; fileRef = 92A1130A0EC39232006B5F38 /* SetObjectFeatures.c */; };
@@ -193,7 +283,6 @@
 		9224732817B97A1100D0439B /* ConsoleMemory.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ConsoleMemory.c; path = source/BP2/ConsoleMemory.c; sourceTree = "<group>"; };
 		92248DCE17BA8C0E00D0439B /* MissingMacPrototypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MissingMacPrototypes.h; path = source/BP2/MissingMacPrototypes.h; sourceTree = "<group>"; };
 		9239097822EAA72900E4C459 /* bp64 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = bp64; sourceTree = BUILT_PRODUCTS_DIR; };
-		9239097922EAA72A00E4C459 /* bpconsole copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "bpconsole copy-Info.plist"; path = "/Volumes/iMacSystem/Users/anthony/Projects/BP_ANSI_branch/bolprocessor/bpconsole copy-Info.plist"; sourceTree = "<absolute>"; };
 		9267C69217B06BC600119CEA /* MissingMacTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MissingMacTypes.h; path = source/BP2/MissingMacTypes.h; sourceTree = "<group>"; };
 		928320F9157C5CE600EADF2F /* MIDIstubs.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = MIDIstubs.c; path = source/BP2/MIDIstubs.c; sourceTree = "<group>"; };
 		92A112B50EC39230006B5F38 /* PrefixMachO-Import.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "PrefixMachO-Import.h"; path = "source/prefix/PrefixMachO-Import.h"; sourceTree = SOURCE_ROOT; };
@@ -220,7 +309,7 @@
 		92A112E80EC39232006B5F38 /* HTML.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = HTML.c; path = source/BP2/HTML.c; sourceTree = "<group>"; };
 		92A112E90EC39232006B5F38 /* Arithmetic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Arithmetic.c; path = source/BP2/Arithmetic.c; sourceTree = "<group>"; };
 		92A112EA0EC39232006B5F38 /* MIDIstuff.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = MIDIstuff.c; path = source/BP2/MIDIstuff.c; sourceTree = "<group>"; };
-		92A112EB0EC39232006B5F38 /* CoreMIDIdriver.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = CoreMIDIdriver.c; path = source/BP2/CoreMIDIdriver.c; sourceTree = "<group>"; };
+		92A112EB0EC39232006B5F38 /* CoreMIDIdriver.c */ = {isa = PBXFileReference; indentWidth = 6; lastKnownFileType = sourcecode.c.c; name = CoreMIDIdriver.c; path = source/BP2/CoreMIDIdriver.c; sourceTree = "<group>"; tabWidth = 6; };
 		92A112EC0EC39232006B5F38 /* MIDIfiles.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = MIDIfiles.c; path = source/BP2/MIDIfiles.c; sourceTree = "<group>"; };
 		92A112ED0EC39232006B5F38 /* MIDIloads.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = MIDIloads.c; path = source/BP2/MIDIloads.c; sourceTree = "<group>"; };
 		92A112EE0EC39232006B5F38 /* Strings.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = Strings.c; path = source/BP2/Strings.c; sourceTree = "<group>"; };
@@ -298,6 +387,9 @@
 		92A113400EC39232006B5F38 /* BP2 help */ = {isa = PBXFileReference; lastKnownFileType = text; path = "BP2 help"; sourceTree = SOURCE_ROOT; };
 		92A113410EC39232006B5F38 /* Credits.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Credits.txt; sourceTree = SOURCE_ROOT; };
 		92A113420EC39232006B5F38 /* License.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = License.txt; sourceTree = SOURCE_ROOT; };
+		92B70E4A24F59D350049677B /* bp32-null-midi */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "bp32-null-midi"; sourceTree = BUILT_PRODUCTS_DIR; };
+		92B70E7B24F59D3C0049677B /* bp64-null-midi */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "bp64-null-midi"; sourceTree = BUILT_PRODUCTS_DIR; };
+		92B70E8524F6E6990049677B /* PrefixANSICoreMidiDebug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PrefixANSICoreMidiDebug.h; path = source/prefix/PrefixANSICoreMidiDebug.h; sourceTree = "<group>"; };
 		92CC19A224BC1BA300360EA5 /* ConsoleGlobals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ConsoleGlobals.h; path = source/BP2/ConsoleGlobals.h; sourceTree = "<group>"; };
 		92DA02DD17BEAC8300140F5B /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
 		92DA02DE17BEAC8300140F5B /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
@@ -328,6 +420,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				92B70E8124F59E9D0049677B /* CoreFoundation.framework in Frameworks */,
+				92B70E8224F59E9D0049677B /* CoreMIDI.framework in Frameworks */,
+				92B70E8024F59E9D0049677B /* CoreAudio.framework in Frameworks */,
+				92B70E8724F706F10049677B /* CoreServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,10 +434,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		92B70E4624F59D350049677B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92B70E7724F59D3C0049677B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		92DA0C2817CD926A00140F5B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				92B70E7E24F59E9C0049677B /* CoreFoundation.framework in Frameworks */,
+				92B70E7F24F59E9C0049677B /* CoreMIDI.framework in Frameworks */,
+				92B70E7D24F59E9C0049677B /* CoreAudio.framework in Frameworks */,
+				92B70E8624F706F00049677B /* CoreServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -360,6 +474,7 @@
 				9224732817B97A1100D0439B /* ConsoleMemory.c */,
 				92DA0B5A17CD163300140F5B /* ConsoleMessages.c */,
 				9224724017B7E9CF00D0439B /* ConsoleStubs.c */,
+				92A112EB0EC39232006B5F38 /* CoreMIDIdriver.c */,
 				92A112FB0EC39232006B5F38 /* Csound.c */,
 				92A112FC0EC39232006B5F38 /* CsoundMaths.c */,
 				92A112FD0EC39232006B5F38 /* CsoundScoreMake.c */,
@@ -403,7 +518,6 @@
 				92A112D70EC39231006B5F38 /* BP2main.c */,
 				92A112DB0EC39231006B5F38 /* CarbonCompatUtil.c */,
 				92A113010EC39232006B5F38 /* Color.c */,
-				92A112EB0EC39232006B5F38 /* CoreMIDIdriver.c */,
 				92A112E00EC39231006B5F38 /* Dialogs.c */,
 				92A113020EC39232006B5F38 /* Graphic.c */,
 				92A112FF0EC39232006B5F38 /* Interaction.c */,
@@ -435,7 +549,6 @@
 				92A112B20EC39230006B5F38 /* Products */,
 				92DA090517C4453400140F5B /* docs-developer */,
 				92DA0C2317CD90FE00140F5B /* Info.plist */,
-				9239097922EAA72A00E4C459 /* bpconsole copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 			usesTabs = 1;
@@ -447,6 +560,8 @@
 				92A112C90EC39231006B5F38 /* bpconsole.app */,
 				92DA0C2A17CD926A00140F5B /* bp32 */,
 				9239097822EAA72900E4C459 /* bp64 */,
+				92B70E4A24F59D350049677B /* bp32-null-midi */,
+				92B70E7B24F59D3C0049677B /* bp64-null-midi */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -476,6 +591,7 @@
 				9267C69217B06BC600119CEA /* MissingMacTypes.h */,
 				92A112DA0EC39231006B5F38 /* NavServWrapper.h */,
 				92A112C00EC39231006B5F38 /* PrefixANSIDebug.h */,
+				92B70E8524F6E6990049677B /* PrefixANSICoreMidiDebug.h */,
 				92A1131A0EC39232006B5F38 /* PrefixCarbonMLTE.h */,
 				92A113190EC39232006B5F38 /* PrefixCarbonTextEdit.h */,
 				92A1131B0EC39232006B5F38 /* PrefixCarbonWASTE.h */,
@@ -604,9 +720,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		9239094B22EAA72900E4C459 /* bpconsole 64-bit */ = {
+		9239094B22EAA72900E4C459 /* CoreMIDI 64-bit */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9239097522EAA72900E4C459 /* Build configuration list for PBXNativeTarget "bpconsole 64-bit" */;
+			buildConfigurationList = 9239097522EAA72900E4C459 /* Build configuration list for PBXNativeTarget "CoreMIDI 64-bit" */;
 			buildPhases = (
 				9239094C22EAA72900E4C459 /* Sources */,
 				9239097422EAA72900E4C459 /* Frameworks */,
@@ -615,7 +731,7 @@
 			);
 			dependencies = (
 			);
-			name = "bpconsole 64-bit";
+			name = "CoreMIDI 64-bit";
 			productName = bpconsole;
 			productReference = 9239097822EAA72900E4C459 /* bp64 */;
 			productType = "com.apple.product-type.tool";
@@ -642,9 +758,41 @@
 			productReference = 92A112C90EC39231006B5F38 /* bpconsole.app */;
 			productType = "com.apple.product-type.application";
 		};
-		92DA0C2917CD926A00140F5B /* bpconsole 32-bit */ = {
+		92B70E1B24F59D350049677B /* null midi 32-bit */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 92DA0C2C17CD928800140F5B /* Build configuration list for PBXNativeTarget "bpconsole 32-bit" */;
+			buildConfigurationList = 92B70E4724F59D350049677B /* Build configuration list for PBXNativeTarget "null midi 32-bit" */;
+			buildPhases = (
+				92B70E1C24F59D350049677B /* Sources */,
+				92B70E4624F59D350049677B /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "null midi 32-bit";
+			productName = bpconsole;
+			productReference = 92B70E4A24F59D350049677B /* bp32-null-midi */;
+			productType = "com.apple.product-type.tool";
+		};
+		92B70E4C24F59D3C0049677B /* null midi 64-bit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 92B70E7824F59D3C0049677B /* Build configuration list for PBXNativeTarget "null midi 64-bit" */;
+			buildPhases = (
+				92B70E4D24F59D3C0049677B /* Sources */,
+				92B70E7724F59D3C0049677B /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "null midi 64-bit";
+			productName = bpconsole;
+			productReference = 92B70E7B24F59D3C0049677B /* bp64-null-midi */;
+			productType = "com.apple.product-type.tool";
+		};
+		92DA0C2917CD926A00140F5B /* CoreMIDI 32-bit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 92DA0C2C17CD928800140F5B /* Build configuration list for PBXNativeTarget "CoreMIDI 32-bit" */;
 			buildPhases = (
 				92DA0C2717CD926A00140F5B /* Sources */,
 				92DA0C2817CD926A00140F5B /* Frameworks */,
@@ -653,7 +801,7 @@
 			);
 			dependencies = (
 			);
-			name = "bpconsole 32-bit";
+			name = "CoreMIDI 32-bit";
 			productName = bpconsole;
 			productReference = 92DA0C2A17CD926A00140F5B /* bp32 */;
 			productType = "com.apple.product-type.tool";
@@ -679,8 +827,10 @@
 			projectRoot = "";
 			targets = (
 				92A112C80EC39231006B5F38 /* Universal (10.4) */,
-				92DA0C2917CD926A00140F5B /* bpconsole 32-bit */,
-				9239094B22EAA72900E4C459 /* bpconsole 64-bit */,
+				92DA0C2917CD926A00140F5B /* CoreMIDI 32-bit */,
+				9239094B22EAA72900E4C459 /* CoreMIDI 64-bit */,
+				92B70E1B24F59D350049677B /* null midi 32-bit */,
+				92B70E4C24F59D3C0049677B /* null midi 64-bit */,
 			);
 		};
 /* End PBXProject section */
@@ -741,8 +891,8 @@
 				9239096722EAA72900E4C459 /* Interface2.c in Sources */,
 				9239096822EAA72900E4C459 /* MakeSound.c in Sources */,
 				9239096922EAA72900E4C459 /* MIDIloads.c in Sources */,
-				9239096A22EAA72900E4C459 /* MIDIstubs.c in Sources */,
 				9239096B22EAA72900E4C459 /* MIDIstuff.c in Sources */,
+				92B70E8424F59ED30049677B /* CoreMIDIdriver.c in Sources */,
 				9239096C22EAA72900E4C459 /* SaveLoads3.c in Sources */,
 				9239096D22EAA72900E4C459 /* SetObjectFeatures.c in Sources */,
 				9239096E22EAA72900E4C459 /* SoundObjects2.c in Sources */,
@@ -802,6 +952,102 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		92B70E1C24F59D350049677B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92B70E1D24F59D350049677B /* ConsoleMain.c in Sources */,
+				92B70E1E24F59D350049677B /* ConsoleMemory.c in Sources */,
+				92B70E1F24F59D350049677B /* ConsoleMessages.c in Sources */,
+				92B70E2024F59D350049677B /* ConsoleStubs.c in Sources */,
+				92B70E2124F59D350049677B /* Encode.c in Sources */,
+				92B70E2224F59D350049677B /* CTextHandles.c in Sources */,
+				92B70E2324F59D350049677B /* Strings.c in Sources */,
+				92B70E2424F59D350049677B /* GetRelease.c in Sources */,
+				92B70E2524F59D350049677B /* SaveLoads1.c in Sources */,
+				92B70E2624F59D350049677B /* Inits.c in Sources */,
+				92B70E2724F59D350049677B /* Misc.c in Sources */,
+				92B70E2824F59D350049677B /* DisplayThings.c in Sources */,
+				92B70E2924F59D350049677B /* CompileGrammar.c in Sources */,
+				92B70E2A24F59D350049677B /* CompileProcs.c in Sources */,
+				92B70E2B24F59D350049677B /* PlayThings.c in Sources */,
+				92B70E2C24F59D350049677B /* Polymetric.c in Sources */,
+				92B70E2D24F59D350049677B /* ProduceItems.c in Sources */,
+				92B70E2E24F59D350049677B /* Arithmetic.c in Sources */,
+				92B70E2F24F59D350049677B /* MIDIfiles.c in Sources */,
+				92B70E3024F59D350049677B /* Automata.c in Sources */,
+				92B70E3124F59D350049677B /* Compute.c in Sources */,
+				92B70E3224F59D350049677B /* Csound.c in Sources */,
+				92B70E3324F59D350049677B /* CsoundMaths.c in Sources */,
+				92B70E3424F59D350049677B /* CsoundScoreMake.c in Sources */,
+				92B70E3524F59D350049677B /* DisplayArg.c in Sources */,
+				92B70E3624F59D350049677B /* FillPhaseDiagram.c in Sources */,
+				92B70E3724F59D350049677B /* Glossary.c in Sources */,
+				92B70E3824F59D350049677B /* HTML.c in Sources */,
+				92B70E3924F59D350049677B /* Interface2.c in Sources */,
+				92B70E3A24F59D350049677B /* MakeSound.c in Sources */,
+				92B70E3B24F59D350049677B /* MIDIloads.c in Sources */,
+				92B70E3C24F59D350049677B /* MIDIstubs.c in Sources */,
+				92B70E3D24F59D350049677B /* MIDIstuff.c in Sources */,
+				92B70E3E24F59D350049677B /* SaveLoads3.c in Sources */,
+				92B70E3F24F59D350049677B /* SetObjectFeatures.c in Sources */,
+				92B70E4024F59D350049677B /* SoundObjects2.c in Sources */,
+				92B70E4124F59D350049677B /* SoundObjects3.c in Sources */,
+				92B70E4224F59D350049677B /* Ticks.c in Sources */,
+				92B70E4324F59D350049677B /* TimeSet.c in Sources */,
+				92B70E4424F59D350049677B /* TimeSetFunctions.c in Sources */,
+				92B70E4524F59D350049677B /* Zouleb.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92B70E4D24F59D3C0049677B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92B70E4E24F59D3C0049677B /* ConsoleMain.c in Sources */,
+				92B70E4F24F59D3C0049677B /* ConsoleMemory.c in Sources */,
+				92B70E5024F59D3C0049677B /* ConsoleMessages.c in Sources */,
+				92B70E5124F59D3C0049677B /* ConsoleStubs.c in Sources */,
+				92B70E5224F59D3C0049677B /* Encode.c in Sources */,
+				92B70E5324F59D3C0049677B /* CTextHandles.c in Sources */,
+				92B70E5424F59D3C0049677B /* Strings.c in Sources */,
+				92B70E5524F59D3C0049677B /* GetRelease.c in Sources */,
+				92B70E5624F59D3C0049677B /* SaveLoads1.c in Sources */,
+				92B70E5724F59D3C0049677B /* Inits.c in Sources */,
+				92B70E5824F59D3C0049677B /* Misc.c in Sources */,
+				92B70E5924F59D3C0049677B /* DisplayThings.c in Sources */,
+				92B70E5A24F59D3C0049677B /* CompileGrammar.c in Sources */,
+				92B70E5B24F59D3C0049677B /* CompileProcs.c in Sources */,
+				92B70E5C24F59D3C0049677B /* PlayThings.c in Sources */,
+				92B70E5D24F59D3C0049677B /* Polymetric.c in Sources */,
+				92B70E5E24F59D3C0049677B /* ProduceItems.c in Sources */,
+				92B70E5F24F59D3C0049677B /* Arithmetic.c in Sources */,
+				92B70E6024F59D3C0049677B /* MIDIfiles.c in Sources */,
+				92B70E6124F59D3C0049677B /* Automata.c in Sources */,
+				92B70E6224F59D3C0049677B /* Compute.c in Sources */,
+				92B70E6324F59D3C0049677B /* Csound.c in Sources */,
+				92B70E6424F59D3C0049677B /* CsoundMaths.c in Sources */,
+				92B70E6524F59D3C0049677B /* CsoundScoreMake.c in Sources */,
+				92B70E6624F59D3C0049677B /* DisplayArg.c in Sources */,
+				92B70E6724F59D3C0049677B /* FillPhaseDiagram.c in Sources */,
+				92B70E6824F59D3C0049677B /* Glossary.c in Sources */,
+				92B70E6924F59D3C0049677B /* HTML.c in Sources */,
+				92B70E6A24F59D3C0049677B /* Interface2.c in Sources */,
+				92B70E6B24F59D3C0049677B /* MakeSound.c in Sources */,
+				92B70E6C24F59D3C0049677B /* MIDIloads.c in Sources */,
+				92B70E6D24F59D3C0049677B /* MIDIstubs.c in Sources */,
+				92B70E6E24F59D3C0049677B /* MIDIstuff.c in Sources */,
+				92B70E6F24F59D3C0049677B /* SaveLoads3.c in Sources */,
+				92B70E7024F59D3C0049677B /* SetObjectFeatures.c in Sources */,
+				92B70E7124F59D3C0049677B /* SoundObjects2.c in Sources */,
+				92B70E7224F59D3C0049677B /* SoundObjects3.c in Sources */,
+				92B70E7324F59D3C0049677B /* Ticks.c in Sources */,
+				92B70E7424F59D3C0049677B /* TimeSet.c in Sources */,
+				92B70E7524F59D3C0049677B /* TimeSetFunctions.c in Sources */,
+				92B70E7624F59D3C0049677B /* Zouleb.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		92DA0C2717CD926A00140F5B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -837,8 +1083,8 @@
 				92BD2E6617E2622F0028D273 /* Interface2.c in Sources */,
 				92BD2E6717E2622F0028D273 /* MakeSound.c in Sources */,
 				92BD2E6817E262300028D273 /* MIDIloads.c in Sources */,
-				92BD2E6917E262310028D273 /* MIDIstubs.c in Sources */,
 				92BD2E6A17E262310028D273 /* MIDIstuff.c in Sources */,
+				92B70E8324F59ED20049677B /* CoreMIDIdriver.c in Sources */,
 				92BD2E6B17E262330028D273 /* SaveLoads3.c in Sources */,
 				92BD2E6C17E262330028D273 /* SetObjectFeatures.c in Sources */,
 				92BD2E6D17E262340028D273 /* SoundObjects2.c in Sources */,
@@ -865,9 +1111,9 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = source/prefix/PrefixANSIDebug.h;
+				GCC_PREFIX_HEADER = source/prefix/PrefixANSICoreMidiDebug.h;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				INFOPLIST_FILE = resources/Info.plist;
+				INFOPLIST_FILE = "";
 				INSTALL_PATH = "$(HOME)/bin";
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
@@ -893,9 +1139,9 @@
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = source/prefix/PrefixANSIDebug.h;
+				GCC_PREFIX_HEADER = source/prefix/PrefixANSICoreMidiDebug.h;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				INFOPLIST_FILE = resources/Info.plist;
+				INFOPLIST_FILE = "";
 				INSTALL_PATH = "$(HOME)/bin";
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
@@ -986,7 +1232,7 @@
 			};
 			name = Debug;
 		};
-		92DA0C2D17CD928800140F5B /* Release */ = {
+		92B70E4824F59D350049677B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -997,6 +1243,113 @@
 				GCC_MODEL_TUNING = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = source/prefix/PrefixANSIDebug.h;
+				INFOPLIST_FILE = "";
+				INSTALL_PATH = "$(HOME)/bin";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					warning,
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "bp32-null-midi";
+				STRINGS_FILE_OUTPUT_ENCODING = "UTF-16";
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		92B70E4924F59D350049677B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_WARN_ASSIGN_ENUM = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = "";
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = source/prefix/PrefixANSIDebug.h;
+				INFOPLIST_FILE = "";
+				INSTALL_PATH = "$(HOME)/bin";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					warning,
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "bp32-null-midi";
+				STRINGS_FILE_OUTPUT_ENCODING = "UTF-16";
+				ZERO_LINK = NO;
+			};
+			name = Debug;
+		};
+		92B70E7924F59D3C0049677B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_WARN_ASSIGN_ENUM = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = "";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = source/prefix/PrefixANSIDebug.h;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = "";
+				INSTALL_PATH = "$(HOME)/bin";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					warning,
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "bp64-null-midi";
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		92B70E7A24F59D3C0049677B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_WARN_ASSIGN_ENUM = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = "";
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = source/prefix/PrefixANSIDebug.h;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = "";
+				INSTALL_PATH = "$(HOME)/bin";
+				OTHER_LDFLAGS = (
+					"-multiply_defined",
+					warning,
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "bp64-null-midi";
+				ZERO_LINK = NO;
+			};
+			name = Debug;
+		};
+		92DA0C2D17CD928800140F5B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_WARN_ASSIGN_ENUM = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = "";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = source/prefix/PrefixANSICoreMidiDebug.h;
+				INFOPLIST_FILE = "";
 				INSTALL_PATH = "$(HOME)/bin";
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
@@ -1021,7 +1374,8 @@
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = source/prefix/PrefixANSIDebug.h;
+				GCC_PREFIX_HEADER = source/prefix/PrefixANSICoreMidiDebug.h;
+				INFOPLIST_FILE = "";
 				INSTALL_PATH = "$(HOME)/bin";
 				OTHER_LDFLAGS = (
 					"-multiply_defined",
@@ -1038,7 +1392,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		9239097522EAA72900E4C459 /* Build configuration list for PBXNativeTarget "bpconsole 64-bit" */ = {
+		9239097522EAA72900E4C459 /* Build configuration list for PBXNativeTarget "CoreMIDI 64-bit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9239097622EAA72900E4C459 /* Release */,
@@ -1065,7 +1419,25 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		92DA0C2C17CD928800140F5B /* Build configuration list for PBXNativeTarget "bpconsole 32-bit" */ = {
+		92B70E4724F59D350049677B /* Build configuration list for PBXNativeTarget "null midi 32-bit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92B70E4824F59D350049677B /* Release */,
+				92B70E4924F59D350049677B /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		92B70E7824F59D3C0049677B /* Build configuration list for PBXNativeTarget "null midi 64-bit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92B70E7924F59D3C0049677B /* Release */,
+				92B70E7A24F59D3C0049677B /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		92DA0C2C17CD928800140F5B /* Build configuration list for PBXNativeTarget "CoreMIDI 32-bit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				92DA0C2D17CD928800140F5B /* Release */,
