@@ -164,10 +164,9 @@ static OSStatus CMCreateAndInitQueue()
 {
 	OSStatus err;
 	// create queue buffer for receiving messages
-	pInputQueue = (MIDIcode*) NewPtr(QueueSize * sizeof(MIDIcode));
-	err = MemError();
-	if (pInputQueue != NULL && err == noErr)  {
-		err = pthread_mutex_init(&QueueMutex, PTHREAD_MUTEX_NORMAL);
+	pInputQueue = (MIDIcode*) malloc(QueueSize * sizeof(MIDIcode));
+	if (pInputQueue != NULL)  {
+		err = (OSStatus) pthread_mutex_init(&QueueMutex, PTHREAD_MUTEX_NORMAL);
 		if (err == 0)  CMReInitQueue();
 	}
 	return err;
@@ -177,20 +176,19 @@ static OSStatus CMCreateAndInitQueue()
    queue function that has already obtained the mutex lock. */
 static OSStatus CMResizeQueue()
 {
-	OSStatus  err;
 	MIDIcode* newqueue;
 	Size      newsize;
 	
 	// attempt to increase queue size by 50% before releasing the old one
 	newsize = QueueSize * 3 / 2;
-	newqueue = (MIDIcode*) NewPtr(newsize * sizeof(MIDIcode));
-	err = MemError();
-	if (newqueue != NULL && err == noErr)  {
-		DisposePtr((Ptr)pInputQueue);
+	newqueue = (MIDIcode*) malloc(newsize * sizeof(MIDIcode));
+	if (newqueue != NULL)  {
+		free(pInputQueue);
 		pInputQueue = newqueue;
 		QueueSize = newsize;
+		return noErr;
 	}
-	return err;
+	else return -1;
 }
 
 static void CMReInitQueue()
@@ -216,7 +214,7 @@ static void CMReInitQueue()
 static void CMDestroyQueue()
 {
 	if (pInputQueue != NULL) {
-		DisposePtr((Ptr)pInputQueue);
+		free(pInputQueue);
 		pInputQueue = NULL;
 	}
 	pQueueFront = pQueueBack = pInputQueueEnd = NULL;
@@ -273,11 +271,8 @@ OSStatus InitCoreMidiDriver()
 {
 	OSStatus err;
 	int result;
-	Boolean ok, haveInputPort;
-	MIDIEndpointRef endpt;
-	CFStringRef pname, strtemp;
-	ItemCount num;
-	char name[MAXENDPOINTNAME];
+	Boolean haveInputPort;
+	CFStringRef strtemp;
 	
 	haveInputPort = false;
 	strtemp = CFSTR("Bol Processor");
@@ -290,16 +285,16 @@ OSStatus InitCoreMidiDriver()
 		// create a port so we can send messages
 		err = MIDIOutputPortCreate(CMClient, strtemp, &CMOutPort);
 		if (err == noErr) {
-			// EnumerateCMDevices();
-			CMActiveDestinations = (MIDIEndpointRef*) NewPtr(CMActiveDestinationsSize * sizeof(MIDIEndpointRef));		
-			if ((err = MemError()) == noErr) {
+			EnumerateCMDevices();
+			CMActiveDestinations = (MIDIEndpointRef*) malloc(CMActiveDestinationsSize * sizeof(MIDIEndpointRef));
+			if (CMActiveDestinations != NULL) {
 				CoreMidiOutputOn = true;
 				CMActiveDestinations[0] = NULL;
 			}
 			else  {
 				CMActiveDestinationsSize = 0;
 				Alert1("Not enough memory to allocate MIDI destinations array!");
-				return err;
+				return -1;
 			}
 		}
 		else ShowMessage(TRUE, wMessage, "Error: Could not create a MIDI output port.");
@@ -311,15 +306,15 @@ OSStatus InitCoreMidiDriver()
 			// create a port so we can receive messages
 			err = MIDIInputPortCreate(CMClient, strtemp, CMReadCallback, NULL, &CMInPort);
 			if (err == noErr) {
-				CMActiveSources = (MIDIEndpointRef*) NewPtr(CMActiveSourcesSize * sizeof(MIDIEndpointRef));
-				if ((err = MemError()) == noErr) {
+				CMActiveSources = (MIDIEndpointRef*) malloc(CMActiveSourcesSize * sizeof(MIDIEndpointRef));
+				if (CMActiveSources != NULL) {
 					haveInputPort = true;
 					CMActiveSources[0] = NULL;
 				}
 				else  {
 					CMActiveSourcesSize = 0;
 					Alert1("Not enough memory to allocate MIDI sources array!");
-					return err;
+					return -1;
 				}
 			}
 			else ShowMessage(TRUE, wMessage, "Error: Could not create a MIDI input port.");
@@ -1232,7 +1227,6 @@ int UpdateCMSettingsListBoxes(Boolean autoconnect)
 
 static int UpdateActiveEndpoints(CMListData** ldh, MIDIEndpointRef** endpoints, Size* epArraySize, Boolean* status)
 {
-	OSStatus err;
 	Size	index, newsize, numSelected, numEntries;
 	MIDIEndpointRef*	ep;
 	CMListEntry*	entry;
@@ -1242,13 +1236,11 @@ static int UpdateActiveEndpoints(CMListData** ldh, MIDIEndpointRef** endpoints, 
 	
 	// resize array if necessary (include space for NULL)
 	if (*epArraySize <= numSelected && numSelected > 0) {
-		if (*endpoints != NULL) DisposePtr((Ptr)*endpoints);
+		if (*endpoints != NULL) free(*endpoints);
 		// leave some extra room in the array
 		newsize = ((numSelected*3)/2) + 1;
-		*endpoints = (MIDIEndpointRef*) NewPtr(newsize * sizeof(MIDIEndpointRef));
-		err = MemError();
-		if (err != noErr) {
-			*endpoints = NULL;
+		*endpoints = (MIDIEndpointRef*) malloc(newsize * sizeof(MIDIEndpointRef));
+		if (*endpoints == NULL) {
 			*epArraySize = 0;
 			*status = FALSE;
 			return (FAILED);
