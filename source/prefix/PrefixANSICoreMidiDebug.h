@@ -37,8 +37,9 @@
 #define USE_BUILT_IN_MIDI_DRIVER 0
 #define USE_OMS 0
 
-// enable null MIDI driver
+// enable CoreMIDI driver
 #define WITH_REAL_TIME_MIDI 1
+#define USE_COREMIDI 1
 
 #define EXPERIMENTAL 0
 

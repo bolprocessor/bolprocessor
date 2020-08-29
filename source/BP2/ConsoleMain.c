@@ -116,6 +116,10 @@ int main (int argc, char* args[])
 	ResetTicks(TRUE,TRUE,ZERO,0);
 */
 
+#if USE_COREMIDI
+	InitCoreMidiDriver();
+#endif
+
 	MemoryUsedInit = MemoryUsed;
 	InitOn = FALSE;
 	BPPrintMessage(odInfo, "BP2 Console completed initialization.\n");
