@@ -274,3 +274,5 @@ in MakeSound() first).
   For some of the faster Set/Get procedures (non-file-based dialogs), perhaps an 
   additional parameter with values DONT_INTERACT and ASK_TO_CORRECT could be useful?
 
+- "Save file" and "Revert to saved..." are dimmed after refusing a "Save changes" prompt
+  even though the file & window are still open with unsaved changes.
