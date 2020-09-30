@@ -1202,7 +1202,7 @@ return(result);
 
 
 /* FindBPPrefsFolder() gets an FSSpec for the folder named "Bol Processor"
-   in the system (or user) preferences folder.  If this folder does not
+   in the user's Preferences folder.  If this folder does not
    exist, it is created.  */
 OSErr	FindBPPrefsFolder(FSSpecPtr location)
 {
@@ -1211,7 +1211,7 @@ OSErr	FindBPPrefsFolder(FSSpecPtr location)
 	long	prefDirID;
 	long	bpDirID;
 	
-	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, kCreateFolder, 
+	err = FindFolder(kUserDomain, kPreferencesFolderType, kCreateFolder, 
 			&systemVRefNum, &prefDirID);
 	if (err != noErr) return err;
 	

@@ -865,9 +865,15 @@ if(io == noErr) {
 			
 				// find the temporary folder;
 				// create it if necessary
+				/* Event though Carbon docs state that passing a vRefNum doesn't make sense for
+				   many of the folder selectors, Folders.h says that we should still use the same 
+				   vRefNum as the document when performing a safe save with FSpExchangeFiles().
+				   However, it warns that FindFolder() may fail on some volumes, so we might want
+				   to skip the safe save when that happens.
+				   -- akozar 20130911 */ 
 				io = FindFolder(spec.vRefNum,kTemporaryFolderType,kCreateFolder,
 						&tempvrefnum,&tempdirid);
-				if(io != noErr) goto ERR;
+				if(io != noErr) goto ERR;	// FIXME ? Do "unsafe" save instead ?
 				// make an FSSpec for the
 				// temporary filename
 				spec = (*p_TempFSspec)[wref];
@@ -1477,8 +1483,8 @@ rep = OK;
 err = NSWInitReply(&reply);
 
 
-// find the temporary folder on the System disk
-err = FindFolder(kOnSystemDisk, kTemporaryFolderType, kCreateFolder, &vrefnum, &parid);
+// find the temporary folder appropriate for this user
+err = FindFolder(kUserDomain, kTemporaryFolderType, kCreateFolder, &vrefnum, &parid);
 if(err != noErr) {
 	// try to use the application's folder (FIXME ? not a great choice on OS X)
 	vrefnum = RefNumbp2;
