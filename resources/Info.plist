@@ -11,6 +11,8 @@
 			<array>
 				<string>bpda</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>132</string>
 			<key>CFBundleTypeName</key>
 			<string>BP2 data</string>
 			<key>CFBundleTypeOSTypes</key>
@@ -28,6 +30,8 @@
 			<array>
 				<string>bpkb</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>136</string>
 			<key>CFBundleTypeName</key>
 			<string>BP2 keyboard</string>
 			<key>CFBundleTypeOSTypes</key>
@@ -44,6 +48,8 @@
 			<array>
 				<string>bpmi</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>131</string>
 			<key>CFBundleTypeName</key>
 			<string>BP2 sound-object prototypes</string>
 			<key>CFBundleTypeOSTypes</key>
@@ -60,6 +66,8 @@
 			<array>
 				<string>bpde</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>135</string>
 			<key>CFBundleTypeName</key>
 			<string>BP2 decisions</string>
 			<key>CFBundleTypeOSTypes</key>
@@ -76,6 +84,8 @@
 			<array>
 				<string>bpgr</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>129</string>
 			<key>CFBundleTypeName</key>
 			<string>BP2 grammar</string>
 			<key>CFBundleTypeOSTypes</key>
@@ -92,6 +102,8 @@
 			<array>
 				<string>bpho</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>130</string>
 			<key>CFBundleTypeName</key>
 			<string>BP2 alphabet</string>
 			<key>CFBundleTypeOSTypes</key>
@@ -108,6 +120,8 @@
 			<array>
 				<string>bpin</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>139</string>
 			<key>CFBundleTypeName</key>
 			<string>BP2 interaction</string>
 			<key>CFBundleTypeOSTypes</key>
@@ -124,6 +138,8 @@
 			<array>
 				<string>bpse</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>133</string>
 			<key>CFBundleTypeName</key>
 			<string>BP2 settings</string>
 			<key>CFBundleTypeOSTypes</key>
@@ -140,6 +156,8 @@
 			<array>
 				<string>bpwg</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>134</string>
 			<key>CFBundleTypeName</key>
 			<string>BP2 weights</string>
 			<key>CFBundleTypeOSTypes</key>
@@ -156,6 +174,8 @@
 			<array>
 				<string>bpsc</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>137</string>
 			<key>CFBundleTypeName</key>
 			<string>BP2 script</string>
 			<key>CFBundleTypeOSTypes</key>
@@ -172,6 +192,8 @@
 			<array>
 				<string>bpgl</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>138</string>
 			<key>CFBundleTypeName</key>
 			<string>BP2 glossary</string>
 			<key>CFBundleTypeOSTypes</key>
@@ -188,6 +210,8 @@
 			<array>
 				<string>bptb</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>140</string>
 			<key>CFBundleTypeName</key>
 			<string>BP2 time-base</string>
 			<key>CFBundleTypeOSTypes</key>
@@ -204,6 +228,8 @@
 			<array>
 				<string>bpcs</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>142</string>
 			<key>CFBundleTypeName</key>
 			<string>BP2 Csound instruments</string>
 			<key>CFBundleTypeOSTypes</key>
@@ -220,6 +246,8 @@
 			<array>
 				<string>bpor</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>144</string>
 			<key>CFBundleTypeName</key>
 			<string>BP2 MIDI orchestra</string>
 			<key>CFBundleTypeOSTypes</key>
@@ -236,6 +264,8 @@
 			<array>
 				<string>bpmd</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>148</string>
 			<key>CFBundleTypeName</key>
 			<string>BP2 MIDI driver settings</string>
 			<key>CFBundleTypeOSTypes</key>
