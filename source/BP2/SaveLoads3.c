@@ -815,29 +815,23 @@ if(w < -1 || w >= WMAX) {
 spec = p_reply->sfFile;
 
 /* If not using NavServices, we may need to prompt the user for file format */
-if (!p_reply->usedNavServices) {
-	/* FileName check doesn't work when saving to a new location with
-	   the same name -- even when saving to the same location, if the
-	   user chose "Save As", then they may want to choose a new format.
-	   -- 020607 akozar */
-	/* if(w >= 0) {
-		p2cstrcpy(name,spec.name);
-		if(strcmp(name,FileName[w]) != 0) askformat = TRUE;
-		else if(IsText[w]) type = ftiText;
-		} */
-
+/* if (!p_reply->usedNavServices) {
 	// always ask for format if there are multiple choices
 	if(CanSaveMultipleFormats(w)) PromptForFileFormat(w, name, &type);
 	}
-else  if (w >= 0) {  // use the values set by PutFileEventProc
-	IsHTML[w] = p_reply->isHTML;
-	IsText[w] = p_reply->isText;
+else  */ if (w >= 0) {  // use the values set by PutFileEventProc
+/*	IsHTML[w] = p_reply->isHTML;
+	IsText[w] = p_reply->isText; */
+	IsHTML[w] = TRUE;
+	IsText[w] = TRUE;
 	if (IsText[w] == TRUE && IsHTML[w] == TRUE) type = ftiHTML;
 	else if (IsText[w] == TRUE) type = ftiText;
 	Weird[w] = FALSE;
 	}
 
-SelectCreatorAndFileType(type, &thecreator, &thetype);
+// SelectCreatorAndFileType(type, &thecreator, &thetype);
+thecreator = "Bel0";
+thetype = "TEXT";
 
 CREATE:
 io = FSpCreate(&spec,thecreator,thetype,p_reply->sfScript);

@@ -319,6 +319,9 @@ if(result == AGAIN) again = TRUE;
 result = OK;
 SetTimeOn = FALSE;
 
+result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,
+			p_imaxseq,TRUE,TRUE,NULL);
+			
 if(onlypianoroll
 		|| (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && !TempMemory && tmax > tmin)) {
 	if(!ShowPianoRoll && !onlypianoroll) {

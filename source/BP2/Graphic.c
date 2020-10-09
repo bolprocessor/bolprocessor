@@ -54,23 +54,29 @@ int linenum,linemax,maxlines,hrect,htext,morespace,**p_morespace,
 long pivloc,t1,tt1,t2,endxmax,endymax,endx,y,i,j,k,yruler,
 	**p_endx,endy,**p_endy,**p_top,trbeg,trend;
 Rect r, r2;
-Str255 label;
+char label[BOLSIZE+5];
 char line[BOLSIZE+5],line2[BOLSIZE+1];
 p_list **waitlist;
 GrafPtr saveport;
 WindowPtr window;
 CGrafPtr port;
 GDHandle gdh;
+// NSWReply reply;
+short refnum;
+char word[] = "This will be an image created by Bol Processor BP3";
+FILE * fPtr;
 
+BPPrintMessage(odInfo, "==> Drawing graphics...\n");
 
-return(OK);
+fPtr = fopen("../temp_bolprocessor/temp_image.html","w");
+fputs(word,fPtr);
+fclose(fPtr);
+// return(OK);
 
-// if(TempMemory) return(OK);
 if(tmin == Infpos) {
 	// if(Beta) Alert1("Err. DrawObject(). tmin == Infpos");
 	return(OK);
 	}
-// GetPort(&saveport);
 if(CheckLoadedPrototypes() != OK) return(OK);
 // window = Window[w];
 // PleaseWait();
@@ -220,7 +226,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			sprintf(line2," #%ld",(long)k);
 			strcat(line,line2);
 			}
-	//	strcpy(label,line);
+		strcpy(label,line);
 		tab = ((int) t2 - (int) t1 - strlen(line)) / 2;
 		if(tab < 2) tt1 = (int) t1 + leftoffset + 1 + tab;
 		if(tt1 < (*p_endx)[linenum]) {
@@ -293,9 +299,6 @@ ENDGRAPH:
 // StopWait();
 
 QUIT:
-#if NEWGRAF
-// if(Offscreen) UnlockPixels(GetGWorldPixMap(gMainGWorld));
-#endif
 MyDisposeHandle((Handle*)&p_morespace);
 MyDisposeHandle((Handle*)&p_top);
 MyDisposeHandle((Handle*)&p_endx);
@@ -329,7 +332,7 @@ return(rep);
 	long pivloc, long t1, long t2, long trbeg, long trend,
 	int *p_morespace,
 	long *p_endx, long *p_endy, PicHandle picture) */
-int DrawObject(int j, Str255 label, double beta,int top, int hrect, int htext, int leftoffset,
+int DrawObject(int j, char *label, double beta,int top, int hrect, int htext, int leftoffset,
 	long pivloc, long t1, long t2, long trbeg, long trend, int *p_morespace, long *p_endx, long *p_endy, PicHandle picture)
 {
 // Pattern pat;
@@ -339,7 +342,7 @@ Point pt;
 long x;
 double xx,preperiod,objectperiod;
 
-p2cstr(label);
+// p2cstr(label);
 // if(TempMemory) return(OK);
 // if(Panic || (picture != NULL && GraphOverflow(picture))) return(ABORT);
 r.top = top; r.left = (int)t1 + leftoffset;
@@ -453,15 +456,16 @@ else {	/* Can't write label inside rectangle */
 		PenNormal(); */
 		}
 /*	MoveTo(r.left + tab,r.bottom + htext - 2);
-	GetPen(&pt); */ r.left = pt.h - 1; r.bottom = pt.v + 1;
+	GetPen(&pt); */
+/*	r.left = pt.h - 1; r.bottom = pt.v + 1;
 	r.right = r.left + strlen(label) + 2;
-	r.top = r.bottom - htext + 1;
+	r.top = r.bottom - htext + 1; */
 //	EraseRect(&r);
 //	FillRect(&r,GetQDGlobalsWhite(&pat));
 /*	DrawString(label);
 	GetPen(&pt); */
-	*p_endx = (long) pt.h + 3;
-	*p_endy = (long) pt.v + 2;
+/*	*p_endx = (long) pt.h + 3;
+	*p_endy = (long) pt.v + 2; */
 	*p_morespace = TRUE;
 	}
 return(OK);
@@ -470,18 +474,18 @@ return(OK);
 
 int DrawGraph(int w, PolyHandle p_graph)
 {
-GrafPtr saveport;
+// GrafPtr saveport;
 
-if(TempMemory) return(OK);
+// if(TempMemory) return(OK);
 if(p_graph == NULL) {
-	if(Beta) Alert1("Err. DrawGraph()");
+//	if(Beta) Alert1("Err. DrawGraph()");
 	return(FAILED);
 	}
-GetPort(&saveport);
+/* GetPort(&saveport);
 SetPortWindowPort(Window[w]);
-FramePoly(p_graph);
-if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err DrawGraph(). saveport == NULL");
+FramePoly(p_graph); */
+/* if(saveport != NULL) SetPort(saveport);
+else if(Beta) Alert1("Err DrawGraph(). saveport == NULL"); */
 // StopWait();
 return(OK);
 }
@@ -509,7 +513,7 @@ for(n=Ndiagram-1; n >= 0; n--) {
 		}
 	}
 if(w == wGraphic && NoteScalePicture != NULL) {
-	KillPicture(NoteScalePicture);
+	// KillPicture(NoteScalePicture);
 	NoteScalePicture = NULL;
 	}
 if(!Offscreen) {
@@ -520,7 +524,7 @@ if(!Offscreen) {
 			break;
 			}
 		if(PictureWindow[n] == w && p_Picture[n] != NULL) {
-			KillPicture(p_Picture[n]);
+		//	KillPicture(p_Picture[n]);
 			p_Picture[n] = NULL;
 			PictureWindow[n] = -1;
 			if(n == Npicture-1) Npicture--;
@@ -610,7 +614,7 @@ Str255 label;
 char line[BOLSIZE+5];
 Milliseconds maxcover1,maxcover2,maxgap1,maxgap2,maxtrunc1,maxtrunc2,dur;
 short oldfont,oldsize;
-Pattern pat;
+// Pattern pat;
 
 // if(TempMemory) return(OK);
 if(w < 0 || w >= WMAX) return(FAILED);
@@ -623,9 +627,9 @@ rep = OK;
 
 // GetPort(&saveport);
 // SetPortWindowPort(Window[w]);
-KillDiagrams(w);
+// KillDiagrams(w);
 if(p_Picture[1] != NULL) {
-	KillPicture(p_Picture[1]);
+//	KillPicture(p_Picture[1]);
 	p_Picture[1] = NULL;
 	}
 
@@ -741,6 +745,7 @@ if(scale > 0.001) {
 				break;
 			default:
 			//	MoveTo(x,y); LineTo(x,y+3);
+				break;
 			}
 		}
 	y = r.top + htext + 1;
@@ -804,11 +809,11 @@ else {
 	/*	RGBForeColor(&Color[SoundObjectC]); PenSize(2,2);
 		FrameRect(&r);
 		PenNormal(); RGBForeColor(&Black);
-		MoveTo(p_frame->right - strlen("\pCoverEnd") - 2,r.top + htext - 3);
+		MoveTo(p_frame->right - strlen("CoverEnd") - 2,r.top + htext - 3);
 		DrawString("\pCoverEnd"); */
 		}
 	else {
-	/*	MoveTo(p_frame->right - strlen("\p#CoverEnd") - 2,r.top + htext - 3);
+	/*	MoveTo(p_frame->right - strlen("#CoverEnd") - 2,r.top + htext - 3);
 		DrawString("\p#CoverEnd"); */
 		}
 	}
@@ -850,11 +855,11 @@ if(maxgap2 < INT_MAX && r.right > r.left) {
 	PaintRect(&r);
 	RGBForeColor(&Black);
 	PenNormal();
-	MoveTo(p_frame->right - strlen("\pContEnd") - 3,r.bottom + htext + 1);
+	MoveTo(p_frame->right - strlen("ContEnd") - 3,r.bottom + htext + 1);
 	DrawString("\pContEnd"); */
 	}
 else {
-/*	MoveTo(p_frame->right - strlen("\p#ContEnd") - 3,r.bottom + htext + 1);
+/*	MoveTo(p_frame->right - strlen("#ContEnd") - 3,r.bottom + htext + 1);
 	DrawString("\p#ContEnd"); */
 	}
 
@@ -906,23 +911,23 @@ if(maxtrunc2 > 0 && maxtrunc2 <= dur) {
 	LineTo(xmin + scale * (dur - tmin - maxtrunc2),y);
 	PenNormal(); RGBForeColor(&Black); */
 	y += htext;
-/*	MoveTo(xmin + scale * (dur - tmin) - strlen("\pTruncEnd"),y);
+/*	MoveTo(xmin + scale * (dur - tmin) - strlen("TruncEnd"),y);
 	DrawString("\pTruncEnd"); */
 	}
 else {
 	if(maxtrunc1 > 0 && maxtrunc1 <= dur) {
 		y = p_frame->top + topoffset + 7 * htext - 1;
-	//	MoveTo(p_frame->right - strlen("\p#TruncEnd") - 3,y);
+	//	MoveTo(p_frame->right - strlen("#TruncEnd") - 3,y);
 		}
 	else {
 		y = p_frame->top + topoffset + 5 * htext - 1;
-	//	MoveTo(p_frame->right - strlen("\p#TruncEnd") - 3,y);
+	//	MoveTo(p_frame->right - strlen("#TruncEnd") - 3,y);
 		}
 //	RGBForeColor(&Black); DrawString("\p#TruncEnd");
 	}
 
 y += htext + htext;
-x = p_frame->right - strlen("\p#BreakTempo") - 3;
+x = p_frame->right - strlen("BreakTempo") - 3;
 /* MoveTo(x,y);
 if((*p_BreakTempo)[j]) DrawString("\pBreakTempo");
 else DrawString("\p#BreakTempo"); */
@@ -1128,11 +1133,11 @@ return(rep);
 }
 
 
-int OpenGraphic(int w,Rect *p_r,int showpen,CGrafPtr *p_port,GDHandle *p_gdh)
+/*  int OpenGraphic(int w,Rect *p_r,int showpen,CGrafPtr *p_port,GDHandle *p_gdh)
 {
-GWorldFlags flags;
+// GWorldFlags flags;
 
-/* if(Offscreen) {
+if(Offscreen) {
 
 	Rect rtemp;
 	GetGWorld(p_port,p_gdh);
@@ -1162,12 +1167,12 @@ else {
 	PictRect[0] = (*p_r);
 	}
 if(showpen) ShowPen();
-ClipRect(p_r); */
+ClipRect(p_r);
 return(OK);
-}
+} */
 
 
-int CloseGraphic(int w,long endxmax,long endymax,int overflow,Rect *p_r,CGrafPtr *p_port,
+/*  int CloseGraphic(int w,long endxmax,long endymax,int overflow,Rect *p_r,CGrafPtr *p_port,
 	GDHandle gdh)
 {
 int rep,endxmin,endymin,newh,newv;
@@ -1175,7 +1180,7 @@ Rect rclip;
 	
 endxmin = endymin = 0;
 
-/* RGBForeColor(&Black);
+RGBForeColor(&Black);
 PenSize(1,1);
 PenNormal();
 
@@ -1249,9 +1254,9 @@ if(newv) OffsetGraphs(w,0,Vmin[w] - rclip.top - 1);
 GetWindowPortBounds(Window[w], &rclip);
 ClipRect(&rclip);
 DrawControls(Window[w]);
-ValidWindowRect(Window[w], &rclip); */
+ValidWindowRect(Window[w], &rclip);
 return(OK);
-}
+} */
 
 
 int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int leftoffset,
@@ -1262,7 +1267,7 @@ double x,xscale,p,rr,period;
 long i,j,k,t1,t2,y,tmem1,tmem2,xmax;
 char line[BOLSIZE+5],showsmalldivisions;
 Str255 label;
-Pattern pat;
+// Pattern pat;
 
 result = OK;
 /* RGBForeColor(&Black);
@@ -1310,6 +1315,7 @@ for(i=j=0; ; i++,j++) {
 			break;
 		default:
 		//	MoveTo(t1,y); LineTo(t1,y+3);
+			break;
 		}
 	}
 y = p_r->top + htext + 1;
@@ -1332,7 +1338,7 @@ for(i = 1; ; i++) {
 	if(t1 > tmem2) {
 	/*	MoveTo(t1,y);
 		DrawString(label); */
-		tmem2 = t2 + strlen("\pmm");
+		tmem2 = t2 + strlen("mm");
 		}
 	}
 
@@ -1465,7 +1471,7 @@ for(key=0; key < 128; key+=12) {
 	if(key < minkey || key > maxkey) continue;
 	y = (maxkey - key) * hrect + topoffset + 1;
 	sprintf(Message,"c%ld",(long)((key - (key % 12))/12)-1L);
-	c2pstrcpy(label, Message);
+//	c2pstrcpy(label, Message);
 /*	MoveTo(2,y + 3);
 	DrawString(label); */
 	}
@@ -1476,7 +1482,7 @@ for(key=6; key < 128; key+=12) {
 	if(key < minkey || key > maxkey) continue;
 	y = (maxkey - key) * hrect + topoffset + 1;
 	sprintf(Message,"f#%ld",(long)((key - (key % 12))/12)-1L);
-	c2pstrcpy(label, Message);
+//	c2pstrcpy(label, Message);
 /*	MoveTo(2,y + 3);
 	DrawString(label); */
 	}
