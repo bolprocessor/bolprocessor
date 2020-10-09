@@ -319,16 +319,15 @@ if(result == AGAIN) again = TRUE;
 result = OK;
 SetTimeOn = FALSE;
 
-result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,
-			p_imaxseq,TRUE,TRUE,NULL);
+BPPrintMessage(odInfo, "==> Drawing graphics?\n");
 			
 if(onlypianoroll
-		|| (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && !TempMemory && tmax > tmin)) {
+		|| (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && tmax > tmin)) {
 	if(!ShowPianoRoll && !onlypianoroll) {
 // if BP_CARBON_GUI
 		result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,
 			p_imaxseq,TRUE,TRUE,NULL);
-// endif /* BP_CARBON_GUI */
+// endif
 		}
 	else
 		result = MakeSound(pp_buff,&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,YES,NULL);

@@ -302,10 +302,10 @@ for(k=2; k <= (*p_kmax); k++) {
 SoundOn = TRUE;
 
 if(showpianoroll) {
-#if BP_CARBON_GUI
+// if BP_CARBON_GUI
 	// FIXME:  Would like to figure out how to move all of the piano roll code elsewhere ...
-	if(ShowMessages || PlayPrototypeOn) ShowMessage(TRUE,wMessage,"Preparing piano roll...");
-	GetPort(&saveport);
+/*	if(ShowMessages || PlayPrototypeOn) ShowMessage(TRUE,wMessage,"Preparing piano roll...");
+	GetPort(&saveport); */
 	minkey = 127; maxkey = 0;
 	tmax = ZERO;
 	for(k=2; k <= (*p_kmax); k++) {
@@ -357,70 +357,71 @@ if(showpianoroll) {
 	maxkey = 6 + ((maxkey / 6) * 6);
 	if (minkey > maxkey)  minkey = maxkey = 60;
 	hrect = 3;
-	htext = WindowTextSize[w] + 2;
-	leftoffset = 13 + StringWidth("\pmmm") - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
+//	htext = WindowTextSize[w] + 2;
+	htext = 14;
+//	leftoffset = 13 + StringWidth("\pmmm") - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
+	leftoffset = 13 + 30 - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
 	topoffset = (3 * htext) + 6;
 	endxmax = leftoffset + 50 + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10;
-//	((*p_T)[imax] * GraphicScaleP) / GraphicScaleQ / 10 + leftoffset;
 	if(endxmax < 100) endxmax = 100;
 	endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
 	
-	GetWindowPortBounds(Window[w], &graphrect);
+/*	GetWindowPortBounds(Window[w], &graphrect);
 	graphrect.bottom = graphrect.top + endymax;
-	graphrect.right = graphrect.left + endxmax;
+	graphrect.right = graphrect.left + endxmax; */
 	
-	if((result=OpenGraphic(w,&graphrect,NO,&port,&gdh)) != OK) goto GETOUT;
+//	if((result=OpenGraphic(w,&graphrect,NO,&port,&gdh)) != OK) goto GETOUT;
 	
 	if((result=DrawItemBackground(&graphrect,imaxstreak,htext,hrect,leftoffset,NO,
 		p_delta,&yruler,topoffset,&overflow)) != OK || overflow) goto OUTGRAPHIC;
 	
 	topoffset += 3;
-	PenSize(1,1);
+/*	PenSize(1,1);
 	if(UseGraphicsColor) RGBForeColor(&NoteScaleColor1);
-	else RGBForeColor(&Black);
+	else RGBForeColor(&Black); */
 	for(key=0; key < 128; key+=12) {	/* Draw horizontal line "C" */
 		if(key < minkey || key > maxkey) continue;
 		y = (maxkey - key) * hrect + topoffset + 1;
-		MoveTo(leftoffset-2,y);
-		LineTo(endxmax-27,y);
+	/*	MoveTo(leftoffset-2,y);
+		LineTo(endxmax-27,y); */
 		sprintf(line,"c%ld",(long)((key - (key % 12))/12)-1L);
-		c2pstrcpy(label, line);
+	/*	c2pstrcpy(label, line);
 		labelrect.top = y - 7;
 		labelrect.left = endxmax - 25;
 		labelrect.right = endxmax - 25 + StringWidth(label);
 		labelrect.bottom = y + 6;
 		EraseRect(&labelrect);
 		MoveTo(endxmax-24,y + 3);
-		DrawString(label);
+		DrawString(label); */
 		}
 		
-	if(UseGraphicsColor) RGBForeColor(&NoteScaleColor2);
-	else RGBForeColor(&Black);
+/*	if(UseGraphicsColor) RGBForeColor(&NoteScaleColor2);
+	else RGBForeColor(&Black); */
 	for(key=6; key < 128; key+=12) {	/* Draw horizontal line "F#" */
 		if(key < minkey || key > maxkey) continue;
 		y = (maxkey - key) * hrect + topoffset + 1;
-		MoveTo(leftoffset-2,y);
-		LineTo(endxmax-27,y);
+	/*	MoveTo(leftoffset-2,y);
+		LineTo(endxmax-27,y); */
 		sprintf(line,"f#%ld",(long)((key - (key % 12))/12)-1L);
-		c2pstrcpy(label, line);
+	/*	c2pstrcpy(label, line);
 		labelrect.top = y - 7;
 		labelrect.left = endxmax - 25;
 		labelrect.right = endxmax - 25 + StringWidth(label);
 		labelrect.bottom = y + 6;
 		EraseRect(&labelrect);
 		MoveTo(endxmax-24,y + 3);
-		DrawString(label);
+		DrawString(label); */
 		}
-	RGBForeColor(&Black);
-	PenNormal();
+/*	RGBForeColor(&Black);
+	PenNormal(); */
 		
 	Hmin[w] = Hmax[w] = 0;
 	Hzero[w] = Vzero[w] = 0;
 	Vmin[w] = Vmax[w] = 0;
-	PenNormal();
+/*	PenNormal();
 	RGBForeColor(&Black);
-	PenSize(1,hrect);
-#endif /* BP_CARBON_GUI */
+	PenSize(1,hrect); */
+// endif  BP_CARBON_GUI 
 	}
 
 #if WITH_REAL_TIME_MIDI
@@ -1243,12 +1244,12 @@ SWITCHES:
 		CscoreWrite(strikeagain,OFF,beta,(t0 + t1),-1,c1,c2,localchan,instrument,j,
 			nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 										if(showpianoroll) {
-#if BP_CARBON_GUI
+// if BP_CARBON_GUI
 											result = DrawPianoNote(c1,nseq,localchan,(t0 + t1),
 												pp_currentparams,leftoffset,topoffset,hrect,
 												minkey,maxkey,&graphrect,&overflow);
 											if(result != OK || overflow) goto OVER;
-#endif /* BP_CARBON_GUI */
+// endif  BP_CARBON_GUI 
 											}
 										}
 									}
@@ -1449,12 +1450,12 @@ SENDNOTEOFF:
 		CscoreWrite(strikeagain,OFF,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 								if(showpianoroll) {
-#if BP_CARBON_GUI
+// if BP_CARBON_GUI
 									result = DrawPianoNote(c1,nseq,localchan,(t0 + t1),
 										pp_currentparams,leftoffset,topoffset,hrect,
 										minkey,maxkey,&graphrect,&overflow);
 									if(result != OK || overflow) goto OVER;
-#endif /* BP_CARBON_GUI */
+// endif BP_CARBON_GUI
 									}
 								}
 							}

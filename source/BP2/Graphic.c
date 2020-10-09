@@ -42,6 +42,8 @@
 #define SHOWEVERYTHING 0
 #endif
 
+extern FILE * imagePtr;
+
 int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	Milliseconds **p_t2,int kmax,long tmin,long tmax,
 	unsigned long imax,int nmin,int nmax,unsigned long **p_imaxseq,int kmode,
@@ -63,15 +65,8 @@ CGrafPtr port;
 GDHandle gdh;
 // NSWReply reply;
 short refnum;
-char word[] = "This will be an image created by Bol Processor BP3";
-FILE * fPtr;
 
-BPPrintMessage(odInfo, "==> Drawing graphics...\n");
-
-fPtr = fopen("../temp_bolprocessor/temp_image.html","w");
-fputs(word,fPtr);
-fclose(fPtr);
-// return(OK);
+BPPrintMessage(odInfo, "==> Yes, drawing graphics...\n");
 
 if(tmin == Infpos) {
 	// if(Beta) Alert1("Err. DrawObject(). tmin == Infpos");
@@ -1405,6 +1400,7 @@ int DrawPianoNote(int key,int nseq,int chan,Milliseconds timeoff,
 Milliseconds timeon;
 long x,y;
 Rect r;
+char* word;
 
 // if(*p_overflow) return(OK);
 if(key < 0 || key > 127) {
@@ -1426,6 +1422,7 @@ r.top = y;
 r.bottom = y + hrect;
 r.left = x - 1;
 r.right = x;
+
 // EraseRect(&r);
 
 /* MoveTo(x,y);

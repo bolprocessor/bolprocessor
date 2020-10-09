@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
 
-
+extern FILE * imagePtr;
 
 ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start)
 /* Produce items. Start string is selection in window w or in buffer p_start */
@@ -68,6 +68,7 @@ pp_buff = &p_buff; p_buff = NULL;
 r = OK;
 
 ComputeOn++;
+CreateImageFile();
 
 SaidTooComplex = ShownBufferSize = FALSE;
 if(OutMIDI) {

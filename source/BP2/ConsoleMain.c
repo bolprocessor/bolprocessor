@@ -68,6 +68,7 @@ Boolean isInteger(const char* s);
 Boolean LoadedAlphabet = FALSE;
 Boolean LoadedStartString = FALSE;
 BPConsoleOpts gOptions;
+FILE * imagePtr = NULL;
 
 
 int main (int argc, char* args[])
@@ -187,6 +188,7 @@ int main (int argc, char* args[])
 	/* MyDisposeHandle((Handle*)&Stream.code);
 	Stream.imax = ZERO;
 	Stream.period = ZERO; */
+	EndImageFile();
 	LoadedCsoundInstruments = TRUE;
 	if (TraceMemory && Beta) {
 		// reset everything and report memory usage & any leaked space
@@ -194,7 +196,7 @@ int main (int argc, char* args[])
 		BPPrintMessage(odInfo, "This session used %ld Kbytes maximum.  %ld handles created and released. [%ld bytes leaked]\n",
 				(long) MaxMemoryUsed/1000L,(long)MaxHandles,
 				(long) (MemoryUsed - MemoryUsedInit));
-	}
+		}
 	
 	// close open files
 	CloseOutputDestination(odDisplay, &gOptions, ofiProdItems);
@@ -211,6 +213,58 @@ int main (int argc, char* args[])
 	// FIXME: CloseCurrentDriver should eventually work for all drivers - akozar
 	// CloseCurrentDriver(FALSE);
 	return EXIT_SUCCESS;
+}
+
+void CreateImageFile(void)
+{
+	FILE * thisfile;
+	char* thisline;
+	size_t length = 0;
+	ssize_t number;
+	char cwd[PATH_MAX];
+	char word[] = "\n// This image was created by Bol Processor BP3\n";
+//	return;
+	if(imagePtr != NULL) return;
+	imagePtr = fopen("../temp_bolprocessor/temp_image.html","w");
+	if(getcwd(cwd, sizeof(cwd)) != NULL) {
+		sprintf(Message,"Current working dir: %s\n",cwd);
+		BPPrintMessage(odInfo,Message);
+		}
+    BPPrintMessage(odInfo,"Creating image file\n");
+	fputs("ok2",imagePtr);
+	thisfile = fopen("CANVAS_header.txt","r");
+//	return;
+	if(thisfile == NULL) BPPrintMessage(odInfo,"‘CANVAS_header.txt’ is missing!\n");
+	else {
+		while((number = getline(&thisline,&length,thisfile)) != -1) {
+        	fputs(thisline,imagePtr);
+			}
+		fclose(thisfile);
+		fputs(word,imagePtr);
+		}
+	return;
+}
+
+void EndImageFile(void)
+{
+	FILE * thisfile;
+	char* thisline;
+	size_t length;
+	ssize_t number;
+	char word[] = "\n// End of image script";
+	BPPrintMessage(odInfo, "Closing image file.\n");
+	fputs(word,imagePtr);
+	if(imagePtr == NULL) return;
+	thisfile = fopen("CANVAS_footer.txt","r");
+	if(thisfile == NULL) BPPrintMessage(odInfo,"‘CANVAS_footer.txt’ is missing!\n");
+	else {
+		while((number = getline(&thisline,&length,thisfile)) != -1) {
+        	fputs(thisline,imagePtr);
+			}
+		fclose(thisfile);
+		}
+	fclose(imagePtr);
+	return;
 }
 
 void ConsoleInit(BPConsoleOpts* opts)

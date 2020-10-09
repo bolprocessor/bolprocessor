@@ -1088,6 +1088,9 @@ long LineStartPos(int,int,int);
 
 // new global functions in the console build
 void CloseFile(FILE* file);
+	void CreateImageFile(void);
+void EndImageFile(void);
+
 
 #if !TARGET_API_MAC_CARBON
 /* Provide backwards compatibility for System 7 in the non-Carbon build by
