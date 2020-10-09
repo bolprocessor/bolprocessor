@@ -322,10 +322,10 @@ SetTimeOn = FALSE;
 if(onlypianoroll
 		|| (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && !TempMemory && tmax > tmin)) {
 	if(!ShowPianoRoll && !onlypianoroll) {
-#if BP_CARBON_GUI
+// if BP_CARBON_GUI
 		result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,
 			p_imaxseq,TRUE,TRUE,NULL);
-#endif /* BP_CARBON_GUI */
+// endif /* BP_CARBON_GUI */
 		}
 	else
 		result = MakeSound(pp_buff,&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,YES,NULL);

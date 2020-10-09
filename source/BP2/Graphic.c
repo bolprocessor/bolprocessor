@@ -62,15 +62,18 @@ WindowPtr window;
 CGrafPtr port;
 GDHandle gdh;
 
-if(TempMemory) return(OK);
+
+return(OK);
+
+// if(TempMemory) return(OK);
 if(tmin == Infpos) {
-	if(Beta) Alert1("Err. DrawObject(). tmin == Infpos");
+	// if(Beta) Alert1("Err. DrawObject(). tmin == Infpos");
 	return(OK);
 	}
-GetPort(&saveport);
+// GetPort(&saveport);
 if(CheckLoadedPrototypes() != OK) return(OK);
-window = Window[w];
-PleaseWait();
+// window = Window[w];
+// PleaseWait();
 rep = OK;
 GraphicOn = TRUE; overflow = FALSE;
 maxlines = (int) Maxevent + 1;
@@ -85,23 +88,26 @@ if((p_top = (long**) GiveSpace((Size)maxlines*sizeof(long))) == NULL)
 	return(ABORT);
 	
 // Find size of picture
-hrect = WindowTextSize[w] + 3; /* height of rectangles */
-htext = WindowTextSize[w] + 2;
+// hrect = WindowTextSize[w] + 3; /* height of rectangles */
+// htext = WindowTextSize[w] + 2;
+hrect = 13;
+htext = 12;
 leftoffset = hrect - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
 topoffset = (3 * htext) + 8;
-GetWindowPortBounds(window, &r);
-r.bottom = r.top + topoffset + Maxevent * (hrect + htext);
+// GetWindowPortBounds(window, &r);
+// r.bottom = r.top + topoffset + Maxevent * (hrect + htext);
 endxmax = leftoffset + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10
 	+ BOLSIZE * CharWidth('w');
 if(endxmax < 100) endxmax = 100;
-r.right = r.left + endxmax;
-GetWindowPortBounds(window, &r2);
-if(r.right < r2.right) r.right = r2.right;
+// r.right = r.left + endxmax;
+// GetWindowPortBounds(window, &r2);
+// if(r.right < r2.right) r.right = r2.right;
 
-if(OpenGraphic(w,&r,NO,&port,&gdh) != OK) return(ABORT);
+// if(OpenGraphic(w,&r,NO,&port,&gdh) != OK) return(ABORT);
 
 TextFont(kFontIDCourier);
-TextSize(WindowTextSize[w]);
+// TextSize(WindowTextSize[w]);
+TextSize(12);
 
 rep = DrawItemBackground(&r,imax,htext,hrect,leftoffset,interruptok,p_delta,&yruler,
 	topoffset,&overflow);
@@ -114,15 +120,17 @@ linenum = 0; linemax = 1;
 (*p_top)[linenum] = topoffset;
 (*p_top)[linemax] = (*p_top)[linenum] + hrect + htext;
 (*p_morespace)[linenum] = linemin = 0;
-if(0 < Hmin[w]) Hmin[w] = 0;
-if(0 < Vmin[w]) Vmin[w] = 0;
+// if(0 < Hmin[w]) Hmin[w] = 0;
+// if(0 < Vmin[w]) Vmin[w] = 0;
+Hmin[w] = 0;
+Vmin[w] = 0;;
 for(nseq = nmin; nseq <= nmax; nseq++) {
 	foundone = FALSE;
-	if(DoSystem() != OK) {
+/*	if(DoSystem() != OK) {
 		rep = ABORT; goto ENDGRAPH;
-		}
+		} */
 	for(i=1; i < (*p_imaxseq)[nseq] && i <= imax; i++) {
-		if(GraphOverflow(p_Picture[0])) {
+	/*	if(GraphOverflow(p_Picture[0])) {
 			overflow = TRUE;
 			rep = OK;
 			goto ENDGRAPH;
@@ -130,13 +138,13 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 		if((i % 10) == 0 && (rep=InterruptDraw(0,interruptok)) != OK) {
 			if(TempMemory) rep = OK;
 			goto ENDGRAPH;
-			}
+			} */
 		k = (*((*p_Seq)[nseq]))[i];
-		if(k < 0) if(Beta) Alert1("Err. 'k' in DrawItem(). ");
+	//	if(k < 0) if(Beta) Alert1("Err. 'k' in DrawItem(). ");
 		if(k < 2) continue;	/* Reject '_' and '-' */
 		if(kmode) {
 			if(p_object == NULL) {
-				if(Beta) Alert1("Err. DrawObject(). p_object == NULL");
+		//		if(Beta) Alert1("Err. DrawObject(). p_object == NULL");
 				return(ABORT);
 				}
 			t1 = (*p_object)[k].starttime;
@@ -223,7 +231,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 				sprintf(Message,
 					"Err. linenum = %ld  maxlines = %ld  DrawItem() ",
 					(long)linenum,(long)maxlines);
-				if(Beta) Alert1(Message);
+		//		if(Beta) Alert1(Message);
 				rep = ABORT;
 				goto ENDGRAPH;
 				}
@@ -265,7 +273,7 @@ CONT:
 		sprintf(Message,
 			"Err. linenum = %ld  maxlines = %ld  DrawItem() ",
 			(long)linenum,(long)maxlines);
-		if(Beta) Alert1(Message);
+	//	if(Beta) Alert1(Message);
 		rep = ABORT;
 		goto ENDGRAPH;
 		}
@@ -276,19 +284,19 @@ CONT:
 ENDGRAPH:
 CloseGraphic(w,endxmax,endymax,overflow,&r,&port,gdh);
 
-StopWait();
+// StopWait();
 
 QUIT:
 #if NEWGRAF
-if(Offscreen) UnlockPixels(GetGWorldPixMap(gMainGWorld));
+// if(Offscreen) UnlockPixels(GetGWorldPixMap(gMainGWorld));
 #endif
 MyDisposeHandle((Handle*)&p_morespace);
 MyDisposeHandle((Handle*)&p_top);
 MyDisposeHandle((Handle*)&p_endx);
 MyDisposeHandle((Handle*)&p_endy);
 GraphicOn = FALSE;
-if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err DrawItem(). saveport == NULL");
+// if(saveport != NULL) SetPort(saveport);
+// else if(Beta) Alert1("Err DrawItem(). saveport == NULL");
 return(rep);
 }
 
@@ -323,15 +331,15 @@ Point pt;
 long x;
 double xx,preperiod,objectperiod;
 
-if(TempMemory) return(OK);
-if(Panic || (picture != NULL && GraphOverflow(picture))) return(ABORT);
+// if(TempMemory) return(OK);
+// if(Panic || (picture != NULL && GraphOverflow(picture))) return(ABORT);
 r.top = top; r.left = (int)t1 + leftoffset;
 r.bottom = r.top + hrect; r.right = (int)t2 + leftoffset;
-PenNormal();
+// PenNormal();
 
 // Erase background
-InsetRect(&r,-2,-2);
-EraseRect(&r);
+/* InsetRect(&r,-2,-2);
+EraseRect(&r); */
 // FillRect(&r,GetQDGlobalsWhite(&pat));
 
 // Now draw rectangle
@@ -353,7 +361,7 @@ else {
 	else RGBForeColor(&Black);
 	}
 FrameRect(&r);
-PenNormal();
+// PenNormal();
 RGBForeColor(&Black);
 
 // Draw gray rectangles indicating truncated parts
@@ -366,7 +374,7 @@ if(trbeg > 0L) {
 //	FillRect(&r1,GetQDGlobalsWhite(&pat));
 	InsetRect(&r1,2,2);
 	FrameRect(&r1);
-	PenNormal();
+//	PenNormal();
 	}
 if(trend > 0L) {
 	r2.top = top; r2.left = r.right;
@@ -378,7 +386,7 @@ if(trend > 0L) {
 //	FillRect(&r2,GetQDGlobalsWhite(&pat));
 	InsetRect(&r2,2,2);
 	FrameRect(&r2);
-	PenNormal();
+//	PenNormal();
 	}
 
 // Draw period(s)
@@ -393,7 +401,7 @@ if(objectperiod > EPSILON) {
 		Line(0,hrect-2);
 		xx += objectperiod;
 		}
-	PenNormal();
+//	PenNormal();
 	}
 
 if(j < Jbol && (*p_Tref)[j] > EPSILON) {
@@ -401,7 +409,7 @@ if(j < Jbol && (*p_Tref)[j] > EPSILON) {
 	MoveTo(r.left + (int) pivloc - 2,r.top - 8);
 	PenPat(GetQDGlobalsWhite(&pat)); PenSize(1,4);
 	Line(4,0);
-	PenNormal();
+//	PenNormal();
 	
 	// Now draw vertical line of pivot (if non relocatable)
 	MoveTo(r.left + (int) pivloc,r.top - 7);
@@ -413,7 +421,7 @@ if(j < Jbol && (*p_Tref)[j] > EPSILON) {
 	
 	// Now draw arrow of pivot
 	Line(-2,-2); Line(4,0); Line(-2,2);
-	PenNormal();
+//	PenNormal();
 	
 	// The following is a line connecting the pivot to the object if needed
 	MoveTo(r.left + (int) pivloc,r.top);
@@ -465,7 +473,7 @@ SetPortWindowPort(Window[w]);
 FramePoly(p_graph);
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("Err DrawGraph(). saveport == NULL");
-StopWait();
+// StopWait();
 return(OK);
 }
 
@@ -474,18 +482,19 @@ KillDiagrams(int w)
 {
 int n;
 
-if(w < 0 || w >= WMAX) {
+w = wGraphic;
+/* if(w < 0 || w >= WMAX) {
 	if(Beta) Alert1("Err. KillDiagrams. w < 0 || w >= WMAX");
 	return(OK);
-	}
+	} */
 for(n=Ndiagram-1; n >= 0; n--) {
 	if(n < 0 || n >= MAXDIAGRAM) {
-		if(Beta) Alert1("Err. KillDiagrams. n < 0 || n >= MAXDIAGRAM");
+	//	if(Beta) Alert1("Err. KillDiagrams. n < 0 || n >= MAXDIAGRAM");
 		Ndiagram = 0;
 		break;
 		}
 	if(DiagramWindow[n] == w && p_Diagram[n] != NULL) {
-		KillPoly(p_Diagram[n]);
+	//	KillPoly(p_Diagram[n]);
 		p_Diagram[n] = NULL;
 		if(n == Ndiagram-1) Ndiagram--;
 		}
@@ -497,7 +506,7 @@ if(w == wGraphic && NoteScalePicture != NULL) {
 if(!Offscreen) {
 	for(n=Npicture-1; n >= 0; n--) {
 		if(n < 0 || n >= MAXPICT) {
-			if(Beta) Alert1("Err. KillDiagrams. n < 0 || n >= MAXPICT");
+		//	if(Beta) Alert1("Err. KillDiagrams. n < 0 || n >= MAXPICT");
 			Npicture = 0;
 			break;
 			}
@@ -1278,9 +1287,9 @@ for(i=j=0; ; i++,j++) {
 		(*p_overflow) = TRUE;
 		return(OK);
 		}
-	if((i % 10) == 0 && (result=InterruptDraw(0,interruptok)) != OK) {
+/*	if((i % 10) == 0 && (result=InterruptDraw(0,interruptok)) != OK) {
 		return(result);
-		}
+		} */
 	t1 = leftoffset + (int) Round(i * p);
 	if(t1 > xmax) break;
 	switch(j) {
@@ -1308,9 +1317,9 @@ for(i = 1; ; i++) {
 		(*p_overflow) = TRUE;
 		return(OK);
 		}
-	if((i % 10) == 0 && (result=InterruptDraw(0,interruptok)) != OK) {
+/*	if((i % 10) == 0 && (result=InterruptDraw(0,interruptok)) != OK) {
 		return(result);
-		}
+		} */
 	if(k == 10) sprintf(line,"%.2fs",(double)i * xscale * k / 10.);
 	if(k == 1) sprintf(line,"%.3fs",(double)i * xscale * k / 10.);
 	c2pstrcpy(label, line);
@@ -1344,9 +1353,9 @@ for(i=1L,rr=Ratio,k=0; i <= imax; i++,rr+=Kpress) {
 		(*p_overflow) = TRUE;
 		return(OK);
 		}
-	if((i % 10) == 0 && (result=InterruptDraw(0,interruptok)) != OK) {
+/*	if((i % 10) == 0 && (result=InterruptDraw(0,interruptok)) != OK) {
 		return(result);
-		}
+		} */
 	PenPat(GetQDGlobalsGray(&pat));
 	t1 = (*p_T)[i] / CorrectionFactor;
 	if(p_delta != NULL) t1 += (*p_delta)[i];

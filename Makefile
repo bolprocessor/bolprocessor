@@ -27,6 +27,7 @@ SRCS = \
   $(SRCDIR)/FillPhaseDiagram.c \
   $(SRCDIR)/GetRelease.c \
   $(SRCDIR)/Glossary.c \
+  $(SRCDIR)/Graphic.c \
   $(SRCDIR)/HTML.c \
   $(SRCDIR)/Inits.c \
   $(SRCDIR)/Interface2.c \
@@ -70,6 +71,7 @@ OBJS = \
   $(SRCDIR)/FillPhaseDiagram.o \
   $(SRCDIR)/GetRelease.o \
   $(SRCDIR)/Glossary.o \
+  $(SRCDIR)/Graphic.o \
   $(SRCDIR)/HTML.o \
   $(SRCDIR)/Inits.o \
   $(SRCDIR)/Interface2.o \
@@ -231,6 +233,12 @@ source/BP2/Glossary.o: source/BP2/MissingMacPrototypes.h
 source/BP2/Glossary.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
 source/BP2/Glossary.o: source/BP2/midi1.h
 source/BP2/Glossary.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
+source/BP2/Graphic.o: source/prefix/PrefixANSIDebug.h
+source/BP2/Graphic.o: source/BP2/MissingMacTypes.h 
+source/BP2/Graphic.o: source/BP2/MissingMacPrototypes.h
+source/BP2/Graphic.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
+source/BP2/Graphic.o: source/BP2/midi1.h
+source/BP2/Graphic.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
 source/BP2/HTML.o: source/prefix/PrefixANSIDebug.h
 source/BP2/HTML.o: source/BP2/MissingMacTypes.h 
 source/BP2/HTML.o: source/BP2/MissingMacPrototypes.h
