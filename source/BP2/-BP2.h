@@ -453,8 +453,8 @@ enum {
 #define INDIAN 2
 #define KEYS 3
 
-#define NOTESIZE 9	/* Length of note/key name. Used by EnglishNotes(), FrenchNotes()É */
-					/* É and p_NoteName and p_AltNoteName */
+#define NOTESIZE 9	/* Length of note/key name. Used by EnglishNotes(), FrenchNotes()Ã‰ */
+					/* Ã‰ and p_NoteName and p_AltNoteName */
 
 #define BOL 0
 #define PATTERN 1

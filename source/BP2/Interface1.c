@@ -723,13 +723,13 @@ if(GrafWindow[w] && reset) {
 		GetWindowPortBounds(Window[w], &r);
 		if(OKhScroll[w]) r.bottom = r.bottom - SBARWIDTH - 1;
 		if(OKvScroll[w]) r.right = r.right - SBARWIDTH - 1;
-		EraseRect(&r);
+		EraseRect("canvas",&r);
 		}
 	}
 if(w == wPrototype1) {
 	KillDiagrams(w);
 	r = PictFrame;
-	EraseRect(&r);
+	EraseRect("canvas",&r);
 	}
 switch(w) {
 	case wData: ItemNumber = 0L; break;
@@ -1471,7 +1471,7 @@ if((cntlCode=FindControl(p_event->where,theWindow,&theControl)) != 0) {
 				}
 			InvalWindowRect(Window[w], &r);
 			ClipRect(&r1);
-			EraseRect(&r1);
+			EraseRect("canvas",&r1);
 			if(saveport != NULL) SetPort(saveport);
 				else if(Beta) Alert1("Err DoContent(). saveport == NULL");
 			AdjustGraph(TRUE,w,theControl);
@@ -1589,7 +1589,7 @@ Rect r;
 
 GetWindowPortBounds(Window[w], &r);
 ClipRect(&r);
-EraseRect(&r);
+EraseRect("canvas",&r);
 InvalWindowRect(Window[w], &r);
 SetViewRect(w);
 MoveScrollBars(w, &r);

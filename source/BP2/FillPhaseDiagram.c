@@ -1670,19 +1670,20 @@ MySetHandleSize((Handle*)&p_articul,(Size)Maxevent*sizeof(short));
 MySetHandleSize((Handle*)&p_T,(Size) (*p_maxseq+2)*sizeof(Milliseconds));
 
 if(DoSystem() != OK) return(ABORT);
-#if BP_CARBON_GUI
+// if BP_CARBON_GUI
 if(!foundobject && ShowGraphic && !ShowPianoRoll && !ScriptExecOn && Jbol < 3
 		&& Jpatt == 0 && ((*p_numberobjects) > 10) && !ToldAboutPianoRoll) {
 	ToldAboutPianoRoll = TRUE;
-	result = Answer("This project doesn't require sound-objects. Use piano roll display",'Y');
+	ShowPianoRoll = TRUE;
+/*	result = Answer("This project doesn't require sound-objects. Use piano roll display",'Y');
 	if(result == YES) {
 		//if(!ScriptExecOn && (!AEventOn || OkWait)) // suppressed 053007 akozar
 		//	Alert1("The piano roll option will be saved with the project settings");
 		ShowPianoRoll = TRUE;
 		MaintainMenus();
-		}
+		} */
 	}
-#endif /* BP_CARBON_GUI */
+// endif BP_CARBON_GUI
 return(OK);
 }
 

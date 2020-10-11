@@ -54,8 +54,8 @@ WindowPtr w;
 SetRect(&r,152,60,366,132);
 SetPortWindowPort((w = NewWindow(0L,&r,"\p",1,1,NULL,0,0L)));
 TextFont(0);
-MoveTo(4,40);
-DrawString("\pCan't open resource file!");
+move_to("canvas",4,40);
+stroke_text("canvas","\pCan't open resource file!");
 #if TARGET_API_MAC_CARBON
   QDFlushPortBuffer(GetWindowPort(w), NULL);
 #endif
@@ -2454,7 +2454,7 @@ else {
 	Deactivate(TEH[w]);
 	PenPat(GetQDGlobalsGray(&pat));
 	}
-RGBForeColor(&Black);
+stroke_style("canvas",&Black);
 r = LongRectToRect(TextGetViewRect(TEH[w]));
 InsetRect(&r,-1,-1);
 FrameRect(&r);

@@ -39,6 +39,7 @@
 #include "-BP2decl.h"
 
 extern FILE * imagePtr;
+extern int N_image;
 
 ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start)
 /* Produce items. Start string is selection in window w or in buffer p_start */
@@ -1123,8 +1124,8 @@ t_rule rule;
 tokenbyte **p_arg;
 int i,i0,i1,p,q,lenc,funct;
 
-/* Rule is structural if some structure markers are found in its… */
-/* …argument, yet not in its left or right context. */
+/* Rule is structural if some structure markers are found in its√â */
+/* √âargument, yet not in its left or right context. */
 rule = (*((*(Gram.p_subgram))[igram].p_rule))[irul];
 funct = rule.operator; if(funct == 2) return(FALSE);	/* "<--" */
 p_arg = rule.p_rightarg;
@@ -1202,7 +1203,7 @@ return(OK);
 
 
 ClearMarkers(tokenbyte ***pp_a)
-/* Suppress '•' beat markers */
+/* Suppress '¬•' beat markers */
 {
 unsigned long i,k;
 tokenbyte m,p;
@@ -1218,7 +1219,7 @@ for(i=k=ZERO; ;) {
 	if(setting_sections && m == T0 && p == 21)	{ /* '*' */
 		k += 6; continue;
 		}
-//	if(m == T0 && p == 7) {		/* '•' */
+//	if(m == T0 && p == 7) {		/* '¬•' */
 //		k += 2; continue;
 //		}
 	if(k > 0) {

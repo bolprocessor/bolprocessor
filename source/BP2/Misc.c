@@ -1920,7 +1920,7 @@ short type;
 Rect r;
 
 GetDialogItem(thedialog,1,&type,&thecontrol,&r);
-PenSize(3,3);
+pen_size("canvas",3,3);
 InsetRect(&r,-2,-2);
 FrameRoundRect(&r,16,16);
 }

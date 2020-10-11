@@ -109,7 +109,7 @@ line = 0; page++;
 PrOpenPage(printport,0L);
 // if(PrError() != noErr) goto OUT;
 linebase = uplimit + lineheight;
-MoveTo(leftlimit,linebase);
+move_to("canvas",leftlimit,linebase);
 if(WindowName[w][0] != '\0')
 	sprintf(Message,"%s window / '%s' / page %ld",WindowName[w],
 		FileName[w],(long)page);
@@ -117,7 +117,7 @@ else
 	sprintf(Message,"%s window / page %ld",WindowName[w],(long)page);
 DrawText(Message,0,strlen(Message));
 linebase += lineheight;
-MoveTo(leftlimit,linebase);
+move_to("canvas",leftlimit,linebase);
 MystrcpyHandleToString(MAXINFOLENGTH,0,Message,p_FileInfo[w]);
 DrawText(Message,0,strlen(Message));
 linebase += lineheight;
@@ -125,7 +125,7 @@ line += 3;
 
 NEWLINE:
 linebase += lineheight;
-MoveTo(leftlimit,linebase);
+move_to("canvas",leftlimit,linebase);
 poslastspace = poslastbreak = -1;
 if(posstart > posend) goto OUT;
 oldc = '\0'; toolong = FALSE;

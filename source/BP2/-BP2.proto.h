@@ -540,7 +540,7 @@ int MakeSound(tokenbyte***,int*,unsigned long,int,tokenbyte***,long,long,int,int
 int SendControl(ContinuousControl**,Milliseconds,int,int,int,int,int,int*,char***,
 	Milliseconds***,int***,MIDIcontrolstatus**,PerfParameters****);
 int InterruptSound(void);
-int DrawNoteScale(int,int,int,int,int,int);
+int DrawNoteScale(Rect*,int,int,int,int,int,int);
 int DrawPianoNote(int,int,int,Milliseconds,PerfParameters****,int,int,int,int,int,Rect*,int*);
 long Findibm(int,Milliseconds,int);
 int DrawItemBackground(Rect*,unsigned long,int,int,int,int,Milliseconds**,long*,int,int*);
@@ -900,7 +900,7 @@ int ChangeColor(void);
 int DrawItem(int,SoundObjectInstanceParameters**,Milliseconds**,Milliseconds**,int,long,long,unsigned long,
 	int,int,unsigned long**,int,int,Milliseconds**);
 int OpenGraphic(int,Rect*,int,CGrafPtr*,GDHandle*);
-int CloseGraphic(int,long,long,int,Rect*,CGrafPtr*,GDHandle);
+// int CloseGraphic(int,long,long,int,Rect*,CGrafPtr*,GDHandle);
 int InterruptDraw(int,int);
 int DrawObject(int,char*,double,int,int,int,int,long,long,long,long,long,int*,long*,long*,PicHandle);
 int DrawGraph(int,PolyHandle);
@@ -1088,8 +1088,22 @@ long LineStartPos(int,int,int);
 
 // new global functions in the console build
 void CloseFile(FILE* file);
-	void CreateImageFile(void);
+void CreateImageFile(void);
 void EndImageFile(void);
+void remove_spaces(const char*, char*);
+
+void begin_path(char*);
+void end_path(char*);
+void move_to(char*,int,int);
+void line_to(char*,int,int);
+void pen_size(char*,int,int);
+void stroke_style(char*,char*);
+void fill_style(char*,char*);
+void stroke_text(char*,char*,int,int);
+void fill_text(char*,char*,int,int);
+void text_style(char*,int,char*);
+void erase_rect(char*,Rect*);
+void draw_line(char*,int,int,int,int,char*);
 
 
 #if !TARGET_API_MAC_CARBON

@@ -31,13 +31,14 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
-
 #ifndef _H_BP2
 #include "-BP2.h"
 #endif
 
 #include "-BP2decl.h"
 
+extern FILE * imagePtr;
+extern int resize;
 
 MakeSound(tokenbyte ***pp_A,int *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	tokenbyte ***pp_b,long tmin,long tmax,int interruptok,int showpianoroll,
@@ -65,7 +66,7 @@ Milliseconds time,buffertime,torigin,t0,t1,t11,t2,t2obj,
 	**p_nextd,computetime,currenttime,objectduration,objectstarttime;
 
 Handle h;
-char **p_keyon[MAXCHAN],**p_onoff,**p_active[MAXCHAN],line[4];
+char **p_keyon[MAXCHAN],**p_onoff,**p_active[MAXCHAN],line[4],line_image[200];
 long timeleft,formertime,size,istreak,posmin,localperiod,endxmax,endymax,oldtcurr,
 	i1,i2,oldi2,imap,gap,maxmapped,i,im,ievent,yruler;
 unsigned long currswitchstate[MAXCHAN],oldtime,maxmidibytes5,drivertime;
@@ -91,6 +92,7 @@ if(SoundOn) return(OK);
 
 if(CompileRegressions() != OK) return(ABORT);
 
+showpianoroll = ShowPianoRoll;
 if(ConvertMIDItoCsound || ItemCapture) showpianoroll = FALSE;
 
 cswrite = FALSE;
@@ -128,13 +130,13 @@ if(EventState != NO) return(EventState);
 Ke = log((double) SpeedRange) / 64.;
 t0 = ZERO;
 if(*p_kmax >= Maxevent) {
-	if(Beta) Alert1("kmax >= Maxevent. Err. MakeSound()");
+//	if(Beta) Alert1("kmax >= Maxevent. Err. MakeSound()");
 	return(ABORT);
 	}
 
 maxconc = maxnsequences;
 if(Beta && maxconc > Maxconc) {
-	Alert1("maxconc > Maxconc. Err. MakeSound()");
+//	Alert1("maxconc > Maxconc. Err. MakeSound()");
 	}
 
 if((p_control=(ContinuousControl**)GiveSpace(maxconc*sizeof(ContinuousControl))) == NULL)
@@ -201,7 +203,7 @@ for(k=2; k <= (*p_kmax); k++) {
 	alpha = (*p_Instance)[k].alpha;
 	beta = (*p_Instance)[k].dilationratio;	/* alpha != beta if the sound-object is cyclic */
 	if((*p_Instance)[k].ncycles < 2 && beta != alpha) {
-		if(Beta) Alert1("Err. MakeSound(). beta != alpha");
+	//	if(Beta) Alert1("Err. MakeSound(). beta != alpha");
 		beta = (*p_Instance)[k].dilationratio = alpha;
 		}
 	if(j < 16384) {
@@ -235,7 +237,7 @@ for(k=2; k <= (*p_kmax); k++) {
 	if(j > 1 && j < 16384) {	/* Sound-object or time pattern */
 		/* Look for first event in object and for first and last events in its periodical part */
 		if(Beta && j >= Jbol && Jbol < 2)
-			Alert1("Err. MakeSound(). j >= Jbol && Jbol < 2");
+		//	Alert1("Err. MakeSound(). j >= Jbol && Jbol < 2");
 		for(i=0; i < im; i++) {
 			olddate = date;
 			if(cswrite && (*p_CsoundSize)[j] > 0 && !ConvertMIDItoCsound)
@@ -300,12 +302,10 @@ for(k=2; k <= (*p_kmax); k++) {
 	}
 
 SoundOn = TRUE;
-
 if(showpianoroll) {
 // if BP_CARBON_GUI
 	// FIXME:  Would like to figure out how to move all of the piano roll code elsewhere ...
-/*	if(ShowMessages || PlayPrototypeOn) ShowMessage(TRUE,wMessage,"Preparing piano roll...");
-	GetPort(&saveport); */
+//	fputs("OK2\n",imagePtr);
 	minkey = 127; maxkey = 0;
 	tmax = ZERO;
 	for(k=2; k <= (*p_kmax); k++) {
@@ -366,61 +366,62 @@ if(showpianoroll) {
 	if(endxmax < 100) endxmax = 100;
 	endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
 	
-/*	GetWindowPortBounds(Window[w], &graphrect);
+	sprintf(line_image,"WMAX=%ld\n",(long)resize * endxmax);
+	fputs(line_image,imagePtr);
+	
+// GetWindowPortBounds(Window[w], &graphrect);
+	
+	graphrect.top = graphrect.left = 0;
 	graphrect.bottom = graphrect.top + endymax;
-	graphrect.right = graphrect.left + endxmax; */
+	graphrect.right = graphrect.left + endxmax;
 	
 //	if((result=OpenGraphic(w,&graphrect,NO,&port,&gdh)) != OK) goto GETOUT;
 	
 	if((result=DrawItemBackground(&graphrect,imaxstreak,htext,hrect,leftoffset,NO,
 		p_delta,&yruler,topoffset,&overflow)) != OK || overflow) goto OUTGRAPHIC;
+	DrawNoteScale(&graphrect,w,minkey,maxkey,hrect,leftoffset,topoffset);
 	
 	topoffset += 3;
-/*	PenSize(1,1);
-	if(UseGraphicsColor) RGBForeColor(&NoteScaleColor1);
-	else RGBForeColor(&Black); */
-	for(key=0; key < 128; key+=12) {	/* Draw horizontal line "C" */
+	/*for(key=0; key < 128; key+=12) {	
 		if(key < minkey || key > maxkey) continue;
-		y = (maxkey - key) * hrect + topoffset + 1;
-	/*	MoveTo(leftoffset-2,y);
-		LineTo(endxmax-27,y); */
-		sprintf(line,"c%ld",(long)((key - (key % 12))/12)-1L);
+		y = (maxkey - key) * hrect + topoffset + 1; */
+	/*	move_to("canvas",leftoffset-2,y);
+		line_to("canvas",endxmax-27,y); */
+	//	sprintf(line,"c%ld",(long)((key - (key % 12))/12)-1L);
 	/*	c2pstrcpy(label, line);
 		labelrect.top = y - 7;
 		labelrect.left = endxmax - 25;
 		labelrect.right = endxmax - 25 + StringWidth(label);
 		labelrect.bottom = y + 6;
-		EraseRect(&labelrect);
-		MoveTo(endxmax-24,y + 3);
-		DrawString(label); */
-		}
+		erase_rect("canvas"&labelrect);
+		move_to("canvas",endxmax-24,y + 3);
+		stroke_text("canvas",label); */
+	//	}
 		
-/*	if(UseGraphicsColor) RGBForeColor(&NoteScaleColor2);
-	else RGBForeColor(&Black); */
-	for(key=6; key < 128; key+=12) {	/* Draw horizontal line "F#" */
+/*	for(key=6; key < 128; key+=12) {	
 		if(key < minkey || key > maxkey) continue;
-		y = (maxkey - key) * hrect + topoffset + 1;
-	/*	MoveTo(leftoffset-2,y);
-		LineTo(endxmax-27,y); */
-		sprintf(line,"f#%ld",(long)((key - (key % 12))/12)-1L);
+		y = (maxkey - key) * hrect + topoffset + 1; */
+	/*	move_to("canvas",leftoffset-2,y);
+		line_to("canvas",endxmax-27,y); */
+	//	sprintf(line,"f#%ld",(long)((key - (key % 12))/12)-1L);
 	/*	c2pstrcpy(label, line);
 		labelrect.top = y - 7;
 		labelrect.left = endxmax - 25;
 		labelrect.right = endxmax - 25 + StringWidth(label);
 		labelrect.bottom = y + 6;
-		EraseRect(&labelrect);
-		MoveTo(endxmax-24,y + 3);
-		DrawString(label); */
-		}
-/*	RGBForeColor(&Black);
+		erase_rect("canvas"&labelrect);
+		move_to("canvas",endxmax-24,y + 3);
+		stroke_text("canvas",label); */
+	//	}
+/*	stroke_style("canvas",&Black);
 	PenNormal(); */
 		
 	Hmin[w] = Hmax[w] = 0;
 	Hzero[w] = Vzero[w] = 0;
 	Vmin[w] = Vmax[w] = 0;
 /*	PenNormal();
-	RGBForeColor(&Black);
-	PenSize(1,hrect); */
+	stroke_style("canvas",&Black);
+	pen_size("canvas",1,hrect); */
 // endif  BP_CARBON_GUI 
 	}
 
@@ -558,7 +559,7 @@ for(nseq=0; nseq < maxconc; nseq++) {
 	maxparam = (*ptrperf)->numberparams;
 	for(i=0; i < maxparam; i++) (*((*ptrperf)->params))[i].active = FALSE;
 	if(maxparam <= IPANORAMIC) {
-		if(Beta) Alert1("Err. MakeSound(). Beta && maxparam <= IPANORAMIC");
+	//	if(Beta) Alert1("Err. MakeSound(). Beta && maxparam <= IPANORAMIC");
 		goto OVER;
 		}
 	
@@ -693,7 +694,7 @@ TRYCSFILE:
 			if(WriteToFile(NO,CsoundFileFormat,Message,CsRefNum) != OK) {
 				sprintf(Message,"Couldn't write to file '%s'. May be it has been closed by another application",
 					CsFileName);
-				Alert1(Message);
+			//	Alert1(Message);
 				CloseCsScore();
 				if((result=PrepareCsFile()) != OK) goto OVER;
 				goto TRYCSFILE;
@@ -720,7 +721,7 @@ TRYCSFILE:
 		currentinstancevalues = (*p_Instance)[kcurrentinstance].contparameters.values;
 		j = (*p_Instance)[kcurrentinstance].object;
 		if(j == 0) {
-			if(Beta) Alert1("Err. MakeSound(). j = 0");
+		//	if(Beta) Alert1("Err. MakeSound(). j = 0");
 			result = ABORT; goto OVER;
 			}
 		outtime = FALSE;
@@ -734,12 +735,12 @@ TRYCSFILE:
 		instrument = (*p_Instance)[kcurrentinstance].instrument;
 		nseq = (*p_Instance)[kcurrentinstance].nseq;
 		if(nseq < 0 || nseq >= maxconc) {
-			if(Beta) Alert1("Err. MakeSound(). nseq < 0 || nseq >= maxconc");
+		//	if(Beta) Alert1("Err. MakeSound(). nseq < 0 || nseq >= maxconc");
 			nseq = 0;
 			}
 		params = (*((*pp_currentparams)[nseq]))->params;
 		if(j < 16384) {
-			if(Beta && j >= Jbol && Jbol < 2) Alert1("Err. MakeSound(). j >= Jbol && Jbol < 2");
+		//	if(Beta && j >= Jbol && Jbol < 2) Alert1("Err. MakeSound(). j >= Jbol && Jbol < 2");
 			if(j < Jbol) {
 				switch((*p_StrikeAgain)[j]) {
 					case -1:
@@ -953,11 +954,11 @@ TRYCSFILE:
 			
 			if((kcurrentinstance > 1) && (*p_Instance)[kcurrentinstance].contparameters.number > 0) {
 				if(currentinstancevalues == NULL) {
-					if(Beta) Alert1("Err. MakeSound(). currentinstancevalues == NULL");
+				//	if(Beta) Alert1("Err. MakeSound(). currentinstancevalues == NULL");
 					goto FORGETIT;
 					}
 				if((*((*pp_currentparams)[nseq]))->params == NULL) {
-					if(Beta) Alert1("Err. MakeSound(). (*((*pp_currentparams)[nseq]))->params == NULL");
+				//	if(Beta) Alert1("Err. MakeSound(). (*((*pp_currentparams)[nseq]))->params == NULL");
 					maxparam = 10;
 					if((ptrs=(ParameterStatus**) GiveSpace((Size)maxparam * sizeof(ParameterStatus))) == NULL)
 						return(ABORT);
@@ -1007,8 +1008,8 @@ FORGETIT:
 						&& (scriptlist=ObjScriptLine(kcurrentinstance)) != NULL) {
 				
 					WhenItStarted = oldtime = clock();
-					/* WhenItStarted may be further updated by WaitForEmptyBuffer()É */
-					/* É if it is called by ExecuteScriptList() */
+					/* WhenItStarted may be further updated by WaitForEmptyBuffer()Ã‰ */
+					/* Ã‰ if it is called by ExecuteScriptList() */
 					
 					if((result=ExecuteScriptList(scriptlist)) != OK && result != RESUME)
 						goto OVER;
@@ -1094,7 +1095,7 @@ FORGETIT:
 							= /* torigin + */ (*p_Instance)[kcurrentinstance].starttime;
 						(*stream)[index].channel = ch = (*currentinstancevalues)[i].channel - 1;
 						if(ch < 0 || ch >= MAXCHAN) {
-							if(Beta) Alert1("Err. MakeSound(). ch < 0 || ch >= MAXCHAN");
+						//	if(Beta) Alert1("Err. MakeSound(). ch < 0 || ch >= MAXCHAN");
 							result = ABORT;
 							goto OVER;
 							}
@@ -1135,7 +1136,7 @@ SWITCHES:
 							for(jj=0; jj < 32; jj++) {
 								s = 127 * (currswitchstate[ii] & (1L << jj));
 								if(s < 0 || s > 127) {
-									if(Beta) Alert1("Err. MakeSound(). s < 0 || s > 127");
+								//	if(Beta) Alert1("Err. MakeSound(). s < 0 || s > 127");
 									s = 0;
 									}
 								rs = 0;
@@ -1300,9 +1301,9 @@ SWITCHES:
 		CscoreWrite(strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 									if(showpianoroll) {
-#if BP_CARBON_GUI
+// #if BP_CARBON_GUI
 										(*((*pp_currentparams)[nseq]))->starttime[c1] = (t0 + t1);
-#endif /* BP_CARBON_GUI */
+// #endif
 										}
 									}
 								}
@@ -1358,7 +1359,7 @@ SWITCHES:
 					}
 				}
 			}
-			
+	
 // Send messages of sound-object instance kcurrentinstance as long as possible
 
 PLAYOBJECT:					
@@ -1514,9 +1515,9 @@ SENDNOTEOFF:
 		CscoreWrite(strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 							if(showpianoroll) {
-#if BP_CARBON_GUI
+// if BP_CARBON_GUI
 								(*((*pp_currentparams)[nseq]))->starttime[c1] = (t0 + t1);
-#endif /* BP_CARBON_GUI */
+// endif /* BP_CARBON_GUI */
 								}
 							}
 						}
@@ -1650,7 +1651,7 @@ NEWPERIOD:
 		result = OK;
 		
 		if(Beta && (chancont >= MAXCHAN || icont > IPANORAMIC)) {
-			Alert1("Err. MakeSound(). chancont >= MAXCHAN || icont > IPANORAMIC");
+		//	Alert1("Err. MakeSound(). chancont >= MAXCHAN || icont > IPANORAMIC");
 			goto OVER;
 			}
 		if(cswrite || chancont < 0 || icont < 0 || !(*(p_active[chancont]))[icont])
@@ -1660,16 +1661,16 @@ SENDCONTROLMESSAGE:
 // Send message of continuous parameter
 		
 		if(Beta && (chancont < 0 || icont < 0 || chancont >= MAXCHAN || icont > IPANORAMIC)) {
-			Alert1("Err. MakeSound(). chancont < 0 || icont < 0 || chancont >= MAXCHAN || icont > IPANORAMIC");
+	//		Alert1("Err. MakeSound(). chancont < 0 || icont < 0 || chancont >= MAXCHAN || icont > IPANORAMIC");
 			goto OVER;
 			}
 		if(Beta && (!(*(p_active[chancont]))[icont])) {
-			Alert1("Err. MakeSound(). !(*(p_active[chancont]))[icont]");
+	//		Alert1("Err. MakeSound(). !(*(p_active[chancont]))[icont]");
 			goto OVER;
 			}
 		if(t2 != Infpos && t2 == (*(p_t2cont[chancont]))[icont])
 			if(SendControl(p_control,t0,chancont,icont,maxconc,
-					cswrite,showpianoroll,&rs,p_active,p_t2cont,p_seqcont,p_Oldvalue,pp_currentparams) != OK)
+			cswrite,showpianoroll,&rs,p_active,p_t2cont,p_seqcont,p_Oldvalue,pp_currentparams) != OK)
 				goto OVER;
 
 
@@ -1780,9 +1781,9 @@ FINDNEXTEVENT:
 
 LastTcurr = Tcurr;
 
-#if BP_CARBON_GUI
+// if BP_CARBON_GUI
 if(showpianoroll) goto OUTGRAPHIC;
-#endif /* BP_CARBON_GUI */
+// endif /* BP_CARBON_GUI */
 	
 buffertime = Infpos;
 if(OutMIDI && !cswrite && !MIDIfileOn && !CyclicPlay && !ItemCapture && !showpianoroll
@@ -1845,7 +1846,7 @@ if(!FirstTime && !PlayPrototypeOn
 		}
 	if(rep3 == dDisplayItem) {
 		if(*pp_b == NULL) {
-			if(Beta) Alert1("Err. MakeSound(). *pp_b == NULL");
+		//	if(Beta) Alert1("Err. MakeSound(). *pp_b == NULL");
 			}
 		else {
 			BPActivateWindow(SLOW,wData);
@@ -1895,17 +1896,15 @@ if(result == STOP) result = ABORT;
 
 OUTGRAPHIC:
 if(showpianoroll) {
-#if BP_CARBON_GUI
-	CloseGraphic(w,endxmax,endymax,overflow,&graphrect,&port,gdh);
-	if(!overflow) DrawNoteScale(w,minkey,maxkey,hrect,leftoffset,topoffset);
-#if NEWGRAF
-	if(Offscreen) UnlockPixels(GetGWorldPixMap(gMainGWorld));
-#endif
+//	if(!overflow) DrawNoteScale(&graphrect,w,minkey,maxkey,hrect,leftoffset,topoffset);
+	
+// if NEWGRAF
+/*	if(Offscreen) UnlockPixels(GetGWorldPixMap(gMainGWorld));
+endif
 	if(saveport != NULL) SetPort(saveport);
-	else if(Beta) Alert1("Err MakeSound(). saveport == NULL");
-	if(ShowMessages) ClearMessage();
+	if(ShowMessages) ClearMessage(); */
 	goto GETOUT;
-#endif /* BP_CARBON_GUI */
+// endif /* BP_CARBON_GUI */
 	}
 
 if(!cswrite && !Panic && (result == RESUME || (!Improvize && !CyclicPlay))) { // FIXME ? Test OutMIDI==TRUE ?
@@ -2013,9 +2012,10 @@ if(!MIDIfileOn && !cswrite && OutMIDI && !showpianoroll) {
 	
 MIDIfileOn = FALSE;
 
-#if BP_CARBON_GUI
+// if BP_CARBON_GUI
 if(showpianoroll) Tcurr = oldtcurr;
-#endif /* BP_CARBON_GUI */
+EndImageFile();
+// endif /* BP_CARBON_GUI */
 
 if(cswrite && CsoundTrace) ShowSelect(CENTRE,wTrace);
 Interrupted = FALSE;
@@ -2056,7 +2056,7 @@ float x;
 
 if(control >= MAXPARAMCTRL) {
 	sprintf(Message,"Err. ClipVelocity(). control = %ld",(long)control);
-	if(Beta) Alert1(Message);
+//	if(Beta) Alert1(Message);
 	control = -1;
 	}
 if(control > -1) v = ParamValue[control];
@@ -2084,7 +2084,7 @@ if(ch < 128) {
 	if(ch > MAXCHAN) {
 		sprintf(Message,"Trying to assign channel #%ld.\nValue should be 1..%ld",
 			(long)ch,(long)MAXCHAN);
-		Alert1(Message);
+	//	Alert1(Message);
 		return(ABORT);
 		}
 	return(ch);	/* Fixed channel */
@@ -2094,7 +2094,7 @@ x = ch - 128;
 if(x < 1 || x >= MAXPARAMCTRL) {
 	sprintf(Message,"Trying to fix channel with incorrect K%ld.\nValue should be 1..%ld",
 		(long)x,(long)MAXPARAMCTRL-1L);
-	Alert1(Message);
+	// Alert1(Message);
 	return(ABORT);
 	}
 ch = ParamValue[x];
@@ -2113,7 +2113,7 @@ if(ch < 1 || ch > MAXCHAN) {
 			(long)ch,(long)x,(long)MAXCHAN);
 			}
 		}
-	Alert1(Message);
+//	Alert1(Message);
 	return(ABORT);
 	}
 return(ch);
@@ -2190,7 +2190,7 @@ if(EventState != NO) result = EventState;
 
 OVER:
 if(WaitOn > 0) WaitOn--;
-else if(Beta) Alert1("Err. WaitForLastSounds(). WaitOn <= 0");
+// else if(Beta) Alert1("Err. WaitForLastSounds(). WaitOn <= 0");
 ClearMessage();
 return(result);
 #endif
@@ -2328,34 +2328,34 @@ ParameterStream **param;
 
 result = OK;
 if(iparam < 0 || iparam > IPANORAMIC) {
-	if(Beta) Alert1("Err. SendControl(). iparam < 0 || iparam > IPANORAMIC");
+//	if(Beta) Alert1("Err. SendControl(). iparam < 0 || iparam > IPANORAMIC");
 	return(ABORT);
 	}
 if(chan < 0 || chan >= MAXCHAN) {
-	if(Beta) Alert1("Err. SendControl(). chan < 0 || chan >= MAXCHAN");
+	// if(Beta) Alert1("Err. SendControl(). chan < 0 || chan >= MAXCHAN");
 	result = ABORT;
 	goto OVER;
 	}
 seq = (*(p_seqcont[chan]))[iparam];
 
 if(seq < 0 || seq >= maxconc) {
-	if(Beta) Alert1("Err. SendControl(). seq < 0 || seq >= maxconc");
+	// if(Beta) Alert1("Err. SendControl(). seq < 0 || seq >= maxconc");
 	return(ABORT);
 	}
 	
 param = (*p_control)[seq].param;
 
 if(chan != (*param)[iparam].channel) {
-	if(Beta) Alert1("Err. SendControl(). chan != (*param)[iparam].channel");
+	// if(Beta) Alert1("Err. SendControl(). chan != (*param)[iparam].channel");
 	result = ABORT;
 	goto OVER;
 	}
 if(!(*(p_active[chan]))[iparam]) {
-	if(Beta) Alert1("Err. SendControl(). !(*(p_active[chan]))[iparam]");
+	// if(Beta) Alert1("Err. SendControl(). !(*(p_active[chan]))[iparam]");
 	return(ABORT);
 	}
 if((*p_control)[seq].param == NULL) {
-	if(Beta) Alert1("Err. SendControl(). (*p_control)[seq].param == NULL");
+	// if(Beta) Alert1("Err. SendControl(). (*p_control)[seq].param == NULL");
 	return(ABORT);
 	}
 if((*param)[iparam].ibm <= ZERO) {
@@ -2369,7 +2369,7 @@ alpha = ((double)(*param)[iparam].ib) / (*param)[iparam].ibm;
 
 if((value = GetTableValue(alpha,(*param)[iparam].imax,(*param)[iparam].point,
 		(*param)[iparam].startvalue,(*param)[iparam].endvalue)) == Infpos) {
-	if(Beta) Alert1("Err. SendControl(). value == Infpos");
+	// if(Beta) Alert1("Err. SendControl(). value == Infpos");
 	return(ABORT);
 	}
 if(value < 0. && value > -0.1) value = 0.;
@@ -2477,13 +2477,13 @@ if((*param)[iparam].ib > (*param)[iparam].ibm) {
 		if((*((*p_control)[nn].param))[iparam].ibm <= ZERO) continue;
 		if(chan == (*((*p_control)[nn].param))[iparam].channel) {
 			if((*(p_active[chan]))[iparam]) {
-				if(Beta) Alert1("Err. SendControl(). (*(p_active[chan]))[iparam]");
+				// if(Beta) Alert1("Err. SendControl(). (*(p_active[chan]))[iparam]");
 				return(ABORT);
 				}
 			
 			/* Set the proper ib using value of t2 */
 			if((*((*p_control)[nn].param))[iparam].duration <= ZERO) {
-				if(Beta) Alert1("Err. SendControl(). (*((*p_control)[nn].param))[iparam].duration <= 0");
+				// if(Beta) Alert1("Err. SendControl(). (*((*p_control)[nn].param))[iparam].duration <= 0");
 				(*((*p_control)[nn].param))[iparam].ib = ZERO;
 				goto OVER;
 				}
@@ -2518,11 +2518,11 @@ double x,y,y1,y2;
 long i,xmax,x1,x2;
 
 if(alpha < 0.) {
-	if(Beta && alpha < -0.01) Alert1("Err. GetTableValue(). alpha < -0.01");
+	// if(Beta && alpha < -0.01) Alert1("Err. GetTableValue(). alpha < -0.01");
 	alpha = 0.;
 	}
 if(alpha > 1.) {
-	if(Beta && alpha > 1.01) Alert1("Err. GetTableValue(). alpha > 1.01");
+	// if(Beta && alpha > 1.01) Alert1("Err. GetTableValue(). alpha > 1.01");
 	alpha = 1.;
 	}
 if(imax == ZERO) {
@@ -2532,16 +2532,16 @@ if(imax == ZERO) {
 	}
 
 if(imax < ZERO) {
-	if(Beta) Alert1("Err. GetTableValue(). imax < ZERO || imax > 255");
+	// if(Beta) Alert1("Err. GetTableValue(). imax < ZERO || imax > 255");
 	return(Infpos);
 	}
 if(coords == NULL) {
-	if(Beta) Alert1("Err. GetTableValue(). coords == NULL");
+	// if(Beta) Alert1("Err. GetTableValue(). coords == NULL");
 	return(Infpos);
 	}
 if(Beta) {
 	if(imax > MyGetHandleSize((Handle)coords) / sizeof(Coordinates)) {
-		Alert1("Err. GetTableValue(). imax >= MyGetHandleSize((Handle)coords) / sizeof(Coordinates)");
+	//	Alert1("Err. GetTableValue(). imax >= MyGetHandleSize((Handle)coords) / sizeof(Coordinates)");
 		return(Infpos);
 		}
 	}
@@ -2555,7 +2555,7 @@ else {
 	y2 = (*(coords))[i].value;
 	y1 = (*(coords))[i-1L].value;
 	if(x1 >= x2) {
-		if(Beta) Alert1("Err. GetTableValue(). x1 >= x2");
+	//	if(Beta) Alert1("Err. GetTableValue(). x1 >= x2");
 		return(Infpos);
 		}
 	y = y1 + (y2 - y1) * (x - x1) / (x2 - x1);

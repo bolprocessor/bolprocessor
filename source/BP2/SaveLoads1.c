@@ -1638,6 +1638,7 @@ if(iv > 19) {
 	ShowPianoRoll = j;
 	/**** THIS IS WHERE THE SETTINGS FILE ENDS NOW IN BP3 ****/
 	/* Removed code for reading piano roll colors */
+	if(ShowPianoRoll) BPPrintMessage(odInfo,"Pianoroll will be used\n");
 	}
 else {
 	ShowObjectGraph = TRUE;

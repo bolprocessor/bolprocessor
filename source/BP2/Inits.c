@@ -529,13 +529,9 @@ for(i=0; i < Maxinscript; i++) ((*p_INscript)[i]).chan = -1;
 
 #if BP_CARBON_GUI
 ResetPianoRollColors();
+#endif /* BP_CARBON_GUI */
 ShowPianoRoll = ToldAboutPianoRoll = FALSE;
 ShowObjectGraph = TRUE;
-#else
-ShowPianoRoll = FALSE;
-ToldAboutPianoRoll = TRUE;
-ShowObjectGraph = FALSE;
-#endif /* BP_CARBON_GUI */
 
 p_Instance = NULL;
 p_ObjectSpecs = NULL;
@@ -924,23 +920,23 @@ ShowMessage(TRUE,wMessage,Message);
 SelectWindow(GetDialogWindow(GreetingsPtr));
 SetPortDialogPort(GreetingsPtr);
 TextSize(10); TextFont(kFontIDCourier);
-RGBForeColor(&Red);
+stroke_style("canvas",&Red);
 x0 = 253; y0 = 18;
 CopyPString("\pInternational",title);
-MoveTo(x0 - StringWidth(title)/2,y0);
-DrawString(title);
+move_to("canvas",x0 - StringWidth(title)/2,y0);
+stroke_text("canvas",title);
 y0 += 11;
 CopyPString("\paward",title);
-MoveTo(x0 - StringWidth(title)/2,y0);
-DrawString(title);
+move_to("canvas",x0 - StringWidth(title)/2,y0);
+stroke_text("canvas",title);
 y0 += 11;
 CopyPString("\pBourges",title);
-MoveTo(x0 - StringWidth(title)/2,y0);
-DrawString(title);
+move_to("canvas",x0 - StringWidth(title)/2,y0);
+stroke_text("canvas",title);
 y0 += 11;
 CopyPString("\p1997",title);
-MoveTo(x0 - StringWidth(title)/2,y0);
-DrawString(title);
+move_to("canvas",x0 - StringWidth(title)/2,y0);
+stroke_text("canvas",title);
 #if TARGET_API_MAC_CARBON
   QDFlushPortBuffer(GetDialogPort(GreetingsPtr), NULL);
 #endif
@@ -1080,7 +1076,7 @@ itemtype = (itemtype & 127) - ctrlItem;
 if(itemhandle != NULL && itemtype == btnCtrl) {
 	GetPort(&saveport);
 	SetPortDialogPort(dp);
-	PenSize(3,3);
+	pen_size("canvas",3,3);
 	InsetRect(&r,-2,-2);
 	FrameRoundRect(&r,16,16);
 /*	SetDialogItem(thewindow,1,itemtype,(Handle)procForBorderUserItem,&r); */
