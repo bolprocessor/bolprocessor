@@ -223,7 +223,7 @@ if(FirstTime && !onlypianoroll) {
 	WaitABit(1000L);	/* This is necessary notably if sending a program change */
 	FirstTime = FALSE;
 	}
-if(Maxitems > ZERO && !ShowGraphic && !DisplayItems) {
+if(Maxitems > ZERO /* && !ShowGraphic && !DisplayItems */) {
 	sprintf(Message,"Item #%ld",(long)ItemNumber+1L);
 	ShowMessage(TRUE,wMessage,Message);
 	}

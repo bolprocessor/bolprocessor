@@ -318,16 +318,14 @@ if((result = TimeSet(pp_buff,&kmax,&tmin,&tmax,&maxseq,&nmax,p_imaxseq,maxseqapp
 if(result == AGAIN) again = TRUE;
 result = OK;
 SetTimeOn = FALSE;
+sprintf(Message,"tmin = %ld, tmax = %ld\n",(long)tmin,(long)tmax);
+BPPrintMessage(odInfo,Message);
 
-BPPrintMessage(odInfo, "==> Drawing graphics?\n");
-			
+if(ShowGraphic) BPPrintMessage(odInfo, "Shall we draw graphics?\n");
 if(onlypianoroll
-		|| (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && tmax > tmin)) {
+		|| (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && (tmax > tmin || Nature_of_time == SMOOTH))) {
 	if(!ShowPianoRoll && !onlypianoroll) {
-// if BP_CARBON_GUI
-		result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,
-			p_imaxseq,TRUE,TRUE,NULL);
-// endif
+		result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
 		}
 	else
 		result = MakeSound(pp_buff,&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,YES,NULL);

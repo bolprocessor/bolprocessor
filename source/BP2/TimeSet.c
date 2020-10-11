@@ -110,10 +110,10 @@ while(TRUE) {
 	if(jj > maxseq) break;
 	if(jj > jn || in == 1.) {
 		jn = jj;		/* Write only once */
-		if(++k > 50) {
+	/*	if(++k > 50) {
 			PleaseWait();
 			k = 0;
-			}
+			} */
 		if(nature_time == STRIATED) {
 			(*p_T)[jn] = (Milliseconds) ((period * (in - 1.)) / Ratio);
 			}
@@ -126,9 +126,11 @@ while(TRUE) {
 
 #if DISPLAY_PHASE_DIAGRAM
 
-Print(wTrace,"\n");
+// Print(wTrace,"\n");
+BPPrintMessage(odInfo,"\n");
 sprintf(Message,"Minconc = %ld    Maxconc = %ld",Minconc,Maxconc);
-Println(wTrace,Message);
+BPPrintMessage(odInfo,Message);
+// Println(wTrace,Message);
 while(Button());
 for(k=ZERO; k < Maxevent; k++) {
 	if(Button()) break;
@@ -163,9 +165,11 @@ for(k=ZERO; k < Maxevent; k++) {
 			}
 		else sprintf(Message,"(<<%s>> chan %ld)",*((*p_Bol)[j]),(long)ChannelConvert((*p_Instance)[k].channel));;
 		}
-	Print(wTrace,Message);
+//	Print(wTrace,Message);
+	BPPrintMessage(odInfo,Message);
 	}
-Print(wTrace,"\n");
+// Print(wTrace,"\n");
+BPPrintMessage(odInfo,"\n");
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	if(Button()) break;
 	for(iseq=1L; iseq <= (*p_imaxseq)[nseq]; iseq++) {
@@ -176,7 +180,8 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 				ptag = WaitList(k);
 				while(ptag != NULL) {
 					sprintf(Message,"<<W%ld>>",(long)((**ptag).x));
-					Print(wTrace,Message);
+					// Print(wTrace,Message);
+					BPPrintMessage(odInfo,Message);
 					ptag = (**ptag).p;
 					}
 				}
@@ -217,24 +222,29 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 				}
 			}
 		else sprintf(Message,"%ld ",(long)k);
-		Print(wTrace,Message);
+		// Print(wTrace,Message);
+		BPPrintMessage(odInfo,Message);
 		}
-	Print(wTrace,"\n");
+//	Print(wTrace,"\n");
+	BPPrintMessage(odInfo,"\n");
 	}
-ShowSelect(CENTRE,wTrace);
-sprintf(Message,"\nT[i], i = 1,%ul:\n",(unsigned long)maxseq);
-Print(wTrace,Message);
+// ShowSelect(CENTRE,wTrace);
+sprintf(Message,"\nT[i], i = 1,%ld:\n",(long)maxseq);
+// Print(wTrace,Message);
+BPPrintMessage(odInfo,Message);
 for(i=1L; i <= maxseq; i++) {
-	if(Button()) break;
+//	if(Button()) break;
 	sprintf(Message,"%ld ",(long)(*p_T)[i]);
-	Print(wTrace,Message);
+//	Print(wTrace,Message);
+	BPPrintMessage(odInfo,Message);
 	}
-Print(wTrace,"\n");
-ShowSelect(CENTRE,wTrace);
+// Print(wTrace,"\n");
+BPPrintMessage(odInfo,"\n");
+// ShowSelect(CENTRE,wTrace);
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
-	if(Button()) break;
+	// if(Button()) break;
 	for(iseq=1L; iseq <= (*p_imaxseq)[nseq]; iseq++) {
-		if(Button()) break;
+	//	if(Button()) break;
 		k = (*((*p_Seq)[nseq]))[iseq];
 		if(k == -1) break;
 		if(k >= 0) {
@@ -246,19 +256,21 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 				}
 			j = (*p_Instance)[k].object;
 			if(j >= Jbol+Jpatt && j < 16384) {
-				Print(wTrace,"\nERR: j >= Jbol+Jpatt\n");
+			//	Print(wTrace,"\nERR: j >= Jbol+Jpatt\n");
+				BPPrintMessage(odInfo,"\nERR: j >= Jbol+Jpatt\n");
 				return(ABORT);
 				}
 			}
 		else {
 			sprintf(Message,"nseq=%ld i=%ld im=%ul k=%ld",(long)nseq,(long)i,
 				(unsigned long)maxseq,(long)k);
-			if(Beta) Alert1(Message);
+		//	if(Beta) Alert1(Message);
+			BPPrintMessage(odInfo,Message);
 			}
 		}
 	}
 #endif
-// End display
+// End display Phase diagram
 
 if(ShowMessages || bigitem) {
 	sprintf(Message,"Positioning %ld sound-objects...",(long)(*p_kmx));
@@ -370,7 +382,8 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 
 	if(DisplayTimeSet) {
 		sprintf(Message,"\nSequence #%ld\n",(long)(nseq+1L));
-		Print(wTrace,Message);
+		// Print(wTrace,Message);
+		BPPrintMessage(odInfo,Message);
 		}
 	CoverOK = DiscontinuityOK = stepthis = FALSE;
 	if(NoConstraint) {
@@ -477,7 +490,6 @@ QUEST2:
 		}
 	first = FALSE;
 
-
 	BTflag = FALSE;
 	tmax = Infneg;
 	olddelta = ZERO;
@@ -532,23 +544,35 @@ QUEST2:
 			}
 		goto STARTAGAIN;
 		}
+		
 	/* Update tmin and tmax */
 	imax = (*p_imaxseq)[nseq] - 1L;
+	sprintf(Message,"imax = %ld\n",(long)imax);
+	BPPrintMessage(odInfo,Message);
 	if(imax > 0) {
+		BPPrintMessage(odInfo,"Updating tmin and tmax\n");
 		i = imax;
-		while(i > 0. && (k=(*((*p_Seq)[nseq]))[i]) < 2) i--;
+		while(i > 0 && (k=(*((*p_Seq)[nseq]))[i]) < 2) i--;
+		sprintf(Message,"1max) i = %ld, k = %ld\n",(long)i,(long)k);
+		BPPrintMessage(odInfo,Message);
 		if(k > *p_kmx) {
-			if(Beta) Alert1("Err. TimeSet(). k > *p_kmx");
+			BPPrintMessage(odInfo,"Error in TimeSet(). k > *p_kmx\n");
 			}
-		else if(i > 0. && (t=((*p_Instance)[k].endtime+(*p_Instance)[k].truncend)) > *p_tmax)
+		else if(i > 0 && (t=((*p_Instance)[k].endtime+(*p_Instance)[k].truncend)) > *p_tmax)
 			*p_tmax = t;
+		sprintf(Message,"t = %ld\n",(long)t);
+		BPPrintMessage(odInfo,Message);
 		i = 1L;
 		while(i <= imax && (k=(*((*p_Seq)[nseq]))[i]) < 2) i++;
+		sprintf(Message,"2min) i = %ld, k = %ld\n",(long)i,(long)k);
+		BPPrintMessage(odInfo,Message);
 		if(k > *p_kmx) {
-			if(Beta) Alert1("Err. TimeSet(). k > *p_kmx");
+			BPPrintMessage(odInfo,"Error in TimeSet(). k > *p_kmx\n");
 			}
 		else if(i <= imax && (t=((*p_Instance)[k].starttime-(*p_Instance)[k].truncbeg)) < *p_tmin)
 			*p_tmin = t;
+		sprintf(Message,"t = %ld\n",(long)t);
+		BPPrintMessage(odInfo,Message);
 		}
 		
 	/* Last object must not be played legato */

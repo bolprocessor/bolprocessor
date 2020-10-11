@@ -297,6 +297,7 @@ if(pp_start == NULL) LastComputeWindow = w;
 if((((r=Compute(pp_a,1,Gram.number_gram,&lengthA,&repeat)) != OK) && !SkipFlag) || r == EXIT) goto QUIT;
 ////////////////////////////////////////////////////////////////////////////
 
+if(ShowGraphic) BPPrintMessage(odInfo, "After computing we'll try graphics\n");
 if(!ShowGraphic && !PlaySelectionOn && DisplayItems)
 	BPActivateWindow(QUICK,OutputWindow);
 Final = TRUE;
@@ -321,13 +322,16 @@ if(!StepProduce && !TraceProduce && !PlaySelectionOn
 if(!PlaySelectionOn && DisplayItems) {
 	SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
 	datamode = DisplayMode(pp_a,&ifunc,&hastabs);
+	BPPrintMessage(odInfo, "Preparing item for display\n");
 	if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
+	BPPrintMessage(odInfo, "Created item for display\n");
 	DataEnd = GetTextLength(OutputWindow);
 	SetSelect(DataOrigin,DataEnd,TEH[OutputWindow]);
 	BPActivateWindow(SLOW,OutputWindow);
 	Dirty[OutputWindow] = TRUE;
 	}
-if((!DisplayItems || PlaySelectionOn) && (OutMIDI || OutCsound || WriteMIDIfile)) {
+// if((!DisplayItems || PlaySelectionOn) && (OutMIDI || OutCsound || WriteMIDIfile)) {
+if(ShowGraphic || OutMIDI || OutCsound || WriteMIDIfile) {
 	r = PlayBuffer(pp_a,NO);
 	if(r == RESUME) goto MAKE;
 	goto QUIT;
@@ -2014,7 +2018,7 @@ WRITE:
 			}
 #endif /* BP_CARBON_GUI */
 		}
-	if(!template && (OutMIDI || OutCsound || WriteMIDIfile)) r = PlayBuffer(pp_a,NO);
+	if(!template && (OutMIDI || OutCsound || WriteMIDIfile))  r = PlayBuffer(pp_a,NO);
 	}
 END:
 return(r);

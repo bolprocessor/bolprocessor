@@ -74,6 +74,7 @@ p_list ****p_waitlist,****p_scriptlist,**tag,**ptag;
 
 
 if(CheckEmergency() != OK) return(ABORT);
+BPPrintMessage(odInfo, "Started filling phase diagram\n");
 
 AllSolTimeSet = StackFlag = (*p_bigitem) = ToldSkipped = FALSE;
 
@@ -1673,8 +1674,10 @@ if(DoSystem() != OK) return(ABORT);
 // if BP_CARBON_GUI
 if(!foundobject && ShowGraphic && !ShowPianoRoll && !ScriptExecOn && Jbol < 3
 		&& Jpatt == 0 && ((*p_numberobjects) > 10) && !ToldAboutPianoRoll) {
+// if(ShowGraphic) {
 	ToldAboutPianoRoll = TRUE;
 	ShowPianoRoll = TRUE;
+	BPPrintMessage(odInfo,"This project doesn't require sound-objects. We'll use piano roll display\n");
 /*	result = Answer("This project doesn't require sound-objects. Use piano roll display",'Y');
 	if(result == YES) {
 		//if(!ScriptExecOn && (!AEventOn || OkWait)) // suppressed 053007 akozar
@@ -1684,6 +1687,8 @@ if(!foundobject && ShowGraphic && !ShowPianoRoll && !ScriptExecOn && Jbol < 3
 		} */
 	}
 // endif BP_CARBON_GUI
+if(ShowPianoRoll) ShowGraphic = FALSE;
+BPPrintMessage(odInfo, "Finished filling phase diagram\n");
 return(OK);
 }
 

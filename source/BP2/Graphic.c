@@ -68,6 +68,8 @@ GDHandle gdh;
 short refnum;
 
 BPPrintMessage(odInfo, "==> Yes, drawing graphics...\n");
+if(!ShowGraphic) return(OK);
+return(OK);
 
 if(tmin == Infpos) {
 	// if(Beta) Alert1("Err. DrawObject(). tmin == Infpos");
@@ -1260,7 +1262,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 {
 int result;
 double x,xscale,p,rr,period;
-long i,j,k,t1,t2,y,tmem1,tmem2,xmax,ymax;
+long i,j,k,t1,t2,y,tmem1,tmem2,tmem3,xmax,ymax,y_curr;
 char line[BOLSIZE+5],showsmalldivisions,line_image[200];
 Str255 label;
 
@@ -1335,42 +1337,58 @@ for(i = 1; ; i++) {
 
 // Draw time streaks
 
-// pen_size("canvas",0,5);
 if(PlayPrototypeOn) goto ENDSTREAKS;
 y = p_r->top + topoffset - hrect;
+xmax -= 40;
 
 period = Kpress * Pclock * 1000. / Qclock / Ratio;
 period = (period * GraphicScaleP) / GraphicScaleQ / 10;
 if(period < 3) showsmalldivisions = FALSE;
 else showsmalldivisions = TRUE;
 
-tmem1 = tmem2 = - Infpos;
+tmem1 = tmem2 = tmem3 = - Infpos;
 p = ((double) GraphicScaleP) / (GraphicScaleQ * 10.);
 stroke_style("canvas","blue");
 fill_style("canvas","blue");
+
+for(i=1L,rr=Ratio,k=0; i <= imax; i++,rr+=Kpress) {
+	t1 = (*p_T)[i] / CorrectionFactor;
+	if(p_delta != NULL) t1 += (*p_delta)[i];
+	t1 = leftoffset + Round(t1 * p);
+	if((t1 > tmem1 && showsmalldivisions && t1 < xmax) || tmem1 == -Infpos) {
+		pen_size("canvas",1,0);
+		draw_line("canvas",t1,y,t1,ymax,"");
+		tmem1 = t1;
+		}
+	}
+
+pen_size("canvas",8,0);
+stroke_style("canvas","white");
+for(y_curr = y; y_curr < ymax; y_curr  += 6) {
+	draw_line("canvas",leftoffset,y_curr,xmax,y_curr,"");
+	}
+
+pen_size("canvas",1,0);
+stroke_style("canvas","blue");
 for(i=1L,rr=Ratio,k=0; i <= imax; i++,rr+=Kpress) {
 	t1 = (*p_T)[i] / CorrectionFactor;
 	if(p_delta != NULL) t1 += (*p_delta)[i];
 	t1 = leftoffset + Round(t1 * p);
 	if(rr >= Ratio) {
 		rr -= Ratio;
-		if(t1 > tmem1) {
+		if(t1 > tmem2) {
 			sprintf(line,"%ld",(long)(k + StartFromOne));
 			t2 = t1 + 12;
 			if(t2 >= xmax) break;
-			fill_text("canvas",line,t1 - 5,y - 4);
+			if(t1 > tmem3) {
+				fill_text("canvas",line,t1 - 5,y - 4);
+				tmem3 = t1 + 60;
+				}
 			pen_size("canvas",4,0);
-			draw_line("canvas",t1,y,t1,p_r->bottom,"");
-			tmem1 = t1 + 20;
+			draw_line("canvas",t1,y,t1,ymax,"");
+			tmem2 = t1 + 40;
 			}
-		tmem2 = -Infpos;
 		k++;
-		}
-	else if((t1 > tmem2 && showsmalldivisions) || tmem2 == -Infpos) {
-	//	stroke_style("canvas","blue");
-		pen_size("canvas",1,0);
-		draw_line("canvas",t1,y,t1,p_r->bottom,"");
-		tmem2 = t1;
 		}
 	}
 stroke_style("canvas","black");
@@ -1418,11 +1436,11 @@ pen_size("canvas",2,0);
 xmin = p_r->left + 43;
 xmax = p_r->right - 30;
 stroke_style("canvas","rgb(0,117,117)");
-fill_style("canvas","blue");
+fill_style("canvas","black");
 for(key=0; key < 128; key+=12) {
 	if(key < minkey || key > maxkey) continue;
 	y = (maxkey - key) * hrect + topoffset;
-	sprintf(line,"c%ld",(long)((key - (key % 12))/12)-1L);
+	sprintf(line,"C%ld",(long)((key - (key % 12))/12)-1L);
 	fill_text("canvas",line,2,y + 3);
 	fill_text("canvas",line,xmax + 6,y + 3);
 	draw_line("canvas",xmin,y,xmax,y,"");
@@ -1433,7 +1451,7 @@ fill_style("canvas","rgb(186,186,0)");
 for(key=6; key < 128; key+=12) {
 	if(key < minkey || key > maxkey) continue;
 	y = (maxkey - key) * hrect + topoffset;
-	sprintf(line,"f#%ld",(long)((key - (key % 12))/12)-1L);
+	sprintf(line,"F#%ld",(long)((key - (key % 12))/12)-1L);
 	fill_text("canvas",line,2,y + 3);
 	fill_text("canvas",line,xmax + 6,y + 3);
 	draw_line("canvas",xmin,y,xmax,y,"");
