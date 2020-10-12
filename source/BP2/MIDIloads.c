@@ -446,13 +446,13 @@ return(OK);
 
 #endif /* BP_CARBON_GUI */
 
-PrintNote(int key,int channel,int wind,char* line)
+int PrintNote(int key,int channel,int wind,char* line)
 {
 int notenum,octave;
 char channelstring[11];
 
 if(key < 0) {
-	if(wind >= 0) PrintBehind(wind,"<void>");
+//	if(wind >= 0) PrintBehind(wind,"<void>");
 	strcpy(line,"<void>");
 	return(OK);
 	}
@@ -523,12 +523,12 @@ switch(NoteConvention) {
 		sprintf(line,"%s%ld%s",KeyString,(long)key,channelstring);
 		break;
 	}
+#if BP_CARBON_GUI
 if(wind >= 0) {
 	PrintBehind(wind,line);
-#if BP_CARBON_GUI
 	UpdateDirty(TRUE,wind);
-#endif /* BP_CARBON_GUI */
 	}
+#endif /* BP_CARBON_GUI */
 return(OK);
 }
 

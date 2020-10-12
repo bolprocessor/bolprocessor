@@ -2456,7 +2456,7 @@ else {
 	}
 stroke_style("canvas",&Black);
 r = LongRectToRect(TextGetViewRect(TEH[w]));
-InsetRect(&r,-1,-1);
+resize_rect(&r,-1,-1);
 FrameRect(&r);
 PenNormal();
 

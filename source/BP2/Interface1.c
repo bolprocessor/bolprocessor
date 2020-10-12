@@ -1184,7 +1184,7 @@ Rect dr,vr;
 if(w >= 0 && w < WMAX && Editable[w]) {
 	GetWindowPortBounds(Window[w], &dr);
 #if !USE_MLTE
-	if(HasFields[w]) InsetRect(&dr,2,2); // Remove since it does nothing?
+	if(HasFields[w]) resize_rect(&dr,2,2); // Remove since it does nothing?
 	if(OKvScroll[w]) {
 		dr.right -= SBARWIDTH;
 		if (!RunningOnOSX || Freebottom[w] > 0)
@@ -1198,11 +1198,11 @@ if(w >= 0 && w < WMAX && Editable[w]) {
 #else // FIXME: not sure we should do the rest of this for MLTE
 	linesInFolder[w] = 1;
 #endif
-	if(w == wMessage) InsetRect(&dr,16,0);
-//	if(w == wInfo) InsetRect(&dr,4,0); 
+	if(w == wMessage) resize_rect(&dr,16,0);
+//	if(w == wInfo) resize_rect(&dr,4,0); 
 	vr = dr;
-	if(linesInFolder[w] > 1) InsetRect(&dr,4,1);
-	else InsetRect(&dr,4,0);
+	if(linesInFolder[w] > 1) resize_rect(&dr,4,1);
+	else resize_rect(&dr,4,0);
 	SetTextDestRect(&dr,TEH[w]);
 	SetTextViewRect(&vr,TEH[w]);
 	CalText(TEH[w]);

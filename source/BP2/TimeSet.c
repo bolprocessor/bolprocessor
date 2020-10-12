@@ -513,18 +513,14 @@ QUEST2:
 			if((*p_marked)[i] == TRUE) {
 				(*p_T)[i] = (*p_T)[i] + (*p_DELTA)[i];
 				if((*p_T)[i] >= tmax) tmax = (*p_T)[i];
-				else {	/* Must be increasing.  Sometimes local errors… */
-						/* …in smooth time */
+				else {	/* Must be increasing.  Sometimes local errors in smooth time */
 					(*p_T)[i] = tmax; /* This correction is very small */
 					}
 				}
 			else {
 				if(i <= (*p_imaxseq)[nseq] && (*p_T)[i] != ZERO) {
-					if(Beta) {
-						sprintf(Message,"Err. SetTimeObjects() nseq = %ld maxseq = %ul (*p_T)[%ld] = %ld",
-							(long)nseq,(unsigned long)maxseq,(long)i,(long)(*p_T)[i]);
-						Println(wTrace,Message);
-						}
+					sprintf(Message,"Err. SetTimeObjects() nseq = %ld maxseq = %ld (*p_T)[%ld] = %ld\n",(long)nseq,(long)maxseq,(long)i,(long)(*p_T)[i]);
+					BPPrintMessage(odInfo,Message);
 					(*p_T)[i] = ZERO;
 					}
 				}

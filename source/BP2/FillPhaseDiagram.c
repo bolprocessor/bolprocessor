@@ -1687,7 +1687,10 @@ if(!foundobject && ShowGraphic && !ShowPianoRoll && !ScriptExecOn && Jbol < 3
 		} */
 	}
 // endif BP_CARBON_GUI
-if(ShowPianoRoll) ShowGraphic = FALSE;
+if(ShowPianoRoll && ShowGraphic) {
+	ShowGraphic = FALSE;
+	BPPrintMessage(odInfo, "Since ShowPianoRoll is on, ShowGraphic = FALSE\n");
+	}
 BPPrintMessage(odInfo, "Finished filling phase diagram\n");
 return(OK);
 }

@@ -1077,7 +1077,7 @@ if(itemhandle != NULL && itemtype == btnCtrl) {
 	GetPort(&saveport);
 	SetPortDialogPort(dp);
 	pen_size("canvas",3,3);
-	InsetRect(&r,-2,-2);
+	resize_rect(&r,-2,-2);
 	FrameRoundRect(&r,16,16);
 /*	SetDialogItem(thewindow,1,itemtype,(Handle)procForBorderUserItem,&r); */
 	if(saveport != NULL) SetPort(saveport);

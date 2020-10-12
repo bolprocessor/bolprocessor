@@ -87,6 +87,8 @@ w = wGraphic;
 maxmidibytes5 = MaxMIDIbytes / 5L;
 oldtcurr = Tcurr;
 
+BPPrintMessage(odInfo, "Running MakeSound()\n");
+
 if(Panic || CheckEmergency() != OK) return(ABORT);
 if(SoundOn) return(OK);
 
@@ -94,17 +96,21 @@ if(CompileRegressions() != OK) return(ABORT);
 
 showpianoroll = ShowPianoRoll;
 if(ConvertMIDItoCsound || ItemCapture) showpianoroll = FALSE;
+if(showpianoroll) BPPrintMessage(odInfo,"Showing piano roll\n");
 
 cswrite = FALSE;
 if(((OutCsound && (FileWriteMode == NOW || !OutMIDI))
-	|| ConvertMIDItoCsound) && !ItemCapture && !showpianoroll) cswrite = TRUE;
+	|| ConvertMIDItoCsound) && !ItemCapture /* && !showpianoroll */) cswrite = TRUE;
 
 MIDIfileOn = FALSE;
 if(WriteMIDIfile && (FileWriteMode == NOW || !OutMIDI) && !ItemCapture && !showpianoroll)
 	MIDIfileOn = TRUE;
 
-if(FirstTime && (cswrite || (!OutMIDI && !MIDIfileOn) || showpianoroll)) return(OK);
-	
+if(/* FirstTime && */ (/* cswrite || */ (!OutMIDI && !MIDIfileOn && !ShowGraphic && !showpianoroll) /* || showpianoroll */)) {
+	BPPrintMessage(odInfo, "Cancelling MakeSound()\n");
+	return(OK);
+	}
+
 interruptedonce = overflow = FALSE;
 rs = 0;
 resetok = TRUE;

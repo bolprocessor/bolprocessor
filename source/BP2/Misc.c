@@ -1921,7 +1921,7 @@ Rect r;
 
 GetDialogItem(thedialog,1,&type,&thecontrol,&r);
 pen_size("canvas",3,3);
-InsetRect(&r,-2,-2);
+resize_rect(&r,-2,-2);
 FrameRoundRect(&r,16,16);
 }
 #endif

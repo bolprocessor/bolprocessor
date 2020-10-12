@@ -1104,6 +1104,9 @@ void fill_text(char*,char*,int,int);
 void text_style(char*,int,char*);
 void erase_rect(char*,Rect*);
 void draw_line(char*,int,int,int,int,char*);
+void stroke_rect(char*,Rect*);
+void fill_rect(char*,Rect*,char*);
+void resize_rect(Rect*,int,int);
 
 
 #if !TARGET_API_MAC_CARBON
