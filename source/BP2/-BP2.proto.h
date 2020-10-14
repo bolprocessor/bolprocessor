@@ -1093,20 +1093,20 @@ void CreateImageFile(void);
 void EndImageFile(void);
 void remove_spaces(const char*, char*);
 
-void begin_path(char*);
-void end_path(char*);
-void move_to(char*,int,int);
-void line_to(char*,int,int);
-void pen_size(char*,int,int);
-void stroke_style(char*,char*);
-void fill_style(char*,char*);
-void stroke_text(char*,char*,int,int);
-void fill_text(char*,char*,int,int);
-void text_style(char*,int,char*);
-void erase_rect(char*,Rect*);
-void draw_line(char*,int,int,int,int,char*);
-void stroke_rect(char*,Rect*);
-void fill_rect(char*,Rect*,char*);
+void begin_path();
+void end_path();
+void move_to(int,int);
+void line_to(int,int);
+void pen_size(int,int);
+void stroke_style(char*);
+void fill_style(char*);
+void stroke_text(char*,int,int);
+void fill_text(char*,int,int);
+void text_style(int,char*);
+void erase_rect(Rect*);
+void draw_line(int,int,int,int,char*);
+void stroke_rect(Rect*);
+void fill_rect(Rect*,char*);
 void resize_rect(Rect*,int,int);
 
 

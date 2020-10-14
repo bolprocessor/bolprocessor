@@ -42,6 +42,8 @@
 #endif
 
 extern FILE * imagePtr;
+
+char graphic_scheme[] = "canvas";
 int resize = 4;
 int try_pivots = 0;
 int try_separate_labels = 0;
@@ -116,7 +118,7 @@ if(rep != OK || overflow) goto ENDGRAPH;
 // Now draw sound objects
 
 linenum = 0; linemax = 1;
-(*p_endx)[linenum] = endxmax = endymax = Infneg;
+(*p_endx)[linenum] = endx = endxmax = endymax = 0;
 (*p_top)[linenum] = topoffset;
 (*p_top)[linemax] = (*p_top)[linenum] + hrect + htext;
 (*p_morespace)[linenum] = linemin = 0;
@@ -153,15 +155,15 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 		if(try_synchro_tag || ((*p_ObjectSpecs)[k] != NULL && (waitlist=WaitList(k)) != NULL)) {
 			// Draw synchronization tag
 			y = yruler + 8;
-			stroke_style("canvas","green");
-			pen_size("canvas",8,0);
+			stroke_style("green");
+			pen_size(8,0);
 			for(edge=3; edge > 0; edge--) {
-				draw_line("canvas",tt1,y,tt1 + edge,y + (2* edge),"");
-				draw_line("canvas",tt1,y,tt1 - (2* edge),y,"");
-				draw_line("canvas",tt1,y,tt1 + edge,y - (2* edge),"");
+				draw_line(tt1,y,tt1 + edge,y + (2* edge),"");
+				draw_line(tt1,y,tt1 - (2* edge),y,"");
+				draw_line(tt1,y,tt1 + edge,y - (2* edge),"");
 				}
-			stroke_style("canvas","black");
-			pen_size("canvas",1,0);
+			stroke_style("black");
+			pen_size(1,0);
 			}
 #if SHOWEVERYTHING
 		if(j == 0) continue;
@@ -192,13 +194,11 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 				else {
 					strcpy(line,"<<");
 					key = j - 16384;
-					
 					if((*p_Instance)[k].lastistranspose)
 						TransposeKey(&key,(*p_Instance)[k].transposition);
 					key = ExpandKey(key,(*p_Instance)[k].xpandkey,(*p_Instance)[k].xpandval);
 					if(!(*p_Instance)[k].lastistranspose)
 						TransposeKey(&key,(*p_Instance)[k].transposition);
-						
 					key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
 						&((*p_Instance)[k].map0),
 						&((*p_Instance)[k].map1));
@@ -214,12 +214,16 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 		strcpy(label,line);
 		tab = ((int) t2 - (int) t1 - strlen(line)) / 2;
 		if(tab < 2) tt1 = (int) t1 + leftoffset + 1 + tab;
+		sprintf(Message,"t1 = %ld tt1= %ld endx = %ld\n",(long)t1,(long)tt1,(long) (*p_endx)[linenum]);
+		if(show_more_details) BPPrintMessage(odInfo,Message);
 		if(tt1 < (*p_endx)[linenum]) {
 			for(linenum=linemin; linenum < linemax; linenum++) {
 				if(tt1 > (*p_endx)[linenum]) goto CONT;
 				}
 			linemax = linenum + 1;	/* here 'linenum' has been incremented */
 			foundone = TRUE;
+			sprintf(Message,"=> New linenum = %ld\n",(long)linenum);
+			if(show_more_details) BPPrintMessage(odInfo,Message);
 			if(linenum >= maxlines) {
 				sprintf(Message,
 					"Err. linenum = %ld  maxlines = %ld  DrawItem()\n",
@@ -229,7 +233,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 				rep = ABORT;
 				goto ENDGRAPH;
 				}
-			(*p_endx)[linenum] = Infneg;
+			endx = (*p_endx)[linenum] = 0;
 			(*p_morespace)[linenum] = 0;
 			}
 CONT:
@@ -244,7 +248,7 @@ CONT:
 		else pivloc = 0.;
 		pivloc -= trbeg;
 	
-		sprintf(Message,"Running DrawObject() for linenum = %ld and top = %ld\n",(long)linenum,(long)(*p_top)[linenum]);
+		sprintf(Message,"Running DrawObject(%s) for linenum = %ld, endx = %ld and top = %ld\n",label,(long)linenum,(long)endx,(long)(*p_top)[linenum]);
 		if(show_more_details) BPPrintMessage(odInfo,Message);
 				
 		if(DrawObject(j,label,(*p_Instance)[k].dilationratio,(*p_top)[linenum],hrect,htext,
@@ -266,7 +270,8 @@ CONT:
 		sprintf(Message,"linenum = %ld, morespace[%ld] = %ld\n",(long)linenum,(long)linenum,(long)(*p_morespace)[linenum]);
 		if(show_more_details) BPPrintMessage(odInfo,Message);
 		}
-	linenum = linemin = linemax;
+//	linenum = linemin = linemax;
+	linenum = linemax;
 	if(!foundone) (*p_top)[linenum] = (*p_top)[linenum-1] + hrect
 							+ htext * (1 + (*p_morespace)[linenum-1]);
 	linemax += 1 /* foundone */;
@@ -279,7 +284,7 @@ CONT:
 		rep = ABORT;
 		goto ENDGRAPH;
 		}
-	(*p_endx)[linenum] = Infneg;
+	endx = (*p_endx)[linenum] = 0;
 	(*p_morespace)[linenum] = 0;
 	}
 
@@ -334,17 +339,20 @@ if(show_more_details) BPPrintMessage(odInfo,Message);
 // Erase background 
 r2 = r;
 resize_rect(&r2,+2,+2);
-erase_rect("canvas",&r2);
+erase_rect(&r2);
 
-pen_size("canvas",4,0);
-stroke_style("canvas","black");
-stroke_rect("canvas",&r);
+pen_size(4,0);
+stroke_style("black");
+stroke_rect(&r);
 sprintf(Message,"j = %ld, r.left = %ld, r.right = %ld\n",(long)j,(long)r.left,(long)r.right);
 if(show_more_details) BPPrintMessage(odInfo,Message);
 
 r2 = r;
 resize_rect(&r2,-1,-1);
-fill_rect("canvas",&r2,"Cornsilk");
+if(j >= Jbol && j < 16384) { // Time pattern
+	fill_rect(&r2,"LightCyan");
+	}
+else fill_rect(&r2,"Cornsilk");
 
 // Draw gray rectangles indicating truncated parts
 if(trbeg > 0L) {
@@ -353,24 +361,22 @@ if(trbeg > 0L) {
 	r1.bottom = r1.top + hrect;
 	r1.right = r.left;
 	resize_rect(&r1,-2,-2);
-	erase_rect("canvas",&r1);
-	// fill_rect("canvas",&r1,"white");
+	erase_rect(&r1);
 	resize_rect(&r1,2,2);
-	stroke_style("canvas","grey");
-	stroke_rect("canvas",&r1);
-	stroke_style("canvas","black");
+	stroke_style("grey");
+	stroke_rect(&r1);
+	stroke_style("black");
 	}
 if(trend > 0L) {
 	r2.top = top; r2.left = r.right;
 	r2.bottom = r2.top + hrect;
 	r2.right = r2.left + (int)trend;
 	resize_rect(&r2,-2,-2);
-	erase_rect("canvas",&r2);
-	// fill_rect("canvas",&r2,"white");
+	erase_rect(&r2);
 	resize_rect(&r2,2,2);
-	stroke_style("canvas","grey");
-	stroke_rect("canvas",&r2);
-	stroke_style("canvas","black");
+	stroke_style("grey");
+	stroke_rect(&r2);
+	stroke_style("black");
 	}
 
 // Draw period(s)
@@ -379,12 +385,12 @@ if(objectperiod > EPSILON) {
 	objectperiod = (objectperiod * (double) GraphicScaleP) / GraphicScaleQ / 10.;
 	preperiod = (preperiod * (double) GraphicScaleP) / GraphicScaleQ / 10.;
 	xx = r.left - trbeg + preperiod;
-	stroke_style("canvas","grey");
+	stroke_style("grey");
 	while(objectperiod > 3 && xx < (r.right - 1)) {
-		draw_line("canvas",xx,top+1,xx,(top+1+hrect-2),"");
+		draw_line(xx,top+1,xx,(top+1+hrect-2),"");
 		xx += objectperiod;
 		}
-	stroke_style("canvas","black");
+	stroke_style("black");
 	}
 
 // Draw pivot
@@ -392,64 +398,64 @@ if(try_pivots || (j < Jbol && (*p_Tref)[j] > EPSILON)) {
 	x_startpivot = r.left + (int) pivloc;
 	
 	// Erase background above pivot
-	pen_size("canvas",25,0); 
-	stroke_style("canvas","white");
+	pen_size(25,0); 
+	stroke_style("white");
 	y_startpivot = r.top - 8;
-	draw_line("canvas",(x_startpivot - 2),y_startpivot,(x_startpivot + 2),y_startpivot,"");
+	draw_line((x_startpivot - 2),y_startpivot,(x_startpivot + 2),y_startpivot,"");
 	
 	// Now draw vertical line of pivot (if non relocatable)
 	y_startpivot = r.top - 7;
-	pen_size("canvas",6,0); 
-	stroke_style("canvas","red");
+	pen_size(6,0); 
+	stroke_style("red");
 	if(j > 16383 || (*p_OkRelocate)[j]) {
-		draw_line("canvas",(x_startpivot-2),(y_startpivot+3),(x_startpivot+2),(y_startpivot+3),"round");
+		draw_line((x_startpivot-2),(y_startpivot+3),(x_startpivot+2),(y_startpivot+3),"round");
 		}
 	else {
-		draw_line("canvas",x_startpivot,y_startpivot,x_startpivot,(y_startpivot + 5),"");
+		draw_line(x_startpivot,y_startpivot,x_startpivot,(y_startpivot + 5),"");
 		sprintf(Message,"Pivot x = %ld, y = %ld\n",(long)x_startpivot,(long)y_startpivot);
 		if(show_more_details) BPPrintMessage(odInfo,Message);
 		}
 	
 	// Now draw arrow of pivot
 	y_startpivot += 5;
-	draw_line("canvas",x_startpivot,y_startpivot,(x_startpivot-2),(y_startpivot - 2),"");
-	draw_line("canvas",x_startpivot,y_startpivot,(x_startpivot+2),(y_startpivot - 2),"");
-	pen_size("canvas",1,0);
+	draw_line(x_startpivot,y_startpivot,(x_startpivot-2),(y_startpivot - 2),"");
+	draw_line(x_startpivot,y_startpivot,(x_startpivot+2),(y_startpivot - 2),"");
+	pen_size(1,0);
 	
 	// The following is a line connecting the pivot to the object if needed
 	y_startpivot = r.top;
-	draw_line("canvas",x_startpivot,y_startpivot,(r.left - trbeg),y_startpivot,"");
-	stroke_style("canvas","black");
+	draw_line(x_startpivot,y_startpivot,(r.left - trbeg),y_startpivot,"");
+	stroke_style("black");
 	}
 
 // Draw label
 
 tab = (r.right - r.left - 6 * strlen(label)) / 2;
-if(!try_separate_labels &&  tab > 10) {
-/*	move_to("canvas",r.left + tab,r.bottom - 4);
-	fill_text("canvas",label); */
-	fill_text("canvas",label,(r.left + tab),r.bottom - 2);
+*p_endx = t2 + leftoffset + trend;
+if(!try_separate_labels &&  tab > 1) {
+	fill_text(label,(r.left + tab),r.bottom - 2);
 	// *p_endx = t2 + leftoffset + trend;
 	*p_endy = r.bottom;
 	}
 else {	/* Can't write label inside rectangle */
 	if(t1 == t2) { /* Draw out-time object */
-		pen_size("canvas",2,0);
-		draw_line("canvas",r.left,r.top,r.left,(r.bottom + 1),"round");
-		pen_size("canvas",1,0);
+		pen_size(10,0);
+		draw_line(r.left,r.top,r.left,(r.bottom + 1),"round");
+		pen_size(1,0);
 		}
 	tab = (r.right - r.left) / 2;
-	r.left = r.left + tab - 3 * strlen(label);
-	r.right = r.left + strlen(label);
+/*	r.left = r.left + tab - 3 * strlen(label);
+	r.right = r.left + 3 * strlen(label); */
+	
 	r.top = r.bottom + 1;
 	r.bottom = r.top + htext;
-	erase_rect("canvas",&r);
-	fill_text("canvas",label,r.left,r.bottom);
+	erase_rect(&r);
+	fill_text(label,r.left,r.bottom);
+	if(*p_endx < (r.right + 1)) *p_endx = r.right + 1;
 	// *p_endx = t2 + leftoffset + trend;
 	*p_endy = r.bottom + 10;
 	*p_morespace += 1; // Instead of 1 because we used an extra line for labels
 	}
-*p_endx = t2 + leftoffset + trend;
 return(OK);
 }
 
@@ -627,10 +633,10 @@ oldfont = GetPortTextFont(GetWindowPort(Window[w]));
 TextFont(kFontIDCourier); TextSize(WindowTextSize[w]);
 PenNormal();
 
-erase_rect("canvas",&r); */
+erase_rect(&r); */
 // FillRect(&r,GetQDGlobalsWhite(&pat));
-/* stroke_style("canvas",&Black);
-pen_size("canvas",2,2);
+/* stroke_style(&Black);
+pen_size(2,2);
 FrameRect(&r);
 PenNormal(); */
 // htext = WindowTextSize[w] + 2;
@@ -638,26 +644,26 @@ htext = 12 + 2;
 if((*p_MIDIsize)[j] <= ZERO && (*p_CsoundSize)[j] <= ZERO) {
 	sprintf(Message,"This sound-object is empty");
 //	c2pstrcpy(label, Message);
-/*	move_to("canvas",(p_frame->left + p_frame->right - strlen(label))/2,
+/*	move_to((p_frame->left + p_frame->right - strlen(label))/2,
 		(p_frame->top + p_frame->bottom - htext)/2);
-	fill_text("canvas",label); */
+	fill_text(label); */
 /*	if(Beta) {
-		pen_size("canvas",3,3);
+		pen_size(3,3);
 		for(i=0; i < MAXCHAN; i++) {
-			stroke_style("canvas",&(PianoColor[i]));
+			stroke_style(&(PianoColor[i]));
 			FrameRect(&r);
 			resize_rect(&r,3,3);
 			}
 		} */
-//	stroke_style("canvas",&Black);
+//	stroke_style(&Black);
 	goto QUIT;
 	}
 else {
 /*	resize_rect(&r,2,2);
-	stroke_style("canvas",&White);
+	stroke_style(&White);
 	PenMode(patCopy);
 	PaintRect(&r);
-	stroke_style("canvas",&Black); */
+	stroke_style(&Black); */
 	}
 topoffset = 6 * htext;
 
@@ -703,11 +709,11 @@ if((tmax - tmin) > EPSILON) {
 else scale = 0.;
 
 /* PenNormal();
-stroke_style("canvas",&Black); */
+stroke_style(&Black); */
 
 // Draw time ruler
 y = r.top + htext + 2;
-/* move_to("canvas",xmin,y); line_to("canvas",xmax,y);
+/* move_to(xmin,y); line_to(xmax,y);
 PenNormal(); */
 p = 0.1;
 if(scale > 0.001) {
@@ -718,35 +724,35 @@ if(scale > 0.001) {
 		switch(jj) {
 			case 0:
 			case 10:
-				jj = 0; /* pen_size("canvas",2,1);
-				move_to("canvas",x,y); line_to("canvas",x,y+6);
+				jj = 0; /* pen_size(2,1);
+				move_to(x,y); line_to(x,y+6);
 				PenNormal(); */
 				break;
 			case 5:
-			//	move_to("canvas",x,y); line_to("canvas",x,y+5);
+			//	move_to(x,y); line_to(x,y+5);
 				break;
 			default:
-			//	move_to("canvas",x,y); line_to("canvas",x,y+3);
+			//	move_to(x,y); line_to(x,y+3);
 				break;
 			}
 		}
 	y = r.top + htext + 1;
 	sprintf(line,"0");
 //	c2pstrcpy(label, line);
-//	move_to("canvas",xmin - strlen(label)/2,y); fill_text("canvas",label);
+//	move_to(xmin - strlen(label)/2,y); fill_text(label);
 	k = 20.; while((k * scale * p) > (xmax - xmin)) k = k / 2.;
 	for(i=1; ; i++) {
 		sprintf(line,"%.2fs",((double)i) * (k * p) / 1000.);
 		// c2pstrcpy(label, line);
 		x = xmin + k * i * scale * p - strlen(line)/2;
 		if(x > xmax) break;
-	//	move_to("canvas",x,y);
-	//	fill_text("canvas",label);
+	//	move_to(x,y);
+	//	fill_text(label);
 		}
 	}
 dur = (*p_Dur)[j];
 
-// stroke_style("canvas",&Black);
+// stroke_style(&Black);
 
 // Draw covered parts
 maxcover1 = maxcover2 = dur;
@@ -762,11 +768,11 @@ r.top = p_frame->top + 2 * htext + 5;
 r.bottom = r.top + htext;
 r.left = p_frame->left + 2;
 if(((*p_CoverBeg)[j] && (*p_CoverEnd)[j]) || (maxcover1 == dur && maxcover2 == dur)) {
-//	stroke_style("canvas",&Black); PenNormal();
+//	stroke_style(&Black); PenNormal();
 	sprintf(line,"This object may be entirely covered");
 // c2pstrcpy(label, line);
-//	move_to("canvas",(xmin + xmax - strlen(line))/2,r.top + htext - 2);
-//	fill_text("canvas",label);
+//	move_to((xmin + xmax - strlen(line))/2,r.top + htext - 2);
+//	fill_text(label);
 	}
 else {
 	if(maxcover1+maxcover2 > dur) {
@@ -775,28 +781,28 @@ else {
 		}
 	r.right = xmin + scale * (maxcover1 - tmin);
 	if(maxcover1 < INT_MAX && maxcover1 > 0 && r.right > r.left) {
-	//	stroke_style("canvas",&Color[SoundObjectC]); pen_size("canvas",2,2);
+	//	stroke_style(&Color[SoundObjectC]); pen_size(2,2);
 	//	FrameRect(&r);
-	//	PenNormal(); stroke_style("canvas",&Black);
-	//	move_to("canvas",r.left + 2,r.top + htext - 3);
-	//	fill_text("canvas","\pCoverBeg");
+	//	PenNormal(); stroke_style(&Black);
+	//	move_to(r.left + 2,r.top + htext - 3);
+	//	fill_text("\pCoverBeg");
 		}
 	else {
-	//	move_to("canvas",r.left + 2,r.top + htext - 3);
-	//	fill_text("canvas","\p#CoverBeg");
+	//	move_to(r.left + 2,r.top + htext - 3);
+	//	fill_text("\p#CoverBeg");
 		}
 	r.left = xmin + scale * (dur - tmin - maxcover2);
 	r.right = p_frame->right - 2;
 	if(maxcover2 < INT_MAX && maxcover2 > 0 && r.right > r.left) {
-	/*	stroke_style("canvas",&Color[SoundObjectC]); pen_size("canvas",2,2);
+	/*	stroke_style(&Color[SoundObjectC]); pen_size(2,2);
 		FrameRect(&r);
-		PenNormal(); stroke_style("canvas",&Black);
-		move_to("canvas",p_frame->right - strlen("CoverEnd") - 2,r.top + htext - 3);
-		fill_text("canvas","\pCoverEnd"); */
+		PenNormal(); stroke_style(&Black);
+		move_to(p_frame->right - strlen("CoverEnd") - 2,r.top + htext - 3);
+		fill_text("\pCoverEnd"); */
 		}
 	else {
-	/*	move_to("canvas",p_frame->right - strlen("#CoverEnd") - 2,r.top + htext - 3);
-		fill_text("canvas","\p#CoverEnd"); */
+	/*	move_to(p_frame->right - strlen("#CoverEnd") - 2,r.top + htext - 3);
+		fill_text("\p#CoverEnd"); */
 		}
 	}
 
@@ -815,39 +821,39 @@ r.bottom = r.top + htext - 2;
 r.left = p_frame->left + 2;
 r.right = xmin + scale * (- tmin - maxgap1);
 if(maxgap1 < INT_MAX && r.right > r.left) {
-/*	stroke_style("canvas",&Color[SoundObjectC]);
+/*	stroke_style(&Color[SoundObjectC]);
 	PenPat(GetQDGlobalsGray(&pat));
 	PenMode(patOr);
 	PaintRect(&r);
-	stroke_style("canvas",&Black);
+	stroke_style(&Black);
 	PenNormal();
-	move_to("canvas",p_frame->left + 3,r.bottom + htext + 1);
-	fill_text("canvas","\pContBeg"); */
+	move_to(p_frame->left + 3,r.bottom + htext + 1);
+	fill_text("\pContBeg"); */
 	}
 else {
-/*	move_to("canvas",p_frame->left + 3,r.bottom + htext + 1);
-	fill_text("canvas","\p#ContBeg"); */
+/*	move_to(p_frame->left + 3,r.bottom + htext + 1);
+	fill_text("\p#ContBeg"); */
 	}
 r.left = xmin + scale * (dur - tmin + maxgap2);
 r.right = p_frame->right - 2;
 if(maxgap2 < INT_MAX && r.right > r.left) {
-/*	stroke_style("canvas",&Color[SoundObjectC]);
+/*	stroke_style(&Color[SoundObjectC]);
 	PenPat(GetQDGlobalsGray(&pat));
 	PenMode(patOr);
 	PaintRect(&r);
-	stroke_style("canvas",&Black);
+	stroke_style(&Black);
 	PenNormal();
-	move_to("canvas",p_frame->right - strlen("ContEnd") - 3,r.bottom + htext + 1);
-	fill_text("canvas","\pContEnd"); */
+	move_to(p_frame->right - strlen("ContEnd") - 3,r.bottom + htext + 1);
+	fill_text("\pContEnd"); */
 	}
 else {
-/*	move_to("canvas",p_frame->right - strlen("#ContEnd") - 3,r.bottom + htext + 1);
-	fill_text("canvas","\p#ContEnd"); */
+/*	move_to(p_frame->right - strlen("#ContEnd") - 3,r.bottom + htext + 1);
+	fill_text("\p#ContEnd"); */
 	}
 
 // Draw truncated parts
 /* PenNormal();
-stroke_style("canvas",&Blue); */
+stroke_style(&Blue); */
 maxtrunc1 = maxtrunc2 = dur;
 if(!(*p_TruncBeg)[j]) {
 	if((*p_TruncBegMode)[j] == ABSOLUTE) maxtrunc1 = (*p_MaxTruncBeg)[j];
@@ -862,74 +868,74 @@ if(!(*p_TruncEnd)[j]) {
 y = p_frame->top + topoffset + 4 * htext;
 if(maxtrunc1 > 0 && maxtrunc1 <= dur) {
 	x = xmin + scale * (- tmin);
-//	move_to("canvas",x,y); line_to("canvas",x,y - htext);
+//	move_to(x,y); line_to(x,y - htext);
 	x = xmin + scale * (- tmin + maxtrunc1);
-/*	move_to("canvas",x,y); line_to("canvas",x,y - htext);
-	pen_size("canvas",2,2); */
+/*	move_to(x,y); line_to(x,y - htext);
+	pen_size(2,2); */
 	y = p_frame->top + topoffset + 4 * htext - 1;
 	x = xmin + scale * (- tmin);
-/*	move_to("canvas",x,y); 
-	line_to("canvas",xmin + scale * (- tmin + maxtrunc1) - 1,y);
-	PenNormal(); stroke_style("canvas",&Black); */
+/*	move_to(x,y); 
+	line_to(xmin + scale * (- tmin + maxtrunc1) - 1,y);
+	PenNormal(); stroke_style(&Black); */
 	y += htext;
-/*	move_to("canvas",xmin + scale * (- tmin) + 1,y);
-	fill_text("canvas","\pTruncBeg"); */
+/*	move_to(xmin + scale * (- tmin) + 1,y);
+	fill_text("\pTruncBeg"); */
 	}
 else {
-/*	move_to("canvas",p_frame->left + 3,p_frame->top + topoffset + 5 * htext - 1);
-	stroke_style("canvas",&Black); fill_text("canvas","\p#TruncBeg"); */
+/*	move_to(p_frame->left + 3,p_frame->top + topoffset + 5 * htext - 1);
+	stroke_style(&Black); fill_text("\p#TruncBeg"); */
 	}
 y = p_frame->top + topoffset + 6 * htext;
 if(maxtrunc2 > 0 && maxtrunc2 <= dur) {
-//	stroke_style("canvas",&Blue);
+//	stroke_style(&Blue);
 	x = xmin + scale * (dur - tmin);
-//	move_to("canvas",x,y); line_to("canvas",x,y - htext);
+//	move_to(x,y); line_to(x,y - htext);
 	x = xmin + scale * (dur - tmin - maxtrunc2);
-/*	move_to("canvas",x,y); line_to("canvas",x,y - htext);
-	pen_size("canvas",2,2); */
+/*	move_to(x,y); line_to(x,y - htext);
+	pen_size(2,2); */
 	y = p_frame->top + topoffset + 6 * htext - 1;
 	x = xmin + scale * (dur - tmin) - 1;
-/*	move_to("canvas",x,y); 
-	line_to("canvas",xmin + scale * (dur - tmin - maxtrunc2),y);
-	PenNormal(); stroke_style("canvas",&Black); */
+/*	move_to(x,y); 
+	line_to(xmin + scale * (dur - tmin - maxtrunc2),y);
+	PenNormal(); stroke_style(&Black); */
 	y += htext;
-/*	move_to("canvas",xmin + scale * (dur - tmin) - strlen("TruncEnd"),y);
-	fill_text("canvas","\pTruncEnd"); */
+/*	move_to(xmin + scale * (dur - tmin) - strlen("TruncEnd"),y);
+	fill_text("\pTruncEnd"); */
 	}
 else {
 	if(maxtrunc1 > 0 && maxtrunc1 <= dur) {
 		y = p_frame->top + topoffset + 7 * htext - 1;
-	//	move_to("canvas",p_frame->right - strlen("#TruncEnd") - 3,y);
+	//	move_to(p_frame->right - strlen("#TruncEnd") - 3,y);
 		}
 	else {
 		y = p_frame->top + topoffset + 5 * htext - 1;
-	//	move_to("canvas",p_frame->right - strlen("#TruncEnd") - 3,y);
+	//	move_to(p_frame->right - strlen("#TruncEnd") - 3,y);
 		}
-//	stroke_style("canvas",&Black); fill_text("canvas","\p#TruncEnd");
+//	stroke_style(&Black); fill_text("\p#TruncEnd");
 	}
 
 y += htext + htext;
 x = p_frame->right - strlen("BreakTempo") - 3;
-/* move_to("canvas",x,y);
-if((*p_BreakTempo)[j]) fill_text("canvas","\pBreakTempo");
-else fill_text("canvas","\p#BreakTempo"); */
+/* move_to(x,y);
+if((*p_BreakTempo)[j]) fill_text("\pBreakTempo");
+else fill_text("\p#BreakTempo"); */
 
 y += htext + htext;
 x = p_frame->left + 4;
-// move_to("canvas",x,y);
-if((*p_FixScale)[j]) {} // fill_text("canvas","\pNever rescale");
+// move_to(x,y);
+if((*p_FixScale)[j]) {} // fill_text("\pNever rescale");
 else {
-	if((*p_OkExpand)[j] && (*p_OkCompress)[j]) {} //  fill_text("canvas","\pRescale at will");
+	if((*p_OkExpand)[j] && (*p_OkCompress)[j]) {} //  fill_text("\pRescale at will");
 	else {
-		if(!(*p_OkExpand)[j] && !(*p_OkCompress)[j]) {} //  fill_text("canvas","\pRescale within limits");
+		if(!(*p_OkExpand)[j] && !(*p_OkCompress)[j]) {} //  fill_text("\pRescale within limits");
 		else {
-			if((*p_OkExpand)[j]) {} //  fill_text("canvas","\pExpand at will");
-			else  {} // fill_text("canvas","\pDo not expand");
+			if((*p_OkExpand)[j]) {} //  fill_text("\pExpand at will");
+			else  {} // fill_text("\pDo not expand");
 			y += htext + 2;
 			x = p_frame->left + 4;
-		//	move_to("canvas",x,y);
-		/*	if((*p_OkCompress)[j]) fill_text("canvas","\pCompress at will");
-			else fill_text("canvas","\pDo not compress"); */
+		//	move_to(x,y);
+		/*	if((*p_OkCompress)[j]) fill_text("\pCompress at will");
+			else fill_text("\pDo not compress"); */
 			}
 		}
 	}
@@ -945,56 +951,56 @@ GetPeriod(j,1.,&objectperiod,&preperiod);
 if(objectperiod > EPSILON) {
 	y = r.top - htext;
 	x = r.left + (scale * preperiod);
-/*	pen_size("canvas",1,2);
-	stroke_style("canvas",&Cyan);
-	move_to("canvas",x,y);
-	line_to("canvas",r.right,y);
+/*	pen_size(1,2);
+	stroke_style(&Cyan);
+	move_to(x,y);
+	line_to(r.right,y);
 	PenNormal();
-	move_to("canvas",x,y);
+	move_to(x,y);
 	Line(0,htext);
-	move_to("canvas",x+2,y);
+	move_to(x+2,y);
 	Line(0,htext);
-	move_to("canvas",r.right,y);
+	move_to(r.right,y);
 	Line(0,htext);
-	move_to("canvas",r.right-2,y);
+	move_to(r.right-2,y);
 	Line(0,htext); */
 	}
 
 // Draw rectangle of object
-/* stroke_style("canvas",&Color[SoundObjectC]);
+/* stroke_style(&Color[SoundObjectC]);
 PenPat(GetQDGlobalsGray(&pat));
 PenMode(patOr);
 PaintRect(&r);
 PenPat(GetQDGlobalsBlack(&pat));
-stroke_style("canvas",&Color[TerminalC]);
+stroke_style(&Color[TerminalC]);
 FrameRect(&r);
 PenNormal(); */
 
 // Show Csound messages
 
-// stroke_style("canvas",&Red);
+// stroke_style(&Red);
 t = - preroll;
 oldx = -1;
 for(i=0; i < (*p_CsoundSize)[j]; i++) {
 	t += (*((*pp_CsoundTime)[j]))[i];
 	x = r.left + scale * t;
 	if(x > (oldx + 1)) {
-	//	move_to("canvas",x,r.top-1); line_to("canvas",x,r.bottom);
+	//	move_to(x,r.top-1); line_to(x,r.bottom);
 		oldx = x;
 		}
 	}
-// stroke_style("canvas",&Black);
+// stroke_style(&Black);
 
 // Show MIDI messages
 
-// stroke_style("canvas",&Black);
+// stroke_style(&Black);
 t = - preroll;
 oldx = -1;
 for(i=0; i < (*p_MIDIsize)[j]; i++) {
 	t += (*((*pp_MIDIcode)[j]))[i].time;
 	x = r.left + scale * t;
 	if(x > (oldx + 1)) {
-	//	move_to("canvas",x,r.top+1); line_to("canvas",x,r.bottom-2);
+	//	move_to(x,r.top+1); line_to(x,r.bottom-2);
 		oldx = x;
 		}
 	}
@@ -1006,16 +1012,16 @@ r1.left = r.left + (r.right - r.left - strlen(line)) / 2 - 1;
 r1.right = r.right - (r.right - r.left - strlen(line)) / 2 - 1;
 r1.top = r.top + 2;
 r1.bottom = r.bottom - 2;
-// erase_rect("canvas",&r1);
+// erase_rect(&r1);
 // FillRect(&r1,GetQDGlobalsWhite(&pat));
-/* move_to("canvas",r.left + (r.right - r.left - strlen(label)) / 2,r.bottom - 3);
-fill_text("canvas",label); */
+/* move_to(r.left + (r.right - r.left - strlen(label)) / 2,r.bottom - 3);
+fill_text(label); */
 	
 if((*p_Tref)[j] > EPSILON) {
 	// Draw vertical line of pivot (if non relocatable)
-/*	move_to("canvas",r.left + (int) (scale*pivpos),r.top - 7);
-	pen_size("canvas",2,2); 
-	stroke_style("canvas",&Color[PivotC]);
+/*	move_to(r.left + (int) (scale*pivpos),r.top - 7);
+	pen_size(2,2); 
+	stroke_style(&Color[PivotC]);
 	if(j > 16383 || (*p_OkRelocate)[j]) Move(0,5);
 	else Line(0,5); */
 	
@@ -1024,12 +1030,12 @@ if((*p_Tref)[j] > EPSILON) {
 	PenNormal(); */
 	
 	// The following is a line connecting the pivot to the object if needed
-/*	move_to("canvas",r.left + (int) (scale*pivpos),r.top);
-	line_to("canvas",r.left,r.top); */
+/*	move_to(r.left + (int) (scale*pivpos),r.top);
+	line_to(r.left,r.top); */
 	}
 else {
-/*	move_to("canvas",r.left,r.top - 1);
-	fill_text("canvas","\pSmooth object: no pivot"); */
+/*	move_to(r.left,r.top - 1);
+	fill_text("\pSmooth object: no pivot"); */
 	}
 
 // Draw vertical red line
@@ -1040,21 +1046,21 @@ if(xmax > xmin) {
 		}
 	else Hpos = (((*p_Tpict)[iProto] - tmin) * scale) + xmin;
 	if((*p_Tpict)[iProto] != ZERO) {
-	/*	move_to("canvas",Hpos,p_frame->top+1);
-		stroke_style("canvas",&Red);
-		line_to("canvas",Hpos,p_frame->bottom - htext - htext);
-		stroke_style("canvas",&Black); */
+	/*	move_to(Hpos,p_frame->top+1);
+		stroke_style(&Red);
+		line_to(Hpos,p_frame->bottom - htext - htext);
+		stroke_style(&Black); */
 		sprintf(Message,"%ld ms",(long)(*p_Tpict)[iProto]);
 	//	c2pstrcpy(label, Message);
 		if(Hpos + (strlen(line) / 2) > (p_frame->right - 2))
 			x = p_frame->right - 2 - strlen(line);
 		else x = Hpos - (strlen(line) / 2);
 		if(x < (p_frame->left + 2)) x = p_frame->left + 2;
-	/*	move_to("canvas",x,p_frame->bottom - htext);
-		fill_text("canvas",label); */
+	/*	move_to(x,p_frame->bottom - htext);
+		fill_text(label); */
 		}
 	}
-// stroke_style("canvas",&Black);
+// stroke_style(&Black);
 
 // Csound instrument status
 if((*p_Type)[iProto] & 4) {
@@ -1064,8 +1070,8 @@ if((*p_Type)[iProto] & 4) {
 		else sprintf(Message,"Never change Csound instruments");
 //	c2pstrcpy(label, Message);
 	x = p_frame->right - 4 - strlen(line);
-/*	move_to("canvas",x,p_frame->bottom - (4 * htext));
-	fill_text("canvas",label); */
+/*	move_to(x,p_frame->bottom - (4 * htext));
+	fill_text(label); */
 	}
 else {
 	if((*p_CsoundAssignedInstr)[iProto] >= 1) {
@@ -1073,8 +1079,8 @@ else {
 			(long)(*p_CsoundAssignedInstr)[iProto]);
 	//	c2pstrcpy(label, Message);
 		x = p_frame->right - 4 - strlen(line);
-	/*	move_to("canvas",x,p_frame->bottom - (4 * htext));
-		fill_text("canvas",label); */
+	/*	move_to(x,p_frame->bottom - (4 * htext));
+		fill_text(label); */
 		}
 	}
 
@@ -1085,18 +1091,18 @@ else if((*p_DefaultChannel)[iProto] == 0) sprintf(Message,"Force to current MIDI
 	else sprintf(Message,"Never change MIDI channels");
 // c2pstrcpy(label, Message);
 x = p_frame->right - 4 - strlen(line);
-/* move_to("canvas",x,p_frame->bottom - (3 * htext));
-fill_text("canvas",label); */
+/* move_to(x,p_frame->bottom - (3 * htext));
+fill_text(label); */
 
 // Object type
 if(!((*p_Type)[iProto] & 1) && (*p_MIDIsize)[iProto] > ZERO) {
-//	stroke_style("canvas",&Red);
+//	stroke_style(&Red);
 	sprintf(Message,"MIDI sequence is INACTIVE");
 //	c2pstrcpy(label, Message);
 	x = p_frame->right - 4 - strlen(line);
-/*	move_to("canvas",x,p_frame->bottom - htext - htext);
-	fill_text("canvas",label);
-	stroke_style("canvas",&Black); */
+/*	move_to(x,p_frame->bottom - htext - htext);
+	fill_text(label);
+	stroke_style(&Black); */
 	}
 
 QUIT:
@@ -1162,8 +1168,8 @@ Rect rclip;
 	
 endxmin = endymin = 0;
 
-stroke_style("canvas",&Black);
-pen_size("canvas",1,0);
+stroke_style(&Black);
+pen_size(1,0);
 PenNormal();
 
 GetWindowPortBounds(Window[w], &rclip);
@@ -1251,8 +1257,8 @@ char line[BOLSIZE+5],showsmalldivisions,line_image[200];
 Str255 label;
 
 result = OK;
-pen_size("canvas",1,0);
-text_style("canvas",htext,"arial");
+pen_size(1,0);
+text_style(htext,"arial");
 
 ymax = p_r->bottom;
 if(TRUE || ShowPianoRoll) {
@@ -1280,8 +1286,8 @@ if(Nature_of_time == SMOOTH)
 t2 = ((double)(*p_T)[imax] * GraphicScaleP) / GraphicScaleQ / 10. + leftoffset;
 
 y = (*p_yruler) = p_r->top + htext + 6;
-pen_size("canvas",1,0);
-draw_line("canvas",leftoffset,y,xmax,y,"");
+pen_size(1,0);
+draw_line(leftoffset,y,xmax,y,"");
 p = 50. / x;
 for(i=j=0; ; i++,j++) {
 	t1 = leftoffset + (int) Round(i * p);
@@ -1290,22 +1296,22 @@ for(i=j=0; ; i++,j++) {
 		case 0:
 		case 10:
 			j = 0;
-			pen_size("canvas",4,0);
-			draw_line("canvas",t1,y,t1,y+6,"");
+			pen_size(4,0);
+			draw_line(t1,y,t1,y+6,"");
 			break;
 		case 5:
-			pen_size("canvas",1,0);
-			draw_line("canvas",t1,y,t1,y+5,"");
+			pen_size(1,0);
+			draw_line(t1,y,t1,y+5,"");
 			break;
 		default:
-			pen_size("canvas",1,0);
-			draw_line("canvas",t1,y,t1,y+3,"");
+			pen_size(1,0);
+			draw_line(t1,y,t1,y+3,"");
 			break;
 		}
 	}
 y = p_r->top + htext + 1;
 sprintf(line,"0");
-fill_text("canvas",line,leftoffset - 6,y);
+fill_text(line,leftoffset - 6,y);
 k = 10; if(k * p > 400) k = 1;
 tmem2 = - Infpos;
 for(i = 1; ; i++) {
@@ -1315,7 +1321,7 @@ for(i = 1; ; i++) {
 	t2 = t1 + 12;
 	if(t2 > xmax) break;
 	if(t1 > tmem2) {
-		fill_text("canvas",line,t1,y);
+		fill_text(line,t1,y);
 	//	tmem2 = t2 + strlen("mm");
 		tmem2 = t2 + 48;
 		}
@@ -1334,8 +1340,8 @@ else showsmalldivisions = TRUE;
 
 tmem1 = tmem2 = tmem3 = - Infpos;
 p = ((double) GraphicScaleP) / (GraphicScaleQ * 10.);
-stroke_style("canvas","blue");
-fill_style("canvas","blue");
+stroke_style("blue");
+fill_style("blue");
 
 // Subdivisional time streaks
 for(i=1L,rr=Ratio,k=0; i <= imax; i++,rr+=Kpress) {
@@ -1343,22 +1349,22 @@ for(i=1L,rr=Ratio,k=0; i <= imax; i++,rr+=Kpress) {
 	if(p_delta != NULL) t1 += (*p_delta)[i];
 	t1 = leftoffset + Round(t1 * p);
 	if((t1 > tmem1 && showsmalldivisions && t1 < xmax) || tmem1 == -Infpos) {
-		pen_size("canvas",1,0);
-		draw_line("canvas",t1,y,t1,ymax,"");
+		pen_size(1,0);
+		draw_line(t1,y,t1,ymax,"");
 		tmem1 = t1;
 		}
 	}
 
 // We draw horizontal white lines to break time subdivisional time streaks
-pen_size("canvas",8,0);
-stroke_style("canvas","white");
+pen_size(8,0);
+stroke_style("white");
 for(y_curr = y; y_curr < ymax; y_curr  += 6) {
-	draw_line("canvas",leftoffset,y_curr,xmax,y_curr,"");
+	draw_line(leftoffset,y_curr,xmax,y_curr,"");
 	}
 
 // Major time streaks
-pen_size("canvas",1,0);
-stroke_style("canvas","blue");
+pen_size(1,0);
+stroke_style("blue");
 for(i=1L,rr=Ratio,k=0; i <= imax; i++,rr+=Kpress) {
 	t1 = (*p_T)[i] / CorrectionFactor;
 	if(p_delta != NULL) t1 += (*p_delta)[i];
@@ -1370,17 +1376,17 @@ for(i=1L,rr=Ratio,k=0; i <= imax; i++,rr+=Kpress) {
 			t2 = t1 + 12;
 			if(t2 >= xmax) break;
 			if(t1 > tmem3) {
-				fill_text("canvas",line,t1 - 5,y - 4);
-				tmem3 = t1 + 60;
+				fill_text(line,t1 - 5,y - 4);
+				tmem3 = t1 + 6 * strlen(line);
 				}
-			pen_size("canvas",4,0);
-			draw_line("canvas",t1,y,t1,ymax,"");
+			pen_size(4,0);
+			draw_line(t1,y,t1,ymax,"");
 			tmem2 = t1 + 40;
 			}
 		k++;
 		}
 	}
-stroke_style("canvas","black");
+stroke_style("black");
 
 ENDSTREAKS:
 return(result);
@@ -1402,16 +1408,16 @@ if(key < 0 || key > 127) {
 if(chan < 0 || chan >= MAXCHAN) {
 	return(OK);
 	}
-timeon = (*((*pp_currentparams)[nseq]))->starttime[key];
+timeon = (*((*pp_currentparams)[nseq]))->starttime[key] * 1000.;
 timeon = Round(((double)timeon * GraphicScaleP) / GraphicScaleQ / 10.);
 timeoff = Round(((double)timeoff * GraphicScaleP) / GraphicScaleQ / 10.);
 
 x = p_r->left + leftoffset + timeon;
 y = (maxkey - key - 1) * hrect + topoffset;
 
-pen_size("canvas",8,0);
-stroke_style("canvas","brown");
-draw_line("canvas",(int)x,(int)y,(int)(x+timeoff-timeon),(int)y,"round");
+pen_size(8,0);
+stroke_style("brown");
+draw_line((int)x,(int)y,(int)(x+timeoff-timeon),(int)y,"round");
 return(OK);
 }
 
@@ -1421,71 +1427,73 @@ int DrawNoteScale(Rect* p_r,int w,int minkey,int maxkey,int hrect,int leftoffset
 int y,key,xmin,xmax;
 char line[20];
 
-pen_size("canvas",2,0);
+pen_size(2,0);
 xmin = p_r->left + 43;
 xmax = p_r->right - 30;
-stroke_style("canvas","rgb(0,117,117)");
-fill_style("canvas","black");
+stroke_style("rgb(0,117,117)");
+fill_style("black");
 for(key=0; key < 128; key+=12) {
 	if(key < minkey || key > maxkey) continue;
 	y = (maxkey - key) * hrect + topoffset;
 	sprintf(line,"C%ld",(long)((key - (key % 12))/12)-1L);
-	fill_text("canvas",line,2,y + 3);
-	fill_text("canvas",line,xmax + 6,y + 3);
-	draw_line("canvas",xmin,y,xmax,y,"");
+	fill_text(line,2,y + 3);
+	fill_text(line,xmax + 6,y + 3);
+	draw_line(xmin,y,xmax,y,"");
 	}
-stroke_style("canvas","rgb(186,186,0)");
-fill_style("canvas","rgb(186,186,0)");
+stroke_style("rgb(186,186,0)");
+fill_style("rgb(186,186,0)");
 for(key=6; key < 128; key+=12) {
 	if(key < minkey || key > maxkey) continue;
 	y = (maxkey - key) * hrect + topoffset;
 	sprintf(line,"F#%ld",(long)((key - (key % 12))/12)-1L);
-	fill_text("canvas",line,2,y + 3);
-	fill_text("canvas",line,xmax + 6,y + 3);
-	draw_line("canvas",xmin,y,xmax,y,"");
+	fill_text(line,2,y + 3);
+	fill_text(line,xmax + 6,y + 3);
+	draw_line(xmin,y,xmax,y,"");
 	}
-stroke_style("canvas","black");
-fill_style("canvas","black");
+stroke_style("black");
+fill_style("black");
 return(OK);
 }
 
 // ------- GRAPHIC CONVERSION -------
 
-void begin_path(char* mode) {
+
+
+void begin_path() {
 	char line[100];
-	if(strcmp(mode,"canvas") == 0) {
+	if(strcmp(graphic_scheme,"canvas") == 0) {
 		sprintf(line,"ctx.beginPath();\n");
 		fputs(line,imagePtr);
 		}
 	}
 
-void end_path(char* mode) {
+void end_path() {
 	char line[100];
-	if(strcmp(mode,"canvas") == 0) {
+	if(strcmp(graphic_scheme,"canvas") == 0) {
 		sprintf(line,"ctx.stroke();\n");
 		fputs(line,imagePtr);
 		}
 	}
 	
-void move_to(char* mode,int x,int y) {
+void move_to(int x,int y) {
 	char line[100];
-	if(strcmp(mode,"canvas") == 0) {
+	if(strcmp(graphic_scheme,"canvas") == 0) {
 		sprintf(line,"ctx.moveTo(%ld,%ld);\n",(long)resize * x,(long)resize * y);
 		fputs(line,imagePtr);
 		}
 	}
 
-void line_to(char* mode,int x,int y) {
+void line_to(int x,int y) {
 	char line[100];
-	if(strcmp(mode,"canvas") == 0) {
+	if(strcmp(graphic_scheme,"canvas") == 0) {
 		sprintf(line,"ctx.lineTo(%ld,%ld);\n",(long)resize * x,(long)resize * y);
 		fputs(line,imagePtr);
 		}
 	}
 
-void draw_line(char* mode,int x1,int y1,int x2,int y2,char* style) {
+void draw_line(int x1,int y1,int x2,int y2,char* style) {
 	char line[200];
-	if(strcmp(mode,"canvas") == 0) {
+	if(strcmp(graphic_scheme,"canvas") == 0) {
 		if(strcmp(style,"round") == 0)
 			sprintf(line,"ctx.beginPath();\nctx.lineCap = \"round\";\nctx.moveTo(%ld,%ld);\nctx.lineTo(%ld,%ld);\nctx.stroke();\n",(long)resize * x1,(long)resize * y1,(long)resize * x2,(long)resize * y2);
 		else
@@ -1494,52 +1502,52 @@ void draw_line(char* mode,int x1,int y1,int x2,int y2,char* style) {
 		}
 	}
 	
-void pen_size(char* mode,int x,int y) {
+void pen_size(int x,int y) {
 	char line[100];
 	float ratio;
-	if(strcmp(mode,"canvas") == 0) {
+	if(strcmp(graphic_scheme,"canvas") == 0) {
 		ratio = (float) x + (0.1 * (float) y);
 		sprintf(line,"ctx.lineWidth = %ld;\n",(long)ratio);
 		fputs(line,imagePtr);
 		}
 	}
 
-void stroke_style(char* mode,char* color) {
+void stroke_style(char* color) {
 	char line[100];
-	if(strcmp(mode,"canvas") == 0) {
+	if(strcmp(graphic_scheme,"canvas") == 0) {
 		sprintf(line,"ctx.strokeStyle = '%s';\n",color);
 		fputs(line,imagePtr);
 		}
 	}
 	
-void fill_style(char* mode,char* color) {
+void fill_style(char* color) {
 	char line[100];
-	if(strcmp(mode,"canvas") == 0) {
+	if(strcmp(graphic_scheme,"canvas") == 0) {
 		sprintf(line,"ctx.fillStyle = '%s';\n",color);
 		fputs(line,imagePtr);
 		}
 	}
 
-void stroke_text(char* mode,char* txt,int x,int y) {
+void stroke_text(char* txt,int x,int y) {
 	char line[500];
-	if(strcmp(mode,"canvas") == 0) {
+	if(strcmp(graphic_scheme,"canvas") == 0) {
 		sprintf(line,"ctx.strokeText('%s',%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
 		fputs(line,imagePtr);
 		}
 	}
 
-void fill_text(char* mode,char* txt,int x,int y) {
+void fill_text(char* txt,int x,int y) {
 	char line[500];
-	if(strcmp(mode,"canvas") == 0) {
+	if(strcmp(graphic_scheme,"canvas") == 0) {
 		sprintf(line,"ctx.fillText('%s',%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
 		fputs(line,imagePtr);
 		}
 	}
 	
-void stroke_rect(char* mode,Rect* p_r) {
+void stroke_rect(Rect* p_r) {
 	char line[100];
 	int x1,x2,y1,y2,w,h;
-	if(strcmp(mode,"canvas") == 0) {
+	if(strcmp(graphic_scheme,"canvas") == 0) {
 		x1 = resize * p_r->left;
 		x2 = resize * p_r->right;
 		y1 = resize * p_r->bottom;
@@ -1551,10 +1559,10 @@ void stroke_rect(char* mode,Rect* p_r) {
 		}
 	}
 		
-void fill_rect(char* mode,Rect* p_r,char* color) {
+void fill_rect(Rect* p_r,char* color) {
 	char line[100];
 	int x1,x2,y1,y2,w,h;
-	if(strcmp(mode,"canvas") == 0) {
+	if(strcmp(graphic_scheme,"canvas") == 0) {
 		x1 = resize * p_r->left;
 		x2 = resize * p_r->right;
 		y1 = resize * p_r->bottom;
@@ -1570,18 +1578,18 @@ void fill_rect(char* mode,Rect* p_r,char* color) {
 		}
 	}
 
-void text_style(char* mode,int size,char* font) {
+void text_style(int size,char* font) {
 	char line[100];
-	if(strcmp(mode,"canvas") == 0) {
+	if(strcmp(graphic_scheme,"canvas") == 0) {
 		sprintf(line,"ctx.font = \"%ldpx %s\";\n",(long)resize *size,font);
 		fputs(line,imagePtr);
 		}
 	}
 
-void erase_rect(char* mode,Rect* p_r) {
+void erase_rect(Rect* p_r) {
 	char line[200];
 	int x1,x2,y1,y2;
-	if(strcmp(mode,"canvas") == 0) {
+	if(strcmp(graphic_scheme,"canvas") == 0) {
 		x1 = resize * p_r->left;
 		x2 = resize * p_r->right;
 		y1 = resize * p_r->bottom;

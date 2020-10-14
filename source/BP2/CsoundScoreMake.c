@@ -37,7 +37,8 @@
 #endif
 
 #include "-BP2decl.h"
-
+ 
+int show_messages_cs_scoremake = 0;
 
 CscoreWrite(int strikeagain,int onoffline,double dilationratio,Milliseconds t,int iline,
 	int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,
@@ -51,7 +52,7 @@ CscoreWrite(int strikeagain,int onoffline,double dilationratio,Milliseconds t,in
 
 int i,c,ins,index,paramnameindex,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,
 	pitchclass,result,maxparam,itable;
-char line[MAXLIN];
+char line[MAXLIN],line2[MAXLIN];
 long imax;
 double time,x,xx,cents,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,endvalue,ratio;
 PerfParameters **perf;
@@ -127,7 +128,10 @@ if(Pclock > 0.)	/* Striated or measured smooth time */
 	time = ((double) t) * Qclock / ((double) Pclock) / 1000.;
 else
 	time = ((double) t) / 1000.;
-	
+
+sprintf(Message,"Pclock = %ld Qclock = %ld, t = %ld, time = %ld\n",(long)Pclock,(long)Qclock,(long)t,(long)time);
+if(show_messages_cs_scoremake) BPPrintMessage(odInfo,Message);
+
 comeback = FALSE;
 
 if(onoffline == ON) {
@@ -145,7 +149,7 @@ if(onoffline == ON) {
 			goto OUT;
 			}
 		}
-		
+
 SETON:
 	(*perf)->level[key]++;
 	(*perf)->starttime[key] = time;
@@ -206,10 +210,14 @@ else
 if(onoffline != LINE) {
 	(*scorearg)[2] = (*perf)->starttime[key];
 	(*scorearg)[3] = time - (*perf)->starttime[key];
+	sprintf(Message,"onoffline != LINE, key = %ld, starttime = %ld, time = %ld, scorearg[2] = %ld, scorearg[3] = %ld\n",(long)key,(long)(*perf)->starttime[key],(long)time,(long)(*scorearg)[2],(long)(*scorearg)[3]);
+	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,Message);
 	}
 else {
 	(*scorearg)[2] = time;
 	(*scorearg)[3] = dur * ratio;
+	sprintf(Message,"onoffline == LINE, scorearg[2] = %ld, scorearg[3] = %ld\n",(long)(*scorearg)[2],(long)(*scorearg)[3]);
+	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,Message);
 	for(iarg=4; iarg < (4+(*((*pp_CsoundScore)[j]))[iline].nbparameters); iarg++) {
 		(*scorearg)[iarg] = (*((*((*pp_CsoundScore)[j]))[iline].h_param))[iarg-4];
 		}
@@ -284,7 +292,6 @@ if(iarg > 0) {
 	(*scorearg)[iarg] = x;
 	}
 
-
 iarg = (*p_CsPitchBendStartIndex)[ins];
 if(iarg > 0) {
 	if((*params)[IPITCHBEND].active) {
@@ -338,7 +345,6 @@ if(iarg > 0) {	/* (*p_CsPitchBendStartIndex)[ins] was also > 0, therefore alpha2
 	(*scorearg)[iarg] = x;
 	}
 
-
 iarg = (*p_CsVolumeStartIndex)[ins];
 if(iarg > 0) {
 	if((*params)[IVOLUME].active) {
@@ -386,7 +392,6 @@ if(iarg > 0) {
 		}
 	(*scorearg)[iarg] = x;
 	}
-
 
 iarg = (*p_CsPressureStartIndex)[ins];
 if(iarg > 0) {
@@ -436,7 +441,6 @@ if(iarg > 0) {
 	(*scorearg)[iarg] = x;
 	}
 
-
 iarg = (*p_CsModulationStartIndex)[ins];
 if(iarg > 0) {
 	if((*params)[IMODULATION].active) {
@@ -485,7 +489,6 @@ if(iarg > 0) {
 		}
 	(*scorearg)[iarg] = x;
 	}
-
 
 iarg = (*p_CsPanoramicStartIndex)[ins];
 if(iarg > 0) {
@@ -638,6 +641,8 @@ WRITECSCORELINE:
 sprintf(line,"i%ld ",(long)index);
 if(!ConvertMIDItoCsound) NoReturnWriteToFile(line,CsRefNum);
 strcpy(Message,line);
+sprintf(line2,"iarg = 1 line = %s\n",line);
+if(show_messages_cs_scoremake) BPPrintMessage(odInfo,line2);
 
 for(iarg=2; iarg <= iargmax; iarg++) {
 	if(iarg != ipitch) {
@@ -648,6 +653,9 @@ for(iarg=2; iarg <= iargmax; iarg++) {
 		sprintf(line,"%.2f ",(*scorearg)[iarg]);
 	if(!ConvertMIDItoCsound) NoReturnWriteToFile(line,CsRefNum);
 	strcat(Message,line);
+	
+	sprintf(line2,"iarg = %ld line = %s\n",(long)iarg,line);
+	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,line2);
 	}
 
 if(pitchclass >= 0) {
@@ -665,9 +673,13 @@ if(!ConvertMIDItoCsound) {
 	}
 else PleaseWait();
 
+
 if(ConvertMIDItoCsound) Println(wPrototype7,Message);
 else WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
 result = OK;
+
+sprintf(line2,"line = %s\n",line);
+if(show_messages_cs_scoremake) BPPrintMessage(odInfo,line2);
 
 Message[0] = "\0";
 
