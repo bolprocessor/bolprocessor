@@ -214,16 +214,21 @@ if(CheckEmergency() != OK) return(ABORT);
 if(Jbol < 3) NoAlphabet = TRUE;	/*  Added 7/10/97 */
 else NoAlphabet = FALSE;
 
+// BPPrintMessage(odInfo,"Running PlayBuffer()\n");
 if(FirstTime && !onlypianoroll) {
 	if(p_Initbuff == NULL) {
-		if(Beta) Alert1("Err. PlayBuffer(). p_Initbuff = NULL. ");
+	//	if(Beta) Alert1("Err. PlayBuffer(). p_Initbuff = NULL. ");
+		BPPrintMessage(odInfo,"Err. PlayBuffer(). p_Initbuff = NULL\n");
 		return(ABORT);
 		}
-	if((r=PlayBuffer1(&p_Initbuff,NO)) != OK) return(r);
+	if((r=PlayBuffer1(&p_Initbuff,NO)) != OK) {
+		BPPrintMessage(odInfo,"PlayBuffer1() cancelled\n");
+		return(r);
+		}
 	WaitABit(1000L);	/* This is necessary notably if sending a program change */
 	FirstTime = FALSE;
 	}
-if(Maxitems > ZERO && !ShowGraphic && !DisplayItems) {
+if(Maxitems > ZERO /* && !ShowGraphic && !DisplayItems */) {
 	sprintf(Message,"Item #%ld",(long)ItemNumber+1L);
 	ShowMessage(TRUE,wMessage,Message);
 	}
@@ -236,8 +241,10 @@ if(r != EXIT && Maxitems > ZERO && ItemNumber >= Maxitems && !onlypianoroll) {
 	SoundOn = FALSE;
 	if(r != OK) return(r);
 	HideWindow(Window[wMessage]);
+	BPPrintMessage(odInfo,"Aborted PlayBuffer()\n");
 	return(ABORT);
 	}
+// BPPrintMessage(odInfo,"End of PlayBuffer()\n");
 return(r);
 }
 
@@ -257,7 +264,7 @@ if(length < 1) return(OK);
 finish = FALSE; dummy = 0;
 CurrentChannel = 1;
 
-
+// BPPrintMessage(odInfo, "Running PlayBuffer1()\n");
 if(!NoVariable(pp_buff) && UpdateGlossary() != OK) return(ABORT);
 
 /* We need to store the item in its current format to be able to print it or derive it further */
@@ -301,7 +308,10 @@ if((result=MakeEventSpace(&p_imaxseq)) != OK) goto OUT;
 again = FALSE;
 	
 SETTIME:
-if((result=CheckLoadedPrototypes()) != OK) goto RELEASE;
+if((result=CheckLoadedPrototypes()) != OK) {
+	BPPrintMessage(odInfo, "No sound-object prototypes loaded\n");
+	goto RELEASE;
+	}
 #if BP_CARBON_GUI
 if((result=LoadInteraction(TRUE,FALSE)) != OK) goto RELEASE;
 #endif /* BP_CARBON_GUI */
@@ -318,8 +328,8 @@ if((result = TimeSet(pp_buff,&kmax,&tmin,&tmax,&maxseq,&nmax,p_imaxseq,maxseqapp
 if(result == AGAIN) again = TRUE;
 result = OK;
 SetTimeOn = FALSE;
-sprintf(Message,"tmin = %ld, tmax = %ld\n",(long)tmin,(long)tmax);
-BPPrintMessage(odInfo,Message);
+sprintf(Message,"\ntmin = %ld, tmax = %ld\n\n",(long)tmin,(long)tmax);
+// BPPrintMessage(odInfo,Message);
 
 if(ShowGraphic) BPPrintMessage(odInfo, "Shall we draw graphics?\n");
 if(onlypianoroll
@@ -328,7 +338,8 @@ if(onlypianoroll
 		result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
 		}
 	else
-		result = MakeSound(pp_buff,&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,YES,NULL);
+//		result = MakeSound(pp_buff,&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,YES,NULL);
+		result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,YES,NULL);
 	}
 if(result == AGAIN) {
 	again = TRUE;
@@ -337,7 +348,8 @@ if(result == AGAIN) {
 if(onlypianoroll) goto RELEASE;
 
 PLAYIT:
-if(result == OK) result = MakeSound(pp_buff,&kmax,maxseq,nmax+1,&p_b,tmin,tmax,YES,NO,NULL);
+// if(result == OK) result = MakeSound(pp_buff,&kmax,maxseq,nmax+1,&p_b,tmin,tmax,YES,NO,NULL);
+if(result == OK) result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,YES,NO,NULL);
 if(result == AGAIN) again = TRUE;
 if(again || EventState == AGAIN) {
 	again = FALSE; result = OK;

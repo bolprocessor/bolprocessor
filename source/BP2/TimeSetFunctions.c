@@ -40,9 +40,10 @@
 
 // FIXME ? These prototypes are also in -BP2.proto.h; where should they be?
 // are these funcs used outside this file? - akozar 20130829
-int Locate(int,unsigned long**,long,int,Milliseconds**,unsigned long*,Milliseconds**,Milliseconds**,Milliseconds**,
-	Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,int,int,char**);
-char Possible_choices(solset,char,int,int,int,int,int,char**,
+
+/* int Locate(int,unsigned long**,long,int,Milliseconds**,unsigned long*,Milliseconds**,Milliseconds**,Milliseconds**,
+	Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,int,int,char**); */
+/* char Possible_choices(solset,char,int,int,int,int,int,char**,
 	int,Milliseconds,Milliseconds,Milliseconds,Milliseconds,Milliseconds,Milliseconds,int);
 int Situation_ok(int,int,int,int,Milliseconds,Milliseconds,Milliseconds,Milliseconds,Milliseconds,Milliseconds,
 	Milliseconds,Milliseconds,char**,int);
@@ -54,7 +55,7 @@ int Erase_stack(int,int*,p_list2**);
 int Solution_is_accepted(int,int,unsigned long**,int,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,
 	Milliseconds**,Milliseconds**);
 Milliseconds Alternate_correction1(int,int,int,Milliseconds,Milliseconds**,Milliseconds,Milliseconds,
-	Milliseconds,Milliseconds,Milliseconds,Milliseconds);
+	Milliseconds,Milliseconds,Milliseconds,Milliseconds); */
 
 
 Locate(int nseq,unsigned long** p_imaxseq,long imax,int kmax,Milliseconds **p_DELTA,

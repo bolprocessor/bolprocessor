@@ -168,8 +168,9 @@ int MySetHandleSize(Handle* p_h,Size size)
 		h = (s_handle_priv*) *p_h;
 		oldsize = h->size;
 		if(Beta && !InitOn && oldsize < (Size)1) {
-			sprintf(Message,"Err. MySetHandleSize(). oldsize = %ld", (long) oldsize);
-			Alert1(Message);
+			sprintf(Message,"Err. MySetHandleSize(). oldsize = %ld (1)\n", (long) oldsize);
+			BPPrintMessage(odInfo,Message);
+			// Alert1(Message);
 		}
 		h->memblock = realloc(h->memblock, size);
 		if (h->memblock == NULL) {

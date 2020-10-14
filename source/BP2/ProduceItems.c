@@ -45,7 +45,7 @@ ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start)
 /* Produce items. Start string is selection in window w or in buffer p_start */
 {
 tokenbyte **p_buff,***pp_buff,**p_a,***pp_a;
-int i,ifunc,j,ch,splitmem,r,undefined,datamode,weightloss,hastabs;
+int i,ifunc,j,ch,splitmem,r,undefined,datamode,weightloss,hastabs,maxsounds;
 long endofselection,size,lengthA;
 
 if(CheckEmergency() != OK) return(ABORT);
@@ -160,6 +160,11 @@ if(!ResetWeights && !NeverResetWeights && Varweight && !JustCompiled) {
 	if(r == ABORT) goto QUIT;
 	}
 JustCompiled = FALSE;
+
+maxsounds = Jbol + Jpatt;
+sprintf(Message,"Jbol = %ld, Jpatt = %ld\n",(long)Jbol,(long)Jpatt);
+// BPPrintMessage(odInfo,Message);
+ResizeObjectSpace(FALSE,maxsounds,0);
 
 r = OK;
 if(!PlaySelectionOn && ScriptRecOn) {
@@ -1128,8 +1133,8 @@ t_rule rule;
 tokenbyte **p_arg;
 int i,i0,i1,p,q,lenc,funct;
 
-/* Rule is structural if some structure markers are found in itsÉ */
-/* Éargument, yet not in its left or right context. */
+/* Rule is structural if some structure markers are found in its... */
+/* ... argument, yet not in its left or right context. */
 rule = (*((*(Gram.p_subgram))[igram].p_rule))[irul];
 funct = rule.operator; if(funct == 2) return(FALSE);	/* "<--" */
 p_arg = rule.p_rightarg;

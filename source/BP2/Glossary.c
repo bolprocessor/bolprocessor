@@ -41,7 +41,7 @@
 
 
 CompileGlossary(void)
-// A glossary is a mixture of certain script commands and ‘Define…’ commands
+// A glossary is a mixture of certain script commands and "Define..." commands
 // that are compiled as a context-free grammar the left arguments of which
 // must be a single variable.
 {
@@ -86,7 +86,7 @@ CompileOn++;
 CompiledGl = TRUE; /* See remark at CompileInteraction() */
 errors = 0;
 
-/* Then create grammar using 'Define…' instructions */
+/* Then create grammar using 'Define...' instructions */
 pos = ZERO;
 posmax = GetTextLength(wGlossary);
 irul = (*(GlossGram.p_subgram))[1].number_rule = 0;

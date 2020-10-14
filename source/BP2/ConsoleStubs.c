@@ -264,7 +264,7 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo)
 	CsRefNum = odCsScore;
 	CsScoreOpened = YES;
 	if(WriteToFile(NO,CsoundFileFormat,"; Csound score",CsRefNum) != OK) {
-		Alert1("Can't write to Csound score file. Unknown error");
+		ShowMessage(TRUE,wMessage,"Can't write to Csound score file. Unknown error 1");
 		CloseCsScore();
 		return(ABORT);
 	}
@@ -274,7 +274,7 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo)
 
 	// TEMP:
 	if(WriteToFile(NO,CsoundFileFormat,"f1 0 32768 10 1 ; This table may be changed\n",CsRefNum) != OK) {
-		Alert1("Can't write to Csound score file. Unknown error");
+		ShowMessage(TRUE,wMessage,"Can't write to Csound score file. Unknown error 2");
 		CloseCsScore();
 		return(ABORT);
 	}

@@ -40,7 +40,10 @@
 extern FILE * imagePtr;
 extern int resize;
 
-MakeSound(tokenbyte ***pp_A,int *p_kmax,unsigned long imaxstreak,int maxnsequences,
+/* MakeSound(tokenbyte ***pp_A,int *p_kmax,unsigned long imaxstreak,int maxnsequences,
+	tokenbyte ***pp_b,long tmin,long tmax,int interruptok,int showpianoroll,
+	Milliseconds **p_delta) */
+MakeSound(int *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	tokenbyte ***pp_b,long tmin,long tmax,int interruptok,int showpianoroll,
 	Milliseconds **p_delta)
 {
@@ -137,12 +140,14 @@ Ke = log((double) SpeedRange) / 64.;
 t0 = ZERO;
 if(*p_kmax >= Maxevent) {
 //	if(Beta) Alert1("kmax >= Maxevent. Err. MakeSound()");
+	BPPrintMessage(odInfo,"kmax >= Maxevent. Err. MakeSound()\n");
 	return(ABORT);
 	}
 
 maxconc = maxnsequences;
 if(Beta && maxconc > Maxconc) {
 //	Alert1("maxconc > Maxconc. Err. MakeSound()");
+	BPPrintMessage(odInfo,"maxconc > Maxconc. Err. MakeSound()\n");
 	}
 
 if((p_control=(ContinuousControl**)GiveSpace(maxconc*sizeof(ContinuousControl))) == NULL)
@@ -201,6 +206,16 @@ t11 = t22 = Infpos;
 for(k=2; k <= (*p_kmax); k++) {
 	j = (*p_Instance)[k].object;
 	if(j == 0) continue;
+	sprintf(Message,"Jbol = %ld, k = %ld -> j = %ld\n",(long)Jbol,(long)k,(long)j);
+//	BPPrintMessage(odInfo,Message);
+	if(j >= Jbol && j < 16384) { // Time pattern;
+		(*p_inext1)[k] = 0;
+		(*p_onoff)[k] = FALSE;
+		(*p_istartperiod)[k] = (*p_iendperiod)[k] = -1;
+	/*	sprintf(Message,"ERROR in MakeSound(): found time pattern: k = %ld, j = %ld\n",(long)k,(long)j);
+		BPPrintMessage(odInfo,Message); */
+	//	continue;
+		}
 	if(j < 0) j = -j;
 	(*p_inext1)[k] = 0;
 	(*p_onoff)[k] = FALSE;
@@ -210,25 +225,37 @@ for(k=2; k <= (*p_kmax); k++) {
 	beta = (*p_Instance)[k].dilationratio;	/* alpha != beta if the sound-object is cyclic */
 	if((*p_Instance)[k].ncycles < 2 && beta != alpha) {
 	//	if(Beta) Alert1("Err. MakeSound(). beta != alpha");
+		sprintf(Message,"Err. MakeSound(). beta != alpha\n");
+		BPPrintMessage(odInfo,Message);
 		beta = (*p_Instance)[k].dilationratio = alpha;
 		}
 	if(j < 16384) {
-		im = (*p_MIDIsize)[j];
-		if(!((*p_Type)[j] & 1)) im = ZERO;
-		if(cswrite && (*p_CsoundSize)[j] > ZERO && !ConvertMIDItoCsound)
-			im = (*p_CsoundSize)[j];
-		firstcycleduration = beta * (*p_Dur)[j];
-		(*p_iendperiod)[k] = im - 1;
-		if((*p_PreRollMode)[j] == ABSOLUTE) preroll = (*p_PreRoll)[j];
-		else preroll = beta * (*p_PreRoll)[j];
-		if(alpha > 1.) {
-			if(GetPeriod(j,beta,&objectperiod,&beforeperiod) == OK) {
-				foundfirsteventinperiod = FALSE;
-				foundlasteventinperiod = FALSE;
+//	if(j < Jbol) {
+		if(j >= Jbol) { // Time pattern
+			im = ZERO;
+			preroll = 0.;
+			beta = 1;
+			(*p_CsoundSize)[j] = 0;
+			}
+		else {
+			im = (*p_MIDIsize)[j];
+			if(!((*p_Type)[j] & 1)) im = ZERO;
+			if(cswrite && (*p_CsoundSize)[j] > ZERO && !ConvertMIDItoCsound)
+				im = (*p_CsoundSize)[j];
+			firstcycleduration = beta * (*p_Dur)[j];
+			(*p_iendperiod)[k] = im - 1;
+			if((*p_PreRollMode)[j] == ABSOLUTE) preroll = (*p_PreRoll)[j];
+			else preroll = beta * (*p_PreRoll)[j];
+			if(alpha > 1.) {
+				if(GetPeriod(j,beta,&objectperiod,&beforeperiod) == OK) {
+					foundfirsteventinperiod = FALSE;
+					foundlasteventinperiod = FALSE;
+					}
 				}
 			}
 		}
 	else preroll = 0.;
+//	BPPrintMessage(odInfo,"ok\n");
 	
 	date = (*p_t1)[k] = - preroll;
 	if((*p_Instance)[k].truncbeg < EPSILON) date1 = date;
@@ -242,8 +269,13 @@ for(k=2; k <= (*p_kmax); k++) {
 	foundfirstevent = FALSE;
 	if(j > 1 && j < 16384) {	/* Sound-object or time pattern */
 		/* Look for first event in object and for first and last events in its periodical part */
-		if(Beta && j >= Jbol && Jbol < 2)
+		if(Beta && j >= Jbol && Jbol < 2) {
+			sprintf(Message,"Err. MakeSound(). j >= Jbol && Jbol < 2\n");
+			BPPrintMessage(odInfo,Message);
+			} // HERE IMPORTANT BUG AS for(i=0 ...) was unreacheable
 		//	Alert1("Err. MakeSound(). j >= Jbol && Jbol < 2");
+	//	sprintf(Message,"j = %ld im = %ld CsoundSize[j] = %ld\n",(long)j,(long)im,(long)(*p_CsoundSize)[j]);
+	//	BPPrintMessage(odInfo,Message);
 		for(i=0; i < im; i++) {
 			olddate = date;
 			if(cswrite && (*p_CsoundSize)[j] > 0 && !ConvertMIDItoCsound)
@@ -381,8 +413,7 @@ if(showpianoroll) {
 	graphrect.bottom = graphrect.top + endymax;
 	graphrect.right = graphrect.left + endxmax;
 	
-//	if((result=OpenGraphic(w,&graphrect,NO,&port,&gdh)) != OK) goto GETOUT;
-	
+	BPPrintMessage(odInfo,"Will draw item background now\n");
 	if((result=DrawItemBackground(&graphrect,imaxstreak,htext,hrect,leftoffset,NO,
 		p_delta,&yruler,topoffset,&overflow)) != OK || overflow) goto OUTGRAPHIC;
 	DrawNoteScale(&graphrect,w,minkey,maxkey,hrect,leftoffset,topoffset);
@@ -676,6 +707,9 @@ for(noccurrence = 0; noccurrence < Nplay || SynchroSignal == PLAYFOREVER; noccur
 	torigin = t0 + t1;
 	
 	Tcurr = (t0 + t1) / Time_res;
+	
+/*	sprintf(Message,"Tcurr = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)t0,(long)t1,(long)Time_res);
+	BPPrintMessage(odInfo,Message); */
 	
 	if(cswrite) {
 TRYCSFILE:
@@ -1014,8 +1048,8 @@ FORGETIT:
 						&& (scriptlist=ObjScriptLine(kcurrentinstance)) != NULL) {
 				
 					WhenItStarted = oldtime = clock();
-					/* WhenItStarted may be further updated by WaitForEmptyBuffer()É */
-					/* É if it is called by ExecuteScriptList() */
+					/* WhenItStarted may be further updated by WaitForEmptyBuffer()... */
+					/* ... if it is called by ExecuteScriptList() */
 					
 					if((result=ExecuteScriptList(scriptlist)) != OK && result != RESUME)
 						goto OVER;
@@ -1368,9 +1402,13 @@ SWITCHES:
 	
 // Send messages of sound-object instance kcurrentinstance as long as possible
 
-PLAYOBJECT:					
+PLAYOBJECT:
+			
 		while(t1 <= t2  && t1 <= t3  && ievent < im) {
 			Tcurr =  (t0 + t1) / Time_res;
+			
+		//	sprintf(Message,"Tcurr = %ld, j = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)j,(long)t0,(long)t1,(long)Time_res);
+		//	BPPrintMessage(odInfo,Message);
 			
 #if BP_CARBON_GUI
 			// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
@@ -1413,9 +1451,22 @@ PLAYOBJECT:
 			if(c0 >= 0) {
 				if(c0 == NoteOn  || c0 == NoteOff) {
 					if(j < 16384) {
-						sequence = (*((*pp_MIDIcode)[j]))[ievent].sequence;
-						c1 = (*((*pp_MIDIcode)[j]))[++ievent].byte;
-						c2 = (*((*pp_MIDIcode)[j]))[++ievent].byte;
+						if(j >= Jbol) { // Time pattern
+							sprintf(Message,"MakeSound(): found time pattern: j = %ld, t1 = %ld, t2 = %ld\n",(long)j,(long)t1,(long)t2);
+					//		BPPrintMessage(odInfo,Message);
+							result = ABORT;
+							goto OVER;
+							sequence = 0;
+							c0 = 0;
+							c1 = 0;
+							c2 = 0;
+							ievent += 2;
+							}
+						else {
+							sequence = (*((*pp_MIDIcode)[j]))[ievent].sequence;
+							c1 = (*((*pp_MIDIcode)[j]))[++ievent].byte;
+							c2 = (*((*pp_MIDIcode)[j]))[++ievent].byte;
+							}
 						simplenote = FALSE;
 						}
 					else {	/* Simple note */
@@ -1425,14 +1476,14 @@ PLAYOBJECT:
 						ievent += 2;
 						simplenote = TRUE;
 						}
-		/*			if(!simplenote) { */
+					if(c1 > 0) {
 						if((*p_Instance)[kcurrentinstance].lastistranspose)
 							TransposeKey(&c1,trans);
 						c1 = ExpandKey(c1,(*p_Instance)[kcurrentinstance].xpandkey,
 							(*p_Instance)[kcurrentinstance].xpandval);
 						if(!(*p_Instance)[kcurrentinstance].lastistranspose)
 							TransposeKey(&c1,trans);
-		/*				} */
+						}
 					if(c0 == NoteOff || c2 == 0) {
 						if(j >= Jbol || (*p_OkMap)[j])
 							c1 = RetrieveMappedKey(c1,kcurrentinstance,localchan,p_currmapped,
@@ -1635,9 +1686,8 @@ NEWPERIOD:
 			else {
 				if((MIDIfileOn || cswrite) && !showpianoroll && (!ItemCapture || ShowMessages)
 						&& doneobjects > 10) {
-					sprintf(Message,"%ld objects done out of %ld",
-						(long)kcurrentinstance,(long)(*p_kmax));
-					FlashInfo(Message);
+					sprintf(Message,"%ld objects done out of %ld",(long)kcurrentinstance,(long)(*p_kmax));
+				//	FlashInfo(Message);
 					doneobjects = 0;
 					}
 					
@@ -1853,6 +1903,7 @@ if(!FirstTime && !PlayPrototypeOn
 	if(rep3 == dDisplayItem) {
 		if(*pp_b == NULL) {
 		//	if(Beta) Alert1("Err. MakeSound(). *pp_b == NULL");
+			BPPrintMessage(odInfo,"Err. MakeSound(). *pp_b == NULL\n");
 			}
 		else {
 			BPActivateWindow(SLOW,wData);

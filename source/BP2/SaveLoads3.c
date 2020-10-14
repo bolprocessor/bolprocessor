@@ -815,23 +815,29 @@ if(w < -1 || w >= WMAX) {
 spec = p_reply->sfFile;
 
 /* If not using NavServices, we may need to prompt the user for file format */
-/* if (!p_reply->usedNavServices) {
+if (!p_reply->usedNavServices) {
+	/* FileName check doesn't work when saving to a new location with
+	   the same name -- even when saving to the same location, if the
+	   user chose "Save As", then they may want to choose a new format.
+	   -- 020607 akozar */
+	/* if(w >= 0) {
+		p2cstrcpy(name,spec.name);
+		if(strcmp(name,FileName[w]) != 0) askformat = TRUE;
+		else if(IsText[w]) type = ftiText;
+		} */
+
 	// always ask for format if there are multiple choices
 	if(CanSaveMultipleFormats(w)) PromptForFileFormat(w, name, &type);
 	}
-else  */ if (w >= 0) {  // use the values set by PutFileEventProc
-/*	IsHTML[w] = p_reply->isHTML;
-	IsText[w] = p_reply->isText; */
-	IsHTML[w] = TRUE;
-	IsText[w] = TRUE;
+else  if (w >= 0) {  // use the values set by PutFileEventProc
+	IsHTML[w] = p_reply->isHTML;
+	IsText[w] = p_reply->isText;
 	if (IsText[w] == TRUE && IsHTML[w] == TRUE) type = ftiHTML;
 	else if (IsText[w] == TRUE) type = ftiText;
 	Weird[w] = FALSE;
 	}
 
-// SelectCreatorAndFileType(type, &thecreator, &thetype);
-thecreator = "Bel0";
-thetype = "TEXT";
+SelectCreatorAndFileType(type, &thecreator, &thetype);
 
 CREATE:
 io = FSpCreate(&spec,thecreator,thetype,p_reply->sfScript);
@@ -1062,7 +1068,7 @@ else {
 int ReadOne(int bindlines,int careforhtml,int nocomment,FILE* fin,int strip,char ***pp_line,
 	char ***pp_completeline,long *p_pos)
 // Read a line in the file and save it to text handle 'pp_completeline'
-// If the line starts with Ô//Õ, discard it
+// If the line starts with "//", discard it
 {
 char c,oldc;
 long imax,oldcount,discount,count;

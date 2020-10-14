@@ -45,6 +45,8 @@ extern FILE * imagePtr;
 int resize = 4;
 int try_pivots = 0;
 int try_separate_labels = 0;
+int try_synchro_tag = 0;
+int show_more_details = 0;
 
 int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	Milliseconds **p_t2,int kmax,long tmin,long tmax,
@@ -129,6 +131,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 		if(k < 0) BPPrintMessage(odInfo,"Err. 'k' in DrawItem().\n");
 		if(k < 2) continue;	/* Reject '_' and '-' */
 		if(kmode) {
+		//	BPPrintMessage(odInfo,"kmode = TRUE\n");
 			if(p_object == NULL) {
 				BPPrintMessage(odInfo,"Err. DrawObject(). p_object == NULL\n");
 				return(ABORT);
@@ -137,6 +140,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			t2 = (*p_object)[k].endtime;
 			}
 		else {
+		//	BPPrintMessage(odInfo,"kmode = FALSE\n");
 			t1 = (*p_t1)[i];
 			t2 = (*p_t2)[i];
 			}
@@ -146,13 +150,18 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 		trbeg = ((*p_Instance)[k].truncbeg * GraphicScaleP) / GraphicScaleQ / 10;
 		tt1 = leftoffset + t1 - trbeg;
 		trend = ((*p_Instance)[k].truncend * GraphicScaleP) / GraphicScaleQ / 10;
-		if((*p_ObjectSpecs)[k] != NULL && (waitlist=WaitList(k)) != NULL) {
+		if(try_synchro_tag || ((*p_ObjectSpecs)[k] != NULL && (waitlist=WaitList(k)) != NULL)) {
 			// Draw synchronization tag
-			move_to("canvas",tt1,yruler+1);
+			y = yruler + 8;
+			stroke_style("canvas","green");
+			pen_size("canvas",8,0);
 			for(edge=3; edge > 0; edge--) {
-			/*	Line(edge,2*edge); Line(-2*edge,0); Line(edge,-2*edge);
-				Line(0,1); */
+				draw_line("canvas",tt1,y,tt1 + edge,y + (2* edge),"");
+				draw_line("canvas",tt1,y,tt1 - (2* edge),y,"");
+				draw_line("canvas",tt1,y,tt1 + edge,y - (2* edge),"");
 				}
+			stroke_style("canvas","black");
+			pen_size("canvas",1,0);
 			}
 #if SHOWEVERYTHING
 		if(j == 0) continue;
@@ -236,7 +245,7 @@ CONT:
 		pivloc -= trbeg;
 	
 		sprintf(Message,"Running DrawObject() for linenum = %ld and top = %ld\n",(long)linenum,(long)(*p_top)[linenum]);
-		BPPrintMessage(odInfo,Message);
+		if(show_more_details) BPPrintMessage(odInfo,Message);
 				
 		if(DrawObject(j,label,(*p_Instance)[k].dilationratio,(*p_top)[linenum],hrect,htext,
 				leftoffset,pivloc,t1,t2,trbeg,trend,&morespace,
@@ -255,7 +264,7 @@ CONT:
 		if((*p_endy)[linenum] > endymax) endymax = (*p_endy)[linenum];
 		
 		sprintf(Message,"linenum = %ld, morespace[%ld] = %ld\n",(long)linenum,(long)linenum,(long)(*p_morespace)[linenum]);
-		BPPrintMessage(odInfo,Message);
+		if(show_more_details) BPPrintMessage(odInfo,Message);
 		}
 	linenum = linemin = linemax;
 	if(!foundone) (*p_top)[linenum] = (*p_top)[linenum-1] + hrect
@@ -320,7 +329,7 @@ r.left = (int)t1 + leftoffset;
 r.right = (int)t2 + leftoffset;
 r.bottom = r.top + hrect;
 sprintf(Message,"j = %ld, leftoffset = %ld,  t1 = %ld, t2 = %ld, endx = %ld\n",(long)j,leftoffset,t1,t2,(*p_endx));
-BPPrintMessage(odInfo,Message);
+if(show_more_details) BPPrintMessage(odInfo,Message);
 
 // Erase background 
 r2 = r;
@@ -331,7 +340,7 @@ pen_size("canvas",4,0);
 stroke_style("canvas","black");
 stroke_rect("canvas",&r);
 sprintf(Message,"j = %ld, r.left = %ld, r.right = %ld\n",(long)j,(long)r.left,(long)r.right);
-BPPrintMessage(odInfo,Message);
+if(show_more_details) BPPrintMessage(odInfo,Message);
 
 r2 = r;
 resize_rect(&r2,-1,-1);
@@ -398,7 +407,7 @@ if(try_pivots || (j < Jbol && (*p_Tref)[j] > EPSILON)) {
 	else {
 		draw_line("canvas",x_startpivot,y_startpivot,x_startpivot,(y_startpivot + 5),"");
 		sprintf(Message,"Pivot x = %ld, y = %ld\n",(long)x_startpivot,(long)y_startpivot);
-		BPPrintMessage(odInfo,Message);
+		if(show_more_details) BPPrintMessage(odInfo,Message);
 		}
 	
 	// Now draw arrow of pivot
@@ -415,8 +424,8 @@ if(try_pivots || (j < Jbol && (*p_Tref)[j] > EPSILON)) {
 
 // Draw label
 
-tab = (r.right - r.left - strlen(label)) / 2;
-if(!try_separate_labels &&  tab > 1) {
+tab = (r.right - r.left - 6 * strlen(label)) / 2;
+if(!try_separate_labels &&  tab > 10) {
 /*	move_to("canvas",r.left + tab,r.bottom - 4);
 	fill_text("canvas",label); */
 	fill_text("canvas",label,(r.left + tab),r.bottom - 2);
@@ -430,7 +439,7 @@ else {	/* Can't write label inside rectangle */
 		pen_size("canvas",1,0);
 		}
 	tab = (r.right - r.left) / 2;
-	r.left = r.left + tab - strlen(label)/2;
+	r.left = r.left + tab - 3 * strlen(label);
 	r.right = r.left + strlen(label);
 	r.top = r.bottom + 1;
 	r.bottom = r.top + htext;

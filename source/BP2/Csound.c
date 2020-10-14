@@ -1630,6 +1630,8 @@ if(Jbol < 2) return(OK);
 rep = OK;
 CompileOn++;
 maxsounds = MyGetHandleSize((Handle)p_Type) / sizeof(char);
+sprintf(Message,"Running CompileCsoundObjects() maxsounds = %ld\n",(long)maxsounds);
+BPPrintMessage(odInfo,Message);
 for(j=2; j < maxsounds; j++) {
 	if(!((*p_Type)[j] & 4)) {
 		if((*pp_CsoundScoreText)[j] == NULL) continue;

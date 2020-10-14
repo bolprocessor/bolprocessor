@@ -230,7 +230,7 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 		rep = ExecScriptLine(NULL,wScript,check,FALSE,p_line2,dummy,&posinstr,&i,&i);
 		EndScript();
 		if(rep == OK) {
-			/* This will set InitThere to 1 if "Play…" instruction has been found. */
+			/* This will set InitThere to 1 if "Play ..." instruction has been found. */
 			if(InitThere == 0) {
 				InitThere = 2;
 				if((p_InitScriptLine=(char**) GiveSpace((Size)
@@ -530,7 +530,7 @@ for(i=0; i < MAXLIN; i++) {
 	if((*p_line)[i] == '\0') break;
 	line2[i] = (*p_line)[i];
 	}
-line2[i] = '\0';	/* Gram numbers are in the beginning of 'line'… */
+line2[i] = '\0';	/* Gram numbers are in the beginning of 'line'... */
 					/* No need to check beyond MAXLIN. */
 if(line2[0] == '\0') return(OK);
 

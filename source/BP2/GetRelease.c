@@ -1106,6 +1106,8 @@ if(reset) {
 if(Jbol < maxsounds) {
 	if(Jbol >= 2) j = Jbol;
 	else j = 2;
+	sprintf(Message,"Running ResizeObjectSpace() Jbol = %ld maxsounds = %ld\n",(long)Jbol,(long)maxsounds);
+//	BPPrintMessage(odInfo,Message);
 	for(j=j; j < maxsounds; j++) {
 		(*p_MIDIsize)[j] = (*p_CsoundSize)[j] = ZERO;
 		(*p_Ifrom)[j] = 0; (*p_Type)[j] = 0;
@@ -1147,6 +1149,8 @@ if(Jbol < maxsounds) {
 					}
 				(*p_Tref)[j] = (*p_Qpatt)[j-Jbol-addbol];
 				(*p_Dur)[j] = (*p_Ppatt)[j-Jbol-addbol];
+				sprintf(Message,"ResizeObjectSpace() j = %ld Dur = %ld Tref = %ld\n",(long)j,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+			//	BPPrintMessage(odInfo,Message);
 				}
 			else if(Beta) Alert1("Err. ResizeObjectSpace(). Jpatt <= 0 || p_Ppatt != NULL && p_Qpatt != NULL");
 			}

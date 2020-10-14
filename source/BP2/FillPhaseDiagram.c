@@ -38,6 +38,7 @@
 
 #include "-BP2decl.h"
 
+int show_details_diagram = 0;
 
 FillPhaseDiagram(tokenbyte ***pp_buff,int* p_numberobjects,unsigned long *p_maxseq,
 	int* p_nmax,unsigned long **p_imaxseq,
@@ -74,7 +75,7 @@ p_list ****p_waitlist,****p_scriptlist,**tag,**ptag;
 
 
 if(CheckEmergency() != OK) return(ABORT);
-BPPrintMessage(odInfo, "Started filling phase diagram\n");
+if(show_details_diagram) BPPrintMessage(odInfo, "Started filling phase diagram\n");
 
 AllSolTimeSet = StackFlag = (*p_bigitem) = ToldSkipped = FALSE;
 
@@ -1661,7 +1662,7 @@ if(failed) return(result);
 
 (*p_maxseq)++; /* Now we got the exact value. */
 Maxevent = (*p_numberobjects) + 1; 	/* Now we got the exact value. */
-if(Maxevent > 500) (*p_bigitem) = TRUE;
+if(Maxevent > 5000) (*p_bigitem) = TRUE;
 
 // Sizing down handles to save space
 
@@ -1673,25 +1674,18 @@ MySetHandleSize((Handle*)&p_T,(Size) (*p_maxseq+2)*sizeof(Milliseconds));
 if(DoSystem() != OK) return(ABORT);
 // if BP_CARBON_GUI
 if(!foundobject && ShowGraphic && !ShowPianoRoll && !ScriptExecOn && Jbol < 3
-		&& Jpatt == 0 && ((*p_numberobjects) > 10) && !ToldAboutPianoRoll) {
+		&& Jpatt == 0 && ((*p_numberobjects) > 30) && !ToldAboutPianoRoll) {
 // if(ShowGraphic) {
 	ToldAboutPianoRoll = TRUE;
 	ShowPianoRoll = TRUE;
 	BPPrintMessage(odInfo,"This project doesn't require sound-objects. We'll use piano roll display\n");
-/*	result = Answer("This project doesn't require sound-objects. Use piano roll display",'Y');
-	if(result == YES) {
-		//if(!ScriptExecOn && (!AEventOn || OkWait)) // suppressed 053007 akozar
-		//	Alert1("The piano roll option will be saved with the project settings");
-		ShowPianoRoll = TRUE;
-		MaintainMenus();
-		} */
 	}
 // endif BP_CARBON_GUI
 if(ShowPianoRoll && ShowGraphic) {
 	ShowGraphic = FALSE;
 	BPPrintMessage(odInfo, "Since ShowPianoRoll is on, ShowGraphic = FALSE\n");
 	}
-BPPrintMessage(odInfo, "Finished filling phase diagram\n");
+if(show_details_diagram) BPPrintMessage(odInfo, "Finished filling phase diagram\n");
 return(OK);
 }
 
@@ -2105,7 +2099,7 @@ if(numberzeros > 0.) {
 		}
 	(*p_im)[nseq] = i + 1. + numberzeros - j;
 	/* This final value, when incremented with Kpress, is the position of the next streak to */
-	/* É place objects on. */
+	/* ... place objects on. */
 	(*p_maxcol)[nseq] = Class((*p_im)[nseq]);
 	}
 return(OK);

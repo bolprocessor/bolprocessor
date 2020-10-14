@@ -257,7 +257,7 @@ NOTSCALE:
 				case 41: /* _pancontrol */
 					(*p_buff)[i++] = T31; (*p_buff)[i++] = (tokenbyte) n;
 					break;
-				case 42: /* _rest, i.e. 'É' */
+				case 42: /* _rest */
 					(*p_buff)[i++] = T0; (*p_buff)[i++] = 17;
 					break;
 				case 43: /* _ins() */
@@ -1421,8 +1421,8 @@ for(i=levpar=nhomo=islave=0; i < (*p_imax)-1; i+=2) {
 if(CopyBuf(&p_a,pp_buff) == ABORT) return(17);  // should this return ABORT as above? - akozar
 MyDisposeHandle((Handle*)&p_a);
 
-/* Erase content of slavesÉ */
-/* É especially copies of 'ZERO' markers that are irrelevant */
+/* Erase content of slaves... */
+/* ... especially copies of 'ZERO' markers that are irrelevant */
 
 // OPTIMIZE: I think we can skip the rest of this if islave == 0
 i = 0; islave = 0;

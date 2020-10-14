@@ -492,9 +492,9 @@ if((*p_h) != NULL && oldsize > ZERO) {
 	}
 else {
 	if(Beta && (*p_h) != NULL && !InitOn) {
-		sprintf(Message,"Err. MySetHandleSize(). oldsize = %ld",
+		sprintf(Message,"Err. MySetHandleSize(). oldsize = %ld (2)\n",
 			(long) oldsize);
-		Alert1(Message);
+		BPPrintMessage(odInfo,Message);
 		}
 	if(((*p_h) = (Handle) GiveSpace(size)) == NULL) return(ABORT);	// FIXME ? does this leak a (zero-sized) handle?
 	}

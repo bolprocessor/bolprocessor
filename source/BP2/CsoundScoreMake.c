@@ -73,11 +73,15 @@ perf = (*pp_currentparams)[nseq];
 
 if(onoffline == LINE) {
 	if(j >= Jbol) {
-		if(Beta) Alert1("Err. CscoreWrite(). j >= Jbol");
+	//	if(Beta) Alert1("Err. CscoreWrite(). j >= Jbol");
+		sprintf(Message,"Err. CscoreWrite(). j >= Jbol, j = %ld\n",(long)j);
+		BPPrintMessage(odInfo,Message);
 		goto OUT;
 		} 
 	if(iline < 0 || (iline >= (*p_CsoundSize)[j])) {
-		if(Beta) Alert1("Err. CscoreWrite(). iline < 0 || iline >= (*p_CsoundSize)[j]");
+	//	if(Beta) Alert1("Err. CscoreWrite(). iline < 0 || iline >= (*p_CsoundSize)[j]");
+		sprintf(Message,"Err. CscoreWrite(). iline < 0 || iline >= (*p_CsoundSize)[j] iline = %ld\n",(long)iline);
+		BPPrintMessage(odInfo,Message);
 		goto OUT;
 		}
 	dur = (*((*pp_CsoundScore)[j]))[iline].duration * dilationratio;
@@ -85,7 +89,9 @@ if(onoffline == LINE) {
 	}
 else {
 	if(key < 0 || key >= MAXKEY) {
-		if(Beta) Alert1("Err. CscoreWrite(). Incorrect key");
+	//	if(Beta) Alert1("Err. CscoreWrite(). Incorrect key");
+		sprintf(Message,"Err. CscoreWrite(). Incorrect key = %ld\n",(long)key);
+		BPPrintMessage(odInfo,Message);
 		goto OUT;
 		}
 	}
@@ -156,7 +162,9 @@ SETON:
 	}
 
 if(onoffline == OFF && (*perf)->level[key] < 1) {
-	if(Beta) Alert1("Err. CscoreWrite(). (*perf)->level[key] < 1");
+//	if(Beta) Alert1("Err. CscoreWrite(). (*perf)->level[key] < 1");
+	sprintf(Message,"Err. CscoreWrite(). (*perf)->level[key] < 1 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
+	BPPrintMessage(odInfo,Message);
 	goto OUT;
 	}
 
@@ -660,6 +668,8 @@ else PleaseWait();
 if(ConvertMIDItoCsound) Println(wPrototype7,Message);
 else WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
 result = OK;
+
+Message[0] = "\0";
 
 OUT:
 MyDisposeHandle((Handle*)&scorearg);

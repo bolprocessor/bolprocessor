@@ -278,9 +278,7 @@ void EndImageFile(void)
 	char* someline;
 	size_t length;
 	ssize_t number;
-	// char word[] = "\n// End of image script";
-	BPPrintMessage(odInfo, "Closing image file.\n");
-	// fputs(word,imagePtr);
+	// BPPrintMessage(odInfo, "Closing image file.\n");
 	if(imagePtr == NULL) return;
 	thisfile = fopen("CANVAS_footer.txt","r");
 	if(thisfile == NULL) BPPrintMessage(odInfo,"‘CANVAS_footer.txt’ is missing!\n");

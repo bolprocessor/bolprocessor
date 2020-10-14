@@ -406,11 +406,11 @@ asm {
 #endif
 	
 	/*	Process the MIDI packet as efficiently as possible.  It is guaranteed to be MIDI
-		data, not some high-level event.  The applicationÕs refCon (appRefCon) that was 
+		data, not some high-level event.  The application's refCon (appRefCon) that was 
 		passed to OMSOpenConnections is in the low order word of pkt->tStamp. 
 		A convenient way for an application to determine the source of the MIDI data is for 
 		it to pass a number identifying the source as the appRefCon to OMSOpenConnection.
-		The high-order word of pkt->tStamp is the sourceÕs ioRefNum (not its uniqueID); 
+		The high-order word of pkt->tStamp is the source's ioRefNum (not its uniqueID); 
 		applications can also look at this to determine the source of the MIDI data. */
 	
 	if(Oms && gChosenInputID != 0 && !LoadOn && !InitOn && SchedulerIsActive > 0

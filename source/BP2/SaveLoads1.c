@@ -1890,7 +1890,7 @@ else {	/* This is a text version (new format) */
 		}
 	}
 
-/* Continue to read the old formatÉ */
+/* Continue to read the old format... */
 MuteOnChan = MuteOffChan = -1;
 
 if(ReadInteger(refnum,&s,&pos) != FAILED)
@@ -1961,7 +1961,7 @@ if(iv > 3) {
 else maxwait = 8;
 for(i=1; i <= maxwait; i++) {
 	if((iv > 3) && (ReadInteger(refnum,&s,&pos) == FAILED))
-			goto ERR;	/* type 0 = MIDi keyboard, 1 = É */
+			goto ERR;	/* type 0 = MIDi keyboard, 1 = ... */
 	if(iv > 3 && s != 0) {
 		sprintf(Message, "Unknown synchro tag type #%ld in %s",(long)s,
 			FileName[wInteraction]);

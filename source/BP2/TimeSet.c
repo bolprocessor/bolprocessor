@@ -42,6 +42,7 @@
 
 #include "-BP2decl.h"
 
+int show_details_timeset = 0;
 
 TimeSet(tokenbyte ***pp_buff,int* p_kmx,long *p_tmin,long *p_tmax,unsigned long *p_maxseq,
 	int* p_nmax,unsigned long **p_imaxseq,double maxseqapprox)
@@ -127,9 +128,9 @@ while(TRUE) {
 #if DISPLAY_PHASE_DIAGRAM
 
 // Print(wTrace,"\n");
-BPPrintMessage(odInfo,"\n");
-sprintf(Message,"Minconc = %ld    Maxconc = %ld",Minconc,Maxconc);
-BPPrintMessage(odInfo,Message);
+if(show_details_timeset) BPPrintMessage(odInfo,"\n");
+sprintf(Message,"Minconc = %ld    Maxconc = %ld\n\n",Minconc,Maxconc);
+if(show_details_timeset) BPPrintMessage(odInfo,Message);
 // Println(wTrace,Message);
 while(Button());
 for(k=ZERO; k < Maxevent; k++) {
@@ -169,7 +170,7 @@ for(k=ZERO; k < Maxevent; k++) {
 	BPPrintMessage(odInfo,Message);
 	}
 // Print(wTrace,"\n");
-BPPrintMessage(odInfo,"\n");
+BPPrintMessage(odInfo,"\n\n");
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	if(Button()) break;
 	for(iseq=1L; iseq <= (*p_imaxseq)[nseq]; iseq++) {
@@ -383,7 +384,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	if(DisplayTimeSet) {
 		sprintf(Message,"\nSequence #%ld\n",(long)(nseq+1L));
 		// Print(wTrace,Message);
-		BPPrintMessage(odInfo,Message);
+		if(show_details_timeset) BPPrintMessage(odInfo,Message);
 		}
 	CoverOK = DiscontinuityOK = stepthis = FALSE;
 	if(NoConstraint) {
@@ -520,7 +521,7 @@ QUEST2:
 			else {
 				if(i <= (*p_imaxseq)[nseq] && (*p_T)[i] != ZERO) {
 					sprintf(Message,"Err. SetTimeObjects() nseq = %ld maxseq = %ld (*p_T)[%ld] = %ld\n",(long)nseq,(long)maxseq,(long)i,(long)(*p_T)[i]);
-					BPPrintMessage(odInfo,Message);
+					if(show_details_timeset) BPPrintMessage(odInfo,Message);
 					(*p_T)[i] = ZERO;
 					}
 				}
@@ -544,31 +545,31 @@ QUEST2:
 	/* Update tmin and tmax */
 	imax = (*p_imaxseq)[nseq] - 1L;
 	sprintf(Message,"imax = %ld\n",(long)imax);
-	BPPrintMessage(odInfo,Message);
+	if(show_details_timeset) BPPrintMessage(odInfo,Message);
 	if(imax > 0) {
-		BPPrintMessage(odInfo,"Updating tmin and tmax\n");
+		if(show_details_timeset) BPPrintMessage(odInfo,"\nUpdating tmin and tmax\n");
 		i = imax;
 		while(i > 0 && (k=(*((*p_Seq)[nseq]))[i]) < 2) i--;
-		sprintf(Message,"1max) i = %ld, k = %ld\n",(long)i,(long)k);
-		BPPrintMessage(odInfo,Message);
+		sprintf(Message,"1_max: i = %ld, k = %ld\n",(long)i,(long)k);
+		if(show_details_timeset) BPPrintMessage(odInfo,Message);
 		if(k > *p_kmx) {
 			BPPrintMessage(odInfo,"Error in TimeSet(). k > *p_kmx\n");
 			}
 		else if(i > 0 && (t=((*p_Instance)[k].endtime+(*p_Instance)[k].truncend)) > *p_tmax)
 			*p_tmax = t;
 		sprintf(Message,"t = %ld\n",(long)t);
-		BPPrintMessage(odInfo,Message);
+		if(show_details_timeset) BPPrintMessage(odInfo,Message);
 		i = 1L;
 		while(i <= imax && (k=(*((*p_Seq)[nseq]))[i]) < 2) i++;
-		sprintf(Message,"2min) i = %ld, k = %ld\n",(long)i,(long)k);
-		BPPrintMessage(odInfo,Message);
+		sprintf(Message,"2_min: i = %ld, k = %ld\n",(long)i,(long)k);
+		if(show_details_timeset) BPPrintMessage(odInfo,Message);
 		if(k > *p_kmx) {
 			BPPrintMessage(odInfo,"Error in TimeSet(). k > *p_kmx\n");
 			}
 		else if(i <= imax && (t=((*p_Instance)[k].starttime-(*p_Instance)[k].truncbeg)) < *p_tmin)
 			*p_tmin = t;
 		sprintf(Message,"t = %ld\n",(long)t);
-		BPPrintMessage(odInfo,Message);
+		if(show_details_timeset) BPPrintMessage(odInfo,Message);
 		}
 		
 	/* Last object must not be played legato */
@@ -595,7 +596,7 @@ for(k=2; k <= *p_kmx; k++) {
 	(*p_Instance)[k].alpha += ((*p_Instance)[k].alpha * a) / 100.;
 	(*p_Instance)[k].endtime = (*p_Instance)[k].starttime + ((*p_Instance)[k].endtime
 		- (*p_Instance)[k].starttime) * (1. + ((double) a) / 100.);
-	if((*p_Instance)[k].ncycles < 2)	/* Object is not cyclic */ /* 14/4/98 */
+	if((*p_Instance)[k].ncycles < 2)	/* Object is not cyclic */
 		(*p_Instance)[k].dilationratio = (*p_Instance)[k].alpha;
 	}
 result = OK;

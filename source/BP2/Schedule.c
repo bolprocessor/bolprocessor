@@ -285,7 +285,7 @@ for(t=0; t < CLOCKSIZE; t++) {
 		if(toolate) {	// we inhibit the routine rather than returning the timeslice
 					// to the spool.  This is faster.  TDecr() will return it.
 			now->routine = (voidOMSdoPacket) NULL;
-			now->loopstep = ZERO;	/* It should be recycled as fast as possibleÉ */
+			now->loopstep = ZERO;	/* It should be recycled as fast as possible... */
 			}
 /*		if(toolate)	{
 			now->routine = (voidOMSdoPacket) NULL;

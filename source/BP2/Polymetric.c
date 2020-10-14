@@ -189,8 +189,8 @@ for(i=ZERO; ; i+=2L) {
 		break;
 		}
 	if(foundinit) {
-		/* Insert '/1' speed marker because none has been found. Otherwise, the initial… */
-		/* … section numbers might be wrongly interpreted */
+		/* Insert '/1' speed marker because none has been found. Otherwise, the initial... */
+		/* ... section numbers might be wrongly interpreted */
 		pos_init = i;
 		(**pp_a)[i] = T0; (**pp_a)[i+1] = 11; /* '/' */
 		i += 2;
@@ -432,8 +432,8 @@ for(i=ZERO; ; i+=2L) {
 				}
 			}
 		fmaxseq += prodtempo;
-		if(p >= 1 || m == T9 || m == T25) {	/* Even silence may become an event if preceded… */
-								/* … by _pitchbend() for instance. */
+		if(p >= 1 || m == T9 || m == T25) {	/* Even silence may become an event if preceded... */
+								/* ... by _pitchbend() for instance. */
 			Maxevent++;
 			if(toofast) nsymb += prodtempo;
 			else nsymb += 1.;
@@ -1356,10 +1356,10 @@ FIXTEMP:
 			}
 		continue;
 		}
-	if(m == T0 && p == 17) {					/* Undetermined rest '…' */
+	if(m == T0 && p == 17) {					/* Undetermined rest "_rest" */
 		firstistempo = (*p_firstistempo)[a] = FALSE;
 		/* This field can't be used to determine the duration */
-		if(restart) {	/* Scanning structure second time:…*/
+		if(restart) {	/* Scanning structure second time...*/
 			newh = newg = TRUE;
 			xp = speed * ((*p_pgap)[a]);
 			xq = (*p_qgap)[a] * (scale);
@@ -1570,8 +1570,8 @@ FIXTEMP:
 			(*p_useful)[a] = foundtokens = TRUE;
 		}
 	if(m == T3 || m == T7 || m == T8 || m == T9 || m == T25) {
-		/* Terminal or prolongation or out-time object or synchronization tag… */
-		/* … or time pattern or simple note */
+		/* Terminal or prolongation or out-time object or synchronization tag... */
+		/* ... or time pattern or simple note */
 		firstistempo = FALSE;
 		if(m == T3 || m == T9 || m == T25) {
 			if(Add((*p_p)[a],(*p_q)[a],scale,speed,&xp,&xq,&overflow) != OK){
@@ -1659,8 +1659,8 @@ for(a=kk=0; a < k; a++) {
 		}
 	if((*p_vargap)[a] || (*p_p)[a] == ZERO) continue;
 	if(a0 == -1) {
-		a0 = a;		/* The duration field is the leftmost one… */
-					/* … satisfying non-empty conditions */
+		a0 = a;		/* The duration field is the leftmost one... */
+					/* ... satisfying non-empty conditions */
 		pmax = (*p_p)[a];
 		qmax = (*p_q)[a];
 		}

@@ -1252,7 +1252,7 @@ DisposeRgn(cliprgn);
 if(w < WMAX) {
 	if(IsDialog[w]) BPUpdateDialog(gpDialogs[w]);
 	/* UpdateDialog needed to make static text visible */
-	/* É in spite of Inside Mac saying it isn't p.I-418 */
+	/* ... in spite of Inside Mac saying it isn't p.I-418 */
 	if(OKgrow[w]) DrawGrowIcon(theWindow);
 	if(Editable[w]) {
 		// AdjustTextInWindow(w); // add this or remove SetViewRect() call - 020907

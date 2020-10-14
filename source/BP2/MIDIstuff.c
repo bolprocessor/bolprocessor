@@ -716,7 +716,7 @@ MIDIoutputFilter =
 		+ 2L * (TuneTypePass + 2L * (EndSysExPass + 2L * (ClockTypePass
 		+ 2L * (StartTypePass + 2L * (ContTypePass + 2L * (ActiveSensePass
 		+ 2L * ResetPass))))))))))))))));
-/* To pass an event you should enable the driver to receive it… */
+/* To pass an event you should enable the driver to receive it... */
 MIDIinputFilter = MIDIinputFilter | MIDIoutputFilter;
 GetInputFilterWord();
 return(OK);

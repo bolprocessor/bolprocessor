@@ -106,7 +106,7 @@ if(psn.highLongOfPSN != PSN.highLongOfPSN || psn.lowLongOfPSN != PSN.lowLongOfPS
 		}
 	}
 
-// The current application refused to abandon its current process. Let's notify the user… 
+// The current application refused to abandon its current process. Let's notify the user... 
 SndSetSysBeepState(sysBeepEnable);
 icon = NULL; sound = NULL;
 

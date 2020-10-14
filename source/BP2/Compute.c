@@ -318,7 +318,7 @@ if(inrul > 0) {	/* Entering after '_goto' or '_failed' jump */
 		inrul = ir;
 		goto CHECKINRUL;
 		}
-	/* If '_goto' and '_failed' jumps failed we start looking for any candidate rule… */
+	/* If '_goto' and '_failed' jumps failed we start looking for any candidate rule... */
 	if(subgram.type == ORDtype) {
 		if(inrul < subgram.number_rule) {
 			inrul++;
@@ -1111,8 +1111,8 @@ if(p_candidate == NULL || p_totwght == NULL || p_pos == NULL || p_prefrule == NU
 	return(ABORT);
 	}
 	 
-if(leftpos < 0L) return(0); 		/* Happens in 'SUB' grammars … */
-									/* … because of NextPos() */
+if(leftpos < 0L) return(0); 		/* Happens in 'SUB' grammars... */
+									/* ... because of NextPos() */
 
 n = (*((*p_gram).p_subgram))[igram].number_rule;
 
@@ -1703,8 +1703,8 @@ if(ismeta && result && !reset) {	/* searching context */
 			meta[i] = meta1[i];		/* Copy metavariables created in context */
 			meta[i+1] = meta1[i+1];
 			}
-		if((j1 = (int) meta[i]) != -1) {	/* Check that metavariables have … */
-			j2 = (int) meta[i+1];			/* … distinct instances. */
+		if((j1 = (int) meta[i]) != -1) {	/* Check that metavariables have ... */
+			j2 = (int) meta[i+1];			/* ... distinct instances. */
 			for(j=0; j < i; j+=2) {
 				if(meta[j] == (tokenbyte) j1 && meta[j+1] == (tokenbyte) j2) {
 					return(FALSE);
@@ -2002,7 +2002,7 @@ return(pos1);
 
 
 Cormark(tokenbyte ***pp_a,long from,long inmark)
-/* Recalculate slave markers after derivation… */
+/* Recalculate slave markers after derivation... */
 {
 long i;
 tokenbyte m,p,q;		/* 'from' is the position of rightmost symbol inserted */

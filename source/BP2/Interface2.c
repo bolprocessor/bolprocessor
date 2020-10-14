@@ -777,7 +777,7 @@ return(result);
 
 
 GetClickedWord(int w,char* line)
-// Select epression between quotes, if any, or between spaces, or performance control, tool, procedure…
+// Select epression between quotes, if any, or between spaces, or performance control, tool, procedure...
 {
 char c;
 long i,iorg,iend,length,start1,start2,end1,end2;

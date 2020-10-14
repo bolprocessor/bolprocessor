@@ -31,7 +31,6 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
-
 #ifndef _H_BP2
 #include "-BP2.h"
 #endif

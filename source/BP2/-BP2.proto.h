@@ -536,7 +536,8 @@ int ClearMarkers(tokenbyte***);
 int CheckSize(unsigned long,unsigned long*,tokenbyte***);
 int ReadTemplate(int,long,long*,tokenbyte***,int*);
 int DeleteTemplates(void);
-int MakeSound(tokenbyte***,int*,unsigned long,int,tokenbyte***,long,long,int,int,Milliseconds**);
+// int MakeSound(tokenbyte***,int*,unsigned long,int,tokenbyte***,long,long,int,int,Milliseconds**);
+int MakeSound(int*,unsigned long,int,tokenbyte***,long,long,int,int,Milliseconds**);
 int SendControl(ContinuousControl**,Milliseconds,int,int,int,int,int,int*,char***,
 	Milliseconds***,int***,MIDIcontrolstatus**,PerfParameters****);
 int InterruptSound(void);

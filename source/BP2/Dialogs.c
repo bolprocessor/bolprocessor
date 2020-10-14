@@ -442,8 +442,8 @@ QUIT:		Improvize = improvizemem;
 			break;
 		}
 	return(DONE); /* Avoids reprocessing mouseclick event: */
-	/* This window is special because you can select buttons… */
-	/* … even if it is not active. */
+	/* This window is special because you can select buttons... */
+	/* ... even if it is not active. */
 	}
 if(w == wMetronom) {
 	switch(itemHit) {

@@ -38,6 +38,7 @@
 
 #include "-BP2decl.h"
 
+int show_all_messages = 0;
 
 SetObjectParams(int isobject,int level,int nseq,short** p_articul,int k,int j,
 	CurrentParameters *p_currentparameters,ContParameters **p_contparameters,
@@ -247,7 +248,6 @@ objectspecs** pto;
 long** pts;
 int i;
 
-
 if(nseq >= Maxconc) {
 	if(Beta) Println(wTrace,"\nErr. AttachObjectLists(). nseq >= Maxconc");
 	return(OK);
@@ -293,7 +293,7 @@ SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparameters,
 //    object in SetObjectParams(). An offset value is returned so that attachment
 //    will occur on the proper object.
 
-// This procedure is similar to GetSymbolicDuration() concerning object concatenation Ô&Õ
+// This procedure is similar to GetSymbolicDuration() concerning object concatenation "&"
 
 // I wonder how many times I debugged this procedure!
 {
@@ -668,7 +668,7 @@ MORE:
 		if(chan == (int) x) continue;
 		
 		/* A channel change in the sequence should be the end of the variation */
-		/* É of a continuous MIDI parameter */
+		/* ... of a continuous MIDI parameter */
 		if(objectsfound > 0 && index >= 0 && index <= IPANORAMIC) okincrease = FALSE;
 		
 		chan = (int) x;
@@ -777,7 +777,6 @@ double local_period;
 Milliseconds t1,t2;
 unsigned int seed;
 
-
 if(nseq >= Maxconc) {
 	if(Beta) Println(wTrace,"\nErr. Fix(). nseq >= Maxconc");
 	return(OK);
@@ -796,23 +795,34 @@ while(TRUE) {
 		j = (*p_Instance)[k].object;
 		if(j > 0) {
 			if(j < 16384) {
-				if((*p_PivMode)[j] == RELATIVE)
-					t1 = (*p_T)[i]
-						- (Milliseconds) ((*p_Instance)[k].dilationratio * (*p_Dur)[j]
-						* (*p_PivPos)[j] / 100.);
-				else
-					t1 = (*p_T)[i] - (*p_PivPos)[j];
-				RandomTime(&t1,(*p_Instance)[k].randomtime);
-				(*p_time1)[i] = t1;
-				if(PlayFromInsertionPoint) t1 = (*p_time1)[i] = (*p_T)[i];
-				t2 = (*p_time2)[i] = t1
-					+ (Milliseconds)((*p_Instance)[k].alpha * (*p_Dur)[j]);
+				if(j >= Jbol) { // Time pattern
+					t1 = (*p_T)[i];
+					(*p_time1)[i] = t1;
+					t2 = (*p_time2)[i] = t1 + (Milliseconds) ((*p_Instance)[k].alpha * (*p_Dur)[j]);
+					sprintf(Message,"Fix() time pattern k = %ld j = %ld alpha = %.2f t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)t1,(long)t2);
+					}
+				else {
+					if((*p_PivMode)[j] == RELATIVE)
+						t1 = (*p_T)[i]
+							- (Milliseconds) ((*p_Instance)[k].dilationratio * (*p_Dur)[j]
+							* (*p_PivPos)[j] / 100.);
+					else
+						t1 = (*p_T)[i] - (*p_PivPos)[j];
+					RandomTime(&t1,(*p_Instance)[k].randomtime);
+					(*p_time1)[i] = t1;
+					if(PlayFromInsertionPoint) t1 = (*p_time1)[i] = (*p_T)[i];
+					t2 = (*p_time2)[i] = t1
+						+ (Milliseconds)((*p_Instance)[k].alpha * (*p_Dur)[j]);
+					sprintf(Message,"Fix() k = %ld j = %ld alpha = %.2f Dur = %ld t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)(*p_Dur)[j],(long)t1,(long)t2);
+					}
+				if(show_all_messages) BPPrintMessage(odInfo,Message);
 				}
 			else {	/* Simple note */
 				t1 = (*p_T)[i];
 				RandomTime(&t1,(*p_Instance)[k].randomtime);
 				(*p_time1)[i] = t1;
 				t2 = (*p_time2)[i] = t1 + (*p_Instance)[k].alpha * 1000L;
+				sprintf(Message,"Fix() note k = %ld j = %ld alpha = %.2f t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)t1,(long)t2);
 				}
 			}
 		else {
@@ -876,48 +886,49 @@ if(nature_time == STRIATED || nseq == 0) {
 		d = (double) (inext - i) * Kpress / Ratio; /* Symbolic duration */
 		if(nature_time == SMOOTH) {
 			if(Qclock < 1L) {
-				if(Beta) Alert1("Err. Calculate_alpha(). Qclock < 1. ");
+			//	if(Beta) Alert1("Err. Calculate_alpha(). Qclock < 1. ");
+				BPPrintMessage(odInfo,"Err. Calculate_alpha(). Qclock < 1.\n");
 				return(ABORT);
 				}
 			if(Pclock > 0.) { 				/* Measured smooth time */
-				if(j > 16383 || (*p_Tref)[j] > EPSILON) {
-					/* Striated object or simple note */
-					if(j < 16384) alpha = (double) d * clockperiod / (*p_Tref)[j];
-					else	/* Simple note */
-						alpha = (double) d * clockperiod / 1000L;
-					}
-				else {
-					if((*p_Dur)[j] > EPSILON) {
-						alpha = (double) d * clockperiod / (*p_Dur)[j];
-						}
-					else alpha = d;
-					}
+				if(j >= 16383) // simple note
+					alpha = (double) d * clockperiod / 1000L;
+				if(j >= Jbol) // time pattern
+					alpha = (double) d  * clockperiod / (*p_Tref)[j];
+				else if((*p_Tref)[j] > EPSILON) // Striated object
+					alpha = (double) d * clockperiod / (*p_Tref)[j];
+				else if((*p_Dur)[j] > EPSILON) // Smooth object
+					alpha = (double) d * clockperiod / (*p_Dur)[j];
+				else alpha = d;
 				}
 			else {		/* Pclock = ZERO; non-measured smooth time */
 				alpha = d;
 				}
+			sprintf(Message,"Calculate_alpha() 1st line k = %ld j = %ld alpha = %.2f d = %ld clockperiod = %ld i = %ld inext = %ld Dur =%ld Tref = %ld\n",(long)k,(long)j,alpha,(long)d,(long)clockperiod,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+			if(show_all_messages) BPPrintMessage(odInfo,Message);
 			}
 		else {					/* Striated time or nseq > 0 */
 			if(d > 0.) {
-				if(j > 16383 || (*p_Tref)[j] > EPSILON) { /* Striated object or simple note */
-					if(j < 16384)
-						alpha = ((double)(*p_T)[inext] - (*p_T)[i]) / (*p_Tref)[j];
-					else 	/* Simple note */
-						alpha = ((double)(*p_T)[inext] - (*p_T)[i]) / 1000L;
-					}
-				else {			/* Smooth object */
-					if((*p_Dur)[j] > EPSILON)
-						alpha = ((double)(*p_T)[inext] - (*p_T)[i]) / (*p_Dur)[j];
-					else alpha = 0.;
-					}
+				if(j >= 16383) // simple note
+					alpha = ((double)(*p_T)[inext] - (*p_T)[i]) / 1000L;
+				else if(j >= Jbol) // time pattern
+					alpha = (double) ((*p_T)[inext] - (*p_T)[i]) / (*p_Tref)[j];
+				else if((*p_Tref)[j] > EPSILON) // Striated object
+					alpha = ((double)(*p_T)[inext] - (*p_T)[i]) / (*p_Tref)[j];
+				else if((*p_Dur)[j] > EPSILON) // Smooth object
+					alpha = ((double)(*p_T)[inext] - (*p_T)[i]) / (*p_Dur)[j];
+				else alpha = 0.;
 				}
 			else {
 				alpha = 0.;
 				}
+			sprintf(Message,"Calculate_alpha() striated k = %ld j = %ld alpha = %.2f d = %.2f i = %ld inext = %ld Dur =%ld Tref = %ld\n",(long)k,(long)j,alpha,d,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+			if(show_all_messages) BPPrintMessage(odInfo,Message);
 			}
 		
 		beta = alpha;
-		if(j > 16383) goto OKALPHA1;
+	//	if(j > 16383) goto OKALPHA1;
+		if(j >= Jbol) goto OKALPHA1;
 		if((*p_FixScale)[j] && (*p_PeriodMode)[j] == IRRELEVANT) {
 			alpha = beta = 1.; goto OKALPHA1;
 			}
@@ -948,8 +959,8 @@ OKALPHA1:
 imax = imaxseq;
 if(nseq < nmax && (imax < maxseq)) {
 	imax = maxseq;
-	/* We will complete streak markings beyond the end ofÉ */
-	/* É the sequence, up to end of the phase diagram. */
+	/* We will complete streak markings beyond the end of... */
+	/* ... the sequence, up to end of the phase diagram. */
 	/* This is only needed if there are more sequences. */
 	}
 iprev = i; jprev = -1;
@@ -979,7 +990,8 @@ FINDNEXTMARKED:
 		/* In this case alpha will be too small on current object */
 		
 		if(k >= Maxevent) {
-			if(Beta) Alert1("Err. Calculate_alpha(). k >= Maxevent (2)");
+		//	if(Beta) Alert1("Err. Calculate_alpha(). k >= Maxevent (2)");
+			BPPrintMessage(odInfo,"Err. Calculate_alpha(). k >= Maxevent (2)\n");
 			return(ABORT);
 			}
 		j = (*p_Instance)[k].object;
@@ -988,7 +1000,13 @@ FINDNEXTMARKED:
 			i = inext; continue;
 			}
 		d = (double) (inext - i) * Kpress / Ratio;	/* Symbolic duration */
-		if(j < 16384) {
+		if(j > 16383) { // Simple note
+			dur = 1000L; r = 1.;
+			}
+		else if(j >= Jbol) {  // time pattern
+			r = ((double) (*p_Dur)[j]) / (*p_Tref)[j];
+			}
+		else { // Sound-object
 			dur = (*p_Dur)[j];
 			if((*p_Tref)[j] > EPSILON && dur > EPSILON) {
 				/* Striated object */
@@ -996,10 +1014,9 @@ FINDNEXTMARKED:
 				}
 			else r = 1.;
 			}
-		else {	/* Simple note */
-			dur = 1000L; r = 1.;
-			}
 		sigmaridi += r * d;
+		sprintf(Message,"Calculate_alpha() smooth line > 0 To = %ld k = %ld j = %ld r = %.2f d = %ld sigmaridi = %.2f inext = %ld Dur = %ld Tref = %ld\n",(long)To,(long)k,(long)j,r,d,(long)sigmaridi,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+		if(show_all_messages) BPPrintMessage(odInfo,Message);
 		i = inext;
 		}
 	unfinished = FALSE;
@@ -1029,7 +1046,14 @@ FINDNEXTMARKED:
 			continue;
 			}
 		d = (double) (inext - i) * Kpress / Ratio;
-		if(j < 16384) {
+		if(j > 16383) {	// Simple note
+			dur = 1000L; r = 1.;
+			}
+		else if(j >= Jbol) { // Time-pattern
+			dur = (*p_Dur)[j];
+			r = ((double) dur) / (*p_Tref)[j];
+			}
+		else { // Sound-object
 			dur = (*p_Dur)[j];
 			if((*p_Tref)[j] > EPSILON && dur > EPSILON) {
 				/* Striated object */
@@ -1037,10 +1061,9 @@ FINDNEXTMARKED:
 				}
 			else r = 1.;
 			}
-		else {	/* Simple note */
-			dur = 1000L; r = 1.;
-			}
 		alpha = To * r * d / dur / sigmaridi;
+		sprintf(Message,"k = %ld j = %ld alpha = %.2f r = %.2f d = %ld sigmaridi = %.2f\n",(long)k,(long)j,alpha,r,d,(long)sigmaridi);
+		if(show_all_messages) BPPrintMessage(odInfo,Message);
 		if(!unfinished && inext == inextm) {	/* Last object in section */
 			toff = (*p_T)[inext];	/* This will compensate cumulated roundings */
 			alpha = ((double)(toff - currenttime)) / dur;
@@ -1049,7 +1072,6 @@ FINDNEXTMARKED:
 		if(k == 0 && !unfinished) {
 			currenttime = (*p_T)[iprev] + (Milliseconds)(alpha * dur);
 			/* Must calculate it now because alpha is going to change */
-			
 			gotcurrenttime = TRUE;
 			toff = currenttime;
 			alpha = ((double)(toff - ton)) / dur;
@@ -1072,14 +1094,15 @@ FINDNEXTMARKED:
 			}
 		if(alpha < 0.) {	/* Should no longer happen since To > ZERO */
 			sprintf(Message,
-			"Err. Calculate_alpha(). alpha=%f",alpha);
-			if(Beta) Alert1(Message);
+			"Err. Calculate_alpha(). alpha=%.2f",alpha);
+			BPPrintMessage(odInfo,Message);
 			alpha = 0.;
 			}
 		if(!gotcurrenttime) currenttime += (Milliseconds) (alpha * dur);
 		
 		beta = alpha; ncycles = 1;
-		if(j > 16383) goto OKALPHA2;
+	//	if(j > 16383) goto OKALPHA2;
+		if(j >= Jbol) goto OKALPHA2;
 		if((*p_FixScale)[j] && (*p_PeriodMode)[j] == IRRELEVANT) {
 			alpha = beta = 1.; goto OKALPHA2;
 			}
@@ -1111,8 +1134,8 @@ return(OK);
 FixDilationRatioInCyclicObject(int j,double d,double *p_alpha,double *p_dilationratio,
 	int *p_ncycles)
 /* Examine objects with periodical part and see whether that part could be repeated */
-/* If so, fix the number of repetitions and the actual dilation ratio,É */
-/* É and change alpha if necessary */
+/* If so, fix the number of repetitions and the actual dilation ratio,... */
+/* ... and change alpha if necessary */
 {
 int n1,n2,limit;
 double objectperiod,beforeperiod,ncycles,pivpos;
@@ -1386,7 +1409,7 @@ double GetSymbolicDuration(int ignoreconcat,int precise,tokenbyte **p_buff,
 	tokenbyte oldm,tokenbyte oldp,long id,double orgspeed,double orgscale,
 	int levelorg)
 {
-// This procedure is similar to SetVariation() concerning object concatenation Ô&Õ
+// This procedure is similar to SetVariation() concerning object concatenation "&"
 
 // $$$ suppress 'precise'
 

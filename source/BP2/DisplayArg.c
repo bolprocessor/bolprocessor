@@ -44,9 +44,9 @@ PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int nocode
 
 /* datamode = TRUE: space according to metre, FALSE: no space */
 /* nocode = FALSE: copy pp_a to file f, if not NULL, or window 'wind' */
-/* nocode = TRUE and istemplate = FALSE: copy pp_a without structure to array pp_bÉ */
-/* istemplate = TRUE: match istemplate in pp_a against item in pp_bÉ */
-/* É and replace '_' in istemplate with terminals in pp_b. */
+/* nocode = TRUE and istemplate = FALSE: copy pp_a without structure to array pp_b... */
+/* istemplate = TRUE: match istemplate in pp_a against item in pp_b... */
+/* ... and replace '_' in istemplate with terminals in pp_b. */
 /* showtempo: add prolongational gaps using "Prod" */
 /* ret = TRUE: print a 'return' at the end */
 /* ifunc = TRUE: interpret grammar.  Jfunc is the index of '-->' */
