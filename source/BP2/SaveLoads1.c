@@ -1544,6 +1544,8 @@ if(iv > 11) {
 	if(ReadFloat(sefile,&x,&pos) == FAILED) goto ERR;
 	if(iv > 19) MIDIfadeOut = x;
 	else MIDIfadeOut = 2.;
+	sprintf(Message,"MIDIfadeOut = %.2f sec\n",MIDIfadeOut);
+	BPPrintMessage(odInfo,Message);
 #if BP_CARBON_GUI
 	sprintf(Message,"%.2f",MIDIfadeOut);
 	SetField(FileSavePreferencesPtr,-1,fFadeOut,Message);

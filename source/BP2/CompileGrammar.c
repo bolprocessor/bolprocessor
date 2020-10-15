@@ -1340,7 +1340,6 @@ switch(c) {
 	case 'À':
 	case 'Á':
 	case 'Ã':
-	case 'Ç':
 	case 'È':
 	case 'Ò':
 	case 'Ó':

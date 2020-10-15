@@ -41,6 +41,8 @@
 #include "ConsoleGlobals.h"
 #include "ConsoleMessages.h"
 
+int check_fade_out = 0;
+
 #define  BITS0_6    0x7F
 #define  BITS7_13   0x3F80
 #define  BITS14_20  0x1FC000
@@ -270,6 +272,7 @@ static int WriteEndOfTrack(FILE* fout)
 	int result;
 	long pos;
 	
+	BPPrintMessage(odInfo, "Writing end of track\n");
 	result = FadeOut();
 	if (result != OK)  return result;
 	
@@ -1240,32 +1243,52 @@ return(OK);
 
 int FadeOut(void)
 {
-int i,maxfadeout,rs,chan,value;
-float fadeout;
-Milliseconds time,timeorigin;
+int i_event,i_event_max,rs,chan,value,value2,this_volume,rep;
+Milliseconds time,timeorigin,time_end,current_volume[MAXCHAN];
 MIDI_Event e;
+float ratio;
+unsigned char this_char;
 
 #if BP_CARBON_GUI
 GetFileSavePreferences();
 #endif /* BP_CARBON_GUI */
 
 if(MIDIfadeOut > 0.) {
-	maxfadeout = MIDIfadeOut * SamplingRate;
 	rs = 0;
-	timeorigin = LastTcurr * Time_res;
-	for(i=1; i <= maxfadeout; i++) {
-		time = timeorigin + ((1000L * i) / SamplingRate);
+	timeorigin = LastTcurr;
+	time_end = timeorigin + (1000 * MIDIfadeOut);
+	i_event_max = (int)(MIDIfadeOut * SamplingRate);
+	sprintf(Message,"Fading out MIDI stream %.3f sec, sampling rate %ld Hz, time resolution = %ld ms, from date = %.3f sec to date = %.3f sec in %ld steps (as instructed in the settings)\n",(float)MIDIfadeOut,(long)SamplingRate,(long)Time_res,(float)(timeorigin / 1000.),(float)(time_end / 1000.),(long)i_event_max);
+	BPPrintMessage(odInfo,Message);
+	for(chan=1; chan <= MAXCHAN; chan++)
+		current_volume[chan] = CurrentVolume[chan];
+	for(i_event = 1; i_event <= i_event_max; i_event++) {
+		time = timeorigin + ((1000 * i_event) / SamplingRate);
+	//	if(time > time_end) break;
+		ratio = ((float)(i_event_max - i_event)) / i_event_max;
 		for(chan=1; chan <= MAXCHAN; chan++) {
-			if(CurrentVolume[chan] < 1) continue;
-			value = CurrentVolume[chan] * ((((float)maxfadeout) - i) / maxfadeout);
-			e.time = time / Time_res;
+			this_volume = current_volume[chan];
+			if(this_volume < 1) continue;
+			value2 = (float)this_volume * ratio;
+			this_char = (unsigned char)(time / Time_res);
+			e.time = this_char;
 			e.type = NORMAL_EVENT;
-			e.status = ControlChange + chan - 1;
-			e.data1 = VolumeControl[chan];
-			e.data2 = value;
-			SendToDriver(time,0,&rs,&e);
+			this_char = (unsigned char)(ControlChange + chan - 1);
+			e.status = this_char;
+			this_char = (unsigned char)VolumeControl[chan];
+			e.data1 = this_char;
+			this_char = (unsigned char)value2;
+			e.data2 = this_char;
+			if((rep=SendToDriver(time,0,&rs,&e)) != OK) {
+				sprintf(Message,"SendToDriver aborted! rep = %ld\n",(long)rep);
+				BPPrintMessage(odInfo,Message);
+				goto OUT;
+				}
+			sprintf(Message,"%d/%d ratio = %.3f  channel %d: time = %ld ms, current_volume = %ld, e.data1 = %d, e.data2 = %d\n",i_event,i_event_max,ratio,chan,(long)time,(long)this_volume,e.data1,e.data2);
+			if(check_fade_out) BPPrintMessage(odInfo,Message);
 			}
 		}
+OUT:
 	for(chan=1; chan <= MAXCHAN; chan++) CurrentVolume[chan] = -1;
 	}
 return(OK);

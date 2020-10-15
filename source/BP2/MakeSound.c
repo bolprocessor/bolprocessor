@@ -108,7 +108,7 @@ if(((OutCsound && (FileWriteMode == NOW || !OutMIDI))
 	|| ConvertMIDItoCsound) && !ItemCapture /* && !showpianoroll */) cswrite = TRUE;
 
 MIDIfileOn = FALSE;
-if(WriteMIDIfile && (FileWriteMode == NOW || !OutMIDI) && !ItemCapture && !showpianoroll)
+if(WriteMIDIfile && (FileWriteMode == NOW || !OutMIDI) && !ItemCapture)
 	MIDIfileOn = TRUE;
 
 if(/* FirstTime && */ (/* cswrite || */ (!OutMIDI && !MIDIfileOn && !ShowGraphic && !showpianoroll) /* || showpianoroll */)) {
@@ -119,6 +119,8 @@ if(/* FirstTime && */ (/* cswrite || */ (!OutMIDI && !MIDIfileOn && !ShowGraphic
 interruptedonce = overflow = FALSE;
 rs = 0;
 resetok = TRUE;
+
+if(MIDIfileOn) BPPrintMessage(odInfo, "MIDI file will be created\n");
 
 #if BP_CARBON_GUI
 // FIXME ? Should non-Carbon builds call a "poll events" callback here ?
@@ -346,9 +348,7 @@ for(k=2; k <= (*p_kmax); k++) {
 
 SoundOn = TRUE;
 if(showpianoroll) {
-// if BP_CARBON_GUI
 	// FIXME:  Would like to figure out how to move all of the piano roll code elsewhere ...
-//	fputs("OK2\n",imagePtr);
 	minkey = 127; maxkey = 0;
 	tmax = ZERO;
 	for(k=2; k <= (*p_kmax); k++) {
@@ -391,7 +391,6 @@ if(showpianoroll) {
 			if((*p_Instance)[k].lastistranspose) TransposeKey(&key,trans);
 			key = ExpandKey(key,(*p_Instance)[k].xpandkey,(*p_Instance)[k].xpandval);
 			if(!(*p_Instance)[k].lastistranspose) TransposeKey(&key,trans);
-		/*	key = GoodKey(j); */
 			if(key < minkey) minkey = key;
 			if(key > maxkey) maxkey = key;
 			}
@@ -400,9 +399,7 @@ if(showpianoroll) {
 	maxkey = 6 + ((maxkey / 6) * 6);
 	if (minkey > maxkey)  minkey = maxkey = 60;
 	hrect = 3;
-//	htext = WindowTextSize[w] + 2;
 	htext = 14;
-//	leftoffset = 13 + StringWidth("\pmmm") - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
 	leftoffset = 13 + 30 - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
 	topoffset = (3 * htext) + 6;
 	endxmax = leftoffset + 50 + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10;
@@ -412,59 +409,20 @@ if(showpianoroll) {
 	sprintf(line_image,"WMAX=%ld\n",(long)resize * endxmax);
 	fputs(line_image,imagePtr);
 	
-// GetWindowPortBounds(Window[w], &graphrect);
-	
 	graphrect.top = graphrect.left = 0;
 	graphrect.bottom = graphrect.top + endymax;
 	graphrect.right = graphrect.left + endxmax;
 	
-	BPPrintMessage(odInfo,"Will draw item background now\n");
+	BPPrintMessage(odInfo,"Drawing item background\n");
 	if((result=DrawItemBackground(&graphrect,imaxstreak,htext,hrect,leftoffset,NO,
 		p_delta,&yruler,topoffset,&overflow)) != OK || overflow) goto OUTGRAPHIC;
 	DrawNoteScale(&graphrect,w,minkey,maxkey,hrect,leftoffset,topoffset);
 	
 	topoffset += 3;
-	/*for(key=0; key < 128; key+=12) {	
-		if(key < minkey || key > maxkey) continue;
-		y = (maxkey - key) * hrect + topoffset + 1; */
-	/*	move_to("canvas",leftoffset-2,y);
-		line_to("canvas",endxmax-27,y); */
-	//	sprintf(line,"c%ld",(long)((key - (key % 12))/12)-1L);
-	/*	c2pstrcpy(label, line);
-		labelrect.top = y - 7;
-		labelrect.left = endxmax - 25;
-		labelrect.right = endxmax - 25 + StringWidth(label);
-		labelrect.bottom = y + 6;
-		erase_rect("canvas"&labelrect);
-		move_to("canvas",endxmax-24,y + 3);
-		stroke_text("canvas",label); */
-	//	}
-		
-/*	for(key=6; key < 128; key+=12) {	
-		if(key < minkey || key > maxkey) continue;
-		y = (maxkey - key) * hrect + topoffset + 1; */
-	/*	move_to("canvas",leftoffset-2,y);
-		line_to("canvas",endxmax-27,y); */
-	//	sprintf(line,"f#%ld",(long)((key - (key % 12))/12)-1L);
-	/*	c2pstrcpy(label, line);
-		labelrect.top = y - 7;
-		labelrect.left = endxmax - 25;
-		labelrect.right = endxmax - 25 + StringWidth(label);
-		labelrect.bottom = y + 6;
-		erase_rect("canvas"&labelrect);
-		move_to("canvas",endxmax-24,y + 3);
-		stroke_text("canvas",label); */
-	//	}
-/*	stroke_style("canvas",&Black);
-	PenNormal(); */
 		
 	Hmin[w] = Hmax[w] = 0;
 	Hzero[w] = Vzero[w] = 0;
 	Vmin[w] = Vmax[w] = 0;
-/*	PenNormal();
-	stroke_style("canvas",&Black);
-	pen_size("canvas",1,hrect); */
-// endif  BP_CARBON_GUI 
 	}
 
 #if WITH_REAL_TIME_MIDI
@@ -885,7 +843,7 @@ TRYCSFILE:
 					(*p_Oldvalue)[chan].volume = volume;
 					ChangedVolume[chan] = TRUE;
 				//	firstvolume[chan] = FALSE;
-					if(!cswrite && !showpianoroll) {
+					if(!cswrite /* && !showpianoroll */) {
 						e.time = Tcurr;
 						e.type = NORMAL_EVENT;
 						e.status = ControlChange + chan;
@@ -899,7 +857,7 @@ TRYCSFILE:
 					(*p_Oldvalue)[chan].panoramic = panoramic;
 					ChangedPanoramic[chan] = TRUE;
 				//	firstpanoramic[chan] = FALSE;
-					if(!cswrite && !showpianoroll) {
+					if(!cswrite /* && !showpianoroll */) {
 						e.time = Tcurr;
 						e.type = NORMAL_EVENT;
 						e.status = ControlChange + chan;
@@ -914,7 +872,7 @@ TRYCSFILE:
 				//	firstpitchbend[chan] = FALSE;
 					lsb = ((long)pitchbend) % 128;
 					msb = (((long)pitchbend) - lsb) >> 7;
-					if(!cswrite && !showpianoroll) {
+					if(!cswrite /* && !showpianoroll */) {
 						e.time = Tcurr;
 						e.type = NORMAL_EVENT;
 						e.status = PitchBend + chan;
@@ -927,7 +885,7 @@ TRYCSFILE:
 					(*p_Oldvalue)[chan].pressure = pressure;
 					ChangedPressure[chan] = TRUE;
 				//	firstpressure[chan] = FALSE;
-					if(!cswrite && !showpianoroll) {
+					if(!cswrite /* && !showpianoroll */) {
 						e.time = Tcurr;
 						e.type = TWO_BYTE_EVENT;
 						e.status = ChannelPressure + chan;
@@ -941,7 +899,7 @@ TRYCSFILE:
 				//	firstmodulation[chan] = FALSE;
 					lsb = ((long)modulation) % 128;
 					msb = (((long)modulation) - lsb) >> 7;
-					if(!cswrite && !showpianoroll) {
+					if(!cswrite /* && !showpianoroll */) {
 						e.time = Tcurr;
 						e.type = NORMAL_EVENT;
 						e.status = ControlChange + chan;
@@ -1188,7 +1146,7 @@ SWITCHES:
 									s = 0;
 									}
 								rs = 0;
-								if(!cswrite && !showpianoroll) {
+								if(!cswrite /* && !showpianoroll */) {
 									e.time = Tcurr;
 									e.type = NORMAL_EVENT;
 									e.status = ControlChange + ii;
@@ -1216,7 +1174,7 @@ SWITCHES:
 				if(alphach == 0) alphach = objectchannel;
 				if(alphach < 0) alphach = 0;
 				Tcurr =  (t0 + t1) / Time_res;
-				if(!cswrite && !showpianoroll) {
+				if(!cswrite /* && !showpianoroll */) {
 					e.time = Tcurr;
 					e.type = NORMAL_EVENT;
 					e.status = ControlChange + alphach;
@@ -1280,7 +1238,7 @@ SWITCHES:
 									((*p_keyon[localchan])[c1])--;
 									if((onoff == 1 || cswrite) && (j >= Jbol || !(*p_DiscardNoteOffs)[j]
 											|| (*p_icycle)[kcurrentinstance] == (*p_Instance)[kcurrentinstance].ncycles)) {
-										if(!cswrite && !showpianoroll) {
+										if(!cswrite /* && !showpianoroll */) {
 											e.time = Tcurr;
 											e.type = NORMAL_EVENT;
 											e.status = NoteOn + localchan;
@@ -1318,7 +1276,7 @@ SWITCHES:
 								if(onoff > 0) {
 									if(strikeagain) {
 										/* First send NoteOff */
-										if(!cswrite && !showpianoroll) {
+										if(!cswrite /* && !showpianoroll */) {
 											e.time = Tcurr;
 											e.type = NORMAL_EVENT;
 											e.status = NoteOn + localchan;
@@ -1339,7 +1297,7 @@ SWITCHES:
 										if((result=StoreMappedKey(oldc1,c1,kcurrentinstance,localchan,
 											&p_currmapped,&maxmapped)) != OK) goto OVER;
 										}
-									if(!cswrite && !showpianoroll) {
+									if(!cswrite /* && !showpianoroll */) {
 										e.time = Tcurr;
 										e.type = NORMAL_EVENT;
 										e.status = c0 + localchan;
@@ -1370,7 +1328,7 @@ SWITCHES:
 								sequence = (*((*pp_MIDIcode)[j]))[ievent].sequence;
 								c1 = (*((*pp_MIDIcode)[j]))[++ievent].byte;
 								c2 = (*((*pp_MIDIcode)[j]))[++ievent].byte;
-								if(!cswrite && !showpianoroll) {
+								if(!cswrite /* && !showpianoroll */) {
 									e.time = Tcurr;
 									e.type = NORMAL_EVENT;
 									e.status = c0;
@@ -1386,7 +1344,7 @@ SWITCHES:
 								if(TwoByteEvent(c0)) {
 									sequence = (*((*pp_MIDIcode)[j]))[ievent].sequence;
 									c2 = (*((*pp_MIDIcode)[j]))[++ievent].byte;
-									if(!cswrite && !showpianoroll) {
+									if(!cswrite /* && !showpianoroll */) {
 										e.time = Tcurr;
 										e.type = TWO_BYTE_EVENT;
 										e.status = c0;
@@ -1399,7 +1357,7 @@ SWITCHES:
 									if(c0 != TimingClock) {
 									/* Suppress timing clock events internally used to create silences */
 										rs = 0;
-										if(!cswrite && !showpianoroll) {
+										if(!cswrite /* && !showpianoroll */) {
 											e.time = Tcurr;
 											e.type = RAW_EVENT;
 											e.data2 = c0;
@@ -1511,7 +1469,7 @@ PLAYOBJECT:
 									|| (*p_icycle)[kcurrentinstance]
 										== (*p_Instance)[kcurrentinstance].ncycles)) {
 SENDNOTEOFF:
-								if(!cswrite && !showpianoroll) {
+								if(!cswrite /* && !showpianoroll */) {
 									e.time = Tcurr;
 									e.type = NORMAL_EVENT;
 									e.status = NoteOn + localchan;
@@ -1557,7 +1515,7 @@ SENDNOTEOFF:
 						if(onoff > 0) {
 							if(strikeagain) {
 								/* First send NoteOff */
-								if(!cswrite && !showpianoroll) {
+								if(!cswrite /* && !showpianoroll */) {
 									e.time = Tcurr;
 									e.type = NORMAL_EVENT;
 									e.status = NoteOn + localchan;
@@ -1578,7 +1536,7 @@ SENDNOTEOFF:
 								if((result=StoreMappedKey(oldc1,c1,kcurrentinstance,localchan,
 									&p_currmapped,&maxmapped)) != OK) goto OVER;
 								}
-							if(!cswrite && !showpianoroll) {
+							if(!cswrite /* && !showpianoroll */) {
 								e.time = Tcurr;
 								e.type = NORMAL_EVENT;
 								e.status = c0 + localchan;
@@ -1616,7 +1574,7 @@ SENDNOTEOFF:
 						sequence = (*((*pp_MIDIcode)[j]))[ievent].sequence;
 						c1 = (*((*pp_MIDIcode)[j]))[++ievent].byte;
 						c2 = (*((*pp_MIDIcode)[j]))[++ievent].byte;
-						if(!cswrite && !showpianoroll) {
+						if(!cswrite /* && !showpianoroll */) {
 							e.time = Tcurr;
 							e.type = NORMAL_EVENT;
 							e.status = c0;
@@ -1632,7 +1590,7 @@ SENDNOTEOFF:
 						if(TwoByteEvent(c0)) {
 							sequence = (*((*pp_MIDIcode)[j]))[ievent].sequence;
 							c2 = (*((*pp_MIDIcode)[j]))[++ievent].byte;
-							if(!cswrite && !showpianoroll) {
+							if(!cswrite /* && !showpianoroll */) {
 								e.time = Tcurr;
 								e.type = TWO_BYTE_EVENT;
 								e.status = c0;
@@ -1645,7 +1603,7 @@ SENDNOTEOFF:
 							if(c0 != TimingClock) {
 							/* Suppress timing clock events internally used to create silences */
 								rs = 0;
-								if(!cswrite && !showpianoroll) {
+								if(!cswrite /* && !showpianoroll */) {
 									e.time = Tcurr;
 									e.type = RAW_EVENT;
 									e.data2 = c0;
@@ -1706,7 +1664,7 @@ NEWPERIOD:
 				}
 				
 			else {
-				if((MIDIfileOn || cswrite) && !showpianoroll && (!ItemCapture || ShowMessages)
+				if((MIDIfileOn || cswrite) && (!ItemCapture || ShowMessages)
 						&& doneobjects > 10) {
 					sprintf(Message,"%ld objects done out of %ld",(long)kcurrentinstance,(long)(*p_kmax));
 				//	FlashInfo(Message);
@@ -1716,7 +1674,7 @@ NEWPERIOD:
 				}
 			}
 
-		if(!cswrite && !showpianoroll && (result=CheckMIDIbytes(YES)) != OK
+		if(!cswrite /* && !showpianoroll */ && (result=CheckMIDIbytes(YES)) != OK
 												&& result != RESUME) goto OVER;
 #if BP_CARBON_GUI
 		// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
@@ -1857,11 +1815,12 @@ FINDNEXTEVENT:
 // driver.  Before proceeding further we might wait until the buffer is empty
 // or not too much filled.
 
-LastTcurr = Tcurr;
+if(LastTcurr > 0L) {
+	sprintf(Message,"Last time = %ld ms\n",(long)LastTcurr);
+	BPPrintMessage(odInfo,Message);
+	}
 
-// if BP_CARBON_GUI
 if(showpianoroll) goto OUTGRAPHIC;
-// endif /* BP_CARBON_GUI */
 	
 buffertime = Infpos;
 if(OutMIDI && !cswrite && !MIDIfileOn && !CyclicPlay && !ItemCapture && !showpianoroll
@@ -2089,7 +2048,7 @@ if(!MIDIfileOn && !cswrite && OutMIDI && !showpianoroll) {
 #endif
 	}
 	
-MIDIfileOn = FALSE;
+// MIDIfileOn = FALSE;
 
 // if BP_CARBON_GUI
 if(showpianoroll) Tcurr = oldtcurr;
@@ -2475,7 +2434,7 @@ switch(iparam) {
 	case IPITCHBEND:
 		ChangedPitchbend[chan] = TRUE;
 		(*p_Oldvalue)[chan].pitchbend = value;
-		if(!cswrite && !showpianoroll) {
+		if(!cswrite /* && !showpianoroll */) {
 			e.time = Tcurr;
 			e.type = NORMAL_EVENT;
 			e.status = PitchBend + chan;
@@ -2487,7 +2446,7 @@ switch(iparam) {
 	case IPRESSURE:
 		ChangedPressure[chan] = TRUE;
 		(*p_Oldvalue)[chan].pressure = value;
-		if(!cswrite && !showpianoroll) {
+		if(!cswrite /* && !showpianoroll */) {
 			e.time = Tcurr;
 			e.type = TWO_BYTE_EVENT;
 			e.status = ChannelPressure + chan;
@@ -2498,7 +2457,7 @@ switch(iparam) {
 	case IMODULATION:
 		ChangedModulation[chan] = TRUE;
 		(*p_Oldvalue)[chan].modulation = value;
-		if(!cswrite && !showpianoroll) {
+		if(!cswrite /* && !showpianoroll */) {
 			e.time = Tcurr;
 			e.type = NORMAL_EVENT;
 			e.status = ControlChange + chan;
@@ -2516,7 +2475,7 @@ switch(iparam) {
 	case IVOLUME:
 		ChangedVolume[chan] = TRUE;
 		(*p_Oldvalue)[chan].volume = value;
-		if(!cswrite && !showpianoroll) {
+		if(!cswrite /* && !showpianoroll */) {
 			e.time = Tcurr;
 			e.type = NORMAL_EVENT;
 			e.status = ControlChange + chan;
@@ -2528,7 +2487,7 @@ switch(iparam) {
 	case IPANORAMIC:
 		ChangedPanoramic[chan] = TRUE;
 		(*p_Oldvalue)[chan].panoramic = value;
-		if(!cswrite && !showpianoroll) {
+		if(!cswrite /* && !showpianoroll */) {
 			e.time = Tcurr;
 			e.type = NORMAL_EVENT;
 			e.status = ControlChange + chan;

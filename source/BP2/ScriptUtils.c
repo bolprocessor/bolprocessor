@@ -241,7 +241,7 @@ GOTIT:
 		thechar = line[0];
 		r = WaitKeyStrokeOrAppleEvent(thechar,FALSE,KEYBOARDEVENT,0,0,NULL,NULL);
 		break;
-	case 15:	/* IN Parameter «Kx» = velocity «note» channel «1..16» */
+	case 15:	/* IN Parameter "Kx» = velocity "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		i = (*(ScriptLine.intarg))[0];
@@ -985,7 +985,7 @@ GOTIT6:
 		DeftBufferSize = ((*(ScriptLine.intarg))[0] + 1L) * 2L;
 		SetBufferSize();
 		break;
-	case 74:	/* Run script «filename» */
+	case 74:	/* Run script "filename» */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(check == 2) return(OK);
 		if(MemberStringList(line)) {
@@ -1103,7 +1103,7 @@ GOTIT7:
 		e.data2 = 0;
 		if((r=SendToDriver(Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 		break;
-	case 81: /* MIDI Mono mode ON [«0..16» voices] channel «1..16» */
+	case 81: /* MIDI Mono mode ON ["0..16» voices] channel "1..16» */
 		if(wind == wInteraction) return(FAILED);
 		if(check) return(OK);
 	/*	if((r=WaitForEmptyBuffer()) != OK) return(r); */
@@ -1114,7 +1114,7 @@ GOTIT7:
 		e.data2 = (*(ScriptLine.intarg))[0];
 		if((r=SendToDriver(Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 		break;
-	case 82: /* Poly mode ON channel «1..16» */
+	case 82: /* Poly mode ON channel "1..16» */
 		if(wind == wInteraction) return(FAILED);
 		if(check) return(OK);
 	/*	if((r=WaitForEmptyBuffer()) != OK) return(r); */
@@ -1125,7 +1125,7 @@ GOTIT7:
 		e.data2 = 0;
 		if((r=SendToDriver(Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 		break;
-	case 83: /* MIDI decimal send «decimal data» */
+	case 83: /* MIDI decimal send "decimal data» */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if((r=WaitForEmptyBuffer()) != OK) return(r);
@@ -1135,7 +1135,7 @@ GOTIT7:
 		r = SendMIDIstream(check,p_line,FALSE);
 		MyDisposeHandle((Handle*)&p_line);
 		break;
-	case 84: /* MIDI hexa send «hexadecimal data» */
+	case 84: /* MIDI hexa send "hexadecimal data» */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if((r=WaitForEmptyBuffer()) != OK) return(r);
@@ -1177,7 +1177,7 @@ GOTIT7:
 		if(!check && ScriptExecOn == 0 && wind == wScript) r = ABORT;
 		else r = OK;
 		break;
-	case 86: /* MIDI switch ON «64..95» channel «1..16» */
+	case 86: /* MIDI switch ON "64..95» channel "1..16» */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		e.time = Tcurr;
@@ -1187,7 +1187,7 @@ GOTIT7:
 		e.data2 = 127;
 		if((r=SendToDriver(Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 		break;
-	case 87: /* MIDI switch OFF «64..95» channel «1..16» */
+	case 87: /* MIDI switch OFF "64..95» channel "1..16» */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		e.time = Tcurr;
@@ -1201,7 +1201,7 @@ GOTIT7:
 		if(check) return(OK);
 		NoteConvention = INDIAN;
 		break;
-	case 89:	/* IN Derive further key «note» channel «1..16» */
+	case 89:	/* IN Derive further key "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && DeriveFurtherChan != -1) {
@@ -1214,7 +1214,7 @@ GOTIT7:
 		DeriveFurtherKey = (*(ScriptLine.intarg))[0];
 		DeriveFurtherChan = (*(ScriptLine.intarg))[1];
 		break;
-	case 90:	/* IN Reset weights key «note» channel «1..16» */
+	case 90:	/* IN Reset weights key "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && ResetWeightChan != -1) {
@@ -1227,7 +1227,7 @@ GOTIT7:
 		ResetWeightKey = (*(ScriptLine.intarg))[0];
 		ResetWeightChan = (*(ScriptLine.intarg))[1];
 		break;
-	case 91:	/* IN Start play key «note» channel «1..16» */
+	case 91:	/* IN Start play key "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && PlayChan != -1) {
@@ -1240,7 +1240,7 @@ GOTIT7:
 		PlayKey = (*(ScriptLine.intarg))[0];
 		PlayChan = (*(ScriptLine.intarg))[1];
 		break;
-	case 92:	/* IN Repeat v times (velocity) key «note» channel «1..16» */
+	case 92:	/* IN Repeat v times (velocity) key "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && RepeatChan != -1) {
@@ -1253,7 +1253,7 @@ GOTIT7:
 		RepeatKey = (*(ScriptLine.intarg))[0];
 		RepeatChan = (*(ScriptLine.intarg))[1];
 		break;
-	case 93:	/* IN End repeat key «note» channel «1..16» */
+	case 93:	/* IN End repeat key "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && EndRepeatChan != -1) {
@@ -1266,7 +1266,7 @@ GOTIT7:
 		EndRepeatKey = (*(ScriptLine.intarg))[0];
 		EndRepeatChan = (*(ScriptLine.intarg))[1];
 		break;
-	case 94:	/* IN Repeat forever key «note» channel «1..16» */
+	case 94:	/* IN Repeat forever key "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && EverChan != -1) {
@@ -1279,7 +1279,7 @@ GOTIT7:
 		EverKey = (*(ScriptLine.intarg))[0];
 		EverChan = (*(ScriptLine.intarg))[1];
 		break;
-	case 95:	/* IN Quit key «note» channel «1..16» */
+	case 95:	/* IN Quit key "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && QuitChan != -1) {
@@ -1292,7 +1292,7 @@ GOTIT7:
 		QuitKey = (*(ScriptLine.intarg))[0];
 		QuitChan = (*(ScriptLine.intarg))[1];
 		break;
-	case 96:	/* IN Use each substitution key «note» channel «1..16» [toggle] */
+	case 96:	/* IN Use each substitution key "note» channel "1..16» [toggle] */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && UseEachSubChan != -1) {
@@ -1305,7 +1305,7 @@ GOTIT7:
 		UseEachSubKey = (*(ScriptLine.intarg))[0];
 		UseEachSubChan = (*(ScriptLine.intarg))[1];
 		break;
-	case 97:	/* IN Use/ignore 'Start play' (toggle) key «note» channel «1..16» */
+	case 97:	/* IN Use/ignore 'Start play' (toggle) key "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && SynchronizeStartChan != -1) {
@@ -1318,7 +1318,7 @@ GOTIT7:
 		SynchronizeStartKey = (*(ScriptLine.intarg))[0];
 		SynchronizeStartChan = (*(ScriptLine.intarg))[1];
 		break;
-	case 98:	/* IN Control tempo controller #«0..127» channel «1..16» range «float» */
+	case 98:	/* IN Control tempo controller #"0..127» channel "1..16» range "float» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && SynchronizeStartChan != -1) {
@@ -1331,7 +1331,7 @@ GOTIT7:
 		SpeedChan = (*(ScriptLine.intarg))[1];
 		SpeedRange = (*(ScriptLine.floatarg))[2];
 		break;
-	case 99:	/* IN Set computation time to 'v' key «note» channel «1..16» */
+	case 99:	/* IN Set computation time to 'v' key "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && SetTimeChan != -1) {
@@ -1344,7 +1344,7 @@ GOTIT7:
 		SetTimeKey = (*(ScriptLine.intarg))[0];
 		SetTimeChan = (*(ScriptLine.intarg))[1];
 		break;
-	case 100:	/* IN Smooth/striated time (toggle) key «note» channel «1..16» */
+	case 100:	/* IN Smooth/striated time (toggle) key "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && StriatedChan != -1) {
@@ -1357,7 +1357,7 @@ GOTIT7:
 		StriatedKey = (*(ScriptLine.intarg))[0];
 		StriatedChan = (*(ScriptLine.intarg))[1];
 		break;
-	case 101:	/* IN Use/ignore object constraints (toggle) key «note» channel «1..16» */
+	case 101:	/* IN Use/ignore object constraints (toggle) key "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && NoConstraintChan != -1) {
@@ -1370,7 +1370,7 @@ GOTIT7:
 		NoConstraintKey = (*(ScriptLine.intarg))[0];
 		NoConstraintChan = (*(ScriptLine.intarg))[1];
 		break;
-	case 102:	/* IN Skip next item key «note» channel «1..16» */
+	case 102:	/* IN Skip next item key "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && SkipChan != -1) {
@@ -1383,7 +1383,7 @@ GOTIT7:
 		SkipKey = (*(ScriptLine.intarg))[0];
 		SkipChan = (*(ScriptLine.intarg))[1];
 		break;
-	case 103:	/* IN Play again item key «note» channel «1..16» */
+	case 103:	/* IN Play again item key "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && AgainChan != -1) {
@@ -1396,7 +1396,7 @@ GOTIT7:
 		AgainKey = (*(ScriptLine.intarg))[0];
 		AgainChan = (*(ScriptLine.intarg))[1];
 		break;
-	case 104:	/* IN Synchronisation tag «Wx» = key «note» channel «1..16» */
+	case 104:	/* IN Synchronisation tag "Wx» = key "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		i = (*(ScriptLine.intarg))[0];
@@ -1412,7 +1412,7 @@ GOTIT7:
 		WaitKey[i] = (*(ScriptLine.intarg))[1];
 		WaitChan[i] = (*(ScriptLine.intarg))[2];
 		break;
-	case 105:	/* IN Param «Kx» = controller #«0..127» channel «1..16» */
+	case 105:	/* IN Param "Kx» = controller #"0..127» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		i = (*(ScriptLine.intarg))[0];
@@ -1425,7 +1425,7 @@ GOTIT7:
 		ParamControl[i] = (*(ScriptLine.intarg))[1];
 		ParamControlChan = ParamChan[i] = (*(ScriptLine.intarg))[2];
 		break;
-	case 106:	/* IN Adjust tempo minimum tempo «long» ticks in «long» secs key «note» maximum tempo «long» ticks in «long» secs key «note» channel «1..16» */
+	case 106:	/* IN Adjust tempo minimum tempo "long» ticks in "long» secs key "note» maximum tempo "long» ticks in "long» secs key "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && TclockChan != -1) {
@@ -1655,10 +1655,10 @@ GOTIT7:
 			return(FAILED);
 			}
 		break;
-	case 146:	/* MIDI set default channel to «1..16» */
+	case 146:	/* MIDI set default channel to "1..16» */
 	/*	if((r=WaitForEmptyBuffer()) != OK) return(r); */
 		CurrentChannel = (*(ScriptLine.intarg))[0]; break;
-	case 147:	/* Produce and play «int» items */
+	case 147:	/* Produce and play "int» items */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if((r=WaitForEmptyBuffer()) != OK) return(r);
@@ -1714,7 +1714,7 @@ GOTIT7:
 		if(check) return(OK);
 		OkWait = FALSE;
 		break;
-	case 151:	/* Play-show «int» times selection in window «windowname» */
+	case 151:	/* Play-show "int» times selection in window "windowname» */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if((w=BPGetWindowIndex(line,0)) != ABORT) {
 			ScriptW = w;
@@ -1756,7 +1756,7 @@ GOTIT7:
 		if(check) return(OK);
 		TraceTimeSet = TRUE; SetButtons(YES);
 		break;
-	case 158:	/* Hide window «windowname» */
+	case 158:	/* Hide window "windowname» */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if((w=BPGetWindowIndex(line,0)) != ABORT) {
 			ScriptW = w;
@@ -1773,7 +1773,7 @@ GOTIT7:
 		if(check) return(OK);
 		ForceTextColor = -1; UseTextColor = FALSE;
 		break;
-	case 161:	/* IN On «note» channel «1..16» do «script instruction» */
+	case 161:	/* IN On "note» channel "1..16» do "script instruction» */
 		if(wind != wInteraction) return(FAILED);
 		if(CheckUsedKey(p_keyon,0,1) != OK) return(FAILED);
 		if(check) return(OK);
@@ -1796,7 +1796,7 @@ GOTIT7:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		ForceGraphicColor = -1; UseGraphicsColor = FALSE;
 		break;
-	case 164:	/* Set output window «windowname» */
+	case 164:	/* Set output window "windowname» */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if((w=BPGetWindowIndex(line,0)) != ABORT) {
 			if(check) return(OK);
@@ -1814,8 +1814,8 @@ GOTIT7:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		HideTicks = TRUE;
 		break;
-	case 167:	/* AE send fast class '«AEclass»' ID '«AEID»' to application '«signature»' */
-	case 168:	/* AE send normal class '«AEclass»' ID '«AEID»' to application '«signature»' */
+	case 167:	/* AE send fast class '"AEclass»' ID '"AEID»' to application '"signature»' */
+	case 168:	/* AE send normal class '"AEclass»' ID '"AEID»' to application '"signature»' */
 		if(check) return(OK);
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if((r=WaitForEmptyBuffer()) != OK) return(r);
@@ -1858,7 +1858,7 @@ BAD:
 			else r = OK;
 			}
 		break;
-	case 169:	/* AE wait class '«AEclass»' ID '«AEID»' */
+	case 169:	/* AE wait class '"AEclass»' ID '"AEID»' */
 		if(check) return(OK);
 		if((r=WaitForEmptyBuffer()) != OK) return(r);
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
@@ -1904,13 +1904,13 @@ BAD:
 	case 179:
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(!check) BPActivateWindow(SLOW,wMetronom);
-	case 180: /* Set output Csound file «filename» */
+	case 180: /* Set output Csound file "filename» */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		CloseCsScore();
 		if(MakeCsFile(line) != OK) return(FAILED);
 		break;
-	case 181: /* Set output MIDI file «filename» */
+	case 181: /* Set output MIDI file "filename" */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		CloseMIDIFile();
@@ -1948,7 +1948,7 @@ BAD:
 		if(check) return(OK);
 		CsoundTrace = FALSE;
 		break;
-	case 188:	/* IN Mute ON «note» channel «1..16» */
+	case 188:	/* IN Mute ON "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && MuteOnChan != -1) {
@@ -1965,7 +1965,7 @@ BAD:
 		MuteOnKey = (*(ScriptLine.intarg))[0];
 		MuteOnChan = (*(ScriptLine.intarg))[1];
 		break;
-	case 189:	/* IN Mute OFF «note» channel «1..16» */
+	case 189:	/* IN Mute OFF "note» channel "1..16» */
 		if(wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		if(wind == wInteraction && MuteOffChan != -1) {

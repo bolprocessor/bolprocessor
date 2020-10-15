@@ -1730,13 +1730,17 @@ return(OK);
 
 #endif /* BP_CARBON_GUI */
 
-SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e)
+int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e)
 {
 long count = 12L;
 int c0,c1,c2,status,chan;
 byte midibyte;
 
 if(Panic || EmergencyExit) return(ABORT);
+if(!MIDIfileOn && !OutMIDI) return(OK);
+
+LastTcurr = time;
+
 if(p_e->type == RAW_EVENT || p_e->type == TWO_BYTE_EVENT) {
 	if(DriverWrite(time,nseq,p_e) != noErr) return(ABORT);
 	if(p_e->type == TWO_BYTE_EVENT) {
