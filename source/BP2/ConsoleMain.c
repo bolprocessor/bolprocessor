@@ -275,7 +275,7 @@ void CreateImageFile(void)
 void EndImageFile(void)
 {
 	FILE * thisfile;
-	char* someline;
+	char* thisline;
 	size_t length;
 	ssize_t number;
 	// BPPrintMessage(odInfo, "Closing image file.\n");
@@ -283,8 +283,8 @@ void EndImageFile(void)
 	thisfile = fopen("CANVAS_footer.txt","r");
 	if(thisfile == NULL) BPPrintMessage(odInfo,"‘CANVAS_footer.txt’ is missing!\n");
 	else {
-		while((number = getline(&someline,&length,thisfile)) != -1) {
-        	fputs(someline,imagePtr);
+		while((number = getline(&thisline,&length,thisfile)) != -1) {
+        	fputs(thisline,imagePtr);
 			}
 		fclose(thisfile);
 		}

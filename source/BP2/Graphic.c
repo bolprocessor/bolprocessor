@@ -64,6 +64,7 @@ long pivloc,t1,tt1,t2,endxmax,endymax,endx,y,i,j,k,yruler,
 Rect r, r2;
 char label[BOLSIZE+5];
 char line[BOLSIZE+5],line2[BOLSIZE+1],someline[200];
+char* thisline;
 p_list **waitlist;
 
 BPPrintMessage(odInfo,"==> Yes, drawing graphics...\n");
@@ -291,6 +292,14 @@ CONT:
 ENDGRAPH:
 
 QUIT:
+sprintf(Message,"WMAX=%ld\n",(long)((resize * endxmax) + 20));
+BPPrintMessage(odInfo,Message);
+fputs(Message,imagePtr);
+
+sprintf(Message,"HMAX=%ld\n",(long)((resize * endymax) + 20));
+BPPrintMessage(odInfo,Message);
+fputs(Message,imagePtr);
+
 MyDisposeHandle((Handle*)&p_morespace);
 MyDisposeHandle((Handle*)&p_top);
 MyDisposeHandle((Handle*)&p_endx);
@@ -300,6 +309,7 @@ GraphicOn = FALSE;
 EndImageFile();
 return(rep);
 }
+
 
 int InterruptDraw(int n, int interruptok)
 {
