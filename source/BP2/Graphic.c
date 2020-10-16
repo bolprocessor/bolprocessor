@@ -1354,14 +1354,14 @@ stroke_style("blue");
 fill_style("blue");
 
 // Subdivisional time streaks
-for(i=1L,rr=Ratio,k=0; i <= imax; i++,rr+=Kpress) {
+for(i=1L,rr=Ratio,k=0; i <= imax; i++, rr += Kpress) {
 	t1 = (*p_T)[i] / CorrectionFactor;
 	if(p_delta != NULL) t1 += (*p_delta)[i];
 	t1 = leftoffset + Round(t1 * p);
 	if((t1 > tmem1 && showsmalldivisions && t1 < xmax) || tmem1 == -Infpos) {
 		pen_size(1,0);
 		draw_line(t1,y,t1,ymax,"");
-		tmem1 = t1;
+		tmem1 = t1 + 20;
 		}
 	}
 
@@ -1375,7 +1375,7 @@ for(y_curr = y; y_curr < ymax; y_curr  += 6) {
 // Major time streaks
 pen_size(1,0);
 stroke_style("blue");
-for(i=1L,rr=Ratio,k=0; i <= imax; i++,rr+=Kpress) {
+for(i=1L,rr=Ratio,k=0; i <= imax; i++, rr += Kpress) {
 	t1 = (*p_T)[i] / CorrectionFactor;
 	if(p_delta != NULL) t1 += (*p_delta)[i];
 	t1 = leftoffset + Round(t1 * p);
@@ -1384,14 +1384,13 @@ for(i=1L,rr=Ratio,k=0; i <= imax; i++,rr+=Kpress) {
 		if(t1 > tmem2) {
 			sprintf(line,"%ld",(long)(k + StartFromOne));
 			t2 = t1 + 12;
-			if(t2 >= xmax) break;
 			if(t1 > tmem3) {
 				fill_text(line,t1 - 5,y - 4);
 				tmem3 = t1 + 6 * strlen(line);
 				}
 			pen_size(4,0);
 			draw_line(t1,y,t1,ymax,"");
-			tmem2 = t1 + 40;
+			tmem2 = t1 + 20;
 			}
 		k++;
 		}
