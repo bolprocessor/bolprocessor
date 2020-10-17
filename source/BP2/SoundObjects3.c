@@ -38,6 +38,7 @@
 
 #include "-BP2decl.h"
 
+int show_inconsistencies = 1;
 
 ResetPrototype(int j)
 {
@@ -394,7 +395,7 @@ Milliseconds dur,maxcover1,maxcover2,maxtrunc1,maxtrunc2;
 double preroll,postroll;
 
 if(j >= Jbol || j < 2) return(OK);
-bugg = FALSE;
+bugg = 0;
 
 if((*p_CsoundSize)[j] <= ZERO) {
 	if((*p_Type)[j] & 4) {
@@ -434,7 +435,7 @@ else  {
 	}
    
 if((*p_Resolution)[j] <= ZERO) {
-   if(Beta) Alert1("Err. CheckConsistency(). (*p_Resolution)[j] <= ZERO");
+   if(show_inconsistencies) BPPrintMessage(odInfo,"Err. CheckConsistency(). (*p_Resolution)[j] <= ZERO\n");
    return(FAILED);
    }
 if((*p_FixScale)[j]) {
@@ -445,10 +446,12 @@ if((*p_Tref)[j] < EPSILON) {
    (*p_OkRelocate)[j] = TRUE;
    }
 if((*p_PivType)[j] < 1 || (*p_PivType)[j] > 7) {
-   (*p_PivType)[j] = 1; bugg = TRUE;
+	if(show_inconsistencies) BPPrintMessage(odInfo,"CheckConsistency() (*p_PivType)[%d] = %d\n",j,(*p_PivType)[j]);
+   (*p_PivType)[j] = 1; bugg++;
    }
 if((*p_PivMode)[j] < ABSOLUTE || (*p_PivMode)[j] > RELATIVE) {
-   (*p_PivMode)[j] = ABSOLUTE; bugg = TRUE;
+	if(show_inconsistencies) BPPrintMessage(odInfo,"CheckConsistency() (*p_PivMode)[%d] = %d\n",j,(*p_PivMode)[j]);
+   (*p_PivMode)[j] = ABSOLUTE; bugg++;
    }
 
 SetPrototypeDuration(j,&longerCsound);
@@ -471,7 +474,8 @@ switch((*p_PivType)[j]) {
    case 3: /* begon */
    case 6: /* centonoff */
       if((*p_MIDIsize)[j] == ZERO && (*p_CsoundSize)[j] == ZERO) {
-         (*p_PivType)[j] = 1; bugg = TRUE; break;
+      	if(show_inconsistencies) BPPrintMessage(odInfo,"CheckConsistency() (*p_MIDIsize)[%d] = ZERO and (*p_CsoundSize)[%d] = ZERO\n",j,j);
+         (*p_PivType)[j] = 1; bugg++; break;
          }
       ton = toff = -1L;
       for(i=t=ZERO; i < (*p_MIDIsize)[j]-2; i++) {
@@ -486,7 +490,8 @@ switch((*p_PivType)[j]) {
             }
          }
       if(ton < ZERO || toff < ZERO || dur < EPSILON) {
-         (*p_PivType)[j] = 1; bugg = TRUE; break;
+      	if(show_inconsistencies) BPPrintMessage(odInfo,"CheckConsistency() ton = %ld toff = %ld dur = %ld\n",(long)ton,(long)toff,(long)dur);
+         (*p_PivType)[j] = 1; bugg++; break;
          }
       GetPrePostRoll(j,&preroll,&postroll);
       switch((*p_PivType)[j]) {
@@ -573,7 +578,7 @@ if((*p_TruncBegMode)[j] == RELATIVE && (*p_MaxTruncBeg)[j] == 100L)
    (*p_TruncBeg)[j] = TRUE;
 if((*p_TruncEndMode)[j] == RELATIVE && (*p_MaxTruncEnd)[j] == 100L)
    (*p_TruncEnd)[j] = TRUE;
-if(check && bugg) {
+if(check && (bugg > 0)) {
    sprintf(Message,"Found inconsistencies in sound-object prototype '%s'. These have been corrected.\n",
       *((*p_Bol)[j]));
    Print(wTrace,Message);

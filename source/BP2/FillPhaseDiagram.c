@@ -2115,7 +2115,7 @@ ShowProgress(int k)
 if(!ShowMessages || ((k % 50) != 0)) return(OK);
 PleaseWait();
 sprintf(Message,"Time-objects created: %ld.  Estimated: %ld",(long)k,(long)(Maxevent-1));
-FlashInfo(Message);
+// FlashInfo(Message);
 return(OK);
 }
 

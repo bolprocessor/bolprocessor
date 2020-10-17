@@ -45,6 +45,8 @@ extern FILE * imagePtr;
 
 char graphic_scheme[] = "canvas";
 int resize = 4; // Rescaling the image to get high resolution
+
+// Flags for debugging:
 int try_pivots = 0;
 int try_separate_labels = 0;
 int try_synchro_tag = 0;
@@ -58,7 +60,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 {
 int linenum,linemax,maxlines,hrect,htext,morespace,**p_morespace,
 	nseq,leftoffset,topoffset,rep,maxslideh,maxslidev,linemin,tab,key,
-	edge,foundone,overflow;
+	edge,foundone,overflow,xc;
 long pivloc,t1,tt1,t2,endxmax,endymax,endx,y,i,j,k,yruler,
 	**p_endx,endy,**p_endy,**p_top,trbeg,trend;
 Rect r, r2;
@@ -217,6 +219,10 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			strcat(line,line2);
 			}
 		strcpy(label,line);
+	/*	for(xc = 0; xc < strlen(line); xc++) {
+			if(line[xc] == '\'') label[xc] = "’";
+			else label[xc] = line[xc];
+			} */
 		tab = ((int) t2 - (int) t1 - strlen(line)) / 2;
 		if(tab < 2) tt1 = (int) t1 + leftoffset + 1 + tab;
 		sprintf(Message,"t1 = %ld tt1= %ld endx = %ld\n",(long)t1,(long)tt1,(long) (*p_endx)[linenum]);
@@ -358,11 +364,13 @@ erase_rect(&r2);
 pen_size(4,0);
 stroke_style("black");
 stroke_rect(&r);
-sprintf(Message,"j = %ld, r.left = %ld, r.right = %ld\n",(long)j,(long)r.left,(long)r.right);
-if(show_more_details) BPPrintMessage(odInfo,Message);
 
+sprintf(Message,"j = %ld, r.left = %ld, r.right = %ld, r.top = %ld, r.bottom = %ld\n",(long)j,(long)r.left,(long)r.right,(long)r.top,(long)r.bottom);
+if(show_more_details) BPPrintMessage(odInfo,Message);
 r2 = r;
 resize_rect(&r2,-1,-1);
+sprintf(Message,"j = %ld, r2.left = %ld, r2.right = %ld, r2.top = %ld, r2.bottom = %ld\n",(long)j,(long)r2.left,(long)r2.right,(long)r2.top,(long)r2.bottom);
+if(show_more_details) BPPrintMessage(odInfo,Message);
 if(j >= Jbol && j < 16384) { // Time pattern
 	fill_rect(&r2,"LightCyan");
 	}
@@ -658,7 +666,7 @@ PenNormal(); */
 // htext = WindowTextSize[w] + 2;
 htext = 12 + 2;
 if((*p_MIDIsize)[j] <= ZERO && (*p_CsoundSize)[j] <= ZERO) {
-	sprintf(Message,"This sound-object is empty");
+	sprintf(Message,"Sound-object is empty");
 //	c2pstrcpy(label, Message);
 /*	move_to((p_frame->left + p_frame->right - strlen(label))/2,
 		(p_frame->top + p_frame->bottom - htext)/2);
@@ -1556,7 +1564,7 @@ void stroke_text(char* txt,int x,int y) {
 void fill_text(char* txt,int x,int y) {
 	char line[500];
 	if(strcmp(graphic_scheme,"canvas") == 0) {
-		sprintf(line,"ctx.fillText('%s',%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
+		sprintf(line,"ctx.fillText(\"%s\",%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
 		fputs(line,imagePtr);
 		}
 	}

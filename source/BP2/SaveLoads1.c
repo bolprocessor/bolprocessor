@@ -2565,7 +2565,7 @@ int WriteMidiDriverSettings(short refnum, FSSpec* spec)
 
 #endif /* BP_CARBON_GUI */
 
-LoadObjectPrototypes(int checkversion,int tryname)
+int LoadObjectPrototypes(int checkversion,int tryname)
 {
 char c,date[80],*newp;
 MIDIcode **p_b;
@@ -2734,11 +2734,9 @@ PleaseWait(); j = -1;
 	goto ERR;
 	} */
 if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) {
-	if(iv > 3) {
-		sprintf(Message,"Unexpected end of '%s' file...  May be old version?",
-			FileName[iObjects]);
-		Println(wTrace,Message);
-		}
+	sprintf(Message,"Unexpected end of '%s' file...  May be old version?",
+		FileName[iObjects]);
+	BPPrintMessage(odInfo,Message);
 	goto ERR;
 	}
 if(show_details_load_prototypes) BPPrintMessage(odInfo, "line = %s\n",*p_line);
@@ -2822,8 +2820,8 @@ if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
 if(ReadFloat(mifile,&r,&pos) == FAILED) goto ERR;
 (*p_Quan)[j] = r;
 if(ReadOne(FALSE,FALSE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-if(show_details_load_prototypes) BPPrintMessage(odInfo, "line = %s\n",*p_line);
-if(!diff) {
+if(show_details_load_prototypes) BPPrintMessage(odInfo,"line3 = %s\n",*p_line);
+
 	i = 0;
 	pivbeg = (*p_line)[i++]-'0';
 	pivend = (*p_line)[i++]-'0';
@@ -2847,8 +2845,6 @@ if(!diff) {
 	(*p_PivType)[j] = pivbeg + 2 * pivend + 3 * pivbegon + 4 * pivendoff
 		+ 5 * pivcent + 6 * pivcentonoff + 7 * pivspec;
 	(*p_AlphaCtrl)[j] = (*p_line)[i++]-'0';
-	}
-
 
 	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR; /* rescalemode */
 	if(!diff) (*p_RescaleMode)[j] = s;
@@ -2913,7 +2909,7 @@ if(!diff) {
 	if(!diff) (*p_PivMode)[j] = s;
 
 if(ReadFloat(mifile,&r,&pos) == FAILED) goto ERR;
-if(!diff) (*p_PivPos)[j] = r;
+(*p_PivPos)[j] = r;
 
 	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
 	if(!diff) (*p_AlphaCtrlNr)[j] = s;
@@ -3002,17 +2998,17 @@ if(iv > 9) {
 //	if(!diff) ClearWindow(NO,wPrototype7);
 	if(ReadOne(FALSE,FALSE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 	StripHandle(p_line);
-	if(show_details_load_prototypes) BPPrintMessage(odInfo, "line = %s\n",*p_line);
+	if(show_details_load_prototypes) BPPrintMessage(odInfo, "line2 = %s\n",*p_line);
 	if(Mystrcmp(p_line,"_beginCsoundScore_") != 0) goto ERR;
 	
 NEXTCSOUNDSCORELINE:
 	if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-	if(show_details_load_prototypes) BPPrintMessage(odInfo, "line2 = %s\n",*p_line);
+	if(show_details_load_prototypes) BPPrintMessage(odInfo, "Csound score = %s\n",*p_line);
 	if(Mystrcmp(p_completeline,"_endCsoundScore_") == 0) {
-		if(!diff) {
 		//	if((rep=GetCsoundScore(j)) != OK) goto OUT;
-			if((rep=CompileObjectScore(j,&longerCsound)) != OK) goto OUT;
-			}
+	/*	if((rep=CompileObjectScore(j,&longerCsound)) != OK) {
+			goto OUT;
+			} */
 		goto READSIZE;
 		}
 	if(!diff) {
@@ -3080,7 +3076,7 @@ if(iv > 9) {
 			(*p_completeline)[s] = '\0';
 			}
 		if((h = (Handle) GiveSpace((Size)(1+s) * sizeof(char))) == NULL) goto ERR;
-		(*pp_Comment)[j] = h;
+		(*pp_Comment)[j] = (char**) h;
 		MystrcpyHandleToHandle(0,&((*pp_Comment)[j]),p_completeline);
 		if(show_details_load_prototypes) BPPrintMessage(odInfo, "comment for %d = %s\n\n",j,*p_completeline);
 		}

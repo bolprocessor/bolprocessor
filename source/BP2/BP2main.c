@@ -118,12 +118,6 @@ ClearWindow(TRUE,wScript);
 BPActivateWindow(SLOW,wMessage);
 HideWindow(Window[wInfo]);
 
-// Registration is no longer necessary -- 060506 akozar
-// if(CheckRegistration() != OK) goto END;
-
-// Let's have some fun in year 2000
-// Y2K();  // not needed anymore :-) 010207 akozar
-
 if(MustChangeInput) goto NOEVENT;
 
 event.what = nullEvent;

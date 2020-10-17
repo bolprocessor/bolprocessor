@@ -71,6 +71,7 @@ BPConsoleOpts gOptions;
 FILE * imagePtr = NULL;
 int N_image = 1;
 PrototypesLoaded = FALSE;
+Find_leak = 0;
 
 int main (int argc, char* args[])
 {
@@ -209,8 +210,8 @@ int main (int argc, char* args[])
 	CloseCsScore();
 	
 	// deallocate space obtained during Inits() (not strictly necessary)
-	MyDisposeHandle((Handle*)&p_Oldvalue);
-	ClearLockedSpace();
+/*	MyDisposeHandle((Handle*)&p_Oldvalue);
+	ClearLockedSpace(); */
 
 	// FIXME: CloseCurrentDriver should eventually work for all drivers - akozar
 	// CloseCurrentDriver(FALSE);

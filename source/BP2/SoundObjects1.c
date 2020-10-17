@@ -42,23 +42,23 @@
 CheckLoadedPrototypes(void)
 {
 int r;
-GrafPtr saveport;
+// GrafPtr saveport;
 
-GetPort(&saveport);  // FIXME ? is this necessary?
+// GetPort(&saveport);  // FIXME ? is this necessary?
 r = OK;
-if(!ObjectMode && !ObjectTry && (OutMIDI || OutCsound || WriteMIDIfile)) {
+if(!PrototypesLoaded AND !ObjectMode && !ObjectTry && (OutMIDI || OutCsound || WriteMIDIfile)) {
    ObjectTry = TRUE;
    if(ResizeObjectSpace(YES,Jbol + Jpatt,0) != OK) {
       r = ABORT; goto OUT;
       }
    if(NeedAlphabet) {
-      if((FileName[iObjects][0] == '\0'
+      if(/*(FileName[iObjects][0] == '\0'
    	     && Answer("Since MIDI, MIDI file, or Csound output is active, you may need to "
    	               "load an object prototypes file. Would you like to do so", 'Y') != YES)
-   	   || (r=LoadObjectPrototypes(NO,YES)) != OK) {
+   	   || */ (r=LoadObjectPrototypes(NO,YES)) != OK) {
          ObjectMode = FALSE;
-         FileName[iObjects][0] = '\0';
-         SetName(iObjects,TRUE,TRUE);
+     //    FileName[iObjects][0] = '\0';
+    //     SetName(iObjects,TRUE,TRUE);
          Dirty[iObjects] = Created[iObjects] = FALSE;
          iProto = 0;
          goto OUT;
@@ -69,8 +69,8 @@ if(!ObjectMode && !ObjectTry && (OutMIDI || OutCsound || WriteMIDIfile)) {
 r = CompileCsoundObjects();
 
 OUT:
-if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err CheckLoadedPrototypes(). saveport == NULL");
+// if(saveport != NULL) SetPort(saveport);
+// else if(Beta) Alert1("Err CheckLoadedPrototypes(). saveport == NULL");
 return(r);
 }
 

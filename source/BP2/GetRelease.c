@@ -117,18 +117,22 @@ if(init && !ScriptExecOn) {
 if(ResetPannel() != OK) return(FAILED);
 #endif /* BP_CARBON_GUI */
 PleaseWait();
+if(Find_leak) BPPrintMessage(odInfo,"OKdone6\n");
 if(ReleaseProduceStackSpace() != OK) return(FAILED);
 if(ReleaseObjectPrototypes() != OK) return(FAILED);
 PleaseWait();
+if(Find_leak) BPPrintMessage(odInfo,"OKdone5\n");
 if(ReleaseGrammarSpace() != OK) return(FAILED);
+if(Find_leak) BPPrintMessage(odInfo,"OKdone4\n");
 PleaseWait();
-if(ReleaseVariableSpace() != OK) return(FAILED);
-if(ReleaseAlphabetSpace() != OK) return(FAILED);
-if(ReleasePatternSpace() != OK) return(FAILED);
+// if(ReleaseVariableSpace() != OK) return(FAILED);
+// if(ReleaseAlphabetSpace() != OK) return(FAILED);
+// if(ReleasePatternSpace() != OK) return(FAILED);
 PleaseWait();
-if(ReleaseGlossarySpace() != OK) return(FAILED);
-if(ReleaseScriptSpace() != OK) return(FAILED);
-if(ReleaseConstants() != OK) return(FAILED);
+// if(ReleaseGlossarySpace() != OK) return(FAILED);
+// if(ReleaseScriptSpace() != OK) return(FAILED);
+// if(ReleaseConstants() != OK) return(FAILED);
+if(Find_leak) BPPrintMessage(odInfo,"OKdone\n");
 PleaseWait();
 #if BP_CARBON_GUI
 if(ResetInteraction() != OK) return(FAILED);
@@ -136,6 +140,7 @@ if(ResetInteraction() != OK) return(FAILED);
 ItemNumber = 0L;
 ptr = (Handle) p_Initbuff;
 MyDisposeHandle(&ptr);
+if(Find_leak) BPPrintMessage(odInfo,"OKdone3\n");
 p_Initbuff = NULL;
 for(i=0; i <= MAXCHAN; i++) {
 	PleaseWait();
@@ -402,12 +407,18 @@ t_rule rule;
 p_flaglist **h,**h1;
 Handle ptr;
 
-if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
+// Doesn't work => memory leak
+
+if(FALSE && Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 	for(igram=1; igram < (MyGetHandleSize((Handle)Gram.p_subgram) / sizeof(t_subgram));
 																			igram++) {
+																				
+		if(Find_leak) BPPrintMessage(odInfo, "igram = %d\n",igram);
 		if((*(Gram.p_subgram))[igram].p_rule != NULL) {
 			for(irul=1; irul < (MyGetHandleSize((Handle)(*(Gram.p_subgram))[igram].p_rule)
 					/ sizeof(t_rule)); irul++) {
+				continue;							
+				if(Find_leak) BPPrintMessage(odInfo, "irul = %d\n",irul);
 				rule = (*((*(Gram.p_subgram))[igram].p_rule))[irul];
 				if(rule.p_leftcontext != NULL) {
 					ptr = (Handle)
@@ -427,10 +438,13 @@ if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 					}
 				ptr = (Handle) (*((*(Gram.p_subgram))[igram].p_rule))[irul].p_leftarg;
 				MyDisposeHandle(&ptr);
+				if(Find_leak) BPPrintMessage(odInfo, "left arg\n");
 				ptr = (Handle) (*((*(Gram.p_subgram))[igram].p_rule))[irul].p_rightarg;
 				MyDisposeHandle(&ptr);
+				if(Find_leak) BPPrintMessage(odInfo, "right arg\n");
 				h = (*((*(Gram.p_subgram))[igram].p_rule))[irul].p_leftflag;
 				if(h != NULL) {
+					BPPrintMessage(odInfo, "left flags\n");
 					do {
 						if((**h).x > Jflag || (**h).x < 0) {
 							sprintf(Message,"Err in flag list. ");
@@ -445,6 +459,7 @@ if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 					}
 				h = (*((*(Gram.p_subgram))[igram].p_rule))[irul].p_rightflag;
 				if(h != NULL) {
+					if(Find_leak) BPPrintMessage(odInfo, "right flags\n");
 					do {
 						if((**h).x > Jflag || (**h).x < 0) {
 							sprintf(Message,"Err in flag list. ");
@@ -460,6 +475,7 @@ if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 				}
 			ptr = (Handle) (*(Gram.p_subgram))[igram].p_rule;
 			MyDisposeHandle(&ptr);
+			if(Find_leak) BPPrintMessage(odInfo, "rule done\n");
 			(*(Gram.p_subgram))[igram].p_rule = NULL;
 			}
 		}
@@ -467,8 +483,10 @@ if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 	MyDisposeHandle(&ptr);
 	Gram.p_subgram = NULL;
 	}
+if(Find_leak) BPPrintMessage(odInfo, "Before p_InitScriptLine\n");
 ptr = (Handle) p_InitScriptLine;
 MyDisposeHandle(&ptr);
+if(Find_leak) BPPrintMessage(odInfo, "After p_InitScriptLine\n");
 p_InitScriptLine = NULL;
 MaxRul = N_err = 0;
 MaxGram = Gram.number_gram = 0;
@@ -476,7 +494,8 @@ CompiledGr = Gram.trueBP = Gram.hasTEMP = Gram.hasproc = FALSE;
 BolsInGrammar = 0;
 InitThere = 0;
 FirstTime = FALSE;
-return(ReleaseFlagSpace());
+return(OK);
+// return(ReleaseFlagSpace());
 }
 
 
@@ -586,6 +605,8 @@ return(DoSystem());
 ReleaseProduceStackSpace(void)
 {
 Handle ptr;
+
+return(OK);
 
 ptr = (Handle) p_MemGram;
 MyDisposeHandle(&ptr);
@@ -813,7 +834,7 @@ for(j=2; j < max; j++) {
 	ptr = (Handle) (*pp_MIDIcode)[j];
 	if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 	(*pp_MIDIcode)[j] = NULL;
-	(*p_MIDIsize)[j]  = ZERO; /* Added 30/3/2007 */
+	(*p_MIDIsize)[j]  = ZERO;
 	ptr = (Handle) (*pp_CsoundTime)[j];
 	if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 	(*pp_CsoundTime)[j] = NULL;
@@ -833,7 +854,7 @@ for(j=2; j < max; j++) {
 	ptr = (Handle) (*pp_CsoundScore)[j];
 	if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 	(*pp_CsoundScore)[j] = NULL;
-	(*p_CsoundSize)[j] = 0; /* Added 7/3/98 */
+	(*p_CsoundSize)[j] = 0;
 	}
 if(DoSystem() != OK) return(ABORT);
 if(ResizeObjectSpace(YES,2,0) != OK) return(ABORT);
@@ -852,6 +873,7 @@ Dirty[iObjects] = Created[iObjects] = FALSE;
 ObjectMode = ObjectTry = TempMemory = AskedTempMemory = FixedMaxQuantization = FALSE;
 TempMemoryUsed = ZERO;
 
+BPPrintMessage(odInfo,"ReleaseObjectPrototypes() worked fine\n");
 return(DoSystem());
 }
 

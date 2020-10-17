@@ -872,7 +872,7 @@ if(GetTuning() != OK) return(ABORT);
 
 ShowMessage(TRUE,wMessage,"Compiling alphabet...");
 if(!NoAlphabet && IsEmpty(wAlphabet) && (LoadAlphabet(-1,NULL) != OK)) goto ERR;
-GetMiName();
+// GetMiName();
 
 #if BP_CARBON_GUI
 GetKbName(wAlphabet);

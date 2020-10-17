@@ -114,7 +114,7 @@ Size MyGetHandleSize(Handle h)
 int MyDisposeHandle(Handle *p_h)
 {
 	if (p_h == NULL) {
-		if(!EmergencyExit && Beta) Alert1("Err. MyDisposeHandle. p_h = NULL");
+		BPPrintMessage(odInfo,"Err. MyDisposeHandle. p_h = NULL");
 		return(ABORT);
 	}
 	if(*p_h != NULL) {
@@ -127,6 +127,9 @@ int MyDisposeHandle(Handle *p_h)
 		MemoryUsed -= (unsigned long) h->size;
 		free(h->memblock);
 		free(h);
+		if(MemoryUsed < MemoryUsedInit) {
+			BPPrintMessage(odInfo,"WARNING! MemoryUsed = %ld < MemoryUsedInit = %ld\n",(long)MemoryUsed,(long)MemoryUsedInit);
+			}
 		// no way to check for errors ?
 	}
 	*p_h = NULL;
