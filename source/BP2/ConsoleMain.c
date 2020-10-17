@@ -70,7 +70,7 @@ Boolean LoadedStartString = FALSE;
 BPConsoleOpts gOptions;
 FILE * imagePtr = NULL;
 int N_image = 1;
-
+PrototypesLoaded = FALSE;
 
 int main (int argc, char* args[])
 {
@@ -191,6 +191,7 @@ int main (int argc, char* args[])
 	Stream.period = ZERO; */
 	EndImageFile();
 	LoadedCsoundInstruments = TRUE;
+	
 	if (TraceMemory && Beta) {
 		// reset everything and report memory usage & any leaked space
 		if ((result = ResetProject(FALSE)) != OK)	BPPrintMessage(odError, "ResetProject() returned %d\n", result);
@@ -373,6 +374,7 @@ const char gOptionList[] =
 	"  -gr fname        load grammar file 'fname'\n"
 	"  -ho fname        load alphabet file 'fname'\n"
 	"  -se fname        load settings file 'fname'\n"
+	"  -mi fname        load sound-object prototypes file 'fname'\n"
 	"\n"
 	"  These file-type markers currently are recognized but ignored:\n"
 	"      -cs  -in  -kb  -md  -mi  -or  -tb  -tr  -wg  +sc \n"
@@ -382,7 +384,6 @@ const char gOptionList[] =
 	"  -in fname        load interaction file 'fname'\n"
 	"  -kb fname        load keyboard file 'fname'\n"
 	"  -md fname        load MIDI driver settings file 'fname'\n"
-	"  -mi fname        load sound-object prototypes file 'fname'\n"
 	"  -or fname        load MIDI orchestra file 'fname'\n"
 	"  -tb fname        load time base file 'fname'\n"
 	"  -wg fname        load weights file 'fname'\n"
@@ -822,6 +823,13 @@ int LoadInputFiles(const char* pathnames[WMAX])
 				case iSettings:
 					BPPrintMessage(odInfo, "Reading settings file %s...\n", pathnames[w]);
 					result = LoadSettings(pathnames[w], FALSE);
+					if (result != OK)  return result;
+					break;
+			//	case 26:
+				case iObjects:
+					BPPrintMessage(odInfo, "Reading object prototypes file %s...\n", pathnames[w]);
+					strcpy(FileName[iObjects],pathnames[w]);
+					result = LoadObjectPrototypes(0,1);
 					if (result != OK)  return result;
 					break;
 				default:

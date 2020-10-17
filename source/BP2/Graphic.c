@@ -44,7 +44,7 @@
 extern FILE * imagePtr;
 
 char graphic_scheme[] = "canvas";
-int resize = 4;
+int resize = 4; // Rescaling the image to get high resolution
 int try_pivots = 0;
 int try_separate_labels = 0;
 int try_synchro_tag = 0;
@@ -67,9 +67,6 @@ char line[BOLSIZE+5],line2[BOLSIZE+1],someline[200];
 char* thisline;
 p_list **waitlist;
 
-BPPrintMessage(odInfo,"==> Yes, drawing graphics...\n");
-if(!ShowGraphic) return(OK);
-
 if(tmin == Infpos) {
 	BPPrintMessage(odInfo,"Err. DrawObject(). tmin == Infpos\n");
 	return(OK);
@@ -78,6 +75,9 @@ if(CheckLoadedPrototypes() != OK) {
 	BPPrintMessage(odInfo,"No sound-object prototypes have been loaded. Graphic is cancelled.\n");
 	return(OK);
 	}
+if(!ShowGraphic) return(OK);
+BPPrintMessage(odInfo,"==> Yes, drawing graphics in ‘objects’ mode...\n");
+if(show_more_details) BPPrintMessage(odInfo,"Jbol = %d Jpatt = %d\n",Jbol,Jpatt);
 
 rep = OK;
 GraphicOn = TRUE; overflow = FALSE;
@@ -128,13 +128,15 @@ linenum = 0; linemax = 1;
 Hmin[w] = 0;
 Vmin[w] = 0;;
 for(nseq = nmin; nseq <= nmax; nseq++) {
+	if(show_more_details) BPPrintMessage(odInfo,"nseq = %d\n",nseq);
 	foundone = FALSE;
 	for(i=1; i < (*p_imaxseq)[nseq] && i <= imax; i++) {
 		k = (*((*p_Seq)[nseq]))[i];
+		if(show_more_details) BPPrintMessage(odInfo,"k = %d\n",k);
 		if(k < 0) BPPrintMessage(odInfo,"Err. 'k' in DrawItem().\n");
 		if(k < 2) continue;	/* Reject '_' and '-' */
 		if(kmode) {
-		//	BPPrintMessage(odInfo,"kmode = TRUE\n");
+			if(show_more_details) BPPrintMessage(odInfo,"kmode = TRUE\n");
 			if(p_object == NULL) {
 				BPPrintMessage(odInfo,"Err. DrawObject(). p_object == NULL\n");
 				return(ABORT);
@@ -143,13 +145,14 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			t2 = (*p_object)[k].endtime;
 			}
 		else {
-		//	BPPrintMessage(odInfo,"kmode = FALSE\n");
+			if(show_more_details) BPPrintMessage(odInfo,"kmode = FALSE\n");
 			t1 = (*p_t1)[i];
 			t2 = (*p_t2)[i];
 			}
 		t1 =  (t1 * GraphicScaleP) / GraphicScaleQ / 10;
 		t2 =  (t2 * GraphicScaleP) / GraphicScaleQ / 10;
 		j = (*p_Instance)[k].object; /* Beware: j < 0 for out-time objects */
+		if(show_more_details) BPPrintMessage(odInfo,"j = %d t1 = %d t2 = %d\n",j,t1,t2);
 		trbeg = ((*p_Instance)[k].truncbeg * GraphicScaleP) / GraphicScaleQ / 10;
 		tt1 = leftoffset + t1 - trbeg;
 		trend = ((*p_Instance)[k].truncend * GraphicScaleP) / GraphicScaleQ / 10;
@@ -171,6 +174,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 #else
 		if(j == 0 || j == 1 || j == -1) continue;
 #endif
+		if(show_more_details) BPPrintMessage(odInfo,"j = %d\n",j);
 		if(j > 0) {
 			if(j >= Jbol && j < 16384) sprintf(line,"%s",*((*p_Patt)[j-Jbol]));
 			else {
@@ -453,12 +457,14 @@ else {	/* Can't write label inside rectangle */
 		draw_line(r.left,r.top,r.left,(r.bottom + 1),"round");
 		pen_size(1,0);
 		}
-	tab = (r.right - r.left) / 2;
+//	tab = (r.right - r.left) / 2;
 /*	r.left = r.left + tab - 3 * strlen(label);
 	r.right = r.left + 3 * strlen(label); */
 	
+	r.right += 6 * strlen(label);
 	r.top = r.bottom + 1;
 	r.bottom = r.top + htext;
+	
 	erase_rect(&r);
 	fill_text(label,r.left,r.bottom);
 	if(*p_endx < (r.right + 1)) *p_endx = r.right + 1;
@@ -1381,7 +1387,7 @@ for(i=1L,rr=Ratio,k=0; i <= imax; i++, rr += Kpress) {
 	t1 = leftoffset + Round(t1 * p);
 	if(rr >= Ratio) {
 		rr -= Ratio;
-		if(t1 > tmem2) {
+		if(t1 > tmem2  && t1 < xmax) {
 			sprintf(line,"%ld",(long)(k + StartFromOne));
 			t2 = t1 + 12;
 			if(t1 > tmem3) {
@@ -1444,9 +1450,10 @@ fill_style("black");
 for(key=0; key < 128; key+=12) {
 	if(key < minkey || key > maxkey) continue;
 	y = (maxkey - key) * hrect + topoffset;
-	sprintf(line,"C%ld",(long)((key - (key % 12))/12)-1L);
+	// sprintf(line,"C%ld",(long)((key - (key % 12))/12)-1L);
+	PrintNote(key,0,-1,line);
 	fill_text(line,2,y + 3);
-	fill_text(line,xmax + 6,y + 3);
+	fill_text(line,xmax+ 6,y + 3);
 	draw_line(xmin,y,xmax,y,"");
 	}
 stroke_style("rgb(186,186,0)");
@@ -1454,7 +1461,8 @@ fill_style("rgb(186,186,0)");
 for(key=6; key < 128; key+=12) {
 	if(key < minkey || key > maxkey) continue;
 	y = (maxkey - key) * hrect + topoffset;
-	sprintf(line,"F#%ld",(long)((key - (key % 12))/12)-1L);
+	// sprintf(line,"F#%ld",(long)((key - (key % 12))/12)-1L);
+	PrintNote(key,0,-1,line);
 	fill_text(line,2,y + 3);
 	fill_text(line,xmax + 6,y + 3);
 	draw_line(xmin,y,xmax,y,"");

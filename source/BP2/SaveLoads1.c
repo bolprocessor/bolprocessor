@@ -38,6 +38,8 @@
 
 #include "-BP2decl.h"
 
+int show_details_load_prototypes = 0;
+
 #if BP_CARBON_GUI
 #include "CarbonCompatUtil.h"
 
@@ -55,7 +57,7 @@ char *p,*q;
 OSErr io;
 char **p_completeline,**p_line;
 
-if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || GraphicOn
+if(ComputeOn || SetTimeOn || show_details_load_prototypes"Line =PrintOn || SoundOn || SelectOn || CompileOn || GraphicOn
 	|| PolyOn) return(RESUME);
 if(CompileCheck() != OK) return(FAILED);
 LoadOn++;
@@ -350,11 +352,11 @@ for(i=0; i < maxticks; i++) {
 result = OK;
 if(ReadOne(FALSE,TRUE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 if(iv > 9) {
-	MyLock(FALSE,(Handle)p_completeline);
+/*	MyLock(FALSE,(Handle)p_completeline);
 	result = SetField(NULL,wTimeBase,fTimeBaseComment,*p_completeline);
-	MyUnlock((Handle)p_completeline);
+	MyUnlock((Handle)p_completeline); */
 	}
-else SetField(NULL,wTimeBase,fTimeBaseComment,"[Comment on time base]");
+// else SetField(NULL,wTimeBase,fTimeBaseComment,"[Comment on time base]");
 goto QUIT;
 
 ERR:
@@ -1187,6 +1189,7 @@ return(result);
 }
 
 
+
 /* FindBPPrefsFolder() gets an FSSpec for the folder named "Bol Processor"
    in the system (or user) preferences folder.  If this folder does not
    exist, it is created.  */
@@ -1329,6 +1332,7 @@ void GetStartupSettingsSpec(FSSpecPtr spec)
 
 	return;
 }
+
 #endif /* BP_CARBON_GUI */
 
 int LoadSettings(const char *filename, int startup)
@@ -2560,3 +2564,564 @@ int WriteMidiDriverSettings(short refnum, FSSpec* spec)
 }
 
 #endif /* BP_CARBON_GUI */
+
+LoadObjectPrototypes(int checkversion,int tryname)
+{
+char c,date[80],*newp;
+MIDIcode **p_b;
+char **p_line,**p_completeline,line[MAXLIN];
+int i,iv,j,jj,co,rep,okt1,diff,stop,maxsounds,s,objecttype,oldjbol,notsaid,
+	pivbeg,pivend,pivbegon,pivendoff,pivcent,pivcentonoff,pivspec,newbols,okrescale,
+	compilemem,newinstruments,type,dirtymem,longerCsound;
+long t,t1,t2,tm,d,kres;
+long pos,imax;
+long k,kk;
+double r;
+short refnum,refnum2;
+FSSpec spec;
+Str63 filename;
+Handle h,ptr;
+FILE* mifile;
+
+CompileAlphabet();
+
+rep = FAILED;
+newinstruments = CompiledCsObjects = FALSE;
+pos = 0L;
+// if(!tryname) FileName[iObjects][0] = '\0';
+p_line = p_completeline = NULL;
+// c2pstrcpy(PascalLine, DeftName[iObjects]);
+// SetWTitle(Window[iObjects], PascalLine);
+// if(!tryname) GetMiName();
+// c2pstrcpy(PascalLine,FileName[iObjects]);
+// CopyPString(PascalLine, spec.name);
+/* spec.vRefNum = TheVRefNum[iObjects];
+spec.parID = WindowParID[iObjects];
+if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {FileName[iObjects] ??
+FIND:
+	if(!tryname) return(FAILED);
+	if(FileName[iObjects][0] == '\0') {
+//		if(OkWait || !ScriptExecOn)
+//			Alert1("The note convention might be incorrect because I am looking for an unspecified '-mi' sound-object prototype file");
+		sprintf(Message,"Find '-mi' sound-object prototype file...");
+		}
+	else
+	sprintf(Message,"Find '%s' or other sound-object prototype file",FileName[iObjects]);
+	ShowMessage(TRUE,wMessage,Message);
+	if(Option) r = YES; 
+	else r = NO;
+	if(r == ABORT) return(r);
+	type = gFileType[iObjects]; if(r == YES) type = ftiAny;
+	if(!OldFile(iObjects,type,PascalLine,&spec)) return(ABORT);
+	if(FileName[iObjects][0] == '\0') {
+		p2cstrcpy(FileName[iObjects],PascalLine);
+		// TellOthersMyName(iObjects); // this is taken care of by SetName() at end - akozar 050707
+		}
+	c2pstrcpy(filename,FileName[iObjects]);
+	if(Pstrcmp(PascalLine, filename) != 0) {
+		rep = Answer("Changing sound-object file name",'Y');
+		switch(rep) {
+			case NO:
+				goto FIND;
+			case YES:
+				p2cstrcpy(FileName[iObjects],PascalLine);
+				// TellOthersMyName(iObjects); // this is taken care of by SetName() at end - akozar 050707
+				break;
+			case ABORT:
+				HideWindow(Window[wMessage]);
+				return(ABORT);
+			}
+		}
+	// c2pstrcpy(spec.name, FileName[iObjects]);
+	if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) return(ABORT);
+	}
+TheVRefNum[wCsoundInstruments] = TheVRefNum[iObjects] = spec.vRefNum;
+WindowParID[wCsoundInstruments] = WindowParID[iObjects] = spec.parID;
+HideWindow(Window[wMessage]);
+rep = ABORT;
+j = -1; */
+
+LoadOn++;
+
+mifile = fopen(FileName[iObjects], "r");
+if (mifile == NULL) {
+	BPPrintMessage(odError, "Could not open prototypes file %s\n",FileName[iObjects][0]);
+	return FAILED;
+	}
+
+if(ReadOne(FALSE,FALSE,FALSE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+sprintf(Message,"Loading %s...",FileName[iObjects]);
+ShowMessage(TRUE,wMessage,Message);
+if(show_details_load_prototypes) BPPrintMessage(odError, "Line = %s\n",*p_line);
+if(CheckVersion(&iv,p_line,FileName[iObjects]) != OK) goto ERR;
+if(show_details_load_prototypes) BPPrintMessage(odInfo, "Version = %d\n",iv);
+
+/* if(iv == 0) {
+	FSClose(mifile);
+	HideWindow(Window[wMessage]);
+	pos = 0L;
+	MyOpen(&spec,fsCurPerm,&mifile);
+	} */
+if(iv > 2) {
+	ReadOne(FALSE,TRUE,FALSE,mifile,TRUE,&p_line,&p_completeline,&pos);
+//	GetDateSaved(p_completeline,&(p_FileInfo[iObjects]));
+	}
+newbols = FALSE;
+
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	PrototypeTickKey = s;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	PrototypeTickChannel = s;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	PrototypeTickVelocity = s;
+	if(iv > 11) {
+	//	ReadOne(FALSE,TRUE,FALSE,mifile,TRUE,&p_line,&p_completeline,&pos);
+		/* if((*p_completeline)[0] != '\0') {
+			MystrcpyHandleToString(MAXNAME,0,line,p_completeline);
+			if(FileName[wCsoundInstruments][0] == '\0'
+					|| strcmp(line,FileName[wCsoundInstruments]) != 0) {
+				if(SaveCheck(wCsoundInstruments) == ABORT) goto MAXSOUNDS;
+				strcpy(FileName[wCsoundInstruments],line);
+				type = gFileType[wCsoundInstruments];
+				c2pstrcpy(spec.name, line);
+				spec.vmifile = TheVmifile[wCsoundInstruments];
+				spec.parID = WindowParID[wCsoundInstruments];
+				if(MyOpen(&spec,fsCurPerm,&mifile2) != noErr) {
+					if(CheckFileName(wCsoundInstruments,FileName[wCsoundInstruments],
+						&spec,&mifile2,type,TRUE) != OK) goto MAXSOUNDS;
+					}
+				rep = LoadCsoundInstruments(mifile2,FALSE);
+				if(rep == OK) {
+					dirtymem = Dirty[wAlphabet];
+					SetName(wCsoundInstruments,TRUE,FALSE);
+					PutFirstLine(wAlphabet,FileName[wCsoundInstruments],FilePrefix[wCsoundInstruments]);
+					Dirty[wAlphabet] = dirtymem;
+					newinstruments = TRUE;
+					}
+				}
+			} */
+		}
+		
+MAXSOUNDS:
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	maxsounds = s;
+	if(show_details_load_prototypes) BPPrintMessage(odInfo, "maxsounds = %d\n",s);
+//	if(CheckTerminalSpace() != OK) goto ERR;
+	oldjbol = Jbol;
+	Jbol += (maxsounds - 2);
+	if(ResizeObjectSpace(YES,Jbol + Jpatt,0) != OK) goto ERR;
+//	if(CheckTerminalSpace() != OK) goto ERR;
+	Jbol = oldjbol; newbols = TRUE;
+
+/* else {
+	if(checkversion && (Jbol < 3 || p_Bol == NULL)) {
+		Alert1("This is an old type of object prototype file. To load it you must first load or create the corresponding alphabet");
+		FileName[iObjects][0] = '\0';	// FIXME: this wasn't enough when TellOthersMyName() was called above; is it OK now ?
+		goto OUT;	// changed from goto ERR - akozar 050707
+		}
+	if(ResizeObjectSpace(YES,Jbol + Jpatt,0) != OK) goto ERR;
+	} */
+NumberTables = 0;
+rep = notsaid = OK;
+
+// Be careful: the following loop will read data forever if the file
+// was not properly closed...
+
+NEXTBOL:
+PleaseWait(); j = -1;
+/* if(Button() && (Answer("Stop reading sound-object file",'N') == YES)) {
+	rep = ABORT;
+	goto ERR;
+	} */
+if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) {
+	if(iv > 3) {
+		sprintf(Message,"Unexpected end of '%s' file...  May be old version?",
+			FileName[iObjects]);
+		Println(wTrace,Message);
+		}
+	goto ERR;
+	}
+if(show_details_load_prototypes) BPPrintMessage(odInfo, "line = %s\n",*p_line);
+
+if(p_completeline == NULL) {
+	if(Beta) Alert1("Err. LoadObjectPrototypes(). p_completeline == NULL");
+	goto OUT;
+	}
+if(MyHandleLen(p_completeline) < 1) goto OUT;
+if(Mystrcmp(p_completeline,"DATA:") == 0) {
+	if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+	if((*p_completeline)[0] == '\0')
+		MystrcpyStringToHandle(&p_completeline,"[Comment on prototype file]");
+	MystrcpyHandleToString(MAXFIELDCONTENT,0,line,p_completeline);
+	if(show_details_load_prototypes) BPPrintMessage(odInfo, "General comment = %s\n",line);
+	//	rep = SetField(NULL,wPrototype1,fPrototypeFileComment,line);
+//	else SetField(NULL,wPrototype1,fPrototypeFileComment,"[Comment on prototype file]");
+	goto OUT;
+	}
+if(Mystrcmp(p_completeline,"_endSoundObjectFile_") == 0) goto OUT;
+if((iv > 3) && (Mystrcmp(p_completeline,"TABLES:") == 0)) {
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto OUT;
+	if(s > 0 && 0) {
+		NumberTables = s;
+		for(i=1; i <= s; i++) {
+			/*  Read table i */
+			}
+		}
+	goto OUT;
+	}
+if(iv > 4 && newbols) {
+	oldjbol = Jbol;
+	if(Jbol == 0) {
+		Jbol = 2;
+		GetAlphabetSpace();
+		}
+//	p_Bol = (char****) GiveSpace((Size)(Jbol) * sizeof(char**));
+	if((jj=CreateBol(0,0,p_completeline,0,0,BOL)) < 0) goto ERR;
+	if(jj >= Jbol) {
+		if(Beta) Alert1("Err. LoadObjectPrototypes(). jj >= Jbol");
+		goto ERR;
+		}
+	j = jj;
+	if(show_details_load_prototypes) BPPrintMessage(odInfo, "Creating sound-object j = %d %s\n",j,*p_completeline);
+	if(Jbol > oldjbol) {
+		compilemem = CompiledGr;
+		if(notsaid) {
+			ShowMessage(TRUE,wMessage,"New terminal symbols have been appended to alphabet.");
+	/*		SetSelect(GetTextLength(wAlphabet),GetTextLength(wAlphabet),
+				TEH[wAlphabet]);
+			PrintBehind(wAlphabet,"\n"); */
+			}
+		notsaid = FALSE;
+		MystrcpyHandleToString(MAXLIN,0,Message,p_completeline);
+		strcat(Message," ");
+	//	PrintBehind(wAlphabet,Message);
+		CompiledAl = TRUE; /* Dirty[wAlphabet] = FALSE; */
+		CompiledGr = compilemem;
+		}
+	}
+diff = FALSE;
+
+if(show_details_load_prototypes) BPPrintMessage(odInfo, "Final Jbol = %d\n",Jbol);
+// if(iv > 3) { 
+	if(ReadInteger(mifile,&objecttype,&pos) == FAILED) goto ERR;
+	if(show_details_load_prototypes) BPPrintMessage(odInfo, "objecttype = %d\n",objecttype);
+	(*p_Type)[j] = objecttype;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(show_details_load_prototypes) BPPrintMessage(odInfo, "resolution = %d\n",s);
+	(*p_Resolution)[j] = s;
+	if(show_details_load_prototypes) BPPrintMessage(odInfo, "(*p_Resolution)[%d] = %d\n",j,(*p_Resolution)[j]);
+//	}
+/* else if(!diff) {
+	(*p_Type)[j] = 1;
+	(*p_Resolution)[j] = 1; 
+	} */
+if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+(*p_DefaultChannel)[j] = s;
+if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
+(*p_Tref)[j] = ((long) k * (*p_Resolution)[j]);
+if(ReadFloat(mifile,&r,&pos) == FAILED) goto ERR;
+(*p_Quan)[j] = r;
+if(ReadOne(FALSE,FALSE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+if(show_details_load_prototypes) BPPrintMessage(odInfo, "line = %s\n",*p_line);
+if(!diff) {
+	i = 0;
+	pivbeg = (*p_line)[i++]-'0';
+	pivend = (*p_line)[i++]-'0';
+	pivbegon = (*p_line)[i++]-'0';
+	pivendoff = (*p_line)[i++]-'0';
+	pivcent = (*p_line)[i++]-'0';
+	pivcentonoff = (*p_line)[i++]-'0';
+	okrescale = (*p_line)[i++]-'0';
+	(*p_FixScale)[j] = (*p_line)[i++]-'0';
+	(*p_OkExpand)[j] = (*p_line)[i++]-'0';
+	(*p_OkCompress)[j] = (*p_line)[i++]-'0';
+	(*p_OkRelocate)[j] = (*p_line)[i++]-'0';
+	(*p_BreakTempo)[j] = (*p_line)[i++]-'0';
+	(*p_ContBeg)[j] = (*p_line)[i++]-'0';
+	(*p_ContEnd)[j] = (*p_line)[i++]-'0';
+	(*p_CoverBeg)[j] = (*p_line)[i++]-'0';
+	(*p_CoverEnd)[j] = (*p_line)[i++]-'0';
+	(*p_TruncBeg)[j] = (*p_line)[i++]-'0';
+	(*p_TruncEnd)[j] = (*p_line)[i++]-'0';
+	pivspec = (*p_line)[i++]-'0';
+	(*p_PivType)[j] = pivbeg + 2 * pivend + 3 * pivbegon + 4 * pivendoff
+		+ 5 * pivcent + 6 * pivcentonoff + 7 * pivspec;
+	(*p_AlphaCtrl)[j] = (*p_line)[i++]-'0';
+	}
+
+
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR; /* rescalemode */
+	if(!diff) (*p_RescaleMode)[j] = s;
+	if(ReadFloat(mifile,&r,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_AlphaMin)[j] = r;
+	if(ReadFloat(mifile,&r,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_AlphaMax)[j] = r;
+	if(!diff && iv < 5) {	/* Fixing a bug in default values */
+		(*p_AlphaMax)[j] = 10L;
+		}
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR; /* delaymode */
+	if(!diff) (*p_DelayMode)[j] = s;
+	if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_MaxDelay)[j] = k;
+	if(iv > 4) {
+		if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR; /* forwardmode */
+		if(!diff) (*p_ForwardMode)[j] = s;
+		}
+	if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_MaxForward)[j] = k;
+	if(!diff && iv < 5) {	/* Fixing a bug in default values */
+		(*p_MaxDelay)[j] = (*p_MaxForward)[j] = ZERO;
+		}
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR; /* brktempomode */
+	if(!diff) (*p_BreakTempoMode)[j] = s;
+	if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
+/*	if(!diff) (*p_MaxBreakTempo)[j] = k;
+	if(!diff && iv < 5) {
+		(*p_MaxBreakTempo)[j] = ZERO;
+		} */
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR; /* contbegmode */
+	if(!diff) (*p_ContBegMode)[j] = s;
+	if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_MaxBegGap)[j] = k;
+	if(!diff && iv < 5) {	/* Fixing a bug in default values */
+		(*p_MaxBegGap)[j] = ZERO;
+		}
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR; /* contendmode */
+	if(!diff) (*p_ContEndMode)[j] = s;
+	if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_MaxEndGap)[j] = k;
+	if(!diff && iv < 5) {	/* Fixing a bug in default values */
+		(*p_MaxEndGap)[j] = ZERO;
+		}
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR; /* coverbegmode */
+	if(!diff) (*p_CoverBegMode)[j] = s;
+	if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_MaxCoverBeg)[j] = k;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR; /* coverendmode */
+	if(!diff) (*p_CoverEndMode)[j] = s;
+	if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_MaxCoverEnd)[j] = k;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR; /* truncbegmode */
+	if(!diff) (*p_TruncBegMode)[j] = s;
+	if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_MaxTruncBeg)[j] = k;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR; /* truncendmode */
+	if(!diff) (*p_TruncEndMode)[j] = s;
+	if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_MaxTruncEnd)[j] = k;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_PivMode)[j] = s;
+
+if(ReadFloat(mifile,&r,&pos) == FAILED) goto ERR;
+if(!diff) (*p_PivPos)[j] = r;
+
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_AlphaCtrlNr)[j] = s;
+
+
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_AlphaCtrlChan)[j] = s;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_OkTransp)[j] = s;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_OkArticul)[j] = s;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_OkVolume)[j] = s;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_OkPan)[j] = s;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_OkMap)[j] = s;
+
+		if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+		(*p_OkVelocity)[j] = s;
+
+	if(ReadFloat(mifile,&r,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_PreRoll)[j] = r;
+	if(ReadFloat(mifile,&r,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_PostRoll)[j] = r;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_PreRollMode)[j] = s;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_PostRollMode)[j] = s;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_PeriodMode)[j] = s;
+	if(ReadFloat(mifile,&r,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_BeforePeriod)[j] = r;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_ForceIntegerPeriod)[j] = s;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_DiscardNoteOffs)[j] = s;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_StrikeAgain)[j] = s;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_CsoundAssignedInstr)[j] = s;
+
+		if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+		(*p_CsoundInstr)[j] = s;
+
+/*	else {
+		if(!diff) (*p_CsoundInstr)[j] = 0;
+		} */
+	if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_Tpict)[j] = k;
+
+/*else {
+	if(!diff) {
+		(*p_PreRoll)[j] = (*p_PostRoll)[j] = ZERO;
+		(*p_Tpict)[j] = ZERO;
+		(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = RELATIVE;
+		(*p_PeriodMode)[j] = IRRELEVANT;
+		(*p_BeforePeriod)[j] = (*p_CsoundInstr)[j] = 0.;
+		(*p_ForceIntegerPeriod)[j] = (*p_DiscardNoteOffs)[j] = FALSE;
+		(*p_StrikeAgain)[j] = (*p_CsoundAssignedInstr)[j] = -1;
+		}
+	} */
+if(iv > 21) {
+	if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_ObjectColor)[j].red = k;
+	if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_ObjectColor)[j].green = k;
+	if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
+	if(!diff) (*p_ObjectColor)[j].blue = k;
+	if(show_details_load_prototypes) BPPrintMessage(odInfo, "(*p_ObjectColor)[j].blue = %ld\n",k);
+	}
+else {
+	if(!diff) {
+		(*p_ObjectColor)[j].red = (*p_ObjectColor)[j].green = (*p_ObjectColor)[j].blue = -1L;
+		}
+	}
+if(!diff) {
+	ptr = (Handle) (*pp_CsoundScoreText)[j];
+	if(MyDisposeHandle(&ptr) != OK) goto ERR;
+	(*pp_CsoundScoreText)[j] = NULL;
+	(*p_CompiledCsoundScore)[j] = TRUE;
+	(*pp_CsoundTime)[j] = NULL;
+	}
+if(iv > 9) {
+	/* Read pp_CsoundScoreText */
+//	if(!diff) ClearWindow(NO,wPrototype7);
+	if(ReadOne(FALSE,FALSE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+	StripHandle(p_line);
+	if(show_details_load_prototypes) BPPrintMessage(odInfo, "line = %s\n",*p_line);
+	if(Mystrcmp(p_line,"_beginCsoundScore_") != 0) goto ERR;
+	
+NEXTCSOUNDSCORELINE:
+	if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+	if(show_details_load_prototypes) BPPrintMessage(odInfo, "line2 = %s\n",*p_line);
+	if(Mystrcmp(p_completeline,"_endCsoundScore_") == 0) {
+		if(!diff) {
+		//	if((rep=GetCsoundScore(j)) != OK) goto OUT;
+			if((rep=CompileObjectScore(j,&longerCsound)) != OK) goto OUT;
+			}
+		goto READSIZE;
+		}
+	if(!diff) {
+	//	PrintHandleBehind(wPrototype7,p_completeline);
+	//	PrintBehind(wPrototype7,"\n");
+		Dirty[iObjects] = Dirty[wPrototype7] = FALSE;
+		CompiledCsObjects = (*p_CompiledCsoundScore)[j] = FALSE;
+		}
+	goto NEXTCSOUNDSCORELINE;
+	}
+
+READSIZE:
+if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+if(show_details_load_prototypes) BPPrintMessage(odInfo, "size = %d\n",s);
+imax = s;
+	(*p_PasteDone)[j] = FALSE;
+	(*p_MIDIsize)[j] = (*p_Ifrom)[j] = ZERO;
+	(*pp_MIDIcode)[j] = NULL;
+if(imax > 0) {
+	if((p_b = (MIDIcode**) GiveSpace((Size)sizeof(MIDIcode)*(imax+1))) == NULL) goto ERR;
+	rep = OK;
+	}
+if((*p_CsoundSize)[j] == 0) (*p_Dur)[j] = t1 = t2 = ZERO;
+if(imax > 0) {
+	for(i=0,tm=ZERO,okt1=FALSE; i < imax; i++) {
+		if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
+		if(show_details_load_prototypes) BPPrintMessage(odInfo, "k = %ld\n",k);
+		if(Eucl(k,256L,(unsigned long*)&t,(unsigned long*)&kk) != 0) goto ERR;
+		if(!diff) (*p_b)[i].byte = (int) kk;
+		if(143L < kk  &&  kk < 160L) {   /* NoteOn or NoteOff */
+			t2 = t;
+			if(!okt1) {
+				okt1 = TRUE;
+				t1 = t;
+				}
+			}
+		if(!diff) {
+			(*p_b)[i].time = (Milliseconds) t;
+			}
+		}
+	
+/*	for(i=0; i < imax; i++) {
+		if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+		BPPrintMessage(odInfo, "s= %d\n",s);
+		if(!diff) {
+			(*p_b)[i].sequence = s;
+			}
+		} */
+
+	if(MIDItoPrototype(FALSE,TRUE,j,p_b,imax) != OK) goto ERR;
+	if(MyDisposeHandle((Handle*)&p_b) != OK) goto ERR;
+	}
+
+if(!diff && CheckConsistency(j,TRUE) != OK) goto ERR;
+if(iv > 9) {
+	if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+	if(p_completeline == NULL) {
+		if(Beta) Alert1("Err. LoadObjectPrototypes(). p_completeline == NULL");
+		goto ERR;
+		}
+	if(!diff) {
+		s = MyHandleLen(p_completeline);
+		if(s > MAXFIELDCONTENT) {
+			s = MAXFIELDCONTENT;
+			(*p_completeline)[s] = '\0';
+			}
+		if((h = (Handle) GiveSpace((Size)(1+s) * sizeof(char))) == NULL) goto ERR;
+		(*pp_Comment)[j] = h;
+		MystrcpyHandleToHandle(0,&((*pp_Comment)[j]),p_completeline);
+		if(show_details_load_prototypes) BPPrintMessage(odInfo, "comment for %d = %s\n\n",j,*p_completeline);
+		}
+	}
+goto NEXTBOL;
+
+ERR:
+if(!diff) {
+	if(j > 1 && j < Jbol) ResetPrototype(j);
+	}
+if(CheckEmergency() == OK) {
+	rep = FAILED;
+	sprintf(Message,"File '%s' may be corrupted or in some unknown format",
+		FileName[iObjects]);
+	Alert1(Message);
+	if(j > 1 && j < Jbol) {
+		sprintf(Message,"An error occured while reading '%s'",*((*p_Bol)[j]));
+		Println(wTrace,Message);
+		}
+	Println(wTrace,
+		"You may read the file to the 'Scrap' window and try to fix inconsistencies.");
+	}
+else rep = ABORT;
+
+OUT:
+LoadOn--;
+MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
+CloseFile(mifile);
+// if(CheckEmergency() != OK) return(ABORT);
+// HideWindow(Window[wMessage]);
+
+ObjectMode = ObjectTry = TRUE;
+
+// SetButtons(TRUE);
+if(rep == OK) {
+//	SetName(iObjects,YES,TRUE);
+	if(newbols) {
+		ResizeObjectSpace(NO,Jbol + Jpatt,0);
+		BPPrintMessage(odInfo,"Resizing object space for Jbol = %d and Jpatt = %ld\n",Jbol,Jpatt);
+		}
+	}
+PrototypesLoaded = TRUE;
+return(rep);
+}

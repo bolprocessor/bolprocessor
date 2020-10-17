@@ -50,7 +50,8 @@ TimeSet(tokenbyte ***pp_buff,int* p_kmx,long *p_tmin,long *p_tmax,unsigned long 
 int result,bigitem;
 short **p_articul;
 
-HideWindow(Window[wInfo]);
+// HideWindow(Window[wInfo]);
+
 if(CheckEmergency() != OK) return(ABORT);
 
 *p_tmin = Infpos; *p_tmax = Infneg;
@@ -124,7 +125,6 @@ while(TRUE) {
 	}
 
 // Now display phase diagram (optional)
-
 #if DISPLAY_PHASE_DIAGRAM
 
 // Print(wTrace,"\n");
@@ -134,7 +134,7 @@ if(show_details_timeset) BPPrintMessage(odInfo,Message);
 // Println(wTrace,Message);
 while(Button());
 for(k=ZERO; k < Maxevent; k++) {
-	if(Button()) break;
+//	if(Button()) break;
 	if((j=(*p_Instance)[k].object) >= 0) {
 		if(j >= Jbol) {
 			if(j < 16384)

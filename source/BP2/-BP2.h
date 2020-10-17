@@ -206,6 +206,7 @@ enum {
 #define MAXINFOLENGTH 50	/* length of date message */
 #define MAXFIELDCONTENT 255	/* length of edit field in dialog window */
 #define MAXNAME 31		/* length of file name */
+#define MAXBOL 500		/* number of sound-objects */
 #define MAXSTRINGCONSTANTS 256	/* string constants */
 #define MAXNOTBPCASES 10	/* cases of non standard BP grammars */
 #define MAXCOLOR 11		/* predefined colors */

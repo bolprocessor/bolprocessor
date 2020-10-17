@@ -205,6 +205,8 @@ for(nseq=0; nseq <= Minconc; nseq++) {
 for(nseq=0; nseq < Maxconc; nseq++) (*p_waitlist)[nseq] = (*p_scriptlist)[nseq] = NULL;
 (*p_deftnseq)[0] = nseq = 0;
 
+if(show_details_diagram) BPPrintMessage(odInfo,"Maxevent = %d\n",Maxevent);
+
 for(k=0; k < Maxevent; k++) {
 	(*p_Instance)[k].object = 0;
 	(*p_ObjectSpecs)[k] = NULL;
@@ -581,9 +583,11 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 		}
 	if((m == T3 && p < Jbol) || m == T25	/* Sound-object or simple note or silence */
 			|| (m == T9 && p < Jpatt)) {	/* Time pattern */
+		if(show_details_diagram) BPPrintMessage(odInfo,"m = %d p = %d (*p_MIDIsize)[p] = %ld\n",m,p,(*p_MIDIsize)[p]);
 		if(m == T3 && p > 1 && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO) {
 			m = T3;
 			p = 1;
+			if(show_details_diagram) BPPrintMessage(odInfo,"=> m = %d p = %d\n",m,p);
 			}
 		((*p_im)[nseq]) += Kpress;
 		ip = Class((*p_im)[nseq]);

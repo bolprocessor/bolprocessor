@@ -2626,7 +2626,5 @@ void	PrintCall(char* funcname, WindowPtr wp)
 	fflush(stdout);
 	return;
 }
-
-
 #endif
 

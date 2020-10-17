@@ -54,7 +54,7 @@ if(ReadFile(wGrammar,refnum) == OK) {
 	= WindowParID[wAlphabet] = WindowParID[wTimeBase]
 	= WindowParID[wCsoundInstruments] = WindowParID[wMIDIorchestra] = p_spec->parID;
 	p2cstrcpy(FileName[wGrammar],p_spec->name);
-	SetName(wGrammar,TRUE,TRUE); /* suppressed 26/2/99 */
+	SetName(wGrammar,TRUE,TRUE);
 	CompiledPt = Dirty[wGrammar] = FALSE;
 	FSClose(refnum);
 	}
@@ -991,7 +991,7 @@ FSSpec spec;
 int io,rep,result;
 char line2[64];
 
-
+if(PrototypesLoaded) return(OK);
 if(w == -1 && GetAlphaName(wData) != OK && GetAlphaName(wGrammar) != OK)
 	return(OK);
 else if(GetAlphaName(w) != OK) return(OK);

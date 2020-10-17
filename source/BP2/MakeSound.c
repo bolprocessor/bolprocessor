@@ -406,7 +406,7 @@ if(showpianoroll) {
 	if(endxmax < 100) endxmax = 100;
 	endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
 	
-	sprintf(line_image,"WMAX=%ld\n",(long)resize * endxmax);
+	sprintf(line_image,"WMAX=%ld\n",(long)resize * (endxmax + 20));
 	fputs(line_image,imagePtr);
 	
 	graphrect.top = graphrect.left = 0;
@@ -585,6 +585,7 @@ for(noccurrence = 0; noccurrence < Nplay || SynchroSignal == PLAYFOREVER; noccur
 		result = EventState; goto OVER;
 		}
 #endif /* BP_CARBON_GUI */
+	
 	for(k=2; k <= (*p_kmax); k++) {
 		(*p_inext)[k] = (*p_inext1)[k];
 		(*p_onoff)[k] = FALSE;
@@ -2047,13 +2048,9 @@ if(!MIDIfileOn && !cswrite && OutMIDI && !showpianoroll) {
 	if(!FirstTime) ComputeStart = drivertime;
 #endif
 	}
-	
-// MIDIfileOn = FALSE;
 
-// if BP_CARBON_GUI
 if(showpianoroll) Tcurr = oldtcurr;
 EndImageFile();
-// endif /* BP_CARBON_GUI */
 
 if(cswrite && CsoundTrace) ShowSelect(CENTRE,wTrace);
 Interrupted = FALSE;

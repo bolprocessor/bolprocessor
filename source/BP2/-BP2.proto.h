@@ -792,6 +792,7 @@ int LoadGlossary(int,int);
 int LoadAlphabet(int,FSSpec*);
 int LoadGrammar(FSSpec*,short);
 int LoadObjectPrototypes(int,int);
+int newLoadObjectPrototypes(const char *filename, int startup);
 int OpenHelp(void);
 int OpenTemp(void);
 int OpenTrace(void);

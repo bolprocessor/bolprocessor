@@ -38,6 +38,7 @@
 
 #include "-BP2decl.h"
 
+int show_details_compile_grammar = 0;
 
 CompileGrammar(int mode)
 {
@@ -279,6 +280,9 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
 		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
 	p = &(*p_line)[0]; q = &(FilePrefix[iMidiDriver][0]);
+	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
+		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
+	p = &(*p_line)[0]; q = &(FilePrefix[iObjects][0]);
 	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
 		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
 		
@@ -855,17 +859,21 @@ CompileAlphabet(void)
 {
 int rep;
 
+if(PrototypesLoaded) return(OK);
+
 rep = FAILED;
 N_err = 0;
 
 #if BP_CARBON_GUI
 if(GetTuning() != OK) return(ABORT);
 #endif /* BP_CARBON_GUI */
-if(ReleaseObjectPrototypes() != OK) return(ABORT);
+
+// if(ReleaseObjectPrototypes() != OK) return(ABORT);
+
 ShowMessage(TRUE,wMessage,"Compiling alphabet...");
 if(!NoAlphabet && IsEmpty(wAlphabet) && (LoadAlphabet(-1,NULL) != OK)) goto ERR;
-
 GetMiName();
+
 #if BP_CARBON_GUI
 GetKbName(wAlphabet);
 // FIXME ? Probably will want to get Cs instr. & Midi orch. in console build ?
@@ -874,6 +882,7 @@ if(GetFileNameAndLoadIt(wMIDIorchestra,wAlphabet,LoadMIDIorchestra) != OK
 		&& GetFileNameAndLoadIt(wMIDIorchestra,wData,LoadMIDIorchestra) != OK) 
 	GetFileNameAndLoadIt(wMIDIorchestra,wGrammar,LoadMIDIorchestra);
 #endif /* BP_CARBON_GUI */
+
 if(ReleaseAlphabetSpace() != OK) return(ABORT);
 Jhomo = 0; Jbol = 2;	/* Counting will not include "_" and "-" */
 if((rep=ReadAlphabet(TRUE)) != OK){		/* Just count */
@@ -894,7 +903,7 @@ CompiledAl = TRUE;
 return(OK);
 
 ERR:
-BPActivateWindow(SLOW,wTrace);
+// BPActivateWindow(SLOW,wTrace);
 ShowMessage(TRUE,wMessage,"Can't compile alphabet");
 return(rep);
 }
@@ -1350,13 +1359,16 @@ switch(c) {
 	}
 return(NO);
 }
-
+ 
 
 CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int type)
 {
 int j,ln,diff,jmax,cv,compiledptmem,dirtyalphabetmem;
 char **ptr,****p_t,*q,line[MAXLIN];
+// char **ptr,*q,line[MAXLIN];
+// char **p_t[MAXBOL];
 
+// BPPrintMessage(odInfo, "Jbol = %d\n",Jbol);
 if(type == BOL) {
 	jmax = Jbol; p_t = p_Bol;
 	}
@@ -1399,8 +1411,8 @@ FOUNDNOTE:
 					"Simple note '%s' is out of range. (Maybe check \"Tuning\")",
 					line);
 				Alert1(Message);
-				ShowWindow(GetDialogWindow(TuningPtr));
-				SelectWindow(GetDialogWindow(TuningPtr));
+			/*	ShowWindow(GetDialogWindow(TuningPtr));
+				SelectWindow(GetDialogWindow(TuningPtr)); */
 				return(ABORT);
 				}
 			return(j+16384);
@@ -1416,15 +1428,16 @@ FOUNDNOTE:
 	}
 if(diff) {
 	j = jmax;
+	if(show_details_compile_grammar) BPPrintMessage(odInfo, "Creating Bol %d = %s\n",j,*p_x);
 	if(type == BOL) {
 		if(reload) ObjectMode = ObjectTry = FALSE;
-		dirtyalphabetmem = Dirty[wAlphabet];
+	//	dirtyalphabetmem = Dirty[wAlphabet];
 		if(Mystrcmp(p_x,"'-->'") == 0) Jfunc = j;
-		if(mark) {
+	/*	if(mark) {
 			if(ReleaseObjectPrototypes() != OK) return(ABORT);
 			Jbol = jmax + 1;
 			if(CheckTerminalSpace() != OK) return(ABORT);
-			p_t = p_Bol;	/* may have changed */
+			p_t = p_Bol;
 			compiledptmem = CompiledPt;
 			SelectBehind(GetTextLength(wAlphabet),GetTextLength(wAlphabet),
 																		TEH[wAlphabet]);
@@ -1434,12 +1447,15 @@ if(diff) {
 			Dirty[wAlphabet] = dirtyalphabetmem;
 			CompiledPt = compiledptmem;
 			ShowMessage(TRUE,wMessage,"New terminal symbols have been created.");
-			}
+			}*/
 		}
+//	BPPrintMessage(odInfo, "size = %ld\n",(long)MyHandleLen(p_x));
 	if((ptr=(char**) GiveSpace((Size)MyHandleLen(p_x)+1)) == NULL) return(ABORT);
 	(*p_t)[jmax] = ptr;
+//	BPPrintMessage(odInfo, "j = %d\n",jmax);
 	MystrcpyHandleToHandle(0,&((*p_t)[jmax]),p_x);
 	jmax++;
+//	BPPrintMessage(odInfo, "jmax = %d\n",jmax);
 	}
 else if(type == PATTERN) {
 	sprintf(Message,"\nCan't accept %s\n",*p_x);

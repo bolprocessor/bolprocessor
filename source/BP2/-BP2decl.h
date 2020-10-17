@@ -62,7 +62,7 @@ extern ResID DeviceMenuIcons[12];
 extern int EmergencyExit,TempMemory,AskedTempMemory,FixedMaxQuantization,
 	TraceMemory,EventState,Beta;
 extern int SetUpTime;
-extern int LoadedScript;
+extern int LoadedScript,PrototypesLoaded;
 extern int Jmessage;
 // extern TEStyleRec** StyleHandle[WMAX];
 

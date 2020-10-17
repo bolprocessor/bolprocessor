@@ -1277,6 +1277,7 @@ if((ptr1 = (MIDIcode**) GiveSpace((Size) im2 * sizeof(MIDIcode))) == NULL)
 	return(ABORT);
 
 if(FormatMIDIstream(p_b,imax,ptr1,zerostart,im2,&nbytes,filter) != OK) return(FAILED);
+// BPPrintMessage(odInfo, "j = %d nbytes = %d\n",j,nbytes);
 
 ptr = (Handle)(*pp_MIDIcode)[j];
 if(MyDisposeHandle(&ptr) != OK) return(ABORT);
@@ -1285,7 +1286,7 @@ if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 (*pp_MIDIcode)[j] = ptr1;
 
 GetPrePostRoll(j,&preroll,&postroll);
-if(nbytes > ZERO) {
+if(nbytes > 0) {
 	(*p_MIDIsize)[j] = nbytes;
 	(*p_Type)[j] |= 1;
 	(*p_Dur)[j] = ((*((*pp_MIDIcode)[j]))[nbytes-1].time) - preroll + postroll;

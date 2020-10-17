@@ -121,9 +121,9 @@ int CheckLoadedPrototypes(void)
 {
 	if (NeedAlphabet && !ObjectMode && !ObjectTry && (OutMIDI || OutCsound || WriteMIDIfile)) {
 		ObjectTry = TRUE;
-		BPPrintMessage(odWarning, "Loading object prototypes is not yet possible in the "
+	/*	BPPrintMessage(odWarning, "Loading object prototypes is not yet possible in the "
 			"console version, so MIDI and Csound output may not work correctly.\n");
-		return FAILED;
+		return FAILED; */
 	}
 	return OK; // ??
 }

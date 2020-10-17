@@ -340,6 +340,8 @@ CheckPrototypes(void)
 {
 int r,longerCsound;
 
+return(OK);
+
 r = FAILED;
 if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
    CompiledAl = FALSE;
