@@ -111,7 +111,7 @@ MIDIfileOn = FALSE;
 if(WriteMIDIfile && (FileWriteMode == NOW || !OutMIDI) && !ItemCapture)
 	MIDIfileOn = TRUE;
 
-if(/* FirstTime && */ (/* cswrite || */ (!OutMIDI && !MIDIfileOn && !ShowGraphic && !showpianoroll) /* || showpianoroll */)) {
+if(!cswrite && !OutMIDI && !MIDIfileOn && !ShowGraphic && !showpianoroll) {
 	BPPrintMessage(odInfo, "Cancelling MakeSound()\n");
 	return(OK);
 	}

@@ -65,7 +65,8 @@ if(result != OK) goto OUT;
 
 result = SetTimeObjects(bigitem,p_imaxseq,*p_maxseq,p_nmax,
 	p_kmx,p_tmin,p_tmax,p_articul);
-	
+
+if(show_details_timeset) BPPrintMessage(odInfo,"End TimeSet() maxseq = %ld\n",(long)*p_maxseq);
 OUT:
 MyDisposeHandle((Handle*)&p_articul);
 return(result);

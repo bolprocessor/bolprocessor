@@ -107,6 +107,7 @@ r.left = 0;
 	+ BOLSIZE * CharWidth('w'); */
 endxmax = leftoffset + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10
 	+ BOLSIZE * 10;
+if(show_more_details) BPPrintMessage(odInfo,"GraphicScaleP = %d GraphicScaleQ = %d tmin = %d tmax =%d endxmax = %d\n",GraphicScaleP,GraphicScaleQ,tmin,tmax,endxmax);
 if(endxmax < 100) endxmax = 100;
 r.right = r.left + endxmax;
 
@@ -154,7 +155,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 		t1 =  (t1 * GraphicScaleP) / GraphicScaleQ / 10;
 		t2 =  (t2 * GraphicScaleP) / GraphicScaleQ / 10;
 		j = (*p_Instance)[k].object; /* Beware: j < 0 for out-time objects */
-		if(show_more_details) BPPrintMessage(odInfo,"j = %d t1 = %d t2 = %d\n",j,t1,t2);
+		if(show_more_details) BPPrintMessage(odInfo,"j = %d t1 = %d t2 = %d endx =  %d\n",j,t1,t2,endx);
 		trbeg = ((*p_Instance)[k].truncbeg * GraphicScaleP) / GraphicScaleQ / 10;
 		tt1 = leftoffset + t1 - trbeg;
 		trend = ((*p_Instance)[k].truncend * GraphicScaleP) / GraphicScaleQ / 10;
@@ -218,15 +219,16 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			sprintf(line2," #%ld",(long)k);
 			strcat(line,line2);
 			}
-		strcpy(label,line);
-	/*	for(xc = 0; xc < strlen(line); xc++) {
-			if(line[xc] == '\'') label[xc] = "’";
+	//	strcpy(label,line);
+		for(xc = 0; xc < strlen(line); xc++) {
+			if(line[xc] == '"') label[xc] = "'";
 			else label[xc] = line[xc];
-			} */
+			}
 		tab = ((int) t2 - (int) t1 - strlen(line)) / 2;
 		if(tab < 2) tt1 = (int) t1 + leftoffset + 1 + tab;
 		sprintf(Message,"t1 = %ld tt1= %ld endx = %ld\n",(long)t1,(long)tt1,(long) (*p_endx)[linenum]);
 		if(show_more_details) BPPrintMessage(odInfo,Message);
+	//	if(endx < t2) endx = t2;
 		if(tt1 < (*p_endx)[linenum]) {
 			for(linenum=linemin; linenum < linemax; linenum++) {
 				if(tt1 > (*p_endx)[linenum]) goto CONT;
@@ -1284,6 +1286,7 @@ result = OK;
 pen_size(1,0);
 text_style(htext,"arial");
 
+
 ymax = p_r->bottom;
 if(TRUE || ShowPianoRoll) {
 	sprintf(line_image,"HMAX=%ld\n",(long)resize * ymax);
@@ -1304,6 +1307,9 @@ else {
 		}
 	}
 xmax = p_r->right;
+
+sprintf(Message,"DrawItemBackground() imax= %ld, xmax = %ld\n",(long)imax,(long)xmax);
+if(show_more_details) BPPrintMessage(odInfo,Message);
 
 if(Nature_of_time == SMOOTH)
 	while(imax > 1L && (*p_T)[imax] == ZERO) imax--;
