@@ -69,6 +69,7 @@ Boolean LoadedAlphabet = FALSE;
 Boolean LoadedStartString = FALSE;
 BPConsoleOpts gOptions;
 FILE * imagePtr = NULL;
+char imageFileName[500];
 int N_image = 1;
 PrototypesLoaded = FALSE;
 Find_leak = 0;
@@ -122,6 +123,9 @@ int main (int argc, char* args[])
 	MemoryUsedInit = MemoryUsed;
 	InitOn = FALSE;
 	BPPrintMessage(odInfo, "BP2 Console completed initialization.\n");
+	
+	BPPrintMessage(odInfo, "%s\n",gOptions.inputFilenames[wGrammar]);
+	
 	SessionTime = clock();
 	if (!gOptions.seedProvided) ReseedOrShuffle(NEWSEED);
 	
@@ -218,17 +222,6 @@ int main (int argc, char* args[])
 	return EXIT_SUCCESS;
 }
 
-void remove_spaces(const char *input, char *result)
-{
-	unsigned char c;
-	int i, j = 0;
-	for (i = 0; input[i] != '\0'; i++) {
-		c = (unsigned char) input[i];
-		if (isalnum(c) || c == '_' || c == '/' || c == '.') result[j++] = input[i];
-		}
-	result[j] = '\0';
-}
-
 
 void CreateImageFile(void)
 {
@@ -238,7 +231,6 @@ void CreateImageFile(void)
 	size_t length = 0;
 	ssize_t number;
 	char cwd[PATH_MAX];
-	char word[] = "\n// This image was created by Bol Processor BP3\n";
 	if(imagePtr != NULL) {
 		EndImageFile();
 		N_image++;
@@ -247,13 +239,13 @@ void CreateImageFile(void)
 	remove_spaces(Message,line2);
 	length = strlen(line2);
 	strncpy(line1,line2,length - 4);
-	sprintf(line2,"_image_%ld.html",(long)N_image);
+	sprintf(line2,"_image_%ld_temp.html",(long)N_image);
 	strcat(line1,line2);
 	remove_spaces(line1,line2);
     BPPrintMessage(odInfo,"Creating image file: ");
 	BPPrintMessage(odInfo,line2);
-//	remove(line2);
 	imagePtr = fopen(line2,"w");
+	strcpy(imageFileName,line2);
 	getcwd(cwd,sizeof(cwd));
 	if(cwd != NULL) {
 		sprintf(Message,"\nCurrent working dir: %s\n",cwd);
@@ -269,7 +261,7 @@ void CreateImageFile(void)
         	fputs(someline,imagePtr);
 			}
 		fclose(thisfile);
-		fputs(word,imagePtr);
+		fputs("\n",imagePtr);
 		}
 	return;
 }
@@ -277,20 +269,75 @@ void CreateImageFile(void)
 void EndImageFile(void)
 {
 	FILE * thisfile;
-	char* thisline;
+	char *pick_a_line = NULL;
+	char *final_name = NULL, *someline = NULL, *anotherline = NULL;
 	size_t length;
 	ssize_t number;
-	// BPPrintMessage(odInfo, "Closing image file.\n");
 	if(imagePtr == NULL) return;
 	thisfile = fopen("CANVAS_footer.txt","r");
 	if(thisfile == NULL) BPPrintMessage(odInfo,"‘CANVAS_footer.txt’ is missing!\n");
 	else {
-		while((number = getline(&thisline,&length,thisfile)) != -1) {
-        	fputs(thisline,imagePtr);
+		while((number = getline(&pick_a_line,&length,thisfile)) != -1) {
+        	fputs(pick_a_line,imagePtr);
 			}
 		fclose(thisfile);
 		}
+	free(pick_a_line);
+  	pick_a_line = NULL;
 	fclose(imagePtr);
+	imagePtr = NULL;
+	BPPrintMessage(odInfo,"Closed temporary image file\n");
+	final_name = repl_str(imageFileName,"_temp","");
+	remove_spaces(final_name,final_name);
+	BPPrintMessage(odInfo,"Converting temporary image file to %s\n",final_name);
+	imagePtr = fopen(final_name,"w");
+	thisfile = fopen(imageFileName,"r");
+	free(final_name);
+	while((number = getline(&pick_a_line,&length,thisfile)) != -1) {
+		if(strstr(pick_a_line,"THE_TITLE") != NULLSTR) {
+			// remove_final_linefeed(pick_a_line,Message);
+			someline = repl_str(pick_a_line,"THE_TITLE",gOptions.inputFilenames[wGrammar]);
+		//	someline = repl_str(pick_a_line,"THE_TITLE","some title");
+			anotherline = recode_tags(pick_a_line);
+			remove_final_linefeed(anotherline,anotherline);
+			BPPrintMessage(odInfo,"Found: %s\n",anotherline);
+			fputs(someline,imagePtr);
+			someline = recode_tags(someline);
+			remove_final_linefeed(someline,someline);
+			BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
+		//	free(anotherline);
+		//	free(someline);
+			}
+      else if(strstr(pick_a_line,"THE_WIDTH") != NULLSTR) {
+		//	remove_final_linefeed(pick_a_line,Message);
+			sprintf(Message,"%ld",WidthMax);
+			someline = repl_str(pick_a_line,"THE_WIDTH",Message);
+			fputs(someline,imagePtr);
+			anotherline = recode_tags(pick_a_line);
+			remove_final_linefeed(anotherline,anotherline);
+			BPPrintMessage(odInfo,"Found: %s\n",anotherline);
+			someline = recode_tags(someline);
+			remove_final_linefeed(someline,someline);
+			BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
+			}
+        else if(strstr(pick_a_line,"THE_HEIGHT") != NULLSTR) {
+		//	remove_final_linefeed(pick_a_line,Message);
+			sprintf(Message,"%ld",HeightMax);
+			someline = repl_str(pick_a_line,"THE_HEIGHT",Message);
+			fputs(someline,imagePtr);
+			anotherline = recode_tags(pick_a_line);
+			remove_final_linefeed(anotherline,anotherline);
+			BPPrintMessage(odInfo,"Found: %s\n",anotherline);
+			someline = recode_tags(someline);
+			remove_final_linefeed(someline,someline);
+			BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
+			}
+        else fputs(pick_a_line,imagePtr);
+     //   free(pick_a_line);
+		}
+	fclose(thisfile);
+	fclose(imagePtr);
+	free(someline);
 	imagePtr = NULL;
 	return;
 }

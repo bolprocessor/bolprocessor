@@ -425,4 +425,6 @@ UInt32 NumInstalledDrivers;
 BPMidiDriver** InstalledDrivers;
 DynamicMenuItem** InstalledMenuItems;
 
+long WidthMax,HeightMax;
+
 #endif /* BP2_MAIN_H */

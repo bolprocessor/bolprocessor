@@ -359,5 +359,6 @@ extern BPMidiDriver** InstalledDrivers;
 extern DynamicMenuItem** InstalledMenuItems;
 
 extern int Find_leak;
+extern long WidthMax,HeightMax;
 
 #endif /* BP2_DECL_H */

@@ -113,8 +113,11 @@ if(endxmax < 100) endxmax = 100;
 r.right = r.left + endxmax;
 
 // endxmax = leftoffset + 50 + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10;
-sprintf(Message,"WMAX=%ld\n",(long)resize * endxmax);
-fputs(Message,imagePtr);
+// WidthMax = (resize * endxmax) + 20;
+WidthMax = 2 * endxmax + 20;
+sprintf(Message,"WidthMax (2) = %ld\n",WidthMax);
+BPPrintMessage(odInfo,Message);
+// fputs(Message,imagePtr);
 
 rep = DrawItemBackground(&r,imax,htext,hrect,leftoffset,interruptok,p_delta,&yruler,
 	topoffset,&overflow);
@@ -305,13 +308,15 @@ CONT:
 ENDGRAPH:
 
 QUIT:
-sprintf(Message,"WMAX=%ld\n",(long)((resize * endxmax) + 20));
+// WidthMax = (resize * endxmax) + 20;
+WidthMax = 2 * endxmax + 20;
+sprintf(Message,"WidthMax (1) = %ld\n",WidthMax);
 BPPrintMessage(odInfo,Message);
-fputs(Message,imagePtr);
+// fputs(Message,imagePtr);
 
-sprintf(Message,"HMAX=%ld\n",(long)((resize * endymax) + 20));
+HeightMax = 2 * endymax + 20;
+sprintf(Message,"HeightMax (1) = %ld\n",HeightMax);
 BPPrintMessage(odInfo,Message);
-fputs(Message,imagePtr);
 
 MyDisposeHandle((Handle*)&p_morespace);
 MyDisposeHandle((Handle*)&p_top);
@@ -1290,8 +1295,9 @@ text_style(htext,"arial");
 
 ymax = p_r->bottom;
 if(TRUE || ShowPianoRoll) {
-	sprintf(line_image,"HMAX=%ld\n",(long)resize * ymax);
-	fputs(line_image,imagePtr);
+	HeightMax = 2 * ymax + 20;
+	sprintf(Message,"HeightMax (2) = %ld\n",HeightMax);
+	BPPrintMessage(odInfo,Message);
 	}
 
 // Draw scale ruler
@@ -1488,8 +1494,6 @@ return(OK);
 }
 
 // ------- GRAPHIC CONVERSION -------
-
-
 
 void begin_path() {
 	char line[100];

@@ -406,8 +406,12 @@ if(showpianoroll) {
 	if(endxmax < 100) endxmax = 100;
 	endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
 	
-	sprintf(line_image,"WMAX=%ld\n",(long)resize * (endxmax + 20));
-	fputs(line_image,imagePtr);
+//	sprintf(line_image,"WMAX=%ld\n",(long)resize * (endxmax + 20));
+//	WidthMax = (resize * endxmax) + 20;
+	WidthMax = 2 * endxmax + 20;
+	sprintf(Message,"WidthMax (3) = %ld\n",WidthMax);
+	BPPrintMessage(odInfo,Message);
+//	fputs(line_image,imagePtr);
 	
 	graphrect.top = graphrect.left = 0;
 	graphrect.bottom = graphrect.top + endymax;

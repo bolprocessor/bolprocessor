@@ -1092,7 +1092,9 @@ long LineStartPos(int,int,int);
 void CloseFile(FILE* file);
 void CreateImageFile(void);
 void EndImageFile(void);
-void remove_spaces(const char*, char*);
+void remove_spaces(const char*,char*);
+void remove_final_linefeed(const char*,char*);
+
 
 void begin_path();
 void end_path();
@@ -1109,6 +1111,9 @@ void draw_line(int,int,int,int,char*);
 void stroke_rect(Rect*);
 void fill_rect(Rect*,char*);
 void resize_rect(Rect*,int,int);
+
+char *repl_str(const char*, const char*, const char*);
+char *recode_tags(const char*);
 
 
 #if !TARGET_API_MAC_CARBON
