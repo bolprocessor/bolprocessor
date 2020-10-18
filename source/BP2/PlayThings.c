@@ -332,29 +332,32 @@ sprintf(Message,"\ntmin = %ld, tmax = %ld\n\n",(long)tmin,(long)tmax);
 // BPPrintMessage(odInfo,Message);
 
 if(ShowGraphic) BPPrintMessage(odInfo, "Shall we draw graphics?\n");
+
+// Probably the following decision tree should be simplified!
 if(onlypianoroll
 		|| (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && (tmax > tmin || Nature_of_time == SMOOTH))) {
 	if(!ShowPianoRoll && !onlypianoroll) {
 		result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
+		if(OutCsound ||WriteMIDIfile) result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,YES,NULL);
 		}
 	else
-//		result = MakeSound(pp_buff,&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,YES,NULL);
 		result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,YES,NULL);
 	}
-if(result == AGAIN) {
+else if(OutCsound || WriteMIDIfile) result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,YES,NULL);
+
+/*if(result == AGAIN) {    // NOT USED AT THE MOMENT
 	again = TRUE;
 	result = OK;
 	}
-if(onlypianoroll) goto RELEASE;
+if((onlypianoroll || ShowPianoRoll) && !OutCsound) goto RELEASE;
 
 PLAYIT:
-// if(result == OK) result = MakeSound(pp_buff,&kmax,maxseq,nmax+1,&p_b,tmin,tmax,YES,NO,NULL);
 if(result == OK) result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,YES,NO,NULL);
 if(result == AGAIN) again = TRUE;
 if(again || EventState == AGAIN) {
 	again = FALSE; result = OK;
 	goto PLAYIT;
-	}
+	} */
 
 RELEASE:
 TempMemory = FALSE;

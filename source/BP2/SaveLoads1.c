@@ -1451,7 +1451,11 @@ Oms = FALSE;	// OMS is no more
    -- 012307 akozar */
 #if !WITH_REAL_TIME_MIDI
   OutMIDI = FALSE;
+  Improvize = FALSE;
 #endif
+
+Improvize = FALSE;
+if(Improvize) ShowPianoRoll = ShowObjectGraph = ShowGraphic = 0;
 
 SetButtons(TRUE);
 

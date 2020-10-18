@@ -1676,17 +1676,19 @@ MySetHandleSize((Handle*)&p_articul,(Size)Maxevent*sizeof(short));
 MySetHandleSize((Handle*)&p_T,(Size) (*p_maxseq+2)*sizeof(Milliseconds));
 
 if(DoSystem() != OK) return(ABORT);
-// if BP_CARBON_GUI
-if(!foundobject && ShowGraphic && !ShowPianoRoll && !ScriptExecOn && Jbol < 3
+
+if(!foundobject && ShowGraphic && !ShowObjectGraph && !ShowPianoRoll && !ScriptExecOn && Jbol < 3
 		&& Jpatt == 0 && ((*p_numberobjects) > 30) && !ToldAboutPianoRoll) {
-// if(ShowGraphic) {
 	ToldAboutPianoRoll = TRUE;
 	ShowPianoRoll = TRUE;
 	BPPrintMessage(odInfo,"This project doesn't require sound-objects. We'll use piano roll display\n");
 	}
-// endif BP_CARBON_GUI
-if(ShowPianoRoll && ShowGraphic) {
-	ShowGraphic = FALSE;
+
+if(ShowGraphic && !ShowObjectGraph && !ShowPianoRoll)
+	ShowObjectGraph = TRUE;
+	
+if(ShowPianoRoll) {
+	ShowObjectGraph = FALSE;
 	// BPPrintMessage(odInfo, "Since ShowPianoRoll is on, ShowGraphic = FALSE\n");
 	}
 if(show_details_diagram) BPPrintMessage(odInfo, "Finished filling phase diagram\n");

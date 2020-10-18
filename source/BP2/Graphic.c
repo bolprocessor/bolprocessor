@@ -69,6 +69,8 @@ char line[BOLSIZE+5],line2[BOLSIZE+1],someline[200];
 char* thisline;
 p_list **waitlist;
 
+if(!ShowObjectGraph || ShowPianoRoll) return(OK);
+
 if(tmin == Infpos) {
 	BPPrintMessage(odInfo,"Err. DrawObject(). tmin == Infpos\n");
 	return(OK);
@@ -77,7 +79,6 @@ if(CheckLoadedPrototypes() != OK) {
 	BPPrintMessage(odInfo,"No sound-object prototypes have been loaded. Graphic is cancelled.\n");
 	return(OK);
 	}
-if(!ShowGraphic) return(OK);
 BPPrintMessage(odInfo,"==> Yes, drawing graphics in ‘objects’ mode...\n");
 if(show_more_details) BPPrintMessage(odInfo,"Jbol = %d Jpatt = %d\n",Jbol,Jpatt);
 
