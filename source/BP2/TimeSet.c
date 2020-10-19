@@ -33,7 +33,7 @@
 
 
 #ifndef DISPLAY_PHASE_DIAGRAM
-#define DISPLAY_PHASE_DIAGRAM 0
+#define DISPLAY_PHASE_DIAGRAM 1
 #endif
 
 #ifndef _H_BP2 
@@ -107,16 +107,12 @@ if(ShowMessages || bigitem) {
 	
 in = 1.; jn = ZERO;
 period = ((double) Pclock) * 1000. * CorrectionFactor / Qclock;
-k = 0;
+
 while(TRUE) {
 	jj= Class(in);
 	if(jj > maxseq) break;
 	if(jj > jn || in == 1.) {
 		jn = jj;		/* Write only once */
-	/*	if(++k > 50) {
-			PleaseWait();
-			k = 0;
-			} */
 		if(nature_time == STRIATED) {
 			(*p_T)[jn] = (Milliseconds) ((period * (in - 1.)) / Ratio);
 			}
@@ -128,14 +124,10 @@ while(TRUE) {
 // Now display phase diagram (optional)
 #if DISPLAY_PHASE_DIAGRAM
 
-// Print(wTrace,"\n");
 if(show_details_timeset) BPPrintMessage(odInfo,"\n");
-sprintf(Message,"Minconc = %ld    Maxconc = %ld\n\n",Minconc,Maxconc);
-if(show_details_timeset) BPPrintMessage(odInfo,Message);
-// Println(wTrace,Message);
-while(Button());
+if(show_details_timeset) BPPrintMessage(odInfo,"Minconc = %ld    Maxconc = %ld\n\n",Minconc,Maxconc);
+
 for(k=ZERO; k < Maxevent; k++) {
-//	if(Button()) break;
 	if((j=(*p_Instance)[k].object) >= 0) {
 		if(j >= Jbol) {
 			if(j < 16384)
@@ -167,86 +159,76 @@ for(k=ZERO; k < Maxevent; k++) {
 			}
 		else sprintf(Message,"(<<%s>> chan %ld)",*((*p_Bol)[j]),(long)ChannelConvert((*p_Instance)[k].channel));;
 		}
-//	Print(wTrace,Message);
-	BPPrintMessage(odInfo,Message);
+	if(show_details_timeset) BPPrintMessage(odInfo,Message);
 	}
-// Print(wTrace,"\n");
-BPPrintMessage(odInfo,"\n\n");
-for(nseq=0; nseq <= (*p_nmax); nseq++) {
-	if(Button()) break;
-	for(iseq=1L; iseq <= (*p_imaxseq)[nseq]; iseq++) {
-		if(Button()) break;
-		k = (*((*p_Seq)[nseq]))[iseq];
-		if(k >= 0) {
-			if((*p_ObjectSpecs)[k] != NULL) {
-				ptag = WaitList(k);
-				while(ptag != NULL) {
-					sprintf(Message,"<<W%ld>>",(long)((**ptag).x));
-					// Print(wTrace,Message);
-					BPPrintMessage(odInfo,Message);
-					ptag = (**ptag).p;
+	
+if(Maxevent < 100) {
+	BPPrintMessage(odInfo,"\n");
+	for(nseq=0; nseq < (*p_nmax); nseq++) {
+		for(iseq=1L; iseq <= (*p_imaxseq)[nseq]; iseq++) {
+			k = (*((*p_Seq)[nseq]))[iseq];
+			if(k >= 0) {
+				if((*p_ObjectSpecs)[k] != NULL) {
+					ptag = WaitList(k);
+					while(ptag != NULL) {
+						sprintf(Message,"<<W%ld>>",(long)((**ptag).x));
+						// Print(wTrace,Message);
+						BPPrintMessage(odInfo,Message);
+						ptag = (**ptag).p;
+						}
 					}
-				}
-			j = (*p_Instance)[k].object;
-			if(j >= 0) {
-				if(j >= Jbol) {
-					if(j < 16384)
-						sprintf(Message,"%s ",*((*p_Patt)[j-Jbol]));
+				j = (*p_Instance)[k].object;
+				if(j >= 0) {
+					if(j >= Jbol) {
+						if(j < 16384)
+							sprintf(Message,"%s ",*((*p_Patt)[j-Jbol]));
+						else {
+							key = j - 16384;
+							key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
+								&((*p_Instance)[k].map0),&((*p_Instance)[k].map1));
+							PrintNote(key,0,-1,LineBuff);
+							sprintf(Message,"%s ",LineBuff);
+							}
+						}
 					else {
-						key = j - 16384;
-						key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
-							&((*p_Instance)[k].map0),&((*p_Instance)[k].map1));
-						PrintNote(key,0,-1,LineBuff);
-						sprintf(Message,"%s ",LineBuff);
+						if(k > 1 && j == 1)
+						sprintf(Message,"~ ");
+						else sprintf(Message,"%s ",*((*p_Bol)[j]));
 						}
 					}
 				else {
+					j = -j;
 					if(k > 1 && j == 1)
-					sprintf(Message,"~ ");
-					else sprintf(Message,"%s ",*((*p_Bol)[j]));
-					}
-				}
-			else {
-				j = -j;
-				if(k > 1 && j == 1)
-					sprintf(Message,"<<~>> ");
-				else {
-					if(j < 16384)
-						sprintf(Message,"<<%s>> ",*((*p_Bol)[j]));
+						sprintf(Message,"<<~>> ");
 					else {
-						key = j - 16384;
-						key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
-							&((*p_Instance)[k].map0),&((*p_Instance)[k].map1));
-						PrintNote(key,0,-1,LineBuff);
-						sprintf(Message,"<<%s>> ",LineBuff);
+						if(j < 16384)
+							sprintf(Message,"<<%s>> ",*((*p_Bol)[j]));
+						else {
+							key = j - 16384;
+							key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
+								&((*p_Instance)[k].map0),&((*p_Instance)[k].map1));
+							PrintNote(key,0,-1,LineBuff);
+							sprintf(Message,"<<%s>> ",LineBuff);
+							}
 						}
 					}
 				}
+			else sprintf(Message,"%ld ",(long)k);
+			BPPrintMessage(odInfo,Message);
 			}
-		else sprintf(Message,"%ld ",(long)k);
-		// Print(wTrace,Message);
-		BPPrintMessage(odInfo,Message);
+		BPPrintMessage(odInfo,"\n");
 		}
-//	Print(wTrace,"\n");
+	sprintf(Message,"\nT[i], i = 1,%ld:\n",(long)maxseq);
+	if(show_details_timeset) BPPrintMessage(odInfo,Message);
+	for(i=1L; i <= maxseq; i++) {
+		sprintf(Message,"%ld ",(long)(*p_T)[i]);
+		if(show_details_timeset) BPPrintMessage(odInfo,Message);
+		}
 	BPPrintMessage(odInfo,"\n");
 	}
-// ShowSelect(CENTRE,wTrace);
-sprintf(Message,"\nT[i], i = 1,%ld:\n",(long)maxseq);
-// Print(wTrace,Message);
-BPPrintMessage(odInfo,Message);
-for(i=1L; i <= maxseq; i++) {
-//	if(Button()) break;
-	sprintf(Message,"%ld ",(long)(*p_T)[i]);
-//	Print(wTrace,Message);
-	BPPrintMessage(odInfo,Message);
-	}
-// Print(wTrace,"\n");
-BPPrintMessage(odInfo,"\n");
-// ShowSelect(CENTRE,wTrace);
+
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
-	// if(Button()) break;
 	for(iseq=1L; iseq <= (*p_imaxseq)[nseq]; iseq++) {
-	//	if(Button()) break;
 		k = (*((*p_Seq)[nseq]))[iseq];
 		if(k == -1) break;
 		if(k >= 0) {
@@ -258,16 +240,14 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 				}
 			j = (*p_Instance)[k].object;
 			if(j >= Jbol+Jpatt && j < 16384) {
-			//	Print(wTrace,"\nERR: j >= Jbol+Jpatt\n");
-				BPPrintMessage(odInfo,"\nERR: j >= Jbol+Jpatt\n");
+				BPPrintMessage(odInfo,"\nERROR: j >= Jbol+Jpatt\n");
 				return(ABORT);
 				}
 			}
 		else {
-			sprintf(Message,"nseq=%ld i=%ld im=%ul k=%ld",(long)nseq,(long)i,
+			sprintf(Message,"ERROR: k < 0 nseq=%ld i=%ld im=%ul k=%ld",(long)nseq,(long)i,
 				(unsigned long)maxseq,(long)k);
-		//	if(Beta) Alert1(Message);
-			BPPrintMessage(odInfo,Message);
+			if(show_details_timeset) BPPrintMessage(odInfo,Message);
 			}
 		}
 	}

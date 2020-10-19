@@ -406,21 +406,20 @@ if(showpianoroll) {
 	if(endxmax < 100) endxmax = 100;
 	endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
 	
-//	sprintf(line_image,"WMAX=%ld\n",(long)resize * (endxmax + 20));
-//	WidthMax = (resize * endxmax) + 20;
 	WidthMax = 2 * endxmax + 20;
 	sprintf(Message,"WidthMax (3) = %ld\n",WidthMax);
 	BPPrintMessage(odInfo,Message);
-//	fputs(line_image,imagePtr);
 	
 	graphrect.top = graphrect.left = 0;
 	graphrect.bottom = graphrect.top + endymax;
 	graphrect.right = graphrect.left + endxmax;
 	
-	BPPrintMessage(odInfo,"Drawing item background\n");
-	if((result=DrawItemBackground(&graphrect,imaxstreak,htext,hrect,leftoffset,NO,
-		p_delta,&yruler,topoffset,&overflow)) != OK || overflow) goto OUTGRAPHIC;
-	DrawNoteScale(&graphrect,w,minkey,maxkey,hrect,leftoffset,topoffset);
+	if(ShowGraphic) {
+		BPPrintMessage(odInfo,"Drawing item background\n");
+		if((result=DrawItemBackground(&graphrect,imaxstreak,htext,hrect,leftoffset,NO,
+			p_delta,&yruler,topoffset,&overflow)) != OK || overflow) goto OUTGRAPHIC;
+		DrawNoteScale(&graphrect,w,minkey,maxkey,hrect,leftoffset,topoffset);
+		}
 	
 	topoffset += 3;
 		

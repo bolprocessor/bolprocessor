@@ -375,6 +375,7 @@ r2 = r;
 resize_rect(&r2,+2,+2);
 erase_rect(&r2);
 
+// Draw box
 pen_size(4,0);
 stroke_style("black");
 stroke_rect(&r);
@@ -1419,7 +1420,7 @@ for(i=1L,rr=Ratio,k=0; i <= imax; i++, rr += Kpress) {
 			t2 = t1 + 12;
 			if(t1 > tmem3) {
 				fill_text(line,t1 - 5,y - 4);
-				tmem3 = t1 + 6 * strlen(line);
+				tmem3 = t1 + 8 * strlen(line);
 				}
 			pen_size(4,0);
 			draw_line(t1,y,t1,ymax,"");

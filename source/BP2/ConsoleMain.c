@@ -286,58 +286,62 @@ void EndImageFile(void)
   	pick_a_line = NULL;
 	fclose(imagePtr);
 	imagePtr = NULL;
-	BPPrintMessage(odInfo,"Closed temporary image file\n");
-	final_name = repl_str(imageFileName,"_temp","");
-	remove_spaces(final_name,final_name);
-	BPPrintMessage(odInfo,"Converting temporary image file to %s\n",final_name);
-	imagePtr = fopen(final_name,"w");
-	thisfile = fopen(imageFileName,"r");
-	free(final_name);
-	while((number = getline(&pick_a_line,&length,thisfile)) != -1) {
-		if(strstr(pick_a_line,"THE_TITLE") != NULLSTR) {
-			// remove_final_linefeed(pick_a_line,Message);
-			someline = repl_str(pick_a_line,"THE_TITLE",gOptions.inputFilenames[wGrammar]);
-			anotherline = recode_tags(pick_a_line);
-			remove_final_linefeed(anotherline,anotherline);
-		//	BPPrintMessage(odInfo,"Found: %s\n",anotherline);
-			fputs(someline,imagePtr);
-			someline = recode_tags(someline);
-			remove_final_linefeed(someline,someline);
-		//	BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
-		//	free(anotherline);
-		//	free(someline);
+	BPPrintMessage(odInfo,"Closing temporary image file\n");
+	if(ShowGraphic) {
+		final_name = repl_str(imageFileName,"_temp","");
+		remove_spaces(final_name,final_name);
+		BPPrintMessage(odInfo,"Converting temporary image file to %s\n",final_name);
+		imagePtr = fopen(final_name,"w");
+		thisfile = fopen(imageFileName,"r");
+		free(final_name);
+		while((number = getline(&pick_a_line,&length,thisfile)) != -1) {
+			if(strstr(pick_a_line,"THE_TITLE") != NULLSTR) {
+				// remove_final_linefeed(pick_a_line,Message);
+				someline = repl_str(pick_a_line,"THE_TITLE",gOptions.inputFilenames[wGrammar]);
+				anotherline = recode_tags(pick_a_line);
+				remove_final_linefeed(anotherline,anotherline);
+			//	BPPrintMessage(odInfo,"Found: %s\n",anotherline);
+				fputs(someline,imagePtr);
+				someline = recode_tags(someline);
+				remove_final_linefeed(someline,someline);
+			//	BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
+			//	free(anotherline);
+			//	free(someline);
+				}
+	      else if(strstr(pick_a_line,"THE_WIDTH") != NULLSTR) {
+			//	remove_final_linefeed(pick_a_line,Message);
+				sprintf(Message,"%ld",WidthMax);
+				someline = repl_str(pick_a_line,"THE_WIDTH",Message);
+				fputs(someline,imagePtr);
+				anotherline = recode_tags(pick_a_line);
+				remove_final_linefeed(anotherline,anotherline);
+			//	BPPrintMessage(odInfo,"Found: %s\n",anotherline);
+				someline = recode_tags(someline);
+				remove_final_linefeed(someline,someline);
+			//	BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
+				}
+	        else if(strstr(pick_a_line,"THE_HEIGHT") != NULLSTR) {
+			//	remove_final_linefeed(pick_a_line,Message);
+				sprintf(Message,"%ld",HeightMax);
+				someline = repl_str(pick_a_line,"THE_HEIGHT",Message);
+				fputs(someline,imagePtr);
+				anotherline = recode_tags(pick_a_line);
+				remove_final_linefeed(anotherline,anotherline);
+			//	BPPrintMessage(odInfo,"Found: %s\n",anotherline);
+				someline = recode_tags(someline);
+				remove_final_linefeed(someline,someline);
+			//	BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
+				}
+	        else fputs(pick_a_line,imagePtr);
+	     //   free(pick_a_line);
 			}
-      else if(strstr(pick_a_line,"THE_WIDTH") != NULLSTR) {
-		//	remove_final_linefeed(pick_a_line,Message);
-			sprintf(Message,"%ld",WidthMax);
-			someline = repl_str(pick_a_line,"THE_WIDTH",Message);
-			fputs(someline,imagePtr);
-			anotherline = recode_tags(pick_a_line);
-			remove_final_linefeed(anotherline,anotherline);
-		//	BPPrintMessage(odInfo,"Found: %s\n",anotherline);
-			someline = recode_tags(someline);
-			remove_final_linefeed(someline,someline);
-		//	BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
-			}
-        else if(strstr(pick_a_line,"THE_HEIGHT") != NULLSTR) {
-		//	remove_final_linefeed(pick_a_line,Message);
-			sprintf(Message,"%ld",HeightMax);
-			someline = repl_str(pick_a_line,"THE_HEIGHT",Message);
-			fputs(someline,imagePtr);
-			anotherline = recode_tags(pick_a_line);
-			remove_final_linefeed(anotherline,anotherline);
-		//	BPPrintMessage(odInfo,"Found: %s\n",anotherline);
-			someline = recode_tags(someline);
-			remove_final_linefeed(someline,someline);
-		//	BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
-			}
-        else fputs(pick_a_line,imagePtr);
-     //   free(pick_a_line);
+		fclose(thisfile);
+		fclose(imagePtr);
+		free(someline);
+		imagePtr = NULL;
 		}
-	fclose(thisfile);
-	fclose(imagePtr);
-	free(someline);
-	imagePtr = NULL;
+	BPPrintMessage(odInfo,"Removing: %s\n",imageFileName);
+	remove(imageFileName);
 	return;
 }
 
