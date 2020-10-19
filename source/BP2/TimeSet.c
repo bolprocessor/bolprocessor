@@ -164,7 +164,7 @@ for(k=ZERO; k < Maxevent; k++) {
 	
 if(Maxevent < 100) {
 	BPPrintMessage(odInfo,"\n");
-	for(nseq=0; nseq < (*p_nmax); nseq++) {
+	for(nseq=0; nseq < ((*p_nmax) - 1); nseq++) { // The last line is only silences
 		for(iseq=1L; iseq <= (*p_imaxseq)[nseq]; iseq++) {
 			k = (*((*p_Seq)[nseq]))[iseq];
 			if(k >= 0) {

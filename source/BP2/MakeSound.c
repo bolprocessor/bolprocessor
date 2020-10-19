@@ -378,6 +378,7 @@ if(showpianoroll) {
 						c1 = ExpandKey(c1,(*p_Instance)[k].xpandkey,(*p_Instance)[k].xpandval);
 						if(!(*p_Instance)[k].lastistranspose) TransposeKey(&c1,trans);
 						key = c1;
+					//	BPPrintMessage(odInfo,"k = %d j = %d key = %d   minkey = %d\n",k,j,key,minkey);
 						if(key < minkey) minkey = key;
 						if(key > maxkey) maxkey = key;
 						}
@@ -388,6 +389,7 @@ if(showpianoroll) {
 			}
 		else {
 			key = GoodKey(j);
+		//	BPPrintMessage(odInfo,"key = %d\n",key);
 			if((*p_Instance)[k].lastistranspose) TransposeKey(&key,trans);
 			key = ExpandKey(key,(*p_Instance)[k].xpandkey,(*p_Instance)[k].xpandval);
 			if(!(*p_Instance)[k].lastistranspose) TransposeKey(&key,trans);
@@ -405,7 +407,7 @@ if(showpianoroll) {
 	endxmax = leftoffset + 50 + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10;
 	if(endxmax < 100) endxmax = 100;
 	endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
-	
+//	BPPrintMessage(odInfo,"minkey = %d maxkey = %d endymax = %d\n",minkey,maxkey,endymax);
 	WidthMax = 2 * endxmax + 20;
 	sprintf(Message,"WidthMax (3) = %ld\n",WidthMax);
 	BPPrintMessage(odInfo,Message);

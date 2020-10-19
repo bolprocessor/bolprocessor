@@ -1400,7 +1400,7 @@ for(i=1L,rr=Ratio,k=0; i <= imax; i++, rr += Kpress) {
 	}
 
 // We draw horizontal white lines to break time subdivisional time streaks
-pen_size(8,0);
+pen_size(1,0);
 stroke_style("white");
 for(y_curr = y; y_curr < ymax; y_curr  += 6) {
 	draw_line(leftoffset,y_curr,xmax,y_curr,"");
@@ -1409,6 +1409,7 @@ for(y_curr = y; y_curr < ymax; y_curr  += 6) {
 // Major time streaks
 pen_size(1,0);
 stroke_style("blue");
+text_style(10,"arial");
 for(i=1L,rr=Ratio,k=0; i <= imax; i++, rr += Kpress) {
 	t1 = (*p_T)[i] / CorrectionFactor;
 	if(p_delta != NULL) t1 += (*p_delta)[i];
@@ -1420,7 +1421,7 @@ for(i=1L,rr=Ratio,k=0; i <= imax; i++, rr += Kpress) {
 			t2 = t1 + 12;
 			if(t1 > tmem3) {
 				fill_text(line,t1 - 5,y - 4);
-				tmem3 = t1 + 8 * strlen(line);
+				tmem3 = t1 + 7 * strlen(line);
 				}
 			pen_size(4,0);
 			draw_line(t1,y,t1,ymax,"");
@@ -1429,6 +1430,7 @@ for(i=1L,rr=Ratio,k=0; i <= imax; i++, rr += Kpress) {
 		k++;
 		}
 	}
+text_style(htext,"arial");
 stroke_style("black");
 
 ENDSTREAKS:
@@ -1441,9 +1443,10 @@ int DrawPianoNote(int key,int nseq,int chan,Milliseconds timeoff,
 	int leftoffset,int topoffset,int hrect,int minkey,int maxkey,Rect *p_r,int *p_overflow)
 {
 Milliseconds timeon;
-long x,y;
+int x1, x2, y;
 Rect r;
 char* word;
+int length;
 
 if(key < 0 || key > 127) {
 	return(OK);
@@ -1455,12 +1458,18 @@ timeon = (*((*pp_currentparams)[nseq]))->starttime[key] * 1000.;
 timeon = Round(((double)timeon * GraphicScaleP) / GraphicScaleQ / 10.);
 timeoff = Round(((double)timeoff * GraphicScaleP) / GraphicScaleQ / 10.);
 
-x = p_r->left + leftoffset + timeon;
+x1 = p_r->left + leftoffset + timeon;
 y = (maxkey - key - 1) * hrect + topoffset;
+x2 = x1 + timeoff - timeon;
+length = x2 - x1;
+if(length < 2) {
+	x2 += 1;
+	x1 -= 1;
+	}
 
 pen_size(8,0);
 stroke_style("brown");
-draw_line((int)x,(int)y,(int)(x+timeoff-timeon),(int)y,"round");
+draw_line(x1,y,x2,y,"round");
 return(OK);
 }
 
@@ -1471,17 +1480,18 @@ int y,key,xmin,xmax;
 char line[20];
 
 pen_size(2,0);
-xmin = p_r->left + 43;
-xmax = p_r->right - 30;
+xmin = p_r->left + 41;
+xmax = p_r->right - 28;
 stroke_style("rgb(0,117,117)");
 fill_style("black");
+text_style(11,"arial");
 for(key=0; key < 128; key+=12) {
 	if(key < minkey || key > maxkey) continue;
 	y = (maxkey - key) * hrect + topoffset;
 	// sprintf(line,"C%ld",(long)((key - (key % 12))/12)-1L);
 	PrintNote(key,0,-1,line);
 	fill_text(line,2,y + 3);
-	fill_text(line,xmax+ 6,y + 3);
+	fill_text(line,xmax+ 7,y + 3);
 	draw_line(xmin,y,xmax,y,"");
 	}
 stroke_style("rgb(186,186,0)");
@@ -1492,9 +1502,10 @@ for(key=6; key < 128; key+=12) {
 	// sprintf(line,"F#%ld",(long)((key - (key % 12))/12)-1L);
 	PrintNote(key,0,-1,line);
 	fill_text(line,2,y + 3);
-	fill_text(line,xmax + 6,y + 3);
+	fill_text(line,xmax + 7,y + 3);
 	draw_line(xmin,y,xmax,y,"");
 	}
+text_style(12,"arial");
 stroke_style("black");
 fill_style("black");
 return(OK);
@@ -1625,7 +1636,7 @@ void fill_rect(Rect* p_r,char* color) {
 void text_style(int size,char* font) {
 	char line[100];
 	if(strcmp(graphic_scheme,"canvas") == 0) {
-		sprintf(line,"ctx.font = \"%ldpx %s\";\n",(long)resize *size,font);
+		sprintf(line,"ctx.font = \"%ldpx %s\";\n",(long)(resize *size),font);
 		fputs(line,imagePtr);
 		}
 	}
