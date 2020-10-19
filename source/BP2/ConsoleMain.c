@@ -297,14 +297,13 @@ void EndImageFile(void)
 		if(strstr(pick_a_line,"THE_TITLE") != NULLSTR) {
 			// remove_final_linefeed(pick_a_line,Message);
 			someline = repl_str(pick_a_line,"THE_TITLE",gOptions.inputFilenames[wGrammar]);
-		//	someline = repl_str(pick_a_line,"THE_TITLE","some title");
 			anotherline = recode_tags(pick_a_line);
 			remove_final_linefeed(anotherline,anotherline);
-			BPPrintMessage(odInfo,"Found: %s\n",anotherline);
+		//	BPPrintMessage(odInfo,"Found: %s\n",anotherline);
 			fputs(someline,imagePtr);
 			someline = recode_tags(someline);
 			remove_final_linefeed(someline,someline);
-			BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
+		//	BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
 		//	free(anotherline);
 		//	free(someline);
 			}
@@ -315,10 +314,10 @@ void EndImageFile(void)
 			fputs(someline,imagePtr);
 			anotherline = recode_tags(pick_a_line);
 			remove_final_linefeed(anotherline,anotherline);
-			BPPrintMessage(odInfo,"Found: %s\n",anotherline);
+		//	BPPrintMessage(odInfo,"Found: %s\n",anotherline);
 			someline = recode_tags(someline);
 			remove_final_linefeed(someline,someline);
-			BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
+		//	BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
 			}
         else if(strstr(pick_a_line,"THE_HEIGHT") != NULLSTR) {
 		//	remove_final_linefeed(pick_a_line,Message);
@@ -327,10 +326,10 @@ void EndImageFile(void)
 			fputs(someline,imagePtr);
 			anotherline = recode_tags(pick_a_line);
 			remove_final_linefeed(anotherline,anotherline);
-			BPPrintMessage(odInfo,"Found: %s\n",anotherline);
+		//	BPPrintMessage(odInfo,"Found: %s\n",anotherline);
 			someline = recode_tags(someline);
 			remove_final_linefeed(someline,someline);
-			BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
+		//	BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
 			}
         else fputs(pick_a_line,imagePtr);
      //   free(pick_a_line);

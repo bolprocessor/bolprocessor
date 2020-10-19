@@ -67,6 +67,7 @@ Rect r, r2;
 char label[BOLSIZE+5];
 char line[BOLSIZE+5],line2[BOLSIZE+1],someline[200];
 char* thisline;
+unsigned char c;
 p_list **waitlist;
 
 if(!ShowObjectGraph || ShowPianoRoll) return(OK);
@@ -135,11 +136,11 @@ linenum = 0; linemax = 1;
 Hmin[w] = 0;
 Vmin[w] = 0;;
 for(nseq = nmin; nseq <= nmax; nseq++) {
-	if(show_more_details) BPPrintMessage(odInfo,"nseq = %d\n",nseq);
+	if(show_more_details) BPPrintMessage(odInfo,"\nnseq = %d\n",nseq);
 	foundone = FALSE;
 	for(i=1; i < (*p_imaxseq)[nseq] && i <= imax; i++) {
 		k = (*((*p_Seq)[nseq]))[i];
-		if(show_more_details) BPPrintMessage(odInfo,"k = %d\n",k);
+		if(show_more_details) BPPrintMessage(odInfo,"\nk = %d\n",k);
 		if(k < 0) BPPrintMessage(odInfo,"Err. 'k' in DrawItem().\n");
 		if(k < 2) continue;	/* Reject '_' and '-' */
 		if(kmode) {
@@ -185,7 +186,10 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 		if(j > 0) {
 			if(j >= Jbol && j < 16384) sprintf(line,"%s",*((*p_Patt)[j-Jbol]));
 			else {
-				if(j < 16364) sprintf(line,"%s",*((*p_Bol)[j]));
+				if(j < 16364) {
+					sprintf(line,"%s",*((*p_Bol)[j]));
+					if(show_more_details) BPPrintMessage(odInfo,"(*p_Bol)[%ld] = %s\n",(long)j,line);
+					}
 				else {
 					key = j - 16384;
 					if((*p_Instance)[k].lastistranspose)
@@ -225,9 +229,11 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			}
 	//	strcpy(label,line);
 		for(xc = 0; xc < strlen(line); xc++) {
-			if(line[xc] == '"') label[xc] = "'";
+			c = (unsigned char) line[xc];
+			if(c == '"') label[xc] = "-"; // Quotes need to be replaced as they would jam fill_text()
 			else label[xc] = line[xc];
 			}
+		label[xc] = '\0';
 		tab = ((int) t2 - (int) t1 - strlen(line)) / 2;
 		if(tab < 2) tt1 = (int) t1 + leftoffset + 1 + tab;
 		sprintf(Message,"t1 = %ld tt1= %ld endx = %ld\n",(long)t1,(long)tt1,(long) (*p_endx)[linenum]);
@@ -1574,6 +1580,7 @@ void stroke_text(char* txt,int x,int y) {
 
 void fill_text(char* txt,int x,int y) {
 	char line[500];
+	if(show_more_details) BPPrintMessage(odInfo,"text = %s\n",txt);
 	if(strcmp(graphic_scheme,"canvas") == 0) {
 		sprintf(line,"ctx.fillText(\"%s\",%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
 		fputs(line,imagePtr);
