@@ -45,6 +45,7 @@ extern FILE * imagePtr;
 
 char graphic_scheme[] = "canvas";
 int resize = 4; // Rescaling the image to get high resolution
+int Lastx2[MAXKEY];
 
 // Flags for debugging:
 int try_pivots = 0;
@@ -1458,18 +1459,17 @@ timeon = (*((*pp_currentparams)[nseq]))->starttime[key] * 1000.;
 timeon = Round(((double)timeon * GraphicScaleP) / GraphicScaleQ / 10.);
 timeoff = Round(((double)timeoff * GraphicScaleP) / GraphicScaleQ / 10.);
 
-x1 = p_r->left + leftoffset + timeon;
-y = (maxkey - key - 1) * hrect + topoffset;
+x1 = p_r->left + leftoffset + timeon;y = (maxkey - key - 1) * hrect + topoffset;
 x2 = x1 + timeoff - timeon;
+if((x1 - Lastx2[key]) < 4) {
+	x1 += 2; // Separate identical notes when replayed
+	}
 length = x2 - x1;
 if(length < 8) {
 	x2 += 2; // For out-time objects
 	x1 -= 2;
 	}
-else {
-	x2 -= 2; // Separate identical notes when replayed
-	}
-
+Lastx2[key] = x2;
 pen_size(8,0);
 stroke_style("brown");
 draw_line(x1,y,x2,y,"");

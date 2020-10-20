@@ -148,6 +148,7 @@ else return(FAILED);
 if((*(p_xy[5]))[j] < infinite_number) y3 = (*(p_xy[5]))[j];
 else return(FAILED);
 
+// BPPrintMessage(odError,"Infpos = %ld\n",Infpos);
 if(show_details_csound_maths) BPPrintMessage(odError,"x1 = %.3f y1 = %.3f x2 = %.3f y2 = %.3f x3 = %.3f y3 = %.3f \n",x1,y1,x2,y2,x3,y3);
 
 if(y1 < y2) p_r->crescent = TRUE;
