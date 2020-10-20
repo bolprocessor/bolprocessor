@@ -38,6 +38,7 @@
 
 #include "-BP2decl.h"
 
+show_details_csound_maths = 0;
 
 CompileRegressions(void)
 {
@@ -60,8 +61,7 @@ regression r;
 
 // Calculate quadratic regressions
 
-// PleaseWait();
-BPPrintMessage(odInfo,"Compiling regressions for Csound instrument %d\n",j);
+if(show_details_csound_maths) BPPrintMessage(odInfo,"Compiling regressions for Csound instrument %d\n",j);
 
 r = (*p_CsInstrument)[j].rPitchBend;
 if((result=Findabc(p_CsPitchBend,j,&r)) == ABORT) {
@@ -126,23 +126,29 @@ Findabc(double ***p_xy,int j,regression *p_r)
 {
 double x1,x2,x3,y1,y2,y22,y3,D,Da,Db,Dc,xmin,xmax,ymax,m;
 
+double infinite_number = 2147483647;
+// 2^31 - 1 (Mersenne) Used in the PHP interface andd in BP2.9.8
+// We use this number in replacement of Infpos
+
 p_r->a = 0.;  p_r->b = 1.;  p_r->c = 0.;
 p_r->isquadra12 = p_r->isquadra23 = TRUE;
 p_r->x2 = p_r->y2 = 0.;
 p_r->crescent = TRUE;
 
-if((*(p_xy[0]))[j] < Infpos) x1 /* = p_r->x1 */ = (*(p_xy[0]))[j];
+if((*(p_xy[0]))[j] < infinite_number) x1 /* = p_r->x1 */ = (*(p_xy[0]))[j];
 else return(FAILED);
-if((*(p_xy[1]))[j] < Infpos) x2 = p_r->x2 = (*(p_xy[1]))[j];
+if((*(p_xy[1]))[j] < infinite_number) x2 = p_r->x2 = (*(p_xy[1]))[j];
 else return(FAILED);
-if((*(p_xy[2]))[j] < Infpos) x3 /* = p_r->x3 */ = (*(p_xy[2]))[j];
+if((*(p_xy[2]))[j] < infinite_number) x3 /* = p_r->x3 */ = (*(p_xy[2]))[j];
 else return(FAILED);
-if((*(p_xy[3]))[j] < Infpos) y1 = (*(p_xy[3]))[j];
+if((*(p_xy[3]))[j] < infinite_number) y1 = (*(p_xy[3]))[j];
 else return(FAILED);
-if((*(p_xy[4]))[j] < Infpos) y2 = p_r->y2 = (*(p_xy[4]))[j];
+if((*(p_xy[4]))[j] < infinite_number) y2 = p_r->y2 = (*(p_xy[4]))[j];
 else return(FAILED);
-if((*(p_xy[5]))[j] < Infpos) y3 = (*(p_xy[5]))[j];
+if((*(p_xy[5]))[j] < infinite_number) y3 = (*(p_xy[5]))[j];
 else return(FAILED);
+
+if(show_details_csound_maths) BPPrintMessage(odError,"x1 = %.3f y1 = %.3f x2 = %.3f y2 = %.3f x3 = %.3f y3 = %.3f \n",x1,y1,x2,y2,x3,y3);
 
 if(y1 < y2) p_r->crescent = TRUE;
 else p_r->crescent = FALSE;
@@ -191,7 +197,7 @@ if((xmin - x2) * (xmin - x3) < 0.) goto NOTQUADRA23;
 return(OK);
 
 NOTMONOTONOUS:
-ShowMessage(TRUE,wMessage,"Can't determine mapping because functions are not monotonous, or xvalues are not crescent");
+ShowMessage(TRUE,wMessage,"Can't determine mapping because functions are not monotonous, or x values are not crescent");
 return(ABORT);
 
 NOTQUADRA12:
