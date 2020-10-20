@@ -770,7 +770,7 @@ int Y2K(void);
 int LoadWeights(void);
 int SaveWeights(void);
 int LoadKeyboard(short);
-int LoadCsoundInstruments(short,int);
+int LoadCsoundInstruments(int,int);
 int SaveKeyboard(FSSpec*);
 int SaveCsoundInstruments(FSSpec*);
 int LoadTimeBase(short);

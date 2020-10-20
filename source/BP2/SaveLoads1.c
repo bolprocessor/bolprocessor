@@ -39,6 +39,7 @@
 #include "-BP2decl.h"
 
 int show_details_load_prototypes = 0;
+int show_details_load_csound_instruments = 1;
 
 #if BP_CARBON_GUI
 #include "CarbonCompatUtil.h"
@@ -463,301 +464,6 @@ WRITE:
 	}
 err = NSWCleanupReply(&reply);
 return(FAILED);
-}
-
-
-LoadCsoundInstruments(short refnum,int manual)
-{
-int i,io,iv,ip,jmax,j,result,y,maxticks,maxbeats,arg,length;
-char **ptr;
-Handle **ptr2;
-CsoundParam **ptr3;
-long pos,x;
-char **p_line,**p_completeline;
-double r;
-
-iCsoundInstrument = 0;
-LoadOn++;
-pos = ZERO; Dirty[wCsoundInstruments] = CompiledRegressions = CompiledCsObjects = FALSE;
-p_line = p_completeline = NULL;
-if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-if(CheckVersion(&iv,p_line,FileName[wCsoundInstruments]) != OK) goto ERR;
-if(ReadOne(FALSE,TRUE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-GetDateSaved(p_completeline,&(p_FileInfo[wCsoundInstruments]));
-if(ReadInteger(refnum,&jmax,&pos) == FAILED) goto ERR;
-if(jmax < 16 || jmax > MAXCHAN) {
-	Alert1("This file is empty or in an unknown format");
-	goto QUIT;
-	}
-for(j=1; j <= jmax; j++) {
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	WhichCsoundInstrument[j] = i;
-	}
-if(iv > 11) {
-	if(ReadOne(FALSE,TRUE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-	MystrcpyHandleToString(MAXNAME,0,CsoundOrchestraName,p_completeline);
-	}
-else CsoundOrchestraName[0] = '\0';
-if(ReadInteger(refnum,&jmax,&pos) == FAILED) goto ERR;
-if(jmax <= 0) {
-	Alert1("This file is empty or in an unknown format");
-	goto QUIT;
-	}
-if((result=ResizeCsoundInstrumentsSpace(jmax)) != OK) goto ERR;
-result = FAILED;
-for(j=0; j < jmax; j++) {
-	PleaseWait();
-	if(ReadOne(FALSE,TRUE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-	ptr = (*pp_CsInstrumentName)[j];
-	if((*p_completeline)[0] != '\0') {
-		MystrcpyHandleToString(MAXLIN,0,LineBuff,p_completeline);
-		if(ShowMessages) ShowMessage(TRUE,wMessage,LineBuff);
-		if(MySetHandleSize((Handle*)&ptr,
-			(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
-				goto ERR;
-		MystrcpyHandleToHandle(0,&ptr,p_completeline);
-		(*pp_CsInstrumentName)[j] = ptr;
-		}
-	else (*((*pp_CsInstrumentName)[j]))[0] = '\0';
-	
-	if(ReadOne(FALSE,TRUE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-	ptr = (*pp_CsInstrumentComment)[j];
-	if((*p_completeline)[0] != '\0') {
-		if(MySetHandleSize((Handle*)&ptr,
-			(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
-				goto ERR;
-		MystrcpyHandleToHandle(0,&ptr,p_completeline);
-		(*pp_CsInstrumentComment)[j] = ptr;
-		}
-	else (*((*pp_CsInstrumentComment)[j]))[0] = '\0';
-	
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].iargmax = i;
-	
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrumentIndex)[j] = i;
-	
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsDilationRatioIndex)[j] = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsAttackVelocityIndex)[j] = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsReleaseVelocityIndex)[j] = i;
-	
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsPitchIndex)[j] = i;
-	
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsPitchFormat)[j] = i;
-	
-	if(ReadFloat(refnum,&r,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].pitchbendrange = r;
-	
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].rPitchBend.islogx = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].rPitchBend.islogy = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].rVolume.islogx = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].rVolume.islogy = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].rPressure.islogx = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].rPressure.islogy = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].rModulation.islogx = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].rModulation.islogy = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].rPanoramic.islogx = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].rPanoramic.islogy = i;
-	
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsPitchBendStartIndex)[j] = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsVolumeStartIndex)[j] = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsPressureStartIndex)[j] = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsModulationStartIndex)[j] = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsPanoramicStartIndex)[j] = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsPitchBendEndIndex)[j] = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsVolumeEndIndex)[j] = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsPressureEndIndex)[j] = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsModulationEndIndex)[j] = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsPanoramicEndIndex)[j] = i;
-
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].pitchbendtable = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].volumetable = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].pressuretable = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].modulationtable = i;
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	(*p_CsInstrument)[j].panoramictable = i;
-	
-	if(iv > 13) {
-		if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-		(*p_CsInstrument)[j].pitchbendGEN = i;
-		if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-		(*p_CsInstrument)[j].volumeGEN = i;
-		if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-		(*p_CsInstrument)[j].pressureGEN = i;
-		if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-		(*p_CsInstrument)[j].modulationGEN = i;
-		if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-		(*p_CsInstrument)[j].panoramicGEN = i;
-		}
-	else {
-		(*p_CsInstrument)[j].pitchbendGEN = (*p_CsInstrument)[j].volumeGEN
-			= (*p_CsInstrument)[j].pressureGEN = (*p_CsInstrument)[j].modulationGEN
-			= (*p_CsInstrument)[j].panoramicGEN = 7;
-		}
-
-	for(i=0; i < 6; i++) {
-		if(ReadFloat(refnum,&r,&pos) == FAILED) goto ERR;
-		(*(p_CsPitchBend[i]))[j] = r;
-		if(ReadFloat(refnum,&r,&pos) == FAILED) goto ERR;
-		(*(p_CsVolume[i]))[j] = r;
-		if(ReadFloat(refnum,&r,&pos) == FAILED) goto ERR;
-		(*(p_CsPressure[i]))[j] = r;
-		if(ReadFloat(refnum,&r,&pos) == FAILED) goto ERR;
-		(*(p_CsModulation[i]))[j] = r;
-		if(ReadFloat(refnum,&r,&pos) == FAILED) goto ERR;
-		(*(p_CsPanoramic[i]))[j] = r;
-		}
-		
-	for(ip=0; ip < (*p_CsInstrument)[j].ipmax; ip++) {
-		if((*p_CsInstrument)[j].paramlist == NULL) {
-			if(Beta) Alert1("Err. LoadCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
-			break;
-			}
-		ptr = (*((*p_CsInstrument)[j].paramlist))[ip].name;
-		MyDisposeHandle((Handle*)&ptr);
-		(*((*p_CsInstrument)[j].paramlist))[ip].name = NULL;
-		ptr = (*((*p_CsInstrument)[j].paramlist))[ip].comment;
-		MyDisposeHandle((Handle*)&ptr);
-		(*((*p_CsInstrument)[j].paramlist))[ip].comment = NULL;
-		}
-	ptr3 = (*p_CsInstrument)[j].paramlist;
-	MyDisposeHandle((Handle*)&ptr3);
-	(*p_CsInstrument)[j].paramlist = NULL;
-	(*p_CsInstrument)[j].ipmax = 0;
-	
-	if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-	if(i < 1) continue;
-	if(i > IPMAX) {
-		if(Beta) Alert1("Err. LoadCsoundInstruments(). i > IPMAX");
-		Alert1("This '-cs' file was created by a newer version of BP2. Some parameters may be ignored");
-		i = IPMAX;
-		}
-	if((ptr3=(CsoundParam**) GiveSpace((Size)(IPMAX * sizeof(CsoundParam)))) == NULL)
-		goto ERR;
-	(*p_CsInstrument)[j].paramlist = ptr3;
-	(*p_CsInstrument)[j].ipmax = i;
-	for(ip=0; ip < IPMAX; ip++) {
-		(*((*p_CsInstrument)[j].paramlist))[ip].name = NULL;
-		(*((*p_CsInstrument)[j].paramlist))[ip].comment = NULL;
-		ResetMoreParameter(j,ip);
-		}
-	
-	for(ip=0; ip < (*p_CsInstrument)[j].ipmax; ip++) {
-		if(ReadOne(FALSE,TRUE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-		length = MyHandleLen(p_completeline);
-		if(length > 0) {
-			if((ptr=(char**) GiveSpace((Size)((1L + length)
-				* sizeof(char)))) == NULL) goto ERR;
-			MystrcpyHandleToHandle(0,&ptr,p_completeline);
-			(*((*p_CsInstrument)[j].paramlist))[ip].name = ptr;
-			MyLock(FALSE,(Handle)p_completeline);
-			i = FixStringConstant(*p_completeline);
-			MyUnlock((Handle)p_completeline);
-			if(i >= 0) (*((*p_CsInstrument)[j].paramlist))[ip].nameindex = i;
-			}
-/*		else (*((*((*p_CsInstrument)[j].paramlist))[ip].name))[0] = '\0'; $$$ Fixed 7/3/98 */
-		
-		if(ReadOne(FALSE,TRUE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-		length = MyHandleLen(p_completeline);
-		if(length > 0) {
-			if((ptr=(char**) GiveSpace((Size)((1L + length)
-				* sizeof(char)))) == NULL) goto ERR;
-			MystrcpyHandleToHandle(0,&ptr,p_completeline);
-			(*((*p_CsInstrument)[j].paramlist))[ip].comment = ptr;
-			}
-		
-		if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-		(*((*p_CsInstrument)[j].paramlist))[ip].startindex = i;
-		if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-		(*((*p_CsInstrument)[j].paramlist))[ip].endindex = i;
-		if(iv > 12) {
-			if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-			(*((*p_CsInstrument)[j].paramlist))[ip].table = i;
-			if(ReadFloat(refnum,&r,&pos) == FAILED) goto ERR;
-			(*((*p_CsInstrument)[j].paramlist))[ip].defaultvalue = r;
-			if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-			(*((*p_CsInstrument)[j].paramlist))[ip].GENtype = i;
-			if(ReadInteger(refnum,&i,&pos) == FAILED) goto ERR;
-			(*((*p_CsInstrument)[j].paramlist))[ip].combinationtype = i;
-			if(i == MULT && fabs(r) < 0.01) {
-				(*((*p_CsInstrument)[j].paramlist))[ip].defaultvalue = 1.;
-				sprintf(Message,"In instrument %ld a default parameter value '%.3f' was replaced with '1' because its combination mode is multiplicative",
-					(long)(*p_CsInstrumentIndex)[j],r);
-				Alert1(Message);
-				}
-			}
-		else {
-			(*((*p_CsInstrument)[j].paramlist))[ip].table = -1;
-			(*((*p_CsInstrument)[j].paramlist))[ip].defaultvalue = 0.;
-			(*((*p_CsInstrument)[j].paramlist))[ip].GENtype = 7;
-			(*((*p_CsInstrument)[j].paramlist))[ip].combinationtype = ADD;
-			}
-		}
-	}
-if(ReadOne(FALSE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto QUIT;
-if(Mystrcmp(p_line,"_begin tables") == 0) {
-	ClearWindow(NO,wCsoundTables);
-	ReadFile(wCsoundTables,refnum);
-	Dirty[wCsoundTables] = FALSE;
-	}
-else ClearWindow(YES,wCsoundTables);
-goto QUIT;
-
-ERR:
-sprintf(Message,"Error reading '%s' Csound instrument file...",FileName[wCsoundInstruments]);
-Alert1(Message);
-FileName[wCsoundInstruments][0] = '\0';
-
-QUIT:
-result = OK;
-MyDisposeHandle((Handle*)&p_line);
-MyDisposeHandle((Handle*)&p_completeline);
-if(FSClose(refnum) != noErr) {
-	sprintf(Message,"Error closing '%s' Csound instrument file...",FileName[wCsoundInstruments]);
-	Alert1(Message);
-	result = FAILED;
-	}
-if(result == OK) {
-	Created[wCsoundInstruments] = TRUE;
-	LoadedCsoundInstruments = TRUE;
-/*	No SetName(wCsoundInstruments,TRUE,TRUE); */
-	}
-else	Created[wCsoundInstruments] = FALSE;
-HideWindow(Window[wMessage]);
-Dirty[wCsoundInstruments] = FALSE;
-if(iCsoundInstrument >= Jinstr) iCsoundInstrument = 0;
-SetCsoundInstrument(iCsoundInstrument,-1);
-LoadOn--;
-return(result);
 }
 
 
@@ -1334,6 +1040,311 @@ void GetStartupSettingsSpec(FSSpecPtr spec)
 }
 
 #endif /* BP_CARBON_GUI */
+
+
+int LoadCsoundInstruments(int checkversion,int tryname) 
+{
+int i,io,iv,ip,jmax,j,result,y,maxticks,maxbeats,arg,length;
+char **ptr;
+Handle **ptr2;
+CsoundParam **ptr3;
+long pos,x;
+char **p_line,**p_completeline;
+double r;
+FILE* csfile;
+
+iCsoundInstrument = 0;
+LoadOn++;
+pos = ZERO; Dirty[wCsoundInstruments] = CompiledRegressions = CompiledCsObjects = FALSE;
+p_line = p_completeline = NULL;
+
+csfile = fopen(FileName[wCsoundInstruments], "r");
+if (csfile == NULL) {
+	BPPrintMessage(odError, "Could not open csound instruments file %s\n",FileName[wCsoundInstruments]);
+	return FAILED;
+	}
+	
+if(ReadOne(FALSE,FALSE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+sprintf(Message,"Loading %s...",FileName[wCsoundInstruments]);
+ShowMessage(TRUE,wMessage,Message);
+if(show_details_load_csound_instruments) BPPrintMessage(odError, "Line = %s\n",*p_line);
+if(CheckVersion(&iv,p_line,FileName[wCsoundInstruments]) != OK) goto ERR;
+if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+// GetDateSaved(p_completeline,&(p_FileInfo[wCsoundInstruments]));
+if(ReadInteger(csfile,&jmax,&pos) == FAILED) goto ERR;
+if(jmax < 16 || jmax > MAXCHAN) {
+	BPPrintMessage(odError,"This file is empty or in an unknown format\n");
+	goto QUIT;
+	}
+for(j=1; j <= jmax; j++) {
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	WhichCsoundInstrument[j] = i;
+	}
+if(iv > 11) {
+	if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+	MystrcpyHandleToString(MAXNAME,0,CsoundOrchestraName,p_completeline);
+	}
+else CsoundOrchestraName[0] = '\0';
+if(show_details_load_csound_instruments) BPPrintMessage(odError,"CsoundOrchestraName = %s\n",CsoundOrchestraName);
+if(ReadInteger(csfile,&jmax,&pos) == FAILED) goto ERR;
+if(jmax <= 0) {
+	BPPrintMessage(odError,"This file is empty or in an unknown format\n");
+	goto QUIT;
+	}
+if((result=ResizeCsoundInstrumentsSpace(jmax)) != OK) goto ERR;
+result = FAILED;
+for(j=0; j < jmax; j++) {
+	ResetCsoundInstrument(j,YES,YES);
+	
+	if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+	ptr = (*pp_CsInstrumentName)[j];
+	if((*p_completeline)[0] != '\0') {
+		MystrcpyHandleToString(MAXLIN,0,LineBuff,p_completeline);
+	//	if(ShowMessages) ShowMessage(TRUE,wMessage,LineBuff);
+		BPPrintMessage(odError,"Loading Csound instrument %d = %s\n",j,LineBuff);
+		if(MySetHandleSize((Handle*)&ptr,
+			(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
+				goto ERR;
+		MystrcpyHandleToHandle(0,&ptr,p_completeline);
+		(*pp_CsInstrumentName)[j] = ptr;
+		}
+	else (*((*pp_CsInstrumentName)[j]))[0] = '\0';
+	
+	if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+	ptr = (*pp_CsInstrumentComment)[j];
+	if((*p_completeline)[0] != '\0') {
+		if(MySetHandleSize((Handle*)&ptr,
+			(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
+				goto ERR;
+		MystrcpyHandleToHandle(0,&ptr,p_completeline);
+		(*pp_CsInstrumentComment)[j] = ptr;
+		}
+	else (*((*pp_CsInstrumentComment)[j]))[0] = '\0';
+	
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].iargmax = i;
+	
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrumentIndex)[j] = i;
+	
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsDilationRatioIndex)[j] = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsAttackVelocityIndex)[j] = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsReleaseVelocityIndex)[j] = i;
+	
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsPitchIndex)[j] = i;
+	
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsPitchFormat)[j] = i;
+	
+	if(ReadFloat(csfile,&r,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].pitchbendrange = r;
+	
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].rPitchBend.islogx = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].rPitchBend.islogy = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].rVolume.islogx = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].rVolume.islogy = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].rPressure.islogx = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].rPressure.islogy = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].rModulation.islogx = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].rModulation.islogy = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].rPanoramic.islogx = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].rPanoramic.islogy = i;
+	
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsPitchBendStartIndex)[j] = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsVolumeStartIndex)[j] = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsPressureStartIndex)[j] = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsModulationStartIndex)[j] = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsPanoramicStartIndex)[j] = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsPitchBendEndIndex)[j] = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsVolumeEndIndex)[j] = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsPressureEndIndex)[j] = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsModulationEndIndex)[j] = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsPanoramicEndIndex)[j] = i;
+
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].pitchbendtable = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].volumetable = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].pressuretable = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].modulationtable = i;
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	(*p_CsInstrument)[j].panoramictable = i;
+	
+	if(iv > 13) {
+		if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+		(*p_CsInstrument)[j].pitchbendGEN = i;
+		if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+		(*p_CsInstrument)[j].volumeGEN = i;
+		if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+		(*p_CsInstrument)[j].pressureGEN = i;
+		if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+		(*p_CsInstrument)[j].modulationGEN = i;
+		if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+		(*p_CsInstrument)[j].panoramicGEN = i;
+		}
+	else {
+		(*p_CsInstrument)[j].pitchbendGEN = (*p_CsInstrument)[j].volumeGEN
+			= (*p_CsInstrument)[j].pressureGEN = (*p_CsInstrument)[j].modulationGEN
+			= (*p_CsInstrument)[j].panoramicGEN = 7;
+		}
+
+	for(i=0; i < 6; i++) {
+		if(ReadFloat(csfile,&r,&pos) == FAILED) goto ERR;
+		(*(p_CsPitchBend[i]))[j] = r;
+		if(ReadFloat(csfile,&r,&pos) == FAILED) goto ERR;
+		(*(p_CsVolume[i]))[j] = r;
+		if(ReadFloat(csfile,&r,&pos) == FAILED) goto ERR;
+		(*(p_CsPressure[i]))[j] = r;
+		if(ReadFloat(csfile,&r,&pos) == FAILED) goto ERR;
+		(*(p_CsModulation[i]))[j] = r;
+		if(ReadFloat(csfile,&r,&pos) == FAILED) goto ERR;
+		(*(p_CsPanoramic[i]))[j] = r;
+		}
+		
+	for(ip=0; ip < (*p_CsInstrument)[j].ipmax; ip++) {
+		if((*p_CsInstrument)[j].paramlist == NULL) {
+			if(Beta) Alert1("Err. LoadCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
+			break;
+			}
+		ptr = (*((*p_CsInstrument)[j].paramlist))[ip].name;
+		MyDisposeHandle((Handle*)&ptr);
+		(*((*p_CsInstrument)[j].paramlist))[ip].name = NULL;
+		ptr = (*((*p_CsInstrument)[j].paramlist))[ip].comment;
+		MyDisposeHandle((Handle*)&ptr);
+		(*((*p_CsInstrument)[j].paramlist))[ip].comment = NULL;
+		}
+	ptr3 = (*p_CsInstrument)[j].paramlist;
+	MyDisposeHandle((Handle*)&ptr3);
+	(*p_CsInstrument)[j].paramlist = NULL;
+	(*p_CsInstrument)[j].ipmax = 0;
+	
+	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+	if(i < 1) continue;
+	if(i > IPMAX) {
+		if(Beta) Alert1("Err. LoadCsoundInstruments(). i > IPMAX");
+		Alert1("This '-cs' file was created by a newer version of BP2. Some parameters may be ignored");
+		i = IPMAX;
+		}
+	if((ptr3=(CsoundParam**) GiveSpace((Size)(IPMAX * sizeof(CsoundParam)))) == NULL)
+		goto ERR;
+	(*p_CsInstrument)[j].paramlist = ptr3;
+	(*p_CsInstrument)[j].ipmax = i;
+	for(ip=0; ip < IPMAX; ip++) {
+		(*((*p_CsInstrument)[j].paramlist))[ip].name = NULL;
+		(*((*p_CsInstrument)[j].paramlist))[ip].comment = NULL;
+		ResetMoreParameter(j,ip);
+		}
+	
+	for(ip=0; ip < (*p_CsInstrument)[j].ipmax; ip++) {
+		if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+		length = MyHandleLen(p_completeline);
+		if(length > 0) {
+			if((ptr=(char**) GiveSpace((Size)((1L + length)
+				* sizeof(char)))) == NULL) goto ERR;
+			MystrcpyHandleToHandle(0,&ptr,p_completeline);
+			(*((*p_CsInstrument)[j].paramlist))[ip].name = ptr;
+			MyLock(FALSE,(Handle)p_completeline);
+			i = FixStringConstant(*p_completeline);
+			MyUnlock((Handle)p_completeline);
+			if(i >= 0) (*((*p_CsInstrument)[j].paramlist))[ip].nameindex = i;
+			}
+/*		else (*((*((*p_CsInstrument)[j].paramlist))[ip].name))[0] = '\0'; $$$ Fixed 7/3/98 */
+		
+		if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+		length = MyHandleLen(p_completeline);
+		if(length > 0) {
+			if((ptr=(char**) GiveSpace((Size)((1L + length)
+				* sizeof(char)))) == NULL) goto ERR;
+			MystrcpyHandleToHandle(0,&ptr,p_completeline);
+			(*((*p_CsInstrument)[j].paramlist))[ip].comment = ptr;
+			}
+		
+		if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+		(*((*p_CsInstrument)[j].paramlist))[ip].startindex = i;
+		if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+		(*((*p_CsInstrument)[j].paramlist))[ip].endindex = i;
+		if(iv > 12) {
+			if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+			(*((*p_CsInstrument)[j].paramlist))[ip].table = i;
+			if(ReadFloat(csfile,&r,&pos) == FAILED) goto ERR;
+			(*((*p_CsInstrument)[j].paramlist))[ip].defaultvalue = r;
+			if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+			(*((*p_CsInstrument)[j].paramlist))[ip].GENtype = i;
+			if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
+			(*((*p_CsInstrument)[j].paramlist))[ip].combinationtype = i;
+			if(i == MULT && fabs(r) < 0.01) {
+				(*((*p_CsInstrument)[j].paramlist))[ip].defaultvalue = 1.;
+				sprintf(Message,"In instrument %ld a default parameter value '%.3f' was replaced with '1' because its combination mode is multiplicative",
+					(long)(*p_CsInstrumentIndex)[j],r);
+				Alert1(Message);
+				}
+			}
+		else {
+			(*((*p_CsInstrument)[j].paramlist))[ip].table = -1;
+			(*((*p_CsInstrument)[j].paramlist))[ip].defaultvalue = 0.;
+			(*((*p_CsInstrument)[j].paramlist))[ip].GENtype = 7;
+			(*((*p_CsInstrument)[j].paramlist))[ip].combinationtype = ADD;
+			}
+		}
+	}
+if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto QUIT;
+if(Mystrcmp(p_line,"_begin tables") == 0) {
+//	ClearWindow(NO,wCsoundTables);
+//	ReadFile(wCsoundTables,csfile);
+	Dirty[wCsoundTables] = FALSE;
+	}
+// else ClearWindow(YES,wCsoundTables);
+goto QUIT;
+
+ERR:
+
+BPPrintMessage(odInfo,"Error reading '%s' Csound instrument file...\n",FileName[wCsoundInstruments]);
+// FileName[wCsoundInstruments][0] = '\0';
+
+QUIT:
+result = OK;
+MyDisposeHandle((Handle*)&p_line);
+MyDisposeHandle((Handle*)&p_completeline);
+CloseFile(csfile);
+if(result == OK) {
+	Created[wCsoundInstruments] = TRUE;
+	LoadedCsoundInstruments = TRUE;
+	}
+else	Created[wCsoundInstruments] = FALSE;
+
+Dirty[wCsoundInstruments] = FALSE;
+if(iCsoundInstrument >= Jinstr) iCsoundInstrument = 0;
+// SetCsoundInstrument(iCsoundInstrument,-1);
+LoadOn--;
+return(result);
+}
+
 
 int LoadSettings(const char *filename, int startup)
 {
@@ -2649,7 +2660,7 @@ LoadOn++;
 
 mifile = fopen(FileName[iObjects], "r");
 if (mifile == NULL) {
-	BPPrintMessage(odError, "Could not open prototypes file %s\n",FileName[iObjects][0]);
+	BPPrintMessage(odError, "Could not open prototypes file %s\n",FileName[iObjects]);
 	return FAILED;
 	}
 

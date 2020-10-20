@@ -60,7 +60,9 @@ regression r;
 
 // Calculate quadratic regressions
 
-PleaseWait();
+// PleaseWait();
+BPPrintMessage(odInfo,"Compiling regressions for Csound instrument %d\n",j);
+
 r = (*p_CsInstrument)[j].rPitchBend;
 if((result=Findabc(p_CsPitchBend,j,&r)) == ABORT) {
 	Alert1("Incorrect mapping for pitchbend");

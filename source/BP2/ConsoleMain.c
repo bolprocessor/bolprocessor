@@ -871,6 +871,12 @@ int LoadInputFiles(const char* pathnames[WMAX])
 						case wGlossary:			LoadedGl = TRUE; break;
 					}
 					break;
+				case wCsoundInstruments: 
+					BPPrintMessage(odInfo, "Reading object prototypes file %s...\n", pathnames[w]);
+					strcpy(FileName[wCsoundInstruments],pathnames[w]);
+					result = LoadCsoundInstruments(0,1);
+					if (result != OK)  return result;
+					break;
 				case iSettings:
 					BPPrintMessage(odInfo, "Reading settings file %s...\n", pathnames[w]);
 					result = LoadSettings(pathnames[w], FALSE);

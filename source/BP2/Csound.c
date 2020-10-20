@@ -47,7 +47,7 @@ char line[MAXFIELDCONTENT];
 int i,ip,channel;
 
 if(j < 0 || j >= Jinstr) {
-	if(Beta) Alert1("Err. SetCsoundInstrument(). Incorrect index");
+	Alert1("Err. SetCsoundInstrument(). Incorrect index");
 	return(FAILED);
 	}
 if((*p_CsInstrumentIndex)[j] > -1) {
@@ -736,8 +736,8 @@ int i,channel;
 
 if(!newinstr) {
 	// Jinstr has not been adjusted yet when resizing
-	if(j < 0 || j >= Jinstr) {
-		if(Beta) Alert1("Err. ResetCsoundInstrument(). Incorrect index");
+	if(j < 0 || j >= Jinstr) { 
+		BPPrintMessage(odError,"Err. ResetCsoundInstrument(). Incorrect index = %d\n",j);
 		return(FAILED);
 		}
 	for(channel=1; channel <= MAXCHAN; channel++) {
@@ -788,7 +788,7 @@ if(all || newinstr) (*p_CsInstrumentIndex)[j] = -1;
 if(!newinstr) {
 	for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
 		if((*p_CsInstrument)[j].paramlist == NULL) {
-			if(Beta) Alert1("Err. ResetCsoundInstrument(). (*p_CsInstrument)[j].paramlist == NULL");
+			BPPrintMessage(odError,"Err. ResetCsoundInstrument(). (*p_CsInstrument)[j].paramlist == NULL\n",j);
 			continue;
 			}
 		ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].name;

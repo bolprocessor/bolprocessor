@@ -77,7 +77,7 @@ SetTimeObjects(int bigitem,unsigned long **p_imaxseq,unsigned long maxseq,int *p
 	int *p_kmx,long *p_tmin,long *p_tmax,short **p_articul)
 
 {
-int nseq,r,rep,BTflag,result,stepthis,first,dirtymem,compiledmem,nature_time,a,j,key;
+int nseq,r,rep,BTflag,result,stepthis,first,dirtymem,compiledmem,nature_time,a,j,key,last_line;
 short **ptr;
 long k;
 long i,iseq;
@@ -101,8 +101,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 // Calculate time structure
 
 if(ShowMessages || bigitem) {
-	HideWindow(Window[wInfo]);
-	ShowMessage(TRUE,wMessage,"Setting time streaks...");
+	BPPrintMessage(odInfo,"Setting time streaks...\n");
 	}
 	
 in = 1.; jn = ZERO;
@@ -164,7 +163,9 @@ for(k=ZERO; k < Maxevent; k++) {
 	
 if(Maxevent < 100) {
 	BPPrintMessage(odInfo,"\n");
-	for(nseq=0; nseq < ((*p_nmax) - 1); nseq++) { // The last line is only silences
+	if((*p_nmax) > 1) last_line = (*p_nmax) - 1;
+	else last_line =  1;
+	for(nseq=0; nseq < last_line; nseq++) { // The last line is only silences
 		for(iseq=1L; iseq <= (*p_imaxseq)[nseq]; iseq++) {
 			k = (*((*p_Seq)[nseq]))[iseq];
 			if(k >= 0) {
@@ -255,8 +256,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 // End display Phase diagram
 
 if(ShowMessages || bigitem) {
-	sprintf(Message,"Positioning %ld sound-objects...",(long)(*p_kmx));
-	ShowMessage(TRUE,wMessage,Message);
+	BPPrintMessage(odInfo,"Positioning %ld sound-objects...\n",(long)(*p_kmx));
 	}
 if(DoSystem() != OK) return(ABORT);
 
