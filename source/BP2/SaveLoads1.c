@@ -39,7 +39,7 @@
 #include "-BP2decl.h"
 
 int show_details_load_prototypes = 0;
-int show_details_load_csound_instruments = 1;
+int show_details_load_csound_instruments = 0;
 
 #if BP_CARBON_GUI
 #include "CarbonCompatUtil.h"
@@ -1044,7 +1044,7 @@ void GetStartupSettingsSpec(FSSpecPtr spec)
 
 int LoadCsoundInstruments(int checkversion,int tryname) 
 {
-int i,io,iv,ip,jmax,j,result,y,maxticks,maxbeats,arg,length;
+int i,io,iv,ip,jmax,j,result,y,maxticks,maxbeats,arg,length,i_table;
 char **ptr;
 Handle **ptr2;
 CsoundParam **ptr3;
@@ -1055,7 +1055,8 @@ FILE* csfile;
 
 iCsoundInstrument = 0;
 LoadOn++;
-pos = ZERO; Dirty[wCsoundInstruments] = CompiledRegressions = CompiledCsObjects = FALSE;
+pos = ZERO;
+Dirty[wCsoundInstruments] = CompiledRegressions = CompiledCsObjects = FALSE;
 p_line = p_completeline = NULL;
 
 csfile = fopen(FileName[wCsoundInstruments], "r");
@@ -1067,6 +1068,7 @@ if (csfile == NULL) {
 if(ReadOne(FALSE,FALSE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 sprintf(Message,"Loading %s...",FileName[wCsoundInstruments]);
 ShowMessage(TRUE,wMessage,Message);
+
 if(show_details_load_csound_instruments) BPPrintMessage(odError, "Line = %s\n",*p_line);
 if(CheckVersion(&iv,p_line,FileName[wCsoundInstruments]) != OK) goto ERR;
 if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
@@ -1317,7 +1319,26 @@ if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED)
 if(Mystrcmp(p_line,"_begin tables") == 0) {
 //	ClearWindow(NO,wCsoundTables);
 //	ReadFile(wCsoundTables,csfile);
-	Dirty[wCsoundTables] = FALSE;
+//	Dirty[wCsoundTables] = FALSE;
+	i_table = 0;
+	while(TRUE) {
+		if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto QUIT;
+		if((i_table > 0) && strlen(*p_line) == 0) goto QUIT;
+		if(show_details_load_csound_instruments) BPPrintMessage(odError, "table line = %s\n",*p_line);
+		if(i_table >= MaxCsoundTables) {
+			p_CsoundTables = (char****) IncreaseSpace(p_CsoundTables);
+			MaxCsoundTables = (MyGetHandleSize((Handle)p_CsoundTables) / sizeof(char**));
+			for(i = i_table; i < MaxCsoundTables; i++) (*p_CsoundTables)[i] = NULL;
+			}
+		length = MyHandleLen(p_completeline);
+		if(length > 0) {
+			if((ptr=(char**) GiveSpace((Size)((1L + length)
+				* sizeof(char)))) == NULL) goto ERR;
+			MystrcpyHandleToHandle(0,&ptr,p_completeline);
+			(*p_CsoundTables)[i_table] = ptr;
+			}
+		i_table++;
+		}
 	}
 // else ClearWindow(YES,wCsoundTables);
 goto QUIT;

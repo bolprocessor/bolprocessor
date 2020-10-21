@@ -244,6 +244,7 @@ int PrepareCsFile(void)
 static int MakeCsoundScoreFile(OutFileInfo* finfo)
 {	
 	FILE *fout;
+	int i, i_table;
 	
 	if (strcmp(finfo->name, "-") == 0)	{
 		// if name is "-", use stdout and don't "open" finfo
@@ -267,20 +268,21 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo)
 		ShowMessage(TRUE,wMessage,"Can't write to Csound score file. Unknown error 1");
 		CloseCsScore();
 		return(ABORT);
-	}
-	
-	// FIXME: should write Csound tables here 
-	// WriteFile(TRUE,CsoundFileFormat,CsRefNum,wCsoundTables,length);
-
-	// TEMP:
-	if(WriteToFile(NO,CsoundFileFormat,"f1 0 32768 10 1 ; This table may be changed\n",CsRefNum) != OK) {
-		ShowMessage(TRUE,wMessage,"Can't write to Csound score file. Unknown error 2");
-		CloseCsScore();
-		return(ABORT);
-	}
-	
+		}
+	i_table = 0;
+	for(i = 0; i < MaxCsoundTables; i++) {
+		if((*p_CsoundTables)[i] !=  NULL) {
+			i_table++;
+			WriteToFile(NO,CsoundFileFormat,(*(*p_CsoundTables)[i]),CsRefNum);
+			}
+		}
+	if(i_table == 0)
+		WriteToFile(NO,CsoundFileFormat,"f1 0 32768 10 1 ; This table may be changed\n",CsRefNum);
+	else
+		WriteToFile(NO,CsoundFileFormat,"",CsRefNum);
 	return OK;
 }
+
 
 int CloseCsScore(void)
 {

@@ -2013,7 +2013,7 @@ if(EventState == AGAIN) result = AGAIN;
 
 if(cswrite && result == OK) {
 	if(!ConvertMIDItoCsound) {
-		WriteToFile(NO,CsoundFileFormat,"s\n",CsRefNum);
+		WriteToFile(NO,CsoundFileFormat,"s",CsRefNum);
 		if(CsoundTrace) Println(wTrace,"s\n");
 		}
 	else {

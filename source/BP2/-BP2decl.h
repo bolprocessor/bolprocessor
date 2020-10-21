@@ -207,7 +207,8 @@ extern char **p_AlphaCtrlNr,**p_AlphaCtrlChan,**p_DefaultChannel,**p_PasteDone,
 	**p_BreakTempoMode,**p_ContBegMode,**p_ContEndMode,**p_CoverBegMode,**p_CoverEndMode,
 	**p_TruncBegMode,**p_TruncEndMode,**p_PreRollMode,**p_PostRollMode,
 	**p_PeriodMode,**p_ForceIntegerPeriod,**p_StrikeAgain,**p_CompiledCsoundScore,
-	****pp_Comment,****pp_CsoundScoreText;
+	****pp_Comment,****pp_CsoundScoreText,****p_CsoundTables;
+extern int MaxCsoundTables;
 extern CsoundLine ****pp_CsoundScore;
 extern double **p_AlphaMin,**p_AlphaMax,**p_Quan,ForceRatio,Infpos1;
 extern float **p_PivPos,**p_BeforePeriod;

@@ -680,6 +680,11 @@ for(j=0; j < Jinstr; j++) {
 	ptr = (Handle) (*p_CsInstrument)[j].paramlist;
 	MyDisposeHandle(&ptr);
 	}
+for(i = 0; i < MaxCsoundTables; i++) {
+	ptr = (Handle) (*p_CsoundTables)[i];
+	MyDisposeHandle(&ptr);
+	}
+MyDisposeHandle((Handle*)&p_CsoundTables);
 MyDisposeHandle((Handle*)&p_CsInstrument);
 MyDisposeHandle((Handle*)&pp_CsInstrumentName);
 MyDisposeHandle((Handle*)&pp_CsInstrumentComment);
@@ -723,6 +728,9 @@ if(howmany == 0) {
 	return(ReleaseCsoundInstruments());
 	}
 if(Jinstr == 0) {
+	if((p_CsoundTables=(char****) GiveSpace((Size)2 *sizeof(char**))) == NULL) return(ABORT);
+	MaxCsoundTables = 2;
+	for(i=0; i < MaxCsoundTables; i++) (*p_CsoundTables)[i] = NULL;
 	if((p_CsInstrument=(CsoundInstrument**) GiveSpace((Size)howmany * sizeof(CsoundInstrument))) == NULL) return(ABORT);
 	if((p_CsInstrumentIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
 	if((p_CsPitchFormat=(char**) GiveSpace((Size)howmany * sizeof(char))) == NULL) return(ABORT);
@@ -880,7 +888,7 @@ return(DoSystem());
 
 MakeSoundObjectSpace(void)
 {
-int j,**ptr;
+int i,j,**ptr;
 MIDIcode **ptr1;
 Milliseconds **ptr2;
 
