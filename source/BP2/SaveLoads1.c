@@ -1546,6 +1546,7 @@ if(iv > 11) {
 	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	if(iv > 15) UseBullet = j;
 	else UseBullet = TRUE;
+	UseBullet = FALSE; // FIXED by BB 2020-10-22
 	if(UseBullet) Code[7] = '¥';
 	else Code[7] = '.';
 	}
