@@ -892,6 +892,8 @@ int i,j,**ptr;
 MIDIcode **ptr1;
 Milliseconds **ptr2;
 
+BPPrintMessage(odInfo, "Running MakeSoundObjectSpace()\n");
+
 if((p_Type = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
 if((p_FixScale = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
 if((p_OkExpand = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
@@ -1037,6 +1039,7 @@ ResizeObjectSpace(int reset,int maxsounds,int addbol)
 // for unreachable values of j
 
 int j;
+// BPPrintMessage(odInfo, "Running ResizeSoundObjectSpace() for maxsounds = %d\n",maxsounds);
 
 MySetHandleSize((Handle*)&p_Type,(Size)maxsounds*sizeof(char));
 MySetHandleSize((Handle*)&p_FixScale,(Size)maxsounds*sizeof(char));
@@ -1182,7 +1185,7 @@ if(Jbol < maxsounds) {
 				sprintf(Message,"ResizeObjectSpace() j = %ld Dur = %ld Tref = %ld\n",(long)j,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 			//	BPPrintMessage(odInfo,Message);
 				}
-			else if(Beta) Alert1("Err. ResizeObjectSpace(). Jpatt <= 0 || p_Ppatt != NULL && p_Qpatt != NULL");
+			else Alert1("Err. ResizeObjectSpace(). Jpatt <= 0 || p_Ppatt != NULL && p_Qpatt != NULL");
 			}
 		(*p_Resolution)[j] = 1;
 		(*p_CsoundInstr)[j] = 0;

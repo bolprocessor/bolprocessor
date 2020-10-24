@@ -39,7 +39,7 @@
 #include "-BP2decl.h"
 
 
-CheckHTML(int w,char** p_buffer,long* p_count,int* p_html)
+CheckHTML(int linebreaks,int w,char** p_buffer,long* p_count,int* p_html)
 // Check whether buffer contains HTML code, and converts if necessary
 {
 /* register */ int i,j,k,itoken;
@@ -107,12 +107,14 @@ NEXTTOKEN:
 return(OK);	/* This is not a HTML file */
 
 FOUND:
-/* Transcode from HTML to plain text in Mac character set */
+/* Transcode from HTML to plain text in Unicode */ /* Mac character set */
+// NEEDS checking!
 
-if(w == wScrap && !(*p_html)) {
+/* if(w == wScrap && !(*p_html)) {
 	if(Answer("Interpret HTML",'Y') != YES) return(OK);
-	}
+	} */
 *p_html = html = TRUE;
+// BPPrintMessage(odError, "(*p_buffer) = %s\n",(*p_buffer));
 for(i=j=0; ;i++,j++) {
 	if(j >= *p_count) break;
 	c = (*p_buffer)[j];
@@ -157,10 +159,10 @@ FOUNDTOKEN:
 						}
 					break;
 					}
-				if(strcmp(line,"BR") == 0
+				if(strcmp(line,"BR") == 0 || strcmp(line,"br") == 0
 						|| strcmp(line,"/UL") == 0
 						|| strcmp(line,"LI") == 0) {
-					(*p_buffer)[i] = '\r';
+					(*p_buffer)[i] = '\n';
 					goto GOOD;
 					}
 				if(strcmp(line,"P") == 0

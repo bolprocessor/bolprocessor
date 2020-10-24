@@ -165,7 +165,8 @@ if(Maxevent < 100) {
 	BPPrintMessage(odInfo,"\n");
 	if((*p_nmax) > 1) last_line = (*p_nmax) - 1;
 	else last_line =  1;
-	for(nseq=0; nseq < last_line; nseq++) { // The last line is only silences
+	last_line = (*p_nmax);
+	for(nseq=0; nseq < last_line; nseq++) {
 		for(iseq=1L; iseq <= (*p_imaxseq)[nseq]; iseq++) {
 			k = (*((*p_Seq)[nseq]))[iseq];
 			if(k >= 0) {

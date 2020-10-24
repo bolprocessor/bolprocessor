@@ -58,7 +58,7 @@ char *p,*q;
 OSErr io;
 char **p_completeline,**p_line;
 
-if(ComputeOn || SetTimeOn || show_details_load_prototypes"Line =PrintOn || SoundOn || SelectOn || CompileOn || GraphicOn
+if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || GraphicOn
 	|| PolyOn) return(RESUME);
 if(CompileCheck() != OK) return(FAILED);
 LoadOn++;
@@ -1045,7 +1045,7 @@ void GetStartupSettingsSpec(FSSpecPtr spec)
 int LoadCsoundInstruments(int checkversion,int tryname) 
 {
 int i,io,iv,ip,jmax,j,result,y,maxticks,maxbeats,arg,length,i_table;
-char **ptr;
+char **ptr,line[MAXLIN];
 Handle **ptr2;
 CsoundParam **ptr3;
 long pos,x;
@@ -1053,15 +1053,17 @@ char **p_line,**p_completeline;
 double r;
 FILE* csfile;
 
+if(LoadedCsoundInstruments) return(OK);
+
 iCsoundInstrument = 0;
 LoadOn++;
 pos = ZERO;
 Dirty[wCsoundInstruments] = CompiledRegressions = CompiledCsObjects = FALSE;
 p_line = p_completeline = NULL;
 
-csfile = fopen(FileName[wCsoundInstruments], "r");
-if (csfile == NULL) {
-	BPPrintMessage(odError, "Could not open csound instruments file %s\n",FileName[wCsoundInstruments]);
+csfile = fopen(FileName[wCsoundInstruments],"r");
+if(csfile == NULL) {
+	BPPrintMessage(odError,"Could not open Csound instruments file %s\n",FileName[wCsoundInstruments]);
 	return FAILED;
 	}
 	
@@ -1103,7 +1105,7 @@ for(j=0; j < jmax; j++) {
 	if((*p_completeline)[0] != '\0') {
 		MystrcpyHandleToString(MAXLIN,0,LineBuff,p_completeline);
 	//	if(ShowMessages) ShowMessage(TRUE,wMessage,LineBuff);
-		BPPrintMessage(odError,"Loading Csound instrument %d = %s\n",j,LineBuff);
+		BPPrintMessage(odError,"Loading Csound instrument %d = %s\n",(j+1),LineBuff);
 		if(MySetHandleSize((Handle*)&ptr,
 			(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
 				goto ERR;
@@ -1115,11 +1117,11 @@ for(j=0; j < jmax; j++) {
 	if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 	ptr = (*pp_CsInstrumentComment)[j];
 	if((*p_completeline)[0] != '\0') {
-		if(MySetHandleSize((Handle*)&ptr,
-			(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
-				goto ERR;
+		if(MySetHandleSize((Handle*)&ptr,(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
+			goto ERR;
 		MystrcpyHandleToHandle(0,&ptr,p_completeline);
 		(*pp_CsInstrumentComment)[j] = ptr;
+		if(show_details_load_csound_instruments) BPPrintMessage(odError,"Comment: %s\n",(*p_completeline));
 		}
 	else (*((*pp_CsInstrumentComment)[j]))[0] = '\0';
 	
@@ -1231,7 +1233,7 @@ for(j=0; j < jmax; j++) {
 		
 	for(ip=0; ip < (*p_CsInstrument)[j].ipmax; ip++) {
 		if((*p_CsInstrument)[j].paramlist == NULL) {
-			if(Beta) Alert1("Err. LoadCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
+			Alert1("Err. LoadCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
 			break;
 			}
 		ptr = (*((*p_CsInstrument)[j].paramlist))[ip].name;
@@ -1249,7 +1251,7 @@ for(j=0; j < jmax; j++) {
 	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
 	if(i < 1) continue;
 	if(i > IPMAX) {
-		if(Beta) Alert1("Err. LoadCsoundInstruments(). i > IPMAX");
+		Alert1("Err. LoadCsoundInstruments(). i > IPMAX");
 		Alert1("This '-cs' file was created by a newer version of BP2. Some parameters may be ignored");
 		i = IPMAX;
 		}
@@ -1278,15 +1280,15 @@ for(j=0; j < jmax; j++) {
 			}
 /*		else (*((*((*p_CsInstrument)[j].paramlist))[ip].name))[0] = '\0'; $$$ Fixed 7/3/98 */
 		
-		if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-		length = MyHandleLen(p_completeline);
-		if(length > 0) {
-			if((ptr=(char**) GiveSpace((Size)((1L + length)
-				* sizeof(char)))) == NULL) goto ERR;
-			MystrcpyHandleToHandle(0,&ptr,p_completeline);
+		if(show_details_load_csound_instruments) BPPrintMessage(odError, "Parameter: %s\n",*p_completeline);
+		line[0] = '\0';
+		fscanf(csfile, "%[^\n]",line); // Necessary to read a line that might be empty
+		if(strlen(line) > 0) {
+			MystrcpyStringToHandle(&ptr,line);
 			(*((*p_CsInstrument)[j].paramlist))[ip].comment = ptr;
+			pos += strlen(line);
+			if(show_details_load_csound_instruments) BPPrintMessage(odError, "Comment: %s\n",line);
 			}
-		
 		if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
 		(*((*p_CsInstrument)[j].paramlist))[ip].startindex = i;
 		if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
@@ -1315,6 +1317,7 @@ for(j=0; j < jmax; j++) {
 			}
 		}
 	}
+BPPrintMessage(odError, "All instruments have been loaded\n");
 if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto QUIT;
 if(Mystrcmp(p_line,"_begin tables") == 0) {
 //	ClearWindow(NO,wCsoundTables);
@@ -1357,7 +1360,7 @@ if(result == OK) {
 	Created[wCsoundInstruments] = TRUE;
 	LoadedCsoundInstruments = TRUE;
 	}
-else	Created[wCsoundInstruments] = FALSE;
+else Created[wCsoundInstruments] = FALSE;
 
 Dirty[wCsoundInstruments] = FALSE;
 if(iCsoundInstrument >= Jinstr) iCsoundInstrument = 0;
@@ -1614,6 +1617,7 @@ else {
 if(iv > 15) {
 	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	DeftVolume = j;
+//	BPPrintMessage(odInfo,"Default volume = %d\n",j);
 	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	VolumeController = j;
 	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
@@ -1624,6 +1628,7 @@ if(iv > 15) {
 	PanoramicController = j;
 	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	SamplingRate = j;
+//	BPPrintMessage(odInfo,"Sampling rate = %d\n",j);
 	}
 else {
 	DeftVolume = DEFTVOLUME;
@@ -1643,6 +1648,7 @@ SetDefaultStrikeMode();
 // This block reads in font sizes for Carbon GUI text windows
 if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 wmax = j;
+// BPPrintMessage(odInfo,"Number of windows = %d\n",j);
 if(wmax > 0) {
 	for(w=0; w < wmax; w++) {
 		if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
@@ -1659,11 +1665,13 @@ if(iv > 4) {
 	for(i=0; i < 12; i++) {
 		if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 		NameChoice[i] = j;
+	//	BPPrintMessage(odInfo,"NameChoice[%d] = %d\n",i,j);
 		}
 	}
 if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR;
 if(k != 0L) {
 	MIDIinputFilter = k;
+	BPPrintMessage(odInfo,"MIDIinputFilter = %d\n",k);
 	if(startup) MIDIinputFilterstartup = MIDIinputFilter;
 	GetInputFilterWord();
 	if(!ScriptExecOn && !NoteOnIn) {
@@ -2604,9 +2612,9 @@ int WriteMidiDriverSettings(short refnum, FSSpec* spec)
 
 int LoadObjectPrototypes(int checkversion,int tryname)
 {
-char c,date[80],*newp;
+char c,date[80],*newp,*name_of_file = NULL, *final_name = NULL;
 MIDIcode **p_b;
-char **p_line,**p_completeline,line[MAXLIN];
+char **p_line,**p_completeline,line[MAXLIN],line2[MAXLIN];
 int i,iv,j,jj,co,rep,okt1,diff,stop,maxsounds,s,objecttype,oldjbol,notsaid,
 	pivbeg,pivend,pivbegon,pivendoff,pivcent,pivcentonoff,pivspec,newbols,okrescale,
 	compilemem,newinstruments,type,dirtymem,longerCsound;
@@ -2625,6 +2633,7 @@ CompileAlphabet();
 rep = FAILED;
 newinstruments = CompiledCsObjects = FALSE;
 pos = 0L;
+line2[0] = '\0';
 // if(!tryname) FileName[iObjects][0] = '\0';
 p_line = p_completeline = NULL;
 // c2pstrcpy(PascalLine, DeftName[iObjects]);
@@ -2705,39 +2714,27 @@ if(iv > 2) {
 	}
 newbols = FALSE;
 
-	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
-	PrototypeTickKey = s;
-	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
-	PrototypeTickChannel = s;
-	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
-	PrototypeTickVelocity = s;
-	if(iv > 11) {
-	//	ReadOne(FALSE,TRUE,FALSE,mifile,TRUE,&p_line,&p_completeline,&pos);
-		/* if((*p_completeline)[0] != '\0') {
-			MystrcpyHandleToString(MAXNAME,0,line,p_completeline);
-			if(FileName[wCsoundInstruments][0] == '\0'
-					|| strcmp(line,FileName[wCsoundInstruments]) != 0) {
-				if(SaveCheck(wCsoundInstruments) == ABORT) goto MAXSOUNDS;
-				strcpy(FileName[wCsoundInstruments],line);
-				type = gFileType[wCsoundInstruments];
-				c2pstrcpy(spec.name, line);
-				spec.vmifile = TheVmifile[wCsoundInstruments];
-				spec.parID = WindowParID[wCsoundInstruments];
-				if(MyOpen(&spec,fsCurPerm,&mifile2) != noErr) {
-					if(CheckFileName(wCsoundInstruments,FileName[wCsoundInstruments],
-						&spec,&mifile2,type,TRUE) != OK) goto MAXSOUNDS;
-					}
-				rep = LoadCsoundInstruments(mifile2,FALSE);
-				if(rep == OK) {
-					dirtymem = Dirty[wAlphabet];
-					SetName(wCsoundInstruments,TRUE,FALSE);
-					PutFirstLine(wAlphabet,FileName[wCsoundInstruments],FilePrefix[wCsoundInstruments]);
-					Dirty[wAlphabet] = dirtymem;
-					newinstruments = TRUE;
-					}
-				}
-			} */
-		}
+if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+PrototypeTickKey = s;
+if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+PrototypeTickChannel = s;
+if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+PrototypeTickVelocity = s;
+
+fscanf(mifile, "%[^\n]",line2); // Necessary to read a line that might be empty
+
+if(show_details_load_prototypes) BPPrintMessage(odError, "Line = %s\n",line2);
+if(strlen(line2) > 0) {
+	BPPrintMessage(odInfo,"Trying to load Csound instruments %s\n",line2);
+	
+	name_of_file = strrchr(FileName[iObjects],'/');
+	sprintf(Message,"%s%s","/",line2);
+	
+	final_name = repl_str(FileName[iObjects],name_of_file,Message);
+	strcpy(FileName[wCsoundInstruments],final_name);
+	LoadCsoundInstruments(0,1);
+	pos += strlen(line2);
+	}
 		
 MAXSOUNDS:
 	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
@@ -2817,7 +2814,7 @@ if(iv > 4 && newbols) {
 		goto ERR;
 		}
 	j = jj;
-	if(show_details_load_prototypes) BPPrintMessage(odInfo, "Creating sound-object j = %d %s\n",j,*p_completeline);
+	if(show_details_load_prototypes) BPPrintMessage(odInfo, "Creating sound-object for j = %d named %s\n",j,*p_completeline);
 	if(Jbol > oldjbol) {
 		compilemem = CompiledGr;
 		if(notsaid) {
@@ -2839,10 +2836,9 @@ diff = FALSE;
 if(show_details_load_prototypes) BPPrintMessage(odInfo, "Final Jbol = %d\n",Jbol);
 // if(iv > 3) { 
 	if(ReadInteger(mifile,&objecttype,&pos) == FAILED) goto ERR;
-	if(show_details_load_prototypes) BPPrintMessage(odInfo, "objecttype = %d\n",objecttype);
+	if(show_details_load_prototypes) BPPrintMessage(odInfo, "object type = %d\n",objecttype);
 	(*p_Type)[j] = objecttype;
 	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
-	if(show_details_load_prototypes) BPPrintMessage(odInfo, "resolution = %d\n",s);
 	(*p_Resolution)[j] = s;
 	if(show_details_load_prototypes) BPPrintMessage(odInfo, "(*p_Resolution)[%d] = %d\n",j,(*p_Resolution)[j]);
 //	}
@@ -3023,43 +3019,39 @@ else {
 		(*p_ObjectColor)[j].red = (*p_ObjectColor)[j].green = (*p_ObjectColor)[j].blue = -1L;
 		}
 	}
-if(!diff) {
-	ptr = (Handle) (*pp_CsoundScoreText)[j];
-	if(MyDisposeHandle(&ptr) != OK) goto ERR;
-	(*pp_CsoundScoreText)[j] = NULL;
-	(*p_CompiledCsoundScore)[j] = TRUE;
-	(*pp_CsoundTime)[j] = NULL;
-	}
-if(iv > 9) {
+
+/* ptr = (Handle) (*pp_CsoundScoreText)[j];
+if(MyDisposeHandle(&ptr) != OK) goto ERR;
+(*pp_CsoundScoreText)[j] = NULL; */
+// (*p_CompiledCsoundScore)[j] = TRUE;
+(*pp_CsoundTime)[j] = NULL;
+
 	/* Read pp_CsoundScoreText */
-//	if(!diff) ClearWindow(NO,wPrototype7);
-	if(ReadOne(FALSE,FALSE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-	StripHandle(p_line);
-	if(show_details_load_prototypes) BPPrintMessage(odInfo, "line2 = %s\n",*p_line);
-	if(Mystrcmp(p_line,"_beginCsoundScore_") != 0) goto ERR;
-	
-NEXTCSOUNDSCORELINE:
-	if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-	if(show_details_load_prototypes) BPPrintMessage(odInfo, "Csound score = %s\n",*p_line);
-	if(Mystrcmp(p_completeline,"_endCsoundScore_") == 0) {
-		//	if((rep=GetCsoundScore(j)) != OK) goto OUT;
-	/*	if((rep=CompileObjectScore(j,&longerCsound)) != OK) {
-			goto OUT;
-			} */
-		goto READSIZE;
-		}
-	if(!diff) {
-	//	PrintHandleBehind(wPrototype7,p_completeline);
-	//	PrintBehind(wPrototype7,"\n");
-		Dirty[iObjects] = Dirty[wPrototype7] = FALSE;
-		CompiledCsObjects = (*p_CompiledCsoundScore)[j] = FALSE;
-		}
-	goto NEXTCSOUNDSCORELINE;
-	}
+if(ReadOne(FALSE,FALSE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+StripHandle(p_line);
+// if(show_details_load_prototypes) BPPrintMessage(odInfo, "line2 = %s\n",*p_line);
+
+if(Mystrcmp(p_line,"_beginCsoundScore_") != 0) goto ERR;
+
+if(ReadOne(FALSE,FALSE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+// if(show_details_load_prototypes) BPPrintMessage(odInfo, "Csound score = %s\n",*p_line);
+
+if((ptr = (Handle) GiveSpace(MyGetHandleSize(p_completeline))) == NULL) goto ERR;
+    (*pp_CsoundScoreText)[j] = ptr;
+// if(show_details_load_prototypes) BPPrintMessage(odInfo, "j =  %d size of handle CsoundScoreText = %ld\n",j,(long) MyGetHandleSize((Handle)(*pp_CsoundScoreText)[j]));
+MystrcpyHandleToHandle(0,&((*pp_CsoundScoreText)[j]),p_completeline);
+
+if((rep=CompileObjectScore(j,&longerCsound)) != OK) goto ERR;
+Dirty[iObjects] = Dirty[wPrototype7] = FALSE;
+// CompiledCsObjects = (*p_CompiledCsoundScore)[j] = FALSE;
+
+if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+if(Mystrcmp(p_completeline,"_endCsoundScore_") == 0) goto READSIZE;
+else goto ERR;
 
 READSIZE:
 if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
-if(show_details_load_prototypes) BPPrintMessage(odInfo, "size = %d\n",s);
+if(show_details_load_prototypes) BPPrintMessage(odInfo, "Size of MIDI code = %d\n",s);
 imax = s;
 	(*p_PasteDone)[j] = FALSE;
 	(*p_MIDIsize)[j] = (*p_Ifrom)[j] = ZERO;
@@ -3072,7 +3064,7 @@ if((*p_CsoundSize)[j] == 0) (*p_Dur)[j] = t1 = t2 = ZERO;
 if(imax > 0) {
 	for(i=0,tm=ZERO,okt1=FALSE; i < imax; i++) {
 		if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
-		if(show_details_load_prototypes) BPPrintMessage(odInfo, "k = %ld\n",k);
+	//	if(show_details_load_prototypes) BPPrintMessage(odInfo, "k = %ld\n",k);
 		if(Eucl(k,256L,(unsigned long*)&t,(unsigned long*)&kk) != 0) goto ERR;
 		if(!diff) (*p_b)[i].byte = (int) kk;
 		if(143L < kk  &&  kk < 160L) {   /* NoteOn or NoteOff */
@@ -3152,7 +3144,7 @@ if(rep == OK) {
 //	SetName(iObjects,YES,TRUE);
 	if(newbols) {
 		ResizeObjectSpace(NO,Jbol + Jpatt,0);
-		BPPrintMessage(odInfo,"Resizing object space for Jbol = %d and Jpatt = %ld\n",Jbol,Jpatt);
+		// BPPrintMessage(odInfo,"Resizing object space for Jbol = %d and Jpatt = %ld\n",Jbol,Jpatt);
 		}
 	}
 PrototypesLoaded = TRUE;

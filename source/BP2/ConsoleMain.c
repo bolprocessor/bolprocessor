@@ -195,7 +195,7 @@ int main (int argc, char* args[])
 	Stream.imax = ZERO;
 	Stream.period = ZERO; */
 	EndImageFile();
-	LoadedCsoundInstruments = TRUE;
+//	LoadedCsoundInstruments = TRUE;
 	
 	if (TraceMemory && Beta) {
 		// reset everything and report memory usage & any leaked space
@@ -273,6 +273,7 @@ void EndImageFile(void)
 	char *final_name = NULL, *someline = NULL, *anotherline = NULL;
 	size_t length;
 	ssize_t number;
+	
 	if(imagePtr == NULL) return;
 	thisfile = fopen("CANVAS_footer.txt","r");
 	if(thisfile == NULL) BPPrintMessage(odInfo,"‘CANVAS_footer.txt’ is missing!\n");
@@ -872,7 +873,7 @@ int LoadInputFiles(const char* pathnames[WMAX])
 					}
 					break;
 				case wCsoundInstruments: 
-					BPPrintMessage(odInfo, "Reading object prototypes file %s...\n", pathnames[w]);
+					BPPrintMessage(odInfo, "Reading Csound instruments file %s...\n", pathnames[w]);
 					strcpy(FileName[wCsoundInstruments],pathnames[w]);
 					result = LoadCsoundInstruments(0,1);
 					if (result != OK)  return result;
@@ -882,7 +883,6 @@ int LoadInputFiles(const char* pathnames[WMAX])
 					result = LoadSettings(pathnames[w], FALSE);
 					if (result != OK)  return result;
 					break;
-			//	case 26:
 				case iObjects:
 					BPPrintMessage(odInfo, "Reading object prototypes file %s...\n", pathnames[w]);
 					strcpy(FileName[iObjects],pathnames[w]);
@@ -924,7 +924,7 @@ int LoadFileToTextHandle(const char* pathname, TEHandle th)
 	if (result != OK)  return result;
 	// FIXME: Need to convert line endings and HTML -- do it here ?
 	// CleanLF(filecontents,&count,&dos);
-	// CheckHTML(w,filecontents,&count,&html);
+	// CheckHTML(FALSE,w,filecontents,&count,&html);
 	result = CopyStringToTextHandle(th, *filecontents);
 	MyDisposeHandle((Handle*) &filecontents);
 	return result;

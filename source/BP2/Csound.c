@@ -38,6 +38,8 @@
 
 #include "-BP2decl.h"
 
+int show_csound_details = 0;
+
 #if BP_CARBON_GUI
 
 SetCsoundInstrument(int j,int w)
@@ -1630,11 +1632,14 @@ if(Jbol < 2) return(OK);
 rep = OK;
 CompileOn++;
 maxsounds = MyGetHandleSize((Handle)p_Type) / sizeof(char);
-sprintf(Message,"Running CompileCsoundObjects() for maxsounds = %ld\n",(long)maxsounds);
+if(show_csound_details) sprintf(Message,"Running CompileCsoundObjects() for maxsounds = %ld\n",(long)maxsounds);
 BPPrintMessage(odInfo,Message);
 for(j=2; j < maxsounds; j++) {
 	if(!((*p_Type)[j] & 4)) {
-		if((*pp_CsoundScoreText)[j] == NULL) continue;
+		if((*pp_CsoundScoreText)[j] == NULL) {
+			if(show_csound_details) BPPrintMessage(odError, "No Csound score in %d\n",j);
+			continue;
+			}
 		(*p_Type)[j] |= 4;
 		}
 	if((rep=CompileObjectScore(j,&longerCsound)) != OK) {
@@ -1664,28 +1669,23 @@ return(rep);
 CompileObjectScore(int j,int *p_longerCsound)
 {
 char c,**p_line,line[MAXLIN];
-int i,ii,ipos,im,i0,i1,ievent,ip,ins,nparam,maxparam,maxevents,foundevent,result,
-	istempo,overflow,finished,index;
-long p,q;
+int i,ii,ipos,im,i0,i1,ievent,ip,ins,l,nparam,maxparam,maxevents,foundevent,result,
+	istempo,overflow,finished,index,html;
+long p,q,count;;
 double param,tempo,dur,**h;
 Handle ptr,ptr2;
 CsoundParam **paramlist;
 
 if(j < 2 || j >= Jbol) return(OK);
-#if BP_CARBON_GUI
-if(iProto == j && (result=GetCsoundInstrument(iCsoundInstrument)) != OK) {
-/*	ShowWindow(Window[wCsoundInstruments]);
-	BringToFront(Window[wCsoundInstruments]); */
-	return(result);
-	}
-#endif /* BP_CARBON_GUI */
-if((result=CompileRegressions()) != OK) return(result);
-if((*p_CompiledCsoundScore)[j]) return(OK);
 
 p_line = (*pp_CsoundScoreText)[j];
-if(p_line == NULL || (*p_line)[0] == '\0') {
+
+// if(show_csound_details) BPPrintMessage(odError, "(*pp_CsoundScoreText)[j] = %s\n",*(*pp_CsoundScoreText)[j]);
+
+if(p_line == NULL || (*p_line)[0] == '\0' || strcmp((*p_line),"<HTML></HTML>") == 0) {
 	ptr = (Handle) (*pp_CsoundScore)[j];
 	if(ptr != NULL) {
+		if(show_csound_details) BPPrintMessage(odError, "(*p_CsoundSize)[j] = %d\n",(*p_CsoundSize)[j]);
 		for(i=0; i < (*p_CsoundSize)[j]; i++) {
 			ptr2 = (Handle) (*((*pp_CsoundScore)[j]))[i].h_param;
 			MyDisposeHandle(&ptr2);
@@ -1694,17 +1694,22 @@ if(p_line == NULL || (*p_line)[0] == '\0') {
 		MyDisposeHandle(&ptr);
 		(*pp_CsoundScore)[j] = NULL;
 		}
-	(*p_CsoundSize)[j] = ZERO;	/* Added 5/3/98 */
+	(*p_CsoundSize)[j] = ZERO;
 	if((*p_Type)[j] & 4) {
 		(*p_Type)[j] &= (255-4);
-#if BP_CARBON_GUI
-		if(iProto == j) SetPrototypePage1(j);
-#endif /* BP_CARBON_GUI */
 		}
+	if(show_csound_details) BPPrintMessage(odError, "(*p_Type)[j] = %d\n",(*p_Type)[j]);
 	return(OK);
 	}
 
+if((result=CompileRegressions()) != OK) return(result);
+if((*p_CompiledCsoundScore)[j]) return(OK);
+
+if(show_csound_details) BPPrintMessage(odError, "Compiling Csound score in object %d\n",j);
+
 maxevents = 12;
+
+// if(show_csound_details) BPPrintMessage(odError, "OK2\n");
 
 ptr = (Handle) (*pp_CsoundScore)[j];
 if(ptr != NULL) {
@@ -1721,10 +1726,11 @@ else {
 	}
 
 (*pp_CsoundScore)[j] = (CsoundLine**) ptr;
+
 for(i=0; i < maxevents; i++) {
 	(*((*pp_CsoundScore)[j]))[i].h_param = NULL;
 	}
-
+	
 ptr = (Handle) (*pp_CsoundTime)[j];
 MyDisposeHandle(&ptr);
 if((ptr=(Handle) GiveSpace((Size)(maxevents * sizeof(Milliseconds)))) == NULL)
@@ -1736,18 +1742,17 @@ ievent = 0; result = OK; finished = FALSE; h = NULL;
 
 CompileOn++;
 
+count = 1L + MyHandleLen(p_line);
+html = TRUE;
+CheckHTML(TRUE,0,p_line,&count,&html);
 ipos = 0; im = MyHandleLen(p_line);
 (*p_CsoundTempo)[j] = tempo = 60.;
 
-if(ShowMessages && !LoadOn) ShowMessage(TRUE,wMessage,"Compiling Csound score...");
+l = strlen((*p_line));
+if(l == 0) return(OK);
+if(show_csound_details) BPPrintMessage(odError,"Compiling Csound score (length %d):\n%s\n",l,(*p_line));
 
 while(TRUE) {
-#if BP_CARBON_GUI
-	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-	if((result=MyButton(1)) != FAILED) {
-		if(result != OK || (result=InterruptCompileCscore()) != OK) goto OUT;
-		}
-#endif /* BP_CARBON_GUI */
 	result = OK;
 	while(ipos < im && (isspace(c=(*p_line)[ipos]) || c == '\0')) ipos++;
 	i0 = ipos;
@@ -1761,7 +1766,9 @@ while(TRUE) {
 		ipos++;
 	i1 = ipos;
 	istempo = FALSE;
-	if((c=(*p_line)[i0]) != 'i' && c != 't' && c != 'f' && c != ';' && c != 'e') {
+	c = (*p_line)[i0];
+	if(c == '_') goto NEXTLINE;
+	if(c != 'i' && c != 't' && c != 'f' && c != ';' && c != 'e') {
 		sprintf(Message,"Csound score line must start with 'i', 'f', 't' or a semi-colon. Can't accept %c",c);
 		Alert1(Message);
 		result = FAILED; goto OUT;
@@ -1919,7 +1926,7 @@ NEWPARAMETER:
 			default:
 				/* Modify param according to instrument mapping */
 				if(ins < 0 || ins >= Jinstr) {
-					if(Beta) Alert1("Err. CompileObjectScore(). ins < 0 || ins >= Jinstr");
+					Alert1("Err. CompileObjectScore(). ins < 0 || ins >= Jinstr");
 					if(CompileOn) CompileOn--;
 					return(ABORT);
 					}
@@ -2061,8 +2068,8 @@ if(result == OK && iProto == j && j > 1 && j < Jbol) {
 	if((*p_CsoundSize)[j] > ZERO && SetPrototype(j) != OK) return(ABORT);
 	}
 #endif /* BP_CARBON_GUI */
-if(result == OK) (*p_CompiledCsoundScore)[j] = TRUE;
-
+(*p_CompiledCsoundScore)[j] = TRUE;
+if(result == OK) BPPrintMessage(odError,"Csound score of object %d successfully compiled\n",j);
 return(result);
 }
 

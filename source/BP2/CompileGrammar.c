@@ -368,6 +368,7 @@ if(Gram.number_gram == 0) {
 CheckGotoFailed();
 sprintf(Message,"Errors: %ld",(long)N_err);
 ShowMessage(TRUE,wMessage,Message);
+Message[0] = '\0';
 for(i=1; i < MAXPARAMCTRL; i++) {
 	if(ParamInit[i] == INT_MAX) ParamInit[i] = ParamValue[i] = 127;
 	}

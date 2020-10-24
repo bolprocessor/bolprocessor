@@ -1388,7 +1388,7 @@ SWITCHES:
 // Send messages of sound-object instance kcurrentinstance as long as possible
 
 PLAYOBJECT:
-		if(show_csound_pianoroll) BPPrintMessage(odInfo,"PLAYOBJECT: t1 =%ld t2 = %ld t3 = %ld ievent = %d im = %d\n",t1,t2,t3,ievent,im);
+		if(show_csound_pianoroll) BPPrintMessage(odInfo,"\nPLAYOBJECT: j = %d t1 =%ld t2 = %ld t3 = %ld ievent = %d im = %d\n",j,(long)t1,(long)t2,(long)t3,ievent,im);
 		while(t1 <= t2  && t1 <= t3  && ievent < im) {
 			Tcurr =  (t0 + t1) / Time_res;
 			if(show_csound_pianoroll) BPPrintMessage(odInfo,"Tcurr = %ld\n",(long)Tcurr);
@@ -1630,7 +1630,7 @@ SENDNOTEOFF:
 					}
 				}
 NEWPERIOD:
-			if(show_csound_pianoroll) BPPrintMessage(odInfo,"NEWPERIOD:\n");
+			if(show_csound_pianoroll) BPPrintMessage(odInfo,"\nNEWPERIOD:\n");
 			if((*p_istartperiod)[kcurrentinstance] > -1 && ievent >= (*p_iendperiod)[kcurrentinstance]) {
 				/* Cyclic object: start another period */
 				t1 += (*p_periodgap)[kcurrentinstance];

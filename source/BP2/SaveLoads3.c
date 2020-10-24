@@ -1027,7 +1027,7 @@ do {
 	io = FSRead(refnum,&count,*p_buffer);
 	MyUnlock((Handle) p_buffer);
 	CleanLF(p_buffer,&count,&dos);
-	if(Editable[w]) CheckHTML(w,p_buffer,&count,&html);
+	if(Editable[w]) CheckHTML(FALSE,w,p_buffer,&count,&html);
 	totalcount += count;
 	if(!WASTE && totalcount >= TEXTEDIT_MAXCHARS) {
 		sprintf(Message, "Beware! file is larger than %d chars and cannot be entirely loaded", 
@@ -1165,7 +1165,7 @@ for(j=jm; j > 0; j--) {
 if(careforhtml) {
 	count = 1L + MyHandleLen(*pp_completeline);
 	html = TRUE;
-	CheckHTML(0,*pp_completeline,&count,&html);
+	CheckHTML(FALSE,0,*pp_completeline,&count,&html);
 	}
 
 return(rep);

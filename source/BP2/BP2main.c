@@ -252,7 +252,7 @@ StopWait();
 MyDisposeHandle((Handle*)&Stream.code);
 Stream.imax = ZERO;
 Stream.period = ZERO;
-LoadedCsoundInstruments = TRUE;
+// LoadedCsoundInstruments = TRUE;
 if(TraceMemory && Beta && !MustChangeInput) {  // replaced CheckMem with TraceMemory -- akozar 032707
 	if(ResetProject(FALSE) != OK && !EmergencyExit) goto START;
 	if(ClearWindow(FALSE,wData) != OK) goto START;

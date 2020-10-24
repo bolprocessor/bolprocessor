@@ -851,7 +851,7 @@ int ShowIOerror(OSErr);
 int CheckTextSize(int);
 OSErr MyOpen(FSSpec*,char,short*);
 int CleanLF(char**,long*,int*);
-int CheckHTML(int,char**,long*,int*);
+int CheckHTML(int,int,char**,long*,int*);
 int DOStoMac(char*);
 int MacToHTML(int,char***,int);
 int GoodHTMLchar(char);

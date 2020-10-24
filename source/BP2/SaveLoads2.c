@@ -363,7 +363,7 @@ c2pstrcpy(PascalLine,FileName[iObjects]);
 CopyPString(PascalLine, spec.name);
 spec.vRefNum = TheVRefNum[iObjects];
 spec.parID = WindowParID[iObjects];
-if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {	// FIXME: don't use MyOpen if no FileName[iObjects] ??
+if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {	// FIXME: don't use MyOpen if no FileName[iObjects] ?? 
 FIND:
 	if(!tryname) return(FAILED);
 	if(FileName[iObjects][0] == '\0') {
@@ -873,7 +873,7 @@ if(!diff) {
 	}
 if(CheckEmergency() == OK) {
 	rep = FAILED;
-	sprintf(Message,"File '%s' may be corrupted or in some unknown format",
+	sprintf(Message,"Object prototypes file '%s' may be corrupted or in some unknown format",
 		FileName[iObjects]);
 	Alert1(Message);
 	if(j > 1 && j < Jbol) {

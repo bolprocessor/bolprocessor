@@ -199,7 +199,7 @@ else {
 	}
 imt = ZERO;
 if(p_t == NULL) {
-	if(Beta) Alert1("Err. MystrcpyHandleToHandle(). p_t = NULL");
+	Alert1("Err. MystrcpyHandleToHandle(). p_t = NULL");
 	if(*pp_s != NULL && ims > ZERO) (**pp_s)[0] = '\0';
 	// FIXME ? what if *pp_s == NULL ? Will caller expect a valid handle?
 	goto OUT;
