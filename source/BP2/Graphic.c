@@ -106,17 +106,13 @@ topoffset = (4 * htext) + 8;
 r.top = 0;
 r.bottom = r.top + topoffset + Maxevent * (hrect + htext);
 r.left = 0;
-/* endxmax = leftoffset + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10
-	+ BOLSIZE * CharWidth('w'); */
 endxmax = leftoffset + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10
 	+ BOLSIZE * 10;
 if(show_more_details) BPPrintMessage(odInfo,"GraphicScaleP = %d GraphicScaleQ = %d tmin = %d tmax =%d endxmax = %d\n",GraphicScaleP,GraphicScaleQ,tmin,tmax,endxmax);
 if(endxmax < 100) endxmax = 100;
 r.right = r.left + endxmax;
 
-// endxmax = leftoffset + 50 + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10;
-// WidthMax = (resize * endxmax) + 20;
-WidthMax = 2 * endxmax + 20;
+WidthMax = 2 * endxmax + 40;
 sprintf(Message,"WidthMax (2) = %ld\n",WidthMax);
 BPPrintMessage(odInfo,Message);
 // fputs(Message,imagePtr);
@@ -316,7 +312,7 @@ ENDGRAPH:
 
 QUIT:
 // WidthMax = (resize * endxmax) + 20;
-WidthMax = 2 * endxmax + 20;
+WidthMax = 2 * endxmax + 40;
 sprintf(Message,"WidthMax (1) = %ld\n",WidthMax);
 BPPrintMessage(odInfo,Message);
 // fputs(Message,imagePtr);
@@ -1357,7 +1353,7 @@ for(i=j=0; ; i++,j++) {
 y = p_r->top + htext + 1;
 sprintf(line,"0");
 fill_text(line,leftoffset - 6,y);
-k = 10; if(k * p > 400) k = 1;
+k = 10; if((k * p) > 400) k = 1;
 tmem2 = - Infpos;
 for(i = 1; ; i++) {
 	if(k == 10) sprintf(line,"%.2fs",(double)i * xscale * k / 10.);
@@ -1367,8 +1363,8 @@ for(i = 1; ; i++) {
 	if(t2 > xmax) break;
 	if(t1 > tmem2) {
 		fill_text(line,t1,y);
-	//	tmem2 = t2 + strlen("mm");
-		tmem2 = t2 + 48;
+	//	tmem2 = t2 + 48;
+		tmem2 = t2 + 7 * strlen(line);
 		}
 	}
 
