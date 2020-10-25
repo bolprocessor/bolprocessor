@@ -1589,7 +1589,7 @@ if(iv > 11) {
 	if(iv > 19) MIDIfadeOut = x;
 	else MIDIfadeOut = 2.;
 	sprintf(Message,"MIDIfadeOut = %.2f sec\n",MIDIfadeOut);
-	BPPrintMessage(odInfo,Message);
+//	BPPrintMessage(odInfo,Message);
 #if BP_CARBON_GUI
 	sprintf(Message,"%.2f",MIDIfadeOut);
 	SetField(FileSavePreferencesPtr,-1,fFadeOut,Message);
@@ -1671,7 +1671,7 @@ if(iv > 4) {
 if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR;
 if(k != 0L) {
 	MIDIinputFilter = k;
-	BPPrintMessage(odInfo,"MIDIinputFilter = %d\n",k);
+//	BPPrintMessage(odInfo,"MIDIinputFilter = %d\n",k);
 	if(startup) MIDIinputFilterstartup = MIDIinputFilter;
 	GetInputFilterWord();
 	if(!ScriptExecOn && !NoteOnIn) {

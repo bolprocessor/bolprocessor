@@ -97,7 +97,7 @@ static Handle GiveSpaceInternal(Size size, Boolean clear)
 		h->size = size;
 		// track memory usage
 		MaxHandles++;
-		MemoryUsed += (unsigned long) size;
+		MemoryUsed += (long) size;
 		if(MemoryUsed > MaxMemoryUsed) {
 			MaxMemoryUsed = MemoryUsed;
 		}
@@ -124,11 +124,11 @@ int MyDisposeHandle(Handle *p_h)
 			*p_h = NULL;
 			return(ABORT);
 		}
-		MemoryUsed -= (unsigned long) h->size;
+		MemoryUsed -= (long) h->size;
 		free(h->memblock);
 		free(h);
 		if(MemoryUsed < MemoryUsedInit) {
-			BPPrintMessage(odInfo,"WARNING! MemoryUsed = %ld < MemoryUsedInit = %ld\n",(long)MemoryUsed,(long)MemoryUsedInit);
+			BPPrintMessage(odInfo,"WARNING! MemoryUsed = %ld < MemoryUsedInit = %ld in %s/%s\n",(long)MemoryUsed,(long)MemoryUsedInit,__FILE__,__FUNCTION__);
 			}
 		// no way to check for errors ?
 	}
@@ -161,6 +161,7 @@ int MySetHandleSize(Handle* p_h,Size size)
 	s_handle_priv*	h;
 	Size oldsize;
 	
+//	BPPrintMessage(odInfo,"size = %ld\n",(long) size);
 	if(p_h == NULL) {
 		sprintf(Message,"Err. MySetHandleSize(). p_h == NULL");
 		if(Beta) Alert1(Message);
@@ -183,18 +184,17 @@ int MySetHandleSize(Handle* p_h,Size size)
 		}
 		else {
 			h->size = size;
-			if (size > oldsize)  MemoryUsed += (unsigned long)(size - oldsize);
-			else  MemoryUsed -= (unsigned long)(oldsize - size);
+		/*	if (size > oldsize) */  MemoryUsed += (long)(size - oldsize);
+		/*	else  MemoryUsed -= (unsigned long)(oldsize - size);
 			if(MemoryUsed > MaxMemoryUsed) {
 				MaxMemoryUsed = MemoryUsed;
-			}
+			} */
 		}
 	}
 	else {
 		// handle was NULL, so just do a fresh alloc
 		if((*p_h = GiveSpace(size)) == NULL) return(ABORT);
 	}
-	
 	return(OK);
 }
 

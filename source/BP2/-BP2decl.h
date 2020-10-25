@@ -359,7 +359,7 @@ extern UInt32 NumInstalledDrivers;
 extern BPMidiDriver** InstalledDrivers;
 extern DynamicMenuItem** InstalledMenuItems;
 
-extern int Find_leak;
+extern int Find_leak, check_memory_use;
 extern long WidthMax,HeightMax;
 
 #endif /* BP2_DECL_H */

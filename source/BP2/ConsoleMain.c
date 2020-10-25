@@ -72,15 +72,22 @@ FILE * imagePtr = NULL;
 char imageFileName[500];
 int N_image = 1;
 PrototypesLoaded = FALSE;
-Find_leak = 0;
+
+Find_leak = FALSE; // Flag to locate place where negative leak starts
+check_memory_use = FALSE;
 
 int main (int argc, char* args[])
 {
 	int  result;
 	
+	MemoryUsedInit = MemoryUsed = 0;
+	
 	ConsoleInit(&gOptions);
+//	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (1) = %ld\n",(long)MemoryUsed);
     ConsoleMessagesInit();
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (2) = %ld\n",(long)MemoryUsed);
 	result = ParsePreInitArgs(argc, args, &gOptions);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (3) = %ld\n",(long)MemoryUsed);
 	if (result == EXIT)  return EXIT_SUCCESS;
 	else if (result != OK)  return EXIT_FAILURE;
 	
@@ -89,14 +96,23 @@ int main (int argc, char* args[])
 		SetOutputDestinations(odInfo|odWarning|odError|odUserInt, stderr);
 	}
 
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (4) = %ld\n",(long)MemoryUsed);
+
 	if (Inits() != OK)	return EXIT_FAILURE;
 	
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (5) = %ld\n",(long)MemoryUsed);
+	
+	MemoryUsedInit = MemoryUsed;
+	
 	result = ParsePostInitArgs(argc, args, &gOptions);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (6) = %ld\n",(long)MemoryUsed);
 	if (result != OK)  return EXIT_FAILURE;
 	result = LoadInputFiles(gOptions.inputFilenames);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (7) = %ld\n",(long)MemoryUsed);
 	if (result != OK)  return EXIT_FAILURE;
 	// some command-line options are applied after loading the settings file
 	result = ApplyArgs(&gOptions);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (8) = %ld\n",(long)MemoryUsed);
 	if (result != OK)  return EXIT_FAILURE;
 
 	
@@ -120,7 +136,6 @@ int main (int argc, char* args[])
 	ResetTicks(TRUE,TRUE,ZERO,0);
 */
 
-	MemoryUsedInit = MemoryUsed;
 	InitOn = FALSE;
 	BPPrintMessage(odInfo, "BP2 Console completed initialization.\n");
 	
@@ -131,12 +146,15 @@ int main (int argc, char* args[])
 	
 	// load data
 	if (!LoadedStartString)  CopyStringToTextHandle(TEH[wStartString], "S\n");
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (9) = %ld\n",(long)MemoryUsed);
 	// CopyStringToTextHandle(TEH[wGrammar], gr_Visser3);
-	MemoryUsedInit = MemoryUsed;
+//	MemoryUsedInit = MemoryUsed;
 	
 	// configure output destinations
 	result = PrepareProdItemsDestination(&gOptions);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (10) = %ld\n",(long)MemoryUsed);
 	if (result == OK) result = PrepareTraceDestination(&gOptions);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (11) = %ld\n",(long)MemoryUsed);
 	if (result == OK) {
 		// perform the action specified on the command line
 		switch (gOptions.action) {
@@ -191,18 +209,26 @@ int main (int argc, char* args[])
 	/* Cleanup ... */
 	
 	// deallocate any remaining space obtained since Inits()
-	/* MyDisposeHandle((Handle*)&Stream.code);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (12) = %ld\n",(long)MemoryUsed);
+	MyDisposeHandle((Handle*)&Stream.code);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (13) = %ld\n",(long)MemoryUsed);
 	Stream.imax = ZERO;
-	Stream.period = ZERO; */
+	Stream.period = ZERO;
 	EndImageFile();
-//	LoadedCsoundInstruments = TRUE;
-	
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (14) = %ld\n",(long)MemoryUsed);
+	if(MemoryUsed < MemoryUsedInit) {
+			BPPrintMessage(odInfo,"WARNING! MemoryUsed = %ld < MemoryUsedInit = %ld in %s/%s\n",(long)MemoryUsed,(long)MemoryUsedInit,__FILE__,__FUNCTION__);
+			}
 	if (TraceMemory && Beta) {
 		// reset everything and report memory usage & any leaked space
-		if ((result = ResetProject(FALSE)) != OK)	BPPrintMessage(odError, "ResetProject() returned %d\n", result);
-		BPPrintMessage(odInfo, "This session used %ld Kbytes maximum.  %ld handles created and released. [%ld bytes leaked]\n",
-				(long) MaxMemoryUsed/1000L,(long)MaxHandles,
-				(long) (MemoryUsed - MemoryUsedInit));
+		if((result = ResetProject(FALSE)) != OK)
+			BPPrintMessage(odError, "ResetProject() returned %d\n", result);
+		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (21) = %ld\n",(long)MemoryUsed);
+		ClearObjectSpace();
+		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (22) = %ld\n",(long)MemoryUsed);
+		BPPrintMessage(odInfo, "This session used %ld bytes maximum.  %ld handles created and released. [%ld bytes leaked] MemoryUsedInit = %ld\n",
+				(long) MaxMemoryUsed,(long)MaxHandles,
+				(long) (MemoryUsed - MemoryUsedInit),(long)MemoryUsedInit);
 		}
 	
 	// close open files
@@ -214,8 +240,8 @@ int main (int argc, char* args[])
 	CloseCsScore();
 	
 	// deallocate space obtained during Inits() (not strictly necessary)
-/*	MyDisposeHandle((Handle*)&p_Oldvalue);
-	ClearLockedSpace(); */
+/*	MyDisposeHandle((Handle*)&p_Oldvalue); */
+//	ClearLockedSpace();
 
 	// FIXME: CloseCurrentDriver should eventually work for all drivers - akozar
 	// CloseCurrentDriver(FALSE);
@@ -804,7 +830,7 @@ int ApplyArgs(BPConsoleOpts* opts)
 	if (opts->seedProvided)	{
 		Seed = opts->seed;
 		ResetRandom();
-		BPPrintMessage(odInfo, "Setting seed = %u\n", Seed);
+	//	BPPrintMessage(odInfo, "Setting seed = %u\n", Seed);
 	}
 	
 	return OK;

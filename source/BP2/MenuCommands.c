@@ -2276,7 +2276,7 @@ if(!WASTE) {
 myHandle = (Handle) GiveSpace(1);
 rc = CCUGetScrap(myHandle,'TEXT',&scrapOffset);
 if(rc > 0) {
-	MemoryUsed += (unsigned long)(rc - 1);
+	MemoryUsed += (long)(rc - 1);
 	// adding a null char is not such a good idea - 012907 akozar
 	/* MySetHandleSize(&myHandle,rc+1);
 	MyLock(FALSE,myHandle);

@@ -1115,6 +1115,9 @@ void resize_rect(Rect*,int,int);
 char *repl_str(const char*, const char*, const char*);
 char *recode_tags(const char*);
 
+// int ReleaseComputeSpace(void);
+int ClearObjectSpace(void);
+
 
 #if !TARGET_API_MAC_CARBON
 /* Provide backwards compatibility for System 7 in the non-Carbon build by

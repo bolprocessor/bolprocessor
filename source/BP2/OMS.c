@@ -190,7 +190,7 @@ long size;
 
 size = MyGetHandleSize((Handle)h_OMSinputMessage);
 MyDisposeHandle((Handle*)&h_OMSinputMessage);
-MemoryUsed += (unsigned long) size;
+MemoryUsed += (long) size;
 
 if(!NEWTIMER) RemoveTMTask();
 
