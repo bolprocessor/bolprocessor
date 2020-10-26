@@ -164,8 +164,8 @@ onerulefound = FALSE;
 
 pos = posline = ZERO;
 posmax = GetTextLength(wGrammar);
-
 ShowMessage(TRUE,wMessage,"Compiling subgrammar #1...");
+if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start compilegrammar = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 for(i=0; i < MAXNOTBPCASES; i++) NotBPCase[i] = FALSE;
 NotBPCase[8] = NotBPCase[3] = TRUE;
 for(i=1; i < MAXPARAMCTRL; i++) ParamInit[i] = ParamValue[i] = INT_MAX;
@@ -398,7 +398,10 @@ if((N_err == 0) && onerulefound) {
 	ResetRuleWeights(0);
 	Dirty[wGrammar] = dirtymem;
 	if(CompileOn) CompileOn--;
+#if BP_CARBON_GUI
 	SelectBehind(GramSelStart,GramSelEnd,TEH[wGrammar]);
+#endif /* BP_CARBON_GUI */
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end compilegrammar = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	return(OK);
 	}
 else {
@@ -872,6 +875,7 @@ if(GetTuning() != OK) return(ABORT);
 // if(ReleaseObjectPrototypes() != OK) return(ABORT);
 
 ShowMessage(TRUE,wMessage,"Compiling alphabet...");
+if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start compilealphabet = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 if(!NoAlphabet && IsEmpty(wAlphabet) && (LoadAlphabet(-1,NULL) != OK)) goto ERR;
 // GetMiName();
 
@@ -901,6 +905,7 @@ if((rep=ReadAlphabet(FALSE)) != OK) {	/* Now creating bols */
 	goto ERR;
 	}
 CompiledAl = TRUE;
+if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end compilealphabet = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 return(OK);
 
 ERR:

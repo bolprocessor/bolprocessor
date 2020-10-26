@@ -275,7 +275,7 @@ for(i=32; i < 256; i++) (*p_HTMLchar2)[i] = HTMLlatin[i-32];
 if(MakeWindows() != OK) return(ABORT);
 // SetDialogFont(systemFont);
 if(InitButtons() != OK) return(ABORT);
-if(Beta) FlashInfo("This is a beta version for evaluation...");
+if(Beta) FlashInfo("This is a beta version for evaluation...\n");
 
 #if NEWGRAF
 if(!HasGWorlds()) {
@@ -650,7 +650,7 @@ strcpy(Message,WindowName[wCsoundTables]);
 SetWTitle(Window[wCsoundTables],in_place_c2pstr(Message));
 #endif /* BP_CARBON_GUI */
 
-MaxHandles = ZERO;
+// MaxHandles = ZERO;
 PedalOrigin = -1;
 Nalpha = 100L;
 Jinstr = 0;

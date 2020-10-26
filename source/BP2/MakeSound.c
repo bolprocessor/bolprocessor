@@ -92,7 +92,7 @@ w = wGraphic;
 maxmidibytes5 = MaxMIDIbytes / 5L;
 oldtcurr = Tcurr;
 
-BPPrintMessage(odInfo, "Running MakeSound()\n");
+// BPPrintMessage(odInfo, "Running MakeSound()\n");
 
 if(Panic || CheckEmergency() != OK) return(ABORT);
 if(SoundOn) return(OK);

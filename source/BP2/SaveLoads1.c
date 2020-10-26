@@ -1379,10 +1379,12 @@ unsigned long kk;
 double x;
 char **p_line,**p_completeline;
 
+if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start LoadSettings = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+
 result = OK;
 oldoutmidi = OutMIDI;
 p_line = p_completeline = NULL;
-if((rep=ClearWindow(FALSE,wStartString)) != OK) return(rep);	// FIXME: remove this?
+// if((rep=ClearWindow(FALSE,wStartString)) != OK) return(rep);	// FIXME: remove this?
 if(startup) {
 	// FIXME: set filename = location of a startup settings file and continue?
 	return OK;
@@ -1723,6 +1725,7 @@ MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 CloseFile(sefile);
 
 LoadOn--;
+if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end LoadSettings = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 return(result);
 }
 
@@ -2630,6 +2633,8 @@ FILE* mifile;
 
 CompileAlphabet();
 
+if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start LoadObjectPrototypes = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+
 rep = FAILED;
 newinstruments = CompiledCsObjects = FALSE;
 pos = 0L;
@@ -3138,6 +3143,7 @@ CloseFile(mifile);
 // HideWindow(Window[wMessage]);
 
 ObjectMode = ObjectTry = TRUE;
+if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end LoadObjectPrototypes = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 
 // SetButtons(TRUE);
 if(rep == OK) {

@@ -76,45 +76,59 @@ PrototypesLoaded = FALSE;
 Find_leak = FALSE; // Flag to locate place where negative leak starts
 check_memory_use = FALSE;
 
+Handle mem_ptr[5000];
+int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
+
 int main (int argc, char* args[])
 {
-	int  result;
-	
-	MemoryUsedInit = MemoryUsed = 0;
+	int  result,i,j,this_size;
+	long forgotten_mem, memory_before;
+		
+//	MemoryUsedInit = MemoryUsed = 0;
+
+	MaxHandles = ZERO;
+	MemoryUsed = 0;
+	MemoryUsedInit = MemoryUsed;
 	
 	ConsoleInit(&gOptions);
-//	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (1) = %ld\n",(long)MemoryUsed);
+//	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (1) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
     ConsoleMessagesInit();
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (2) = %ld\n",(long)MemoryUsed);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (2) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	result = ParsePreInitArgs(argc, args, &gOptions);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (3) = %ld\n",(long)MemoryUsed);
 	if (result == EXIT)  return EXIT_SUCCESS;
 	else if (result != OK)  return EXIT_FAILURE;
+	
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (3) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	
 	if (gOptions.useStdErr)	{
 		// split message output from "algorithmic output"
 		SetOutputDestinations(odInfo|odWarning|odError|odUserInt, stderr);
 	}
-
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (4) = %ld\n",(long)MemoryUsed);
-
+	
+	if(check_memory_use) BPPrintMessage(odInfo,"Memory before Inits() = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	
+	memory_before = MemoryUsed;
 	if (Inits() != OK)	return EXIT_FAILURE;
+	MemoryUsed = memory_before;
 	
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (5) = %ld\n",(long)MemoryUsed);
 	
-	MemoryUsedInit = MemoryUsed;
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (5) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+//	MemoryUsedInit = MemoryUsed;
 	
 	result = ParsePostInitArgs(argc, args, &gOptions);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (6) = %ld\n",(long)MemoryUsed);
 	if (result != OK)  return EXIT_FAILURE;
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (6) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+
+		
+	
 	result = LoadInputFiles(gOptions.inputFilenames);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (7) = %ld\n",(long)MemoryUsed);
 	if (result != OK)  return EXIT_FAILURE;
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (7) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	// some command-line options are applied after loading the settings file
 	result = ApplyArgs(&gOptions);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (8) = %ld\n",(long)MemoryUsed);
 	if (result != OK)  return EXIT_FAILURE;
 
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (8) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	
 #if BIGTEST
 	TraceMemory = TRUE;
@@ -146,15 +160,28 @@ int main (int argc, char* args[])
 	
 	// load data
 	if (!LoadedStartString)  CopyStringToTextHandle(TEH[wStartString], "S\n");
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (9) = %ld\n",(long)MemoryUsed);
-	// CopyStringToTextHandle(TEH[wGrammar], gr_Visser3);
-//	MemoryUsedInit = MemoryUsed;
+		
+//	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (9) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	BPPrintMessage(odInfo,"\nMemory used so far = %ld bytes\n",(long)MemoryUsed);
+
+	// The following is a global record of the status of handles created and disposed
+	// hist_mem_ptr[] is 1 after a GiveSpace() and 2 after a DisposHandle()
+	if(check_memory_use) {
+		i_ptr = 0;
+		BPPrintMessage(odInfo,"\nChecking memory use starts here with MemoryUsed = %ld and i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+		for(i=0; i < 5000; i++) {
+			hist_mem_ptr[i] = size_mem_ptr[i] = 0;
+			mem_ptr[i] = NULL;
+			}
+		}
 	
 	// configure output destinations
 	result = PrepareProdItemsDestination(&gOptions);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (10) = %ld\n",(long)MemoryUsed);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (10) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	if (result == OK) result = PrepareTraceDestination(&gOptions);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (11) = %ld\n",(long)MemoryUsed);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (11) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	
+		
 	if (result == OK) {
 		// perform the action specified on the command line
 		switch (gOptions.action) {
@@ -163,6 +190,7 @@ int main (int argc, char* args[])
 				if (Beta && result != OK)  BPPrintMessage(odError, "CompileCheck() returned %d\n", result);
 				break;
 			case produce:
+				if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start ProduceItems = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 				result = ProduceItems(wStartString,FALSE,FALSE,NULL);
 				if (Beta && result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
 				break;
@@ -194,7 +222,7 @@ int main (int argc, char* args[])
 			case templates:
 				if(CompileCheck() == OK && ShowNotBP() == OK)	{
 					result = ProduceItems(wStartString,FALSE,TRUE,NULL);
-					if (Beta && result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
+					if (Beta && result != OK) BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
 				}
 				break;
 			case no_action:
@@ -209,26 +237,38 @@ int main (int argc, char* args[])
 	/* Cleanup ... */
 	
 	// deallocate any remaining space obtained since Inits()
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (12) = %ld\n",(long)MemoryUsed);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (12) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	MyDisposeHandle((Handle*)&Stream.code);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (13) = %ld\n",(long)MemoryUsed);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (13) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	Stream.imax = ZERO;
 	Stream.period = ZERO;
 	EndImageFile();
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (14) = %ld\n",(long)MemoryUsed);
-	if(MemoryUsed < MemoryUsedInit) {
-			BPPrintMessage(odInfo,"WARNING! MemoryUsed = %ld < MemoryUsedInit = %ld in %s/%s\n",(long)MemoryUsed,(long)MemoryUsedInit,__FILE__,__FUNCTION__);
-			}
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (14) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if(check_memory_use && (MemoryUsed < MemoryUsedInit)) {
+		BPPrintMessage(odInfo,"WARNING! MemoryUsed = %ld < MemoryUsedInit = %ld in %s/%s\n",(long)MemoryUsed,(long)MemoryUsedInit,__FILE__,__FUNCTION__);
+		}
 	if (TraceMemory && Beta) {
 		// reset everything and report memory usage & any leaked space
 		if((result = ResetProject(FALSE)) != OK)
 			BPPrintMessage(odError, "ResetProject() returned %d\n", result);
-		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (21) = %ld\n",(long)MemoryUsed);
-		ClearObjectSpace();
-		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (22) = %ld\n",(long)MemoryUsed);
-		BPPrintMessage(odInfo, "This session used %ld bytes maximum.  %ld handles created and released. [%ld bytes leaked] MemoryUsedInit = %ld\n",
-				(long) MaxMemoryUsed,(long)MaxHandles,
-				(long) (MemoryUsed - MemoryUsedInit),(long)MemoryUsedInit);
+		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (21) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+		// ClearObjectSpace();
+		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (23) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+		BPPrintMessage(odInfo, "This session used %ld bytes maximum.  %ld handles created and released. [%ld bytes leaked]\n",
+			(long) MaxMemoryUsed,(long)MaxHandles,
+			(long) (MemoryUsed - MemoryUsedInit));
+			}
+	if(check_memory_use) {
+		j = forgotten_mem = 0;
+		for(i = 0; i < 5000; i++) {
+			if(hist_mem_ptr[i] == 1) { // Handles that we forgot to dispose of
+				j++;
+				forgotten_mem += size_mem_ptr[i];
+				this_size = (int) MyGetHandleSize((Handle)(mem_ptr[i])); // Checking again
+				BPPrintMessage(odInfo,"Leaking handle %d containing %ld bytes = %ld, hist_mem = %d\n",(long)i,(long)size_mem_ptr[i],(long)this_size,hist_mem_ptr[i]);
+				}
+			}
+		BPPrintMessage(odInfo, "Uncleared %ld handles for %ld bytes\n",(long)j,(long)forgotten_mem);
 		}
 	
 	// close open files
@@ -890,7 +930,9 @@ int LoadInputFiles(const char* pathnames[WMAX])
 				case wData:
 				case wGlossary:
 					BPPrintMessage(odInfo, "Reading %s file %s...\n", DocumentTypeName[w], pathnames[w]);
+					if(check_memory_use) BPPrintMessage(odInfo,"Before Reading %s file MemoryUsed = %ld\n",DocumentTypeName[w],(long)MemoryUsed);
 					result = LoadFileToTextHandle(pathnames[w], TEH[w]);
+					if(check_memory_use) BPPrintMessage(odInfo,"After Reading %s file MemoryUsed = %ld\n",DocumentTypeName[w],(long)MemoryUsed);
 					if (result != OK)  return result;
 					switch(w) {
 						case wAlphabet:			LoadedAlphabet = TRUE; break;
@@ -899,7 +941,7 @@ int LoadInputFiles(const char* pathnames[WMAX])
 					}
 					break;
 				case wCsoundInstruments: 
-					BPPrintMessage(odInfo, "Reading Csound instruments file %s...\n", pathnames[w]);
+					BPPrintMessage(odInfo, "Reading Csound instruments file %s (if not done)...\n", pathnames[w]);
 					strcpy(FileName[wCsoundInstruments],pathnames[w]);
 					result = LoadCsoundInstruments(0,1);
 					if (result != OK)  return result;
@@ -937,6 +979,7 @@ int LoadFileToTextHandle(const char* pathname, TEHandle th)
 	int result;
 	char **filecontents = NULL;
 
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start LoadFileToTextHandle = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	if (pathname == NULL) {
 		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): pathname == NULL\n");
 		return ABORT;
@@ -952,7 +995,9 @@ int LoadFileToTextHandle(const char* pathname, TEHandle th)
 	// CleanLF(filecontents,&count,&dos);
 	// CheckHTML(FALSE,w,filecontents,&count,&html);
 	result = CopyStringToTextHandle(th, *filecontents);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed before end LoadFileToTextHandle = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	MyDisposeHandle((Handle*) &filecontents);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end LoadFileToTextHandle = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	return result;
 }
 

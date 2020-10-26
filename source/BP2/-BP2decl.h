@@ -358,8 +358,10 @@ extern FSSpec TempSpec;
 extern UInt32 NumInstalledDrivers;
 extern BPMidiDriver** InstalledDrivers;
 extern DynamicMenuItem** InstalledMenuItems;
+extern long WidthMax,HeightMax;
 
 extern int Find_leak, check_memory_use;
-extern long WidthMax,HeightMax;
+extern Handle mem_ptr[5000];
+extern int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 
 #endif /* BP2_DECL_H */

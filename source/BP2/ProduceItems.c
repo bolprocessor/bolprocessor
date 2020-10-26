@@ -146,11 +146,11 @@ if(pp_start != NULL) pp_a = pp_start;
 else if(CreateBuffer(pp_a) != OK)  {
 	r = FAILED; goto QUIT;
 	}
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (17) = %ld\n",(long)MemoryUsed);
+if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start MakeComputeSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 if(MakeComputeSpace(MaxDeriv) != OK) {
 	r = FAILED; goto QUIT;
 	}
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (18) = %ld\n",(long)MemoryUsed);
+if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end MakeComputeSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 if(!ResetWeights && !NeverResetWeights && Varweight && !JustCompiled) {
 	if((r=Answer("Reset rule weights to initial values",'N')) == OK) {
 		Varweight = ResetRuleWeights(0);

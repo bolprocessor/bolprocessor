@@ -2069,7 +2069,7 @@ if(result == OK && iProto == j && j > 1 && j < Jbol) {
 	}
 #endif /* BP_CARBON_GUI */
 (*p_CompiledCsoundScore)[j] = TRUE;
-if(result == OK) BPPrintMessage(odError,"Csound score of object %d successfully compiled\n",j);
+// if(result == OK) BPPrintMessage(odError,"Csound score of object %d successfully compiled\n",j);
 return(result);
 }
 

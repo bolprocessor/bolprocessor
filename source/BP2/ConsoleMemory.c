@@ -97,6 +97,12 @@ static Handle GiveSpaceInternal(Size size, Boolean clear)
 		h->size = size;
 		// track memory usage
 		MaxHandles++;
+		if(i_ptr < 5000) {
+			mem_ptr[i_ptr] = (Handle)h;
+			hist_mem_ptr[i_ptr] = 1;
+			size_mem_ptr[i_ptr] = (int) size;
+			}
+		i_ptr++;
 		MemoryUsed += (long) size;
 		if(MemoryUsed > MaxMemoryUsed) {
 			MaxMemoryUsed = MemoryUsed;
@@ -113,21 +119,30 @@ Size MyGetHandleSize(Handle h)
 
 int MyDisposeHandle(Handle *p_h)
 {
+	int i;
+	
 	if (p_h == NULL) {
 		BPPrintMessage(odInfo,"Err. MyDisposeHandle. p_h = NULL");
 		return(ABORT);
 	}
 	if(*p_h != NULL) {
 		s_handle_priv*	h = (s_handle_priv*) *p_h;
+		
+		for(i = 0; i < 5000; i++) {
+			if(mem_ptr[i] == (Handle)(*p_h)) {
+				hist_mem_ptr[i] = 2;
+				}
+			}
 		if(h->size < (Size)1) {
 			if(!EmergencyExit && Beta) Alert1("Err. MyDisposeHandle. size < 1");
 			*p_h = NULL;
 			return(ABORT);
 		}
 		MemoryUsed -= (long) h->size;
+		
 		free(h->memblock);
 		free(h);
-		if(MemoryUsed < MemoryUsedInit) {
+		if(check_memory_use && MemoryUsed < MemoryUsedInit) {
 			BPPrintMessage(odInfo,"WARNING! MemoryUsed = %ld < MemoryUsedInit = %ld in %s/%s\n",(long)MemoryUsed,(long)MemoryUsedInit,__FILE__,__FUNCTION__);
 			}
 		// no way to check for errors ?
@@ -160,6 +175,7 @@ int MySetHandleSize(Handle* p_h,Size size)
 {
 	s_handle_priv*	h;
 	Size oldsize;
+	int i;
 	
 //	BPPrintMessage(odInfo,"size = %ld\n",(long) size);
 	if(p_h == NULL) {
@@ -185,10 +201,16 @@ int MySetHandleSize(Handle* p_h,Size size)
 		else {
 			h->size = size;
 		/*	if (size > oldsize) */  MemoryUsed += (long)(size - oldsize);
-		/*	else  MemoryUsed -= (unsigned long)(oldsize - size);
+		/*	else  MemoryUsed -= (unsigned long)(oldsize - size); */
 			if(MemoryUsed > MaxMemoryUsed) {
 				MaxMemoryUsed = MemoryUsed;
-			} */
+			}
+			for(i = 0; i < 5000; i++) {
+			if(mem_ptr[i] == (Handle)h) {
+				size_mem_ptr[i] = (int) size;
+				break;
+				}
+			}
 		}
 	}
 	else {
