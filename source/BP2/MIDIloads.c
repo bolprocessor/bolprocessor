@@ -461,6 +461,9 @@ notenum = key % 12;
 octave = (key - notenum) / 12;
 channelstring[0] = '\0';
 if(channel > 0) sprintf(channelstring," channel %ld",(long)channel);
+// BPPrintMessage(odInfo,"\nkey = %d notenum = %d octave = %d NameChoice[notenum] = %d\n",key,notenum,octave,NameChoice[notenum]);
+if(NameChoice[notenum] == 1 && notenum == 0) octave--;
+if(NameChoice[notenum] == 1 && notenum == 11) octave++;
 switch(NoteConvention) {
 	case FRENCH:
 		octave -= 2;
@@ -599,9 +602,11 @@ CONT:
 	if((octave=GetInteger(YES,line2,&i)) == INT_MAX) return(FAILED);
 	if(NoteConvention == FRENCH) octave += 2;
 	if(NoteConvention == ENGLISH || NoteConvention == INDIAN) octave++;
+	
 CONT2:
 	*p_thekey = 12 * octave + notenum;
 	*p_thekey += (C4key - 60);
+//	BPPrintMessage(odInfo,"\nkey = %d Englishnote[notenum] = %s AltEnglishnote[notenum] = %s notenum = %d octave = %d NameChoice[notenum] = %d\n",*p_thekey,Englishnote[notenum],notenum,octave,NameChoice[notenum]);
 	}
 if(ignorechannel) return(OK);
 while(MySpace(line[i])) i++;

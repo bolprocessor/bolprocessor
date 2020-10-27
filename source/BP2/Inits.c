@@ -731,9 +731,12 @@ for(i=0; i < MAXCONVENTIONS; i++) {
 				sprintf(Message,"%s%ld",KeyString,(long)j);
 				break;
 			}
+	//	BPPrintMessage(odInfo,"key = %d notenum = %d octave = %d  name = %s\n",j,notenum,octave,Message);
 		MystrcpyStringToTable(p_NoteName[i],j,Message);
 		(*(p_NoteLength[i]))[j] = MyHandleLen((*(p_NoteName[i]))[j]);
 		octave = (j - notenum) / 12;
+		if(notenum == 0) octave--;
+		if(notenum == 11) octave++;
 		switch(i) {
 			case FRENCH:
 				octave -= 2;
@@ -772,6 +775,7 @@ for(i=0; i < MAXCONVENTIONS; i++) {
 				sprintf(Message,"%s%ld",KeyString,(long)j);
 				break;
 			}
+	//	BPPrintMessage(odInfo,"ALT key = %d notenum = %d octave = %d  name = %s\n",j,notenum,octave,Message);
 		MystrcpyStringToTable(p_AltNoteName[i],j,Message);
 		(*(p_AltNoteLength[i]))[j] = MyHandleLen((*(p_AltNoteName[i]))[j]);
 		}
