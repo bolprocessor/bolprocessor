@@ -273,11 +273,14 @@ int main (int argc, char* args[])
 	
 	// close open files
 	CloseOutputDestination(odDisplay, &gOptions, ofiProdItems);
-	CloseOutputDestination(odTrace, &gOptions, ofiTraceFile);
 	CloseMIDIFile();
 	// CloseFileAndUpdateVolume(&TraceRefnum);
 	// CloseFileAndUpdateVolume(&TempRefnum);
 	CloseCsScore();
+	CloseOutputDestination(odTrace, &gOptions, ofiTraceFile);
+	
+	// Create "done.txt" file
+	CreateDoneFile();
 	
 	// deallocate space obtained during Inits() (not strictly necessary)
 /*	MyDisposeHandle((Handle*)&p_Oldvalue); */
@@ -288,6 +291,27 @@ int main (int argc, char* args[])
 	return EXIT_SUCCESS;
 }
 
+void CreateDoneFile(void)
+{
+	FILE * thisfile;
+	FILE * ptr;
+	char* someline;
+	char line1[200], line2[200];
+	int length;
+	
+	sprintf(Message,gOptions.outputFiles[ofiTraceFile].name);
+	remove_spaces(Message,line2);
+	length = strlen(line2);
+	strncpy(line1,line2,length - 4);
+	strcat(line1,"_done.txt");
+	remove_spaces(line1,line2);
+    BPPrintMessage(odInfo,"Creating 'done' file: ");
+	BPPrintMessage(odInfo,line2);
+	ptr = fopen(line2,"w");
+	fputs("bp completed work!\n",ptr);
+	fclose(ptr);
+	return;
+}
 
 void CreateImageFile(void)
 {

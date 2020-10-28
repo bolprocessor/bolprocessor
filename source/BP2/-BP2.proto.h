@@ -1117,6 +1117,7 @@ char *recode_tags(const char*);
 
 // int ReleaseComputeSpace(void);
 int ClearObjectSpace(void);
+void CreateDoneFile(void);
 
 
 #if !TARGET_API_MAC_CARBON
