@@ -114,8 +114,7 @@ r.right = r.left + endxmax;
 
 WidthMax = 2 * endxmax + 40;
 sprintf(Message,"WidthMax (2) = %ld\n",WidthMax);
-BPPrintMessage(odInfo,Message);
-// fputs(Message,imagePtr);
+// BPPrintMessage(odInfo,Message);
 
 rep = DrawItemBackground(&r,imax,htext,hrect,leftoffset,interruptok,p_delta,&yruler,
 	topoffset,&overflow);
@@ -311,15 +310,13 @@ CONT:
 ENDGRAPH:
 
 QUIT:
-// WidthMax = (resize * endxmax) + 20;
 WidthMax = 2 * endxmax + 40;
 sprintf(Message,"WidthMax (1) = %ld\n",WidthMax);
-BPPrintMessage(odInfo,Message);
-// fputs(Message,imagePtr);
+// BPPrintMessage(odInfo,Message);
 
 HeightMax = 2 * endymax + 20;
 sprintf(Message,"HeightMax (1) = %ld\n",HeightMax);
-BPPrintMessage(odInfo,Message);
+// BPPrintMessage(odInfo,Message);
 
 MyDisposeHandle((Handle*)&p_morespace);
 MyDisposeHandle((Handle*)&p_top);
@@ -1301,7 +1298,7 @@ ymax = p_r->bottom;
 if(TRUE || ShowPianoRoll) {
 	HeightMax = 2 * ymax + 20;
 	sprintf(Message,"HeightMax (2) = %ld\n",HeightMax);
-	BPPrintMessage(odInfo,Message);
+//	BPPrintMessage(odInfo,Message);
 	}
 
 // Draw scale ruler

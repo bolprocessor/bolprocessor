@@ -410,7 +410,7 @@ if(showpianoroll) {
 //	BPPrintMessage(odInfo,"minkey = %d maxkey = %d endymax = %d\n",minkey,maxkey,endymax);
 	WidthMax = 2 * endxmax + 20;
 	sprintf(Message,"WidthMax (3) = %ld\n",WidthMax);
-	BPPrintMessage(odInfo,Message);
+//	BPPrintMessage(odInfo,Message);
 	
 	graphrect.top = graphrect.left = 0;
 	graphrect.bottom = graphrect.top + endymax;

@@ -450,7 +450,7 @@ if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 				if(Find_leak) BPPrintMessage(odInfo, "right arg\n");
 				h = (*((*(Gram.p_subgram))[igram].p_rule))[irul].p_leftflag;
 				if(h != NULL) {
-					BPPrintMessage(odInfo, "left flags\n");
+			//		BPPrintMessage(odInfo, "left flags\n");
 					do {
 						if((**h).x > Jflag || (**h).x < 0) {
 							sprintf(Message,"Err in flag list. ");

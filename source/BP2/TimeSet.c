@@ -33,7 +33,7 @@
 
 
 #ifndef DISPLAY_PHASE_DIAGRAM
-#define DISPLAY_PHASE_DIAGRAM 1
+#define DISPLAY_PHASE_DIAGRAM 0
 #endif
 
 #ifndef _H_BP2 

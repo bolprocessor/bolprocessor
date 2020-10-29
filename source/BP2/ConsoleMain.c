@@ -305,7 +305,7 @@ void CreateDoneFile(void)
 	strncpy(line1,line2,length - 4);
 	strcat(line1,"_done.txt");
 	remove_spaces(line1,line2);
-    BPPrintMessage(odInfo,"Creating 'done' file: ");
+    BPPrintMessage(odInfo,"Created 'done' file: ");
 	BPPrintMessage(odInfo,line2);
 	ptr = fopen(line2,"w");
 	fputs("bp completed work!\n",ptr);
@@ -377,7 +377,7 @@ void EndImageFile(void)
   	pick_a_line = NULL;
 	fclose(imagePtr);
 	imagePtr = NULL;
-	BPPrintMessage(odInfo,"Closing temporary image file\n");
+	// BPPrintMessage(odInfo,"Closing temporary image file\n");
 	if(ShowGraphic) {
 		final_name = repl_str(imageFileName,"_temp","");
 		remove_spaces(final_name,final_name);
