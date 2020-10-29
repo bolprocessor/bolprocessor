@@ -208,8 +208,9 @@ else
 	ratio = 0.001;
 		
 if(onoffline != LINE) {
-	(*scorearg)[2] = (*perf)->starttime[key];
-	(*scorearg)[3] = time - (*perf)->starttime[key];
+	// (*scorearg)[2] = (*perf)->starttime[key];
+	(*scorearg)[2] = (*perf)->starttime[key] * Qclock / ((double) Pclock); // FIXED by BB 20 oct 2020
+	(*scorearg)[3] = time - (*scorearg)[2];
 	sprintf(Message,"onoffline != LINE, key = %ld, starttime = %ld, time = %ld, scorearg[2] = %ld, scorearg[3] = %ld\n",(long)key,(long)(*perf)->starttime[key],(long)time,(long)(*scorearg)[2],(long)(*scorearg)[3]);
 	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,Message);
 	}
