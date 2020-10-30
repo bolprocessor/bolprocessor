@@ -295,7 +295,6 @@ void CreateDoneFile(void)
 {
 	FILE * thisfile;
 	FILE * ptr;
-	char* someline;
 	char line1[200], line2[200];
 	int length;
 	
@@ -348,12 +347,13 @@ void CreateImageFile(void)
 		fclose(imagePtr);
 		}
 	else {
-		someline = (char *) malloc(50);
+		someline = (char *) malloc(100);
 		while((number = getline(&someline,&length,thisfile)) != -1) {
 			fputs(someline,imagePtr);
 			}
 		fclose(thisfile);
 		fputs("\n",imagePtr);
+		free(someline);
 		}
 	return;
 }
@@ -367,6 +367,7 @@ void EndImageFile(void)
 	ssize_t number;
 	
 	if(imagePtr == NULL) return;
+	someline = (char *) malloc(200);
 	thisfile = fopen("CANVAS_footer.txt","r");
 	if(thisfile == NULL) BPPrintMessage(odInfo,"‘CANVAS_footer.txt’ is missing!\n");
 	else {
