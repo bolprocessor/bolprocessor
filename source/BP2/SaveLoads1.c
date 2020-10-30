@@ -1143,6 +1143,7 @@ for(j=0; j < jmax; j++) {
 	
 	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
 	(*p_CsPitchFormat)[j] = i;
+//	BPPrintMessage(odInfo,"instrument = %d format = %d\n",j,i);
 	
 	if(ReadFloat(csfile,&r,&pos) == FAILED) goto ERR;
 	(*p_CsInstrument)[j].pitchbendrange = r;
@@ -3046,7 +3047,10 @@ if((ptr = (Handle) GiveSpace(MyGetHandleSize(p_completeline))) == NULL) goto ERR
 // if(show_details_load_prototypes) BPPrintMessage(odInfo, "j =  %d size of handle CsoundScoreText = %ld\n",j,(long) MyGetHandleSize((Handle)(*pp_CsoundScoreText)[j]));
 MystrcpyHandleToHandle(0,&((*pp_CsoundScoreText)[j]),p_completeline);
 
-if((rep=CompileObjectScore(j,&longerCsound)) != OK) goto ERR;
+if((rep=CompileObjectScore(j,&longerCsound)) != OK) {
+	OutCsound = FALSE;
+	goto ERR;
+	}
 Dirty[iObjects] = Dirty[wPrototype7] = FALSE;
 // CompiledCsObjects = (*p_CompiledCsoundScore)[j] = FALSE;
 

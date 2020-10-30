@@ -249,9 +249,9 @@ if(!launchErr) {
 else {
 	MyPtoCstr(MAXNAME,spec.name,name);
 	if(name[0] != '\0')
-		sprintf(Message,"BP2 is unable to open '%s'",name);
+		sprintf(Message,"BP3 is unable to open '%s'",name);
 	else
-		sprintf(Message,"BP2 is unable to open application with unknown name");
+		sprintf(Message,"BP3 is unable to open application with unknown name");
 	Alert1(Message);
 	return(FAILED);
 	}

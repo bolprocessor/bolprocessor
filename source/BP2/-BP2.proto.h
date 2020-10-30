@@ -596,7 +596,7 @@ int SetFileSavePreferences(void);
 int SetDefaultStrikeMode(void);
 int GetCsoundScoreName(void);
 int FixCsoundScoreName(char*);
-int CscoreWrite(int,int,double,Milliseconds,int,int,int,int,int,int,int,int,PerfParameters****);
+int CscoreWrite(Rect*,int,int,int,int,int,int,int,double,Milliseconds,int,int,int,int,int,int,int,int,PerfParameters****);
 int CompileCsoundObjects(void);
 int CompileRegressions(void);
 int CompileObjectScore(int,int*);

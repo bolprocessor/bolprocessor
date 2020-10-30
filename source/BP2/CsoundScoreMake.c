@@ -38,9 +38,9 @@
 
 #include "-BP2decl.h"
  
-int show_messages_cs_scoremake = 0;
+int show_messages_cs_scoremake = 0; 
 
-CscoreWrite(int strikeagain,int onoffline,double dilationratio,Milliseconds t,int iline,
+int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double dilationratio,Milliseconds t,int iline,
 	int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,
 	PerfParameters ****pp_currentparams)
 {
@@ -54,11 +54,12 @@ int i,c,ins,index,paramnameindex,iarg,ip,ipitch,iargmax,octave,changedpitch,over
 	pitchclass,result,maxparam,itable;
 char line[MAXLIN],line2[MAXLIN];
 long imax;
-double time,x,xx,cents,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,endvalue,ratio;
+double time,x,xx,cents,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,endvalue,ratio,oldtime_on;
 PerfParameters **perf;
 ParameterStatus **params,**paramscopy;
 Handle h;
-CsoundParam **instrparamlist;
+CsoundParam **instrparamlist; 
+Milliseconds timeoff;
 
 scorearg = NULL;
 params = NULL;
@@ -74,13 +75,11 @@ perf = (*pp_currentparams)[nseq];
 
 if(onoffline == LINE) {
 	if(j >= Jbol) {
-	//	if(Beta) Alert1("Err. CscoreWrite(). j >= Jbol");
 		sprintf(Message,"Err. CscoreWrite(). j >= Jbol, j = %ld\n",(long)j);
 		BPPrintMessage(odInfo,Message);
 		goto OUT;
 		} 
 	if(iline < 0 || (iline >= (*p_CsoundSize)[j])) {
-	//	if(Beta) Alert1("Err. CscoreWrite(). iline < 0 || iline >= (*p_CsoundSize)[j]");
 		sprintf(Message,"Err. CscoreWrite(). iline < 0 || iline >= (*p_CsoundSize)[j] iline = %ld\n",(long)iline);
 		BPPrintMessage(odInfo,Message);
 		goto OUT;
@@ -90,7 +89,6 @@ if(onoffline == LINE) {
 	}
 else {
 	if(key < 0 || key >= MAXKEY) {
-	//	if(Beta) Alert1("Err. CscoreWrite(). Incorrect key");
 		sprintf(Message,"Err. CscoreWrite(). Incorrect key = %ld\n",(long)key);
 		BPPrintMessage(odInfo,Message);
 		goto OUT;
@@ -634,11 +632,23 @@ if(iarg > 0) {
 	if(onoffline == LINE) (*scorearg)[iarg] = dilationratio;
 	else (*scorearg)[iarg] = (*perf)->dilationratio[key];
 	}
-
+	
 // Write Csound event
 
 WRITECSCORELINE:
 
+// First send this note to pianoroll
+if(ShowPianoRoll) {
+	oldtime_on = (*((*pp_currentparams)[nseq]))->starttime[key]; // Not sure it's necessary…
+	(*((*pp_currentparams)[nseq]))->starttime[key] = (*scorearg)[2];
+	timeoff = (Milliseconds) 1000 * ((*scorearg)[2] + (*scorearg)[3]);
+	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,"key = %d chan = %d (*scorearg)[2] = %.3f (*scorearg)[3] = %.3f timeoff = %ld minkey = %d maxkey = %d\n",key,chan,(*scorearg)[2],(*scorearg)[3],(long)timeoff,minkey,maxkey);
+	DrawPianoNote(key,nseq,chan,timeoff,pp_currentparams,leftoffset,
+	topoffset,hrect,minkey,maxkey,p_graphrect,&overflow); // We no longer care about "overflow"
+	(*((*pp_currentparams)[nseq]))->starttime[key] = oldtime_on;
+	}
+
+// Now to the score
 sprintf(line,"i%ld ",(long)index);
 if(!ConvertMIDItoCsound) NoReturnWriteToFile(line,CsRefNum);
 strcpy(Message,line);
@@ -668,11 +678,11 @@ if(pitchclass >= 0) {
 else line[0] = '\0';
 
 if(!ConvertMIDItoCsound) {
-	if(CsoundTrace) Println(wTrace,Message);
-	else if(ShowMessages) ShowMessage(TRUE,wMessage,Message);
-		else PleaseWait();
+	if(CsoundTrace) ShowMessage(TRUE,wMessage,Message);
+//	else if(ShowMessages) ShowMessage(TRUE,wMessage,Message);
+//		else PleaseWait();
 	}
-else PleaseWait();
+// else PleaseWait();
 
 
 if(ConvertMIDItoCsound) Println(wPrototype7,Message);
@@ -682,7 +692,8 @@ result = OK;
 sprintf(line2,"line = %s\n",line);
 if(show_messages_cs_scoremake) BPPrintMessage(odInfo,line2);
 
-Message[0] = "\0";
+strcpy(Message,"");
+
 
 OUT:
 MyDisposeHandle((Handle*)&scorearg);

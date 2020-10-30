@@ -674,15 +674,15 @@ if(w != wMessage && Editable[w] && !LockedWindow[w]) {
 					FilePrefix[wMIDIorchestra]);
 				break;
 			case wInteraction:
-				sprintf(line,"BP2 script\n// Here you may write a script fixing the interactive environment (IN... instructions) or load a '%s' interactive code file.\n",
+				sprintf(line,"BP3 script\n// Here you may write a script fixing the interactive environment (IN... instructions) or load a '%s' interactive code file.\n",
 					FilePrefix[wInteraction]);
 				break;
 			case wGlossary:
-				sprintf(line,"BP2 script\n// Here you may write the glossary ('Define...' instructions) or load a '%s' glossary file.\n",
+				sprintf(line,"BP3 script\n// Here you may write the glossary ('Define...' instructions) or load a '%s' glossary file.\n",
 					FilePrefix[wGlossary]);
 				break;
 			case wScript:
-				sprintf(line,"BP2 script\n// Here you may write a script (See 'Script' menu) or load a '%s' script file.\n",
+				sprintf(line,"BP3 script\n// Here you may write a script (See 'Script' menu) or load a '%s' script file.\n",
 					FilePrefix[wScript]);
 				break;
 			case wStartString:
@@ -702,7 +702,7 @@ if(w != wMessage && Editable[w] && !LockedWindow[w]) {
 			case wInteraction:
 			case wGlossary:
 			case wScript:
-				SetSelect((long) strlen("BP2 script\n"),count,TEH[w]);
+				SetSelect((long) strlen("BP3 script\n"),count,TEH[w]);
 				break;
 			default:
 				SetSelect(count,count,TEH[w]);

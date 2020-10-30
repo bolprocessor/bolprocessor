@@ -151,7 +151,7 @@ int main (int argc, char* args[])
 */
 
 	InitOn = FALSE;
-	BPPrintMessage(odInfo, "BP2 Console completed initialization.\n");
+	BPPrintMessage(odInfo, "BP3 Console completed initialization.\n");
 	
 	BPPrintMessage(odInfo, "%s\n",gOptions.inputFilenames[wGrammar]);
 	
@@ -307,6 +307,7 @@ void CreateDoneFile(void)
 	remove_spaces(line1,line2);
     BPPrintMessage(odInfo,"Created 'done' file: ");
 	BPPrintMessage(odInfo,line2);
+	BPPrintMessage(odInfo,"\n_____________________\n");
 	ptr = fopen(line2,"w");
 	fputs("bp completed work!\n",ptr);
 	fclose(ptr);
@@ -381,7 +382,7 @@ void EndImageFile(void)
 	if(ShowGraphic) {
 		final_name = repl_str(imageFileName,"_temp","");
 		remove_spaces(final_name,final_name);
-		BPPrintMessage(odInfo,"Converting temporary image file to %s\n",final_name);
+		BPPrintMessage(odInfo,"Finalized image file to %s\n",final_name);
 		imagePtr = fopen(final_name,"w");
 		thisfile = fopen(imageFileName,"r");
 		free(final_name);
@@ -431,7 +432,7 @@ void EndImageFile(void)
 		free(someline);
 		imagePtr = NULL;
 		}
-	BPPrintMessage(odInfo,"Removing: %s\n",imageFileName);
+//	BPPrintMessage(odInfo,"Removing: %s\n",imageFileName);
 	remove(imageFileName);
 	return;
 }

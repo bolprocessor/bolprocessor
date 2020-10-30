@@ -415,7 +415,7 @@ if(w >= 0 && w < WMAX && Editable[w]) {
 	
 	if(w == wScript || w == wGlossary || w == wInteraction) {
 		MystrcpyHandleToString(MAXLIN,0,line,p_ScriptLabelPart(110,0));
-		/* line is "BP2 script" */
+		/* line is "BP3 script" */
 		}
 	if(w == wGrammar) strcpy(line,"COMMENT:");
 	len = strlen(line);

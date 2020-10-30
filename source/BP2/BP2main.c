@@ -357,7 +357,7 @@ Handle GiveSpace(Size size)
 
 	if(p == NULL || ((memerr=MemError()) != noErr)) { // should always check MemError - akozar
 		// on OS X, this is pretty much the end of the road ?? - akozar 040207
-		Alert1("BP2 ran out of memory before completing the current task."
+		Alert1("BP3 ran out of memory before completing the current task."
 			 "You may want to save your work before continuing.");
 		return NULL;
 	}
@@ -443,7 +443,7 @@ SchedulerIsActive++;
 
 if((memerr=MemError()) != noErr) {
 	// on OS X, this is pretty much the end of the road ?? - akozar 040207
-	Alert1("BP2 ran out of memory before completing the current task."
+	Alert1("BP3 ran out of memory before completing the current task."
 		 "You may want to save your work before continuing.");
 	return NULL;
 	}
@@ -503,7 +503,7 @@ if((memerr=MemError()) == noErr) {
 	}
 else {
 	// on OS X, this is pretty much the end of the road ?? - akozar 040207
-	Alert1("BP2 ran out of memory before completing the current task."
+	Alert1("BP3 ran out of memory before completing the current task."
 		 "You may want to save your work before continuing.");
 	return (ABORT);
 	}

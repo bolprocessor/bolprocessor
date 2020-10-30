@@ -64,7 +64,7 @@ int w,y,ii,iii,j,jj,k,kcurrentinstance,n,noccurrence,s,in,itick,c,c0,c1,oldc1,c2
 	localchan,localvelocity,outtime,foundfirsteventinperiod,maxparam,index,overflow,
 	foundlasteventinperiod,foundfirstevent,cswrite,nextisobject,exclusive,themessage,
 	okvolume,okpanoramic,okpitchbend,okpressure,okmodulation,hrect,htext,leftoffset,topoffset,
-	contchan,volume,panoramic,pitchbend,modulation,pressure,**p_seqcont[MAXCHAN];
+	contchan,volume,panoramic,pitchbend,modulation,pressure,**p_seqcont[MAXCHAN],octave,pitchclass;
 	
 Milliseconds time,buffertime,torigin,t0,t1,t11,t2,t2obj,
 	t2tick,t22,t3,date1,**p_t1,**p_t2cont[MAXCHAN],
@@ -78,7 +78,8 @@ unsigned long currswitchstate[MAXCHAN],oldtime,maxmidibytes5,drivertime;
 unsigned int seed;
 float howmuch;
 double value,streakposition[MAXTICKS],tickdate[MAXTICKS],fstreak,alpha,beta,date,olddate,
-	preroll,postroll,objectperiod,beforeperiod,firstcycleduration,**p_periodgap,p,q;
+	preroll,postroll,objectperiod,beforeperiod,
+	firstcycleduration,**p_periodgap,p,q,this_key,deltakey;
 p_list **waitlist,**scriptlist;
 MIDI_Event e;
 MappedKey **p_currmapped;
@@ -378,12 +379,36 @@ if(showpianoroll) {
 						c1 = ExpandKey(c1,(*p_Instance)[k].xpandkey,(*p_Instance)[k].xpandval);
 						if(!(*p_Instance)[k].lastistranspose) TransposeKey(&c1,trans);
 						key = c1;
-					//	BPPrintMessage(odInfo,"k = %d j = %d key = %d   minkey = %d\n",k,j,key,minkey);
 						if(key < minkey) minkey = key;
 						if(key > maxkey) maxkey = key;
 						}
 					else i++;
 					i++;
+					}
+				}
+			if(cswrite && (*p_CsoundSize)[j] > 0) {
+				// We extract "key" from each event in the sound-object's score
+				for(i = 0; i < (*p_CsoundSize)[j]; i++) {
+					this_key = (*((*((*pp_CsoundScore)[j]))[i].h_param))[0];
+					instrument = (*((*pp_CsoundScore)[j]))[i].instrument - 1;
+				//	BPPrintMessage(odInfo,"key in score = %.3f j = %d instrument = %d format = %d\n",this_key,j,(instrument +1),(*p_CsPitchFormat)[instrument]);
+					switch((*p_CsPitchFormat)[instrument]) {
+						case OPPC:
+							octave = MyInt(this_key);
+							pitchclass = MyInt(100. * (this_key - octave));
+							deltakey = 12. * (octave - 3.) + pitchclass;
+							break;
+						case OPD:
+							deltakey = (this_key - 3.) * 12.;
+							break;
+						case CPS:
+							deltakey = (C4key + 9.) + 12. * (log(this_key/A4freq) / log(2.));
+							break;
+						}
+					key = MyInt(deltakey);
+				//	BPPrintMessage(odInfo,"A4freq = %.1f key = %d octave = %d pitchclass = %d\n\n",A4freq,key,octave,pitchclass);
+					if(key < minkey) minkey = key;
+					if(key > maxkey) maxkey = key;
 					}
 				}
 			}
@@ -700,10 +725,11 @@ TRYCSFILE:
 		if(ConvertMIDItoCsound)
 			Println(wPrototype7,Message);
 		else {
-			if(CsoundTrace) {
+			if(CsoundTrace) ShowMessage(TRUE,wMessage,Message);
+		/*	{
 				SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 				Println(wTrace,Message);
-				}
+				} */
 			if(WriteToFile(NO,CsoundFileFormat,Message,CsRefNum) != OK) {
 				sprintf(Message,"Couldn't write to file '%s'. May be it has been closed by another application",
 					CsFileName);
@@ -1266,7 +1292,7 @@ SWITCHES:
 											sprintf(Message,"kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld\n",(long)kcurrentinstance,beta,(long)j,(long)t0,(long)t1,(long)c1,(long)c2);
 											if(show_csound_pianoroll) BPPrintMessage(odInfo,Message);
 											if((result=
-		CscoreWrite(strikeagain,OFF,beta,(t0 + t1),-1,c1,c2,localchan,instrument,j,
+		CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,OFF,beta,(t0 + t1),-1,c1,c2,localchan,instrument,j,
 			nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 											}
 										if(showpianoroll) {
@@ -1325,7 +1351,7 @@ SWITCHES:
 										sprintf(Message,"kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,(long)c1,(long)c2);
 										if(show_csound_pianoroll) BPPrintMessage(odInfo,Message);
 										if((result=
-		CscoreWrite(strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
+		CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 										}
 									if(showpianoroll) {
@@ -1417,7 +1443,7 @@ PLAYOBJECT:
 				
 			/* Writing a Csound event taken from the Csound score of a sound-object */
 			if(cswrite && j < Jbol && (*p_CsoundSize)[j] > 0 && !ConvertMIDItoCsound) {
-				if((result=CscoreWrite(strikeagain,LINE,beta,(t0 + t1),ievent,0,0,0,0,j,
+				if((result=CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,LINE,beta,(t0 + t1),ievent,0,0,0,0,j,
 					nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 				goto NEWPERIOD;
 				}
@@ -1499,7 +1525,7 @@ SENDNOTEOFF:
 									sprintf(Message,"kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,(long)c1,(long)c2);
 									if(show_csound_pianoroll) BPPrintMessage(odInfo,Message);
 									if((result=
-		CscoreWrite(strikeagain,OFF,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
+		CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,OFF,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 									}
 								if(showpianoroll) {
@@ -1566,13 +1592,11 @@ SENDNOTEOFF:
 							if(show_csound_pianoroll) BPPrintMessage(odInfo,Message);
 							if(cswrite) {
 								if((result=
-		CscoreWrite(strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
+		CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 								}
 							if(showpianoroll) {
-// if BP_CARBON_GUI
 								(*((*pp_currentparams)[nseq]))->starttime[c1] = (t0 + t1) / 1000.;
-// endif /* BP_CARBON_GUI */
 								}
 							}
 						}
@@ -2017,7 +2041,7 @@ if(EventState == AGAIN) result = AGAIN;
 if(cswrite && result == OK) {
 	if(!ConvertMIDItoCsound) {
 		WriteToFile(NO,CsoundFileFormat,"s",CsRefNum);
-		if(CsoundTrace) Println(wTrace,"s\n");
+		if(CsoundTrace) /* Println(wTrace,"s\n"); */ ShowMessage(TRUE,wMessage,"s\n");
 		}
 	else {
 		Println(wPrototype7,"e");

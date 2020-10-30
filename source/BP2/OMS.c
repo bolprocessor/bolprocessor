@@ -91,12 +91,12 @@ if((version=OMSVersion()) == 0) {
 	return 1;	/* any old error number */
 	}
 if(version < 0x02000000) {
-	Alert1("BP2 requires OMS version 2.0 or higher.\nInternal MIDI driver will be used");
+	Alert1("BP3 requires OMS version 2.0 or higher.\nInternal MIDI driver will be used");
 	ShowMessage(TRUE,wInfo,"Download OMS from ftp://ftp.opcode.com/pub/oms/mac");
 	return 1;
 	}
 	
-ShowMessage(TRUE,wMessage,"BP2 is signing in to OMS...");
+ShowMessage(TRUE,wMessage,"BP3 is signing in to OMS...");
 	
 #ifdef powerc
 	appHook = NewOMSAppHook(MyAppHook);

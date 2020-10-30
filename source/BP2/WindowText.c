@@ -300,7 +300,7 @@ int TextFullError(TextHandle th, int messageNum)
 				break;
 			case 0:  // for TextInsert()
 			default:
-	  			sprintf(Message, "BP2 cannot insert text into window '%s' because it is too full."
+	  			sprintf(Message, "BP3 cannot insert text into window '%s' because it is too full."
 					  " (%d characters max)", (FileName[w][0] ? FileName[w] : WindowName[w]),
 					  TEXTEDIT_MAXCHARS);
 				break;

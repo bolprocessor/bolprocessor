@@ -1769,9 +1769,8 @@ while(TRUE) {
 	c = (*p_line)[i0];
 	if(c == '_') goto NEXTLINE;
 	if(c != 'i' && c != 't' && c != 'f' && c != ';' && c != 'e') {
-		sprintf(Message,"Csound score line must start with 'i', 'f', 't' or a semi-colon. Can't accept %c",c);
-		Alert1(Message);
-		result = FAILED; goto OUT;
+		BPPrintMessage(odInfo,"\nCsound score line must start with 'i', 'f', 't' or a semi-colon. Can't accept '%c' in the score of object %d.\nPart of this score will be ignored:\n%s\n",c,j,(*p_line));
+		result = OK; goto OUT;
 		}
 	foundevent = FALSE;
 	
@@ -1791,8 +1790,8 @@ while(TRUE) {
 	if(c == 't') istempo = TRUE;
 	if(c == 'e') finished = TRUE;
 	if(c == 'f') {
-		Alert1("Opcode 'f' (table definition) is not supported in this version");
-		result = FAILED; goto OUT;
+		BPPrintMessage(odInfo,"\nOpcode 'f' (table definition) is not supported sound-object scores. The incorrect line has been ignored in object %d:\n%s\n",j,(*p_line));
+		goto NEXTLINE;
 		}
 
 NEWPARAMETER:
@@ -1810,14 +1809,14 @@ NEWPARAMETER:
 	param = Myatof(line,&p,&q);
 	if(istempo) {
 		if(ip == 1 && param != 0) {
-			sprintf(Message,"BP2 can't compile this Csound score: argument following 't' should be 0. Can't accept %.2f",
+			sprintf(Message,"BP3 can't compile this Csound score: argument following 't' should be 0. Can't accept %.2f",
 				param);
 			Alert1(Message);
 			result = FAILED;
 			goto OUT;
 			}
 		if(ip > 2) {
-			sprintf(Message,"BP2 can't compile this Csound score: more than %ld arguments following 't'",
+			sprintf(Message,"BP3 can't compile this Csound score: more than %ld arguments following 't'",
 				(long)ip-1L);
 			Alert1(Message);
 			result = FAILED;
@@ -1975,7 +1974,9 @@ NEWPARAMETER:
 							"Default Csound instrument requires %ld arguments but the score is supplying more",
 							(long)(maxparam+3));
 					Alert1(Message);
-					result = ABORT; goto OUT;
+					result = ABORT;
+					OutCsound = FALSE;
+					goto OUT;
 					}
 				(*h)[nparam] = param;
 				break;
@@ -2011,6 +2012,7 @@ NEXTLINE:
 				}
 			MyDisposeHandle((Handle*)&h);
 			result = FAILED;
+			OutCsound = FALSE;
 			goto OUT;
 			}
 			

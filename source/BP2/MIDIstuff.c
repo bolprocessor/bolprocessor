@@ -1674,7 +1674,7 @@ if(Mute) {
 	return(FAILED);
 	}
 if(SoundOn) {
-	Alert1("BP2 is already sending messages to the MIDI output...");
+	Alert1("BP3 is already sending messages to the MIDI output...");
 	return(FAILED);
 	}
 ResetMIDIControllers(YES,YES,YES);

@@ -202,7 +202,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 			goto NEWINDEX;
 			}
 		if(loaded[wind]) {
-			sprintf(Message,"BP2 can't open several files of the same type. '%s' was ignored...",name);
+			sprintf(Message,"BP3 can't open several files of the same type. '%s' was ignored...",name);
 			Println(wTrace,Message);
 			failedonce = TRUE;
 			goto NEWINDEX;
@@ -225,7 +225,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 			case iMidiDriver:
 				break;
 			default:
-				sprintf(Message,"BP2 can't open file '%s' from the Finder...",name);
+				sprintf(Message,"BP3 can't open file '%s' from the Finder...",name);
 				Println(wTrace,Message);
 				failedonce = TRUE;
 				goto NEWINDEX;
@@ -387,7 +387,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 			}
 		else {
 			TellError(39,io);
-			sprintf(Message,"BP2 was unable to open '%s'... [Error code %ld]\n",
+			sprintf(Message,"BP3 was unable to open '%s'... [Error code %ld]\n",
 				name,(long)io);
 			Println(wTrace,Message);
 			failedonce = TRUE;

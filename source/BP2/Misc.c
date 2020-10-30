@@ -109,7 +109,7 @@ return;
 }
 
 DisplayHelp(const char* command)
-/* Display section of "BP2 help" relative to 'command' */
+/* Display section of "BP3 help" relative to 'command' */
 {
 long pos,posline,posmax,pos1,pos2;
 int i,length,rr1,rr2;

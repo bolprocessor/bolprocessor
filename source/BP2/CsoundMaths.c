@@ -445,8 +445,8 @@ if(result == OK) {
 		sprintf(line2," %.3f",y);
 		strcat(line,line2);
 		}
-	if(CsoundTrace) Println(wTrace,line);
-	else if(ShowMessages) ShowMessage(TRUE,wMessage,line);
+	if(CsoundTrace) ShowMessage(TRUE,wMessage,line);
+//	else if(ShowMessages) ShowMessage(TRUE,wMessage,line);
 	if(ConvertMIDItoCsound) Println(wPrototype7,line);
 	else WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
 	}

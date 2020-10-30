@@ -79,7 +79,7 @@ static Handle GiveSpaceInternal(Size size, Boolean clear)
 	// allocate a private handle structure
 	h = malloc(sizeof(s_handle_priv));
 	if(h == NULL) {
-		Alert1("BP2 ran out of memory before completing the current task."
+		Alert1("BP3 ran out of memory before completing the current task."
 			   "You may want to save your work before continuing.");
 		return NULL;
 	}
@@ -89,7 +89,7 @@ static Handle GiveSpaceInternal(Size size, Boolean clear)
 	else		h->memblock = malloc((size_t) size);
 	if(h->memblock == NULL) {
 		free(h);
-		Alert1("BP2 ran out of memory before completing the current task."
+		Alert1("BP3 ran out of memory before completing the current task."
 			   "You may want to save your work before continuing.");
 		return NULL;
 	}
@@ -194,7 +194,7 @@ int MySetHandleSize(Handle* p_h,Size size)
 		}
 		h->memblock = realloc(h->memblock, size);
 		if (h->memblock == NULL) {
-			Alert1("BP2 ran out of memory before completing the current task."
+			Alert1("BP3 ran out of memory before completing the current task."
 				   "You may want to save your work before continuing.");
 			return (ABORT);
 		}

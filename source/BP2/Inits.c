@@ -1684,7 +1684,7 @@ if(!gestaltErr) {
 		}
 #endif
 	if(gestaltAnswer < 0x002) {
-		sprintf(Message,"BP2 requires at least a 68020 processor.\nThis machine has a %s processor",
+		sprintf(Message,"BP3 requires at least a 68020 processor.\nThis machine has a %s processor",
 			processor[gestaltAnswer]);
 		ParamText(in_place_c2pstr(Message), "\p", "\p", "\p");
 		StopAlert(OKAlert, NULL);
@@ -2238,7 +2238,7 @@ int CheckDate()
 	DateToSeconds(&dtrp,&secs);
 	GetDateTime(&today);
 	if(today < secs) {
-		reply = Answer("BP2 requires a 68020 processor and at least System 4 to run. "
+		reply = Answer("BP3 requires a 68020 processor and at least System 4 to run. "
 				   "This isn't 1984 anymore!!\nContinue anyways?", 'Y');
 	}
 	if (reply == YES)  return(OK);

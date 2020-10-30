@@ -782,7 +782,7 @@ TRYLOAD:
 if(OldFile(wGrammar,5,fn,&spec)) {
 	if(IdentifyBPFileType(&spec) != wGrammar) {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"BP2 is not sure that '%s' is a grammar file. Do you want to load it anyway", LineBuff);
+		sprintf(Message,"BP3 is not sure that '%s' is a grammar file. Do you want to load it anyway", LineBuff);
 		rep = Answer(Message,'N');
 		if(rep != YES) {
 			if(rep == NO) ShowMessage(TRUE,wMessage,"Hint: You can use the 'Scrap' window to load any file...");
@@ -881,7 +881,7 @@ if(Answer("Load and save MIDI data from device",'Y') == YES) {
 	c2pstrcpy(fn, "Dump");
 	if(NewFile(-1,1,fn,&reply)) {
 		if((r=CreateFile(-1,-1,1,fn,&reply,&refnum)) != OK) goto OUT;
-		WriteToFile(NO,MAC,"BP2 decimal MIDI dump",refnum);
+		WriteToFile(NO,MAC,"BP3 decimal MIDI dump",refnum);
 		sprintf(LineBuff,"%ld",(long)im);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		for(i=ZERO; i < im; i++) {
@@ -937,7 +937,7 @@ if(OldFile(-1,1,PascalLine,&spec)) {
 	if(MyOpen(&spec,fsCurPerm,&refnum) == noErr) {
 		pos = ZERO;
 		if(ReadOne(FALSE,FALSE,TRUE,refnum,FALSE,&p_line,&p_completeline,&pos) == FAILED) goto ERR1;
-		if(Mystrcmp(p_line,"BP2 decimal MIDI dump") != 0) {
+		if(Mystrcmp(p_line,"BP3 decimal MIDI dump") != 0) {
 			Alert1("This file does not contain appropriate (decimal) code");
 			goto ERR1;
 			}
@@ -1164,7 +1164,7 @@ if(OldFile(w,type,fn,&spec)) {
 	if(gFileType[w] != ftiAny && gFileType[w] != ftiText && IdentifyBPFileType(&spec) != w) {
 		//anyfile = TRUE;
 		p2cstrcpy(LineBuff,fn);
-		sprintf(Message,"BP2 is not sure that '%s' is a(n) %s file. Do you want to load it anyway", LineBuff, 
+		sprintf(Message,"BP3 is not sure that '%s' is a(n) %s file. Do you want to load it anyway", LineBuff, 
 			DocumentTypeName[w]);
 		r = Answer(Message,'N');
 		if(r != YES) {
