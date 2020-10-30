@@ -643,7 +643,7 @@ if(ShowPianoRoll) {
 	(*((*pp_currentparams)[nseq]))->starttime[key] = (*scorearg)[2];
 	timeoff = (Milliseconds) 1000 * ((*scorearg)[2] + (*scorearg)[3]);
 	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,"key = %d chan = %d (*scorearg)[2] = %.3f (*scorearg)[3] = %.3f timeoff = %ld minkey = %d maxkey = %d\n",key,chan,(*scorearg)[2],(*scorearg)[3],(long)timeoff,minkey,maxkey);
-	DrawPianoNote(key,nseq,chan,timeoff,pp_currentparams,leftoffset,
+	DrawPianoNote("csound",key,nseq,chan,timeoff,pp_currentparams,leftoffset,
 	topoffset,hrect,minkey,maxkey,p_graphrect,&overflow); // We no longer care about "overflow"
 	(*((*pp_currentparams)[nseq]))->starttime[key] = oldtime_on;
 	}

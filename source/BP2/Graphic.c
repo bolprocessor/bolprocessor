@@ -1432,7 +1432,7 @@ return(result);
 }
 
 
-int DrawPianoNote(int key,int nseq,int chan,Milliseconds timeoff,
+int DrawPianoNote(char* type,int key,int nseq,int chan,Milliseconds timeoff,
 	PerfParameters ****pp_currentparams,
 	int leftoffset,int topoffset,int hrect,int minkey,int maxkey,Rect *p_r,int *p_overflow)
 {
@@ -1464,7 +1464,9 @@ if(length < 8) {
 	}
 Lastx2[key] = x2;
 pen_size(8,0);
-stroke_style("brown");
+if(strcmp(type,"midi") == 0) stroke_style("brown");
+else if(strcmp(type,"csound") == 0) stroke_style("green");
+else stroke_style("black");
 draw_line(x1,y,x2,y,"");
 return(OK);
 }

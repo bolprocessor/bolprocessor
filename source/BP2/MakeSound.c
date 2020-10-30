@@ -1297,7 +1297,7 @@ SWITCHES:
 											}
 										if(showpianoroll) {
 // if BP_CARBON_GUI 
-											result = DrawPianoNote(c1,nseq,localchan,(t0 + t1),
+											result = DrawPianoNote("midi",c1,nseq,localchan,(t0 + t1),
 												pp_currentparams,leftoffset,topoffset,hrect,
 												minkey,maxkey,&graphrect,&overflow);
 											if(result != OK || overflow) goto OVER;
@@ -1530,7 +1530,7 @@ SENDNOTEOFF:
 									}
 								if(showpianoroll) {
 // if BP_CARBON_GUI
-									result = DrawPianoNote(c1,nseq,localchan,(t0 + t1),
+									result = DrawPianoNote("midi",c1,nseq,localchan,(t0 + t1),
 										pp_currentparams,leftoffset,topoffset,hrect,
 										minkey,maxkey,&graphrect,&overflow);
 									if(result != OK || overflow) goto OVER;
