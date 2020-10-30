@@ -71,7 +71,12 @@ char* thisline;
 unsigned char c;
 p_list **waitlist;
 
-if(!ShowObjectGraph || ShowPianoRoll) return(OK);
+if(!ShowObjectGraph) return(OK);
+if(imagePtr == NULL) {
+	N_image++;
+	CreateImageFile();
+	}
+BPPrintMessage(odInfo,"Creating image %d based on objects\n",N_image);
 
 if(tmin == Infpos) {
 	BPPrintMessage(odInfo,"Err. DrawObject(). tmin == Infpos\n");
@@ -81,7 +86,7 @@ if(CheckLoadedPrototypes() != OK) {
 	BPPrintMessage(odInfo,"No sound-object prototypes have been loaded. Graphic is cancelled.\n");
 	return(OK);
 	}
-BPPrintMessage(odInfo,"==> Yes, drawing graphics in ‘objects’ mode...\n");
+// BPPrintMessage(odInfo,"Drawing graphics in ‘objects’ mode...\n");
 if(show_more_details) BPPrintMessage(odInfo,"Jbol = %d Jpatt = %d\n",Jbol,Jpatt);
 
 rep = OK;
@@ -594,6 +599,7 @@ Milliseconds t,tmin,tmax,**p_delta;
 unsigned long i,im;
 
 if(TempMemory || !ShowGraphic) return(OK);
+BPPrintMessage(odInfo,"Drawing sequence\n");
 tmin = Infpos; tmax = Infneg;
 im = imax;
 if(im >  (*p_imaxseq)[nseq]) im =  (*p_imaxseq)[nseq];

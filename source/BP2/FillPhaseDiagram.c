@@ -1687,10 +1687,6 @@ if(!foundobject && ShowGraphic && !ShowObjectGraph && !ShowPianoRoll && !ScriptE
 if(ShowGraphic && !ShowObjectGraph && !ShowPianoRoll)
 	ShowObjectGraph = TRUE;
 	
-if(ShowPianoRoll) {
-	ShowObjectGraph = FALSE;
-	// BPPrintMessage(odInfo, "Since ShowPianoRoll is on, ShowGraphic = FALSE\n");
-	}
 if(show_details_diagram) BPPrintMessage(odInfo, "Finished filling phase diagram\n");
 return(OK);
 }

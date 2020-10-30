@@ -38,9 +38,6 @@
 
 #include "-BP2decl.h"
 
-extern FILE * imagePtr;
-extern int N_image;
-
 ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start)
 /* Produce items. Start string is selection in window w or in buffer p_start */
 {

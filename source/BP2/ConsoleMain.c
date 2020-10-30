@@ -316,7 +316,7 @@ void CreateDoneFile(void)
 
 void CreateImageFile(void)
 {
-	FILE * thisfile;
+	FILE * thisfile; 
 	char* someline;
 	char line1[200], line2[200];
 	size_t length = 0;
@@ -348,8 +348,9 @@ void CreateImageFile(void)
 		fclose(imagePtr);
 		}
 	else {
+		someline = (char *) malloc(50);
 		while((number = getline(&someline,&length,thisfile)) != -1) {
-        	fputs(someline,imagePtr);
+			fputs(someline,imagePtr);
 			}
 		fclose(thisfile);
 		fputs("\n",imagePtr);

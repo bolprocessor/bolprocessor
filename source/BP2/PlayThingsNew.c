@@ -258,7 +258,9 @@ finish = FALSE; dummy = 0;
 CurrentChannel = 1;
 
 
+BPPrintMessage(odInfo, "Starting PlayBuffer1()\n");
 if(!NoVariable(pp_buff) && UpdateGlossary() != OK) return(ABORT);
+BPPrintMessage(odInfo, "Starting2 PlayBuffer1()\n");
 
 /* We need to store the item in its current format to be able to print it or derive it further */
 p_b = NULL;
@@ -290,7 +292,8 @@ if(GlossGram.p_subgram != NULL && NeedGlossary(pp_buff) && !onlypianoroll) {
 	}
 
 result = OK;
-while((result=PolyMake(pp_buff,&maxseqapprox,YES)) == AGAIN){};
+while((result=PolyMake(pp_buff,&maxseqapprox,YES)) == AGAIN) {
+	};
 if(result == EMPTY) {
 	result = OK; goto OUT;
 	}
@@ -320,17 +323,19 @@ result = OK;
 SetTimeOn = FALSE;
 
 BPPrintMessage(odInfo, "==> Drawing graphics?\n");
+if(ShowObjectGraph) BPPrintMessage(odInfo, "DrawItem()\n");
+else BPPrintMessage(odInfo, "not DrawItem()\n");
 			
-if(onlypianoroll
-		|| (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && tmax > tmin)) {
+if(onlypianoroll || (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && tmax > tmin)) {
 	if(!ShowPianoRoll && !onlypianoroll) {
-// if BP_CARBON_GUI
 		result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,
 			p_imaxseq,TRUE,TRUE,NULL);
-// endif
 		}
-	else
+	else {
 		result = MakeSound(pp_buff,&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,YES,NULL);
+		if(ShowObjectGraph) result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,
+			p_imaxseq,TRUE,TRUE,NULL);
+		}
 	}
 if(result == AGAIN) {
 	again = TRUE;

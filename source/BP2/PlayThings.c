@@ -340,8 +340,10 @@ if(onlypianoroll
 		result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
 		if(OutCsound ||WriteMIDIfile) result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,YES,NULL);
 		}
-	else
+	else {
 		result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,YES,NULL);
+		result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
+		}
 	}
 else if(OutCsound || WriteMIDIfile) result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,YES,NULL);
 

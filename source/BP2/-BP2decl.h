@@ -364,4 +364,7 @@ extern int Find_leak, check_memory_use;
 extern Handle mem_ptr[5000];
 extern int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 
+extern FILE * imagePtr;
+extern int N_image;
+
 #endif /* BP2_DECL_H */
