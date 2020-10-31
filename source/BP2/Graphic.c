@@ -1466,12 +1466,15 @@ if((x1 - Lastx2[key]) < 4) {
 length = x2 - x1;
 if(length < 8) {
 	x2 += 2; // For out-time objects
-	x1 -= 2;
+	if(strcmp(type,"midi") == 0) x1 -= 2;
 	}
 Lastx2[key] = x2;
 pen_size(8,0);
 if(strcmp(type,"midi") == 0) stroke_style("brown");
-else if(strcmp(type,"csound") == 0) stroke_style("green");
+else if(strcmp(type,"csound") == 0) {
+	stroke_style("green");
+//	return(OK);
+	}
 else stroke_style("black");
 draw_line(x1,y,x2,y,"");
 return(OK);

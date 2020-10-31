@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
  
-int show_messages_cs_scoremake = 0; 
+int show_messages_cs_scoremake = 1; 
 
 int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double dilationratio,Milliseconds t,int iline,
 	int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,
@@ -640,8 +640,8 @@ WRITECSCORELINE:
 // First send this note to pianoroll
 if(ShowPianoRoll) {
 	oldtime_on = (*((*pp_currentparams)[nseq]))->starttime[key]; // Not sure it's necessary…
-	(*((*pp_currentparams)[nseq]))->starttime[key] = (*scorearg)[2];
-	timeoff = (Milliseconds) 1000 * ((*scorearg)[2] + (*scorearg)[3]);
+	(*((*pp_currentparams)[nseq]))->starttime[key] = (*scorearg)[2] * Pclock / Qclock;
+	timeoff = (Milliseconds) 1000 * ((*scorearg)[2] + (*scorearg)[3]) * Pclock / Qclock;
 	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,"key = %d chan = %d (*scorearg)[2] = %.3f (*scorearg)[3] = %.3f timeoff = %ld minkey = %d maxkey = %d\n",key,chan,(*scorearg)[2],(*scorearg)[3],(long)timeoff,minkey,maxkey);
 	DrawPianoNote("csound",key,nseq,chan,timeoff,pp_currentparams,leftoffset,
 	topoffset,hrect,minkey,maxkey,p_graphrect,&overflow); // We no longer care about "overflow"

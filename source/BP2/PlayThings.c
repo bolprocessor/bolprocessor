@@ -205,16 +205,15 @@ return(r);
 
 PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll)
 {
-// MIDI_Parameters parms;
 int r;
 
-if(SoundOn) return(FAILED);
+// if(SoundOn) return(FAILED);
 if(CheckEmergency() != OK) return(ABORT);
 
-if(Jbol < 3) NoAlphabet = TRUE;	/*  Added 7/10/97 */
+if(Jbol < 3) NoAlphabet = TRUE;
 else NoAlphabet = FALSE;
 
-// BPPrintMessage(odInfo,"Running PlayBuffer()\n");
+BPPrintMessage(odInfo,"Running PlayBuffer()\n");
 if(FirstTime && !onlypianoroll) {
 	if(p_Initbuff == NULL) {
 	//	if(Beta) Alert1("Err. PlayBuffer(). p_Initbuff = NULL. ");
@@ -264,7 +263,6 @@ if(length < 1) return(OK);
 finish = FALSE; dummy = 0;
 CurrentChannel = 1;
 
-// BPPrintMessage(odInfo, "Running PlayBuffer1()\n");
 if(!NoVariable(pp_buff) && UpdateGlossary() != OK) return(ABORT);
 
 /* We need to store the item in its current format to be able to print it or derive it further */
@@ -331,9 +329,8 @@ SetTimeOn = FALSE;
 sprintf(Message,"\ntmin = %ld, tmax = %ld\n\n",(long)tmin,(long)tmax);
 // BPPrintMessage(odInfo,Message);
 
-if(ShowGraphic) BPPrintMessage(odInfo, "Shall we draw graphics?\n");
+// if(ShowGraphic) BPPrintMessage(odInfo, "Shall we draw graphics?\n");
 
-// Probably the following decision tree should be simplified!
 if(onlypianoroll
 		|| (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && (tmax > tmin || Nature_of_time == SMOOTH))) {
 	if(!ShowPianoRoll && !onlypianoroll) {

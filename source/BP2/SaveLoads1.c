@@ -1385,9 +1385,8 @@ if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start LoadSettings = %ld 
 result = OK;
 oldoutmidi = OutMIDI;
 p_line = p_completeline = NULL;
-// if((rep=ClearWindow(FALSE,wStartString)) != OK) return(rep);	// FIXME: remove this?
 if(startup) {
-	// FIXME: set filename = location of a startup settings file and continue?
+	// FIXME: set filename = location of a startup settings file and continue? We'll see later (BB)
 	return OK;
 }
 else {
@@ -1419,13 +1418,13 @@ if(ReadOne(FALSE,FALSE,FALSE,sefile,TRUE,&p_line,&p_completeline,&pos) == FAILED
 if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;	// serial port used by old built-in Midi driver
 // if(startup) Port = j;
 
-if(ReadOne(FALSE,FALSE,TRUE,sefile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;	/* Not used */
+if(ReadOne(FALSE,FALSE,TRUE,sefile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;	// Not used but should be kept for consistency
 if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR; Quantization = k;
 if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR; Time_res = k;
 if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR; SetUpTime = j;
 if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR; QuantizeOK = j;
 #if BP_CARBON_GUI
-SetTimeAccuracy();
+SetTimeAccuracy(); // We'll see later what to do with Time_res
 Dirty[wTimeAccuracy] = FALSE;
 #endif /* BP_CARBON_GUI */
 NotSaidKpress = TRUE;
@@ -1488,12 +1487,11 @@ Oms = FALSE;	// OMS is no more
    Note that this does not mark the settings file as Dirty either.
    -- 012307 akozar */
 #if !WITH_REAL_TIME_MIDI
-  OutMIDI = FALSE;
-  Improvize = FALSE;
+	OutMIDI = FALSE;
+//	Improvize = FALSE;
 #endif
 
-Improvize = FALSE;
-if(Improvize) ShowPianoRoll = ShowObjectGraph = ShowGraphic = 0;
+if(!OutMIDI) Improvize = FALSE;
 
 SetButtons(TRUE);
 
@@ -1726,6 +1724,8 @@ MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 CloseFile(sefile);
 
 LoadOn--;
+
+if(Improvize) ShowPianoRoll = ShowObjectGraph = ShowGraphic = FALSE;
 if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end LoadSettings = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 return(result);
 }

@@ -55,7 +55,7 @@ ParameterStatus **params,**ptrs;
 ParameterSpecs **currentinstancevalues;
 ParameterStream **stream;
 
-int w,y,ii,iii,j,jj,k,kcurrentinstance,n,noccurrence,s,in,itick,c,c0,c1,oldc1,c2,kfirstinstance,ch,
+int w,y,ii,iii,j,jj,k,kcurrentinstance,n,occurrence,s,in,itick,c,c0,c1,oldc1,c2,kfirstinstance,ch,
 	alph,alphach,r,result,pos,instrument,nseq,key,sequence,control,doneobjects,trans,simplenote,
 	rep,rep1,rep2,rep3,mustwait,waitcompletion,strike,iparam,chan,objectchannel,resetok,
 	**p_inext,**p_inext1,**p_istartperiod,**p_iendperiod,**p_icycle,maxconc,hastabs,
@@ -598,12 +598,15 @@ for(nseq=0; nseq < maxconc; nseq++) {
 		}
 	}
 
-// The following loop repeats Nplay performances of item.
+// The following loop repeats Nplay performances of item
 
-for(noccurrence = 0; noccurrence < Nplay || SynchroSignal == PLAYFOREVER; noccurrence++) {
+// Nplay = 2; // Used to try repeating real-time output or Csound score
+
+for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurrence++) {
 	result = OK;
-	PleaseWait();
+//	PleaseWait();
 	if(SkipFlag) goto OVER;
+//	BPPrintMessage(odError, "occurrence = %d\n",occurrence);
 #if BP_CARBON_GUI
 	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if(!showpianoroll && (result=MyButton(1)) != FAILED) {
@@ -656,7 +659,7 @@ for(noccurrence = 0; noccurrence < Nplay || SynchroSignal == PLAYFOREVER; noccur
 	mustwait = FALSE;
 	
 	if(Improvize && (Nplay > 1 || SynchroSignal == PLAYFOREVER)) {
-		sprintf(Message,"%ldth repetition...",(long)noccurrence+1L);
+		sprintf(Message,"%ldth repetition...",(long)occurrence+1L);
 		ShowMessage(TRUE,wMessage,Message);
 		}
 		
@@ -1699,7 +1702,7 @@ NEWPERIOD:
 				if((result = ListenMIDI(0,0,0)) == ABORT || result == ENDREPEAT
 					|| result == EXIT) goto OVER;
 				if(result == AGAIN) {
-					noccurrence--; /* Repeat once */
+					occurrence--; /* Repeat once */
 					sprintf(Message,"Current item will be played again...");
 					ShowMessage(TRUE,wMessage,Message);
 					}
@@ -1850,6 +1853,9 @@ FINDNEXTEVENT:
 		}
 	currenttime = Tcurr * Time_res;
 	mustwait = TRUE;
+	
+	if(cswrite && result == OK && !ConvertMIDItoCsound)
+		WriteToFile(NO,CsoundFileFormat,"s",CsRefNum);
 	}
 
 // End of the Nplay performances
@@ -1860,7 +1866,7 @@ FINDNEXTEVENT:
 
 if(LastTcurr > 0L) {
 	sprintf(Message,"Last time = %ld ms\n",(long)LastTcurr);
-	BPPrintMessage(odInfo,Message);
+//	BPPrintMessage(odInfo,Message);
 	}
 
 if(showpianoroll) goto OUTGRAPHIC;
@@ -2040,8 +2046,8 @@ if(EventState == AGAIN) result = AGAIN;
 
 if(cswrite && result == OK) {
 	if(!ConvertMIDItoCsound) {
-		WriteToFile(NO,CsoundFileFormat,"s",CsRefNum);
-		if(CsoundTrace) /* Println(wTrace,"s\n"); */ ShowMessage(TRUE,wMessage,"s\n");
+	//	WriteToFile(NO,CsoundFileFormat,"s",CsRefNum);
+	//	if(CsoundTrace) /* Println(wTrace,"s\n"); */ ShowMessage(TRUE,wMessage,"s\n");
 		}
 	else {
 		Println(wPrototype7,"e");

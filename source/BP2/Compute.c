@@ -721,6 +721,7 @@ MORE:
 					goto QUIT;
 					}
 				if(CopyBuf(pp_b,pp_c) == ABORT) return(ABORT);
+			//	BPPrintMessage(odInfo,"ShowItem()\n");
 				c = ShowItem(igram,p_gram,FALSE,pp_c,(*p_repeat),mode,FALSE);
 				MyDisposeHandle((Handle*)pp_c);
 				if(c == ABORT || c == FINISH || c == EXIT || c == STOP) {
@@ -827,12 +828,14 @@ if(grtype == SUBtype) {
 		if(Beta) Alert1("Err1. ComputeInGram(). *pp_b = NULL");
 		goto QUIT;
 		}
+//	BPPrintMessage(odInfo,"\nleftpos = %ld halt = %d\n",(long)leftpos,halt);
 	if(!halt
 		&& (leftpos = NextPos(pp_a,pp_b,&lastpos,&incmark,leftpos,1)) > -1L) {
 		/* Skip next symbol and retry */
 		goto RETRY1;
 		}
 	if(foundone) (*p_length) = CopyBuf(pp_b,pp_a);
+//	BPPrintMessage(odInfo,"length = %ld foundone = %d\n",(long)(*p_length),foundone);
 	if(*p_length == ABORT) {
 		rep = ABORT; goto QUIT;
 		}
@@ -2117,6 +2120,7 @@ if(justplay) {
 	goto QUIT;
 	}
 if(DisplayProduce) {
+//	BPPrintMessage(odInfo,"DisplayProduce\n");
 	datamode = DisplayMode(pp_a,&ifunc,&hastabs);
 	if(mode == ANAL || all) datamode = FALSE;
 	Dirty[wTrace] = TRUE;

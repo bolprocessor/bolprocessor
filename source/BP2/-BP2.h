@@ -114,6 +114,8 @@
 #if USE_BUILT_IN_MIDI_DRIVER
 #  define WITH_REAL_TIME_MIDI 1
 #  define WITH_REAL_TIME_SCHEDULER 1
+#else
+#  define WITH_REAL_TIME_MIDI 0
 #endif
 
 //#include <ansi_prefix.mac.h>	// commented out - 010507 akozar
