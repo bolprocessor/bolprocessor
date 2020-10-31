@@ -1071,7 +1071,7 @@ if(ReadOne(FALSE,FALSE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED
 sprintf(Message,"Loading %s...",FileName[wCsoundInstruments]);
 ShowMessage(TRUE,wMessage,Message);
 
-if(show_details_load_csound_instruments) BPPrintMessage(odError, "Line = %s\n",*p_line);
+if(show_details_load_csound_instruments) BPPrintMessage(odInfo, "Line = %s\n",*p_line);
 if(CheckVersion(&iv,p_line,FileName[wCsoundInstruments]) != OK) goto ERR;
 if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 // GetDateSaved(p_completeline,&(p_FileInfo[wCsoundInstruments]));
@@ -1089,7 +1089,7 @@ if(iv > 11) {
 	MystrcpyHandleToString(MAXNAME,0,CsoundOrchestraName,p_completeline);
 	}
 else CsoundOrchestraName[0] = '\0';
-if(show_details_load_csound_instruments) BPPrintMessage(odError,"CsoundOrchestraName = %s\n",CsoundOrchestraName);
+if(show_details_load_csound_instruments) BPPrintMessage(odInfo,"CsoundOrchestraName = %s\n",CsoundOrchestraName);
 if(ReadInteger(csfile,&jmax,&pos) == FAILED) goto ERR;
 if(jmax <= 0) {
 	BPPrintMessage(odError,"This file is empty or in an unknown format\n");
@@ -1099,13 +1099,12 @@ if((result=ResizeCsoundInstrumentsSpace(jmax)) != OK) goto ERR;
 result = FAILED;
 for(j=0; j < jmax; j++) {
 	ResetCsoundInstrument(j,YES,YES);
-	
 	if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 	ptr = (*pp_CsInstrumentName)[j];
 	if((*p_completeline)[0] != '\0') {
 		MystrcpyHandleToString(MAXLIN,0,LineBuff,p_completeline);
 	//	if(ShowMessages) ShowMessage(TRUE,wMessage,LineBuff);
-		BPPrintMessage(odError,"Loading Csound instrument %d = %s\n",(j+1),LineBuff);
+		BPPrintMessage(odInfo,"Loading Csound instrument %d = %s\n",(j+1),LineBuff);
 		if(MySetHandleSize((Handle*)&ptr,
 			(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
 				goto ERR;
@@ -1121,7 +1120,7 @@ for(j=0; j < jmax; j++) {
 			goto ERR;
 		MystrcpyHandleToHandle(0,&ptr,p_completeline);
 		(*pp_CsInstrumentComment)[j] = ptr;
-		if(show_details_load_csound_instruments) BPPrintMessage(odError,"Comment: %s\n",(*p_completeline));
+		if(show_details_load_csound_instruments) BPPrintMessage(odInfo,"Comment: %s\n",(*p_completeline));
 		}
 	else (*((*pp_CsInstrumentComment)[j]))[0] = '\0';
 	
@@ -1281,15 +1280,15 @@ for(j=0; j < jmax; j++) {
 			}
 /*		else (*((*((*p_CsInstrument)[j].paramlist))[ip].name))[0] = '\0'; $$$ Fixed 7/3/98 */
 		
-		if(show_details_load_csound_instruments) BPPrintMessage(odError, "Parameter: %s\n",*p_completeline);
-		line[0] = '\0';
+		BPPrintMessage(odInfo, "Parameter: %s\n",*p_completeline);
+		strcpy(line,"");
 		fscanf(csfile, "%[^\n]",line); // Necessary to read a line that might be empty
 		if(strlen(line) > 0) {
 			MystrcpyStringToHandle(&ptr,line);
 			(*((*p_CsInstrument)[j].paramlist))[ip].comment = ptr;
 			pos += strlen(line);
-			if(show_details_load_csound_instruments) BPPrintMessage(odError, "Comment: %s\n",line);
 			}
+		if(show_details_load_csound_instruments) BPPrintMessage(odInfo, "Comment: %s\n",line);
 		if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
 		(*((*p_CsInstrument)[j].paramlist))[ip].startindex = i;
 		if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
@@ -1318,7 +1317,7 @@ for(j=0; j < jmax; j++) {
 			}
 		}
 	}
-BPPrintMessage(odError, "All instruments have been loaded\n");
+BPPrintMessage(odInfo, "All instruments have been loaded\n");
 if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto QUIT;
 if(Mystrcmp(p_line,"_begin tables") == 0) {
 //	ClearWindow(NO,wCsoundTables);
@@ -1328,7 +1327,7 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 	while(TRUE) {
 		if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto QUIT;
 		if((i_table > 0) && strlen(*p_line) == 0) goto QUIT;
-		if(show_details_load_csound_instruments) BPPrintMessage(odError, "table line = %s\n",*p_line);
+		if(show_details_load_csound_instruments) BPPrintMessage(odInfo, "table line = %s\n",*p_line);
 		if(i_table >= MaxCsoundTables) {
 			p_CsoundTables = (char****) IncreaseSpace(p_CsoundTables);
 			MaxCsoundTables = (MyGetHandleSize((Handle)p_CsoundTables) / sizeof(char**));
@@ -1476,7 +1475,8 @@ else ResetControllers = FALSE;
 if(jmax > 22) ReadInteger(sefile,&NoConstraint,&pos);
 else NoConstraint = FALSE;
 if(jmax > 23) ReadInteger(sefile,&WriteMIDIfile,&pos);
-else WriteMIDIfile = FALSE; 
+else WriteMIDIfile = FALSE;
+WriteMIDIfile = FALSE; // This must be set by the command line
 if(jmax > 24) ReadInteger(sefile,&ShowMessages,&pos); 
 if(jmax > 25) ReadInteger(sefile,&OutCsound,&pos);
 else OutCsound = FALSE;
@@ -1491,7 +1491,7 @@ Oms = FALSE;	// OMS is no more
 //	Improvize = FALSE;
 #endif
 
-if(!OutMIDI) Improvize = FALSE;
+// if(!OutMIDI) Improvize = FALSE;
 
 SetButtons(TRUE);
 

@@ -213,7 +213,7 @@ if(CheckEmergency() != OK) return(ABORT);
 if(Jbol < 3) NoAlphabet = TRUE;
 else NoAlphabet = FALSE;
 
-BPPrintMessage(odInfo,"Running PlayBuffer()\n");
+// BPPrintMessage(odInfo,"Running PlayBuffer()\n");
 if(FirstTime && !onlypianoroll) {
 	if(p_Initbuff == NULL) {
 	//	if(Beta) Alert1("Err. PlayBuffer(). p_Initbuff = NULL. ");

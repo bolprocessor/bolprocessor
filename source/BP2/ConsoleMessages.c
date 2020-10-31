@@ -104,7 +104,7 @@ int BPPrintMessage(int dest, const char *format, ...)
 	// send message to only one destination from each group below.
 	
 	// output of item processing
-	if (dest & odDisplay)		vfprintf(gOutDestinations[odiDisplay], format, args);
+	if (dest & odDisplay) vfprintf(gOutDestinations[odiDisplay], format, args);
 	else if (dest & odMidiDump)	vfprintf(gOutDestinations[odiMidiDump], format, args);
 	else if (dest & odCsScore)	vfprintf(gOutDestinations[odiCsScore], format, args);
 	
@@ -114,8 +114,8 @@ int BPPrintMessage(int dest, const char *format, ...)
 	// messages or questions for user (give priority to odUserInt, then odError)
 	if (dest & odUserInt)		vfprintf(gOutDestinations[odiUserInt], format, args);
 	else if (dest & odError)	vfprintf(gOutDestinations[odiError], format, args);
-	else if (dest & odWarning)	vfprintf(gOutDestinations[odiWarning], format, args);
-	else if (dest & odInfo)		vfprintf(gOutDestinations[odiInfo], format, args);
+	else if ((dest & odWarning) && (!Improvize || ItemNumber < 1))	vfprintf(gOutDestinations[odiWarning], format, args);
+	else if ((dest & odInfo) && (!Improvize || ItemNumber < 1))		vfprintf(gOutDestinations[odiInfo], format, args);
 	
 	va_end(args);
 	return OK;

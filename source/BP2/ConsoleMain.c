@@ -81,7 +81,7 @@ int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 
 int main (int argc, char* args[])
 {
-	int  result,i,j,this_size;
+	int  result,i,j,this_size,improvize_mem;
 	long forgotten_mem, memory_before;
 		
 //	MemoryUsedInit = MemoryUsed = 0;
@@ -191,8 +191,9 @@ int main (int argc, char* args[])
 				break;
 			case produce:
 				if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start ProduceItems = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+				improvize_mem = Improvize;
 				result = ProduceItems(wStartString,FALSE,FALSE,NULL);
-				if (Beta && result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
+				if (Beta && result != OK && !improvize_mem)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
 				break;
 			case produce_items:
 				break;
@@ -222,7 +223,7 @@ int main (int argc, char* args[])
 			case templates:
 				if(CompileCheck() == OK && ShowNotBP() == OK)	{
 					result = ProduceItems(wStartString,FALSE,TRUE,NULL);
-					if (Beta && result != OK) BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
+			//		if (Beta && result != OK) BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
 				}
 				break;
 			case no_action:
@@ -254,7 +255,7 @@ int main (int argc, char* args[])
 		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (21) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 		// ClearObjectSpace();
 		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (23) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-		BPPrintMessage(odInfo, "This session used %ld bytes maximum.  %ld handles created and released. [%ld bytes leaked]\n",
+		BPPrintMessage(odInfo, "\nThis session used %ld bytes maximum.  %ld handles created and released. [%ld bytes leaked]\n",
 			(long) MaxMemoryUsed,(long)MaxHandles,
 			(long) (MemoryUsed - MemoryUsedInit));
 			}
@@ -329,7 +330,7 @@ void CreateImageFile(void)
 	remove_spaces(Message,line2);
 	length = strlen(line2);
 	strncpy(line1,line2,length - 4);
-	sprintf(line2,"_image_%ld_temp.html",(long)N_image);
+	sprintf(line2,"_image_%ld_temp.html\n",(long)N_image);
 	strcat(line1,line2);
 	remove_spaces(line1,line2);
     BPPrintMessage(odInfo,"Creating image file: ");
@@ -339,7 +340,7 @@ void CreateImageFile(void)
 	getcwd(cwd,sizeof(cwd));
 	if(cwd != NULL) {
 		sprintf(Message,"\nCurrent working dir: %s\n",cwd);
-		BPPrintMessage(odInfo,Message);
+	//	BPPrintMessage(odInfo,Message);
 		}
 	thisfile = fopen("CANVAS_header.txt","r");
 	if(thisfile == NULL) {

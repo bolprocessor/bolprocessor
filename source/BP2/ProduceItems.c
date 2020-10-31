@@ -46,6 +46,7 @@ int i,ifunc,j,ch,splitmem,r,undefined,datamode,weightloss,hastabs,maxsounds;
 long endofselection,size,lengthA;
 
 if(CheckEmergency() != OK) return(ABORT);
+
 if(((SetTimeOn || PrintOn || SoundOn || SelectOn) && !repeat)
 					|| CompileOn || GraphicOn || PolyOn) return(RESUME);
 #if BP_CARBON_GUI
@@ -246,9 +247,16 @@ if(!PlaySelectionOn && DisplayProduce) {
 	Print(wTrace,"\n");
 	}
 if(!PlaySelectionOn && ShowMessages) {
-	if(Improvize) sprintf(Message,"Computing item #%ld...",(long)ItemNumber);
-	else sprintf(Message,"Computing item...");
-	ShowMessage(TRUE,wMessage,Message);
+	if(Improvize) {
+		if(ItemNumber > 10) { 
+			Improvize =  FALSE;
+			return(ABORT);
+			}
+		if(ItemNumber == 0) BPPrintMessage(odInfo,"\n(No message and no picture during improvization. Only 10 items are produced.)\n\n");
+		// sprintf(Message,"Computing item #%ld...",(long)ItemNumber);
+		}
+	else BPPrintMessage(odInfo,"Computing item...");
+//	ShowMessage(TRUE,wMessage,Message);
 	}
 if(pp_start != NULL) goto DOIT;
 if(!PlaySelectionOn && DeriveFurther) {

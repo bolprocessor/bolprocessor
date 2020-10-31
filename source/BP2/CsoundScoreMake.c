@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
  
-int show_messages_cs_scoremake = 1; 
+int show_messages_cs_scoremake = 0;
 
 int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double dilationratio,Milliseconds t,int iline,
 	int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,
@@ -63,15 +63,17 @@ Milliseconds timeoff;
 
 scorearg = NULL;
 params = NULL;
-
-result = ABORT;
+ 
+result = ABORT; 
 
 if(chan < 0 || chan >= MAXCHAN) {
 	if(Beta) Alert1("Err. CscoreWrite(). chan < 0 || chan >= MAXCHAN");
 	chan = 0;
 	}
 	
-perf = (*pp_currentparams)[nseq];
+perf = (*pp_currentparams)[nseq]; 
+
+if(show_messages_cs_scoremake) BPPrintMessage(odInfo,"\nRunning CscoreWrite for iline = %d\n",iline);
 
 if(onoffline == LINE) {
 	if(j >= Jbol) {
@@ -122,12 +124,12 @@ else {
 	}
 instrparamlist = (*p_CsInstrument)[ins].paramlist;
 
-if(Pclock > 0.)	/* Striated or measured smooth time */
+if(Pclock > 0.)	/* Striated or measured smooth time */ // Fixed by BB 30 0ct 2020
 	time = ((double) t) * Qclock / ((double) Pclock) / 1000.;
 else
 	time = ((double) t) / 1000.;
 
-sprintf(Message,"Pclock = %ld Qclock = %ld, t = %ld, time = %ld\n",(long)Pclock,(long)Qclock,(long)t,(long)time);
+sprintf(Message,"Pclock = %ld Qclock = %ld, t = %ld, time = %.3f\n",(long)Pclock,(long)Qclock,(long)t,time);
 if(show_messages_cs_scoremake) BPPrintMessage(odInfo,Message);
 
 comeback = FALSE;
@@ -176,7 +178,6 @@ if(onoffline != LINE && (--((*perf)->level[key])) > 0) {
 	}
 
 SETOFF:
-
 // Prepare Csound score line
 
 if(onoffline != LINE)
@@ -206,10 +207,10 @@ else
 	ratio = 0.001;
 		
 if(onoffline != LINE) {
-	// (*scorearg)[2] = (*perf)->starttime[key];
+//	(*scorearg)[2] = (*perf)->starttime[key];
 	(*scorearg)[2] = (*perf)->starttime[key] * Qclock / ((double) Pclock); // FIXED by BB 20 oct 2020
 	(*scorearg)[3] = time - (*scorearg)[2];
-	sprintf(Message,"onoffline != LINE, key = %ld, starttime = %ld, time = %ld, scorearg[2] = %ld, scorearg[3] = %ld\n",(long)key,(long)(*perf)->starttime[key],(long)time,(long)(*scorearg)[2],(long)(*scorearg)[3]);
+	sprintf(Message,"onoffline != LINE, key = %d, starttime = %.3f, time = %ld, scorearg[2] = %.3f, scorearg[3] = %.3f\n",key,(*perf)->starttime[key],(long)time,(*scorearg)[2],(*scorearg)[3]);
 	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,Message);
 	}
 else {
@@ -648,6 +649,11 @@ if(ShowPianoRoll) {
 	(*((*pp_currentparams)[nseq]))->starttime[key] = oldtime_on;
 	}
 
+if(!OutCsound) {
+	result = OK;
+	goto OUT;
+	}
+
 // Now to the score
 sprintf(line,"i%ld ",(long)index);
 if(!ConvertMIDItoCsound) NoReturnWriteToFile(line,CsRefNum);
@@ -665,7 +671,7 @@ for(iarg=2; iarg <= iargmax; iarg++) {
 	if(!ConvertMIDItoCsound) NoReturnWriteToFile(line,CsRefNum);
 	strcat(Message,line);
 	
-	sprintf(line2,"iarg = %ld line = %s\n",(long)iarg,line);
+	sprintf(line2,"iarg = %ld -> %s\n",(long)iarg,line);
 	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,line2);
 	}
 

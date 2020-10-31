@@ -1678,7 +1678,7 @@ CsoundParam **paramlist;
 
 if(j < 2 || j >= Jbol) return(OK);
 
-p_line = (*pp_CsoundScoreText)[j];
+p_line = (*pp_CsoundScoreText)[j]; 
 
 // if(show_csound_details) BPPrintMessage(odError, "(*pp_CsoundScoreText)[j] = %s\n",*(*pp_CsoundScoreText)[j]);
 
@@ -1748,7 +1748,7 @@ CheckHTML(TRUE,0,p_line,&count,&html);
 ipos = 0; im = MyHandleLen(p_line);
 (*p_CsoundTempo)[j] = tempo = 60.;
 
-l = strlen((*p_line));
+l = strlen((*p_line)); 
 if(l == 0) return(OK);
 if(show_csound_details) BPPrintMessage(odError,"Compiling Csound score (length %d):\n%s\n",l,(*p_line));
 
@@ -2060,7 +2060,7 @@ if(ievent > 0) {
 
 PointCsound = TRUE;
 
-if(PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) return(ABORT);
+if(PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) return(ABORT); 
 
 SetPrototypeDuration(j,p_longerCsound);
 

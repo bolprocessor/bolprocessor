@@ -252,7 +252,7 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo)
 	}
 	else {
 		// open the file for writing
-		ShowMessage(TRUE,wMessage,"Creating new Csound score file...");
+		ShowMessage(TRUE,wMessage,"\nCreating new Csound score file...");
 		fout = OpenOutputFile(finfo, "w");
 		if (!fout) {
 			BPPrintMessage(odError, "Could not open file %s\n", finfo->name);
