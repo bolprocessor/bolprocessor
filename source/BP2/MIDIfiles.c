@@ -84,6 +84,8 @@ static int WriteRawBytes(FILE* fout, byte* data, size_t numbytes);
 static int WriteVarLenQuantity(FILE* fout, dword value, dword *tracklen);
 static int CloseMIDIFile2(void);
 
+int trace_writing_midi_file = 0;
+
 int MakeMIDIFile(OutFileInfo* finfo)
 {
 int result;
@@ -272,7 +274,7 @@ static int WriteEndOfTrack(FILE* fout)
 	int result;
 	long pos;
 	
-	BPPrintMessage(odInfo, "Writing end of track\n");
+	if(trace_writing_midi_file) BPPrintMessage(odInfo, "Writing end of track\n");
 	result = FadeOut();
 	if (result != OK)  return result;
 	
@@ -333,8 +335,11 @@ int WriteMIDIbyte(Milliseconds time,byte midi_byte)
 if(SoundOn && !MIDIfileOn) return(OK);
 if(!MIDIfileOpened) return(OK);
 
-PleaseWait();
+// PleaseWait();
 MIDIfileTrackEmpty = FALSE;
+
+if(trace_writing_midi_file) BPPrintMessage(odInfo,"midi_byte = %d time = %ld\n",midi_byte,(long)time);
+
 if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
 	if(MIDIbytestate > 0) {	/* Write out the accumulated message. */
 		if(Writedword(OpenMIDIfilePtr, Midi_msg, MIDIbytestate) != OK) goto BAD;
@@ -359,7 +364,8 @@ if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
 	}
 else {
 	if(MIDIbytestate > 3 || MIDIbytestate < 1) {
-		if(Beta) Alert1("Err. WriteMIDIbyte(). MIDIbytestate > 3 || MIDIbytestate < 1");
+	//	if(Beta) Alert1("Err. WriteMIDIbyte(). MIDIbytestate > 3 || MIDIbytestate < 1");
+		BPPrintMessage(odError, "Err. WriteMIDIbyte(). MIDIbytestate = %d => MIDIbytestate > 3 || MIDIbytestate < 1\n",MIDIbytestate);
 		return(OK);
 		}
 	Midi_msg |= ((dword)midi_byte) << (8 * MIDIbytestate); /* accumulate msg */
@@ -1258,7 +1264,7 @@ if(MIDIfadeOut > 0.) {
 	timeorigin = LastTcurr;
 	time_end = timeorigin + (1000 * MIDIfadeOut);
 	i_event_max = (int)(MIDIfadeOut * SamplingRate);
-	sprintf(Message,"Fading out MIDI stream %.3f sec, sampling rate %ld Hz, time resolution = %ld ms, from date = %.3f sec to date = %.3f sec in %ld steps (as instructed in the settings)\n",(float)MIDIfadeOut,(long)SamplingRate,(long)Time_res,(float)(timeorigin / 1000.),(float)(time_end / 1000.),(long)i_event_max);
+	sprintf(Message,"Fading out MIDI stream %.3f sec (as instructed in the settings)\n",(float)MIDIfadeOut);
 	BPPrintMessage(odInfo,Message);
 	for(chan=1; chan <= MAXCHAN; chan++)
 		current_volume[chan] = CurrentVolume[chan];

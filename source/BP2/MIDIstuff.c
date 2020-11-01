@@ -786,7 +786,7 @@ return(OK);
 }
 
 
-TwoByteEvent(int c)
+TwoByteEvent(int c) 
 {
 int c0;
 
@@ -1308,8 +1308,8 @@ return(OK);
 FormatMIDIstream(MIDIcode **p_b,long imax,MIDIcode **p_c,int zerostart,
 	long im2,long *p_nbytes,int filter)
 {
-long i,ii,time,runtime,t0;
-int b,br,rc;
+long i,ii,time,t0,this_byte;
+int b,br,rc,which_control,value1,value2,foundNoteOn,status;
 
 // Make sure dates are increasing, starting from 0
 
@@ -1328,6 +1328,15 @@ ii = ZERO;
 i = -1; br = 0;
 
 // Restore missing status bytes
+// It's a headache!
+// It doesn't follow running status...
+// And it's probably useless because the MIDI sequences we import from the interface
+// and the ones produced by BP do not have running status.
+// The problem is ControlChange which is a 3-byte event only if C1 > 64, otherwise a 4-byte event
+
+// filter = FALSE;
+
+foundNoteOn = FALSE;
 
 NEXTBYTE:
 if(ii >= im2) {
@@ -1337,6 +1346,14 @@ if(ii >= im2) {
 i++; if(i >= imax) goto QUIT;
 b = ByteToInt((*p_b)[i].byte);
 time = (*p_b)[i].time;
+
+if(filter && !foundNoteOn) {
+	rc = b % 16;
+	status = b - rc;
+	if(b == TimingClock || status != NoteOn) goto NEXTBYTE;
+	foundNoteOn = TRUE;
+	}
+
 if(!filter || b == TimingClock) {
 	(*p_c)[ii].time = time;
 	(*p_c)[ii].byte = b;
@@ -1346,49 +1363,86 @@ if(!filter || b == TimingClock) {
 if(b == SystemExclusive) {
 	br = 0;
 	while(((b = (*p_b)[i].byte) != EndSysEx) && i < imax - 1) {
-		(*p_c)[ii].time = time;
+	/*	(*p_c)[ii].time = time;
 		(*p_c)[ii].byte = ByteToInt((*p_b)[i].byte);
 		(*p_c)[ii++].sequence = (*p_b)[i].sequence;
 		if(ii >= im2) {
 			if(Beta) Alert1("Err. FormatMIDIstream(). ii >= im2");
 			return(FAILED);
-			}
+			} */
 		i++;
 		}
-	(*p_c)[ii].time = time;
+/*	(*p_c)[ii].time = time;
 	(*p_c)[ii].byte = EndSysEx;
-	(*p_c)[ii++].sequence = 0;
+	(*p_c)[ii++].sequence = 0; */
 	goto NEXTBYTE;
 	}
-if(b < 128) {	/* Data bytes following a status byte */
+
+// Temporary: we don't filter
+(*p_c)[ii].time = time;
+(*p_c)[ii].byte = b;
+(*p_c)[ii++].sequence = (*p_b)[i].sequence;
+goto NEXTBYTE;
+// End of temporary
+
+if(b < NoteOff || br == PitchBend || br == ProgramChange || br == ChannelPressure) {	/* Data bytes following a status byte */
 	if(br == 0) goto NEXTBYTE;	/* happens in beginning */
 	(*p_c)[ii].time = time;
-	(*p_c)[ii].byte = br + rc;
+	this_byte = (*p_c)[ii].byte = br + rc;
 	(*p_c)[ii++].sequence = 0;
 	if(ii >= im2) {
 		if(Beta) Alert1("Err. FormatMIDIstream(). ii >= im2");
 		return(FAILED);
 		}
-	(*p_c)[ii].time = time;
-	(*p_c)[ii].byte = ByteToInt((*p_b)[i].byte);
+	value1 = (*p_c)[ii].byte = ByteToInt((*p_b)[i].byte);
 	(*p_c)[ii++].sequence = (*p_b)[i].sequence;
 	if(ii >= im2) {
 		if(Beta) Alert1("Err. FormatMIDIstream(). ii >= im2");
 		return(FAILED);
 		}
-	if(br == ProgramChange || br == ChannelPressure) goto NEXTBYTE;
+	if(br == ProgramChange || br == ChannelPressure) {
+	//	BPPrintMessage(odInfo,"ChannelPressure or ProgramChange channel %d value = %d i = %ld\n",(rc + 1),value1,(long)i);
+		br = 0;
+		goto NEXTBYTE;
+		}
 	i++; if(i >= imax) goto QUIT;
 	(*p_c)[ii].time = time;
-	(*p_c)[ii].byte = ByteToInt((*p_b)[i].byte);
+	value2 = (*p_c)[ii].byte = ByteToInt((*p_b)[i].byte);
 	(*p_c)[ii++].sequence = (*p_b)[i].sequence;
+//	BPPrintMessage(odInfo,"This byte %d value1 = %d value2 = %d i = %ld\n",this_byte,value1,value2,(long)i);
+	if(br == PitchBend) br = 0; 
 	goto NEXTBYTE;
 	}
 if(b >= SystemExclusive) goto NEXTBYTE;
 rc = b % 16;
 b -= rc;
-br = b;
-if(ThreeByteChannelEvent(b) || b == ProgramChange || b == ChannelPressure) {
-	runtime = time;
+if(b == ControlChange) {
+	(*p_c)[ii].time = time;
+	(*p_c)[ii].byte = br + rc;
+	(*p_c)[ii++].sequence = 0;
+	i++; if(i >= imax) goto QUIT;
+	(*p_c)[ii].time = time;
+	which_control = (*p_c)[ii].byte = ByteToInt((*p_b)[i].byte);
+//	BPPrintMessage(odInfo,"Controller #%d channel %d i = %d\n",which_control,(rc + 1),i);
+	(*p_c)[ii++].sequence = (*p_b)[i].sequence;
+	if(which_control > 64) { // 7-bit controller 
+		goto NEXTBYTE;
+		}
+	i++; if(i >= imax) goto QUIT; // 14-bit controller
+	(*p_c)[ii].time = time;
+	(*p_c)[ii].byte = ByteToInt((*p_b)[i].byte);
+	(*p_c)[ii++].sequence = (*p_b)[i].sequence;
+	goto NEXTBYTE;
+	}
+	
+if(b == PitchBend) {
+//	BPPrintMessage(odInfo,"PitchBend channel %d i = %d\n",(rc + 1),(i + 1));
+	}
+br = b; // The following bytes will be treated as following a running status
+if(ThreeByteChannelEvent(b)) {
+	goto NEXTBYTE;
+	}
+if(b == ProgramChange || b == ChannelPressure || b == PitchBend) {
 	goto NEXTBYTE;
 	}
 br = 0;	/* b doesn't have a value that may be taken for running status */

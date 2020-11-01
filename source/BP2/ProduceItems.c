@@ -225,7 +225,7 @@ if(Improvize && ShowGraphic) {
 
 MAKE:
 
-if(!Improvize || ShowMessages) ShowMessage(TRUE,wMessage,"Producing item(s)...");
+if(!Improvize || ShowMessages) ShowMessage(TRUE,wMessage,"\nProducing item(s)...");
 BufferSize = DeftBufferSize;
 ProduceStackIndex = DisplayStackIndex = SkipFlag = FALSE;
 /* if(!PlaySelectionOn && UseTimeLimit) {
@@ -253,10 +253,8 @@ if(!PlaySelectionOn && ShowMessages) {
 			return(ABORT);
 			}
 		if(ItemNumber == 0) BPPrintMessage(odInfo,"\n(No message and no picture during improvization. Only 10 items are produced.)\n\n");
-		// sprintf(Message,"Computing item #%ld...",(long)ItemNumber);
 		}
-	else BPPrintMessage(odInfo,"Computing item...");
-//	ShowMessage(TRUE,wMessage,Message);
+//	else BPPrintMessage(odInfo,"Computing item...\n");
 	}
 if(pp_start != NULL) goto DOIT;
 if(!PlaySelectionOn && DeriveFurther) {
@@ -308,7 +306,7 @@ if(pp_start == NULL) LastComputeWindow = w;
 if((((r=Compute(pp_a,1,Gram.number_gram,&lengthA,&repeat)) != OK) && !SkipFlag) || r == EXIT) goto QUIT;
 ////////////////////////////////////////////////////////////////////////////
 
-if(ShowGraphic) BPPrintMessage(odInfo, "After computing we'll try graphics\n");
+// if(ShowGraphic) BPPrintMessage(odInfo, "After computing we'll try graphics\n");
 if(!ShowGraphic && !PlaySelectionOn && DisplayItems)
 	BPActivateWindow(QUICK,OutputWindow);
 Final = TRUE;

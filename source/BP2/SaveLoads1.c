@@ -2745,22 +2745,14 @@ if(strlen(line2) > 0) {
 MAXSOUNDS:
 	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
 	maxsounds = s;
-	if(show_details_load_prototypes) BPPrintMessage(odInfo, "maxsounds = %d\n",s);
+	if(show_details_load_prototypes) BPPrintMessage(odInfo, "maxsounds = %d Jbol = %d\n",s,Jbol);
 //	if(CheckTerminalSpace() != OK) goto ERR;
 	oldjbol = Jbol;
-	Jbol += (maxsounds - 2);
+	Jbol += maxsounds;
 	if(ResizeObjectSpace(YES,Jbol + Jpatt,0) != OK) goto ERR;
 //	if(CheckTerminalSpace() != OK) goto ERR;
 	Jbol = oldjbol; newbols = TRUE;
 
-/* else {
-	if(checkversion && (Jbol < 3 || p_Bol == NULL)) {
-		Alert1("This is an old type of object prototype file. To load it you must first load or create the corresponding alphabet");
-		FileName[iObjects][0] = '\0';	// FIXME: this wasn't enough when TellOthersMyName() was called above; is it OK now ?
-		goto OUT;	// changed from goto ERR - akozar 050707
-		}
-	if(ResizeObjectSpace(YES,Jbol + Jpatt,0) != OK) goto ERR;
-	} */
 NumberTables = 0;
 rep = notsaid = OK;
 
@@ -2769,10 +2761,6 @@ rep = notsaid = OK;
 
 NEXTBOL:
 PleaseWait(); j = -1;
-/* if(Button() && (Answer("Stop reading sound-object file",'N') == YES)) {
-	rep = ABORT;
-	goto ERR;
-	} */
 if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) {
 	sprintf(Message,"Unexpected end of '%s' file...  May be old version?",
 		FileName[iObjects]);
@@ -3026,10 +3014,6 @@ else {
 		}
 	}
 
-/* ptr = (Handle) (*pp_CsoundScoreText)[j];
-if(MyDisposeHandle(&ptr) != OK) goto ERR;
-(*pp_CsoundScoreText)[j] = NULL; */
-// (*p_CompiledCsoundScore)[j] = TRUE;
 (*pp_CsoundTime)[j] = NULL;
 
 	/* Read pp_CsoundScoreText */
@@ -3040,11 +3024,9 @@ StripHandle(p_line);
 if(Mystrcmp(p_line,"_beginCsoundScore_") != 0) goto ERR;
 
 if(ReadOne(FALSE,FALSE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-// if(show_details_load_prototypes) BPPrintMessage(odInfo, "Csound score = %s\n",*p_line);
 
 if((ptr = (Handle) GiveSpace(MyGetHandleSize(p_completeline))) == NULL) goto ERR;
     (*pp_CsoundScoreText)[j] = ptr;
-// if(show_details_load_prototypes) BPPrintMessage(odInfo, "j =  %d size of handle CsoundScoreText = %ld\n",j,(long) MyGetHandleSize((Handle)(*pp_CsoundScoreText)[j]));
 MystrcpyHandleToHandle(0,&((*pp_CsoundScoreText)[j]),p_completeline);
 
 if((rep=CompileObjectScore(j,&longerCsound)) != OK) {
@@ -3052,7 +3034,6 @@ if((rep=CompileObjectScore(j,&longerCsound)) != OK) {
 	goto ERR;
 	}
 Dirty[iObjects] = Dirty[wPrototype7] = FALSE;
-// CompiledCsObjects = (*p_CompiledCsoundScore)[j] = FALSE;
 
 if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 if(Mystrcmp(p_completeline,"_endCsoundScore_") == 0) goto READSIZE;
@@ -3087,20 +3068,15 @@ if(imax > 0) {
 			(*p_b)[i].time = (Milliseconds) t;
 			}
 		}
-	
-/*	for(i=0; i < imax; i++) {
-		if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
-		BPPrintMessage(odInfo, "s= %d\n",s);
-		if(!diff) {
-			(*p_b)[i].sequence = s;
-			}
-		} */
+	imax = i;
+	if(show_details_load_prototypes) BPPrintMessage(odInfo, "imax = %d\n",imax);
 
 	if(MIDItoPrototype(FALSE,TRUE,j,p_b,imax) != OK) goto ERR;
 	if(MyDisposeHandle((Handle*)&p_b) != OK) goto ERR;
 	}
 
 if(!diff && CheckConsistency(j,TRUE) != OK) goto ERR;
+if(show_details_load_prototypes) BPPrintMessage(odInfo, "CheckConsistency is OK for j = %d\n",j);
 if(iv > 9) {
 	if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 	if(p_completeline == NULL) {

@@ -330,11 +330,12 @@ void CreateImageFile(void)
 	remove_spaces(Message,line2);
 	length = strlen(line2);
 	strncpy(line1,line2,length - 4);
-	sprintf(line2,"_image_%ld_temp.html\n",(long)N_image);
+	sprintf(line2,"_image_%ld_temp.html",(long)N_image);
 	strcat(line1,line2);
 	remove_spaces(line1,line2);
     BPPrintMessage(odInfo,"Creating image file: ");
 	BPPrintMessage(odInfo,line2);
+	BPPrintMessage(odInfo,"\n");
 	imagePtr = fopen(line2,"w");
 	strcpy(imageFileName,line2);
 	getcwd(cwd,sizeof(cwd));

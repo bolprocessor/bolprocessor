@@ -366,9 +366,7 @@ if(Gram.number_gram == 0) {
 	Gram.p_subgram = NULL;
 	}
 CheckGotoFailed();
-sprintf(Message,"Errors: %ld",(long)N_err);
-ShowMessage(TRUE,wMessage,Message);
-Message[0] = '\0';
+BPPrintMessage(odInfo,"\nErrors: %ld\n",(long)N_err);
 for(i=1; i < MAXPARAMCTRL; i++) {
 	if(ParamInit[i] == INT_MAX) ParamInit[i] = ParamValue[i] = 127;
 	}

@@ -152,6 +152,7 @@ if(onoffline == ON) {
 
 SETON:
 	(*perf)->level[key]++;
+	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,"key = %d level = %d\n",key,(*perf)->level[key]);
 	(*perf)->starttime[key] = time;
 	(*perf)->velocity[key] = velocity;
 	(*perf)->dilationratio[key] = dilationratio;
@@ -169,6 +170,7 @@ if(onoffline == OFF && (*perf)->level[key] < 1) {
 //	if(Beta) Alert1("Err. CscoreWrite(). (*perf)->level[key] < 1");
 	sprintf(Message,"Err. CscoreWrite(). (*perf)->level[key] < 1 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
 	BPPrintMessage(odInfo,Message);
+	result = OK; // $$$$$ TEMP $$$$$
 	goto OUT;
 	}
 
@@ -651,6 +653,7 @@ if(ShowPianoRoll) {
 
 if(!OutCsound) {
 	result = OK;
+	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,"going out because !OutCsound)\n");
 	goto OUT;
 	}
 
