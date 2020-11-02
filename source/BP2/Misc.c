@@ -2267,8 +2267,11 @@ return(OK);
 
 ResetRandom(void)
 {
-srand(Seed);
-UsedRandom = FALSE;
+if(Seed > 0) {
+	srand(Seed);
+	UsedRandom = FALSE;
+	}
+else Randomize();
 AppendScript(55);
 return(OK);
 }
@@ -2276,7 +2279,6 @@ return(OK);
 
 Randomize(void)
 {
-
 ReseedOrShuffle(NEWSEED);
 sprintf(Message,"%.0f",(double)Seed);
 MystrcpyStringToTable(ScriptLine.arg,0,Message);
@@ -2300,6 +2302,7 @@ switch(what) {
 		// FIXME ? Why seed a second time (with a restricted range for the seed too) ?
 		randomnumber = rand();
 		seed = (unsigned int) (randomnumber % 32768);
+		if(seed == 0) seed = 1;
 		BPPrintMessage(odInfo, "Random seed = %u\n", seed);
 		srand(seed);
 		UsedRandom = TRUE;
@@ -2318,6 +2321,7 @@ switch(what) {
 		break;
 	default:
 		seed = (unsigned int) ((Seed + what) % 32768);
+		if(seed == 0) seed = 1;
 		srand(seed);
 		UsedRandom = TRUE;
 		break;
