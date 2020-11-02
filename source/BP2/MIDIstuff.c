@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
 
-
+int trace_midi_filter = 0;
 
 ListenMIDI(int x0, int x1, int x2)
 {
@@ -1313,6 +1313,12 @@ int b,br,rc,which_control,value1,value2,foundNoteOn,status;
 
 // Make sure dates are increasing, starting from 0
 
+/* if(trace_midi_filter) {
+	for(i=0; i < imax; i++) {
+		BPPrintMessage(odInfo,"%d\n",(*p_b)[i].byte);
+		}
+	} */
+	
 time = (*p_b)[0].time;
 if(zerostart) t0 = time;
 else t0 = ZERO;
@@ -1336,6 +1342,8 @@ i = -1; br = 0;
 
 // filter = FALSE;
 
+if(trace_midi_filter) BPPrintMessage(odInfo,"\n");
+
 foundNoteOn = FALSE;
 
 NEXTBYTE:
@@ -1347,19 +1355,7 @@ i++; if(i >= imax) goto QUIT;
 b = ByteToInt((*p_b)[i].byte);
 time = (*p_b)[i].time;
 
-if(filter && !foundNoteOn) {
-	rc = b % 16;
-	status = b - rc;
-	if(b == TimingClock || status != NoteOn) goto NEXTBYTE;
-	foundNoteOn = TRUE;
-	}
-
-if(!filter || b == TimingClock) {
-	(*p_c)[ii].time = time;
-	(*p_c)[ii].byte = b;
-	(*p_c)[ii++].sequence = (*p_b)[i].sequence;
-	goto NEXTBYTE;
-	}
+if(b == TimingClock) goto NEXTBYTE;
 if(b == SystemExclusive) {
 	br = 0;
 	while(((b = (*p_b)[i].byte) != EndSysEx) && i < imax - 1) {
@@ -1378,14 +1374,14 @@ if(b == SystemExclusive) {
 	goto NEXTBYTE;
 	}
 
-// Temporary: we don't filter
-(*p_c)[ii].time = time;
-(*p_c)[ii].byte = b;
-(*p_c)[ii++].sequence = (*p_b)[i].sequence;
-goto NEXTBYTE;
-// End of temporary
+if(!filter) {
+	(*p_c)[ii].time = time;
+	(*p_c)[ii].byte = b;
+	(*p_c)[ii++].sequence = (*p_b)[i].sequence;
+	goto NEXTBYTE;
+	}
 
-if(b < NoteOff || br == PitchBend || br == ProgramChange || br == ChannelPressure) {	/* Data bytes following a status byte */
+if(b < NoteOff || br == PitchBend || br == ProgramChange || br == ChannelPressure) {
 	if(br == 0) goto NEXTBYTE;	/* happens in beginning */
 	(*p_c)[ii].time = time;
 	this_byte = (*p_c)[ii].byte = br + rc;
@@ -1401,7 +1397,7 @@ if(b < NoteOff || br == PitchBend || br == ProgramChange || br == ChannelPressur
 		return(FAILED);
 		}
 	if(br == ProgramChange || br == ChannelPressure) {
-	//	BPPrintMessage(odInfo,"ChannelPressure or ProgramChange channel %d value = %d i = %ld\n",(rc + 1),value1,(long)i);
+		if(trace_midi_filter) BPPrintMessage(odInfo,"ChannelPressure or ProgramChange channel %d value = %d i = %ld\n",(rc + 1),value1,(long)i);
 		br = 0;
 		goto NEXTBYTE;
 		}
@@ -1409,7 +1405,7 @@ if(b < NoteOff || br == PitchBend || br == ProgramChange || br == ChannelPressur
 	(*p_c)[ii].time = time;
 	value2 = (*p_c)[ii].byte = ByteToInt((*p_b)[i].byte);
 	(*p_c)[ii++].sequence = (*p_b)[i].sequence;
-//	BPPrintMessage(odInfo,"This byte %d value1 = %d value2 = %d i = %ld\n",this_byte,value1,value2,(long)i);
+	if(trace_midi_filter) BPPrintMessage(odInfo,"This byte %d value1 = %d value2 = %d i = %ld\n",this_byte,value1,value2,(long)i);
 	if(br == PitchBend) br = 0; 
 	goto NEXTBYTE;
 	}
@@ -1417,32 +1413,24 @@ if(b >= SystemExclusive) goto NEXTBYTE;
 rc = b % 16;
 b -= rc;
 if(b == ControlChange) {
+	which_control = ByteToInt((*p_b)[i+1].byte);
 	(*p_c)[ii].time = time;
-	(*p_c)[ii].byte = br + rc;
-	(*p_c)[ii++].sequence = 0;
+	(*p_c)[ii].byte = b + rc;
+	(*p_c)[ii++].sequence = (*p_b)[i].sequence;
 	i++; if(i >= imax) goto QUIT;
 	(*p_c)[ii].time = time;
 	which_control = (*p_c)[ii].byte = ByteToInt((*p_b)[i].byte);
-//	BPPrintMessage(odInfo,"Controller #%d channel %d i = %d\n",which_control,(rc + 1),i);
 	(*p_c)[ii++].sequence = (*p_b)[i].sequence;
-	if(which_control > 64) { // 7-bit controller 
-		goto NEXTBYTE;
-		}
-	i++; if(i >= imax) goto QUIT; // 14-bit controller
+	i++; if(i >= imax) goto QUIT;
 	(*p_c)[ii].time = time;
 	(*p_c)[ii].byte = ByteToInt((*p_b)[i].byte);
 	(*p_c)[ii++].sequence = (*p_b)[i].sequence;
+	if(trace_midi_filter) BPPrintMessage(odInfo,"Param #%d channel %d value = %d i = %d\n",which_control,(rc + 1),(*p_b)[i].sequence,i);
 	goto NEXTBYTE;
 	}
 	
-if(b == PitchBend) {
-//	BPPrintMessage(odInfo,"PitchBend channel %d i = %d\n",(rc + 1),(i + 1));
-	}
 br = b; // The following bytes will be treated as following a running status
-if(ThreeByteChannelEvent(b)) {
-	goto NEXTBYTE;
-	}
-if(b == ProgramChange || b == ChannelPressure || b == PitchBend) {
+if(ThreeByteChannelEvent(b) || b == ProgramChange || b == ChannelPressure || b == PitchBend) {
 	goto NEXTBYTE;
 	}
 br = 0;	/* b doesn't have a value that may be taken for running status */
@@ -1450,6 +1438,12 @@ goto NEXTBYTE;
 
 QUIT:
 *p_nbytes = ii;
+
+if(trace_midi_filter) {
+	for(i=0; i < ii; i++) {
+		BPPrintMessage(odInfo,"%d %d (%ld)\n",(*p_c)[i].byte,(*p_c)[i].sequence,(long)(*p_c)[i].time);
+		}
+	}
 return(OK);
 }
 

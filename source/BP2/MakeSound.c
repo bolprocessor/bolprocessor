@@ -104,7 +104,7 @@ if(showpianoroll) BPPrintMessage(odInfo,"Showing piano roll\n");
 
 cswrite = FALSE;
 if(((OutCsound && (FileWriteMode == NOW || !OutMIDI))
-	|| ConvertMIDItoCsound) && !ItemCapture /* && !showpianoroll */) cswrite = TRUE;
+	|| ConvertMIDItoCsound) && !ItemCapture) cswrite = TRUE;
 
 MIDIfileOn = FALSE;
 if(WriteMIDIfile && (FileWriteMode == NOW || !OutMIDI) && !ItemCapture)
@@ -735,9 +735,10 @@ TRYCSFILE:
 				Println(wTrace,Message);
 				} */
 			if(WriteToFile(NO,CsoundFileFormat,Message,CsRefNum) != OK) {
-				sprintf(Message,"Couldn't write to file '%s'. May be it has been closed by another application",
+			/*	sprintf(Message,"Couldn't write to file '%s'. May be it has been closed by another application",
 					CsFileName);
-			//	Alert1(Message);
+				Alert1(Message); */
+				BPPrintMessage(odError,"Couldn't write to file '%s'. May be it has been closed by another application\n");
 				CloseCsScore();
 				if((result=PrepareCsFile()) != OK) goto OVER;
 				goto TRYCSFILE;
@@ -885,7 +886,7 @@ TRYCSFILE:
 					ChangedVolume[chan] = TRUE;
 					if(!cswrite) {
 						e.time = Tcurr;
-						e.type = NORMAL_EVENT; // WRONG in theory because volume control is < 64
+						e.type = NORMAL_EVENT;
 						e.status = ControlChange + chan;
 						e.data1 = VolumeControl[chan+1];
 						e.data2 = volume;
@@ -898,7 +899,7 @@ TRYCSFILE:
 					ChangedPanoramic[chan] = TRUE;
 					if(!cswrite) {
 						e.time = Tcurr;
-						e.type = NORMAL_EVENT; // WRONG in theory because pan control is < 64
+						e.type = NORMAL_EVENT;
 						e.status = ControlChange + chan;
 						e.data1 = PanoramicControl[chan+1];
 						e.data2 = panoramic;
@@ -936,14 +937,15 @@ TRYCSFILE:
 					lsb = ((long)modulation) % 128;
 					msb = (((long)modulation) - lsb) >> 7;
 					if(!cswrite) {
+				//		BPPrintMessage(odInfo,"Sending modulation = %d\n",modulation);
 						e.time = Tcurr;
-						e.type = NORMAL_EVENT; // WRONG in theory because 1 < 64
+						e.type = NORMAL_EVENT;
 						e.status = ControlChange + chan;
 						e.data1 = 1;
 						e.data2 = msb;
 						if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 						e.time = Tcurr;
-						e.type = NORMAL_EVENT; // WRONG in theory because 33 < 64
+						e.type = NORMAL_EVENT;
 						e.status = ControlChange + chan;
 						e.data1 = 33;
 						e.data2 = lsb;
@@ -1185,7 +1187,7 @@ SWITCHES:
 									s = 0;
 									}
 								rs = 0;
-								if(!cswrite /* && !showpianoroll */) {
+								if(!cswrite) {
 									e.time = Tcurr;
 									e.type = NORMAL_EVENT;
 									e.status = ControlChange + ii;
@@ -1213,7 +1215,7 @@ SWITCHES:
 				if(alphach == 0) alphach = objectchannel;
 				if(alphach < 0) alphach = 0;
 				Tcurr =  (t0 + t1) / Time_res;
-				if(!cswrite /* && !showpianoroll */) {
+				if(!cswrite) {
 					e.time = Tcurr;
 					e.type = NORMAL_EVENT; // Maybe WRONG if AlpahCtrlNr < 64
 					e.status = ControlChange + alphach;
@@ -1251,12 +1253,12 @@ SWITCHES:
 					if(objectchannel > 0) localchan = objectchannel - 1;
 					if(c0 >= 0) {
 						if(c0 == NoteOn || c0 == NoteOff) {
-							if(j < 16384) {
+					/*		if(j < 16384) {
 								sequence = (*((*pp_MIDIcode)[j]))[ii].sequence;
-								c1 = (*((*pp_MIDIcode)[j]))[++ii].byte;		/* key number */
-								c2 = (*((*pp_MIDIcode)[j]))[++ii].byte;		/* velocity */
+								c1 = (*((*pp_MIDIcode)[j]))[++ii].byte;
+								c2 = (*((*pp_MIDIcode)[j]))[++ii].byte;
 								}
-							else {	/* Simple note */
+							else {	// Simple note
 								sequence = 0;
 								c1 = GoodKey(j);
 								c2 = 127;
@@ -1277,7 +1279,7 @@ SWITCHES:
 									((*p_keyon[localchan])[c1])--;
 									if((onoff == 1 || cswrite) && (j >= Jbol || !(*p_DiscardNoteOffs)[j]
 											|| (*p_icycle)[kcurrentinstance] == (*p_Instance)[kcurrentinstance].ncycles)) {
-										if(!cswrite /* && !showpianoroll */) {
+										if(!cswrite) {
 											e.time = Tcurr;
 											e.type = NORMAL_EVENT;
 											e.status = NoteOn + localchan;
@@ -1311,9 +1313,8 @@ SWITCHES:
 								onoff = ByteToInt((*p_keyon[localchan])[c1]);
 								strike = TRUE;
 								if(onoff > 0) {
-									if(strikeagain) {
-										/* First send NoteOff */
-										if(!cswrite /* && !showpianoroll */) {
+									if(strikeagain) { // First send NoteOff
+										if(!cswrite) {
 											e.time = Tcurr;
 											e.type = NORMAL_EVENT;
 											e.status = NoteOn + localchan;
@@ -1331,10 +1332,11 @@ SWITCHES:
 											(*p_Instance)[kcurrentinstance].velcontrol,
 											(*p_Instance)[kcurrentinstance].rndvel);
 									if(c1 != oldc1) {
-										if((result=StoreMappedKey(oldc1,c1,kcurrentinstance,localchan,
+										if((result=StoreMappedKey(oldc1,c1,
+										kcurrentinstance,localchan,
 											&p_currmapped,&maxmapped)) != OK) goto OVER;
 										}
-									if(!cswrite /* && !showpianoroll */) {
+									if(!cswrite) {
 										e.time = Tcurr;
 										e.type = NORMAL_EVENT;
 										e.status = c0 + localchan;
@@ -1349,13 +1351,9 @@ SWITCHES:
 		CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 										}
-								//	if(showpianoroll) { // Fixed by BB 30 Oct 2020
-// #if BP_CARBON_GUI 
-										(*((*pp_currentparams)[nseq]))->starttime[c1] = (t0 + t1) / 1000.;
-// #endif
-							//			}
+									(*((*pp_currentparams)[nseq]))->starttime[c1] = (t0 + t1) / 1000.;
 									}
-								}
+								} */
 							}
 						else {
 							if(ChannelEvent(c0)) {	/* Channel message */
@@ -1365,7 +1363,7 @@ SWITCHES:
 								sequence = (*((*pp_MIDIcode)[j]))[ievent].sequence;
 								c1 = (*((*pp_MIDIcode)[j]))[++ievent].byte;
 								c2 = (*((*pp_MIDIcode)[j]))[++ievent].byte;
-								if(!cswrite /* && !showpianoroll */) {
+								if(!cswrite) {
 									e.time = Tcurr;
 									e.type = NORMAL_EVENT;
 									e.status = c0;
@@ -1381,7 +1379,7 @@ SWITCHES:
 								if(TwoByteEvent(c0)) {
 									sequence = (*((*pp_MIDIcode)[j]))[ievent].sequence;
 									c2 = (*((*pp_MIDIcode)[j]))[++ievent].byte;
-									if(!cswrite /* && !showpianoroll */) {
+									if(!cswrite) {
 										e.time = Tcurr;
 										e.type = TWO_BYTE_EVENT;
 										e.status = c0;
@@ -1394,7 +1392,7 @@ SWITCHES:
 									if(c0 != TimingClock) {
 									/* Suppress timing clock events internally used to create silences */
 										rs = 0;
-										if(!cswrite /* && !showpianoroll */) {
+										if(!cswrite) {
 											e.time = Tcurr;
 											e.type = RAW_EVENT;
 											e.data2 = c0;
@@ -1507,7 +1505,7 @@ PLAYOBJECT:
 									|| (*p_icycle)[kcurrentinstance]
 										== (*p_Instance)[kcurrentinstance].ncycles)) {
 SENDNOTEOFF:
-								if(!cswrite /* && !showpianoroll */) {
+								if(!cswrite) {
 									e.time = Tcurr;
 									e.type = NORMAL_EVENT;
 									e.status = NoteOn + localchan;
@@ -1551,7 +1549,7 @@ SENDNOTEOFF:
 						if(onoff > 0) {
 							if(strikeagain) {
 								/* First send NoteOff */
-								if(!cswrite /* && !showpianoroll */) {
+								if(!cswrite) {
 									e.time = Tcurr;
 									e.type = NORMAL_EVENT;
 									e.status = NoteOn + localchan;
@@ -1572,7 +1570,7 @@ SENDNOTEOFF:
 								if((result=StoreMappedKey(oldc1,c1,kcurrentinstance,localchan,
 									&p_currmapped,&maxmapped)) != OK) goto OVER;
 								}
-							if(!cswrite /* && !showpianoroll */) {
+							if(!cswrite) {
 								e.time = Tcurr;
 								e.type = NORMAL_EVENT;
 								e.status = c0 + localchan;
@@ -1608,7 +1606,7 @@ SENDNOTEOFF:
 						sequence = (*((*pp_MIDIcode)[j]))[ievent].sequence;
 						c1 = (*((*pp_MIDIcode)[j]))[++ievent].byte;
 						c2 = (*((*pp_MIDIcode)[j]))[++ievent].byte;
-						if(!cswrite /* && !showpianoroll */) {
+						if(!cswrite) {
 							e.time = Tcurr;
 							e.type = NORMAL_EVENT;
 							e.status = c0;
@@ -1624,7 +1622,7 @@ SENDNOTEOFF:
 						if(TwoByteEvent(c0)) {
 							sequence = (*((*pp_MIDIcode)[j]))[ievent].sequence;
 							c2 = (*((*pp_MIDIcode)[j]))[++ievent].byte;
-							if(!cswrite /* && !showpianoroll */) {
+							if(!cswrite) {
 								e.time = Tcurr;
 								e.type = TWO_BYTE_EVENT;
 								e.status = c0;
@@ -1637,7 +1635,7 @@ SENDNOTEOFF:
 							if(c0 != TimingClock) {
 							/* Suppress timing clock events internally used to create silences */
 								rs = 0;
-								if(!cswrite /* && !showpianoroll */) {
+								if(!cswrite) {
 									e.time = Tcurr;
 									e.type = RAW_EVENT;
 									e.data2 = c0;
@@ -1709,7 +1707,7 @@ NEWPERIOD:
 				}
 			}
 
-		if(!cswrite /* && !showpianoroll */ && (result=CheckMIDIbytes(YES)) != OK
+		if(!cswrite && (result=CheckMIDIbytes(YES)) != OK
 												&& result != RESUME) goto OVER;
 #if BP_CARBON_GUI
 		// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
@@ -2511,7 +2509,7 @@ switch(iparam) {
 	case IPITCHBEND:
 		ChangedPitchbend[chan] = TRUE;
 		(*p_Oldvalue)[chan].pitchbend = value;
-		if(!cswrite /* && !showpianoroll */) {
+		if(!cswrite) {
 			e.time = Tcurr;
 			e.type = NORMAL_EVENT;
 			e.status = PitchBend + chan;
@@ -2523,7 +2521,7 @@ switch(iparam) {
 	case IPRESSURE:
 		ChangedPressure[chan] = TRUE;
 		(*p_Oldvalue)[chan].pressure = value;
-		if(!cswrite /* && !showpianoroll */) {
+		if(!cswrite) {
 			e.time = Tcurr;
 			e.type = TWO_BYTE_EVENT;
 			e.status = ChannelPressure + chan;
@@ -2534,39 +2532,39 @@ switch(iparam) {
 	case IMODULATION:
 		ChangedModulation[chan] = TRUE;
 		(*p_Oldvalue)[chan].modulation = value;
-		if(!cswrite /* && !showpianoroll */) {
+		if(!cswrite) {
 			e.time = Tcurr;
 			e.type = NORMAL_EVENT;
-			e.status = ControlChange + chan;  // WRONG in theory because 1 < 64
+			e.status = ControlChange + chan;
 			e.data1 = 1;
 			e.data2 = msb;
 			if((result=SendToDriver(time,seq,p_rs,&e)) != OK) goto OVER;
 			e.time = Tcurr;
-			e.type = NORMAL_EVENT; // WRONG in theory because 33 < 64
+			e.type = NORMAL_EVENT;
 			e.status = ControlChange + chan;
 			e.data1 = 33;
 			e.data2 = lsb;
 			if((result=SendToDriver(time,seq,p_rs,&e)) != OK) goto OVER;
 			}
 		break;
-	case IVOLUME:
+	case IVOLUME: // Later consider that it also may have a LSB
 		ChangedVolume[chan] = TRUE;
 		(*p_Oldvalue)[chan].volume = value;
-		if(!cswrite /* && !showpianoroll */) {
+		if(!cswrite) {
 			e.time = Tcurr;
-			e.type = NORMAL_EVENT; // WRONG in theory because volume control is < 64
+			e.type = NORMAL_EVENT;
 			e.status = ControlChange + chan;
 			e.data1 = VolumeControl[chan+1];
 			e.data2 = value;
 			if((result=SendToDriver(time,seq,p_rs,&e)) != OK) goto OVER;
 			}
 		break;
-	case IPANORAMIC:
+	case IPANORAMIC: // Later consider that it also may have a LSB
 		ChangedPanoramic[chan] = TRUE;
 		(*p_Oldvalue)[chan].panoramic = value;
-		if(!cswrite /* && !showpianoroll */) {
+		if(!cswrite) {
 			e.time = Tcurr;
-			e.type = NORMAL_EVENT;  // WRONG in theory because pan control is < 64
+			e.type = NORMAL_EVENT;
 			e.status = ControlChange + chan;
 			e.data1 = PanoramicControl[chan+1];
 			e.data2 = value;
