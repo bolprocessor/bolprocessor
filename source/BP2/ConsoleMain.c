@@ -898,8 +898,8 @@ int ApplyArgs(BPConsoleOpts* opts)
 	if (opts->midiFileFormat != NOCHANGE)	MIDIfileType = opts->midiFileFormat;
 	if (opts->seedProvided)	{
 		Seed = opts->seed;
+		if(Seed > 0) BPPrintMessage(odInfo, "Setting seed to %u\n", Seed);
 		ResetRandom();
-	//	BPPrintMessage(odInfo, "Setting seed = %u\n", Seed);
 	}
 	
 	return OK;

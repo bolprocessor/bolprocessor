@@ -2302,7 +2302,6 @@ switch(what) {
 		// FIXME ? Why seed a second time (with a restricted range for the seed too) ?
 		randomnumber = rand();
 		seed = (unsigned int) (randomnumber % 32768);
-		if(seed == 0) seed = 1;
 		BPPrintMessage(odInfo, "Random seed = %u\n", seed);
 		srand(seed);
 		UsedRandom = TRUE;
@@ -2321,7 +2320,6 @@ switch(what) {
 		break;
 	default:
 		seed = (unsigned int) ((Seed + what) % 32768);
-		if(seed == 0) seed = 1;
 		srand(seed);
 		UsedRandom = TRUE;
 		break;

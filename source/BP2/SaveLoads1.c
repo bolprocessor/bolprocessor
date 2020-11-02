@@ -1455,7 +1455,6 @@ if(ReadInteger(sefile,&PlanProduce,&pos) == FAILED) goto ERR;
 if(ReadInteger(sefile,&DisplayItems,&pos) == FAILED) goto ERR; 
 if(ReadInteger(sefile,&ShowGraphic,&pos) == FAILED) goto ERR; 
 if(ReadInteger(sefile,&AllowRandomize,&pos) == FAILED) goto ERR;
-if(iv < 15) AllowRandomize = TRUE;
 if(ReadInteger(sefile,&DisplayTimeSet,&pos) == FAILED) goto ERR; 
 if(ReadInteger(sefile,&StepTimeSet,&pos) == FAILED) goto ERR; 
 if(ReadInteger(sefile,&TraceTimeSet,&pos) == FAILED) goto ERR; 
@@ -1521,9 +1520,7 @@ if(ReadLong(sefile,&TimeMax,&pos) == FAILED) goto ERR;
 
 if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR;
 Seed = (unsigned) (k % 32768L);
-#if BP_CARBON_GUI
-SetSeed();
-#endif /* BP_CARBON_GUI */
+// SetSeed();
 ResetRandom();
 
 if(ReadInteger(sefile,&Token,&pos) == FAILED) goto ERR;
