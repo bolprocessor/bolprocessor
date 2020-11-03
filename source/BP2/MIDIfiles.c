@@ -1264,7 +1264,7 @@ if(MIDIfadeOut > 0.) {
 	timeorigin = LastTcurr;
 	time_end = timeorigin + (1000 * MIDIfadeOut);
 	i_event_max = (int)(MIDIfadeOut * SamplingRate);
-	sprintf(Message,"Fading out MIDI stream %.3f sec (as instructed in the settings)\n",(float)MIDIfadeOut);
+	sprintf(Message,"Fading out MIDI stream %.3f sec as requested by the settings (or by default)\n",(float)MIDIfadeOut);
 	BPPrintMessage(odInfo,Message);
 	for(chan=1; chan <= MAXCHAN; chan++)
 		current_volume[chan] = CurrentVolume[chan];

@@ -299,18 +299,20 @@ void CreateDoneFile(void)
 	char line1[200], line2[200];
 	int length;
 	
-	sprintf(Message,gOptions.outputFiles[ofiTraceFile].name);
-	remove_spaces(Message,line2);
-	length = strlen(line2);
-	strncpy(line1,line2,length - 4);
-	strcat(line1,"_done.txt");
-	remove_spaces(line1,line2);
-    BPPrintMessage(odInfo,"Created 'done' file: ");
-	BPPrintMessage(odInfo,line2);
-	BPPrintMessage(odInfo,"\n_____________________\n");
-	ptr = fopen(line2,"w");
-	fputs("bp completed work!\n",ptr);
-	fclose(ptr);
+	if(gOptions.outputFiles[ofiTraceFile].name != NULL) {
+		sprintf(Message,gOptions.outputFiles[ofiTraceFile].name);
+		remove_spaces(Message,line2);
+		length = strlen(line2);
+		strncpy(line1,line2,length - 4);
+		strcat(line1,"_done.txt");
+		remove_spaces(line1,line2);
+	    BPPrintMessage(odInfo,"Created 'done' file: ");
+		BPPrintMessage(odInfo,line2);
+		BPPrintMessage(odInfo,"\n_____________________\n");
+		ptr = fopen(line2,"w");
+		fputs("bp completed work!\n",ptr);
+		fclose(ptr);
+		}
 	return;
 }
 
@@ -325,6 +327,11 @@ void CreateImageFile(void)
 	if(imagePtr != NULL) {
 		EndImageFile();
 		N_image++;
+		}
+		if(gOptions.outputFiles[ofiTraceFile].name == NULL) {
+		BPPrintMessage(odInfo,"Cannot create image file because no path is specified and trace mode is not active\n");
+		ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
+		return;
 		}
 	sprintf(Message,gOptions.outputFiles[ofiTraceFile].name);
 	remove_spaces(Message,line2);
@@ -898,8 +905,14 @@ int ApplyArgs(BPConsoleOpts* opts)
 	if (opts->midiFileFormat != NOCHANGE)	MIDIfileType = opts->midiFileFormat;
 	if (opts->seedProvided)	{
 		Seed = opts->seed;
-		if(Seed > 0) BPPrintMessage(odInfo, "Setting seed to %u\n", Seed);
-		ResetRandom();
+		if(Seed > 0) {
+			BPPrintMessage(odInfo, "Resetting random seed to %u as per command line\n", Seed);
+			ResetRandom();
+			}
+		else {
+			BPPrintMessage(odInfo, "No new random seed as per command line\n");
+			Randomize();
+			}
 	}
 	
 	return OK;

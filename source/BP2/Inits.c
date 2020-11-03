@@ -602,7 +602,7 @@ for(i=0; i < WMAX; i++) {
 FileName[wScript][0] = '\0';
 CurrentChannel = 1;	/* Used for program changes,by default. */
 Seed = 1;
-ResetRandom();
+// ResetRandom();
 #if BP_CARBON_GUI
 SetSeed();
 if(ResetInteraction() != OK) return(ABORT);

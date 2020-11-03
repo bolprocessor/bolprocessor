@@ -31,12 +31,9 @@ Input files
 - fix crash when loading a glossary file
 - fix crash when grammar contains script commands
 - support UTF-8 text encoding for input files & output
-- port loading of -or MIDI orchestra files
-- port loading of -cs Csound instruments files
-- port loading of -mi Sound Object Prototypes files
 - implement the -s/-S options for specifying the start string
 - identify intput files with prefixes even when they are preceded by a path
-- restore the feature that looks for names of related files in the input files and auto-loads them 
+- restore the feature that looks for names of related files in the input files and auto-loads them (to be discussed...)
 
 
 MIDI files
@@ -59,4 +56,9 @@ Real-time MIDI
 - revise CoreMIDI driver and allow optionally building with it on Mac OS X
 - change the "null driver" to output MIDI messages as text
 - write a new cross-platform MIDI driver using the PortMIDI(?) library
+
+Images
+--------------
+
+- if no settings file is used, allow the creation of images via a command line option. This option should specify a location for images. Currently, the location is identical to the location of the trace file.
 

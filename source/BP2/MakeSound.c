@@ -1842,7 +1842,7 @@ FINDNEXTEVENT:
 			
 	// Display in pianoroll all notes contained in Csound score, even if not creating Csound output
 	if(!cswrite && showpianoroll) {
-		BPPrintMessage(odInfo,"\nDisplaying in pianoroll all notes contained in Csound scores\n");
+	//	BPPrintMessage(odInfo,"\nDisplaying in pianoroll all notes contained in Csound scores\n");
 		for(k=2; k <= (*p_kmax); k++) {
 			j = (*p_Instance)[k].object;
 			if(j < 1) continue;

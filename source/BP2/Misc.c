@@ -2269,6 +2269,7 @@ ResetRandom(void)
 {
 if(Seed > 0) {
 	srand(Seed);
+//	BPPrintMessage(odInfo, "Random seed reset to %u\n", Seed);
 	UsedRandom = FALSE;
 	}
 else Randomize();
@@ -2279,6 +2280,7 @@ return(OK);
 
 Randomize(void)
 {
+if(Seed > 0) return(OK);
 ReseedOrShuffle(NEWSEED);
 sprintf(Message,"%.0f",(double)Seed);
 MystrcpyStringToTable(ScriptLine.arg,0,Message);
@@ -2294,28 +2296,34 @@ int randomnumber;
 
 switch(what) {
 	case NOSEED:
+		Seed = 0;
 		break;
 	case NEWSEED:
-	case RANDOMIZE:
-		seed = (unsigned int) time(NULL);
-		srand(seed);
-		// FIXME ? Why seed a second time (with a restricted range for the seed too) ?
+		if(Seed == 0) {
+			seed = (unsigned int) time(NULL);
+			srand(seed);
+			}
 		randomnumber = rand();
 		seed = (unsigned int) (randomnumber % 32768);
-		BPPrintMessage(odInfo, "Random seed = %u\n", seed);
-		srand(seed);
-		UsedRandom = TRUE;
-		if(what == NEWSEED) {
-			Seed = seed;
+		if(seed == 0) seed = 1;
+		Seed = seed;
+		if(Seed > 0) {
+			BPPrintMessage(odInfo, "New random seed = %u\n", seed);
+			srand(Seed);
 			UsedRandom = FALSE;
-#if BP_CARBON_GUI
-			SetSeed();
-			if(ShowMessages) {
-				ShowWindow(GetDialogWindow(gpDialogs[wRandomSequence]));
-				BringToFront(GetDialogWindow(gpDialogs[wRandomSequence]));
-				BPUpdateDialog(gpDialogs[wRandomSequence]);
-				}
-#endif /* BP_CARBON_GUI */
+			}
+		break;
+	case RANDOMIZE:
+		if(Seed == 0) {
+			// We need this initial srand() so that sequences of rand() are not identical
+			seed = (unsigned int) time(NULL);
+			srand(seed);
+			// FIXME ? Why seed a second time (with a restricted range for the seed too) ?
+			randomnumber = rand();
+			seed = (unsigned int) (randomnumber % 32768);
+			BPPrintMessage(odInfo, "Random seed = %u\n", seed);
+			srand(seed);
+			UsedRandom = TRUE;
 			}
 		break;
 	default:

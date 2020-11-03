@@ -1520,8 +1520,14 @@ if(ReadLong(sefile,&TimeMax,&pos) == FAILED) goto ERR;
 
 if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR;
 Seed = (unsigned) (k % 32768L);
-// SetSeed();
-ResetRandom();
+if(Seed > 0) {
+	BPPrintMessage(odInfo, "Resetting random seed to %u as per settings\n", Seed);
+	ResetRandom();
+	}
+else {
+	BPPrintMessage(odInfo, "No new random seed as per settings\n");
+	Randomize();
+	}
 
 if(ReadInteger(sefile,&Token,&pos) == FAILED) goto ERR;
 if(Token > 0) Token = TRUE;
