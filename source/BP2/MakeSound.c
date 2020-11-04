@@ -1551,7 +1551,7 @@ SENDNOTEOFF:
 						if(onoff > 0) {
 							if(strikeagain) {
 								/* First send NoteOff */
-							//	((*p_keyon[localchan])[c1])--;
+						//		((*p_keyon[localchan])[c1])--;
 								if(!cswrite) {
 									e.time = Tcurr;
 									e.type = NORMAL_EVENT;

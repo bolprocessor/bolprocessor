@@ -1526,7 +1526,7 @@ if(imax > 0.) {
 			Println(wTrace,Message);
 			ShowMessage(TRUE,wMessage,Message);
 			}
-		if(ShowMessages) {
+		if(ShowMessages && (CorrectionFactor != 1.0)) {
 			sprintf(Message,"Correction factor = %.3f",CorrectionFactor);
 			ShowMessage(TRUE,wMessage,Message);
 			}

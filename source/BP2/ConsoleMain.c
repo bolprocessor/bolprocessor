@@ -968,6 +968,7 @@ void GetFileName(char* name,char* path) { // Added by BB 4 Nov 2020
 		}
 	for(i = i, j = 0; i < strlen(path); i++) {
 		c = path[i];
+		if(c == ' ') c = '_';
 		name[j++] = c;
 		}
 	name[j] = '\0';
