@@ -1115,6 +1115,8 @@ void resize_rect(Rect*,int,int);
 char *repl_str(const char*, const char*, const char*);
 char *recode_tags(const char*);
 
+void GetFileName(char*,char*);
+
 // int ReleaseComputeSpace(void);
 int ClearObjectSpace(void);
 void CreateDoneFile(void);

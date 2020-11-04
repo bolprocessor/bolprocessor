@@ -95,7 +95,7 @@ FILE *fout;
 	BP_NOT_USED(filename);
 	result = FAILED;
 
-	ShowMessage(TRUE,wMessage,"Create new MIDI file...");
+	ShowMessage(TRUE,wMessage,"Creating new MIDI file...");
 	fout = OpenOutputFile(finfo, "wb");
 	if (!fout) {
 		BPPrintMessage(odError, "Could not open file %s\n", finfo->name);

@@ -459,7 +459,7 @@ void remove_spaces(const char *input, char *result)
 	int i, j = 0;
 	for (i = 0; input[i] != '\0'; i++) {
 		c = (unsigned char) input[i];
-		if (isalnum(c) || c == '_' || c == '/' || c == '.') result[j++] = input[i];
+		if (isalnum(c) || c == '_' || c == '/' || c == '.' || c == '-') result[j++] = input[i];
 		}
 	result[j] = '\0';
 }

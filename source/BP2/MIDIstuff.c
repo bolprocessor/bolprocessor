@@ -39,6 +39,7 @@
 #include "-BP2decl.h"
 
 int trace_midi_filter = 0;
+int trace_driver = 0;
 
 ListenMIDI(int x0, int x1, int x2)
 {
@@ -1813,6 +1814,8 @@ status = ByteToInt(p_e->status);
 chan = status % 16;
 c0 = status - chan;
 
+if(trace_driver) BPPrintMessage(odInfo,"++ SendToDriver() c0 = %d c1 = %d c2= %d time = %ld\n",c0,ByteToInt(p_e->data1),ByteToInt(p_e->data2),(long)time);
+ 
 /* Store if volume */
 if(MIDIfileOn && MIDIfileOpened) {
 	if(c0 == NoteOn && CurrentVolume[chan+1] == -1)

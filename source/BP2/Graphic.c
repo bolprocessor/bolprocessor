@@ -1438,7 +1438,7 @@ return(result);
 }
 
 
-int DrawPianoNote(char* type,int key,int nseq,int chan,Milliseconds timeoff,
+int DrawPianoNote(char* type,int key,int nseq,int chan, Milliseconds timeoff,
 	PerfParameters ****pp_currentparams,
 	int leftoffset,int topoffset,int hrect,int minkey,int maxkey,Rect *p_r,int *p_overflow)
 {
@@ -1458,15 +1458,18 @@ timeon = (*((*pp_currentparams)[nseq]))->starttime[key] * 1000.;
 timeon = Round(((double)timeon * GraphicScaleP) / GraphicScaleQ / 10.);
 timeoff = Round(((double)timeoff * GraphicScaleP) / GraphicScaleQ / 10.);
 
-x1 = p_r->left + leftoffset + timeon;y = (maxkey - key - 1) * hrect + topoffset;
+// BPPrintMessage(odInfo,"draw_line(%d,%d)\n",timeon,timeoff);
+
+x1 = p_r->left + leftoffset + timeon;
+y = (maxkey - key - 1) * hrect + topoffset;
 x2 = x1 + timeoff - timeon;
 if((x1 - Lastx2[key]) < 4) {
-	x1 += 2; // Separate identical notes when replayed
+	x1 += 1; // Separate identical notes when replayed
 	}
 length = x2 - x1;
 if(length < 8) {
 	x2 += 2; // For out-time objects
-	if(strcmp(type,"midi") == 0) x1 -= 2;
+	if(strcmp(type,"midi") == 0) x1 -= 1;
 	}
 Lastx2[key] = x2;
 pen_size(8,0);

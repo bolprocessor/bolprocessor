@@ -119,7 +119,7 @@ interruptedonce = overflow = FALSE;
 rs = 0;
 resetok = TRUE;
 
-if(MIDIfileOn) BPPrintMessage(odInfo, "MIDI file will be created\n");
+// if(MIDIfileOn) BPPrintMessage(odInfo, "MIDI file will be created\n");
 
 #if BP_CARBON_GUI
 // FIXME ? Should non-Carbon builds call a "poll events" callback here ?
@@ -1410,7 +1410,7 @@ SWITCHES:
 // Send messages of sound-object instance kcurrentinstance as long as possible
 
 PLAYOBJECT:
-		if(show_csound_pianoroll) BPPrintMessage(odInfo,"\nPLAYOBJECT: j = %d t1 =%ld t2 = %ld t3 = %ld ievent = %d im = %d\n",j,(long)t1,(long)t2,(long)t3,ievent,im);
+		if(show_csound_pianoroll) BPPrintMessage(odInfo,"\nPLAYOBJECT: j = %d t1 = %ld t2 = %ld t3 = %ld ievent = %d im = %d\n",j,(long)t1,(long)t2,(long)t3,ievent,im);
 		while(t1 <= t2  && t1 <= t3  && ievent < im) {
 			Tcurr =  (t0 + t1) / Time_res;
 			sprintf(Message,"Tcurr = %ld, j = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)j,(long)t0,(long)t1,(long)Time_res);
@@ -1457,7 +1457,6 @@ PLAYOBJECT:
 				c0 -= localchan;
 				}
 			if(objectchannel > 0) localchan = objectchannel - 1;
-			
 			if(c0 >= 0) {
 				if(c0 == NoteOn  || c0 == NoteOff) {
 					if(j < 16384) {
@@ -1499,9 +1498,10 @@ PLAYOBJECT:
 							c1 = RetrieveMappedKey(c1,kcurrentinstance,localchan,p_currmapped,
 								maxmapped);
 						onoff = ByteToInt((*p_keyon[localchan])[c1]);
+						if(show_csound_pianoroll) BPPrintMessage(odInfo,"onoff = %d\n",onoff);
 						if(onoff > 0 || cswrite) {
 							((*p_keyon[localchan])[c1])--;
-							if((onoff == 1 || cswrite) && (j >= Jbol || !(*p_DiscardNoteOffs)[j]
+							if((onoff > 0 || cswrite) && (j >= Jbol || !(*p_DiscardNoteOffs)[j]
 									|| (*p_icycle)[kcurrentinstance]
 										== (*p_Instance)[kcurrentinstance].ncycles)) {
 SENDNOTEOFF:
@@ -1516,11 +1516,12 @@ SENDNOTEOFF:
 								if(cswrite) {
 									sprintf(Message,"Before CscoreWrite(3) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,(long)c1,(long)c2);
 									if(show_csound_pianoroll) BPPrintMessage(odInfo,Message);
-									if((result=
+									if((result =
 		CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,OFF,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 									}
 								if(showpianoroll) {
+									if(show_csound_pianoroll) BPPrintMessage(odInfo,"* DrawPianoNote() t0 =  %ld t1 = %ld\n",t0,t1);
 									result = DrawPianoNote("midi",c1,nseq,localchan,(t0 + t1),
 										pp_currentparams,leftoffset,topoffset,hrect,
 										minkey,maxkey,&graphrect,&overflow);
@@ -1545,10 +1546,12 @@ SENDNOTEOFF:
 								&((*p_Instance)[kcurrentinstance].map0),
 								&((*p_Instance)[kcurrentinstance].map1));
 						onoff = ByteToInt((*p_keyon[localchan])[c1]);
+						if(show_csound_pianoroll) BPPrintMessage(odInfo,"\n* Tcurr = %ld NoteOn c1 = %d\n",(long)Tcurr,c1);
 						strike = TRUE;
 						if(onoff > 0) {
 							if(strikeagain) {
 								/* First send NoteOff */
+							//	((*p_keyon[localchan])[c1])--;
 								if(!cswrite) {
 									e.time = Tcurr;
 									e.type = NORMAL_EVENT;
@@ -1556,6 +1559,13 @@ SENDNOTEOFF:
 									e.data1 = c1;
 									e.data2 = 0;
 									if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+									}
+								if(showpianoroll) { // Added by BB 4 Nov 2020
+									if(show_csound_pianoroll) BPPrintMessage(odInfo,"** DrawPianoNote() t0 =  %ld t1 = %ld\n",t0,t1);
+									result = DrawPianoNote("midi",c1,nseq,localchan,(t0 + t1),
+										pp_currentparams,leftoffset,topoffset,hrect,
+										minkey,maxkey,&graphrect,&overflow);
+									if(result != OK || overflow) goto OVER;
 									}
 								}
 							else strike = FALSE;
@@ -1571,6 +1581,7 @@ SENDNOTEOFF:
 									&p_currmapped,&maxmapped)) != OK) goto OVER;
 								}
 							if(!cswrite) {
+								if(show_csound_pianoroll) BPPrintMessage(odInfo,"* Tcurr = %ld NoteOn c1 = %d strike\n",(long)Tcurr,c1);
 								e.time = Tcurr;
 								e.type = NORMAL_EVENT;
 								e.status = c0 + localchan;
@@ -1585,9 +1596,14 @@ SENDNOTEOFF:
 		CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 								}
-					//		if(showpianoroll) { // Fixed by BB 30 Oct 2020
-								(*((*pp_currentparams)[nseq]))->starttime[c1] = (t0 + t1) / 1000.;
-					//			}
+							(*((*pp_currentparams)[nseq]))->starttime[c1] = (t0 + t1) / 1000.;
+							if(showpianoroll) { // Fixed by BB 4 Nov 2020
+								if(show_csound_pianoroll) BPPrintMessage(odInfo,"DrawPianoNote() t0 =  %ld t1 = %ld\n",t0,t1);
+								result = DrawPianoNote("midi",c1,nseq,localchan,(t0 + t1),
+									pp_currentparams,leftoffset,topoffset,hrect,
+									minkey,maxkey,&graphrect,&overflow);
+								if(result != OK || overflow) goto OVER;
+								}
 							}
 						}
 					/* Since ievent was incremented twice t1 should be updated accordingly */
@@ -1817,7 +1833,6 @@ FINDNEXTEVENT:
 #if WITH_REAL_TIME_MIDI
 		for(itick=0; itick < MAXTICKS; itick++) {
 			if(clickon[itick] && !hidden[itick] && tickdate[itick] < DBL_MAX) {
-			
 				/* Send NoteOff if allowed */
 				c1 = TickKey[itick];
 				localchan = TickChannel[itick] - 1;

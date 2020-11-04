@@ -38,6 +38,7 @@
 
 #include "-BP2decl.h"
 
+int show_details_load_settings = 0;
 int show_details_load_prototypes = 0;
 int show_details_load_csound_instruments = 0;
 
@@ -1412,6 +1413,8 @@ if(CheckVersion(&iv,p_line,filename) != OK) {
 	result = FAILED;
 	goto QUIT;
 	}
+	
+if(show_details_load_settings) BPPrintMessage(odError, "Settings file version %d\n",iv);
 if(ReadOne(FALSE,FALSE,FALSE,sefile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 
 if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;	// serial port used by old built-in Midi driver
@@ -1421,7 +1424,9 @@ if(ReadOne(FALSE,FALSE,TRUE,sefile,TRUE,&p_line,&p_completeline,&pos) == FAILED)
 if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR; Quantization = k;
 if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR; Time_res = k;
 if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR; SetUpTime = j;
+if(show_details_load_settings) BPPrintMessage(odError, "SetUpTime = %d\n",SetUpTime);
 if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR; QuantizeOK = j;
+if(show_details_load_settings) BPPrintMessage(odError, "QuantizeOK = %d\n",QuantizeOK);
 #if BP_CARBON_GUI
 SetTimeAccuracy(); // We'll see later what to do with Time_res
 Dirty[wTimeAccuracy] = FALSE;
@@ -1434,16 +1439,18 @@ if(ReadUnsignedLong(sefile,&kk,&pos) == FAILED) goto ERR; Qclock = (double)kk;
 SetTempo(); SetTimeBase(); Dirty[wMetronom] = Dirty[wTimeBase] = FALSE;
 
 if(ReadInteger(sefile,&jmax,&pos) == FAILED) goto ERR;
-if(jmax > Jbutt) {
-	sprintf(Message,"Err. settings file.  jmax = %ld. ",(long)jmax);
+if(jmax != Jbutt) {
+	sprintf(Message,"\nError in settings file:  jmax = %ld instead of %d\n",jmax,Jbutt);
 	if(Beta) Alert1(Message);
-	goto QUIT;
+	goto ERR;
 	}
 	
 oldwritemidifile = WriteMIDIfile;
 oldoutcsound = OutCsound;
 
 if(ReadInteger(sefile,&Improvize,&pos) == FAILED) goto ERR;
+if(show_details_load_settings) BPPrintMessage(odError, "Improvize = %d\n",Improvize);
+
 if(ReadInteger(sefile,&CyclicPlay,&pos) == FAILED) goto ERR;
 if(ReadInteger(sefile,&UseEachSub,&pos) == FAILED) goto ERR;
 if(ReadInteger(sefile,&AllItems,&pos) == FAILED) goto ERR;
@@ -1506,6 +1513,7 @@ if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 UseTextColor = (j > 0);
 if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR;
 DeftBufferSize = BufferSize = k;
+if(show_details_load_settings) BPPrintMessage(odInfo, "DeftBufferSize = %ld\n", DeftBufferSize);
 if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 UseGraphicsColor = (j > 0);
 if(ForceTextColor == 1) UseTextColor = TRUE;
@@ -1517,6 +1525,7 @@ if(ReadInteger(sefile,&UseBufferLimit,&pos) == FAILED) goto ERR;
 SetBufferSize();
 #endif /* BP_CARBON_GUI */
 if(ReadLong(sefile,&TimeMax,&pos) == FAILED) goto ERR;
+if(show_details_load_settings) BPPrintMessage(odInfo, "TimeMax = %ld\n",(long)TimeMax);
 
 if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR;
 Seed = (unsigned) (k % 32768L);
@@ -1533,6 +1542,10 @@ if(ReadInteger(sefile,&Token,&pos) == FAILED) goto ERR;
 if(Token > 0) Token = TRUE;
 else Token = FALSE;
 if(ReadInteger(sefile,&NoteConvention,&pos) == FAILED) goto ERR;
+if(NoteConvention > 3) {
+	BPPrintMessage(odInfo, "\nERROR NoteConvention = %d\n",NoteConvention);
+	goto ERR;
+	}
 if(ReadInteger(sefile,&StartFromOne,&pos) == FAILED) goto ERR;
 if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 SmartCursor = (j == 1);

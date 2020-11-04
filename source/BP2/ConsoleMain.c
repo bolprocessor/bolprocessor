@@ -320,7 +320,7 @@ void CreateImageFile(void)
 {
 	FILE * thisfile; 
 	char* someline;
-	char line1[200], line2[200];
+	char line1[200], line2[200], line3[200];
 	size_t length = 0;
 	ssize_t number;
 	char cwd[PATH_MAX];
@@ -328,7 +328,7 @@ void CreateImageFile(void)
 		EndImageFile();
 		N_image++;
 		}
-		if(gOptions.outputFiles[ofiTraceFile].name == NULL) {
+	if(gOptions.outputFiles[ofiTraceFile].name == NULL) {
 		BPPrintMessage(odInfo,"Cannot create image file because no path is specified and trace mode is not active\n");
 		ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
 		return;
@@ -338,6 +338,12 @@ void CreateImageFile(void)
 	length = strlen(line2);
 	strncpy(line1,line2,length - 4);
 	sprintf(line2,"_image_%ld_temp.html",(long)N_image);
+	if(gOptions.inputFilenames[wGrammar] != "") {
+		GetFileName(line3,gOptions.inputFilenames[wGrammar]);
+		sprintf(Message,"_%s",line3);
+		remove_spaces(Message,line3);
+		strcat(line1,line3);
+		}
 	strcat(line1,line2);
 	remove_spaces(line1,line2);
     BPPrintMessage(odInfo,"Creating image file: ");
@@ -408,8 +414,6 @@ void EndImageFile(void)
 				someline = recode_tags(someline);
 				remove_final_linefeed(someline,someline);
 			//	BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
-			//	free(anotherline);
-			//	free(someline);
 				}
 	      else if(strstr(pick_a_line,"THE_WIDTH") != NULLSTR) {
 			//	remove_final_linefeed(pick_a_line,Message);
@@ -940,16 +944,35 @@ const char* ActionTypeToStr(action_t action)
 	return "";
 }
 
+
 void PrintInputFilenames(BPConsoleOpts* opts)
 {
 	int w;
-	
 	for (w = 0; w < WMAX; w++) {
 		if (opts->inputFilenames[w] != NULL)
 			BPPrintMessage(odInfo, "opts->inputFilenames[%s] = %s\n", WindowName[w], opts->inputFilenames[w]);
 	}
 	return;
 }
+
+
+void GetFileName(char* name,char* path) { // Added by BB 4 Nov 2020
+	char c;
+	int i,j;
+//	BPPrintMessage(odInfo, "\npath = %s\n",path);
+	for(i = strlen(path) - 1; i >= 0; i--) {
+		c = path[i];
+		if(c == '/') {
+			i++; break;
+			}
+		}
+	for(i = i, j = 0; i < strlen(path); i++) {
+		c = path[i];
+		name[j++] = c;
+		}
+	name[j] = '\0';
+	return;
+	}
 
 /*	LoadInputFiles()
 	
