@@ -434,9 +434,13 @@ if(showpianoroll) {
 	if(endxmax < 100) endxmax = 100;
 	endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
 //	BPPrintMessage(odInfo,"minkey = %d maxkey = %d endymax = %d\n",minkey,maxkey,endymax);
-	WidthMax = 2 * endxmax + 20;
+	if(WidthMax < 32767) WidthMax = 2 * endxmax + 40;
 	sprintf(Message,"WidthMax (3) = %ld\n",WidthMax);
 //	BPPrintMessage(odInfo,Message);
+	if(WidthMax > 32767) {
+		BPPrintMessage(odInfo,"\nImage width %d is too large: it will be set to 32767\n",WidthMax);
+		WidthMax = 32767;
+		}
 	
 	graphrect.top = graphrect.left = 0;
 	graphrect.bottom = graphrect.top + endymax;

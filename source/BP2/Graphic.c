@@ -118,9 +118,13 @@ if(show_more_details) BPPrintMessage(odInfo,"GraphicScaleP = %d GraphicScaleQ = 
 if(endxmax < 100) endxmax = 100;
 r.right = r.left + endxmax;
 
-WidthMax = 2 * endxmax + 40;
+if(WidthMax < 32767) WidthMax = 2 * endxmax + 40;
 sprintf(Message,"WidthMax (2) = %ld\n",WidthMax);
-// BPPrintMessage(odInfo,Message);
+//	BPPrintMessage(odInfo,Message);
+if(WidthMax > 32767) {
+	BPPrintMessage(odInfo,"\nImage width %d is too large: it will be set to 32767\n",WidthMax);
+	WidthMax = 32767;
+	}
 
 rep = DrawItemBackground(&r,imax,htext,hrect,leftoffset,interruptok,p_delta,&yruler,
 	topoffset,&overflow);
@@ -316,13 +320,21 @@ CONT:
 ENDGRAPH:
 
 QUIT:
-WidthMax = 2 * endxmax + 40;
+if(WidthMax < 32767) WidthMax = 2 * endxmax + 40;
 sprintf(Message,"WidthMax (1) = %ld\n",WidthMax);
-// BPPrintMessage(odInfo,Message);
+//	BPPrintMessage(odInfo,Message);
+if(WidthMax > 32767) {
+	BPPrintMessage(odInfo,"\nImage width %d is too large: it will be set to 32767\n",WidthMax);
+	WidthMax = 32767;
+	}
 
-HeightMax = 2 * endymax + 20;
+if(HeightMax < 32767) HeightMax = 2 * endymax + 20;
 sprintf(Message,"HeightMax (1) = %ld\n",HeightMax);
 // BPPrintMessage(odInfo,Message);
+if(HeightMax > 32767) {
+	BPPrintMessage(odInfo,"\nImage height %d is too large: it will be set to 32767\n",HeightMax);
+	HeightMax = 32767;
+	}
 
 MyDisposeHandle((Handle*)&p_morespace);
 MyDisposeHandle((Handle*)&p_top);
@@ -1303,9 +1315,13 @@ text_style(htext,"arial");
 
 ymax = p_r->bottom;
 if(TRUE || ShowPianoRoll) {
-	HeightMax = 2 * ymax + 20;
+	if(HeightMax < 32767) HeightMax = 2 * ymax + 20;
 	sprintf(Message,"HeightMax (2) = %ld\n",HeightMax);
 //	BPPrintMessage(odInfo,Message);
+	if(HeightMax > 32767) {
+		BPPrintMessage(odInfo,"\nImage height %d is too large: it will be set to 32767\n",HeightMax);
+		HeightMax = 32767;
+		}
 	}
 
 // Draw scale ruler
