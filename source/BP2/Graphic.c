@@ -52,7 +52,7 @@ int try_pivots = 0;
 int try_separate_labels = 0;
 int try_synchro_tag = 0;
 int show_more_details = 0;
-int trace_draw_piano_note = 0;
+int trace_draw_piano_note = 1;
 
 int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	Milliseconds **p_t2,int kmax,long tmin,long tmax,
@@ -1472,7 +1472,7 @@ if(chan < 0 || chan >= MAXCHAN) {
 timeon = Round(((double)timeon * GraphicScaleP) / GraphicScaleQ / 10.);
 timeoff = Round(((double)timeoff * GraphicScaleP) / GraphicScaleQ / 10.);
 
-if(trace_draw_piano_note) BPPrintMessage(odInfo," key #%d draw_line(%d,%d)\n",key,timeon,timeoff);
+if(trace_draw_piano_note) BPPrintMessage(odInfo," key #%d draw_line(%d,%d) %s\n",key,timeon,timeoff,type);
 
 x1 = p_r->left + leftoffset + timeon;
 y = (maxkey - key - 1) * hrect + topoffset;

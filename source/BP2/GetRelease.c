@@ -1278,7 +1278,7 @@ if(Jbol < maxsounds) {
 	if(Jbol >= 2) j = Jbol;
 	else j = 2;
 	sprintf(Message,"Running ResizeObjectSpace() Jbol = %ld maxsounds = %ld\n",(long)Jbol,(long)maxsounds);
-	BPPrintMessage(odInfo,Message);
+//	BPPrintMessage(odInfo,Message);
 	for(j=j; j < maxsounds; j++) {
 		(*p_MIDIsize)[j] = (*p_CsoundSize)[j] = ZERO;
 		(*p_Ifrom)[j] = 0; (*p_Type)[j] = 0;

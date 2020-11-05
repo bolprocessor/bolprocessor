@@ -40,7 +40,7 @@
 extern FILE * imagePtr;
 extern int resize;
 
-int show_csound_pianoroll = 0;
+int show_csound_pianoroll = 1;
 
 MakeSound(int *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	tokenbyte ***pp_b,long tmin,long tmax,int interruptok,int showpianoroll,
@@ -61,7 +61,8 @@ int w,y,ii,iii,j,jj,k,kcurrentinstance,n,occurrence,s,in,itick,c,c0,c1,oldc1,c2,
 	localchan,localvelocity,outtime,foundfirsteventinperiod,maxparam,index,overflow,
 	foundlasteventinperiod,foundfirstevent,cswrite,nextisobject,exclusive,themessage,
 	okvolume,okpanoramic,okpitchbend,okpressure,okmodulation,hrect,htext,leftoffset,topoffset,
-	contchan,volume,panoramic,pitchbend,modulation,pressure,**p_seqcont[MAXCHAN],octave,pitchclass;
+	contchan,volume,panoramic,pitchbend,modulation,pressure,**p_seqcont[MAXCHAN],
+	octave,pitchclass,time_pattern;
 	
 Milliseconds time,buffertime,torigin,t0,t1,t11,t2,t2obj,
 	t2tick,t22,t3,date1,**p_t1,**p_t2cont[MAXCHAN],timeon[MAXKEY],
@@ -90,6 +91,7 @@ Milliseconds t;
 w = wGraphic;
 maxmidibytes5 = MaxMIDIbytes / 5L;
 oldtcurr = Tcurr;
+time_pattern = FALSE;
 
 // BPPrintMessage(odInfo, "Running MakeSound()\n");
 
@@ -345,7 +347,6 @@ for(k=2; k <= (*p_kmax); k++) {
 
 SoundOn = TRUE;
 if(showpianoroll) {
-	// FIXME:  Would like to figure out how to move all of the piano roll code elsewhere ...
 	minkey = 127; maxkey = 0;
 	tmax = ZERO;
 	for(k=2; k <= (*p_kmax); k++) {
@@ -414,7 +415,7 @@ if(showpianoroll) {
 			}
 		else {
 			key = GoodKey(j);
-		//	BPPrintMessage(odInfo,"key = %d\n",key);
+		//	BPPrintMessage(odInfo,"j = %d => key = %d\n",j,key);
 			if((*p_Instance)[k].lastistranspose) TransposeKey(&key,trans);
 			key = ExpandKey(key,(*p_Instance)[k].xpandkey,(*p_Instance)[k].xpandval);
 			if(!(*p_Instance)[k].lastistranspose) TransposeKey(&key,trans);
@@ -884,7 +885,7 @@ TRYCSFILE:
 				modulation = (int) ModulationStart(kcurrentinstance);
 				
 				if(okvolume && (volume != (*p_Oldvalue)[chan].volume)
-						&& (j >= Jbol || (*p_OkVolume)[j])) {
+						&& (j >= 16384 || (*p_OkVolume)[j])) { // $$$
 					(*p_Oldvalue)[chan].volume = volume;
 					ChangedVolume[chan] = TRUE;
 					if(!cswrite) {
@@ -897,7 +898,7 @@ TRYCSFILE:
 						}
 					}
 				if(okpanoramic && (panoramic != (*p_Oldvalue)[chan].panoramic /* || firstpanoramic[chan] */)
-						&& (j >= Jbol || (*p_OkPan)[j])) {
+						&& (j >= 16384 || (*p_OkPan)[j])) { // $$$
 					(*p_Oldvalue)[chan].panoramic = panoramic;
 					ChangedPanoramic[chan] = TRUE;
 					if(!cswrite) {
@@ -1440,13 +1441,14 @@ PLAYOBJECT:
 					nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
 				goto NEWPERIOD;
 				}
-			
+			time_pattern = FALSE;
 			if(j < Jbol) {
 				sequence = (*((*pp_MIDIcode)[j]))[ievent].sequence;
 				c0 = (*((*pp_MIDIcode)[j]))[ievent].byte;
 				c1 = (*((*pp_MIDIcode)[j]))[ievent+1].byte;
 				}
 			else { /* Simple note or time pattern */
+				if(j < 16384) time_pattern = TRUE;
 				if(ievent == 0) c0 = NoteOn;
 				else c0 = NoteOff;
 				sequence = 0;
@@ -1494,16 +1496,16 @@ PLAYOBJECT:
 							TransposeKey(&c1,trans);
 						}
 					if(c0 == NoteOff || c2 == 0) {
-						if(j >= Jbol || (*p_OkMap)[j])
+						if(j >= 16384 || (*p_OkMap)[j]) // $$$
 							c1 = RetrieveMappedKey(c1,kcurrentinstance,localchan,p_currmapped,
 								maxmapped);
 						onoff = ByteToInt((*p_keyon[localchan])[c1]);
 						if(show_csound_pianoroll) BPPrintMessage(odInfo,"onoff = %d\n",onoff);
-						if(onoff > 0 || cswrite) {
+						if((onoff > 0 || cswrite) && !time_pattern) {
 							((*p_keyon[localchan])[c1])--;
-							if((onoff > 0 || cswrite) && (j >= Jbol || !(*p_DiscardNoteOffs)[j]
+							if((onoff > 0 || cswrite) && (j >= 16384 || !(*p_DiscardNoteOffs)[j]
 									|| (*p_icycle)[kcurrentinstance]
-										== (*p_Instance)[kcurrentinstance].ncycles)) {
+										== (*p_Instance)[kcurrentinstance].ncycles)) { // $$$
 SENDNOTEOFF:
 								if(!cswrite) {
 									e.time = Tcurr;
@@ -1540,7 +1542,7 @@ SENDNOTEOFF:
 						}
 					else { // NoteOn
 						oldc1 = c1;
-						if(j >= Jbol || (*p_OkMap)[j])
+						if(j >= 16384 || (*p_OkMap)[j]) // $$$
 							c1 = MapThisKey(c1,howmuch,(*p_Instance)[kcurrentinstance].mapmode,
 								&((*p_Instance)[kcurrentinstance].map0),
 								&((*p_Instance)[kcurrentinstance].map1));
@@ -1548,7 +1550,7 @@ SENDNOTEOFF:
 						if(show_csound_pianoroll) BPPrintMessage(odInfo,"\n** Tcurr = %ld NoteOn c1 = %d onoff = %d nseq = %d\n",(long)Tcurr,c1,onoff,nseq);
 						strike = TRUE;
 						
-						if(onoff > 0) {
+						if(!time_pattern && (onoff > 0)) {
 							if(strikeagain) {
 								/* First send NoteOff */
 								if(!cswrite) {
@@ -1571,7 +1573,7 @@ SENDNOTEOFF:
 							}
 						timeon[c1] = t0 + t1;
 						((*p_keyon[localchan])[c1])++;
-						if(strike || cswrite) {
+						if((strike || cswrite) && !time_pattern) {
 							if(j >= Jbol || (*p_OkVelocity)[j])
 								c2 = ClipVelocity(c2,localvelocity,
 									(*p_Instance)[kcurrentinstance].velcontrol,
@@ -1603,6 +1605,7 @@ SENDNOTEOFF:
 									minkey,maxkey,&graphrect);
 								if(result != OK || overflow) goto OVER;
 								}
+							(*((*pp_currentparams)[nseq]))->starttime[c1] = (t0 + t1) / 1000.;
 							}
 						}
 					/* Since ievent was incremented twice t1 should be updated accordingly */
