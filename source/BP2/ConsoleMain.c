@@ -303,6 +303,7 @@ void CreateDoneFile(void)
 		sprintf(Message,gOptions.outputFiles[ofiTraceFile].name);
 		remove_spaces(Message,line2);
 		length = strlen(line2);
+		memset(line1,'\0',sizeof(line1));
 		strncpy(line1,line2,length - 4);
 		strcat(line1,"_done.txt");
 		remove_spaces(line1,line2);
@@ -333,10 +334,13 @@ void CreateImageFile(void)
 		ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
 		return;
 		}
-	sprintf(Message,gOptions.outputFiles[ofiTraceFile].name);
-	remove_spaces(Message,line2);
+	sprintf(line3,gOptions.outputFiles[ofiTraceFile].name);
+	remove_spaces(line3,line2);
+//	BPPrintMessage(odInfo,"\n\nline3 = %s\n\n",line3);
 	length = strlen(line2);
+	memset(line1,'\0',sizeof(line1));
 	strncpy(line1,line2,length - 4);
+//	BPPrintMessage(odInfo,"\n\nline1 = %s\n\n",line1);
 	sprintf(line2,"_image_%ld_temp.html",(long)N_image);
 	if(gOptions.inputFilenames[wGrammar] != "") {
 		GetFileName(line3,gOptions.inputFilenames[wGrammar]);

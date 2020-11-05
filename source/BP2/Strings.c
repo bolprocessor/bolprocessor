@@ -453,16 +453,15 @@ return(OK);
 }
 
 
-void remove_spaces(const char *input, char *result)
-{
-	unsigned char c;
+void remove_spaces(char *input, char *result) {
+	char c;
 	int i, j = 0;
-	for (i = 0; input[i] != '\0'; i++) {
-		c = (unsigned char) input[i];
-		if (isalnum(c) || c == '_' || c == '/' || c == '.' || c == '-') result[j++] = input[i];
+	for(i = 0; input[i] != '\0'; i++) {
+		c = (char) input[i];
+		if(isalnum(c) || c == '_' || c == '/' || c == '.' || c == '-') result[j++] = input[i];
 		}
 	result[j] = '\0';
-}
+	}
 
 
 void remove_final_linefeed(const char *input, char *result)

@@ -59,7 +59,7 @@ PerfParameters **perf;
 ParameterStatus **params,**paramscopy;
 Handle h;
 CsoundParam **instrparamlist; 
-Milliseconds timeoff;
+Milliseconds timeon,timeoff;
 
 scorearg = NULL;
 params = NULL;
@@ -203,14 +203,13 @@ if((scorearg=(double**) GiveSpace((Size)((iargmax + 1) * sizeof(double)))) == NU
 	
 for(iarg=0; iarg <= iargmax; iarg++) (*scorearg)[iarg] = 0.;
 
-if(Pclock > 0.)  /* Striated or measured smooth time */
+if(Pclock > 0.)  /* Striated or measured smooth time */ 
 	ratio = Qclock / ((double) Pclock) / 1000.;
 else
 	ratio = 0.001;
 		
 if(onoffline != LINE) {
-//	(*scorearg)[2] = (*perf)->starttime[key];
-	(*scorearg)[2] = (*perf)->starttime[key] * Qclock / ((double) Pclock); // FIXED by BB 20 oct 2020
+	(*scorearg)[2] = (*perf)->starttime[key] * Qclock / ((double) Pclock);
 	(*scorearg)[3] = time - (*scorearg)[2];
 	sprintf(Message,"onoffline != LINE, key = %d, starttime = %.3f, time = %ld, scorearg[2] = %.3f, scorearg[3] = %.3f\n",key,(*perf)->starttime[key],(long)time,(*scorearg)[2],(*scorearg)[3]);
 	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,Message);
@@ -642,13 +641,11 @@ WRITECSCORELINE:
 
 // First send this note to pianoroll
 if(ShowPianoRoll) {
-	oldtime_on = (*((*pp_currentparams)[nseq]))->starttime[key]; // Not sure it's necessary…
-	(*((*pp_currentparams)[nseq]))->starttime[key] = (*scorearg)[2] * Pclock / Qclock;
+	timeon = (Milliseconds) 1000 * (*scorearg)[2] * Pclock / Qclock;
 	timeoff = (Milliseconds) 1000 * ((*scorearg)[2] + (*scorearg)[3]) * Pclock / Qclock;
-	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,"key = %d chan = %d (*scorearg)[2] = %.3f (*scorearg)[3] = %.3f timeoff = %ld minkey = %d maxkey = %d\n",key,chan,(*scorearg)[2],(*scorearg)[3],(long)timeoff,minkey,maxkey);
-	DrawPianoNote("csound",key,nseq,chan,timeoff,pp_currentparams,leftoffset,
-	topoffset,hrect,minkey,maxkey,p_graphrect,&overflow); // We no longer care about "overflow"
-	(*((*pp_currentparams)[nseq]))->starttime[key] = oldtime_on;
+	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,"key = %d chan = %d timeon = %ld timeoff = %ld minkey = %d maxkey = %d\n",key,chan,(long)timeon,(long)timeoff,minkey,maxkey);
+	DrawPianoNote("csound",key,chan,timeon,timeoff,leftoffset,
+	topoffset,hrect,minkey,maxkey,p_graphrect);
 	}
 
 if(!OutCsound) {

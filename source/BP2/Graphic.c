@@ -1455,11 +1455,9 @@ return(result);
 }
 
 
-int DrawPianoNote(char* type,int key,int nseq,int chan, Milliseconds timeoff,
-	PerfParameters ****pp_currentparams,
-	int leftoffset,int topoffset,int hrect,int minkey,int maxkey,Rect *p_r,int *p_overflow)
+int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds timeoff,
+	int leftoffset,int topoffset,int hrect,int minkey,int maxkey,Rect *p_r)
 {
-Milliseconds timeon;
 int x1, x2, y;
 Rect r;
 char* word;
@@ -1471,11 +1469,10 @@ if(key < 0 || key > 127) {
 if(chan < 0 || chan >= MAXCHAN) {
 	return(OK);
 	}
-timeon = (*((*pp_currentparams)[nseq]))->starttime[key] * 1000.;
 timeon = Round(((double)timeon * GraphicScaleP) / GraphicScaleQ / 10.);
 timeoff = Round(((double)timeoff * GraphicScaleP) / GraphicScaleQ / 10.);
 
-if(trace_draw_piano_note) BPPrintMessage(odInfo,"draw_line(%d,%d)\n",timeon,timeoff);
+if(trace_draw_piano_note) BPPrintMessage(odInfo," key #%d draw_line(%d,%d)\n",key,timeon,timeoff);
 
 x1 = p_r->left + leftoffset + timeon;
 y = (maxkey - key - 1) * hrect + topoffset;

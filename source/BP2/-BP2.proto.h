@@ -542,7 +542,7 @@ int SendControl(ContinuousControl**,Milliseconds,int,int,int,int,int,int*,char**
 	Milliseconds***,int***,MIDIcontrolstatus**,PerfParameters****);
 int InterruptSound(void);
 int DrawNoteScale(Rect*,int,int,int,int,int,int);
-int DrawPianoNote(char*,int,int,int,Milliseconds,PerfParameters****,int,int,int,int,int,Rect*,int*);
+int DrawPianoNote(char*,int,int,Milliseconds,Milliseconds,int,int,int,int,int,Rect*);
 long Findibm(int,Milliseconds,int);
 int DrawItemBackground(Rect*,unsigned long,int,int,int,int,Milliseconds**,long*,int,int*);
 double GetTableValue(double,long,Coordinates**,double,double);
@@ -1092,7 +1092,7 @@ long LineStartPos(int,int,int);
 void CloseFile(FILE* file);
 void CreateImageFile(void);
 void EndImageFile(void);
-void remove_spaces(const char*,char*);
+void remove_spaces(char*,char*);
 void remove_final_linefeed(const char*,char*);
 
 
