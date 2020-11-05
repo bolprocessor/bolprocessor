@@ -40,7 +40,7 @@
 extern FILE * imagePtr;
 extern int resize;
 
-int show_csound_pianoroll = 1;
+int show_csound_pianoroll = 0;
 
 MakeSound(int *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	tokenbyte ***pp_b,long tmin,long tmax,int interruptok,int showpianoroll,

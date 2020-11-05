@@ -52,7 +52,7 @@ int try_pivots = 0;
 int try_separate_labels = 0;
 int try_synchro_tag = 0;
 int show_more_details = 0;
-int trace_draw_piano_note = 1;
+int trace_draw_piano_note = 0;
 
 int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	Milliseconds **p_t2,int kmax,long tmin,long tmax,
