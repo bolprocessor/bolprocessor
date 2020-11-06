@@ -689,6 +689,7 @@ int i,igram,r,showmessages,
 long maxdepth,length,****p_flag,****p_weight;
 tokenbyte ****p_stack;
 OSErr io;
+clock_t time_end_compute;
 
 if(template && ShowNotBP() != OK) return(OK);
 p_flag = NULL; p_weight = NULL;
@@ -696,6 +697,9 @@ depth = 0; maxdepth = 20L;
 ItemNumber = 0L;
 single = FALSE;
 ProduceStackIndex = DisplayStackIndex = SkipFlag = FALSE;
+
+time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
+
 if(Varweight) {
 	if(ResetRuleWeights(0) == ABORT) {
 		if(CompileCheck() != OK) return(OK);
@@ -772,7 +776,7 @@ ShowMessages = FALSE;
 if((r = ShowItem(1,p_gram,FALSE,pp_a,FALSE,mode,TRUE))
 	== ABORT || r == FINISH || r == EXIT) goto END;
 r = AllFollowingItems(p_gram,pp_a,p_weight,p_flag,&length,igram,TRUE,
-	template,endgram,p_stack,&depth,&maxdepth,single,mode);
+	template,endgram,p_stack,&depth,&maxdepth,single,mode,time_end_compute);
 
 ShowMessages = showmessages;
 
@@ -803,7 +807,7 @@ return(r);
 
 AllFollowingItems(t_gram *p_gram,tokenbyte ***pp_a,long ****p_weight,long ****p_flag,
 	long *p_length,int igram,int all,int template,int endgram,tokenbyte ****p_stack,
-	int *p_depth,long *p_maxdepth,int single,int mode)
+	int *p_depth,long *p_maxdepth,int single,int mode,int time_end_compute)
 {
 int icandidate,irul,r,w,repeat,changed,grtype,irep,nrep;
 long ipos,leftpos,lastpos,incmark;
@@ -847,7 +851,7 @@ TRY:
 	repeat = TRUE;	/* This forces imode to 1 in Insert() */
 	leftpos = ZERO; /* Not used */
 	if((r=Derive(pp_a,p_gram,pp_a,p_length,igram,irul,ipos,
-			&leftpos,grtype,repeat,&changed,&lastpos,&incmark,mode)) < ZERO) {
+			&leftpos,grtype,repeat,&changed,&lastpos,&incmark,mode,time_end_compute)) < ZERO) {
 		goto ENDPULL; /* Happens if buffer problem */
 		}
 	if((r=ShowItem(igram,p_gram,FALSE,pp_a,FALSE,mode,TRUE)) != OK) goto ENDPULL;
@@ -893,7 +897,7 @@ TRYAGAIN:
 		}
 	else {
 		r = AllFollowingItems(p_gram,pp_a,p_weight,p_flag,p_length,igram,
-			all,template,endgram,p_stack,p_depth,p_maxdepth,single,mode);
+			all,template,endgram,p_stack,p_depth,p_maxdepth,single,mode,time_end_compute);
 		}
 	if(PullStack(pp_a,p_weight,p_flag,p_length,p_stack,p_depth,p_maxdepth) != OK) {
 		if(Beta) Alert1("PullStack() != OK in AllFollowingItems()");
