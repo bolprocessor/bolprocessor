@@ -44,10 +44,14 @@ Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_repeat
 {
 int r,igram,inrul,finish,again,outgram,outrul,displayproducemem,level;
 unsigned long ix;
-
+clock_t time_end_compute;
 
 ReleaseProduceStackSpace();
 MaxDeriv = MAXDERIV;
+
+BPPrintMessage(odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
+time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
+
 if(MakeComputeSpace(MaxDeriv) != OK) return(ABORT);
 displayproducemem = DisplayProduce;
 if(DisplayProduce && !ScriptExecOn) {
@@ -77,7 +81,7 @@ for(igram=fromigram; igram <= toigram; igram++) {
 TRYSUBGRAM:
 	finish = FALSE;
 	r = ComputeInGram(pp_a,&Gram,igram,inrul,p_length,&finish,p_repeat,PROD,FALSE,
-		&outgram,&outrul);
+		&outgram,&outrul,time_end_compute);
 		
 	if(DisplayProduce) ShowSelect(CENTRE,wTrace);
 	if(r == ABORT || r == EXIT || r == STOP) goto OUT;
@@ -153,7 +157,7 @@ return(r);
 
 ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_length,
 	int *p_finish,int *p_repeat,int mode,int learn,int *p_outgram,
-	int *p_outrul)
+	int *p_outrul, clock_t time_end_compute)
 {
 char c;
 int rep,datamode,ifunc,ig,ir,j,irul,irep,nrep,**p_candidate,foundone,
@@ -333,6 +337,10 @@ while(((nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom,igram,grtype,p_
 	p_totwght,p_pos,p_prefrule,leftpos,&maxpref,&freedom,*p_repeat,
 	mode,&equalweight,learn)) > 0) || (nb_candidates == AGAIN)) {
 
+	if(clock() > time_end_compute) {
+		BPPrintMessage(odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent. Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+		r = ABORT; goto QUIT;
+		}
 	try = irep = 0;
 	if(nb_candidates == EXIT) {
 		rep = ABORT; goto QUIT;

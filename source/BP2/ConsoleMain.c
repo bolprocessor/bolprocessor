@@ -71,6 +71,7 @@ BPConsoleOpts gOptions;
 FILE * imagePtr = NULL;
 char imageFileName[500];
 int N_image = 1;
+int MaxConsoleTime = 120; // seconds: time allowed for console work
 int CsoundPianoRollNoteShift;
 PrototypesLoaded = FALSE;
 

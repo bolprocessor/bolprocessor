@@ -1524,8 +1524,8 @@ if(ReadInteger(sefile,&UseBufferLimit,&pos) == FAILED) goto ERR;
 #if BP_CARBON_GUI
 SetBufferSize();
 #endif /* BP_CARBON_GUI */
-if(ReadLong(sefile,&TimeMax,&pos) == FAILED) goto ERR;
-if(show_details_load_settings) BPPrintMessage(odInfo, "TimeMax = %ld\n",(long)TimeMax);
+if(ReadLong(sefile,&MaxConsoleTime,&pos) == FAILED) goto ERR; // Previously it was TimeMax
+if(show_details_load_settings) BPPrintMessage(odInfo, "MaxConsoleTime = %ld\n",(long)MaxConsoleTime);
 
 if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR;
 Seed = (unsigned) (k % 32768L);

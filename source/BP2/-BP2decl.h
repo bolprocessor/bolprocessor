@@ -366,6 +366,7 @@ extern int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 
 extern FILE * imagePtr;
 extern int N_image;
+extern int MaxConsoleTime;
 extern int CsoundPianoRollNoteShift;
 
 #endif /* BP2_DECL_H */

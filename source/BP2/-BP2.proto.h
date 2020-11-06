@@ -491,7 +491,7 @@ tokenbyte Image(int,int);
 int InterpretPeriods(tokenbyte***);
 int FoundPeriod(tokenbyte***);
 int Compute(tokenbyte***,int,int,long*,int*);
-int ComputeInGram(tokenbyte***,t_gram*,int,int,long*,int*,int*,int,int,int*,int*);
+int ComputeInGram(tokenbyte***,t_gram*,int,int,long*,int*,int*,int,int,int*,int*,clock_t);
 int Undo(tokenbyte***,int);
 int Destroy(tokenbyte***);
 long NextPos(tokenbyte***,tokenbyte***,long*,long*,long,int);

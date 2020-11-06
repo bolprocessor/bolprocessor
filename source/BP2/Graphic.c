@@ -1478,7 +1478,7 @@ x1 = p_r->left + leftoffset + timeon;
 y = (maxkey - key - 1) * hrect + topoffset;
 x2 = x1 + timeoff - timeon;
 if((x1 - Lastx2[key]) < 4) {
-	x1 += 1; // Separate identical notes when replayed
+	x1 += 2; // Separate identical notes when replayed
 	}
 length = x2 - x1;
 if(length < 8) {

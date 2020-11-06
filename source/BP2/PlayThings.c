@@ -252,6 +252,7 @@ PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll)
 {
 int result,kmax,i,j,nmax,dummy,finish,repeat,displayProducemem,
 	showmessagesmem,usebufferlimitmem,again,store;
+clock_t time_end_compute;
 long tmin,tmax,length;
 unsigned long maxseq;
 double maxseqapprox;
@@ -283,10 +284,11 @@ if(GlossGram.p_subgram != NULL && NeedGlossary(pp_buff) && !onlypianoroll) {
 	MaxDeriv = MAXDERIV;
 	if((result=MakeComputeSpace(MaxDeriv)) != OK) goto OUT;
 	DisplayProduce = ShowMessages = UseBufferLimit = finish = repeat = FALSE;
+	time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
 	
 	//////  Make derivation (unique substitution) with glossary ///////
 	result = ComputeInGram(pp_buff,&GlossGram,1,0,&length,&finish,&repeat,PROD,FALSE,
-		&dummy,&dummy);
+		&dummy,&dummy,time_end_compute);
 	/////
 	DisplayProduce = displayProducemem;
 	ShowMessages = showmessagesmem;

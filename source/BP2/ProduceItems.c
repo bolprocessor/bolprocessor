@@ -1571,6 +1571,7 @@ Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templates,
 /* pos = position of first template considered in grammar window */
 {
 int i,itemp,r,igram,finish,again,foundone,good,hasperiods;
+clock_t time_end_compute;
 long posend,lastbyte;
 tokenbyte m,p,**p_b,***pp_b,**p_c,***pp_c,**p_d,***pp_d;
 double maxseqapprox;
@@ -1706,10 +1707,11 @@ if(templates) {
 		}
 	}
 ClearMarkers(pp_a);
+time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
 for(igram=Gram.number_gram; igram >= 1; igram--) {
 	PleaseWait();
 	finish = FALSE;
-	r = ComputeInGram(pp_a,&Gram,igram,0,p_lengthA,&finish,p_repeat,ANAL,learn,&i,&i);
+	r = ComputeInGram(pp_a,&Gram,igram,0,p_lengthA,&finish,p_repeat,ANAL,learn,&i,&i,time_end_compute);
 	if(r == FAILED) break;
 	if(r == FINISH) continue;
 	if(finish) {
