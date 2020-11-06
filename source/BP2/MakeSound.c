@@ -210,6 +210,7 @@ for(nseq=0; nseq < maxconc; nseq++) {
 result = OK;
 kfirstinstance = 0;
 t11 = t22 = Infpos;
+
 for(k=2; k <= (*p_kmax); k++) {
 	j = (*p_Instance)[k].object;
 	if(j == 0) continue;
@@ -330,6 +331,8 @@ for(k=2; k <= (*p_kmax); k++) {
 		t11 = ((*p_Instance)[k].starttime - preroll);
 		}
 	}
+
+CsoundPianoRollNoteShift = 0;
 for(k=2; k <= (*p_kmax); k++) {
 	j = (*p_Instance)[k].object;
 	if(j == 0) continue;
@@ -343,6 +346,7 @@ for(k=2; k <= (*p_kmax); k++) {
 	if((k != kfirstinstance) && (((*p_Instance)[k].starttime - preroll) < t22)) {
 		t22 = ((*p_Instance)[k].starttime - preroll);
 		}
+	if((*p_Instance)[k].starttime < CsoundPianoRollNoteShift) CsoundPianoRollNoteShift = (*p_Instance)[k].starttime;
 	}
 
 SoundOn = TRUE;

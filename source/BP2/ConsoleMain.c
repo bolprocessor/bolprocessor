@@ -71,6 +71,7 @@ BPConsoleOpts gOptions;
 FILE * imagePtr = NULL;
 char imageFileName[500];
 int N_image = 1;
+int CsoundPianoRollNoteShift;
 PrototypesLoaded = FALSE;
 
 Find_leak = FALSE; // Flag to locate place where negative leak starts

@@ -50,10 +50,10 @@ int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int min
 // onoffline = OFF -- terminate Csound process as a NoteOff has been encountered, and
 //    write Csound score line
 
-int i,c,ins,index,paramnameindex,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,
+int i,jj,k,c,ins,index,paramnameindex,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,
 	pitchclass,result,maxparam,itable;
 char line[MAXLIN],line2[MAXLIN];
-long imax;
+long imax,pivloc,trbeg,starttime;
 double time,x,xx,cents,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,endvalue,ratio,oldtime_on;
 PerfParameters **perf;
 ParameterStatus **params,**paramscopy;
@@ -643,6 +643,10 @@ WRITECSCORELINE:
 if(ShowPianoRoll) {
 	timeon = (Milliseconds) 1000 * (*scorearg)[2] * Pclock / Qclock;
 	timeoff = (Milliseconds) 1000 * ((*scorearg)[2] + (*scorearg)[3]) * Pclock / Qclock;
+	
+	timeon += CsoundPianoRollNoteShift;
+	timeoff += CsoundPianoRollNoteShift;
+		
 	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,"key = %d chan = %d timeon = %ld timeoff = %ld minkey = %d maxkey = %d\n",key,chan,(long)timeon,(long)timeoff,minkey,maxkey);
 	DrawPianoNote("csound",key,chan,timeon,timeoff,leftoffset,
 	topoffset,hrect,minkey,maxkey,p_graphrect);
