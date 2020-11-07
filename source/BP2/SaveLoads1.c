@@ -1522,6 +1522,7 @@ if(ForceTextColor == -1) UseTextColor = FALSE;
 if(ForceGraphicColor == 1) UseGraphicsColor = TRUE;
 if(ForceGraphicColor == -1) UseGraphicsColor = FALSE;
 if(ReadInteger(sefile,&UseBufferLimit,&pos) == FAILED) goto ERR;
+UseBufferLimit = FALSE;
 #if BP_CARBON_GUI
 SetBufferSize();
 #endif /* BP_CARBON_GUI */

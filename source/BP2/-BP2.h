@@ -443,6 +443,7 @@ enum {
 #define T41 (tokenbyte) 41
 #define T42 (tokenbyte) 42
 #define T43 (tokenbyte) 43
+#define MAXTOKENBYTE 44
 
 // Inference modes
 #define ANAL 0	/* Modus tollens */

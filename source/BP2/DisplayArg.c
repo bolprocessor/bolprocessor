@@ -255,7 +255,7 @@ if((datamode || showtempo) && !istemplate) {
 					scale = 1. / s;
 					i += 4L;
 					break;
-				case 7:		/* '¥' */
+				case 7:		/* bullet */
 				case 14:	/* ',' */
 					print_periods = 0;
 					goto READY;

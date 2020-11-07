@@ -125,13 +125,16 @@ MemoryUsed = TempMemoryUsed = MaxMemoryUsed = ZERO;
 SetTimeOn = ComputeOn = PolyOn = CompileOn = SoundOn = SelectOn = ButtonOn = ExpandOn
 	= PrintOn = ClickRuleOn = GraphicOn = CompleteDecisions = LoadOn = SaveOn = MIDIfileOn
 	= ReadKeyBoardOn = AlertOn = AllOn = HangOn = ScriptRecOn = PlayPrototypeOn
-	= PlaySelectionOn = SelectPictureOn = TypeScript = InputOn = EnterOn = AEventOn
+	= PlaySelectionOn = UseEachSub = SelectPictureOn = TypeScript = InputOn = EnterOn = AEventOn
 	= PauseOn = WaitOn = ItemOutPutOn = ItemCapture = TickCapture = TickCaptureStarted
 	= AskedAboutCsound = MustChangeInput = ToldSkipped = ShownBufferSize = FALSE;
 Option = TickDone = FoundNote = GotAlert = UsedRandom = SaidTooComplex = FALSE;
 POLYconvert = OkShowExpand = FALSE;
 NewOrchestra = TRUE;
+ItemNumber = ZERO;
+MaxConsoleTime = 120;
 Ratio = 0.;  Prod = 1.;
+N_image = 1; imagePtr = NULL;
 TimeMax = MAXTIME; Nalpha = 100L; SpeedRange = 6.;
 CorrectionFactor = 1.;
 UserName[0] = UserInstitution[0] = '\0';

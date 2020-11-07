@@ -68,18 +68,18 @@ Boolean isInteger(const char* s);
 Boolean LoadedAlphabet = FALSE;
 Boolean LoadedStartString = FALSE;
 BPConsoleOpts gOptions;
-FILE * imagePtr = NULL;
+FILE * imagePtr;
 char imageFileName[500];
-int N_image = 1;
-int MaxConsoleTime = 120; // seconds: time allowed for console work
+int N_image;
+int MaxConsoleTime; // seconds: time allowed for console work
 int CsoundPianoRollNoteShift;
-PrototypesLoaded = FALSE;
+Handle mem_ptr[5000];
+int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 
 Find_leak = FALSE; // Flag to locate place where negative leak starts
 check_memory_use = FALSE;
 
-Handle mem_ptr[5000];
-int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
+PrototypesLoaded = FALSE;
 
 int main (int argc, char* args[])
 {
@@ -121,8 +121,6 @@ int main (int argc, char* args[])
 	if (result != OK)  return EXIT_FAILURE;
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (6) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 
-		
-	
 	result = LoadInputFiles(gOptions.inputFilenames);
 	if (result != OK)  return EXIT_FAILURE;
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (7) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
@@ -195,14 +193,14 @@ int main (int argc, char* args[])
 				if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start ProduceItems = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 				improvize_mem = Improvize;
 				result = ProduceItems(wStartString,FALSE,FALSE,NULL);
-				if (Beta && result != OK && !improvize_mem)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
+			//	if (Beta && result != OK && !improvize_mem)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
 				break;
 			case produce_items:
 				break;
 			case produce_all:
 				AllItems = TRUE;
 				result = ProduceItems(wStartString,FALSE,FALSE,NULL);
-				if (Beta && result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
+		//		if (Beta && result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
 				break;
 			case play:
 				break;
@@ -352,7 +350,7 @@ void CreateImageFile(void)
 		}
 	strcat(line1,line2);
 	remove_spaces(line1,line2);
-    BPPrintMessage(odInfo,"Creating image file: ");
+    BPPrintMessage(odInfo,"\nCreating image file: ");
 	BPPrintMessage(odInfo,line2);
 	BPPrintMessage(odInfo,"\n");
 	imagePtr = fopen(line2,"w");

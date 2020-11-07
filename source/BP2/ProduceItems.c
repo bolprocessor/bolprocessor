@@ -44,6 +44,13 @@ ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start)
 tokenbyte **p_buff,***pp_buff,**p_a,***pp_a;
 int i,ifunc,j,ch,splitmem,r,undefined,datamode,weightloss,hastabs,maxsounds;
 long endofselection,size,lengthA;
+int time_end_compute;
+
+BPPrintMessage(odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
+if(Improvize && ItemNumber == 0) {
+	ShowMessage(TRUE,wMessage,"\n(No message and no picture during improvization. Only 10 items are produced.)\n\n");
+	}
+time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
 
 if(CheckEmergency() != OK) return(ABORT);
 
@@ -218,7 +225,6 @@ if(pp_start == NULL && IsEmpty(w)) {
 if(IsMidiDriverOn()) {
 	ComputeStart = GetDriverTime();
 	}
-ItemNumber = ZERO;
 if(Improvize && ShowGraphic) {
 	ClearWindow(TRUE,wGraphic);
 	}
@@ -246,15 +252,9 @@ if(!PlaySelectionOn && DisplayProduce) {
 	SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 	Print(wTrace,"\n");
 	}
-if(!PlaySelectionOn && ShowMessages) {
-	if(Improvize) {
-		if(ItemNumber > 10) { 
-			Improvize =  FALSE;
-			return(ABORT);
-			}
-		if(ItemNumber == 0) BPPrintMessage(odInfo,"\n(No message and no picture during improvization. Only 10 items are produced.)\n\n");
-		}
-//	else BPPrintMessage(odInfo,"Computing item...\n");
+if(Improvize && ItemNumber > 10) { 
+	Improvize =  FALSE;
+	return(ABORT);
 	}
 if(pp_start != NULL) goto DOIT;
 if(!PlaySelectionOn && DeriveFurther) {
@@ -303,7 +303,7 @@ if(!PlaySelectionOn && ShowItem(-1,&Gram,0,pp_a,repeat,PROD,FALSE) == ABORT) got
 if(pp_start == NULL) LastComputeWindow = w;
 
 // HERE WE DO IT ///////////////////////////////////////////////////////////
-if((((r=Compute(pp_a,1,Gram.number_gram,&lengthA,&repeat)) != OK) && !SkipFlag) || r == EXIT) goto QUIT;
+if((((r=Compute(pp_a,1,Gram.number_gram,&lengthA,&repeat,time_end_compute)) != OK) && !SkipFlag) || r == EXIT) goto QUIT;
 ////////////////////////////////////////////////////////////////////////////
 
 // if(ShowGraphic) BPPrintMessage(odInfo, "After computing we'll try graphics\n");
@@ -315,11 +315,17 @@ OkShowExpand = FALSE;
 SplitTimeObjects = splitmem;
 if(!PlaySelectionOn && Improvize) {
 	if(SkipFlag) goto MAKE;
+	
+	sprintf(Message,"Item #%ld\n",(long)(ItemNumber + 1L));
+	FlashInfo(Message);
+	if(!OutMIDI && !template && Improvize) BPPrintMessage(odInfo,Message);
+	ItemNumber++;
+		
 	if(!PlaySelectionOn && DisplayItems) {
 		Dirty[OutputWindow] = TRUE;
 		datamode = DisplayMode(pp_a,&ifunc,&hastabs);
 		if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
-		ShowSelect(CENTRE,OutputWindow);
+	//	ShowSelect(CENTRE,OutputWindow);
 		}
 	if((OutMIDI || OutCsound || WriteMIDIfile)
 		&& ((r=PlayBuffer(pp_a,NO)) == ABORT || r == EXIT)) goto QUIT;
@@ -689,12 +695,11 @@ int i,igram,r,showmessages,
 long maxdepth,length,****p_flag,****p_weight;
 tokenbyte ****p_stack;
 OSErr io;
-clock_t time_end_compute;
+int time_end_compute;
 
 if(template && ShowNotBP() != OK) return(OK);
 p_flag = NULL; p_weight = NULL;
 depth = 0; maxdepth = 20L;
-ItemNumber = 0L;
 single = FALSE;
 ProduceStackIndex = DisplayStackIndex = SkipFlag = FALSE;
 
@@ -800,7 +805,6 @@ if((*p_gram).hasTEMP && template) {
 	ShowSelect(CENTRE,wGrammar);
 	BPActivateWindow(SLOW,wGrammar);
 	}
-ItemNumber = 0L;
 return(r);
 }
 
@@ -830,7 +834,7 @@ if(EventState != NO) {
 NEXTPOS:
 (*p_length) = LengthOf(pp_a);
 PleaseWait();
-if((r=NextDerivation(pp_a,p_length,&igram,&irul,&ipos,&icandidate,mode)) == OK) {
+if((r=NextDerivation(pp_a,p_length,&igram,&irul,&ipos,&icandidate,mode,time_end_compute)) == OK) {
 	if((r=PushStack(pp_a,&p_weight,&p_flag,p_length,&p_stack,p_depth,p_maxdepth)) != OK)
 		goto END;
 	if(igram > (*p_gram).number_gram) {
@@ -855,12 +859,11 @@ TRY:
 		goto ENDPULL; /* Happens if buffer problem */
 		}
 	if((r=ShowItem(igram,p_gram,FALSE,pp_a,FALSE,mode,TRUE)) != OK) goto ENDPULL;
-	
 	/* Check '_repeat' */
 	nrep = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].repeat;
 	if(irep < nrep) {
 TRYAGAIN:
-		if((r=NextDerivation(pp_a,p_length,&igram,&irul,&ipos,&icandidate,mode)) == OK) {
+		if((r=NextDerivation(pp_a,p_length,&igram,&irul,&ipos,&icandidate,mode,time_end_compute)) == OK) {
 			irep++;
 			goto TRY;	/* $$$ This needs to be revised */
 			}
@@ -890,8 +893,12 @@ TRYAGAIN:
 	if(igram > endgram) {
 		all = repeat = FALSE;
 		(*p_length) = LengthOf(pp_a);
-		r = Compute(pp_a,igram,(*p_gram).number_gram,p_length,&repeat);
+		r = Compute(pp_a,igram,(*p_gram).number_gram,p_length,&repeat,time_end_compute);
 		if(r == ABORT || r == EXIT) goto END;
+		sprintf(Message,"Item #%ld\n",(long)(ItemNumber + 1L));
+		FlashInfo(Message);
+		if(!OutMIDI && !template && Improvize) BPPrintMessage(odInfo,Message);
+		ItemNumber++;
 		r = CheckItemProduced(p_gram,pp_a,p_length,single,template,mode);
 		if(r == ABORT || r == EXIT) goto END;
 		}
@@ -1039,7 +1046,7 @@ return(wantgram);
 
 
 NextDerivation(tokenbyte ***pp_a,long *p_length,int *p_igram,int *p_irul,
-	long *p_ipos,int *p_icandidate,int mode)
+	long *p_ipos,int *p_icandidate,int mode,int time_end_compute)
 {
 int r,nb_candidates,**p_prefrule,**p_candidate,maxpref,freedom,equalweight,maxrul,
 	repeat;
@@ -1059,7 +1066,7 @@ leftpos = maxpref = 0;
 repeat = FALSE;
 nb_candidates = FindCandidateRules(pp_a,&Gram,1,*p_igram,(*(Gram.p_subgram))[*p_igram].type,
 	p_candidate,p_totwght,p_pos,p_prefrule,leftpos,&maxpref,&freedom,repeat,mode,&equalweight,
-	FALSE);
+	FALSE,time_end_compute);
 if(nb_candidates <= (*p_icandidate)) {
 	if(nb_candidates == ABORT || nb_candidates == EXIT) {
 		r = nb_candidates; goto QUIT;
@@ -1073,7 +1080,7 @@ NEXTGRAM:
 	MyDisposeHandle((Handle*)&p_totwght);
 	MyDisposeHandle((Handle*)&p_pos);
 	MyDisposeHandle((Handle*)&p_prefrule);
-	return(NextDerivation(pp_a,p_length,p_igram,p_irul,p_ipos,p_icandidate,mode));
+	return(NextDerivation(pp_a,p_length,p_igram,p_irul,p_ipos,p_icandidate,mode,time_end_compute));
 	}
 
 FOUND:
@@ -1088,12 +1095,13 @@ if((*(Gram.p_subgram))[*p_igram].type == LINtype) {
 	else goto NEXTCANDIDATE;
 	}
 for(pos = (*p_ipos); pos < (*p_length); pos += 2L) {
-	if(Found(pp_a,ORDtype,(*((*(Gram.p_subgram))[*p_igram].p_rule))[*p_irul].p_leftarg,0,
+	r = Found(pp_a,ORDtype,(*((*(Gram.p_subgram))[*p_igram].p_rule))[*p_irul].p_leftarg,0,
 			(*((*(Gram.p_subgram))[*p_igram].p_rule))[*p_irul].leftnegcontext,&lenc1,pos,TRUE,
 			instan,meta,meta1,&istart,&jstart,&length,
-			(*((*(Gram.p_subgram))[*p_igram].p_rule))[*p_irul].ismeta)
-			&& OkContext(pp_a,ORDtype,(*((*(Gram.p_subgram))[*p_igram].p_rule))[*p_irul],pos,
-			length,meta,instan,mode)) {
+			(*((*(Gram.p_subgram))[*p_igram].p_rule))[*p_irul].ismeta,time_end_compute);
+	if(r == ABORT) goto QUIT; // Fixed by BB 7 Nov 2020
+	if(r && OkContext(pp_a,ORDtype,(*((*(Gram.p_subgram))[*p_igram].p_rule))[*p_irul],pos,
+			length,meta,instan,mode,time_end_compute)) {
 		(*p_ipos) = pos;
 		r = OK;
 		goto QUIT;
@@ -1575,7 +1583,7 @@ Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templates,
 /* pos = position of first template considered in grammar window */
 {
 int i,itemp,r,igram,finish,again,foundone,good,hasperiods;
-clock_t time_end_compute;
+int time_end_compute;
 long posend,lastbyte;
 tokenbyte m,p,**p_b,***pp_b,**p_c,***pp_c,**p_d,***pp_d;
 double maxseqapprox;
@@ -1711,7 +1719,9 @@ if(templates) {
 		}
 	}
 ClearMarkers(pp_a);
+
 time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
+
 for(igram=Gram.number_gram; igram >= 1; igram--) {
 	PleaseWait();
 	finish = FALSE;
@@ -1997,11 +2007,7 @@ WRITE:
 			}
 		}
 #endif /* BP_CARBON_GUI */
-
-	/* if(!(OutMIDI || OutCsound) || template) */ ItemNumber++;
-	sprintf(Message,"Item #%ld",(long)ItemNumber);
-	FlashInfo(Message);
-//	ShowMessage(TRUE,wMessage,Message);
+	
 	ResetDone = ifunc = FALSE;
 	OkShowExpand = FALSE;
 	if(template || DisplayItems) {
