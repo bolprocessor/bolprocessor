@@ -234,10 +234,10 @@ if(iarg > 0) {
 			case OPPC:
 				octave = MyInt(x);
 				pitchclass = MyInt(100. * (x - octave));
-				deltakey = 12. * (octave - 3.) + pitchclass;
+				deltakey = C4key - 60 + 12. * (octave - 3.) + pitchclass;
 				break;
 			case OPD:
-				deltakey = (x - 3.) * 12.;
+				deltakey = C4key - 60 + (x - 3.) * 12.;
 				break;
 			case CPS:
 				deltakey = (C4key + 9.) + 12. * (log(x/A4freq) / log(2.));
@@ -278,7 +278,7 @@ if(iarg > 0) {
 		}
 	else cents = 0.;
 	pitch_format = (*p_CsPitchFormat)[ins];
-	if((pitch_format == OPPC || pitch_format == OPD) && A4freq != 440.) // Added by BB 9 Nov 2020
+	if((pitch_format == OPPC || pitch_format == OPD) && (A4freq != 440. || C4key != 60)) // Added by BB 9 Nov 2020
 		pitch_format = CPS;
 	switch(pitch_format) {
 		case OPPC:
