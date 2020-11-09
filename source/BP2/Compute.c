@@ -864,6 +864,7 @@ if(grtype == SUBtype) {
 		BPActivateWindow(QUICK,OutputWindow);
 		Dirty[OutputWindow] = TRUE;
 		datamode = DisplayMode(pp_b,&ifunc,&hastabs);
+	//	BPPrintMessage(odInfo,"\nSubst ItemNumber = %d\n",ItemNumber);
 		if((rep=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_b)) != OK) goto QUIT;
 		}
 	if(!halt

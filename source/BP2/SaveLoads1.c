@@ -1450,7 +1450,6 @@ oldoutcsound = OutCsound;
 
 if(ReadInteger(sefile,&Improvize,&pos) == FAILED) goto ERR;
 if(show_details_load_settings) BPPrintMessage(odError, "Improvize = %d\n",Improvize);
-
 if(ReadInteger(sefile,&CyclicPlay,&pos) == FAILED) goto ERR;
 if(ReadInteger(sefile,&UseEachSub,&pos) == FAILED) goto ERR;
 if(ReadInteger(sefile,&AllItems,&pos) == FAILED) goto ERR;

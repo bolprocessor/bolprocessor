@@ -51,7 +51,7 @@ int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int min
 //    write Csound score line
 
 int i,jj,k,c,ins,index,paramnameindex,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,
-	pitchclass,result,maxparam,itable;
+	pitchclass,result,maxparam,itable,pitch_format;
 char line[MAXLIN],line2[MAXLIN];
 long imax,pivloc,trbeg,starttime;
 double time,x,xx,cents,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,endvalue,ratio,oldtime_on;
@@ -277,7 +277,10 @@ if(iarg > 0) {
 		cents = (x - DEFTPITCHBEND) * (*p_CsInstrument)[ins].pitchbendrange / DEFTPITCHBEND;
 		}
 	else cents = 0.;
-	switch((*p_CsPitchFormat)[ins]) {
+	pitch_format = (*p_CsPitchFormat)[ins];
+	if((pitch_format == OPPC || pitch_format == OPD) && A4freq != 440.) // Added by BB 9 Nov 2020
+		pitch_format = CPS;
+	switch(pitch_format) {
 		case OPPC:
 			x = octave + ((double) pitchclass) / 100.;
 			break;
