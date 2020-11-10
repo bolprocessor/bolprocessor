@@ -283,7 +283,7 @@ foundone = FALSE;
 
 RETRY:
 if(grtype == SUBtype)
-/* $$$	memset((void*)**pp_b,(int) TEND,MyGetHandleSize((Handle)*pp_b)); */
+/* memset((void*)**pp_b,(int) TEND,MyGetHandleSize((Handle)*pp_b)); */
 	for(i=0; i < MyGetHandleSize((Handle)*pp_b)/sizeof(tokenbyte); i++)
 		(**pp_b)[i] = TEND;
 changed = FALSE;

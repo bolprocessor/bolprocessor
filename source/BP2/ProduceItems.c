@@ -866,7 +866,7 @@ TRY:
 TRYAGAIN:
 		if((r=NextDerivation(pp_a,p_length,&igram,&irul,&ipos,&icandidate,mode,time_end_compute)) == OK) {
 			irep++;
-			goto TRY;	/* $$$ This needs to be revised */
+			goto TRY;	/* This needs to be revised */
 			}
 		if(r == ABORT || r == EXIT) return(r);
 		}
@@ -886,7 +886,7 @@ TRYAGAIN:
 		if(w < 0) w = 0;
 		(*((*((*p_gram).p_subgram))[igram].p_rule))[irul].w = w;
 		}
-	/* Look for '_failed'  $$$ this is wrong */					
+	/* Look for '_failed'  this is wrong */					
 	if(nrep > 0 && (igram=(*((*((*p_gram).p_subgram))[igram].p_rule))[irul].failedgram) > 0) {
 		irul = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].failedrule;
 		goto TRYAGAIN;
@@ -959,7 +959,7 @@ if((*pp_flag) != NULL) {
 	(**pp_flag)[(*p_depth)] = ptr4;
 	for(i=1L; i <= Jflag; i++) (*((**pp_flag)[(*p_depth)]))[i] = (*p_Flag)[i];
 	}
-/* $$$ else (**pp_flag)[(*p_depth)] = NULL;  Added 8/5/98 */
+/* else (**pp_flag)[(*p_depth)] = NULL;  Added 8/5/98 */
 if((ptr3=(long**) GiveSpace((Size)(MaxRul+1) * (Gram.number_gram + 1) * sizeof(long)))
 	== NULL) return(ABORT);
 

@@ -177,6 +177,7 @@ if(p_currmapped == NULL) return(ABORT);
 for(imap=0; imap < maxmapped; imap++) (*p_currmapped)[imap].orgkey = -1;
 
 maxparam = IPANORAMIC + 1;
+// BPPrintMessage(odInfo,"In MakeSound.c maxparam = %ld\n",(long)maxparam);
 
 for(i=0; i < MAXKEY; i++) timeon[i] = 0;
 
@@ -889,7 +890,7 @@ TRYCSFILE:
 				modulation = (int) ModulationStart(kcurrentinstance);
 				
 				if(okvolume && (volume != (*p_Oldvalue)[chan].volume)
-						&& (j >= 16384 || (*p_OkVolume)[j])) { // $$$
+						&& (j >= 16384 || (*p_OkVolume)[j])) {
 					(*p_Oldvalue)[chan].volume = volume;
 					ChangedVolume[chan] = TRUE;
 					if(!cswrite) {
@@ -902,7 +903,7 @@ TRYCSFILE:
 						}
 					}
 				if(okpanoramic && (panoramic != (*p_Oldvalue)[chan].panoramic /* || firstpanoramic[chan] */)
-						&& (j >= 16384 || (*p_OkPan)[j])) { // $$$
+						&& (j >= 16384 || (*p_OkPan)[j])) {
 					(*p_Oldvalue)[chan].panoramic = panoramic;
 					ChangedPanoramic[chan] = TRUE;
 					if(!cswrite) {
@@ -1010,8 +1011,8 @@ TRYCSFILE:
 					goto FORGETIT;
 					}
 				if((*((*pp_currentparams)[nseq]))->params == NULL) {
-					BPPrintMessage(odInfo,"Err. MakeSound(). (*((*pp_currentparams)[nseq]))->params == NULL");
-					maxparam = 10;
+					BPPrintMessage(odError,"Err. MakeSound(). (*((*pp_currentparams)[nseq]))->params == NULL\n");
+					maxparam = 20;
 					if((ptrs=(ParameterStatus**) GiveSpace((Size)maxparam * sizeof(ParameterStatus))) == NULL)
 						return(ABORT);
 					(*((*pp_currentparams)[nseq]))->params = ptrs;
@@ -1020,13 +1021,14 @@ TRYCSFILE:
 					}
 				maxparam = MyGetHandleSize((Handle)(*((*pp_currentparams)[nseq]))->params)
 					/ sizeof(ParameterStatus);
-				if(show_csound_pianoroll) BPPrintMessage(odInfo,"maxparam = %ld\n",(long)maxparam);
+				// BPPrintMessage(odInfo,"maxparam = %ld, contparameters.number = %d\n",(long)maxparam,(*p_Instance)[kcurrentinstance].contparameters.number);
 				params = (*((*pp_currentparams)[nseq]))->params;
 				for(i=0; i < (*p_Instance)[kcurrentinstance].contparameters.number; i++) {
 					index = (*currentinstancevalues)[i].index;
 					if(index < 0) continue;
 					if(index >= maxparam) {
 						iparam = maxparam;
+						// BPPrintMessage(odInfo,"Resizing for index (1) = %ld\n",(long)index);
 						maxparam = index + 1;
 						h = (Handle) params;
 						MySetHandleSize(&h,(Size)maxparam * sizeof(ParameterStatus));
@@ -1034,8 +1036,10 @@ TRYCSFILE:
 						for(iparam=iparam; iparam < maxparam; iparam++)
 							(*params)[iparam].active = FALSE;
 						}
-					if(index >= (*((*pp_currentparams)[nseq]))->numberparams)
+					if(index >= (*((*pp_currentparams)[nseq]))->numberparams) {
+						// BPPrintMessage(odInfo,"Resizing for index (2) = %ld\n",(long)index);
 						(*((*pp_currentparams)[nseq]))->numberparams = index + 1;
+						}
 						
 					(*params)[index].startvalue = (*currentinstancevalues)[i].v0;
 					(*params)[index].endvalue = (*currentinstancevalues)[i].v1;
@@ -1500,7 +1504,7 @@ PLAYOBJECT:
 							TransposeKey(&c1,trans);
 						}
 					if(c0 == NoteOff || c2 == 0) {
-						if(j >= 16384 || (*p_OkMap)[j]) // $$$
+						if(j >= 16384 || (*p_OkMap)[j])
 							c1 = RetrieveMappedKey(c1,kcurrentinstance,localchan,p_currmapped,
 								maxmapped);
 						onoff = ByteToInt((*p_keyon[localchan])[c1]);
@@ -1509,7 +1513,7 @@ PLAYOBJECT:
 							((*p_keyon[localchan])[c1])--;
 							if((onoff > 0 || cswrite) && (j >= 16384 || !(*p_DiscardNoteOffs)[j]
 									|| (*p_icycle)[kcurrentinstance]
-										== (*p_Instance)[kcurrentinstance].ncycles)) { // $$$
+										== (*p_Instance)[kcurrentinstance].ncycles)) {
 SENDNOTEOFF:
 								if(!cswrite) {
 									e.time = Tcurr;
@@ -1546,7 +1550,7 @@ SENDNOTEOFF:
 						}
 					else { // NoteOn
 						oldc1 = c1;
-						if(j >= 16384 || (*p_OkMap)[j]) // $$$
+						if(j >= 16384 || (*p_OkMap)[j])
 							c1 = MapThisKey(c1,howmuch,(*p_Instance)[kcurrentinstance].mapmode,
 								&((*p_Instance)[kcurrentinstance].map0),
 								&((*p_Instance)[kcurrentinstance].map1));
@@ -2503,7 +2507,8 @@ alpha = ((double)(*param)[iparam].ib) / (*param)[iparam].ibm;
 
 if((value = GetTableValue(alpha,(*param)[iparam].imax,(*param)[iparam].point,
 		(*param)[iparam].startvalue,(*param)[iparam].endvalue)) == Infpos) {
-	// if(Beta) Alert1("Err. SendControl(). value == Infpos");
+	if(Beta) Alert1("Err. SendControl(). value == Infpos");
+	BPPrintMessage(odError,"Err. SendControl(). value == Infpos\n");
 	return(ABORT);
 	}
 if(value < 0. && value > -0.1) value = 0.;
@@ -2511,8 +2516,9 @@ if(value > 16383. && value < 16384.) value = 16383.;
 
 if(value < 0. || value > 16383.) {
 	if(Beta) {
-		sprintf(Message,"Err. SendControl(). value = %.2f\n",value);
+		sprintf(Message,"Err. SendControl(). value = %.3f\n",value);
 		Print(wTrace,Message);
+		BPPrintMessage(odError,"Err. SendControl(). value = %.3f\n",value);
 		}
 	return(OK);
 	}

@@ -163,14 +163,14 @@ SETON:
 	for(i=0; i < maxparam; i++) (*paramscopy)[i] = (*((*perf)->params))[i];
 	(*perf)->startparams[key] = paramscopy;
 	result = OK;
+	// BPPrintMessage(odInfo,"Start CscoreWrite(). maxparam = %ld\n",(long)maxparam);
 	goto OUT;
 	}
 
 if(onoffline == OFF && (*perf)->level[key] < 1) {
-//	if(Beta) Alert1("Err. CscoreWrite(). (*perf)->level[key] < 1");
 	sprintf(Message,"Err. CscoreWrite(). (*perf)->level[key] < 1 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
 	BPPrintMessage(odInfo,Message);
-	result = OK; // $$$$$ TEMP $$$$$
+	result = OK; // $$$ TEMP
 	goto OUT;
 	}
 
@@ -326,6 +326,7 @@ if(iarg > 0) {
 	
 	if((*params)[IPITCHBEND].active && imax > ZERO && (*params)[IPITCHBEND].mode == CONTINUOUS
 			&& (itable=(*p_CsInstrument)[ins].pitchbendtable) > -1) {
+		// BPPrintMessage(odInfo,"Calling MakeCsoundFunctionTable() for IPITCHBEND = %ld\n");
 		if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 				(*params)[IPITCHBEND].point,ins,IPITCHBEND,-1,
 				(*p_CsPitchBendStartIndex)[ins],(*p_CsPitchBendEndIndex)[ins]) == OK)
@@ -374,6 +375,7 @@ if(iarg > 0) {
 	if(overflow) goto OUT;
 	if((*params)[IVOLUME].active && imax > ZERO && (*params)[IVOLUME].mode == CONTINUOUS
 			&& (itable=(*p_CsInstrument)[ins].volumetable) > -1) {
+		// BPPrintMessage(odInfo,"Calling MakeCsoundFunctionTable() for IVOLUME = %ld\n");
 		if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 				(*params)[IVOLUME].point,ins,IVOLUME,-1,(*p_CsVolumeStartIndex)[ins],
 				(*p_CsVolumeEndIndex)[ins]) == OK)
@@ -422,6 +424,7 @@ if(iarg > 0) {
 	if(overflow) goto OUT;
 	if((*params)[IPRESSURE].active && imax > ZERO && (*params)[IPRESSURE].mode == CONTINUOUS
 			&& (itable=(*p_CsInstrument)[ins].pressuretable) > -1) {
+		// BPPrintMessage(odInfo,"Calling MakeCsoundFunctionTable() for IPRESSURE = %ld\n");
 		if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 				(*params)[IPRESSURE].point,ins,IPRESSURE,-1,(*p_CsPressureStartIndex)[ins],
 				(*p_CsPressureEndIndex)[ins]) == OK)
@@ -470,6 +473,7 @@ if(iarg > 0) {
 	if(overflow) goto OUT;
 	if((*params)[IMODULATION].active && imax > ZERO && (*params)[IMODULATION].mode == CONTINUOUS
 			&& (itable=(*p_CsInstrument)[ins].modulationtable) > -1) {
+		// BPPrintMessage(odInfo,"Calling MakeCsoundFunctionTable() for IMODULATION = %ld\n");
 		if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 				(*params)[IMODULATION].point,ins,IMODULATION,-1,(*p_CsModulationStartIndex)[ins],
 				(*p_CsModulationEndIndex)[ins]) == OK)
@@ -519,6 +523,7 @@ if(iarg > 0) {
 	if(overflow) goto OUT;
 	if((*params)[IPANORAMIC].active && imax > ZERO && (*params)[IPANORAMIC].mode == CONTINUOUS
 			&& (itable=(*p_CsInstrument)[ins].panoramictable) > -1) {
+		//	BPPrintMessage(odInfo,"Calling MakeCsoundFunctionTable() for IPANORAMIC = %ld\n");
 		if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 				(*params)[IPANORAMIC].point,ins,IPANORAMIC,-1,(*p_CsPanoramicStartIndex)[ins],
 				(*p_CsPanoramicEndIndex)[ins]) == OK)
@@ -581,9 +586,11 @@ if((*p_CsInstrument)[ins].ipmax > 0 && (*perf)->numberparams > 0) {
 		if(onoffline == LINE) {
 			switch((*instrparamlist)[i].combinationtype) {
 				case MULT:
+			//		BPPrintMessage(odInfo,"MULT iarg = %ld, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",(long)iarg,x,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
 					x = (*scorearg)[iarg] * x / (*instrparamlist)[i].defaultvalue;
 					break;
 				case ADD:
+			//		BPPrintMessage(odInfo,"ADD iarg = %ld, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",(long)iarg,x,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
 					x = (*scorearg)[iarg] + x - (*instrparamlist)[i].defaultvalue;
 					break;
 				default:
@@ -593,6 +600,7 @@ if((*p_CsInstrument)[ins].ipmax > 0 && (*perf)->numberparams > 0) {
 		if((*params)[paramnameindex].active && imax > ZERO
 				&& (*params)[paramnameindex].mode == CONTINUOUS
 				&& (itable=(*instrparamlist)[i].table) > -1) {
+		//	BPPrintMessage(odInfo,"Calling MakeCsoundFunctionTable() for paramnameindex = %ld\n",(long)paramnameindex);
 			if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 					(*params)[paramnameindex].point,ins,paramnameindex,i,
 					(*instrparamlist)[i].startindex,(*instrparamlist)[i].endindex) == OK)
@@ -611,9 +619,12 @@ if((*p_CsInstrument)[ins].ipmax > 0 && (*perf)->numberparams > 0) {
 				if(onoffline == LINE) {
 					switch((*instrparamlist)[i].combinationtype) {
 						case MULT:
+					//		BPPrintMessage(odInfo,"MULT iarg = %ld, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",(long)iarg,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
 							x = (*scorearg)[iarg] * x / (*instrparamlist)[i].defaultvalue;
+							BPPrintMessage(odInfo,"MULT \n");
 							break;
 						case ADD:
+					//		BPPrintMessage(odInfo,"ADD iarg = %ld, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",(long)iarg,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
 							x = (*scorearg)[iarg] + x - (*instrparamlist)[i].defaultvalue;
 							break;
 						default:

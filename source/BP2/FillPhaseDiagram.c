@@ -1899,7 +1899,7 @@ if(i >= maxnumber) {
 		(*((*p_param)[level].values))[j].maxbeats = 1;
 		(*((*p_param)[level].values))[j].active = FALSE;
 		(*((*p_param)[level].values))[j].known = FALSE;
-	/*	$$$ (*(*p_CsInstrument)[j].paramlist)[ip].defaultvalue */
+	// (*(*p_CsInstrument)[j].paramlist)[ip].defaultvalue ???
 		(*((*p_param)[level].values))[j].start
 			= (*((*p_param)[level].values))[j].v0
 			= (*((*p_param)[level].values))[j].v1

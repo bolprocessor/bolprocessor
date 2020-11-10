@@ -388,7 +388,7 @@ if((*p_line)[is] == '[') {
 	while(MySpace((*p_line)[is])) is++;
 	}
 
-/* Suppress AppleScript style remark: $$$ Should use Arrow[1] */
+/* Suppress AppleScript style remark: Should use Arrow[1] */
 quote = OFF;
 for(i=is; i < MyHandleLen(p_line)-2; i++) {
 	c = (*p_line)[i];

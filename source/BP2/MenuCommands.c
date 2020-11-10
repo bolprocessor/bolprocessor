@@ -910,7 +910,6 @@ return(r);
 
 
 mSendMIDI(int wind)
-// $$$ needs to be revised
 {
 int r,k,sysex,send,nbytes,maxbytes;
 long pos,im,i,timeleft,formertime,tbytes2;
@@ -2655,8 +2654,6 @@ if(RecordEditWindow(wind)) {
 result = AnalyzeSelection(FALSE);
 return(result);
 }
-
-/* int TestIt(void); $$$ */
 
 mPlaySelectionOrPrototype(int wind)
 {

@@ -125,7 +125,7 @@ FlashInfo("OMS MIDI driver is open...");
 /*	Add an input port */
 
 OPENINPUT:
-gChosenInputID = 0; /* $$$ */
+gChosenInputID = 0;
 // if(gChosenInputID != 0) {
 	err = OMSAddPort(appSignature,InputPortID,omsPortTypeInput2,(OMSReadHook2UPP)readHook,
 		(long)LMGetCurrentA5(),&gInputPortRefNum);
@@ -415,7 +415,7 @@ asm {
 	
 	if(Oms && gChosenInputID != 0 && !LoadOn && !InitOn && SchedulerIsActive > 0
 			&& ((short)pkt->appConnRefCon) == MyAppRefCon
-			/* && ((short)pkt->srcIORefNum) == gInputPortRefNum $$$ this doesn't work */) {
+			/* && ((short)pkt->srcIORefNum) == gInputPortRefNum  this doesn't work */) {
 		/* Types are not consistent: OMSMIDIPacket uses unsigned short ! */
 				
 		/* Transmit message immediately if allowed. No time should be wasted. */

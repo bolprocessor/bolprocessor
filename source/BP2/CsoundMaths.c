@@ -39,6 +39,7 @@
 #include "-BP2decl.h"
 
 show_details_csound_maths = 0;
+trace_write_score = 0;
 
 CompileRegressions(void)
 {
@@ -439,13 +440,18 @@ if(result == OK) {
 		sprintf(line2," %ld",(long)newx);
 		strcat(line,line2);
 		y = (*(subtable.point))[i].value;
+		if(i == lasti && trace_write_score) BPPrintMessage(odInfo,"y(1) = %.3f for i = %ld\n",y,(long)i);
 		if(usescorevalues) y = CombineScoreValues(y,oldx,xmax,v0,v1,ins,paramnameindex,ip);
+		if(i == lasti && trace_write_score) BPPrintMessage(odInfo,"y(2) = %.3f for i = %ld\n",y,(long)i);
 		y = Remap(y,ins,paramnameindex,&overflow);
+		if(i == lasti && trace_write_score) BPPrintMessage(odInfo,"y(3) = %.3f for i = %ld\n",y,(long)i);
 		if(overflow) goto OUT;
+		if(i == lasti && trace_write_score) BPPrintMessage(odInfo,"y(4) = %.3f for i = %ld\n",y,(long)i);
 		sprintf(line2," %.3f",y);
 		strcat(line,line2);
 		}
 	if(CsoundTrace) ShowMessage(TRUE,wMessage,line);
+	if(trace_write_score) BPPrintMessage(odInfo,"%s\n",line);
 //	else if(ShowMessages) ShowMessage(TRUE,wMessage,line);
 	if(ConvertMIDItoCsound) Println(wPrototype7,line);
 	else WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
@@ -553,6 +559,8 @@ ix1 = alpha1 * (double) xmax;
 i = 0; while((*(coords))[i].i < ix1) i++;
 i1 = i;
 
+if(trace_write_score) BPPrintMessage(odInfo,"i1 = %ld\n",i1);
+
 if(i1 > ZERO) {
 	x2 = (*(coords))[i1].i;
 	x1 = (*(coords))[i1-1L].i; 
@@ -563,28 +571,47 @@ if(i1 > ZERO) {
 		return(FAILED);
 		}
 	startvalue = y1 + (y2 - y1) * (ix1 - x1) / (x2 - x1);
+	if(trace_write_score) BPPrintMessage(odInfo,"i1 = %ld, x1 = %.3f, y1 = %.3f, x2 = %.3f, y2 = %.3f, ix1 = %.3f, startvalue = %.3f\n",i1,x1,y1,x2,y2,ix1,startvalue);
 	}
-else startvalue = (*(coords))[ZERO].value;
+else {
+	startvalue = (*(coords))[ZERO].value;
+	if(trace_write_score) BPPrintMessage(odInfo,"i1 = ZERO startvalue = %.3f\n",startvalue);
+	}
 
 ix2 = alpha2 * (double) xmax;
 i = 0; while((*(coords))[i].i < ix2) i++;
 i2 = i;
 
+if(trace_write_score) BPPrintMessage(odInfo,"i2 = %ld\n",i2);
+
 if(i2 > ZERO) {
 	x2 = (*(coords))[i2].i;
 	x1 = (*(coords))[i2-1L].i; 
 	y2 = (*(coords))[i2].value;
+	if(y2 < Infneg) {
+	//	y2 = 0.; // $$$ Dirty fix by BB, 10 Nov. 2020 for rare problem occurring in -gr.vina3
+		BPPrintMessage(odError,"Error in GetPartOfTable(). y2 < Infneg, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",x1,x2,(long)i2);
+		}
 	y1 = (*(coords))[i2-1L].value;
+	if(y1 < Infneg) {
+	//	y1 = 0.; // $$$ Dirty fix by BB, 10 Nov. 2020 for rare problem occurring in -gr.vina3
+		BPPrintMessage(odError,"Error in GetPartOfTable(). y1 < Infneg, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",x1,x2,(long)i2);
+		}
 	if(x1 >= x2) {
 		if(Beta) Alert1("Err. GetPartOfTable(). x1 >= x2");
+		BPPrintMessage(odError,"Error in GetPartOfTable(). x1 >= x2\n");
 		return(FAILED);
 		}
 	endvalue = y1 + (y2 - y1) * (ix2 - x1) / (x2 - x1);
+	if(trace_write_score) BPPrintMessage(odInfo,"i2 = %ld, x1 = %.3f, y1 = %.3f, x2 = %.3f, y2 = %.3f, ix2 = %.3f, endvalue = %.3f\n",i2,x1,y1,x2,y2,ix2,endvalue);
 	}
-else endvalue = (*(coords))[ZERO].value;
-
+else {
+	endvalue = (*(coords))[ZERO].value;
+	if(trace_write_score) BPPrintMessage(odInfo,"i2 = ZERO endvalue = %.3f\n",endvalue);
+	}
 p_subtable->imax = i2 - i1 + 3L;
-if((p_subtable->point = (XYCoordinates**) GiveSpace((Size)(imax * sizeof(XYCoordinates)))) == NULL)
+if(trace_write_score) BPPrintMessage(odInfo,"p_subtable i1 = %ld i2 = %ld imax = %ld\n",(long)i1,(long)i2,(long)imax);
+if((p_subtable->point = (XYCoordinates**) GiveSpace((Size)((imax + 1) * sizeof(XYCoordinates)))) == NULL)
 	return(ABORT);
 
 j = ZERO;
@@ -602,7 +629,10 @@ for(i=i1+1L; i <= i2; i++) {
 	}
 
 (*(p_subtable->point))[j-1].value = endvalue;
+// BPPrintMessage(odInfo,"(*(p_subtable->point))[j-1].value = %.3f\n",endvalue);
 (*(p_subtable->point))[j-1].x = ix2;	/* May not be integer value */
+
+// if(trace_write_score) BPPrintMessage(odInfo,"startvalue = %.3f endvalue = %.3f\n",startvalue,endvalue);
 
 if(j < 3L) return(FAILED);
 

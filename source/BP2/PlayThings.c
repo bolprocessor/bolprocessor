@@ -96,7 +96,7 @@ if((r=UpdateGlossary()) != OK) goto END;
 if(CompileRegressions() != OK) goto END;
 
 r = FAILED;
-if(/* $$$ !AEventOn && */1 || ResetControllers) {
+if(ResetControllers) {
 	for(ch=0; ch < MAXCHAN; ch++) {
 		(*p_Oldvalue)[ch].volume = -1;
 		(*p_Oldvalue)[ch].panoramic = -1;
@@ -1165,7 +1165,6 @@ return((int) (lOffset >> 1));
 long CopyBuf(tokenbyte ***pp_X,tokenbyte ***pp_Y)	/* Copy X to Y */
 #if ! _FASTCODE
 {
-$$$ needs to be revised - see FASTCODE
 unsigned long i=0,im,l=0;
 tokenbyte **ptr;
 

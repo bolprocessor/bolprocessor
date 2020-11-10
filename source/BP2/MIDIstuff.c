@@ -70,7 +70,7 @@ if(!IsMidiDriverOn()) {
 #if WITH_REAL_TIME_MIDI
 filter = x0 + x1 + x2;
 
-// if(!Oms) return(OK);  /* $$$ */
+// if(!Oms) return(OK);
 if(GetNextMIDIevent(&e,FALSE,FALSE) != OK) return(OK);
 
 STARTCHECK:
@@ -1919,7 +1919,7 @@ if(NEWTIMER) {
 			pkt.data[1] = 123;
 			pkt.data[2] = 0;
 			WaitABit(delay); */
-		/* $$$ write it later when NEWTIMER is 1 */
+		/* write it later when NEWTIMER is 1 */
 		}
 	delay = 5L;
 	for(channel=0; channel < MAXCHAN; channel++) {
@@ -1933,7 +1933,7 @@ if(NEWTIMER) {
 				pkt.data[0] = NoteOn + channel;
 				pkt.data[1] = key;
 				pkt.data[2] = 0; */
-			/* $$$ write it later when NEWTIMER is 1 */
+			/* write it later when NEWTIMER is 1 */
 			}
 		}
 	SchedulerIsActive++;

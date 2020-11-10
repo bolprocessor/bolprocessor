@@ -1627,7 +1627,6 @@ if(oserr != noErr) {
 		case errAEUnknownSendMode:
 			strcpy(line,"Unknown Apple Event sending mode."); break;
 		case nilHandleErr:	/* -109 */
-		/*	return(OK);  $$$ Discarding for the time being */
 			strcpy(line,"Unexpected error: 'illegal operation on a NIL handle'"); break;
 		case memWZErr:	/* -111 */
 			strcpy(line,"Unexpected error: 'illegal operation on a free block'"); break;
@@ -1825,7 +1824,7 @@ compiledgl = CompiledGl;
 if(CheckEmergency() != OK) return(ABORT);
 if(!CompiledGr && (AddBolsInGrammar() > BolsInGrammar)) CompiledAl = FALSE;
 if(!CompiledGr || !CompiledAl) {
-/*	KillSubTree(PrefixTree); KillSubTree(SuffixTree); $$$ */
+/*	KillSubTree(PrefixTree); KillSubTree(SuffixTree); */
 	if((r=CompileGrammar(1)) != OK) {
 		if(r == FAILED && CompiledGr && !CompiledAl) r = CompileAlphabet();
 		if(CompiledGr && CompiledAl) r = OK;

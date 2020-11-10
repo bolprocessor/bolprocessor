@@ -384,6 +384,7 @@ Infneg = LONG_MIN;
 Veryneg = Infneg + 1;
 Infpos = - Veryneg;
 Infpos1 = Infpos + 1.;
+// BPPrintMessage(odError,"Infneg = %ld\n",Infneg);
 
 InsertGramRuleNumbers = InsertGramCorrections = InsertNewBols = (BP_CARBON_GUI ? TRUE : FALSE);
 SplitTimeObjects = TRUE;	/* Terminal symbols separated by spaces */
@@ -1709,7 +1710,7 @@ if(!gestaltErr) {
 	if(gestaltAnswer < 0x100
 			|| ((depth=GetDepth(GetMainDevice())) < 4)) {
 		/* Color QuickDraw not there or pixel depth insufficient */
-		/* HasDepth() might be a better solution $$$ */
+		/* HasDepth() might be a better solution */
 		ForceTextColor = ForceGraphicColor = -1;
 		}
 	

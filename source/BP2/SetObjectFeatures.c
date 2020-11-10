@@ -39,6 +39,7 @@
 #include "-BP2decl.h"
 
 int show_all_messages = 0;
+int trace_set_variation = 0;
 
 SetObjectParams(int isobject,int level,int nseq,short** p_articul,int k,int j,
 	CurrentParameters *p_currentparameters,ContParameters **p_contparameters,
@@ -316,6 +317,8 @@ double prodtempo,maxbeats,itargettoken,itable;
 Table t;
 Handle h;
 
+if(trace_set_variation) BPPrintMessage(odInfo,"Start SetVariation() targettoken = %ld, index = %d, id = %ld, maxbeats = %.3f\n",(long)targettoken,index,id,*p_maxbeats);
+
 result = OK;
 if((*p_buff)[id] == TEND && (*p_buff)[id+1] == TEND) return(OK);
 
@@ -539,6 +542,11 @@ for(i=id+2L; ; i+=2L) {
 				if(targettokenfoundafterobject > 0 && followedwithgap) {
 					(*(t.point))[t.imax].i = itable;
 					/* The last value is not yet known */
+					(*(t.point))[t.imax].value = 0; // zero is default (fixed by BB 10 Nov 2020)
+					// Probably this fixed a bug in -gr.vina3 ending with _fixed(slide)
+					// but missing the final value of "slide"
+					// $$$ However this might be the default value of this parameter…
+					// (*((*p_CsInstrument)[j].paramlist))[ip].defaultvalue
 					tableisbeingbuilt = FALSE;
 					tablemade = TRUE;
 					(t.imax)++;
@@ -577,17 +585,16 @@ ENOUGH:
 			if(index != FindParameterIndex(p_contparameters,levelorg,paramnameindex))
 				continue;
 			}
-			
 		v = FindValue(m,p,chan);
 		if(v == Infpos) {
-	//		if(Beta) Alert1("Err. SetVariation(). v == Infpos");
+			if(Beta) Alert1("Err. SetVariation(). v == Infpos");
 			result = ABORT;
 			break;
 			}
 		if(targettoken == T26) {	/* _transpose */
-			v += orgtranspose;	/* $$ added 27/1/99 and fixed 28/1/99 */
+			v += orgtranspose;
 			}
-		if(targettoken == T37) {	/* _value */
+		if(targettoken == T37) {	/* _keymap */
 			vmap.p1 = p % 128;
 			vmap.q1 = (p - (p % 128)) / 128;
 			i += 2L;
@@ -631,8 +638,10 @@ ENOUGH:
 			}
 		(*(t.point))[t.imax].i = itable;
 		(*(t.point))[t.imax].value = v;
+	//	BPPrintMessage(odInfo,"Set value for t.imax = %ld (*(t.point))[t.imax].value = %.3f\n",(long)t.imax,(long)v);
 		(t.imax)++;
 		if(t.imax >= (tablesize - 1L)) {
+			// BPPrintMessage(odInfo,"Increase size of t.point: t.imax = %ld tablesize = %ld\n",(long)t.imax,(long)tablesize);
 			ptr = t.point;
 			if((ptr = (Coordinates**) IncreaseSpace((Handle)ptr)) == NULL)
 				return(ABORT);
@@ -646,6 +655,7 @@ MORE:
 			else vv = oldv;
 			if(tablemade) {
 				(*(t.point))[t.imax-1L].value = vv;
+				// BPPrintMessage(odInfo,"Set value for t.imax = %ld (*(t.point))[t.imax-1L].value = %.3f\n",(long)t.imax,(long)vv);
 				break;
 				}
 			else (*(t.point))[ZERO].value = vv;
@@ -654,6 +664,10 @@ MORE:
 		iobjmem = -1;
 		itargettoken = 0.;
 		continue;
+		}
+	if(m == T36) { /* _fixed() */
+		// Needs to be completed $$$
+		paramnameindex = p % 256;
 		}
 	
 	if(m == T21) {		/* _pitchrange() */
@@ -666,7 +680,6 @@ MORE:
 	if(m == T10) {		/* _chan() */
 		x = FindValue(m,p,chan);
 		if(chan == (int) x) continue;
-		
 		/* A channel change in the sequence should be the end of the variation */
 		/* ... of a continuous MIDI parameter */
 		if(objectsfound > 0 && index >= 0 && index <= IPANORAMIC) okincrease = FALSE;
@@ -695,6 +708,7 @@ if(maketable && tableisbeingbuilt && !tablemade && t.point != NULL
 	if((*(t.point))[t.imax-1L].i != itable) {
 		(*(t.point))[t.imax].i = itable;
 		(*(t.point))[t.imax].value = oldv;
+	//	BPPrintMessage(odInfo,"(*(t.point))[t.imax].value = oldv = %.3f\n",oldv);
 		(t.imax)++;
 		}
 	iobjmem = 0;
@@ -880,7 +894,7 @@ if(nature_time == STRIATED || nseq == 0) {
 			}
 		j = (*p_Instance)[k].object;
 		ncycles = 1;
-		if(j <= 0) {	/* Out-time object $$$ added '=' on 18/8/98 */
+		if(j <= 0) {
 			beta = alpha = 0.; goto OKALPHA1;
 			}
 		d = (double) (inext - i) * Kpress / Ratio; /* Symbolic duration */
@@ -996,7 +1010,7 @@ FINDNEXTMARKED:
 			}
 		j = (*p_Instance)[k].object;
 		if(k == 0) j = jprev;
-		if(j <= 0) {		/* Out-time object $$$ added '=' on 18/8/98 */
+		if(j <= 0) {
 			i = inext; continue;
 			}
 		d = (double) (inext - i) * Kpress / Ratio;	/* Symbolic duration */
@@ -1040,7 +1054,7 @@ FINDNEXTMARKED:
 			}
 		j = (*p_Instance)[k].object;
 		if(k == 0) j = jprev;
-		if(j <= 0) {			/* Out-time object $$$ Added '=' on 18/8/98 */
+		if(j <= 0) {
 			(*p_Instance)[k].alpha = 0.;
 			i = inext;
 			continue;
@@ -1221,7 +1235,7 @@ for(i=1;; i++) {
 		return(ABORT);
 		}
 	j = (*p_Instance)[k].object;
-	if(j <= 0) {		/* Out-time object $$$ Added '=' on 18/8/98 */
+	if(j <= 0) {
 		j = -j; dur = ZERO;
 		}
 	else {
@@ -1411,7 +1425,7 @@ double GetSymbolicDuration(int ignoreconcat,int precise,tokenbyte **p_buff,
 {
 // This procedure is similar to SetVariation() concerning object concatenation "&"
 
-// $$$ suppress 'precise'
+// suppress 'precise'
 
 unsigned long i;
 tokenbyte m,p;

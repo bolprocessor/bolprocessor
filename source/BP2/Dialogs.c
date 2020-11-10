@@ -2370,7 +2370,7 @@ if(w == wCsoundInstruments) {
 		case bHz:
 			(*p_CsPitchFormat)[iCsoundInstrument] = CPS;
 			UpdateDirty(TRUE,w);
-	/* $$$		if(GetDialogValues(w) != OK) return(DONE); Check pitchbendrange */
+			/* if(GetDialogValues(w) != OK) return(DONE); Check pitchbendrange */
 			break;
 		case (7+fPitchBendIndex):
 			(*p_CsInstrument)[iCsoundInstrument].rPitchBend.islogx

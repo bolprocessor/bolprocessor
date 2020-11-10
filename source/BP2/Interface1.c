@@ -879,7 +879,7 @@ switch(w) {
 	case wPrototype8:
 		return(GetPrototype(YES));
 	}
-/* SetNameChoice(); $$$ */
+/* SetNameChoice(); */
 return(OK);
 }
 

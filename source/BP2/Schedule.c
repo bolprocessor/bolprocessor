@@ -81,7 +81,7 @@ typedef struct {				// Time Manager information record
 /* typedef struct {
 	long loops,oldtotloops,totloops,loopstep,t,time,ticks,totalticks,tabs,timeslice;
 	char size;
-	} TestStruct;	$$$ */
+	} TestStruct;	*/
 
 // Function prototypes
 pascal void TDecr(TMInfo*);
@@ -106,7 +106,7 @@ char DontSendMore;		// flag to avoid heap corruption
 volatile char In_cause;	// flags to avoid heap corruption
 
 /* int iTest=0;
-TestStruct **p_Test; $$$ */
+TestStruct **p_Test; */
 
 /*
 Use 'Cause' to schedule a routine at a particular time.
@@ -173,7 +173,7 @@ if(SchedulerIsActive > 0 && !DontSendMore) {
 		(*p_Test)[iTest].loopstep = now->loopstep;
 		(*p_Test)[iTest].t = t;
 		(*p_Test)[iTest].time = time;
-		if(iTest < 999) iTest++; $$$ */
+		if(iTest < 999) iTest++; */
 		In_cause = FALSE;
 		return(OK);
 		}
@@ -316,8 +316,6 @@ In_cause = DontSendMore = ClockOverFlow = FALSE;
 SchedulerIsActive = OKsend = FALSE;
 TimeSlice = 0;
 
-/* $$$ p_Test = (TestStruct**) NewHandle((Size)1000 * sizeof(TestStruct)); */
-
 #ifndef powerc
 	myTimerProc = NewTimerProc(TDecr68K);
 	myTMInfo.tmRefCon = SetCurrentA5();			// store address of A5
@@ -352,7 +350,7 @@ return(OK);
 }
 
 
-/* $$$
+/*
 int TestIt(void);
 TestIt(void)
 {

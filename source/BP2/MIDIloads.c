@@ -257,7 +257,7 @@ for(ibyte=i=ZERO; ibyte < nbytes; ibyte++) {
 
 im = i;
 HideWindow(Window[wInfo]);
-/* $$$$ if(im < 2) {
+/* if(im < 2) {
 	Alert1("No data received...");
 	goto END;
 	} */
@@ -714,7 +714,7 @@ if(b < 128) {
 		Print(w,Message);
 		goto NEXTBYTE;
 		}
-	/* $$$ if br == ... */
+	/* if br == ... */
 	}
 if(b == SystemExclusive) {
 	br = 0;

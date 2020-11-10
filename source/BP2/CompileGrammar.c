@@ -98,7 +98,7 @@ starttrace = GetTextLength(wTrace);
 tracecompile = FALSE; rep = YES;
 dirtymem = Dirty[wGrammar];
 if(mode == 1 && !ScriptExecOn && 0 && DisplayProduce && (rep=Answer("Trace grammar compilation",'N')) == YES)
-	tracecompile = TRUE; /* $$$ */
+	tracecompile = TRUE;
 if(rep == ABORT) {
 	if(CompileOn) CompileOn--;
 	return(FAILED);

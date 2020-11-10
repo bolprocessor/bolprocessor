@@ -85,7 +85,7 @@ imaxseq2 = imaxseq + 2;
 imax1 = imax + 1;
 n = 0;
 
-/* All these below should be replaced with single records !!! $$$ */
+/* All these below should be replaced with single records !!! */
 
 if((p_BreakTempoPrev = (char**) GiveSpace((Size)imaxseq2*sizeof(char))) == NULL)
 	return(ABORT);
@@ -601,8 +601,6 @@ if((*p_Ts)[i] == Tsm) {
 	if(DisplayTimeSet) PrintBehind(wTrace,"<");
 	goto DECREMENT;
 	}
-
-/* $$$ sol_set2 was replaced with &sol_set2 on 8/3/97, revised 29/5/97 */
 
 choice2 = Possible_choices(sol_set2,(*p_BreakTempoPrev)[i],i,i0,j,k,nseq,p_marked,
 	nature_time,(*p_ts1)[i],(*p_ts2)[i],shift2,Tsm,(*p_maxtruncbeg)[i],

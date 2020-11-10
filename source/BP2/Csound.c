@@ -2259,7 +2259,7 @@ return(ABORT);
 }
 
 
-ResetMoreParameter(int j,int ip)
+int ResetMoreParameter(int j,int ip)
 {
 char **ptr;
 Handle h;

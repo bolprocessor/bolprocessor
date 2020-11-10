@@ -1279,7 +1279,6 @@ for(j=0; j < jmax; j++) {
 			MyUnlock((Handle)p_completeline);
 			if(i >= 0) (*((*p_CsInstrument)[j].paramlist))[ip].nameindex = i;
 			}
-/*		else (*((*((*p_CsInstrument)[j].paramlist))[ip].name))[0] = '\0'; $$$ Fixed 7/3/98 */
 		
 		BPPrintMessage(odInfo, "Parameter: %s\n",*p_completeline);
 		strcpy(line,"");
