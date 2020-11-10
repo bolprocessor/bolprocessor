@@ -1426,10 +1426,11 @@ if(diff && checknotes) {
 FOUNDNOTE:
 			j += (C4key - 60);
 			if(j < 0 || j > 127) {
-				sprintf(Message,
+		/*		sprintf(Message,
 					"Simple note '%s' is out of range. (Maybe check \"Tuning\")",
 					line);
-				Alert1(Message);
+				Alert1(Message); */
+				BPPrintMessage(odError, "A simple note is out of range. Probably wrong value of C4 key number = %ld\n",(long)C4key);
 			/*	ShowWindow(GetDialogWindow(TuningPtr));
 				SelectWindow(GetDialogWindow(TuningPtr)); */
 				return(ABORT);

@@ -278,7 +278,7 @@ if(iarg > 0) {
 		}
 	else cents = 0.;
 	pitch_format = (*p_CsPitchFormat)[ins];
-	if((pitch_format == OPPC || pitch_format == OPD) && (A4freq != 440. || C4key != 60)) // Added by BB 9 Nov 2020
+	if((pitch_format == OPPC || pitch_format == OPD) && (A4freq != 440. || C4key != 60))
 		pitch_format = CPS;
 	switch(pitch_format) {
 		case OPPC:

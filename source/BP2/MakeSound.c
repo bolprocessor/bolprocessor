@@ -2704,7 +2704,8 @@ int key;
 
 key = j - 16384;
 if(key < 0 || key > 127) {
-	Println(wTrace,"MIDI key out of range");
+//	Println(wTrace,"MIDI key out of range");
+	BPPrintMessage(odError, "A MIDI key is out of range: key = %ld\n",(long)key);
 	while(key < 0) key += 12;
 	while(key > 127) key -= 12;
 	}

@@ -658,9 +658,10 @@ FOUNDNOTE1:
 			(*p_buff)[i++] = T7;
 			jj += (C4key - 60);
 			if(jj < 0 || jj > 127) {
-				Alert1("Simple note is out of range. (May be check \"Tuning\")");
-				ShowWindow(GetDialogWindow(TuningPtr));
-				SelectWindow(GetDialogWindow(TuningPtr));
+			//	Alert1("Simple note is out of range. (May be check \"Tuning\")");
+				BPPrintMessage(odError, "A simple note is out of range. Probably wrong value of C4 key number = %ld\n",(long)C4key);
+			//	ShowWindow(GetDialogWindow(TuningPtr));
+			//	SelectWindow(GetDialogWindow(TuningPtr));
 				goto ERR;
 				}
 			(*p_buff)[i++] = (tokenbyte) (jj + 16384);
