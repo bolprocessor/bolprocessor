@@ -2117,7 +2117,7 @@ return(ABORT);
 
 FixNumberConstant(char* line)
 {
-int i,j,maxparam;
+int i,j,maxparam,oldmaxparam;
 Handle h;
 double x;
 long p,q;
@@ -2146,8 +2146,10 @@ for(j = 1; j < maxparam; j++) {
 		break;
 		}
 	}
-if(trace_FixNumberConstant) BPPrintMessage(odInfo,"FixNumberConstant() line = %s j = %d, x = %.3f\n",line,j,x);
-if(j < maxparam) return(j);
+if(j < maxparam) {
+	if(trace_FixNumberConstant) BPPrintMessage(odInfo,"FixNumberConstant() line = %s j = %d, x = %.3f\n",line,j,x);
+	return(j);
+	}
 if(j >= 256) {
 	sprintf(Message,
 		"Too many numeric constants found (max 256)\nCan't store '%s'\n",line);
@@ -2158,6 +2160,9 @@ if(j >= 256) {
 h = (Handle) p_NumberConstant;
 if((h = IncreaseSpace(h)) == NULL) return(ABORT);
 p_NumberConstant = (double**) h;
+oldmaxparam = maxparam;
+maxparam = (MyGetHandleSize((Handle)p_NumberConstant) / sizeof(double));
+for(i = oldmaxparam + 1; i < maxparam; i++) (*p_NumberConstant)[i] = Infpos;
 		
 (*p_NumberConstant)[j] = x;
 if(trace_FixNumberConstant) BPPrintMessage(odInfo,"FixNumberConstant() after increasing space line = %s j = %d, x = %.3f\n",line,j,x);
