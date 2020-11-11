@@ -267,7 +267,7 @@ long Infpos,Infneg,Veryneg,MaxMIDIbytes,
 	MIDIoutputFilterstartup,Ts,DataEnd;
 Milliseconds **p_T;
 long **p_Ppatt,**p_Qpatt;
-MIDIcode **p_Code;
+MIDIcode **p_Code; 
 double SpeedRange,Ke,CorrectionFactor;
 int DeriveFurther,DeriveFurtherKey,DeriveFurtherChan,ResetWeights,NeverResetWeights,
 	ResetWeightKey,ResetWeightChan,ResetFlags,ResetControllers,AllItems,JustCompiled,

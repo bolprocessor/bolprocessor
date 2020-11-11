@@ -1045,7 +1045,7 @@ void GetStartupSettingsSpec(FSSpecPtr spec)
 
 int LoadCsoundInstruments(int checkversion,int tryname) 
 {
-int i,io,iv,ip,jmax,j,result,y,maxticks,maxbeats,arg,length,i_table;
+int i,io,iv,ip,jmax,j,result,y,maxticks,maxbeats,arg,length,i_table,ipmax;
 char **ptr,line[MAXLIN];
 Handle **ptr2;
 CsoundParam **ptr3;
@@ -1249,18 +1249,18 @@ for(j=0; j < jmax; j++) {
 	(*p_CsInstrument)[j].paramlist = NULL;
 	(*p_CsInstrument)[j].ipmax = 0;
 	
-	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
-	if(i < 1) continue;
-	if(i > IPMAX) {
+	if(ReadInteger(csfile,&ipmax,&pos) == FAILED) goto ERR;
+	if(ipmax < 1) continue;
+/*	if(ipmax > IPMAX) {
 		Alert1("Err. LoadCsoundInstruments(). i > IPMAX");
 		Alert1("This '-cs' file was created by a newer version of BP2. Some parameters may be ignored");
-		i = IPMAX;
-		}
-	if((ptr3=(CsoundParam**) GiveSpace((Size)(IPMAX * sizeof(CsoundParam)))) == NULL)
+		ipmax = IPMAX;
+		} */
+	if((ptr3=(CsoundParam**) GiveSpace((Size)(ipmax * sizeof(CsoundParam)))) == NULL)
 		goto ERR;
 	(*p_CsInstrument)[j].paramlist = ptr3;
-	(*p_CsInstrument)[j].ipmax = i;
-	for(ip=0; ip < IPMAX; ip++) {
+	(*p_CsInstrument)[j].ipmax = ipmax;
+	for(ip=0; ip < ipmax; ip++) {
 		(*((*p_CsInstrument)[j].paramlist))[ip].name = NULL;
 		(*((*p_CsInstrument)[j].paramlist))[ip].comment = NULL;
 		ResetMoreParameter(j,ip);

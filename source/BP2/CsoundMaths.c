@@ -489,10 +489,10 @@ if(ip >= 0) {
 		if(Beta) Alert1("Err. GetGENtype(). ins < 0 || ins >= Jinstr");
 		return(7);
 		}
-	if(ip >= IPMAX) {
+/*	if(ip >= IPMAX) {
 		if(Beta) Alert1("Err. GetGENtype(). ip >= IPMAX");
 		return(7);
-		}
+		} */
 	if((*p_CsInstrument)[ins].paramlist == NULL) {
 		if(Beta) Alert1("Err. GetGENtype(). (*p_CsInstrument)[ins].paramlist == NULL");
 		return(7);
@@ -588,14 +588,14 @@ if(i2 > ZERO) {
 	x2 = (*(coords))[i2].i;
 	x1 = (*(coords))[i2-1L].i; 
 	y2 = (*(coords))[i2].value;
-	if(y2 < Infneg) {
-	//	y2 = 0.; // $$$ Dirty fix by BB, 10 Nov. 2020 for rare problem occurring in -gr.vina3
-		BPPrintMessage(odError,"Error in GetPartOfTable(). y2 < Infneg, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",x1,x2,(long)i2);
+	if(y2 < Infneg || y2 > Infpos) {
+		y2 = 0.; // Dirty fix by BB, 10 Nov. 2020 after seeing rare problem occurring in -gr.vina3
+		BPPrintMessage(odError,"Error in GetPartOfTable(). y2 = %.3f, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",y2,x1,x2,(long)i2);
 		}
 	y1 = (*(coords))[i2-1L].value;
-	if(y1 < Infneg) {
-	//	y1 = 0.; // $$$ Dirty fix by BB, 10 Nov. 2020 for rare problem occurring in -gr.vina3
-		BPPrintMessage(odError,"Error in GetPartOfTable(). y1 < Infneg, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",x1,x2,(long)i2);
+	if(y1 < Infneg || y1 > Infpos) {
+		y1 = 0.; // Dirty fix by BB, 10 Nov. 2020 after seeing rare problem occurring in -gr.vina3
+		BPPrintMessage(odError,"Error in GetPartOfTable(). y1 = %.3f, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",y1,x1,x2,(long)i2);
 		}
 	if(x1 >= x2) {
 		if(Beta) Alert1("Err. GetPartOfTable(). x1 >= x2");
@@ -680,10 +680,10 @@ if(ip >= 0) {
 		if(Beta) Alert1("Err. CombineScoreValues(). ins < 0 || ins >= Jinstr");
 		return(y);
 		}
-	if(ip >= IPMAX) {
+/*	if(ip >= IPMAX) {
 		if(Beta) Alert1("Err. CombineScoreValues(). ip >= IPMAX");
 		return(y);
-		}
+		} */
 	if((*p_CsInstrument)[ins].paramlist == NULL) {
 		if(Beta) Alert1("Err. CombineScoreValues(). (*p_CsInstrument)[ins].paramlist == NULL");
 		return(y);

@@ -39,7 +39,7 @@ extern QDGlobals Qd;
 #endif
 
 extern GWorldPtr gMainGWorld;
-extern GDHandle gCurDev;
+extern GDHandle gCurDev; 
 extern int Version;
 
 #if BP_MACHO

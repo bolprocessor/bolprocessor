@@ -38,6 +38,7 @@
 
 #include "-BP2decl.h"
 
+int trace_FixNumberConstant = 0;
 
 AppendStringList(char* line)
 {
@@ -2104,6 +2105,8 @@ if(j >= maxparam) {
 if((ptr = (char**) GiveSpace((Size)(strlen(line)+1))) == NULL) return(ABORT);
 (*p_StringConstant)[j] = ptr;
 MystrcpyStringToTable(p_StringConstant,j,line);
+
+// BPPrintMessage(odInfo, "FixStringConstant() j = %d, line = %s\n",j,line);
 return(j);
 
 ERR:
@@ -2127,13 +2130,23 @@ x = Myatof(line,&p,&q);
 if(p_NumberConstant == NULL) maxparam = 0;
 else maxparam = (MyGetHandleSize((Handle)p_NumberConstant) / sizeof(double));
 
-for(j=ZERO; j < maxparam; j++) {
+if(maxparam == 0) {
+	maxparam = 10;
+	if((p_NumberConstant=(double**) GiveSpace((Size)(maxparam) * sizeof(double))) == NULL)
+		return(ABORT);
+	for(i=0; i < maxparam; i++) (*p_NumberConstant)[i] = Infpos;
+	}
+else {
+	}
+
+for(j = 1; j < maxparam; j++) {
 	if((*p_NumberConstant)[j] == x) break;
-	if((*p_NumberConstant)[j] == 0. && j > 0) {
+	if((*p_NumberConstant)[j] == Infpos) {
 		(*p_NumberConstant)[j] = x;
 		break;
 		}
 	}
+if(trace_FixNumberConstant) BPPrintMessage(odInfo,"FixNumberConstant() line = %s j = %d, x = %.3f\n",line,j,x);
 if(j < maxparam) return(j);
 if(j >= 256) {
 	sprintf(Message,
@@ -2141,20 +2154,13 @@ if(j >= 256) {
 	Alert1(Message);
 	return(ABORT);
 	}
-
-if(maxparam == 0) {
-	maxparam = 10;
-	if((p_NumberConstant=(double**) GiveSpace((Size)(maxparam) * sizeof(double))) == NULL)
-		return(ABORT);
-	for(i=0; i < maxparam; i++) (*p_NumberConstant)[i] = 0.;
-	j = 1;	/*  (*p_NumberConstant)[0] must be 0. */
-	}
-else {
-	h = (Handle) p_NumberConstant;
-	if((h = IncreaseSpace(h)) == NULL) return(ABORT);
-	p_NumberConstant = (double**) h;
-	}
+	
+h = (Handle) p_NumberConstant;
+if((h = IncreaseSpace(h)) == NULL) return(ABORT);
+p_NumberConstant = (double**) h;
+		
 (*p_NumberConstant)[j] = x;
+if(trace_FixNumberConstant) BPPrintMessage(odInfo,"FixNumberConstant() after increasing space line = %s j = %d, x = %.3f\n",line,j,x);
 return(j);
 
 ERR:

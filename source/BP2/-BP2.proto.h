@@ -609,7 +609,7 @@ int GetInputFilterWord(void);
 int GetOutputFilterWord(void);
 int ResetMIDIFilter(void);
 int ResetCsoundInstrument(int,int,int);
-int CopyCsoundInstrument(int,int);
+// int CopyCsoundInstrument(int,int);
 int Findabc(double***,int,regression*);
 int GetRegressions(int);
 double XtoY(double,regression*,int*,int);

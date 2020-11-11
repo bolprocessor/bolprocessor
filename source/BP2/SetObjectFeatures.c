@@ -317,8 +317,6 @@ double prodtempo,maxbeats,itargettoken,itable;
 Table t;
 Handle h;
 
-if(trace_set_variation) BPPrintMessage(odInfo,"Start SetVariation() targettoken = %ld, index = %d, id = %ld, maxbeats = %.3f\n",(long)targettoken,index,id,*p_maxbeats);
-
 result = OK;
 if((*p_buff)[id] == TEND && (*p_buff)[id+1] == TEND) return(OK);
 
@@ -351,6 +349,8 @@ okincrease = TRUE;
 
 if(targettoken == -1) targettoken = IndexToToken(index);
 /* This will be required for FindValue() */
+
+if(trace_set_variation) BPPrintMessage(odInfo,"Start SetVariation() targettoken = %ld, index = %d, id = %ld, maxbeats = %.3f\n",(long)targettoken,index,id,*p_maxbeats);
 
 if(index > -1) {
 	maketable = TRUE;
@@ -580,14 +580,14 @@ ENOUGH:
 	if((level == levelmem || (foundconcatenation && !notinthisfield))
 			&& chan == chanorg
 			&& (m == targettoken || (index >= 0 && TokenToIndex(m,index) == index))) {
-		if(m == T35) { 	/* _value() */
+		if(m == T35) { 	/* _value() */ 
 			paramnameindex = p % 256;
 			if(index != FindParameterIndex(p_contparameters,levelorg,paramnameindex))
 				continue;
 			}
 		v = FindValue(m,p,chan);
 		if(v == Infpos) {
-			if(Beta) Alert1("Err. SetVariation(). v == Infpos");
+			if(Beta) Alert1("Error in SetVariation(). v = Infpos");
 			result = ABORT;
 			break;
 			}
@@ -1398,6 +1398,7 @@ if(m == T35) {	/* _value() */
 	paramnameindex = (p % 256);
 	paramvalueindex = (p - paramnameindex) / 256;
 	x = (*p_NumberConstant)[paramvalueindex];
+	if(trace_set_variation) BPPrintMessage(odInfo,"T35 paramnameindex = %d paramvalueindex = %d, x = %.3f\n",paramnameindex,paramvalueindex,x);
 	}
 else x = (double) p;
 if(m == T15 || paramnameindex == IPITCHBEND) {

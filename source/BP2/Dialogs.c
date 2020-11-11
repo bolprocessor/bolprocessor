@@ -2322,7 +2322,7 @@ if(w == wCsoundInstruments) {
 			i = DoThings(pp_CsInstrumentName,0,Jinstr,NULL,16,MINUSPROC,line,
 				(int) pushButProc);
 			if(i < 0) return(DONE);
-			CopyCsoundInstrument(i,iCsoundInstrument);
+		//	CopyCsoundInstrument(i,iCsoundInstrument);
 			UpdateDirty(TRUE,w);
 			break;
 		case bNewCsoundInstrument:

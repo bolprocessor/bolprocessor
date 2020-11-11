@@ -640,8 +640,6 @@ if(w > 0) Println(w,"\n----------------------------------");
 return(OK);
 }
 
-#endif /* BP_CARBON_GUI */
-
 CopyCsoundInstrument(int i,int j)
 {
 int ip;
@@ -717,7 +715,7 @@ if((*p_CsInstrument)[i].ipmax > 0) {
 			}
 		}
 	for(ip=(*p_CsInstrument)[i].ipmax; ip < IPMAX; ip++) {
-		/* This may happen with future versions of BP2 when IPMAX gets larger */
+		// This may happen with future versions of BP2 when IPMAX gets larger
 		(*((*p_CsInstrument)[j].paramlist))[ip].name = NULL;
 		(*((*p_CsInstrument)[j].paramlist))[ip].comment = NULL;
 		if(ResetMoreParameter(j,ip) != OK) return(ABORT);
@@ -726,6 +724,7 @@ if((*p_CsInstrument)[i].ipmax > 0) {
 return(OK);
 }
 
+#endif /* BP_CARBON_GUI */
 
 /* 061307: New argument "newinstr" should be YES when the instrument space
    is newly allocated and uninitialized.  This is the case when called from 

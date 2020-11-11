@@ -352,6 +352,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 	if(m == T33 || m == T34) {	/* _step() or _cont() */
 		paramnameindex = p;
 		i = FindParameterIndex(p_contparameters,level,paramnameindex);
+		if(show_details_diagram) BPPrintMessage(odInfo, "_step() or _cont() m = %d paramnameindex = %d i = %d\n",m,paramnameindex,i);
 		if(i >= 0) {
 			UpdateParameter(i,p_contparameters,level,ZERO);
 			if(m == T33) (*((*p_contparameters)[level].values))[i].mode = STEPWISE;
@@ -1257,6 +1258,7 @@ NEWSEQUENCE:
 						}
 					}
 				value = FindValue(m,p,currentparameters.currchan);
+				if(show_details_diagram) BPPrintMessage(odInfo, "_value() paramnameindex = %d i = %d value = %.3f\n",paramnameindex,i,value);
 				if(AssignValue(i,value,0,level,p_numberobjects,p_deftcurrentparameters,&currentparameters,
 					p_contparameters,id,pp_buff,tempo,scale,h_table) != OK)
 						goto ENDDIAGRAM;
