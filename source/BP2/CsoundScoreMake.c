@@ -835,10 +835,14 @@ CloseCsScore(void)
 long count;
 char line[MAXLIN];
 OSErr err;
+long timeout;
 
 if(!CsScoreOpened) return(OK);
-
-WriteToFile(NO,CsoundFileFormat,"e",CsRefNum);	/* 'e' terminates a Csound score */
+if(MIDIfadeOut > 0.) {
+	sprintf(line,"e %.3f",MIDIfadeOut);
+	}
+else strcpy(line,"e");
+WriteToFile(NO,CsoundFileFormat,line,CsRefNum);	/* 'e' terminates a Csound score */
 Date(line);
 sprintf(Message,"; this score was created by Bol Processor BP2 (version %s) on %s",
 	VersionName[Version],line);

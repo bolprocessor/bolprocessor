@@ -289,8 +289,11 @@ int CloseCsScore(void)
 	char line[MAXLIN];
 	
 	if(!CsScoreOpened) return(OK);
-	
-	WriteToFile(NO,CsoundFileFormat,"e",CsRefNum);	/* 'e' terminates a Csound score */
+	if(MIDIfadeOut > 0.) {
+		sprintf(line,"e %.3f",MIDIfadeOut);
+		}
+	else strcpy(line,"e");
+	WriteToFile(NO,CsoundFileFormat,line,CsRefNum);	/* 'e' terminates a Csound score */
 	Date(line);
 	sprintf(Message,"; this score was created by BP console (version %s) on %s",
 			VersionName[Version],line);
