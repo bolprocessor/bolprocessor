@@ -1396,7 +1396,7 @@ xmax -= 40;
 
 period = Kpress * Pclock * 1000. / Qclock / Ratio;
 period = (period * GraphicScaleP) / GraphicScaleQ / 10;
-if(period < 3) showsmalldivisions = FALSE;
+if(period < 5) showsmalldivisions = FALSE;
 else showsmalldivisions = TRUE;
 
 tmem1 = tmem2 = tmem3 = - Infpos;

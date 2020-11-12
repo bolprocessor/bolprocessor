@@ -200,7 +200,7 @@ return(OK);
 
 NOTMONOTONOUS:
 ShowMessage(TRUE,wMessage,"Can't determine mapping because functions are not monotonous, or x values are not crescent");
-return(ABORT);
+return(OK);
 
 NOTQUADRA12:
 p_r->isquadra12 = FALSE;
