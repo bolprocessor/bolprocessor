@@ -431,7 +431,7 @@ enum {
 #define T29 (tokenbyte) 29
 #define T30 (tokenbyte) 30
 #define T31 (tokenbyte) 31
-#define T32 (tokenbyte) 32
+#define T32 (tokenbyte) 32 // _ins()
 #define T33 (tokenbyte) 33
 #define T34 (tokenbyte) 34
 #define T35 (tokenbyte) 35
@@ -443,7 +443,8 @@ enum {
 #define T41 (tokenbyte) 41
 #define T42 (tokenbyte) 42
 #define T43 (tokenbyte) 43
-#define MAXTOKENBYTE 44
+#define T44 (tokenbyte) 44 // _scale()
+#define MAXTOKENBYTE 45
 
 // Inference modes
 #define ANAL 0	/* Modus tollens */
@@ -1765,6 +1766,15 @@ struct s_gram {
 	t_subgram **p_subgram;
 	};
 typedef struct s_gram t_gram;
+
+struct s_scale {
+	int index;
+	char **label;
+	int numgrades,basekey;
+	double basefreq,interval;
+	double **tuningratio;
+	};
+typedef struct s_scale t_scale;
 
 typedef struct {
 	long clockTime;

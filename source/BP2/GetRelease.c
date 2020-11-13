@@ -735,7 +735,7 @@ if(howmany == 0) {
 	}
 if(Jinstr == 0) {
 	if((p_CsoundTables=(char****) GiveSpace((Size)2 *sizeof(char**))) == NULL) return(ABORT);
-	MaxCsoundTables = 10;
+	// MaxCsoundTables = 10;
 	for(i=0; i < MaxCsoundTables; i++) (*p_CsoundTables)[i] = NULL;
 	if((p_CsInstrument=(CsoundInstrument**) GiveSpace((Size)howmany * sizeof(CsoundInstrument))) == NULL) return(ABORT);
 	if((p_CsInstrumentIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);

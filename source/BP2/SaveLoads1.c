@@ -1320,14 +1320,12 @@ for(j=0; j < jmax; j++) {
 BPPrintMessage(odInfo, "All instruments have been loaded\n");
 if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto QUIT;
 if(Mystrcmp(p_line,"_begin tables") == 0) {
-//	ClearWindow(NO,wCsoundTables);
-//	ReadFile(wCsoundTables,csfile);
-//	Dirty[wCsoundTables] = FALSE;
 	i_table = 0;
 	while(TRUE) {
 		if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto QUIT;
-		if((i_table > 0) && strlen(*p_line) == 0) goto QUIT;
-		if(show_details_load_csound_instruments) BPPrintMessage(odInfo, "table line = %s\n",*p_line);
+		if(strlen(*p_line) == 0) goto QUIT; // Required because 'pos' is not incremented when reading an empty line
+		if(Mystrcmp(p_line,"_end tables") == 0) break;
+		if(show_details_load_csound_instruments) BPPrintMessage(odInfo, "table line = [%s]\n",*p_line);
 		if(i_table >= MaxCsoundTables) {
 			p_CsoundTables = (char****) IncreaseSpace(p_CsoundTables);
 			MaxCsoundTables = (MyGetHandleSize((Handle)p_CsoundTables) / sizeof(char**));
@@ -1339,11 +1337,12 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 				* sizeof(char)))) == NULL) goto ERR;
 			MystrcpyHandleToHandle(0,&ptr,p_completeline);
 			(*p_CsoundTables)[i_table] = ptr;
+			result = CreateMicrotonalScale(*p_line);
+			if(result != OK) goto ERR;
 			}
 		i_table++;
 		}
 	}
-// else ClearWindow(YES,wCsoundTables);
 goto QUIT;
 
 ERR:
@@ -1356,6 +1355,8 @@ result = OK;
 MyDisposeHandle((Handle*)&p_line);
 MyDisposeHandle((Handle*)&p_completeline);
 CloseFile(csfile);
+if(NumberScales == 1)
+	BPPrintMessage(odInfo, "This microtonal scale will be used for Csound scores in replacement of the equal-tempered 12-tone scale\n=> Pitch will be adjusted to the diapason setting and 'basefreq' will be ignored\n");
 if(result == OK) {
 	Created[wCsoundInstruments] = TRUE;
 	LoadedCsoundInstruments = TRUE;

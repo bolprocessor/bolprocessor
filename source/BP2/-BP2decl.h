@@ -368,5 +368,8 @@ extern FILE * imagePtr;
 extern int N_image;
 extern int MaxConsoleTime;
 extern int CsoundPianoRollNoteShift;
+extern int NumberScales,MaxScales;
+extern t_scale** Scale;
+extern int trace_scale;
 
 #endif /* BP2_DECL_H */

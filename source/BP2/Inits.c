@@ -135,6 +135,7 @@ ItemNumber = ZERO;
 MaxConsoleTime = 120;
 Ratio = 0.;  Prod = 1.;
 N_image = 1; imagePtr = NULL;
+NumberScales = 0; MaxScales = 2; Scale = NULL;
 TimeMax = MAXTIME; Nalpha = 100L; SpeedRange = 6.;
 CorrectionFactor = 1.;
 UserName[0] = UserInstitution[0] = '\0';

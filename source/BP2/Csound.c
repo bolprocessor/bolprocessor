@@ -2288,5 +2288,72 @@ MyDisposeHandle(&h);
 return(OK);
 }
 
-
-
+int CreateMicrotonalScale(char* line) {
+	char c, curr_arg[MAXLIN];
+	int i,pos,n_args,space,numgrades;
+	
+	if(strlen(line) == 0 || line[0] != 'f') return(OK);
+//	if(trace_scale) BPPrintMessage(odInfo,"\n");
+	n_args = 0;
+	for(i = 0; i < MAXLIN; i++) curr_arg[i] = '\0';
+	space = FALSE;
+	for(pos = 0; pos < strlen(line); pos++) {
+		if((c=line[pos]) == ' ') {
+			if(!space) n_args++;
+			else continue;
+			space = TRUE;
+		//	for(i = strlen(curr_arg); i < MAXLIN; i++) curr_arg[i] = '\0';
+		//	if(trace_scale) BPPrintMessage(odInfo,"table arg[%d] = %s\n",n_args,curr_arg);
+			if(n_args == 4) {
+				if(abs(atoi(curr_arg)) != 51) return(OK);
+				NumberScales++;
+				if(Scale == NULL) {
+					Scale = (t_scale**) GiveSpace((Size)(MaxScales * sizeof(t_scale)));
+					}
+				else {
+					if(NumberScales >= MaxScales) {
+						Scale = (t_scale**) IncreaseSpace((Handle)Scale);
+						MaxScales = MyGetHandleSize((Handle)Scale) / sizeof(t_scale);
+						}
+					}
+				}
+			switch(n_args) {
+				case 5:
+					(*Scale)[NumberScales].numgrades = numgrades = atoi(curr_arg);
+					(*Scale)[NumberScales].tuningratio = (double**) GiveSpace((Size)((*Scale)[NumberScales].numgrades * sizeof(double)));
+					break;
+				case 6: (*Scale)[NumberScales].interval = strtod(curr_arg,NULL); break;
+				case 7: (*Scale)[NumberScales].basefreq = strtod(curr_arg,NULL); break;
+				case 8: (*Scale)[NumberScales].basekey = atoi(curr_arg); break;
+				default:
+					if(n_args > 8) {
+						if((n_args - 8) >= numgrades) {
+							BPPrintMessage(odError,"\nThis GEN51 function table is incorrect because it contains more than %d ratios:\n%s\n",numgrades,line);
+							NumberScales--;
+							return(FAILED);
+							}
+						(*((*Scale)[NumberScales].tuningratio))[n_args-9] = strtod(curr_arg,NULL);
+						}
+					break;
+				}
+			for(i = 0; i < MAXLIN; i++) curr_arg[i] = '\0';
+			}
+		else {
+			space = FALSE;
+			curr_arg[strlen(curr_arg)] = c;
+			}
+		}
+	n_args++;
+	if((n_args - 8) < numgrades) {
+		BPPrintMessage(odError,"\nThis GEN51 function table is incorrect because it contains %d ratios instead of %d:\n%s\n",(n_args - 8),numgrades,line);
+		NumberScales--;
+		return(FAILED);
+		}
+//	if(trace_scale) BPPrintMessage(odInfo, "table arg[%d] = %s\n",n_args,curr_arg);
+	(*((*Scale)[NumberScales].tuningratio))[n_args-9] = strtod(curr_arg,NULL);
+	BPPrintMessage(odInfo,"\nGEN51 microtonal _scale(%d) loaded from Csound instruments (%d grades):\n",NumberScales,(*Scale)[NumberScales].numgrades);
+	for(i = 0; i < (*Scale)[NumberScales].numgrades; i++)
+		BPPrintMessage(odInfo,"%.3f ",(*((*Scale)[NumberScales].tuningratio))[i]);
+	BPPrintMessage(odInfo,"\nwith interval = %.3f, basefreq = %.3f Hz and basekey = %d\n",(*Scale)[NumberScales].interval,(*Scale)[NumberScales].basefreq,(*Scale)[NumberScales].basekey);
+	return(OK);
+	}

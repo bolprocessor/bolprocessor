@@ -1121,6 +1121,8 @@ void GetFileName(char*,char*);
 int ClearObjectSpace(void);
 void CreateDoneFile(void);
 
+int CreateMicrotonalScale(char*);
+
 
 #if !TARGET_API_MAC_CARBON
 /* Provide backwards compatibility for System 7 in the non-Carbon build by

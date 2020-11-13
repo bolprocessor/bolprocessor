@@ -73,11 +73,15 @@ char imageFileName[500];
 int N_image;
 int MaxConsoleTime; // seconds: time allowed for console work
 int CsoundPianoRollNoteShift;
+int NumberScales,MaxScales; // Number of microtonal scales loaded from Csound instruments file
+t_scale** Scale;
 Handle mem_ptr[5000];
 int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 
 Find_leak = FALSE; // Flag to locate place where negative leak starts
 check_memory_use = FALSE;
+
+int trace_scale = FALSE;
 
 PrototypesLoaded = FALSE;
 
@@ -151,9 +155,9 @@ int main (int argc, char* args[])
 */
 
 	InitOn = FALSE;
-	BPPrintMessage(odInfo, "BP3 Console completed initialization.\n");
+	BPPrintMessage(odInfo, "\nBP3 Console completed initialization and will run:\n");
 	
-	BPPrintMessage(odInfo, "%s\n",gOptions.inputFilenames[wGrammar]);
+	BPPrintMessage(odInfo, "%s\n\n",gOptions.inputFilenames[wGrammar]);
 	
 	SessionTime = clock();
 	if (!gOptions.seedProvided) ReseedOrShuffle(NEWSEED);

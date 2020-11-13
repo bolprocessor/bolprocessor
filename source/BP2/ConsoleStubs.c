@@ -273,6 +273,7 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo)
 	for(i = 0; i < MaxCsoundTables; i++) {
 		if((*p_CsoundTables)[i] !=  NULL) {
 			i_table++;
+			if(trace_scale) BPPrintMessage(odInfo, "Writing: %s\n",(*(*p_CsoundTables)[i]));
 			WriteToFile(NO,CsoundFileFormat,(*(*p_CsoundTables)[i]),CsRefNum);
 			}
 		}
