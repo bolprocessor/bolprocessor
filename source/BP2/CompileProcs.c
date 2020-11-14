@@ -362,6 +362,7 @@ for(n=ZERO; (c=(**qq)) != ')' && c != '>' && c != '-' && c != '+'
 	n = (10L * n) + c - '0';
 	if(dec > -1) dec++;
 	}
+if(trace_scale) BPPrintMessage(odInfo,"GetArgument() n = %d\n",n);
 if(control) n = - n - 1;
 while(MySpace(**qq)) (*qq)++;
 if((mode == 2 || mode == 3) && (**qq) == ')') {
@@ -692,7 +693,7 @@ return(jproc);
 
 
 GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long *p_v,
-	KeyNumberMap *p_map)
+	KeyNumberMap *p_map) 
 {
 int i,im,j,jinstr,p,length,chan,foundk,cntl;
 long k,initparam;
@@ -790,7 +791,7 @@ switch(jinstr) {
 			}
 		return(jinstr);
 		break;
-	case 4:	/* _script */
+	case 4:	/* _script() */
 	case 43: /* _ins() */
 	case 45: /* _step() */
 	case 46: /* _cont() */
@@ -801,14 +802,15 @@ switch(jinstr) {
 	case 15: /* _switchoff() */
 		goto GET2ARGS;
 		break;
-	case 44: /* _value */
-	case 58: /* _keyxpand */
+	case 44: /* _value() */
+	case 58: /* _keyxpand() */
+	case 65: /* _scale() */
 		goto GET2CONSTANTS;
 		break;
-	case 52: /* _keymap */
+	case 52: /* _keymap() */
 		goto GET4ARGS;
 		break;
-	case 61: /* _tempo */
+	case 61: /* _tempo() */
 		goto GETRATIO;
 		break;
 	default:
@@ -895,6 +897,7 @@ if(p_map->p1 > p_map->p2) {
 return(jinstr);
 
 GET2ARGS:
+if(trace_scale) BPPrintMessage(odInfo,"GET2ARGS\n");
 if((*ptr) != '(') {
 	Expect('(',*((*p_PerformanceControl)[jinstr]),*ptr);
 	return(ABORT);
@@ -905,6 +908,17 @@ if((k=GetArgument(3,&ptr,&p,&initparam,&foundk,&x,p_u,p_v)) == INT_MAX) {
 	Print(wTrace,Message);
 	return(ABORT);
 	}
+if(trace_scale) BPPrintMessage(odInfo,"k = %d p = %d initparam = %d foundk = %d x = %ld u = %ld v = %ld\n",k,p,initparam,foundk,(long)x,(long)*p_u,(long)*p_v);
+/* if(jinstr == 65) { // _scale()
+	if(p < 0 || p > NumberScales) { 
+		BPPrintMessage(odError,"\nScale number %d is out of range (maximum %d). No Csound score produced\n\n",p,NumberScales);
+		return(ABORT);
+		}
+	if(k < 0 || k > 127) {
+		BPPrintMessage(odError,"\nKey #%d is out of range [0..127]. No Csound score produced\n\n",k);
+		return(ABORT);
+		}
+	} */
 if(jinstr == 14 || jinstr == 15) {
 	if(p < 64 || p > 95) {
 		sprintf(Message,"\nFirst argument of '%s' is switch number, range 64..95. Can't accept %ld",
@@ -1231,8 +1245,8 @@ ptr++;
 *pp = ptr;
 return(jinstr);
 
-
 GET2CONSTANTS:
+
 if((*ptr) != '(') {
 	Expect('(',*((*p_PerformanceControl)[jinstr]),*ptr);
 	return(ABORT);
@@ -1251,6 +1265,10 @@ line[i] = '\0';
 switch(jinstr) {
 	case 44:	/* _value() */
 		if((k=FixStringConstant(line)) < 0) return(k);
+		break;
+	case 65:	/* _scale() */
+		if((k=FixStringConstant(line)) < 0) return(k);
+		if(trace_scale) BPPrintMessage(odInfo,"GET2CONSTANTS k = %d\n",k);
 		break;
 	case 58:	/* _keyxpand() */
 		Strip(line);
@@ -1315,6 +1333,9 @@ if(c != ',') {
 		case 44:	/* _value() */
 			Print(wTrace,"Missing ',' in '_value()'\n");
 			break;
+		case 65:	/* _scale() */
+			Print(wTrace,"Missing ',' in '_scale()'\n");
+			break;
 		case 58:	/* _keyxpand() */
 			Print(wTrace,"Missing ',' in '_keyxpand()'\n");
 			break;
@@ -1336,10 +1357,12 @@ if(c != ')') {
 	Print(wTrace,"Missing ')' in '_value()'\n");
 	return(ABORT);
 	}
-	
+
+if(trace_scale) BPPrintMessage(odInfo,"GET2CONSTANTS line = %s\n",line);
 if((p=FixNumberConstant(line)) < 0) return(p);
 
-*p_n = 256 * p + k;
+// *p_n = 256 * p + k;
+*p_n = MAXSTRINGCONSTANTS * p + k;
 ptr++;
 *pp = ptr;
 return(jinstr);

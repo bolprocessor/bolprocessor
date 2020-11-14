@@ -1467,7 +1467,7 @@ PRINTPROLONGATIONS:
 		}
 	
 	if(m == T10 || m == T11 || (m >= T14 && m <= T24) || (m >= T26 && m <= T36) || m == T38
-			|| m == T39 || m == T41 || m == T42) {
+			|| m == T39 || m == T41 || m == T42 || m == T44) {
 		// _chan(), _vel(), _mod(), _pitchbend(), _press(), _switchon(,), _switchoff(,)
 		// _volume(), _pan(),_legato(), _staccato(),_pitchrange(),_pitchrate(),_modrate(),
 		// _pressrate(),_transpose(),_volumerate(),_volumecontrol(),_panrate(),_pancontrol()
@@ -1543,6 +1543,8 @@ PRINTPROLONGATIONS:
 					ii = 59; break;
 				case T42:
 					ii = 60; break;
+				case T44:
+					ii = 65; break;
 				}
 			sprintf(line,"%s(",*((*p_PerformanceControl)[ii]));
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,

@@ -58,10 +58,10 @@ double objectduration,**p_im,**p_origin,scale,inext,
 short rndvel,velcontrol,**p_deftrndvel,**p_deftvelcontrol,**p_deftstartvel,
 	velincrement,**p_deftvelincrement,**p_deftarticulincrement,**p_deftstartarticul;
 int i,j,k,kobj,nseq,nseqmem,nseqmem2,newswitch,v,ch,gotnewline,foundobject,
-	failed,paramnameindex,paramvalueindex,maxparam,newxpandval,
+	failed,paramnameindex,paramvalueindex,maxparam,newxpandval,newkeyval,
 	**p_deftxpandval,**p_deftxpandkey,
 	r,rest,oldm,oldp,**p_seq,**p_deftnseq,startvel,articulincrement,
-	startarticul,istop,result,level,nseqplot;
+	startarticul,istop,result,level,nseqplot,a,b;
 Handle h;
 char  line[MAXLIN],toofast,skipzeros,foundconcatenation,
 	iscontinuous,isMIDIcontinuous,overstrike;
@@ -211,6 +211,8 @@ for(k=0; k < Maxevent; k++) {
 	(*p_Instance)[k].object = 0;
 	(*p_ObjectSpecs)[k] = NULL;
 	(*p_Instance)[k].channel = 0;
+	(*p_Instance)[k].scale = 0;
+	(*p_Instance)[k].blockkey = BlockScaleOnKey;
 	(*p_Instance)[k].transposition = 0;
 	(*p_Instance)[k].xpandkey = -1;
 	(*p_Instance)[k].xpandval = 0;
@@ -291,6 +293,8 @@ startmap.p1 = startmap.q1 = 0;
 startmap.p2 = startmap.q2 = 127;
 
 currentparameters.currchan = 1;
+currentparameters.scale = 0;
+currentparameters.blockkey = BlockScaleOnKey;
 currentparameters.currinstr = 0;
 
 currentparameters.currtranspose = starttranspose = (*p_deftstarttranspose)[0] = 0.;
@@ -337,18 +341,19 @@ nseqplot = Minconc + 1;
 iplot = ZERO;
 
 for(id=istop=ZERO; ;id+=2,istop++) {
-	if((r=DoSystem()) != OK) {
+/*	if((r=DoSystem()) != OK) {
 		result = r;
 		goto ENDDIAGRAM;
-		}
-	if(istop == 20) istop = 0;
+		} */
+/*	if(istop == 20) istop = 0;
 	if((istop == 0 && Button()) && (r=InterruptTimeSet(FALSE,&tstart)) != OK) {
 		result = r;
 		goto ENDDIAGRAM;
-		}
+		} */
 	m = (tokenbyte) (**pp_buff)[id];
 	p = (tokenbyte) (**pp_buff)[id+1];
 	if(m == TEND && p == TEND) break;
+	
 	if(m == T33 || m == T34) {	/* _step() or _cont() */
 		paramnameindex = p;
 		i = FindParameterIndex(p_contparameters,level,paramnameindex);
@@ -383,9 +388,9 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 				currentparameters.currvel = startvel;
 				if(p == 0) currentparameters.velmode = STEPWISE;
 				else currentparameters.velmode = CONTINUOUS;	/* not implemented */
-				if(SetVariation(T11,p_deftcurrentparameters,&currentparameters,p_contparameters,level,-1,id,
-						*pp_buff,speed,scale,&endvel,&mapendvalue,
-						&maxbeatsvel,h_table) != OK)
+			if(SetVariation(T11,p_deftcurrentparameters,&currentparameters,
+			p_contparameters,level,-1,id,*pp_buff,speed,scale,&endvel,&mapendvalue,
+			&maxbeatsvel,h_table) != OK)
 					goto ENDDIAGRAM;
 				ibeatsvel = 0.;
 				if(maxbeatsvel == 0.) {
@@ -849,6 +854,7 @@ DONEOUTTIMEOBJECT:
 		oldp = -1;
 		goto NEXTTOKEN;
 		}
+//	if(trace_scale) BPPrintMessage(odInfo,"FillPhaseDiagram() m = %d p = %d\n",m,p);
 	switch(m) {
 		case T0:
 			switch(p) {
@@ -1204,6 +1210,26 @@ NEWSEQUENCE:
 			currentparameters.currinstr = value = FindValue(m,p,currentparameters.currchan);
 			if(value == Infpos) goto ENDDIAGRAM;
 			break;
+		case T44:	/* _scale() */
+			currentparameters.scale = p % MAXSTRINGCONSTANTS;
+			if(trace_scale) BPPrintMessage(odInfo,"FillPhaseDiagram() _scale() value = %ld\n",(long)value);
+			if(currentparameters.scale > -1)
+				newkeyval = (p - currentparameters.scale) / MAXSTRINGCONSTANTS;
+			else {
+				newkeyval = BlockScaleOnKey;
+				}
+			if(trace_scale) BPPrintMessage(odInfo,"newkeyval = %ld currentparameters.scale = %d\n",(long)newkeyval,currentparameters.scale);
+			if(newkeyval < 0 || newkeyval > 127) {
+				if(Beta) Println(wTrace,"Err. FillPhaseDiagram(). newblockkey < 0 || newblockkey > 127");
+				currentparameters.blockkey = BlockScaleOnKey;
+				}
+			else if(currentparameters.scale > -1) {
+				newval = (*p_NumberConstant)[newkeyval];
+				if(trace_scale) BPPrintMessage(odInfo,"blockkey = %ld\n",(long)newval);
+				currentparameters.blockkey = newval;
+				}
+			else currentparameters.blockkey = BlockScaleOnKey;
+			break;
 		case T21:	/* _pitchrange() */
 			PitchbendRange[currentparameters.currchan] = p;
 			break;
@@ -1332,13 +1358,14 @@ NEWSEQUENCE:
 			break;
 		case T40:	/* _keyxpand */
 //			if(level >= Maxlevel) goto NEXTTOKEN;
-			currentparameters.xpandkey = p % 256;
+		//	currentparameters.xpandkey = p % 256;
+			currentparameters.xpandkey = p % MAXSTRINGCONSTANTS;
 			if(currentparameters.xpandkey < 0) {
 				if(Beta) Println(wTrace,"Err. FillPhaseDiagram(). xpandkey < 0");
 				currentparameters.xpandkey = -1;
 				}
 			if(currentparameters.xpandkey > -1)
-				newxpandval = (p - currentparameters.xpandkey) / 256;
+				newxpandval = (p - currentparameters.xpandkey) / MAXSTRINGCONSTANTS;
 			else {
 				newxpandval = 0;
 //				currentparameters.xpandkey = 0; 
@@ -1845,6 +1872,8 @@ if((*p_param)[level].values == NULL) {
 			= (*((*p_param)[level].values))[j].v1
 			= 0.;
 		(*((*p_param)[level].values))[j].channel = 0;
+		(*((*p_param)[level].values))[j].scale = 0;
+		(*((*p_param)[level].values))[j].blockkey = BlockScaleOnKey;
 		(*((*p_param)[level].values))[j].imax = 0;
 		(*((*p_param)[level].values))[j].ibeats = 0;
 		(*((*p_param)[level].values))[j].point = NULL;
@@ -1907,6 +1936,8 @@ if(i >= maxnumber) {
 			= (*((*p_param)[level].values))[j].v1
 			= 0.;
 		(*((*p_param)[level].values))[j].channel = 0;
+		(*((*p_param)[level].values))[j].scale = 0;
+		(*((*p_param)[level].values))[j].blockkey = BlockScaleOnKey;
 		(*((*p_param)[level].values))[j].imax = 0;
 		(*((*p_param)[level].values))[j].ibeats = 0;
 		(*((*p_param)[level].values))[j].point = NULL;
@@ -2047,6 +2078,8 @@ for(i=0; i < (*p_a)[na].number; i++) {
 	
 	(*((*p_b)[nb].values))[i].index = (*((*p_a)[na].values))[i].index;
 	(*((*p_b)[nb].values))[i].channel = (*((*p_a)[na].values))[i].channel;
+	(*((*p_b)[nb].values))[i].scale = (*((*p_a)[na].values))[i].scale;
+	(*((*p_b)[nb].values))[i].blockkey = (*((*p_a)[na].values))[i].blockkey;
 	(*((*p_b)[nb].values))[i].mode = (*((*p_a)[na].values))[i].mode;
 	(*((*p_b)[nb].values))[i].active = (*((*p_a)[na].values))[i].active;
 	(*((*p_b)[nb].values))[i].known = (*((*p_a)[na].values))[i].known;

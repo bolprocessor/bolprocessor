@@ -2363,7 +2363,7 @@ int CreateMicrotonalScale(char* line) {
 	}
 
 
-double GetPitchWithScale(int i_scale, int key, double cents) {
+double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 	int octave, pitchclass, block_pitch_class, numgrades;
 	double pitch_ratio, A4_pitch_ratio, block_ratio, interval, x;
 	
@@ -2371,8 +2371,8 @@ double GetPitchWithScale(int i_scale, int key, double cents) {
 		BPPrintMessage(odError,"\nScale number %d is out of range (maximum %d). No Csound score produced\n\n",i_scale,NumberScales);
 		return(Infpos);
 		}
-	if(key < 0 || key > 127) {
-		BPPrintMessage(odError,"\nKey %d is out of range [0..127]. No Csound score produced\n\n",key);
+	if(key < 0 || key > 127) {
+		BPPrintMessage(odError,"\nKey #%d is out of range [0..127]. No Csound score produced\n\n",key);
 		return(Infpos);
 		}
 	numgrades = (*Scale)[NumberScales].numgrades; // Most likely 12
@@ -2381,10 +2381,12 @@ double GetPitchWithScale(int i_scale, int key, double cents) {
 	octave = floor(((double)(key - (*Scale)[i_scale].basekey)) / numgrades);
 	pitch_ratio = (*((*Scale)[i_scale].tuningratio))[pitchclass];
 	A4_pitch_ratio = (*((*Scale)[i_scale].tuningratio))[9];
-	block_pitch_class = (*Scale)[i_scale].blockkey % numgrades;
+//	blockkey = (*Scale)[i_scale].blockkey;
+	if(blockkey == 0) blockkey = BlockScaleOnKey;
+	block_pitch_class = blockkey % numgrades;
 	block_ratio = (*((*Scale)[i_scale].tuningratio))[block_pitch_class] / A4_pitch_ratio / exp((double)(block_pitch_class - 9) / numgrades * log(interval));
 	x = A4freq * pitch_ratio / A4_pitch_ratio / block_ratio * exp((double)octave * log(interval));
 	x = x * exp((cents / 1200.) * log((*Scale)[NumberScales].interval)); 
-	if(trace_scale) BPPrintMessage(odInfo,"key = %d pitchclass = %d pitch_ratio = %.3f A4_pitch_ratio = %.3f block_ratio = %.3f octave = %d x = %.3f\n",key,pitchclass,pitch_ratio,A4_pitch_ratio,block_ratio,octave,x);
+	if(trace_scale) BPPrintMessage(odInfo,"key = %d pitchclass = %d pitch_ratio = %.3f A4_pitch_ratio = %.3f blockkey = %d block_pitch_class = %d block_ratio = %.3f octave = %d x = %.3f\n",key,pitchclass,pitch_ratio,A4_pitch_ratio,blockkey,block_pitch_class,block_ratio,octave,x);
 	return x;
 	}

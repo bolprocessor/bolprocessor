@@ -48,7 +48,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 // arg_nr = 8: right argument (glossary)
 {
 tokenbyte **p_buff,**p_pi;
-int ii,ig,ir,j,jj,n,l,ln,lmax,bound,leftside,rightcontext,neg,cv,needsK,needsflag;
+int ii,ig,ir,j,jj,n,l,ln,lmax,bound,leftside,rightcontext,neg,cv,needsK,needsflag,a,b;
 long i,imax,k,siz,buffsize,y,u,v;
 char c,d,**pp,*p,*q,*qmax,*r,line[MAXLIN],**p_x;
 p_flaglist **nexth,**oldh;
@@ -323,6 +323,10 @@ NOTSCALE:
 				case 64: /* _transposestep */
 					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 34);
 					break;
+				case 65: /* _scale */
+					(*p_buff)[i++] = T44; (*p_buff)[i++] = (tokenbyte) n;
+					if(trace_scale) BPPrintMessage(odInfo,"Encode() i = %d n = %d\n",i,n);
+					break;
 				}
 			c = NextChar(pp);
 			continue;
@@ -398,7 +402,6 @@ NOTSCALE:
 			}
 		goto SEARCHTERMINAL2;	/* Found "_" */
 		}
-//	if(isupper(c)) goto SEARCHCODE;
 	if(islower(c)) goto SEARCHNOTE;
 	if(c == '/') {		/* Look for /flag/ */
 		q = *pp;
@@ -1012,7 +1015,6 @@ FINISHED:
 MyDisposeHandle((Handle*)&p_x);
 if((i+1) > imax) {
 	if(Beta) Alert1("i > imax. Err. Encode()");
-	
 	goto ERR;
 	}
 imax = (int) LengthOf(&p_buff);	// OPTIMIZE: can't we just do imax = i - (1 or 2)?
@@ -1030,6 +1032,15 @@ if(CopyBuf(&p_buff,&p_pi) == ABORT) p_pi = NULL;
 MyDisposeHandle((Handle*)&p_buff);
 if(DoSystem() != OK) p_pi = NULL;	// FIXME ? why fail just because DoSystem() does ??
 if(p_pi == NULL) return(p_pi); 	// FIXME
+/* if(trace_scale) {
+	i = 0;
+	while(TRUE) {
+		a = (*p_pi)[i]; b = (*p_pi)[i+1];
+		if(a == TEND && b == TEND) break;
+		BPPrintMessage(odInfo,"%d %d\n",a,b);
+		i += 2;
+		}
+	} */
 return(p_pi);
 
 ERR:
@@ -1257,7 +1268,6 @@ Recode(int notargument,long *p_imax,tokenbyte ***pp_buff)
 {
 int j,imaster,nbmaster;
 long i,orgmaster[MAXLEVEL],endmaster[MAXLEVEL];
-
 
 i = ZERO;
 /* levpar = */ imaster = /* nhomo = */ 0;

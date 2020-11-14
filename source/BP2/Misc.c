@@ -2106,7 +2106,7 @@ if((ptr = (char**) GiveSpace((Size)(strlen(line)+1))) == NULL) return(ABORT);
 (*p_StringConstant)[j] = ptr;
 MystrcpyStringToTable(p_StringConstant,j,line);
 
-// BPPrintMessage(odInfo, "FixStringConstant() j = %d, line = %s\n",j,line);
+if(trace_scale) BPPrintMessage(odInfo, "FixStringConstant() j = %d, line = %s\n",j,line);
 return(j);
 
 ERR:

@@ -34,7 +34,7 @@
 #ifndef BP2_PROTO_H
 #define BP2_PROTO_H
 
-/* in AppleEvents.c */
+/* in AppleEvents.c */ 
 pascal OSErr MyHandleOAPP(const AppleEvent*,AppleEvent*,long);
 pascal OSErr MyHandleODOC(const AppleEvent*,AppleEvent*,long);
 pascal OSErr MyHandleSectionReadEvent(const AppleEvent*,AppleEvent*,long);
@@ -597,7 +597,7 @@ int SetFileSavePreferences(void);
 int SetDefaultStrikeMode(void);
 int GetCsoundScoreName(void);
 int FixCsoundScoreName(char*);
-int CscoreWrite(Rect*,int,int,int,int,int,int,int,double,Milliseconds,int,int,int,int,int,int,int,int,PerfParameters****);
+int CscoreWrite(Rect*,int,int,int,int,int,int,int,double,Milliseconds,int,int,int,int,int,int,int,int,PerfParameters****,int,int);
 int CompileCsoundObjects(void);
 int CompileRegressions(void);
 int CompileObjectScore(int,int*);
@@ -1123,7 +1123,7 @@ int ClearObjectSpace(void);
 void CreateDoneFile(void);
 
 int CreateMicrotonalScale(char*);
-double GetPitchWithScale(int, int, double);
+double GetPitchWithScale(int, int, double, int);
 
 
 #if !TARGET_API_MAC_CARBON

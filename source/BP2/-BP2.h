@@ -1946,7 +1946,7 @@ typedef struct {
 	} KeyNumberMap;
 
 struct s_CurrentParameters {
-	int currvel,rndvel,velcontrol,currarticul,currchan,currinstr;
+	int currvel,rndvel,velcontrol,currarticul,currchan,scale,blockkey,currinstr;
 	float currtranspose;
 	short xpandkey,xpandval,randomtime,seed;
 	char velmode,articulmode,mapmode,transposemode,lastistranspose;
@@ -1957,6 +1957,7 @@ typedef struct s_CurrentParameters CurrentParameters;
 struct s_ParameterSpecs {
 	double v0,v1;
 	short index,mode,channel,control;
+	int scale,blockkey;
 	long imax;
 	Coordinates **point;
 	};
@@ -1968,6 +1969,7 @@ struct s_ContParameterSpecs {
 	char active,known;
 	float ibeats,maxbeats,increment;
 	long imax;
+	int scale,blockkey;
 	Coordinates **point;
 	};
 typedef struct s_ContParameterSpecs ContParameterSpecs;
@@ -2018,6 +2020,7 @@ struct s_SoundObjectInstanceParameters {
 	short object,nseq,ncycles,seed;
 	Milliseconds truncbeg,truncend;
 	char velocity,channel;
+	int scale,blockkey;
 	short rndvel,velcontrol,randomtime;
 	short xpandkey,xpandval;
 	short transposition,instrument;

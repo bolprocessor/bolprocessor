@@ -42,7 +42,7 @@ int show_messages_cs_scoremake = 0;
 
 int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double dilationratio,Milliseconds t,int iline,
 	int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,
-	PerfParameters ****pp_currentparams)
+	PerfParameters ****pp_currentparams,int this_scale,int blockkey)
 {
 // j is the sound-object prototype
 // onoffline = LINE  -- copy Csound score line from object-prototype
@@ -283,7 +283,10 @@ if(iarg > 0) {
 		pitch_format = CPS;
 	if(NumberScales > 0) {
 		i_scale = 1;
-		x = GetPitchWithScale(i_scale,key,cents);
+		
+		if(trace_scale) BPPrintMessage(odInfo,"Before GetPitchWithScale() this_scale = %d\n",this_scale);
+		
+		x = GetPitchWithScale(i_scale,key,cents,blockkey);
 		if(x == Infpos) return(ABORT);
 		}
 	else switch(pitch_format) {

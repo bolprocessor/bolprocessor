@@ -47,7 +47,7 @@ SetObjectParams(int isobject,int level,int nseq,short** p_articul,int k,int j,
 {
 ParameterSpecs **currentinstancevalues;
 long size;
-int i,ii,n,ip,ins,index,chan;
+int i,ii,n,ip,ins,index,chan,scale,blockkey;
 short mode;
 double v0,v1;
 Coordinates **ptr;
@@ -81,6 +81,8 @@ if(level >= 0) {
 		}
 	for(i=0; i < (*p_contparameters)[level].number; i++) {
 		chan = (*((*p_contparameters)[level].values))[i].channel;
+		scale = (*((*p_contparameters)[level].values))[i].scale;
+		blockkey = (*((*p_contparameters)[level].values))[i].blockkey;
 		if(i <= IPANORAMIC && !(*((*p_contparameters)[level].values))[i].known) {
 			switch(i) {
 				case IMODULATION:
@@ -128,6 +130,8 @@ if(level >= 0) {
 		(*currentinstancevalues)[i].mode = mode;
 		(*currentinstancevalues)[i].control = (*((*p_contparameters)[level].values))[i].control;
 		(*currentinstancevalues)[i].channel = chan;
+		(*currentinstancevalues)[i].scale = scale;
+		(*currentinstancevalues)[i].blockkey = blockkey;
 		(*currentinstancevalues)[i].index = (*((*p_contparameters)[level].values))[i].index;
 		(*currentinstancevalues)[i].imax = ZERO;
 		(*currentinstancevalues)[i].point = NULL;
@@ -163,6 +167,18 @@ if(level >= 0) {
 				= (*((*p_contparameters)[level].values))[i].channel;
 		else
 			(*currentinstancevalues)[i].channel = p_currentparameters->currchan;
+			
+		if((*((*p_contparameters)[level].values))[i].scale > 0)
+			(*currentinstancevalues)[i].scale
+				= (*((*p_contparameters)[level].values))[i].scale;
+		else
+			(*currentinstancevalues)[i].scale = p_currentparameters->scale;
+			
+		if((*((*p_contparameters)[level].values))[i].blockkey != BlockScaleOnKey)
+			(*currentinstancevalues)[i].blockkey
+				= (*((*p_contparameters)[level].values))[i].blockkey;
+		else
+			(*currentinstancevalues)[i].blockkey = p_currentparameters->blockkey;
 		}
 	}
 
@@ -237,7 +253,8 @@ else {
 	(*p_Instance)[k].channel = p_currentparameters->currchan;
 	(*p_Instance)[k].instrument = p_currentparameters->currinstr;
 	}
-	
+(*p_Instance)[k].scale = p_currentparameters->scale;
+(*p_Instance)[k].blockkey = p_currentparameters->blockkey;
 return(OK);
 }
 
@@ -303,7 +320,8 @@ int level,seq,**p_seq,**p_chan,**p_instr,ibeats,foundtimeobject,foundsecondvalue
 	foundendconcatenation,levelmem,seqmem,foundtarget,imap,
 	paramnameindex,maketable,tableisbeingbuilt,tablemade,iobjmem,
 	okincrease,objectsfound,nonemptyobject,chan,instr,targettokenfoundafterobject,
-	forgetmakingtable,followedwithgap,result,chanorg,instrorg;
+	forgetmakingtable,followedwithgap,result,chanorg,instrorg,
+	blockkey,this_scale,this_scaleorg,blockkeyorg,newval,newkeyval;
 KeyNumberMap vmap;
 unsigned long i,tablesize;
 char **p_notinthisfield,notinthisfield,foundclosingbracket;
@@ -386,6 +404,8 @@ itargettoken = 0.;
 iobjmem = oldm = oldp = -1;
 
 chan = chanorg = p_currentparameters->currchan;
+this_scale = this_scaleorg = p_currentparameters->scale;
+blockkey = blockkeyorg = p_currentparameters->blockkey;
 instr = instrorg = p_currentparameters->currinstr;
 
 for(i=id+2L; ; i+=2L) {
@@ -585,6 +605,22 @@ ENOUGH:
 			if(index != FindParameterIndex(p_contparameters,levelorg,paramnameindex))
 				continue;
 			}
+			
+		if(m == T44) { 	/* _scale() */ 
+			this_scale = p % MAXSTRINGCONSTANTS;
+			if(trace_scale) BPPrintMessage(odInfo,"SetVariation() _scale() this_scale = %d\n",this_scale);
+			newkeyval = (p - this_scale) / MAXSTRINGCONSTANTS;
+			if(trace_scale) BPPrintMessage(odInfo,"SetVariation() _scale() newkeyval = %d\n",newkeyval);
+			newval = (*p_NumberConstant)[newkeyval];
+			sprintf(Message,"%d",(int)newval);
+			if((blockkey=FixNumberConstant(Message)) < 0) {
+				result = ABORT;
+				break;
+				}
+			if(trace_scale) BPPrintMessage(odInfo,"SetVariation() _scale() blockkey = %d\n",blockkey);
+			continue;
+			}
+			
 		v = FindValue(m,p,chan);
 		if(v == Infpos) {
 			if(Beta) Alert1("Error in SetVariation(). v = Infpos");

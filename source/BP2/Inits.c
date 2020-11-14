@@ -1273,6 +1273,7 @@ int CreateMLTEObject(int w, Rect* frame)
 LoadStrings(void)
 {
 long max;
+int i;
 
 p_GramProcedure = p_PerformanceControl = p_GeneralMIDIpatch = p_HTMLdiacrList = NULL;
 p_ProcNdx = p_ProcNArg = p_PerfCtrlNdx = p_GeneralMIDIpatchNdx = p_PerfCtrlNArg = NULL;
@@ -1285,6 +1286,11 @@ MyLock(TRUE,(Handle)p_GramProcedure);
 if(LoadStringResource(&p_PerformanceControl,&p_PerfCtrlNdx,&p_PerfCtrlNArg,
 	PerformanceControlStringsID,&MaxPerformanceControl,YES) != OK) return(ABORT);
 MyLock(TRUE,(Handle)p_PerformanceControl);
+
+if(trace_scale) {
+	for(i=0; i < MaxPerformanceControl; i++)
+		BPPrintMessage(odInfo,"%d) %s()\n",i,*((*p_PerformanceControl)[i]));
+	}
 	
 if(LoadStringResource(&p_GeneralMIDIpatch,&p_GeneralMIDIpatchNdx,NULL,
 	GeneralMIDIpatchesID,&max,YES) != OK) return(ABORT);

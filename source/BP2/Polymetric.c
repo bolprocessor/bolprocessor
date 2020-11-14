@@ -918,7 +918,7 @@ if((p_qgap = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) {
 oldpos = (*p_pos);
 restart = FALSE;
 if(period && comma) {
-	sprintf(Message,"Error in polymetric expression.\nThe same expression contains both '¥' and a comma...");
+	sprintf(Message,"Error in polymetric expression.\nThe same expression contains both a bullet and a comma...");
 	if(ScriptExecOn) Println(wTrace,Message);
 	else Alert1(Message);
 	result = ABORT;
@@ -1617,7 +1617,7 @@ FIXTEMP:
 				}
 			}
 		else {
-			if((m >= T10 && m <= T24) || (m >= T26 && m <= T43) || (m == T0
+			if((m >= T10 && m <= T24) || (m >= T26 && m < MAXTOKENBYTE) || (m == T0
 															&& (p == 18 || p == 19))) {
 			/* '&' or tool or performance control */
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) m;

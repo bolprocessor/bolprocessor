@@ -251,7 +251,7 @@ return(r);
 PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll)
 {
 int result,kmax,i,j,nmax,dummy,finish,repeat,displayProducemem,
-	showmessagesmem,usebufferlimitmem,again,store;
+	showmessagesmem,usebufferlimitmem,again,store,a,b;
 clock_t time_end_compute;
 long tmin,tmax,length;
 unsigned long maxseq;
@@ -298,6 +298,17 @@ if(GlossGram.p_subgram != NULL && NeedGlossary(pp_buff) && !onlypianoroll) {
 
 result = OK;
 while((result=PolyMake(pp_buff,&maxseqapprox,YES)) == AGAIN){};
+
+/* if(trace_scale) {
+	i = 0;
+	while(TRUE) {
+		a = (**pp_buff)[i]; b = (**pp_buff)[i+1];
+		if(a == TEND && b == TEND) break;
+		BPPrintMessage(odInfo,"PlayBuffer1() %d %d\n",a,b);
+		i += 2;
+		}
+	} */
+
 if(result == EMPTY) {
 	result = OK; goto OUT;
 	}

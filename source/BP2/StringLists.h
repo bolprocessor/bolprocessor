@@ -318,7 +318,7 @@ const char GramProcedure[NUM_GRAM_PROC_STRS][MAX_STRINGLISTS_STR_LEN] =
 
 // TYPE STR# ;; Tools and performance controls
 // ToolsPerfControls,305
-#define NUM_PERF_CONTROL_STRS	65
+#define NUM_PERF_CONTROL_STRS	66
 
 const char PerformanceControl[NUM_PERF_CONTROL_STRS][MAX_STRINGLISTS_STR_LEN] = 
 {
@@ -386,7 +386,8 @@ const char PerformanceControl[NUM_PERF_CONTROL_STRS][MAX_STRINGLISTS_STR_LEN] =
 	"35 1 _tempo",
 	"27 0 _transposefixed",
 	"34 0 _transposecont",
-	"17 0 _transposestep"
+	"17 0 _transposestep", 
+	"65 2 _scale"
 };
 
 
