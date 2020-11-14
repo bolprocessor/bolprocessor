@@ -2357,3 +2357,20 @@ int CreateMicrotonalScale(char* line) {
 	BPPrintMessage(odInfo,"\nwith interval = %.3f, basefreq = %.3f Hz and basekey = %d\n",(*Scale)[NumberScales].interval,(*Scale)[NumberScales].basefreq,(*Scale)[NumberScales].basekey);
 	return(OK);
 	}
+
+
+double GetPitchWithScale(int i_scale, int key, int pitchclass, double cents) {
+	int octave, block_pitch_class;
+	double pitch_ratio, A4pitch_ratio, block_ratio, x;
+	
+	pitchclass = (key % 12) - ((*Scale)[i_scale].basekey % 12);
+	octave = floor((double)(key - (*Scale)[i_scale].basekey) / 12.);
+	pitch_ratio = (*((*Scale)[i_scale].tuningratio))[pitchclass];
+	A4pitch_ratio = (*((*Scale)[i_scale].tuningratio))[9];
+	block_pitch_class = BlockScaleOnKey % 12;
+	block_ratio = (*((*Scale)[i_scale].tuningratio))[block_pitch_class] / A4pitch_ratio / exp((block_pitch_class - 9) / 12. * log(2.));
+	x = A4freq * pitch_ratio / A4pitch_ratio / block_ratio * exp((double)octave * log((*Scale)[NumberScales].interval));
+	x = x * exp((cents / 1200.) * log((*Scale)[NumberScales].interval)); 
+	if(trace_scale) BPPrintMessage(odInfo,"key = %d pitchclass = %d pitch_ratio = %.3f A4pitch_ratio = %.3f block_ratio = %.3f octave = %d x = %.3f\n",key,pitchclass,pitch_ratio,A4pitch_ratio,block_ratio,octave,x);
+	return x;
+	}

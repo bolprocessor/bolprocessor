@@ -185,6 +185,7 @@ else MaxMIDIbytes = ZERO;
 
 KeyboardType = QWERTY;
 C4key = 60;  A4freq = 440.;
+BlockScaleOnKey =  60; // Block frequency on C4 wheen changing scales
 ProgNrFrom = 1;	/* This has changed with version 2.7.3 */
 TestMIDIChannel = 1;
 for(i=0; i <= MAXCHAN; i++) {

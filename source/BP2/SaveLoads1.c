@@ -1668,11 +1668,16 @@ if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 wmax = j;
 // BPPrintMessage(odInfo,"Number of windows = %d\n",j);
 if(wmax > 0) {
-	for(w=0; w < wmax; w++) {
+	for(w=0; w < (wmax - 1); w++) {
 		if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 		}
 	}
-	
+if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
+if(j <= 10 || j > 127) BlockScaleOnKey = 60;
+else BlockScaleOnKey = j;
+PrintNote(BlockScaleOnKey,-1,-1,Message);
+BPPrintMessage(odInfo,"If a Csound microtonal scale is used, frequency will be blocked on key #%d = %s\n",BlockScaleOnKey,Message);
+
 ResetMIDIFilter();
 
 if(iv > 4) {

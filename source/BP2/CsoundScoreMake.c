@@ -55,7 +55,7 @@ int i,jj,k,c,ins,index,paramnameindex,iarg,ip,ipitch,iargmax,octave,changedpitch
 char line[MAXLIN],line2[MAXLIN];
 long imax,pivloc,trbeg,starttime;
 double time,x,xx,cents,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,
-endvalue,ratio,oldtime_on,pitch_ratio,A4pitch_ratio;
+endvalue,ratio,oldtime_on;
 PerfParameters **perf;
 ParameterStatus **params,**paramscopy;
 Handle h;
@@ -283,13 +283,7 @@ if(iarg > 0) {
 		pitch_format = CPS;
 	if(NumberScales > 0) {
 		i_scale = 1;
-		pitchclass = (key % 12) - ((*Scale)[i_scale].basekey % 12);
-		octave = floor((double)(key - (*Scale)[i_scale].basekey) / 12.);
-		pitch_ratio = (*((*Scale)[i_scale].tuningratio))[pitchclass];
-		A4pitch_ratio = (*((*Scale)[i_scale].tuningratio))[9];
-		x = A4freq * pitch_ratio / A4pitch_ratio * exp((double)octave * log((*Scale)[NumberScales].interval));
-		x = x * exp((cents / 1200.) * log((*Scale)[NumberScales].interval)); 
-		if(trace_scale) BPPrintMessage(odInfo,"key = %d pitchclass = %d pitch_ratio = %.3f A4pitch_ratio = %.3f octave = %d x = %.3f\n",key,pitchclass,pitch_ratio,A4pitch_ratio,octave,x);
+		x = GetPitchWithScale(i_scale,key,pitchclass,cents);
 		}
 	else switch(pitch_format) {
 		case OPPC:

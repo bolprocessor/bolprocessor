@@ -144,7 +144,7 @@ short NameChoice[12];
 char ****p_NoteName[MAXCONVENTIONS],****p_AltNoteName[MAXCONVENTIONS];
 int **p_NoteLength[MAXCONVENTIONS],**p_AltNoteLength[MAXCONVENTIONS];
 int InitThere,FirstTime,MaxScriptInstructions,KeyboardType,C4key,ProgNrFrom,TestMIDIChannel,
-	CurrentMIDIprogram[MAXCHAN+1];
+	CurrentMIDIprogram[MAXCHAN+1],BlockScaleOnKey;
 double A4freq;
 char FindString[256],ReplaceString[256];
 int RunningStatus,StrikeAgainDefault;

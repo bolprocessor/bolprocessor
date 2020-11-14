@@ -106,7 +106,7 @@ extern short NameChoice[12];
 extern char ****p_NoteName[MAXCONVENTIONS],****p_AltNoteName[MAXCONVENTIONS];
 extern int **p_NoteLength[MAXCONVENTIONS],**p_AltNoteLength[MAXCONVENTIONS];
 extern int InitThere,FirstTime,MaxScriptInstructions,KeyboardType,C4key,ProgNrFrom,TestMIDIChannel,
-	CurrentMIDIprogram[MAXCHAN+1];
+	CurrentMIDIprogram[MAXCHAN+1],BlockScaleOnKey;
 extern double A4freq;
 extern char FindString[256],ReplaceString[256];
 extern t_gram Gram,GlossGram;

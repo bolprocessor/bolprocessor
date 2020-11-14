@@ -1122,6 +1122,7 @@ int ClearObjectSpace(void);
 void CreateDoneFile(void);
 
 int CreateMicrotonalScale(char*);
+double GetPitchWithScale(int, int, int, double);
 
 
 #if !TARGET_API_MAC_CARBON
