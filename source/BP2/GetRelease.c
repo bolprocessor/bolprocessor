@@ -41,7 +41,7 @@
 
 /* WARNING: Record carefully any change done here as it may take ages to trace bad consequences */
 
-ResetProject(int init)
+int ResetProject(int init)
 {
 long count;
 int i,w,r;
@@ -119,6 +119,7 @@ if(ResetPannel() != OK) return(FAILED);
 #endif /* BP_CARBON_GUI */
 
 if(Find_leak) BPPrintMessage(odInfo,"OKdone1\n");
+if(ReleaseScaleSpace() != OK) return(FAILED);
 if(ReleaseProduceStackSpace() != OK) return(FAILED);
 if(ReleaseObjectPrototypes() != OK) return(FAILED);
 
@@ -171,7 +172,7 @@ return(DoSystem());
 }
 
 
-ResetScriptQueue(void)
+int ResetScriptQueue(void)
 // Reset the (stacked) list of scripts currently being executed
 {
 int i;
@@ -193,7 +194,7 @@ return(DoSystem());
 }
 
 
-ReleasePhaseDiagram(int nmax,unsigned long*** pp_imaxseq)
+int ReleasePhaseDiagram(int nmax,unsigned long*** pp_imaxseq)
 {
 int i,k,nseq;
 p_list **ptag,**newptag;
@@ -281,8 +282,9 @@ p_Instance = NULL;
 return(DoSystem());
 }
 
+
 #if 0  /* this function appears not to be called - akozar */
-ReleaseWindowSpace(void)
+int ReleaseWindowSpace(void)
 {
 int i,w;
 Handle ptr;
@@ -328,7 +330,8 @@ return(DoSystem());
 }
 #endif
 
-ReleaseAlphabetSpace(void)
+
+int ReleaseAlphabetSpace(void)
 {
 int j,jmax;
 Handle ptr;
@@ -385,7 +388,7 @@ return(DoSystem());
 }
 
 
-ReleasePatternSpace(void)
+int ReleasePatternSpace(void)
 {
 int j;
 Handle ptr;
@@ -408,7 +411,7 @@ return(DoSystem());
 }
 
 
-ReleaseGrammarSpace(void)
+int ReleaseGrammarSpace(void)
 {
 int igram,irul,j;
 t_rule rule;
@@ -505,7 +508,7 @@ return(ReleaseFlagSpace());
 }
 
 
-ReleaseGlossarySpace(void)
+int ReleaseGlossarySpace(void)
 {
 int irul,j;
 t_rule rule;
@@ -539,7 +542,7 @@ return(DoSystem());
 }
 
 
-ReleaseFlagSpace(void)
+int ReleaseFlagSpace(void)
 {
 int j;
 Handle ptr;
@@ -564,7 +567,7 @@ return(DoSystem());
 }
 
 
-ReleaseVariableSpace(void)
+int ReleaseVariableSpace(void)
 {
 int j;
 Handle ptr;
@@ -587,7 +590,7 @@ return(DoSystem());
 }
 
 
-ReleaseScriptSpace(void)
+int ReleaseScriptSpace(void)
 {
 int j;
 Handle ptr;
@@ -608,7 +611,31 @@ return(DoSystem());
 }
 
 
-ReleaseProduceStackSpace(void)
+int ReleaseScaleSpace(void)
+{
+int i_scale;
+Handle ptr;
+for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
+	if((*Scale)[i_scale].tuningratio != NULL) {
+		ptr = (Handle) (*Scale)[i_scale].tuningratio;
+		MyDisposeHandle(&ptr);
+		(*Scale)[i_scale].tuningratio = NULL;
+		}
+	if((*Scale)[NumberScales].label != NULL) {
+		ptr = (Handle) (*Scale)[NumberScales].label;
+		MyDisposeHandle(&ptr);
+		(*Scale)[NumberScales].label = NULL;
+		}
+	}
+if(Scale != NULL) {
+	ptr = (Handle) Scale;
+	MyDisposeHandle(&ptr);
+	Scale = NULL;
+	}
+return(OK);
+}
+
+int ReleaseProduceStackSpace(void)
 {
 Handle ptr;
 
@@ -636,7 +663,7 @@ return(OK);
 }
 
 
-ReleaseConstants(void)
+int ReleaseConstants(void)
 {
 int j,maxparam;
 Handle ptr;
@@ -654,16 +681,14 @@ MyDisposeHandle(&ptr);
 p_StringConstant = NULL;
 
 MORE:
-
 ptr = (Handle) p_NumberConstant;
 MyDisposeHandle(&ptr);
 p_NumberConstant = NULL;
-
 return(OK);
 }
 
 
-ReleaseCsoundInstruments(void)
+int ReleaseCsoundInstruments(void)
 {
 int i,j;
 Handle ptr;
@@ -722,7 +747,7 @@ return(OK);
 }
 
 
-ResizeCsoundInstrumentsSpace(int howmany)
+int ResizeCsoundInstrumentsSpace(int howmany)
 {
 int i,j;
 char **ptr;
@@ -836,7 +861,7 @@ return(OK);
 }
 
 
-ReleaseObjectPrototypes(void)
+int ReleaseObjectPrototypes(void)
 {
 int i,j,maxsounds,max;
 Handle ptr;
@@ -985,7 +1010,7 @@ MyDisposeHandle((Handle*)&pp_CsoundScore);
 return(OK);
 }
 
-MakeSoundObjectSpace(void)
+int MakeSoundObjectSpace(void)
 {
 int i,j,**ptr;
 MIDIcode **ptr1;
@@ -1133,7 +1158,7 @@ return(ABORT);
 }
 
 
-ResizeObjectSpace(int reset,int maxsounds,int addbol)
+int ResizeObjectSpace(int reset,int maxsounds,int addbol)
 {
 // FORMER WARNING: Beware that if resizing down you should first dispose
 // (*pp_MIDIcode)[j]), (*pp_CsoundTime)[j],
@@ -1338,7 +1363,7 @@ return(DoSystem());
 }
 
 
-MakeEventSpace(unsigned long ***pp_imaxseq)
+int MakeEventSpace(unsigned long ***pp_imaxseq)
 {
 int nseq;
 long k;
@@ -1366,7 +1391,7 @@ return(DoSystem());
 }
 
 
-GetPatternSpace(void)
+int GetPatternSpace(void)
 {
 int i,j,**ptr1;
 char **ptr2;
@@ -1379,7 +1404,7 @@ return(DoSystem());
 }
 
 
-GetGrammarSpace(void)
+int GetGrammarSpace(void)
 {
 long pos,posmax;
 int i,igram,newsubgram,maxrulesinsubgram,gap,numbergram;
@@ -1458,7 +1483,7 @@ return(DoSystem());
 }
 
 
-GetAlphabetSpace(void)
+int GetAlphabetSpace(void)
 {
 int i,j,**ptr1;
 char **ptr2,**p_x;
@@ -1509,7 +1534,7 @@ return(DoSystem());
 }
 
 
-GetVariableSpace(void)
+int GetVariableSpace(void)
 {
 int i;
 
@@ -1528,7 +1553,7 @@ return(DoSystem());
 }
 
 
-GetFlagSpace(void)
+int GetFlagSpace(void)
 {
 int i;
 
@@ -1545,7 +1570,7 @@ return(DoSystem());
 }
 
 
-GetScriptSpace(void)
+int GetScriptSpace(void)
 {
 int i;
 
@@ -1560,7 +1585,7 @@ return(DoSystem());
 }
 
 
-CreateBuffer(tokenbyte*** pp_buff)
+int CreateBuffer(tokenbyte*** pp_buff)
 {
 tokenbyte** ptr;
 
@@ -1647,7 +1672,7 @@ return(DoSystem());
 }
 
 
-CheckTerminalSpace(void)
+int CheckTerminalSpace(void)
 {
 int i,j,oldjbol;
 int **ptr;
@@ -1684,7 +1709,7 @@ return(DoSystem());
 }
 
 
-ResetVariables(int w)
+int ResetVariables(int w)
 // Reset status of variables
 {
 int j;
@@ -1703,7 +1728,7 @@ return(OK);
 }
 
 
-KillSubTree(node n)
+int KillSubTree(node n)
 {
 arc a,**h_a,**newh_a;
 Handle ptr;
@@ -1724,7 +1749,7 @@ return(OK);
 }
 
 
-ClearLockedSpace(void)
+int ClearLockedSpace(void)
 {
 long i;
 
@@ -1770,7 +1795,7 @@ return(OK);
 }
 
 
-CheckBuffer(unsigned long i,unsigned long *p_maxi,tokenbyte ***pp_c)
+int CheckBuffer(unsigned long i,unsigned long *p_maxi,tokenbyte ***pp_c)
 {
 tokenbyte **ptr;
 double size;
@@ -1797,7 +1822,7 @@ return(OK);
 	IncreaseSpace()).  Should it check to make sure the calculation does 
 	not overflow ?? -- akozar, 20130812
  */
-ThreeOverTwo(long *p_x)
+int ThreeOverTwo(long *p_x)
 {
 	long y;
 	
@@ -1835,7 +1860,7 @@ return(OK);
 			EXCEPTION: The call from MainEvent() should be changed to
 					   PlayTick(FALSE) or else it won't get called!
  */
-DoSystem(void)
+int DoSystem(void)
 {
 	if(Panic || EmergencyExit) return(OK);
 	if(!SoundOn) return(PlayTick(FALSE));

@@ -2288,12 +2288,13 @@ MyDisposeHandle(&h);
 return(OK);
 }
 
+
 int CreateMicrotonalScale(char* line) {
-	char c, curr_arg[MAXLIN];
+	// "line" contains the scale as defined in the Csound GEN51 format
+	char c, curr_arg[MAXLIN], label[MAXLIN];
 	int i,pos,n_args,space,numgrades;
 	
 	if(strlen(line) == 0 || line[0] != 'f') return(OK);
-//	if(trace_scale) BPPrintMessage(odInfo,"\n");
 	n_args = 0;
 	for(i = 0; i < MAXLIN; i++) curr_arg[i] = '\0';
 	space = FALSE;
@@ -2302,8 +2303,6 @@ int CreateMicrotonalScale(char* line) {
 			if(!space) n_args++;
 			else continue;
 			space = TRUE;
-		//	for(i = strlen(curr_arg); i < MAXLIN; i++) curr_arg[i] = '\0';
-		//	if(trace_scale) BPPrintMessage(odInfo,"table arg[%d] = %s\n",n_args,curr_arg);
 			if(n_args == 4) {
 				if(abs(atoi(curr_arg)) != 51) return(OK);
 				NumberScales++;
@@ -2349,28 +2348,43 @@ int CreateMicrotonalScale(char* line) {
 		NumberScales--;
 		return(FAILED);
 		}
-//	if(trace_scale) BPPrintMessage(odInfo, "table arg[%d] = %s\n",n_args,curr_arg);
 	(*((*Scale)[NumberScales].tuningratio))[n_args-9] = strtod(curr_arg,NULL);
-	BPPrintMessage(odInfo,"\nGEN51 microtonal _scale(%d) loaded from Csound instruments (%d grades):\n",NumberScales,(*Scale)[NumberScales].numgrades);
+	sprintf(label,"scale_%d",NumberScales);
+	(*Scale)[NumberScales].label = (char**) GiveSpace((Size)(strlen(label) * sizeof(char)));
+	MystrcpyStringToHandle(&((*Scale)[NumberScales].label),label);
+	BPPrintMessage(odInfo,"\nGEN51 microtonal scale #%d = \"%s\" loaded from Csound instruments (%d grades):\n",NumberScales,*((*Scale)[NumberScales].label),(*Scale)[NumberScales].numgrades);
 	for(i = 0; i < (*Scale)[NumberScales].numgrades; i++)
 		BPPrintMessage(odInfo,"%.3f ",(*((*Scale)[NumberScales].tuningratio))[i]);
-	BPPrintMessage(odInfo,"\nwith interval = %.3f, basefreq = %.3f Hz and basekey = %d\n",(*Scale)[NumberScales].interval,(*Scale)[NumberScales].basefreq,(*Scale)[NumberScales].basekey);
+	BPPrintMessage(odInfo,"\nwith 'interval' = %.3f, 'basefreq' = %.3f Hz and 'basekey' = %d\n",(*Scale)[NumberScales].interval,(*Scale)[NumberScales].basefreq,(*Scale)[NumberScales].basekey);
+	(*Scale)[NumberScales].blockkey =  BlockScaleOnKey;
+	PrintNote(BlockScaleOnKey,-1,-1,Message);
+	BPPrintMessage(odInfo,"As per the settings, frequency will be blocked (by default) for note key #%d = '%s'\n",BlockScaleOnKey,Message);
 	return(OK);
 	}
 
 
-double GetPitchWithScale(int i_scale, int key, int pitchclass, double cents) {
-	int octave, block_pitch_class;
-	double pitch_ratio, A4pitch_ratio, block_ratio, x;
+double GetPitchWithScale(int i_scale, int key, double cents) {
+	int octave, pitchclass, block_pitch_class, numgrades;
+	double pitch_ratio, A4_pitch_ratio, block_ratio, interval, x;
 	
-	pitchclass = (key % 12) - ((*Scale)[i_scale].basekey % 12);
-	octave = floor((double)(key - (*Scale)[i_scale].basekey) / 12.);
+	if(i_scale > NumberScales) { 
+		BPPrintMessage(odError,"\nScale number %d is out of range (maximum %d). No Csound score produced\n\n",i_scale,NumberScales);
+		return(Infpos);
+		}
+	if(key < 0 || key > 127) {
+		BPPrintMessage(odError,"\nKey %d is out of range [0..127]. No Csound score produced\n\n",key);
+		return(Infpos);
+		}
+	numgrades = (*Scale)[NumberScales].numgrades; // Most likely 12
+	interval = (*Scale)[NumberScales].interval; // Most likely 2
+	pitchclass = (key % numgrades) - ((*Scale)[i_scale].basekey % numgrades);
+	octave = floor(((double)(key - (*Scale)[i_scale].basekey)) / numgrades);
 	pitch_ratio = (*((*Scale)[i_scale].tuningratio))[pitchclass];
-	A4pitch_ratio = (*((*Scale)[i_scale].tuningratio))[9];
-	block_pitch_class = BlockScaleOnKey % 12;
-	block_ratio = (*((*Scale)[i_scale].tuningratio))[block_pitch_class] / A4pitch_ratio / exp((block_pitch_class - 9) / 12. * log(2.));
-	x = A4freq * pitch_ratio / A4pitch_ratio / block_ratio * exp((double)octave * log((*Scale)[NumberScales].interval));
+	A4_pitch_ratio = (*((*Scale)[i_scale].tuningratio))[9];
+	block_pitch_class = (*Scale)[i_scale].blockkey % numgrades;
+	block_ratio = (*((*Scale)[i_scale].tuningratio))[block_pitch_class] / A4_pitch_ratio / exp((double)(block_pitch_class - 9) / numgrades * log(interval));
+	x = A4freq * pitch_ratio / A4_pitch_ratio / block_ratio * exp((double)octave * log(interval));
 	x = x * exp((cents / 1200.) * log((*Scale)[NumberScales].interval)); 
-	if(trace_scale) BPPrintMessage(odInfo,"key = %d pitchclass = %d pitch_ratio = %.3f A4pitch_ratio = %.3f block_ratio = %.3f octave = %d x = %.3f\n",key,pitchclass,pitch_ratio,A4pitch_ratio,block_ratio,octave,x);
+	if(trace_scale) BPPrintMessage(odInfo,"key = %d pitchclass = %d pitch_ratio = %.3f A4_pitch_ratio = %.3f block_ratio = %.3f octave = %d x = %.3f\n",key,pitchclass,pitch_ratio,A4_pitch_ratio,block_ratio,octave,x);
 	return x;
 	}

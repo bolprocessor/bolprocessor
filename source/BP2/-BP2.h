@@ -1770,7 +1770,7 @@ typedef struct s_gram t_gram;
 struct s_scale {
 	int index;
 	char **label;
-	int numgrades,basekey;
+	int numgrades,basekey,blockkey;
 	double basefreq,interval;
 	double **tuningratio;
 	};

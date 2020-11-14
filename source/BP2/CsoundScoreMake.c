@@ -283,7 +283,8 @@ if(iarg > 0) {
 		pitch_format = CPS;
 	if(NumberScales > 0) {
 		i_scale = 1;
-		x = GetPitchWithScale(i_scale,key,pitchclass,cents);
+		x = GetPitchWithScale(i_scale,key,cents);
+		if(x == Infpos) return(ABORT);
 		}
 	else switch(pitch_format) {
 		case OPPC:

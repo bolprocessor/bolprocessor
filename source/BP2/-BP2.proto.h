@@ -301,6 +301,7 @@ int ReleaseGlossarySpace(void);
 int ReleaseFlagSpace(void);
 int ReleaseVariableSpace(void);
 int ReleaseScriptSpace(void);
+int ReleaseScaleSpace(void);
 int ReleaseProduceStackSpace(void);
 int ReleaseObjectPrototypes(void);
 int ReleaseCsoundInstruments(void);
@@ -1122,7 +1123,7 @@ int ClearObjectSpace(void);
 void CreateDoneFile(void);
 
 int CreateMicrotonalScale(char*);
-double GetPitchWithScale(int, int, int, double);
+double GetPitchWithScale(int, int, double);
 
 
 #if !TARGET_API_MAC_CARBON

@@ -1675,8 +1675,6 @@ if(wmax > 0) {
 if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 if(j <= 10 || j > 127) BlockScaleOnKey = 60;
 else BlockScaleOnKey = j;
-PrintNote(BlockScaleOnKey,-1,-1,Message);
-BPPrintMessage(odInfo,"If a Csound microtonal scale is used, frequency will be blocked on key #%d = %s\n",BlockScaleOnKey,Message);
 
 ResetMIDIFilter();
 
