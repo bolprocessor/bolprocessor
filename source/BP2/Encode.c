@@ -41,7 +41,7 @@
 tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1, char **pp2,
 	p_context *p_pleftcontext, p_context *p_prightcontext, int *p_meta, int arg_nr,
 	p_flaglist ***ph_flag,int quick,int *p_result)
-// arg_nr = 0: item
+// arg_nr = 0: item 
 // arg_nr = 1: left argument (grammar)
 // arg_nr = 2: right argument (grammar)
 // arg_nr = 4: left argument (glossary)
@@ -124,11 +124,11 @@ SEARCHNUMBER:
 		}
 		
 NOTSCALE:
-	if(c == 'Â') {
+	/* if(c == 'Â') {
 		(*pp)++;
 		while(isspace(c=**pp) && (*pp) < (*pp2)) (*pp)++;
 		continue;
-		}
+		} */
 	if(c == '\n' || c == '\r' || c == '\0') break;
 	if(c == '[') {
 		if(arg_nr == 0 || arg_nr == 2 || arg_nr == 8) break;
@@ -314,7 +314,7 @@ NOTSCALE:
 				case 60: /* _srand() */
 					(*p_buff)[i++] = T42; (*p_buff)[i++] = (tokenbyte) n;
 					break;
-				case 61: /* _tempo */
+				case 61: /* _tempo() */
 					(*p_buff)[i++] = T43; (*p_buff)[i++] = (tokenbyte) u;
 					(*p_buff)[i++] = T43; (*p_buff)[i++] = (tokenbyte) v;
 					break;
@@ -325,7 +325,7 @@ NOTSCALE:
 					break;
 				case 65: /* _scale */
 					(*p_buff)[i++] = T44; (*p_buff)[i++] = (tokenbyte) n;
-					if(trace_scale) BPPrintMessage(odInfo,"Encode() i = %d n = %d\n",i,n);
+					if(trace_scale) BPPrintMessage(odInfo,"Encode() i = %d T44 n = %d\n",i,n);
 					break;
 				}
 			c = NextChar(pp);
@@ -419,7 +419,7 @@ NOTSCALE:
 			l = 0;
 			while(!MySpace(c=**pp) && c != '/' && c != '=' && c != '-' && c != '+'
 					&& c != '<' && c != '\334' && c != '>' && c != '\335'
-					&& c != '²' && c != '³' && c != '­') {
+				/*	&& c != '²' && c != '³' && c != '­' */) {
 				(*p_x)[l++] = c;
 				if(l >= BOLSIZE) {
 					ShowError(4,igram,irul);
@@ -441,14 +441,14 @@ NOTSCALE:
 			if(MySpace(c)) c = NextChar(pp);
 			needsK = needsflag = FALSE;
 			if(c == '=' || c == '-' || c == '+' || c == '>' || c == '<' || c == '\334'
-							 || c == '\335'	|| c == '²' || c == '³' || c == '­') {
+							 || c == '\335'	/* || c == '²' || c == '³' || c == '­' */) {
 				if(c == '=' && arg_nr != 1 && arg_nr != 2) {
 					ShowError(50,igram,irul);
 					goto ERR;
 					}
 				(*pp)++; NextChar(pp);
-				if(c == '>' || c == '<' || c == '\334' || c == '\335' || c == '²'
-						|| c == '³' || c == '­' || c == '=') {
+				if(c == '>' || c == '<' || c == '\334' || c == '\335' /* || c == '²'
+						|| c == '³' || c == '­' */ || c == '=') {
 					if(c != '='	&& arg_nr != 1) {
 						ShowError(51,igram,irul);
 						goto ERR;
@@ -1018,7 +1018,8 @@ if((i+1) > imax) {
 	goto ERR;
 	}
 imax = (int) LengthOf(&p_buff);	// OPTIMIZE: can't we just do imax = i - (1 or 2)?
-if(j=Recode(notargument,&imax,&p_buff)) {
+j = Recode(notargument,&imax,&p_buff);
+if(j > 0) {
 	ShowError(j,igram,irul);
 	DoSystem();
 	goto ERR;
@@ -1051,7 +1052,7 @@ return(NULL);
 }
 
 
-GetContext(int igram, int irul, char **pp, char **ppmax, p_context *p_ppc, int *p_meta)
+int GetContext(int igram, int irul, char **pp, char **ppmax, p_context *p_ppc, int *p_meta)
 {
 int levpar,result,flagindex;
 char c,c1,*p1,**pp1,c2,*p2,**pp2;
@@ -1122,7 +1123,7 @@ return(n);
 }
 
 
-GetVar(char **pp, char **ppmax)
+int GetVar(char **pp, char **ppmax)
 {
 int i,im,j,l,bracket;
 char c,*porg,*q,**ptr,line[MAXLIN];
@@ -1239,7 +1240,7 @@ return(ABORT);
 }
 
 
-FindCode(char x)
+int FindCode(char x)
 {
 int j;
 for(j=0; j < MAXCODE; j++)
@@ -1257,14 +1258,14 @@ for(j=0; j < MAXCODE; j++)
 			}
 		return(j);
 		}
-if(x == '.' || x == '¥') return(7);
+if(x == '.' /* || x == '¥' */) return(7);
 if(x == '*') return(21);
 if(x == '\\') return(25);
 return(-1);
 }
 
 
-Recode(int notargument,long *p_imax,tokenbyte ***pp_buff)
+int Recode(int notargument,long *p_imax,tokenbyte ***pp_buff)
 {
 int j,imaster,nbmaster;
 long i,orgmaster[MAXLEVEL],endmaster[MAXLEVEL];
@@ -1315,8 +1316,9 @@ while(i < (*p_imax)-1) {
 	}
 // OPTIMIZE: does the rest of this need to be done if imaster == 0 ?
 nbmaster = 0;
-// FIXME ? FindMaster() currently always returns 0; should it return -1 if LastSymbol() returns 0 ?
-if(FindMaster(pp_buff,orgmaster,endmaster,&nbmaster,p_imax) == -1) return(16);
+// FIXME ? FindMaster() currently always returns 0; should it return -1 if LastSymbol() returns 0 ? No!
+// if(FindMaster(pp_buff,orgmaster,endmaster,&nbmaster,p_imax) == -1) return(16);
+FindMaster(pp_buff,orgmaster,endmaster,&nbmaster,p_imax);
 /* Print(wTrace,"\nList of masters:\n");
 if(nbmaster == 0) Print(wTrace,"none\n");
 else
@@ -1336,7 +1338,7 @@ return(0);
 }
 
 
-FindMaster(tokenbyte ***pp_buff, long orgmaster[], long endmaster[], int *p_nbmaster, long *p_imax)
+int FindMaster(tokenbyte ***pp_buff, long orgmaster[], long endmaster[], int *p_nbmaster, long *p_imax)
 {
 long i;
 int j;
@@ -1356,7 +1358,7 @@ return(0);
 }
 
 
-LastSymbol(tokenbyte ***pp_buff, long iorg, long *p_imax)
+int LastSymbol(tokenbyte ***pp_buff, long iorg, long *p_imax)
 {
 int levpar;
 long i;
@@ -1373,7 +1375,7 @@ return(0);
 }
 
 
-BindSlaves(tokenbyte ***pp_buff,long *orgmaster,long *endmaster,int *p_nbmaster,
+int BindSlaves(tokenbyte ***pp_buff,long *orgmaster,long *endmaster,int *p_nbmaster,
 	long *p_imax)
 {
 tokenbyte **p_a;
@@ -1475,7 +1477,7 @@ return(0);
 }
 
 
-Reference(tokenbyte ***pp_buff, long orgmaster[], long endmaster[], int *p_nbmaster,
+int Reference(tokenbyte ***pp_buff, long orgmaster[], long endmaster[], int *p_nbmaster,
 	long *p_imax, long iorg, int nhomo, int levpar, int depth[], int homoname[])
 {
 long i,j;
@@ -1542,7 +1544,7 @@ return(jj);
 }
 
 
-FoundPeriod(tokenbyte ***pp_a)
+int FoundPeriod(tokenbyte ***pp_a)
 {
 long i;
 tokenbyte m,p;
@@ -1559,7 +1561,7 @@ return(FALSE);
 }
 
 
-ShowError(int i,int igram,int irul)
+int ShowError(int i,int igram,int irul)
 {
 char t[255];
 static int fatal[] = {0,1,1,0,0,0,1,0,0,0,0,0,0,1,

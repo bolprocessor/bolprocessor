@@ -338,6 +338,7 @@ enum {
 #define OPPC 0
 #define OPD 1
 #define CPS 2
+#define IGNORE 3
 
 // File save preferences
 #define ALLSAME 0
@@ -1770,7 +1771,7 @@ typedef struct s_gram t_gram;
 struct s_scale {
 	int index;
 	char **label;
-	int numgrades,basekey,blockkey;
+	int numgrades,basekey;
 	double basefreq,interval;
 	double **tuningratio;
 	};

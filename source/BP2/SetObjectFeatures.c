@@ -41,7 +41,7 @@
 int show_all_messages = 0;
 int trace_set_variation = 0;
 
-SetObjectParams(int isobject,int level,int nseq,short** p_articul,int k,int j,
+int SetObjectParams(int isobject,int level,int nseq,short** p_articul,int k,int j,
 	CurrentParameters *p_currentparameters,ContParameters **p_contparameters,
 	Table **h_table)
 {
@@ -131,6 +131,7 @@ if(level >= 0) {
 		(*currentinstancevalues)[i].control = (*((*p_contparameters)[level].values))[i].control;
 		(*currentinstancevalues)[i].channel = chan;
 		(*currentinstancevalues)[i].scale = scale;
+	//	if(trace_scale) BPPrintMessage(odInfo,"1) scale =%d\n",scale);
 		(*currentinstancevalues)[i].blockkey = blockkey;
 		(*currentinstancevalues)[i].index = (*((*p_contparameters)[level].values))[i].index;
 		(*currentinstancevalues)[i].imax = ZERO;
@@ -168,11 +169,15 @@ if(level >= 0) {
 		else
 			(*currentinstancevalues)[i].channel = p_currentparameters->currchan;
 			
-		if((*((*p_contparameters)[level].values))[i].scale > 0)
+		if((*((*p_contparameters)[level].values))[i].scale != 0) {
 			(*currentinstancevalues)[i].scale
 				= (*((*p_contparameters)[level].values))[i].scale;
-		else
+		//	if(trace_scale) BPPrintMessage(odInfo,"2) scale =%d\n",(*((*p_contparameters)[level].values))[i].scale);
+			}
+		else {
 			(*currentinstancevalues)[i].scale = p_currentparameters->scale;
+		//	if(trace_scale) BPPrintMessage(odInfo,"3) scale =%d\n",p_currentparameters->scale);
+			}
 			
 		if((*((*p_contparameters)[level].values))[i].blockkey != BlockScaleOnKey)
 			(*currentinstancevalues)[i].blockkey
@@ -254,12 +259,13 @@ else {
 	(*p_Instance)[k].instrument = p_currentparameters->currinstr;
 	}
 (*p_Instance)[k].scale = p_currentparameters->scale;
+// if(trace_scale) BPPrintMessage(odInfo,"4) scale =%d\n",p_currentparameters->scale);
 (*p_Instance)[k].blockkey = p_currentparameters->blockkey;
 return(OK);
 }
 
 
-AttachObjectLists(int k,int nseq,p_list ****p_waitlist,p_list ****p_scriptlist,
+int AttachObjectLists(int k,int nseq,p_list ****p_waitlist,p_list ****p_scriptlist,
 	int* p_newswitch,unsigned long* currswitchstate)
 {
 objectspecs** pto;
@@ -295,10 +301,10 @@ return(OK);
 }
 
 
-SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparameters,
+int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparameters,
 	CurrentParameters *p_currentparameters,
 	ContParameters **p_contparameters,int levelorg,int index,
-	unsigned long id,tokenbyte **p_buff,double orgspeed,double orgscale,
+	unsigned long id,tokenbyte **p_buff,double orgspeed,double orgscaling,
 	float *p_endvalue,
 	KeyNumberMap *p_mapendvalue,float *p_maxbeats,Table **h_table)
 // This procedure does two things:
@@ -321,12 +327,12 @@ int level,seq,**p_seq,**p_chan,**p_instr,ibeats,foundtimeobject,foundsecondvalue
 	paramnameindex,maketable,tableisbeingbuilt,tablemade,iobjmem,
 	okincrease,objectsfound,nonemptyobject,chan,instr,targettokenfoundafterobject,
 	forgetmakingtable,followedwithgap,result,chanorg,instrorg,
-	blockkey,this_scale,this_scaleorg,blockkeyorg,newval,newkeyval;
+	blockkey,scale,scaleorg,blockkeyorg,newval,newkeyval;
 KeyNumberMap vmap;
 unsigned long i,tablesize;
 char **p_notinthisfield,notinthisfield,foundclosingbracket;
 Coordinates **ptr;
-double v,vv,oldv,x,orgtranspose,startvalue,tempo,speed,scale,s;
+double v,vv,oldv,x,orgtranspose,startvalue,tempo,speed,scaling,s;
 tokenbyte m,p;
 
 /* The following ones must be double because they may be incremented with values < 1 when sequence is too fast */
@@ -350,9 +356,9 @@ level = levelmem = 0;
 seq = seqmem = (*p_seq)[level] = 0;
 
 speed = orgspeed;
-scale = orgscale;
-if(scale != 0.) {
-	tempo = speed / scale;
+scaling = orgscaling;
+if(scaling != 0.) {
+	tempo = speed / scaling;
 	prodtempo = (Prod / tempo);
 	}
 else tempo = prodtempo = 0.;
@@ -404,7 +410,7 @@ itargettoken = 0.;
 iobjmem = oldm = oldp = -1;
 
 chan = chanorg = p_currentparameters->currchan;
-this_scale = this_scaleorg = p_currentparameters->scale;
+scale = scaleorg = p_currentparameters->scale;
 blockkey = blockkeyorg = p_currentparameters->blockkey;
 instr = instrorg = p_currentparameters->currinstr;
 
@@ -415,8 +421,8 @@ for(i=id+2L; ; i+=2L) {
 		switch(p) {
 			case 11:	/* '/' speed up */
 				speed = GetScalingValue(p_buff,i);
-				if(scale != 0.) {
-					tempo = speed / scale;
+				if(scaling != 0.) {
+					tempo = speed / scaling;
 					prodtempo = (Prod / tempo);
 					}
 				else tempo = prodtempo = 0.;
@@ -424,28 +430,28 @@ for(i=id+2L; ; i+=2L) {
 				break;
 			case 25:	/* '\' speed down */
 				speed = 1. / (GetScalingValue(p_buff,i));
-				if(scale != 0.) {
-					tempo = speed / scale;
+				if(scaling != 0.) {
+					tempo = speed / scaling;
 					prodtempo = (Prod / tempo);
 					}
 				else tempo = prodtempo = 0.;
 				i += 4;
 				break;
-			case 21:	/* '*' scale up */
-				scale = GetScalingValue(p_buff,i);
-				if(scale != 0.) {
-					tempo = speed / scale;
+			case 21:	/* '*' scaling up */
+				scaling = GetScalingValue(p_buff,i);
+				if(scaling != 0.) {
+					tempo = speed / scaling;
 					prodtempo = (Prod / tempo);
 					}
 				else tempo = prodtempo = 0.;
 				i += 4;
 				continue;
 				break;
-			case 24:	/* '**' scale down */
+			case 24:	/* '**' scaling down */
 				s = GetScalingValue(p_buff,i);
-				scale = 1. / s;
-				if(scale != 0.) {
-					tempo = speed / scale;
+				scaling = 1. / s;
+				if(scaling != 0.) {
+					tempo = speed / scaling;
 					prodtempo = (Prod / tempo);
 					}
 				else tempo = prodtempo = 0.;
@@ -596,20 +602,22 @@ ENOUGH:
 		
 	if((level > levelmem || seq != seqmem) && !(foundconcatenation && !notinthisfield))
 		continue;
-		
+	
+	if(trace_scale && m == T44) BPPrintMessage(odInfo,"SetVariation() T44 index = %d\n",index);
+	
 	if((level == levelmem || (foundconcatenation && !notinthisfield))
 			&& chan == chanorg
 			&& (m == targettoken || (index >= 0 && TokenToIndex(m,index) == index))) {
-		if(m == T35) { 	/* _value() */ 
+		if(m == T35) {  // _value() 
 			paramnameindex = p % 256;
 			if(index != FindParameterIndex(p_contparameters,levelorg,paramnameindex))
 				continue;
 			}
 			
-		if(m == T44) { 	/* _scale() */ 
-			this_scale = p % MAXSTRINGCONSTANTS;
-			if(trace_scale) BPPrintMessage(odInfo,"SetVariation() _scale() this_scale = %d\n",this_scale);
-			newkeyval = (p - this_scale) / MAXSTRINGCONSTANTS;
+	/*	if(m == T44) { 	// _scale() 
+			scale = p % MAXSTRINGCONSTANTS;
+			if(trace_scale) BPPrintMessage(odInfo,"SetVariation() _scale() scale = %d\n",scale);
+			newkeyval = (p - scale) / MAXSTRINGCONSTANTS;
 			if(trace_scale) BPPrintMessage(odInfo,"SetVariation() _scale() newkeyval = %d\n",newkeyval);
 			newval = (*p_NumberConstant)[newkeyval];
 			sprintf(Message,"%d",(int)newval);
@@ -619,7 +627,7 @@ ENOUGH:
 				}
 			if(trace_scale) BPPrintMessage(odInfo,"SetVariation() _scale() blockkey = %d\n",blockkey);
 			continue;
-			}
+			} */
 			
 		v = FindValue(m,p,chan);
 		if(v == Infpos) {
@@ -819,7 +827,7 @@ return(result);
 }
 
 
-Fix(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time)
+int Fix(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time)
 {
 int j,k;
 long i,inext;
@@ -897,7 +905,7 @@ return(OK);
 }
 
 
-Calculate_alpha(int nseq,int nmax,long maxseq,unsigned long imaxseq,int nature_time,
+int Calculate_alpha(int nseq,int nmax,long maxseq,unsigned long imaxseq,int nature_time,
 	char** p_marked)
 {
 int j,k,kprev,unfinished,gotcurrenttime,ncycles;
@@ -1065,7 +1073,7 @@ FINDNEXTMARKED:
 			else r = 1.;
 			}
 		sigmaridi += r * d;
-		sprintf(Message,"Calculate_alpha() smooth line > 0 To = %ld k = %ld j = %ld r = %.2f d = %ld sigmaridi = %.2f inext = %ld Dur = %ld Tref = %ld\n",(long)To,(long)k,(long)j,r,d,(long)sigmaridi,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+		sprintf(Message,"Calculate_alpha() smooth line > 0 To = %ld k = %ld j = %ld r = %.2f d = %ld sigmaridi = %.2f inext = %ld Dur = %ld Tref = %ld\n",(long)To,(long)k,(long)j,r,d,sigmaridi,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 		if(show_all_messages) BPPrintMessage(odInfo,Message);
 		i = inext;
 		}
@@ -1112,7 +1120,7 @@ FINDNEXTMARKED:
 			else r = 1.;
 			}
 		alpha = To * r * d / dur / sigmaridi;
-		sprintf(Message,"k = %ld j = %ld alpha = %.2f r = %.2f d = %ld sigmaridi = %.2f\n",(long)k,(long)j,alpha,r,d,(long)sigmaridi);
+		sprintf(Message,"k = %ld j = %ld alpha = %.2f r = %.2f d = %ld sigmaridi = %.2f\n",(long)k,(long)j,alpha,r,d,sigmaridi);
 		if(show_all_messages) BPPrintMessage(odInfo,Message);
 		if(!unfinished && inext == inextm) {	/* Last object in section */
 			toff = (*p_T)[inext];	/* This will compensate cumulated roundings */
@@ -1181,7 +1189,7 @@ return(OK);
 }
 
 
-FixDilationRatioInCyclicObject(int j,double d,double *p_alpha,double *p_dilationratio,
+int FixDilationRatioInCyclicObject(int j,double d,double *p_alpha,double *p_dilationratio,
 	int *p_ncycles)
 /* Examine objects with periodical part and see whether that part could be repeated */
 /* If so, fix the number of repetitions and the actual dilation ratio,... */
@@ -1251,7 +1259,7 @@ return(OK);
 }
 
 
-SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend,
+int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend,
 	Milliseconds** p_maxgapbeg,Milliseconds** p_maxgapend,Milliseconds** p_maxtruncbeg,
 	Milliseconds** p_maxtruncend)
 {
@@ -1329,10 +1337,10 @@ return(OK);
 }
 
 
-AssignValue(int index,double value,int p,int level,int* p_kmx,
+int AssignValue(int index,double value,int p,int level,int* p_kmx,
 	CurrentParameters **p_deftcurrentparameters,
 	CurrentParameters *p_currentparameters,ContParameters **p_contparameters,
-	long id,tokenbyte ***pp_buff,double tempo,double scale,
+	long id,tokenbyte ***pp_buff,double tempo,double scaling,
 	Table **h_table)
 {
 float endval,maxbeats;
@@ -1354,13 +1362,13 @@ else
 	(*((*p_contparameters)[level].values))[index].control = p - 128;
 	
 if(SetVariation(-1,p_deftcurrentparameters,p_currentparameters,p_contparameters,level,index,id,*pp_buff,
-	tempo,scale,&endval,&mapendvalue,&maxbeats,h_table) != OK) return(ABORT);
+	tempo,scaling,&endval,&mapendvalue,&maxbeats,h_table) != OK) return(ABORT);
 
 return(OK);
 }
 
 
-TokenToIndex(tokenbyte m,int index)
+int TokenToIndex(tokenbyte m,int index)
 {
 switch(m) {
 	case T14:	/* _mod() */
@@ -1380,7 +1388,7 @@ return(-1);
 }
 
 
-IndexToToken(int index)
+int IndexToToken(int index)
 {
 if(index < 0) return(-1);
 switch(index) {
@@ -1457,7 +1465,7 @@ return(x);
 
 
 double GetSymbolicDuration(int ignoreconcat,int precise,tokenbyte **p_buff,
-	tokenbyte oldm,tokenbyte oldp,long id,double orgspeed,double orgscale,
+	tokenbyte oldm,tokenbyte oldp,long id,double orgspeed,double orgscaling,
 	int levelorg)
 {
 // This procedure is similar to SetVariation() concerning object concatenation "&"
@@ -1469,7 +1477,7 @@ tokenbyte m,p;
 int foundconcatenation,foundendconcatenation,foundclosingbracket,seq,level,**p_seq;
 char **p_notinthisfield,notinthisfield;
 double tempo,tempomax,prodtempo,objectduration,orgobjectduration,speed,
-	s,scale;
+	s,scaling;
 
 if(oldm != T3 && oldm != T25 && oldm != T9) {
 	if(Beta) {
@@ -1492,10 +1500,10 @@ if(orgspeed == ZERO) {
 	goto OUT;
 	}
 tempomax = Prod / Kpress;
-scale = orgscale;
+scaling = orgscaling;
 speed = orgspeed;
 
-if(scale != 0.) tempo = speed / scale;
+if(scaling != 0.) tempo = speed / scaling;
 else tempo = 0.;
 
 if((!precise && (tempo > tempomax)) || tempo == 0.) prodtempo = 0.;
@@ -1513,8 +1521,8 @@ for(i=id+2L; ; i+=2) {
 		switch(p) {
 			case 11:	/* '/' speed up */
 				speed = GetScalingValue(p_buff,i);
-				if(scale != 0.) {
-					tempo = speed / scale;
+				if(scaling != 0.) {
+					tempo = speed / scaling;
 					prodtempo = (Prod / tempo);
 					}
 				else tempo = 0.;
@@ -1525,8 +1533,8 @@ for(i=id+2L; ; i+=2) {
 				break;
 			case 25:	/* '\' speed down */
 				speed = 1. / (GetScalingValue(p_buff,i));
-				if(scale != 0.) {
-					tempo = speed / scale;
+				if(scaling != 0.) {
+					tempo = speed / scaling;
 					prodtempo = (Prod / tempo);
 					}
 				else tempo = 0.;
@@ -1535,10 +1543,10 @@ for(i=id+2L; ; i+=2) {
 				i += 4;
 				continue;
 				break;
-			case 21:	/* '*' scale up */
-				scale = GetScalingValue(p_buff,i);
-				if(scale != 0.) {
-					tempo = speed / scale;
+			case 21:	/* '*' scaling up */
+				scaling = GetScalingValue(p_buff,i);
+				if(scaling != 0.) {
+					tempo = speed / scaling;
 					prodtempo = (Prod / tempo);
 					}
 				else tempo = 0.;
@@ -1547,11 +1555,11 @@ for(i=id+2L; ; i+=2) {
 				i += 4;
 				continue;
 				break;
-			case 24:	/* '**' scale down */
+			case 24:	/* '**' scaling down */
 				s = GetScalingValue(p_buff,i);
-				scale = 1. / s;
-				if(scale != 0.) {
-					tempo = speed / scale;
+				scaling = 1. / s;
+				if(scaling != 0.) {
+					tempo = speed / scaling;
 					prodtempo = (Prod / tempo);
 					}
 				else tempo = 0.;
@@ -1652,7 +1660,7 @@ return(objectduration);
 }
 
 
-RandomTime(Milliseconds *p_t1,short randomtime)
+int RandomTime(Milliseconds *p_t1,short randomtime)
 {
 float x;
 

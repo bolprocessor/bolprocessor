@@ -368,7 +368,7 @@ extern FILE * imagePtr;
 extern int N_image;
 extern int MaxConsoleTime;
 extern int CsoundPianoRollNoteShift;
-extern int NumberScales,MaxScales;
+extern int NumberScales, MaxScales, DefaultScale;
 extern t_scale** Scale;
 extern int trace_scale;
 

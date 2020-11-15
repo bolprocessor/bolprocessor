@@ -1355,8 +1355,11 @@ result = OK;
 MyDisposeHandle((Handle*)&p_line);
 MyDisposeHandle((Handle*)&p_completeline);
 CloseFile(csfile);
-if(NumberScales == 1)
-	BPPrintMessage(odInfo, "This microtonal scale will be used for Csound scores in replacement of the equal-tempered 12-tone scale\n=> Pitch will be adjusted to the diapason setting and 'basefreq' will be ignored\n");
+if(NumberScales == 1) {
+	BPPrintMessage(odInfo, "This microtonal scale will be used for Csound scores in replacement of the equal-tempered 12-tone scale\n=> Pitch is adjusted to the diapason and 'basefreq' is ignored\n");
+	DefaultScale = -1;
+	}
+else DefaultScale = 0; // Don't use scales until the _scale() instruction has been found
 if(result == OK) {
 	Created[wCsoundInstruments] = TRUE;
 	LoadedCsoundInstruments = TRUE;

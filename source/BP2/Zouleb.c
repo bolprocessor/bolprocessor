@@ -38,7 +38,7 @@
 #include "-BP2decl.h"
 
 
-Zouleb(tokenbyte ***pp_a,int *p_level,unsigned long *p_pos_init,int retro,
+int Zouleb(tokenbyte ***pp_a,int *p_level,unsigned long *p_pos_init,int retro,
 	int rndseq,int rotate,int repeat,int isbracket,int orgseed)
 {
 unsigned long i,imax,ib,ibmax,iorg,j,newpos,origin,end;
@@ -373,7 +373,7 @@ return(r);
 }
 
 
-StoreChunk(ChunkPointer ***pp_chunk,long *p_i,long *p_imax,unsigned long origin,
+int StoreChunk(ChunkPointer ***pp_chunk,long *p_i,long *p_imax,unsigned long origin,
 	unsigned long end)
 {
 ChunkPointer** ptr;
@@ -393,7 +393,7 @@ return(OK);
 }
 
 
-GetChunk(ChunkPointer **p_chunk,long *p_ichunk,long ichunkmax,int rndseq,
+int GetChunk(ChunkPointer **p_chunk,long *p_ichunk,long ichunkmax,int rndseq,
 	int retro,int rotate,unsigned long *p_ib,
 	unsigned long *p_maxib,unsigned long *p_i,tokenbyte **p_a,tokenbyte **p_b,
 	long **p_index,int istempbracket,int *p_more)
@@ -477,7 +477,7 @@ return(OK);
 }
 
 
-MakeRandomSequence(long ***pp_x,long size,int repeat,int store)
+int MakeRandomSequence(long ***pp_x,long size,int repeat,int store)
 {
 int result,r1,r2;
 long pos,x;
@@ -529,7 +529,7 @@ return(OK);
 }
 
 
-RotateSequence(long ***pp_x,long size,int rotate)
+int RotateSequence(long ***pp_x,long size,int rotate)
 {
 long i,j;
 
@@ -552,7 +552,7 @@ return(OK);
 }
 
 
-TransposeKey(int *p_key,int trans)
+int TransposeKey(int *p_key,int trans)
 {
 int key,up;
 
@@ -574,12 +574,11 @@ return(OK);
 }
 
 
-ExpandKey(int key,short xpandkey,short xpandval)
+int ExpandKey(int key,short xpandkey,short xpandval)
 {
-tokenbyte newkey;
 double val;
 short centerkey,up;
-int maxparam;
+int maxparam, newkey;
 
 if(xpandkey == -1) return(key);
 
@@ -611,4 +610,3 @@ while(newkey < 0) newkey += 12;
 if(up) newkey += 16384;
 return(newkey);
 }
-

@@ -832,7 +832,7 @@ GOTIT6:
 	case 50:	/* Number streaks from 1 */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(!check) StartFromOne = TRUE; break;
-	case 51:	/* Graphic scale */
+	case 51:	/* Graphic scaling */
 		if(wind == wInteraction || wind == wGlossary) return(FAILED);
 		if(check) return(OK);
 		GraphicScaleP = (*(ScriptLine.intarg))[0];

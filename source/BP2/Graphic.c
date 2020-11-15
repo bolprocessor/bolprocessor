@@ -77,7 +77,7 @@ if(imagePtr == NULL) {
 	N_image++;
 	CreateImageFile();
 	}
-BPPrintMessage(odInfo,"Creating image %d based on objects\n",N_image);
+// BPPrintMessage(odInfo,"Creating image %d based on objects\n",N_image);
 
 if(tmin == Infpos) {
 	BPPrintMessage(odInfo,"Err. DrawObject(). tmin == Infpos\n");
@@ -649,7 +649,7 @@ Rect r,r1;
 int jj,x,xmin,xmax,oldx,y,rep,htext,topoffset;
 // GrafPtr saveport;
 long i,t,tmin,tmax,pivpos,maxbeggap,maxendgap;
-double p,k,preroll,postroll,preperiod,objectperiod,scale;
+double p,k,preroll,postroll,preperiod,objectperiod,grscale;
 Str255 label;
 char line[BOLSIZE+5];
 Milliseconds maxcover1,maxcover2,maxgap1,maxgap2,maxtrunc1,maxtrunc2,dur;
@@ -756,9 +756,9 @@ xmin = p_frame->left + 3 * htext;
 xmax = p_frame->right - 3 * htext;
 
 if((tmax - tmin) > EPSILON) {
-	scale = ((double)(xmax - xmin)) / (tmax - tmin);
+	grscale = ((double)(xmax - xmin)) / (tmax - tmin);
 	}
-else scale = 0.;
+else grscale = 0.;
 
 /* PenNormal();
 stroke_style(&Black); */
@@ -768,10 +768,10 @@ y = r.top + htext + 2;
 /* move_to(xmin,y); line_to(xmax,y);
 PenNormal(); */
 p = 0.1;
-if(scale > 0.001) {
-	while((scale * p) < ((xmax - xmin) / 20.)) p = 10. * p;
+if(grscale > 0.001) {
+	while((grscale * p) < ((xmax - xmin) / 20.)) p = 10. * p;
 	for(i=jj=0; ; i++,jj++) {
-		x = xmin + (int)(i * scale * p);
+		x = xmin + (int)(i * grscale * p);
 		if(x > xmax) break;
 		switch(jj) {
 			case 0:
@@ -792,11 +792,11 @@ if(scale > 0.001) {
 	sprintf(line,"0");
 //	c2pstrcpy(label, line);
 //	move_to(xmin - strlen(label)/2,y); fill_text(label);
-	k = 20.; while((k * scale * p) > (xmax - xmin)) k = k / 2.;
+	k = 20.; while((k * grscale * p) > (xmax - xmin)) k = k / 2.;
 	for(i=1; ; i++) {
 		sprintf(line,"%.2fs",((double)i) * (k * p) / 1000.);
 		// c2pstrcpy(label, line);
-		x = xmin + k * i * scale * p - strlen(line)/2;
+		x = xmin + k * i * grscale * p - strlen(line)/2;
 		if(x > xmax) break;
 	//	move_to(x,y);
 	//	fill_text(label);
@@ -831,7 +831,7 @@ else {
 		if(maxcover1 < dur) maxcover2 = dur - maxcover1;
 		else maxcover1 = dur - maxcover2;
 		}
-	r.right = xmin + scale * (maxcover1 - tmin);
+	r.right = xmin + grscale * (maxcover1 - tmin);
 	if(maxcover1 < INT_MAX && maxcover1 > 0 && r.right > r.left) {
 	//	stroke_style(&Color[SoundObjectC]); pen_size(2,2);
 	//	FrameRect(&r);
@@ -843,7 +843,7 @@ else {
 	//	move_to(r.left + 2,r.top + htext - 3);
 	//	fill_text("\p#CoverBeg");
 		}
-	r.left = xmin + scale * (dur - tmin - maxcover2);
+	r.left = xmin + grscale * (dur - tmin - maxcover2);
 	r.right = p_frame->right - 2;
 	if(maxcover2 < INT_MAX && maxcover2 > 0 && r.right > r.left) {
 	/*	stroke_style(&Color[SoundObjectC]); pen_size(2,2);
@@ -871,7 +871,7 @@ if((*p_ContEnd)[j]) {
 r.top = p_frame->top + topoffset + 1;
 r.bottom = r.top + htext - 2;
 r.left = p_frame->left + 2;
-r.right = xmin + scale * (- tmin - maxgap1);
+r.right = xmin + grscale * (- tmin - maxgap1);
 if(maxgap1 < INT_MAX && r.right > r.left) {
 /*	stroke_style(&Color[SoundObjectC]);
 	PenPat(GetQDGlobalsGray(&pat));
@@ -886,7 +886,7 @@ else {
 /*	move_to(p_frame->left + 3,r.bottom + htext + 1);
 	fill_text("\p#ContBeg"); */
 	}
-r.left = xmin + scale * (dur - tmin + maxgap2);
+r.left = xmin + grscale * (dur - tmin + maxgap2);
 r.right = p_frame->right - 2;
 if(maxgap2 < INT_MAX && r.right > r.left) {
 /*	stroke_style(&Color[SoundObjectC]);
@@ -919,18 +919,18 @@ if(!(*p_TruncEnd)[j]) {
 
 y = p_frame->top + topoffset + 4 * htext;
 if(maxtrunc1 > 0 && maxtrunc1 <= dur) {
-	x = xmin + scale * (- tmin);
+	x = xmin + grscale * (- tmin);
 //	move_to(x,y); line_to(x,y - htext);
-	x = xmin + scale * (- tmin + maxtrunc1);
+	x = xmin + grscale * (- tmin + maxtrunc1);
 /*	move_to(x,y); line_to(x,y - htext);
 	pen_size(2,2); */
 	y = p_frame->top + topoffset + 4 * htext - 1;
-	x = xmin + scale * (- tmin);
+	x = xmin + grscale * (- tmin);
 /*	move_to(x,y); 
-	line_to(xmin + scale * (- tmin + maxtrunc1) - 1,y);
+	line_to(xmin + grscale * (- tmin + maxtrunc1) - 1,y);
 	PenNormal(); stroke_style(&Black); */
 	y += htext;
-/*	move_to(xmin + scale * (- tmin) + 1,y);
+/*	move_to(xmin + grscale * (- tmin) + 1,y);
 	fill_text("\pTruncBeg"); */
 	}
 else {
@@ -940,18 +940,18 @@ else {
 y = p_frame->top + topoffset + 6 * htext;
 if(maxtrunc2 > 0 && maxtrunc2 <= dur) {
 //	stroke_style(&Blue);
-	x = xmin + scale * (dur - tmin);
+	x = xmin + grscale * (dur - tmin);
 //	move_to(x,y); line_to(x,y - htext);
-	x = xmin + scale * (dur - tmin - maxtrunc2);
+	x = xmin + grscale * (dur - tmin - maxtrunc2);
 /*	move_to(x,y); line_to(x,y - htext);
 	pen_size(2,2); */
 	y = p_frame->top + topoffset + 6 * htext - 1;
-	x = xmin + scale * (dur - tmin) - 1;
+	x = xmin + grscale * (dur - tmin) - 1;
 /*	move_to(x,y); 
-	line_to(xmin + scale * (dur - tmin - maxtrunc2),y);
+	line_to(xmin + grscale * (dur - tmin - maxtrunc2),y);
 	PenNormal(); stroke_style(&Black); */
 	y += htext;
-/*	move_to(xmin + scale * (dur - tmin) - strlen("TruncEnd"),y);
+/*	move_to(xmin + grscale * (dur - tmin) - strlen("TruncEnd"),y);
 	fill_text("\pTruncEnd"); */
 	}
 else {
@@ -993,16 +993,16 @@ else {
 	}
 
 r.top = p_frame->top + topoffset;
-r.left = xmin + scale * (-tmin);
+r.left = xmin + grscale * (-tmin);
 r.bottom = r.top + htext;
-r.right = r.left + scale * dur;
+r.right = r.left + grscale * dur;
 if(r.right == r.left) r.right += 1;
 
 // Draw period if any
 GetPeriod(j,1.,&objectperiod,&preperiod);
 if(objectperiod > EPSILON) {
 	y = r.top - htext;
-	x = r.left + (scale * preperiod);
+	x = r.left + (grscale * preperiod);
 /*	pen_size(1,2);
 	stroke_style(&Cyan);
 	move_to(x,y);
@@ -1035,7 +1035,7 @@ t = - preroll;
 oldx = -1;
 for(i=0; i < (*p_CsoundSize)[j]; i++) {
 	t += (*((*pp_CsoundTime)[j]))[i];
-	x = r.left + scale * t;
+	x = r.left + grscale * t;
 	if(x > (oldx + 1)) {
 	//	move_to(x,r.top-1); line_to(x,r.bottom);
 		oldx = x;
@@ -1050,7 +1050,7 @@ t = - preroll;
 oldx = -1;
 for(i=0; i < (*p_MIDIsize)[j]; i++) {
 	t += (*((*pp_MIDIcode)[j]))[i].time;
-	x = r.left + scale * t;
+	x = r.left + grscale * t;
 	if(x > (oldx + 1)) {
 	//	move_to(x,r.top+1); line_to(x,r.bottom-2);
 		oldx = x;
@@ -1071,7 +1071,7 @@ fill_text(label); */
 	
 if((*p_Tref)[j] > EPSILON) {
 	// Draw vertical line of pivot (if non relocatable)
-/*	move_to(r.left + (int) (scale*pivpos),r.top - 7);
+/*	move_to(r.left + (int) (grscale*pivpos),r.top - 7);
 	pen_size(2,2); 
 	stroke_style(&Color[PivotC]);
 	if(j > 16383 || (*p_OkRelocate)[j]) Move(0,5);
@@ -1082,7 +1082,7 @@ if((*p_Tref)[j] > EPSILON) {
 	PenNormal(); */
 	
 	// The following is a line connecting the pivot to the object if needed
-/*	move_to(r.left + (int) (scale*pivpos),r.top);
+/*	move_to(r.left + (int) (grscale*pivpos),r.top);
 	line_to(r.left,r.top); */
 	}
 else {
@@ -1093,10 +1093,10 @@ else {
 // Draw vertical red line
 if(xmax > xmin) {
 	if((*p_Tpict)[iProto] == Infneg) {
-		if(Hpos == -1) Hpos = xmin + scale * (- tmin);
+		if(Hpos == -1) Hpos = xmin + grscale * (- tmin);
 		(*p_Tpict)[iProto] = tmin + ((Hpos - xmin) * (tmax - tmin))/ (xmax - xmin);
 		}
-	else Hpos = (((*p_Tpict)[iProto] - tmin) * scale) + xmin;
+	else Hpos = (((*p_Tpict)[iProto] - tmin) * grscale) + xmin;
 	if((*p_Tpict)[iProto] != ZERO) {
 	/*	move_to(Hpos,p_frame->top+1);
 		stroke_style(&Red);

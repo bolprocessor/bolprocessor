@@ -39,7 +39,7 @@
 #include "-BP2decl.h"
 
 
-SkipRem(char **p) 	/* Skip comments between[] or C programming style */
+int SkipRem(char **p) 	/* Skip comments between[] or C programming style */
 {
 char c,*ptr;
 int level;
@@ -72,7 +72,7 @@ return(OK);
 }
 
 
-FindLeftoffset(tokenbyte **p_left,tokenbyte **p_right,int *p_lenc)
+int FindLeftoffset(tokenbyte **p_left,tokenbyte **p_right,int *p_lenc)
 {
 int moresymbols;
 tokenbyte m,p;
@@ -103,7 +103,7 @@ else return(i - 4 * (*p_lenc));
 }
 
 
-FindRightoffset(tokenbyte **p_left, tokenbyte **p_right, int *p_lenarg)
+int FindRightoffset(tokenbyte **p_left, tokenbyte **p_right, int *p_lenarg)
 {
 int i,ii,j,k,imax,jmax,lerc,moresymbols;
 
@@ -141,7 +141,7 @@ else return(2 * lerc);
 }
 
 
-CreateFlag(char **p_x)
+int CreateFlag(char **p_x)
 {
 int i,diff;
 char **ptr;
@@ -172,7 +172,7 @@ return(i);
 }
 
 
-CreateEventScript(char *x,int quick)
+int CreateEventScript(char *x,int quick)
 {
 int i,j,check,diff;
 char **ptr;
@@ -221,7 +221,7 @@ return(i);
 }
 
 
-GetArgument(int mode,char **pp,int *p_inc,long *p_initparam,int *p_foundk,
+long GetArgument(int mode,char **pp,int *p_inc,long *p_initparam,int *p_foundk,
 	double *p_x,long *p_u,long *p_v)
 /* mode = 1 : rule weight (possibly Kx) */
 /* mode = 2 : negative or positive (possibly Kx=y) */
@@ -362,7 +362,7 @@ for(n=ZERO; (c=(**qq)) != ')' && c != '>' && c != '-' && c != '+'
 	n = (10L * n) + c - '0';
 	if(dec > -1) dec++;
 	}
-if(trace_scale) BPPrintMessage(odInfo,"GetArgument() n = %d\n",n);
+// if(trace_scale) BPPrintMessage(odInfo,"GetArgument() n = %d\n",n);
 if(control) n = - n - 1;
 while(MySpace(**qq)) (*qq)++;
 if((mode == 2 || mode == 3) && (**qq) == ')') {
@@ -441,7 +441,7 @@ return(n);
 }
 
 
-GetNilString(char **pp)
+int GetNilString(char **pp)
 {
 int i,d;
 char *p;
@@ -460,7 +460,7 @@ return(FAILED);
 }
 
 
-GetMode(char **pp, int type)
+int GetMode(char **pp, int type)
 {
 int i,j,mode;
 char c,d,*p;
@@ -496,7 +496,7 @@ return(mode);
 }
 
 
-SkipGramProc(char **pp)
+int SkipGramProc(char **pp)
 {
 int i,j,found;
 long y;
@@ -517,7 +517,7 @@ return(FAILED);
 }
 
 
-GetProcedure(int igram,char **pp,int arg_nr,int *p_igram,int *p_irul,double *p_x,
+int GetProcedure(int igram,char **pp,int arg_nr,int *p_igram,int *p_irul,double *p_x,
 	long *p_y)
 /* arg_nr = 0 : searching for procedure on top of a subgrammar */
 {
@@ -692,7 +692,7 @@ return(jproc);
 }
 
 
-GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long *p_v,
+int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long *p_v,
 	KeyNumberMap *p_map) 
 {
 int i,im,j,jinstr,p,length,chan,foundk,cntl;
@@ -1267,7 +1267,8 @@ switch(jinstr) {
 		if((k=FixStringConstant(line)) < 0) return(k);
 		break;
 	case 65:	/* _scale() */
-		if((k=FixStringConstant(line)) < 0) return(k);
+		if(strcmp(line,"0") == 0) k = 0;
+		else if((k=FixStringConstant(line)) < 0) return(k);
 		if(trace_scale) BPPrintMessage(odInfo,"GET2CONSTANTS k = %d\n",k);
 		break;
 	case 58:	/* _keyxpand() */
@@ -1369,7 +1370,7 @@ return(jinstr);
 }
 
 
-GetSubgramType(char **pp)
+int GetSubgramType(char **pp)
 {
 int i,jtype;
 char c,d,*p;
@@ -1391,7 +1392,7 @@ return(-1);
 }
 
 
-GetArg(char **pp, char **qq1, char **qq2, char **qq3, char **qq4)
+int GetArg(char **pp, char **qq1, char **qq2, char **qq3, char **qq4)
 // Get pointers delimitating the two arguments of a rule:
 // *qq1 is the beginning of the first argument
 // *qq2 is the end of the first argument
@@ -1429,7 +1430,7 @@ return(-1);
 }
 
 
-NumberWildCards(tokenbyte **p_Q)
+int NumberWildCards(tokenbyte **p_Q)
 {
 int i,n;
 for(i=0,n=0; (*p_Q)[i] != TEND || (*p_Q)[i+1] != TEND; i+=2)
@@ -1438,14 +1439,14 @@ return(n);
 }
 
 
-CompilePatterns(void)
+int CompilePatterns(void)
 {
 int rep,oldjpatt;
 
 CompileOn++;
 rep = FAILED; CompiledPt = FALSE;
 oldjpatt = Jpatt;
-ShowMessage(TRUE,wMessage,"Looking for time patterns...");
+// ShowMessage(TRUE,wMessage,"Looking for time patterns...");
 if((rep=ReleasePatternSpace()) != OK) goto ERR;
 if((rep=GetPatterns(wAlphabet,TRUE)) != OK){	/* Just counting patterns */
 	Jpatt = 0; goto ERR;
@@ -1493,7 +1494,7 @@ return(rep);
 }
 
 
-GetPatterns(int w, int justcount)
+int GetPatterns(int w, int justcount)
 {
 long pos,posmax;
 int done,result,gap;
@@ -1533,7 +1534,7 @@ return(result);
 }
 
 
-ReadPatterns(char **p_line,int justcount)
+int ReadPatterns(char **p_line,int justcount)
 {
 char **p_y,c,line2[MAXLIN];
 int r,i,j,k,kk,l,length,z=0;
@@ -1668,7 +1669,7 @@ return(r);
 
 
 #if BP_CARBON_GUI
-InterruptCompile(void)
+int InterruptCompile(void)
 {
 int r,dirtygrammar,dirtyalphabet;
 

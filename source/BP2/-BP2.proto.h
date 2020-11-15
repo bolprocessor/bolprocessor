@@ -458,7 +458,7 @@ int FindLeftoffset(tokenbyte**,tokenbyte**,int*);
 int FindRightoffset(tokenbyte**,tokenbyte**,int*);
 int CreateFlag(char**);
 int CreateEventScript(char*,int);
-int GetArgument(int,char**,int*,long*,int*,double*,long*,long*);
+long GetArgument(int,char**,int*,long*,int*,double*,long*,long*);
 int GetNilString(char**);
 int GetMode(char**,int);
 int SkipGramProc(char**);

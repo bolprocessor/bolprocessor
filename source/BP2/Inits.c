@@ -135,7 +135,7 @@ ItemNumber = ZERO;
 MaxConsoleTime = 120;
 Ratio = 0.;  Prod = 1.;
 N_image = 1; imagePtr = NULL;
-NumberScales = 0; MaxScales = 2; Scale = NULL;
+NumberScales = DefaultScale = 0; MaxScales = 2; Scale = NULL;
 TimeMax = MAXTIME; Nalpha = 100L; SpeedRange = 6.;
 CorrectionFactor = 1.;
 UserName[0] = UserInstitution[0] = '\0';
@@ -1287,10 +1287,10 @@ if(LoadStringResource(&p_PerformanceControl,&p_PerfCtrlNdx,&p_PerfCtrlNArg,
 	PerformanceControlStringsID,&MaxPerformanceControl,YES) != OK) return(ABORT);
 MyLock(TRUE,(Handle)p_PerformanceControl);
 
-if(trace_scale) {
+/* if(trace_scale) {
 	for(i=0; i < MaxPerformanceControl; i++)
 		BPPrintMessage(odInfo,"%d) %s()\n",i,*((*p_PerformanceControl)[i]));
-	}
+	} */
 	
 if(LoadStringResource(&p_GeneralMIDIpatch,&p_GeneralMIDIpatchNdx,NULL,
 	GeneralMIDIpatchesID,&max,YES) != OK) return(ABORT);

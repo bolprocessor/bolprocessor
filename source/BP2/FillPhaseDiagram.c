@@ -211,7 +211,7 @@ for(k=0; k < Maxevent; k++) {
 	(*p_Instance)[k].object = 0;
 	(*p_ObjectSpecs)[k] = NULL;
 	(*p_Instance)[k].channel = 0;
-	(*p_Instance)[k].scale = 0;
+	(*p_Instance)[k].scale = DefaultScale;
 	(*p_Instance)[k].blockkey = BlockScaleOnKey;
 	(*p_Instance)[k].transposition = 0;
 	(*p_Instance)[k].xpandkey = -1;
@@ -293,7 +293,7 @@ startmap.p1 = startmap.q1 = 0;
 startmap.p2 = startmap.q2 = 127;
 
 currentparameters.currchan = 1;
-currentparameters.scale = 0;
+currentparameters.scale = DefaultScale;
 currentparameters.blockkey = BlockScaleOnKey;
 currentparameters.currinstr = 0;
 
@@ -1872,7 +1872,7 @@ if((*p_param)[level].values == NULL) {
 			= (*((*p_param)[level].values))[j].v1
 			= 0.;
 		(*((*p_param)[level].values))[j].channel = 0;
-		(*((*p_param)[level].values))[j].scale = 0;
+		(*((*p_param)[level].values))[j].scale = DefaultScale;
 		(*((*p_param)[level].values))[j].blockkey = BlockScaleOnKey;
 		(*((*p_param)[level].values))[j].imax = 0;
 		(*((*p_param)[level].values))[j].ibeats = 0;
@@ -1936,7 +1936,7 @@ if(i >= maxnumber) {
 			= (*((*p_param)[level].values))[j].v1
 			= 0.;
 		(*((*p_param)[level].values))[j].channel = 0;
-		(*((*p_param)[level].values))[j].scale = 0;
+		(*((*p_param)[level].values))[j].scale = DefaultScale;
 		(*((*p_param)[level].values))[j].blockkey = BlockScaleOnKey;
 		(*((*p_param)[level].values))[j].imax = 0;
 		(*((*p_param)[level].values))[j].ibeats = 0;
@@ -1995,6 +1995,8 @@ if((*((*p_contparameters)[level].values))[i].active) {
 else
 	(*((*p_contparameters)[level].values))[i].v0
 		= (*((*p_contparameters)[level].values))[i].v1 = start;
+(*((*p_contparameters)[level].values))[i].scale = DefaultScale;
+(*((*p_contparameters)[level].values))[i].blockkey = BlockScaleOnKey;
 return(OK);
 }
 

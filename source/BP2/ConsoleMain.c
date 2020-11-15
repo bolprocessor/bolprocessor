@@ -73,7 +73,7 @@ char imageFileName[500];
 int N_image;
 int MaxConsoleTime; // seconds: time allowed for console work
 int CsoundPianoRollNoteShift;
-int NumberScales,MaxScales; // Number of microtonal scales loaded from Csound instruments file
+int NumberScales, MaxScales, DefaultScale; // Number of microtonal scales loaded from Csound instruments file
 t_scale** Scale;
 Handle mem_ptr[5000];
 int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
@@ -81,7 +81,7 @@ int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 Find_leak = FALSE; // Flag to locate place where negative leak starts
 check_memory_use = FALSE;
 
-int trace_scale = 1;
+int trace_scale = 0;
 
 PrototypesLoaded = FALSE;
 
@@ -155,7 +155,7 @@ int main (int argc, char* args[])
 */
 
 	InitOn = FALSE;
-	BPPrintMessage(odInfo, "\nBP3 Console completed initialization and will run:\n");
+	BPPrintMessage(odInfo, "\nBP3 Console completed initialization and will run: ");
 	
 	BPPrintMessage(odInfo, "%s\n\n",gOptions.inputFilenames[wGrammar]);
 	
@@ -354,7 +354,7 @@ void CreateImageFile(void)
 		}
 	strcat(line1,line2);
 	remove_spaces(line1,line2);
-    BPPrintMessage(odInfo,"\nCreating image file: ");
+    BPPrintMessage(odInfo,"Creating image file: ");
 	BPPrintMessage(odInfo,line2);
 	BPPrintMessage(odInfo,"\n");
 	imagePtr = fopen(line2,"w");
@@ -407,7 +407,7 @@ void EndImageFile(void)
 	if(ShowGraphic) {
 		final_name = repl_str(imageFileName,"_temp","");
 		remove_spaces(final_name,final_name);
-		BPPrintMessage(odInfo,"Finalized image file to %s\n",final_name);
+		BPPrintMessage(odInfo,"\nFinalized image file to %s\n",final_name);
 		imagePtr = fopen(final_name,"w");
 		thisfile = fopen(imageFileName,"r");
 		free(final_name);
@@ -576,7 +576,7 @@ const char gOptionList[] =
 	"\n"
 	"OPTIONS (Musical):\n"
 	"  --english              specifies that the input files use English note conventions\n"
-	"  --french               specifies that the input files use French note conventions\n"
+	"  --french               specifies that the input files use Italian/French note conventions\n"
 	"  --indian               specifies that the input files use Indian note conventions\n"
 	"  --keys                 specifies that the input files use Midi note numbers\n"
 	"\n";

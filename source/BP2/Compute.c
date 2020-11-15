@@ -209,7 +209,7 @@ if(StepProduce || StepGrammars || TraceProduce) {
 	}
 else {
 	if(DisplayProduce || (ShowMessages && (*p_gram).number_gram > 1)) {
-		sprintf(Message,"Subgrammar %ld/%ld\n",Improvize,(long)igram,(long)(*p_gram).number_gram);
+		sprintf(Message,"Subgrammar %ld/%ld\n",(long)igram,(long)(*p_gram).number_gram);
 		BPPrintMessage(odInfo,Message);
 	//	ShowMessage(TRUE,wMessage,Message);
 		if(DisplayProduce && !ScriptExecOn) {

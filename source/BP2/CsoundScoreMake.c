@@ -42,7 +42,7 @@ int show_messages_cs_scoremake = 0;
 
 int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double dilationratio,Milliseconds t,int iline,
 	int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,
-	PerfParameters ****pp_currentparams,int this_scale,int blockkey)
+	PerfParameters ****pp_currentparams,int scale,int blockkey)
 {
 // j is the sound-object prototype
 // onoffline = LINE  -- copy Csound score line from object-prototype
@@ -51,7 +51,7 @@ int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int min
 //    write Csound score line
 
 int i,jj,k,c,ins,index,paramnameindex,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,
-	pitchclass,result,maxparam,itable,pitch_format,i_scale;
+	pitchclass,result,maxparam,itable,pitch_format,i_scale,scalemax;
 char line[MAXLIN],line2[MAXLIN];
 long imax,pivloc,trbeg,starttime;
 double time,x,xx,cents,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,
@@ -281,15 +281,27 @@ if(iarg > 0) {
 	pitch_format = (*p_CsPitchFormat)[ins];
 	if((pitch_format == OPPC || pitch_format == OPD) && (A4freq != 440. || C4key != 60))
 		pitch_format = CPS;
-	if(NumberScales > 0) {
-		i_scale = 1;
-		
-		if(trace_scale) BPPrintMessage(odInfo,"Before GetPitchWithScale() this_scale = %d\n",this_scale);
-		
-		x = GetPitchWithScale(i_scale,key,cents,blockkey);
-		if(x == Infpos) return(ABORT);
+	if(NumberScales > 0 && scale != 0) {
+		if(scale == -1) {
+			i_scale = 1;
+			if(trace_scale) BPPrintMessage(odInfo,"Default scale will be used\n");
+			}
+		else {
+			MystrcpyHandleToString(MAXLIN,0,Message,(*p_StringConstant)[scale]);
+			if(trace_scale) BPPrintMessage(odInfo,"scale = %d => \"%s\"\n",scale,Message);
+			for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
+				result = MyHandlecmp((*p_StringConstant)[scale],(*Scale)[i_scale].label);
+				if(result == 0) break;
+				}
+			}
+		if(i_scale < (NumberScales + 1)) { 
+			x = GetPitchWithScale(i_scale,key,cents,blockkey);
+			if(x == Infpos) return(ABORT);
+			pitch_format = IGNORE;
+			}
+		else BPPrintMessage(odError,"\n=> Instruction \"_scale(%s)\" has been ignored because there is no scale bearing this name.\n",Message);
 		}
-	else switch(pitch_format) {
+	switch(pitch_format) {
 		case OPPC:
 			x = octave + ((double) pitchclass) / 100.;
 			break;
@@ -301,6 +313,7 @@ if(iarg > 0) {
 				/ 12. * log(2.));
 			x = x * exp((cents / 1200.) * log(2.));
 			break;
+		case IGNORE: break;
 		}
 	(*scorearg)[iarg] = x;
 	}

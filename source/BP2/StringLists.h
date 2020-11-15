@@ -136,7 +136,7 @@ const char ScriptCommand[NUM_SCRIPT_CMD_STRS][MAX_STRINGLISTS_STR_LEN] =
 	"163 Graphic Color OFF",
 	"162 Graphic Color ON",
 	"35 Graphics",
-	"51 Graphic scale «long» pixels = «long» milliseconds",
+	"51 Graphic scale (long) pixels = (long) milliseconds",
 	"158 Hide window «windowname»",
 	"137 Ignore constraints OFF",
 	"138 Ignore constraints ON",

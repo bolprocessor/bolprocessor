@@ -1265,7 +1265,7 @@ WriteTemplate(int w,tokenbyte ***pp_a)
 {
 unsigned long i;
 tokenbyte m,p;
-int foundspeed,foundscale,setting_section;
+int foundspeed,foundscaling,setting_section;
 long speed;
 char line[MAXLIN];
 
@@ -1273,7 +1273,7 @@ if(pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL) {
 	if(Beta) Alert1("Err. WriteTemplate(). pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL");
 	return(OK);
 	}
-foundspeed = foundscale = FALSE; speed = 1L; setting_section = TRUE;
+foundspeed = foundscaling = FALSE; speed = 1L; setting_section = TRUE;
 sprintf(Message,"[%ld] ",(long)ItemNumber);
 Print(w,Message);
 for(i=ZERO; ; i+=2L) {
@@ -1282,11 +1282,11 @@ for(i=ZERO; ; i+=2L) {
 	if(m != T1 && (m != T0 || p != 3)) setting_section = FALSE;
 	if(m == T1 || (m == T0 && (p == 3 || p == 11))) foundspeed = TRUE;
 	if(m == T0 && (p == 21 || p == 24)) {
-		foundscale = TRUE;	/* '*' or '**' */
+		foundscaling = TRUE;	/* '*' or '**' */
 		goto TAKEIT;
 		}
-	if(!foundscale && !setting_section) {
-		foundscale = TRUE;
+	if(!foundscaling && !setting_section) {
+		foundscaling = TRUE;
 		Print(w,"*1");
 		}
 	if(m == T0 && (p == 11 || p == 25)) {
@@ -1422,12 +1422,12 @@ for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\0'; pos++) {
 	
 	if(c == '*') {
 		if(isdigit(d=GetTextChar(w,pos+1))) {
-			(**pp_a)[i++] = T0;		/* scale up '*' */
+			(**pp_a)[i++] = T0;		/* scaling up '*' */
 			(**pp_a)[i++] = (tokenbyte) 21;
 			continue;
 			}
 		if(d == '*' && isdigit(GetTextChar(w,pos+2))) {
-			(**pp_a)[i++] = T0;		/* scale down '**' */
+			(**pp_a)[i++] = T0;		/* scaling down '**' */
 			(**pp_a)[i++] = (tokenbyte) 24;
 			pos++;
 			continue;
