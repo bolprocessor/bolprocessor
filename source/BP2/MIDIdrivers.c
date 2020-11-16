@@ -486,7 +486,7 @@ return(OK);
 }
 
 
-CloseCurrentDriver(int quick)
+int CloseCurrentDriver(int quick)
 {
 OSErr io;
 /* It is probably never necessary to close an OMS driver */
@@ -503,7 +503,7 @@ return(FAILED);
 }
 
 
-ResetMIDI(int wait)
+int ResetMIDI(int wait)
 {
 int i,ch,rep,rs,channel;
 OSErr io;

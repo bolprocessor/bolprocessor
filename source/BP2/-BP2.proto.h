@@ -154,11 +154,11 @@ int FindPattern(char**,char*,int*);
 int Match(int,char**,char**,int);
 int WriteFloatToLine(char*,double);
 int TooLongFileName(char*,DialogPtr,int,int);
-int UpperCase(char c);
+char UpperCase(char c);
 int UpperCaseString(char*);
 int Pause(void);
 char GetCap(void);
-int NextChar(char**);
+char** NextChar(char**);
 int CheckEnd(char);
 char *GetEnd(char**);
 int ReadToBuff(int,int,int,long*,long,char***);
@@ -1122,7 +1122,7 @@ void GetFileName(char*,char*);
 int ClearObjectSpace(void);
 void CreateDoneFile(void);
 
-int CreateMicrotonalScale(char*);
+int CreateMicrotonalScale(char*, char*, char*);
 double GetPitchWithScale(int, int, double, int);
 
 

@@ -1046,7 +1046,7 @@ void GetStartupSettingsSpec(FSSpecPtr spec)
 int LoadCsoundInstruments(int checkversion,int tryname) 
 {
 int i,io,iv,ip,jmax,j,result,y,maxticks,maxbeats,arg,length,i_table,ipmax;
-char **ptr,line[MAXLIN];
+char **ptr, line[MAXLIN], note_names[MAXLIN];
 Handle **ptr2;
 CsoundParam **ptr3;
 long pos,x;
@@ -1319,10 +1319,13 @@ for(j=0; j < jmax; j++) {
 	}
 BPPrintMessage(odInfo, "All instruments have been loaded\n");
 if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto QUIT;
+
 if(Mystrcmp(p_line,"_begin tables") == 0) {
 	i_table = 0;
+	strcpy(line,""); strcpy(note_names,"");
 	while(TRUE) {
 		if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto QUIT;
+		Strip(*p_line);
 		if(strlen(*p_line) == 0) goto QUIT; // Required because 'pos' is not incremented when reading an empty line
 		if(Mystrcmp(p_line,"_end tables") == 0) break;
 		if(show_details_load_csound_instruments) BPPrintMessage(odInfo, "table line = [%s]\n",*p_line);
@@ -1331,22 +1334,34 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 			MaxCsoundTables = (MyGetHandleSize((Handle)p_CsoundTables) / sizeof(char**));
 			for(i = i_table; i < MaxCsoundTables; i++) (*p_CsoundTables)[i] = NULL;
 			}
+		if((*p_line)[0] == '"') { // This line contains the name of the next scale
+			MystrcpyHandleToString((strlen(*p_line) - 1),1,line,p_line);
+			continue;
+			}
+		if((*p_line)[0] == '<') continue; // Ignore comments
+		if((*p_line)[0] == '/') { // This line contains note names for this scale
+			MystrcpyHandleToString((strlen(*p_line) - 1),1,note_names,p_line);
+			continue;
+			}
 		length = MyHandleLen(p_completeline);
 		if(length > 0) {
-			if((ptr=(char**) GiveSpace((Size)((1L + length)
-				* sizeof(char)))) == NULL) goto ERR;
-			MystrcpyHandleToHandle(0,&ptr,p_completeline);
-			(*p_CsoundTables)[i_table] = ptr;
-			result = CreateMicrotonalScale(*p_line);
+			result = CreateMicrotonalScale(*p_line,line,note_names);
+			if(result == EXIT) {
+				if((ptr=(char**) GiveSpace((Size)((1L + length)
+					* sizeof(char)))) == NULL) goto ERR;
+				MystrcpyHandleToHandle(0,&ptr,p_completeline);
+				(*p_CsoundTables)[i_table] = ptr;
+				i_table++;
+				result = OK;
+				}
 			if(result != OK) goto ERR;
+			strcpy(line,""); strcpy(note_names,"");
 			}
-		i_table++;
 		}
 	}
 goto QUIT;
 
 ERR:
-
 BPPrintMessage(odInfo,"Error reading '%s' Csound instrument file...\n",FileName[wCsoundInstruments]);
 // FileName[wCsoundInstruments][0] = '\0';
 

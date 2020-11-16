@@ -695,7 +695,7 @@ return(jproc);
 int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long *p_v,
 	KeyNumberMap *p_map) 
 {
-int i,im,j,jinstr,p,length,chan,foundk,cntl;
+int i,im,j,jinstr,p,length,chan,foundk,cntl,result,i_scale;
 long k,initparam;
 char c,d,*ptr,*ptr2,*q,line[MAXLIN];
 double x;
@@ -1268,7 +1268,16 @@ switch(jinstr) {
 		break;
 	case 65:	/* _scale() */
 		if(strcmp(line,"0") == 0) k = 0;
-		else if((k=FixStringConstant(line)) < 0) return(k);
+		else {
+			k = FixStringConstant(line);
+			if(k < 0) return(k);
+			for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
+				result = MyHandlecmp((*p_StringConstant)[k],(*Scale)[i_scale].label);
+				if(result == 0) break;
+				}
+			if(i_scale > NumberScales)
+				BPPrintMessage(odError,"=> Instruction \"_scale(%s,...)\" will be ignored as this name is unknown\n",*((*p_StringConstant)[k]));
+			}
 		if(trace_scale) BPPrintMessage(odInfo,"GET2CONSTANTS k = %d\n",k);
 		break;
 	case 58:	/* _keyxpand() */

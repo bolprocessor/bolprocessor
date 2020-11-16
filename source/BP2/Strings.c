@@ -52,7 +52,7 @@ while (--len >= 0) dest[i++] = *src++;
 
 /* Copies a pascal string to a C string, truncating if necessary.
    WARNING: this function also converts whitespace characters! */
-MyPtoCstr(int max,Str255 s,char *t)
+int MyPtoCstr(int max,Str255 s,char *t)
 {
 int i,len;
 char c;
@@ -91,7 +91,7 @@ StringPtr in_place_c2pstr(char* s)
 }
 
 
-Pstrcmp(Str255 s1,Str255 s2)
+int Pstrcmp(Str255 s1,Str255 s2)
 {
 int i,n1,n2;
 n1 = s1[0]; n2 = s2[0];
@@ -103,7 +103,7 @@ return(0);
 }
 
 
-MystrcpyStringToTable(char ****p_t,int j,char *s)
+int MystrcpyStringToTable(char ****p_t,int j,char *s)
 {
 /* register */ int i;
 int imax;
@@ -127,7 +127,7 @@ return(OK);
 }
 
 
-MystrcpyTableToString(int imax,char *s,char ****p_t,int j)
+int MystrcpyTableToString(int imax,char *s,char ****p_t,int j)
 {
 /* register */ int i;
 
@@ -145,7 +145,7 @@ return(OK);
 }
 
 
-MystrcpyStringToHandle(char ***pp_t,char *s)
+int MystrcpyStringToHandle(char ***pp_t,char *s)
 {
 long i,imt,ims;
 
@@ -167,7 +167,7 @@ return(OK);
 }
 
 
-MystrcpyHandleToString(int imax,int offset,char *s,char **p_t)
+int MystrcpyHandleToString(int imax,int offset,char *s,char **p_t)
 {
 long i;
 char c;
@@ -186,7 +186,7 @@ return(OK);
 }
 
 
-MystrcpyHandleToHandle(int offset,char ***pp_s,char **p_t)
+int MystrcpyHandleToHandle(int offset,char ***pp_s,char **p_t)
 // Copy t to s
 {
 long i;
@@ -228,7 +228,7 @@ return(OK);
 }
 
 
-GetTextHandle(char ***pp_h,int w)
+int GetTextHandle(char ***pp_h,int w)
 {
 long i,length;
 
@@ -256,7 +256,7 @@ return(OK);
 }
 
 
-Mystrcmp(char **p_t,char *s)
+int Mystrcmp(char **p_t,char *s)
 {
 long i;
 
@@ -272,7 +272,7 @@ return(0);
 }
 
 
-MyHandlecmp(char **p_t,char **p_s)
+int MyHandlecmp(char **p_t,char **p_s)
 {
 long i;
 
@@ -288,7 +288,7 @@ return(0);
 }
 
 
-MyHandleLen(char **p_t)
+int MyHandleLen(char **p_t)
 {
 long i,im;
 
@@ -310,7 +310,7 @@ return(i);
 }
 
 
-Strip(char *word)
+int Strip(char *word)
 // Eliminate leading and trailing blanks
 {
 int i,j;
@@ -330,7 +330,7 @@ return(OK);
 }
 
 
-StripHandle(char **p_line)
+int StripHandle(char **p_line)
 // Eliminate leading and trailing blanks
 {
 int i,im,j;
@@ -360,7 +360,7 @@ return(OK);
 
 /* FIXME ? This is not "portable". Should we also convert diacriticals?
    If not, then we should just use toupper() instead. */
-UpperCase(char c)
+char UpperCase(char c)
 {
 if(!isalpha(c)) return(c);
 if(c > 'Z') return(c - ('a' - 'A'));
@@ -368,7 +368,7 @@ else return(c);
 }
 
 
-UpperCaseString(char* line)
+int UpperCaseString(char* line)
 {
 int i;
 
@@ -378,14 +378,14 @@ return(OK);
 }
 
 
-NextChar(char **pp)
+char** NextChar(char **pp)
 {
 while(MySpace(**pp) && **pp != '\r' && **pp != '\n') (*pp)++;
 return(**pp);
 }
 
 
-CheckEnd(char c)
+int CheckEnd(char c)
 {
 if(c == '\0') return(TRUE);
 return(FALSE);
@@ -402,7 +402,7 @@ return(*pp);
 }
 
 
-FindPattern(char **p_thetarget,char thepattern[],int *p_end)
+int FindPattern(char **p_thetarget,char thepattern[],int *p_end)
 {
 char **pp_t,*p_t,*s;
 int i,l;
@@ -422,7 +422,7 @@ return(-1);
 }
 
 
-Match(int casesensitive,char** p_s,char** p_t,int length)
+int Match(int casesensitive,char** p_s,char** p_t,int length)
 // Is (*p_t) a prefix of (*p_s) ?
 // Beware that *p_s is no longer modified since 22/6/95
 {
@@ -442,7 +442,7 @@ return(NO);
 }
 
 
-WriteFloatToLine(char *line,double x)
+int WriteFloatToLine(char *line,double x)
 {
 if(x >= Infpos) sprintf(line,"%ld",(long)Infpos);
 else {

@@ -2289,8 +2289,9 @@ return(OK);
 }
 
 
-int CreateMicrotonalScale(char* line) {
+int CreateMicrotonalScale(char* line, char* name, char* note_names) {
 	// "line" contains the scale as defined in Csound GEN51 format
+	// note_names are ignored for the time being
 	char c, curr_arg[MAXLIN], label[MAXLIN];
 	int i,pos,n_args,space,numgrades;
 	
@@ -2304,7 +2305,7 @@ int CreateMicrotonalScale(char* line) {
 			else continue;
 			space = TRUE;
 			if(n_args == 4) {
-				if(abs(atoi(curr_arg)) != 51) return(OK);
+				if(abs(atoi(curr_arg)) != 51) return(EXIT); // This is a different table function
 				NumberScales++;
 				if(Scale == NULL) {
 					Scale = (t_scale**) GiveSpace((Size)(MaxScales * sizeof(t_scale)));
@@ -2329,7 +2330,7 @@ int CreateMicrotonalScale(char* line) {
 						if((n_args - 8) >= numgrades) {
 							BPPrintMessage(odError,"\nThis GEN51 function table is incorrect because it contains more than %d ratios:\n%s\n",numgrades,line);
 							NumberScales--;
-							return(FAILED);
+							return(OK);
 							}
 						(*((*Scale)[NumberScales].tuningratio))[n_args-9] = strtod(curr_arg,NULL);
 						}
@@ -2346,18 +2347,20 @@ int CreateMicrotonalScale(char* line) {
 	if((n_args - 8) < numgrades) {
 		BPPrintMessage(odError,"\nThis GEN51 function table is incorrect because it contains %d ratios instead of %d:\n%s\n",(n_args - 8),numgrades,line);
 		NumberScales--;
-		return(FAILED);
+		return(OK);
 		}
 	(*((*Scale)[NumberScales].tuningratio))[n_args-9] = strtod(curr_arg,NULL);
-	sprintf(label,"scale_%d",NumberScales);
+	if(strlen(name) > 0) sprintf(label,"%s",name);
+	else sprintf(label,"scale_%d",NumberScales); // Name by default
 	(*Scale)[NumberScales].label = (char**) GiveSpace((Size)(strlen(label) * sizeof(char)));
 	MystrcpyStringToHandle(&((*Scale)[NumberScales].label),label);
 	BPPrintMessage(odInfo,"\nGEN51 microtonal scale #%d = \"%s\" loaded from Csound instruments (%d grades):\n",NumberScales,*((*Scale)[NumberScales].label),(*Scale)[NumberScales].numgrades);
 	for(i = 0; i < (*Scale)[NumberScales].numgrades; i++)
 		BPPrintMessage(odInfo,"%.3f ",(*((*Scale)[NumberScales].tuningratio))[i]);
-	BPPrintMessage(odInfo,"\nwith 'interval' = %.3f, 'basefreq' = %.3f Hz and 'basekey' = %d\n",(*Scale)[NumberScales].interval,(*Scale)[NumberScales].basefreq,(*Scale)[NumberScales].basekey);
+	if(strlen(note_names) > 0) BPPrintMessage(odInfo,"\nNames of notes in this scale: %s",note_names);
+	BPPrintMessage(odInfo,"\nWith 'interval' = %.3f, 'basefreq' = %.3f Hz and 'basekey' = %d\n",(*Scale)[NumberScales].interval,(*Scale)[NumberScales].basefreq,(*Scale)[NumberScales].basekey);
 	PrintNote(BlockScaleOnKey,-1,-1,Message);
-	BPPrintMessage(odInfo,"As per the settings, frequency will be blocked (by default) for note key #%d = '%s'\n",BlockScaleOnKey,Message);
+	BPPrintMessage(odInfo,"As per your settings, frequency will be blocked (by default) for note key #%d = '%s'\n",BlockScaleOnKey,Message);
 	return(OK);
 	}
 

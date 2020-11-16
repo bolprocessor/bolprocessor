@@ -299,7 +299,6 @@ if(iarg > 0) {
 			if(x == Infpos) return(ABORT);
 			pitch_format = IGNORE;
 			}
-		else BPPrintMessage(odError,"\n=> Instruction \"_scale(%s)\" has been ignored because there is no scale bearing this name.\n",Message);
 		}
 	switch(pitch_format) {
 		case OPPC:
@@ -309,8 +308,7 @@ if(iarg > 0) {
 			x = ((double)key + deltakey) / 12. + 3.;
 			break;
 		case CPS:
-			x = A4freq * exp((((double)key + deltakey) - ((double)C4key + 9.))
-				/ 12. * log(2.));
+			x = A4freq * exp((((double)key + deltakey) - ((double)C4key + 9.)) / 12. * log(2.));
 			x = x * exp((cents / 1200.) * log(2.));
 			break;
 		case IGNORE: break;
