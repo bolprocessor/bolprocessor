@@ -2162,7 +2162,7 @@ return(result);
 }
 
 
-ExecuteScriptList(p_list **scriptlist)
+int ExecuteScriptList(p_list **scriptlist)
 {
 int x,r,idummy;
 p_list **ptag;
@@ -2185,7 +2185,7 @@ return(r);
 }
 
 
-ClipVelocity(int v,int localvelocity,int control,int rndvel)
+int ClipVelocity(int v,int localvelocity,int control,int rndvel)
 {
 int r;
 float x;
@@ -2211,7 +2211,7 @@ return(v);
 }
 
 
-ChannelConvert(int ch)
+int ChannelConvert(int ch)
 {
 int x;
 
@@ -2267,7 +2267,7 @@ return(param);
 }
 
 
-WaitForLastSounds(long buffertime)
+int WaitForLastSounds(long buffertime)
 // buffertime * Time_res is the remaining time after which we'll stop waiting.
 {
 int result,r,rep,compiledmem;
@@ -2333,7 +2333,7 @@ return(result);
 }
 
 
-WaitForEmptyBuffer(void)
+int WaitForEmptyBuffer(void)
 {
 long timeleft,formertime;
 int result,rep,compiledmem;
@@ -2452,7 +2452,7 @@ return(x);
 }
 
 
-SendControl(ContinuousControl **p_control,Milliseconds t0,int chan,int iparam,int maxconc,
+int SendControl(ContinuousControl **p_control,Milliseconds t0,int chan,int iparam,int maxconc,
 	int cswrite,int showpianoroll,int *p_rs,char ***p_active,Milliseconds ***p_t2cont,
 	int ***p_seqcont,MIDIcontrolstatus **p_Oldvalue,PerfParameters ****pp_currentparams)
 {
@@ -2702,7 +2702,7 @@ return(y);
 }
 
 
-GoodKey(int j)
+int GoodKey(int j)
 {
 int key;
 
@@ -2717,7 +2717,7 @@ return(key);
 }
 
 
-StoreMappedKey(int orgkey,int imagekey,int k,int channel,
+int StoreMappedKey(int orgkey,int imagekey,int k,int channel,
 	MappedKey ***pp_currmapped,long *p_maxmapped)
 {
 long imap;							
@@ -2738,7 +2738,7 @@ return(OK);
 }
 
 
-RetrieveMappedKey(int orgkey,int k,int channel,MappedKey **p_currmapped,long maxmapped)
+int RetrieveMappedKey(int orgkey,int k,int channel,MappedKey **p_currmapped,long maxmapped)
 {
 long imap;
 int key;
@@ -2755,7 +2755,7 @@ return(orgkey);
 }
 
 
-MapThisKey(int key,float howmuch,char mapmode,KeyNumberMap *p_map0,KeyNumberMap *p_map1)
+int MapThisKey(int key,float howmuch,char mapmode,KeyNumberMap *p_map0,KeyNumberMap *p_map1)
 {
 KeyNumberMap map;	/* Fixed 24/2/99 - was 'p_map' */
 	
@@ -2769,7 +2769,7 @@ return(KeyImage(key,&map));
 }
 
 
-KeyImage(int key,KeyNumberMap *p_map)
+int KeyImage(int key,KeyNumberMap *p_map)
 {
 int c;
 

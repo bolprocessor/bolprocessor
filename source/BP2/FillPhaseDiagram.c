@@ -1215,9 +1215,7 @@ NEWSEQUENCE:
 			if(trace_scale) BPPrintMessage(odInfo,"FillPhaseDiagram() _scale() value = %ld\n",(long)value);
 			if(currentparameters.scale > -1)
 				newkeyval = (p - currentparameters.scale) / MAXSTRINGCONSTANTS;
-			else {
-				newkeyval = BlockScaleOnKey;
-				}
+			else newkeyval = BlockScaleOnKey;
 			if(trace_scale) BPPrintMessage(odInfo,"newkeyval = %ld currentparameters.scale = %d\n",(long)newkeyval,currentparameters.scale);
 			if(newkeyval < 0 || newkeyval > 127) {
 				if(Beta) Println(wTrace,"Err. FillPhaseDiagram(). newblockkey < 0 || newblockkey > 127");
@@ -1225,9 +1223,9 @@ NEWSEQUENCE:
 				}
 			else if(currentparameters.scale > -1) {
 				newval = (*p_NumberConstant)[newkeyval];
-				if(newval < 0 || newval > 127) {
+				if(newval < 0 || newval > 127) {	 
 					newval = BlockScaleOnKey;
-					BPPrintMessage(odError,"\nError on block key in \"_scale()\" statement. It should be in range [0..127]. We will use its default value: %d\n",BlockScaleOnKey);
+					BPPrintMessage(odError,"\nError on block key in \"_scale()\" statement. It should be in range [0..127], or a note in your convention. Its default value will be used: %d\n",BlockScaleOnKey);
 					}
 				if(trace_scale) BPPrintMessage(odInfo,"blockkey = %ld\n",(long)newval);
 				currentparameters.blockkey = newval;

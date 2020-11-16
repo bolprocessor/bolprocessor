@@ -2149,9 +2149,9 @@ if(j < maxparam) {
 	if(trace_FixNumberConstant) BPPrintMessage(odInfo,"FixNumberConstant() line = %s j = %d, x = %.3f\n",line,j,x);
 	return(j);
 	}
-if(j >= 256) {
+if(j >= MAXSTRINGCONSTANTS) {
 	sprintf(Message,
-		"Too many numeric constants found (max 256)\nCan't store '%s'\n",line);
+		"Too many numeric constants found (max %ld)\nCan't store '%s'\n",(long)MAXSTRINGCONSTANTS,line);
 	Alert1(Message);
 	return(ABORT);
 	}

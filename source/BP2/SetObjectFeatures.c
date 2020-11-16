@@ -613,22 +613,6 @@ ENOUGH:
 			if(index != FindParameterIndex(p_contparameters,levelorg,paramnameindex))
 				continue;
 			}
-			
-	/*	if(m == T44) { 	// _scale() 
-			scale = p % MAXSTRINGCONSTANTS;
-			if(trace_scale) BPPrintMessage(odInfo,"SetVariation() _scale() scale = %d\n",scale);
-			newkeyval = (p - scale) / MAXSTRINGCONSTANTS;
-			if(trace_scale) BPPrintMessage(odInfo,"SetVariation() _scale() newkeyval = %d\n",newkeyval);
-			newval = (*p_NumberConstant)[newkeyval];
-			sprintf(Message,"%d",(int)newval);
-			if((blockkey=FixNumberConstant(Message)) < 0) {
-				result = ABORT;
-				break;
-				}
-			if(trace_scale) BPPrintMessage(odInfo,"SetVariation() _scale() blockkey = %d\n",blockkey);
-			continue;
-			} */
-			
 		v = FindValue(m,p,chan);
 		if(v == Infpos) {
 			if(Beta) Alert1("Error in SetVariation(). v = Infpos");

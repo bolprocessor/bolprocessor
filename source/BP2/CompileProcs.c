@@ -695,9 +695,9 @@ return(jproc);
 int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long *p_v,
 	KeyNumberMap *p_map) 
 {
-int i,im,j,jinstr,p,length,chan,foundk,cntl,result,i_scale;
+int i,im,j,jinstr,p,length,chan,foundk,cntl,result,i_scale,key,l;
 long k,initparam;
-char c,d,*ptr,*ptr2,*q,line[MAXLIN];
+char c,d,*ptr,*ptr2,*p_line,*q,line[MAXLIN];
 double x;
 
 jinstr = -1; im = 0;
@@ -1367,11 +1367,24 @@ if(c != ')') {
 	Print(wTrace,"Missing ')' in '_value()'\n");
 	return(ABORT);
 	}
-
 if(trace_scale) BPPrintMessage(odInfo,"GET2CONSTANTS line = %s\n",line);
+
+Strip(line);
+if(isalpha(line[0])) {
+	// Try to interpret non-numeric value as a note. Used mainly for blockkey in _scale()
+//	BPPrintMessage(odInfo,"Found non-numeric value: %s NoteConvention = %d\n",line,NoteConvention);
+	p_line = line;
+	for(key = 0; key < 128; key++) {
+		l = (*(p_NoteLength[NoteConvention]))[key];
+		if(Match(TRUE,&p_line,(*(p_NoteName[NoteConvention]))[key],l)
+		&& !isdigit(line[l])) {
+			sprintf(line,"%d",key);
+			break;
+			}
+		}
+	}
 if((p=FixNumberConstant(line)) < 0) return(p);
 
-// *p_n = 256 * p + k;
 *p_n = MAXSTRINGCONSTANTS * p + k;
 ptr++;
 *pp = ptr;
