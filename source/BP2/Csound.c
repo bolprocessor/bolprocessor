@@ -2366,7 +2366,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names) {
 
 
 double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
-	int octave, pitchclass, block_pitch_class, numgrades;
+	int octave, pitchclass, block_pitch_class, numgrades, A4pitchclass, A4octave;
 	double pitch_ratio, A4_pitch_ratio, block_correction, interval, x;
 	
 	if(i_scale > NumberScales) { 
@@ -2377,17 +2377,21 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 		BPPrintMessage(odError,"\nKey #%d is out of range [0..127]. No Csound score produced\n\n",key);
 		return(Infpos);
 		}
-	numgrades = (*Scale)[NumberScales].numgrades; // Most likely 12
-	interval = (*Scale)[NumberScales].interval; // Most likely 2
-	pitchclass = (key % numgrades) - ((*Scale)[i_scale].basekey % numgrades);
-	octave = floor(((double)(key - (*Scale)[i_scale].basekey)) / numgrades);
+	numgrades = (*Scale)[i_scale].numgrades; // Most likely 12
+	interval = (*Scale)[i_scale].interval; // Most likely 2
+	
+	pitchclass = (key % numgrades);
+	octave = floor((double)key / numgrades);
+	A4pitchclass = (69 % numgrades);
+	A4octave = floor(69.0 / numgrades);
+	
 	pitch_ratio = (*((*Scale)[i_scale].tuningratio))[pitchclass];
-	A4_pitch_ratio = (*((*Scale)[i_scale].tuningratio))[9];
+	A4_pitch_ratio = (*((*Scale)[i_scale].tuningratio))[A4pitchclass];
 	if(blockkey == 0) blockkey = BlockScaleOnKey;
 	block_pitch_class = blockkey % numgrades;
-	block_correction = (*((*Scale)[i_scale].tuningratio))[block_pitch_class] / A4_pitch_ratio / exp((double)(block_pitch_class - 9) / numgrades * log(interval));
-	x = A4freq * pitch_ratio / A4_pitch_ratio / block_correction * exp((double)octave * log(interval));
-	x = x * exp((cents / 1200.) * log((*Scale)[NumberScales].interval)); 
-	if(trace_scale) BPPrintMessage(odInfo,"• GetPitchWithScale key = %d pitchclass = %d scale = %d pitch_ratio = %.3f A4_pitch_ratio = %.3f blockkey = %d block_pitch_class = %d block_correction = %.3f octave = %d freq = %.3f\n",key,pitchclass,i_scale,pitch_ratio,A4_pitch_ratio,blockkey,block_pitch_class,block_correction,octave,x);
+	block_correction = (*((*Scale)[i_scale].tuningratio))[block_pitch_class] / A4_pitch_ratio / exp((double)(block_pitch_class - A4pitchclass) / numgrades * log(interval));
+	x = A4freq * pitch_ratio / A4_pitch_ratio / block_correction * exp(((double)octave - A4octave) * log(interval));
+	x = x * exp((cents / 1200.) * log(interval)); 
+	if(trace_scale) BPPrintMessage(odInfo,"• GetPitchWithScale key = %d A4pitchclass = %d basekey = %d numgrades = %d interval = %.3f pitchclass = %d scale = %d pitch_ratio = %.3f A4_pitch_ratio = %.3f blockkey = %d block_pitch_class = %d block_correction = %.3f octave = %d freq = %.3f\n",key,A4pitchclass,(*Scale)[i_scale].basekey,numgrades,interval,pitchclass,i_scale,pitch_ratio,A4_pitch_ratio,blockkey,block_pitch_class,block_correction,octave,x);
 	return x;
 	}
