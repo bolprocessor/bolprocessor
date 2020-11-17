@@ -2366,8 +2366,8 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names) {
 
 
 double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
-	int octave, pitchclass, block_pitch_class, numgrades, A4pitchclass, A4octave;
-	double pitch_ratio, A4_pitch_ratio, block_correction, interval, x;
+	int octave, pitchclass, blockkey_pitch_class, numgrades, A4_pitchclass, A4_octave, basekey, delta_key;
+	double pitch_ratio, A4_pitch_ratio, A4_tempered_pitch_ratio, basekey_pitch_ratio, blockkey_pitch_ratio, blockkey_tempered_pitch_ratio, blockkey_correction, interval, x;
 	
 	if(i_scale > NumberScales) { 
 		BPPrintMessage(odError,"\nScale number %d is out of range (maximum %d). No Csound score produced\n\n",i_scale,NumberScales);
@@ -2377,21 +2377,41 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 		BPPrintMessage(odError,"\nKey #%d is out of range [0..127]. No Csound score produced\n\n",key);
 		return(Infpos);
 		}
-	numgrades = (*Scale)[i_scale].numgrades; // Most likely 12
-	interval = (*Scale)[i_scale].interval; // Most likely 2
+	numgrades = (*Scale)[i_scale].numgrades; // Most often 12
+	interval = (*Scale)[i_scale].interval; // Most often 2
+	basekey = (*Scale)[i_scale].basekey; // Starting point of scale ratios  (most often 60)
 	
-	pitchclass = (key % numgrades);
-	octave = floor((double)key / numgrades);
-	A4pitchclass = (69 % numgrades);
-	A4octave = floor(69.0 / numgrades);
+	delta_key =  C4key - basekey; // C4key is in settings (60 by default)
+	
+	A4_pitchclass = modulo(C4key + 9, numgrades);
+	A4_octave = (C4key + 9 - A4_pitchclass) / numgrades;
+	
+	pitchclass = modulo(key + delta_key, numgrades);
+	octave = (key + delta_key - pitchclass) / numgrades;
+	
+	if(blockkey == 0) blockkey = BlockScaleOnKey;
+	blockkey_pitch_class = modulo(blockkey + delta_key, numgrades);
 	
 	pitch_ratio = (*((*Scale)[i_scale].tuningratio))[pitchclass];
-	A4_pitch_ratio = (*((*Scale)[i_scale].tuningratio))[A4pitchclass];
-	if(blockkey == 0) blockkey = BlockScaleOnKey;
-	block_pitch_class = blockkey % numgrades;
-	block_correction = (*((*Scale)[i_scale].tuningratio))[block_pitch_class] / A4_pitch_ratio / exp((double)(block_pitch_class - A4pitchclass) / numgrades * log(interval));
-	x = A4freq * pitch_ratio / A4_pitch_ratio / block_correction * exp(((double)octave - A4octave) * log(interval));
-	x = x * exp((cents / 1200.) * log(interval)); 
-	if(trace_scale) BPPrintMessage(odInfo,"• GetPitchWithScale key = %d A4pitchclass = %d basekey = %d numgrades = %d interval = %.3f pitchclass = %d scale = %d pitch_ratio = %.3f A4_pitch_ratio = %.3f blockkey = %d block_pitch_class = %d block_correction = %.3f octave = %d freq = %.3f\n",key,A4pitchclass,(*Scale)[i_scale].basekey,numgrades,interval,pitchclass,i_scale,pitch_ratio,A4_pitch_ratio,blockkey,block_pitch_class,block_correction,octave,x);
+	A4_pitch_ratio = (*((*Scale)[i_scale].tuningratio))[A4_pitchclass];
+	blockkey_pitch_ratio = (*((*Scale)[i_scale].tuningratio))[blockkey_pitch_class];
+	
+	blockkey_tempered_pitch_ratio = exp(((double)blockkey_pitch_class / numgrades) * log(interval));
+	A4_tempered_pitch_ratio = exp(((double)A4_pitchclass / numgrades) * log(interval));
+	
+	blockkey_correction = (blockkey_tempered_pitch_ratio / blockkey_pitch_ratio) / (A4_tempered_pitch_ratio / A4_pitch_ratio);
+	
+	x = A4freq / A4_pitch_ratio * pitch_ratio;
+	x = x * blockkey_correction;
+	x = x * exp((octave - A4_octave) * log(interval));
+	x = x * exp((cents / 1200.) * log(interval));
+	
+	if(trace_scale) BPPrintMessage(odInfo,"• GetPitchWithScale key = %d delta_key = %d A4_pitchclass = %d basekey = %d numgrades = %d interval = %.3f pitchclass = %d scale = %d pitch_ratio = %.3f A4_pitch_ratio = %.3f A4_tempered_pitch_ratio = %.3f blockkey = %d blockkey_pitch_class = %d blockkey_pitch_ratio = %.3f blockkey_tempered_pitch_ratio = %.3f blockkey_correction = %.3f octave = %d freq = %.3f\n",key,delta_key,A4_pitchclass,(*Scale)[i_scale].basekey,numgrades,interval,pitchclass,i_scale,pitch_ratio,A4_pitch_ratio,A4_tempered_pitch_ratio,blockkey,blockkey_pitch_class,blockkey_pitch_ratio,blockkey_tempered_pitch_ratio,blockkey_correction,octave,x);
 	return x;
+	}
+
+int modulo(int a, int b) {
+	int result;
+	result = (((a % b) + b) % b);
+	return(result);
 	}

@@ -1124,7 +1124,7 @@ void CreateDoneFile(void);
 
 int CreateMicrotonalScale(char*, char*, char*);
 double GetPitchWithScale(int, int, double, int);
-
+int modulo(int, int);
 
 #if !TARGET_API_MAC_CARBON
 /* Provide backwards compatibility for System 7 in the non-Carbon build by

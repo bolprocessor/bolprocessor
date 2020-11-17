@@ -1339,6 +1339,7 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 			continue;
 			}
 		if((*p_line)[0] == '<') continue; // Ignore comments
+		if((*p_line)[0] == '[') continue; // Ignore ratios
 		if((*p_line)[0] == '/') { // This line contains note names for this scale
 			MystrcpyHandleToString((strlen(*p_line) - 1),1,note_names,p_line);
 			continue;
