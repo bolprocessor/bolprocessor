@@ -2381,7 +2381,7 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 	interval = (*Scale)[i_scale].interval; // Most often 2
 	basekey = (*Scale)[i_scale].basekey; // Starting point of scale ratios  (most often 60)
 	
-	delta_key =  C4key - basekey; // C4key is in settings (60 by default)
+	delta_key =  modulo(C4key - basekey, numgrades); // C4key is in settings (60 by default)
 	
 	A4_pitchclass = modulo(C4key + 9, numgrades);
 	A4_octave = (C4key + 9 - A4_pitchclass) / numgrades;
@@ -2410,8 +2410,3 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 	return x;
 	}
 
-int modulo(int a, int b) {
-	int result;
-	result = (((a % b) + b) % b);
-	return(result);
-	}

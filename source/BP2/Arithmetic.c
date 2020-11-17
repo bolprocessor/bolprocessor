@@ -467,10 +467,11 @@ else {
 	if(fract > -0.5) return(ip);
 	else return(ip - 1.);
 	}
-
-/*
-x1 = floor(x);
-x2 = ceil(x);
-if((x - x1) > (x2 - x)) return(x2);
-else return(x1); */
 }
+
+int modulo(int a, int b) { // Fixes problem of modulo on negative numbers
+	// See https://torstencurdt.com/tech/posts/modulo-of-negative-numbers/
+	int result;
+	result = (((a % b) + b) % b);
+	return(result);
+	}

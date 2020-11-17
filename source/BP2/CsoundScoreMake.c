@@ -700,7 +700,7 @@ sprintf(line2,"iarg = 1 line = %s\n",line);
 if(show_messages_cs_scoremake) BPPrintMessage(odInfo,line2);
 
 for(iarg=2; iarg <= iargmax; iarg++) {
-	if(iarg != ipitch) {
+	if(iarg != ipitch || pitch_format == IGNORE || pitch_format == CPS) {
 		if(fabs((*scorearg)[iarg]) < 0.0001) (*scorearg)[iarg] = 0.;
 		sprintf(line,"%.3f ",(*scorearg)[iarg]);
 		}
