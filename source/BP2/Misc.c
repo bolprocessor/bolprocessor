@@ -206,7 +206,7 @@ ShowSelect(CENTRE,wHelp);
 BPActivateWindow(QUICK,wHelp);
 BringToFront(Window[wHelp]);
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err DisplayHelp(). saveport == NULL");
+else if(Beta) Alert1("=> Err DisplayHelp(). saveport == NULL");
 return(OK);
 }
 
@@ -769,7 +769,7 @@ char line[MAXFIELDCONTENT];
 int vel,ch,key;
 
 if(iTick < 0 || jTick < 0) {
-	if(Beta) Alert1("Err. SetThisTick()");
+	if(Beta) Alert1("=> Err. SetThisTick()");
 	return(FAILED);
 	}
 if(ThisTick[iTick][jTick] % 2L) {
@@ -818,15 +818,15 @@ long pos,posmax;
 char *p,*q,line[MAXLIN];
 
 if (filename == NULL) {
-	if(Beta) Alert1("Err. GetLinkedFileName(). filename == NULL.");
+	if(Beta) Alert1("=> Err. GetLinkedFileName(). filename == NULL.");
 	return(FAILED);
 	}
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. GetLinkedFileName(). Bad window index.");
+	if(Beta) Alert1("=> Err. GetLinkedFileName(). Bad window index.");
 	return(FAILED);
 	}
 if(doc < 0 || doc >= WMAX || FilePrefix[doc][0] == '\0') {
-	if(Beta) Alert1("Err. GetLinkedFileName(). Bad document index.");
+	if(Beta) Alert1("=> Err. GetLinkedFileName(). Bad document index.");
 	return(FAILED);
 	}
 pos = ZERO;
@@ -966,7 +966,7 @@ short refnum;
 char name[MAXNAME];
 
 if(wfile < 0 || wfile >= WMAX) {
-	if(Beta) Alert1("Err. GetFileNameAndLoadIt().(wfile < 0 || wfile >= WMAX");
+	if(Beta) Alert1("=> Err. GetFileNameAndLoadIt().(wfile < 0 || wfile >= WMAX");
 	return(FAILED);
 	}
 
@@ -2024,12 +2024,12 @@ time(&curtime);
 loctime = localtime(&curtime);
 // format the date
 if (strftime(dd, MAXNAME, "%a, %b %d, %Y", loctime) == 0) {
-	if (Beta) Alert1("Err. Date(): strftime() results were too long for dd.");
+	if (Beta) Alert1("=> Err. Date(): strftime() results were too long for dd.");
 	dd[0] = '\0';
 	}
 // format the time
 if (strftime(tt, MAXNAME, "%I:%M %p", loctime) == 0) {
-	if (Beta) Alert1("Err. Date(): strftime() results were too long for tt.");
+	if (Beta) Alert1("=> Err. Date(): strftime() results were too long for tt.");
 	tt[0] = '\0';
 	}
 #endif
@@ -2211,7 +2211,7 @@ for(i=0; ((m=(**pp_X)[i]) != TEND) || ((**pp_X)[i+1] != TEND); i+=2) {
 	if(m != T4) continue;
 	p = (**pp_X)[i+1];
 	if(p > Jvar || p_VarStatus == NULL) {
-		if(Beta) Alert1("Err. NeedGlossary(). p > Jvar || p_VarStatus == NULL");
+		if(Beta) Alert1("=> Err. NeedGlossary(). p > Jvar || p_VarStatus == NULL");
 		return(NO);
 		}
 	if((*p_VarStatus)[p] & 4) return(YES);
@@ -2354,7 +2354,7 @@ double value;
 m = (*p_a)[i+3L];
 p = (*p_a)[i+5L];
 if(m < 0 || p < 0) {
-	if(Beta) Alert1("Err. GetScalingValue(). m < 0 || p < 0");
+	if(Beta) Alert1("=> Err. GetScalingValue(). m < 0 || p < 0");
 	return(1.);
 	}
 value = ((double)TOKBASE * m) + p;

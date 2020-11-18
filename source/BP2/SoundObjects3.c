@@ -47,7 +47,7 @@ Handle ptr;
 int i;
 
 if(j < 2 || j >= Jbol) {
-   if(Beta) Alert1("Err. ResetPrototype()");
+   if(Beta) Alert1("=> Err. ResetPrototype()");
    return(FAILED);
    }
 (*p_Type)[j] = 0;
@@ -435,7 +435,7 @@ else  {
 	}
    
 if((*p_Resolution)[j] <= ZERO) {
-   if(show_inconsistencies) BPPrintMessage(odInfo,"Err. CheckConsistency(). (*p_Resolution)[j] <= ZERO\n");
+   if(show_inconsistencies) BPPrintMessage(odInfo,"=> Err. CheckConsistency(). (*p_Resolution)[j] <= ZERO\n");
    return(FAILED);
    }
 if((*p_FixScale)[j]) {
@@ -758,7 +758,7 @@ if((*p_MIDIsize)[i] > 0) {
 	ptr1 = (Handle)(*pp_MIDIcode)[j];
 	ptr2 = (Handle)(*pp_MIDIcode)[i];
 	if(ptr2 == NULL) {
-		if(Beta) Alert1("Err. CopyPage5(). ptr2 = NULL (1)");
+		if(Beta) Alert1("=> Err. CopyPage5(). ptr2 = NULL (1)");
 		return(ABORT);
 		}
 	MySetHandleSize(&ptr1,MyGetHandleSize(ptr2));

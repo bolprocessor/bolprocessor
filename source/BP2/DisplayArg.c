@@ -346,7 +346,7 @@ if(th != NULL) {
 	CheckTextSize(wind);
 #if BP_CARBON_GUI
 	if(saveport != NULL) SetPort(saveport);
-	else if(Beta) Alert1("Err PrintArg(). saveport == NULL");
+	else if(Beta) Alert1("=> Err PrintArg(). saveport == NULL");
 #endif /* BP_CARBON_GUI */
 	}
 return(r);
@@ -723,7 +723,7 @@ TERMINAL:
 			h = homoname[n];
 			if(h >= Jhomo) {
 				if(Beta) {
-					Alert1("Err. PrintArgSub(). h >= Jhomo");
+					Alert1("=> Err. PrintArgSub(). h >= Jhomo");
 					r = ABORT; goto OUT;
 					}
 				}
@@ -973,7 +973,7 @@ PRINTPROLONGATIONS:
 			m = (**pp_a)[i];
 			p = (**pp_a)[i+1];
 			if(m != T43) {
-				if(Beta) Alert1("Err. PrintArgSub().  Second T43 is missing");
+				if(Beta) Alert1("=> Err. PrintArgSub().  Second T43 is missing");
 				i -= 2L;
 				continue;
 				}
@@ -1039,7 +1039,7 @@ PRINTPROLONGATIONS:
 			p = (**pp_a)[i+1];
 			
 			if(m != T37) {
-				if(Beta) Alert1("Err. PrintArgSub().  Second T37 is missing");
+				if(Beta) Alert1("=> Err. PrintArgSub().  Second T37 is missing");
 				i -= 2L;
 				continue;
 				}
@@ -1130,7 +1130,7 @@ PRINTPROLONGATIONS:
 			Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			if(p_Script == NULL || p >= Jscriptline || p < 0) {
 				if(Beta)
-					Alert1("Err. PrintArgSub(). Event script line not found");
+					Alert1("=> Err. PrintArgSub(). Event script line not found");
 				r = ABORT; goto OUT;
 				}
 			sprintf(line,"%s",*((*p_Script)[p]));
@@ -1594,7 +1594,7 @@ PRINTPROLONGATIONS:
 					case T34:
 					case T36:
 						if(p_StringConstant == NULL) {
-							if(Beta) Alert1("Err PrintArgSub(). p_StringConstant == NULL");
+							if(Beta) Alert1("=> Err PrintArgSub(). p_StringConstant == NULL");
 							sprintf(line,"???");
 							}
 						else MystrcpyHandleToString(MAXLIN,0,line,(*p_StringConstant)[p]);
@@ -1602,7 +1602,7 @@ PRINTPROLONGATIONS:
 					case T35:
 						ii = p % 256;
 						if(p_StringConstant == NULL) {
-							if(Beta) Alert1("Err PrintArgSub(). p_StringConstant == NULL");
+							if(Beta) Alert1("=> Err PrintArgSub(). p_StringConstant == NULL");
 							sprintf(line,"???");
 							}
 						else MystrcpyHandleToString(MAXLIN,0,line,(*p_StringConstant)[ii]);
@@ -1634,7 +1634,7 @@ PRINTPROLONGATIONS:
 SHOWNUMBER:
 				ii = (p - (p % 256)) / 256;
 				if(p_NumberConstant == NULL) {
-					if(Beta) Alert1("Err PrintArgSub(). p_NumberConstant == NULL");
+					if(Beta) Alert1("=> Err PrintArgSub(). p_NumberConstant == NULL");
 					sprintf(line,"???");
 					}
 				else sprintf(line,"%.4f",(*p_NumberConstant)[ii]);
@@ -1741,7 +1741,7 @@ s[0] = c;
 s[1] = '\0';
 if(f == stdout) {
 	if(th == NULL) {
-		if(Beta) Alert1("Err. OutChar()");
+		if(Beta) Alert1("=> Err. OutChar()");
 		return(ABORT);
 		}
 	else /* DoKey(c,0,th); */ TextInsert(s,1L,th);
@@ -1849,7 +1849,7 @@ else {
 PRINT:
 	if(f == stdout) {
 		if(th == NULL) {
-			if(Beta) Alert1("Err. Display");
+			if(Beta) Alert1("=> Err. Display");
 			return(ABORT);
 			}
 		TextInsert(s,(long)strlen(s),th);

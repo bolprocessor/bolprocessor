@@ -91,7 +91,7 @@ char line[MAXLIN];
 
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err. PrintInteraction(). Incorrect window index");
+	if(Beta) Alert1("=> Err. PrintInteraction(). Incorrect window index");
 	return(FAILED);
 	}
 SetSelect(ZERO,GetTextLength(w),TEH[w]);

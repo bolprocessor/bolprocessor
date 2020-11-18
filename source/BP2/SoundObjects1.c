@@ -70,7 +70,7 @@ r = CompileCsoundObjects();
 
 OUT:
 // if(saveport != NULL) SetPort(saveport);
-// else if(Beta) Alert1("Err CheckLoadedPrototypes(). saveport == NULL");
+// else if(Beta) Alert1("=> Err CheckLoadedPrototypes(). saveport == NULL");
 return(r);
 }
 

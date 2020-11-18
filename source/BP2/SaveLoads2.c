@@ -323,7 +323,7 @@ WRITE:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,line);
-		sprintf(Message,"Error creating '%s'",line);
+		sprintf(Message,"=> Error creating '%s'",line);
 		Alert1(Message);
 		Created[iObjects] = FALSE;
 		}
@@ -500,7 +500,7 @@ if(ReadOne(FALSE,TRUE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) 
 	goto ERR;
 	}
 if(p_completeline == NULL) {
-	if(Beta) Alert1("Err. LoadObjectPrototypes(). p_completeline == NULL");
+	if(Beta) Alert1("=> Err. LoadObjectPrototypes(). p_completeline == NULL");
 	goto OUT;
 	}
 if(MyHandleLen(p_completeline) < 1) goto OUT;
@@ -530,7 +530,7 @@ if(iv > 4 && newbols) {
 	oldjbol = Jbol;
 	if((jj=CreateBol(FALSE,FALSE,p_completeline,FALSE,FALSE,BOL)) < 0) goto ERR;
 	if(jj >= Jbol) {
-		if(Beta) Alert1("Err. LoadObjectPrototypes(). jj >= Jbol");
+		if(Beta) Alert1("=> Err. LoadObjectPrototypes(). jj >= Jbol");
 		goto ERR;
 		}
 	if(Jbol > oldjbol) {
@@ -851,7 +851,7 @@ if(!diff && CheckConsistency(j,TRUE) != OK) goto ERR;
 if(iv > 9) {
 	if(ReadOne(FALSE,TRUE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 	if(p_completeline == NULL) {
-		if(Beta) Alert1("Err. LoadObjectPrototypes(). p_completeline == NULL");
+		if(Beta) Alert1("=> Err. LoadObjectPrototypes(). p_completeline == NULL");
 		goto ERR;
 		}
 	if(!diff) {
@@ -960,13 +960,13 @@ else {
 
 ERR:
 result = FAILED;
-Alert1("Error reading glossary file...");
+Alert1("=> Error reading glossary file...");
 ForgetFileName(wGlossary); /* 1/3/97 */
 
 QUIT:
 // MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 if(FSClose(refnum) != noErr) {
-	if(Beta) Alert1("Error closing glossary code file...");
+	if(Beta) Alert1("=> Error closing glossary code file...");
 	}
 HideWindow(Window[wMessage]);
 if(result == OK) {
@@ -1062,7 +1062,7 @@ else {
 	result = FAILED;
 	}
 if(FSClose(refnum) != noErr) {
-	if(Beta) Alert1("Error closing alphabet file...");
+	if(Beta) Alert1("=> Error closing alphabet file...");
 	}
 ShowSelect(CENTRE,wAlphabet);
 LoadOn--;

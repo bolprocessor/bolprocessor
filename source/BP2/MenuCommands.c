@@ -145,7 +145,7 @@ ConstStr255Param compilerstr;
 // set variable strings in the About box indicating compile-time features
 Message[0] = '\0';
 if (strlen(Carbon_Text) + strlen(SHORT_VERSION) + strlen(Beta_Text) > MAXLIN) {
-	if (Beta) Alert1("Err. mAbout(): version string too long for Message.");
+	if (Beta) Alert1("=> Err. mAbout(): version string too long for Message.");
 	}
 else {
 #if TARGET_API_MAC_CARBON
@@ -801,7 +801,7 @@ if(OldFile(wGrammar,5,fn,&spec)) {
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"Error opening %s",LineBuff);
+		sprintf(Message,"=> Error opening %s",LineBuff);
 		ShowMessage(TRUE,wMessage,Message);
 		TellError(7,io);
 		}
@@ -924,7 +924,7 @@ unsigned long drivertime;
 
 if(CheckEmergency() != OK) return(FAILED);
 if(!IsMidiDriverOn()) {
-	if(Beta) Alert1("Err. mSendMIDI(). Driver is OFF");
+	if(Beta) Alert1("=> Err. mSendMIDI(). Driver is OFF");
 	return(ABORT);
 	}
 
@@ -1284,7 +1284,7 @@ if(OldFile(w,type,fn,&spec)) {
 				result = FAILED;
 				}
 			if(FSClose(refnum) != noErr) {
-				if(Beta) Alert1("Error closing file...");
+				if(Beta) Alert1("=> Error closing file...");
 				}
 			if(result == OK) {
 				if(Editable[w]) SetSelect(ZERO,ZERO,TEH[w]);

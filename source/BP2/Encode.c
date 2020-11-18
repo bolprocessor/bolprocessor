@@ -346,7 +346,7 @@ NOTSCALE:
 			}
 		if(!notargument && j >= 0) {
 			if(igram < 1 || Gram.p_subgram == NULL || igram > Gram.number_gram) {
-				if(Beta) Alert1("Err. Encode(). igram < 1 || Gram.p_subgram == NULL || igram > Gram.number_gram");
+				if(Beta) Alert1("=> Err. Encode(). igram < 1 || Gram.p_subgram == NULL || igram > Gram.number_gram");
 				goto ERR;
 				}
 			if((ii=(*(Gram.p_subgram))[igram].type) == SUBtype || ii == SUB1type || ii == POSLONGtype) {
@@ -687,7 +687,7 @@ FOUNDNOTE1:
 			goto ERR;
 			}
 		if(jj >= Jbol) {
-			if(Beta) Alert1("Err. Encode(). jj >= Jbol");
+			if(Beta) Alert1("=> Err. Encode(). jj >= Jbol");
 			
 			goto ERR;
 			}
@@ -720,7 +720,7 @@ SEARCHCONTEXT:
 				if(GetContext(igram,irul,pp,pp2,
 					p_pleftcontext,p_meta) == FAILED) {
 					sprintf(Message,
-						"Error in left context!\n");
+						"=> Error in left context!\n");
 					Print(wTrace,Message);
 					goto ERR;
 					}
@@ -731,7 +731,7 @@ SEARCHCONTEXT:
 				if(GetContext(igram,irul,
 					pp,pp2,p_prightcontext,p_meta) == FAILED) {
 					sprintf(Message,
-						"Error in right context!\n");
+						"=> Error in right context!\n");
 					Print(wTrace,Message);
 					goto ERR;
 					}
@@ -833,7 +833,7 @@ SEARCHTERMINAL2:
 			q = *pp;
 			l = MyHandleLen((*p_Bol)[j]);
 			if(l == 0) {
-				if(Beta) Alert1("Err. Encode(). l == 0");
+				if(Beta) Alert1("=> Err. Encode(). l == 0");
 				break;
 				}
 			if(Match(TRUE,&q,(*p_Bol)[j],l) && l > lmax) {
@@ -861,7 +861,7 @@ SEARCHTIMEPATTERN:
 		q = *pp;
 		l = MyHandleLen((*p_Patt)[j]);
 		if(l == 0) {
-			if(Beta) Alert1("Err. Encode(). l == 0 in SEARCHTIMEPATTERN");
+			if(Beta) Alert1("=> Err. Encode(). l == 0 in SEARCHTIMEPATTERN");
 			break;
 			}
 		if(Match(TRUE,&q,(*p_Patt)[j],l) && l > lmax) {
@@ -887,7 +887,7 @@ SEARCHHOMO:
 	for(j=0; j < Jhomo; j++) {
 		q = *pp; l = MyHandleLen((*p_Homo)[j]);
 		if(l == 0) {
-			if(Beta) Alert1("Err. Encode(). l == 0 in SEARCHHOMO");
+			if(Beta) Alert1("=> Err. Encode(). l == 0 in SEARCHHOMO");
 			break;
 			}
 		r = *((*p_Homo)[j]);
@@ -971,7 +971,7 @@ OKCODE:
 			goto ERR;
 			}
 		if(jj >= Jbol) {
-			if(Beta) Alert1("Err. Encode(). (2) jj >= Jbol");
+			if(Beta) Alert1("=> Err. Encode(). (2) jj >= Jbol");
 			goto ERR;
 			}
 		for(ii=0; ii < Jhomo; ii++) (*((*p_Image)[ii]))[jj] = (tokenbyte) jj;
@@ -1138,7 +1138,7 @@ if(p_Var != NULL && Jvar > 0) {
 	for(j=1; j <= Jvar; j++) { 
 		l = MyHandleLen((*p_Var)[j]);
 		if(l == 0) {
-			if(Beta) Alert1("Err. GetVar(). l == 0");
+			if(Beta) Alert1("=> Err. GetVar(). l == 0");
 			break;
 			}
 		q = *pp;
@@ -1235,7 +1235,7 @@ for(i=0; (*pp) <= (*ppmax)+1; (*pp)++,i++) {
 			}
 	if(MaxVar > 0) (*((*p_Var)[Jvar]))[i] = c;
 	}
-if(Beta) Alert1("Err2. GetVar()");
+if(Beta) Alert1("=> Err2. GetVar()");
 return(ABORT);
 }
 
@@ -1387,7 +1387,7 @@ int nhomo,homoname[MAXLEVEL],depth[MAXLEVEL];
 /* First pick-up ref numbers in master table */
 
 if(*pp_buff == NULL) {
-	if(Beta) Alert1("Err. BindSlaves(). *pp_buff = NULL");
+	if(Beta) Alert1("=> Err. BindSlaves(). *pp_buff = NULL");
 	return(ABORT);
 	}
 if((p_a=(tokenbyte**) GiveSpace((Size) MyGetHandleSize((Handle)*pp_buff))) == NULL)
@@ -1501,7 +1501,7 @@ TERMINAL:
 				if(depth[n] < levpar) {
 					h = homoname[n];
 					if(h >= Jhomo) {
-						if(Beta) Alert1("Err. Reference(). h >= Jhomo");
+						if(Beta) Alert1("=> Err. Reference(). h >= Jhomo");
 						return(-1);
 						}
 					q2 = Image(h,q2);
@@ -1528,14 +1528,14 @@ tokenbyte jj;
 if(j >= 16384) {
 	jj = j - 16384;
 	if(jj > 127) {
-		if(Beta) Alert1("Err. Image(). jj > 127");
+		if(Beta) Alert1("=> Err. Image(). jj > 127");
 		return(j);
 		}
 	jj = (*((*p_NoteImage)[h]))[jj];
 	}
 else {
 	if(j < 0 || j >= Jbol) {
-		if(Beta) Alert1("Err. Image(). j < 0 || j >= Jbol");
+		if(Beta) Alert1("=> Err. Image(). j < 0 || j >= Jbol");
 		return(j);
 		}
 	jj = (*((*p_Image)[h]))[j];

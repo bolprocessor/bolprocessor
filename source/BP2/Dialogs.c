@@ -205,7 +205,7 @@ if((p_event->modifiers & optionKey) != 0) {
 	}
 if(w == wTickDialog) {
 	if(iTick < 0 || jTick < 0) {
-		if(Beta) Alert1("Err. DoDialog(). iTick < 0 || jTick < 0");
+		if(Beta) Alert1("=> Err. DoDialog(). iTick < 0 || jTick < 0");
 		return(ABORT);
 		}
 	switch(itemHit) {

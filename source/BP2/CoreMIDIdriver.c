@@ -298,7 +298,7 @@ OSStatus InitCoreMidiDriver()
 				return err;
 			}
 		}
-		else ShowMessage(TRUE, wMessage, "Error: Could not create a MIDI output port.");
+		else ShowMessage(TRUE, wMessage, "=> Error: Could not create a MIDI output port.");
 		
 		// create queue before trying to make CoreMIDI input port
 		if (CMCreateAndInitQueue() == noErr) {
@@ -318,13 +318,13 @@ OSStatus InitCoreMidiDriver()
 					return err;
 				}
 			}
-			else ShowMessage(TRUE, wMessage, "Error: Could not create a MIDI input port.");
+			else ShowMessage(TRUE, wMessage, "=> Error: Could not create a MIDI input port.");
 			
 			/*if (err != noErr) CMDestroyQueue();*/
 		}		
 	}
 	else {
-		ShowMessage(TRUE, wMessage, "Error: Could not sign into CoreMIDI.");
+		ShowMessage(TRUE, wMessage, "=> Error: Could not sign into CoreMIDI.");
 		return err;
 	}
 	
@@ -389,7 +389,7 @@ static OSStatus CMConnectToSources(MIDIEndpointRef* endpoints, Boolean tellConne
 				sprintf(Message, "Receiving Midi from source: %s.", name);
 				ShowMessage(TRUE, wMessage, Message);
 			}
-			else ShowMessage(TRUE, wMessage, "Error: Could not connect to a selected MIDI input source.");
+			else ShowMessage(TRUE, wMessage, "=> Error: Could not connect to a selected MIDI input source.");
 		}
 		if (err == noErr)  CoreMidiInputOn = true;
 		else  anyerr = err;
@@ -519,7 +519,7 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 	
 	err = noErr;
 	/*if(!CoreMidiOutputOn && OutMIDI) {
-		if(Beta) Println(wTrace,"Err. DriverWrite(). Driver output is OFF");
+		if(Beta) Println(wTrace,"=> Err. DriverWrite(). Driver output is OFF");
 		return(noErr);
 	}*/
 	if(EmergencyExit || Panic || InitOn) return(noErr);
@@ -547,7 +547,7 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 
 		if(time < ZERO) {
 			if(Beta) {
-				sprintf(Message,"Err. DriverWrite(). time  = %ld",(long)time);
+				sprintf(Message,"=> Err. DriverWrite(). time  = %ld",(long)time);
 				Println(wTrace,Message);
 			}
 			time = ZERO;
@@ -584,7 +584,7 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 				++Nbytes;
 			}
 		}
-		else if (Beta) Alert1("Err. DriverWrite(). MIDIPacketListAdd() failed");
+		else if (Beta) Alert1("=> Err. DriverWrite(). MIDIPacketListAdd() failed");
 	}
 	
 	return(err);
@@ -599,7 +599,7 @@ int FlushDriver(void)
 	Nbytes = Tbytes2 = ZERO;
 
 	if(!IsMidiDriverOn()) {
-		if(Beta) Alert1("Err. FlushDriver(). Driver is OFF");
+		if(Beta) Alert1("=> Err. FlushDriver(). Driver is OFF");
 		return(ABORT);
 	}
 	/* flush output */
@@ -650,7 +650,7 @@ int ResetMIDI(int wait)
 	if(!OutMIDI || (AEventOn && !IsMidiDriverOn())) return(OK);
 
 	if(!IsMidiDriverOn()) {
-		if(Beta) Alert1("Err. ResetMIDI(). Driver is OFF");
+		if(Beta) Alert1("=> Err. ResetMIDI(). Driver is OFF");
 		return FAILED;
 	}
 	
@@ -995,7 +995,7 @@ static int UpdateListBoxEntries(CMListData** ldh, ItemCount (*countFunc)(void), 
 	CMListEntry* entry;
 	
 	if (ldh == NULL)  {
-		if(Beta) Alert1("Err. UpdateListBox(): ldh is NULL");
+		if(Beta) Alert1("=> Err. UpdateListBox(): ldh is NULL");
 		return (FAILED);
 	}
 	if ((result = MyLock(FALSE, (Handle)ldh)) != OK)  return result;
@@ -1056,7 +1056,7 @@ static int UpdateListBoxEntries(CMListData** ldh, ItemCount (*countFunc)(void), 
 				entry->endpoint = endpt;	// MIDIEndPointRef may have changed ?
 			}
 		}
-		else if (Beta) Alert1("Err. UpdateListBox():  getEndpointFunc() returned NULL.");
+		else if (Beta) Alert1("=> Err. UpdateListBox():  getEndpointFunc() returned NULL.");
 	}
 	
 	MyUnlock((Handle)ld->entries);
@@ -1100,7 +1100,7 @@ int GetListBoxSelection(CMListData** ldh)
 	Cell cellnum;
 	
 	if (ldh == NULL)  {
-		if(Beta) Alert1("Err. GetListBoxSelection(): ldh is NULL");
+		if(Beta) Alert1("=> Err. GetListBoxSelection(): ldh is NULL");
 		return (FAILED);
 	}
 	if ((result = MyLock(FALSE, (Handle)ldh)) != OK)  return result;
@@ -1134,7 +1134,7 @@ static int SetListBoxContentsAndSelection(CMListData** ldh)
 	Cell cellnum;
 
 	if (ldh == NULL)  {
-		if(Beta) Alert1("Err. SetListBoxContentsAndSelection(): ldh is NULL");
+		if(Beta) Alert1("=> Err. SetListBoxContentsAndSelection(): ldh is NULL");
 		return (FAILED);
 	}
 	if ((result = MyLock(FALSE, (Handle)ldh)) != OK)  return result;

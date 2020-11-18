@@ -61,7 +61,7 @@ if((Oms || !OutMIDI) && !Interactive && !ReadKeyBoardOn && !ScriptRecOn) return(
 
 if(!IsMidiDriverOn()) {
 	if(Beta) {
-		Alert1("Err. ListenMIDI(). Driver is OFF");
+		Alert1("=> Err. ListenMIDI(). Driver is OFF");
 		OutMIDI = Interactive = ReadKeyBoardOn = ScriptRecOn = FALSE;
 		SetButtons(TRUE);
 		}
@@ -539,7 +539,7 @@ int speed_change,i,j,r,c11;
 long count = 12L,oldn,dt;
 
 if(!IsMidiDriverOn()) {
-	if(Beta) Alert1("Err. Ctrl_adjust(). Driver is OFF");
+	if(Beta) Alert1("=> Err. Ctrl_adjust(). Driver is OFF");
 	return(ABORT);
 	}
 r = FAILED;
@@ -592,7 +592,7 @@ ChangeStatus(int c0,int c1,int c2)
 long newP,newQ;
 
 if(!IsMidiDriverOn()) {
-	if(Beta) Alert1("Err. ChangeStatus(). Driver is OFF");
+	if(Beta) Alert1("=> Err. ChangeStatus(). Driver is OFF");
 	return(ABORT);
 	}
 if(ResetWeightChan > 0 && c1 == ResetWeightKey
@@ -1349,7 +1349,7 @@ foundNoteOn = FALSE;
 
 NEXTBYTE:
 if(ii >= im2) {
-	if(Beta) Alert1("Err. FormatMIDIstream(). ii >= im2");
+	if(Beta) Alert1("=> Err. FormatMIDIstream(). ii >= im2");
 	return(FAILED);
 	}
 i++; if(i >= imax) goto QUIT;
@@ -1364,7 +1364,7 @@ if(b == SystemExclusive) {
 		(*p_c)[ii].byte = ByteToInt((*p_b)[i].byte);
 		(*p_c)[ii++].sequence = (*p_b)[i].sequence;
 		if(ii >= im2) {
-			if(Beta) Alert1("Err. FormatMIDIstream(). ii >= im2");
+			if(Beta) Alert1("=> Err. FormatMIDIstream(). ii >= im2");
 			return(FAILED);
 			} */
 		i++;
@@ -1388,13 +1388,13 @@ if(b < NoteOff || br == PitchBend || br == ProgramChange || br == ChannelPressur
 	this_byte = (*p_c)[ii].byte = br + rc;
 	(*p_c)[ii++].sequence = 0;
 	if(ii >= im2) {
-		if(Beta) Alert1("Err. FormatMIDIstream(). ii >= im2");
+		if(Beta) Alert1("=> Err. FormatMIDIstream(). ii >= im2");
 		return(FAILED);
 		}
 	value1 = (*p_c)[ii].byte = ByteToInt((*p_b)[i].byte);
 	(*p_c)[ii++].sequence = (*p_b)[i].sequence;
 	if(ii >= im2) {
-		if(Beta) Alert1("Err. FormatMIDIstream(). ii >= im2");
+		if(Beta) Alert1("=> Err. FormatMIDIstream(). ii >= im2");
 		return(FAILED);
 		}
 	if(br == ProgramChange || br == ChannelPressure) {
@@ -1833,11 +1833,11 @@ if(status != *p_rs || c0 == ChannelMode /* || c0 == ProgramChange */) {
 	/* Unexpectedly, D-50 seems to mess running status with ChannelMode */
 	*p_rs = status;
 	if(p_e->data1 > 127) {
-		if(Beta) Println(wTrace,"Err. SendToDriver(). p_e->data1 > 127.");
+		if(Beta) Println(wTrace,"=> Err. SendToDriver(). p_e->data1 > 127.");
 		p_e->data1 = 127;
 		}
 	if(p_e->data2 > 127) {
-		if(Beta) Println(wTrace,"Err. SendToDriver(). p_e->data2 > 127.");
+		if(Beta) Println(wTrace,"=> Err. SendToDriver(). p_e->data2 > 127.");
 		p_e->data2 = 127;
 		}
 	DriverWrite(time,nseq,p_e);
@@ -1852,11 +1852,11 @@ else {
 	/* Skip the status byte, send only data ("running status") */
 	/* This should probably only be used with direct Serial drivers */
 	if(p_e->data1 > 127) {
-		if(Beta) Println(wTrace,"Err. SendToDriver(). p_e->data1 > 127.");
+		if(Beta) Println(wTrace,"=> Err. SendToDriver(). p_e->data1 > 127.");
 		p_e->data1 = 127;
 		}
 	if(p_e->data2 > 127) {
-		if(Beta) Println(wTrace,"Err. SendToDriver(). p_e->data2 > 127.");
+		if(Beta) Println(wTrace,"=> Err. SendToDriver(). p_e->data2 > 127.");
 		p_e->data2 = 127;
 		}
 	c1 = ByteToInt(p_e->data1);
@@ -1882,7 +1882,7 @@ else {
 		midibyte = c2;
 		if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 		}
-	else if(Beta) Alert1("Err. SendToDriver(). c0 == ChannelPressure");
+	else if(Beta) Alert1("=> Err. SendToDriver(). c0 == ChannelPressure");
 	}
 OUT:
 return(OK);

@@ -488,7 +488,7 @@ int result;
 
 result = OK;
 if(!Oms || gInputMenu == NULL) {
-	if(Beta) Alert1("Err. InputMenuSideEffects(). !Oms || gInputMenu == NULL");
+	if(Beta) Alert1("=> Err. InputMenuSideEffects(). !Oms || gInputMenu == NULL");
 	return(OK);
 	}
 if(InitOn || LoadOn) return(OK);
@@ -509,7 +509,7 @@ OutputMenuSideEffects(void)
 OSErr err;
 
 if(!Oms || gOutputMenu == NULL) {
-	if(Beta) Alert1("Err. OutputMenuSideEffects(). !Oms || gOutputMenu == NULL");
+	if(Beta) Alert1("=> Err. OutputMenuSideEffects(). !Oms || gOutputMenu == NULL");
 	return(FAILED);
 	}
 ClearMessage();
@@ -517,7 +517,7 @@ gChosenOutputID = (*gOutputMenu)->select.uniqueID;
 gOutNodeRefNum = (*gOutputMenu)->selectedRefNum;
 MyPtoCstr(255,(*gOutputMenu)->selectedName,OMSoutputName);
 if(gOutNodeRefNum == OMSInvalidRefNum) {
-	if(Beta) Alert1("Err. OutputMenuSideEffects(). gOutNodeRefNum == OMSInvalidRefNum");
+	if(Beta) Alert1("=> Err. OutputMenuSideEffects(). gOutNodeRefNum == OMSInvalidRefNum");
 	return(FAILED);
 	}
 	
@@ -553,7 +553,7 @@ SetRect(&r,70,40,210,56);
 gOutputMenu = NewOMSDeviceMenu(NULL,odmFrameBox,&r,
 	omsIncludeOutputs + omsIncludeReal + omsIncludeVirtual,NULL);
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err SetOMSdriver(). saveport == NULL");
+else if(Beta) Alert1("=> Err SetOMSdriver(). saveport == NULL");
 if(gInputMenu == NULL || gOutputMenu == NULL) {
 	Alert1("Internal problem setting OMS input/output menus");
 	return(ABORT);
@@ -565,7 +565,7 @@ gOutNodeRefNum = OMSUniqueIDToRefNum(gChosenOutputID);
 if(gOutNodeRefNum == OMSInvalidRefNum) {
 	/* Select the first device available, if any */
 	if(nodelist == NULL) {
-		if(Beta) Alert1("Err SetOMSdriver(). Output 'nodelist' == NULL");
+		if(Beta) Alert1("=> Err SetOMSdriver(). Output 'nodelist' == NULL");
 		gChosenOutputID = 0;
 		}
 	else {

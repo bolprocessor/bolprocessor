@@ -909,7 +909,7 @@ for(w=0; w < MAXWIND; w++) {
 	GetWindowPortBounds(Window[w], &r);
 	Weird[w] = FALSE;
 	err = InvalWindowRect(Window[w], &r);
-	if (err != noErr) Alert1("Err MakeWindows().  InvalWindowRect returned non-zero.");
+	if (err != noErr) Alert1("=> Err MakeWindows().  InvalWindowRect returned non-zero.");
 	}
 
 GetWindowPortBounds(Window[wMessage], &r);
@@ -985,7 +985,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 		h_res = GetResource('STR#',id);
 		if((i=ResError()) != noErr) {
 			sprintf(Message,
-		"Error %ld loading resource string list for window %ld",(long)i,(long)w);
+		"=> Error %ld loading resource string list for window %ld",(long)i,(long)w);
 			EmergencyExit = TRUE;
 			ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 			NoteAlert(OKAlert,0L);
@@ -994,7 +994,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 		im = **((short**)h_res); // (*h_res)[1];
 		if(im < 1) {
 			sprintf(Message,
-					"Error in resource string list for window %ld",(long)w);
+					"=> Error in resource string list for window %ld",(long)w);
 			EmergencyExit = TRUE;
 			ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 			NoteAlert(OKAlert,0L);
@@ -1019,7 +1019,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 			km = (*h_res)[j]; /* length of P-string */
 			if(km == 0) {
 				sprintf(Message,
-					"Error in resource string list for window %ld",(long)w);
+					"=> Error in resource string list for window %ld",(long)w);
 				EmergencyExit = TRUE;
 				ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 				NoteAlert(OKAlert,0L);
@@ -1092,7 +1092,7 @@ if(itemhandle != NULL && itemtype == btnCtrl) {
 	FrameRoundRect(&r,16,16);
 /*	SetDialogItem(thewindow,1,itemtype,(Handle)procForBorderUserItem,&r); */
 	if(saveport != NULL) SetPort(saveport);
-	else if(Beta) Alert1("Err HiliteDefault(). saveport == NULL");
+	else if(Beta) Alert1("=> Err HiliteDefault(). saveport == NULL");
 	}
 return(OK);
 }
@@ -1353,7 +1353,7 @@ h_res = (Handle) &buffer;	// WARNING! Dummy value -- don't use!
 #else
 h_res = GetResource('STR#',id);
 if((i=ResError()) != noErr) {
-	sprintf(Message,"Error %ld loading resource string list ID %ld",(long)i,(long)id);
+	sprintf(Message,"=> Error %ld loading resource string list ID %ld",(long)i,(long)id);
 	ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 	NoteAlert(OKAlert,0L);
 	EmergencyExit = TRUE;
@@ -1424,7 +1424,7 @@ ReleaseResource(h_res);
 return(OK);
 
 ERR:
-sprintf(Message,"Error loading %ldth string in resource list ID %ld",
+sprintf(Message,"=> Error loading %ldth string in resource list ID %ld",
 	(long)i,(long)id);
 #if !BP_CARBON_GUI
 fprintf(stderr, "%s\n", Message);
@@ -1454,7 +1454,7 @@ Handle h_res;
 #if BP_CARBON_GUI
 h_res = GetResource('STR#',id);
 if((i=ResError()) != noErr) {
-	sprintf(Message,"Error %ld loading resource string list ID %ld",(long) i,
+	sprintf(Message,"=> Error %ld loading resource string list ID %ld",(long) i,
 		(long)id);
 ERR1:
 	ParamText(in_place_c2pstr(Message),"\p","\p","\p");
@@ -1466,7 +1466,7 @@ j = 1; nmax = 0;
 im = **((short**)h_res); // (*h_res)[j]; if(im < 0) im += 256;
 MaxScriptInstructions = im;
 if(im < 1 || im > 255) {
-	sprintf(Message,"Error im=%ld loading resource string list ID %ld",
+	sprintf(Message,"=> Error im=%ld loading resource string list ID %ld",
 		(long)im,(long)id);
 	goto ERR1;
 	}
@@ -1568,7 +1568,7 @@ for(i=0; i < nmax; i++) {
 return(OK);
 
 ERR:
-sprintf(Message,"Error loading %ldth string in resource list ID %ld",
+sprintf(Message,"=> Error loading %ldth string in resource list ID %ld",
 	(long)i,(long)id);
 ERR3:
 #if !BP_CARBON_GUI
@@ -1581,7 +1581,7 @@ EmergencyExit = TRUE;
 return(FAILED);
 
 ERR2:
-sprintf(Message,"Error string resource list ID %ld. Insufficient memory",(long)id);
+sprintf(Message,"=> Error string resource list ID %ld. Insufficient memory",(long)id);
 goto ERR3;
 }
 
@@ -1907,7 +1907,7 @@ if(w == wScript && ScriptExecOn) {
 	}
 	
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err AdjustWindow(). saveport == NULL");
+else if(Beta) Alert1("=> Err AdjustWindow(). saveport == NULL");
 return(OK);
 }
 
@@ -1920,7 +1920,7 @@ OSErr err;
 err = Gestalt(gestaltQuickdrawFeatures,&qdResponse );
 
 if(err != noErr) {
-	Alert1("Error calling Gestalt");
+	Alert1("=> Error calling Gestalt");
 	return false;
 	}
 
@@ -1946,7 +1946,7 @@ OffsetRect(&r,-r.left,-r.top);
 err = NewGWorld(&gMainGWorld,16,&r,nil,nil,pixPurge);
 
 if(err != noErr) {
-	Alert1("Error calling NewGWorld");
+	Alert1("=> Error calling NewGWorld");
 	return(ABORT);
 	}
 return(OK);

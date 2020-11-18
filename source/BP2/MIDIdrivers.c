@@ -84,7 +84,7 @@ long count = 12L;
 
 if(!Oms) {
 	if(!InBuiltDriverOn) {
-		if(Beta) Alert1("Err. DriverRead(). Driver is OFF");
+		if(Beta) Alert1("=> Err. DriverRead(). Driver is OFF");
 		return(1);
 		}
 	ptr->type += Portbit;
@@ -103,7 +103,7 @@ if(!Oms) {
 	}
 else {
 	/* $$$ */
-	if(Beta) Alert1("Err. DriverRead(). Oms is ON");
+	if(Beta) Alert1("=> Err. DriverRead(). Oms is ON");
 	return(noErr);
 	}
 return(io);
@@ -125,7 +125,7 @@ ControlHandle itemhandle;
 Rect r;
 
 if(!InBuiltDriverOn && OutMIDI && !Oms) {
-	if(Beta) Println(wTrace,"Err. DriverWrite(). Driver is OFF");
+	if(Beta) Println(wTrace,"=> Err. DriverWrite(). Driver is OFF");
 	return(noErr);
 	}
 if(EmergencyExit || Panic || InitOn) return(noErr);
@@ -144,7 +144,7 @@ if(SoundOn && p_e->type == TWO_BYTE_EVENT && !ConvertMIDItoCsound && !ItemCaptur
 if(Oms || NEWTIMER) {
 	if(time < ZERO) {
 		if(Beta) {
-			sprintf(Message,"Err. DriverWrite(). time  = %ld",(long)time);
+			sprintf(Message,"=> Err. DriverWrite(). time  = %ld",(long)time);
 			Println(wTrace,Message);
 			}
 		time = ZERO;
@@ -182,7 +182,7 @@ if(Oms || NEWTIMER) {
 		}
 	else FlashInfo("Output MIDI port was not found... Check OMS setup!");
 	if(result == ABORT) {
-		if(Beta) Println(wTrace,"Err. DriverWrite(). Cause() returned ABORT");
+		if(Beta) Println(wTrace,"=> Err. DriverWrite(). Cause() returned ABORT");
 		io = memFullErr;
 		}
 	else io = noErr;
@@ -300,7 +300,7 @@ FixPort(int i)
 if(Oms) return(OK);
 
 if(!InBuiltDriverOn) {
-	if(Beta) Alert1("Err. FixPort(). Driver is OFF");
+	if(Beta) Alert1("=> Err. FixPort(). Driver is OFF");
 	return(ABORT);
 	}
 sprintf(Message,"MIDI output is now '%s' port",Portname[i]);
@@ -333,7 +333,7 @@ int i;
 if(Oms) return(OK);
 else {
 	if(!InBuiltDriverOn) {
-		if(Beta) Alert1("Err. SetReceiveRaw(). Driver is off");
+		if(Beta) Alert1("=> Err. SetReceiveRaw(). Driver is off");
 		return(ABORT);
 		}
 	i = RAW_EVENT;
@@ -370,7 +370,7 @@ if(Oms) {
 	}
 	
 if(!InBuiltDriverOn) {
-	if(Beta) Alert1("Err. FlushDriver(). Driver is OFF");
+	if(Beta) Alert1("=> Err. FlushDriver(). Driver is OFF");
 	return(ABORT);
 	}
 
@@ -387,7 +387,7 @@ FlushEvents(driverEvt,0);
 WaitABit(100L);
 
 if(p_Pb->ioRefNum == 0) {
-	if(Beta)  Alert1("Err. FlushDriver(). p_Pb->ioRefNum == 0");
+	if(Beta)  Alert1("=> Err. FlushDriver(). p_Pb->ioRefNum == 0");
 	return(OK);
 	}
 return(OK);
@@ -408,7 +408,7 @@ if(Oms || NEWTIMER) {
 	}
 
 if(!InBuiltDriverOn) {
-	if(Beta) Alert1("Err. ResetDriver(). Driver is OFF");
+	if(Beta) Alert1("=> Err. ResetDriver(). Driver is OFF");
 	return(ABORT);
 	}
 	
@@ -454,7 +454,7 @@ if(Oms) {
 	}
 	
 if(!InBuiltDriverOn) {
-	if(Beta) Alert1("Err. SetDriver(). Driver is OFF");
+	if(Beta) Alert1("=> Err. SetDriver(). Driver is OFF");
 	return(ABORT);
 	}
 if(SetOutputFilterWord() != OK) return(ABORT);
@@ -514,7 +514,7 @@ rep = OK;
 if(!OutMIDI || (AEventOn && !Oms && !NEWTIMER)) return(OK);
 
 if(!InBuiltDriverOn && !Oms) {
-	if(Beta) Alert1("Err. ResetMIDI(). Driver is OFF");
+	if(Beta) Alert1("=> Err. ResetMIDI(). Driver is OFF");
 	DriverOpen("\p.MIDI");
 	goto RESET;
 	}
@@ -581,7 +581,7 @@ OSErr err;
 CntrlParam c;
 
 if(!InBuiltDriverOn) {
-	if(Beta) Alert1("Err. DriverStatus(). Driver is OFF");
+	if(Beta) Alert1("=> Err. DriverStatus(). Driver is OFF");
 	return(1);
 	}
 c.ioCompletion = 0L;
@@ -600,7 +600,7 @@ OSErr io;
 
 #if USE_BUILT_IN_MIDI_DRIVER
 if(InBuiltDriverOn) {
-	if(Beta) Alert1("Err. DriverOpen(). Driver already ON");
+	if(Beta) Alert1("=> Err. DriverOpen(). Driver already ON");
 	return(1);
 	}
 Pb.ioCompletion = 0L;
@@ -612,7 +612,7 @@ Pb.ioVersNum = 0;
 io = PBOpen((ParmBlkPtr)p_Pb,FALSE);
 if(io != noErr) TellError(55,io);
 if(p_Pb->ioRefNum == 0) {
-	if(Beta)  Alert1("Err. DriverOpen(). p_Pb->ioRefNum == 0");
+	if(Beta)  Alert1("=> Err. DriverOpen(). p_Pb->ioRefNum == 0");
 	return(noErr);
 	}
 InBuiltDriverOn = TRUE;
@@ -633,7 +633,7 @@ long tr;
 
 
 if(!InBuiltDriverOn) {
-	if(Beta) Alert1("Err. DriverClose(). Driver already OFF");
+	if(Beta) Alert1("=> Err. DriverClose(). Driver already OFF");
 	return(noErr);
 	}
 
@@ -645,7 +645,7 @@ InBuiltDriverOn = FALSE;
 
 if(io == noErr) {
 	if(p_Pb->ioRefNum == 0) {
-		if(Beta)  Alert1("Err. DriverClose(). p_Pb->ioRefNum == 0");
+		if(Beta)  Alert1("=> Err. DriverClose(). p_Pb->ioRefNum == 0");
 		return(noErr);
 		}
 
@@ -681,7 +681,7 @@ MIDI_Parameters parms;
 DriverDataPtr driver;
 
 if(!InBuiltDriverOn) {
-	if(Beta) Alert1("Err. EmptyDriverInput(). Driver is OFF");
+	if(Beta) Alert1("=> Err. EmptyDriverInput(). Driver is OFF");
 	return(ABORT);
 	}
 DriverStatus(30,(MIDI_Parameters*) &parms);
@@ -696,7 +696,7 @@ OSErr DriverKill(void)
 CntrlParam c;
 
 if(!InBuiltDriverOn) {
-	if(Beta) Alert1("Err. DriverKill(). Driver is OFF");
+	if(Beta) Alert1("=> Err. DriverKill(). Driver is OFF");
 	return(notOpenErr);
 	}
 c.ioCompletion = 0L;
@@ -713,7 +713,7 @@ short i;
 CntrlParam c;
 
 if(!InBuiltDriverOn) {
-	if(Beta) Alert1("Err. DriverControl(). Driver is OFF");
+	if(Beta) Alert1("=> Err. DriverControl(). Driver is OFF");
 	return(1);
 	}
 c.ioCompletion = 0L;
@@ -731,7 +731,7 @@ short i=0, count=0;
 TaskPtr task,remtasks;
 
 if(!InBuiltDriverOn) {
-	if(Beta) Alert1("Err. Events(). Driver is OFF");
+	if(Beta) Alert1("=> Err. Events(). Driver is OFF");
 	return(OK);
 	}
 while(i < WAIT_CACHE_SIZE) {

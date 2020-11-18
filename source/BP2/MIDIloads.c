@@ -109,7 +109,7 @@ unsigned long time;
 
 if(wind < 0 || wind >= WMAX || !Editable[wind]) return(FAILED);
 if(!IsMidiDriverOn()) {
-	if(Beta) Alert1("Err. ReadNoteOn(). Driver is OFF");
+	if(Beta) Alert1("=> Err. ReadNoteOn(). Driver is OFF");
 	return(ABORT);
 	}
 if(NoteOn <= c0  &&  c0 < (NoteOn+16) && c2 > 0) {   /* NoteOn */
@@ -155,7 +155,7 @@ unsigned long drivertime;
 
 p_b = p_c = NULL;
 if(!IsMidiDriverOn()) {
-	if(Beta) Alert1("Err. LoadTimePattern(). Driver is OFF");
+	if(Beta) Alert1("=> Err. LoadTimePattern(). Driver is OFF");
 	return(ABORT);
 	}
 
@@ -782,7 +782,7 @@ unsigned long drivertime;
 
 if(SoundOn || CheckEmergency() != OK) return(FAILED);
 if(!IsMidiDriverOn()) { // added this check - 012307 akozar
-	if(Beta) Alert1("Err. LoadMIDIprototype(). Driver is OFF");
+	if(Beta) Alert1("=> Err. LoadMIDIprototype(). Driver is OFF");
 	return(FAILED);
 	}
 

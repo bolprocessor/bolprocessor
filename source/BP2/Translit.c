@@ -75,7 +75,7 @@ ShowMessage(TRUE,wMessage,"Open table in tabulated text format...");
 if(OldFile(-1,1,fn,&spec)) {
 	p2cstrcpy(filename,fn);
 	if((io=MyOpen(&spec,fsRdPerm,&refnum)) != noErr) {
-		sprintf(Message,"Error opening %s",filename);
+		sprintf(Message,"=> Error opening %s",filename);
 		ShowMessage(TRUE,wMessage,Message);
 		TellError(100,io);
 		ClearMessage();
@@ -792,7 +792,7 @@ result = OldFile(-1,1,fn,&spec);
 if(result == OK) {
 	p2cstrcpy(filename,fn);
 	if((io=MyOpen(&spec,fsRdPerm,&refnum)) != noErr) {
-		sprintf(Message,"Error opening %s",filename);
+		sprintf(Message,"=> Error opening %s",filename);
 		ShowMessage(TRUE,wMessage,Message);
 		TellError(100,io);
 		ClearMessage();
@@ -1147,7 +1147,7 @@ PrintBehindln(wNotice,"------------------------");
 ShowSelect(CENTRE,wNotice);
 MyDisposeHandle((Handle*)&p_field);
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err PreviewLine(). saveport == NULL");
+else if(Beta) Alert1("=> Err PreviewLine(). saveport == NULL");
 return(OK);
 }
 
@@ -1349,13 +1349,13 @@ for(i=0,pos=ZERO; ((*p_a)[pos] != TEND || (*p_a)[pos+1] != TEND); pos += 2L) {
 	start = FALSE;
 	if(p < Jbol) sprintf(line,"%s",(*((*p_Bol)[p])));
 	else {
-		if(Beta) Alert1("Err. ComputeField(). Either p >= Jbol");
+		if(Beta) Alert1("=> Err. ComputeField(). Either p >= Jbol");
 		goto ERR;
 		}
 	k = 1;
 	j = GetInteger(FALSE,line,&k);
 	if(j == INT_MAX) {
-		if(Beta) Alert1("Err. ComputeField(). GetInteger() returned INT_MAX");
+		if(Beta) Alert1("=> Err. ComputeField(). GetInteger() returned INT_MAX");
 		goto ERR;
 		}
 	(*p_field)[i] = j;

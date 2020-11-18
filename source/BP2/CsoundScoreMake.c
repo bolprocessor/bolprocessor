@@ -68,7 +68,7 @@ params = NULL;
 result = ABORT; 
 
 if(chan < 0 || chan >= MAXCHAN) {
-	if(Beta) Alert1("Err. CscoreWrite(). chan < 0 || chan >= MAXCHAN");
+	if(Beta) Alert1("=> Err. CscoreWrite(). chan < 0 || chan >= MAXCHAN");
 	chan = 0;
 	}
 	
@@ -78,12 +78,12 @@ if(show_messages_cs_scoremake) BPPrintMessage(odInfo,"\nRunning CscoreWrite for 
 
 if(onoffline == LINE) {
 	if(j >= Jbol) {
-		sprintf(Message,"Err. CscoreWrite(). j >= Jbol, j = %ld\n",(long)j);
+		sprintf(Message,"=> Err. CscoreWrite(). j >= Jbol, j = %ld\n",(long)j);
 		BPPrintMessage(odInfo,Message);
 		goto OUT;
 		} 
 	if(iline < 0 || (iline >= (*p_CsoundSize)[j])) {
-		sprintf(Message,"Err. CscoreWrite(). iline < 0 || iline >= (*p_CsoundSize)[j] iline = %ld\n",(long)iline);
+		sprintf(Message,"=> Err. CscoreWrite(). iline < 0 || iline >= (*p_CsoundSize)[j] iline = %ld\n",(long)iline);
 		BPPrintMessage(odInfo,Message);
 		goto OUT;
 		}
@@ -92,7 +92,7 @@ if(onoffline == LINE) {
 	}
 else {
 	if(key < 0 || key >= MAXKEY) {
-		sprintf(Message,"Err. CscoreWrite(). Incorrect key = %ld\n",(long)key);
+		sprintf(Message,"=> Err. CscoreWrite(). Incorrect key = %ld\n",(long)key);
 		BPPrintMessage(odInfo,Message);
 		goto OUT;
 		}
@@ -169,7 +169,7 @@ SETON:
 	}
 
 if(onoffline == OFF && (*perf)->level[key] < 1) {
-	sprintf(Message,"Err. CscoreWrite(). (*perf)->level[key] < 1 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
+	sprintf(Message,"=> Err. CscoreWrite(). (*perf)->level[key] < 1 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
 	BPPrintMessage(odInfo,Message);
 	result = OK; // $$$ TEMP
 	goto OUT;
@@ -189,13 +189,13 @@ else
 	params = (*perf)->params;
 
 if(params == NULL) {
-	if(Beta) Alert1("Err. CscoreWrite(). params == NULL");
+	if(Beta) Alert1("=> Err. CscoreWrite(). params == NULL");
 	goto OUT;
 	}
 
 iargmax = (*p_CsInstrument)[ins].iargmax;
 if(iargmax < 4) {
-	if(Beta) Alert1("Err. CscoreWrite(). iargmax < 4");
+	if(Beta) Alert1("=> Err. CscoreWrite(). iargmax < 4");
 	iargmax = 4;
 	}
 
@@ -265,7 +265,7 @@ if(iarg > 0) {
 		imax = (*params)[IPITCHBEND].imax;
 		if((*params)[IPITCHBEND].mode != FIXED) {
 			if((*params)[IPITCHBEND].dur <= 0.) {
-				if(Beta) Alert1("Err. CsScoreWrite(). (*params)[IPITCHBEND].dur <= 0");
+				if(Beta) Alert1("=> Err. CsScoreWrite(). (*params)[IPITCHBEND].dur <= 0");
 				goto OUT;
 				}
 			alpha1 = (((*scorearg)[2] / ratio) - (*params)[IPITCHBEND].starttime)
@@ -324,7 +324,7 @@ if(iarg > 0) {
 		imax = (*params)[IPITCHBEND].imax;
 		if((*params)[IPITCHBEND].mode != FIXED) {
 			if((*params)[IPITCHBEND].dur <= 0.) {
-				if(Beta) Alert1("Err. CsScoreWrite(). (*params)[IPITCHBEND].dur <= 0");
+				if(Beta) Alert1("=> Err. CsScoreWrite(). (*params)[IPITCHBEND].dur <= 0");
 				goto OUT;
 				}
 			alpha1 = (((*scorearg)[2] / ratio) - (*params)[IPITCHBEND].starttime)
@@ -570,11 +570,11 @@ if(iarg > 0) {
 
 if((*p_CsInstrument)[ins].ipmax > 0 && (*perf)->numberparams > 0) {
 	if((*perf)->params == NULL) {
-		if(Beta) Alert1("Err. CscoreWrite(). (*perf)->params == NULL");
+		if(Beta) Alert1("=> Err. CscoreWrite(). (*perf)->params == NULL");
 		goto WRITECSCORELINE;
 		}
 	if(instrparamlist == NULL) {
-		if(Beta) Alert1("Err. CscoreWrite(). instrparamlist == NULL");
+		if(Beta) Alert1("=> Err. CscoreWrite(). instrparamlist == NULL");
 		goto WRITECSCORELINE;
 		}
 	for(i=0; i < (*p_CsInstrument)[ins].ipmax; i++) {
@@ -820,7 +820,7 @@ if(NewFile(-1,1,PascalLine,*CsFileReply)) {
 			c2pstrcpy(PascalLine, CsFileName);
 			io = FSpRename(&spec,PascalLine);
 			if(io != noErr && Beta) {
-				Alert1("Err. MakeCsFile(). Can't rename");
+				Alert1("=> Err. MakeCsFile(). Can't rename");
 				}
 			}
 		CsScoreOpened = YES;

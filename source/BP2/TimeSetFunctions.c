@@ -77,7 +77,7 @@ solset **p_sol_set1,sol_set2,**ptr;
 Milliseconds maxmove,maxcover1,maxcover2;
 
 if(nseq >= Maxconc) {
-	if(Beta) Alert1("Err. Locate(). nseq >= Maxconc");
+	if(Beta) Alert1("=> Err. Locate(). nseq >= Maxconc");
 	return(OK);
 	}	
 imaxseq = (*p_imaxseq)[nseq];
@@ -282,7 +282,7 @@ if(Situation_ok(nseq,i,i0,j,shift1,(*p_tp1)[i],(*p_tp2)[i],(*p_Ts)[i],(*p_tscove
 	(*p_maxtruncbeg)[i],(*p_maxtruncend)[i],1);
 	
 if((*p_choice1)[i] > 5) {
-	sprintf(Message,"Error1 choice1[%ld]=%ld.\n",(long)i,(long)(*p_choice1)[i]);
+	sprintf(Message,"=> Error1 choice1[%ld]=%ld.\n",(long)i,(long)(*p_choice1)[i]);
 	if(Beta) Alert1(Message);
 	}
 if(shift1 == ZERO) goto INCREMENT;
@@ -342,7 +342,7 @@ else {
 	sol1 = Next_choice((*p_sol_set1)[i],nseq,i,i0,j,(*p_Ts)[i],(*p_ts1)[i],
 																(*p_ts2)[i],shift1,1);
 	if((*p_choice1)[i] > 5) {
-		sprintf(Message,"Error2 choice1[%ld]=%ld.\n",
+		sprintf(Message,"=> Error2 choice1[%ld]=%ld.\n",
 			(long)i,(long)(*p_choice1)[i]);
 		if(Beta) Alert1(Message);
 		}
@@ -367,7 +367,7 @@ else {
 	}
 (*p_choice1)[i]--;
 if(i < 0 || i >= imaxseq2) {
-	if(Beta) Alert1("Err. Locate(). i > imaxseq2");
+	if(Beta) Alert1("=> Err. Locate(). i > imaxseq2");
 	result = ABORT;
 	goto QUIT;
 	}
@@ -406,7 +406,7 @@ if(kmax > 100 && ++n > 10) {
 		}
 	}
 if(choice2 > 5) {
-	sprintf(Message,"Error1 choice2[%ld]=%ld",(long)i,(long)choice2);
+	sprintf(Message,"=> Error1 choice2[%ld]=%ld",(long)i,(long)choice2);
 	if(Beta) Alert1(Message);
 	}
 if(redo && (choice2 > 1)) {
@@ -454,7 +454,7 @@ if(sol2 == 4) {		/* Revise preceding object(s) */
 	else {
 		/* Possibly choice1[i] = 0 when i = i0 */
 		if(((*p_choice1)[i] < 1) && (i != i0)) {
-			sprintf(Message,"Err: choice1[%ld]=%ld i0=%ld",
+			sprintf(Message,"=> Err: choice1[%ld]=%ld i0=%ld",
 				(long)i,(long)(*p_choice1)[i],(long)i0);
 			if(Beta) Alert1(Message);
 			}
@@ -577,7 +577,7 @@ i = iprev;
 if(iprev > 0) {
 	for(iprev=i-1; iprev >= (i0-1); iprev--) {
 		if(iprev < 0) {
-			sprintf(Message,"Error iprev = %ld",(long)iprev);
+			sprintf(Message,"=> Error iprev = %ld",(long)iprev);
 			if(Beta) Alert1(Message);
 			result = ABORT; goto QUIT;
 			}
@@ -606,7 +606,7 @@ choice2 = Possible_choices(sol_set2,(*p_BreakTempoPrev)[i],i,i0,j,k,nseq,p_marke
 	nature_time,(*p_ts1)[i],(*p_ts2)[i],shift2,Tsm,(*p_maxtruncbeg)[i],
 	(*p_maxtruncend)[i],2);
 if(choice2 > 5) {
-	sprintf(Message,"Error2 choice2[%ld]=%ld",(long)i,(long)choice2);
+	sprintf(Message,"=> Error2 choice2[%ld]=%ld",(long)i,(long)choice2);
 	if(Beta) Alert1(Message);
 	}
 goto NEWCHOICE2;
@@ -645,7 +645,7 @@ int j,k,rep,result;
 unsigned long i,imaxseq;
 
 if(nseq >= Maxconc) {
-	if(Beta) Alert1("Err. Solution_is_accepted(). nseq >= Maxconc");
+	if(Beta) Alert1("=> Err. Solution_is_accepted(). nseq >= Maxconc");
 	return(OK);
 	}
 imaxseq = (*p_imaxseq)[nseq];
@@ -744,7 +744,7 @@ Situation_ok(int nseq, int i, int i0, int j, Milliseconds shift, Milliseconds t1
 	char **p_marked,int nature_time)
 {	
 if(nseq >= Maxconc) {
-	if(Beta) Alert1("Err. Situation_ok(). nseq >= Maxconc");
+	if(Beta) Alert1("=> Err. Situation_ok(). nseq >= Maxconc");
 	return(YES);
 	}
 if(i == i0) return(YES);
@@ -782,7 +782,7 @@ int n,nmax,choice;
 Milliseconds maxmove,mustmove;
 
 if(nseq >= Maxconc) {
-	if(Beta) Alert1("Err. Possible_choices(). nseq >= Maxconc");
+	if(Beta) Alert1("=> Err. Possible_choices(). nseq >= Maxconc");
 	return(0);
 	}
 nmax = 5; choice = 0;
@@ -845,7 +845,7 @@ char rep;
 int n;
 
 if(nseq >= Maxconc) {
-	if(Beta) Alert1("Err. Next_choice(). nseq >= Maxconc");
+	if(Beta) Alert1("=> Err. Next_choice(). nseq >= Maxconc");
 	return(OK);
 	}
 if(TraceTimeSet) {
@@ -920,7 +920,7 @@ REVISE:
 for(n=0; n < 5; n++) {
 	if(sol_set[n] > 0) return(n);
 	}
-if(Beta) Alert1("Error Next_choice()");
+if(Beta) Alert1("=> Error Next_choice()");
 Print(wTrace,"\nsol_set[n]=\n");
 for(n=0; n < 5; n++) {
 	sprintf(Message,"%ld ",(long)sol_set[n]);
@@ -939,12 +939,12 @@ int j,k;
 Milliseconds t1,shiftmore,s1,s2;
 
 if(nseq >= Maxconc) {
-	if(Beta) Alert1("Err. Alternate_correction1(). nseq >= Maxconc");
+	if(Beta) Alert1("=> Err. Alternate_correction1(). nseq >= Maxconc");
 	return(OK);
 	}
 k = (*((*p_Seq)[nseq]))[i];
 if(k < 1) {
-	sprintf(Message,"Err. Alternate_correction1()"); 
+	sprintf(Message,"=> Err. Alternate_correction1()"); 
 	if(Beta) Alert1(Message);
 	return(ZERO);
 	}
@@ -1042,11 +1042,11 @@ if(nexts == NULL) {
 			}
 		}
 	if(side != (***(p_s)).side) {
-		sprintf(Message,"Error side: Get_choice. ");
+		sprintf(Message,"=> Error side: Get_choice. ");
 		if(Beta) Alert1(Message);
 		}
 	if(i != (***(p_s)).i) {
-		sprintf(Message,"Error i: Get_choice. ");
+		sprintf(Message,"=> Error i: Get_choice. ");
 		if(Beta) Alert1(Message);
 		}
 	if(isol == BACKTRACK) {	/* All choices have been exhausted */
@@ -1069,11 +1069,11 @@ if(nexts == NULL) {
 else {
 	isol = (***(p_s)).n;
 	if(side != (***(p_s)).side) {
-		sprintf(Message,"Error side: Get_choice. ");
+		sprintf(Message,"=> Error side: Get_choice. ");
 		if(Beta) Alert1(Message);
 		}
 	if(i != (***(p_s)).i) {
-		sprintf(Message,"Error i: Get_choice. ");
+		sprintf(Message,"=> Error i: Get_choice. ");
 		if(Beta) Alert1(Message);
 		}
 	*(p_olds) = *(p_s);

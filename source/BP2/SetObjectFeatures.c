@@ -53,7 +53,7 @@ double v0,v1;
 Coordinates **ptr;
 
 if(k < 2) {
-	if(Beta) Alert1("Err. SetObjectParams(). k < 2");
+	if(Beta) Alert1("=> Err. SetObjectParams(). k < 2");
 	return(OK);
 	}
 if(nseq >= Maxconc) {
@@ -62,7 +62,7 @@ if(nseq >= Maxconc) {
 	}
 
 if(Beta && (*p_Instance)[k].contparameters.values != NULL)
-	Println(wTrace,"Err. SetObjectParams(). (*p_Instance)[k].contparameters.values != NULL");
+	Println(wTrace,"=> Err. SetObjectParams(). (*p_Instance)[k].contparameters.values != NULL");
 
 (*p_Instance)[k].contparameters.values = NULL;
 (*p_Instance)[k].contparameters.number = 0;
@@ -76,7 +76,7 @@ if(level >= 0) {
 	(*p_Instance)[k].contparameters.number = n;
 	
 	if((*p_contparameters)[level].values == NULL) {
-		if(Beta) Alert1("Err. SetObjectParams(). (*p_contparameters)[level].values == NULL");
+		if(Beta) Alert1("=> Err. SetObjectParams(). (*p_contparameters)[level].values == NULL");
 		return(ABORT);
 		}
 	for(i=0; i < (*p_contparameters)[level].number; i++) {
@@ -139,7 +139,7 @@ if(level >= 0) {
 		if(i == IPANORAMIC && j < Jbol && !(*p_OkPan)[j]) continue;
 		if(i == IVOLUME && j < Jbol && !(*p_OkVolume)[j]) continue;
 		if(h_table == NULL) {
-			if(Beta) Alert1("Err. SetObjectParams(). h_table == NULL");
+			if(Beta) Alert1("=> Err. SetObjectParams(). h_table == NULL");
 			}
 		
 		if(isobject && (*h_table)[i].point != NULL) {
@@ -279,7 +279,7 @@ if(nseq >= Maxconc) {
 if((*p_waitlist)[nseq] == NULL && (*p_scriptlist)[nseq] == NULL
 											&& !(*p_newswitch)) return(OK);
 if(k < 2) {
-	if(Beta) Alert1("Err. AttachObjectLists()");
+	if(Beta) Alert1("=> Err. AttachObjectLists()");
 	return(ABORT);
 	}
 if((*p_ObjectSpecs)[k] == NULL) {
@@ -615,7 +615,7 @@ ENOUGH:
 			}
 		v = FindValue(m,p,chan);
 		if(v == Infpos) {
-			if(Beta) Alert1("Error in SetVariation(). v = Infpos");
+			if(Beta) Alert1("=> Error in SetVariation(). v = Infpos");
 			result = ABORT;
 			break;
 			}
@@ -628,7 +628,7 @@ ENOUGH:
 			i += 2L;
 			m = (*p_buff)[i]; p = (*p_buff)[i+1];
 			if(m != T37) {
-				if(Beta) Alert1("Err. SetVariation(). m != T37");
+				if(Beta) Alert1("=> Err. SetVariation(). m != T37");
 				break;
 				}
 			vmap.p2 = p % 128;
@@ -650,7 +650,7 @@ ENOUGH:
 		/* _vel(), articulation and _keymap()  are not concerned with tables */
 		
 	/*	if(index < 0) {
-			if(Beta) Alert1("Err. SetVariation(). index < 0");
+			if(Beta) Alert1("=> Err. SetVariation(). index < 0");
 			goto END;
 			} */
 		
@@ -701,7 +701,7 @@ MORE:
 	if(m == T21) {		/* _pitchrange() */
 		if(p > 0) PitchbendRange[chan] = p;
 		else
-			if(Beta) Alert1("Err. SetVariation(). p <= 0");
+			if(Beta) Alert1("=> Err. SetVariation(). p <= 0");
 		continue;
 		}
 	
@@ -775,7 +775,7 @@ else {
 
 RECORDVALUES:
 if((*p_contparameters)[levelorg].values == NULL) {
-	if(Beta) Alert1("Err. SetVariation(). (*p_contparameters)[levelorg].values == NULL");
+	if(Beta) Alert1("=> Err. SetVariation(). (*p_contparameters)[levelorg].values == NULL");
 	goto END;
 	}
 (*((*p_contparameters)[levelorg].values))[index].maxbeats = (long) maxbeats;
@@ -831,7 +831,7 @@ while(TRUE) {
 	while((*((*p_Seq)[nseq]))[++inext] == 0);
 	if(k > 1) {					/* Ignoring silences "-" except if specs attached */
 		if(k >= Maxevent) {
-			if(Beta) Alert1("Err. Fix(). k >= Maxevent");
+			if(Beta) Alert1("=> Err. Fix(). k >= Maxevent");
 			return(ABORT);
 			}
 		j = (*p_Instance)[k].object;
@@ -917,7 +917,7 @@ if(nature_time == STRIATED || nseq == 0) {
 			continue;
 			}
 		if(k >= Maxevent) {
-			if(Beta) Alert1("Err. Calculate_alpha(). k >= Maxevent");
+			if(Beta) Alert1("=> Err. Calculate_alpha(). k >= Maxevent");
 			return(ABORT);
 			}
 		j = (*p_Instance)[k].object;
@@ -928,8 +928,8 @@ if(nature_time == STRIATED || nseq == 0) {
 		d = (double) (inext - i) * Kpress / Ratio; /* Symbolic duration */
 		if(nature_time == SMOOTH) {
 			if(Qclock < 1L) {
-			//	if(Beta) Alert1("Err. Calculate_alpha(). Qclock < 1. ");
-				BPPrintMessage(odInfo,"Err. Calculate_alpha(). Qclock < 1.\n");
+			//	if(Beta) Alert1("=> Err. Calculate_alpha(). Qclock < 1. ");
+				BPPrintMessage(odInfo,"=> Err. Calculate_alpha(). Qclock < 1.\n");
 				return(ABORT);
 				}
 			if(Pclock > 0.) { 				/* Measured smooth time */
@@ -1032,8 +1032,8 @@ FINDNEXTMARKED:
 		/* In this case alpha will be too small on current object */
 		
 		if(k >= Maxevent) {
-		//	if(Beta) Alert1("Err. Calculate_alpha(). k >= Maxevent (2)");
-			BPPrintMessage(odInfo,"Err. Calculate_alpha(). k >= Maxevent (2)\n");
+		//	if(Beta) Alert1("=> Err. Calculate_alpha(). k >= Maxevent (2)");
+			BPPrintMessage(odInfo,"=> Err. Calculate_alpha(). k >= Maxevent (2)\n");
 			return(ABORT);
 			}
 		j = (*p_Instance)[k].object;
@@ -1136,7 +1136,7 @@ FINDNEXTMARKED:
 			}
 		if(alpha < 0.) {	/* Should no longer happen since To > ZERO */
 			sprintf(Message,
-			"Err. Calculate_alpha(). alpha=%.2f",alpha);
+			"=> Err. Calculate_alpha(). alpha=%.2f",alpha);
 			BPPrintMessage(odInfo,Message);
 			alpha = 0.;
 			}
@@ -1259,7 +1259,7 @@ for(i=1;; i++) {
 	if(k == -1) break;
 	if(k < 1) continue;
 	if(k >= Maxevent) {
-		if(Beta) Alert1("Err. SetLimits(). k >= Maxevent");
+		if(Beta) Alert1("=> Err. SetLimits(). k >= Maxevent");
 		return(ABORT);
 		}
 	j = (*p_Instance)[k].object;
@@ -1331,7 +1331,7 @@ float endval,maxbeats;
 KeyNumberMap mapendvalue;
 
 if((*p_contparameters)[level].values == NULL) {
-	if(Beta) Alert1("Err. AssignValue(). (*p_contparameters)[level].values == NULL");
+	if(Beta) Alert1("=> Err. AssignValue(). (*p_contparameters)[level].values == NULL");
 	return(ABORT);
 	}
 (*((*p_contparameters)[level].values))[index].v0
@@ -1414,7 +1414,7 @@ switch(m) {
 		if(p >= 128 && m != T26) {
 			value = ParamValue[p-128];
 			if(value == INT_MAX) {
-				if(Beta) Alert1("Err. FindValue(). value == INT_MAX");
+				if(Beta) Alert1("=> Err. FindValue(). value == INT_MAX");
 				value = 127;
 				}
 			return((double) value);
@@ -1465,7 +1465,7 @@ double tempo,tempomax,prodtempo,objectduration,orgobjectduration,speed,
 
 if(oldm != T3 && oldm != T25 && oldm != T9) {
 	if(Beta) {
-		sprintf(Message,"Err. GetSymbolicDuration(). oldm = %ld",(long)oldm);
+		sprintf(Message,"=> Err. GetSymbolicDuration(). oldm = %ld",(long)oldm);
 		Println(wTrace,Message);
 		}
 	return(0);
@@ -1479,7 +1479,7 @@ level = 0;
 seq = (*p_seq)[level] = 0;
 
 if(orgspeed == ZERO) {
-	if(Beta) Println(wTrace,"Err. GetSymbolicDuration(). orgspeed == ZERO");
+	if(Beta) Println(wTrace,"=> Err. GetSymbolicDuration(). orgspeed == ZERO");
 	objectduration = 0.;
 	goto OUT;
 	}

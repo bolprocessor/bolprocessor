@@ -195,7 +195,7 @@ if(PrJobDialog(hPrint) != 0) {
 	}
 PrClose();
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err PrintTextWindow(). saveport == NULL");
+else if(Beta) Alert1("=> Err PrintTextWindow(). saveport == NULL");
 return(OK);
 }
 
@@ -247,7 +247,7 @@ if(PrJobDialog(hPrint)) {
 	}
 PrClose();
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err PrintGraphicWindow(). saveport == NULL");
+else if(Beta) Alert1("=> Err PrintGraphicWindow(). saveport == NULL");
 return(OK);
 }
 

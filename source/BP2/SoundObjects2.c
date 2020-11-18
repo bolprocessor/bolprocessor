@@ -49,7 +49,7 @@ else return(FAILED);
 CheckDuration(int j)
 {
 if(j >= Jbol) {
-	if(Beta) Alert1("Err. CheckDuration()");
+	if(Beta) Alert1("=> Err. CheckDuration()");
 	return(FAILED);
 	}
 if(j < 2 || (*p_Dur)[j] < EPSILON) {
@@ -105,7 +105,7 @@ Milliseconds oldeventrange,neweventrange;
 
 if(j < 0 || j >= Jbol) {
 	if(Beta) {
-		sprintf(Message,"Err. AdjustDuration(). j = %ld",(long)j);
+		sprintf(Message,"=> Err. AdjustDuration(). j = %ld",(long)j);
 		Alert1(Message);
 		}
 	return(FAILED);
@@ -214,7 +214,7 @@ double preroll,postroll;
 
 if(CheckNonEmptyMIDI(j) != OK) return(FAILED);
 if((*p_Quan)[j] < EPSILON) {
-	if(Beta) Alert1("Err. QuantizeNoteOn()");
+	if(Beta) Alert1("=> Err. QuantizeNoteOn()");
 	return(OK);
 	}
 	
@@ -510,7 +510,7 @@ if(warn && Answer("Suppress AllNotesOff can't be undone. Proceed anyway",'N') !=
 	return(FAILED);
 if(GetPrePostRoll(j,&preroll,&postroll) != OK) {
 	if(Beta) {
-		sprintf(Message,"Err. SuppressAllNotesOff(). j = %ld",(long)j);
+		sprintf(Message,"=> Err. SuppressAllNotesOff(). j = %ld",(long)j);
 		Alert1(Message);
 		}
 	return(FAILED);
@@ -571,7 +571,7 @@ if(Answer("Suppress messages can't be undone. Proceed anyway",'N') != YES)
 	return(FAILED);
 if(GetPrePostRoll(j,&preroll,&postroll) != OK) {
 	if(Beta) {
-		sprintf(Message,"Err. SuppressMessages(). j = %ld",(long)j);
+		sprintf(Message,"=> Err. SuppressMessages(). j = %ld",(long)j);
 		Alert1(Message);
 		}
 	return(FAILED);
@@ -582,7 +582,7 @@ switch(themessage) {
 	case KeyPressure: nbytes = 3; break;		/* 160 */
 	case TimingClock: nbytes = 1; break;		/* 160 (suppressing silences) */
 	default:
-		if(Beta) Alert1("Err. SuppressMessages(). Case not supported");
+		if(Beta) Alert1("=> Err. SuppressMessages(). Case not supported");
 		return(FAILED);
 	}
 if(/* SelectPictureOn && */ (*p_Tpict)[j] > ZERO) {
@@ -649,7 +649,7 @@ double preroll,postroll;
 if(CheckNonEmptyMIDI(j) != OK) return(FAILED);
 if(GetPrePostRoll(j,&preroll,&postroll) != OK) {
 	if(Beta) {
-		sprintf(Message,"Err. InsertSilence(). j = %ld",(long)j);
+		sprintf(Message,"=> Err. InsertSilence(). j = %ld",(long)j);
 		Alert1(Message);
 		}
 	return(FAILED);
@@ -737,14 +737,14 @@ Milliseconds time;
 if(pp_csoundtime != NULL && PointCsound) {
 	if((*p_size)[j] == ZERO) return(OK);
  	else {
- 		if(Beta) Alert1("Err. DurationToPoint(). Point mode in Csound");
+ 		if(Beta) Alert1("=> Err. DurationToPoint(). Point mode in Csound");
 		return(FAILED);
 		}
 	}
 if(pp_midicode != NULL && PointMIDI) {
 	if((*p_size)[j] == ZERO) return(OK);
  	else {
- 		if(Beta) Alert1("Err. DurationToPoint(). Point mode in MIDI");
+ 		if(Beta) Alert1("=> Err. DurationToPoint(). Point mode in MIDI");
 		return(FAILED);
 		}
 	}
@@ -778,14 +778,14 @@ if(pp_csoundtime != NULL && !PointCsound) {
 		return(OK);
 		}
  	else {
- 		if(Beta) Alert1("Err. PointToDuration(). Not point mode in Csound");
+ 		if(Beta) Alert1("=> Err. PointToDuration(). Not point mode in Csound");
 		return(FAILED);
 		}
 	}
 if(pp_midicode != NULL && !PointMIDI) {
 	if((*p_size)[j] == ZERO) return(OK);
  	else {
- 		if(Beta) Alert1("Err. PointToDuration(). Not point mode in MIDI");
+ 		if(Beta) Alert1("=> Err. PointToDuration(). Not point mode in MIDI");
 		return(FAILED);
 		}
 	}
@@ -818,7 +818,7 @@ long i;
 Milliseconds t,t0,t1;
 
 if(j < 2 || j >= Jbol) {
-	if(Beta) Alert1("Err. SortMIDIdates(). j < 2 || j >= Jbol");
+	if(Beta) Alert1("=> Err. SortMIDIdates(). j < 2 || j >= Jbol");
 	return(FAILED);
 	}
 t = (*((*pp_MIDIcode)[j]))[i0].time;
@@ -875,7 +875,7 @@ CsoundLine s0;
 int r;
 
 if(j < 2 || j >= Jbol) {
-	if(Beta) Alert1("Err. SortCsoundDates(). j < 2 || j >= Jbol");
+	if(Beta) Alert1("=> Err. SortCsoundDates(). j < 2 || j >= Jbol");
 	return(FAILED);
 	}
 t = (*((*pp_CsoundTime)[j]))[i0];
@@ -959,7 +959,7 @@ if(!((*p_Type)[j] & 1)) {
 	}
 if(GetPrePostRoll(j,&preroll,&postroll) != OK) {
 	if(Beta) {
-		sprintf(Message,"Err. PlayPrototype(). j = %ld",(long)j);
+		sprintf(Message,"=> Err. PlayPrototype(). j = %ld",(long)j);
 		Alert1(Message);
 		}
 	return(FAILED);
@@ -1116,7 +1116,7 @@ else *p_beforeperiod = ((double)(*p_BeforePeriod)[j] * dur) / 100.;
 *p_objectperiod =  dur - *p_beforeperiod;
 if(*p_objectperiod < 0.) {
 	*p_objectperiod = 0.;
-	if(Beta) Alert1("Err. GetPeriod(). *p_objectperiod < ZERO");
+	if(Beta) Alert1("=> Err. GetPeriod(). *p_objectperiod < ZERO");
 	}
 if(*p_objectperiod < EPSILON) return(FAILED);
 return(OK);
@@ -1126,7 +1126,7 @@ return(OK);
 CheckNonEmptyMIDI(int j)
 {
 if(j < 2 || j >= Jbol) {
-	if(Beta) Alert1("Err. CheckNonEmptyMIDI(). j < 2 || j >= Jbol");
+	if(Beta) Alert1("=> Err. CheckNonEmptyMIDI(). j < 2 || j >= Jbol");
 	return(FAILED);
 	}
 if((*p_MIDIsize)[j] < 1L) {

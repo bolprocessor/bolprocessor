@@ -129,19 +129,19 @@ int SetSelect(TextOffset start,TextOffset end, TextHandle th)
 	/* clamp range to text bounds */
 	maxoffset = GetTextHandleLength(th);
 	if (start < ZERO) {
-		if(Beta) Alert1("Err. SetSelect(). start < ZERO");
+		if(Beta) Alert1("=> Err. SetSelect(). start < ZERO");
 		start = ZERO;
 	}
 	else if (start > maxoffset) {
-		if(Beta) Alert1("Err. SetSelect(). start > maxoffset");
+		if(Beta) Alert1("=> Err. SetSelect(). start > maxoffset");
 		start = maxoffset;
 	}
 	if (end < ZERO) {
-		if(Beta) Alert1("Err. SetSelect(). end < ZERO");
+		if(Beta) Alert1("=> Err. SetSelect(). end < ZERO");
 		end = ZERO;
 	}
 	else if (end > maxoffset) {
-		if(Beta) Alert1("Err. SetSelect(). end > maxoffset");
+		if(Beta) Alert1("=> Err. SetSelect(). end > maxoffset");
 		end = maxoffset;
 	}
 
@@ -153,7 +153,7 @@ int SetSelect(TextOffset start,TextOffset end, TextHandle th)
 long GetTextLength(int w)
 {
 	if(w < 0 || w >= WMAX || !Editable[w]) {
-		if(Beta) Alert1("Err. GetTextLength(). Incorrect w");
+		if(Beta) Alert1("=> Err. GetTextLength(). Incorrect w");
 		return(ZERO);
 	}
 	return GetTextHandleLength(TEH[w]);
@@ -162,7 +162,7 @@ long GetTextLength(int w)
 long GetTextHandleLength(TextHandle th)
 {
 	if (th == NULL) {
-		if(Beta) Alert1("Err. GetTextHandleLength(). NULL handle");
+		if(Beta) Alert1("=> Err. GetTextHandleLength(). NULL handle");
 		return(ZERO);
 	}
 	return((*th)->length);
@@ -171,11 +171,11 @@ long GetTextHandleLength(TextHandle th)
 char GetTextChar(int w,long pos)
 {
 	if(w < 0 || w >= WMAX || !Editable[w]) {
-		if(Beta) Alert1("Err. GetTextChar(). Incorrect w");
+		if(Beta) Alert1("=> Err. GetTextChar(). Incorrect w");
 		return '\0';
 	}
 	if (pos < 0 || pos > (*TEH[w])->length) {
-		Alert1("Err. GetTextChar(). pos out of range");
+		Alert1("=> Err. GetTextChar(). pos out of range");
 		return '\0';
 	}
 	else if (pos == (*TEH[w])->length) {

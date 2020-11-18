@@ -122,7 +122,7 @@ int MyDisposeHandle(Handle *p_h)
 	int i;
 	
 	if (p_h == NULL) {
-		BPPrintMessage(odInfo,"Err. MyDisposeHandle. p_h = NULL");
+		BPPrintMessage(odInfo,"=> Err. MyDisposeHandle. p_h = NULL");
 		return(ABORT);
 	}
 	if(*p_h != NULL) {
@@ -134,7 +134,7 @@ int MyDisposeHandle(Handle *p_h)
 				}
 			}
 		if(h->size < (Size)1) {
-			if(!EmergencyExit && Beta) Alert1("Err. MyDisposeHandle. size < 1");
+			if(!EmergencyExit && Beta) Alert1("=> Err. MyDisposeHandle. size < 1");
 			*p_h = NULL;
 			return(ABORT);
 		}
@@ -157,7 +157,7 @@ Handle IncreaseSpace(Handle h)
 	int rep;
 
 	if(h == NULL) {
-		if(Beta) Alert1("Err. IncreaseSpace(). h = NULL");
+		if(Beta) Alert1("=> Err. IncreaseSpace(). h = NULL");
 		return(NULL);
 	}
 	oldsize = MyGetHandleSize(h);
@@ -179,7 +179,7 @@ int MySetHandleSize(Handle* p_h,Size size)
 	
 //	BPPrintMessage(odInfo,"size = %ld\n",(long) size);
 	if(p_h == NULL) {
-		sprintf(Message,"Err. MySetHandleSize(). p_h == NULL");
+		sprintf(Message,"=> Err. MySetHandleSize(). p_h == NULL");
 		if(Beta) Alert1(Message);
 		return(ABORT);
 	}
@@ -188,7 +188,7 @@ int MySetHandleSize(Handle* p_h,Size size)
 		h = (s_handle_priv*) *p_h;
 		oldsize = h->size;
 		if(Beta && !InitOn && oldsize < (Size)1) {
-			sprintf(Message,"Err. MySetHandleSize(). oldsize = %ld (1)\n", (long) oldsize);
+			sprintf(Message,"=> Err. MySetHandleSize(). oldsize = %ld (1)\n", (long) oldsize);
 			BPPrintMessage(odInfo,Message);
 			// Alert1(Message);
 		}

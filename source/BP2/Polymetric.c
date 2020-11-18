@@ -64,7 +64,7 @@ Maxevent = 3L;
 p_b = NULL;
 p_nseq = p_nseqmax = NULL;
 if(*pp_a == NULL) {
-	if(Beta) Alert1("Err. PolyMake(). *pp_a = NULL");
+	if(Beta) Alert1("=> Err. PolyMake(). *pp_a = NULL");
 	return(ABORT);
 	}
 	
@@ -148,14 +148,14 @@ for(i=ZERO,level=0; ; i+=2L) {
 	if(p == 12 || p == 22) {	/* '{' */
 		level++;
 		if(level > maxlevel) {
-			if(Beta) Alert1("Err. PolyMake(). level > maxlevel");
+			if(Beta) Alert1("=> Err. PolyMake(). level > maxlevel");
 			r = ABORT; goto QUIT;
 			}
 		continue;
 		}
 	if(p == 13 || p == 23) {	/* '}' */
 		if(level < 1) {
-			if(Beta) Alert1("Err. PolyMake(). {} not balanced");
+			if(Beta) Alert1("=> Err. PolyMake(). {} not balanced");
 			r = ABORT; goto QUIT;
 			}
 		level--;
@@ -380,10 +380,10 @@ if(Pclock > 0.) {
 // Calculate Maxevent, (*p_maxseq) and the final value of Maxconc
 
 if(Beta && p_nseq != NULL) {
-	Alert1("Err. PolyMake(). p_nseq != NULL");
+	Alert1("=> Err. PolyMake(). p_nseq != NULL");
 	}
 if(Beta && p_nseqmax != NULL) {
-	Alert1("Err. PolyMake(). p_nseqmax != NULL");
+	Alert1("=> Err. PolyMake(). p_nseqmax != NULL");
 	}
 if((p_nseq = (int**) GiveSpace((Size)((maxlevel+1)*sizeof(int)))) == NULL) {
 	r = ABORT; goto QUIT;
@@ -503,7 +503,7 @@ for(i=ZERO; ; i+=2L) {
 			case 12:	/* '{' */
 			case 22:
 				if(++level > maxlevel) {
-					if(Beta) Alert1("Err. PolyMake(): level > maxlevel");
+					if(Beta) Alert1("=> Err. PolyMake(): level > maxlevel");
 					r = ABORT; goto QUIT;
 					}
 				(*p_nseqmax)[level] = (*p_nseq)[level] = (*p_nseq)[level-1];
@@ -514,7 +514,7 @@ for(i=ZERO; ; i+=2L) {
 			case 13:	/* '}' */
 			case 23:
 				if(level < 1) {
-					if(Beta) Alert1("Err. PolyMake(): level < 1");
+					if(Beta) Alert1("=> Err. PolyMake(): level < 1");
 					r = ABORT; goto QUIT;
 					}
 				if((*p_nseqmax)[level] > (*p_nseqmax)[level-1])
@@ -946,7 +946,7 @@ if((p_qgap = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) {
 oldpos = (*p_pos);
 restart = FALSE;
 if(period && comma) {
-	sprintf(Message,"Error in polymetric expression.\nThe same expression contains both a bullet and a comma...");
+	sprintf(Message,"=> Error in polymetric expression.\nThe same expression contains both a bullet and a comma...");
 	if(ScriptExecOn) Println(wTrace,Message);
 	else Alert1(Message);
 	result = ABORT;
@@ -1054,7 +1054,7 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 			}
 		while(m == T1);
 		if(s != 0.) scaling = 1. / s;
-		else if(Beta) Alert1("Err. PolyExpand() after '**'. s = 0.");
+		else if(Beta) Alert1("=> Err. PolyExpand() after '**'. s = 0.");
 		i -= 2;
 		continue;
  		}
@@ -1068,7 +1068,7 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 			}
 		while(m == T1);
 		if(s != 0.) speed = 1. / s;
-		else if(Beta) Alert1("Err. PolyExpand() after '\\'. s = 0.");
+		else if(Beta) Alert1("=> Err. PolyExpand() after '\\'. s = 0.");
 		i -= 2;
 		continue;
  		}
@@ -1142,7 +1142,7 @@ FIXTEMP:
 		isequal = Equal(0.005,scaling,speed,prevscale,prevspeed,&overflow);
 		if(isequal == ABORT) {
 			if(Beta) {
-				Alert1("Err. PolyExpand(). isequal == ABORT");
+				Alert1("=> Err. PolyExpand(). isequal == ABORT");
 				result = ABORT; goto OUT;
 				}
 			isequal = FALSE;
@@ -1232,7 +1232,7 @@ FIXTEMP:
 			isequal = Equal(0.005,scaling,speed,scalebeforegap,speedbeforegap,&overflow);
 			if(isequal == ABORT) {
 				if(Beta) {
-					Alert1("Err. PolyExpand(). isequal == ABORT");
+					Alert1("=> Err. PolyExpand(). isequal == ABORT");
 					result = ABORT; goto OUT;
 					}
 				isequal = FALSE;
@@ -1297,7 +1297,7 @@ FIXTEMP:
 		i += 2L;
 		m = (*p_b)[i];
 		if(m != T43) {
-			if(Beta) Alert1("Err. PolyMake(). m != T43");
+			if(Beta) Alert1("=> Err. PolyMake(). m != T43");
 			i -= 2L;
 			continue;
 			}
@@ -1324,7 +1324,7 @@ FIXTEMP:
 		isequal = Equal(0.005,scaling,speed,prevscale,prevspeed,&overflow);
 		if(isequal == ABORT) {
 			if(Beta) {
-				Alert1("Err. PolyExpand(). isequal == ABORT");
+				Alert1("=> Err. PolyExpand(). isequal == ABORT");
 				result = ABORT; goto OUT;
 				}
 			isequal = FALSE;
@@ -1430,7 +1430,7 @@ FIXTEMP:
 				}
 			for(j=ZERO; (*p_e)[j] != TEND || (*p_e)[j+1] != TEND; j += 2L) {
 				if(j > jmax) {
-					if(Beta) Alert1("Err. PolyExpand() j > jmax");
+					if(Beta) Alert1("=> Err. PolyExpand() j > jmax");
 					result = ABORT; goto OUT;
 					}
 				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
@@ -1518,7 +1518,7 @@ FIXTEMP:
 		
 		a++;	/* Next field */
 		if(a >= k) {
-			sprintf(Message,"Err in PolyExpand() k = %ld",(long)k);
+			sprintf(Message,"=> Err in PolyExpand() k = %ld",(long)k);
 			if(Beta) Alert1(Message);
 			break;
 			}
@@ -1660,7 +1660,7 @@ if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 
 END:
 if((a+1) != k) {
-	sprintf(Message,"Err. PolyExpand(). a+1=%ld k=%ld",
+	sprintf(Message,"=> Err. PolyExpand(). a+1=%ld k=%ld",
 		(long)(a+1L),(long)k);
 	if(Beta) Alert1(Message);
 	}
@@ -1991,7 +1991,7 @@ for(a=0; a < k; a++) {
 					isequal = Equal(0.005,xq,xp,prevscale,prevspeed,&overflow);
 					if(isequal == ABORT) {
 						if(Beta) {
-							Alert1("Err. PolyExpand(). isequal == ABORT");
+							Alert1("=> Err. PolyExpand(). isequal == ABORT");
 							result = ABORT; goto OUT;
 							}
 						isequal = FALSE;
@@ -2057,7 +2057,7 @@ COPYIT:
 if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto OUT;
 
 if(Beta && level != ZERO) {
-	Alert1("Err. PolyExpand(). level != ZERO (end)");
+	Alert1("=> Err. PolyExpand(). level != ZERO (end)");
 	}
 
 result = OK;

@@ -53,7 +53,7 @@ NSWReply reply;
 OSErr err;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. SaveAs(). Incorrect window index");
+	if(Beta) Alert1("=> Err. SaveAs(). Incorrect window index");
 	return(FAILED);
 	}
 err = NSWInitReply(&reply);
@@ -109,7 +109,7 @@ long count,k;
 OSErr io;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. SaveFile(). Incorrect window index");
+	if(Beta) Alert1("=> Err. SaveFile(). Incorrect window index");
 	return(FAILED);
 	}
 SetCursor(&WatchCursor);
@@ -152,7 +152,7 @@ if(good) {
 					CheckTextSize(wAlphabet);
 					}
 				else {
-					sprintf(Message,"Error saving '%s'",FileName[wAlphabet]);
+					sprintf(Message,"=> Error saving '%s'",FileName[wAlphabet]);
 					Alert1(Message);
 					}
 				}
@@ -164,7 +164,7 @@ if(good) {
 else {
 	TellError(76,io);
 	MyPtoCstr(MAXNAME,fn,LineBuff);
-	sprintf(Message,"Error opening '%s'",LineBuff);
+	sprintf(Message,"=> Error opening '%s'",LineBuff);
 	ShowMessage(TRUE,wMessage,Message);
 	return(FAILED);
 	}
@@ -175,7 +175,7 @@ else {
 int GetDefaultFileName(int w, char* filename)
 {
 	if(w < 0 || w >= WMAX) {
-		if(Beta) Alert1("Err. GetDefaultFileName(). Incorrect window index");
+		if(Beta) Alert1("=> Err. GetDefaultFileName(). Incorrect window index");
 		return(FAILED);
 	}
 	if (RunningOnOSX) {
@@ -208,7 +208,7 @@ int GetProjectBaseName(char* basename)
 	else return (FAILED);
 	
 	if (len > MAXNAME) {
-		if (Beta)  Alert1("Err. GetProjectBaseName(): len > MAXNAME)");
+		if (Beta)  Alert1("=> Err. GetProjectBaseName(): len > MAXNAME)");
 		return (FAILED);
 	}
 	
@@ -395,7 +395,7 @@ switch(type) {
 		*numtypes = 2;
 		break;
 	case ftiHTML:
-		if (Beta) Alert1("Err. FillTypeList(): type 18 not allowed.");
+		if (Beta) Alert1("=> Err. FillTypeList(): type 18 not allowed.");
 		break;
 	case ftiMidiDriver:
 		typelist[0] = 'BP16';	/* MIDI driver settings (-md) file */
@@ -571,7 +571,7 @@ OldFile(int w,int type,Str255 fn,FSSpec *p_spec)
 	if(CallUser(1) != OK) return(FAILED);
 
 	if(w < -1 || w >= WMAX) {
-		if(Beta) Alert1("Err. OldFile(). Incorrect window index");
+		if(Beta) Alert1("=> Err. OldFile(). Incorrect window index");
 		return(FAILED);
 		}
 
@@ -809,7 +809,7 @@ short tempvrefnum;
 long tempdirid;
 
 if(w < -1 || w >= WMAX) {
-	if(Beta) Alert1("Err. CreateFile(). Incorrect window index");
+	if(Beta) Alert1("=> Err. CreateFile(). Incorrect window index");
 	return(FAILED);
 	}
 spec = p_reply->sfFile;
@@ -866,7 +866,7 @@ if(io == noErr) {
 			Alert1("File is already open with write permission");
 			}
 		else {
-			sprintf(Message,"Err. CreateFile(). io = %ld",(long)io);
+			sprintf(Message,"=> Err. CreateFile(). io = %ld",(long)io);
 			if(Beta) Alert1(Message);
 			}
 		return(ABORT);
@@ -925,7 +925,7 @@ long pos,posmax;
 char **p_line;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. WriteFile(). Incorrect window index");
+	if(Beta) Alert1("=> Err. WriteFile(). Incorrect window index");
 	return(FAILED);
 	}
 r = OK;
@@ -933,7 +933,7 @@ h = WindowTextHandle(TEH[w]);
 less = FALSE;
 
 if(refnum == -1) {
-	if(Beta) Alert1("Err. WriteFile(). refnum == -1");
+	if(Beta) Alert1("=> Err. WriteFile(). refnum == -1");
 	return(FAILED);
 	}
 while(num > ZERO && isspace((*h)[num-1])) {
@@ -1010,7 +1010,7 @@ long count,n,totalcount;
 int io,dos,html;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. ReadFile(). Incorrect window index");
+	if(Beta) Alert1("=> Err. ReadFile(). Incorrect window index");
 	return(FAILED);
 	}
 SetSelect(GetTextLength(w),GetTextLength(w),TEH[w]);
@@ -1303,7 +1303,7 @@ OSErr io;
 char **p_line;
 
 if(refnum == -1) {
-	if(Beta) Alert1("Err. WriteToFile(). refnum == -1");
+	if(Beta) Alert1("=> Err. WriteToFile(). refnum == -1");
 	return(FAILED);
 	}
 p_line = NULL;
@@ -1361,7 +1361,7 @@ long count;
 OSErr io;
 
 if(refnum == -1) {
-	if(Beta) Alert1("Err. NoReturnWriteToFile(). refnum == -1");
+	if(Beta) Alert1("=> Err. NoReturnWriteToFile(). refnum == -1");
 	return(FAILED);
 	}
 
@@ -1567,7 +1567,7 @@ return(rep);
 OpenTemp(void)
 {
 if(TempRefnum != -1) {
-	if(Beta) Alert1("Err. OpenTemp(). TempRefnum != -1");
+	if(Beta) Alert1("=> Err. OpenTemp(). TempRefnum != -1");
 	return(OK);
 	}
 return CreateTemporaryFile(&TempSpec, &TempRefnum, kBPTempFile, TRUE);
@@ -1579,7 +1579,7 @@ OpenTrace(void)
 FSSpec tracespec;	// not saved
 
 if(TraceRefnum != -1) {
-	if(Beta) Alert1("Err. OpenTrace(). TraceRefnum != -1");
+	if(Beta) Alert1("=> Err. OpenTrace(). TraceRefnum != -1");
 	return(OK);
 	}
 return CreateTemporaryFile(&tracespec, &TraceRefnum, kBPTraceFile, TRUE);
@@ -1597,7 +1597,7 @@ OSErr CloseAndDeleteTemp()
 		FlushVol(NULL, TempSpec.vRefNum);
 		if(io != noErr && Beta) {
 			TellError(11,io);
-			Alert1("Err. deleting 'BP2.temp'");
+			Alert1("=> Err. deleting 'BP2.temp'");
 		}
 	}
 
@@ -1794,7 +1794,7 @@ char c,*p,*q,**p_line,version[VERSIONLENGTH];
 pos = ZERO;
 p_line = NULL;
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. GetVersion(). Incorrect window index");
+	if(Beta) Alert1("=> Err. GetVersion(). Incorrect window index");
 	return(FAILED);
 	}
 posmax = GetTextLength(w);
@@ -1845,7 +1845,7 @@ char version[VERSIONLENGTH];
 diff = 1;
 if(p_line == NULL || (*p_line)[0] == '\0') {
 	if(Beta) {
-		Alert1("Err. CheckVersion(). p_line == NULL || (*p_line)[0] == '\0'");
+		Alert1("=> Err. CheckVersion(). p_line == NULL || (*p_line)[0] == '\0'");
 		}
 	return(FAILED);
 	}
@@ -1875,7 +1875,7 @@ long pos,posmax;
 char *p,*q,**p_line;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. GetFileDate(). w < 0 || w >= WMAX || !Editable[w]");
+	if(Beta) Alert1("=> Err. GetFileDate(). w < 0 || w >= WMAX || !Editable[w]");
 	return(OK);
 	}
 pos = ZERO; p_line = NULL;
@@ -1924,10 +1924,10 @@ char line[MAXLIN],name[64],**p_line;
 long count;
 
 if(w >= WMAX || (w >= 0 && !Editable[w] && !HasFields[w] && w != iSettings)) {
-	if(Beta) Alert1("Err. WriteHeader(). w >= WMAX || (!Editable[w] && !HasFields[w])");
+	if(Beta) Alert1("=> Err. WriteHeader(). w >= WMAX || (!Editable[w] && !HasFields[w])");
 	}
 if(refnum == -1) {
-	if(Beta) Alert1("Err. WriteHeader(). refnum == -1");
+	if(Beta) Alert1("=> Err. WriteHeader(). refnum == -1");
 	return(FAILED);
 	}
 MyPtoCstr(MAXNAME,spec.name,name);
@@ -1986,7 +1986,7 @@ char line[MAXLIN],name[MAXNAME+1],**p_line;
 long count;
 
 if(refnum == -1) {
-	if(Beta) Alert1("Err. WriteEnd(). refnum == -1");
+	if(Beta) Alert1("=> Err. WriteEnd(). refnum == -1");
 	return(FAILED);
 	}
 if(w >= 0 && IsHTML[w]) {

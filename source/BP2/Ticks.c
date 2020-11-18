@@ -865,7 +865,7 @@ else {
 		}
 	for(i=0; i < MAXTICKS; i++) {
 		if(Ptick[i] == ZERO) {
-			if(Beta) Alert1("Err. SetTickParameters(). Ptick[i] == ZERO");
+			if(Beta) Alert1("=> Err. SetTickParameters(). Ptick[i] == ZERO");
 			continue;
 			}
 		ppq[i] = (plcm / Ptick[i]) * Qtick[i];
@@ -889,21 +889,21 @@ else {
 		}
 	g = GCD((double)ppqlcm,plcm);
 	if(g == ZERO) {
-		if(Beta) Println(wTrace,"Err. SetTickParameters(). g == ZERO");
+		if(Beta) Println(wTrace,"=> Err. SetTickParameters(). g == ZERO");
 		g = 1L;
 		}
 	BeatGrandCycle = ppqlcm / g;
 	if(Qclock > ZERO)
 		GrandPeriod = (1000. * (double) Pclock * BeatGrandCycle) / Qclock;
 	else {
-		if(Beta) Println(wTrace,"Err. SetTickParameters(). Qclock == ZERO");
+		if(Beta) Println(wTrace,"=> Err. SetTickParameters(). Qclock == ZERO");
 		goto OUT;
 		}
 	h = plcm / g;
 	for(i=0; i < MAXTICKS; i++) {
 		PleaseWait();
 		if(ppq[i] == ZERO) {
-			if(Beta) Println(wTrace,"Err. SetTickParameters(). ppq[i] == ZERO");
+			if(Beta) Println(wTrace,"=> Err. SetTickParameters(). ppq[i] == ZERO");
 			continue;
 			}
 		GrandCycle[i] = (ppqlcm / ppq[i]) * h;

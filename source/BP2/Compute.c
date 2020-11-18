@@ -171,7 +171,7 @@ t_subgram subgram;
 
 PleaseWait();
 if(p_gram == NULL) {
-	Alert1("Err. in ComputeInGram(). p_gram == NULL");
+	Alert1("=> Err. in ComputeInGram(). p_gram == NULL");
 	return(ABORT);
 	}
 if(clock() > time_end_compute) {
@@ -267,7 +267,7 @@ incmark = 0;	/* Marker correction in SUB */
 lastpos = 0;	/* Position for writing into B (SUB only) */
 if(grtype == SUBtype) {
 	if(*pp_a == NULL) {
-		if(Beta) Alert1("Err. ComputeInGram(). *pp_a = NULL");
+		if(Beta) Alert1("=> Err. ComputeInGram(). *pp_a = NULL");
 		rep = ABORT;
 		goto QUIT;
 		}
@@ -537,7 +537,7 @@ ENTER:
 			while((*p_totwght)[j] <= choice) j++;
 			if(j >= nb_candidates) {
 				if(Beta) {
-					sprintf(Message,"Err. ComputeInGram(). j = %ld, nb_candidates = %ld",
+					sprintf(Message,"=> Err. ComputeInGram(). j = %ld, nb_candidates = %ld",
 						(long)j,(long)nb_candidates);
 					}
 				j = nb_candidates - 1;
@@ -857,7 +857,7 @@ if(nb_candidates == ABORT || nb_candidates == EXIT || nb_candidates == FINISH
 	}
 if(grtype == SUBtype) {
 	if(*pp_b == NULL) {
-		if(Beta) Alert1("Err1. ComputeInGram(). *pp_b = NULL");
+		if(Beta) Alert1("=> Err1. ComputeInGram(). *pp_b = NULL");
 		goto QUIT;
 		}
 	if(UseEachSub && foundone && !PlaySelectionOn && DisplayItems) { // Added by BB 7 Nov 2020
@@ -926,7 +926,7 @@ if(grtype == SUBtype) {
 		}
 	maxpref = 0;
 	if(*pp_b == NULL) {
-		if(Beta) Alert1("Err2. ComputeInGram(). *pp_b = NULL");
+		if(Beta) Alert1("=> Err2. ComputeInGram(). *pp_b = NULL");
 		goto QUIT;
 		}
 	leftpos = NextPos(pp_a,pp_b,&lastpos,&incmark,leftpos,0);
@@ -989,7 +989,7 @@ if(!repeat) {
 	}
 if(p_ItemStart == NULL
 		|| DisplayStackIndex >= MyGetHandleSize((Handle)p_ItemStart) / sizeof(long)) {
-	if(Beta) Alert1("Err. Undo(). p_ItemStart = NULL");
+	if(Beta) Alert1("=> Err. Undo(). p_ItemStart = NULL");
 	return(ABORT);
 	}
 SetSelect((*p_ItemStart)[DisplayStackIndex-1],(*p_ItemEnd)[DisplayStackIndex-1],
@@ -1061,7 +1061,7 @@ int rep;
 long size;
 
 if(*pp_a == NULL) {
-	if(Beta) Alert1("Err. Destroy(). *pp_a = NULL");
+	if(Beta) Alert1("=> Err. Destroy(). *pp_a = NULL");
 	return(ABORT);
 	}
 size = MyGetHandleSize((Handle)*pp_a);
@@ -1084,7 +1084,7 @@ long j,jmax;
 j = *p_lastpos;
 if(i < 0) return(i);
 if(*pp_b == NULL) {
-	if(Beta) Alert1("Err. NextPos(). *pp_b = NULL");
+	if(Beta) Alert1("=> Err. NextPos(). *pp_b = NULL");
 	return(-1L);
 	}
 jmax = MyGetHandleSize((Handle)*pp_b) / sizeof(tokenbyte) - 2L;
@@ -1112,7 +1112,7 @@ while(TRUE) {
 		p = p + (*p_incmark);
 		}
 	if(j >= jmax-1) {
-		sprintf(Message,"Err. NextPos(). j=%ld  jmax=%ld ",(long)j,(long)jmax);
+		sprintf(Message,"=> Err. NextPos(). j=%ld  jmax=%ld ",(long)j,(long)jmax);
 		if(Beta) Alert1(Message);
 		return(ABORT);
 		}
@@ -1156,7 +1156,7 @@ if(AllItems && (grtype == SUBtype)) {
 	return(ABORT);
 	}
 if(p_candidate == NULL || p_totwght == NULL || p_pos == NULL || p_prefrule == NULL) {
-	if(Beta) Alert1("Err. FindCandidateRules(). Null handle");
+	if(Beta) Alert1("=> Err. FindCandidateRules(). Null handle");
 	return(ABORT);
 	}
 	 
@@ -1189,7 +1189,7 @@ if(grtype == SUBtype && (*p_maxpref) > 0) {
 			do {
 				s = (**h).x;
 				if(s > Jflag) {
-					if(Beta) Alert1("Err. p_Swtch. ");
+					if(Beta) Alert1("=> Err. p_Swtch. ");
 					return(ABORT);
 					}
 				if(s > 0) {
@@ -1219,7 +1219,7 @@ if(grtype == SUBtype && (*p_maxpref) > 0) {
 								if((*p_Flag)[s] <= value) goto NEXTRULE;
 								break;
 							default:
-								if(Beta) Alert1("Err.FindCandidateRules(). Invalid flag comparison");
+								if(Beta) Alert1("=> Err.FindCandidateRules(). Invalid flag comparison");
 								goto NEXTRULE;
 							}
 						}
@@ -1318,7 +1318,7 @@ for(irul=startfrom,i=0,sumwght=0; irul >= 1 && irul <= n; irul+=dir) {
 			do {
 				s = (**h).x;
 				if(s > Jflag) {
-					if(Beta) Alert1("Err. p_Swtch. ");
+					if(Beta) Alert1("=> Err. p_Swtch. ");
 					i = ABORT;
 					goto OVER;
 					}
@@ -1349,7 +1349,7 @@ for(irul=startfrom,i=0,sumwght=0; irul >= 1 && irul <= n; irul+=dir) {
 								if((*p_Flag)[s] <= value) goto NEXTRULE2;
 								break;
 							default:
-								if(Beta) Alert1("Err.FindCandidateRules(). Invalid flag comparison");
+								if(Beta) Alert1("=> Err.FindCandidateRules(). Invalid flag comparison");
 								goto NEXTRULE2;
 							}
 						}
@@ -1561,7 +1561,7 @@ switch(mode) {
 		*p_length = pos; if(pos < 2) return(-1);
 		dir = -2; startpos = *p_length - 2;
 		if(startpos != (startpos / 2) * 2) {
-			if(Beta) Alert1("Error FindArg(). Odd 'startpos'");
+			if(Beta) Alert1("=> Error FindArg(). Odd 'startpos'");
 			startpos = (startpos / 2) * 2;
 			}
 		break;
@@ -1602,7 +1602,7 @@ if(clock() > time_end_compute) {
 		
 // offset = rule.leftoffset if grtype = SUBtype; offset = 0 otherwise.
 if(offset > 0 && grtype != SUBtype) {
-	if(Beta) Alert1("Err. Found(). offset > 0");
+	if(Beta) Alert1("=> Err. Found(). offset > 0");
 	offset = 0;
 	}
 *p_length = 0;
@@ -1882,7 +1882,7 @@ Size oldsize,newsize,lenc1,incmark,blocksize;
 /* *pp_origin = *pp_dest except in 'SUB' subgrammars. */
 
 if(*pp_dest == NULL) {
-	if(Beta) Alert1("Err. Insert(). *pp_dest = NULL");
+	if(Beta) Alert1("=> Err. Insert(). *pp_dest = NULL");
 	return(-1L);
 	}
 oldsize = MyGetHandleSize((Handle)*pp_dest);
@@ -1939,11 +1939,11 @@ case 0:	{						/* RND rule */
 case 1:	{ 			/* ANAL or LEFT rule or LIN or ORD or SUB1 or POSLONG grammar */
 		if(!Found(pp_origin,grtype,p_arg1,offset,rule.leftnegcontext,&lenc1,pos1,1,
 			instan,meta,meta1,&istart,&jstart,&length,rule.ismeta,time_end_compute)) {
-			if(Beta) Alert1("Err Insert().  Not found");
+			if(Beta) Alert1("=> Err Insert().  Not found");
 			return(ABORT);
 			}
 		if(!OkContext(pp_origin,grtype,rule,pos1,length,meta,instan,mode,time_end_compute)) {
-			if(Beta) Alert1("Err Insert().  Not OkContext");
+			if(Beta) Alert1("=> Err Insert().  Not OkContext");
 			return(ABORT);
 			}
 		/* this was necessary for loading instan[] and meta[] */
@@ -1957,7 +1957,7 @@ case 2:	{								/* RIGHT rule */
 				PROD,time_end_compute)) {
 				pos1 -= 2;
 				if(pos1 < 0) {
-					if(Beta) Alert1("Err. Insert(). pos1 < 0");
+					if(Beta) Alert1("=> Err. Insert(). pos1 < 0");
 					return(ABORT);
 					}
 				}
@@ -1966,11 +1966,11 @@ case 2:	{								/* RIGHT rule */
 case 3:	{								/* SUB grammar */
 		if(!Found(pp_origin,grtype,p_arg1,offset,rule.leftnegcontext,&lenc1,pos1,1,
 			instan,meta,meta1,&istart,&jstart,&length,rule.ismeta,time_end_compute)) {
-			if(Beta) Alert1("Err Insert().  Not found");
+			if(Beta) Alert1("=> Err Insert().  Not found");
 			return(ABORT);
 			}
 		if(!OkContext(pp_origin,grtype,rule,pos1,length,meta,instan,PROD,time_end_compute)) {
-			if(Beta) Alert1("Err Insert().  Not OkContext");
+			if(Beta) Alert1("=> Err Insert().  Not OkContext");
 			return(ABORT);
 			}
 		Countmark(rule.p_leftarg,&length1); /* Only to calculate length1 */
@@ -2126,7 +2126,7 @@ tokenbyte m,p,q;		/* 'from' is the position of rightmost symbol inserted */
 for(i = from, q = 1; (**pp_a)[i] != TEND || (**pp_a)[i+1] != TEND; i+=2) {
 	m = (int) (**pp_a)[i];
 	if(m >= MAXTOKENBYTE) {
-		if(trace_compute) BPPrintMessage(odInfo,"Error in Cormark() from = %ld inmark = %d\n",(long)from,inmark);
+		if(trace_compute) BPPrintMessage(odInfo,"=> Error in Cormark() from = %ld inmark = %d\n",(long)from,inmark);
 		return(FAILED);
 		}
 	p = (int)(**pp_a)[i+1];
@@ -2157,7 +2157,7 @@ long i,len,k;
 tokenbyte m,p;
 
 if(p_arg == NULL) {
-	if(Beta) Alert1("Err. Countmark()");
+	if(Beta) Alert1("=> Err. Countmark()");
 	return(0);
 	}
 for(i=k=len=0; ; i+=2,len++) {
@@ -2183,7 +2183,7 @@ h = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].p_leftflag;
 if(h != NULL) {
 	do {
 		if((**h).x > Jflag) {
-			if(Beta) Alert1("Err. p_Swtch. ");
+			if(Beta) Alert1("=> Err. p_Swtch. ");
 			rep = ABORT;
 			goto QUIT;
 			}
@@ -2197,7 +2197,7 @@ h = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].p_rightflag;
 if(h != NULL) {
 	do {					/* Change flags created by rule */
 		if((**h).x > Jflag) {
-			if(Beta) Alert1("Err. p_Swtch. ");
+			if(Beta) Alert1("=> Err. p_Swtch. ");
 			rep = ABORT;
 			goto QUIT;
 			}
@@ -2246,7 +2246,7 @@ if(DisplayProduce) {
 	BPActivateWindow(QUICK,wTrace);
 	if(p_ItemStart == NULL
 			|| DisplayStackIndex >= MyGetHandleSize((Handle)p_ItemStart) / sizeof(long)) {
-		if(Beta) Alert1("Err. ShowItem(). p_ItemStart = NULL");
+		if(Beta) Alert1("=> Err. ShowItem(). p_ItemStart = NULL");
 		return(OK);
 		}
 	(*p_ItemStart)[DisplayStackIndex] = lastbyte = GetTextLength(wTrace);

@@ -502,7 +502,7 @@ QUEST2:
 				}
 			else {
 				if(i <= (*p_imaxseq)[nseq] && (*p_T)[i] != ZERO) {
-					sprintf(Message,"Err. SetTimeObjects() nseq = %ld maxseq = %ld (*p_T)[%ld] = %ld\n",(long)nseq,(long)maxseq,(long)i,(long)(*p_T)[i]);
+					sprintf(Message,"=> Err. SetTimeObjects() nseq = %ld maxseq = %ld (*p_T)[%ld] = %ld\n",(long)nseq,(long)maxseq,(long)i,(long)(*p_T)[i]);
 					if(show_details_timeset) BPPrintMessage(odInfo,Message);
 					(*p_T)[i] = ZERO;
 					}
@@ -535,7 +535,7 @@ QUEST2:
 		sprintf(Message,"1_max: i = %ld, k = %ld\n",(long)i,(long)k);
 		if(show_details_timeset) BPPrintMessage(odInfo,Message);
 		if(k > *p_kmx) {
-			BPPrintMessage(odInfo,"Error in TimeSet(). k > *p_kmx\n");
+			BPPrintMessage(odInfo,"=> Error in TimeSet(). k > *p_kmx\n");
 			}
 		else if(i > 0 && (t=((*p_Instance)[k].endtime+(*p_Instance)[k].truncend)) > *p_tmax)
 			*p_tmax = t;
@@ -546,7 +546,7 @@ QUEST2:
 		sprintf(Message,"2_min: i = %ld, k = %ld\n",(long)i,(long)k);
 		if(show_details_timeset) BPPrintMessage(odInfo,Message);
 		if(k > *p_kmx) {
-			BPPrintMessage(odInfo,"Error in TimeSet(). k > *p_kmx\n");
+			BPPrintMessage(odInfo,"=> Error in TimeSet(). k > *p_kmx\n");
 			}
 		else if(i <= imax && (t=((*p_Instance)[k].starttime-(*p_Instance)[k].truncbeg)) < *p_tmin)
 			*p_tmin = t;

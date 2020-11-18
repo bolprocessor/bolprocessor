@@ -198,7 +198,7 @@ switch(p_event->what) {
 				SetPortWindowPort(Window[LastEditWindow]);
 				InvalWindowRect(Window[LastEditWindow], &r);
 				if(saveport != NULL) SetPort(saveport);
-				else if(Beta) Alert1("Err DoEvent(). saveport == NULL");
+				else if(Beta) Alert1("=> Err DoEvent(). saveport == NULL");
 #if !TARGET_API_MAC_CARBON
 				SystemClick(p_event,whichwindow);
 #endif
@@ -633,7 +633,7 @@ ControlHandle itemhandle;
 MIDI_Event e;
 
 if(w >= WMAX || w < 0) {
-	if(Beta) Alert1("Error ClearWindow(). w >= WMAX || w < 0");
+	if(Beta) Alert1("=> Error ClearWindow(). w >= WMAX || w < 0");
 	return(FAILED);
 	}
 GetPort(&saveport);
@@ -796,7 +796,7 @@ Dirty[w] = Created[w] = FALSE;
 
 OUT:
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err ClearWindow(). saveport == NULL");
+else if(Beta) Alert1("=> Err ClearWindow(). saveport == NULL");
 return(rep);
 }
 
@@ -807,7 +807,7 @@ int wmem,r;
 
 wmem = w; r = OK;
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err. GoAway()");
+	if(Beta) Alert1("=> Err. GoAway()");
 	return(OK);
 	}
 if(w == wPrototype1) {
@@ -1001,7 +1001,7 @@ Rect r;
 GrafPtr saveport;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err. AdjustTextInWindow(). w < 0 || w >= WMAX");
+	if(Beta) Alert1("=> Err. AdjustTextInWindow(). w < 0 || w >= WMAX");
 	return(OK);
 	}
 GetPort(&saveport);
@@ -1019,7 +1019,7 @@ if(OKvScroll[w] && Editable[w]) {
 #endif
 	}
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err AdjustTextInWindow(). saveport == NULL");
+else if(Beta) Alert1("=> Err AdjustTextInWindow(). saveport == NULL");
 return(OK);
 }
 
@@ -1033,7 +1033,7 @@ GetPort(&saveport);
 SetPortWindowPort(Window[w]);
 GetFontInfo(&font);
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err LineHeight(). saveport == NULL");
+else if(Beta) Alert1("=> Err LineHeight(). saveport == NULL");
 return(font.ascent + font.descent + font.leading);
 }
 
@@ -1044,7 +1044,7 @@ int n;
 long length;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err. SetVScroll(). ");
+	if(Beta) Alert1("=> Err. SetVScroll(). ");
 	return(OK);
 	}
 if(OKvScroll[w] && Editable[w]) {
@@ -1073,7 +1073,7 @@ LongPt startpoint,endpoint;
 #endif
 
 if(w < 0 || w >= WMAX) {
-	sprintf(Message,"Err. ShowSelect(). w = %ld. ",(long)w);
+	sprintf(Message,"=> Err. ShowSelect(). w = %ld. ",(long)w);
 	if(Beta) Alert1(Message);
 	return(OK);
 	}
@@ -1128,7 +1128,7 @@ if(GrafWindow[w]) {
 	GetWindowPortBounds(window, &rclip);
 	ClipRect(&rclip);
 	if(saveport != NULL) SetPort(saveport);
-	else if(Beta) Alert1("Err ShowSelect(). saveport == NULL");
+	else if(Beta) Alert1("=> Err ShowSelect(). saveport == NULL");
 	GotAlert = FALSE;
 	}
 
@@ -1282,7 +1282,7 @@ EndUpdate(theWindow);
 ClipRect(&r1);
 // if(w < WMAX && HasFields[w] && !Editable[w]) HiliteDefault(GetDialogFromWindow(theWindow));
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err UpdateWindow(). saveport == NULL");
+else if(Beta) Alert1("=> Err UpdateWindow(). saveport == NULL");
 return(OK);
 }
 
@@ -1407,7 +1407,7 @@ if(w < WMAX && Editable[w]) {
 				LastEditWindow = w;
 				MyUnlock((Handle)TEH[w]);
 				if(saveport != NULL) SetPort(saveport);
-				else if(Beta) Alert1("Err DoContent(). saveport == NULL");
+				else if(Beta) Alert1("=> Err DoContent(). saveport == NULL");
 				return(OK);
 				}
 			}
@@ -1422,7 +1422,7 @@ if(w < WMAX && Editable[w]) {
 		else TrackControl(theControl,p_event->where,vScrollUPP);
 	/*	InvalWindowRect(Window[w], &r); */
 		if(saveport != NULL) SetPort(saveport);
-		else if(Beta) Alert1("Err DoContent(). saveport == NULL");
+		else if(Beta) Alert1("=> Err DoContent(). saveport == NULL");
 		return(OK);
 		}
 	}
@@ -1473,7 +1473,7 @@ if((cntlCode=FindControl(p_event->where,theWindow,&theControl)) != 0) {
 			ClipRect(&r1);
 			EraseRect("canvas",&r1);
 			if(saveport != NULL) SetPort(saveport);
-				else if(Beta) Alert1("Err DoContent(). saveport == NULL");
+				else if(Beta) Alert1("=> Err DoContent(). saveport == NULL");
 			AdjustGraph(TRUE,w,theControl);
 			if((rep=BPActivateWindow(SLOW,w)) != OK) return(rep);
 			}
@@ -1483,7 +1483,7 @@ else if(w < WMAX && (GrafWindow[w] || IsDialog[w])) (*p_intext) = TRUE;
 
 OUT:																
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err DoContent(). saveport == NULL");
+else if(Beta) Alert1("=> Err DoContent(). saveport == NULL");
 return(OK);
 }
 
@@ -1513,7 +1513,7 @@ SetPortWindowPort(Window[w]);
 GetWindowPortBounds(Window[w], &r);
 InvalWindowRect(Window[w], &r);
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err AdjustGraph(). saveport == NULL");
+else if(Beta) Alert1("=> Err AdjustGraph(). saveport == NULL");
 UpdateWindow(FALSE,Window[w]);
 
 return(OK);
@@ -1557,7 +1557,7 @@ Rect r;
 int result;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err. MyGrowWindow() ");
+	if(Beta) Alert1("=> Err. MyGrowWindow() ");
 	return(OK);
 	}
 result = OK;
@@ -1576,7 +1576,7 @@ else	{
 	AdjustWindowContents(w);
 	}
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err MyGrowWindow(). saveport == NULL");
+else if(Beta) Alert1("=> Err MyGrowWindow(). saveport == NULL");
 return(result);
 }
 
@@ -1775,7 +1775,7 @@ char *p,*q,line1[MAXLIN],line2[MAXLIN];
 long pos,posinit,posmax,origin,end;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err. PutFirstLine(). ");
+	if(Beta) Alert1("=> Err. PutFirstLine(). ");
 	return(OK);
 	}
 /* New scheme 031607:  if filename (s) does not begin with prefix,
@@ -1842,7 +1842,7 @@ long pos,posinit,posmax,origin,end;
 
 if(prefix[0] == '\0') return(OK);
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. RemoveFirstLine(). ");
+	if(Beta) Alert1("=> Err. RemoveFirstLine(). ");
 	return(OK);
 	}
 dirtymem = Dirty[w];
@@ -2046,7 +2046,7 @@ else if (wPtr == GetDialogWindow(EnterPtr) ||
 SetCursor(newcursor);
 
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err MaintainCursor(). saveport == NULL");
+else if(Beta) Alert1("=> Err MaintainCursor(). saveport == NULL");
 return(OK);
 }
 

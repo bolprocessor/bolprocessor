@@ -85,7 +85,7 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 	BP_NOT_USED(p_keep);
 	
 	if (p_line == NULL) {
-		if (Beta) Alert1("Err.ExecScriptLine(). p_line = NULL");
+		if (Beta) Alert1("=> Err.ExecScriptLine(). p_line = NULL");
 		return OK;
 	}
 	if ((*p_line)[0] == '\0') return OK;

@@ -303,21 +303,21 @@ FINDQUADRA:
 		xmin = - p_r->b / 2. / p_r->a;
 		delta = (p_r->b * p_r->b) - 4.* p_r->a * (p_r->c - y);
 		if(delta < 0.) {
-			if(Beta) Alert1("Err. YtoX(). delta < 0");
+			if(Beta) Alert1("=> Err. YtoX(). delta < 0");
 			goto DO_OVERFLOW;
 			}
 		x = (- p_r->b - sqrt(delta)) / 2. / p_r->a;
 		if((xmin - p_r->x2) * (xmin - x) < 0.) {
 			x = (- p_r->b + sqrt(delta)) / 2. / p_r->a;
 			if((xmin - p_r->x2) * (xmin - x) < 0.) {
-				if(Beta) Alert1("Err. YtoX(). ((xmin - p_r->x2) * (xmin - x) < 0.)"); 
+				if(Beta) Alert1("=> Err. YtoX(). ((xmin - p_r->x2) * (xmin - x) < 0.)"); 
 				goto DO_OVERFLOW;
 				}
 			}
 		}
 	else {
 		if(p_r->a12 == 0.) {
-			if(Beta) Alert1("Err. YtoX(). p_r->a12 == 0");
+			if(Beta) Alert1("=> Err. YtoX(). p_r->a12 == 0");
 			goto DO_OVERFLOW;
 			}
 		x = (y - p_r->b12) / p_r->a12;
@@ -327,7 +327,7 @@ else {
 	if(p_r->isquadra23) goto FINDQUADRA;
 	else {
 		if(p_r->a23 == 0.) {
-			if(Beta) Alert1("Err. YtoX(). p_r->a23 == 0");
+			if(Beta) Alert1("=> Err. YtoX(). p_r->a23 == 0");
 			goto DO_OVERFLOW;
 			}
 		x = (y - p_r->b23) / p_r->a23;
@@ -388,7 +388,7 @@ Handle h;
 XYgraph subtable;
 
 if(scorearg == NULL) {
-	if(Beta) Alert1("Err. MakeCsoundFunctionTable(). scorearg == NULL");
+	if(Beta) Alert1("=> Err. MakeCsoundFunctionTable(). scorearg == NULL");
 	return(FAILED);
 	}
 if(alpha1 < 0. || alpha2 > 1. || (alpha1 >= alpha2)) return(FAILED);
@@ -399,7 +399,7 @@ subtable.point = NULL;
 result = GetPartOfTable(&subtable,alpha1,alpha2,imax,coords);
 if(result == ABORT) return(result);
 if(subtable.imax <= ZERO) {
-//	if(Beta) Alert1("Err. MakeCsoundFunctionTable(). subtable.imax <= ZERO");
+//	if(Beta) Alert1("=> Err. MakeCsoundFunctionTable(). subtable.imax <= ZERO");
 	r = FAILED;
 	goto OUT;
 	}
@@ -486,19 +486,19 @@ if(paramnameindex <= IPANORAMIC) {
 	}
 if(ip >= 0) {
 	if(ins < 0 || ins >= Jinstr) {
-		if(Beta) Alert1("Err. GetGENtype(). ins < 0 || ins >= Jinstr");
+		if(Beta) Alert1("=> Err. GetGENtype(). ins < 0 || ins >= Jinstr");
 		return(7);
 		}
 /*	if(ip >= IPMAX) {
-		if(Beta) Alert1("Err. GetGENtype(). ip >= IPMAX");
+		if(Beta) Alert1("=> Err. GetGENtype(). ip >= IPMAX");
 		return(7);
 		} */
 	if((*p_CsInstrument)[ins].paramlist == NULL) {
-		if(Beta) Alert1("Err. GetGENtype(). (*p_CsInstrument)[ins].paramlist == NULL");
+		if(Beta) Alert1("=> Err. GetGENtype(). (*p_CsInstrument)[ins].paramlist == NULL");
 		return(7);
 		}
 	if(ip >= (*p_CsInstrument)[ins].ipmax) {
-		if(Beta) Alert1("Err. GetGENtype(). ip >= (*p_CsInstrument)[ins].ipmax");
+		if(Beta) Alert1("=> Err. GetGENtype(). ip >= (*p_CsInstrument)[ins].ipmax");
 		return(7);
 		}
 	return((*((*p_CsInstrument)[ins].paramlist))[ip].GENtype);
@@ -514,23 +514,23 @@ long i,j,xmax,i1,i2,x1,x2;
 double ix1,ix2,y1,y2,startvalue,endvalue;
 
 if(alpha1 < 0.) {
-	if(Beta && alpha1 < -0.01) Alert1("Err. GetPartOfTable(). alpha1 < -0.01");
+	if(Beta && alpha1 < -0.01) Alert1("=> Err. GetPartOfTable(). alpha1 < -0.01");
 	alpha1 = 0.;
 	}
 if(alpha1 > 1.) {
-	if(Beta && alpha1 > 1.01) Alert1("Err. GetPartOfTable(). alpha1 > 1.01");
+	if(Beta && alpha1 > 1.01) Alert1("=> Err. GetPartOfTable(). alpha1 > 1.01");
 	alpha1 = 1.;
 	}
 if(alpha2 < 0.) {
-	if(Beta && alpha2 < -0.01) Alert1("Err. GetPartOfTable(). alpha2 < -0.01");
+	if(Beta && alpha2 < -0.01) Alert1("=> Err. GetPartOfTable(). alpha2 < -0.01");
 	alpha2 = 0.;
 	}
 if(alpha2 > 1.) {
-	if(Beta && alpha2 > 1.01) Alert1("Err. GetPartOfTable(). alpha2 > 1.01");
+	if(Beta && alpha2 > 1.01) Alert1("=> Err. GetPartOfTable(). alpha2 > 1.01");
 	alpha2 = 1.;
 	}
 if(alpha1 >= alpha2) {
-	if(Beta) Alert1("Err. GetPartOfTable(). alpha1 >= alpha2");
+	if(Beta) Alert1("=> Err. GetPartOfTable(). alpha1 >= alpha2");
 	return(FAILED);
 	}
 
@@ -540,16 +540,16 @@ p_subtable->point = NULL;
 p_subtable->imax = ZERO;
 
 if(imax <= ZERO) {
-	if(Beta) Alert1("Err. GetPartOfTable(). imax <= ZERO");
+	if(Beta) Alert1("=> Err. GetPartOfTable(). imax <= ZERO");
 	return(FAILED);
 	}
 if(coords == NULL) {
-	if(Beta) Alert1("Err. GetPartOfTable(). coords == NULL");
+	if(Beta) Alert1("=> Err. GetPartOfTable(). coords == NULL");
 	return(FAILED);
 	}
 if(Beta) {
 	if(imax > MyGetHandleSize((Handle)coords) / sizeof(Coordinates)) {
-		Alert1("Err. GetPartOfTable(). imax >= MyGetHandleSize((Handle)coords) / sizeof(Coordinates)");
+		Alert1("=> Err. GetPartOfTable(). imax >= MyGetHandleSize((Handle)coords) / sizeof(Coordinates)");
 		return(FAILED);
 		}
 	}
@@ -567,7 +567,7 @@ if(i1 > ZERO) {
 	y2 = (*(coords))[i1].value;
 	y1 = (*(coords))[i1-1L].value;
 	if(x1 >= x2) {
-		if(Beta) Alert1("Err. GetPartOfTable(). x1 >= x2");
+		if(Beta) Alert1("=> Err. GetPartOfTable(). x1 >= x2");
 		return(FAILED);
 		}
 	startvalue = y1 + (y2 - y1) * (ix1 - x1) / (x2 - x1);
@@ -598,7 +598,7 @@ if(i2 > ZERO) {
 		BPPrintMessage(odError,"=> Error in GetPartOfTable(). y1 = %.3f, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",y1,x1,x2,(long)i2);
 		}
 	if(x1 >= x2) {
-		if(Beta) Alert1("Err. GetPartOfTable(). x1 >= x2");
+		if(Beta) Alert1("=> Err. GetPartOfTable(). x1 >= x2");
 		BPPrintMessage(odError,"=> Error in GetPartOfTable(). x1 >= x2\n");
 		return(FAILED);
 		}
@@ -677,39 +677,39 @@ if(paramnameindex <= IPANORAMIC) {
 	}
 if(ip >= 0) {
 	if(ins < 0 || ins >= Jinstr) {
-		if(Beta) Alert1("Err. CombineScoreValues(). ins < 0 || ins >= Jinstr");
+		if(Beta) Alert1("=> Err. CombineScoreValues(). ins < 0 || ins >= Jinstr");
 		return(y);
 		}
 /*	if(ip >= IPMAX) {
-		if(Beta) Alert1("Err. CombineScoreValues(). ip >= IPMAX");
+		if(Beta) Alert1("=> Err. CombineScoreValues(). ip >= IPMAX");
 		return(y);
 		} */
 	if((*p_CsInstrument)[ins].paramlist == NULL) {
-		if(Beta) Alert1("Err. CombineScoreValues(). (*p_CsInstrument)[ins].paramlist == NULL");
+		if(Beta) Alert1("=> Err. CombineScoreValues(). (*p_CsInstrument)[ins].paramlist == NULL");
 		return(y);
 		}
 	if(ip >= (*p_CsInstrument)[ins].ipmax) {
-		if(Beta) Alert1("Err. CombineScoreValues(). ip >= (*p_CsInstrument)[ins].ipmax");
+		if(Beta) Alert1("=> Err. CombineScoreValues(). ip >= (*p_CsInstrument)[ins].ipmax");
 		return(y);
 		}
 	combinationtype = (*((*p_CsInstrument)[ins].paramlist))[ip].combinationtype;
 	ydefault = (*((*p_CsInstrument)[ins].paramlist))[ip].defaultvalue;
 	}
 else {
-	if(Beta) Alert1("Err. CombineScoreValues(). ip < 0");
+	if(Beta) Alert1("=> Err. CombineScoreValues(). ip < 0");
 	return(y);
 	}
 	
 FINDIT:
 if(combinationtype != ADD && combinationtype != MULT) {
-	if(Beta) Alert1("Err. CombineScoreValues(). combinationtype != ADD && combinationtype != MULT");
+	if(Beta) Alert1("=> Err. CombineScoreValues(). combinationtype != ADD && combinationtype != MULT");
 	return(y);
 	}
 if(x == 0.) yinterp = v0;
 else if(x == xmax) yinterp = v1;
 else {
 	if(xmax == 0.) {
-		if(Beta) Alert1("Err. CombineScoreValues(). xmax == 0");
+		if(Beta) Alert1("=> Err. CombineScoreValues(). xmax == 0");
 		yinterp = v0;
 		}
 	else yinterp = v0 + (x * (v1 - v0)) / xmax;
@@ -718,7 +718,7 @@ if(combinationtype == ADD)
 	ynew = y + yinterp - ydefault;
 else {
 	if(ydefault == 0.) {
-		if(Beta) Alert1("Err. CombineScoreValues(). ydefault == 0");
+		if(Beta) Alert1("=> Err. CombineScoreValues(). ydefault == 0");
 		return(y);
 		}
 	ynew = y * yinterp / ydefault;

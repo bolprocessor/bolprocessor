@@ -237,7 +237,7 @@ if(MustChangeInput) {
 ////////////////////////////
 while(MainEvent() != EXIT && EventState != EXIT) {
 	if(Beta && LoadOn > 0) {
-		Alert1("Err. LoadOn > 0 ");
+		Alert1("=> Err. LoadOn > 0 ");
 		LoadOn = 0;
 		}
 	}
@@ -400,7 +400,7 @@ r = OK;
 if(*p_h != NULL) {
 	size = MyGetHandleSize(*p_h);
 	if(size < 1L) {
-		if(!EmergencyExit && Beta) Alert1("Err. MyDisposeHandle. size < 1L");
+		if(!EmergencyExit && Beta) Alert1("=> Err. MyDisposeHandle. size < 1L");
 		*p_h = NULL;
 		return(ABORT);
 		}
@@ -426,13 +426,13 @@ OSErr memerr;
 
 TRY:
 if(h == NULL) {
-	if(Beta) Alert1("Err. IncreaseSpace(). h = NULL");
+	if(Beta) Alert1("=> Err. IncreaseSpace(). h = NULL");
 	return(NULL);
 	}
 // Beta warning if the handle is locked
 hstate = HGetState(h);
 if(hstate & kHandleLockedBit) {
-	if(Beta) Alert1("Err. IncreaseSpace(). Trying to resize a locked handle!");
+	if(Beta) Alert1("=> Err. IncreaseSpace(). Trying to resize a locked handle!");
 	}
 oldsize = MyGetHandleSize(h);
 // FIXME: how do we keep this calc from overflowing?
@@ -466,14 +466,14 @@ SInt8 hstate;
 
 TRY:
 if(p_h == NULL) {
-	sprintf(Message,"Err. MySetHandleSize(). p_h == NULL");
+	sprintf(Message,"=> Err. MySetHandleSize(). p_h == NULL");
 	if(Beta) Alert1(Message);
 	return(ABORT);
 	}
 // Beta warning if the handle is locked
 hstate = HGetState(*p_h);
 if(hstate & kHandleLockedBit) {
-	if(Beta) Alert1("Err. MySetHandleSize(). Trying to resize a locked handle!");
+	if(Beta) Alert1("=> Err. MySetHandleSize(). Trying to resize a locked handle!");
 }
 if((*p_h) == NULL) oldsize = ZERO;
 else {
@@ -486,7 +486,7 @@ if((*p_h) != NULL && oldsize > ZERO) {
 	}
 else {
 	if(Beta && (*p_h) != NULL && !InitOn) {
-		sprintf(Message,"Err. MySetHandleSize(). oldsize = %ld (2)\n",
+		sprintf(Message,"=> Err. MySetHandleSize(). oldsize = %ld (2)\n",
 			(long) oldsize);
 		BPPrintMessage(odInfo,Message);
 		}
@@ -522,7 +522,7 @@ if(high) HLockHi(h);
 else HLock(h);
 if((memerr=MemError()) != noErr) {
 	TellError(30,memerr);
-	if(Beta) Alert1("Error locking handle");
+	if(Beta) Alert1("=> Error locking handle");
 	return(ABORT);
 	}
 return(OK);
@@ -540,7 +540,7 @@ if(h == NULL) {
 HUnlock(h);
 if((memerr=MemError()) != noErr) {
 	TellError(31,memerr);
-	if(Beta) Alert1("Error unlocking handle");
+	if(Beta) Alert1("=> Error unlocking handle");
 	return(ABORT);
 	}
 return(OK);

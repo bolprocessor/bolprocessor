@@ -348,7 +348,7 @@ END:
 MyDisposeHandle((Handle*)&p_line);
 if(tracecompile) Print(wTrace,"\n");
 if((*(Gram.p_subgram))[Gram.number_gram].number_rule > MaxRul) {
-	sprintf(Message,"Err. number rules gram#%ld.",(long)Gram.number_gram);
+	sprintf(Message,"=> Err. number rules gram#%ld.",(long)Gram.number_gram);
 	if(Beta) Alert1(Message);
 	if(CompileOn) CompileOn--;
 	return(ABORT);
@@ -1039,7 +1039,7 @@ while(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
 		if((*p_line)[0] == '-' && (*p_line)[1] == '-') {
 			done = FALSE;
 			if(!foundoperatorthere) {
-				Print(wTrace,"Error in alphabet: section should contain the definition of an homomorphism.");
+				Print(wTrace,"=> Error in alphabet: section should contain the definition of an homomorphism.");
 				if(CompileOn) CompileOn--;
 				MyDisposeHandle((Handle*)&p_line);
 				return(ABORT);
@@ -1112,7 +1112,7 @@ GetHomomorph(char **p_line,int justcount)
 
 i = 0; j = 0;
 if((*p_line)[0] == '\0') {
-	if(Beta) Alert1("Err. GetHomomorph(). (*p_line)[0] == '\0'");
+	if(Beta) Alert1("=> Err. GetHomomorph(). (*p_line)[0] == '\0'");
 	return(24);
 	}
 while(MySpace((*p_line)[i])) i++;
@@ -1171,7 +1171,7 @@ for(i=0,k1=0; i <= l;) {
 		r = ABORT; goto QUIT;
 		}
 	if(k2 >= (16384+128)) {
-		if(Beta) Alert1("Err. GetBols(). k2 >= (16384+128)");
+		if(Beta) Alert1("=> Err. GetBols(). k2 >= (16384+128)");
 		r = ABORT; goto QUIT;
 		}
 	if(!justcount && k1 > 0 && Jhomo > 0 && operatorthere) {
@@ -1408,7 +1408,7 @@ for(j=0; j < MAXNIL; j++) {
 if(show_details_compile_grammar) BPPrintMessage(odInfo, "jmax = %d\n",jmax);
 if(jmax > 0) {
 	if(p_t == NULL) {
-		if(Beta) Alert1("Err. CreateBol(). p_t == NULL");
+		if(Beta) Alert1("=> Err. CreateBol(). p_t == NULL");
 		return(ABORT);
 		}
 	for(j=0; j < jmax; j++) {
@@ -1520,13 +1520,13 @@ if(newsubgram) {
 	*p_done = TRUE;
 	if((*(Gram.p_subgram))[igram].number_rule > MaxRul) {
 		sprintf(Message,
-			"Err. number rules gram#%ld. ",(long)Gram.number_gram);
+			"=> Err. number rules gram#%ld. ",(long)Gram.number_gram);
 		if(Beta) Alert1(Message);
 		N_err++; return(2);
 		}
 	if(tracecompile) Print(wTrace,"------------------------\n");
 	if((++Gram.number_gram) > MaxGram) {
-		sprintf(Message,"Err. number grams = %ld  MaxGram = %ld. ",
+		sprintf(Message,"=> Err. number grams = %ld  MaxGram = %ld. ",
 				(long)Gram.number_gram,(long)MaxGram);
 		if(Beta) Alert1(Message);
 		N_err++; return(1);

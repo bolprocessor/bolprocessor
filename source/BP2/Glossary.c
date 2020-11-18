@@ -179,7 +179,7 @@ while(ReadLine(YES,wGlossary,&pos,posmax,&p_line,&gap) == OK) {
 	*pp2 = *pp1; while(OkChar(**pp2) || (**pp2) == '|') (*pp2)++;
 	j = GetVar(pp1,pp2);
 	if(j < 1 || j > Jvar || p_VarStatus == NULL) {
-		if(Beta) Alert1("Err. CompileGlossary(). j < 1 || j > Jvar || p_VarStatus == NULL");
+		if(Beta) Alert1("=> Err. CompileGlossary(). j < 1 || j > Jvar || p_VarStatus == NULL");
 		if(CompileOn) CompileOn--;
 		MyDisposeHandle((Handle*)&p_line);
 		return(ABORT);
@@ -277,7 +277,7 @@ if(!errors && r == OK && irul > 0) {
 	}
 	
 if(errors || r != OK) goto ERR;
-sprintf(Message,"Errors: %ld",(long)errors);
+sprintf(Message,"=> Errors: %ld",(long)errors);
 if(irul == 0) ReleaseGlossarySpace();
 else ShowMessage(TRUE,wMessage,Message);
 CompiledGl = TRUE;
@@ -289,7 +289,7 @@ MyDisposeHandle((Handle*)&p_line);
 if(errors) {
 	Print(wTrace,"\nError(s) in 'Glossary' window.\n\n");
 	ShowSelect(CENTRE,wTrace);
-	sprintf(Message,"Errors: %ld",(long)errors);
+	sprintf(Message,"=> Errors: %ld",(long)errors);
 	ShowMessage(TRUE,wMessage,Message);
 	}
 CompiledGl = FALSE;

@@ -103,7 +103,7 @@ else {
 	}
 LoadOn--;
 if(Beta && LoadOn > 0) {
-	Alert1("Err. LoadOn > 0 ");
+	Alert1("=> Err. LoadOn > 0 ");
 	LoadOn = 0;
 	}
 HideWindow(Window[wMessage]);
@@ -162,7 +162,7 @@ if(NewFile(-1,12,fn,&reply)) {
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"Error creating '%s'",LineBuff);
+		sprintf(Message,"=> Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -212,7 +212,7 @@ goto QUIT;
 ERR:
 GetKeyboard();
 result = FAILED;
-sprintf(Message,"Error reading '%s' keyboard file...",FileName[wKeyboard]);
+sprintf(Message,"=> Error reading '%s' keyboard file...",FileName[wKeyboard]);
 Alert1(Message);
 FileName[wKeyboard][0] = '\0';
 
@@ -221,7 +221,7 @@ MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 SetKeyboard();
 if(Token) AppendScript(66); else AppendScript(67);
 if(FSClose(refnum) != noErr) {
-	sprintf(Message,"Error closing '%s' keyboard file...",FileName[wKeyboard]);
+	sprintf(Message,"=> Error closing '%s' keyboard file...",FileName[wKeyboard]);
 	Alert1(Message);
 	result = FAILED;
 	}
@@ -295,7 +295,7 @@ WRITE:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"Error creating '%s'",LineBuff);
+		sprintf(Message,"=> Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -364,7 +364,7 @@ goto QUIT;
 ERR:
 GetTimeBase(); GetTickParameters();
 result = FAILED;
-sprintf(Message,"Error reading '%s' time base file...",FileName[wTimeBase]);
+sprintf(Message,"=> Error reading '%s' time base file...",FileName[wTimeBase]);
 Alert1(Message);
 FileName[wTimeBase][0] = '\0';
 
@@ -374,7 +374,7 @@ MyDisposeHandle((Handle*)&p_completeline);
 for(i=0; i < MAXTICKS; i++) SetTickParameters(i+1,MAXBEATS);
 SetTickParameters(0,MAXBEATS);
 if(FSClose(refnum) != noErr) {
-	sprintf(Message,"Error closing '%s' time base file...",FileName[wTimeBase]);
+	sprintf(Message,"=> Error closing '%s' time base file...",FileName[wTimeBase]);
 	Alert1(Message);
 	result = FAILED;
 	}
@@ -459,7 +459,7 @@ WRITE:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"Error creating '%s'",LineBuff);
+		sprintf(Message,"=> Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -618,7 +618,7 @@ WRITE:
 			for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
 				PleaseWait();
 				if((*p_CsInstrument)[j].paramlist == NULL) {
-					if(Beta) Alert1("Err. SaveCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
+					if(Beta) Alert1("=> Err. SaveCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
 					break;
 					}
 				MystrcpyHandleToString(MAXFIELDCONTENT,0,line,
@@ -675,7 +675,7 @@ WRITE:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"Error creating '%s'",LineBuff);
+		sprintf(Message,"=> Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -844,7 +844,7 @@ WRITE:
 					}
 				}
 			if(saveport != NULL) SetPort(saveport);
-			else if(Beta) Alert1("Err SaveSettings(). saveport == NULL");
+			else if(Beta) Alert1("=> Err SaveSettings(). saveport == NULL");
 			}
 		imax = MAXCOLOR; if(!NewColors) imax = 0;
 		sprintf(LineBuff,"%ld",(long)imax); WriteToFile(NO,MAC,LineBuff,refnum);
@@ -885,7 +885,7 @@ LASTPART:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,line);
-		sprintf(Message,"Error creating '%s'",line);
+		sprintf(Message,"=> Error creating '%s'",line);
 		Alert1(Message);
 		result = FAILED;
 		}
@@ -1234,7 +1234,7 @@ for(j=0; j < jmax; j++) {
 		
 	for(ip=0; ip < (*p_CsInstrument)[j].ipmax; ip++) {
 		if((*p_CsInstrument)[j].paramlist == NULL) {
-			Alert1("Err. LoadCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
+			Alert1("=> Err. LoadCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
 			break;
 			}
 		ptr = (*((*p_CsInstrument)[j].paramlist))[ip].name;
@@ -1252,7 +1252,7 @@ for(j=0; j < jmax; j++) {
 	if(ReadInteger(csfile,&ipmax,&pos) == FAILED) goto ERR;
 	if(ipmax < 1) continue;
 /*	if(ipmax > IPMAX) {
-		Alert1("Err. LoadCsoundInstruments(). i > IPMAX");
+		Alert1("=> Err. LoadCsoundInstruments(). i > IPMAX");
 		Alert1("This '-cs' file was created by a newer version of BP2. Some parameters may be ignored");
 		ipmax = IPMAX;
 		} */
@@ -1363,7 +1363,7 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 goto QUIT;
 
 ERR:
-BPPrintMessage(odInfo,"Error reading '%s' Csound instrument file...\n",FileName[wCsoundInstruments]);
+BPPrintMessage(odInfo,"=> Error reading '%s' Csound instrument file...\n",FileName[wCsoundInstruments]);
 // FileName[wCsoundInstruments][0] = '\0';
 
 QUIT:
@@ -1755,7 +1755,7 @@ goto QUIT;
 
 ERR:
 result = FAILED;
-sprintf(Message,"Error reading '%s' settings file...",filename);
+sprintf(Message,"=> Error reading '%s' settings file...",filename);
 Alert1(Message);
 
 QUIT:
@@ -1817,7 +1817,7 @@ if(NewFile(-1,4,PascalLine,&reply)) {
 		}
 	else {
 		MyPtoCstr(MAXNAME,PascalLine,LineBuff);
-		sprintf(Message,"Error creating '%s'",LineBuff);
+		sprintf(Message,"=> Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -1901,7 +1901,7 @@ NOERR:
 	MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 	}
 else {
-	/* Alert1("Error reading decision file..."); */  // user may have cancelled
+	/* Alert1("=> Error reading decision file..."); */  // user may have cancelled
 	HideWindow(Window[wMessage]);
 	return(FAILED);
 	}
@@ -2108,13 +2108,13 @@ else {
 	if(ReadUnsignedLong(refnum,&kk,&pos) != FAILED) MinPclock = (double) kk;
 	else goto ERR;
 	if(MinPclock < 1.) {
-		Alert1("Err: MinPclock < 1 in LoadInteraction().  Incorrect '-in' file");
+		Alert1("=> Err: MinPclock < 1 in LoadInteraction().  Incorrect '-in' file");
 		goto ERR;
 		}
 	if(ReadUnsignedLong(refnum,&kk,&pos) != FAILED) MaxPclock = kk;
 	else goto ERR;
 	if(MaxPclock < 1) {
-		Alert1("Err: MaxPclock < 1 in LoadInteraction().  Incorrect '-in' file");
+		Alert1("=> Err: MaxPclock < 1 in LoadInteraction().  Incorrect '-in' file");
 		goto ERR;
 		}
 	if(ReadUnsignedLong(refnum,&kk,&pos) != FAILED) MinQclock = kk;
@@ -2149,14 +2149,14 @@ goto QUIT;
 
 ERR:
 result = FAILED;
-Alert1("Error reading interactive code file...");
+Alert1("=> Error reading interactive code file...");
 ForgetFileName(wInteraction); /* 1/3/97 */
 Interactive = FALSE; SetButtons(TRUE);
 
 QUIT:
 MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 if(FSClose(refnum) != noErr) {
-	if(Beta) Alert1("Error closing interactive code file...");
+	if(Beta) Alert1("=> Error closing interactive code file...");
 	}
 HideWindow(Window[wMessage]);
 if(result == OK) {
@@ -2247,7 +2247,7 @@ WRITE:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"Error creating '%s'",LineBuff);
+		sprintf(Message,"=> Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -2310,7 +2310,7 @@ READIT:
 		SetCursor(&WatchCursor);	
 		if(ReadLong(refnum,&imax,&pos) == FAILED) goto ERR;
 		if(imax < 16 || imax > MAXCHAN) {
-			if(Beta) Alert1("Err. LoadMIDIorchestra(). imax < 16 || imax > MAXCHAN");
+			if(Beta) Alert1("=> Err. LoadMIDIorchestra(). imax < 16 || imax > MAXCHAN");
 			imax = MAXCHAN;
 			}
 		for(i=1; i <= 16; i++) {
@@ -2423,12 +2423,12 @@ int LoadMidiDriverStartup()
 	
 	err = MyOpen(&mdStartup, fsRdPerm, &refnum);
 	if (err != noErr)  {	// do report the failure to open an existing file
-		ShowMessage(TRUE, wMessage, "Error opening '-md.startup' file.");
+		ShowMessage(TRUE, wMessage, "=> Error opening '-md.startup' file.");
 		return (FAILED);
 	}
 	
 	result = ReadMidiDriverSettings(refnum, &mdStartup);
-	if (result != OK) ShowMessage(TRUE, wMessage, "Error reading '-md.startup' file.");
+	if (result != OK) ShowMessage(TRUE, wMessage, "=> Error reading '-md.startup' file.");
 	return result; 
 }
 
@@ -2477,7 +2477,7 @@ int LoadMidiDriverSettings(FSSpec* mdfile)
 	err = MyOpen(mdfile, fsRdPerm, &refnum);
 	if (err != noErr)  {
 		p2cstrcpy(cname, mdfile->name);
-		sprintf(Message,"Error opening the file '%s'.", cname);
+		sprintf(Message,"=> Error opening the file '%s'.", cname);
 		Alert1(Message);
 		return (FAILED);
 	}
@@ -2486,7 +2486,7 @@ int LoadMidiDriverSettings(FSSpec* mdfile)
 	if (result == OK) RememberMdFile(mdfile);
 	else {
 		p2cstrcpy(cname, mdfile->name);
-		sprintf(Message,"Error reading the file '%s'.", cname);
+		sprintf(Message,"=> Error reading the file '%s'.", cname);
 		Alert1(Message);
 		return (FAILED);
 	}
@@ -2531,7 +2531,7 @@ ERR:
 	MyDisposeHandle((Handle*)&p_line);
 	MyDisposeHandle((Handle*)&p_completeline);
 	if (FSClose(refnum) != noErr && Beta) {
-		Alert1("Error closing Midi driver settings file.");
+		Alert1("=> Error closing Midi driver settings file.");
 	}
 	LoadOn--;
 	StopWait();
@@ -2600,14 +2600,14 @@ int SaveMidiDriverSettings()
 			}
 			else {
 				p2cstrcpy(defaultname, fn);
-				sprintf(Message, "Error writing file '%s'", defaultname);
+				sprintf(Message, "=> Error writing file '%s'", defaultname);
 				Alert1(Message);
 				HideWindow(Window[wMessage]);
 			}
 		}
 		else {
 			MyPtoCstr(MAXNAME,fn,defaultname);
-			sprintf(Message, "Error creating file '%s'", defaultname);
+			sprintf(Message, "=> Error creating file '%s'", defaultname);
 			Alert1(Message);
 		}
 	}		
@@ -2809,7 +2809,7 @@ if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) 
 if(show_details_load_prototypes) BPPrintMessage(odInfo, "line = %s\n",*p_line);
 
 if(p_completeline == NULL) {
-	if(Beta) Alert1("Err. LoadObjectPrototypes(). p_completeline == NULL");
+	if(Beta) Alert1("=> Err. LoadObjectPrototypes(). p_completeline == NULL");
 	goto OUT;
 	}
 if(MyHandleLen(p_completeline) < 1) goto OUT;
@@ -2843,7 +2843,7 @@ if(iv > 4 && newbols) {
 //	p_Bol = (char****) GiveSpace((Size)(Jbol) * sizeof(char**));
 	if((jj=CreateBol(0,0,p_completeline,0,0,BOL)) < 0) goto ERR;
 	if(jj >= Jbol) {
-		if(Beta) Alert1("Err. LoadObjectPrototypes(). jj >= Jbol");
+		if(Beta) Alert1("=> Err. LoadObjectPrototypes(). jj >= Jbol");
 		goto ERR;
 		}
 	j = jj;
@@ -3119,7 +3119,7 @@ if(show_details_load_prototypes) BPPrintMessage(odInfo, "CheckConsistency is OK 
 if(iv > 9) {
 	if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 	if(p_completeline == NULL) {
-		if(Beta) Alert1("Err. LoadObjectPrototypes(). p_completeline == NULL");
+		if(Beta) Alert1("=> Err. LoadObjectPrototypes(). p_completeline == NULL");
 		goto ERR;
 		}
 	if(!diff) {

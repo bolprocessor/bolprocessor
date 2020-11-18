@@ -353,7 +353,7 @@ if(DoSystem() != OK) return(ABORT);
 if(p_Image == NULL) jmax = 0;
 else {
 	jmax = MyGetHandleSize((Handle)p_Image) / sizeof(int**);
-	if(p_Homo == NULL) if(Beta) Alert1("Err. ReleaseAlphabetSpace(). p_Image = NULL");
+	if(p_Homo == NULL) if(Beta) Alert1("=> Err. ReleaseAlphabetSpace(). p_Image = NULL");
 	}
 for(j=0; j < jmax; j++) {
 	ptr = (Handle)(*p_Image)[j];
@@ -456,7 +456,7 @@ if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 			//		BPPrintMessage(odInfo, "left flags\n");
 					do {
 						if((**h).x > Jflag || (**h).x < 0) {
-							sprintf(Message,"Err in flag list. ");
+							sprintf(Message,"=> Err in flag list. ");
 							if(Beta) Alert1(Message);
 							break;
 							}
@@ -471,7 +471,7 @@ if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 					if(Find_leak) BPPrintMessage(odInfo, "right flags\n");
 					do {
 						if((**h).x > Jflag || (**h).x < 0) {
-							sprintf(Message,"Err in flag list. ");
+							sprintf(Message,"=> Err in flag list. ");
 							if(Beta) Alert1(Message);
 							break;
 							}
@@ -516,7 +516,7 @@ Handle ptr;
 
 if(GlossGram.p_subgram != NULL) {
 	if(MyGetHandleSize((Handle)(GlossGram.p_subgram)) < 2 * sizeof(t_gram)) {
-		if(Beta) Alert1("Err. ReleaseGlossarySpace()");
+		if(Beta) Alert1("=> Err. ReleaseGlossarySpace()");
 		return(ABORT);
 		}
 	if((*(GlossGram.p_subgram))[1].p_rule != NULL) {
@@ -700,7 +700,7 @@ for(j=0; j < Jinstr; j++) {
 	MyDisposeHandle(&ptr);
 	for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
 		if((*p_CsInstrument)[j].paramlist == NULL) {
-			if(Beta) Alert1("Err. ReleaseCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
+			if(Beta) Alert1("=> Err. ReleaseCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
 			break;
 			}
 		ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].name;
@@ -755,7 +755,7 @@ char **ptr;
 if(howmany != Jinstr) CompiledCsObjects = CompiledRegressions = FALSE;
 
 if(howmany == 0) {
-	if(Beta) Alert1("Err. ResizeCsoundInstrumentsSpace(). howmany == 0");
+	if(Beta) Alert1("=> Err. ResizeCsoundInstrumentsSpace(). howmany == 0");
 	return(ReleaseCsoundInstruments());
 	}
 if(Jinstr == 0) {
@@ -800,7 +800,7 @@ for(j=howmany; j < Jinstr; j++) {
 	(*pp_CsInstrumentComment)[j] = NULL;
 	for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
 		if((*p_CsInstrument)[j].paramlist == NULL) {
-			if(Beta) Alert1("Err. ResizeCsoundInstrumentsSpace(). (*p_CsInstrument)[j].paramlist == NULL");
+			if(Beta) Alert1("=> Err. ResizeCsoundInstrumentsSpace(). (*p_CsInstrument)[j].paramlist == NULL");
 			break;
 			}
 		ptr = (*((*p_CsInstrument)[j].paramlist))[i].name;
@@ -1348,7 +1348,7 @@ if(Jbol < maxsounds) {
 				sprintf(Message,"ResizeObjectSpace() j = %ld Dur = %ld Tref = %ld\n",(long)j,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 			//	BPPrintMessage(odInfo,Message);
 				}
-			else Alert1("Err. ResizeObjectSpace(). Jpatt <= 0 || p_Ppatt != NULL && p_Qpatt != NULL");
+			else Alert1("=> Err. ResizeObjectSpace(). Jpatt <= 0 || p_Ppatt != NULL && p_Qpatt != NULL");
 			}
 		(*p_Resolution)[j] = 1;
 		(*p_CsoundInstr)[j] = 0;
@@ -1489,7 +1489,7 @@ int i,j,**ptr1;
 char **ptr2,**p_x;
 
 if(Jbol < 2) {
-	if(Beta) Alert1("Err. GetAlphabetSpace(). Jbol < 2");
+	if(Beta) Alert1("=> Err. GetAlphabetSpace(). Jbol < 2");
 	return(ABORT);
 	}
 if((p_x = (char**) GiveSpace((Size)((2) * sizeof(char)))) == NULL) {
@@ -1498,7 +1498,7 @@ if((p_x = (char**) GiveSpace((Size)((2) * sizeof(char)))) == NULL) {
 if((p_Bol = (char****) GiveSpace((Size)(Jbol) * sizeof(char**))) == NULL) return(ABORT);
 for(j=0; j < Jbol; j++) (*p_Bol)[j] = NULL;
 if(p_Image != NULL || p_NoteImage != NULL || p_Homo != NULL) {
-	if(Beta) Alert1("Err. GetAlphabetSpace(). p_Image != NULL || p_NoteImage != NULL || p_Homo != NULL");
+	if(Beta) Alert1("=> Err. GetAlphabetSpace(). p_Image != NULL || p_NoteImage != NULL || p_Homo != NULL");
 	return(ABORT);
 	}
 /* p_Image = p_NoteImage = NULL; p_Homo = NULL; */
@@ -1606,7 +1606,7 @@ return(DoSystem());
 int MakeComputeSpace(int maxderiv)
 {
 if(maxderiv < 2) {
-	if(Beta) Alert1("Err. MakeComputeSpace()");
+	if(Beta) Alert1("=> Err. MakeComputeSpace()");
 	maxderiv = 10;
 	}
 if((p_MemGram == NULL) &&
@@ -1648,7 +1648,7 @@ Handle ptr;
 if(ThreeOverTwo(&MaxDeriv) != OK) return(ABORT);
 ptr = (Handle) p_MemGram;
 if(ptr == NULL) {
-	if(Beta) Alert1("Err. IncreaseComputeSpace(). ptr = NULL");
+	if(Beta) Alert1("=> Err. IncreaseComputeSpace(). ptr = NULL");
 	return(ABORT);
 	}
 if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
@@ -1716,7 +1716,7 @@ int j;
 
 if(p_VarStatus == NULL) return(OK);
 if(p_Var == NULL) {
-	if(Beta) Alert1("Err. ResetVariables(). p_Var = NULL");
+	if(Beta) Alert1("=> Err. ResetVariables(). p_Var = NULL");
 	return(ABORT);
 	}
 if(w != wGrammar && w != wGlossary) return(FAILED);

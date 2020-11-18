@@ -130,7 +130,7 @@ int BPSetMessageCallback(bp_message_callback_t func)
 int ShowMessage(int store, int w, char *message)
 {
 	if (w < 0 || w >= WMAX || !Editable[w]) {
-		if (Beta) Alert1("Err. ShowMessage()");
+		if (Beta) Alert1("=> Err. ShowMessage()");
 		return(OK);
 	}
 	
@@ -175,7 +175,7 @@ int Answer(char *what, char c)
 		else reply = NO;
 		if (strlen(what) < MAXLIN - 5) 
 			sprintf(line,"%s ? %c", what, c);
-		else fprintf(stderr, "Err. Answer(): 'what' is too long: %s\n", what);
+		else fprintf(stderr, "=> Err. Answer(): 'what' is too long: %s\n", what);
 		if (ScriptExecOn) {
 			if (wTrace != OutputWindow) PrintBehind(wTrace,line);
 		}

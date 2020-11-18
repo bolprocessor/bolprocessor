@@ -839,11 +839,11 @@ if((r=NextDerivation(pp_a,p_length,&igram,&irul,&ipos,&icandidate,mode,time_end_
 	if((r=PushStack(pp_a,&p_weight,&p_flag,p_length,&p_stack,p_depth,p_maxdepth)) != OK)
 		goto END;
 	if(igram > (*p_gram).number_gram) {
-		if(Beta) Alert1("Err. AllFollowingItems(). igram > number_gram [1]");
+		if(Beta) Alert1("=> Err. AllFollowingItems(). igram > number_gram [1]");
 		r = ABORT; goto ENDPULL;
 		}
 	if(irul > (*((*p_gram).p_subgram))[igram].number_rule) {
-		if(Beta) Alert1("Err. AllFollowingItems(). irul > number_rule [1]");
+		if(Beta) Alert1("=> Err. AllFollowingItems(). irul > number_rule [1]");
 		r = ABORT; goto ENDPULL;
 		}
 	if((grtype=(*((*p_gram).p_subgram))[igram].type) == SUBtype || grtype == SUB1type || grtype == POSLONGtype) {
@@ -872,11 +872,11 @@ TRYAGAIN:
 		}
 	
 	if(igram > (*p_gram).number_gram) {
-		if(Beta) Alert1("Err. AllFollowingItems(). igram > number_gram [2]");
+		if(Beta) Alert1("=> Err. AllFollowingItems(). igram > number_gram [2]");
 		r = ABORT; goto ENDPULL;
 		}
 	if(irul > (*((*p_gram).p_subgram))[igram].number_rule) {
-		if(Beta) Alert1("Err. AllFollowingItems(). irul > number_rule [2]");
+		if(Beta) Alert1("=> Err. AllFollowingItems(). irul > number_rule [2]");
 		r = ABORT; goto ENDPULL;
 		}
 	if((r=ChangeFlagsInRule(p_gram,igram,irul)) != OK) goto ENDPULL;
@@ -982,7 +982,7 @@ long i,igram,irul;
 Handle ptr;
 
 if((*p_depth) < 0  || (*p_depth) >= *p_maxdepth) {
-	if(Beta) Alert1("Err. PullStack(). *p_depth < 0  || (*p_depth) >= *p_maxdepth");
+	if(Beta) Alert1("=> Err. PullStack(). *p_depth < 0  || (*p_depth) >= *p_maxdepth");
 	return(ABORT);
 	}
 (*p_length) = ZERO;
@@ -1237,7 +1237,7 @@ tokenbyte m,p;
 int setting_sections;
 
 if(pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL) {
-	if(Beta) Alert1("Err. ClearMarkers(). pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL");
+	if(Beta) Alert1("=> Err. ClearMarkers(). pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL");
 	return(OK);
 	}
 setting_sections = TRUE;
@@ -1270,7 +1270,7 @@ long speed;
 char line[MAXLIN];
 
 if(pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL) {
-	if(Beta) Alert1("Err. WriteTemplate(). pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL");
+	if(Beta) Alert1("=> Err. WriteTemplate(). pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL");
 	return(OK);
 	}
 foundspeed = foundscaling = FALSE; speed = 1L; setting_section = TRUE;
@@ -1356,7 +1356,7 @@ KeyNumberMap map;
 
 (*p_posend) = pos;
 if(*pp_a == NULL) {
-	if(Beta) Alert1("Err. ReadTemplate(). *pp_a = NULL");
+	if(Beta) Alert1("=> Err. ReadTemplate(). *pp_a = NULL");
 	return(ABORT);
 	}
 h = WindowTextHandle(TEH[w]);
@@ -1369,7 +1369,7 @@ for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\0'; pos++) {
 		while((c=GetTextChar(w,++pos)) != ']') {
 			c -= '0';
 			if(c < 0 || c > 9) {
-				if(Beta) Alert1("Err. ReadTemplate(). Wrong number");
+				if(Beta) Alert1("=> Err. ReadTemplate(). Wrong number");
 				c = 0;
 				}
 			*p_i = *p_i * 10 + c;
@@ -1378,7 +1378,7 @@ for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\0'; pos++) {
 		}
 	if(i > im) {
 		if(ThreeOverTwo(&im) != OK) {
-			if(Beta) Alert1("Err. ReadTemplate(). Can't resize");
+			if(Beta) Alert1("=> Err. ReadTemplate(). Can't resize");
 			return(ABORT);
 			}
 		ptr = *pp_a;
@@ -1390,7 +1390,7 @@ for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\0'; pos++) {
 		while(!MySpace(c=GetTextChar(w,++pos))) {
 			c = c - '0';
 			if(c < 0 || c > 9) {
-				if(Beta) Alert1("Err. ReadTemplate(). Not digit"); return(FAILED);
+				if(Beta) Alert1("=> Err. ReadTemplate(). Not digit"); return(FAILED);
 				}
 			j = 10 * j + c;
 			}
@@ -1617,7 +1617,7 @@ if((all && templates) || DisplayProduce) {
 ShowSelect(CENTRE,wTrace);
 BufferSize = MAXDISPL;
 if(*pp_a == NULL) {
-	if(Beta) Alert1("Err. Analyze(). *pp_a = NULL");
+	if(Beta) Alert1("=> Err. Analyze(). *pp_a = NULL");
 	return(ABORT);
 	}
 

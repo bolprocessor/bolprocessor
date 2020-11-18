@@ -968,7 +968,7 @@ GOTIT6:
 		e.type = TWO_BYTE_EVENT;
 		e.status = ProgramChange + CurrentChannel - 1;
 		if((*(ScriptLine.intarg))[0] <= 0 && ProgNrFrom > 0) {
-			if(Beta) Alert1("Err. DoScript(). Program number <= 0");
+			if(Beta) Alert1("=> Err. DoScript(). Program number <= 0");
 			(*(ScriptLine.intarg))[0] = 0;
 			}
 		e.data2 = (*(ScriptLine.intarg))[0] - ProgNrFrom;

@@ -59,7 +59,7 @@ char c;
 
 len = s[0];
 if(len > max) {
-	if(Beta) Alert1("Err. MyPtoCstr(). len > max");
+	if(Beta) Alert1("=> Err. MyPtoCstr(). len > max");
 	len = max;
 	}
 for(i=0; i < len; i++) {
@@ -109,7 +109,7 @@ int MystrcpyStringToTable(char ****p_t,int j,char *s)
 int imax;
 
 if(p_t == NULL) {
-	if(Beta) Alert1("Err. MystrcpyStringToTable(). p_t = NULL");
+	if(Beta) Alert1("=> Err. MystrcpyStringToTable(). p_t = NULL");
 	return(FAILED);
 	}
 imax = (MyGetHandleSize((*p_t)[j]) / sizeof(char)) - 1;
@@ -121,7 +121,7 @@ do {
 while(s[i] != '\0' && i < imax);
 if(s[i] != '\0') {
 	(*((*p_t)[j]))[i] = '\0';
-	if(Beta && s[i] != '\0') Alert1("Err. MystrcpyStringToTable(). s[i] incomplete");
+	if(Beta && s[i] != '\0') Alert1("=> Err. MystrcpyStringToTable(). s[i] incomplete");
 	}
 return(OK);
 }
@@ -132,7 +132,7 @@ int MystrcpyTableToString(int imax,char *s,char ****p_t,int j)
 /* register */ int i;
 
 if(p_t == NULL) {
-	if(Beta) Alert1("Err. MystrcpyTableToString(). p_t = NULL");
+	if(Beta) Alert1("=> Err. MystrcpyTableToString(). p_t = NULL");
 	return(FAILED);
 	}
 i = -1;
@@ -195,11 +195,11 @@ Size ims,imt;
 if(*pp_s != NULL) ims = (long) MyGetHandleSize((Handle)*pp_s);
 else {
 	ims = ZERO;
-	if(Beta) Alert1("Err. MystrcpyHandleToHandle(). ims = ZERO");
+	if(Beta) Alert1("=> Err. MystrcpyHandleToHandle(). ims = ZERO");
 	}
 imt = ZERO;
 if(p_t == NULL) {
-	Alert1("Err. MystrcpyHandleToHandle(). p_t = NULL");
+	Alert1("=> Err. MystrcpyHandleToHandle(). p_t = NULL");
 	if(*pp_s != NULL && ims > ZERO) (**pp_s)[0] = '\0';
 	// FIXME ? what if *pp_s == NULL ? Will caller expect a valid handle?
 	goto OUT;
@@ -233,7 +233,7 @@ int GetTextHandle(char ***pp_h,int w)
 long i,length;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. GetTextHandle(). Invalid window index");
+	if(Beta) Alert1("=> Err. GetTextHandle(). Invalid window index");
 	return(FAILED);
 	}
 length = GetTextLength(w);
@@ -262,7 +262,7 @@ long i;
 
 i = ZERO;
 if(p_t == NULL) {
-	if(Beta) Alert1("Err. Mystrcmp(). p_t = NULL");
+	if(Beta) Alert1("=> Err. Mystrcmp(). p_t = NULL");
 	return(1);
 	}
 do 
@@ -278,7 +278,7 @@ long i;
 
 i = ZERO;
 if(p_t == NULL || p_s == NULL) {
-	if(Beta) Alert1("Err. MyHandlecmp(). p_t = NULL || p_s = NULL");
+	if(Beta) Alert1("=> Err. MyHandlecmp(). p_t = NULL || p_s = NULL");
 	return(0);
 	}
 do 
@@ -294,7 +294,7 @@ long i,im;
 
 i = ZERO;
 if(p_t == NULL) {
-	if(Beta) Alert1("Err. MyHandleLen(). p_t = NULL");
+	if(Beta) Alert1("=> Err. MyHandleLen(). p_t = NULL");
 	return(0);
 	}
 im = MyGetHandleSize((Handle)p_t);
@@ -304,7 +304,7 @@ while((*p_t)[i] != '\0') {
 	if(i >= im) break;
 	}
 if((*p_t)[i] != '\0') {
-	if(Beta) Alert1("Err. MyHandleLen(). (*p_t)[i] != nullchar");
+	if(Beta) Alert1("=> Err. MyHandleLen(). (*p_t)[i] != nullchar");
 	}
 return(i);
 }
@@ -336,14 +336,14 @@ int StripHandle(char **p_line)
 int i,im,j;
 
 if(p_line == NULL) {
-	if(Beta) Alert1("Err. StripHandle(). p_line = NULL");
+	if(Beta) Alert1("=> Err. StripHandle(). p_line = NULL");
 	return(OK);
 	}
 if((*p_line)[0] == '\0') return(OK);
 j = 0; while(isspace((*p_line)[j])) j++;
 if(j > 0) {
 	if((im=MyHandleLen(p_line)) == 0) {
-		if(Beta) Alert1("Err. StripHandle(). MyHandleLen(p_line) == 0");
+		if(Beta) Alert1("=> Err. StripHandle(). MyHandleLen(p_line) == 0");
 		return(ABORT);
 		}
 	for(i=j; i <= im; i++) {
@@ -430,7 +430,7 @@ int Match(int casesensitive,char** p_s,char** p_t,int length)
 char c,d;
 
 if(p_s == NULL || p_t == NULL) {
-	if(Beta) Alert1("Err. Match(). p_s == NULL || p_t == NULL");
+	if(Beta) Alert1("=> Err. Match(). p_s == NULL || p_t == NULL");
 	return(NO);
 	}
 /* if(MyHandleLen(p_s) < length) return(NO); */
@@ -578,7 +578,7 @@ if(ptr != NULL) {
 	}
 else {
 	if(w < 0 || w >= WMAX || !HasFields[w]) {
-		if(Beta) Alert1("Err. TooLongFileName(). Incorrect index");
+		if(Beta) Alert1("=> Err. TooLongFileName(). Incorrect index");
 		return(FAILED);
 		}
 	thedialog = gpDialogs[w];

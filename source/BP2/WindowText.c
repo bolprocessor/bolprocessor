@@ -97,19 +97,19 @@ SetSelect(TextOffset start,TextOffset end, TextHandle th)
 	/* clamp range to text bounds (WASTE does these checks) */
 	maxoffset = GetTextHandleLength(th);
 	if (start < ZERO) {
-		if(Beta) Alert1("Err. SetSelect(). start < ZERO");
+		if(Beta) Alert1("=> Err. SetSelect(). start < ZERO");
 		start = ZERO;
 	}
 	else if (start > maxoffset) {
-		if(Beta) Alert1("Err. SetSelect(). start > maxoffset");
+		if(Beta) Alert1("=> Err. SetSelect(). start > maxoffset");
 		start = maxoffset;
 	}
 	if (end < ZERO) {
-		if(Beta) Alert1("Err. SetSelect(). end < ZERO");
+		if(Beta) Alert1("=> Err. SetSelect(). end < ZERO");
 		end = ZERO;
 	}
 	else if (end > maxoffset) {
-		if(Beta) Alert1("Err. SetSelect(). end > maxoffset");
+		if(Beta) Alert1("=> Err. SetSelect(). end > maxoffset");
 		end = maxoffset;
 	}
 #endif
@@ -209,7 +209,7 @@ return(OK);
 long GetTextLength(int w)
 {
 	if(w < 0 || w >= WMAX || !Editable[w]) {
-		if(Beta) Alert1("Err. GetTextLength(). Incorrect w");
+		if(Beta) Alert1("=> Err. GetTextLength(). Incorrect w");
 		return(ZERO);
 		}
 	return GetTextHandleLength(TEH[w]);
@@ -218,7 +218,7 @@ long GetTextLength(int w)
 long GetTextHandleLength(TextHandle th)
 {
 	if (th == NULL) {
-		if(Beta) Alert1("Err. GetTextHandleLength(). NULL handle");
+		if(Beta) Alert1("=> Err. GetTextHandleLength(). NULL handle");
 		return(ZERO);
 	}
 	
@@ -237,7 +237,7 @@ return((*th)->teLength);
 TextDelete(int w)
 {
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. TextDelete(). Incorrect w");
+	if(Beta) Alert1("=> Err. TextDelete(). Incorrect w");
 	return(ZERO);
 	}
 #if WASTE
@@ -320,7 +320,7 @@ GrafPtr saveport;
 Rect r;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. TextUpdate(). Incorrect w");
+	if(Beta) Alert1("=> Err. TextUpdate(). Incorrect w");
 	return(ZERO);
 	}
 GetPort(&saveport);
@@ -335,7 +335,7 @@ TXNUpdate((*TEH[w])->textobj);
 TEUpdate(GetWindowPortBounds(Window[w], &r),TEH[w]);
 #endif
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err. TextUpdate(). saveport == NULL");
+else if(Beta) Alert1("=> Err. TextUpdate(). saveport == NULL");
 return(OK);
 }
 
@@ -343,7 +343,7 @@ return(OK);
 TextCut(int w)
 {
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. TextCut(). Incorrect w");
+	if(Beta) Alert1("=> Err. TextCut(). Incorrect w");
 	return(ZERO);
 	}
 #if WASTE
@@ -361,7 +361,7 @@ return(OK);
 TextPaste(int w)
 {
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. TextPaste(). Incorrect w");
+	if(Beta) Alert1("=> Err. TextPaste(). Incorrect w");
 	return(ZERO);
 	}
 #if WASTE
@@ -392,7 +392,7 @@ return(OK);
 TextCopy(int w)
 {
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. TextCopy(). Incorrect w");
+	if(Beta) Alert1("=> Err. TextCopy(). Incorrect w");
 	return(ZERO);
 	}
 #if WASTE
@@ -453,7 +453,7 @@ return(OK);
 long LinesInText(int w)
 {
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. LinesInText(). Incorrect w");
+	if(Beta) Alert1("=> Err. LinesInText(). Incorrect w");
 	return(ZERO);
 	}
 #if WASTE
@@ -473,7 +473,7 @@ return((**(TEH[w])).nLines);
 TextClick(int w,EventRecord *p_event)
 {
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. TextClick(). Incorrect w");
+	if(Beta) Alert1("=> Err. TextClick(). Incorrect w");
 	return(ZERO);
 	}
 #if WASTE
@@ -492,7 +492,7 @@ return(OK);
 char GetTextChar(int w,long pos)
 {
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. GetTextChar(). Incorrect w");
+	if(Beta) Alert1("=> Err. GetTextChar(). Incorrect w");
 	return(ZERO);
 	}
 #if WASTE

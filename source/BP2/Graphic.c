@@ -80,7 +80,7 @@ if(imagePtr == NULL) {
 // BPPrintMessage(odInfo,"Creating image %d based on objects\n",N_image);
 
 if(tmin == Infpos) {
-	BPPrintMessage(odInfo,"Err. DrawObject(). tmin == Infpos\n");
+	BPPrintMessage(odInfo,"=> Err. DrawObject(). tmin == Infpos\n");
 	return(OK);
 	}
 if(CheckLoadedPrototypes() != OK) {
@@ -147,12 +147,12 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 	for(i=1; i < (*p_imaxseq)[nseq] && i <= imax; i++) {
 		k = (*((*p_Seq)[nseq]))[i];
 		if(show_more_details) BPPrintMessage(odInfo,"\nk = %d\n",k);
-		if(k < 0) BPPrintMessage(odInfo,"Err. 'k' in DrawItem().\n");
+		if(k < 0) BPPrintMessage(odInfo,"=> Err. 'k' in DrawItem().\n");
 		if(k < 2) continue;	/* Reject '_' and '-' */
 		if(kmode) {
 			if(show_more_details) BPPrintMessage(odInfo,"kmode = TRUE\n");
 			if(p_object == NULL) {
-				BPPrintMessage(odInfo,"Err. DrawObject(). p_object == NULL\n");
+				BPPrintMessage(odInfo,"=> Err. DrawObject(). p_object == NULL\n");
 				return(ABORT);
 				}
 			t1 = (*p_object)[k].starttime;
@@ -255,7 +255,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			if(show_more_details) BPPrintMessage(odInfo,Message);
 			if(linenum >= maxlines) {
 				sprintf(Message,
-					"Err. linenum = %ld  maxlines = %ld  DrawItem()\n",
+					"=> Err. linenum = %ld  maxlines = %ld  DrawItem()\n",
 					(long)linenum,(long)maxlines);
 		//		if(Beta) Alert1(Message);
 				BPPrintMessage(odInfo,Message);
@@ -306,7 +306,7 @@ CONT:
 	linemax += 1 /* foundone */;
 	if(linenum >= maxlines) {
 		sprintf(Message,
-			"Err. linenum = %ld  maxlines = %ld in DrawItem()\n",
+			"=> Err. linenum = %ld  maxlines = %ld in DrawItem()\n",
 			(long)linenum,(long)maxlines);
 	//	if(Beta) Alert1(Message);
 		BPPrintMessage(odInfo,Message);
@@ -517,14 +517,14 @@ int DrawGraph(int w, PolyHandle p_graph)
 
 // if(TempMemory) return(OK);
 if(p_graph == NULL) {
-//	if(Beta) Alert1("Err. DrawGraph()");
+//	if(Beta) Alert1("=> Err. DrawGraph()");
 	return(FAILED);
 	}
 /* GetPort(&saveport);
 SetPortWindowPort(Window[w]);
 FramePoly(p_graph); */
 /* if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err DrawGraph(). saveport == NULL"); */
+else if(Beta) Alert1("=> Err DrawGraph(). saveport == NULL"); */
 // StopWait();
 return(OK);
 }
@@ -536,12 +536,12 @@ int n;
 
 w = wGraphic;
 /* if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err. KillDiagrams. w < 0 || w >= WMAX");
+	if(Beta) Alert1("=> Err. KillDiagrams. w < 0 || w >= WMAX");
 	return(OK);
 	} */
 for(n=Ndiagram-1; n >= 0; n--) {
 	if(n < 0 || n >= MAXDIAGRAM) {
-	//	if(Beta) Alert1("Err. KillDiagrams. n < 0 || n >= MAXDIAGRAM");
+	//	if(Beta) Alert1("=> Err. KillDiagrams. n < 0 || n >= MAXDIAGRAM");
 		Ndiagram = 0;
 		break;
 		}
@@ -558,7 +558,7 @@ if(w == wGraphic && NoteScalePicture != NULL) {
 if(!Offscreen) {
 	for(n=Npicture-1; n >= 0; n--) {
 		if(n < 0 || n >= MAXPICT) {
-		//	if(Beta) Alert1("Err. KillDiagrams. n < 0 || n >= MAXPICT");
+		//	if(Beta) Alert1("=> Err. KillDiagrams. n < 0 || n >= MAXPICT");
 			Npicture = 0;
 			break;
 			}
@@ -588,7 +588,7 @@ if(TempMemory || EmergencyExit) return(TRUE); // BB 20070529
 if(picture == NULL) return(FALSE);
 QDGetPictureBounds(picture, &r);	// requires 10.3 or later - akozar 20120603
 if (EmptyRect(&r))  {
-	if (Beta) Alert1("Err. GraphOverflow(): picFrame is empty");
+	if (Beta) Alert1("=> Err. GraphOverflow(): picFrame is empty");
 	return(TRUE);
 	}
 if (QDError() == insufficientStackErr) {
@@ -624,7 +624,7 @@ for(i=1L; i <= im; i++) {
 	if(k < 2) continue;
 	if(kmode) {
 		if(p_object == NULL) {
-			if(Beta) Alert1("Err. DrawSequence(). p_object == NULL");
+			if(Beta) Alert1("=> Err. DrawSequence(). p_object == NULL");
 			return(ABORT);
 			}
 		if((t = (*p_object)[k].starttime - (*p_Instance)[k].truncbeg) < tmin) tmin = t;
@@ -659,7 +659,7 @@ short oldfont,oldsize;
 // if(TempMemory) return(OK);
 if(w < 0 || w >= WMAX) return(FAILED);
 if(!GrafWindow[w]) {
-//	if(Beta) Alert1("Err. DrawPrototype(). !GrafWindow[w]");
+//	if(Beta) Alert1("=> Err. DrawPrototype(). !GrafWindow[w]");
 	return(FAILED);
 	}
 if(j < 2 || j >= Jbol) return(OK);
@@ -749,7 +749,7 @@ if((*p_ContEnd)[j]) {
 if((maxendgap > ZERO) && maxendgap < (*p_Dur)[j] && ((*p_Dur)[j] + maxendgap) > tmax)
 	tmax = (*p_Dur)[j] + maxendgap;
 if((tmax - tmin) < ZERO) {
-//	if(Beta) Alert1("Err1. DrawPrototype()");
+//	if(Beta) Alert1("=> Err1. DrawPrototype()");
 	rep = ABORT; goto QUIT;
 	}
 xmin = p_frame->left + 3 * htext;
@@ -1168,7 +1168,7 @@ if(Npicture < 2) Npicture = 2;
 /* GetWindowPortBounds(Window[w], &r);
 ClipRect(&r);
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err DrawPrototype(). saveport == NULL"); */
+else if(Beta) Alert1("=> Err DrawPrototype(). saveport == NULL"); */
 return(rep);
 }
 
@@ -1196,7 +1196,7 @@ else {
 	ClearWindow(TRUE,w);
 	if(p_Picture[0] != NULL) {
 		if(Beta) {
-			Alert1("Err. DrawItem(). p_Picture[0] != NULL");
+			Alert1("=> Err. DrawItem(). p_Picture[0] != NULL");
 			}
 		KillPicture(p_Picture[0]);
 		p_Picture[0] = NULL;

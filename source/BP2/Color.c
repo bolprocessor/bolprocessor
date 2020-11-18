@@ -208,7 +208,7 @@ if(w < 0 || w >= WMAX) return(FAILED);
 if((!UseTextColor || ((DisplayProduce || TraceProduce) && ComputeOn))
 	&& !force) return(OK);
 if(!Editable[w]) {
-	if(Beta) Alert1("Err. Reformat(). ");
+	if(Beta) Alert1("=> Err. Reformat(). ");
 	return(FAILED);
 	}
 /* if((CurrentColor[w].red == p_color->red) && (CurrentColor[w].green == p_color->green)
@@ -240,7 +240,7 @@ GetPort(&saveport);
 SetPortWindowPort(Window[w]);
 InvalWindowRect(Window[w], &r);
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err Reformat(). saveport == NULL");
+else if(Beta) Alert1("=> Err Reformat(). saveport == NULL");
 return(OK);
 }
 
@@ -262,7 +262,7 @@ GetPort(&saveport);
 SetPortWindowPort(Window[w]);
 TextSize(size);
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err SetFontSize(). saveport == NULL");
+else if(Beta) Alert1("=> Err SetFontSize(). saveport == NULL");
 if((FrontWindow() == Window[w] || Nw == w) && !LockedWindow[w]) Activate(TEH[w]);
 return(OK);
 }

@@ -180,7 +180,7 @@ long dummy;
 Handle h;
 
 if(p_Script == NULL) {
-	if(Beta) Alert1("Err. Create EventScript()");
+	if(Beta) Alert1("=> Err. Create EventScript()");
 	return(ABORT);
 	}
 diff = TRUE;
@@ -203,7 +203,7 @@ if(diff) {
 		for(i=Jscriptline; i < MaxScript; i++) (*p_Script)[i] = NULL;
 		}
 	if((*p_Script)[Jscriptline] != NULL) {
-		if(Beta) Alert1("Err. CreateEventScript(). (*p_Script)[Jscriptline] != NULL");
+		if(Beta) Alert1("=> Err. CreateEventScript(). (*p_Script)[Jscriptline] != NULL");
 		}
 	if((ptr = (char**) GiveSpace((Size)(strlen(x)+1))) == NULL) return(ABORT);
 	(*p_Script)[Jscriptline] = ptr;
@@ -239,7 +239,7 @@ double u,v;
 (*p_foundk) = FALSE;
 (*p_inc) = 0;
 if(mode < 1 || mode > 7) {
-	if(Beta) Alert1("Err. GetArgument(). 'mode' out of range");
+	if(Beta) Alert1("=> Err. GetArgument(). 'mode' out of range");
 	return(INT_MAX);
 	}
 q = &d;
@@ -814,7 +814,7 @@ switch(jinstr) {
 		goto GETRATIO;
 		break;
 	default:
-		sprintf(Message,"Err. GetPerformanceControl(). Unknown instruction");
+		sprintf(Message,"=> Err. GetPerformanceControl(). Unknown instruction");
 		if(Beta) Alert1(Message);
 		return(ABORT);
 	}
@@ -1567,7 +1567,7 @@ if((p_y = (char**) GiveSpace((Size)((BOLSIZE+1) * sizeof(char)))) == NULL) {
 	return(ABORT);
 	}
 if(p_line == NULL) {
-	if(Beta) Alert1("Err. ReadPatterns(). p_line == NULL");
+	if(Beta) Alert1("=> Err. ReadPatterns(). p_line == NULL");
 	r = OK;
 	goto QUIT;
 	}

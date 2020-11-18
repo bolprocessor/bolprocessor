@@ -46,11 +46,11 @@ long length;
 char *ptr;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err1. Print()");
+	if(Beta) Alert1("=> Err1. Print()");
 	return(OK);
 	}
 if(!Editable[w]) {
-	if(Beta) Alert1("Err2. Print()");
+	if(Beta) Alert1("=> Err2. Print()");
 	return(FAILED);
 	}
 length = strlen(t);
@@ -70,15 +70,15 @@ PrintHandle(int w,char** p_t)
 long length;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err1. Print()");
+	if(Beta) Alert1("=> Err1. Print()");
 	return(OK);
 	}
 if(!Editable[w]) {
-	if(Beta) Alert1("Err2. Print()");
+	if(Beta) Alert1("=> Err2. Print()");
 	return(FAILED);
 	}
 if(p_t == NULL) {
-	if(Beta) Alert1("Err. PrintHandle(). p_t == NULL");
+	if(Beta) Alert1("=> Err. PrintHandle(). p_t == NULL");
 	return(OK);
 	}
 length = MyHandleLen(p_t);
@@ -99,15 +99,15 @@ PrintHandleBehind(int w,char** p_t)
 long length;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err1. PrintHandleBehind()");
+	if(Beta) Alert1("=> Err1. PrintHandleBehind()");
 	return(OK);
 	}
 if(!Editable[w]) {
-	if(Beta) Alert1("Err2. PrintHandleBehind()");
+	if(Beta) Alert1("=> Err2. PrintHandleBehind()");
 	return(FAILED);
 	}
 if(p_t == NULL) {
-	if(Beta) Alert1("Err. PrintHandleBehind(). p_t == NULL");
+	if(Beta) Alert1("=> Err. PrintHandleBehind(). p_t == NULL");
 	return(OK);
 	}
 length = MyHandleLen(p_t);
@@ -144,11 +144,11 @@ long length;
 char *ptr;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err1. Print()");
+	if(Beta) Alert1("=> Err1. Print()");
 	return(OK);
 	}
 if(!Editable[w]) {
-	if(Beta) Alert1("Err2. Print()");
+	if(Beta) Alert1("=> Err2. Print()");
 	return(FAILED);
 	}
 length = strlen(t);
@@ -181,11 +181,11 @@ t_subgram subgram;
 double p,q;
 
 if(wind < 0 || wind >= WMAX || !Editable[wind])  {
-	if(Beta) Alert1("Err. DisplayGrammar(). Incorrect index");
+	if(Beta) Alert1("=> Err. DisplayGrammar(). Incorrect index");
 	return(FAILED);
 	}
 if(p_gram->p_subgram == NULL) {
-	if(Beta) Alert1("Err. DisplayGrammar(). Grammar is empty");
+	if(Beta) Alert1("=> Err. DisplayGrammar(). Grammar is empty");
 	return(FAILED);
 	}
 colormem = UseTextColor;
@@ -329,7 +329,7 @@ tokenbyte **ptr;
 
 if(wind < 0 || wind >= WMAX || !Editable[wind]) return(FAILED);
 if((*p_gram).p_subgram == NULL) {
-	if(Beta) Alert1("Err. DisplayGrammar(). Grammar is empty");
+	if(Beta) Alert1("=> Err. DisplayGrammar(). Grammar is empty");
 	return(FAILED);
 	}
 rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
@@ -441,7 +441,7 @@ h = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].p_leftflag;
 if(h != NULL) {
 	do {
 		if((s=(**h).x) > Jflag || s < 0) {
-			sprintf(Message,"Err in flag list");
+			sprintf(Message,"=> Err in flag list");
 			if(Beta) Alert1(Message);
 			r = ABORT; goto END;
 			}
@@ -555,7 +555,7 @@ h = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].p_rightflag;
 if(h != NULL) {
 	do {
 		if((**h).x > Jflag || (**h).x < 0) {
-			sprintf(Message,"Err in flag list. ");
+			sprintf(Message,"=> Err in flag list. ");
 			if(Beta) Alert1(Message);
 			r = ABORT; goto END;
 			}
@@ -724,7 +724,7 @@ for(i=0; i < Jhomo; i++) {
 			}
 		else
 			if(jj >= Jbol) {
-				if(Beta) Alert1("Err. ShowAlphabet(). jj >= Jbol");
+				if(Beta) Alert1("=> Err. ShowAlphabet(). jj >= Jbol");
 				return(ABORT);
 				}
 		}

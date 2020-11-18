@@ -364,7 +364,7 @@ if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
 	}
 else {
 	if(MIDIbytestate > 3 || MIDIbytestate < 1) {
-	//	if(Beta) Alert1("Err. WriteMIDIbyte(). MIDIbytestate > 3 || MIDIbytestate < 1");
+	//	if(Beta) Alert1("=> Err. WriteMIDIbyte(). MIDIbytestate > 3 || MIDIbytestate < 1");
 		BPPrintMessage(odError, "=> Correcting the byte state (%d) in MIDI file\n",MIDIbytestate);
 		return(OK);
 		}
@@ -386,7 +386,7 @@ int result;
 if(!MIDIfileOpened) return(OK);
 
 if(MIDIfileType != 2) {
-	if(Beta) Alert1("Err.NewTrack(). This is not a type-2 file");
+	if(Beta) Alert1("=> Err.NewTrack(). This is not a type-2 file");
 	}
 
 // finish the current track
@@ -518,7 +518,7 @@ static int WriteVarLenQuantity(FILE* fout, dword value, dword *tracklen)
 	
 	if (value > 268435455)	{
 		if (Beta)	{
-			BPPrintMessage(odError, "Err. WriteVarLenQuantity(): value %u is out of range.", value);
+			BPPrintMessage(odError, "=> Err. WriteVarLenQuantity(): value %u is out of range.", value);
 		}
 		return FAILED;
 	}
@@ -621,7 +621,7 @@ if(!MIDIfileOpened) {
 		return MakeMIDIFile(&(gOptions.outputFiles[ofiMidiFile]));
 		}
 	else {
-		BPPrintMessage(odError, "Error in PrepareMIDIFile(): file name is NULL.\n");
+		BPPrintMessage(odError, "=> Error in PrepareMIDIFile(): file name is NULL.\n");
 		return FAILED;
 		}
 	}
@@ -1059,7 +1059,7 @@ GETCHANNEL:
 								break;
 							default:
 								if(Beta) {
-									sprintf(Message,"Err. ReadMIDIfile(). Unknown byte %ld",status);
+									sprintf(Message,"=> Err. ReadMIDIfile(). Unknown byte %ld",status);
 									Println(wTrace,Message);
 									if(!said) Alert1(Message);
 									said = TRUE;
@@ -1081,7 +1081,7 @@ STREAM:
 						}
 					j = (*p_stream)[track].i;
 					if(j >= (*p_stream)[track].imax) {
-						if(Beta) Alert1("Err. ReadMIDIfile(). j >= (*p_stream)[track].imax");
+						if(Beta) Alert1("=> Err. ReadMIDIfile(). j >= (*p_stream)[track].imax");
 						return(FAILED);
 						}
 					(*((*p_stream)[track].code))[j].time = currenttime;
@@ -1117,7 +1117,7 @@ else {
 maxevents = ZERO;
 for(track=0; track < ntracks; track++) {
 	if(p_stream == NULL) {
-		if(Beta) Alert1("Err. ReadMIDIfile(). p_stream == NULL");
+		if(Beta) Alert1("=> Err. ReadMIDIfile(). p_stream == NULL");
 		continue;
 		}
 	(*p_stream)[track].imax = (*p_stream)[track].i;
@@ -1179,9 +1179,9 @@ return(result);
 
 ERR:
 if(track >= 0 && track < ntracks)
-	sprintf(Message,"Error on byte #%ld, track %ld. ",(long) totalbytes + nbytes,(long) track);
+	sprintf(Message,"=> Error on byte #%ld, track %ld. ",(long) totalbytes + nbytes,(long) track);
 else
-	sprintf(Message,"Error on byte #%ld. ",(long) totalbytes + nbytes);
+	sprintf(Message,"=> Error on byte #%ld. ",(long) totalbytes + nbytes);
 switch(err) {
 	case 0:
 		break;

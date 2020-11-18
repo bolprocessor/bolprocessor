@@ -234,7 +234,7 @@ for(k=2; k <= (*p_kmax); k++) {
 	alpha = (*p_Instance)[k].alpha;
 	beta = (*p_Instance)[k].dilationratio;	// alpha != beta if the sound-object is cyclic
 	if((*p_Instance)[k].ncycles < 2 && beta != alpha) {
-		sprintf(Message,"Err. MakeSound(). beta != alpha\n");
+		sprintf(Message,"=> Err. MakeSound(). beta != alpha\n");
 		BPPrintMessage(odInfo,Message);
 		beta = (*p_Instance)[k].dilationratio = alpha;
 		}
@@ -279,7 +279,7 @@ for(k=2; k <= (*p_kmax); k++) {
 	if(j > 1 && j < 16384) {	/* Sound-object or time pattern */
 		/* Look for first event in object and for first and last events in its periodical part */
 		if(Beta && j >= Jbol && Jbol < 2) {
-			sprintf(Message,"Err. MakeSound(). j >= Jbol && Jbol < 2\n");
+			sprintf(Message,"=> Err. MakeSound(). j >= Jbol && Jbol < 2\n");
 			BPPrintMessage(odInfo,Message);
 			}
 		for(i=0; i < im; i++) {
@@ -600,7 +600,7 @@ for(nseq=0; nseq < maxconc; nseq++) {
 	maxparam = (*ptrperf)->numberparams;
 	for(i=0; i < maxparam; i++) (*((*ptrperf)->params))[i].active = FALSE;
 	if(maxparam <= IPANORAMIC) {
-	//	if(Beta) Alert1("Err. MakeSound(). Beta && maxparam <= IPANORAMIC");
+	//	if(Beta) Alert1("=> Err. MakeSound(). Beta && maxparam <= IPANORAMIC");
 		goto OVER;
 		}
 	
@@ -778,7 +778,7 @@ TRYCSFILE:
 		blockkey = (*p_Instance)[kcurrentinstance].blockkey;
 		j = (*p_Instance)[kcurrentinstance].object;
 		if(j == 0) {
-		//	if(Beta) Alert1("Err. MakeSound(). j = 0");
+		//	if(Beta) Alert1("=> Err. MakeSound(). j = 0");
 			result = ABORT; goto OVER;
 			}
 		outtime = FALSE;
@@ -792,12 +792,12 @@ TRYCSFILE:
 		instrument = (*p_Instance)[kcurrentinstance].instrument;
 		nseq = (*p_Instance)[kcurrentinstance].nseq;
 		if(nseq < 0 || nseq >= maxconc) {
-			BPPrintMessage(odInfo,"Err. MakeSound(). nseq < 0 || nseq >= maxconc");
+			BPPrintMessage(odInfo,"=> Err. MakeSound(). nseq < 0 || nseq >= maxconc");
 			nseq = 0;
 			}
 		params = (*((*pp_currentparams)[nseq]))->params;
 		if(j < 16384) {
-			if(j >= Jbol && Jbol < 2) BPPrintMessage(odInfo,"Err. MakeSound(). j >= Jbol && Jbol < 2");
+			if(j >= Jbol && Jbol < 2) BPPrintMessage(odInfo,"=> Err. MakeSound(). j >= Jbol && Jbol < 2");
 			if(j < Jbol) {
 				switch((*p_StrikeAgain)[j]) {
 					case -1:
@@ -1010,7 +1010,7 @@ TRYCSFILE:
 			if((kcurrentinstance > 1) && (*p_Instance)[kcurrentinstance].contparameters.number > 0) {
 				if(show_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance = %ld > 1\n",(long)kcurrentinstance);
 				if(currentinstancevalues == NULL) {
-				//	if(Beta) Alert1("Err. MakeSound(). currentinstancevalues == NULL");
+				//	if(Beta) Alert1("=> Err. MakeSound(). currentinstancevalues == NULL");
 					goto FORGETIT;
 					}
 				if((*((*pp_currentparams)[nseq]))->params == NULL) {
@@ -1157,7 +1157,7 @@ FORGETIT:
 							= /* torigin + */ (*p_Instance)[kcurrentinstance].starttime;
 						(*stream)[index].channel = ch = (*currentinstancevalues)[i].channel - 1;
 						if(ch < 0 || ch >= MAXCHAN) {
-						//	if(Beta) Alert1("Err. MakeSound(). ch < 0 || ch >= MAXCHAN");
+						//	if(Beta) Alert1("=> Err. MakeSound(). ch < 0 || ch >= MAXCHAN");
 							result = ABORT;
 							goto OVER;
 							}
@@ -1198,7 +1198,7 @@ SWITCHES:
 							for(jj=0; jj < 32; jj++) {
 								s = 127 * (currswitchstate[ii] & (1L << jj));
 								if(s < 0 || s > 127) {
-								//	if(Beta) Alert1("Err. MakeSound(). s < 0 || s > 127");
+								//	if(Beta) Alert1("=> Err. MakeSound(). s < 0 || s > 127");
 									s = 0;
 									}
 								rs = 0;
@@ -1747,7 +1747,7 @@ NEWPERIOD:
 		result = OK;
 		
 		if(Beta && (chancont >= MAXCHAN || icont > IPANORAMIC)) {
-		//	Alert1("Err. MakeSound(). chancont >= MAXCHAN || icont > IPANORAMIC");
+		//	Alert1("=> Err. MakeSound(). chancont >= MAXCHAN || icont > IPANORAMIC");
 			goto OVER;
 			}
 		if(cswrite || chancont < 0 || icont < 0 || !(*(p_active[chancont]))[icont])
@@ -1757,11 +1757,11 @@ SENDCONTROLMESSAGE:
 // Send message of continuous parameter
 		
 		if(Beta && (chancont < 0 || icont < 0 || chancont >= MAXCHAN || icont > IPANORAMIC)) {
-	//		Alert1("Err. MakeSound(). chancont < 0 || icont < 0 || chancont >= MAXCHAN || icont > IPANORAMIC");
+	//		Alert1("=> Err. MakeSound(). chancont < 0 || icont < 0 || chancont >= MAXCHAN || icont > IPANORAMIC");
 			goto OVER;
 			}
 		if(Beta && (!(*(p_active[chancont]))[icont])) {
-	//		Alert1("Err. MakeSound(). !(*(p_active[chancont]))[icont]");
+	//		Alert1("=> Err. MakeSound(). !(*(p_active[chancont]))[icont]");
 			goto OVER;
 			}
 		if(t2 != Infpos && t2 == (*(p_t2cont[chancont]))[icont])
@@ -1875,7 +1875,7 @@ FINDNEXTEVENT:
 				alpha = (*p_Instance)[k].alpha;
 				beta = (*p_Instance)[k].dilationratio;	// alpha != beta if the sound-object is cyclic
 				if((*p_Instance)[k].ncycles < 2 && beta != alpha) {
-					sprintf(Message,"Err. MakeSound(). beta != alpha\n");
+					sprintf(Message,"=> Err. MakeSound(). beta != alpha\n");
 					BPPrintMessage(odInfo,Message);
 					beta = (*p_Instance)[k].dilationratio = alpha;
 					}
@@ -1985,8 +1985,8 @@ if(!FirstTime && !PlayPrototypeOn
 		}
 	if(rep3 == dDisplayItem) {
 		if(*pp_b == NULL) {
-		//	if(Beta) Alert1("Err. MakeSound(). *pp_b == NULL");
-			BPPrintMessage(odInfo,"Err. MakeSound(). *pp_b == NULL\n");
+		//	if(Beta) Alert1("=> Err. MakeSound(). *pp_b == NULL");
+			BPPrintMessage(odInfo,"=> Err. MakeSound(). *pp_b == NULL\n");
 			}
 		else {
 			BPActivateWindow(SLOW,wData);
@@ -2191,7 +2191,7 @@ int r;
 float x;
 
 if(control >= MAXPARAMCTRL) {
-	sprintf(Message,"Err. ClipVelocity(). control = %ld",(long)control);
+	sprintf(Message,"=> Err. ClipVelocity(). control = %ld",(long)control);
 //	if(Beta) Alert1(Message);
 	control = -1;
 	}
@@ -2326,7 +2326,7 @@ if(EventState != NO) result = EventState;
 
 OVER:
 if(WaitOn > 0) WaitOn--;
-// else if(Beta) Alert1("Err. WaitForLastSounds(). WaitOn <= 0");
+// else if(Beta) Alert1("=> Err. WaitForLastSounds(). WaitOn <= 0");
 ClearMessage();
 return(result);
 #endif
@@ -2464,38 +2464,38 @@ ParameterStream **param;
 
 result = OK;
 if(iparam < 0 || iparam > IPANORAMIC) {
-//	if(Beta) Alert1("Err. SendControl(). iparam < 0 || iparam > IPANORAMIC");
+//	if(Beta) Alert1("=> Err. SendControl(). iparam < 0 || iparam > IPANORAMIC");
 	return(ABORT);
 	}
 if(chan < 0 || chan >= MAXCHAN) {
-	// if(Beta) Alert1("Err. SendControl(). chan < 0 || chan >= MAXCHAN");
+	// if(Beta) Alert1("=> Err. SendControl(). chan < 0 || chan >= MAXCHAN");
 	result = ABORT;
 	goto OVER;
 	}
 seq = (*(p_seqcont[chan]))[iparam];
 
 if(seq < 0 || seq >= maxconc) {
-	// if(Beta) Alert1("Err. SendControl(). seq < 0 || seq >= maxconc");
+	// if(Beta) Alert1("=> Err. SendControl(). seq < 0 || seq >= maxconc");
 	return(ABORT);
 	}
 	
 param = (*p_control)[seq].param;
 
 if(chan != (*param)[iparam].channel) {
-	// if(Beta) Alert1("Err. SendControl(). chan != (*param)[iparam].channel");
+	// if(Beta) Alert1("=> Err. SendControl(). chan != (*param)[iparam].channel");
 	result = ABORT;
 	goto OVER;
 	}
 if(!(*(p_active[chan]))[iparam]) {
-	// if(Beta) Alert1("Err. SendControl(). !(*(p_active[chan]))[iparam]");
+	// if(Beta) Alert1("=> Err. SendControl(). !(*(p_active[chan]))[iparam]");
 	return(ABORT);
 	}
 if((*p_control)[seq].param == NULL) {
-	// if(Beta) Alert1("Err. SendControl(). (*p_control)[seq].param == NULL");
+	// if(Beta) Alert1("=> Err. SendControl(). (*p_control)[seq].param == NULL");
 	return(ABORT);
 	}
 if((*param)[iparam].ibm <= ZERO) {
-	if(Beta) Print(wTrace,"Err. SendControl(). (*param)[iparam].ibm <= ZERO\n");
+	if(Beta) Print(wTrace,"=> Err. SendControl(). (*param)[iparam].ibm <= ZERO\n");
 /*	This case was found in item #26 of -da.checkControls.html when played after the
 	two preceding ones */
 	goto INCREMENT;
@@ -2505,7 +2505,7 @@ alpha = ((double)(*param)[iparam].ib) / (*param)[iparam].ibm;
 
 if((value = GetTableValue(alpha,(*param)[iparam].imax,(*param)[iparam].point,
 		(*param)[iparam].startvalue,(*param)[iparam].endvalue)) == Infpos) {
-	if(Beta) Alert1("Err. SendControl(). value == Infpos");
+	if(Beta) Alert1("=> Err. SendControl(). value == Infpos");
 	BPPrintMessage(odError,"=> Err. SendControl(). value == Infpos\n");
 	return(ABORT);
 	}
@@ -2514,7 +2514,7 @@ if(value > 16383. && value < 16384.) value = 16383.;
 
 if(value < 0. || value > 16383.) {
 	if(Beta) {
-		sprintf(Message,"Err. SendControl(). value = %.3f\n",value);
+		sprintf(Message,"=> Err. SendControl(). value = %.3f\n",value);
 		Print(wTrace,Message);
 		BPPrintMessage(odError,"=> Err. SendControl(). value = %.3f\n",value);
 		}
@@ -2615,13 +2615,13 @@ if((*param)[iparam].ib > (*param)[iparam].ibm) {
 		if((*((*p_control)[nn].param))[iparam].ibm <= ZERO) continue;
 		if(chan == (*((*p_control)[nn].param))[iparam].channel) {
 			if((*(p_active[chan]))[iparam]) {
-				// if(Beta) Alert1("Err. SendControl(). (*(p_active[chan]))[iparam]");
+				// if(Beta) Alert1("=> Err. SendControl(). (*(p_active[chan]))[iparam]");
 				return(ABORT);
 				}
 			
 			/* Set the proper ib using value of t2 */
 			if((*((*p_control)[nn].param))[iparam].duration <= ZERO) {
-				// if(Beta) Alert1("Err. SendControl(). (*((*p_control)[nn].param))[iparam].duration <= 0");
+				// if(Beta) Alert1("=> Err. SendControl(). (*((*p_control)[nn].param))[iparam].duration <= 0");
 				(*((*p_control)[nn].param))[iparam].ib = ZERO;
 				goto OVER;
 				}
@@ -2656,11 +2656,11 @@ double x,y,y1,y2;
 long i,xmax,x1,x2;
 
 if(alpha < 0.) {
-	// if(Beta && alpha < -0.01) Alert1("Err. GetTableValue(). alpha < -0.01");
+	// if(Beta && alpha < -0.01) Alert1("=> Err. GetTableValue(). alpha < -0.01");
 	alpha = 0.;
 	}
 if(alpha > 1.) {
-	// if(Beta && alpha > 1.01) Alert1("Err. GetTableValue(). alpha > 1.01");
+	// if(Beta && alpha > 1.01) Alert1("=> Err. GetTableValue(). alpha > 1.01");
 	alpha = 1.;
 	}
 if(imax == ZERO) {
@@ -2670,16 +2670,16 @@ if(imax == ZERO) {
 	}
 
 if(imax < ZERO) {
-	// if(Beta) Alert1("Err. GetTableValue(). imax < ZERO || imax > 255");
+	// if(Beta) Alert1("=> Err. GetTableValue(). imax < ZERO || imax > 255");
 	return(Infpos);
 	}
 if(coords == NULL) {
-	// if(Beta) Alert1("Err. GetTableValue(). coords == NULL");
+	// if(Beta) Alert1("=> Err. GetTableValue(). coords == NULL");
 	return(Infpos);
 	}
 if(Beta) {
 	if(imax > MyGetHandleSize((Handle)coords) / sizeof(Coordinates)) {
-	//	Alert1("Err. GetTableValue(). imax >= MyGetHandleSize((Handle)coords) / sizeof(Coordinates)");
+	//	Alert1("=> Err. GetTableValue(). imax >= MyGetHandleSize((Handle)coords) / sizeof(Coordinates)");
 		return(Infpos);
 		}
 	}
@@ -2693,7 +2693,7 @@ else {
 	y2 = (*(coords))[i].value;
 	y1 = (*(coords))[i-1L].value;
 	if(x1 >= x2) {
-	//	if(Beta) Alert1("Err. GetTableValue(). x1 >= x2");
+	//	if(Beta) Alert1("=> Err. GetTableValue(). x1 >= x2");
 		return(Infpos);
 		}
 	y = y1 + (y2 - y1) * (x - x1) / (x2 - x1);

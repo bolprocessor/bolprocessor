@@ -58,7 +58,7 @@ asked = FALSE;
 if(w != LastComputeWindow && w >= 0 && w < WMAX && Editable[w]) LastComputeWindow = w;
 w = LastComputeWindow;
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. PlaySelection(). Incorrect window index");
+	if(Beta) Alert1("=> Err. PlaySelection(). Incorrect window index");
 	return(FAILED);
 	}
 #if BP_CARBON_GUI
@@ -216,8 +216,8 @@ else NoAlphabet = FALSE;
 // BPPrintMessage(odInfo,"Running PlayBuffer()\n");
 if(FirstTime && !onlypianoroll) {
 	if(p_Initbuff == NULL) {
-	//	if(Beta) Alert1("Err. PlayBuffer(). p_Initbuff = NULL. ");
-		BPPrintMessage(odInfo,"Err. PlayBuffer(). p_Initbuff = NULL\n");
+	//	if(Beta) Alert1("=> Err. PlayBuffer(). p_Initbuff = NULL. ");
+		BPPrintMessage(odInfo,"=> Err. PlayBuffer(). p_Initbuff = NULL\n");
 		return(ABORT);
 		}
 	if((r=PlayBuffer1(&p_Initbuff,NO)) != OK) {
@@ -398,7 +398,7 @@ p_context *p_plx,*p_prx,plx,prx;
 long x,tr;
 
 if(p_line == NULL) {
-	if(Beta) Alert1("Err. PlayHandle(). p_line == NULL");
+	if(Beta) Alert1("=> Err. PlayHandle(). p_line == NULL");
 	return(OK);
 	}
 if((*p_line)[0] == '\0') return(OK);
@@ -547,7 +547,7 @@ if(CheckEmergency() != OK) return(ABORT);
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
 	if(Beta)
-		Alert1("Err. TextToMIDIstream(). Incorrect window index");
+		Alert1("=> Err. TextToMIDIstream(). Incorrect window index");
 	return(FAILED);
 	}
 if(!StrikeAgainDefault) {
@@ -761,7 +761,7 @@ switch(what) {
 		goto OUT;
 		break;
 	default:
-		sprintf(Message, "Err. PasteStreamToPrototype(): Invalid value for parameter 'what' (%d).", what);
+		sprintf(Message, "=> Err. PasteStreamToPrototype(): Invalid value for parameter 'what' (%d).", what);
 		if(Beta) Alert1(Message);
 		if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 		goto OUT;
@@ -769,7 +769,7 @@ switch(what) {
 	}
 (*p_Ifrom)[j] = ifrom;
 if(ifrom < ZERO || ito < ZERO) {
-	if(Beta) Alert1("Err. in PasteStreamToPrototype(). ifrom < ZERO || ito < ZERO");
+	if(Beta) Alert1("=> Err. in PasteStreamToPrototype(). ifrom < ZERO || ito < ZERO");
 	ifrom = ZERO;
 	}
 
@@ -986,7 +986,7 @@ double maxseq;
 
 if(CheckEmergency() != OK) return(ABORT);
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err. ExpandSelection(). Incorrect window index");
+	if(Beta) Alert1("=> Err. ExpandSelection(). Incorrect window index");
 	return(FAILED);
 	}
 if(w != LastEditWindow && Editable[w]) LastEditWindow = w;
@@ -1076,7 +1076,7 @@ double maxseq;
 
 if(CheckEmergency() != OK) return(ABORT);
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err. ShowPeriods(). Incorrect window index");
+	if(Beta) Alert1("=> Err. ShowPeriods(). Incorrect window index");
 	return(FAILED);
 	}
 if(w != LastEditWindow && Editable[w]) LastEditWindow = w;
@@ -1151,7 +1151,7 @@ imax = MyGetHandleSize((Handle) *pp_X) / sizeof(tokenbyte);
 // OPTIMIZE: use & incr temp pointers instead of **pp_X[i]
 for(i=0,l=0; ((**pp_X)[i] != TEND) || ((**pp_X)[i+1] != TEND); i+=2, l++) {
 	if(i >= imax) {
-		sprintf(Message,"Err. LengthOf(). i=%ld  imax=%ld",(long)i,
+		sprintf(Message,"=> Err. LengthOf(). i=%ld  imax=%ld",(long)i,
 			(long)imax);
 		if(Beta) Println(wTrace,Message);
 		return(ZERO);
@@ -1165,7 +1165,7 @@ if(*pp_X == NULL) return(ZERO);
 lOffset = Munger((Handle)*pp_X,ZERO,EndStr,4L,NULL,ZERO);
 /* Problem because Endstr may be found too early if some parameter goes for instance 16383 */
 if(lOffset < ZERO) {
-	if(Beta) Alert1("Err. LengthOf()");
+	if(Beta) Alert1("=> Err. LengthOf()");
 	return(ZERO);
 	}
 return((int) (lOffset >> 1));
@@ -1180,7 +1180,7 @@ unsigned long i=0,im,l=0;
 tokenbyte **ptr;
 
 if(*p_maxy > INT_MAX) {
-	if(Beta) Alert1("Err. CopyBuf().  *p_maxy > INT_MAX. ");
+	if(Beta) Alert1("=> Err. CopyBuf().  *p_maxy > INT_MAX. ");
 	return(ABORT);
 	}
 im = (int) *p_maxy - 2;
@@ -1223,7 +1223,7 @@ Size oldsize;
 length = (Size) LengthOf(pp_X);
 blocksize = (length + 2L) * sizeof(tokenbyte);
 if(*pp_X == NULL) {
-	if(Beta) Alert1("Err. CopyBuf(). *pp_X = NULL");
+	if(Beta) Alert1("=> Err. CopyBuf(). *pp_X = NULL");
 	return(ABORT);
 	}
 maxsize = oldsize = MyGetHandleSize((Handle)*pp_X);
@@ -1236,7 +1236,7 @@ if(maxsize < blocksize) {
 	if(MySetHandleSize((Handle*)pp_X, maxsize) != OK) return(ABORT);
 	}
 if((*pp_Y) == NULL) {
-	if(Beta) Alert1("Err. CopyBuf(). *pp_Y = NULL");
+	if(Beta) Alert1("=> Err. CopyBuf(). *pp_Y = NULL");
 	return(ABORT);
 	}
 maxsize = oldsize = MyGetHandleSize((Handle)*pp_Y);
@@ -1308,7 +1308,7 @@ if(length > 32000L) {
 	}
 if((ptr = (char**) GiveSpace((Size)(length * sizeof(char)))) == NULL) {
 	rep = ABORT;
-	if(Beta) Alert1("Err. SelectionToBuffer(). ptr == NULL");
+	if(Beta) Alert1("=> Err. SelectionToBuffer(). ptr == NULL");
 	goto OUT;
 	}
 *pp_buff = ptr;
@@ -1322,7 +1322,7 @@ while(((*p2) != '\0') && (ret || (*p2) != '\r')) {
 	else if(!MySpace((*p2))) ret = FALSE;
 	p2++;
 	if(++i > length) {
-		if(Beta) Alert1("Err. SelectionToBuffer(). i > length");
+		if(Beta) Alert1("=> Err. SelectionToBuffer(). i > length");
 		MyUnlock((Handle)*pp_buff);
 		MyDisposeHandle((Handle*)pp_buff);
 		SelectOn = FALSE;
@@ -1372,13 +1372,13 @@ long j,size,k,length;
 char c,oldc,**ptr;
 
 if(*pp_buff == NULL) {
-	if(Beta) Alert1("Err. ReadToBuff(). *pp_buff == NULL");
+	if(Beta) Alert1("=> Err. ReadToBuff(). *pp_buff == NULL");
 	return(ABORT);
 	}
 size = (long) MyGetHandleSize((Handle)*pp_buff);
 size = (long) (size / sizeof(char)) - 1L;
 if(size < 2L) {
-	if(Beta) Alert1("Err. ReadToBuff(). size < 2 ");
+	if(Beta) Alert1("=> Err. ReadToBuff(). size < 2 ");
 	return(ABORT);
 	}
 if(*p_i >= im) return(FAILED);

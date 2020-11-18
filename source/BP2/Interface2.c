@@ -147,7 +147,7 @@ Rect r;
 GrafPtr saveport;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. ShowMessage()");
+	if(Beta) Alert1("=> Err. ShowMessage()");
 	return(OK);
 	}
 if(store) {
@@ -262,7 +262,7 @@ long origin,end,length;
 *p_gap = 0;
 MyDisposeHandle((Handle*)pp_line);
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. ReadLine(YES,). ");
+	if(Beta) Alert1("=> Err. ReadLine(YES,). ");
 	return(ABORT);
 	}
 if(*p_i >= im) goto BAD;
@@ -340,7 +340,7 @@ int j,k,l;
 char c,oldc;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. ReadLine1(). ");
+	if(Beta) Alert1("=> Err. ReadLine1(). ");
 	return(OK);
 	}
 if(*p_i >= im) return(FAILED);
@@ -483,7 +483,7 @@ TextHandle th;
 TextOffset selbegin, selend;
 
 if(Nw < 0 || Nw >= WMAX) {
-	if(Beta) Alert1("Err. TypeChar()");
+	if(Beta) Alert1("=> Err. TypeChar()");
 	return(ABORT);
 	}
 if(!Editable[Nw] && !HasFields[Nw]) return(OK);
@@ -662,7 +662,7 @@ for(i=0; ; i++,j++) {
 		if(r.right > right) break;
 		if((h_ctrl[++im] = NewControl(GetDialogWindow(p_dia),&r,title,1,0,0,1,(ctrltype + 8),0L))
 				== NULL) {
-			if(Beta) Alert1("Err1. DoThings()");
+			if(Beta) Alert1("=> Err1. DoThings()");
 			result = ABORT; goto QUIT;
 			}
 		ShowControl(h_ctrl[im]);
@@ -671,7 +671,7 @@ for(i=0; ; i++,j++) {
 	else {
 		if(i >= numberdrawn) break;
 		if(h_ctrl[i+1] == NULL) {
-			if(Beta) Alert1("Err2. DoThings()");
+			if(Beta) Alert1("=> Err2. DoThings()");
 			result = ABORT; goto QUIT;
 			}
 		/* SetCTitle(h_ctrl[i+1],title); */
@@ -771,7 +771,7 @@ goto REDRAW;
 QUIT:
 DisposeDialog(p_dia);
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err DoThings(). saveport == NULL");
+else if(Beta) Alert1("=> Err DoThings(). saveport == NULL");
 return(result);
 }
 
@@ -1262,24 +1262,24 @@ SelectBehind(long pos1,long pos2,TextHandle teh)
 	/* clamp range to text bounds (needed for WASTE since we are bypassing its checks) */
 	maxoffset = GetTextHandleLength(teh);
 	if (pos1 < ZERO) {
-		if(Beta) Alert1("Err. SelectBehind(). pos1 < ZERO");
+		if(Beta) Alert1("=> Err. SelectBehind(). pos1 < ZERO");
 		pos1 = ZERO;
 	}
 	else if (pos1 > maxoffset) {
-		if(Beta) Alert1("Err. SelectBehind(). pos1 > maxoffset");
+		if(Beta) Alert1("=> Err. SelectBehind(). pos1 > maxoffset");
 		pos1 = maxoffset;
 	}
 	if (pos2 < ZERO) {
-		if(Beta) Alert1("Err. SelectBehind(). pos2 < ZERO");
+		if(Beta) Alert1("=> Err. SelectBehind(). pos2 < ZERO");
 		pos2 = ZERO;
 	}
 	else if (pos2 > maxoffset) {
-		if(Beta) Alert1("Err. SelectBehind(). pos2 > maxoffset");
+		if(Beta) Alert1("=> Err. SelectBehind(). pos2 > maxoffset");
 		pos2 = maxoffset;
 	}
 	(*teh)->selStart = pos1; (*teh)->selEnd = pos2;
 #else // FIXME: how do we do this with MLTE ?
-if (Beta) printf("Err.  SelectBehind() not implemented for MLTE!\n");
+if (Beta) printf("=> Err.  SelectBehind() not implemented for MLTE!\n");
 #endif
 return(OK);
 }
@@ -1334,7 +1334,7 @@ int r,i,i0,im,j,w;
 char c,line[MAXNAME+1],*p,*q;
 
 if(p_line == NULL) {
-	if(Beta) Alert1("Err. ChangeNames(). p_line == NULL");
+	if(Beta) Alert1("=> Err. ChangeNames(). p_line == NULL");
 	return(OK);
 	}
 if((*p_line)[0] == '\0') return(OK);
@@ -1342,7 +1342,7 @@ if((*p_line)[0] == '\0') return(OK);
 r = OK;
 i = 0; im = MyHandleLen(p_line);
 if(p_line == NULL) {
-	if(Beta) Alert1("Err. ChangeNames(). p_line == NULL");
+	if(Beta) Alert1("=> Err. ChangeNames(). p_line == NULL");
 	return(OK);
 	}
 while(TRUE) {
@@ -1427,7 +1427,7 @@ return(r);
 FindGoodIndex(int wind)
 {
 if(wind < 0 || wind >= WMAX) {
-	if(Beta) Alert1("Err. FindGoodIndex(). Incorrect index");
+	if(Beta) Alert1("=> Err. FindGoodIndex(). Incorrect index");
 	return(LastEditWindow);
 	}
 switch(wind) {
@@ -1522,7 +1522,7 @@ if(what == mouseDown) {
 				result = intext;
 				if(result == OK) PauseOn = TRUE;
 				if(saveport != NULL) SetPort(saveport);
-				else if(Beta) Alert1("Err MyButton(). saveport == NULL");
+				else if(Beta) Alert1("=> Err MyButton(). saveport == NULL");
 				return(result);	/* This causes interruption if result == TRUE */
 				break;
 			default: break;
@@ -1535,7 +1535,7 @@ ButtonOn = FALSE;
 if(EventState != EXIT && EventState != ABORT) EventState = NO;
 else result = EventState;
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err MyButton(). saveport == NULL");
+else if(Beta) Alert1("=> Err MyButton(). saveport == NULL");
 DoSystem();
 
 /* We already processed the click, so we return FAILED */
@@ -1880,7 +1880,7 @@ do {
 	BPActivateWindow(SLOW,TargetWindow);
 	ShowSelect(CENTRE,TargetWindow);
 	if(saveport != NULL) SetPort(saveport);
-	else if(Beta) Alert1("Err FindReplace(). saveport == NULL");
+	else if(Beta) Alert1("=> Err FindReplace(). saveport == NULL");
 	rep = GetReplaceCommand();
 	Deactivate(TEH[TargetWindow]);
 	switch(rep) {
@@ -2096,7 +2096,7 @@ if(ptr != NULL) {
 	}
 else {
 	if(w < 0 || w >= WMAX || !HasFields[w]) {
-		if(Beta) Alert1("Err. SetField(). Incorrect index");
+		if(Beta) Alert1("=> Err. SetField(). Incorrect index");
 		return(FAILED);
 		}
 	thedialog = gpDialogs[w];
@@ -2111,7 +2111,7 @@ GetDialogItem(thedialog,(short)ifield,&itemtype,&itemhandle,&r);
 if(((itemtype & 127)  != editText && (itemtype & 127)  != statText)
 		|| itemhandle == NULL) {
 	if(Beta) {
-		sprintf(Message,"Err SetField(%ld,%ld,%s)",(long)w,
+		sprintf(Message,"=> Err SetField(%ld,%ld,%s)",(long)w,
 			(long)ifield,(long)string);
 		Alert1(Message);
 		}
@@ -2119,7 +2119,7 @@ if(((itemtype & 127)  != editText && (itemtype & 127)  != statText)
 	}
 #endif
 if (strlen(string) > 255) {
-	if (Beta)  Alert1("Err SetField(): string is too long");
+	if (Beta)  Alert1("=> Err SetField(): string is too long");
 	return (ABORT);
 	}
 c2pstrcpy(line,string);
@@ -2145,7 +2145,7 @@ if(ptr != NULL) {
 	}
 else {
 	if(w < 0 || w >= WMAX || !HasFields[w]) {
-		if(Beta) Alert1("Err. GetField(). Incorrect index");
+		if(Beta) Alert1("=> Err. GetField(). Incorrect index");
 		return(FAILED);
 		}
 	thedialog = gpDialogs[w];
@@ -2156,7 +2156,7 @@ GetDialogItem(thedialog,(short)ifield,&itemtype,&itemhandle,&r);
 if(((itemtype & 127) != editText && (itemtype & 127)  != statText)
 		|| itemhandle == NULL) {
 	if(Beta) {
-		sprintf(Message,"Err GetField(%ld,%ld)",(long)w,(long)ifield);
+		sprintf(Message,"=> Err GetField(%ld,%ld)",(long)w,(long)ifield);
 		Alert1(Message);
 		}
 	return(FAILED);
@@ -2227,14 +2227,14 @@ Str255 t;
 long p,q;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err. GetCtrlValue(). Incorrect index");
+	if(Beta) Alert1("=> Err. GetCtrlValue(). Incorrect index");
 	return(0);
 	}
 GetDialogItem(gpDialogs[w],(short)icontrol,&itemtype,(Handle*)&itemhandle,&r);
 if((((itemtype & 127) != (ctrlItem+radCtrl)) && ((itemtype & 127) != (ctrlItem+chkCtrl)))
 	|| itemhandle == NULL) {
 	if(Beta) {
-		sprintf(Message,"Err GetCtrlValue(%ld,%ld)",(long)w,(long)icontrol);
+		sprintf(Message,"=> Err GetCtrlValue(%ld,%ld)",(long)w,(long)icontrol);
 		Alert1(Message);
 		}
 	return(0);
@@ -2250,14 +2250,14 @@ ControlHandle itemhandle;
 short itemtype;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err. ToggleButton(). Incorrect index");
+	if(Beta) Alert1("=> Err. ToggleButton(). Incorrect index");
 	return(FAILED);
 	}
 GetDialogItem(gpDialogs[w],(short)icontrol,&itemtype,(Handle*)&itemhandle,&r);
 if((((itemtype & 127) != (ctrlItem+radCtrl)) && ((itemtype & 127) != (ctrlItem+chkCtrl)))
 	|| itemhandle == NULL) {
 	if(Beta)  {
-		sprintf(Message,"Err ToggleButton(%ld,%ld)",(long)w,(long)icontrol);
+		sprintf(Message,"=> Err ToggleButton(%ld,%ld)",(long)w,(long)icontrol);
 		Alert1(Message);
 		}
 	return(FAILED);
@@ -2286,7 +2286,7 @@ if(ptr != NULL) {
 	}
 else {
 	if(w < 0 || w >= WMAX) {
-		if(Beta) Alert1("Err. SwitchOn(). Incorrect index");
+		if(Beta) Alert1("=> Err. SwitchOn(). Incorrect index");
 		return(FAILED);
 		}
 	thedialog = gpDialogs[w];
@@ -2296,7 +2296,7 @@ itemtype = (itemtype & 127) - ctrlItem;
 if(itemtype != radCtrl && itemtype != chkCtrl && itemtype != btnCtrl
 		|| itemhandle == NULL) {
 	if(Beta) {
-		sprintf(Message,"Err SwitchOn(NULL,%ld,%ld)",(long)w,(long)i);
+		sprintf(Message,"=> Err SwitchOn(NULL,%ld,%ld)",(long)w,(long)i);
 		Alert1(Message);
 		}
 	return(ABORT);
@@ -2321,7 +2321,7 @@ if(ptr != NULL) {
 	}
 else {
 	if(w < 0 || w >= WMAX) {
-		if(Beta) Alert1("Err. SwitchOff(). Incorrect index");
+		if(Beta) Alert1("=> Err. SwitchOff(). Incorrect index");
 		return(FAILED);
 		}
 	thedialog = gpDialogs[w];
@@ -2331,7 +2331,7 @@ itemtype = (itemtype & 127) - ctrlItem;
 if(itemtype != radCtrl && itemtype != chkCtrl && itemtype != btnCtrl
 		|| itemhandle == NULL) {
 	if(Beta) {
-		sprintf(Message,"Err SwitchOff(%ld,%ld)",(long)w,(long)i);
+		sprintf(Message,"=> Err SwitchOff(%ld,%ld)",(long)w,(long)i);
 		Alert1(Message);
 		}
 	return(ABORT);
@@ -2351,7 +2351,7 @@ short itemtype;
 Handle itemhandle;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err. ShowPannel(). Incorrect index");
+	if(Beta) Alert1("=> Err. ShowPannel(). Incorrect index");
 	return(FAILED);
 	}
 GetDialogItem(gpDialogs[w],(short)i,&itemtype,&itemhandle,&r);
@@ -2359,7 +2359,7 @@ itemtype = (itemtype & 127) - ctrlItem;
 if(itemtype != radCtrl && itemtype != chkCtrl && itemtype != btnCtrl
 		|| itemhandle == NULL) {
 	if(Beta) {
-		sprintf(Message,"Err ShowPannel(%ld,%ld)",(long)w,(long)i);
+		sprintf(Message,"=> Err ShowPannel(%ld,%ld)",(long)w,(long)i);
 		Alert1(Message);
 		}
 	return(ABORT);
@@ -2376,7 +2376,7 @@ short itemtype;
 Handle itemhandle;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("Err. HidePannel(). Incorrect index");
+	if(Beta) Alert1("=> Err. HidePannel(). Incorrect index");
 	return(FAILED);
 	}
 GetDialogItem(gpDialogs[w],(short)i,&itemtype,&itemhandle,&r);
@@ -2384,7 +2384,7 @@ itemtype = (itemtype & 127) - ctrlItem;
 if(itemtype != radCtrl && itemtype != chkCtrl && itemtype != btnCtrl
 		|| itemhandle == NULL) {
 	if(Beta) {
-		sprintf(Message,"Err HidePannel(%ld,%ld)",(long)w,(long)i);
+		sprintf(Message,"=> Err HidePannel(%ld,%ld)",(long)w,(long)i);
 		Alert1(Message);
 		}
 	return(ABORT);
@@ -2403,7 +2403,7 @@ if(ptr != NULL) {
 	}
 else {
 	if(w < 0 || w >= WMAX || !HasFields[w]) {
-		if(Beta) Alert1("Err. SelectField(). Incorrect index");
+		if(Beta) Alert1("=> Err. SelectField(). Incorrect index");
 		return(FAILED);
 		}
 	thedialog = gpDialogs[w];
@@ -2460,7 +2460,7 @@ FrameRect(&r);
 PenNormal();
 
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("Err OutlineTextInDialog(). saveport == NULL");
+else if(Beta) Alert1("=> Err OutlineTextInDialog(). saveport == NULL");
 return(OK);
 }
 

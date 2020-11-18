@@ -52,7 +52,7 @@ char line[MAXLIN];
 PleaseWait();
 
 if(pp_a == NULL) {
-	if(Beta) Alert1("Err. Zouleb(). pp_a == NULL");
+	if(Beta) Alert1("=> Err. Zouleb(). pp_a == NULL");
 	return(OK);
 	}
 
@@ -229,7 +229,7 @@ if(repeat) {
 store = FALSE;
 if(ComputeOn) {
 	if(ProduceStackDepth > -1) store = TRUE;
-	else if(Beta) Println(wTrace,"Err. Zouleb(). ProduceStackDepth == -1");
+	else if(Beta) Println(wTrace,"=> Err. Zouleb(). ProduceStackDepth == -1");
 	}
 
 p_index = NULL;
@@ -242,7 +242,7 @@ if(rndseq) {
 else {
 	if(rotate != 0) {
 		if(rotate < -128 || rotate > 127) {
-			if(Beta) Alert1("Err. Zouleb(). rotate < -128 || rotate > 127");
+			if(Beta) Alert1("=> Err. Zouleb(). rotate < -128 || rotate > 127");
 			rotate = 0;
 			}
 		r = RotateSequence(&p_index,nchunks,rotate);
@@ -413,11 +413,11 @@ if(p_index != NULL) {	/* _rotate or _rndseq */
 	}
 
 if(ichunk < ZERO) {
-	if(Beta) Alert1("Err. GetChunk(). ichunk < ZERO");
+	if(Beta) Alert1("=> Err. GetChunk(). ichunk < ZERO");
 	ichunk = ZERO;
 	}
 if(ichunk >= ichunkmax) {
-	if(Beta) Alert1("Err. GetChunk(). ichunk >= ichunkmax");
+	if(Beta) Alert1("=> Err. GetChunk(). ichunk >= ichunkmax");
 	ichunk = ichunkmax - 1L;
 	}
 
@@ -497,11 +497,11 @@ if(!repeat) {
 	randomnumber = r1 + (((double)r2) / ((double)(RAND_MAX + 1L)));
 	pos = (((double) size) * randomnumber) / ((double)(RAND_MAX + 1L));
 	if(pos >= size) {
-		if(Beta) Alert1("Err. MakeRandomSequence(). pos >= size");
+		if(Beta) Alert1("=> Err. MakeRandomSequence(). pos >= size");
 		pos = size - 1L;
 		}
 	if(pos < ZERO) {
-		if(Beta) Alert1("Err. MakeRandomSequence(). pos < ZERO");
+		if(Beta) Alert1("=> Err. MakeRandomSequence(). pos < ZERO");
 		pos = ZERO;
 		}
 	if(store) {
@@ -592,7 +592,7 @@ if(xpandkey > 127) centerkey = ParamValue[xpandkey-128];
 else centerkey = xpandkey;
 
 if(centerkey < 0) {
-	if(Beta) Println(wTrace,"Err. ExpandKey(). centerkey < 0");
+	if(Beta) Println(wTrace,"=> Err. ExpandKey(). centerkey < 0");
 	return(key);
 	}
 
@@ -600,7 +600,7 @@ if(p_NumberConstant == NULL) maxparam = 0;
 else maxparam = (MyGetHandleSize((Handle)p_NumberConstant) / sizeof(double));
 
 if(xpandval >= maxparam) {
-	if(Beta) Println(wTrace,"Err. ExpandKey(). xpandval >= maxparam");
+	if(Beta) Println(wTrace,"=> Err. ExpandKey(). xpandval >= maxparam");
 	return(key);
 	}
 val = (*p_NumberConstant)[xpandval];

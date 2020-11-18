@@ -49,7 +49,7 @@ int i,j,r,changed,gap,dirtymem,wmem,noteconventionmem;
 Handle ptr;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("Err. RunScript(). Not editable window");
+	if(Beta) Alert1("=> Err. RunScript(). Not editable window");
 	return(FAILED);
 	}
 while(Button());
@@ -375,7 +375,7 @@ short menuID;
 char b,c,*p,*q,**p_arg,newarg;
 
 if(p_line == NULL) {
-	if(Beta) Alert1("Err.ExecScriptLine(). p_line = NULL");
+	if(Beta) Alert1("=> Err.ExecScriptLine(). p_line = NULL");
 	return(OK);
 	}
 if((*p_line)[0] == '\0') return(OK);
@@ -452,7 +452,7 @@ for(i=0; i < MaxScriptInstructions; i++) {
 	MystrcpyHandleToString(MAXLIN,0,Message,p_ScriptLabelPart(i,0));
 	j = strlen(Message);
 	if(j == 0) {
-		if(Beta) Println(wTrace,"Err. ExecScriptLine(). strlen(Message) == 0");
+		if(Beta) Println(wTrace,"=> Err. ExecScriptLine(). strlen(Message) == 0");
 		continue;
 		}
 	q = &(Message[0]);
@@ -775,14 +775,14 @@ if(check && !good /* && !changed */) {
 	result = ABORT;
 	}
 if(FSClose(refnum) != noErr) {
-	sprintf(Message,"Error closing '%s' script file...",filename);
+	sprintf(Message,"=> Error closing '%s' script file...",filename);
 	Alert1(Message);
 	}
 EndScript();
 if(check && good) {
 	Dirty[wTrace] = FALSE;
 	ClearWindow(FALSE,wTrace);
-	ShowMessage(TRUE,wMessage,"Errors: 0");
+	ShowMessage(TRUE,wMessage,"=> Errors: 0");
 	}
 MyDisposeHandle((Handle*)&p_line);
 MyDisposeHandle((Handle*)&p_completeline);

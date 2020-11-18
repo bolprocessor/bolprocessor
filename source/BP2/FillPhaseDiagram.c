@@ -774,7 +774,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 			goto ENDDIAGRAM;
 		
 		if(m != T3 && m != T9 && m != T25) {
-			if(Beta) Println(wTrace,"Err. FillePhaseDiagram(). m != T3 && m != T9 && m != T25");
+			if(Beta) Println(wTrace,"=> Err. FillePhaseDiagram(). m != T3 && m != T9 && m != T25");
 			goto NEXTTOKEN;
 			}
 		numberzeros += 1.;
@@ -869,7 +869,7 @@ DONEOUTTIMEOBJECT:
 						
 					level++;
 					if(level >= Maxlevel) {
-						if(Beta) Alert1("Err. FillPhaseDiagram(). level >= Maxlevel");
+						if(Beta) Alert1("=> Err. FillPhaseDiagram(). level >= Maxlevel");
 						else Alert1("Unexpectedly the phase diagram can't be created. You should send this project to the designers");
 						goto ENDDIAGRAM;
 						}
@@ -932,7 +932,7 @@ DONEOUTTIMEOBJECT:
 				case 23:
 					skipzeros = FALSE;
 					if(level >= Maxlevel) {
-						if(Beta) Alert1("Err. FillPhaseDiagram(). level >= Maxlevel");
+						if(Beta) Alert1("=> Err. FillPhaseDiagram(). level >= Maxlevel");
 						else Alert1("Unexpectedly the phase diagram can't be created. You should send this project to the designers");
 						goto ENDDIAGRAM;
 						}
@@ -944,7 +944,7 @@ DONEOUTTIMEOBJECT:
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
 						if(Beta) {
-							Alert1("Err. FillPhaseDiagram(). nseq >= Minconc");
+							Alert1("=> Err. FillPhaseDiagram(). nseq >= Minconc");
 							goto ENDDIAGRAM;
 							}
 						goto NEWSEQUENCE;
@@ -1014,7 +1014,7 @@ DONEOUTTIMEOBJECT:
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
 						if(Beta) {
-							Alert1("Err. FillPhaseDiagram(). nseq >= Minconc");
+							Alert1("=> Err. FillPhaseDiagram(). nseq >= Minconc");
 							goto ENDDIAGRAM;
 							}
 						goto NEWSEQUENCE;
@@ -1165,7 +1165,7 @@ NEWSEQUENCE:
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
 						if(Beta) {
-							Alert1("Err. FillPhaseDiagram(). nseq >= Minconc after '&'");
+							Alert1("=> Err. FillPhaseDiagram(). nseq >= Minconc after '&'");
 							goto ENDDIAGRAM;
 							}
 						goto NEWSEQUENCE;
@@ -1218,7 +1218,7 @@ NEWSEQUENCE:
 			else newkeyval = BlockScaleOnKey;
 			if(trace_scale) BPPrintMessage(odInfo,"newkeyval = %ld currentparameters.scale = %d\n",(long)newkeyval,currentparameters.scale);
 			if(newkeyval < 0 || newkeyval > 127) {
-				if(Beta) Println(wTrace,"Err. FillPhaseDiagram(). newblockkey < 0 || newblockkey > 127");
+				if(Beta) Println(wTrace,"=> Err. FillPhaseDiagram(). newblockkey < 0 || newblockkey > 127");
 				currentparameters.blockkey = BlockScaleOnKey;
 				}
 			else if(currentparameters.scale > -1) {
@@ -1281,7 +1281,7 @@ NEWSEQUENCE:
 				if(Beta) {
 					if(paramvalueindex >= (MyGetHandleSize((Handle)p_NumberConstant)
 						/ sizeof(double))) {
-						Alert1("Err FillPhaseDiagram(). paramvalueindex overflow");
+						Alert1("=> Err FillPhaseDiagram(). paramvalueindex overflow");
 						goto ENDDIAGRAM;
 						}
 					}
@@ -1363,7 +1363,7 @@ NEWSEQUENCE:
 		//	currentparameters.xpandkey = p % 256;
 			currentparameters.xpandkey = p % MAXSTRINGCONSTANTS;
 			if(currentparameters.xpandkey < 0) {
-				if(Beta) Println(wTrace,"Err. FillPhaseDiagram(). xpandkey < 0");
+				if(Beta) Println(wTrace,"=> Err. FillPhaseDiagram(). xpandkey < 0");
 				currentparameters.xpandkey = -1;
 				}
 			if(currentparameters.xpandkey > -1)
@@ -1373,7 +1373,7 @@ NEWSEQUENCE:
 //				currentparameters.xpandkey = 0; 
 				}
 			if(newxpandval < 0 || newxpandval >= maxparam) {
-				if(Beta) Println(wTrace,"Err. FillPhaseDiagram(). newxpandval < 0 || newxpandval >= maxparam");
+				if(Beta) Println(wTrace,"=> Err. FillPhaseDiagram(). newxpandval < 0 || newxpandval >= maxparam");
 				newxpandval = 0;
 				}
 			if(currentparameters.xpandkey > -1
@@ -1479,12 +1479,12 @@ NEWSEQUENCE:
 	//		if(level >= Maxlevel) goto NEXTTOKEN;
 			v = p % 128;
 			if(v < 64 || v > 95)  {
-				if(Beta) Alert1("Err. FillPhaseDiagram(). v < 64 || v > 95");
+				if(Beta) Alert1("=> Err. FillPhaseDiagram(). v < 64 || v > 95");
 				goto ENDDIAGRAM;
 				}
 			ch = (p - v) / 128 - 1;
 			if(ch < 0 || ch > 15) {
-				if(Beta) Alert1("Err. FillPhaseDiagram(). ch < 0 || ch > 15");
+				if(Beta) Alert1("=> Err. FillPhaseDiagram(). ch < 0 || ch > 15");
 				goto ENDDIAGRAM;
 				}
 			currswitchstate[ch] = currswitchstate[ch] | (1L << (v - 64));
@@ -1494,12 +1494,12 @@ NEWSEQUENCE:
 	//		if(level >= Maxlevel) goto NEXTTOKEN;
 			v = p % 128;
 			if(v < 64 || v > 95)  {
-				if(Beta) Alert1("Err. FillPhaseDiagram(). v < 64 || v > 95");
+				if(Beta) Alert1("=> Err. FillPhaseDiagram(). v < 64 || v > 95");
 				goto ENDDIAGRAM;
 				}
 			ch = (p - v) / 128 - 1;
 			if(ch < 0 || ch > 15) {
-				if(Beta) Alert1("Err. FillPhaseDiagram(). ch < 0 || ch > 15");
+				if(Beta) Alert1("=> Err. FillPhaseDiagram(). ch < 0 || ch > 15");
 				goto ENDDIAGRAM;
 				}
 			currswitchstate[ch] = currswitchstate[ch] & ~(1L << (v - 64));
@@ -1534,13 +1534,13 @@ for(nseq=nseqmem=0; nseq <= (*p_nmax); nseq++) {
 LOOKATEND:
 k = (*((*p_Seq)[nseqmem]))[imax];
 if(k < 0 || k > kobj) {
-	if(Beta) Println(wTrace,"Err. FillPhaseDiagram(). k < 0 || k > kobj");
+	if(Beta) Println(wTrace,"=> Err. FillPhaseDiagram(). k < 0 || k > kobj");
 	k = 0;
 	}
 j = (*p_Instance)[k].object;
 if(j < 0) {
 	/* Oops! we are outside the table */
-	if(Beta) Println(wTrace,"Err. FillPhaseDiagram(). LOOKATEND: j < 0");
+	if(Beta) Println(wTrace,"=> Err. FillPhaseDiagram(). LOOKATEND: j < 0");
 	imax--;
 	if(imax > ZERO) goto LOOKATEND;
 	}
@@ -1596,7 +1596,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 		/* Append <<->> */
 		kobj++; (*p_numberobjects) = kobj;
 		if(kobj >= Maxevent) {
-		 	if(Beta) Alert1("Err. FillPhaseDiagram(). kobj >= Maxevent. (2)");
+		 	if(Beta) Alert1("=> Err. FillPhaseDiagram(). kobj >= Maxevent. (2)");
 		 	failed = TRUE; goto ENDDIAGRAM;
 		 	}
 		(*p_Instance)[kobj].object = -1;
@@ -1837,7 +1837,7 @@ if(i < 0.) {
 	return(ZERO);
 	}
 if(Kpress < 1.) {
-	if(Beta) Println(wTrace,"Err. Class(). Kpress < 1.");
+	if(Beta) Println(wTrace,"=> Err. Class(). Kpress < 1.");
 	Kpress = 1.;
 	}
 if(Kpress < 2. || i < 1.) return((unsigned long)i);
@@ -1853,7 +1853,7 @@ Handle h;
 ContParameterSpecs **ptr;
 
 if(level >= Maxlevel) {
-	if(Beta) Alert1("Err. FindParameterIndex(). level >= Maxlevel");
+	if(Beta) Alert1("=> Err. FindParameterIndex(). level >= Maxlevel");
 	return(ABORT);
 	}
 if((*p_param)[level].values == NULL) {
@@ -1958,21 +1958,21 @@ double start;
 unsigned long ibeats,maxbeats;
 
 if(level >= Maxlevel) {
-	if(Beta) Println(wTrace,"Err. UpdateParameter(). level >= Maxlevel");
+	if(Beta) Println(wTrace,"=> Err. UpdateParameter(). level >= Maxlevel");
 	return(OK);
 	}
 if((*p_contparameters)[level].values == NULL) {
-	if(Beta) Println(wTrace,"Err. UpdateParameter(). (*p_contparameters)[level].values == NULL");
+	if(Beta) Println(wTrace,"=> Err. UpdateParameter(). (*p_contparameters)[level].values == NULL");
 	return(OK);
 	}
 if(i < 0) {
-	if(Beta) Println(wTrace,"Err. UpdateParameter(). i < 0");
+	if(Beta) Println(wTrace,"=> Err. UpdateParameter(). i < 0");
 	return(OK);
 	}
 if(Beta) {
 	imax = MyGetHandleSize((Handle)((*p_contparameters)[level].values)) / sizeof(ContParameterSpecs);
 	if(i < 0 || i >= imax) {
-		Println(wTrace,"Err. UpdateParameter(). i < 0 || i >= imax");
+		Println(wTrace,"=> Err. UpdateParameter(). i < 0 || i >= imax");
 		return(ABORT);
 		}
 	}
@@ -1982,7 +1982,7 @@ if((*((*p_contparameters)[level].values))[i].active) {
 	maxbeats = (*((*p_contparameters)[level].values))[i].maxbeats;
 	if((*((*p_contparameters)[level].values))[i].point != NULL
 			&& (ibeats + duration) > maxbeats) {
-		if(Beta) Println(wTrace,"Err. UpdateParameter(). ibeats + duration > maxbeats");
+		if(Beta) Println(wTrace,"=> Err. UpdateParameter(). ibeats + duration > maxbeats");
 		(*((*p_contparameters)[level].values))[i].active = FALSE;
 		return(OK);
 		}
@@ -2010,12 +2010,12 @@ unsigned long ibeats;
 
 if(Beta) {
 	if((*p_contparameters)[level].values == NULL) {
-		Println(wTrace,"Err. IncrementParameter(). (*p_contparameters)[level].values == NULL");
+		Println(wTrace,"=> Err. IncrementParameter(). (*p_contparameters)[level].values == NULL");
 		return(ABORT);
 		}
 	imax = MyGetHandleSize((Handle)((*p_contparameters)[level].values)) / sizeof(ContParameterSpecs);
 	if(i < 0 || i >= imax) {
-		Println(wTrace,"Err. IncrementParameter(). i < 0 || i >= imax");
+		Println(wTrace,"=> Err. IncrementParameter(). i < 0 || i >= imax");
 		return(ABORT);
 		}
 	}
@@ -2043,7 +2043,7 @@ char overstrike;
 int nseqplot;
 
 if(nseq >= Maxconc) {
-	if(Beta) Println(wTrace,"Err. MakeNewLineInPhaseTable(). nseq >= Maxconc");
+	if(Beta) Println(wTrace,"=> Err. MakeNewLineInPhaseTable(). nseq >= Maxconc");
 	TellSkipped();
 	return(FAILED);
 	}
@@ -2072,7 +2072,7 @@ int i,j;
 if(na >= Maxlevel) return(OK);
 
 if((*p_a)[na].values == NULL) {
-	if(Beta) Alert1("Err. CopyContinuousParameters(). (*p_a)[na].values) == NULL");
+	if(Beta) Alert1("=> Err. CopyContinuousParameters(). (*p_a)[na].values) == NULL");
 	return(ABORT);
 	}
 for(i=0; i < (*p_a)[na].number; i++) {
@@ -2110,7 +2110,7 @@ double i,j;
 int nseqplot;
 
 if(nseq >= Maxconc) {
-	if(Beta) Println(wTrace,"Err. PutZeros(). nseq >= Maxconc");
+	if(Beta) Println(wTrace,"=> Err. PutZeros(). nseq >= Maxconc");
 	TellSkipped();
 	return(FAILED);
 	}
