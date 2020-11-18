@@ -748,7 +748,7 @@ TRYCSFILE:
 			/*	sprintf(Message,"Couldn't write to file '%s'. May be it has been closed by another application",
 					CsFileName);
 				Alert1(Message); */
-				BPPrintMessage(odError,"Couldn't write to file '%s'. May be it has been closed by another application\n");
+				BPPrintMessage(odError,"=> Couldn't write to file '%s'. May be it has been closed by another application\n");
 				CloseCsScore();
 				if((result=PrepareCsFile()) != OK) goto OVER;
 				goto TRYCSFILE;
@@ -1014,7 +1014,7 @@ TRYCSFILE:
 					goto FORGETIT;
 					}
 				if((*((*pp_currentparams)[nseq]))->params == NULL) {
-					BPPrintMessage(odError,"Err. MakeSound(). (*((*pp_currentparams)[nseq]))->params == NULL\n");
+					BPPrintMessage(odError,"=> Err. MakeSound(). (*((*pp_currentparams)[nseq]))->params == NULL\n");
 					maxparam = 20;
 					if((ptrs=(ParameterStatus**) GiveSpace((Size)maxparam * sizeof(ParameterStatus))) == NULL)
 						return(ABORT);
@@ -2506,7 +2506,7 @@ alpha = ((double)(*param)[iparam].ib) / (*param)[iparam].ibm;
 if((value = GetTableValue(alpha,(*param)[iparam].imax,(*param)[iparam].point,
 		(*param)[iparam].startvalue,(*param)[iparam].endvalue)) == Infpos) {
 	if(Beta) Alert1("Err. SendControl(). value == Infpos");
-	BPPrintMessage(odError,"Err. SendControl(). value == Infpos\n");
+	BPPrintMessage(odError,"=> Err. SendControl(). value == Infpos\n");
 	return(ABORT);
 	}
 if(value < 0. && value > -0.1) value = 0.;
@@ -2516,7 +2516,7 @@ if(value < 0. || value > 16383.) {
 	if(Beta) {
 		sprintf(Message,"Err. SendControl(). value = %.3f\n",value);
 		Print(wTrace,Message);
-		BPPrintMessage(odError,"Err. SendControl(). value = %.3f\n",value);
+		BPPrintMessage(odError,"=> Err. SendControl(). value = %.3f\n",value);
 		}
 	return(OK);
 	}
@@ -2709,7 +2709,7 @@ int key;
 key = j - 16384;
 if(key < 0 || key > 127) {
 //	Println(wTrace,"MIDI key out of range");
-	BPPrintMessage(odError, "A MIDI key is out of range: key = %ld\n",(long)key);
+	BPPrintMessage(odError, "=> A MIDI key is out of range: key = %ld\n",(long)key);
 	while(key < 0) key += 12;
 	while(key > 127) key -= 12;
 	}

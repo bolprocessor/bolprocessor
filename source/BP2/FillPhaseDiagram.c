@@ -1225,7 +1225,7 @@ NEWSEQUENCE:
 				newval = (*p_NumberConstant)[newkeyval];
 				if(newval < 0 || newval > 127) {	 
 					newval = BlockScaleOnKey;
-					BPPrintMessage(odError,"\nError on block key in \"_scale()\" statement. It should be in range [0..127], or a note in your convention. Its default value will be used: %d\n",BlockScaleOnKey);
+					BPPrintMessage(odError,"\n=> Error on block key in \"_scale()\" statement. It should be in range [0..127], or a note in your convention. Its default value will be used: %d\n",BlockScaleOnKey);
 					}
 				if(trace_scale) BPPrintMessage(odInfo,"blockkey = %ld\n",(long)newval);
 				currentparameters.blockkey = newval;

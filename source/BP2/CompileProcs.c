@@ -1276,7 +1276,7 @@ switch(jinstr) {
 				if(result == 0) break;
 				}
 			if(i_scale > NumberScales)
-				BPPrintMessage(odError,"=> Instruction \"_scale(%s,...)\" will be ignored as this name is unknown\n",*((*p_StringConstant)[k]));
+				BPPrintMessage(odError,"\n=> Instruction \"_scale(%s,...)\" will be ignored as this name is unknown\n",*((*p_StringConstant)[k]));
 			}
 		if(trace_scale) BPPrintMessage(odInfo,"GET2CONSTANTS k = %d\n",k);
 		break;

@@ -217,7 +217,7 @@ int main (int argc, char* args[])
 					// FIXME: Need to either set a selection or call SelectionToBuffer()
 					// and AnalyzeBuffer() similarly to AnalyzeSelection().
 					result = AnalyzeSelection(FALSE);
-					if (Beta && result != OK)  BPPrintMessage(odError, "AnalyzeSelection() returned %d\n", result);
+					if (Beta && result != OK)  BPPrintMessage(odError, "=> AnalyzeSelection() returned %d\n", result);
 				}
 				break;
 			case expand:
@@ -231,10 +231,10 @@ int main (int argc, char* args[])
 				}
 				break;
 			case no_action:
-				if (Beta)  BPPrintMessage(odError, "Err. main(): action == no_action\n");
+				if (Beta)  BPPrintMessage(odError, "=> Err. main(): action == no_action\n");
 				break;
 			default:
-				if (Beta)  BPPrintMessage(odError, "Err. main(): action == %d\n", gOptions.action);
+				if (Beta)  BPPrintMessage(odError, "=> Err. main(): action == %d\n", gOptions.action);
 				break;
 		}
 	}
@@ -255,7 +255,7 @@ int main (int argc, char* args[])
 	if (TraceMemory && Beta) {
 		// reset everything and report memory usage & any leaked space
 		if((result = ResetProject(FALSE)) != OK)
-			BPPrintMessage(odError, "ResetProject() returned %d\n", result);
+			BPPrintMessage(odError, "=> ResetProject() returned %d\n", result);
 		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (21) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 		// ClearObjectSpace();
 		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (23) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
@@ -604,12 +604,12 @@ int ParsePreInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 	
 	if (argc == 1) {
 		PrintUsage(args[0]);
-		BPPrintMessage(odError, "Not enough arguments...\n\n");
+		BPPrintMessage(odError, "=> Not enough arguments...\n\n");
 		return ABORT;
 	}
 	else if (argc < 1) {
 		// can this ever happen?
-		BPPrintMessage(odError, "Error in ParsePreInitArgs(): argc is %d\n", argc);
+		BPPrintMessage(odError, "=> Error in ParsePreInitArgs(): argc is %d\n", argc);
 		return ABORT;
 	}
 	
@@ -668,7 +668,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 							argDone = TRUE;
 						}
 						else {
-							BPPrintMessage(odError, "\nMissing filename after %s\n\n", args[argn-1]);
+							BPPrintMessage(odError, "\n=> Missing filename after %s\n\n", args[argn-1]);
 							return ABORT;
 						}
 					}
@@ -707,7 +707,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						opts->outOptsChanged = TRUE;
 					}
 					else {
-						BPPrintMessage(odError, "\nMissing filename after %s\n\n", args[argn-1]);
+						BPPrintMessage(odError, "\n=> Missing filename after %s\n\n", args[argn-1]);
 						return ABORT;
 					}
 				}
@@ -720,7 +720,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						opts->outputFiles[ofiTraceFile].name = args[argn];
 					}
 					else {
-						BPPrintMessage(odError, "\nMissing filename after %s\n\n", args[argn-1]);
+						BPPrintMessage(odError, "\n=> Missing filename after %s\n\n", args[argn-1]);
 						return ABORT;
 					}
 				}
@@ -732,7 +732,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						opts->outOptsChanged = TRUE;
 					}
 					else {
-						BPPrintMessage(odError, "\nMissing filename after %s\n\n", args[argn-1]);
+						BPPrintMessage(odError, "\n=> Missing filename after %s\n\n", args[argn-1]);
 						return ABORT;
 					}
 				}
@@ -744,7 +744,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						opts->outOptsChanged = TRUE;
 					}
 					else {
-						BPPrintMessage(odError, "\nMissing filename after %s\n\n", args[argn-1]);
+						BPPrintMessage(odError, "\n=> Missing filename after %s\n\n", args[argn-1]);
 						return ABORT;
 					}
 				}
@@ -769,12 +769,12 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					if (++argn < argc && isInteger(args[argn]))  {
 						opts->midiFileFormat = atoi(args[argn]);
 						if (opts->midiFileFormat < 0 || opts->midiFileFormat > 2) {
-							BPPrintMessage(odError, "\n--midiformat must be 0, 1, or 2\n\n");
+							BPPrintMessage(odError, "\n=> midiformat must be 0, 1, or 2\n\n");
 							return ABORT;
 						}
 					}
 					else {
-						BPPrintMessage(odError, "\nMissing number after --midiformat\n\n");
+						BPPrintMessage(odError, "\n=> Missing number after --midiformat\n\n");
 						return ABORT;
 					}
 				}
@@ -785,7 +785,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						opts->seedProvided = TRUE;
 					}
 					else {
-						BPPrintMessage(odError, "\nMissing number after --seed\n\n");
+						BPPrintMessage(odError, "\n=> Missing number after --seed\n\n");
 						return ABORT;
 					}
 				}
@@ -810,7 +810,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					TraceProduce = TRUE;
 				} */
 				else {
-					BPPrintMessage(odError, "\nUnknown option '%s'\n", args[argn]);
+					BPPrintMessage(odError, "\n=> Unknown option '%s'\n", args[argn]);
 					BPPrintMessage(odError, "Use '%s --help' to see help information.\n\n", args[0]);
 					return ABORT;
 				}
@@ -857,7 +857,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					action = templates;
 				}
 				else {
-					BPPrintMessage(odError, "\nUnknown action '%s'\n", args[argn]);
+					BPPrintMessage(odError, "\n=> Unknown action '%s'\n", args[argn]);
 					BPPrintMessage(odError, "If '%s' is an input file, indicate the file type (eg. -gr %s).\n", args[argn], args[argn]);
 					BPPrintMessage(odError, "Use '%s --help' to see help information.\n\n", args[0]);
 					return ABORT;
@@ -865,7 +865,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 				
 				// more than one action is not allowed
 				if (action != no_action && opts->action != no_action)	{
-					BPPrintMessage(odError, "\nOnly one action is allowed but two were given: '%s' & '%s'\n\n",
+					BPPrintMessage(odError, "\n=> Only one action is allowed but two were given: '%s' & '%s'\n\n",
 								   ActionTypeToStr(opts->action), ActionTypeToStr(action));
 					return ABORT;
 				}
@@ -878,7 +878,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 	
 	// an action is required
 	if (opts->action == no_action)	{
-		BPPrintMessage(odError, "\nMissing required action command in arguments.\n");
+		BPPrintMessage(odError, "\n=> Missing required action command in arguments.\n");
 		BPPrintMessage(odError, "Use '%s --help' to see help information.\n\n", args[0]);
 		return ABORT;
 	}
@@ -946,7 +946,7 @@ const char* ActionTypeToStr(action_t action)
 		case show_beats:	return "show-beats";
 		case templates:		return "templates";
 		default:
-			if (Beta)  BPPrintMessage(odError, "Err. ActionTypeToStr(): action == %d\n", action);
+			if (Beta)  BPPrintMessage(odError, "=> Err. ActionTypeToStr(): action == %d\n", action);
 	}
 	
 	return "";
@@ -1055,11 +1055,11 @@ int LoadFileToTextHandle(const char* pathname, TEHandle th)
 
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start LoadFileToTextHandle = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	if (pathname == NULL) {
-		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): pathname == NULL\n");
+		if (Beta)  BPPrintMessage(odError, "=> Err. LoadFileToTextHandle(): pathname == NULL\n");
 		return ABORT;
 	}
 	if (th == NULL) {
-		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): th == NULL\n");
+		if (Beta)  BPPrintMessage(odError, "=> Err. LoadFileToTextHandle(): th == NULL\n");
 		return ABORT;
 	}
 
@@ -1090,22 +1090,22 @@ int OpenAndReadFile(const char* pathname, char*** buffer)
 	int result;
 	
 	if (pathname == NULL) {
-		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): pathname == NULL\n");
+		if (Beta)  BPPrintMessage(odError, "=> Err. LoadFileToTextHandle(): pathname == NULL\n");
 		return ABORT;
 	}
 	if (pathname[0] == '\0') {
-		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): pathname is empty\n");
+		if (Beta)  BPPrintMessage(odError, "=> Err. LoadFileToTextHandle(): pathname is empty\n");
 		return ABORT;
 	}
 	if (buffer == NULL) {
-		if (Beta)  BPPrintMessage(odError, "Err. LoadFileToTextHandle(): buffer == NULL\n");
+		if (Beta)  BPPrintMessage(odError, "=> Err. LoadFileToTextHandle(): buffer == NULL\n");
 		return ABORT;
 	}
 
 	// open the file for reading
 	fin = fopen(pathname, "r");
 	if (!fin) {
-		BPPrintMessage(odError, "Could not open file %s\n", pathname);
+		BPPrintMessage(odError, "=> Could not open file %s\n", pathname);
 		return FAILED;
 	}
 	
@@ -1139,11 +1139,11 @@ int ReadNewHandleFromFile(FILE* fin, size_t numbytes, Handle* data)
 	long	pos;
 	
 	if (fin == NULL) {
-		if (Beta)  BPPrintMessage(odError, "Err. ReadNewHandleFromFile(): fin == NULL\n");
+		if (Beta)  BPPrintMessage(odError, "=> Err. ReadNewHandleFromFile(): fin == NULL\n");
 		return ABORT;
 	}
 	if (data == NULL) {
-		if (Beta)  BPPrintMessage(odError, "Err. ReadNewHandleFromFile(): data == NULL\n");
+		if (Beta)  BPPrintMessage(odError, "=> Err. ReadNewHandleFromFile(): data == NULL\n");
 		return ABORT;
 	}
 	
@@ -1156,12 +1156,12 @@ int ReadNewHandleFromFile(FILE* fin, size_t numbytes, Handle* data)
 				fseek(fin, 0L, SEEK_SET);		// rewind to beginning
 			}
 			else {
-				BPPrintMessage(odError, "Error finding file length (input file may be empty).\n");
+				BPPrintMessage(odError, "=> Error finding file length (input file may be empty).\n");
 				return FAILED;
 			}
 		}
 		else {
-			BPPrintMessage(odError, "Error seeking to the end of input file.\n");
+			BPPrintMessage(odError, "=> Error seeking to the end of input file.\n");
 			return FAILED;
 		}
 	}
@@ -1174,7 +1174,7 @@ int ReadNewHandleFromFile(FILE* fin, size_t numbytes, Handle* data)
 	
 	// read from the file
 	if (fread(*buffer, 1, numbytes, fin) != numbytes) {
-		BPPrintMessage(odError, "Error reading data from file.\n");
+		BPPrintMessage(odError, "=> Error reading data from file.\n");
 		MyDisposeHandle(&buffer);
 		return FAILED;
 	}
@@ -1194,12 +1194,12 @@ void CloseFile(FILE* file)
 	int result;
 	
 	if (file == NULL) {
-		if (Beta)  BPPrintMessage(odError, "Err. CloseFile(): file == NULL\n");
+		if (Beta)  BPPrintMessage(odError, "=> Err. CloseFile(): file == NULL\n");
 		return;
 	}
 	result = fclose(file);
 	if (Beta && result != 0) {
-		BPPrintMessage(odError, "Err. CloseFile(): fclose() returned an error.\n");
+		BPPrintMessage(odError, "=> Err. CloseFile(): fclose() returned an error.\n");
 	}
 	
 	return;
@@ -1259,7 +1259,7 @@ int PrepareProdItemsDestination(BPConsoleOpts* opts)
 		BPPrintMessage(odInfo, "Opening output file %s\n", opts->outputFiles[ofiProdItems].name);
 		fout = OpenOutputFile(&(opts->outputFiles[ofiProdItems]), "w");
 		if (!fout) {
-			BPPrintMessage(odError, "Could not open file %s\n", opts->outputFiles[ofiProdItems].name);
+			BPPrintMessage(odError, "=> Could not open file %s\n", opts->outputFiles[ofiProdItems].name);
 			return FAILED;
 		}
 		SetOutputDestinations(odDisplay, fout);
@@ -1278,7 +1278,7 @@ int PrepareTraceDestination(BPConsoleOpts* opts)
 		BPPrintMessage(odInfo, "Opening trace file %s\n", opts->outputFiles[ofiTraceFile].name);
 		fout = OpenOutputFile(&(opts->outputFiles[ofiTraceFile]), "w");
 		if (!fout) {
-			BPPrintMessage(odError, "Could not open file %s\n", opts->outputFiles[ofiTraceFile].name);
+			BPPrintMessage(odError, "=> Could not open file %s\n", opts->outputFiles[ofiTraceFile].name);
 			return FAILED;
 		}
 		SetOutputDestinations(odTrace, fout);

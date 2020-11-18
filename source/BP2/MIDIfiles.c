@@ -98,7 +98,7 @@ FILE *fout;
 	ShowMessage(TRUE,wMessage,"Creating new MIDI file...");
 	fout = OpenOutputFile(finfo, "wb");
 	if (!fout) {
-		BPPrintMessage(odError, "Could not open file %s\n", finfo->name);
+		BPPrintMessage(odError, "=> Could not open file %s\n", finfo->name);
 		return FAILED;
 	}
 	else {
@@ -198,7 +198,7 @@ static int WriteBeginningOfTrack(FILE* fout, Boolean inclMetaEvts, Boolean isTem
 	
 	if (isTempoOnlyTrk && !inclMetaEvts) {
 		// this function does not support writing an empty track without meta events
-		BPPrintMessage(odError, "Error in WriteBeginningOfTrack(): inconsistent parameters\n");
+		BPPrintMessage(odError, "=> Error in WriteBeginningOfTrack(): inconsistent parameters\n");
 		return ABORT;
 	}
 	
@@ -216,7 +216,7 @@ static int WriteBeginningOfTrack(FILE* fout, Boolean inclMetaEvts, Boolean isTem
 		/* Remember where to write the track length */
 		MidiLen_pos  = ftell(fout);
 		if (MidiLen_pos < 0) {
-			BPPrintMessage(odError, "Error in WriteBeginningOfTrack(): ftell() returned %ld.\n", MidiLen_pos);
+			BPPrintMessage(odError, "=> Error in WriteBeginningOfTrack(): ftell() returned %ld.\n", MidiLen_pos);
 			return ABORT;
 		}
 		if (WriteReverse(fout,(dword)0x00000000) != OK) return(ABORT);
@@ -297,7 +297,7 @@ static int WriteEndOfTrack(FILE* fout)
 	/* Remember where we are */
 	pos  = ftell(fout);
 	if (pos < 0) {
-		BPPrintMessage(odError, "Error in WriteEndOfTrack(): ftell() returned %ld.\n", pos);
+		BPPrintMessage(odError, "=> Error in WriteEndOfTrack(): ftell() returned %ld.\n", pos);
 		return ABORT;
 	}
 	
@@ -321,7 +321,7 @@ static int WriteRawBytes(FILE* fout, byte* data, size_t numbytes)
 	
 	written = fwrite(data, (size_t)1, numbytes, fout);
 	if (written < numbytes)	{
-		BPPrintMessage(odError, "Error while writing to Midi file.\n");
+		BPPrintMessage(odError, "=> Error while writing to Midi file.\n");
 		return ABORT;
 	}
 	
@@ -365,7 +365,7 @@ if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
 else {
 	if(MIDIbytestate > 3 || MIDIbytestate < 1) {
 	//	if(Beta) Alert1("Err. WriteMIDIbyte(). MIDIbytestate > 3 || MIDIbytestate < 1");
-		BPPrintMessage(odError, "Correcting the byte state (%d) in MIDI file\n",MIDIbytestate);
+		BPPrintMessage(odError, "=> Correcting the byte state (%d) in MIDI file\n",MIDIbytestate);
 		return(OK);
 		}
 	Midi_msg |= ((dword)midi_byte) << (8 * MIDIbytestate); /* accumulate msg */

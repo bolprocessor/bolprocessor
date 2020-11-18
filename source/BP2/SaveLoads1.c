@@ -1064,7 +1064,7 @@ p_line = p_completeline = NULL;
 
 csfile = fopen(FileName[wCsoundInstruments],"r");
 if(csfile == NULL) {
-	BPPrintMessage(odError,"Could not open Csound instruments file %s\n",FileName[wCsoundInstruments]);
+	BPPrintMessage(odError,"=> Could not open Csound instruments file %s\n",FileName[wCsoundInstruments]);
 	return FAILED;
 	}
 	
@@ -1078,7 +1078,7 @@ if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED)
 // GetDateSaved(p_completeline,&(p_FileInfo[wCsoundInstruments]));
 if(ReadInteger(csfile,&jmax,&pos) == FAILED) goto ERR;
 if(jmax < 16 || jmax > MAXCHAN) {
-	BPPrintMessage(odError,"This file is empty or in an unknown format\n");
+	BPPrintMessage(odError,"=> This file is empty or in an unknown format\n");
 	goto QUIT;
 	}
 for(j=1; j <= jmax; j++) {
@@ -1093,7 +1093,7 @@ else CsoundOrchestraName[0] = '\0';
 if(show_details_load_csound_instruments) BPPrintMessage(odInfo,"CsoundOrchestraName = %s\n",CsoundOrchestraName);
 if(ReadInteger(csfile,&jmax,&pos) == FAILED) goto ERR;
 if(jmax <= 0) {
-	BPPrintMessage(odError,"This file is empty or in an unknown format\n");
+	BPPrintMessage(odError,"=> This file is empty or in an unknown format\n");
 	goto QUIT;
 	}
 if((result=ResizeCsoundInstrumentsSpace(jmax)) != OK) goto ERR;
@@ -1411,7 +1411,7 @@ if(startup) {
 else {
 	// filename cannot be NULL or empty
 	if (filename == NULL || filename[0] == '\0')	{
-		BPPrintMessage(odError, "Err. LoadSettings(): filename was NULL or empty\n");
+		BPPrintMessage(odError, "=> Err. LoadSettings(): filename was NULL or empty\n");
 		return FAILED;
 	}
 }
@@ -1419,7 +1419,7 @@ else {
 // open the file for reading
 sefile = fopen(filename, "r");
 if (sefile == NULL) {
-	BPPrintMessage(odError, "Could not open settings file %s\n", filename);
+	BPPrintMessage(odError, "=> Could not open settings file %s\n", filename);
 	return FAILED;
 }
 
@@ -2736,7 +2736,7 @@ LoadOn++;
 
 mifile = fopen(FileName[iObjects], "r");
 if (mifile == NULL) {
-	BPPrintMessage(odError, "Could not open prototypes file %s\n",FileName[iObjects]);
+	BPPrintMessage(odError, "=> Could not open prototypes file %s\n",FileName[iObjects]);
 	return FAILED;
 	}
 

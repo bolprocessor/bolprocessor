@@ -590,16 +590,16 @@ if(i2 > ZERO) {
 	y2 = (*(coords))[i2].value;
 	if(y2 < Infneg || y2 > Infpos) {
 		y2 = 0.; // Dirty fix by BB, 10 Nov. 2020 after seeing rare problem occurring in -gr.vina3
-		BPPrintMessage(odError,"Error in GetPartOfTable(). y2 = %.3f, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",y2,x1,x2,(long)i2);
+		BPPrintMessage(odError,"=> Error in GetPartOfTable(). y2 = %.3f, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",y2,x1,x2,(long)i2);
 		}
 	y1 = (*(coords))[i2-1L].value;
 	if(y1 < Infneg || y1 > Infpos) {
 		y1 = 0.; // Dirty fix by BB, 10 Nov. 2020 after seeing rare problem occurring in -gr.vina3
-		BPPrintMessage(odError,"Error in GetPartOfTable(). y1 = %.3f, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",y1,x1,x2,(long)i2);
+		BPPrintMessage(odError,"=> Error in GetPartOfTable(). y1 = %.3f, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",y1,x1,x2,(long)i2);
 		}
 	if(x1 >= x2) {
 		if(Beta) Alert1("Err. GetPartOfTable(). x1 >= x2");
-		BPPrintMessage(odError,"Error in GetPartOfTable(). x1 >= x2\n");
+		BPPrintMessage(odError,"=> Error in GetPartOfTable(). x1 >= x2\n");
 		return(FAILED);
 		}
 	endvalue = y1 + (y2 - y1) * (ix2 - x1) / (x2 - x1);

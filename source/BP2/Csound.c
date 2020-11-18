@@ -738,7 +738,7 @@ int i,channel;
 if(!newinstr) {
 	// Jinstr has not been adjusted yet when resizing
 	if(j < 0 || j >= Jinstr) { 
-		BPPrintMessage(odError,"Err. ResetCsoundInstrument(). Incorrect index = %d\n",j);
+		BPPrintMessage(odError,"=> Err. ResetCsoundInstrument(). Incorrect index = %d\n",j);
 		return(FAILED);
 		}
 	for(channel=1; channel <= MAXCHAN; channel++) {
@@ -789,7 +789,7 @@ if(all || newinstr) (*p_CsInstrumentIndex)[j] = -1;
 if(!newinstr) {
 	for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
 		if((*p_CsInstrument)[j].paramlist == NULL) {
-			BPPrintMessage(odError,"Err. ResetCsoundInstrument(). (*p_CsInstrument)[j].paramlist == NULL\n",j);
+			BPPrintMessage(odError,"=> Err. ResetCsoundInstrument(). (*p_CsInstrument)[j].paramlist == NULL\n",j);
 			continue;
 			}
 		ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].name;
@@ -1704,7 +1704,7 @@ if(p_line == NULL || (*p_line)[0] == '\0' || strcmp((*p_line),"<HTML></HTML>") =
 if((result=CompileRegressions()) != OK) return(result);
 if((*p_CompiledCsoundScore)[j]) return(OK);
 
-if(show_csound_details) BPPrintMessage(odError, "Compiling Csound score in object %d\n",j);
+if(show_csound_details) BPPrintMessage(odInfo, "Compiling Csound score in object %d\n",j);
 
 maxevents = 12;
 
@@ -1749,7 +1749,7 @@ ipos = 0; im = MyHandleLen(p_line);
 
 l = strlen((*p_line)); 
 if(l == 0) return(OK);
-if(show_csound_details) BPPrintMessage(odError,"Compiling Csound score (length %d):\n%s\n",l,(*p_line));
+if(show_csound_details) BPPrintMessage(odError,"=> Compiling Csound score (length %d):\n%s\n",l,(*p_line));
 
 while(TRUE) {
 	result = OK;
@@ -2328,7 +2328,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names) {
 				default:
 					if(n_args > 8) {
 						if((n_args - 9) >= numgrades) {
-							BPPrintMessage(odError,"\nThis GEN51 function table is incorrect because it contains more than %d ratios:\n%s\n",numgrades,line);
+							BPPrintMessage(odError,"\n=> This GEN51 function table is incorrect because it contains more than %d ratios:\n%s\n",numgrades,line);
 							NumberScales--;
 							return(OK);
 							}
@@ -2345,7 +2345,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names) {
 		}
 	n_args++;
 	if((n_args - 8) < (numgrades + 1)) {
-		BPPrintMessage(odError,"\nThis GEN51 function table is incorrect because it contains %d ratios instead of %d:\n%s\n",(n_args - 8),(numgrades +1),line);
+		BPPrintMessage(odError,"\n=> This GEN51 function table is incorrect because it contains %d ratios instead of %d:\n%s\n",(n_args - 8),(numgrades +1),line);
 		NumberScales--;
 		return(OK);
 		}
@@ -2370,11 +2370,11 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 	double pitch_ratio, A4_pitch_ratio, A4_tempered_pitch_ratio, basekey_pitch_ratio, blockkey_pitch_ratio, blockkey_tempered_pitch_ratio, blockkey_correction, interval, x;
 	
 	if(i_scale > NumberScales) { 
-		BPPrintMessage(odError,"\nScale number %d is out of range (maximum %d). No Csound score produced\n\n",i_scale,NumberScales);
+		BPPrintMessage(odError,"\n=> Scale number %d is out of range (maximum %d). No Csound score produced\n\n",i_scale,NumberScales);
 		return(Infpos);
 		}
 	if(key < 0 || key > 127) {
-		BPPrintMessage(odError,"\nKey #%d is out of range [0..127]. No Csound score produced\n\n",key);
+		BPPrintMessage(odError,"\n=> Key #%d is out of range [0..127]. No Csound score produced\n\n",key);
 		return(Infpos);
 		}
 	numgrades = (*Scale)[i_scale].numgrades; // Most often 12
