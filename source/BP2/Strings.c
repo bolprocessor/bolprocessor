@@ -205,7 +205,7 @@ if(p_t == NULL) {
 	goto OUT;
 	}
 else {
-	while((*p_t)[offset+imt] != '\0') imt++;	/* fixed 11/3/99 */
+	while((*p_t)[offset+imt] != '\0') imt++;
 	}
 if(imt == ZERO) {
 	if(*pp_s != NULL && ims > ZERO) (**pp_s)[0] = '\0';

@@ -66,7 +66,7 @@ if(show_details_csound_maths) BPPrintMessage(odInfo,"Compiling regressions for C
 
 r = (*p_CsInstrument)[j].rPitchBend;
 if((result=Findabc(p_CsPitchBend,j,&r)) == ABORT) {
-	Alert1("Incorrect mapping for pitchbend");
+	Alert1("=> Incorrect mapping for pitchbend");
 	goto ERR;
 	}
 (*p_CsInstrument)[j].rPitchBend = r;
@@ -75,7 +75,7 @@ if(result == FAILED)
 
 r = (*p_CsInstrument)[j].rVolume;
 if((result=Findabc(p_CsVolume,j,&r)) == ABORT) {
-	Alert1("Incorrect mapping for volume");
+	Alert1("=> Incorrect mapping for volume");
 	goto ERR;
 	}
 (*p_CsInstrument)[j].rVolume = r;
@@ -84,7 +84,7 @@ if(result == FAILED)
 
 r = (*p_CsInstrument)[j].rPressure;
 if((result=Findabc(p_CsPressure,j,&r)) == ABORT) {
-	Alert1("Incorrect mapping for pressure");
+	Alert1("=> Incorrect mapping for pressure");
 	goto ERR;
 	}
 (*p_CsInstrument)[j].rPressure = r;
@@ -93,7 +93,7 @@ if(result == FAILED)
 
 r = (*p_CsInstrument)[j].rModulation;
 if((result=Findabc(p_CsModulation,j,&r)) == ABORT) {
-	Alert1("Incorrect mapping for modulation");
+	Alert1("=> Incorrect mapping for modulation");
 	goto ERR;
 	}
 (*p_CsInstrument)[j].rModulation = r;
@@ -102,7 +102,7 @@ if(result == FAILED)
 
 r = (*p_CsInstrument)[j].rPanoramic;
 if((result=Findabc(p_CsPanoramic,j,&r)) == ABORT) {
-	Alert1("Incorrect mapping for panoramic");
+	Alert1("=> Incorrect mapping for panoramic");
 	goto ERR;
 	}
 (*p_CsInstrument)[j].rPanoramic = r;

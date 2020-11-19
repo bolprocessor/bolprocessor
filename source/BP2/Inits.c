@@ -734,6 +734,7 @@ for(i=0; i < MAXCONVENTIONS; i++) {
 					}
 				break;
 			case KEYS:
+			case CUSTOM:
 				sprintf(Message,"%s%ld",KeyString,(long)j);
 				break;
 			}
@@ -778,6 +779,7 @@ for(i=0; i < MAXCONVENTIONS; i++) {
 					}
 				break;
 			case KEYS:
+			case CUSTOM:
 				sprintf(Message,"%s%ld",KeyString,(long)j);
 				break;
 			}
@@ -975,7 +977,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 			case 2: proc = pushButProc; break;
 			case 3: proc = checkBoxProc; break;
 			default:
-				sprintf(Message,"Incorrect button type in window %ld",(long)w);
+				sprintf(Message,"=> Incorrect button type in window %ld",(long)w);
 				EmergencyExit = TRUE;
 				ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 				NoteAlert(OKAlert,0L);

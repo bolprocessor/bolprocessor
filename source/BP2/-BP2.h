@@ -453,13 +453,14 @@ enum {
 #define TEMP 2	/* Producing templates */
 
 // Note conventions
-#define MAXCONVENTIONS 4
+#define MAXCONVENTIONS 5
 #define ENGLISH 0
 #define FRENCH 1
 #define INDIAN 2
 #define KEYS 3
+#define CUSTOM 4
 
-#define NOTESIZE 9	/* Length of note/key name. Used by EnglishNotes(), FrenchNotes()É */
+#define NOTESIZE 20	/* Length of note/key name. Used by EnglishNotes(), FrenchNotes()É */
 					/* É and p_NoteName and p_AltNoteName */
 
 #define BOL 0
@@ -1771,6 +1772,7 @@ typedef struct s_gram t_gram;
 struct s_scale {
 	int index;
 	char **label;
+	char ****notenames;
 	int numgrades,basekey;
 	double basefreq,interval;
 	double **tuningratio;

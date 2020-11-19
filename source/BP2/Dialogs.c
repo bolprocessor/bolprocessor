@@ -1142,7 +1142,7 @@ if(w == wPrototype1) {
 					}
 				ForceRatio = ((double) p) / q / 100.;
 				if(ForceRatio < 0.) {
-					Alert1("Incorrect dilation ratio. Will be forced to 100%");
+					Alert1("=> Incorrect dilation ratio. Will be forced to 100%");
 					ForceRatio = 1.;
 					}
 				}

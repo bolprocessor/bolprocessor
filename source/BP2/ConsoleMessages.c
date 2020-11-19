@@ -159,7 +159,7 @@ int FlashInfo(char* message)
 int Alert1(char message[])
 {
 	// Alerts could be warnings or errors ...
-	BPPrintMessage(odError, "=> %s\n", message);
+	BPPrintMessage(odError, "%s\n", message);
 	return OK;
 }
 

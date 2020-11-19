@@ -1411,7 +1411,7 @@ while(TRUE) {
 	if(Match(TRUE,p_line,&q,4)) {
 		w = wMIDIorchestra; goto FIX;
 		}
-	sprintf(Message,"\nIncorrect name: %s...\n",line);
+	sprintf(Message,"\n=> Incorrect name: %s...\n",line);
 	Print(wTrace,Message);
 	r = FAILED;
 	continue;
@@ -1572,7 +1572,7 @@ if(oserr != noErr) {
 			break;
 		case posErr: sprintf(line,"'posErr' error: attempt to position before start of file");
 			break;
-		case bdNamErr: sprintf(line,"Incorrect file name");
+		case bdNamErr: sprintf(line,"=> Incorrect file name");
 			break;
 		case fnfErr: sprintf(line,"File was not found");
 			break;
@@ -2173,7 +2173,7 @@ if(Myatof(line,p_p,p_q) < Infneg) {
 	if(forcenum && line[0] != '\0' && line[0] != '[') {
 		ShowWindow(GetDialogWindow(thedialog));
 		BringToFront(GetDialogWindow(thedialog));
-		Alert1("Incorrect numerical value");
+		Alert1("=> Incorrect numerical value");
 		SetField(thedialog,-1,ifield,"[?]");
 		SelectField(thedialog,-1,ifield,TRUE);
 		}
@@ -2211,7 +2211,7 @@ else {
 		BringToFront(Window[w]);
 		SetField(ptr,w,field,"[?]");
 		SelectField(ptr,w,field,TRUE);
-		Alert1("Incorrect numerical value");
+		Alert1("=> Incorrect numerical value");
 		}  */
 	}
 return(OK);

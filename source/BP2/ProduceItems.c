@@ -120,9 +120,9 @@ for(j=1; j <= Jvar; j++) {
 		}
 	}
 if(undefined && !repeat && !IgnoreUndefinedVariables) {
-	if(ScriptExecOn || AEventOn) {
-		PrintBehind(wTrace,"Undefined variables were found and ignored...\n");
-		}
+//	if(ScriptExecOn || AEventOn) {
+		BPPrintMessage(odError,"=> Undefined variable(s) found and ignored...\n");
+/*		}
 	else {
 		if(Answer("Found undefined variable(s). Proceed",'Y') != YES) {
 			Print(wTrace,"\nUndefined variables:\n");
@@ -139,7 +139,7 @@ if(undefined && !repeat && !IgnoreUndefinedVariables) {
 			}
 		else if(Answer("Ignore undefined variables in the future",'Y') == YES)
 			IgnoreUndefinedVariables = TRUE;
-		}
+		} */
 	}
 PedalOrigin = -1;
 if(Jflag > 0) for(i=1; i <= Jflag; i++) (*p_Flag)[i] = ZERO;

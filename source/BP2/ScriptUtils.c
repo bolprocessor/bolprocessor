@@ -874,7 +874,7 @@ GOTIT6:
 	/*	if((r=WaitForEmptyBuffer()) != OK) return(r); */
 		j= (*(ScriptLine.intarg))[0];
 		if(j < 0 || j > 2000) {
-			Print(wTrace,"Incorrect MIDI set-up time.  (Range 0..2000)\n");
+			Print(wTrace,"=> Incorrect MIDI set-up time.  (Range 0..2000)\n");
 			return(ABORT);
 			}
 		SetUpTime = j;
@@ -2067,7 +2067,7 @@ r = FAILED;
 MyLock(FALSE,(Handle)p_args);
 for(j=0; j < ScriptNrArg(k); j++) {
 	if(i >= MyHandleLen(p_args)) {
-		Print(wTrace,"\nIncorrect number of arguments\n");
+		Print(wTrace,"\n=> Incorrect number of arguments\n");
 		goto QUIT;
 		}
 	imax = MyGetHandleSize((Handle)(*(ScriptLine.arg))[j]);
@@ -2150,7 +2150,7 @@ for(j=0; j < ScriptNrArg(k); j++) {
 		}
 	if(strcmp(line,"note") == 0) {
 		if(GetNote(&((*p_args)[i]),&n,&ii,TRUE) != OK) {
-			sprintf(Message,"\nIncorrect note. (May be wrong note convention)\n");
+			sprintf(Message,"\n=> Incorrect note. (May be wrong note convention)\n");
 			Print(wTrace,Message);
 			goto QUIT;
 			}
@@ -2201,7 +2201,7 @@ for(j=0; j < ScriptNrArg(k); j++) {
 		if(bar && (*p_args)[i-1] != '|') goto BADVAR;
 		continue;
 BADVAR:
-		Print(wTrace,"\nIncorrect variable\n");
+		Print(wTrace,"\n=> Incorrect variable\n");
 		goto QUIT;
 		}
 	if(strcmp(line,"AEclass") == 0) {
@@ -2218,7 +2218,7 @@ BADVAR:
 		MystrcpyStringToTable(ScriptLine.arg,j,type);
 		continue;
 BADCLASS:
-		sprintf(Message,"\nIncorrect Apple Event class '%s'\n",type);
+		sprintf(Message,"\n=> Incorrect Apple Event class '%s'\n",type);
 		Print(wTrace,Message);
 		goto QUIT;
 		}
@@ -2236,7 +2236,7 @@ BADCLASS:
 		MystrcpyStringToTable(ScriptLine.arg,j,type);
 		continue;
 BADID:
-		sprintf(Message,"\nIncorrect Apple Event ID '%s'\n",type);
+		sprintf(Message,"\n=> Incorrect Apple Event ID '%s'\n",type);
 		Print(wTrace,Message);
 		goto QUIT;
 		}
@@ -2254,7 +2254,7 @@ BADID:
 		MystrcpyStringToTable(ScriptLine.arg,j,type);
 		continue;
 BADCREATOR:
-		sprintf(Message,"\nIncorrect application creator '%s'\n",type);
+		sprintf(Message,"\n=> Incorrect application creator '%s'\n",type);
 		Print(wTrace,Message);
 		goto QUIT;
 		}

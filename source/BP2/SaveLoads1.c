@@ -1341,7 +1341,8 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 		if((*p_line)[0] == '<') continue; // Ignore comments
 		if((*p_line)[0] == '[') continue; // Ignore ratios
 		if((*p_line)[0] == '/') { // This line contains note names for this scale
-			MystrcpyHandleToString((strlen(*p_line) - 1),1,note_names,p_line);
+		//	MystrcpyHandleToString((strlen(*p_line) - 1),1,note_names,p_line);
+			MystrcpyHandleToString(strlen(*p_line)+1,0,note_names,p_line);
 			continue;
 			}
 		length = MyHandleLen(p_completeline);
@@ -1562,8 +1563,8 @@ if(ReadInteger(sefile,&Token,&pos) == FAILED) goto ERR;
 if(Token > 0) Token = TRUE;
 else Token = FALSE;
 if(ReadInteger(sefile,&NoteConvention,&pos) == FAILED) goto ERR;
-if(NoteConvention > 3) {
-	BPPrintMessage(odInfo, "\nERROR NoteConvention = %d\n",NoteConvention);
+if(NoteConvention > 4) {
+	BPPrintMessage(odInfo, "\n=> ERROR NoteConvention = %d\n",NoteConvention);
 	goto ERR;
 	}
 if(ReadInteger(sefile,&StartFromOne,&pos) == FAILED) goto ERR;
@@ -1741,7 +1742,7 @@ else {
 /* Should we still keep the start string in the settings file? */
 /* if(ReadOne(FALSE,FALSE,TRUE,sefile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 if(Mystrcmp(p_line,"STARTSTRING:") != 0) {
-	sprintf(Message,"Incorrect end in '%s' settings file. May be bad version?",
+	sprintf(Message,"=> Incorrect end in '%s' settings file. May be bad version?",
 			filename);
 	if(Beta) Alert1(Message);
 	goto QUIT;

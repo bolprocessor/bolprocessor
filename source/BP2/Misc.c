@@ -410,7 +410,7 @@ do {
 			(*p_i)++; signfound = TRUE; continue;
 			}
 		else {
-			Print(wTrace,"\nIncorrect sign in float number.\n");
+			Print(wTrace,"\n=> Incorrect sign in float number.\n");
 			return(-1.);
 			}
 		}
@@ -419,7 +419,7 @@ do {
 			(*p_i)++; signfound = TRUE; sign = -1.; continue;
 			}
 		else {
-			Print(wTrace,"\nIncorrect sign in float number.\n");
+			Print(wTrace,"\n=> Incorrect sign in float number.\n");
 			return(-1.);
 			}
 		}

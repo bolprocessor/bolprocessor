@@ -73,7 +73,7 @@ for(i=ZERO,space=TRUE,start=TRUE,k=0,nitem=1,runningstatus=0,
 				k = runningstatus;
 				if(buff[0] < 128) {
 					Print(w2," Status? ");
-					ShowMessage(TRUE,wMessage,"Incorrect status byte");
+					ShowMessage(TRUE,wMessage,"=> Incorrect status byte");
 					}
 				else ReadNoteOn(buff[0],buff[1],buff[2],w2);
 				}

@@ -325,7 +325,7 @@ NOTSCALE:
 					break;
 				case 65: /* _scale */
 					(*p_buff)[i++] = T44; (*p_buff)[i++] = (tokenbyte) n;
-					if(trace_scale) BPPrintMessage(odInfo,"Encode() i = %d T44 n = %d\n",i,n);
+					if(trace_scale) BPPrintMessage(odInfo,"Encode() T44 i = %d n = %d\n",i,n);
 					break;
 				}
 			c = NextChar(pp);
@@ -808,7 +808,8 @@ FOUNDNOTE2:
 		(*p_buff)[i++] = T25;
 		jj += (C4key - 60);
 		if(jj < 0 || jj > 127) {
-			Alert1("Simple note is out of range. (May be check \"Tuning\")");
+		//	Alert1("Simple note is out of range. (May be check \"Tuning\")");
+			BPPrintMessage(odError,"=> Simple note '%s' is out of range.\n",q);
 			ShowWindow(GetDialogWindow(TuningPtr));
 			SelectWindow(GetDialogWindow(TuningPtr));
 			goto ERR;
@@ -1079,7 +1080,7 @@ for(levpar = 1; (*pp) <= (*ppmax); (*pp)++) {
 	}
 /* printf("levpar=%ld",(long)levpar); Pause(0); */
 if(levpar != 0) {
-	sprintf(Message,"Incorrect bracketting.\n");
+	sprintf(Message,"=> Incorrect bracketting.\n");
 	Print(wTrace,Message);
 	return(FAILED);
 	}
@@ -1620,9 +1621,9 @@ static char* err[] = {"",
 "/flag = .../ assignment or comparison should occur only in argument of rule", /* 50 */
 "/flag/ incrementation or comparison should occur only in left argument of rule",	/* 51 */
 "Missing slash after /flag/",	/* 52 */
-"Incorrect integer value for /flag/ assignment or incrementation",	/* 53 */
+"=> Incorrect integer value for /flag/ assignment or incrementation",	/* 53 */
 "Reserved words 'lambda', 'nil', 'empty' and 'null' can't be redefined as terminals", /* 54 */
-"Incorrect character in argument" /* 55 */
+"=> Incorrect character in argument" /* 55 */
 	};
 
 if(i < 0) return(TRUE);

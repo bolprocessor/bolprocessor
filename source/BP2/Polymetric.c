@@ -108,7 +108,7 @@ for(i=ZERO,level=0; (*p_b)[i] != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 		}
 	}
 if(level != 0) {	/* '{' and '}' not balanced */
-	sprintf(Message,"Incorrect polymetric expression(s): '{' and '}' are not balanced. Can't proceed further...");
+	sprintf(Message,"=> Incorrect polymetric expression(s): '{' and '}' are not balanced. Can't proceed further...");
 	if(ScriptExecOn) Println(wTrace,Message);
 	else Alert1(Message);
 	goto QUIT;
@@ -623,7 +623,7 @@ ENTERMETRONOM:
 			goto ENTERMETRONOM;
 			}
 		if(Myatof(Message,&a,&b) < 0.) {
-			Alert1("Incorrect value");
+			Alert1("=> Incorrect value");
 			goto ENTERMETRONOM;
 			}
 		if(Simplify((double)INT_MAX,(double)a,(double)60L*b,&Qclock,&Pclock) != OK)
