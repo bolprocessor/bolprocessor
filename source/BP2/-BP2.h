@@ -453,12 +453,12 @@ enum {
 #define TEMP 2	/* Producing templates */
 
 // Note conventions
-#define MAXCONVENTIONS 5
+#define MAXCONVENTIONS 24
 #define ENGLISH 0
 #define FRENCH 1
 #define INDIAN 2
 #define KEYS 3
-#define CUSTOM 4
+// #define CUSTOM 4
 
 #define NOTESIZE 20	/* Length of note/key name. Used by EnglishNotes(), FrenchNotes()É */
 					/* É and p_NoteName and p_AltNoteName */

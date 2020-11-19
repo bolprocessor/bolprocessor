@@ -121,7 +121,7 @@ if(NoteOn <= c0  &&  c0 < (NoteOn+16) && c2 > 0) {   /* NoteOn */
 	if(TransposeInput) c1 += TransposeValue;
 	while(c1 < 0) c1 += 12;
 	while(c1 > 127) c1 -= 12;
-	PrintNote(c1,-1,wind,Message);
+	PrintNote(-1,c1,-1,wind,Message);
 	FoundNote = TRUE;
 	TickDone = EmptyBeat = FALSE;
 	return(OK);
@@ -405,11 +405,11 @@ while(!Button()) {
 			case ENGLISH: j = 2; break;
 			case FRENCH: j = 1; break;
 			case INDIAN: j = 88; break;
-			case KEYS: j = 3; break;
+			default: j = 3; break;
 			}
 		PrintBehindln(wScript,*(p_ScriptLabelPart(j,0)));
 		channel = c0 - NoteOn + 1;
-		PrintNote(c1,channel,-1,Message);
+		PrintNote(-1,c1,channel,-1,Message);
 		MystrcpyStringToTable(ScriptLine.arg,0,Message);
 		AppendScript(14);
 		break;
@@ -446,9 +446,9 @@ return(OK);
 
 #endif /* BP_CARBON_GUI */
 
-int PrintNote(int key,int channel,int wind,char* line)
+int PrintNote(int i_scale,int key,int channel,int wind,char* line)
 {
-int notenum,octave;
+int notenum,octave,convention;
 char channelstring[11];
 
 if(key < 0) {
@@ -464,7 +464,9 @@ if(channel > 0) sprintf(channelstring," channel %ld",(long)channel);
 // BPPrintMessage(odInfo,"\nkey = %d notenum = %d octave = %d NameChoice[notenum] = %d\n",key,notenum,octave,NameChoice[notenum]);
 if(NameChoice[notenum] == 1 && notenum == 0) octave--;
 if(NameChoice[notenum] == 1 && notenum == 11) octave++;
-switch(NoteConvention) {
+convention = NoteConvention;
+if(i_scale < 0) convention = ENGLISH;
+switch(convention) {
 	case FRENCH:
 		octave -= 2;
 		switch(octave) {
@@ -524,6 +526,11 @@ switch(NoteConvention) {
 		break;
 	case KEYS:
 		sprintf(line,"%s%ld%s",KeyString,(long)key,channelstring);
+		break;
+	default: //  Here we deal with microtonal scales
+		if(trace_scale) BPPrintMessage(odInfo,"i_scale = %d key =  %d\n",i_scale,key);
+		if(i_scale < 0) sprintf(line,"");
+		else sprintf(line,"%s%s",*((*(p_NoteName[i_scale + 3]))[key]),channelstring);
 		break;
 	}
 #if BP_CARBON_GUI

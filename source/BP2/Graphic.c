@@ -62,7 +62,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 {
 int linenum,linemax,maxlines,hrect,htext,morespace,**p_morespace,
 	nseq,leftoffset,topoffset,rep,maxslideh,maxslidev,linemin,tab,key,
-	edge,foundone,overflow,xc;
+	edge,foundone,overflow,xc,scale,i_scale,result;
 long pivloc,t1,tt1,t2,endxmax,endymax,endx,y,i,j,k,yruler,
 	**p_endx,endy,**p_endy,**p_top,trbeg,trend;
 Rect r, r2;
@@ -189,6 +189,15 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 		if(j == 0 || j == 1 || j == -1) continue;
 #endif
 		if(show_more_details) BPPrintMessage(odInfo,"j = %d\n",j);
+		if(NoteConvention == 4) {
+			scale = (*p_Instance)[k].scale;
+			i_scale = (*p_StringConstant)[scale];
+			for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
+				result = MyHandlecmp((*p_StringConstant)[scale],(*Scale)[i_scale].label);
+				if(result == 0) break;
+				}
+			if(i_scale > NumberScales) i_scale = -1;
+			}
 		if(j > 0) {
 			if(j >= Jbol && j < 16384) sprintf(line,"%s",*((*p_Patt)[j-Jbol]));
 			else {
@@ -206,7 +215,8 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 					key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
 						&((*p_Instance)[k].map0),
 						&((*p_Instance)[k].map1));
-					PrintNote(key,0,-1,line);
+					PrintNote(i_scale,key,0,-1,line);
+					if(trace_scale) BPPrintMessage(odInfo,"DrawGraph i_scale = %d\n",i_scale);
 					}
 				}
 			}
@@ -224,7 +234,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 					key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
 						&((*p_Instance)[k].map0),
 						&((*p_Instance)[k].map1));
-					PrintNote(key,0,-1,line2);
+					PrintNote(i_scale,key,0,-1,line2);
 					strcat(line,line2);
 					strcat(line,">>");
 					}
@@ -1513,7 +1523,7 @@ for(key=0; key < 128; key+=12) {
 	if(key < minkey || key > maxkey) continue;
 	y = (maxkey - key) * hrect + topoffset;
 	// sprintf(line,"C%ld",(long)((key - (key % 12))/12)-1L);
-	PrintNote(key,0,-1,line);
+	PrintNote(-1,key,0,-1,line);
 	fill_text(line,2,y + 3);
 	fill_text(line,xmax+ 7,y + 3);
 	draw_line(xmin,y,xmax,y,"");
@@ -1524,7 +1534,7 @@ for(key=6; key < 128; key+=12) {
 	if(key < minkey || key > maxkey) continue;
 	y = (maxkey - key) * hrect + topoffset;
 	// sprintf(line,"F#%ld",(long)((key - (key % 12))/12)-1L);
-	PrintNote(key,0,-1,line);
+	PrintNote(-1,key,0,-1,line);
 	fill_text(line,2,y + 3);
 	fill_text(line,xmax + 7,y + 3);
 	draw_line(xmin,y,xmax,y,"");

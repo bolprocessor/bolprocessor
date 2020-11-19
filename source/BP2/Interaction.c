@@ -109,97 +109,97 @@ PrintBehindln(w,*(p_ScriptLabelPart(i,0)));
 if(SynchronizeStartChan != -1) {
 	sprintf(line,"%s ",*(p_ScriptLabelPart(97,0)));
 	PrintBehind(w,line);
-	PrintNote(SynchronizeStartKey,SynchronizeStartChan,w,line);
+	PrintNote(-1,SynchronizeStartKey,SynchronizeStartChan,w,line);
 	PrintBehind(w,"\n");
 	}
 if(PlayChan != -1) {
 	sprintf(line,"%s ",*(p_ScriptLabelPart(91,0)));
 	PrintBehind(w,line);
-	PrintNote(PlayKey,PlayChan,w,line);
+	PrintNote(-1,PlayKey,PlayChan,w,line);
 	PrintBehind(w,"\n");
 	}
 if(MuteOnChan != -1) {
 	sprintf(line,"%s ",*(p_ScriptLabelPart(188,0)));
 	PrintBehind(w,line);
-	PrintNote(MuteOnKey,MuteOnChan,w,line);
+	PrintNote(-1,MuteOnKey,MuteOnChan,w,line);
 	PrintBehind(w,"\n");
 	}
 if(MuteOffChan != -1) {
 	sprintf(line,"%s ",*(p_ScriptLabelPart(189,0)));
 	PrintBehind(w,line);
-	PrintNote(MuteOffKey,MuteOffChan,w,line);
+	PrintNote(-1,MuteOffKey,MuteOffChan,w,line);
 	PrintBehind(w,"\n");
 	}
 if(RepeatChan != -1) {
 	sprintf(line,"%s ",*(p_ScriptLabelPart(92,0)));
 	PrintBehind(w,line);
-	PrintNote(RepeatKey,PlayChan,w,line);
+	PrintNote(-1,RepeatKey,PlayChan,w,line);
 	PrintBehind(w,"\n");
 	}
 if(EndRepeatChan != -1) {
 	sprintf(line,"%s ",*(p_ScriptLabelPart(93,0)));
 	PrintBehind(w,line);
-	PrintNote(EndRepeatKey,EndRepeatChan,w,line);
+	PrintNote(-1,EndRepeatKey,EndRepeatChan,w,line);
 	PrintBehind(w,"\n");
 	}
 if(EverChan != -1) {
 	sprintf(line,"%s ",*(p_ScriptLabelPart(94,0)));
 	PrintBehind(w,line);
-	PrintNote(EverKey,EverChan,w,line);
+	PrintNote(-1,EverKey,EverChan,w,line);
 	PrintBehind(w,"\n");
 	}
 if(QuitChan != -1) {
 	sprintf(line,"%s ",*(p_ScriptLabelPart(95,0)));
 	PrintBehind(w,line);
-	PrintNote(QuitKey,QuitChan,w,line);
+	PrintNote(-1,QuitKey,QuitChan,w,line);
 	PrintBehind(w,"\n");
 	}
 if(DeriveFurtherChan != -1) {
 	sprintf(line,"%s ",*(p_ScriptLabelPart(89,0)));
 	PrintBehind(w,line);
-	PrintNote(DeriveFurtherKey,DeriveFurtherChan,w,line);
+	PrintNote(-1,DeriveFurtherKey,DeriveFurtherChan,w,line);
 	PrintBehind(w,"\n");
 	}
 if(ResetWeightChan != -1) {
 	sprintf(line,"%s ",*(p_ScriptLabelPart(90,0)));
 	PrintBehind(w,line);
-	PrintNote(ResetWeightKey,ResetWeightChan,w,line);
+	PrintNote(-1,ResetWeightKey,ResetWeightChan,w,line);
 	PrintBehind(w,"\n");
 	}
 if(UseEachSubChan != -1) {
 	sprintf(line,"%s ",*(p_ScriptLabelPart(96,0)));
 	PrintBehind(w,line);
-	PrintNote(UseEachSubKey,UseEachSubChan,w,line);
+	PrintNote(-1,UseEachSubKey,UseEachSubChan,w,line);
 	PrintBehind(w,"\n");
 	}
 if(SetTimeChan != -1) {
 	sprintf(line,"%s ",*(p_ScriptLabelPart(99,0)));
 	PrintBehind(w,line);
-	PrintNote(SetTimeKey,SetTimeChan,w,line);
+	PrintNote(-1,SetTimeKey,SetTimeChan,w,line);
 	PrintBehind(w,"\n");
 	}
 if(StriatedChan != -1) {
 	sprintf(line,"%s ",*(p_ScriptLabelPart(100,0)));
 	PrintBehind(w,line);
-	PrintNote(StriatedKey,StriatedChan,w,line);
+	PrintNote(-1,StriatedKey,StriatedChan,w,line);
 	PrintBehind(w,"\n");
 	}
 if(NoConstraintChan != -1) {
 	sprintf(line,"%s ",*(p_ScriptLabelPart(101,0)));
 	PrintBehind(w,line);
-	PrintNote(NoConstraintKey,NoConstraintChan,w,line);
+	PrintNote(-1,NoConstraintKey,NoConstraintChan,w,line);
 	PrintBehind(w,"\n");
 	}
 if(SkipChan != -1) {
 	sprintf(line,"%s ",*(p_ScriptLabelPart(102,0)));
 	PrintBehind(w,line);
-	PrintNote(SkipKey,SkipChan,w,line);
+	PrintNote(-1,SkipKey,SkipChan,w,line);
 	PrintBehind(w,"\n");
 	}
 if(AgainChan != -1) {
 	sprintf(line,"%s ",*(p_ScriptLabelPart(103,0)));
 	PrintBehind(w,line);
-	PrintNote(AgainKey,AgainChan,w,line);
+	PrintNote(-1,AgainKey,AgainChan,w,line);
 	PrintBehind(w,"\n");
 	}
 if(SpeedChan != -1) {
@@ -211,7 +211,7 @@ if(TclockChan != -1) {
 	sprintf(line,"%s %ld %s %ld %s ",*(p_ScriptLabelPart(106,0)),(long)MinQclock,
 		*(p_ScriptLabelPart(106,1)),(long)MinPclock,*(p_ScriptLabelPart(106,2)));
 	PrintBehind(w,line);
-	PrintNote(MinTclockKey,TclockChan,-1,line);
+	PrintNote(-1,MinTclockKey,TclockChan,-1,line);
 	i = 0; while(!MySpace(line[i])) {
 		Message[i] = line[i]; i++;
 		}
@@ -220,7 +220,7 @@ if(TclockChan != -1) {
 	sprintf(line," %s %ld %s %ld %s ",*(p_ScriptLabelPart(106,3)),(long)MaxQclock,
 		*(p_ScriptLabelPart(106,4)),(long)MaxPclock,*(p_ScriptLabelPart(106,5)));
 	PrintBehind(w,line);
-	PrintNote(MaxTclockKey,TclockChan,w,line);
+	PrintNote(-1,MaxTclockKey,TclockChan,w,line);
 	PrintBehind(w,"\n");
 	}
 for(i=1; i <= MAXWAIT; i++) {
@@ -228,7 +228,7 @@ for(i=1; i <= MAXWAIT; i++) {
 		sprintf(line,"%s W%ld %s ",*(p_ScriptLabelPart(104,0)),(long)i,
 			*(p_ScriptLabelPart(104,1)));
 		PrintBehind(w,line);
-		PrintNote(WaitKey[i],WaitChan[i],w,line);
+		PrintNote(-1,WaitKey[i],WaitChan[i],w,line);
 		PrintBehind(w,"\n");
 		}
 	}
@@ -243,7 +243,7 @@ for(i=1; i < MAXPARAMCTRL; i++) {
 		sprintf(line,"%s K%ld %s ",*(p_ScriptLabelPart(15,0)),(long)i,
 			*(p_ScriptLabelPart(15,1)));
 		PrintBehind(w,line);
-		PrintNote(ParamKey[i],ParamChan[i],w,line);
+		PrintNote(-1,ParamKey[i],ParamChan[i],w,line);
 		PrintBehind(w,"\n");
 		}
 	}
@@ -251,7 +251,7 @@ for(i=1; i <= Jinscript; i++) {
 	if(((*p_INscript)[i]).chan != -1) {
 		sprintf(line,"%s ",*(p_ScriptLabelPart(161,0)));
 		PrintBehind(w,line);
-		PrintNote(((*p_INscript)[i]).key,((*p_INscript)[i]).chan,w,line);
+		PrintNote(-1,((*p_INscript)[i]).key,((*p_INscript)[i]).chan,w,line);
 		MystrcpyTableToString(MAXLIN,Message,p_Script,((*p_INscript)[i]).scriptline);
 		sprintf(line," %s %s\n",*(p_ScriptLabelPart(161,2)),Message);
 		PrintBehind(w,line);
@@ -292,7 +292,7 @@ while(Button());
 if(statusbyte == 0) FlashInfo("Waiting for click...");
 else {
 	FlashInfo("Waiting for ");
-	PrintNote(thekey,channel,wInfo,Message);
+	PrintNote(-1,thekey,channel,wInfo,Message);
 	Print(wInfo," (or click)");
 	}
 

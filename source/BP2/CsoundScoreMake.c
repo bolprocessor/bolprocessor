@@ -715,7 +715,7 @@ for(iarg=2; iarg <= iargmax; iarg++) {
 
 if(pitchclass >= 0) {
 	strcpy(line,"; ");
-	PrintNote(key,0,-1,LineBuff);
+	PrintNote(i_scale,key,0,-1,LineBuff);
 	strcat(line,LineBuff);
 	strcat(Message,line);
 	}

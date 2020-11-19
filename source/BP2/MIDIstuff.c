@@ -463,7 +463,7 @@ if(Interactive && c2 > 0) {
 		SynchroSignal = PLAYFOREVER;
 		ClearMessage();
 		Print(wMessage,"Play forever! (");
-		PrintNote(EndRepeatKey,EndRepeatChan,wMessage,Message);
+		PrintNote(-1,EndRepeatKey,EndRepeatChan,wMessage,Message);
 		Print(wMessage," will stop)");
 		return(OK);
 		}
@@ -474,7 +474,7 @@ if(Interactive && c2 > 0) {
 		ClearMessage();
 		sprintf(Message,"Playing %ld times... (",(long)Nplay);
 		Print(wMessage,Message);
-		PrintNote(EndRepeatKey,EndRepeatChan,wMessage,Message);
+		PrintNote(-1,EndRepeatKey,EndRepeatChan,wMessage,Message);
 		Print(wMessage," will stop)");
 		return(OK);
 		}

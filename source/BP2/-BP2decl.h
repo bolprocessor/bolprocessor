@@ -250,7 +250,7 @@ extern int DeriveFurther,DeriveFurtherKey,DeriveFurtherChan,ResetWeights,NeverRe
 	ParamControl[MAXPARAMCTRL],ParamKey[MAXPARAMCTRL],ParamChan[MAXPARAMCTRL],
 	ParamValue[MAXPARAMCTRL],ParamInit[MAXPARAMCTRL],SaidTooComplex,ToldSkipped,
 	ParamControlChan,Newstatus,ShowMessages,ScriptSyncKey,ScriptSyncChan,
-	SUBthere,DisplayItems,ShowGraphic,NoteConvention,FunctionTable,
+	SUBthere,DisplayItems,ShowGraphic,NoteConvention,MoreConvention,FunctionTable,
 	ScriptRecOn,ScriptExecOn,DefaultVolume,LastAction,UndoWindow,
 	PedalOrigin,PedalPosition,HangOn,NoRepeat,ConvertMIDItoCsound;
 extern TextOffset UndoPos;

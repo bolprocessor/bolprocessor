@@ -81,7 +81,7 @@ int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 Find_leak = FALSE; // Flag to locate place where negative leak starts
 check_memory_use = FALSE;
 
-int trace_scale = 1;
+int trace_scale = 0;
 
 PrototypesLoaded = FALSE;
 
@@ -1018,7 +1018,7 @@ int LoadInputFiles(const char* pathnames[WMAX])
 					BPPrintMessage(odInfo, "Reading Csound instruments file %s (if not done)...\n", pathnames[w]);
 					strcpy(FileName[wCsoundInstruments],pathnames[w]);
 					result = LoadCsoundInstruments(0,1);
-					if (result != OK)  return result;
+					if(result != OK)  return result;
 					break;
 				case iSettings:
 					BPPrintMessage(odInfo, "Reading settings file %s...\n", pathnames[w]);

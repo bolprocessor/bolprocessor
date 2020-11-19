@@ -1012,7 +1012,7 @@ PRINTPROLONGATIONS:
 				goto OUT;
 				}
 			Reformat(wind,-1,-1,-1,&Black,NO,NO);
-			PrintNote(p % 128,-1,-1,line);
+			PrintNote(-1,p % 128,-1,-1,line);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
 				goto OUT;
@@ -1023,7 +1023,7 @@ PRINTPROLONGATIONS:
 				goto OUT;
 				}
 			Reformat(wind,-1,-1,-1,&Black,NO,NO);
-			PrintNote((p - (p % 128)) / 128,-1,-1,line);
+			PrintNote(-1,(p - (p % 128)) / 128,-1,-1,line);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
 				goto OUT;
@@ -1044,7 +1044,7 @@ PRINTPROLONGATIONS:
 				continue;
 				}
 			Reformat(wind,-1,-1,-1,&Black,NO,NO);
-			PrintNote(p % 128,-1,-1,line);
+			PrintNote(-1,p % 128,-1,-1,line);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
 				goto OUT;
@@ -1055,7 +1055,7 @@ PRINTPROLONGATIONS:
 				goto OUT;
 				}
 			Reformat(wind,-1,-1,-1,&Black,NO,NO);
-			PrintNote((p - (p % 128)) / 128,-1,-1,line);
+			PrintNote(-1,(p - (p % 128)) / 128,-1,-1,line);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
 				goto OUT;
@@ -1094,7 +1094,7 @@ PRINTPROLONGATIONS:
 			if(key > 127) {
 				sprintf(line,"K%ld=%ld",(long)key-128,(long)ParamValue[key-128]);
 				}
-			else PrintNote(key,-1,-1,line);
+			else PrintNote(-1,key,-1,-1,line);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
 				goto OUT;
@@ -1829,7 +1829,7 @@ FOUNDIT:
 	}
 else {
 	if(m == T25) {
-		PrintNote(p,0,-1,s);
+		PrintNote(-1,p,0,-1,s);
 		goto PRINT;
 		}
 	if(integ == -1) {

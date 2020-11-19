@@ -457,6 +457,7 @@ if(iv > 4) {
 					Dirty[wAlphabet] = dirtymem;
 					newinstruments = TRUE;
 					}
+				else return(rep);
 				}
 			}
 		}

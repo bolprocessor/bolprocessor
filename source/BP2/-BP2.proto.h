@@ -623,7 +623,7 @@ int SetFilterDialog(void);
 int ReadMIDIdevice(int);
 int LoadTimePattern(int);
 int LoadMIDIsyncOrKey(void);
-int PrintNote(int,int,int,char*);
+int PrintNote(int,int,int,int,char*);
 int GetNote(char*,int*,int*,int);
 int PreviewLine(char**,int);
 int TransliterateRecord(char**,FieldProcess**,short,int,int*);

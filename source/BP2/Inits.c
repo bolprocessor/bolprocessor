@@ -684,6 +684,7 @@ SetNoteNames(void)
 int i,j,notenum,octave;
 char **ptr;
 
+// MoreConvention = MAXCONVENTIONS;
 for(i=0; i < MAXCONVENTIONS; i++) {
 	if((p_NoteName[i] = (char****) GiveSpace((Size) 128 * sizeof(char**)))
 		== NULL) return(ABORT);
@@ -733,8 +734,9 @@ for(i=0; i < MAXCONVENTIONS; i++) {
 						break;
 					}
 				break;
-			case KEYS:
-			case CUSTOM:
+			default:
+		//	case KEYS:
+		//	case CUSTOM:
 				sprintf(Message,"%s%ld",KeyString,(long)j);
 				break;
 			}
@@ -778,8 +780,9 @@ for(i=0; i < MAXCONVENTIONS; i++) {
 						break;
 					}
 				break;
-			case KEYS:
-			case CUSTOM:
+			default:
+		//	case KEYS:
+		//	case CUSTOM:
 				sprintf(Message,"%s%ld",KeyString,(long)j);
 				break;
 			}

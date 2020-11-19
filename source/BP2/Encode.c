@@ -48,7 +48,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 // arg_nr = 8: right argument (glossary)
 {
 tokenbyte **p_buff,**p_pi;
-int ii,ig,ir,j,jj,n,l,ln,lmax,bound,leftside,rightcontext,neg,cv,needsK,needsflag,a,b;
+int ii,ig,ir,j,jj,n,l,ln,lmax,bound,leftside,rightcontext,neg,cv,needsK,needsflag,i_scale;
 long i,imax,k,siz,buffsize,y,u,v;
 char c,d,**pp,*p,*q,*qmax,*r,line[MAXLIN],**p_x;
 p_flaglist **nexth,**oldh;
@@ -63,11 +63,8 @@ for(i=0,p=(*pp1); p < (*pp2); i++,p++){};
 pp = pp1;
 imax = 4L * i + 6L;
 buffsize = imax + 4L;
-if((p_buff = (tokenbyte**) GiveSpace((Size) buffsize*sizeof(tokenbyte))) == NULL)
-							return(NULL);
-if((p_x = (char**) GiveSpace((Size)((BOLSIZE+2) * sizeof(char)))) == NULL) {
-	return(NULL);
-	}
+if((p_buff = (tokenbyte**) GiveSpace((Size) buffsize*sizeof(tokenbyte))) == NULL) return(NULL);
+if((p_x = (char**) GiveSpace((Size)((BOLSIZE+2) * sizeof(char)))) == NULL) return(NULL);
 leftside = TRUE;
 rightcontext = bound = neg = FALSE;
 i = 0;
@@ -784,22 +781,37 @@ SEARCHCONTEXT:
 SEARCHNOTE:
 	/* Look for simple note in current convention */
 	lmax = 0;
-	for(j=0; j < 128; j++) {
-		q = *pp; l = (*(p_NoteLength[NoteConvention]))[j];
-		if(Match(TRUE,&q,(*(p_NoteName[NoteConvention]))[j],l)
-				&& !isdigit(q[l])) {
-			lmax = l; jj = j;
-			qmax = q + l;
-			goto FOUNDNOTE2;
+//	BPPrintMessage(odError,"NoteConvention = %d\n",NoteConvention);
+   if(NoteConvention < 4) {
+		for(j=0; j < 128; j++) {
+			q = *pp; l = (*(p_NoteLength[NoteConvention]))[j];
+			if(Match(TRUE,&q,(*(p_NoteName[NoteConvention]))[j],l)
+					&& !isdigit(q[l])) {
+				lmax = l; jj = j;
+				qmax = q + l;
+				goto FOUNDNOTE2;
+				}
 			}
-		}
-	for(j=0; j < 128; j++) {
-		q = *pp; l = (*(p_AltNoteLength[NoteConvention]))[j];
-		if(Match(TRUE,&q,(*(p_AltNoteName[NoteConvention]))[j],l)
-				&& !isdigit(q[l])) {
-			lmax = l; jj = j;
-			qmax = q + l;
-			goto FOUNDNOTE2;
+		for(j=0; j < 128; j++) {
+			q = *pp; l = (*(p_AltNoteLength[NoteConvention]))[j];
+			if(Match(TRUE,&q,(*(p_AltNoteName[NoteConvention]))[j],l)
+					&& !isdigit(q[l])) {
+				lmax = l; jj = j;
+				qmax = q + l;
+				goto FOUNDNOTE2;
+				}
+			}
+	   }
+   else for(i_scale = 4; i_scale < MAXCONVENTIONS; i_scale++) {
+		for(j=0; j < 128; j++) {
+			q = *pp; l = (*(p_NoteLength[i_scale]))[j];
+			if(Match(TRUE,&q,(*(p_NoteName[i_scale]))[j],l)
+					&& !isdigit(q[l])) {
+				lmax = l; jj = j;
+				qmax = q + l;
+				if(trace_scale) BPPrintMessage(odInfo,"Found note '%s' i_scale = %d key = %d\n",q,i_scale,jj);
+				goto FOUNDNOTE2;
+				}
 			}
 		}
 	if(lmax  > 0) {

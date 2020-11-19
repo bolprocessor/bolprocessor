@@ -488,6 +488,7 @@ for(i=1; i <= 24; i++) {
 			else
 				strcpy(Message,AltIndiannote[i-13]);
 			break;
+		default: return(OK); break;
 		
 		}
 	c2pstrcpy(textStr, Message);
@@ -2125,6 +2126,7 @@ Strip(line);
 if(line[0] == '\0') goto ERR;
 
 x = Myatof(line,&p,&q);
+if(trace_scale) BPPrintMessage(odInfo,"FixNumberConstant line = %s\n",line);
 
 if(p_NumberConstant == NULL) maxparam = 0;
 else maxparam = (MyGetHandleSize((Handle)p_NumberConstant) / sizeof(double));
@@ -2146,12 +2148,12 @@ for(j = 1; j < maxparam; j++) {
 		}
 	}
 if(j < maxparam) {
-	if(trace_FixNumberConstant) BPPrintMessage(odInfo,"FixNumberConstant() line = %s j = %d, x = %.3f\n",line,j,x);
+	if(trace_FixNumberConstant || trace_scale) BPPrintMessage(odInfo,"FixNumberConstant() line = %s j = %d, x = %.3f\n",line,j,x);
 	return(j);
 	}
 if(j >= MAXSTRINGCONSTANTS) {
 	sprintf(Message,
-		"Too many numeric constants found (max %ld)\nCan't store '%s'\n",(long)MAXSTRINGCONSTANTS,line);
+		"=> Too many numeric constants found (max %ld)\nCan't store '%s'\n",(long)MAXSTRINGCONSTANTS,line);
 	Alert1(Message);
 	return(ABORT);
 	}

@@ -1368,22 +1368,25 @@ BPPrintMessage(odInfo,"=> Error reading '%s' Csound instrument file...\n",FileNa
 // FileName[wCsoundInstruments][0] = '\0';
 
 QUIT:
-result = OK;
+// result = OK;
 MyDisposeHandle((Handle*)&p_line);
 MyDisposeHandle((Handle*)&p_completeline);
 CloseFile(csfile);
-if(NumberScales == 1) {
-	BPPrintMessage(odInfo, "This microtonal scale will be used for Csound scores in replacement of the equal-tempered 12-tone scale\n=> Pitch is adjusted to the diapason and 'basefreq' is ignored\n");
-	DefaultScale = -1;
-	}
-else DefaultScale = 0; // Don't use scales until the _scale() instruction has been found
 if(result == OK) {
 	Created[wCsoundInstruments] = TRUE;
 	LoadedCsoundInstruments = TRUE;
+	if(NumberScales == 1) {
+		BPPrintMessage(odInfo, "This microtonal scale will be used for Csound scores in replacement of the equal-tempered 12-tone scale\nPitch is adjusted to the diapason and 'basefreq' is ignored\n");
+		DefaultScale = -1;
+		}
+	else DefaultScale = 0; // Don't use scales until the _scale() instruction has been found
 	}
-else Created[wCsoundInstruments] = FALSE;
+else {
+	Created[wCsoundInstruments] = FALSE;
+	EmergencyExit = TRUE;
+	}
 
-Dirty[wCsoundInstruments] = FALSE;
+// Dirty[wCsoundInstruments] = FALSE;
 if(iCsoundInstrument >= Jinstr) iCsoundInstrument = 0;
 // SetCsoundInstrument(iCsoundInstrument,-1);
 LoadOn--;
@@ -2661,7 +2664,7 @@ MIDIcode **p_b;
 char **p_line,**p_completeline,line[MAXLIN],line2[MAXLIN];
 int i,iv,j,jj,co,rep,okt1,diff,stop,maxsounds,s,objecttype,oldjbol,notsaid,
 	pivbeg,pivend,pivbegon,pivendoff,pivcent,pivcentonoff,pivspec,newbols,okrescale,
-	compilemem,newinstruments,type,dirtymem,longerCsound;
+	compilemem,newinstruments,type,dirtymem,longerCsound,result;
 long t,t1,t2,tm,d,kres;
 long pos,imax;
 long k,kk;
@@ -2778,7 +2781,7 @@ if(strlen(line2) > 0) {
 	
 	final_name = repl_str(FileName[iObjects],name_of_file,Message);
 	strcpy(FileName[wCsoundInstruments],final_name);
-	LoadCsoundInstruments(0,1);
+	if((result = LoadCsoundInstruments(0,1)) != OK) return(result);
 	pos += strlen(line2);
 	}
 		

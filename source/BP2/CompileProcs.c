@@ -695,13 +695,13 @@ return(jproc);
 int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long *p_v,
 	KeyNumberMap *p_map) 
 {
-int i,im,j,jinstr,p,length,chan,foundk,cntl,result,i_scale,key,l,numgrades,basekey,notenum, octave,delta_octave;
+int i,im,j,jinstr,p,length,chan,foundk,cntl,result,i_scale,key,l,numgrades,basekey,notenum, octave,delta_octave,pitchclass;
 long k,initparam;
 char c,d,*ptr,*ptr2,*p_line,*q,line[MAXLIN];
 double x;
 
 jinstr = -1; im = 0;
-if(trace_scale) BPPrintMessage(odInfo,"Start GetPerformanceControl()\n");
+// if(trace_scale) BPPrintMessage(odInfo,"Start GetPerformanceControl()\n");
 for(j=0; j < MaxPerformanceControl; j++) {
 	ptr = *pp; i = 0; length = MyHandleLen((*p_PerformanceControl)[j]);
 	while(MySpace(*ptr)) ptr++;
@@ -1283,32 +1283,25 @@ switch(jinstr) {
 			else if(NoteConvention == 4) {
 				numgrades = (*Scale)[i_scale].numgrades;
 				basekey = (*Scale)[i_scale].basekey;
-				if(trace_scale) BPPrintMessage(odInfo,"Recording note names of scale %d (%s) with %d grades\n",i_scale,line,numgrades);
+				if(trace_scale) BPPrintMessage(odInfo,"Recording note names of scale %d '%s' with %d grades and 'basekey' = %d\n",i_scale,line,numgrades,basekey);
 				delta_octave = 0;
 				for(j = 0; j < 128; j++) {
-					notenum = modulo((j - basekey),numgrades);
-					octave = ((j - basekey - notenum) / numgrades) + delta_octave;
-					if(octave < 0 && delta_octave == 0) {
-						delta_octave = 1 - octave;
-						octave = ((j - basekey - notenum) / numgrades) + delta_octave;
-						}
-				/*	if(notenum == 0) octave--;
-					if(notenum == (numgrades - 1)) octave++; */
+					pitchclass = modulo((j - C4key),numgrades);
+					octave = 4 + floor((((double)j - C4key)) / numgrades);
 					switch(octave) {
 						case -1:
-							sprintf(Message,"%s00",*((*((*Scale)[i_scale].notenames))[notenum])); break;
+							sprintf(Message,"%s00",*((*((*Scale)[i_scale].notenames))[pitchclass])); break;
 						default:
-							sprintf(Message,"%s%ld",*((*((*Scale)[i_scale].notenames))[notenum]),(long)octave);
+							sprintf(Message,"%s%ld",*((*((*Scale)[i_scale].notenames))[pitchclass]),(long)octave);
 							break;
 						}
-					MystrcpyStringToTable(p_NoteName[4],j,Message);
-					MystrcpyStringToTable(p_AltNoteName[4],j,Message);
-					(*(p_NoteLength[4]))[j] = (*(p_AltNoteLength[4]))[j] = strlen(Message);
-					if(trace_scale) BPPrintMessage(odInfo,"Note[%d] '%s'\n",j,Message);
+					MystrcpyStringToTable(p_NoteName[i_scale + 3],j,Message);
+					MystrcpyStringToTable(p_AltNoteName[i_scale + 3],j,Message);
+					(*(p_NoteLength[i_scale + 3]))[j] = (*(p_AltNoteLength[i_scale + 3]))[j] = strlen(Message);
+				//	if(trace_scale) BPPrintMessage(odInfo,"Note[%d][%d] = '%s' pitchclass = %d octave = %d blah = %.3f\n",(i_scale + 3),j,Message,pitchclass,octave,floor((((double)j - C4key)) / numgrades));
 					}
 				}
 			}
-	//	if(trace_scale) BPPrintMessage(odInfo,"GET2CONSTANTS k = %d\n",k);
 		break;
 	case 58:	/* _keyxpand() */
 		Strip(line);
@@ -1404,12 +1397,24 @@ if(isalpha(line[0])) {
 	// Try to interpret non-numeric value as a note. Used mainly for blockkey in _scale()
 //	BPPrintMessage(odInfo,"Found non-numeric value: %s NoteConvention = %d\n",line,NoteConvention);
 	p_line = line;
-	for(key = 0; key < 128; key++) {
-		l = (*(p_NoteLength[NoteConvention]))[key];
-		if(Match(TRUE,&p_line,(*(p_NoteName[NoteConvention]))[key],l)
-		&& !isdigit(line[l])) {
-			sprintf(line,"%d",key);
-			break;
+	if(NoteConvention < 4) {
+		for(key = 0; key < 128; key++) {
+			l = (*(p_NoteLength[NoteConvention]))[key];
+			if(Match(TRUE,&p_line,(*(p_NoteName[NoteConvention]))[key],l)
+			&& !isdigit(line[l])) {
+				sprintf(line,"%d",key);
+				break;
+				}
+			}
+		}
+	else for(i_scale = 4; i_scale < MAXCONVENTIONS; i_scale++) {
+		for(key=0; key < 128; key++) {
+			l = (*(p_NoteLength[i_scale]))[key];
+			if(Match(TRUE,&p_line,(*(p_NoteName[i_scale]))[key],l)
+					&& !isdigit(p_line[l])) {
+				sprintf(line,"%d",key);
+				break;
+				}
 			}
 		}
 	}

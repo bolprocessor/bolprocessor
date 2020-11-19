@@ -1206,7 +1206,7 @@ GOTIT7:
 		if(check) return(OK);
 		if(wind == wInteraction && DeriveFurtherChan != -1) {
 			Print(wTrace,"'Derive further' is already controlled by ");
-			PrintNote(DeriveFurtherKey,DeriveFurtherChan,wTrace,Message);
+			PrintNote(-1,DeriveFurtherKey,DeriveFurtherChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1219,7 +1219,7 @@ GOTIT7:
 		if(check) return(OK);
 		if(wind == wInteraction && ResetWeightChan != -1) {
 			Print(wTrace,"'Reset weights' is already controlled by ");
-			PrintNote(ResetWeightKey,ResetWeightChan,wTrace,Message);
+			PrintNote(-1,ResetWeightKey,ResetWeightChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1232,7 +1232,7 @@ GOTIT7:
 		if(check) return(OK);
 		if(wind == wInteraction && PlayChan != -1) {
 			Print(wTrace,"'Start play' is already controlled by ");
-			PrintNote(PlayKey,PlayChan,wTrace,Message);
+			PrintNote(-1,PlayKey,PlayChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1245,7 +1245,7 @@ GOTIT7:
 		if(check) return(OK);
 		if(wind == wInteraction && RepeatChan != -1) {
 			Print(wTrace,"'Repeat v times' is already controlled by ");
-			PrintNote(RepeatKey,RepeatChan,wTrace,Message);
+			PrintNote(-1,RepeatKey,RepeatChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1258,7 +1258,7 @@ GOTIT7:
 		if(check) return(OK);
 		if(wind == wInteraction && EndRepeatChan != -1) {
 			Print(wTrace,"'End repeat' is already controlled by ");
-			PrintNote(EndRepeatKey,EndRepeatChan,wTrace,Message);
+			PrintNote(-1,EndRepeatKey,EndRepeatChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1271,7 +1271,7 @@ GOTIT7:
 		if(check) return(OK);
 		if(wind == wInteraction && EverChan != -1) {
 			Print(wTrace,"'Repeat forever' is already controlled by ");
-			PrintNote(EverKey,EverChan,wTrace,Message);
+			PrintNote(-1,EverKey,EverChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1284,7 +1284,7 @@ GOTIT7:
 		if(check) return(OK);
 		if(wind == wInteraction && QuitChan != -1) {
 			Print(wTrace,"'Quit' is already controlled by ");
-			PrintNote(QuitKey,QuitChan,wTrace,Message);
+			PrintNote(-1,QuitKey,QuitChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1297,7 +1297,7 @@ GOTIT7:
 		if(check) return(OK);
 		if(wind == wInteraction && UseEachSubChan != -1) {
 			Print(wTrace,"'Use each substitution' is already controlled by ");
-			PrintNote(UseEachSubKey,UseEachSubChan,wTrace,Message);
+			PrintNote(-1,UseEachSubKey,UseEachSubChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1310,7 +1310,7 @@ GOTIT7:
 		if(check) return(OK);
 		if(wind == wInteraction && SynchronizeStartChan != -1) {
 			Print(wTrace,"Use/ignore 'Start play' is already controlled by ");
-			PrintNote(SynchronizeStartKey,SynchronizeStartChan,wTrace,Message);
+			PrintNote(-1,SynchronizeStartKey,SynchronizeStartChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1336,7 +1336,7 @@ GOTIT7:
 		if(check) return(OK);
 		if(wind == wInteraction && SetTimeChan != -1) {
 			Print(wTrace,"'Set computation time' is already controlled by ");
-			PrintNote(SetTimeKey,SetTimeChan,wTrace,Message);
+			PrintNote(-1,SetTimeKey,SetTimeChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1349,7 +1349,7 @@ GOTIT7:
 		if(check) return(OK);
 		if(wind == wInteraction && StriatedChan != -1) {
 			Print(wTrace,"'Smooth/striated time' is already controlled by ");
-			PrintNote(StriatedKey,StriatedChan,wTrace,Message);
+			PrintNote(-1,StriatedKey,StriatedChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1362,7 +1362,7 @@ GOTIT7:
 		if(check) return(OK);
 		if(wind == wInteraction && NoConstraintChan != -1) {
 			Print(wTrace,"'Use/ignore object constraints' is already controlled by ");
-			PrintNote(NoConstraintKey,NoConstraintChan,wTrace,Message);
+			PrintNote(-1,NoConstraintKey,NoConstraintChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1375,7 +1375,7 @@ GOTIT7:
 		if(check) return(OK);
 		if(wind == wInteraction && SkipChan != -1) {
 			Print(wTrace,"'Skip next item' is already controlled by ");
-			PrintNote(SkipKey,SkipChan,wTrace,Message);
+			PrintNote(-1,SkipKey,SkipChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1388,7 +1388,7 @@ GOTIT7:
 		if(check) return(OK);
 		if(wind == wInteraction && AgainChan != -1) {
 			Print(wTrace,"'Play again item' is already controlled by ");
-			PrintNote(AgainKey,AgainChan,wTrace,Message);
+			PrintNote(-1,AgainKey,AgainChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1404,7 +1404,7 @@ GOTIT7:
 			sprintf(Message,"Synchronisation tag W%ld is already controlled by ",
 				(long)i);
 			Print(wTrace,Message);
-			PrintNote(WaitKey[i],WaitChan[i],wTrace,Message);
+			PrintNote(-1,WaitKey[i],WaitChan[i],wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1430,9 +1430,9 @@ GOTIT7:
 		if(check) return(OK);
 		if(wind == wInteraction && TclockChan != -1) {
 			Print(wTrace,"'Adjust tempo' is already controlled by ");
-			PrintNote(MinTclockKey,TclockChan,wTrace,Message);
+			PrintNote(-1,MinTclockKey,TclockChan,wTrace,Message);
 			Print(wTrace," and ");
-			PrintNote(MaxTclockKey,TclockChan,wTrace,Message);
+			PrintNote(-1,MaxTclockKey,TclockChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1953,7 +1953,7 @@ BAD:
 		if(check) return(OK);
 		if(wind == wInteraction && MuteOnChan != -1) {
 			Print(wTrace,"'Mute ON' is already controlled by ");
-			PrintNote(MuteOnKey,MuteOnChan,wTrace,Message);
+			PrintNote(-1,MuteOnKey,MuteOnChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -1970,7 +1970,7 @@ BAD:
 		if(check) return(OK);
 		if(wind == wInteraction && MuteOffChan != -1) {
 			Print(wTrace,"'Mute OFF' is already controlled by ");
-			PrintNote(MuteOffKey,MuteOffChan,wTrace,Message);
+			PrintNote(-1,MuteOffKey,MuteOffChan,wTrace,Message);
 			Print(wTrace,"\n");
 			return(FAILED);
 			}
@@ -2428,7 +2428,7 @@ key = (*(ScriptLine.intarg))[i1];
 chan = (*(ScriptLine.intarg))[i2];
 if((*p_keyon[chan])[key]) {
 	Print(wTrace,"Key '");
-	PrintNote(key,chan,wTrace,Message);
+	PrintNote(-1,key,chan,wTrace,Message);
 	Print(wTrace,"' is already used.\n");
 	return(FAILED);
 	}
