@@ -73,7 +73,7 @@ char imageFileName[500];
 int N_image;
 int MaxConsoleTime; // seconds: time allowed for console work
 int CsoundPianoRollNoteShift;
-int NumberScales, MaxScales, DefaultScale; // Number of microtonal scales loaded from Csound instruments file
+int NumberScales, MaxScales, DefaultScale, ToldAboutScale; // Microtonal scales loaded from Csound instruments file
 t_scale** Scale;
 Handle mem_ptr[5000];
 int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];

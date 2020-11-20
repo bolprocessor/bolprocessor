@@ -51,7 +51,7 @@ int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int min
 //    write Csound score line
 
 int i,jj,k,c,ins,index,paramnameindex,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,
-	pitchclass,result,maxparam,itable,pitch_format,i_scale,scalemax;
+	pitchclass,result,maxparam,itable,pitch_format,i_scale;
 char line[MAXLIN],line2[MAXLIN];
 long imax,pivloc,trbeg,starttime;
 double time,x,xx,cents,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,

@@ -885,7 +885,7 @@ if(size > 0) {
 			goto PASTE;
 			break;
 		case CsoundInstrID:
-			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'csin'. Loading Csound instrument file...");
+			ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'csin'. Loading Csound resource file...");
 			w = wScript;
 			goto PASTE;
 			break;

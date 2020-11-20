@@ -243,7 +243,7 @@ if(GetField(NULL,TRUE,wPrototype5,fQuantizeFractionBeat,line,&p,&q) == OK) {
 
 if(GetField(NULL,TRUE,wPrototype5,fPrototypeTickKey,line,&p,&q) == OK) {
    if(p/q < 0 || p/q > 127) {
-      sprintf(Message,"Tick key should be in range 0..127. Can't accept %ld",
+      sprintf(Message,"=> Tick key should be in range 0..127. Can't accept %ld",
          (long)(p/q));
       Alert1(Message);
       }
@@ -257,7 +257,7 @@ if(GetField(NULL,TRUE,wPrototype5,fPrototypeTickChannel,line,&p,&q) == OK) {
 
 if(GetField(NULL,TRUE,wPrototype5,fPrototypeTickVelocity,line,&p,&q) == OK) {
    if(p/q < 1 || p/q > 127) {
-      sprintf(Message,"Tick velocity should be in range 1..127. Can't accept %ld",
+      sprintf(Message,"=> Tick velocity should be in range 1..127. Can't accept %ld",
          (long)(p/q));
       Alert1(Message);
       }

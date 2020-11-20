@@ -197,7 +197,7 @@ for(i=0; i < Maxlevel; i++) {
 (*p_nmax) = 0;
 for(nseq=0; nseq <= Minconc; nseq++) {
 	if(MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseqapprox,p_maxcol) != OK) {
-		Alert1("Unexpectedly, cannot fill phase diagram. You should send this project to the authors");
+		Alert1("=> Unexpectedly, cannot fill phase diagram. You should send this project to the authors");
 		return(ABORT);
 		}
 	}
@@ -599,7 +599,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 		ip = Class((*p_im)[nseq]);
 		if(Beta && (ip > maxseqapprox)) {
 			sprintf(Message,
-				"\nnseq=%ld Class((*p_im)[nseq])=%ul maxseqapprox=%ld",
+				"\n=> Error nseq = %ld Class((*p_im)[nseq]) = %ul maxseqapprox = %ld",
 				(long)nseq,ip,(long)maxseqapprox);
 			Println(wTrace,Message);
 			ShowError(34,0,0);
@@ -870,7 +870,7 @@ DONEOUTTIMEOBJECT:
 					level++;
 					if(level >= Maxlevel) {
 						if(Beta) Alert1("=> Err. FillPhaseDiagram(). level >= Maxlevel");
-						else Alert1("Unexpectedly the phase diagram can't be created. You should send this project to the designers");
+						else Alert1("=> Unexpectedly the phase diagram can't be created. You should send this project to the designers");
 						goto ENDDIAGRAM;
 						}
 						
@@ -933,7 +933,7 @@ DONEOUTTIMEOBJECT:
 					skipzeros = FALSE;
 					if(level >= Maxlevel) {
 						if(Beta) Alert1("=> Err. FillPhaseDiagram(). level >= Maxlevel");
-						else Alert1("Unexpectedly the phase diagram can't be created. You should send this project to the designers");
+						else Alert1("=> Unexpectedly the phase diagram can't be created. You should send this project to the designers");
 						goto ENDDIAGRAM;
 						}
 					inext = (*p_im)[nseq];
@@ -950,7 +950,7 @@ DONEOUTTIMEOBJECT:
 						goto NEWSEQUENCE;
 						}
 					if(nseq > (*p_nmax)) {
-						if(Beta) Println(wTrace,"\nErr. FillPhaseDiagram(). nseq > (*p_nmax) after '}'");
+						if(Beta) Println(wTrace,"\n=> Err. FillPhaseDiagram(). nseq > (*p_nmax) after '}'");
 						if((gotnewline=MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseqapprox,p_maxcol))
 								!= OK) {
 							if(gotnewline == ABORT) goto ENDDIAGRAM;
@@ -1020,7 +1020,7 @@ DONEOUTTIMEOBJECT:
 						goto NEWSEQUENCE;
 						}
 					if(nseq > (*p_nmax)) {
-						if(Beta) Println(wTrace,"\nErr. FillPhaseDiagram(). nseq > (*p_nmax) after ','");
+						if(Beta) Println(wTrace,"\n=> Err. FillPhaseDiagram(). nseq > (*p_nmax) after ','");
 						if((gotnewline=MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseqapprox,p_maxcol))
 								!= OK) {
 							if(gotnewline == ABORT) goto ENDDIAGRAM;
@@ -1151,7 +1151,7 @@ NEWSEQUENCE:
 					classofinext = Class(inext);
 					
 					if((oldm != T3 && oldm != T25) || oldp < 1 || id < 2L) {
-						sprintf(Message,"Concatenation '&' should follow a sound-object or simple note. One of them is misplaced");
+						sprintf(Message,"=> Concatenation '&' should follow a sound-object or simple note. One of them is misplaced");
 						if(!ScriptExecOn) Alert1(Message);
 						else Println(wTrace,Message);
 						goto ENDDIAGRAM;

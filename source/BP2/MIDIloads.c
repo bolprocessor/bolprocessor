@@ -304,14 +304,14 @@ MyPtoCstr(MAXNAME,t,LineBuff);
 d = (int) atol(LineBuff);	/* Don't use atoi() because int's could be 4 bytes */
 if(strlen(name) > 0) {
 	if(!isupper(name[0])) {
-		Alert1("Pattern name is a variable and should start with uppercase character");
+		Alert1("=> Pattern name is a variable and should start with uppercase character");
 		goto TRY;
 		}
 	for(i=0; i < strlen(name); i++) {
 		c = name[i];
 		if(!isalnum(c)) {
 			sprintf(Message,
-		"Space or incorrect character in name.  Can't accept '%c'",c);
+		"=> Space or incorrect character in name.  Can't accept '%c'",c);
 			Alert1(Message);
 			goto TRY;
 			}
@@ -321,13 +321,13 @@ for(i=0; i < strlen(LineBuff); i++) { // FIXME: This check seems unnecessary - a
 	c = LineBuff[i];
 	if(!isdigit(c)) {
 		sprintf(Message,
-		 "Unexpected character '%c'.\nThe symbolic duration must be a positive integer.",c);
+		 "=> Unexpected character '%c'.\nThe symbolic duration must be a positive integer.",c);
 		Alert1(Message);
 		goto TRY;
 		}
 	}
 if(d <= 0) {
-	Alert1("The symbolic duration must be a positive integer.");
+	Alert1("=> The symbolic duration must be a positive integer.");
 	goto TRY;
 	}
 	

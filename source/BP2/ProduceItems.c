@@ -292,9 +292,9 @@ if(!PlaySelectionOn) SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
 lengthA = LengthOf(pp_a);
 if(lengthA < 1) {
 	if(!DeriveFurther || PlaySelectionOn)
-		Alert1("Empty start string. Can't produce anything");
+		Alert1("=> Empty start string. Can't produce anything");
 	else
-		Alert1("Item is empty. Can't derive further");
+		Alert1("=> Item is empty. Can't derive further");
 	goto QUIT;
 	}
 Final = FALSE;
@@ -433,7 +433,7 @@ TextGetSelection(&origin, &end, TEH[w]);
 SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 if(end <= origin) {
 	if(ScriptExecOn) Print(wTrace,"\n*** Can't analyze.  No item selected...\n");
-	Alert1("Can't analyze. No item selected...");
+	Alert1("=> Can't analyze. No item selected...");
 	return(FAILED);
 	}
 /*
@@ -577,7 +577,7 @@ TRY:
 if((r=AnswerWith("Set weights to...","0",Message)) == ABORT) return(OK);
 w = (int) atol(Message); 	/* Don't use atoi() because int's are 4 bytes */
 if(w < 0) {
-	Alert1("Weights should not be negative"); goto TRY;
+	Alert1("=> Weights should not be negative"); goto TRY;
 	}
 for(igram=1; igram <= Gram.number_gram; igram++) {
 	for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {

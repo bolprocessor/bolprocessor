@@ -79,14 +79,14 @@ Expect(char c,char* string,char d)
 char line[MAXLIN];
 
 if(isspace(d))
-	sprintf(line,"Expecting '%c' after '%s'. Found a space instead.\n",
+	sprintf(line,"=> Expecting '%c' after '%s'. Found a space instead.\n",
 		c,string);
 else
 	if(isgraph(d))
-		sprintf(line,"Expecting '%c' after '%s'. Found '%c' instead.\n",
+		sprintf(line,"=> Expecting '%c' after '%s'. Found '%c' instead.\n",
 			c,string,d);
 	else
-		sprintf(line,"Expecting '%c' after '%s'. Found '%c' (ASCII %ld) instead.\n",
+		sprintf(line,"=> Expecting '%c' after '%s'. Found '%c' (ASCII %ld) instead.\n",
 			c,string,d,(long)((256L + d) % 256L));
 Print(wTrace,line);
 return(OK);
@@ -259,7 +259,7 @@ do {
 	if(c == '\0' || !isdigit(c)) break;
 	n = 10L * n + (long) (c - '0'); done = TRUE;
 	if(n > INT_MAX) {	// FIXME: can never be true when sizeof(long) == sizeof(int)
-		sprintf(Message,"\nMaximum integer value: %ld.\n",(long)INT_MAX);
+		sprintf(Message,"\n=> Maximum integer value: %ld.\n",(long)INT_MAX);
 		Print(wTrace,Message);
 		return(INT_MAX);
 		}
@@ -267,7 +267,7 @@ do {
 	}
 while(c != '\0');
 if(!done) {
-	if(!InitOn && !test) Print(wTrace,"\nNumber missing.\n");
+	if(!InitOn && !test) Print(wTrace,"\n=> Number missing.\n");
 	return(INT_MAX);
 	}
 return((int) n * sign);
@@ -286,7 +286,7 @@ if(*p_i >= strlen(line)) return(INT_MAX);
 do {
 	c = line[*p_i];
 	if(!done && c == '-') {
-		Print(wTrace,"\nHexadecimal number should not be negative");
+		Print(wTrace,"\n=> Hexadecimal number should not be negative");
 		return(INT_MAX);
 		}
 	if(c == '\0') break;
@@ -305,7 +305,7 @@ do {
 		}
 	n = 16L * n + (long) j; done = TRUE;
 	if(n > INT_MAX) {	// FIXME: can never be true when sizeof(long) == sizeof(int)
-		sprintf(Message,"\nMaximum integer value: %ld.\n",(long)INT_MAX);
+		sprintf(Message,"\n=> Maximum integer value: %ld.\n",(long)INT_MAX);
 		Print(wTrace,Message);
 		return(INT_MAX);
 		}
@@ -314,7 +314,7 @@ do {
 while(c != '\0');
 END:
 if(!done) {
-	Print(wTrace,"\nNumber missing.\n");
+	Print(wTrace,"\n=> Number missing.\n");
 	return(INT_MAX);
 	}
 return((int) n);
@@ -341,7 +341,7 @@ do {
 	if(c == '\0' || !isdigit(c)) break;
 	n = 10L * n + (long) (c - '0'); done = TRUE;
 	if(n >= Infpos) {	// FIXME: can never be true (Infpos == LONG_MAX)
-		sprintf(Message,"\nMaximum value: %ld.\n",(long)Infpos-1);
+		sprintf(Message,"\n=> Maximum value: %ld.\n",(long)Infpos-1);
 		Print(wTrace,Message);
 		return(Infpos);
 		}
@@ -349,7 +349,7 @@ do {
 	}
 while(c != '\0');
 if(!done) {
-	Print(wTrace,"\nNumber missing.\n");
+	Print(wTrace,"\n=> Number missing.\n");
 	return(Infpos);
 	}
 return(n * sign);
@@ -369,7 +369,7 @@ if(*p_i >= strlen(line)) return(INT_MAX * 2L);	// FIXME: integer overflow (*2UL 
 do {
 	c = line[*p_i];
 	if(!done && c == '-') {
-		Print(wTrace,"\nUnsigned integer should not be negative");
+		Print(wTrace,"\n=> Unsigned integer should not be negative");
 		return(INT_MAX * 2L);
 		}
 	c = line[*p_i];
@@ -385,7 +385,7 @@ do {
 	}
 while(c != '\0');
 if(!done) {
-	Print(wTrace,"\nNumber missing.\n");
+	Print(wTrace,"\n=> Number missing.\n");
 	return(INT_MAX * 2L);
 	}
 return((unsigned) n);
@@ -429,7 +429,7 @@ do {
 			continue;
 			}
 		else {
-			Print(wTrace,"\nSeveral decimal points in float number.\n");
+			Print(wTrace,"\n=> Several decimal points in float number.\n");
 			return(-1.);
 			}
 		}
@@ -444,7 +444,7 @@ do {
 	}
 while(c != '\0');
 if(!done) {
-	Print(wTrace,"\nFloat number incorrect or missing.\n");
+	Print(wTrace,"\n=> Float number incorrect or missing.\n");
 	return(-1.);
 	}
 return(n * sign);
@@ -536,8 +536,6 @@ if(isspace(c)) return(YES);
 if(c == (char) -54 || c == '\20') return(YES);	/* option space, ctrl-p */
 return(NO);
 }
-
-
 
 
 ByteToInt(char x)
@@ -725,7 +723,7 @@ if(GetCtrlValue(wTickDialog,dSpecialTick)) {
 	GetField(NULL,TRUE,wTickDialog,fThisTickVelocity,line,&p,&q);
 	v =  p/q;
 	if(v < 0 || v > 127) {
-		sprintf(line,"Velocity range is 0..127\nCan't accept %ld",(long)v);
+		sprintf(line,"=> Velocity range is 0..127\nCan't accept %ld",(long)v);
 		Alert1(line);
 		SetField(NULL,wTickDialog,fThisTickVelocity,"[?]");
 		SelectField(NULL,wTickDialog,fThisTickVelocity,TRUE);
@@ -734,7 +732,7 @@ if(GetCtrlValue(wTickDialog,dSpecialTick)) {
 	GetField(NULL,TRUE,wTickDialog,fThisTickChannel,line,&p,&q);
 	c =  p/q;
 	if(c < 1 || c > 16) {
-		sprintf(line,"Channel range is 1..16\nCan't accept %ld",(long)c);
+		sprintf(line,"=> Channel range is 1..16\nCan't accept %ld",(long)c);
 		Alert1(line);
 		SetField(NULL,wTickDialog,fThisTickChannel,"[?]");
 		SelectField(NULL,wTickDialog,fThisTickChannel,TRUE);
@@ -743,7 +741,7 @@ if(GetCtrlValue(wTickDialog,dSpecialTick)) {
 	GetField(NULL,TRUE,wTickDialog,fThisTickKey,line,&p,&q);
 	k =  p/q;
 	if(k < 0 || k > 127) {
-		sprintf(line,"Key range is 0..127\nCan't accept %ld",(long)k);
+		sprintf(line,"=> Key range is 0..127\nCan't accept %ld",(long)k);
 		Alert1(line);
 		SetField(NULL,wTickDialog,fThisTickKey,"[?]");
 		SelectField(NULL,wTickDialog,fThisTickKey,TRUE);
@@ -933,7 +931,7 @@ if (GetLinkedFileName(w,wKeyboard,name) == OK) {
 	if(strcmp(FileName[wKeyboard],name) != 0) {
 		strcpy(FileName[wKeyboard],name);
 		if(Token == FALSE && !ScriptExecOn) {
-			if(Answer("Alphabet file indicated keyboard encoding.\nType tokens instead of normal text",
+			if(Answer("=> Alphabet file indicated keyboard encoding.\nType tokens instead of normal text",
 				'N') == OK) Token = TRUE;
 			}
 		type = gFileType[wKeyboard];
@@ -947,7 +945,7 @@ if (GetLinkedFileName(w,wKeyboard,name) == OK) {
 		}
 	else {
 		if(Token && FileName[wKeyboard][0] == '\0') {
-			if(!ScriptExecOn) Alert1("You can't use tokens ('Misc' menu) unless you define '-kb.' file in alphabet");
+			if(!ScriptExecOn) Alert1("=> You can't use tokens ('Misc' menu) unless you define '-kb.' file in alphabet");
 			Token = FALSE;
 			result = ABORT;
 			}
@@ -1058,7 +1056,7 @@ switch(j) {
 	case 13:
 		MakeRatio((double)ULONG_MAX,x,&p,&q);
 		if(p < 0.) {
-			sprintf(Message,"Metronome cannot be set to negative value. '%.4f' not accepted",
+			sprintf(Message,"=> Metronome cannot be set to negative value. '%.4f' not accepted",
 				x);
 			Alert1(Message);
 			return(ABORT);
@@ -1073,7 +1071,7 @@ switch(j) {
 		break;
 	case 14:
 		if(Pclock < 1. && !NotFoundMetronom) {
-			Alert1("Setting time to 'striated' is inconsistent with having no clock");
+			Alert1("=> Setting time to 'striated' is inconsistent with having no clock");
 			striated = FALSE;
 			goto MAKECHANGE;
 			}
@@ -1295,11 +1293,11 @@ GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,s);
 x = atol(s);
 if(x < 2L) {
-	Alert1("Minimum initial buffer size: 2 symbols");
+	Alert1("=> Minimum initial buffer size: 2 symbols");
 	x = 2L;
 	}
 if(x > 100000L) {
-	Alert1("Maximum initial buffer size: 100,000 symbols. (It may be expanded during computation)");
+	Alert1("=> Maximum initial buffer size: 100,000 symbols. (It may be expanded during computation)");
 	x = 100000L;
 	}
 BufferSize = 2L * (x + 1L);
@@ -1308,11 +1306,11 @@ GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,s);
 x = atol(s);
 if(x < 2L) {
-	Alert1("Minimum initial buffer size: 2 symbols");
+	Alert1("=> Minimum initial buffer size: 2 symbols");
 	x = 2L;
 	}
 if(x > 100000L) {
-	Alert1("Maximum initial buffer size: 100,000 symbols. (It may be expanded during computation)");
+	Alert1("=> Maximum initial buffer size: 100,000 symbols. (It may be expanded during computation)");
 	x = 100000L;
 	}
 DeftBufferSize = 2L * (x + 1L);
@@ -1366,7 +1364,7 @@ GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,s);
 if((FloatToNiceRatio(s,&p,&q) != OK) || (p == ZERO)
 		|| (Simplify((double)INT_MAX,(double)5. * q,(double)p,&pp,&qq) != OK)) {
-	Alert1("Scale out of range");
+	Alert1("=> Scale out of range");
 	goto OUT;
 	}
 while((pp > INT_MAX) || (qq > INT_MAX)) {
@@ -1409,7 +1407,7 @@ if(QuantizeOK) {
 		(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,1);
 	if(Pclock < 0.9 && !LoadOn) {
-		Alert1("Quantization requires a metronom value. It has been set to mm = 60");
+		Alert1("=> Quantization requires a metronom value. It has been set to mm = 60");
 		Pclock = Qclock = 1000.;
 		SetTempo();
 		BPActivateWindow(SLOW,wMetronom);
@@ -1444,7 +1442,7 @@ GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,line);
 i = (int) atol(line); 	/* Don't use atoi() because int's are 4 bytes */
 if(i < 0 || i > 2000) {
-	Alert1("Range of set-up time: 0 - 2000ms");
+	Alert1("=> Range of set-up time: 0 - 2000ms");
 	if(i > 2000) i = 2000;
 	else i = 0;
 	}
@@ -1454,7 +1452,7 @@ GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,line);
 k = atol(line);
 if(k < 1L) {
-	Alert1("Minimum time resolution: 1ms");
+	Alert1("=> Minimum time resolution: 1ms");
 	Time_res = 1L;
 	SetTimeAccuracy();
 	InputOn--;
@@ -1468,7 +1466,7 @@ GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,line);
 k = atol(line);
 if(k < Time_res) {
-	sprintf(Message,"Minimum quantization: %ldms",(long)Time_res);
+	sprintf(Message,"=> Minimum quantization: %ldms",(long)Time_res);
 	Alert1(Message);
 	Quantization = Time_res;
 	SetTimeAccuracy();
@@ -1767,7 +1765,7 @@ oldC4key = C4key;
 GetField(TuningPtr,TRUE,-1,fC4key,line,&p,&q);
 i = p / q;
 if(i < 2 || i > 127) {
-	sprintf(Message,"Key for C4 should be in range 2..127 (typ. 60). Can't accept %ld",(long) i);
+	sprintf(Message,"=> Key for C4 should be in range 2..127 (typ. 60). Can't accept %ld",(long) i);
 	Alert1(Message);
 	ShowWindow(GetDialogWindow(TuningPtr));
 	SelectWindow(GetDialogWindow(TuningPtr));
@@ -1780,7 +1778,7 @@ if(C4key != oldC4key) CompiledGr = CompiledGl = FALSE;
 GetField(TuningPtr,TRUE,-1,fA4freq,line,&p,&q);
 x = ((double) p) / q;
 if(x < 25. || x > 2000.) {
-	sprintf(Message,"Frequency for A4 should be in range 25..2000 (typ. 440). Can't accept %.2f",x);
+	sprintf(Message,"=> Frequency for A4 should be in range 25..2000 (typ. 440). Can't accept %.2f",x);
 	Alert1(Message);
 	ShowWindow(GetDialogWindow(TuningPtr));
 	SelectWindow(GetDialogWindow(TuningPtr));
@@ -1811,7 +1809,7 @@ int i;
 GetField(DefaultPerformanceValuesPtr,TRUE,-1,fDeftVolume,line,&p,&q);
 i = p / q;
 if(i < 1 || i > 127) {
-	sprintf(Message,"Default volume should be in range 1..127 (typ. 90). Can't accept %ld",
+	sprintf(Message,"=> Default volume should be in range 1..127 (typ. 90). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
@@ -1824,7 +1822,7 @@ DeftVolume = i;
 GetField(DefaultPerformanceValuesPtr,TRUE,-1,fDeftVelocity,line,&p,&q);
 i = p / q;
 if(i < 1 || i > 127) {
-	sprintf(Message,"Default velocity should be in range 1..127 (typ. 64). Can't accept %ld",
+	sprintf(Message,"=> Default velocity should be in range 1..127 (typ. 64). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
@@ -1837,7 +1835,7 @@ DeftVelocity = i;
 GetField(DefaultPerformanceValuesPtr,TRUE,-1,fDeftPanoramic,line,&p,&q);
 i = p / q;
 if(i < 0 || i > 127) {
-	sprintf(Message,"Default panoramic should be in range 0..127 (typ. 64). Can't accept %ld",
+	sprintf(Message,"=> Default panoramic should be in range 0..127 (typ. 64). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
@@ -1850,7 +1848,7 @@ DeftPanoramic = i;
 GetField(DefaultPerformanceValuesPtr,TRUE,-1,fPanoramicController,line,&p,&q);
 i = p / q;
 if(i < 0 || i > 127) {
-	sprintf(Message,"Panoramic control index should be in range 0..127 (typ. 10). Can't accept %ld",
+	sprintf(Message,"=> Panoramic control index should be in range 0..127 (typ. 10). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
@@ -1863,7 +1861,7 @@ PanoramicController = i;
 GetField(DefaultPerformanceValuesPtr,TRUE,-1,fVolumeController,line,&p,&q);
 i = p / q;
 if(i < 0 || i > 127) {
-	sprintf(Message,"Volume control index should be in range 0..127 (typ. 7). Can't accept %ld",
+	sprintf(Message,"=> Volume control index should be in range 0..127 (typ. 7). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
@@ -1876,7 +1874,7 @@ VolumeController = i;
 GetField(DefaultPerformanceValuesPtr,TRUE,-1,fSamplingRate,line,&p,&q);
 i = p / q;
 if(i < 1 || i > 500) {
-	sprintf(Message,"Default sample rate should be in range 1..500 (typ. 50). Can't accept %ld",
+	sprintf(Message,"=> Default sample rate should be in range 1..500 (typ. 50). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));

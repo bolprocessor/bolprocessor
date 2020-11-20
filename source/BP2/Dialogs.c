@@ -296,7 +296,7 @@ if(w == wControlPannel) {
 				}
 			break;
 		case bMute:
-			if(!Oms && !NEWTIMER) Alert1("'Mute' only works when Opcode OMS is active");
+			if(!Oms && !NEWTIMER) Alert1("=> 'Mute' only works when Opcode OMS is active");
 			else {
 				Mute = 1 - Mute;
 				MaintainMenus();
@@ -306,15 +306,15 @@ if(w == wControlPannel) {
 			break;
 		case dRepeatComputation:
 			if(ProduceStackDepth == -1) {
-				Alert1("Can't repeat... Decisions are lost!");
+				Alert1("=> Can't repeat... Decisions are lost!");
 				return(DONE);
 				}
 			if(ProduceStackDepth < 2) {
-				Alert1("Can't repeat... No item produced");
+				Alert1("=> Can't repeat... No item produced");
 				return(DONE);
 				}
 			if(CompileOn) {
-				Alert1("Can't repeat while compiling");
+				Alert1("=> Can't repeat while compiling");
 				return(DONE);
 				}
 			if(!CompiledAl || !CompiledGr) {
@@ -416,7 +416,7 @@ QUIT:		Improvize = improvizemem;
 			ResetMIDIControllers(YES,YES,NO); break;
 		case bMIDIpanic:
 			if(!IsMidiDriverOn()) {
-				Alert1("MIDI output is inactive (check the 'Devices' menu)");
+				Alert1("=> MIDI output is inactive");
 				return(DONE);
 				}
 #if WITH_REAL_TIME_MIDI
@@ -505,7 +505,7 @@ if(w == wTimeBase) {
 			return(DONE);
 		case dCaptureTicks:
 			if(!OutMIDI) {
-				Alert1("Can't capture ticks because MIDI output is not active");
+				Alert1("=> Can't capture ticks because MIDI output is not active");
 				return(DONE);
 				}
 #if WITH_REAL_TIME_MIDI
@@ -518,7 +518,7 @@ if(w == wTimeBase) {
 			break;
 		case dPlayTicks:
 			if(!PlayTicks && !OutMIDI) {
-				Alert1("Can't play ticks because MIDI output is not active");
+				Alert1("=> Can't play ticks because MIDI output is not active");
 				return(DONE);
 				}
 #if WITH_REAL_TIME_MIDI
@@ -803,7 +803,7 @@ if(thedialog == MIDIprogramPtr) {
 	if(GetField(MIDIprogramPtr,TRUE,-1,fMIDIchannel,line,&p,&q) == OK) {
 		if(p/q < 1 || p/q > MAXCHAN) {
 			sprintf(Message,
-				"MIDI channel range is 1..%ld. Can't accept %ld",(long)MAXCHAN,(long)(p/q));
+				"=> MIDI channel range is 1..%ld. Can't accept %ld",(long)MAXCHAN,(long)(p/q));
 			Alert1(Message);
 			SetField(MIDIprogramPtr,-1,fMIDIchannel,"[?]");
 			SelectField(MIDIprogramPtr,-1,fMIDIchannel,TRUE);
@@ -1069,7 +1069,7 @@ if(thedialog == CsoundInstrMorePtr) {
 			for(ip=0; ip < (*p_CsInstrument)[iCsoundInstrument].ipmax; ip++) {
 				if(itemHit == (bMULTval + (2*ip))) {
 					if(fabs((*((*p_CsInstrument)[iCsoundInstrument].paramlist))[ip].defaultvalue) < 0.01) {
-						Alert1("Can't set parameter to multiplicative mode because its default value is close to zero");
+						Alert1("=> Can't set parameter to multiplicative mode because its default value is close to zero");
 						return(DONE);
 						}
 					(*((*p_CsInstrument)[iCsoundInstrument].paramlist))[ip].combinationtype
@@ -1116,11 +1116,11 @@ if(w == wPrototype1) {
 			if(CheckiProto() != OK) return(DONE);
 			if(GetPrototype(TRUE) != OK) return(DONE);
 			if((*p_MIDIsize)[iProto] == ZERO) {
-				Alert1("This sound-object contains no MIDI message");
+				Alert1("=> This sound-object contains no MIDI message");
 				return(DONE);
 				}
 			if(!((*p_Type)[iProto] & 1)) {
-				Alert1("Can't play this sound-object unless 'MIDI sequence' is checked");
+				Alert1("=> Can't play this sound-object unless 'MIDI sequence' is checked");
 				return(DONE);
 				}
 			pclock = (unsigned long) Pclock; qclock = (unsigned long) Qclock;
@@ -1224,7 +1224,7 @@ if(w == wPrototype1) {
 				}
 			else {
 				if((*p_MIDIsize)[iProto] == ZERO) {
-					Alert1("This sound-object does not contain MIDI messages");
+					Alert1("=> This sound-object does not contain MIDI messages");
 					return(DONE);
 					}
 				(*p_Type)[iProto] |= 1;
@@ -1242,14 +1242,14 @@ if(w == wPrototype1) {
 			if(CheckiProto() != OK) return(DONE);
 			if((*p_Type)[iProto] & 4) {
 				if((*p_CsoundSize)[iProto] > ZERO) {
-					Alert1("This sound-object contains a Csound score and must remain declared as 'Csound'");
+					Alert1("=> This sound-object contains a Csound score and must remain declared as 'Csound'");
 					return(DONE);
 					}
 				(*p_Type)[iProto] &= (255-4);
 				}	
 			else {
 				if((*p_CsoundSize)[iProto] <= ZERO) {
-					Alert1("This sound-object does not contain a Csound score. Click 'Csound' to create it");
+					Alert1("=> This sound-object does not contain a Csound score");
 					return(DONE);
 					}
 				(*p_Type)[iProto] |= 4;
@@ -1296,11 +1296,11 @@ if(w == wPrototype1) {
 			if(CheckiProto() != OK) return(DONE);
 			if(GetPrototype(TRUE) != OK) return(DONE);
 			if((*p_MIDIsize)[iProto] == ZERO) {
-				Alert1("This sound-object contains no MIDI message");
+				Alert1("=> This sound-object contains no MIDI message");
 				return(DONE);
 				}
 			if(!((*p_Type)[iProto] & 1)) {
-				Alert1("Can't convert this sound-object unless 'MIDI sequence' is checked");
+				Alert1("=> Can't convert this sound-object unless 'MIDI sequence' is checked");
 				return(DONE);
 				}
 			if(!IsEmpty(wPrototype7))
@@ -1475,7 +1475,7 @@ IMPORT:
 				if((diff = MyHandlecmp((*p_Bol)[j],h)) == 0) break;
 				}
 			if(!diff) {
-				Alert1("This name is already assigned to a sound-object. Use the 'Goto...' button");
+				Alert1("=> This name is already assigned to a sound-object. Use the 'Goto...' button");
 				goto EXITNAME;
 				}
 			Jbol++;
@@ -1534,7 +1534,7 @@ if(w == wPrototype2) {
 			if(GetField(NULL,TRUE,w,fMinDilationRatio,line,&p,&q) == OK)
 				(*p_AlphaMin)[iProto] = ((float)p)/q;
 			else {
-				Alert1("Minimum duration ratio is not specified");
+				Alert1("=> Minimum duration ratio is not specified");
 				SetField(NULL,w,fMinDilationRatio,"[?]");
 				SelectField(NULL,w,fMinDilationRatio,TRUE);
 				return(DONE);
@@ -1542,7 +1542,7 @@ if(w == wPrototype2) {
 			if(GetField(NULL,TRUE,w,fMaxDilationRatio,line,&p,&q) == OK)
 				(*p_AlphaMax)[iProto] = ((float)p)/q;
 			else {
-				Alert1("Maximum duration ratio is not specified");
+				Alert1("=> Maximum duration ratio is not specified");
 				SetField(NULL,w,fMaxDilationRatio,"[?]");
 				SelectField(NULL,w,fMinDilationRatio,TRUE);
 				return(DONE);
@@ -1873,7 +1873,7 @@ if(w == wPrototype4) {
 			(*p_PostRollMode)[iProto] = ABSOLUTE;
 			GetField(NULL,TRUE,w,fPostRollms,line,&p,&q);
 			if(p/q >= (*p_Dur)[iProto]) {
-				sprintf(Message,"Pre-roll can't exceed object duration. Value '%ld' rejected",
+				sprintf(Message,"=> Pre-roll can't exceed object duration. Value '%ld' rejected",
 					p/q);
 				Alert1(Message);
 				p = ZERO; q = 1L;
@@ -1886,7 +1886,7 @@ if(w == wPrototype4) {
 			(*p_PostRollMode)[iProto] = RELATIVE;
 			GetField(NULL,TRUE,w,fPostRollPC,line,&p,&q);
 			if((((double) p) / q) >= 100.) {
-				sprintf(Message,"Pre-roll can't exceed object duration. Value '%.2f' rejected",
+				sprintf(Message,"=> Pre-roll can't exceed object duration. Value '%.2f' rejected",
 					(((double) p) / q));
 				Alert1(Message);
 				p = ZERO; q = 1L;
@@ -1942,21 +1942,21 @@ if(w == wPrototype8) {
 			break;
 		case bForceCurrInstrument:
 			if((*p_CsoundSize)[iProto] <= ZERO) {
-				Alert1("This sound-object does not contain a Csound score");
+				Alert1("=> This sound-object does not contain a Csound score");
 				return(DONE);
 				}
 			(*p_CsoundInstr)[iProto] = 0;
 			break;
 		case bDontChangeInstrument:
 			if((*p_CsoundSize)[iProto] <= ZERO) {
-				Alert1("This sound-object does not contain a Csound score");
+				Alert1("=> This sound-object does not contain a Csound score");
 				return(DONE);
 				}
 			(*p_CsoundInstr)[iProto] = -1;
 			break;
 		case bForceToInstrument:
 			if((*p_CsoundSize)[iProto] <= ZERO) {
-				Alert1("This sound-object does not contain a Csound score");
+				Alert1("=> This sound-object does not contain a Csound score");
 				return(DONE);
 				}
 			if(GetField(NULL,TRUE,w,fForceToInstrument,line,&p,&q) == OK
@@ -2024,13 +2024,13 @@ if(w == wPrototype5) {
 			if(GetCtrlValue(wPrototype5,bStriatedObject) > 0) {
 				GetField(NULL,TRUE,wPrototype5,fTref,line,&p,&q);
 				if(((float)p)/q < EPSILON) {
-					Alert1("Tref should be positive if object is striated");
+					Alert1("=> Tref should be positive if object is striated");
 					ToggleButton(w,bStriatedObject);
 					}
 				else (*p_Tref)[iProto] = p/q;
 				}
 			else {
-				if(Answer("Making this object 'smooth' will suppress its pivot. Do you want it",
+				if(Answer("=> Making this object 'smooth' will suppress its pivot. Do you want it",
 					'Y') != OK) ToggleButton(w,bStriatedObject);
 				}
 			if(GetPrototype(YES) != OK) return(DONE);
@@ -2049,20 +2049,20 @@ if(w == wPrototype5) {
 			if(GetField(NULL,TRUE,wPrototype5,fMinVelocity,line,&p,&q) != OK) break;
 			vmin = p/q;
 			if(vmin < 0 || vmin > 127) {
-				sprintf(Message,"Velocity range is 0..127. Can't accept %ld",(long)vmin);
+				sprintf(Message,"=> Velocity range is 0..127. Can't accept %ld",(long)vmin);
 				Alert1(Message);
 				break;
 				}
 			if(GetField(NULL,TRUE,wPrototype5,fMaxVelocity,line,&p,&q) != OK) break;
 			vmax = p/q;
 			if(vmax < 0 || vmax > 127) {
-				sprintf(Message,"Velocity range is 0..127. Can't accept %ld",(long)vmax);
+				sprintf(Message,"=> Velocity range is 0..127. Can't accept %ld",(long)vmax);
 				Alert1(Message);
 				break;
 				}
 			if(vmin > vmax) {
 				sprintf(Message,
-					"Max velocity should be larger or equal to minimum. Can't accept range %ld..%ld",
+					"=> Max velocity should be larger or equal to minimum. Can't accept range %ld..%ld",
 					(long)vmin,(long)vmax);
 				Alert1(Message);
 				break;
@@ -2077,7 +2077,7 @@ if(w == wPrototype5) {
 				(*p_Quan)[iProto] = ((double)(*p_Tref)[iProto] * q) / p;
 				if(QuantizeNoteOn(iProto) == OK) UpdateDirty(TRUE,w);
 				}
-			else Alert1("Quantization should first be specified");
+			else Alert1("=> Quantization should first be specified");
 			break;
 		case bExpandDurations:
 			GetField(NULL,TRUE,wPrototype5,fExpandDurationsFractionBeat,line,&p,&q);
@@ -2086,7 +2086,7 @@ if(w == wPrototype5) {
 				if(ExpandDurations(iProto,(Milliseconds)((*p_Tref)[iProto] * q) / p) == OK)
 					UpdateDirty(TRUE,w);
 				}
-			else Alert1("Minimum duration should first be specified");
+			else Alert1("=> Minimum duration should first be specified");
 			break;
 		case bMakeMonodic:
 			if(GetDialogValues(w) != OK) return(DONE);
@@ -2130,14 +2130,14 @@ if(w == wPrototype5) {
 				if(InsertSilence(iProto,(Milliseconds) p/q) == OK) UpdateDirty(TRUE,w);
 				ClearWindow(NO,wNotice);
 				}
-			else Alert1("Duration of silence should be specified");
+			else Alert1("=> Duration of silence should be specified");
 			break;
 		case bAppendSilence:
 			if(GetField(NULL,TRUE,wPrototype5,fAppendSilence,line,&p,&q) == OK) {
 				if(AppendSilence(iProto,(Milliseconds) p/q) == OK) UpdateDirty(TRUE,w);
 				ClearWindow(NO,wNotice);
 				}
-			else Alert1("Duration of silence should be specified");
+			else Alert1("=> Duration of silence should be specified");
 			break;
 			
 		case bCopyFrom5:

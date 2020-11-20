@@ -74,7 +74,7 @@ BPActivateWindow(SLOW,wScriptDialog);
 BPActivateWindow(SLOW,w);
 if(SaveCheck(w) == ABORT) goto QUIT1;
 if(FileName[w][0] == '\0') {
-	Alert1("You should first load a script or save the current one");
+	Alert1("=> You should first load a script or save the current one");
 	goto QUIT1;
 	}
 

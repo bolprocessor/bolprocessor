@@ -114,7 +114,7 @@ if(WriteMIDIfile && (FileWriteMode == NOW || !OutMIDI) && !ItemCapture)
 	MIDIfileOn = TRUE;
 
 if(!cswrite && !OutMIDI && !MIDIfileOn && !ShowGraphic && !showpianoroll) {
-	BPPrintMessage(odInfo, "Cancelling MakeSound()\n");
+	BPPrintMessage(odInfo, "=> Cancelling MakeSound()\n");
 	return(OK);
 	}
 
@@ -146,14 +146,14 @@ Ke = log((double) SpeedRange) / 64.;
 t0 = ZERO;
 if(*p_kmax >= Maxevent) {
 //	if(Beta) Alert1("kmax >= Maxevent. Err. MakeSound()");
-	BPPrintMessage(odInfo,"kmax >= Maxevent. Err. MakeSound()\n");
+	BPPrintMessage(odInfo,"=> kmax >= Maxevent. Err. MakeSound()\n");
 	return(ABORT);
 	}
 
 maxconc = maxnsequences;
 if(Beta && maxconc > Maxconc) {
 //	Alert1("maxconc > Maxconc. Err. MakeSound()");
-	BPPrintMessage(odInfo,"maxconc > Maxconc. Err. MakeSound()\n");
+	BPPrintMessage(odInfo,"=> maxconc > Maxconc. Err. MakeSound()\n");
 	}
 
 if((p_control=(ContinuousControl**)GiveSpace(maxconc*sizeof(ContinuousControl))) == NULL)
@@ -216,7 +216,7 @@ t11 = t22 = Infpos;
 for(k=2; k <= (*p_kmax); k++) {
 	j = (*p_Instance)[k].object;
 	if(j == 0) continue;
-	sprintf(Message,"Jbol = %ld, k = %ld -> j = %ld\n",(long)Jbol,(long)k,(long)j);
+//	sprintf(Message,"Jbol = %ld, k = %ld -> j = %ld\n",(long)Jbol,(long)k,(long)j);
 //	BPPrintMessage(odInfo,Message);
 	if(j >= Jbol && j < 16384) { // Time pattern;
 		(*p_inext1)[k] = 0;
@@ -444,7 +444,7 @@ if(showpianoroll) {
 	sprintf(Message,"WidthMax (3) = %ld\n",WidthMax);
 //	BPPrintMessage(odInfo,Message);
 	if(WidthMax > 32767) {
-		BPPrintMessage(odInfo,"\nImage width %d is too large: it will be set to 32767\n",WidthMax);
+		BPPrintMessage(odInfo,"\n=> Image width %d is too large: it will be set to 32767\n",WidthMax);
 		WidthMax = 32767;
 		}
 	
@@ -480,7 +480,7 @@ if(!MIDIfileOn && !cswrite && OutMIDI && !ItemCapture && !FirstTime && !PlayProt
 #if WITH_REAL_TIME_MIDI
 	if(OkWait && SynchronizeStart) {
 #if !BP_CARBON_GUI
-		FlashInfo("Synchronized start is not currently enabled in non-Carbon builds!");
+		FlashInfo("=> Synchronized start is not currently enabled in non-Carbon builds!");
 #else
 		drivertime = GetDriverTime();
 		if(ShowMessages && (Tcurr > drivertime))
@@ -571,7 +571,7 @@ START2:
 if(cswrite) {
 	if((result=CompileCsoundObjects()) != OK) goto OVER;
 	if(Jinstr == 1 && (*p_CsInstrumentIndex)[0] == -1) {
-		ShowMessage(TRUE,wMessage,"Couldn't find Csound instrument index. Index '1' will be assigned by default.");
+		ShowMessage(TRUE,wMessage,"=> Couldn't find Csound instrument index. Index '1' will be assigned by default.");
 		WaitABit(1000L);
 		}
 		
@@ -1476,7 +1476,7 @@ PLAYOBJECT:
 				if(c0 == NoteOn  || c0 == NoteOff) {
 					if(j < 16384) {
 						if(j >= Jbol) { // Time pattern
-							sprintf(Message,"MakeSound(): found time pattern: j = %ld, t1 = %ld, t2 = %ld\n",(long)j,(long)t1,(long)t2);
+							sprintf(Message,"=> Error MakeSound(): found time pattern: j = %ld, t1 = %ld, t2 = %ld\n",(long)j,(long)t1,(long)t2);
 							BPPrintMessage(odInfo,Message);
 							sequence = 0;
 							c0 = 0;
@@ -2218,7 +2218,7 @@ int x;
 if(ch < 0) ch += 256;
 if(ch < 128) {
 	if(ch > MAXCHAN) {
-		sprintf(Message,"Trying to assign channel #%ld.\nValue should be 1..%ld",
+		sprintf(Message,"=> Trying to assign channel #%ld.\nValue should be 1..%ld",
 			(long)ch,(long)MAXCHAN);
 	//	Alert1(Message);
 		return(ABORT);
@@ -2228,7 +2228,7 @@ if(ch < 128) {
 /* Channel is determined by Kx */
 x = ch - 128;
 if(x < 1 || x >= MAXPARAMCTRL) {
-	sprintf(Message,"Trying to fix channel with incorrect K%ld.\nValue should be 1..%ld",
+	sprintf(Message,"=> Trying to fix channel with incorrect K%ld.\nValue should be 1..%ld",
 		(long)x,(long)MAXPARAMCTRL-1L);
 	// Alert1(Message);
 	return(ABORT);
@@ -2236,16 +2236,16 @@ if(x < 1 || x >= MAXPARAMCTRL) {
 ch = ParamValue[x];
 if(ch < 1 || ch > MAXCHAN) {
 	if(ParamControl[x] >= 0) {
-		sprintf(Message,"Trying to assign channel #%ld by K%ld (MIDI controller #%ld).\nValue should be 1..%ld",
+		sprintf(Message,"=> Trying to assign channel #%ld by K%ld (MIDI controller #%ld).\nValue should be 1..%ld",
 			(long)ch,(long)x,(long)ParamControl[x],(long)MAXCHAN);
 		}
 	else {
 		if(ParamKey[x] >= 0) {
-			sprintf(Message,"Trying to assign channel #%ld by K%ld (Key #%ld).\nValue should be 1..%ld",
+			sprintf(Message,"=> Trying to assign channel #%ld by K%ld (Key #%ld).\nValue should be 1..%ld",
 				(long)ch,(long)x,(long)ParamKey[x],(long)MAXCHAN);
 			}
 		else {
-		sprintf(Message,"Trying to assign channel #%ld by K%ld.\nValue should be 1..%ld",
+		sprintf(Message,"=> Trying to assign channel #%ld by K%ld.\nValue should be 1..%ld",
 			(long)ch,(long)x,(long)MAXCHAN);
 			}
 		}

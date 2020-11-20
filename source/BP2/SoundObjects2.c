@@ -1026,7 +1026,7 @@ int c;
 
 c = 0;
 if(*p_q == ZERO || (c = *p_p / *p_q) < 1 || c > MAXCHAN) {
-	sprintf(Message,"MIDI channel should be in range 1..%ld. Can't accept %ld",
+	sprintf(Message,"=> MIDI channel should be in range 1..%ld. Can't accept %ld",
 		(long)MAXCHAN,(long)c);
 	Alert1(Message);
 	*p_p = *p_q = 1;

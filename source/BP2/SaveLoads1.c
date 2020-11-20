@@ -1064,7 +1064,7 @@ p_line = p_completeline = NULL;
 
 csfile = fopen(FileName[wCsoundInstruments],"r");
 if(csfile == NULL) {
-	BPPrintMessage(odError,"=> Could not open Csound instruments file %s\n",FileName[wCsoundInstruments]);
+	BPPrintMessage(odError,"=> Could not open Csound resource file %s\n",FileName[wCsoundInstruments]);
 	return FAILED;
 	}
 	
@@ -1105,7 +1105,7 @@ for(j=0; j < jmax; j++) {
 	if((*p_completeline)[0] != '\0') {
 		MystrcpyHandleToString(MAXLIN,0,LineBuff,p_completeline);
 	//	if(ShowMessages) ShowMessage(TRUE,wMessage,LineBuff);
-		BPPrintMessage(odInfo,"Loading Csound instrument %d = %s\n",(j+1),LineBuff);
+		BPPrintMessage(odInfo,"Loading Csound resource %d = %s\n",(j+1),LineBuff);
 		if(MySetHandleSize((Handle*)&ptr,
 			(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
 				goto ERR;
@@ -1364,7 +1364,7 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 goto QUIT;
 
 ERR:
-BPPrintMessage(odInfo,"=> Error reading '%s' Csound instrument file...\n",FileName[wCsoundInstruments]);
+BPPrintMessage(odInfo,"=> Error reading '%s' Csound resource file...\n",FileName[wCsoundInstruments]);
 // FileName[wCsoundInstruments][0] = '\0';
 
 QUIT:
@@ -1536,7 +1536,7 @@ UseTextColor = (j > 0);
 if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR;
 if(k < 100) k = 1000;
 DeftBufferSize = BufferSize = k;
-BPPrintMessage(odInfo, "Default buffer size = %ld symbols\n", DeftBufferSize);
+// BPPrintMessage(odInfo, "Default buffer size = %ld symbols\n", DeftBufferSize);
 if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 UseGraphicsColor = (j > 0);
 if(ForceTextColor == 1) UseTextColor = TRUE;
@@ -2078,7 +2078,7 @@ MinTclockKey = s; else goto ERR;
 if(ReadInteger(refnum,&s,&pos) != FAILED)
 MaxTclockKey = s; else goto ERR;
 if(MinTclockKey != -1 && MinTclockKey == MaxTclockKey) {
-	Alert1("Lower and higher tempo-adjustment keys should be different");
+	Alert1("=> Lower and higher tempo-adjustment keys should be different");
 	goto ERR;
 	}
 if(iv < 4) {
@@ -2774,7 +2774,7 @@ fscanf(mifile, "%[^\n]",line2); // Necessary to read a line that might be empty
 
 if(show_details_load_prototypes) BPPrintMessage(odError, "Line = %s\n",line2);
 if(strlen(line2) > 0) {
-	BPPrintMessage(odInfo,"Trying to load Csound instruments %s\n",line2);
+	BPPrintMessage(odInfo,"Trying to load Csound resource %s\n",line2);
 	
 	name_of_file = strrchr(FileName[iObjects],'/');
 	sprintf(Message,"%s%s","/",line2);

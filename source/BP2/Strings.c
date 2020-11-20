@@ -177,9 +177,9 @@ if(p_t == NULL) {
 	return(OK);
 	}
 i = 0;
-while((c = (*p_t)[offset++]) != '\0' && i < imax)
+while((c = (*p_t)[offset++]) != '\0' && (i < imax || imax == 0))
 	s[i++] = c;
-if (i >= imax) i = imax - 1;
+if (i >= imax && imax > 0) i = imax - 1;
 s[i] = '\0';	/* The content might get truncated */
 
 return(OK);

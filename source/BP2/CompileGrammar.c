@@ -656,7 +656,7 @@ for(igram=1; igram <= Gram.number_gram; igram++) {
 			if((i=(*(Gram.p_subgram))[igram].type) == SUBtype ||
 					i == SUB1type || i == POSLONGtype) {
 				sprintf(Message,
-					"gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
+					"=> gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
 					(long)igram,*((*p_GramProcedure)[2]));
 				N_err++;
 				Print(wTrace,Message);
@@ -668,7 +668,7 @@ for(igram=1; igram <= Gram.number_gram; igram++) {
 			if((i=(*(Gram.p_subgram))[igram].type) == SUBtype ||
 					i == SUB1type || i == POSLONGtype) {
 				sprintf(Message,
-					"gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
+					"=> gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
 					(long)igram,*((*p_GramProcedure)[0]));
 				N_err++;
 				Print(wTrace,Message);
@@ -714,7 +714,7 @@ for(igram=1; igram <= Gram.number_gram; igram++) {
 			if((i=(*(Gram.p_subgram))[igram].type) == SUBtype ||
 					i == SUB1type || i == POSLONGtype) {
 				sprintf(Message,
-					"gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
+					"=> gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
 					(long)igram,*((*p_GramProcedure)[1]));
 				N_err++;
 				Print(wTrace,Message);
@@ -1642,7 +1642,7 @@ if(beforefirstrule && irul == 0) {
 						break;
 					case 13:	/* _mm */
 						if(!NotFoundMetronom) {
-							Println(wTrace,"Instruction '_mm()' should not appear more than once in the grammar");
+							Println(wTrace,"=> Instruction '_mm()' should not appear more than once in the grammar");
 							return(7);
 							}
 						NotFoundMetronom = FALSE;
@@ -1651,7 +1651,7 @@ if(beforefirstrule && irul == 0) {
 					case 14:	/* _striated */
 					case 15:	/* _smooth */
 						if(!NotFoundNatureTime) {
-							Println(wTrace,"Instruction '_smooth' or '_striated' should not appear more than once in the grammar");
+							Println(wTrace,"=> Instruction '_smooth' or '_striated' should not appear more than once in the grammar");
 							return(7);
 							}
 						NotFoundNatureTime = FALSE;
@@ -1666,7 +1666,7 @@ if(beforefirstrule && irul == 0) {
 		}
 	if(proc) {
 		if(((c=NextChar(ptr)) != '\0') && c != '[') {
-			Print(wTrace,"This line should contain only procedures\n");
+			Print(wTrace,"=> This line should contain only procedures\n");
 			return(7);
 			}
 		else return(0);

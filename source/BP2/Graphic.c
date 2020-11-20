@@ -122,7 +122,7 @@ if(WidthMax < 32767) WidthMax = 2 * endxmax + 40;
 sprintf(Message,"WidthMax (2) = %ld\n",WidthMax);
 //	BPPrintMessage(odInfo,Message);
 if(WidthMax > 32767) {
-	BPPrintMessage(odInfo,"\nImage width %d is too large: it will be set to 32767\n",WidthMax);
+	BPPrintMessage(odInfo,"\n=> Image width %d is too large: it will be set to 32767\n",WidthMax);
 	WidthMax = 32767;
 	}
 
@@ -334,7 +334,7 @@ if(WidthMax < 32767) WidthMax = 2 * endxmax + 40;
 sprintf(Message,"WidthMax (1) = %ld\n",WidthMax);
 //	BPPrintMessage(odInfo,Message);
 if(WidthMax > 32767) {
-	BPPrintMessage(odInfo,"\nImage width %d is too large: it will be set to 32767\n",WidthMax);
+	BPPrintMessage(odInfo,"\n=> Image width %d is too large: it will be set to 32767\n",WidthMax);
 	WidthMax = 32767;
 	}
 
@@ -342,7 +342,7 @@ if(HeightMax < 32767) HeightMax = 2 * endymax + 20;
 sprintf(Message,"HeightMax (1) = %ld\n",HeightMax);
 // BPPrintMessage(odInfo,Message);
 if(HeightMax > 32767) {
-	BPPrintMessage(odInfo,"\nImage height %d is too large: it will be set to 32767\n",HeightMax);
+	BPPrintMessage(odInfo,"\n=> Image height %d is too large: it will be set to 32767\n",HeightMax);
 	HeightMax = 32767;
 	}
 
@@ -1324,15 +1324,15 @@ text_style(htext,"arial");
 
 
 ymax = p_r->bottom;
-if(TRUE || ShowPianoRoll) {
+// if(TRUE || ShowPianoRoll) {
 	if(HeightMax < 32767) HeightMax = 2 * ymax + 20;
-	sprintf(Message,"HeightMax (2) = %ld\n",HeightMax);
+//	sprintf(Message,"HeightMax (2) = %ld\n",HeightMax);
 //	BPPrintMessage(odInfo,Message);
 	if(HeightMax > 32767) {
-		BPPrintMessage(odInfo,"\nImage height %d is too large: it will be set to 32767\n",HeightMax);
+		BPPrintMessage(odInfo,"\n=> Image height %d is too large: it has been cropped to 32767\n",HeightMax);
 		HeightMax = 32767;
 		}
-	}
+//	}
 
 // Draw scale ruler
 x = 5. * ((double) GraphicScaleQ) / GraphicScaleP;	/* Duration on 500 pixels */
@@ -1360,7 +1360,7 @@ y = (*p_yruler) = p_r->top + htext + 6;
 pen_size(1,0);
 draw_line(leftoffset,y,xmax,y,"");
 p = 50. / x;
-for(i=j=0; ; i++,j++) {
+for(i = j = 0; ; i++,j++) {
 	t1 = leftoffset + (int) Round(i * p);
 	if(t1 > xmax) break;
 	switch(j) {
@@ -1393,13 +1393,11 @@ for(i = 1; ; i++) {
 	if(t2 > xmax) break;
 	if(t1 > tmem2) {
 		fill_text(line,t1,y);
-	//	tmem2 = t2 + 48;
 		tmem2 = t2 + 7 * strlen(line);
 		}
 	}
 
 // Draw time streaks
-
 if(PlayPrototypeOn) goto ENDSTREAKS;
 y = p_r->top + topoffset - hrect;
 xmax -= 40;
@@ -1516,28 +1514,38 @@ char line[20];
 pen_size(2,0);
 xmin = p_r->left + 41;
 xmax = p_r->right - 28;
-stroke_style("rgb(0,117,117)");
-fill_style("black");
-text_style(11,"arial");
-for(key=0; key < 128; key+=12) {
-	if(key < minkey || key > maxkey) continue;
-	y = (maxkey - key) * hrect + topoffset;
-	// sprintf(line,"C%ld",(long)((key - (key % 12))/12)-1L);
-	PrintNote(-1,key,0,-1,line);
-	fill_text(line,2,y + 3);
-	fill_text(line,xmax+ 7,y + 3);
-	draw_line(xmin,y,xmax,y,"");
+if(NoteConvention > 3) {
+	stroke_style("rgb(186,186,0)");
+	fill_style("rgb(186,186,0)");
+	for(key=6; key < 128; key+=2) {
+		if(key < minkey || key > maxkey) continue;
+		y = (maxkey - key) * hrect + topoffset;
+		PrintNote(-1,key,0,-1,line);
+		draw_line(xmin,y,xmax,y,"");
+		}
 	}
-stroke_style("rgb(186,186,0)");
-fill_style("rgb(186,186,0)");
-for(key=6; key < 128; key+=12) {
-	if(key < minkey || key > maxkey) continue;
-	y = (maxkey - key) * hrect + topoffset;
-	// sprintf(line,"F#%ld",(long)((key - (key % 12))/12)-1L);
-	PrintNote(-1,key,0,-1,line);
-	fill_text(line,2,y + 3);
-	fill_text(line,xmax + 7,y + 3);
-	draw_line(xmin,y,xmax,y,"");
+else {
+	stroke_style("rgb(0,117,117)");
+	fill_style("black");
+	text_style(11,"arial");
+	for(key=0; key < 128; key+=12) {
+		if(key < minkey || key > maxkey) continue;
+		y = (maxkey - key) * hrect + topoffset;
+		PrintNote(-1,key,0,-1,line);
+		fill_text(line,2,y + 3);
+		fill_text(line,xmax+ 7,y + 3);
+		draw_line(xmin,y,xmax,y,"");
+		}
+	stroke_style("rgb(186,186,0)");
+	fill_style("rgb(186,186,0)");
+	for(key=6; key < 128; key+=12) {
+		if(key < minkey || key > maxkey) continue;
+		y = (maxkey - key) * hrect + topoffset;
+		PrintNote(-1,key,0,-1,line);
+		fill_text(line,2,y + 3);
+		fill_text(line,xmax + 7,y + 3);
+		draw_line(xmin,y,xmax,y,"");
+		}
 	}
 text_style(12,"arial");
 stroke_style("black");

@@ -136,6 +136,7 @@ MaxConsoleTime = 120;
 Ratio = 0.;  Prod = 1.;
 N_image = 1; imagePtr = NULL;
 NumberScales = DefaultScale = 0; MaxScales = 2; Scale = NULL;
+ToldAboutScale = FALSE;
 TimeMax = MAXTIME; Nalpha = 100L; SpeedRange = 6.;
 CorrectionFactor = 1.;
 UserName[0] = UserInstitution[0] = '\0';
@@ -1348,7 +1349,7 @@ switch(id)
 		im = NUM_HTML_DIACRITICAL_STRS;
 		break;
 	default:
-		if (Beta) fprintf(stderr, "Warning! Bad STR# id in LoadStringResource().\n");
+		if (Beta) fprintf(stderr, "=> Warning! Bad STR# id in LoadStringResource().\n");
 		return FAILED;
 		break;
 }
@@ -1714,7 +1715,7 @@ if(!gestaltErr) {
 	/* Determine system version */
 	Gestalt(gestaltSystemVersion,&gestaltAnswer);
 	if(gestaltAnswer < 0x00000701) {
-		ParamText("\pSystem version is too old. BP2 requires at least MacOS version 7.1", "\p", "\p", "\p");
+		ParamText("\p=> System version is too old. BP2 requires at least MacOS version 7.1", "\p", "\p", "\p");
 		StopAlert(OKAlert, NULL);
 		return(FAILED);
 		}
@@ -1739,7 +1740,7 @@ if(!gestaltErr) {
 	
 	return(OK);
 	}
-ParamText("\pSystem version is too old. BP2 requires at least System 7.1", "\p", "\p", "\p");
+ParamText("\p=> System version is too old. BP2 requires at least System 7.1", "\p", "\p", "\p");
 StopAlert(OKAlert, NULL);
 return(FAILED);
 }
@@ -2230,7 +2231,7 @@ if(io == noErr) {
 	}
 else {
 	if(today < secs) {
-		Alert1("You should get the y2k certificate for this program.\nContact <bel@kagi.com>");
+		Alert1("=> You should get the y2k certificate for this program.\nContact <bel@kagi.com>");
 		}
 	}
 return(OK);

@@ -371,7 +371,7 @@ char DeftName[][MAXNAME] = {"New Grammar","New Alphabet",
 	"Random","Time accuracy","Time base","Buffer","Find","Graphic settings","Control",
 	"New Keyboard","Script","Metronom","\0","\0","New prototypes",
 	"\0","\0","\0","\0","Period","Csound object prototype","MIDI filter","Tick settings",
-	"Csound instruments","\0","\0","MIDI orchestra"};
+	"Csound resources","\0","\0","MIDI orchestra"};
 	/* See window and dialog indexes in -BP2.h */
 char WindowName[][MAXNAME] = {"Grammar","Alphabet","Start string",
 	"Message","Graphic","Trace","Info",

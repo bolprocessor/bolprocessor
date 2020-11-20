@@ -1311,7 +1311,7 @@ for(ip=0; ip < IPMAX; ip++) {
 	if(GetField(CsoundInstrMorePtr,TRUE,-1,fCsoundParameterGenType + (4*ip),line,&p,&q) == OK) {
 		index = p/q;
 /*		if(index != 7 && index != 8) {
-			sprintf(line,"GEN type should be either 7 or 8 (see Csound manual). Can't accept '%ld'",
+			sprintf(line,"=> GEN type should be either 7 or 8 (see Csound manual). Can't accept '%ld'",
 				(long)index);
 			Alert1(line);
 			SetField(CsoundInstrMorePtr,-1,fCsoundParameterGenType + (4*ip),"7");
@@ -2289,7 +2289,7 @@ return(OK);
 }
 
 
-int CreateMicrotonalScale(char* line, char* name, char* note_names) {
+int CreateMicrotonalScale(char* line, char* name, char* note_names) { // Should be placed somewhere else
 	// "line" contains the scale as defined in Csound GEN51 format
 	// note_names are ignored for the time being
 	char c, curr_arg[MAXLIN], label[MAXLIN], this_note[MAXLIN];
@@ -2389,7 +2389,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names) {
 	}
 
 
-double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
+double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) { // Should be placed somewhere else
 	int octave, pitchclass, blockkey_pitch_class, numgrades, C4_octave, basekey, basefreq_octave, delta_key;
 	double basefreq, pitch_ratio, basekey_pitch_ratio, blockkey_pitch_ratio, blockkey_correction, diapason_correction, interval, A4temp_freq_this_scale, x, x0, x1, x2;
 	
@@ -2405,6 +2405,12 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 	interval = (*Scale)[i_scale].interval; // Most often 2
 	basekey = (*Scale)[i_scale].basekey; // Starting point of scale ratios  (most often 60)
 	basefreq = (*Scale)[i_scale].basefreq; // Frequency of base key
+	
+	if(!ToldAboutScale) {
+		MystrcpyHandleToString(0,0,Message,(*Scale)[i_scale].label);
+		BPPrintMessage(odInfo,"\nCustom scale '%s' has been used for creating this Csound score\n",Message);
+		ToldAboutScale = TRUE;
+		}
 	
 	delta_key =  basekey - C4key; // C4key is in the settings (60 by default)
 	

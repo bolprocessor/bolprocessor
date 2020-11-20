@@ -55,7 +55,7 @@ if(!IsMidiDriverOn() || !TickThere || !PlayTicks || SoundOn || ComputeOn || Play
 #if WITH_REAL_TIME_MIDI
 if(Pclock < 1.) {
 	PlayTicks = FALSE;
-	Alert1("Can't play ticks because there is no clock");
+	Alert1("=> Can't play ticks because there is no clock");
 	ShowWindow(Window[wMetronom]);
 	BringToFront(Window[wMetronom]);
 	ResetTickFlag = TRUE;
@@ -467,14 +467,14 @@ PlayTicks = FALSE;
 rep = FAILED;
 
 if(Pclock < 1.) {	/* Non measured smooth time */
-	Alert1("Tick cycle cannot be captured because there is no clock");
+	Alert1("=> Tick cycle cannot be captured because there is no clock");
 #if BP_CARBON_GUI
 	mMetronom(Nw);
 #endif /* BP_CARBON_GUI */
 	goto OUT;
 	}
 if(!TickThere) {
-	Alert1("Tick cycle cannot be captured because no tick is active");
+	Alert1("=> Tick cycle cannot be captured because no tick is active");
 	goto OUT;
 	}
 if(Answer("Capture tick cycle as a MIDI stream and paste it later to a sound-object prototype",'Y')
@@ -502,7 +502,7 @@ if(ppqlcm == ZERO || overflow) {
 			im = i; qmax = Qtick[i];
 			}
 		}
-	sprintf(Message,"Combination of cycles is too complex. You should reduce '%ld'",
+	sprintf(Message,"=> Combination of cycles is too complex. You should reduce '%ld'",
 		(long)Qtick[im]);
 	Alert1(Message);
 #if BP_CARBON_GUI
@@ -588,14 +588,14 @@ oldp = Pclock; oldq = Qclock;
 
 if((rep=GetField(NULL,TRUE,wTimeBase,fP,line1,&pPclock,&qPclock)) != OK) goto OUT;
 if(pPclock < 0) {
-	sprintf(Message,"Can't accept negative values like '%s'",line1);
+	sprintf(Message,"=> Can't accept negative values like '%s'",line1);
 	Alert1(Message); rep = FAILED; goto OUT;
 	}
 if(pPclock < 1.) goto NOCLOCK;
 
 if((rep=GetField(NULL,TRUE,wTimeBase,fQ,line2,&pQclock,&qQclock)) != OK) goto OUT;
 if(pQclock < 0) {
-	sprintf(Message,"Can't accept negative values like '%s'",line2);
+	sprintf(Message,"=> Can't accept negative values like '%s'",line2);
 	Alert1(Message); rep = FAILED; goto OUT;
 	}
 if(pQclock == ZERO) goto NOCLOCK;
@@ -641,7 +641,7 @@ result = ABORT;
 for(i=0; i < MAXTICKS; i++) {
 	if(GetField(NULL,TRUE,wTimeBase,fPratio+5*i,line,&p,&q) == OK) {
 		if(p/q < 1L || q != 1) {
-			sprintf(Message,"Can't accept '%s' in speed ratio. Must be positive integer",
+			sprintf(Message,"=> Can't accept '%s' in speed ratio. Must be positive integer",
 				line);
 			Alert1(Message);
 			sprintf(line,"[?]");
@@ -661,7 +661,7 @@ for(i=0; i < MAXTICKS; i++) {
 	
 	if(GetField(NULL,TRUE,wTimeBase,fQratio+5*i,line,&p,&q) == OK) {
 		if(p/q < 1L || q != 1) {
-			sprintf(Message,"Can't accept '%s' in speed ratio. Must be positive integer",
+			sprintf(Message,"=> Can't accept '%s' in speed ratio. Must be positive integer",
 				line);
 			Alert1(Message);
 			sprintf(line,"[?]");
@@ -681,7 +681,7 @@ for(i=0; i < MAXTICKS; i++) {
 	
 	if(GetField(NULL,TRUE,wTimeBase,fTickKey+55*i,line,&p,&q) == OK) {
 		if(p/q < 0 || p/q > 127) {
-			sprintf(Message,"Tick key should be in range 0..127. Can't accept '%ld'",
+			sprintf(Message,"=> Tick key should be in range 0..127. Can't accept '%ld'",
 				(long)(p/q));
 			Alert1(Message);
 			sprintf(line,"[?]");
@@ -698,7 +698,7 @@ for(i=0; i < MAXTICKS; i++) {
 	
 	if(GetField(NULL,TRUE,wTimeBase,fTickChannel+55*i,line,&p,&q) == OK) {
 		if(p/q < 1 || p/q > 16) {
-			sprintf(Message,"Tick channel should be in range 1..16. Can't accept '%ld'",
+			sprintf(Message,"=> Tick channel should be in range 1..16. Can't accept '%ld'",
 				(long)(p/q));
 			Alert1(Message);
 			sprintf(line,"[?]");
@@ -715,7 +715,7 @@ for(i=0; i < MAXTICKS; i++) {
 	
 	if(GetField(NULL,TRUE,wTimeBase,fTickVelocity+55*i,line,&p,&q) == OK) {
 		if(p/q < 1 || p/q > 127) {
-			sprintf(Message,"Tick velocity should be in range 1..127. Can't accept '%ld'",
+			sprintf(Message,"=> Tick velocity should be in range 1..127. Can't accept '%ld'",
 				(long)(p/q));
 			Alert1(Message);
 			sprintf(line,"[?]");
@@ -738,7 +738,7 @@ for(i=0; i < MAXTICKS; i++) {
 			if(p/q < minduration || p/q > maxduration) {
 				ShowWindow(Window[wTimeAccuracy]);
 				BringToFront(Window[wTimeAccuracy]);
-				sprintf(Message,"Tick duration must be in range %ld .. %ldms.\n(See time resolution)\nCan't accept '%ld'",
+				sprintf(Message,"=> Tick duration must be in range %ld .. %ldms.\n(See time resolution)\nCan't accept '%ld'",
 					(long)minduration,(long)maxduration,(long)(p/q));
 				Alert1(Message);
 				if(p/q > maxduration) TickDuration[i] = maxduration;
@@ -758,7 +758,7 @@ for(i=0; i < MAXTICKS; i++) {
 	
 	if(GetField(NULL,TRUE,wTimeBase,fTickCycle+55*i,line,&p,&q) == OK) {
 		if(p/q < 1 || p/q > MAXBEATS) {
-			sprintf(Message,"Cycle should be in range 1..%ld. Can't accept '%ld'",
+			sprintf(Message,"=> Cycle should be in range 1..%ld. Can't accept '%ld'",
 				(long)MAXBEATS,(long)(p/q));
 			Alert1(Message);
 			sprintf(line,"[?]");
@@ -878,7 +878,7 @@ else {
 				im = i; qmax = Qtick[i];
 				}
 			}
-		sprintf(Message,"Combination of cycles is too complex. You should reduce '%ld'",
+		sprintf(Message,"=> Combination of cycles is too complex. You should reduce '%ld'",
 			(long)Qtick[im]);
 		Alert1(Message);
 #if BP_CARBON_GUI
