@@ -1054,6 +1054,9 @@ char **p_line,**p_completeline;
 double r;
 FILE* csfile;
 
+
+if(show_details_load_csound_instruments) BPPrintMessage(odInfo, "LoadCsoundInstruments(%d,%d)\n",checkversion,tryname);
+
 if(LoadedCsoundInstruments) return(OK);
 
 iCsoundInstrument = 0;
@@ -1092,11 +1095,11 @@ if(iv > 11) {
 else CsoundOrchestraName[0] = '\0';
 if(show_details_load_csound_instruments) BPPrintMessage(odInfo,"CsoundOrchestraName = %s\n",CsoundOrchestraName);
 if(ReadInteger(csfile,&jmax,&pos) == FAILED) goto ERR;
-if(jmax <= 0) {
+if(jmax < 0) {
 	BPPrintMessage(odError,"=> This file is empty or in an unknown format\n");
 	goto QUIT;
 	}
-if((result=ResizeCsoundInstrumentsSpace(jmax)) != OK) goto ERR;
+if(jmax > 0 && (result=ResizeCsoundInstrumentsSpace(jmax)) != OK) goto ERR;
 result = FAILED;
 for(j=0; j < jmax; j++) {
 	ResetCsoundInstrument(j,YES,YES);

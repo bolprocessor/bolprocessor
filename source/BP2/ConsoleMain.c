@@ -1015,7 +1015,7 @@ int LoadInputFiles(const char* pathnames[WMAX])
 					}
 					break;
 				case wCsoundInstruments: 
-					BPPrintMessage(odInfo, "Reading Csound instruments file %s (if not done)...\n", pathnames[w]);
+					BPPrintMessage(odInfo, "Reading Csound resources %s, if not done...\n", pathnames[w]);
 					strcpy(FileName[wCsoundInstruments],pathnames[w]);
 					result = LoadCsoundInstruments(0,1);
 					if(result != OK)  return result;

@@ -207,7 +207,7 @@ enum {
 #define HTMLTOKENLENGTH 80 /* estimated max length of html token */
 #define MAXINFOLENGTH 50	/* length of date message */
 #define MAXFIELDCONTENT 255	/* length of edit field in dialog window */
-#define MAXNAME 31		/* length of file name */
+#define MAXNAME 200		/* length of file name */
 #define MAXBOL 500		/* number of sound-objects */
 #define MAXSTRINGCONSTANTS 256	/* string constants */
 #define MAXNOTBPCASES 10	/* cases of non standard BP grammars */

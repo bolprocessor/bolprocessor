@@ -571,7 +571,7 @@ START2:
 if(cswrite) {
 	if((result=CompileCsoundObjects()) != OK) goto OVER;
 	if(Jinstr == 1 && (*p_CsInstrumentIndex)[0] == -1) {
-		ShowMessage(TRUE,wMessage,"=> Couldn't find Csound instrument index. Index '1' will be assigned by default.");
+		ShowMessage(TRUE,wMessage,"Couldn't find Csound instrument index. Index '1' will be assigned by default.");
 		WaitABit(1000L);
 		}
 		
