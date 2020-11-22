@@ -212,18 +212,18 @@ else {
 if(j < 1 || j >= Jbol) {
 	(*p_Instance)[k].transposition = p_currentparameters->currtranspose;
 	if(p_articul != NULL) {
-		if(p_currentparameters->currarticul >= 0)
+	//	if(p_currentparameters->currarticul >= 0)
 			(*p_articul)[k] = p_currentparameters->currarticul;
-		else (*p_articul)[k] = 256 + p_currentparameters->currarticul;
+	//	else (*p_articul)[k] = MAXINT + p_currentparameters->currarticul;
 		}
 	}
 else {
 	if((*p_OkTransp)[j]) (*p_Instance)[k].transposition = p_currentparameters->currtranspose;
 	if(p_articul != NULL) {
 		if((*p_OkArticul)[j]) {
-			if(p_currentparameters->currarticul >= 0)
+	//		if(p_currentparameters->currarticul >= 0)
 				(*p_articul)[k] = p_currentparameters->currarticul;
-			else (*p_articul)[k] = 256 + p_currentparameters->currarticul;
+	//		else (*p_articul)[k] = MAXINT + p_currentparameters->currarticul;
 			}
 		}
 	}
@@ -1411,7 +1411,7 @@ switch(m) {
 	case T32:
 	case T38:
 	case T39:
-		if(p >= 128 && m != T26) {
+		if(p >= 128 && m != T26 && (m != T20 || p < 0)) {
 			value = ParamValue[p-128];
 			if(value == INT_MAX) {
 				if(Beta) Alert1("=> Err. FindValue(). value == INT_MAX");

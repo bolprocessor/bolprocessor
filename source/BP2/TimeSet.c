@@ -561,7 +561,7 @@ QUEST2:
 		if(i < 1L) break;
 		}
 	a = (*p_articul)[k];
-	if(a > 127) a = a - 256;
+	// if(a > 127) a = a - 256;
 	if(a > 0 && k > 1) (*p_articul)[k] = 0;
 	}
 
@@ -570,7 +570,7 @@ if(ShowMessages && bigitem) ShowMessage(TRUE,wMessage,"Calculating legato/stacca
 for(k=2; k <= *p_kmx; k++) {
 	a = (*p_articul)[k];
 	if(a == 0) continue;
-	if(a > 127) a = a - 256;
+	// if(a > 127) a = a - 256;
 	if(a < -99) a = -99;
 	
 	/* Can't play legato if object's end was truncated */

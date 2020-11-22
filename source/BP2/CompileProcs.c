@@ -131,9 +131,6 @@ for(ii=i; ii >= 0; ii-=4, j-=4) {
 		break;
 		}
 	}
-/* if(Beta && lerc > 0) {
-	Alert1(" lerc > 0");
-	} */
 if(moresymbols) {
 	return(k - 2 * lerc);
 	}
@@ -255,7 +252,7 @@ if(mode == 6) {
 		line[i++] = c;
 		if(!isdigit(c) && c != '.' && c != '+' && c != '-') isnumber = FALSE;
 		if(i >= MAXLIN) {
-			Print(wTrace,"Too long argument in performance control or procedure\n");
+			Print(wTrace,"\nToo long argument in performance control or procedure");
 			return(INT_MAX);
 			}
 NEXTCHAR:
@@ -275,7 +272,7 @@ if(mode == 7) {
 		line[i++] = c;
 		if(!isdigit(c) && c != '.' && c != '+' && c != '-') isnumber = FALSE;
 		if(i >= MAXLIN) {
-			Print(wTrace,"Too long argument in performance control or procedure\n");
+			Print(wTrace,"\nToo long argument in performance control or procedure");
 			return(INT_MAX);
 			}
 NEXTCHAR2:
@@ -485,7 +482,7 @@ if(type == ORDtype) {
 	}
 if(type == LINtype || type == SUB1type || type == POSLONGtype) {
 	if(mode == j && mode != 1) {
-		sprintf(Message,"'%s' ignored in this rule.  Forced to 'LEFT' because of subgrammar type.\n",
+		sprintf(Message,"\n'%s' ignored in this rule.  Forced to 'LEFT' because of subgrammar type.",
 			Mode[mode]);
 		Print(wTrace,Message);
 		return(-1);
@@ -526,7 +523,7 @@ long initparam,u,v;
 char c,d,*p,*q;
 
 if(arg_nr > 2) {
-	Print(wTrace,"=> Can't accept rule procedure in glossary.\n");
+	Print(wTrace,"\nCan't accept rule procedure in glossary.");
 	return(ABORT);
 	}
 if((**pp) == '\0') return(RESUME);
@@ -554,7 +551,7 @@ switch(jproc) {
 		/* no break */
 	case 16:	/* _srand */
 		if(jproc != 16 && arg_nr != 2) {
-			sprintf(Message,"=> '%s' may only occur be in the right argument or a rule.\n",
+			sprintf(Message,"\n'%s' may only occur be in the right argument or a rule.",
 				*((*p_GramProcedure)[jproc]));
 			Print(wTrace,Message);
 			return(ABORT);
@@ -566,11 +563,11 @@ switch(jproc) {
 		if(jproc == 16) {
 			if(arg_nr != 0) return(jproc);	/* This won't be used. _srand() actually belongs to the left argument */
 			if((k=GetArgument(4,&p,&incweight,&initparam,&foundk,p_x,&u,&v)) == INT_MAX) {
-				Print(wTrace,"\n=> Incorrect or missing argument after '_srand'");
+				Print(wTrace,"\nIncorrect or missing argument after '_srand'");
 				return(ABORT);
 				}
 			if(initparam < 0 || initparam > 32767) {
-				sprintf(Message,"\n=> Incorrect argument in '_srand(%ld)'. Range is 0..32767",
+				sprintf(Message,"\nIncorrect argument in '_srand(%ld)'. Range is 0..32767",
 					(long)initparam);
 				Print(wTrace,Message);
 				return(ABORT);
@@ -582,15 +579,14 @@ switch(jproc) {
 			}
 		if(jproc == 2) {	/* _repeat */
 			if((k=GetArgument(2,&p,&incweight,&initparam,&foundk,p_x,&u,&v)) == INT_MAX) {
-				Print(wTrace,"\n=> Incorrect or missing argument after '_repeat'");
+				Print(wTrace,"\nIncorrect or missing argument after '_repeat'");
 				return(ABORT);
 				}
 			else {
 				if(foundk) {
 					i = - k - 1;
 					if(i < 1 || i >= MAXPARAMCTRL) {
-						sprintf(Message,"=> '<K%ld>' not accepted. Range [1,%ld]\n",(long)i,
-							(long)MAXPARAMCTRL-1);
+						sprintf(Message,"\n'<K%ld>' not accepted. Range [1,%ld]\n",(long)i,(long)MAXPARAMCTRL-1);
 						Print(wTrace,Message);
 						return(ABORT);
 						}
@@ -604,7 +600,7 @@ switch(jproc) {
 						else {
 							if(ParamInit[i] != initparam) {
 								sprintf(Message,
-									"Initial value of '<K%ld>' already set to %ld...\n",
+									"\nInitial value of '<K%ld>' already set to %ld...",
 										(long)i,(long)ParamInit[i]);
 								Print(wTrace,Message);
 								return(ABORT);
@@ -620,7 +616,7 @@ switch(jproc) {
 				c -= '0';
 				if(c >= 0 && c <= 9) k = 10 * k + c;
 				else {
-					Print(wTrace,"=> Invalid grammar index after '_goto' or '_failed'\n");
+					Print(wTrace,"\nInvalid grammar index after '_goto' or '_failed'");
 					return(ABORT);
 					}
 				p++;
@@ -635,7 +631,7 @@ switch(jproc) {
 			c -= '0';
 			if(c >= 0 && c <= 9) k = 10 * k + c;
 			else {
-				Print(wTrace,"=> Invalid rule index after '_goto' or '_failed'\n");
+				Print(wTrace,"\nInvalid rule index after '_goto' or '_failed'");
 				return(ABORT);
 				}
 			p++;
@@ -647,7 +643,7 @@ switch(jproc) {
 	case 11:	/* _destru */
 		NotBPCase[7] = TRUE;
 		if(arg_nr == 1) {
-			sprintf(Message,"=> '%s' should be on top of a subgrammar or in the right argument of a rule.\n",
+			sprintf(Message,"\n'%s' should be on top of a subgrammar or in the right argument of a rule.",
 				*((*p_GramProcedure)[jproc]));
 			Print(wTrace,Message);
 			return(ABORT);
@@ -667,7 +663,7 @@ switch(jproc) {
 		break;
 	case 13:	/* _mm */
 		if((igram > 1 || arg_nr > 0) && (jproc == 14 || jproc == 15 || jproc == 13)) {
-			sprintf(Message,"\n=> '%s' should always be on top of the first subgrammar.",
+			sprintf(Message,"\n'%s' should always be on top of the first subgrammar.",
 				*((*p_GramProcedure)[jproc]));
 			Println(wTrace,Message);
 			}
@@ -676,7 +672,7 @@ switch(jproc) {
 			return(ABORT);
 			}
 		if((k=GetArgument(6,&p,&incweight,&initparam,&foundk,p_x,&u,&v)) == INT_MAX) {
-			Print(wTrace,"\n=> Incorrect or missing argument after '_mm'");
+			Print(wTrace,"\nIncorrect or missing argument after '_mm'");
 			return(ABORT);
 			}
 		p--;
@@ -715,7 +711,7 @@ for(j=0; j < MaxPerformanceControl; j++) {
 	}
 if(jinstr == -1) return(RESUME);
 if(arg_nr == 1 || arg_nr == 4) {
-	sprintf(Message,"\n=> '%s' should not appear in the left argument of a rule",
+	sprintf(Message,"\n'%s' should not appear in the left argument of a rule",
 		*((*p_PerformanceControl)[jinstr]));
 	Print(wTrace,Message);
 	return(ABORT);
@@ -786,7 +782,7 @@ switch(jinstr) {
 	case 64: /* _transposestep */
 		*pp = ptr;
 		if((*ptr) == '(') {
-			sprintf(Message,"\n=> Should not find '(' after '%s'",*((*p_PerformanceControl)[jinstr]));
+			sprintf(Message,"\nShould not find '(' after '%s'",*((*p_PerformanceControl)[jinstr]));
 			Print(wTrace,Message);
 			return(ABORT);
 			}
@@ -826,14 +822,14 @@ if((*ptr) != '(') {
 	return(ABORT);
 	}
 if((k=GetArgument(7,&ptr,&p,&initparam,&foundk,&x,p_u,p_v)) == INT_MAX) {
-	sprintf(Message,"\n=> Incorrect or missing argument after '%s'",
+	sprintf(Message,"\nIncorrect or missing argument after '%s'",
 		*((*p_PerformanceControl)[jinstr]));
 	Print(wTrace,Message);
 	return(ABORT);
 	}
 else {
 	if((*p_u) <= ZERO){
-		sprintf(Message,"\n=> Argument in '%s' must be strictly positive",
+		sprintf(Message,"\nArgument in '%s' must be strictly positive",
 			*((*p_PerformanceControl)[jinstr]));
 		Print(wTrace,Message);
 		return(ABORT);
@@ -853,14 +849,13 @@ for(i=0; i < 4; i++) {
 	j = GetInteger(YES,ptr,&j);
 	if(j == INT_MAX) {
 		if(GetNote(ptr,&j,&chan,YES) != OK) {
-			Print(wTrace,
-				"=> Incorrect argument in _keymap(). Key numbers or note names expected...");
+			Print(wTrace,"\nIncorrect argument in _keymap(). Key numbers or note names expected...");
 			return(ABORT);
 			}
 		}
 	else {
 		if(j < 0 || j > 127) {
-			sprintf(Message,"\n=> Incorrect argument in _keymap(). Key number must be in range 0..127. Can't accept %ld...",
+			sprintf(Message,"\nIncorrect argument in _keymap(). Key number must be in range 0..127. Can't accept %ld...",
 				(long) j);
 			Print(wTrace,Message);
 			return(ABORT);
@@ -874,8 +869,7 @@ for(i=0; i < 4; i++) {
 		}
 	while((c=(*ptr)) != ',' && c != ')' && c != '\0') ptr++;
 	if(c == '\0') {
-		Print(wTrace,
-			"=> Incorrect separator between arguments in _keymap()...");
+		Print(wTrace,"\nIncorrect separator between arguments in _keymap()...");
 		return(ABORT);
 		}
 	if(i == 3 && c != ')') {
@@ -889,7 +883,7 @@ for(i=0; i < 4; i++) {
 	ptr++;
 	}
 if(p_map->p1 > p_map->p2) {
-	sprintf(Message,"\n=> In _keymap(p1,q1,p2,q2), p2 must be greater than p1. Can't accept _keymap(%ld,%ld,%ld,%ld)",
+	sprintf(Message,"\nIn _keymap(p1,q1,p2,q2), p2 must be greater than p1. Can't accept _keymap(%ld,%ld,%ld,%ld)",
 		(long)p_map->p1,(long)p_map->q1,(long)p_map->p2,(long)p_map->q2);
 	Print(wTrace,Message);
 	return(ABORT);
@@ -904,7 +898,7 @@ if((*ptr) != '(') {
 	return(ABORT);
 	}
 if((k=GetArgument(3,&ptr,&p,&initparam,&foundk,&x,p_u,p_v)) == INT_MAX) {
-	sprintf(Message,"\n=> Incorrect or missing argument after '%s'",
+	sprintf(Message,"\nIncorrect or missing argument after '%s'",
 		*((*p_PerformanceControl)[jinstr]));
 	Print(wTrace,Message);
 	return(ABORT);
@@ -922,13 +916,13 @@ if(trace_scale) BPPrintMessage(odInfo,"k = %d p = %d initparam = %d foundk = %d 
 	} */
 if(jinstr == 14 || jinstr == 15) {
 	if(p < 64 || p > 95) {
-		sprintf(Message,"\n=> First argument of '%s' is switch number, range 64..95. Can't accept %ld",
+		sprintf(Message,"\nFirst argument of '%s' is switch number, range 64..95. Can't accept %ld",
 			*((*p_PerformanceControl)[jinstr]),(long)p);
 		Print(wTrace,Message);
 		return(ABORT);
 		}
 	if(k < 1 || k > MAXCHAN) {
-		sprintf(Message,"\n=> Second argument of '%s' is channel number, range 1..%ld. Can't accept %ld",
+		sprintf(Message,"\nSecond argument of '%s' is channel number, range 1..%ld. Can't accept %ld",
 			*((*p_PerformanceControl)[jinstr]),(long)MAXCHAN,(long)k);
 		Print(wTrace,Message);
 		return(ABORT);
@@ -945,7 +939,7 @@ if((*ptr) != '(') {
 	}
 p = initparam = 0;
 if((k=GetArgument(2,&ptr,&p,&initparam,&foundk,&x,p_u,p_v)) == INT_MAX || p != 0) {
-	sprintf(Message,"\n=> Incorrect or missing argument after '%s'",
+	sprintf(Message,"\nIncorrect or missing argument after '%s'",
 		*((*p_PerformanceControl)[jinstr]));
 	Print(wTrace,Message);
 	return(ABORT);
@@ -962,14 +956,14 @@ else {
 			case 34: /* _volumerate() */
 			case 40: /* _panrate() */
 				sprintf(Message,
-					"\n=> Incorrect argument in %s. Integer value required (0..16383)",
+					"\nIncorrect argument in %s. Integer value required (0..16383)",
 						*((*p_PerformanceControl)[jinstr]));
 				Print(wTrace,Message);
 				return(ABORT);
 			case 59: /* _rndtime() */ 
 			case 60: /* _srand() */
 				sprintf(Message,
-					"\n=> Incorrect argument in %s. Integer value required (0..32767)",
+					"\nIncorrect argument in %s. Integer value required (0..32767)",
 						*((*p_PerformanceControl)[jinstr]));
 				Print(wTrace,Message);
 				return(ABORT);
@@ -996,9 +990,9 @@ else {
 				Print(wTrace,Message);
 				return(ABORT);
 				}
-			if(jinstr == 56 && (initparam < 0 || initparam > 64)) {
+			if(jinstr == 56 && (initparam < 0 || initparam > 127)) {
 				sprintf(Message,
-					"\nRandom assignment to velocity range is 0..64. Can't accept '_rndvel(K%ld=%ld)'",
+					"\nRandom assignment to velocity range is 0..127. Can't accept '_rndvel(K%ld=%ld)'",
 						(long)i,(long)initparam);
 				Print(wTrace,Message);
 				return(ABORT);
@@ -1024,16 +1018,16 @@ else {
 				Print(wTrace,Message);
 				return(ABORT);
 				}
-			if(jinstr == 19 && (initparam < 0 || initparam > 127)) {
+			if(jinstr == 19 && initparam < 0) {
 				sprintf(Message,
-					"\nLegato range is 0..127. Can't accept '_legato(K%ld=%ld)'",
+					"\nLegato must be positive. Can't accept '_legato(K%ld=%ld)'",
 						(long)i,(long)initparam);
 				Print(wTrace,Message);
 				return(ABORT);
 				}
-			if(jinstr == 20 && (initparam < 0 || initparam > 127)) {
+			if(jinstr == 20 && (initparam < 0 || initparam > 100)) {
 				sprintf(Message,
-					"\nStaccato range is 0..127. Can't accept '_staccato(K%ld=%ld)'",
+					"\nStaccato range is 0..100. Can't accept '_staccato(K%ld=%ld)'",
 						(long)i,(long)initparam);
 				Print(wTrace,Message);
 				return(ABORT);
@@ -1068,9 +1062,9 @@ else {
 				"\nMIDI channel range is 1..%ld. Can't accept '_chan(%ld)'",
 					(long)MAXCHAN,(long)k);
 			}
-		if(jinstr == 56 && (k < 0 || k > 64)) {
+		if(jinstr == 56 && (k < 0 || k > 127)) {
 			sprintf(Message,
-				"\nRandom assignment to velocity range is 0..64. Can't accept '_rndvel(%ld)'",
+				"\nRandom assignment to velocity range is 0..127. Can't accept '_rndvel(%ld)'",
 				(long)k);
 			}
 		if(jinstr == 57 && (k < -128 || k > 127)) {
@@ -1098,13 +1092,13 @@ else {
 			sprintf(Message,
 				"\nPanoramic range is 0..127. Can't accept '_pan(%ld)'",(long)k);
 			}
-		if(jinstr == 19 && (k < 0 || k > 127)) {
+		if(jinstr == 19 && k < 0) {
 			sprintf(Message,
-				"\nLegato range is 0..127. Can't accept '_legato(%ld)'",(long)k);
+				"\nLegato must be positive. Can't accept '_legato(%ld)'",(long)k);
 			}
-		if(jinstr == 20 && (k < 0 || k > 127)) {
+		if(jinstr == 20 && (k < 0 || k > 100)) {
 			sprintf(Message,
-				"\nStaccato range is 0..127. Can't accept '_staccato(%ld)'",(long)k);
+				"\nStaccato range is 0..100. Can't accept '_staccato(%ld)'",(long)k);
 			}
 		if(jinstr == 29 && (k < 0 || k > 16383)) {
 			sprintf(Message,
@@ -1175,7 +1169,7 @@ if((*ptr) != '(') {
 	}
 p = initparam = 0;
 if((k=GetArgument(k,&ptr,&p,&initparam,&foundk,&x,p_u,p_v)) == INT_MAX) {
-	sprintf(Message,"\n=> Incorrect or missing argument after '%s'",
+	sprintf(Message,"\nIncorrect or missing argument after '%s'",
 		*((*p_PerformanceControl)[jinstr]));
 	Print(wTrace,Message);
 	return(ABORT);
@@ -1222,7 +1216,7 @@ while((c = *ptr) != ')' && c != '\0') {
 line[i] = '\0';
 Strip(line);
 if(c != ')') {
-	sprintf(Message,"\nMissing ')' after '%s'",*((*p_PerformanceControl)[jinstr]));
+	sprintf(Message,"Missing ')' after '%s'",*((*p_PerformanceControl)[jinstr]));
 	Print(wTrace,Message);
 	return(ABORT);
 	}
@@ -1257,7 +1251,7 @@ while((c = *ptr) != ',' && c != '\0') {
 	if(c == ')') break;
 	line[i++] = c;
 	if(i >= MAXLIN) {
-		Print(wTrace,"=> Too long argument in performance control\n");
+		Print(wTrace,"Too long argument in performance control\n");
 		return(ABORT);
 		}
 	ptr++;
@@ -1278,8 +1272,11 @@ switch(jinstr) {
 				result = MyHandlecmp((*p_StringConstant)[k],(*Scale)[i_scale].label);
 				if(result == 0) break;
 				}
-			if(i_scale > NumberScales)
-				BPPrintMessage(odError,"\n=> Instruction \"_scale(%s,...)\" will be ignored as this name is unknown\n",*((*p_StringConstant)[k]));
+			if(i_scale > NumberScales) {
+				sprintf(Message,"Instruction \"_scale(%s,...)\" is illicit as this name is unknown\n",*((*p_StringConstant)[k]));
+				Print(wTrace,Message);
+				return(ABORT);
+				}
 			else if(NoteConvention == 4) {
 				numgrades = (*Scale)[i_scale].numgrades;
 				basekey = (*Scale)[i_scale].basekey;
@@ -1310,7 +1307,7 @@ switch(jinstr) {
 			for(i=1; i <= strlen(line); i++) line[i-1] = line[i];
 			cntl = atol(line); 	/* Don't use atoi() because int's are 4 bytes */
 			if(cntl < 1 || cntl >= MAXPARAMCTRL) {
-				sprintf(Message,"\n=> 'K%ld' not accepted. Range [1,%ld]",(long)cntl,
+				sprintf(Message,"'K%ld' not accepted. Range [1,%ld]",(long)cntl,
 					(long)MAXPARAMCTRL-1);
 				Print(wTrace,Message);
 				return(ABORT);
@@ -1327,7 +1324,7 @@ switch(jinstr) {
 					else {
 						if(ParamInit[cntl] != initparam) {
 							sprintf(Message,
-								"\nInitial value of '<K%ld>' already set to %ld...",
+								"Initial value of '<K%ld>' already set to %ld...",
 									(long)cntl,ParamInit[cntl]);
 							Print(wTrace,Message);
 							return(ABORT);
@@ -1343,13 +1340,13 @@ switch(jinstr) {
 			if(j == INT_MAX) {
 				if(GetNote(ptr,&j,&chan,YES) != OK) {
 					Print(wTrace,
-						"=> Incorrect first argument in _keyxpand(). Key number or note name expected...");
+						"Incorrect first argument in _keyxpand(). Key number or note name expected...");
 					return(ABORT);
 					}
 				}
 			else {
 				if(j < 0 || j > 127) {
-					sprintf(Message,"\n=> Incorrect argument in _keyxpand(). Key number must be in range 0..127. Can't accept %ld...",
+					sprintf(Message,"Incorrect argument in _keyxpand(). Key number must be in range 0..127. Can't accept %ld...",
 						(long) j);
 					Print(wTrace,Message);
 					return(ABORT);
