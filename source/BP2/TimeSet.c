@@ -554,7 +554,7 @@ QUEST2:
 		if(show_details_timeset) BPPrintMessage(odInfo,Message);
 		}
 		
-	/* Last object must not be played legato */
+	/* Last object must not be played legato */ // Suppressed by BB 22 Nov 2020
 	i = (*p_imaxseq)[nseq] - 1L;
 	while((k=(*((*p_Seq)[nseq]))[i]) <= 0 || (*p_Instance)[k].object <= 1) {
 		i--;
@@ -562,7 +562,7 @@ QUEST2:
 		}
 	a = (*p_articul)[k];
 	// if(a > 127) a = a - 256;
-	if(a > 0 && k > 1) (*p_articul)[k] = 0;
+//	if(a > 0 && k > 1) (*p_articul)[k] = 0;
 	}
 
 /* Modify Alpha according to articulation (legato/staccato) */
