@@ -692,7 +692,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 	KeyNumberMap *p_map) 
 {
 int i,im,j,jinstr,p,length,chan,foundk,cntl,result,i_scale,j_scale,
-key,l,numgrades,basekey,notenum, octave,delta_octave,pitchclass;
+key,l,numgrades,basekey,notenum, octave,pitchclass;
 long k,initparam;
 char c,d,*ptr,*ptr2,*p_line,*q,line[MAXLIN];
 double x;
@@ -1283,7 +1283,7 @@ switch(jinstr) {
 				basekey = (*Scale)[i_scale].basekey;
 				strcpy(LastSeen_scale,line);
 				if(trace_scale) BPPrintMessage(odInfo,"Recording note names of scale %d '%s' with %d grades and 'basekey' = %d\n",i_scale,line,numgrades,basekey);
-				delta_octave = 0;
+				j_scale = i_scale + 3;
 				for(j = 0; j < 128; j++) {
 					pitchclass = modulo((j - C4key),numgrades);
 				//	octave = 4 + floor((((double)j - C4key)) / numgrades);
@@ -1295,9 +1295,10 @@ switch(jinstr) {
 							sprintf(Message,"%s%ld",*((*((*Scale)[i_scale].notenames))[pitchclass]),(long)octave);
 							break;
 						}
-					MystrcpyStringToTable(p_NoteName[i_scale + 3],j,Message);
-					MystrcpyStringToTable(p_AltNoteName[i_scale + 3],j,Message);
-					(*(p_NoteLength[i_scale + 3]))[j] = (*(p_AltNoteLength[i_scale + 3]))[j] = strlen(Message);
+			//		if(trace_scale) BPPrintMessage(odInfo,"j_scale = %d j = %d '%s'\n",j_scale,j,Message);
+					MystrcpyStringToTable(p_NoteName[j_scale],j,Message);
+					MystrcpyStringToTable(p_AltNoteName[j_scale],j,Message);
+					(*(p_NoteLength[i_scale + 3]))[j] = (*(p_AltNoteLength[j_scale]))[j] = strlen(Message);
 					}
 				}
 			}

@@ -2291,7 +2291,6 @@ return(OK);
 
 int CreateMicrotonalScale(char* line, char* name, char* note_names, char* baseoctave_string) { // Should be placed somewhere else
 	// "line" contains the scale as defined in Csound GEN51 format
-	// note_names are ignored for the time being
 	char c, curr_arg[MAXLIN], label[MAXLIN], this_note[MAXLIN];
 	char** ptr;
 	int i,j,k,pos,n_args,space,numgrades,baseoctave;
@@ -2328,13 +2327,6 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* baseoc
 					(*Scale)[NumberScales].numgrades = numgrades = (int) atol(curr_arg); /* Don't use atoi() because int's are 4 bytes */
 					(*Scale)[NumberScales].tuningratio = (double**) GiveSpace((Size)((numgrades + 1) * sizeof(double)));
 					(*Scale)[NumberScales].notenames = (char****) GiveSpace((Size)(numgrades * sizeof(char**)));
-					if(strlen(baseoctave_string) == 0) baseoctave = 4;
-					else baseoctave = (int) atol(baseoctave_string);
-					if(baseoctave <= 0 || baseoctave > 14) baseoctave = 4;
-					(*Scale)[NumberScales].baseoctave = baseoctave;
-					if(trace_scale) BPPrintMessage(odInfo,"\nbaseoctave_string = '%s' (*Scale)[NumberScales].baseoctave = %d\n",baseoctave_string,baseoctave);
-					
-					if((*Scale)[NumberScales].baseoctave <= 0 || (*Scale)[NumberScales].baseoctave > 14) (*Scale)[NumberScales].baseoctave = 4;
 					j = k = 0;
 					if(trace_scale) BPPrintMessage(odInfo,"\nLoading note names for '%s' (scale %d):\n%s\n",name,NumberScales,note_names);
 					for(i = 1; i < strlen(note_names); i++) {
@@ -2378,6 +2370,11 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* baseoc
 		NumberScales--;
 		return(OK);
 		}
+	if(strlen(baseoctave_string) == 0) baseoctave = 4;
+	else baseoctave = (int) atol(baseoctave_string);
+	if(baseoctave <= 0 || baseoctave > 14) baseoctave = 4;
+	if(trace_scale) BPPrintMessage(odInfo,"\nbaseoctave_string = '%s' (*Scale)[NumberScales].baseoctave = %d\n",baseoctave_string,baseoctave);
+	(*Scale)[NumberScales].baseoctave = baseoctave;
 	(*((*Scale)[NumberScales].tuningratio))[n_args-9] = strtod(curr_arg,NULL);
 	if(strlen(name) > 0) sprintf(label,"%s",name);
 	else sprintf(label,"scale_%d",NumberScales); // Name by default
@@ -2386,8 +2383,8 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* baseoc
 	BPPrintMessage(odInfo,"\nGEN51 microtonal scale #%d = \"%s\" loaded from Csound instruments (%d grades):\n",NumberScales,*((*Scale)[NumberScales].label),(*Scale)[NumberScales].numgrades);
 	for(i = 0; i <= (*Scale)[NumberScales].numgrades; i++)
 		BPPrintMessage(odInfo,"%.3f ",(*((*Scale)[NumberScales].tuningratio))[i]);
-	if(strlen(note_names) > 0) BPPrintMessage(odInfo,"\nNames of notes in this scale (currently not used): %s",note_names);
-	BPPrintMessage(odInfo,"\nWith 'interval' = %.3f, 'basefreq' = %.3f Hz and 'basekey' = %d\n",(*Scale)[NumberScales].interval,(*Scale)[NumberScales].basefreq,(*Scale)[NumberScales].basekey);
+	if(strlen(note_names) > 0) BPPrintMessage(odInfo,"\nNames of notes in this scale: %s",note_names);
+	BPPrintMessage(odInfo,"\nWith 'interval' = %.3f, 'basefreq' = %.3f Hz, 'basekey' = %d and 'baseoctave' = %d\n",(*Scale)[NumberScales].interval,(*Scale)[NumberScales].basefreq,(*Scale)[NumberScales].basekey,(*Scale)[NumberScales].baseoctave);
 	A4temp_freq_this_scale = (*Scale)[NumberScales].basefreq * exp((9. / 12) * log((*Scale)[NumberScales].interval));
 	BPPrintMessage(odInfo,"A4 frequency of a tempered scale with the same 'basefreq' and 'interval' would be %.3f Hz\n",A4temp_freq_this_scale);
 	PrintNote(-1,BlockScaleOnKey,-1,-1,Message);

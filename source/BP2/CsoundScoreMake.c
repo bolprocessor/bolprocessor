@@ -256,7 +256,7 @@ if(iarg > 0) {
 			}
 		}
 	else deltakey = 0.;
-	pitchclass = key % 12;
+	pitchclass = modulo(key,12);
 	octave = (key - pitchclass) / 12 + 3;
 	if((*p_CsPitchBendStartIndex)[ins] == -1
 			&& (*params)[IPITCHBEND].active && (*p_CsInstrument)[ins].pitchbendrange > 0.) {

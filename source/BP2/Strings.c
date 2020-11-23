@@ -179,8 +179,9 @@ if(p_t == NULL) {
 i = 0;
 while((c = (*p_t)[offset++]) != '\0' && (i < imax || imax == 0))
 	s[i++] = c;
-if (i >= imax && imax > 0) i = imax - 1;
-s[i] = '\0';	/* The content might get truncated */
+// if (i >= imax && imax > 0) i = imax - 1; $$$$
+if (i > imax && imax > 0) i = imax;
+s[i] = '\0';	/* The content might have been truncated */
 
 return(OK);
 }
@@ -222,6 +223,7 @@ do {
 	(**pp_s)[i++] = (*p_t)[offset];
 	}
 while((*p_t)[offset++] != '\0');
+(**pp_s)[i] = '\0'; // Fixed by BB 23 Nov 2020
 
 OUT:
 return(OK);

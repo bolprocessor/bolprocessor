@@ -1338,19 +1338,17 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 			for(i = i_table; i < MaxCsoundTables; i++) (*p_CsoundTables)[i] = NULL;
 			}
 		if((*p_line)[0] == '"') { // This line contains the name of the next scale
-			MystrcpyHandleToString((strlen(*p_line) - 1),1,line,p_line);
+			MystrcpyHandleToString((strlen(*p_line) - 2),1,line,p_line);
 			continue;
 			}
 		if((*p_line)[0] == '<') continue; // Ignore comments
 		if((*p_line)[0] == '[') continue; // Ignore ratios
 		if((*p_line)[0] == '|') { // baseoctave
-			MystrcpyHandleToString(strlen(*p_line)-1,1,baseoctave_string,p_line);
-			if(trace_scale) BPPrintMessage(odInfo, "baseoctave_string = '%s' line = '%s'\n",baseoctave_string,*p_line);
+			MystrcpyHandleToString(strlen(*p_line)-2,1,baseoctave_string,p_line);
 			continue;
 			}
 		if((*p_line)[0] == '/') { // This line contains note names for this scale
-		//	MystrcpyHandleToString((strlen(*p_line) - 1),1,note_names,p_line);
-			MystrcpyHandleToString(strlen(*p_line)+1,0,note_names,p_line);
+			MystrcpyHandleToString(strlen(*p_line),0,note_names,p_line);
 			continue;
 			}
 		length = MyHandleLen(p_completeline);
@@ -1365,7 +1363,7 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 				result = OK;
 				}
 			if(result != OK) goto ERR;
-			strcpy(line,""); strcpy(note_names,"");
+			strcpy(line,""); strcpy(note_names,""); strcpy(baseoctave_string,"");
 			}
 		}
 	}
@@ -1384,7 +1382,7 @@ if(result == OK) {
 	Created[wCsoundInstruments] = TRUE;
 	LoadedCsoundInstruments = TRUE;
 	if(NumberScales == 1) {
-		BPPrintMessage(odInfo, "This microtonal scale will be used for Csound scores in replacement of the equal-tempered 12-tone scale\nPitch will be adjusted to the diapason\n");
+		BPPrintMessage(odInfo, "\nThis microtonal scale will be used for Csound scores in replacement of the equal-tempered 12-tone scale\nPitch will be adjusted to the diapason\n");
 		DefaultScale = -1;
 		}
 	else DefaultScale = 0; // Don't use scales until the _scale() instruction has been found

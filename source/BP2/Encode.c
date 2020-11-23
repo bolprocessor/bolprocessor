@@ -48,7 +48,8 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 // arg_nr = 8: right argument (glossary)
 {
 tokenbyte **p_buff,**p_pi;
-int ii,ig,ir,j,jj,n,l,ln,lmax,bound,leftside,rightcontext,neg,cv,needsK,needsflag,i_scale,result;
+int ii,ig,ir,j,jj,n,l,ln,lmax,bound,leftside,rightcontext,
+neg,cv,needsK,needsflag,i_scale,j_scale,result;
 long i,imax,k,siz,buffsize,y,u,v;
 char c,d,**pp,*p,*q,*qmax,*r,*ptr,line[MAXLIN],**p_x;
 p_flaglist **nexth,**oldh;
@@ -786,13 +787,14 @@ SEARCHNOTE:
 			}
 		if(i_scale > NumberScales) i_scale = -1;
 		else {
+			j_scale = i_scale + 3;
 			for(j=0; j < 128; j++) {
-				q = *pp; l = (*(p_NoteLength[i_scale]))[j];
-				if(Match(TRUE,&q,(*(p_NoteName[i_scale]))[j],l)
+				q = *pp; l = (*(p_NoteLength[j_scale]))[j];
+				if(Match(TRUE,&q,(*(p_NoteName[j_scale]))[j],l)
 						&& !isdigit(q[l])) {
 					lmax = l; jj = j;
 					qmax = q + l;
-					if(trace_scale) BPPrintMessage(odInfo,"Found note '%s' in current scale, i_scale = %d key = %d\n",q,i_scale,jj);
+					if(trace_scale) BPPrintMessage(odInfo,"Found note '%s' in current scale, j_scale = %d key = %d\n",q,j_scale,jj);
 					goto FOUNDNOTE2;
 					}
 				}
@@ -818,14 +820,14 @@ SEARCHNOTE:
 				}
 			}
 		}
-	for(i_scale = 4; i_scale < MAXCONVENTIONS; i_scale++) {
+	for(j_scale = 4; j_scale < MAXCONVENTIONS; j_scale++) {
 		for(j=0; j < 128; j++) {
-			q = *pp; l = (*(p_NoteLength[i_scale]))[j];
-			if(Match(TRUE,&q,(*(p_NoteName[i_scale]))[j],l)
+			q = *pp; l = (*(p_NoteLength[j_scale]))[j];
+			if(Match(TRUE,&q,(*(p_NoteName[j_scale]))[j],l)
 					&& !isdigit(q[l])) {
 				lmax = l; jj = j;
 				qmax = q + l;
-				if(trace_scale) BPPrintMessage(odInfo,"Found note '%s' in other scale, i_scale = %d key = %d\n",q,i_scale,jj);
+				if(trace_scale) BPPrintMessage(odInfo,"Found note '%s' in other scale, j_scale = %d key = %d\n",q,j_scale,jj);
 				goto FOUNDNOTE2;
 				}
 			}
