@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
  
-int show_messages_cs_scoremake = 0;
+int trace_cs_scoremake = 0;
 
 int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double dilationratio,Milliseconds t,int iline,
 	int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,
@@ -74,7 +74,7 @@ if(chan < 0 || chan >= MAXCHAN) {
 	
 perf = (*pp_currentparams)[nseq]; 
 
-if(show_messages_cs_scoremake) BPPrintMessage(odInfo,"\nRunning CscoreWrite for iline = %d\n",iline);
+if(trace_cs_scoremake) BPPrintMessage(odInfo,"\nRunning CscoreWrite for iline = %d\n",iline);
 
 if(onoffline == LINE) {
 	if(j >= Jbol) {
@@ -131,7 +131,7 @@ else
 	time = ((double) t) / 1000.;
 
 sprintf(Message,"Pclock = %ld Qclock = %ld, t = %ld, time = %.3f\n",(long)Pclock,(long)Qclock,(long)t,time);
-if(show_messages_cs_scoremake) BPPrintMessage(odInfo,Message);
+if(trace_cs_scoremake) BPPrintMessage(odInfo,Message);
 
 comeback = FALSE;
 
@@ -153,7 +153,7 @@ if(onoffline == ON) {
 
 SETON:
 	(*perf)->level[key]++;
-	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,"key = %d level = %d\n",key,(*perf)->level[key]);
+	if(trace_cs_scoremake) BPPrintMessage(odInfo,"key = %d level = %d\n",key,(*perf)->level[key]);
 	(*perf)->starttime[key] = time;
 	(*perf)->velocity[key] = velocity;
 	(*perf)->dilationratio[key] = dilationratio;
@@ -213,13 +213,13 @@ if(onoffline != LINE) {
 	(*scorearg)[2] = (*perf)->starttime[key] * Qclock / ((double) Pclock);
 	(*scorearg)[3] = time - (*scorearg)[2];
 	sprintf(Message,"onoffline != LINE, key = %d, starttime = %.3f, time = %ld, scorearg[2] = %.3f, scorearg[3] = %.3f\n",key,(*perf)->starttime[key],(long)time,(*scorearg)[2],(*scorearg)[3]);
-	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,Message);
+	if(trace_cs_scoremake) BPPrintMessage(odInfo,Message);
 	}
 else {
 	(*scorearg)[2] = time;
 	(*scorearg)[3] = dur * ratio;
 	sprintf(Message,"onoffline == LINE, scorearg[2] = %ld, scorearg[3] = %ld\n",(long)(*scorearg)[2],(long)(*scorearg)[3]);
-	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,Message);
+	if(trace_cs_scoremake) BPPrintMessage(odInfo,Message);
 	for(iarg=4; iarg < (4+(*((*pp_CsoundScore)[j]))[iline].nbparameters); iarg++) {
 		(*scorearg)[iarg] = (*((*((*pp_CsoundScore)[j]))[iline].h_param))[iarg-4];
 		}
@@ -281,6 +281,7 @@ if(iarg > 0) {
 	pitch_format = (*p_CsPitchFormat)[ins];
 	if((pitch_format == OPPC || pitch_format == OPD) && (A4freq != 440. || C4key != 60))
 		pitch_format = CPS;
+	if(scale == 0) i_scale = 0;
 	if(NumberScales > 0 && scale != 0) {
 		if(scale == -1) {
 			i_scale = 1;
@@ -681,14 +682,14 @@ if(ShowPianoRoll) {
 	timeon += CsoundPianoRollNoteShift;
 	timeoff += CsoundPianoRollNoteShift;
 		
-	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,"key = %d chan = %d timeon = %ld timeoff = %ld minkey = %d maxkey = %d\n",key,chan,(long)timeon,(long)timeoff,minkey,maxkey);
+	if(trace_cs_scoremake) BPPrintMessage(odInfo,"key = %d chan = %d timeon = %ld timeoff = %ld minkey = %d maxkey = %d\n",key,chan,(long)timeon,(long)timeoff,minkey,maxkey);
 	DrawPianoNote("csound",key,chan,timeon,timeoff,leftoffset,
 	topoffset,hrect,minkey,maxkey,p_graphrect);
 	}
 
 if(!OutCsound) {
 	result = OK;
-	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,"going out because !OutCsound)\n");
+	if(trace_cs_scoremake) BPPrintMessage(odInfo,"going out because !OutCsound)\n");
 	goto OUT;
 	}
 
@@ -697,7 +698,7 @@ sprintf(line,"i%ld ",(long)index);
 if(!ConvertMIDItoCsound) NoReturnWriteToFile(line,CsRefNum);
 strcpy(Message,line);
 sprintf(line2,"iarg = 1 line = %s\n",line);
-if(show_messages_cs_scoremake) BPPrintMessage(odInfo,line2);
+if(trace_cs_scoremake) BPPrintMessage(odInfo,line2);
 
 for(iarg=2; iarg <= iargmax; iarg++) {
 	if(iarg != ipitch || pitch_format == IGNORE || pitch_format == CPS) {
@@ -710,7 +711,7 @@ for(iarg=2; iarg <= iargmax; iarg++) {
 	strcat(Message,line);
 	
 	sprintf(line2,"iarg = %ld -> %s\n",(long)iarg,line);
-	if(show_messages_cs_scoremake) BPPrintMessage(odInfo,line2);
+	if(trace_cs_scoremake) BPPrintMessage(odInfo,line2);
 	}
 
 if(pitchclass >= 0) {
@@ -734,7 +735,7 @@ else WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
 result = OK;
 
 sprintf(line2,"line = %s\n",line);
-if(show_messages_cs_scoremake) BPPrintMessage(odInfo,line2);
+if(trace_cs_scoremake) BPPrintMessage(odInfo,line2);
 
 strcpy(Message,"");
 

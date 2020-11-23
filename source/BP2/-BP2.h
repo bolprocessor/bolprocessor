@@ -1774,7 +1774,7 @@ struct s_scale {
 	char **label;
 	char ****notenames;
 	int numgrades,basekey;
-	double basefreq,interval;
+	double basefreq,interval,baseoctave;
 	double **tuningratio;
 	};
 typedef struct s_scale t_scale;

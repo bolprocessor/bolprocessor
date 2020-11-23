@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
 
-int show_all_messages = 0;
+int trace_all_messages = 0;
 int trace_set_variation = 0;
 
 int SetObjectParams(int isobject,int level,int nseq,short** p_articul,int k,int j,
@@ -857,7 +857,7 @@ while(TRUE) {
 						+ (Milliseconds)((*p_Instance)[k].alpha * (*p_Dur)[j]);
 					sprintf(Message,"Fix() k = %ld j = %ld alpha = %.2f Dur = %ld t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)(*p_Dur)[j],(long)t1,(long)t2);
 					}
-				if(show_all_messages) BPPrintMessage(odInfo,Message);
+				if(trace_all_messages) BPPrintMessage(odInfo,Message);
 				}
 			else {	/* Simple note */
 				t1 = (*p_T)[i];
@@ -947,7 +947,7 @@ if(nature_time == STRIATED || nseq == 0) {
 				alpha = d;
 				}
 			sprintf(Message,"Calculate_alpha() 1st line k = %ld j = %ld alpha = %.2f d = %ld clockperiod = %ld i = %ld inext = %ld Dur =%ld Tref = %ld\n",(long)k,(long)j,alpha,(long)d,(long)clockperiod,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
-			if(show_all_messages) BPPrintMessage(odInfo,Message);
+			if(trace_all_messages) BPPrintMessage(odInfo,Message);
 			}
 		else {					/* Striated time or nseq > 0 */
 			if(d > 0.) {
@@ -965,7 +965,7 @@ if(nature_time == STRIATED || nseq == 0) {
 				alpha = 0.;
 				}
 			sprintf(Message,"Calculate_alpha() striated k = %ld j = %ld alpha = %.2f d = %.2f i = %ld inext = %ld Dur =%ld Tref = %ld\n",(long)k,(long)j,alpha,d,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
-			if(show_all_messages) BPPrintMessage(odInfo,Message);
+			if(trace_all_messages) BPPrintMessage(odInfo,Message);
 			}
 		
 		beta = alpha;
@@ -1058,7 +1058,7 @@ FINDNEXTMARKED:
 			}
 		sigmaridi += r * d;
 		sprintf(Message,"Calculate_alpha() smooth line > 0 To = %ld k = %ld j = %ld r = %.2f d = %ld sigmaridi = %.2f inext = %ld Dur = %ld Tref = %ld\n",(long)To,(long)k,(long)j,r,d,sigmaridi,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
-		if(show_all_messages) BPPrintMessage(odInfo,Message);
+		if(trace_all_messages) BPPrintMessage(odInfo,Message);
 		i = inext;
 		}
 	unfinished = FALSE;
@@ -1105,7 +1105,7 @@ FINDNEXTMARKED:
 			}
 		alpha = To * r * d / dur / sigmaridi;
 		sprintf(Message,"k = %ld j = %ld alpha = %.2f r = %.2f d = %ld sigmaridi = %.2f\n",(long)k,(long)j,alpha,r,d,sigmaridi);
-		if(show_all_messages) BPPrintMessage(odInfo,Message);
+		if(trace_all_messages) BPPrintMessage(odInfo,Message);
 		if(!unfinished && inext == inextm) {	/* Last object in section */
 			toff = (*p_T)[inext];	/* This will compensate cumulated roundings */
 			alpha = ((double)(toff - currenttime)) / dur;
@@ -1435,10 +1435,10 @@ if(m == T15 || paramnameindex == IPITCHBEND) {
 		x = DEFTPITCHBEND + ((double) x * DEFTPITCHBEND / (double) PitchbendRange[chan]);
 	if(x < 0 || x > 16383) {
 		if(PitchbendRange[chan] > 0)
-			sprintf(Message,"Pitchbend value (%ld cents) on channel %ld out of range (-%ld..%ld cents)",
+			sprintf(Message,"=> Pitchbend value (%ld cents) on channel %ld out of range (-%ld..%ld cents)",
 				(long)xx,(long)chan,(long)PitchbendRange[chan],(long)PitchbendRange[chan]);
 		else
-			sprintf(Message,"Pitchbend value (%ld) on channel %ld out of range (0..16383)",
+			sprintf(Message,"=> Pitchbend value (%ld) on channel %ld out of range (0..16383)",
 				(long)xx,(long)chan);
 		Alert1(Message);
 		return(Infpos);

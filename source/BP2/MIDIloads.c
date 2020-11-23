@@ -448,11 +448,10 @@ return(OK);
 
 int PrintNote(int i_scale,int key,int channel,int wind,char* line)
 {
-int notenum,octave,convention;
-char channelstring[11];
+int notenum, octave;
+char channelstring[11], jscale;
 
 if(key < 0) {
-//	if(wind >= 0) PrintBehind(wind,"<void>");
 	strcpy(line,"<void>");
 	return(OK);
 	}
@@ -461,77 +460,82 @@ notenum = key % 12;
 octave = (key - notenum) / 12;
 channelstring[0] = '\0';
 if(channel > 0) sprintf(channelstring," channel %ld",(long)channel);
-// BPPrintMessage(odInfo,"\nkey = %d notenum = %d octave = %d NameChoice[notenum] = %d\n",key,notenum,octave,NameChoice[notenum]);
 if(NameChoice[notenum] == 1 && notenum == 0) octave--;
 if(NameChoice[notenum] == 1 && notenum == 11) octave++;
-convention = NoteConvention;
-if(i_scale < 0) convention = ENGLISH;
-switch(convention) {
-	case FRENCH:
-		octave -= 2;
-		switch(octave) {
-			case -2:
-				if(NameChoice[notenum] == 0)
-					sprintf(line,"%s000%s",Frenchnote[notenum],channelstring);
-				else
-					sprintf(line,"%s000%s",AltFrenchnote[notenum],channelstring);
-				break;
-			case -1:
-				if(NameChoice[notenum] == 0)
-					sprintf(line,"%s00%s",Frenchnote[notenum],channelstring);
-				else
-					sprintf(line,"%s00%s",AltFrenchnote[notenum],channelstring);
-				break;
-			default:
-				if(NameChoice[notenum] == 0)
-					sprintf(line,"%s%ld%s",Frenchnote[notenum],(long)octave,channelstring);
-				else
-					sprintf(line,"%s%ld%s",AltFrenchnote[notenum],(long)octave,channelstring);
-				break;
-			}
-		break;
-	case ENGLISH:
-		octave--;
-		switch(octave) {
-			case -1:
-				if(NameChoice[notenum] == 0)
-					sprintf(line,"%s00%s",Englishnote[notenum],channelstring);
-				else
-					sprintf(line,"%s00%s",AltEnglishnote[notenum],channelstring);
-				break;
-			default:
-				if(NameChoice[notenum] == 0)
-					sprintf(line,"%s%ld%s",Englishnote[notenum],(long)octave,channelstring);
-				else
-					sprintf(line,"%s%ld%s",AltEnglishnote[notenum],(long)octave,channelstring);
-				break;
-			}
-		break;
-	case INDIAN:
-		octave--;
-		switch(octave) {
-			case -1:
-				if(NameChoice[notenum] == 0)
-					sprintf(line,"%s00%s",Indiannote[notenum],channelstring);
-				else
-					sprintf(line,"%s00%s",AltIndiannote[notenum],channelstring);
-				break;
-			default:
-				if(NameChoice[notenum] == 0)
-					sprintf(line,"%s%ld%s",Indiannote[notenum],(long)octave,channelstring);
-				else
-					sprintf(line,"%s%ld%s",AltIndiannote[notenum],(long)octave,channelstring);
-				break;
-			}
-		break;
-	case KEYS:
-		sprintf(line,"%s%ld%s",KeyString,(long)key,channelstring);
-		break;
-	default: //  Here we deal with microtonal scales
-		if(trace_scale) BPPrintMessage(odInfo,"i_scale = %d key =  %d\n",i_scale,key);
-		if(i_scale < 0) sprintf(line,"");
-		else sprintf(line,"%s%s",*((*(p_NoteName[i_scale + 3]))[key]),channelstring);
-		break;
+// if(trace_scale) BPPrintMessage(odInfo,"i_scale = %d key =  %d NumberScales = %d NoteConvention = %d\n",i_scale,key,NumberScales,NoteConvention);
+
+if(i_scale > NumberScales) {
+	BPPrintMessage(odError,"=> Error: i_scale (%ld) > NumberScales (%d)\n",(long)i_scale,NumberScales);
+	return(OK);
+	}
+	
+if(i_scale > 3) {
+	jscale = i_scale + 3;
+	sprintf(line,"%s%s",*((*(p_NoteName[jscale]))[key]),channelstring);
+	}	
+else {	
+	switch(NoteConvention) {
+		case FRENCH:
+			octave -= 2;
+			switch(octave) {
+				case -2:
+					if(NameChoice[notenum] == 0)
+						sprintf(line,"%s000%s",Frenchnote[notenum],channelstring);
+					else
+						sprintf(line,"%s000%s",AltFrenchnote[notenum],channelstring);
+					break;
+				case -1:
+					if(NameChoice[notenum] == 0)
+						sprintf(line,"%s00%s",Frenchnote[notenum],channelstring);
+					else
+						sprintf(line,"%s00%s",AltFrenchnote[notenum],channelstring);
+					break;
+				default:
+					if(NameChoice[notenum] == 0)
+						sprintf(line,"%s%ld%s",Frenchnote[notenum],(long)octave,channelstring);
+					else
+						sprintf(line,"%s%ld%s",AltFrenchnote[notenum],(long)octave,channelstring);
+					break;
+				}
+			break;
+		case ENGLISH:
+			octave--;
+			switch(octave) {
+				case -1:
+					if(NameChoice[notenum] == 0)
+						sprintf(line,"%s00%s",Englishnote[notenum],channelstring);
+					else
+						sprintf(line,"%s00%s",AltEnglishnote[notenum],channelstring);
+					break;
+				default:
+					if(NameChoice[notenum] == 0)
+						sprintf(line,"%s%ld%s",Englishnote[notenum],(long)octave,channelstring);
+					else
+						sprintf(line,"%s%ld%s",AltEnglishnote[notenum],(long)octave,channelstring);
+					break;
+				}
+			break;
+		case INDIAN:
+			octave--;
+			switch(octave) {
+				case -1:
+					if(NameChoice[notenum] == 0)
+						sprintf(line,"%s00%s",Indiannote[notenum],channelstring);
+					else
+						sprintf(line,"%s00%s",AltIndiannote[notenum],channelstring);
+					break;
+				default:
+					if(NameChoice[notenum] == 0)
+						sprintf(line,"%s%ld%s",Indiannote[notenum],(long)octave,channelstring);
+					else
+						sprintf(line,"%s%ld%s",AltIndiannote[notenum],(long)octave,channelstring);
+					break;
+				}
+			break;
+		default:
+			sprintf(line,"%s%ld%s",KeyString,(long)key,channelstring);
+			break;
+		}
 	}
 #if BP_CARBON_GUI
 if(wind >= 0) {

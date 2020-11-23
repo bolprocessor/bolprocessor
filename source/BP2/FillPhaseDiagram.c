@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
 
-int show_details_diagram = 0;
+int trace_diagram = 0;
 
 FillPhaseDiagram(tokenbyte ***pp_buff,int* p_numberobjects,unsigned long *p_maxseq,
 	int* p_nmax,unsigned long **p_imaxseq,
@@ -75,7 +75,7 @@ p_list ****p_waitlist,****p_scriptlist,**tag,**ptag;
 
 
 if(CheckEmergency() != OK) return(ABORT);
-if(show_details_diagram) BPPrintMessage(odInfo, "Started filling phase diagram\n");
+if(trace_diagram) BPPrintMessage(odInfo, "Started filling phase diagram\n");
 
 AllSolTimeSet = StackFlag = (*p_bigitem) = ToldSkipped = FALSE;
 
@@ -205,7 +205,7 @@ for(nseq=0; nseq <= Minconc; nseq++) {
 for(nseq=0; nseq < Maxconc; nseq++) (*p_waitlist)[nseq] = (*p_scriptlist)[nseq] = NULL;
 (*p_deftnseq)[0] = nseq = 0;
 
-if(show_details_diagram) BPPrintMessage(odInfo,"Maxevent = %d\n",Maxevent);
+if(trace_diagram) BPPrintMessage(odInfo,"Maxevent = %d\n",Maxevent);
 
 for(k=0; k < Maxevent; k++) {
 	(*p_Instance)[k].object = 0;
@@ -357,7 +357,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 	if(m == T33 || m == T34) {	/* _step() or _cont() */
 		paramnameindex = p;
 		i = FindParameterIndex(p_contparameters,level,paramnameindex);
-		if(show_details_diagram) BPPrintMessage(odInfo, "_step() or _cont() m = %d paramnameindex = %d i = %d\n",m,paramnameindex,i);
+		if(trace_diagram) BPPrintMessage(odInfo, "_step() or _cont() m = %d paramnameindex = %d i = %d\n",m,paramnameindex,i);
 		if(i >= 0) {
 			UpdateParameter(i,p_contparameters,level,ZERO);
 			if(m == T33) (*((*p_contparameters)[level].values))[i].mode = STEPWISE;
@@ -589,11 +589,11 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 		}
 	if((m == T3 && p < Jbol) || m == T25	/* Sound-object or simple note or silence */
 			|| (m == T9 && p < Jpatt)) {	/* Time pattern */
-		if(show_details_diagram) BPPrintMessage(odInfo,"m = %d p = %d (*p_MIDIsize)[p] = %ld\n",m,p,(*p_MIDIsize)[p]);
+		if(trace_diagram) BPPrintMessage(odInfo,"m = %d p = %d (*p_MIDIsize)[p] = %ld\n",m,p,(*p_MIDIsize)[p]);
 		if(m == T3 && p > 1 && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO) {
 			m = T3;
 			p = 1;
-			if(show_details_diagram) BPPrintMessage(odInfo,"=> m = %d p = %d\n",m,p);
+			if(trace_diagram) BPPrintMessage(odInfo,"=> m = %d p = %d\n",m,p);
 			}
 		((*p_im)[nseq]) += Kpress;
 		ip = Class((*p_im)[nseq]);
@@ -1224,8 +1224,8 @@ NEWSEQUENCE:
 			else if(currentparameters.scale > -1) {
 				newval = (*p_NumberConstant)[newkeyval];
 				if(newval < 0 || newval > 127) {	 
-					newval = BlockScaleOnKey;
 					BPPrintMessage(odError,"\n=> Error on block key in \"_scale()\" statement. It should be in range [0..127], or a note in your convention. Its default value will be used: %d\n",BlockScaleOnKey);
+					newval = BlockScaleOnKey;
 					}
 				if(trace_scale) BPPrintMessage(odInfo,"blockkey = %ld\n",(long)newval);
 				currentparameters.blockkey = newval;
@@ -1286,7 +1286,7 @@ NEWSEQUENCE:
 						}
 					}
 				value = FindValue(m,p,currentparameters.currchan);
-				if(show_details_diagram) BPPrintMessage(odInfo, "_value() paramnameindex = %d i = %d value = %.3f\n",paramnameindex,i,value);
+				if(trace_diagram) BPPrintMessage(odInfo, "_value() paramnameindex = %d i = %d value = %.3f\n",paramnameindex,i,value);
 				if(AssignValue(i,value,0,level,p_numberobjects,p_deftcurrentparameters,&currentparameters,
 					p_contparameters,id,pp_buff,tempo,scale,h_table) != OK)
 						goto ENDDIAGRAM;
@@ -1718,7 +1718,7 @@ if(!foundobject && ShowGraphic && !ShowObjectGraph && !ShowPianoRoll && !ScriptE
 if(ShowGraphic && !ShowObjectGraph && !ShowPianoRoll)
 	ShowObjectGraph = TRUE;
 	
-if(show_details_diagram) BPPrintMessage(odInfo, "Finished filling phase diagram\n");
+if(trace_diagram) BPPrintMessage(odInfo, "Finished filling phase diagram\n");
 return(OK);
 }
 

@@ -520,7 +520,7 @@ int GetProcedure(int igram,char **pp,int arg_nr,int *p_igram,int *p_irul,double 
 {
 int i,im,j,jproc,k,incweight,length,foundk;
 long initparam,u,v;
-char c,d,*p,*q;
+char c,d,*p,*q,*ptr;
 
 if(arg_nr > 2) {
 	Print(wTrace,"\nCan't accept rule procedure in glossary.");
@@ -691,7 +691,8 @@ return(jproc);
 int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long *p_v,
 	KeyNumberMap *p_map) 
 {
-int i,im,j,jinstr,p,length,chan,foundk,cntl,result,i_scale,key,l,numgrades,basekey,notenum, octave,delta_octave,pitchclass;
+int i,im,j,jinstr,p,length,chan,foundk,cntl,result,i_scale,j_scale,
+key,l,numgrades,basekey,notenum, octave,delta_octave,pitchclass;
 long k,initparam;
 char c,d,*ptr,*ptr2,*p_line,*q,line[MAXLIN];
 double x;
@@ -1277,14 +1278,16 @@ switch(jinstr) {
 				Print(wTrace,Message);
 				return(ABORT);
 				}
-			else if(NoteConvention == 4) {
+			else {
 				numgrades = (*Scale)[i_scale].numgrades;
 				basekey = (*Scale)[i_scale].basekey;
+				strcpy(LastSeen_scale,line);
 				if(trace_scale) BPPrintMessage(odInfo,"Recording note names of scale %d '%s' with %d grades and 'basekey' = %d\n",i_scale,line,numgrades,basekey);
 				delta_octave = 0;
 				for(j = 0; j < 128; j++) {
 					pitchclass = modulo((j - C4key),numgrades);
-					octave = 4 + floor((((double)j - C4key)) / numgrades);
+				//	octave = 4 + floor((((double)j - C4key)) / numgrades);
+					octave = (*Scale)[i_scale].baseoctave + floor((((double)j - C4key)) / numgrades);
 					switch(octave) {
 						case -1:
 							sprintf(Message,"%s00",*((*((*Scale)[i_scale].notenames))[pitchclass])); break;
@@ -1295,7 +1298,6 @@ switch(jinstr) {
 					MystrcpyStringToTable(p_NoteName[i_scale + 3],j,Message);
 					MystrcpyStringToTable(p_AltNoteName[i_scale + 3],j,Message);
 					(*(p_NoteLength[i_scale + 3]))[j] = (*(p_AltNoteLength[i_scale + 3]))[j] = strlen(Message);
-				//	if(trace_scale) BPPrintMessage(odInfo,"Note[%d][%d] = '%s' pitchclass = %d octave = %d blah = %.3f\n",(i_scale + 3),j,Message,pitchclass,octave,floor((((double)j - C4key)) / numgrades));
 					}
 				}
 			}
@@ -1305,7 +1307,7 @@ switch(jinstr) {
 		ptr2 = ptr;
 		if(line[0] == 'K') {
 			for(i=1; i <= strlen(line); i++) line[i-1] = line[i];
-			cntl = atol(line); 	/* Don't use atoi() because int's are 4 bytes */
+			cntl = atol(line); 	/* Don't use atoi() because integers are 4 bytes */
 			if(cntl < 1 || cntl >= MAXPARAMCTRL) {
 				sprintf(Message,"'K%ld' not accepted. Range [1,%ld]",(long)cntl,
 					(long)MAXPARAMCTRL-1);
@@ -1387,34 +1389,69 @@ if(c != ')') {
 	Print(wTrace,"Missing ')' in '_value()'\n");
 	return(ABORT);
 	}
-if(trace_scale) BPPrintMessage(odInfo,"GET2CONSTANTS line = %s\n",line);
+if(trace_scale) BPPrintMessage(odInfo,"GET2CONSTANTS line = '%s'\n",line);
 
 Strip(line);
 if(isalpha(line[0])) {
-	// Try to interpret non-numeric value as a note. Used mainly for blockkey in _scale()
+	// Try to interpret non-numeric value as a note. Used mainly for block key in _scale()
 //	BPPrintMessage(odInfo,"Found non-numeric value: %s NoteConvention = %d\n",line,NoteConvention);
 	p_line = line;
+	if(strlen(LastSeen_scale) > 0) {
+		if(trace_scale) BPPrintMessage(odInfo,"Looking for block key '%s' with LastSeen_scale = %s NumberScales = %d\n",line,LastSeen_scale,NumberScales);
+		for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
+			if(trace_scale) BPPrintMessage(odInfo,"i_scale = %d (*Scale)[i_scale].label = %s\n",i_scale,*((*Scale)[i_scale].label));
+			result = strcmp(LastSeen_scale,*((*Scale)[i_scale].label));
+			if(result == 0) break;
+			}
+		if(i_scale > NumberScales) i_scale = -1;
+		else {
+			if(trace_scale) BPPrintMessage(odInfo,"Found: i_scale = %d\n",i_scale);
+			j_scale = i_scale + 3;
+			for(key=0; key < 128; key++) {
+				l = (*(p_NoteLength[j_scale]))[key];
+		//		if(trace_scale) BPPrintMessage(odInfo,"key =%d (*(p_NoteName[j_scale]))[key] = %s\n",key,*((*(p_NoteName[j_scale]))[key]));
+				if(Match(TRUE,&p_line,(*(p_NoteName[j_scale]))[key],l)
+						&& !isdigit(p_line[l])) {
+					sprintf(line,"%d",key);
+					if(trace_scale) BPPrintMessage(odInfo,"Found block key '%d' in current scale, j_scale = %d LastSeen_scale = %d\n",key,j_scale,LastSeen_scale);
+					goto FOUNDKEY;
+					}
+				}
+			}
+		}
 	if(NoteConvention < 4) {
 		for(key = 0; key < 128; key++) {
 			l = (*(p_NoteLength[NoteConvention]))[key];
 			if(Match(TRUE,&p_line,(*(p_NoteName[NoteConvention]))[key],l)
 			&& !isdigit(line[l])) {
 				sprintf(line,"%d",key);
-				break;
+				goto FOUNDKEY;
+				}
+			}
+		for(key = 0; key < 128; key++) {
+			l = (*(p_NoteLength[NoteConvention]))[key];
+			if(Match(TRUE,&p_line,(*(p_AltNoteName[NoteConvention]))[key],l)
+			&& !isdigit(line[l])) {
+				sprintf(line,"%d",key);
+				goto FOUNDKEY;
 				}
 			}
 		}
-	else for(i_scale = 4; i_scale < MAXCONVENTIONS; i_scale++) {
-		for(key=0; key < 128; key++) {
-			l = (*(p_NoteLength[i_scale]))[key];
-			if(Match(TRUE,&p_line,(*(p_NoteName[i_scale]))[key],l)
-					&& !isdigit(p_line[l])) {
-				sprintf(line,"%d",key);
-				break;
+	else {
+		 for(j_scale = 4; j_scale < MAXCONVENTIONS; j_scale++) {
+			for(key=0; key < 128; key++) {
+				l = (*(p_NoteLength[j_scale]))[key];
+				if(Match(TRUE,&p_line,(*(p_NoteName[j_scale]))[key],l)
+						&& !isdigit(p_line[l])) {
+					sprintf(line,"%d",key);
+					if(trace_scale) BPPrintMessage(odInfo,"Found block key '%d' in other scale, j_scale = %d LastSeen_scale = %s\n",key,j_scale,LastSeen_scale);
+					goto FOUNDKEY;
+					}
 				}
 			}
 		}
 	}
+FOUNDKEY:
 if((p=FixNumberConstant(line)) < 0) return(p);
 
 *p_n = MAXSTRINGCONSTANTS * p + k;

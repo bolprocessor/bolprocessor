@@ -120,26 +120,17 @@ for(j=1; j <= Jvar; j++) {
 		}
 	}
 if(undefined && !repeat && !IgnoreUndefinedVariables) {
-//	if(ScriptExecOn || AEventOn) {
-		BPPrintMessage(odError,"=> Undefined variable(s) found and ignored...\n");
-/*		}
-	else {
-		if(Answer("Found undefined variable(s). Proceed",'Y') != YES) {
-			Print(wTrace,"\nUndefined variables:\n");
-			for(j=1; j <= Jvar; j++) {
-				if(((*p_VarStatus)[j] & 2) && !((*p_VarStatus)[j] & 1)
-											&& !((*p_VarStatus)[j] & 4))  {
-					sprintf(Message,"%s ",*((*p_Var)[j]));
-					Print(wTrace,Message);
-					}
-				}
-			ShowSelect(CENTRE,wTrace);
-			r = FAILED;
-			goto QUIT;
+	BPPrintMessage(odError,"\n=> Undefined variable(s) found and ignored:\n=> ");
+	for(j = 1, i = 0; j <= Jvar; j++) {
+		if(((*p_VarStatus)[j] & 2) && !((*p_VarStatus)[j] & 1)
+									&& !((*p_VarStatus)[j] & 4))  {
+			if(i > 0) BPPrintMessage(odError,", ");
+			sprintf(Message,"%s",*((*p_Var)[j]));
+			BPPrintMessage(odError,Message);
+			i++;
 			}
-		else if(Answer("Ignore undefined variables in the future",'Y') == YES)
-			IgnoreUndefinedVariables = TRUE;
-		} */
+		}
+	BPPrintMessage(odError,"\n");
 	}
 PedalOrigin = -1;
 if(Jflag > 0) for(i=1; i <= Jflag; i++) (*p_Flag)[i] = ZERO;

@@ -75,6 +75,7 @@ int MaxConsoleTime; // seconds: time allowed for console work
 int CsoundPianoRollNoteShift;
 int NumberScales, MaxScales, DefaultScale, ToldAboutScale; // Microtonal scales loaded from Csound instruments file
 t_scale** Scale;
+char LastSeen_scale[100]; // Last scale found during compilation of grammar
 Handle mem_ptr[5000];
 int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 
@@ -767,7 +768,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 				else if (strcmp(args[argn], "--midiformat") == 0)	{
 					// look at the next argument for an integer
 					if (++argn < argc && isInteger(args[argn]))  {
-						opts->midiFileFormat = atoi(args[argn]);
+						opts->midiFileFormat = (int) atol(args[argn]);
 						if (opts->midiFileFormat < 0 || opts->midiFileFormat > 2) {
 							BPPrintMessage(odError, "\n=> midiformat must be 0, 1, or 2\n\n");
 							return ABORT;
@@ -781,7 +782,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 				else if (strcmp(args[argn], "--seed") == 0)	{
 					// look at the next argument for an integer seed
 					if (++argn < argc && isInteger(args[argn]))  {
-						opts->seed = (unsigned int) atoi(args[argn]);
+						opts->seed = (unsigned int) atol(args[argn]);
 						opts->seedProvided = TRUE;
 					}
 					else {

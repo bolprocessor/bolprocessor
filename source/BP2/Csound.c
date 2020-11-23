@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
 
-int show_csound_details = 0;
+int trace_csound = 0;
 
 #if BP_CARBON_GUI
 
@@ -1631,12 +1631,12 @@ if(Jbol < 2) return(OK);
 rep = OK;
 CompileOn++;
 maxsounds = MyGetHandleSize((Handle)p_Type) / sizeof(char);
-if(show_csound_details) sprintf(Message,"Running CompileCsoundObjects() for maxsounds = %ld\n",(long)maxsounds);
+if(trace_csound) sprintf(Message,"Running CompileCsoundObjects() for maxsounds = %ld\n",(long)maxsounds);
 BPPrintMessage(odInfo,Message);
 for(j=2; j < maxsounds; j++) {
 	if(!((*p_Type)[j] & 4)) {
 		if((*pp_CsoundScoreText)[j] == NULL) {
-			if(show_csound_details) BPPrintMessage(odError, "=> No Csound score in %d\n",j);
+			if(trace_csound) BPPrintMessage(odError, "=> No Csound score in %d\n",j);
 			continue;
 			}
 		(*p_Type)[j] |= 4;
@@ -1679,12 +1679,12 @@ if(j < 2 || j >= Jbol) return(OK);
 
 p_line = (*pp_CsoundScoreText)[j]; 
 
-// if(show_csound_details) BPPrintMessage(odError, "(*pp_CsoundScoreText)[j] = %s\n",*(*pp_CsoundScoreText)[j]);
+// if(trace_csound) BPPrintMessage(odError, "(*pp_CsoundScoreText)[j] = %s\n",*(*pp_CsoundScoreText)[j]);
 
 if(p_line == NULL || (*p_line)[0] == '\0' || strcmp((*p_line),"<HTML></HTML>") == 0) {
 	ptr = (Handle) (*pp_CsoundScore)[j];
 	if(ptr != NULL) {
-		if(show_csound_details) BPPrintMessage(odError, "=> Error (*p_CsoundSize)[j] = %d\n",(*p_CsoundSize)[j]);
+		if(trace_csound) BPPrintMessage(odError, "=> Error (*p_CsoundSize)[j] = %d\n",(*p_CsoundSize)[j]);
 		for(i=0; i < (*p_CsoundSize)[j]; i++) {
 			ptr2 = (Handle) (*((*pp_CsoundScore)[j]))[i].h_param;
 			MyDisposeHandle(&ptr2);
@@ -1697,18 +1697,18 @@ if(p_line == NULL || (*p_line)[0] == '\0' || strcmp((*p_line),"<HTML></HTML>") =
 	if((*p_Type)[j] & 4) {
 		(*p_Type)[j] &= (255-4);
 		}
-	if(show_csound_details) BPPrintMessage(odError, "=> Error (*p_Type)[j] = %d\n",(*p_Type)[j]);
+	if(trace_csound) BPPrintMessage(odError, "=> Error (*p_Type)[j] = %d\n",(*p_Type)[j]);
 	return(OK);
 	}
 
 if((result=CompileRegressions()) != OK) return(result);
 if((*p_CompiledCsoundScore)[j]) return(OK);
 
-if(show_csound_details) BPPrintMessage(odInfo, "Compiling Csound score in object %d\n",j);
+if(trace_csound) BPPrintMessage(odInfo, "Compiling Csound score in object %d\n",j);
 
 maxevents = 12;
 
-// if(show_csound_details) BPPrintMessage(odError, "OK2\n");
+// if(trace_csound) BPPrintMessage(odError, "OK2\n");
 
 ptr = (Handle) (*pp_CsoundScore)[j];
 if(ptr != NULL) {
@@ -1749,7 +1749,7 @@ ipos = 0; im = MyHandleLen(p_line);
 
 l = strlen((*p_line)); 
 if(l == 0) return(OK);
-if(show_csound_details) BPPrintMessage(odError,"=> Compiling Csound score (length %d):\n%s\n",l,(*p_line));
+if(trace_csound) BPPrintMessage(odError,"=> Compiling Csound score (length %d):\n%s\n",l,(*p_line));
 
 while(TRUE) {
 	result = OK;
@@ -2289,12 +2289,12 @@ return(OK);
 }
 
 
-int CreateMicrotonalScale(char* line, char* name, char* note_names) { // Should be placed somewhere else
+int CreateMicrotonalScale(char* line, char* name, char* note_names, char* baseoctave_string) { // Should be placed somewhere else
 	// "line" contains the scale as defined in Csound GEN51 format
 	// note_names are ignored for the time being
 	char c, curr_arg[MAXLIN], label[MAXLIN], this_note[MAXLIN];
 	char** ptr;
-	int i,j,k,pos,n_args,space,numgrades;
+	int i,j,k,pos,n_args,space,numgrades,baseoctave;
 	double A4temp_freq_this_scale;
 	
 	if(strlen(line) == 0 || line[0] != 'f') return(OK);
@@ -2307,7 +2307,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names) { // Should 
 			else continue;
 			space = TRUE;
 			if(n_args == 4) {
-				if(abs(atoi(curr_arg)) != 51) return(EXIT); // This is a different table function
+				if(abs((int) atol(curr_arg)) != 51) return(EXIT); // This is a different table function
 				NumberScales++;
 				if((NumberScales + 3) > MAXCONVENTIONS) {
 					BPPrintMessage(odError,"\n=> Too many scales! Maximum is %d\n",MAXCONVENTIONS);
@@ -2325,9 +2325,16 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names) { // Should 
 				}
 			switch(n_args) {
 				case 5:
-					(*Scale)[NumberScales].numgrades = numgrades = atoi(curr_arg);
+					(*Scale)[NumberScales].numgrades = numgrades = (int) atol(curr_arg); /* Don't use atoi() because int's are 4 bytes */
 					(*Scale)[NumberScales].tuningratio = (double**) GiveSpace((Size)((numgrades + 1) * sizeof(double)));
 					(*Scale)[NumberScales].notenames = (char****) GiveSpace((Size)(numgrades * sizeof(char**)));
+					if(strlen(baseoctave_string) == 0) baseoctave = 4;
+					else baseoctave = (int) atol(baseoctave_string);
+					if(baseoctave <= 0 || baseoctave > 14) baseoctave = 4;
+					(*Scale)[NumberScales].baseoctave = baseoctave;
+					if(trace_scale) BPPrintMessage(odInfo,"\nbaseoctave_string = '%s' (*Scale)[NumberScales].baseoctave = %d\n",baseoctave_string,baseoctave);
+					
+					if((*Scale)[NumberScales].baseoctave <= 0 || (*Scale)[NumberScales].baseoctave > 14) (*Scale)[NumberScales].baseoctave = 4;
 					j = k = 0;
 					if(trace_scale) BPPrintMessage(odInfo,"\nLoading note names for '%s' (scale %d):\n%s\n",name,NumberScales,note_names);
 					for(i = 1; i < strlen(note_names); i++) {
@@ -2346,7 +2353,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names) { // Should 
 					break;
 				case 6: (*Scale)[NumberScales].interval = strtod(curr_arg,NULL); break;
 				case 7: (*Scale)[NumberScales].basefreq = strtod(curr_arg,NULL); break;
-				case 8: (*Scale)[NumberScales].basekey = atoi(curr_arg); break;
+				case 8: (*Scale)[NumberScales].basekey = (int) atol(curr_arg); break;
 				default:
 					if(n_args > 8) {
 						if((n_args - 9) >= numgrades) {

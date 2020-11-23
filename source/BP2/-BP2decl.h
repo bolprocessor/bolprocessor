@@ -369,6 +369,7 @@ extern int N_image;
 extern int MaxConsoleTime;
 extern int CsoundPianoRollNoteShift;
 extern int NumberScales, MaxScales, DefaultScale, ToldAboutScale;
+extern char LastSeen_scale[100];
 extern t_scale** Scale;
 extern int trace_scale;
 

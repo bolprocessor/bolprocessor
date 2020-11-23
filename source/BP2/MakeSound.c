@@ -40,7 +40,7 @@
 extern FILE * imagePtr;
 extern int resize;
 
-int show_csound_pianoroll = 0;
+int trace_csound_pianoroll = 0;
 
 MakeSound(int *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	tokenbyte ***pp_b,long tmin,long tmax,int interruptok,int showpianoroll,
@@ -289,7 +289,7 @@ for(k=2; k <= (*p_kmax); k++) {
 			else
 				date += (Milliseconds) (beta * (*((*pp_MIDIcode)[j]))[i].time);
 			sprintf(Message,"CsoundSize[%d] = %ld olddate = %ld, date = %ld\n",j,(long)(*p_CsoundSize)[j],(long)olddate,(long)date);
-		//	if(show_csound_pianoroll) BPPrintMessage(odInfo,Message);
+		//	if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
 			
 			if(!foundfirstevent && date >= date1) {
 				(*p_inext1)[k] = i;	/* Index of first message to be sent */
@@ -453,7 +453,7 @@ if(showpianoroll) {
 	graphrect.right = graphrect.left + endxmax;
 	
 	if(ShowGraphic) {
-		if(show_csound_pianoroll) BPPrintMessage(odInfo,"Drawing item background\n");
+		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Drawing item background\n");
 		if((result=DrawItemBackground(&graphrect,imaxstreak,htext,hrect,leftoffset,NO,
 			p_delta,&yruler,topoffset,&overflow)) != OK || overflow) goto OUTGRAPHIC;
 		DrawNoteScale(&graphrect,w,minkey,maxkey,hrect,leftoffset,topoffset);
@@ -636,7 +636,7 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 		(*p_nextd)[k] = (*p_Instance)[k].starttime + (*p_t1)[k];
 		
 		sprintf(Message,"k = %ld starttime = %ld (*p_t1)[k] = %ld (*p_nextd)[k] = %ld\n",(long)k,(long)(*p_Instance)[k].starttime,(long)(*p_t1)[k],(long)(*p_nextd)[k]);
-		if(show_csound_pianoroll) BPPrintMessage(odInfo,Message);
+		if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
 		
 		}
 	icont = -1; chancont = -1;
@@ -721,7 +721,7 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 	Tcurr = (t0 + t1) / Time_res;
 	
 	sprintf(Message,"Tcurr = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)t0,(long)t1,(long)Time_res);
-	if(show_csound_pianoroll) BPPrintMessage(odInfo,Message);
+	if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
 	
 	if(cswrite) {
 TRYCSFILE:
@@ -772,7 +772,7 @@ TRYCSFILE:
 	doneobjects = 0;
 	
 	while(kcurrentinstance > 0) {
-		if(show_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance = %d\n",kcurrentinstance);
+		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance = %d\n",kcurrentinstance);
 		currentinstancevalues = (*p_Instance)[kcurrentinstance].contparameters.values;
 		scale = (*p_Instance)[kcurrentinstance].scale;
 		blockkey = (*p_Instance)[kcurrentinstance].blockkey;
@@ -827,7 +827,7 @@ TRYCSFILE:
 		objectstarttime = (*p_Instance)[kcurrentinstance].starttime;
 		objectduration = t3 - objectstarttime;
 		
-		if(show_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance = %d starttime = %ld endtime = %ld  objectduration = %ld\n",kcurrentinstance,(long)(*p_Instance)[kcurrentinstance].starttime,(long)t3,(long)objectduration);
+		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance = %d starttime = %ld endtime = %ld  objectduration = %ld\n",kcurrentinstance,(long)(*p_Instance)[kcurrentinstance].starttime,(long)t3,(long)objectduration);
 		
 		ievent = (*p_inext)[kcurrentinstance];
 		beta = (*p_Instance)[kcurrentinstance].dilationratio;
@@ -842,7 +842,7 @@ TRYCSFILE:
 // Initialise sound-object instance kcurrentinstance
 
 		if(!(*p_onoff)[kcurrentinstance]) {
-			if(show_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance2 = %d\n",kcurrentinstance);
+			if(trace_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance2 = %d\n",kcurrentinstance);
 			howmuch = 0.;
 #if BP_CARBON_GUI
 			// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
@@ -1000,7 +1000,7 @@ TRYCSFILE:
 #endif
 				}
 			if(t2 > t2tick && t2 != Infpos) t2 = t2tick;
-			if(show_csound_pianoroll) BPPrintMessage(odInfo,"fixed t2 = %ld\n",(long)t2);
+			if(trace_csound_pianoroll) BPPrintMessage(odInfo,"fixed t2 = %ld\n",(long)t2);
 			if(!cswrite && !MIDIfileOn && !showpianoroll && (result=CheckMIDIbytes(YES)) != OK
 				&& result != RESUME) goto OVER;
 			
@@ -1008,7 +1008,7 @@ TRYCSFILE:
 			
 			/* Pass on parameters to pp_currentparams used by Csound */
 			if((kcurrentinstance > 1) && (*p_Instance)[kcurrentinstance].contparameters.number > 0) {
-				if(show_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance = %ld > 1\n",(long)kcurrentinstance);
+				if(trace_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance = %ld > 1\n",(long)kcurrentinstance);
 				if(currentinstancevalues == NULL) {
 				//	if(Beta) Alert1("=> Err. MakeSound(). currentinstancevalues == NULL");
 					goto FORGETIT;
@@ -1061,7 +1061,7 @@ TRYCSFILE:
 				}
 FORGETIT:
 			if(kcurrentinstance > 1 && !showpianoroll) {
-				if(show_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance = %ld and not showpianoroll\n",(long)kcurrentinstance);
+				if(trace_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance = %ld and not showpianoroll\n",(long)kcurrentinstance);
 				Tcurr = (t0 + t1) / Time_res;
 				rs = 0;
 				/* Look at attached script line(s) */
@@ -1094,7 +1094,7 @@ FORGETIT:
 				
 				/* Reset tick cycle if requested */
 				Tcurr = (t0 + t1) / Time_res;
-				if(show_csound_pianoroll) BPPrintMessage(odInfo,"Reset tick cycle? Tcurr = %ld\n",(long)Tcurr);
+				if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Reset tick cycle? Tcurr = %ld\n",(long)Tcurr);
 				if(!MIDIfileOn && !cswrite && OutMIDI && ResetTickInItemFlag && PlayTicks
 						&& TickThere && !ItemCapture && !showpianoroll) {
 #if WITH_REAL_TIME_MIDI
@@ -1119,7 +1119,7 @@ FORGETIT:
 #endif
 					}
 #endif /* BP_CARBON_GUI */
-				if(show_csound_pianoroll) BPPrintMessage(odInfo,"(*p_Instance)[kcurrentinstance].contparameters.number = %ld\n",(long)(*p_Instance)[kcurrentinstance].contparameters.number);	
+				if(trace_csound_pianoroll) BPPrintMessage(odInfo,"(*p_Instance)[kcurrentinstance].contparameters.number = %ld\n",(long)(*p_Instance)[kcurrentinstance].contparameters.number);	
 				if((*p_Instance)[kcurrentinstance].contparameters.number
 						> (*p_control)[nseq].number) {
 					(*p_control)[nseq].number = (*p_Instance)[kcurrentinstance].contparameters.number;
@@ -1219,7 +1219,7 @@ SWITCHES:
 // Send dilation ratio to MIDI if applicable
 			if(j < Jbol && (*p_AlphaCtrl)[j] && (*p_AlphaCtrlChan)[j] <= MAXCHAN
 					&& (*p_AlphaCtrlNr)[j] < MAXPARAMCTRL) {
-				if(show_csound_pianoroll) BPPrintMessage(odInfo,"Send dilation ratio to MIDI\n");
+				if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Send dilation ratio to MIDI\n");
 					
 				alph = (int) (32. * log10(beta) + 64.);
 				/* This converts beta to range [0.01,100] */
@@ -1241,11 +1241,11 @@ SWITCHES:
 				}
 
 // Send initial messages if beginning of sound-object is truncated
-			if(show_csound_pianoroll) BPPrintMessage(odInfo,"Send initial messages?\n");
+			if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Send initial messages?\n");
 			if(ievent > 0 && ievent < im && !PlayFromInsertionPoint
 						&& !(cswrite && (*p_CsoundSize)[j] > 0 && !ConvertMIDItoCsound)) {
 							
-				if(show_csound_pianoroll) BPPrintMessage(odInfo,"Sending initial messages\n");
+				if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Sending initial messages\n");
 				Tcurr =  (t0 + t1) / Time_res;
 				for(ii = 0; ii < ievent; ii++) {
 					if(j < Jbol) {
@@ -1304,7 +1304,7 @@ SWITCHES:
 											}
 										if(cswrite) {
 											sprintf(Message,"Before CscoreWrite(1) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld\n",(long)kcurrentinstance,beta,(long)j,(long)t0,(long)t1,(long)c1,(long)c2);
-											if(show_csound_pianoroll) BPPrintMessage(odInfo,Message);
+											if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
 											if((result=
 		CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,OFF,beta,(t0 + t1),-1,c1,c2,localchan,instrument,j,
 			nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
@@ -1361,7 +1361,7 @@ SWITCHES:
 										}
 									if(cswrite) {
 										sprintf(Message,"Before CscoreWrite(2) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,(long)c1,(long)c2);
-										if(show_csound_pianoroll) BPPrintMessage(odInfo,Message);
+										if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
 										if((result=
 		CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams)) == ABORT) goto OVER;
@@ -1425,11 +1425,11 @@ SWITCHES:
 // Send messages of sound-object instance kcurrentinstance as long as possible
 
 PLAYOBJECT:
-		if(show_csound_pianoroll) BPPrintMessage(odInfo,"\nPLAYOBJECT: j = %d t1 = %ld t2 = %ld t3 = %ld ievent = %d im = %d\n",j,(long)t1,(long)t2,(long)t3,ievent,im);
+		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"\nPLAYOBJECT: j = %d t1 = %ld t2 = %ld t3 = %ld ievent = %d im = %d\n",j,(long)t1,(long)t2,(long)t3,ievent,im);
 		while(t1 <= t2  && t1 <= t3  && ievent < im) {
 			Tcurr =  (t0 + t1) / Time_res;
 			sprintf(Message,"Tcurr = %ld, j = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)j,(long)t0,(long)t1,(long)Time_res);
-	//		if(show_csound_pianoroll) BPPrintMessage(odInfo,Message);
+	//		if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
 			
 #if BP_CARBON_GUI
 			// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
@@ -1444,7 +1444,7 @@ PLAYOBJECT:
 			if(objectduration > ZERO) howmuch = ((float)(t1 - objectstarttime)) / objectduration;
 			else howmuch = 0.;
 			sprintf(Message,"k = %d j = %d ievent = %d beta = %.2f t0 = %ld t1 = %ld\n",kcurrentinstance,j,ievent,beta,(long)t0,(long)t1);
-			if(show_csound_pianoroll) BPPrintMessage(odInfo,Message);
+			if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
 				
 			/* Writing a Csound event taken from the Csound score of a sound-object */
 			if(cswrite && j < Jbol && (*p_CsoundSize)[j] > 0 && !ConvertMIDItoCsound) { 
@@ -1511,7 +1511,7 @@ PLAYOBJECT:
 							c1 = RetrieveMappedKey(c1,kcurrentinstance,localchan,p_currmapped,
 								maxmapped);
 						onoff = ByteToInt((*p_keyon[localchan])[c1]);
-						if(show_csound_pianoroll) BPPrintMessage(odInfo,"onoff = %d\n",onoff);
+						if(trace_csound_pianoroll) BPPrintMessage(odInfo,"onoff = %d\n",onoff);
 						if((onoff > 0 || cswrite) && !time_pattern) {
 							((*p_keyon[localchan])[c1])--;
 							if((onoff > 0 || cswrite) && (j >= 16384 || !(*p_DiscardNoteOffs)[j]
@@ -1528,13 +1528,13 @@ SENDNOTEOFF:
 									}
 								if(cswrite) {
 									sprintf(Message,"Before CscoreWrite(3) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,(long)c1,(long)c2);
-									if(show_csound_pianoroll) BPPrintMessage(odInfo,Message);
+									if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
 									if((result =
 		CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,OFF,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT) goto OVER;
 									}
 								if(showpianoroll) {
-									if(show_csound_pianoroll) BPPrintMessage(odInfo,"* DrawPianoNote() t1 = %ld nseq = %d\n",t1,nseq);
+									if(trace_csound_pianoroll) BPPrintMessage(odInfo,"* DrawPianoNote() t1 = %ld nseq = %d\n",t1,nseq);
 									result = DrawPianoNote("midi",c1,localchan,timeon[c1],
 									(t0 + t1),leftoffset,topoffset,hrect,minkey,maxkey,&graphrect);
 									if(result != OK || overflow) goto OVER;
@@ -1558,7 +1558,7 @@ SENDNOTEOFF:
 								&((*p_Instance)[kcurrentinstance].map0),
 								&((*p_Instance)[kcurrentinstance].map1));
 						onoff = ByteToInt((*p_keyon[localchan])[c1]);
-						if(show_csound_pianoroll) BPPrintMessage(odInfo,"\n** Tcurr = %ld NoteOn c1 = %d onoff = %d nseq = %d\n",(long)Tcurr,c1,onoff,nseq);
+						if(trace_csound_pianoroll) BPPrintMessage(odInfo,"\n** Tcurr = %ld NoteOn c1 = %d onoff = %d nseq = %d\n",(long)Tcurr,c1,onoff,nseq);
 						strike = TRUE;
 						
 						if(!time_pattern && (onoff > 0)) {
@@ -1573,7 +1573,7 @@ SENDNOTEOFF:
 									if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 									}
 								if(showpianoroll) { // Added by BB 4 Nov 2020
-									if(show_csound_pianoroll) BPPrintMessage(odInfo,"** DrawPianoNote() t1 = %ld nseq = %d\n",t1,nseq);
+									if(trace_csound_pianoroll) BPPrintMessage(odInfo,"** DrawPianoNote() t1 = %ld nseq = %d\n",t1,nseq);
 									result = DrawPianoNote("midi",c1,localchan,timeon[c1],(t0 + t1),
 										leftoffset,topoffset,hrect,
 										minkey,maxkey,&graphrect);
@@ -1594,7 +1594,7 @@ SENDNOTEOFF:
 									&p_currmapped,&maxmapped)) != OK) goto OVER;
 								}
 							if(!cswrite) {
-								if(show_csound_pianoroll) BPPrintMessage(odInfo,"*** Tcurr = %ld NoteOn c1 = %d onoff = %d nseq = %d strike\n",(long)Tcurr,c1,onoff,nseq);
+								if(trace_csound_pianoroll) BPPrintMessage(odInfo,"*** Tcurr = %ld NoteOn c1 = %d onoff = %d nseq = %d strike\n",(long)Tcurr,c1,onoff,nseq);
 								e.time = Tcurr;
 								e.type = NORMAL_EVENT;
 								e.status = c0 + localchan;
@@ -1604,13 +1604,13 @@ SENDNOTEOFF:
 								}
 							if(cswrite) {
 								sprintf(Message,"Before CscoreWrite(4) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,(long)c1,(long)c2);
-								if(show_csound_pianoroll) BPPrintMessage(odInfo,Message);
+								if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
 								if((result=
 		CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT) goto OVER;
 								}
 							if(showpianoroll) { // Fixed by BB 4 Nov 2020
-								if(show_csound_pianoroll) BPPrintMessage(odInfo,"*** DrawPianoNote() t1 = %ld nseq = %d\n",t1,nseq);
+								if(trace_csound_pianoroll) BPPrintMessage(odInfo,"*** DrawPianoNote() t1 = %ld nseq = %d\n",t1,nseq);
 								result = DrawPianoNote("midi",c1,localchan,timeon[c1],
 								(t0 + t1),leftoffset,topoffset,hrect,
 									minkey,maxkey,&graphrect);
@@ -1676,7 +1676,7 @@ SENDNOTEOFF:
 					}
 				}
 NEWPERIOD:
-			if(show_csound_pianoroll) BPPrintMessage(odInfo,"\nNEWPERIOD:\n");
+			if(trace_csound_pianoroll) BPPrintMessage(odInfo,"\nNEWPERIOD:\n");
 			if((*p_istartperiod)[kcurrentinstance] > -1 && ievent >= (*p_iendperiod)[kcurrentinstance]) {
 				/* Cyclic object: start another period */
 				t1 += (*p_periodgap)[kcurrentinstance];
@@ -1726,7 +1726,7 @@ NEWPERIOD:
 				}
 			else {
 				sprintf(Message,"%ld objects done out of %ld\n",(long)kcurrentinstance,(long)(*p_kmax));
-				if(show_csound_pianoroll) BPPrintMessage(odInfo,Message);
+				if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
 				if((MIDIfileOn || cswrite) && (!ItemCapture || ShowMessages)
 						&& doneobjects > 10) {
 					doneobjects = 0;

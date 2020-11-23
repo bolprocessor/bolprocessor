@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
 
-int show_inconsistencies = 1;
+int trace_inconsistencies = 1;
 
 ResetPrototype(int j)
 {
@@ -435,7 +435,7 @@ else  {
 	}
    
 if((*p_Resolution)[j] <= ZERO) {
-   if(show_inconsistencies) BPPrintMessage(odInfo,"=> Err. CheckConsistency(). (*p_Resolution)[j] <= ZERO\n");
+   if(trace_inconsistencies) BPPrintMessage(odInfo,"=> Err. CheckConsistency(). (*p_Resolution)[j] <= ZERO\n");
    return(FAILED);
    }
 if((*p_FixScale)[j]) {
@@ -446,11 +446,11 @@ if((*p_Tref)[j] < EPSILON) {
    (*p_OkRelocate)[j] = TRUE;
    }
 if((*p_PivType)[j] < 1 || (*p_PivType)[j] > 7) {
-	if(show_inconsistencies) BPPrintMessage(odInfo,"CheckConsistency() (*p_PivType)[%d] = %d\n",j,(*p_PivType)[j]);
+	if(trace_inconsistencies) BPPrintMessage(odInfo,"CheckConsistency() (*p_PivType)[%d] = %d\n",j,(*p_PivType)[j]);
    (*p_PivType)[j] = 1; bugg++;
    }
 if((*p_PivMode)[j] < ABSOLUTE || (*p_PivMode)[j] > RELATIVE) {
-	if(show_inconsistencies) BPPrintMessage(odInfo,"CheckConsistency() (*p_PivMode)[%d] = %d\n",j,(*p_PivMode)[j]);
+	if(trace_inconsistencies) BPPrintMessage(odInfo,"CheckConsistency() (*p_PivMode)[%d] = %d\n",j,(*p_PivMode)[j]);
    (*p_PivMode)[j] = ABSOLUTE; bugg++;
    }
 
@@ -474,7 +474,7 @@ switch((*p_PivType)[j]) {
    case 3: /* begon */
    case 6: /* centonoff */
       if((*p_MIDIsize)[j] == ZERO && (*p_CsoundSize)[j] == ZERO) {
-      	if(show_inconsistencies) BPPrintMessage(odInfo,"CheckConsistency() (*p_MIDIsize)[%d] = ZERO and (*p_CsoundSize)[%d] = ZERO\n",j,j);
+      	if(trace_inconsistencies) BPPrintMessage(odInfo,"CheckConsistency() (*p_MIDIsize)[%d] = ZERO and (*p_CsoundSize)[%d] = ZERO\n",j,j);
          (*p_PivType)[j] = 1; bugg++; break;
          }
       ton = toff = -1L;
@@ -490,7 +490,7 @@ switch((*p_PivType)[j]) {
             }
          }
       if(ton < ZERO || toff < ZERO || dur < EPSILON) {
-      	if(show_inconsistencies) BPPrintMessage(odInfo,"CheckConsistency() ton = %ld toff = %ld dur = %ld\n",(long)ton,(long)toff,(long)dur);
+      	if(trace_inconsistencies) BPPrintMessage(odInfo,"CheckConsistency() ton = %ld toff = %ld dur = %ld\n",(long)ton,(long)toff,(long)dur);
          (*p_PivType)[j] = 1; bugg++; break;
          }
       GetPrePostRoll(j,&preroll,&postroll);

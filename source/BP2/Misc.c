@@ -2124,7 +2124,7 @@ Strip(line);
 if(line[0] == '\0') goto ERR;
 
 x = Myatof(line,&p,&q);
-if(trace_scale) BPPrintMessage(odInfo,"FixNumberConstant line = %s\n",line);
+// if(trace_scale) BPPrintMessage(odInfo,"FixNumberConstant line = %s x = %.3f\n",line,x);
 
 if(p_NumberConstant == NULL) maxparam = 0;
 else maxparam = (MyGetHandleSize((Handle)p_NumberConstant) / sizeof(double));
@@ -2146,7 +2146,7 @@ for(j = 1; j < maxparam; j++) {
 		}
 	}
 if(j < maxparam) {
-	if(trace_FixNumberConstant || trace_scale) BPPrintMessage(odInfo,"FixNumberConstant() line = %s j = %d, x = %.3f\n",line,j,x);
+	if(trace_FixNumberConstant || trace_scale) BPPrintMessage(odInfo,"FixNumberConstant() line = %s j = %ld, x = %.3f\n",line,(long)j,x);
 	return(j);
 	}
 if(j >= MAXSTRINGCONSTANTS) {
@@ -2164,7 +2164,7 @@ maxparam = (MyGetHandleSize((Handle)p_NumberConstant) / sizeof(double));
 for(i = oldmaxparam + 1; i < maxparam; i++) (*p_NumberConstant)[i] = Infpos;
 		
 (*p_NumberConstant)[j] = x;
-if(trace_FixNumberConstant) BPPrintMessage(odInfo,"FixNumberConstant() after increasing space line = %s j = %d, x = %.3f\n",line,j,x);
+if(trace_FixNumberConstant) BPPrintMessage(odInfo,"FixNumberConstant() after increasing space line = '%s' j = %ld, x = %.3f\n",line,(long)j,x);
 return(j);
 
 ERR:

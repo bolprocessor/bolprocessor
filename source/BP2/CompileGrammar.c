@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
 
-int show_details_compile_grammar = 0;
+int trace_compile_grammar = 0;
 
 CompileGrammar(int mode)
 {
@@ -50,6 +50,8 @@ t_rule **ptr;
 Handle ptr1;
 
 dummy = ZERO;
+if(trace_scale) BPPrintMessage(odInfo,"Compiling grammar\n");
+strcpy(LastSeen_scale,"");
 if(CheckEmergency() != OK) return(ABORT);
 #if BP_CARBON_GUI
 if(GetTuning() != OK) return(ABORT);
@@ -942,7 +944,7 @@ MyDisposeHandle((Handle*)&p_line);
 pos = ZERO; foundoperatorthere = FALSE;
 while(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
 	if((*p_line)[0] == '\0' || (*p_line)[0] == '\r') goto NEXTLINE;
-	if(show_details_compile_grammar) BPPrintMessage(odInfo,"Reading: %s\n",(*p_line));
+	if(trace_compile_grammar) BPPrintMessage(odInfo,"Reading: %s\n",(*p_line));
 	operatorinline = FALSE;
 	MystrcpyHandleToString(MAXLIN,0,line,p_line);
 	if(strstr(line,Arrowstring) != NULLSTR && strstr(line,operatorbetweenquotes) == NULLSTR)
@@ -1033,7 +1035,7 @@ while(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
 				return(ABORT);
 				}
 			}
-		if(show_details_compile_grammar) BPPrintMessage(odInfo,"\nFound homomorphism operator: %s\n",(*p_line));
+		if(trace_compile_grammar) BPPrintMessage(odInfo,"\nFound homomorphism operator: %s\n",(*p_line));
 		}
 	else {
 		if((*p_line)[0] == '-' && (*p_line)[1] == '-') {
@@ -1136,7 +1138,7 @@ char c,**p_y,*p,*q;
 int i,j,k,k1,k2,l,length,r;
 
 l = MyHandleLen(p_line)-1;
-if(show_details_compile_grammar) BPPrintMessage(odInfo, "Starting GetBols() l = %d\n",l);
+if(trace_compile_grammar) BPPrintMessage(odInfo, "Starting GetBols() l = %d\n",l);
 if((p_y = (char**) GiveSpace((Size)((BOLSIZE+1) * sizeof(char)))) == NULL) {
 	return(26);
 	}
@@ -1145,13 +1147,13 @@ for(i=0,k1=0; i <= l;) {
 	if((length=GetBol(p_line,&i)) > BOLSIZE) {
 		sprintf(Message,"\nMaximum length: %ld chars.\n",(long)BOLSIZE);
 		Print(wTrace,Message);
-		if(show_details_compile_grammar) BPPrintMessage(odInfo,Message);
+		if(trace_compile_grammar) BPPrintMessage(odInfo,Message);
 	//	ShowError(22,0,0);
 		MyDisposeHandle((Handle*)&p_y);
 		return(26);
 		}
 	if(length == -1) {
-		if(show_details_compile_grammar) BPPrintMessage(odInfo, "GetBols() failed, length = %d\n",length);
+		if(trace_compile_grammar) BPPrintMessage(odInfo, "GetBols() failed, length = %d\n",length);
 		MyDisposeHandle((Handle*)&p_y);
 		return(27);
 		}
@@ -1160,12 +1162,12 @@ for(i=0,k1=0; i <= l;) {
 	if(!isspace(c) && c != '\0') {
 		sprintf(Message,"Can't accept character \"%c\" in alphabet\n",c);
 		Print(wTrace,Message);
-		if(show_details_compile_grammar) BPPrintMessage(odInfo,"Can't accept character \"%c\" in alphabet. length = %d\n",c,length);
+		if(trace_compile_grammar) BPPrintMessage(odInfo,"Can't accept character \"%c\" in alphabet. length = %d\n",c,length);
 		r = ABORT; goto QUIT;
 		} 
 	(*p_line)[j++] = '\0';
 	for(k=0; (i+k) < j; k++) (*p_y)[k] = (*p_line)[i+k];
-	if(show_details_compile_grammar) BPPrintMessage(odInfo, "Will try CreateBol for (*p_y) = %s\n",(*p_y));
+	if(trace_compile_grammar) BPPrintMessage(odInfo, "Will try CreateBol for (*p_y) = %s\n",(*p_y));
 	k2 = CreateBol(TRUE,TRUE,p_y,justcount,FALSE,BOL);
 	if(k2 < 0) {
 		r = ABORT; goto QUIT;
@@ -1209,12 +1211,12 @@ char c,line[MAXLIN];
 // firstc = (*p_line)[*p_i];
 while(MySpace(c=(*p_line)[*p_i])) (*p_i)++;
 i = (*p_i);
-if(show_details_compile_grammar) BPPrintMessage(odInfo,"Getting bols in line: %s\n",(*p_line));
+if(trace_compile_grammar) BPPrintMessage(odInfo,"Getting bols in line: %s\n",(*p_line));
 if((*p_line)[*p_i] == '\'') {
 	/* Read terminal between single quotes */
 	for(j=(*p_i)+1;(c=(*p_line)[j]) != '\0' && c != '\''; j++){};
 	j++;
-	if(show_details_compile_grammar) BPPrintMessage(odInfo,"terminal between single quotes j = %d\n",j);
+	if(trace_compile_grammar) BPPrintMessage(odInfo,"terminal between single quotes j = %d\n",j);
 	}
 else {
 	if(!OkBolChar((*p_line)[*p_i])) goto ERR;
@@ -1224,9 +1226,9 @@ else {
 			goto ERR;
 			}
 		}
-	if(show_details_compile_grammar) BPPrintMessage(odInfo,"normal terminal j = %d\n",j);
+	if(trace_compile_grammar) BPPrintMessage(odInfo,"normal terminal j = %d\n",j);
 	}
-if(show_details_compile_grammar) BPPrintMessage(odInfo,"length = %d\n",j-(*p_i));
+if(trace_compile_grammar) BPPrintMessage(odInfo,"length = %d\n",j-(*p_i));
 return(j-(*p_i));
 
 ERR:
@@ -1238,7 +1240,7 @@ while(TRUE) {
 	i++;
 	}
 line[j] = '\0';
-if(show_details_compile_grammar) BPPrintMessage(odInfo,"Can't make sense of \"%s\"\n",line);
+if(trace_compile_grammar) BPPrintMessage(odInfo,"Can't make sense of \"%s\"\n",line);
 sprintf(Message,"Can't make sense of \"%s\"\n",line);
 Print(wTrace,Message);
 return(-1);
@@ -1385,7 +1387,7 @@ char **ptr,****p_t,*q,line[MAXLIN];
 // char **ptr,*q,line[MAXLIN];
 // char **p_t[MAXBOL];
 
-if(show_details_compile_grammar) BPPrintMessage(odInfo, "CreateBol() Jbol = %d\n",Jbol);
+if(trace_compile_grammar) BPPrintMessage(odInfo, "CreateBol() Jbol = %d\n",Jbol);
 if(type == BOL) {
 	jmax = Jbol; p_t = p_Bol;
 	}
@@ -1405,7 +1407,7 @@ for(j=0; j < MAXNIL; j++) {
 		return(ABORT);
 		}
 	}
-if(show_details_compile_grammar) BPPrintMessage(odInfo, "jmax = %d\n",jmax);
+if(trace_compile_grammar) BPPrintMessage(odInfo, "jmax = %d\n",jmax);
 if(jmax > 0) {
 	if(p_t == NULL) {
 		if(Beta) Alert1("=> Err. CreateBol(). p_t == NULL");
@@ -1418,7 +1420,7 @@ if(jmax > 0) {
 if(diff && checknotes) {
 	/* Maybe it's a simple note */
 	cv = NoteConvention;
-	if(show_details_compile_grammar) BPPrintMessage(odInfo, "Checking notes, convention = %d\n",cv);
+	if(trace_compile_grammar) BPPrintMessage(odInfo, "Checking notes, convention = %d\n",cv);
 	for(j=0; j < 128; j++) {
 		MystrcpyHandleToString(MAXLIN,0,line,(*(p_NoteName[cv]))[j]);
 		q = &(line[0]); ln = strlen(line);
@@ -1426,13 +1428,7 @@ if(diff && checknotes) {
 FOUNDNOTE:
 			j += (C4key - 60);
 			if(j < 0 || j > 127) {
-		/*		sprintf(Message,
-					"Simple note '%s' is out of range. (Maybe check \"Tuning\")",
-					line);
-				Alert1(Message); */
-				BPPrintMessage(odError, "A simple note is out of range. Probably wrong value of C4 key number = %ld\n",(long)C4key);
-			/*	ShowWindow(GetDialogWindow(TuningPtr));
-				SelectWindow(GetDialogWindow(TuningPtr)); */
+				BPPrintMessage(odError, "=> A simple note is out of range. Probably wrong value of C4 key number = %ld\n",(long)C4key);
 				return(ABORT);
 				}
 			return(j+16384);
@@ -1448,7 +1444,7 @@ FOUNDNOTE:
 	}
 if(diff) {
 	j = jmax;
-	if(show_details_compile_grammar) BPPrintMessage(odInfo, "Creating Bol %d = %s\n",j,*p_x);
+	if(trace_compile_grammar) BPPrintMessage(odInfo, "Creating Bol %d = %s\n",j,*p_x);
 	if(type == BOL) {
 		if(reload) ObjectMode = ObjectTry = FALSE;
 	//	dirtyalphabetmem = Dirty[wAlphabet];

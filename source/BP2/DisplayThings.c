@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
 
-int show_display = 0;
+int trace_display = 0;
 
 Print(int w,char* t)
 {
@@ -897,7 +897,7 @@ if(Pduration > 0.) {
 	
 	if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
 	
-	if(show_display) ShowMessage(store, wMessage, Message);
+	if(trace_display) ShowMessage(store, wMessage, Message);
 	}
 return(OK);
 }

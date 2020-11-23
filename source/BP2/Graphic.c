@@ -51,7 +51,7 @@ int Lastx2[MAXKEY];
 int try_pivots = 0;
 int try_separate_labels = 0;
 int try_synchro_tag = 0;
-int show_more_details = 0;
+int trace_details = 0;
 int trace_draw_piano_note = 0;
 
 int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
@@ -88,7 +88,7 @@ if(CheckLoadedPrototypes() != OK) {
 	return(OK);
 	}
 // BPPrintMessage(odInfo,"Drawing graphics in ‘objects’ mode...\n");
-if(show_more_details) BPPrintMessage(odInfo,"Jbol = %d Jpatt = %d\n",Jbol,Jpatt);
+if(trace_details) BPPrintMessage(odInfo,"Jbol = %d Jpatt = %d\n",Jbol,Jpatt);
 
 rep = OK;
 GraphicOn = TRUE; overflow = FALSE;
@@ -114,7 +114,7 @@ r.bottom = r.top + topoffset + Maxevent * (hrect + htext);
 r.left = 0;
 endxmax = leftoffset + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10
 	+ BOLSIZE * 10;
-if(show_more_details) BPPrintMessage(odInfo,"GraphicScaleP = %d GraphicScaleQ = %d tmin = %d tmax =%d endxmax = %d\n",GraphicScaleP,GraphicScaleQ,tmin,tmax,endxmax);
+if(trace_details) BPPrintMessage(odInfo,"GraphicScaleP = %d GraphicScaleQ = %d tmin = %d tmax =%d endxmax = %d\n",GraphicScaleP,GraphicScaleQ,tmin,tmax,endxmax);
 if(endxmax < 100) endxmax = 100;
 r.right = r.left + endxmax;
 
@@ -142,15 +142,15 @@ linenum = 0; linemax = 1;
 Hmin[w] = 0;
 Vmin[w] = 0;;
 for(nseq = nmin; nseq <= nmax; nseq++) {
-	if(show_more_details) BPPrintMessage(odInfo,"\nnseq = %d\n",nseq);
+	if(trace_details) BPPrintMessage(odInfo,"\nnseq = %d\n",nseq);
 	foundone = FALSE;
 	for(i=1; i < (*p_imaxseq)[nseq] && i <= imax; i++) {
 		k = (*((*p_Seq)[nseq]))[i];
-		if(show_more_details) BPPrintMessage(odInfo,"\nk = %d\n",k);
+		if(trace_details) BPPrintMessage(odInfo,"\nk = %d\n",k);
 		if(k < 0) BPPrintMessage(odInfo,"=> Err. 'k' in DrawItem().\n");
 		if(k < 2) continue;	/* Reject '_' and '-' */
 		if(kmode) {
-			if(show_more_details) BPPrintMessage(odInfo,"kmode = TRUE\n");
+			if(trace_details) BPPrintMessage(odInfo,"kmode = TRUE\n");
 			if(p_object == NULL) {
 				BPPrintMessage(odInfo,"=> Err. DrawObject(). p_object == NULL\n");
 				return(ABORT);
@@ -159,14 +159,14 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			t2 = (*p_object)[k].endtime;
 			}
 		else {
-			if(show_more_details) BPPrintMessage(odInfo,"kmode = FALSE\n");
+			if(trace_details) BPPrintMessage(odInfo,"kmode = FALSE\n");
 			t1 = (*p_t1)[i];
 			t2 = (*p_t2)[i];
 			}
 		t1 =  (t1 * GraphicScaleP) / GraphicScaleQ / 10;
 		t2 =  (t2 * GraphicScaleP) / GraphicScaleQ / 10;
 		j = (*p_Instance)[k].object; /* Beware: j < 0 for out-time objects */
-		if(show_more_details) BPPrintMessage(odInfo,"j = %d t1 = %d t2 = %d endx =  %d\n",j,t1,t2,endx);
+		if(trace_details) BPPrintMessage(odInfo,"j = %d t1 = %d t2 = %d endx =  %d\n",j,t1,t2,endx);
 		trbeg = ((*p_Instance)[k].truncbeg * GraphicScaleP) / GraphicScaleQ / 10;
 		tt1 = leftoffset + t1 - trbeg;
 		trend = ((*p_Instance)[k].truncend * GraphicScaleP) / GraphicScaleQ / 10;
@@ -188,22 +188,19 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 #else
 		if(j == 0 || j == 1 || j == -1) continue;
 #endif
-		if(show_more_details) BPPrintMessage(odInfo,"j = %d\n",j);
-		if(NoteConvention == 4) {
-			scale = (*p_Instance)[k].scale;
-			i_scale = (*p_StringConstant)[scale];
-			for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
-				result = MyHandlecmp((*p_StringConstant)[scale],(*Scale)[i_scale].label);
-				if(result == 0) break;
-				}
-			if(i_scale > NumberScales) i_scale = -1;
+		if(trace_details) BPPrintMessage(odInfo,"j = %d\n",j);
+		scale = (*p_Instance)[k].scale;
+		for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
+			result = MyHandlecmp((*p_StringConstant)[scale],(*Scale)[i_scale].label);
+			if(result == 0) break;
 			}
+		if(i_scale > NumberScales) i_scale = -1;
 		if(j > 0) {
 			if(j >= Jbol && j < 16384) sprintf(line,"%s",*((*p_Patt)[j-Jbol]));
 			else {
 				if(j < 16364) {
 					sprintf(line,"%s",*((*p_Bol)[j]));
-					if(show_more_details) BPPrintMessage(odInfo,"(*p_Bol)[%ld] = %s\n",(long)j,line);
+					if(trace_details) BPPrintMessage(odInfo,"(*p_Bol)[%ld] = %s\n",(long)j,line);
 					}
 				else {
 					key = j - 16384;
@@ -243,7 +240,6 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			sprintf(line2," #%ld",(long)k);
 			strcat(line,line2);
 			}
-	//	strcpy(label,line);
 		for(xc = 0; xc < strlen(line); xc++) {
 			c = (unsigned char) line[xc];
 			if(c == '"') label[xc] = "-"; // Quotes need to be replaced as they would jam fill_text()
@@ -253,7 +249,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 		tab = ((int) t2 - (int) t1 - strlen(line)) / 2;
 		if(tab < 2) tt1 = (int) t1 + leftoffset + 1 + tab;
 		sprintf(Message,"t1 = %ld tt1= %ld endx = %ld\n",(long)t1,(long)tt1,(long) (*p_endx)[linenum]);
-		if(show_more_details) BPPrintMessage(odInfo,Message);
+		if(trace_details) BPPrintMessage(odInfo,Message);
 	//	if(endx < t2) endx = t2;
 		if(tt1 < (*p_endx)[linenum]) {
 			for(linenum=linemin; linenum < linemax; linenum++) {
@@ -262,7 +258,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			linemax = linenum + 1;	/* here 'linenum' has been incremented */
 			foundone = TRUE;
 			sprintf(Message,"=> New linenum = %ld\n",(long)linenum);
-			if(show_more_details) BPPrintMessage(odInfo,Message);
+			if(trace_details) BPPrintMessage(odInfo,Message);
 			if(linenum >= maxlines) {
 				sprintf(Message,
 					"=> Err. linenum = %ld  maxlines = %ld  DrawItem()\n",
@@ -288,7 +284,7 @@ CONT:
 		pivloc -= trbeg;
 	
 		sprintf(Message,"Running DrawObject(%s) for linenum = %ld, endx = %ld and top = %ld\n",label,(long)linenum,(long)endx,(long)(*p_top)[linenum]);
-		if(show_more_details) BPPrintMessage(odInfo,Message);
+		if(trace_details) BPPrintMessage(odInfo,Message);
 				
 		if(DrawObject(j,label,(*p_Instance)[k].dilationratio,(*p_top)[linenum],hrect,htext,
 				leftoffset,pivloc,t1,t2,trbeg,trend,&morespace,
@@ -307,7 +303,7 @@ CONT:
 		if((*p_endy)[linenum] > endymax) endymax = (*p_endy)[linenum];
 		
 		sprintf(Message,"linenum = %ld, morespace[%ld] = %ld\n",(long)linenum,(long)linenum,(long)(*p_morespace)[linenum]);
-		if(show_more_details) BPPrintMessage(odInfo,Message);
+		if(trace_details) BPPrintMessage(odInfo,Message);
 		}
 //	linenum = linemin = linemax;
 	linenum = linemax;
@@ -390,7 +386,7 @@ r.left = (int)t1 + leftoffset;
 r.right = (int)t2 + leftoffset;
 r.bottom = r.top + hrect;
 sprintf(Message,"j = %ld, leftoffset = %ld,  t1 = %ld, t2 = %ld, endx = %ld\n",(long)j,leftoffset,t1,t2,(*p_endx));
-if(show_more_details) BPPrintMessage(odInfo,Message);
+if(trace_details) BPPrintMessage(odInfo,Message);
 
 // Erase background 
 r2 = r;
@@ -403,11 +399,11 @@ stroke_style("black");
 stroke_rect(&r);
 
 sprintf(Message,"j = %ld, r.left = %ld, r.right = %ld, r.top = %ld, r.bottom = %ld\n",(long)j,(long)r.left,(long)r.right,(long)r.top,(long)r.bottom);
-if(show_more_details) BPPrintMessage(odInfo,Message);
+if(trace_details) BPPrintMessage(odInfo,Message);
 r2 = r;
 resize_rect(&r2,-1,-1);
 sprintf(Message,"j = %ld, r2.left = %ld, r2.right = %ld, r2.top = %ld, r2.bottom = %ld\n",(long)j,(long)r2.left,(long)r2.right,(long)r2.top,(long)r2.bottom);
-if(show_more_details) BPPrintMessage(odInfo,Message);
+if(trace_details) BPPrintMessage(odInfo,Message);
 if(j >= Jbol && j < 16384) { // Time pattern
 	fill_rect(&r2,"LightCyan");
 	}
@@ -472,7 +468,7 @@ if(try_pivots || (j < Jbol && (*p_Tref)[j] > EPSILON)) {
 	else {
 		draw_line(x_startpivot,y_startpivot,x_startpivot,(y_startpivot + 5),"");
 		sprintf(Message,"Pivot x = %ld, y = %ld\n",(long)x_startpivot,(long)y_startpivot);
-		if(show_more_details) BPPrintMessage(odInfo,Message);
+		if(trace_details) BPPrintMessage(odInfo,Message);
 		}
 	
 	// Now draw arrow of pivot
@@ -1350,7 +1346,7 @@ else {
 xmax = p_r->right;
 
 sprintf(Message,"DrawItemBackground() imax= %ld, xmax = %ld\n",(long)imax,(long)xmax);
-if(show_more_details) BPPrintMessage(odInfo,Message);
+if(trace_details) BPPrintMessage(odInfo,Message);
 
 if(Nature_of_time == SMOOTH)
 	while(imax > 1L && (*p_T)[imax] == ZERO) imax--;
@@ -1634,7 +1630,7 @@ void stroke_text(char* txt,int x,int y) {
 
 void fill_text(char* txt,int x,int y) {
 	char line[500];
-	if(show_more_details) BPPrintMessage(odInfo,"text = %s\n",txt);
+	if(trace_details) BPPrintMessage(odInfo,"text = %s\n",txt);
 	if(strcmp(graphic_scheme,"canvas") == 0) {
 		sprintf(line,"ctx.fillText(\"%s\",%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
 		fputs(line,imagePtr);
