@@ -1414,7 +1414,7 @@ if(isalpha(line[0])) {
 				if(Match(TRUE,&p_line,(*(p_NoteName[j_scale]))[key],l)
 						&& !isdigit(p_line[l])) {
 					sprintf(line,"%d",key);
-					if(trace_scale) BPPrintMessage(odInfo,"Found block key '%d' in current scale, j_scale = %d LastSeen_scale = %d\n",key,j_scale,LastSeen_scale);
+					if(trace_scale) BPPrintMessage(odInfo,"Found block key '%d' in current scale, j_scale = %d LastSeen_scale = %s\n",key,j_scale,LastSeen_scale);
 					goto FOUNDKEY;
 					}
 				}

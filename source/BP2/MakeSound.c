@@ -436,7 +436,9 @@ if(showpianoroll) {
 	htext = 14;
 	leftoffset = 13 + 30 - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
 	topoffset = (3 * htext) + 6;
-	endxmax = leftoffset + 50 + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10;
+	if(leftoffset >= 0)
+		endxmax = leftoffset + 50 + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10;
+	else endxmax = 50 + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10;
 	if(endxmax < 100) endxmax = 100;
 	endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
 //	BPPrintMessage(odInfo,"minkey = %d maxkey = %d endymax = %d\n",minkey,maxkey,endymax);

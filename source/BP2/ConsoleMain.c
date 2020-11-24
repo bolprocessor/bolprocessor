@@ -82,7 +82,7 @@ int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 Find_leak = FALSE; // Flag to locate place where negative leak starts
 check_memory_use = FALSE;
 
-int trace_scale = 0;
+int trace_scale = 1;
 
 PrototypesLoaded = FALSE;
 
@@ -156,7 +156,7 @@ int main (int argc, char* args[])
 */
 
 	InitOn = FALSE;
-	BPPrintMessage(odInfo, "\nBP3 Console completed initialization and will run: ");
+	BPPrintMessage(odInfo, "\nBP3 Console completed initialization and will run[scale ");
 	
 	BPPrintMessage(odInfo, "%s\n\n",gOptions.inputFilenames[wGrammar]);
 	

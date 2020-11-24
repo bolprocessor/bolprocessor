@@ -48,10 +48,10 @@ int resize = 4; // Rescaling the image to get high resolution
 int Lastx2[MAXKEY];
 
 // Flags for debugging:
+int trace_graphic = 0;
 int try_pivots = 0;
 int try_separate_labels = 0;
 int try_synchro_tag = 0;
-int trace_details = 0;
 int trace_draw_piano_note = 0;
 
 int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
@@ -88,7 +88,7 @@ if(CheckLoadedPrototypes() != OK) {
 	return(OK);
 	}
 // BPPrintMessage(odInfo,"Drawing graphics in ‘objects’ mode...\n");
-if(trace_details) BPPrintMessage(odInfo,"Jbol = %d Jpatt = %d\n",Jbol,Jpatt);
+if(trace_graphic) BPPrintMessage(odInfo,"Jbol = %d Jpatt = %d\n",Jbol,Jpatt);
 
 rep = OK;
 GraphicOn = TRUE; overflow = FALSE;
@@ -114,7 +114,7 @@ r.bottom = r.top + topoffset + Maxevent * (hrect + htext);
 r.left = 0;
 endxmax = leftoffset + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10
 	+ BOLSIZE * 10;
-if(trace_details) BPPrintMessage(odInfo,"GraphicScaleP = %d GraphicScaleQ = %d tmin = %d tmax =%d endxmax = %d\n",GraphicScaleP,GraphicScaleQ,tmin,tmax,endxmax);
+if(trace_graphic) BPPrintMessage(odInfo,"GraphicScaleP = %d GraphicScaleQ = %d tmin = %d tmax =%d endxmax = %d\n",GraphicScaleP,GraphicScaleQ,tmin,tmax,endxmax);
 if(endxmax < 100) endxmax = 100;
 r.right = r.left + endxmax;
 
@@ -142,15 +142,15 @@ linenum = 0; linemax = 1;
 Hmin[w] = 0;
 Vmin[w] = 0;;
 for(nseq = nmin; nseq <= nmax; nseq++) {
-	if(trace_details) BPPrintMessage(odInfo,"\nnseq = %d\n",nseq);
+	if(trace_graphic) BPPrintMessage(odInfo,"\nnseq = %d\n",nseq);
 	foundone = FALSE;
 	for(i=1; i < (*p_imaxseq)[nseq] && i <= imax; i++) {
 		k = (*((*p_Seq)[nseq]))[i];
-		if(trace_details) BPPrintMessage(odInfo,"\nk = %d\n",k);
+		if(trace_graphic) BPPrintMessage(odInfo,"k = %d\n",k);
 		if(k < 0) BPPrintMessage(odInfo,"=> Err. 'k' in DrawItem().\n");
 		if(k < 2) continue;	/* Reject '_' and '-' */
 		if(kmode) {
-			if(trace_details) BPPrintMessage(odInfo,"kmode = TRUE\n");
+			if(trace_graphic) BPPrintMessage(odInfo,"kmode = TRUE\n");
 			if(p_object == NULL) {
 				BPPrintMessage(odInfo,"=> Err. DrawObject(). p_object == NULL\n");
 				return(ABORT);
@@ -159,14 +159,14 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			t2 = (*p_object)[k].endtime;
 			}
 		else {
-			if(trace_details) BPPrintMessage(odInfo,"kmode = FALSE\n");
+			if(trace_graphic) BPPrintMessage(odInfo,"kmode = FALSE\n");
 			t1 = (*p_t1)[i];
 			t2 = (*p_t2)[i];
 			}
 		t1 =  (t1 * GraphicScaleP) / GraphicScaleQ / 10;
 		t2 =  (t2 * GraphicScaleP) / GraphicScaleQ / 10;
 		j = (*p_Instance)[k].object; /* Beware: j < 0 for out-time objects */
-		if(trace_details) BPPrintMessage(odInfo,"j = %d t1 = %d t2 = %d endx =  %d\n",j,t1,t2,endx);
+		if(trace_graphic) BPPrintMessage(odInfo,"j = %d t1 = %d t2 = %d endx =  %d\n",j,t1,t2,endx);
 		trbeg = ((*p_Instance)[k].truncbeg * GraphicScaleP) / GraphicScaleQ / 10;
 		tt1 = leftoffset + t1 - trbeg;
 		trend = ((*p_Instance)[k].truncend * GraphicScaleP) / GraphicScaleQ / 10;
@@ -188,19 +188,27 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 #else
 		if(j == 0 || j == 1 || j == -1) continue;
 #endif
-		if(trace_details) BPPrintMessage(odInfo,"j = %d\n",j);
 		scale = (*p_Instance)[k].scale;
-		for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
-			result = MyHandlecmp((*p_StringConstant)[scale],(*Scale)[i_scale].label);
-			if(result == 0) break;
+		if(scale < 0) i_scale = -1;
+		else if(scale == 0) {
+			i_scale = DefaultScale;
+			if(trace_scale) BPPrintMessage(odInfo,"Default scale will be used\n");
 			}
-		if(i_scale > NumberScales) i_scale = -1;
+		else {
+			if(trace_graphic) BPPrintMessage(odInfo,"j = %d k = %d scale = %d NumberScales = %d\n",j,k,scale,NumberScales);
+			for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
+				result = MyHandlecmp((*p_StringConstant)[scale],(*Scale)[i_scale].label);
+				if(trace_graphic) BPPrintMessage(odInfo,"i_scale = %d (*p_StringConstant)[scale] = %s result = %d\n",i_scale,*((*p_StringConstant)[scale]),result);
+				if(result == 0) break;
+				}
+			if(i_scale > NumberScales) i_scale = -1;
+			}
 		if(j > 0) {
 			if(j >= Jbol && j < 16384) sprintf(line,"%s",*((*p_Patt)[j-Jbol]));
 			else {
 				if(j < 16364) {
 					sprintf(line,"%s",*((*p_Bol)[j]));
-					if(trace_details) BPPrintMessage(odInfo,"(*p_Bol)[%ld] = %s\n",(long)j,line);
+					if(trace_graphic) BPPrintMessage(odInfo,"(*p_Bol)[%ld] = %s\n",(long)j,line);
 					}
 				else {
 					key = j - 16384;
@@ -249,7 +257,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 		tab = ((int) t2 - (int) t1 - strlen(line)) / 2;
 		if(tab < 2) tt1 = (int) t1 + leftoffset + 1 + tab;
 		sprintf(Message,"t1 = %ld tt1= %ld endx = %ld\n",(long)t1,(long)tt1,(long) (*p_endx)[linenum]);
-		if(trace_details) BPPrintMessage(odInfo,Message);
+		if(trace_graphic) BPPrintMessage(odInfo,Message);
 	//	if(endx < t2) endx = t2;
 		if(tt1 < (*p_endx)[linenum]) {
 			for(linenum=linemin; linenum < linemax; linenum++) {
@@ -258,7 +266,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			linemax = linenum + 1;	/* here 'linenum' has been incremented */
 			foundone = TRUE;
 			sprintf(Message,"=> New linenum = %ld\n",(long)linenum);
-			if(trace_details) BPPrintMessage(odInfo,Message);
+			if(trace_graphic) BPPrintMessage(odInfo,Message);
 			if(linenum >= maxlines) {
 				sprintf(Message,
 					"=> Err. linenum = %ld  maxlines = %ld  DrawItem()\n",
@@ -284,7 +292,7 @@ CONT:
 		pivloc -= trbeg;
 	
 		sprintf(Message,"Running DrawObject(%s) for linenum = %ld, endx = %ld and top = %ld\n",label,(long)linenum,(long)endx,(long)(*p_top)[linenum]);
-		if(trace_details) BPPrintMessage(odInfo,Message);
+		if(trace_graphic) BPPrintMessage(odInfo,Message);
 				
 		if(DrawObject(j,label,(*p_Instance)[k].dilationratio,(*p_top)[linenum],hrect,htext,
 				leftoffset,pivloc,t1,t2,trbeg,trend,&morespace,
@@ -303,7 +311,7 @@ CONT:
 		if((*p_endy)[linenum] > endymax) endymax = (*p_endy)[linenum];
 		
 		sprintf(Message,"linenum = %ld, morespace[%ld] = %ld\n",(long)linenum,(long)linenum,(long)(*p_morespace)[linenum]);
-		if(trace_details) BPPrintMessage(odInfo,Message);
+		if(trace_graphic) BPPrintMessage(odInfo,Message);
 		}
 //	linenum = linemin = linemax;
 	linenum = linemax;
@@ -386,7 +394,7 @@ r.left = (int)t1 + leftoffset;
 r.right = (int)t2 + leftoffset;
 r.bottom = r.top + hrect;
 sprintf(Message,"j = %ld, leftoffset = %ld,  t1 = %ld, t2 = %ld, endx = %ld\n",(long)j,leftoffset,t1,t2,(*p_endx));
-if(trace_details) BPPrintMessage(odInfo,Message);
+if(trace_graphic) BPPrintMessage(odInfo,Message);
 
 // Erase background 
 r2 = r;
@@ -399,11 +407,11 @@ stroke_style("black");
 stroke_rect(&r);
 
 sprintf(Message,"j = %ld, r.left = %ld, r.right = %ld, r.top = %ld, r.bottom = %ld\n",(long)j,(long)r.left,(long)r.right,(long)r.top,(long)r.bottom);
-if(trace_details) BPPrintMessage(odInfo,Message);
+if(trace_graphic) BPPrintMessage(odInfo,Message);
 r2 = r;
 resize_rect(&r2,-1,-1);
 sprintf(Message,"j = %ld, r2.left = %ld, r2.right = %ld, r2.top = %ld, r2.bottom = %ld\n",(long)j,(long)r2.left,(long)r2.right,(long)r2.top,(long)r2.bottom);
-if(trace_details) BPPrintMessage(odInfo,Message);
+if(trace_graphic) BPPrintMessage(odInfo,Message);
 if(j >= Jbol && j < 16384) { // Time pattern
 	fill_rect(&r2,"LightCyan");
 	}
@@ -468,7 +476,7 @@ if(try_pivots || (j < Jbol && (*p_Tref)[j] > EPSILON)) {
 	else {
 		draw_line(x_startpivot,y_startpivot,x_startpivot,(y_startpivot + 5),"");
 		sprintf(Message,"Pivot x = %ld, y = %ld\n",(long)x_startpivot,(long)y_startpivot);
-		if(trace_details) BPPrintMessage(odInfo,Message);
+		if(trace_graphic) BPPrintMessage(odInfo,Message);
 		}
 	
 	// Now draw arrow of pivot
@@ -926,22 +934,10 @@ if(!(*p_TruncEnd)[j]) {
 y = p_frame->top + topoffset + 4 * htext;
 if(maxtrunc1 > 0 && maxtrunc1 <= dur) {
 	x = xmin + grscale * (- tmin);
-//	move_to(x,y); line_to(x,y - htext);
 	x = xmin + grscale * (- tmin + maxtrunc1);
-/*	move_to(x,y); line_to(x,y - htext);
-	pen_size(2,2); */
 	y = p_frame->top + topoffset + 4 * htext - 1;
 	x = xmin + grscale * (- tmin);
-/*	move_to(x,y); 
-	line_to(xmin + grscale * (- tmin + maxtrunc1) - 1,y);
-	PenNormal(); stroke_style(&Black); */
 	y += htext;
-/*	move_to(xmin + grscale * (- tmin) + 1,y);
-	fill_text("\pTruncBeg"); */
-	}
-else {
-/*	move_to(p_frame->left + 3,p_frame->top + topoffset + 5 * htext - 1);
-	stroke_style(&Black); fill_text("\p#TruncBeg"); */
 	}
 y = p_frame->top + topoffset + 6 * htext;
 if(maxtrunc2 > 0 && maxtrunc2 <= dur) {
@@ -1179,132 +1175,6 @@ return(rep);
 }
 
 
-/*  int OpenGraphic(int w,Rect *p_r,int showpen,CGrafPtr *p_port,GDHandle *p_gdh)
-{
-// GWorldFlags flags;
-
-if(Offscreen) {
-
-	Rect rtemp;
-	GetGWorld(p_port,p_gdh);
-	flags = UpdateGWorld(&gMainGWorld,16,p_r,0,NULL,clipPix);
-	if(!LockPixels(GetGWorldPixMap(gMainGWorld))) {
-		Alert1("LockPixels Failed... ");
-		return(ABORT);
-		}
-	SetGWorld(gMainGWorld,nil);
-	SetPort(gMainGWorld);
-	erase_rect("canvas"GetPortBounds(gMainGWorld, &rtemp));
-
-	}
-else {
-	SetPortWindowPort(Window[w]);
-	ClearWindow(TRUE,w);
-	if(p_Picture[0] != NULL) {
-		if(Beta) {
-			Alert1("=> Err. DrawItem(). p_Picture[0] != NULL");
-			}
-		KillPicture(p_Picture[0]);
-		p_Picture[0] = NULL;
-		}
-	p_Picture[0] = OpenPicture(p_r);
-	if(Npicture < 1) Npicture = 1;
-	PictureWindow[0] = w;
-	PictRect[0] = (*p_r);
-	}
-if(showpen) ShowPen();
-ClipRect(p_r);
-return(OK);
-} */
-
-
-/*  int CloseGraphic(int w,long endxmax,long endymax,int overflow,Rect *p_r,CGrafPtr *p_port,
-	GDHandle gdh)
-{
-int rep,endxmin,endymin,newh,newv;
-Rect rclip;
-	
-endxmin = endymin = 0;
-
-stroke_style(&Black);
-pen_size(1,0);
-PenNormal();
-
-GetWindowPortBounds(Window[w], &rclip);
-if(OKhScroll[w]) rclip.bottom -= (SBARWIDTH + 1);
-if(OKvScroll[w]) rclip.right -= (SBARWIDTH + 1);
-ClipRect(&rclip);
-
-ShowWindow(Window[w]);
-SelectWindow(Window[w]);
-
-if(!Offscreen) {
-	ClosePicture();
-	if(!overflow) {
-		DrawPicture(p_Picture[0],p_r);
-		if(GraphOverflow(p_Picture[0])) rep = OK;
-		}
-	else {
-		if(Npicture > 0 && p_Picture[Npicture-1] != NULL) {
-			KillPicture(p_Picture[Npicture-1]);
-			p_Picture[Npicture-1] = NULL;
-			PictureWindow[Npicture-1] = -1;
-			if(Npicture == 1) Npicture--;
-			}
-		}
-	}
-else {
-	if(!overflow) {	// FIXME ? Should we call LockPixels before CopyBits?
-		Rect rtemp;
-		RgnHandle cliprgn;
-		SetGWorld((*p_port),gdh);
-		GetPortBounds(gMainGWorld, &rtemp);
-		cliprgn = NewRgn();	// FIXME: should check return value; is it OK to move memory here?
-		GetPortClipRegion(GetWindowPort(Window[w]), cliprgn);
-		CopyBits((BitMap*)*GetGWorldPixMap(gMainGWorld),             // was (BitMap*)*gMainGWorld->portPixMap,
-			   (BitMap*)*GetPortPixMap(GetWindowPort(Window[w])),  // was (BitMap*)&(((CGrafPtr)Window[w])->portPixMap),
-			   &rtemp,                                             // was &gMainGWorld->portRect,
-			   &rtemp,                                             // was &gMainGWorld->portRect,
-			   srcCopy,
-			   cliprgn);                                           // was Window[w]->clipRgn
-		DisposeRgn(cliprgn);
-		}
-	} */
-
-/* newh = newv = FALSE;
-if(endxmin < Hmin[w]) {
-	Hmin[w] = 0;
-	newh = TRUE;
-	}
-if(endxmax > Hmax[w]) Hmax[w] = endxmax;
-if(endymin < Vmin[w]) {
-	Vmin[w] = 0;
-	newv = TRUE;
-	}
-if(endymax > Vmax[w]) Vmax[w] = endymax;
-
-if(OKvScroll[w]) {
-	SetControlValue(vScroll[w],0);
-	ShowControl(vScroll[w]);
-	}
-if(OKhScroll[w]) {
-	SetControlValue(hScroll[w],0);
-	ShowControl(hScroll[w]);
-	}
-
-SlideH[w] = SlideV[w] = 0;
-SetMaxControlValues(w,rclip);
-if(newh) OffsetGraphs(w,Hmin[w] - rclip.left - 1,0);
-if(newv) OffsetGraphs(w,0,Vmin[w] - rclip.top - 1);
-
-GetWindowPortBounds(Window[w], &rclip);
-ClipRect(&rclip);
-DrawControls(Window[w]);
-ValidWindowRect(Window[w], &rclip);
-return(OK);
-} */
-
-
 int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int leftoffset,
 	int interruptok,Milliseconds **p_delta,long *p_yruler,int topoffset,int *p_overflow)
 {
@@ -1320,15 +1190,11 @@ text_style(htext,"arial");
 
 
 ymax = p_r->bottom;
-// if(TRUE || ShowPianoRoll) {
-	if(HeightMax < 32767) HeightMax = 2 * ymax + 20;
-//	sprintf(Message,"HeightMax (2) = %ld\n",HeightMax);
-//	BPPrintMessage(odInfo,Message);
-	if(HeightMax > 32767) {
-		BPPrintMessage(odInfo,"\n=> Image height %d is too large: it has been cropped to 32767\n",HeightMax);
-		HeightMax = 32767;
-		}
-//	}
+if(HeightMax < 32767) HeightMax = 2 * ymax + 20;
+else {
+	BPPrintMessage(odInfo,"\n=> Image height %d is too large: it has been cropped to 32767\n",HeightMax);
+	HeightMax = 32767;
+	}
 
 // Draw scale ruler
 x = 5. * ((double) GraphicScaleQ) / GraphicScaleP;	/* Duration on 500 pixels */
@@ -1344,17 +1210,20 @@ else {
 		}
 	}
 xmax = p_r->right;
+if(leftoffset < 0) {
+	xmax -= (hrect * leftoffset);
+	}
 
-sprintf(Message,"DrawItemBackground() imax= %ld, xmax = %ld\n",(long)imax,(long)xmax);
-if(trace_details) BPPrintMessage(odInfo,Message);
+if(trace_graphic) BPPrintMessage(odInfo,"DrawItemBackground() imax= %ld, xmax = %ld\n",(long)imax,(long)xmax);
 
-if(Nature_of_time == SMOOTH)
-	while(imax > 1L && (*p_T)[imax] == ZERO) imax--;
+if(Nature_of_time == SMOOTH) while(imax > 1L && (*p_T)[imax] == ZERO) imax--;
 t2 = ((double)(*p_T)[imax] * GraphicScaleP) / GraphicScaleQ / 10. + leftoffset;
 
 y = (*p_yruler) = p_r->top + htext + 6;
 pen_size(1,0);
 draw_line(leftoffset,y,xmax,y,"");
+if(trace_graphic) BPPrintMessage(odInfo,"leftoffset =%d y = %d xmax =%d\n",leftoffset,y,xmax);
+
 p = 50. / x;
 for(i = j = 0; ; i++,j++) {
 	t1 = leftoffset + (int) Round(i * p);
@@ -1510,6 +1379,7 @@ char line[20];
 pen_size(2,0);
 xmin = p_r->left + 41;
 xmax = p_r->right - 28;
+if(leftoffset < 0) xmax -= (hrect * (leftoffset - 1));
 if(NoteConvention > 3) {
 	stroke_style("rgb(186,186,0)");
 	fill_style("rgb(186,186,0)");
@@ -1528,8 +1398,8 @@ else {
 		if(key < minkey || key > maxkey) continue;
 		y = (maxkey - key) * hrect + topoffset;
 		PrintNote(-1,key,0,-1,line);
-		fill_text(line,2,y + 3);
-		fill_text(line,xmax+ 7,y + 3);
+		fill_text(line,5,y + 3);
+		fill_text(line,xmax+ 5,y + 3);
 		draw_line(xmin,y,xmax,y,"");
 		}
 	stroke_style("rgb(186,186,0)");
@@ -1538,8 +1408,8 @@ else {
 		if(key < minkey || key > maxkey) continue;
 		y = (maxkey - key) * hrect + topoffset;
 		PrintNote(-1,key,0,-1,line);
-		fill_text(line,2,y + 3);
-		fill_text(line,xmax + 7,y + 3);
+		fill_text(line,5,y + 3);
+		fill_text(line,xmax + 5,y + 3);
 		draw_line(xmin,y,xmax,y,"");
 		}
 	}
@@ -1630,7 +1500,7 @@ void stroke_text(char* txt,int x,int y) {
 
 void fill_text(char* txt,int x,int y) {
 	char line[500];
-	if(trace_details) BPPrintMessage(odInfo,"text = %s\n",txt);
+	if(trace_graphic) BPPrintMessage(odInfo,"text = %s\n",txt);
 	if(strcmp(graphic_scheme,"canvas") == 0) {
 		sprintf(line,"ctx.fillText(\"%s\",%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
 		fputs(line,imagePtr);

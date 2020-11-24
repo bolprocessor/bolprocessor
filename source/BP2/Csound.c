@@ -2335,7 +2335,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* baseoc
 						if(c != ' ' && c != '/') this_note[j++] = c;
 						else {
 							this_note[j] = '\0';
-							if(trace_scale) BPPrintMessage(odInfo,"k = %d this_note = '%s'\n",k,this_note);
+							if(trace_scale) BPPrintMessage(odInfo,"Creating k = %d this_note = '%s'\n",k,this_note);
 							ptr = NULL;
 							MystrcpyStringToHandle(&ptr,this_note);
 							(*((*Scale)[NumberScales].notenames))[k] = ptr;
