@@ -2294,7 +2294,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* baseoc
 	char c, curr_arg[MAXLIN], label[MAXLIN], this_note[MAXLIN];
 	char** ptr;
 	int i,j,k,pos,n_args,space,numgrades,baseoctave;
-	double A4temp_freq_this_scale;
+	double blockkey_temp_freq;
 	
 	if(strlen(line) == 0 || line[0] != 'f') return(OK);
 	n_args = 0;
@@ -2385,8 +2385,8 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* baseoc
 		BPPrintMessage(odInfo,"%.3f ",(*((*Scale)[NumberScales].tuningratio))[i]);
 	if(strlen(note_names) > 0) BPPrintMessage(odInfo,"\nNames of notes in this scale: %s",note_names);
 	BPPrintMessage(odInfo,"\nWith 'interval' = %.3f, 'basefreq' = %.3f Hz, 'basekey' = %d and 'baseoctave' = %d\n",(*Scale)[NumberScales].interval,(*Scale)[NumberScales].basefreq,(*Scale)[NumberScales].basekey,(*Scale)[NumberScales].baseoctave);
-	A4temp_freq_this_scale = (*Scale)[NumberScales].basefreq * exp((9. / 12) * log((*Scale)[NumberScales].interval));
-	BPPrintMessage(odInfo,"A4 frequency of a tempered scale with the same 'basefreq' and 'interval' would be %.3f Hz\n",A4temp_freq_this_scale);
+	blockkey_temp_freq = (*Scale)[NumberScales].basefreq * exp((9. / 12) * log((*Scale)[NumberScales].interval));
+	BPPrintMessage(odInfo,"A4 frequency of a tempered scale with the same 'basefreq' and 'interval' would be %.3f Hz\n",blockkey_temp_freq);
 	PrintNote(-1,BlockScaleOnKey,-1,-1,Message);
 	BPPrintMessage(odInfo,"As per your settings, frequency will be blocked for note key #%d = '%s' but this may be changed in \"_scale(..., blockkey)\" statements\n",BlockScaleOnKey,Message);
 	return(OK);
@@ -2395,7 +2395,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* baseoc
 
 double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) { // Should be placed somewhere else
 	int octave, pitchclass, blockkey_pitch_class, numgrades, C4_octave, basekey, basefreq_octave, delta_key;
-	double basefreq, pitch_ratio, basekey_pitch_ratio, blockkey_pitch_ratio, blockkey_correction, diapason_correction, interval, A4temp_freq_this_scale, x, x0, x1, x2;
+	double basefreq, pitch_ratio, fix_ratio_0, basekey_pitch_ratio, blockkey_pitch_ratio, blockkey_correction, diapason_correction, interval, x, x0, x1, x2;
 	
 	if(i_scale > NumberScales) { 
 		BPPrintMessage(odError,"\n=> Scale number %d is out of range (maximum %d). No Csound score produced\n\n",i_scale,NumberScales);
@@ -2426,22 +2426,25 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) { // 
 	
 	if(blockkey == 0) blockkey = BlockScaleOnKey;
 	blockkey_pitch_class = modulo(blockkey - basekey, numgrades);
+		
+	if(blockkey_pitch_class == 0) 
+		fix_ratio_0 = (*((*Scale)[i_scale].tuningratio))[0]; // Most often 1
+	else fix_ratio_0 = 1;
+	
+	blockkey_pitch_ratio = (*((*Scale)[i_scale].tuningratio))[blockkey_pitch_class];
+	blockkey_correction = fix_ratio_0 * exp(((double)blockkey_pitch_class / numgrades) * log(interval)) / blockkey_pitch_ratio;
 	
 	pitch_ratio = (*((*Scale)[i_scale].tuningratio))[pitchclass];
-	blockkey_pitch_ratio = (*((*Scale)[i_scale].tuningratio))[blockkey_pitch_class];
-	
-	blockkey_correction = exp(((double)blockkey_pitch_class / numgrades) * log(interval)) / blockkey_pitch_ratio;
 	
 	diapason_correction = A4freq / 440.;
+	
 	x = x0 = basefreq * pitch_ratio;
 	x = x1 = x * blockkey_correction;
 	x = x2 = x * diapason_correction;
 	x = x * exp((octave - basefreq_octave) * log(interval));
 	x = x * exp((cents / 1200.) * log(interval));
 	
-	A4temp_freq_this_scale = basefreq * exp((9. / 12) * log(interval));
-	
-	if(trace_scale) BPPrintMessage(odInfo,"• key = %d C4key = %d, delta_key = %d basekey = %d basefreq = %.3f basefreq_octave = %d, numgrades = %d interval = %.3f, pitchclass = %d pitch_ratio = %.3f, diapason_correction = %.4f blockkey = %d blockkey_pitch_class = %d blockkey_pitch_ratio = %.3f  blockkey_correction = %.4f, octave = %d, A4temp_freq_this_scale = %.3f, x0 = %.3f x1 = %.3f x2 = %.3f x = %.3f\n",key,C4key,delta_key,(*Scale)[i_scale].basekey,basefreq,basefreq_octave,numgrades,interval,pitchclass,pitch_ratio,diapason_correction,blockkey,blockkey_pitch_class,blockkey_pitch_ratio,blockkey_correction,octave,A4temp_freq_this_scale,x0,x1,x2,x);
+	if(trace_scale) BPPrintMessage(odInfo,"• key = %d C4key = %d, delta_key = %d basekey = %d basefreq = %.3f basefreq_octave = %d, numgrades = %d interval = %.3f, pitchclass = %d pitch_ratio = %.3f, fix_ratio_0 = %.3f, diapason_correction = %.4f blockkey = %d blockkey_pitch_class = %d blockkey_pitch_ratio = %.3f  blockkey_correction = %.4f, octave = %d, x0 = %.3f x1 = %.3f x2 = %.3f x = %.3f\n",key,C4key,delta_key,(*Scale)[i_scale].basekey,basefreq,basefreq_octave,numgrades,interval,pitchclass,pitch_ratio,fix_ratio_0,diapason_correction,blockkey,blockkey_pitch_class,blockkey_pitch_ratio,blockkey_correction,octave,x0,x1,x2,x);
 	return x;
 	}
 
