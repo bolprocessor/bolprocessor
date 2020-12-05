@@ -2380,15 +2380,17 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* baseoc
 	else sprintf(label,"scale_%d",NumberScales); // Name by default
 	(*Scale)[NumberScales].label = (char**) GiveSpace((Size)(strlen(label) * sizeof(char)));
 	MystrcpyStringToHandle(&((*Scale)[NumberScales].label),label);
-	BPPrintMessage(odInfo,"\nGEN51 microtonal scale #%d = \"%s\" loaded from Csound instruments (%d grades):\n",NumberScales,*((*Scale)[NumberScales].label),(*Scale)[NumberScales].numgrades);
-	for(i = 0; i <= (*Scale)[NumberScales].numgrades; i++)
-		BPPrintMessage(odInfo,"%.3f ",(*((*Scale)[NumberScales].tuningratio))[i]);
-	if(strlen(note_names) > 0) BPPrintMessage(odInfo,"\nNames of notes in this scale: %s",note_names);
-	BPPrintMessage(odInfo,"\nWith 'interval' = %.3f, 'basefreq' = %.3f Hz, 'basekey' = %d and 'baseoctave' = %d\n",(*Scale)[NumberScales].interval,(*Scale)[NumberScales].basefreq,(*Scale)[NumberScales].basekey,(*Scale)[NumberScales].baseoctave);
+	BPPrintMessage(odInfo,"GEN51 microtonal scale #%d = \"%s\" loaded from Csound instruments (%d grades)\n",NumberScales,*((*Scale)[NumberScales].label),(*Scale)[NumberScales].numgrades);
 	blockkey_temp_freq = (*Scale)[NumberScales].basefreq * exp((9. / 12) * log((*Scale)[NumberScales].interval));
-	BPPrintMessage(odInfo,"A4 frequency of a tempered scale with the same 'basefreq' and 'interval' would be %.3f Hz\n",blockkey_temp_freq);
-	PrintNote(-1,BlockScaleOnKey,-1,-1,Message);
-	BPPrintMessage(odInfo,"As per your settings, frequency will be blocked for note key #%d = '%s' but this may be changed in \"_scale(..., blockkey)\" statements\n",BlockScaleOnKey,Message);
+	if(trace_scale) {
+		for(i = 0; i <= (*Scale)[NumberScales].numgrades; i++)
+			BPPrintMessage(odInfo,"%.3f ",(*((*Scale)[NumberScales].tuningratio))[i]);
+		if(strlen(note_names) > 0) BPPrintMessage(odInfo,"\nNames of notes in this scale: %s",note_names);
+		BPPrintMessage(odInfo,"\nWith 'interval' = %.3f, 'basefreq' = %.3f Hz, 'basekey' = %d and 'baseoctave' = %d\n",(*Scale)[NumberScales].interval,(*Scale)[NumberScales].basefreq,(*Scale)[NumberScales].basekey,(*Scale)[NumberScales].baseoctave);0,
+		BPPrintMessage(odInfo,"A4 frequency of a tempered scale with the same 'basefreq' and 'interval' would be %.3f Hz\n",blockkey_temp_freq);
+		PrintNote(-1,BlockScaleOnKey,-1,-1,Message);
+		BPPrintMessage(odInfo,"As per your settings, frequency will be blocked for note key #%d = '%s' but this may be changed in \"_scale(..., blockkey)\" statements\n",BlockScaleOnKey,Message);
+		}
 	return(OK);
 	}
 

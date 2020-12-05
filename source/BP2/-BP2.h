@@ -453,7 +453,7 @@ enum {
 #define TEMP 2	/* Producing templates */
 
 // Note conventions
-#define MAXCONVENTIONS 24
+#define MAXCONVENTIONS 100
 #define ENGLISH 0
 #define FRENCH 1
 #define INDIAN 2

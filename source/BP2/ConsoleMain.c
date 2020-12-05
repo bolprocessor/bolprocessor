@@ -577,7 +577,7 @@ const char gOptionList[] =
 	"\n"
 	"OPTIONS (Musical):\n"
 	"  --english              specifies that the input files use English note conventions\n"
-	"  --french               specifies that the input files use Italian/French note conventions\n"
+	"  --french               specifies that the input files use Italian/Spanish/French note conventions\n"
 	"  --indian               specifies that the input files use Indian note conventions\n"
 	"  --keys                 specifies that the input files use Midi note numbers\n"
 	"\n";
