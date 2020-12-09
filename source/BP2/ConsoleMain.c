@@ -84,6 +84,8 @@ check_memory_use = FALSE;
 
 int trace_scale = 0;
 
+int WarnedBlockKey,WarnedRangeKey;
+
 PrototypesLoaded = FALSE;
 
 int main (int argc, char* args[])
@@ -1004,7 +1006,7 @@ int LoadInputFiles(const char* pathnames[WMAX])
 				case wStartString:
 				case wData:
 				case wGlossary:
-					BPPrintMessage(odInfo, "Reading %s file %s...\n", DocumentTypeName[w], pathnames[w]);
+					BPPrintMessage(odInfo, "Reading %s file %s\n", DocumentTypeName[w], pathnames[w]);
 					if(check_memory_use) BPPrintMessage(odInfo,"Before Reading %s file MemoryUsed = %ld\n",DocumentTypeName[w],(long)MemoryUsed);
 					result = LoadFileToTextHandle(pathnames[w], TEH[w]);
 					if(check_memory_use) BPPrintMessage(odInfo,"After Reading %s file MemoryUsed = %ld\n",DocumentTypeName[w],(long)MemoryUsed);
@@ -1016,18 +1018,18 @@ int LoadInputFiles(const char* pathnames[WMAX])
 					}
 					break;
 				case wCsoundInstruments: 
-					BPPrintMessage(odInfo, "Reading Csound resources %s, if not done...\n", pathnames[w]);
+					BPPrintMessage(odInfo, "Reading Csound resources %s\n", pathnames[w]);
 					strcpy(FileName[wCsoundInstruments],pathnames[w]);
 					result = LoadCsoundInstruments(0,1);
 					if(result != OK)  return result;
 					break;
 				case iSettings:
-					BPPrintMessage(odInfo, "Reading settings file %s...\n", pathnames[w]);
+					BPPrintMessage(odInfo, "Reading settings file %s\n", pathnames[w]);
 					result = LoadSettings(pathnames[w], FALSE);
 					if (result != OK)  return result;
 					break;
 				case iObjects:
-					BPPrintMessage(odInfo, "Reading object prototypes file %s...\n", pathnames[w]);
+					BPPrintMessage(odInfo, "Reading object prototypes file %s\n", pathnames[w]);
 					strcpy(FileName[iObjects],pathnames[w]);
 					result = LoadObjectPrototypes(0,1);
 					if (result != OK)  return result;

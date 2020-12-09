@@ -636,7 +636,7 @@ end1:	(*pp)++;
 		lmax = 0;
 		for(j=0; j < 128; j++) {
 			ln = (*(p_NoteLength[cv]))[j];
-			if(Match(TRUE,p_x,(*(p_NoteName[cv]))[j],ln) && !isdigit((*p_x)[ln])) {
+			if(ln > 0 && Match(TRUE,p_x,(*(p_NoteName[cv]))[j],ln) && !isdigit((*p_x)[ln])) {
 				lmax = ln; jj = j;
 				qmax = q + ln;
 				goto FOUNDNOTE1;
@@ -644,7 +644,7 @@ end1:	(*pp)++;
 			}
 		for(j=0; j < 128; j++) {
 			ln = (*(p_AltNoteLength[cv]))[j];
-			if(Match(TRUE,p_x,(*(p_AltNoteName[cv]))[j],ln) && !isdigit((*p_x)[ln])) {
+			if(ln > 0 && Match(TRUE,p_x,(*(p_AltNoteName[cv]))[j],ln) && !isdigit((*p_x)[ln])) {
 				lmax = ln; jj = j;
 				qmax = q + ln;
 				goto FOUNDNOTE1;
@@ -790,7 +790,7 @@ SEARCHNOTE:
 			j_scale = i_scale + 3;
 			for(j=0; j < 128; j++) {
 				q = *pp; l = (*(p_NoteLength[j_scale]))[j];
-				if(Match(TRUE,&q,(*(p_NoteName[j_scale]))[j],l)
+				if(l > 0 && Match(TRUE,&q,(*(p_NoteName[j_scale]))[j],l)
 						&& !isdigit(q[l])) {
 					lmax = l; jj = j;
 					qmax = q + l;
@@ -803,7 +803,7 @@ SEARCHNOTE:
    if(NoteConvention < 4) {
 		for(j=0; j < 128; j++) {
 			q = *pp; l = (*(p_NoteLength[NoteConvention]))[j];
-			if(Match(TRUE,&q,(*(p_NoteName[NoteConvention]))[j],l)
+			if(l > 0 && Match(TRUE,&q,(*(p_NoteName[NoteConvention]))[j],l)
 					&& !isdigit(q[l])) {
 				lmax = l; jj = j;
 				qmax = q + l;
@@ -812,7 +812,7 @@ SEARCHNOTE:
 			}
 		for(j=0; j < 128; j++) {
 			q = *pp; l = (*(p_AltNoteLength[NoteConvention]))[j];
-			if(Match(TRUE,&q,(*(p_AltNoteName[NoteConvention]))[j],l)
+			if(l > 0 && Match(TRUE,&q,(*(p_AltNoteName[NoteConvention]))[j],l)
 					&& !isdigit(q[l])) {
 				lmax = l; jj = j;
 				qmax = q + l;
@@ -823,7 +823,7 @@ SEARCHNOTE:
 	for(j_scale = 4; j_scale < MAXCONVENTIONS; j_scale++) {
 		for(j=0; j < 128; j++) {
 			q = *pp; l = (*(p_NoteLength[j_scale]))[j];
-			if(Match(TRUE,&q,(*(p_NoteName[j_scale]))[j],l)
+			if(l > 0 && Match(TRUE,&q,(*(p_NoteName[j_scale]))[j],l)
 					&& !isdigit(q[l])) {
 				lmax = l; jj = j;
 				qmax = q + l;
@@ -1188,12 +1188,12 @@ if(!isupper(c) && !bracket) {
 					line[i] = **pp;
 	line[i] = '\0'; im = i;
 	sprintf(Message,
-	"Variable must start with uppercase character or '|'. Can't make sense of \"%s\"",
+	"Variable must start with uppercase character or '|'. Can't make sense of \"%s\".",
 		line);
 	Print(wTrace,Message);
 	if(OkBolChar(c)) {
 		sprintf(Message,
-			"May be unknown terminal symbol, time-pattern or incorrect note convention?");
+			" May be unknown terminal symbol, time-pattern or incorrect note convention?");
 		Print(wTrace,Message);
 		}
 	return(ABORT);

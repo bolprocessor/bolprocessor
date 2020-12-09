@@ -692,7 +692,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 	KeyNumberMap *p_map) 
 {
 int i,im,j,jinstr,p,length,chan,foundk,cntl,result,i_scale,j_scale,
-key,l,numgrades,basekey,notenum, octave,pitchclass;
+key,this_key,note_class,l,numgrades,basekey,notenum, octave,pitchclass;
 long k,initparam;
 char c,d,*ptr,*ptr2,*p_line,*q,line[MAXLIN];
 double x;
@@ -1284,21 +1284,45 @@ switch(jinstr) {
 				strcpy(LastSeen_scale,line);
 				if(trace_scale) BPPrintMessage(odInfo,"Recording note names of scale %d '%s' with %d grades and 'basekey' = %d\n",i_scale,line,numgrades,basekey);
 				j_scale = i_scale + 3;
+				
+			/**	for(this_key = 0; this_key < numgrades; this_key++) {
+					note_class = (*((*Scale)[i_scale].keys))[this_key];
+					} */
 				for(j = 0; j < 128; j++) {
-					pitchclass = modulo((j - C4key),numgrades);
-				//	octave = 4 + floor((((double)j - C4key)) / numgrades);
-					octave = (*Scale)[i_scale].baseoctave + floor((((double)j - C4key)) / numgrades);
+					pitchclass = modulo((j - C4key),12);
+					octave = (*Scale)[i_scale].baseoctave + floor((((double)j - C4key)) / 12);
+					for(this_key = 0; this_key < numgrades; this_key++) {
+						note_class = (*((*Scale)[i_scale].keys))[this_key];
+						if(note_class == pitchclass) break;
+						}
+					if(this_key >= numgrades) {
+						MystrcpyStringToTable(p_NoteName[j_scale],j,"");
+						MystrcpyStringToTable(p_AltNoteName[j_scale],j,"");
+						(*(p_NoteLength[j_scale]))[j] = (*(p_AltNoteLength[j_scale]))[j] = 0;
+						continue;
+						}
+					if(trace_scale) BPPrintMessage(odInfo,"j = %d, pitchclass = %d,  octave = %d, this_key = %d\n",j,pitchclass,octave,this_key);
+			/*		the_key = C4key + (*((*Scale)[i_scale].keys))[note_class];
+					if(trace_scale) BPPrintMessage(odInfo,"i_scale = %d, j = %d, scale.keys[note_class] = %d, the_key = %d, C4key = %d\n",i_scale,j,(*((*Scale)[i_scale].keys))[note_class],the_key,C4key); */
 					switch(octave) {
 						case -1:
-							sprintf(Message,"%s00",*((*((*Scale)[i_scale].notenames))[pitchclass])); break;
+						//	sprintf(Message,"%s00",*((*((*Scale)[i_scale].notenames))[pitchclass])); break;
+							sprintf(Message,"%s00",*((*((*Scale)[i_scale].notenames))[this_key]));
+							break;
 						default:
-							sprintf(Message,"%s%ld",*((*((*Scale)[i_scale].notenames))[pitchclass]),(long)octave);
+						//	sprintf(Message,"%s%ld",*((*((*Scale)[i_scale].notenames))[pitchclass]),(long)octave);
+							sprintf(Message,"%s%ld",*((*((*Scale)[i_scale].notenames))[this_key]),(long)octave);
 							break;
 						}
-			//		if(trace_scale) BPPrintMessage(odInfo,"j_scale = %d j = %d '%s'\n",j_scale,j,Message);
+					if(trace_scale) BPPrintMessage(odInfo,"i_scale = %d, j = %d, '%s'\n",i_scale,j,Message);
+				/*	MystrcpyStringToTable(p_NoteName[j_scale],j,Message);
+					MystrcpyStringToTable(p_AltNoteName[j_scale],j,Message);
+					(*(p_NoteLength[i_scale + 3]))[j] = (*(p_AltNoteLength[j_scale]))[j] = strlen(Message);*/
+					
 					MystrcpyStringToTable(p_NoteName[j_scale],j,Message);
 					MystrcpyStringToTable(p_AltNoteName[j_scale],j,Message);
-					(*(p_NoteLength[i_scale + 3]))[j] = (*(p_AltNoteLength[j_scale]))[j] = strlen(Message);
+					(*(p_NoteLength[j_scale]))[j] = (*(p_AltNoteLength[j_scale]))[j] = strlen(Message);
+			//		note_class++;
 					}
 				}
 			}
@@ -1411,7 +1435,7 @@ if(isalpha(line[0])) {
 			for(key=0; key < 128; key++) {
 				l = (*(p_NoteLength[j_scale]))[key];
 		//		if(trace_scale) BPPrintMessage(odInfo,"key =%d (*(p_NoteName[j_scale]))[key] = %s\n",key,*((*(p_NoteName[j_scale]))[key]));
-				if(Match(TRUE,&p_line,(*(p_NoteName[j_scale]))[key],l)
+				if(l > 0 && Match(TRUE,&p_line,(*(p_NoteName[j_scale]))[key],l)
 						&& !isdigit(p_line[l])) {
 					sprintf(line,"%d",key);
 					if(trace_scale) BPPrintMessage(odInfo,"Found block key '%d' in current scale, j_scale = %d LastSeen_scale = %s\n",key,j_scale,LastSeen_scale);
@@ -1423,7 +1447,7 @@ if(isalpha(line[0])) {
 	if(NoteConvention < 4) {
 		for(key = 0; key < 128; key++) {
 			l = (*(p_NoteLength[NoteConvention]))[key];
-			if(Match(TRUE,&p_line,(*(p_NoteName[NoteConvention]))[key],l)
+			if(l > 0 && Match(TRUE,&p_line,(*(p_NoteName[NoteConvention]))[key],l)
 			&& !isdigit(line[l])) {
 				sprintf(line,"%d",key);
 				goto FOUNDKEY;
@@ -1431,7 +1455,7 @@ if(isalpha(line[0])) {
 			}
 		for(key = 0; key < 128; key++) {
 			l = (*(p_NoteLength[NoteConvention]))[key];
-			if(Match(TRUE,&p_line,(*(p_AltNoteName[NoteConvention]))[key],l)
+			if(l > 0 && Match(TRUE,&p_line,(*(p_AltNoteName[NoteConvention]))[key],l)
 			&& !isdigit(line[l])) {
 				sprintf(line,"%d",key);
 				goto FOUNDKEY;
@@ -1442,7 +1466,7 @@ if(isalpha(line[0])) {
 		 for(j_scale = 4; j_scale < MAXCONVENTIONS; j_scale++) {
 			for(key=0; key < 128; key++) {
 				l = (*(p_NoteLength[j_scale]))[key];
-				if(Match(TRUE,&p_line,(*(p_NoteName[j_scale]))[key],l)
+				if(l > 0 && Match(TRUE,&p_line,(*(p_NoteName[j_scale]))[key],l)
 						&& !isdigit(p_line[l])) {
 					sprintf(line,"%d",key);
 					if(trace_scale) BPPrintMessage(odInfo,"Found block key '%d' in other scale, j_scale = %d LastSeen_scale = %s\n",key,j_scale,LastSeen_scale);

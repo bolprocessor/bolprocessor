@@ -1771,6 +1771,7 @@ typedef struct s_gram t_gram;
 
 struct s_scale {
 	int index;
+	int **keys;
 	char **label;
 	char ****notenames;
 	int numgrades,basekey,baseoctave;

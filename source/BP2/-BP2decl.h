@@ -373,4 +373,6 @@ extern char LastSeen_scale[100];
 extern t_scale** Scale;
 extern int trace_scale;
 
+extern int WarnedBlockKey,WarnedRangeKey;
+
 #endif /* BP2_DECL_H */

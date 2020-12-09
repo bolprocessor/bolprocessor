@@ -40,7 +40,7 @@
 
 int trace_load_settings = 0;
 int trace_load_prototypes = 0;
-int trace_load_csound_instruments = 0;
+int trace_load_csound_resources = 0;
 
 #if BP_CARBON_GUI
 #include "CarbonCompatUtil.h"
@@ -1046,7 +1046,7 @@ void GetStartupSettingsSpec(FSSpecPtr spec)
 int LoadCsoundInstruments(int checkversion,int tryname) 
 {
 int i,io,iv,ip,jmax,j,result,y,maxticks,maxbeats,arg,length,i_table,ipmax;
-char **ptr, line[MAXLIN], note_names[MAXLIN], baseoctave_string[10];
+char **ptr, line[MAXLIN], note_names[MAXLIN], key_numbers[MAXLIN], baseoctave_string[10];
 Handle **ptr2;
 CsoundParam **ptr3;
 long pos,x;
@@ -1055,7 +1055,7 @@ double r;
 FILE* csfile;
 
 
-if(trace_load_csound_instruments) BPPrintMessage(odInfo, "LoadCsoundInstruments(%d,%d)\n",checkversion,tryname);
+if(trace_load_csound_resources) BPPrintMessage(odInfo, "LoadCsoundInstruments(%d,%d)\n",checkversion,tryname);
 
 if(LoadedCsoundInstruments) return(OK);
 
@@ -1075,7 +1075,7 @@ if(ReadOne(FALSE,FALSE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED
 sprintf(Message,"Loading %s...",FileName[wCsoundInstruments]);
 ShowMessage(TRUE,wMessage,Message);
 
-if(trace_load_csound_instruments) BPPrintMessage(odInfo, "Line = %s\n",*p_line);
+if(trace_load_csound_resources) BPPrintMessage(odInfo, "Line = %s\n",*p_line);
 if(CheckVersion(&iv,p_line,FileName[wCsoundInstruments]) != OK) goto ERR;
 if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 // GetDateSaved(p_completeline,&(p_FileInfo[wCsoundInstruments]));
@@ -1093,7 +1093,7 @@ if(iv > 11) {
 	MystrcpyHandleToString(MAXNAME,0,CsoundOrchestraName,p_completeline);
 	}
 else CsoundOrchestraName[0] = '\0';
-if(trace_load_csound_instruments) BPPrintMessage(odInfo,"CsoundOrchestraName = %s\n",CsoundOrchestraName);
+if(trace_load_csound_resources) BPPrintMessage(odInfo,"CsoundOrchestraName = %s\n",CsoundOrchestraName);
 if(ReadInteger(csfile,&jmax,&pos) == FAILED) goto ERR;
 if(jmax < 0) {
 	BPPrintMessage(odError,"=> This file is empty or in an unknown format\n");
@@ -1124,7 +1124,7 @@ for(j=0; j < jmax; j++) {
 			goto ERR;
 		MystrcpyHandleToHandle(0,&ptr,p_completeline);
 		(*pp_CsInstrumentComment)[j] = ptr;
-		if(trace_load_csound_instruments) BPPrintMessage(odInfo,"Comment: %s\n",(*p_completeline));
+		if(trace_load_csound_resources) BPPrintMessage(odInfo,"Comment: %s\n",(*p_completeline));
 		}
 	else (*((*pp_CsInstrumentComment)[j]))[0] = '\0';
 	
@@ -1291,7 +1291,7 @@ for(j=0; j < jmax; j++) {
 			(*((*p_CsInstrument)[j].paramlist))[ip].comment = ptr;
 			pos += strlen(line);
 			}
-		if(trace_load_csound_instruments) BPPrintMessage(odInfo, "Comment: %s\n",line);
+		if(trace_load_csound_resources) BPPrintMessage(odInfo, "Comment: %s\n",line);
 		if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
 		(*((*p_CsInstrument)[j].paramlist))[ip].startindex = i;
 		if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
@@ -1325,13 +1325,13 @@ if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED)
 
 if(Mystrcmp(p_line,"_begin tables") == 0) {
 	i_table = 0;
-	strcpy(line,""); strcpy(note_names,""); strcpy(baseoctave_string,"");
+	strcpy(line,""); strcpy(note_names,""); strcpy(key_numbers,""); strcpy(baseoctave_string,"");
 	while(TRUE) {
 		if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto QUIT;
 		Strip(*p_line);
 		if(strlen(*p_line) == 0) goto QUIT; // Required because 'pos' is not incremented when reading an empty line
 		if(Mystrcmp(p_line,"_end tables") == 0) break;
-		if(trace_load_csound_instruments) BPPrintMessage(odInfo, "table line = [%s]\n",*p_line);
+		if(trace_load_csound_resources) BPPrintMessage(odInfo, "table line = [%s]\n",*p_line);
 		if(i_table >= MaxCsoundTables) {
 			p_CsoundTables = (char****) IncreaseSpace(p_CsoundTables);
 			MaxCsoundTables = (MyGetHandleSize((Handle)p_CsoundTables) / sizeof(char**));
@@ -1343,6 +1343,7 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 			}
 		if((*p_line)[0] == '<') continue; // Ignore comments
 		if((*p_line)[0] == '[') continue; // Ignore ratios
+		if((*p_line)[0] == 'c') continue; // Ignore comma
 		if((*p_line)[0] == '|') { // baseoctave
 			MystrcpyHandleToString(strlen(*p_line)-2,1,baseoctave_string,p_line);
 			continue;
@@ -1351,9 +1352,13 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 			MystrcpyHandleToString(strlen(*p_line),0,note_names,p_line);
 			continue;
 			}
+		if((*p_line)[0] == 'k') { // This line contains key numbers for this scale
+			MystrcpyHandleToString(strlen(*p_line),0,key_numbers,p_line);
+			continue;
+			}
 		length = MyHandleLen(p_completeline);
 		if(length > 0) {
-			result = CreateMicrotonalScale(*p_line,line,note_names,baseoctave_string);
+			result = CreateMicrotonalScale(*p_line,line,note_names,key_numbers,baseoctave_string);
 			if(result == EXIT) {
 				if((ptr=(char**) GiveSpace((Size)((1L + length)
 					* sizeof(char)))) == NULL) goto ERR;
@@ -1363,7 +1368,7 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 				result = OK;
 				}
 			if(result != OK) goto ERR;
-			strcpy(line,""); strcpy(note_names,""); strcpy(baseoctave_string,"");
+			strcpy(line,""); strcpy(note_names,""); strcpy(key_numbers,""); strcpy(baseoctave_string,"");
 			}
 		}
 	}

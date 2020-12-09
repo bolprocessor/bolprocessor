@@ -566,26 +566,26 @@ else {
 		switch(NoteConvention) {
 			case FRENCH: {
 				q = &Frenchnote[pitchclass][0]; l = strlen(Frenchnote[pitchclass]);
-				if(Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
+				if(l > 0 && Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
 				p = &line2[i];
 				q = &AltFrenchnote[pitchclass][0]; l = strlen(AltFrenchnote[pitchclass]);
-				if(Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
+				if(l > 0 && Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
 				break;
 				}
 			case ENGLISH: {
 				q = &Englishnote[pitchclass][0]; l = strlen(Englishnote[pitchclass]);
-				if(Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
+				if(l > 0 && Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
 				p = &line2[i];
 				q = &AltEnglishnote[pitchclass][0]; l = strlen(AltEnglishnote[pitchclass]);
-				if(Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
+				if(l > 0 && Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
 				break;
 				}
 			case INDIAN:
 				q = &Indiannote[pitchclass][0]; l = strlen(Indiannote[pitchclass]);
-				if(Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
+				if(l > 0 && Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
 				p = &line2[i];
 				q = &AltIndiannote[pitchclass][0]; l = strlen(AltIndiannote[pitchclass]);
-				if(Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
+				if(l > 0 && Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
 				break;
 			}
 		}
