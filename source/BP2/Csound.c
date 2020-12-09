@@ -2293,7 +2293,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 	// "line" contains the scale as defined in Csound GEN51 format
 	char c, curr_arg[MAXLIN], label[MAXLIN], this_note[MAXLIN], this_key[10];
 	char** ptr;
-	int i,i_note,j,k,pos,n_args,space,numgrades,baseoctave,basekey;
+	int i,i_note,key,j,k,pos,n_args,space,numgrades,baseoctave,basekey;
 	double blockkey_temp_freq;
 	
 	if(strlen(line) == 0 || line[0] != 'f') return(OK);
@@ -2342,7 +2342,9 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 							else {
 								this_key[j] = '\0';
 								if(trace_scale) BPPrintMessage(odInfo,"Creating i_note = %d key = %d\n",i_note,atoi(this_key) - basekey);
-								(*((*Scale)[NumberScales].keys))[i_note] = atoi(this_key) - basekey;
+								key = atoi(this_key);
+								if(key >= basekey) key = key - basekey;
+								(*((*Scale)[NumberScales].keys))[i_note] = key;
 								j = 0; i_note++;
 								}
 							}
