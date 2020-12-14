@@ -1254,11 +1254,6 @@ for(j=0; j < jmax; j++) {
 	
 	if(ReadInteger(csfile,&ipmax,&pos) == FAILED) goto ERR;
 	if(ipmax < 1) continue;
-/*	if(ipmax > IPMAX) {
-		Alert1("=> Err. LoadCsoundInstruments(). i > IPMAX");
-		Alert1("This '-cs' file was created by a newer version of BP2. Some parameters may be ignored");
-		ipmax = IPMAX;
-		} */
 	if((ptr3=(CsoundParam**) GiveSpace((Size)(ipmax * sizeof(CsoundParam)))) == NULL)
 		goto ERR;
 	(*p_CsInstrument)[j].paramlist = ptr3;
@@ -1344,6 +1339,7 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 		if((*p_line)[0] == '<') continue; // Ignore comments
 		if((*p_line)[0] == '[') continue; // Ignore ratios
 		if((*p_line)[0] == 'c') continue; // Ignore comma
+		if((*p_line)[0] == 's') continue; // Ignore series
 		if((*p_line)[0] == '|') { // baseoctave
 			MystrcpyHandleToString(strlen(*p_line)-2,1,baseoctave_string,p_line);
 			continue;
