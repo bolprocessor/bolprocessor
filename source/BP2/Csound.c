@@ -2459,8 +2459,9 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) { // 
 		this_key = 0;
 		if(!WarnedRangeKey) {
 			MystrcpyHandleToString(0,0,Message,(*Scale)[i_scale].label);
-			BPPrintMessage(odInfo,"=> ERROR note(s) out of range for _scale(%s)\n",Message);
+			BPPrintMessage(odInfo,"\n=> ERROR Pitch class ‘%d’ does not exist in _scale(%s). No Csound score produced\n",pitchclass,Message);
 			WarnedRangeKey = TRUE;
+			return(Infpos);
 			}
 		}
 	

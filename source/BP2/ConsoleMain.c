@@ -158,7 +158,7 @@ int main (int argc, char* args[])
 */
 
 	InitOn = FALSE;
-	BPPrintMessage(odInfo, "\nBP3 Console completed initialization and will run[scale ");
+	BPPrintMessage(odInfo, "\nBP3 Console completed initialization and will run ");
 	
 	BPPrintMessage(odInfo, "%s\n\n",gOptions.inputFilenames[wGrammar]);
 	
