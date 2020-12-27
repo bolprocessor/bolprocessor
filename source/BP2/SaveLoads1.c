@@ -1046,7 +1046,7 @@ void GetStartupSettingsSpec(FSSpecPtr spec)
 int LoadCsoundInstruments(int checkversion,int tryname) 
 {
 int i,io,iv,ip,jmax,j,result,y,maxticks,maxbeats,arg,length,i_table,ipmax;
-char **ptr, line[MAXLIN], note_names[MAXLIN], key_numbers[MAXLIN], baseoctave_string[10];
+char **ptr, line[MAXLIN], note_names[MAXLIN], key_numbers[MAXLIN], fractions[MAXLIN], baseoctave_string[10];
 Handle **ptr2;
 CsoundParam **ptr3;
 long pos,x;
@@ -1320,7 +1320,7 @@ if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED)
 
 if(Mystrcmp(p_line,"_begin tables") == 0) {
 	i_table = 0;
-	strcpy(line,""); strcpy(note_names,""); strcpy(key_numbers,""); strcpy(baseoctave_string,"");
+	strcpy(line,""); strcpy(note_names,""); strcpy(key_numbers,""); strcpy(baseoctave_string,""); strcpy(fractions,"");
 	while(TRUE) {
 		if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto QUIT;
 		Strip(*p_line);
@@ -1337,7 +1337,10 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 			continue;
 			}
 		if((*p_line)[0] == '<') continue; // Ignore comments
-		if((*p_line)[0] == '[') continue; // Ignore ratios
+		if((*p_line)[0] == '[') { // fractions
+			MystrcpyHandleToString(strlen(*p_line),0,fractions,p_line);
+			continue;
+			}
 		if((*p_line)[0] == 'c') continue; // Ignore comma
 		if((*p_line)[0] == 's') continue; // Ignore series
 		if((*p_line)[0] == '|') { // baseoctave
@@ -1354,7 +1357,7 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 			}
 		length = MyHandleLen(p_completeline);
 		if(length > 0) {
-			result = CreateMicrotonalScale(*p_line,line,note_names,key_numbers,baseoctave_string);
+			result = CreateMicrotonalScale(*p_line,line,note_names,key_numbers,fractions,baseoctave_string);
 			if(result == EXIT) {
 				if((ptr=(char**) GiveSpace((Size)((1L + length)
 					* sizeof(char)))) == NULL) goto ERR;

@@ -1122,7 +1122,7 @@ void GetFileName(char*,char*);
 int ClearObjectSpace(void);
 void CreateDoneFile(void);
 
-int CreateMicrotonalScale(char*, char*, char*, char*, char*);
+int CreateMicrotonalScale(char*, char*, char*, char*, char*, char*);
 double GetPitchWithScale(int, int, double, int);
 int modulo(int, int);
 

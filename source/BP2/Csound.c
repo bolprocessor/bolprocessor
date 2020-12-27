@@ -2289,11 +2289,11 @@ return(OK);
 }
 
 
-int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_numbers, char* baseoctave_string) { // Should be placed somewhere else
+int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_numbers, char* fractions, char* baseoctave_string) { // Should be placed somewhere else
 	// "line" contains the scale as defined in Csound GEN51 format
-	char c, curr_arg[MAXLIN], label[MAXLIN], this_note[MAXLIN], this_key[10];
+	char c, curr_arg[MAXLIN], label[MAXLIN], this_note[MAXLIN], this_fraction_arg[MAXLIN], this_key[10];
 	char** ptr;
-	int i,i_note,key,j,k,pos,n_args,space,numgrades,baseoctave,basekey;
+	int i,i_note,key,j,k,pos,n_args,space,numgrades,baseoctave,basekey,numerator,num[100],den[100];
 	double blockkey_temp_freq;
 	
 	if(strlen(line) == 0 || line[0] != 'f') return(OK);
@@ -2328,6 +2328,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 					(*Scale)[NumberScales].tuningratio = (double**) GiveSpace((Size)((numgrades + 1) * sizeof(double)));
 					(*Scale)[NumberScales].notenames = (char****) GiveSpace((Size)((numgrades + 1) * sizeof(char**)));
 					(*Scale)[NumberScales].keys = (int**) GiveSpace((Size)((numgrades + 1) * sizeof(int)));
+					for(i = 0; i <= numgrades; i++) num[i] = den[i] = 0;
 					break;
 				case 6: (*Scale)[NumberScales].interval = strtod(curr_arg,NULL); break;
 				case 7: (*Scale)[NumberScales].basefreq = strtod(curr_arg,NULL); break;
@@ -2370,6 +2371,25 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 							i_note++;
 							}
 						}
+					if(strlen(fractions) > 0) {
+						j = i_note = 0;
+						numerator = TRUE;
+						for(i = 1; i < strlen(fractions); i++) {
+							c = fractions[i];
+							if(c == ']') break;
+							if(c != ' ' && c != ']') this_fraction_arg[j++] = c;
+							else {
+								this_fraction_arg[j] = '\0';
+					//			if(trace_scale) BPPrintMessage(odInfo,"Creating i_note = %d key = %d\n",i_note,atoi(this_key) - basekey);
+								if(numerator)
+									num[i_note] = atoi(this_fraction_arg);
+								else
+									den[i_note++] = atoi(this_fraction_arg);
+								numerator = 1 - numerator;
+								j = 0;
+								}
+							}
+						}
 					break;
 				default:
 					if(n_args > 8) {
@@ -2407,6 +2427,15 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 	MystrcpyStringToHandle(&((*Scale)[NumberScales].label),label);
 	BPPrintMessage(odInfo,"Microtonal scale \"%s\" loaded from Csound resources (%d grades)\n",*((*Scale)[NumberScales].label),(*Scale)[NumberScales].numgrades);
 	blockkey_temp_freq = (*Scale)[NumberScales].basefreq * exp((9. / 12) * log((*Scale)[NumberScales].interval));
+	
+	if(strlen(fractions) > 0) { // Use fractions to calculate ratios more accurately
+		for(i = 0; i <= (*Scale)[NumberScales].numgrades; i++) {
+			if(num[i] > 0 && den[i] > 0)
+				(*((*Scale)[NumberScales].tuningratio))[i] = ((double) num[i]) / den[i];
+			}
+	
+		}
+	
 	if(trace_scale) {
 		for(i = 0; i <= (*Scale)[NumberScales].numgrades; i++)
 			BPPrintMessage(odInfo,"%.3f ",(*((*Scale)[NumberScales].tuningratio))[i]);
