@@ -33,7 +33,7 @@ Input files
 - support UTF-8 text encoding for input files & output
 - implement the -s/-S options for specifying the start string
 - identify intput files with prefixes even when they are preceded by a path
-- restore the feature that looks for names of related files in the input files and auto-loads them (to be discussed...)
+- restore the feature that looks for names of related files in the input files and auto-loads them (to be discussed...) => probably useless because the interface takes care of these links and creates links for editing related files
 
 
 MIDI files
@@ -65,9 +65,23 @@ Images
 
 Microtonal scales
 ----------------
-Fix "Raise all notes by integer ratio"
-Fix tuning scheme, sometimes notes appear several times, sometimes not
-Implement meantone temperament in compliance with models described by Pierre-Yves Asselin
-Check scales in which the "octave" is not 2/1
-Implement performance control to change A4 frequency (diapason) in the score
+- Fix tuning scheme, sometimes notes appear several times, sometimes not
+- Implement meantone temperament in compliance with models described by Pierre-Yves Asselin
+- Implement performance control to change A4 frequency (diapason) in the score
+
+
+Csound orchestra
+-----------------
+- Modify "new-vina" to produce lower frequencies, minimum "C2"
+- New instruments are needed in the style of:
+ + pipe organ
+ + flute
+ + piano
+ + guitar
+ + horn
+ + saxo
+ + marimba
+ + drums
+- Study how BP could produce score instructions modifying parameters in some instruments
+- Find an instrument that would create a switched bandpass filter with either a sound file or another instrument as input. The idea is to reproduce the effect of sympathetic strings and use it to add partials to other instruments (much like the Indian tanpura). (These devices had been immplemented with hardware in the Shruti Harmonnium.)
 
