@@ -9,6 +9,7 @@ General
 
 Documentation
 -------------
+
 - write new docs for BP3 (command-line usage, differences, etc.)
 - rewrite the source code README
 - convert BP2 documentation to an (open-source) authoring system that can help maintain the organization & internal links as well as output in multiple formats (HTML, PDF, etc.) ??
@@ -19,10 +20,22 @@ Actions
 -------
 
 - implement produce-items N action
-- implement play, play-item, play-all actions
+- implement play, play-item, play-all actions => Read below, "Input files"
 - fix analyze-item action
 - implement expand-item & show-beats actions
-- new action for listing RT MIDI devices ?
+- new action for listing RT MIDI devices ? Create a file which the user will read via the interface, then select option(s) that will be added as tokens to the "Play" command line
+
+
+Cloud version
+-------------
+
+- Install a html/php/MySQL server for the sharing of BP console + PHP interface (+ website?)
+- Set up restricted access via (free) non-anonymous subscription (in compliance with RGPD)
+- Grant every user some storage space (with time limit?)
+- Run all features except MIDI in/out
+- Csound scores could be exported and/or processed by Csound and WAV files dowloaded and/or played on line via HTML <audio> tag
+- MIDI files could be exported and/or processed by Csound and WAV files dowloaded and/or played on line via MIDIjs.
+- Beware of bandwidth with online playing
 
 
 Input files
@@ -31,21 +44,22 @@ Input files
 - fix crash when loading a glossary file
 - fix crash when grammar contains script commands
 - support UTF-8 text encoding for input files & output
-- implement the -s/-S options for specifying the start string
-- identify intput files with prefixes even when they are preceded by a path
+- implement the -s/-S options for specifying the start string => Limitations in oputting the string in a command line. It is better to implement the next option that will replace it
+- implement option for staring from BP data written in a "-da" file. This data is equivalent to the start string, and the command is actually "Play" or "Play-item"
+- identify intput files with prefixes even when they are preceded by a path. => Read next
 - restore the feature that looks for names of related files in the input files and auto-loads them (to be discussed...) => probably useless because the interface takes care of these links and creates links for editing related files
 
 
 MIDI files
 ----------
 
-- add code to write track names
+- add code to write track names (is it necessary?)
 - write 2 bytes of MIDIfileTrackNumber instead of 1 so that more than 255 tracks are possible;  add error checking to make sure it doesn't exceed 32,767(?)
 - reimplement the function ReadVarLen()
-- should "produce all" write each item to its own track in a type 2 file?  (Currently writes all items to the same track).
-- close midi files at the end of MakeSound() ? (and reopen if for each item?)
+- should "produce all" write each item to its own track in a type 2 file?  (Currently writes all items to the same track). This may be useful if the MIDI file is downloaded, but MIDIjs won't play it.
+- close midi files at the end of MakeSound() ? (and reopen if for each item?) => This may be complicated because the size of data needs to be writen in its header
 - when writing a type 2 file, an empty track is written and the end of the file but it not counted in the final track count that is written when closing the file; best solution would be to avoid writing the track or truncate the file?
-- fix or remove the handling of FileSaveMode in PrepareMIDIFile()? The option is currently always set to ALLSAME by Inits() and LoadSettings().
+- fix or remove the handling of FileSaveMode in PrepareMIDIFile()? The option is currently always set to ALLSAME by Inits() and LoadSettings(). Until this option becomes necesdsary it would be best to leave it out.
 - remove  "('-' for stdout)" text from --midiout help?  Piping MIDI files probably won't work because we use ftell/fseek to write some parts of the file.
 (Alternatively, could support dumping MIDI file in a text format to stdout?)
 
@@ -65,6 +79,7 @@ Images
 
 Microtonal scales
 ----------------
+
 - Fix tuning scheme, sometimes notes appear several times, sometimes not
 - Implement meantone temperament in compliance with models described by Pierre-Yves Asselin
 - Implement performance control to change A4 frequency (diapason) in the score
@@ -72,6 +87,7 @@ Microtonal scales
 
 Csound orchestra
 -----------------
+
 - Modify "new-vina" to produce lower frequencies, minimum "C2"
 - New instruments are needed in the style of:
  + pipe organ
