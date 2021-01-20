@@ -44,7 +44,7 @@ Input files
 - fix crash when loading a glossary file
 - fix crash when grammar contains script commands
 - support UTF-8 text encoding for input files & output
-- implement the -s/-S options for specifying the start string => Limitations in oputting the string in a command line. It is better to implement the next option that will replace it
+- implement the -s/-S options for specifying the start string => Limitations in putting the string in a command line. It is better to implement the next option that will replace it
 - implement option for staring from BP data written in a "-da" file. This data is equivalent to the start string, and the command is actually "Play" or "Play-item"
 - identify intput files with prefixes even when they are preceded by a path. => Read next
 - restore the feature that looks for names of related files in the input files and auto-loads them (to be discussed...) => probably useless because the interface takes care of these links and creates links for editing related files
@@ -71,6 +71,21 @@ Real-time MIDI
 - change the "null driver" to output MIDI messages as text
 - write a new cross-platform MIDI driver using the PortMIDI(?) library
 
+
+MusicXML interface
+--------------
+https://en.wikipedia.org/wiki/MusicXML
+- convert MusicXML file to BP data "-da" file. This will allow the performance of this file after (re)processing by a grammar that may be empty and connection with a "-cs" Csound resource file
+- convert BP data to MusicXML
+
+
+Real-time Csound
+---------------
+- Implement UDP for communicating with Csound. Links:
+https://csound.com/docs/manual/udpserver.html
+https://www.geeksforgeeks.org/udp-server-client-implementation-c/
+
+
 Images
 --------------
 
@@ -93,6 +108,7 @@ Csound orchestra
  + pipe organ
  + flute
  + piano
+ + harpsichord
  + guitar
  + horn
  + saxo
