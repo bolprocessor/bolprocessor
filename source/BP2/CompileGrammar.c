@@ -1,4 +1,4 @@
-/* CompileGrammar.c (BP2 version CVS) */
+/* CompileGrammar.c (BP3) */
 
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -50,7 +50,8 @@ t_rule **ptr;
 Handle ptr1;
 
 dummy = ZERO;
-if(trace_scale) BPPrintMessage(odInfo,"Compiling grammar\n");
+BPPrintMessage(odInfo,"Compiling grammar...\n");
+
 strcpy(LastSeen_scale,"");
 if(CheckEmergency() != OK) return(ABORT);
 #if BP_CARBON_GUI
@@ -62,6 +63,7 @@ if(!ScriptExecOn) PrintBehind(wTrace,"\n");
 fatal = changednumber = FALSE;
 CompiledGr = Gram.trueBP = Gram.hasTEMP = Gram.hasproc = WillRandomize = FALSE;
 NotBPCase[8] = NotFoundMetronom = NotFoundNatureTime = TRUE;
+
 if(mode == 1 && IsEmpty(wGrammar)) {
 	CompiledGr = TRUE;
 	return(FAILED);
@@ -913,6 +915,7 @@ return(OK);
 ERR:
 // BPActivateWindow(SLOW,wTrace);
 ShowMessage(TRUE,wMessage,"Can't compile alphabet");
+BPPrintMessage(odError,"=> Can't compile alphabet");
 return(rep);
 }
 
@@ -1147,13 +1150,13 @@ for(i=0,k1=0; i <= l;) {
 	if((length=GetBol(p_line,&i)) > BOLSIZE) {
 		sprintf(Message,"\nMaximum length: %ld chars.\n",(long)BOLSIZE);
 		Print(wTrace,Message);
-		if(trace_compile_grammar) BPPrintMessage(odInfo,Message);
+		if(trace_compile_grammar) BPPrintMessage(odError,Message);
 	//	ShowError(22,0,0);
 		MyDisposeHandle((Handle*)&p_y);
 		return(26);
 		}
 	if(length == -1) {
-		if(trace_compile_grammar) BPPrintMessage(odInfo, "GetBols() failed, length = %d\n",length);
+		if(trace_compile_grammar) BPPrintMessage(odError, "GetBols() failed, length = %d\n",length);
 		MyDisposeHandle((Handle*)&p_y);
 		return(27);
 		}
@@ -1162,7 +1165,7 @@ for(i=0,k1=0; i <= l;) {
 	if(!isspace(c) && c != '\0') {
 		sprintf(Message,"Can't accept character \"%c\" in alphabet\n",c);
 		Print(wTrace,Message);
-		if(trace_compile_grammar) BPPrintMessage(odInfo,"Can't accept character \"%c\" in alphabet. length = %d\n",c,length);
+		if(trace_compile_grammar) BPPrintMessage(odError,"Can't accept character \"%c\" in alphabet. length = %d\n",c,length);
 		r = ABORT; goto QUIT;
 		} 
 	(*p_line)[j++] = '\0';
@@ -1240,7 +1243,7 @@ while(TRUE) {
 	i++;
 	}
 line[j] = '\0';
-if(trace_compile_grammar) BPPrintMessage(odInfo,"Can't make sense of \"%s\"\n",line);
+if(trace_compile_grammar) BPPrintMessage(odError,"Can't make sense of \"%s\"\n",line);
 sprintf(Message,"Can't make sense of \"%s\"\n",line);
 Print(wTrace,Message);
 return(-1);

@@ -1,4 +1,4 @@
-/* TimeSet.c (BP2 version CVS) */ 
+/* TimeSet.c (BP3) */ 
 
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -173,9 +173,7 @@ if(Maxevent < 100) {
 				if((*p_ObjectSpecs)[k] != NULL) {
 					ptag = WaitList(k);
 					while(ptag != NULL) {
-						sprintf(Message,"<<W%ld>>",(long)((**ptag).x));
-						// Print(wTrace,Message);
-						BPPrintMessage(odInfo,Message);
+						BPPrintMessage(odInfo,"<<W%ld>>",(long)((**ptag).x));
 						ptag = (**ptag).p;
 						}
 					}
@@ -215,16 +213,13 @@ if(Maxevent < 100) {
 						}
 					}
 				}
-			else sprintf(Message,"%ld ",(long)k);
-			BPPrintMessage(odInfo,Message);
+			else BPPrintMessage(odInfo,"%ld ",(long)k);
 			}
 		BPPrintMessage(odInfo,"\n");
 		}
-	sprintf(Message,"\nT[i], i = 1,%ld:\n",(long)maxseq);
-	if(trace_timeset) BPPrintMessage(odInfo,Message);
+	if(trace_timeset) BPPrintMessage(odInfo,"\nT[i], i = 1,%ld:\n",(long)maxseq);
 	for(i=1L; i <= maxseq; i++) {
-		sprintf(Message,"%ld ",(long)(*p_T)[i]);
-		if(trace_timeset) BPPrintMessage(odInfo,Message);
+		if(trace_timeset) BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
 		}
 	BPPrintMessage(odInfo,"\n");
 	}
@@ -247,9 +242,8 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 				}
 			}
 		else {
-			sprintf(Message,"ERROR: k < 0 nseq=%ld i=%ld im=%ul k=%ld",(long)nseq,(long)i,
+			if(trace_timeset) BPPrintMessage(odInfo,"ERROR: k < 0 nseq=%ld i=%ld im=%ul k=%ld",(long)nseq,(long)i,
 				(unsigned long)maxseq,(long)k);
-			if(trace_timeset) BPPrintMessage(odInfo,Message);
 			}
 		}
 	}
@@ -364,9 +358,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 #endif /* BP_CARBON_GUI */
 
 	if(DisplayTimeSet) {
-		sprintf(Message,"\nSequence #%ld\n",(long)(nseq+1L));
-		// Print(wTrace,Message);
-		if(trace_timeset) BPPrintMessage(odInfo,Message);
+		if(trace_timeset) BPPrintMessage(odInfo,"\nSequence #%ld\n",(long)(nseq+1L));
 		}
 	CoverOK = DiscontinuityOK = stepthis = FALSE;
 	if(NoConstraint) {
@@ -502,8 +494,7 @@ QUEST2:
 				}
 			else {
 				if(i <= (*p_imaxseq)[nseq] && (*p_T)[i] != ZERO) {
-					sprintf(Message,"=> Err. SetTimeObjects() nseq = %ld maxseq = %ld (*p_T)[%ld] = %ld\n",(long)nseq,(long)maxseq,(long)i,(long)(*p_T)[i]);
-					if(trace_timeset) BPPrintMessage(odInfo,Message);
+					if(trace_timeset) BPPrintMessage(odInfo,"=> Err. SetTimeObjects() nseq = %ld maxseq = %ld (*p_T)[%ld] = %ld\n",(long)nseq,(long)maxseq,(long)i,(long)(*p_T)[i]);
 					(*p_T)[i] = ZERO;
 					}
 				}
@@ -526,32 +517,27 @@ QUEST2:
 		
 	/* Update tmin and tmax */
 	imax = (*p_imaxseq)[nseq] - 1L;
-	sprintf(Message,"imax = %ld\n",(long)imax);
-	if(trace_timeset) BPPrintMessage(odInfo,Message);
+	if(trace_timeset) BPPrintMessage(odInfo,"imax = %ld\n",(long)imax);
 	if(imax > 0) {
 		if(trace_timeset) BPPrintMessage(odInfo,"\nUpdating tmin and tmax\n");
 		i = imax;
 		while(i > 0 && (k=(*((*p_Seq)[nseq]))[i]) < 2) i--;
-		sprintf(Message,"1_max: i = %ld, k = %ld\n",(long)i,(long)k);
-		if(trace_timeset) BPPrintMessage(odInfo,Message);
+		if(trace_timeset) BPPrintMessage(odInfo,"1_max: i = %ld, k = %ld\n",(long)i,(long)k);
 		if(k > *p_kmx) {
 			BPPrintMessage(odInfo,"=> Error in TimeSet(). k > *p_kmx\n");
 			}
 		else if(i > 0 && (t=((*p_Instance)[k].endtime+(*p_Instance)[k].truncend)) > *p_tmax)
 			*p_tmax = t;
-		sprintf(Message,"t = %ld\n",(long)t);
-		if(trace_timeset) BPPrintMessage(odInfo,Message);
+		if(trace_timeset) BPPrintMessage(odInfo,"t = %ld\n",(long)t);
 		i = 1L;
 		while(i <= imax && (k=(*((*p_Seq)[nseq]))[i]) < 2) i++;
-		sprintf(Message,"2_min: i = %ld, k = %ld\n",(long)i,(long)k);
-		if(trace_timeset) BPPrintMessage(odInfo,Message);
+		if(trace_timeset) BPPrintMessage(odInfo,"2_min: i = %ld, k = %ld\n",(long)i,(long)k);
 		if(k > *p_kmx) {
 			BPPrintMessage(odInfo,"=> Error in TimeSet(). k > *p_kmx\n");
 			}
 		else if(i <= imax && (t=((*p_Instance)[k].starttime-(*p_Instance)[k].truncbeg)) < *p_tmin)
 			*p_tmin = t;
-		sprintf(Message,"t = %ld\n",(long)t);
-		if(trace_timeset) BPPrintMessage(odInfo,Message);
+		if(trace_timeset) BPPrintMessage(odInfo,"t = %ld\n",(long)t);
 		}
 		
 	/* Last object must not be played legato */ // Suppressed by BB 22 Nov 2020

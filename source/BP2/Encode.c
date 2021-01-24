@@ -1,4 +1,4 @@
-/* Encode.c (BP2 version CVS) */
+/* Encode.c (BP3) */
 
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -59,8 +59,10 @@ double x;
 *p_result = OK;
 if(p_Script == NULL && GetScriptSpace() != OK) return(NULL);
 if(p_Flagname == NULL && GetFlagSpace() != OK) return(NULL);
-if(p_Var == NULL && GetVariableSpace() != OK) return(NULL);	/* Added 8/3/98 */
-for(i=0,p=(*pp1); p < (*pp2); i++,p++){};
+if(p_Var == NULL && GetVariableSpace() != OK) return(NULL);
+for(i=0,p=(*pp1); p < (*pp2); i++,p++) {
+//	BPPrintMessage(odInfo,"%c",*p);
+	}
 pp = pp1;
 imax = 4L * i + 6L;
 buffsize = imax + 4L;
@@ -77,7 +79,11 @@ if(arg_nr == 0) {
 		}
 	}
 for(; (*pp) <= (*pp2);) {
-	if(i % 25 == 0) PleaseWait();
+//	if(i % 25 == 0) PleaseWait();
+ //	BPPrintMessage(odInfo,"%c",**pp);
+/*	if(**pp == '{' || **pp == '}') BPPrintMessage(odInfo,"%c",**pp);
+	else BPPrintMessage(odInfo,"%d ",**pp); */
+
 #if BP_CARBON_GUI
 	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if((SelectOn || CompileOn) && ((*p_result)=MyButton(2)) != FAILED) {
@@ -87,6 +93,7 @@ for(; (*pp) <= (*pp2);) {
 	(*p_result) = OK;
 	if(EventState != NO) goto ERR;
 #endif /* BP_CARBON_GUI */
+
 	while(GetNilString(pp) == OK){}; /* Skip "lambda" */
 	c = NextChar(pp);
 	if(isdigit(c)) {
@@ -519,9 +526,9 @@ STOREFLAG:
 				}
 			if(arg_nr == 1) {
 				switch(c) {
-					case '­':
+				/*	case '­':
 						(**nexth).operator = DIF;
-						break;
+						break; */
 					case '<':
 					case '\334':
 						(**nexth).operator = INF;
@@ -530,12 +537,12 @@ STOREFLAG:
 					case '\335':
 						(**nexth).operator = SUP;
 						break;
-					case '³':
+				/*	case '³':
 						(**nexth).operator = SUPEQUAL;
 						break;
 					case '²':
 						(**nexth).operator = INFEQUAL;
-						break;
+						break; */
 					}
 				}
 			if(*(ph_flag) == NULL) *(ph_flag) = nexth;
@@ -1664,6 +1671,7 @@ else {
 	strcpy(t,"\n");
 	}
 strcat(Message,t);
+// BPPrintMessage(odError,Message);
 BPActivateWindow(SLOW,wTrace);
 Print(wTrace,Message);
 ShowSelect(CENTRE,wTrace);

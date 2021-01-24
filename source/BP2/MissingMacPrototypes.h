@@ -1,4 +1,4 @@
-/*  MissingMacPrototypes.h (BP2 version CVS) */
+/*  MissingMacPrototypes.h (BP3) */
 
 /*  This file is a part of Bol Processor 2
 Copyright (c) 2013 by Anthony Kozar

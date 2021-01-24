@@ -1,4 +1,4 @@
-/* ConsoleMain.c (BP2 version CVS) */
+/* ConsoleMain.c (BP3) */
 /* August 7, 2013 */
 
 /*  This file is a part of Bol Processor 2
@@ -158,9 +158,9 @@ int main (int argc, char* args[])
 */
 
 	InitOn = FALSE;
-	BPPrintMessage(odInfo, "\nBP3 Console completed initialization and will run ");
+	BPPrintMessage(odInfo, "\nBP3 Console completed initialization and will run:");
 	
-	BPPrintMessage(odInfo, "%s\n\n",gOptions.inputFilenames[wGrammar]);
+	BPPrintMessage(odInfo, "\n%s\n%s\n\n",gOptions.inputFilenames[wGrammar],gOptions.inputFilenames[wData]);
 	
 	SessionTime = clock();
 	if (!gOptions.seedProvided) ReseedOrShuffle(NEWSEED);
@@ -169,7 +169,7 @@ int main (int argc, char* args[])
 	if (!LoadedStartString)  CopyStringToTextHandle(TEH[wStartString], "S\n");
 		
 //	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (9) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-	BPPrintMessage(odInfo,"\nMemory used so far = %ld bytes\n",(long)MemoryUsed);
+//	BPPrintMessage(odInfo,"\nMemory used so far = %ld bytes\n",(long)MemoryUsed);
 
 	// The following is a global record of the status of handles created and disposed
 	// hist_mem_ptr[] is 1 after a GiveSpace() and 2 after a DisposHandle()
@@ -187,14 +187,13 @@ int main (int argc, char* args[])
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (10) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	if (result == OK) result = PrepareTraceDestination(&gOptions);
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (11) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-	
 		
 	if (result == OK) {
 		// perform the action specified on the command line
 		switch (gOptions.action) {
 			case compile:
 				result = CompileCheck();
-				if (Beta && result != OK)  BPPrintMessage(odError, "CompileCheck() returned %d\n", result);
+				if (Beta && result != OK)  BPPrintMessage(odError,"CompileCheck() returned %d\n", result);
 				break;
 			case produce:
 				if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start ProduceItems = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
@@ -210,8 +209,14 @@ int main (int argc, char* args[])
 		//		if (Beta && result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
 				break;
 			case play:
+				 BPPrintMessage(odInfo,"Playing...\n");
 				break;
 			case play_item:
+				 BPPrintMessage(odInfo,"Playing this item\n");
+				 PlaySelectionOn = TRUE;
+				 result = PlaySelection(wData);
+				if(result == OK) BPPrintMessage(odInfo,"\nErrors: 0\n");
+				else if(Beta && result != OK) BPPrintMessage(odError,"PlaySelection() returned %d\n", result);
 				break;
 			case play_all:
 				break;
@@ -220,7 +225,7 @@ int main (int argc, char* args[])
 					// FIXME: Need to either set a selection or call SelectionToBuffer()
 					// and AnalyzeBuffer() similarly to AnalyzeSelection().
 					result = AnalyzeSelection(FALSE);
-					if (Beta && result != OK)  BPPrintMessage(odError, "=> AnalyzeSelection() returned %d\n", result);
+					if (Beta && result != OK)  BPPrintMessage(odError,"=> AnalyzeSelection() returned %d\n", result);
 				}
 				break;
 			case expand:
@@ -332,12 +337,13 @@ void CreateImageFile(void)
 	size_t length = 0;
 	ssize_t number;
 	char cwd[PATH_MAX];
+	
 	if(imagePtr != NULL) {
 		EndImageFile();
 		N_image++;
 		}
 	if(gOptions.outputFiles[ofiTraceFile].name == NULL) {
-		BPPrintMessage(odInfo,"Cannot create image file because no path is specified and trace mode is not active\n");
+		BPPrintMessage(odError,"=> Cannot create image file because no path is specified and trace mode is not active\n");
 		ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
 		return;
 		}
@@ -349,7 +355,7 @@ void CreateImageFile(void)
 	strncpy(line1,line2,length - 4);
 //	BPPrintMessage(odInfo,"\n\nline1 = %s\n\n",line1);
 	sprintf(line2,"_image_%ld_temp.html",(long)N_image);
-	if(gOptions.inputFilenames[wGrammar] != "") {
+	if(!PlaySelectionOn && gOptions.inputFilenames[wGrammar] != "") {
 		GetFileName(line3,gOptions.inputFilenames[wGrammar]);
 		sprintf(Message,"_%s",line3);
 		remove_spaces(Message,line3);
@@ -417,7 +423,8 @@ void EndImageFile(void)
 		while((number = getline(&pick_a_line,&length,thisfile)) != -1) {
 			if(strstr(pick_a_line,"THE_TITLE") != NULLSTR) {
 				// remove_final_linefeed(pick_a_line,Message);
-				someline = repl_str(pick_a_line,"THE_TITLE",gOptions.inputFilenames[wGrammar]);
+				if(!PlaySelectionOn) someline = repl_str(pick_a_line,"THE_TITLE",gOptions.inputFilenames[wGrammar]);
+				else someline = repl_str(pick_a_line,"THE_TITLE",gOptions.inputFilenames[wData]);
 				anotherline = recode_tags(pick_a_line);
 				remove_final_linefeed(anotherline,anotherline);
 			//	BPPrintMessage(odInfo,"Found: %s\n",anotherline);

@@ -1,4 +1,4 @@
-/* OMS.c (BP2 version CVS) */
+/* OMS.c (BP3) */
 
 // Written by Bernard Bel (bel@kagi.com) on the basis of the OMS Software Developers Kit
 // supplied by OpCode (ref. OMS 2.0 SDK 960523)

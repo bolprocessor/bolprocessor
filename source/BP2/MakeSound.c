@@ -1,4 +1,4 @@
-/* MakeSound.c (BP2 version CVS) */
+/* MakeSound.c (BP3) */
 
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -212,7 +212,6 @@ for(nseq=0; nseq < maxconc; nseq++) {
 result = OK;
 kfirstinstance = 0;
 t11 = t22 = Infpos;
-
 for(k=2; k <= (*p_kmax); k++) {
 	j = (*p_Instance)[k].object;
 	if(j == 0) continue;
@@ -334,6 +333,7 @@ for(k=2; k <= (*p_kmax); k++) {
 		}
 	}
 
+
 CsoundPianoRollNoteShift = 0;
 for(k=2; k <= (*p_kmax); k++) {
 	j = (*p_Instance)[k].object;
@@ -350,7 +350,6 @@ for(k=2; k <= (*p_kmax); k++) {
 		}
 	if((*p_Instance)[k].starttime < CsoundPianoRollNoteShift) CsoundPianoRollNoteShift = (*p_Instance)[k].starttime;
 	}
-
 SoundOn = TRUE;
 if(showpianoroll) {
 	minkey = 127; maxkey = 0;
@@ -358,6 +357,7 @@ if(showpianoroll) {
 	for(k=2; k <= (*p_kmax); k++) {
 		j = (*p_Instance)[k].object;
 		if(j < 0) j = -j;
+	//	BPPrintMessage(odInfo,"@ k=%d j=%d\n",k,j);
 		if(j < 2) continue;
 		if(j < 16384) {
 			beta = (*p_Instance)[k].dilationratio;
@@ -383,7 +383,7 @@ if(showpianoroll) {
 						c1 = ExpandKey(c1,(*p_Instance)[k].xpandkey,(*p_Instance)[k].xpandval);
 						if(!(*p_Instance)[k].lastistranspose) TransposeKey(&c1,trans);
 						key = c1;
-				//		BPPrintMessage(odInfo,"===> key = %d\n",key);
+					//	BPPrintMessage(odInfo,"===> key = %d\n",key);
 						if(key < minkey) minkey = key;
 						if(key > maxkey) maxkey = key;
 						}
@@ -431,7 +431,7 @@ if(showpianoroll) {
 		}
 	minkey = (minkey / 6) * 6;
 	maxkey = 6 + ((maxkey / 6) * 6);
-	if (minkey > maxkey)  minkey = maxkey = 60;
+	if(minkey > maxkey)  minkey = maxkey = 60;
 	hrect = 3;
 	htext = 14;
 	leftoffset = 13 + 30 - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
@@ -441,10 +441,9 @@ if(showpianoroll) {
 	else endxmax = 50 + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10;
 	if(endxmax < 100) endxmax = 100;
 	endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
-//	BPPrintMessage(odInfo,"minkey = %d maxkey = %d endymax = %d\n",minkey,maxkey,endymax);
+	// BPPrintMessage(odInfo,"@ minkey = %d maxkey = %d endymax = %d\n",minkey,maxkey,endymax);
 	if(WidthMax < 32767) WidthMax = 2 * endxmax + 40;
-	sprintf(Message,"WidthMax (3) = %ld\n",WidthMax);
-//	BPPrintMessage(odInfo,Message);
+	BPPrintMessage(odInfo,Message);
 	if(WidthMax > 32767) {
 		BPPrintMessage(odInfo,"\n=> Image width %d is too large: it will be set to 32767\n",WidthMax);
 		WidthMax = 32767;
@@ -458,7 +457,9 @@ if(showpianoroll) {
 		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Drawing item background\n");
 		if((result=DrawItemBackground(&graphrect,imaxstreak,htext,hrect,leftoffset,NO,
 			p_delta,&yruler,topoffset,&overflow)) != OK || overflow) goto OUTGRAPHIC;
+		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"End of drawing item background\n");
 		DrawNoteScale(&graphrect,w,minkey,maxkey,hrect,leftoffset,topoffset);
+		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"End of drawing note scale\n");
 		}
 	
 	topoffset += 3;
@@ -471,7 +472,7 @@ if(showpianoroll) {
 #if WITH_REAL_TIME_MIDI
 if(!MIDIfileOn && !cswrite && OutMIDI && !showpianoroll) drivertime = GetDriverTime();
 #endif
-	
+
 if(Improvize && !Interrupted && !FirstTime && !ItemCapture && !showpianoroll) {
 	computetime = drivertime - ComputeStart;
 	if(computetime > MaxComputeTime) MaxComputeTime = computetime;

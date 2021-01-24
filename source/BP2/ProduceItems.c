@@ -1,4 +1,4 @@
-/* ProduceItems.c (BP2 version CVS) */
+/* ProduceItems.c (BP3) */
 
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -62,7 +62,9 @@ if(SaveCheck(wAlphabet) == ABORT) return(FAILED);
 if(SaveCheck(wInteraction) == ABORT) return(FAILED);
 if(SaveCheck(wGlossary) == ABORT) return(FAILED);
 #endif /* BP_CARBON_GUI */
+
 if(CompileCheck() != OK) return(FAILED);
+
 if(!template && CheckLoadedPrototypes() != OK) return(FAILED);
 
 #if BP_CARBON_GUI
@@ -108,6 +110,7 @@ if(!PlaySelectionOn && (InitThere == 2)) {
 SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 ifunc = weightloss = FALSE;
 splitmem = SplitTimeObjects;
+
 #if BP_CARBON_GUI
 if(LoadInteraction(TRUE,FALSE) != OK) {
 	r = FAILED; goto QUIT;
@@ -135,6 +138,7 @@ if(undefined && !repeat && !IgnoreUndefinedVariables) {
 PedalOrigin = -1;
 if(Jflag > 0) for(i=1; i <= Jflag; i++) (*p_Flag)[i] = ZERO;
 #if BP_CARBON_GUI
+
 if(!repeat && !DeriveFurther) GetValues(TRUE);
 #endif /* BP_CARBON_GUI */
 MaxDeriv = MAXDERIV;

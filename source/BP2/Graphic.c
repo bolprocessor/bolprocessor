@@ -1,4 +1,4 @@
-/* Graphic.c (BP2 version CVS) */
+/* Graphic.c (BP3) */
 
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -1184,10 +1184,13 @@ long i,j,k,t1,t2,y,tmem1,tmem2,tmem3,xmax,ymax,y_curr;
 char line[BOLSIZE+5],showsmalldivisions,line_image[200];
 Str255 label;
 
+if(imagePtr == NULL) {
+	N_image++;
+	CreateImageFile();
+	}	
 result = OK;
 pen_size(1,0);
 text_style(htext,"arial");
-
 
 ymax = p_r->bottom;
 if(HeightMax < 32767) HeightMax = 2 * ymax + 20;
@@ -1195,6 +1198,7 @@ else {
 	BPPrintMessage(odInfo,"\n=> Image height %d is too large: it has been cropped to 32767\n",HeightMax);
 	HeightMax = 32767;
 	}
+
 
 // Draw scale ruler
 x = 5. * ((double) GraphicScaleQ) / GraphicScaleP;	/* Duration on 500 pixels */

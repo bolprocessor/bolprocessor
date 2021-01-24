@@ -1,4 +1,4 @@
-/* GetRelease.c (BP2 version CVS) */
+/* GetRelease.c (BP3) */
 /* WARNING: Record carefully any change done here as it may take ages to trace bad consequences */
 
 /*  This file is a part of Bol Processor 2

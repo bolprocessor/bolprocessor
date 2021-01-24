@@ -1,4 +1,4 @@
-/* Schedule.c (BP2 version CVS) */
+/* Schedule.c (BP3) */
 
 // This is based on code communicated by Tom Demeyer from STEIM (tomd@xs4all.nl)
 // I mainly changed the way events are linked together around places of the clock.

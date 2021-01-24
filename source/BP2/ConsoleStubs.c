@@ -1,4 +1,4 @@
-/* ConsoleStubs.c (BP2 version CVS) */
+/* ConsoleStubs.c (BP3) */
 /* August 11, 2013 */
 
 /*  This file is a part of Bol Processor 2

@@ -1,4 +1,4 @@
-/* SetObjectFeatures.c (BP2 version CVS) */ 
+/* SetObjectFeatures.c (BP3) */ 
 
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
 
-int trace_all_messages = 0;
+int trace_object_features = 0;
 int trace_set_variation = 0;
 
 int SetObjectParams(int isobject,int level,int nseq,short** p_articul,int k,int j,
@@ -841,7 +841,7 @@ while(TRUE) {
 					t1 = (*p_T)[i];
 					(*p_time1)[i] = t1;
 					t2 = (*p_time2)[i] = t1 + (Milliseconds) ((*p_Instance)[k].alpha * (*p_Dur)[j]);
-					sprintf(Message,"Fix() time pattern k = %ld j = %ld alpha = %.2f t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)t1,(long)t2);
+			//		sprintf(Message,"Fix() time pattern k = %ld j = %ld alpha = %.2f t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)t1,(long)t2);
 					}
 				else {
 					if((*p_PivMode)[j] == RELATIVE)
@@ -855,16 +855,16 @@ while(TRUE) {
 					if(PlayFromInsertionPoint) t1 = (*p_time1)[i] = (*p_T)[i];
 					t2 = (*p_time2)[i] = t1
 						+ (Milliseconds)((*p_Instance)[k].alpha * (*p_Dur)[j]);
-					sprintf(Message,"Fix() k = %ld j = %ld alpha = %.2f Dur = %ld t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)(*p_Dur)[j],(long)t1,(long)t2);
+			//		sprintf(Message,"Fix() k = %ld j = %ld alpha = %.2f Dur = %ld t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)(*p_Dur)[j],(long)t1,(long)t2);
 					}
-				if(trace_all_messages) BPPrintMessage(odInfo,Message);
+				if(trace_object_features) BPPrintMessage(odInfo,Message);
 				}
 			else {	/* Simple note */
 				t1 = (*p_T)[i];
 				RandomTime(&t1,(*p_Instance)[k].randomtime);
 				(*p_time1)[i] = t1;
 				t2 = (*p_time2)[i] = t1 + (*p_Instance)[k].alpha * 1000L;
-				sprintf(Message,"Fix() note k = %ld j = %ld alpha = %.2f t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)t1,(long)t2);
+		//		sprintf(Message,"Fix() note k = %ld j = %ld alpha = %.2f t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)t1,(long)t2);
 				}
 			}
 		else {
@@ -946,8 +946,7 @@ if(nature_time == STRIATED || nseq == 0) {
 			else {		/* Pclock = ZERO; non-measured smooth time */
 				alpha = d;
 				}
-			sprintf(Message,"Calculate_alpha() 1st line k = %ld j = %ld alpha = %.2f d = %ld clockperiod = %ld i = %ld inext = %ld Dur =%ld Tref = %ld\n",(long)k,(long)j,alpha,(long)d,(long)clockperiod,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
-			if(trace_all_messages) BPPrintMessage(odInfo,Message);
+			if(trace_object_features) BPPrintMessage(odInfo,"Calculate_alpha() 1st line k = %ld j = %ld alpha = %.2f d = %ld clockperiod = %ld i = %ld inext = %ld Dur =%ld Tref = %ld\n",(long)k,(long)j,alpha,(long)d,(long)clockperiod,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 			}
 		else {					/* Striated time or nseq > 0 */
 			if(d > 0.) {
@@ -964,8 +963,7 @@ if(nature_time == STRIATED || nseq == 0) {
 			else {
 				alpha = 0.;
 				}
-			sprintf(Message,"Calculate_alpha() striated k = %ld j = %ld alpha = %.2f d = %.2f i = %ld inext = %ld Dur =%ld Tref = %ld\n",(long)k,(long)j,alpha,d,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
-			if(trace_all_messages) BPPrintMessage(odInfo,Message);
+			if(trace_object_features) BPPrintMessage(odInfo,"Calculate_alpha() striated k = %ld j = %ld alpha = %.2f d = %.2f i = %ld inext = %ld Dur =%ld Tref = %ld\n",(long)k,(long)j,alpha,d,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 			}
 		
 		beta = alpha;
@@ -1057,8 +1055,7 @@ FINDNEXTMARKED:
 			else r = 1.;
 			}
 		sigmaridi += r * d;
-		sprintf(Message,"Calculate_alpha() smooth line > 0 To = %ld k = %ld j = %ld r = %.2f d = %ld sigmaridi = %.2f inext = %ld Dur = %ld Tref = %ld\n",(long)To,(long)k,(long)j,r,d,sigmaridi,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
-		if(trace_all_messages) BPPrintMessage(odInfo,Message);
+		if(trace_object_features) BPPrintMessage(odInfo,"Calculate_alpha() smooth line > 0 To = %ld k = %ld j = %ld r = %.2f d = %ld sigmaridi = %.2f inext = %ld Dur = %ld Tref = %ld\n",(long)To,(long)k,(long)j,r,d,sigmaridi,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 		i = inext;
 		}
 	unfinished = FALSE;
@@ -1104,8 +1101,7 @@ FINDNEXTMARKED:
 			else r = 1.;
 			}
 		alpha = To * r * d / dur / sigmaridi;
-		sprintf(Message,"k = %ld j = %ld alpha = %.2f r = %.2f d = %ld sigmaridi = %.2f\n",(long)k,(long)j,alpha,r,d,sigmaridi);
-		if(trace_all_messages) BPPrintMessage(odInfo,Message);
+		if(trace_object_features) BPPrintMessage(odInfo,"k = %ld j = %ld alpha = %.2f r = %.2f d = %ld sigmaridi = %.2f\n",(long)k,(long)j,alpha,r,d,sigmaridi);
 		if(!unfinished && inext == inextm) {	/* Last object in section */
 			toff = (*p_T)[inext];	/* This will compensate cumulated roundings */
 			alpha = ((double)(toff - currenttime)) / dur;
@@ -1135,9 +1131,7 @@ FINDNEXTMARKED:
 			(*p_marked)[inext] = TRUE;
 			}
 		if(alpha < 0.) {	/* Should no longer happen since To > ZERO */
-			sprintf(Message,
-			"=> Err. Calculate_alpha(). alpha=%.2f",alpha);
-			BPPrintMessage(odInfo,Message);
+			BPPrintMessage(odInfo,"=> Err. Calculate_alpha(). alpha=%.2f",alpha);
 			alpha = 0.;
 			}
 		if(!gotcurrenttime) currenttime += (Milliseconds) (alpha * dur);
@@ -1465,8 +1459,7 @@ double tempo,tempomax,prodtempo,objectduration,orgobjectduration,speed,
 
 if(oldm != T3 && oldm != T25 && oldm != T9) {
 	if(Beta) {
-		sprintf(Message,"=> Err. GetSymbolicDuration(). oldm = %ld",(long)oldm);
-		Println(wTrace,Message);
+		BPPrintMessage(odError,"=> Err. GetSymbolicDuration(). oldm = %ld",(long)oldm);
 		}
 	return(0);
 	}
@@ -1479,7 +1472,7 @@ level = 0;
 seq = (*p_seq)[level] = 0;
 
 if(orgspeed == ZERO) {
-	if(Beta) Println(wTrace,"=> Err. GetSymbolicDuration(). orgspeed == ZERO");
+	if(Beta) BPPrintMessage(odError,"=> Err. GetSymbolicDuration(). orgspeed == ZERO");
 	objectduration = 0.;
 	goto OUT;
 	}

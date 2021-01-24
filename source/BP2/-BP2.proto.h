@@ -1,4 +1,4 @@
-/* -BP2.proto.h (BP2 version CVS) */
+/* -BP2.proto.h (BP3) */
 
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -158,7 +158,7 @@ char UpperCase(char c);
 int UpperCaseString(char*);
 int Pause(void);
 char GetCap(void);
-char** NextChar(char**);
+char NextChar(char**);
 int CheckEnd(char);
 char *GetEnd(char**);
 int ReadToBuff(int,int,int,long*,long,char***);

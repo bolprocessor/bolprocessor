@@ -1,4 +1,4 @@
-/* MIDIfiles.c (BP2 version CVS) */
+/* MIDIfiles.c (BP3) */
 /* Thanks to Srikumar K. Subramanian */
 
 /*  This file is a part of Bol Processor 2
@@ -435,7 +435,7 @@ static int CloseMIDIFile2(void)
 if (gOptions.outputFiles[ofiMidiFile].isOpen) {
 	fflush(gOptions.outputFiles[ofiMidiFile].fout);
 	CloseOutputFile(&(gOptions.outputFiles[ofiMidiFile]));
-	sprintf(Message,"Closed MIDI file '%s'",gOptions.outputFiles[ofiMidiFile].name);
+	sprintf(Message,"Closed MIDI file %s",gOptions.outputFiles[ofiMidiFile].name);
 	ShowMessage(TRUE,wMessage,Message);
 }
 

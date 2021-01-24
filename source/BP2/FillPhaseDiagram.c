@@ -1,4 +1,4 @@
-/* FillPhaseDiagram.c (BP2 version CVS) */ 
+/* FillPhaseDiagram.c (BP3) */ 
 
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -944,7 +944,7 @@ DONEOUTTIMEOBJECT:
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
 						if(Beta) {
-							Alert1("=> Err. FillPhaseDiagram(). nseq >= Minconc");
+							Alert1("=> Error FillPhaseDiagram(). nseq >= Minconc");
 							goto ENDDIAGRAM;
 							}
 						goto NEWSEQUENCE;
@@ -1014,7 +1014,7 @@ DONEOUTTIMEOBJECT:
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
 						if(Beta) {
-							Alert1("=> Err. FillPhaseDiagram(). nseq >= Minconc");
+							BPPrintMessage(odError,"=> Error FillPhaseDiagram(). nseq(%ld) >= Minconc(%ld)",(long)nseq,(long)Minconc);
 							goto ENDDIAGRAM;
 							}
 						goto NEWSEQUENCE;
@@ -1553,14 +1553,14 @@ if(imax > 0.) {
 	/* This compensates errors due to overflow in calculating Prod and Ratio */
 	if(Beta) {
 		if(CorrectionFactor < 0.95 || CorrectionFactor > 1.05) {
-			sprintf(Message,"\nCorrection factor %.3f might be out of range...",CorrectionFactor);
+			sprintf(Message,"Correction factor = %.3f\n",CorrectionFactor);
 			Println(wTrace,Message);
 			ShowMessage(TRUE,wMessage,Message);
 			}
-		if(ShowMessages && (CorrectionFactor != 1.0)) {
+	/*	if(ShowMessages && (CorrectionFactor != 1.0)) {
 			sprintf(Message,"Correction factor = %.3f",CorrectionFactor);
 			ShowMessage(TRUE,wMessage,Message);
-			}
+			} */
 		}
 	
 	/* Let's put an out-time silence at the end of the item, and attach to it the ultimate control parameter values */

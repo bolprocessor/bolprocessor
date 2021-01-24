@@ -1,4 +1,4 @@
-/* AppleEvents.c (BP2 version CVS) */
+/* AppleEvents.c (BP3) */
 
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian

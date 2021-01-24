@@ -1,4 +1,4 @@
-/* Strings.c  (BP2 version CVS) */
+/* Strings.c  (BP3) */
  
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -380,7 +380,7 @@ return(OK);
 }
 
 
-char** NextChar(char **pp)
+char NextChar(char **pp)
 {
 while(MySpace(**pp) && **pp != '\r' && **pp != '\n') (*pp)++;
 return(**pp);

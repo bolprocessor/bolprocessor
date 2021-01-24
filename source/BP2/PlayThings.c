@@ -1,4 +1,4 @@
-/* PlayThings.c (BP2 version CVS) */ 
+/* PlayThings.c (BP3) */ 
 
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -46,27 +46,30 @@ tokenbyte **p_a;
 long origin,originmem,firstorigin,end,x;
 
 if(CheckEmergency() != OK) return(ABORT);
+
 #if BP_CARBON_GUI
 if(GetTuning() != OK) return(ABORT);
 #endif /* BP_CARBON_GUI */
-if(!OutMIDI && !OutCsound) {
-	Alert1("Both MIDI and Csound outputs are inactive. Selection can't be played");
-	BPActivateWindow(SLOW,wSettingsBottom);
+
+/* if(!OutMIDI && !OutCsound) {
+	BPPrintMessage(odError,"=> Both MIDI and Csound outputs are inactive. Item(s) can't be played\n");
 	return(FAILED);
-	}
+	} */
 asked = FALSE;
-if(w != LastComputeWindow && w >= 0 && w < WMAX && Editable[w]) LastComputeWindow = w;
-w = LastComputeWindow;
+/* if(w != LastComputeWindow && w >= 0 && w < WMAX && Editable[w]) LastComputeWindow = w;
+w = LastComputeWindow; */  
 if(w < 0 || w >= WMAX || !Editable[w]) {
 	if(Beta) Alert1("=> Err. PlaySelection(). Incorrect window index");
 	return(FAILED);
 	}
+	
 #if BP_CARBON_GUI
 if(w == wScript) {
 	EndWriteScript();
 	return(RunScript(wScript,FALSE));
 	}
 #endif /* BP_CARBON_GUI */
+
 // if(WillRandomize) ReseedOrShuffle(RANDOMIZE);
 
 BPActivateWindow(SLOW,w);
@@ -82,16 +85,19 @@ PlaySelectionOn++;
 ResetMIDI(TRUE);
 
 r = ABORT;
+
 #if BP_CARBON_GUI
 if(SaveCheck(wAlphabet) == ABORT) goto END;
 if(SaveCheck(wGrammar) == ABORT) goto END;
 if(SaveCheck(wInteraction) == ABORT) goto END;
 if(SaveCheck(wGlossary) == ABORT) goto END;
 #endif /* BP_CARBON_GUI */
+
 if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 	CompiledAl = FALSE;
 	if(CompileAlphabet() != OK) goto END;
 	}
+
 if((r=UpdateGlossary()) != OK) goto END;
 if(CompileRegressions() != OK) goto END;
 
@@ -119,13 +125,19 @@ if(InitThere == 2) {
 	}
 firstorigin = origin; p_a = NULL;
 askedvariables = derivevariables = FALSE;
+
+end = GetTextHandleLength(TEH[w]);
+// BPPrintMessage(odInfo,"Playing selection %ld %ld\n",(long)origin,(long)end);
+
 while((originmem=origin) < end) {
 	PleaseWait();
 	r = OK;
 	SetSelect(origin,end,TEH[w]);
+	
 #if BP_CARBON_GUI
 	ShowSelect(CENTRE,w); Activate(TEH[w]);
 #endif /* BP_CARBON_GUI */
+
 	ShowMessage(TRUE,wMessage,"Playing selection...");
 	Nplay = 1;
 	SaidTooComplex = ShownBufferSize = FALSE;
@@ -136,7 +148,7 @@ while((originmem=origin) < end) {
 		goto END;
 		}
 	if(!NoVariable(&p_a)) {
-		if(!askedvariables) {
+	/*	if(!askedvariables) {
 			askedvariables = TRUE;
 			r = Answer("Selection contains variables. Use grammar to derive them",'Y');
 			if(r == ABORT) {
@@ -145,7 +157,8 @@ while((originmem=origin) < end) {
 				goto END;
 				}
 			derivevariables = r;
-			}
+			} */
+		derivevariables = OK;
 		if(!derivevariables) {
 			r = OK;
 			goto NOVARIABLE;
@@ -171,7 +184,9 @@ while((originmem=origin) < end) {
 	else {
 NOVARIABLE:
 		PleaseWait();
-		if(r == OK) r = PlayBuffer(&p_a,NO);	/* HERE WE DO IT */
+		if(r == OK) {
+			r = PlayBuffer(&p_a,NO);	/* HERE WE DO IT */
+			}
 		MyDisposeHandle((Handle*)&p_a);
 		/* Could already be NULL because of PolyExpand() */
 		if(r == ABORT || r == EXIT) {
@@ -217,11 +232,11 @@ else NoAlphabet = FALSE;
 if(FirstTime && !onlypianoroll) {
 	if(p_Initbuff == NULL) {
 	//	if(Beta) Alert1("=> Err. PlayBuffer(). p_Initbuff = NULL. ");
-		BPPrintMessage(odInfo,"=> Err. PlayBuffer(). p_Initbuff = NULL\n");
+		BPPrintMessage(odError,"=> Err. PlayBuffer(). p_Initbuff = NULL\n");
 		return(ABORT);
 		}
 	if((r=PlayBuffer1(&p_Initbuff,NO)) != OK) {
-		BPPrintMessage(odInfo,"PlayBuffer1() cancelled\n");
+		BPPrintMessage(odError,"=> PlayBuffer1() cancelled\n");
 		return(r);
 		}
 	WaitABit(1000L);	/* This is necessary notably if sending a program change */
@@ -232,6 +247,7 @@ if(Maxitems > ZERO /* && !ShowGraphic && !DisplayItems */) {
 	ShowMessage(TRUE,wMessage,Message);
 	}
 r = PlayBuffer1(pp_buff,onlypianoroll);
+
 if(!PlaySelectionOn && ++ItemNumber > INT_MAX) ItemNumber = 1L;
 if(r != EXIT && Maxitems > ZERO && ItemNumber >= Maxitems && !onlypianoroll) {
 	/* Script ordered to terminate production. */
@@ -339,7 +355,7 @@ if((result = TimeSet(pp_buff,&kmax,&tmin,&tmax,&maxseq,&nmax,p_imaxseq,maxseqapp
 if(result == AGAIN) again = TRUE;
 result = OK;
 SetTimeOn = FALSE;
-sprintf(Message,"\ntmin = %ld, tmax = %ld\n\n",(long)tmin,(long)tmax);
+// sprintf(Message,"\ntmin = %ld, tmax = %ld\n\n",(long)tmin,(long)tmax);
 // BPPrintMessage(odInfo,Message);
 
 // if(ShowGraphic) BPPrintMessage(odInfo, "Shall we draw graphics?\n");
@@ -635,7 +651,10 @@ else {
 if(ResetControllers) ResetMIDIControllers(NO,YES,YES);
 
 END:
-if(PlaySelectionOn > 0) PlaySelectionOn--;
+if(PlaySelectionOn > 0) {
+	PlaySelectionOn--;
+	BPPrintMessage(odInfo,"End of playing selection\n");
+	}
 ShowMessages = showmessages;
 Improvize = improvize;
 SetButtons(TRUE);
@@ -1301,11 +1320,12 @@ if(origin >= end) {
 	return(FAILED);
 	}
 length = end - origin + 4L;
-if(length > 32000L) {
+// BPPrintMessage(odInfo,"Selection %d %d length %d\n",origin,end,length);
+/* if(length > 32000L) {
 	if(!ScriptExecOn) Alert1("Selection larger than 32,000 chars.  Can't encode");
 	else PrintBehind(wTrace,"Selection larger than 32,000 chars.  Can't encode.\n");
 	SelectOn = FALSE; return(FAILED);
-	}
+	} */
 if((ptr = (char**) GiveSpace((Size)(length * sizeof(char)))) == NULL) {
 	rep = ABORT;
 	if(Beta) Alert1("=> Err. SelectionToBuffer(). ptr == NULL");
@@ -1313,10 +1333,12 @@ if((ptr = (char**) GiveSpace((Size)(length * sizeof(char)))) == NULL) {
 	}
 *pp_buff = ptr;
 if(ReadToBuff(YES,noreturn,w,&origin,end,pp_buff) != OK) goto BAD;
+
 *p_end = origin;
 MyLock(TRUE,(Handle)*pp_buff);
 p1 = **pp_buff; p2 = p1; i = 0; ret = FALSE;
 // OPTIMIZE? Is all of this "re-checking" necessary? Look at ReadToBuff() - akozar
+// We'll check it later - BB
 while(((*p2) != '\0') && (ret || (*p2) != '\r')) {
 	if((*p2) == 'Â') ret = TRUE;
 	else if(!MySpace((*p2))) ret = FALSE;
@@ -1328,12 +1350,11 @@ while(((*p2) != '\0') && (ret || (*p2) != '\r')) {
 		SelectOn = FALSE;
 		return(FAILED);
 		}
-	}
+	} 
 if(p1 == p2) {
 	MyUnlock((Handle)*pp_buff);
 	goto BAD;
 	}
-
 jbolmem = Jbol;
 notargument = TRUE;
 p_ti = Encode(sequence,notargument,0,0,&p1,&p2,p_plx,p_prx,&meta,0,NULL,FALSE,&rep);
@@ -1355,7 +1376,10 @@ BAD:
 MyDisposeHandle((Handle*)pp_buff);
 
 OUT:
-if(!ScriptExecOn) Alert1("No data selected");
+if(!ScriptExecOn) {
+	Alert1("No data selected");
+	BPPrintMessage(odError,"=> No data selected");
+	}
 else {
 	PrintBehind(wTrace,"No data selected.\n");
 	}
@@ -1385,6 +1409,7 @@ if(*p_i >= im) return(FAILED);
 first = TRUE; oldc = '\0';
 for(j=*p_i,k=0; j < im; j++) {
 	c = GetTextChar(w,j);
+//	BPPrintMessage(odInfo,"%c",c);
 	if(nocomment && c == '*' && oldc == '/') {
 		/* Skip C-type remark */
 		oldc = '\0'; j++; k--;

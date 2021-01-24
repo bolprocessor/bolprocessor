@@ -1,4 +1,4 @@
-/* MIDIstubs.c (BP2 version CVS) */
+/* MIDIstubs.c (BP3) */
 
 /* Contains substitute functions for MIDIdrivers.
    Used when no MIDI drivers are being compiled. */
