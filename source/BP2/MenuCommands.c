@@ -650,7 +650,7 @@ return(OK);
 mSmartCursor(int wind)
 {
 Alert1("'Smart cursor', a wonderful idea, will soon be implemented...");
-return(OK);	/* $$$ */
+return(OK);
 SmartCursor = 1 - SmartCursor;
 Dirty[iSettings] = TRUE;
 if(SmartCursor) {

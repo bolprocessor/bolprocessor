@@ -1520,6 +1520,7 @@ imax = ZERO;
 for(nseq=nseqmem=0; nseq <= (*p_nmax); nseq++) {
 	(*p_maxcol)[nseq]++;
 	ip = (*p_maxcol)[nseq];
+	if(trace_diagram) BPPrintMessage(odInfo,"@ nseq = %ld maxcol[nseq] = %ld\n",nseq,(*p_maxcol)[nseq]);
 	nseqmem2 = nseq;
 	if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,&nseq,
 		maxseqapprox,ip,1) != OK) goto ENDDIAGRAM;
@@ -1538,6 +1539,7 @@ if(k < 0 || k > kobj) {
 	k = 0;
 	}
 j = (*p_Instance)[k].object;
+if(trace_diagram) BPPrintMessage(odInfo,"LOOKATEND nseqmem = %ld imax = %ld k = %d j = %d\n",nseqmem,imax,k,j);
 if(j < 0) {
 	/* Oops! we are outside the table */
 	if(Beta) Println(wTrace,"=> Err. FillPhaseDiagram(). LOOKATEND: j < 0");
@@ -1547,22 +1549,19 @@ if(j < 0) {
 
 CorrectionFactor = 1.;
 
-if(imax > 0.) {
-	if(imax > 1.)
+if(imax > 0.) { 
+	if(imax > 1.) {
 		CorrectionFactor = (((Ratio * Pduration) / Qduration) / (Kpress * (imax - 1.)));
 	/* This compensates errors due to overflow in calculating Prod and Ratio */
-	if(Beta) {
 		if(CorrectionFactor < 0.95 || CorrectionFactor > 1.05) {
 			sprintf(Message,"Correction factor = %.3f\n",CorrectionFactor);
 			Println(wTrace,Message);
 			ShowMessage(TRUE,wMessage,Message);
 			}
-	/*	if(ShowMessages && (CorrectionFactor != 1.0)) {
-			sprintf(Message,"Correction factor = %.3f",CorrectionFactor);
-			ShowMessage(TRUE,wMessage,Message);
-			} */
 		}
-	
+	if(trace_diagram && (CorrectionFactor != 1.0)) {
+		BPPrintMessage(odInfo,"Correction factor = %.3f Ratio = %.3f Pduration = %ld Qduration = %ld Kpress = %ld imax = %ld\n",(float)CorrectionFactor,(float)Ratio,(long)Pduration,(long)Qduration,(long)Kpress,(long)imax);
+		}
 	/* Let's put an out-time silence at the end of the item, and attach to it the ultimate control parameter values */
 	nseq = Minconc;
 	ip = imax;
@@ -1745,7 +1744,7 @@ switch(where) {
 			}
 		(*((*p_seq)[*p_nseq]))[iplot] = newk;
 		break;
-	case OUTTIME:
+	case OUTTIME: 
 PLOTOUTSIDE:
 		if(iplot > (*p_iplot)) {
 			(*p_iplot) = iplot;

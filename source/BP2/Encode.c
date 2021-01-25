@@ -163,8 +163,10 @@ NOTSCALE:
 		if(j != RESUME) {
 			switch(j) {
 				case 0:	/* _chan() */
+					(*p_buff)[i++] = T10; (*p_buff)[i++] = (tokenbyte) n;
+					break;
 				case 1:	/* _vel() */
-					(*p_buff)[i++] = T10 + (tokenbyte) j; (*p_buff)[i++] = (tokenbyte) n;
+					(*p_buff)[i++] = T11; (*p_buff)[i++] = (tokenbyte) n;
 					break;
 				case 2:	/* _velstep */
 				case 3:	/* _velcont */

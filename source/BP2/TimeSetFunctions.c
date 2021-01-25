@@ -147,7 +147,8 @@ for(i=1; i <= imax; i++) {
 	(*p_ddelta0)[i] = (*p_ddelta1)[i] = (*p_ddelta2)[i]
 		= (*p_delta1)[i] = (*p_delta2)[i] = ZERO;
 	k = (*((*p_Seq)[nseq]))[i];
-	if(k > 1 || k < 0) {		/* Ignore silence "-" */
+	// if(k >= 1 || k < 0) { // $$$$
+		if(k > 1 || k < 0) {		/* Ignore silence "-" */
 		/* k < 0 if empty sequence */
 		i0 = i; break;
 		}
@@ -157,7 +158,8 @@ for(i=1; i <= imax; i++) {
 
 i = i0;
 (*p_BreakTempoPrev)[i] = TRUE;
-(*p_Ts)[i] = (*p_tscover)[i] = Infneg;  (*p_tsgap)[i] = Infpos;
+(*p_Ts)[i] = (*p_tscover)[i] = Infneg;
+(*p_tsgap)[i] = Infpos;
 goto CHECK;
 	
 INCREMENT:
@@ -227,7 +229,8 @@ if(k == -1) {	/* 'NIL' end-of-line marker */
 		if(imaxseq > 1) {
 			for(ii=1; ii <= (*p_imaxseq)[nseq]; ii++) {
 				kk = (*((*p_Seq)[nseq]))[ii];
-				if(kk > 1) {
+		//		if(kk > 1) {
+				if(kk >= 1) {
 					(*p_Instance)[kk].starttime = (*p_ts1)[ii];
 					(*p_Instance)[kk].endtime = (*p_ts2)[ii];
 					}

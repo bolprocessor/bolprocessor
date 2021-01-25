@@ -66,9 +66,10 @@ if(result != OK) goto OUT;
 result = SetTimeObjects(bigitem,p_imaxseq,*p_maxseq,p_nmax,
 	p_kmx,p_tmin,p_tmax,p_articul);
 
-if(trace_timeset) BPPrintMessage(odInfo,"End TimeSet() maxseq = %ld\n",(long)*p_maxseq);
+if(trace_timeset) BPPrintMessage(odInfo,"End TimeSet() maxseq = %ld\n\n",(long)*p_maxseq);
 OUT:
 MyDisposeHandle((Handle*)&p_articul);
+sprintf(Message,"");
 return(result);
 }
 
@@ -160,20 +161,21 @@ for(k=ZERO; k < Maxevent; k++) {
 		}
 	if(trace_timeset) BPPrintMessage(odInfo,Message);
 	}
+BPPrintMessage(odInfo,"\n");
 	
 if(Maxevent < 100) {
 	BPPrintMessage(odInfo,"\n");
-	if((*p_nmax) > 1) last_line = (*p_nmax) - 1;
-	else last_line =  1;
+//	if((*p_nmax) > 1) last_line = (*p_nmax) - 1;
+//	else last_line =  1;
 	last_line = (*p_nmax);
-	for(nseq=0; nseq < last_line; nseq++) {
+	for(nseq=0; nseq <= last_line; nseq++) {
 		for(iseq=1L; iseq <= (*p_imaxseq)[nseq]; iseq++) {
 			k = (*((*p_Seq)[nseq]))[iseq];
 			if(k >= 0) {
 				if((*p_ObjectSpecs)[k] != NULL) {
 					ptag = WaitList(k);
 					while(ptag != NULL) {
-						BPPrintMessage(odInfo,"<<W%ld>>",(long)((**ptag).x));
+						sprintf(Message,"<<W%ld>>",(long)((**ptag).x));
 						ptag = (**ptag).p;
 						}
 					}
@@ -191,16 +193,16 @@ if(Maxevent < 100) {
 							}
 						}
 					else {
-						if(k > 1 && j == 1)
-						sprintf(Message,"~ ");
-						else sprintf(Message,"%s ",*((*p_Bol)[j]));
+					/*	if(k > 1 && j == 1)
+							sprintf(Message,"~ ");
+						else */ sprintf(Message,"%s ",*((*p_Bol)[j]));
 						}
 					}
 				else {
 					j = -j;
-					if(k > 1 && j == 1)
+			/*		if(k > 1 && j == 1)
 						sprintf(Message,"<<~>> ");
-					else {
+					else { */
 						if(j < 16384)
 							sprintf(Message,"<<%s>> ",*((*p_Bol)[j]));
 						else {
@@ -210,13 +212,15 @@ if(Maxevent < 100) {
 							PrintNote(-1,key,0,-1,LineBuff);
 							sprintf(Message,"<<%s>> ",LineBuff);
 							}
-						}
+				//		}
 					}
+				BPPrintMessage(odInfo,Message);
 				}
-			else BPPrintMessage(odInfo,"%ld ",(long)k);
+			else BPPrintMessage(odInfo,"(%ld) ",(long)k);
 			}
 		BPPrintMessage(odInfo,"\n");
 		}
+		
 	if(trace_timeset) BPPrintMessage(odInfo,"\nT[i], i = 1,%ld:\n",(long)maxseq);
 	for(i=1L; i <= maxseq; i++) {
 		if(trace_timeset) BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
@@ -224,11 +228,14 @@ if(Maxevent < 100) {
 	BPPrintMessage(odInfo,"\n");
 	}
 
+BPPrintMessage(odInfo,"\n");
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
+	//BPPrintMessage(odInfo,"%d) ",nseq);
 	for(iseq=1L; iseq <= (*p_imaxseq)[nseq]; iseq++) {
 		k = (*((*p_Seq)[nseq]))[iseq];
 		if(k == -1) break;
 		if(k >= 0) {
+			//BPPrintMessage(odInfo,"k=%d ",k);
 			if((*p_ObjectSpecs)[k] != NULL) {
 				ptag = WaitList(k);
 				while(ptag != NULL) {
@@ -236,14 +243,14 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 					}
 				}
 			j = (*p_Instance)[k].object;
+			//BPPrintMessage(odInfo,"j=%d  ",j);
 			if(j >= Jbol+Jpatt && j < 16384) {
-				BPPrintMessage(odInfo,"\nERROR: j >= Jbol+Jpatt\n");
+				BPPrintMessage(odError,"\n=> ERROR: j >= Jbol+Jpatt\n");
 				return(ABORT);
 				}
 			}
 		else {
-			if(trace_timeset) BPPrintMessage(odInfo,"ERROR: k < 0 nseq=%ld i=%ld im=%ul k=%ld",(long)nseq,(long)i,
-				(unsigned long)maxseq,(long)k);
+			if(trace_timeset) BPPrintMessage(odError,"=> ERROR: k < 0 nseq=%ld i=%ld im=%ul k=%ld\n",(long)nseq,(long)i,(unsigned long)maxseq,(long)k);
 			}
 		}
 	}
@@ -318,7 +325,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	// This block is very similar to the middle of InterruptTimeSet().  Could we
 	// refactor the shared code into a function ?? -- akozar, 20130830
-	if((r=MyButton(1)) != FAILED) {
+/*	if((r=MyButton(1)) != FAILED) {
 		StopCount(0);
 		SetButtons(TRUE);
 		Interrupted = TRUE;
@@ -354,7 +361,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	r = OK;
 	if(EventState != NO) {
 		result = EventState; goto EXIT1;
-		}
+		} */
 #endif /* BP_CARBON_GUI */
 
 	if(DisplayTimeSet) {
@@ -522,6 +529,7 @@ QUEST2:
 		if(trace_timeset) BPPrintMessage(odInfo,"\nUpdating tmin and tmax\n");
 		i = imax;
 		while(i > 0 && (k=(*((*p_Seq)[nseq]))[i]) < 2) i--;
+	//	while(i > 0 && (k=(*((*p_Seq)[nseq]))[i]) < 1) i--; $$$$
 		if(trace_timeset) BPPrintMessage(odInfo,"1_max: i = %ld, k = %ld\n",(long)i,(long)k);
 		if(k > *p_kmx) {
 			BPPrintMessage(odInfo,"=> Error in TimeSet(). k > *p_kmx\n");
@@ -531,6 +539,7 @@ QUEST2:
 		if(trace_timeset) BPPrintMessage(odInfo,"t = %ld\n",(long)t);
 		i = 1L;
 		while(i <= imax && (k=(*((*p_Seq)[nseq]))[i]) < 2) i++;
+	//	while(i <= imax && (k=(*((*p_Seq)[nseq]))[i]) < 1) i++; $$$$
 		if(trace_timeset) BPPrintMessage(odInfo,"2_min: i = %ld, k = %ld\n",(long)i,(long)k);
 		if(k > *p_kmx) {
 			BPPrintMessage(odInfo,"=> Error in TimeSet(). k > *p_kmx\n");

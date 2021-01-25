@@ -38,6 +38,7 @@
 
 #include "-BP2decl.h"
 
+trace_polymake = 0;
 
 int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing)
 {
@@ -108,9 +109,7 @@ for(i=ZERO,level=0; (*p_b)[i] != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 		}
 	}
 if(level != 0) {	/* '{' and '}' not balanced */
-	sprintf(Message,"=> Incorrect polymetric expression(s): '{' and '}' are not balanced. Can't proceed further...");
-	if(ScriptExecOn) Println(wTrace,Message);
-	else Alert1(Message);
+	BPPrintMessage(odError,"=> Incorrect polymetric expression(s): '{' and '}' are not balanced. Can't proceed further...");
 	goto QUIT;
 	}
 
@@ -124,7 +123,7 @@ if(NeedZouleb > 0) {
 		}
 	while(level >= 0);
 	maxlevel++;	/* A pair of brackets {} may have been created around a sound-object at the deepest level */
-	if(ShowMessages) HideWindow(Window[wMessage]);
+//	if(trace_polymake) HideWindow(Window[wMessage]);
 	}
 
 if(Beta && NeedZouleb > 0) {
@@ -204,9 +203,11 @@ fixtempo = useful = FALSE;
 P = 0L;  Q = 1L;
 
 //////////////////////////////////
-if((r=PolyExpand(p_b,pp_a,pos_init,&maxid,&pos_init,&P,&Q,1.,&fixtempo,&useful,1.,notrailing))
-	!= OK && r != SINGLE && r != IMBEDDED) goto QUIT;
+r = PolyExpand(p_b,pp_a,pos_init,&maxid,&pos_init,&P,&Q,1.,&fixtempo,&useful,1.,notrailing);
+if(r != OK && r != SINGLE && r != IMBEDDED) goto QUIT;
 //////////////////////////////////
+
+if(trace_polymake) BPPrintMessage(odInfo,"After PolyExpand() maxid = %ld pos_init = %ld P = %ld Q = %ld fixtempo = %ld useful = %ld\n",(long)maxid,(long)pos_init,(long)P,(long)Q,(long)fixtempo,(long)useful);
 
 r = OK;
 scaling = speed = tempo = 1.;
@@ -315,12 +316,12 @@ Ratio = Prod;
 Pduration = P;
 Qduration = Q;
 
-	/* if(ShowMessages)  {
+if(trace_polymake)  {
 	if(Qduration > 1.)
 		sprintf(Message,"Duration = %.0f/%.0f time units",Pduration,Qduration);
 	else sprintf(Message,"Duration = %.0f time units",Pduration);
 	ShowMessage(TRUE,wMessage,Message);
-	} */
+	}
 
 alreadychangedquantize = FALSE;
 
@@ -452,6 +453,10 @@ for(i=ZERO; ; i+=2L) {
 	switch(m) {
 		case T7: /* out-time object */
 		case T8: /* synchronization tag */
+		
+		case T10: /* _chan() */ // $$$$$
+		case T11: /* _vel() */ // $$$$$
+		
 		case T13: /* script line */
 		case T14: /* _mod() */
 		case T15: /* _pitchbend() */
@@ -856,7 +861,7 @@ double L,M,lcm,Q,**p_p,**p_q,**p_pp,**p_r,pmax,qmax,**p_pgap,**p_qgap,xp,xq,ss,x
 long level;
 unsigned long i,j,jmax,gcd,g,h,lastbyte,oldpos,ic,id,**p_maxic,useless,ptempo,qtempo;
 
-if(ShowMessages && Beta && 0) {
+if(trace_polymake) {
 	sprintf(Message,"Expanding polymetric expression [position %lu]...",(*p_pos));
 	ShowMessage(TRUE,wMessage,Message);
 	}
@@ -979,7 +984,8 @@ if(speed > TokenLimit || (1./speed) > TokenLimit) {
 
 just_fill_gap = FALSE;
 		
-for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i+=2L) {
+for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i += 2L) {
+	
 #if BP_CARBON_GUI
 	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	// This block is very similar to the middle of InterruptTimeSet() and to code in
@@ -1009,6 +1015,7 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 		if(LoadedIn && (!CompiledIn && (result=CompileInteraction()) != OK))
 			goto OUT;
 		if(OutMIDI && Dirty[wTimeAccuracy]) {
+			
 #if WITH_REAL_TIME_MIDI
 			result = ResetMIDI(FALSE);
 			if(result == ABORT || result == EXIT) goto OUT;
@@ -1028,6 +1035,7 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 		result = ABORT; goto OUT;
 		}
 #endif /* BP_CARBON_GUI */
+
 	p = (*p_b)[i+1];
 	if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 		result = ABORT; goto OUT;
@@ -1508,7 +1516,7 @@ FIXTEMP:
 		if(foundtokens) imbedded = FALSE;
 		goto END;
 		}
-	if(m == T0 && (p == 14 || p == 7)) {		/* Either ',' or '¥' */
+	if(m == T0 && (p == 14 || p == 7)) {		/* Either ',' or period */
 		(*((*pp_c)[a]))[ic++] = TEND;
 		(*((*pp_c)[a]))[ic++] = TEND;
 		if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
@@ -1587,7 +1595,8 @@ FIXTEMP:
 		if(m == T3 || m == T25) (*p_useful)[a] = foundtokens = TRUE;
 		}
 	else {	/* comma */
-		if((m == T3 && p > 1) || m == T25 || (m >= T7 && m <= T43))
+	//	if((m == T3 && p > 1) || m == T25 || (m >= T7 && m <= T43))
+		if((m == T3 && p >= 1) || m == T25 || (m >= T7 && m <= T43)) // Fixed by BB 2021-01-25
 			(*p_useful)[a] = foundtokens = TRUE;
 		}
 	if(m == T3 || m == T7 || m == T8 || m == T9 || m == T25) {
@@ -2107,7 +2116,6 @@ int TellComplex(void)
 {
 if(!SaidTooComplex) {
 	SaidTooComplex = TRUE;
-	FlashInfo("Formula is too complex. Roundings are performed...");
 	if(ShowMessages)
 		ShowMessage(TRUE,wMessage,"Formula is too complex. Roundings are performed...");
 	}

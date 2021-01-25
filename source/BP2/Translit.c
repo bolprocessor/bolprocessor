@@ -176,7 +176,6 @@ while(TRUE) {
 		case bMakeGrammarFromTableCancel:
 			result = ABORT; break;
 		case bMakeGrammarFromTableLoad:
-			/* $$$ */
 			break;
 		case bMakeGrammarFromTableSave:
 //			SaveGrammarFromTableSettings();

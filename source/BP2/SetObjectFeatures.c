@@ -829,7 +829,7 @@ while(TRUE) {
 	if(k < 0) break;
 	inext = i;
 	while((*((*p_Seq)[nseq]))[++inext] == 0);
-	if(k > 1) {					/* Ignoring silences "-" except if specs attached */
+	if(k >= 1) {					/* Ignoring silences "-" except if specs attached */
 		if(k >= Maxevent) {
 			if(Beta) Alert1("=> Err. Fix(). k >= Maxevent");
 			return(ABORT);
@@ -855,7 +855,7 @@ while(TRUE) {
 					if(PlayFromInsertionPoint) t1 = (*p_time1)[i] = (*p_T)[i];
 					t2 = (*p_time2)[i] = t1
 						+ (Milliseconds)((*p_Instance)[k].alpha * (*p_Dur)[j]);
-			//		sprintf(Message,"Fix() k = %ld j = %ld alpha = %.2f Dur = %ld t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)(*p_Dur)[j],(long)t1,(long)t2);
+					// BPPrintMessage(odInfo,"Fix() k = %ld j = %ld alpha = %.2f Dur = %ld t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)(*p_Dur)[j],(long)t1,(long)t2);
 					}
 				if(trace_object_features) BPPrintMessage(odInfo,Message);
 				}
@@ -864,7 +864,7 @@ while(TRUE) {
 				RandomTime(&t1,(*p_Instance)[k].randomtime);
 				(*p_time1)[i] = t1;
 				t2 = (*p_time2)[i] = t1 + (*p_Instance)[k].alpha * 1000L;
-		//		sprintf(Message,"Fix() note k = %ld j = %ld alpha = %.2f t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)t1,(long)t2);
+		//		sprintf(Message,"Fix() note k = %ld j = %ld alpha = %.2f t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)t1,(long)t2); 
 				}
 			}
 		else {
@@ -897,7 +897,6 @@ long i,inext,inextm,imax,iprev,jprev;
 double d,alpha,beta,r,sigmaridi,clockperiod;
 Milliseconds To,ton,toff,currenttime,dur;
 
-
 if(nseq >= Maxconc) {
 	if(Beta) Println(wTrace,"\nErr. Calculate_alpha(). nseq >= Maxconc");
 	return(OK);
@@ -912,7 +911,8 @@ if(nature_time == STRIATED || nseq == 0) {
 	while(TRUE) {
 		k = (*((*p_Seq)[nseq]))[i]; if(k == -1) break;
 		inext = i; while((*((*p_Seq)[nseq]))[++inext] == 0);
-		if(k < 2) {	/* Also reject silences */
+		if(k < 2) { /* Reject silences and null events */
+	//	if(k < 1) {	/* Reject null events */ // $$$$$
 			i = inext;
 			continue;
 			}
@@ -986,6 +986,7 @@ OKALPHA1:
 		if(alpha < 0.) alpha = 0.;
 		if(beta < 0.) beta = 0.;
 		(*p_Instance)[k].alpha = alpha;
+		// BPPrintMessage(odInfo,"@ nseq = %d k = %d i = %d inext = %d alpha = %.2f\n",nseq,k,i,inext,alpha);
 		if(ForceRatio >= 0.) (*p_Instance)[k].alpha = beta = ForceRatio;
 		(*p_Instance)[k].dilationratio = beta;
 		(*p_Instance)[k].ncycles = ncycles;

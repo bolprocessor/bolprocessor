@@ -102,7 +102,6 @@ if(!Oms) {
 	if(io != noErr) TellError(51,io);
 	}
 else {
-	/* $$$ */
 	if(Beta) Alert1("=> Err. DriverRead(). Oms is ON");
 	return(noErr);
 	}
