@@ -309,14 +309,11 @@ ResetDone = ifunc = FALSE;
 OkShowExpand = FALSE;
 SplitTimeObjects = splitmem;
 if(!PlaySelectionOn && Improvize) {
-	
 	sprintf(Message,"Item #%ld\n",(long)(ItemNumber + 1L));
 	FlashInfo(Message);
 	if(!OutMIDI && !template && Improvize) BPPrintMessage(odInfo,Message);
 	ItemNumber++; // Needs to bee checked. Sometimes only 5 items created in improvize mode.
-	
 	if(SkipFlag) goto MAKE;
-		
 	if(!PlaySelectionOn && DisplayItems) {
 		Dirty[OutputWindow] = TRUE;
 		datamode = DisplayMode(pp_a,&ifunc,&hastabs);

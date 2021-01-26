@@ -214,6 +214,7 @@ int main (int argc, char* args[])
 			case play_item:
 				 BPPrintMessage(odInfo,"Playing this item\n");
 				 PlaySelectionOn = TRUE;
+				 Improvize = FALSE;
 				 result = PlaySelection(wData);
 				if(result == OK) BPPrintMessage(odInfo,"\nErrors: 0\n");
 				else if(Beta && result != OK) BPPrintMessage(odError,"PlaySelection() returned %d\n", result);
@@ -376,8 +377,7 @@ void CreateImageFile(void)
 	strcpy(imageFileName,line2);
 	getcwd(cwd,sizeof(cwd));
 	if(cwd != NULL) {
-		sprintf(Message,"\nCurrent working dir: %s\n",cwd);
-	//	BPPrintMessage(odInfo,Message);
+		BPPrintMessage(odInfo,"\nCurrent working dir: %s\n",cwd);
 		}
 	thisfile = fopen("CANVAS_header.txt","r");
 	if(thisfile == NULL) {

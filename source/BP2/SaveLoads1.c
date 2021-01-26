@@ -1483,6 +1483,7 @@ oldoutcsound = OutCsound;
 
 if(ReadInteger(sefile,&Improvize,&pos) == FAILED) goto ERR;
 if(trace_load_settings) BPPrintMessage(odError, "Improvize = %d\n",Improvize);
+if(PlaySelectionOn) Improvize = 0;
 if(ReadInteger(sefile,&CyclicPlay,&pos) == FAILED) goto ERR;
 if(ReadInteger(sefile,&UseEachSub,&pos) == FAILED) goto ERR;
 if(ReadInteger(sefile,&AllItems,&pos) == FAILED) goto ERR;
@@ -1492,7 +1493,8 @@ if(ReadInteger(sefile,&StepGrammars,&pos) == FAILED) goto ERR;
 if(ReadInteger(sefile,&TraceProduce,&pos) == FAILED) goto ERR;
 if(ReadInteger(sefile,&PlanProduce,&pos) == FAILED) goto ERR;
 if(ReadInteger(sefile,&DisplayItems,&pos) == FAILED) goto ERR; 
-if(ReadInteger(sefile,&ShowGraphic,&pos) == FAILED) goto ERR; 
+if(ReadInteger(sefile,&ShowGraphic,&pos) == FAILED) goto ERR;
+if(ShowGraphic) BPPrintMessage(odInfo,"Graphics activated\n");
 if(ReadInteger(sefile,&AllowRandomize,&pos) == FAILED) goto ERR;
 if(ReadInteger(sefile,&DisplayTimeSet,&pos) == FAILED) goto ERR; 
 if(ReadInteger(sefile,&StepTimeSet,&pos) == FAILED) goto ERR; 
@@ -1555,9 +1557,11 @@ if(ForceGraphicColor == 1) UseGraphicsColor = TRUE;
 if(ForceGraphicColor == -1) UseGraphicsColor = FALSE;
 if(ReadInteger(sefile,&UseBufferLimit,&pos) == FAILED) goto ERR;
 UseBufferLimit = FALSE;
+
 #if BP_CARBON_GUI
 SetBufferSize();
 #endif /* BP_CARBON_GUI */
+
 if(ReadLong(sefile,&MaxConsoleTime,&pos) == FAILED) goto ERR; // Previously it was TimeMax
 if(trace_load_settings) BPPrintMessage(odInfo, "MaxConsoleTime = %ld\n",(long)MaxConsoleTime);
 
@@ -1585,6 +1589,7 @@ if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 SmartCursor = (j == 1);
 if(ReadInteger(sefile,&GraphicScaleP,&pos) == FAILED) goto ERR;
 if(ReadInteger(sefile,&GraphicScaleQ,&pos) == FAILED) goto ERR;
+
 #if BP_CARBON_GUI
 SetGraphicSettings();
 #endif /* BP_CARBON_GUI */
@@ -1749,7 +1754,8 @@ else {
 	ShowObjectGraph = TRUE;
 	ShowPianoRoll = FALSE;
 	}
-				
+
+if(PlaySelectionOn) Improvize = 0;			
 /* Removed code for reading "NewEnvironment", window coordinates & text colors */
 
 /* Should we still keep the start string in the settings file? */
@@ -1778,7 +1784,7 @@ CloseFile(sefile);
 
 LoadOn--;
 
-if(Improvize) ShowPianoRoll = ShowObjectGraph = ShowGraphic = FALSE;
+// if(Improvize) ShowPianoRoll = ShowObjectGraph = ShowGraphic = FALSE;
 if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end LoadSettings = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 return(result);
 }

@@ -287,9 +287,7 @@ for(k=2; k <= (*p_kmax); k++) {
 				date += (Milliseconds) (beta * (*((*pp_CsoundTime)[j]))[i]);
 			else
 				date += (Milliseconds) (beta * (*((*pp_MIDIcode)[j]))[i].time);
-			sprintf(Message,"CsoundSize[%d] = %ld olddate = %ld, date = %ld\n",j,(long)(*p_CsoundSize)[j],(long)olddate,(long)date);
-		//	if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
-			
+		//	if(trace_csound_pianoroll) BPPrintMessage(odInfo,"CsoundSize[%d] = %ld olddate = %ld, date = %ld\n",j,(long)(*p_CsoundSize)[j],(long)olddate,(long)date);
 			if(!foundfirstevent && date >= date1) {
 				(*p_inext1)[k] = i;	/* Index of first message to be sent */
 				(*p_t1)[k] = date - date1 - preroll;
@@ -574,7 +572,7 @@ START2:
 if(cswrite) {
 	if((result=CompileCsoundObjects()) != OK) goto OVER;
 	if(Jinstr == 1 && (*p_CsInstrumentIndex)[0] == -1) {
-		ShowMessage(TRUE,wMessage,"Couldn't find Csound instrument index. Index '1' will be assigned by default.");
+		ShowMessage(TRUE,wMessage,"\nCouldn't find Csound instrument index. Index '1' will be assigned by default.");
 		WaitABit(1000L);
 		}
 		
