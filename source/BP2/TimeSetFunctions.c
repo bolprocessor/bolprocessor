@@ -58,7 +58,7 @@ Milliseconds Alternate_correction1(int,int,int,Milliseconds,Milliseconds**,Milli
 	Milliseconds,Milliseconds,Milliseconds,Milliseconds); */
 
 
-Locate(int nseq,unsigned long** p_imaxseq,long imax,int kmax,Milliseconds **p_DELTA,
+int Locate(int nseq,unsigned long** p_imaxseq,long imax,int kmax,Milliseconds **p_DELTA,
 	unsigned long* p_tstart,Milliseconds **p_time1,Milliseconds **p_time2,
 	Milliseconds **p_maxcoverbeg,
 	Milliseconds **p_maxcoverend,Milliseconds **p_maxgapbeg,Milliseconds **p_maxgapend,
@@ -147,14 +147,12 @@ for(i=1; i <= imax; i++) {
 	(*p_ddelta0)[i] = (*p_ddelta1)[i] = (*p_ddelta2)[i]
 		= (*p_delta1)[i] = (*p_delta2)[i] = ZERO;
 	k = (*((*p_Seq)[nseq]))[i];
-	// if(k >= 1 || k < 0) { // $$$$
-		if(k > 1 || k < 0) {		/* Ignore silence "-" */
+		if(k > 1 || k < 0) { /* Ignore silence "-" */
 		/* k < 0 if empty sequence */
 		i0 = i; break;
 		}
 	iprev = i;
 	}
-/* printf(" i0=%ld iprev=%ld",(long)i0,(long)iprev); */
 
 i = i0;
 (*p_BreakTempoPrev)[i] = TRUE;
@@ -640,7 +638,7 @@ return(result);
 }
 
 
-Solution_is_accepted(int nsol,int nseq,unsigned long **p_imaxseq,int kmax,Milliseconds **p_t1,
+int Solution_is_accepted(int nsol,int nseq,unsigned long **p_imaxseq,int kmax,Milliseconds **p_t1,
 	Milliseconds **p_t2,Milliseconds **p_delta,Milliseconds **p_ddelta0,Milliseconds **p_ddelta1,
 	Milliseconds **p_ddelta2)
 {
@@ -742,7 +740,7 @@ return(OK);
 }
 
 
-Situation_ok(int nseq, int i, int i0, int j, Milliseconds shift, Milliseconds t1, Milliseconds t2,
+int Situation_ok(int nseq, int i, int i0, int j, Milliseconds shift, Milliseconds t1, Milliseconds t2,
 	Milliseconds ts, Milliseconds tscover, Milliseconds tsgap,Milliseconds maxgapbeg,Milliseconds maxcoverbeg,
 	char **p_marked,int nature_time)
 {	
@@ -841,7 +839,7 @@ return(choice);
 }
 
 
-Next_choice(solset sol_set, int nseq, int i, int i0, int j, Milliseconds ts,
+int Next_choice(solset sol_set, int nseq, int i, int i0, int j, Milliseconds ts,
 	Milliseconds t1,Milliseconds t2, Milliseconds shift, int side)
 {
 char rep;
@@ -1026,7 +1024,7 @@ return(shift);
 }
 
 
-Get_choice(solset sol_set, p_list2 ***p_s, p_list2 ***p_olds, int *p_redo,
+int Get_choice(solset sol_set, p_list2 ***p_s, p_list2 ***p_olds, int *p_redo,
 	int *p_stack_depth, int side, int i, int j, Milliseconds t1, Milliseconds t2,
 	Milliseconds ts, Milliseconds shift)
 {
@@ -1086,7 +1084,7 @@ return(isol);
 }
 
 
-Store(int n,char nmax,int side,int *p_stack_depth,p_list2 ***p_s,p_list2 ***p_s0,int i)
+int Store(int n,char nmax,int side,int *p_stack_depth,p_list2 ***p_s,p_list2 ***p_s0,int i)
 {
 p_list2 **nexts;
 
@@ -1109,7 +1107,7 @@ return(OK);
 }
 
 
-Erase_stack(int i0, int *p_stack_depth, p_list2 **s0)
+int Erase_stack(int i0, int *p_stack_depth, p_list2 **s0)
 {
 p_list2 **s,**ss;
 int i;
@@ -1165,7 +1163,7 @@ return(localperiod);
 }
 
 
-InterruptTimeSet(int uselim,unsigned long *p_tstart)
+int InterruptTimeSet(int uselim,unsigned long *p_tstart)
 {
 int result,dirtymem,compiledmem;
 char rep;

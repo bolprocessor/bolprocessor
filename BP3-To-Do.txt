@@ -20,7 +20,7 @@ Actions
 -------
 
 - implement produce-items N action
-- implement play, play-item, play-all actions => Read below, "Input files"
+- implement play-all action
 - fix analyze-item action
 - implement expand-item & show-beats actions
 - new action for listing RT MIDI devices ? Create a file which the user will read via the interface, then select option(s) that will be added as tokens to the "Play" command line
@@ -44,10 +44,9 @@ Input files
 - fix crash when loading a glossary file
 - fix crash when grammar contains script commands
 - support UTF-8 text encoding for input files & output
-- implement the -s/-S options for specifying the start string => Limitations in putting the string in a command line. It is better to implement the next option that will replace it
-- implement option for staring from BP data written in a "-da" file. This data is equivalent to the start string, and the command is actually "Play" or "Play-item"
+- implement the -s/-S options for specifying the start string => Not useful as it exists on the Grammar window of the PHP interface
 - identify intput files with prefixes even when they are preceded by a path. => Read next
-- restore the feature that looks for names of related files in the input files and auto-loads them (to be discussed...) => probably useless because the interface takes care of these links and creates links for editing related files
+- restore the feature that looks for names of related files in the input files and auto-loads them (to be discussed...) => probably useless because the interface takes care of these links and it creates links for editing related files
 
 
 MIDI files
@@ -72,15 +71,9 @@ Real-time MIDI
 - write a new cross-platform MIDI driver using the PortMIDI(?) library
 
 
-MusicXML interface
---------------
-https://en.wikipedia.org/wiki/MusicXML
-- convert MusicXML file to BP data "-da" file. This will allow the performance of this file after (re)processing by a grammar that may be empty and connection with a "-cs" Csound resource file
-- convert BP data to MusicXML
-
-
 Real-time Csound
 ---------------
+
 - Implement UDP for communicating with Csound. Links:
 https://csound.com/docs/manual/udpserver.html
 https://www.geeksforgeeks.org/udp-server-client-implementation-c/
@@ -96,8 +89,8 @@ Microtonal scales
 ----------------
 
 - Fix tuning scheme, sometimes notes appear several times, sometimes not
-- Implement meantone temperament in compliance with models described by Pierre-Yves Asselin
 - Implement performance control to change A4 frequency (diapason) in the score
+- Try to generate microtonality in MIDI by sending a pitchbend instruction before each note
 
 
 Csound orchestra

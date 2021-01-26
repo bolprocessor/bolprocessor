@@ -179,7 +179,6 @@ if(p_t == NULL) {
 i = 0;
 while((c = (*p_t)[offset++]) != '\0' && (i < imax || imax == 0))
 	s[i++] = c;
-// if (i >= imax && imax > 0) i = imax - 1; $$$$
 if (i > imax && imax > 0) i = imax;
 s[i] = '\0';	/* The content might have been truncated */
 

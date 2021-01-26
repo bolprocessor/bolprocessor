@@ -267,7 +267,9 @@ NOTSCALE:
 					(*p_buff)[i++] = T0; (*p_buff)[i++] = 17;
 					break;
 				case 43: /* _ins() */
-					(*p_buff)[i++] = T32; (*p_buff)[i++] = (tokenbyte) n;
+					if(OutCsound) {
+						(*p_buff)[i++] = T32; (*p_buff)[i++] = (tokenbyte) n;
+						}
 					break;
 				case 44: /* _value() */
 					(*p_buff)[i++] = T35; (*p_buff)[i++] = (tokenbyte) n;
@@ -330,8 +332,10 @@ NOTSCALE:
 					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 34);
 					break;
 				case 65: /* _scale */
-					(*p_buff)[i++] = T44; (*p_buff)[i++] = (tokenbyte) n;
-					if(trace_scale) BPPrintMessage(odInfo,"Encode() T44 i = %d n = %d\n",i,n);
+					if(OutCsound) {
+						(*p_buff)[i++] = T44; (*p_buff)[i++] = (tokenbyte) n;
+						if(trace_scale) BPPrintMessage(odInfo,"Encode() T44 i = %d n = %d\n",i,n);
+						}
 					break;
 				}
 			c = NextChar(pp);

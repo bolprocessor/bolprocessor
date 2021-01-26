@@ -158,7 +158,7 @@ int main (int argc, char* args[])
 */
 
 	InitOn = FALSE;
-	BPPrintMessage(odInfo, "\nBP3 Console completed initialization and will run:");
+	BPPrintMessage(odInfo, "\nBP3 Console completed initialization and will use:");
 	
 	BPPrintMessage(odInfo, "\n%s\n%s\n\n",gOptions.inputFilenames[wGrammar],gOptions.inputFilenames[wData]);
 	
@@ -361,6 +361,12 @@ void CreateImageFile(void)
 		remove_spaces(Message,line3);
 		strcat(line1,line3);
 		}
+	if(PlaySelectionOn && gOptions.inputFilenames[wData] != "") {
+		GetFileName(line3,gOptions.inputFilenames[wData]);
+		sprintf(Message,"_%s",line3);
+		remove_spaces(Message,line3);
+		strcat(line1,line3);
+		}
 	strcat(line1,line2);
 	remove_spaces(line1,line2);
     BPPrintMessage(odInfo,"Creating image file: ");
@@ -416,7 +422,7 @@ void EndImageFile(void)
 	if(ShowGraphic) {
 		final_name = repl_str(imageFileName,"_temp","");
 		remove_spaces(final_name,final_name);
-		BPPrintMessage(odInfo,"\nFinalized image file to %s\n",final_name);
+		BPPrintMessage(odInfo,"Finalized image file to %s\n",final_name);
 		imagePtr = fopen(final_name,"w");
 		thisfile = fopen(imageFileName,"r");
 		free(final_name);
@@ -1006,7 +1012,7 @@ int LoadInputFiles(const char* pathnames[WMAX])
 	int w, result;
 	
 	for (w = 0; w < WMAX; w++) {
-		if (pathnames[w] != NULL) {
+		if(pathnames[w] != NULL) {
 			switch(w) {
 				case wGrammar:
 				case wAlphabet:

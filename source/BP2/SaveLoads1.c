@@ -1108,7 +1108,7 @@ for(j=0; j < jmax; j++) {
 	if((*p_completeline)[0] != '\0') {
 		MystrcpyHandleToString(MAXLIN,0,LineBuff,p_completeline);
 	//	if(ShowMessages) ShowMessage(TRUE,wMessage,LineBuff);
-		BPPrintMessage(odInfo,"Loading Csound resource %d = %s\n",(j+1),LineBuff);
+		BPPrintMessage(odInfo,"Loading Csound instrument %d = \"%s\"\n",(j+1),LineBuff);
 		if(MySetHandleSize((Handle*)&ptr,
 			(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
 				goto ERR;
@@ -1278,7 +1278,7 @@ for(j=0; j < jmax; j++) {
 			if(i >= 0) (*((*p_CsInstrument)[j].paramlist))[ip].nameindex = i;
 			}
 		
-		BPPrintMessage(odInfo, "Parameter: %s\n",*p_completeline);
+		BPPrintMessage(odInfo,"-> Parameter: \"%s\"\n",*p_completeline);
 		strcpy(line,"");
 		fscanf(csfile, "%[^\n]",line); // Necessary to read a line that might be empty
 		if(strlen(line) > 0) {
@@ -1421,14 +1421,14 @@ p_line = p_completeline = NULL;
 if(startup) {
 	// FIXME: set filename = location of a startup settings file and continue? We'll see later (BB)
 	return OK;
-}
+	}
 else {
 	// filename cannot be NULL or empty
-	if (filename == NULL || filename[0] == '\0')	{
+	if (filename == NULL || filename[0] == '\0') {
 		BPPrintMessage(odError, "=> Err. LoadSettings(): filename was NULL or empty\n");
 		return FAILED;
+		}
 	}
-}
 
 // open the file for reading
 sefile = fopen(filename, "r");
@@ -1743,7 +1743,7 @@ if(iv > 19) {
 	ShowPianoRoll = j;
 	/**** THIS IS WHERE THE SETTINGS FILE ENDS NOW IN BP3 ****/
 	/* Removed code for reading piano roll colors */
-	if(ShowPianoRoll) BPPrintMessage(odInfo,"Pianoroll will be used\n");
+	if(ShowPianoRoll) BPPrintMessage(odInfo,"Pianoroll will be produced\n");
 	}
 else {
 	ShowObjectGraph = TRUE;

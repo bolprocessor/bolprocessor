@@ -529,7 +529,6 @@ QUEST2:
 		if(trace_timeset) BPPrintMessage(odInfo,"\nUpdating tmin and tmax\n");
 		i = imax;
 		while(i > 0 && (k=(*((*p_Seq)[nseq]))[i]) < 2) i--;
-	//	while(i > 0 && (k=(*((*p_Seq)[nseq]))[i]) < 1) i--; $$$$
 		if(trace_timeset) BPPrintMessage(odInfo,"1_max: i = %ld, k = %ld\n",(long)i,(long)k);
 		if(k > *p_kmx) {
 			BPPrintMessage(odInfo,"=> Error in TimeSet(). k > *p_kmx\n");
@@ -539,7 +538,6 @@ QUEST2:
 		if(trace_timeset) BPPrintMessage(odInfo,"t = %ld\n",(long)t);
 		i = 1L;
 		while(i <= imax && (k=(*((*p_Seq)[nseq]))[i]) < 2) i++;
-	//	while(i <= imax && (k=(*((*p_Seq)[nseq]))[i]) < 1) i++; $$$$
 		if(trace_timeset) BPPrintMessage(odInfo,"2_min: i = %ld, k = %ld\n",(long)i,(long)k);
 		if(k > *p_kmx) {
 			BPPrintMessage(odInfo,"=> Error in TimeSet(). k > *p_kmx\n");

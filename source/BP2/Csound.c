@@ -2468,7 +2468,7 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) { // 
 	
 	if(!ToldAboutScale) {
 		MystrcpyHandleToString(0,0,Message,(*Scale)[i_scale].label);
-		BPPrintMessage(odInfo,"\nCustom scale '%s' (and maybe more scales) used for creating this Csound score\n",Message);
+		BPPrintMessage(odInfo,"\nCustom scale \"%s\" (and maybe more scales) used for creating this Csound score\n",Message);
 		ToldAboutScale = TRUE;
 		}
 	

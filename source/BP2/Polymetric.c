@@ -454,8 +454,8 @@ for(i=ZERO; ; i+=2L) {
 		case T7: /* out-time object */
 		case T8: /* synchronization tag */
 		
-		case T10: /* _chan() */ // $$$$$
-		case T11: /* _vel() */ // $$$$$
+		case T10: /* _chan() */ // Added by BB 2021-01-25
+		case T11: /* _vel() */ // Added by BB 2021-01-25
 		
 		case T13: /* script line */
 		case T14: /* _mod() */

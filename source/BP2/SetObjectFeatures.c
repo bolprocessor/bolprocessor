@@ -911,8 +911,7 @@ if(nature_time == STRIATED || nseq == 0) {
 	while(TRUE) {
 		k = (*((*p_Seq)[nseq]))[i]; if(k == -1) break;
 		inext = i; while((*((*p_Seq)[nseq]))[++inext] == 0);
-		if(k < 2) { /* Reject silences and null events */
-	//	if(k < 1) {	/* Reject null events */ // $$$$$
+		if(k < 2) { /* Reject silences and null events */ // Fixed by BB 2021-01-25
 			i = inext;
 			continue;
 			}
