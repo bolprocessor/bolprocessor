@@ -355,7 +355,7 @@ void CreateImageFile(void)
 	memset(line1,'\0',sizeof(line1));
 	strncpy(line1,line2,length - 4);
 //	BPPrintMessage(odInfo,"\n\nline1 = %s\n\n",line1);
-	sprintf(line2,"_image_%ld_temp.html",(long)N_image);
+	sprintf(line2,"_image_%03ld_temp.html",(long)N_image);
 	if(!PlaySelectionOn && gOptions.inputFilenames[wGrammar] != "") {
 		GetFileName(line3,gOptions.inputFilenames[wGrammar]);
 		sprintf(Message,"_%s",line3);
@@ -377,7 +377,7 @@ void CreateImageFile(void)
 	strcpy(imageFileName,line2);
 	getcwd(cwd,sizeof(cwd));
 	if(cwd != NULL) {
-		BPPrintMessage(odInfo,"\nCurrent working dir: %s\n",cwd);
+	//	BPPrintMessage(odInfo,"\nCurrent working dir: %s\n",cwd);
 		}
 	thisfile = fopen("CANVAS_header.txt","r");
 	if(thisfile == NULL) {
