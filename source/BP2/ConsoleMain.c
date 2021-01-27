@@ -209,15 +209,15 @@ int main (int argc, char* args[])
 		//		if (Beta && result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
 				break;
 			case play:
-				 BPPrintMessage(odInfo,"Playing...\n");
-				break;
-			case play_item:
 				BPPrintMessage(odInfo,"Playing this item\n");
 				PlaySelectionOn = TRUE;
 				Improvize = FALSE;
 				result = PlaySelection(wData);
 				if(result == OK) BPPrintMessage(odInfo,"\nErrors: 0\n");
 				else if(Beta && result != OK) BPPrintMessage(odError,"PlaySelection() returned %d\n", result);
+				break;
+			case play_item:
+				 BPPrintMessage(odInfo,"Playing...\n");
 				break;
 			case play_all:
 				break;
@@ -229,7 +229,7 @@ int main (int argc, char* args[])
 					if (Beta && result != OK)  BPPrintMessage(odError,"=> AnalyzeSelection() returned %d\n", result);
 					}
 				break;
-			case expand_item:
+			case expand:
 				BPPrintMessage(odInfo,"Expanding this item\n");
 				Improvize = FALSE;
 				result = ExpandSelection(wData);
@@ -540,11 +540,11 @@ const char gOptionList[] =
 	"  produce-items N  produce N items from the grammar\n"
 	"  produce-all      produce all items from the grammar\n"
     "\n"
-	"  play-item        play the first item in the input data file\n"
-	"  play N           play the Nth item in the input data file\n"
+	"  play             play the first item in the input data file\n"
+	"  play-item N      play the Nth item in the input data file\n"
 	"  play-all         play all items in the input data file\n"
 	"  analyze-item N   analyze the Nth item's derivation using the grammar\n"
-	"  expand-item      expand item in the input data file to a complete polymetric expression\n"
+	"  expand           expand item in the input data file to a complete polymetric expression\n"
 	"  show-beats N     print the Nth item using periods to show the beats\n"
 	"\n"
 	"  compile          check the syntax of input files and report errors\n"
@@ -866,8 +866,8 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					action = analyze;
 					// FIXME: look for the item number in next arg
 				}
-				else if (strcmp(args[argn], "expand-item") == 0)	{
-					action = expand_item;
+				else if (strcmp(args[argn], "expand") == 0)	{
+					action = expand;
 				}
 				else if (strcmp(args[argn], "show-beats") == 0)	{
 					action = show_beats;
@@ -962,7 +962,7 @@ const char* ActionTypeToStr(action_t action)
 		case play_item:		return "play-item";
 		case play_all:		return "play-all";
 		case analyze:		return "analyze-item";
-		case expand_item:	return "expand-item";
+		case expand:	return "expand";
 		case show_beats:	return "show-beats";
 		case templates:		return "templates";
 		default:

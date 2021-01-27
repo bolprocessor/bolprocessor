@@ -39,7 +39,7 @@
 #include "-BP2decl.h"
 
 
-PlaySelection(int w)
+int PlaySelection(int w)
 {
 int i,ch,r,improvize,asked,askedvariables,derivevariables;
 tokenbyte **p_a;
@@ -996,63 +996,27 @@ return(OK);
 }
 
 
-ExpandSelection(int w)
-{
-int r,wout,finish,ifunc,newitem,dirtymem,hastabs;
-tokenbyte **p_a;
-long origin,end,neworigin,newend,dummy,length;
-double maxseq;
-
-if(CheckEmergency() != OK) return(ABORT);
-if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
-	CompiledAl = FALSE;
-	if(CompileAlphabet() != OK) return(FAILED);
-	}
-/* if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("=> Err. ExpandSelection(). Incorrect window index");
-	return(FAILED);
-	}
-if(w != LastEditWindow && Editable[w]) LastEditWindow = w;
-w = LastEditWindow; */
-/*wout = w; if(ScriptExecOn) wout = OutputWindow;
-TextGetSelection(&origin, &end, TEH[w]);
-if(origin >= end) return(FAILED);
-
-TextGetSelection(&dummy, &newend, TEH[wout]);
-neworigin = newend; */
-p_a = NULL; newitem = FALSE;
-wout = OutputWindow;
-
-ExpandOn = OkShowExpand = TRUE;
-
-origin = 0L;
-end = GetTextHandleLength(TEH[w]);
-
-while(origin < end) {
+int ExpandSelection(int w) {
+	int r,wout,finish,ifunc,dirtymem,hastabs;
+	tokenbyte **p_a;
+	long origin,end,neworigin,newend,dummy,length;
+	double maxseq;
 	
-#if BP_CARBON_GUI
-	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-	if((r=MyButton(0)) != FAILED) {
-		Interrupted = TRUE;
-		dirtymem = Dirty[wAlphabet];
-		Dirty[wAlphabet] = FALSE;
-		if(r == OK)
-			while((r = MainEvent()) != RESUME && r != STOP && r != EXIT);
-		if(r == STOP || r == EXIT) goto OUT;
-		if(Dirty[wAlphabet]) {
-			Alert1("Alphabet changed. Must recompile...");
-			r = ABORT; goto OUT;
-			}
-		Dirty[wAlphabet] = dirtymem;
+	if(CheckEmergency() != OK) return(ABORT);
+	if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
+		CompiledAl = FALSE;
+		if(CompileAlphabet() != OK) return(FAILED);
 		}
-	r = OK;
-	if(EventState != NO) {
-		r = EventState; goto OUT;
-		}
-#endif /* BP_CARBON_GUI */
+	p_a = NULL;
+	wout = OutputWindow;
+	ExpandOn = OkShowExpand = TRUE;
+	
+// while(origin < end) {
+	
+	origin = 0L;
+	end = GetTextHandleLength(TEH[w]);
 
 	SetSelect(origin,end,TEH[w]);
-//	BPPrintMessage(odInfo,"Expanding selection [%ld...%ld] w = %d PROD = %d\n",(long)origin,(long)end,w,PROD);
 	
 	if((r = SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
 		MyDisposeHandle((Handle*)&p_a);
@@ -1061,12 +1025,12 @@ while(origin < end) {
 		}
 
 	while((r=PolyMake(&p_a,&maxseq,NO)) == AGAIN);
-//	BPPrintMessage(odInfo,"Expanding completed...\n");
+	
 	if(r == ABORT || r == EXIT) goto OUT;
 	if(r == OK) {
-		SetSelect(newend,newend,TEH[wout]);
-		if(newitem) Print(wout,"\n");
-		else TextGetSelection(&dummy, &neworigin, TEH[wout]);
+	//	SetSelect(newend,newend,TEH[wout]);
+	//	if(newitem) Print(wout,"\n");
+	//	else TextGetSelection(&dummy, &neworigin, TEH[wout]);
 		Print(wout,"\n");
 		sprintf(Message,"Ratio = %u, Prod = %u\n\n",(unsigned long)Ratio,(unsigned long)Prod);
 		Print(wout,Message);
@@ -1081,23 +1045,24 @@ while(origin < end) {
 			Print(wout,"\n");
 			r = PrintArg(DisplayMode(&p_a,&ifunc,&hastabs),FALSE,FALSE,TRUE,FALSE,FALSE,stdout,wout,pp_Scrap,&p_a);
 			}
+		else Print(wout,"This expression is too complex for being displayed comprehensively!\n");
 		TextGetSelection(&dummy, &newend, TEH[wout]);
 		BPActivateWindow(SLOW,wout);
 		}
 	MyDisposeHandle((Handle*)&p_a);
 	/* Could be NULL because of PolyExpand() */
-	if(r == EXIT || r == STOP || r == ABORT) goto OUT;
+/*	if(r == EXIT || r == STOP || r == ABORT) goto OUT;
 	newitem = TRUE;
 	}
-SetSelect(neworigin,newend,TEH[wout]);
-ShowSelect(CENTRE,wout);
-
-OUT:
-TempMemory = FALSE;
-TempMemoryUsed = ZERO;
-ExpandOn = FALSE;
-return(r);
-}
+	SetSelect(neworigin,newend,TEH[wout]);
+	ShowSelect(CENTRE,wout); */
+	
+	OUT:
+	TempMemory = FALSE;
+	TempMemoryUsed = ZERO;
+	ExpandOn = FALSE;
+	return(r);
+	}
 
 
 ShowPeriods(int w)

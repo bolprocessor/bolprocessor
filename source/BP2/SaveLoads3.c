@@ -1303,7 +1303,7 @@ OSErr io;
 char **p_line;
 
 if(refnum == -1) {
-	if(Beta) Alert1("=> Err. WriteToFile(). refnum == -1");
+	if(Beta) BPPrintMessage(odInfo,"=> Err. WriteToFile(). refnum == -1 line = \"%s\"\n",line);
 	return(FAILED);
 	}
 p_line = NULL;

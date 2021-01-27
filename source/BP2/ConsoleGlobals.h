@@ -46,7 +46,7 @@ typedef enum {
 // actions that can be specified on the command line
 typedef enum {
 	no_action = 0, compile, produce, produce_items, produce_all, play, play_item,
-	play_all, analyze, expand_item, show_beats, templates
+	play_all, analyze, expand, show_beats, templates
 } action_t;
 
 // Values for CLOption type are TRUE, FALSE, and NOCHANGE
