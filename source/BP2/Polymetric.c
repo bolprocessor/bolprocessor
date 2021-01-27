@@ -822,9 +822,9 @@ if(Maxevent >= INT_MAX) {	// FIXME ? This comparison is never true with sizeof(l
 	}
 	
 OkShowExpand = TRUE;	/* OK to display prolongational gaps "_" */
-if(nsymb > 500L || numberprolongations > 100 || ((Prod / firstscaling) > 100)) {
+if(nsymb > 5000L || numberprolongations > 1000 || ((Prod / firstscaling) > 100)) {
 	if(ShowMessages) {
-		if(nsymb > 500L) {
+		if(nsymb > 5000L) {
 			sprintf(Message,"Expanded polymetric expression would contain %ld symbols...",(long)nsymb);
 			FlashInfo(Message);
 			}

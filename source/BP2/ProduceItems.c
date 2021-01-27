@@ -163,8 +163,7 @@ if(!ResetWeights && !NeverResetWeights && Varweight && !JustCompiled) {
 JustCompiled = FALSE;
 
 maxsounds = Jbol + Jpatt;
-sprintf(Message,"Jbol = %ld, Jpatt = %ld\n",(long)Jbol,(long)Jpatt);
-// BPPrintMessage(odInfo,Message);
+// BPPrintMessage(odInfo,"Jbol = %ld, Jpatt = %ld\n",(long)Jbol,(long)Jpatt);
 ResizeObjectSpace(FALSE,maxsounds,0);
 
 r = OK;

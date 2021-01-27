@@ -58,10 +58,10 @@ if(GetTuning() != OK) return(ABORT);
 asked = FALSE;
 /* if(w != LastComputeWindow && w >= 0 && w < WMAX && Editable[w]) LastComputeWindow = w;
 w = LastComputeWindow; */  
-if(w < 0 || w >= WMAX || !Editable[w]) {
+/* if(w < 0 || w >= WMAX || !Editable[w]) {
 	if(Beta) Alert1("=> Err. PlaySelection(). Incorrect window index");
 	return(FAILED);
-	}
+	} */
 	
 #if BP_CARBON_GUI
 if(w == wScript) {
@@ -1004,26 +1004,32 @@ long origin,end,neworigin,newend,dummy,length;
 double maxseq;
 
 if(CheckEmergency() != OK) return(ABORT);
-if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("=> Err. ExpandSelection(). Incorrect window index");
-	return(FAILED);
-	}
-if(w != LastEditWindow && Editable[w]) LastEditWindow = w;
-w = LastEditWindow;
-wout = w; if(ScriptExecOn) wout = OutputWindow;
-TextGetSelection(&origin, &end, TEH[w]);
-if(origin >= end) return(FAILED);
 if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 	CompiledAl = FALSE;
 	if(CompileAlphabet() != OK) return(FAILED);
 	}
-TextGetSelection(&dummy, &newend, TEH[wout]);
-neworigin = newend;
-p_a = NULL; newitem = FALSE;
+/* if(w < 0 || w >= WMAX) {
+	if(Beta) Alert1("=> Err. ExpandSelection(). Incorrect window index");
+	return(FAILED);
+	}
+if(w != LastEditWindow && Editable[w]) LastEditWindow = w;
+w = LastEditWindow; */
+/*wout = w; if(ScriptExecOn) wout = OutputWindow;
+TextGetSelection(&origin, &end, TEH[w]);
+if(origin >= end) return(FAILED);
 
-ExpandOn = TRUE;
+TextGetSelection(&dummy, &newend, TEH[wout]);
+neworigin = newend; */
+p_a = NULL; newitem = FALSE;
+wout = OutputWindow;
+
+ExpandOn = OkShowExpand = TRUE;
+
+origin = 0L;
+end = GetTextHandleLength(TEH[w]);
 
 while(origin < end) {
+	
 #if BP_CARBON_GUI
 	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if((r=MyButton(0)) != FAILED) {
@@ -1044,29 +1050,37 @@ while(origin < end) {
 		r = EventState; goto OUT;
 		}
 #endif /* BP_CARBON_GUI */
+
 	SetSelect(origin,end,TEH[w]);
+//	BPPrintMessage(odInfo,"Expanding selection [%ld...%ld] w = %d PROD = %d\n",(long)origin,(long)end,w,PROD);
+	
 	if((r = SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
 		MyDisposeHandle((Handle*)&p_a);
 		/* Could be NULL because of PolyExpand() */
 		goto OUT;
 		}
+
 	while((r=PolyMake(&p_a,&maxseq,NO)) == AGAIN);
+//	BPPrintMessage(odInfo,"Expanding completed...\n");
 	if(r == ABORT || r == EXIT) goto OUT;
 	if(r == OK) {
 		SetSelect(newend,newend,TEH[wout]);
 		if(newitem) Print(wout,"\n");
 		else TextGetSelection(&dummy, &neworigin, TEH[wout]);
 		Print(wout,"\n");
-		sprintf(Message,"Ratio = %u, Prod = %u",(unsigned long)Ratio,(unsigned long)Prod);
-		ShowMessage(TRUE,wMessage,Message);
+		sprintf(Message,"Ratio = %u, Prod = %u\n\n",(unsigned long)Ratio,(unsigned long)Prod);
+		Print(wout,Message);
 		if(Prod == Ratio) r = PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wout,pp_Scrap,&p_a);
 		else {
 			sprintf(Message,"[Rescaled, dilation ratio = %.0f] ",(Prod/Ratio));
 			Print(wout,Message);
+			Print(wout,"\n");
 			r = PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wout,pp_Scrap,&p_a);
 			}
-		if(OkShowExpand)
+		if(OkShowExpand) {
+			Print(wout,"\n");
 			r = PrintArg(DisplayMode(&p_a,&ifunc,&hastabs),FALSE,FALSE,TRUE,FALSE,FALSE,stdout,wout,pp_Scrap,&p_a);
+			}
 		TextGetSelection(&dummy, &newend, TEH[wout]);
 		BPActivateWindow(SLOW,wout);
 		}
@@ -1278,7 +1292,7 @@ return(length);
 #endif
 
 
-SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
+int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 	long *p_end,int mode)
 {
 char c,*p1,*p2,**ptr,**p_buff,***pp_buff;
@@ -1286,7 +1300,6 @@ p_context *p_plx,*p_prx;
 int i,notargument,meta=0,jbolmem,rep,ret;
 long origin,end,length;
 tokenbyte **p_ti;
-
 
 if(!CompiledPt) {
 	if((rep=CompilePatterns()) != OK) return(rep);
@@ -1320,7 +1333,6 @@ if(origin >= end) {
 	return(FAILED);
 	}
 length = end - origin + 4L;
-// BPPrintMessage(odInfo,"Selection %d %d length %d\n",origin,end,length);
 /* if(length > 32000L) {
 	if(!ScriptExecOn) Alert1("Selection larger than 32,000 chars.  Can't encode");
 	else PrintBehind(wTrace,"Selection larger than 32,000 chars.  Can't encode.\n");
@@ -1332,6 +1344,7 @@ if((ptr = (char**) GiveSpace((Size)(length * sizeof(char)))) == NULL) {
 	goto OUT;
 	}
 *pp_buff = ptr;
+// BPPrintMessage(odInfo,"Selection %d %d length %d\n",origin,end,length);
 if(ReadToBuff(YES,noreturn,w,&origin,end,pp_buff) != OK) goto BAD;
 
 *p_end = origin;

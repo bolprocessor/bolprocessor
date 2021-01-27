@@ -66,7 +66,7 @@ for(i=0,p=(*pp1); p < (*pp2); i++,p++) {
 pp = pp1;
 imax = 4L * i + 6L;
 buffsize = imax + 4L;
-if((p_buff = (tokenbyte**) GiveSpace((Size) buffsize*sizeof(tokenbyte))) == NULL) return(NULL);
+if((p_buff = (tokenbyte**) GiveSpace((Size) buffsize * sizeof(tokenbyte))) == NULL) return(NULL);
 if((p_x = (char**) GiveSpace((Size)((BOLSIZE+2) * sizeof(char)))) == NULL) return(NULL);
 leftside = TRUE;
 rightcontext = bound = neg = FALSE;
@@ -78,9 +78,10 @@ if(arg_nr == 0) {
 		if(Match(TRUE,pp1,&q,4)) goto FINISHED;
 		}
 	}
+
 for(; (*pp) <= (*pp2);) {
 //	if(i % 25 == 0) PleaseWait();
- //	BPPrintMessage(odInfo,"%c",**pp);
+//	BPPrintMessage(odInfo,"%c",**pp);
 /*	if(**pp == '{' || **pp == '}') BPPrintMessage(odInfo,"%c",**pp);
 	else BPPrintMessage(odInfo,"%d ",**pp); */
 
@@ -1055,6 +1056,8 @@ SEARCHVAR:
 FINISHED:
 
 (*p_buff)[i++] = TEND; (*p_buff)[i] = TEND;
+
+// BPPrintMessage(odInfo,"@ End of encoding\n");
 MyDisposeHandle((Handle*)&p_x);
 if((i+1) > imax) {
 	if(Beta) Alert1("=> i > imax. Err. Encode()");

@@ -212,10 +212,10 @@ int main (int argc, char* args[])
 				 BPPrintMessage(odInfo,"Playing...\n");
 				break;
 			case play_item:
-				 BPPrintMessage(odInfo,"Playing this item\n");
-				 PlaySelectionOn = TRUE;
-				 Improvize = FALSE;
-				 result = PlaySelection(wData);
+				BPPrintMessage(odInfo,"Playing this item\n");
+				PlaySelectionOn = TRUE;
+				Improvize = FALSE;
+				result = PlaySelection(wData);
 				if(result == OK) BPPrintMessage(odInfo,"\nErrors: 0\n");
 				else if(Beta && result != OK) BPPrintMessage(odError,"PlaySelection() returned %d\n", result);
 				break;
@@ -227,9 +227,14 @@ int main (int argc, char* args[])
 					// and AnalyzeBuffer() similarly to AnalyzeSelection().
 					result = AnalyzeSelection(FALSE);
 					if (Beta && result != OK)  BPPrintMessage(odError,"=> AnalyzeSelection() returned %d\n", result);
-				}
+					}
 				break;
-			case expand:
+			case expand_item:
+				BPPrintMessage(odInfo,"Expanding this item\n");
+				Improvize = FALSE;
+				result = ExpandSelection(wData);
+				if(result == OK) BPPrintMessage(odInfo,"\nErrors: 0\n");
+				else if(Beta && result != OK) BPPrintMessage(odError,"ExpandSelection() returned %d\n", result);
 				break;
 			case show_beats:
 				break;
@@ -535,11 +540,11 @@ const char gOptionList[] =
 	"  produce-items N  produce N items from the grammar\n"
 	"  produce-all      produce all items from the grammar\n"
     "\n"
-	"  play             play the first item in the input data file\n"
-	"  play-item N      play the Nth item in the input data file\n"
+	"  play-item        play the first item in the input data file\n"
+	"  play N           play the Nth item in the input data file\n"
 	"  play-all         play all items in the input data file\n"
 	"  analyze-item N   analyze the Nth item's derivation using the grammar\n"
-	"  expand-item N    expand the Nth item to a complete polymetric expression\n"
+	"  expand-item      expand item in the input data file to a complete polymetric expression\n"
 	"  show-beats N     print the Nth item using periods to show the beats\n"
 	"\n"
 	"  compile          check the syntax of input files and report errors\n"
@@ -862,8 +867,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					// FIXME: look for the item number in next arg
 				}
 				else if (strcmp(args[argn], "expand-item") == 0)	{
-					action = expand;
-					// FIXME: look for the item number in next arg
+					action = expand_item;
 				}
 				else if (strcmp(args[argn], "show-beats") == 0)	{
 					action = show_beats;
@@ -958,7 +962,7 @@ const char* ActionTypeToStr(action_t action)
 		case play_item:		return "play-item";
 		case play_all:		return "play-all";
 		case analyze:		return "analyze-item";
-		case expand:		return "expand-item";
+		case expand_item:	return "expand-item";
 		case show_beats:	return "show-beats";
 		case templates:		return "templates";
 		default:
