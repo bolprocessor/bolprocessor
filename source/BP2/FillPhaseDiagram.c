@@ -353,6 +353,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 	m = (tokenbyte) (**pp_buff)[id];
 	p = (tokenbyte) (**pp_buff)[id+1];
 	if(m == TEND && p == TEND) break;
+	if(trace_diagram) BPPrintMessage(odInfo,"m = %d p = %d level = %ld nseq = %ld id = %ld\n",m,p,(long)level,(long)nseq,(long)id);
 	
 	if(m == T33 || m == T34) {	/* _step() or _cont() */
 		paramnameindex = p;
@@ -589,7 +590,11 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 		}
 	if((m == T3 && p < Jbol) || m == T25	/* Sound-object or simple note or silence */
 			|| (m == T9 && p < Jpatt)) {	/* Time pattern */
-		if(trace_diagram) BPPrintMessage(odInfo,"m = %d p = %d (*p_MIDIsize)[p] = %ld\n",m,p,(*p_MIDIsize)[p]);
+		if(trace_diagram) {
+			BPPrintMessage(odInfo,"m = %d p = %d",m,p,(*p_MIDIsize)[p]);
+			if(m == T3 && p > 1) BPPrintMessage(odInfo," (*p_MIDIsize)[p] = %ld (*p_CsoundSize)[p] = %ld\n",(*p_MIDIsize)[p],(*p_CsoundSize)[p]);
+			else BPPrintMessage(odInfo,"\n");
+			}
 		if(m == T3 && p > 1 && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO) {
 			m = T3;
 			p = 1;
@@ -854,7 +859,7 @@ DONEOUTTIMEOBJECT:
 		oldp = -1;
 		goto NEXTTOKEN;
 		}
-//	if(trace_scale) BPPrintMessage(odInfo,"FillPhaseDiagram() m = %d p = %d\n",m,p);
+//	if(trace_diagram) BPPrintMessage(odInfo,"FillPhaseDiagram() m = %d p = %d level = %ld\n",m,p,(long)level);
 	switch(m) {
 		case T0:
 			switch(p) {
@@ -944,7 +949,7 @@ DONEOUTTIMEOBJECT:
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
 						if(Beta) {
-							Alert1("=> Error FillPhaseDiagram(). nseq >= Minconc");
+							BPPrintMessage(odError,"=> Error 1 FillPhaseDiagram(). nseq(%ld) >= Minconc(%ld)",(long)nseq,(long)Minconc);
 							goto ENDDIAGRAM;
 							}
 						goto NEWSEQUENCE;
@@ -1014,13 +1019,13 @@ DONEOUTTIMEOBJECT:
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
 						if(Beta) {
-							BPPrintMessage(odError,"=> Error FillPhaseDiagram(). nseq(%ld) >= Minconc(%ld)",(long)nseq,(long)Minconc);
+							BPPrintMessage(odError,"=> Error 2 FillPhaseDiagram(). level = %ld nseq(%ld) >= Minconc(%ld)",(long)level,(long)nseq,(long)Minconc);
 							goto ENDDIAGRAM;
 							}
 						goto NEWSEQUENCE;
 						}
 					if(nseq > (*p_nmax)) {
-						if(Beta) Println(wTrace,"\n=> Err. FillPhaseDiagram(). nseq > (*p_nmax) after ','");
+						if(Beta) Println(wTrace,"\n=> Error 3 FillPhaseDiagram(). nseq > (*p_nmax) after ','");
 						if((gotnewline=MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseqapprox,p_maxcol))
 								!= OK) {
 							if(gotnewline == ABORT) goto ENDDIAGRAM;

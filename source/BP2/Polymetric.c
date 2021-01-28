@@ -822,9 +822,9 @@ if(Maxevent >= INT_MAX) {	// FIXME ? This comparison is never true with sizeof(l
 	}
 	
 OkShowExpand = TRUE;	/* OK to display prolongational gaps "_" */
-if(nsymb > 5000L || numberprolongations > 1000 || ((Prod / firstscaling) > 100)) {
+if(nsymb > 15000L || numberprolongations > 2000 || ((Prod / firstscaling) > 200)) {
 	if(ShowMessages) {
-		if(nsymb > 5000L) {
+		if(nsymb > 15000L) {
 			sprintf(Message,"Expanded polymetric expression would contain %ld symbols...",(long)nsymb);
 			FlashInfo(Message);
 			}
@@ -886,7 +886,7 @@ for(i=(*p_pos);
 		case 13:	/* '}' */
 			level--;
 			break;
-		case 7:		/* '¥' */
+		case 7:		/* period */
 			if(level == ZERO) {
 				period = TRUE; k++;
 				}
@@ -991,7 +991,7 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i += 2L) {
 	// This block is very similar to the middle of InterruptTimeSet() and to code in
 	// SetTimeObjects().  Could we refactor the shared code into a function ?? 
 	// (or move this if block into a function InterruptExpand()) ?? -- akozar, 20130830
-	if((i % 100L) == ZERO && (result=MyButton(1)) != FAILED) {
+/*	if((i % 100L) == ZERO && (result=MyButton(1)) != FAILED) {
 		StopCount(0);
 		SetButtons(TRUE);
 		Interrupted = TRUE;
@@ -1033,7 +1033,7 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i += 2L) {
 		}
 	if(Panic) {
 		result = ABORT; goto OUT;
-		}
+		} */
 #endif /* BP_CARBON_GUI */
 
 	p = (*p_b)[i+1];
@@ -1066,7 +1066,7 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i += 2L) {
 		i -= 2;
 		continue;
  		}
- 	if(m == T0 && p == 25) {  /* '\' speed down */
+ 	if(m == T0 && p == 25) {  /*  speed down */
  		s = 0.;
  		do {
  			i += 2;
@@ -1191,7 +1191,7 @@ FIXTEMP:
 			else  {
 				y = modf((1. / speed / (double)TOKBASE),&x);
 				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 25;	/* '\' speed down */
+				(*((*pp_c)[a]))[ic++] = 25;	/*  speed down */
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
@@ -1373,7 +1373,7 @@ FIXTEMP:
 			else {
 				y = modf((1. / speed / (double)TOKBASE),&x);
 				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 25; /* '\' speed down */
+				(*((*pp_c)[a]))[ic++] = 25; /*  speed down */
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
@@ -1491,7 +1491,7 @@ FIXTEMP:
 				}
 			else {
 				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 25;	/* '\' speed down */
+				(*((*pp_c)[a]))[ic++] = 25;	/* speed down */
 				y = modf((1. / speed / (double)TOKBASE),&x);
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
@@ -1514,6 +1514,7 @@ FIXTEMP:
 			}
 		(*p_pos) = i;
 		if(foundtokens) imbedded = FALSE;
+		if(trace_polymake) BPPrintMessage(odInfo,"} foundtokens = %ld ic = %ld (*p_useful)[a] = %ld\n",(long)foundtokens,(long)ic,(long)(*p_useful)[a]);
 		goto END;
 		}
 	if(m == T0 && (p == 14 || p == 7)) {		/* Either ',' or period */
@@ -1579,7 +1580,7 @@ FIXTEMP:
 			}
 		else {
 			(*((*pp_c)[a]))[ic++] = T0;
-			(*((*pp_c)[a]))[ic++] = 25;	/* '\' speed down */
+			(*((*pp_c)[a]))[ic++] = 25;	/* speed down */
 			y = modf((1. / speed / (double)TOKBASE),&x);
 			(*((*pp_c)[a]))[ic++] = T1;
 			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
@@ -1596,7 +1597,7 @@ FIXTEMP:
 		}
 	else {	/* comma */
 	//	if((m == T3 && p > 1) || m == T25 || (m >= T7 && m <= T43))
-		if((m == T3 && p >= 1) || m == T25 || (m >= T7 && m <= T43)) // Fixed by BB 2021-01-25
+		if((m == T3 && p >= 1) || m == T25 || (m >= T7 && m <= T43) || m == T1) // Fixed by BB 2021-01-28
 			(*p_useful)[a] = foundtokens = TRUE;
 		}
 	if(m == T3 || m == T7 || m == T8 || m == T9 || m == T25) {

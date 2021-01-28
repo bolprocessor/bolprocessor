@@ -1045,7 +1045,7 @@ int ExpandSelection(int w) {
 			Print(wout,"\n");
 			r = PrintArg(DisplayMode(&p_a,&ifunc,&hastabs),FALSE,FALSE,TRUE,FALSE,FALSE,stdout,wout,pp_Scrap,&p_a);
 			}
-		else Print(wout,"This expression is too complex for being displayed comprehensively!\n");
+		else Print(wout,"\nThis expression is too complex for being displayed comprehensively!\n");
 		TextGetSelection(&dummy, &newend, TEH[wout]);
 		BPActivateWindow(SLOW,wout);
 		}

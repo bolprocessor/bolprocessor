@@ -1568,11 +1568,11 @@ if(trace_load_settings) BPPrintMessage(odInfo, "MaxConsoleTime = %ld\n",(long)Ma
 if(ReadLong(sefile,&k,&pos) == FAILED) goto ERR;
 Seed = (unsigned) (k % 32768L);
 if(Seed > 0) {
-	BPPrintMessage(odInfo, "Resetting random seed to %u as per settings\n", Seed);
+	if(!PlaySelectionOn) BPPrintMessage(odInfo, "Resetting random seed to %u as per settings\n", Seed);
 	ResetRandom();
 	}
 else {
-	BPPrintMessage(odInfo, "No new random seed as per settings\n");
+	if(!PlaySelectionOn) BPPrintMessage(odInfo, "No new random seed as per settings\n");
 	Randomize();
 	}
 
@@ -1748,28 +1748,17 @@ if(iv > 19) {
 	ShowPianoRoll = j;
 	/**** THIS IS WHERE THE SETTINGS FILE ENDS NOW IN BP3 ****/
 	/* Removed code for reading piano roll colors */
-	if(ShowPianoRoll) BPPrintMessage(odInfo,"Pianoroll will be produced\n");
 	}
 else {
 	ShowObjectGraph = TRUE;
 	ShowPianoRoll = FALSE;
 	}
-
+	
+if(!ShowGraphic) ShowObjectGraph = ShowPianoRoll = FALSE;
+if(ShowPianoRoll) BPPrintMessage(odInfo,"Pianoroll will be produced\n");
+if(ShowObjectGraph) BPPrintMessage(odInfo,"Object graphics will be produced\n");
 if(PlaySelectionOn) Improvize = 0;			
 /* Removed code for reading "NewEnvironment", window coordinates & text colors */
-
-/* Should we still keep the start string in the settings file? */
-/* if(ReadOne(FALSE,FALSE,TRUE,sefile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-if(Mystrcmp(p_line,"STARTSTRING:") != 0) {
-	sprintf(Message,"=> Incorrect end in '%s' settings file. May be bad version?",
-			filename);
-	if(Beta) Alert1(Message);
-	goto QUIT;
-	}
-ReadFile(wStartString,sefile);
-ShowSelect(CENTRE,wStartString);
-Dirty[wStartString] = FALSE;
- */
 
 goto QUIT;
 
