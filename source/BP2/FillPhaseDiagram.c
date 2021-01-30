@@ -86,10 +86,10 @@ if(ShowMessages || Maxevent > 500L) {
 	if(Kpress > 1.) {
 		ShowWindow(Window[wTimeAccuracy]);
 		if(Kpress < ULONG_MAX)
-			sprintf(Message,"Creating phase diagram.  (Compression rate = %u)",
+			sprintf(Message,"Creating phase diagram with compression rate = %u",
 				(unsigned long)Kpress);
 		else
-			sprintf(Message,"Creating phase diagram.  (Compression rate = %.0f)",
+			sprintf(Message,"Creating phase diagram with compression rate = %.0f",
 				Kpress);
 		}
 	else
@@ -600,6 +600,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 			p = 1;
 			if(trace_diagram) BPPrintMessage(odInfo,"=> m = %d p = %d\n",m,p);
 			}
+	//	if(m == T25) BPPrintMessage(odInfo,"@ m = %d p = %d -> nseq = %ld\n",m,p,(long)nseq);
 		((*p_im)[nseq]) += Kpress;
 		ip = Class((*p_im)[nseq]);
 		if(Beta && (ip > maxseqapprox)) {
@@ -626,7 +627,9 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 					= GetSymbolicDuration(NO,YES,*pp_buff,m,p,id,speed,
 													scale,level);
 			iscontinuous = isMIDIcontinuous = FALSE;
+			
 			if(p > 0) {
+				// if(m == T3 && p == 1) BPPrintMessage(odInfo,"@ silence duration %.2f -> nseq = %ld\n",objectduration,m,p,(long)nseq);
 				oldm = m; oldp = p;
 				skipzeros = FALSE;
 				if((*p_contparameters)[level].number > 0) {
@@ -773,7 +776,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 				}
 			}
 		foundconcatenation = FALSE;
-		numberzeros = prodtempo - 1.;
+		numberzeros = prodtempo - 1;
 		if(skipzeros) numberzeros = -1.;
 		if(PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,numberzeros,p_nmax) != OK)
 			goto ENDDIAGRAM;
@@ -789,7 +792,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 				(*p_im)[nseq] -= Kpress;
 				(*p_maxcol)[nseq] = Class((*p_im)[nseq]);
 				}
-			/* Plot() will attempt to overstrike the current object, but seeing it it will skip to another value of nseq */
+			/* Plot() will attempt to overstrike the current object, but seeing it, it will jump to another value of nseq */
 			goto NEXTTOKEN;
 			}
 		ibeatsvel += numberzeros;
@@ -948,8 +951,8 @@ DONEOUTTIMEOBJECT:
 					/* (*p_maxcol)[nseq] must be checked because of concatenated time-objects */
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
+						BPPrintMessage(odError,"Formula too complex (case 1)\n");
 						if(Beta) {
-							BPPrintMessage(odError,"=> Error 1 FillPhaseDiagram(). nseq(%ld) >= Minconc(%ld)",(long)nseq,(long)Minconc);
 							goto ENDDIAGRAM;
 							}
 						goto NEWSEQUENCE;
@@ -1010,16 +1013,18 @@ DONEOUTTIMEOBJECT:
 					break;
 					
 				case 14:				/* ',' */
-	//				if(level >= Maxlevel) goto NEXTTOKEN;
 					skipzeros = FALSE;
 					inext = (*p_origin)[level];
 					classofinext = Class(inext);
+				//	BPPrintMessage(odInfo,"nseq = %ld level = %ld Minconc = %ld inext = %.0f classofinext = %ld\n",(long)nseq,(long)level,(long)Minconc,(double)inext,(long)classofinext);
 					
 					/* (*p_maxcol)[nseq] must be checked because of concatenated time-objects */
+				//	BPPrintMessage(odInfo,"@@ (*p_maxcol)[%ld + 1] = %ld\n",(long)nseq,(long)(*p_maxcol)[nseq+1]);
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
 						if(Beta) {
-							BPPrintMessage(odError,"=> Error 2 FillPhaseDiagram(). level = %ld nseq(%ld) >= Minconc(%ld)",(long)level,(long)nseq,(long)Minconc);
+							BPPrintMessage(odError,"=> Formula too complex (case 2)\n"); // BB 2021-01-29
+				//			BPPrintMessage(odError,"nseq = %ld Minconc = %ld inext = %.0f\n",(long)nseq,(long)Minconc,inext);
 							goto ENDDIAGRAM;
 							}
 						goto NEWSEQUENCE;
@@ -1727,7 +1732,7 @@ return(OK);
 }
 
 
-Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,int force,
+int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,int force,
 	int *p_nmax,unsigned long **p_maxcol,double **p_im,
 	short ****p_seq,int *p_nseq,double maxseq,unsigned long iplot,int newk)
 {
@@ -2105,7 +2110,7 @@ return(OK);
 }
 
 
-PutZeros(char toofast,double **p_im,unsigned long **p_maxcol,int nseq,double maxseq,
+int PutZeros(char toofast,double **p_im,unsigned long **p_maxcol,int nseq,double maxseq,
 	double numberzeros,int *p_nmax)
 {
 unsigned long ip,iplot;

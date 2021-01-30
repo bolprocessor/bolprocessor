@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
 
-trace_polymake = 0;
+int trace_polymake = 0;
 
 int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing)
 {
@@ -332,24 +332,28 @@ if(Pclock > 0.) {
 	kpress = 1. + (((double)Quantization) * Qclock * Ratio) / Pclock / 1000.;
 	kpress = floor(1.00001 * kpress);
 	if(QuantizeOK && kpress > 1.) {
-		if(kpress > 1000000.) {
+/*		if(kpress > 1000000.) { // Fixed by BB 2021-01-29
 			Ratio = Ratio * 1000000. / kpress;
 			kpress = 1000000.;
 			TellComplex();
 			}
-		else {
-			s = (LCM(Ratio,kpress,&overflow) / Ratio);	/* 21/6/98 This solved a major accuracy problem! */
+		else { */
+			s = (LCM(Ratio,kpress,&overflow) / Ratio);
 			if(s > 1. && s < 10. && Ratio < 1000000.) Ratio = Round(s * Ratio);
-			}
+	//		}
 		s = Round(Ratio / kpress);
 		if(s > 10.) Ratio = kpress * s;
 		Prod = Ratio;
 		}
-	if(QuantizeOK) Kpress = kpress;
+	if(QuantizeOK) {
+		Kpress = kpress;
+		BPPrintMessage(odInfo,"Using quantization = %ld ms\n",Quantization);
+		}
 	else {
 		if((kpress >= 4. && NotSaidKpress) || kpress >= 100.) {
 			NotSaidKpress = FALSE;
-			BPActivateWindow(SLOW,wTimeAccuracy);
+			BPPrintMessage(odInfo,"Forcing quantization to %ld ms\n",Quantization);
+	/*		BPActivateWindow(SLOW,wTimeAccuracy);
 			if(kpress < 100.)
 				sprintf(Message,"This item is quite complex. Quantization is recommended (compression rate > %u). Set it to %ldms",
 					(unsigned int)kpress,Quantization);
@@ -363,16 +367,16 @@ if(Pclock > 0.) {
 				if(rep == YES) goto QUIT;
 				else goto FINDCOMPRESSION;
 				}
-			if(r == YES) {
+			if(r == YES) { */
 				QuantizeOK = TRUE;
-#if BP_CARBON_GUI
+/*
 				UpdateDirty(TRUE,iSettings);
 				SetTimeAccuracy();
 				BPUpdateDialog(gpDialogs[wTimeAccuracy]);
-#endif /* BP_CARBON_GUI */
+ */
 				goto FINDCOMPRESSION;
-				}
-			r = OK;
+//				}
+//			r = OK;
 			}
 		}
 	}
@@ -535,7 +539,9 @@ for(i=ZERO; ; i+=2L) {
 					
 			case 14:	/* ',' */
 				(*p_nseqmax)[level]++;
-				(*p_nseq)[level] = (*p_nseqmax)[level];
+			//	(*p_nseqmax)[level] += 2;
+			//	(*p_nseq)[level] = (*p_nseqmax)[level];
+				(*p_nseq)[level] = (*p_nseqmax)[level] + 1; // Fixed by BB 2021-01-29
 				if((*p_nseq)[level] > Minconc) Minconc = (*p_nseq)[level];
 				nsymb += 1.;
 				continue;
@@ -599,7 +605,10 @@ for(i=ZERO; ; i+=2L) {
 			}
 		}
 	}
-if((*p_nseqmax)[0] > Minconc) Minconc = (*p_nseq)[0];
+if((*p_nseqmax)[0] > Minconc) {
+//	BPPrintMessage(odError,"@ (*p_nseqmax)[0] = %ld Minconc = %ld\n",(long)(*p_nseqmax)[0],(long)Minconc);
+	Minconc = (*p_nseq)[0];
+	}
 Minconc++;
 if(numberouttimeinseq > longestseqouttime) longestseqouttime = numberouttimeinseq;
 if(numbertoofast > longestnumbertoofast) longestnumbertoofast = numbertoofast;
@@ -740,7 +749,7 @@ SETQUANTIZE:
 		goto FINDCOMPRESSION;
 		}
 	}
-
+// BPPrintMessage(odError,"@ morelines = %ld Minconc = %ld\n",(long)morelines,(long)Minconc);
 Minconc += morelines;
 Maxlevel++;
 Maxconc = Minconc + 1 + longestseqouttime + longestnumbertoofast;
@@ -825,8 +834,7 @@ OkShowExpand = TRUE;	/* OK to display prolongational gaps "_" */
 if(nsymb > 15000L || numberprolongations > 2000 || ((Prod / firstscaling) > 200)) {
 	if(ShowMessages) {
 		if(nsymb > 15000L) {
-			sprintf(Message,"Expanded polymetric expression would contain %ld symbols...",(long)nsymb);
-			FlashInfo(Message);
+			BPPrintMessage(odInfo,"Expanded polymetric expression would contain %.0f symbols\n",nsymb);
 			}
 		if(ExpandOn) ShowMessage(TRUE,wMessage,"Expanded expression is too large for display");
 		}
@@ -2117,8 +2125,8 @@ int TellComplex(void)
 {
 if(!SaidTooComplex) {
 	SaidTooComplex = TRUE;
-	if(ShowMessages)
-		ShowMessage(TRUE,wMessage,"Formula is too complex. Roundings are performed...");
+//	BPPrintMessage(odInfo,"Formula is complex. Roundings are performed... (ULONG_MAX = %ul)\n",ULONG_MAX);
+	BPPrintMessage(odInfo,"Formula is complex. Roundings are performed\n");
 	}
 return(OK);
 }
