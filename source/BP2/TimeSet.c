@@ -44,7 +44,7 @@
 
 int trace_timeset = 0;
 
-TimeSet(tokenbyte ***pp_buff,int* p_kmx,long *p_tmin,long *p_tmax,unsigned long *p_maxseq,
+int TimeSet(tokenbyte ***pp_buff,int* p_kmx,long *p_tmin,long *p_tmax,unsigned long *p_maxseq,
 	int* p_nmax,unsigned long **p_imaxseq,double maxseqapprox)
 {
 int result,bigitem;
@@ -74,7 +74,7 @@ return(result);
 }
 
 
-SetTimeObjects(int bigitem,unsigned long **p_imaxseq,unsigned long maxseq,int *p_nmax,
+int SetTimeObjects(int bigitem,unsigned long **p_imaxseq,unsigned long maxseq,int *p_nmax,
 	int *p_kmx,long *p_tmin,long *p_tmax,short **p_articul)
 
 {
@@ -290,7 +290,7 @@ if((p_alphadone = (char**) GiveSpace((Size)((*p_nmax)+1)*sizeof(char))) == NULL)
 	
 result = OK; first = TRUE;
 
-if(IsMidiDriverOn()) tstart = GetDriverTime();
+// if(IsMidiDriverOn()) tstart = GetDriverTime();
 
 for(nseq=0; nseq <= (*p_nmax); nseq++) (*p_alphadone)[nseq] = FALSE;
 
@@ -300,8 +300,8 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	if(ShowMessages && bigitem) {
 		if(Kpress > 1.) {
 			if(Kpress < ULONG_MAX)
-				sprintf(Message,"%ld objects. Compression rate = %u  Sequence %ld/%ld",
-					(long)(*p_kmx),(unsigned long)Kpress,((long)nseq)+1L,((long)(*p_nmax))+1L);
+				sprintf(Message,"%ld objects. Compression rate = %.0f  Sequence %ld/%ld",
+					(long)(*p_kmx),Kpress,((long)nseq)+1L,((long)(*p_nmax))+1L);
 			else
 				sprintf(Message,"%ld objects. Compression rate = %.0f  Sequence %ld/%ld",
 					(long)(*p_kmx),Kpress,((long)nseq)+1L,((long)(*p_nmax))+1L);

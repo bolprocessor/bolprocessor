@@ -1773,7 +1773,6 @@ CloseFile(sefile);
 
 LoadOn--;
 
-// if(Improvize && !PlaySelectionOn) ShowPianoRoll = FALSE;
 if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end LoadSettings = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 return(result);
 }

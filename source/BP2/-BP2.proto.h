@@ -905,7 +905,7 @@ int DrawItem(int,SoundObjectInstanceParameters**,Milliseconds**,Milliseconds**,i
 int OpenGraphic(int,Rect*,int,CGrafPtr*,GDHandle*);
 // int CloseGraphic(int,long,long,int,Rect*,CGrafPtr*,GDHandle);
 int InterruptDraw(int,int);
-int DrawObject(int,char*,double,int,int,int,int,long,long,long,long,long,int*,long*,long*,PicHandle);
+int DrawObject(int,char*,int,double,int,int,int,int,long,long,long,long,long,int*,long*,long*,PicHandle);
 int DrawGraph(int,PolyHandle);
 int DrawSequence(int,SoundObjectInstanceParameters**,Milliseconds**,Milliseconds**,int,unsigned long,
 	unsigned long**,int,long**,long**,long**);

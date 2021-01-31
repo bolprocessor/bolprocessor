@@ -629,7 +629,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 			iscontinuous = isMIDIcontinuous = FALSE;
 			
 			if(p > 0) {
-				// if(m == T3 && p == 1) BPPrintMessage(odInfo,"@ silence duration %.2f -> nseq = %ld\n",objectduration,m,p,(long)nseq);
+			//	if(m == T3 && p == 1) BPPrintMessage(odInfo,"@ silence duration %.2f -> nseq = %ld\n",objectduration,m,p,(long)nseq);
 				oldm = m; oldp = p;
 				skipzeros = FALSE;
 				if((*p_contparameters)[level].number > 0) {
@@ -1016,15 +1016,15 @@ DONEOUTTIMEOBJECT:
 					skipzeros = FALSE;
 					inext = (*p_origin)[level];
 					classofinext = Class(inext);
-				//	BPPrintMessage(odInfo,"nseq = %ld level = %ld Minconc = %ld inext = %.0f classofinext = %ld\n",(long)nseq,(long)level,(long)Minconc,(double)inext,(long)classofinext);
+					if(trace_diagram) BPPrintMessage(odInfo,"nseq = %ld level = %ld Minconc = %ld inext = %.0f classofinext = %ld\n",(long)nseq,(long)level,(long)Minconc,(double)inext,(long)classofinext); // BB 2021-01-29
 					
 					/* (*p_maxcol)[nseq] must be checked because of concatenated time-objects */
-				//	BPPrintMessage(odInfo,"@@ (*p_maxcol)[%ld + 1] = %ld\n",(long)nseq,(long)(*p_maxcol)[nseq+1]);
+					if(trace_diagram) BPPrintMessage(odInfo,"@@ (*p_maxcol)[%ld + 1] = %ld\n",(long)nseq,(long)(*p_maxcol)[nseq+1]);
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
 						if(Beta) {
 							BPPrintMessage(odError,"=> Formula too complex (case 2)\n"); // BB 2021-01-29
-				//			BPPrintMessage(odError,"nseq = %ld Minconc = %ld inext = %.0f\n",(long)nseq,(long)Minconc,inext);
+							BPPrintMessage(odError,"nseq = %ld Minconc = %ld classofinext = %ld inext = %.0f\n",(long)nseq,(long)Minconc,(long)classofinext,inext);
 							goto ENDDIAGRAM;
 							}
 						goto NEWSEQUENCE;

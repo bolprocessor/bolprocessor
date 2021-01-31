@@ -517,6 +517,7 @@ for(i=ZERO; ; i+=2L) {
 					}
 				(*p_nseqmax)[level] = (*p_nseq)[level] = (*p_nseq)[level-1];
 				if(level > Maxlevel) Maxlevel = level;
+				morelines++;  // Fixed by BB 2021-01-30 - probably not optimal
 				continue;
 				break;
 				
@@ -685,8 +686,9 @@ SETMETRONOM:
 					}
 				}
 			else {
-				rep = Answer("Increasing quantization may not be sufficient to reduce memory requirement. Try it anyway",
-					'Y');
+				BPPrintMessage(odError,"Increasing quantization may not be sufficient to reduce memory requirement.\n");
+				rep = CANCEL; // Fixed by BB 2021-01-30
+			//	rep = Answer("Increasing quantization may not be sufficient to reduce memory requirement. Try it anyway",'Y');
 				newquantize = 2000L;
 				if(rep == YES) {
 					goto CHANGEQUANTIZE;
@@ -751,6 +753,7 @@ SETQUANTIZE:
 	}
 // BPPrintMessage(odError,"@ morelines = %ld Minconc = %ld\n",(long)morelines,(long)Minconc);
 Minconc += morelines;
+// Minconc += Maxlevel;
 Maxlevel++;
 Maxconc = Minconc + 1 + longestseqouttime + longestnumbertoofast;
 
@@ -794,14 +797,18 @@ if(!TempMemory && !AskedTempMemory && !FixedMaxQuantization
 			else goto FORGETIT;
 			}
 	ASK:
-		if(!alreadychangedquantize)
-			rep = Answer("Item is large. Change quantization",'Y');
+		if(!alreadychangedquantize) {
+			BPPrintMessage(odError,"=> Item is too large. Try to increase quantization or/and time resolution in the settings\n"); // Fixed by BB 2021-01-30
+		//	rep = Answer("=> Item is too large. Try to increase quantization",'Y');
+			rep = CANCEL;
+			}
 		else {
 			rep = Answer("Quantization value must be reduced again, as the estimation proved wrong. Fix",'Y');
 			if(rep == YES) goto TOOBIG;
 			}
 		if(rep == CANCEL) {
-			rep = Answer("Do you really want to abort this job",'N');
+			rep = YES; // Fixed by BB 2021-01-30
+		//	rep = Answer("Do you really want to abort this job",'N');
 			if(rep == YES) {
 				r = ABORT;
 				goto QUIT;
