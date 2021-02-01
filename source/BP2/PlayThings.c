@@ -1032,7 +1032,7 @@ int ExpandSelection(int w) {
 	//	if(newitem) Print(wout,"\n");
 	//	else TextGetSelection(&dummy, &neworigin, TEH[wout]);
 		Print(wout,"\n");
-		sprintf(Message,"Ratio = %u, Prod = %u\n\n",(unsigned long)Ratio,(unsigned long)Prod);
+		sprintf(Message,"Ratio = %u, Prod = %u, Kpress = %u\n\n",(unsigned long)Ratio,(unsigned long)Prod,(unsigned long)Kpress);
 		Print(wout,Message);
 		if(Prod == Ratio) r = PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wout,pp_Scrap,&p_a);
 		else {

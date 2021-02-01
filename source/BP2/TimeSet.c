@@ -93,6 +93,7 @@ Milliseconds tmax,t,**p_DELTA,t1,t2,**p_time1,**p_time2,**p_maxcoverbeg,**p_maxc
 unsigned long tstart;
 
 nature_time = Nature_of_time;	/* Must not change during computation */
+
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	ptr = (*p_Seq)[nseq];
 	if(MySetHandleSize((Handle*)&ptr,(Size)(maxseq+2) * sizeof(short)) != OK) return(ABORT); 
@@ -100,13 +101,13 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	}
 
 // Calculate time structure
-
-if(ShowMessages || bigitem) {
-	BPPrintMessage(odInfo,"Setting time streaks...\n");
-	}
 	
 in = 1.; jn = ZERO;
 period = ((double) Pclock) * 1000. * CorrectionFactor / Qclock;
+
+if(ShowMessages || bigitem) {
+	BPPrintMessage(odInfo,"Setting %d time streaks\n",(*p_nmax));
+	}
 
 while(TRUE) {
 	jj= Class(in);
@@ -163,7 +164,7 @@ for(k=ZERO; k < Maxevent; k++) {
 	}
 BPPrintMessage(odInfo,"\n");
 	
-if(Maxevent < 100) {
+if(Maxevent < 1000) {
 	BPPrintMessage(odInfo,"\n");
 //	if((*p_nmax) > 1) last_line = (*p_nmax) - 1;
 //	else last_line =  1;

@@ -45,7 +45,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing)
 tokenbyte m,p,**p_b,**ptr;
 char fixtempo,useful,toocomplex,alreadychangedquantize;
 int k,krep,rep,level,r,**p_nseq,**p_nseqmax,maxlevel,needalphabet,foundinit,overflow,toofast,
-	numberouttimeinseq,longestseqouttime,numbertoofast,longestnumbertoofast,morelines;
+	numberouttimeinseq,longestseqouttime,numbertoofast,longestnumbertoofast,morelines,max_quantization;
 double P,Q,tempo,tempomax,prodtempo,fmaxseq,nsymb,lcm,kpress,thelimit,speed,scaling,s,
 	limit1,limit2,imax,x,firstscaling,scalespeed,maxscalespeed;
 unsigned long i,maxid,pos_init,gcd,numberprolongations;
@@ -320,7 +320,7 @@ if(trace_polymake)  {
 	if(Qduration > 1.)
 		sprintf(Message,"Duration = %.0f/%.0f time units",Pduration,Qduration);
 	else sprintf(Message,"Duration = %.0f time units",Pduration);
-	ShowMessage(TRUE,wMessage,Message);
+	BPPrintMessage(odInfo,Message);
 	}
 
 alreadychangedquantize = FALSE;
@@ -381,6 +381,13 @@ if(Pclock > 0.) {
 		}
 	}
 
+if(Pclock > 0.) {
+//	BPPrintMessage(odInfo,"maxscalespeed = %ld\n",(long)maxscalespeed);
+//	max_quantization = (int) (1000. * (Pclock/Qclock) * (Kpress - 1) / Kpress / maxscalespeed);
+	// Added by BB 2021-01-31
+/*	if(max_quantization < Quantization)
+		BPPrintMessage(odInfo,"=> To avoid skipping objects/notes, quantization should be less than %d ms\n",max_quantization); */
+	}
 
 // Calculate Maxevent, (*p_maxseq) and the final value of Maxconc
 

@@ -39,6 +39,7 @@
 #include "-BP2decl.h"
 
 int trace_diagram = 0;
+int trace_toofast = 0;
 
 FillPhaseDiagram(tokenbyte ***pp_buff,int* p_numberobjects,unsigned long *p_maxseq,
 	int* p_nmax,unsigned long **p_imaxseq,
@@ -53,13 +54,13 @@ float maxbeats,ibeatsvel,maxbeatsvel,**p_deftmaxbeatsvel,ibeatsarticul,maxbeatsa
 	starttranspose,transposeincrement,endtranspose,ibeatstranspose,maxbeatstranspose,
 	**p_deftmaxbeatstranspose,**p_deftibeatstranspose,**p_deftstarttranspose,**p_defttransposeincrement;
 double objectduration,**p_im,**p_origin,scale,inext,
-	tempo,tempomax,prodtempo,speed,s,numberzeros,
+	tempo,tempomax,max_tempo_in_skipped_object,prodtempo,speed,s,numberzeros,
 	**p_currobject,**p_objectsfound,objectsfound;
 short rndvel,velcontrol,**p_deftrndvel,**p_deftvelcontrol,**p_deftstartvel,
 	velincrement,**p_deftvelincrement,**p_deftarticulincrement,**p_deftstartarticul;
 int i,j,k,kobj,nseq,nseqmem,nseqmem2,newswitch,v,ch,gotnewline,foundobject,
 	failed,paramnameindex,paramvalueindex,maxparam,newxpandval,newkeyval,
-	**p_deftxpandval,**p_deftxpandkey,
+	**p_deftxpandval,**p_deftxpandkey,number_skipped,suggested_quantization,
 	r,rest,oldm,oldp,**p_seq,**p_deftnseq,startvel,articulincrement,
 	startarticul,istop,result,level,nseqplot,a,b;
 Handle h;
@@ -80,7 +81,9 @@ if(trace_diagram) BPPrintMessage(odInfo, "Started filling phase diagram\n");
 AllSolTimeSet = StackFlag = (*p_bigitem) = ToldSkipped = FALSE;
 
 if(IsMidiDriverOn()) tstart = GetDriverTime();
-	
+
+number_skipped = 0;
+max_tempo_in_skipped_object = 0.;
 maxseqapprox = ((ceil(maxseqapprox) / Kpress) + 6.) * 1.01;	/* This is an approximation. */
 if(ShowMessages || Maxevent > 500L) {
 	if(Kpress > 1.) {
@@ -659,6 +662,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 				if(overstrike) {
 					kobj--;
 					(*p_numberobjects) = kobj;
+					number_skipped++;
 					}
 				(*p_maxcol)[nseq] = ip;
 				
@@ -736,6 +740,8 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 						IncrementParameter(i,p_contparameters,level,objectduration);
 					(*p_im)[nseq] -= (Kpress - 1.);
 					(*p_maxcol)[nseq] = Class((*p_im)[nseq]);
+					if(speed/scale > max_tempo_in_skipped_object) max_tempo_in_skipped_object = speed/scale;
+					if(trace_toofast) BPPrintMessage(odInfo,"-> toofast m = %d p = %d speed = %.0f scale = %.0f objectduration = %.0f Prod = %.0f = tempomax = %.0f prodtempo = %.0f -> im[%d] = %.0f, maxcol[nseq] = %ld\n",m,p,speed,scale,objectduration,Prod,tempomax,prodtempo,nseq,(*p_im)[nseq],(long)(*p_maxcol)[nseq]);
 					goto NEXTTOKEN;
 					}
 				}
@@ -1569,8 +1575,13 @@ if(imax > 0.) {
 			ShowMessage(TRUE,wMessage,Message);
 			}
 		}
-	if(trace_diagram && (CorrectionFactor != 1.0)) {
-		BPPrintMessage(odInfo,"Correction factor = %.3f Ratio = %.3f Pduration = %ld Qduration = %ld Kpress = %ld imax = %ld\n",(float)CorrectionFactor,(float)Ratio,(long)Pduration,(long)Qduration,(long)Kpress,(long)imax);
+	if((trace_diagram || trace_toofast) && (CorrectionFactor != 1.0)) {
+		BPPrintMessage(odInfo,"Correction factor = %.3f Ratio = %.0f Pduration = %ld Qduration = %ld Kpress = %ld imax = %ld\n",(float)CorrectionFactor,(float)Ratio,(long)Pduration,(long)Qduration,(long)Kpress,(long)imax);
+		}
+	if(number_skipped > 0) { // Added by BB 2021-02-01
+		suggested_quantization = (int)(Quantization * (tempomax + 1) / max_tempo_in_skipped_object * CorrectionFactor);
+		suggested_quantization = suggested_quantization - modulo(suggested_quantization,Time_res);
+		BPPrintMessage(odInfo,"=> %d objects/notes have been skipped. Quantization should be reduced to less than %d ms to avoid it\n",number_skipped,suggested_quantization);
 		}
 	/* Let's put an out-time silence at the end of the item, and attach to it the ultimate control parameter values */
 	nseq = Minconc;
@@ -2051,6 +2062,7 @@ unsigned long iseq,iplot;
 char overstrike;
 int nseqplot;
 
+overstrike = FALSE; // Fixed by BB 2021-01-31
 if(nseq >= Maxconc) {
 	if(Beta) Println(wTrace,"=> Err. MakeNewLineInPhaseTable(). nseq >= Maxconc");
 	TellSkipped();
@@ -2118,6 +2130,7 @@ char overstrike;
 double i,j;
 int nseqplot;
 
+overstrike = FALSE; // Fixed by BB 2021-01-31
 if(nseq >= Maxconc) {
 	if(Beta) Println(wTrace,"=> Err. PutZeros(). nseq >= Maxconc");
 	TellSkipped();
@@ -2170,9 +2183,7 @@ TellSkipped(void)
 {
 if(!ToldSkipped) {
 	ToldSkipped = TRUE;
-	sprintf(Message,"Some objects have been skipped...");
-	ShowMessage(TRUE,wMessage,Message);
-	FlashInfo(Message);
+//	BPPrintMessage(odInfo,"=> Some objects have been skipped. Quantization should be reduced to avoid it.\n");
 	}
 return(OK);
 }

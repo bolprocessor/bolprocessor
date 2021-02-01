@@ -97,7 +97,7 @@ FlushEvents(everyEvent,0);
 ////////////////////////////////////
 ////   Is this a beta version?  ////
 #if	COMPILING_BETA
-      Beta = YES;
+     Beta = YES;
 #else
 	Beta = NO;
 #endif
