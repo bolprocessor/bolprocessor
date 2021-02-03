@@ -443,7 +443,7 @@ if(showpianoroll) {
 	if(WidthMax < 32767) WidthMax = 2 * endxmax + 40;
 	BPPrintMessage(odInfo,Message);
 	if(WidthMax > 32767) {
-		BPPrintMessage(odInfo,"\n=> Image width %d is too large: it will be set to 32767\n",WidthMax);
+		BPPrintMessage(odInfo,"\nImage width %d was too large: it has been cropped to 32767\n",WidthMax);
 		WidthMax = 32767;
 		}
 	

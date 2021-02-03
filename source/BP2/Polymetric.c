@@ -795,17 +795,19 @@ if(!TempMemory && !AskedTempMemory && !FixedMaxQuantization
 		}
 	if(imax > thelimit) {
 		if(!QuantizeOK || Pclock < 1.) {
-			rep = Answer("Item is large. Use quantization",'Y');
+			rep = YES;
+		/*	rep = Answer("Item is large. Use quantization",'Y'); Fixed by BB 2021-02-01
 			if(rep == ABORT && Answer("Do you really want to abort this job",'N') == YES) {
 				r = ABORT;
 				goto QUIT;
-				}
+				} */
 			if(rep == YES) goto TOOBIG;
 			else goto FORGETIT;
 			}
 	ASK:
 		if(!alreadychangedquantize) {
-			BPPrintMessage(odError,"=> Item is too large. Try to increase quantization or/and time resolution in the settings\n"); // Fixed by BB 2021-01-30
+			BPPrintMessage(odError,"=> Item is too large or too complex\n"); // Fixed by BB 2021-02-01
+			if(Beta) BPPrintMessage(odError,"(imax = %.0f, thelimit = %.0f, compression rate = %.0f)\n",imax,thelimit,Kpress);
 		//	rep = Answer("=> Item is too large. Try to increase quantization",'Y');
 			rep = CANCEL;
 			}

@@ -122,7 +122,7 @@ if(WidthMax < 32767) WidthMax = 2 * endxmax + 40;
 sprintf(Message,"WidthMax (2) = %ld\n",WidthMax);
 //	BPPrintMessage(odInfo,Message);
 if(WidthMax > 32767) {
-	BPPrintMessage(odInfo,"\n=> Image width %d is too large: it will be set to 32767\n",WidthMax);
+	BPPrintMessage(odInfo,"\nImage width %d was too large: it has been cropped to 32767\n",WidthMax);
 	WidthMax = 32767;
 	}
 
@@ -262,10 +262,11 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 		if(trace_graphic) BPPrintMessage(odInfo,"t1 = %ld t2 = %ld tt1= %ld (*p_endx)[%ld] = %ld\n",(long)t1,(long)t2,(long)tt1,(long)linenum,(long)(*p_endx)[linenum]);
 	//	if(endx < t2) endx = t2;
 		old_linenum = linenum;
-	//	if(tt1 < (*p_endx)[linenum]) {
+	//	if(tt1 < (*p_endx)[linenum]) { // Fixed by BB 2021-01-30 = Now we try to push up every object
 			for(linenum=linemin; linenum <= linemax; linenum++) { 
 				if(trace_graphic) BPPrintMessage(odInfo,"+ linenum = %ld linemax = %ld (*p_morespace)[linenum] = %ld, (*p_endx)[linenum] = %ld\n",(long)linenum,(long)linemax,(long)(*p_morespace)[linenum],(long)(*p_endx)[linenum]);
-				if(tt1 > (*p_endx)[linenum]) goto CONT;
+		//		if(tt1 > (*p_endx)[linenum]) goto CONT;
+				if(tt1 >= (*p_endx)[linenum]) goto CONT; // Fixed by BB 2021-02-03
 				}
 			linemax = linenum; // Fixed by BB 2021-01-30
 			(*p_endx)[linemax] = 0; // Fixed by BB 2021-01-30
@@ -345,18 +346,17 @@ ENDGRAPH:
 
 QUIT:
 if(WidthMax < 32767) WidthMax = 2 * endxmax + 40;
-sprintf(Message,"WidthMax (1) = %ld\n",WidthMax);
-//	BPPrintMessage(odInfo,Message);
+// BPPrintMessage(odInfo,"WidthMax (1) = %ld\n",WidthMax);
 if(WidthMax > 32767) {
-	BPPrintMessage(odInfo,"\n=> Image width %d is too large: it will be set to 32767\n",WidthMax);
+	BPPrintMessage(odInfo,"\nImage width %d was too large: it has been cropped to 32767\n",WidthMax);
 	WidthMax = 32767;
 	}
 
-if(HeightMax < 32767) HeightMax = 2 * endymax + 20;
-sprintf(Message,"HeightMax (1) = %ld\n",HeightMax);
-// BPPrintMessage(odInfo,Message);
+// BPPrintMessage(odInfo,"endymax = %ld\n",endymax);
+HeightMax = 2 * endymax + 20;
+// BPPrintMessage(odInfo,"HeightMax (1) = %ld\n",HeightMax);
 if(HeightMax > 32767) {
-	BPPrintMessage(odInfo,"\n=> Image height %d is too large: it will be set to 32767\n",HeightMax);
+	BPPrintMessage(odInfo,"\nImage height %d was too large: it has been cropped to 32767\n",HeightMax);
 	HeightMax = 32767;
 	}
 
@@ -425,7 +425,7 @@ if(trace_graphic) BPPrintMessage(odInfo,Message);
 if(j >= Jbol && j < 16384) { // Time pattern
 	fill_rect(&r2,"LightCyan");
 	}
-else fill_rect(&r2,"Cornsilk");
+	else fill_rect(&r2,"Cornsilk"); 
 
 // Draw gray rectangles indicating truncated parts
 if(trbeg > 0L) {
@@ -1209,12 +1209,14 @@ pen_size(1,0);
 text_style(htext,"arial");
 
 ymax = p_r->bottom;
+if(ymax > 16300) ymax = p_r->bottom = 16300;
 if(HeightMax < 32767) HeightMax = 2 * ymax + 20;
-else {
-	BPPrintMessage(odInfo,"\n=> Image height %d is too large: it has been cropped to 32767\n",HeightMax);
+if(HeightMax > 32767) {
+	BPPrintMessage(odInfo,"\nImage height %d was too large: it has been cropped to 32767\n",HeightMax);
 	HeightMax = 32767;
+	ymax = (HeightMax - 20) / 2;
+	p_r->bottom = ymax;
 	}
-
 
 // Draw scale ruler
 x = 5. * ((double) GraphicScaleQ) / GraphicScaleP;	/* Duration on 500 pixels */
@@ -1533,8 +1535,8 @@ void stroke_rect(Rect* p_r) {
 	if(strcmp(graphic_scheme,"canvas") == 0) {
 		x1 = resize * p_r->left;
 		x2 = resize * p_r->right;
-		y1 = resize * p_r->bottom;
-		y2 = resize * p_r->top;
+		y1 = resize * p_r->top;
+		y2 = resize * p_r->bottom;
 		w = x2 - x1;
 		h = y2 - y1;
 		sprintf(line,"ctx.strokeRect(%ld,%ld,%ld,%ld);\n",(long)x1,(long)y1,(long)w,(long)h);
@@ -1548,8 +1550,8 @@ void fill_rect(Rect* p_r,char* color) {
 	if(strcmp(graphic_scheme,"canvas") == 0) {
 		x1 = resize * p_r->left;
 		x2 = resize * p_r->right;
-		y1 = resize * p_r->bottom;
-		y2 = resize * p_r->top;
+		y1 = resize * p_r->top;
+		y2 = resize * p_r->bottom;
 		w = x2 - x1;
 		h = y2 - y1;
 		sprintf(line,"ctx.fillStyle = '%s';\n",color);
@@ -1575,16 +1577,20 @@ void erase_rect(Rect* p_r) {
 	if(strcmp(graphic_scheme,"canvas") == 0) {
 		x1 = resize * p_r->left;
 		x2 = resize * p_r->right;
-		y1 = resize * p_r->bottom;
-		y2 = resize * p_r->top;
+		y1 = resize * p_r->top;
+		y2 = resize * p_r->bottom;
 		sprintf(line,"ctx.fillStyle = 'white';\nctx.fillRect(%ld,%ld,%ld,%ld);\nctx.fillStyle = 'black';\n",(long)x1,(long)y1,(long)(x2 - x1),(long)(y2 - y1));
 		fputs(line,imagePtr);
 		}
 	}
 
 void resize_rect(Rect* p_r,int w,int h) {
-	p_r->left = p_r->left - w;
-	p_r->right = p_r->right + w;
-	p_r->top = p_r->top - h;
-	p_r->bottom = p_r->bottom + h;
+	if((p_r->right - p_r->left) > (-2 * w)) {
+		p_r->left = p_r->left - w;
+		p_r->right = p_r->right + w;
+		}
+	if((p_r->bottom - p_r->top) > (-2 * h)) {
+		p_r->top = p_r->top - h;
+		p_r->bottom = p_r->bottom + h;
+		}
 	}

@@ -662,7 +662,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 				if(overstrike) {
 					kobj--;
 					(*p_numberobjects) = kobj;
-					number_skipped++;
+					if(m != T3 || p != 1) number_skipped++;
 					}
 				(*p_maxcol)[nseq] = ip;
 				
@@ -1580,7 +1580,8 @@ if(imax > 0.) {
 		}
 	if(number_skipped > 0) { // Added by BB 2021-02-01
 		suggested_quantization = (int)(Quantization * (tempomax + 1) / max_tempo_in_skipped_object * CorrectionFactor);
-		suggested_quantization = suggested_quantization - modulo(suggested_quantization,Time_res);
+		if(suggested_quantization > 10)
+			suggested_quantization = suggested_quantization - modulo(suggested_quantization,((int)Time_res / 2));
 		BPPrintMessage(odInfo,"=> %d objects/notes have been skipped. Quantization should be reduced to less than %d ms to avoid it\n",number_skipped,suggested_quantization);
 		}
 	/* Let's put an out-time silence at the end of the item, and attach to it the ultimate control parameter values */
