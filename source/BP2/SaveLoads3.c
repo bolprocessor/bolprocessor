@@ -1845,7 +1845,8 @@ char version[VERSIONLENGTH];
 diff = 1;
 if(p_line == NULL || (*p_line)[0] == '\0') {
 	if(Beta) {
-		Alert1("=> Err. CheckVersion(). p_line == NULL || (*p_line)[0] == '\0'");
+	//	Alert1("=> Err. CheckVersion(). p_line == NULL || (*p_line)[0] == '\0'");
+		BPPrintMessage(odError,"=> Error loading this file: version cannot be found. Did you save it?\n");
 		}
 	return(FAILED);
 	}
@@ -1853,10 +1854,12 @@ FindVersion(p_line,version);
 for(iv=0; iv < MAXVERSION; iv++)
 	if((diff = strcmp(version,VersionName[iv])) == 0) break;
 if(iv > Version && name[0] != '\0') {
-	sprintf(Message,
+	BPPrintMessage(odError,"=> File '%s' was created with a version of BP2 more recent than %s\n",name,VersionName[Version]);
+/*	sprintf(Message,
 		"File '%s' was created with a version of BP2 more recent than %s. Try to read it anyway (risky)",
 			name,VersionName[Version]);
-	rep = Answer(Message,'N');
+	rep = Answer(Message,'N'); */
+	rep = NO;
 	if(rep != YES) goto ERR;
 	iv = Version;
 	}
