@@ -190,7 +190,7 @@ GOTIT:
 			if(check) return(OK);
 			if((r=WaitForEmptyBuffer()) != OK) return(r);
 			BPActivateWindow(SLOW,w);
-			r = PlaySelection(w);
+			r = PlaySelection(w,0);
 			if(r == FAILED) r = OK;
 			}
 		else r = ABORT;

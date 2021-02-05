@@ -621,7 +621,7 @@ if(!MIDIfileOpened) {
 		return MakeMIDIFile(&(gOptions.outputFiles[ofiMidiFile]));
 		}
 	else {
-		BPPrintMessage(odError, "=> Error in PrepareMIDIFile(): file name is NULL.\n");
+		// BPPrintMessage(odError, "=> Error in PrepareMIDIFile(): file name is NULL.\n");
 		return FAILED;
 		}
 	}

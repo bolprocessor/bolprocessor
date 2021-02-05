@@ -39,13 +39,17 @@
 #include "-BP2decl.h"
 
 
-int PlaySelection(int w)
+int PlaySelection(int w, int all)
 {
+char c;
 int i,ch,r,improvize,asked,askedvariables,derivevariables;
 tokenbyte **p_a;
-long origin,originmem,firstorigin,end,x;
+long origin,originmem,next_origin,firstorigin,end,x;
 
 if(CheckEmergency() != OK) return(ABORT);
+
+if(OutCsound) PrepareCsFile(); // Added by BB 2021-02-04 : the same file will be used for all chunks or items
+if(WriteMIDIfile) PrepareMIDIFile(); // Added by BB 2021-02-04
 
 #if BP_CARBON_GUI
 if(GetTuning() != OK) return(ABORT);
@@ -80,6 +84,7 @@ if(Improvize) {
 	Improvize = FALSE;
 	SetButtons(TRUE);
 	}
+if(all) ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
 
 PlaySelectionOn++;
 ResetMIDI(TRUE);
@@ -127,20 +132,35 @@ firstorigin = origin; p_a = NULL;
 askedvariables = derivevariables = FALSE;
 
 end = GetTextHandleLength(TEH[w]);
-// BPPrintMessage(odInfo,"Playing selection %ld %ld\n",(long)origin,(long)end);
 
+end = origin;
+while(TRUE) {
+	c = GetTextChar(w,end);
+	if(c == '\0') break;
+	end++;
+	}
+
+// BPPrintMessage(odInfo,"@ origin = %ld next_origin = %ld end = %ld\n",(long)origin,(long)next_origin,(long)end);
+		
 while((originmem=origin) < end) {
-	PleaseWait();
+//	PleaseWait();
+	next_origin = origin;
+	while(TRUE) {
+		c = GetTextChar(w,next_origin);
+		if(c == '\r' || c == '\n' || c == '\0') break;
+		next_origin++;
+		if(next_origin > end) {
+			BPPrintMessage(odError,"=> Error searching for linefeed\n");
+			SelectOn = FALSE; return(FAILED);
+			}
+		}
+	if(next_origin == origin) break;
 	r = OK;
-	SetSelect(origin,end,TEH[w]);
-	
-#if BP_CARBON_GUI
-	ShowSelect(CENTRE,w); Activate(TEH[w]);
-#endif /* BP_CARBON_GUI */
-
-	ShowMessage(TRUE,wMessage,"Playing selection...");
+	SetSelect(origin,next_origin,TEH[w]);
+	BPPrintMessage(odInfo,"Playing selection\n");
 	Nplay = 1;
 	SaidTooComplex = ShownBufferSize = FALSE;
+//	BPPrintMessage(odInfo,"Playing selection %ld to %ld\n",(long)origin,(long)next_origin);
 	if((r=SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
 		MyDisposeHandle((Handle*)&p_a);
 		/* Could already be NULL because of PolyExpand() */
@@ -164,15 +184,16 @@ while((originmem=origin) < end) {
 			goto NOVARIABLE;
 			}
 		MyDisposeHandle((Handle*)&p_a);
-		SetSelect(originmem,end,TEH[w]);
-		Sel1 = origin; Sel2 = firstorigin;
+	//	SetSelect(originmem,next_origin,TEH[w]);
+	//	Sel1 = origin; Sel2 = firstorigin;
 		if((r=CompileCheck()) != OK) goto END;
 		/* Selection may be changed while compiling if w = wGrammar */
-		origin = Sel1; firstorigin = Sel2;
-		TextGetSelection(&originmem, &end, TEH[w]);
+	//	origin = Sel1; firstorigin = Sel2;
+	//	TextGetSelection(&originmem,&next_origin,TEH[w]);
 		Ctrlinit();
 		if(!AllowRandomize) ResetRandom();
 		else {
+			asked = TRUE;
 			if(UsedRandom && !ScriptExecOn && !AllItems && !AEventOn && !asked) {
 				if((r=Answer("Reset random sequence",'N')) == OK) ResetRandom();
 				UsedRandom = FALSE;
@@ -183,19 +204,20 @@ while((originmem=origin) < end) {
 		}
 	else {
 NOVARIABLE:
-		PleaseWait();
+//		PleaseWait();
 		if(r == OK) {
 			r = PlayBuffer(&p_a,NO);	/* HERE WE DO IT */
 			}
-		MyDisposeHandle((Handle*)&p_a);
+	//	MyDisposeHandle((Handle*)&p_a);
 		/* Could already be NULL because of PolyExpand() */
 		if(r == ABORT || r == EXIT) {
-			if(CyclicPlay) ResetMIDI(!Oms && !NEWTIMER);
+		//	if(CyclicPlay) ResetMIDI(!Oms && !NEWTIMER);
 			if(r == ABORT) r = OK;
 			break;
 			}
 		}
 	ResetMIDI(TRUE);
+	origin = next_origin + 1;
 	}
 
 END:
@@ -1281,20 +1303,25 @@ POSITION:
 while(MySpace(c=GetTextChar(w,origin))) {
 	origin++;
 	if(origin >= end) {
-		SelectOn = FALSE; return(FAILED);
+		SelectOn = FALSE;
+		BPPrintMessage(odError,"@ SelectionToBuffer error 1\n");
+		return(FAILED);
 		}
 	}
 if(GetTextChar(w,origin) == '[') {
 	while((c=GetTextChar(w,origin)) != ']') {
 		origin++;
 		if(origin >= end) {
-			SelectOn = FALSE; return(FAILED);
+			SelectOn = FALSE;
+		BPPrintMessage(odError,"@ SelectionToBuffer error 2\n");
+			return(FAILED);
 			}
 		}
 	origin++; goto POSITION;
 	}
 if(origin >= end) {
 	SelectOn = FALSE;
+		BPPrintMessage(odError,"@ SelectionToBuffer error 3\n");
 	return(FAILED);
 	}
 length = end - origin + 4L;

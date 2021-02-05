@@ -215,7 +215,7 @@ int SetCsoundMoreParametersWindow(int,int);
 int BadParameter(int,DialogPtr,int,int,int);
 pascal void DrawButtonBorder(DialogPtr);
 int GetThisTick(void);
-int PlaySelection(int);
+int PlaySelection(int,int);
 int ExpandSelection(int);
 int ShowPeriods(int);
 int PlayBuffer(tokenbyte***,int);

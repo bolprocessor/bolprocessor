@@ -2696,7 +2696,7 @@ SetSelect(origin,end,TEH[wind]);
 
 DOIT:
 if(ScriptExecOn == 0) OkWait = OK;
-r = PlaySelection(wind);
+r = PlaySelection(wind,0);
 if(r == OK) BPActivateWindow(SLOW,wind);
 return(r);
 }

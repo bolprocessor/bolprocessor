@@ -193,40 +193,46 @@ int main (int argc, char* args[])
 		switch (gOptions.action) {
 			case compile:
 				result = CompileCheck();
-				if (Beta && result != OK)  BPPrintMessage(odError,"CompileCheck() returned %d\n", result);
+				if (Beta && result != OK)  BPPrintMessage(odError,"=> CompileCheck() returned errors\n");
 				break;
 			case produce:
 				if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start ProduceItems = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 				improvize_mem = Improvize;
 				result = ProduceItems(wStartString,FALSE,FALSE,NULL);
-			//	if (Beta && result != OK && !improvize_mem)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
+			//	if (Beta && result != OK && !improvize_mem)  BPPrintMessage(odError, "=> ProduceItems() returned errors\n");
 				break;
 			case produce_items:
 				break;
 			case produce_all:
 				AllItems = TRUE;
 				result = ProduceItems(wStartString,FALSE,FALSE,NULL);
-		//		if (Beta && result != OK)  BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
+		//		if (Beta && result != OK)  BPPrintMessage(odError, "=> ProduceItems() returned errors\n");
 				break;
 			case play:
-				BPPrintMessage(odInfo,"Playing this item\n");
+				BPPrintMessage(odInfo,"Playing item\n");
 				PlaySelectionOn = TRUE;
 				Improvize = FALSE;
-				result = PlaySelection(wData);
+				result = PlaySelection(wData,0);
 				if(result == OK) BPPrintMessage(odInfo,"\nErrors: 0\n");
-				else if(Beta && result != OK) BPPrintMessage(odError,"PlaySelection() returned %d\n", result);
+				else if(Beta && result != OK) BPPrintMessage(odError,"=> PlaySelection() returned errors\n");
 				break;
 			case play_item:
 				 BPPrintMessage(odInfo,"Playing...\n");
 				break;
 			case play_all:
+				BPPrintMessage(odInfo,"Playing item(s)\n");
+				PlaySelectionOn = TRUE;
+				Improvize = FALSE;
+				result = PlaySelection(wData,1);
+				if(result == OK) BPPrintMessage(odInfo,"\nErrors: 0\n");
+				else if(Beta && result != OK) BPPrintMessage(odError,"=> PlaySelection() returned errors\n");
 				break;
 			case analyze:
 				if(CompileCheck() == OK && ShowNotBP() == OK)	{
 					// FIXME: Need to either set a selection or call SelectionToBuffer()
 					// and AnalyzeBuffer() similarly to AnalyzeSelection().
 					result = AnalyzeSelection(FALSE);
-					if (Beta && result != OK)  BPPrintMessage(odError,"=> AnalyzeSelection() returned %d\n", result);
+					if (Beta && result != OK)  BPPrintMessage(odError,"=> AnalyzeSelection() returned errors\n");
 					}
 				break;
 			case expand:
@@ -234,14 +240,14 @@ int main (int argc, char* args[])
 				Improvize = FALSE;
 				result = ExpandSelection(wData);
 				if(result == OK) BPPrintMessage(odInfo,"\nErrors: 0\n");
-				else if(Beta && result != OK) BPPrintMessage(odError,"ExpandSelection() returned %d\n", result);
+				else if(Beta && result != OK) BPPrintMessage(odError,"=> ExpandSelection() returned errors\n");
 				break;
 			case show_beats:
 				break;
 			case templates:
 				if(CompileCheck() == OK && ShowNotBP() == OK)	{
 					result = ProduceItems(wStartString,FALSE,TRUE,NULL);
-			//		if (Beta && result != OK) BPPrintMessage(odError, "ProduceItems() returned %d\n", result);
+			//		if (Beta && result != OK) BPPrintMessage(odError, "=> ProduceItems() returned errors\n");
 				}
 				break;
 			case no_action:
@@ -269,7 +275,7 @@ int main (int argc, char* args[])
 	if (TraceMemory && Beta) {
 		// reset everything and report memory usage & any leaked space
 		if((result = ResetProject(FALSE)) != OK)
-			BPPrintMessage(odError, "=> ResetProject() returned %d\n", result);
+			BPPrintMessage(odError, "=> ResetProject() returned errors\n");
 		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (21) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 		// ClearObjectSpace();
 		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (23) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);

@@ -109,7 +109,7 @@ for(i=ZERO,level=0; (*p_b)[i] != TEND || (*p_b)[i+1] != TEND; i+=2L) {
 		}
 	}
 if(level != 0) {	/* '{' and '}' not balanced */
-	BPPrintMessage(odError,"=> Incorrect polymetric expression(s): '{' and '}' are not balanced. Can't proceed further...");
+	BPPrintMessage(odError,"=> Incorrect polymetric expression(s): '{' and '}' are not balanced. Can't proceed further...\n");
 	goto QUIT;
 	}
 
@@ -673,13 +673,13 @@ SETMETRONOM:
 		x = (((double)Quantization) * (imax + 100L) / thelimit);
 		x = 10L * (long) ceil(((double) x) / 10.);
 		if(x < Quantization) {
-			Alert1("Polymetric expansion encountered an unpredicted overflow. Sorry, can't proceed further");
+			BPPrintMessage(odError,"=> Polymetric expansion encountered an unpredicted overflow. Sorry, can't proceed further\n");
 			r = ABORT;
 			goto QUIT;
 			}
 		if(x > 2000.) {
-			if(Quantization > 100L) {
-				rep = Answer("This item would require a large quantization (greater than 2000ms). Use temporary memory instead",
+			if(FALSE && (Quantization > 100L)) {
+				rep = Answer("This item would require a large quantization (greater than 2000 ms). Use temporary memory instead",
 					'Y');
 				if(rep == YES) {
 					FixedMaxQuantization = TRUE;
@@ -693,7 +693,7 @@ SETMETRONOM:
 					}
 				}
 			else {
-				BPPrintMessage(odError,"Increasing quantization may not be sufficient to reduce memory requirement.\n");
+				BPPrintMessage(odError,"=> Increasing quantization may not be sufficient to reduce memory requirement.\n");
 				rep = CANCEL; // Fixed by BB 2021-01-30
 			//	rep = Answer("Increasing quantization may not be sufficient to reduce memory requirement. Try it anyway",'Y');
 				newquantize = 2000L;
@@ -708,9 +708,9 @@ SETMETRONOM:
 			}
 		newquantize = (long) x;
 		BPActivateWindow(SLOW,wTimeAccuracy);
-		sprintf(Message,"Quantization of %ldms may be increased to reduce memory requirement (%ldms will work)",
+		sprintf(Message,"Quantization of %ld ms may be increased to reduce memory requirement (%ld ms should work)\n",
 			(long) Quantization,(long) newquantize);
-		if(!ScriptExecOn && !alreadychangedquantize) Alert1(Message);
+		if(!ScriptExecOn && !alreadychangedquantize) BPPrintMessage(odError,Message);
 		else goto SETQUANTIZE;
 		
 CHANGEQUANTIZE:
