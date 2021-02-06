@@ -220,10 +220,11 @@ int main (int argc, char* args[])
 				 BPPrintMessage(odInfo,"Playing...\n");
 				break;
 			case play_all:
-				BPPrintMessage(odInfo,"Playing item(s)\n");
+				BPPrintMessage(odInfo,"Playing item(s) or chunks\n");
 				PlaySelectionOn = TRUE;
 				Improvize = FALSE;
 				result = PlaySelection(wData,1);
+				PlayAll = FALSE;
 				if(result == OK) BPPrintMessage(odInfo,"\nErrors: 0\n");
 				else if(Beta && result != OK) BPPrintMessage(odError,"=> PlaySelection() returned errors\n");
 				break;

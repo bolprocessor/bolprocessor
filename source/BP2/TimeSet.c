@@ -230,13 +230,14 @@ if(Maxevent < 1000) {
 	}
 
 BPPrintMessage(odInfo,"\n");
+
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
-	//BPPrintMessage(odInfo,"%d) ",nseq);
+	if(trace_timeset) BPPrintMessage(odInfo,"nseq = %d ",nseq);
 	for(iseq=1L; iseq <= (*p_imaxseq)[nseq]; iseq++) {
 		k = (*((*p_Seq)[nseq]))[iseq];
 		if(k == -1) break;
 		if(k >= 0) {
-			//BPPrintMessage(odInfo,"k=%d ",k);
+			if(trace_timeset) BPPrintMessage(odInfo,"(k=%d ",k);
 			if((*p_ObjectSpecs)[k] != NULL) {
 				ptag = WaitList(k);
 				while(ptag != NULL) {
@@ -244,9 +245,9 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 					}
 				}
 			j = (*p_Instance)[k].object;
-			//BPPrintMessage(odInfo,"j=%d  ",j);
+			if(trace_timeset) BPPrintMessage(odInfo,"j=%d) ",j);
 			if(j >= Jbol+Jpatt && j < 16384) {
-				BPPrintMessage(odError,"\n=> ERROR: j >= Jbol+Jpatt\n");
+				if(trace_timeset) BPPrintMessage(odError,"\n=> ERROR: j >= Jbol+Jpatt\n");
 				return(ABORT);
 				}
 			}
@@ -254,6 +255,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 			if(trace_timeset) BPPrintMessage(odError,"=> ERROR: k < 0 nseq=%ld i=%ld im=%ul k=%ld\n",(long)nseq,(long)i,(unsigned long)maxseq,(long)k);
 			}
 		}
+	if(trace_timeset) BPPrintMessage(odInfo,"\n");
 	}
 #endif
 // End display Phase diagram

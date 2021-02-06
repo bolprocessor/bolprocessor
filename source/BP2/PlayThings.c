@@ -84,7 +84,11 @@ if(Improvize) {
 	Improvize = FALSE;
 	SetButtons(TRUE);
 	}
-if(all) ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
+if(all) {
+	ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
+	BPPrintMessage(odError,"\n(No more message while playing many chunks.)\n");
+	PlayAll = TRUE;
+	}
 
 PlaySelectionOn++;
 ResetMIDI(TRUE);

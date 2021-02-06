@@ -125,7 +125,7 @@ MemoryUsed = TempMemoryUsed = MaxMemoryUsed = ZERO;
 SetTimeOn = ComputeOn = PolyOn = CompileOn = SoundOn = SelectOn = ButtonOn = ExpandOn
 	= PrintOn = ClickRuleOn = GraphicOn = CompleteDecisions = LoadOn = SaveOn = MIDIfileOn
 	= ReadKeyBoardOn = AlertOn = AllOn = HangOn = ScriptRecOn = PlayPrototypeOn
-	= PlaySelectionOn = UseEachSub = SelectPictureOn = TypeScript = InputOn = EnterOn = AEventOn
+	= PlaySelectionOn = PlayAll = UseEachSub = SelectPictureOn = TypeScript = InputOn = EnterOn = AEventOn
 	= PauseOn = WaitOn = ItemOutPutOn = ItemCapture = TickCapture = TickCaptureStarted
 	= AskedAboutCsound = MustChangeInput = ToldSkipped = ShownBufferSize = FALSE;
 Option = TickDone = FoundNote = GotAlert = UsedRandom = SaidTooComplex = FALSE;

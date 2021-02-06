@@ -130,8 +130,7 @@ if(Pclock > 0.)	/* Striated or measured smooth time */ // Fixed by BB 30 0ct 202
 else
 	time = ((double) t) / 1000.;
 
-sprintf(Message,"Pclock = %ld Qclock = %ld, t = %ld, time = %.3f\n",(long)Pclock,(long)Qclock,(long)t,time);
-if(trace_cs_scoremake) BPPrintMessage(odInfo,Message);
+if(trace_cs_scoremake) BPPrintMessage(odInfo,"Pclock = %ld Qclock = %ld, t = %ld, time = %.3f\n",(long)Pclock,(long)Qclock,(long)t,time);
 
 comeback = FALSE;
 

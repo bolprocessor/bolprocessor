@@ -411,7 +411,7 @@ int TickChannel[MAXTICKS],TickKey[MAXTICKS],TickVelocity[MAXTICKS],MuteTick[MAXT
 long ThisTick[MAXTICKS][MAXBEATS];
 int InitOn,SetTimeOn,ComputeOn,PolyOn,SoundOn,SelectOn,PrintOn,InputOn,ClickRuleOn,InBuiltDriverOn,
 	EnterOn,Option,CompileOn,GraphicOn,ReadKeyBoardOn,ButtonOn,LoadOn,SaveOn,PauseOn,AlertOn,AllOn,
-	PlaySelectionOn,PlayPrototypeOn,AEventOn,ExpandOn,SelectPictureOn,EmptyBeat,TickDone,TickThere,
+	PlaySelectionOn,PlayAll,PlayPrototypeOn,AEventOn,ExpandOn,SelectPictureOn,EmptyBeat,TickDone,TickThere,
 	FoundNote,NoCursor,MIDIfileOn,WaitOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram,
 	ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
 double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;

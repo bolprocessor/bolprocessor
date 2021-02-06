@@ -76,7 +76,7 @@ p_list ****p_waitlist,****p_scriptlist,**tag,**ptag;
 
 
 if(CheckEmergency() != OK) return(ABORT);
-if(trace_diagram) BPPrintMessage(odInfo, "Started filling phase diagram\n");
+if(trace_diagram) BPPrintMessage(odInfo,"Started filling phase diagram\n");
 
 AllSolTimeSet = StackFlag = (*p_bigitem) = ToldSkipped = FALSE;
 
@@ -651,6 +651,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 				}
 			if(m == T25 || m == T9 || p > 1 || objectduration > 1. || isMIDIcontinuous) {
 				/* Non-empty sound-object or time pattern or simple note */
+				// p > 1 implies that silences won't be played as objects
 				skipzeros = FALSE;
 				kobj++; (*p_numberobjects) = kobj;
 				ShowProgress(kobj);
@@ -668,7 +669,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 				
 				switch(m) {
 					case T3:
-						if(p > 1) foundobject = TRUE;
+						if(p > 1) foundobject = TRUE; /* Sound object */ 
 						break;
 					case T9: /* Time pattern */
 						p += Jbol;

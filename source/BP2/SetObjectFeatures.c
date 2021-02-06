@@ -857,7 +857,7 @@ while(TRUE) {
 						+ (Milliseconds)((*p_Instance)[k].alpha * (*p_Dur)[j]);
 					// BPPrintMessage(odInfo,"Fix() k = %ld j = %ld alpha = %.2f Dur = %ld t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)(*p_Dur)[j],(long)t1,(long)t2);
 					}
-				if(trace_object_features) BPPrintMessage(odInfo,Message);
+			//	if(trace_object_features) BPPrintMessage(odInfo,Message);
 				}
 			else {	/* Simple note */
 				t1 = (*p_T)[i];
@@ -909,7 +909,8 @@ while((k=(*((*p_Seq)[nseq]))[++i]) < 1) {
 	}
 if(nature_time == STRIATED || nseq == 0) {
 	while(TRUE) {
-		k = (*((*p_Seq)[nseq]))[i]; if(k == -1) break;
+		k = (*((*p_Seq)[nseq]))[i];
+		if(k == -1) break;
 		inext = i; while((*((*p_Seq)[nseq]))[++inext] == 0);
 		if(k < 2) { /* Reject first silence and null events */ // Fixed by BB 2021-01-25
 			i = inext;
@@ -920,6 +921,7 @@ if(nature_time == STRIATED || nseq == 0) {
 			return(ABORT);
 			}
 		j = (*p_Instance)[k].object;
+		// BPPrintMessage(odInfo,"@ k = %ld j = %ld i = %ld inext = %ld\n",(long)k,(long)j,(long)i,(long)inext);
 		ncycles = 1;
 		if(j <= 0) {
 			beta = alpha = 0.; goto OKALPHA1;
@@ -945,7 +947,7 @@ if(nature_time == STRIATED || nseq == 0) {
 			else {		/* Pclock = ZERO; non-measured smooth time */
 				alpha = d;
 				}
-			if(trace_object_features) BPPrintMessage(odInfo,"Calculate_alpha() 1st line k = %ld j = %ld alpha = %.2f d = %ld clockperiod = %ld i = %ld inext = %ld Dur =%ld Tref = %ld\n",(long)k,(long)j,alpha,(long)d,(long)clockperiod,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+			if(trace_object_features) BPPrintMessage(odInfo,"Calculate_alpha() smooth 1st line k = %ld j = %ld alpha = %.2f d = %ld clockperiod = %ld i = %ld inext = %ld Dur =%ld Tref = %ld\n",(long)k,(long)j,alpha,(long)d,(long)clockperiod,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 			}
 		else {					/* Striated time or nseq > 0 */
 			if(d > 0.) {
@@ -962,7 +964,7 @@ if(nature_time == STRIATED || nseq == 0) {
 			else {
 				alpha = 0.;
 				}
-			if(trace_object_features) BPPrintMessage(odInfo,"Calculate_alpha() striated k = %ld j = %ld alpha = %.2f d = %.2f i = %ld inext = %ld Dur =%ld Tref = %ld\n",(long)k,(long)j,alpha,d,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+			if(trace_object_features) BPPrintMessage(odInfo,"Calculate_alpha() striated nseq = %ld k = %ld j = %ld alpha = %.2f d = %.2f i = %ld inext = %ld Dur = %ld Tref = %ld\n",(long)nseq,(long)k,(long)j,alpha,d,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 			}
 		
 		beta = alpha;
@@ -985,7 +987,7 @@ OKALPHA1:
 		if(alpha < 0.) alpha = 0.;
 		if(beta < 0.) beta = 0.;
 		(*p_Instance)[k].alpha = alpha;
-		// BPPrintMessage(odInfo,"@ nseq = %d k = %d i = %d inext = %d alpha = %.2f\n",nseq,k,i,inext,alpha);
+		if(trace_object_features) BPPrintMessage(odInfo,"@ nseq = %d k = %d i = %d inext = %d alpha = %.2f\n",nseq,k,i,inext,alpha);
 		if(ForceRatio >= 0.) (*p_Instance)[k].alpha = beta = ForceRatio;
 		(*p_Instance)[k].dilationratio = beta;
 		(*p_Instance)[k].ncycles = ncycles;

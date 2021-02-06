@@ -71,7 +71,7 @@ Milliseconds time,buffertime,torigin,t0,t1,t11,t2,t2obj,
 Handle h;
 char **p_keyon[MAXCHAN],**p_onoff,**p_line,**p_active[MAXCHAN],line[4],line_image[200];
 long timeleft,formertime,size,istreak,posmin,localperiod,endxmax,endymax,oldtcurr,
-	i1,i2,oldi2,imap,gap,maxmapped,i,im,ievent,yruler;
+	i1,i2,oldi2,imap,gap,maxmapped,i,im,ievent,yruler,max_endtime_event,max_endtime,add_time;
 unsigned long currswitchstate[MAXCHAN],oldtime,maxmidibytes5,drivertime;
 unsigned int seed;
 int scale,blockkey;
@@ -94,7 +94,7 @@ maxmidibytes5 = MaxMIDIbytes / 5L;
 oldtcurr = Tcurr;
 time_pattern = FALSE;
 
-// BPPrintMessage(odInfo, "Running MakeSound()\n");
+// BPPrintMessage(odInfo, "Running MakeSound() tmax = %ld\n",tmax);
 
 if(Panic || CheckEmergency() != OK) return(ABORT);
 if(SoundOn) return(OK);
@@ -193,6 +193,7 @@ for(ch=0; ch < MAXCHAN; ch++) {
 	if((p_active[ch] = (char**) GiveSpace((Size)(maxparam)*sizeof(char)))
 			== NULL) return(ABORT);
 	}
+
 for(nseq=0; nseq < maxconc; nseq++) {
 	if((ptrperf=(PerfParameters**) GiveSpace(sizeof(PerfParameters)))
 			== NULL) return(ABORT);
@@ -621,14 +622,14 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 //	BPPrintMessage(odError, "occurrence = %d\n",occurrence);
 #if BP_CARBON_GUI
 	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-	if(!showpianoroll && (result=MyButton(1)) != FAILED) {
+/*	if(!showpianoroll && (result=MyButton(1)) != FAILED) {
 		interruptedonce = TRUE;
 		if(result != OK || (result=InterruptSound()) != OK) goto OVER;
 		}
 	result = OK;
 	if(EventState != NO) {
 		result = EventState; goto OVER;
-		}
+		} */
 #endif /* BP_CARBON_GUI */
 	
 	for(k=2; k <= (*p_kmax); k++) {
@@ -773,7 +774,7 @@ TRYCSFILE:
 	doneobjects = 0;
 	
 	while(kcurrentinstance > 0) {
-		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance = %d\n",kcurrentinstance);
+		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"• kcurrentinstance = %d\n",kcurrentinstance);
 		currentinstancevalues = (*p_Instance)[kcurrentinstance].contparameters.values;
 		scale = (*p_Instance)[kcurrentinstance].scale;
 		blockkey = (*p_Instance)[kcurrentinstance].blockkey;
@@ -847,11 +848,11 @@ TRYCSFILE:
 			howmuch = 0.;
 #if BP_CARBON_GUI
 			// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-			if(!showpianoroll && (result=MyButton(2)) != FAILED) {
+		/*	if(!showpianoroll && (result=MyButton(2)) != FAILED) {
 				interruptedonce = TRUE;
 				if(result != OK || (result=InterruptSound()) != OK) goto OVER;
 				}
-			else PleaseWait();
+			else PleaseWait(); */
 #endif /* BP_CARBON_GUI */
 			result = OK;
 			(*p_onoff)[kcurrentinstance] = TRUE;
@@ -969,10 +970,13 @@ TRYCSFILE:
 			
 			/* Recalculate t2 */
 			
+			if(trace_csound_pianoroll) BPPrintMessage(odInfo,"\nRecalculate t2\n");
+			
 			t2obj = t2tick = Infpos;
 			
 			for(k=2; k <= (*p_kmax); k++) {
 				if((*p_Instance)[k].object == 0) continue;
+				if(trace_csound_pianoroll) BPPrintMessage(odInfo,"(*p_nextd)[%d] = %ld\n",k,(long)(*p_nextd)[k]);
 				if((*p_nextd)[k] < t2obj) {
 					t2obj = (*p_nextd)[k];
 					}
@@ -1242,7 +1246,7 @@ SWITCHES:
 				}
 
 // Send initial messages if beginning of sound-object is truncated
-			if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Send initial messages?\n");
+			if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Send initial messages? ievent = %ld im = %ld\n",(long)ievent,(long)im);
 			if(ievent > 0 && ievent < im && !PlayFromInsertionPoint
 						&& !(cswrite && (*p_CsoundSize)[j] > 0 && !ConvertMIDItoCsound)) {
 							
@@ -1426,26 +1430,25 @@ SWITCHES:
 // Send messages of sound-object instance kcurrentinstance as long as possible
 
 PLAYOBJECT:
-		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"\nPLAYOBJECT: j = %d t1 = %ld t2 = %ld t3 = %ld ievent = %d im = %d\n",j,(long)t1,(long)t2,(long)t3,ievent,im);
+		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"\nPLAYOBJECT: k = %d j = %d objectduration = %ld t1 = %ld t2 = %ld t3 = %ld ievent = %d im = %d\n",kcurrentinstance,j,objectduration,(long)t1,(long)t2,(long)t3,ievent,im);
 		while(t1 <= t2  && t1 <= t3  && ievent < im) {
+	//	while(t1 <= t2  && t1 <= t3  && (ievent < im || j == 1)) {
 			Tcurr =  (t0 + t1) / Time_res;
-			sprintf(Message,"Tcurr = %ld, j = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)j,(long)t0,(long)t1,(long)Time_res);
-	//		if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
+			if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Tcurr = %ld, j = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)j,(long)t0,(long)t1,(long)Time_res);
 			
 #if BP_CARBON_GUI
 			// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 			// Does the call to MyButton() happen now that maxmidibytes5 = LONG_MAX / 5 ?
-			if(Nbytes > maxmidibytes5 && !showpianoroll && (result=MyButton(1)) != FAILED) {
+	/*		if(Nbytes > maxmidibytes5 && !showpianoroll && (result=MyButton(1)) != FAILED) {
 				interruptedonce = TRUE;
 				if(result != OK || (result=InterruptSound()) != OK) goto OVER;
-				}
+				} */
 #endif /* BP_CARBON_GUI */
 
 			result = OK;
 			if(objectduration > ZERO) howmuch = ((float)(t1 - objectstarttime)) / objectduration;
 			else howmuch = 0.;
-			sprintf(Message,"k = %d j = %d ievent = %d beta = %.2f t0 = %ld t1 = %ld\n",kcurrentinstance,j,ievent,beta,(long)t0,(long)t1);
-			if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
+			if(trace_csound_pianoroll) BPPrintMessage(odInfo,"k = %d j = %d ievent = %d beta = %.2f t0 = %ld t1 = %ld\n",kcurrentinstance,j,ievent,beta,(long)t0,(long)t1);
 				
 			/* Writing a Csound event taken from the Csound score of a sound-object */
 			if(cswrite && j < Jbol && (*p_CsoundSize)[j] > 0 && !ConvertMIDItoCsound) { 
@@ -1740,10 +1743,10 @@ NEWPERIOD:
 #if BP_CARBON_GUI
 		// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 		// Does the call to MyButton() happen now that maxmidibytes5 = LONG_MAX / 5 ?
-		if(Nbytes > maxmidibytes5 && !showpianoroll && (result=MyButton(1)) != FAILED) {
+/*		if(Nbytes > maxmidibytes5 && !showpianoroll && (result=MyButton(1)) != FAILED) {
 			interruptedonce = TRUE;
 			if(result != OK || (result=InterruptSound()) != OK) goto OVER;
-			}
+			} */
 #endif /* BP_CARBON_GUI */
 		result = OK;
 		
@@ -1863,6 +1866,32 @@ FINDNEXTEVENT:
 #endif
 		}
 	
+	// Calculate duration of silence at the end in order to append it after the Csound score or MIDI stream
+	// Added by BB 2021-02-06
+	max_endtime_event = max_endtime = ZERO;
+	for(k=2; k <= (*p_kmax); k++) {
+		j = (*p_Instance)[k].object;
+		if(j > 1 && (*p_Instance)[k].endtime > max_endtime_event) max_endtime_event = (*p_Instance)[k].endtime;
+		if((*p_Instance)[k].endtime > max_endtime) max_endtime = (*p_Instance)[k].endtime;
+		}
+	add_time = max_endtime - max_endtime_event;
+	if(add_time > ZERO) {
+		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"\nNeed to add_time = %ld ms Tcurr = %ld\n",add_time,(long)Tcurr);
+		if(MIDIfileOn) {
+			e.time = Tcurr;
+			e.type = NORMAL_EVENT;
+			e.status = NoteOn;
+			e.data1 = 0;
+			e.data2 = 0;
+			if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+			}
+		if(cswrite) {
+			// We need a more convient way of inserting a silence!
+			sprintf(Message,"i1 %.3f %.3f 0.00 0 0 ; silence",(Tcurr/100.),(add_time/1000.));
+		//	sprintf(Message,"e %.3f ; silence",(add_time/1000.)); This only works at the end of a score, therefore not in PlayAll
+			 WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);
+			}
+		}
 			
 	// Display in pianoroll all notes contained in Csound score, even if not creating Csound output
 	if(!cswrite && showpianoroll) {
@@ -1876,8 +1905,7 @@ FINDNEXTEVENT:
 				alpha = (*p_Instance)[k].alpha;
 				beta = (*p_Instance)[k].dilationratio;	// alpha != beta if the sound-object is cyclic
 				if((*p_Instance)[k].ncycles < 2 && beta != alpha) {
-					sprintf(Message,"=> Err. MakeSound(). beta != alpha\n");
-					BPPrintMessage(odInfo,Message);
+					BPPrintMessage(odInfo,"=> Err. MakeSound(). beta != alpha\n");
 					beta = (*p_Instance)[k].dilationratio = alpha;
 					}
 				nseq = (*p_Instance)[k].nseq;
@@ -1919,8 +1947,7 @@ FINDNEXTEVENT:
 // or not too much filled.
 
 if(LastTcurr > 0L) {
-	sprintf(Message,"Last time = %ld ms\n",(long)LastTcurr);
-//	BPPrintMessage(odInfo,Message);
+	if(showpianoroll) BPPrintMessage(odInfo,"Last time = %ld ms\n",(long)LastTcurr);
 	}
 
 if(showpianoroll) goto OUTGRAPHIC;

@@ -114,9 +114,8 @@ int BPPrintMessage(int dest, const char *format, ...)
 	// messages or questions for user (give priority to odUserInt, then odError)
 	if (dest & odUserInt)		vfprintf(gOutDestinations[odiUserInt], format, args);
 	else if (dest & odError)	vfprintf(gOutDestinations[odiError], format, args);
-	else if ((dest & odWarning) && (!Improvize || ItemNumber < 1))	vfprintf(gOutDestinations[odiWarning], format, args);
-	else if ((dest & odInfo) && (!Improvize || ItemNumber < 1))		vfprintf(gOutDestinations[odiInfo], format, args);
-	
+	else if ((dest & odWarning) && !PlayAll && (!Improvize || ItemNumber < 1))	vfprintf(gOutDestinations[odiWarning], format, args);
+	else if ((dest & odInfo) && !PlayAll && (!Improvize || ItemNumber < 1))		vfprintf(gOutDestinations[odiInfo], format, args);
 	va_end(args);
 	return OK;
 }
