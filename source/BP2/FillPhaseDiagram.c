@@ -39,7 +39,7 @@
 #include "-BP2decl.h"
 
 int trace_diagram = 0;
-int trace_toofast = 0;
+int trace_toofast = 1;
 
 FillPhaseDiagram(tokenbyte ***pp_buff,int* p_numberobjects,unsigned long *p_maxseq,
 	int* p_nmax,unsigned long **p_imaxseq,
@@ -62,10 +62,10 @@ int i,j,k,kobj,nseq,nseqmem,nseqmem2,newswitch,v,ch,gotnewline,foundobject,
 	failed,paramnameindex,paramvalueindex,maxparam,newxpandval,newkeyval,
 	**p_deftxpandval,**p_deftxpandkey,number_skipped,suggested_quantization,
 	r,rest,oldm,oldp,**p_seq,**p_deftnseq,startvel,articulincrement,
-	startarticul,istop,result,level,nseqplot,a,b;
+	startarticul,istop,result,level,nseqplot,instrument,channel,a,b;
 Handle h;
-char  line[MAXLIN],toofast,skipzeros,foundconcatenation,
-	iscontinuous,isMIDIcontinuous,overstrike;
+char  line[MAXLIN],toofast,skipzeros,foundendconcatenation,
+	iscontinuous,isMIDIcontinuous,overstrike,tie;
 
 tokenbyte m,p;
 Table **h_table;
@@ -120,8 +120,7 @@ if((p_maxcol = (unsigned long**) GiveSpace((Size)Maxconc*sizeof(unsigned long)))
 if((p_waitlist = (p_list****) GiveSpace((Size)Maxconc*sizeof(p_list**))) == NULL)
 	return(ABORT);
 if((p_scriptlist = (p_list****) GiveSpace((Size)Maxconc*sizeof(p_list**))) == NULL)
-	return(ABORT);
-	
+	return(ABORT);	
 if((p_origin = (double**) GiveSpace((Size)Maxlevel*sizeof(double))) == NULL)
 	return(ABORT);
 if((p_objectsfound = (double**) GiveSpace((Size)Maxlevel*sizeof(double))) == NULL)
@@ -205,7 +204,9 @@ for(nseq=0; nseq <= Minconc; nseq++) {
 		}
 	}
 
-for(nseq=0; nseq < Maxconc; nseq++) (*p_waitlist)[nseq] = (*p_scriptlist)[nseq] = NULL;
+for(nseq=0; nseq < Maxconc; nseq++) {
+	(*p_waitlist)[nseq] = (*p_scriptlist)[nseq] = NULL;
+	}
 (*p_deftnseq)[0] = nseq = 0;
 
 if(trace_diagram) BPPrintMessage(odInfo,"Maxevent = %d\n",Maxevent);
@@ -334,7 +335,8 @@ mapincrement.p1 = (*p_deftmapincrement)[0].p1
 
 (*p_origin)[level] = (*p_im)[level];
 
-foundconcatenation = skipzeros = FALSE;
+foundendconcatenation = skipzeros = FALSE;
+
 ibeatsvel = ibeatsarticul = ibeatsmap = ibeatstranspose = 0.;
 
 for(i=0; i < MAXCHAN; i++) currswitchstate[i] = 0L;
@@ -342,6 +344,8 @@ newswitch = TRUE;	/* This will reset all switches in the beginning of the item *
 
 nseqplot = Minconc + 1;
 iplot = ZERO;
+
+instrument = channel = 0;
 
 for(id=istop=ZERO; ;id+=2,istop++) {
 /*	if((r=DoSystem()) != OK) {
@@ -356,8 +360,17 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 	m = (tokenbyte) (**pp_buff)[id];
 	p = (tokenbyte) (**pp_buff)[id+1];
 	if(m == TEND && p == TEND) break;
-	if(trace_diagram) BPPrintMessage(odInfo,"m = %d p = %d level = %ld nseq = %ld id = %ld\n",m,p,(long)level,(long)nseq,(long)id);
-	
+	if(trace_diagram) BPPrintMessage(odInfo,"\nFillPhaseDiagram() m = %d p = %d level = %ld nseq = %ld id = %ld\n",m,p,(long)level,(long)nseq,(long)id);
+	if(m == T10) {	/* Channel assignment _chan() */ // Added by BB 2021-02-08
+		channel = (int) FindValue(m,p,0);
+		if(trace_diagram) BPPrintMessage(odInfo,"\nFillPhaseDiagram() channel = %d\n",channel);
+		goto NEXTTOKEN;
+		}
+	if(m == T32) { /* Instrument assignment _ins() */ // Added by BB 2021-02-08
+		instrument = (int) FindValue(m,p,0);
+		if(trace_diagram) BPPrintMessage(odInfo,"\nFillPhaseDiagram() instrument = %d\n",instrument);
+		goto NEXTTOKEN;
+		}
 	if(m == T33 || m == T34) {	/* _step() or _cont() */
 		paramnameindex = p;
 		i = FindParameterIndex(p_contparameters,level,paramnameindex);
@@ -601,7 +614,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 		if(m == T3 && p > 1 && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO) {
 			m = T3;
 			p = 1;
-			if(trace_diagram) BPPrintMessage(odInfo,"=> m = %d p = %d\n",m,p);
+			if(trace_diagram) BPPrintMessage(odInfo,"=> m = %d p = %d size = 0\n",m,p);
 			}
 	//	if(m == T25) BPPrintMessage(odInfo,"@ m = %d p = %d -> nseq = %ld\n",m,p,(long)nseq);
 		((*p_im)[nseq]) += Kpress;
@@ -617,19 +630,35 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 			
 		overstrike = FALSE;
 		nseqmem = nseq;
-		if(foundconcatenation) {
+		tie = FALSE;
+		if(m == T25) {
+			tie = (*(p_Tie_note[channel]))[p]; // Added by BB 2021-02-07
+			if(trace_diagram) BPPrintMessage(odInfo,"Tie_note m = %d p = %d tie =  %d\n",m,p,tie);
+			}
+		else if(m == T3) {
+			tie = (*(p_Tie_event[instrument]))[p]; // Added by BB 2021-02-07
+			if(trace_diagram) BPPrintMessage(odInfo,"Tie_event m = %d p = %d tie =  %d\n",m,p,tie);
+			}
+		else tie = FALSE;
+		if(foundendconcatenation && tie) {
+			if(trace_diagram) BPPrintMessage(odInfo,"With foundendconcatenation m = %d p = %d\n",m,p,(*p_MIDIsize)[p]);
+		//	foundendconcatenation = FALSE;
+			if(m == T25) (*(p_Tie_note[channel]))[p] = FALSE;
+			else if(m == T3) (*(p_Tie_event[instrument]))[p] = FALSE;
+			
 			if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
 				&nseq,maxseqapprox,ip,1) != OK) goto ENDDIAGRAM;
 			oldm = m; oldp = p;
 			(*p_maxcol)[nseq] = ip;
 			}
 		else {
-			objectduration = 0.;	/* Just to be safe if there is a bug and GetSymbolicDuration() hasn't been called */
-			if(m == T25 || m == T9 || p > 0)
-				objectduration
-					= GetSymbolicDuration(NO,YES,*pp_buff,m,p,id,speed,
-													scale,level);
+			objectduration = 0.;
+			if(tie && (m == T25 || m == T9 || p > 0)) {
+			//	BPPrintMessage(odInfo,"\nCase 1 tie = %d\n",tie);
+				objectduration = GetSymbolicDuration(NO,*pp_buff,m,p,id,speed,scale,level,channel,instrument,foundendconcatenation,level);
+				}
 			iscontinuous = isMIDIcontinuous = FALSE;
+		//	foundendconcatenation = FALSE;
 			
 			if(p > 0) {
 			//	if(m == T3 && p == 1) BPPrintMessage(odInfo,"@ silence duration %.2f -> nseq = %ld\n",objectduration,m,p,(long)nseq);
@@ -726,8 +755,8 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 				if(toofast && !overstrike) {		/* Sequence is too fast, we'll store proper duration nevertheless */
 					/* We'll get the symbolic duration excluding '&' concatenation */
 					objectduration
-						= GetSymbolicDuration(YES,YES,*pp_buff,m,p,id,speed,
-							scale,level);
+						= GetSymbolicDuration(YES,*pp_buff,m,p,id,speed,
+							scale,level,channel,instrument,foundendconcatenation,level);
 					if(PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,objectduration-prodtempo,
 							p_nmax) != OK)
 						goto ENDDIAGRAM;
@@ -782,7 +811,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 					}
 				}
 			}
-		foundconcatenation = FALSE;
+		foundendconcatenation = FALSE;
 		numberzeros = prodtempo - 1;
 		if(skipzeros) numberzeros = -1.;
 		if(PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,numberzeros,p_nmax) != OK)
@@ -1023,7 +1052,7 @@ DONEOUTTIMEOBJECT:
 					skipzeros = FALSE;
 					inext = (*p_origin)[level];
 					classofinext = Class(inext);
-					if(trace_diagram) BPPrintMessage(odInfo,"nseq = %ld level = %ld Minconc = %ld inext = %.0f classofinext = %ld\n",(long)nseq,(long)level,(long)Minconc,(double)inext,(long)classofinext); // BB 2021-01-29
+					if(trace_diagram) BPPrintMessage(odInfo,"nseq = %ld level = %ld Minconc = %ld inext = %.0f classofinext = %ld\n",(long)nseq,(long)level,(long)Minconc,(double)inext,(long)classofinext);
 					
 					/* (*p_maxcol)[nseq] must be checked because of concatenated time-objects */
 					if(trace_diagram) BPPrintMessage(odInfo,"@@ (*p_maxcol)[%ld + 1] = %ld\n",(long)nseq,(long)(*p_maxcol)[nseq+1]);
@@ -1161,8 +1190,16 @@ NEWSEQUENCE:
 					goto NEXTTOKEN;
 					break;
 					
-				case 18:				/* '&' following terminal or simple note */
+				case 19:			/* '&' preceding terminal symbol */
 	//				if(level >= Maxlevel) goto NEXTTOKEN;
+					skipzeros = FALSE;
+					if(trace_diagram) BPPrintMessage(odInfo,"'&' preceding nseq = %ld level = %ld\n",(long)nseq,(long)level);
+					foundendconcatenation = TRUE;
+					goto NEXTTOKEN;
+					break;
+					
+				case 18:				/* '&' following terminal or simple note */
+					if(foundendconcatenation) goto NEXTTOKEN;
 					skipzeros = FALSE;
 					inext = (*p_im)[nseq];
 					classofinext = Class(inext);
@@ -1173,12 +1210,19 @@ NEWSEQUENCE:
 						else Println(wTrace,Message);
 						goto ENDDIAGRAM;
 						}
+				//	BPPrintMessage(odInfo,"\nCase 2\n");
 					numberzeros
-						= GetSymbolicDuration(NO,YES,*pp_buff,oldm,oldp,id-2L,speed,
-							scale,level) - prodtempo;
+						= GetSymbolicDuration(NO,*pp_buff,oldm,oldp,id-2L,speed,
+							scale,level,channel,instrument,foundendconcatenation,level) - prodtempo;
+					if(trace_diagram) 
+						BPPrintMessage(odInfo,"'&' following nseq = %ld level = %ld m = %ld p = %ld numberzeros = %.2f speed = %.2f scale = %.2f id = %ld\n",(long)nseq,(long)level,(long)oldm,(long)oldp,numberzeros,speed,scale,id);
+					if(numberzeros < 0.) numberzeros = 0.;
 							
 					if(PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,numberzeros,p_nmax) != OK) goto ENDDIAGRAM;
 					
+					if(oldm == T25) (*(p_Tie_note[channel]))[oldp] = TRUE; // Added by BB 2021-02-07 
+					else if(oldm == T3) (*(p_Tie_event[instrument]))[oldp] = TRUE; // Added by BB 2021-02-07
+				
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
 						if(Beta) {
@@ -1198,13 +1242,6 @@ NEWSEQUENCE:
 					oldp = -1;
 					goto NEXTTOKEN;
 					break;
-					
-				case 19:			/* '&' preceding terminal symbol */
-	//				if(level >= Maxlevel) goto NEXTTOKEN;
-					skipzeros = FALSE;
-					foundconcatenation = TRUE;
-					goto NEXTTOKEN;
-					break;
 				}
 			break;
 		case T8:	/* Synchronization tag */
@@ -1222,10 +1259,12 @@ NEWSEQUENCE:
 		case T10:	/* Channel assignment _chan() */
 			currentparameters.currchan = value = FindValue(m,p,currentparameters.currchan);
 			if(value == Infpos) goto ENDDIAGRAM;
+			channel = roundf(value);
 			break;
 		case T32:	/* Instrument assignment _ins() */
 			currentparameters.currinstr = value = FindValue(m,p,currentparameters.currchan);
 			if(value == Infpos) goto ENDDIAGRAM;
+			instrument = roundf(value);
 			break;
 		case T44:	/* _scale() */
 			currentparameters.scale = p % MAXSTRINGCONSTANTS;

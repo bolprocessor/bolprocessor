@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
  
-int trace_cs_scoremake = 0;
+int trace_cs_scoremake = 0; 
 
 int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double dilationratio,Milliseconds t,int iline,
 	int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,

@@ -39,6 +39,7 @@
 #include "-BP2decl.h"
 
 int trace_object_features = 0;
+int trace_get_duration = 0;
 int trace_set_variation = 0;
 
 int SetObjectParams(int isobject,int level,int nseq,short** p_articul,int k,int j,
@@ -316,8 +317,6 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 //    the same sound-object or simple note.  The table will be attached to the
 //    object in SetObjectParams(). An offset value is returned so that attachment
 //    will occur on the proper object.
-
-// This procedure is similar to GetSymbolicDuration() concerning object concatenation "&"
 
 // I wonder how many times I debugged this procedure!
 {
@@ -1393,21 +1392,21 @@ double FindValue(tokenbyte m,tokenbyte p,int chan)
 double x,xx;
 int value,paramvalueindex,paramnameindex;
 
-if(m == T37) return(0.);
+if(m == T37) return(0.); // _keymap()
 
 paramnameindex = -1;
-switch(m) {
-	case T10:
-	case T11:
-	case T16:
-	case T19:
-	case T20:
-	case T26:
-	case T29:
-	case T32:
-	case T38:
-	case T39:
-		if(p >= 128 && m != T26 && (m != T20 || p < 0)) {
+switch(m) { // Modified by BB 2021-02-08
+	case T10: // _chan()
+	case T11: // _vel()
+	case T16: // _press()
+	case T19: // _volume()
+	case T20: // _legato()
+	case T26: /* _transpose() */
+	case T29: // _pan()
+	case T32: /* _ins() */
+	case T38: // _rndvel()
+	case T39: // _rotate() 
+		if(p >= 128 && m != T26 && (m != T20 || p < 0)) {
 			value = ParamValue[p-128];
 			if(value == INT_MAX) {
 				if(Beta) Alert1("=> Err. FindValue(). value == INT_MAX");
@@ -1425,7 +1424,7 @@ if(m == T35) {	/* _value() */
 	if(trace_set_variation) BPPrintMessage(odInfo,"T35 paramnameindex = %d paramvalueindex = %d, x = %.3f\n",paramnameindex,paramvalueindex,x);
 	}
 else x = (double) p;
-if(m == T15 || paramnameindex == IPITCHBEND) {
+if((m == T15 || paramnameindex == IPITCHBEND) && chan > 0) { // Fixed by BB 2021-02-08
 	xx = x;
 	if(PitchbendRange[chan] > 0)
 		x = DEFTPITCHBEND + ((double) x * DEFTPITCHBEND / (double) PitchbendRange[chan]);
@@ -1444,36 +1443,34 @@ return(x);
 }
 
 
-double GetSymbolicDuration(int ignoreconcat,int precise,tokenbyte **p_buff,
-	tokenbyte oldm,tokenbyte oldp,long id,double orgspeed,double orgscaling,
-	int levelorg)
+double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
+	tokenbyte m_org,tokenbyte p_org,long id,double orgspeed,double orgscaling,
+	int levelorg,int channel_org,int instrument_org,int foundendconcatenation_org, int level_org)
 {
-// This procedure is similar to SetVariation() concerning object concatenation "&"
-
-// suppress 'precise'
 
 unsigned long i;
-tokenbyte m,p;
-int foundconcatenation,foundendconcatenation,foundclosingbracket,seq,level,**p_seq;
-char **p_notinthisfield,notinthisfield;
-double tempo,tempomax,prodtempo,objectduration,orgobjectduration,speed,
-	s,scaling;
+tokenbyte m,p,old_m,old_p;
+int level,instrument,channel;
+double tempo,tempomax,prodtempo,objectduration,speed,tick_start,tick_end,this_end,this_point,
+	s,scaling,**p_duration_of_field,**p_duration_org;
+char tie_is_open,foundendconcatenation,found_beginning,justfinishedconcatenation;
 
-if(oldm != T3 && oldm != T25 && oldm != T9) {
+if(m_org != T3 && m_org != T25 && m_org != T9) {
 	if(Beta) {
-		BPPrintMessage(odError,"=> Err. GetSymbolicDuration(). oldm = %ld",(long)oldm);
+		BPPrintMessage(odError,"=> Err. GetSymbolicDuration(). m_org = %ld",(long)m_org);
 		}
 	return(0);
 	}
+
+if((p_duration_of_field = (double**) GiveSpace((Size)(Maxlevel+1)*sizeof(double))) == NULL)
+	goto OUT;
+if((p_duration_org = (double**) GiveSpace((Size)(Maxlevel+1)*sizeof(double))) == NULL)
+	goto OUT;
+for(level = 0; level <= Maxlevel; level++) {
+	(*p_duration_of_field)[level] = (*p_duration_org)[level] = 0.;
+	}
 	
-if((p_seq=(int**) GiveSpace((Size) Maxlevel * sizeof(int))) == NULL) return(ABORT);
-if((p_notinthisfield=(char**) GiveSpace((Size) Maxlevel * sizeof(char))) == NULL)
-	return(ABORT);
-
-level = 0;
-seq = (*p_seq)[level] = 0;
-
-if(orgspeed == ZERO) {
+if(orgspeed == 0.) {
 	if(Beta) BPPrintMessage(odError,"=> Err. GetSymbolicDuration(). orgspeed == ZERO");
 	objectduration = 0.;
 	goto OUT;
@@ -1484,57 +1481,105 @@ speed = orgspeed;
 
 if(scaling != 0.) tempo = speed / scaling;
 else tempo = 0.;
-
-if((!precise && (tempo > tempomax)) || tempo == 0.) prodtempo = 0.;
+if(tempo == 0.) prodtempo = 0.;
 else prodtempo = (Prod / tempo);
 
-objectduration = prodtempo;
-orgobjectduration = 0.;
+if(trace_get_duration) BPPrintMessage(odInfo,"\nGetSymbolicDuration Maxlevel = %ld m = %d p = %d Prod = %.2f tempo = %.2f prodtempo = %.2f id = %ld channel = %d instrument = %d endconcatenation = %d\n",(long)Maxlevel,m_org,p_org,Prod,tempo,prodtempo,id,channel_org,instrument_org,foundendconcatenation_org);
 
-foundconcatenation = foundendconcatenation = notinthisfield = foundclosingbracket = FALSE;
+m = (*p_buff)[id+2L]; p = (*p_buff)[id+3L];
+if(m != T0 || p != 18) {
+	ignoreconcat = TRUE;
+	if(trace_get_duration) BPPrintMessage(odInfo,"no tie %ld|%ld\n",(long)m_org,(long)p_org);
+	}
+else if(trace_get_duration) BPPrintMessage(odInfo,"tie %ld|%ld %ld|%ld\n",(long)m_org,(long)p_org,(long)m,(long)p);
 
-for(i=id+2L; ; i+=2) {
+if(ignoreconcat) {
+	i = id + 2L;
+	old_m = m_org; old_p = p_org;
+	}
+else {
+	i = 0;
+	old_m = old_p = 0;
+	level_org = 0; // $$$
+	}
+	
+// i = id + 2L; $$$
+
+level = level_org;
+(*p_duration_of_field)[level] = (*p_duration_org)[level] = 0.;
+tie_is_open = found_beginning = foundendconcatenation = justfinishedconcatenation = FALSE;
+instrument = instrument_org;
+channel = channel_org;
+tick_start = tick_end = -1.;
+
+// ignoreconcat = TRUE;
+
+for(i=i; ; i+=2) { 
 	m = (*p_buff)[i]; p = (*p_buff)[i+1];
 	if(m == TEND && p == TEND) break;
+	
+	if(!ignoreconcat && i == id) {
+		if(m != m_org || p != p_org || (*p_buff)[i+2] != T0 || (*p_buff)[i+3] != 18 || channel != channel_org || instrument != instrument_org) {
+			if(trace_get_duration) BPPrintMessage(odInfo,"\n=> Error: %ld|%ld channel %d instrument %d does not match the call %ld|%ld channel %d instrument %d\n",(long)m,(long)p,channel,instrument,(long)m_org,(long)p_org,channel_org,instrument_org);
+			goto OUT;
+			}
+		else {
+			tick_start = (*p_duration_of_field)[level];
+			if(trace_get_duration) BPPrintMessage(odInfo,"\n• Got it: %ld|%ld level %d channel %d instrument %d tick_start = %.2f\n",(long)m,(long)p,level,channel,instrument,tick_start);
+			tie_is_open = found_beginning = TRUE;
+			old_m = m; old_p = p;
+			}
+		}
+	
+	if(m == T10) {	// Channel assignment _chan()
+		channel = (int) FindValue(m,p,0);
+		if(trace_get_duration) BPPrintMessage(odInfo,"[%d]",channel);
+		continue;
+		}
+	if(m == T32) { // Instrument assignment _ins()
+		instrument = (int) FindValue(m,p,0);
+		if(trace_get_duration) BPPrintMessage(odInfo,"\ninstrument = %d\n",instrument);
+		continue;
+		}
 	if(m == T0) {
 		switch(p) {
-			case 11:	/* '/' speed up */
+			case 11:	// '/' speed up
 				speed = GetScalingValue(p_buff,i);
 				if(scaling != 0.) {
 					tempo = speed / scaling;
 					prodtempo = (Prod / tempo);
 					}
 				else tempo = 0.;
-				if((!precise && (tempo > tempomax)) || tempo == 0.) prodtempo = 0.;
+				if(tempo == 0.) prodtempo = 0.;
 				else prodtempo = Prod / tempo;
 				i += 4;
 				continue;
 				break;
-			case 25:	/* '\' speed down */
+			case 25:	// '\' speed down
 				speed = 1. / (GetScalingValue(p_buff,i));
 				if(scaling != 0.) {
 					tempo = speed / scaling;
 					prodtempo = (Prod / tempo);
 					}
 				else tempo = 0.;
-				if((!precise && (tempo > tempomax)) || tempo == 0.) prodtempo = 0.;
+				if(tempo == 0.) prodtempo = 0.;
 				else prodtempo = (Prod / tempo);
 				i += 4;
 				continue;
 				break;
-			case 21:	/* '*' scaling up */
+			case 21:	// '*' scaling up 
 				scaling = GetScalingValue(p_buff,i);
 				if(scaling != 0.) {
 					tempo = speed / scaling;
 					prodtempo = (Prod / tempo);
 					}
 				else tempo = 0.;
-				if((!precise && (tempo > tempomax)) || tempo == 0.) prodtempo = 0.;
+				if(tempo == 0.) prodtempo = 0.;
 				else prodtempo = (Prod / tempo);
 				i += 4;
 				continue;
 				break;
-			case 24:	/* '**' scaling down */
+			case 24:	// '**' scaling down
 				s = GetScalingValue(p_buff,i);
 				scaling = 1. / s;
 				if(scaling != 0.) {
@@ -1542,99 +1587,110 @@ for(i=id+2L; ; i+=2) {
 					prodtempo = (Prod / tempo);
 					}
 				else tempo = 0.;
-				if((!precise && (tempo > tempomax)) || tempo == 0.) prodtempo = 0.;
+				if(tempo == 0.) prodtempo = 0.;
 				else prodtempo = (Prod / tempo);
 				i += 4;
 				continue;
 				break;
-			case 12:	/* '{' */
+			case 12:	// '{'
 			case 22:
-				if(!foundconcatenation || ignoreconcat) goto OUT;
-				if(level >= 0) {
-					(*p_seq)[level] = seq;
-					(*p_notinthisfield)[level] = notinthisfield;
-					}
-				level++;
-				if(level >= Maxlevel) {
-					if(Beta) Println(wTrace,"\nErr. GetSymbolicDuration(). level >= Maxlevel");
-					return(0);
-					}
-				seq = 0;
-				if(!notinthisfield) {
-					orgobjectduration = objectduration;
-					}
-				break;
-			case 13:	/* '}' */
-			case 23:
-				if(!foundconcatenation || ignoreconcat) goto OUT;
-				if(level == 0) foundclosingbracket = TRUE;
-				level--;
-				if(level >= 0) {
-					seq = (*p_seq)[level];
-					notinthisfield = (*p_notinthisfield)[level];
-					}
-				else {
-					seq = 0;
-					notinthisfield = FALSE;
-					}
-				break;
-			case 14:	/* ',' */
-				if(!foundconcatenation || ignoreconcat) goto OUT;
-				if(!foundclosingbracket) notinthisfield = TRUE;
-				if(!notinthisfield) {
-					objectduration = orgobjectduration;
-					}
-				seq++;
-				break;
-			case 7:		/* '.' */
-				if(!foundconcatenation || ignoreconcat) goto OUT;
-				break;
-			case 18:	/* '&' following terminal */
 				if(ignoreconcat) goto OUT;
-				if(level == 0 && seq == 0) {
-					foundconcatenation = TRUE;
-					notinthisfield = foundclosingbracket = FALSE;
-					}
+				(*p_duration_org)[level+1] = (*p_duration_of_field)[level+1] = (*p_duration_of_field)[level];
+				level++;
+				if(trace_get_duration) BPPrintMessage(odInfo,"{");
 				break;
-			case 19:	/* '&' preceding terminal */
-				if(!foundconcatenation || ignoreconcat) goto OUT;
-				if(!notinthisfield)
-					foundendconcatenation = TRUE;
+			case 13:	// '}'
+			case 23:
+				if(ignoreconcat) goto OUT;
+				level--;
+				(*p_duration_of_field)[level] = (*p_duration_of_field)[level+1];
+				if(trace_get_duration) BPPrintMessage(odInfo,"}");
+				break;
+			case 14:	// comma
+				if(trace_get_duration) BPPrintMessage(odInfo,",");
+				(*p_duration_of_field)[level] = (*p_duration_org)[level];
+				break;
+			case 7:		// period 
+				if(trace_get_duration) BPPrintMessage(odInfo,"•");
+				break;
+				
+			case 18:	// '&' following terminal
+				if(!found_beginning || ignoreconcat) continue;
+				if(trace_get_duration) BPPrintMessage(odInfo,"+&");
+				if(instrument != instrument_org || channel != channel_org) continue;
+				if(old_m == m_org && old_p == p_org && instrument == instrument_org && channel == channel_org) {
+					if(trace_get_duration) BPPrintMessage(odInfo,"\nFound '&' following terminal\n");
+					if(!tie_is_open && !justfinishedconcatenation) {
+						if(trace_get_duration) BPPrintMessage(odInfo,"\nOut we go!\n");
+						goto OUT;
+						}
+					if(trace_get_duration) BPPrintMessage(odInfo,"• Starting tie: %ld|%ld location %.2f\n",(long)old_m,(long)old_p,tick_start);
+					tie_is_open = TRUE;
+					}
+				justfinishedconcatenation = FALSE;
+				break;
+				
+				
+			case 19:	// '&' preceding terminal
+				if(!found_beginning || ignoreconcat) continue;
+				if(trace_get_duration) BPPrintMessage(odInfo,"&+");
+				if(instrument != instrument_org || channel != channel_org) continue;
+				if(tie_is_open && instrument == instrument_org && channel == channel_org) {
+					this_end = (*p_duration_of_field)[level] + prodtempo;
+					if(trace_get_duration) BPPrintMessage(odInfo,"\nIs this the end? this_end = %.2f tick_end = %.2f",this_end,tick_end);
+					if(this_end > tick_end) { // We try to find the longest sequence
+						foundendconcatenation = TRUE;
+						}
+					}
 				break;
 			}
+		old_m = m; old_p = p;
 		continue;
 		}
-	if(m == T7 || m == T4) continue;	/* out-time object or variable */
-	if(m == T9) {	/* time pattern */
-		if(!notinthisfield) objectduration += prodtempo;
+	if(ignoreconcat) {
+		tick_start = 0.; tick_end = prodtempo;
+		goto OUT;
+		}
+	justfinishedconcatenation = FALSE;
+	old_m = m; old_p = p;
+	if(m == T7 || m == T4) continue; // out-time object or variable
+	if(m == T9) {	// time pattern
+		(*p_duration_of_field)[level] += prodtempo;
 		continue;
 		}
 	if(m == T3 && p == 0) {
-		if(!notinthisfield) objectduration += prodtempo;
+		if(trace_get_duration) BPPrintMessage(odInfo,"_");
+		(*p_duration_of_field)[level] += prodtempo;
 		continue;
 		}
 	if(m == T3 || m == T25) {
-		if(!foundconcatenation || ignoreconcat) goto OUT;
-		if(foundendconcatenation) {
-			foundendconcatenation = FALSE;
-			if(m == oldm && p == oldp) {
-				foundconcatenation = FALSE;
-				level = 0;
-				seq = (*p_seq)[level] = 0;
-				}
+		if(trace_get_duration) BPPrintMessage(odInfo," %ld|%ld ",m,p);
+		(*p_duration_of_field)[level] += prodtempo;
+		if(found_beginning && foundendconcatenation && m == m_org && p == p_org && instrument == instrument_org && channel == channel_org) {
+			tick_end = this_end;
+			tie_is_open = FALSE;
+			justfinishedconcatenation = TRUE;
+			if(trace_get_duration) BPPrintMessage(odInfo,"\n• Ending tie: %ld|%ld this_end = %.2f\n",(long)m_org,(long)p_org,this_end);
 			}
-		if(!notinthisfield) objectduration += prodtempo;
+		foundendconcatenation = FALSE;
 		continue;
 		}
 	}
 
 OUT:
-if(foundconcatenation && !ignoreconcat) {
-	if(ShowMessages) Println(wTrace,"An unbound concatenation '&' was ignored");
+
+if(trace_get_duration) BPPrintMessage(odInfo,"\nDuration of expression = %.2f\n",(*p_duration_of_field)[level] );
+
+if(tick_start >= 0. && tick_end >= 0.&& tick_end >= tick_start)
+	objectduration = tick_end - tick_start;
+else {
 	objectduration = 0.;
+	if(trace_get_duration) BPPrintMessage(odError,"\n=> An unbound concatenation '&' was ignored\n");
 	}
-MyDisposeHandle((Handle*)&p_seq);
-MyDisposeHandle((Handle*)&p_notinthisfield);
+
+if(trace_get_duration) BPPrintMessage(odInfo,"\nOBJECT DURATION = %.2f channel %d tick_start = %.2f tick_end = %.2f\n\n",objectduration,channel,tick_start,tick_end);
+MyDisposeHandle((Handle*)&p_duration_of_field);
+MyDisposeHandle((Handle*)&p_duration_org);
 return(objectduration);
 }
 

@@ -47,7 +47,7 @@ int trace_timeset = 0;
 int TimeSet(tokenbyte ***pp_buff,int* p_kmx,long *p_tmin,long *p_tmax,unsigned long *p_maxseq,
 	int* p_nmax,unsigned long **p_imaxseq,double maxseqapprox)
 {
-int result,bigitem;
+int i,result,bigitem,maxties,j;
 short **p_articul;
 
 // HideWindow(Window[wInfo]);
@@ -57,6 +57,17 @@ if(CheckEmergency() != OK) return(ABORT);
 *p_tmin = Infpos; *p_tmax = Infneg;
 
 if((p_articul = (short**) GiveSpace((Size)Maxevent*sizeof(short))) == NULL) return(ABORT);
+
+maxties = Jbol + Jpatt;
+for(i = 0; i < MAXINSTRUMENTS; i++)
+	if((p_Tie_event[i] = (char**) GiveSpace((Size)maxties*sizeof(short))) == NULL) return(ABORT); // Added by BB 2021-02-07
+for(i = 0; i < MAXCHAN; i++)
+	if((p_Tie_note[i] = (char**) GiveSpace((Size)128*sizeof(short))) == NULL) return(ABORT); // Added by BB 2021-02-07
+
+for(j = 0; j < MAXCHAN; j++)
+	for(i = 0; i < 128; i++) (*(p_Tie_note[j]))[i] = FALSE;
+for(j = 0; j < MAXINSTRUMENTS; j++)
+	for(i = 0; i < maxties; i++) (*(p_Tie_event[j]))[i] = FALSE;
 
 result = FillPhaseDiagram(pp_buff,p_kmx,p_maxseq,p_nmax,p_imaxseq,
 	maxseqapprox,&bigitem,p_articul);
@@ -69,6 +80,11 @@ result = SetTimeObjects(bigitem,p_imaxseq,*p_maxseq,p_nmax,
 if(trace_timeset) BPPrintMessage(odInfo,"End TimeSet() maxseq = %ld\n\n",(long)*p_maxseq);
 OUT:
 MyDisposeHandle((Handle*)&p_articul);
+for(j = 0; j < MAXCHAN; j++)
+	MyDisposeHandle((Handle*)&(p_Tie_note[j]));
+for(j = 0; j < MAXINSTRUMENTS; j++)
+	MyDisposeHandle((Handle*)&(p_Tie_event[j]));
+
 sprintf(Message,"");
 return(result);
 }
