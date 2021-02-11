@@ -52,13 +52,14 @@ Input files
 MIDI files
 ----------
 
+(Note that currently the creation of type 1 MIDI files works perfectly even with very large sets of data…)
 - add code to write track names (is it necessary?)
 - write 2 bytes of MIDIfileTrackNumber instead of 1 so that more than 255 tracks are possible;  add error checking to make sure it doesn't exceed 32,767(?)
 - reimplement the function ReadVarLen()
 - should "produce all" write each item to its own track in a type 2 file?  (Currently writes all items to the same track). This may be useful if the MIDI file is downloaded, but MIDIjs won't play it.
 - close midi files at the end of MakeSound() ? (and reopen if for each item?) => This may be complicated because the size of data needs to be writen in its header
 - when writing a type 2 file, an empty track is written and the end of the file but it not counted in the final track count that is written when closing the file; best solution would be to avoid writing the track or truncate the file?
-- fix or remove the handling of FileSaveMode in PrepareMIDIFile()? The option is currently always set to ALLSAME by Inits() and LoadSettings(). Until this option becomes necesdsary it would be best to leave it out.
+- fix or remove the handling of FileSaveMode in PrepareMIDIFile()? The option is currently always set to ALLSAME by Inits() and LoadSettings(). Until this option becomes necessary it would be best to leave it out.
 - remove  "('-' for stdout)" text from --midiout help?  Piping MIDI files probably won't work because we use ftell/fseek to write some parts of the file.
 (Alternatively, could support dumping MIDI file in a text format to stdout?)
 
@@ -79,6 +80,13 @@ https://csound.com/docs/manual/udpserver.html
 https://www.geeksforgeeks.org/udp-server-client-implementation-c/
 
 
+Open Sound Control
+------------------
+
+- This is worth trying for direct communication with MuseScore etc.
+- Read https://en.wikipedia.org/wiki/Open_Sound_Control
+
+
 Images
 --------------
 
@@ -88,9 +96,8 @@ Images
 Microtonal scales
 ----------------
 
-- Fix tuning scheme, sometimes notes appear several times, sometimes not
 - Implement performance control to change A4 frequency (diapason) in the score
-- Try to generate microtonality in MIDI by sending a pitchbend instruction before each note
+- Try to generate microtonality in MIDI by sending a pitchbend instruction before each note. If necessary send simultaneous notes  to separate MIDI channels
 
 
 Csound orchestra
@@ -108,5 +115,5 @@ Csound orchestra
  + marimba
  + drums
 - Study how BP could produce score instructions modifying parameters in some instruments
-- Find an instrument that would create a switched bandpass filter with either a sound file or another instrument as input. The idea is to reproduce the effect of sympathetic strings and use it to add partials to other instruments (much like the Indian tanpura). (These devices had been immplemented with hardware in the Shruti Harmonnium.)
+- Find an instrument that would create a switched bandpass filter with either a sound file or another instrument as input. The idea is to reproduce the effect of sympathetic strings and use it to add partials to other instruments (much like the Indian tanpura). (These devices had been immplemented as switch filters in the Shruti Harmonnium.)
 

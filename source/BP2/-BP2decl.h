@@ -104,6 +104,8 @@ extern char Englishnote[12][3],Frenchnote[12][5],Indiannote[12][5];
 extern char AltEnglishnote[12][3],AltFrenchnote[12][5],AltIndiannote[12][5];
 extern short NameChoice[12];
 extern char **p_Tie_event[MAXINSTRUMENTS+1],**p_Tie_note[MAXCHAN+1];
+extern int **p_Missed_tie_event[MAXINSTRUMENTS+1],**p_Missed_tie_note[MAXCHAN+1];
+extern int Chunk_number;
 extern char ****p_NoteName[MAXCONVENTIONS],****p_AltNoteName[MAXCONVENTIONS];
 extern int **p_NoteLength[MAXCONVENTIONS],**p_AltNoteLength[MAXCONVENTIONS];
 extern int InitThere,FirstTime,MaxScriptInstructions,KeyboardType,C4key,ProgNrFrom,TestMIDIChannel,

@@ -1519,7 +1519,7 @@ for(i=i; ; i+=2) {
 	if(m == TEND && p == TEND) break;
 	
 	if(!ignoreconcat && i == id) {
-		if(m != m_org || p != p_org || (*p_buff)[i+2] != T0 || (*p_buff)[i+3] != 18 || channel != channel_org || instrument != instrument_org) {
+		if(m != m_org || p != p_org || (*p_buff)[i+2] != T0 || (*p_buff)[i+3] != 18 || channel != channel_org || instrument != instrument_org) {
 			if(trace_get_duration) BPPrintMessage(odInfo,"\n=> Error: %ld|%ld channel %d instrument %d does not match the call %ld|%ld channel %d instrument %d\n",(long)m,(long)p,channel,instrument,(long)m_org,(long)p_org,channel_org,instrument_org);
 			goto OUT;
 			}
@@ -1613,9 +1613,8 @@ for(i=i; ; i+=2) {
 			case 7:		// period 
 				if(trace_get_duration) BPPrintMessage(odInfo,"•");
 				break;
-				
 			case 18:	// '&' following terminal
-				if(!found_beginning || ignoreconcat) continue;
+				if(!found_beginning || ignoreconcat) continue;
 				if(trace_get_duration) BPPrintMessage(odInfo,"+&");
 				if(instrument != instrument_org || channel != channel_org) continue;
 				if(old_m == m_org && old_p == p_org && instrument == instrument_org && channel == channel_org) {
@@ -1629,10 +1628,8 @@ for(i=i; ; i+=2) {
 					}
 				justfinishedconcatenation = FALSE;
 				break;
-				
-				
 			case 19:	// '&' preceding terminal
-				if(!found_beginning || ignoreconcat) continue;
+				if(!found_beginning || ignoreconcat) continue;
 				if(trace_get_duration) BPPrintMessage(odInfo,"&+");
 				if(instrument != instrument_org || channel != channel_org) continue;
 				if(tie_is_open && instrument == instrument_org && channel == channel_org) {
@@ -1666,7 +1663,7 @@ for(i=i; ; i+=2) {
 	if(m == T3 || m == T25) {
 		if(trace_get_duration) BPPrintMessage(odInfo," %ld|%ld ",m,p);
 		(*p_duration_of_field)[level] += prodtempo;
-		if(found_beginning && foundendconcatenation && m == m_org && p == p_org && instrument == instrument_org && channel == channel_org) {
+		if(found_beginning && foundendconcatenation && m == m_org && p == p_org && instrument == instrument_org && channel == channel_org) {
 			tick_end = this_end;
 			tie_is_open = FALSE;
 			justfinishedconcatenation = TRUE;
@@ -1679,13 +1676,20 @@ for(i=i; ; i+=2) {
 
 OUT:
 
-if(trace_get_duration) BPPrintMessage(odInfo,"\nDuration of expression = %.2f\n",(*p_duration_of_field)[level] );
+if(trace_get_duration) BPPrintMessage(odInfo,"\nDuration of expression = %.2f\n",(*p_duration_of_field)[level]);
 
-if(tick_start >= 0. && tick_end >= 0.&& tick_end >= tick_start)
+if(tick_start >= 0. && tick_end >= 0. && tick_end >= tick_start)
 	objectduration = tick_end - tick_start;
 else {
 	objectduration = 0.;
-	if(trace_get_duration) BPPrintMessage(odError,"\n=> An unbound concatenation '&' was ignored\n");
+	if(m_org == T3) {
+		if(trace_get_duration) BPPrintMessage(odError,"\n=> An unbound tied event was ignored\n");
+		(*(p_Missed_tie_event[instrument_org]))[p_org] += 1;
+		}
+	if(m_org == T25) {
+		if(trace_get_duration) BPPrintMessage(odError,"\n=> An unbound tied note was ignored\n");
+		(*(p_Missed_tie_note[channel_org]))[p_org] += 1;
+		}
 	}
 
 if(trace_get_duration) BPPrintMessage(odInfo,"\nOBJECT DURATION = %.2f channel %d tick_start = %.2f tick_end = %.2f\n\n",objectduration,channel,tick_start,tick_end);

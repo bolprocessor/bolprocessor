@@ -422,7 +422,7 @@ NOTSCALE:
 			}
 		if(!isdigit(c)) { /*  not a tempo marker */
 			if(arg_nr == 0 || arg_nr > 2) {
-				sprintf(Message,"Slash is used to denote flags in grammar rules only!\n");
+				sprintf(Message,"Slash is followed by \"%c\" which does not make sense\n",c);
 				Print(wTrace,Message);
 				goto ERR;
 				}

@@ -112,7 +112,7 @@ if(p_t == NULL) {
 	if(Beta) Alert1("=> Err. MystrcpyStringToTable(). p_t = NULL");
 	return(FAILED);
 	}
-imax = (MyGetHandleSize((*p_t)[j]) / sizeof(char)) - 1;
+imax = (MyGetHandleSize((Handle)(*p_t)[j]) / sizeof(char)) - 1; // Fixed by BB 2021-02-11
 i = -1;
 do {
 	i++;

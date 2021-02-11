@@ -47,7 +47,7 @@ int trace_timeset = 0;
 int TimeSet(tokenbyte ***pp_buff,int* p_kmx,long *p_tmin,long *p_tmax,unsigned long *p_maxseq,
 	int* p_nmax,unsigned long **p_imaxseq,double maxseqapprox)
 {
-int i,result,bigitem,maxties,j;
+int i,result,bigitem,maxties,j,missed_ties;
 short **p_articul;
 
 // HideWindow(Window[wInfo]);
@@ -55,6 +55,7 @@ short **p_articul;
 if(CheckEmergency() != OK) return(ABORT);
 
 *p_tmin = Infpos; *p_tmax = Infneg;
+Chunk_number++;
 
 if((p_articul = (short**) GiveSpace((Size)Maxevent*sizeof(short))) == NULL) return(ABORT);
 
@@ -63,11 +64,21 @@ for(i = 0; i < MAXINSTRUMENTS; i++)
 	if((p_Tie_event[i] = (char**) GiveSpace((Size)maxties*sizeof(short))) == NULL) return(ABORT); // Added by BB 2021-02-07
 for(i = 0; i < MAXCHAN; i++)
 	if((p_Tie_note[i] = (char**) GiveSpace((Size)128*sizeof(short))) == NULL) return(ABORT); // Added by BB 2021-02-07
+for(i = 0; i < MAXINSTRUMENTS; i++)
+	if((p_Missed_tie_event[i] = (int**) GiveSpace((Size)maxties*sizeof(int))) == NULL) return(ABORT); // Added by BB 2021-02-11
+for(i = 0; i < MAXCHAN; i++)
+	if((p_Missed_tie_note[i] = (int**) GiveSpace((Size)128*sizeof(int))) == NULL) return(ABORT); // Added by BB 2021-02-11
 
 for(j = 0; j < MAXCHAN; j++)
-	for(i = 0; i < 128; i++) (*(p_Tie_note[j]))[i] = FALSE;
+	for(i = 0; i < 128; i++) {
+		(*(p_Tie_note[j]))[i] = FALSE;
+		(*(p_Missed_tie_note[j]))[i] = 0;
+		}
 for(j = 0; j < MAXINSTRUMENTS; j++)
-	for(i = 0; i < maxties; i++) (*(p_Tie_event[j]))[i] = FALSE;
+	for(i = 0; i < maxties; i++) {
+		(*(p_Tie_event[j]))[i] = FALSE;
+		(*(p_Missed_tie_event[j]))[i] = 0;
+		}
 
 result = FillPhaseDiagram(pp_buff,p_kmx,p_maxseq,p_nmax,p_imaxseq,
 	maxseqapprox,&bigitem,p_articul);
@@ -78,12 +89,35 @@ result = SetTimeObjects(bigitem,p_imaxseq,*p_maxseq,p_nmax,
 	p_kmx,p_tmin,p_tmax,p_articul);
 
 if(trace_timeset) BPPrintMessage(odInfo,"End TimeSet() maxseq = %ld\n\n",(long)*p_maxseq);
+
 OUT:
 MyDisposeHandle((Handle*)&p_articul);
-for(j = 0; j < MAXCHAN; j++)
+
+missed_ties = 0;
+for(j = 0; j < MAXCHAN; j++) {
+	for(i = 0; i < 128; i++) {
+		if((*(p_Missed_tie_note[j]))[i] > 0) {
+			BPPrintMessage(odError,"Missed tied note key #%d (%d occurrences channel %d)\n",i,(*(p_Missed_tie_note[j]))[i],j);
+			missed_ties++;
+			}
+		}
 	MyDisposeHandle((Handle*)&(p_Tie_note[j]));
-for(j = 0; j < MAXINSTRUMENTS; j++)
+	MyDisposeHandle((Handle*)&(p_Missed_tie_note[j]));
+	}
+if(missed_ties > 0) BPPrintMessage(odError,"Total %d missed tied notes in chunk #%d\n\n",missed_ties,Chunk_number);
+
+missed_ties = 0;
+for(j = 0; j < MAXINSTRUMENTS; j++) {
+	for(i = 0; i < maxties; i++) {
+		if((*(p_Missed_tie_event[j]))[i] > 0) {
+			BPPrintMessage(odError,"Missed tied event #%d (%d occurrences instrument %d)\n",i,(*(p_Missed_tie_event[j]))[i],j);
+			missed_ties++;
+			}
+		}
 	MyDisposeHandle((Handle*)&(p_Tie_event[j]));
+	MyDisposeHandle((Handle*)&(p_Missed_tie_event[j]));
+	}
+if(missed_ties > 0) BPPrintMessage(odError,"Total %d missed tied events in chunk #%d\n\n",missed_ties,Chunk_number);
 
 sprintf(Message,"");
 return(result);

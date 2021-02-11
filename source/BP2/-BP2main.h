@@ -142,6 +142,8 @@ char AltIndiannote[][5] =
 	{"ni#","sa#","re","re#","mak","ga#","pak","pa","pa#","dha","dha#","sak"};
 short NameChoice[12];
 char **p_Tie_event[MAXINSTRUMENTS+1],**p_Tie_note[MAXCHAN+1]; // tie after sound-object or note for its concatenation // Added by BB 2021-02-07
+int **p_Missed_tie_event[MAXINSTRUMENTS+1],**p_Missed_tie_note[MAXCHAN+1]; // Added by BB 2021-02-11
+int Chunk_number; // Added by BB 2021-02-11
 char ****p_NoteName[MAXCONVENTIONS],****p_AltNoteName[MAXCONVENTIONS];
 int **p_NoteLength[MAXCONVENTIONS],**p_AltNoteLength[MAXCONVENTIONS];
 int InitThere,FirstTime,MaxScriptInstructions,KeyboardType,C4key,ProgNrFrom,TestMIDIChannel,

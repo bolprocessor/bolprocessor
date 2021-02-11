@@ -806,7 +806,7 @@ if(!TempMemory && !AskedTempMemory && !FixedMaxQuantization
 			}
 	ASK:
 		if(!alreadychangedquantize) {
-			BPPrintMessage(odError,"=> Item is too large or too complex\n"); // Fixed by BB 2021-02-01
+			BPPrintMessage(odError,"=> Item is too large or too complex. Maybe decrease $maxchunk_size in the interface\n"); // Fixed by BB 2021-02-11
 			if(Beta) BPPrintMessage(odError,"(imax = %.0f, thelimit = %.0f, compression rate = %.0f)\n",imax,thelimit,Kpress);
 		//	rep = Answer("=> Item is too large. Try to increase quantization",'Y');
 			rep = CANCEL;

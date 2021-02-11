@@ -642,7 +642,6 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 		else tie = FALSE;
 		if(foundendconcatenation && tie) {
 			if(trace_diagram) BPPrintMessage(odInfo,"With foundendconcatenation m = %d p = %d\n",m,p,(*p_MIDIsize)[p]);
-		//	foundendconcatenation = FALSE;
 			if(m == T25) (*(p_Tie_note[channel]))[p] = FALSE;
 			else if(m == T3) (*(p_Tie_event[instrument]))[p] = FALSE;
 			
@@ -658,8 +657,6 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 				objectduration = GetSymbolicDuration(NO,*pp_buff,m,p,id,speed,scale,level,channel,instrument,foundendconcatenation,level);
 				}
 			iscontinuous = isMIDIcontinuous = FALSE;
-		//	foundendconcatenation = FALSE;
-			
 			if(p > 0) {
 			//	if(m == T3 && p == 1) BPPrintMessage(odInfo,"@ silence duration %.2f -> nseq = %ld\n",objectduration,m,p,(long)nseq);
 				oldm = m; oldp = p;

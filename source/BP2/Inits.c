@@ -141,6 +141,7 @@ WarnedBlockKey = WarnedRangeKey  = FALSE;
 TimeMax = MAXTIME; Nalpha = 100L; SpeedRange = 6.;
 CorrectionFactor = 1.;
 UserName[0] = UserInstitution[0] = '\0';
+Chunk_number = 0;
 // Tracefile = NULL;
 
 Oms = FALSE;
