@@ -442,7 +442,8 @@ if (gOptions.outputFiles[ofiMidiFile].isOpen) {
 MIDIfileOpened = FALSE;
 NewOrchestra = TRUE;
 OpenMIDIfilePtr = NULL;
-MIDIfileName[0] = '\0';
+// MIDIfileName[0] = '\0';
+strcpy(MIDIfileName,""); // Fixed by BB 2021-02-14
 return OK;
 }
 
@@ -518,9 +519,9 @@ static int WriteVarLenQuantity(FILE* fout, dword value, dword *tracklen)
 	
 	if (value > 268435455)	{
 		if (Beta)	{
-			BPPrintMessage(odError, "=> Err. WriteVarLenQuantity(): value %u is out of range.", value);
+			BPPrintMessage(odError, "=> Err. WriteVarLenQuantity(): value %u is out of range in chunk #%d\n",value,Chunk_number);
 		}
-		return FAILED;
+		return OK;
 	}
 	
 	// split value into 7-bit chunks
@@ -1250,7 +1251,7 @@ return(OK);
 int FadeOut(void)
 {
 int i_event,i_event_max,rs,chan,value,value2,this_volume,rep;
-Milliseconds time,timeorigin,time_end,current_volume[MAXCHAN];
+Milliseconds time,timeorigin,time_end,current_volume[MAXCHAN+1];
 MIDI_Event e;
 float ratio;
 unsigned char this_char;

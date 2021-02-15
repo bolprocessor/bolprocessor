@@ -334,7 +334,7 @@ Size s;
 
 r = OK;
 if(*pp_line == NULL || (**pp_line)[0] == '\0') return(OK);
-s = MyGetHandleSize(*pp_line);
+s = MyGetHandleSize((Handle)*pp_line);
 if(s < 20L) s = 20L;
 if((p_line2 = (char**) GiveSpace(s)) == NULL) return(ABORT);
 j = ZERO;
@@ -412,7 +412,7 @@ if(makesingleline)
 	for(k=0; k < strlen(slashhtml); k++) (*p_line2)[j++] = slashhtml[k];
 (*p_line2)[j] = '\0';
 
-s = MyGetHandleSize(p_line2);
+s = MyGetHandleSize((Handle)p_line2);
 if((r=MySetHandleSize((Handle*)pp_line,(Size)s)) != OK) return(r);
 if((r=MystrcpyHandleToHandle(0,pp_line,p_line2)) != OK) return(r);
 

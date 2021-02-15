@@ -1065,6 +1065,16 @@ pos = ZERO;
 Dirty[wCsoundInstruments] = CompiledRegressions = CompiledCsObjects = FALSE;
 p_line = p_completeline = NULL;
 
+if(trace_load_csound_resources) BPPrintMessage(odInfo,"Opening Csound resource file %s\n",FileName[wCsoundInstruments]);
+
+// Check whether file is being saved
+sprintf(line,"%s_lock",FileName[wCsoundInstruments]);
+csfile = fopen(line,"r");
+if(csfile != NULL) {
+	BPPrintMessage(odInfo,"\nAs the Csound resource file was locked I waited for 2 seconds...\n");
+	sleep(2);
+	}
+
 csfile = fopen(FileName[wCsoundInstruments],"r");
 if(csfile == NULL) {
 	BPPrintMessage(odError,"=> Could not open Csound resource file %s\n",FileName[wCsoundInstruments]);
@@ -1095,30 +1105,37 @@ if(iv > 11) {
 else CsoundOrchestraName[0] = '\0';
 if(trace_load_csound_resources) BPPrintMessage(odInfo,"CsoundOrchestraName = %s\n",CsoundOrchestraName);
 if(ReadInteger(csfile,&jmax,&pos) == FAILED) goto ERR;
+if(trace_load_csound_resources) BPPrintMessage(odInfo,"jmax = %d\n",jmax);
 if(jmax < 0) {
 	BPPrintMessage(odError,"=> This file is empty or in an unknown format\n");
 	goto QUIT;
 	}
 if(jmax > 0 && (result=ResizeCsoundInstrumentsSpace(jmax)) != OK) goto ERR;
 result = FAILED;
+
+if(trace_load_csound_resources) BPPrintMessage(odInfo,"Jinstr = %d\n",Jinstr);
+
 for(j=0; j < jmax; j++) {
 	ResetCsoundInstrument(j,YES,YES);
+	if(trace_load_csound_resources) BPPrintMessage(odInfo,"j = %d\n",j);
 	if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-	ptr = (*pp_CsInstrumentName)[j];
+//	ptr = (*pp_CsInstrumentName)[j];
+	ptr = NULL; // Fixed by BB 2021-02-14
 	if((*p_completeline)[0] != '\0') {
 		MystrcpyHandleToString(MAXLIN,0,LineBuff,p_completeline);
 	//	if(ShowMessages) ShowMessage(TRUE,wMessage,LineBuff);
-		BPPrintMessage(odInfo,"Loading Csound instrument %d = \"%s\"\n",(j+1),LineBuff);
-		if(MySetHandleSize((Handle*)&ptr,
-			(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
+		if(MySetHandleSize((Handle*)&ptr,(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
 				goto ERR;
 		MystrcpyHandleToHandle(0,&ptr,p_completeline);
 		(*pp_CsInstrumentName)[j] = ptr;
 		}
-	else (*((*pp_CsInstrumentName)[j]))[0] = '\0';
+	else strcpy((*((*pp_CsInstrumentName)[j])),""); // (*((*pp_CsInstrumentName)[j]))[0] = '\0'; Fixed by BB 2021-02-14
 	
+	BPPrintMessage(odInfo,"Loading Csound instrument %d = \"%s\" out of %d\n",(j+1),(*((*pp_CsInstrumentName)[j])),jmax);
+//	p_line = p_completeline = NULL; 
 	if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-	ptr = (*pp_CsInstrumentComment)[j];
+//	ptr = (*pp_CsInstrumentComment)[j];
+	ptr = NULL; // Fixed by BB 2021-02-14
 	if((*p_completeline)[0] != '\0') {
 		if(MySetHandleSize((Handle*)&ptr,(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
 			goto ERR;
@@ -1126,13 +1143,15 @@ for(j=0; j < jmax; j++) {
 		(*pp_CsInstrumentComment)[j] = ptr;
 		if(trace_load_csound_resources) BPPrintMessage(odInfo,"Comment: %s\n",(*p_completeline));
 		}
-	else (*((*pp_CsInstrumentComment)[j]))[0] = '\0';
+	else strcpy((*((*pp_CsInstrumentComment)[j])),""); // (*((*pp_CsInstrumentComment)[j]))[0] = '\0'; Fixed by BB 2021-02-14
 	
 	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
 	(*p_CsInstrument)[j].iargmax = i;
+	if(trace_load_csound_resources) BPPrintMessage(odInfo,"iargmax = %d\n",i);
 	
 	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
 	(*p_CsInstrumentIndex)[j] = i;
+	if(trace_load_csound_resources) BPPrintMessage(odInfo,"CsInstrumentIndex = %d\n",i);
 	
 	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
 	(*p_CsDilationRatioIndex)[j] = i;
@@ -1146,10 +1165,11 @@ for(j=0; j < jmax; j++) {
 	
 	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
 	(*p_CsPitchFormat)[j] = i;
-//	BPPrintMessage(odInfo,"instrument = %d format = %d\n",j,i);
 	
 	if(ReadFloat(csfile,&r,&pos) == FAILED) goto ERR;
+	if(r == -1.) r = (float) DeftPitchbendRange;
 	(*p_CsInstrument)[j].pitchbendrange = r;
+	if(trace_load_csound_resources) BPPrintMessage(odInfo,"pitchbendrange = %.3f\n",r);
 	
 	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
 	(*p_CsInstrument)[j].rPitchBend.islogx = i;
@@ -1192,6 +1212,7 @@ for(j=0; j < jmax; j++) {
 	(*p_CsModulationEndIndex)[j] = i;
 	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
 	(*p_CsPanoramicEndIndex)[j] = i;
+	if(trace_load_csound_resources) BPPrintMessage(odInfo,"PanoramicEndIndex = %d\n",i);
 
 	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
 	(*p_CsInstrument)[j].pitchbendtable = i;
@@ -1203,6 +1224,7 @@ for(j=0; j < jmax; j++) {
 	(*p_CsInstrument)[j].modulationtable = i;
 	if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
 	(*p_CsInstrument)[j].panoramictable = i;
+	if(trace_load_csound_resources) BPPrintMessage(odInfo,"panoramictable = %d\n",i);
 	
 	if(iv > 13) {
 		if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
@@ -1215,6 +1237,7 @@ for(j=0; j < jmax; j++) {
 		(*p_CsInstrument)[j].modulationGEN = i;
 		if(ReadInteger(csfile,&i,&pos) == FAILED) goto ERR;
 		(*p_CsInstrument)[j].panoramicGEN = i;
+		if(trace_load_csound_resources) BPPrintMessage(odInfo,"panoramicGEN = %d\n",i);
 		}
 	else {
 		(*p_CsInstrument)[j].pitchbendGEN = (*p_CsInstrument)[j].volumeGEN
@@ -1234,7 +1257,9 @@ for(j=0; j < jmax; j++) {
 		if(ReadFloat(csfile,&r,&pos) == FAILED) goto ERR;
 		(*(p_CsPanoramic[i]))[j] = r;
 		}
-		
+	
+	if(trace_load_csound_resources) BPPrintMessage(odInfo,"ipmax = %d j = %d\n",(*p_CsInstrument)[j].ipmax,j);
+	
 	for(ip=0; ip < (*p_CsInstrument)[j].ipmax; ip++) {
 		if((*p_CsInstrument)[j].paramlist == NULL) {
 			Alert1("=> Err. LoadCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
@@ -1253,6 +1278,7 @@ for(j=0; j < jmax; j++) {
 	(*p_CsInstrument)[j].ipmax = 0;
 	
 	if(ReadInteger(csfile,&ipmax,&pos) == FAILED) goto ERR;
+	if(trace_load_csound_resources) BPPrintMessage(odInfo,"Read ipmax again = %d\n",ipmax);
 	if(ipmax < 1) continue;
 	if((ptr3=(CsoundParam**) GiveSpace((Size)(ipmax * sizeof(CsoundParam)))) == NULL)
 		goto ERR;
@@ -1385,7 +1411,7 @@ CloseFile(csfile);
 if(result == OK) {
 	Created[wCsoundInstruments] = TRUE;
 	LoadedCsoundInstruments = TRUE;
-	if(NumberScales == 1) {
+	if(FALSE && NumberScales == 1) {
 		BPPrintMessage(odInfo, "\nThis microtonal scale will be used for Csound scores in replacement of the equal-tempered 12-tone scale\nPitch will be adjusted to the diapason\n");
 		DefaultScale = -1;
 		}
@@ -1473,7 +1499,7 @@ SetTempo(); SetTimeBase(); Dirty[wMetronom] = Dirty[wTimeBase] = FALSE;
 
 if(ReadInteger(sefile,&jmax,&pos) == FAILED) goto ERR;
 if(jmax != Jbutt) {
-	sprintf(Message,"\nError in settings file:  jmax = %ld instead of %d\n",jmax,Jbutt);
+	sprintf(Message,"\nError in settings file:  jmax = %d instead of %d\n",jmax,Jbutt);
 	if(Beta) Alert1(Message);
 	goto ERR;
 	}
@@ -3072,7 +3098,7 @@ if(Mystrcmp(p_line,"_beginCsoundScore_") != 0) goto ERR;
 
 if(ReadOne(FALSE,FALSE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 
-if((ptr = (Handle) GiveSpace(MyGetHandleSize(p_completeline))) == NULL) goto ERR;
+if((ptr = (Handle) GiveSpace(MyGetHandleSize((Handle)p_completeline))) == NULL) goto ERR;
     (*pp_CsoundScoreText)[j] = ptr;
 MystrcpyHandleToHandle(0,&((*pp_CsoundScoreText)[j]),p_completeline);
 

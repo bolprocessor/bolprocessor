@@ -390,7 +390,7 @@ else {
 }
 
 
-MyDisposeHandle(Handle *p_h)
+MyDisposeHandle(Handle *p_h) 
 {
 Size size;
 int r;

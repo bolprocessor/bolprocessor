@@ -267,15 +267,15 @@ MIDIcode **p_MIDI,**ptr;
 long i,ii;
 Size size;
 Milliseconds t;
-int **p_keyon[MAXCHAN];
-Milliseconds **p_start[MAXCHAN];
+int **p_keyon[MAXCHAN+1];
+Milliseconds **p_start[MAXCHAN+1];
 Handle ptr3;
 double preroll,postroll;
 
 if(CheckNonEmptyMIDI(j) != OK) return(FAILED);
 if(Answer("Expand durations can't be undone. Proceed anyway",'N') != YES)
 	return(FAILED);
-for(ch=0; ch < MAXCHAN; ch++) {
+for(ch=0; ch <= MAXCHAN; ch++) {
 	if((p_keyon[ch] = (int**) GiveSpace((Size)(MAXKEY+1)*sizeof(int)))
 			== NULL) return(ABORT);
 	for(k=0; k < MAXKEY; k++) (*p_keyon[ch])[k] = 0;
@@ -333,14 +333,14 @@ size = (*p_MIDIsize)[j] = ii;
 ptr = (*pp_MIDIcode)[j];
 MySetHandleSize((Handle*)&ptr,(Size) size * sizeof(MIDIcode));
 (*pp_MIDIcode)[j] = ptr;
-for(ch=0; ch < MAXCHAN; ch++) {
+for(ch=0; ch <= MAXCHAN; ch++) {
 	ptr3 = (Handle) p_keyon[ch];
 	MyDisposeHandle(&ptr3);
 	p_keyon[ch] = NULL;
 	}
 
 /* Now adjust NoteOff dates */
-for(ch=0; ch < MAXCHAN; ch++) {
+for(ch=0; ch <= MAXCHAN; ch++) {
 	if((p_start[ch] = (Milliseconds**) GiveSpace((Size)(MAXKEY+1)*sizeof(Milliseconds)))
 			== NULL) return(ABORT);
 	for(k=0; k < MAXKEY; k++) (*p_start[ch])[k] = ZERO;
@@ -364,7 +364,7 @@ for(i=0; i < size; i++) {
 		}
 	i += 2;
 	}
-for(ch=0; ch < MAXCHAN; ch++) {
+for(ch=0; ch <= MAXCHAN; ch++) {
 	ptr3 = (Handle) p_start[ch];
 	MyDisposeHandle(&ptr3);
 	p_start[ch] = NULL;
@@ -389,8 +389,8 @@ return(OK);
 
 MakeMonodic(int j)
 {
-char on[MAXCHAN];
-int lastkey[MAXCHAN];
+char on[MAXCHAN+1];
+int lastkey[MAXCHAN+1];
 int c,c0,ch;
 MIDIcode **p_MIDI,**ptr;
 long i,ii;
@@ -400,7 +400,7 @@ Milliseconds t;
 if(CheckNonEmptyMIDI(j) != OK) return(FAILED);
 if(Answer("Make monodic can't be undone. Proceed anyway",'N') != YES)
 	return(FAILED);
-for(ch=0; ch < MAXCHAN; ch++) on[ch] = 0;
+for(ch=0; ch <= MAXCHAN; ch++) on[ch] = 0;
 
 if(DurationToPoint(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 

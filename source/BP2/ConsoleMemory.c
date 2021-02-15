@@ -122,7 +122,7 @@ int MyDisposeHandle(Handle *p_h)
 	int i;
 	
 	if (p_h == NULL) {
-		BPPrintMessage(odInfo,"=> Err. MyDisposeHandle. p_h = NULL");
+		BPPrintMessage(odError,"Err. MyDisposeHandle. p_h = NULL");
 		return(ABORT);
 	}
 	if(*p_h != NULL) {
@@ -134,7 +134,7 @@ int MyDisposeHandle(Handle *p_h)
 				}
 			}
 		if(h->size < (Size)1) {
-			if(!EmergencyExit && Beta) Alert1("=> Err. MyDisposeHandle. size < 1");
+			if(!EmergencyExit && Beta) Alert1("Err. MyDisposeHandle. size < 1");
 			*p_h = NULL;
 			return(ABORT);
 		}
@@ -150,14 +150,14 @@ int MyDisposeHandle(Handle *p_h)
 	*p_h = NULL;
 	return OK;
 }
-
+ 
 Handle IncreaseSpace(Handle h)
 {
 	Size oldsize, newsize;
 	int rep;
 
 	if(h == NULL) {
-		if(Beta) Alert1("=> Err. IncreaseSpace(). h = NULL");
+		BPPrintMessage(odError,"=> Err. IncreaseSpace(). h = NULL");
 		return(NULL);
 	}
 	oldsize = MyGetHandleSize(h);
@@ -179,8 +179,7 @@ int MySetHandleSize(Handle* p_h,Size size)
 	
 //	BPPrintMessage(odInfo,"size = %ld\n",(long) size);
 	if(p_h == NULL) {
-		sprintf(Message,"=> Err. MySetHandleSize(). p_h == NULL");
-		if(Beta) Alert1(Message);
+		BPPrintMessage(odError,"=> Err. MySetHandleSize(). p_h == NULL");
 		return(ABORT);
 	}
 	if(*p_h != NULL) {
@@ -188,9 +187,8 @@ int MySetHandleSize(Handle* p_h,Size size)
 		h = (s_handle_priv*) *p_h;
 		oldsize = h->size;
 		if(Beta && !InitOn && oldsize < (Size)1) {
-			sprintf(Message,"=> Err. MySetHandleSize(). oldsize = %ld (1)\n", (long) oldsize);
-			BPPrintMessage(odInfo,Message);
-			// Alert1(Message);
+			BPPrintMessage(odError,"=> Err. MySetHandleSize(). oldsize = %ld (1)\n", (long) oldsize);
+			return (ABORT);
 		}
 		h->memblock = realloc(h->memblock, size);
 		if (h->memblock == NULL) {
@@ -217,6 +215,7 @@ int MySetHandleSize(Handle* p_h,Size size)
 		// handle was NULL, so just do a fresh alloc
 		if((*p_h = GiveSpace(size)) == NULL) return(ABORT);
 	}
+//	BPPrintMessage(odInfo,"Done size = %ld\n",(long) size);
 	return(OK);
 }
 

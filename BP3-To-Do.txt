@@ -52,7 +52,8 @@ Input files
 MIDI files
 ----------
 
-(Note that currently the creation of type 1 MIDI files works perfectly even with very large sets of data…)
+(Note that currently the creation of type 1 MIDI files works even with very large sets of data…)
+- "Error WriteVarLenQuantity(): value %u is out of range" may happen when data is faulty
 - add code to write track names (is it necessary?)
 - write 2 bytes of MIDIfileTrackNumber instead of 1 so that more than 255 tracks are possible;  add error checking to make sure it doesn't exceed 32,767(?)
 - reimplement the function ReadVarLen()
@@ -62,6 +63,13 @@ MIDI files
 - fix or remove the handling of FileSaveMode in PrepareMIDIFile()? The option is currently always set to ALLSAME by Inits() and LoadSettings(). Until this option becomes necessary it would be best to leave it out.
 - remove  "('-' for stdout)" text from --midiout help?  Piping MIDI files probably won't work because we use ftell/fseek to write some parts of the file.
 (Alternatively, could support dumping MIDI file in a text format to stdout?)
+
+
+Csound scores
+-------------
+
+- revise CsoundWrite to make sure that events are ordered by "note-on" dates. Example #15 in -da.checkTies where C3 is not played
+- reference: https://csound.com/docs/manual/i.html => negated p1 for note-off?
 
 
 Real-time MIDI
@@ -96,6 +104,7 @@ Images
 Microtonal scales
 ----------------
 
+- Include values for optionally stretching each octave
 - Implement performance control to change A4 frequency (diapason) in the score
 - Try to generate microtonality in MIDI by sending a pitchbend instruction before each note. If necessary send simultaneous notes  to separate MIDI channels
 

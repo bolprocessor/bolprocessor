@@ -74,7 +74,8 @@ if(chan < 0 || chan >= MAXCHAN) {
 	
 perf = (*pp_currentparams)[nseq]; 
 
-if(trace_cs_scoremake) BPPrintMessage(odInfo,"\nRunning CscoreWrite for iline = %d\n",iline);
+if(trace_cs_scoremake)
+	BPPrintMessage(odInfo,"\nRunning CscoreWrite for iline = %d channel = %d instrument = %d\n",iline,chan,instrument);
 
 if(onoffline == LINE) {
 	if(j >= Jbol) {
@@ -125,7 +126,7 @@ else {
 	}
 instrparamlist = (*p_CsInstrument)[ins].paramlist;
 
-if(Pclock > 0.)	/* Striated or measured smooth time */ // Fixed by BB 30 0ct 2020
+if(Pclock > 0.)	/* Striated or measured smooth time */ // Fixed by BB 30 0ct 2020 ???
 	time = ((double) t) * Qclock / ((double) Pclock) / 1000.;
 else
 	time = ((double) t) / 1000.;
@@ -157,19 +158,20 @@ SETON:
 	(*perf)->velocity[key] = velocity;
 	(*perf)->dilationratio[key] = dilationratio;
 	
-	maxparam = (*((*pp_currentparams)[nseq]))->numberparams;
+//	maxparam = (*((*pp_currentparams)[nseq]))->numberparams; 
+	maxparam = (*p_Instance)[kcurrentinstance].contparameters.number; // Fixed by BB 2021-02-15
+	
 	if((paramscopy = (ParameterStatus**)
 		GiveSpace((Size)(maxparam * sizeof(ParameterStatus)))) == NULL) goto OUT;
 	for(i=0; i < maxparam; i++) (*paramscopy)[i] = (*((*perf)->params))[i];
 	(*perf)->startparams[key] = paramscopy;
 	result = OK;
-	// BPPrintMessage(odInfo,"Start CscoreWrite(). maxparam = %ld\n",(long)maxparam);
+//	BPPrintMessage(odInfo,"Start CscoreWrite(). maxparam = %ld\n",(long)maxparam);
 	goto OUT;
 	}
 
 if(onoffline == OFF && (*perf)->level[key] < 1) {
-	sprintf(Message,"=> Err. CscoreWrite(). (*perf)->level[key] < 1 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
-	BPPrintMessage(odInfo,Message);
+	BPPrintMessage(odInfo,"=> Err. CscoreWrite(). (*perf)->level[key] < 1 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
 	result = OK; // $$$ TEMP
 	goto OUT;
 	}
@@ -733,8 +735,7 @@ if(ConvertMIDItoCsound) Println(wPrototype7,Message);
 else WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
 result = OK;
 
-sprintf(line2,"line = %s\n",line);
-if(trace_cs_scoremake) BPPrintMessage(odInfo,line2);
+if(trace_cs_scoremake) BPPrintMessage(odInfo,"line = %s\n",line);
 
 strcpy(Message,"");
 
@@ -880,7 +881,8 @@ if (CsFileReply) {
 }
 sprintf(Message,"Closed Csound score file '%s'",CsFileName);
 ShowMessage(TRUE,wMessage,Message);
-CsFileName[0] = '\0';
+// CsFileName[0] = '\0';
+strcpy(CsFileName,""); // Fixed by BB 2021-02-14
 SetField(FileSavePreferencesPtr,-1,fCsoundFileName,CsFileName);
 return(OK);
 }

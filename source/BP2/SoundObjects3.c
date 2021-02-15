@@ -362,7 +362,8 @@ if(!NeedAlphabet) {
    }
 if(!ObjectMode && !ObjectTry) {
    if(LoadObjectPrototypes(YES,YES) != OK) {
-      FileName[iObjects][0] = '\0';
+   		strcpy(FileName[iObjects],""); // Fixed by BB 2021-02-14
+   //   FileName[iObjects][0] = '\0';
       SetName(iObjects,TRUE,TRUE);
       Dirty[iObjects] = Created[iObjects] = FALSE;
       iProto = 0;
@@ -761,7 +762,7 @@ if((*p_MIDIsize)[i] > 0) {
 		if(Beta) Alert1("=> Err. CopyPage5(). ptr2 = NULL (1)");
 		return(ABORT);
 		}
-	MySetHandleSize(&ptr1,MyGetHandleSize(ptr2));
+	MySetHandleSize(&ptr1,MyGetHandleSize((Handle)ptr2));
 	(*pp_MIDIcode)[j] = (MIDIcode**) ptr1;
    
 	for(k=0; k < (*p_MIDIsize)[i]; k++) {
@@ -795,7 +796,7 @@ int ievent;
 
 if((*pp_CsoundScoreText)[i] != NULL) {
    if((*pp_CsoundScoreText)[j] == NULL) {
-      if((ptr = (Handle) GiveSpace(MyGetHandleSize((*pp_CsoundScoreText)[i])))
+      if((ptr = (Handle) GiveSpace(MyGetHandleSize((Handle)(*pp_CsoundScoreText)[i])))
          == NULL) return(ABORT);
       (*pp_CsoundScoreText)[j] = ptr;
       }

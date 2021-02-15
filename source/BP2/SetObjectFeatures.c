@@ -33,7 +33,7 @@
 
 
 #ifndef _H_BP2 
-#include "-BP2.h"
+#include "-BP2.h" 
 #endif
 
 #include "-BP2decl.h"
@@ -291,7 +291,7 @@ if((*p_ObjectSpecs)[k] == NULL) {
 WaitList(k) = (*p_waitlist)[nseq];
 ObjScriptLine(k) = (*p_scriptlist)[nseq];
 if(*p_newswitch) {
-	if((pts = (long**) GiveSpace((Size) MAXCHAN * sizeof(long))) == NULL) return(ABORT);
+	if((pts = (long**) GiveSpace((Size) (MAXCHAN + 1) * sizeof(long))) == NULL) return(ABORT);
 	SwitchState(k) = pts;
 	for(i=0; i < MAXCHAN; i++) (*(SwitchState(k)))[i] = currswitchstate[i];
 	}
@@ -576,7 +576,7 @@ for(i=id+2L; ; i+=2L) {
 					tablemade = TRUE;
 					(t.imax)++;
 					}
-				else {
+				else { 
 					/* No table can be built */
 					forgetmakingtable = TRUE;
 					tableisbeingbuilt = FALSE;
@@ -710,7 +710,7 @@ MORE:
 		/* A channel change in the sequence should be the end of the variation */
 		/* ... of a continuous MIDI parameter */
 		if(objectsfound > 0 && index >= 0 && index <= IPANORAMIC) okincrease = FALSE;
-		
+		 BPPrintMessage(odInfo,"_chan() chan = %d\n",x);
 		chan = (int) x;
 		if(maxbeats == 0.) chanorg = chan;
 		continue;
@@ -1394,16 +1394,18 @@ int value,paramvalueindex,paramnameindex;
 
 if(m == T37) return(0.); // _keymap()
 
+// BPPrintMessage(odInfo,"FindValue m = %ld p = %ld chan = %d\n",(long)m,(long)p,chan);
+
 paramnameindex = -1;
-switch(m) { // Modified by BB 2021-02-08
+switch(m) { // Modified by BB 2021-02-08 - fixed 2021-02-15
 	case T10: // _chan()
 	case T11: // _vel()
 	case T16: // _press()
 	case T19: // _volume()
 	case T20: // _legato()
-	case T26: /* _transpose() */
+//	case T26: /* _transpose() */
 	case T29: // _pan()
-	case T32: /* _ins() */
+//	case T32: /* _ins() */
 	case T38: // _rndvel()
 	case T39: // _rotate() 
 		if(p >= 128 && m != T26 && (m != T20 || p < 0)) {
@@ -1421,10 +1423,12 @@ if(m == T35) {	/* _value() */
 	paramnameindex = (p % 256);
 	paramvalueindex = (p - paramnameindex) / 256;
 	x = (*p_NumberConstant)[paramvalueindex];
-	if(trace_set_variation) BPPrintMessage(odInfo,"T35 paramnameindex = %d paramvalueindex = %d, x = %.3f\n",paramnameindex,paramvalueindex,x);
+	if(trace_set_variation)
+		BPPrintMessage(odInfo,"T35 paramnameindex = %d paramvalueindex = %d, x = %.3f\n",paramnameindex,paramvalueindex,x);
 	}
 else x = (double) p;
-if((m == T15 || paramnameindex == IPITCHBEND) && chan > 0) { // Fixed by BB 2021-02-08
+if(m == T15 || paramnameindex == IPITCHBEND) { // Fixed "chan > 0" by BB 2021-02-08
+// if((m == T15 || paramnameindex == IPITCHBEND) && chan > 0) { // Fixed "chan > 0" by BB 2021-02-08
 	xx = x;
 	if(PitchbendRange[chan] > 0)
 		x = DEFTPITCHBEND + ((double) x * DEFTPITCHBEND / (double) PitchbendRange[chan]);

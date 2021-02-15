@@ -61,18 +61,18 @@ int w,y,ii,iii,j,jj,k,kcurrentinstance,n,occurrence,s,in,itick,c,c0,c1,oldc1,c2,
 	localchan,localvelocity,outtime,foundfirsteventinperiod,maxparam,index,overflow,
 	foundlasteventinperiod,foundfirstevent,cswrite,nextisobject,exclusive,themessage,
 	okvolume,okpanoramic,okpitchbend,okpressure,okmodulation,hrect,htext,leftoffset,topoffset,
-	contchan,volume,panoramic,pitchbend,modulation,pressure,**p_seqcont[MAXCHAN],
+	contchan,volume,panoramic,pitchbend,modulation,pressure,**p_seqcont[MAXCHAN+1],
 	octave,pitchclass,time_pattern;
 	
 Milliseconds time,buffertime,torigin,t0,t1,t11,t2,t2obj,
-	t2tick,t22,t3,date1,**p_t1,**p_t2cont[MAXCHAN],timeon[MAXKEY],
+	t2tick,t22,t3,date1,**p_t1,**p_t2cont[MAXCHAN+1],timeon[MAXKEY],
 	**p_nextd,computetime,currenttime,objectduration,objectstarttime;
 
 Handle h;
-char **p_keyon[MAXCHAN],**p_onoff,**p_line,**p_active[MAXCHAN],line[4],line_image[200];
+char **p_keyon[MAXCHAN+1],**p_onoff,**p_line,**p_active[MAXCHAN+1],line[4],line_image[200];
 long timeleft,formertime,size,istreak,posmin,localperiod,endxmax,endymax,oldtcurr,
 	i1,i2,oldi2,imap,gap,maxmapped,i,im,ievent,yruler,max_endtime_event,max_endtime,add_time;
-unsigned long currswitchstate[MAXCHAN],oldtime,maxmidibytes5,drivertime;
+unsigned long currswitchstate[MAXCHAN+1],oldtime,maxmidibytes5,drivertime;
 unsigned int seed;
 int scale,blockkey;
 float howmuch;
@@ -600,12 +600,12 @@ for(nseq=0; nseq < maxconc; nseq++) {
 	(*ptrperf)->transpose = 0;
 	
 	maxparam = (*ptrperf)->numberparams;
+//	BPPrintMessage(odInfo,"\nMakeSound() nseq = %d number = %d numberparams = %d\n",nseq,(*p_control)[nseq].number,(*ptrperf)->numberparams);
 	for(i=0; i < maxparam; i++) (*((*ptrperf)->params))[i].active = FALSE;
 	if(maxparam <= IPANORAMIC) {
 	//	if(Beta) Alert1("=> Err. MakeSound(). Beta && maxparam <= IPANORAMIC");
 		goto OVER;
 		}
-	
 	for(i=0; i < (*p_control)[nseq].number; i++) {
 		(*((*p_control)[nseq].param))[i].ibm = -1L;
 		}
@@ -792,6 +792,7 @@ TRYCSFILE:
 			}
 		sequence = 0;  /* Normally not required */
 		instrument = (*p_Instance)[kcurrentinstance].instrument;
+	//	BPPrintMessage(odInfo,"kcurrentinstance = %d, channel = %d instrument = %d\n",kcurrentinstance,(*p_Instance)[kcurrentinstance].channel,(*p_Instance)[kcurrentinstance].instrument);
 		nseq = (*p_Instance)[kcurrentinstance].nseq;
 		if(nseq < 0 || nseq >= maxconc) {
 			BPPrintMessage(odInfo,"=> Err. MakeSound(). nseq < 0 || nseq >= maxconc");
@@ -1013,7 +1014,8 @@ TRYCSFILE:
 			
 			/* Pass on parameters to pp_currentparams used by Csound */
 			if((kcurrentinstance > 1) && (*p_Instance)[kcurrentinstance].contparameters.number > 0) {
-				if(trace_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance = %ld > 1\n",(long)kcurrentinstance);
+				if(trace_csound_pianoroll)
+					BPPrintMessage(odInfo,"kcurrentinstance = %ld > 1 contparameters.number = %d\n",(long)kcurrentinstance,(*p_Instance)[kcurrentinstance].contparameters.number);
 				if(currentinstancevalues == NULL) {
 				//	if(Beta) Alert1("=> Err. MakeSound(). currentinstancevalues == NULL");
 					goto FORGETIT;
@@ -1027,16 +1029,17 @@ TRYCSFILE:
 					for(index=0; index < maxparam; index++)
 						(*params)[index].active = FALSE;
 					}
-				maxparam = MyGetHandleSize((Handle)(*((*pp_currentparams)[nseq]))->params)
-					/ sizeof(ParameterStatus);
-				// BPPrintMessage(odInfo,"maxparam = %ld, contparameters.number = %d\n",(long)maxparam,(*p_Instance)[kcurrentinstance].contparameters.number);
+					
+				maxparam = MyGetHandleSize((Handle)(*((*pp_currentparams)[nseq]))->params) / sizeof(ParameterStatus);
+				// This value maybe oversized if ccontinuous _value() statements were found earlier on this sequence
+				// but this will be fixed in CscoreWrite() - BB 2021-02-15
 				params = (*((*pp_currentparams)[nseq]))->params;
 				for(i=0; i < (*p_Instance)[kcurrentinstance].contparameters.number; i++) {
 					index = (*currentinstancevalues)[i].index;
 					if(index < 0) continue;
 					if(index >= maxparam) {
 						iparam = maxparam;
-						// BPPrintMessage(odInfo,"Resizing for index (1) = %ld\n",(long)index);
+					//	BPPrintMessage(odInfo,"Resizing for index (1) = %ld\n",(long)index);
 						maxparam = index + 1;
 						h = (Handle) params;
 						MySetHandleSize(&h,(Size)maxparam * sizeof(ParameterStatus));
@@ -1045,7 +1048,7 @@ TRYCSFILE:
 							(*params)[iparam].active = FALSE;
 						}
 					if(index >= (*((*pp_currentparams)[nseq]))->numberparams) {
-						// BPPrintMessage(odInfo,"Resizing for index (2) = %ld\n",(long)index);
+					//	BPPrintMessage(odInfo,"Resizing for index (2) = %ld\n",(long)index);
 						(*((*pp_currentparams)[nseq]))->numberparams = index + 1;
 						}
 						
@@ -1138,6 +1141,7 @@ FORGETIT:
 				stream = (*p_control)[nseq].param;
 				if(cswrite) goto SWITCHES;
 				
+				BPPrintMessage(odInfo,"\nMakeSound() kcurrentinstance = %d number = %d\n",kcurrentinstance,(*p_Instance)[kcurrentinstance].contparameters.number);
 				for(i=0; i < (*p_Instance)[kcurrentinstance].contparameters.number; i++) {
 					index = (*currentinstancevalues)[i].index;
 					if(index < 0) continue;
@@ -1432,7 +1436,7 @@ SWITCHES:
 PLAYOBJECT:
 		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"\nPLAYOBJECT: k = %d j = %d objectduration = %ld t1 = %ld t2 = %ld t3 = %ld ievent = %d im = %d\n",kcurrentinstance,j,objectduration,(long)t1,(long)t2,(long)t3,ievent,im);
 		while(t1 <= t2  && t1 <= t3  && ievent < im) {
-	//	while(t1 <= t2  && t1 <= t3  && (ievent < im || j == 1)) {
+	//	while(t1 <= t2  && t1 <= t3  && (ievent < im || j == 1)) { // Fixed by BB 2021-01
 			Tcurr =  (t0 + t1) / Time_res;
 			if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Tcurr = %ld, j = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)j,(long)t0,(long)t1,(long)Time_res);
 			
@@ -1476,12 +1480,14 @@ PLAYOBJECT:
 				c0 -= localchan;
 				}
 			if(objectchannel > 0) localchan = objectchannel - 1;
+			// BPPrintMessage(odInfo,"Calculating MIDI channel j = %d c0 = %d ChannelEvent(c0) = %d objectchannel = %d\n",localchan,j,ChannelEvent(c0),objectchannel);
+			
+			// Inspect object
 			if(c0 >= 0) {
 				if(c0 == NoteOn  || c0 == NoteOff) {
 					if(j < 16384) {
 						if(j >= Jbol) { // Time pattern
-							sprintf(Message,"=> Error MakeSound(): found time pattern: j = %ld, t1 = %ld, t2 = %ld\n",(long)j,(long)t1,(long)t2);
-							BPPrintMessage(odInfo,Message);
+							BPPrintMessage(odInfo,"=> Error MakeSound(): found time pattern: j = %ld, t1 = %ld, t2 = %ld\n",(long)j,(long)t1,(long)t2);
 							sequence = 0;
 							c0 = 0;
 							c1 = 0;
@@ -1530,9 +1536,9 @@ SENDNOTEOFF:
 									e.data2 = 0;
 									if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 									}
-								if(cswrite) {
-									sprintf(Message,"Before CscoreWrite(3) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,(long)c1,(long)c2);
-									if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
+								else {
+									if(trace_csound_pianoroll)
+										BPPrintMessage(odInfo,"Before CscoreWrite(3) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld, localchan = %d instrument = %d\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,(long)c1,(long)c2,localchan,instrument);
 									if((result =
 		CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,OFF,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT) goto OVER;
@@ -1607,8 +1613,8 @@ SENDNOTEOFF:
 								if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 								}
 							if(cswrite) {
-								sprintf(Message,"Before CscoreWrite(4) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,(long)c1,(long)c2);
-								if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
+								if(trace_csound_pianoroll)
+									BPPrintMessage(odInfo,"Before CscoreWrite(4) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld, localchan = %d instrument = %d\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,(long)c1,(long)c2,localchan,instrument);
 								if((result=
 		CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 			j,nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT) goto OVER;
@@ -2554,6 +2560,8 @@ time = t0 + (*param)[iparam].starttime
 	* (*param)[iparam].ib) / (*param)[iparam].ibm;
 
 Tcurr =  time / Time_res;
+
+// BPPrintMessage(odInfo,"SendControl(). value = %.3f Tcurr = %ld\n",value,(long)Tcurr);
 
 lsb = ((long)value) % 128;
 msb = (((long)value) - lsb) >> 7;

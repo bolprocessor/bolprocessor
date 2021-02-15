@@ -99,7 +99,7 @@ char **p_MessageMem[MAXMESSAGE],**p_HTMLchar1,**p_HTMLchar2,**p_HTMLdiacritical;
 MIDIstream Stream;
 
 RGBColor White,Black,Red,Green,Blue,Yellow,Magenta,Cyan,Brown,None,NoteScaleColor1,NoteScaleColor2;
-RGBColor Color[MAXCOLOR],PianoColor[MAXCHAN],**p_ObjectColor;
+RGBColor Color[MAXCOLOR],PianoColor[MAXCHAN+1],**p_ObjectColor;
 int UseGraphicsColor,UseTextColor,ForceTextColor,ForceGraphicColor;
 
 node PrefixTree,SuffixTree;
@@ -175,8 +175,8 @@ long CurrentDir,LastDir,OldModulation;
 int PitchbendRange[MAXCHAN+1],DeftPitchbendRange,PitchbendRate[MAXCHAN+1],ModulationRate[MAXCHAN+1],PressRate[MAXCHAN+1],
 	VolumeRate[MAXCHAN+1],VolumeControl[MAXCHAN+1],PanoramicRate[MAXCHAN+1],PanoramicControl[MAXCHAN+1],
 	DeftVolume,DeftVelocity,DeftPanoramic,PanoramicController,VolumeController,SamplingRate;
-char ChangedVolume[MAXCHAN],ChangedPanoramic[MAXCHAN],ChangedModulation[MAXCHAN],ChangedPitchbend[MAXCHAN],ChangedSwitch[MAXCHAN],
-	ChangedPressure[MAXCHAN],WhichCsoundInstrument[MAXCHAN+1];
+char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulation[MAXCHAN+1],ChangedPitchbend[MAXCHAN+1],ChangedSwitch[MAXCHAN+1],
+	ChangedPressure[MAXCHAN+1],WhichCsoundInstrument[MAXCHAN+1];
 int Jbol,Jfunc,Jinstr,Jinscript,Maxinscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,MaxVar,
 	Jhomo,**p_VarStatus,iCsoundInstrument;
 int FreezeWindows,StartFromOne,OutMIDI,OutCsound,MustChangeInput,SmartCursor,NotSaidKpress,

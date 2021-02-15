@@ -62,14 +62,14 @@ if((p_articul = (short**) GiveSpace((Size)Maxevent*sizeof(short))) == NULL) retu
 maxties = Jbol + Jpatt;
 for(i = 0; i < MAXINSTRUMENTS; i++)
 	if((p_Tie_event[i] = (char**) GiveSpace((Size)maxties*sizeof(short))) == NULL) return(ABORT); // Added by BB 2021-02-07
-for(i = 0; i < MAXCHAN; i++)
+for(i = 0; i <= MAXCHAN; i++)
 	if((p_Tie_note[i] = (char**) GiveSpace((Size)128*sizeof(short))) == NULL) return(ABORT); // Added by BB 2021-02-07
 for(i = 0; i < MAXINSTRUMENTS; i++)
 	if((p_Missed_tie_event[i] = (int**) GiveSpace((Size)maxties*sizeof(int))) == NULL) return(ABORT); // Added by BB 2021-02-11
-for(i = 0; i < MAXCHAN; i++)
+for(i = 0; i <= MAXCHAN; i++)
 	if((p_Missed_tie_note[i] = (int**) GiveSpace((Size)128*sizeof(int))) == NULL) return(ABORT); // Added by BB 2021-02-11
 
-for(j = 0; j < MAXCHAN; j++)
+for(j = 0; j <= MAXCHAN; j++)
 	for(i = 0; i < 128; i++) {
 		(*(p_Tie_note[j]))[i] = FALSE;
 		(*(p_Missed_tie_note[j]))[i] = 0;
@@ -94,7 +94,7 @@ OUT:
 MyDisposeHandle((Handle*)&p_articul);
 
 missed_ties = 0;
-for(j = 0; j < MAXCHAN; j++) {
+for(j = 0; j <= MAXCHAN; j++) {
 	for(i = 0; i < 128; i++) {
 		if((*(p_Missed_tie_note[j]))[i] > 0) {
 			BPPrintMessage(odError,"Missed tied note key #%d (%d occurrences channel %d)\n",i,(*(p_Missed_tie_note[j]))[i],j);

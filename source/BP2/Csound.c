@@ -808,12 +808,14 @@ if(all) {
 	ptr = (Handle)(*pp_CsInstrumentName)[j];
 	MySetHandleSize(&ptr,(Size)2L * sizeof(char));
 	(*pp_CsInstrumentName)[j] = ptr;
-	(*((*pp_CsInstrumentName)[j]))[0] = '\0';
+//	(*((*pp_CsInstrumentName)[j]))[0] = '\0';
+	strcpy((*((*pp_CsInstrumentName)[j])),""); // Fixed by BB 2021-02-14
 	
 	ptr = (Handle)(*pp_CsInstrumentComment)[j];
 	MySetHandleSize(&ptr,(Size)2L * sizeof(char));
 	(*pp_CsInstrumentComment)[j] = ptr;
-	(*((*pp_CsInstrumentComment)[j]))[0] = '\0';
+//	(*((*pp_CsInstrumentComment)[j]))[0] = '\0';
+	strcpy((*((*pp_CsInstrumentComment)[j])),""); // Fixed by BB 2021-02-14
 	}
 
 (*(p_CsPitchBend[0]))[j] = 0.; (*(p_CsPitchBend[1]))[j] = DEFTPITCHBEND;
@@ -2235,12 +2237,14 @@ for(i=0; i < strlen(line); i++) {
 if(isnumber) {
 	i = (int) atol(line);
 	for(j=0; j < Jinstr; j++) {
+//		BPPrintMessage(odInfo,"InstrumentIndex = %d, j = %d\n",(*p_CsInstrumentIndex)[j],j);
 		if(i == (*p_CsInstrumentIndex)[j]) break;
 		}
 	if(j < Jinstr) return(i);
 	goto ERR;
 	}
 for(j=0; j < Jinstr; j++) {
+//	BPPrintMessage(odInfo,"InstrumentName = %s, j = %d\n",(*(*pp_CsInstrumentName)[j]),j);
 	if(Mystrcmp((*pp_CsInstrumentName)[j],line) == 0) break;
 	}
 if(j < Jinstr) return((*p_CsInstrumentIndex)[j]);

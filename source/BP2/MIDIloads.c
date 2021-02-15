@@ -459,7 +459,7 @@ channelstring[0] = '\0';
 if(channel > 0) sprintf(channelstring," channel %ld",(long)channel);
 if(NameChoice[pitchclass] == 1 && pitchclass == 0) octave--;
 if(NameChoice[pitchclass] == 1 && pitchclass == 11) octave++;
-// if(trace_scale) BPPrintMessage(odInfo,"i_scale = %d key =  %d NumberScales = %d NoteConvention = %d\n",i_scale,key,NumberScales,NoteConvention);
+// BPPrintMessage(odInfo,"i_scale = %d key =  %d NumberScales = %d NoteConvention = %d\n",i_scale,key,NumberScales,NoteConvention);
 
 if(i_scale > NumberScales) {
 	BPPrintMessage(odError,"=> Error: i_scale (%ld) > NumberScales (%d)\n",(long)i_scale,NumberScales);

@@ -43,7 +43,7 @@
 #endif
 
 
-Inits(void)
+int Inits(void)
 {
 int i,j,ch;
 OSStatus io;
@@ -559,7 +559,7 @@ StrikeAgainDefault = TRUE;
 Jwheel = Jfeet = Jdisk = 0;
 EmptyBeat = TRUE;
 
-DeftPitchbendRange = 0;
+DeftPitchbendRange = 200; // instead of 0 - Fixed by BB 2021-02-14
 DeftVolume = DEFTVOLUME;
 DeftVelocity = DEFTVELOCITY;
 DeftPanoramic = DEFTPANORAMIC;
@@ -682,7 +682,7 @@ return(OK);
 }
 
 
-SetNoteNames(void)
+int SetNoteNames(void)
 {
 int i,j,notenum,octave;
 char **ptr;
@@ -803,7 +803,7 @@ return(OK);
 }
 
 
-Ctrlinit(void)
+int Ctrlinit(void)
 {
 int i,igram,irul,j,k;
 /* Print(wTrace,"\nCtrl values:\n"); */
@@ -834,7 +834,8 @@ for(i=1; i < MAXPARAMCTRL; i++) {
 return(OK);
 }
 
-MakeWindows(void)
+
+int MakeWindows(void)
 {
 int i,id,im,ibot,itemtype,j,k,km,w,top,left,bottom,right,leftoffset,
 	widmax,type,proc,bad,x0,y0, oldheight;
@@ -1078,7 +1079,7 @@ return(OK);
 }
 
 #if 0
-HiliteDefault(DialogPtr dp)
+int HiliteDefault(DialogPtr dp)
 {
 short itemtype;
 ControlHandle itemhandle;
@@ -1109,7 +1110,7 @@ return(OK);
 
 #if !BP_CARBON_GUI
 /* Non-Carbon version just creates TextHandles to use */
-SetUpWindow(int w)
+int SetUpWindow(int w)
 {	
 	if(w < 0 || w >= WMAX) {
 		Alert1("Internal problem in setting up text buffers!");
@@ -1126,7 +1127,7 @@ SetUpWindow(int w)
 }
 
 #else
-SetUpWindow(int w)
+int SetUpWindow(int w)
 {
 Rect destRect,viewRect;
 Rect scrollrect,r;
@@ -1278,7 +1279,7 @@ int CreateMLTEObject(int w, Rect* frame)
 #endif
 
 
-LoadStrings(void)
+int LoadStrings(void)
 {
 long max;
 int i;
@@ -1312,7 +1313,7 @@ return(OK);
 }
 
 
-LoadStringResource(char***** pp_str,int ***pp_ndx,int ***pp_narg,int id,long *p_max,
+int LoadStringResource(char***** pp_str,int ***pp_ndx,int ***pp_narg,int id,long *p_max,
 	int lock)
 {
 int i,im,j,j0,k,km;
@@ -1445,7 +1446,7 @@ return(FAILED);
 }
 
 
-LoadScriptCommands(int id)
+int LoadScriptCommands(int id)
 {
 int i,im,ilabel,iarg,j,k,km,kk,n,nmax,ic;
 char c,**ptr;
@@ -1595,7 +1596,7 @@ goto ERR3;
 
 
 #if BP_CARBON_GUI
-SetUpCursors(void)
+int SetUpCursors(void)
 {
 CursHandle	hCurs;
 int i;
@@ -1633,7 +1634,7 @@ return(OK);
 #endif /* BP_CARBON_GUI */
 
 
-InitButtons(void)
+int InitButtons(void)
 {
 #if WITH_REAL_TIME_MIDI && BP_CARBON_GUI
   OutMIDI = TRUE;
@@ -1656,7 +1657,7 @@ return(OK);
 
 #if BP_CARBON_GUI
 
-ResetPannel(void)
+int ResetPannel(void)
 {
 HidePannel(wControlPannel,dDeriveFurther);
 HidePannel(wControlPannel,dSaveDecisions);
@@ -1671,7 +1672,7 @@ return(OK);
 }
 
 
-GoodMachine(void)
+int GoodMachine(void)
 {
 char *processor[] = {
 	"mc68000",
@@ -1773,7 +1774,7 @@ int BPSetMenuItemIcons(MenuHandle menu, ResID iconIDs[])
 }
 
 
-SetUpMenus(void)
+int SetUpMenus(void)
 {
 int	i;
 
@@ -1837,7 +1838,7 @@ return(OK);
 }
 
 
-AdjustWindow(int newplace,int w,int top,int left,int bottom,int right)
+int AdjustWindow(int newplace,int w,int top,int left,int bottom,int right)
 {
 int vdrag,hdrag,wresize,hresize,height,width,screenwidth,screenheight,d;
 Rect r; Point p,q;
@@ -1920,7 +1921,7 @@ return(OK);
 }
 
 
-Boolean HasGWorlds(void)
+int Boolean HasGWorlds(void)
 {
 long qdResponse,mask;
 OSErr err;
@@ -1941,7 +1942,7 @@ else
 }
 
 
-GWorldInit(void)
+int GWorldInit(void)
 {
 OSErr	err;
 Rect	r;
@@ -2073,7 +2074,7 @@ return(OK);
 }
 
 
-MakeNewKeyFile(int formyself)
+int MakeNewKeyFile(int formyself)
 {
 int result;
 short type,refnum;
@@ -2184,7 +2185,7 @@ return(OK);
 }
 
 
-Y2K(void)
+int Y2K(void)
 {
 short y2krefnum;
 unsigned long today,secs;

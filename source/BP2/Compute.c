@@ -1682,7 +1682,7 @@ for(i=istart,j=jstart;
 			case T29:	/* performance control */
 			case T30:	/* performance control */
 			case T31:	/* performance control */
-			case T32:	/* performance control */
+			case T32:	/* _ins() */
 			case T33:	/* performance control */
 			case T34:	/* performance control */
 			case T35:	/* performance control */
@@ -1727,7 +1727,7 @@ for(i=istart,j=jstart;
 			case T29:	/* performance control */
 			case T30:	/* performance control */
 			case T31:	/* performance control */
-			case T32:	/* performance control */
+			case T32:	/* _ins() */
 			case T33:	/* performance control */
 			case T34:	/* performance control */
 			case T35:	/* performance control */

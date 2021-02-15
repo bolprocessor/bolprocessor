@@ -698,8 +698,10 @@ char c,d,*ptr,*ptr2,*p_line,*q,line[MAXLIN];
 double x;
 
 jinstr = -1; im = 0;
-// if(trace_scale) BPPrintMessage(odInfo,"Start GetPerformanceControl()\n");
+if(trace_scale)
+	BPPrintMessage(odInfo,"Start GetPerformanceControl()\n");
 for(j=0; j < MaxPerformanceControl; j++) {
+//	BPPrintMessage(odInfo,"%s\n",(*(*p_PerformanceControl)[j]));
 	ptr = *pp; i = 0; length = MyHandleLen((*p_PerformanceControl)[j]);
 	while(MySpace(*ptr)) ptr++;
 	while(i < length && (((c=(*ptr)) == (d=(*((*p_PerformanceControl)[j]))[i]))
@@ -711,6 +713,7 @@ for(j=0; j < MaxPerformanceControl; j++) {
 		}
 	}
 if(jinstr == -1) return(RESUME);
+// BPPrintMessage(odInfo,"GetPerformanceControl() j = %d MaxPerformanceControl = %d\n",jinstr,MaxPerformanceControl);
 if(arg_nr == 1 || arg_nr == 4) {
 	sprintf(Message,"\n'%s' should not appear in the left argument of a rule",
 		*((*p_PerformanceControl)[jinstr]));
@@ -1057,7 +1060,7 @@ else {
 			}
 		}
 	else {
-		Message[0] = '\0';
+		strcpy(Message,""); // Fixed by BB 2021-02-15
 		if(jinstr == 0 && (k < 1 || k > MAXCHAN)) {
 			sprintf(Message,
 				"\nMIDI channel range is 1..%ld. Can't accept '_chan(%ld)'",
@@ -1227,8 +1230,10 @@ switch(jinstr) {
 		if(*p_n < 0) return(*p_n);
 		break;
 	case 43:
+	//	BPPrintMessage(odInfo,"@@@ line = %s\n",line);
 		*p_n = FindCsoundInstrument(line);
 		if(*p_n < 0) return(*p_n);
+//		*p_n -= 1;
 		break;
 	case 45:
 	case 46:

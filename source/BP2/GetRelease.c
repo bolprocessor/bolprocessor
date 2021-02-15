@@ -753,9 +753,9 @@ int i,j;
 char **ptr;
 
 if(howmany != Jinstr) CompiledCsObjects = CompiledRegressions = FALSE;
-
+ 
 if(howmany == 0) {
-	if(Beta) Alert1("=> Err. ResizeCsoundInstrumentsSpace(). howmany == 0");
+	BPPrintMessage(odError,"=> Err. ResizeCsoundInstrumentsSpace(). howmany == 0\n");
 	return(ReleaseCsoundInstruments());
 	}
 if(Jinstr == 0) {

@@ -39,13 +39,13 @@
 #include "-BP2decl.h"
 
 int trace_diagram = 0;
-int trace_toofast = 1;
+int trace_toofast = 0;
 
 FillPhaseDiagram(tokenbyte ***pp_buff,int* p_numberobjects,unsigned long *p_maxseq,
 	int* p_nmax,unsigned long **p_imaxseq,
 	double maxseqapprox,int *p_bigitem,short **p_articul)
 {
-unsigned long id,iseq,ip,iplot,**p_maxcol,classofinext,currswitchstate[MAXCHAN],
+unsigned long id,iseq,ip,iplot,**p_maxcol,classofinext,currswitchstate[MAXCHAN+1],
 	tstart,imax;
 float maxbeats,ibeatsvel,maxbeatsvel,**p_deftmaxbeatsvel,ibeatsarticul,maxbeatsarticul,
 	**p_deftibeatsarticul,**p_deftmaxbeatsarticul,**p_deftibeatsvel,
@@ -339,7 +339,7 @@ foundendconcatenation = skipzeros = FALSE;
 
 ibeatsvel = ibeatsarticul = ibeatsmap = ibeatstranspose = 0.;
 
-for(i=0; i < MAXCHAN; i++) currswitchstate[i] = 0L;
+for(i=0; i <= MAXCHAN; i++) currswitchstate[i] = 0L;
 newswitch = TRUE;	/* This will reset all switches in the beginning of the item */
 
 nseqplot = Minconc + 1;
@@ -361,16 +361,17 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 	p = (tokenbyte) (**pp_buff)[id+1];
 	if(m == TEND && p == TEND) break;
 	if(trace_diagram) BPPrintMessage(odInfo,"\nFillPhaseDiagram() m = %d p = %d level = %ld nseq = %ld id = %ld\n",m,p,(long)level,(long)nseq,(long)id);
-	if(m == T10) {	/* Channel assignment _chan() */ // Added by BB 2021-02-08
+/*	if(m == T10) {	// Channel assignment _chan() // Fixed by BB 2021-02-15
 		channel = (int) FindValue(m,p,0);
-		if(trace_diagram) BPPrintMessage(odInfo,"\nFillPhaseDiagram() channel = %d\n",channel);
+		if(trace_diagram)
+			BPPrintMessage(odInfo,"\nFillPhaseDiagram() channel = %d\n",channel);
 		goto NEXTTOKEN;
-		}
-	if(m == T32) { /* Instrument assignment _ins() */ // Added by BB 2021-02-08
+		} */
+/*	if(m == T32) { // Instrument assignment _ins() // Fixed by BB 2021-02-15
 		instrument = (int) FindValue(m,p,0);
 		if(trace_diagram) BPPrintMessage(odInfo,"\nFillPhaseDiagram() instrument = %d\n",instrument);
 		goto NEXTTOKEN;
-		}
+		} */
 	if(m == T33 || m == T34) {	/* _step() or _cont() */
 		paramnameindex = p;
 		i = FindParameterIndex(p_contparameters,level,paramnameindex);
@@ -901,6 +902,7 @@ DONEOUTTIMEOBJECT:
 			switch(p) {
 				case 12:			/* '{' */
 				case 22:
+				//	BPPrintMessage(odInfo,"\nFillPhaseDiagram() { m = %d p = %d level = %ld\n",m,p,(long)level);
 					skipzeros = FALSE;
 					for(i=0; i < (*p_contparameters)[level].number; i++) {
 						UpdateParameter(i,p_contparameters,level,ZERO);
@@ -1046,6 +1048,7 @@ DONEOUTTIMEOBJECT:
 					break;
 					
 				case 14:				/* ',' */
+			//		BPPrintMessage(odInfo,"\nFillPhaseDiagram() , m = %d p = %d level = %ld\n",m,p,(long)level);
 					skipzeros = FALSE;
 					inext = (*p_origin)[level];
 					classofinext = Class(inext);
@@ -2035,6 +2038,9 @@ if(Beta) {
 		}
 	}
 start = (*((*p_contparameters)[level].values))[i].start;
+
+// BPPrintMessage(odError,"contparameter #%d level = %d active = %d start = %.3f\n",i,level,(*((*p_contparameters)[level].values))[i].active,(*((*p_contparameters)[level].values))[i].start);
+
 if((*((*p_contparameters)[level].values))[i].active) {
 	ibeats = (*((*p_contparameters)[level].values))[i].ibeats;
 	maxbeats = (*((*p_contparameters)[level].values))[i].maxbeats;

@@ -294,7 +294,9 @@ if((Interactive || ScriptRecOn || ReadKeyBoardOn) && c == ControlChange && c1 > 
 	return(OK);
 	}
 if((Interactive || ScriptRecOn) && c == ChannelMode && c1 > 121) {
-	LineBuff[0] = '\0';
+//	LineBuff[0] = '\0';
+	strcpy(LineBuff,""); // Fixed by BB 2021-02-14
+
 	sprintf(Message,"%ld",(long)(c0 - c + 1));
 	if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,0,Message);
 	switch(c1) {

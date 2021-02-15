@@ -1118,8 +1118,8 @@ for(i=is; i < count; i++) {
 	j = i - is + offset;
 	
 	/* 'Â' means the line continues on the next line */
-	if(((oldc != 'Â' || !bindlines) && (c == '\n' || c == '\r')) || c == '\0'
-															|| j >= (size-discount-1)) {
+//	if(((oldc != 'Â' || !bindlines) && (c == '\n' || c == '\r')) || c == '\0' || j >= (size-discount-1)) {
+	if(c == '\n' || c == '\r' || c == '\0' || j >= (size-discount-1)) { // Fixed by BB 2021-02-14
 		(*p_pos) += (i + 1);
 		fseek(fin,*p_pos,SEEK_SET);
 		if(j >= (size-discount-1)) {
