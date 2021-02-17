@@ -221,7 +221,7 @@ int main (int argc, char* args[])
 				break;
 			case play_all:
 				BPPrintMessage(odInfo,"Playing item(s) or chunks\n");
-				PlaySelectionOn = TRUE;
+				PlaySelectionOn = PlayChunks = TRUE;
 				Improvize = FALSE;
 				result = PlaySelection(wData,1);
 				PlayAll = FALSE;

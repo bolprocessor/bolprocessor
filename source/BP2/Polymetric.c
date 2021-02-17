@@ -806,13 +806,17 @@ if(!TempMemory && !AskedTempMemory && !FixedMaxQuantization
 			}
 	ASK:
 		if(!alreadychangedquantize) {
-			BPPrintMessage(odError,"=> Item is too large or too complex. Maybe decrease $maxchunk_size in the interface\n"); // Fixed by BB 2021-02-11
+			if(PlayChunks) // Fixed by BB 2021-02-17
+				BPPrintMessage(odError,"=> Item is too large or too complex. Maybe decrease $maxchunk_size in the interface\n");
+			else
+				BPPrintMessage(odError,"=> Item is too large or too complex. Use \"PLAY safe\" instead of \"PLAY\"\n");
 			if(Beta) BPPrintMessage(odError,"(imax = %.0f, thelimit = %.0f, compression rate = %.0f)\n",imax,thelimit,Kpress);
 		//	rep = Answer("=> Item is too large. Try to increase quantization",'Y');
 			rep = CANCEL;
 			}
 		else {
-			rep = Answer("Quantization value must be reduced again, as the estimation proved wrong. Fix",'Y');
+		//	rep = Answer("Quantization value must be reduced again, as the estimation proved wrong. Fix",'Y');
+			rep = YES; // Fixed by BB 2021-02-17
 			if(rep == YES) goto TOOBIG;
 			}
 		if(rep == CANCEL) {

@@ -90,7 +90,7 @@ if(all) {
 	PlayAll = TRUE;
 	}
 
-PlaySelectionOn++;
+// PlaySelectionOn++; // Fixed by BB 2021-02-17
 ResetMIDI(TRUE);
 
 r = ABORT;
@@ -226,7 +226,7 @@ NOVARIABLE:
 
 END:
 if(r == OK) SetSelect(firstorigin,end,TEH[w]);
-if(PlaySelectionOn > 0) PlaySelectionOn--;
+// if(PlaySelectionOn > 0) PlaySelectionOn--; */ // Fixed by BB 2021-02-17
 
 ResetMIDIfile();
 
@@ -517,7 +517,7 @@ ENCODE:
 		continue;
 		}
 	else {
-		PlaySelectionOn++;
+	//	PlaySelectionOn++; // Fixed by BB 2021-02-17
 		if(!onlypianoroll) ResetMIDI(TRUE);
 		improvize = FALSE;
 		if(Improvize) {
@@ -543,7 +543,7 @@ NOVARIABLE:
 			if(!derivevariables) goto NOVARIABLE;
 			if(!CompiledGr || !CompiledGl) {
 				MyDisposeHandle((Handle*)&p_ti);
-				if(PlaySelectionOn > 0) PlaySelectionOn--;
+			//	if(PlaySelectionOn > 0) PlaySelectionOn--; // Fixed by BB 2021-02-17
 				if(improvize) {
 					Improvize = TRUE;
 					SetButtons(TRUE);
@@ -562,7 +562,7 @@ NOVARIABLE:
 				}
 			r = ProduceItems(0,FALSE,FALSE,&p_ti);
 			}
-		if(PlaySelectionOn > 0) PlaySelectionOn--;
+	//	if(PlaySelectionOn > 0) PlaySelectionOn--; // Fixed by BB 2021-02-17
 		
 		if(!onlypianoroll) ResetMIDIfile();
 		
@@ -620,7 +620,7 @@ improvize = Improvize;
 Improvize = FALSE;
 SetButtons(TRUE);
 
-PlaySelectionOn++;
+// PlaySelectionOn++; // Fixed by BB 2021-02-17
 /* ResetMIDI(TRUE); */
 
 r = ABORT; p_a = NULL;
@@ -677,8 +677,8 @@ else {
 if(ResetControllers) ResetMIDIControllers(NO,YES,YES);
 
 END:
-if(PlaySelectionOn > 0) {
-	PlaySelectionOn--;
+if(PlaySelectionOn) {
+	PlaySelectionOn = FALSE; // Fixed by BB 2021-02-17
 	BPPrintMessage(odInfo,"End of playing selection\n");
 	}
 ShowMessages = showmessages;
