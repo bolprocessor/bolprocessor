@@ -1208,7 +1208,7 @@ NEWSEQUENCE:
 						sprintf(Message,"=> Concatenation '&' should follow a sound-object or simple note. One of them is misplaced");
 						if(!ScriptExecOn) Alert1(Message);
 						else Println(wTrace,Message);
-						goto ENDDIAGRAM;
+						goto NEXTTOKEN;
 						}
 				//	BPPrintMessage(odInfo,"\nCase 2\n");
 					numberzeros

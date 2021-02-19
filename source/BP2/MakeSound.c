@@ -1141,7 +1141,7 @@ FORGETIT:
 				stream = (*p_control)[nseq].param;
 				if(cswrite) goto SWITCHES;
 				
-				BPPrintMessage(odInfo,"\nMakeSound() kcurrentinstance = %d number = %d\n",kcurrentinstance,(*p_Instance)[kcurrentinstance].contparameters.number);
+		//		BPPrintMessage(odInfo,"\nMakeSound() kcurrentinstance = %d number = %d\n",kcurrentinstance,(*p_Instance)[kcurrentinstance].contparameters.number);
 				for(i=0; i < (*p_Instance)[kcurrentinstance].contparameters.number; i++) {
 					index = (*currentinstancevalues)[i].index;
 					if(index < 0) continue;

@@ -68,7 +68,7 @@ MIDI files
 Csound scores
 -------------
 
-- revise CsoundWrite to make sure that events are ordered by "note-on" dates. Example #15 in -da.checkTies where C3 is not played
+- (optionally) revise CsoundWrite to make sure that events are ordered by "note-on" dates.
 - reference: https://csound.com/docs/manual/i.html => negated p1 for note-off?
 
 
@@ -98,7 +98,7 @@ Open Sound Control
 Images
 --------------
 
-- if no settings file is used, allow the creation of images via a command line option. This option should specify a location for images. Currently, the location is identical to the location of the trace file.
+- when no settings file is specified, allow the creation of images via a command line option. This option should specify a location for images. Currently, the location is identical to the location of the trace file.
 
 
 Microtonal scales
@@ -106,7 +106,7 @@ Microtonal scales
 
 - Include values for optionally stretching each octave
 - Implement performance control to change A4 frequency (diapason) in the score
-- Try to generate microtonality in MIDI by sending a pitchbend instruction before each note. If necessary send simultaneous notes  to separate MIDI channels
+- Try to generate microtonality in MIDI by sending a pitchbend instruction before each note. If necessary send simultaneous notes  to separate MIDI channels. (Probably doesn't work)
 
 
 Csound orchestra
