@@ -338,8 +338,6 @@ if(!MIDIfileOpened) return(OK);
 // PleaseWait();
 MIDIfileTrackEmpty = FALSE;
 
-if(trace_writing_midi_file) BPPrintMessage(odInfo,"midi_byte = %d time = %ld\n",midi_byte,(long)time);
-
 if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
 	if(MIDIbytestate > 0) {	/* Write out the accumulated message. */
 		if(Writedword(OpenMIDIfilePtr, Midi_msg, MIDIbytestate) != OK) goto BAD;
@@ -351,16 +349,21 @@ if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
  		
 	if(time < OldMIDIfileTime) OldMIDIfileTime = time;
 	/* This could happen with a bad rounding. Normally BP2 sorts out events */
+	
 		
 	/* Write out variable length delta time value. */
 	if(WriteVarLenQuantity(OpenMIDIfilePtr, (dword)(time-OldMIDIfileTime),
 			&MIDItracklength) != OK) goto BAD;
-	
+			
 	OldMIDIfileTime = time;
 
 	/* Grab the new byte read. */
 	Midi_msg = (dword)midi_byte;
 	MIDIbytestate = 1;
+	
+	if(trace_writing_midi_file)
+		BPPrintMessage(odInfo,"midi_byte = %d time = %ld OldMIDIfileTime = %ld MIDItracklength = %ld Midi_msg = %ld\n",midi_byte,(long)time,(long)OldMIDIfileTime,(long)MIDItracklength,(long)Midi_msg);
+	
 	}
 else {
 	if(MIDIbytestate > 3 || MIDIbytestate < 1) {
@@ -374,6 +377,7 @@ else {
 return(OK);
 
 BAD:
+BPPrintMessage(odError,"=> Canceling creation of MIDIfile\n");
 CloseMIDIFile2();
 return(ABORT);
 }
@@ -521,7 +525,7 @@ static int WriteVarLenQuantity(FILE* fout, dword value, dword *tracklen)
 		if (Beta)	{
 			BPPrintMessage(odError, "=> Err. WriteVarLenQuantity(): value %u is out of range in chunk #%d\n",value,Chunk_number);
 		}
-		return OK;
+		return ABORT; // Fixed by BB 2021-02-25
 	}
 	
 	// split value into 7-bit chunks
@@ -1287,8 +1291,7 @@ if(MIDIfadeOut > 0.) {
 			this_char = (unsigned char)value2;
 			e.data2 = this_char;
 			if((rep=SendToDriver(time,0,&rs,&e)) != OK) {
-				sprintf(Message,"SendToDriver aborted! rep = %ld\n",(long)rep);
-				BPPrintMessage(odInfo,Message);
+				BPPrintMessage(odInfo,"SendToDriver aborted! rep = %ld\n",(long)rep);
 				goto OUT;
 				}
 			sprintf(Message,"%d/%d ratio = %.3f  channel %d: time = %ld ms, current_volume = %ld, e.data1 = %d, e.data2 = %d\n",i_event,i_event_max,ratio,chan,(long)time,(long)this_volume,e.data1,e.data2);

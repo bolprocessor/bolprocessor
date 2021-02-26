@@ -54,16 +54,18 @@ double v0,v1;
 Coordinates **ptr;
 
 if(k < 2) {
-	if(Beta) Alert1("=> Err. SetObjectParams(). k < 2");
-	return(OK);
+	BPPrintMessage(odError,"=> Err. SetObjectParams(). k < 2\n");
+	return(ABORT); // Fixed by BB 2021-02-26
 	}
 if(nseq >= Maxconc) {
-	if(Beta) Println(wTrace,"\nErr. SetObjectParams(). nseq >= Maxconc");
-	return(OK);
+	BPPrintMessage(odError,"\=> Err. SetObjectParams(). nseq >= Maxconc\n");
+	return(ABORT); // Fixed by BB 2021-02-26
 	}
 
-if(Beta && (*p_Instance)[k].contparameters.values != NULL)
-	Println(wTrace,"=> Err. SetObjectParams(). (*p_Instance)[k].contparameters.values != NULL");
+if(Beta && (*p_Instance)[k].contparameters.values != NULL) {
+	BPPrintMessage(odError,"=> Err. SetObjectParams(). (*p_Instance)[k].contparameters.values != NULL\n");
+	return(ABORT); // Fixed by BB 2021-02-26
+	}
 
 (*p_Instance)[k].contparameters.values = NULL;
 (*p_Instance)[k].contparameters.number = 0;
@@ -260,8 +262,15 @@ else {
 	(*p_Instance)[k].instrument = p_currentparameters->currinstr;
 	}
 (*p_Instance)[k].scale = p_currentparameters->scale;
-// if(trace_scale) BPPrintMessage(odInfo,"4) scale =%d\n",p_currentparameters->scale);
+// if(trace_scale) BPPrintMessage(odInfo,"4) scale =%d\n",p_currentparameters->scale); 
 (*p_Instance)[k].blockkey = p_currentparameters->blockkey;
+
+/* VolumeStart(k) = DEFTVOLUME;
+PanoramicStart(k) = DEFTPANORAMIC;
+PitchbendStart(k) = DEFTPITCHBEND;
+PressureStart(k) = DEFTPRESSURE;
+ModulationStart(k) = DEFTMODULATION; */
+
 return(OK);
 }
 

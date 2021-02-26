@@ -208,11 +208,13 @@ iprev = i;
 i = inext;
 
 CHECK:
-if(kmax > 100 && ++n > 10) {
+/* if(kmax > 100 && ++n > 10) {
 	PleaseWait(); n = 0;
-	}
+	} */
 k = (*((*p_Seq)[nseq]))[i];
 (*p_delta1)[i] = (*p_delta2)[i] = ZERO;
+
+// BPPrintMessage(odInfo,"nseq = %ld p_imaxseq = %ld\n",(long)nseq,(long)(*p_imaxseq)[nseq]); 
 
 if(k == -1) {	/* 'NIL' end-of-line marker */
 	if((nature_time == SMOOTH) && (nseq == 0) && first) {
@@ -231,6 +233,7 @@ if(k == -1) {	/* 'NIL' end-of-line marker */
 				if(kk >= 1) {
 					(*p_Instance)[kk].starttime = (*p_ts1)[ii];
 					(*p_Instance)[kk].endtime = (*p_ts2)[ii];
+				//	BPPrintMessage(odInfo,"kk = %ld starttime = %ld endtime = %ld\n",(long)kk,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
 					}
 				if(ii <= imaxseq) {
 					DELTA = (*p_DELTA)[ii]
@@ -260,7 +263,6 @@ j = (*p_Instance)[k].object;	/* j can't be 0 because of previous inext calculati
 (*p_ts2)[i] = (*p_tp2)[i] = (*p_time2)[i] + (*p_ddelta0)[i];
 
 if(i == i0 || (NoAlphabet && (nature_time != SMOOTH))) goto INCREMENT;
-/* Added 8/3/97 */
 
 if(j < 0) j = -j;	/* Out-time object */
 if(ibreak == 0) {
@@ -940,13 +942,12 @@ int j,k;
 Milliseconds t1,shiftmore,s1,s2;
 
 if(nseq >= Maxconc) {
-	if(Beta) Alert1("=> Err. Alternate_correction1(). nseq >= Maxconc");
-	return(OK);
+	BPPrintMessage(odError,"=> Err. Alternate_correction1(). nseq >= Maxconc\n");
+	return(ZERO);
 	}
 k = (*((*p_Seq)[nseq]))[i];
 if(k < 1) {
-	sprintf(Message,"=> Err. Alternate_correction1()"); 
-	if(Beta) Alert1(Message);
+	BPPrintMessage(odError,"=> Err. Alternate_correction1(). k < 1"); 
 	return(ZERO);
 	}
 j = (*p_Instance)[k].object;

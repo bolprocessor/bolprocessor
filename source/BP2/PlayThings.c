@@ -216,7 +216,7 @@ NOVARIABLE:
 		/* Could already be NULL because of PolyExpand() */
 		if(r == ABORT || r == EXIT) {
 		//	if(CyclicPlay) ResetMIDI(!Oms && !NEWTIMER);
-			if(r == ABORT) r = OK;
+		//	if(r == ABORT) r = OK; Fixed by BB 2021-02-25
 			break;
 			}
 		}
@@ -372,9 +372,10 @@ SetTimeOn = TRUE; nmax = 0;
 if((result = TimeSet(pp_buff,&kmax,&tmin,&tmax,&maxseq,&nmax,p_imaxseq,maxseqapprox))
 	 						== FAILED || result == ABORT || result == EXIT) {
 	SetTimeOn = FALSE;
-	if(ReleasePhaseDiagram(nmax,&p_imaxseq) != OK) result = ABORT;
+	if(result != ABORT && ReleasePhaseDiagram(nmax,&p_imaxseq) != OK) result = ABORT;
 	if(result == FAILED) ShowError(37,0,0);
-	if((result == ABORT && !SkipFlag) || result == EXIT) goto RELEASE;
+//	if((result == ABORT && !SkipFlag) || result == EXIT) goto RELEASE;
+	if(result == ABORT || result == EXIT) goto RELEASE; // Fixed by BB 2021-02-26
 	result = FAILED;
 	goto RELEASE;
 	}
@@ -414,8 +415,10 @@ if(again || EventState == AGAIN) {
 	} */
 
 RELEASE:
+// BPPrintMessage(odInfo,"@@ End MakeSound()\n");
 TempMemory = FALSE;
 TempMemoryUsed = ZERO;
+if(result == ABORT) return(result);
 if(ReleasePhaseDiagram(nmax,&p_imaxseq) != OK) return(ABORT);
 if(result == FAILED) ShowMessage(TRUE,wMessage,"Item ignored");
 
@@ -427,6 +430,7 @@ if(store) {
 	}
 TempMemory = FALSE;
 TempMemoryUsed = ZERO;
+// BPPrintMessage(odInfo,"@@ End PlayBuffer1()\n");
 return(result);
 }
 

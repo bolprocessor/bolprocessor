@@ -60,6 +60,7 @@ Chunk_number++;
 if((p_articul = (short**) GiveSpace((Size)Maxevent*sizeof(short))) == NULL) return(ABORT);
 
 maxties = Jbol + Jpatt;
+// BPPrintMessage(odInfo,"\n\n@@ maxties = %d\n\n",maxties);
 for(i = 0; i < MAXINSTRUMENTS; i++)
 	if((p_Tie_event[i] = (char**) GiveSpace((Size)maxties*sizeof(short))) == NULL) return(ABORT); // Added by BB 2021-02-07
 for(i = 0; i <= MAXCHAN; i++)
@@ -139,7 +140,7 @@ double period,in,imax;
 p_list **ptag;
 Milliseconds tmax,t,**p_DELTA,t1,t2,**p_time1,**p_time2,**p_maxcoverbeg,**p_maxcoverend,
 	**p_maxgapbeg,**p_maxgapend,**p_maxtruncbeg,**p_maxtruncend,
-	olddelta;
+	olddelta,max_end_time;
 unsigned long tstart;
 
 nature_time = Nature_of_time;	/* Must not change during computation */
@@ -155,8 +156,8 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 in = 1.; jn = ZERO;
 period = ((double) Pclock) * 1000. * CorrectionFactor / Qclock;
 
-if(ShowMessages || bigitem) {
-	BPPrintMessage(odInfo,"Setting %d time streaks\n",(*p_nmax));
+if(trace_timeset) {
+	BPPrintMessage(odInfo,"Setting time streaks on %d lines\n",(*p_nmax));
 	}
 
 while(TRUE) {
@@ -175,8 +176,10 @@ while(TRUE) {
 // Now display phase diagram (optional)
 #if DISPLAY_PHASE_DIAGRAM
 
-if(trace_timeset) BPPrintMessage(odInfo,"\n");
-if(trace_timeset) BPPrintMessage(odInfo,"Minconc = %ld    Maxconc = %ld\n\n",Minconc,Maxconc);
+// if(trace_timeset) {
+	BPPrintMessage(odInfo,"\n");
+	BPPrintMessage(odInfo,"@Minconc = %ld    Maxconc = %ld\n\n",(long)Minconc,(long)Maxconc);
+	}
 
 for(k=ZERO; k < Maxevent; k++) {
 	if((j=(*p_Instance)[k].object) >= 0) {
@@ -272,7 +275,8 @@ if(Maxevent < 1000) {
 		BPPrintMessage(odInfo,"\n");
 		}
 		
-	if(trace_timeset) BPPrintMessage(odInfo,"\nT[i], i = 1,%ld:\n",(long)maxseq);
+	if(trace_timeset)
+		BPPrintMessage(odInfo,"\nT[i], i = 1,%ld:\n",(long)maxseq);
 	for(i=1L; i <= maxseq; i++) {
 		if(trace_timeset) BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
 		}
@@ -310,7 +314,13 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 #endif
 // End display Phase diagram
 
-if(ShowMessages || bigitem) {
+
+/*	BPPrintMessage(odInfo,"\nT[i], i = 1,%ld:\n",(long)maxseq);
+	for(i=1L; i <= maxseq; i++) BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
+	BPPrintMessage(odInfo,"\n"); */
+max_end_time = (*p_T)[maxseq];
+
+if(trace_timeset) {
 	BPPrintMessage(odInfo,"Positioning %ld sound-objects...\n",(long)(*p_kmx));
 	}
 if(DoSystem() != OK) return(ABORT);
@@ -350,7 +360,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) (*p_alphadone)[nseq] = FALSE;
 STARTAGAIN:
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	PleaseWait();
-	if(ShowMessages && bigitem) {
+	if(trace_timeset) {
 		if(Kpress > 1.) {
 			if(Kpress < ULONG_MAX)
 				sprintf(Message,"%ld objects. Compression rate = %.0f  Sequence %ld/%ld",
@@ -365,10 +375,10 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 		FlashInfo(Message);
 		}
 	if(!(*p_alphadone)[nseq]) {
-		if(ShowMessages && bigitem) ShowMessage(FALSE,wMessage,"Sizing objects");
+		if(trace_timeset) ShowMessage(FALSE,wMessage,"Sizing objects");
 		if((result=Calculate_alpha(nseq,*p_nmax,maxseq,(*p_imaxseq)[nseq],nature_time,
 			p_marked)) != OK) goto EXIT1;
-		if(ShowMessages && bigitem) ShowMessage(FALSE,wMessage,"Setting limits");
+		if(trace_timeset) ShowMessage(FALSE,wMessage,"Setting limits");
 		if((result=SetLimits(nseq,p_maxcoverbeg,p_maxcoverend,p_maxgapbeg,p_maxgapend,
 			p_maxtruncbeg,p_maxtruncend)) != OK) goto EXIT1;
 		}
@@ -426,9 +436,9 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 		}
 		
 TRY:
-	if(ShowMessages && bigitem) ShowMessage(FALSE,wMessage,"Placing objects");
+	if(trace_timeset) ShowMessage(FALSE,wMessage,"Placing objects");
 	if((result=Fix(nseq,p_time1,p_time2,nature_time)) != OK) goto EXIT1;
-	if(ShowMessages && bigitem) ShowMessage(FALSE,wMessage,"Solving constraints");
+	if(trace_timeset) ShowMessage(FALSE,wMessage,"Solving constraints");
 	r = Locate(nseq,p_imaxseq,maxseq,*p_kmx,p_DELTA,&tstart,p_time1,
 			p_time2,p_maxcoverbeg,p_maxcoverend,p_maxgapbeg,p_maxgapend,p_maxtruncbeg,
 			p_maxtruncend,nature_time,first,p_marked);
@@ -529,7 +539,7 @@ QUEST2:
 	tmax = Infneg;
 	olddelta = ZERO;
 	if(nature_time == STRIATED) {
-		if(ShowMessages && bigitem) ShowMessage(FALSE,wMessage,"Calculating global drift");
+		if(trace_timeset) ShowMessage(FALSE,wMessage,"Calculating global drift");
 		for(i=1L; i <= maxseq; i++) {
 			if((*p_DELTA)[i] > EPSILON) BTflag = TRUE;
 			else {		/* Correct last streaks for which DELTA is not known */
@@ -541,7 +551,7 @@ QUEST2:
 			}
 		}
 	else {
-		if(ShowMessages && bigitem) ShowMessage(FALSE,wMessage,"Interpolating streaks");
+		if(trace_timeset) ShowMessage(FALSE,wMessage,"Interpolating streaks");
 		for(i=1L; i <= maxseq; i++) {
 			if(i <= (*p_imaxseq)[nseq] && ((k=(*((*p_Seq)[nseq]))[i]) >= 1 || k == -1))
 						(*p_marked)[i] = TRUE;
@@ -562,7 +572,7 @@ QUEST2:
 			}
 		}
 	if(BTflag) {
-		if(ShowMessages && bigitem)
+		if(trace_timeset)
 			ShowMessage(TRUE,wMessage,"Starting again algorithm (broke tempo)...");
 		if(DisplayTimeSet) {
 			sprintf(Message,"\nBroke tempo. T[i], i = 1,maxseq:\n");
@@ -612,8 +622,12 @@ QUEST2:
 	}
 
 /* Modify Alpha according to articulation (legato/staccato) */
-if(ShowMessages && bigitem) ShowMessage(TRUE,wMessage,"Calculating legato/staccato");
+if(trace_timeset) ShowMessage(TRUE,wMessage,"Calculating legato/staccato");
 for(k=2; k <= *p_kmx; k++) {
+	if((*p_Instance)[k].starttime > max_end_time || (*p_Instance)[k].endtime > max_end_time) {
+		BPPrintMessage(odError,"=> Wrong start/end values for object #%d. Process canceled\n",k);
+		result = ABORT; goto EXIT1;
+		}
 	a = (*p_articul)[k];
 	if(a == 0) continue;
 	// if(a > 127) a = a - 256;
@@ -624,6 +638,9 @@ for(k=2; k <= *p_kmx; k++) {
 	(*p_Instance)[k].alpha += ((*p_Instance)[k].alpha * a) / 100.;
 	(*p_Instance)[k].endtime = (*p_Instance)[k].starttime + ((*p_Instance)[k].endtime
 		- (*p_Instance)[k].starttime) * (1. + ((double) a) / 100.);
+		
+//		BPPrintMessage(odInfo,"legato k = %ld starttime = %ld endtime = %ld  a = %ld\n",(long)k,(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)a);
+		
 	if((*p_Instance)[k].ncycles < 2)	/* Object is not cyclic */
 		(*p_Instance)[k].dilationratio = (*p_Instance)[k].alpha;
 	}
@@ -642,7 +659,7 @@ MyDisposeHandle((Handle*)&p_maxtruncbeg);
 MyDisposeHandle((Handle*)&p_maxtruncend);
 MyDisposeHandle((Handle*)&p_alphadone);
 if(EmergencyExit) result = ABORT;
-if(ShowMessages || bigitem) {
+if(trace_timeset) {
 	HideWindow(Window[wMessage]);
 	HideWindow(Window[wInfo]);
 	}

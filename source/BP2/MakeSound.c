@@ -35,7 +35,7 @@
 #include "-BP2.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP2decl.h" 
 
 extern FILE * imagePtr;
 extern int resize;
@@ -564,8 +564,9 @@ if(!MIDIfileOn && !cswrite && OutMIDI && !ItemCapture && !FirstTime && !PlayProt
 #endif /* WITH_REAL_TIME_MIDI */
 	}
 if(cswrite || MIDIfileOn || ItemCapture) {
-	sprintf(Message,"Writing %ld sound-objects",(long)(*p_kmax)-2L);
-	FlashInfo(Message);
+//	sprintf(Message,"Writing %ld sound-objects",(long)(*p_kmax)-2L);
+	BPPrintMessage(odInfo,"Writing %ld sound-objects\n",(long)(*p_kmax)-2L);
+//	FlashInfo(Message);
 	}
 
 START2:
@@ -573,7 +574,7 @@ START2:
 if(cswrite) {
 	if((result=CompileCsoundObjects()) != OK) goto OVER;
 	if(Jinstr == 1 && (*p_CsInstrumentIndex)[0] == -1) {
-		ShowMessage(TRUE,wMessage,"\nCouldn't find Csound instrument index. Index '1' will be assigned by default.");
+		BPPrintMessage(odInfo,"\nCouldn't find Csound instrument index. Index '1' will be assigned by default\n");
 		WaitABit(1000L);
 		}
 		
@@ -635,11 +636,11 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 	for(k=2; k <= (*p_kmax); k++) {
 		(*p_inext)[k] = (*p_inext1)[k];
 		(*p_onoff)[k] = FALSE;
-		(*p_nextd)[k] = (*p_Instance)[k].starttime + (*p_t1)[k];
-		
-		sprintf(Message,"k = %ld starttime = %ld (*p_t1)[k] = %ld (*p_nextd)[k] = %ld\n",(long)k,(long)(*p_Instance)[k].starttime,(long)(*p_t1)[k],(long)(*p_nextd)[k]);
-		if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
-		
+		(*p_nextd)[k] = (*p_Instance)[k].starttime + (*p_t1)[k];		
+	/*	sprintf(Message,"k = %ld starttime = %ld (*p_t1)[k] = %ld (*p_nextd)[k] = %ld\n",(long)k,(long)(*p_Instance)[k].starttime,(long)(*p_t1)[k],(long)(*p_nextd)[k]);
+		if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message); */
+		if(trace_csound_pianoroll)
+			BPPrintMessage(odInfo,"k = %ld starttime = %ld endtime = %ld  (*p_t1)[k] = %ld (*p_nextd)[k] = %ld\n",(long)k,(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)(*p_t1)[k],(long)(*p_nextd)[k]);
 		}
 	icont = -1; chancont = -1;
 	for(ch=0; ch < MAXCHAN; ch++) {
@@ -699,14 +700,14 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 	
 	if((MIDIfileOn || cswrite || showpianoroll || !Improvize
 			|| ItemNumber == ZERO || PlaySelectionOn || ItemCapture) && !CyclicPlay) {
-		if(!showpianoroll && !cswrite && !MIDIfileOn) SetDriverTime(Tcurr);
+		if(!showpianoroll && !cswrite && !MIDIfileOn) SetDriverTime(Tcurr); // Revise this! 2021-02-26
 		if(!cswrite && !MIDIfileOn && !ItemCapture && !showpianoroll)
 			Tcurr += (SetUpTime + 600L) / Time_res;
 		currenttime = Tcurr * Time_res;
 		Nbytes = 0; Tbytes2 = ZERO;
 		}
 	else {
-		drivertime = GetDriverTime();
+		drivertime = GetDriverTime(); // Revise this! 2021-02-26
 		if(drivertime > Tcurr) {
 			/* Too late to start on time! */
 			currenttime = drivertime * Time_res;
@@ -722,8 +723,11 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 	
 	Tcurr = (t0 + t1) / Time_res;
 	
-	sprintf(Message,"Tcurr = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)t0,(long)t1,(long)Time_res);
-	if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
+/*	sprintf(Message,"Tcurr = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)t0,(long)t1,(long)Time_res);
+	if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message); */
+	if(trace_csound_pianoroll)
+		BPPrintMessage(odInfo,"Tcurr = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)t0,(long)t1,(long)Time_res);
+
 	
 	if(cswrite) {
 TRYCSFILE:
@@ -800,7 +804,10 @@ TRYCSFILE:
 			}
 		params = (*((*pp_currentparams)[nseq]))->params;
 		if(j < 16384) {
-			if(j >= Jbol && Jbol < 2) BPPrintMessage(odInfo,"=> Err. MakeSound(). j >= Jbol && Jbol < 2");
+			if(j >= Jbol && Jbol < 2) {
+				BPPrintMessage(odError,"=> Err. MakeSound(). j >= Jbol && Jbol < 2");
+				result = ABORT; goto OVER; // Fixed by BB 2021-02-26
+				} // BPPrintMessage(odInfo,"=> Err. MakeSound(). j >= Jbol && Jbol < 2");
 			if(j < Jbol) {
 				switch((*p_StrikeAgain)[j]) {
 					case -1:
@@ -829,6 +836,10 @@ TRYCSFILE:
 		t3 = (*p_Instance)[kcurrentinstance].endtime;
 		objectstarttime = (*p_Instance)[kcurrentinstance].starttime;
 		objectduration = t3 - objectstarttime;
+		if(objectduration > 500000) { // Fixed by BB 2021-02-26
+			BPPrintMessage(odError,"=> Incorrect object duration = %ld ms for k = %d starting %ld ms. Canceling this process.\n",(long)objectduration,kcurrentinstance,(*p_Instance)[kcurrentinstance].starttime);
+			result = ABORT; goto OVER;
+			}
 		
 		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance = %d starttime = %ld endtime = %ld  objectduration = %ld\n",kcurrentinstance,(long)(*p_Instance)[kcurrentinstance].starttime,(long)t3,(long)objectduration);
 		
@@ -869,6 +880,10 @@ TRYCSFILE:
 				/* Don't send control value to MIDI if it is being set by a stream */
 				for(n=0; !cswrite && n < maxconc; n++) {
 					stream = (*p_control)[n].param;
+					if(stream == NULL) {
+						BPPrintMessage(odError,"=> Error stream = NULL, n = %ld\n",(long)n);
+						result = ABORT; goto OVER; // Fixed by BB 2021-02-25
+						}
 					ch = (*stream)[IVOLUME].channel;
 					if(chan == ch && (*(p_active[ch]))[IVOLUME]) okvolume = FALSE;
 					ch = (*stream)[IPANORAMIC].channel;
@@ -1881,7 +1896,7 @@ FINDNEXTEVENT:
 		if((*p_Instance)[k].endtime > max_endtime) max_endtime = (*p_Instance)[k].endtime;
 		}
 	add_time = max_endtime - max_endtime_event;
-	if(add_time > ZERO) {
+	if(add_time > ZERO) { // Check this! 2021-02-26
 		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"\nNeed to add_time = %ld ms Tcurr = %ld\n",add_time,(long)Tcurr);
 		if(MIDIfileOn) {
 			e.time = Tcurr;
@@ -1953,7 +1968,7 @@ FINDNEXTEVENT:
 // or not too much filled.
 
 if(LastTcurr > 0L) {
-	if(showpianoroll) BPPrintMessage(odInfo,"Last time = %ld ms\n",(long)LastTcurr);
+//	if(showpianoroll) BPPrintMessage(odInfo,"Last time = %ld ms\n",(long)LastTcurr);
 	}
 
 if(showpianoroll) goto OUTGRAPHIC;
@@ -2067,6 +2082,10 @@ HideWindow(Window[wMessage]);
 HideWindow(Window[wInfo]);
 if(result == ENDREPEAT) result = OK;
 if(result == STOP) result = ABORT;
+if(result == ABORT) {
+	BPPrintMessage(odError,"Canceled MakeSound()\n");
+	goto GETOUT;
+	}
 
 OUTGRAPHIC:
 if(showpianoroll) {

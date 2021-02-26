@@ -218,7 +218,8 @@ extern float **p_PivPos,**p_BeforePeriod;
 extern long **p_Dur,**p_MaxDelay,**p_MaxForward,**p_PreRoll,**p_PostRoll,
 	**p_MaxBegGap,**p_MaxEndGap,
 	**p_MaxCoverBeg,**p_MaxCoverEnd,**p_MaxTruncBeg,**p_MaxTruncEnd;
-extern short Minconc,Maxconc,Maxlevel,MaxFlag,MaxScript,PlayFromInsertionPoint,
+extern int Minconc,Maxconc;
+extern short Maxlevel,MaxFlag,MaxScript,PlayFromInsertionPoint,
 	Jscriptline,Final,POLYconvert,
 	KeepFlag,CoverOK,DiscontinuityOK,AllSolTimeSet,
 	LimCompute,LimTimeSet,SkipFlag,StackFlag,Port,Portbit,****p_Seq,

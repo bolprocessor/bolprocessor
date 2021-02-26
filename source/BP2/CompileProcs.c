@@ -1230,7 +1230,7 @@ switch(jinstr) {
 		if(*p_n < 0) return(*p_n);
 		break;
 	case 43:
-	//	BPPrintMessage(odInfo,"@@@ line = %s\n",line);
+	//	BPPrintMessage(odError,"line = %s\n",line);
 		*p_n = FindCsoundInstrument(line);
 		if(*p_n < 0) return(*p_n);
 //		*p_n -= 1;

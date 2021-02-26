@@ -1835,11 +1835,11 @@ if(status != *p_rs || c0 == ChannelMode /* || c0 == ProgramChange */) {
 	/* Unexpectedly, D-50 seems to mess running status with ChannelMode */
 	*p_rs = status;
 	if(p_e->data1 > 127) {
-		if(Beta) Println(wTrace,"=> Err. SendToDriver(). p_e->data1 > 127.");
+		if(Beta) BPPrintMessage(odError,"=> Err. SendToDriver(). p_e->data1 > 127.");
 		p_e->data1 = 127;
 		}
 	if(p_e->data2 > 127) {
-		if(Beta) Println(wTrace,"=> Err. SendToDriver(). p_e->data2 > 127.");
+		if(Beta) BPPrintMessage(odError,"=> Err. SendToDriver(). p_e->data2 > 127.");
 		p_e->data2 = 127;
 		}
 	DriverWrite(time,nseq,p_e);
@@ -1849,16 +1849,17 @@ if(status != *p_rs || c0 == ChannelMode /* || c0 == ProgramChange */) {
 	if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 	midibyte = p_e->data2;
 	if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+	if(trace_driver) BPPrintMessage(odInfo,"Full event status = %d c1 = %d c2= %d time = %ld\n",status,ByteToInt(p_e->data1),ByteToInt(p_e->data2),(long)time);
 	}
 else {
 	/* Skip the status byte, send only data ("running status") */
 	/* This should probably only be used with direct Serial drivers */
 	if(p_e->data1 > 127) {
-		if(Beta) Println(wTrace,"=> Err. SendToDriver(). p_e->data1 > 127.");
+		if(Beta) BPPrintMessage(odError,"=> Err. SendToDriver(). p_e->data1 > 127.");
 		p_e->data1 = 127;
 		}
 	if(p_e->data2 > 127) {
-		if(Beta) Println(wTrace,"=> Err. SendToDriver(). p_e->data2 > 127.");
+		if(Beta) BPPrintMessage(odError,"=> Err. SendToDriver(). p_e->data2 > 127.");
 		p_e->data2 = 127;
 		}
 	c1 = ByteToInt(p_e->data1);
@@ -1884,7 +1885,7 @@ else {
 		midibyte = c2;
 		if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 		}
-	else if(Beta) Alert1("=> Err. SendToDriver(). c0 == ChannelPressure");
+	else if(Beta) BPPrintMessage(odError,"=> Err. SendToDriver(). c0 == ChannelPressure");
 	}
 OUT:
 return(OK);
@@ -1898,11 +1899,11 @@ long delay;
 MIDI_Event e;
 
 if(!IsMidiDriverOn()) {
-	Alert1("Can't send 'AllNotesOff' because no MIDI output is active");
+	BPPrintMessage(odError,"=> Can't send 'AllNotesOff' because no MIDI output is active");
 	return(ABORT);
 	}
 if(!OutMIDI) {
-	Alert1("All Notes Off won't work since MIDI output is not active");	
+	BPPrintMessage(odError,"=> All Notes Off won't work since MIDI output is not active");	
 	return(OK);
 	}
 

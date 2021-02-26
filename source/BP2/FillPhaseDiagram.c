@@ -89,15 +89,15 @@ if(ShowMessages || Maxevent > 500L) {
 	if(Kpress > 1.) {
 		ShowWindow(Window[wTimeAccuracy]);
 		if(Kpress < ULONG_MAX)
-			sprintf(Message,"Creating phase diagram with compression rate = %u",
+			BPPrintMessage(odInfo,"Creating phase diagram with compression rate = %u\n",
 				(unsigned long)Kpress);
 		else
-			sprintf(Message,"Creating phase diagram with compression rate = %.0f",
+			BPPrintMessage(odInfo,"Creating phase diagram with compression rate = %.0f\n",
 				Kpress);
 		}
 	else
-		sprintf(Message,"Creating phase diagram.  (No compression)");
-	ShowMessage(TRUE,wMessage,Message);
+		BPPrintMessage(odInfo,"Creating phase diagram. (No compression)\n");
+//	BPPrintMessage(odInfo,Message);
 	}
 
 if(p_NumberConstant == NULL) maxparam = 0;
@@ -197,9 +197,10 @@ for(i=0; i < Maxlevel; i++) {
 	}
 
 (*p_nmax) = 0;
-for(nseq=0; nseq <= Minconc; nseq++) {
+// for(nseq=0; nseq <= Minconc; nseq++) {
+for(nseq=0; nseq < Maxconc; nseq++) { // Replaced Minconc with Maxconc by BB 2021-02-26 
 	if(MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseqapprox,p_maxcol) != OK) {
-		Alert1("=> Unexpectedly, cannot fill phase diagram. You should send this project to the authors");
+		BPPrintMessage(odError,"=> Unexpectedly, cannot fill phase diagram\n");
 		return(ABORT);
 		}
 	}
@@ -209,7 +210,8 @@ for(nseq=0; nseq < Maxconc; nseq++) {
 	}
 (*p_deftnseq)[0] = nseq = 0;
 
-if(trace_diagram) BPPrintMessage(odInfo,"Maxevent = %d\n",Maxevent);
+if(trace_diagram)
+	BPPrintMessage(odInfo,"Maxevent = %d\n",Maxevent);
 
 for(k=0; k < Maxevent; k++) {
 	(*p_Instance)[k].object = 0;
@@ -986,14 +988,14 @@ DONEOUTTIMEOBJECT:
 					/* (*p_maxcol)[nseq] must be checked because of concatenated time-objects */
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
-						BPPrintMessage(odError,"Formula too complex (case 1)\n");
+						BPPrintMessage(odError,"=> Formula too complex (case 1)\n");
 						if(Beta) {
 							goto ENDDIAGRAM;
 							}
 						goto NEWSEQUENCE;
 						}
 					if(nseq > (*p_nmax)) {
-						if(Beta) Println(wTrace,"\n=> Err. FillPhaseDiagram(). nseq > (*p_nmax) after '}'");
+						BPPrintMessage(odError,"=> Err. FillPhaseDiagram(). nseq > (*p_nmax) after '}'\n");
 						if((gotnewline=MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseqapprox,p_maxcol))
 								!= OK) {
 							if(gotnewline == ABORT) goto ENDDIAGRAM;
@@ -1622,7 +1624,7 @@ if(imax > 0.) {
 		suggested_quantization = (int)(Quantization * (tempomax + 1) / max_tempo_in_skipped_object * CorrectionFactor);
 		if(suggested_quantization > 10)
 			suggested_quantization = suggested_quantization - modulo(suggested_quantization,((int)Time_res / 2));
-		BPPrintMessage(odInfo,"=> %d objects/notes have been skipped. Quantization should be reduced to less than %d ms to avoid it\n",number_skipped,suggested_quantization);
+		BPPrintMessage(odInfo,"=> %d objects/notes have been skipped. Quantization should be less than %d ms to avoid it\n",number_skipped,suggested_quantization);
 		}
 	/* Let's put an out-time silence at the end of the item, and attach to it the ultimate control parameter values */
 	nseq = Minconc;
@@ -1758,6 +1760,7 @@ if(failed) return(result);
 
 (*p_maxseq)++; /* Now we got the exact value. */
 Maxevent = (*p_numberobjects) + 1; 	/* Now we got the exact value. */
+
 if(Maxevent > 5000) (*p_bigitem) = TRUE;
 
 // Sizing down handles to save space
@@ -1793,7 +1796,7 @@ int oldk,gotnewline,nseq;
 (*p_overstrike) = FALSE;
 
 switch(where) {
-	case INTIME:
+	case INTIME: // Normal mode
 		oldk = (*((*p_seq)[*p_nseq]))[iplot];
 		if(!force && oldk > 1) {
 			/* This may happen due to roundings after arithmetic overflows */
@@ -1806,7 +1809,7 @@ switch(where) {
 			}
 		(*((*p_seq)[*p_nseq]))[iplot] = newk;
 		break;
-	case OUTTIME: 
+	case OUTTIME: // Out-time object or simple note
 PLOTOUTSIDE:
 		if(iplot > (*p_iplot)) {
 			(*p_iplot) = iplot;
@@ -1839,7 +1842,7 @@ NEWCOLUMN:
 			(*p_maxcol)[*p_nseqplot] = (*p_iplot);
 		(*p_nseqplot)++;
 		break;
-	case ANYWHERE:
+	case ANYWHERE: // Append <<->> anywhere on the phase diagram
 		if(newk == 0 || newk == 1) {
 			return(OK);
 			}
@@ -1865,7 +1868,7 @@ NEWCOLUMN:
 			}
 		(*p_overstrike) = TRUE;
 		break;
-	case BORDERLINE:
+	case BORDERLINE: // At the end of the item
 		if(newk == 0 || newk == 1) {
 //			(*p_overstrike) = TRUE;
 			return(OK);
@@ -1907,7 +1910,7 @@ return(result);
 }
 
 
-FindParameterIndex(ContParameters **p_param,int level,int paramnameindex)
+int FindParameterIndex(ContParameters **p_param,int level,int paramnameindex)
 {
 int i,j,maxnumber;
 Handle h;
@@ -2012,7 +2015,7 @@ return(i);
 }
 
 
-UpdateParameter(int i,ContParameters **p_contparameters,int level,long duration)
+int UpdateParameter(int i,ContParameters **p_contparameters,int level,long duration)
 {
 int imax;
 double start;
@@ -2067,7 +2070,7 @@ return(OK);
 }
 
 
-IncrementParameter(int i,ContParameters **p_contparameters,int level,double addbeats)
+int IncrementParameter(int i,ContParameters **p_contparameters,int level,double addbeats)
 {
 int imax;
 unsigned long ibeats;
@@ -2098,7 +2101,7 @@ return(OK);
 }
 
 
-MakeNewLineInPhaseTable(int nseq,int *p_nmax,double **p_im,double maxseq,
+int MakeNewLineInPhaseTable(int nseq,int *p_nmax,double **p_im,double maxseq,
 	unsigned long **p_maxcol)
 {
 short **ptr;
@@ -2108,12 +2111,16 @@ int nseqplot;
 
 overstrike = FALSE; // Fixed by BB 2021-01-31
 if(nseq >= Maxconc) {
-	if(Beta) Println(wTrace,"=> Err. MakeNewLineInPhaseTable(). nseq >= Maxconc");
-	TellSkipped();
-	return(FAILED);
+	BPPrintMessage(odError,"=> Error MakeNewLineInPhaseTable() nseq >= Maxconc\n");
+	BPPrintMessage(odInfo,"nseq = %ld, nmax = %d, maxseq = %.0f, Maxconc = %ld\n",(long)nseq,*p_nmax,maxseq,(long)Maxconc);
+//	TellSkipped();
+	return(ABORT);
 	}
 ptr = (short**) GiveSpace((Size)(maxseq+1.) * sizeof(short));
-if(((*p_Seq)[nseq]=ptr) == NULL) return(ABORT);
+if(((*p_Seq)[nseq]=ptr) == NULL) {
+	BPPrintMessage(odError,"=> Memory size error MakeNewLineInPhaseTable()\n");
+	return(ABORT);
+	}
 
 (*p_im)[nseq] = Round(1. - Kpress);
 (*p_maxcol)[nseq] = Class((*p_im)[nseq]);
@@ -2128,7 +2135,7 @@ return(OK);
 }
 
 
-CopyContinuousParameters(ContParameters **p_a,int na,ContParameters **p_b,int nb)
+int CopyContinuousParameters(ContParameters **p_a,int na,ContParameters **p_b,int nb)
 {
 // Makes a copy of the record except 'imax' and 'point', the pointer to a table
 
@@ -2213,7 +2220,7 @@ return(OK);
 }
 
 
-ShowProgress(int k)
+int ShowProgress(int k)
 {
 if(!ShowMessages || ((k % 50) != 0)) return(OK);
 PleaseWait();
@@ -2223,7 +2230,7 @@ return(OK);
 }
 
 
-TellSkipped(void)
+int TellSkipped(void)
 {
 if(!ToldSkipped) {
 	ToldSkipped = TRUE;

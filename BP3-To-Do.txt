@@ -88,6 +88,12 @@ https://csound.com/docs/manual/udpserver.html
 https://www.geeksforgeeks.org/udp-server-client-implementation-c/
 
 
+Standalone application
+-----------------
+
+- Try LIANJA https://www.lianja.com/overview/lianja-app-builder
+
+
 Open Sound Control
 ------------------
 

@@ -327,6 +327,7 @@ alreadychangedquantize = FALSE;
 
 // Calculate compression rate Kpress for quantization
 FINDCOMPRESSION:
+// BPPrintMessage(odInfo,"FINDCOMPRESSION\n");
 Kpress = 1.;
 if(Pclock > 0.) {
 	kpress = 1. + (((double)Quantization) * Qclock * Ratio) / Pclock / 1000.;
@@ -435,7 +436,9 @@ for(i=ZERO; ; i+=2L) {
 			}
 		}
 	if(m == T3 || m == T9 || m == T25) {	/* sound-object, time pattern, simple note */
-		if(toofast) numbertoofast++;
+		if(toofast) {
+			numbertoofast++;
+			}
 		else {
 			if(numbertoofast > 0) {
 				if(numbertoofast > longestnumbertoofast)
@@ -614,7 +617,7 @@ for(i=ZERO; ; i+=2L) {
 		}
 	}
 if((*p_nseqmax)[0] > Minconc) {
-//	BPPrintMessage(odError,"@ (*p_nseqmax)[0] = %ld Minconc = %ld\n",(long)(*p_nseqmax)[0],(long)Minconc);
+	BPPrintMessage(odError,"@ (*p_nseqmax)[0] = %ld Minconc = %ld\n",(long)(*p_nseqmax)[0],(long)Minconc);
 	Minconc = (*p_nseq)[0];
 	}
 Minconc++;
@@ -700,23 +703,25 @@ SETMETRONOM:
 				if(rep == YES) {
 					goto CHANGEQUANTIZE;
 					}
-				if(rep == CANCEL) goto WANTABORT;
+			//	if(rep == CANCEL) goto WANTABORT;
 				AskedTempMemory = TRUE;
 				FixedMaxQuantization = TRUE;
 				goto FORGETIT;
 				}
 			}
 		newquantize = (long) x;
-		BPActivateWindow(SLOW,wTimeAccuracy);
-		sprintf(Message,"Quantization of %ld ms may be increased to reduce memory requirement (%ld ms should work)\n",
+	//	BPActivateWindow(SLOW,wTimeAccuracy);
+		if(!ScriptExecOn && !alreadychangedquantize) BPPrintMessage(odError,"Quantization of %ld ms will be increased to reduce memory requirement (%ld ms might work)\n",
 			(long) Quantization,(long) newquantize);
-		if(!ScriptExecOn && !alreadychangedquantize) BPPrintMessage(odError,Message);
 		else goto SETQUANTIZE;
+	//	newquantize = 20L; // $$$
 		
 CHANGEQUANTIZE:
-		sprintf(Message,"%ld",(long)newquantize);
-		rep = AnswerWith("Set quantization to...",Message,Message);
-		if(rep == ABORT) {
+	//	sprintf(Message,"%ld",(long)newquantize);
+	//	rep = AnswerWith("Setting quantization to...",Message,Message);
+	//	BPPrintMessage(odError,"Setting quantization to %ld ms\n",(long) newquantize);
+		
+/*		if(rep == ABORT) { // Fixed by BB 2021-02-25
 
 WANTABORT:
 			rep = Answer("Do you want to abort this job (answer 'no' to get another option)",'Y');
@@ -743,8 +748,9 @@ WANTABORT:
 			if(rep != YES) goto CHANGEQUANTIZE;
 			}
 		if(newquantize2 < newquantize) FixedMaxQuantization = TRUE;
+		
+		newquantize = newquantize2; */
 		alreadychangedquantize = TRUE;
-		newquantize = newquantize2;
 		
 SETQUANTIZE:
 		Quantization = newquantize;
@@ -764,6 +770,8 @@ Minconc += morelines;
 Maxlevel++;
 Maxconc = Minconc + 1 + longestseqouttime + longestnumbertoofast;
 
+BPPrintMessage(odInfo,"Minconc = %ld, longestseqouttime = %ld, longestnumbertoofast = %ld, Maxconc = %ld\n",(long)Minconc,(long)longestseqouttime,(long)longestnumbertoofast,(long)Maxconc);
+
 CHECKSIZE:
 // FIXME: This whole section needs reconsideration on OS X
 /* Maximum allowed memory for the phase diagram (?) is set by kMaxPhaseDiagramSize (currently
@@ -778,7 +786,8 @@ CHECKSIZE:
    FINDCOMPRESSION, about line 327) before it even gets to this calculation.
       -- akozar 20130904
  */
-if(!TempMemory && !AskedTempMemory && !FixedMaxQuantization
+// Fixed by BB 2021-02-26
+/* if(!TempMemory && !AskedTempMemory && !FixedMaxQuantization
 		&& (imax > 10000. || (imax * Maxconc) > 20000.)) {
 	// contigbytes = MaxMem(&grow);  // MaxMem() is no longer useful (always 20 MB on OS X)
 	// totalbytes = contigbytes + grow;
@@ -788,7 +797,7 @@ if(!TempMemory && !AskedTempMemory && !FixedMaxQuantization
 	if(limit1 < limit2) thelimit = limit1;
 	else {
 		thelimit = limit2;
-		if(Maxconc > (Minconc + 1 + longestseqouttime)) {
+		if(Maxconc > (Minconc + 1 + longestseqouttime + longestnumbertoofast)) { // Fixed by BB 2021-02-26
 			Maxconc--;
 			goto CHECKSIZE;
 			}
@@ -796,32 +805,21 @@ if(!TempMemory && !AskedTempMemory && !FixedMaxQuantization
 	if(imax > thelimit) {
 		if(!QuantizeOK || Pclock < 1.) {
 			rep = YES;
-		/*	rep = Answer("Item is large. Use quantization",'Y'); Fixed by BB 2021-02-01
-			if(rep == ABORT && Answer("Do you really want to abort this job",'N') == YES) {
-				r = ABORT;
-				goto QUIT;
-				} */
 			if(rep == YES) goto TOOBIG;
 			else goto FORGETIT;
 			}
 	ASK:
 		if(!alreadychangedquantize) {
-			if(PlayChunks) // Fixed by BB 2021-02-17
-				BPPrintMessage(odError,"=> Item is too large or too complex. Maybe decrease $maxchunk_size in the interface\n");
-			else
+			if(!PlayChunks) // Fixed by BB 2021-02-17
 				BPPrintMessage(odError,"=> Item is too large or too complex. Use \"PLAY safe\" instead of \"PLAY\"\n");
-			if(Beta) BPPrintMessage(odError,"(imax = %.0f, thelimit = %.0f, compression rate = %.0f)\n",imax,thelimit,Kpress);
-		//	rep = Answer("=> Item is too large. Try to increase quantization",'Y');
-			rep = CANCEL;
+			rep = YES; // Fixed by BB 2021-02-25
 			}
 		else {
-		//	rep = Answer("Quantization value must be reduced again, as the estimation proved wrong. Fix",'Y');
 			rep = YES; // Fixed by BB 2021-02-17
 			if(rep == YES) goto TOOBIG;
 			}
 		if(rep == CANCEL) {
 			rep = YES; // Fixed by BB 2021-01-30
-		//	rep = Answer("Do you really want to abort this job",'N');
 			if(rep == YES) {
 				r = ABORT;
 				goto QUIT;
@@ -831,24 +829,24 @@ if(!TempMemory && !AskedTempMemory && !FixedMaxQuantization
 		if(rep == CANCEL) goto ASK;
 		if(rep == YES) goto TOOBIG;
 		}
-	}
+	} */
 
 FORGETIT:
 // Maxconc += Maxconc;
-// Maxevent += ((2 * Maxconc) + 1);
-Maxevent += Maxconc + 1;
+Maxevent += ((2 * Maxconc) + 1);
+// Maxevent += Maxconc + 1;
 // Maxconc += 4;
 (*p_maxseq) = fmaxseq + 1.;
 /* Takes care of newswitch at the end of diagram */
 
 if(ShowMessages) ShowDuration(YES);
 
-if(Maxevent >= INT_MAX) {	// FIXME ? This comparison is never true with sizeof(long) == sizeof(int)
+/* if(Maxevent >= INT_MAX) {	// FIXME ? This comparison is never true with sizeof(long) == sizeof(int)
 	sprintf(Message,"Can't create %ld sound-objects. Limit: %ld",(long)Maxevent,(long)INT_MAX);
 	Alert1(Message);
 	r = FAILED;
 	goto QUIT;
-	}
+	} */
 	
 OkShowExpand = TRUE;	/* OK to display prolongational gaps "_" */
 if(nsymb > 15000L || numberprolongations > 2000 || ((Prod / firstscaling) > 200)) {
@@ -863,6 +861,7 @@ if(nsymb > 15000L || numberprolongations > 2000 || ((Prod / firstscaling) > 200)
 r = OK;
 
 QUIT:
+// BPPrintMessage(odInfo,"@@ Maxconc = %ld\n",(long)Maxconc);
 MyDisposeHandle((Handle*)&p_b);
 MyDisposeHandle((Handle*)&p_nseq);
 MyDisposeHandle((Handle*)&p_nseqmax);
