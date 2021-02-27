@@ -770,7 +770,8 @@ Minconc += morelines;
 Maxlevel++;
 Maxconc = Minconc + 1 + longestseqouttime + longestnumbertoofast;
 
-BPPrintMessage(odInfo,"Minconc = %ld, longestseqouttime = %ld, longestnumbertoofast = %ld, Maxconc = %ld\n",(long)Minconc,(long)longestseqouttime,(long)longestnumbertoofast,(long)Maxconc);
+// BPPrintMessage(odInfo,"Minconc = %ld, longestseqouttime = %ld, longestnumbertoofast = %ld, Maxconc = %ld\n",(long)Minconc,(long)longestseqouttime,(long)longestnumbertoofast,(long)Maxconc);
+BPPrintMessage(odInfo,"%ld lines in phase diagram, longest stream faster than quantization = %ld notes/sound-objects\n",(long)Maxconc,(long)longestnumbertoofast);
 
 CHECKSIZE:
 // FIXME: This whole section needs reconsideration on OS X

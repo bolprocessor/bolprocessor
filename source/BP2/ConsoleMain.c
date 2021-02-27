@@ -92,6 +92,7 @@ int main (int argc, char* args[])
 {
 	int  result,i,j,this_size,improvize_mem;
 	long forgotten_mem, memory_before;
+	time_t current_time;
 		
 //	MemoryUsedInit = MemoryUsed = 0;
 
@@ -158,6 +159,8 @@ int main (int argc, char* args[])
 */
 
 	InitOn = FALSE;
+	time(&SessionStartTime);
+	ProductionTime = ProductionStartTime = PhaseDiagramTime = TimeSettingTime = 0;
 	BPPrintMessage(odInfo, "\nBP3 Console completed initialization and will use:");
 	
 	BPPrintMessage(odInfo, "\n%s\n%s\n\n",gOptions.inputFilenames[wGrammar],gOptions.inputFilenames[wData]);
@@ -205,11 +208,12 @@ int main (int argc, char* args[])
 				break;
 			case produce_all:
 				AllItems = TRUE;
+				time(&ProductionStartTime);
 				result = ProduceItems(wStartString,FALSE,FALSE,NULL);
 		//		if (Beta && result != OK)  BPPrintMessage(odError, "=> ProduceItems() returned errors\n");
 				break;
 			case play:
-				BPPrintMessage(odInfo,"Playing item\n");
+				BPPrintMessage(odInfo,"Playing single item…\n");
 				PlaySelectionOn = TRUE;
 				Improvize = FALSE;
 				result = PlaySelection(wData,0);
@@ -220,7 +224,7 @@ int main (int argc, char* args[])
 				 BPPrintMessage(odInfo,"Playing...\n");
 				break;
 			case play_all:
-				BPPrintMessage(odInfo,"Playing item(s) or chunks\n");
+				BPPrintMessage(odInfo,"Playing item(s) or chunks…\n");
 				PlaySelectionOn = PlayChunks = TRUE;
 				Improvize = FALSE;
 				result = PlaySelection(wData,1);
@@ -280,7 +284,7 @@ int main (int argc, char* args[])
 		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (21) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 		// ClearObjectSpace();
 		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (23) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-		BPPrintMessage(odInfo, "\nThis session used %ld bytes maximum.  %ld handles created and released. [%ld bytes leaked]\n",
+		BPPrintMessage(odInfo, "\nThis session used %ld bytes overall.  %ld handles created and released. [%ld bytes leaked]\n",
 			(long) MaxMemoryUsed,(long)MaxHandles,
 			(long) (MemoryUsed - MemoryUsedInit));
 			}
@@ -307,6 +311,11 @@ int main (int argc, char* args[])
 	
 	// Create "done.txt" file
 	CreateDoneFile();
+	time(&current_time);
+	if(ProductionTime > 0) BPPrintMessage(odInfo, "Production time: %ld seconds\n",(long)ProductionTime);
+	if(PhaseDiagramTime > 0) BPPrintMessage(odInfo, "Phase-diagram filling time: %ld seconds\n",(long)PhaseDiagramTime);
+	if(TimeSettingTime > 0) BPPrintMessage(odInfo, "Time-setting time: %ld seconds\n",(long)TimeSettingTime);
+	BPPrintMessage(odInfo, "Total computation time: %ld seconds\n",(long)(current_time-SessionStartTime));
 	
 	// deallocate space obtained during Inits() (not strictly necessary)
 /*	MyDisposeHandle((Handle*)&p_Oldvalue); */

@@ -26,6 +26,12 @@ Actions
 - new action for listing RT MIDI devices ? Create a file which the user will read via the interface, then select option(s) that will be added as tokens to the "Play" command line
 
 
+Optimize code
+-------------
+
+- Skip TimeSetting() for items that do not contain sound-objects with topological properties
+
+
 Cloud version
 -------------
 

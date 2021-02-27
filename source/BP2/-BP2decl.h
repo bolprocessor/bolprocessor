@@ -111,6 +111,7 @@ extern int **p_NoteLength[MAXCONVENTIONS],**p_AltNoteLength[MAXCONVENTIONS];
 extern int InitThere,FirstTime,MaxScriptInstructions,KeyboardType,C4key,ProgNrFrom,TestMIDIChannel,
 	CurrentMIDIprogram[MAXCHAN+1],BlockScaleOnKey;
 extern double A4freq;
+extern time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTime,TimeSettingTime;
 extern char FindString[256],ReplaceString[256];
 extern t_gram Gram,GlossGram;
 extern int RunningStatus,StrikeAgainDefault;

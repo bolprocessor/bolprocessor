@@ -149,6 +149,7 @@ while(TRUE) {
 while((originmem=origin) < end) {
 //	PleaseWait();
 	next_origin = origin;
+	time(&ProductionStartTime);
 	while(TRUE) {
 		c = GetTextChar(w,next_origin);
 		if(c == '\r' || c == '\n' || c == '\0') break;
@@ -161,7 +162,7 @@ while((originmem=origin) < end) {
 	if(next_origin == origin) break;
 	r = OK;
 	SetSelect(origin,next_origin,TEH[w]);
-	BPPrintMessage(odInfo,"Playing selection\n");
+//	BPPrintMessage(odInfo,"Playing selection\n");
 	Nplay = 1;
 	SaidTooComplex = ShownBufferSize = FALSE;
 //	BPPrintMessage(odInfo,"Playing selection %ld to %ld\n",(long)origin,(long)next_origin);

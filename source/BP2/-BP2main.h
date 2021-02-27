@@ -149,6 +149,7 @@ int **p_NoteLength[MAXCONVENTIONS],**p_AltNoteLength[MAXCONVENTIONS];
 int InitThere,FirstTime,MaxScriptInstructions,KeyboardType,C4key,ProgNrFrom,TestMIDIChannel,
 	CurrentMIDIprogram[MAXCHAN+1],BlockScaleOnKey;
 double A4freq;
+time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTime,TimeSettingTime;
 char FindString[256],ReplaceString[256];
 int RunningStatus,StrikeAgainDefault;
 int NoteOffPass,NoteOnPass,KeyPressurePass,ControlTypePass,ProgramTypePass,

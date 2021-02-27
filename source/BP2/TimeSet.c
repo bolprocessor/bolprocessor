@@ -49,6 +49,7 @@ int TimeSet(tokenbyte ***pp_buff,int* p_kmx,long *p_tmin,long *p_tmax,unsigned l
 {
 int i,result,bigitem,maxties,j,missed_ties;
 short **p_articul;
+time_t start_time,end_time;
 
 // HideWindow(Window[wInfo]);
 
@@ -81,13 +82,20 @@ for(j = 0; j < MAXINSTRUMENTS; j++)
 		(*(p_Missed_tie_event[j]))[i] = 0;
 		}
 
+time(&start_time);
+ProductionTime += start_time - ProductionStartTime;
 result = FillPhaseDiagram(pp_buff,p_kmx,p_maxseq,p_nmax,p_imaxseq,
 	maxseqapprox,&bigitem,p_articul);
+time(&end_time);
+PhaseDiagramTime += end_time - start_time;
 	
 if(result != OK) goto OUT;
 
+start_time = end_time;
 result = SetTimeObjects(bigitem,p_imaxseq,*p_maxseq,p_nmax,
 	p_kmx,p_tmin,p_tmax,p_articul);
+time(&end_time);
+TimeSettingTime += end_time - start_time;
 
 if(trace_timeset) BPPrintMessage(odInfo,"End TimeSet() maxseq = %ld\n\n",(long)*p_maxseq);
 
@@ -105,7 +113,11 @@ for(j = 0; j <= MAXCHAN; j++) {
 	MyDisposeHandle((Handle*)&(p_Tie_note[j]));
 	MyDisposeHandle((Handle*)&(p_Missed_tie_note[j]));
 	}
-if(missed_ties > 0) BPPrintMessage(odError,"Total %d missed tied notes in chunk #%d\n\n",missed_ties,Chunk_number);
+if(missed_ties > 0) {
+	if(!PlayChunks)
+		BPPrintMessage(odError,"Total %d missed tied notes\n\n",missed_ties);
+	else BPPrintMessage(odError,"Total %d missed tied notes in chunk #%d\n\n",missed_ties,Chunk_number);
+	}
 
 missed_ties = 0;
 for(j = 0; j < MAXINSTRUMENTS; j++) {
