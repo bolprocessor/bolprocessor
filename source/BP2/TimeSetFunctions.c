@@ -229,11 +229,11 @@ if(k == -1) {	/* 'NIL' end-of-line marker */
 		if(imaxseq > 1) {
 			for(ii=1; ii <= (*p_imaxseq)[nseq]; ii++) {
 				kk = (*((*p_Seq)[nseq]))[ii];
-		//		if(kk > 1) {
+		//		if(kk > 1) { // Probably this was correct
 				if(kk >= 1) {
 					(*p_Instance)[kk].starttime = (*p_ts1)[ii];
 					(*p_Instance)[kk].endtime = (*p_ts2)[ii];
-				//	BPPrintMessage(odInfo,"kk = %ld starttime = %ld endtime = %ld\n",(long)kk,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
+				//	if(kk > 1) BPPrintMessage(odError,"kk = %ld starttime = %ld endtime = %ld\n",(long)kk,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
 					}
 				if(ii <= imaxseq) {
 					DELTA = (*p_DELTA)[ii]

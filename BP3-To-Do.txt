@@ -58,7 +58,7 @@ Input files
 MIDI files
 ----------
 
-(Note that currently the creation of type 1 MIDI files works even with very large sets of data…)
+(Note that currently the creation of type-1 MIDI files works even with very large sets of data…)
 - "Error WriteVarLenQuantity(): value %u is out of range" may happen when data is faulty
 - add code to write track names (is it necessary?)
 - write 2 bytes of MIDIfileTrackNumber instead of 1 so that more than 255 tracks are possible;  add error checking to make sure it doesn't exceed 32,767(?)
@@ -74,8 +74,8 @@ MIDI files
 Csound scores
 -------------
 
-- (optionally) revise CsoundWrite to make sure that events are ordered by "note-on" dates.
-- reference: https://csound.com/docs/manual/i.html => negated p1 for note-off?
+- (optionally) revise CsoundWrite to make sure that events are ordered by "note-on" dates, notably with tied notes/sound-objects
+- reference: https://csound.com/docs/manual/i.html => use negated p1 for note-off?
 
 
 Real-time MIDI
@@ -84,6 +84,7 @@ Real-time MIDI
 - revise CoreMIDI driver and allow optionally building with it on Mac OS X
 - change the "null driver" to output MIDI messages as text
 - write a new cross-platform MIDI driver using the PortMIDI(?) library
+- maybe MIDI events could be channeled by Csound once it is accessed in real time
 
 
 Real-time Csound
@@ -94,10 +95,19 @@ https://csound.com/docs/manual/udpserver.html
 https://www.geeksforgeeks.org/udp-server-client-implementation-c/
 
 
-Standalone application
+Standalone application makers
 -----------------
 
-- Try LIANJA https://www.lianja.com/overview/lianja-app-builder
+- https://www.lianja.com/overview/lianja-app-builder => requires a version of MacOS > 10.11
+- https://laravel.com/
+- https://cakephp.org/
+- https://www.yiiframework.com/
+- https://github.com/bcosca/fatfree
+- https://fuelphp.com/
+- https://symfony.com/
+- https://phalcon.io/en-us
+- https://electronforge.io/
+- https://www.chromium.org/Home
 
 
 Open Sound Control
@@ -117,8 +127,7 @@ Microtonal scales
 ----------------
 
 - Include values for optionally stretching each octave
-- Implement performance control to change A4 frequency (diapason) in the score
-- Try to generate microtonality in MIDI by sending a pitchbend instruction before each note. If necessary send simultaneous notes  to separate MIDI channels. (Probably doesn't work)
+- Implement a performance control to set A4 frequency (diapason) in the score
 
 
 Csound orchestra
@@ -136,5 +145,5 @@ Csound orchestra
  + marimba
  + drums
 - Study how BP could produce score instructions modifying parameters in some instruments
-- Find an instrument that would create a switched bandpass filter with either a sound file or another instrument as input. The idea is to reproduce the effect of sympathetic strings and use it to add partials to other instruments (much like the Indian tanpura). (These devices had been immplemented as switch filters in the Shruti Harmonnium.)
+- Find an instrument that would create a switched bandpass filter with either a sound file or another instrument as input. The idea is to reproduce the effect of sympathetic strings and use it to add partials to other instruments (much like the Indian tanpura). (These devices had been successfully wired as "switch filters" in the Shruti Harmonnium.)
 

@@ -637,8 +637,11 @@ QUEST2:
 if(trace_timeset) ShowMessage(TRUE,wMessage,"Calculating legato/staccato");
 for(k=2; k <= *p_kmx; k++) {
 	if((*p_Instance)[k].starttime > max_end_time || (*p_Instance)[k].endtime > max_end_time) {
-		BPPrintMessage(odError,"=> Wrong start/end values for object #%d. Process canceled\n",k);
-		result = ABORT; goto EXIT1;
+		
+		BPPrintMessage(odError,"Wrong start/end values for object #%d (j = %d) in chunk #%d\n",k,(*p_Instance)[k].object,Chunk_number);
+		BPPrintMessage(odError,"starttime = %ld endtime = %ld max_end_time = %ld *p_kmx = %ld\n",(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)max_end_time,(long)*p_kmx);
+		continue; // Well, needs to be checked
+		// result = ABORT; goto EXIT1;
 		}
 	a = (*p_articul)[k];
 	if(a == 0) continue;
