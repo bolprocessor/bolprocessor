@@ -108,6 +108,10 @@ if((p_top = (long**) GiveSpace((Size)maxlines*sizeof(long))) == NULL)
 hrect = 13;
 htext = 12;
 leftoffset = hrect - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
+if(leftoffset < 20) {
+	if(leftoffset < -10) BPPrintMessage(odError,"=> Fixed leftoffset = %d\n",leftoffset);
+	leftoffset = 20; // Added BB 2021-03-13
+	}
 topoffset = (4 * htext) + 8;
 r.top = 0;
 r.bottom = r.top + topoffset + Maxevent * (hrect + htext);
@@ -173,7 +177,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 		trbeg = ((*p_Instance)[k].truncbeg * GraphicScaleP) / GraphicScaleQ / 10;
 		tt1 = leftoffset + t1 - trbeg;
 		trend = ((*p_Instance)[k].truncend * GraphicScaleP) / GraphicScaleQ / 10;
-		if(try_synchro_tag || ((*p_ObjectSpecs)[k] != NULL && (waitlist=WaitList(k)) != NULL)) {
+		if(try_synchro_tag || ((*p_ObjectSpecs)[k] != NULL && (waitlist=WaitList(k)) != NULL)) {
 			// Draw synchronization tag
 			y = yruler + 8;
 			stroke_style("green");
@@ -253,7 +257,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			}
 		for(xc = 0; xc < strlen(line); xc++) {
 			c = (unsigned char) line[xc];
-			if(c == '"') label[xc] = "-"; // Quotes need to be replaced as they would jam fill_text()
+			if(c == '"') label[xc] = '-';
 			else label[xc] = line[xc];
 			}
 		label[xc] = '\0';
@@ -403,8 +407,7 @@ r.top = top;
 r.left = (int)t1 + leftoffset;
 r.right = (int)t2 + leftoffset;
 r.bottom = r.top + hrect;
-sprintf(Message,"j = %ld, leftoffset = %ld,  t1 = %ld, t2 = %ld, endx = %ld\n",(long)j,leftoffset,t1,t2,(*p_endx));
-if(trace_graphic) BPPrintMessage(odInfo,Message);
+if(trace_graphic) BPPrintMessage(odInfo,"j = %ld, leftoffset = %d,  t1 = %ld, t2 = %ld, endx = %ld\n",(long)j,leftoffset,t1,t2,(*p_endx));
 
 // Erase background 
 r2 = r;
@@ -1244,7 +1247,7 @@ t2 = ((double)(*p_T)[imax] * GraphicScaleP) / GraphicScaleQ / 10. + leftoffset;
 y = (*p_yruler) = p_r->top + htext + 6;
 pen_size(1,0);
 draw_line(leftoffset,y,xmax,y,"");
-if(trace_graphic) BPPrintMessage(odInfo,"leftoffset =%d y = %d xmax =%d\n",leftoffset,y,xmax);
+if(trace_graphic) BPPrintMessage(odInfo,"leftoffset = %d, y = %d, xmax = %d\n",leftoffset,y,xmax);
 
 p = 50. / x;
 for(i = j = 0; ; i++,j++) {
@@ -1475,7 +1478,7 @@ void line_to(int x,int y) {
 		}
 	}
 
-void draw_line(int x1,int y1,int x2,int y2,char* style) {
+void draw_line(int x1,int y1,int x2,int y2,char* style) { 
 	char line[200];
 	if(strcmp(graphic_scheme,"canvas") == 0) {
 		if(strcmp(style,"round") == 0)

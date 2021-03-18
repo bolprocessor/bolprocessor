@@ -837,9 +837,8 @@ TRYCSFILE:
 		objectstarttime = (*p_Instance)[kcurrentinstance].starttime;
 		objectduration = t3 - objectstarttime;
 		if(objectduration > 500000) { // Fixed by BB 2021-02-26
-			BPPrintMessage(odError,"Incorrect object duration = %ld ms for k = %d (j = %d) in chunk #%d starting %ld ms\n",(long)objectduration,kcurrentinstance,(*p_Instance)[kcurrentinstance].object,Chunk_number,(*p_Instance)[kcurrentinstance].starttime);
-			continue; // Well, needs to be checked
-			// result = ABORT; goto OVER;
+			BPPrintMessage(odError,"=> Incorrect object duration = %ld ms for k = %d (j = %d) in chunk #%d starting %ld ms\n",(long)objectduration,kcurrentinstance,(*p_Instance)[kcurrentinstance].object,Chunk_number,(*p_Instance)[kcurrentinstance].starttime);
+			result = ABORT; goto OVER;
 			}
 		
 		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance = %d starttime = %ld endtime = %ld  objectduration = %ld\n",kcurrentinstance,(long)(*p_Instance)[kcurrentinstance].starttime,(long)t3,(long)objectduration);
