@@ -146,14 +146,14 @@ Ke = log((double) SpeedRange) / 64.;
 t0 = ZERO;
 if(*p_kmax >= Maxevent) {
 //	if(Beta) Alert1("kmax >= Maxevent. Err. MakeSound()");
-	BPPrintMessage(odInfo,"=> kmax >= Maxevent. Err. MakeSound()\n");
+	BPPrintMessage(odError,"=> kmax >= Maxevent. Err. MakeSound()\n");
 	return(ABORT);
 	}
 
 maxconc = maxnsequences;
 if(Beta && maxconc > Maxconc) {
 //	Alert1("maxconc > Maxconc. Err. MakeSound()");
-	BPPrintMessage(odInfo,"=> maxconc > Maxconc. Err. MakeSound()\n");
+	BPPrintMessage(odError,"=> maxconc > Maxconc. Err. MakeSound()\n");
 	}
 
 if((p_control=(ContinuousControl**)GiveSpace(maxconc*sizeof(ContinuousControl))) == NULL)
@@ -799,7 +799,7 @@ TRYCSFILE:
 	//	BPPrintMessage(odInfo,"kcurrentinstance = %d, channel = %d instrument = %d\n",kcurrentinstance,(*p_Instance)[kcurrentinstance].channel,(*p_Instance)[kcurrentinstance].instrument);
 		nseq = (*p_Instance)[kcurrentinstance].nseq;
 		if(nseq < 0 || nseq >= maxconc) {
-			BPPrintMessage(odInfo,"=> Err. MakeSound(). nseq < 0 || nseq >= maxconc");
+			BPPrintMessage(odError,"=> Err. MakeSound(). nseq < 0 || nseq >= maxconc");
 			nseq = 0;
 			}
 		params = (*((*pp_currentparams)[nseq]))->params;
@@ -807,7 +807,7 @@ TRYCSFILE:
 			if(j >= Jbol && Jbol < 2) {
 				BPPrintMessage(odError,"=> Err. MakeSound(). j >= Jbol && Jbol < 2");
 				result = ABORT; goto OVER; // Fixed by BB 2021-02-26
-				} // BPPrintMessage(odInfo,"=> Err. MakeSound(). j >= Jbol && Jbol < 2");
+				} // BPPrintMessage(odError,"=> Err. MakeSound(). j >= Jbol && Jbol < 2");
 			if(j < Jbol) {
 				switch((*p_StrikeAgain)[j]) {
 					case -1:
@@ -1046,7 +1046,7 @@ TRYCSFILE:
 					}
 					
 				maxparam = MyGetHandleSize((Handle)(*((*pp_currentparams)[nseq]))->params) / sizeof(ParameterStatus);
-				// This value maybe oversized if ccontinuous _value() statements were found earlier on this sequence
+				// This value maybe oversized if continuous _value() statements were found earlier on this sequence
 				// but this will be fixed in CscoreWrite() - BB 2021-02-15
 				params = (*((*pp_currentparams)[nseq]))->params;
 				for(i=0; i < (*p_Instance)[kcurrentinstance].contparameters.number; i++) {
@@ -1502,7 +1502,7 @@ PLAYOBJECT:
 				if(c0 == NoteOn  || c0 == NoteOff) {
 					if(j < 16384) {
 						if(j >= Jbol) { // Time pattern
-							BPPrintMessage(odInfo,"=> Error MakeSound(): found time pattern: j = %ld, t1 = %ld, t2 = %ld\n",(long)j,(long)t1,(long)t2);
+							BPPrintMessage(odError,"=> Error MakeSound(): found time pattern: j = %ld, t1 = %ld, t2 = %ld\n",(long)j,(long)t1,(long)t2);
 							sequence = 0;
 							c0 = 0;
 							c1 = 0;
@@ -1926,7 +1926,7 @@ FINDNEXTEVENT:
 				alpha = (*p_Instance)[k].alpha;
 				beta = (*p_Instance)[k].dilationratio;	// alpha != beta if the sound-object is cyclic
 				if((*p_Instance)[k].ncycles < 2 && beta != alpha) {
-					BPPrintMessage(odInfo,"=> Err. MakeSound(). beta != alpha\n");
+					BPPrintMessage(odError,"=> Err. MakeSound(). beta != alpha\n");
 					beta = (*p_Instance)[k].dilationratio = alpha;
 					}
 				nseq = (*p_Instance)[k].nseq;
@@ -2035,7 +2035,7 @@ if(!FirstTime && !PlayPrototypeOn
 	if(rep3 == dDisplayItem) {
 		if(*pp_b == NULL) {
 		//	if(Beta) Alert1("=> Err. MakeSound(). *pp_b == NULL");
-			BPPrintMessage(odInfo,"=> Err. MakeSound(). *pp_b == NULL\n");
+			BPPrintMessage(odError,"=> Err. MakeSound(). *pp_b == NULL\n");
 			}
 		else {
 			BPActivateWindow(SLOW,wData);

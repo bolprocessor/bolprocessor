@@ -36,7 +36,7 @@
 
 #if  defined(__POWERPC) && !TARGET_API_MAC_CARBON
 QDGlobals Qd;
-#endif
+#endif 
 
 GWorldPtr gMainGWorld;
 GDHandle gCurDev;

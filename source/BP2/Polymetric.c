@@ -387,7 +387,7 @@ if(Pclock > 0.) {
 //	max_quantization = (int) (1000. * (Pclock/Qclock) * (Kpress - 1) / Kpress / maxscalespeed);
 	// Added by BB 2021-01-31
 /*	if(max_quantization < Quantization)
-		BPPrintMessage(odInfo,"=> To avoid skipping objects/notes, quantization should be less than %d ms\n",max_quantization); */
+		BPPrintMessage(odError,"=> To avoid skipping objects/notes, quantization should be less than %d ms\n",max_quantization); */
 	}
 
 // Calculate Maxevent, (*p_maxseq) and the final value of Maxconc
@@ -771,7 +771,7 @@ Maxlevel++;
 Maxconc = Minconc + 1 + longestseqouttime + longestnumbertoofast;
 
 // BPPrintMessage(odInfo,"Minconc = %ld, longestseqouttime = %ld, longestnumbertoofast = %ld, Maxconc = %ld\n",(long)Minconc,(long)longestseqouttime,(long)longestnumbertoofast,(long)Maxconc);
-BPPrintMessage(odInfo,"%ld lines in phase diagram, longest stream faster than quantization = %ld notes/sound-objects\n",(long)Maxconc,(long)longestnumbertoofast);
+BPPrintMessage(odInfo,"Phase diagram contains %ld lines, longest stream faster than quantization = %ld notes/sound-objects\n",(long)Maxconc,(long)longestnumbertoofast);
 
 CHECKSIZE:
 // FIXME: This whole section needs reconsideration on OS X

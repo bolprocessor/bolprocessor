@@ -436,7 +436,7 @@ else  {
 	}
    
 if((*p_Resolution)[j] <= ZERO) {
-   if(trace_inconsistencies) BPPrintMessage(odInfo,"=> Err. CheckConsistency(). (*p_Resolution)[j] <= ZERO\n");
+   if(trace_inconsistencies) BPPrintMessage(odError,"=> Err. CheckConsistency(). (*p_Resolution)[j] <= ZERO\n");
    return(FAILED);
    }
 if((*p_FixScale)[j]) {

@@ -171,7 +171,7 @@ SETON:
 	}
 
 if(onoffline == OFF && (*perf)->level[key] < 1) {
-	BPPrintMessage(odInfo,"=> Err. CscoreWrite(). (*perf)->level[key] < 1 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
+	BPPrintMessage(odError,"=> Err. CscoreWrite(). (*perf)->level[key] < 1 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
 	result = OK; // $$$ TEMP
 	goto OUT;
 	}

@@ -223,6 +223,7 @@ NOVARIABLE:
 		}
 	ResetMIDI(TRUE);
 	origin = next_origin + 1;
+	// if(ReleasePhaseDiagram(nmax,&p_imaxseq) != OK) return(ABORT); // Added by BB 2021-03-21
 	}
 
 END:
@@ -416,7 +417,7 @@ if(again || EventState == AGAIN) {
 	} */
 
 RELEASE:
-// BPPrintMessage(odInfo,"@@ End MakeSound()\n");
+// BPPrintMessage(odError,"@@ End MakeSound() nmax = %ld\n",(long)nmax);
 TempMemory = FALSE;
 TempMemoryUsed = ZERO;
 if(result == ABORT) return(result);

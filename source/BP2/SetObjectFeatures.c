@@ -831,9 +831,11 @@ if(nseq >= Maxconc) {
 	if(Beta) Println(wTrace,"\nErr. Fix(). nseq >= Maxconc");
 	return(OK);
 	}
-i = 1; local_period = 0.;
+i = ZERO; // Fixed by BB 2021-03-20
+local_period = 0.;
 while(TRUE) {
 	k = (*((*p_Seq)[nseq]))[i];
+//	if(k > 2 && k < 6) BPPrintMessage(odInfo,"Fix() k = %ld alpha = %.2f\n",(long)k,(*p_Instance)[k].alpha);
 	if(k < 0) break;
 	inext = i;
 	while((*((*p_Seq)[nseq]))[++inext] == 0);
@@ -863,7 +865,7 @@ while(TRUE) {
 					if(PlayFromInsertionPoint) t1 = (*p_time1)[i] = (*p_T)[i];
 					t2 = (*p_time2)[i] = t1
 						+ (Milliseconds)((*p_Instance)[k].alpha * (*p_Dur)[j]);
-					// BPPrintMessage(odInfo,"Fix() k = %ld j = %ld alpha = %.2f Dur = %ld t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)(*p_Dur)[j],(long)t1,(long)t2);
+			//		if(k > 2 && k < 6) BPPrintMessage(odInfo,"Fix() k = %ld j = %ld alpha = %.2f Dur = %ld t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)(*p_Dur)[j],(long)t1,(long)t2);
 					}
 			//	if(trace_object_features) BPPrintMessage(odInfo,Message);
 				}
@@ -872,7 +874,7 @@ while(TRUE) {
 				RandomTime(&t1,(*p_Instance)[k].randomtime);
 				(*p_time1)[i] = t1;
 				t2 = (*p_time2)[i] = t1 + (*p_Instance)[k].alpha * 1000L;
-		//		sprintf(Message,"Fix() note k = %ld j = %ld alpha = %.2f t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)t1,(long)t2); 
+				// if(k == 65 || k == 25 || k == 67) BPPrintMessage(odInfo,"Fix() k = %ld j = %ld alpha = %.2f t1 = %ldms t2 = %ldms\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)t1,(long)t2);
 				}
 			}
 		else {
@@ -911,7 +913,7 @@ if(nseq >= Maxconc) {
 	}
 (*p_Instance)[0].alpha = (*p_Instance)[1].alpha = 0.;	/* '_' and '-' */
 if(nature_time == SMOOTH) clockperiod = ((double) Pclock) * 1000. / Qclock;
-i = 0;
+i = -1; // Fixed by BB 2021-01-25
 while((k=(*((*p_Seq)[nseq]))[++i]) < 1) {
 	if(k == -1) return(OK);
 	}
@@ -919,7 +921,9 @@ if(nature_time == STRIATED || nseq == 0) {
 	while(TRUE) {
 		k = (*((*p_Seq)[nseq]))[i];
 		if(k == -1) break;
-		inext = i; while((*((*p_Seq)[nseq]))[++inext] == 0);
+		inext = i;
+		while((*((*p_Seq)[nseq]))[++inext] == 0);
+	//	while((*((*p_Seq)[nseq]))[++inext] >= 0 && (*((*p_Seq)[nseq]))[inext] < 2);
 		if(k < 2) { /* Reject first silence and null events */ // Fixed by BB 2021-01-25
 			i = inext;
 			continue;
@@ -929,16 +933,16 @@ if(nature_time == STRIATED || nseq == 0) {
 			return(ABORT);
 			}
 		j = (*p_Instance)[k].object;
-		// BPPrintMessage(odInfo,"@ k = %ld j = %ld i = %ld inext = %ld\n",(long)k,(long)j,(long)i,(long)inext);
 		ncycles = 1;
 		if(j <= 0) {
 			beta = alpha = 0.; goto OKALPHA1;
 			}
 		d = (double) (inext - i) * Kpress / Ratio; /* Symbolic duration */
+		// BPPrintMessage(odInfo,"@ k = %ld j = %ld nseq = %d i = %ld inext = %ld seq[inext] = %d d = %.2f , T[i] = %ld T[i+1] = %ld, T[inext] = %ld T[inext+1] = %ld\n",(long)k,(long)j,nseq,(long)i,(long)inext,(*((*p_Seq)[nseq]))[inext],d,(long)(*p_T)[i],(long)(*p_T)[i+1],(long)(*p_T)[inext],(long)(*p_T)[inext+1]);
 		if(nature_time == SMOOTH) {
 			if(Qclock < 1L) {
 			//	if(Beta) Alert1("=> Err. Calculate_alpha(). Qclock < 1. ");
-				BPPrintMessage(odInfo,"=> Err. Calculate_alpha(). Qclock < 1.\n");
+				BPPrintMessage(odError,"=> Err. Calculate_alpha(). Qclock < 1.\n");
 				return(ABORT);
 				}
 			if(Pclock > 0.) { 				/* Measured smooth time */
@@ -955,7 +959,7 @@ if(nature_time == STRIATED || nseq == 0) {
 			else {		/* Pclock = ZERO; non-measured smooth time */
 				alpha = d;
 				}
-			if(trace_object_features) BPPrintMessage(odInfo,"Calculate_alpha() smooth 1st line k = %ld j = %ld alpha = %.2f d = %ld clockperiod = %ld i = %ld inext = %ld Dur =%ld Tref = %ld\n",(long)k,(long)j,alpha,(long)d,(long)clockperiod,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+			if(trace_object_features) BPPrintMessage(odInfo,"Calculate_alpha() smooth 1st line k = %ld j = %ld alpha = %.2f d = %.2f clockperiod = %ld i = %ld inext = %ld Dur = %ld Tref = %ld\n",(long)k,(long)j,alpha,(long)d,(long)clockperiod,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 			}
 		else {					/* Striated time or nseq > 0 */
 			if(d > 0.) {
@@ -969,10 +973,9 @@ if(nature_time == STRIATED || nseq == 0) {
 					alpha = ((double)(*p_T)[inext] - (*p_T)[i]) / (*p_Dur)[j];
 				else alpha = 0.;
 				}
-			else {
-				alpha = 0.;
-				}
-			if(trace_object_features) BPPrintMessage(odInfo,"Calculate_alpha() striated nseq = %ld k = %ld j = %ld alpha = %.2f d = %.2f i = %ld inext = %ld Dur = %ld Tref = %ld\n",(long)nseq,(long)k,(long)j,alpha,d,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+			else alpha = 0.;
+			if(trace_object_features)
+				BPPrintMessage(odInfo,"Calculate_alpha striated nseq = %ld k = %ld j = %ld nseq = %d alpha = %.2f d = %.2f i = %ld inext = %ld Dur = %ld Tref = %ld T[i] = %ld T[inext] = %ld\n",(long)nseq,(long)k,(long)j,nseq,alpha,d,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j],(long)(*p_T)[i],(long)(*p_T)[inext]);
 			}
 		
 		beta = alpha;
@@ -995,7 +998,8 @@ OKALPHA1:
 		if(alpha < 0.) alpha = 0.;
 		if(beta < 0.) beta = 0.;
 		(*p_Instance)[k].alpha = alpha;
-		if(trace_object_features) BPPrintMessage(odInfo,"@ nseq = %d k = %d i = %d inext = %d alpha = %.2f\n",nseq,k,i,inext,alpha);
+	//	if(trace_object_features)
+	//		if(k > 2 && k < 6)  BPPrintMessage(odInfo,"@ nseq = %d k = %d i = %ld inext = %ld alpha = %.2f\n",nseq,k,i,inext,alpha);
 		if(ForceRatio >= 0.) (*p_Instance)[k].alpha = beta = ForceRatio;
 		(*p_Instance)[k].dilationratio = beta;
 		(*p_Instance)[k].ncycles = ncycles;
@@ -1041,7 +1045,7 @@ FINDNEXTMARKED:
 		
 		if(k >= Maxevent) {
 		//	if(Beta) Alert1("=> Err. Calculate_alpha(). k >= Maxevent (2)");
-			BPPrintMessage(odInfo,"=> Err. Calculate_alpha(). k >= Maxevent (2)\n");
+			BPPrintMessage(odError,"=> Err. Calculate_alpha(). k >= Maxevent (2)\n");
 			return(ABORT);
 			}
 		j = (*p_Instance)[k].object;
@@ -1141,7 +1145,7 @@ FINDNEXTMARKED:
 			(*p_marked)[inext] = TRUE;
 			}
 		if(alpha < 0.) {	/* Should no longer happen since To > ZERO */
-			BPPrintMessage(odInfo,"=> Err. Calculate_alpha(). alpha=%.2f",alpha);
+			BPPrintMessage(odError,"=> Err. Calculate_alpha(). alpha=%.2f",alpha);
 			alpha = 0.;
 			}
 		if(!gotcurrenttime) currenttime += (Milliseconds) (alpha * dur);

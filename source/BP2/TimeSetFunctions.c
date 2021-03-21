@@ -87,37 +87,37 @@ n = 0;
 
 /* All these below should be replaced with single records !!! */
 
-if((p_BreakTempoPrev = (char**) GiveSpace((Size)imaxseq2*sizeof(char))) == NULL)
+if((p_BreakTempoPrev = (char**) GiveSpace((Size)(imaxseq2 + 1) * sizeof(char))) == NULL)
 	return(ABORT);
-if((p_choice1 = (char**) GiveSpace((Size)imaxseq2*sizeof(char))) == NULL)
+if((p_choice1 = (char**) GiveSpace((Size)(imaxseq2 + 1) * sizeof(char))) == NULL)
 	return(ABORT);
-if((p_tp1 = (Milliseconds**) GiveSpace((Size)imaxseq2*sizeof(Milliseconds))) == NULL)
+if((p_tp1 = (Milliseconds**) GiveSpace((Size)(imaxseq2 + 1) * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_tp2 = (Milliseconds**) GiveSpace((Size)imaxseq2*sizeof(Milliseconds))) == NULL)
+if((p_tp2 = (Milliseconds**) GiveSpace((Size)(imaxseq2 + 1) * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_ts1 = (Milliseconds**) GiveSpace((Size)(imax1)*sizeof(Milliseconds))) == NULL)
+if((p_ts1 = (Milliseconds**) GiveSpace((Size)(imax1 + 1) * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_ts2 = (Milliseconds**) GiveSpace((Size)(imax1)*sizeof(Milliseconds))) == NULL)
+if((p_ts2 = (Milliseconds**) GiveSpace((Size)(imax1 + 1) * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
 if((p_delta = (Milliseconds**) GiveSpace((Size)Maxevent*sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_delta1 = (Milliseconds**) GiveSpace((Size)(imax1)*sizeof(Milliseconds))) == NULL)
+if((p_delta1 = (Milliseconds**) GiveSpace((Size)(imax1 + 1) * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_delta2 = (Milliseconds**) GiveSpace((Size)(imax1)*sizeof(Milliseconds))) == NULL)
+if((p_delta2 = (Milliseconds**) GiveSpace((Size)(imax1 + 1) * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_Ts = (Milliseconds**) GiveSpace((Size)imaxseq2*sizeof(Milliseconds))) == NULL)
+if((p_Ts = (Milliseconds**) GiveSpace((Size)(imaxseq2 + 1) * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_tscover = (Milliseconds**) GiveSpace((Size)imaxseq2*sizeof(Milliseconds))) == NULL)
+if((p_tscover = (Milliseconds**) GiveSpace((Size)(imaxseq2 + 1) * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_tsgap = (Milliseconds**) GiveSpace((Size)imaxseq2*sizeof(Milliseconds))) == NULL)
+if((p_tsgap = (Milliseconds**) GiveSpace((Size)(imaxseq2 + 1) * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_ddelta0 = (Milliseconds**) GiveSpace((Size)(imax1)*sizeof(Milliseconds))) == NULL)
+if((p_ddelta0 = (Milliseconds**) GiveSpace((Size)(imax1 + 1) * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_ddelta1 = (Milliseconds**) GiveSpace((Size)(imax1)*sizeof(Milliseconds))) == NULL)
+if((p_ddelta1 = (Milliseconds**) GiveSpace((Size)(imax1 + 1) * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_ddelta2 = (Milliseconds**) GiveSpace((Size)(imax1)*sizeof(Milliseconds))) == NULL)
+if((p_ddelta2 = (Milliseconds**) GiveSpace((Size)(imax1 + 1) * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_sol_set1 = (solset**) GiveSpace((Size)imaxseq2 * sizeof(solset)))
+if((p_sol_set1 = (solset**) GiveSpace((Size)(imaxseq2 + 1) * sizeof(solset)))
 	== NULL) return(ABORT);
 	
 redo = FALSE; nsol = 0; stack_depth = 0; s = s0 = NULL;
@@ -130,26 +130,27 @@ if(kmax > 100 && ++n > 10) {
 		goto QUIT;
 		}
 	}
-if((r=DoSystem()) != OK) {
+/* if((r=DoSystem()) != OK) {
 	result = r;
 	goto QUIT;
-	}
+	} */
 olds = NULL;
 if(!redo) {
 	stack_depth = 0;
 	s0 = NULL;
 	}
-else {
-	s = s0;
-	}
+else s = s0;
 iprev = i0 = ibreak = 0;
-for(i=1; i <= imax; i++) {
+// for(i=1; i <= imax; i++) { // Fixed by BB 2021-03-20
+for(i=ZERO; i <= imax; i++) {
 	(*p_ddelta0)[i] = (*p_ddelta1)[i] = (*p_ddelta2)[i]
 		= (*p_delta1)[i] = (*p_delta2)[i] = ZERO;
 	k = (*((*p_Seq)[nseq]))[i];
-		if(k > 1 || k < 0) { /* Ignore silence "-" */
+	if(k > 1 || k < 0) { /* Ignore silence "-" */
 		/* k < 0 if empty sequence */
-		i0 = i; break;
+		i0 = i;
+	//	BPPrintMessage(odError,"i0 = %ld k = %ld nseq = %ld\n",(long)i0,(long)k,(long)nseq);
+		break;
 		}
 	iprev = i;
 	}
@@ -158,16 +159,18 @@ i = i0;
 (*p_BreakTempoPrev)[i] = TRUE;
 (*p_Ts)[i] = (*p_tscover)[i] = Infneg;
 (*p_tsgap)[i] = Infpos;
+(*p_ts1)[0] = (*p_ts2)[0] = (*p_tp1)[0] = (*p_tp2)[0] = (*p_delta)[0] = (*p_delta1)[0] = (*p_delta2)[0] = ZERO; // Added by BB 2021-03-20
 goto CHECK;
 	
 INCREMENT:
-if(kmax > 100 && ++n > 10) {
+/* if(kmax > 100 && ++n > 10) {
 	PleaseWait(); n = 0;
-	if(((r=DoSystem()) != OK) || (r=InterruptTimeSet(TRUE,p_tstart)) != OK){
+//	if(((r=DoSystem()) != OK) || (r=InterruptTimeSet(TRUE,p_tstart)) != OK) {
+	if((r=InterruptTimeSet(TRUE,p_tstart)) != OK) {
 		result = r;
 		goto QUIT;
 		}
-	}
+	} */
 if(DisplayTimeSet) {
 	Print(wTrace,">");
 	}
@@ -220,20 +223,28 @@ if(k == -1) {	/* 'NIL' end-of-line marker */
 	if((nature_time == SMOOTH) && (nseq == 0) && first) {
 		(*p_ddelta0)[i] = (*p_ts2)[iprev];
 		}
-	for(ii=1; ii <= (*p_imaxseq)[nseq]; ii++) {
+//	for(ii=1; ii <= (*p_imaxseq)[nseq]; ii++) { Fixed by BB 2021-03-20
+	for(ii=ZERO; ii <= (*p_imaxseq)[nseq]; ii++) {
 		kk = (*((*p_Seq)[nseq]))[ii];
 		if(kk > 1) (*p_delta)[kk] = (*p_delta1)[ii] + (*p_delta2)[ii];
+	//	if(kk == 65) BPPrintMessage(odError,"kk = %ld starttime = %ld endtime = %ld\n",(long)kk,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
 		}
+//	BPPrintMessage(odError,"1) ts1[0] = %ld ts2[0] = %ld\n",(*p_ts1)[0],(*p_ts2)[0]);
 	if((result=Solution_is_accepted(++nsol,nseq,p_imaxseq,kmax,p_ts1,p_ts2,p_delta,
 				p_ddelta0,p_ddelta1,p_ddelta2)) == OK) {
 		if(imaxseq > 1) {
-			for(ii=1; ii <= (*p_imaxseq)[nseq]; ii++) {
+		//	for(ii=1; ii <= (*p_imaxseq)[nseq]; ii++) { Fixed by BB 2021-03-20
+			for(ii=ZERO; ii <= (*p_imaxseq)[nseq]; ii++) {
 				kk = (*((*p_Seq)[nseq]))[ii];
-		//		if(kk > 1) { // Probably this was correct
-				if(kk >= 1) {
+		//		if(kk < 34 && kk > 2) BPPrintMessage(odError,"2) ts1[%ld] = %ld ts2[%ld] = %ld\n",ii,ii,(*p_ts1)[ii],(*p_ts2)[ii]);
+				if(kk > 1) { // Fixed by BB 2021-03-21
+		//		if(kk >= 1) {
+		//			if((*p_ts1)[ii]/Kpress > 100000 || (*p_ts2)[ii]/Kpress > 100000) BPPrintMessage(odError,"ERR: kk = %ld ts1[%ld] = %ld ts2[%ld] = %ld Kpress = %.0f\n",(long)kk,ii,(*p_ts1)[ii],ii,(*p_ts2)[ii],Kpress);
 					(*p_Instance)[kk].starttime = (*p_ts1)[ii];
 					(*p_Instance)[kk].endtime = (*p_ts2)[ii];
 				//	if(kk > 1) BPPrintMessage(odError,"kk = %ld starttime = %ld endtime = %ld\n",(long)kk,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
+				//	if(kk < 34 && kk > 2) BPPrintMessage(odError,"Solution_is_accepted Chunk_number = %d, kk = %ld, ii = %ld starttime = %ld endtime = %ld\n",Chunk_number,(long)kk,ii,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
+					if((*p_ts1)[ii]/Kpress > 100000 || (*p_ts2)[ii]/Kpress > 100000) BPPrintMessage(odError,"ERR: Solution_is_accepted Chunk_number = %d, kk = %ld, ii = %ld starttime = %ld endtime = %ld\n",Chunk_number,(long)kk,ii,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
 					}
 				if(ii <= imaxseq) {
 					DELTA = (*p_DELTA)[ii]
@@ -662,7 +673,8 @@ if(DisplayTimeSet) {
 	sprintf(Message,"\nsol#%ld ---------- SEQUENCE %ld ---------------------\n",
 			(long)nsol,(long)(nseq+1));
 	Print(wTrace,Message);
-	for(i=1L; i < imaxseq; i++) {
+//	for(i=1L; i < imaxseq; i++) { // Fixed by BB 2021-03-20
+	for(i=ZERO; i < imaxseq; i++) {
 		k = (*((*p_Seq)[nseq]))[i];
 		if(k < 2) continue;
 		j = (*p_Instance)[k].object;

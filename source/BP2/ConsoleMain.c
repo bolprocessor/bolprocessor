@@ -277,7 +277,7 @@ int main (int argc, char* args[])
 	if(check_memory_use && (MemoryUsed < MemoryUsedInit)) {
 		BPPrintMessage(odInfo,"WARNING! MemoryUsed = %ld < MemoryUsedInit = %ld in %s/%s\n",(long)MemoryUsed,(long)MemoryUsedInit,__FILE__,__FUNCTION__);
 		}
-	if (TraceMemory && Beta) {
+	if(TraceMemory && Beta) {
 		// reset everything and report memory usage & any leaked space
 		if((result = ResetProject(FALSE)) != OK)
 			BPPrintMessage(odError, "=> ResetProject() returned errors\n");
@@ -287,7 +287,7 @@ int main (int argc, char* args[])
 		BPPrintMessage(odInfo, "\nThis session used %ld bytes overall.  %ld handles created and released. [%ld bytes leaked]\n",
 			(long) MaxMemoryUsed,(long)MaxHandles,
 			(long) (MemoryUsed - MemoryUsedInit));
-			}
+		}
 	if(check_memory_use) {
 		j = forgotten_mem = 0;
 		for(i = 0; i < 5000; i++) {
@@ -315,7 +315,7 @@ int main (int argc, char* args[])
 	if(ProductionTime > 0) BPPrintMessage(odInfo, "Production time: %ld seconds\n",(long)ProductionTime);
 	if(PhaseDiagramTime > 0) BPPrintMessage(odInfo, "Phase-diagram filling time: %ld seconds\n",(long)PhaseDiagramTime);
 	if(TimeSettingTime > 0) BPPrintMessage(odInfo, "Time-setting time: %ld seconds\n",(long)TimeSettingTime);
-	BPPrintMessage(odInfo, "Total computation time: %ld seconds\n",(long)(current_time-SessionStartTime));
+	if(current_time > SessionStartTime) BPPrintMessage(odInfo, "Total computation time: %ld seconds\n",(long)(current_time-SessionStartTime));
 	
 	// deallocate space obtained during Inits() (not strictly necessary)
 /*	MyDisposeHandle((Handle*)&p_Oldvalue); */
@@ -492,8 +492,8 @@ void EndImageFile(void)
 		free(someline);
 		imagePtr = NULL;
 		}
-//	BPPrintMessage(odInfo,"Removing: %s\n",imageFileName);
 	remove(imageFileName);
+	BPPrintMessage(odInfo,"Removed: %s\n",imageFileName);
 	return;
 }
 

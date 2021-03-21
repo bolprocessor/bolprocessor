@@ -2126,7 +2126,7 @@ tokenbyte m,p,q;		/* 'from' is the position of rightmost symbol inserted */
 for(i = from, q = 1; (**pp_a)[i] != TEND || (**pp_a)[i+1] != TEND; i+=2) {
 	m = (int) (**pp_a)[i];
 	if(m >= MAXTOKENBYTE) {
-		if(trace_compute) BPPrintMessage(odInfo,"=> Error in Cormark() from = %ld inmark = %d\n",(long)from,inmark);
+		if(trace_compute) BPPrintMessage(odError,"=> Error in Cormark() from = %ld inmark = %d\n",(long)from,inmark);
 		return(FAILED);
 		}
 	p = (int)(**pp_a)[i+1];

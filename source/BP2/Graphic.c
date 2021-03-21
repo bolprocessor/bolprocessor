@@ -80,7 +80,7 @@ if(imagePtr == NULL) {
 // BPPrintMessage(odInfo,"Creating image %d based on objects\n",N_image);
 
 if(tmin == Infpos) {
-	BPPrintMessage(odInfo,"=> Err. DrawObject(). tmin == Infpos\n");
+	BPPrintMessage(odError,"=> Err. DrawObject(). tmin == Infpos\n");
 	return(OK);
 	}
 if(CheckLoadedPrototypes() != OK) {
@@ -108,7 +108,8 @@ if((p_top = (long**) GiveSpace((Size)maxlines*sizeof(long))) == NULL)
 hrect = 13;
 htext = 12;
 leftoffset = hrect - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
-if(leftoffset < 20) {
+BPPrintMessage(odInfo,"hrect = %d, tmin = %ld, leftoffset = %d\n",hrect,(long)tmin,leftoffset);
+ if(leftoffset < 20) {
 	if(leftoffset < -10) BPPrintMessage(odError,"=> Fixed leftoffset = %d\n",leftoffset);
 	leftoffset = 20; // Added BB 2021-03-13
 	}
@@ -148,18 +149,19 @@ if(trace_graphic) BPPrintMessage(odInfo,"\ntopoffset = %ld nmax = %d maxlines = 
 for(nseq = nmin; nseq <= nmax; nseq++) {
 	if(trace_graphic) BPPrintMessage(odInfo,"\nnseq = %d\n",nseq);
 	foundone = FALSE;
-	for(i=1; i < (*p_imaxseq)[nseq] && i <= imax; i++) {
+//	for(i=1; i < (*p_imaxseq)[nseq] && i <= imax; i++) {
+	for(i=0; i < (*p_imaxseq)[nseq] && i <= imax; i++) { // Fixed by BB 2021-03-20
 		k = (*((*p_Seq)[nseq]))[i];
 		if(trace_graphic) {
 			if(k > 0) BPPrintMessage(odInfo,"k = %d \n",k);
 		//	else BPPrintMessage(odInfo,"_");
 			}
-		if(k < 0) BPPrintMessage(odInfo,"=> Err. 'k' in DrawItem().\n");
+		if(k < 0) BPPrintMessage(odError,"=> Err. 'k' in DrawItem().\n");
 		if(k < 2) continue;	/* Reject '_' and '-' */
 		if(kmode) {
 			if(trace_graphic) BPPrintMessage(odInfo,"kmode = TRUE\n");
 			if(p_object == NULL) {
-				BPPrintMessage(odInfo,"=> Err. DrawObject(). p_object == NULL\n");
+				BPPrintMessage(odError,"=> Err. DrawObject(). p_object == NULL\n");
 				return(ABORT);
 				}
 			t1 = (*p_object)[k].starttime;
@@ -279,7 +281,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			foundone = TRUE;
 			if(trace_graphic) BPPrintMessage(odInfo,"New linenum = %ld\n",(long)linenum);
 			if(linenum >= maxlines) {
-				BPPrintMessage(odInfo,"=> Err. (1) linenum = %ld  maxlines = %ld  DrawItem()\n",
+				BPPrintMessage(odError,"=> Err. (1) linenum = %ld  maxlines = %ld  DrawItem()\n",
 					(long)linenum,(long)maxlines);
 				rep = ABORT;
 				goto ENDGRAPH;
@@ -308,9 +310,9 @@ CONT:
 			}
 		else pivloc = 0.;
 		pivloc -= trbeg;
-		if((*p_top)[linenum] <= 0) BPPrintMessage(odInfo,"=> Error Graphic linenum = %ld top <= 0\n",(long)linenum);
-		if((*p_top)[linenum] <= 0) BPPrintMessage(odInfo,"=> Error Graphic top <= 0\n");
-		if(morespace < 0) BPPrintMessage(odInfo,"=> Error Graphic morespace < 0\n");
+		if((*p_top)[linenum] <= 0) BPPrintMessage(odError,"=> Error Graphic linenum = %ld top <= 0\n",(long)linenum);
+		if((*p_top)[linenum] <= 0) BPPrintMessage(odError,"=> Error Graphic top <= 0\n");
+		if(morespace < 0) BPPrintMessage(odError,"=> Error Graphic morespace < 0\n");
 		
 		if(trace_graphic) BPPrintMessage(odInfo,"\nRunning DrawObject(%s) for t1 = %ld t2= %ld linenum = %ld, endx = %ld morespace = %ld, top = %ld\n",label,(long)t1,(long)t2,(long)linenum,(long)endx,(long)morespace,(long)(*p_top)[linenum]);
 				
@@ -338,7 +340,7 @@ CONT:
 		}
 	if(trace_graphic) BPPrintMessage(odInfo,"linenum = %ld, linemax = %ld, (*p_top)[linenum] = %ld\n",(long)linenum,(long)linemax,(long)(*p_top)[linenum]);
 	if(linenum >= maxlines) {
-		BPPrintMessage(odInfo,"=> Err. (2) linenum = %ld  maxlines = %ld in DrawItem()\n",(long)linenum,(long)maxlines);
+		BPPrintMessage(odError,"=> Err. (2) linenum = %ld  maxlines = %ld in DrawItem()\n",(long)linenum,(long)maxlines);
 		rep = ABORT;
 		goto ENDGRAPH;
 		}

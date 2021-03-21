@@ -2513,7 +2513,7 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) { // 
 		this_block_key = 0;
 		if(!WarnedBlockKey) {
 			MystrcpyHandleToString(0,0,Message,(*Scale)[i_scale].label);
-			BPPrintMessage(odInfo,"=> ERROR choice of blockkey in _scale(%s,...) instruction\n",Message);
+			BPPrintMessage(odError,"=> ERROR choice of blockkey in _scale(%s,...) instruction\n",Message);
 			WarnedBlockKey = TRUE;
 			}
 		}

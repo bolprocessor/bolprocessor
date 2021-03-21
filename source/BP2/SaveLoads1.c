@@ -1400,7 +1400,7 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 goto QUIT;
 
 ERR:
-BPPrintMessage(odInfo,"=> Error reading '%s' Csound resource file...\n",FileName[wCsoundInstruments]);
+BPPrintMessage(odError,"=> Error reading '%s' Csound resource file...\n",FileName[wCsoundInstruments]);
 // FileName[wCsoundInstruments][0] = '\0';
 
 QUIT:

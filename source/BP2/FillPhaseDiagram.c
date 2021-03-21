@@ -197,6 +197,7 @@ for(i=0; i < Maxlevel; i++) {
 	}
 
 (*p_nmax) = 0;
+// BPPrintMessage(odError,"Minconc = %ld, Maxconc = %ld\n",Minconc,Maxconc);
 // for(nseq=0; nseq <= Minconc; nseq++) {
 for(nseq=0; nseq < Maxconc; nseq++) { // Replaced Minconc with Maxconc by BB 2021-02-26 
 	if(MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseqapprox,p_maxcol) != OK) {
@@ -617,7 +618,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 		if(m == T3 && p > 1 && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO) {
 			m = T3;
 			p = 1;
-			if(trace_diagram) BPPrintMessage(odInfo,"=> m = %d p = %d size = 0\n",m,p);
+			if(trace_diagram) BPPrintMessage(odError,"=> m = %d p = %d size = 0\n",m,p);
 			}
 	//	if(m == T25) BPPrintMessage(odInfo,"@ m = %d p = %d -> nseq = %ld\n",m,p,(long)nseq);
 		((*p_im)[nseq]) += Kpress;
@@ -685,6 +686,8 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 				kobj++; (*p_numberobjects) = kobj;
 				ShowProgress(kobj);
 				ip = Class((*p_im)[nseq]);
+				if(ip == 0)
+					BPPrintMessage(odInfo,"nseq = %ld, kobj = %ld m = %d p = %d\n",(long)nseq,(long)kobj,m,p);
 				if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,currswitchstate)
 					== ABORT) goto ENDDIAGRAM;
 				if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,
@@ -814,11 +817,12 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 		foundendconcatenation = FALSE;
 		numberzeros = prodtempo - 1;
 		if(skipzeros) numberzeros = -1.;
+		// BPPrintMessage(odInfo,"PutZeros() toofast = %d (*p_im)[nseq] = %.1f kobj = %d numberzeros = %.1f numberzeros/Kpress = %.1f\n",(int)toofast,(*p_im)[nseq],kobj,numberzeros,(numberzeros/Kpress));
 		if(PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,numberzeros,p_nmax) != OK)
 			goto ENDDIAGRAM;
 		
 		if(m != T3 && m != T9 && m != T25) {
-			if(Beta) Println(wTrace,"=> Err. FillePhaseDiagram(). m != T3 && m != T9 && m != T25");
+			BPPrintMessage(odError,"=> Err. FillePhaseDiagram(). m != T3 && m != T9 && m != T25\n");
 			goto NEXTTOKEN;
 			}
 		numberzeros += 1.;
@@ -1624,7 +1628,7 @@ if(imax > 0.) {
 		suggested_quantization = (int)(Quantization * (tempomax + 1) / max_tempo_in_skipped_object * CorrectionFactor);
 		if(suggested_quantization > 10)
 			suggested_quantization = suggested_quantization - modulo(suggested_quantization,((int)Time_res / 2));
-		BPPrintMessage(odInfo,"=> %d objects/notes have been skipped. Quantization should be less than %d ms to avoid it\n",number_skipped,suggested_quantization);
+		BPPrintMessage(odError,"=> %d objects/notes have been skipped. Quantization should be less than %d ms to avoid it\n",number_skipped,suggested_quantization);
 		}
 	/* Let's put an out-time silence at the end of the item, and attach to it the ultimate control parameter values */
 	nseq = Minconc;
@@ -1682,7 +1686,8 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	if(Plot(INTIME,&nseqplot,&ip,&overstrike,TRUE,p_nmax,p_maxcol,p_im,p_Seq,
 		&nseq,maxseqapprox,ip,-1) != OK) goto ENDDIAGRAM;
 	rest = FALSE;
-	for(iseq=1L; iseq <= (*p_imaxseq)[nseq]; iseq++) {
+//	for(iseq=1L; iseq <= (*p_imaxseq)[nseq]; iseq++) { Fixed by BB 2021-03-20
+	for(iseq=ZERO; iseq <= (*p_imaxseq)[nseq]; iseq++) {
 		k = (*((*p_Seq)[nseq]))[iseq];
 		if(k == 0) continue;
 		if(k == 1) {
@@ -1798,13 +1803,16 @@ int oldk,gotnewline,nseq;
 switch(where) {
 	case INTIME: // Normal mode
 		oldk = (*((*p_seq)[*p_nseq]))[iplot];
+	//	if(iplot < 50 && *p_nseq > 2 && *p_nseq < 10 && newk == 0)
+	//		BPPrintMessage(odInfo,"Plot() nseq = %d, iplot = %ld, oldk = %d, newk = %d\n",*p_nseq,(long)iplot, oldk, newk);
 		if(!force && oldk > 1) {
 			/* This may happen due to roundings after arithmetic overflows */
 			goto PLOTOUTSIDE;
 			}
-		if(force && oldk > 1 && newk != 1) {
+		// if(force && oldk > 1 && newk != 1) { Fixed by BB 2021-01-25
+		if(force && oldk > 1 && newk > 1) {
 			/* When newk == 1 with force, table contains arbitrary numbers, so oldk is irrelevant */
-			if(Beta) Print(wTrace,"Overwrote an object\n");
+			BPPrintMessage(odError,"=> Overwrote an object\n");
 			(*p_Instance)[oldk].object = 0;
 			}
 		(*((*p_seq)[*p_nseq]))[iplot] = newk;
@@ -1904,8 +1912,10 @@ if(Kpress < 1.) {
 	if(Beta) Println(wTrace,"=> Err. Class(). Kpress < 1.");
 	Kpress = 1.;
 	}
-if(Kpress < 2. || i < 1.) return((unsigned long)i);
+// if(Kpress < 2. || i < 1.) return((unsigned long)i);
+if(Kpress < 2. || i < 0.) return((unsigned long)i); // Fixed by BB 2021-03-20
 result = 1L + ((unsigned long)((ceil(i) - 1.) / Kpress));
+// if(i < 2.) BPPrintMessage(odInfo,"Class(%.4f) = %ld\n",i,result);
 return(result);
 }
 
@@ -2128,9 +2138,10 @@ if(((*p_Seq)[nseq]=ptr) == NULL) {
 if((*p_nmax) < nseq) (*p_nmax) = nseq;
 
 (*((*p_Seq)[nseq]))[0] = 0;
+// BPPrintMessage(odError,"MakeNewLineInPhaseTable nseq = %ld, nmax = %ld (*p_im)[nseq] = %.0f (*p_maxcol)[nseq] = %ld\n",(long)nseq,(long)(*p_nmax),(double)(*p_im)[nseq],(long)(*p_maxcol)[nseq]);
 for(iseq=ZERO; iseq <= maxseq; iseq++)
-	Plot(INTIME,&nseqplot,&iplot,&overstrike,TRUE,p_nmax,p_maxcol,p_im,p_Seq,
-		&nseq,maxseq,iseq,1);
+	Plot(INTIME,&nseqplot,&iplot,&overstrike,TRUE,p_nmax,p_maxcol,p_im,p_Seq,&nseq,maxseq,iseq,1); // Checked by BB 2021-03-20
+//	Plot(INTIME,&nseqplot,&iplot,&overstrike,TRUE,p_nmax,p_maxcol,p_im,p_Seq,&nseq,maxseq,iseq,0);
 return(OK);
 }
 
@@ -2200,11 +2211,10 @@ if(numberzeros > 0.) {
 				}
 			else {
 				if(Beta) {
-					sprintf(Message,"\nErr. PutZeros(). nseq=%ld (*p_im)[nseq]=%.1f ip=%u  maxseq=%.1f\n",
+					BPPrintMessage(odError,"=> Err. PutZeros(). nseq=%ld (*p_im)[nseq]=%.1f ip=%u  maxseq=%.1f\n",
 						(long)nseq,i,ip,maxseq);
-					Println(wTrace,Message);
 					}
-				else Println(wTrace,"\nUnexpected overflow in PutZeros(). You may send this project to the designer");
+				else BPPrintMessage(odError,"=> Unexpected overflow in PutZeros(). You may send this project to the designer\n");
 				return(ABORT);
 				}
 			}
@@ -2234,7 +2244,7 @@ int TellSkipped(void)
 {
 if(!ToldSkipped) {
 	ToldSkipped = TRUE;
-//	BPPrintMessage(odInfo,"=> Some objects have been skipped. Quantization should be reduced to avoid it.\n");
+//	BPPrintMessage(odError,"=> Some objects have been skipped. Quantization should be reduced to avoid it.\n");
 	}
 return(OK);
 }
