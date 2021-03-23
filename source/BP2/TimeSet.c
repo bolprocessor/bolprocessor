@@ -107,7 +107,7 @@ missed_ties = 0;
 for(j = 0; j <= MAXCHAN; j++) {
 	for(i = 0; i < 128; i++) {
 		if((*(p_Missed_tie_note[j]))[i] > 0) {
-			BPPrintMessage(odError,"Missed tied note key #%d (%d occurrences channel %d)\n",i,(*(p_Missed_tie_note[j]))[i],j);
+			BPPrintMessage(odError,"Missed tied note key #%d (%d occurrences MIDI channel %d)\n",i,(*(p_Missed_tie_note[j]))[i],j);
 			missed_ties++;
 			}
 		}
@@ -124,7 +124,7 @@ missed_ties = 0;
 for(j = 0; j < MAXINSTRUMENTS; j++) {
 	for(i = 0; i < maxties; i++) {
 		if((*(p_Missed_tie_event[j]))[i] > 0) {
-			BPPrintMessage(odError,"Missed tied event #%d (%d occurrences instrument %d)\n",i,(*(p_Missed_tie_event[j]))[i],j);
+			BPPrintMessage(odError,"Missed tied event #%d (%d occurrences Csound instrument %d)\n",i,(*(p_Missed_tie_event[j]))[i],j);
 			missed_ties++;
 			}
 		}
@@ -154,13 +154,15 @@ p_list **ptag;
 Milliseconds tmax,t,**p_DELTA,t1,t2,**p_time1,**p_time2,**p_maxcoverbeg,**p_maxcoverend,
 	**p_maxgapbeg,**p_maxgapend,**p_maxtruncbeg,**p_maxtruncend,
 	olddelta,max_end_time;
-unsigned long tstart;
+unsigned long tstart,handle_size;
 
 nature_time = Nature_of_time;	/* Must not change during computation */
 
+handle_size = maxseq + 50; // Added by BB 2021-03-23
+
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	ptr = (*p_Seq)[nseq];
-	if(MySetHandleSize((Handle*)&ptr,(Size)(maxseq+2) * sizeof(short)) != OK) return(ABORT); 
+	if(MySetHandleSize((Handle*)&ptr,(Size)handle_size * sizeof(short)) != OK) return(ABORT); 
 	(*p_Seq)[nseq] = ptr;
 	}
 
@@ -168,6 +170,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	
 in = 1.; jn = ZERO;
 period = ((double) Pclock) * 1000. * CorrectionFactor / Qclock;
+// BPPrintMessage(odInfo,"Pclock = %ld Qclock = %ld, CorrectionFactor = %.3f\n",(long)Pclock,(long)Qclock,CorrectionFactor);
 
 // if(trace_timeset)
 BPPrintMessage(odInfo,"Setting time streaks on %d lines\n",(*p_nmax));
@@ -180,7 +183,7 @@ while(TRUE) {
 		jn = jj;		/* Write only once */
 		if(nature_time == STRIATED) {
 			(*p_T)[jn] = (Milliseconds) ((period * (in - 1.)) / Ratio);
-		//	BPPrintMessage(odError,"jn = %ld (*p_T)[jn] = %ld in = %ld period = %.0f Ratio = %.0f\n",(long)jn,(long)(*p_T)[jn],(long)in,(double)period,(double)Ratio);
+			// BPPrintMessage(odError,"jn = %ld (*p_T)[jn] = %ld in = %ld period = %.0f Ratio = %.0f\n",(long)jn,(long)(*p_T)[jn],(long)in,(double)period,(double)Ratio);
 			if(Kpress > 2) { // Compensates roundings // Added by BB 2021-03-21
 				if(jn > 0) (*p_T)[jn-1] = (*p_T)[jn];
 				if((jn + 1) <= maxseq) (*p_T)[jn+1] = (*p_T)[jn];
@@ -347,37 +350,38 @@ if(trace_timeset) {
 	}
 if(DoSystem() != OK) return(ABORT);
 
-if((p_marked = (char**) GiveSpace((Size) (maxseq+4)*sizeof(char))) == NULL)
+if((p_marked = (char**) GiveSpace((Size)handle_size * sizeof(char))) == NULL)
 	return(ABORT);
-if((p_DELTA = (Milliseconds**) GiveSpace((Size)(maxseq+4)*sizeof(Milliseconds)))
+if((p_DELTA = (Milliseconds**) GiveSpace((Size)handle_size * sizeof(Milliseconds)))
 		== NULL) return(ABORT);
-for(i=ZERO; i <= maxseq; i++) {
+// for(i=ZERO; i <= maxseq; i++) {
+for(i=ZERO; i < handle_size; i++) { // Fixed by BB 2021-03-23
 	(*p_DELTA)[i] = ZERO; (*p_marked)[i] = FALSE;
 	}
-if((p_time1 = (Milliseconds**) GiveSpace((Size)(maxseq+4)*sizeof(Milliseconds))) == NULL)
+if((p_time1 = (Milliseconds**) GiveSpace((Size)handle_size * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_time2 = (Milliseconds**) GiveSpace((Size)(maxseq+4)*sizeof(Milliseconds))) == NULL)
+if((p_time2 = (Milliseconds**) GiveSpace((Size)handle_size * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_maxcoverbeg = (Milliseconds**) GiveSpace((Size)(maxseq+4)*sizeof(Milliseconds))) == NULL)
+if((p_maxcoverbeg = (Milliseconds**) GiveSpace((Size)handle_size * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_maxcoverend = (Milliseconds**) GiveSpace((Size)(maxseq+4)*sizeof(Milliseconds))) == NULL)
+if((p_maxcoverend = (Milliseconds**) GiveSpace((Size)handle_size * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_maxgapbeg = (Milliseconds**) GiveSpace((Size)(maxseq+4)*sizeof(Milliseconds))) == NULL)
+if((p_maxgapbeg = (Milliseconds**) GiveSpace((Size)handle_size * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_maxgapend = (Milliseconds**) GiveSpace((Size)(maxseq+4)*sizeof(Milliseconds))) == NULL)
+if((p_maxgapend = (Milliseconds**) GiveSpace((Size)handle_size * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_maxtruncbeg = (Milliseconds**) GiveSpace((Size)(maxseq+4)*sizeof(Milliseconds))) == NULL)
+if((p_maxtruncbeg = (Milliseconds**) GiveSpace((Size)handle_size * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_maxtruncend = (Milliseconds**) GiveSpace((Size)(maxseq+4)*sizeof(Milliseconds))) == NULL)
-	return(ABORT);
-if((p_alphadone = (char**) GiveSpace((Size)((*p_nmax)+1)*sizeof(char))) == NULL)
+if((p_maxtruncend = (Milliseconds**) GiveSpace((Size)handle_size * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
 	
+if((p_alphadone = (char**) GiveSpace((Size)((*p_nmax)+1)*sizeof(char))) == NULL)
+	return(ABORT);
+for(nseq=0; nseq <= (*p_nmax); nseq++) (*p_alphadone)[nseq] = FALSE;
+
 result = OK; first = TRUE;
 
 // if(IsMidiDriverOn()) tstart = GetDriverTime();
-
-for(nseq=0; nseq <= (*p_nmax); nseq++) (*p_alphadone)[nseq] = FALSE;
 
 STARTAGAIN:
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
@@ -620,7 +624,8 @@ QUEST2:
 		else if(i > 0 && (t=((*p_Instance)[k].endtime+(*p_Instance)[k].truncend)) > *p_tmax)
 			*p_tmax = t;
 		if(trace_timeset) BPPrintMessage(odInfo,"t = %ld, tmax = %ld\n",(long)t,(long)*p_tmax);
-		i = 1L;
+		// i = 1L;
+		i = ZERO; // Fixed by BB 2021-03-22
 		while(i <= imax && (k=(*((*p_Seq)[nseq]))[i]) < 2) i++;
 		if(trace_timeset) BPPrintMessage(odInfo,"min: i = %ld, k = %ld\n",(long)i,(long)k);
 		if(k > *p_kmx) {
@@ -633,14 +638,14 @@ QUEST2:
 	else if(imax < 0 && trace_timeset) BPPrintMessage(odInfo,"\n=> imax = %ld for nseq = %ld\n",(long)imax,(long)nseq);
 		
 	/* Last object must not be played legato */ // Suppressed by BB 22 Nov 2020
-	i = (*p_imaxseq)[nseq] - 1L;
+/*	i = (*p_imaxseq)[nseq] - 1L;
 	while((k=(*((*p_Seq)[nseq]))[i]) <= 0 || (*p_Instance)[k].object <= 1) {
 		i--;
-		if(i < 1L) break;
+		if(i < ZERO) break;
 		}
 	a = (*p_articul)[k];
-	// if(a > 127) a = a - 256;
-//	if(a > 0 && k > 1) (*p_articul)[k] = 0;
+	if(a > 127) a = a - 256;
+	if(a > 0 && k > 1) (*p_articul)[k] = 0; */
 	}
 
 /* Modify Alpha according to articulation (legato/staccato) */

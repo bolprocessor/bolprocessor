@@ -58,7 +58,7 @@ double objectduration,**p_im,**p_origin,scale,inext,
 	**p_currobject,**p_objectsfound,objectsfound;
 short rndvel,velcontrol,**p_deftrndvel,**p_deftvelcontrol,**p_deftstartvel,
 	velincrement,**p_deftvelincrement,**p_deftarticulincrement,**p_deftstartarticul;
-int i,j,k,kobj,nseq,nseqmem,nseqmem2,newswitch,v,ch,gotnewline,foundobject,
+int i,j,k,kobj,nseq,oldnseq,nseqmem,newswitch,v,ch,gotnewline,foundobject,
 	failed,paramnameindex,paramvalueindex,maxparam,newxpandval,newkeyval,
 	**p_deftxpandval,**p_deftxpandkey,number_skipped,suggested_quantization,
 	r,rest,oldm,oldp,**p_seq,**p_deftnseq,startvel,articulincrement,
@@ -624,11 +624,9 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 		((*p_im)[nseq]) += Kpress;
 		ip = Class((*p_im)[nseq]);
 		if(Beta && (ip > maxseqapprox)) {
-			sprintf(Message,
-				"\n=> Error nseq = %ld Class((*p_im)[nseq]) = %ul maxseqapprox = %ld",
+			BPPrintMessage(odError,"\n=> Error nseq = %ld Class((*p_im)[nseq]) = %ul maxseqapprox = %ld\n",
 				(long)nseq,ip,(long)maxseqapprox);
-			Println(wTrace,Message);
-			ShowError(34,0,0);
+		//	ShowError(34,0,0); Fixed by BB 2021-03-22
 			goto ENDDIAGRAM;
 			}
 			
@@ -686,8 +684,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 				kobj++; (*p_numberobjects) = kobj;
 				ShowProgress(kobj);
 				ip = Class((*p_im)[nseq]);
-				if(ip == 0)
-					BPPrintMessage(odInfo,"nseq = %ld, kobj = %ld m = %d p = %d\n",(long)nseq,(long)kobj,m,p);
+				// BPPrintMessage(odInfo,"nseq = %ld, kobj = %ld m = %d p = %d ip = %ld\n",(long)nseq,(long)kobj,m,p,(long)ip);
 				if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,currswitchstate)
 					== ABORT) goto ENDDIAGRAM;
 				if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,
@@ -761,7 +758,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 						= GetSymbolicDuration(YES,*pp_buff,m,p,id,speed,
 							scale,level,channel,instrument,foundendconcatenation,level);
 					if(PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,objectduration-prodtempo,
-							p_nmax) != OK)
+							p_nmax,0) != OK)
 						goto ENDDIAGRAM;
 					skipzeros = TRUE;
 					ibeatsvel += objectduration;
@@ -817,8 +814,8 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 		foundendconcatenation = FALSE;
 		numberzeros = prodtempo - 1;
 		if(skipzeros) numberzeros = -1.;
-		// BPPrintMessage(odInfo,"PutZeros() toofast = %d (*p_im)[nseq] = %.1f kobj = %d numberzeros = %.1f numberzeros/Kpress = %.1f\n",(int)toofast,(*p_im)[nseq],kobj,numberzeros,(numberzeros/Kpress));
-		if(PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,numberzeros,p_nmax) != OK)
+	//	if(kobj > 1 && kobj < 6) BPPrintMessage(odInfo,"PutZeros() id = %ld m = %d p = %d toofast = %d (*p_im)[%d] = %.1f (*p_im)[nseq]/Kpress = %.1f kobj = %d maxseqapprox = %.0f numberzeros = %.0f numberzeros/Kpress = %.0f\n",id,m,p,(int)toofast,nseq,(*p_im)[nseq],(*p_im)[nseq]/Kpress,kobj,maxseqapprox,numberzeros,(numberzeros/Kpress)); // $$$$
+		if(PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,numberzeros,p_nmax,kobj) != OK)
 			goto ENDDIAGRAM;
 		
 		if(m != T3 && m != T9 && m != T25) {
@@ -1224,7 +1221,7 @@ NEWSEQUENCE:
 						BPPrintMessage(odInfo,"'&' following nseq = %ld level = %ld m = %ld p = %ld numberzeros = %.2f speed = %.2f scale = %.2f id = %ld\n",(long)nseq,(long)level,(long)oldm,(long)oldp,numberzeros,speed,scale,id);
 					if(numberzeros < 0.) numberzeros = 0.;
 							
-					if(PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,numberzeros,p_nmax) != OK) goto ENDDIAGRAM;
+					if(PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,numberzeros,p_nmax,0) != OK) goto ENDDIAGRAM;
 					
 					if(oldm == T25) (*(p_Tie_note[channel]))[oldp] = TRUE; // Added by BB 2021-02-07 
 					else if(oldm == T3) (*(p_Tie_event[instrument]))[oldp] = TRUE; // Added by BB 2021-02-07
@@ -1583,11 +1580,12 @@ for(nseq=nseqmem=0; nseq <= (*p_nmax); nseq++) {
 	(*p_maxcol)[nseq]++;
 	ip = (*p_maxcol)[nseq];
 	if(trace_diagram) BPPrintMessage(odInfo,"@ nseq = %ld maxcol[nseq] = %ld\n",nseq,(*p_maxcol)[nseq]);
-	nseqmem2 = nseq;
+	oldnseq = nseq;
 	if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,&nseq,
 		maxseqapprox,ip,1) != OK) goto ENDDIAGRAM;
 	/* This shortens objects that would be too long because of roundings when Kpress > 1 */
 	/* Note than an object that was just at the end (in too fast tempo) hasn't been overstriken */
+	nseq = oldnseq; // nseq might have been changed by Plot() // Added by BB 2021-03-22
 	if((*p_maxcol)[nseq] > imax) {
 		imax = (*p_maxcol)[nseq];
 		nseqmem = nseq;
@@ -1616,7 +1614,7 @@ if(imax > 0.) {
 		CorrectionFactor = (((Ratio * Pduration) / Qduration) / (Kpress * (imax - 1.)));
 	/* This compensates errors due to overflow in calculating Prod and Ratio */
 		if(CorrectionFactor < 0.95 || CorrectionFactor > 1.05) {
-			sprintf(Message,"Correction factor = %.3f\n",CorrectionFactor);
+			sprintf(Message,"Correction factor = %.3f (imax = %ld nseqmem = %ld  nseqmax = %ld)\n",CorrectionFactor,(long)imax,(long)nseqmem,(long)(*p_nmax));
 			Println(wTrace,Message);
 			ShowMessage(TRUE,wMessage,Message);
 			}
@@ -1682,7 +1680,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	(*p_imaxseq)[nseq] = ip = (*p_maxcol)[nseq];
 	if(ip > (*p_maxseq)) (*p_maxseq) = ip;
 	
-	/* Here we'll formally indicate the end of the sequence */
+	/* Mark the end of the sequence */
 	if(Plot(INTIME,&nseqplot,&ip,&overstrike,TRUE,p_nmax,p_maxcol,p_im,p_Seq,
 		&nseq,maxseqapprox,ip,-1) != OK) goto ENDDIAGRAM;
 	rest = FALSE;
@@ -1809,10 +1807,10 @@ switch(where) {
 			/* This may happen due to roundings after arithmetic overflows */
 			goto PLOTOUTSIDE;
 			}
-		// if(force && oldk > 1 && newk != 1) { Fixed by BB 2021-01-25
-		if(force && oldk > 1 && newk > 1) {
+		// if(force && oldk > 1 && newk != 1) { 
+		if(force && oldk > 1 && newk > 1) { // Fixed by BB 2021-01-25
 			/* When newk == 1 with force, table contains arbitrary numbers, so oldk is irrelevant */
-			BPPrintMessage(odError,"=> Overwrote an object\n");
+			BPPrintMessage(odError,"=> Error Plot(): overwrote object #%d\n",oldk);
 			(*p_Instance)[oldk].object = 0;
 			}
 		(*((*p_seq)[*p_nseq]))[iplot] = newk;
@@ -1832,7 +1830,8 @@ NEWCOLUMN:
 			(*p_nseqplot) = Minconc + 1;
 			(*p_iplot)++;
 			}
-		if((*p_iplot) >= maxseq || ((((*p_iplot) - iplot)) > (200L / Quantization) && !force)) {
+//		if((*p_iplot) >= maxseq || ((((*p_iplot) - iplot)) > (200L / Quantization) && !force)) {
+		if((*p_iplot) >= maxseq || ((((*p_iplot) - iplot) > (200L / Quantization)) && !force)) { // Fixed by BB 2021-03-22
 			(*p_overstrike) = TRUE;
 			TellSkipped();
 			return(OK);
@@ -1914,7 +1913,8 @@ if(Kpress < 1.) {
 	}
 // if(Kpress < 2. || i < 1.) return((unsigned long)i);
 if(Kpress < 2. || i < 0.) return((unsigned long)i); // Fixed by BB 2021-03-20
-result = 1L + ((unsigned long)((ceil(i) - 1.) / Kpress));
+// result = 1L + ((unsigned long)((ceil(i) - 1.) / Kpress));
+result = 1L + ((unsigned long)(floor(i) / Kpress)); // Fixed by BB 2021-03-22
 // if(i < 2.) BPPrintMessage(odInfo,"Class(%.4f) = %ld\n",i,result);
 return(result);
 }
@@ -2140,7 +2140,7 @@ if((*p_nmax) < nseq) (*p_nmax) = nseq;
 (*((*p_Seq)[nseq]))[0] = 0;
 // BPPrintMessage(odError,"MakeNewLineInPhaseTable nseq = %ld, nmax = %ld (*p_im)[nseq] = %.0f (*p_maxcol)[nseq] = %ld\n",(long)nseq,(long)(*p_nmax),(double)(*p_im)[nseq],(long)(*p_maxcol)[nseq]);
 for(iseq=ZERO; iseq <= maxseq; iseq++)
-	Plot(INTIME,&nseqplot,&iplot,&overstrike,TRUE,p_nmax,p_maxcol,p_im,p_Seq,&nseq,maxseq,iseq,1); // Checked by BB 2021-03-20
+	Plot(INTIME,&nseqplot,&iplot,&overstrike,TRUE,p_nmax,p_maxcol,p_im,p_Seq,&nseq,maxseq,iseq,1); // Confirmed by BB 2021-03-20
 //	Plot(INTIME,&nseqplot,&iplot,&overstrike,TRUE,p_nmax,p_maxcol,p_im,p_Seq,&nseq,maxseq,iseq,0);
 return(OK);
 }
@@ -2185,12 +2185,12 @@ return(OK);
 
 
 int PutZeros(char toofast,double **p_im,unsigned long **p_maxcol,int nseq,double maxseq,
-	double numberzeros,int *p_nmax)
+	double numberzeros,int *p_nmax,int kobj)
 {
-unsigned long ip,iplot;
+unsigned long ip,iplot,ipnew,k,kmax;
 char overstrike;
-double i,j;
-int nseqplot;
+double i,i2,j;
+int nseqplot,oldnseq,new_method;
 
 overstrike = FALSE; // Fixed by BB 2021-01-31
 if(nseq >= Maxconc) {
@@ -2199,32 +2199,68 @@ if(nseq >= Maxconc) {
 	return(FAILED);
 	}
 if(numberzeros > 0.) {
-	i = (*p_im)[nseq];
-	for(j=Kpress; j <= numberzeros; j += Kpress) {
-	/* Incrementing with Kpress saves time because we don't plot the same location several times */
-		i += Kpress;
-		ip = Class(i);
-		if(toofast) continue;
-		if(ip > maxseq) {
-			if(ip < (1.005 * (maxseq + 1.))) {
-				ip = maxseq;
-				}
-			else {
-				if(Beta) {
-					BPPrintMessage(odError,"=> Err. PutZeros(). nseq=%ld (*p_im)[nseq]=%.1f ip=%u  maxseq=%.1f\n",
-						(long)nseq,i,ip,maxseq);
+	i = i2 = (*p_im)[nseq];
+	ip = Class(i);
+	kmax = Class(numberzeros);
+	// if(kobj > 1 && kobj < 6) BPPrintMessage(odInfo,"+ kobj = %d nseq = %d i = %.2f Class(i) = %ld kmax = %ld toofast = %d\n",kobj,nseq,i,(long)ip,kmax,(int)toofast); 
+	
+	new_method = 1;
+	
+	if(new_method) { // Created by BB 2021-03-22
+		for(k = 1; k <= kmax; k++) {
+			ipnew = ip + k;
+			if(toofast) continue;
+			if(ipnew > maxseq) {
+				if(ipnew < (1.005 * (maxseq + 1.))) {
+					BPPrintMessage(odInfo,"Adjusted ipnew (%ld) to %.0f (object #%d)\n",ipnew,maxseq,kobj);
+					ipnew = maxseq;
 					}
-				else BPPrintMessage(odError,"=> Unexpected overflow in PutZeros(). You may send this project to the designer\n");
-				return(ABORT);
+				else {
+					BPPrintMessage(odError,"=> Err. PutZeros(). nseq = %ld ipnew = %u  maxseq = %.1f\n",(long)nseq,(long)ipnew,maxseq);
+					return(ABORT);
+					}
 				}
+			oldnseq = nseq;
+			Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
+				&nseq,maxseq,ipnew,0);
+			nseq = oldnseq;
 			}
-		Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
-			&nseq,maxseq,ip,0);
+	/*	i += (1 + numberzeros - Kpress);
+		(*p_im)[nseq] = i;
+		(*p_maxcol)[nseq] = Class((*p_im)[nseq]);
+		for(j=Kpress; j <= numberzeros; j += Kpress) { i2 += Kpress; }
+		if(kobj < 20 && kobj > 0) BPPrintMessage(odInfo,"kobj = %d delta_im1 = %.3f\n",kobj,(*p_im)[nseq]-(i2 + 1. + numberzeros - j)); */
+		for(j=Kpress; j <= numberzeros; j += Kpress) { i += Kpress; }
+	 	(*p_im)[nseq] = i + 1. + numberzeros - j;
+		(*p_maxcol)[nseq] = Class((*p_im)[nseq]);
 		}
-	(*p_im)[nseq] = i + 1. + numberzeros - j;
+	else { // Creates rounding errors
+		for(j=Kpress; j <= numberzeros; j += Kpress) {
+			i += Kpress;
+			ip = Class(i);
+			if(toofast) continue;
+			if(ip > maxseq) {
+				if(ip < (1.005 * (maxseq + 1.))) {
+					ip = maxseq;
+					}
+				else {
+					BPPrintMessage(odError,"=> Err. PutZeros(). nseq=%ld (*p_im)[nseq]=%.1f ip=%u  maxseq=%.1f\n",
+							(long)nseq,i,ip,maxseq);
+					return(ABORT);
+					}
+				}
+			oldnseq = nseq;
+			Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
+				&nseq,maxseq,ip,0);
+			nseq = oldnseq;
+			}
+	 	(*p_im)[nseq] = i + 1. + numberzeros - j;
+		(*p_maxcol)[nseq] = Class((*p_im)[nseq]);
+		}
+	
 	/* This final value, when incremented with Kpress, is the position of the next streak to */
 	/* ... place objects on. */
-	(*p_maxcol)[nseq] = Class((*p_im)[nseq]);
+	
 	}
 return(OK);
 }

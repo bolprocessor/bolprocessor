@@ -68,7 +68,7 @@ int Locate(int nseq,unsigned long** p_imaxseq,long imax,int kmax,Milliseconds **
 char **p_BreakTempoPrev,**p_choice1,choice2;
 int j,k,kk,sol1,sol2,n,nsol,redo,
 	krep,r,result,stack_depth,okmove;
-long i,ii,i0,iprev,inext,ibreak,imax1,**p_tp1,**p_tp2,**p_ts1,**p_ts2,ts1mem,ts2mem,
+long i,ii,i0,iprev,inext,ibreak,imax2,**p_tp1,**p_tp2,**p_ts1,**p_ts2,ts1mem,ts2mem,
 	imaxseq,imaxseq2,delta2mem,ddelta2mem,**p_delta,**p_delta1,**p_delta2,
 	shift1,shift2,shift3,shift4,DELTA,**p_ddelta0,**p_ddelta1,**p_ddelta2;
 long **p_Ts,**p_tscover,**p_tsgap,Tsm;
@@ -81,43 +81,45 @@ if(nseq >= Maxconc) {
 	return(OK);
 	}	
 imaxseq = (*p_imaxseq)[nseq];
-imaxseq2 = imaxseq + 2;
-imax1 = imax + 1;
+// imaxseq2 = imaxseq + 2; Fixed by BB 2021-03-23
+imaxseq2 = imaxseq + 20;
+//imax2 = imax + 1; Fixed by BB 2021-03-23
+imax2 = imax + 20;
 n = 0;
 
 /* All these below should be replaced with single records !!! */
 
-if((p_BreakTempoPrev = (char**) GiveSpace((Size)(imaxseq2 + 1) * sizeof(char))) == NULL)
+if((p_BreakTempoPrev = (char**) GiveSpace((Size)imaxseq2 * sizeof(char))) == NULL)
 	return(ABORT);
-if((p_choice1 = (char**) GiveSpace((Size)(imaxseq2 + 1) * sizeof(char))) == NULL)
+if((p_choice1 = (char**) GiveSpace((Size)imaxseq2 * sizeof(char))) == NULL)
 	return(ABORT);
-if((p_tp1 = (Milliseconds**) GiveSpace((Size)(imaxseq2 + 1) * sizeof(Milliseconds))) == NULL)
+if((p_tp1 = (Milliseconds**) GiveSpace((Size)imaxseq2 * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_tp2 = (Milliseconds**) GiveSpace((Size)(imaxseq2 + 1) * sizeof(Milliseconds))) == NULL)
+if((p_tp2 = (Milliseconds**) GiveSpace((Size)imaxseq2 * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_ts1 = (Milliseconds**) GiveSpace((Size)(imax1 + 1) * sizeof(Milliseconds))) == NULL)
+if((p_ts1 = (Milliseconds**) GiveSpace((Size)imax2 * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_ts2 = (Milliseconds**) GiveSpace((Size)(imax1 + 1) * sizeof(Milliseconds))) == NULL)
+if((p_ts2 = (Milliseconds**) GiveSpace((Size)imax2 * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_delta = (Milliseconds**) GiveSpace((Size)Maxevent*sizeof(Milliseconds))) == NULL)
+if((p_delta = (Milliseconds**) GiveSpace((Size)Maxevent * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_delta1 = (Milliseconds**) GiveSpace((Size)(imax1 + 1) * sizeof(Milliseconds))) == NULL)
+if((p_delta1 = (Milliseconds**) GiveSpace((Size)imax2 * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_delta2 = (Milliseconds**) GiveSpace((Size)(imax1 + 1) * sizeof(Milliseconds))) == NULL)
+if((p_delta2 = (Milliseconds**) GiveSpace((Size)imax2 * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_Ts = (Milliseconds**) GiveSpace((Size)(imaxseq2 + 1) * sizeof(Milliseconds))) == NULL)
+if((p_Ts = (Milliseconds**) GiveSpace((Size)imaxseq2 * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_tscover = (Milliseconds**) GiveSpace((Size)(imaxseq2 + 1) * sizeof(Milliseconds))) == NULL)
+if((p_tscover = (Milliseconds**) GiveSpace((Size)imaxseq2 * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_tsgap = (Milliseconds**) GiveSpace((Size)(imaxseq2 + 1) * sizeof(Milliseconds))) == NULL)
+if((p_tsgap = (Milliseconds**) GiveSpace((Size)imaxseq2 * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_ddelta0 = (Milliseconds**) GiveSpace((Size)(imax1 + 1) * sizeof(Milliseconds))) == NULL)
+if((p_ddelta0 = (Milliseconds**) GiveSpace((Size)imax2 * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_ddelta1 = (Milliseconds**) GiveSpace((Size)(imax1 + 1) * sizeof(Milliseconds))) == NULL)
+if((p_ddelta1 = (Milliseconds**) GiveSpace((Size)imax2 * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_ddelta2 = (Milliseconds**) GiveSpace((Size)(imax1 + 1) * sizeof(Milliseconds))) == NULL)
+if((p_ddelta2 = (Milliseconds**) GiveSpace((Size)imax2 * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_sol_set1 = (solset**) GiveSpace((Size)(imaxseq2 + 1) * sizeof(solset)))
+if((p_sol_set1 = (solset**) GiveSpace((Size)imaxseq2 * sizeof(solset)))
 	== NULL) return(ABORT);
 	
 redo = FALSE; nsol = 0; stack_depth = 0; s = s0 = NULL;

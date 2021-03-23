@@ -45,6 +45,7 @@ extern FILE * imagePtr;
 
 char graphic_scheme[] = "canvas";
 int resize = 4; // Rescaling the image to get high resolution
+long max_coordinate = 16383; // Nobody knows why this fits! Added by BB 2021-03-23 
 int Lastx2[MAXKEY];
 
 // Flags for debugging:
@@ -108,8 +109,8 @@ if((p_top = (long**) GiveSpace((Size)maxlines*sizeof(long))) == NULL)
 hrect = 13;
 htext = 12;
 leftoffset = hrect - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
-BPPrintMessage(odInfo,"hrect = %d, tmin = %ld, leftoffset = %d\n",hrect,(long)tmin,leftoffset);
- if(leftoffset < 20) {
+// BPPrintMessage(odInfo,"hrect = %d, tmin = %ld, leftoffset = %d\n",hrect,(long)tmin,leftoffset);
+if(leftoffset < 20) {
 	if(leftoffset < -10) BPPrintMessage(odError,"=> Fixed leftoffset = %d\n",leftoffset);
 	leftoffset = 20; // Added BB 2021-03-13
 	}
@@ -124,8 +125,7 @@ if(endxmax < 100) endxmax = 100;
 r.right = r.left + endxmax;
 
 if(WidthMax < 32767) WidthMax = 2 * endxmax + 40;
-sprintf(Message,"WidthMax (2) = %ld\n",WidthMax);
-//	BPPrintMessage(odInfo,Message);
+//	BPPrintMessage(odInfo,"WidthMax (2) = %ld\n",WidthMax);
 if(WidthMax > 32767) {
 	BPPrintMessage(odInfo,"\nImage width %d was too large: it has been cropped to 32767\n",WidthMax);
 	WidthMax = 32767;
@@ -150,7 +150,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 	if(trace_graphic) BPPrintMessage(odInfo,"\nnseq = %d\n",nseq);
 	foundone = FALSE;
 //	for(i=1; i < (*p_imaxseq)[nseq] && i <= imax; i++) {
-	for(i=0; i < (*p_imaxseq)[nseq] && i <= imax; i++) { // Fixed by BB 2021-03-20
+	for(i=ZERO; i < (*p_imaxseq)[nseq] && i <= imax; i++) { // Fixed by BB 2021-03-20
 		k = (*((*p_Seq)[nseq]))[i];
 		if(trace_graphic) {
 			if(k > 0) BPPrintMessage(odInfo,"k = %d \n",k);
@@ -653,13 +653,14 @@ im = imax;
 if(im >  (*p_imaxseq)[nseq]) im =  (*p_imaxseq)[nseq];
 if((p_delta=(Milliseconds**) GiveSpace((Size) (im+1) * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-for(i=1L; i <= im; i++) {
+// for(i=1L; i <= im; i++) {
+for(i=ZERO; i <= im; i++) { // Fixed by BB 2021-03-22
 	k = (*((*p_Seq)[nseq]))[i];
 	(*p_delta)[i] = (*p_ddelta0)[i] + (*p_ddelta1)[i] + (*p_ddelta2)[i];
 	if(k < 2) continue;
 	if(kmode) {
 		if(p_object == NULL) {
-			if(Beta) Alert1("=> Err. DrawSequence(). p_object == NULL");
+			BPPrintMessage(odError,"=> Err. DrawSequence(). p_object == NULL\n");
 			return(ABORT);
 			}
 		if((t = (*p_object)[k].starttime - (*p_Instance)[k].truncbeg) < tmin) tmin = t;
@@ -1466,28 +1467,38 @@ void end_path() {
 	
 void move_to(int x,int y) {
 	char line[100];
-	if(strcmp(graphic_scheme,"canvas") == 0) {
-		sprintf(line,"ctx.moveTo(%ld,%ld);\n",(long)resize * x,(long)resize * y);
-		fputs(line,imagePtr);
+	if(x <= max_coordinate && y <= max_coordinate) {
+		if(strcmp(graphic_scheme,"canvas") == 0) {
+			sprintf(line,"ctx.moveTo(%ld,%ld);\n",(long)resize * x,(long)resize * y);
+			fputs(line,imagePtr);
+			}
 		}
 	}
 
 void line_to(int x,int y) {
 	char line[100];
-	if(strcmp(graphic_scheme,"canvas") == 0) {
-		sprintf(line,"ctx.lineTo(%ld,%ld);\n",(long)resize * x,(long)resize * y);
-		fputs(line,imagePtr);
+	if(x > max_coordinate) x = max_coordinate;
+	if(y > max_coordinate) y = max_coordinate;
+	if(x <= max_coordinate && y <= max_coordinate) {
+		if(strcmp(graphic_scheme,"canvas") == 0) {
+			sprintf(line,"ctx.lineTo(%ld,%ld);\n",(long)resize * x,(long)resize * y);
+			fputs(line,imagePtr);
+			}
 		}
 	}
 
 void draw_line(int x1,int y1,int x2,int y2,char* style) { 
 	char line[200];
-	if(strcmp(graphic_scheme,"canvas") == 0) {
-		if(strcmp(style,"round") == 0)
-			sprintf(line,"ctx.beginPath();\nctx.lineCap = \"round\";\nctx.moveTo(%ld,%ld);\nctx.lineTo(%ld,%ld);\nctx.stroke();\n",(long)resize * x1,(long)resize * y1,(long)resize * x2,(long)resize * y2);
-		else
-			sprintf(line,"ctx.beginPath();\nctx.moveTo(%ld,%ld);\nctx.lineTo(%ld,%ld);\nctx.stroke();\n",(long)resize * x1,(long)resize * y1,(long)resize * x2,(long)resize * y2);
-		fputs(line,imagePtr);
+	if(x2 > max_coordinate && y1 == y2) x2 = max_coordinate;
+	if(y2 > max_coordinate && x1 == x2) y2 = max_coordinate;
+	if(x1 <= max_coordinate && y1 <= max_coordinate && x2 <= max_coordinate && y2 <= max_coordinate) {
+		if(strcmp(graphic_scheme,"canvas") == 0) {
+			if(strcmp(style,"round") == 0)
+				sprintf(line,"ctx.beginPath();\nctx.lineCap = \"round\";\nctx.moveTo(%ld,%ld);\nctx.lineTo(%ld,%ld);\nctx.stroke();\n",(long)resize * x1,(long)resize * y1,(long)resize * x2,(long)resize * y2);
+			else
+				sprintf(line,"ctx.beginPath();\nctx.moveTo(%ld,%ld);\nctx.lineTo(%ld,%ld);\nctx.stroke();\n",(long)resize * x1,(long)resize * y1,(long)resize * x2,(long)resize * y2);
+			fputs(line,imagePtr);
+			}
 		}
 	}
 	
@@ -1519,52 +1530,60 @@ void fill_style(char* color) {
 
 void stroke_text(char* txt,int x,int y) {
 	char line[500];
-	if(strcmp(graphic_scheme,"canvas") == 0) {
-		sprintf(line,"ctx.strokeText('%s',%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
-		fputs(line,imagePtr);
+	if(x <= max_coordinate && y <= max_coordinate) {
+		if(strcmp(graphic_scheme,"canvas") == 0) {
+			sprintf(line,"ctx.strokeText('%s',%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
+			fputs(line,imagePtr);
+			}
 		}
 	}
 
 void fill_text(char* txt,int x,int y) {
 	char line[500];
-	if(trace_graphic) BPPrintMessage(odInfo,"text = %s\n",txt);
-	if(strcmp(graphic_scheme,"canvas") == 0) {
-		sprintf(line,"ctx.fillText(\"%s\",%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
-		fputs(line,imagePtr);
+	if(x <= max_coordinate && y <= max_coordinate) {
+		if(trace_graphic) BPPrintMessage(odInfo,"text = %s\n",txt);
+		if(strcmp(graphic_scheme,"canvas") == 0) {
+			sprintf(line,"ctx.fillText(\"%s\",%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
+			fputs(line,imagePtr);
+			}
 		}
 	}
 	
 void stroke_rect(Rect* p_r) {
 	char line[100];
 	int x1,x2,y1,y2,w,h;
-	if(strcmp(graphic_scheme,"canvas") == 0) {
-		x1 = resize * p_r->left;
-		x2 = resize * p_r->right;
-		y1 = resize * p_r->top;
-		y2 = resize * p_r->bottom;
-		w = x2 - x1;
-		h = y2 - y1;
-		sprintf(line,"ctx.strokeRect(%ld,%ld,%ld,%ld);\n",(long)x1,(long)y1,(long)w,(long)h);
-		fputs(line,imagePtr);
+	if(p_r->left <= max_coordinate && p_r->right <= max_coordinate && p_r->top <= max_coordinate && p_r->bottom <= max_coordinate) {
+		if(strcmp(graphic_scheme,"canvas") == 0) {
+			x1 = resize * p_r->left;
+			x2 = resize * p_r->right;
+			y1 = resize * p_r->top;
+			y2 = resize * p_r->bottom;
+			w = x2 - x1;
+			h = y2 - y1;
+			sprintf(line,"ctx.strokeRect(%ld,%ld,%ld,%ld);\n",(long)x1,(long)y1,(long)w,(long)h);
+			fputs(line,imagePtr);
+			}
 		}
 	}
 		
 void fill_rect(Rect* p_r,char* color) {
 	char line[100];
 	int x1,x2,y1,y2,w,h;
-	if(strcmp(graphic_scheme,"canvas") == 0) {
-		x1 = resize * p_r->left;
-		x2 = resize * p_r->right;
-		y1 = resize * p_r->top;
-		y2 = resize * p_r->bottom;
-		w = x2 - x1;
-		h = y2 - y1;
-		sprintf(line,"ctx.fillStyle = '%s';\n",color);
-		fputs(line,imagePtr);
-		sprintf(line,"ctx.fillRect(%ld,%ld,%ld,%ld);\n",(long)x1,(long)y1,(long)w,(long)h);
-		fputs(line,imagePtr);
-		sprintf(line,"ctx.fillStyle = 'black';\n");
-		fputs(line,imagePtr);
+	if(p_r->left <= max_coordinate && p_r->right <= max_coordinate && p_r->top <= max_coordinate && p_r->bottom <= max_coordinate) {
+		if(strcmp(graphic_scheme,"canvas") == 0) {
+			x1 = resize * p_r->left;
+			x2 = resize * p_r->right;
+			y1 = resize * p_r->top;
+			y2 = resize * p_r->bottom;
+			w = x2 - x1;
+			h = y2 - y1;
+			sprintf(line,"ctx.fillStyle = '%s';\n",color);
+			fputs(line,imagePtr);
+			sprintf(line,"ctx.fillRect(%ld,%ld,%ld,%ld);\n",(long)x1,(long)y1,(long)w,(long)h);
+			fputs(line,imagePtr);
+			sprintf(line,"ctx.fillStyle = 'black';\n");
+			fputs(line,imagePtr);
+			}
 		}
 	}
 
@@ -1579,13 +1598,15 @@ void text_style(int size,char* font) {
 void erase_rect(Rect* p_r) {
 	char line[200];
 	int x1,x2,y1,y2;
-	if(strcmp(graphic_scheme,"canvas") == 0) {
-		x1 = resize * p_r->left;
-		x2 = resize * p_r->right;
-		y1 = resize * p_r->top;
-		y2 = resize * p_r->bottom;
-		sprintf(line,"ctx.fillStyle = 'white';\nctx.fillRect(%ld,%ld,%ld,%ld);\nctx.fillStyle = 'black';\n",(long)x1,(long)y1,(long)(x2 - x1),(long)(y2 - y1));
-		fputs(line,imagePtr);
+	if(p_r->left <= max_coordinate && p_r->right <= max_coordinate && p_r->top <= max_coordinate && p_r->bottom <= max_coordinate) {
+		if(strcmp(graphic_scheme,"canvas") == 0) {
+			x1 = resize * p_r->left;
+			x2 = resize * p_r->right;
+			y1 = resize * p_r->top;
+			y2 = resize * p_r->bottom;
+			sprintf(line,"ctx.fillStyle = 'white';\nctx.fillRect(%ld,%ld,%ld,%ld);\nctx.fillStyle = 'black';\n",(long)x1,(long)y1,(long)(x2 - x1),(long)(y2 - y1));
+			fputs(line,imagePtr);
+			}
 		}
 	}
 

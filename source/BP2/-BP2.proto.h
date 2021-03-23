@@ -868,7 +868,7 @@ int SetObjectParams(int,int,int,short**,int,int,CurrentParameters*,ContParameter
 double FindValue(tokenbyte,tokenbyte,int);
 double GetSymbolicDuration(int,tokenbyte**,tokenbyte,tokenbyte,long,double,double,int,int,int,int,int);
 int RandomTime(Milliseconds*,short);
-int PutZeros(char,double**,unsigned long**,int,double,double,int*);
+int PutZeros(char,double**,unsigned long**,int,double,double,int*,int);
 unsigned long Class(double);
 int Plot(char,int*,unsigned long*,char*,int,int*,unsigned long**,double**,short****,int*,double,unsigned long,int);
 int AttachObjectLists(int,int,p_list****,p_list****,int*,unsigned long*);

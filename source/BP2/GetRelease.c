@@ -1367,12 +1367,15 @@ int MakeEventSpace(unsigned long ***pp_imaxseq)
 {
 int nseq;
 long k;
+unsigned long maxconc2;
 
-if((*pp_imaxseq = (unsigned long**) GiveSpace((Size)Maxconc*sizeof(unsigned long))) == NULL)
+maxconc2 = Maxconc + 20; // Added by BB 2021-03-23
+
+if((*pp_imaxseq = (unsigned long**) GiveSpace((Size)maxconc2 * sizeof(unsigned long))) == NULL)
 	return(ABORT);
-if((p_Seq = (short****) GiveSpace((Size)Maxconc*sizeof(short**))) == NULL)
+if((p_Seq = (short****) GiveSpace((Size)maxconc2 * sizeof(short**))) == NULL)
 	return(ABORT);
-for(nseq = 0; nseq < Maxconc; nseq++) (*p_Seq)[nseq] = NULL;
+for(nseq = 0; nseq < maxconc2; nseq++) (*p_Seq)[nseq] = NULL;
 
 /* The following will be resized when Maxevent is better know, in FillPhaseDiagram() */
 

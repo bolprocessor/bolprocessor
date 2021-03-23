@@ -903,12 +903,12 @@ int Calculate_alpha(int nseq,int nmax,long maxseq,unsigned long imaxseq,int natu
 	char** p_marked)
 {
 int j,k,kprev,unfinished,gotcurrenttime,ncycles;
-long i,inext,inextm,imax,iprev,jprev;
+long i,inext,inextm,imax,iprev,jprev,ii;
 double d,alpha,beta,r,sigmaridi,clockperiod;
 Milliseconds To,ton,toff,currenttime,dur;
 
 if(nseq >= Maxconc) {
-	if(Beta) Println(wTrace,"\nErr. Calculate_alpha(). nseq >= Maxconc");
+	BPPrintMessage(odError,"=> Err. Calculate_alpha(). nseq >= Maxconc\n");
 	return(OK);
 	}
 (*p_Instance)[0].alpha = (*p_Instance)[1].alpha = 0.;	/* '_' and '-' */
@@ -921,15 +921,18 @@ if(nature_time == STRIATED || nseq == 0) {
 	while(TRUE) {
 		k = (*((*p_Seq)[nseq]))[i];
 		if(k == -1) break;
+		/* if(k == 4) { 
+			for(ii=ZERO; ii < 250; ii++)
+				BPPrintMessage(odInfo,"Seq[%d][%ld] = %d\n",nseq,ii,(*((*p_Seq)[nseq]))[ii]);
+			} */
 		inext = i;
 		while((*((*p_Seq)[nseq]))[++inext] == 0);
-	//	while((*((*p_Seq)[nseq]))[++inext] >= 0 && (*((*p_Seq)[nseq]))[inext] < 2);
 		if(k < 2) { /* Reject first silence and null events */ // Fixed by BB 2021-01-25
 			i = inext;
 			continue;
 			}
 		if(k >= Maxevent) {
-			if(Beta) Alert1("=> Err. Calculate_alpha(). k >= Maxevent");
+			BPPrintMessage(odError,"=> Err. Calculate_alpha(). k >= Maxevent\n");
 			return(ABORT);
 			}
 		j = (*p_Instance)[k].object;
@@ -938,7 +941,7 @@ if(nature_time == STRIATED || nseq == 0) {
 			beta = alpha = 0.; goto OKALPHA1;
 			}
 		d = (double) (inext - i) * Kpress / Ratio; /* Symbolic duration */
-		// BPPrintMessage(odInfo,"@ k = %ld j = %ld nseq = %d i = %ld inext = %ld seq[inext] = %d d = %.2f , T[i] = %ld T[i+1] = %ld, T[inext] = %ld T[inext+1] = %ld\n",(long)k,(long)j,nseq,(long)i,(long)inext,(*((*p_Seq)[nseq]))[inext],d,(long)(*p_T)[i],(long)(*p_T)[i+1],(long)(*p_T)[inext],(long)(*p_T)[inext+1]);
+		// BPPrintMessage(odInfo,"@ k = %ld j = %ld nseq = %d i = %ld inext = %ld seq[inext] = %d d = %.2f , T[i] = %ld T[i+1] = %ld, T[inext] = %ld T[inext+1] = %ld Kpress = %.0f Ratio = %.0f Kpress/Ratio = %.3f\n",(long)k,(long)j,nseq,(long)i,(long)inext,(*((*p_Seq)[nseq]))[inext],d,(long)(*p_T)[i],(long)(*p_T)[i+1],(long)(*p_T)[inext],(long)(*p_T)[inext+1],Kpress,Ratio,Kpress/Ratio); // $$$$
 		if(nature_time == SMOOTH) {
 			if(Qclock < 1L) {
 			//	if(Beta) Alert1("=> Err. Calculate_alpha(). Qclock < 1. ");
@@ -963,6 +966,8 @@ if(nature_time == STRIATED || nseq == 0) {
 			}
 		else {					/* Striated time or nseq > 0 */
 			if(d > 0.) {
+				if(Kpress > 2 && inext > i && (*p_T)[inext] == 0.)
+					BPPrintMessage(odError,"=> Probable rounding error: (*p_T)[%ld] = 0 for object #%ld\n",(long)inext,(long)k); // Added by BB 2021-03-22
 				if(j >= 16383) // simple note
 					alpha = ((double)(*p_T)[inext] - (*p_T)[i]) / 1000L;
 				else if(j >= Jbol) // time pattern
@@ -998,8 +1003,8 @@ OKALPHA1:
 		if(alpha < 0.) alpha = 0.;
 		if(beta < 0.) beta = 0.;
 		(*p_Instance)[k].alpha = alpha;
-	//	if(trace_object_features)
-	//		if(k > 2 && k < 6)  BPPrintMessage(odInfo,"@ nseq = %d k = %d i = %ld inext = %ld alpha = %.2f\n",nseq,k,i,inext,alpha);
+		if(trace_object_features)
+			BPPrintMessage(odInfo,"Calculate_alpha() nseq = %d k = %d i = %ld inext = %ld alpha = %.2f\n",nseq,k,i,inext,alpha);
 		if(ForceRatio >= 0.) (*p_Instance)[k].alpha = beta = ForceRatio;
 		(*p_Instance)[k].dilationratio = beta;
 		(*p_Instance)[k].ncycles = ncycles;
@@ -1255,19 +1260,21 @@ int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend
 	Milliseconds** p_maxgapbeg,Milliseconds** p_maxgapend,Milliseconds** p_maxtruncbeg,
 	Milliseconds** p_maxtruncend)
 {
-int i,j,k;		
+int j,k;
+long i;		
 Milliseconds maxcover1,maxcover2,maxgap1,maxgap2,maxtrunc1,maxtrunc2,dur;
 
 if(nseq >= Maxconc) {
-	if(Beta) Println(wTrace,"\nErr. SetLimits(). nseq >= Maxconc");
+	BPPrintMessage(odError,"=> Err. SetLimits(). nseq >= Maxconc\n");
 	return(OK);
 	}		
-for(i=1;; i++) {
+// for(i=1;; i++) {
+for(i=ZERO;; i++) { // Fixed by BB 2021-03-22
 	k = (*((*p_Seq)[nseq]))[i];
 	if(k == -1) break;
 	if(k < 1) continue;
 	if(k >= Maxevent) {
-		if(Beta) Alert1("=> Err. SetLimits(). k >= Maxevent");
+		BPPrintMessage(odError,"=> Err. SetLimits(). k >= Maxevent\n");
 		return(ABORT);
 		}
 	j = (*p_Instance)[k].object;
