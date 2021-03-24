@@ -1082,8 +1082,9 @@ if(csfile == NULL) {
 	}
 	
 if(ReadOne(FALSE,FALSE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-sprintf(Message,"Loading %s...",FileName[wCsoundInstruments]);
-ShowMessage(TRUE,wMessage,Message);
+BPPrintMessage(odInfo,"Loading %s...\n",FileName[wCsoundInstruments]);
+/*sprintf(Message,"Loading %s...",FileName[wCsoundInstruments]);
+ShowMessage(TRUE,wMessage,Message); */
 
 if(trace_load_csound_resources) BPPrintMessage(odInfo, "Line = %s\n",*p_line);
 if(CheckVersion(&iv,p_line,FileName[wCsoundInstruments]) != OK) goto ERR;

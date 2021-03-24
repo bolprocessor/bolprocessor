@@ -400,14 +400,14 @@ r = OK;
 if(*p_h != NULL) {
 	size = MyGetHandleSize(*p_h);
 	if(size < 1L) {
-		if(!EmergencyExit && Beta) Alert1("=> Err. MyDisposeHandle. size < 1L");
+		if(!EmergencyExit && Beta) BPPrintMessage(odError,"Err. MyDisposeHandle. size < 1L\n");
 		*p_h = NULL;
-		return(ABORT);
+		return(OK);
 		}
 	DisposeHandle(*p_h);
 	if(!EmergencyExit && ((memerr = MemError()) != noErr)) {	// always check MemError - akozar
 		TellError(29,memerr);
-		if(Beta) Alert1("Memory error in MyDisposeHandle()");
+		BPPrintMessage(odError,"=> Memory error in MyDisposeHandle()\n");
 		r = ABORT;
 		}
 	else MemoryUsed -= (unsigned long) size;

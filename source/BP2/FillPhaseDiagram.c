@@ -2205,7 +2205,6 @@ if(numberzeros > 0.) {
 	// if(kobj > 1 && kobj < 6) BPPrintMessage(odInfo,"+ kobj = %d nseq = %d i = %.2f Class(i) = %ld kmax = %ld toofast = %d\n",kobj,nseq,i,(long)ip,kmax,(int)toofast); 
 	
 	new_method = 1;
-	
 	if(new_method) { // Created by BB 2021-03-22
 		for(k = 1; k <= kmax; k++) {
 			ipnew = ip + k;
@@ -2216,7 +2215,7 @@ if(numberzeros > 0.) {
 					ipnew = maxseq;
 					}
 				else {
-					BPPrintMessage(odError,"=> Err. PutZeros(). nseq = %ld ipnew = %u  maxseq = %.1f\n",(long)nseq,(long)ipnew,maxseq);
+					BPPrintMessage(odError,"=> Err. PutZeros() new method. nseq = %ld ipnew = %u  maxseq = %.1f\n",(long)nseq,(long)ipnew,maxseq);
 					return(ABORT);
 					}
 				}
@@ -2244,8 +2243,7 @@ if(numberzeros > 0.) {
 					ip = maxseq;
 					}
 				else {
-					BPPrintMessage(odError,"=> Err. PutZeros(). nseq=%ld (*p_im)[nseq]=%.1f ip=%u  maxseq=%.1f\n",
-							(long)nseq,i,ip,maxseq);
+					BPPrintMessage(odError,"=> Err. PutZeros() old method. nseq=%ld (*p_im)[nseq]=%.1f ip=%u  maxseq=%.1f\n",(long)nseq,i,ip,maxseq);
 					return(ABORT);
 					}
 				}

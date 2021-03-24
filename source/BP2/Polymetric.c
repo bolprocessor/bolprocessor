@@ -623,6 +623,7 @@ if((*p_nseqmax)[0] > Minconc) {
 Minconc++;
 if(numberouttimeinseq > longestseqouttime) longestseqouttime = numberouttimeinseq;
 if(numbertoofast > longestnumbertoofast) longestnumbertoofast = numbertoofast;
+fmaxseq += longestseqouttime + longestnumbertoofast; // Added by BB 2021-03-24
 imax = fmaxseq / Kpress;
 thelimit = ULONG_MAX - 10.;
 
@@ -771,7 +772,9 @@ Maxlevel++;
 Maxconc = Minconc + 1 + longestseqouttime + longestnumbertoofast;
 
 // BPPrintMessage(odInfo,"Minconc = %ld, longestseqouttime = %ld, longestnumbertoofast = %ld, Maxconc = %ld\n",(long)Minconc,(long)longestseqouttime,(long)longestnumbertoofast,(long)Maxconc);
-BPPrintMessage(odInfo,"Phase diagram contains %ld lines, longest stream faster than quantization = %ld notes/sound-objects\n",(long)Maxconc,(long)longestnumbertoofast);
+BPPrintMessage(odInfo,"Phase diagram contains %ld lines",(long)Maxconc);
+if(longestnumbertoofast > 0) BPPrintMessage(odInfo,", longest stream faster than quantization = %ld notes or sound-objects",(long)longestnumbertoofast);
+BPPrintMessage(odInfo,"\n");
 
 CHECKSIZE:
 // FIXME: This whole section needs reconsideration on OS X

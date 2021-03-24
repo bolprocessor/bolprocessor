@@ -53,7 +53,7 @@ NSWReply reply;
 OSErr err;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("=> Err. SaveAs(). Incorrect window index");
+	BPPrintMessage(odError,"=> Err. SaveAs(). Incorrect window index '%d'\n",w);
 	return(FAILED);
 	}
 err = NSWInitReply(&reply);
@@ -90,8 +90,7 @@ if(NewFile(w,gFileType[w],fn,&reply)) {
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,Message);
-		sprintf(LineBuff,"Can't create file '%s'",Message);
-		Alert1(LineBuff);
+		BPPrintMessage(odError,"Can't create file '%s'\n",Message);
 		}
 	}
 err = NSWCleanupReply(&reply);
@@ -109,7 +108,7 @@ long count,k;
 OSErr io;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("=> Err. SaveFile(). Incorrect window index");
+	BPPrintMessage(odError,"=> Err. SaveFile(). Incorrect window index '%d'\n",w);
 	return(FAILED);
 	}
 SetCursor(&WatchCursor);
@@ -152,8 +151,7 @@ if(good) {
 					CheckTextSize(wAlphabet);
 					}
 				else {
-					sprintf(Message,"=> Error saving '%s'",FileName[wAlphabet]);
-					Alert1(Message);
+					BPPrintMessage(odError,"=> Error saving '%s'\n",FileName[wAlphabet]);
 					}
 				}
 			Dirty[wAlphabet] = FALSE;
@@ -175,7 +173,7 @@ else {
 int GetDefaultFileName(int w, char* filename)
 {
 	if(w < 0 || w >= WMAX) {
-		if(Beta) Alert1("=> Err. GetDefaultFileName(). Incorrect window index");
+		BPPrintMessage(odError,"=> Err. GetDefaultFileName(). Incorrect window index '%d'\n",w);
 		return(FAILED);
 	}
 	if (RunningOnOSX) {
@@ -207,8 +205,8 @@ int GetProjectBaseName(char* basename)
 	else if ((len = strlen(FileName[iSettings])) > 0)  index = iSettings;
 	else return (FAILED);
 	
-	if (len > MAXNAME) {
-		if (Beta)  Alert1("=> Err. GetProjectBaseName(): len > MAXNAME)");
+	if(len > MAXNAME) {
+		BPPrintMessage(odError,"=> Err. GetProjectBaseName(): len > MAXNAME\n");
 		return (FAILED);
 	}
 	

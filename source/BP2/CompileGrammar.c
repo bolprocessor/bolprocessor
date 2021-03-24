@@ -876,7 +876,7 @@ if(GetTuning() != OK) return(ABORT);
 
 // if(ReleaseObjectPrototypes() != OK) return(ABORT);
 
-BPPrintMessage(odInfo,"Compiling alphabet...");
+BPPrintMessage(odInfo,"Compiling alphabet...\n");
 if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start compilealphabet = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 if(!NoAlphabet && IsEmpty(wAlphabet) && (LoadAlphabet(-1,NULL) != OK)) goto ERR;
 // GetMiName();
