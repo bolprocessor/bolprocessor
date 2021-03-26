@@ -299,11 +299,11 @@ if(Maxevent < 1000) {
 	BPPrintMessage(odInfo,"\n");
 	}
 
-if(trace_timeset) {
+/* if(trace_timeset) {
 	BPPrintMessage(odInfo,"\nT[i], i = 1,%ld:\n",(long)maxseq);
-//	for(i=1L; i <= maxseq; i++)
-//		BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
-	}
+	for(i=1L; i <= maxseq; i++)
+		BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
+	} */
 
 BPPrintMessage(odInfo,"\n");
 
@@ -339,10 +339,12 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 #endif
 // End DISPLAY_PHASE_DIAGRAM
 
+if(trace_timeset) {
+	BPPrintMessage(odInfo,"\nT[i], i = 1,%ld:\n",(long)maxseq);
+	for(i=1L; i <= maxseq; i++)
+		BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
+	}
 
-/*	BPPrintMessage(odInfo,"\nT[i], i = 1,%ld:\n",(long)maxseq);
-	for(i=1L; i <= maxseq; i++) BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
-	BPPrintMessage(odInfo,"\n"); */
 max_end_time = (*p_T)[maxseq];
 
 if(trace_timeset) {

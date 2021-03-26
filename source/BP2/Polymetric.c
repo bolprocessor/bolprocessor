@@ -318,9 +318,8 @@ Qduration = Q;
 
 if(trace_polymake)  {
 	if(Qduration > 1.)
-		sprintf(Message,"Duration = %.0f/%.0f time units",Pduration,Qduration);
-	else sprintf(Message,"Duration = %.0f time units",Pduration);
-	BPPrintMessage(odInfo,Message);
+		BPPrintMessage(odInfo,"Duration = %.0f/%.0f time units, Ratio = %.0f\n",Pduration,Qduration,(double)Ratio);
+	else BPPrintMessage(odInfo,"Duration = %.0f time units, Ratio = %.0f\n",Pduration,(double)Ratio);
 	}
 
 alreadychangedquantize = FALSE;
@@ -339,8 +338,8 @@ if(Pclock > 0.) {
 			TellComplex();
 			}
 		else { */
-			s = (LCM(Ratio,kpress,&overflow) / Ratio);
-			if(s > 1. && s < 10. && Ratio < 1000000.) Ratio = Round(s * Ratio);
+		s = (LCM(Ratio,kpress,&overflow) / Ratio);
+		if(s > 1. && s < 10. && Ratio < 1000000.) Ratio = Round(s * Ratio);
 	//		}
 		s = Round(Ratio / kpress);
 		if(s > 10.) Ratio = kpress * s;
@@ -348,7 +347,7 @@ if(Pclock > 0.) {
 		}
 	if(QuantizeOK) {
 		Kpress = kpress;
-		BPPrintMessage(odInfo,"Using quantization = %ld ms\n",Quantization);
+		BPPrintMessage(odInfo,"Using quantization = %ld ms with compression rate = %.0f\n",(long)Quantization,(double)Kpress);
 		}
 	else {
 		if((kpress >= 4. && NotSaidKpress) || kpress >= 100.) {
@@ -419,7 +418,8 @@ toofast = FALSE;
 speed = scaling = Prod / firstscaling;
 tempo = speed / scaling;
 prodtempo = Prod / tempo;
-toofast = (tempo > tempomax);
+// toofast = (tempo > tempomax);
+toofast = (tempo > tempomax || tempo == 0.); // Fixed by BB 2021-03-26
 
 for(i=ZERO; ; i+=2L) {
 	m = (tokenbyte)(**pp_a)[i];
@@ -943,48 +943,34 @@ for(a = 0; a < k; a++) {
 if((p_e = (tokenbyte**) GiveSpace((Size) FIELDSIZE * sizeof(tokenbyte))) == NULL) goto OUT;
 jmax = FIELDSIZE - 16L;
 
-if((ptr_fixtempo = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) {
+if((ptr_fixtempo = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) 
 	goto OUT;
-	}
-if((p_vargap = (int**) GiveSpace((Size)sizeof(int) * k)) == NULL) {
+if((p_vargap = (int**) GiveSpace((Size)sizeof(int) * k)) == NULL) 
 	goto OUT;
-	}
-if((p_firstistempo = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) {
+if((p_firstistempo = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) 
 	goto OUT;
-	}
-if((p_empty = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) {
+if((p_empty = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) 
 	goto OUT;
-	}
-if((p_useful = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) {
+if((p_useful = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) 
 	goto OUT;
-	}
-
-if((p_p = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) {
+if((p_p = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
 	goto OUT;
-	}
-if((p_q = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) {
+if((p_q = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
 	goto OUT;
-	}
-if((p_pp = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) {
+if((p_pp = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
 	goto OUT;
-	}
-if((p_r = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) {
+if((p_r = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
 	goto OUT;
-	}
-if((p_pgap = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) {
+if((p_pgap = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
 	goto OUT;
-	}
-if((p_qgap = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) {
+if((p_qgap = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
 	goto OUT;
-	}
-
+	
 (*p_pgap)[0] = 0.; (*p_qgap)[0]= 1.;
 oldpos = (*p_pos);
 restart = FALSE;
 if(period && comma) {
-	sprintf(Message,"=> Error in polymetric expression.\nThe same expression contains both a bullet and a comma...");
-	if(ScriptExecOn) Println(wTrace,Message);
-	else Alert1(Message);
+	BPPrintMessage(odError,"=> Error in polymetric expression.\nThe same expression contains both a bullet and a comma...\n");
 	result = ABORT;
 	goto OUT;
 	}
@@ -1009,7 +995,7 @@ ptempo = qtempo = 1L;
 prevscale = scaling = oldscaling;
 prevspeed = speed = oldspeed;
 if(speed > TokenLimit || (1./speed) > TokenLimit) {
-	Alert1("Unexpected overflow in polymetric formula (case 14). You may send this item to the designers...");
+	BPPrintMessage(odError,"=> Unexpected overflow in polymetric formula (case 14). You may send this item to the designers...\n");
 	result = ABORT; goto OUT;
 	}
 
@@ -1181,7 +1167,7 @@ FIXTEMP:
 		isequal = Equal(0.005,scaling,speed,prevscale,prevspeed,&overflow);
 		if(isequal == ABORT) {
 			if(Beta) {
-				Alert1("=> Err. PolyExpand(). isequal == ABORT");
+				BPPrintMessage(odError,"=> Err. PolyExpand(). isequal == ABORT\n");
 				result = ABORT; goto OUT;
 				}
 			isequal = FALSE;
@@ -1243,6 +1229,8 @@ FIXTEMP:
 				result = ABORT; goto OUT;
 				}
 			if(overflow) TellComplex();
+			
+			if(trace_polymake) BPPrintMessage(odInfo,"MaxFrac = %.0f, xp = %.0f xq = %.0f\n",MaxFrac,xp,xq);
 			if(xp > MaxFrac || xq > MaxFrac) {
 				MakeRatio(MaxFrac,(xp/xq),&xp,&xq);
 				TellComplex();
@@ -1250,6 +1238,7 @@ FIXTEMP:
 			else Simplify(MaxFrac,xp,xq,&xp,&xq);
 			
 			(*p_p)[a] = xp; (*p_q)[a] = xq;
+			if(trace_polymake) BPPrintMessage(odInfo,"xp = %.0f xq = %.0f\n",xp,xq);
 			
 			/* Replace number with '-' */
 			(*((*pp_c)[a]))[ic++] = T3;
@@ -1271,7 +1260,7 @@ FIXTEMP:
 			isequal = Equal(0.005,scaling,speed,scalebeforegap,speedbeforegap,&overflow);
 			if(isequal == ABORT) {
 				if(Beta) {
-					Alert1("=> Err. PolyExpand(). isequal == ABORT");
+					BPPrintMessage(odError,"=> Err. PolyExpand(). isequal == ABORT\n");
 					result = ABORT; goto OUT;
 					}
 				isequal = FALSE;
@@ -1586,7 +1575,7 @@ FIXTEMP:
 			(*((*pp_c)[a]))[ic++] = T1;
 			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 			(*((*pp_c)[a]))[ic++] = T1;
-			(*((*pp_c)[a]))[ic++] = (tokenbyte)  scaling - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+			(*((*pp_c)[a]))[ic++] = (tokenbyte)  scaling - (((tokenbyte) x) * TOKBASE);
 			}
 		else {
 			y = modf(((1. / scaling) / (double)TOKBASE),&x);
@@ -1595,7 +1584,7 @@ FIXTEMP:
 			(*((*pp_c)[a]))[ic++] = T1;
 			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 			(*((*pp_c)[a]))[ic++] = T1;
-			(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./scaling) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+			(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./scaling) - (((tokenbyte) x) * TOKBASE);
 			}
 		if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 			result = ABORT; goto OUT;
@@ -1607,7 +1596,7 @@ FIXTEMP:
 			(*((*pp_c)[a]))[ic++] = T1;
 			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 			(*((*pp_c)[a]))[ic++] = T1;
-			(*((*pp_c)[a]))[ic++] = (tokenbyte) speed - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+			(*((*pp_c)[a]))[ic++] = (tokenbyte) speed - (((tokenbyte) x) * TOKBASE);
 			}
 		else {
 			(*((*pp_c)[a]))[ic++] = T0;
@@ -1616,7 +1605,7 @@ FIXTEMP:
 			(*((*pp_c)[a]))[ic++] = T1;
 			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 			(*((*pp_c)[a]))[ic++] = T1;
-			(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./speed) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+			(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./speed) - (((tokenbyte) x) * TOKBASE);
 			}
 		if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 			result = ABORT; goto OUT;
@@ -1640,11 +1629,13 @@ FIXTEMP:
 				result = ABORT; goto OUT;
 				}
 			if(overflow) TellComplex();
+			if(trace_polymake) BPPrintMessage(odInfo,"MaxFrac = %.0f, m = %d p = %d, xp = %.0f xq = %.0f\n",MaxFrac,m,p,xp,xq);
 			if(xp > MaxFrac || xq > MaxFrac) {
 				MakeRatio(MaxFrac,(xp/xq),&xp,&xq);
 				TellComplex();
 				}
-			else Simplify(MaxFrac,xp,xq,&xp,&xq);
+			else Simplify(MaxFrac,xp,xq,&xp,&xq);;
+			if(trace_polymake) BPPrintMessage(odInfo,"xp = %.0f xq = %.0f\n",xp,xq);
 			
 			(*p_p)[a] = xp; (*p_q)[a] = xq;
 			}
