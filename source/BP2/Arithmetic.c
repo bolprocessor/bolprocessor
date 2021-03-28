@@ -160,7 +160,6 @@ return(0);
 
 
 Simplify(double limit,double p,double q,double *p_p,double *p_q)
-/* Fixed 24 May 2007 by BB */
 {
 unsigned long gcd;
 int neg,result;

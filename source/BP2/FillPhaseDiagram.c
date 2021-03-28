@@ -1,4 +1,4 @@
-/* FillPhaseDiagram.c (BP3) */ 
+/* FillPhaseDiagram.c (BP3) */
 
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -41,9 +41,9 @@
 int trace_diagram = 0;
 int trace_toofast = 0;
 int trace_overstrike = 0;
-int $new_thing = 1;
+int new_thing = 1;
 
-FillPhaseDiagram(tokenbyte ***pp_buff,int* p_numberobjects,unsigned long *p_maxseq,
+int FillPhaseDiagram(tokenbyte ***pp_buff,int* p_numberobjects,unsigned long *p_maxseq,
 	int* p_nmax,unsigned long **p_imaxseq,
 	double maxseqapprox,int *p_bigitem,short **p_articul)
 {
@@ -82,9 +82,11 @@ if(trace_diagram) BPPrintMessage(odInfo,"Started filling phase diagram\n");
 
 AllSolTimeSet = StackFlag = (*p_bigitem) = ToldSkipped = FALSE;
 
-if(IsMidiDriverOn()) tstart = GetDriverTime();
+tstart = ZERO;
+// if(IsMidiDriverOn()) tstart = GetDriverTime(); Fixed by BB 2021-03-27
 
-char $just_done; $just_done = FALSE;
+char just_done;
+just_done = FALSE;
 number_skipped = 0;
 max_tempo_in_skipped_object = 0.;
 maxseqapprox = ((ceil(maxseqapprox) / Kpress) + 6.) * 1.01;	/* This is an approximation. */
@@ -379,7 +381,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 		if(trace_diagram) BPPrintMessage(odInfo,"\nFillPhaseDiagram() instrument = %d\n",instrument);
 		goto NEXTTOKEN;
 		} */
-	if(m != T3 || p != 0) part_of_ip = Kpress; // Added by BB 2021-03-25
+	if(m != T3 || p != 0) part_of_ip = Kpress; // Added by BB 2021-03-25
 	if(m == T33 || m == T34) {	/* _step() or _cont() */
 		paramnameindex = p;
 		i = FindParameterIndex(p_contparameters,level,paramnameindex);
@@ -626,10 +628,13 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 			if(trace_diagram) BPPrintMessage(odError,"=> m = %d p = %d, MIDIsize = CsoundSize = 0\n",m,p);
 			}
 		toofast = (tempo > tempomax || tempo == 0.);
-		if(!$new_thing || m != T3 || p != 0 || !toofast || skipzeros || (m == T3 && p == 0 && !skipzeros && toofast && part_of_ip >= Kpress)) { // Added by BB 2021-03-25
+		just_done = FALSE;
+		if(!new_thing || m != T3 || p != 0 || !toofast || skipzeros || (m == T3 && p == 0 && toofast && part_of_ip >= Kpress)) { // Added by BB 2021-03-25
+	//	if(!new_thing || m != T3 || p != 0 || !toofast || skipzeros || part_of_ip >= Kpress) { // Added by BB 2021-03-28
 			((*p_im)[nseq]) += Kpress;
 		//	BPPrintMessage(odInfo,"+ m = %d p = %d kobj = %d (*p_im)[%d] = %.1f (*p_im)[nseq]/Kpress = %.1f toofast = %d\n",m,p,kobj,nseq,(double)((*p_im)[nseq]),(double)((*p_im)[nseq]/Kpress),(int)toofast);
 			ip = Class((*p_im)[nseq]);
+			/* if(m == T3 && p == 0 && toofast && part_of_ip >= Kpress) */ just_done = TRUE;
 			}
 		if(Beta && (ip > maxseqapprox)) {
 			BPPrintMessage(odError,"\n=> Error nseq = %ld Class((*p_im)[nseq]) = %ld maxseqapprox = %ld\n",
@@ -787,22 +792,22 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 					}
 				}
 			else {
-				$just_done = FALSE;
 				ip = Class((*p_im)[nseq]);
 				if((p == 0 && !skipzeros) || p == 1) {	/* Empty object or silence */
 				//	BPPrintMessage(odInfo,"--> toofast = %d m = %d p = %d, Kpress = %.0f speed = %.0f scale = %.0f Prod = %.0f tempomax = %.0f tempo = %.0f prodtempo = %.0f, (*p_im)[%d] = %.0f, maxcol[nseq] = %ld part_of_ip = %.0f\n",(int)toofast,m,p,(double)Kpress,(double)speed,(double)scale,(double)Prod,(double)tempomax,(double)tempo,(double)prodtempo,(int)nseq,(double)(*p_im)[nseq],(long)(*p_maxcol)[nseq],(double)part_of_ip);
-					if(!$new_thing || m != T3 || p != 0 || !toofast || (m == T3 && p == 0 && toofast && part_of_ip >= Kpress)) { // Added by BB 2021-03-25
+					if(!new_thing || m != T3 || p != 0 || !toofast || just_done) { // Added by BB 2021-03-27
 						if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
 							&nseq,maxseqapprox,ip,p) != OK) goto ENDDIAGRAM;
 				//		BPPrintMessage(odInfo,"Plot(1) id = %ld m = %d p = %d ip = %.0f iplot = %.0f skipzeros = %d toofast = %d overstrike = %d (*p_im)[%d] = %.1f (*p_im)[nseq]/Kpress = %.1f kobj = %d maxseqapprox = %.0f Prod = %.0f tempo = %.0f nseq = %d nseqplot = %d (*p_maxcol)[nseq] = %.0f part_of_ip = %.0f\n",id,m,p,(double)ip,(double)iplot,(int)skipzeros,(int)toofast,overstrike,nseq,(*p_im)[nseq],(*p_im)[nseq]/Kpress,kobj,maxseqapprox,(double)Prod,(double)tempo,nseq,nseqplot,(double)ip,(double)part_of_ip);
 						part_of_ip = 0.;
 						(*p_maxcol)[nseq] = ip;
-						$just_done = TRUE;
 						}
-					if(m == T3 && p == 0 && toofast) {
+					if(m == T3 && p == 0 && toofast) { // Fixed by BB 2021-03-28
 						// Check this process in -da.checkPoly
 						part_of_ip += Kpress * tempomax / tempo;
-						(*p_im)[nseq] += (prodtempo - 1); // Added by BB 2021-03-26
+						if(!just_done) (*p_im)[nseq] += (prodtempo - 1); // Fixed by BB 2021-03-28
+					//	(*p_im)[nseq] += prodtempo;
+						ip = Class((*p_im)[nseq]); // Added by BB 2021-03-27
 						}
 					else part_of_ip = Kpress;
 					}
@@ -837,7 +842,8 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 				}
 			}
 		foundendconcatenation = FALSE;
-		if(!$new_thing || m != T3 || p != 0 || !toofast || skipzeros || $just_done) { // Added by BB 2021-03-26
+	//	if(!new_thing || m != T3 || p > 1 || !toofast || skipzeros || just_done) { // Added by BB 2021-03-28
+		if(!new_thing || m != T3 || p != 0 || !toofast || skipzeros || just_done) { // Added by BB 2021-03-26
 			numberzeros = prodtempo - 1.;
 			if(skipzeros) numberzeros = -1.;
 		//	if(PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,numberzeros,p_nmax,kobj) != OK) Fixed by BB 2021-03-25
@@ -845,7 +851,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 				goto ENDDIAGRAM;
 		//	if(numberzeros >= 1.) BPPrintMessage(odInfo,"PutZeros(2) id = %ld m = %d p = %d prodtempo = %.0f toofast = %d (*p_im)[%d] = %.1f (*p_maxcol)[nseq] = %.1f (*p_im)[nseq]/Kpress = %.1f kobj = %d maxseqapprox = %.0f Prod = %.0f tempo = %.0f numberzeros = %.0f numberzeros/Kpress = %.0f\n",(long)id,m,p,(double)prodtempo,(int)toofast,(int)nseq,(double)(*p_im)[nseq],(double)(*p_maxcol)[nseq],(double)(*p_im)[nseq]/Kpress,(int)kobj,(double)maxseqapprox,(double)Prod,(double)tempo,(double)numberzeros,(double)(numberzeros/Kpress));
 			}
-		$just_done = FALSE;
+		just_done = FALSE;
 		
 		if(m != T3 && m != T9 && m != T25) {
 			BPPrintMessage(odError,"=> Err. FillePhaseDiagram(). m != T3 && m != T9 && m != T25\n");

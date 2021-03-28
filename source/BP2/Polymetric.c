@@ -332,15 +332,8 @@ if(Pclock > 0.) {
 	kpress = 1. + (((double)Quantization) * Qclock * Ratio) / Pclock / 1000.;
 	kpress = floor(1.00001 * kpress);
 	if(QuantizeOK && kpress > 1.) {
-/*		if(kpress > 1000000.) { // Fixed by BB 2021-01-29
-			Ratio = Ratio * 1000000. / kpress;
-			kpress = 1000000.;
-			TellComplex();
-			}
-		else { */
-		s = (LCM(Ratio,kpress,&overflow) / Ratio);
+		s = LCM(Ratio,kpress,&overflow) / Ratio;
 		if(s > 1. && s < 10. && Ratio < 1000000.) Ratio = Round(s * Ratio);
-	//		}
 		s = Round(Ratio / kpress);
 		if(s > 10.) Ratio = kpress * s;
 		Prod = Ratio;
@@ -353,30 +346,8 @@ if(Pclock > 0.) {
 		if((kpress >= 4. && NotSaidKpress) || kpress >= 100.) {
 			NotSaidKpress = FALSE;
 			BPPrintMessage(odInfo,"Forcing quantization to %ld ms\n",Quantization);
-	/*		BPActivateWindow(SLOW,wTimeAccuracy);
-			if(kpress < 100.)
-				sprintf(Message,"This item is quite complex. Quantization is recommended (compression rate > %u). Set it to %ldms",
-					(unsigned int)kpress,Quantization);
-			else
-				sprintf(Message,"This item is too complex. Quantization is unavoidable. Set it to %ldms",
-					Quantization);
-			r = Answer(Message,'Y');
-			if(r == CANCEL) {
-				NotSaidKpress = TRUE;
-				rep = Answer("Do you really want to abort this job",'N');
-				if(rep == YES) goto QUIT;
-				else goto FINDCOMPRESSION;
-				}
-			if(r == YES) { */
-				QuantizeOK = TRUE;
-/*
-				UpdateDirty(TRUE,iSettings);
-				SetTimeAccuracy();
-				BPUpdateDialog(gpDialogs[wTimeAccuracy]);
- */
-				goto FINDCOMPRESSION;
-//				}
-//			r = OK;
+			QuantizeOK = TRUE;
+			goto FINDCOMPRESSION;
 			}
 		}
 	}
