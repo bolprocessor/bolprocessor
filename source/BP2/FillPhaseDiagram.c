@@ -66,7 +66,7 @@ int i,j,k,kobj,nseq,oldnseq,nseqmem,newswitch,v,ch,gotnewline,foundobject,
 	r,rest,oldm,oldp,**p_seq,**p_deftnseq,startvel,articulincrement,
 	startarticul,istop,result,level,nseqplot,instrument,channel,a,b;
 Handle h;
-char  line[MAXLIN],toofast,skipzeros,foundendconcatenation,
+char  line[MAXLIN],toofast,skipzeros,foundendconcatenation,just_done,
 	iscontinuous,isMIDIcontinuous,overstrike,tie;
 
 tokenbyte m,p;
@@ -85,7 +85,6 @@ AllSolTimeSet = StackFlag = (*p_bigitem) = ToldSkipped = FALSE;
 tstart = ZERO;
 // if(IsMidiDriverOn()) tstart = GetDriverTime(); Fixed by BB 2021-03-27
 
-char just_done;
 just_done = FALSE;
 number_skipped = 0;
 max_tempo_in_skipped_object = 0.;
@@ -630,16 +629,14 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 		toofast = (tempo > tempomax || tempo == 0.);
 		just_done = FALSE;
 		if(!new_thing || m != T3 || p != 0 || !toofast || skipzeros || (m == T3 && p == 0 && toofast && part_of_ip >= Kpress)) { // Added by BB 2021-03-25
-	//	if(!new_thing || m != T3 || p != 0 || !toofast || skipzeros || part_of_ip >= Kpress) { // Added by BB 2021-03-28
 			((*p_im)[nseq]) += Kpress;
 		//	BPPrintMessage(odInfo,"+ m = %d p = %d kobj = %d (*p_im)[%d] = %.1f (*p_im)[nseq]/Kpress = %.1f toofast = %d\n",m,p,kobj,nseq,(double)((*p_im)[nseq]),(double)((*p_im)[nseq]/Kpress),(int)toofast);
 			ip = Class((*p_im)[nseq]);
-			/* if(m == T3 && p == 0 && toofast && part_of_ip >= Kpress) */ just_done = TRUE;
+			just_done = TRUE;
 			}
 		if(Beta && (ip > maxseqapprox)) {
 			BPPrintMessage(odError,"\n=> Error nseq = %ld Class((*p_im)[nseq]) = %ld maxseqapprox = %ld\n",
 				(long)nseq,ip,(long)maxseqapprox);
-		//	ShowError(34,0,0); Fixed by BB 2021-03-22
 			goto ENDDIAGRAM;
 			}
 			
@@ -842,19 +839,18 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 				}
 			}
 		foundendconcatenation = FALSE;
-	//	if(!new_thing || m != T3 || p > 1 || !toofast || skipzeros || just_done) { // Added by BB 2021-03-28
 		if(!new_thing || m != T3 || p != 0 || !toofast || skipzeros || just_done) { // Added by BB 2021-03-26
 			numberzeros = prodtempo - 1.;
 			if(skipzeros) numberzeros = -1.;
-		//	if(PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,numberzeros,p_nmax,kobj) != OK) Fixed by BB 2021-03-25
-			if(numberzeros >= 1. && PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,numberzeros,p_nmax,kobj) != OK)
-				goto ENDDIAGRAM;
+			if(PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,numberzeros,p_nmax,kobj) != OK) goto ENDDIAGRAM;
+		/*	if(numberzeros >= 1. && PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,numberzeros,p_nmax,kobj) != OK)
+				goto ENDDIAGRAM; */
 		//	if(numberzeros >= 1.) BPPrintMessage(odInfo,"PutZeros(2) id = %ld m = %d p = %d prodtempo = %.0f toofast = %d (*p_im)[%d] = %.1f (*p_maxcol)[nseq] = %.1f (*p_im)[nseq]/Kpress = %.1f kobj = %d maxseqapprox = %.0f Prod = %.0f tempo = %.0f numberzeros = %.0f numberzeros/Kpress = %.0f\n",(long)id,m,p,(double)prodtempo,(int)toofast,(int)nseq,(double)(*p_im)[nseq],(double)(*p_maxcol)[nseq],(double)(*p_im)[nseq]/Kpress,(int)kobj,(double)maxseqapprox,(double)Prod,(double)tempo,(double)numberzeros,(double)(numberzeros/Kpress));
 			}
 		just_done = FALSE;
 		
 		if(m != T3 && m != T9 && m != T25) {
-			BPPrintMessage(odError,"=> Err. FillePhaseDiagram(). m != T3 && m != T9 && m != T25\n");
+			BPPrintMessage(odError,"=> Err. FillPhaseDiagram(). m != T3 && m != T9 && m != T25\n");
 			goto NEXTTOKEN;
 			}
 		numberzeros += 1.; // This is the total duration: zeros + note
@@ -1649,7 +1645,9 @@ if(imax > 0.) {
 		CorrectionFactor = (((Ratio * Pduration) / Qduration) / (Kpress * (imax - 1.)));
 	/* This compensates errors due to overflow in calculating Prod and Ratio */
 		if(CorrectionFactor < 0.95 || CorrectionFactor > 1.05) {
-			BPPrintMessage(odInfo,"Correction factor = %.3f (imax = %ld nseqmem = %ld  nseqmax = %ld)\n",CorrectionFactor,(long)imax,(long)nseqmem,(long)(*p_nmax));
+			BPPrintMessage(odError,"Correction factor = %.3f (imax = %ld nseqmem = %ld  nseqmax = %ld) - probable error",CorrectionFactor,(long)imax,(long)nseqmem,(long)(*p_nmax));
+			if(!PlayChunks) BPPrintMessage(odError,"\n");
+			else BPPrintMessage(odError," in chunk #%d\n\n",Chunk_number);
 			}
 		}
 	if((trace_diagram || trace_toofast) && (CorrectionFactor != 1.0)) {
