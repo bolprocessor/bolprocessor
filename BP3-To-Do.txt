@@ -26,11 +26,6 @@ Actions
 - new action for listing RT MIDI devices ? Create a file which the user will read via the interface, then select option(s) that will be added as tokens to the "Play" command line
 
 
-Optimize code
--------------
-
-- Skip TimeSetting() for items that do not contain sound-objects with topological properties
-
 
 Cloud version
 -------------
@@ -98,7 +93,7 @@ https://www.geeksforgeeks.org/udp-server-client-implementation-c/
 Standalone application makers
 -----------------
 
-- https://www.lianja.com/overview/lianja-app-builder => requires a version of MacOS > 10.11
+- https://www.lianja.com/overview/lianja-app-builder => requires a version of MacOS >= High Sierra
 - https://laravel.com/
 - https://cakephp.org/
 - https://www.yiiframework.com/

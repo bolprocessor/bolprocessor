@@ -866,7 +866,7 @@ int CopyContinuousParameters(ContParameters**,int,ContParameters**,int);
 int FindParameterIndex(ContParameters**,int,int);
 int SetObjectParams(int,int,int,short**,int,int,CurrentParameters*,ContParameters**,Table**);
 double FindValue(tokenbyte,tokenbyte,int);
-double GetSymbolicDuration(int,tokenbyte**,tokenbyte,tokenbyte,long,double,double,int,int,int,int,int);
+double GetSymbolicDuration(int,tokenbyte**,tokenbyte,tokenbyte,long,double,double,int,int,int,int);
 int RandomTime(Milliseconds*,short);
 int PutZeros(char,double**,unsigned long**,int,double,double,int*,int);
 unsigned long Class(double);
