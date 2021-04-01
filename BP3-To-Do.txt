@@ -50,6 +50,12 @@ Input files
 - restore the feature that looks for names of related files in the input files and auto-loads them (to be discussed...) => probably useless because the interface takes care of these links and it creates links for editing related files
 
 
+Bugs
+-----
+
+- Misses tied note (key #73) in Beethoven's Fugue PLAY command
+
+
 MIDI files
 ----------
 

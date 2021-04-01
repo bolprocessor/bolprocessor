@@ -1508,7 +1508,9 @@ else tempo = 0.;
 if(tempo == 0.) prodtempo = 0.;
 else prodtempo = (Prod / tempo);
 
-// if(p_org == 76) trace_get_duration = TRUE;
+/* if(p_org == 35) trace_get_duration = TRUE;
+else trace_get_duration = FALSE; */
+
 if(trace_get_duration)
 	BPPrintMessage(odInfo,"\nGetSymbolicDuration Maxlevel = %ld m = %d p = %d Prod = %.2f tempo = %.2f prodtempo = %.2f id = %ld channel = %d instrument = %d endconcatenation = %d\n",(long)Maxlevel,m_org,p_org,Prod,tempo,prodtempo,id,channel_org,instrument_org,foundendconcatenation_org);
 
@@ -1549,9 +1551,10 @@ for(i=i; ; i+=2) {
 			}
 		else {
 			tick_start = (*p_duration_of_field)[level];
-			if(trace_get_duration) BPPrintMessage(odInfo,"\n• Got it: %ld|%ld level %d channel %d instrument %d tick_start = %.2f\n",(long)m,(long)p,level,channel,instrument,tick_start);
+			if(trace_get_duration) BPPrintMessage(odInfo,"\n• Got it: %ld|%ld id = %ld level %d channel %d instrument %d tick_start = %.2f foundendconcatenation = %d\n",(long)m,(long)p,(long)id,level,channel,instrument,tick_start,(int)foundendconcatenation);
 			tie_is_open = found_beginning = TRUE;
 			old_m = m; old_p = p;
+			continue; // Added by BB 2021-04-01
 			}
 		}
 	
@@ -1668,7 +1671,7 @@ for(i=i; ; i+=2) {
 				break;
 			}
 		old_m = m; old_p = p;
-		continue;
+	//	continue; Fixed by BB 2021-04-01
 		}
 	if(ignoreconcat) {
 		tick_start = 0.; tick_end = prodtempo;
@@ -1690,7 +1693,9 @@ for(i=i; ; i+=2) {
 		if(trace_get_duration) BPPrintMessage(odInfo," %ld|%ld ",m,p);
 		(*p_duration_of_field)[level] += prodtempo;
 	//	if(found_beginning && foundendconcatenation && m == m_org && p == p_org && instrument == instrument_org && channel == channel_org) {
-		if(found_beginning && foundendconcatenation && m == m_org && p == p_org && instrument == instrument_org && channel == channel_org && this_end >= tick_start) { // Fixed by BB 2021-04-01
+		if(trace_get_duration)
+			if(foundendconcatenation) BPPrintMessage(odInfo,"\nm = %d p = %d i = %ld tick_start = %.2f this_end = %.2f found_beginning = %d\n",m,p,(long)i,tick_start,this_end,(int)found_beginning);
+		if(found_beginning && foundendconcatenation && m == m_org && p == p_org && instrument == instrument_org && channel == channel_org && this_end >= tick_start) { // Fixed this_end >= tick_start by BB 2021-04-01
 			tick_end = this_end;
 			tie_is_open = FALSE;
 			justfinishedconcatenation = TRUE;
@@ -1712,18 +1717,18 @@ if(tick_start >= 0. && tick_end >= 0. && tick_end >= tick_start)
 else {
 	objectduration = 0.;
 	if(!ignoreconcat && m_org == T3) {
-		if(trace_get_duration) BPPrintMessage(odError,"\n=> An unbound tied event was ignored\n");
+		if(trace_get_duration) BPPrintMessage(odError,"\nAn unbound tied event was ignored\n");
 		(*(p_Missed_tie_event[instrument_org]))[p_org] += 1;
 		}
 	if(!ignoreconcat && m_org == T25) {
 		if(trace_get_duration)
-			BPPrintMessage(odError,"\n=> An unbound tied note was ignored\n");
+			BPPrintMessage(odError,"\nAn unbound tied note was ignored\n");
 		(*(p_Missed_tie_note[channel_org]))[p_org] += 1;
 		}
 	}
 
 if(trace_get_duration)
-	BPPrintMessage(odInfo,"\nOBJECT DURATION = %.2f channel %d tick_start = %.2f tick_end = %.2f\n\n",objectduration,channel,tick_start,tick_end);
+	BPPrintMessage(odInfo,"\nOBJECT DURATION = %.2f channel %d tick_start = %.2f tick_end = %.2f\n",objectduration,channel,tick_start,tick_end);
 MyDisposeHandle((Handle*)&p_duration_of_field);
 MyDisposeHandle((Handle*)&p_duration_org);
 return(objectduration);

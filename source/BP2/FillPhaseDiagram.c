@@ -617,7 +617,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 	if((m == T3 && p < Jbol) || m == T25	/* Sound-object or simple note or silence */
 			|| (m == T9 && p < Jpatt)) {	/* Time pattern */
 		if(trace_diagram) {
-			BPPrintMessage(odInfo,"m = %d p = %d",m,p,(*p_MIDIsize)[p]);
+			BPPrintMessage(odInfo,"m = %d p = %d id = %ld",m,p,(long)id);
 			if(m == T3 && p > 1) BPPrintMessage(odInfo," (*p_MIDIsize)[p] = %ld (*p_CsoundSize)[p] = %ld\n",(*p_MIDIsize)[p],(*p_CsoundSize)[p]);
 			else BPPrintMessage(odInfo,"\n");
 			}
@@ -645,7 +645,8 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 		tie = FALSE;
 		if(m == T25) {
 			tie = (*(p_Tie_note[channel]))[p]; // Added by BB 2021-02-07
-			if(trace_diagram) BPPrintMessage(odInfo,"Tie_note m = %d p = %d tie =  %d\n",m,p,tie);
+			if(trace_diagram)
+				BPPrintMessage(odInfo,"Tie_note m = %d p = %d tie =  %d\n",m,p,tie);
 			}
 		else if(m == T3) {
 			tie = (*(p_Tie_event[instrument]))[p]; // Added by BB 2021-02-07
@@ -653,7 +654,8 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 			}
 		else tie = FALSE;
 		if(foundendconcatenation && tie) {
-			if(trace_diagram) BPPrintMessage(odInfo,"With foundendconcatenation m = %d p = %d\n",m,p,(*p_MIDIsize)[p]);
+			if(trace_diagram)
+				BPPrintMessage(odInfo,"With foundendconcatenation kobj = %d, m = %d p = %d\n",(int)kobj,m,p);
 			if(m == T25) (*(p_Tie_note[channel]))[p] = FALSE;
 			else if(m == T3) (*(p_Tie_event[instrument]))[p] = FALSE;
 			
@@ -666,8 +668,9 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 			objectduration = 0.;
 			if(tie && (m == T25 || m == T9 || p > 0)) {
 			//	BPPrintMessage(odInfo,"\nCase 1 tie = %d\n",tie);
+				// BPPrintMessage(odInfo,"GetSymbolicDuration() with tie, nseq = %ld level = %ld m = %ld p = %ld speed = %.2f scale = %.2f id = %ld kobj = %d\n",(long)nseq,(long)level,(long)m,(long)p,speed,scale,id,(int)kobj);
 				objectduration = GetSymbolicDuration(NO,*pp_buff,m,p,id,speed,scale,channel,instrument,foundendconcatenation,level);
-				// BPPrintMessage(odInfo,"@ nseq = %ld level = %ld m = %ld p = %ld objectduration = %.2f speed = %.2f scale = %.2f id = %ld\n",(long)nseq,(long)level,(long)oldm,(long)oldp,objectduration,speed,scale,id);
+				// BPPrintMessage(odInfo,"End GetSymbolicDuration() objectduration = %.2f\n",objectduration);
 				}
 			iscontinuous = isMIDIcontinuous = FALSE;
 			if(p > 0) {
@@ -687,19 +690,20 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 						}
 					}
 				}
-			if(m == T25 || m == T9 || p > 1 || objectduration > 1. || isMIDIcontinuous) {
+		//	if(m == T25 || m == T9 || p > 1 || objectduration > 1. || isMIDIcontinuous) { // Fixed by BB 2021-04-01
+			if((m == T25 || m == T9 || p > 1 || objectduration > 1. || isMIDIcontinuous) && !foundendconcatenation) {
 				/* Non-empty sound-object or time pattern or simple note */
 				// p > 1 implies that silences won't be played as objects
 				skipzeros = FALSE;
 				kobj++; (*p_numberobjects) = kobj;
 				ShowProgress(kobj);
 				ip = Class((*p_im)[nseq]);
-				// BPPrintMessage(odInfo,"nseq = %ld, kobj = %ld m = %d p = %d ip = %ld\n",(long)nseq,(long)kobj,m,p,(long)ip);
+				// BPPrintMessage(odInfo,"@ nseq = %ld, kobj = %ld m = %d p = %d ip = %ld\n",(long)nseq,(long)kobj,m,p,(long)ip);
 				if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,currswitchstate)
 					== ABORT) goto ENDDIAGRAM;
 				if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,
 					p_Seq,&nseq,maxseqapprox,ip,kobj) != OK) goto ENDDIAGRAM;
-			//	BPPrintMessage(odInfo,"Plot(4) nseq = %ld, kobj = %ld m = %d p = %d ip = %ld\n",(long)nseq,(long)kobj,m,p,(long)ip);
+				//	BPPrintMessage(odInfo,"Plot(4) nseq = %ld, kobj = %ld tie = %d foundendconcatenation = %d m = %d p = %d ip = %ld\n",(long)nseq,(long)kobj,(int)tie,(int)foundendconcatenation,m,p,(long)ip);
 				if(overstrike) {
 					kobj--;
 					(*p_numberobjects) = kobj;
@@ -761,7 +765,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 							(*((*p_contparameters)[level].values))[i].active = FALSE;
 						}
 					}
-			//	BPPrintMessage(odInfo,"Sequence toofast = %d overstrike = %d\n",toofast,overstrike);
+				// BPPrintMessage(odInfo,"Sequence toofast = %d overstrike = %d\n",toofast,overstrike);
 				if(toofast && !overstrike) {		/* Sequence is too fast, we'll store proper duration nevertheless */
 					/* We'll get the symbolic duration excluding '&' concatenation */
 					objectduration
@@ -770,7 +774,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 					numberzeros = objectduration - prodtempo; // Added by BB 2021-03-25
 			/*		if(numberzeros >= 1.)
 						BPPrintMessage(odInfo,"PutZeros(1) id = %ld m = %d p = %d toofast = %d objectduration = %.1f (*p_im)[nseq]/Kpress = %.1f kobj = %d maxseqapprox = %.0f numberzeros = %.0f numberzeros/Kpress = %.0f\n",id,m,p,(int)toofast,objectduration,(*p_im)[nseq]/Kpress,kobj,maxseqapprox,numberzeros,(numberzeros/Kpress)); */
-					// BPPrintMessage(odInfo,"@@ nseq = %ld level = %ld m = %ld p = %ld numberzeros = %.2f speed = %.2f scale = %.2f id = %ld\n",(long)nseq,(long)level,(long)oldm,(long)oldp,numberzeros,speed,scale,id);
+					// BPPrintMessage(odInfo,"@@ toofast GetSymbolicDuration() nseq = %ld level = %ld m = %ld p = %ld numberzeros = %.2f speed = %.2f scale = %.2f id = %ld\n",(long)nseq,(long)level,(long)m,(long)p,numberzeros,speed,scale,id);
 					if(PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,numberzeros,p_nmax,0) != OK)
 						goto ENDDIAGRAM;
 					skipzeros = TRUE;
@@ -797,7 +801,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 					if(!new_thing || m != T3 || p != 0 || !toofast || just_done) { // Added by BB 2021-03-27
 						if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
 							&nseq,maxseqapprox,ip,p) != OK) goto ENDDIAGRAM;
-				//		BPPrintMessage(odInfo,"Plot(1) id = %ld m = %d p = %d ip = %.0f iplot = %.0f skipzeros = %d toofast = %d overstrike = %d (*p_im)[%d] = %.1f (*p_im)[nseq]/Kpress = %.1f kobj = %d maxseqapprox = %.0f Prod = %.0f tempo = %.0f nseq = %d nseqplot = %d (*p_maxcol)[nseq] = %.0f part_of_ip = %.0f\n",id,m,p,(double)ip,(double)iplot,(int)skipzeros,(int)toofast,overstrike,nseq,(*p_im)[nseq],(*p_im)[nseq]/Kpress,kobj,maxseqapprox,(double)Prod,(double)tempo,nseq,nseqplot,(double)ip,(double)part_of_ip);
+						// BPPrintMessage(odInfo,"Plot(1) id = %ld m = %d p = %d ip = %.0f iplot = %.0f skipzeros = %d toofast = %d overstrike = %d (*p_im)[%d] = %.1f (*p_im)[nseq]/Kpress = %.1f kobj = %d maxseqapprox = %.0f Prod = %.0f tempo = %.0f nseq = %d nseqplot = %d (*p_maxcol)[nseq] = %.0f part_of_ip = %.0f\n",id,m,p,(double)ip,(double)iplot,(int)skipzeros,(int)toofast,overstrike,nseq,(*p_im)[nseq],(*p_im)[nseq]/Kpress,kobj,maxseqapprox,(double)Prod,(double)tempo,nseq,nseqplot,(double)ip,(double)part_of_ip);
 						part_of_ip = 0.;
 						(*p_maxcol)[nseq] = ip;
 						}
@@ -1229,13 +1233,17 @@ NEWSEQUENCE:
 				case 19:			/* '&' preceding terminal symbol */
 	//				if(level >= Maxlevel) goto NEXTTOKEN;
 					skipzeros = FALSE;
-					if(trace_diagram) BPPrintMessage(odInfo,"'&' preceding nseq = %ld level = %ld\n",(long)nseq,(long)level);
+					if(trace_diagram)
+						BPPrintMessage(odInfo,"'&' preceding id = %ld nseq = %ld level = %ld\n",(long)id,(long)nseq,(long)level);
 					foundendconcatenation = TRUE;
 					goto NEXTTOKEN;
 					break;
 					
 				case 18:				/* '&' following terminal or simple note */
-					if(foundendconcatenation) goto NEXTTOKEN;
+					if(foundendconcatenation) {
+						BPPrintMessage(odInfo,"foundendconcatenation -> goto NEXTTOKEN\n");
+						goto NEXTTOKEN;
+						}
 					skipzeros = FALSE;
 					inext = (*p_im)[nseq];
 					classofinext = Class(inext);
@@ -1246,12 +1254,12 @@ NEWSEQUENCE:
 						else Println(wTrace,Message);
 						goto NEXTTOKEN;
 						}
-				//	BPPrintMessage(odInfo,"\nCase 2\n");
+					// BPPrintMessage(odInfo,"\nGetSymbolicDuration() '&' following terminal nseq = %ld level = %ld m = %ld p = %ld speed = %.2f scale = %.2f id = %ld kobj = %d\n",(long)nseq,(long)level,(long)oldm,(long)oldp,speed,scale,id,(int)kobj);
 					numberzeros
 						= GetSymbolicDuration(NO,*pp_buff,oldm,oldp,id-2L,speed,
 							scale,channel,instrument,foundendconcatenation,level) - prodtempo;
 					if(trace_diagram) 
-						BPPrintMessage(odInfo,"'&' following terminal nseq = %ld level = %ld m = %ld p = %ld numberzeros = %.2f speed = %.2f scale = %.2f id = %ld\n",(long)nseq,(long)level,(long)oldm,(long)oldp,numberzeros,speed,scale,id);
+						BPPrintMessage(odInfo,"End GetSymbolicDuration() numberzeros = %.2f\n\n",numberzeros);
 					if(numberzeros < 0.) numberzeros = 0.;
 							
 					if(PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,numberzeros,p_nmax,0) != OK) goto ENDDIAGRAM;

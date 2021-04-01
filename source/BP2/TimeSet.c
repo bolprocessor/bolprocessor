@@ -116,8 +116,8 @@ for(j = 0; j <= MAXCHAN; j++) {
 	}
 if(missed_ties > 0) {
 	if(!PlayChunks)
-		BPPrintMessage(odError,"Total %d missed tied notes\n\n",missed_ties);
-	else BPPrintMessage(odError,"Total %d missed tied notes in chunk #%d\n\n",missed_ties,Chunk_number);
+		BPPrintMessage(odError,"=> Total %d missed tied notes\n\n",missed_ties);
+	else BPPrintMessage(odError,"=> Total %d missed tied notes in chunk #%d\n\n",missed_ties,Chunk_number);
 	}
 
 missed_ties = 0;
@@ -131,7 +131,7 @@ for(j = 0; j < MAXINSTRUMENTS; j++) {
 	MyDisposeHandle((Handle*)&(p_Tie_event[j]));
 	MyDisposeHandle((Handle*)&(p_Missed_tie_event[j]));
 	}
-if(missed_ties > 0) BPPrintMessage(odError,"Total %d missed tied events in chunk #%d\n\n",missed_ties,Chunk_number);
+if(missed_ties > 0) BPPrintMessage(odError,"=> Total %d missed tied events in chunk #%d\n\n",missed_ties,Chunk_number);
 
 sprintf(Message,"");
 return(result);
