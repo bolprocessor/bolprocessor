@@ -1508,7 +1508,7 @@ else tempo = 0.;
 if(tempo == 0.) prodtempo = 0.;
 else prodtempo = (Prod / tempo);
 
-/* if(p_org == 35) trace_get_duration = TRUE;
+/* if(p_org == 95 || p_org == 80) trace_get_duration = TRUE;
 else trace_get_duration = FALSE; */
 
 if(trace_get_duration)
@@ -1551,6 +1551,7 @@ for(i=i; ; i+=2) {
 			}
 		else {
 			tick_start = (*p_duration_of_field)[level];
+			(*p_duration_of_field)[level] += prodtempo; // Added by BB 2021-04-02
 			if(trace_get_duration) BPPrintMessage(odInfo,"\n• Got it: %ld|%ld id = %ld level %d channel %d instrument %d tick_start = %.2f foundendconcatenation = %d\n",(long)m,(long)p,(long)id,level,channel,instrument,tick_start,(int)foundendconcatenation);
 			tie_is_open = found_beginning = TRUE;
 			old_m = m; old_p = p;
@@ -1624,17 +1625,18 @@ for(i=i; ; i+=2) {
 				if(ignoreconcat) goto OUT;
 				(*p_duration_org)[level+1] = (*p_duration_of_field)[level+1] = (*p_duration_of_field)[level];
 				level++;
-				if(trace_get_duration) BPPrintMessage(odInfo,"{");
+				if(trace_get_duration) BPPrintMessage(odInfo,"{(%ld) ",(long)(*p_duration_of_field)[level]);
 				break;
 			case 13:	// '}'
 			case 23:
 				if(ignoreconcat) goto OUT;
 				level--;
 				(*p_duration_of_field)[level] = (*p_duration_of_field)[level+1];
-				if(trace_get_duration) BPPrintMessage(odInfo,"}");
+				if(trace_get_duration) BPPrintMessage(odInfo,"}(%ld) ",(long)(*p_duration_of_field)[level]);
 				break;
 			case 14:	// comma
-				if(trace_get_duration) BPPrintMessage(odInfo,",");
+				(*p_duration_of_field)[level] = (*p_duration_org)[level];
+				if(trace_get_duration) BPPrintMessage(odInfo,",(%ld) ",(long)(*p_duration_of_field)[level]);
 				(*p_duration_of_field)[level] = (*p_duration_org)[level];
 				break;
 			case 7:		// period 
@@ -1660,14 +1662,14 @@ for(i=i; ; i+=2) {
 				if(!found_beginning || ignoreconcat) continue;
 				if(trace_get_duration) BPPrintMessage(odInfo,"&+");
 				if(instrument != instrument_org || channel != channel_org) continue;
-				if(tie_is_open && instrument == instrument_org && channel == channel_org) {
+			//	if(instrument == instrument_org && channel == channel_org) { // Fixed by BB 2021-04-02
 					this_end = (*p_duration_of_field)[level] + prodtempo;
 					if(trace_get_duration)
 						BPPrintMessage(odInfo,"\nIs this the end? this_end = %.2f tick_end = %.2f",this_end,tick_end);
-					if(this_end > tick_end) {
+					if(tie_is_open && this_end > tick_end) {
 						foundendconcatenation = TRUE;
 						}
-					}
+			//		}
 				break;
 			}
 		old_m = m; old_p = p;
@@ -1690,8 +1692,8 @@ for(i=i; ; i+=2) {
 		continue;
 		}
 	if(m == T3 || m == T25) {
-		if(trace_get_duration) BPPrintMessage(odInfo," %ld|%ld ",m,p);
 		(*p_duration_of_field)[level] += prodtempo;
+		if(trace_get_duration) BPPrintMessage(odInfo," <%ld|%ld> (%ld)",m,p,(long)(*p_duration_of_field)[level]);
 	//	if(found_beginning && foundendconcatenation && m == m_org && p == p_org && instrument == instrument_org && channel == channel_org) {
 		if(trace_get_duration)
 			if(foundendconcatenation) BPPrintMessage(odInfo,"\nm = %d p = %d i = %ld tick_start = %.2f this_end = %.2f found_beginning = %d\n",m,p,(long)i,tick_start,this_end,(int)found_beginning);
