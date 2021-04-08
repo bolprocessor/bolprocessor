@@ -79,7 +79,7 @@ if(level >= 0) {
 	(*p_Instance)[k].contparameters.number = n;
 	
 	if((*p_contparameters)[level].values == NULL) {
-		if(Beta) Alert1("=> Err. SetObjectParams(). (*p_contparameters)[level].values == NULL");
+		BPPrintMessage(odError,"=> Err. SetObjectParams(). (*p_contparameters)[level].values == NULL\n");
 		return(ABORT);
 		}
 	for(i=0; i < (*p_contparameters)[level].number; i++) {
