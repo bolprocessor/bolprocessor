@@ -50,12 +50,6 @@ Input files
 - restore the feature that looks for names of related files in the input files and auto-loads them (to be discussed...) => probably useless because the interface takes care of these links and it creates links for editing related files
 
 
-Bugs
------
-
-- Misses tied note (key #73) in Beethoven's Fugue PLAY command
-
-
 MIDI files
 ----------
 
@@ -99,7 +93,9 @@ https://www.geeksforgeeks.org/udp-server-client-implementation-c/
 Standalone application makers
 -----------------
 
-- https://www.lianja.com/overview/lianja-app-builder => requires a version of MacOS >= High Sierra
+- https://github.com/cztomczak/phpdesktop => under study
+- https://electronforge.io/
+- https://github.com/peachpiecompiler/peachpie
 - https://laravel.com/
 - https://cakephp.org/
 - https://www.yiiframework.com/
@@ -107,15 +103,15 @@ Standalone application makers
 - https://fuelphp.com/
 - https://symfony.com/
 - https://phalcon.io/en-us
-- https://electronforge.io/
 - https://www.chromium.org/Home
 
 
 Open Sound Control
 ------------------
 
-- This is worth trying for direct communication with MuseScore etc.
 - Read https://en.wikipedia.org/wiki/Open_Sound_Control
+- This might create a framework for connecting BP3 with PYO (http://ajaxsoundstudio.com/software/pyo/)
+- Also try direct communication with MuseScore
 
 
 Images

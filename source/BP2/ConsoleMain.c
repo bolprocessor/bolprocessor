@@ -284,9 +284,9 @@ int main (int argc, char* args[])
 		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (21) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 		// ClearObjectSpace();
 		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (23) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-		BPPrintMessage(odInfo, "\nThis session used %ld bytes overall.  %ld handles created and released. [%ld bytes leaked]\n",
+	/*	BPPrintMessage(odInfo, "\nThis session used %ld bytes overall.  %ld handles created and released. [%ld bytes leaked]\n",
 			(long) MaxMemoryUsed,(long)MaxHandles,
-			(long) (MemoryUsed - MemoryUsedInit));
+			(long) (MemoryUsed - MemoryUsedInit)); */
 		}
 	if(check_memory_use) {
 		j = forgotten_mem = 0;
