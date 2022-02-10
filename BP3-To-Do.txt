@@ -1,12 +1,6 @@
 Bol Processor BP3 To Do List
 ============================
 
-General
--------
-
-- use only UTF-8 text encoding for text output
-
-
 Documentation
 -------------
 
@@ -14,6 +8,42 @@ Documentation
 - rewrite the source code README
 - convert BP2 documentation to an (open-source) authoring system that can help maintain the organization & internal links as well as output in multiple formats (HTML, PDF, etc.) ??
 - reorganize & rewrite BP2 documentation
+
+
+Csound orchestra
+-----------------
+
+- Modify "new-vina" to produce lower frequencies, minimum "C2"
+- New instruments are needed in the style of:
+ + pipe organ
+ + flute
+ + piano
+ + harpsichord
+ + guitar
+ + horn
+ + saxo
+ + marimba
+ + drums
+- Study how BP could produce score instructions modifying parameters in some instruments
+- Find an instrument that would create a switched bandpass filter with either a sound file or another instrument as input. The idea is to reproduce the effect of sympathetic strings and use it to add partials to other instruments (much like the Indian tanpura). (These devices had been successfully wired as "switch filters" in the Shruti Harmonium.)
+
+
+Standalone application
+-----------------
+
+- https://github.com/cztomczak/phpdesktop => Compile BP3 under Linux asap. Also support PHPdesktop project to have it running under MacOS
+
+Alternate options:
+- https://electronforge.io/
+- https://github.com/peachpiecompiler/peachpie
+- https://laravel.com/
+- https://cakephp.org/
+- https://www.yiiframework.com/
+- https://github.com/bcosca/fatfree
+- https://fuelphp.com/
+- https://symfony.com/
+- https://phalcon.io/en-us
+- https://www.chromium.org/Home
 
 
 Actions
@@ -24,10 +54,10 @@ Actions
 - fix analyze-item action
 - implement expand-item & show-beats actions
 - new action for listing RT MIDI devices ? Create a file which the user will read via the interface, then select option(s) that will be added as tokens to the "Play" command line
+- some C-code source files are not UTF8 because they contain incompatible characters. This has to do with using ‘…’ and ‘•’ in the text output. Examples in -gr.Ames and -da.acceleration.
 
 
-
-Cloud version
+Cloud version (option)
 -------------
 
 - Install a html/php/MySQL server for the sharing of BP console + PHP interface (+ website?)
@@ -66,7 +96,7 @@ MIDI files
 (Alternatively, could support dumping MIDI file in a text format to stdout?)
 
 
-Csound scores
+Csound scores (for experts)
 -------------
 
 - (optionally) revise CsoundWrite to make sure that events are ordered by "note-on" dates, notably with tied notes/sound-objects
@@ -90,22 +120,6 @@ https://csound.com/docs/manual/udpserver.html
 https://www.geeksforgeeks.org/udp-server-client-implementation-c/
 
 
-Standalone application makers
------------------
-
-- https://github.com/cztomczak/phpdesktop => under study
-- https://electronforge.io/
-- https://github.com/peachpiecompiler/peachpie
-- https://laravel.com/
-- https://cakephp.org/
-- https://www.yiiframework.com/
-- https://github.com/bcosca/fatfree
-- https://fuelphp.com/
-- https://symfony.com/
-- https://phalcon.io/en-us
-- https://www.chromium.org/Home
-
-
 Open Sound Control
 ------------------
 
@@ -117,7 +131,8 @@ Open Sound Control
 Images
 --------------
 
-- when no settings file is specified, allow the creation of images via a command line option. This option should specify a location for images. Currently, the location is identical to the location of the trace file.
+- When no settings file is specified, allow the creation of images via a command line option. This option should specify a location for images. Currently, the location is identical to the location of the trace file.
+- Revise the drawing of time streaks (the vertical blue lines). These should be adjusted to the (varying) tempo instead of the default metronomic setting.
 
 
 Microtonal scales
@@ -125,22 +140,4 @@ Microtonal scales
 
 - Include values for optionally stretching each octave
 - Implement a performance control to set A4 frequency (diapason) in the score
-
-
-Csound orchestra
------------------
-
-- Modify "new-vina" to produce lower frequencies, minimum "C2"
-- New instruments are needed in the style of:
- + pipe organ
- + flute
- + piano
- + harpsichord
- + guitar
- + horn
- + saxo
- + marimba
- + drums
-- Study how BP could produce score instructions modifying parameters in some instruments
-- Find an instrument that would create a switched bandpass filter with either a sound file or another instrument as input. The idea is to reproduce the effect of sympathetic strings and use it to add partials to other instruments (much like the Indian tanpura). (These devices had been successfully wired as "switch filters" in the Shruti Harmonnium.)
 

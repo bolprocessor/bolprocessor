@@ -126,10 +126,12 @@ else {
 	}
 instrparamlist = (*p_CsInstrument)[ins].paramlist;
 
-if(Pclock > 0.)	/* Striated or measured smooth time */ // Fixed by BB 30 0ct 2020 ???
-	time = ((double) t) * Qclock / ((double) Pclock) / 1000.;
-else
-	time = ((double) t) / 1000.;
+// if(Pclock > 0.)	/* Striated or measured smooth time */ // Fixed by BB 30 0ct 2020 ???
+	// time = ((double) t) * Qclock / ((double) Pclock) / 1000.;
+// else 
+	// time = ((double) t) / 1000.;
+
+time = ((double) t) / 1000.;	 // Fixed by BB 2022-02-10
 
 if(trace_cs_scoremake) BPPrintMessage(odInfo,"Pclock = %ld Qclock = %ld, t = %ld, time = %.3f\n",(long)Pclock,(long)Qclock,(long)t,time);
 
@@ -205,13 +207,16 @@ if((scorearg=(double**) GiveSpace((Size)((iargmax + 1) * sizeof(double)))) == NU
 	
 for(iarg=0; iarg <= iargmax; iarg++) (*scorearg)[iarg] = 0.;
 
-if(Pclock > 0.)  /* Striated or measured smooth time */ 
-	ratio = Qclock / ((double) Pclock) / 1000.;
-else
-	ratio = 0.001;
+// if(Pclock > 0.)  /* Striated or measured smooth time */ 
+//	ratio = Qclock / ((double) Pclock) / 1000.;
+// else
+//	ratio = 0.001;
+
+ratio = 0.001; // Fixed by BB 2022-02-10
 		
 if(onoffline != LINE) {
-	(*scorearg)[2] = (*perf)->starttime[key] * Qclock / ((double) Pclock);
+//	(*scorearg)[2] = (*perf)->starttime[key] * Qclock / ((double) Pclock);
+	(*scorearg)[2] = (*perf)->starttime[key]; // Fixed by BB 2022-02-10
 	(*scorearg)[3] = time - (*scorearg)[2];
 	sprintf(Message,"onoffline != LINE, key = %d, starttime = %.3f, time = %ld, scorearg[2] = %.3f, scorearg[3] = %.3f\n",key,(*perf)->starttime[key],(long)time,(*scorearg)[2],(*scorearg)[3]);
 	if(trace_cs_scoremake) BPPrintMessage(odInfo,Message);
@@ -677,8 +682,10 @@ WRITECSCORELINE:
 
 // First send this note to pianoroll
 if(ShowPianoRoll) {
-	timeon = (Milliseconds) 1000 * (*scorearg)[2] * Pclock / Qclock;
-	timeoff = (Milliseconds) 1000 * ((*scorearg)[2] + (*scorearg)[3]) * Pclock / Qclock;
+/*	timeon = (Milliseconds) 1000 * (*scorearg)[2] * Pclock / Qclock;
+	timeoff = (Milliseconds) 1000 * ((*scorearg)[2] + (*scorearg)[3]) * Pclock / Qclock; */
+	timeon = (Milliseconds) 1000 * (*scorearg)[2];
+	timeoff = (Milliseconds) 1000 * ((*scorearg)[2] + (*scorearg)[3]); // Fixed by BB 2022-02-10
 	
 	timeon += CsoundPianoRollNoteShift;
 	timeoff += CsoundPianoRollNoteShift;

@@ -2337,7 +2337,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 				case 6: (*Scale)[NumberScales].interval = strtod(curr_arg,NULL); break;
 				case 7: (*Scale)[NumberScales].basefreq = strtod(curr_arg,NULL); break;
 				case 8: (*Scale)[NumberScales].basekey = basekey = (int) atol(curr_arg);
-					if(trace_scale) BPPrintMessage(odInfo,"\Creating key numbers for '%s' (scale %d):\n%s\n",name,NumberScales,key_numbers);
+					if(trace_scale) BPPrintMessage(odInfo,"\nCreating key numbers for '%s' (scale %d):\n%s\n",name,NumberScales,key_numbers);
 					if(strlen(key_numbers) > 0) {
 						j = i_note = 0;
 						for(i = 1; i < strlen(key_numbers); i++) {
@@ -2444,7 +2444,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 		for(i = 0; i <= (*Scale)[NumberScales].numgrades; i++)
 			BPPrintMessage(odInfo,"%.3f ",(*((*Scale)[NumberScales].tuningratio))[i]);
 		if(strlen(note_names) > 0) BPPrintMessage(odInfo,"\nNames of notes in this scale: %s",note_names);
-		BPPrintMessage(odInfo,"\nWith 'interval' = %.3f, 'basefreq' = %.3f Hz, 'basekey' = %d and 'baseoctave' = %d\n",(*Scale)[NumberScales].interval,(*Scale)[NumberScales].basefreq,(*Scale)[NumberScales].basekey,(*Scale)[NumberScales].baseoctave);0,
+		BPPrintMessage(odInfo,"\nWith 'interval' = %.3f, 'basefreq' = %.3f Hz, 'basekey' = %d and 'baseoctave' = %d\n",(*Scale)[NumberScales].interval,(*Scale)[NumberScales].basefreq,(*Scale)[NumberScales].basekey,(*Scale)[NumberScales].baseoctave);
 		BPPrintMessage(odInfo,"A4 frequency of a tempered scale with the same 'basefreq' and 'interval' would be %.3f Hz\n",blockkey_temp_freq);
 		PrintNote(-1,BlockScaleOnKey,-1,-1,Message);
 		BPPrintMessage(odInfo,"As per your settings, frequency will be blocked for note key #%d = '%s' but this may be changed in \"_scale(some_scale, blockkey)\" statements\n",BlockScaleOnKey,Message);
