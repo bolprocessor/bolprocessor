@@ -1,4 +1,4 @@
-/* TimeSetFunctions.c (BP3) */ 
+/* TimeSetFunctions.c (BP3) */
 
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -224,7 +224,7 @@ if(k == -1) {	/* 'NIL' end-of-line marker */
 	for(ii=ZERO; ii <= (*p_imaxseq)[nseq]; ii++) {
 		kk = (*((*p_Seq)[nseq]))[ii];
 		if(kk > 1) (*p_delta)[kk] = (*p_delta1)[ii] + (*p_delta2)[ii];
-	//	if(kk == 65) BPPrintMessage(odError,"kk = %ld starttime = %ld endtime = %ld\n",(long)kk,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
+		// if(kk == 4) BPPrintMessage(odError,"1) ii = %ld kk = %ld starttime = %ld endtime = %ld, ts1[%ld] = %ld ts2[%ld] = %ld\n",(long)ii,(long)kk,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime,ii,(*p_ts1)[ii],ii,(*p_ts2)[ii]);
 		}
 //	BPPrintMessage(odError,"1) ts1[0] = %ld ts2[0] = %ld\n",(*p_ts1)[0],(*p_ts2)[0]);
 	if((result=Solution_is_accepted(++nsol,nseq,p_imaxseq,kmax,p_ts1,p_ts2,p_delta,
@@ -233,7 +233,7 @@ if(k == -1) {	/* 'NIL' end-of-line marker */
 		//	for(ii=1; ii <= (*p_imaxseq)[nseq]; ii++) { Fixed by BB 2021-03-20
 			for(ii=ZERO; ii <= (*p_imaxseq)[nseq]; ii++) {
 				kk = (*((*p_Seq)[nseq]))[ii];
-		//		if(kk < 34 && kk > 2) BPPrintMessage(odError,"2) ts1[%ld] = %ld ts2[%ld] = %ld\n",ii,ii,(*p_ts1)[ii],(*p_ts2)[ii]);
+				// if(kk ==  4) BPPrintMessage(odError,"2) ts1[%ld] = %ld ts2[%ld] = %ld\n",ii,(*p_ts1)[ii],ii,(*p_ts2)[ii]);
 				if(kk > 1) { // Fixed by BB 2021-03-21
 		//		if(kk >= 1) {
 		//			if((*p_ts1)[ii]/Kpress > 100000 || (*p_ts2)[ii]/Kpress > 100000) BPPrintMessage(odError,"ERR: kk = %ld ts1[%ld] = %ld ts2[%ld] = %ld Kpress = %.0f\n",(long)kk,ii,(*p_ts1)[ii],ii,(*p_ts2)[ii],Kpress);
@@ -269,6 +269,7 @@ j = (*p_Instance)[k].object;	/* j can't be 0 because of previous inext calculati
 (*p_Instance)[k].truncend = ZERO;
 (*p_ts1)[i] = (*p_tp1)[i] = (*p_time1)[i] + (*p_ddelta0)[i];
 (*p_ts2)[i] = (*p_tp2)[i] = (*p_time2)[i] + (*p_ddelta0)[i];
+// BPPrintMessage(odError,"* ts1[%ld] = %ld ts2[%ld] = %ld, time1[%ld] = %ld time2[%ld] = %ld, delta = %ld\n",i,(*p_ts1)[i],i,(*p_ts2)[i],i,(*p_time1)[i],i,(*p_time2)[i],(*p_ddelta0)[i]);
 
 if(i == i0 || (NoAlphabet && (nature_time != SMOOTH))) goto INCREMENT;
 

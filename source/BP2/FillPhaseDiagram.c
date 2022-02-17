@@ -41,7 +41,7 @@
 int trace_diagram = 0;
 int trace_toofast = 0;
 int trace_overstrike = 0;
-int new_thing = 1;
+int new_thing = 1; // This change should be confirmed (BB 2022-02-17)
 
 int FillPhaseDiagram(tokenbyte ***pp_buff,int* p_numberobjects,unsigned long *p_maxseq,
 	int* p_nmax,unsigned long **p_imaxseq,

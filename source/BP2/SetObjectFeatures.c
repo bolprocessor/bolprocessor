@@ -58,7 +58,7 @@ if(k < 2) {
 	return(ABORT); // Fixed by BB 2021-02-26
 	}
 if(nseq >= Maxconc) {
-	BPPrintMessage(odError,"\=> Err. SetObjectParams(). nseq >= Maxconc\n");
+	BPPrintMessage(odError,"=> Err. SetObjectParams(). nseq >= Maxconc\n");
 	return(ABORT); // Fixed by BB 2021-02-26
 	}
 
@@ -851,7 +851,7 @@ while(TRUE) {
 					t1 = (*p_T)[i];
 					(*p_time1)[i] = t1;
 					t2 = (*p_time2)[i] = t1 + (Milliseconds) ((*p_Instance)[k].alpha * (*p_Dur)[j]);
-			//		sprintf(Message,"Fix() time pattern k = %ld j = %ld alpha = %.2f t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)t1,(long)t2);
+					// BPPrintMessage(odInfo,"Fix() time pattern k = %ld j = %ld alpha = %.2f Dur = %.2f, t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(*p_Dur)[j],(long)t1,(long)t2);
 					}
 				else {
 					if((*p_PivMode)[j] == RELATIVE)
@@ -874,7 +874,7 @@ while(TRUE) {
 				RandomTime(&t1,(*p_Instance)[k].randomtime);
 				(*p_time1)[i] = t1;
 				t2 = (*p_time2)[i] = t1 + (*p_Instance)[k].alpha * 1000L;
-				// if(k == 65 || k == 25 || k == 67) BPPrintMessage(odInfo,"Fix() k = %ld j = %ld alpha = %.2f t1 = %ldms t2 = %ldms\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)t1,(long)t2);
+			//	if(k == 4) BPPrintMessage(odInfo,"Fix() k = %ld j = %ld alpha = %.2f t1 = %ldms t2 = %ldms\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)t1,(long)t2);
 				}
 			}
 		else {
@@ -1022,7 +1022,9 @@ if(nseq < nmax && (imax < maxseq)) {
 	/* ... the sequence, up to end of the phase diagram. */
 	/* This is only needed if there are more sequences. */
 	}
-iprev = i; jprev = -1;
+// iprev = i;
+iprev = i + 1; // Fixed by BB 2022-02-17
+jprev = -1;
 while(TRUE) {
 	if(iprev >= imax) break;
 	inextm = iprev;
@@ -1064,6 +1066,7 @@ FINDNEXTMARKED:
 			}
 		else if(j >= Jbol) {  // time pattern
 			r = ((double) (*p_Dur)[j]) / (*p_Tref)[j];
+			if(trace_object_features) BPPrintMessage(odInfo,"This time pattern j = %ld r = %.2f d = %.2f Dur = %ld Tref = %ld\n",(long)j,(double)r,(double)d,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 			}
 		else { // Sound-object
 			dur = (*p_Dur)[j];
@@ -1074,7 +1077,7 @@ FINDNEXTMARKED:
 			else r = 1.;
 			}
 		sigmaridi += r * d;
-		if(trace_object_features) BPPrintMessage(odInfo,"Calculate_alpha() smooth line > 0 To = %ld k = %ld j = %ld r = %.2f d = %ld sigmaridi = %.2f inext = %ld Dur = %ld Tref = %ld\n",(long)To,(long)k,(long)j,r,d,sigmaridi,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+		if(trace_object_features) BPPrintMessage(odInfo,"Calculate_alpha() (smooth) line > 0 To = %ld k = %ld j = %ld Jbol = %ld r = %.2f d = %.2f sigmaridi = %.2f inext = %ld Dur = %ld Tref = %ld\n",(long)To,(long)k,(long)j,(long)Jbol,(double)r,(double)d,(double)sigmaridi,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 		i = inext;
 		}
 	unfinished = FALSE;
@@ -1120,7 +1123,7 @@ FINDNEXTMARKED:
 			else r = 1.;
 			}
 		alpha = To * r * d / dur / sigmaridi;
-		if(trace_object_features) BPPrintMessage(odInfo,"k = %ld j = %ld alpha = %.2f r = %.2f d = %ld sigmaridi = %.2f\n",(long)k,(long)j,alpha,r,d,sigmaridi);
+		if(trace_object_features) BPPrintMessage(odInfo,"+ k = %ld j = %ld alpha = %.2f To = %ld, r = %.2f d = %.2f dur = %ld sigmaridi = %.2f\n",(long)k,(long)j,(double)alpha,(long)To,(double)r,(double)d,(long)dur,(double)sigmaridi);
 		if(!unfinished && inext == inextm) {	/* Last object in section */
 			toff = (*p_T)[inext];	/* This will compensate cumulated roundings */
 			alpha = ((double)(toff - currenttime)) / dur;

@@ -55,6 +55,7 @@ Actions
 - implement expand-item & show-beats actions
 - new action for listing RT MIDI devices ? Create a file which the user will read via the interface, then select option(s) that will be added as tokens to the "Play" command line
 - some C-code source files are not UTF8 because they contain incompatible characters. This has to do with using ‘…’ and ‘•’ in the text output. Examples in -gr.Ames and -da.acceleration.
+- bizarre "production time" is displayed, e.g. with "-gr.acceleration"
 
 
 Cloud version (option)

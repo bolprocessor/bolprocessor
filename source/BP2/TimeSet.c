@@ -2,7 +2,7 @@
 
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
-    All rights reserved. 
+    All rights reserved.
     
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met: 
@@ -625,7 +625,7 @@ QUEST2:
 			BPPrintMessage(odError,"=> Error in TimeSet(). k > *p_kmx\n");
 		else if(i > 0 && (t=((*p_Instance)[k].endtime+(*p_Instance)[k].truncend)) > *p_tmax)
 			*p_tmax = t;
-		if(trace_timeset) BPPrintMessage(odInfo,"t = %ld, tmax = %ld\n",(long)t,(long)*p_tmax);
+		if(trace_timeset) BPPrintMessage(odInfo,"t = %ld, tmax = %ld, endtime = %ld, truncend = %ld\n",(long)t,(long)*p_tmax,(long)(*p_Instance)[k].endtime,(long)(*p_Instance)[k].truncend);
 		// i = 1L;
 		i = ZERO; // Fixed by BB 2021-03-22
 		while(i <= imax && (k=(*((*p_Seq)[nseq]))[i]) < 2) i++;
@@ -653,7 +653,7 @@ QUEST2:
 /* Modify Alpha according to articulation (legato/staccato) */
 if(trace_timeset) BPPrintMessage(odInfo,"\nCalculating legato/staccato\n");
 for(k=2; k <= *p_kmx; k++) {
-	if((*p_Instance)[k].starttime > max_end_time || (*p_Instance)[k].endtime > max_end_time) {
+	if((nature_time == STRIATED) && ((*p_Instance)[k].starttime > max_end_time || (*p_Instance)[k].endtime > max_end_time)) {
 		
 		BPPrintMessage(odError,"Wrong start/end values for object #%d (j = %d) in chunk #%d\n",k,(*p_Instance)[k].object,Chunk_number);
 		BPPrintMessage(odError,"starttime = %ld endtime = %ld max_end_time = %ld *p_kmx = %ld\n",(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)max_end_time,(long)*p_kmx);

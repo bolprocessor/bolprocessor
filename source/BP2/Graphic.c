@@ -1305,17 +1305,23 @@ p = ((double) GraphicScaleP) / (GraphicScaleQ * 10.);
 stroke_style("blue");
 fill_style("blue");
 
+// BPPrintMessage(odInfo, "\nKpress = %ld, p = %.4f\nt1 =",(long) Kpress,(double) p);
+
 // Subdivisional time streaks
+// showsmalldivisions = TRUE;
 for(i=1L,rr=Ratio,k=0; i <= imax; i++, rr += Kpress) {
 	t1 = (*p_T)[i] / CorrectionFactor;
+	// BPPrintMessage(odInfo, " %ld",(long) t1);
 	if(p_delta != NULL) t1 += (*p_delta)[i];
 	t1 = leftoffset + Round(t1 * p);
 	if((t1 > tmem1 && showsmalldivisions && t1 < xmax) || tmem1 == -Infpos) {
 		pen_size(1,0);
 		draw_line(t1,y,t1,ymax,"");
 		tmem1 = t1 + 20;
+		tmem1 = t1 + 4; // 2022-02-17
 		}
 	}
+// BPPrintMessage(odInfo, "\n\n");
 
 // We draw horizontal white lines to break time subdivisional time streaks
 pen_size(1,0);
