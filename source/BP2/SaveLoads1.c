@@ -111,7 +111,6 @@ if(!IsEmpty(wInfo)) BringToFront(Window[wInfo]);
 return(OK);
 }
 
-
 SaveWeights(void)
 {
 int i,igram,irul,w;
@@ -469,6 +468,7 @@ return(FAILED);
 
 
 SaveCsoundInstruments(FSSpec* p_spec)
+// Obsolete
 {
 int i,j,good,ishtml;
 short refnum;
@@ -896,7 +896,6 @@ return(result);
 }
 
 
-
 /* FindBPPrefsFolder() gets an FSSpec for the folder named "Bol Processor"
    in the system (or user) preferences folder.  If this folder does not
    exist, it is created.  */
@@ -1054,7 +1053,6 @@ char **p_line,**p_completeline;
 double r;
 FILE* csfile;
 
-
 if(trace_load_csound_resources) BPPrintMessage(odInfo, "LoadCsoundInstruments(%d,%d)\n",checkversion,tryname);
 
 if(LoadedCsoundInstruments) return(OK);
@@ -1077,10 +1075,10 @@ if(csfile != NULL) {
 
 csfile = fopen(FileName[wCsoundInstruments],"r");
 if(csfile == NULL) {
-	BPPrintMessage(odError,"=> Could not open Csound resource file %s\n",FileName[wCsoundInstruments]);
-	return FAILED;
+	BPPrintMessage(odError,"=> Could not find and open Csound resource file %s\n",FileName[wCsoundInstruments]);
+	goto ERR;
 	}
-	
+
 if(ReadOne(FALSE,FALSE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 BPPrintMessage(odInfo,"Loading %s...\n",FileName[wCsoundInstruments]);
 /*sprintf(Message,"Loading %s...",FileName[wCsoundInstruments]);
@@ -1132,7 +1130,7 @@ for(j=0; j < jmax; j++) {
 		}
 	else strcpy((*((*pp_CsInstrumentName)[j])),""); // (*((*pp_CsInstrumentName)[j]))[0] = '\0'; Fixed by BB 2021-02-14
 	
-	BPPrintMessage(odInfo,"Loading Csound instrument %d = \"%s\" out of %d\n",(j+1),(*((*pp_CsInstrumentName)[j])),jmax);
+	if(trace_load_csound_resources) BPPrintMessage(odInfo,"Loading Csound instrument %d = \"%s\" out of %d\n",(j+1),(*((*pp_CsInstrumentName)[j])),jmax);
 //	p_line = p_completeline = NULL; 
 	if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 //	ptr = (*pp_CsInstrumentComment)[j];
@@ -1305,7 +1303,7 @@ for(j=0; j < jmax; j++) {
 			if(i >= 0) (*((*p_CsInstrument)[j].paramlist))[ip].nameindex = i;
 			}
 		
-		BPPrintMessage(odInfo,"-> Parameter: \"%s\"\n",*p_completeline);
+		if(trace_load_csound_resources) BPPrintMessage(odInfo,"-> Parameter: \"%s\"\n",*p_completeline);
 		strcpy(line,"");
 		fscanf(csfile, "%[^\n]",line); // Necessary to read a line that might be empty
 		if(strlen(line) > 0) {
@@ -1355,7 +1353,7 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 		if(Mystrcmp(p_line,"_end tables") == 0) break;
 		if(trace_load_csound_resources) BPPrintMessage(odInfo, "table line = [%s]\n",*p_line);
 		if(i_table >= MaxCsoundTables) {
-			p_CsoundTables = (char****) IncreaseSpace(p_CsoundTables);
+			p_CsoundTables = (char****) IncreaseSpace((Handle)p_CsoundTables);
 			MaxCsoundTables = (MyGetHandleSize((Handle)p_CsoundTables) / sizeof(char**));
 			for(i = i_table; i < MaxCsoundTables; i++) (*p_CsoundTables)[i] = NULL;
 			}
@@ -1405,7 +1403,6 @@ BPPrintMessage(odError,"=> Error reading '%s' Csound resource file...\n",FileNam
 // FileName[wCsoundInstruments][0] = '\0';
 
 QUIT:
-// result = OK;
 MyDisposeHandle((Handle*)&p_line);
 MyDisposeHandle((Handle*)&p_completeline);
 CloseFile(csfile);
@@ -1633,8 +1630,9 @@ if(iv > 11) {
 	if(iv > 15) UseBullet = j;
 	else UseBullet = TRUE;
 	UseBullet = FALSE; // FIXED by BB 2020-10-22
-	if(UseBullet) Code[7] = '¥';
-	else Code[7] = '.';
+//	if(UseBullet) Code[7] = 'ï¿½'; Requires UTF8 format BB 2022-02-17
+//	else
+	Code[7] = '.';
 	}
 
 PlayTicks = FALSE;
@@ -1643,9 +1641,9 @@ ResetTickFlag = TRUE;
 if(iv > 7) {
 	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
 	PlayTicks = j;
-	if(PlayTicks && !InitOn && !startup) {
-		ResetMIDI(FALSE); // FIXME: does this make sense in the console version
-		}
+/*	if(PlayTicks && !InitOn && !startup) {
+		ResetMIDI(FALSE); 
+		} */
 	}
 if(iv > 10) {
 	if(ReadInteger(sefile,&j,&pos) == FAILED) goto ERR;
@@ -2716,78 +2714,23 @@ pos = 0L;
 line2[0] = '\0';
 // if(!tryname) FileName[iObjects][0] = '\0';
 p_line = p_completeline = NULL;
-// c2pstrcpy(PascalLine, DeftName[iObjects]);
-// SetWTitle(Window[iObjects], PascalLine);
-// if(!tryname) GetMiName();
-// c2pstrcpy(PascalLine,FileName[iObjects]);
-// CopyPString(PascalLine, spec.name);
-/* spec.vRefNum = TheVRefNum[iObjects];
-spec.parID = WindowParID[iObjects];
-if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {FileName[iObjects] ??
-FIND:
-	if(!tryname) return(FAILED);
-	if(FileName[iObjects][0] == '\0') {
-//		if(OkWait || !ScriptExecOn)
-//			Alert1("The note convention might be incorrect because I am looking for an unspecified '-mi' sound-object prototype file");
-		sprintf(Message,"Find '-mi' sound-object prototype file...");
-		}
-	else
-	sprintf(Message,"Find '%s' or other sound-object prototype file",FileName[iObjects]);
-	ShowMessage(TRUE,wMessage,Message);
-	if(Option) r = YES; 
-	else r = NO;
-	if(r == ABORT) return(r);
-	type = gFileType[iObjects]; if(r == YES) type = ftiAny;
-	if(!OldFile(iObjects,type,PascalLine,&spec)) return(ABORT);
-	if(FileName[iObjects][0] == '\0') {
-		p2cstrcpy(FileName[iObjects],PascalLine);
-		// TellOthersMyName(iObjects); // this is taken care of by SetName() at end - akozar 050707
-		}
-	c2pstrcpy(filename,FileName[iObjects]);
-	if(Pstrcmp(PascalLine, filename) != 0) {
-		rep = Answer("Changing sound-object file name",'Y');
-		switch(rep) {
-			case NO:
-				goto FIND;
-			case YES:
-				p2cstrcpy(FileName[iObjects],PascalLine);
-				// TellOthersMyName(iObjects); // this is taken care of by SetName() at end - akozar 050707
-				break;
-			case ABORT:
-				HideWindow(Window[wMessage]);
-				return(ABORT);
-			}
-		}
-	// c2pstrcpy(spec.name, FileName[iObjects]);
-	if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) return(ABORT);
-	}
-TheVRefNum[wCsoundInstruments] = TheVRefNum[iObjects] = spec.vRefNum;
-WindowParID[wCsoundInstruments] = WindowParID[iObjects] = spec.parID;
-HideWindow(Window[wMessage]);
-rep = ABORT;
-j = -1; */
 
 LoadOn++;
 
 mifile = fopen(FileName[iObjects], "r");
 if (mifile == NULL) {
-	BPPrintMessage(odError, "=> Could not open prototypes file %s\n",FileName[iObjects]);
-	return FAILED;
+	BPPrintMessage(odError, "=> Could not find and open prototypes file %s\n",FileName[iObjects]);
+//	return FAILED;
+	return ABORT; // Fixed by BB 2022-02-18
 	}
 
 if(ReadOne(FALSE,FALSE,FALSE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 sprintf(Message,"Loading %s...",FileName[iObjects]);
 ShowMessage(TRUE,wMessage,Message);
-if(trace_load_prototypes) BPPrintMessage(odError, "Line = %s\n",*p_line);
+if(trace_load_prototypes) BPPrintMessage(odInfo, "Line = %s\n",*p_line);
 if(CheckVersion(&iv,p_line,FileName[iObjects]) != OK) goto ERR;
 if(trace_load_prototypes) BPPrintMessage(odInfo, "Version = %d\n",iv);
 
-/* if(iv == 0) {
-	FSClose(mifile);
-	HideWindow(Window[wMessage]);
-	pos = 0L;
-	MyOpen(&spec,fsCurPerm,&mifile);
-	} */
 if(iv > 2) {
 	ReadOne(FALSE,TRUE,FALSE,mifile,TRUE,&p_line,&p_completeline,&pos);
 //	GetDateSaved(p_completeline,&(p_FileInfo[iObjects]));
@@ -2803,15 +2746,12 @@ PrototypeTickVelocity = s;
 
 fscanf(mifile, "%[^\n]",line2); // Necessary to read a line that might be empty
 
-if(trace_load_prototypes) BPPrintMessage(odError, "Line = %s\n",line2);
-if(strlen(line2) > 0) {
+if(trace_load_prototypes) BPPrintMessage(odInfo, "Line = %s\n",line2);
+if(strlen(line2) > 5) { // Fixed by BB 2022-02-18
 	BPPrintMessage(odInfo,"Trying to load Csound resource %s\n",line2);
-	
-	name_of_file = strrchr(FileName[iObjects],'/');
-	sprintf(Message,"%s%s","/",line2);
-	
-	final_name = repl_str(FileName[iObjects],name_of_file,Message);
-	strcpy(FileName[wCsoundInstruments],final_name);
+	// Note that line2 contains the path (csound_resources)
+	sprintf(Message,"../%s",line2);
+	strcpy(FileName[wCsoundInstruments],Message);
 	if((result = LoadCsoundInstruments(0,1)) != OK) return(result);
 	pos += strlen(line2);
 	}
@@ -2899,7 +2839,8 @@ if(iv > 4 && newbols) {
 		CompiledGr = compilemem;
 		}
 	}
-diff = FALSE;
+
+diff = FALSE; // Old variable for backward  compatibility. It should be suppressed.
 
 if(trace_load_prototypes) BPPrintMessage(odInfo, "Final Jbol = %d\n",Jbol);
 // if(iv > 3) { 
@@ -3008,14 +2949,10 @@ if(trace_load_prototypes) BPPrintMessage(odInfo,"line3 = %s\n",*p_line);
 	if(!diff) (*p_MaxTruncEnd)[j] = k;
 	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
 	if(!diff) (*p_PivMode)[j] = s;
-
-if(ReadFloat(mifile,&r,&pos) == FAILED) goto ERR;
-(*p_PivPos)[j] = r;
-
+	if(ReadFloat(mifile,&r,&pos) == FAILED) goto ERR;
+		(*p_PivPos)[j] = r;
 	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
 	if(!diff) (*p_AlphaCtrlNr)[j] = s;
-
-
 	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
 	if(!diff) (*p_AlphaCtrlChan)[j] = s;
 	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
@@ -3028,10 +2965,8 @@ if(ReadFloat(mifile,&r,&pos) == FAILED) goto ERR;
 	if(!diff) (*p_OkPan)[j] = s;
 	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
 	if(!diff) (*p_OkMap)[j] = s;
-
-		if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
 		(*p_OkVelocity)[j] = s;
-
 	if(ReadFloat(mifile,&r,&pos) == FAILED) goto ERR;
 	if(!diff) (*p_PreRoll)[j] = r;
 	if(ReadFloat(mifile,&r,&pos) == FAILED) goto ERR;
@@ -3052,28 +2987,11 @@ if(ReadFloat(mifile,&r,&pos) == FAILED) goto ERR;
 	if(!diff) (*p_StrikeAgain)[j] = s;
 	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
 	if(!diff) (*p_CsoundAssignedInstr)[j] = s;
-
-		if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
+	if(ReadInteger(mifile,&s,&pos) == FAILED) goto ERR;
 		(*p_CsoundInstr)[j] = s;
-
-/*	else {
-		if(!diff) (*p_CsoundInstr)[j] = 0;
-		} */
 	if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
 	if(!diff) (*p_Tpict)[j] = k;
-
-/*else {
-	if(!diff) {
-		(*p_PreRoll)[j] = (*p_PostRoll)[j] = ZERO;
-		(*p_Tpict)[j] = ZERO;
-		(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = RELATIVE;
-		(*p_PeriodMode)[j] = IRRELEVANT;
-		(*p_BeforePeriod)[j] = (*p_CsoundInstr)[j] = 0.;
-		(*p_ForceIntegerPeriod)[j] = (*p_DiscardNoteOffs)[j] = FALSE;
-		(*p_StrikeAgain)[j] = (*p_CsoundAssignedInstr)[j] = -1;
-		}
-	} */
-if(iv > 21) {
+if(iv > 21) { // These are no longer used
 	if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
 	if(!diff) (*p_ObjectColor)[j].red = k;
 	if(ReadLong(mifile,&k,&pos) == FAILED) goto ERR;
@@ -3093,14 +3011,16 @@ else {
 	/* Read pp_CsoundScoreText */
 if(ReadOne(FALSE,FALSE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 StripHandle(p_line);
-// if(trace_load_prototypes) BPPrintMessage(odInfo, "line2 = %s\n",*p_line);
+if(trace_load_prototypes) BPPrintMessage(odInfo, "line2 = %s\n",*p_line);
 
 if(Mystrcmp(p_line,"_beginCsoundScore_") != 0) goto ERR;
 
 if(ReadOne(FALSE,FALSE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
 
+if(trace_load_prototypes) BPPrintMessage(odInfo, "line3 = %s\n",*p_line);
+
 if((ptr = (Handle) GiveSpace(MyGetHandleSize((Handle)p_completeline))) == NULL) goto ERR;
-    (*pp_CsoundScoreText)[j] = ptr;
+    (*pp_CsoundScoreText)[j] = (char**) ptr;
 MystrcpyHandleToHandle(0,&((*pp_CsoundScoreText)[j]),p_completeline);
 
 if((rep=CompileObjectScore(j,&longerCsound)) != OK) {
@@ -3108,8 +3028,10 @@ if((rep=CompileObjectScore(j,&longerCsound)) != OK) {
 	goto ERR;
 	}
 Dirty[iObjects] = Dirty[wPrototype7] = FALSE;
+if(trace_load_prototypes) BPPrintMessage(odInfo,"Compiled Csound score\n");
 
 if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
+if(trace_load_prototypes) BPPrintMessage(odInfo, "line4 = %s\n",*p_line);
 if(Mystrcmp(p_completeline,"_endCsoundScore_") == 0) goto READSIZE;
 else goto ERR;
 

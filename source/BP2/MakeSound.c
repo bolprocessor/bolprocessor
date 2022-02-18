@@ -42,7 +42,7 @@ extern int resize;
 
 int trace_csound_pianoroll = 0;
 
-MakeSound(int *p_kmax,unsigned long imaxstreak,int maxnsequences,
+int MakeSound(int *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	tokenbyte ***pp_b,long tmin,long tmax,int interruptok,int showpianoroll,
 	Milliseconds **p_delta)
 {
@@ -735,9 +735,11 @@ TRYCSFILE:
 		if(Pclock > 0.) 	{	/* Striated or measured smooth time */
 			if(Simplify((double)INT_MAX,60L*Qclock,Pclock,&p,&q) != OK)
 				Simplify((double)INT_MAX,Qclock,floor(Pclock/60L),&p,&q);
-			sprintf(Message,"t %.3f %.3f",
+		/*	sprintf(Message,"t %.3f %.3f",
 				((double) torigin) * Qclock / ((double) Pclock) / 1000.,
-				((double) p)/q);
+				((double) p)/q); */
+			sprintf(Message,"t %.3f 60",
+				((double) torigin) * Qclock / ((double) Pclock) / 1000.); // Fixed by BB 2022-02-18
 			}
 		else {	/* Unmeasured smooth time */
 			sprintf(Message,"t %.3f 60",((double) torigin) / 1000.);
@@ -1258,7 +1260,8 @@ SWITCHES:
 					e.time = Tcurr;
 					e.type = NORMAL_EVENT; // Maybe WRONG if AlpahCtrlNr < 64
 					e.status = ControlChange + alphach;
-					e.data1 = ByteToInt((*p_AlphaCtrlNr)[j]);
+				//	e.data1 = ByteToInt((*p_AlphaCtrlNr)[j]);
+					e.data1 = (*p_AlphaCtrlNr)[j]; // Fixed by BB 2022-02-17
 					e.data2 = alph;
 					if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 					}

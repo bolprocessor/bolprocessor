@@ -42,7 +42,7 @@
 
 #if BP_CARBON_GUI
 
-SaveAs(Str255 fn,FSSpec *p_spec,int w)
+int SaveAs(Str255 fn,FSSpec *p_spec,int w)
 // The "save as..." command
 // w is the index of the window whose text we'll save to a file
 {
@@ -98,7 +98,7 @@ return(FAILED);
 }
 
 
-SaveFile(Str255 fn,FSSpec *p_spec,int w)
+int SaveFile(Str255 fn,FSSpec *p_spec,int w)
 // Save the content of window index w to a file, the specs of it you think you know
 {
 short refnum;
@@ -505,7 +505,7 @@ Boolean CanSaveMultipleFormats(int w)
    text documents, document types that use dialogs (e.g. Time-base) 
    usually pass -1 (there are exceptions) and document types without a 
    dedicated window pass -1 as well. */
-NewFile(int w, int type, Str255 fn, NSWReply *p_reply)
+int NewFile(int w, int type, Str255 fn, NSWReply *p_reply)
 // Check whether the file we're creating is a new one, and get its specs in a reply record
 {
 	NavMenuItemSpecArrayHandle formatItems = NULL;
@@ -555,7 +555,7 @@ NewFile(int w, int type, Str255 fn, NSWReply *p_reply)
 }
 
 
-OldFile(int w,int type,Str255 fn,FSSpec *p_spec)
+int OldFile(int w,int type,Str255 fn,FSSpec *p_spec)
 // Select a file you want to open
 // w is the index of the text window to which this file will be saved
 // p_spec doesn't matter on entry.  It returns the "file specs" record used afterwards
@@ -794,7 +794,7 @@ int PromptForFileFormat(int w, char* filename, int* type)
    wref seems to be the index for the document window if one exists,
    otherwise it is -1. wref is used to save the temp file FSSpec when
    doing a safe save. (Therefore, a value of -1 does an "unsafe" save. */
-CreateFile(int wref,int w,int type,Str255 fn,NSWReply *p_reply,short *p_refnum)
+int CreateFile(int wref,int w,int type,Str255 fn,NSWReply *p_reply,short *p_refnum)
 {
 int io,already;
 FSSpec spec;
@@ -913,7 +913,8 @@ return(FAILED);
 }
 
 
-WriteFile(int forcelf,int format,short refnum,int w,long num)
+int WriteFile(int forcelf,int format,short refnum,int w,long num)
+// OBSOLETE
 /* This writes the content of the text handle in window w to the file */
 /* It also calls for HTML conversion if needed */
 {
@@ -999,7 +1000,7 @@ return(r);
 }
 
 
-ReadFile(int w, short refnum)
+int ReadFile(int w, short refnum)
 // Read content of file to a text handle in window index w
 // This also calls the automatic HTML converter
 {
@@ -1115,8 +1116,8 @@ for(i=is; i < count; i++) {
 	c = (*p_buffer)[i];
 	j = i - is + offset;
 	
-	/* 'Â' means the line continues on the next line */
-//	if(((oldc != 'Â' || !bindlines) && (c == '\n' || c == '\r')) || c == '\0' || j >= (size-discount-1)) {
+	/* 'ï¿½' means the line continues on the next line */
+//	if(((oldc != 'ï¿½' || !bindlines) && (c == '\n' || c == '\r')) || c == '\0' || j >= (size-discount-1)) {
 	if(c == '\n' || c == '\r' || c == '\0' || j >= (size-discount-1)) { // Fixed by BB 2021-02-14
 		(*p_pos) += (i + 1);
 		fseek(fin,*p_pos,SEEK_SET);
@@ -1136,7 +1137,7 @@ for(i=is; i < count; i++) {
 		goto OUT;
 		}
 	oldc = c;
-	if(strip && ((c == 'Â' && !bindlines) || c == '\r')) is++;
+	if(strip && (/* (c == 'ï¿½' && !bindlines) || */ c == '\r')) is++; // Fixed by BB 2022-02-18
 	else {
 		(**pp_line)[j] = c;
 		(**pp_completeline)[j] = c;
@@ -1292,8 +1293,29 @@ return(rep);
 }
 
 
+int NewWriteToFile(char* line,FILE* fout) {
+// We should use this procedure in replacement of WriteToFile()
+// Writes the line and a return to the file
+
+	int res;
+	OSErr io;
+	size_t written, numbytes;
+	char* line2;
+
+	numbytes = strlen(line);
+	sprintf(line2,"%s\n",line);
+	written = fwrite(line2, (size_t)1, (size_t) numbytes, fout);
+	if(written < numbytes)	{
+		BPPrintMessage(odError, "=> Error while writing to file.\n");
+		return ABORT;
+		}
+	return(OK);
+	}
+
+
 int WriteToFile(int careforhtml,int format,char* line,short refnum)
 // Writes the line and a return to the file
+// Obsolete because of using FSWrite, should be replaced with NewWriteToFile() as fwrite() is already used for writing MIDI files
 {
 int res;
 long count;
@@ -1306,9 +1328,9 @@ if(refnum == -1) {
 	}
 p_line = NULL;
 if ((res = MystrcpyStringToHandle(&p_line, line)) != OK) return res;
-if (careforhtml) {
+/* if (careforhtml) {
 	if ((res = MacToHTML(NO, &p_line, YES)) != OK) return res;
-	}
+	} */
 
 #if BP_CARBON_GUI
 count = (long) MyHandleLen(p_line);
@@ -1385,7 +1407,7 @@ return(OK);
 /* FIXME ? CheckTextSize() is generally called after TextInsert() to see if the
    TextEdit buffer was overrun.  Should modify this (if we want to keep TE) so 
    that the check can occur before the TextInsert(). - akozar 20130903 */
-CheckTextSize(int w)
+int CheckTextSize(int w)
 {
 long n;
 
@@ -1441,7 +1463,7 @@ return(io);
 
 #endif /* BP_CARBON_GUI */
 
-CleanLF(char** p_buffer,long* p_count,int* p_dos)
+int CleanLF(char** p_buffer,long* p_count,int* p_dos)
 // Remove line feeds from buffer and transcode high ASCII so that
 // DOS files may be read
 {
@@ -1468,7 +1490,7 @@ for(i=j=0; ; i++) {
 	while((c=(*p_buffer)[i+j]) == '\n' && (i == 0 || (*p_buffer)[i+j-1] == '\r')) {
 		j++; (*p_count)--;
 		}
-	DOStoMac(&c);
+	// DOStoMac(&c); Fixed by BB 2022-02-18
 	(*p_buffer)[i] = c;
 	}
 return(OK);
@@ -1476,7 +1498,7 @@ return(OK);
 
 #if BP_CARBON_GUI
 
-OpenHelp(void)
+int OpenHelp(void)
 {
 OSErr io;
 int type,r;
@@ -1562,7 +1584,7 @@ return(rep);
 }
 
 
-OpenTemp(void)
+int OpenTemp(void)
 {
 if(TempRefnum != -1) {
 	if(Beta) Alert1("=> Err. OpenTemp(). TempRefnum != -1");
@@ -1572,7 +1594,7 @@ return CreateTemporaryFile(&TempSpec, &TempRefnum, kBPTempFile, TRUE);
 }
 
 
-OpenTrace(void)
+int OpenTrace(void)
 {
 FSSpec tracespec;	// not saved
 
@@ -1639,7 +1661,7 @@ return(io);
 }
 
 
-CheckFileName(int w,char *filename,FSSpec *p_spec,short *p_refnum,int type,int openreally)
+int CheckFileName(int w,char *filename,FSSpec *p_spec,short *p_refnum,int type,int openreally)
 // The file couldn't be opened.  Try to find its actual name and location
 // If openreally is false it means we're just checking, not opening
 {
@@ -1765,7 +1787,7 @@ return(io == noErr);
 
 
 #if BP_CARBON_GUI
-FlushFile(short refnum)
+int FlushFile(short refnum)
 {
 IOParam pb;
 OSErr io;
@@ -1783,7 +1805,7 @@ return(io == noErr);
 #endif /* BP_CARBON_GUI */
 
 
-GetVersion(int w)
+int GetVersion(int w)
 {
 int i,j,diff,r,fileversion;
 long pos,posho,posmax;
@@ -1869,7 +1891,7 @@ return(FAILED);
 }
 
 
-GetFileDate(int w,char ***pp_result)
+int GetFileDate(int w,char ***pp_result)
 {
 int i,diff,gap,result;
 long pos,posmax;
@@ -1892,7 +1914,7 @@ return(OK);
 }
 
 
-GetDateSaved(char **p_line,char ***pp_result)
+int GetDateSaved(char **p_line,char ***pp_result)
 {
 char c,*p,*q;
 int i0,offset;
@@ -1919,7 +1941,7 @@ return(FAILED);
 
 #if BP_CARBON_GUI
 
-WriteHeader(int w,short refnum,FSSpec spec)
+int WriteHeader(int w,short refnum,FSSpec spec)
 {
 char line[MAXLIN],name[64],**p_line;
 long count;
@@ -1981,7 +2003,7 @@ return(OK);
 }
 
 
-WriteEnd(int w,short refnum)
+int WriteEnd(int w,short refnum)
 {
 char line[MAXLIN],name[MAXNAME+1],**p_line;
 long count;
@@ -1998,7 +2020,7 @@ return(OK);
 }
 
 
-GetHeader(int w)
+int GetHeader(int w)
 {
 if(!Editable[w]) return(OK);
 switch(w) {
@@ -2031,7 +2053,7 @@ return(OK);
 
 #endif /* BP_CARBON_GUI */
 
-FindVersion(char **p_line,char* version)
+int FindVersion(char **p_line,char* version)
 {
 char c,*p;
 int i;
@@ -2138,7 +2160,7 @@ pascal void PutFileEventProc(NavEventCallbackMessage callBackSelector,
 	
 	fileutil.c   (from Norstad's Reusables)
 	
-	Copyright © 1994-1995, Northwestern University.
+	Copyright ï¿½ 1994-1995, Northwestern University.
 
 ----------------------------------------------------------------------------*/
 

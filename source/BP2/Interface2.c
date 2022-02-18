@@ -177,7 +177,7 @@ return(OK);
 }
 
 
-ClearMessage(void)
+int ClearMessage(void)
 {
 SelectBehind(ZERO,GetTextLength(wMessage),TEH[wMessage]);
 TextDelete(wMessage);
@@ -186,7 +186,7 @@ return(OK);
 }
 
 
-FlashInfo(char* s)
+int FlashInfo(char* s)
 {
 SelectBehind(ZERO,GetTextLength(wInfo),TEH[wInfo]);
 TextDelete(wInfo);
@@ -203,7 +203,7 @@ return(OK);
 
 #endif /* BP_CARBON_GUI */
 
-SelectSomething(int w)
+int SelectSomething(int w)
 /* Select line on which cursor is flashing */
 {
 long startpos,endpos,length;
@@ -235,24 +235,24 @@ return(OK);
 
 char Filter(char c)
 {
-switch(c) {
-	case 'Ð':
-	case 'Ñ':
+/* switch(c) { Fixed by BB 2022-02-18
+	case 'ï¿½':
+	case 'ï¿½':
 		c = '-'; break;
-	case 'Ô':
-	case 'Õ':
+	case 'ï¿½':
+	case 'ï¿½':
 		c = '\''; break;
-	case 'Ò':
-	case 'Ó':
+	case 'ï¿½':
+	case 'ï¿½':
 		c = '"'; break;
-	case 'á':
-		c = '¥'; break;
-	}
+	case 'ï¿½':
+		c = 'ï¿½'; break;
+	} */
 return(c);
 }
 
 
-ReadLine(int nocomment,int w,long *p_i,long im,char ***pp_line,int* p_gap)
+int ReadLine(int nocomment,int w,long *p_i,long im,char ***pp_line,int* p_gap)
 /* Read unlimited line in TExt buffer */
 {
 int j,k,jm;
@@ -295,7 +295,7 @@ while(TRUE) {
 			end++;
 			}
 		}
-	if((c == '\r' || c == '\n') && oldc != 'Â') break;
+	if((c == '\r' || c == '\n') /* && oldc != 'ï¿½' */) break;
 	if(c == '\0' || end >= im) break;
 	oldc = c;
 NEXTCHAR:
@@ -333,7 +333,7 @@ return(FAILED);
 }
 
 
-ReadLine1(int check,int w,long *p_i,long im,char *line,int size)
+int ReadLine1(int check,int w,long *p_i,long im,char *line,int size)
 /* Read line in TExt buffer.  Old version: length is limited to 'size'. */
 {
 int j,k,l;
@@ -395,7 +395,7 @@ return(OK);
 }
 
 
-IsEmpty(int w)
+int IsEmpty(int w)
 {
 int j,len,gap,rep;
 char c,*q,**p_line,line[MAXLIN];
@@ -447,7 +447,7 @@ else return(FALSE);
 
 #if BP_CARBON_GUI
 
-DoArrowKey(int w,char thechar,int shift,int option)
+int DoArrowKey(int w,char thechar,int shift,int option)
 {
 switch(thechar) {
 	case '\34':	/* Left arrow */
@@ -474,7 +474,7 @@ return(OK);
 }
 
 
-TypeChar(int thechar,int shift)
+int TypeChar(int thechar,int shift)
 {
 int i,j,cutall,arrowkey;
 char firstchar,diffchar;
@@ -542,7 +542,7 @@ if(Editable[Nw]) {
 		DoKey(thechar,0,th);
 		TextAutoView(FALSE,FALSE,th);
 		if(cutall) ClearWindow(FALSE,Nw);
-		if(thechar == 'Â') {
+		if(thechar == 'ï¿½') {
 			thechar = '\r';
 			DoKey(thechar,0,th);
 			}
@@ -570,7 +570,7 @@ return(OK);
 #define maxctrl 500
 #define maxpage 25
 
-DoThings(char ****p_thing, int jmin, int jmax, int** pp_index,int widmax, IntProcPtr p_proc,
+int DoThings(char ****p_thing, int jmin, int jmax, int** pp_index,int widmax, IntProcPtr p_proc,
 	char failedstring[], int ctrltype)
 {
 DialogPtr p_dia;
@@ -776,7 +776,7 @@ return(result);
 }
 
 
-GetClickedWord(int w,char* line)
+int GetClickedWord(int w,char* line)
 // Select epression between quotes, if any, or between spaces, or performance control, tool, procedure...
 {
 char c;
@@ -834,7 +834,7 @@ return(OK);
 }
 
 
-ShowHelpOnText(int w)
+int ShowHelpOnText(int w)
 {
 char line[MAXLIN];
 int r;
@@ -906,7 +906,7 @@ return(rep);
 }
 
 
-AnswerWith(char message[],char defaultvalue[],char value[])
+int AnswerWith(char message[],char defaultvalue[],char value[])
 {
 Rect r;
 Handle itemhandle;
@@ -953,7 +953,7 @@ return(rep);
 }
 
 
-Alert1(char s[])
+int Alert1(char s[])
 {
 char line[255];
 int i;
@@ -997,7 +997,7 @@ return(OK);
 
 #if BP_CARBON_GUI
 
-SetOptionMenu(int option)
+int SetOptionMenu(int option)
 {
 if(option)
 	sprintf(Message,"Open (any) file...");
@@ -1075,7 +1075,7 @@ return(OK);
 
 #if BP_CARBON_GUI
 
-MoveLine(int w,int n,int select)
+int MoveLine(int w,int n,int select)
 // Move cursor to beginning of line (n = -1) or end of line (n = +1)
 {
 char c,oldc;
@@ -1116,7 +1116,7 @@ return(OK);
 }
 
 
-MoveWord(int w,int n,int select,int option)
+int MoveWord(int w,int n,int select,int option)
 // Move cursor to previous word (n = -1) or next word (n = +1)
 {
 char c,oldc;
@@ -1179,7 +1179,7 @@ return(OK);
 }
 
 
-MovePage(int w,int n)
+int MovePage(int w,int n)
 // Move cursor n pages down
 {
 long pos,posend,length,linelength,pagejump;
@@ -1200,7 +1200,7 @@ return(OK);
 }
 
 
-MoveParagraph(int w,int n,int select)
+int MoveParagraph(int w,int n,int select)
 // Move cursor n paragraphs down
 {
 char c,oldc;
@@ -1220,7 +1220,7 @@ if(n < 0) {
 		while(GetTextChar(w,i) == '\r') i--;
 		for(i=i; i > 0; i--) {
 			c = GetTextChar(w,i);
-			if(oldc == '\r' && c != 'Â') n++;
+			if(oldc == '\r' && c != 'ï¿½') n++;
 			if(n == 0) {
 				i += 2;
 				break;
@@ -1232,7 +1232,7 @@ if(n < 0) {
 else {
 	for(i=posend; i <= posmax; i++) {
 		c = GetTextChar(w,i);
-		if(c == '\r' && oldc != 'Â') n--;
+		if(c == '\r' && oldc != 'ï¿½') n--;
 		if(n == 0) {
 			i++;
 			while(GetTextChar(w,i) == '\r') i++;
@@ -1254,7 +1254,7 @@ return(OK);
 
 #endif /* BP_CARBON_GUI */
 
-SelectBehind(long pos1,long pos2,TextHandle teh)
+int SelectBehind(long pos1,long pos2,TextHandle teh)
 /* Doesn't force selection to scroll */
 {
 #if !USE_MLTE
@@ -1285,7 +1285,7 @@ return(OK);
 }
 
 
-TextDeleteBehind(int w)
+int TextDeleteBehind(int w)
 {
 Deactivate(TEH[w]);
 TextDelete(w);
@@ -1326,7 +1326,7 @@ return(OK);
 }
 
 
-ChangeNames(char **p_line)
+int ChangeNames(char **p_line)
 // p_line contains a list of names that must be applied to the current files
 // This is mainly used by Apple Events
 {
@@ -1424,7 +1424,7 @@ return(r);
 
 #endif /* BP_CARBON_GUI */
 
-FindGoodIndex(int wind)
+int FindGoodIndex(int wind)
 {
 if(wind < 0 || wind >= WMAX) {
 	if(Beta) Alert1("=> Err. FindGoodIndex(). Incorrect index");
@@ -1449,7 +1449,7 @@ return(wind);
 
 #if BP_CARBON_GUI
 
-MyButton(int quick)
+int MyButton(int quick)
 {
 // quick = 0 --> process any event (slowest)
 // quick = 1 --> process any event except activate. This notably includes update events.
@@ -1542,9 +1542,9 @@ DoSystem();
 if(result == OK) return(FAILED);
 else return(result);
 }
+#endif /* BP_CARBON_GUI */
 
-
-TellError(int thecase,OSErr oserr)
+int TellError(int thecase,OSErr oserr)
 {
 char line[MAXLIN];
 int r;
@@ -1557,7 +1557,8 @@ if(oserr != noErr) {
 		if(TempRefnum > -1) WriteToFile(NO,MAC,Message,TempRefnum);
 		}
 	r = ABORT;
-	switch(oserr) {
+	return(r);
+	/* switch(oserr) { Fixed by BB 2022-02-18
 		case procNotFound: sprintf(line,"Process not found");
 			break;
 		case paramErr: sprintf(line,"paramErr: attempting to open folder instead of file, or 'inOutCount' was negative, or no default volume, or process serial number is invalid");
@@ -1602,21 +1603,21 @@ if(oserr != noErr) {
 			strcpy(line,"Disk is write-protected"); break;
 		case wrPermErr:
 			strcpy(line,"Write permission denied"); break;
-		case errAEDescNotFound: /* -1701 */
+		case errAEDescNotFound: 
 			strcpy(line,"Unexpected error: 'Apple Event descriptor not found'."); break;
-		case errAECorruptData:	/* -1702 */
+		case errAECorruptData:	
 			strcpy(line,"Unexpected error: 'Data in an Apple Event could not be read'."); break;
-		case errAENotAppleEvent:	/* -1707 */
+		case errAENotAppleEvent:	
 			strcpy(line,"Unexpected error: 'Event is not Apple Event'."); break;
-		case errAEReplyNotValid:	/* -1709 */
+		case errAEReplyNotValid:
 			strcpy(line,"Unexpected error: 'AEResetTimer was passed an invalid reply parameter'."); break;
-		case errAEHandlerNotFound:	/* -1717 */
+		case errAEHandlerNotFound:
 			strcpy(line,"Unexpected error: 'no handler in the dispatch tables fits the parameters to AEGetEventHandler or AEGetCoercionHandler'."); break;
-		case errAEEventNotHandled:	/* -1708 */
+		case errAEEventNotHandled:
 			strcpy(line,"Unexpected error: 'Event was not handled by an Apple Event handler'."); break;
 		case errAENewerVersion:
 			strcpy(line,"Version of Apple Event Manager is too old. Event couldn't be handled."); break;
-		case errAEParamMissed:	/* -1715 */
+		case errAEParamMissed:
 			strcpy(line,"Unexpected error: 'a required parameter was not accessed' in Apple Event handling."); break;
 		case connectionInvalid:
 			strcpy(line,"Apple Event error: invalid connection."); break;
@@ -1626,25 +1627,25 @@ if(oserr != noErr) {
 			strcpy(line,"Unknown Apple Event address type."); break;
 		case errAEUnknownSendMode:
 			strcpy(line,"Unknown Apple Event sending mode."); break;
-		case nilHandleErr:	/* -109 */
+		case nilHandleErr:
 			strcpy(line,"Unexpected error: 'illegal operation on a NIL handle'"); break;
-		case memWZErr:	/* -111 */
+		case memWZErr:
 			strcpy(line,"Unexpected error: 'illegal operation on a free block'"); break;
 		case memPurErr: strcpy(line,"Unexpected error: 'illegal operation on a locked block'"); break;
-		case memFullErr:	/* -108 */
+		case memFullErr:
 			EmergencyExit = TRUE;
 			strcpy(line,"Unexpected 'memory full' error... You should resize 'BP2'."); break;
-		case memAdrErr:	/* -110 */
+		case memAdrErr:	
 			strcpy(line,"Unexpected error: 'memAdrErr'. Ignored..."); break;
-		case memAZErr:	/* -113 */
+		case memAZErr:
 			strcpy(line,"Unexpected error: 'memAZErr'. Ignored..."); break;
-		case memPCErr:	/* -114 */
+		case memPCErr:
 			strcpy(line,"Unexpected error: 'memPCErr'. Ignored..."); break;
-		case memBCErr:	/* -115 */
+		case memBCErr:
 			strcpy(line,"Unexpected error: 'memBCErr'. Ignored..."); break;
-		case memSCErr:	/* -116 */
+		case memSCErr:
 			strcpy(line,"Unexpected error: 'memSCErr'. Ignored..."); break;
-		case memLockedErr:	/* -117 */
+		case memLockedErr:
 			strcpy(line,"Unexpected error: 'memLockedErr'. Ignored..."); break;
 		case -919:
 			strcpy(line,"Unexpected error: 'PPC record is invalid'"); break;
@@ -1658,12 +1659,10 @@ if(oserr != noErr) {
 //		FlushVolume();
 		if(Beta) Println(wTrace,line);
 		ShowMessage(TRUE,wMessage,line);
-		}
+		} */
 	}
 return(r);
 }
-
-#endif /* BP_CARBON_GUI */
 
 #if 0
 GetString1(char *s)
@@ -1735,7 +1734,7 @@ return(OK);
 
 #if BP_CARBON_GUI
 
-CheckSettings(void)
+int CheckSettings(void)
 {
 int rep;
 
@@ -1753,7 +1752,7 @@ return(rep);
 }
 
 
-SaveCheck(int w)
+int SaveCheck(int w)
 {
 int wmem,vref,rep,result,dirtymem;
 
@@ -1815,7 +1814,7 @@ return(result);
 
 #endif /* BP_CARBON_GUI */
 
-CompileCheck(void)
+int CompileCheck(void)
 {
 int r,compiledgl;
 
@@ -1850,7 +1849,7 @@ return(r);
 
 #if BP_CARBON_GUI
 
-FindReplace(int all)
+int FindReplace(int all)
 {
 int i=0,done=FALSE,redo=FALSE,start=TRUE,rep;
 Rect r;
@@ -1906,7 +1905,7 @@ return(OK);
 }
 
 
-GetNextOccurrence(int *p_redo,int start)
+int GetNextOccurrence(int *p_redo,int start)
 {
 int i,j,k,w,jmax,rep;
 long dummy,pos,posmax;
@@ -1954,7 +1953,7 @@ return(rep);
 }
 
 
-Replace(void)
+int Replace(void)
 {
 long count;
 
@@ -1971,7 +1970,7 @@ return(OK);
 }
 
 
-GetReplaceCommand(void)
+int GetReplaceCommand(void)
 {
 Rect r;
 short theitem;
@@ -2032,7 +2031,7 @@ return(theitem);
 }
 
 
-SetFindReplace(void)
+int SetFindReplace(void)
 {
 Rect r;
 ControlHandle itemhandle;
@@ -2052,7 +2051,7 @@ return(OK);
 }
 
 
-GetFindReplace(void)
+int GetFindReplace(void)
 {
 Rect r;
 Handle itemhandle;
@@ -2081,7 +2080,7 @@ return(OK);
 
 #if BP_CARBON_GUI
 
-SetField(DialogPtr ptr,int w,int ifield,char* string)
+int SetField(DialogPtr ptr,int w,int ifield,char* string)
 {
 OSErr err;
 Rect r;
@@ -2130,7 +2129,7 @@ return(DoSystem());
 }
 
 
-GetField(DialogPtr ptr,int forcenum,int w,int ifield,char *line,long *p_p,long *p_q)
+int GetField(DialogPtr ptr,int forcenum,int w,int ifield,char *line,long *p_p,long *p_q)
 {
 Rect r;
 Handle itemhandle;
@@ -2196,7 +2195,7 @@ return(rep);
 }
 
 
-GetValue(DialogPtr ptr,int w,int j,int field,double **p_v[],int i)
+int GetValue(DialogPtr ptr,int w,int j,int field,double **p_v[],int i)
 {
 long p,q;
 char line[MAXFIELDCONTENT];
@@ -2243,7 +2242,7 @@ return(GetControlValue(itemhandle));
 }
 
 
-ToggleButton(int w,int icontrol)
+int ToggleButton(int w,int icontrol)
 {
 Rect r;
 ControlHandle itemhandle;
@@ -2267,14 +2266,14 @@ return(DoSystem());
 }
 
 
-SwitchOnOff(DialogPtr ptr,int w,int i,int state)
+int SwitchOnOff(DialogPtr ptr,int w,int i,int state)
 {
 if(state == TRUE) return(SwitchOn(ptr,w,i));
 else return(SwitchOff(ptr,w,i));
 }
 
 
-SwitchOn(DialogPtr ptr,int w,int i)
+int SwitchOn(DialogPtr ptr,int w,int i)
 {
 Rect r;
 short itemtype;
@@ -2309,7 +2308,7 @@ return(OK);
 }
 
 
-SwitchOff(DialogPtr ptr,int w,int i)
+int SwitchOff(DialogPtr ptr,int w,int i)
 {
 Rect r;
 short itemtype;
@@ -2344,7 +2343,7 @@ return(OK);
 }
 
 
-ShowPannel(int w, int i)
+int ShowPannel(int w, int i)
 {
 Rect r;
 short itemtype;
@@ -2369,7 +2368,7 @@ return(OK);
 }
 
 
-HidePannel(int w, int i)
+int HidePannel(int w, int i)
 {
 Rect r;
 short itemtype;
@@ -2394,7 +2393,7 @@ return(OK);
 }
 
 
-SelectField(DialogPtr ptr,int w,int ifield,int all)
+int SelectField(DialogPtr ptr,int w,int ifield,int all)
 {
 DialogPtr thedialog;
 
@@ -2414,7 +2413,7 @@ return(OK);
 }
 
 
-ShowLengthType(int w)
+int ShowLengthType(int w)
 {
 long n;
 char line[MAXLIN];
@@ -2436,7 +2435,7 @@ return(OK);
 }
 
 
-OutlineTextInDialog(int w,int active)
+int OutlineTextInDialog(int w,int active)
 {
 Rect r;
 Pattern pat;

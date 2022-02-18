@@ -40,7 +40,7 @@
 
 int trace_compile_grammar = 0;
 
-CompileGrammar(int mode)
+int CompileGrammar(int mode)
 {
 int i,istart,igram,irul,gap,check,needsnumber,fatal,onerulefound,tracecompile,r,rep,
 	dirtymem,done,changednumber;
@@ -421,7 +421,7 @@ else {
 }
 
 
-InsertSubgramTypes(void)	/* Insert 'ORD', 'RND', etc. */
+int InsertSubgramTypes(void)	/* Insert 'ORD', 'RND', etc. */
 {
 long pos,posmax,posline;
 double n,d;
@@ -528,7 +528,7 @@ return(OK);
 }
 
 
-Renumber(char **p_line,long posline,long *p_pos,int igram,int irul,
+int Renumber(char **p_line,long posline,long *p_pos,int igram,int irul,
 	long *p_posmax,int *p_changednumber)
 {
 /* register */ int i,j,k;
@@ -650,7 +650,7 @@ return(OK);
 }
 
 
-CheckGotoFailed(void)
+int CheckGotoFailed(void)
 {
 int i,igram,irul,ig,ir,newig,newir;
 
@@ -764,7 +764,7 @@ return(OK);
 }
 
 
-UpdateProcedureIndex(int jproc,int igram,int irul,int ig,int ir,int mode)
+int UpdateProcedureIndex(int jproc,int igram,int irul,int ig,int ir,int mode)
 {
 long pos,posmax,pos1,pos2,posline;
 char c,*p,*q,**qq,**p_line;
@@ -843,7 +843,7 @@ return(OK);
 }
 
 
-NewIndex(int *p_ig, int *p_ir)
+int NewIndex(int *p_ig, int *p_ir)
 {
 int igram,irul;
 for(igram=1; igram <= Gram.number_gram; igram++) {
@@ -861,7 +861,7 @@ return(OK);
 }
 
 
-CompileAlphabet(void)
+int CompileAlphabet(void)
 {
 int rep;
 
@@ -920,7 +920,7 @@ return(rep);
 }
 
 
-ReadAlphabet(int justcount)
+int ReadAlphabet(int justcount)
 {
 long pos,posmax;
 char *q,**p_line,line[MAXLIN],operatorbetweenquotes[MAXLIN];
@@ -1082,7 +1082,7 @@ else return(OK);
 }
 
 
-AddBolsInGrammar(void)
+int AddBolsInGrammar(void)
 {
 /* register */ int i,j=0,rem;
 int gap;
@@ -1111,7 +1111,7 @@ return(j);
 }
 
 
-GetHomomorph(char **p_line,int justcount)
+int GetHomomorph(char **p_line,int justcount)
 {
 /* register */ int i,j;
 
@@ -1135,7 +1135,7 @@ return(0);
 }
 
 
-GetBols(char **p_line,int justcount,int operatorthere)
+int GetBols(char **p_line,int justcount,int operatorthere)
 {
 char c,**p_y,*p,*q;
 int i,j,k,k1,k2,l,length,r;
@@ -1206,7 +1206,7 @@ return(r);
 }
 
 
-GetBol(char **p_line,int *p_i)
+int GetBol(char **p_line,int *p_i)
 {
 int i,j;
 char c,line[MAXLIN];
@@ -1250,7 +1250,7 @@ return(-1);
 }
 
 
-OkChar(char c)
+int OkChar(char c)
 // Characters accepted in variable names
 {
 /* if(isalnum(c)) return(TRUE); */
@@ -1265,71 +1265,71 @@ switch(c) {
 	case '$':
 	case '"':
 	case '\\':
-//	case '¤':
-//	case '¥':
+//	case 'ï¿½':
+//	case 'ï¿½':
 		return(TRUE);
 	}
 return(FALSE);
 }
 
 
-OkBolChar(char c)
+int OkBolChar(char c)
 // Characters accepted as first one of terminal name
 {
 if(islower(c) || isupper(c)) return(YES); /* Modified 23/11/2009 BB */
 /* switch(c) {
-	case '€':
-	case '':
-	case '‚':
-	case 'ƒ':
-	case '„':
-	case '…':
-	case '†':
-	case '‡':
-	case 'ˆ':
-	case '‰':
-	case 'Š':
-	case '‹':
-	case 'Œ':
-	case '':
-	case 'Ž':
-	case '':
-	case '':
-	case '‘':
-	case '’':
-	case '“':
-	case '”':
-	case '•':
-	case '–':
-	case '—':
-	case '˜':
-	case '™':
-	case 'š':
-	case '›':
-	case 'œ':
-	case '':
-	case 'ž':
-	case 'Ÿ':
-	case '®':
-	case '¾':
-	case '¿':
-	case 'Ë':
-	case 'Ì':
-	case 'Í':
-	case 'Î':
-	case 'Ï':
-	case 'Ø':
-	case '§':
-	case '¯':
-	case 'µ':
-	case '¶':
-	case '·':
-	case '¸':
-	case '¹':
-	case '½':
-	case 'Ä':
-	case 'Æ':
-	case '´':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
 	case '#':
 	case '\'':
 		return(YES);
@@ -1338,7 +1338,7 @@ return(NO);
 }
 
 
-OkBolChar2(char c)
+int OkBolChar2(char c)
 // Characters accepted in terminal names (after the first one)
 {
 if(isdigit(c) || isalpha(c) || OkBolChar(c)) return(OK);
@@ -1346,36 +1346,36 @@ switch(c) {
 	case '-':	/* Discarded in GetBol() */
 	case '@':
 	case '%':
-	case '¢':
-	case '£':
-	case '¤':
-	case '×':
+	/*case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
 	case '$':
-	case '¨':
-	case '©':
-	case 'ª':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½': */
 	case '"':
 	case '\'':
-	case '¡':
+//	case 'ï¿½':
 	case '`':
-	case '«':
-/*	case '¬':
-	case '­':
-	case '°':
-	case '±':
-	case '²':
-	case '³':
-	case '»':
-	case '¼':
-	case 'À':
-	case 'Á':
-	case 'Ã':
-	case 'È':
-	case 'Ò':
-	case 'Ó':
-	case 'Ô':
-	case 'Õ':
-	case 'Ö': */
+/*	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½':
+	case 'ï¿½': */
 		return(YES);
 		break;
 	}
@@ -1383,7 +1383,7 @@ return(NO);
 }
  
 
-CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int type)
+int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int type)
 {
 int j,ln,diff,jmax,cv,compiledptmem,dirtyalphabetmem;
 char **ptr,****p_t,*q,line[MAXLIN];
@@ -1488,7 +1488,7 @@ return(j);
 }
 
 
-ParseGrammarLine(char** p_line,int *p_onerulefound,int tracecompile,int *p_igram,
+int ParseGrammarLine(char** p_line,int *p_onerulefound,int tracecompile,int *p_igram,
 	int *p_irul,int *p_needsnumber,int *p_done)
 {
 int i,j,igram,irul,w,imode,type,operator,incweight,lenc,result,foundk,
@@ -1805,7 +1805,7 @@ return(0);
 }
 
 
-ShowNotBP(void)
+int ShowNotBP(void)
 {
 int i,j=1;
 static char *err[] = {
@@ -1839,7 +1839,7 @@ return(FAILED);
 }
 
 
-MaintainSelectionInGrammar(long pos,int dif)
+int MaintainSelectionInGrammar(long pos,int dif)
 {
 if(pos <= GramSelStart) GramSelStart += dif;
 if(pos <= GramSelEnd) GramSelEnd += dif;
@@ -1847,7 +1847,7 @@ return(OK);
 }
 
 
-CheckDeterminism(t_gram *p_gram)
+int CheckDeterminism(t_gram *p_gram)
 {
 int igram,irul,jrul,newrule,err;
 tokenbyte **leftargi,**leftargj;
@@ -1885,7 +1885,7 @@ return(err == 0);
 }
 
 
-SameBuffer(tokenbyte **p_a,tokenbyte **p_b)
+int SameBuffer(tokenbyte **p_a,tokenbyte **p_b)
 {
 long i;
 

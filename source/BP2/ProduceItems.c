@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
 
-ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start)
+int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start)
 /* Produce items. Start string is selection in window w or in buffer p_start */
 {
 tokenbyte **p_buff,***pp_buff,**p_a,***pp_a;
@@ -374,7 +374,7 @@ return(r);
 }
 
 
-ResetRuleWeights(int mode)
+int ResetRuleWeights(int mode)
 {
 int igram,irul;
 t_rule rule;
@@ -409,7 +409,7 @@ return(Varweight);
 }
 
 
-AnalyzeSelection(int learn)
+int AnalyzeSelection(int learn)
 {
 int i,w,r,templates,all,dif,result,gap;
 tokenbyte **p_a,***pp_a;
@@ -543,7 +543,7 @@ return(r);
 
 
 
-LearnWeights(void)
+int LearnWeights(void)
 {
 if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || GraphicOn
 	|| PolyOn) return(RESUME);
@@ -553,7 +553,7 @@ return(AnalyzeSelection(TRUE));
 }
 
 
-SetWeights(void)
+int SetWeights(void)
 {
 int r,w,igram,irul;
 
@@ -579,7 +579,7 @@ return(AdjustWeights());
 }
 
 
-AdjustWeights(void)		/* Copy weights in memory to grammar window */
+int AdjustWeights(void)		/* Copy weights in memory to grammar window */
 {
 int i,j,igram,irul,newsubgram,dif,gap;
 long pos,posline,posmax,pos1,pos2;
@@ -680,7 +680,7 @@ return(OK);
 }
 
 
-ProduceAll(t_gram *p_gram,tokenbyte ***pp_a,int template)
+int ProduceAll(t_gram *p_gram,tokenbyte ***pp_a,int template)
 {
 int i,igram,r,showmessages,
 	depth,weightloss,endgram,single,mode;
@@ -801,7 +801,7 @@ return(r);
 }
 
 
-AllFollowingItems(t_gram *p_gram,tokenbyte ***pp_a,long ****p_weight,long ****p_flag,
+int AllFollowingItems(t_gram *p_gram,tokenbyte ***pp_a,long ****p_weight,long ****p_flag,
 	long *p_length,int igram,int all,int template,int endgram,tokenbyte ****p_stack,
 	int *p_depth,long *p_maxdepth,int single,int mode,int time_end_compute)
 {
@@ -919,7 +919,7 @@ return(r);
 }
 
 
-PushStack(tokenbyte ***pp_a,long *****pp_weight,long *****pp_flag,long *p_length,
+int PushStack(tokenbyte ***pp_a,long *****pp_weight,long *****pp_flag,long *p_length,
 	tokenbyte *****pp_stack,int *p_depth,long *p_maxdepth)
 {
 long i,igram,irul,**ptr4;
@@ -965,7 +965,7 @@ return(OK);
 }
 
 
-PullStack(tokenbyte ***pp_a,long ****p_weight,long ****p_flag,long *p_length,
+int PullStack(tokenbyte ***pp_a,long ****p_weight,long ****p_flag,long *p_length,
 	tokenbyte ****p_stack,int *p_depth,long *p_maxdepth)
 {
 int p,q;
@@ -1010,7 +1010,7 @@ return(OK);
 }
 
 
-LastGrammarWanted(int igram)
+int LastGrammarWanted(int igram)
 {
 char defaultvalue[MAXFIELDCONTENT],value[MAXFIELDCONTENT];
 int r,endgram,wantgram;
@@ -1114,7 +1114,7 @@ return(r);
 }
 
 
-LastStructuralSubgrammar(void)
+int LastStructuralSubgrammar(void)
 {
 int igram,irul,found,ilast;
 
@@ -1136,7 +1136,7 @@ return(LastGrammarWanted(ilast));
 }
 
 
-StructuralRule(int igram, int irul)
+int StructuralRule(int igram, int irul)
 {
 t_rule rule;
 tokenbyte **p_arg;
@@ -1185,7 +1185,7 @@ return(FALSE);
 }
 
 
-NoVariable(tokenbyte ***pp_a)
+int NoVariable(tokenbyte ***pp_a)
 {
 /* register */ int i,p,q;
 
@@ -1201,7 +1201,7 @@ return(TRUE);
 }
 
 
-MakeTemplate(tokenbyte ***pp_a)
+int MakeTemplate(tokenbyte ***pp_a)
 {
 unsigned long i;
 tokenbyte m,p;
@@ -1220,7 +1220,7 @@ return(OK);
 }
 
 
-ClearMarkers(tokenbyte ***pp_a)
+int ClearMarkers(tokenbyte ***pp_a)
 /* Suppress '¥' beat markers */
 {
 unsigned long i,k;
@@ -1252,7 +1252,7 @@ return(OK);
 }
 
 
-WriteTemplate(int w,tokenbyte ***pp_a)
+int WriteTemplate(int w,tokenbyte ***pp_a)
 {
 unsigned long i;
 tokenbyte m,p;
@@ -1336,7 +1336,7 @@ return(OK);
 }
 
 
-ReadTemplate(int w,long pos,long *p_posend,tokenbyte ***pp_a,int *p_i)
+int ReadTemplate(int w,long pos,long *p_posend,tokenbyte ***pp_a,int *p_i)
 {
 int i,j,jj,l,n,lmax;
 long im,u,v;
@@ -1488,7 +1488,7 @@ return(OK);
 }
 
 
-DeleteTemplates(void)
+int DeleteTemplates(void)
 {
 int separator,gap;
 long pos,pos1,posmax;
@@ -1545,7 +1545,7 @@ return(OK);
 }
 
 
-AnalyzeBuffer(tokenbyte ***pp_a,int learn,int templates,int all,long pos,int *p_result,
+int AnalyzeBuffer(tokenbyte ***pp_a,int learn,int templates,int all,long pos,int *p_result,
 	char *remark)
 /* Analyze item in a[] */
 /* 'pos' is position of first template considered in grammar window */
@@ -1570,7 +1570,7 @@ return(r);
 }
 
 
-Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templates,int all,
+int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templates,int all,
 	long pos,int *p_result,char *remark)
 /* pos = position of first template considered in grammar window */
 {
@@ -1804,7 +1804,7 @@ return(r);
 }
 
 
-MatchTemplate(tokenbyte ***pp_a,tokenbyte ***pp_b)
+int MatchTemplate(tokenbyte ***pp_a,tokenbyte ***pp_b)
 /* p_a is item without structure, p_b is template */
 /* On normal exit p_a should have structure derived from template */
 {
@@ -1843,7 +1843,7 @@ return(r);
 }
 
 
-PrintResult(int expand,int w,int datamode,int ifunc,tokenbyte ***pp_a)
+int PrintResult(int expand,int w,int datamode,int ifunc,tokenbyte ***pp_a)
 {
 int r;
 tokenbyte **p_b;
@@ -1880,7 +1880,7 @@ return(r);
 }
 
 
-CheckItemProduced(t_gram *p_gram,tokenbyte ***pp_a,long *p_length,int single,
+int CheckItemProduced(t_gram *p_gram,tokenbyte ***pp_a,long *p_length,int single,
 	int template,int mode)
 {
 int j,sign,r,datamode,ifunc,hastabs;

@@ -58,20 +58,20 @@ ProcessInfoRec info;
 FSSpec spec;
 long t;
 
-static char HTMLlatin[] /* Starting with "&#32" up to "&#255" */
+/* static char HTMLlatin[] Starting with "&#32" up to "&#255" 
 	= {' ','!','\"','#','$','%','&','\'','(',')','*','+',',','-','.','/','0','1','2','3',
 	'4','5','6','7','8','9',':',';','<','=','>','?','@','A','B','C','D','E','F','G','H',
 	'I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','[','\\',']',
 	'\0','_','\0',
 	'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t',
-	'u','v','w','x','y','z','{','|','}','~','\0','¥','ª','­','°','³','·','º','½',
-	'Ã','Å','É','Ñ','Ô','Ù','Ú','¶','Æ','Î','â','ã','ã','ä','ð','ö','÷',
-	'ù','ú','û','þ','ÿ','õ','Ä','\0','Á','¢','£','Û','´','|','¤','¬','©','»','"',
-	'Â','\0','¨','\0','¡','±','Ó','Ò','\0','µ','\0','á','þ','Õ','¼','È','¹','¸','²','À',
-	'Ë','"','å','Ì','€','','®','‚','é','ƒ','æ','è','í','ê','ë','ì','\0','„','ñ','î','ï',
-	'Í','…','×','¯','ô','ò','ó','†','Y','\0','§','ˆ','‡','‰','‹','Š','Œ','¾','','','Ž','',
-	'‘','“','’','”','•','\0','–','˜','—','™','›','š','Ö','¿','','œ','ž','Ÿ','y',
-	'\0','Ø'};
+	'u','v','w','x','y','z','{','|','}','~','\0','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½',
+	'ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½',
+	'ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','\0','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','|','ï¿½','ï¿½','ï¿½','ï¿½','"',
+	'ï¿½','\0','ï¿½','\0','ï¿½','ï¿½','ï¿½','ï¿½','\0','ï¿½','\0','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½',
+	'ï¿½','"','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','\0','ï¿½','ï¿½','ï¿½','ï¿½',
+	'ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','Y','\0','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½',
+	'ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','\0','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','ï¿½','y',
+	'\0','ï¿½'}; */
 
 #if BP_CARBON_GUI
 InitCursor();
@@ -277,8 +277,8 @@ for(i=0; i < MAXHTMLDIACR; i++) {
 	}
 MyDisposeHandle((Handle*)&p_HTMLdiacrList);
 
-for(i=0; i < 32; i++) (*p_HTMLchar2)[i] = '\0';
-for(i=32; i < 256; i++) (*p_HTMLchar2)[i] = HTMLlatin[i-32];
+/* for(i=0; i < 32; i++) (*p_HTMLchar2)[i] = '\0'; Fixed by BB 2022-02-18
+for(i=32; i < 256; i++) (*p_HTMLchar2)[i] = HTMLlatin[i-32]; */
 
 if(MakeWindows() != OK) return(ABORT);
 // SetDialogFont(systemFont);
@@ -317,9 +317,10 @@ Gram.trueBP = Gram.hasTEMP = Gram.hasproc = FALSE;
 pp_MIDIcode = NULL;
 pp_CsoundTime = NULL;
 p_Code = NULL;
-pp_Comment = pp_CsoundScoreText = NULL;
+pp_Comment = pp_CsoundScoreText = (char**) NULL;
 p_CsoundSize = NULL;
-pp_CsoundScore = p_CsoundTables = NULL;
+pp_CsoundScore = NULL;
+p_CsoundTables = (char**) NULL;
 MaxCsoundTables = 0;
 PointCsound = PointMIDI = FALSE;
 CsFileName[0] = MIDIfileName[0] = CsoundOrchestraName[0] = '\0';
@@ -664,7 +665,9 @@ PedalOrigin = -1;
 Nalpha = 100L;
 Jinstr = 0;
 NeedZouleb = 0;
-UseBullet = TRUE;  Code[7] = '¥';
+UseBullet = TRUE;
+// Code[7] = 'ï¿½';
+Code[7] = '.'; // Fixed by BB 2022-02-18
 if(ResizeCsoundInstrumentsSpace(1) != OK) return(ABORT);
 iCsoundInstrument = 0;
 ResetCsoundInstrument(iCsoundInstrument,YES,NO);
@@ -1331,7 +1334,6 @@ Handle h_res;
 
 #if !BP_CARBON_GUI
 const char (*strarray)[MAX_STRINGLISTS_STR_LEN];
-
 // use the resource id to select the corresponding array
 switch(id)
 {
@@ -1518,7 +1520,7 @@ for(i=0; i < im; i++) {
 		== NULL)) goto ERR2;
 	
 NEWLABELPART:
-	while((c=(*h_res)[j]) == ' ' || c == 'È') j++;
+	while((c=(*h_res)[j]) == ' ' || c == 'ï¿½') j++;
 	if(j >= km) {
 		j = km - 1; continue;
 		}
@@ -1539,7 +1541,7 @@ NEWARGPART:
 	if(j >= km) {
 		j = km - 1; continue;
 		}
-	k = j; while((c=(*h_res)[k]) != 'È' && k < km) k++;
+	k = j; while((c=(*h_res)[k]) != 'ï¿½' && k < km) k++;
 	ptr = (char**) GiveSpace((Size)(k-j+1) * sizeof(char));
 	if((p_ScriptArgPart(ic,iarg) = ptr) == NULL) goto ERR2;
 	k -= j;

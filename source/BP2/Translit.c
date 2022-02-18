@@ -31,6 +31,7 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
+// All these procedures are obsolete. Previously used by BP2 to transliterate texts from one encoding to another one. Fortunately we have Unicode at present!
 
 #ifndef _H_BP2
 #include "-BP2.h"

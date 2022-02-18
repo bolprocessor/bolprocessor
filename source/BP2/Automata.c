@@ -40,7 +40,7 @@
 
 // PROCEDURES FOR BUILDING TREE AUTOMATA RECOGNIZING TOKENS
 
-UpdateAutomata(void)
+int UpdateAutomata(void)
 {
 int j,s,jmax;
 
@@ -64,7 +64,7 @@ return(OK);
 }
 
 
-AddWordToTrees(char** p_word,int type)
+int AddWordToTrees(char** p_word,int type)
 {
 AddWordToTree(p_word,1,type);
 AddWordToTree(p_word,-1,type);
@@ -72,7 +72,7 @@ return(OK);
 }
 
 
-AddWordToTree(char** p_word,int dir,int type)
+int AddWordToTree(char** p_word,int dir,int type)
 // dir = 1 : prefix tree
 // suffix tree otherwise
 {

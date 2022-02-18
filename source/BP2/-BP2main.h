@@ -118,8 +118,8 @@ long MaxProc,MaxPerformanceControl;
 INscripttype** p_INscript;
 int **p_PerfCtrlNdx,**p_GeneralMIDIpatchNdx,**p_PerfCtrlNArg,**p_ProcNdx,**p_ProcNArg;
 char SubgramType[][TYPELENGTH] = {"RND","ORD","LIN","SUB","SUB1","TEM","POSLONG"};
-char Code[] = {'\0','?','#','+',':',';','=','¥','(',')','S','/','{','}',',','<',
-	'>','É','&','&','!','*','{','}'};
+char Code[] = {'\0','?','#','+',':',';','=','.','(',')','S','/','{','}',',','<',
+	'>','?','&','&','!','*','{','}'}; // Bullet replaced with period and ... with ? by BB 2022-02-17 because of non-UTF8 compatibility. It doesn't matter since the PHP interface converts these unwanted characters.
 char VersionName[][VERSIONLENGTH] = {"-","V.2.1","V.2.2","V.2.3","V.2.4","V.2.5",
 	"V.2.5.1","V.2.5.2","V.2.6","BP2.6.1","BP2.6.2","BP2.6.3","BP2.7","BP2.7.1","BP2.7.2",
 	"BP2.7.3","BP2.7.4","BP2.8.0","BP2.8.1","BP2.9.0","BP2.9.1","BP2.9.2","BP2.9.3","BP2.9.4",
@@ -237,7 +237,7 @@ MIDIcode ****pp_MIDIcode;
 float **p_CsoundTempo;
 Milliseconds ****pp_CsoundTime;
 long **p_CsoundSize,**p_MIDIsize;
-char **p_DefaultChannel,**p_AlphaCtrlNr,**p_AlphaCtrlChan,**p_AlphaCtrl,**p_Type,**p_PasteDone,
+char **p_DefaultChannel,**p_AlphaCtrlChan,**p_AlphaCtrl,**p_Type,**p_PasteDone,
 	**p_FixScale,**p_OkExpand,**p_OkCompress,**p_OkRelocate,**p_BreakTempo,**p_DiscardNoteOffs,
 	**p_OkTransp,**p_OkArticul,**p_OkVolume,**p_OkPan,**p_OkMap,**p_OkVelocity,
 	**p_ContBeg,**p_ContEnd,
@@ -247,7 +247,7 @@ char **p_DefaultChannel,**p_AlphaCtrlNr,**p_AlphaCtrlChan,**p_AlphaCtrl,**p_Type
 	**p_TruncBegMode,**p_TruncEndMode,**p_PreRollMode,**p_PostRollMode,**p_PeriodMode,
 	**p_ForceIntegerPeriod,**p_StrikeAgain,**p_CompiledCsoundScore,
 	****pp_Comment,****pp_CsoundScoreText,****p_CsoundTables;
-int MaxCsoundTables;
+int **p_AlphaCtrlNr,MaxCsoundTables;
 CsoundLine ****pp_CsoundScore;
 double **p_AlphaMin,**p_AlphaMax,**p_Quan,ForceRatio,Infpos1;
 float **p_PivPos,**p_BeforePeriod;

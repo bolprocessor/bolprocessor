@@ -39,14 +39,14 @@
 #include "-BP2decl.h"
 
 
-CheckPrototypeSize(int j)
+int CheckPrototypeSize(int j)
 {
 if((*p_MIDIsize)[j] > ZERO || (*p_CsoundSize)[j] > ZERO) return(OK);
 else return(FAILED);
 }
 
 
-CheckDuration(int j)
+int CheckDuration(int j)
 {
 if(j >= Jbol) {
 	if(Beta) Alert1("=> Err. CheckDuration()");
@@ -61,7 +61,7 @@ else return(OK);
 
 
 #if BP_CARBON_GUI
-RecordPrototype(int j)
+int RecordPrototype(int j)
 {
 int r;
 long imax,oldfilter;
@@ -96,7 +96,7 @@ return(r);
 #endif /* BP_CARBON_GUI */
 
 
-AdjustDuration(int j,Milliseconds newdur)
+int AdjustDuration(int j,Milliseconds newdur)
 {
 double ratio,preroll,postroll,dur,t;
 long i;
@@ -159,7 +159,7 @@ return(OK);
 }
 
 
-AdjustVelocities(int j,int vmin,int vmax)
+int AdjustVelocities(int j,int vmin,int vmax)
 {
 double a,b;
 int c,c0,v,vmin0,vmax0,allsame;
@@ -204,7 +204,7 @@ return(OK);
 }
 
 
-QuantizeNoteOn(int j)
+int QuantizeNoteOn(int j)
 {
 int c,c0,q;
 long i,size;
@@ -260,7 +260,7 @@ return(OK);
 }
 
 
-ExpandDurations(int j,Milliseconds mindur)
+int ExpandDurations(int j,Milliseconds mindur)
 {
 int k,c,c0,ch;
 MIDIcode **p_MIDI,**ptr;
@@ -387,7 +387,7 @@ return(OK);
 }
 
 
-MakeMonodic(int j)
+int MakeMonodic(int j)
 {
 char on[MAXCHAN+1];
 int lastkey[MAXCHAN+1];
@@ -470,7 +470,7 @@ return(OK);
 }
 
 
-AppendAllNotesOff(int j)
+int AppendAllNotesOff(int j)
 {
 MIDIcode **ptr;
 long size;
@@ -496,7 +496,7 @@ return(OK);
 }
 
 
-SuppressAllNotesOff(int warn,int j)
+int SuppressAllNotesOff(int warn,int j)
 {
 int c,c0,found,only;
 MIDIcode **ptr;
@@ -558,7 +558,7 @@ return(OK);
 }
 
 
-SuppressMessages(int tell,int j,int themessage)
+int SuppressMessages(int tell,int j,int themessage)
 {
 int i,c,c0,k,nbytes,size,time,found,only;
 MIDIcode **ptr;
@@ -639,7 +639,7 @@ return(OK);
 }
 
 
-InsertSilence(int j,Milliseconds dur)
+int InsertSilence(int j,Milliseconds dur)
 {
 int result,only;
 long i,i0;
@@ -699,7 +699,7 @@ return(result);
 }
 
 
-AppendSilence(int j,Milliseconds dur)
+int AppendSilence(int j,Milliseconds dur)
 {
 MIDIcode **ptr;
 long size;
@@ -727,7 +727,7 @@ return(OK);
 }
 
 
-DurationToPoint(MIDIcode ****pp_midicode,Milliseconds ****pp_csoundtime,long **p_size,int j)
+int DurationToPoint(MIDIcode ****pp_midicode,Milliseconds ****pp_csoundtime,long **p_size,int j)
 // Change time information in prototype j from durations (the usual format)
 // to dates
 {
@@ -767,7 +767,7 @@ return(OK);
 }
 
 	
-PointToDuration(MIDIcode ****pp_midicode,Milliseconds ****pp_csoundtime,long **p_size,int j)
+int PointToDuration(MIDIcode ****pp_midicode,Milliseconds ****pp_csoundtime,long **p_size,int j)
 // Change time information in prototype j from dates to durations (the usual format)
 {
 long i;
@@ -808,7 +808,7 @@ return(OK);
 }
 
 
-SortMIDIdates(long i0, int j)
+int SortMIDIdates(long i0, int j)
 // Sort MIDI stream on dates in prototype j
 // (*pp_MIDIcode)[j].time is points, not durations
 // misdated events are 3-bytes
@@ -865,7 +865,7 @@ return(OK);
 }
 
 
-SortCsoundDates(long i0, int j)
+int SortCsoundDates(long i0, int j)
 // Sort Csound score on dates in prototype j
 // (*((*pp_CsoundTime)[j]))[i] is points, not durations
 {
@@ -908,7 +908,7 @@ return(OK);
 
 
 #if BP_CARBON_GUI	// CheckiProto() is only called from DoDialog()
-CheckiProto(void)
+int CheckiProto(void)
 {
 int r;
 
@@ -941,7 +941,7 @@ return(OK);
 #endif /* BP_CARBON_GUI */
 
 
-PlayPrototype(int j)
+int PlayPrototype(int j)
 {
 double pclock,qclock;
 long p,q;
@@ -1020,7 +1020,7 @@ return(r);
 }
 
 
-CheckChannelRange(long *p_p,long *p_q)
+int CheckChannelRange(long *p_p,long *p_q)
 {
 int c;
 
@@ -1036,7 +1036,7 @@ return(OK);
 }
 
 
-SetPrototypeDuration(int j,int *p_longerCsound)
+int SetPrototypeDuration(int j,int *p_longerCsound)
 {
 double preroll,postroll,dur,maxdur;
 int rep;
@@ -1091,7 +1091,7 @@ return(rep);
 }
 
 
-GetPrePostRoll(int j,double *p_preroll,double *p_postroll)
+int GetPrePostRoll(int j,double *p_preroll,double *p_postroll)
 {
 if(j < 0 || j >= Jbol || (*p_Dur)[j] < EPSILON) {
 	*p_preroll = *p_postroll = 0.;
@@ -1103,7 +1103,7 @@ return(OK);
 }
 
 
-GetPeriod(int j,double beta,double *p_objectperiod,double *p_beforeperiod)
+int GetPeriod(int j,double beta,double *p_objectperiod,double *p_beforeperiod)
 {
 double dur;
 
@@ -1123,7 +1123,7 @@ return(OK);
 }
 
 
-CheckNonEmptyMIDI(int j)
+int CheckNonEmptyMIDI(int j)
 {
 if(j < 2 || j >= Jbol) {
 	if(Beta) Alert1("=> Err. CheckNonEmptyMIDI(). j < 2 || j >= Jbol");

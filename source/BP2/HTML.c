@@ -39,7 +39,7 @@
 #include "-BP2decl.h"
 
 
-CheckHTML(int linebreaks,int w,char** p_buffer,long* p_count,int* p_html)
+int CheckHTML(int linebreaks,int w,char** p_buffer,long* p_count,int* p_html)
 // Check whether buffer contains HTML code, and converts if necessary
 {
 /* register */ int i,j,k,itoken;
@@ -236,85 +236,85 @@ BAD:
 return(OK);
 }
 
-
+#if BP_CARBON_GUI
 DOStoMac(char* p_c)
 {
 switch(*p_c) {
-	case 'ã': *p_c = '‹'; break;
-	case 'ç': *p_c = ''; break;
-	case '': *p_c = '€'; break;
-	case '': *p_c = ''; break;
-	case '€': *p_c = '‚'; break;
-	case '': *p_c = 'ƒ'; break;
-	case '¥': *p_c = '„'; break;
-	case '™': *p_c = '…'; break;
-	case 'š': *p_c = '†'; break;
-	case '„': *p_c = 'Š'; break;
-	case ' ': *p_c = '‡'; break;
-	case '…': *p_c = 'ˆ'; break;
-	case 'ƒ': *p_c = '‰'; break;
-	case '†': *p_c = 'Œ'; break;
-	case '˜': *p_c = 'Ø'; break;
-	case '‡': *p_c = ''; break;
-	case '‚': *p_c = ''; break;
-	case 'Š': *p_c = ''; break;
-	case 'ˆ': *p_c = ''; break;
-	case '‰': *p_c = '‘'; break;
-	case '¡': *p_c = '’'; break;
-	case '': *p_c = '“'; break;
-	case 'Œ': *p_c = '”'; break;
-	case '‹': *p_c = '•'; break;
-	case '¤': *p_c = '–'; break;
-	case '”': *p_c = 'š'; break;
-	case '¢': *p_c = '—'; break;
-	case '•': *p_c = '˜'; break;
-	case '“': *p_c = '™'; break;
-	case '£': *p_c = 'œ'; break;
-	case '—': *p_c = ''; break;
-	case '–': *p_c = ''; break;
-	case '': *p_c = 'Ÿ'; break;
-	case 'Å': *p_c = ' '; break;
-	case 'ø': *p_c = '¡'; break;
-	case '›': *p_c = '¢'; break;
-	case 'œ': *p_c = '£'; break;
-	case '': *p_c = '¤'; break;
-	case 'ş': *p_c = '¥'; break;
-	case 'ï': *p_c = '¦'; break;
-	case 'á': *p_c = '§'; break;
-	case 'é': *p_c = '¨'; break;
-	case '°': *p_c = 'ª'; break;
-	case 'Ø': *p_c = '­'; break;
-	case '’': *p_c = '®'; break;
-	case 'í': *p_c = '¯'; break;
-	case 'ì': *p_c = '°'; break;
-	case 'ñ': *p_c = '±'; break;
-	case 'ó': *p_c = '²'; break;
-	case 'ò': *p_c = '³'; break;
-	case '': *p_c = '´'; break;
-	case 'æ': *p_c = 'µ'; break;
-	case 'å': *p_c = '¶'; break;
-	case 'ä': *p_c = '·'; break;
-	case 'à': *p_c = '¹'; break;
-//	case 'ã': *p_c = '¸'; break;
-	case 'ô': *p_c = 'º'; break;
-	case '¦': *p_c = '»'; break;
-	case '§': *p_c = '¼'; break;
-	case 'ê': *p_c = '½'; break;
-	case '‘': *p_c = '¾'; break;
-	case '¨': *p_c = 'À'; break;
-	case '­': *p_c = 'Á'; break;
-	case '"': *p_c = '"'; break;  /* 'Ò' */
-	case '®': *p_c = 'Ç'; break;
-	case '¯': *p_c = 'È'; break;
-	case 'Ä': *p_c = 'Ñ'; break;
-	case '`': *p_c = 'Ô'; break;
-	case 'û': *p_c = 'Ã'; break;
-	case 'ö': *p_c = 'Ö'; break;
-	case 'ğ': *p_c = '×'; break;
-	case 'ª': *p_c = 'Â'; break;
-	case 'Ÿ': *p_c = 'Ä'; break;
-	case '÷': *p_c = 'Å'; break;
-	case '': *p_c = 'Æ'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case '': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+//	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case '"': *p_c = '"'; break; 
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case '`': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case 'ï¿½': *p_c = 'ï¿½'; break;
+	case '': *p_c = 'ï¿½'; break;
 	case '\n': *p_c = '\r'; break;
 	}
 return(OK);
@@ -362,7 +362,7 @@ for(i=j0=ZERO; ; i++) {
 		(*p_line2)[j++] = c;
 		continue;
 		}
-	if(c == 'É') {
+	if(c == 'ï¿½') {
 		for(k=0; k < strlen(rest); k++) (*p_line2)[j++] = rest[k];
 		continue;
 		}
@@ -420,9 +420,9 @@ OUT:
 MyDisposeHandle((Handle*)&p_line2);
 return(r);
 }
+#endif /* BP_CARBON_GUI */
 
-
-GoodHTMLchar(char c)
+int GoodHTMLchar(char c)
 {
 if(isalnum(c)) return(YES);
 if(ispunct(c)) {
@@ -440,7 +440,7 @@ return(NO);
 }
 
 
-NeedsHTMLConversion(char **p_line)
+int NeedsHTMLConversion(char **p_line)
 {
 long i;
 char c;

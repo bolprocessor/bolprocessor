@@ -71,7 +71,7 @@ BPConsoleOpts gOptions;
 FILE * imagePtr;
 char imageFileName[500];
 int N_image;
-int MaxConsoleTime; // seconds: time allowed for console work
+long MaxConsoleTime; // seconds: time allowed for console work
 int CsoundPianoRollNoteShift;
 int NumberScales, MaxScales, DefaultScale, ToldAboutScale; // Microtonal scales loaded from Csound instruments file
 t_scale** Scale;
@@ -79,14 +79,14 @@ char LastSeen_scale[100]; // Last scale found during compilation of grammar
 Handle mem_ptr[5000];
 int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 
-Find_leak = FALSE; // Flag to locate place where negative leak starts
-check_memory_use = FALSE;
+Boolean Find_leak = FALSE; // Flag to locate place where negative leak starts
+Boolean check_memory_use = FALSE;
 
 int trace_scale = 0;
 
 int WarnedBlockKey,WarnedRangeKey;
 
-PrototypesLoaded = FALSE;
+Boolean PrototypesLoaded = FALSE;
 
 int main (int argc, char* args[])
 {
@@ -160,7 +160,8 @@ int main (int argc, char* args[])
 
 	InitOn = FALSE;
 	time(&SessionStartTime);
-	ProductionTime = ProductionStartTime = PhaseDiagramTime = TimeSettingTime = 0;
+	ProductionTime = ProductionStartTime = PhaseDiagramTime = TimeSettingTime = (time_t) 0L;
+	time(&ProductionStartTime);
 	BPPrintMessage(odInfo, "\nBP3 Console completed initialization and will use:");
 	
 	BPPrintMessage(odInfo, "\n%s\n%s\n\n",gOptions.inputFilenames[wGrammar],gOptions.inputFilenames[wData]);
@@ -377,13 +378,13 @@ void CreateImageFile(void)
 	strncpy(line1,line2,length - 4);
 //	BPPrintMessage(odInfo,"\n\nline1 = %s\n\n",line1);
 	sprintf(line2,"_image_%03ld_temp.html",(long)N_image);
-	if(!PlaySelectionOn && gOptions.inputFilenames[wGrammar] != "") {
+	if(!PlaySelectionOn && strcmp(gOptions.inputFilenames[wGrammar],"") != 0) { // fixed by BB 2022-02-17
 		GetFileName(line3,gOptions.inputFilenames[wGrammar]);
 		sprintf(Message,"_%s",line3);
 		remove_spaces(Message,line3);
 		strcat(line1,line3);
 		}
-	if(PlaySelectionOn && gOptions.inputFilenames[wData] != "") {
+	if(PlaySelectionOn && strcmp(gOptions.inputFilenames[wData],"") != 0) {
 		GetFileName(line3,gOptions.inputFilenames[wData]);
 		sprintf(Message,"_%s",line3);
 		remove_spaces(Message,line3);
@@ -397,9 +398,9 @@ void CreateImageFile(void)
 	imagePtr = fopen(line2,"w");
 	strcpy(imageFileName,line2);
 	getcwd(cwd,sizeof(cwd));
-	if(cwd != NULL) {
-	//	BPPrintMessage(odInfo,"\nCurrent working dir: %s\n",cwd);
-		}
+/*	if(cwd != NULL) {
+		BPPrintMessage(odInfo,"\nCurrent working dir: %s\n",cwd);
+		} */
 	thisfile = fopen("CANVAS_header.txt","r");
 	if(thisfile == NULL) {
 		BPPrintMessage(odInfo,"‘CANVAS_header.txt’ is missing!\n");
@@ -1230,12 +1231,12 @@ void CloseFile(FILE* file)
 	int result;
 	
 	if (file == NULL) {
-		if (Beta)  BPPrintMessage(odError, "=> Err. CloseFile(): file == NULL\n");
+	//	if (Beta)  BPPrintMessage(odError, "=> Err. CloseFile(): file == NULL\n");
 		return;
 	}
 	result = fclose(file);
 	if (Beta && result != 0) {
-		BPPrintMessage(odError, "=> Err. CloseFile(): fclose() returned an error.\n");
+		BPPrintMessage(odError, "=> Err. CloseFile(): fclose() error #%d\n",result);
 	}
 	
 	return;

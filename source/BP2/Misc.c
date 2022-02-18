@@ -28,7 +28,7 @@
     INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
     CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
     ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-    POSSIBILITY OF SUCH DAMAGE.
+    POSSIBILITY OF SUCH DAMAGE. 
 */
 
 
@@ -40,7 +40,7 @@
 
 int trace_FixNumberConstant = 0;
 
-AppendStringList(char* line)
+int AppendStringList(char* line)
 {
 char** ptr;
 int i;
@@ -60,7 +60,7 @@ return(OK);
 }
 
 
-MemberStringList(char* line)
+int MemberStringList(char* line)
 {
 int i,r;
 
@@ -74,7 +74,7 @@ return(r);
 }
 
 
-Expect(char c,char* string,char d)
+int Expect(char c,char* string,char d)
 {
 char line[MAXLIN];
 
@@ -109,7 +109,7 @@ Strip(command);
 return;
 }
 
-DisplayHelp(const char* command)
+int DisplayHelp(const char* command)
 /* Display section of "BP3 help" relative to 'command' */
 {
 long pos,posline,posmax,pos1,pos2;
@@ -151,7 +151,7 @@ MyDisposeHandle((Handle*)&p_line);
 
 /* Load target from help file */
 
-ShowMessage(TRUE,wMessage,"Searching the 'BP2 help' data-base...");
+int ShowMessage(TRUE,wMessage,"Searching the 'BP2 help' data-base...");
 FlashInfo(target);
 pos1 = GetTextLength(wHelp);
 SetSelect(pos1,pos1,TEH[wHelp]);
@@ -211,7 +211,7 @@ return(OK);
 }
 
 
-DisplayFile(int w,char* name)
+int DisplayFile(int w,char* name)
 /* Display a file contained in the same folder as BP2 */
 {
 int io;
@@ -241,7 +241,7 @@ else return(FAILED);
 
 // FIXME: GetInteger() likely originally assumed that ints were 2 bytes.
 // Change to int16_t Get2ByteInteger() ?? (needs careful checking!)
-GetInteger(int test, const char* line, int* p_i)
+int GetInteger(int test, const char* line, int* p_i)
 {
 long n;
 int done,sign;
@@ -452,7 +452,7 @@ return(n * sign);
 
 #if BP_CARBON_GUI
 
-ShowMIDIkeyboard(void)
+int ShowMIDIkeyboard(void)
 {
 short i,itemtype;
 Rect r;
@@ -502,7 +502,7 @@ return(DoSystem());
 }
 
 
-SetNameChoice(void)
+int SetNameChoice(void)
 {
 short i,itemtype;
 Rect r;
@@ -527,7 +527,7 @@ return(DoSystem());
 
 #endif /* BP_CARBON_GUI */
 
-MySpace(char c)
+int MySpace(char c)
 {
 if(c == '\r' || c == '\n' || c == '\0') return(NO);
 if(isspace(c)) return(YES);
@@ -538,7 +538,7 @@ return(NO);
 }
 
 
-ByteToInt(char x)
+int ByteToInt(char x)
 {
 int i;
 
@@ -548,7 +548,7 @@ return(i);
 }
 
 
-MoveDown(tokenbyte ***pp_buff, long *p_i, long *p_k, long *p_imax)
+int MoveDown(tokenbyte ***pp_buff, long *p_i, long *p_k, long *p_imax)
 {
 long j;
 j = *p_i;
@@ -611,7 +611,7 @@ return(OK);
 
 #endif /* BP_CARBON_GUI */
 
-SetButtons(int force)
+int SetButtons(int force)
 {
   /* Might prefer #if BP_CARBON_GUI here b/c changing settings in non-GUI build 
      might be undesirable (better to just report incompatible options and exit?)
@@ -664,7 +664,7 @@ return(OK);
 
 #if BP_CARBON_GUI
 
-ChangeControlValue(int force,ControlHandle hbutt,int ib)
+int ChangeControlValue(int force,ControlHandle hbutt,int ib)
 {
 if(ib != GetControlValue(hbutt)) {
 	if(!force && MustBeSaved(ib)) UpdateDirty(TRUE,iSettings);
@@ -676,7 +676,7 @@ return(OK);
 #endif /* BP_CARBON_GUI */
 
 
-ConvertSpecialChars(char* line) {
+int ConvertSpecialChars(char* line) {
 int i,j;
 char c;
 
@@ -688,17 +688,17 @@ for(i=j=0;; i++) {
 	if(line[i+j] == '^') {
 		j++;
 		switch(line[i+j]) {
-			case 'n': c = 'Â'; break;
+		//	case 'n': c = 'ï¿½'; break; Fixed by BB 2022-02-17  UTF8
 			case 'r':
 			case 'p': c = '\r'; break;
 			case 't': c = '\t'; break;
 			default: continue;
 			}
 		line[i] = c;
-		if(c == 'Â') {
+	/*	if(c == 'ï¿½') { Fixed by BB 2022-02-17  UTF8
 			line[++i] = '\r';
 			j--;
-			}
+			} */
 		continue;
 		}
 	line[i] = line[i+j];
@@ -709,7 +709,7 @@ return(OK);
 
 #if BP_CARBON_GUI
 
-GetThisTick(void)
+int GetThisTick(void)
 {
 char line[MAXFIELDCONTENT];
 long p,q,s,v,c,k;
@@ -762,7 +762,7 @@ return(OK);
 }
 
 
-SetThisTick(void)
+int SetThisTick(void)
 {
 char line[MAXFIELDCONTENT];
 int vel,ch,key;
@@ -811,7 +811,7 @@ return(OK);
 /* Retrieve the name of a linked file of type doc from window w.
    doc is the "document index" of the name that is being looked for.
    filename should be storage with at least MAXNAME space. */
-GetLinkedFileName(int w, int doc, char* filename)
+int GetLinkedFileName(int w, int doc, char* filename)
 {
 long pos,posmax;
 char *p,*q,line[MAXLIN];
@@ -821,7 +821,7 @@ if (filename == NULL) {
 	return(FAILED);
 	}
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("=> Err. GetLinkedFileName(). Bad window index.");
+	if(Beta) BPPrintMessage(odError,"=> Err. GetLinkedFileName(). Bad window index %d\n",w);;
 	return(FAILED);
 	}
 if(doc < 0 || doc >= WMAX || FilePrefix[doc][0] == '\0') {
@@ -848,7 +848,7 @@ do {
 while(TRUE);
 }
 
-GetAlphaName(int w)
+int GetAlphaName(int w)
 {
 if (GetLinkedFileName(w,wAlphabet,FileName[wAlphabet]) == OK) {
 		NoAlphabet = FALSE;
@@ -857,7 +857,7 @@ if (GetLinkedFileName(w,wAlphabet,FileName[wAlphabet]) == OK) {
 else return(FAILED);
 }
 
-GetMiName(void)
+int GetMiName(void)
 {
 char name[MAXNAME];
 
@@ -871,7 +871,7 @@ if (GetLinkedFileName(wAlphabet,iObjects,name) == OK) {
 else return(FAILED);
 }
 
-GetInName(int w)
+int GetInName(int w)
 {
 char name[MAXNAME];
 
@@ -885,7 +885,7 @@ if (GetLinkedFileName(w,wInteraction,name) == OK) {
 else return(FAILED);
 }
 
-GetGlName(int w)
+int GetGlName(int w)
 {
 char name[MAXNAME];
 
@@ -899,7 +899,7 @@ if (GetLinkedFileName(w,wGlossary,name) == OK) {
 else return(FAILED);
 }
 
-GetSeName(int w)
+int GetSeName(int w)
 {
 char name[MAXNAME];
 
@@ -919,7 +919,7 @@ else return(FAILED);
 
 #if BP_CARBON_GUI
 
-GetKbName(int w)
+int GetKbName(int w)
 {
 int type,result;
 FSSpec spec;
@@ -957,7 +957,7 @@ if(Token && LoadOn && FileName[wKeyboard][0] == '\0') {
 return(result);
 }
 
-GetFileNameAndLoadIt(int wfile,int w,Int2ProcPtr loadit)
+int GetFileNameAndLoadIt(int wfile,int w,Int2ProcPtr loadit)
 {
 int r,type;
 FSSpec spec;
@@ -989,7 +989,7 @@ if (GetLinkedFileName(w,wfile,name) == OK) {
 else return(FAILED);
 }
 
-GetCsName(int w)
+int GetCsName(int w)
 {
 int r,type;
 FSSpec spec;
@@ -1016,7 +1016,7 @@ if (GetLinkedFileName(w,wCsoundInstruments,name) == OK) {
 else return(FAILED);
 }
 
-GetTimeBaseName(int w)
+int GetTimeBaseName(int w)
 {
 int type;
 FSSpec spec;
@@ -1044,7 +1044,7 @@ else return(FAILED);
 
 #endif /* BP_CARBON_GUI */
 
-ChangeMetronom(int j,double x)
+int ChangeMetronom(int j,double x)
 {
 int striated;
 double p,q,newp,newq;
@@ -1103,7 +1103,7 @@ return(OK);
 }
 
 
-SetTempo(void)
+int SetTempo(void)
 {
 Rect r;
 ControlHandle itemhandle;
@@ -1154,7 +1154,7 @@ return(OK);
 
 #if BP_CARBON_GUI
 
-GetTempo(void)
+int GetTempo(void)
 {
 Rect r;
 Handle itemhandle;
@@ -1191,7 +1191,7 @@ return(OK);
 
 #endif /* BP_CARBON_GUI */
 
-SetGrammarTempo(void)
+int SetGrammarTempo(void)
 // Here we only erase the line containing "_mm()" and tell BP2 that the grammar is not compiled
 // so that a fresh line is  inserted during the compilation
 {
@@ -1250,7 +1250,7 @@ return(OK);
 
 #if BP_CARBON_GUI
 
-SetBufferSize(void)
+int SetBufferSize(void)
 {
 Rect r;
 ControlHandle itemhandle;
@@ -1277,7 +1277,7 @@ return(OK);
 }
 
 
-GetBufferSize(void)
+int GetBufferSize(void)
 {
 Rect r;
 Handle itemhandle;
@@ -1320,7 +1320,7 @@ return(OK);
 }
 
 
-SetGraphicSettings(void)
+int SetGraphicSettings(void)
 {
 Rect r;
 Handle itemhandle;
@@ -1345,7 +1345,7 @@ return(OK);
 }
 
 
-GetGraphicSettings(void)
+int GetGraphicSettings(void)
 {
 Rect r;
 Handle itemhandle;
@@ -1386,7 +1386,7 @@ return(rep);
 }
 
 
-SetTimeAccuracy(void)
+int SetTimeAccuracy(void)
 {
 Rect r;
 ControlHandle itemhandle;
@@ -1425,7 +1425,7 @@ return(OK);
 }
 
 
-GetTimeAccuracy(void)
+int GetTimeAccuracy(void)
 {
 Rect r;
 int i;
@@ -1484,7 +1484,7 @@ return(OK);
 }
 
 
-SetKeyboard(void)
+int SetKeyboard(void)
 {
 Rect r;
 Handle itemhandle;
@@ -1504,7 +1504,7 @@ return(OK);
 }
 
 
-Key(int i,int keyboardtype)
+int Key(int i,int keyboardtype)
 {
 int j;
 
@@ -1548,7 +1548,7 @@ return(i);
 }
 
 
-ResetKeyboard(int quick)
+int ResetKeyboard(int quick)
 {
 Rect r;
 Handle itemhandle;
@@ -1578,7 +1578,7 @@ return(OK);
 }
 
 
-GetKeyboard(void)
+int GetKeyboard(void)
 {
 Rect r;
 Handle itemhandle;
@@ -1603,7 +1603,7 @@ return(OK);
 }
 
 
-SetDefaultStrikeMode(void)
+int SetDefaultStrikeMode(void)
 {
 if(StrikeAgainDefault) {
 	SwitchOn(StrikeModePtr,-1,bDefaultStrikeAgain);
@@ -1617,7 +1617,7 @@ return(OK);
 }
 
 
-SetFileSavePreferences(void)
+int SetFileSavePreferences(void)
 {
 char line[MAXFIELDCONTENT];
 	
@@ -1690,7 +1690,7 @@ return(OK);
 }
 
 
-GetFileSavePreferences(void)
+int GetFileSavePreferences(void)
 {
 int result;
 long p,q;
@@ -1733,7 +1733,7 @@ return(FAILED);
 }
 
 
-GetControlParameters(void)
+int GetControlParameters(void)
 {
 char line[MAXFIELDCONTENT];
 long p,q;
@@ -1754,7 +1754,7 @@ return(OK);
 }
 
 
-GetTuning(void)
+int GetTuning(void)
 {
 char line[MAXFIELDCONTENT];
 long p,q;
@@ -1775,7 +1775,7 @@ if(i < 2 || i > 127) {
 C4key = i;
 if(C4key != oldC4key) CompiledGr = CompiledGl = FALSE;
 
-GetField(TuningPtr,TRUE,-1,fA4freq,line,&p,&q);
+int GetField(TuningPtr,TRUE,-1,fA4freq,line,&p,&q);
 x = ((double) p) / q;
 if(x < 25. || x > 2000.) {
 	sprintf(Message,"=> Frequency for A4 should be in range 25..2000 (typ. 440). Can't accept %.2f",x);
@@ -1790,7 +1790,7 @@ return(OK);
 }
 
 
-SetTuning(void)
+int SetTuning(void)
 {
 sprintf(Message,"%ld",(long)C4key);
 SetField(TuningPtr,-1,fC4key,Message);
@@ -1800,7 +1800,7 @@ return(OK);
 }
 
 
-GetDefaultPerformanceValues(void)
+int GetDefaultPerformanceValues(void)
 {
 char line[MAXFIELDCONTENT];
 long p,q;
@@ -1888,7 +1888,7 @@ return(OK);
 }
 
 
-SetDefaultPerformanceValues(void)
+int SetDefaultPerformanceValues(void)
 {
 sprintf(Message,"%ld",(long)DeftVolume);
 SetField(DefaultPerformanceValuesPtr,-1,fDeftVolume,Message);
@@ -1932,7 +1932,7 @@ FrameRoundRect(&r,16,16);
    API" for the timesetting code if we want to retain step functionality. */
 
 // NOTE: the return value of this function is not checked in several places ...
-Pause(void)
+int Pause(void)
 {
 char c;
 
@@ -1991,7 +1991,7 @@ return ('Q');
 }
 
 
-Date(char line[])
+int Date(char line[])
 {
 unsigned long datetime;
 char dd[MAXNAME],tt[MAXNAME];
@@ -2038,7 +2038,7 @@ return(OK);
 }
 
 
-FixStringConstant(char* line)
+int FixStringConstant(char* line)
 {
 int i,j,maxparam,found;
 Handle h;
@@ -2113,7 +2113,7 @@ return(ABORT);
 }
 
 
-FixNumberConstant(char* line)
+int FixNumberConstant(char* line)
 {
 int i,j,maxparam,oldmaxparam;
 Handle h;
@@ -2173,7 +2173,7 @@ return(ABORT);
 }
 
 
-WaitABit(long thedelay)
+int WaitABit(long thedelay)
 // Wait for thedelay milliseconds
 {
 int i;
@@ -2202,7 +2202,7 @@ return(OK);
 }
 
 
-NeedGlossary(tokenbyte ***pp_X)
+int NeedGlossary(tokenbyte ***pp_X)
 {
 /* register */ int  i;
 tokenbyte m,p;
@@ -2241,7 +2241,7 @@ err = SndDisposeChannel(myChan,FALSE);
 
 #if BP_CARBON_GUI
 
-SetSeed(void)
+int SetSeed(void)
 {
 Rect r;
 Handle itemhandle;
@@ -2254,7 +2254,7 @@ return(OK);
 }
 
 
-GetSeed(void)
+int GetSeed(void)
 {
 char line[MAXFIELDCONTENT];
 long p,q,newseed;
@@ -2275,7 +2275,7 @@ return(OK);
 
 #endif /* BP_CARBON_GUI */
 
-ResetRandom(void)
+int ResetRandom(void)
 {
 if(Seed > 0) {
 	srand(Seed);
@@ -2288,7 +2288,7 @@ return(OK);
 }
 
 
-Randomize(void)
+int Randomize(void)
 {
 if(Seed > 0) return(OK);
 ReseedOrShuffle(NEWSEED);
@@ -2299,7 +2299,7 @@ return(OK);
 }
 
 
-ReseedOrShuffle(int what)
+int ReseedOrShuffle(int what)
 {
 unsigned int seed;
 int randomnumber;

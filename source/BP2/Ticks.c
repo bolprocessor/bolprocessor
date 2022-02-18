@@ -39,7 +39,7 @@
 #include "-BP2decl.h"
 
 
-PlayTick(int before)
+int PlayTick(int before)
 {
 // Play time base ticks in real time
 
@@ -182,7 +182,7 @@ return(OK);
 }
 
 
-ResetTicks(int force,int zero,Milliseconds time,int pos)
+int ResetTicks(int force,int zero,Milliseconds time,int pos)
 {
 // Reset tick cycles (real-time)
 
@@ -212,7 +212,7 @@ return(OK);
 }
 
 
-WaitForLastTicks(void)
+int WaitForLastTicks(void)
 /* Terminate real-time ticks if any */
 {
 long time;
@@ -258,7 +258,7 @@ return(OK);
 }
 
 
-ClearCycle(int itick)
+int ClearCycle(int itick)
 {
 int j;
 
@@ -268,7 +268,7 @@ return(OK);
 }
 
 
-InsertTickInItem(double fstreak,int clickon[],int hidden[],double tickdate[],
+int InsertTickInItem(double fstreak,int clickon[],int hidden[],double tickdate[],
 	int *p_rs,char ***p_keyon,double streakposition[],
 	Milliseconds t0,int tickposition[],long imaxstreak)
 // Play timebase ticks during item performance
@@ -367,7 +367,7 @@ return(OK);
 }
 
 
-ResetTicksInItem(Milliseconds t1,int* tickposition,double* streakposition,
+int ResetTicksInItem(Milliseconds t1,int* tickposition,double* streakposition,
 	double* tickdate,int* clickon,int* hidden,long imaxstreak,int *p_rs,char ***p_keyon)
 // Reset tick cycles during item performance, exactly at the current time t1.
 {
@@ -436,7 +436,7 @@ return(OK);
 }
 
 
-FindTickValues(long x,int *p_vel,int *p_ch,int *p_key)
+int FindTickValues(long x,int *p_vel,int *p_ch,int *p_key)
 {
 // x = s + 2 * (vel + 128 * ((ch - 1) + 128 * key))
 long s,y;
@@ -451,7 +451,7 @@ return(OK);
 }
 
 
-CaptureTicks(void)
+int CaptureTicks(void)
 {
 int i,rep,playticks;
 MIDIcode **ptr1;
@@ -542,7 +542,7 @@ return(rep);
 }
 
 
-SetTimeBase(void)
+int SetTimeBase(void)
 {
 Rect r;
 Handle itemhandle;
@@ -572,7 +572,7 @@ return(OK);
 
 #if BP_CARBON_GUI
 
-GetTimeBase(void)
+int GetTimeBase(void)
 {
 Rect r;
 Handle itemhandle;
@@ -630,7 +630,7 @@ return(rep);
 }
 
 
-GetTickParameters(void)
+int GetTickParameters(void)
 {
 long p,q,minduration,maxduration;
 char line[MAXFIELDCONTENT];
@@ -795,7 +795,7 @@ return(result);
 #endif /* BP_CARBON_GUI */
 
 
-SetTickParameters(int itick,int oldcycle)
+int SetTickParameters(int itick,int oldcycle)
 {
 char line[MAXFIELDCONTENT];
 int i,j,jj,im,overflow;

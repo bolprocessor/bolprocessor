@@ -202,7 +202,7 @@ extern MIDIcode ****pp_MIDIcode;
 extern float **p_CsoundTempo;
 extern Milliseconds ****pp_CsoundTime;
 extern long **p_CsoundSize,**p_MIDIsize;
-extern char **p_AlphaCtrlNr,**p_AlphaCtrlChan,**p_DefaultChannel,**p_PasteDone,
+extern char **p_DefaultChannel,**p_PasteDone,
 	**p_AlphaCtrl,**p_Type,**p_FixScale,**p_OkExpand,**p_OkCompress,**p_OkRelocate,
 	**p_BreakTempo,**p_DiscardNoteOffs,
 	**p_OkTransp,**p_OkArticul,**p_OkVolume,**p_OkPan,**p_OkMap,**p_OkVelocity,
@@ -212,7 +212,7 @@ extern char **p_AlphaCtrlNr,**p_AlphaCtrlChan,**p_DefaultChannel,**p_PasteDone,
 	**p_TruncBegMode,**p_TruncEndMode,**p_PreRollMode,**p_PostRollMode,
 	**p_PeriodMode,**p_ForceIntegerPeriod,**p_StrikeAgain,**p_CompiledCsoundScore,
 	****pp_Comment,****pp_CsoundScoreText,****p_CsoundTables;
-extern int MaxCsoundTables;
+extern int **p_AlphaCtrlNr,**p_AlphaCtrlChan,MaxCsoundTables;
 extern CsoundLine ****pp_CsoundScore;
 extern double **p_AlphaMin,**p_AlphaMax,**p_Quan,ForceRatio,Infpos1;
 extern float **p_PivPos,**p_BeforePeriod;
@@ -371,7 +371,7 @@ extern int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 
 extern FILE * imagePtr;
 extern int N_image;
-extern int MaxConsoleTime;
+extern long MaxConsoleTime;
 extern int CsoundPianoRollNoteShift;
 extern int NumberScales, MaxScales, DefaultScale, ToldAboutScale;
 extern char LastSeen_scale[100];

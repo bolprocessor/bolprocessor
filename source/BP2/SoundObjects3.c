@@ -38,9 +38,9 @@
 
 #include "-BP2decl.h"
 
-int trace_inconsistencies = 1;
+int trace_inconsistencies = 0;
 
-ResetPrototype(int j)
+int ResetPrototype(int j)
 {
 char line[MAXFIELDCONTENT];
 Handle ptr;
@@ -119,7 +119,7 @@ return(OK);
 }
 
 #if BP_CARBON_GUI
-GetPrototype(int force)
+int GetPrototype(int force)
 // Copying from dialogs to memory
 {
 long p,q,dur;
@@ -160,11 +160,11 @@ if(rep == OK) {
 
 rep = GetField(NULL,TRUE,wPrototype2,fSendAlphaControl,line,&p,&q);
 
-if(rep == OK && p/q >= 0) (*p_AlphaCtrlNr)[iProto] = p/q;
+if(rep == OK && p/q >= 0) (*p_AlphaCtrlNr)[iProto] = (int) p/q;
 else (*p_AlphaCtrlNr)[iProto] = 255;
 
 rep = GetField(NULL,TRUE,wPrototype2,fSendAlphaChannel,line,&p,&q);
-if(rep == OK && CheckChannelRange(&p,&q)) (*p_AlphaCtrlChan)[iProto] = p/q;
+if(rep == OK && CheckChannelRange(&p,&q)) (*p_AlphaCtrlChan)[iProto] = (int) p/q;
 else (*p_AlphaCtrlChan)[iProto] = 255;
 
 if((*p_PivType)[iProto] == 7) {
@@ -314,7 +314,7 @@ if((*p_CsoundInstr)[iProto] > 0) {
       }
    }
 
-GetCsoundScore(iProto);
+int GetCsoundScore(iProto);
 
 if((GetField(NULL,TRUE,wPrototype8,fAssignInstrument,line,&p,&q) != OK) || p < ZERO) {
    SetField(NULL,wPrototype8,fAssignInstrument,"[None]");
@@ -337,7 +337,7 @@ return(CheckConsistency(iProto,TRUE));
 
 
 #if BP_CARBON_GUI	// CheckPrototypes() is only called from CheckiProto() & mObjectPrototypes()
-CheckPrototypes(void)
+int CheckPrototypes(void)
 {
 int r,longerCsound;
 
@@ -388,7 +388,7 @@ return(r);
 #endif /* BP_CARBON_GUI */
 
 
-CheckConsistency(int j,int check)
+int CheckConsistency(int j,int check)
 {
 int k,bugg,longerCsound;
 long i,t,ton,toff;
@@ -588,7 +588,7 @@ return(OK);
 }
 
 
-PrototypeWindow(int w)
+int PrototypeWindow(int w)
 {
 switch(w) {
    case wPrototype1:
@@ -606,7 +606,7 @@ return(FALSE);
 
 #if BP_CARBON_GUI
 
-CopyFrom(int w)
+int CopyFrom(int w)
 {
 int rep,j;
 
@@ -687,7 +687,7 @@ return(OK);
 
 #endif /* BP_CARBON_GUI */
 
-CopyPage1(int i,int j)
+int CopyPage1(int i,int j)
 {
 (*p_Type)[j] = (*p_Type)[i];
 return(OK);
@@ -708,7 +708,7 @@ return(OK);
 }
 
 
-CopyPage3(int i,int j)
+int CopyPage3(int i,int j)
 {
 (*p_CoverBeg)[j] = (*p_CoverBeg)[i];
 (*p_MaxCoverBeg)[j] = (*p_MaxCoverBeg)[i];
@@ -727,7 +727,7 @@ return(OK);
 }
 
 
-CopyPage4(int i,int j)
+int CopyPage4(int i,int j)
 {
 (*p_ContBeg)[j] = (*p_ContBeg)[i];
 (*p_MaxBegGap)[j] = (*p_MaxBegGap)[i];
@@ -744,7 +744,7 @@ return(OK);
 }
 
 
-CopyPage5(int i,int j)
+int CopyPage5(int i,int j)
 {
 Handle ptr1,ptr2;
 int k;
@@ -778,7 +778,7 @@ return(OK);
 }
 
 
-CopyPage6(int i,int j)
+int CopyPage6(int i,int j)
 {
 (*p_BeforePeriod)[j] = (*p_BeforePeriod)[i];
 (*p_PeriodMode)[j] = (*p_PeriodMode)[i];
@@ -789,7 +789,7 @@ return(OK);
 }
 
 
-CopyPage7(int i,int j)
+int CopyPage7(int i,int j)
 {
 Handle ptr;
 int ievent;
@@ -798,7 +798,7 @@ if((*pp_CsoundScoreText)[i] != NULL) {
    if((*pp_CsoundScoreText)[j] == NULL) {
       if((ptr = (Handle) GiveSpace(MyGetHandleSize((Handle)(*pp_CsoundScoreText)[i])))
          == NULL) return(ABORT);
-      (*pp_CsoundScoreText)[j] = ptr;
+      (*pp_CsoundScoreText)[j] = (char**) ptr;
       }
    MystrcpyHandleToHandle(0,&((*pp_CsoundScoreText)[j]),(*pp_CsoundScoreText)[i]);
    }
@@ -829,7 +829,7 @@ return(OK);
 }
 
 
-CopyPage8(int i,int j)
+int CopyPage8(int i,int j)
 {
 (*p_DefaultChannel)[j] = (*p_DefaultChannel)[i];
 (*p_OkTransp)[j] = (*p_OkTransp)[i];

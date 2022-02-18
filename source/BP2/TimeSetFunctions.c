@@ -241,7 +241,7 @@ if(k == -1) {	/* 'NIL' end-of-line marker */
 					(*p_Instance)[kk].endtime = (*p_ts2)[ii];
 				//	if(kk > 1) BPPrintMessage(odError,"kk = %ld starttime = %ld endtime = %ld\n",(long)kk,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
 				//	if(kk < 34 && kk > 2) BPPrintMessage(odError,"Solution_is_accepted Chunk_number = %d, kk = %ld, ii = %ld starttime = %ld endtime = %ld\n",Chunk_number,(long)kk,ii,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
-					if((*p_ts1)[ii]/Kpress > 100000 || (*p_ts2)[ii]/Kpress > 100000) BPPrintMessage(odError,"ERR: Solution_is_accepted Chunk_number = %d, kk = %ld, ii = %ld starttime = %ld endtime = %ld\n",Chunk_number,(long)kk,ii,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
+				//	if((*p_ts1)[ii]/Kpress > 100000 || (*p_ts2)[ii]/Kpress > 100000) BPPrintMessage(odError,"ERR: Solution_is_accepted Chunk_number = %d, Kpress = %ld, kk = %ld, ii = %ld starttime = %ld endtime = %ld\n",Chunk_number,(long)Kpress,(long)kk,ii,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
 					}
 				if(ii <= imaxseq) {
 					DELTA = (*p_DELTA)[ii]

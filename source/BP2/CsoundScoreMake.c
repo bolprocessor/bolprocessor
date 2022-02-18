@@ -838,7 +838,7 @@ if(NewFile(-1,1,PascalLine,*CsFileReply)) {
 			return(ABORT);
 			}
 /*		WriteToFile(NO,CsoundFileFormat,"\0",CsRefNum); */
-		UpdateWindow(FALSE,Window[wCsoundTables]); /* Update text length */
+/*		UpdateWindow(FALSE,Window[wCsoundTables]); Suppressed 2022-02-18
 		ShowSelect(CENTRE,wCsoundTables);
 		length = GetTextLength(wCsoundTables);
 		ishtml = IsHTML[wCsoundTables];
@@ -849,7 +849,7 @@ if(NewFile(-1,1,PascalLine,*CsFileReply)) {
 		SetField(FileSavePreferencesPtr,-1,fCsoundFileName,CsFileName);
 		sprintf(Message,"\"%s\"",CsFileName);
 		MystrcpyStringToTable(ScriptLine.arg,0,Message);
-		AppendScript(180);
+		AppendScript(180); */
 		}
 	}
 if (CsFileReply) MyUnlock((Handle)CsFileReply);
@@ -858,7 +858,7 @@ return(rep);
 }
 
 
-CloseCsScore(void)
+/* CloseCsScore(void)
 {
 long count;
 char line[MAXLIN];
@@ -870,7 +870,7 @@ if(MIDIfadeOut > 0.) {
 	sprintf(line,"e %.3f",MIDIfadeOut);
 	}
 else strcpy(line,"e");
-WriteToFile(NO,CsoundFileFormat,line,CsRefNum);	/* 'e' terminates a Csound score */
+WriteToFile(NO,CsoundFileFormat,line,CsRefNum);	// 'e' terminates a Csound score 
 Date(line);
 sprintf(Message,"; this score was created by Bol Processor BP2 (version %s) on %s",
 	VersionName[Version],line);
@@ -892,6 +892,6 @@ ShowMessage(TRUE,wMessage,Message);
 strcpy(CsFileName,""); // Fixed by BB 2021-02-14
 SetField(FileSavePreferencesPtr,-1,fCsoundFileName,CsFileName);
 return(OK);
-}
+} */
 
 #endif /* BP_CARBON_GUI */

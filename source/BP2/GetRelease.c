@@ -1072,8 +1072,8 @@ if((p_MaxTruncBeg = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR
 if((p_MaxTruncEnd = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
 
 if((p_AlphaCtrl = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_AlphaCtrlNr = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_AlphaCtrlChan = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
+if((p_AlphaCtrlNr = (int**) GiveSpace((Size)2 *sizeof(int))) == NULL) goto ERR;
+if((p_AlphaCtrlChan = (int**) GiveSpace((Size)2 *sizeof(int))) == NULL) goto ERR;
 
 if((p_MIDIsize = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
 if((p_CsoundSize = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
@@ -1245,8 +1245,8 @@ MySetHandleSize((Handle*)&p_MaxTruncBeg,(Size)maxsounds*sizeof(long));
 MySetHandleSize((Handle*)&p_MaxTruncEnd,(Size)maxsounds*sizeof(long));
 
 MySetHandleSize((Handle*)&p_AlphaCtrl,(Size)maxsounds*sizeof(char));
-MySetHandleSize((Handle*)&p_AlphaCtrlNr,(Size)maxsounds*sizeof(char));
-MySetHandleSize((Handle*)&p_AlphaCtrlChan,(Size)maxsounds*sizeof(char));
+MySetHandleSize((Handle*)&p_AlphaCtrlNr,(Size)maxsounds*sizeof(int));
+MySetHandleSize((Handle*)&p_AlphaCtrlChan,(Size)maxsounds*sizeof(int));
 
 MySetHandleSize((Handle*)&p_MIDIsize,(Size)maxsounds*sizeof(long));
 MySetHandleSize((Handle*)&p_CsoundSize,(Size)maxsounds*sizeof(long));

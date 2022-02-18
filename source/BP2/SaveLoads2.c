@@ -223,7 +223,8 @@ WRITE:
 			WriteToFile(NO,MAC,line,refnum);
 			sprintf(line,"%.4f",(*p_PivPos)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)ByteToInt((*p_AlphaCtrlNr)[i]));
+	//		sprintf(line,"%ld",(long)ByteToInt((*p_AlphaCtrlNr)[i]));
+			sprintf(line,"%ld",(long) (*p_AlphaCtrlNr)[i]); // Fixed by BB 2022-02-17
 			WriteToFile(NO,MAC,line,refnum);
 			sprintf(line,"%ld",(long)(*p_AlphaCtrlChan)[i]);
 			WriteToFile(NO,MAC,line,refnum);

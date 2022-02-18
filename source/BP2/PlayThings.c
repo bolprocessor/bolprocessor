@@ -91,7 +91,7 @@ if(all) {
 	}
 
 // PlaySelectionOn++; // Fixed by BB 2021-02-17
-ResetMIDI(TRUE);
+// ResetMIDI(TRUE); // Fixed by BB 2022-02-18
 
 r = ABORT;
 
@@ -246,7 +246,7 @@ return(r);
 }
 
 
-PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll)
+int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll)
 {
 int r;
 
@@ -292,7 +292,7 @@ return(r);
 }
 
 
-PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll)
+int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll)
 {
 int result,kmax,i,j,nmax,dummy,finish,repeat,displayProducemem,
 	showmessagesmem,usebufferlimitmem,again,store,a,b;
@@ -437,7 +437,7 @@ return(result);
 }
 
 
-PlayHandle(char** p_line,int onlypianoroll)
+int PlayHandle(char** p_line,int onlypianoroll)
 {
 tokenbyte **p_ti;
 char c,*p1,*p2;
@@ -475,7 +475,7 @@ if(!CompiledAl || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 	}
 if(!onlypianoroll) {
 	if(CompileRegressions() != OK) return(r);
-	ResetMIDI(TRUE);
+	// ResetMIDI(TRUE);  Fixed by BB 2022-02-18
 	if(1 || ResetControllers) {
 		for(ch=0; ch < MAXCHAN; ch++) {
 			(*p_Oldvalue)[ch].volume = -1;
@@ -524,7 +524,7 @@ ENCODE:
 		}
 	else {
 	//	PlaySelectionOn++; // Fixed by BB 2021-02-17
-		if(!onlypianoroll) ResetMIDI(TRUE);
+	//	if(!onlypianoroll) ResetMIDI(TRUE); Fixed by BB 2022-02-18
 		improvize = FALSE;
 		if(Improvize) {
 			improvize = TRUE;
@@ -584,7 +584,7 @@ return(r);
 }
 
 
-TextToMIDIstream(int w)
+int TextToMIDIstream(int w)
 {
 int i,r,improvize,t,showmessages;
 MIDIcode **ptr1;
@@ -699,7 +699,7 @@ return(r);
    Valid values are listed in -BP2.h as "PasteSelectionAlert button indexes".
    A new value (bAskPasteAction) indicates to ask the user for how to paste.
  */
-PasteStreamToPrototype(int j, int what)
+int PasteStreamToPrototype(int j, int what)
 {
 long maxsize,newsize,i,ifrom,ito,k,p,offset;
 Size n;
@@ -941,7 +941,7 @@ return(ABORT);
 }
 
 
-UndoPasteSelection(int j)
+int UndoPasteSelection(int j)
 {
 long i;
 int longerCsound;
@@ -961,7 +961,7 @@ return(OK);
 }
 
 
-ChangedProtoType(int j)
+int ChangedProtoType(int j)
 {
 (*p_PasteDone)[j] = FALSE;
 return(OK);
@@ -994,7 +994,7 @@ return(k);
 }
 
 
-CaptureCodes(int j)
+int CaptureCodes(int j)
 {
 long i,maxcodes;
 
@@ -1097,7 +1097,7 @@ int ExpandSelection(int w) {
 	}
 
 
-ShowPeriods(int w)
+int ShowPeriods(int w)
 {
 int r,finish,ifunc,hastabs;
 tokenbyte **p_a;
@@ -1355,8 +1355,8 @@ p1 = **pp_buff; p2 = p1; i = 0; ret = FALSE;
 // OPTIMIZE? Is all of this "re-checking" necessary? Look at ReadToBuff() - akozar
 // We'll check it later - BB
 while(((*p2) != '\0') && (ret || (*p2) != '\r')) {
-	if((*p2) == 'Â') ret = TRUE;
-	else if(!MySpace((*p2))) ret = FALSE;
+	// if((*p2) == 'ï¿½') ret = TRUE; Fixed by BB 2022-02-18
+	if(!MySpace((*p2))) ret = FALSE;
 	p2++;
 	if(++i > length) {
 		if(Beta) Alert1("=> Err. SelectionToBuffer(). i > length");
@@ -1403,7 +1403,7 @@ return(rep);
 }
 
 
-ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buff)
+int ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buff)
 /* Read TExt buffer */
 {
 int first;
@@ -1443,11 +1443,11 @@ for(j=*p_i,k=0; j < im; j++) {
 			j++;
 			}
 		}
-	if(c == '\r' && oldc != 'Â') {
+	if(c == '\r' /* && oldc != 'ï¿½' */) {
 		if(first || noreturn) continue;
 		else break;
 		}
-	if(c == '\r' && oldc == 'Â') {
+	if(c == '\r' /* && oldc == 'ï¿½' */) {
 		c = ' ';
 		}
 	oldc = c;
@@ -1455,9 +1455,9 @@ for(j=*p_i,k=0; j < im; j++) {
 	if(noreturn && nocomment && c == '[') {
 		j--; break;
 		}
-	if(c == 'Â') (**pp_buff)[k++] = ' ';
+//	if(c == 'ï¿½') (**pp_buff)[k++] = ' ';
 	c = Filter(c);
-	if(c != 'Â' && (c != '\r' || noreturn)) (**pp_buff)[k++] = c;
+	if(/* c != 'ï¿½' && */ (c != '\r' || noreturn)) (**pp_buff)[k++] = c;
 	if(k >= size) {
 		if(ThreeOverTwo(&size) != OK) {
 			*p_i = ++j;

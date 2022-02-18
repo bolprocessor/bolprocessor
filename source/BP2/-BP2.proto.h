@@ -842,6 +842,7 @@ int ReadLong(FILE*,long*,long*);
 int ReadUnsignedLong(FILE*,unsigned long*,long*);
 int ReadFloat(FILE*,double*,long*);
 int WriteToFile(int,int,char*,short);
+int NewWriteToFile(char*,FILE*);
 int NoReturnWriteToFile(char*,short);
 int GetHeader(int);
 int MakeGrammarFromTable(int);

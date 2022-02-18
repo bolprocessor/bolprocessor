@@ -41,7 +41,7 @@
 int trace_midi_filter = 0;
 int trace_driver = 0;
 
-ListenMIDI(int x0, int x1, int x2)
+int ListenMIDI(int x0, int x1, int x2)
 {
 int i,j,r,c,c0,c1,c2,filter,idummy,eventfound;
 long jdummy;
@@ -520,7 +520,7 @@ if(Interactive && c2 > 0) {
 		for(i=1; i < MAXPARAMCTRL; i++) {
 			if(ParamChan[i] != -1 && ParamKey[i] == c1
 								  && c0 == (NoteOn + ParamChan[i] - 1)) {
-			/* IN Param key ÇKxÈ = velocity ÇnoteÈ channel Ç1..16È */
+			/* IN Param key ï¿½Kxï¿½ = velocity ï¿½noteï¿½ channel ï¿½1..16ï¿½ */
 				sprintf(Message,"K%ld = %ld",(long)i,(long)c2);
 				ShowMessage(TRUE,wMessage,Message);
 				ParamValue[i] = c2;
@@ -535,7 +535,7 @@ return(r);
 }
 
 
-Ctrl_adjust(MIDI_Event *p_e,int c0,int c1,int c2)
+int Ctrl_adjust(MIDI_Event *p_e,int c0,int c1,int c2)
 {
 int speed_change,i,j,r,c11;
 long count = 12L,oldn,dt;
@@ -549,7 +549,7 @@ if(ParamControlChan > 0) {
 	for(i=1; i < MAXPARAMCTRL; i++) {
 		if(ParamChan[i] != -1 && c0 == (ControlChange + ParamChan[i] - 1)
 			&& ParamControl[i] == c1) {
-		/* IN Param ÇKxÈ = controller #Ç0..127È channel Ç1..16È */
+		/* IN Param ï¿½Kxï¿½ = controller #ï¿½0..127ï¿½ channel ï¿½1..16ï¿½ */
 			ParamControlChan = ParamChan[i];
 			sprintf(Message,"K%ld = %ld",(long)i,(long)c2);
 			ShowMessage(TRUE,wMessage,Message);
@@ -589,7 +589,7 @@ return(r);
 }
 
 
-ChangeStatus(int c0,int c1,int c2)
+int ChangeStatus(int c0,int c1,int c2)
 {
 long newP,newQ;
 
@@ -684,7 +684,7 @@ return(OK);
 }
 
 
-SetInputFilterWord(void)
+int SetInputFilterWord(void)
 {
 if(EndSysExIn) SysExIn = TRUE;
 if(SysExIn) EndSysExIn = TRUE;
@@ -703,7 +703,7 @@ return(OK);
 }
 
 
-SetOutputFilterWord(void)
+int SetOutputFilterWord(void)
 {
 if(SetInputFilterWord() != OK) return(ABORT);
 if(EndSysExPass) SysExPass = TRUE;
@@ -726,7 +726,7 @@ return(OK);
 }
 
 
-GetInputFilterWord(void)
+int GetInputFilterWord(void)
 {
 long n = 1L;
 
@@ -752,7 +752,7 @@ return(OK);
 }
 
 
-GetOutputFilterWord(void)
+int GetOutputFilterWord(void)
 {
 long n = 1L;
 
@@ -778,7 +778,7 @@ return(OK);
 }
 
 
-ResetMIDIFilter(void)
+int ResetMIDIFilter(void)
 {
 MIDIinputFilter = MIDIinputFilterstartup;
 MIDIoutputFilter = MIDIoutputFilterstartup;
@@ -789,7 +789,7 @@ return(OK);
 }
 
 
-TwoByteEvent(int c) 
+int TwoByteEvent(int c) 
 {
 int c0;
 
@@ -801,7 +801,7 @@ return(NO);
 }
 
 
-ThreeByteEvent(int c)
+int ThreeByteEvent(int c)
 {
 int c0;
 
@@ -813,7 +813,7 @@ return(NO);
 }
 
 
-ThreeByteChannelEvent(int c)
+int ThreeByteChannelEvent(int c)
 {
 if(c < NoteOff) return(NO);
 if(c == ProgramChange || c == ChannelPressure) return(NO);
@@ -822,7 +822,7 @@ return(YES);
 }
 
 
-ChannelEvent(int c)
+int ChannelEvent(int c)
 {
 int c0;
 
@@ -833,7 +833,7 @@ return(NO);
 }
 
 
-AcceptEvent(int c)
+int AcceptEvent(int c)
 {
 int c0;
 
@@ -896,7 +896,7 @@ return(NO);
 }
 
 
-PassEvent(int c)
+int PassEvent(int c)
 {
 int c0;
 
@@ -959,7 +959,7 @@ return(NO);
 }
 
 
-SendMIDIstream(int check,char** p_line,int hexa)
+int SendMIDIstream(int check,char** p_line,int hexa)
 {
 int i,r;
 long n,time;
@@ -998,7 +998,7 @@ return(r);
 }
 
 
-ResetMIDIControllers(int now,int force,int givetime)
+int ResetMIDIControllers(int now,int force,int givetime)
 {
 int ch,j,rs,result,lsb,msb;
 MIDI_Event e;
@@ -1115,7 +1115,7 @@ return(result);
 // I'm not sure whether we need PlayPrototypeTicks() and RecordTick()
 // in ANSI console build, but seems unlikely.  - akozar
 
-PlayPrototypeTicks(int j)
+int PlayPrototypeTicks(int j)
 {
 MIDI_Event e;
 /* long count = 12L;
@@ -1197,7 +1197,7 @@ return(OK);
 }
 
 
-RecordTick(int where,int i)
+int RecordTick(int where,int i)
 {
 MIDI_Event e;
 int key,channel,c0,c1,velocity;
@@ -1308,7 +1308,7 @@ return(OK);
 }
 
 
-FormatMIDIstream(MIDIcode **p_b,long imax,MIDIcode **p_c,int zerostart,
+int FormatMIDIstream(MIDIcode **p_b,long imax,MIDIcode **p_c,int zerostart,
 	long im2,long *p_nbytes,int filter)
 {
 long i,ii,time,t0,this_byte;
@@ -1452,7 +1452,7 @@ return(OK);
 
 #if BP_CARBON_GUI
 
-SelectControlArgument(int w,char* line)
+int SelectControlArgument(int w,char* line)
 {
 int i,ii,j,ok,n;
 long iorg,iend,length;
@@ -1592,7 +1592,7 @@ return(OK);
 }
 
 
-ReadMIDIparameter(int c0, int c1, int c2, int wind)
+int ReadMIDIparameter(int c0, int c1, int c2, int wind)
 // Get parameter of incoming MIDI message and put it as an argument
 // of performance control.
 // Argument is already selected.
@@ -1665,7 +1665,7 @@ return(OK);
 }
 
 
-SetFilterDialog(void)
+int SetFilterDialog(void)
 // Set buttons in MIDI filter dialog
 {
 SwitchOnOff(NULL,wFilter,bNoteOnOffIn,NoteOffIn);
@@ -1683,7 +1683,6 @@ SwitchOnOff(NULL,wFilter,bTimingClockIn,ClockTypeIn);
 SwitchOnOff(NULL,wFilter,bStartStopIn,StartTypeIn);
 SwitchOnOff(NULL,wFilter,bActiveSensingIn,ActiveSenseIn);
 SwitchOnOff(NULL,wFilter,bSystemResetIn,ResetIn);
-
 SwitchOnOff(NULL,wFilter,bNoteOnOffPass,NoteOffPass);
 SwitchOnOff(NULL,wFilter,bKeyPressurePass,KeyPressurePass);
 SwitchOnOff(NULL,wFilter,bControlPass,ControlTypePass);
@@ -1703,7 +1702,7 @@ return(OK);
 }
 
 
-CheckMIDIOutPut(int channel)
+int CheckMIDIOutPut(int channel)
 {
 MIDI_Event e;
 int key,duration,minkey,maxkey,stepkey,ch,stop;
@@ -1892,7 +1891,7 @@ return(OK);
 }
 
 
-AllNotesOffAllChannels(void)
+int AllNotesOffAllChannels(void)
 {
 int rs,key,channel;
 long delay;
@@ -1973,7 +1972,7 @@ return(OK);
 }
 
 
-SetMIDIPrograms(void)
+int SetMIDIPrograms(void)
 {
 int i,p,rs;
 MIDI_Event e;
@@ -2002,7 +2001,7 @@ return(OK);
    so not sure if this function is likely to ever do anything.
    -- akozar 20130830
  */
-CheckMIDIbytes(int tell)
+int CheckMIDIbytes(int tell)
 {
 unsigned long drivertime;
 long formertime,timeleft;

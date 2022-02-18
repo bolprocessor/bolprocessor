@@ -40,7 +40,7 @@
 
 
 
-Equal(double accuracy,double p,double q,double r,double s,int* p_overflow)
+int Equal(double accuracy,double p,double q,double r,double s,int* p_overflow)
 {
 int overflow;
 double D,x,y,dif;
@@ -67,7 +67,7 @@ return(NO);
 }
 
 
-Add(double p,double q,double r,double s,
+int Add(double p,double q,double r,double s,
 	double *p_P,double *p_Q,int* p_overflow)
 {
 double qq,ss;
@@ -105,7 +105,7 @@ return(OK);
 }
 
 
-Substract(double p,double q,double r,double s,double *p_P,double *p_Q,
+int Substract(double p,double q,double r,double s,double *p_P,double *p_Q,
 	int *p_sign,int* p_overflow)
 {
 double qq,ss;
@@ -148,7 +148,7 @@ return(OK);
 }
 
 
-Eucl(unsigned long a,unsigned long b,unsigned long *p_q,unsigned long *p_r)
+int Eucl(unsigned long a,unsigned long b,unsigned long *p_q,unsigned long *p_r)
 {
 
 if(b == ZERO) return(-1);
@@ -159,7 +159,7 @@ return(0);
 }
 
 
-Simplify(double limit,double p,double q,double *p_p,double *p_q)
+int Simplify(double limit,double p,double q,double *p_p,double *p_q)
 {
 unsigned long gcd;
 int neg,result;
@@ -369,7 +369,7 @@ return(x);
 }
 
 
-FloatToNiceRatio(char *s,unsigned long *p_p,unsigned long *p_q)
+int FloatToNiceRatio(char *s,unsigned long *p_p,unsigned long *p_q)
 {
 double x,pp,qq;
 long p,q;
@@ -390,7 +390,7 @@ return(OK);
 }
 
 
-MakeRatio(double limit,double x,double *p_p,double *p_q)
+int MakeRatio(double limit,double x,double *p_p,double *p_q)
 {
 int sign,rounded,result;
 double p,q,qq,epsilon,dif,xx,xxx;

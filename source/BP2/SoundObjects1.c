@@ -195,7 +195,8 @@ if(!(*p_OkExpand)[j] && !(*p_OkCompress)[j] && !(*p_FixScale)[j]) {
 else SwitchOff(NULL,wPrototype2,bDilationRatioRange);
 if((*p_AlphaCtrl)[j]) {
    SwitchOn(NULL,wPrototype2,bSendAlpha);
-   k = ByteToInt((*p_AlphaCtrlNr)[j]);
+  // k = ByteToInt((*p_AlphaCtrlNr)[j]);
+   k = (*p_AlphaCtrlNr)[j]; // Fixed by BB 2022-02-17
    sprintf(line,"%ld",(long) k);
    if((*p_AlphaCtrlNr)[j] >= 0 && (*p_AlphaCtrlNr)[j] < MAXPARAMCTRL)
       SetField(NULL,wPrototype2,fSendAlphaControl,line);
@@ -208,7 +209,8 @@ if((*p_AlphaCtrl)[j]) {
          return(ABORT);
          }
       }
-   k = ByteToInt((*p_AlphaCtrlChan)[j]);
+ //  k = ByteToInt((*p_AlphaCtrlChan)[j]);
+   k = (*p_AlphaCtrlChan)[j]; // Fixed by BB 2022-02-18
    sprintf(line,"%ld",(long) k);
    if((*p_AlphaCtrlChan)[j] > 0 && (*p_AlphaCtrlChan)[j] <= MAXCHAN)
       SetField(NULL,wPrototype2,fSendAlphaChannel,line);

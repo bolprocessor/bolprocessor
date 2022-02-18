@@ -97,6 +97,7 @@ result = SetTimeObjects(bigitem,p_imaxseq,*p_maxseq,p_nmax,
 	p_kmx,p_tmin,p_tmax,p_articul);
 time(&end_time);
 TimeSettingTime += end_time - start_time;
+// ProductionTime += TimeSettingTime;
 
 if(trace_timeset) BPPrintMessage(odInfo,"End TimeSet() maxseq = %ld\n\n",(long)*p_maxseq);
 

@@ -1023,7 +1023,7 @@ if(nseq < nmax && (imax < maxseq)) {
 	/* This is only needed if there are more sequences. */
 	}
 // iprev = i;
-iprev = i + 1; // Fixed by BB 2022-02-17
+iprev = i + 1; // Fixed by BB 2022-02-17, check this with -gr.tryTimePatterns
 jprev = -1;
 while(TRUE) {
 	if(iprev >= imax) break;
