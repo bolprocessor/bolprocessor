@@ -1085,10 +1085,17 @@ if((striated && Nature_of_time != STRIATED)
 		|| (!striated && Nature_of_time == STRIATED)
 		|| newp != Pclock || newq != Qclock) {
 MAKECHANGE:
+	if(newp != Pclock || newq != Qclock) BPPrintMessage(odInfo,"Metronome has been set to %.3f beats/mn while reading grammar/data\n",(newq * 60.)/newp); 
 	Pclock = newp;
 	Qclock = newq;
-	if(striated) Nature_of_time = STRIATED;
-	else Nature_of_time = SMOOTH;
+	if(striated) {
+		if(Nature_of_time == SMOOTH) BPPrintMessage(odInfo,"Time has been set to STRIATED while reading grammar/data\n");
+		Nature_of_time = STRIATED;
+		}
+	else {
+		if(Nature_of_time == STRIATED) BPPrintMessage(odInfo,"Time has been set to SMOOTH while reading grammar/data\n");
+		Nature_of_time = SMOOTH;
+		}
 	SetTempo();
 	SetTimeBase();
 #if BP_CARBON_GUI

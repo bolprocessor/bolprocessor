@@ -54,11 +54,10 @@ Actions
 - fix analyze-item action
 - implement expand-item & show-beats actions
 - new action for listing RT MIDI devices ? Create a file which the user will read via the interface, then select option(s) that will be added as tokens to the "Play" command line
-- some C-code source files are not UTF8 because they contain incompatible characters. This has to do with using ‘…’ and ‘•’ in the text output. Examples in -gr.Ames and -da.acceleration.
-- bizarre "production time" is displayed, e.g. with "-gr.acceleration"
+- revise write to file procedures to use fwrite() everywhere instead of fswrite()
 
 
-Cloud version (option)
+Cloud version (option, as creating aa standalone application seems a better choice)
 -------------
 
 - Install a html/php/MySQL server for the sharing of BP console + PHP interface (+ website?)
@@ -66,7 +65,7 @@ Cloud version (option)
 - Grant every user some storage space (with time limit?)
 - Run all features except MIDI in/out
 - Csound scores could be exported and/or processed by Csound and WAV files dowloaded and/or played on line via HTML <audio> tag
-- MIDI files could be exported and/or processed by Csound and WAV files dowloaded and/or played on line via MIDIjs.
+- MIDI files could be dowloaded and/or played on line via MIDIjs.
 - Beware of bandwidth with online playing
 
 
@@ -75,9 +74,9 @@ Input files
 
 - fix crash when loading a glossary file
 - fix crash when grammar contains script commands
-- support UTF-8 text encoding for input files & output
-- implement the -s/-S options for specifying the start string => Not useful as it exists on the Grammar window of the PHP interface
-- identify intput files with prefixes even when they are preceded by a path. => Read next
+- support UTF-8 text encoding for input files & output (may not be necessary)
+- implement the -s/-S options for specifying the start string => not necessary as it exists on the Grammar window of the PHP interface
+- identify intput files with prefixes/suffixes even when they are preceded by a path. => Read next
 - restore the feature that looks for names of related files in the input files and auto-loads them (to be discussed...) => probably useless because the interface takes care of these links and it creates links for editing related files
 
 

@@ -750,7 +750,7 @@ TRYCSFILE:
 			if(CsoundTrace) ShowMessage(TRUE,wMessage,Message);
 		/*	{
 				SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
-				Println(wTrace,Message);
+				Println(wTrace,Message); 
 				} */
 			if(WriteToFile(NO,CsoundFileFormat,Message,CsRefNum) != OK) {
 			/*	sprintf(Message,"Couldn't write to file '%s'. May be it has been closed by another application",
@@ -2332,8 +2332,8 @@ unsigned long drivertime;
 
 if(!OutMIDI || Panic) return(OK);
 
-#if WITH_REAL_TIME_MIDI
 result = OK;
+#if WITH_REAL_TIME_MIDI
 formertime = ZERO;
 drivertime = GetDriverTime();
 WaitOn++;
@@ -2384,8 +2384,8 @@ OVER:
 if(WaitOn > 0) WaitOn--;
 // else if(Beta) Alert1("=> Err. WaitForLastSounds(). WaitOn <= 0");
 ClearMessage();
+#endif /* WITH_REAL_TIME_MIDI */
 return(result);
-#endif
 }
 
 
@@ -2404,11 +2404,11 @@ if(!OutMIDI || MIDIfileOn) {
 	}
 #endif /* BP_CARBON_GUI */
 
+result = OK;
 #if WITH_REAL_TIME_MIDI
 WhenItStarted += 1L;	/* Change it slightly so that BP2 remembers WaitForEmptyBuffer() has been called */
 if(Nbytes == ZERO || Panic) return(OK);
 
-result = OK;
 formertime = ZERO;
 drivertime = GetDriverTime();
 WaitOn++;
@@ -2457,8 +2457,8 @@ OVER:
 if(WaitOn > 0) WaitOn--;
 HideWindow(Window[wMessage]);
 WhenItStarted = clock();
-return(result);
 #endif /* WITH_REAL_TIME_MIDI */
+return(result);
 }
 
 

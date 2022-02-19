@@ -172,6 +172,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			t1 = (*p_t1)[i];
 			t2 = (*p_t2)[i];
 			}
+		if(trace_graphic) BPPrintMessage(odInfo,"GraphicScaleP = %ld GraphicScaleQ = %ld, t1 = %ld t2 = %ld\n",GraphicScaleP,GraphicScaleQ,(long)t1,(long)t2);
 		t1 =  (t1 * GraphicScaleP) / GraphicScaleQ / 10;
 		t2 =  (t2 * GraphicScaleP) / GraphicScaleQ / 10;
 		j = (*p_Instance)[k].object; /* Beware: j < 0 for out-time objects */
@@ -310,9 +311,14 @@ CONT:
 			}
 		else pivloc = 0.;
 		pivloc -= trbeg;
-		if((*p_top)[linenum] <= 0) BPPrintMessage(odError,"=> Error Graphic linenum = %ld top <= 0\n",(long)linenum);
-		if((*p_top)[linenum] <= 0) BPPrintMessage(odError,"=> Error Graphic top <= 0\n");
-		if(morespace < 0) BPPrintMessage(odError,"=> Error Graphic morespace < 0\n");
+		if((*p_top)[linenum] <= 0) {
+			BPPrintMessage(odError,"=> Error Graphic linenum = %ld top <= 0\n",(long)linenum);
+			(*p_top)[linenum] = 0;
+			}
+		if(morespace < 0) {
+			BPPrintMessage(odError,"=> Error Graphic morespace < 0\n");
+			morespace = 0;
+			}
 		
 		if(trace_graphic) BPPrintMessage(odInfo,"\nRunning DrawObject(%s) for t1 = %ld t2= %ld linenum = %ld, endx = %ld morespace = %ld, top = %ld\n",label,(long)t1,(long)t2,(long)linenum,(long)endx,(long)morespace,(long)(*p_top)[linenum]);
 				

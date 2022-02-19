@@ -874,7 +874,7 @@ while(TRUE) {
 				RandomTime(&t1,(*p_Instance)[k].randomtime);
 				(*p_time1)[i] = t1;
 				t2 = (*p_time2)[i] = t1 + (*p_Instance)[k].alpha * 1000L;
-			//	if(k == 4) BPPrintMessage(odInfo,"Fix() k = %ld j = %ld alpha = %.2f t1 = %ldms t2 = %ldms\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)t1,(long)t2);
+				// BPPrintMessage(odInfo,"Fix() k = %ld j = %ld alpha = %.2f t1 = %ldms t2 = %ldms\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)t1,(long)t2);
 				}
 			}
 		else {
@@ -941,7 +941,7 @@ if(nature_time == STRIATED || nseq == 0) {
 			beta = alpha = 0.; goto OKALPHA1;
 			}
 		d = (double) (inext - i) * Kpress / Ratio; /* Symbolic duration */
-		// BPPrintMessage(odInfo,"@ k = %ld j = %ld nseq = %d i = %ld inext = %ld seq[inext] = %d d = %.2f , T[i] = %ld T[i+1] = %ld, T[inext] = %ld T[inext+1] = %ld Kpress = %.0f Ratio = %.0f Kpress/Ratio = %.3f\n",(long)k,(long)j,nseq,(long)i,(long)inext,(*((*p_Seq)[nseq]))[inext],d,(long)(*p_T)[i],(long)(*p_T)[i+1],(long)(*p_T)[inext],(long)(*p_T)[inext+1],Kpress,Ratio,Kpress/Ratio); // $$$$
+		// BPPrintMessage(odInfo,"@ k = %ld j = %ld nseq = %d i = %ld inext = %ld seq[inext] = %d d = %.2f, T[i] = %ld T[i+1] = %ld, T[inext] = %ld T[inext+1] = %ld Kpress = %.0f Ratio = %.0f Kpress/Ratio = %.3f Pclock = %.2f\n",(long)k,(long)j,nseq,(long)i,(long)inext,(*((*p_Seq)[nseq]))[inext],d,(long)(*p_T)[i],(long)(*p_T)[i+1],(long)(*p_T)[inext],(long)(*p_T)[inext+1],Kpress,Ratio,Kpress/Ratio,(double)Pclock);
 		if(nature_time == SMOOTH) {
 			if(Qclock < 1L) {
 			//	if(Beta) Alert1("=> Err. Calculate_alpha(). Qclock < 1. ");
@@ -951,7 +951,7 @@ if(nature_time == STRIATED || nseq == 0) {
 			if(Pclock > 0.) { 				/* Measured smooth time */
 				if(j >= 16383) // simple note
 					alpha = (double) d * clockperiod / 1000L;
-				if(j >= Jbol) // time pattern
+				else if(j >= Jbol) // time pattern ("else" added by BB 2022-02-19)
 					alpha = (double) d  * clockperiod / (*p_Tref)[j];
 				else if((*p_Tref)[j] > EPSILON) // Striated object
 					alpha = (double) d * clockperiod / (*p_Tref)[j];
@@ -962,7 +962,7 @@ if(nature_time == STRIATED || nseq == 0) {
 			else {		/* Pclock = ZERO; non-measured smooth time */
 				alpha = d;
 				}
-			if(trace_object_features) BPPrintMessage(odInfo,"Calculate_alpha() smooth 1st line k = %ld j = %ld alpha = %.2f d = %.2f clockperiod = %ld i = %ld inext = %ld Dur = %ld Tref = %ld\n",(long)k,(long)j,alpha,(long)d,(long)clockperiod,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+			if(trace_object_features) BPPrintMessage(odInfo,"Calculate_alpha() smooth 1st line k = %ld j = %ld alpha = %.2f d = %.2f clockperiod = %ld i = %ld inext = %ld Dur = %ld Tref = %ld\n",(long)k,(long)j,(double)alpha,(long)d,(long)clockperiod,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 			}
 		else {					/* Striated time or nseq > 0 */
 			if(d > 0.) {

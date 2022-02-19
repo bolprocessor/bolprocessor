@@ -174,7 +174,7 @@ period = ((double) Pclock) * 1000. * CorrectionFactor / Qclock;
 // BPPrintMessage(odInfo,"Pclock = %ld Qclock = %ld, CorrectionFactor = %.3f\n",(long)Pclock,(long)Qclock,CorrectionFactor);
 
 // if(trace_timeset)
-BPPrintMessage(odInfo,"Setting time streaks on %d lines\n",(*p_nmax));
+BPPrintMessage(odInfo,"Setting time streaks on %d lines, nature_time = %d\n",(*p_nmax),nature_time);
 
 
 while(TRUE) {
@@ -349,7 +349,7 @@ if(trace_timeset) {
 max_end_time = (*p_T)[maxseq];
 
 if(trace_timeset) {
-	BPPrintMessage(odInfo,"Positioning %ld sound-objects...\n",(long)(*p_kmx));
+	BPPrintMessage(odInfo,"\nPositioning %ld sound-objects...\n",(long)(*p_kmx));
 	}
 if(DoSystem() != OK) return(ABORT);
 

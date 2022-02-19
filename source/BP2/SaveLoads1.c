@@ -1782,6 +1782,10 @@ else {
 if(!ShowGraphic) ShowObjectGraph = ShowPianoRoll = FALSE;
 if(ShowPianoRoll) BPPrintMessage(odInfo,"Pianoroll will be produced\n");
 if(ShowObjectGraph) BPPrintMessage(odInfo,"Object graphics will be produced\n");
+BPPrintMessage(odInfo,"Metronome will be %.3f beats/mn by default (as per settings)\n",(Qclock * 60.)/Pclock); 
+if(Nature_of_time == STRIATED) BPPrintMessage(odInfo,"Time is STRIATED\n");
+else BPPrintMessage(odInfo,"Time is SMOOTH (no metronome)\n");
+
 if(PlaySelectionOn) Improvize = 0;			
 /* Removed code for reading "NewEnvironment", window coordinates & text colors */
 
