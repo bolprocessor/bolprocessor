@@ -277,7 +277,7 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	p = &(*p_line)[0]; q = &(FilePrefix[wTimeBase][0]);
 	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
 		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
-	p = &(*p_line)[0]; q = &(FilePrefix[wCsoundInstruments][0]);
+	p = &(*p_line)[0]; q = &(FilePrefix[wCsoundResources][0]);
 	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
 		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
 	p = &(*p_line)[0]; q = &(FilePrefix[wMIDIorchestra][0]);
@@ -977,7 +977,7 @@ while(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
 			}
 		}
 	if(!csknown) {
-		q = &(FilePrefix[wCsoundInstruments][0]);
+		q = &(FilePrefix[wCsoundResources][0]);
 		if(Match(TRUE,p_line,&q,4)) {
 			csknown = TRUE; goto NEXTLINE;
 			}

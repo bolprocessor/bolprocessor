@@ -128,8 +128,8 @@ if(j < 2 || j >= Jbol) return(FAILED);
 
 if(DrawPrototype(j,wPrototype1,&PictFrame) != OK) return(ABORT);
 
-if(FileName[wCsoundInstruments][0] != '\0')
-   SetField(NULL,wPrototype1,fInstrumentFileName,FileName[wCsoundInstruments]);
+if(FileName[wCsoundResources][0] != '\0')
+   SetField(NULL,wPrototype1,fInstrumentFileName,FileName[wCsoundResources]);
 else
    SetField(NULL,wPrototype1,fInstrumentFileName,"[no file]");
 

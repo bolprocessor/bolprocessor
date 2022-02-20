@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
  
-int trace_cs_scoremake = 0; 
+int trace_cs_scoremake = 0;
 
 int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double dilationratio,Milliseconds t,int iline,
 	int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,
@@ -706,7 +706,7 @@ sprintf(line,"i%ld ",(long)index);
 if(!ConvertMIDItoCsound) NoReturnWriteToFile(line,CsRefNum);
 strcpy(Message,line);
 sprintf(line2,"iarg = 1 line = %s\n",line);
-if(trace_cs_scoremake) BPPrintMessage(odInfo,line2);
+if(trace_cs_scoremake) BPPrintMessage(odInfo,"- %s",line2);
 
 for(iarg=2; iarg <= iargmax; iarg++) {
 	if(iarg != ipitch || pitch_format == IGNORE || pitch_format == CPS) {

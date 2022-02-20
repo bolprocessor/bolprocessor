@@ -89,8 +89,8 @@ TRYSUBGRAM:
 	if(r == FINISH) continue;
 	if(finish) {
 		if(!SkipFlag
-			&& (r = ShowItem(igram,&Gram,FALSE,pp_a,(*p_repeat),PROD,FALSE)) == ABORT
-				|| r == EXIT || r == STOP) goto OUT;
+			&& (((r = ShowItem(igram,&Gram,FALSE,pp_a,(*p_repeat),PROD,FALSE)) == ABORT)
+				|| r == EXIT || r == STOP)) goto OUT;
 		StepProduce = DisplayProduce = TRUE;
 		PlanProduce = TraceProduce = finish - 1;
 		}
@@ -153,7 +153,7 @@ return(r);
 }
 
 
-ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_length,
+int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_length,
 	int *p_finish,int *p_repeat,int mode,int learn,int *p_outgram,
 	int *p_outrul, int time_end_compute)
 {
@@ -963,7 +963,7 @@ return(rep);
 }
 
 
-Undo(tokenbyte ***pp_a, int repeat)
+int Undo(tokenbyte ***pp_a, int repeat)
 {
 long endofselection;
 unsigned long datemem;
@@ -1054,7 +1054,7 @@ return(OK);
 }
 
 
-Destroy(tokenbyte ***pp_a)
+int Destroy(tokenbyte ***pp_a)
 {
 tokenbyte **p_x;
 int rep;
@@ -1510,7 +1510,7 @@ return(i);
 }
 
 
-OkContext(tokenbyte ***pp_a,int grtype,t_rule rule,long pos,long length,
+int OkContext(tokenbyte ***pp_a,int grtype,t_rule rule,long pos,long length,
 	tokenbyte meta[],tokenbyte instan[],int mode,int time_end_compute)
 /* Check remote context */
 {
@@ -1875,9 +1875,9 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 {
 int randomnumber;
 tokenbyte m,p;
-long i,ii,j,jmax,i0,j0,pos1,xi,sizedest,istart,jstart,length,length1;
+long i,ii,j,jmax,i0,j0,pos1,xi,sizedest,istart,jstart,length,length1,lenc1; // Fixed lenc1 is not Size (BB 2022-02-20)
 tokenbyte *ptr1,*ptr2,posdif,instan[MAXLIN],meta[MAXMETA2],meta1[MAXMETA2];
-Size oldsize,newsize,lenc1,incmark,blocksize;
+Size oldsize,newsize,incmark,blocksize;
 
 /* *pp_origin = *pp_dest except in 'SUB' subgrammars. */
 
@@ -2115,7 +2115,7 @@ return(pos1);
 }
 
 
-Cormark(tokenbyte ***pp_a,long from,long inmark)
+int Cormark(tokenbyte ***pp_a,long from,long inmark)
 /* Recalculate slave markers after derivation... */
 // Checked by BB, 6 Nov 2020, with -gr.dhin-- seems OK
 // But "from" is too large when work string does not contain markers…
@@ -2228,7 +2228,7 @@ return(rep);
 }
 
 
-ShowItem(int igram,t_gram *p_gram,int justplay,tokenbyte ***pp_a,int repeat,
+int ShowItem(int igram,t_gram *p_gram,int justplay,tokenbyte ***pp_a,int repeat,
 	int mode,int all)
 {
 int r,rep,ifunc,datamode,hastabs;
@@ -2276,7 +2276,7 @@ return(r);
 
 
 #if BP_CARBON_GUI
-InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode)
+int InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode)
 {
 long lastbyte;
 int r,rep;

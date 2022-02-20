@@ -65,7 +65,7 @@
 
 // 1 if building the OS X Carbon GUI, 0 otherwise
 #ifndef BP_CARBON_GUI
-#define BP_CARBON_GUI 1
+#define BP_CARBON_GUI 0 // Fixed by BB 2022-02-20
 #endif
 
 // This allows the compiler to select low-level toolbox procedures.
@@ -112,10 +112,15 @@
 #endif
 
 #if USE_BUILT_IN_MIDI_DRIVER
-#  define WITH_REAL_TIME_MIDI 1
+// #  define WITH_REAL_TIME_MIDI 1
 #  define WITH_REAL_TIME_SCHEDULER 1
-#else
-#  define WITH_REAL_TIME_MIDI 0
+// #  else
+// #  define WITH_REAL_TIME_MIDI 0
+// Needs to be fixed as compiler warns: "'WITH_REAL_TIME_MIDI' macro redefined" (BB 2022-02-20)
+#endif
+
+#ifndef WITH_REAL_TIME_MIDI
+#define WITH_REAL_TIME_MIDI 0
 #endif
 
 //#include <ansi_prefix.mac.h>	// commented out - 010507 akozar
@@ -356,7 +361,8 @@ enum {
 #define SAMPLINGRATE 50
 #define PANORAMICCONTROL 10
 #define DEFTPANORAMIC 64
-#define DEFTPITCHBEND 8191.5
+// #define DEFTPITCHBEND 8191.5 
+#define DEFTPITCHBEND 8192 // Fixed by BB 2022-02-20
 #define DEFTPRESSURE 0
 #define DEFTMODULATION 0
 
@@ -617,7 +623,7 @@ enum {
 #define wPrototype7 32
 #define wFilter 33
 #define wTickDialog 34
-#define wCsoundInstruments 35
+#define wCsoundResources 35
 #define wPrototype8 36
 #define wCsoundTables 37
 #define wMIDIorchestra 38

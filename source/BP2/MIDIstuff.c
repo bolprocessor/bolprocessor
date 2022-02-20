@@ -1267,7 +1267,7 @@ return(OK);
 
 #endif /* BP_CARBON_GUI */
 
-MIDItoPrototype(int zerostart,int filter,int j,MIDIcode **p_b,long imax)
+int MIDItoPrototype(int zerostart,int filter,int j,MIDIcode **p_b,long imax)
 // Store MIDI codes to prototype j
 {
 long im2,nbytes;

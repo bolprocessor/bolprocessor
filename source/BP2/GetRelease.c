@@ -59,7 +59,7 @@ if((r=ClearWindow(init,wInteraction)) != OK) return(r);
 if((r=ClearWindow(init,wGlossary)) != OK) return(r);
 if((r=ClearWindow(init,iObjects)) != OK) return(r);
 
-if((r=ClearWindow(init,wCsoundInstruments)) != OK) return(r);
+if((r=ClearWindow(init,wCsoundResources)) != OK) return(r);
 if((r=ClearWindow(init,wTimeBase)) != OK) return(r);
 if((r=ClearWindow(init,wMIDIorchestra)) != OK) return(r); */
 #if BP_CARBON_GUI
@@ -106,7 +106,7 @@ if(init && !ScriptExecOn) {
 			case iWeights:
 			case iSettings:
 			case iObjects:
-			case wCsoundInstruments:
+			case wCsoundResources:
 			case wMIDIorchestra:
 				TheVRefNum[w] = RefNumStartUp;
 				WindowParID[w] = ParIDstartup;
@@ -808,9 +808,9 @@ for(j=howmany; j < Jinstr; j++) {
 		ptr = (*((*p_CsInstrument)[j].paramlist))[i].comment;
 		MyDisposeHandle((Handle*)&ptr);
 		}
-	ptr = (*p_CsInstrument)[j].paramlist;
+	ptr = (char**)(*p_CsInstrument)[j].paramlist;
 	MyDisposeHandle((Handle*)&ptr);
-	(*p_CsInstrument)[j].paramlist == NULL;
+	(*p_CsInstrument)[j].paramlist = NULL;
 	}
 
 if(MySetHandleSize((Handle*)&p_CsInstrument,(Size)howmany * sizeof(CsoundInstrument)) != OK) return(ABORT);
@@ -1338,17 +1338,20 @@ if(Jbol < maxsounds) {
 		(*p_Tref)[j] = 1000L;
 		(*p_Dur)[j] = ZERO;
 		if(j >= (Jbol + addbol)) {	/* Fixed 13/4/98 */
-			if(Jpatt <= 0 || p_Ppatt != NULL && p_Qpatt != NULL) {
+		//	if(Jpatt <= 0 || p_Ppatt != NULL && p_Qpatt != NULL) {
+			if(p_Ppatt != NULL && p_Qpatt != NULL) {  // Fixed by BB 2022-02-20
 				if((*p_Ppatt)[j-Jbol-addbol] < 100L || (*p_Qpatt)[j-Jbol-addbol] < 100L) {
+					// BPPrintMessage(odInfo,"1) Jpatt = %d, Ppatt[%d] = %ld, Qpatt[%d] = %ld\n",Jpatt,j-Jbol-addbol,(long)(*p_Ppatt)[j-Jbol-addbol],j-Jbol-addbol,(long)(*p_Qpatt)[j-Jbol-addbol]);
 					(*p_Ppatt)[j-Jbol-addbol] = 100L * (*p_Ppatt)[j-Jbol-addbol];
 					(*p_Qpatt)[j-Jbol-addbol] = 100L * (*p_Qpatt)[j-Jbol-addbol];
+					// BPPrintMessage(odInfo,"2) Jpatt = %d, Ppatt[%d] = %ld, Qpatt[%d] = %ld\n",Jpatt,j-Jbol-addbol,(long)(*p_Ppatt)[j-Jbol-addbol],j-Jbol-addbol,(long)(*p_Qpatt)[j-Jbol-addbol]);
 					}
 				(*p_Tref)[j] = (*p_Qpatt)[j-Jbol-addbol];
 				(*p_Dur)[j] = (*p_Ppatt)[j-Jbol-addbol];
 				sprintf(Message,"ResizeObjectSpace() j = %ld Dur = %ld Tref = %ld\n",(long)j,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
-			//	BPPrintMessage(odInfo,Message);
+				// BPPrintMessage(odInfo,Message);
 				}
-			else Alert1("=> Err. ResizeObjectSpace(). Jpatt <= 0 || p_Ppatt != NULL && p_Qpatt != NULL");
+			else BPPrintMessage(odError,"=> Err. ResizeObjectSpace(). Jpatt = %d, p_Ppatt or p_Qpatt = NULL\n",Jpatt);
 			}
 		(*p_Resolution)[j] = 1;
 		(*p_CsoundInstr)[j] = 0;

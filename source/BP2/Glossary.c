@@ -40,7 +40,7 @@
 
 
 
-CompileGlossary(void)
+int CompileGlossary(void)
 // A glossary is a mixture of certain script commands and "Define..." commands
 // that are compiled as a context-free grammar the left arguments of which
 // must be a single variable.
@@ -300,7 +300,7 @@ return(ABORT);
 }
 
 
-UpdateGlossary(void)
+int UpdateGlossary(void)
 {
 if(!LoadedGl) {
 	if(GetGlName(wData) == OK || GetGlName(wGrammar) == OK) {

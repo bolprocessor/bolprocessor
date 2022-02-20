@@ -123,16 +123,16 @@ return(OK);
 
 /* Item #2 displays the version and compilation date like this:
        Bol Processor Carbon 2.9.6 beta (debug)
-       ¥ Jun  1 2007 ¥
+       ï¿½ Jun  1 2007 ï¿½
  */
 static const char Carbon_Text[] = "Carbon ";
 static const char Beta_Text[]   = " (debug)";  // "debug" since SHORT_VERSION may contain "beta"
 
-static const unsigned char WASTE_Notice[]  = "\pWASTE text engine © 1993-1996 ¥ Marco Piovanelli";
+static const unsigned char WASTE_Notice[]  = "\pWASTE text engine ï¿½ 1993-1996 ï¿½ Marco Piovanelli";
 static const unsigned char TE_Notice[]     = "\pUsing TextEdit for editing.";
 static const unsigned char MLTE_Notice[]   = "\pUsing Multi-Lingual Text Engine for editing.";
 
-static const unsigned char MWERKS_Notice[] = "\pPortions © Metrowerks, Corp.";
+static const unsigned char MWERKS_Notice[] = "\pPortions ï¿½ Metrowerks, Corp.";
 
 mAbout(int wind)
 {
@@ -502,7 +502,7 @@ return(OK);
 mUseBullet(int wind)
 {
 UseBullet = 1 - UseBullet;
-if(UseBullet) Code[7] = '¥';
+if(UseBullet) Code[7] = 'ï¿½';
 else Code[7] = '.';
 MaintainMenus();
 return(OK);
@@ -611,7 +611,7 @@ return(OK);
 
 mCsoundInstrumentsSpecs(int wind)
 {
-BPActivateWindow(SLOW,wCsoundInstruments);
+BPActivateWindow(SLOW,wCsoundResources);
 return(OK);
 }
 
@@ -1220,7 +1220,7 @@ if(OldFile(w,type,fn,&spec)) {
 			MaintainMenus();
 			return(r);
 			}
-		if(w == wCsoundInstruments) {
+		if(w == wCsoundResources) {
 			r = LoadCsoundInstruments(refnum,FALSE);
 			if(r == OK) SetName(w,TRUE,TRUE);
 			if(r == OK && ScriptRecOn) {
@@ -1265,12 +1265,12 @@ if(OldFile(w,type,fn,&spec)) {
 					TheVRefNum[wGrammar] = TheVRefNum[wInteraction]
 					= TheVRefNum[wGlossary] = TheVRefNum[wTimeBase]
 					= TheVRefNum[iSettings] = TheVRefNum[wAlphabet] = TheVRefNum[iObjects]
-					= TheVRefNum[wKeyboard] = TheVRefNum[wCsoundInstruments]
+					= TheVRefNum[wKeyboard] = TheVRefNum[wCsoundResources]
 					= TheVRefNum[wMIDIorchestra] = spec.vRefNum;
 					WindowParID[iObjects] = WindowParID[wGrammar] = WindowParID[wKeyboard]
 					= WindowParID[wInteraction] = WindowParID[wGlossary]
 					= WindowParID[iSettings] = WindowParID[wTimeBase]
-					= WindowParID[wAlphabet] = WindowParID[wCsoundInstruments]
+					= WindowParID[wAlphabet] = WindowParID[wCsoundResources]
 					= WindowParID[wMIDIorchestra] = spec.parID;
 					}
 				result = OK;
@@ -1422,7 +1422,7 @@ else {
 			rep = SaveKeyboard(&spec); break;
 		case wTimeBase:
 			rep = SaveTimeBase(&spec); break;
-		case wCsoundInstruments:
+		case wCsoundResources:
 			rep = SaveCsoundInstruments(&spec); break;
 		case iSettings:
 			rep = mSaveSettings(w1); break;
@@ -1467,7 +1467,7 @@ switch(w) {
 	case wTimeBase:
 		r = SaveTimeBase(&spec); return(r);
 		break;
-	case wCsoundInstruments:
+	case wCsoundResources:
 		r = SaveCsoundInstruments(&spec); return(r);
 		break;
 	case iSettings:
@@ -1647,7 +1647,7 @@ switch (rep) {
 			if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
 				if(!Editable[wind]) {
 					if(wind == wTimeBase) LoadTimeBase(refnum);
-					if(wind == wCsoundInstruments) {
+					if(wind == wCsoundResources) {
 						return(LoadCsoundInstruments(refnum,TRUE));
 						}
 					if(wind == wKeyboard) LoadKeyboard(refnum);
@@ -2000,8 +2000,8 @@ if(r >= 0 && r < MaxPerformanceControl) {
 	Print(w," ");
 	PrintHandle(w,(*p_PerformanceControl)[r]);
 	if((*p_PerfCtrlNArg)[r] > 0) {
-		Print(w,"(¥");
-		for(i=0; i < (*p_PerfCtrlNArg)[r]-1; i++) Print(w,",¥");
+		Print(w,"(ï¿½");
+		for(i=0; i < (*p_PerfCtrlNArg)[r]-1; i++) Print(w,",ï¿½");
 		Print(w,")");
 		}
 	UpdateDirty(YES,w);
@@ -2020,8 +2020,8 @@ if(r >= 0 && r < MaxProc) {
 	Print(wGrammar," ");
 	PrintHandle(wGrammar,(*p_GramProcedure)[r]);
 	if((*p_ProcNArg)[r] > 0) {
-		Print(wGrammar,"(¥");
-		for(i=0; i < (*p_ProcNArg)[r]-1; i++) Print(wGrammar,",¥");
+		Print(wGrammar,"(ï¿½");
+		for(i=0; i < (*p_ProcNArg)[r]-1; i++) Print(wGrammar,",ï¿½");
 		Print(wGrammar,")");
 		}
 	CompiledGr = FALSE;
@@ -2410,8 +2410,8 @@ for(j=0; j < MaxProc; j++) {
 	sprintf(Message,"%s",*((*p_GramProcedure)[i]));
 	Print(wNotice,Message);
 	if((*p_ProcNArg)[i] > 0) {
-		Print(wNotice,"(¥");
-		for(ii=0; ii < (*p_ProcNArg)[i]-1; ii++) Print(wNotice,",¥");
+		Print(wNotice,"(ï¿½");
+		for(ii=0; ii < (*p_ProcNArg)[i]-1; ii++) Print(wNotice,",ï¿½");
 		Print(wNotice,") ");
 		}
 	else Print(wNotice," ");
@@ -2423,8 +2423,8 @@ for(j=0; j < MaxPerformanceControl; j++) {
 	sprintf(Message,"%s",*((*p_PerformanceControl)[i]));
 	Print(wNotice,Message);
 	if((*p_PerfCtrlNArg)[i] > 0) {
-		Print(wNotice,"(¥");
-		for(ii=0; ii < (*p_PerfCtrlNArg)[i]-1; ii++) Print(wNotice,",¥");
+		Print(wNotice,"(ï¿½");
+		for(ii=0; ii < (*p_PerfCtrlNArg)[i]-1; ii++) Print(wNotice,",ï¿½");
 		Print(wNotice,") ");
 		}
 	else Print(wNotice," ");

@@ -1315,7 +1315,7 @@ int NewWriteToFile(char* line,FILE* fout) {
 
 int WriteToFile(int careforhtml,int format,char* line,short refnum)
 // Writes the line and a return to the file
-// Obsolete because of using FSWrite, should be replaced with NewWriteToFile() as fwrite() is already used for writing MIDI files
+// Obsolete because of using FSWrite, should be replaced with NewWriteToFile() as fwrite() is already used for writing MIDI files. The only problem is to use a file pointer instead of refnum.
 {
 int res;
 long count;
@@ -1328,7 +1328,7 @@ if(refnum == -1) {
 	}
 p_line = NULL;
 if ((res = MystrcpyStringToHandle(&p_line, line)) != OK) return res;
-/* if (careforhtml) {
+/* if (careforhtml) { // Suppressed by BB 2022-02-17
 	if ((res = MacToHTML(NO, &p_line, YES)) != OK) return res;
 	} */
 

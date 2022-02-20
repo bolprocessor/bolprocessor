@@ -86,12 +86,12 @@ if(p_event->what == keyDown) {
 	if(c == '\t') tab = TRUE;
 	if(c == '\r' || c == '\3') {	/* Return or Enter */
 		if(w >= 0 && w < WMAX && Editable[w]
-				&& w != wTimeBase  && w != wCsoundInstruments)
+				&& w != wTimeBase  && w != wCsoundResources)
 			return(AGAIN);  /* Return in editable text */
 		switch(w) { // FIXME ? This switch statement is suspect ...
 			case wTimeBase:
 			case wMetronom:
-			case wCsoundInstruments:
+			case wCsoundResources:
 			case wTimeAccuracy:
 			case wRandomSequence:
 			case wKeyboard:
@@ -100,7 +100,7 @@ if(p_event->what == keyDown) {
 			case wGraphicSettings:
 				SysBeep(10);
 				if(GetDialogValues(w) != OK) return(DONE);
-				if(w == wCsoundInstruments) GetRegressions(iCsoundInstrument);
+				if(w == wCsoundResources) GetRegressions(iCsoundInstrument);
 				switch(w) {
 					case wTimeAccuracy:
 					case wRandomSequence:
@@ -170,7 +170,7 @@ if(itemtype == editText || (itemtype == statText && !Help)) {
 		}
 	if(itemtype == statText) return(OK);
 	if(p_event->what == keyDown) {
-		if(thedialog == CsoundInstrMorePtr) UpdateDirty(TRUE,wCsoundInstruments);
+		if(thedialog == CsoundInstrMorePtr) UpdateDirty(TRUE,wCsoundResources);
 		if(thedialog == FileSavePreferencesPtr
 				|| thedialog == StrikeModePtr
 				|| thedialog == TuningPtr
@@ -1062,7 +1062,7 @@ if(thedialog == DefaultPerformanceValuesPtr) {
 	rep = DONE; 
 	}
 if(thedialog == CsoundInstrMorePtr) {
-	if(GetDialogValues(wCsoundInstruments) != OK) return(DONE);
+	if(GetDialogValues(wCsoundResources) != OK) return(DONE);
 	doneit = FALSE;
 	if(iCsoundInstrument >= 0 && iCsoundInstrument < Jinstr) {
 		if((*p_CsInstrument)[iCsoundInstrument].paramlist != NULL) {
@@ -1074,13 +1074,13 @@ if(thedialog == CsoundInstrMorePtr) {
 						}
 					(*((*p_CsInstrument)[iCsoundInstrument].paramlist))[ip].combinationtype
 						= MULT;
-					UpdateDirty(TRUE,wCsoundInstruments);
+					UpdateDirty(TRUE,wCsoundResources);
 					doneit = TRUE;
 					}
 				if(itemHit == (bADDval + (2*ip))) {
 					(*((*p_CsInstrument)[iCsoundInstrument].paramlist))[ip].combinationtype
 						= ADD;
-					UpdateDirty(TRUE,wCsoundInstruments);
+					UpdateDirty(TRUE,wCsoundResources);
 					doneit = TRUE;
 					}
 				}
@@ -1284,9 +1284,9 @@ if(w == wPrototype1) {
 			break;
 		case bChangeInstrumentFile:
 			if(CheckiProto() != OK) return(DONE);
-			if(ClearWindow(FALSE,wCsoundInstruments) != OK) return(DONE);
-			ForgetFileName(wCsoundInstruments);
-			if((rep=mOpenFile(wCsoundInstruments)) != OK) return(rep);
+			if(ClearWindow(FALSE,wCsoundResources) != OK) return(DONE);
+			ForgetFileName(wCsoundResources);
+			if((rep=mOpenFile(wCsoundResources)) != OK) return(rep);
 			CompileCsoundObjects();
 			SetPrototypePage1(iProto);
 			UpdateDirty(TRUE,wPrototype1);
@@ -2275,7 +2275,7 @@ if(w == wPrototype7) {
 	SetPrototype(iProto);
 	rep = DONE;
 	}
-if(w == wCsoundInstruments) {
+if(w == wCsoundResources) {
 	if(itemHit != bResetCsoundInstrument
 		&& itemHit != bLoadCsoundInstruments
 		&& itemHit != bCsoundInstrumentHelp
@@ -2290,8 +2290,8 @@ if(w == wCsoundInstruments) {
 		case bNewCsoundInstrumentFile:
 			if(Answer("Create a new Csound instrument file",'N') != OK)
 				return(DONE);
-			if(ClearWindow(FALSE,wCsoundInstruments) == OK)
-				ForgetFileName(wCsoundInstruments);
+			if(ClearWindow(FALSE,wCsoundResources) == OK)
+				ForgetFileName(wCsoundResources);
 			return(DONE);
 			break;
 		case bLoadCsoundInstruments:
@@ -2458,13 +2458,13 @@ if(w == wCsoundInstruments) {
 		case bExportAllInstruments:
 			if(Answer("Instrument profiles will be displayed in the 'Trace' window, then you may save it as text.\nProceed",'Y') == OK) {
 				if(ClearWindow(FALSE,wTrace) != OK) return(DONE);
-				HideWindow(Window[wCsoundInstruments]);
+				HideWindow(Window[wCsoundResources]);
 				for(j=0; j < Jinstr; j++) {
 					PleaseWait();
 					SetCsoundInstrument(j,wTrace);
 					}
 				SetCsoundInstrument(iCsoundInstrument,-1);
-				ShowWindow(Window[wCsoundInstruments]);
+				ShowWindow(Window[wCsoundResources]);
 				ShowSelect(CENTRE,wTrace);
 				}
 			return(DONE);
@@ -2478,7 +2478,7 @@ if(w == wCsoundTables) {
 	switch(itemHit) {
 		case bOKCsoundTables:
 			HideWindow(Window[wCsoundTables]);
-			BPActivateWindow(SLOW,wCsoundInstruments);
+			BPActivateWindow(SLOW,wCsoundResources);
 			break;
 		}
 	return(DONE);

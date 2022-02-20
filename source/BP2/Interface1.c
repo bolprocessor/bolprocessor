@@ -410,7 +410,7 @@ switch(p_event->what) {
 		if((p_event->modifiers & optionKey) != 0) {
 			if(DoArrowKey(Nw,thechar,(int) (p_event->modifiers & shiftKey),TRUE) == OK)
 				return(OK);
-			if(thechar == '\r') thechar = 'Â';
+			if(thechar == '\r') thechar = 'ï¿½';
 			}
 		/* Can't be command key */
 		if(Nw >= 0 && Nw < WMAX) TypeChar((int)thechar,(int)(p_event->modifiers & shiftKey));
@@ -469,34 +469,34 @@ int DoPreMacOS8KeyCommand(char thechar)
 	   non-modified keyboard equivalent.  This code only maps characters
 	   typed with an American or French keyboard layout. */
 	switch(thechar) {
-		case 'É':	/* cmd option ; */
+		case 'ï¿½':	/* cmd option ; */
 			Option = TRUE;
 			thechar = ';';
 			break;
-		case '©':	/* cmd option G */
-		case 'Þ':
+		case 'ï¿½':	/* cmd option G */
+		case 'ï¿½':
 			Option = TRUE;
 			thechar = 'g';
 			break;
-		case 'í':	/* cmd option H */
-		case 'ú':
+		case 'ï¿½':	/* cmd option H */
+		case 'ï¿½':
 			Option = TRUE;
 			thechar = 'h';
 			break;
-		case '¿':	/* cmd option O */
-		case 'Ï':
+		case 'ï¿½':	/* cmd option O */
+		case 'ï¿½':
 			Option = TRUE;
 			thechar = 'o';
 			break;
-		case '¾':	/* cmd option A */
-		case 'Œ':
+		case 'ï¿½':	/* cmd option A */
+		case 'ï¿½':
 			if(Finding) return(mFindAgain(Nw));
 			break;
-		case '«':	/* cmd option E */
-		case '':
+		case 'ï¿½':	/* cmd option E */
+		case 'ï¿½':
 			return(mEnterFind(Nw));
 			break;
-		case ' ':	/* cmd option T */
+		case 'ï¿½':	/* cmd option T */
 			Token = 1 - Token;
 			if(Token) sprintf(Message,"Type tokens enabled");
 			else sprintf(Message,"Type tokens disabled");
@@ -643,7 +643,7 @@ rep = OK;
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 
 newinstruments
-	= LoadedCsoundInstruments || Dirty[wCsoundInstruments] || Created[wCsoundInstruments];
+	= LoadedCsoundInstruments || Dirty[wCsoundResources] || Created[wCsoundResources];
 if(!ScriptExecOn && (rep=SaveCheck(w)) != OK) goto OUT;
 if(w != wMessage && Editable[w] && !LockedWindow[w]) {
 	if(ScriptExecOn && w == wTrace) goto OUT;
@@ -688,7 +688,7 @@ if(w != wMessage && Editable[w] && !LockedWindow[w]) {
 			case wStartString:
 				sprintf(line,"S\n");
 				break;
-			default: sprintf(line,"\0");
+			default: sprintf(line,""); // Fixed by BB 2022-02-20
 			}
 		count = (long) strlen(line);
 		PrintBehind(w,line);
@@ -751,9 +751,9 @@ switch(w) {
 			} */
 		break;
 	case wCsoundTables:
-		Dirty[wCsoundInstruments] = Created[wCsoundInstruments] = FALSE;
+		Dirty[wCsoundResources] = Created[wCsoundResources] = FALSE;
 		break;
-	case wCsoundInstruments:
+	case wCsoundResources:
 		ClearWindow(YES,wCsoundTables);
 		ResizeCsoundInstrumentsSpace(1);
 		if(newinstruments) ResetCsoundInstrument(iCsoundInstrument,YES,NO);
@@ -864,7 +864,7 @@ switch(w) {
 	case wGraphicSettings: return(GetGraphicSettings());
 	case wControlPannel: return(GetControlParameters());
 	case wTickDialog: return(GetThisTick());
-	case wCsoundInstruments:
+	case wCsoundResources:
 	case wCsoundTables:
 		return(GetCsoundInstrument(iCsoundInstrument));
 	case wPrototype7:
@@ -924,11 +924,11 @@ if(newNw == wGraphicSettings || Nw == wGraphicSettings) SetGraphicSettings();
 if(newNw == wGraphicSettings) SelectField(NULL,wGraphicSettings,fGraphicScale,TRUE);
 if(newNw == wPrototype1 && !CompileOn && mode != AGAIN && (!CompiledGr || !CompiledAl))
 	return(mObjectPrototypes(Nw));
-if(newNw == wCsoundInstruments) {
+if(newNw == wCsoundResources) {
 	if(iCsoundInstrument >= Jinstr) iCsoundInstrument = 0;
 	SetCsoundInstrument(iCsoundInstrument,-1);
 	}
-if(Nw == wCsoundInstruments && newNw != wCsoundInstruments)
+if(Nw == wCsoundResources && newNw != wCsoundResources)
 	GetCsoundInstrument(iCsoundInstrument);
 
 NEXT:
@@ -1708,7 +1708,7 @@ if((changed || FileName[w][0] != '\0') && w != iSettings && w != wTrace
 		case wTimeBase:
 			SetMenuItemText(myMenus[windowM],timebaseCommand,PascalLine);
 			break;
-		case wCsoundInstruments:
+		case wCsoundResources:
 			SetMenuItemText(myMenus[deviceM],CsoundInstrumentSpecsCommand,PascalLine);
 			break;
 		case wMIDIorchestra:
@@ -1750,7 +1750,7 @@ if(FileName[w][0] != '\0') {
 			PutFirstLine(wGrammar,FileName[w],FilePrefix[w]);
 			PutFirstLine(wData,FileName[w],FilePrefix[w]);
 			break;
-		case wCsoundInstruments:
+		case wCsoundResources:
 			SetField(NULL,wPrototype1,fInstrumentFileName,FileName[w]);
 			/* No break */
 		case wMIDIorchestra:
@@ -1894,7 +1894,7 @@ switch(w) {
 		RemoveFirstLine(wGrammar,FilePrefix[w]);
 		RemoveFirstLine(wData,FilePrefix[w]);
 		break;
-	case wCsoundInstruments:
+	case wCsoundResources:
 		SetField(NULL,wPrototype1,fInstrumentFileName,"[no file]");
 		// no break
 	case wKeyboard:
@@ -1945,12 +1945,12 @@ switch(w) {
 	case wGlossary:
 		CompiledGl = FALSE; LoadedGl = TRUE;
 		break;
-	case wCsoundInstruments:
+	case wCsoundResources:
 		CompiledRegressions = FALSE;
 		CompiledCsObjects = (*p_CompiledCsoundScore)[iProto] = FALSE;
 		break;
 	case wCsoundTables:
-		w = wCsoundInstruments;
+		w = wCsoundResources;
 		break;
 	case wPrototype7:
 		CompiledCsObjects = (*p_CompiledCsoundScore)[iProto] = FALSE;
@@ -2233,12 +2233,12 @@ else {
 	
 	if(((!LockedWindow[w] && FileName[w][0] != '\0'
 			&& (Dirty[w] || (w == wPrototype7 && Dirty[iObjects])))
-			|| (GetDialogWindow(CsoundInstrMorePtr) == FrontWindow() && Dirty[wCsoundInstruments]
-			&& FileName[wCsoundInstruments][0] != '\0')) && !ClickRuleOn)
+			|| (GetDialogWindow(CsoundInstrMorePtr) == FrontWindow() && Dirty[wCsoundResources]
+			&& FileName[wCsoundResources][0] != '\0')) && !ClickRuleOn)
 		EnableMenuItem(myMenus[fileM],fmRevert);
 		
 	if(((Dirty[w] || (w == wPrototype7 && Dirty[iObjects]))
-			|| (GetDialogWindow(CsoundInstrMorePtr) == FrontWindow() && Dirty[wCsoundInstruments]))
+			|| (GetDialogWindow(CsoundInstrMorePtr) == FrontWindow() && Dirty[wCsoundResources]))
 			&& !ClickRuleOn) {
 		EnableMenuItem(myMenus[fileM],fmSave);
 		}

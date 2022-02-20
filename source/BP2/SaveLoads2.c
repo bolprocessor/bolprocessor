@@ -48,11 +48,11 @@ if(ReadFile(wGrammar,refnum) == OK) {
 	TheVRefNum[wKeyboard] = TheVRefNum[iObjects] = TheVRefNum[wGrammar]
 	= TheVRefNum[wInteraction] = TheVRefNum[wGlossary] = TheVRefNum[iSettings]
 	= TheVRefNum[wAlphabet] = TheVRefNum[wTimeBase]
-	= TheVRefNum[wCsoundInstruments] = TheVRefNum[wMIDIorchestra] = p_spec->vRefNum;
+	= TheVRefNum[wCsoundResources] = TheVRefNum[wMIDIorchestra] = p_spec->vRefNum;
 	WindowParID[wKeyboard] = WindowParID[iObjects] = WindowParID[wGrammar]
 	= WindowParID[wInteraction] = WindowParID[wGlossary] = WindowParID[iSettings]
 	= WindowParID[wAlphabet] = WindowParID[wTimeBase]
-	= WindowParID[wCsoundInstruments] = WindowParID[wMIDIorchestra] = p_spec->parID;
+	= WindowParID[wCsoundResources] = WindowParID[wMIDIorchestra] = p_spec->parID;
 	p2cstrcpy(FileName[wGrammar],p_spec->name);
 	SetName(wGrammar,TRUE,TRUE);
 	CompiledPt = Dirty[wGrammar] = FALSE;
@@ -119,7 +119,7 @@ WRITE:
 		WriteToFile(NO,MAC,line,refnum);
 		sprintf(line,"%ld",(long)PrototypeTickVelocity);
 		WriteToFile(NO,MAC,line,refnum);
-		WriteToFile(NO,MAC,FileName[wCsoundInstruments],refnum);
+		WriteToFile(NO,MAC,FileName[wCsoundResources],refnum);
 		sprintf(line,"%ld",(long)Jbol);
 		WriteToFile(NO,MAC,line,refnum);
 		for(i=2; i < Jbol; i++) {
@@ -402,8 +402,8 @@ FIND:
 	// c2pstrcpy(spec.name, FileName[iObjects]);
 	if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) return(ABORT);
 	}
-TheVRefNum[wCsoundInstruments] = TheVRefNum[iObjects] = spec.vRefNum;
-WindowParID[wCsoundInstruments] = WindowParID[iObjects] = spec.parID;
+TheVRefNum[wCsoundResources] = TheVRefNum[iObjects] = spec.vRefNum;
+WindowParID[wCsoundResources] = WindowParID[iObjects] = spec.parID;
 HideWindow(Window[wMessage]);
 rep = ABORT;
 j = -1;
@@ -438,23 +438,23 @@ if(iv > 4) {
 		ReadOne(FALSE,TRUE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos);
 		if((*p_completeline)[0] != '\0') {
 			MystrcpyHandleToString(MAXNAME,0,line,p_completeline);
-			if(FileName[wCsoundInstruments][0] == '\0'
-					|| strcmp(line,FileName[wCsoundInstruments]) != 0) {
-				if(SaveCheck(wCsoundInstruments) == ABORT) goto MAXSOUNDS;
-				strcpy(FileName[wCsoundInstruments],line);
-				type = gFileType[wCsoundInstruments];
+			if(FileName[wCsoundResources][0] == '\0'
+					|| strcmp(line,FileName[wCsoundResources]) != 0) {
+				if(SaveCheck(wCsoundResources) == ABORT) goto MAXSOUNDS;
+				strcpy(FileName[wCsoundResources],line);
+				type = gFileType[wCsoundResources];
 				c2pstrcpy(spec.name, line);
-				spec.vRefNum = TheVRefNum[wCsoundInstruments];
-				spec.parID = WindowParID[wCsoundInstruments];
+				spec.vRefNum = TheVRefNum[wCsoundResources];
+				spec.parID = WindowParID[wCsoundResources];
 				if(MyOpen(&spec,fsCurPerm,&refnum2) != noErr) {
-					if(CheckFileName(wCsoundInstruments,FileName[wCsoundInstruments],
+					if(CheckFileName(wCsoundResources,FileName[wCsoundResources],
 						&spec,&refnum2,type,TRUE) != OK) goto MAXSOUNDS;
 					}
 				rep = LoadCsoundInstruments(refnum2,FALSE);
 				if(rep == OK) {
 					dirtymem = Dirty[wAlphabet];
-					SetName(wCsoundInstruments,TRUE,FALSE);
-					PutFirstLine(wAlphabet,FileName[wCsoundInstruments],FilePrefix[wCsoundInstruments]);
+					SetName(wCsoundResources,TRUE,FALSE);
+					PutFirstLine(wAlphabet,FileName[wCsoundResources],FilePrefix[wCsoundResources]);
 					Dirty[wAlphabet] = dirtymem;
 					newinstruments = TRUE;
 					}
@@ -1048,9 +1048,9 @@ if(ReadFile(wAlphabet,refnum) == OK) {
 	p2cstrcpy(FileName[wAlphabet],spec.name);
 	SetName(wAlphabet,TRUE,TRUE);
 	TheVRefNum[wKeyboard] = TheVRefNum[iObjects] = TheVRefNum[wAlphabet]
-		= TheVRefNum[wCsoundInstruments] = spec.vRefNum;
+		= TheVRefNum[wCsoundResources] = spec.vRefNum;
 	WindowParID[wKeyboard] = WindowParID[iObjects] = WindowParID[wAlphabet]
-		= WindowParID[wCsoundInstruments] = spec.parID;
+		= WindowParID[wCsoundResources] = spec.parID;
 	result = OK;		
 	GetHeader(wAlphabet);
 	GetMiName(); GetKbName(wAlphabet); GetCsName(wAlphabet);

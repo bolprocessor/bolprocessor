@@ -502,7 +502,7 @@ while(origin < end) {
 	MyDisposeHandle((Handle*)pp_a);
 	if(r == ABORT || r == EXIT) goto END;
 	else r = OK;
-	sprintf(Message,"\0");
+	sprintf(Message,""); // Fixed by BB 2022-02-2
 	if(result == OK) sprintf(Message,"[PASSED] ");
 	if(result == FAILED) sprintf(Message,"[FAILED] ");
 	dif = strlen(Message);
@@ -1037,7 +1037,7 @@ return(wantgram);
 }
 
 
-NextDerivation(tokenbyte ***pp_a,long *p_length,int *p_igram,int *p_irul,
+int NextDerivation(tokenbyte ***pp_a,long *p_length,int *p_igram,int *p_irul,
 	long *p_ipos,int *p_icandidate,int mode,int time_end_compute)
 {
 int r,nb_candidates,**p_prefrule,**p_candidate,maxpref,freedom,equalweight,maxrul,
@@ -1588,7 +1588,7 @@ r = OK; (*p_result) = ABORT;
 
 lastbyte = GetTextLength(wTrace);
 SetSelect(lastbyte,lastbyte,TEH[wTrace]);
-if(remark[0] == '\0') sprintf(LineBuff,"\0");
+if(remark[0] == '\0') sprintf(LineBuff,"");
 else sprintf(LineBuff,"[%s] ",remark);
 if((all && templates) || DisplayProduce) {
 	if(remark[0] == '\0') {

@@ -393,8 +393,7 @@ quote = OFF;
 for(i=is; i < MyHandleLen(p_line)-2; i++) {
 	c = (*p_line)[i];
 	if(c == '"') quote = 1 - quote;
-	if(!quote && c == '-' && (*p_line)[i+1] == '-' && (*p_line)[i+2] != '>'
-			 && (*p_line)[i+2] != '\335') {
+	if(!quote && c == '-' && (*p_line)[i+1] == '-' && (*p_line)[i+2] != '>') {
 		(*p_line)[i] = '\0';
 		break;
 		}

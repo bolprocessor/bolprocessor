@@ -39,7 +39,7 @@
 #include "-BP2decl.h"
 
 
-PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int nocode,FILE *f,int wind,
+int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int nocode,FILE *f,int wind,
 	tokenbyte ***pp_b, tokenbyte ***pp_a)
 
 /* datamode = TRUE: space according to metre, FALSE: no space */
@@ -205,7 +205,7 @@ if((datamode || showtempo) && !istemplate) {
 	// print_periods = 0 don't print
 	// print_periods = 1 print periods
 	// print_periods = 2 don't print
-	// print_periods = 3 print also section markers 'Â'
+	// print_periods = 3 print also section markers 'ï¿½'
 	
 	setting_section2 = TRUE;
 	if(datamode) print_periods = 2;
@@ -353,7 +353,7 @@ return(r);
 }
 
 
-PrintArgSub(PrintargType *p_printarg,unsigned long *p_maxib,TextHandle th,
+int PrintArgSub(PrintargType *p_printarg,unsigned long *p_maxib,TextHandle th,
 	FILE *f,tokenbyte ***pp_b,tokenbyte ***pp_a,unsigned long *p_ib,
 	int *p_itab,double *p_speed,int *p_pos,int *homoname,
 	int *depth,
@@ -1211,14 +1211,14 @@ PRINTPROLONGATIONS:
 					}
 				}
 			}
-		if(!datamode && (p == 12 || p == 13 || p == 14 || p == 7)) /* '{', '}', comma, '¥' */
+		if(!datamode && (p == 12 || p == 13 || p == 14 || p == 7)) /* '{', '}', comma, 'ï¿½' */
 			forceshowtempo = TRUE;
 		if(p == 22 || p == 23) continue;	/* Temporary bracket '|' */
 		if(nocode) {
 			if(p == 12) {	/* '{' */
 				(*p_sequence)[level] = FALSE;
 				}
-			if(p == 7 || (p > 11 && p < 20)) {		/* '¥', '{', '}', comma */
+			if(p == 7 || (p > 11 && p < 20)) {		/* 'ï¿½', '{', '}', comma */
 				if((*p_sequence)[level]) {
 					if(p == 13 || p == 14) {				/* '}', comma */
 						(*p_sequence)[level] = FALSE;
@@ -1284,7 +1284,7 @@ PRINTPROLONGATIONS:
 						sp = 1; break;
 					}
 				}
-			if(p == 7 || p == 14) {		/* '¥' or ',' */
+			if(p == 7 || p == 14) {		/* 'ï¿½' or ',' */
 				(*p_pos) = 0;	/* Restart sequence */
 				(*p_newsection) = FALSE;
 				}
@@ -1704,7 +1704,7 @@ return(-1);
 }
 
 
-Space(FILE *f,TextHandle th,int *p_sp)
+int Space(FILE *f,TextHandle th,int *p_sp)
 {
 if(*p_sp) {
 	if(OutChar(f,th,' ') != OK) return(ABORT);
@@ -1714,16 +1714,16 @@ return(OK);
 }
 
 
-PrintPeriod(FILE* f,TextHandle th)
+int PrintPeriod(FILE* f,TextHandle th)
 {
 if(UseBullet) {
 	if(SplitTimeObjects) {
 		 if(OutChar(f,th,' ') != OK) return(ABORT);
-		 if(OutChar(f,th,'¥') != OK) return(ABORT);
+		 if(OutChar(f,th,'.') != OK) return(ABORT); // Fixed by BB 2022-02-20
 		 if(OutChar(f,th,' ') != OK) return(ABORT);
 		}
 	else {
-		 if(OutChar(f,th,'¥') != OK) return(ABORT);
+		 if(OutChar(f,th,'.') != OK) return(ABORT); // Fixed by BB 2022-02-20
 		}
 	}
 else {
@@ -1733,7 +1733,7 @@ return(OK);
 }
 
 
-OutChar(FILE* f,TextHandle th,char c)
+int OutChar(FILE* f,TextHandle th,char c)
 {
 char s[2];
 
@@ -1753,7 +1753,7 @@ return(OK);
 }
 
 
-Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned long *p_maxib,
+int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned long *p_maxib,
 	tokenbyte ***pp_a,
 	unsigned long *p_i,int istemplate,tokenbyte m,tokenbyte p,int nocode,
 	tokenbyte ***pp_b,unsigned long *p_ib,FILE *f,TextHandle th,char *format,char **p_smthing,
@@ -1783,7 +1783,7 @@ if(nocode) {
 		/* pp_a is istemplate, pp_b is item without structure */
 POSITION:
 		if((**pp_b)[*p_ib] == T0 && (**pp_b)[(*p_ib)+1] == 7) {
-			(*p_ib) += 2;		/* Skip '¥' */
+			(*p_ib) += 2;		/* Skip 'ï¿½' */
 			goto POSITION;
 			}
 		if((**pp_b)[*p_ib] == TEND && (**pp_b)[(*p_ib)+1] == TEND) return(FAILED);
@@ -1840,7 +1840,7 @@ else {
 			if(thechar != '\0') {
 				s[0] = thechar; s[1] = '\0';
 				}
-			else sprintf(s,format);
+			else sprintf(s,format,"");
 			}
 		}
 	else {
@@ -1854,13 +1854,13 @@ PRINT:
 			}
 		TextInsert(s,(long)strlen(s),th);
 		}
-	else fprintf(f,s);
+	else fprintf(f,"%s",s); //  Fixed by BB 2022-02-20
 	}
 return(OK);
 }
 
 
-ShowCodes(int j)
+int ShowCodes(int j)
 {
 int w,ch;
 long i;
@@ -1899,7 +1899,7 @@ if((*p_MIDIsize)[j] > ZERO) {
 							i += 1; break;
 						case PitchBend:
 							sprintf(Message,"Bend=%ld[%ld] ",(long)((*((*pp_MIDIcode)[j]))[i+1].byte
-								+ 128 * (*((*pp_MIDIcode)[j]))[i+2].byte,(long)ch));
+								+ 128 * (*((*pp_MIDIcode)[j]))[i+2].byte),(long)ch); // Fixed by BB 2022-02-20
 							PrintBehind(wNotice,Message);
 							i += 2; break;
 						case ProgramChange:
@@ -1920,8 +1920,7 @@ if((*p_MIDIsize)[j] > ZERO) {
 								i += 2; break;
 								}
 							if((*((*pp_MIDIcode)[j]))[i+1].byte == 1 && (*((*pp_MIDIcode)[j]))[i+4].byte == 33) {
-								sprintf(Message,"Mod=%ld[%ld] ",(long)(128L * (*((*pp_MIDIcode)[j]))[i+2].byte
-									+ (*((*pp_MIDIcode)[j]))[i+5].byte,(long)ch));
+								sprintf(Message,"Mod=%ld[%ld] ",(long)(128L * (*((*pp_MIDIcode)[j]))[i+2].byte)	+ (*((*pp_MIDIcode)[j]))[i+5].byte,(long)ch); // Fixed by BB 2022-02-20
 								PrintBehind(wNotice,Message);
 								i += 5; break;
 								}
@@ -1955,7 +1954,7 @@ return(OK);
 }
 
 
-AcceptControl(tokenbyte m)
+int AcceptControl(tokenbyte m)
 {
 switch(m) {
 	case T15:
@@ -1986,7 +1985,7 @@ return(YES);
 }
 
 
-CheckPeriodOrLine(int print_periods,int *p_newline,int *p_newsection,FILE *f,
+int CheckPeriodOrLine(int print_periods,int *p_newline,int *p_newsection,FILE *f,
 	TextHandle th,int *p_beat,unsigned long numberprolongations,int *p_sp)
 {
 int r;
@@ -1996,7 +1995,7 @@ if(*p_newline) {
 	if(print_periods > 2) {
 		(*p_beat)++;
 		if((r=PrintPeriod(f,th)) != OK) goto OUT;
-		if(OutChar(f,th,'Â') != OK || OutChar(f,th,'\n') != OK) {
+		if(/* OutChar(f,th,'ï¿½') != OK || */ OutChar(f,th,'\n') != OK) {
 			r = ABORT; goto OUT;
 			}
 		(*p_sp) = 0;

@@ -38,10 +38,10 @@
 
 #include "-BP2decl.h"
 
-trace_csound_maths = 0;
-trace_write_score = 0;
+int trace_csound_maths = 0;
+int trace_write_score = 0;
 
-CompileRegressions(void)
+int CompileRegressions(void)
 {
 int j,rep;
 
@@ -54,7 +54,7 @@ return(OK);
 }
 
 
-GetRegressions(int j)
+int GetRegressions(int j)
 {
 int result;
 double a,b,c;
@@ -117,12 +117,12 @@ return(OK);
 
 ERR:
 iCsoundInstrument = j;
-BPActivateWindow(SLOW,wCsoundInstruments);
+BPActivateWindow(SLOW,wCsoundResources);
 return(ABORT);
 }
 
 
-Findabc(double ***p_xy,int j,regression *p_r)
+int Findabc(double ***p_xy,int j,regression *p_r)
 /* Determine a quadratic regression of coordinates (x1,y1),(x2,y2),(x3,y3) */
 {
 double x1,x2,x3,y1,y2,y22,y3,D,Da,Db,Dc,xmin,xmax,ymax,m;
@@ -377,7 +377,7 @@ return(x);
 }
 
 
-MakeCsoundFunctionTable(int onoffline,double **scorearg,double alpha1,double alpha2,long imax,
+int MakeCsoundFunctionTable(int onoffline,double **scorearg,double alpha1,double alpha2,long imax,
 	Coordinates** coords,int ins,int paramnameindex,int ip,int iarg0,int iarg1)
 {
 int r,result,overflow,gentype,usescorevalues;
@@ -465,7 +465,7 @@ return(r);
 }
 
 
-GetGENtype(int ins,int ip,int paramnameindex)
+int GetGENtype(int ins,int ip,int paramnameindex)
 {
 if(paramnameindex <= IPANORAMIC) {
 	switch(paramnameindex) {
@@ -507,7 +507,7 @@ return(7);
 }
 
 
-GetPartOfTable(XYgraph *p_subtable,double alpha1,double alpha2,long imax,Coordinates** coords)
+int GetPartOfTable(XYgraph *p_subtable,double alpha1,double alpha2,long imax,Coordinates** coords)
 {
 Handle h;
 long i,j,xmax,i1,i2,x1,x2;

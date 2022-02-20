@@ -694,7 +694,7 @@ return(OK);
 }
 
 
-CopyPage2(int i,int j)
+int CopyPage2(int i,int j)
 {
 (*p_OkExpand)[j] = (*p_OkExpand)[i];
 (*p_OkCompress)[j] = (*p_OkCompress)[i];

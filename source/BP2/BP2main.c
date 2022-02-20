@@ -201,7 +201,7 @@ SHOWOPTIONS:
 				mTimeBase(wTimeBase);
 				break;
 			case dCsoundInstruments:
-				mCsoundInstrumentsSpecs(wCsoundInstruments);
+				mCsoundInstrumentsSpecs(wCsoundResources);
 				break;
 			case dFAQ:
 				BPActivateWindow(SLOW,wData);

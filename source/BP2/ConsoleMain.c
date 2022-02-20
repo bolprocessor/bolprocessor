@@ -162,9 +162,9 @@ int main (int argc, char* args[])
 	time(&SessionStartTime);
 	ProductionTime = ProductionStartTime = PhaseDiagramTime = TimeSettingTime = (time_t) 0L;
 	time(&ProductionStartTime);
-	BPPrintMessage(odInfo, "\nBP3 Console completed initialization and will use:");
+	BPPrintMessage(odInfo,"\nBP3 Console completed initialization and will use:");
 	
-	BPPrintMessage(odInfo, "\n%s\n%s\n\n",gOptions.inputFilenames[wGrammar],gOptions.inputFilenames[wData]);
+	BPPrintMessage(odInfo,"\n%s\n%s\n\n",gOptions.inputFilenames[wGrammar],gOptions.inputFilenames[wData]);
 	
 	SessionTime = clock();
 	if (!gOptions.seedProvided) ReseedOrShuffle(NEWSEED);
@@ -335,7 +335,7 @@ void CreateDoneFile(void)
 	int length;
 	
 	if(gOptions.outputFiles[ofiTraceFile].name != NULL) {
-		sprintf(Message,gOptions.outputFiles[ofiTraceFile].name);
+		sprintf(Message,"%s",gOptions.outputFiles[ofiTraceFile].name);
 		remove_spaces(Message,line2);
 		length = strlen(line2);
 		memset(line1,'\0',sizeof(line1));
@@ -366,11 +366,11 @@ void CreateImageFile(void)
 		N_image++;
 		}
 	if(gOptions.outputFiles[ofiTraceFile].name == NULL) {
-		BPPrintMessage(odError,"=> Cannot create image file because no path is specified and trace mode is not active\n");
+		BPPrintMessage(odInfo,"=> Cannot create image file because no path is specified and trace mode is not active\n");
 		ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
 		return;
 		}
-	sprintf(line3,gOptions.outputFiles[ofiTraceFile].name);
+	sprintf(line3,"%s",gOptions.outputFiles[ofiTraceFile].name);
 	remove_spaces(line3,line2);
 //	BPPrintMessage(odInfo,"\n\nline3 = %s\n\n",line3);
 	length = strlen(line2);
@@ -397,10 +397,10 @@ void CreateImageFile(void)
 	BPPrintMessage(odInfo,"\n");
 	imagePtr = fopen(line2,"w");
 	strcpy(imageFileName,line2);
-	getcwd(cwd,sizeof(cwd));
-/*	if(cwd != NULL) {
-		BPPrintMessage(odInfo,"\nCurrent working dir: %s\n",cwd);
-		} */
+/*	if(getcwd(cwd,sizeof(cwd))) { // Needs to be revised, if necessary
+		BPPrintMessage(odInfo,"\nCurrent working directory = %s\n",cwd);
+		}
+	else BPPrintMessage(odError,"\n=> Current working directory not found\n",cwd); */
 	thisfile = fopen("CANVAS_header.txt","r");
 	if(thisfile == NULL) {
 		BPPrintMessage(odInfo,"‘CANVAS_header.txt’ is missing!\n");
@@ -1001,7 +1001,7 @@ void PrintInputFilenames(BPConsoleOpts* opts)
 }
 
 
-void GetFileName(char* name,char* path) { // Added by BB 4 Nov 2020
+void GetFileName(char* name,const char* path) { // Added by BB 4 Nov 2020
 	char c;
 	int i,j;
 //	BPPrintMessage(odInfo, "\npath = %s\n",path);
@@ -1032,7 +1032,8 @@ int LoadInputFiles(const char* pathnames[WMAX])
 {
 	int w, result;
 	
-	for (w = 0; w < WMAX; w++) {
+	for(w = 0; w < WMAX; w++) {
+		// The order of reading these files is important. For instance, iObjects should occur after wCsoundResources
 		if(pathnames[w] != NULL) {
 			switch(w) {
 				case wGrammar:
@@ -1051,9 +1052,9 @@ int LoadInputFiles(const char* pathnames[WMAX])
 						case wGlossary:			LoadedGl = TRUE; break;
 					}
 					break;
-				case wCsoundInstruments: 
+				case wCsoundResources: 
 					BPPrintMessage(odInfo, "Reading Csound resources %s\n", pathnames[w]);
-					strcpy(FileName[wCsoundInstruments],pathnames[w]);
+					strcpy(FileName[wCsoundResources],pathnames[w]);
 					result = LoadCsoundInstruments(0,1);
 					if(result != OK)  return result;
 					break;

@@ -479,19 +479,19 @@ char line[MAXFIELDCONTENT];
 OSErr err;
 
 err = NSWInitReply(&reply);
-if(FileName[wCsoundInstruments][0] != '\0') strcpy(Message,FileName[wCsoundInstruments]);
-else if (GetDefaultFileName(wCsoundInstruments, Message) != OK) return(FAILED);
+if(FileName[wCsoundResources][0] != '\0') strcpy(Message,FileName[wCsoundResources]);
+else if (GetDefaultFileName(wCsoundResources, Message) != OK) return(FAILED);
 c2pstrcpy(fn, Message);
-p_spec->vRefNum = TheVRefNum[wCsoundInstruments];
-p_spec->parID = WindowParID[wCsoundInstruments];
+p_spec->vRefNum = TheVRefNum[wCsoundResources];
+p_spec->parID = WindowParID[wCsoundResources];
 CopyPString(fn,p_spec->name);
 good = NO;
-if(Created[wCsoundInstruments]) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noErr);
+if(Created[wCsoundResources]) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noErr);
 if(good) goto WRITE;
-reply.sfFile.vRefNum = TheVRefNum[wCsoundInstruments];	/* Added 30/3/98 */
-reply.sfFile.parID = WindowParID[wCsoundInstruments];
-if(NewFile(-1,gFileType[wCsoundInstruments],fn,&reply)) {
-	i = CreateFile(wCsoundInstruments,-1,gFileType[wCsoundInstruments],fn,&reply,&refnum);
+reply.sfFile.vRefNum = TheVRefNum[wCsoundResources];	/* Added 30/3/98 */
+reply.sfFile.parID = WindowParID[wCsoundResources];
+if(NewFile(-1,gFileType[wCsoundResources],fn,&reply)) {
+	i = CreateFile(wCsoundResources,-1,gFileType[wCsoundResources],fn,&reply,&refnum);
 	*p_spec = reply.sfFile;
 	if(i == ABORT) {
 		err = NSWCleanupReply(&reply);
@@ -500,7 +500,7 @@ if(NewFile(-1,gFileType[wCsoundInstruments],fn,&reply)) {
 	if(i == OK) {
 WRITE:
 		SaveOn++;
-		WriteHeader(wCsoundInstruments,refnum,*p_spec);
+		WriteHeader(wCsoundResources,refnum,*p_spec);
 		sprintf(line,"%ld",(long)MAXCHAN);
 		WriteToFile(NO,MAC,line,refnum);
 		for(i=1; i <= MAXCHAN; i++) {
@@ -660,14 +660,14 @@ WRITE:
 		GetFPos(refnum,&count);
 		SetEOF(refnum,count);
 		FlushFile(refnum);
-		MyFSClose(wCsoundInstruments,refnum,p_spec);
+		MyFSClose(wCsoundResources,refnum,p_spec);
 		reply.saveCompleted = true;
-		p2cstrcpy(FileName[wCsoundInstruments],p_spec->name);
-		TheVRefNum[wCsoundInstruments] = p_spec->vRefNum;
-		WindowParID[wCsoundInstruments] = p_spec->parID;
-		SetName(wCsoundInstruments,TRUE,TRUE);
-		Created[wCsoundInstruments] = TRUE;
-		Dirty[wCsoundInstruments] = FALSE;
+		p2cstrcpy(FileName[wCsoundResources],p_spec->name);
+		TheVRefNum[wCsoundResources] = p_spec->vRefNum;
+		WindowParID[wCsoundResources] = p_spec->parID;
+		SetName(wCsoundResources,TRUE,TRUE);
+		Created[wCsoundResources] = TRUE;
+		Dirty[wCsoundResources] = FALSE;
 		ClearMessage();
 		if(SaveOn > 0) SaveOn--;
 		err = NSWCleanupReply(&reply);
@@ -1060,34 +1060,35 @@ if(LoadedCsoundInstruments) return(OK);
 iCsoundInstrument = 0;
 LoadOn++;
 pos = ZERO;
-Dirty[wCsoundInstruments] = CompiledRegressions = CompiledCsObjects = FALSE;
+Dirty[wCsoundResources] = CompiledRegressions = CompiledCsObjects = FALSE;
 p_line = p_completeline = NULL;
 
-if(trace_load_csound_resources) BPPrintMessage(odInfo,"Opening Csound resource file %s\n",FileName[wCsoundInstruments]);
+if(trace_load_csound_resources) BPPrintMessage(odInfo,"Opening Csound resource file %s\n",FileName[wCsoundResources]);
 
 // Check whether file is being saved
-sprintf(line,"%s_lock",FileName[wCsoundInstruments]);
+sprintf(line,"%s_lock",FileName[wCsoundResources]);
 csfile = fopen(line,"r");
 if(csfile != NULL) {
-	BPPrintMessage(odInfo,"\nAs the Csound resource file was locked I waited for 2 seconds...\n");
-	sleep(2);
+	BPPrintMessage(odError,"\n=> As the Csound resource file was locked I waited for 3 seconds...\n");
+//	sleep(2);
+	delay(3); // Fixed by BB 2022-02-20
 	}
 
-csfile = fopen(FileName[wCsoundInstruments],"r");
+csfile = fopen(FileName[wCsoundResources],"r");
 if(csfile == NULL) {
-	BPPrintMessage(odError,"=> Could not find and open Csound resource file %s\n",FileName[wCsoundInstruments]);
+	BPPrintMessage(odError,"=> Could not find and open Csound resource file %s\n",FileName[wCsoundResources]);
 	goto ERR;
 	}
 
 if(ReadOne(FALSE,FALSE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-BPPrintMessage(odInfo,"Loading %s...\n",FileName[wCsoundInstruments]);
-/*sprintf(Message,"Loading %s...",FileName[wCsoundInstruments]);
+BPPrintMessage(odInfo,"Loading %s...\n",FileName[wCsoundResources]);
+/*sprintf(Message,"Loading %s...",FileName[wCsoundResources]);
 ShowMessage(TRUE,wMessage,Message); */
 
 if(trace_load_csound_resources) BPPrintMessage(odInfo, "Line = %s\n",*p_line);
-if(CheckVersion(&iv,p_line,FileName[wCsoundInstruments]) != OK) goto ERR;
+if(CheckVersion(&iv,p_line,FileName[wCsoundResources]) != OK) goto ERR;
 if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == FAILED) goto ERR;
-// GetDateSaved(p_completeline,&(p_FileInfo[wCsoundInstruments]));
+// GetDateSaved(p_completeline,&(p_FileInfo[wCsoundResources]));
 if(ReadInteger(csfile,&jmax,&pos) == FAILED) goto ERR;
 if(jmax < 16 || jmax > MAXCHAN) {
 	BPPrintMessage(odError,"=> This file is empty or in an unknown format\n");
@@ -1399,15 +1400,15 @@ if(Mystrcmp(p_line,"_begin tables") == 0) {
 goto QUIT;
 
 ERR:
-BPPrintMessage(odError,"=> Error reading '%s' Csound resource file...\n",FileName[wCsoundInstruments]);
-// FileName[wCsoundInstruments][0] = '\0';
+BPPrintMessage(odError,"=> Error reading '%s' Csound resource file...\n",FileName[wCsoundResources]);
+// FileName[wCsoundResources][0] = '\0';
 
 QUIT:
 MyDisposeHandle((Handle*)&p_line);
 MyDisposeHandle((Handle*)&p_completeline);
 CloseFile(csfile);
 if(result == OK) {
-	Created[wCsoundInstruments] = TRUE;
+	Created[wCsoundResources] = TRUE;
 	LoadedCsoundInstruments = TRUE;
 	if(FALSE && NumberScales == 1) {
 		BPPrintMessage(odInfo, "\nThis microtonal scale will be used for Csound scores in replacement of the equal-tempered 12-tone scale\nPitch will be adjusted to the diapason\n");
@@ -1416,11 +1417,11 @@ if(result == OK) {
 	else DefaultScale = 0; // Don't use scales until the _scale() instruction has been found
 	}
 else {
-	Created[wCsoundInstruments] = FALSE;
+	Created[wCsoundResources] = FALSE;
 	EmergencyExit = TRUE;
 	}
 
-// Dirty[wCsoundInstruments] = FALSE;
+// Dirty[wCsoundResources] = FALSE;
 if(iCsoundInstrument >= Jinstr) iCsoundInstrument = 0;
 // SetCsoundInstrument(iCsoundInstrument,-1);
 LoadOn--;
@@ -2755,7 +2756,7 @@ if(strlen(line2) > 5) { // Fixed by BB 2022-02-18
 	BPPrintMessage(odInfo,"Trying to load Csound resource %s\n",line2);
 	// Note that line2 contains the path (csound_resources)
 	sprintf(Message,"../%s",line2);
-	strcpy(FileName[wCsoundInstruments],Message);
+	strcpy(FileName[wCsoundResources],Message);
 	if((result = LoadCsoundInstruments(0,1)) != OK) return(result);
 	pos += strlen(line2);
 	}
@@ -3135,4 +3136,16 @@ if(rep == OK) {
 	}
 PrototypesLoaded = TRUE;
 return(rep);
+}
+
+void delay(int number_of_seconds)
+{
+    // Converting time into milli_seconds
+    int milli_seconds = 1000 * number_of_seconds;
+  
+    // Storing start time
+    clock_t start_time = clock();
+  
+    // looping till required time is not achieved
+    while (clock() < start_time + milli_seconds);
 }

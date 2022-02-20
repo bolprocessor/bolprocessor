@@ -1403,9 +1403,9 @@ while(TRUE) {
 	if(Match(TRUE,p_line,&q,4)) {
 		w = iObjects; goto FIX;
 		}
-	p = &line[0]; q = &(FilePrefix[wCsoundInstruments][0]);
+	p = &line[0]; q = &(FilePrefix[wCsoundResources][0]);
 	if(Match(TRUE,p_line,&q,4)) {
-		w = wCsoundInstruments; goto FIX;
+		w = wCsoundResources; goto FIX;
 		}
 	p = &line[0]; q = &(FilePrefix[wMIDIorchestra][0]);
 	if(Match(TRUE,p_line,&q,4)) {
@@ -1441,7 +1441,7 @@ switch(wind) {
 		return(iObjects);
 		break;
 	case wCsoundTables:
-		return(wCsoundInstruments);
+		return(wCsoundResources);
 		break;
 	}
 return(wind);

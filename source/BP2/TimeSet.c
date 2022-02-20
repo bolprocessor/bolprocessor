@@ -134,7 +134,8 @@ for(j = 0; j < MAXINSTRUMENTS; j++) {
 	}
 if(missed_ties > 0) BPPrintMessage(odError,"=> Total %d missed tied events in chunk #%d\n\n",missed_ties,Chunk_number);
 
-sprintf(Message,"");
+// sprintf(Message,"");
+strcpy(Message,""); // Fixed by BB 2022-02-20
 return(result);
 }
 
@@ -174,7 +175,7 @@ period = ((double) Pclock) * 1000. * CorrectionFactor / Qclock;
 // BPPrintMessage(odInfo,"Pclock = %ld Qclock = %ld, CorrectionFactor = %.3f\n",(long)Pclock,(long)Qclock,CorrectionFactor);
 
 // if(trace_timeset)
-BPPrintMessage(odInfo,"Setting time streaks on %d lines, nature_time = %d\n",(*p_nmax),nature_time);
+BPPrintMessage(odInfo,"Setting time streaks on %d lines\n",(*p_nmax));
 
 
 while(TRUE) {
@@ -341,17 +342,17 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 // End DISPLAY_PHASE_DIAGRAM
 
 if(trace_timeset) {
-	BPPrintMessage(odInfo,"\nT[i], i = 1,%ld:\n",(long)maxseq);
+	BPPrintMessage(odError,"\nT[i], i = 1,%ld:\n",(long)maxseq);
 	for(i=1L; i <= maxseq; i++)
-		BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
+		BPPrintMessage(odError,"%ld ",(long)(*p_T)[i]);
 	}
-
 max_end_time = (*p_T)[maxseq];
+if(trace_timeset) BPPrintMessage(odError,"\nmax_end_time = %ld\n",(long)max_end_time);
 
-if(trace_timeset) {
-	BPPrintMessage(odInfo,"\nPositioning %ld sound-objects...\n",(long)(*p_kmx));
-	}
-if(DoSystem() != OK) return(ABORT);
+if(trace_timeset)
+	BPPrintMessage(odError,"\nPositioning %ld sound-objects...\n",(long)(*p_kmx));
+
+// if(DoSystem() != OK) return(ABORT);
 
 if((p_marked = (char**) GiveSpace((Size)handle_size * sizeof(char))) == NULL)
 	return(ABORT);
@@ -653,11 +654,11 @@ QUEST2:
 
 /* Modify Alpha according to articulation (legato/staccato) */
 if(trace_timeset) BPPrintMessage(odInfo,"\nCalculating legato/staccato\n");
-for(k=2; k <= *p_kmx; k++) {
-	if((nature_time == STRIATED) && ((*p_Instance)[k].starttime > max_end_time || (*p_Instance)[k].endtime > max_end_time)) {
-		
-		BPPrintMessage(odError,"Wrong start/end values for object #%d (j = %d) in chunk #%d\n",k,(*p_Instance)[k].object,Chunk_number);
-		BPPrintMessage(odError,"starttime = %ld endtime = %ld max_end_time = %ld *p_kmx = %ld\n",(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)max_end_time,(long)*p_kmx);
+for(k=2; k <= (*p_kmx); k++) {
+//	if((nature_time == STRIATED) && ((*p_Instance)[k].starttime > max_end_time || (*p_Instance)[k].endtime > max_end_time)) {
+	if((nature_time == STRIATED) && (*p_Instance)[k].starttime > max_end_time) { // Fixed by BB 2022-02-20
+		BPPrintMessage(odError,"=> Wrong start/end values for object #%d (j = %d) in chunk #%d\n",k,(*p_Instance)[k].object,Chunk_number);
+		BPPrintMessage(odError,"starttime = %ld endtime = %ld max_end_time = %ld kmx = %ld\n",(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)max_end_time,(long)*p_kmx);
 		continue; // Well, needs to be checked
 		// result = ABORT; goto EXIT1;
 		}

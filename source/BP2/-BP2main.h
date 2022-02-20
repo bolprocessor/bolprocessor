@@ -335,7 +335,7 @@ char **p_FileInfo[WMAX];
 // FileTypeIndexToWindowFileIndex does the reverse of gFileType below
 int	FileTypeIndexToWindowFileIndex[MAXFILETYPEINDEX] = {wUnknown, wUnknown, wKeyboard, iObjects, 
 		iDecisions, wGrammar, wAlphabet, wData, wInteraction, iSettings, wUnknown, iMIDIfile, 
-		iWeights, wScript, wGlossary, wTimeBase, wCsoundInstruments, wMIDIorchestra, wUnknown,
+		iWeights, wScript, wGlossary, wTimeBase, wCsoundResources, wMIDIorchestra, wUnknown,
 		iMidiDriver};
 		
 // In this section every array should contain WMAX values

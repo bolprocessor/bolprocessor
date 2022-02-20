@@ -49,12 +49,18 @@ Alternate options:
 Actions
 -------
 
-- implement produce-items N action
-- implement play-all action
-- fix analyze-item action
-- implement expand-item & show-beats actions
-- new action for listing RT MIDI devices ? Create a file which the user will read via the interface, then select option(s) that will be added as tokens to the "Play" command line
-- revise write to file procedures to use fwrite() everywhere instead of fswrite()
+- Implement produce-items N action
+- Implement play-all action
+- Fix analyze-item action
+- Implement expand-item & show-beats actions
+- New action for listing RT MIDI devices ? Create a file which the user will read via the interface, then select option(s) that will be added as tokens to the "Play" command line
+
+
+Code fixing
+-----------
+
+- Manage multibyte characters to enter all numeric comparison operators as Unicode.  Maybe use the wchar_t type to this effect.
+- Revise write to file procedures to use fwrite() or fputs() or fprintf() or vfprintf() everywhere instead of fswrite(), which means pointers to files instead of refnum
 
 
 Cloud version (option, as creating aa standalone application seems a better choice)
@@ -140,4 +146,8 @@ Microtonal scales
 
 - Include values for optionally stretching each octave
 - Implement a performance control to set A4 frequency (diapason) in the score
+
+========
+
+IMPORTANT NOTE: If you are interested in taking part in this project, join the BP developer's list (https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel)!
 

@@ -996,19 +996,19 @@ FSSpec spec;
 short refnum;
 char name[MAXNAME];
 
-if (GetLinkedFileName(w,wCsoundInstruments,name) == OK) {
-	if(strcmp(FileName[wCsoundInstruments],name) != 0) {
-		strcpy(FileName[wCsoundInstruments],name);
-		type = gFileType[wCsoundInstruments];
+if (GetLinkedFileName(w,wCsoundResources,name) == OK) {
+	if(strcmp(FileName[wCsoundResources],name) != 0) {
+		strcpy(FileName[wCsoundResources],name);
+		type = gFileType[wCsoundResources];
 		c2pstrcpy(spec.name, name);
-		spec.vRefNum = TheVRefNum[wCsoundInstruments];
-		spec.parID = WindowParID[wCsoundInstruments];
+		spec.vRefNum = TheVRefNum[wCsoundResources];
+		spec.parID = WindowParID[wCsoundResources];
 		if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {
-			if(CheckFileName(wCsoundInstruments,FileName[wCsoundInstruments],&spec,&refnum,type,TRUE)
+			if(CheckFileName(wCsoundResources,FileName[wCsoundResources],&spec,&refnum,type,TRUE)
 				!= OK) return(FAILED);
 			}
 		r = LoadCsoundInstruments(refnum,FALSE);
-		if(r == OK) SetName(wCsoundInstruments,TRUE,FALSE);
+		if(r == OK) SetName(wCsoundResources,TRUE,FALSE);
 		return(r);
 		}
 	else return(FAILED); // is this right? -- akozar

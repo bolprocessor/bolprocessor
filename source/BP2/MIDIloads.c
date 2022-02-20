@@ -545,7 +545,7 @@ return(OK);
 }
 
 
-GetNote(char* line,int* p_thekey,int* p_channel,int ignorechannel)
+int GetNote(char* line,int* p_thekey,int* p_channel,int ignorechannel)
 {
 char *p,*q,line2[MAXLIN];
 int i,j,pitchclass,octave,l;

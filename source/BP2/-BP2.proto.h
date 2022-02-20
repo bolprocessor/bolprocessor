@@ -1117,15 +1117,16 @@ void resize_rect(Rect*,int,int);
 char *repl_str(const char*, const char*, const char*);
 char *recode_tags(const char*);
 
-void GetFileName(char*,char*);
+void GetFileName(char*,const char*);
 
 // int ReleaseComputeSpace(void);
 int ClearObjectSpace(void);
 void CreateDoneFile(void);
 
-int CreateMicrotonalScale(char*, char*, char*, char*, char*, char*);
-double GetPitchWithScale(int, int, double, int);
-int modulo(int, int);
+int CreateMicrotonalScale(char*,char*,char*,char*,char*,char*);
+double GetPitchWithScale(int,int,double,int);
+int modulo(int,int);
+void delay(int);
 
 #if !TARGET_API_MAC_CARBON
 /* Provide backwards compatibility for System 7 in the non-Carbon build by

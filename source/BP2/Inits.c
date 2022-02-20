@@ -300,7 +300,7 @@ LastEditWindow = OutputWindow = wData;
 LastComputeWindow = wGrammar;
 LastAction = NO;
 Ke = log((double) 2.) / 64.;
-strcpy(Message,"\0");
+strcpy(Message,"");
 PictFrame.top = topDrawPrototype;
 PictFrame.left = leftDrawPrototype;
 PictFrame.bottom = bottomDrawPrototype;
@@ -317,10 +317,10 @@ Gram.trueBP = Gram.hasTEMP = Gram.hasproc = FALSE;
 pp_MIDIcode = NULL;
 pp_CsoundTime = NULL;
 p_Code = NULL;
-pp_Comment = pp_CsoundScoreText = (char**) NULL;
+pp_Comment = pp_CsoundScoreText = NULL;
 p_CsoundSize = NULL;
 pp_CsoundScore = NULL;
-p_CsoundTables = (char**) NULL;
+p_CsoundTables = NULL;
 MaxCsoundTables = 0;
 PointCsound = PointMIDI = FALSE;
 CsFileName[0] = MIDIfileName[0] = CsoundOrchestraName[0] = '\0';
@@ -400,7 +400,7 @@ FileName[iObjects][0] = '\0';
 BufferSize = DeftBufferSize = MAXDISPL;
 GraphicScaleP = GraphicScaleQ = 1L;
 MatchWords = Finding = FALSE; IgnoreCase = TRUE;
-strcpy(FindString,"\0"); strcpy(ReplaceString,"\0");
+strcpy(FindString,""); strcpy(ReplaceString,""); // Fixed by BB 2022-02-20
 p_Image = p_NoteImage = NULL; p_Homo = NULL; p_Initbuff = NULL;
 p_Bol = p_Patt = p_Var = p_Flagname = NULL;
 p_Ppatt = p_Qpatt = NULL;
@@ -675,7 +675,7 @@ for(i=1; i <= MAXCHAN; i++) WhichCsoundInstrument[i] = -1; // FIXME: this is don
 // if BP_CARBON_GUI
 // SetCsoundInstrument(iCsoundInstrument,-1);
 // endif /* BP_CARBON_GUI */
-/* ClearWindow(TRUE,wCsoundInstruments); */
+/* ClearWindow(TRUE,wCsoundResources); */
 // ErrorSound(MySoundProc);
 #if BP_CARBON_GUI
 {int CheckDate();

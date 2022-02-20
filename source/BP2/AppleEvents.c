@@ -220,7 +220,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 			case iObjects:
 			case wKeyboard:
 			case wTimeBase:
-			case wCsoundInstruments:
+			case wCsoundResources:
 			case wMIDIorchestra:
 			case iMidiDriver:
 				break;
@@ -283,7 +283,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 				Created[iObjects] = TRUE; // 020907 akozar
 				}
 			}
-		else if((wind == wKeyboard || wind == wTimeBase || wind == wCsoundInstruments
+		else if((wind == wKeyboard || wind == wTimeBase || wind == wCsoundResources
 				|| wind == wMIDIorchestra) && MyOpen(&spec,fsCurPerm,&refnum) == noErr) {
 			switch(wind) {
 				case wKeyboard:
@@ -295,7 +295,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 					LoadTimeBase(refnum);
 					mTimeBase(wind);
 					break;
-				case wCsoundInstruments:
+				case wCsoundResources:
 					LoadCsoundInstruments(refnum,FALSE);
 					mCsoundInstrumentsSpecs(wind);
 					break;
@@ -333,22 +333,22 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 				}
 			if(wind == wAlphabet) {
 				TheVRefNum[iObjects] = TheVRefNum[wKeyboard]
-					= TheVRefNum[wCsoundInstruments]
+					= TheVRefNum[wCsoundResources]
 					= TheVRefNum[wMIDIorchestra] = spec.vRefNum;
 				WindowParID[iObjects] = WindowParID[wKeyboard]
-					= WindowParID[wCsoundInstruments]
+					= WindowParID[wCsoundResources]
 					= WindowParID[wMIDIorchestra] = spec.parID;
 				GetMiName(); GetKbName(wAlphabet);
 				GetCsName(wAlphabet);
 				GetFileNameAndLoadIt(wMIDIorchestra,wind,LoadMIDIorchestra);
 				}
 			if(wind == wGrammar) {
-				TheVRefNum[wCsoundInstruments] = TheVRefNum[iObjects] = TheVRefNum[wKeyboard]
+				TheVRefNum[wCsoundResources] = TheVRefNum[iObjects] = TheVRefNum[wKeyboard]
 					= TheVRefNum[iWeights] = TheVRefNum[wInteraction]
 					= TheVRefNum[wGlossary] = TheVRefNum[iSettings]
 					= TheVRefNum[wAlphabet] = TheVRefNum[wTimeBase]
 					= TheVRefNum[wMIDIorchestra] = spec.vRefNum;
-				WindowParID[wCsoundInstruments] = WindowParID[iObjects] = WindowParID[wKeyboard]
+				WindowParID[wCsoundResources] = WindowParID[iObjects] = WindowParID[wKeyboard]
 					= WindowParID[iWeights] = WindowParID[wInteraction]
 					= WindowParID[wGlossary] = WindowParID[iSettings]
 					= WindowParID[wAlphabet] = WindowParID[wTimeBase]
@@ -366,12 +366,12 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 				TheVRefNum[iObjects] = TheVRefNum[wKeyboard]
 					= TheVRefNum[wInteraction] = TheVRefNum[wGlossary]
 					= TheVRefNum[iSettings] = TheVRefNum[wAlphabet]
-					= TheVRefNum[wTimeBase] = TheVRefNum[wCsoundInstruments]
+					= TheVRefNum[wTimeBase] = TheVRefNum[wCsoundResources]
 					= TheVRefNum[wMIDIorchestra] = spec.vRefNum;
 				WindowParID[iObjects] = WindowParID[wKeyboard]
 					= WindowParID[wInteraction] = WindowParID[wGlossary]
 					= WindowParID[iSettings] = WindowParID[wAlphabet]
-					= WindowParID[wTimeBase] = WindowParID[wCsoundInstruments]
+					= WindowParID[wTimeBase] = WindowParID[wCsoundResources]
 					= WindowParID[wMIDIorchestra] = spec.parID;
 				if(loaded[iSettings]) TellOthersMyName(iSettings);
 				else if(GetSeName(wData) == OK) LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms);
@@ -604,14 +604,14 @@ if(size > 0) {
 	for(i=0; i < size; i++) Message[i] = (*h_text)[i];
 	Message[size] = '\0';
 	Strip(Message);
-	if(Message[0] != '\0' && strcmp(Message,FileName[wCsoundInstruments]) != 0) {
-		strcpy(FileName[wCsoundInstruments],Message);
-		type = gFileType[wCsoundInstruments];
+	if(Message[0] != '\0' && strcmp(Message,FileName[wCsoundResources]) != 0) {
+		strcpy(FileName[wCsoundResources],Message);
+		type = gFileType[wCsoundResources];
 		c2pstrcpy(spec.name,Message);
-		spec.vRefNum = TheVRefNum[wCsoundInstruments];
-		spec.parID = WindowParID[wCsoundInstruments];
+		spec.vRefNum = TheVRefNum[wCsoundResources];
+		spec.parID = WindowParID[wCsoundResources];
 		if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {
-			if(CheckFileName(wCsoundInstruments,FileName[wCsoundInstruments],&spec,
+			if(CheckFileName(wCsoundResources,FileName[wCsoundResources],&spec,
 					&refnum,type,TRUE) != OK) {
 				io = fnfErr;
 				goto OUT;
@@ -619,7 +619,7 @@ if(size > 0) {
 			}
 		if(LoadCsoundInstruments(refnum,FALSE) == OK) {
 			io = noErr;
-			SetName(wCsoundInstruments,TRUE,FALSE);
+			SetName(wCsoundResources,TRUE,FALSE);
 			}
 		else io = fnfErr;
 		}

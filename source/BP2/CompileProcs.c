@@ -344,12 +344,12 @@ if(mode == 2 || mode == 4 || mode == 5) {
 READ:
 dec = -1;
 for(n=ZERO; (c=(**qq)) != ')' && c != '>' && c != '-' && c != '+'
-		&& c != '\335' && c != '=' && c != ',' && !MySpace(c); (*qq)++) {
-	if(!control && (mode == 1) && (c == -80)) {	/* -80 is '°' */
+		&& c != '=' && c != ',' && !MySpace(c); (*qq)++) {
+	if(!control && (mode == 1) && (c == -80)) {	/* -80 is 'ï¿½' */
 		n = INT_MIN;		/* Infinite weight */
 		(*qq)++;
 		while(MySpace(**qq)) (*qq)++;
-		if((**qq) != '>' && (**qq) != '\335') return(INT_MAX);
+		if((**qq) != '>') return(INT_MAX);
 		goto OUT;
 		}
 	if(c == '.' && mode == 5) {
@@ -376,7 +376,7 @@ if(mode == 3 && (**qq) == ',') {
 	(*p_inc) = sign * n;	/* In general, p_inc has another meaning here. */
 	goto READ;
 	}
-if(mode == 1 && ((**qq) == '>' || (**qq) == '\335')) goto OUT;
+if(mode == 1 && ((**qq) == '>')) goto OUT;
 
 s = **qq;
 if(s == '=') {
@@ -384,9 +384,8 @@ if(s == '=') {
 	if(!control) return(INT_MAX);
 	while(MySpace(**qq)) (*qq)++;
 	sign = 1;
-	for(i=ZERO; ((mode == 2 && (**qq) != ')'))
-		|| (mode == 1 && (**qq) != '>' && (**qq) != '\335' && (**qq) != '+'
-			&& (**qq) != '-') && !MySpace(**qq); (*qq)++) {
+	for(i=ZERO; (((mode == 2 && (**qq) != ')')) || ((mode == 1 && (**qq) != '>' && (**qq) != '+'
+			&& (**qq) != '-') && !MySpace(**qq))); (*qq)++) {
 		c = **qq;
 		if(c == '+') {
 			if(sign == -1) return(INT_MAX); 
@@ -408,25 +407,25 @@ if(s == '=') {
 		if((**qq) == ')') goto OUT;
 		else return(INT_MAX);
 		}
-	if(mode == 1 && ((**qq) == '>' || (**qq) == '\335')) goto OUT;
+	if(mode == 1 && (**qq) == '>') goto OUT;
 	(*qq)++;
 	}
 	
 while(MySpace(**qq)) (*qq)++;
 
 s = **qq;
-if(s == '>' || s == '\335') goto OUT;
+if(s == '>') goto OUT;
 if(s != '+' && s != '-') return(INT_MAX);
 (*qq)++;
 while(MySpace(**qq)) (*qq)++;
-for(i=0; (**qq) != '>' && (**qq) != '\335' && !MySpace(**qq); (*qq)++) {
+for(i=0; (**qq) != '>' && !MySpace(**qq); (*qq)++) {
 	c = **qq;
 	if(!isdigit(c)) return(INT_MAX);
 	i = (10 * i) + c - '0';
 	}
 if(s == '-') i = -i;
 (*p_inc) = i;
-while((**qq) != '>' && (**qq) != '\335') {
+while((**qq) != '>') {
 	if(!MySpace(**qq)) return(INT_MAX);
 	(*qq)++;
 	}
@@ -1051,7 +1050,7 @@ else {
 					if(ParamInit[i] != initparam) {
 						sprintf(Message,
 							"\nInitial value of '<K%ld>' already set to %ld...",
-								(long)i,ParamInit[i]);
+								(long)i,(long)ParamInit[i]);
 						Print(wTrace,Message);
 						return(ABORT);
 						}
@@ -1357,7 +1356,7 @@ switch(jinstr) {
 						if(ParamInit[cntl] != initparam) {
 							sprintf(Message,
 								"Initial value of '<K%ld>' already set to %ld...",
-									(long)cntl,ParamInit[cntl]);
+									(long)cntl,(long)ParamInit[cntl]);
 							Print(wTrace,Message);
 							return(ABORT);
 							}

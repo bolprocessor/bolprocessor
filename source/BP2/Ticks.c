@@ -279,9 +279,9 @@ long time,istreak,localperiod,i1,i2,oldi2,gap;
 double ffstreak;
 Milliseconds oldt;
 
-if(!OutMIDI) return(FAILED);
-
 #if WITH_REAL_TIME_MIDI
+
+if(!OutMIDI) return(FAILED);
 for(itick=0; itick < MAXTICKS; itick++) {
 	postick = tickposition[itick];
 	time =  (t0 + tickdate[itick]) / Time_res;
@@ -341,7 +341,8 @@ for(itick=0; itick < MAXTICKS; itick++) {
 			i = 0;
 			while(TRUE) {
 				i++;
-				pos = (++pos) % TickCycle[itick];
+				pos++;
+				pos = pos % TickCycle[itick];
 				if(ThisTick[itick][pos] % 2L) break;
 				}
 			tickposition[itick] = pos;

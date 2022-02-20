@@ -40,7 +40,7 @@
 
 int trace_display = 0;
 
-Print(int w,char* t)
+int Print(int w,char* t)
 {
 long length;
 char *ptr;
@@ -65,7 +65,7 @@ return(OK);
 }
 
 
-PrintHandle(int w,char** p_t)
+int PrintHandle(int w,char** p_t)
 {
 long length;
 
@@ -94,7 +94,7 @@ return(OK);
 }
 
 
-PrintHandleBehind(int w,char** p_t)
+int PrintHandleBehind(int w,char** p_t)
 {
 long length;
 
@@ -122,7 +122,7 @@ return(OK);
 }
 
 
-PrintHandleln(int w,char** p_t)
+int PrintHandleln(int w,char** p_t)
 {
 PrintHandle(w,p_t);
 Print(w,"\n");
@@ -130,7 +130,7 @@ return(OK);
 }
 
 
-Println(int w,char* t)
+int Println(int w,char* t)
 {
 Print(w,t);
 Print(w,"\n");
@@ -138,7 +138,7 @@ return(OK);
 }
 
 
-PrintBehind(int w,char* t)
+int PrintBehind(int w,char* t)
 {
 long length;
 char *ptr;
@@ -162,7 +162,7 @@ return(OK);
 }
 
 
-PrintBehindln(int w,char* t)
+int PrintBehindln(int w,char* t)
 {
 PrintBehind(w,t);
 PrintBehind(w,"\n");
@@ -170,7 +170,7 @@ return(OK);
 }
 
 
-DisplayGrammar(t_gram *p_gram,int wind,int producemode,int showweights,int isgrammar)
+int DisplayGrammar(t_gram *p_gram,int wind,int producemode,int showweights,int isgrammar)
 {
 int i,igram,irul,inc,j,proc,w,splitmem,shownctrlval[MAXPARAMCTRL],colormem;
 char *ptr;
@@ -317,7 +317,7 @@ return(OK);
 }
 
 
-ShowRule(t_gram *p_gram,int igram,int irul,int wind,int producemode,
+int ShowRule(t_gram *p_gram,int igram,int irul,int wind,int producemode,
 	int* shownctrlval,int showgram,int showweights,int showmode)
 {
 t_rule rule;
@@ -366,7 +366,7 @@ if(showweights) {
 			Print(wind,Message);
 			}
 		else {
-			sprintf(Message," <°");
+			sprintf(Message," <ï¿½");
 			Print(wind,Message);
 			}
 		}
@@ -462,13 +462,13 @@ if(h != NULL) {
 						sprintf(Message," /%s = ",*((*p_Flagname)[s]));
 						break;
 					case DIF:
-						sprintf(Message," /%s ­ ",*((*p_Flagname)[s]));
+						sprintf(Message," /%s ï¿½ ",*((*p_Flagname)[s]));
 						break;
 					case INFEQUAL:
-						sprintf(Message," /%s ² ",*((*p_Flagname)[s]));
+						sprintf(Message," /%s ï¿½ ",*((*p_Flagname)[s]));
 						break;
 					case SUPEQUAL:
-						sprintf(Message," /%s ³ ",*((*p_Flagname)[s]));
+						sprintf(Message," /%s ï¿½ ",*((*p_Flagname)[s]));
 						break;
 					case INF:
 						sprintf(Message," /%s < ",*((*p_Flagname)[s]));
@@ -680,7 +680,7 @@ return(r);
 }
 
 
-ShowAlphabet(void)
+int ShowAlphabet(void)
 {
 int i,j,jj,dirtymem;
 
@@ -737,7 +737,7 @@ return(OK);
 }
 
 
-DisplayMode(tokenbyte ***pp_a,int *p_ifunc,int *p_hastabs)
+int DisplayMode(tokenbyte ***pp_a,int *p_ifunc,int *p_hastabs)
 {
 int datamode,setting_section,founddigit;
 tokenbyte m,p;
@@ -809,7 +809,7 @@ return(datamode);
 }
 
 
-SequenceField(tokenbyte ***pp_a,long id)
+int SequenceField(tokenbyte ***pp_a,long id)
 {
 long i,foundperiod;
 tokenbyte m,p;
@@ -828,7 +828,7 @@ return(FALSE);
 }
 
 
-HasStructure(tokenbyte **p_a)
+int HasStructure(tokenbyte **p_a)
 {
 tokenbyte m,p;
 unsigned long i;
@@ -881,7 +881,7 @@ if(Pduration > 0.) {
 	else sprintf(Message,"Dur = %.0f ticks",Pduration);
 		
 	if(Ratio != Prod) {
-		if(Ratio < ULONG_MAX) sprintf(line,"  Ratio = %u",(unsigned long)Ratio);
+		if(Ratio < ULONG_MAX) sprintf(line,"  Ratio = %lu",(unsigned long)Ratio);
 		else sprintf(line,"   Ratio = %.0f",Ratio);
 		if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
 		}

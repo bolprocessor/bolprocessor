@@ -52,6 +52,8 @@ int ii,ig,ir,j,jj,n,l,ln,lmax,bound,leftside,rightcontext,
 neg,cv,needsK,needsflag,i_scale,j_scale,result;
 long i,imax,k,siz,buffsize,y,u,v;
 char c,d,**pp,*p,*q,*qmax,*r,*ptr,line[MAXLIN],**p_x;
+// wchar_t c;
+
 p_flaglist **nexth,**oldh;
 KeyNumberMap map;
 double x;
@@ -130,7 +132,7 @@ SEARCHNUMBER:
 		}
 		
 NOTSCALE:
-	/* if(c == 'Â') {
+	/* if(c == 'ï¿½') {
 		(*pp)++;
 		while(isspace(c=**pp) && (*pp) < (*pp2)) (*pp)++;
 		continue;
@@ -429,8 +431,8 @@ NOTSCALE:
 			(*pp)++; NextChar(pp);
 			l = 0;
 			while(!MySpace(c=**pp) && c != '/' && c != '=' && c != '-' && c != '+'
-					&& c != '<' && c != '\334' && c != '>' && c != '\335'
-				/*	&& c != '²' && c != '³' && c != '­' */) {
+					&& c != '<' && c != '\8800' && c != '>' && c != '\8804'
+					&& c != '\8805') {
 				(*p_x)[l++] = c;
 				if(l >= BOLSIZE) {
 					ShowError(4,igram,irul);
@@ -451,15 +453,15 @@ NOTSCALE:
 				}
 			if(MySpace(c)) c = NextChar(pp);
 			needsK = needsflag = FALSE;
-			if(c == '=' || c == '-' || c == '+' || c == '>' || c == '<' || c == '\334'
-							 || c == '\335'	/* || c == '²' || c == '³' || c == '­' */) {
+			if(c == '=' || c == '-' || c == '+' || c == '>' || c == '<' || c == '\8800'
+							 || c == '\8804' || c == '\8805') {
 				if(c == '=' && arg_nr != 1 && arg_nr != 2) {
 					ShowError(50,igram,irul);
 					goto ERR;
 					}
 				(*pp)++; NextChar(pp);
-				if(c == '>' || c == '<' || c == '\334' || c == '\335' /* || c == '²'
-						|| c == '³' || c == '­' */ || c == '=') {
+				if(c == '>' || c == '<' || c == '\8800'
+							 || c == '\8804' || c == '\8805' || c == '=') {
 					if(c != '='	&& arg_nr != 1) {
 						ShowError(51,igram,irul);
 						goto ERR;
@@ -533,23 +535,21 @@ STOREFLAG:
 				}
 			if(arg_nr == 1) {
 				switch(c) {
-				/*	case '­':
+					case '\8800': // Check https://wutils.com/unicode/
 						(**nexth).operator = DIF;
-						break; */
+						break;
 					case '<':
-					case '\334':
 						(**nexth).operator = INF;
 						break;
 					case '>':
-					case '\335':
 						(**nexth).operator = SUP;
 						break;
-				/*	case '³':
+					case '\8805':
 						(**nexth).operator = SUPEQUAL;
 						break;
-					case '²':
+					case '\8804':
 						(**nexth).operator = INFEQUAL;
-						break; */
+						break;
 					}
 				}
 			if(*(ph_flag) == NULL) *(ph_flag) = nexth;
@@ -560,10 +560,10 @@ STOREFLAG:
 			}
 		}
 	c = (**pp);
-	if(c == '<' || c == '\334') {		/* Out-time object or <<Wx>> */
+	if(c == '<') {		/* Out-time object or <<Wx>> */
 		(*pp)++;
 		c = (**pp);
-		if((c != '<' && c != '\334')) {
+		if(c != '<') {
 			Expect('<',"<",c);
 			ShowError(41,igram,irul);
 			goto ERR;
@@ -572,7 +572,7 @@ STOREFLAG:
 		if((c=(**pp)) == 'W') {	/* <<Wx>> */
 			(*pp)++;
 			l = 0;
-			while((c=(**pp)) != '>' && c != '\335') {
+			while((c=(**pp)) != '>') {
 				if(!isdigit(c)) {
 					sprintf(Message,"Expecting integer in synchonization tag '<<Wx>>'\n");
 					Print(wTrace,Message);
@@ -592,7 +592,7 @@ STOREFLAG:
 				}
 			(*p_buff)[i++] = T8; (*p_buff)[i++] = l;
 			(*pp)++;
-			if((c=(**pp)) != '>' && c != '\335') {
+			if((c=(**pp)) != '>') {
 				Expect('>',"synchronization tag",c);
 				ShowError(41,igram,irul);
 				goto ERR;
@@ -611,7 +611,7 @@ STOREFLAG:
 			ShowError(27,igram,irul);
 			goto ERR;
 			}
-		while((c=NextChar(pp)) != '>' && c != '\335') {
+		while((c=NextChar(pp)) != '>') {
 			(*p_x)[l++] = c;
 			if(!OkBolChar2(c) || c == '-') {
 				(*p_x)[l] = '\0';
@@ -637,7 +637,7 @@ STOREFLAG:
 				}
 			}
 end1:	(*pp)++;
-		if((c=(**pp)) != '>' && c != '\335') {
+		if((c=(**pp)) != '>') {
 			Expect('>',">",c);
 			ShowError(41,igram,irul);
 			goto ERR;
@@ -971,7 +971,7 @@ SEARCHCODE:
 		if(j == 2) {		/* '#' */
 			neg = TRUE;
 			}
-		if(j == 7) {		/* '¥' */
+		if(j == 7) {		/* 'ï¿½' */
 //			NotBPCase[9] = TRUE;
 			}
 OKCODE:	
@@ -1304,7 +1304,7 @@ for(j=0; j < MAXCODE; j++)
 			}
 		return(j);
 		}
-if(x == '.' /* || x == '¥' */) return(7);
+if(x == '.' /* || x == 'ï¿½' */) return(7);
 if(x == '*') return(21);
 if(x == '\\') return(25);
 return(-1);
@@ -1599,7 +1599,7 @@ if(pp_a == NULL || *pp_a == NULL || **pp_a == NULL) return(FALSE);
 for(i=0; ; i+=2) {
 	m = (int)(**pp_a)[i]; p = (int)(**pp_a)[i+1];
 	if(m == TEND && p == TEND) break;
-	if(m == T0 && p == 7) {		/* '¥' */
+	if(m == T0 && p == 7) {		/* 'ï¿½' */
 		return(TRUE);
 		}
 	}
