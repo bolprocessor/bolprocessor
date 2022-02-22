@@ -701,7 +701,8 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 	if((MIDIfileOn || cswrite || showpianoroll || !Improvize
 			|| ItemNumber == ZERO || PlaySelectionOn || ItemCapture) && !CyclicPlay) {
 		if(!showpianoroll && !cswrite && !MIDIfileOn) SetDriverTime(Tcurr); // Revise this! 2021-02-26
-		if(!cswrite && !MIDIfileOn && !ItemCapture && !showpianoroll)
+	//	if(!cswrite && !MIDIfileOn && !ItemCapture && !showpianoroll)
+		if(!cswrite && !MIDIfileOn && !ItemCapture) // Fixed by BB 2022-02-22
 			Tcurr += (SetUpTime + 600L) / Time_res;
 		currenttime = Tcurr * Time_res;
 		Nbytes = 0; Tbytes2 = ZERO;
@@ -1085,7 +1086,8 @@ TRYCSFILE:
 					}
 				}
 FORGETIT:
-			if(kcurrentinstance > 1 && !showpianoroll) {
+		//	if(kcurrentinstance > 1 && !showpianoroll) { Fixed by BB 2022-02-22
+			if(kcurrentinstance > 1) {
 				if(trace_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance = %ld and not showpianoroll\n",(long)kcurrentinstance);
 				Tcurr = (t0 + t1) / Time_res;
 				rs = 0;

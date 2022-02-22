@@ -1592,7 +1592,7 @@ NEWSEQUENCE:
 				}
 			currswitchstate[ch] = currswitchstate[ch] | (1L << (v - 64));
 			newswitch = TRUE;
-				break;
+			break;
 		case T18:	/* _switchoff() */
 	//		if(level >= Maxlevel) goto NEXTTOKEN;
 			v = p % 128;

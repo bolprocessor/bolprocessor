@@ -366,6 +366,9 @@ if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
 	
 	}
 else {
+
+	if(trace_writing_midi_file)
+		BPPrintMessage(odInfo,"midi_byte = %d time = %ld OldMIDIfileTime = %ld MIDItracklength = %ld Midi_msg = %ld\n",midi_byte,(long)time,(long)OldMIDIfileTime,(long)MIDItracklength,(long)Midi_msg);
 	if(MIDIbytestate > 3 || MIDIbytestate < 1) {
 	//	if(Beta) Alert1("=> Err. WriteMIDIbyte(). MIDIbytestate > 3 || MIDIbytestate < 1");
 		BPPrintMessage(odError, "=> Correcting the byte state (%d) in MIDI file\n",MIDIbytestate);

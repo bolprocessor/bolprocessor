@@ -1,5 +1,7 @@
 Bol Processor BP3 To Do List
 ============================
+Current location of this file: https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-To-Do.txt
+
 
 Documentation
 -------------
