@@ -161,6 +161,8 @@ unsigned long tstart,handle_size;
 nature_time = Nature_of_time;	/* Must not change during computation */
 
 handle_size = maxseq + 50; // Added by BB 2021-03-23
+if(trace_timeset)
+	BPPrintMessage(odInfo,"\nhandle_size for Seq[nseq] and DELTA = %ld\n",(long)handle_size);
 
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	ptr = (*p_Seq)[nseq];
@@ -464,11 +466,40 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	if(NoConstraint) {
 		CoverOK = DiscontinuityOK = TRUE;
 		}
-		
+
+/*	if(trace_timeset) {
+		BPPrintMessage(odInfo,"\nBefore Fix(), T[i], i = 1,%ld:\n",(long)maxseq);
+		for(i=1L; i <= maxseq; i++)
+			BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
+		BPPrintMessage(odInfo,"%s","\n");
+		} */
+
 TRY:
-	if(trace_timeset) ShowMessage(FALSE,wMessage,"Placing objects");
+	if(trace_timeset) ShowMessage(FALSE,wMessage,"\nPlacing objects");
+/*	if(trace_timeset) {
+		BPPrintMessage(odInfo,"\nBefore Fix(), T[i], i = 1,%ld:\n",(long)maxseq);
+		for(i=1L; i <= maxseq; i++)
+			BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
+		BPPrintMessage(odInfo,"%s","\n");
+		BPPrintMessage(odInfo,"Before Fix(), time2:\n");
+		for(i=1L; i <= maxseq; i++)
+			BPPrintMessage(odInfo,"[%ld]%ld ",(long)i,(long)(*p_time2)[i]);
+		BPPrintMessage(odInfo,"%s","\n");
+		} */
 	if((result=Fix(nseq,p_time1,p_time2,nature_time)) != OK) goto EXIT1;
-	if(trace_timeset) ShowMessage(FALSE,wMessage,"Solving constraints");
+
+/*	if(trace_timeset) {
+		BPPrintMessage(odInfo,"\nAfter Fix(), T[i], i = 1,%ld:\n",(long)maxseq);
+		for(i=1L; i <= maxseq; i++)
+			BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
+		BPPrintMessage(odInfo,"%s","\n");
+		BPPrintMessage(odInfo,"After Fix(), time2:\n");
+		for(i=1L; i <= maxseq; i++)
+			BPPrintMessage(odInfo,"[%ld]%ld ",(long)i,(long)(*p_time2)[i]);
+		BPPrintMessage(odInfo,"%s","\n");
+		} */
+	
+	if(trace_timeset) BPPrintMessage(odInfo,"Solving constraints Locate() for nseq = %ld\n",(long)nseq);
 	r = Locate(nseq,p_imaxseq,maxseq,*p_kmx,p_DELTA,&tstart,p_time1,
 			p_time2,p_maxcoverbeg,p_maxcoverend,p_maxgapbeg,p_maxgapend,p_maxtruncbeg,
 			p_maxtruncend,nature_time,first,p_marked);
@@ -476,6 +507,18 @@ TRY:
 		result = r;
 		goto EXIT1;
 		}
+	
+	/* if(trace_timeset) {
+		BPPrintMessage(odInfo,"\nAfter Locate(), T[i], i = 1,%ld:\n",(long)maxseq);
+		for(i=1L; i <= maxseq; i++)
+			BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
+		BPPrintMessage(odInfo,"%s","\n");
+		BPPrintMessage(odInfo,"After Locate(), DELTA[i], i = 1,%ld:\n",(long)maxseq);
+		for(i=1L; i <= maxseq; i++)
+			BPPrintMessage(odInfo,"%ld ",(long)(*p_DELTA)[i]);
+		BPPrintMessage(odInfo,"%s","\n");
+		} */
+	
 	if(r == FAILED || r == QUICK) {
 		result = FAILED;
 		if(ShowGraphic || !Improvize) {
@@ -582,11 +625,13 @@ QUEST2:
 		}
 	else {
 		if(trace_timeset) ShowMessage(FALSE,wMessage,"Interpolating streaks");
+		(*p_T)[0] = ZERO; // Fixed by BB 2022-02-23
 	//	for(i=1L; i <= maxseq; i++) { Fixed by BB 2021-03-20
 		for(i=ZERO; i <= maxseq; i++) {
 			if(i <= (*p_imaxseq)[nseq] && ((k=(*((*p_Seq)[nseq]))[i]) >= 1 || k == -1))
 						(*p_marked)[i] = TRUE;
 			if((*p_marked)[i] == TRUE) {
+				// BPPrintMessage(odInfo,"+ marked i = %ld k = %ld T[i] = %ld, DELTA[i] = %ld\n",(long)i,(long)k,(long)(*p_T)[i],(long)(*p_DELTA)[i]);
 				(*p_T)[i] = (*p_T)[i] + (*p_DELTA)[i];
 				if((*p_T)[i] >= tmax) tmax = (*p_T)[i];
 				else {	/* Must be increasing.  Sometimes local errors in smooth time */
@@ -602,6 +647,14 @@ QUEST2:
 			(*p_DELTA)[i] = ZERO;
 			}
 		}
+	
+	/* if(trace_timeset) {
+		BPPrintMessage(odInfo,"\nAfter Interpolating streaks, T[i], i = 1,%ld:\n",(long)maxseq);
+		for(i=1L; i <= maxseq; i++)
+			BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
+		BPPrintMessage(odInfo,"%s","\n");
+		} */
+
 	if(BTflag) {
 		if(trace_timeset)
 			ShowMessage(TRUE,wMessage,"Starting again algorithm (broke tempo)...");
@@ -615,7 +668,13 @@ QUEST2:
 			}
 		goto STARTAGAIN;
 		}
-		
+	
+	if(trace_timeset) {
+	BPPrintMessage(odInfo,"\nT[i], i = 1,%ld:\n",(long)maxseq);
+	for(i=1L; i <= maxseq; i++)
+		BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
+	}
+
 	/* Update tmin and tmax */
 	imax = (*p_imaxseq)[nseq] - 1L;
 	if(imax > 0) {

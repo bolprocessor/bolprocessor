@@ -1710,8 +1710,6 @@ if(trace_csound) BPPrintMessage(odInfo, "Compiling Csound score in object %d\n",
 
 maxevents = 12;
 
-// if(trace_csound) BPPrintMessage(odError, "OK2\n");
-
 ptr = (Handle) (*pp_CsoundScore)[j];
 if(ptr != NULL) {
 	for(i=0; i < (*p_CsoundSize)[j]; i++) {

@@ -560,7 +560,7 @@ StrikeAgainDefault = TRUE;
 Jwheel = Jfeet = Jdisk = 0;
 EmptyBeat = TRUE;
 
-DeftPitchbendRange = 200; // instead of 0 - Fixed by BB 2021-02-14
+DeftPitchbendRange = 0; // Fixed to 200 by BB 2021-02-14 than back to 0 by BB 2022-02-23
 DeftVolume = DEFTVOLUME;
 DeftVelocity = DEFTVELOCITY;
 DeftPanoramic = DEFTPANORAMIC;

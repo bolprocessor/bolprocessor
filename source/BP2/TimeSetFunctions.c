@@ -61,7 +61,7 @@ int Locate(int nseq,unsigned long** p_imaxseq,long imax,int kmax,Milliseconds **
 	int nature_time,int first,char **p_marked)
 {
 char **p_BreakTempoPrev,**p_choice1,choice2;
-int j,k,kk,sol1,sol2,n,nsol,redo,
+int j,k,kk,sol1,sol2,n,nsol,redo,iii,
 	krep,r,result,stack_depth,okmove;
 long i,ii,i0,iprev,inext,ibreak,imax2,**p_tp1,**p_tp2,**p_ts1,**p_ts2,ts1mem,ts2mem,
 	imaxseq,imaxseq2,delta2mem,ddelta2mem,**p_delta,**p_delta1,**p_delta2,
@@ -146,7 +146,7 @@ for(i=ZERO; i <= imax; i++) {
 	if(k > 1 || k < 0) { /* Ignore silence "-" */
 		/* k < 0 if empty sequence */
 		i0 = i;
-	//	BPPrintMessage(odError,"i0 = %ld k = %ld nseq = %ld\n",(long)i0,(long)k,(long)nseq);
+		// BPPrintMessage(odError,"nseq = %ld i0 = %ld k = %ld\n",(long)nseq,(long)i0,(long)k);
 		break;
 		}
 	iprev = i;
@@ -196,13 +196,15 @@ else (*p_tsgap)[inext] = (*p_maxgapend)[i];
 /* Update Ts */
 if((*p_Ts)[i] < (*p_ts2)[i]) {
 	(*p_Ts)[inext] = (*p_ts2)[i];
-	if(j < 16384) (*p_BreakTempoPrev)[inext] = (*p_BreakTempo)[j];
-	else (*p_BreakTempoPrev)[inext] = FALSE; /* Simple note   Changed on 18/11/97 */
+	if(j < 16384 && j > 1 && j < Jbol) (*p_BreakTempoPrev)[inext] = (*p_BreakTempo)[j];
+	// Fixed j > 1 && j < Jbol by BB 2022-02-23
+	else (*p_BreakTempoPrev)[inext] = FALSE; /* Simple note or silence */
 	}
 else {
 	(*p_Ts)[inext] = (*p_Ts)[i];
 	(*p_BreakTempoPrev)[inext] = (*p_BreakTempoPrev)[i];
 	}
+// BPPrintMessage(odInfo,"Update Ts: nseq = %ld i = %ld inext = %ld ts2[i] = %ld Ts[i] = %ld Ts[inext] = %ld\n",(long)nseq,(long)i,(long)inext,(long)(*p_ts2)[i],(long)(*p_Ts)[i],(long)(*p_Ts)[inext]);
 	
 iprev = i;
 i = inext;
@@ -219,11 +221,12 @@ k = (*((*p_Seq)[nseq]))[i];
 if(k == -1) {	/* 'NIL' end-of-line marker */
 	if((nature_time == SMOOTH) && (nseq == 0) && first) {
 		(*p_ddelta0)[i] = (*p_ts2)[iprev];
+	//	BPPrintMessage(odError,"\n=> ddelta0[%ld] = %ld\n",(long)i,(long)(*p_ddelta0)[i]);
 		}
 	for(ii=ZERO; ii <= (*p_imaxseq)[nseq]; ii++) {
 		kk = (*((*p_Seq)[nseq]))[ii];
 		if(kk > 1) (*p_delta)[kk] = (*p_delta1)[ii] + (*p_delta2)[ii];
-		// if(kk == 4) BPPrintMessage(odError,"1) ii = %ld kk = %ld starttime = %ld endtime = %ld, ts1[%ld] = %ld ts2[%ld] = %ld\n",(long)ii,(long)kk,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime,ii,(*p_ts1)[ii],ii,(*p_ts2)[ii]);
+		//* if(kk > 1) BPPrintMessage(odError,"\nBefore Solution_is_accepted:\nii = %ld kk = %ld starttime = %ld endtime = %ld, ts1[%ld] = %ld ts2[%ld] = %ld\n",(long)ii,(long)kk,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime,ii,(*p_ts1)[ii],ii,(*p_ts2)[ii]); */
 		}
 	// BPPrintMessage(odError,"1) ts1[1] = %ld ts2[1] = %ld\n",(*p_ts1)[1],(*p_ts2)[1]);
 	if((result=Solution_is_accepted(++nsol,nseq,p_imaxseq,kmax,p_ts1,p_ts2,p_delta,
@@ -239,12 +242,13 @@ if(k == -1) {	/* 'NIL' end-of-line marker */
 					(*p_Instance)[kk].starttime = (*p_ts1)[ii];
 					(*p_Instance)[kk].endtime = (*p_ts2)[ii];
 				//	if(kk > 1) BPPrintMessage(odError,"kk = %ld starttime = %ld endtime = %ld\n",(long)kk,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
-				// BPPrintMessage(odError,"Solution_is_accepted Chunk_number = %d, kk = %ld, ii = %ld starttime = %ld endtime = %ld\n",Chunk_number,(long)kk,ii,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
 				//	if((*p_ts1)[ii]/Kpress > 100000 || (*p_ts2)[ii]/Kpress > 100000) BPPrintMessage(odError,"ERR: Solution_is_accepted Chunk_number = %d, Kpress = %ld, kk = %ld, ii = %ld starttime = %ld endtime = %ld\n",Chunk_number,(long)Kpress,(long)kk,ii,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
 					}
+				// BPPrintMessage(odInfo,"Solution_is_accepted Chunk_number = %d, kk = %ld, ii = %ld starttime = %ld endtime = %ld, delta0 = %ld delta1 = %ld delta2 = %ld\n",Chunk_number,(long)kk,ii,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime,(long)(*p_ddelta0)[ii],(long)(*p_ddelta1)[ii],(long)(*p_ddelta2)[ii]);
 				if(ii <= imaxseq) {
 					DELTA = (*p_DELTA)[ii]
 						= (*p_ddelta0)[ii] + (*p_ddelta1)[ii] + (*p_ddelta2)[ii];
+				//	BPPrintMessage(odInfo,"DELTA = %ld\n",(long)DELTA);
 					}
 				else {
 					(*p_DELTA)[ii] = DELTA;
@@ -268,7 +272,7 @@ j = (*p_Instance)[k].object;	/* j can't be 0 because of previous inext calculati
 (*p_Instance)[k].truncend = ZERO;
 (*p_ts1)[i] = (*p_tp1)[i] = (*p_time1)[i] + (*p_ddelta0)[i];
 (*p_ts2)[i] = (*p_tp2)[i] = (*p_time2)[i] + (*p_ddelta0)[i];
-// BPPrintMessage(odError,"* ts1[%ld] = %ld ts2[%ld] = %ld, time1[%ld] = %ld time2[%ld] = %ld, delta = %ld\n",i,(*p_ts1)[i],i,(*p_ts2)[i],i,(*p_time1)[i],i,(*p_time2)[i],(*p_ddelta0)[i]);
+// BPPrintMessage(odInfo,"*** k = %ld j = %ld ts1[%ld] = %ld ts2[%ld] = %ld, time1[%ld] = %ld time2[%ld] = %ld, delta = %ld\n",(long)k,(long)j,(long)i,(*p_ts1)[i],i,(*p_ts2)[i],i,(*p_time1)[i],i,(*p_time2)[i],(*p_ddelta0)[i]);
 
 if(i == i0 || (NoAlphabet && (nature_time != SMOOTH))) goto INCREMENT;
 
@@ -279,6 +283,12 @@ if(ibreak == 0) {
 
 shift1 = (*p_Ts)[i] - (*p_tp1)[i];
 if((*p_Ts)[i] < Veryneg) shift1 = ZERO;
+/* BPPrintMessage(odInfo,"\nTs[i]:\n");
+for(iii = 1;  iii <= (*p_imaxseq)[nseq]; iii++) {
+	BPPrintMessage(odInfo,"[%ld]%ld ",(long)iii,(long)(*p_Ts)[iii]);
+	}
+BPPrintMessage(odInfo,"\n"); */
+// BPPrintMessage(odInfo,"shift1 = %ld, nseq = %ld, j = %ld, i = %ld Ts[i] = %ld tp1[i] = %ld tp2[i] = %ld\n",(long)shift1,(long)nseq,(long)j,(long)i,(long)(*p_Ts)[i],(long)(*p_tp1)[i],(long)(*p_tp2)[i]);
 
 if(shift1 == ZERO) goto INCREMENT;
 /* Added 8/3/97 */
@@ -287,7 +297,8 @@ if(Situation_ok(nseq,i,i0,j,shift1,(*p_tp1)[i],(*p_tp2)[i],(*p_Ts)[i],(*p_tscove
 	(*p_tsgap)[i],(*p_maxgapbeg)[i],(*p_maxcoverbeg)[i],p_marked,nature_time)) {
 	shift1 = ZERO;
 	}
-	
+
+// BPPrintMessage(odInfo,"\nBefore Possible_choices() nseq = %ld, i= %ld, j = %ld, k = %ld, tp1[i] = %ld, tp2[i] = %ld, shift1 = %ld, Ts[i] = %ld, BreakTempoPrev[i] = %ld\n",(long)nseq,(long)i,(long)j,(long)k,(long)(*p_tp1)[i],(long)(*p_tp2)[i],(long)shift1,(long)(*p_Ts)[i],(long)(*p_BreakTempoPrev)[i]);
 (*p_choice1)[i] = Possible_choices((*p_sol_set1)[i],(*p_BreakTempoPrev)[i],
 	i,i0,j,k,nseq,p_marked,nature_time,(*p_tp1)[i],(*p_tp2)[i],shift1,(*p_Ts)[i],
 	(*p_maxtruncbeg)[i],(*p_maxtruncend)[i],1);
@@ -339,6 +350,7 @@ if(kmax > 100 && ++n > 10) {
 if(redo && ((*p_choice1)[i] > 1)) {
 	sol1 = Get_choice((*p_sol_set1)[i],&s,&olds,&redo,&stack_depth,1,i,j,
 			(*p_tp1)[i],(*p_tp2)[i],(*p_Ts)[i],shift1);
+	// BPPrintMessage(odInfo,"\nAfter Get_choice() sol1 = %ld\n",(long)sol1);
 	if(sol1 == BACKTRACK) goto FINDMORE;
 	if(sol1 == ABORT) {
 		result = BACKTRACK;
@@ -350,8 +362,15 @@ else {
 	if(StepTimeSet && (result=DrawSequence(nseq,NULL,p_ts1,p_ts2,kmax,(unsigned long)i,p_imaxseq,FALSE,
 		p_ddelta0,p_ddelta1,p_ddelta2)) != OK) goto QUIT;
 #endif /* BP_CARBON_GUI */
+	/* BPPrintMessage(odInfo,"\nTs[i]:\n");
+	for(iii = 1;  iii <= (*p_imaxseq)[nseq]; iii++) {
+		BPPrintMessage(odInfo,"[%ld]%ld ",(long)iii,(long)(*p_Ts)[iii]);
+		}
+	BPPrintMessage(odInfo,"\n"); */
+	// BPPrintMessage(odInfo,"\nBefore Next_choice() shift1 = %ld, i = %ld, Ts[i] = %ld ts1[i] = %ld ts2[i] = %ld\n",(long)shift1,(long)i,(long)(*p_Ts)[i],(long)(*p_ts1)[i],(long)(*p_ts2)[i]);
 	sol1 = Next_choice((*p_sol_set1)[i],nseq,i,i0,j,(*p_Ts)[i],(*p_ts1)[i],
 																(*p_ts2)[i],shift1,1);
+	// BPPrintMessage(odInfo,"After Next_choice() sol1 = %ld\n",(long)sol1);
 	if((*p_choice1)[i] > 5) {
 		sprintf(Message,"=> Error2 choice1[%ld]=%ld.\n",
 			(long)i,(long)(*p_choice1)[i]);
@@ -402,7 +421,10 @@ else {
 	(*p_Instance)[k].truncbeg = ZERO;
 	(*p_tp2)[i] = (*p_tp2)[i] + shift1;
 	if(sol1 == 0) (*p_delta1)[i] = shift1;	/* Shift object */
-	if(sol1 == 1) (*p_ddelta1)[i] = shift1;	/* Break tempo */
+	if(sol1 == 1) {
+		(*p_ddelta1)[i] = shift1;	/* Break tempo */
+		// BPPrintMessage(odInfo,"\nBreaking tempo, shift1 = %ld\n",(long)shift1);
+		}
 	}
 (*p_ts1)[i] = (*p_tp1)[i];
 (*p_ts2)[i] = (*p_tp2)[i];
@@ -423,6 +445,7 @@ if(choice2 > 5) {
 if(redo && (choice2 > 1)) {
 	sol2 = Get_choice(sol_set2,&s,&olds,&redo,&stack_depth,2,i,j,(*p_ts1)[i],(*p_ts2)[i],
 		(*p_Ts)[i],shift2);
+	// BPPrintMessage(odInfo,"\nAfter Get_choice, sol2 = %ld\n",(long)sol2);
 	if(sol2 == BACKTRACK) goto FINDMORE;
 	if(sol2 == ABORT) {
 		result = BACKTRACK;
@@ -858,17 +881,24 @@ int n;
 
 if(nseq >= Maxconc) {
 	if(Beta) Alert1("=> Err. Next_choice(). nseq >= Maxconc");
+	// BPPrintMessage(odError,"=> Err. Next_choice(). nseq >= Maxconc\n");
 	return(OK);
 	}
-if(TraceTimeSet) {
-	if(j < 16384)
-		sprintf(Message,"\nCol#%ld side %ld Ts=%ld  t1 =%ld  t2=%ld  \"%s\" ",
-			(long)i,(long)side,(long)ts,(long)t1,(long)t2,*((*p_Bol)[j]));
+if(TraceTimeSet || TRUE) {
+	if(j < 16384) {
+		if(j < Jbol)
+			sprintf(Message,"Col#%ld nseq = %ld side = %ld ts = %ld  t1 = %ld  t2 = %ld \"%s\" \n",
+			(long)i,(long)nseq,(long)side,(long)ts,(long)t1,(long)t2,*((*p_Bol)[j]));
+		else // Fixed by BB 2022-02-24
+			sprintf(Message,"Col#%ld nseq = %ld side = %ld ts = %ld  t1 = %ld  t2 = %ld \"%s\" \n",
+			(long)i,(long)nseq,(long)side,(long)ts,(long)t1,(long)t2,*((*p_Patt)[j-Jbol]));
+		}
 	else
-		sprintf(Message,"\nCol#%ld side %ld Ts=%ld  t1 =%ld  t2=%ld  \"%s\" ",
-			(long)i,(long)side,(long)ts,(long)t1,(long)t2,
+		sprintf(Message,"Col#%ld nseq = %ld side = %ld ts = %ld  t1 = %ld  t2 = %ld \"%s\" \n",
+			(long)i,(long)nseq,(long)side,(long)ts,(long)t1,(long)t2,
 			*((*(p_NoteName[NoteConvention]))[j-16384]));
 	Print(wTrace,Message);
+	// BPPrintMessage(odInfo,"%s",Message);
 	if(shift > 0) {
 		sprintf(Message,"must spend %ld milliseconds\n",(long)shift);
 		}
@@ -876,8 +906,8 @@ if(TraceTimeSet) {
 		sprintf(Message,"must save %ld milliseconds\n",(long)-shift);
 		}
 	Print(wTrace,Message);
+	// BPPrintMessage(odInfo,"%s",Message);
 	}
-	
 if(StepTimeSet) {
 	if(AllSolTimeSet && i > i0
 			&& !sol_set[0] && !sol_set[1] && !sol_set[2] && !sol_set[3]) {
@@ -897,7 +927,7 @@ QUEST3:
 		Print(wTrace,"\nAborted...\n"); ShowSelect(CENTRE,wTrace);
 		return(ABORT);
 		}
-	if(rep == 'R'&& !AllSolTimeSet) {
+	if(rep == 'R' && !AllSolTimeSet) {
 REVISE:
 		Print(wTrace,"Revising previous object(s)...\n"); ShowSelect(CENTRE,wTrace);
 		return(4);
@@ -930,7 +960,10 @@ REVISE:
 	}
 
 for(n=0; n < 5; n++) {
-	if(sol_set[n] > 0) return(n);
+	if(sol_set[n] > 0) {
+		// BPPrintMessage(odInfo,"sol_set[%ld] = %ld\n",(long)n,(long)sol_set[n]);
+		return(n);
+		}
 	}
 if(Beta) Alert1("=> Error Next_choice()");
 Print(wTrace,"\nsol_set[n]=\n");

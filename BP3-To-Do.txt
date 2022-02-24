@@ -82,6 +82,7 @@ Input files
 
 - fix crash when loading a glossary file
 - fix crash when grammar contains script commands
+- interpret script commands producing MIDI messages such as _script(MIDI program …) or _script(MIDI controller …)
 - support UTF-8 text encoding for input files & output (may not be necessary)
 - implement the -s/-S options for specifying the start string => not necessary as it exists on the Grammar window of the PHP interface
 - identify intput files with prefixes/suffixes even when they are preceded by a path. => Read next
@@ -92,6 +93,7 @@ MIDI files
 ----------
 
 (Note that currently the creation of type-1 MIDI files works even with very large sets of data…)
+- Probably error when creating MIDI file from -gr.ShapesInRhythm because a very long silence is inserted, neither visible on graphs nor on the Csound score
 - "Error WriteVarLenQuantity(): value %u is out of range" may happen when data is faulty
 - add code to write track names (is it necessary?)
 - write 2 bytes of MIDIfileTrackNumber instead of 1 so that more than 255 tracks are possible;  add error checking to make sure it doesn't exceed 32,767(?)

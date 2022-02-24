@@ -846,12 +846,12 @@ while(TRUE) {
 			}
 		j = (*p_Instance)[k].object;
 		if(j > 0) {
-			if(j < 16384) {
+			if(j < 16384 && j != 1) { // j != 1 added by BB 2022-02-24
 				if(j >= Jbol) { // Time pattern
 					t1 = (*p_T)[i];
 					(*p_time1)[i] = t1;
 					t2 = (*p_time2)[i] = t1 + (Milliseconds) ((*p_Instance)[k].alpha * (*p_Dur)[j]);
-					// BPPrintMessage(odInfo,"Fix() time pattern k = %ld j = %ld alpha = %.2f Dur = %.2f, t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(*p_Dur)[j],(long)t1,(long)t2);
+				//	BPPrintMessage(odInfo,"Fix() time pattern k = %ld j = %ld alpha = %.2f Dur = %.2f, t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(*p_Dur)[j],(long)t1,(long)t2);
 					}
 				else {
 					if((*p_PivMode)[j] == RELATIVE)
@@ -867,14 +867,27 @@ while(TRUE) {
 						+ (Milliseconds)((*p_Instance)[k].alpha * (*p_Dur)[j]);
 			//		if(k > 2 && k < 6) BPPrintMessage(odInfo,"Fix() k = %ld j = %ld alpha = %.2f Dur = %ld t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)(*p_Dur)[j],(long)t1,(long)t2);
 					}
-			//	if(trace_object_features) BPPrintMessage(odInfo,Message);
 				}
-			else {	/* Simple note */
+			else {	/* Simple note or silence */
 				t1 = (*p_T)[i];
-				RandomTime(&t1,(*p_Instance)[k].randomtime);
-				(*p_time1)[i] = t1;
-				t2 = (*p_time2)[i] = t1 + (*p_Instance)[k].alpha * 1000L;
-				// BPPrintMessage(odInfo,"Fix() k = %ld j = %ld alpha = %.2f t1 = %ldms t2 = %ldms\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)t1,(long)t2);
+				if(j == 1) { // Added by BB 2022-02-24
+					(*p_time1)[i] = t1;
+					if(nseq == 0 && nature_time == SMOOTH) {
+						t2 = (*p_time2)[i] = t1 + (Milliseconds)((*p_Instance)[k].alpha * (*p_Dur)[j]);
+					//	BPPrintMessage(odInfo,"nseq = %ld k = %ld alpha = %.2f Dur[j] = %ld\n",(long)nseq,(long)k,(*p_Instance)[k].alpha,(long)(*p_Dur)[j]);
+					//	t2 = (*p_time2)[i] = (*p_time1)[i] + (inext - i) * local_period;
+						}
+					else {
+						t2 = (*p_time2)[i] = t1;
+					//	BPPrintMessage(odInfo,"nseq = %ld k = %ld t1 = t2 = %ld\n",(long)nseq,(long)k,(long)t1);
+						}
+					}
+				else {
+					RandomTime(&t1,(*p_Instance)[k].randomtime);
+					(*p_time1)[i] = t1;
+					t2 = (*p_time2)[i] = t1 + (*p_Instance)[k].alpha * 1000L;
+					}
+				// BPPrintMessage(odInfo,"Fix() simple note or silence k = %ld j = %ld, i = %ld alpha = %.2f t1 = %ldms t2 = %ldms\n",(long)k,(long)j,(long)i,(*p_Instance)[k].alpha,(long)t1,(long)t2);
 				}
 			}
 		else {
@@ -1023,7 +1036,7 @@ if(nseq < nmax && (imax < maxseq)) {
 	/* This is only needed if there are more sequences. */
 	}
 // iprev = i;
-iprev = i + 1; // Fixed by BB 2022-02-17, check this with -gr.tryTimePatterns
+iprev = i + 1; // Fixed by BB 2022-02-17, checked this with -gr.tryTimePatterns
 jprev = -1;
 while(TRUE) {
 	if(iprev >= imax) break;
@@ -1061,23 +1074,27 @@ FINDNEXTMARKED:
 			i = inext; continue;
 			}
 		d = (double) (inext - i) * Kpress / Ratio;	/* Symbolic duration */
-		if(j > 16383) { // Simple note
+		if(j > 16383 || j == 1) { // Simple note or silence Fixed by BB 2022-02-24
 			dur = 1000L; r = 1.;
+			// BPPrintMessage(odInfo,"\nCalculating alpha (note or silence): k = %ld j = %ld, i = %ld, inext = %ld\n",(long)k,(long)j,(long)i,(long)inext);
 			}
 		else if(j >= Jbol) {  // time pattern
 			r = ((double) (*p_Dur)[j]) / (*p_Tref)[j];
-			if(trace_object_features) BPPrintMessage(odInfo,"This time pattern j = %ld r = %.2f d = %.2f Dur = %ld Tref = %ld\n",(long)j,(double)r,(double)d,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+			if(trace_object_features) BPPrintMessage(odInfo,"This time pattern j = %ld r = %.2f d = %.2f Dur = %ld Tref = %ld\n",(long)k,(long)j,(double)r,(double)d,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+			// BPPrintMessage(odInfo,"\nCalculating alpha (pattern): k = %ld j = %ld, i = %ld, inext = %ld\n",(long)j,(long)i,(long)inext);
 			}
 		else { // Sound-object
 			dur = (*p_Dur)[j];
+			// BPPrintMessage(odInfo,"\nCalculating alpha (object): k = %ld j = %ld, i = %ld, inext = %ld\n",(long)k,(long)j,(long)i,(long)inext);
 			if((*p_Tref)[j] > EPSILON && dur > EPSILON) {
 				/* Striated object */
 				r = ((double) dur) / (*p_Tref)[j];
+				BPPrintMessage(odInfo,"-> striated\n");
 				}
 			else r = 1.;
 			}
 		sigmaridi += r * d;
-		if(trace_object_features) BPPrintMessage(odInfo,"Calculate_alpha() (smooth) line > 0 To = %ld k = %ld j = %ld Jbol = %ld r = %.2f d = %.2f sigmaridi = %.2f inext = %ld Dur = %ld Tref = %ld\n",(long)To,(long)k,(long)j,(long)Jbol,(double)r,(double)d,(double)sigmaridi,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+		if(trace_object_features) BPPrintMessage(odInfo,"Calculate_alpha() (smooth) line > 0 To = %ld k = %ld j = %ld Jbol = %ld r = %.2f d = %.2f sigmaridi = %.2f i = %ld inext = %ld Dur = %ld Tref = %ld\n",(long)To,(long)k,(long)j,(long)Jbol,(double)r,(double)d,(double)sigmaridi,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 		i = inext;
 		}
 	unfinished = FALSE;
@@ -1455,6 +1472,7 @@ if(m == T15 || paramnameindex == IPITCHBEND) { // Fixed "chan > 0" by BB 2021-02
 	xx = x;
 	if(PitchbendRange[chan] > 0)
 		x = DEFTPITCHBEND + ((double) x * DEFTPITCHBEND / (double) PitchbendRange[chan]);
+//	BPPrintMessage(odInfo,"Pitchbend x = %ld, xx = %ld, range = %ld\n",(long)x,(long)xx,(long)PitchbendRange[chan]);
 	if(x < 0 || x > 16383) {
 		if(PitchbendRange[chan] > 0)
 			sprintf(Message,"=> Pitchbend value (%ld cents) on channel %ld out of range (-%ld..%ld cents)",
