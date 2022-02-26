@@ -58,10 +58,16 @@ Actions
 - New action for listing RT MIDI devices ? Create a file which the user will read via the interface, then select option(s) that will be added as tokens to the "Play" command line
 
 
+PHP interface
+-------------
+
+- Create a button opening the "my_output" folder on the desktop. It should be adapted to all environments.
+
+
 Code fixing
 -----------
 
-- Manage multibyte characters to enter all numeric comparison operators as Unicode.  Maybe use the wchar_t type to this effect.
+- (Probably useless now) Manage multibyte characters to enter all numeric comparison operators as Unicode.  Maybe use the wchar_t type to this effect.
 - Revise write to file procedures to use fwrite() or fputs() or fprintf() or vfprintf() everywhere instead of fswrite(), which means pointers to files instead of refnum
 
 
