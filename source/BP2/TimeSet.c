@@ -700,15 +700,19 @@ QUEST2:
 		}
 	else if(imax < 0 && trace_timeset) BPPrintMessage(odInfo,"\n=> imax = %ld for nseq = %ld\n",(long)imax,(long)nseq);
 		
-	/* Last object must not be played legato */ // Suppressed by BB 22 Nov 2020
-/*	i = (*p_imaxseq)[nseq] - 1L;
-	while((k=(*((*p_Seq)[nseq]))[i]) <= 0 || (*p_Instance)[k].object <= 1) {
-		i--;
-		if(i < ZERO) break;
+	/* Last object must not be played legato */ // Revised by BB 2022-02-26
+	if((PlayChunks && !LastChunk) || AllItems) {
+		i = (*p_imaxseq)[nseq] - 1L;
+		while((k=(*((*p_Seq)[nseq]))[i]) <= 0 || (*p_Instance)[k].object <= 1) {
+			i--;
+			if(i < ZERO) break;
+			}
+		if(i > ZERO) {
+			a = (*p_articul)[k];
+			if(a > 127) a = a - 256;
+			if(a > 0 && k > 1) (*p_articul)[k] = 0;
+			}
 		}
-	a = (*p_articul)[k];
-	if(a > 127) a = a - 256;
-	if(a > 0 && k > 1) (*p_articul)[k] = 0; */
 	}
 
 /* Modify Alpha according to articulation (legato/staccato) */

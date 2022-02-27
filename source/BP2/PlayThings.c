@@ -145,7 +145,7 @@ while(TRUE) {
 	}
 
 // BPPrintMessage(odInfo,"@ origin = %ld next_origin = %ld end = %ld\n",(long)origin,(long)next_origin,(long)end);
-		
+LastChunk = FALSE;
 while((originmem=origin) < end) {
 //	PleaseWait();
 	next_origin = origin;
@@ -160,12 +160,13 @@ while((originmem=origin) < end) {
 			}
 		}
 	if(next_origin == origin) break;
+	if((next_origin + 1) == end) LastChunk = TRUE;
 	r = OK;
 	SetSelect(origin,next_origin,TEH[w]);
 //	BPPrintMessage(odInfo,"Playing selection\n");
 	Nplay = 1;
 	SaidTooComplex = ShownBufferSize = FALSE;
-//	BPPrintMessage(odInfo,"Playing selection %ld to %ld\n",(long)origin,(long)next_origin);
+//	BPPrintMessage(odError,"Playing selection %ld to %ld (up to %ld)\n",(long)origin,(long)next_origin,(long)end);
 	if((r=SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
 		MyDisposeHandle((Handle*)&p_a);
 		/* Could already be NULL because of PolyExpand() */
@@ -192,7 +193,7 @@ while((originmem=origin) < end) {
 	//	SetSelect(originmem,next_origin,TEH[w]);
 	//	Sel1 = origin; Sel2 = firstorigin;
 		if((r=CompileCheck()) != OK) goto END;
-		/* Selection may be changed while compiling if w = wGrammar */
+		// Selection could be changed while compiling if w = wGrammar, but this no longer happens
 	//	origin = Sel1; firstorigin = Sel2;
 	//	TextGetSelection(&originmem,&next_origin,TEH[w]);
 		Ctrlinit();

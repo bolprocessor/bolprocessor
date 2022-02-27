@@ -1915,7 +1915,7 @@ FINDNEXTEVENT:
 		//	sprintf(Message,"i1 %.3f %.3f 0.00 0 0 ; silence",(Tcurr/100.),(add_time/1000.));
 			sprintf(Message,"i1 %.3f %.3f 0.00 0 0 ; silence",((Tcurr * Time_res)/1000.),((add_time * Time_res)/1000.));
 			// Fixed by BB 2022-02-26
-			BPPrintMessage(odError,"Added silence of %.3f sec at Tcurr = %.3f sec.\n",((add_time * Time_res)/1000.),((Tcurr * Time_res)/1000.));
+		//	BPPrintMessage(odError,"Added silence of %.3f sec at Tcurr = %.3f sec.\n",((add_time * Time_res)/1000.),((Tcurr * Time_res)/1000.));
 		//	sprintf(Message,"e %.3f ; silence",(add_time/1000.)); This only works at the end of a score, therefore not in PlayAll
 			 WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);
 			}
