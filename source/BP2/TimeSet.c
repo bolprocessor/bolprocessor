@@ -700,8 +700,9 @@ QUEST2:
 		}
 	else if(imax < 0 && trace_timeset) BPPrintMessage(odInfo,"\n=> imax = %ld for nseq = %ld\n",(long)imax,(long)nseq);
 		
-	/* Last object must not be played legato */ // Revised by BB 2022-02-26
-	if((PlayChunks && !LastChunk) || AllItems) {
+	/* Last object must not be played legato */ // Revised by BB 2022-03-02 
+	if((PlayChunks && !LastChunk) || AllItems || Improvize) {
+	//	BPPrintMessage(odError,"\nSuppressing last legato\n");
 		i = (*p_imaxseq)[nseq] - 1L;
 		while((k=(*((*p_Seq)[nseq]))[i]) <= 0 || (*p_Instance)[k].object <= 1) {
 			i--;
