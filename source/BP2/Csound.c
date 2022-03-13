@@ -1633,12 +1633,12 @@ if(Jbol < 2) return(OK);
 rep = OK;
 CompileOn++;
 maxsounds = MyGetHandleSize((Handle)p_Type) / sizeof(char);
-if(trace_csound) sprintf(Message,"Running CompileCsoundObjects() for maxsounds = %ld\n",(long)maxsounds);
-BPPrintMessage(odInfo,Message);
+if(trace_csound) BPPrintMessage(odInfo,"Running CompileCsoundObjects() for maxsounds = %ld\n",(long)maxsounds);
+
 for(j=2; j < maxsounds; j++) {
 	if(!((*p_Type)[j] & 4)) {
 		if((*pp_CsoundScoreText)[j] == NULL) {
-			if(trace_csound) BPPrintMessage(odError, "=> No Csound score in %d\n",j);
+			if(trace_csound) BPPrintMessage(odInfo, "No Csound score in %d\n",j);
 			continue;
 			}
 		(*p_Type)[j] |= 4;
@@ -1680,6 +1680,7 @@ CsoundParam **paramlist;
 if(j < 2 || j >= Jbol) return(OK);
 
 p_line = (*pp_CsoundScoreText)[j]; 
+if(trace_csound) BPPrintMessage(odInfo, "line[%ld] = %s\n",(long)j,*p_line);
 
 // if(trace_csound) BPPrintMessage(odError, "(*pp_CsoundScoreText)[j] = %s\n",*(*pp_CsoundScoreText)[j]);
 
@@ -1699,7 +1700,6 @@ if(p_line == NULL || (*p_line)[0] == '\0' || strcmp((*p_line),"<HTML></HTML>") =
 	if((*p_Type)[j] & 4) {
 		(*p_Type)[j] &= (255-4);
 		}
-	if(trace_csound) BPPrintMessage(odError, "=> Error (*p_Type)[j] = %d\n",(*p_Type)[j]);
 	return(OK);
 	}
 
@@ -1749,7 +1749,7 @@ ipos = 0; im = MyHandleLen(p_line);
 
 l = strlen((*p_line)); 
 if(l == 0) return(OK);
-if(trace_csound) BPPrintMessage(odError,"=> Compiling Csound score (length %d):\n%s\n",l,(*p_line));
+if(trace_csound) BPPrintMessage(odInfo,"Compiling Csound score (length %d):\n%s\n",l,(*p_line));
 
 while(TRUE) {
 	result = OK;
