@@ -43,7 +43,7 @@ int trace_toofast = 0;
 int trace_overstrike = 0;
 int new_thing = 1; // This change should be confirmed (BB 2022-02-17)
 
-int FillPhaseDiagram(tokenbyte ***pp_buff,int* p_numberobjects,unsigned long *p_maxseq,
+int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p_maxseq,
 	int* p_nmax,unsigned long **p_imaxseq,
 	double maxseqapprox,int *p_bigitem,short **p_articul)
 {
@@ -60,11 +60,12 @@ double objectduration,**p_im,**p_origin,scale,inext,
 	**p_currobject,**p_objectsfound,objectsfound,part_of_ip;
 short rndvel,velcontrol,**p_deftrndvel,**p_deftvelcontrol,**p_deftstartvel,
 	velincrement,**p_deftvelincrement,**p_deftarticulincrement,**p_deftstartarticul;
-int i,j,k,kobj,nseq,oldnseq,nseqmem,newswitch,v,ch,gotnewline,foundobject,
+int i,j,nseq,oldnseq,nseqmem,newswitch,v,ch,gotnewline,foundobject,
 	failed,paramnameindex,paramvalueindex,maxparam,newxpandval,newkeyval,
 	**p_deftxpandval,**p_deftxpandkey,number_skipped,suggested_quantization,
 	r,rest,oldm,oldp,**p_seq,**p_deftnseq,startvel,articulincrement,
 	startarticul,istop,result,level,nseqplot,instrument,channel,a,b;
+long k,kobj;
 Handle h;
 char  line[MAXLIN],toofast,skipzeros,foundendconcatenation,just_done,
 	iscontinuous,isMIDIcontinuous,overstrike,tie;
@@ -1836,7 +1837,7 @@ return(OK);
 
 int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,int force,
 	int *p_nmax,unsigned long **p_maxcol,double **p_im,
-	short ****p_seq,int *p_nseq,double maxseq,unsigned long iplot,int newk)
+	long ****p_seq,int *p_nseq,double maxseq,unsigned long iplot,int newk)
 {
 int oldk,gotnewline,nseq;
 
@@ -2166,7 +2167,7 @@ return(OK);
 int MakeNewLineInPhaseTable(int nseq,int *p_nmax,double **p_im,double maxseq,
 	unsigned long **p_maxcol)
 {
-short **ptr;
+long **ptr;
 unsigned long iseq,iplot;
 char overstrike;
 int nseqplot;
@@ -2178,7 +2179,7 @@ if(nseq >= Maxconc) {
 //	TellSkipped();
 	return(ABORT);
 	}
-ptr = (short**) GiveSpace((Size)(maxseq+1.) * sizeof(short));
+ptr = (long**) GiveSpace((Size)(maxseq+1.) * sizeof(long));
 if(((*p_Seq)[nseq]=ptr) == NULL) {
 	BPPrintMessage(odError,"=> Memory size error MakeNewLineInPhaseTable()\n");
 	return(ABORT);

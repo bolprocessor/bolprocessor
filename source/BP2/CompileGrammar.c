@@ -1270,8 +1270,6 @@ switch(c) {
 	case '$':
 	case '"':
 	case '\\':
-//	case '�':
-//	case '�':
 		return(TRUE);
 	}
 return(FALSE);
@@ -1282,63 +1280,10 @@ int OkBolChar(char c)
 // Characters accepted as first one of terminal name
 {
 if(islower(c) || isupper(c)) return(YES); /* Modified 23/11/2009 BB */
-/* switch(c) {
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '#':
+switch(c) {
 	case '\'':
 		return(YES);
-	} */
+	}
 return(NO);
 }
 
@@ -1351,36 +1296,10 @@ switch(c) {
 	case '-':	/* Discarded in GetBol() */
 	case '@':
 	case '%':
-	/*case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '$':
-	case '�':
-	case '�':
-	case '�': */
+	case '#':
 	case '"':
 	case '\'':
-//	case '�':
 	case '`':
-/*	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�':
-	case '�': */
 		return(YES);
 		break;
 	}

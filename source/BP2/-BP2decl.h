@@ -216,14 +216,14 @@ extern int **p_AlphaCtrlNr,**p_AlphaCtrlChan,MaxCsoundTables;
 extern CsoundLine ****pp_CsoundScore;
 extern double **p_AlphaMin,**p_AlphaMax,**p_Quan,ForceRatio,Infpos1;
 extern float **p_PivPos,**p_BeforePeriod;
-extern long **p_Dur,**p_MaxDelay,**p_MaxForward,**p_PreRoll,**p_PostRoll,
+extern long **p_Dur,****p_Seq,**p_MaxDelay,**p_MaxForward,**p_PreRoll,**p_PostRoll,
 	**p_MaxBegGap,**p_MaxEndGap,
 	**p_MaxCoverBeg,**p_MaxCoverEnd,**p_MaxTruncBeg,**p_MaxTruncEnd;
 extern int Minconc,Maxconc;
 extern short Maxlevel,MaxFlag,MaxScript,PlayFromInsertionPoint,
 	Jscriptline,Final,POLYconvert,
 	KeepFlag,CoverOK,DiscontinuityOK,AllSolTimeSet,
-	LimCompute,LimTimeSet,SkipFlag,StackFlag,Port,Portbit,****p_Seq,
+	LimCompute,LimTimeSet,SkipFlag,StackFlag,Port,Portbit,
 	MIDI;
 extern int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,StepGrammars,DisplayProduce,UseTimeLimit,
 	DisplayTimeSet,StepTimeSet,TraceProduce,UseEachSub,PlanProduce,TraceTimeSet;

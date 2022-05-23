@@ -430,9 +430,11 @@ NOTSCALE:
 				}
 			(*pp)++; NextChar(pp);
 			l = 0;
-			while(!MySpace(c=**pp) && c != '/' && c != '=' && c != '-' && c != '+'
+		/*	while(!MySpace(c=**pp) && c != '/' && c != '=' && c != '-' && c != '+'
 					&& c != '<' && c != '\8800' && c != '>' && c != '\8804'
-					&& c != '\8805') {
+					&& c != '\8805') { */
+			while(!MySpace(c=**pp) && c != '/' && c != '=' && c != '-' && c != '+'
+					&& c != '<' && c != '>') {
 				(*p_x)[l++] = c;
 				if(l >= BOLSIZE) {
 					ShowError(4,igram,irul);
@@ -453,15 +455,17 @@ NOTSCALE:
 				}
 			if(MySpace(c)) c = NextChar(pp);
 			needsK = needsflag = FALSE;
-			if(c == '=' || c == '-' || c == '+' || c == '>' || c == '<' || c == '\8800'
-							 || c == '\8804' || c == '\8805') {
+		/*	if(c == '=' || c == '-' || c == '+' || c == '>' || c == '<' || c == '\8800'
+							 || c == '\8804' || c == '\8805') { */
+			if(c == '=' || c == '-' || c == '+' || c == '>' || c == '<') {
 				if(c == '=' && arg_nr != 1 && arg_nr != 2) {
 					ShowError(50,igram,irul);
 					goto ERR;
 					}
 				(*pp)++; NextChar(pp);
-				if(c == '>' || c == '<' || c == '\8800'
-							 || c == '\8804' || c == '\8805' || c == '=') {
+			/*	if(c == '>' || c == '<' || c == '\8800'
+							 || c == '\8804' || c == '\8805' || c == '=') { */
+				if(c == '>' || c == '<' || c == '=') {
 					if(c != '='	&& arg_nr != 1) {
 						ShowError(51,igram,irul);
 						goto ERR;
@@ -535,21 +539,21 @@ STOREFLAG:
 				}
 			if(arg_nr == 1) {
 				switch(c) {
-					case '\8800': // Check https://wutils.com/unicode/
+			/*		case '\8800': // Check https://wutils.com/unicode/
 						(**nexth).operator = DIF;
-						break;
+						break; */
 					case '<':
 						(**nexth).operator = INF;
 						break;
 					case '>':
 						(**nexth).operator = SUP;
 						break;
-					case '\8805':
+			/*		case '\8805':
 						(**nexth).operator = SUPEQUAL;
-						break;
-					case '\8804':
+						break; */
+			/*		case '\8804':
 						(**nexth).operator = INFEQUAL;
-						break;
+						break; */
 					}
 				}
 			if(*(ph_flag) == NULL) *(ph_flag) = nexth;

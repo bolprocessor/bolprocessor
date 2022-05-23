@@ -56,7 +56,7 @@ int try_synchro_tag = 0;
 int trace_draw_piano_note = 0;
 
 int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
-	Milliseconds **p_t2,int kmax,long tmin,long tmax,
+	Milliseconds **p_t2,long kmax,long tmin,long tmax,
 	unsigned long imax,int nmin,int nmax,unsigned long **p_imaxseq,int kmode,
 	int interruptok,
 	Milliseconds **p_delta)
@@ -156,7 +156,7 @@ for(nseq = nmin; nseq <= nmax; nseq++) {
 			if(k > 0) BPPrintMessage(odInfo,"k = %d \n",k);
 		//	else BPPrintMessage(odInfo,"_");
 			}
-		if(k < 0) BPPrintMessage(odError,"=> Err. 'k' in DrawItem().\n");
+		if(k < 0) BPPrintMessage(odError,"=> Err. 'k' in DrawItem(): nseq = %ld, i = %ld, k = %ld\n",(long)nseq,(long)i,(long)k);
 		if(k < 2) continue;	/* Reject '_' and '-' */
 		if(kmode) {
 			if(trace_graphic) BPPrintMessage(odInfo,"kmode = TRUE\n");
@@ -645,12 +645,12 @@ return(FALSE); */
 
 
 int DrawSequence(int nseq,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
-	Milliseconds **p_t2,int kmax,unsigned long imax,unsigned long **p_imaxseq,
+	Milliseconds **p_t2,long kmax,unsigned long imax,unsigned long **p_imaxseq,
 	int kmode,long **p_ddelta0,long **p_ddelta1,long **p_ddelta2)
 {
-int j,k,result;
+int j,result;
 Milliseconds t,tmin,tmax,**p_delta;
-unsigned long i,im;
+unsigned long i,im,k;
 
 if(TempMemory || !ShowGraphic) return(OK);
 BPPrintMessage(odInfo,"Drawing sequence\n");

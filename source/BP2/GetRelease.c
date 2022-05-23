@@ -205,7 +205,7 @@ MyDisposeHandle(&ptr);
 p_T = NULL;
 MyDisposeHandle((Handle*)pp_imaxseq);
 if(p_Seq != NULL) {
-	for(nseq = 0; nseq < (MyGetHandleSize((Handle)p_Seq) / sizeof(short**)); nseq++) {
+	for(nseq = 0; nseq < (MyGetHandleSize((Handle)p_Seq) / sizeof(long**)); nseq++) {
 		ptr = (Handle) (*p_Seq)[nseq];
 		MyDisposeHandle(&ptr);
 		}
@@ -1376,16 +1376,16 @@ maxconc2 = Maxconc + 20; // Added by BB 2021-03-23
 
 if((*pp_imaxseq = (unsigned long**) GiveSpace((Size)maxconc2 * sizeof(unsigned long))) == NULL)
 	return(ABORT);
-if((p_Seq = (short****) GiveSpace((Size)maxconc2 * sizeof(short**))) == NULL)
+if((p_Seq = (long****) GiveSpace((Size)maxconc2 * sizeof(long**))) == NULL)
 	return(ABORT);
 for(nseq = 0; nseq < maxconc2; nseq++) (*p_Seq)[nseq] = NULL;
 
-/* The following will be resized when Maxevent is better know, in FillPhaseDiagram() */
+/* The following will be resized when Maxevent is better known, in FillPhaseDiagram() */
 
-if((p_Instance = (SoundObjectInstanceParameters**) GiveSpace((Size)Maxevent*sizeof(SoundObjectInstanceParameters))) == NULL)
+if((p_Instance = (SoundObjectInstanceParameters**) GiveSpace((Size)Maxevent * sizeof(SoundObjectInstanceParameters))) == NULL)
 	return(ABORT);
 	
-if((p_ObjectSpecs = (objectspecs****) GiveSpace((Size)Maxevent*sizeof(objectspecs**)))
+if((p_ObjectSpecs = (objectspecs****) GiveSpace((Size)Maxevent * sizeof(objectspecs**)))
 	== NULL) return(FAILED);
 for(k = 0; k < Maxevent; k++) {
 	(*p_ObjectSpecs)[k] = NULL;

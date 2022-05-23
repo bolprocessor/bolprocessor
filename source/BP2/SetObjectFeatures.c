@@ -42,7 +42,7 @@ int trace_object_features = 0;
 int trace_get_duration = 0;
 int trace_set_variation = 0;
 
-int SetObjectParams(int isobject,int level,int nseq,short** p_articul,int k,int j,
+int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int j,
 	CurrentParameters *p_currentparameters,ContParameters **p_contparameters,
 	Table **h_table)
 {
@@ -275,7 +275,7 @@ return(OK);
 }
 
 
-int AttachObjectLists(int k,int nseq,p_list ****p_waitlist,p_list ****p_scriptlist,
+int AttachObjectLists(long k,int nseq,p_list ****p_waitlist,p_list ****p_scriptlist,
 	int* p_newswitch,unsigned long* currswitchstate)
 {
 objectspecs** pto;
@@ -1356,7 +1356,7 @@ return(OK);
 }
 
 
-int AssignValue(int index,double value,int p,int level,int* p_kmx,
+int AssignValue(int index,double value,int p,int level,long* p_kmx,
 	CurrentParameters **p_deftcurrentparameters,
 	CurrentParameters *p_currentparameters,ContParameters **p_contparameters,
 	long id,tokenbyte ***pp_buff,double tempo,double scaling,

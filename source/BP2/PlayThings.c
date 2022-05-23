@@ -295,10 +295,10 @@ return(r);
 
 int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll)
 {
-int result,kmax,i,j,nmax,dummy,finish,repeat,displayProducemem,
+int result,i,j,nmax,dummy,finish,repeat,displayProducemem,
 	showmessagesmem,usebufferlimitmem,again,store,a,b;
 clock_t time_end_compute;
-long tmin,tmax,length;
+long tmin,tmax,length,kmax;
 unsigned long maxseq;
 double maxseqapprox;
 unsigned long **p_imaxseq;

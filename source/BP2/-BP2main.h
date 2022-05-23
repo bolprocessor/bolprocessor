@@ -251,13 +251,13 @@ int **p_AlphaCtrlNr,MaxCsoundTables;
 CsoundLine ****pp_CsoundScore;
 double **p_AlphaMin,**p_AlphaMax,**p_Quan,ForceRatio,Infpos1;
 float **p_PivPos,**p_BeforePeriod;
-long **p_Dur,**p_MaxDelay,**p_MaxForward,**p_MaxBegGap,**p_MaxEndGap,
+long **p_Dur,****p_Seq,**p_MaxDelay,**p_MaxForward,**p_MaxBegGap,**p_MaxEndGap,
 	**p_MaxCoverBeg,**p_MaxCoverEnd,**p_MaxTruncBeg,**p_MaxTruncEnd,**p_PreRoll,**p_PostRoll;
 int Minconc,Maxconc;
 short Maxlevel,MaxFlag,MaxScript,Jscriptline,Final,POLYconvert,
 	KeepFlag,CoverOK,DiscontinuityOK,AllSolTimeSet,
 	LimCompute,LimTimeSet,SkipFlag,StackFlag,PlayFromInsertionPoint,
-	Port,Portbit,****p_Seq,MIDI;
+	Port,Portbit,MIDI;
 int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,StepGrammars,DisplayProduce,TraceProduce,UseTimeLimit,
 	DisplayTimeSet,StepTimeSet,UseEachSub,PlanProduce,TraceTimeSet;
 int InsertGramRuleNumbers, InsertGramCorrections, InsertNewBols;

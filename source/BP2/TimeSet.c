@@ -44,7 +44,7 @@
 
 int trace_timeset = 0;
 
-int TimeSet(tokenbyte ***pp_buff,int* p_kmx,long *p_tmin,long *p_tmax,unsigned long *p_maxseq,
+int TimeSet(tokenbyte ***pp_buff,long* p_kmx,long *p_tmin,long *p_tmax,unsigned long *p_maxseq,
 	int* p_nmax,unsigned long **p_imaxseq,double maxseqapprox)
 {
 int i,result,bigitem,maxties,j,missed_ties;
@@ -141,11 +141,11 @@ return(result);
 
 
 int SetTimeObjects(int bigitem,unsigned long **p_imaxseq,unsigned long maxseq,int *p_nmax,
-	int *p_kmx,long *p_tmin,long *p_tmax,short **p_articul)
+	long *p_kmx,long *p_tmin,long *p_tmax,short **p_articul)
 
 {
 int nseq,r,rep,BTflag,result,stepthis,first,dirtymem,compiledmem,nature_time,a,j,key,last_line;
-short **ptr;
+long **ptr;
 long k;
 long i,iseq;
 unsigned long jj,jn;
@@ -166,7 +166,7 @@ if(trace_timeset)
 
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	ptr = (*p_Seq)[nseq];
-	if(MySetHandleSize((Handle*)&ptr,(Size)handle_size * sizeof(short)) != OK) return(ABORT); 
+	if(MySetHandleSize((Handle*)&ptr,(Size)handle_size * sizeof(long)) != OK) return(ABORT); 
 	(*p_Seq)[nseq] = ptr;
 	}
 

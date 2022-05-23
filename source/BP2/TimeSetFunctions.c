@@ -38,7 +38,7 @@
 
 #include "-BP2decl.h"
 
-char Possible_choices(solset,char,int,int,int,int,int,char**,
+char Possible_choices(solset,char,int,int,int,long,int,char**,
 	int,Milliseconds,Milliseconds,Milliseconds,Milliseconds,Milliseconds,Milliseconds,int);
 int Situation_ok(int,int,int,int,Milliseconds,Milliseconds,Milliseconds,Milliseconds,Milliseconds,Milliseconds,
 	Milliseconds,Milliseconds,char**,int);
@@ -47,13 +47,13 @@ int Get_choice(solset,p_list2***,p_list2***,int*,int*,int,int,int,Milliseconds,
 int Next_choice(solset,int,int,int,int,Milliseconds,Milliseconds,Milliseconds,Milliseconds,int);
 int Store(int,char,int,int*,p_list2***,p_list2***,int);
 int Erase_stack(int,int*,p_list2**);
-int Solution_is_accepted(int,int,unsigned long**,int,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,
+int Solution_is_accepted(int,int,unsigned long**,long,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,
 	Milliseconds**,Milliseconds**);
 Milliseconds Alternate_correction1(int,int,int,Milliseconds,Milliseconds**,Milliseconds,Milliseconds,
 	Milliseconds,Milliseconds,Milliseconds,Milliseconds);
 
 
-int Locate(int nseq,unsigned long** p_imaxseq,long imax,int kmax,Milliseconds **p_DELTA,
+int Locate(int nseq,unsigned long** p_imaxseq,long imax,long kmax,Milliseconds **p_DELTA,
 	unsigned long* p_tstart,Milliseconds **p_time1,Milliseconds **p_time2,
 	Milliseconds **p_maxcoverbeg,
 	Milliseconds **p_maxcoverend,Milliseconds **p_maxgapbeg,Milliseconds **p_maxgapend,
@@ -61,9 +61,9 @@ int Locate(int nseq,unsigned long** p_imaxseq,long imax,int kmax,Milliseconds **
 	int nature_time,int first,char **p_marked)
 {
 char **p_BreakTempoPrev,**p_choice1,choice2;
-int j,k,kk,sol1,sol2,n,nsol,redo,iii,
+int j,sol1,sol2,n,nsol,redo,iii,
 	krep,r,result,stack_depth,okmove;
-long i,ii,i0,iprev,inext,ibreak,imax2,**p_tp1,**p_tp2,**p_ts1,**p_ts2,ts1mem,ts2mem,
+long i,ii,i0,iprev,inext,ibreak,imax2,k,kk,**p_tp1,**p_tp2,**p_ts1,**p_ts2,ts1mem,ts2mem,
 	imaxseq,imaxseq2,delta2mem,ddelta2mem,**p_delta,**p_delta1,**p_delta2,
 	shift1,shift2,shift3,shift4,DELTA,**p_ddelta0,**p_ddelta1,**p_ddelta2;
 long **p_Ts,**p_tscover,**p_tsgap,Tsm;
@@ -671,12 +671,12 @@ return(result);
 }
 
 
-int Solution_is_accepted(int nsol,int nseq,unsigned long **p_imaxseq,int kmax,Milliseconds **p_t1,
+int Solution_is_accepted(int nsol,int nseq,unsigned long **p_imaxseq,long kmax,Milliseconds **p_t1,
 	Milliseconds **p_t2,Milliseconds **p_delta,Milliseconds **p_ddelta0,Milliseconds **p_ddelta1,
 	Milliseconds **p_ddelta2)
 {
-int j,k,rep,result;
-unsigned long i,imaxseq;
+int j,rep,result;
+unsigned long i,imaxseq,k;
 
 if(nseq >= Maxconc) {
 	if(Beta) Alert1("=> Err. Solution_is_accepted(). nseq >= Maxconc");
@@ -801,7 +801,7 @@ return(NO);
 }
 
 
-char Possible_choices(solset sol,char BreakTempoPrev,int i,int i0,int j,int k,int nseq,
+char Possible_choices(solset sol,char BreakTempoPrev,int i,int i0,int j,long k,int nseq,
 	char **p_marked,int nature_time,Milliseconds t1,Milliseconds t2,Milliseconds shift,
 	Milliseconds ts,Milliseconds maxtruncbeg,Milliseconds maxtruncend,int side)
 
