@@ -1,4 +1,4 @@
-Making a BP2 Release
+Making a BP2 Release (OBSOLETE)
 --------------------
 
 This is how I go about making a Bol Processor release.  Not every step here

@@ -1,3 +1,5 @@
+(OBSOLETE)
+
 Here is a short list of known issues since I began working on the project:
 
 - Level 3 & 4 optimization in CWpro4 seem to be breaking some things.  Most

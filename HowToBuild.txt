@@ -1,4 +1,4 @@
-BUILDING BOL PROCESSOR
+BUILDING BOL PROCESSOR (OBSOLETE)
 ======================
 
 This is a brief introduction to obtaining the Bol Processor source code from

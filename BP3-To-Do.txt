@@ -3,15 +3,6 @@ Bol Processor BP3 To Do List
 Current location of this file: https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-To-Do.txt
 
 
-Documentation
--------------
-
-- write new docs for BP3 (command-line usage, differences, etc.)
-- rewrite the source code README
-- convert BP2 documentation to an (open-source) authoring system that can help maintain the organization & internal links as well as output in multiple formats (HTML, PDF, etc.) ??
-- reorganize & rewrite BP2 documentation
-
-
 Csound orchestra
 -----------------
 
@@ -96,23 +87,6 @@ Input files
 - restore the feature that looks for names of related files in the input files and auto-loads them (to be discussed...) => probably useless because the interface takes care of these links and creates links for editing related files
 
 
-MIDI files
-----------
-
-- note that currently the creation of type-1 MIDI files works even with very large sets of data… Therefore the following issues are not critical.
-- probably error when creating MIDI file from -gr.ShapesInRhythm because a very long silence is inserted, neither visible on graphs nor on the Csound score
-- "Error WriteVarLenQuantity(): value %u is out of range" may happen when data is faulty
-- add code to write track names (is it necessary?)
-- write 2 bytes of MIDIfileTrackNumber instead of 1 so that more than 255 tracks are possible;  add error checking to make sure it doesn't exceed 32,767 (?)
-- reimplement the function ReadVarLen()
-- should "produce all" write each item to its own track in a type 2 file?  (Currently writes all items to the same track). This may be useful if the MIDI file is downloaded, but MIDIjs won't play it.
-- close midi files at the end of MakeSound() ? (and reopen if for each item?) => This may be complicated because the size of data needs to be writen in its header
-- when writing a type 2 file, an empty track is written and the end of the file but it not counted in the final track count that is written when closing the file; best solution would be to avoid writing the track or truncate the file?
-- fix or remove the handling of FileSaveMode in PrepareMIDIFile()? The option is currently always set to ALLSAME by Inits() and LoadSettings(). Until this option becomes necessary it would be best to leave it out.
-- remove  "('-' for stdout)" text from --midiout help?  Piping MIDI files probably won't work because we use ftell/fseek to write some parts of the file.
-(Alternatively, could support dumping MIDI file in a text format to stdout?)
-
-
 Real-time MIDI
 --------------
 
@@ -128,6 +102,7 @@ Csound
 - (optionally) revise CsoundWrite to make sure that events are ordered by "note-on" dates, notably with tied notes/sound-objects
 - reference: https://csound.com/docs/manual/i.html => use negated p1 for note-off?
 - implement output to DAC in the interface: https://csound.com/docs/manual/CommandFlags.html
+- Csound can compile orchestras and scores directly from strings of text: this feature could be exploited
 
 
 Real-time Csound
@@ -147,6 +122,23 @@ Open Sound Control (OSC)
 - Also try direct communication with MuseScore
 
 
+MIDI files
+----------
+
+- note that currently the creation of type-1 MIDI files works even with very large sets of data… Therefore the following issues are not critical.
+- probably error when creating MIDI file from -gr.ShapesInRhythm because a very long silence is inserted, neither visible on graphs nor on the Csound score
+- "Error WriteVarLenQuantity(): value %u is out of range" may happen when data is faulty
+- add code to write track names (is it necessary?)
+- write 2 bytes of MIDIfileTrackNumber instead of 1 so that more than 255 tracks are possible;  add error checking to make sure it doesn't exceed 32,767 (?)
+- reimplement the function ReadVarLen()
+- should "produce all" write each item to its own track in a type 2 file?  (Currently writes all items to the same track). This may be useful if the MIDI file is downloaded, but MIDIjs won't play it.
+- close midi files at the end of MakeSound() ? (and reopen if for each item?) => This may be complicated because the size of data needs to be writen in its header
+- when writing a type 2 file, an empty track is written and the end of the file but it not counted in the final track count that is written when closing the file; best solution would be to avoid writing the track or truncate the file?
+- fix or remove the handling of FileSaveMode in PrepareMIDIFile()? The option is currently always set to ALLSAME by Inits() and LoadSettings(). Until this option becomes necessary it would be best to leave it out.
+- remove  "('-' for stdout)" text from --midiout help?  Piping MIDI files probably won't work because we use ftell/fseek to write some parts of the file.
+(Alternatively, could support dumping MIDI file in a text format to stdout?)
+
+
 Images
 --------------
 
@@ -159,6 +151,16 @@ Microtonal scales
 
 - Include values for optionally stretching each octave
 - Implement a performance control to set A4 frequency (diapason) in the score
+
+
+Documentation
+-------------
+
+- write new docs for BP3 (command-line usage, differences, etc.)
+- rewrite the source code README
+- convert BP2 documentation to an (open-source) authoring system that can help maintain the organization & internal links as well as output in multiple formats (HTML, PDF, etc.) ??
+- reorganize & rewrite BP2 documentation
+
 
 ========
 
