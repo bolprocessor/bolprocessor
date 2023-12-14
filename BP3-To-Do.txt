@@ -2,6 +2,38 @@ Bol Processor BP3 To Do List
 ============================
 Current location of this file: https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-To-Do.txt
 
+This is a very long list of improvements that have been considered during the development of BP3. None of them is critical to its proper functioning. ;-)
+
+The most requested improvements are listed at the top of the list.
+
+
+Real-time MIDI
+--------------
+
+- revise CoreMIDI driver and allow optionally building with it on Mac OS X
+- change the "null driver" to output MIDI messages as text
+- write a new cross-platform MIDI driver using the PortMIDI(?) library
+- maybe MIDI events could be channeled by Csound once it is accessed in real time
+- note that ChatGPT writes useful code to make this work easier!
+
+
+Standalone application
+-----------------
+
+- https://github.com/cztomczak/phpdesktop => Compile BP3 under Linux or MacOS
+
+Alternate options in case phpdesktop doesn't fit:
+- https://electronforge.io/
+- https://github.com/peachpiecompiler/peachpie
+- https://laravel.com/
+- https://cakephp.org/
+- https://www.yiiframework.com/
+- https://github.com/bcosca/fatfree
+- https://fuelphp.com/
+- https://symfony.com/
+- https://phalcon.io/en-us
+- https://www.chromium.org/Home
+
 
 Csound orchestra
 -----------------
@@ -21,22 +53,37 @@ Csound orchestra
 - Modify "new-vina" to produce lower frequencies, minimum "C2"
 
 
-Standalone application
------------------
+Real-time Csound
+---------------
 
-- https://github.com/cztomczak/phpdesktop => Compile BP3 under Linux or MacOS
+- Implement UDP for communicating with Csound. Links:
+https://csound.com/docs/manual/udpserver.html
+https://www.geeksforgeeks.org/udp-server-client-implementation-c/
+- Implement OSC ?
 
-Alternate options:
-- https://electronforge.io/
-- https://github.com/peachpiecompiler/peachpie
-- https://laravel.com/
-- https://cakephp.org/
-- https://www.yiiframework.com/
-- https://github.com/bcosca/fatfree
-- https://fuelphp.com/
-- https://symfony.com/
-- https://phalcon.io/en-us
-- https://www.chromium.org/Home
+
+Csound
+-------------
+
+- (optionally) revise CsoundWrite to make sure that events are ordered by "note-on" dates, notably with tied notes/sound-objects
+- reference: https://csound.com/docs/manual/i.html => use negated p1 for note-off?
+- implement output to DAC in the interface: https://csound.com/docs/manual/CommandFlags.html
+- Csound can compile orchestras and scores directly from strings of text: this feature could be exploited
+
+
+Open Sound Control (OSC)
+------------------
+
+- Read https://en.wikipedia.org/wiki/Open_Sound_Control
+- This might create a framework for connecting BP3 with PYO (http://ajaxsoundstudio.com/software/pyo/)
+- Also try direct communication with MuseScore
+
+
+Microtonal scales
+----------------
+
+- Include values for optionally stretching each octave
+- Implement a performance control to set A4 frequency (diapason) in the score
 
 
 Actions
@@ -87,41 +134,6 @@ Input files
 - restore the feature that looks for names of related files in the input files and auto-loads them (to be discussed...) => probably useless because the interface takes care of these links and creates links for editing related files
 
 
-Real-time MIDI
---------------
-
-- revise CoreMIDI driver and allow optionally building with it on Mac OS X
-- change the "null driver" to output MIDI messages as text
-- write a new cross-platform MIDI driver using the PortMIDI(?) library
-- maybe MIDI events could be channeled by Csound once it is accessed in real time
-
-
-Csound
--------------
-
-- (optionally) revise CsoundWrite to make sure that events are ordered by "note-on" dates, notably with tied notes/sound-objects
-- reference: https://csound.com/docs/manual/i.html => use negated p1 for note-off?
-- implement output to DAC in the interface: https://csound.com/docs/manual/CommandFlags.html
-- Csound can compile orchestras and scores directly from strings of text: this feature could be exploited
-
-
-Real-time Csound
----------------
-
-- Implement UDP for communicating with Csound. Links:
-https://csound.com/docs/manual/udpserver.html
-https://www.geeksforgeeks.org/udp-server-client-implementation-c/
-- Implement OSC ?
-
-
-Open Sound Control (OSC)
-------------------
-
-- Read https://en.wikipedia.org/wiki/Open_Sound_Control
-- This might create a framework for connecting BP3 with PYO (http://ajaxsoundstudio.com/software/pyo/)
-- Also try direct communication with MuseScore
-
-
 MIDI files
 ----------
 
@@ -144,13 +156,6 @@ Images
 
 - When no settings file is specified, allow the creation of images via a command line option. This option should specify a location for images. Currently, image location is the one of the trace file.
 - Revise the drawing of time streaks (the vertical blue lines). These should be adjusted to the (varying) tempo instead of the default metronomic setting.
-
-
-Microtonal scales
-----------------
-
-- Include values for optionally stretching each octave
-- Implement a performance control to set A4 frequency (diapason) in the score
 
 
 Documentation
