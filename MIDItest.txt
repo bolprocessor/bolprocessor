@@ -1,0 +1,24 @@
+"MIDItest" is a minimum program written in C language to check the real-time output of MIDI events.
+
+The program will read a list of MIDI events (only NoteOn/NoteOff) from the file "MIDItest-list.txt" and send them to your MIDI outpout device (e.g. a synthesizer). Timings will be correct because it has an in-built event scheduler. So, MIDI messages do not need to be time-stamped.
+
+Compile the "MIDItest.c" code, then run the "MIDItest" program. Below are the compile commands.
+
+// MacOS (Link with CoreMIDI libraries)
+gcc MIDItest.c -o MIDItest -framework CoreMIDI -framework CoreFoundation
+
+// Linux (Link with ALSA libraries)
+gcc MIDItest.c -o MIDItest -lasound
+
+// Windows (Link with WinMM libraries)
+gcc -o MIDItest.exe MIDItest.c -lwinmm
+
+// Switch on your MIDI device and run the "MIDItest" program:
+./MIDItest (in MacOS)
+MIDItest (in Windows)
+
+Please send back your modified "MIDItest.c" code file to:
+contact@bolprocessor.org
+
+More information:
+https://bolprocessor.org/check-bp3/#compile-bp-and-check-its-operation

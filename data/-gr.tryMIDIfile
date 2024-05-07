@@ -1,9 +1,0 @@
-// Bol Processor version BP2.7
-// Grammar file saved as '-gr.tryMIDIfile'. Date: Ven 28 Mars 1997 -- 0d5i
--se.tryMIDIfile
-
-// Note that "Reset rule weights" is inactive
-
-RND
-gram#1[1] <1-1> S -->   _volume(127) A4 G4 C5 A5 A4 G4 C5 A5
-gram#1[2] <1-1> S -->   _volume(64) A4 G4 C5 A5 A4 G4 C5 A5

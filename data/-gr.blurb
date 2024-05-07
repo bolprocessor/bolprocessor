@@ -1,7 +1,0 @@
-// Bol Processor version BP2.7
-// Grammar file saved as '-gr.blurb'. Date: Lun 5 Mai 1997 -- 1:05
--se.blurb
--cs.tryCsound
-
-RND
-gram#1[1] S --> _cont(blurb) _value(blurb,123.42) _ins(Harpsichord) C4 D4 _ins(Flute) E4 F4 _value(blurb,-211) _step(blurb)  G4 A4  _value(blurb,-34) _fixed(blurb) B4 C5

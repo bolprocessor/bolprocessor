@@ -1,7 +1,0 @@
-// Bol Processor version BP2.9.3
-// Interaction file saved as '-in.randomstruc'. Date: Ven 8 oct 1999 -- 14:33
-IN Parameter K1 = velocity C3 channel 1
-IN Parameter K2 = velocity E3 channel 1
-IN Parameter K3 = velocity G#3 channel 1
-IN Parameter K4 = velocity C4 channel 1
-IN Parameter K5 = velocity E4 channel 1

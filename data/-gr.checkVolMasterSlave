@@ -1,7 +1,0 @@
-// Bol Processor version BP2.7.4
-// Grammar file saved as '-gr.checkVolMasterSlave'. Date: Mer 3 DŽc 1997 -- 7:42
--or.checkVolMasterSlave
-
-RND
-gram#1[1] S -->  _volumecont (=  A ) (: A )
-gram#1[2] A --> _volume(5)  {A4. D5 B5} _volume(127)

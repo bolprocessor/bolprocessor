@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"__locale": "c"
+		},
+		"search.useGlobalIgnoreFiles": false
+	}
+}

@@ -4,7 +4,7 @@ Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen
 Copyright (c) 2006-2020 by Bernard Bel, Anthony Kozar
               and Srikumar Karaikudi Subramanian
 Bol Processor 3
-Copyright (c) 2020-2022 by Bernard Bel
+Copyright (c) 2020-2024 by Bernard Bel
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

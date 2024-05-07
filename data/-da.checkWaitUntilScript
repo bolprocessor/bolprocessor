@@ -1,9 +1,0 @@
-// Bol Processor version BP2.7.3
-// Data file saved as '-da.checkWaitUntilScript'. Date: Tue, Oct 7, 1997 -- 10:21
-// This example demonstrates the clock redjustment done in some script instructions
-
-C4 D4 E4  _script(Wait 1000 milliseconds) D4 C4
-
-// This one works with OMS because the beep is executed synchronously by the new time manager: MacOS doesn't wait for completion.
-
-C4 D4 E4  _script(Beep) D4 C4

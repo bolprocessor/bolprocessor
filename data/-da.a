@@ -1,8 +1,0 @@
-// Bol Processor version BP2.9.3
-// Data file saved as '-da.a'. Date: Jeu 28 Jan 1999 -- 14:51
-_retro {_transposecont _transpose(0) C3 C3 C3 _transpose(6) C3 C3 C3 C3 C3 _transpose(-2)}
-
-
-_transposecont _transpose(2) C3 C3 C3 C3 C3 _transpose(6)
-
-_transposecont _transpose(6) C3 C3 C3 C3 C3 _transpose(2)

@@ -2,27 +2,32 @@ Bol Processor BP3 To Do List
 ============================
 Current location of this file: https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-To-Do.txt
 
-This is a very long list of improvements that have been considered during the development of BP3. None of them is critical to its proper functioning. ;-)
-
+This is a list of improvements that have been considered during the development of BP3. None of them are critical to its proper functioning. ;-)
 The most requested improvements are listed at the top of the list.
 
 
-Real-time MIDI
---------------
+Real-time MIDI output
+--------------------
 
-- revise CoreMIDI driver and allow optionally building with it on Mac OS X
-- change the "null driver" to output MIDI messages as text
-- write a new cross-platform MIDI driver using the PortMIDI(?) library
-- maybe MIDI events could be channeled by Csound once it is accessed in real time
-- note that ChatGPT writes useful code to make this work easier!
+- The STOP button used to interrupt improvisations does not always immediately create the "_stop" file telling the application to stop.  Read below: "Interruption".
+- The current MIDI output sends MIDI messages to the first available MIDI destination. This is easy to improve. We just need to create a suitable form on the PHP interface that will select the destination and send its identifier to the console. To do this, create a file that the user will read via the interface, then select one or more options to add as tokens to the "Play" command line.
+- Remember that CoreMIDI is only used on MacOS. ALSA is used on Linux and MinGW on Windows.
+
+
+Real-time MIDI input
+-------------------
+
+- The real-time MIDI output code is multi-platform: it uses conditional compilation for MacOS, Windows and Linux. We expect the MIDI input to be multi-platform as well.
+- First develop the MIDI input in the dummy application "MIDItest.c" and test it in the three environments.
+- Start working out how to handle MIDI input events. It is possible to reproduce features of BP2 which were interpreted as script instructions.
 
 
 Standalone application
 -----------------
 
-- https://github.com/cztomczak/phpdesktop => Compile BP3 under Linux or MacOS
+- https://github.com/cztomczak/phpdesktop => Compile BP3 under Linux or MacOS. The MacOS version is still under development by Czarek Tomczak (czarek.tomczak at gmail)
 
-Alternate options in case phpdesktop doesn't fit:
+Alternate options in case "phpdesktop" doesn't fit:
 - https://electronforge.io/
 - https://github.com/peachpiecompiler/peachpie
 - https://laravel.com/
@@ -38,7 +43,7 @@ Alternate options in case phpdesktop doesn't fit:
 Csound orchestra
 -----------------
 
-- New instruments are needed in the style of:
+- New instruments are needed in the styles of:
  + pipe organ
  + flute
  + piano
@@ -56,6 +61,7 @@ Csound orchestra
 Real-time Csound
 ---------------
 
+- This development will be made easy by using ChatGPT
 - Implement UDP for communicating with Csound. Links:
 https://csound.com/docs/manual/udpserver.html
 https://www.geeksforgeeks.org/udp-server-client-implementation-c/
@@ -65,15 +71,16 @@ https://www.geeksforgeeks.org/udp-server-client-implementation-c/
 Csound
 -------------
 
-- (optionally) revise CsoundWrite to make sure that events are ordered by "note-on" dates, notably with tied notes/sound-objects
-- reference: https://csound.com/docs/manual/i.html => use negated p1 for note-off?
-- implement output to DAC in the interface: https://csound.com/docs/manual/CommandFlags.html
+- (optionally) Revise CsoundWrite to make sure that events are ordered by "note-on" dates, notably with tied notes/sound-objects
+- Reference: https://csound.com/docs/manual/i.html => use negated p1 for distinct note-off?
+- Implement output to DAC in the interface: https://csound.com/docs/manual/CommandFlags.html
 - Csound can compile orchestras and scores directly from strings of text: this feature could be exploited
 
 
 Open Sound Control (OSC)
 ------------------
 
+- This development will be made easy by using ChatGPT
 - Read https://en.wikipedia.org/wiki/Open_Sound_Control
 - This might create a framework for connecting BP3 with PYO (http://ajaxsoundstudio.com/software/pyo/)
 - Also try direct communication with MuseScore
@@ -93,13 +100,16 @@ Actions
 - Implement play-all action
 - Fix analyze-item action
 - Implement expand-item & show-beats actions
-- New action for listing RT MIDI devices ? Create a file which the user will read via the interface, then select option(s) that will be added as tokens to the "Play" command line
 
 
-PHP interface
--------------
+Interruption
+------------
 
-- Create a button opening the "my_output" folder on the desktop. It should work in all environments.
+- Currently, a STOP button is displayed on the produce.php page during the process of the console. Clicking it creates a "_stop" file in folder temp_bolprocessor/messages which the console captures in the stop() function. However, after working for some time, the_createfile.php script doesn't work. It waits for the end of the performance… Then only a restrat of Apache in MAMP will stop it.
+- Similarly, produce.php gets the pid of the process when the console is called. But for the same reason, _createfile.php cannot send a "kill" command when the STOP button is clicked.
+- As BP3 is multi-platform we cannot rely on AppleEvents to communicate with the console (as it was done in BP2).
+- After implementing MIDI input it will be possible to send a MIDI event that activates a script command to interrupt the production and/or playback.
+- We need another multi-platform technique to do the same from the STOP button, but none of the solutions suggested by ChatGPT were satisfactory.
 
 
 MIDI player
@@ -126,15 +136,11 @@ Cloud version
 Input files
 -----------
 
-- fix crash when loading a glossary file
-- fix crash when grammar contains script commands
-- interpret script commands producing MIDI messages such as _script(MIDI program …) or _script(MIDI controller …)
-- implement the -s/-S options for specifying the start string => not necessary as it exists on the Grammar window of the PHP interface
-- identify intput files with prefixes/suffixes even when they are preceded by a path. => Read next
-- restore the feature that looks for names of related files in the input files and auto-loads them (to be discussed...) => probably useless because the interface takes care of these links and creates links for editing related files
+- Interpret script commands producing MIDI messages such as _script(MIDI program …) or _script(MIDI controller …)
+- Implement the -s/-S options for specifying the start string => not necessary as it exists on the Grammar window of the PHP interface
 
 
-MIDI files
+MIDI files (Probably unnecessary, as MIDI file creation works perfectly.)
 ----------
 
 - note that currently the creation of type-1 MIDI files works even with very large sets of data… Therefore the following issues are not critical.
@@ -156,15 +162,14 @@ Images
 
 - When no settings file is specified, allow the creation of images via a command line option. This option should specify a location for images. Currently, image location is the one of the trace file.
 - Revise the drawing of time streaks (the vertical blue lines). These should be adjusted to the (varying) tempo instead of the default metronomic setting.
+- Fix negative values (for blue lines) on some sound-object graphs
 
 
 Documentation
 -------------
 
-- write new docs for BP3 (command-line usage, differences, etc.)
-- rewrite the source code README
-- convert BP2 documentation to an (open-source) authoring system that can help maintain the organization & internal links as well as output in multiple formats (HTML, PDF, etc.) ??
-- reorganize & rewrite BP2 documentation
+- Write new docs for BP3 (command-line usage, etc.)
+- Convert BP2 documentation to an (open-source) authoring system that can help maintain the organization & internal links as well as output in multiple formats (HTML, PDF, etc.) ??
 
 
 ========

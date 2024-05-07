@@ -1,7 +1,0 @@
-// Bol Processor version BP2.7.1
-// Data file saved as '-da.Csoundtest'. Date: Mar 3 Juin 1997 -- 0:24
--se.Csoundtest
-
-// This example is used with BP2 default Csound instrument and produces a score that may be processed with "BP2test.orc"
-
-_volumecont _pitchcont  _pitchrange(200) _volume(30)  C5 _volume(127) D5   _pitchbend(100) E5 F5 _pitchbend(0)

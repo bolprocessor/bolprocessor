@@ -1,11 +1,26 @@
-SRCDIR = source/BP2
+SRCDIR = source/BP3
 PREFIX = source/prefix/PrefixANSIDebug.h
 CC     = gcc
-CFLAGS = 
+CFLAGS =
 LIBS   = -lm
 EXE    = bp
 
-all:  $(EXE)
+UNAME_S := $(shell uname -s)
+UNAME_M := $(shell uname -m)
+
+ifeq ($(UNAME_S),Darwin)
+    FRAMEWORKS = -framework CoreMIDI -framework CoreFoundation
+endif
+ifeq ($(UNAME_S),Linux)
+    FRAMEWORKS = -lasound  # Example: linking with ALSA for MIDI handling on Linux
+endif
+ifneq (,$(findstring CYGWIN,$(UNAME_S)))
+    FRAMEWORKS = -lwinmm  # Example: linking with WinMM library on Cygwin
+endif
+ifneq (,$(findstring MINGW,$(UNAME_S)))
+    FRAMEWORKS = -lwinmm  # Example: linking with WinMM library on MinGW
+endif
+
 
 SRCS = \
   $(SRCDIR)/Arithmetic.c \
@@ -51,55 +66,15 @@ SRCS = \
   $(SRCDIR)/TimeSetFunctions.c \
   $(SRCDIR)/Zouleb.c
 
-OBJS = \
-  $(SRCDIR)/Arithmetic.o \
-  $(SRCDIR)/Automata.o \
-  $(SRCDIR)/CompileGrammar.o \
-  $(SRCDIR)/CompileProcs.o \
-  $(SRCDIR)/Compute.o \
-  $(SRCDIR)/ConsoleMain.o \
-  $(SRCDIR)/ConsoleMemory.o \
-  $(SRCDIR)/ConsoleMessages.o \
-  $(SRCDIR)/ConsoleStubs.o \
-  $(SRCDIR)/Csound.o \
-  $(SRCDIR)/CsoundMaths.o \
-  $(SRCDIR)/CsoundScoreMake.o \
-  $(SRCDIR)/CTextHandles.o \
-  $(SRCDIR)/DisplayArg.o \
-  $(SRCDIR)/DisplayThings.o \
-  $(SRCDIR)/Encode.o \
-  $(SRCDIR)/FillPhaseDiagram.o \
-  $(SRCDIR)/GetRelease.o \
-  $(SRCDIR)/Glossary.o \
-  $(SRCDIR)/Graphic.o \
-  $(SRCDIR)/HTML.o \
-  $(SRCDIR)/Inits.o \
-  $(SRCDIR)/Interface2.o \
-  $(SRCDIR)/MakeSound.o \
-  $(SRCDIR)/MIDIfiles.o \
-  $(SRCDIR)/MIDIloads.o \
-  $(SRCDIR)/MIDIstubs.o \
-  $(SRCDIR)/MIDIstuff.o \
-  $(SRCDIR)/Misc.o \
-  $(SRCDIR)/PlayThings.o \
-  $(SRCDIR)/Polymetric.o \
-  $(SRCDIR)/ProduceItems.o \
-  $(SRCDIR)/SaveLoads1.o \
-  $(SRCDIR)/SaveLoads3.o \
-  $(SRCDIR)/SetObjectFeatures.o \
-  $(SRCDIR)/SoundObjects2.o \
-  $(SRCDIR)/SoundObjects3.o \
-  $(SRCDIR)/Strings.o \
-  $(SRCDIR)/Ticks.o \
-  $(SRCDIR)/TimeSet.o \
-  $(SRCDIR)/TimeSetFunctions.o \
-  $(SRCDIR)/Zouleb.o
+OBJS = $(SRCS:.c=.o)
+
+all:  $(EXE)
+
+$(EXE): $(OBJS)
+	$(CC) -o $(EXE) $(OBJS) $(LIBS) $(FRAMEWORKS)
 
 %.o : %.c
 	$(CC) -c $(CFLAGS) -I $(SRCDIR) -include $(PREFIX)  $< -o $@
-
-$(EXE): $(OBJS)
-	$(CC) -o $(EXE) $(OBJS) $(LIBS)
 
 depend: 
 	makedepend -I $(SRCDIR) -include $(PREFIX)  $(SRCS)
@@ -110,271 +85,271 @@ clean:
 
 # DO NOT DELETE
 
-source/BP2/Arithmetic.o: source/prefix/PrefixANSIDebug.h
-source/BP2/Arithmetic.o: source/BP2/MissingMacTypes.h
-source/BP2/Arithmetic.o: source/BP2/MissingMacPrototypes.h
-source/BP2/Arithmetic.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/Arithmetic.o: source/BP2/midi1.h
-source/BP2/Arithmetic.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/Automata.o: source/prefix/PrefixANSIDebug.h
-source/BP2/Automata.o: source/BP2/MissingMacTypes.h 
-source/BP2/Automata.o: source/BP2/MissingMacPrototypes.h
-source/BP2/Automata.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/Automata.o: source/BP2/midi1.h
-source/BP2/Automata.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/CompileGrammar.o: source/prefix/PrefixANSIDebug.h
-source/BP2/CompileGrammar.o: source/BP2/MissingMacTypes.h
-source/BP2/CompileGrammar.o: source/BP2/MissingMacPrototypes.h
-source/BP2/CompileGrammar.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/CompileGrammar.o: source/BP2/midi1.h
-source/BP2/CompileGrammar.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/CompileProcs.o: source/prefix/PrefixANSIDebug.h
-source/BP2/CompileProcs.o: source/BP2/MissingMacTypes.h 
-source/BP2/CompileProcs.o: source/BP2/MissingMacPrototypes.h
-source/BP2/CompileProcs.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/CompileProcs.o: source/BP2/midi1.h
-source/BP2/CompileProcs.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/Compute.o: source/prefix/PrefixANSIDebug.h
-source/BP2/Compute.o: source/BP2/MissingMacTypes.h 
-source/BP2/Compute.o: source/BP2/MissingMacPrototypes.h
-source/BP2/Compute.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/Compute.o: source/BP2/midi1.h
-source/BP2/Compute.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/ConsoleMain.o: source/prefix/PrefixANSIDebug.h
-source/BP2/ConsoleMain.o: source/BP2/MissingMacTypes.h 
-source/BP2/ConsoleMain.o: source/BP2/MissingMacPrototypes.h
-source/BP2/ConsoleMain.o: source/BP2/CTextHandles.h 
-source/BP2/ConsoleMain.o: source/BP2/-BP2.h
-source/BP2/ConsoleMain.o: source/BP2/midi1.h
-source/BP2/ConsoleMain.o: source/BP2/-BP2.proto.h source/BP2/-BP2main.h
-source/BP2/ConsoleMain.o: source/BP2/ConsoleMessages.h
-source/BP2/ConsoleMain.o: source/BP2/ConsoleGlobals.h
-source/BP2/ConsoleMemory.o: source/prefix/PrefixANSIDebug.h
-source/BP2/ConsoleMemory.o: source/BP2/MissingMacTypes.h
-source/BP2/ConsoleMemory.o: source/BP2/MissingMacPrototypes.h
-source/BP2/ConsoleMemory.o: source/BP2/CTextHandles.h 
-source/BP2/ConsoleMemory.o: source/BP2/-BP2.h 
-source/BP2/ConsoleMemory.o: source/BP2/midi1.h
-source/BP2/ConsoleMemory.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/ConsoleMessages.o: source/prefix/PrefixANSIDebug.h
-source/BP2/ConsoleMessages.o: source/BP2/MissingMacTypes.h
-source/BP2/ConsoleMessages.o: source/BP2/MissingMacPrototypes.h
-source/BP2/ConsoleMessages.o: source/BP2/CTextHandles.h 
-source/BP2/ConsoleMessages.o: source/BP2/-BP2.h
-source/BP2/ConsoleMessages.o: source/BP2/midi1.h
-source/BP2/ConsoleMessages.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/ConsoleMessages.o: source/BP2/ConsoleMessages.h
-source/BP2/ConsoleStubs.o: source/prefix/PrefixANSIDebug.h
-source/BP2/ConsoleStubs.o: source/BP2/MissingMacTypes.h 
-source/BP2/ConsoleStubs.o: source/BP2/MissingMacPrototypes.h
-source/BP2/ConsoleStubs.o: source/BP2/CTextHandles.h 
-source/BP2/ConsoleStubs.o: source/BP2/-BP2.h
-source/BP2/ConsoleStubs.o: source/BP2/midi1.h
-source/BP2/ConsoleStubs.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/ConsoleStubs.o: source/BP2/ConsoleMessages.h
-source/BP2/ConsoleStubs.o: source/BP2/ConsoleGlobals.h
-source/BP2/Csound.o: source/prefix/PrefixANSIDebug.h
-source/BP2/Csound.o: source/BP2/MissingMacTypes.h 
-source/BP2/Csound.o: source/BP2/MissingMacPrototypes.h
-source/BP2/Csound.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/Csound.o: source/BP2/midi1.h
-source/BP2/Csound.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/CsoundMaths.o: source/prefix/PrefixANSIDebug.h
-source/BP2/CsoundMaths.o: source/BP2/MissingMacTypes.h 
-source/BP2/CsoundMaths.o: source/BP2/MissingMacPrototypes.h
-source/BP2/CsoundMaths.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/CsoundMaths.o: source/BP2/midi1.h
-source/BP2/CsoundMaths.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/CsoundScoreMake.o: source/prefix/PrefixANSIDebug.h
-source/BP2/CsoundScoreMake.o: source/BP2/MissingMacTypes.h
-source/BP2/CsoundScoreMake.o: source/BP2/MissingMacPrototypes.h
-source/BP2/CsoundScoreMake.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/CsoundScoreMake.o: source/BP2/midi1.h
-source/BP2/CsoundScoreMake.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/CTextHandles.o: source/prefix/PrefixANSIDebug.h
-source/BP2/CTextHandles.o: source/BP2/MissingMacTypes.h 
-source/BP2/CTextHandles.o: source/BP2/MissingMacPrototypes.h
-source/BP2/CTextHandles.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/CTextHandles.o: source/BP2/midi1.h
-source/BP2/CTextHandles.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/DisplayArg.o: source/prefix/PrefixANSIDebug.h
-source/BP2/DisplayArg.o: source/BP2/MissingMacTypes.h 
-source/BP2/DisplayArg.o: source/BP2/MissingMacPrototypes.h
-source/BP2/DisplayArg.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/DisplayArg.o: source/BP2/midi1.h
-source/BP2/DisplayArg.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/DisplayThings.o: source/prefix/PrefixANSIDebug.h
-source/BP2/DisplayThings.o: source/BP2/MissingMacTypes.h
-source/BP2/DisplayThings.o: source/BP2/MissingMacPrototypes.h
-source/BP2/DisplayThings.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/DisplayThings.o: source/BP2/midi1.h
-source/BP2/DisplayThings.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/Encode.o: source/prefix/PrefixANSIDebug.h
-source/BP2/Encode.o: source/BP2/MissingMacTypes.h 
-source/BP2/Encode.o: source/BP2/MissingMacPrototypes.h
-source/BP2/Encode.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/Encode.o: source/BP2/midi1.h
-source/BP2/Encode.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/FillPhaseDiagram.o: source/prefix/PrefixANSIDebug.h
-source/BP2/FillPhaseDiagram.o: source/BP2/MissingMacTypes.h
-source/BP2/FillPhaseDiagram.o: source/BP2/MissingMacPrototypes.h
-source/BP2/FillPhaseDiagram.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/FillPhaseDiagram.o: source/BP2/midi1.h source/BP2/-BP2.proto.h
-source/BP2/FillPhaseDiagram.o: source/BP2/-BP2decl.h
-source/BP2/GetRelease.o: source/prefix/PrefixANSIDebug.h
-source/BP2/GetRelease.o: source/BP2/MissingMacTypes.h 
-source/BP2/GetRelease.o: source/BP2/MissingMacPrototypes.h
-source/BP2/GetRelease.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/GetRelease.o: source/BP2/midi1.h
-source/BP2/GetRelease.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/Glossary.o: source/prefix/PrefixANSIDebug.h
-source/BP2/Glossary.o: source/BP2/MissingMacTypes.h 
-source/BP2/Glossary.o: source/BP2/MissingMacPrototypes.h
-source/BP2/Glossary.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/Glossary.o: source/BP2/midi1.h
-source/BP2/Glossary.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/Graphic.o: source/prefix/PrefixANSIDebug.h
-source/BP2/Graphic.o: source/BP2/MissingMacTypes.h 
-source/BP2/Graphic.o: source/BP2/MissingMacPrototypes.h
-source/BP2/Graphic.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/Graphic.o: source/BP2/midi1.h
-source/BP2/Graphic.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/HTML.o: source/prefix/PrefixANSIDebug.h
-source/BP2/HTML.o: source/BP2/MissingMacTypes.h 
-source/BP2/HTML.o: source/BP2/MissingMacPrototypes.h
-source/BP2/HTML.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/HTML.o: source/BP2/midi1.h source/BP2/-BP2.proto.h
-source/BP2/HTML.o: source/BP2/-BP2decl.h
-source/BP2/Inits.o: source/prefix/PrefixANSIDebug.h
-source/BP2/Inits.o: source/BP2/MissingMacTypes.h 
-source/BP2/Inits.o: source/BP2/MissingMacPrototypes.h
-source/BP2/Inits.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/Inits.o: source/BP2/midi1.h source/BP2/-BP2.proto.h
-source/BP2/Inits.o: source/BP2/-BP2decl.h source/BP2/StringLists.h
-source/BP2/Interface2.o: source/prefix/PrefixANSIDebug.h
-source/BP2/Interface2.o: source/BP2/MissingMacTypes.h 
-source/BP2/Interface2.o: source/BP2/MissingMacPrototypes.h
-source/BP2/Interface2.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/Interface2.o: source/BP2/midi1.h
-source/BP2/Interface2.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/MakeSound.o: source/prefix/PrefixANSIDebug.h
-source/BP2/MakeSound.o: source/BP2/MissingMacTypes.h 
-source/BP2/MakeSound.o: source/BP2/MissingMacPrototypes.h
-source/BP2/MakeSound.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/MakeSound.o: source/BP2/midi1.h
-source/BP2/MakeSound.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/MIDIfiles.o: source/prefix/PrefixANSIDebug.h
-source/BP2/MIDIfiles.o: source/BP2/MissingMacTypes.h 
-source/BP2/MIDIfiles.o: source/BP2/MissingMacPrototypes.h
-source/BP2/MIDIfiles.o: source/BP2/CTextHandles.h 
-source/BP2/MIDIfiles.o: source/BP2/-BP2.h
-source/BP2/MIDIfiles.o: source/BP2/midi1.h
-source/BP2/MIDIfiles.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/MIDIfiles.o: source/BP2/ConsoleMessages.h
-source/BP2/MIDIfiles.o: source/BP2/ConsoleGlobals.h
-source/BP2/MIDIloads.o: source/prefix/PrefixANSIDebug.h
-source/BP2/MIDIloads.o: source/BP2/MissingMacTypes.h 
-source/BP2/MIDIloads.o: source/BP2/MissingMacPrototypes.h
-source/BP2/MIDIloads.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/MIDIloads.o: source/BP2/midi1.h
-source/BP2/MIDIloads.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/MIDIstubs.o: source/prefix/PrefixANSIDebug.h
-source/BP2/MIDIstubs.o: source/BP2/MissingMacTypes.h 
-source/BP2/MIDIstubs.o: source/BP2/MissingMacPrototypes.h
-source/BP2/MIDIstubs.o: source/BP2/CTextHandles.h 
-source/BP2/MIDIstubs.o: source/BP2/-BP2.h
-source/BP2/MIDIstubs.o: source/BP2/midi1.h
-source/BP2/MIDIstubs.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/MIDIstuff.o: source/prefix/PrefixANSIDebug.h
-source/BP2/MIDIstuff.o: source/BP2/MissingMacTypes.h 
-source/BP2/MIDIstuff.o: source/BP2/MissingMacPrototypes.h
-source/BP2/MIDIstuff.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/MIDIstuff.o: source/BP2/midi1.h
-source/BP2/MIDIstuff.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/Misc.o: source/prefix/PrefixANSIDebug.h
-source/BP2/Misc.o: source/BP2/MissingMacTypes.h 
-source/BP2/Misc.o: source/BP2/MissingMacPrototypes.h
-source/BP2/Misc.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/Misc.o: source/BP2/midi1.h source/BP2/-BP2.proto.h
-source/BP2/Misc.o: source/BP2/-BP2decl.h
-source/BP2/PlayThings.o: source/prefix/PrefixANSIDebug.h
-source/BP2/PlayThings.o: source/BP2/MissingMacTypes.h 
-source/BP2/PlayThings.o: source/BP2/MissingMacPrototypes.h
-source/BP2/PlayThings.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/PlayThings.o: source/BP2/midi1.h
-source/BP2/PlayThings.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/Polymetric.o: source/prefix/PrefixANSIDebug.h
-source/BP2/Polymetric.o: source/BP2/MissingMacTypes.h 
-source/BP2/Polymetric.o: source/BP2/MissingMacPrototypes.h
-source/BP2/Polymetric.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/Polymetric.o: source/BP2/midi1.h
-source/BP2/Polymetric.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/ProduceItems.o: source/prefix/PrefixANSIDebug.h
-source/BP2/ProduceItems.o: source/BP2/MissingMacTypes.h 
-source/BP2/ProduceItems.o: source/BP2/MissingMacPrototypes.h
-source/BP2/ProduceItems.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/ProduceItems.o: source/BP2/midi1.h
-source/BP2/ProduceItems.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/SaveLoads1.o: source/prefix/PrefixANSIDebug.h
-source/BP2/SaveLoads1.o: source/BP2/MissingMacTypes.h 
-source/BP2/SaveLoads1.o: source/BP2/MissingMacPrototypes.h
-source/BP2/SaveLoads1.o: source/BP2/CTextHandles.h 
-source/BP2/SaveLoads1.o: source/BP2/-BP2.h
-source/BP2/SaveLoads1.o: source/BP2/midi1.h
-source/BP2/SaveLoads1.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/SaveLoads3.o: source/prefix/PrefixANSIDebug.h
-source/BP2/SaveLoads3.o: source/BP2/MissingMacTypes.h 
-source/BP2/SaveLoads3.o: source/BP2/MissingMacPrototypes.h
-source/BP2/SaveLoads3.o: source/BP2/CTextHandles.h 
-source/BP2/SaveLoads3.o: source/BP2/-BP2.h
-source/BP2/SaveLoads3.o: source/BP2/midi1.h
-source/BP2/SaveLoads3.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/SaveLoads3.o: source/BP2/ConsoleMessages.h
-source/BP2/SetObjectFeatures.o: source/prefix/PrefixANSIDebug.h
-source/BP2/SetObjectFeatures.o: source/BP2/MissingMacTypes.h
-source/BP2/SetObjectFeatures.o: source/BP2/MissingMacPrototypes.h
-source/BP2/SetObjectFeatures.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/SetObjectFeatures.o: source/BP2/midi1.h source/BP2/-BP2.proto.h
-source/BP2/SetObjectFeatures.o: source/BP2/-BP2decl.h
-source/BP2/SoundObjects2.o: source/prefix/PrefixANSIDebug.h
-source/BP2/SoundObjects2.o: source/BP2/MissingMacTypes.h
-source/BP2/SoundObjects2.o: source/BP2/MissingMacPrototypes.h
-source/BP2/SoundObjects2.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/SoundObjects2.o: source/BP2/midi1.h
-source/BP2/SoundObjects2.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/SoundObjects3.o: source/prefix/PrefixANSIDebug.h
-source/BP2/SoundObjects3.o: source/BP2/MissingMacTypes.h
-source/BP2/SoundObjects3.o: source/BP2/MissingMacPrototypes.h
-source/BP2/SoundObjects3.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/SoundObjects3.o: source/BP2/midi1.h
-source/BP2/SoundObjects3.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/Strings.o: source/prefix/PrefixANSIDebug.h
-source/BP2/Strings.o: source/BP2/MissingMacTypes.h 
-source/BP2/Strings.o: source/BP2/MissingMacPrototypes.h
-source/BP2/Strings.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/Strings.o: source/BP2/midi1.h
-source/BP2/Strings.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/Ticks.o: source/prefix/PrefixANSIDebug.h
-source/BP2/Ticks.o: source/BP2/MissingMacTypes.h 
-source/BP2/Ticks.o: source/BP2/MissingMacPrototypes.h
-source/BP2/Ticks.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/Ticks.o: source/BP2/midi1.h source/BP2/-BP2.proto.h
-source/BP2/Ticks.o: source/BP2/-BP2decl.h
-source/BP2/TimeSet.o: source/prefix/PrefixANSIDebug.h
-source/BP2/TimeSet.o: source/BP2/MissingMacTypes.h 
-source/BP2/TimeSet.o: source/BP2/MissingMacPrototypes.h
-source/BP2/TimeSet.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/TimeSet.o: source/BP2/midi1.h
-source/BP2/TimeSet.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
-source/BP2/TimeSetFunctions.o: source/prefix/PrefixANSIDebug.h
-source/BP2/TimeSetFunctions.o: source/BP2/MissingMacTypes.h
-source/BP2/TimeSetFunctions.o: source/BP2/MissingMacPrototypes.h
-source/BP2/TimeSetFunctions.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/TimeSetFunctions.o: source/BP2/midi1.h source/BP2/-BP2.proto.h
-source/BP2/TimeSetFunctions.o: source/BP2/-BP2decl.h
-source/BP2/Zouleb.o: source/prefix/PrefixANSIDebug.h
-source/BP2/Zouleb.o: source/BP2/MissingMacTypes.h 
-source/BP2/Zouleb.o: source/BP2/MissingMacPrototypes.h
-source/BP2/Zouleb.o: source/BP2/CTextHandles.h source/BP2/-BP2.h
-source/BP2/Zouleb.o: source/BP2/midi1.h
-source/BP2/Zouleb.o: source/BP2/-BP2.proto.h source/BP2/-BP2decl.h
+source/BP3/Arithmetic.o: source/prefix/PrefixANSIDebug.h
+source/BP3/Arithmetic.o: source/BP3/MissingMacTypes.h
+source/BP3/Arithmetic.o: source/BP3/MissingMacPrototypes.h
+source/BP3/Arithmetic.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/Arithmetic.o: source/BP3/midi1.h
+source/BP3/Arithmetic.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/Automata.o: source/prefix/PrefixANSIDebug.h
+source/BP3/Automata.o: source/BP3/MissingMacTypes.h 
+source/BP3/Automata.o: source/BP3/MissingMacPrototypes.h
+source/BP3/Automata.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/Automata.o: source/BP3/midi1.h
+source/BP3/Automata.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/CompileGrammar.o: source/prefix/PrefixANSIDebug.h
+source/BP3/CompileGrammar.o: source/BP3/MissingMacTypes.h
+source/BP3/CompileGrammar.o: source/BP3/MissingMacPrototypes.h
+source/BP3/CompileGrammar.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/CompileGrammar.o: source/BP3/midi1.h
+source/BP3/CompileGrammar.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/CompileProcs.o: source/prefix/PrefixANSIDebug.h
+source/BP3/CompileProcs.o: source/BP3/MissingMacTypes.h 
+source/BP3/CompileProcs.o: source/BP3/MissingMacPrototypes.h
+source/BP3/CompileProcs.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/CompileProcs.o: source/BP3/midi1.h
+source/BP3/CompileProcs.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/Compute.o: source/prefix/PrefixANSIDebug.h
+source/BP3/Compute.o: source/BP3/MissingMacTypes.h 
+source/BP3/Compute.o: source/BP3/MissingMacPrototypes.h
+source/BP3/Compute.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/Compute.o: source/BP3/midi1.h
+source/BP3/Compute.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/ConsoleMain.o: source/prefix/PrefixANSIDebug.h
+source/BP3/ConsoleMain.o: source/BP3/MissingMacTypes.h 
+source/BP3/ConsoleMain.o: source/BP3/MissingMacPrototypes.h
+source/BP3/ConsoleMain.o: source/BP3/CTextHandles.h 
+source/BP3/ConsoleMain.o: source/BP3/-BP2.h
+source/BP3/ConsoleMain.o: source/BP3/midi1.h
+source/BP3/ConsoleMain.o: source/BP3/-BP2.proto.h source/BP3/-BP2main.h
+source/BP3/ConsoleMain.o: source/BP3/ConsoleMessages.h
+source/BP3/ConsoleMain.o: source/BP3/ConsoleGlobals.h
+source/BP3/ConsoleMemory.o: source/prefix/PrefixANSIDebug.h
+source/BP3/ConsoleMemory.o: source/BP3/MissingMacTypes.h
+source/BP3/ConsoleMemory.o: source/BP3/MissingMacPrototypes.h
+source/BP3/ConsoleMemory.o: source/BP3/CTextHandles.h 
+source/BP3/ConsoleMemory.o: source/BP3/-BP2.h 
+source/BP3/ConsoleMemory.o: source/BP3/midi1.h
+source/BP3/ConsoleMemory.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/ConsoleMessages.o: source/prefix/PrefixANSIDebug.h
+source/BP3/ConsoleMessages.o: source/BP3/MissingMacTypes.h
+source/BP3/ConsoleMessages.o: source/BP3/MissingMacPrototypes.h
+source/BP3/ConsoleMessages.o: source/BP3/CTextHandles.h 
+source/BP3/ConsoleMessages.o: source/BP3/-BP2.h
+source/BP3/ConsoleMessages.o: source/BP3/midi1.h
+source/BP3/ConsoleMessages.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/ConsoleMessages.o: source/BP3/ConsoleMessages.h
+source/BP3/ConsoleStubs.o: source/prefix/PrefixANSIDebug.h
+source/BP3/ConsoleStubs.o: source/BP3/MissingMacTypes.h 
+source/BP3/ConsoleStubs.o: source/BP3/MissingMacPrototypes.h
+source/BP3/ConsoleStubs.o: source/BP3/CTextHandles.h 
+source/BP3/ConsoleStubs.o: source/BP3/-BP2.h
+source/BP3/ConsoleStubs.o: source/BP3/midi1.h
+source/BP3/ConsoleStubs.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/ConsoleStubs.o: source/BP3/ConsoleMessages.h
+source/BP3/ConsoleStubs.o: source/BP3/ConsoleGlobals.h
+source/BP3/Csound.o: source/prefix/PrefixANSIDebug.h
+source/BP3/Csound.o: source/BP3/MissingMacTypes.h 
+source/BP3/Csound.o: source/BP3/MissingMacPrototypes.h
+source/BP3/Csound.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/Csound.o: source/BP3/midi1.h
+source/BP3/Csound.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/CsoundMaths.o: source/prefix/PrefixANSIDebug.h
+source/BP3/CsoundMaths.o: source/BP3/MissingMacTypes.h 
+source/BP3/CsoundMaths.o: source/BP3/MissingMacPrototypes.h
+source/BP3/CsoundMaths.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/CsoundMaths.o: source/BP3/midi1.h
+source/BP3/CsoundMaths.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/CsoundScoreMake.o: source/prefix/PrefixANSIDebug.h
+source/BP3/CsoundScoreMake.o: source/BP3/MissingMacTypes.h
+source/BP3/CsoundScoreMake.o: source/BP3/MissingMacPrototypes.h
+source/BP3/CsoundScoreMake.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/CsoundScoreMake.o: source/BP3/midi1.h
+source/BP3/CsoundScoreMake.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/CTextHandles.o: source/prefix/PrefixANSIDebug.h
+source/BP3/CTextHandles.o: source/BP3/MissingMacTypes.h 
+source/BP3/CTextHandles.o: source/BP3/MissingMacPrototypes.h
+source/BP3/CTextHandles.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/CTextHandles.o: source/BP3/midi1.h
+source/BP3/CTextHandles.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/DisplayArg.o: source/prefix/PrefixANSIDebug.h
+source/BP3/DisplayArg.o: source/BP3/MissingMacTypes.h 
+source/BP3/DisplayArg.o: source/BP3/MissingMacPrototypes.h
+source/BP3/DisplayArg.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/DisplayArg.o: source/BP3/midi1.h
+source/BP3/DisplayArg.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/DisplayThings.o: source/prefix/PrefixANSIDebug.h
+source/BP3/DisplayThings.o: source/BP3/MissingMacTypes.h
+source/BP3/DisplayThings.o: source/BP3/MissingMacPrototypes.h
+source/BP3/DisplayThings.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/DisplayThings.o: source/BP3/midi1.h
+source/BP3/DisplayThings.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/Encode.o: source/prefix/PrefixANSIDebug.h
+source/BP3/Encode.o: source/BP3/MissingMacTypes.h 
+source/BP3/Encode.o: source/BP3/MissingMacPrototypes.h
+source/BP3/Encode.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/Encode.o: source/BP3/midi1.h
+source/BP3/Encode.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/FillPhaseDiagram.o: source/prefix/PrefixANSIDebug.h
+source/BP3/FillPhaseDiagram.o: source/BP3/MissingMacTypes.h
+source/BP3/FillPhaseDiagram.o: source/BP3/MissingMacPrototypes.h
+source/BP3/FillPhaseDiagram.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/FillPhaseDiagram.o: source/BP3/midi1.h source/BP3/-BP2.proto.h
+source/BP3/FillPhaseDiagram.o: source/BP3/-BP2decl.h
+source/BP3/GetRelease.o: source/prefix/PrefixANSIDebug.h
+source/BP3/GetRelease.o: source/BP3/MissingMacTypes.h 
+source/BP3/GetRelease.o: source/BP3/MissingMacPrototypes.h
+source/BP3/GetRelease.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/GetRelease.o: source/BP3/midi1.h
+source/BP3/GetRelease.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/Glossary.o: source/prefix/PrefixANSIDebug.h
+source/BP3/Glossary.o: source/BP3/MissingMacTypes.h 
+source/BP3/Glossary.o: source/BP3/MissingMacPrototypes.h
+source/BP3/Glossary.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/Glossary.o: source/BP3/midi1.h
+source/BP3/Glossary.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/Graphic.o: source/prefix/PrefixANSIDebug.h
+source/BP3/Graphic.o: source/BP3/MissingMacTypes.h 
+source/BP3/Graphic.o: source/BP3/MissingMacPrototypes.h
+source/BP3/Graphic.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/Graphic.o: source/BP3/midi1.h
+source/BP3/Graphic.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/HTML.o: source/prefix/PrefixANSIDebug.h
+source/BP3/HTML.o: source/BP3/MissingMacTypes.h 
+source/BP3/HTML.o: source/BP3/MissingMacPrototypes.h
+source/BP3/HTML.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/HTML.o: source/BP3/midi1.h source/BP3/-BP2.proto.h
+source/BP3/HTML.o: source/BP3/-BP2decl.h
+source/BP3/Inits.o: source/prefix/PrefixANSIDebug.h
+source/BP3/Inits.o: source/BP3/MissingMacTypes.h 
+source/BP3/Inits.o: source/BP3/MissingMacPrototypes.h
+source/BP3/Inits.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/Inits.o: source/BP3/midi1.h source/BP3/-BP2.proto.h
+source/BP3/Inits.o: source/BP3/-BP2decl.h source/BP3/StringLists.h
+source/BP3/Interface2.o: source/prefix/PrefixANSIDebug.h
+source/BP3/Interface2.o: source/BP3/MissingMacTypes.h 
+source/BP3/Interface2.o: source/BP3/MissingMacPrototypes.h
+source/BP3/Interface2.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/Interface2.o: source/BP3/midi1.h
+source/BP3/Interface2.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/MakeSound.o: source/prefix/PrefixANSIDebug.h
+source/BP3/MakeSound.o: source/BP3/MissingMacTypes.h 
+source/BP3/MakeSound.o: source/BP3/MissingMacPrototypes.h
+source/BP3/MakeSound.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/MakeSound.o: source/BP3/midi1.h
+source/BP3/MakeSound.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/MIDIfiles.o: source/prefix/PrefixANSIDebug.h
+source/BP3/MIDIfiles.o: source/BP3/MissingMacTypes.h 
+source/BP3/MIDIfiles.o: source/BP3/MissingMacPrototypes.h
+source/BP3/MIDIfiles.o: source/BP3/CTextHandles.h 
+source/BP3/MIDIfiles.o: source/BP3/-BP2.h
+source/BP3/MIDIfiles.o: source/BP3/midi1.h
+source/BP3/MIDIfiles.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/MIDIfiles.o: source/BP3/ConsoleMessages.h
+source/BP3/MIDIfiles.o: source/BP3/ConsoleGlobals.h
+source/BP3/MIDIloads.o: source/prefix/PrefixANSIDebug.h
+source/BP3/MIDIloads.o: source/BP3/MissingMacTypes.h 
+source/BP3/MIDIloads.o: source/BP3/MissingMacPrototypes.h
+source/BP3/MIDIloads.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/MIDIloads.o: source/BP3/midi1.h
+source/BP3/MIDIloads.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/MIDIstubs.o: source/prefix/PrefixANSIDebug.h
+source/BP3/MIDIstubs.o: source/BP3/MissingMacTypes.h 
+source/BP3/MIDIstubs.o: source/BP3/MissingMacPrototypes.h
+source/BP3/MIDIstubs.o: source/BP3/CTextHandles.h 
+source/BP3/MIDIstubs.o: source/BP3/-BP2.h
+source/BP3/MIDIstubs.o: source/BP3/midi1.h
+source/BP3/MIDIstubs.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/MIDIstuff.o: source/prefix/PrefixANSIDebug.h
+source/BP3/MIDIstuff.o: source/BP3/MissingMacTypes.h 
+source/BP3/MIDIstuff.o: source/BP3/MissingMacPrototypes.h
+source/BP3/MIDIstuff.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/MIDIstuff.o: source/BP3/midi1.h
+source/BP3/MIDIstuff.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/Misc.o: source/prefix/PrefixANSIDebug.h
+source/BP3/Misc.o: source/BP3/MissingMacTypes.h 
+source/BP3/Misc.o: source/BP3/MissingMacPrototypes.h
+source/BP3/Misc.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/Misc.o: source/BP3/midi1.h source/BP3/-BP2.proto.h
+source/BP3/Misc.o: source/BP3/-BP2decl.h
+source/BP3/PlayThings.o: source/prefix/PrefixANSIDebug.h
+source/BP3/PlayThings.o: source/BP3/MissingMacTypes.h 
+source/BP3/PlayThings.o: source/BP3/MissingMacPrototypes.h
+source/BP3/PlayThings.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/PlayThings.o: source/BP3/midi1.h
+source/BP3/PlayThings.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/Polymetric.o: source/prefix/PrefixANSIDebug.h
+source/BP3/Polymetric.o: source/BP3/MissingMacTypes.h 
+source/BP3/Polymetric.o: source/BP3/MissingMacPrototypes.h
+source/BP3/Polymetric.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/Polymetric.o: source/BP3/midi1.h
+source/BP3/Polymetric.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/ProduceItems.o: source/prefix/PrefixANSIDebug.h
+source/BP3/ProduceItems.o: source/BP3/MissingMacTypes.h 
+source/BP3/ProduceItems.o: source/BP3/MissingMacPrototypes.h
+source/BP3/ProduceItems.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/ProduceItems.o: source/BP3/midi1.h
+source/BP3/ProduceItems.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/SaveLoads1.o: source/prefix/PrefixANSIDebug.h
+source/BP3/SaveLoads1.o: source/BP3/MissingMacTypes.h 
+source/BP3/SaveLoads1.o: source/BP3/MissingMacPrototypes.h
+source/BP3/SaveLoads1.o: source/BP3/CTextHandles.h 
+source/BP3/SaveLoads1.o: source/BP3/-BP2.h
+source/BP3/SaveLoads1.o: source/BP3/midi1.h
+source/BP3/SaveLoads1.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/SaveLoads3.o: source/prefix/PrefixANSIDebug.h
+source/BP3/SaveLoads3.o: source/BP3/MissingMacTypes.h 
+source/BP3/SaveLoads3.o: source/BP3/MissingMacPrototypes.h
+source/BP3/SaveLoads3.o: source/BP3/CTextHandles.h 
+source/BP3/SaveLoads3.o: source/BP3/-BP2.h
+source/BP3/SaveLoads3.o: source/BP3/midi1.h
+source/BP3/SaveLoads3.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/SaveLoads3.o: source/BP3/ConsoleMessages.h
+source/BP3/SetObjectFeatures.o: source/prefix/PrefixANSIDebug.h
+source/BP3/SetObjectFeatures.o: source/BP3/MissingMacTypes.h
+source/BP3/SetObjectFeatures.o: source/BP3/MissingMacPrototypes.h
+source/BP3/SetObjectFeatures.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/SetObjectFeatures.o: source/BP3/midi1.h source/BP3/-BP2.proto.h
+source/BP3/SetObjectFeatures.o: source/BP3/-BP2decl.h
+source/BP3/SoundObjects2.o: source/prefix/PrefixANSIDebug.h
+source/BP3/SoundObjects2.o: source/BP3/MissingMacTypes.h
+source/BP3/SoundObjects2.o: source/BP3/MissingMacPrototypes.h
+source/BP3/SoundObjects2.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/SoundObjects2.o: source/BP3/midi1.h
+source/BP3/SoundObjects2.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/SoundObjects3.o: source/prefix/PrefixANSIDebug.h
+source/BP3/SoundObjects3.o: source/BP3/MissingMacTypes.h
+source/BP3/SoundObjects3.o: source/BP3/MissingMacPrototypes.h
+source/BP3/SoundObjects3.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/SoundObjects3.o: source/BP3/midi1.h
+source/BP3/SoundObjects3.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/Strings.o: source/prefix/PrefixANSIDebug.h
+source/BP3/Strings.o: source/BP3/MissingMacTypes.h 
+source/BP3/Strings.o: source/BP3/MissingMacPrototypes.h
+source/BP3/Strings.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/Strings.o: source/BP3/midi1.h
+source/BP3/Strings.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/Ticks.o: source/prefix/PrefixANSIDebug.h
+source/BP3/Ticks.o: source/BP3/MissingMacTypes.h 
+source/BP3/Ticks.o: source/BP3/MissingMacPrototypes.h
+source/BP3/Ticks.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/Ticks.o: source/BP3/midi1.h source/BP3/-BP2.proto.h
+source/BP3/Ticks.o: source/BP3/-BP2decl.h
+source/BP3/TimeSet.o: source/prefix/PrefixANSIDebug.h
+source/BP3/TimeSet.o: source/BP3/MissingMacTypes.h 
+source/BP3/TimeSet.o: source/BP3/MissingMacPrototypes.h
+source/BP3/TimeSet.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/TimeSet.o: source/BP3/midi1.h
+source/BP3/TimeSet.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
+source/BP3/TimeSetFunctions.o: source/prefix/PrefixANSIDebug.h
+source/BP3/TimeSetFunctions.o: source/BP3/MissingMacTypes.h
+source/BP3/TimeSetFunctions.o: source/BP3/MissingMacPrototypes.h
+source/BP3/TimeSetFunctions.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/TimeSetFunctions.o: source/BP3/midi1.h source/BP3/-BP2.proto.h
+source/BP3/TimeSetFunctions.o: source/BP3/-BP2decl.h
+source/BP3/Zouleb.o: source/prefix/PrefixANSIDebug.h
+source/BP3/Zouleb.o: source/BP3/MissingMacTypes.h 
+source/BP3/Zouleb.o: source/BP3/MissingMacPrototypes.h
+source/BP3/Zouleb.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
+source/BP3/Zouleb.o: source/BP3/midi1.h
+source/BP3/Zouleb.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h

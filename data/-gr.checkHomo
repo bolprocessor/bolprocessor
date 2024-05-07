@@ -1,7 +1,0 @@
-V.2.4
-Date: Dim 29 Aož 1993 -- 12:29
--ho.checkhomo
-S --> (= X) * TR (: X) Y
-X --> a b
-Y --> (= a b) TR * (: b' b)
-

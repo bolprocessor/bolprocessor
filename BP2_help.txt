@@ -1,0 +1,1753 @@
+// This is the help file for Bol Processor BP2 and BP3.
+// When editing it, beware that BP3 looks for prefixes. Therefore, if an item is
+// the prefix of another one then it should precede it in this file.
+### Help 
+• To access on-line help, type cmd-? or select "Help" in the "Action" menu.
+The cursor becomes a question mark.  Select a menu command, click a button or
+select any word or group of words you need information about.
+• In the "Help" text, expressions between quotes are hyperlinks to more entries.
+### What style of music is BP2/BP3 dealing with?
+• BP2/BP3 is not designed for a particular musical style. It stemmed out of formalizing
+    music representation and composition tasks in the context of non-western music, notably
+    North-Indian rhythm. For this reason it focused on text-oriented representations and formal
+    grammmars.  'Bol Processor' originates from the word 'bol' (Hindi/Urdu 'bolna', to speak)
+    designating the onomatopeic names of drum strokes in India.
+• When MIDI output was designed, elementary musical 'gestures' that produced sounds on drums
+    were replaced with "sound-objects", i.e. arbitrary sequences of events encoded as MIDI messages.
+• Simplified sound-objects named "simple notes" have later been introduced to facilitate work
+    with western tonal systems in English, French or Indian "note conventions".
+• BP2/BP3 is now able to deal with polyphony, and does it in a smart way. See "polymetric structures".
+• BP2/BP3 also deals with incomplete representations of polyrhythmic sequences.
+    See "period notation".
+• BP2/BP3 is able to control all MIDI parameters, including continuous parameters such as pitchbend,
+    polyphonic pressure, panoramic, etc.  See "performance controls".
+• BP2/BP3 has interactive features used in the "improvize mode".  It responds to MIDI messages
+    (see "Interactive mode") and to "Apple Events".
+• Thanks to Csound, BP2/BP3 bypasses limitations of MIDI, and takes advantage of both environments.
+    (See "Csound implementation")
+### How does the output of BP2/BP3 look like?
+• There are three representation levels:
+1) The symbolic level, at which music is represented as a TEXT score. This score uses either
+    "simple notes" or "sound-objects" completed with "performance controls".
+    Polyphonic items use "polymetric expressions".
+    Sequences may use the "period notation".
+2) The graphic level, at which "simple notes" or "sound-objects" are shown with their actual
+    physical timings.
+3) The sound level, a flow of MIDI messages sent in real time to a MIDI device, a MIDI
+    file or a Csound score.
+• Output options are set in the "Settings" window.  If "Display items" is checked then
+    musical items are first displayed as text scores.  This is not recommended for long items.
+    If "Show graphics" is checked then graphic scores are displayed while items are played on the
+    MIDI output.  If none is checked then items are played directly, but for each item the option
+    is given to display the text score.
+• A text score may be displayed in graphic and played on the MIDI output: select the text and do
+    "Play selection" in the "Action" menu.
+### How does the input of BP2/BP3 look like?
+• A score in text format may be selected and played on the MIDI output: select "Play selection"
+    in the "Action" menu.  Try it for example on "C5 C5 C5 D5 E5_ D5_ C5 E5 D5 D5 C5_ _ _".
+• Examples of (less trivial) text format scores are stored in '-da' files that may be loaded to
+    the "Data" window.  There are more examples in the enclosed data-base "TryAppleEvents.fm"
+    which may be opened under Claris FileMaker Pro.
+• A grammar is the formal description of a process producing musical text scores which BP2/BP3 is able
+    to play on its MIDI output.  Load for instance '-gr.Mozart' in the "Grammar" window, then
+    type command-R or select "Produce items" in the "Action" window.
+• A script is a sequence of meta-instructions performing all operations automatically in BP2.
+    Scripts are discussed in the initial part ("QuickStart") of the enclosed MS-Word document
+    "BP2 doc - MS Word".
+• MIDI files type 0, 1 or 2 can be imported to create "sound-object prototypes".
+• Csound scores can be imported to create "sound-object prototypes".
+• BP2 responds to input MIDI messages.  See "Interactive mode".
+• BP2 works in a client-server environment. It responds to "Apple Events" that may launch all
+    kinds of processes.  The data-base "TryAppleEvents.fm" is a good illustration of this.
+### Interactive mode
+In this mode, BP2 is able to respond in real time to MIDI messages that are assigned certain tasks.
+Assignments are listed as script instructions in the "Interaction" window.
+    (Open '-in.abc1' to see an example)
+• For instance, instruction
+        IN Param K1 = controller #7 channel 16
+    assigns controller #7 on channel 16 to fix the value of parameter K1.
+    This parameter may control weights in grammar rules, velocities, etc. (see "Variable arguments")
+• Related topic: "Apple Events"
+Contains most commands of BP2. You may document them with the on-line "Help".
+### Variables
+BP2/BP3 recognizes strings starting with an uppercase character as "variables" in grammars
+    or in its glossary. It creates a variable if it is not already there, so be careful
+    with spelling mistakes.
+• You may however start a variable with a lower-case character provided that you write
+    it between |vertical bars|.
+• Variable names may be of any length and may contain any character (standard or
+    extended), digit, or punctuation symbol in the set: \ - _ # @ % $ " % '
+• Examples of well-formed variables:
+      MyNewTrick  Good_enough  |behind_the_bars|  X67$-J  Big@mac  The"new"thing
+      It's_there    De_Noël_à_Pâques
+      Peter-Piper-pick'd-a-pick-of-pickl'd-pepper
+• Related topic: "Terminal alphabet"
+### Polymetric structures
+A structure of "sound-objects" represented as a "polymetric expression".
+### Polymetric expressions
+• An expression denoting a polyphonic or/and polyrhythmic structure of "sound-objects".
+    Example:
+    {C4 D4 E4,G3 E3} (brackets optional) means that "C4 D4 E4" will be played in the same
+    time as "G3 E3".
+• BP2/BP3 manages to adjust durations.  Here, the duration of each beat is determined by the
+    first beat "C4 D4 E4", hence three beats. It will be interpreted:
+      /2 {C4_ D4_ E4_,G3_ _ E3 _ _}
+    yielding the phase diagram:
+        C4 _  D4 _  E4 _
+        G3 _  _  E3 _  _
+• BP2/BP3 uses the same algorithm to deal with polymetric expressions and with "period notation".
+• A polymetric expression can contain another polymetric expression, including expressions in
+    "period notation".
+    Try to play: {C4 D4 E4,{G3,C3} E3} for instance [with "English convention" checked
+        in the 'Misc' menu].
+• Many commented examples will be found in "-da.checkPoly".
+### Undetermined rests
+• These are notated '_rest'.
+    The old notation '…' (be careful: this is a single character, not three periods!)
+    is still valid, but it is not recommended because of character conversion in HTML docs.
+• Undetermined rests are used in fields of "polymetric expressions" or in beats of the
+	"period notation". The interpreter determines their durations as the ones yielding
+	the simplest expanded expression.
+• For instance, the sequence
+       a b c d • e _rest f • g h _rest i     (also notated    a b c d • e … f • g h … i)
+    will be expanded as:
+       a b c d • e - _ f • g h - i
+• Similarly, the polymetric expression
+       {3/2 c d e, _rest f g}       (also notated     {3/2 c d e, … f g})
+    will be expanded as:
+        /2 {- _ _ c _ d _ e _,- _ _ _ _ f _ g _}
+• Each field of a polymetric expression (or each beat of a sequence) may contain
+   several undetermined rest.  (This is a recent feature). In this case, these rests
+   share equal durations.  For instance,
+       {C3 D3 B2, _rest C4 D4 _rest B3}
+   is expanded as:
+       /8 {C3_ _ _ _ _ _ _ D3_ _ _ _ _ _ _ B2_ _ _ _ _ _ _,
+                                     -_ _ C4_ _ _ _ _ D4_ _ _ _ _ -_ _ B3_ _ _ _ _}
+   in which each rest has a duration of 3/8 beats.
+### Period notation
+• Periods are used to indicate 'beats', i.e. sequences of "sound-objects" that are
+    constrained to equal symbolic durations. For instance,
+        {C4 D4 E4 • G3 E3}    (Brackets {} are optional)
+    means that "C4 D4 E4" will be played with the same duration as "G3 E3".
+• The duration of each beat is determined by the first beat "C4 D4 E4", hence three
+	time units. It will be interpreted:
+        /2 C4_ D4_ E4_ • G3_ _ E3_ _
+• BP2/BP3 uses the same algorithm to deal with period notation and with "polymetric expressions".
+    Thus, {C4 D4 E4,G3 E3}  (the period has been replaced with a comma)
+    will be interpreted:
+        /2 {C4_ D4_ E4_,G3_ _ E3_ _}
+    yielding the phase diagram:
+        C4 _  D4 _  E4 _
+        G3 _  _  E3 _  _
+• Many commented examples will be found in example file '-da.checkPoly'.
+### Terminal symbols
+See "Terminal alphabet"
+### Terminal alphabet
+• A 'vocabulary' of arbitrary words (terminal symbols) designating "sound-objects".
+• Each word is defined in the 'alphabet' window saved as '-ho.filename'.
+• A terminal symbol may also be defined at "compile time" if it appears between
+    single quotes in the grammar, or if it is used in an out-time "sound-object":
+        <<iAmAnOutTimeSoundObject>>.
+• A terminal symbol must start with a lower-case character (a..z) or any symbol in the
+    set:
+        ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûüÆæøÀÃÕŒœÿßØµ∂∑∏πΩƒ∆¥#
+• Other characters in a terminal symbol may be any character (a..z, A..Z) or a
+    character in the above set, or characters in additional set:
+        0123456789#%@¢£§◊$®©™\'"†°`´¨≠∞±≤≥ªº¿¡√«»“”‘’÷
+• The above restrictions do NOT apply to terminal symbols defined between single quotes
+    in grammars.
+• You may define relations (homomorphisms) in a given alphabet.  See: "homomorphism".
+• Terminal symbols are mapped to "sound-object prototypes" thanks to the information
+    contained in "-mi.filename".  The name of this file should be inserted on top of the
+    'alphabet' window.
+• BP2/BP3 also recognizes predefined terminal symbols called "simple notes".
+• Related topics: "Variables", "sound-objects".
+### Metavariables
+See "Wild cards"
+### Wild cards
+Symbols '?', '?1', '?2', ... '?n' are used as wild cards in grammar rules.  They may
+    be instantiated as a single "terminal symbol", "simple note", "variable", bracket,
+    "out-time object", "synchronization tag", "time pattern" or "performance control".
+• '?' (an old notation) is equivalent to '?1'.
+• If the expression contains several wild cards '?n', values are checked for pattern
+    matching.  For instance,
+        ?1 ?3 ?2 ?2 ?1 ? ?3
+    may be instantiated as a pattern "xyzzxty" in which occurrences of x, y and z must be
+    identical.
+• The same wildcards may be found in the right argument of a rule.  For instance, the
+    following rule will reverse the order of two (distinct) symbols:
+        ?1 ?2 --> ?2 ?1
+### Compile project
+Compiles current alphabet, grammar, interactive codes and glossary (if any).
+### Compile time
+The time when a grammar is being compiled, or some data is being "tokenized". This may
+    be opposed to "performance time".
+### Tokenized data
+Grammars and musical items are represented with reserved words, "terminal symbols"
+    and variables. Before using them, BP2/BP3 replaces them with tokens, i.e. numeric
+    codes. These codes are not visible to users.
+### Performance time
+The time when a musical item is being played on the sound output. This may be opposed
+    to "compile time".
+### Out-time sound-object
+• It appears between angle brackets: <<this is an out-time sound-object>>.
+• It contains the same sequence of events as an ordinary "sound-object", but its duration
+    is forced to zero.  If its label does not appear in the "Terminal alphabet", a new
+    terminal symbol will be created at "compile time".
+### Null string
+A string representing an empty sequence (of "sound-objects").  You may use
+    "nil", "lambda", "empty" or "null" (without quotes) to designate a null string.  You
+    may also leave the space blank. These are three equivalent notations for the same
+    rule:
+    S --> nil
+    S --> lambda
+    S --> empty
+    S --> null
+    S -->
+### Simple notes
+These are predefined terminal symbols mapped to predefined "sound-objects"
+    containing only a NoteOn / NoteOn pair of MIDI messages.  These "sound-objects"
+    are relocatable and have pivots at their beginnings. They can be rescaled at will,
+    they can be truncated or covered by neighbouring "sound-objects".  Their "pre-roll" and
+    "post-roll" settings are nil.
+• The conventional 440Hz tone may be written 'A4', 'la3' or 'dha4', depending on the
+    note convention set in the 'Misc' menu, and the one in the "Tuning" dialog.
+• See: "English convention", "French convention", "Indian convention","Key numbers".
+### MIDI [Devices menu]
+This menu item can be toggled.  When checked, items produced by the grammar are played
+    using the real-time MIDI output device.
+• This setting is also available in the "Input-output settings" window as "Use MIDI in/out".
+• May be modified with the script commands "Use MIDI OFF" and "Use MIDI ON"
+• Related Topics:  "MIDI format"
+### Use MIDI in/out
+When checked, items produced by the grammar are played using the real-time MIDI
+    output device.
+• This setting is also available in the 'Devices' menu as "MIDI".
+• May be modified with the script commands "Use MIDI OFF" and "Use MIDI ON"
+• Related Topics:  "MIDI format"
+### Use MIDI OFF [Script command]
+Turns off real-time MIDI output.  See "Use MIDI in/out".
+### Use MIDI ON [Script command]
+Turns on real-time MIDI output.  See "Use MIDI in/out".
+### Tuning dialog
+This dialog makes it possible to modify the MIDI keyboard mapping and diapason
+    reference used by Csound.
+• Usually, key 60 is assigned to C4 (do3 in French, sa4 in Indian), but some MIDI programs,
+    notably old versions of BP2/BP3, use alternate note names such as C5 (do4).
+• The diapason value has no effect on the MIDI output.  Its is used by Csound for
+    instruments requiring a "cps (Hz)" format for pitch.
+### Csound
+Displays the Csound score attached to this "sound-object prototype".
+### Csound tuning
+See "Tuning dialog".
+### A4 / la3 / dha4 frequency is
+See "Tuning dialog".
+### MIDI mapping
+See "Tuning dialog".
+### C4 / do3 / sa4  is MIDI key
+See "Tuning dialog".
+• A4 is conventionally 440Hz but you may want to change it if your Mac gets too hot :-)
+### Relocatable sound-object
+A "sound-object" that may be relocated by the "time-setting algorithm".
+### Sound objects
+See "Sound-objects"
+### Sound-objects
+See the reference manual and publications.
+• In short, a sound-object in BP2/BP3 is a sequence of 'elementary' events, such as MIDI
+    or Csound instructions.
+• A typical simple sound-object is a "simple note", i.e. a NoteOn/NoteOff
+    pair on the same MIDI key and channel.
+• Sound-objects are designated by "terminal symbols". Each object is mapped to
+    a unique "sound-object prototype" bearing the same name, which defines its metric
+    and topologic properties.  (See reference manual).
+### Sound-object prototypes
+These contain information about "sound-objects" bearing the same name: the list of
+elementary events, and metric and topologic properties used by the "time-setting algorithm".
+• Elementary events may be MIDI events, Csound events, or both.
+### Time-setting algorithm
+An algorithm used by BP2/BP3 to calculate the timings of elementary events (e.g.
+   MIDI or Csound events) in a musical item. It takes into account the properties of
+    "sound-objects" (defined by their "sound-object prototypes") and may relocate or
+    truncate objects in order to satisfy all constraints arising therefrom.
+### Homomorphism
+This is an optional relation on the "terminal alphabet" used by a grammar. It is
+    defined over all the terminal symbols and identified by a label. For
+    instance, let us call TRANS the one-semitone upward transposition in an alphabet of
+    notes. The alphabet file (saved as "-ho.mynotes") would begin like this:
+        TRANS
+        do0 --> do#0 --> re0 --> re#0  etc... --> si9
+• If a "terminal alphabet" uses no homomorphism then arrows "-->" should of course not
+    be found.
+• You can define several homomorphisms in the same alphabet. Separate them by lines
+    of hyphens (just like "subgrammars").
+• If an homomorphism has been declared, the last terminal of a line is mapped to
+    itself, unless it is defined cyclically. In the example above it would mean that
+    si9 --> si9.  But we could as well use a cyclic definition:
+        do0 --> do#0 --> re0 --> re#0  etc... --> si9 --> do0
+### Derivation mode
+See "Subgrammar type" and "Rule derivation mode"
+### Subgrammars
+A grammar may be "sliced" in several subgrammars that will be applied successively
+    to the "work string" for producing derivations.  A new subgrammar is applied only
+    once there is no more candidate rule in the current subgrammar. You may however
+    bypass this rule by using jumps like _goto() or _failed().
+• In analysis (parsing) mode, subgrammars are applied in the reverse order.
+### Subgrammar type
+The strategy followed by the "inference engine" to produce or analyze an item using
+    the rules of this "subgrammar". See: "RND", "ORD", "LIN", "SUB", "SUB1".
+### Inference engine
+The term is borrowed from expert systems. It designates the process by which rules
+    in a grammar are selected and and applied by the "work string".  The inference engine
+    may perform a "production" (starting from a start string, usually 'S') or a
+    "membership test" (analysis, parsing) assessing whether a given string belongs to
+    the language generated by the grammar.
+• "Production" is also called "modus ponens", and analysis "modus tollens", but this
+    terminology is more appropriate for inference engines based on logical inference.
+### Production
+See "Inference engine".
+### Analysis
+See "Inference engine".
+### Parsing
+See "Inference engine".
+### Rule derivation mode
+In "production", there are three derivation modes for rules in a "subgrammar":
+• RND (default mode): the position of the derivation is choosen randomly
+    in the "work string";
+• LEFT: the position of the derivation is the leftmost occurrence of the left argument
+    of this rule;
+• RIGHT: the position of the derivation is the rightmost occurrence of the left argument
+    of this rule;
+• If a "subgrammar" is of "LIN" type then all rules are applied in "LEFT" mode.
+### Programmed grammars
+See "flags"
+### Flags
+Flags are integer global variables indicating particular states during production by
+    a grammar.  This is a generalisation of "programmed grammars".
+• A rule like: X --> a /myflag/
+    creates a flag labelled 'myflag' and set its value to 1.
+• A rule like: /myflag/ X --> a
+    will only be candidate if 'myflag' has previously be created and its value is positive.
+• Unlike in previous versions of BP2, the flag value is not modified unless specified:
+        /myflag - 1/ X --> a
+• Flags may be positive or negative in range [-32768,32767].
+• Flag names may contain up to 30 characters.  Any character may be used except:
+    / + - = < > ≤ ≥ ≠  and tabulations or spaces
+• Other flag features:
+X --> a /myflag +3/   increments the value of 'myflag' by 3 units.
+X --> a /myflag -5/   decrements the value of 'myflag' by 5 units.  Negative values
+    are accepted.
+X --> a /myflag = 3/   assigns 3 to 'myflag'.
+/myflag +3/ X --> a   checks that 'myflag' is positive, and if so, makes the rule
+    candidate.  When the rule is fired, the value of 'myflag' is incremented by 3 units.
+/myflag -5/ X --> a   checks that 'myflag' is positive, and if so, makes the rule
+    candidate.  When the rule is fired, the value of 'myflag' is incremented by 5 units.
+/myflag = 3/ X --> a   checks that 'myflag' is equal to 3, and if so, makes the rule
+    candidate.
+/myflag ≠ 3/ X --> a   checks that 'myflag' is unequal to 3, and if so, makes the rule
+    candidate.
+/myflag < 3/ X --> a   checks that 'myflag' is smaller than 3, and if so, makes the rule
+    candidate.
+/myflag > 3/ X --> a   checks that 'myflag' is greater than 3, and if so, makes the rule
+    candidate.
+/myflag ≤ 3/ X --> a   checks that 'myflag' is smaller or equal to 3, and if so, makes
+    the rule candidate.
+/myflag ≥ 3/ X --> a   checks that 'myflag' is greater or equal to 3, and if so, makes
+    the rule candidate.
+• Be careful that '=' is the assignment operator if found in the right argument of a
+    rule, and a comparison operator otherwise.
+• A rule may contain several flag conditions, e.g.:
+        /myflag ≥ 3/ /myflag < 20/ /otherflag = 4/ X --> a
+• In assignments and comparisons, numbers may be replaced with other flags
+    or global variables K1, K2, etc., e.g.:
+    X -->    a   /flag1 = K1/ /flag2 = flag1/
+    /flag1 > K19/   X    -->    b
+    /flag2 ≠ flag3/ X     -->    c
+• See for example '-gr.tryflag', '-gr.tryflag2', '-gr.tryflag3'
+• Note: flag syntax is likely to evolve but it will remain consistent with this one.
+### BP grammar
+See "true BP grammar"
+### RND [Subgrammar type or rule derivation mode]
+• As a "subgrammar" type, it means that when producing an item rules may be used in
+    a random order.  When analysing an item, RND works like ORD.
+• As a rule derivation mode, it means that the position of the derivation, when
+    producing items, may be choosen randomly. In parsing mode (analysis), position is
+    tried from right to left. (See rightmost context-sensitive derivation in publications)
+### LEFT [Rule derivation mode]
+When producing an item, this rule will be applied to the leftmost occurrence of
+    the left argument in the "work string". In parsing mode, the rightmost occurrence
+    of the right argument will be searched.
+### Work string
+The string representing the musical item being processed by the grammar. In "production"
+    mode, it starts with the start string 'S'.  In analysis (parsing) mode, it starts
+    with the string under analysis.
+### RIGHT [Rule derivation mode]
+When producing an item, this rule will be applied to the rightmost occurrence of
+    the left argument in the "work string". In parsing mode, the leftmost occurrence
+    of the right argument will be searched.
+### ORD [Subgrammar type]
+A "subgrammar" the rules of which should be applied in (top-down) order in "production",
+    and bottom-up order in analysis (parsing).
+• Each rule is applied repeatedly until it is no longer candidate. There is no random choice.
+### LIN [Subgrammar type]
+A "subgrammar" using (context-sensitive) leftmost derivation in "production", and
+    (context-sensitive) rightmost derivation in analysis.  See reference manual and
+    related publications.
+### SUB [Subgrammar type]
+A "subgrammar" using (context-sensitive) substitutions.
+    A substitution is the simultaneous application of all candidate
+    rules in the "subgrammar".
+• This type works in "production" mode only.
+### SUB1 [Subgrammar type]
+Similar to SUB, but substitutions are performed only once.
+• This type works in "production" mode only.
+• This type is notably used in a "glossary".
+### POSLONG [Subgrammar type]
+A "subgrammar" in which the candidate rule is selected for the (1) leftmost and (2) longest occurrence
+    of its left argument in the "work string".
+• This type works in "production" mode only.
+• If several rules are candidate the uppermost one is selected. There is no random choice.
+### Glossary
+• A glossary is a special "subgrammar" that is applied to the "work string" just before
+    it is played on the MIDI outup or displayed on the graphic window.  A convenient
+    use of glossary is to define instructions that are particular to the sound system.
+• For instance, -gl.GeneralMIDI contains the code needed to select sound 'patches' on
+    any synthesizer in the "General MIDI" standard.
+### TEMPLATES: [Subgrammar type]
+A list of 'templates' used by a true BP grammar. See reference manual.
+### REC
+Starts/stops recording actions as a script (in the script window).
+### _randomize
+A "grammar procedure" or a "tool".
+• On top of a "subgrammar", it picks up an arbitrary seed for the sequence of random numbers
+	so that all subsequent random choices become unpredictable.
+	This is equivalent to clicking the "New seed" button in the "Random sequence" dialog,
+	or calling "Randomize" in a script.
+• If "_randomize" is found in an item being played, the sequence of random numbers is
+    shifted to an arbitrary position, causing unpredictable choices to occur in "_rndseq",
+    "_rndtime", etc.
+• The effect of "_randomize" is cancelled by "_srand".
+• Related topics: "_srand", "Randomize", "Reset random sequence", "Set random seed",
+    "New seed".
+### _goto(igram,irul) [Grammar procedure]
+This procedure is found in the right argument of a rule.
+• _goto(igram,irul) will cause BP2/BP3 to jump to "subgrammar" igram, rule irul, when the rule
+    that contains it has been applied.  If (igram,irul) does not point at a candidate rule,
+    BP2/BP3 will either execute a "_failed" conditional jump or search a candidate rule in
+    subgrammar igram.  If none is found it will jump to subgrammar igram+1, etc. as usual.
+• _goto(igram,0) causes to jump to "subgrammar" igram and go on selecting rules according to the
+    subgrammar type.
+### _failed(igram,irul) [Grammar procedure]
+This procedure is found in the right argument of a rule.
+• A conditional jump to another "subgrammar" or another specific rule in a
+    "subgrammar".  Its syntax is: _failed(igram,irul) in which igram and irul have the
+    same meanings as in "_goto".
+• The jump will be performed if the rule was selected by a preceding "_goto" or "_failed"
+    and it is not a candidate rule.
+### _repeat(n) [Grammar procedure]
+This procedure is found in the right argument of a rule.
+• Indicates that the current rule should be tried n times.
+• Alternate syntaxes are _repeat(Kx) and _repeat(Kx = n) where Kx is a parameter
+    that may be assigned a fixed value (Kx = n) and/or controlled in real time by an
+    external MIDI device.
+### _stop [Grammar procedure]
+When encountered in "production", forces production to pause
+### _printOn [Grammar procedure]
+When encountered in "production", starts the display of various stages of the "work string"
+    in the "Trace" window
+### _printOff [Grammar procedure]
+Cancels the effect of "_printOn"
+### _print [Grammar procedure]
+When encountered in "production", displays the "work string" in the "Trace" window
+### _stepOn [Grammar procedure]
+When encountered in "production", starts the "step-by-step" mode
+### _stepOff [Grammar procedure]
+Cancels the effect of "_stepOn".
+### _traceOn [Grammar procedure]
+When encountered in "production", starts displaying various stages of the "work string"
+and traces of all applied rules
+### _traceOff [Grammar procedure]
+Cancels the effect of "_traceOn".
+### _destru [Grammar procedure]
+When encountered in "production", destroys the structure of the "work string", notably
+    removing parentheses indicating repetitions
+### _mm(x) [Grammar procedure]
+Sets up the metronome to the 'x' value (in beats per minute)
+• This is also a "performance control"
+• _mm() should not be used more than once in a selected item or in a grammar, failing to
+   which the latest value will be used.
+### _srand(x) [Grammar procedure or performance control]
+Sets the random generator's seed to 'x' and resets the random sequence.
+• On top of a grammar, resetting will take place during computation, before any rule of
+    the grammar is applied.
+• If placed just before "_rndseq", _srand will force the order of the sequence to a preset
+    one that depends on the value of 'x'.
+• Values of 'x' are arbitrary, use them only to mark identical sequences or derivations in
+    grammars.  The range is 0..32767.
+• The effect of _srand(x) is cancelled by "_randomize".
+• Using _srand(x) is a proper way of repeating random patterns. However, it is not
+    certain that these patterns will remain the same ones each time BP2/BP3 is run.
+    Sequences of random choices depend on machines, system versions, BP2/BP3 versions,
+    and the grammar itself.
+• Related topics: "_randomize", "Randomize", "Reset random sequence", "Set random seed",
+    "New seed".
+### OFF (quantization)
+Cancels the effect of ON (quantization).
+### ON (quantization)
+When checked, BP2/BP3 will use the quantization setting (in milliseconds) to simplify
+    tables containing "sound-object" structures (the phase diagram, see manual).
+• The result is a saving of memory space and "computation" time making it possible to
+    compute very complex items.
+### _script(scriptline) [Performance control]
+The script line will be executed at "performance time". Note that the line may be
+    a call to another script, etc.
+### _scale(name,blockkey) [Performance control]
+If microtonal scales have been defined in the Csound instruments file, they can be selected as follows:
+• By default, a 12-tone equal-tempered scale is used.
+• "name" is the label of the scale, by default "scale_1", "scale_2" etc. (no space)
+• "blockkey" specifies the key of the note whose frequency should always match equal-temperament. For instance, if blockkey = 69 then 'A4' will stick to diapason (A4 frequency). Default value of 'blockkey' is stored in the settings.
+• If blockkey is 0 in a _scale() statement, it is set to its value found in the settings or by default 60.
+• In a _scale() statement, blockkey may be specified as a note, e.g. 'G4', instead of a key number. Beware of using the same note convention as in the grammar...
+• _scale(0,blockkey) will reset the scale to equal-tempered, in which case 'blockkey' is irrelevant.
+• If exactly 1 scale has been loaded from the Csound instruments file, it will be used by default, i.e. even if no _scale(name,blockkey) instruction is used.
+• Values of 'scale' and 'blockkey' are carried through fields of polymetric expressions and not influenced by _chan() nor 
+### MIDI format
+Musical Instrument Digital Interface: a standard for communications between between
+    computers and electronic musical instruments.
+### Csound format
+• Csound uses two text files as an input: an 'orchestra' file describing sound production
+    procedures (a set of virtual instruments), and a 'score' file describing sound events.
+• BP2/BP3 (above version 2.6.2) produces Csound score files using its own representation
+    of musical items, grammars and scripts, and a minimum amount of information about
+    the arguments expected by instruments in the Csound orchestra file.
+• Related topic: "Csound implementation"
+### Delete «unsigned» chars [Script command]
+Deletes specified number of chars in current edit window
+### Expand selection window «windowname»
+Displays selected "polymetric structure" as interpreted by BP2/BP3.
+• Two equivalent interprations are displayed.  The first one is the most compact
+    representation (the one used internally by BP2/BP3).  The second one is the complete
+    expression, containing no explicit "tempo marker".  The first expression may
+    imply a rescaling.
+• For instance,
+                                   {a b,c d e}
+    is interpreted:
+        [Rescaled, "dilation ratio" = 2] /2 {a b, /3 c d e}
+                                         /3 {a_ _ b_ _,c_ d _ e_}
+• This is also a script command.
+### Show periods
+Rewrites the selection taking into account the "section header".
+### Section headers
+If a, b, c are sound objects, a sequence may be notated:
+    3+4+2/4 abbabccabcca /3 abcccbaab /1 bbb
+• Expression "3+4+2", called the "section header", means that sections of the meter
+    contain 3, 4 and 2 beats.
+• The musical example starts at speed 4, goes on at speed 3 and ends up at speed 1.
+• If "Show periods" is applied to this item, the new display will be:
+    abba.bcca.bcca.¬
+    abc.ccb.aab.b.¬
+    b.b
+• Thus, periods indicate beat delimitations and line breaks '¬' sections.
+• Note that there must be a period before a line break, otherwise the last beat would be
+    merged with the first one of the next line.
+• The old notation "3/4/2/4 abbabccabcca /3 abcccbaab /1 bbb" is no more valid.
+### French convention
+Use French names of notes: dob, do, do#, reb, re, re#, mib, mi, mi#, fab, fa, fa#, solb,
+    sol, sol#, lab, la, la#, sib, si, si# and octave numbers such that la3 = 440 Hz.
+• Related topic: "Tuning"
+### English convention
+Use English names of notes: Cb, C, C#, Db, D, D#, Eb, E, E#, Fb, F, F#, Gb, G,
+    G#, Ab, A, A#, Bb, B, B# and octave numbers such that A4 = 440 Hz
+• Related topic: "Tuning"
+### Indian convention
+Use Indian names of notes: sab, sa, sa#, reb, re, re#, gab, ga, ga#, mab, ma, ma#, pab,
+pa, pa#, dhab, dha, dha#, nib, ni, ni# and octave numbers such that dha4 = 440 Hz.
+• Related topic: "Tuning"
+### Key numbers
+Use MIDI key numbers to represent notes, for example 'key#60' is middle C.
+• Related topic: "Tuning"
+### Note conventions
+Conventions used for writing "simple notes".
+• Related topics:
+    "Note convention = English"
+    "Note convention = French"
+    "Note convention = Indian"
+    "Note convention = key numbers"
+    "Tuning"
+### Quantization «long» milliseconds [Script command]
+The minimum significant duration. It is convenient to set quantization to the largest
+    acceptable value in order to save "computation" time and space.
+• Note that quantization in BP2/BP3 has no effect on long-term accuracy.
+### Quantize OFF [Script command]
+Cancels the effect of "Quantize ON".
+### Quantize ON [Script command]
+See "Quantization".
+### Reset random sequence  [Script command]
+Reseeds the random number generator with the value specified by "Set random seed"
+• Related topics: "_srand", "_randomize", "Randomize", "Set random seed", "New seed".
+### Run script «filename» [Script command]
+Runs the specified script, if found on the disk in current directory.
+### _smooth
+• Related topic: "Smooth time"
+### Smooth time [Script command]
+Sets time to smooth.  (See the "Metronome" dialog)
+• This means that time streaks will not be generated by the metronome, but by the
+   first sequence of objects. This is often associated with "time patterns".
+• Related topic: "Striated time"
+### _striated
+• Related topic: "Striated time"
+### Striated time [Script command]
+Sets time to striated.  (See the "Metronome" dialog)
+• This means that the metronome will generate time streaks on which the pivots of
+    "sound-objects" may be placed.
+• Related topic: "Smooth time"
+### Tempo «long» ticks in «long» secs [Script command]
+Sets the time base to specified values.  (See the "Time base" dialog.)
+### Time resolution «long» milliseconds [Script command]
+Sets time resolution to specified value.  (See the "Time accuracy" dialog.)
+### Type «line» [Script command]
+When this script is executed, «line» is printed in the window previously selected by
+   script instruction "Activate window".
+• "Type <return>" inserts line feeds.
+### Wait for «key stroke or MIDI event» [Script command]
+To define the wait event, the easiest is to check 'REC' in the script window,
+    then click 'WAIT FOR:'.
+• Examples of correct syntax:
+    Wait for g -- waiting for key 'g' to be depressed
+    Wait for cmd-r -- waiting for command 'r' to be depressed
+    Wait for Eb4 channel 1 -- waiting for a NoteOn on the MIDI input, key E flat,
+        octave 4, channel 1
+    Wait for mib3 channel 16 -- identical to the third one, in French convention
+    Wait for space -- waiting for the space bar to be depressed
+    Wait for Start -- waiting for a 'Start' MIDI message
+    Wait for Continue -- waiting for a 'Continue' MIDI message
+    Wait for Stop -- waiting for a 'Stop' MIDI message
+• Clicking the mouse exits any the wait loop.
+### Split terminal symbols
+When checked, inserts spaces between terminal symbols in items produced by the grammar.
+### Split |variables|
+When checked, marks variables with vertical lines in items produced by the grammar.
+• This is only useful with black and white display.
+### Time patterns
+Sequences of time intervals characterized by precise ratios, to be used in "smooth time".
+• These are processed like (codeless) "sound-objects". They are usually put together in
+    the first field of a "polymetric expression".
+• Type them at the bottom of a grammar or alphabet.
+• Example:
+    TIMEPATTERNS:
+    t1= 1/1  t2 = 3/2   t3 = 4/3 
+    t4  = 1/2
+    -----------------------
+• Time patterns always start with 't' followed with digits.  Expressions may contain an
+    integer or an integer ratio.  An example of polymetric expression using these time
+    patterns is: {t1 t3 t4, do5 re5 mi5 fa5 - la5}  (See project '-gr.tryTimePatterns')
+### _chan(x) [Performance control]
+Sets current channel to x.
+• Range of x is 1..16
+• The argument may also be Kx.  See "variable arguments".  In this case it may be
+    controlled by a MIDI device during the performance.
+### _ins(x)
+Sets current Csound instrument to x.
+• Range of x is 0..127
+• x may also be the name of the instrument as defined in the "Csound instrument file".
+• The argument may also be Kx.  See "variable arguments".
+### _vel(x) [Performance control]
+Sets velocity of following "sound-object" to x.
+• Range of x is 0..127
+• The argument may also be Kx.  See "variable arguments".  In this case it may be
+    controlled by a MIDI device during the performance.
+### _rndvel(x) [Performance control]
+Assigns random fluctuations in range +/- x to the velocities of following "sound-objects"
+    or "simple notes".
+• Range of x is 0..64
+• The argument may also be Kx.  See "variable arguments".  In this case it may be
+    controlled by a MIDI device during the performance.
+• Related topics: "_rndtime", "_srand".
+### _rndtime(x) [Performance control]
+Assigns random fluctuations in range +/- x to the timings of following "sound-objects"
+    or "simple notes".
+• 'x' is the fluctuation in milliseconds.
+• Range of x is 0..32767.  Values less than the "quantization" will produce no effect.
+• Related topics: "_rndvel", "_srand".
+### _velcont [Performance control]
+Indicates that velocity should change continuously. [Equivalent to "_velstep" in
+    current version]
+### _velstep [Performance control]
+Indicates that velocity should change stepwise between two specified values.
+### _script(x) [Performance control]
+Indicates that script line 'x' should be executed just before the next "sound-object"
+    or "simple note" is played.
+### _mod(x) [Performance control]
+Indicates that modulation should be set to x.
+### _modstep [Performance control]
+Indicates that modulation should change stepwise between two specified values.
+### _modcont [Performance control]
+Indicates that modulation should change continuously.
+• See "Continuous performance control"
+### _pitchbend(x) [Performance control]
+Controls pitchbend in two possible ways. If _pitchrange(r) is not specified or is null
+    for the current MIDI channel, then x is the actual MIDI value (range 0..16383).
+• If _pitchrange(r) is specified, then x is the correction in cents.
+    (Also see "_pitchrange")
+### _fixed [Performance control]
+_fixed(param) indicates that "Performance parameter" 'param' does not vary.
+• This is the default setting for any performance parameter.
+• Related topics: "_step", "_cont", "_value", "Performance parameter".
+### _step [Performance control]
+_step(param) indicates that "Performance parameter" 'param' varies stepwise.
+• Related topics: "_fixed", "_cont", "_value", "Performance parameter".
+### _cont [Performance control]
+_cont(param) indicates that "Performance parameter" 'param' varies continuously.
+• The default setting for any performance parameter is stepwise.
+• Related topics: "_fixed", "_step", "_value", "Performance parameter".
+### _value [Performance control]
+_value(param,x) assigns numeric value 'x' to "Performance parameter" 'param'.
+• The value may be an integer or floating-point relative number.
+• In the present version only 256 '_value(…,x)' statements can be handled with
+    different 'x' values.
+• Related topics: "_fixed", "_step", "_cont", "Performance parameter".
+### Performance parameter
+Up to 256 parameters with arbitrary names may be handled by BP2 apart from the
+    predefined ones: pitchbend, pressure, modulation, etc. which generate
+    MIDI messages and Csound events.
+• An arbitrary parameter is automatically created when refered to in a "_value", "_fixed",
+    "_cont" or "_step" statement.
+• These parameters have no effect on the MIDI output.  A parameter is used by a Csound
+    instrument if its name is found as a "Parameter name" in the Csound instrument
+    description.
+    (See "Csound instruments" in the "Ouput" menu and click the "MORE…" button)
+• If a sequence of sound-objects or simple notes is preceded with '_cont(param)',
+    the parameter 'param' will be interpolated as explained in
+    "Continuous performance control".  In this case, it advisable to use two
+    indexes for passing the start and end values over to the instrument.
+    (See "Start index" and "End index")
+• A typical expression containing a variable parameter named 'blurb':
+    _cont(blurb) _value(blurb, 154.2) A4 B4 C4 _value(blurb, -21) D4
+• Related topics: "_fixed", "_step", "_cont", "_value", "Parameter name".
+### _pitchstep [Performance control]
+Indicates that pich should change stepwise between two specified values.
+### _pitchcont [Performance control]
+Indicates that pich should change continuously between two specified values.
+• See "Continuous performance control"
+### _press(x) [Performance control]
+Controls channel pressure on current channel.
+• Range of x is 0..127
+• The argument may also be Kx.  See "variable arguments".
+### _presstep [Performance control]
+Indicates that channel pressure should change stepwise between two specified values.
+### _presscont [Performance control]
+Indicates that channel pressure should change continuously between two specified values.
+• See "Continuous performance control"
+### _switchon(i,c) [Performance control]
+Sets controller i to 127 on channel c. For instance, if controller 64 is the hold
+    pedal, this command will have the same effect as pushing the pedal.
+• The range for 'i' is 64 to 95.
+### _switchoff(i,c) [Performance control]
+Sets controller i to 0 on channel c. For instance, if controller 64 is the hold pedal,
+    this command will have the same effect as releasing the pedal.
+• The range for 'i' is 64 to 95.
+### _volumestep [Performance control]
+Indicates that volume should change stepwise between two specified values.
+### _legato(x) [Performance control]
+Indicates that durations of notes in the following sequence will be increased by x% to produce legato effect.
+### _staccato(x) [Performance control]
+Indicates that durations of notes in the following sequence will be decreased by x% to produce staccato effect.
+### _articulstep [Performance control]
+Indicates that articulation (legato-staccato) of notes in the following sequence should change stepwise between two
+specified values.
+### _articulcont [Performance control]
+Indicates that articulation (legato-staccato) of notes in the following sequence should change continuously between two
+specified values.
+### _velfixed [Performance control]
+Cancels the effect of _velcont or _velstep.
+### _modfixed [Performance control]
+Cancels the effect of _modcont or _modstep.
+### _pitchfixed [Performance control]
+Cancels the effect of _pitchcont or _pitchstep.
+### _pressfixed [Performance control]
+Cancels the effect of _presscont or _presstep.
+### _volumefixed [Performance control]
+Cancels the effect of _volumecont or _volumestep.
+### _articulfixed [Performance control]
+Cancels the effect of _articulcont or _articulstep.
+### _panfixed [Performance control]
+Cancels the effect of _pancont or _panstep.
+### _pitchrange(x) [Current channel] [Performance control]
+Sets the range of pitchbend control to ± x cents on the current channel. This value
+    should reflect the range on the current 'patch' of the MIDI expander.
+• For instance, _pitchrange(300) means that pitch modifications will be in the range of
+    three semitones above and below the average value.
+• Once _pitchrange(x) has been specified on a MIDI channel, subsequent _pitchbend(y)
+    messages indicate pitch corrections in cents, with y varying between -x and +x.
+    "_pitchrange(0)" [default value] indicates that subsequent _pitchbend(y) messages
+    on the current MIDI channels take the actual MIDI value for y (range 0..16383).
+### _transpose(x) [Tool]
+Transposes notes 'x' semitones higher in the remaining part of the sequence.
+• 'x' may also be negative or decimal (down to +/- 0.01).
+• Transposition is clipped to the MIDI octave range.
+• Transposition is also effective on "sound-objects" whose property "Accept transposition"
+    is set to TRUE.
+• Transpositions are cumulated over polymetric expressions.
+    For instance,
+        _transpose(-12) {_transpose(2) A3 _transpose(4) D4}
+    will produce the same output as:
+       _transpose(-10) A3 _transpose(-8) D4
+• _transpose(Kx) is no longer licit.
+### _transposecont [Tool]
+Following "_transposecont", "_transpose(x)" values are interpolated.
+• Try for instance:
+    _transposecont _transpose(0) C4 C4 C4 C4 C4 C4 C4 C4 C4 C4 C4 _transpose(12) C4
+• "_transposecont" is cancelled by "_transposefixed".
+• In the current version, "_transposecont" and "_transposestep" are equivalent.
+### _transposestep [Tool]
+See "_transposecont".
+### _transposefixed [Tool]
+Cancels the effect of "_transposecont" or "_transposestep".
+### _pitchrate(x) [Current channel]  [Performance control]
+Sets the rate of continuous change of pitchbend to x samples per second.
+### _modrate(x) [Current channel]  [Performance control]
+Sets the rate of continuous change of modulation to x samples per second.
+### _pressrate(x) [Current channel]  [Performance control]
+Sets the rate of continuous change of channel pressure to x samples per second.
+### _volumerate(x) [Current channel]  [Performance control]
+Sets the rate of continuous change of volume to x samples per second.
+### _panrate(x) [Current channel]  [Performance control]
+Sets the rate of continuous change of panoramic controller to x samples per second.
+### _volume(x) [Performance control]
+Controls volume on the current channel (range 0 to 127). The default controller is MIDI
+    controller #7 and may be changed by _volumecontrol(). Default value is 90 (as per General
+    MIDI specs).
+• If button "Reset controllers" is checked on the "Settings" dialog, volumes on
+    all channels are reset to default value once an item has been played.
+• Range of x is 0..127
+• The argument may also be Kx.  See "variable arguments".  In this case it may be
+    controlled by a MIDI device during the performance.
+### _pan(x) [Performance control]
+Controls panoramic on the current channel (range 0 to 127). The default controller is
+    MIDI controller #10 and may be changed by _pancontrol(). Default value is 64.
+• If button "Reset controllers" is checked on the "Settings" dialog, panoramics on
+    all channels are reset to default value once an item has been played.
+• Range of x is 0..127
+• The argument may also be Kx.  See "variable arguments".  In this case it may be
+    controlled by a MIDI device during the performance.
+### _volumecont [Performance control]
+Indicates that volume should change continuously between two specified values.
+• See "Continuous performance control"
+### _panstep [Performance control]
+Indicates that panoramic should change stepwise between two specified values.
+### _pancont [Performance control]
+Indicates that panoramic should change continuously between two specified values.
+• See "Continuous performance control"
+### _volumecontrol(x) [Current channel]  [Performance control]
+Informs BP2/BP3 that MIDI controller x controls the volume (on the current channel).
+• Default value is 7, in agreement with "General MIDI" specs.
+### _pancontrol(x) [Current channel]  [Performance control]
+informs BP2/BP3 that MIDI controller x controls the panoramic (on the current channel).
+• Default value is 10, in agreement with "General MIDI" specs.
+### Wait for:
+When in RECording script mode, this allows you to enter a script line
+    "Wait for «key stroke or MIDI event»" interactively.
+### Execute
+Execute the script displayed in the script window, if any.
+### Reset controllers [Settings dialog]
+Resets switches, pitch benders, modulation, channel pressure, panoramic and volume
+    on all channels once an item has been played. This option is recommended although it may
+    be time consuming.
+• Note that BP2/BP3 keeps track of the channels on which controllers
+    have been changed, so normal reset will only occur on those channels. (Consequently,
+    if a controller has been changed by another device than BP2, it may not be reset
+    properly.)  However, general reset is forced when invoking "Produce items" if this
+    option is checked.
+• From version 2.7.4 onward, only those switches that have explicitly be changed by "_switchon"
+    are reset.
+### Reset controllers OFF [Script command]
+Cancels "Reset controllers ON".
+### Reset controllers ON [Script command]
+Resets pitch benders, modulation, channel pressure and volume on all channels
+before an item is played. This option is recommended.
+### Reset rule weights
+Resets weights in grammar to original values before producing a new item.
+### Reset rule weights OFF [Script command]
+Cancels the effect of "Reset rule weights ON".
+### Reset rule weights ON [Script command]
+See "Reset rule weights".
+### Reset rule flags
+Resets "flags" in grammar to 'zero' before producing a new item.
+### Reset rule flags OFF [Script command]
+Cancels the effect of "Reset rule flags ON".
+### Reset rule flags ON [Script command]
+See "Reset rule flags".
+### Non-stop improvize
+Allows BP2/BP3 to produce unlimited number of items with the same grammar.
+### Non-stop improvize OFF [Script command]
+Cancels the effect of "Non-stop improvize ON".
+### Non-stop improvize ON [Script command]
+See "Non-stop improvize".
+### Cyclic play
+Allows the same item to be repeated forever.
+### Cyclic play OFF [Script command]
+Cancels the effect of "Cyclic play ON".
+### Cyclic play ON [Script command]
+See "Cyclic play".
+### Use each substitution
+When SUB "subgrammars" are used, allows BP2/BP3 to play items produced after each substitution.
+    (See "-gr.koto3" for instance)
+### Use each substitution OFF [Script command]
+Cancels the effect of "Use each substitution ON".
+### Use each substitution ON [Script command]
+See "Use each substitution".
+### Produce all items
+Produces all items generated by grammar.
+### Produce all items OFF [Script command]
+Cancels the effect of "Produce all items ON".
+### Produce all items ON [Script command]
+Produces all items generated by grammar.
+### Display production
+Displays all steps of the "production" in the "Trace" window.
+### Step-by-step produce
+Displays all steps of the "production" in the "Trace" window, and allows BP2/BP3 to pause.
+### Step subgrammars
+Allows BP2/BP3 to pause each time a "subgrammar" has been used entirely in "production".
+### Trace production
+Displays all steps of the "production" in the "Trace" window along with decisions
+    taken while producing an item.
+### Choose candidate rule
+Allows user to produce items by choosing candidate rules manually.
+### Display items
+Allows the display of item(s) produced by the grammar. This option should be OFF if
+    items are very complex.
+### Display items OFF [Script command]
+Cancels the effect of "Display items ON".
+### Display items ON [Script command]
+See "Display items".
+### Show graphics
+Displays items on the graphics window before playing them on the MIDI output.
+• This option should be OFF if items are very complex.
+### Show graphics OFF [Script command]
+Cancels the effect of "Show graphics ON".
+### Show graphics ON [Script command]
+See "Show graphics".
+### Use time limit
+Uses specified time limit, if any, to perform "computations".
+### Use time limit OFF [Script command]
+Cancels the effect of "Use time limit ON".
+### Use time limit ON [Script command]
+See "Use time limit".
+### Computations
+Computation comprizes:
+• the "production" of an item by a grammar, or the interpretation
+    of text selection as a musical item;
+• the expansion of the item as a "polymetric expression"
+• the "time-setting" of the expanded expression.
+### New seed (Random sequence)
+Creates an arbitrary new seed that will be used for random generation. This is the
+    'randomize' procedure used by programmers. The new seed will be displayed and may
+    be reused to produce exactly the same sequence (with exactly the same grammar).
+• This reseeding can be automated if the "_randomize" procedure is placed on top of
+    a grammar.
+• Related topics: "_srand", "_randomize", "Randomize", "Reset random sequence",
+    "Set random seed".
+### Rule arrows
+<-> --> and <-- are the three derive modes in grammars.
+--> means that the rule may be used in "production" only
+<-- means that it is to be used in analysis (parsing) only
+<-> means that the rule may be used in both modes.
+    (This is the usual format for "true BP grammars")
+### true BP grammars
+These grammars can be used both in "production" and in analysis (parsing).
+    See the reference manual. When compiling a grammar, BP2/BP3 checks whether it may be taken
+    as a true BP grammar.
+### GEN type of a Csound parameter
+Indicates the Csound generator used with function tables describing variations of this
+    parameter.  GEN07 (linear interpolation) is assumed by default.  GEN08 (cubic spline)
+    is another option.
+### General MIDI
+An international standard aimed at making it easy to play MIDI files with predictable
+    results on different synthesizers. Basic specifications are a mapping of
+    128 typical instruments to 128 program numbers (numbered 1 to 128), and a mapping of
+    key numbers to typical percussive sounds (to be played on channel 10).
+• In BP2, General MIDI (and customized mappings) is defined as a glossary, namely
+    "-gl.GeneralMIDI".  Information about General MIDI may be obtained from Tom White,
+    RolandCorp, 7200 Dominion Circle, Los Angeles CA 90040, USA.  You may also contact
+    jeff@millie.loc.gov.
+### Reset this object
+Deletes the displayed "sound-object prototype" and resets its properties to default.
+• To delete a sound-object prototype permanently, first reset it and save the '-mi'
+    file of "sound-object prototypes". Then delete it from the "alphabet window".
+### Play object alone
+Play the current "sound-object prototype" at the specified tempo.
+### Play sound-object
+Play the "sound-object prototype" currently displayed in the prototypes window at the
+tempo specified in that window.
+### Play expression:
+Play item typed in the <any expression> field.
+### MIDI sequence
+When checked, indicates that this "sound-object prototype" contains a sequence of MIDI 
+events that is 'active'. If unchecked, it can mean either that there is no MIDI 
+sequence in this "sound-object prototype" or that there is a sequence and it is 
+'inactive' (i.e. the prototype's MIDI events will not be played).  A warning is shown
+in the diagram of the prototype when it is inactive.
+### Sampled sound
+When checked, indicates that this "sound-object prototype" contains a sound file, 
+or part thereof.  (This feature is not yet implemented).
+### Csound score
+When checked, indicates that this "sound-object prototype" contains a Csound score.
+To create or edit a Csound score for this object, click the "Csound" button.
+• Related topics: "Csound format", "Csound implementation", "Csound"
+### Csound score OFF [script command]
+Turns off the "Write Csound scores" option.
+• Related topics: "Csound format", "Csound implementation"
+### Csound score ON [script command]
+Turns on the "Write Csound scores" option.
+• Related topics: "Csound format", "Csound implementation"
+### Csound scores [Devices menu]
+This menu item can be toggled off and on.  When checked, musical items that BP2 produces
+    are also written as Csound scores.  You may control how score files are created from
+    the "File save preferences" window.
+• This setting is also accessible from the "Input-output settings" window as 
+    "Write Csound scores").
+• May be toggled with the script commands: "Csound score ON" and "Csound score OFF".
+• Related topics: "Csound format", "Csound implementation"
+### (striated time)
+Decide to play expression in striated or smooth time. (See "Striated time")
+### Striated object:  Tref =...
+This "sound-object prototype" is declared as 'striated', i.e. based on a
+    metronome setting the period of which is Tref, and may be rescaled accordingly when
+    performed on a different tempo.  For instance, if Tref = 1000ms and metronome value
+    is mm = 120, this object will be rescaled at 50% its nominal duration.
+### Adjust duration to...
+Adjust the duration of current "sound-object prototype" to the value specified
+in milliseconds.
+• Beware of the effects of "pre-roll" and "post-roll". Remember the formula:
+    Sound-object duration
+        = date of last event - date of first event - pre-roll + post-roll
+• Both MIDI and Csound events are modified.
+• Related topic: Adjust beats to...
+### Adjust beats to...
+Adjust the duration of current "sound-object prototype" to the duration specified 
+    in number of beats (using Tref as period).
+• Beware of the effects of "pre-roll" and "post-roll". Remember the formula:
+    Sound-object duration
+        = date of last event - date of first event - pre-roll + post-roll
+• Both MIDI and Csound events are modified.
+• Related topic: Adjust duration to...
+### Adjust velocities...
+Adjust velocities within specified range. Velocities 0 or velocities of NoteOff
+    messages are unchanged.
+### Append AllNotesOff
+Append AllNotesOff message after the end of current "sound-object prototype".
+• This is done automatically by many MIDI keyboards.
+### Suppress AllNotesOff
+Suppress all AllNotesOff messages from the insertion point or the beginning.
+### Quantize NoteOn's...
+Adjust dates of NoteOn messages to match specified fraction of a beat. This does not
+    modify NoteOff's. (Use "Expand min. durations" for that)
+### Expand min. durations...
+Set minimum note durations to specified fraction of beat
+### Suppress channel pressure
+Suppress all channel pressure (monophonic aftertouch) messages from the insertion point
+    or the beginning.
+### Make monodic
+If two notes are overlapping, shorten the first one, and so on until object may be
+    performed on a single-voice patch.
+### Suppress pitchbend
+Suppress all pitchbend messages from the insertion point or the beginning.
+### Suppress key pressure
+Suppress all key pressure (polyphonic aftertouch) messages from the insertion
+    point or the beginning.
+### Insert silence
+Create silence of specified duration and insert it at the beginning of the sound-object
+    prototype or at the insertion point.
+• May be you actually want to set-up a positive "pre-roll"?
+• Related topic: "Append silence"
+### Append silence
+Create silence of specified duration and append it to the "sound-object prototype".
+• May be you actually want to set-up a negative "post-roll"?
+• Related topic: "Insert silence"
+### OK Rescale
+This object may be compressed or dilated at will.
+• Related topics: "OK Rescale", "Expand at will", "Compress at will", "Dilation ratio range"
+### Never rescale
+This object should never be compressed nor dilated.
+• Related topics: "Never rescale", "Expand at will", "Compress at will", "Dilation ratio range"
+### Dilation ratio
+The ratio by which the duration of a "sound-object prototype" is multiplied at the
+    moment it is played.
+• Related topics: "OK Rescale", "Never rescale", "Dilation ratio range", "Expand at will",
+     "Compress at will", "Send dilation ratio to controller"
+### Dilation ratio range:
+Specify range of "dilation ratio" in which object may be rescaled.
+• Related topics: "OK Rescale", "Never rescale", "Expand at will", "Compress at will" 
+### Expand at will
+This object may be dilated at will, i.e. its "dilation ratio" may become infinite.
+• Related topics: "OK Rescale", "Never rescale", "Dilation ratio range", "Compress at will" 
+### Compress at will
+This object may be compressed at will, i.e. its "dilation ratio" may go down to 0.
+• Related topics: "OK Rescale", "Never rescale", "Dilation ratio range", "Expand at will" 
+### Send dilation ratio to controller:
+Create a MIDI message containing "dilation ratio" and send it to the specified
+    controller before the first message of the object is sent. Some MIDI devices may
+    use this information to modify the sound generation process accordingly.
+• If 'alpha' is the dilation ratio (alpha = 1 means no change in the timing), then
+    the value sent in this MIDI message is: 32 * log(alpha) + 64
+    where 'log' is a decimal logarithm.
+• This controller value is clipped to the range 0..127.
+### Beginning
+Pivot should be at the beginning of the "sound-object"'s time-span interval.
+### Middle
+Pivot should be at the end of the "sound-object"'s time-span interval.
+### Set pivot
+Pivot should be at specified distance from the beginning of the "sound-object"'s
+    time-span interval.
+### First NoteOn
+Pivot should be on first NoteOn message.
+### Middle NoteOn/Off
+Pivot should be in the middle of time-span interval delimited by first NoteOn and
+    last NoteOff messages.
+### Last NoteOff
+Pivot should be on last NoteOff message.
+### Never relocate
+Never relocate this "sound-object".
+• Related topic: "Relocate at will"
+### Relocate at will
+Relocate this "sound-object" at will.
+• Related topic: "Never relocate"
+### Allow delay
+Relocate this "sound-object" with delay less than specified value (in ms or fraction
+    of duration).
+### Allow forward
+Relocate this "sound-object" with forward displacement less than specified value
+    (in milliseconds or fraction of duration).
+### Never cover
+Never cover beginning (resp. end) of "sound-object".
+• Related topic: "Cover at will"
+### Cover at will
+Beginning (resp. end) of "sound-object" may be covered by other objects.
+• Related topic: "Never cover"
+### Not more than
+Beginning (resp. end) of object may be covered by other objects within specified
+    limit (in milliseconds or fraction of duration).
+### Never truncate
+Never truncate beginning (resp. end) of object.
+• Related topic: "Truncate at will"
+### Truncate at will
+Beginning (resp. end) of object may be truncated at will.
+• Related topic: "Never truncate"
+### Never break after this object
+If checked, does not allow 'organum' on this object.
+• Related topic: "Break at will"
+### Break at will
+If checked, allows 'organum' on this object.
+• Related topic: "Never break after this object"
+### Don't force
+Do not force continuity in the beginning (resp. the end) with a neighbouring object.
+• Related topics: "Force", "Allow gap"
+### Force
+Force continuity in the beginning (resp. the end) with a neighbouring object.
+• Related topics: "Don't force", "Allow gap" 
+### Allow gap
+Allow break of continuity in the beginning (resp. the end) with a neighbouring object
+    up to specified value (in milliseconds or fraction of duration).
+• Related topics: "Don't force", "Force"
+### Force to current channel
+Force all channel messages of this object to the channel set by context [ _chan(x) ].
+### Do not change channels
+Never change channels of this object even if context [ _chan(x) ] demands it.
+### Force to channel:
+Force all channel messages of this object to specified channel.
+### Accept transposition
+If unchecked, object will ignore all "_transpose" controls.
+### Accept articulation changes
+If unchecked, object will ignore all "_legato" and "_staccato" controls.
+### Accept volume changes
+If unchecked, object will ignore all "_volume" controls.
+### Accept panoramic changes
+If unchecked, object will ignore all "_pan" controls.
+### Accept key changes
+If unchecked, object will ignore all "_keymap" and "_keyxpand" controls.
+### Accept velocity changes
+If unchecked, velocity in this sound-object cannot be modified.
+### Enter and find
+Enters text selection and looks for it in current window.
+### Tempo markers
+These are numbers preceded with slashes explicitly indicating the 'speed' of a sequence
+    of sound-objects, i.e. the number of sound objects performed in one tick of
+    the metronome.  In the beginning of a musical item, other numbers may indicate meter
+    sections.  See "Section headers".
+• Tempo markers are obsolete. Use "_tempo(x)" in replacement of "/x".
+### mm = <metronome value>
+This indicates the number of ticks per minute in the "Time base".
+### Transpose input notes:
+If checked, and if non zero value is specified, then all notes entered from the MIDI
+    keyboard are transposed accordingly.  For instance, if the transposition value is
+    -3 semitones, the C5 key will be transcribed as A4.
+### Performance controls
+To display the list of currently implemented performance controls, select
+    "Pick tool or performance control" in the "Edit" menu.
+• Each control is documented on-line.  These controls are used for
+    adding expressiveness to the performance (e.g. _legato, _volume, etc.) or changing
+    MIDI parameters (e.g. _pitchbend) that are not mapped to specific "sound-objects".
+• Related topic: "Continuous performance control"
+### Time resolution:
+The accuracy of the MIDI driver. Typically 10 ms.
+### Quantization:
+Expected accuracy of the positions of "sound-objects".  This may be set to the maximum
+    auditive tolerance on the perception of durations. 50ms is a good idea.
+• A large quantization requires less memory space and computation time.
+### vel
+Abbreviation for velocity.
+### ms
+Abbreviation for milliseconds.
+### Speed ratio:
+Each cycle of ticks may run at a speed different from the time base.
+### MUTE
+When checked, prevents tick cycle from being heard.
+### _rest
+See "Undetermined rests"
+### Set weights
+Sets all rule weights in the grammar to a specified value.
+### Learn weights (BP2 only)
+If the grammar is a "true BP grammar", it is possible to derive rule weights from a set of
+    examples, i.e. a set of musical items that could have been produced by the grammar.
+• The result is a grammar that produces musical items very close to the ones used for the
+    learning process.
+• Before learning weights it is advised to save the current ones. See "Save weights".
+• Load the examples to the "Data" window and select them, then click "Learn weights".
+• The weight of each rule will be incremented by the number of times it has been used during the
+    parsing of the sample set.
+• At the end of parsing the option is given to add infered weights to current weights, or replace
+    current weights with infered weights. The first option is used when several sample sets are
+    needed for learning weights.  The second option prompts confirmations: "Keep infered weights
+    in current grammar?" and "Update grammar with new weights?".
+• Related topics:
+"Load weights"
+"Set weights"
+"Save weights"
+### Show weights (BP2 only)
+Displays the grammar with the current values of its rule weights. This is useful when the production
+    of items changes rule weights.
+### Load weights (BP2 only)
+Changes weights in a grammar according to values previously saved in a '-wg' file. In many cases
+    a warning is issued saying that the grammar has been modified since its weights were saved,
+    because the weight file keeps a record of compilation time. Be careful not to load weights
+    obtained in a grammar with a different arrangement of rules, otherwise BP2 may crash…
+• Related topics:
+"Save weights"
+"Set weights"
+"Learn weights"
+### Save weights (BP2 only)
+Saves the weights of rules in the current grammar to a '-wg' weight file.
+• Related topics:
+"Load weights"
+"Set weights"
+"Learn weights"
+### Load decisions (BP2 only)
+When producing items step by step in the "Choose candidate rule" mode, it is possible to load
+    decisions taken previously from a decision file.
+• Related topic: "Save decisions"
+### Save decisions (BP2 only)
+When producing items step by step in the "Choose candidate rule" mode, it is possible to save
+    the decisions taken so far to a decision file.
+• Related topic: "Load decisions"
+### Check variables
+If a grammar is loaded and compiled, it lists the variables found by the compiler and
+indicates:
+• unreachable variables (that can't be generated by the grammar)
+• undefined variables (that can't be rewritten by any rule in the grammar)
+### Pre-roll
+Delay between the first event (MIDI message or Csound event) of a "sound-object" and the
+    beginning of its time-span interval.
+• Pre-roll is null by default.
+• A negative pre-roll amounts to a silence inserted before the first event of the
+    sound-object. This silence may for instance be 'protected' thanks to property "Never cover".
+• A positive pre-roll allows some events to fall before the on-setting time
+    (beginning) of the sound-object. This may be useful if the sound-object contains an
+    initialisation sequence that should not be part of its time-span interval.
+• A positive pre-roll is also the proper way of compensating a mechanical delay in the
+    device producing the sound-object. If for instance the event sequence in the sound-object
+    starts with a NoteOn and the device takes 100ms to react, then setting the pre-roll
+    to 100ms will displace all MIDI messages by 100ms to the past, so that their effects
+    coincide with the desired timings.  Generally you will also set up a positive "post-roll"
+    to compensate the delay in setting off events.
+• Remember the formula:
+    Sound-object duration
+        = date of last event - date of first event - pre-roll + post-roll
+• Related topics: "Post-roll", "Insert silence"
+### Post-roll
+Delay between the last event of a "sound-object" and the end of its time-span interval.
+• Post-roll is null by default.
+• A negative post-roll allows some events to fall beyond the off-setting time (end) of a
+    sound-object. This may be useful if the sound-object contains a final sequence of events
+    that should not be part of its time-span interval.
+• A positive post-roll amounts to a silence appended after the last event of the
+    sound-object. This silence may for instance be 'protected' thanks to property "Never cover".
+• A positive post-roll is also the proper way of compensating a mechanical delay in setting-off
+	the device producing the sound-object. If for instance the event sequence in the sound-object
+    ends with a NoteOff and the device takes 50ms to react, then setting the post-roll
+    to 50ms will append a 50ms silence after the sound-object to allow the device to finish its
+    job. This is generally combined with a positive "pre-roll" compensating on-setting delays.
+• Remember the formula:
+    Sound-object duration
+        = date of last event - date of first event - pre-roll + post-roll
+• Related topics: "Pre-roll", "Append silence"
+### Cyclic sound-objects
+Any sound-object may contain a periodical part starting at an arbitrary point of its
+    time-span interval (see "Periodical after").
+• BP2/BP3 handles two typical cases:
+    1) The sequence of events in the periodical part must be sent again
+       to the sound device when that part is repeated.  This happens for instance
+       with sound-objects produced by a MIDI synthesizer.
+    2) Cyclic properties are defined but there is no need to repeat the sequence in
+       the periodical part.  This happens for instance with sound-objects produced
+       by a MIDI sampler: the sampler expects BP2/BP3 to trigger the sample with a
+       NoteOn and it takes care of repetitions until a NoteOff is received.
+  In '-mi.abc1', for instance, 'cycle1' illustrates case 1 and 'cycle2' case 2.
+• Property "Discard NoteOff's except in last period" is useful with objects in case 2.
+    It prevents the sample from setting off as soon as the first cycle is completed.
+    This property is generally combined with "Don't strike again NoteOn's".
+• Property "Force integer number of periods" modifies durations making sure that the
+    last repetition of the cyclic part is complete.
+• It is a good idea to place the object's pivot at the beginning of the periodical
+    part.  See "Set pivot".
+• If a cyclic sound-object has a negative "post-roll", events falling beyond its off-setting
+	time are ignored.
+• Beware when setting the startpoint of the periodical part: the balance between
+    NoteOn's and NoteOff's should be equal in the periodical part.
+    BP2/BP3 compensates some balance problems by avoiding two successive NoteOn's on the
+    same key and channel (see "Strike NoteOn's according to default") and appending
+    extra NoteOff's after the item when necessary, but an improper balance may result
+    in unwanted auditive results.
+• Related topics: "OK Rescale", "Never rescale", "Dilation ratio range",
+    "Expand at will", "Compress at will", "Periodical after"
+### Periodical after
+If this option is checked then the sound-object contains a periodical part starting
+	at a defined point of its time-span interval.  The value (in milliseconds or
+	as a percentage of the duration) is the duration of the initial non-cyclic part.
+• If the sound-object does not have the "Expand at will" property it makes no difference
+	to specify the initial non-cyclic part in milliseconds or as a percentage of the duration.
+• The last events of a cyclic object may be discarded if its "post-roll" is set to a
+    negative value.
+• Related topic: "Cyclic sound-objects".
+### No period
+This sound-object has no periodical part.  This is a default setting.
+• Related topic: "Cyclic sound-objects". 
+### Force integer number of periods
+This property fixes acceptable durations so that the last repetition of the periodical
+	part is complete.
+• The property is only needed for sound-objects that do not have the "Expand at will"
+    property, or that have specified limits for the "Dilation ratio range". However, it
+    does not harm to set it with resizable sound-objects.
+• Related topic: "Cyclic sound-objects".
+### Discard NoteOff's except in last period
+This property is used with cyclic sound-objects, notably the ones representing samples
+    on a MIDI sampler.  When the object (or part of it) is repeated, then the NoteOff
+    encountered at the end of the first cycle may set off the sample, so that the sample
+    won't be heard during the following cycles.
+• If the property is checked, any NoteOff will be discarded unless it appears in the
+    last cycle.
+• With this property it is recommended to check "Don't strike again NoteOn's", so that
+    no unwanted NoteOff's are produced when NoteOn's are found in the repeated cycle.
+• Related topic: "Cyclic sound-objects".
+### Strike again NoteOn's
+If a NoteOn must be sent while the same key of the same channel is already active
+    (because a NoteOn has already been sent) then BP2/BP3 will first send a NoteOff to
+    deactivate the key.
+This is the default mode in BP2/BP3 (see "Strike NoteOn's according to default").
+• Some MIDI sound devices may hang if two successive NoteOn's are sent to the same
+    key and the same channel.  BP2/BP3 keeps track of key on/off status to make sure this
+    never happens.
+• Related topic: "Don't strike again NoteOn's"
+### Don't strike again NoteOn's
+If a NoteOn must be sent while the same key of the same channel is already active
+    (because a NoteOn has already been sent) then BP2/BP3 will ignore it.
+• This is not BP2/BP3's default mode: see "Strike NoteOn's according to default"
+• Related topics: "Strike again NoteOn's", "Discard NoteOff's except in last period"
+### Strike NoteOn's according to default
+If a NoteOn must be sent while the same key of the same channel is already active
+    (because a NoteOn has already been sent) then BP2/BP3 will behave as per its default
+    setting.
+• BP2/BP3's default setting is the behaviour defined as "Strike again NoteOn's".
+• Related topic: "Don't strike again NoteOn's"
+### % of duration
+The specified value is a percentage of the sound-object's duration, so the actual
+    value will vary according to its "dilation ratio".
+### Csound implementation
+• Csound is a 100% software environment for the design and transformation of digitized
+    sounds.  It runs on most platforms, including MacOS 9 & X, Linux, and Windows.
+    Csound is "free software" (open source) distributed under the GNU LGPL license.
+• To download Csound, connect to https://csound.com
+• BP2/BP3 produces Csound scores in the same way it produces MIDI files or real-time MIDI:
+    the "Csound scores" option may be selected in the "Output" menu and is saved with 
+    the options of the current project or data.
+• Once the option has been selected you may produce a Csound score for each musical item
+    produced by a grammar or played from its text representation (a BP2/BP3 "score").  Items
+    may be played on real-time MIDI, saved to Csound scores, to MIDI files, or any
+    combination of these.
+• If the musical item contains simple notes or sound-objects defined as streams of MIDI
+    messages, BP2/BP3 converts the stream to a sequence of Csound events, using the
+    specifications of Csound instruments defined in a "Csound instrument file".  This file
+    can be created and edited in the "Csound instruments" dialog accessible from the
+    "Devices" menu.  Csound instrument specifications should contain data that is
+    consistent with the "orchestra" file that will be invoked by Csound when compiling
+    the score produced by BP2/BP3.
+• If no "Csound instrument file" is loaded, BP2/BP3 uses a default instrument which has only
+    the start/end timing arguments and accepts pitch in the "octave point pitch-class"
+    representation.  It is more clever to design a Cound orchestra with instruments
+    accepting parameters like pitchbend, pressure, modulation etc., which BP2/BP3 handles
+    in a smart way, using a "vector" representation of continuous parameter changes.
+• Sound-object protoypes may also contain Csound scores.  In this case, BP2/BP3 creates a
+    score of the musical item arranging these individual scores after changing their
+    timings and arguments according to the musical item and specifications of Csound
+    instruments.  BP2/BP3 may therefore produce Csound scores using only Csound events and
+    Csound instrument specifications as an input, thereby bypassing current limitations
+    of MIDI.
+• The mapping between Csound argument values (the ones found in the Csound score) and
+    MIDI / BP2/BP3 ranges is defined automatically once the user has supplied three typical
+    pairs of values.  BP2/BP3 performs linear or quadratic interpolation, plus logarithmic
+    mapping if requested to do so.
+• In addition, BP2/BP3 handles "Performance parameters" with arbitrary names the values
+    of which may be taken as arguments by Csound instruments.
+• Related topic: "Csound format"
+### octave point pitch-class
+In this representation, pitch is represented as a decimal number in which the integer
+    part is the octave number and the decimal part is the pitch class.
+• For example, the following mapping is used:
+C4 = 8.00   D4 = 8.02   E4 = 8.04   F4 = 8.05   G4 = 8.07 
+A4 = 8.09   B4 = 8.11
+### octave point decimal
+In this representation, pitch is represented as a decimal number in which the integer
+    part is the octave number and the decimal part is the fraction of the octave.
+• For example, the following mapping is used:
+C4 = 8.00   D4 = 8.17   E4 = 8.33   F4 = 8.42   G4 = 8.58 
+A4 = 8.75   B4 = 8.92
+### cps (Hz)
+In this representation, pitch is represented in cycles per second (Hertz).
+• For example, the following mapping is used:
+C5 = 523.25   D5 = 587.33   E5 = 659.26   F5 = 698.46   G5 = 783.99
+A5 =  880.00  B5 = 987.77
+• These values depend on the settings of the diapason in the "Tuning dialog".
+### Pitchbend arguments:
+Boxes contain the indexes of arguments sending pitchbend information to this
+    Csound instrument.
+• The left box is the argument containing the pitchbend value at the start date of
+    any event related to this instrument.
+• The middle box (optional) is the argument containing the pitchbend value at the clip
+    date of any event related to this instrument.
+• The rightmost box (optional) is the argument which may refer to a function table
+    for continuous variations.
+• If this instrument does not use pitchbend leave boxes empty.
+### Pitchbender range (cents) +/-
+This box contains the range (in cents) of the pitchbend used in MIDI format, which
+    may have been specified in the data or grammar with "_pitchrange(x)".
+• This information may be needed by BP2/BP3 for a correct remapping of pitchbend values
+    from MIDI to Csound.
+### Volume arguments:
+Boxes contain the indexes of arguments sending volume information to this
+    Csound instrument.
+• The left box is the argument containing the volume value at the start date of
+    any event related to this instrument.
+• The middle box (optional) is the argument containing the volume value at the clip
+    date of any event related to this instrument.
+• The rightmost box (optional) is the argument which may refer to a function table
+    for continuous variations.
+• If this instrument does not use volume leave boxes empty.
+### Pressure arguments:
+Boxes contain the indexes of arguments sending channel pressure information to this
+    Csound instrument.
+• The left box is the argument containing the pressure value at the start date of
+    any event related to this instrument.
+• The middle box (optional) is the argument containing the pressure value at the clip
+    date of any event related to this instrument.
+• The rightmost box (optional) is the argument which may refer to a function table
+    for continuous variations.
+• If this instrument does not use pressure leave boxes empty.
+### Modulation arguments:
+Boxes contain the indexes of arguments sending modulation information to this
+    Csound instrument.
+• The left box is the argument containing the modulation value at the start date of
+    any event related to this instrument.
+• The middle box (optional) is the argument containing the modulation value at the clip
+    date of any event related to this instrument.
+• The rightmost box (optional) is the argument which may refer to a function table
+    for continuous variations.
+• If this instrument does not use modulation leave boxes empty.
+### Panoramic arguments:
+Boxes contain the indexes of arguments sending panoramic information to this
+    Csound instrument.
+• The left box is the argument containing the panoramic value at the start date of
+    any event related to this instrument.
+• The middle box (optional) is the argument containing the panoramic value at the clip
+    date of any event related to this instrument.
+• The rightmost box (optional) is the argument which may refer to a function table
+    for continuous variations.
+• If this instrument does not use panoramic leave boxes empty.
+### Attack velocity argument:
+This box contains the index of the argument of this Csound instrument which should
+    contain the NoteOn velocity information.
+• Leave the box empty if this instrument does not need the information.
+### Release velocity argument:
+This box contains the index of the argument of this Csound instrument which should
+    contain the NoteOff velocity information.
+• Leave the box empty if this instrument does not need the information.
+### Dilation ratio argument:
+This box contains the index of the argument of this Csound instrument which should
+    contain the "dilation ratio" information.
+• Leave the box empty if this instrument does not need the information.
+### Start argument
+This is the index of the argument used in a Csound event to pass on the value of this
+    parameter, or the initial value in case it varies continuously.
+    (See "Continuous performance control")
+• Related topics: "Parameter name", "End argument", "Table argument"
+### End argument
+This is the index of the argument used in a Csound event to pass on the final value of
+	this parameter in case it varies continuously.
+    (See "Continuous performance control")
+• The box may remain empty if the parameter never varies continuously or the Csound
+    instrument is not designed for continuous variation of this parameter.
+• Related topics: "Parameter name", "Start argument", "Table argument"
+### Table argument
+This is the index of the argument used in a Csound event to pass on the index of
+	a function table when the parameter varies continuously.
+    (See "Continuous performance control")
+• The box may remain empty if the parameter never varies continuously or the Csound
+    instrument is not designed for continuous variation of this parameter.
+• Related topics: "Parameter name", "Start argument", "End argument"
+### Argument boxes
+• The left box contains the index of the Csound instrument argument taking the initial
+    value of this control.
+• The middle box is only used for "continuous performance control".  It contains the
+    index of the argument taking the final value of this control.
+• The rightmost box contains the index of the argument taking the reference of the
+    function table that BP2/BP3 creates for defining complex parameter variations.
+    (See "Continuous performance control")
+### Continuous performance control
+• A few MIDI parameters such as pitchbend, modulation, volume, channel pressure and
+    panoramic may be controlled continuously at a given sampling rate.  For example,
+    a portamento may be produced by the following BP2/BP3 score:
+        _pitchcont _pitchrate(20) _pitchbend(6000) A4 B4 _pitchbend(9000)
+    in which BP2/BP3 will insert 20 pitchbend messages per second.
+• Similarly, arbitrary parameters may be handled with effect only on the Csound
+   output.  (See "Performance parameter").  For instance,
+       _cont(blurb) _value(blurb,154.2) A4 B4 _value(blurb,-21) C4
+• The default sampling rate is 50 messages per second.
+• Csound events do not allow the insertion of real-time messages. Therefore it is
+    necessary to supply the start and end values of the argument which will be
+    interpolated by the procedure associated with the Csound instrument.  For instance,
+    let the start value of pitchbend be sent as argument 5 and the end value as
+    argument 6.  The score produced by BP2/BP3 using the preceding item reads:
+        i1 0 1 8.09 6000 7500
+        i1 1 1 8.11 7500 9000
+   ("8.09" and "8.11" are the respective pitch values of A4 and B4.)
+• Another option with Csound is to allow BP2/BP3 to create function tables to control
+    the values.  An argument of the instrument should be reserved to passing on the
+    table reference.
+• Related topic: "Step performance control"
+### Step performance control
+• By default, all MIDI controls are modified only when explicit values are assigned
+    to them by the BP2/BP3 score.  For instance, the following score assigns different
+    modulation values to notes B4, C5 and D5:
+        _modstep A4 _mod(2000) B4 C5 _mod(9000) D5
+    Replacing "_modstep" (which is optional here) with "_modcont" would
+    cause continuous changes of modulation at the rate of 50 messages per second.
+• In this example it is advisable to check "Reset controllers" since the final value
+    (9000) is not the same as the initial one (0).
+• Related topic: "Continuous performance control"
+### Store all items to same file
+If checked, all musical items are stored to the same MIDI or Csound score file.
+### Change name
+Click this button to close the current MIDI or Csound score file and create a new one.
+### MIDI file format
+BP2/BP3 supports three MIDI file formats: types 0, 1 and 2.  Here are tips for choosing
+    an output format:
+•	If the file will contain a single musical item, or a sequence of items produced by a
+    grammar in the "Improvize" mode, any format is OK.  Keep in mind, however, that
+    format 2 may be rejected by single-track MIDI programs.
+•	In the current version, BP2/BP3 saves each item to a single track. Types 0 and 1 may
+    therefore be considered equivalent.
+•	If the file will contain several independent musical items (each of which might
+    have a different tempo or time signature), then type 2 must be used.
+• BP2/BP3 imports files type 0, 1 or 2.  With format 1 it superimposes the tracks even if
+    they have different time signatures.  With format 2, however, an error message
+    will be displayed if the file contains several items.
+### Convert to Csound
+Creates a Csound score attached to this "sound-object prototype" on the basis of events
+    contained in its MIDI stream.
+• Beware that the result depends on the "Csound instruments" defined in the currently
+    loaded '-cs' "Csound instrument file".  If some MIDI controls have no
+    mapping to Csound arguments they will simply be ignored.
+• If no "Csound instruments" file has been loaded, a default, minimum instrument
+    description is used.
+• Related topic: "Csound instrument file"
+### Import MIDI file
+Reads a MIDI file (type 0, 1, 2) and uses its content as a MIDI stream for this
+    sound-object prototype.
+### Change instrument file
+Define or change a '-cs' "Csound instrument file" attached to these "sound-object prototypes".
+### Csound instrument file
+• This file contains a description of "Csound instruments" used to convert sound-objects
+    to Csound scores, or to produce Csound scores from musical items containing
+    "sound-objects" and/or "simple notes".
+• The file is accessed in the "Csound instruments" dialog of the "Output" menu.
+• This description must be consistent with the Csound orchestra file used to
+    play items produced by BP2.  This consistency is not checked by the present
+    version.
+• "Sound-object prototypes" may contain a Csound score that must relate to these
+    Csound instruments.
+• Related topics: "Csound implementation", "Csound format"
+### Period (cyclic object) / strike mode
+Displays the dialog for setting these parameters.
+• Related topics:
+"Cyclic sound-objects"
+"Strike again NoteOn's"
+"Don't strike again NoteOn's"
+### Continuity / pre-postroll
+Displays the dialog for setting these parameters.
+• Related topics:
+"Don't force", "Force", "Allow gap"
+"Post-roll", "Pre-roll"
+### Cover / truncate / break tempo
+Displays the dialog for setting these parameters.
+• Related topics:
+"Cover at will", "Never cover"
+"Truncate at will", "Never truncate"
+"Break at will", "Never break after this object"
+### Duration / pivot / location
+Opens dialog for changing these properties.
+• Related topics:
+"OK Rescale", "Expand at will", "Compress at will", "Dilation ratio range"
+"Set pivot", "Beginning", "Middle"
+"Never relocate", "Relocate at will"
+### Chan / instr / accept
+Opens dialog for changing these properties.
+### Csound file format
+Csound scores are text files saved as Unicode UTF8.
+### ADDval
+If checked, values of this parameter are combined additively.
+• The formula is the following:
+    If 'p0' is the parameter value found in the Csound score of a "sound-object", and 'x'
+        the assigned value, the parameter value in the resulting score will be: 
+    p1 = p0 + x - default
+    ('default' is specified in the field "Default value".)
+• Related topics: "MULTval", "Default value"
+### MULTval
+If checked, values of this parameter are combined multiplicatively.
+• The formula is the following:
+    If 'p0' is the parameter value found in the Csound score of a "sound-object", and 'x'
+        the assigned value, the parameter value in the resulting score will be: 
+    p1 = p0 * (x / default)
+    ('default' is specified in the field "Default value".)
+• Related topics: "ADDval", "Default value"
+### Default value
+The default value of this Csound parameter.  It is used when "sound-objects" contain
+    incomplete Csound score lines, and in the combination of parameters (see related
+    topics).
+• Related topics: "MULTval", "ADDval"
+### DATA:
+Below this header, anything written is ignored by the grammar compiler.
+• "DATA:" is quivalent to "COMMENT:"
+### COMMENT:
+Below this header, anything written is ignored by the grammar compiler.
+• "COMMENT:" is equivalent to "DATA:"
+### Grammar procedures
+A set of tools modifying the application of rules in a grammar.
+### Serial music with BP2/BP3
+• Version 2.8.1 of BP2 introduced a few tools facilitating the design of musical structures
+    following principles of serial music. However, these tools are applied to structures
+    that may be more complex than simple sequences of sound-objects: "polymetric expressions",
+    polyrhythmic phrases using the "period notation", tree structures constructed with
+    "variables" in a grammar, metastructures containing "wild cards", etc.
+• The current serial tools are:
+    "_retro", "_rndseq", "_rotate", "_ordseq", "_keymap", "_keyxpand".
+### _retro [Tool]
+A tool for "serial music".
+This "tool" reverts the order of "sound-objects", "variables", "wild cards" and "time patterns"
+    in the remaining part of a sequence.
+• Examples
+    a b _retro c d e              will become   a b e d c
+    a b _retro {c d e,f g}        will become   a b {e d c,g f}      ["polymetric expression"]
+    a b _retro {t1 t2 t3,f g}     will become   a b {t3 t2 t1,g f}   ["time patterns"]
+    _retro {a b c • d e • f g}    will become   {g f • e d • c b a}  ["period notation"]
+    a b _retro c d e _retro f g   will become   a b f g e d c        ["_retro" cancels itself]
+• Check the preceding examples in ‘-gr.trySerial’
+• Related topics: "_rndseq", "_ordseq", "_rotate".
+### _rndseq [Tool]
+A tool for "serial music".
+This "tool" shuffles the order of "sound-objects", "variables", "wild cards" and "time patterns"
+    in the remaining part of a sequence.
+• Don't confuse with "_randomize" which reseeds the random number generator.
+• Examples [each example actually produces several combinations]
+    a b _rndseq c d e              could become   a b c e d
+    a b _rndseq {c d e,f g}        could become   a b {d e c,g f}      ["polymetric expression"]
+    a b _rndseq {t1 t2 t3,f g}     could become   a b {t3 t1 t2,g f}   ["time patterns"]
+    _rndseq {a b c • d e • f g}    could become   {b d f • c g • e a}  ["period notation"]
+• Check the preceding examples in ‘-gr.trySerial’
+• Related topics: "_retro", "_ordseq", "_rotate", "_srand", "_randomize".
+### _rotate(x) [Tool]
+A tool for "serial music".
+Rotates a sequence of "sound-objects" or "simple notes" (left shift of 'x' units).
+• For instance,
+    _rotate(3) A4 B4 C4 D4 E4 F4 G4  yields  D4 E4 F4 G4 A4 B4 C4
+• Rotation is applied recursively and cumulated additively on polymetric structures.
+    (See '-gr.tryRotate' for a typical example)
+• Range of x is -128..127
+• The argument may also be Kx.  See "variable arguments".  In this case it may be
+    controlled by a MIDI device during the performance.
+### _ordseq [Tool]
+A tool for "serial music".
+This "tool" prevents the remaining part of a sequence from being modified by "_rndseq",
+    "_rotate" or "_retro".
+• Related topics: "_rndseq", "_retro", "_rotate"
+### _keymap(p1,q1,p2,q2) [Performance control]
+A performance control for "serial music".
+In the following sequence, this "performance control" modifies pitches in range (p1,p2)
+    according to a linear mapping in which q1 is the image of p1 and q2 the image of p2.
+• The tool makes changes on "simple notes" and on "sound-objects" in which the property
+    "Accept key changes" has been set to true.
+• Unlike "_keyxpand", changes do not occur during the production of a "grammar",
+    but at "performance time".
+• p1,q1,p2,q2 may be written as integers (key numbers) in range 0..127, or "simple notes"
+    using the current "note convention", e.g.: _keymap(C3,G2,D6,F6).
+• See '-gr.tryKeyMap' for typical examples.
+• Related topic: "_keyxpand"
+### _keyxpand(p,x) [Tool]
+A tool for "serial music".
+• In the following sequence, this "tool" multiplies by x melodic intervals relative to the
+    centre note p. For instance,
+    _keyxpand(C4,-2) B3 C4 D4 E4   yields  D4 C4 G#3 E3.
+• Unlike "_keymap", this tool changes "simple notes" during the production of a "grammar".
+• Just like "_retro", "_rndseq" and "_rotate", _keyxpand is applied recursively to the
+    fields of a polymetric expression.  Values are cumulated multiplicatively if the centre
+    note is the same. For instance,
+    _keyxpand(C4,-2) B3 C4 {_keyxpand(C4,-1) D4 E4}  yields  D4 C4 {E4 G#3},
+    i.e. the same as  _keyxpand(C4,-2) B3 C4 _keyxpand(C4,2) {D4 E4}.
+• _keyxpand also makes changes on "simple notes" and on "sound-objects" in which the property
+    "Accept key changes" has been set to true.
+• See '-gr.tryKeyXpand' for typical examples.
+• Related topic: "_keymap"
+### _tempo(x) [Tool]
+Multiplies the tempo by 'x'
+• The argument may be a floating-point number or an integer ratio.
+    Thus, _tempo(4/3) and _tempo(0.35) are valid expressions.
+• In "polymetric expressions" tempo values are multiplied.
+    For instance, in
+        A4 B4 _tempo(2) C5 D5 {_tempo(1.5) E5 F5}
+    "E5 F5" is performed at tempo 3 = 1.5 * 2.
+• The above example shows that speed change is relative.
+    Thus, '_tempo(2)' is not the strict equivalent of '/2' (the obsolete "tempo marker"
+    notation) although it should replace it in most cases. "Tempo markers" are kept only
+    for compatibility with old BP2/BP3 projects.
+### Variable arguments
+Some "performance controls", "tools", and rule weights in a grammar, can be given arguments
+    notated K1, K2, ... Kx.
+• These variables may be assigned fixed values (Kx = n) that are used in the grammar.
+• In some cases, Kx can be set by an external MIDI device during the performance.
+    (See "Interactive mode").
+### MIDI fade-out
+• If set to a value 'x' greater than zero, fade-out will append silences of duration 'x' after
+    each track of a MIDI file, during which volume decreases stepwise on all channels.
+    This compensates for the harshness of terminating the playback of MIDI files.
+• Note that this fade-out is performed during a silence and does not affect notes played
+    during the performance.  Use "_volume" and "_volumecont" to change volume during
+    the performance.
+### TIMEPATTERNS
+A set of time ratios used to fix relative durations (only in the context of smooth time)
+### END OF BP2/BP3 help
