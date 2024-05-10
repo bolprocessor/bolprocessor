@@ -73,7 +73,6 @@ FILE * imagePtr;
 char imageFileName[500];
 int N_image;
 long MaxConsoleTime; // seconds: time allowed for console work
-int CsoundPianoRollNoteShift;
 int NumberScales, MaxScales, DefaultScale, ToldAboutScale; // Microtonal scales loaded from Csound instruments file
 t_scale** Scale;
 char LastSeen_scale[100]; // Last scale found during compilation of grammar
@@ -382,8 +381,7 @@ int stop() {
 	}
 
 
-void CreateImageFile(void)
-{
+void CreateImageFile(void) {
 	FILE * thisfile; 
 	char* someline;
 	char line1[200], line2[200], line3[200];
@@ -427,10 +425,6 @@ void CreateImageFile(void)
 	BPPrintMessage(odInfo,"\n");
 	imagePtr = fopen(line2,"w");
 	strcpy(imageFileName,line2);
-/*	if(getcwd(cwd,sizeof(cwd))) { // Needs to be revised, if necessary
-		BPPrintMessage(odInfo,"\nCurrent working directory = %s\n",cwd);
-		}
-	else BPPrintMessage(odError,"\n=> Current working directory not found\n",cwd); */
 	thisfile = fopen("CANVAS_header.txt","r");
 	if(thisfile == NULL) {
 		BPPrintMessage(odInfo,"‘CANVAS_header.txt’ is missing!\n");
@@ -446,7 +440,7 @@ void CreateImageFile(void)
 		free(someline);
 		}
 	return;
-}
+	}
 
 void EndImageFile(void)
 {
@@ -773,6 +767,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						opts->displayItems = TRUE;
 						opts->outputFiles[ofiProdItems].name = args[argn];
 						opts->outOptsChanged = TRUE;
+						OutBPdata = TRUE;
 						}
 					else {
 						BPPrintMessage(odError, "\n=> Missing filename after %s\n\n", args[argn-1]);
@@ -954,7 +949,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 		InBuiltDriverOn = TRUE;
 		OutMIDI = TRUE;
 		initTime = getClockTime();
-	/*	Byte midiData[4];
+	/*	Byte midiData[4];  // Old code to check sendMIDIEvent
 		int dataSize;
 		dataSize = 3;
 		midiData[0] = 0x90;

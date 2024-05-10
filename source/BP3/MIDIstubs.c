@@ -158,6 +158,7 @@ void closeMIDISystem() {
             seq_handle = NULL;          // Reset the handle to NULL after closing
             }
     #endif
+    InBuiltDriverOn = FALSE;
     }
 
 void sendMIDIEvent(Byte* midiData,int dataSize,long time) {

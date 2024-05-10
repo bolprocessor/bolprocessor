@@ -1328,9 +1328,6 @@ if(refnum == -1) {
 	}
 p_line = NULL;
 if ((res = MystrcpyStringToHandle(&p_line, line)) != OK) return res;
-/* if (careforhtml) { // Suppressed by BB 2022-02-17
-	if ((res = MacToHTML(NO, &p_line, YES)) != OK) return res;
-	} */
 
 #if BP_CARBON_GUI_FORGET_THIS
 count = (long) MyHandleLen(p_line);

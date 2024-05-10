@@ -40,7 +40,7 @@
  
 int trace_cs_scoremake = 0;
 
-int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double dilationratio,Milliseconds t,int iline,
+int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double dilationratio,Milliseconds time_ms,int iline,
 	int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,
 	PerfParameters ****pp_currentparams,int scale,int blockkey)
 {
@@ -131,9 +131,9 @@ instrparamlist = (*p_CsInstrument)[ins].paramlist;
 // else 
 	// time = ((double) t) / 1000.;
 
-time = ((double) t) / 1000.;	 // Fixed by BB 2022-02-10
+time = ((double) time_ms) / 1000.;	 // Fixed by BB 2022-02-10
 
-if(trace_cs_scoremake) BPPrintMessage(odInfo,"Pclock = %ld Qclock = %ld, t = %ld, time = %.3f\n",(long)Pclock,(long)Qclock,(long)t,time);
+if(trace_cs_scoremake) BPPrintMessage(odInfo,"Pclock = %ld Qclock = %ld, t = %ld, time = %.3f\n",(long)Pclock,(long)Qclock,(long)time_ms,time);
 
 comeback = FALSE;
 
@@ -682,17 +682,12 @@ WRITECSCORELINE:
 
 // First send this note to pianoroll
 if(ShowPianoRoll) {
-/*	timeon = (Milliseconds) 1000 * (*scorearg)[2] * Pclock / Qclock;
-	timeoff = (Milliseconds) 1000 * ((*scorearg)[2] + (*scorearg)[3]) * Pclock / Qclock; */
 	timeon = (Milliseconds) 1000 * (*scorearg)[2];
 	timeoff = (Milliseconds) 1000 * ((*scorearg)[2] + (*scorearg)[3]); // Fixed by BB 2022-02-10
-	
-	timeon += CsoundPianoRollNoteShift;
-	timeoff += CsoundPianoRollNoteShift;
 		
 	if(trace_cs_scoremake) BPPrintMessage(odInfo,"key = %d chan = %d timeon = %ld timeoff = %ld minkey = %d maxkey = %d\n",key,chan,(long)timeon,(long)timeoff,minkey,maxkey);
-	DrawPianoNote("csound",key,chan,timeon,timeoff,leftoffset,
-	topoffset,hrect,minkey,maxkey,p_graphrect);
+	DrawPianoNote("csound",key,chan,timeon,timeoff,leftoffset,topoffset,hrect,minkey,maxkey,p_graphrect);
+//	BPPrintMessage(odInfo," key #%d draw_line(%d,%d) p_r->left = %d\n",key,timeon,timeoff,p_graphrect->left);
 	}
 
 if(!OutCsound) {

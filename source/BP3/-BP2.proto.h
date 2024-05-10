@@ -541,14 +541,14 @@ int ClearMarkers(tokenbyte***);
 int CheckSize(unsigned long,unsigned long*,tokenbyte***);
 int ReadTemplate(int,long,long*,tokenbyte***,int*);
 int DeleteTemplates(void);
-int MakeSound(long*,unsigned long,int,tokenbyte***,long,long,int,int,Milliseconds**);
+int MakeSound(long*,unsigned long,int,tokenbyte***,long,long,int,Milliseconds**);
 int SendControl(ContinuousControl**,Milliseconds,int,int,int,int,int,int*,char***,
 	Milliseconds***,int***,MIDIcontrolstatus**,PerfParameters****);
 int InterruptSound(void);
 int DrawNoteScale(Rect*,int,int,int,int,int,int);
 int DrawPianoNote(char*,int,int,Milliseconds,Milliseconds,int,int,int,int,int,Rect*);
 long Findibm(int,Milliseconds,int);
-int DrawItemBackground(Rect*,unsigned long,int,int,int,int,Milliseconds**,long*,int,int*);
+int DrawItemBackground(Rect*,unsigned long,int,int,int,int,Milliseconds**,long*,int,int*,char*);
 double GetTableValue(double,long,Coordinates**,double,double);
 double ContinuousParameter(Milliseconds,int,ControlStream**);
 int GetPartOfTable(XYgraph*,double,double,long,Coordinates**);

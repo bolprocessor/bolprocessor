@@ -1,9 +1,11 @@
 Bol Processor BP3 To Do List
 ============================
-Current location of this file: https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-To-Do.txt
 
 This is a list of improvements that have been considered during the development of BP3. None of them are critical to its proper functioning. ;-)
 The most requested improvements are listed at the top of the list.
+
+Current location of this file: https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-To-Do.txt
+You may also check the history of changes: https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.txt
 
 
 Real-time MIDI output
@@ -12,6 +14,7 @@ Real-time MIDI output
 - The STOP button used to interrupt improvisations does not always immediately create the "_stop" file telling the application to stop.  Read below: "Interruption".
 - The current MIDI output sends MIDI messages to the first available MIDI destination. This is easy to improve. We just need to create a suitable form on the PHP interface that will select the destination and send its identifier to the console. To do this, create a file that the user will read via the interface, then select one or more options to add as tokens to the "Play" command line.
 - Remember that CoreMIDI is only used on MacOS. ALSA is used on Linux and MinGW on Windows.
+- There are still many parts of the code marked "WITH_REAL_TIME_MIDI". This marker has been changed to "WITH_REAL_TIME_MIDI_FORGET_THIS" to indicate that these need to be deleted, as they are remnants of BP2's real-time MIDI or initial (unfinished) implementation of real-time MIDI output. Leave them unchanged for now, as some code could be reused.
 
 
 Real-time MIDI input
@@ -22,8 +25,15 @@ Real-time MIDI input
 - Start working out how to handle MIDI input events. It is possible to reproduce features of BP2 which were interpreted as script instructions.
 
 
+HTML/PHP/Javascript interface
+-----------------------------
+
+- Implement command-s (on MacOS) or control-s (on Windows) to save a grammar, data, alphabet, etc. This is almost done in _header.php (line 41) and at the bottomof data.php
+- The Csound application may not be called "csound" in environments other than MacOS. The interface needs to be updated to quote with this.
+
+
 Standalone application
------------------
+----------------------
 
 - https://github.com/cztomczak/phpdesktop => Compile BP3 under Linux or MacOS. The MacOS version is still under development by Czarek Tomczak (czarek.tomczak at gmail)
 
@@ -61,7 +71,7 @@ Csound orchestra
 Real-time Csound
 ---------------
 
-- This development will be made easy by using ChatGPT
+- This development should be easy, using ChatGPT ;-)
 - Implement UDP for communicating with Csound. Links:
 https://csound.com/docs/manual/udpserver.html
 https://www.geeksforgeeks.org/udp-server-client-implementation-c/
@@ -80,7 +90,7 @@ Csound
 Open Sound Control (OSC)
 ------------------
 
-- This development will be made easy by using ChatGPT
+- This development should be easy, using ChatGPT ;-)
 - Read https://en.wikipedia.org/wiki/Open_Sound_Control
 - This might create a framework for connecting BP3 with PYO (http://ajaxsoundstudio.com/software/pyo/)
 - Also try direct communication with MuseScore
@@ -112,7 +122,7 @@ Interruption
 - We need another multi-platform technique to do the same from the STOP button, but none of the solutions suggested by ChatGPT were satisfactory.
 
 
-MIDI player
+MIDI file player
 -----------
 
 - Implement Pause and Resume (check https://www.midijs.net/midijs_api.html)
@@ -160,9 +170,10 @@ MIDI files (Probably unnecessary, as MIDI file creation works perfectly.)
 Images
 --------------
 
-- When no settings file is specified, allow the creation of images via a command line option. This option should specify a location for images. Currently, image location is the one of the trace file.
+- In Graphic.c, in the Improvize mode, dates on the ruler are adjusted by the "shift" variable. This doesn't yet work on the "pianoroll" type, because its background is drawn before updating PianorollShift. This could be solved by drawing the pianoroll graph after the completion of MakeSound, i.e. when calling DrawItem(). To this effect, the drawings of notes would be stored in a structure.
+- When no settings file is specified, allow the creation of images via a command line option. This option should specify a location for images. Currently, image location is the one of the trace file which is always specified by the HTML/PHP interface.
 - Revise the drawing of time streaks (the vertical blue lines). These should be adjusted to the (varying) tempo instead of the default metronomic setting.
-- Fix negative values (for blue lines) on some sound-object graphs
+- Check again negative values (for blue lines) on some sound-object graphs
 
 
 Documentation

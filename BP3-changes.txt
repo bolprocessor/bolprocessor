@@ -1,14 +1,25 @@
-Bol Processor BP3 list of changes
+Bol Processor BP3 history of changes
 =================================
 
 Current location of this file:
 https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.txt
+Read also the "to-do" file:
+https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-To-Do.txt
 
 -----
 2024-05-07
 This is the first implementation of real-time MIDI output in the BP3.  It works well, but the STOP button used to interrupt improvisation does not always immediately create the "_stop" file that tells the application to stop.
 The current MIDI output sends MIDI messages to the first available MIDI destination, but it will be easy to modify the interface and the console to select more destinations.
+
 This version should work on all platforms: MacOS, Linux and Windows. Conditional compilation of C code and interpretation of PHP code make it possible. However, we need feedback from Linux and Windows users.
 A (very small) dummy application called "MIDItest" has been designed to check MIDI output on the three platforms. Its source code "MIDItest.c" is provided so that Linux/Windows testers can suggest modifications to make it work as expected.
+
 Real-time MIDI uses CoreMIDI on MacOS, ALSA on Linux and MinGW on Windows. More information on this page (which you can help to improve):
 https://bolprocessor.org/check-bp3/#compile-bp-and-check-its-operation
+
+-----
+2024-05-10
+Fixed timing in Csound scores (when improvising).
+Real dates are displayed on sound-object graphs in the Improvize mode, but not yet on pianoroll graphs.
+Fixed add_time for silences at the end of items in the Improvize mode. (Needs more checking.)
+Sometimes the console stays hanging and the interface no longer responds. To get out of this problem, restart Apache (or the MAMP application).

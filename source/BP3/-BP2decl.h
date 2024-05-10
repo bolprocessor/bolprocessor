@@ -157,12 +157,12 @@ extern char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulati
 	ChangedPressure[MAXCHAN+1],WhichCsoundInstrument[MAXCHAN+1];
 extern int Jbol,Jinstr,Jfunc,Jinscript,Maxinscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,
 	MaxVar,Jhomo,**p_VarStatus,iCsoundInstrument;
-extern int FreezeWindows,StartFromOne,OutMIDI,OutCsound,MustChangeInput,
+extern int FreezeWindows,StartFromOne,OutMIDI,OutCsound,OutBPdata,MustChangeInput,
 	SmartCursor,NotSaidKpress,**p_MemGram,**p_MemRul;
 extern long ProduceStackDepth,ProduceStackIndex,DisplayStackIndex,
 	**p_LastStackIndex,**p_MemPos;
 extern long **p_ItemStart,**p_ItemEnd,CompileDate,ComputeStart,MaxComputeTime,
-	ComputeTime,Maxitems,ItemNumber,Interrupted,MaxDeriv,Sel1,Sel2;
+	ComputeTime,Maxitems,ItemNumber,Interrupted,MaxDeriv,Sel1,Sel2,AssignedTempoCsoundFile;
 extern int Nplay,SynchroSignal,QuantizeOK,IgnoreCase,
 	MatchWords,TargetWindow,GraphicScaleP,GraphicScaleQ;
 extern long Time_res,Quantization;
@@ -387,7 +387,6 @@ extern int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 extern FILE * imagePtr;
 extern int N_image;
 extern long MaxConsoleTime;
-extern int CsoundPianoRollNoteShift;
 extern int NumberScales, MaxScales, DefaultScale, ToldAboutScale;
 extern char LastSeen_scale[100];
 extern t_scale** Scale;

@@ -225,7 +225,6 @@ if(Improvize && ShowGraphic) {
 	}
 
 MAKE:
-
 if(!Improvize || ShowMessages) ShowMessage(TRUE,wMessage,"\nProducing item(s)...");
 BufferSize = DeftBufferSize;
 ProduceStackIndex = DisplayStackIndex = SkipFlag = FALSE;
@@ -296,7 +295,6 @@ else {
 	}
 
 DOIT:
-
 DataOrigin = GetTextLength(OutputWindow);
 if(!PlaySelectionOn) SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
 lengthA = LengthOf(pp_a);
@@ -335,7 +333,7 @@ if(!PlaySelectionOn && Improvize) {
 		if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
 	//	ShowSelect(CENTRE,OutputWindow);
 		}
-	if((OutMIDI || OutCsound || WriteMIDIfile)
+	if((OutMIDI || OutCsound || WriteMIDIfile || OutBPdata)
 		&& ((r=PlayBuffer(pp_a,NO)) == ABORT || r == EXIT)) goto QUIT;
 	goto MAKE;
 	}
@@ -354,7 +352,7 @@ if(!PlaySelectionOn && DisplayItems) {
 	Dirty[OutputWindow] = TRUE;
 	}
 // if((!DisplayItems || PlaySelectionOn) && (OutMIDI || OutCsound || WriteMIDIfile)) {
-if(ShowGraphic || OutMIDI || OutCsound || WriteMIDIfile) {
+if(ShowGraphic || OutMIDI || OutCsound || WriteMIDIfile  || OutBPdata) {
 	r = PlayBuffer(pp_a,NO);
 	if(r == RESUME) goto MAKE;
 	goto QUIT;

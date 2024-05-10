@@ -6,7 +6,9 @@
 	],
 	"settings": {
 		"files.associations": {
-			"__locale": "c"
+			"__locale": "c",
+			"ios": "c",
+			"-bp2decl.h": "c"
 		},
 		"search.useGlobalIgnoreFiles": false
 	}

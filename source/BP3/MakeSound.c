@@ -43,7 +43,7 @@ extern int resize;
 int trace_csound_pianoroll = 0;
 
 int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
-	tokenbyte ***pp_b,long tmin,long tmax,int interruptok,int showpianoroll,
+	tokenbyte ***pp_b,long tmin,long tmax,int interruptok,
 	Milliseconds **p_delta)
 {
 PerfParameters ****pp_currentparams,**ptrperf;
@@ -62,7 +62,7 @@ int w,y,ii,iii,j,jj,k,kcurrentinstance,n,occurrence,s,in,itick,c,c0,c1,oldc1,c2,
 	foundlasteventinperiod,foundfirstevent,cswrite,nextisobject,exclusive,themessage,
 	okvolume,okpanoramic,okpitchbend,okpressure,okmodulation,hrect,htext,leftoffset,topoffset,
 	contchan,volume,panoramic,pitchbend,modulation,pressure,**p_seqcont[MAXCHAN+1],
-	octave,pitchclass,time_pattern;
+	octave,pitchclass,time_pattern,showpianoroll;
 	
 Milliseconds time,buffertime,torigin,t0,t1,t11,t2,t2obj,
 	t2tick,t22,t3,date1,**p_t1,**p_t2cont[MAXCHAN+1],timeon[MAXKEY],
@@ -87,7 +87,7 @@ GDHandle gdh;
 Rect graphrect,labelrect;
 GrafPtr saveport;
 Str255 label;
-Milliseconds t;
+Milliseconds time_ms;
 
 w = wGraphic;
 maxmidibytes5 = MaxMIDIbytes / 5L;
@@ -120,6 +120,7 @@ if(!cswrite && !OutMIDI && !MIDIfileOn && !ShowGraphic && !showpianoroll) {
 interruptedonce = overflow = FALSE;
 rs = 0;
 resetok = TRUE;
+// max_endtime_event = max_endtime = ZERO;
 
 // if(MIDIfileOn) BPPrintMessage(odInfo, "MIDI file will be created\n");
 
@@ -331,8 +332,6 @@ for(k=2; k <= (*p_kmax); k++) {
 		}
 	}
 
-
-CsoundPianoRollNoteShift = 0;
 for(k=2; k <= (*p_kmax); k++) {
 	j = (*p_Instance)[k].object;
 	if(j == 0) continue;
@@ -346,9 +345,9 @@ for(k=2; k <= (*p_kmax); k++) {
 	if((k != kfirstinstance) && (((*p_Instance)[k].starttime - preroll) < t22)) {
 		t22 = ((*p_Instance)[k].starttime - preroll);
 		}
-	if((*p_Instance)[k].starttime < CsoundPianoRollNoteShift) CsoundPianoRollNoteShift = (*p_Instance)[k].starttime;
 	}
 SoundOn = TRUE;
+
 if(showpianoroll) {
 	minkey = 127; maxkey = 0;
 	tmax = ZERO;
@@ -454,7 +453,7 @@ if(showpianoroll) {
 	if(ShowGraphic) {
 		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Drawing item background\n");
 		if((result=DrawItemBackground(&graphrect,imaxstreak,htext,hrect,leftoffset,NO,
-			p_delta,&yruler,topoffset,&overflow)) != OK || overflow) goto OUTGRAPHIC;
+			p_delta,&yruler,topoffset,&overflow,"pianoroll")) != OK || overflow) goto OUTGRAPHIC;
 		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"End of drawing item background\n");
 		DrawNoteScale(&graphrect,w,minkey,maxkey,hrect,leftoffset,topoffset);
 		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"End of drawing note scale\n");
@@ -572,7 +571,7 @@ START2:
 if(cswrite) {
 	if((result=CompileCsoundObjects()) != OK) goto OVER;
 	if(Jinstr == 1 && (*p_CsInstrumentIndex)[0] == -1) {
-		BPPrintMessage(odInfo,"\nCouldn't find Csound instrument index. Index '1' will be assigned by default\n");
+		BPPrintMessage(odInfo,"\nCouldn't find a Csound instrument index. Index '1' will be assigned by default\n");
 		WaitABit(1000L);
 		}
 		
@@ -699,7 +698,6 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 	
 	if((MIDIfileOn || cswrite || showpianoroll || OutMIDI
 			|| ItemNumber == ZERO || PlaySelectionOn || ItemCapture) && !CyclicPlay) {
-		// if(!showpianoroll && !cswrite && !MIDIfileOn) SetDriverTime(Tcurr); // Revise this! 2021-02-26
 		if(!cswrite && !MIDIfileOn && !ItemCapture) // Fixed by BB 2022-02-22
 			Tcurr += (SetUpTime + 600L) / Time_res;
 		currenttime = Tcurr * Time_res;
@@ -723,13 +721,16 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 	
 	if(Improvize && (LastTcurr > ZERO)) {
 		PianorollShift = LastTcurr;
-		Tcurr = LastTcurr/ Time_res;; // 2024-05-02
+		Tcurr = LastTcurr / Time_res; // 2024-05-02
 		t0 = Tcurr * Time_res;
-	//	BPPrintMessage(odInfo,"LastTcurr = %ld\n",(long)LastTcurr);
+	//	BPPrintMessage(odInfo,"PianorollShift = %ld\n",(long)PianorollShift);
 		}
 	else {
 		Tcurr = (t0 + t1) / Time_res;
-		if(OutMIDI) PianorollShift = SetUpTime + 600L;
+		if(OutMIDI) {
+			PianorollShift = SetUpTime + 600L;
+				BPPrintMessage(odInfo,"PianorollShift = %ld\n",(long)PianorollShift);
+				}
 		}
 	
 	if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Tcurr = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)t0,(long)t1,(long)Time_res);
@@ -756,18 +757,14 @@ TRYCSFILE:
 			Println(wPrototype7,Message);
 		else {
 			if(CsoundTrace) ShowMessage(TRUE,wMessage,Message);
-		/*	{
-				SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
-				Println(wTrace,Message); 
-				} */
-			if(WriteToFile(NO,CsoundFileFormat,Message,CsRefNum) != OK) {
-			/*	sprintf(Message,"Couldn't write to file '%s'. May be it has been closed by another application",
-					CsFileName);
-				Alert1(Message); */
-				BPPrintMessage(odError,"=> Couldn't write to file '%s'. May be it has been closed by another application\n");
-				CloseCsScore();
-				if((result=PrepareCsFile()) != OK) goto OVER;
-				goto TRYCSFILE;
+			if(!Improvize || !AssignedTempoCsoundFile) {
+				AssignedTempoCsoundFile = TRUE;
+				if(WriteToFile(NO,CsoundFileFormat,Message,CsRefNum) != OK) {
+					BPPrintMessage(odError,"=> Couldn't write to file '%s'. May be it has been closed by another application\n");
+					CloseCsScore();
+					if((result=PrepareCsFile()) != OK) goto OVER;
+					goto TRYCSFILE;
+					}
 				}
 			}
 		}
@@ -1094,7 +1091,6 @@ TRYCSFILE:
 					}
 				}
 FORGETIT:
-		//	if(kcurrentinstance > 1 && !showpianoroll) { Fixed by BB 2022-02-22
 			if(kcurrentinstance > 1) {
 				if(trace_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance = %ld and not showpianoroll\n",(long)kcurrentinstance);
 				Tcurr = (t0 + t1) / Time_res;
@@ -1462,21 +1458,12 @@ SWITCHES:
 // Send messages of sound-object instance kcurrentinstance as long as possible
 
 PLAYOBJECT:
-		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"\nPLAYOBJECT: k = %d j = %d objectduration = %ld t1 = %ld t2 = %ld t3 = %ld ievent = %d im = %d\n",kcurrentinstance,j,objectduration,(long)t1,(long)t2,(long)t3,ievent,im);
+		if(trace_csound_pianoroll) 
+			BPPrintMessage(odInfo,"\nPLAYOBJECT: k = %d j = %d objectduration = %ld t1 = %ld t2 = %ld t3 = %ld ievent = %d im = %d\n",kcurrentinstance,j,objectduration,(long)t1,(long)t2,(long)t3,ievent,im);
 		while(t1 <= t2  && t1 <= t3  && ievent < im) {
 	//	while(t1 <= t2  && t1 <= t3  && (ievent < im || j == 1)) { // Fixed by BB 2021-01
 			Tcurr =  (t0 + t1) / Time_res;
 			if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Tcurr = %ld, j = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)j,(long)t0,(long)t1,(long)Time_res);
-			
-#if BP_CARBON_GUI_FORGET_THIS
-			// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-			// Does the call to MyButton() happen now that maxmidibytes5 = LONG_MAX / 5 ?
-	/*		if(Nbytes > maxmidibytes5 && !showpianoroll && (result=MyButton(1)) != MISSED) {
-				interruptedonce = TRUE;
-				if(result != OK || (result=InterruptSound()) != OK) goto OVER;
-				} */
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
 			result = OK;
 			if(objectduration > ZERO) howmuch = ((float)(t1 - objectstarttime)) / objectduration;
 			else howmuch = 0.;
@@ -1484,6 +1471,7 @@ PLAYOBJECT:
 				
 			/* Writing a Csound event taken from the Csound score of a sound-object */
 			if(cswrite && j < Jbol && (*p_CsoundSize)[j] > 0 && !ConvertMIDItoCsound) { 
+	//			BPPrintMessage(odInfo,"1) k = %d j= %d\n",k,j);
 				if((result=CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,LINE,beta,(t0 + t1),ievent,0,0,0,0,j,
 					nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT) goto OVER;
 				goto NEWPERIOD;
@@ -1899,40 +1887,12 @@ FINDNEXTEVENT:
 			}
 #endif
 		}
-	
-	// Calculate duration of silence at the end in order to append it after the Csound score or MIDI stream
-	// Added by BB 2021-02-06
-	max_endtime_event = max_endtime = ZERO;
-	for(k=2; k <= (*p_kmax); k++) {
-		j = (*p_Instance)[k].object;
-		if(j > 1 && (*p_Instance)[k].endtime > max_endtime_event) max_endtime_event = (*p_Instance)[k].endtime;
-		if((*p_Instance)[k].endtime > max_endtime) max_endtime = (*p_Instance)[k].endtime;
-		}
-	add_time = max_endtime - max_endtime_event;
-	if(trace_csound_pianoroll) BPPrintMessage(odInfo,"max_endtime = %ld, max_endtime_event= %ld\n",(long)max_endtime,(long)max_endtime_event);
-	if(add_time > ZERO) { // Check this! 2021-02-26
-		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"\nNeed to add_time = %ld ms Tcurr = %ld\n",add_time,(long)Tcurr);
-		if(MIDIfileOn) {
-			e.time = Tcurr;
-			e.type = NORMAL_EVENT;
-			e.status = NoteOn;
-			e.data1 = 0;
-			e.data2 = 0;
-			if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
-			}
-		if(cswrite && !ConvertMIDItoCsound) {
-		//	sprintf(Message,"i1 %.3f %.3f 0.00 0 0 ; silence",((Tcurr * Time_res)/1000.),((add_time * Time_res)/1000.));
-			sprintf(Message,"i1 %.3f %.3f 0.00 0 0 ; silence",((Tcurr * Time_res)/1000.),add_time /1000.);
-			// Fixed by BB 2024-05-06
-			BPPrintMessage(odInfo,"Added silence of %.3f sec at Tcurr = %.3f sec.\n",((add_time * Time_res)/1000.),((Tcurr * Time_res)/1000.));
-		//	sprintf(Message,"e %.3f ; silence",(add_time/1000.)); This only works at the end of a score, therefore not in PlayAll
-			 WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);
-			}
-		}
 			
 	// Display in pianoroll all notes contained in Csound score, even if not creating Csound output
-	if(!cswrite && showpianoroll) {
-	//	BPPrintMessage(odInfo,"\nDisplaying in pianoroll all notes contained in Csound scores\n");
+//	if(false && !cswrite && showpianoroll) {
+	if(showpianoroll) {
+		// This has been inactivated because (1) it doesn't seem useful and (2) it makes a few errors in timing notes within sound-objects, e.g. -gr.koto3. Needs to be revised once we have real-time Csound output
+	//	BPPrintMessage(odInfo,"\nDisplay in pianoroll all notes contained in Csound scores\n");
 		for(k=2; k <= (*p_kmax); k++) {
 			j = (*p_Instance)[k].object;
 			if(j < 1) continue;
@@ -1957,24 +1917,22 @@ FINDNEXTEVENT:
 						strikeagain = FALSE;
 						break;
 					}
-				t = date1;
+				time_ms = date1;
+		/*		BPPrintMessage(odInfo,"2) k = %d j= %d\n",k,j); // 2025-05-09
 				for(ievent = 0 ; ievent < (*p_CsoundSize)[j]; ievent++) { 
 					p_line = (*pp_CsoundScoreText)[j];
 					if(strlen((*p_line)) > 0) {
-						t += (*((*pp_CsoundTime)[j]))[ievent] * Pclock / Qclock;
+						time_ms += (*((*pp_CsoundTime)[j]))[ievent] * Pclock / Qclock;
 						if((result=CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,
-							strikeagain,LINE,beta,t,ievent,0,0,0,0,j,nseq,k,pp_currentparams,scale,blockkey)) == ABORT) goto OVER; 
+							strikeagain,LINE,beta,time_ms,ievent,0,0,0,0,j,nseq,k,pp_currentparams,scale,blockkey)) == ABORT) goto OVER; 
 						} 
-					}
+					} */
 				}
 			}
 		}
 			
 	currenttime = Tcurr * Time_res;
 	mustwait = TRUE;
-	
-	if(cswrite && result == OK && !ConvertMIDItoCsound) // ConvertMIDItoCsound is always false in the console version
-		WriteToFile(NO,CsoundFileFormat,"s",CsRefNum); // This line will automatically be deleted if this score belongs to a sound-objectt prototype — see function fix_csound_score() in prototype.php
 	}
 
 // End of the Nplay performances
@@ -2166,16 +2124,50 @@ GETOUT:
 
 if(EventState == AGAIN) result = AGAIN;
 
-if(cswrite && result == OK) {
-	if(!ConvertMIDItoCsound) {
-	//	WriteToFile(NO,CsoundFileFormat,"s",CsRefNum);
-	//	if(CsoundTrace) /* Println(wTrace,"s\n"); */ ShowMessage(TRUE,wMessage,"s\n");
-		}
-	else {
-		Println(wPrototype7,"e");
-		ShowSelect(CENTRE,wPrototype7);
+// Calculate duration of silence at the end in order to append it after the Csound score or MIDI stream
+// Added by BB 2021-02-06
+max_endtime_event = max_endtime = ZERO;
+for(k=2; k <= (*p_kmax); k++) {
+	j = (*p_Instance)[k].object;
+	// BPPrintMessage(odInfo,"k = %ld, j =  %d, max_endtime = %ld\n",(long)k,j,(long)max_endtime);
+	if(j > 1 && (*p_Instance)[k].endtime > max_endtime_event) max_endtime_event = (*p_Instance)[k].endtime;
+	if((*p_Instance)[k].endtime > max_endtime) {
+		max_endtime = (*p_Instance)[k].endtime;
 		}
 	}
+add_time = max_endtime - max_endtime_event;
+
+if(trace_csound_pianoroll) 
+	BPPrintMessage(odInfo,"max_endtime = %ld, max_endtime_event= %ld\n",(long)max_endtime,(long)max_endtime_event);
+
+if(add_time > ZERO  && Improvize) { // 2024-05-09
+	if(MIDIfileOn || OutMIDI) {
+		e.time = Tcurr;
+		e.type = NORMAL_EVENT;
+		e.status = NoteOn;
+		e.data1 = 0;
+		e.data2 = 0;
+		if((result=SendToDriver((Tcurr * Time_res),nseq,&rs,&e)) != OK) goto OVER;
+		e.time = Tcurr + (add_time / Time_res);
+		e.type = NORMAL_EVENT;
+		e.status = NoteOn;
+		e.data1 = 0;
+		e.data2 = 0;
+		if((result=SendToDriver(((Tcurr * Time_res) + add_time),nseq,&rs,&e)) != OK) goto OVER;
+		}
+	if(cswrite) {
+	//	BPPrintMessage(odInfo,"Added silence of %.3f sec at time = %.3f sec.\n",(add_time / 1000.),((LastTcurr + max_endtime_event) / 1000.));
+		sprintf(Message,"i1 %.3f %.3f 0.00 0 0 ; silence",((LastTcurr + max_endtime_event) /1000.),add_time /1000.);
+	//	sprintf(Message,"s %.3f ; silence",add_time /1000.); // Doesn't work: too long?
+		WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);
+		}
+	}
+if(cswrite) LastTcurr += max_endtime;
+
+if(cswrite && result == OK && !Improvize && !ConvertMIDItoCsound) // ConvertMIDItoCsound is always false in the console version
+	WriteToFile(NO,CsoundFileFormat,"s",CsRefNum); // This line will automatically be deleted if this score belongs to a sound-object prototype — see function fix_csound_score() in prototype.php
+
+if(cswrite) WriteToFile(NO,CsoundFileFormat,";",CsRefNum);
 
 for(ch=0; ch < MAXCHAN; ch++) {
 	h = (Handle) p_keyon[ch];
@@ -2213,11 +2205,8 @@ MyDisposeHandle((Handle*)&p_currmapped);
 SoundOn = FALSE;
 
 if(!MIDIfileOn && !cswrite && OutMIDI && !showpianoroll) {
-// #if WITH_REAL_TIME_MIDI_FORGET_THIS  // 2024-05-02
-//	drivertime = GetDriverTime();
 	drivertime = getClockTime();
 	if(!FirstTime) ComputeStart = drivertime;
-// #endif
 	}
 
 if(showpianoroll) Tcurr = oldtcurr;
@@ -2326,12 +2315,12 @@ return(ch);
 }
 								
 								
-double ContinuousParameter(Milliseconds t,int paramseq,ControlStream **p_stream)
+double ContinuousParameter(Milliseconds time_ms,int paramseq,ControlStream **p_stream)
 {
 double param;
 
 param = (*p_stream)[paramseq].startvalue
-		+ ((double)(*p_stream)[paramseq].difference * (t - (*p_stream)[paramseq].starttime))
+		+ ((double)(*p_stream)[paramseq].difference * (time_ms - (*p_stream)[paramseq].starttime))
 			/ (*p_stream)[paramseq].dur;
 return(param);
 }

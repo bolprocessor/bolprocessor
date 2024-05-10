@@ -1783,9 +1783,9 @@ int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 	int c0,c1,c2,status,chan,done;
 	byte midibyte;
 
+	LastTcurr = time;
 	if(Panic || EmergencyExit) return(ABORT);
 	if(!MIDIfileOn && !OutMIDI) return(OK);
-	LastTcurr = time;
 	if(OutMIDI) {
         done = 0;
     	if(trace_driver) BPPrintMessage(odInfo,"Sending MIDI event time = %ld ms,\tstatus = %ld,\tdata1 = %ld,\tdata2 = %ld\n",(long)time,(long)p_e->status,(long)p_e->data1,(long)p_e->data2);

@@ -132,6 +132,7 @@ Option = TickDone = FoundNote = GotAlert = UsedRandom = SaidTooComplex = FALSE;
 POLYconvert = OkShowExpand = FALSE;
 NewOrchestra = TRUE;
 ItemNumber = ZERO;
+AssignedTempoCsoundFile = FALSE;
 MaxConsoleTime = 120;
 Ratio = 0.;  Prod = 1.;
 N_image = 1; imagePtr = NULL;
@@ -686,125 +687,124 @@ return(OK);
 }
 
 
-int SetNoteNames(void)
-{
-int i,j,notenum,octave;
-char **ptr;
+int SetNoteNames(void) {
+	int i,j,notenum,octave;
+	char **ptr;
 
-// MoreConvention = MAXCONVENTIONS;
-for(i=0; i < MAXCONVENTIONS; i++) {
-	if((p_NoteName[i] = (char****) GiveSpace((Size) 128 * sizeof(char**)))
-		== NULL) return(ABORT);
-	if((p_AltNoteName[i] = (char****) GiveSpace((Size) 128 * sizeof(char**)))
-		== NULL) return(ABORT);
-	if((p_NoteLength[i] = (int**) GiveSpace((Size) 128 * sizeof(int)))
-		== NULL) return(ABORT);
-	if((p_AltNoteLength[i] = (int**) GiveSpace((Size) 128 * sizeof(int)))
-		== NULL) return(ABORT);
-	for(j=0; j < 128; j++) {
-		if((ptr=(char**) GiveSpace((Size) NOTESIZE * sizeof(char))) == NULL) return(ABORT);
-		(*(p_NoteName[i]))[j] = ptr;
-		if((ptr=(char**) GiveSpace((Size) NOTESIZE * sizeof(char))) == NULL) return(ABORT);
-		(*(p_AltNoteName[i]))[j] = ptr;
-		notenum = j % 12;
-		octave = (j - notenum) / 12;
-		switch(i) {
-			case FRENCH:
-				octave -= 2;
-				switch(octave) {
-					case -2:
-						sprintf(Message,"%s000",Frenchnote[notenum]); break;
-					case -1:
-						sprintf(Message,"%s00",Frenchnote[notenum]); break;
-					default:
-						sprintf(Message,"%s%ld",Frenchnote[notenum],(long)octave);
-						break;
-					}
-				break;
-			case ENGLISH:
-				octave--;
-				switch(octave) {
-					case -1:
-						sprintf(Message,"%s00",Englishnote[notenum]); break;
-					default:
-						sprintf(Message,"%s%ld",Englishnote[notenum],(long)octave);
-						break;
-					}
-				break;
-			case INDIAN:
-				octave--;
-				switch(octave) {
-					case -1:
-						sprintf(Message,"%s00",Indiannote[notenum]); break;
-					default:
-						sprintf(Message,"%s%ld",Indiannote[notenum],(long)octave);
-						break;
-					}
-				break;
-			default:
-		//	case KEYS:
-		//	case CUSTOM:
-				sprintf(Message,"%s%ld",KeyString,(long)j);
-				break;
+	// MoreConvention = MAXCONVENTIONS;
+	for(i=0; i < MAXCONVENTIONS; i++) {
+		if((p_NoteName[i] = (char****) GiveSpace((Size) 128 * sizeof(char**)))
+			== NULL) return(ABORT);
+		if((p_AltNoteName[i] = (char****) GiveSpace((Size) 128 * sizeof(char**)))
+			== NULL) return(ABORT);
+		if((p_NoteLength[i] = (int**) GiveSpace((Size) 128 * sizeof(int)))
+			== NULL) return(ABORT);
+		if((p_AltNoteLength[i] = (int**) GiveSpace((Size) 128 * sizeof(int)))
+			== NULL) return(ABORT);
+		for(j=0; j < 128; j++) {
+			if((ptr=(char**) GiveSpace((Size) NOTESIZE * sizeof(char))) == NULL) return(ABORT);
+			(*(p_NoteName[i]))[j] = ptr;
+			if((ptr=(char**) GiveSpace((Size) NOTESIZE * sizeof(char))) == NULL) return(ABORT);
+			(*(p_AltNoteName[i]))[j] = ptr;
+			notenum = j % 12;
+			octave = (j - notenum) / 12;
+			switch(i) {
+				case FRENCH:
+					octave -= 2;
+					switch(octave) {
+						case -2:
+							sprintf(Message,"%s000",Frenchnote[notenum]); break;
+						case -1:
+							sprintf(Message,"%s00",Frenchnote[notenum]); break;
+						default:
+							sprintf(Message,"%s%ld",Frenchnote[notenum],(long)octave);
+							break;
+						}
+					break;
+				case ENGLISH:
+					octave--;
+					switch(octave) {
+						case -1:
+							sprintf(Message,"%s00",Englishnote[notenum]); break;
+						default:
+							sprintf(Message,"%s%ld",Englishnote[notenum],(long)octave);
+							break;
+						}
+					break;
+				case INDIAN:
+					octave--;
+					switch(octave) {
+						case -1:
+							sprintf(Message,"%s00",Indiannote[notenum]); break;
+						default:
+							sprintf(Message,"%s%ld",Indiannote[notenum],(long)octave);
+							break;
+						}
+					break;
+				default:
+			//	case KEYS:
+			//	case CUSTOM:
+					sprintf(Message,"%s%ld",KeyString,(long)j);
+					break;
+				}
+		//	BPPrintMessage(odInfo,"key = %d notenum = %d octave = %d  name = %s\n",j,notenum,octave,Message);
+			MystrcpyStringToTable(p_NoteName[i],j,Message);
+			(*(p_NoteLength[i]))[j] = MyHandleLen((*(p_NoteName[i]))[j]);
+			octave = (j - notenum) / 12;
+			if(notenum == 0) octave--;
+			if(notenum == 11) octave++;
+			switch(i) {
+				case FRENCH:
+					octave -= 2;
+					switch(octave) {
+						case -2:
+							sprintf(Message,"%s000",AltFrenchnote[notenum]); break;
+						case -1:
+							sprintf(Message,"%s00",AltFrenchnote[notenum]); break;
+						default:
+							sprintf(Message,"%s%ld",AltFrenchnote[notenum],(long)octave);
+							break;
+						}
+					break;
+				case ENGLISH:
+					octave--;
+					switch(octave) {
+						case -1:
+							sprintf(Message,"%s00",AltEnglishnote[notenum]); break;
+						default:
+							sprintf(Message,"%s%ld",AltEnglishnote[notenum],(long)octave);
+							break;
+						}
+					break;
+					break;
+				case INDIAN:
+					octave--;
+					switch(octave) {
+						case -1:
+							sprintf(Message,"%s00",AltIndiannote[notenum]); break;
+						default:
+							sprintf(Message,"%s%ld",AltIndiannote[notenum],(long)octave);
+							break;
+						}
+					break;
+				default:
+			//	case KEYS:
+			//	case CUSTOM:
+					sprintf(Message,"%s%ld",KeyString,(long)j);
+					break;
+				}
+		//	BPPrintMessage(odInfo,"ALT key = %d notenum = %d octave = %d  name = %s\n",j,notenum,octave,Message);
+			MystrcpyStringToTable(p_AltNoteName[i],j,Message);
+			(*(p_AltNoteLength[i]))[j] = MyHandleLen((*(p_AltNoteName[i]))[j]);
 			}
-	//	BPPrintMessage(odInfo,"key = %d notenum = %d octave = %d  name = %s\n",j,notenum,octave,Message);
-		MystrcpyStringToTable(p_NoteName[i],j,Message);
-		(*(p_NoteLength[i]))[j] = MyHandleLen((*(p_NoteName[i]))[j]);
-		octave = (j - notenum) / 12;
-		if(notenum == 0) octave--;
-		if(notenum == 11) octave++;
-		switch(i) {
-			case FRENCH:
-				octave -= 2;
-				switch(octave) {
-					case -2:
-						sprintf(Message,"%s000",AltFrenchnote[notenum]); break;
-					case -1:
-						sprintf(Message,"%s00",AltFrenchnote[notenum]); break;
-					default:
-						sprintf(Message,"%s%ld",AltFrenchnote[notenum],(long)octave);
-						break;
-					}
-				break;
-			case ENGLISH:
-				octave--;
-				switch(octave) {
-					case -1:
-						sprintf(Message,"%s00",AltEnglishnote[notenum]); break;
-					default:
-						sprintf(Message,"%s%ld",AltEnglishnote[notenum],(long)octave);
-						break;
-					}
-				break;
-				break;
-			case INDIAN:
-				octave--;
-				switch(octave) {
-					case -1:
-						sprintf(Message,"%s00",AltIndiannote[notenum]); break;
-					default:
-						sprintf(Message,"%s%ld",AltIndiannote[notenum],(long)octave);
-						break;
-					}
-				break;
-			default:
-		//	case KEYS:
-		//	case CUSTOM:
-				sprintf(Message,"%s%ld",KeyString,(long)j);
-				break;
-			}
-	//	BPPrintMessage(odInfo,"ALT key = %d notenum = %d octave = %d  name = %s\n",j,notenum,octave,Message);
-		MystrcpyStringToTable(p_AltNoteName[i],j,Message);
-		(*(p_AltNoteLength[i]))[j] = MyHandleLen((*(p_AltNoteName[i]))[j]);
 		}
+	for(i=0; i < 12; i++) NameChoice[i] = 0;
+	#if BP_CARBON_GUI_FORGET_THIS
+	return(SetNameChoice());
+	#else
+	return(OK);
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
 	}
-for(i=0; i < 12; i++) NameChoice[i] = 0;
-#if BP_CARBON_GUI_FORGET_THIS
-return(SetNameChoice());
-#else
-return(OK);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-}
 
 
 int Ctrlinit(void)
@@ -1644,6 +1644,7 @@ int InitButtons(void)
 #else
   OutMIDI = FALSE;
 #endif
+OutBPdata = FALSE;
 ObjectMode = ObjectTry = Improvize = StepProduce = StepGrammars
 	= PlanProduce = DisplayProduce = UseEachSub
 	= TraceProduce = DisplayTimeSet = StepTimeSet = TraceTimeSet
