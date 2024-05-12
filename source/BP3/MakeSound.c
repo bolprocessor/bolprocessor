@@ -436,20 +436,21 @@ if(showpianoroll) {
 	if(leftoffset >= 0)
 		endxmax = leftoffset + 50 + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10;
 	else endxmax = 50 + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10;
+	// BPPrintMessage(odInfo,"\nendxmax = %ld\n",endxmax);
 	if(endxmax < 100) endxmax = 100;
 	endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
 	// BPPrintMessage(odInfo,"@ minkey = %d maxkey = %d endymax = %d\n",minkey,maxkey,endymax);
-	if(WidthMax < 32767) WidthMax = 2 * endxmax + 40;
+	if(WidthMax < 32000) WidthMax = 2 * endxmax + 40;
 	BPPrintMessage(odInfo,Message);
-	if(WidthMax > 32767) {
-		BPPrintMessage(odInfo,"\nImage width %d was too large: it has been cropped to 32767\n",WidthMax);
-		WidthMax = 32767;
+	if(WidthMax > 32000) {
+		BPPrintMessage(odInfo,"\nImage width %d was too large: it has been cropped to 32000\n",WidthMax);
+		WidthMax = endxmax = 32000;
 		}
 	
 	graphrect.top = graphrect.left = 0;
 	graphrect.bottom = graphrect.top + endymax;
 	graphrect.right = graphrect.left + endxmax;
-	
+	// BPPrintMessage(odInfo,"\ngraphrect.left = %ld, graphrect.right = %ld, endxmax = %ld\n",(long)graphrect.left,(long)graphrect.right,endxmax);
 	if(ShowGraphic) {
 		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Drawing item background\n");
 		if((result=DrawItemBackground(&graphrect,imaxstreak,htext,hrect,leftoffset,NO,
@@ -729,8 +730,9 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 		Tcurr = (t0 + t1) / Time_res;
 		if(OutMIDI) {
 			PianorollShift = SetUpTime + 600L;
-				BPPrintMessage(odInfo,"PianorollShift = %ld\n",(long)PianorollShift);
-				}
+		//	if(!Improvize) PianorollShift = 0L;
+			BPPrintMessage(odInfo,"PianorollShift = %ld\n",(long)PianorollShift);
+			}
 		}
 	
 	if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Tcurr = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)t0,(long)t1,(long)Time_res);

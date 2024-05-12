@@ -884,7 +884,7 @@ if(nseq >= Maxconc) {
 	// BPPrintMessage(odError,"=> Err. Next_choice(). nseq >= Maxconc\n");
 	return(OK);
 	}
-if(TraceTimeSet || TRUE) {
+if(TraceTimeSet) {
 	if(j < 16384) {
 		if(j < Jbol)
 			sprintf(Message,"Col#%ld nseq = %ld side = %ld ts = %ld  t1 = %ld  t2 = %ld \"%s\" \n",

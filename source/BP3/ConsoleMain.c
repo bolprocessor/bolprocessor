@@ -308,7 +308,8 @@ int main (int argc, char* args[])
 	// CloseFileAndUpdateVolume(&TempRefnum);
 	CloseCsScore();
 	CloseOutputDestination(odTrace, &gOptions, ofiTraceFile);
-	if(InBuiltDriverOn) {
+	CreateDoneFile();
+	if(InBuiltDriverOn && OutMIDI) {
 		if(Panic) eventCount = 0L;
 		while(eventCount > 0L) {
 			MIDIflush();  // Process MIDI events
@@ -318,9 +319,6 @@ int main (int argc, char* args[])
 		AllNotesOffAllChannels();
 		closeMIDISystem();
 		}
-	
-	// Create "done.txt" file
-	CreateDoneFile();
 	time(&current_time);
 	if(ProductionTime > 0) BPPrintMessage(odInfo, "Production time: %ld seconds\n",(long)ProductionTime);
 	if(PhaseDiagramTime > 0) BPPrintMessage(odInfo, "Phase-diagram filling time: %ld seconds\n",(long)PhaseDiagramTime);

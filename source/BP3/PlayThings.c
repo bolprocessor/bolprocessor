@@ -379,8 +379,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	if(result == AGAIN) again = TRUE;
 	result = OK;
 	SetTimeOn = FALSE;
-	// sprintf(Message,"\ntmin = %ld, tmax = %ld\n\n",(long)tmin,(long)tmax);
-	// BPPrintMessage(odInfo,Message);
+	// BPPrintMessage(odInfo,"\ntmin = %ld, tmax = %ld\n\n",(long)tmin,(long)tmax);
 
 	// if(ShowGraphic) BPPrintMessage(odInfo, "Shall we draw graphics?\n");
 

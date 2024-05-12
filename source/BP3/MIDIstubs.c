@@ -237,13 +237,15 @@ void MIDIflush() {
     Byte midiData[4];
     int dataSize = 3;
     if(Panic) {
-        eventCount = 0;
+        eventCount = 0L;
         AllNotesOffAllChannels();
         }
     while(i < eventCount) {
-        if(stop() == ABORT) return;
+        if(stop() == ABORT) {
+            eventCount = 0L;
+            return;
+            }
         if(eventStack[i].time <= currentTime) {
-      //      BPPrintMessage(odInfo,"Sending note #%d time = %ld ms, currentTime = %ld µs eventCount = %ld\n",eventStack[i].data1,(long)eventStack[i].time / 1000L,(long)currentTime,(long)eventCount);
             midiData[0] = eventStack[i].status;
             midiData[1] = eventStack[i].data1;
             midiData[2] = eventStack[i].data2;

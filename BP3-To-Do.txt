@@ -29,7 +29,6 @@ HTML/PHP/Javascript interface
 -----------------------------
 
 - Implement command-s (on MacOS) or control-s (on Windows) to save a grammar, data, alphabet, etc. This is almost done in _header.php (line 41) and at the bottomof data.php
-- The Csound application may not be called "csound" in environments other than MacOS. The interface needs to be updated to quote with this.
 
 
 Standalone application
@@ -137,8 +136,8 @@ Cloud version
 - Install a html/php/MySQL server for the sharing of BP console + PHP interface (+ website?)
 - Set up restricted access via (free) non-anonymous subscription (in compliance with RGPD)
 - Grant every user some storage space (with time limit?)
-- Run all features except MIDI in/out
-- Csound scores could be exported and/or processed by Csound and WAV files dowloaded and/or played on line via HTML <audio> tag
+- Run all features except real-time MIDI in/out
+- Csound scores could be exported and/or processed by Csound, and WAV files dowloaded and/or played on line via HTML <audio> tags
 - MIDI files could be dowloaded and/or played on line via MIDIjs
 - Beware of bandwidth with online playing
 
@@ -168,12 +167,24 @@ MIDI files (Probably unnecessary, as MIDI file creation works perfectly.)
 
 
 Images
---------------
+------
 
 - In Graphic.c, in the Improvize mode, dates on the ruler are adjusted by the "shift" variable. This doesn't yet work on the "pianoroll" type, because its background is drawn before updating PianorollShift. This could be solved by drawing the pianoroll graph after the completion of MakeSound, i.e. when calling DrawItem(). To this effect, the drawings of notes would be stored in a structure.
-- When no settings file is specified, allow the creation of images via a command line option. This option should specify a location for images. Currently, image location is the one of the trace file which is always specified by the HTML/PHP interface.
+- When no settings file is specified, allow the creation of images via a command line option. This option should specify a location for images. Currently, image location is the one of the trace file, which is always specified by the HTML/PHP interface.
 - Revise the drawing of time streaks (the vertical blue lines). These should be adjusted to the (varying) tempo instead of the default metronomic setting.
-- Check again negative values (for blue lines) on some sound-object graphs
+
+
+Compilation
+-----------
+
+- Modify the C source to handle some Unicode characters that are not currently accepted, such as '≤', '≠', '•', etc.
+
+
+Claning up
+----------
+
+- The console code contains many obsolete parts (marked as such and not compiled). These are mostly remnants of BP2's built-in interface, at the time we wanted to maintain a MacOS standalone version of BP2 using conditional compilation. These will be removed unless they are useful for further development.
+- Unused code files have been moved to a "not_used" folder in the "BP3" folder. These can be deleted later.
 
 
 Documentation
@@ -185,5 +196,6 @@ Documentation
 
 ========
 
-IMPORTANT NOTE: If you are interested in taking part in this project, join the BP developer's list (https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel)!
+IMPORTANT NOTE: If you are interested in taking part in this project, join the BP developer's list:
+https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
 

@@ -23,3 +23,14 @@ Fixed timing in Csound scores (when improvising).
 Real dates are displayed on sound-object graphs in the Improvize mode, but not yet on pianoroll graphs.
 Fixed add_time for silences at the end of items in the Improvize mode. (Needs more checking.)
 Sometimes the console stays hanging and the interface no longer responds. To get out of this problem, restart Apache (or the MAMP application).
+
+-----
+2024-05-11
+Interface now accepts alternative names of the Csound console.
+
+-----
+2024-05-12
+No change to core algorithms. Only features that affect images.
+Fixed "Timeset.c" to correctly calculate the left image border when an out-time object is at time = 0.
+Limits of coordinates havee been fixed to deal with very large images.
+Image links (objects, not pianoroll) now show start dates in Improvize mode.

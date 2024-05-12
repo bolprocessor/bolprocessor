@@ -121,14 +121,14 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 		+ BOLSIZE * 10;
 	if(trace_graphic) BPPrintMessage(odInfo,"GraphicScaleP = %d GraphicScaleQ = %d tmin = %d tmax =%d endxmax = %d\n",GraphicScaleP,GraphicScaleQ,tmin,tmax,endxmax);
 	if(endxmax < 100) endxmax = 100;
-	r.right = r.left + endxmax;
 
-	if(WidthMax < 32767) WidthMax = 2 * endxmax + 40;
+	if(WidthMax < 32000) WidthMax = 2 * endxmax + 40;
 	//	BPPrintMessage(odInfo,"WidthMax (2) = %ld\n",WidthMax);
-	if(WidthMax > 32767) {
-		BPPrintMessage(odInfo,"\nImage width %d was too large: it has been cropped to 32767\n",WidthMax);
-		WidthMax = 32767;
+	if(WidthMax > 32000) {
+		BPPrintMessage(odInfo,"\nImage width %ld was too large: it has been cropped to 32000\n",(long)WidthMax);
+		WidthMax = endxmax = 32000;
 		}
+	r.right = r.left + endxmax;
 
 	rep = DrawItemBackground(&r,imax,htext,hrect,leftoffset,interruptok,p_delta,&yruler,
 		topoffset,&overflow,"objects");
@@ -356,19 +356,19 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	ENDGRAPH:
 
 	QUIT:
-	if(WidthMax < 32767) WidthMax = 2 * endxmax + 40;
+	if(WidthMax < 32000) WidthMax = 2 * endxmax + 40;
 	// BPPrintMessage(odInfo,"WidthMax (1) = %ld\n",WidthMax);
-	if(WidthMax > 32767) {
-		BPPrintMessage(odInfo,"\nImage width %d was too large: it has been cropped to 32767\n",WidthMax);
-		WidthMax = 32767;
+	if(WidthMax > 32000) {
+		BPPrintMessage(odInfo,"\nImage width %d was too large: it has been cropped to 32000\n",WidthMax);
+		WidthMax = endxmax = 32000;
 		}
 
 	// BPPrintMessage(odInfo,"endymax = %ld\n",endymax);
 	HeightMax = 2 * endymax + 20;
 	// BPPrintMessage(odInfo,"HeightMax (1) = %ld\n",HeightMax);
-	if(HeightMax > 32767) {
+	if(HeightMax > 32000) {
 		BPPrintMessage(odInfo,"\nImage height %d was too large: it has been cropped to 32767\n",HeightMax);
-		HeightMax = 32767;
+		HeightMax = endymax = 32000;
 		}
 
 	MyDisposeHandle((Handle*)&p_morespace);
@@ -852,11 +852,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 	r.bottom = r.top + htext;
 	r.left = p_frame->left + 2;
 	if(((*p_CoverBeg)[j] && (*p_CoverEnd)[j]) || (maxcover1 == dur && maxcover2 == dur)) {
-	//	stroke_style(&Black); PenNormal();
 		sprintf(line,"This object may be entirely covered");
-	// c2pstrcpy(label, line);
-	//	move_to((xmin + xmax - strlen(line))/2,r.top + htext - 2);
-	//	fill_text(label);
 		}
 	else {
 		if(maxcover1+maxcover2 > dur) {
@@ -864,30 +860,8 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 			else maxcover1 = dur - maxcover2;
 			}
 		r.right = xmin + grscale * (maxcover1 - tmin);
-		if(maxcover1 < INT_MAX && maxcover1 > 0 && r.right > r.left) {
-		//	stroke_style(&Color[SoundObjectC]); pen_size(2,2);
-		//	FrameRect(&r);
-		//	PenNormal(); stroke_style(&Black);
-		//	move_to(r.left + 2,r.top + htext - 3);
-		//	fill_text("\pCoverBeg");
-			}
-		else {
-		//	move_to(r.left + 2,r.top + htext - 3);
-		//	fill_text("\p#CoverBeg");
-			}
 		r.left = xmin + grscale * (dur - tmin - maxcover2);
 		r.right = p_frame->right - 2;
-		if(maxcover2 < INT_MAX && maxcover2 > 0 && r.right > r.left) {
-		/*	stroke_style(&Color[SoundObjectC]); pen_size(2,2);
-			FrameRect(&r);
-			PenNormal(); stroke_style(&Black);
-			move_to(p_frame->right - strlen("CoverEnd") - 2,r.top + htext - 3);
-			fill_text("\pCoverEnd"); */
-			}
-		else {
-		/*	move_to(p_frame->right - strlen("#CoverEnd") - 2,r.top + htext - 3);
-			fill_text("\p#CoverEnd"); */
-			}
 		}
 
 	// Draw continuity
@@ -959,55 +933,35 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 		}
 	y = p_frame->top + topoffset + 6 * htext;
 	if(maxtrunc2 > 0 && maxtrunc2 <= dur) {
-	//	stroke_style(&Blue);
 		x = xmin + grscale * (dur - tmin);
-	//	move_to(x,y); line_to(x,y - htext);
 		x = xmin + grscale * (dur - tmin - maxtrunc2);
-	/*	move_to(x,y); line_to(x,y - htext);
-		pen_size(2,2); */
 		y = p_frame->top + topoffset + 6 * htext - 1;
 		x = xmin + grscale * (dur - tmin) - 1;
-	/*	move_to(x,y); 
-		line_to(xmin + grscale * (dur - tmin - maxtrunc2),y);
-		PenNormal(); stroke_style(&Black); */
 		y += htext;
-	/*	move_to(xmin + grscale * (dur - tmin) - strlen("TruncEnd"),y);
-		fill_text("\pTruncEnd"); */
+	//	fill_text("TruncEnd");
 		}
 	else {
 		if(maxtrunc1 > 0 && maxtrunc1 <= dur) {
 			y = p_frame->top + topoffset + 7 * htext - 1;
-		//	move_to(p_frame->right - strlen("#TruncEnd") - 3,y);
 			}
 		else {
 			y = p_frame->top + topoffset + 5 * htext - 1;
-		//	move_to(p_frame->right - strlen("#TruncEnd") - 3,y);
 			}
-	//	stroke_style(&Black); fill_text("\p#TruncEnd");
 		}
 
 	y += htext + htext;
 	x = p_frame->right - strlen("BreakTempo") - 3;
-	/* move_to(x,y);
-	if((*p_BreakTempo)[j]) fill_text("\pBreakTempo");
-	else fill_text("\p#BreakTempo"); */
 
 	y += htext + htext;
 	x = p_frame->left + 4;
-	// move_to(x,y);
 	if((*p_FixScale)[j]) {} // fill_text("\pNever rescale");
 	else {
 		if((*p_OkExpand)[j] && (*p_OkCompress)[j]) {} //  fill_text("\pRescale at will");
 		else {
 			if(!(*p_OkExpand)[j] && !(*p_OkCompress)[j]) {} //  fill_text("\pRescale within limits");
 			else {
-				if((*p_OkExpand)[j]) {} //  fill_text("\pExpand at will");
-				else  {} // fill_text("\pDo not expand");
 				y += htext + 2;
 				x = p_frame->left + 4;
-			//	move_to(x,y);
-			/*	if((*p_OkCompress)[j]) fill_text("\pCompress at will");
-				else fill_text("\pDo not compress"); */
 				}
 			}
 		}
@@ -1023,19 +977,6 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 	if(objectperiod > EPSILON) {
 		y = r.top - htext;
 		x = r.left + (grscale * preperiod);
-	/*	pen_size(1,2);
-		stroke_style(&Cyan);
-		move_to(x,y);
-		line_to(r.right,y);
-		PenNormal();
-		move_to(x,y);
-		Line(0,htext);
-		move_to(x+2,y);
-		Line(0,htext);
-		move_to(r.right,y);
-		Line(0,htext);
-		move_to(r.right-2,y);
-		Line(0,htext); */
 		}
 
 	// Draw rectangle of object
@@ -1195,12 +1136,12 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 
 int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int leftoffset,
 	int interruptok,Milliseconds **p_delta,long *p_yruler,int topoffset,int *p_overflow,char* type) {
+
 	int result;
 	double x,xscale,p,rr,period,shift;
 	long i,j,k,t1,t2,y,tmem1,tmem2,tmem3,xmax,ymax,y_curr;
 	char line[BOLSIZE+5],showsmalldivisions,line_image[200];
 	Str255 label;
-
 	if(imagePtr == NULL) {
 		N_image++;
 		CreateImageFile();
@@ -1211,10 +1152,10 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 
 	ymax = p_r->bottom;
 	if(ymax > 16300) ymax = p_r->bottom = 16300;
-	if(HeightMax < 32767) HeightMax = 2 * ymax + 20;
-	if(HeightMax > 32767) {
-		BPPrintMessage(odInfo,"\nImage height %d was too large: it has been cropped to 32767\n",HeightMax);
-		HeightMax = 32767;
+	if(HeightMax < 32000) HeightMax = 2 * ymax + 20;
+	if(HeightMax > 32000) {
+		BPPrintMessage(odInfo,"\nImage height %d was too large: it has been cropped to 32000\n",HeightMax);
+		HeightMax = ymax = 32000;
 		ymax = (HeightMax - 20) / 2;
 		p_r->bottom = ymax;
 		}
@@ -1233,11 +1174,13 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 			}
 		}
 	xmax = p_r->right;
+	if(xmax > 2000) xmax = 2000;
 	if(leftoffset < 0) {
 		xmax -= (hrect * leftoffset);
 		}
 
-	if(trace_graphic) BPPrintMessage(odInfo,"DrawItemBackground() imax= %ld, xmax = %ld\n",(long)imax,(long)xmax);
+	if(trace_graphic) 
+		BPPrintMessage(odInfo,"DrawItemBackground() imax = %ld, xmax = %ld\n",(long)imax,(long)xmax);
 
 	if(Nature_of_time == SMOOTH) while(imax > 1L && (*p_T)[imax] == ZERO) imax--;
 	t2 = ((double)(*p_T)[imax] * GraphicScaleP) / GraphicScaleQ / 10. + leftoffset;
@@ -1245,12 +1188,13 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	y = (*p_yruler) = p_r->top + htext + 6;
 	pen_size(1,0);
 	draw_line(leftoffset,y,xmax,y,"");
-	if(trace_graphic) BPPrintMessage(odInfo,"leftoffset = %d, y = %d, xmax = %d\n",leftoffset,y,xmax);
+	if(trace_graphic)
+		BPPrintMessage(odInfo,"leftoffset = %d, y = %d, xmax = %d\n",leftoffset,y,xmax);
 
 	p = 50. / x;
 	for(i = j = 0; ; i++,j++) {
 		t1 = leftoffset + (int) Round(i * p);
-		if(t1 > xmax) break;
+		if(t1 > max_coordinate) break;
 		switch(j) {
 			case 0:
 			case 10:
@@ -1269,9 +1213,11 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 			}
 		}
 	y = p_r->top + htext + 1;
+	shift = 0.;
 	if(strcmp(type,"pianoroll") == 0) shift = 0.; // Later we'll take care of this  2024-05-10
 	else {
-		if(OutMIDI || WriteMIDIfile || OutCsound || OutBPdata) shift = (double) PianorollShift;
+	//	if(OutMIDI || WriteMIDIfile || OutCsound || OutBPdata) shift = (double) PianorollShift;
+		if(Improvize) shift = (double) PianorollShift;
 		}
 	if(shift == 0.) sprintf(line,"0");
 	else sprintf(line,"%.2fs",shift / 1000.);
@@ -1283,7 +1229,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 		if(k == 1) sprintf(line,"%.3fs",(double)i * xscale * k / 10. + shift / 1000.);
 		t1 = leftoffset + Round(k * i * p) - 10;
 		t2 = t1 + 12;
-		if(t2 > xmax) break;
+		if(t2 >= max_coordinate) break;
 		if(t1 > tmem2) {
 			fill_text(line,t1,y);
 			tmem2 = t2 + 7 * strlen(line);
@@ -1314,7 +1260,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 		// BPPrintMessage(odInfo, " %ld",(long) t1);
 		if(p_delta != NULL) t1 += (*p_delta)[i];
 		t1 = leftoffset + Round(t1 * p);
-		if((t1 > tmem1 && showsmalldivisions && t1 < xmax) || tmem1 == -Infpos) {
+		if((t1 > tmem1 && showsmalldivisions && t1 < max_coordinate) || tmem1 == -Infpos) {
 			pen_size(1,0);
 			draw_line(t1,y,t1,ymax,"");
 			tmem1 = t1 + 20;
@@ -1326,8 +1272,8 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	// We draw horizontal white lines to break time subdivisional time streaks
 	pen_size(1,0);
 	stroke_style("white");
-	for(y_curr = y; y_curr < ymax; y_curr  += 6) {
-		draw_line(leftoffset,y_curr,xmax,y_curr,"");
+	for(y_curr = y; y_curr < ymax; y_curr += 6) {
+		draw_line(leftoffset,y_curr,max_coordinate,y_curr,"");
 		}
 
 	// Major time streaks
@@ -1340,7 +1286,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 		t1 = leftoffset + Round(t1 * p);
 		if(rr >= Ratio) {
 			rr -= Ratio;
-			if(t1 > tmem2  && t1 < xmax) {
+			if(t1 > tmem2  && t1 < max_coordinate) {
 				sprintf(line,"%ld",(long)(k + StartFromOne));
 				t2 = t1 + 12;
 				if(t1 > tmem3) {
@@ -1480,7 +1426,7 @@ void end_path() {
 	
 void move_to(int x,int y) {
 	char line[100];
-	if(x <= max_coordinate && y <= max_coordinate) {
+	if(x >= 0 && x <= max_coordinate && y >= 0 && y <= max_coordinate) {
 		if(strcmp(graphic_scheme,"canvas") == 0) {
 			sprintf(line,"ctx.moveTo(%ld,%ld);\n",(long)resize * x,(long)resize * y);
 			fputs(line,imagePtr);
@@ -1490,9 +1436,9 @@ void move_to(int x,int y) {
 
 void line_to(int x,int y) {
 	char line[100];
-	if(x > max_coordinate) x = max_coordinate;
-	if(y > max_coordinate) y = max_coordinate;
-	if(x <= max_coordinate && y <= max_coordinate) {
+	if(x < 0 || x > max_coordinate) x = max_coordinate;
+	if(y < 0 || y > max_coordinate) y = max_coordinate;
+	if(x >= 0 && x <= max_coordinate && y >= 0 && y <= max_coordinate) {
 		if(strcmp(graphic_scheme,"canvas") == 0) {
 			sprintf(line,"ctx.lineTo(%ld,%ld);\n",(long)resize * x,(long)resize * y);
 			fputs(line,imagePtr);
@@ -1502,9 +1448,9 @@ void line_to(int x,int y) {
 
 void draw_line(int x1,int y1,int x2,int y2,char* style) { 
 	char line[200];
-	if(x2 > max_coordinate && y1 == y2) x2 = max_coordinate;
-	if(y2 > max_coordinate && x1 == x2) y2 = max_coordinate;
-	if(x1 <= max_coordinate && y1 <= max_coordinate && x2 <= max_coordinate && y2 <= max_coordinate) {
+	if((x2 < 0 || x2 > max_coordinate) && y1 == y2) x2 = max_coordinate;
+	if((y2 < 0 || y2 > max_coordinate) && x1 == x2) y2 = max_coordinate;
+	if(x1 >= 0 && x1 <= max_coordinate && y1 >= 0 && y1 <= max_coordinate && x2 >= 0 && x2 <= max_coordinate && y2 >= 0 && y2 <= max_coordinate) {
 		if(strcmp(graphic_scheme,"canvas") == 0) {
 			if(strcmp(style,"round") == 0)
 				sprintf(line,"ctx.beginPath();\nctx.lineCap = \"round\";\nctx.moveTo(%ld,%ld);\nctx.lineTo(%ld,%ld);\nctx.stroke();\n",(long)resize * x1,(long)resize * y1,(long)resize * x2,(long)resize * y2);
@@ -1543,7 +1489,7 @@ void fill_style(char* color) {
 
 void stroke_text(char* txt,int x,int y) {
 	char line[500];
-	if(x <= max_coordinate && y <= max_coordinate) {
+	if(x >= 0 && x <= max_coordinate && y >= 0 && y <= max_coordinate) {
 		if(strcmp(graphic_scheme,"canvas") == 0) {
 			sprintf(line,"ctx.strokeText('%s',%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
 			fputs(line,imagePtr);
@@ -1553,7 +1499,7 @@ void stroke_text(char* txt,int x,int y) {
 
 void fill_text(char* txt,int x,int y) {
 	char line[500];
-	if(x <= max_coordinate && y <= max_coordinate) {
+	if(x >= 0 && x <= max_coordinate && y >= 0 && y <= max_coordinate) {
 		if(trace_graphic) BPPrintMessage(odInfo,"text = %s\n",txt);
 		if(strcmp(graphic_scheme,"canvas") == 0) {
 			sprintf(line,"ctx.fillText(\"%s\",%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
@@ -1573,8 +1519,10 @@ void stroke_rect(Rect* p_r) {
 			y2 = resize * p_r->bottom;
 			w = x2 - x1;
 			h = y2 - y1;
-			sprintf(line,"ctx.strokeRect(%ld,%ld,%ld,%ld);\n",(long)x1,(long)y1,(long)w,(long)h);
-			fputs(line,imagePtr);
+			if(x1 >= 0 && y1 >= 0) {
+				sprintf(line,"ctx.strokeRect(%ld,%ld,%ld,%ld);\n",(long)x1,(long)y1,(long)w,(long)h);
+				fputs(line,imagePtr);
+				}
 			}
 		}
 	}
@@ -1590,12 +1538,14 @@ void fill_rect(Rect* p_r,char* color) {
 			y2 = resize * p_r->bottom;
 			w = x2 - x1;
 			h = y2 - y1;
-			sprintf(line,"ctx.fillStyle = '%s';\n",color);
-			fputs(line,imagePtr);
-			sprintf(line,"ctx.fillRect(%ld,%ld,%ld,%ld);\n",(long)x1,(long)y1,(long)w,(long)h);
-			fputs(line,imagePtr);
-			sprintf(line,"ctx.fillStyle = 'black';\n");
-			fputs(line,imagePtr);
+			if(x1 >= 0 && y1 >= 0) {
+				sprintf(line,"ctx.fillStyle = '%s';\n",color);
+				fputs(line,imagePtr);
+				sprintf(line,"ctx.fillRect(%ld,%ld,%ld,%ld);\n",(long)x1,(long)y1,(long)w,(long)h);
+				fputs(line,imagePtr);
+				sprintf(line,"ctx.fillStyle = 'black';\n");
+				fputs(line,imagePtr);
+				}
 			}
 		}
 	}
@@ -1617,8 +1567,10 @@ void erase_rect(Rect* p_r) {
 			x2 = resize * p_r->right;
 			y1 = resize * p_r->top;
 			y2 = resize * p_r->bottom;
-			sprintf(line,"ctx.fillStyle = 'white';\nctx.fillRect(%ld,%ld,%ld,%ld);\nctx.fillStyle = 'black';\n",(long)x1,(long)y1,(long)(x2 - x1),(long)(y2 - y1));
-			fputs(line,imagePtr);
+			if(x1 >= 0 && x2 >= 0 && y1 >= 0 && y2 >= 0) {
+				sprintf(line,"ctx.fillStyle = 'white';\nctx.fillRect(%ld,%ld,%ld,%ld);\nctx.fillStyle = 'black';\n",(long)x1,(long)y1,(long)(x2 - x1),(long)(y2 - y1));
+				fputs(line,imagePtr);
+				}
 			}
 		}
 	}

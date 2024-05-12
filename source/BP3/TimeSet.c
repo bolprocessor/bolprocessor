@@ -93,8 +93,7 @@ PhaseDiagramTime += end_time - start_time;
 if(result != OK) goto OUT;
 
 start_time = end_time;
-result = SetTimeObjects(bigitem,p_imaxseq,*p_maxseq,p_nmax,
-	p_kmx,p_tmin,p_tmax,p_articul);
+result = SetTimeObjects(bigitem,p_imaxseq,*p_maxseq,p_nmax,p_kmx,p_tmin,p_tmax,p_articul);
 time(&end_time);
 TimeSettingTime += end_time - start_time;
 // ProductionTime += TimeSettingTime;
@@ -670,21 +669,31 @@ QUEST2:
 		}
 	
 	if(trace_timeset) {
-	BPPrintMessage(odInfo,"\nT[i], i = 1,%ld:\n",(long)maxseq);
-	for(i=1L; i <= maxseq; i++)
-		BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
-	}
+		BPPrintMessage(odInfo,"\nT[i], i = 1,%ld:\n",(long)maxseq);
+		for(i=1L; i <= maxseq; i++)
+			BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
+		BPPrintMessage(odInfo,"\n");
+		for(k = 2; k < 8; k++) {
+			BPPrintMessage(odInfo,"k = %d, starttime = %ld, endtime = %ld\n",k,(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime);
+			}
+		}
 
 	/* Update tmin and tmax */
 	imax = (*p_imaxseq)[nseq] - 1L;
-	if(imax > 0) {
+	if(trace_timeset) {
+		BPPrintMessage(odInfo,"\nimax = %ld\n",(long)imax);
+		for(i = 0; i <= imax; i++) {
+			BPPrintMessage(odInfo,"i = %ld, k = %ld\n",(long)i,(long)(*((*p_Seq)[nseq]))[i]);
+			}
+		}
+	if(imax >= 0) {  // 2024-05-11 fixed ">=" this condition is probably useless
 		if(trace_timeset) BPPrintMessage(odInfo,"\nUpdating tmin and tmax, nseq = %ld, imax = %ld, kmx = %ld\n",(long)nseq,(long)imax,(long)*p_kmx);
 		i = imax;
-		while(i > 0 && (k=(*((*p_Seq)[nseq]))[i]) < 2) i--;
+		while(i >= 0 && (k=(*((*p_Seq)[nseq]))[i]) < 2) i--;
 		if(trace_timeset) BPPrintMessage(odInfo,"max: i = %ld, k = %ld\n",(long)i,(long)k);
 		if(k > *p_kmx)
 			BPPrintMessage(odError,"=> Error in TimeSet(). k > *p_kmx\n");
-		else if(i > 0 && (t=((*p_Instance)[k].endtime+(*p_Instance)[k].truncend)) > *p_tmax)
+		else if(i > 0 && (t=((*p_Instance)[k].endtime+(*p_Instance)[k].truncend)) >= *p_tmax) // 2024-05-11 fixed ">="
 			*p_tmax = t;
 		if(trace_timeset) BPPrintMessage(odInfo,"t = %ld, tmax = %ld, endtime = %ld, truncend = %ld\n",(long)t,(long)*p_tmax,(long)(*p_Instance)[k].endtime,(long)(*p_Instance)[k].truncend);
 		// i = 1L;
@@ -694,9 +703,10 @@ QUEST2:
 		if(k > *p_kmx) {
 			BPPrintMessage(odError,"=> Error in TimeSet(). k > *p_kmx\n");
 			}
-		else if(i <= imax && (t=((*p_Instance)[k].starttime-(*p_Instance)[k].truncbeg)) < *p_tmin)
+		else if(i <= imax && (t=((*p_Instance)[k].starttime-(*p_Instance)[k].truncbeg)) <= *p_tmin) // 2024-05-11 fixed "<="
 			*p_tmin = t;
 		if(trace_timeset) BPPrintMessage(odInfo,"t = %ld\n",(long)t);
+		// BPPrintMessage(odInfo,"nseq = %d tmin = %ld tmax = %ld\n",nseq,(long)*p_tmin,(long)*p_tmax);
 		}
 	else if(imax < 0 && trace_timeset) BPPrintMessage(odInfo,"\n=> imax = %ld for nseq = %ld\n",(long)imax,(long)nseq);
 		

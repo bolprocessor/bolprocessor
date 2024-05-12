@@ -208,7 +208,8 @@ rep = MISSED;
 
 if(StepProduce || StepGrammars || TraceProduce) {
 	sprintf(Message,"\n// Subgrammar %ld/%ld",(long)igram,(long)(*p_gram).number_gram);
-	Println(wTrace,Message); ShowSelect(CENTRE,wTrace);
+	Println(wTrace,Message); 
+//	ShowSelect(CENTRE,wTrace);
 	}
 else {
 	if(DisplayProduce || (ShowMessages && (*p_gram).number_gram > 1)) {
