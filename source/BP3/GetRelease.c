@@ -901,8 +901,7 @@ KillDiagrams(wPrototype1);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
 Dirty[iObjects] = Created[iObjects] = FALSE;
-ObjectMode = ObjectTry = TempMemory = AskedTempMemory = FixedMaxQuantization = FALSE;
-TempMemoryUsed = ZERO;
+ObjectMode = ObjectTry = FALSE;
 
 // BPPrintMessage(odInfo,"ReleaseObjectPrototypes() worked fine\n");
 return(DoSystem());

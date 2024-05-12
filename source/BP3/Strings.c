@@ -241,7 +241,7 @@ length = GetTextLength(w);
 if(MySetHandleSize((Handle*)pp_h,(Size)(1L + length) * sizeof(char)) != OK)
 	return(ABORT);
 	
-/* #if WASTE
+/* #if WASTE_FORGET_THIS
 h = WEGetText(TEH[w]);
 (*h)[length] = '\0';
 MystrcpyHandleToHandle(0,pp_h,h);

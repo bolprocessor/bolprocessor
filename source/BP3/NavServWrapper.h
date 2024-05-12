@@ -16,7 +16,7 @@
 #define	kDefaultPrefKey	1
 
 /* For backwards-compatibility with StdFilePkg */
-#if TARGET_API_MAC_CARBON
+#if TARGET_API_MAC_CARBON_FORGET_THIS
   typedef unsigned long  SFTypeList[4]; 
 #endif
 

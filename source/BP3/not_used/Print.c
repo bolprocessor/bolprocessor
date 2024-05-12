@@ -33,7 +33,7 @@
 
 /* There is no way to compile this file with OPAQUE_TOOLBOX_STRUCTS set to 1 */
 /* This file is usable in non-Carbon builds and will be replaced for Carbon builds */
-#if  !defined(TARGET_API_MAC_CARBON)
+#if  !defined(TARGET_API_MAC_CARBON_FORGET_THIS)
 #  include	"MacHeaders.h"
 // #  include	"MacHeadersTransitional.h"
 #endif

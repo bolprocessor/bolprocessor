@@ -4,8 +4,10 @@ Bol Processor BP3 To Do List
 This is a list of improvements that have been considered during the development of BP3. None of them are critical to its proper functioning. ;-)
 The most requested improvements are listed at the top of the list.
 
-Current location of this file: https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-To-Do.txt
-You may also check the history of changes: https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.txt
+Current location of this file:
+https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-To-Do.txt
+You may also check the history of changes:
+https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-changes.txt
 
 
 Real-time MIDI output

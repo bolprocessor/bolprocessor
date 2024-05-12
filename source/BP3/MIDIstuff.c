@@ -1648,7 +1648,7 @@ switch(Jcontrol) {
 	}
 sprintf(Message,"%ld",(long)x);
 TextDelete(LastEditWindow);
-#if USE_MLTE
+#if USE_MLTE_FORGET_THIS
 // FIXME ? Is there a reason the Print() call is inbetween getting origin & end below ?
 TextGetSelection(&origin, &end, TEH[LastEditWindow]);
 Print(LastEditWindow,Message);

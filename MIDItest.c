@@ -1,14 +1,13 @@
 // Test sending MIDI messages in real time using an in-built event manager
 
-#include <CoreMIDI/CoreMIDI.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h> // This will work on MacOS and Linux but will be ignored on Windows
 
 // Function prototypes
 int initializeMIDISystem();
-void sendMIDIEvent(Byte*,int);
+void sendMIDIEvent(unsigned char*,int);
 void closeMIDISystem();
 long getClockTime();
 void MIDIflush(void);
@@ -22,12 +21,15 @@ long getClockTime(void);
     // Global variable for MIDI device handle
     static HMIDIOUT hMidiOut = NULL;
 #elif defined(__APPLE__)
+    #include <unistd.h> // This will work on MacOS and Linux but will be ignored on Windows
+    #include <CoreMIDI/CoreMIDI.h>
     #include <CoreMIDI/CoreMIDI.h>
     #include <mach/mach_time.h>
     MIDIClientRef midiClient;
     MIDIPortRef MIDIoutPort;
     MIDIEndpointRef MIDIdestination;
 #elif defined(__linux__)
+    #include <unistd.h> 
     #include <alsa/asoundlib.h>
     // Global variable for ALSA MIDI sequencer handle
     static snd_seq_t *seq_handle = NULL;
@@ -40,7 +42,7 @@ long getClockTime(void);
 typedef struct {
     UInt64 eventTime; // Time in ms
     int dataSize;
-    Byte midiData[3];
+    unsigned char midiData[3];
 } MIDIEvent;
 
 MIDIEvent eventStack[MAXMIDIMESSAGES];
@@ -50,7 +52,7 @@ long eventCountMax = MAXMIDIMESSAGES - 2L;
 UInt64 initTime;
 
 // Function to send MIDI message
-void sendMIDIEvent(Byte *midiData,int dataSize) {
+void sendMIDIEvent(unsigned char *midiData,int dataSize) {
     #if defined(_WIN32) || defined(_WIN64)
         // Windows MIDI event sending
         // Ensure MIDI device is opened
@@ -134,7 +136,7 @@ void loadEventsFromFile(const char *filename) {
             }
         eventStack[eventCount].eventTime = (UInt64) 1000 * time;
         eventStack[eventCount].midiData[0] = (strcmp(type, "on") == 0) ? 0x90 : 0x80;
-        eventStack[eventCount].midiData[1] = (Byte)key;
+        eventStack[eventCount].midiData[1] = (unsigned char)key;
         eventStack[eventCount].midiData[2] = 80;  // Assuming velocity 80 for NoteOn; ignored for NoteOff
         eventStack[eventCount].dataSize = 3;
         eventCount++;
@@ -165,13 +167,13 @@ long getClockTime(void) {
         LARGE_INTEGER freq,count;
         QueryPerformanceFrequency(&freq); // Get the frequency of the high-resolution performance counter
         QueryPerformanceCounter(&count);  // Get the current value of the performance counter
-        the_time = (uint64_t)((count.QuadPart * 1000000) / freq.QuadPart);
+        the_time = (unsigned long)((count.QuadPart * 1000000) / freq.QuadPart);
     #elif defined(__APPLE__)
         the_time = clock_gettime_nsec_np(CLOCK_UPTIME_RAW) / 1000L;
     #elif defined(__linux__)
         struct timespec ts;
         clock_gettime(CLOCK_MONOTONIC, &ts); // CLOCK_MONOTONIC provides uptime, not affected by system time changes
-        the_time = (uint64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+        the_time = (unsigned long)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
     #endif
     return the_time;
     }

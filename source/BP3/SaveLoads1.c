@@ -2009,7 +2009,7 @@ else {	/* This is a text version (new format) */
 	oldversion = FALSE; pos = ZERO;
 	SetFPos(refnum,fsFromStart,pos);
 	if(ReadFile(wInteraction,refnum) == OK) {
-		if(!WASTE) {
+		if(!WASTE_FORGET_THIS) {
 			CCUTEToScrap();	// WHY?
 			}
 		/* The following is only useful to erase date and version */

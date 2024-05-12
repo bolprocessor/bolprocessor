@@ -16,7 +16,7 @@
  */
 OSErr	CCUZeroScrap()
 {
-#if !TARGET_API_MAC_CARBON
+#if !TARGET_API_MAC_CARBON_FORGET_THIS
 	return ZeroScrap();
 #else
 	return ClearCurrentScrap();
@@ -34,7 +34,7 @@ OSErr	CCUZeroScrap()
  */
 long	CCUGetScrap(Handle destination, ScrapFlavorType flavor, SInt32* offset)
 {
-#if !TARGET_API_MAC_CARBON
+#if !TARGET_API_MAC_CARBON_FORGET_THIS
 	return GetScrap(destination, flavor, offset);
 #else
 	OSStatus	err;
@@ -71,7 +71,7 @@ long	CCUGetScrap(Handle destination, ScrapFlavorType flavor, SInt32* offset)
  */
 OSErr	CCUPutScrap(SInt32 size, ScrapFlavorType flavor, const void* data)
 {
-#if !TARGET_API_MAC_CARBON
+#if !TARGET_API_MAC_CARBON_FORGET_THIS
 	return PutScrap(size, flavor, data);
 #else
 	OSStatus	err;

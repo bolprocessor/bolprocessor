@@ -76,7 +76,7 @@ if(wind >= 0 && wind < WMAX && Editable[wind]) {
 	TextSize(WindowTextSize[wind]);
 	Reformat(wind,-1,WindowTextSize[wind],(int)normal,&Black,NO,NO);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
-#if WASTE
+#if WASTE_FORGET_THIS
 	wasactive = WEIsActive(th);
 	Deactivate(th);
 	WEFeatureFlag(weFInhibitRecal,weBitSet,th);
@@ -322,7 +322,7 @@ if(nocode) {
 	}
 else {
 	if(th != NULL) {
-#if WASTE
+#if WASTE_FORGET_THIS
 		WEFeatureFlag(weFInhibitRecal,weBitClear,th);
 		if(wasactive) Activate(th);
 #endif
@@ -415,7 +415,7 @@ for(i=ia; ; i+=2L) {
 		if((r=MyButton(2)) != MISSED) {
 			StopCount(0);
 			if(th != NULL) {
-	#if WASTE
+	#if WASTE_FORGET_THIS
 				WEFeatureFlag(weFInhibitRecal,weBitClear,th);
 	#endif
 				AdjustTextInWindow(wind);
@@ -427,7 +427,7 @@ for(i=ia; ; i+=2L) {
 			if(r == EXIT) goto OUT;
 			if(th != NULL) {
 				SetSelect(posmem,posmem,th);
-	#if WASTE
+	#if WASTE_FORGET_THIS
 				WEFeatureFlag(weFInhibitRecal,weBitSet,th);
 	#endif
 				}
@@ -439,7 +439,7 @@ for(i=ia; ; i+=2L) {
 				r = ABORT; goto OUT;
 				}
 			}
-		else if(WASTE) PleaseWait();
+		else if(WASTE_FORGET_THIS) PleaseWait();
 		r = OK;
 		}
 	if(EventState != NO) {

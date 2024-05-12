@@ -56,7 +56,7 @@ SetPortWindowPort((w = NewWindow(0L,&r,"\p",1,1,NULL,0,0L)));
 TextFont(0);
 move_to("canvas",4,40);
 stroke_text("canvas","\pCan't open resource file!");
-#if TARGET_API_MAC_CARBON
+#if TARGET_API_MAC_CARBON_FORGET_THIS
   QDFlushPortBuffer(GetWindowPort(w), NULL);
 #endif
 while(!Button());
@@ -95,7 +95,7 @@ switch(imenu) {
 	case appleM:
 		Option = FALSE;
 		if(theitem == aboutCommand) return(mAbout(w));
-#if !TARGET_API_MAC_CARBON
+#if !TARGET_API_MAC_CARBON_FORGET_THIS
 		GetMenuItemText(myMenus[appleM],theitem,name);
 		OpenDeskAcc(name);
 #endif
@@ -195,7 +195,7 @@ ShowWindow(Window[wInfo]);
 if (RunningOnOSX) SendBehind(Window[wInfo], FrontWindow());
 else BringToFront(Window[wInfo]);
 TextUpdate(wInfo);
-#if TARGET_API_MAC_CARBON
+#if TARGET_API_MAC_CARBON_FORGET_THIS
   QDFlushPortBuffer(GetWindowPort(Window[wInfo]), NULL);
 #endif
 return(OK);
@@ -508,7 +508,7 @@ if(Editable[Nw]) {
 		}
 	if(arrowkey && shift) {
 		DoArrowKey(Nw,thechar,shift,FALSE);
-		if(!WASTE && LastAction == TYPEWIND) LastAction = NO;
+		if(!WASTE_FORGET_THIS && LastAction == TYPEWIND) LastAction = NO;
 		return(OK);
 		}
 	else {
@@ -1257,9 +1257,9 @@ return(OK);
 int SelectBehind(long pos1,long pos2,TextHandle teh)
 /* Doesn't force selection to scroll */
 {
-#if !USE_MLTE
+#if !USE_MLTE_FORGET_THIS
 	long maxoffset;
-	/* clamp range to text bounds (needed for WASTE since we are bypassing its checks) */
+	/* clamp range to text bounds (needed for WASTE_FORGET_THIS since we are bypassing its checks) */
 	maxoffset = GetTextHandleLength(teh);
 	if (pos1 < ZERO) {
 		if(Beta) Alert1("=> Err. SelectBehind(). pos1 < ZERO");
@@ -2441,7 +2441,7 @@ Rect r;
 Pattern pat;
 GrafPtr saveport;
 
-if(w < 0 || w >= WMAX || !Editable[w] || !IsDialog[w] || WASTE) return(OK);
+if(w < 0 || w >= WMAX || !Editable[w] || !IsDialog[w] || WASTE_FORGET_THIS) return(OK);
 GetPort(&saveport);
 SetPortWindowPort(Window[w]);
 PenNormal();

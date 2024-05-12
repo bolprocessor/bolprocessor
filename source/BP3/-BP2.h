@@ -82,16 +82,16 @@
 #define OBSOLETE 0
 #endif
 
-// 1 to use WASTE for text editing, 0 to use TextEdit or MLTE instead
-#ifndef WASTE
-#define WASTE 0
+// 1 to use WASTE_FORGET_THIS for text editing, 0 to use TextEdit or MLTE instead
+#ifndef WASTE_FORGET_THIS
+#define WASTE_FORGET_THIS 0
 #endif
 
 #define  WITH_REAL_TIME_SCHEDULER_FORGET_THIS 0
 
-// 1 to use Multilingual Text Engine for text editing, 0 to use TextEdit or WASTE instead
-#ifndef USE_MLTE
-#define USE_MLTE 0
+// 1 to use Multilingual Text Engine for text editing, 0 to use TextEdit or WASTE_FORGET_THIS instead
+#ifndef USE_MLTE_FORGET_THIS
+#define USE_MLTE_FORGET_THIS 0
 #endif
 
 // See BP2 history regarding NEWTIMER_FORGET_THIS
@@ -102,7 +102,7 @@
 // enable or disable built-in MIDI driver at compile time (not finished yet) - 010507 akozar
 // The following are obsolete in BP3 as the real-time MIDI driver is built differently - 2024-05-01 Bernard  Bel
 #ifndef USE_BUILT_IN_MIDI_DRIVER_FORGET_THIS
-#  if !TARGET_API_MAC_CARBON
+#  if !TARGET_API_MAC_CARBON_FORGET_THIS
 #    define USE_BUILT_IN_MIDI_DRIVER_FORGET_THIS 1
 #  else
 #    define USE_BUILT_IN_MIDI_DRIVER_FORGET_THIS 0
@@ -154,7 +154,7 @@
 #include <dirent.h>
 #include <unistd.h> // This will work on MacOS and Linux but will be ignored on Windows
 
-#if WASTE
+#if WASTE_FORGET_THIS
 #include "WASTEIntf.h"
 #endif
 
@@ -189,7 +189,7 @@
 // Moved macros and enum down here to avoid potential problems with replacing names
 // in any of the above headers -- 010807 akozar
 // Note: the following definitions must not be given before loading ColorPicker.h because they mess up CMICCProfile.h
-/*#if defined(__POWERPC) && !TARGET_API_MAC_CARBON
+/*#if defined(__POWERPC) && !TARGET_API_MAC_CARBON_FORGET_THIS
 #define arrow Qd.arrow
 #define screenBits Qd.screenBits
 #define randSeed Qd.randSeed
@@ -1657,7 +1657,7 @@ typedef enum {
 //	#define MyDisposeHandle((handle*)&p_(x)) DisposPointer((x))
 // #endif
 
-#if USE_MLTE
+#if USE_MLTE_FORGET_THIS
 typedef struct {
 	TXNObject	textobj;
 	TXNFrameID	id;
@@ -1665,10 +1665,10 @@ typedef struct {
 } OurMLTERecord;
 #endif
 
-#if WASTE
+#if WASTE_FORGET_THIS
 typedef WEHandle TextHandle;
 typedef long TextOffset;
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 typedef OurMLTERecord** TextHandle;
 typedef long TextOffset;	// should be TXNOffset (unsigned long), but there are many incompatible assumptions of long - akozar
 #else

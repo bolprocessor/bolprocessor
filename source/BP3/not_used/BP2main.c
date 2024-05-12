@@ -52,7 +52,7 @@ TraceMemory = TRUE;
 #endif
 
 #ifdef __POWERPC
-# if !TARGET_API_MAC_CARBON
+# if !TARGET_API_MAC_CARBON_FORGET_THIS
     SetZone(ApplicationZone());
     // NewGrowZoneProc(MyGrowZone); /* This does not seem to be used anywhere on PPC - akozar */
 # endif
@@ -90,7 +90,7 @@ LoadMidiDriverStartup();
 
 ResetTicks(TRUE,TRUE,ZERO,0);
 
-#if !WASTE
+#if !WASTE_FORGET_THIS
 for(w=0; w < WMAX; w++) {
 	if(!Editable[w] || LockedWindow[w] || w == wStartString) continue;
 	SetSelect(ZERO,GetTextLength(w),TEH[w]);
@@ -292,7 +292,7 @@ ClearLockedSpace();
   if(NEWTIMER_FORGET_THIS) RemoveTMTask();
 #endif
 
-#if USE_MLTE
+#if USE_MLTE_FORGET_THIS
 TXNTerminateTextension();
 #endif
 

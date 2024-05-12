@@ -10,7 +10,7 @@
 	November 27, 2006
  */
 
-#if !TARGET_API_MAC_CARBON
+#if !TARGET_API_MAC_CARBON_FORGET_THIS
 #  include	<StandardFile.h>
 #endif
 
@@ -163,7 +163,7 @@ OSErr NSWGetFile(NSWReply* reply, OSType creator, short numTypes, OSType typeLis
 	
 	/* Nav Serv is guaranteed to be available with Carbon, but we need
 	  to test for its presence in non-Carbon environment. */
-#if !TARGET_API_MAC_CARBON
+#if !TARGET_API_MAC_CARBON_FORGET_THIS
 	if (!IsNavServAvailable())  {
 		// use StdFilePackage
 		reply->usedNavServices = false;
@@ -265,7 +265,7 @@ OSErr NSWPutFile(NSWReply* reply, OSType creator, OSType fileType, const StringP
 	
 	/* Nav Serv is guaranteed to be available with Carbon, but we need
 	  to test for its presence in non-Carbon environment. */
-#if !TARGET_API_MAC_CARBON
+#if !TARGET_API_MAC_CARBON_FORGET_THIS
 	if (!IsNavServAvailable())  {
 		StringPtr	prompt;
 		// use StdFilePackage

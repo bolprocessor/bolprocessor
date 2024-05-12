@@ -39,13 +39,13 @@
 #include "-BP2decl.h"
 #include "CarbonCompatUtil.h"
 
-#if WASTE
+#if WASTE_FORGET_THIS
 LongRect TextGetViewRect(TextHandle th)
 #else
 Rect     TextGetViewRect(TextHandle th)
 #endif
 {
-#if !USE_MLTE
+#if !USE_MLTE_FORGET_THIS
 	return (*th)->viewRect;
 #else
 	Rect vr;
@@ -57,7 +57,7 @@ Rect     TextGetViewRect(TextHandle th)
 
 Boolean TextIsSelectionEmpty(TextHandle th)
 {
-#if USE_MLTE
+#if USE_MLTE_FORGET_THIS
 	return TXNIsSelectionEmpty((*th)->textobj);
 #else
 	return (((*th)->selEnd - (*th)->selStart) == ZERO);
@@ -69,13 +69,13 @@ int TextGetSelection(TextOffset* start,TextOffset* end, TextHandle th)
 {
 	if (th == NULL)  return (MISSED);
 	
-#if WASTE
+#if WASTE_FORGET_THIS
 	// WEGetSelection(start,end,th);
 	// most of the code does this the same as TextEdit,
 	// so I don't want to make any changes at this time - akozar 032807
 	*start = (*th)->selStart;
 	*end   = (*th)->selEnd;
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 	{ TXNOffset s, e;
 	TXNGetSelection((*th)->textobj, &s, &e);
 	*start = s; *end = e;
@@ -93,8 +93,8 @@ SetSelect(TextOffset start,TextOffset end, TextHandle th)
 {
 	long maxoffset;
 
-#if !WASTE	
-	/* clamp range to text bounds (WASTE does these checks) */
+#if !WASTE_FORGET_THIS	
+	/* clamp range to text bounds (WASTE_FORGET_THIS does these checks) */
 	maxoffset = GetTextHandleLength(th);
 	if (start < ZERO) {
 		if(Beta) Alert1("=> Err. SetSelect(). start < ZERO");
@@ -114,9 +114,9 @@ SetSelect(TextOffset start,TextOffset end, TextHandle th)
 	}
 #endif
 
-#if WASTE
+#if WASTE_FORGET_THIS
 WESetSelection(start,end,th);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 TXNSetSelection((*th)->textobj, start, end);
 #else
 TESetSelect(start,end,th);
@@ -127,9 +127,9 @@ return(OK);
 
 Activate(TextHandle th)
 {
-#if WASTE
+#if WASTE_FORGET_THIS
 if(!WEIsActive(th)) WEActivate(th);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 TXNFocus((*th)->textobj, TRUE);
 TXNActivate((*th)->textobj, (*th)->id, TRUE); // returns an OSStatus that we do not check
 #else
@@ -141,9 +141,9 @@ return(OK);
 
 Deactivate(TextHandle th)
 {
-#if WASTE
+#if WASTE_FORGET_THIS
 if(WEIsActive(th)) WEDeactivate(th);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 TXNFocus((*th)->textobj, FALSE);
 TXNActivate((*th)->textobj, (*th)->id, FALSE); // returns an OSStatus that we do not check
 #else
@@ -155,9 +155,9 @@ return(OK);
 
 Idle(TextHandle th)
 {
-#if WASTE
+#if WASTE_FORGET_THIS
 WEIdle(NULL,th);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 TXNIdle((*th)->textobj);
 #else
 TEIdle(th);
@@ -168,9 +168,9 @@ return(OK);
 
 CalText(TextHandle th)
 {
-#if WASTE
+#if WASTE_FORGET_THIS
 WECalText(th);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 PrintCall("CalText()", NULL);
 TXNRecalcTextLayout((*th)->textobj);
 // TXNForceUpdate((*th)->textobj);
@@ -183,10 +183,10 @@ return(OK);
 
 DoKey(char c,EventModifiers modifiers,TextHandle th)
 {
-#if WASTE
+#if WASTE_FORGET_THIS
 if(!WEIsActive(th)) WEActivate(th);
 WEKey((short)c,modifiers,th);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 /*  {	EventRecord e;
   	e.what = keyDown;
   	e.
@@ -222,9 +222,9 @@ long GetTextHandleLength(TextHandle th)
 		return(ZERO);
 	}
 	
-#if WASTE
+#if WASTE_FORGET_THIS
 return(WEGetTextLength(th));
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 // TXNDataSize returns a byte count which we assume is the number
 // of characters since we are using the Mac Roman encoding.
 return (long) TXNDataSize((*th)->textobj);
@@ -240,9 +240,9 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 	if(Beta) Alert1("=> Err. TextDelete(). Incorrect w");
 	return(ZERO);
 	}
-#if WASTE
+#if WASTE_FORGET_THIS
 WEDelete(TEH[w]);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 TXNClear((*(TEH[w]))->textobj);
 /*{ TXNOffset start, end;
   char s[1] = "";
@@ -258,9 +258,9 @@ return(OK);
 
 TextInsert(char *s,long length,TextHandle th)
 {
-#if WASTE
+#if WASTE_FORGET_THIS
 WEInsert((Ptr)s,length,(StScrpHandle)NULL,NULL,th);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 { TXNOffset start, end;
   TXNGetSelection((*th)->textobj, &start, &end);
   TXNSetData((*th)->textobj, kTXNTextData, s, length, start, end);
@@ -287,7 +287,7 @@ int TextFullError(TextHandle th, int messageNum)
 	int w;
 	long len;
 	
-#if !WASTE && !USE_MLTE
+#if !WASTE_FORGET_THIS && !USE_MLTE_FORGET_THIS
 	// get a window index from the TextHandle
 	for (w = 0; w < WMAX; ++w)  if (th == TEH[w]) break;
 	if (w < 0 || w >= WMAX || !Editable[w])  return (MISSED);
@@ -325,10 +325,10 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 	}
 GetPort(&saveport);
 SetPortWindowPort(Window[w]);
-#if WASTE
+#if WASTE_FORGET_THIS
 EraseRgn((*TEH[w])->viewRgn);
 WEUpdate((*TEH[w])->viewRgn,TEH[w]);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 PrintCall("TextUpdate()", Window[w]);
 TXNUpdate((*TEH[w])->textobj);
 #else
@@ -346,10 +346,10 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 	if(Beta) Alert1("=> Err. TextCut(). Incorrect w");
 	return(ZERO);
 	}
-#if WASTE
+#if WASTE_FORGET_THIS
 WECut(TEH[w]);
 TEFromScrap(); /* Necessary to pass on the content to dialog field */
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 TXNCut((*TEH[w])->textobj);
 #else
 TECut(TEH[w]);
@@ -364,9 +364,9 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 	if(Beta) Alert1("=> Err. TextPaste(). Incorrect w");
 	return(ZERO);
 	}
-#if WASTE
+#if WASTE_FORGET_THIS
 WEPaste(TEH[w]);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 TXNPaste((*TEH[w])->textobj);
 #else
 { SInt32 offset;
@@ -395,10 +395,10 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 	if(Beta) Alert1("=> Err. TextCopy(). Incorrect w");
 	return(ZERO);
 	}
-#if WASTE
+#if WASTE_FORGET_THIS
 WECopy(TEH[w]);
 TEFromScrap(); /* Necessary to pass on the content to dialog field */
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 TXNCopy((*TEH[w])->textobj);
 #else
 TECopy(TEH[w]);
@@ -409,11 +409,11 @@ return(OK);
 
 TextAutoView(int force,int scroll,TextHandle th)
 {
-#if WASTE
+#if WASTE_FORGET_THIS
 if(!force) return(OK);
 if(scroll) WEFeatureFlag(weFAutoScroll,weBitSet,th);
 else  WEFeatureFlag(weFAutoScroll,weBitClear,th);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 
 #else
 TEAutoView(scroll,th);
@@ -424,9 +424,9 @@ return(OK);
 
 TextSetStyle(short mode,TextStyle *p_newStyle,Boolean redraw,TextHandle th)
 {
-#if WASTE
+#if WASTE_FORGET_THIS
 WESetStyle((WEStyleMode)mode,(const TextStyle*)p_newStyle,th);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 
 #else
 TESetStyle(mode,p_newStyle,redraw,th);
@@ -437,11 +437,11 @@ return(OK);
 
 TextScroll(long h,long v,TextHandle th)
 {
-#if WASTE
+#if WASTE_FORGET_THIS
 LongRect r;
 
 WEScroll(h,v,th);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 
 #else
 TEScroll(h,v,th);
@@ -456,9 +456,9 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 	if(Beta) Alert1("=> Err. LinesInText(). Incorrect w");
 	return(ZERO);
 	}
-#if WASTE
+#if WASTE_FORGET_THIS
 return(WECountLines(TEH[w]));
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
   {	OSStatus err;
 	ItemCount count;
 	err = TXNGetLineCount((*TEH[w])->textobj, &count);
@@ -476,9 +476,9 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 	if(Beta) Alert1("=> Err. TextClick(). Incorrect w");
 	return(ZERO);
 	}
-#if WASTE
+#if WASTE_FORGET_THIS
 WEClick(p_event->where,p_event->modifiers,p_event->when,TEH[w]);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 PrintEvent(p_event, "TextClick()", Window[w]);
 LocalToGlobal(&p_event->where);
 TXNClick((*TEH[w])->textobj, p_event);
@@ -495,9 +495,9 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 	if(Beta) Alert1("=> Err. GetTextChar(). Incorrect w");
 	return(ZERO);
 	}
-#if WASTE
+#if WASTE_FORGET_THIS
 return((char)WEGetChar(pos,TEH[w]));
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 
 #else
 return((*((**(TEH[w])).hText))[pos]);
@@ -508,9 +508,9 @@ return(OK);
 
 TextDispose(TextHandle th)
 {
-#if WASTE
+#if WASTE_FORGET_THIS
 WEDispose(th);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 
 #else
 TEDispose(th);
@@ -521,14 +521,14 @@ return(OK);
 
 SetTextViewRect(Rect *p_r,TextHandle th)
 {
-#if WASTE
+#if WASTE_FORGET_THIS
 LongRect r;
 r.top = p_r->top;
 r.left = p_r->left;
 r.bottom = p_r->bottom;
 r.right = p_r->right;
 WESetViewRect((const LongRect*) &r,th);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 //TXNSetFrameBounds((*th)->textobj, p_r->top, p_r->left, 
 //			p_r->bottom, p_r->right, (*th)->id);
 TXNResizeFrame((*th)->textobj, (p_r->right - p_r->left), 
@@ -542,14 +542,14 @@ return(OK);
 
 SetTextDestRect(Rect *p_r,TextHandle th)
 {
-#if WASTE
+#if WASTE_FORGET_THIS
 LongRect r;
 r.top = p_r->top;
 r.left = p_r->left;
 r.bottom = p_r->bottom;
 r.right = p_r->right;
 WESetDestRect((const LongRect*) &r,th);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 //TXNSetFrameBounds ((*th)->textobj, p_r->top, p_r->left, 
 //			 p_r->bottom, p_r->right, (*th)->id);
 TXNResizeFrame((*th)->textobj, (p_r->right - p_r->left), 
@@ -563,7 +563,7 @@ return(OK);
 
 GetTextStyle(TextStyle *p_thestyle,short *p_lineheight,short *p_ascent,TextHandle th)
 {
-#if WASTE
+#if WASTE_FORGET_THIS
 WERunInfo runinfo;
 
 WEGetRunInfo(ZERO,&runinfo,th);
@@ -573,7 +573,7 @@ p_thestyle->tsSize = runinfo.runAttrs.runStyle.tsSize;
 p_thestyle->tsColor = runinfo.runAttrs.runStyle.tsColor;
 *p_lineheight = runinfo.runAttrs.runHeight;
 *p_ascent = runinfo.runAttrs.runAscent;
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 
 #else
 TEGetStyle(0,p_thestyle,p_lineheight,p_ascent,th);
@@ -584,9 +584,9 @@ return(OK);
 
 char** WindowTextHandle(TextHandle th)
 {
-#if WASTE
+#if WASTE_FORGET_THIS
 return((char**) WEGetText(th));
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 
 #else
 return((char**) (*th)->hText);
@@ -594,7 +594,7 @@ return((char**) (*th)->hText);
 }
 
 
-#if WASTE
+#if WASTE_FORGET_THIS
 Rect LongRectToRect(LongRect r)
 {
 Rect r1;
@@ -613,9 +613,9 @@ return(r);
 #endif
 
 
+#if WASTE_FORGET_THIS
 long LineStartPos(int line,int lineoffset,int w)
 {
-#if WASTE
 LongPt p;
 char edge;
 long pos;
@@ -625,9 +625,8 @@ p.h = 5L;
 p.v = 4L + (LineHeight(w) * ((float)(line - lineoffset) + 0.5));
 pos = WEGetOffset((const LongPt*)&p,&edge,TEH[w]);
 return(pos);
-#elif USE_MLTE
-
+#elif USE_MLTE_FORGET_THIS
 #else
 return((*(TEH[w]))->lineStarts[line]);
-#endif
 }
+#endif

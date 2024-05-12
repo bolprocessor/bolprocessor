@@ -906,15 +906,9 @@ int SetFontSize(int,int);
 int ChangeColor(void);
 int DrawItem(int,SoundObjectInstanceParameters**,Milliseconds**,Milliseconds**,long,long,long,unsigned long,
 	int,int,unsigned long**,int,int,Milliseconds**);
-int OpenGraphic(int,Rect*,int,CGrafPtr*,GDHandle*);
-// int CloseGraphic(int,long,long,int,Rect*,CGrafPtr*,GDHandle);
-int InterruptDraw(int,int);
 int DrawObject(int,char*,int,double,int,int,int,int,long,long,long,long,long,int*,long*,long*,PicHandle);
-int DrawGraph(int,PolyHandle);
 int DrawSequence(int,SoundObjectInstanceParameters**,Milliseconds**,Milliseconds**,long,unsigned long,
 	unsigned long**,int,long**,long**,long**);
-int KillDiagrams(int);
-int GraphOverflow(PicHandle);
 int DrawPrototype(int,int,Rect*);
 int PrintArg(int,int,int,char,int,int,FILE*,int,tokenbyte***,tokenbyte***);
 int PrintArgSub(PrintargType*,unsigned long*,TextHandle,FILE*,tokenbyte***,tokenbyte***,unsigned long*,int*,double*,int*,int*,int*,int,int*,int,int,int*,int*,int,int,int*,int*,int*,double*);
@@ -1084,18 +1078,17 @@ int SetTextViewRect(Rect*,TextHandle);
 int SetTextDestRect(Rect*,TextHandle);
 int GetTextStyle(TextStyle*,short*,short*,TextHandle);
 char** WindowTextHandle(TextHandle);
-#if WASTE
+#if WASTE_FORGET_THIS
 LongRect TextGetViewRect(TextHandle th);
 Rect LongRectToRect(LongRect);
 #else
 Rect LongRectToRect(Rect);
 Rect TextGetViewRect(TextHandle th);
 #endif
-long LineStartPos(int,int,int);
 
 // new global functions in the console build
 void CloseFile(FILE* file);
-void CreateImageFile(void);
+void CreateImageFile(double);
 void EndImageFile(void);
 void remove_spaces(char*,char*);
 void remove_final_linefeed(const char*,char*);
@@ -1134,7 +1127,7 @@ double GetPitchWithScale(int,int,double,int);
 int modulo(int,int);
 void delay(int);
 
-#if !TARGET_API_MAC_CARBON
+#if !TARGET_API_MAC_CARBON_FORGET_THIS
 /* Provide backwards compatibility for System 7 in the non-Carbon build by
    macros that convert OS 8.5/9 functions to their InterfaceLib 7.1 equivalents. */
 #define  InvalWindowRect(w,r)  InvalRect(r)

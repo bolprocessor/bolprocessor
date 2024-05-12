@@ -658,7 +658,7 @@ SETMETRONOM:
 					'Y');
 				if(rep == YES) {
 					FixedMaxQuantization = TRUE;
-					AskedTempMemory = TRUE;
+				//	AskedTempMemory = TRUE;
 					goto FORGETIT;
 					}
 				else {
@@ -676,7 +676,7 @@ SETMETRONOM:
 					goto CHANGEQUANTIZE;
 					}
 			//	if(rep == CANCEL) goto WANTABORT;
-				AskedTempMemory = TRUE;
+			//	AskedTempMemory = TRUE;
 				FixedMaxQuantization = TRUE;
 				goto FORGETIT;
 				}
@@ -761,50 +761,6 @@ CHECKSIZE:
    FINDCOMPRESSION, about line 327) before it even gets to this calculation.
       -- akozar 20130904
  */
-// Fixed by BB 2021-02-26
-/* if(!TempMemory && !AskedTempMemory && !FixedMaxQuantization
-		&& (imax > 10000. || (imax * Maxconc) > 20000.)) {
-	// contigbytes = MaxMem(&grow);  // MaxMem() is no longer useful (always 20 MB on OS X)
-	// totalbytes = contigbytes + grow;
-	totalbytes = kMaxPhaseDiagramSize;
-	limit1 = totalbytes / 70L;
-	limit2 = (40L * limit1) / Maxconc;
-	if(limit1 < limit2) thelimit = limit1;
-	else {
-		thelimit = limit2;
-		if(Maxconc > (Minconc + 1 + longestseqouttime + longestnumbertoofast)) { // Fixed by BB 2021-02-26
-			Maxconc--;
-			goto CHECKSIZE;
-			}
-		}
-	if(imax > thelimit) {
-		if(!QuantizeOK || Pclock < 1.) {
-			rep = YES;
-			if(rep == YES) goto TOOBIG;
-			else goto FORGETIT;
-			}
-	ASK:
-		if(!alreadychangedquantize) {
-			if(!PlayChunks) // Fixed by BB 2021-02-17
-				BPPrintMessage(odError,"=> Item is too large or too complex. Use \"PLAY safe\" instead of \"PLAY\"\n");
-			rep = YES; // Fixed by BB 2021-02-25
-			}
-		else {
-			rep = YES; // Fixed by BB 2021-02-17
-			if(rep == YES) goto TOOBIG;
-			}
-		if(rep == CANCEL) {
-			rep = YES; // Fixed by BB 2021-01-30
-			if(rep == YES) {
-				r = ABORT;
-				goto QUIT;
-				}
-			rep = CANCEL;
-			}
-		if(rep == CANCEL) goto ASK;
-		if(rep == YES) goto TOOBIG;
-		}
-	} */
 
 FORGETIT:
 // Maxconc += Maxconc;

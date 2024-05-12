@@ -34,7 +34,7 @@
 #ifndef BP2_MAIN_H
 #define BP2_MAIN_H
 
-#if  defined(__POWERPC) && !TARGET_API_MAC_CARBON
+#if  defined(__POWERPC) && !TARGET_API_MAC_CARBON_FORGET_THIS
 QDGlobals Qd;
 #endif 
 
@@ -42,9 +42,8 @@ GWorldPtr gMainGWorld;
 GDHandle gCurDev;
 int Version = 31; /* 3.0 */
 
-ProcessSerialNumber PSN;
-char UserName[MAXNAME],UserInstitution[MAXNAME];
-long MemoryUsed,TempMemoryUsed,MemoryUsedInit,MaxMemoryUsed,MaxHandles,
+ProcessSerialNumber PSN; // Not used
+long MemoryUsed,MemoryUsedInit,MaxMemoryUsed,MaxHandles,
 	SessionTime;
 int CheckMem;
 
@@ -83,8 +82,8 @@ ResID  WindowMenuIcons[11] = { 10, 129, 130, 132, 133, 131, 140, 139, 137, 138, 
 ResID  DeviceMenuIcons[12] = { 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 144, 142 };
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
-// FIXME: figure out how to completely remove TempMemory, AskedTempMemory, TempMemoryUsed (& FixedMaxQuantization?)
-int EmergencyExit,TempMemory,AskedTempMemory,FixedMaxQuantization,TraceMemory,
+// FIXME: figure out how to completely remove TempMemoryUsed (& FixedMaxQuantization?)
+int EmergencyExit,FixedMaxQuantization,TraceMemory,
 	EventState,Beta;
 int SetUpTime;  /* Time needed to set-up driver (ms) */
 int LoadedScript;

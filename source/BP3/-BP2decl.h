@@ -34,7 +34,7 @@
 #ifndef BP2_DECL_H
 #define BP2_DECL_H
 
-#if  defined(__POWERPC) && !TARGET_API_MAC_CARBON
+#if  defined(__POWERPC) && !TARGET_API_MAC_CARBON_FORGET_THIS
 extern QDGlobals Qd;
 #endif
 
@@ -47,9 +47,8 @@ extern int Version;
 extern DialogPtr CMSettings;
 #endif	
 
-extern char UserName[MAXNAME],UserInstitution[MAXNAME];
 extern ProcessSerialNumber PSN;					
-extern long MemoryUsed,TempMemoryUsed,MemoryUsedInit,MaxMemoryUsed,
+extern long MemoryUsed,MemoryUsedInit,MaxMemoryUsed,
 	MaxHandles,SessionTime;
 extern int CheckMem;
 
@@ -72,7 +71,7 @@ extern ResID DeviceMenuIcons[12];
     extern static int out_port;
 #endif
 
-extern int EmergencyExit,TempMemory,AskedTempMemory,FixedMaxQuantization,
+extern int EmergencyExit,FixedMaxQuantization,
 	TraceMemory,EventState,Beta;
 extern int SetUpTime;
 extern int LoadedScript,PrototypesLoaded;

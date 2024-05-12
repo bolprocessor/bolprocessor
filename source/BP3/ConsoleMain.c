@@ -379,7 +379,7 @@ int stop() {
 	}
 
 
-void CreateImageFile(void) {
+void CreateImageFile(double time) {
 	FILE * thisfile; 
 	char* someline;
 	char line1[200], line2[200], line3[200];
@@ -403,7 +403,10 @@ void CreateImageFile(void) {
 	memset(line1,'\0',sizeof(line1));
 	strncpy(line1,line2,length - 4);
 //	BPPrintMessage(odInfo,"\n\nline1 = %s\n\n",line1);
-	sprintf(line2,"_image_%03ld_temp.html",(long)N_image);
+	if(time >= 0.)
+		sprintf(line2,"_image_%03ld-%.2f_temp.html",(long)N_image,(double)time);
+	else
+		sprintf(line2,"_image_%03ld_temp.html",(long)N_image);
 	if(!PlaySelectionOn && strcmp(gOptions.inputFilenames[wGrammar],"") != 0) { // fixed by BB 2022-02-17
 		GetFileName(line3,gOptions.inputFilenames[wGrammar]);
 		sprintf(Message,"_%s",line3);

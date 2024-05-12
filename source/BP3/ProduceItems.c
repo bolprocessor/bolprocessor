@@ -76,7 +76,7 @@ pp_buff = &p_buff; p_buff = NULL;
 r = OK;
 
 ComputeOn++;
-CreateImageFile();
+CreateImageFile(-1.);
 
 SaidTooComplex = ShownBufferSize = FALSE;
 if(OutMIDI) {

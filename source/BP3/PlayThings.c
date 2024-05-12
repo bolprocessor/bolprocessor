@@ -413,8 +413,6 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 
 	RELEASE:
 	// BPPrintMessage(odError,"@@ End MakeSound() nmax = %ld\n",(long)nmax);
-	TempMemory = FALSE;
-	TempMemoryUsed = ZERO;
 	if(result == ABORT) return(result);
 	if(ReleasePhaseDiagram(nmax,&p_imaxseq) != OK) return(ABORT);
 	if(result == MISSED) ShowMessage(TRUE,wMessage,"Item ignored");
@@ -425,8 +423,6 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		if(CopyBuf(&p_b,pp_buff) == ABORT) return(ABORT);
 		MyDisposeHandle((Handle*)&p_b);
 		}
-	TempMemory = FALSE;
-	TempMemoryUsed = ZERO;
 	// BPPrintMessage(odInfo,"@@ End PlayBuffer1()\n");
 	return(result);
 	}
@@ -1085,8 +1081,6 @@ int ExpandSelection(int w) {
 	ShowSelect(CENTRE,wout); */
 	
 	OUT:
-	TempMemory = FALSE;
-	TempMemoryUsed = ZERO;
 	ExpandOn = FALSE;
 	return(r);
 	}
@@ -1153,14 +1147,10 @@ while(origin < end) {
 	}
 if(Dirty[w]) SetSelect(UndoPos,newend,TEH[w]);
 ShowSelect(CENTRE,w);
-TempMemory = FALSE;
-TempMemoryUsed = ZERO;
 return(r);
 
 BAD:
 MyDisposeHandle((Handle*)&p_a);
-TempMemory = FALSE;
-TempMemoryUsed = ZERO;
 return(r);
 }
 

@@ -38,7 +38,7 @@
 */
 
 /* This is defined by both Carbon and non-Carbon prefix headers */
-#if  !defined(TARGET_API_MAC_CARBON)
+#if  !defined(TARGET_API_MAC_CARBON_FORGET_THIS)
    /* so if it is not defined yet, there is no prefix file, 
       and we are compiling the "Transitional" build. */
    /* Use MacHeaders.h until ready to convert this file.

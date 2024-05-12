@@ -73,10 +73,6 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	p_list **waitlist;
 
 	if(!ShowObjectGraph) return(OK);
-	if(imagePtr == NULL) {
-		N_image++;
-		CreateImageFile();
-		}
 	// BPPrintMessage(odInfo,"Creating image %d based on objects\n",N_image);
 
 	if(tmin == Infpos) {
@@ -230,7 +226,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 							&((*p_Instance)[k].map0),
 							&((*p_Instance)[k].map1));
 						PrintNote(i_scale,key,0,-1,line);
-						if(trace_scale) BPPrintMessage(odInfo,"DrawGraph i_scale = %d\n",i_scale);
+						if(trace_scale) BPPrintMessage(odInfo,"DrawItem i_scale = %d\n",i_scale);
 						}
 					}
 				}
@@ -378,23 +374,6 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	GraphicOn = FALSE;
 
 	EndImageFile();
-	return(rep);
-	}
-
-
-int InterruptDraw(int n, int interruptok) {
-	int rep,compiledmem;
-
-	rep = OK;
-	if(TempMemory || (interruptok && Button())) {
-		rep = MISSED;
-		goto QUIT;
-		}
-	if(EventState != NO) {
-		rep = EventState;
-		}
-		
-	QUIT:
 	return(rep);
 	}
 
@@ -549,24 +528,6 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 	}
 
 
-int DrawGraph(int w, PolyHandle p_graph) {
-	// GrafPtr saveport;
-
-	// if(TempMemory) return(OK);
-	if(p_graph == NULL) {
-	//	if(Beta) Alert1("=> Err. DrawGraph()");
-		return(MISSED);
-		}
-	/* GetPort(&saveport);
-	SetPortWindowPort(Window[w]);
-	FramePoly(p_graph); */
-	/* if(saveport != NULL) SetPort(saveport);
-	else if(Beta) Alert1("=> Err DrawGraph(). saveport == NULL"); */
-	// StopWait();
-	return(OK);
-	}
-
-
 int KillDiagrams(int w){
 	int n;
 	w = wGraphic;
@@ -612,30 +573,6 @@ int KillDiagrams(int w){
 	return(OK);
 	}
 
-
-int GraphOverflow(PicHandle picture) {
-	return(OK);
-	/* Rect r;
-	int rep;
-	if(TempMemory || EmergencyExit) return(TRUE); // BB 20070529
-	if(picture == NULL) return(FALSE);
-	QDGetPictureBounds(picture, &r);	// requires 10.3 or later - akozar 20120603
-	if (EmptyRect(&r))  {
-		if (Beta) Alert1("=> Err. GraphOverflow(): picFrame is empty");
-		return(TRUE);
-		}
-	if (QDError() == insufficientStackErr) {
-		rep = Answer("Picture is too large. Disable graphics",'Y');
-		if(rep == YES) {
-			ShowGraphic = FALSE;
-			SetButtons(TRUE);
-			}
-		return(TRUE);
-		}
-	return(FALSE); */
-	}
-
-
 int DrawSequence(int nseq,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	Milliseconds **p_t2,long kmax,unsigned long imax,unsigned long **p_imaxseq,
 	int kmode,long **p_ddelta0,long **p_ddelta1,long **p_ddelta2) {
@@ -643,7 +580,6 @@ int DrawSequence(int nseq,SoundObjectInstanceParameters **p_object,Milliseconds 
 	Milliseconds t,tmin,tmax,**p_delta;
 	unsigned long i,im,k;
 
-	if(TempMemory || !ShowGraphic) return(OK);
 	BPPrintMessage(odInfo,"Drawing sequence\n");
 	tmin = Infpos; tmax = Infneg;
 	im = imax;
@@ -676,7 +612,7 @@ int DrawSequence(int nseq,SoundObjectInstanceParameters **p_object,Milliseconds 
 	}
 
 
-int DrawPrototype(int j,int w,Rect *p_frame) {
+int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED because prototypes are drawn on the PHP interface
 	Rect r,r1;
 	int jj,x,xmin,xmax,oldx,y,rep,htext,topoffset;
 	// GrafPtr saveport;
@@ -688,7 +624,6 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 	short oldfont,oldsize;
 	// Pattern pat;
 
-	// if(TempMemory) return(OK);
 	if(w < 0 || w >= WMAX) return(MISSED);
 	if(!GrafWindow[w]) {
 	//	if(Beta) Alert1("=> Err. DrawPrototype(). !GrafWindow[w]");
@@ -835,9 +770,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 			}
 		}
 	dur = (*p_Dur)[j];
-
 	// stroke_style(&Black);
-
 	// Draw covered parts
 	maxcover1 = maxcover2 = dur;
 	if(!(*p_CoverBeg)[j]) {
@@ -863,7 +796,6 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 		r.left = xmin + grscale * (dur - tmin - maxcover2);
 		r.right = p_frame->right - 2;
 		}
-
 	// Draw continuity
 	maxgap1 = maxgap2 = INT_MAX;
 	if((*p_ContBeg)[j]) {
@@ -908,7 +840,6 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 	/*	move_to(p_frame->right - strlen("#ContEnd") - 3,r.bottom + htext + 1);
 		fill_text("\p#ContEnd"); */
 		}
-
 	// Draw truncated parts
 	/* PenNormal();
 	stroke_style(&Blue); */
@@ -990,7 +921,6 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 	PenNormal(); */
 
 	// Show Csound messages
-
 	// stroke_style(&Red);
 	t = - preroll;
 	oldx = -1;
@@ -1005,7 +935,6 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 	// stroke_style(&Black);
 
 	// Show MIDI messages
-
 	// stroke_style(&Black);
 	t = - preroll;
 	oldx = -1;
@@ -1017,7 +946,6 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 			oldx = x;
 			}
 		}
-
 	// Draw label
 	sprintf(Message,"%s",*((*p_Bol)[j]));
 	// c2pstrcpy(label, Message);
@@ -1036,8 +964,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 		pen_size(2,2); 
 		stroke_style(&Color[PivotC]);
 		if(j > 16383 || (*p_OkRelocate)[j]) Move(0,5);
-		else Line(0,5); */
-		
+		else Line(0,5); */	
 		// Draw arrow of pivot
 	/*	Line(-2,-2); Line(4,0); Line(-2,2);
 		PenNormal(); */
@@ -1050,7 +977,6 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 	/*	move_to(r.left,r.top - 1);
 		fill_text("\pSmooth object: no pivot"); */
 		}
-
 	// Draw vertical red line
 	if(xmax > xmin) {
 		if((*p_Tpict)[iProto] == Infneg) {
@@ -1074,7 +1000,6 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 			}
 		}
 	// stroke_style(&Black);
-
 	// Csound instrument status
 	if((*p_Type)[iProto] & 4) {
 		if((*p_CsoundInstr)[iProto] > 0)
@@ -1096,7 +1021,6 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 			fill_text(label); */
 			}
 		}
-
 	// MIDI channel status
 	if((*p_DefaultChannel)[iProto] > 0)
 	sprintf(Message,"Force to MIDI channel %ld",(long)(*p_DefaultChannel)[iProto]);
@@ -1125,7 +1049,6 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 	DrawPicture(p_Picture[1],&r);
 	ValidWindowRect(Window[w], &r); */
 	if(Npicture < 2) Npicture = 2;
-
 	/* GetWindowPortBounds(Window[w], &r);
 	ClipRect(&r);
 	if(saveport != NULL) SetPort(saveport);
@@ -1136,20 +1059,26 @@ int DrawPrototype(int j,int w,Rect *p_frame) {
 
 int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int leftoffset,
 	int interruptok,Milliseconds **p_delta,long *p_yruler,int topoffset,int *p_overflow,char* type) {
-
 	int result;
 	double x,xscale,p,rr,period,shift;
 	long i,j,k,t1,t2,y,tmem1,tmem2,tmem3,xmax,ymax,y_curr;
 	char line[BOLSIZE+5],showsmalldivisions,line_image[200];
 	Str255 label;
+
+	shift = 0.;
+	if(strcmp(type,"pianoroll") == 0) shift = 0.; // Later we'll take care of this  2024-05-10
+	else {
+	//	if(OutMIDI || WriteMIDIfile || OutCsound || OutBPdata) shift = (double) PianorollShift;
+		if(Improvize) shift = (double) PianorollShift;
+		}
 	if(imagePtr == NULL) {
 		N_image++;
-		CreateImageFile();
+		if(strcmp(type,"pianoroll") != 0 && Improvize) CreateImageFile(shift/1000.); // Later we can use it
+		else CreateImageFile(-1.);
 		}	
 	result = OK;
 	pen_size(1,0);
 	text_style(htext,"arial");
-
 	ymax = p_r->bottom;
 	if(ymax > 16300) ymax = p_r->bottom = 16300;
 	if(HeightMax < 32000) HeightMax = 2 * ymax + 20;
@@ -1174,7 +1103,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 			}
 		}
 	xmax = p_r->right;
-	if(xmax > 2000) xmax = 2000;
+	if(xmax < 40 || xmax > max_coordinate) xmax = max_coordinate;
 	if(leftoffset < 0) {
 		xmax -= (hrect * leftoffset);
 		}
@@ -1194,7 +1123,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	p = 50. / x;
 	for(i = j = 0; ; i++,j++) {
 		t1 = leftoffset + (int) Round(i * p);
-		if(t1 > max_coordinate) break;
+		if(t1 > xmax) break;
 		switch(j) {
 			case 0:
 			case 10:
@@ -1213,12 +1142,6 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 			}
 		}
 	y = p_r->top + htext + 1;
-	shift = 0.;
-	if(strcmp(type,"pianoroll") == 0) shift = 0.; // Later we'll take care of this  2024-05-10
-	else {
-	//	if(OutMIDI || WriteMIDIfile || OutCsound || OutBPdata) shift = (double) PianorollShift;
-		if(Improvize) shift = (double) PianorollShift;
-		}
 	if(shift == 0.) sprintf(line,"0");
 	else sprintf(line,"%.2fs",shift / 1000.);
 	fill_text(line,leftoffset - 6,y);
@@ -1229,7 +1152,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 		if(k == 1) sprintf(line,"%.3fs",(double)i * xscale * k / 10. + shift / 1000.);
 		t1 = leftoffset + Round(k * i * p) - 10;
 		t2 = t1 + 12;
-		if(t2 >= max_coordinate) break;
+		if(t2 >= xmax) break;
 		if(t1 > tmem2) {
 			fill_text(line,t1,y);
 			tmem2 = t2 + 7 * strlen(line);
@@ -1251,16 +1174,14 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	stroke_style("blue");
 	fill_style("blue");
 
-	// BPPrintMessage(odInfo, "\nKpress = %ld, p = %.4f\nt1 =",(long) Kpress,(double) p);
-
 	// Subdivisional time streaks
 	// showsmalldivisions = TRUE;
-	for(i=1L,rr=Ratio,k=0; i <= imax; i++, rr += Kpress) {
+	for(i=1L,rr=Ratio,k=0; i < imax; i++, rr += Kpress) {
 		t1 = (*p_T)[i] / CorrectionFactor;
 		// BPPrintMessage(odInfo, " %ld",(long) t1);
 		if(p_delta != NULL) t1 += (*p_delta)[i];
 		t1 = leftoffset + Round(t1 * p);
-		if((t1 > tmem1 && showsmalldivisions && t1 < max_coordinate) || tmem1 == -Infpos) {
+		if((t1 > tmem1 && showsmalldivisions && t1 < xmax) || tmem1 == -Infpos) {
 			pen_size(1,0);
 			draw_line(t1,y,t1,ymax,"");
 			tmem1 = t1 + 20;
@@ -1269,24 +1190,24 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 		}
 	// BPPrintMessage(odInfo, "\n\n");
 
-	// We draw horizontal white lines to break time subdivisional time streaks
-	pen_size(1,0);
+	// Draw horizontal white lines to break time subdivisional time streaks
+	pen_size(3,0);
 	stroke_style("white");
 	for(y_curr = y; y_curr < ymax; y_curr += 6) {
-		draw_line(leftoffset,y_curr,max_coordinate,y_curr,"");
+		draw_line(leftoffset,y_curr,xmax,y_curr,"");
 		}
 
 	// Major time streaks
 	pen_size(1,0);
 	stroke_style("blue");
 	text_style(10,"arial");
-	for(i=1L,rr=Ratio,k=0; i <= imax; i++, rr += Kpress) {
+	for(i=1L,rr=Ratio,k=0; i < imax; i++, rr += Kpress) {
 		t1 = (*p_T)[i] / CorrectionFactor;
 		if(p_delta != NULL) t1 += (*p_delta)[i];
 		t1 = leftoffset + Round(t1 * p);
 		if(rr >= Ratio) {
 			rr -= Ratio;
-			if(t1 > tmem2  && t1 < max_coordinate) {
+			if(t1 > tmem2  && t1 < xmax) {
 				sprintf(line,"%ld",(long)(k + StartFromOne));
 				t2 = t1 + 12;
 				if(t1 > tmem3) {
@@ -1321,7 +1242,6 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 	if(chan < 0 || chan >= MAXCHAN) {
 		return(OK);
 		}
-
 	// if(strcmp(type,"midi") == 0) {
 		if(OutMIDI || WriteMIDIfile || OutCsound || OutBPdata) {
 			timeon -= PianorollShift;
@@ -1333,7 +1253,6 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 			}
 	timeon = Round(((double)timeon * GraphicScaleP) / GraphicScaleQ / 10.);
 	timeoff = Round(((double)timeoff * GraphicScaleP) / GraphicScaleQ / 10.);
-
 	x1 = p_r->left + leftoffset + timeon;
 	y = (maxkey - key - 1) * hrect + topoffset;
 	x2 = x1 + timeoff - timeon;

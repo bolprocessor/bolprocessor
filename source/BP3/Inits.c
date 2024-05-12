@@ -77,7 +77,7 @@ long t;
 InitCursor();
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
-#if USE_MLTE
+#if USE_MLTE_FORGET_THIS
 io = TXNInitTextension(NULL, 0, 0);
 if (io != noErr) {
 	ParamText("\pBP could not initialize the Multilingual Text Engine library.  Quitting ...",
@@ -117,11 +117,8 @@ Nw = 0;
  
 InitOn = NoCursor = NotSaidKpress = TRUE;
 ReceivedOpenAppEvent = FALSE;
-CheckMem = TRUE; EmergencyExit = TempMemory = AskedTempMemory
-	= FixedMaxQuantization = FALSE;
-TempMemoryUsed = ZERO;
+CheckMem = TRUE; EmergencyExit = FixedMaxQuantization = FALSE;
 EventState = NO;
-MemoryUsed = TempMemoryUsed = MaxMemoryUsed = ZERO;
 SetTimeOn = ComputeOn = PolyOn = CompileOn = SoundOn = SelectOn = ButtonOn = ExpandOn
 	= PrintOn = ClickRuleOn = GraphicOn = CompleteDecisions = LoadOn = SaveOn = MIDIfileOn
 	= ReadKeyBoardOn = AlertOn = AllOn = HangOn = ScriptRecOn = PlayPrototypeOn
@@ -141,7 +138,6 @@ ToldAboutScale = FALSE;
 WarnedBlockKey = WarnedRangeKey  = FALSE;
 TimeMax = MAXTIME; Nalpha = 100L; SpeedRange = 6.;
 CorrectionFactor = 1.;
-UserName[0] = UserInstitution[0] = '\0';
 Chunk_number = 0;
 // Tracefile = NULL;
 
@@ -437,7 +433,7 @@ io = AEInstallEventHandler(kCoreEventClass,kAEPrintDocuments,handler,0,FALSE); *
 handler = NewAEEventHandlerUPP(MyHandleQUIT);
 io = AEInstallEventHandler(kCoreEventClass,kAEQuitApplication,handler,0,FALSE);
 
-#if !TARGET_API_MAC_CARBON	/* Edition Manager not in Carbon */
+#if !TARGET_API_MAC_CARBON_FORGET_THIS	/* Edition Manager not in Carbon */
   handler = NewAEEventHandlerUPP(MyHandleSectionReadEvent);
   io = AEInstallEventHandler(sectionEventMsgClass,sectionReadMsgID,handler,0,FALSE);
 
@@ -865,7 +861,7 @@ PatternPtr = GetNewDialog(PatternID,NULL,0L);
 EnterPtr = GetNewDialog(EnterID,NULL,0L);
 GreetingsPtr = GetNewDialog(GreetingsID,NULL,0L);
 DrawDialog(GreetingsPtr);
-#if TARGET_API_MAC_CARBON
+#if TARGET_API_MAC_CARBON_FORGET_THIS
   QDFlushPortBuffer(GetDialogPort(GreetingsPtr), NULL);
 #endif
 FAQPtr = GetNewDialog(FAQDialogID,NULL,0L);
@@ -961,7 +957,7 @@ y0 += 11;
 CopyPString("\p1997",title);
 move_to("canvas",x0 - StringWidth(title)/2,y0);
 stroke_text("canvas",title);
-#if TARGET_API_MAC_CARBON
+#if TARGET_API_MAC_CARBON_FORGET_THIS
   QDFlushPortBuffer(GetDialogPort(GreetingsPtr), NULL);
 #endif
 	
@@ -1139,7 +1135,7 @@ FontInfo myInfo;
 int height,i,itemType;
 long scrapoffset,n;
 OSErr err;
-#if WASTE
+#if WASTE_FORGET_THIS
 LongRect dr,vr;
 #else
 Rect dr,vr;
@@ -1156,7 +1152,7 @@ if(Editable[w]) { TextFont(kFontIDCourier); TextSize(WindowTextSize[w]); }
 Charstep = 7; /* StringWidth("\pm"); */
 Nw = w;
 GetWindowPortBounds(Window[w], &viewRect);
-if (!USE_MLTE) {
+if (!USE_MLTE_FORGET_THIS) {
 if(OKvScroll[w]  || OKhScroll[w]) {
 	viewRect.right = viewRect.right - SBARWIDTH;
 	if (!RunningOnOSX || OKhScroll[w])  viewRect.bottom = viewRect.bottom - SBARWIDTH;
@@ -1186,7 +1182,7 @@ if(OKhScroll[w]) {
 viewRect.bottom -= Freebottom[w];
 destRect = viewRect;
 if(Editable[w]) {
-#if WASTE
+#if WASTE_FORGET_THIS
 	dr.top = destRect.top;
 	dr.left = destRect.left;
 	dr.bottom = destRect.bottom;
@@ -1209,7 +1205,7 @@ if(Editable[w]) {
 		WESetAlignment(weFlushLeft,TEH[w]);
 	else
 		WESetAlignment(weFlushRight,TEH[w]);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 	if (CreateMLTEObject(w, &viewRect) != OK) return (MISSED);
 #else
 	TEH[w] = TEStyleNew(&destRect,&viewRect);
@@ -1225,7 +1221,7 @@ if(Editable[w]) {
 else TEH[w] = NULL;
 Dirty[w] = FALSE;
 SetViewRect(w);
-#if !WASTE
+#if !WASTE_FORGET_THIS
 if(Editable[w]) PrintBehind(w," ");	/* Needed to record size into windowscrap */
 #endif
 return(OK);
@@ -1233,7 +1229,7 @@ return(OK);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
 
-#if USE_MLTE
+#if USE_MLTE_FORGET_THIS
 int CreateMLTEObject(int w, Rect* frame)
 {
 	OSStatus err;
@@ -1785,7 +1781,7 @@ int	i;
 ClearMenuBar();
 myMenus[appleM] = GetMenu(MenuIDoffset);
 InsertMenu(myMenus[appleM],0) ;
-#if !TARGET_API_MAC_CARBON
+#if !TARGET_API_MAC_CARBON_FORGET_THIS
   AppendResMenu(myMenus[appleM],'DRVR');
 #endif
 
@@ -1795,7 +1791,7 @@ for (i = fileM; i <= MAXMENU; i++) {
 	InsertMenu(myMenus[i],0);
 	}
 /* On OS X, remove the Quit item and separator from the File menu */ 
-#if TARGET_API_MAC_CARBON
+#if TARGET_API_MAC_CARBON_FORGET_THIS
   if (RunningOnOSX && myMenus[fileM] != NULL) {
   	DeleteMenuItem(myMenus[fileM], fmQuit);
   	DeleteMenuItem(myMenus[fileM], fmQuit - 1);

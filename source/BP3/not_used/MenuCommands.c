@@ -148,7 +148,7 @@ if (strlen(Carbon_Text) + strlen(SHORT_VERSION) + strlen(Beta_Text) > MAXLIN) {
 	if (Beta) Alert1("=> Err. mAbout(): version string too long for Message.");
 	}
 else {
-#if TARGET_API_MAC_CARBON
+#if TARGET_API_MAC_CARBON_FORGET_THIS
 	strcat(Message, Carbon_Text);
 #endif
 	strcat(Message, SHORT_VERSION);
@@ -158,9 +158,9 @@ c2pstrcpy(versionstr, Message);
 
 c2pstrcpy(datestr, __DATE__);
 
-#if WASTE
+#if WASTE_FORGET_THIS
   textenginestr = WASTE_Notice;
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
   textenginestr = MLTE_Notice;
 #else
   textenginestr = TE_Notice;
@@ -1255,7 +1255,7 @@ if(OldFile(w,type,fn,&spec)) {
 			}
 		else {  // FIXME: tries to load grammar again if first time failed ?
 			if(ReadFile(w,refnum) == OK) {
-				if(!WASTE) CCUTEToScrap();	// WHY?
+				if(!WASTE_FORGET_THIS) CCUTEToScrap();	// WHY?
 				if(w != wScrap) GetHeader(w);
 				if(clear) {
 					/* p2cstrcpy(FileName[w],spec.name); */
@@ -1656,7 +1656,7 @@ switch (rep) {
 					if(ReadFile(wind,refnum) == OK) {
 						UpdateDirty(TRUE,wind);
 						Dirty[wind] = FALSE;
-#if WASTE
+#if WASTE_FORGET_THIS
 						WEResetModCount(TEH[wind]);
 #endif
 						}
@@ -1705,7 +1705,7 @@ return(OK);
 
 mPageSetup(int wind)
 {
-#if !TARGET_API_MAC_CARBON
+#if !TARGET_API_MAC_CARBON_FORGET_THIS
 	DoPageSetUp();
 #else
 	Alert1("Bol Processor Carbon is not able to print yet.  Try opening your documents in a text editor.");
@@ -1719,7 +1719,7 @@ mPrint(int wind)
 int n;
 Rect r;
 
-#if TARGET_API_MAC_CARBON
+#if TARGET_API_MAC_CARBON_FORGET_THIS
 	Alert1("Bol Processor Carbon is not able to print yet.  Try opening your documents in a text editor.");
 #else
 if(wind < 0 || wind >= WMAX || (!Editable[wind] && !GrafWindow[wind])) return(MISSED);
@@ -1784,7 +1784,7 @@ return(EXIT);
 
 mUndo(int wind)
 {
-#if !USE_MLTE  /* FIXME:  use MLTE's built-in Undo */
+#if !USE_MLTE_FORGET_THIS  /* FIXME:  use MLTE's built-in Undo */
 if(UndoFlag) {
 	HideWindow(GetDialogWindow(ResumeUndoStopPtr)); ResumeStopOn = FALSE;
 	return(UNDO);
@@ -1792,7 +1792,7 @@ if(UndoFlag) {
 TextAutoView(FALSE,TRUE,TEH[UndoWindow]);
 switch(LastAction) {
 	case TYPEWIND:
-#if WASTE
+#if WASTE_FORGET_THIS
 		WEUndo(TEH[UndoWindow]);
 		ShowSelect(CENTRE,UndoWindow);
 		break;
@@ -1810,13 +1810,13 @@ switch(LastAction) {
 		else LastAction = NO;
 		break;
 	case COPY:
-#if WASTE
+#if WASTE_FORGET_THIS
 		WEUndo(TEH[UndoWindow]);
 		ShowSelect(CENTRE,UndoWindow);
 #endif
 		break;
 	case CUTWIND:
-#if WASTE
+#if WASTE_FORGET_THIS
 		WEUndo(TEH[UndoWindow]);
 		ShowSelect(CENTRE,UndoWindow);
 #else
@@ -1832,7 +1832,7 @@ switch(LastAction) {
 		break;
 	case CUTDLG: break;
 	case PASTEWIND:
-#if WASTE
+#if WASTE_FORGET_THIS
 		WEUndo(TEH[UndoWindow]);
 		ShowSelect(CENTRE,UndoWindow);
 #else
@@ -1848,7 +1848,7 @@ switch(LastAction) {
 	case PASTEDLG:
 		break;
 	case DELETEWIND:
-#if WASTE
+#if WASTE_FORGET_THIS
 		WEUndo(TEH[UndoWindow]);
 		ShowSelect(CENTRE,UndoWindow);
 #else
@@ -1876,7 +1876,7 @@ switch(LastAction) {
 	case DELETEDLG:
 		break;
 	case NO:
-/* #if WASTE
+/* #if WASTE_FORGET_THIS
 		WEUndo(TEH[UndoWindow]);
 		ShowSelect(CENTRE,UndoWindow);
 #endif */
@@ -1902,7 +1902,7 @@ if(Editable[wind]) {
 	UndoWindow = wind;
 	TextGetSelection(&UndoPos, &dummy, TEH[wind]);
 	if (Beta)  CheckScrapContents();
-	/*if(!WASTE) {
+	/*if(!WASTE_FORGET_THIS) {
 		CCUZeroScrap(); TEToScrap();	// not necessary for multistyled TE - 030607 akozar
 		}					// and does not work correctly on OS X
 	if (Beta)  CheckScrapContents();*/
@@ -1936,7 +1936,7 @@ if(Editable[wind]) {
 	if(LastAction == 0) LastAction = COPY;
 	LastComputeWindow = wind;
 	if (Beta)  CheckScrapContents();
-	/*if(!WASTE) {
+	/*if(!WASTE_FORGET_THIS) {
 		CCUZeroScrap(); TEToScrap();
 		}
 	if (Beta)  CheckScrapContents();*/
@@ -1945,7 +1945,7 @@ else if(IsDialog[wind]) {	// IsDialog just to be sure - 011207 akozar
 	DialogCopy(GetDialogFromWindow(FrontWindow()));
 	CCUTEToScrap();
 	}
-// if(WASTE) TEFromScrap();
+// if(WASTE_FORGET_THIS) TEFromScrap();
 return(OK);
 }
 
@@ -2269,7 +2269,7 @@ ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
 TargetWindow = LastEditWindow = wind;
 /* make a temporary copy of the scrap */
-if(!WASTE) {
+if(!WASTE_FORGET_THIS) {
 	CCUTEToScrap();	/* save current text edit scrap */
 	}
 myHandle = (Handle) GiveSpace(1);
@@ -2283,7 +2283,7 @@ if(rc > 0) {
 	MyUnlock(myHandle); */
 	}
 TextCopy(wind);
-// if(WASTE) TEFromScrap();
+// if(WASTE_FORGET_THIS) TEFromScrap();
 TextGetSelection(&selbegin, &selend, TEH[wind]);
 SetSelect(selbegin,selbegin,TEH[wind]);
 BPActivateWindow(SLOW,wFindReplace);

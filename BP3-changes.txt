@@ -4,7 +4,7 @@ Bol Processor BP3 history of changes
 Current location of this file:
 https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.txt
 Read also the "to-do" file:
-https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-To-Do.txt
+https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 -----
 2024-05-07
@@ -30,7 +30,7 @@ Interface now accepts alternative names of the Csound console.
 
 -----
 2024-05-12
-No change to core algorithms. Only features that affect images.
+No changes to core algorithms. Only features that affect images.
 Fixed "Timeset.c" to correctly calculate the left image border when an out-time object is at time = 0.
-Limits of coordinates havee been fixed to deal with very large images.
+Limits of coordinates have been fixed to deal with very large images.
 Image links (objects, not pianoroll) now show start dates in Improvize mode.

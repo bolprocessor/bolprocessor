@@ -199,7 +199,7 @@ switch(p_event->what) {
 				InvalWindowRect(Window[LastEditWindow], &r);
 				if(saveport != NULL) SetPort(saveport);
 				else if(Beta) Alert1("=> Err DoEvent(). saveport == NULL");
-#if !TARGET_API_MAC_CARBON
+#if !TARGET_API_MAC_CARBON_FORGET_THIS
 				SystemClick(p_event,whichwindow);
 #endif
 				ResetTickFlag = TRUE;
@@ -249,7 +249,7 @@ switch(p_event->what) {
 			case inGrow:
 				PrintEvent(p_event, "case inGrow", whichwindow);
 				if(w == Nw /* && (!ClickRuleOn || w != wTrace) */) {
-#if USE_MLTE
+#if USE_MLTE_FORGET_THIS
 					if (w < MAXWIND && OKgrow[w]) { // growable text windows are all < MAXWIND
 						TXNGrowWindow((*(TEH[w]))->textobj, p_event);
 						}
@@ -356,7 +356,7 @@ switch(p_event->what) {
 			if(thechar == '\b') {	// delete key
 				// FIXME: with TextEdit, this destroys the contents of the clipboard
 				// so we need another way to remember the deleted text for Undo-ing
-				if(!USE_MLTE && !WASTE && Editable[Nw] && !LockedWindow[Nw]) {
+				if(!USE_MLTE_FORGET_THIS && !WASTE_FORGET_THIS && Editable[Nw] && !LockedWindow[Nw]) {
 					TextOffset selbegin, selend;
 					TextGetSelection(&selbegin, &selend, TEH[Nw]);
 					if((start=selbegin) < selend) {
@@ -369,7 +369,7 @@ switch(p_event->what) {
 							}
 						else {
 							if(LastAction == PASTEWIND) {
-								if(WASTE) LastAction = DELETEWIND;
+								if(WASTE_FORGET_THIS) LastAction = DELETEWIND;
 								else LastAction = NO;
 								}
 							}
@@ -387,7 +387,7 @@ switch(p_event->what) {
 							}
 						else {
 							if(LastAction == PASTEWIND) {
-								if(WASTE) LastAction = DELETEWIND;
+								if(WASTE_FORGET_THIS) LastAction = DELETEWIND;
 								else LastAction = NO;
 								}
 							}
@@ -442,8 +442,8 @@ switch(p_event->what) {
 		for(w=0; w < WMAX; w++) {
 			if((WindowPtr) p_event->message == Window[w]) break;
 			}
-#if USE_MLTE
-		if(USE_MLTE && w >= 0 && w < MAXWIND) {
+#if USE_MLTE_FORGET_THIS
+		if(USE_MLTE_FORGET_THIS && w >= 0 && w < MAXWIND) {
 			TXNUpdate((*(TEH[w]))->textobj);
 			}
 		else
@@ -964,7 +964,7 @@ if(Editable[newNw] && !LockedWindow[newNw]) {
 	thestyle.tsSize = (short) WindowTextSize[newNw];
 	TextSetStyle(doSize,&thestyle,0,TEH[newNw]);
 	if(newNw != wHelp) LastEditWindow = newNw;
-	if(WASTE && mode == SLOW) CalText(TEH[newNw]);
+	if(WASTE_FORGET_THIS && mode == SLOW) CalText(TEH[newNw]);
 	}
 SelectWindow(Window[newNw]);
 if(OKvScroll[newNw]) ShowControl(vScroll[newNw]);
@@ -982,9 +982,9 @@ if(OKvScroll[newNw] || OKhScroll[newNw])
 Nw = newNw;
 MaintainMenus(); DrawMenuBar();
 
-#if 0  // strange difference in behavior between TE & WASTE; neither is necessary? - akozar
+#if 0  // strange difference in behavior between TE & WASTE_FORGET_THIS; neither is necessary? - akozar
 if(Nw < 0 || Nw >= WMAX) return(OK);
-  if(!WASTE) UpdateWindow(FALSE,Window[Nw]);
+  if(!WASTE_FORGET_THIS) UpdateWindow(FALSE,Window[Nw]);
   else if(mode == SLOW && Editable[Nw]) ShowSelect(CENTRE,Nw);
 #endif
 if((mode == SLOW || mode == AGAIN) && Nw == wPrototype1)
@@ -1007,7 +1007,7 @@ if(w < 0 || w >= WMAX) {
 GetPort(&saveport);
 SetPortWindowPort(Window[w]);
 if(OKvScroll[w] && Editable[w]) {
-#if !USE_MLTE
+#if !USE_MLTE_FORGET_THIS
 	oldScroll = (**(TEH[w])).viewRect.top - (**(TEH[w])).destRect.top;
 	newScroll = GetControlValue(vScroll[w]) * LineHeight(w);
 	delta = oldScroll - newScroll;
@@ -1068,7 +1068,7 @@ Point pt1,pt2;
 Rect r,rclip,r1;
 WindowPtr window;
 GrafPtr saveport;
-#if WASTE
+#if WASTE_FORGET_THIS
 LongPt startpoint,endpoint;
 #endif
 
@@ -1138,13 +1138,13 @@ if(!OKvScroll[w]) return(OK);
 SetVScroll(w);
 topLine = GetControlValue(vScroll[w]);
 bottomLine = topLine + linesInFolder[w] - 1;
-#if WASTE
+#if WASTE_FORGET_THIS
 WEGetSelection(&selstart,&selend,TEH[w]);
 WEGetPoint(selstart,&startpoint,&height,TEH[w]);
 startline = topLine + (startpoint.v / height);
 WEGetPoint(selend,&endpoint,&height,TEH[w]);
 endline = topLine + (endpoint.v / height);
-#elif USE_MLTE
+#elif USE_MLTE_FORGET_THIS
 TextGetSelection(&selstart,&selend,TEH[w]);
 // FIXME: what else needs to be done for MLTE ??
 #else
@@ -1153,7 +1153,7 @@ selend = (**(TEH[w])).selEnd;
 #endif
 if(selstart < LineStartPos(topLine,topLine,w)
 		|| selend >= LineStartPos(bottomLine+1,topLine,w)) {
-#if !WASTE
+#if !WASTE_FORGET_THIS
 	for(startline = 0; selstart >= LineStartPos(startline,topLine,w); startline++);
 	for(endline = startline; selend >= LineStartPos(endline,topLine,w); endline++);
 #endif
@@ -1183,7 +1183,7 @@ Rect dr,vr;
 
 if(w >= 0 && w < WMAX && Editable[w]) {
 	GetWindowPortBounds(Window[w], &dr);
-#if !USE_MLTE
+#if !USE_MLTE_FORGET_THIS
 	if(HasFields[w]) resize_rect(&dr,2,2); // Remove since it does nothing?
 	if(OKvScroll[w]) {
 		dr.right -= SBARWIDTH;
@@ -1226,7 +1226,7 @@ for(w=0; w < WMAX; w++) {
 	}
 GetPort(&saveport);
 SetPortWindowPort(theWindow);
-//if(!quick && w < WMAX && (!WASTE || !Editable[w])) SetViewRect(w);  // causing problems with TextEdit scroll position - 020907 akozar
+//if(!quick && w < WMAX && (!WASTE_FORGET_THIS || !Editable[w])) SetViewRect(w);  // causing problems with TextEdit scroll position - 020907 akozar
 
 // Because the Dialog manager has already updated our dialog with a text handle, 
 // the update region may be empty.  Thus, this hack is needed to get the text to
@@ -1293,7 +1293,7 @@ int	pageSize;
 int	scrollAmt,oldvalue,maxvalue;
 TextHandle teh;
 Rect r;
-#if WASTE
+#if WASTE_FORGET_THIS
   LongRect lr;
 #else
   Rect lr;
@@ -1929,7 +1929,7 @@ return(OK);
 UpdateDirty(int force,int w)
 {
 if(ScriptExecOn && !ResumeStopOn) return(OK);
-#if WASTE
+#if WASTE_FORGET_THIS
 if(!force && Editable[w] && !HasFields[w] && WEGetModCount(TEH[w]) == 0) return(OK);
 #endif
 switch(w) {

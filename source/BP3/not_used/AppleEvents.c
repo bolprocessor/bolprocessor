@@ -64,7 +64,7 @@ GoodEvent(EventRecord *p_event)
 /* switch(p_event->message) {
 	case BP2Class:
 	case kCoreEventClass:
-#if !TARGET_API_MAC_CARBON	/* Edition Manager not in Carbon *\/
+#if !TARGET_API_MAC_CARBON_FORGET_THIS	/* Edition Manager not in Carbon *\/
 	case sectionEventMsgClass:
 #endif
 		break;
@@ -74,7 +74,7 @@ switch((*((AEEventID*) (&(p_event->where))))) {
 	case kAEOpenDocuments:
 	case kAEPrintDocuments:
 	case kAEQuitApplication:
-#if !TARGET_API_MAC_CARBON	/* Edition Manager not in Carbon *\/
+#if !TARGET_API_MAC_CARBON_FORGET_THIS	/* Edition Manager not in Carbon *\/
 	case sectionReadMsgID:
 	case sectionWriteMsgID:
 	case sectionScrollMsgID:
@@ -325,7 +325,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 			SetName(wind,FALSE,TRUE);
 			UpdateDirty(TRUE,wind);
 			Dirty[wind] = FALSE;
-#if WASTE
+#if WASTE_FORGET_THIS
 			WEResetModCount(TEH[wind]);
 #endif
 			GetHeader(wind);

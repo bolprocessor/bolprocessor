@@ -675,13 +675,13 @@ if(w == wTimeAccuracy) {
 	UpdateDirty(TRUE,iSettings);
 	switch(itemHit) {
 		case dOff:
-			QuantizeOK = FixedMaxQuantization = AskedTempMemory = FALSE;
+			QuantizeOK = FixedMaxQuantization = FALSE;
 			AppendScript(72);
 			NotSaidKpress = TRUE;
 			break;
 		case dOn:
 			QuantizeOK = TRUE;
-			FixedMaxQuantization = AskedTempMemory = FALSE;
+			FixedMaxQuantization = FALSE;
 			AppendScript(52);
 			break;
 		}
@@ -931,7 +931,7 @@ if(thedialog == SixteenPtr) {
 					
 					sprintf(line,"%ld",(long)TestMIDIChannel);
 					SetField(MIDIprogramPtr,-1,fMIDIchannel,line);
-#if TARGET_API_MAC_CARBON
+#if TARGET_API_MAC_CARBON_FORGET_THIS
 					QDFlushPortBuffer(GetDialogPort(SixteenPtr), NULL);
 					QDFlushPortBuffer(GetDialogPort(MIDIprogramPtr), NULL);
 #endif
@@ -2710,7 +2710,7 @@ int BPSetDialogAppearance(DialogPtr d, Boolean useThemeBackground)
 	
 	// these calls only require AppearanceLib, not CarbonLib
 	// but we only are using them in the Carbon build for now
-#if TARGET_API_MAC_CARBON
+#if TARGET_API_MAC_CARBON_FORGET_THIS
 	if (RunningOnOSX) {
 		TextSize(11);
 		

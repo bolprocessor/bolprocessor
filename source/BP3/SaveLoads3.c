@@ -1028,7 +1028,7 @@ do {
 	CleanLF(p_buffer,&count,&dos);
 	if(Editable[w]) CheckHTML(FALSE,w,p_buffer,&count,&html);
 	totalcount += count;
-	if(!WASTE && totalcount >= TEXTEDIT_MAXCHARS) {
+	if(!WASTE_FORGET_THIS && totalcount >= TEXTEDIT_MAXCHARS) {
 		sprintf(Message, "Beware! file is larger than %d chars and cannot be entirely loaded", 
 		          TEXTEDIT_MAXCHARS);
 		if(!ScriptExecOn) Alert1(Message);
@@ -1408,7 +1408,7 @@ int CheckTextSize(int w)
 {
 long n;
 
-if(WASTE || w < 0 || w >= WMAX || !Editable[w]) return(OK);
+if(WASTE_FORGET_THIS || w < 0 || w >= WMAX || !Editable[w]) return(OK);
 n = GetTextLength(w);
 if(n > (TEXTEDIT_MAXCHARS - 100)) {
 	if (WindowFullAlertLevel[w] < 1) {	// this test cannot be in the previous 'if'
@@ -2042,7 +2042,7 @@ switch(w) {
 	}
 UpdateDirty(TRUE,w);
 Dirty[w] /* = Created[w] */ = FALSE;
-#if WASTE
+#if WASTE_FORGET_THIS
 WEResetModCount(TEH[w]);
 #endif
 return(OK);
