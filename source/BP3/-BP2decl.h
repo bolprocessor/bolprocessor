@@ -92,7 +92,6 @@ extern int UseGraphicsColor,UseTextColor,ForceTextColor,ForceGraphicColor;
 
 extern node PrefixTree,SuffixTree;
 extern long SwitchState;
-extern char EndStr[4];
 extern char InitToken[6];
 extern Rect PictFrame;
 extern char Mode[MAXMODE][MODELENGTH];
@@ -394,6 +393,7 @@ extern int trace_scale;
 extern int WarnedBlockKey,WarnedRangeKey;
 
 extern MIDI_Event eventStack[MAXMIDIMESSAGES];
-extern long eventCount, eventCountMax,initTime;
+extern long eventCount, eventCountMax;
+extern UInt64 initTime;
 
 #endif /* BP2_DECL_H */

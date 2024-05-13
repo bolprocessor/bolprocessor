@@ -453,7 +453,7 @@ static int CMAddEventToQueue(const MIDIPacket* pkt)
 	int i;
 	UInt16 nbytes = pkt->length;
 	Milliseconds time = (unsigned long)(AudioConvertHostTimeToNanos(pkt->timeStamp) 
-					/ ((UInt64)1000000 /** (UInt64)Time_res)*/));
+					/ ((unsigned long)1000000 /** (unsigned long)Time_res)*/));
 	
 	if (pthread_mutex_lock(&QueueMutex) != 0)  return(MISSED);
 	for(i=0; i < nbytes; i++) {
@@ -541,7 +541,7 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 		Byte databuf[4];
 		ByteCount len;
 		MIDITimeStamp cmtime;
-		UInt64 nanoseconds;
+		unsigned long nanoseconds;
 		MIDIPacketList *pktlist = (MIDIPacketList *)pktbuf;
 		MIDIPacket *curpkt;
 
@@ -556,7 +556,7 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 		curpkt = MIDIPacketListInit(pktlist);
 
 		nanoseconds = AudioConvertHostTimeToNanos(ClockZero);
-		nanoseconds += ((UInt64)time * (UInt64)1000000); // add our time offset (ms) to the host clock (ns)
+		nanoseconds += ((unsigned long)time * (unsigned long)1000000); // add our time offset (ms) to the host clock (ns)
 		cmtime = AudioConvertNanosToHostTime(nanoseconds);
 		switch(p_e->type) {
 			case RAW_EVENT:
@@ -679,7 +679,7 @@ unsigned long GetDriverTime(void)
 	MIDITimeStamp sincezero;
 
 	sincezero = AudioGetCurrentHostTime() - ClockZero;
-	time = (unsigned long)(AudioConvertHostTimeToNanos(sincezero) / ((UInt64)1000000 * (UInt64)Time_res));
+	time = (unsigned long)(AudioConvertHostTimeToNanos(sincezero) / ((unsigned long)1000000 * (unsigned long)Time_res));
 	return(time);
 }
 
@@ -688,7 +688,7 @@ int SetDriverTime(long time)
 	MIDITimeStamp clockcurrent, offset;
 	
 	clockcurrent = AudioGetCurrentHostTime();
-	offset = AudioConvertNanosToHostTime(((UInt64)(time * Time_res) * (UInt64)1000000));
+	offset = AudioConvertNanosToHostTime(((unsigned long)(time * Time_res) * (unsigned long)1000000));
 	/* save the clock time that we are calling "zero" */
 	ClockZero = clockcurrent - offset;
 	return(OK);

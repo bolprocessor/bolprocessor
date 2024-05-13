@@ -103,7 +103,6 @@ int UseGraphicsColor,UseTextColor,ForceTextColor,ForceGraphicColor;
 
 node PrefixTree,SuffixTree;
 long SwitchState;
-char EndStr[4];
 char InitToken[] = "INIT:";
 Rect PictFrame;
 char Mode[][MODELENGTH] = {"RND","LEFT","RIGHT"};

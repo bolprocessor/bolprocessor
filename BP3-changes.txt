@@ -34,3 +34,8 @@ No changes to core algorithms. Only features that affect images.
 Fixed "Timeset.c" to correctly calculate the left image border when an out-time object is at time = 0.
 Limits of coordinates have been fixed to deal with very large images.
 Image links (objects, not pianoroll) now show start dates in Improvize mode.
+
+-----
+2024-05-13
+Modified "MIDItest.c" so that it compiles and run under Windows. Compilation was checked with Visual Studio.
+Then, BP3 was updated so that it will compile under Windows and produce real-time MIDI output.

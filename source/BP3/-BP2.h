@@ -152,7 +152,6 @@
 
 #include <sys/stat.h>
 #include <dirent.h>
-#include <unistd.h> // This will work on MacOS and Linux but will be ignored on Windows
 
 #if WASTE_FORGET_THIS
 #include "WASTEIntf.h"
@@ -175,15 +174,33 @@
 #  include "ConsoleMessages.h"
 #endif
 
+// Define platform-specific constants and include headers
 #if defined(_WIN32) || defined(_WIN64)
-    #include <windows.h>
-    #include <mmsystem.h>
-    #pragma comment(lib, "winmm.lib")
+#include <windows.h>
+#include <mmsystem.h>
+#pragma comment(lib, "winmm.lib")
+// Global variable for MIDI device handle
+static HMIDIOUT hMidiOut = NULL;
+typedef unsigned long long UInt64;
+void usleep(DWORD waitTime) {
+    LARGE_INTEGER perfCnt, start, now;
+    QueryPerformanceFrequency(&perfCnt);
+    QueryPerformanceCounter(&start);
+    do QueryPerformanceCounter((LARGE_INTEGER*)&now);
+	while ((now.QuadPart - start.QuadPart) / float(perfCnt.QuadPart) * 1000 * 1000 < waitTime);	
+	}
+typedef struct {
+    UInt64 eventTime; // Time in ms
+    int dataSize;
+    unsigned char midiData[3];
+	} MIDI_Event;
 #elif defined(__APPLE__)
     #include <CoreMIDI/CoreMIDI.h>
     #include <mach/mach_time.h>
+	#include <unistd.h>
 #elif defined(__linux__)
     #include <alsa/asoundlib.h>
+	#include <unistd.h>
 #endif
 
 // Moved macros and enum down here to avoid potential problems with replacing names

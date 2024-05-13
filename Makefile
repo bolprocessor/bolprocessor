@@ -1,7 +1,6 @@
 SRCDIR = source/BP3
 PREFIX = source/prefix/PrefixANSIDebug.h
 CC     = gcc
-CFLAGS =
 LIBS   = -lm
 EXE    = bp
 
@@ -9,15 +8,19 @@ UNAME_S := $(shell uname -s)
 UNAME_M := $(shell uname -m)
 
 ifeq ($(UNAME_S),Darwin)
+	CFLAGS =
     FRAMEWORKS = -framework CoreMIDI -framework CoreFoundation
 endif
 ifeq ($(UNAME_S),Linux)
+	CFLAGS =
     FRAMEWORKS = -lasound  # Example: linking with ALSA for MIDI handling on Linux
 endif
 ifneq (,$(findstring CYGWIN,$(UNAME_S)))
+	CFLAGS = -D_CRT_SECURE_NO_WARNINGS
     FRAMEWORKS = -lwinmm  # Example: linking with WinMM library on Cygwin
 endif
 ifneq (,$(findstring MINGW,$(UNAME_S)))
+	CFLAGS = -D_CRT_SECURE_NO_WARNINGS
     FRAMEWORKS = -lwinmm  # Example: linking with WinMM library on MinGW
 endif
 
@@ -80,8 +83,13 @@ depend:
 	makedepend -I $(SRCDIR) -include $(PREFIX)  $(SRCS)
 
 clean:
+ifeq ($(OS),Windows_NT)
+	del /Q *.o $(EXE)
+	del /Q $(SRCDIR)/*.o
+else
 	rm $(EXE)
 	rm $(SRCDIR)/*.o
+endif
 
 # DO NOT DELETE
 

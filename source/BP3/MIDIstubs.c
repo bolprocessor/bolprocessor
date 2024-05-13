@@ -83,14 +83,13 @@ static time_t ClockZero = 0;
 
 int initializeMIDISystem() {
     #if defined(_WIN32) || defined(_WIN64)
-        BPPrintMessage(odInfo,"Initializing Windows MIDI system\n");
-        UINT deviceId = 0; // Typically, 0 represents the default MIDI device
-        MMRESULT result = midiOutOpen(&hMidiOut, deviceId, 0, 0, CALLBACK_NULL);
-        if(result != MMSYSERR_NOERROR) {
-            BPPrintMessage(odError,"Error: Opening MIDI output device.\n");
-            return -1;
-            }
-        else return(0);
+    UINT deviceId = 0; // Typically, 0 represents the default MIDI device
+    MMRESULT result = midiOutOpen(&hMidiOut, deviceId, 0, 0, CALLBACK_NULL);
+    if (result != MMSYSERR_NOERROR) {
+        fprintf(stderr, "Error opening MIDI output device.\n");
+        return -1;
+    }
+    else return(0);
     #elif defined(__APPLE__)
         OSStatus status;
         BPPrintMessage(odInfo,"Initializing MacOS MIDI system (CoreMIDI)\n");
@@ -141,11 +140,12 @@ int initializeMIDISystem() {
 void closeMIDISystem() {
     BPPrintMessage(odInfo,"Closing MIDI system\n");
     #if defined(_WIN32) || defined(_WIN64)
-        // Windows MIDI cleanup
-        if(hMidiOut != NULL) {
-            midiOutClose(hMidiOut);  // Close the MIDI output device
-            hMidiOut = NULL;         // Reset the handle to NULL after closing
-            }
+    // Windows MIDI cleanup
+    printf("Closing Windows MIDI system\n");
+    if (hMidiOut != NULL) {
+        midiOutClose(hMidiOut);  // Close the MIDI output device
+        hMidiOut = NULL;         // Reset the handle to NULL after closing
+        }
     #elif defined(__APPLE__)
         // MacOS MIDI cleanup
         MIDIPortDispose(MIDIoutPort);
@@ -161,7 +161,7 @@ void closeMIDISystem() {
     InBuiltDriverOn = FALSE;
     }
 
-void sendMIDIEvent(Byte* midiData,int dataSize,long time) {
+void sendMIDIEvent(unsigned char* midiData,int dataSize,long time) {
     int note,status,value,test_first_events,improvize;
     long clocktime;
     
@@ -182,21 +182,21 @@ void sendMIDIEvent(Byte* midiData,int dataSize,long time) {
     if(NumEventsWritten < LONG_MAX) NumEventsWritten++;
  //   BPPrintMessage(odInfo,"Sending MIDI event time = %ld ms, status = %ld, note %ld, value = %ld\n",(long)time/1000L,(long)status,(long)note,(long)value);
     #if defined(_WIN32) || defined(_WIN64)
-        // Windows MIDI event sending
-        // Ensure MIDI device is opened
-        if(hMidiOut == NULL) {
-            if (midiOutOpen(&hMidiOut, 0, 0, 0, CALLBACK_NULL) != MMSYSERR_NOERROR) {
-                BPPrintMessage(odError,"=> Error opening MIDI output.\n");
-                return;
-                }
-            }
-        // Pack the bytes into a DWORD message
-        DWORD msg = 0;
-        for(int i = 0; i < dataSize; i++) {
-            msg |= (midiData[i] << (i * 8));
-            }
-        // Send the MIDI message
-        midiOutShortMsg(hMidiOut, msg);
+    // Windows MIDI event sending
+    // Ensure MIDI device is opened
+    if (hMidiOut == NULL) {
+        if (midiOutOpen(&hMidiOut, 0, 0, 0, CALLBACK_NULL) != MMSYSERR_NOERROR) {
+            fprintf(stderr, "Error opening MIDI output.\n");
+            return;
+        }
+    }
+    // Pack the bytes into a DWORD message
+    DWORD msg = 0;
+    for (int i = 0; i < dataSize; i++) {
+        msg |= (midiData[i] << (i * 8));
+    }
+    // Send the MIDI message
+    midiOutShortMsg(hMidiOut, msg);
     #elif defined(__APPLE__)
         // MacOS MIDI event sending
         MIDIPacketList packetList;
@@ -229,12 +229,12 @@ void sendMIDIEvent(Byte* midiData,int dataSize,long time) {
     }
 
 void MIDIflush() {
-    UInt64 currentTime = getClockTime();
+    unsigned long currentTime = getClockTime();
     currentTime -= initTime;
  //   BPPrintMessage(odInfo,"currentTime = %ld eventCount = %ld\n",(long)currentTime,(long)eventCount);
     long i = 0;
     long time;
-    Byte midiData[4];
+    unsigned char midiData[4];
     int dataSize = 3;
     if(Panic) {
         eventCount = 0L;
@@ -262,10 +262,10 @@ void MIDIflush() {
 long getClockTime(void) {
     long the_time; // Microseconds
     #if defined(_WIN32) || defined(_WIN64)
-        LARGE_INTEGER freq,count;
-        QueryPerformanceFrequency(&freq); // Get the frequency of the high-resolution performance counter
-        QueryPerformanceCounter(&count);  // Get the current value of the performance counter
-        the_time = (uint64_t)((count.QuadPart * 1000000) / freq.QuadPart);
+    LARGE_INTEGER freq, count;
+    QueryPerformanceFrequency(&freq); // Get the frequency of the high-resolution performance counter
+    QueryPerformanceCounter(&count);  // Get the current value of the performance counter
+    the_time = (unsigned long)((count.QuadPart * 1000000) / freq.QuadPart);
     #elif defined(__APPLE__)
         the_time = clock_gettime_nsec_np(CLOCK_UPTIME_RAW) / 1000L;
     #elif defined(__linux__)

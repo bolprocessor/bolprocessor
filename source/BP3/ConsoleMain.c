@@ -91,7 +91,7 @@ Boolean PrototypesLoaded = FALSE;
 MIDI_Event eventStack[MAXMIDIMESSAGES];
 long eventCount = 0L;
 long eventCountMax = MAXMIDIMESSAGES - 2L;
-long initTime = 0L;
+UInt64 initTime = 0L;
 
 int main (int argc, char* args[])
 {
@@ -950,7 +950,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 		InBuiltDriverOn = TRUE;
 		OutMIDI = TRUE;
 		initTime = getClockTime();
-	/*	Byte midiData[4];  // Old code to check sendMIDIEvent
+	/*	unsigned char midiData[4];  // Old code to check sendMIDIEvent
 		int dataSize;
 		dataSize = 3;
 		midiData[0] = 0x90;
@@ -966,13 +966,13 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 
 		eventCount = 0L;
 		int localchan = 1;
-		eventStack[eventCount].time = (UInt64) 0;
+		eventStack[eventCount].time = (unsigned long) 0;
         eventStack[eventCount].type = NORMAL_EVENT;
         eventStack[eventCount].status = NoteOn + localchan;
         eventStack[eventCount].data1 = 72; 
         eventStack[eventCount].data2 = 90;
         eventCount++;
-		eventStack[eventCount].time = (UInt64) 1000000; // microseconds
+		eventStack[eventCount].time = (unsigned long) 1000000; // microseconds
         eventStack[eventCount].type = NORMAL_EVENT;
         eventStack[eventCount].status = NoteOff + localchan;
         eventStack[eventCount].data1 = 72; 

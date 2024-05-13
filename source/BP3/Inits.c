@@ -304,7 +304,6 @@ PictFrame.bottom = bottomDrawPrototype;
 PictFrame.right = rightDrawPrototype;
 NoteScalePicture = NULL;
 p_Tpict = NULL; Hpos = -1;
-for(i=0; i < 4; i++) EndStr[i] = (char) 255;
 Jbol = Jfunc = iProto = Jpatt = Jvar = Jflag = Jhomo = N_err = BolsInGrammar
 	= ScriptExecOn = 0;
 Jcontrol = -1;

@@ -1,6 +1,7 @@
 "MIDItest" is a minimum program written in C language to check the real-time output of MIDI events.
 
-The program will read a list of MIDI events (only NoteOn/NoteOff) from the file "MIDItest-list.txt" and send them to your MIDI outpout device (e.g. a synthesizer). Timings will be correct because it has an in-built event scheduler. So, MIDI messages do not need to be time-stamped.
+The program will read a list of MIDI events (only NoteOn/NoteOff) from the file "MIDItest-list.txt" and send them to your MIDI outpout device (e.g. a synthesizer). Timings will be correct because it has an in-built event scheduler.
+Therefore, the output MIDI messages do not need to be time-stamped. This is good news because most devices do not handle time-stamped events.
 
 Compile the "MIDItest.c" code, then run the "MIDItest" program. Below are the compile commands.
 
@@ -11,7 +12,12 @@ gcc MIDItest.c -o MIDItest -framework CoreMIDI -framework CoreFoundation
 gcc MIDItest.c -o MIDItest -lasound
 
 // Windows (Link with WinMM libraries)
-gcc -o MIDItest.exe MIDItest.c -lwinmm
+// Maybe Visual Studio will compile it more easily. Put _CRT_SECURE_NO_WARNINGS in preprocessor settings because it does not like fopen() and fscanf()!
+// Otherwise, install MinGW-w64 and run the following gcc command:
+
+gcc -o MIDItest.exe MIDItest.c -lwinmm -D_CRT_SECURE_NO_WARNINGS
+
+=====  Running MIDItest =====
 
 // Switch on your MIDI device and run the "MIDItest" program:
 ./MIDItest (in MacOS)

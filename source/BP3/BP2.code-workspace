@@ -8,7 +8,9 @@
 		"files.associations": {
 			"__locale": "c",
 			"ios": "c",
-			"-bp2decl.h": "c"
+			"-bp2decl.h": "c",
+			"mach_time.h": "c",
+			"unistd.h": "c"
 		},
 		"search.useGlobalIgnoreFiles": false
 	}

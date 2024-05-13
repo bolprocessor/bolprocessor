@@ -1166,8 +1166,7 @@ imax = MyGetHandleSize((Handle) *pp_X) / sizeof(tokenbyte);
 // OPTIMIZE: use & incr temp pointers instead of **pp_X[i]
 for(i=0,l=0; ((**pp_X)[i] != TEND) || ((**pp_X)[i+1] != TEND); i+=2, l++) {
 	if(i >= imax) {
-		sprintf(Message,"=> Err. LengthOf(). i=%ld  imax=%ld",(long)i,
-			(long)imax);
+		sprintf(Message,"=> Err. LengthOf(). i=%ld  imax=%ld",(long)i,(long)imax);
 		if(Beta) Println(wTrace,Message);
 		return(ZERO);
 		}

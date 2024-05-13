@@ -1901,7 +1901,7 @@ int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 
 int AllNotesOffAllChannels(void) {
 	int rs,key,channel;
-	Byte midiData[4];
+	unsigned char midiData[4];
 	int dataSize = 3;
 	if(!OutMIDI) {
 		BPPrintMessage(odError,"=> All Notes Off won't work since MIDI output is not active");	

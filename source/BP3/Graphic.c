@@ -529,6 +529,7 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 
 
 int KillDiagrams(int w){
+// Currently not used
 	int n;
 	w = wGraphic;
 	/* if(w < 0 || w >= WMAX) {
@@ -572,6 +573,7 @@ int KillDiagrams(int w){
 	Vmin[w] = INT_MAX; Vmax[w] = - INT_MAX;
 	return(OK);
 	}
+
 
 int DrawSequence(int nseq,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	Milliseconds **p_t2,long kmax,unsigned long imax,unsigned long **p_imaxseq,
@@ -639,19 +641,15 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	//	KillPicture(p_Picture[1]);
 		p_Picture[1] = NULL;
 		}
-
 	/* r = (*p_frame);
 	ClipRect(&r); */
-
 	// p_Picture[1] = OpenPicture(&r);
 	PictureWindow[1] = w;
 	PictRect[1] = r;
-
 	/* oldsize = GetPortTextSize(GetWindowPort(Window[w]));
 	oldfont = GetPortTextFont(GetWindowPort(Window[w]));
 	TextFont(kFontIDCourier); TextSize(WindowTextSize[w]);
 	PenNormal();
-
 	erase_rect(&r); */
 	// FillRect(&r,GetQDGlobalsWhite(&pat));
 	/* stroke_style(&Black);
@@ -685,7 +683,6 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 		stroke_style(&Black); */
 		}
 	topoffset = 6 * htext;
-
 	GetPrePostRoll(j,&preroll,&postroll);
 
 	// Calculate leftmost date 'tmin'
@@ -721,7 +718,6 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 		}
 	xmin = p_frame->left + 3 * htext;
 	xmax = p_frame->right - 3 * htext;
-
 	if((tmax - tmin) > EPSILON) {
 		grscale = ((double)(xmax - xmin)) / (tmax - tmin);
 		}
@@ -1073,8 +1069,8 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 		}
 	if(imagePtr == NULL) {
 		N_image++;
-		if(strcmp(type,"pianoroll") != 0 && Improvize) CreateImageFile(shift/1000.); // Later we can use it
-		else CreateImageFile(-1.);
+		if(strcmp(type,"pianoroll") != 0 && Improvize) CreateImageFile(shift/1000.);
+		else CreateImageFile(-1.);  // Later we can use it
 		}	
 	result = OK;
 	pen_size(1,0);
