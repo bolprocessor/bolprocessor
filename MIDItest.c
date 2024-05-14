@@ -1,5 +1,8 @@
 // Test sending MIDI messages in real time using an in-built event manager
 
+// The following setting will be displayed at the time the application starts.
+// Choose the correct one and recompile if necessary!
+int MIDIoutput = 1;
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,7 +17,7 @@ void MIDIflush(void);
 long getClockTime(void);
 
 // Define platform-specific constants and include headers
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN64)
 #include <windows.h>
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
@@ -36,7 +39,19 @@ void usleep(DWORD waitTime) {
 #include <mach/mach_time.h>
 MIDIClientRef midiClient;
 MIDIPortRef MIDIoutPort;
-MIDIEndpointRef MIDIdestination;
+MIDIEndpointRef MIDIoutputdestination;
+Boolean IsMIDIDestinationActive(MIDIEndpointRef endpoint) {
+    SInt32 offline;
+    OSStatus result;
+    // Check if the endpoint is offline
+    result = MIDIObjectGetIntegerProperty(endpoint, kMIDIPropertyOffline, &offline);
+    if(result != noErr) {
+        printf("Error getting MIDIObjectGetIntegerProperty.\n");
+        return false;
+        }
+    // Return true if the device is online (offline == 0)
+    return offline == 0;
+    }
 #elif defined(__linux__)
 #include <unistd.h> 
 #include <alsa/asoundlib.h>
@@ -62,20 +77,13 @@ UInt64 initTime;
 
 // Function to send MIDI message
 void sendMIDIEvent(unsigned char* midiData, int dataSize) {
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN64)
     // Windows MIDI event sending
-    // Ensure MIDI device is opened
-    if (hMidiOut == NULL) {
-        if (midiOutOpen(&hMidiOut, 0, 0, 0, CALLBACK_NULL) != MMSYSERR_NOERROR) {
-            fprintf(stderr, "Error opening MIDI output.\n");
-            return;
-        }
-    }
     // Pack the bytes into a DWORD message
     DWORD msg = 0;
     for (int i = 0; i < dataSize; i++) {
         msg |= (midiData[i] << (i * 8));
-    }
+        }
     // Send the MIDI message
     midiOutShortMsg(hMidiOut, msg);
 #elif defined(__APPLE__)
@@ -83,7 +91,7 @@ void sendMIDIEvent(unsigned char* midiData, int dataSize) {
     MIDIPacketList packetList;
     MIDIPacket* packet = MIDIPacketListInit(&packetList);
     packet = MIDIPacketListAdd(&packetList, sizeof(packetList), packet, mach_absolute_time(), dataSize, midiData);
-    if (packet) MIDISend(MIDIoutPort, MIDIdestination, &packetList);
+    if (packet) MIDISend(MIDIoutPort, MIDIoutputdestination, &packetList);
 #elif defined(__linux__)
     // Ensure ALSA sequencer is setup
     if (seq_handle == NULL) {
@@ -159,9 +167,10 @@ int main() {
     resultinit = initializeMIDISystem();
     if (resultinit != 0) return -1;
     initTime = getClockTime();
-    fprintf(stderr, "eventCountMax = %ld\n", (long)eventCountMax);
+    printf("If your MIDI device (synthesizer, etc.) is switched on, you should hear a few notes...\n");
+    fprintf(stderr, "eventCountMax = %ld => This can be changed, see MAXMIDIMESSAGES\n", (long)eventCountMax);
     loadEventsFromFile("MIDItest-list.txt");  // Load MIDI events from file
-    fprintf(stderr, "Remaining eventCount after loading file = %ld\n", (long)eventCount);
+    fprintf(stderr, "Remaining eventCount after loading file = %ld => These events are piled in the stack\n", (long)eventCount);
     while (eventCount > 0L) {
         MIDIflush();  // Process MIDI events
         usleep(1000); // Sleep for 1 millisecond
@@ -172,7 +181,7 @@ int main() {
 
 long getClockTime(void) {
     long the_time;
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN64)
     LARGE_INTEGER freq, count;
     QueryPerformanceFrequency(&freq); // Get the frequency of the high-resolution performance counter
     QueryPerformanceCounter(&count);  // Get the current value of the performance counter
@@ -188,14 +197,34 @@ long getClockTime(void) {
 }
 
 int initializeMIDISystem() {
-#if defined(_WIN32) || defined(_WIN64)
-    UINT deviceId = 0; // Typically, 0 represents the default MIDI device
-    MMRESULT result = midiOutOpen(&hMidiOut, deviceId, 0, 0, CALLBACK_NULL);
+#if defined(_WIN64)
+    printf("Initializing Windows MIDI system (WinMM)\n");
+    // Get the number of MIDI out devices in the system
+    UINT numDevs = midiOutGetNumDevs();
+    if (numDevs == 0) {
+        fprintf(stderr, "No MIDI output devices available.\n");
+        return -1;
+        }
+    // Iterate through all available devices to list them
+    MIDIOUTCAPS moc;
+    for (UINT i = 0; i < numDevs; i++) {
+        MMRESULT result = midiOutGetDevCaps(i, &moc, sizeof(MIDIOUTCAPS));
+        if (result != MMSYSERR_NOERROR) {
+            fprintf(stderr, "Error retrieving MIDI device capabilities.\n");
+            continue; // Skip to next device
+            }
+        printf("MIDI (output) %u: %s", i, moc.szPname);
+        if((int)i == MIDIoutput) printf(" => MIDIoutput (your choice at the top of MIDItest.c)");
+        printf("\n");
+        }
+    UINT deviceId = MIDIoutput;
+   // HMIDIOUT hMidiOut; is a global variable.
+    MMRESULT result = midiOutOpen(&hMidiOut,deviceId,0,0,CALLBACK_NULL);
     if (result != MMSYSERR_NOERROR) {
         fprintf(stderr, "Error opening MIDI output device.\n");
         return -1;
-    }
-    else return(0);
+        }
+    return(0);
 #elif defined(__APPLE__)
     OSStatus status;
     printf("Initializing MacOS MIDI system (CoreMIDI)\n");
@@ -203,48 +232,96 @@ int initializeMIDISystem() {
     if (status != noErr) {
         fprintf(stderr, "Could not create MIDI client.\n");
         return -1;
-    }
+        }
     status = MIDIOutputPortCreate(midiClient, CFSTR("Output Port"), &MIDIoutPort);
     if (status != noErr) {
         fprintf(stderr, "Could not create output port.\n");
         return -1;
-    }
-    ItemCount MIDIdestinationCount = MIDIGetNumberOfDestinations();
-    if (MIDIdestinationCount == 0) {
-        fprintf(stderr, "No MIDI destinationinations available.\n");
+        }
+    ItemCount MIDIoutputinationCount = MIDIGetNumberOfDestinations();
+    if (MIDIoutputinationCount == 0) {
+        fprintf(stderr,"No MIDI destinationinations available.\n");
         return -1;
-    }
-    for (ItemCount i = 0; i < MIDIdestinationCount; ++i) {
-        MIDIEndpointRef MIDIdestination = MIDIGetDestination(i);
+        }
+    if((int)MIDIoutputinationCount < MIDIoutput) {
+        fprintf(stderr,"=> Error: MIDIoutput (%d) should be lower than %d\n",(int)MIDIoutput,(int)MIDIoutputinationCount);
+        return -1;
+        }
+    for (ItemCount i = 0; i < MIDIoutputinationCount; ++i) {
+        MIDIEndpointRef MIDIoutputdestination = MIDIGetDestination(i);
         CFStringRef endpointName = NULL;
-        if (MIDIObjectGetStringProperty(MIDIdestination, kMIDIPropertyName, &endpointName) == noErr) {
+        if (MIDIObjectGetStringProperty(MIDIoutputdestination, kMIDIPropertyName, &endpointName) == noErr) {
             char name[64];
             CFStringGetCString(endpointName, name, sizeof(name), kCFStringEncodingUTF8);
-            printf("MIDIdestinationination %lu: %s\n", i + 1, name);
+            printf("MIDI (output) %lu: %s",i,name);
+            if((int)i == MIDIoutput) printf(" => MIDIoutput (your choice at the top of MIDItest.c)");
+            printf("\n");
             CFRelease(endpointName);
+            }
+        if(!IsMIDIDestinationActive(MIDIoutputdestination))
+            printf("This MIDI (output) destination %lu is inactive.\n",i);
         }
-    }
-    // Assuming the first destination
-    MIDIdestination = MIDIGetDestination(0);
+    MIDIoutputdestination = MIDIGetDestination(MIDIoutput);
     return(0);
 #elif defined(__linux__)
-    printf("Initializing Linux MIDI system\n");
+    printf("Initializing Linux MIDI system (ALSA)\n");
+    // Open the ALSA sequencer
     if (snd_seq_open(&seq_handle, "default", SND_SEQ_OPEN_OUTPUT, 0) < 0) {
         fprintf(stderr, "Error opening ALSA sequencer.\n");
         return -1;
-    }
+        }
     snd_seq_set_client_name(seq_handle, "My MIDI Application");
-    out_port = snd_seq_create_simple_port(seq_handle, "Out Port", SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ, SND_SEQ_PORT_TYPE_APPLICATION);
+    // Create an output port
+    out_port = snd_seq_create_simple_port(seq_handle, "Out Port",
+                                          SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
+                                          SND_SEQ_PORT_TYPE_APPLICATION);
     if (out_port < 0) {
         fprintf(stderr, "Error creating sequencer port.\n");
         return -1;
-    }
-    else return(0);
+        }
+  // Enumerate and list all clients and ports
+    snd_seq_client_info_t *cinfo;
+    snd_seq_port_info_t *pinfo;
+    snd_seq_client_info_alloca(&cinfo);
+    snd_seq_port_info_alloca(&pinfo);
+    int first_client = -1, first_port = -1;
+    snd_seq_client_info_set_client(cinfo, -1);
+    while (snd_seq_query_next_client(seq_handle, cinfo) >= 0) {
+        int client = snd_seq_client_info_get_client(cinfo);
+        snd_seq_port_info_set_client(pinfo, client);
+        snd_seq_port_info_set_port(pinfo, -1);
+        while (snd_seq_query_next_port(seq_handle, pinfo) >= 0) {
+            // Check if the port is an output port
+            if ((snd_seq_port_info_get_capability(pinfo) & (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE)) == (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE)) {
+                printf("Output port found: Client %d, Port %d, Name: %s\n",
+                       snd_seq_port_info_get_client(pinfo),
+                       snd_seq_port_info_get_port(pinfo),
+                       snd_seq_port_info_get_name(pinfo));
+                if (first_client == -1) { // Check if this is the first available port
+                    first_client = client;
+                    first_port = snd_seq_port_info_get_port(pinfo);
+                    }
+                }
+            }
+        }
+    // Connect to the first available output port if found
+    if(first_client != -1 && first_port != -1) {
+        if (snd_seq_connect_to(seq_handle, out_port, first_client, first_port) < 0) {
+            fprintf(stderr, "Error connecting to MIDI port: Client %d, Port %d\n", first_client, first_port);
+            return -1;
+            }
+        printf("Connected to Client %d, Port %d\n", first_client, first_port);
+        }
+    else {
+        fprintf(stderr, "No available MIDI output ports found.\n");
+        return -1;
+        }
+    return 0;
 #endif
 }
 
 void closeMIDISystem() {
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN64)
     // Windows MIDI cleanup
     printf("Closing Windows MIDI system\n");
     if (hMidiOut != NULL) {
@@ -253,6 +330,7 @@ void closeMIDISystem() {
     }
 #elif defined(__APPLE__)
     // MacOS MIDI cleanup
+    printf("Closing MacOS MIDI system\n");
     MIDIPortDispose(MIDIoutPort);
     MIDIClientDispose(midiClient);
 #elif defined(__linux__)
@@ -261,6 +339,6 @@ void closeMIDISystem() {
     if (seq_handle != NULL) {
         snd_seq_close(seq_handle);  // Close the ALSA sequencer
         seq_handle = NULL;          // Reset the handle to NULL after closing
-    }
+        }
 #endif
 }

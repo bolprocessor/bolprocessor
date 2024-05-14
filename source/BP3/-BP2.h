@@ -1,5 +1,6 @@
 /* -BP2.h (BP3) */
 
+
 /*  This file is a part of Bol Processor 2
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
     All rights reserved. 
@@ -175,12 +176,13 @@
 #endif
 
 // Define platform-specific constants and include headers
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN64)
 #include <windows.h>
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
 // Global variable for MIDI device handle
 static HMIDIOUT hMidiOut = NULL;
+static HMIDIOUT hMidiIn = NULL;
 typedef unsigned long long UInt64;
 void usleep(DWORD waitTime) {
     LARGE_INTEGER perfCnt, start, now;
@@ -201,6 +203,9 @@ typedef struct {
 #elif defined(__linux__)
     #include <alsa/asoundlib.h>
 	#include <unistd.h>
+    // Global variable for ALSA MIDI sequencer handle
+    static snd_seq_t *seq_handle = NULL;
+    static int out_port,in_port;
 #endif
 
 // Moved macros and enum down here to avoid potential problems with replacing names

@@ -1,0 +1,39 @@
+"MIDIinputtest" is a minimum program written in C language to check receiving MIDI messages (e.g. from a piano keyboard) and forwarding them immediately to the first available MIDI device (e.g. a synthesizer).
+
+It also displays the channel, note and velocity of incoming NoteOn/Off messages. You can therefore use it without an output MIDI device.
+
+You should try this program after trying "MIDItest" which only checks real-time MIDI output.
+
+Compile the "MIDIinputtest.c" code, then run the "MIDIinputtest" program. Below are the compile commands. The -Wall and -Wextra options show any warnings that suggest improvements to the code.
+
+// MacOS (Link with CoreMIDI libraries)
+gcc MIDIinputtest.c -o MIDIinputtest -framework CoreMIDI -framework CoreFoundation -Wall -Wextra
+
+// Linux (Link with ALSA libraries)
+// You may need to install the ALSA libraries:
+sudo apt install libasound2-dev
+// Then compile:
+gcc MIDIinputtest.c -o MIDIinputtest -lasound -Wall -Wextra
+
+// Windows (Link with WinMM libraries)
+// Use this after installing MinGW 64-bits (https://bolprocessor.org/install-mingw/)
+// The _CRT_SECURE_NO_WARNINGS option ignores the security warnings about fopen() and fscanf()
+
+gcc -o MIDIinputtest.exe MIDIinputtest.c -lwinmm -D_CRT_SECURE_NO_WARNINGS -Wall -Wextra
+
+
+=====  Running MIDIinputtest =====
+
+// Switch on your MIDI devices (input + output) and run the "MIDIinputtest" program:
+./MIDIinputtest (in MacOS)
+MIDIinputtest (in Windows and Linux)
+
+If you hear nothing and/or see nothing, make sure that:
+1) Your MIDI devices are switched on and hooked to IAC (on Mac)
+2) The numbers MIDIsource and MIDIoutput at the top of MIDIinputtest.c are the ones displayed at startup when MIDIinputtest is scanning the list of available devices.
+
+Please send back your modified "MIDIinputtest.c" code file to:
+contact@bolprocessor.org
+
+More information:
+https://bolprocessor.org/check-bp3/#compile-bp-and-check-its-operation

@@ -3,25 +3,32 @@
 The program will read a list of MIDI events (only NoteOn/NoteOff) from the file "MIDItest-list.txt" and send them to your MIDI outpout device (e.g. a synthesizer). Timings will be correct because it has an in-built event scheduler.
 Therefore, the output MIDI messages do not need to be time-stamped. This is good news because most devices do not handle time-stamped events.
 
-Compile the "MIDItest.c" code, then run the "MIDItest" program. Below are the compile commands.
+Compile the "MIDItest.c" code, then run the "MIDItest" program. Below are the compile commands. The -Wall and -Wextra options show any warnings that suggest improvements to the code.
 
 // MacOS (Link with CoreMIDI libraries)
-gcc MIDItest.c -o MIDItest -framework CoreMIDI -framework CoreFoundation
+gcc MIDItest.c -o MIDItest -framework CoreMIDI -framework CoreFoundation -Wall -Wextra
 
 // Linux (Link with ALSA libraries)
-gcc MIDItest.c -o MIDItest -lasound
+// You may need to install the ALSA libraries:
+sudo apt install libasound2-dev
+// Then compile:
+gcc MIDItest.c -o MIDItest -lasound -Wall -Wextra
 
 // Windows (Link with WinMM libraries)
-// Maybe Visual Studio will compile it more easily. Put _CRT_SECURE_NO_WARNINGS in preprocessor settings because it does not like fopen() and fscanf()!
-// Otherwise, install MinGW-w64 and run the following gcc command:
+// Use this after installing MinGW 64-bits (https://bolprocessor.org/install-mingw/)
+// The _CRT_SECURE_NO_WARNINGS option ignores the security warnings about fopen() and fscanf()
 
-gcc -o MIDItest.exe MIDItest.c -lwinmm -D_CRT_SECURE_NO_WARNINGS
+gcc -o MIDItest.exe MIDItest.c -lwinmm -D_CRT_SECURE_NO_WARNINGS -Wall -Wextra
 
 =====  Running MIDItest =====
 
 // Switch on your MIDI device and run the "MIDItest" program:
 ./MIDItest (in MacOS)
 MIDItest (in Windows)
+
+If you hear nothing and/or see nothing, make sure that:
+1) Your MIDI devices are switched on and hooked to IAC (on Mac)
+2) The number MIDIoutput at the top of MIDItest.c is the one displayed at startup when MIDItest is scanning the list of available devices.
 
 Please send back your modified "MIDItest.c" code file to:
 contact@bolprocessor.org

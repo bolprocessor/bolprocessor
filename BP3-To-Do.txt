@@ -10,21 +10,13 @@ You may also check the history of changes:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-changes.txt
 
 
-Real-time MIDI output
---------------------
+Real-time MIDI output and input
+-------------------------------
 
 - The STOP button used to interrupt improvisations does not always immediately create the "_stop" file telling the application to stop.  Read below: "Interruption".
-- The current MIDI output sends MIDI messages to the first available MIDI destination. This is easy to improve. We just need to create a suitable form on the PHP interface that will select the destination and send its identifier to the console. To do this, create a file that the user will read via the interface, then select one or more options to add as tokens to the "Play" command line.
+- The current MIDI output sends MIDI messages to the first available MIDI destination. This is easy to improve. We just need to create a suitable form on the PHP interface that will select the destination and send its identifier to the console. To do this, create a file that the user will read via the interface.
 - Remember that CoreMIDI is only used on MacOS. ALSA is used on Linux and MinGW on Windows.
 - There are still many parts of the code marked "WITH_REAL_TIME_MIDI". This marker has been changed to "WITH_REAL_TIME_MIDI_FORGET_THIS" to indicate that these need to be deleted, as they are remnants of BP2's real-time MIDI or initial (unfinished) implementation of real-time MIDI output. Leave them unchanged for now, as some code could be reused.
-
-
-Real-time MIDI input
--------------------
-
-- The real-time MIDI output code is multi-platform: it uses conditional compilation for MacOS, Windows and Linux. We expect the MIDI input to be multi-platform as well.
-- First develop the MIDI input in the dummy application "MIDItest.c" and test it in the three environments.
-- Start working out how to handle MIDI input events. It is possible to reproduce features of BP2 which were interpreted as script instructions.
 
 
 HTML/PHP/Javascript interface

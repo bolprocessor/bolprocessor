@@ -10,7 +10,8 @@
 			"ios": "c",
 			"-bp2decl.h": "c",
 			"mach_time.h": "c",
-			"unistd.h": "c"
+			"unistd.h": "c",
+			"-bp2.h": "c"
 		},
 		"search.useGlobalIgnoreFiles": false
 	}
