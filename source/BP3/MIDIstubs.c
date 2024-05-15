@@ -67,8 +67,8 @@
 #include "-BP2decl.h"
 #endif
 
-int MIDIsource = 0; // Your MIDI input device (keyboard, etc.)
-int MIDIoutput = 1; // Your MIDI output device (synthesizer, etc.)
+int MIDIsource = 1; // Your MIDI input device (keyboard, etc.)
+int MIDIoutput = 0; // Your MIDI output device (synthesizer, etc.)
 
 MIDIClientRef midiClient,midiInputClient;
 MIDIPortRef MIDIoutPort,MIDIinPort;

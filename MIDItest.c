@@ -2,7 +2,7 @@
 
 // The following setting will be displayed at the time the application starts.
 // Choose the correct one and recompile if necessary!
-int MIDIoutput = 1;
+int MIDIoutput = 0;
 
 #include <stdio.h>
 #include <stdlib.h>

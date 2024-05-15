@@ -44,4 +44,4 @@ Then, BP3 was updated so that it will compile under Windows and produce real-tim
 2024-05-14
 Created "MIDIinputtest" to test the reception of MIDI messages (e.g. from a piano keyboard) and their immediate forwarding to the first available MIDI device (e.g. a synthesiser). Windows and Linux users are encouraged to compile and fix "MIDIinputtest.c".
 Real-time MIDI input/output functions have been included in the BP3 source code for the three environments. However, only MacOS (CoreMIDI) has been tested.
-In this version, MIDI output is on port #1 and MIDI input is on port #0. Change the values of MIDIoutput and MIDIsource at the top of MIDIstubs.c to adapt them. In the next version these parameters will be set by the interface.
+In this version, MIDI output is on port #0 and MIDI input is on port #1. Change the values of MIDIoutput and MIDIsource at the top of MIDIstubs.c to adapt them. In the next version these parameters will be set by the interface.
