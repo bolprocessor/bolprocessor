@@ -2066,7 +2066,7 @@ return(ABORT);
 int WaitABit(long thedelay) {
 	// Wait for thedelay milliseconds
 	int result;
-	if(thedelay > 10L && (result = stop()) != OK) return result;
+	if(thedelay > 100L && (result = stop()) != OK) return result;
 	usleep(1000L * thedelay);
 
 	/* int i;

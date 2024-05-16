@@ -313,7 +313,7 @@ int main (int argc, char* args[])
 		if(Panic) eventCount = 0L;
 		while(eventCount > 0L) {
 			MIDIflush();  // Process MIDI events
-			if((result = WaitABit(100)) != OK) return EXIT_SUCCESS; // Sleep for 100 milliseconds
+			if((result = WaitABit(10)) != OK) return EXIT_SUCCESS; // Sleep for 10 milliseconds
 		//	break;
 			}
 		AllNotesOffAllChannels();
