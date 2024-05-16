@@ -1111,7 +1111,7 @@ double dur;
 if(j < 0 || j >= Jbol || (*p_PeriodMode)[j] == IRRELEVANT) return(MISSED);
 dur = beta * (*p_Dur)[j];
 if(dur < EPSILON) return(MISSED);
-if((*p_PeriodMode)[j] == ABSOLUTE) *p_beforeperiod = (*p_BeforePeriod)[j];
+if((*p_PeriodMode)[j] == ABSOLU) *p_beforeperiod = (*p_BeforePeriod)[j];
 else *p_beforeperiod = ((double)(*p_BeforePeriod)[j] * dur) / 100.;
 *p_objectperiod =  dur - *p_beforeperiod;
 if(*p_objectperiod < 0.) {

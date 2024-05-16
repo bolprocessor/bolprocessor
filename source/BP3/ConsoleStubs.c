@@ -167,17 +167,6 @@ int LoadGlossary(int anyfile,int manual)
 	}	
 }
 
-/* int LoadSettings(int anyfile,int changewindows,int startup,int manual,int *p_oms)
-{
-	BP_NOT_USED(anyfile);
-	BP_NOT_USED(changewindows);
-	BP_NOT_USED(startup);
-	BP_NOT_USED(manual);
-	BP_NOT_USED(p_oms);
-	// For now, this is only called from ResetProject() shortly before exiting.
-	// Keeping that call b/c might eventually make ResetProject() an API function.
-	return OK;
-} */
 
 int ClearWindow(int reset,int w)
 {

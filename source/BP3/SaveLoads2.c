@@ -80,7 +80,7 @@ Created[wGrammar] = TRUE;
 return(r);
 }
 
-
+/*
 SaveObjectPrototypes(FSSpec *p_spec)
 {
 int pivbeg,pivend,pivbegon,pivendoff,pivcent,pivcentonoff,pivspec,
@@ -131,7 +131,7 @@ WRITE:
 			ShowMessage(TRUE,wMessage,line);
 			sprintf(line,"%ld",(long)(*p_Type)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			(*p_Resolution)[i] = 1;	/* Previously = Time_res (changed 1/10/96) */
+			(*p_Resolution)[i] = 1;	// Previously = Time_res (changed 1/10/96)
 			sprintf(line,"%ld",(long)(*p_Resolution)[i]);
 			WriteToFile(NO,MAC,line,refnum);
 			sprintf(line,"%ld",(long)(*p_DefaultChannel)[i]);
@@ -191,9 +191,9 @@ WRITE:
 			WriteToFile(NO,MAC,line,refnum);
 			sprintf(line,"%ld",(long)(*p_MaxForward)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"1"); /* Not used */
+			sprintf(line,"1"); // Not used 
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"1"); /* Not used */
+			sprintf(line,"1"); // Not used
 			WriteToFile(NO,MAC,line,refnum);
 			sprintf(line,"%ld",(long)(*p_ContBegMode)[i]);
 			WriteToFile(NO,MAC,line,refnum);
@@ -331,7 +331,7 @@ WRITE:
 	}
 err = NSWCleanupReply(&reply);
 return(MISSED);
-}
+} */
 
 
 LoadObjectPrototypes(int checkversion,int tryname)
@@ -669,10 +669,10 @@ else {
 		(*p_RescaleMode)[j] = LINEAR;
 		(*p_AlphaMin)[j] = 0; (*p_AlphaMax)[j] = 100.;
 		(*p_DelayMode)[j] = (*p_ForwardMode)[j] = (*p_BreakTempoMode)[j]
-			= (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLUTE;
+			= (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLU;
 		(*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j]
-			= (*p_TruncEndMode)[j] = RELATIVE;
-		(*p_PivMode)[j] = ABSOLUTE;
+			= (*p_TruncEndMode)[j] = RELATIF;
+		(*p_PivMode)[j] = ABSOLU;
 		(*p_MaxDelay)[j] = (*p_MaxForward)[j] = Infpos;
 		(*p_MaxBegGap)[j] = (*p_MaxEndGap)[j] = Infpos;
 		(*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = 100L;
@@ -751,7 +751,7 @@ else {
 	if(!diff) {
 		(*p_PreRoll)[j] = (*p_PostRoll)[j] = ZERO;
 		(*p_Tpict)[j] = ZERO;
-		(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = RELATIVE;
+		(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = RELATIF;
 		(*p_PeriodMode)[j] = IRRELEVANT;
 		(*p_BeforePeriod)[j] = (*p_CsoundInstr)[j] = 0.;
 		(*p_ForceIntegerPeriod)[j] = (*p_DiscardNoteOffs)[j] = FALSE;
@@ -974,7 +974,7 @@ HideWindow(Window[wMessage]);
 if(result == OK) {
 	SetSelect(ZERO,ZERO,TEH[wGlossary]);
 	if(manual) BPActivateWindow(SLOW,wGlossary);
-	else UpdateWindow(FALSE,Window[wGlossary]);
+	else UpdateThisWindow(FALSE,Window[wGlossary]);
 	LoadedGl = TRUE;
 	Created[wGlossary] = TRUE;
 	}

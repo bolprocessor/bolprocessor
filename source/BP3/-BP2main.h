@@ -42,7 +42,7 @@ GWorldPtr gMainGWorld;
 GDHandle gCurDev;
 int Version = 31; /* 3.0 */
 
-ProcessSerialNumber PSN; // Not used
+// ProcessSerialNumber PSN; 
 long MemoryUsed,MemoryUsedInit,MaxMemoryUsed,MaxHandles,
 	SessionTime;
 int CheckMem;

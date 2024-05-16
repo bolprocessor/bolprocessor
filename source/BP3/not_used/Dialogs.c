@@ -1595,18 +1595,18 @@ if(w == wPrototype2) {
 			GetField(NULL,TRUE,w,fSetPivotms,line,&p,&q);
 			(*p_PivPos)[iProto] = ((float)p)/q;
 			(*p_PivType)[iProto] = 7;
-			(*p_PivMode)[iProto] = ABSOLUTE;
+			(*p_PivMode)[iProto] = ABSOLU;
 			break;
 		case bSetPivotPC:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			GetField(NULL,TRUE,w,fSetPivotPC,line,&p,&q);
 			(*p_PivPos)[iProto] = ((float)p)/q;
 			(*p_PivType)[iProto] = 7;
-			(*p_PivMode)[iProto] = RELATIVE;
+			(*p_PivMode)[iProto] = RELATIF;
 			break;
 		case bNeverRelocate:
 			(*p_MaxDelay)[iProto] = (*p_MaxForward)[iProto] = ZERO;
-			(*p_DelayMode)[iProto] = (*p_ForwardMode)[iProto] = RELATIVE;
+			(*p_DelayMode)[iProto] = (*p_ForwardMode)[iProto] = RELATIF;
 			(*p_OkRelocate)[iProto] = FALSE;
 			break;
 		case bRelocateAtWill:
@@ -1614,27 +1614,27 @@ if(w == wPrototype2) {
 			break;
 		case bAllowDelayms:
 			(*p_OkRelocate)[iProto] = FALSE;
-			(*p_DelayMode)[iProto] = ABSOLUTE;
+			(*p_DelayMode)[iProto] = ABSOLU;
 			GetField(NULL,TRUE,w,fAllowDelayms,line,&p,&q);
 			(*p_MaxDelay)[iProto] = (long) p/q;
 			break;
 		case bAllowDelayPC:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			(*p_OkRelocate)[iProto] = FALSE;
-			(*p_DelayMode)[iProto] = RELATIVE;
+			(*p_DelayMode)[iProto] = RELATIF;
 			GetField(NULL,TRUE,w,fAllowDelayPC,line,&p,&q);
 			(*p_MaxDelay)[iProto] = (long) p/q;
 			break;
 		case bAllowFwdms:
 			(*p_OkRelocate)[iProto] = FALSE;
-			(*p_ForwardMode)[iProto] = ABSOLUTE;
+			(*p_ForwardMode)[iProto] = ABSOLU;
 			GetField(NULL,TRUE,w,fAllowFwdms,line,&p,&q);
 			(*p_MaxForward)[iProto] = (long) p/q;
 			break;
 		case bAllowFwdPC:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			(*p_OkRelocate)[iProto] = FALSE;
-			(*p_ForwardMode)[iProto] = RELATIVE;
+			(*p_ForwardMode)[iProto] = RELATIF;
 			GetField(NULL,TRUE,w,fAllowFwdPC,line,&p,&q);
 			(*p_MaxForward)[iProto] = (long) p/q;
 			break;
@@ -1665,25 +1665,25 @@ if(w == wPrototype3) {
 			SetField(NULL,w,fCoverBegLessThanPC,line);
 			(*p_MaxCoverBeg)[iProto] = ZERO;
 			(*p_CoverBeg)[iProto] = FALSE;
-			(*p_CoverBegMode)[iProto] = RELATIVE;
+			(*p_CoverBegMode)[iProto] = RELATIF;
 			break;
 		case bCoverBegAtWill:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			(*p_CoverBeg)[iProto] = TRUE;
-			(*p_CoverBegMode)[iProto] = RELATIVE;
+			(*p_CoverBegMode)[iProto] = RELATIF;
 			(*p_MaxCoverBeg)[iProto] = 100L;
 			break;
 		case bCoverBegLessThanms:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			(*p_CoverBeg)[iProto] = FALSE;
-			(*p_CoverBegMode)[iProto] = ABSOLUTE;
+			(*p_CoverBegMode)[iProto] = ABSOLU;
 			GetField(NULL,TRUE,w,fCoverBegLessThanms,line,&p,&q);
 			(*p_MaxCoverBeg)[iProto] = (long) p/q;
 			break;
 		case bCoverBegLessThanPC:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			(*p_CoverBeg)[iProto] = FALSE;
-			(*p_CoverBegMode)[iProto] = RELATIVE;
+			(*p_CoverBegMode)[iProto] = RELATIF;
 			GetField(NULL,TRUE,w,fCoverBegLessThanPC,line,&p,&q);
 			(*p_MaxCoverBeg)[iProto] = (long) p/q;
 			break;
@@ -1694,25 +1694,25 @@ if(w == wPrototype3) {
 			SetField(NULL,w,fCoverEndLessThanPC,line);
 			(*p_MaxCoverEnd)[iProto] = ZERO;
 			(*p_CoverEnd)[iProto] = FALSE;
-			(*p_CoverEndMode)[iProto] = RELATIVE;
+			(*p_CoverEndMode)[iProto] = RELATIF;
 			break;
 		case bCoverEndAtWill:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			(*p_CoverEnd)[iProto] = TRUE;
-			(*p_CoverEndMode)[iProto] = RELATIVE;
+			(*p_CoverEndMode)[iProto] = RELATIF;
 			(*p_MaxCoverEnd)[iProto] = 100L;
 			break;
 		case bCoverEndLessThanms:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			(*p_CoverEnd)[iProto] = FALSE;
-			(*p_CoverEndMode)[iProto] = ABSOLUTE;
+			(*p_CoverEndMode)[iProto] = ABSOLU;
 			GetField(NULL,TRUE,w,fCoverEndLessThanms,line,&p,&q);
 			(*p_MaxCoverEnd)[iProto] = (long) p/q;
 			break;
 		case bCoverEndLessThanPC:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			(*p_CoverEnd)[iProto] = FALSE;
-			(*p_CoverEndMode)[iProto] = RELATIVE;
+			(*p_CoverEndMode)[iProto] = RELATIF;
 			GetField(NULL,TRUE,w,fCoverEndLessThanPC,line,&p,&q);
 			(*p_MaxCoverEnd)[iProto] = (long) p/q;
 			break;
@@ -1723,25 +1723,25 @@ if(w == wPrototype3) {
 			SetField(NULL,w,fTruncBegLessThanPC,line);
 			(*p_MaxTruncBeg)[iProto] = ZERO;
 			(*p_TruncBeg)[iProto] = FALSE;
-			(*p_TruncBegMode)[iProto] = RELATIVE;
+			(*p_TruncBegMode)[iProto] = RELATIF;
 			break;
 		case bTruncBegAtWill:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			(*p_TruncBeg)[iProto] = TRUE;
-			(*p_TruncBegMode)[iProto] = RELATIVE;
+			(*p_TruncBegMode)[iProto] = RELATIF;
 			(*p_MaxTruncBeg)[iProto] = 100L;
 			break;
 		case bTruncBegLessThanms:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			(*p_TruncBeg)[iProto] = FALSE;
-			(*p_TruncBegMode)[iProto] = ABSOLUTE;
+			(*p_TruncBegMode)[iProto] = ABSOLU;
 			GetField(NULL,TRUE,w,fTruncBegLessThanms,line,&p,&q);
 			(*p_MaxTruncBeg)[iProto] = (long) p/q;
 			break;
 		case bTruncBegLessThanPC:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			(*p_TruncBeg)[iProto] = FALSE;
-			(*p_TruncBegMode)[iProto] = RELATIVE;
+			(*p_TruncBegMode)[iProto] = RELATIF;
 			GetField(NULL,TRUE,w,fTruncBegLessThanPC,line,&p,&q);
 			(*p_MaxTruncBeg)[iProto] = (long) p/q;
 			break;
@@ -1752,25 +1752,25 @@ if(w == wPrototype3) {
 			SetField(NULL,w,fTruncEndLessThanPC,line);
 			(*p_MaxTruncEnd)[iProto] = ZERO;
 			(*p_TruncEnd)[iProto] = FALSE;
-			(*p_TruncEndMode)[iProto] = RELATIVE;
+			(*p_TruncEndMode)[iProto] = RELATIF;
 			break;
 		case bTruncEndAtWill:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			(*p_TruncEnd)[iProto] = TRUE;
-			(*p_TruncEndMode)[iProto] = RELATIVE;
+			(*p_TruncEndMode)[iProto] = RELATIF;
 			(*p_MaxTruncEnd)[iProto] = 100L;
 			break;
 		case bTruncEndLessThanms:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			(*p_TruncEnd)[iProto] = FALSE;
-			(*p_TruncEndMode)[iProto] = ABSOLUTE;
+			(*p_TruncEndMode)[iProto] = ABSOLU;
 			GetField(NULL,TRUE,w,fTruncEndLessThanms,line,&p,&q);
 			(*p_MaxTruncEnd)[iProto] = (long) p/q;
 			break;
 		case bTruncEndLessThanPC:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			(*p_TruncEnd)[iProto] = FALSE;
-			(*p_TruncEndMode)[iProto] = RELATIVE;
+			(*p_TruncEndMode)[iProto] = RELATIF;
 			GetField(NULL,TRUE,w,fTruncEndLessThanPC,line,&p,&q);
 			(*p_MaxTruncEnd)[iProto] = (long) p/q;
 			break;
@@ -1803,7 +1803,7 @@ if(w == wPrototype4) {
 			break;
 		case bDontForceContBeg:
 			(*p_ContBeg)[iProto] = FALSE;
-			(*p_ContBegMode)[iProto] = RELATIVE;
+			(*p_ContBegMode)[iProto] = RELATIF;
 			break;
 		case bForceContBeg:
 			sprintf(line,"0");
@@ -1811,24 +1811,24 @@ if(w == wPrototype4) {
 			SetField(NULL,w,fAllowGapBegPC,line);
 			(*p_ContBeg)[iProto] = TRUE;
 			(*p_MaxBegGap)[iProto] = ZERO;
-			(*p_ContBegMode)[iProto] = RELATIVE;
+			(*p_ContBegMode)[iProto] = RELATIF;
 			break;
 		case bAllowGapBegms:
 			(*p_ContBeg)[iProto] = TRUE;
-			(*p_ContBegMode)[iProto] = ABSOLUTE;
+			(*p_ContBegMode)[iProto] = ABSOLU;
 			GetField(NULL,TRUE,w,fAllowGapBegms,line,&p,&q);
 			(*p_MaxBegGap)[iProto] = (long) p/q;
 			break;
 		case bAllowGapBegPC:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			(*p_ContBeg)[iProto] = TRUE;
-			(*p_ContBegMode)[iProto] = RELATIVE;
+			(*p_ContBegMode)[iProto] = RELATIF;
 			GetField(NULL,TRUE,w,fAllowGapBegPC,line,&p,&q);
 			(*p_MaxBegGap)[iProto] = p/q;
 			break;
 		case bDontForceContEnd:
 			(*p_ContEnd)[iProto] = FALSE;
-			(*p_ContEndMode)[iProto] = RELATIVE;
+			(*p_ContEndMode)[iProto] = RELATIF;
 			break;
 		case bForceContEnd:
 			sprintf(line,"0");
@@ -1836,30 +1836,30 @@ if(w == wPrototype4) {
 			SetField(NULL,w,fAllowGapEndPC,line);
 			(*p_ContEnd)[iProto] = TRUE;
 			(*p_MaxEndGap)[iProto] = ZERO;
-			(*p_ContEndMode)[iProto] = RELATIVE;
+			(*p_ContEndMode)[iProto] = RELATIF;
 			break;
 		case bAllowGapEndms:
 			(*p_ContEnd)[iProto] = TRUE;
-			(*p_ContEndMode)[iProto] = ABSOLUTE;
+			(*p_ContEndMode)[iProto] = ABSOLU;
 			GetField(NULL,TRUE,w,fAllowGapEndms,line,&p,&q);
 			(*p_MaxEndGap)[iProto] = (long) p/q;
 			break;
 		case bAllowGapEndPC:
 			if(CheckDuration(iProto) != OK) return(DONE);
 			(*p_ContEnd)[iProto] = TRUE;
-			(*p_ContEndMode)[iProto] = RELATIVE;
+			(*p_ContEndMode)[iProto] = RELATIF;
 			GetField(NULL,TRUE,w,fAllowGapEndPC,line,&p,&q);
 			(*p_MaxEndGap)[iProto] = (long) p/q;
 			break;
 		case bPreRollms:
-			(*p_PreRollMode)[iProto] = ABSOLUTE;
+			(*p_PreRollMode)[iProto] = ABSOLU;
 			GetField(NULL,TRUE,w,fPreRollms,line,&p,&q);
 			(*p_PreRoll)[iProto] = (long) p/q;
 			SetPrototypeDuration(iProto,&longerCsound);
 			break;
 		case bPreRollPC:
 			if(CheckDuration(iProto) != OK) return(DONE);
-			(*p_PreRollMode)[iProto] = RELATIVE;
+			(*p_PreRollMode)[iProto] = RELATIF;
 			GetField(NULL,TRUE,w,fPreRollPC,line,&p,&q);
 			if((*p_Dur)[iProto] > EPSILON)
 				dur = (*p_Dur)[iProto]
@@ -1870,7 +1870,7 @@ if(w == wPrototype4) {
 			SetPrototypeDuration(iProto,&longerCsound);
 			break;
 		case bPostRollms:
-			(*p_PostRollMode)[iProto] = ABSOLUTE;
+			(*p_PostRollMode)[iProto] = ABSOLU;
 			GetField(NULL,TRUE,w,fPostRollms,line,&p,&q);
 			if(p/q >= (*p_Dur)[iProto]) {
 				sprintf(Message,"=> Pre-roll can't exceed object duration. Value '%ld' rejected",
@@ -1883,7 +1883,7 @@ if(w == wPrototype4) {
 			break;
 		case bPostRollPC:
 			if(CheckDuration(iProto) != OK) return(DONE);
-			(*p_PostRollMode)[iProto] = RELATIVE;
+			(*p_PostRollMode)[iProto] = RELATIF;
 			GetField(NULL,TRUE,w,fPostRollPC,line,&p,&q);
 			if((((double) p) / q) >= 100.) {
 				sprintf(Message,"=> Pre-roll can't exceed object duration. Value '%.2f' rejected",
@@ -2195,12 +2195,12 @@ if(w == wPrototype6) {
 			break;
 		case bBeforePeriodms:
 			if(CheckDuration(iProto) != OK) return(DONE);
-			(*p_PeriodMode)[iProto] = ABSOLUTE;
+			(*p_PeriodMode)[iProto] = ABSOLU;
 			if(GetPrototype(YES) != OK) return(DONE);
 			break;
 		case bBeforePeriodPC:
 			if(CheckDuration(iProto) != OK) return(DONE);
-			(*p_PeriodMode)[iProto] = RELATIVE;
+			(*p_PeriodMode)[iProto] = RELATIF;
 			if(GetPrototype(YES) != OK) return(DONE);
 			break;
 		case bForceIntegerPeriod:

@@ -172,7 +172,7 @@ BPActivateWindow(SLOW,wind);
 
 if((rep=CompilePatterns()) != OK) return(rep);
 ipatt = Jpatt;
-UpdateWindow(FALSE,Window[wind]); /* Update text length */
+UpdateThisWindow(FALSE,Window[wind]); /* Update text length */
 ShowSelect(CENTRE,wind);
 pos = pos1 = ZERO; isthere = FALSE;
 posmax = GetTextLength(wind);

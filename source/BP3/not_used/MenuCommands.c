@@ -1671,7 +1671,7 @@ switch (rep) {
 				}
 			else TellError(9,io);
 			}
-		UpdateWindow(FALSE,Window[wind]);
+		UpdateThisWindow(FALSE,Window[wind]);
 		GetHeader(wind);
 		if(wind == wGrammar || wind == wData) {
 			GetSeName(wind);

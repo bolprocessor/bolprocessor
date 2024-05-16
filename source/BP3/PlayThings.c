@@ -909,7 +909,7 @@ if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 (*p_Quan)[j] = 0.;
 SetPrototypeDuration(j,&longerCsound);
 if(Stream.cyclic && what == bDeleteReplace) {
-	(*p_PeriodMode)[j] = RELATIVE;
+	(*p_PeriodMode)[j] = RELATIF;
 	(*p_BeforePeriod)[j] = ZERO;
 #if BP_CARBON_GUI_FORGET_THIS
 	SetPrototypePage6(j);

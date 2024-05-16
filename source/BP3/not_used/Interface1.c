@@ -290,7 +290,7 @@ switch(p_event->what) {
 						if(w >= 0 && w < WMAX) BPActivateWindow(QUICK,w);
 						else {
 							SelectWindow(whichwindow);
-							UpdateWindow(FALSE,whichwindow);
+							UpdateThisWindow(FALSE,whichwindow);
 							}
 						rep = DoDialog(p_event);
 						if((rep == OK || rep == AGAIN) && w < WMAX) {
@@ -303,7 +303,7 @@ switch(p_event->what) {
 					if(w >= 0 && w < WMAX) BPActivateWindow(SLOW,w);
 					else {
 						SelectWindow(whichwindow);
-						UpdateWindow(FALSE,whichwindow);
+						UpdateThisWindow(FALSE,whichwindow);
 						}
 					if(whichwindow == GetDialogWindow(FAQPtr)) Help = TRUE;
 					}
@@ -312,7 +312,7 @@ switch(p_event->what) {
 						if(w < 0 || w >= WMAX || !LockedWindow[w])
 							DoContent(whichwindow,p_event,&intext);
 						else SysBeep(10);
-						if(w >= 0 && w < WMAX) UpdateWindow(TRUE,Window[w]);
+						if(w >= 0 && w < WMAX) UpdateThisWindow(TRUE,Window[w]);
 						}
 					else {	// FIXME: what is this clause for?
 						Help = FALSE;
@@ -450,7 +450,7 @@ switch(p_event->what) {
 #endif
 		{
 			TEFromScrap();
-			UpdateWindow(FALSE,(WindowPtr)p_event->message);
+			UpdateThisWindow(FALSE,(WindowPtr)p_event->message);
 			}
 		break;
 	default: ;
@@ -984,7 +984,7 @@ MaintainMenus(); DrawMenuBar();
 
 #if 0  // strange difference in behavior between TE & WASTE_FORGET_THIS; neither is necessary? - akozar
 if(Nw < 0 || Nw >= WMAX) return(OK);
-  if(!WASTE_FORGET_THIS) UpdateWindow(FALSE,Window[Nw]);
+  if(!WASTE_FORGET_THIS) UpdateThisWindow(FALSE,Window[Nw]);
   else if(mode == SLOW && Editable[Nw]) ShowSelect(CENTRE,Nw);
 #endif
 if((mode == SLOW || mode == AGAIN) && Nw == wPrototype1)
@@ -1211,7 +1211,7 @@ return(OK);
 }
 
 	
-UpdateWindow(int quick, WindowPtr theWindow)
+UpdateThisWindow(int quick, WindowPtr theWindow)
 {
 GrafPtr	saveport;
 RgnHandle	cliprgn;
@@ -1220,7 +1220,7 @@ int w;
 
 if(theWindow == NULL || !IsWindowVisible(theWindow)) return(OK);
 
-PrintCall("UpdateWindow()", theWindow);
+PrintCall("UpdateThisWindow()", theWindow);
 for(w=0; w < WMAX; w++) {
 	if(theWindow == Window[w]) break;
 	}
@@ -1282,7 +1282,7 @@ EndUpdate(theWindow);
 ClipRect(&r1);
 // if(w < WMAX && HasFields[w] && !Editable[w]) HiliteDefault(GetDialogFromWindow(theWindow));
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("=> Err UpdateWindow(). saveport == NULL");
+else if(Beta) Alert1("=> Err UpdateThisWindow(). saveport == NULL");
 return(OK);
 }
 
@@ -1377,7 +1377,7 @@ char line[MAXLIN];
 for(w=0; w < WMAX; w++) {
 	if(theWindow == Window[w]) break;
 	}
-if(Help && w < WMAX) UpdateWindow(FALSE,Window[w]);
+if(Help && w < WMAX) UpdateThisWindow(FALSE,Window[w]);
 GetPort(&saveport);
 SetPortWindowPort(theWindow);
 GlobalToLocal(&p_event->where);
@@ -1514,7 +1514,7 @@ GetWindowPortBounds(Window[w], &r);
 InvalWindowRect(Window[w], &r);
 if(saveport != NULL) SetPort(saveport);
 else if(Beta) Alert1("=> Err AdjustGraph(). saveport == NULL");
-UpdateWindow(FALSE,Window[w]);
+UpdateThisWindow(FALSE,Window[w]);
 
 return(OK);
 }
@@ -1610,7 +1610,7 @@ if(GrafWindow[w]) ClipRect(&r);
 /*	ClipRect(&r); *\/
 	GetWindowPortBounds(Window[w], &r);
 	InvalWindowRect(Window[w], &r);
-	UpdateWindow(FALSE,Window[w]);  /* 5/9/97 *\/
+	UpdateThisWindow(FALSE,Window[w]);  /* 5/9/97 *\/
 	}*/
 AdjustTextInWindow(w);
 

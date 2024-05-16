@@ -900,8 +900,8 @@ switch(r) {
 		rep = ABORT;
 		break;
 	}
-UpdateWindow(FALSE,Window[wGraphic]);
-UpdateWindow(FALSE,Window[wPrototype1]);
+UpdateThisWindow(FALSE,Window[wGraphic]);
+UpdateThisWindow(FALSE,Window[wPrototype1]);
 return(rep);
 }
 
@@ -947,8 +947,8 @@ GetDialogItem(EnterPtr,fValue,&itemtype,&itemhandle,&r);
 GetDialogItemText(itemhandle,t);
 MyPtoCstr(255,t,value);
 HideWindow(GetDialogWindow(EnterPtr));
-UpdateWindow(FALSE,Window[wGraphic]);
-UpdateWindow(FALSE,Window[wPrototype1]);
+UpdateThisWindow(FALSE,Window[wGraphic]);
+UpdateThisWindow(FALSE,Window[wPrototype1]);
 return(rep);
 }
 
@@ -988,8 +988,8 @@ if(!EmergencyExit && !InputOn && !AEventOn && !InitOn && !ItemCapture && !TickCa
 		&& EventState == NO) for(i=0; i < 5; i++) MainEvent();
 AlertOn--;
 #endif
-if(!EmergencyExit && !InitOn) UpdateWindow(FALSE,Window[wGraphic]);
-if(!EmergencyExit && !InitOn) UpdateWindow(FALSE,Window[wPrototype1]);
+if(!EmergencyExit && !InitOn) UpdateThisWindow(FALSE,Window[wGraphic]);
+if(!EmergencyExit && !InitOn) UpdateThisWindow(FALSE,Window[wPrototype1]);
 return(OK);
 }
 

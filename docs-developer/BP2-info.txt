@@ -427,7 +427,7 @@ A string of tokenbytes terminates with -1 -1
 LengthOf() returns the length in tokenbytes, not including the two end markers.
 Therefore the total length is LengthOf() + 2 * sizeof(tokenbyte).
 
---------------- Window and dialog indexes ---------------------
+------------- Window and dialog indexes (obsolete) --------------
 
 // Window indexes
 #define wGrammar 0

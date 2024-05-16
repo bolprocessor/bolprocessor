@@ -2063,35 +2063,35 @@ Alert1("Missing value");
 return(ABORT);
 }
 
+int WaitABit(long thedelay) {
+	// Wait for thedelay milliseconds
+	int result;
+	if(thedelay > 10L && (result = stop()) != OK) return result;
+	usleep(1000L * thedelay);
 
-int WaitABit(long thedelay)
-// Wait for thedelay milliseconds
-{
-usleep(thedelay);
-
-/* int i;
-unsigned long endtime;
-i = 0;
-if(Oms || NEWTIMER_FORGET_THIS) {
-#if WITH_REAL_TIME_SCHEDULER_FORGET_THIS
-	endtime = TotalTicks + (thedelay / CLOCKRES);
-	while(TotalTicks < endtime) {
-		if(i++ > 50) {
-			PleaseWait(); i = 0;
+	/* int i;
+	unsigned long endtime;
+	i = 0;
+	if(Oms || NEWTIMER_FORGET_THIS) {
+	#if WITH_REAL_TIME_SCHEDULER_FORGET_THIS
+		endtime = TotalTicks + (thedelay / CLOCKRES);
+		while(TotalTicks < endtime) {
+			if(i++ > 50) {
+				PleaseWait(); i = 0;
+				}
 			}
+	#endif
 		}
-#endif
+	else {
+		endtime = clock() + ((thedelay * 6L) / 100L);
+		while(clock() < endtime) {
+			if(i++ > 50) {
+				PleaseWait(); i = 0;
+				}
+			}
+		} */
+	return(OK);
 	}
-else {
-	endtime = clock() + ((thedelay * 6L) / 100L);
-	while(clock() < endtime) {
-		if(i++ > 50) {
-			PleaseWait(); i = 0;
-			}
-		}
-	} */
-return(OK);
-}
 
 
 int NeedGlossary(tokenbyte ***pp_X)

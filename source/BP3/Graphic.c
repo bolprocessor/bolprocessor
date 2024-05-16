@@ -298,7 +298,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 				}
 			morespace = (*p_morespace)[linenum];
 			if(j < 16384) {
-				if((*p_PivMode)[j] == ABSOLUTE)
+				if((*p_PivMode)[j] == ABSOLU)
 					pivloc = (long) ((*p_PivPos)[j] * GraphicScaleP) / GraphicScaleQ / 10L;
 				else
 					pivloc = (long) ((*p_Instance)[k].dilationratio * (*p_PivPos)[j] * (*p_Dur)[j]
@@ -383,7 +383,6 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 	// Pattern pat;
 	Rect r,r1,r2,r3;
 	int tab,rep,x_startpivot,y_startpivot;
-	Point pt;
 	long x;
 	double xx,preperiod,objectperiod;
 
@@ -686,14 +685,14 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	GetPrePostRoll(j,&preroll,&postroll);
 
 	// Calculate leftmost date 'tmin'
-	if((*p_PivMode)[j] == RELATIVE) pivpos = ((*p_PivPos)[j] * (*p_Dur)[j]) / 100L;
+	if((*p_PivMode)[j] == RELATIF) pivpos = ((*p_PivPos)[j] * (*p_Dur)[j]) / 100L;
 	else pivpos = (*p_PivPos)[j];
 	if(preroll < 0.) tmin = 0;
 	else tmin = - preroll;
 	if(pivpos < tmin) tmin = pivpos;
 	maxbeggap = -1L;
 	if((*p_ContBeg)[j]) {
-		if((*p_ContBegMode)[j] == RELATIVE)
+		if((*p_ContBegMode)[j] == RELATIF)
 			maxbeggap = ((*p_MaxBegGap)[j] * (*p_Dur)[j]) / 100L;
 		else maxbeggap = (*p_MaxBegGap)[j];
 		}
@@ -706,7 +705,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	if(pivpos > tmax) tmax = pivpos;
 	maxendgap = -1L;
 	if((*p_ContEnd)[j]) {
-		if((*p_ContEndMode)[j] == RELATIVE)
+		if((*p_ContEndMode)[j] == RELATIF)
 			maxendgap = ((*p_MaxEndGap)[j] * (*p_Dur)[j]) / 100L;
 		else maxendgap = (*p_MaxEndGap)[j];
 		}
@@ -770,11 +769,11 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	// Draw covered parts
 	maxcover1 = maxcover2 = dur;
 	if(!(*p_CoverBeg)[j]) {
-		if((*p_CoverBegMode)[j] == ABSOLUTE) maxcover1 = (*p_MaxCoverBeg)[j];
+		if((*p_CoverBegMode)[j] == ABSOLU) maxcover1 = (*p_MaxCoverBeg)[j];
 		else maxcover1 = (dur * (*p_MaxCoverBeg)[j]) / 100.;
 		}
 	if(!(*p_CoverEnd)[j]) {
-		if((*p_CoverEndMode)[j] == ABSOLUTE) maxcover2 = (*p_MaxCoverEnd)[j];
+		if((*p_CoverEndMode)[j] == ABSOLU) maxcover2 = (*p_MaxCoverEnd)[j];
 		else maxcover2 = (dur * (*p_MaxCoverEnd)[j]) / 100.;
 		}
 	r.top = p_frame->top + 2 * htext + 5;
@@ -795,11 +794,11 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	// Draw continuity
 	maxgap1 = maxgap2 = INT_MAX;
 	if((*p_ContBeg)[j]) {
-		if((*p_ContBegMode)[j] == ABSOLUTE) maxgap1 = (*p_MaxBegGap)[j];
+		if((*p_ContBegMode)[j] == ABSOLU) maxgap1 = (*p_MaxBegGap)[j];
 		else maxgap1 = (dur * (*p_MaxBegGap)[j]) / 100.;
 		}
 	if((*p_ContEnd)[j]) {
-		if((*p_ContEndMode)[j] == ABSOLUTE) maxgap2 = (*p_MaxEndGap)[j];
+		if((*p_ContEndMode)[j] == ABSOLU) maxgap2 = (*p_MaxEndGap)[j];
 		else maxgap2 = (dur * (*p_MaxEndGap)[j]) / 100.;
 		}
 	r.top = p_frame->top + topoffset + 1;
@@ -841,12 +840,12 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	stroke_style(&Blue); */
 	maxtrunc1 = maxtrunc2 = dur;
 	if(!(*p_TruncBeg)[j]) {
-		if((*p_TruncBegMode)[j] == ABSOLUTE) maxtrunc1 = (*p_MaxTruncBeg)[j];
+		if((*p_TruncBegMode)[j] == ABSOLU) maxtrunc1 = (*p_MaxTruncBeg)[j];
 		else maxtrunc1 = (dur * (*p_MaxTruncBeg)[j]) / 100.;
 		}
 
 	if(!(*p_TruncEnd)[j]) {
-		if((*p_TruncEndMode)[j] == ABSOLUTE) maxtrunc2 = (*p_MaxTruncEnd)[j];
+		if((*p_TruncEndMode)[j] == ABSOLU) maxtrunc2 = (*p_MaxTruncEnd)[j];
 		else maxtrunc2 = (dur * (*p_MaxTruncEnd)[j]) / 100.;
 		}
 

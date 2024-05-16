@@ -648,7 +648,7 @@ WRITE:
 				}
 			}
 		WriteToFile(NO,MAC,"_begin tables",refnum);
-		UpdateWindow(FALSE,Window[wCsoundTables]); /* Update text length */
+		UpdateThisWindow(FALSE,Window[wCsoundTables]); /* Update text length */
 		ShowSelect(CENTRE,wCsoundTables);
 		ishtml = IsHTML[wCsoundTables];
 		IsHTML[wCsoundTables] = TRUE;
@@ -858,7 +858,7 @@ WRITE:
 			}
 LASTPART:
 		WriteToFile(NO,MAC,"STARTSTRING:",refnum);
-		UpdateWindow(FALSE,Window[wStartString]); /* Update text length */
+		UpdateThisWindow(FALSE,Window[wStartString]); /* Update text length */
 		ShowSelect(CENTRE,wStartString);
 		ishtml = IsHTML[wStartString];
 		IsHTML[wStartString] = TRUE;

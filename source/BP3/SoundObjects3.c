@@ -59,13 +59,13 @@ ptr = (Handle)(*pp_CsoundTime)[j];
 if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 (*pp_CsoundTime)[j] = NULL;
 
-(*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLUTE;
+(*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLU;
 (*p_MaxBegGap)[j] = (*p_MaxEndGap)[j] = Infpos;
 (*p_DelayMode)[j] = (*p_ForwardMode)[j] = (*p_BreakTempoMode)[j]
-   = ABSOLUTE;
-(*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = RELATIVE;
+   = ABSOLU;
+(*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = RELATIF;
 (*p_TruncBegMode)[j] = (*p_TruncEndMode)[j] = (*p_PreRollMode)[j]
-      = (*p_PostRollMode)[j] = RELATIVE;
+      = (*p_PostRollMode)[j] = RELATIF;
 (*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = 100L;
 (*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = 0L;
 (*p_PivPos)[j] = (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_BeforePeriod)[j] = ZERO;
@@ -82,7 +82,7 @@ if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 (*p_OkTransp)[j] = (*p_OkPan)[j] = (*p_OkMap)[j] = (*p_OkVelocity)[j]
    = (*p_OkArticul)[j] = (*p_OkVolume)[j] = TRUE;
 (*p_BreakTempo)[j] = (*p_DiscardNoteOffs)[j] = FALSE;
-(*p_PivType)[j] = 1; (*p_PivMode)[j] = ABSOLUTE;
+(*p_PivType)[j] = 1; (*p_PivMode)[j] = ABSOLU;
 (*p_RescaleMode)[j] = LINEAR;
 (*p_AlphaMin)[j] = 0; (*p_AlphaMax)[j] = 100.;
 (*p_Dur)[j] = ZERO;
@@ -168,56 +168,56 @@ if(rep == OK && CheckChannelRange(&p,&q)) (*p_AlphaCtrlChan)[iProto] = (int) p/q
 else (*p_AlphaCtrlChan)[iProto] = 255;
 
 if((*p_PivType)[iProto] == 7) {
-   if((*p_PivMode)[iProto] == RELATIVE)
+   if((*p_PivMode)[iProto] == RELATIF)
       rep = GetField(NULL,TRUE,wPrototype2,fSetPivotPC,line,&p,&q);
    else
       rep = GetField(NULL,TRUE,wPrototype2,fSetPivotms,line,&p,&q);
    if(rep == OK) (*p_PivPos)[iProto] = ((float)p)/q;
    }
    
-if((*p_DelayMode)[iProto] == ABSOLUTE)
+if((*p_DelayMode)[iProto] == ABSOLU)
    rep = GetField(NULL,TRUE,wPrototype2,fAllowDelayms,line,&p,&q);
 else
    rep = GetField(NULL,TRUE,wPrototype2,fAllowDelayPC,line,&p,&q);
 if(rep == OK) (*p_MaxDelay)[iProto] = (long) p/q;
 
-if((*p_ForwardMode)[iProto] == ABSOLUTE)
+if((*p_ForwardMode)[iProto] == ABSOLU)
    rep = GetField(NULL,TRUE,wPrototype2,fAllowFwdms,line,&p,&q);
 else
    rep = GetField(NULL,TRUE,wPrototype2,fAllowFwdPC,line,&p,&q);
 if(rep == OK) (*p_MaxForward)[iProto] = (long) p/q;
 
-if((*p_CoverBegMode)[iProto] == ABSOLUTE)
+if((*p_CoverBegMode)[iProto] == ABSOLU)
    rep = GetField(NULL,TRUE,wPrototype3,fCoverBegLessThanms,line,&p,&q);
 else
    rep = GetField(NULL,TRUE,wPrototype3,fCoverBegLessThanPC,line,&p,&q);
 if(rep == OK) (*p_MaxCoverBeg)[iProto] = (long) p/q;
 
-if((*p_CoverEndMode)[iProto] == ABSOLUTE)
+if((*p_CoverEndMode)[iProto] == ABSOLU)
    rep = GetField(NULL,TRUE,wPrototype3,fCoverEndLessThanms,line,&p,&q);
 else
    rep = GetField(NULL,TRUE,wPrototype3,fCoverEndLessThanPC,line,&p,&q);
 if(rep == OK) (*p_MaxCoverEnd)[iProto] = (long) p/q;
 
-if((*p_TruncBegMode)[iProto] == ABSOLUTE)
+if((*p_TruncBegMode)[iProto] == ABSOLU)
    rep = GetField(NULL,TRUE,wPrototype3,fTruncBegLessThanms,line,&p,&q);
 else
    rep = GetField(NULL,TRUE,wPrototype3,fTruncBegLessThanPC,line,&p,&q);
 if(rep == OK) (*p_MaxTruncBeg)[iProto] = (long) p/q;
 
-if((*p_TruncEndMode)[iProto] == ABSOLUTE)
+if((*p_TruncEndMode)[iProto] == ABSOLU)
    rep = GetField(NULL,TRUE,wPrototype3,fTruncEndLessThanms,line,&p,&q);
 else
    rep = GetField(NULL,TRUE,wPrototype3,fTruncEndLessThanPC,line,&p,&q);
 if(rep == OK) (*p_MaxTruncEnd)[iProto] = (long) p/q;
 
-if((*p_ContBegMode)[iProto] == ABSOLUTE)
+if((*p_ContBegMode)[iProto] == ABSOLU)
    rep = GetField(NULL,TRUE,wPrototype4,fAllowGapBegms,line,&p,&q);
 else
    rep = GetField(NULL,TRUE,wPrototype4,fAllowGapBegPC,line,&p,&q);
 if(rep == OK) (*p_MaxBegGap)[iProto] = (long) p/q;
 
-if((*p_ContEndMode)[iProto] == ABSOLUTE)
+if((*p_ContEndMode)[iProto] == ABSOLU)
    rep = GetField(NULL,TRUE,wPrototype4,fAllowGapEndms,line,&p,&q);
 else
    rep = GetField(NULL,TRUE,wPrototype4,fAllowGapEndPC,line,&p,&q);
@@ -264,7 +264,7 @@ if(GetField(NULL,TRUE,wPrototype5,fPrototypeTickVelocity,line,&p,&q) == OK) {
    else PrototypeTickVelocity = p/q;
    }
 
-if((*p_PeriodMode)[iProto] == ABSOLUTE) {
+if((*p_PeriodMode)[iProto] == ABSOLU) {
    if(GetField(NULL,TRUE,wPrototype6,fBeforePeriodms,line,&p,&q) == OK) {
       if((dur=(*p_Dur)[iProto]) < p/q) {
          sprintf(Message,"Initial part before period can't be longer than %ldms",
@@ -281,7 +281,7 @@ if((*p_PeriodMode)[iProto] == ABSOLUTE) {
          }
       }
    }
-if((*p_PeriodMode)[iProto] == RELATIVE) {
+if((*p_PeriodMode)[iProto] == RELATIF) {
    if(GetField(NULL,TRUE,wPrototype6,fBeforePeriodPC,line,&p,&q) == OK) {
       if(p/q > 100.) {
          Alert1("Initial part before period can't be longer than 100% duration");
@@ -450,9 +450,9 @@ if((*p_PivType)[j] < 1 || (*p_PivType)[j] > 7) {
 	if(trace_inconsistencies) BPPrintMessage(odInfo,"CheckConsistency() (*p_PivType)[%d] = %d\n",j,(*p_PivType)[j]);
    (*p_PivType)[j] = 1; bugg++;
    }
-if((*p_PivMode)[j] < ABSOLUTE || (*p_PivMode)[j] > RELATIVE) {
+if((*p_PivMode)[j] < ABSOLU || (*p_PivMode)[j] > RELATIF) {
 	if(trace_inconsistencies) BPPrintMessage(odInfo,"CheckConsistency() (*p_PivMode)[%d] = %d\n",j,(*p_PivMode)[j]);
-   (*p_PivMode)[j] = ABSOLUTE; bugg++;
+   (*p_PivMode)[j] = ABSOLU; bugg++;
    }
 
 SetPrototypeDuration(j,&longerCsound);
@@ -460,16 +460,16 @@ dur = (*p_Dur)[j];
 if(dur < EPSILON) {
    (*p_PivType)[j] = 1; (*p_PivPos)[j] = ZERO;
    (*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j]
-      = (*p_TruncEndMode)[j] = (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLUTE;
+      = (*p_TruncEndMode)[j] = (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLU;
    (*p_CoverBeg)[j] = (*p_CoverEnd)[j] = TRUE;
    (*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = ZERO;
    (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = FALSE;
    (*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = ZERO;
    }
 switch((*p_PivType)[j]) {
-   case 1: (*p_PivPos)[j] = 0.; (*p_PivMode)[j] = ABSOLUTE; break;
-   case 2: (*p_PivPos)[j] = 100.; (*p_PivMode)[j] = RELATIVE; break;
-   case 5: (*p_PivPos)[j] = 50.; (*p_PivMode)[j] = RELATIVE; break;
+   case 1: (*p_PivPos)[j] = 0.; (*p_PivMode)[j] = ABSOLU; break;
+   case 2: (*p_PivPos)[j] = 100.; (*p_PivMode)[j] = RELATIF; break;
+   case 5: (*p_PivPos)[j] = 50.; (*p_PivMode)[j] = RELATIF; break;
    case 7: /* pivspec */ break;
    case 4: /* endoff */
    case 3: /* begon */
@@ -498,35 +498,35 @@ switch((*p_PivType)[j]) {
       switch((*p_PivType)[j]) {
          case 3: /* begon */
             (*p_PivPos)[j] = ((float)(ton - preroll) * 100.) / dur;
-            (*p_PivMode)[j] = RELATIVE; break;
+            (*p_PivMode)[j] = RELATIF; break;
          case 4: /* endoff */
             (*p_PivPos)[j] = ((float)(toff - preroll) * 100.) / dur;
-            (*p_PivMode)[j] = RELATIVE; break;
+            (*p_PivMode)[j] = RELATIF; break;
          case 6: /* centonoff */
             (*p_PivPos)[j] = ((float)((ton+toff)/2. - preroll) * 100.) / dur;
-            (*p_PivMode)[j] = RELATIVE; break;
+            (*p_PivMode)[j] = RELATIF; break;
          }
    }
    
 if((*p_CoverBeg)[j] && dur > EPSILON) {
-   (*p_MaxCoverBeg)[j] = 100L; (*p_CoverBegMode)[j] = RELATIVE;
+   (*p_MaxCoverBeg)[j] = 100L; (*p_CoverBegMode)[j] = RELATIF;
    }
 if((*p_CoverEnd)[j] && dur > EPSILON) {
-   (*p_MaxCoverEnd)[j] = 100L; (*p_CoverEndMode)[j] = RELATIVE;
+   (*p_MaxCoverEnd)[j] = 100L; (*p_CoverEndMode)[j] = RELATIF;
    }
 if((*p_MaxCoverBeg)[j] < 0) {
    (*p_MaxCoverBeg)[j] = 0; bugg++;
    }
-if((*p_CoverBegMode)[j] == RELATIVE) {
+if((*p_CoverBegMode)[j] == RELATIF) {
    if((*p_MaxCoverBeg)[j] > 100L) (*p_MaxCoverBeg)[j] = 100L;
    }
 if((*p_MaxCoverEnd)[j] < 0) {
    (*p_MaxCoverEnd)[j] = 0; bugg++;
    }
-if((*p_CoverEndMode)[j] == RELATIVE) {
+if((*p_CoverEndMode)[j] == RELATIF) {
    if((*p_MaxCoverEnd)[j] > 100L) (*p_MaxCoverEnd)[j] = 100L;
    }
-if((*p_CoverBegMode)[j] == RELATIVE && (*p_CoverEndMode)[j] == RELATIVE) {
+if((*p_CoverBegMode)[j] == RELATIF && (*p_CoverEndMode)[j] == RELATIF) {
    maxcover1 = maxcover2 = INT_MAX;
    if(!(*p_CoverBeg)[j]) maxcover1 = (dur * (*p_MaxCoverBeg)[j]) / 100.;
    if(!(*p_CoverEnd)[j]) maxcover2 = (dur * (*p_MaxCoverEnd)[j]) / 100.;
@@ -539,30 +539,30 @@ if((*p_CoverBegMode)[j] == RELATIVE && (*p_CoverEndMode)[j] == RELATIVE) {
       (*p_MaxCoverBeg)[j] = (maxcover1 * 100) / dur;
       }
    }
-if((*p_CoverBegMode)[j] == RELATIVE && (*p_MaxCoverBeg)[j] == 100L)
+if((*p_CoverBegMode)[j] == RELATIF && (*p_MaxCoverBeg)[j] == 100L)
    (*p_CoverBeg)[j] = TRUE;
-if((*p_CoverEndMode)[j] == RELATIVE && (*p_MaxCoverEnd)[j] == 100L)
+if((*p_CoverEndMode)[j] == RELATIF && (*p_MaxCoverEnd)[j] == 100L)
    (*p_CoverEnd)[j] = TRUE;
    
 if((*p_TruncBeg)[j] && dur > EPSILON) {
-   (*p_MaxTruncBeg)[j] = 100L; (*p_TruncBegMode)[j] = RELATIVE;
+   (*p_MaxTruncBeg)[j] = 100L; (*p_TruncBegMode)[j] = RELATIF;
    }
 if((*p_TruncEnd)[j] && dur > EPSILON) {
-   (*p_MaxTruncEnd)[j] = 100L; (*p_TruncEndMode)[j] = RELATIVE;
+   (*p_MaxTruncEnd)[j] = 100L; (*p_TruncEndMode)[j] = RELATIF;
    }
 if((*p_MaxTruncBeg)[j] < 0) {
    (*p_MaxTruncBeg)[j] = 0; bugg++;
    }
-if((*p_TruncBegMode)[j] == RELATIVE) {
+if((*p_TruncBegMode)[j] == RELATIF) {
    if((*p_MaxTruncBeg)[j] > 100L) (*p_MaxTruncBeg)[j] = 100L;
    }
 if((*p_MaxTruncEnd)[j] < 0) {
    (*p_MaxTruncEnd)[j] = 0; bugg++;
    }
-if((*p_TruncEndMode)[j] == RELATIVE) {
+if((*p_TruncEndMode)[j] == RELATIF) {
    if((*p_MaxTruncEnd)[j] > 100L) (*p_MaxTruncEnd)[j] = 100L;
    }
-if((*p_TruncBegMode)[j] == RELATIVE && (*p_TruncEndMode)[j] == RELATIVE) {
+if((*p_TruncBegMode)[j] == RELATIF && (*p_TruncEndMode)[j] == RELATIF) {
    maxtrunc1 = maxtrunc2 = INT_MAX;
    if(!(*p_TruncBeg)[j]) maxtrunc1 = (dur * (*p_MaxTruncBeg)[j]) / 100.;
    if(!(*p_TruncEnd)[j]) maxtrunc2 = (dur * (*p_MaxTruncEnd)[j]) / 100.;
@@ -575,9 +575,9 @@ if((*p_TruncBegMode)[j] == RELATIVE && (*p_TruncEndMode)[j] == RELATIVE) {
       (*p_MaxTruncBeg)[j] = (maxtrunc1 * 100) / dur;
       }
    }
-if((*p_TruncBegMode)[j] == RELATIVE && (*p_MaxTruncBeg)[j] == 100L)
+if((*p_TruncBegMode)[j] == RELATIF && (*p_MaxTruncBeg)[j] == 100L)
    (*p_TruncBeg)[j] = TRUE;
-if((*p_TruncEndMode)[j] == RELATIVE && (*p_MaxTruncEnd)[j] == 100L)
+if((*p_TruncEndMode)[j] == RELATIF && (*p_MaxTruncEnd)[j] == 100L)
    (*p_TruncEnd)[j] = TRUE;
 if(check && (bugg > 0)) {
    sprintf(Message,"Found inconsistencies in sound-object prototype '%s'. These have been corrected.\n",

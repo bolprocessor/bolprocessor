@@ -47,7 +47,7 @@ extern int Version;
 extern DialogPtr CMSettings;
 #endif	
 
-extern ProcessSerialNumber PSN;					
+// extern ProcessSerialNumber PSN;					
 extern long MemoryUsed,MemoryUsedInit,MaxMemoryUsed,
 	MaxHandles,SessionTime;
 extern int CheckMem;

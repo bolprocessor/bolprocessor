@@ -2319,7 +2319,7 @@ long pos,posmax;
 int i,j;
 
 pos = *p_posdir;
-UpdateWindow(FALSE,Window[wTrace]); /* Update text length */
+UpdateThisWindow(FALSE,Window[wTrace]); /* Update text length */
 ShowSelect(CENTRE,wTrace);
 posmax = GetTextLength(wTrace);
 if(pos < posmax) {
@@ -2347,7 +2347,7 @@ if(pos < posmax) {
 	PrintBehind(wTrace," ");
 	sprintf(Message,"%ld\n",(long)dir);
 	PrintBehind(wTrace,Message);
-	UpdateWindow(FALSE,Window[wTrace]); /* Update text length */
+	UpdateThisWindow(FALSE,Window[wTrace]); /* Update text length */
 	ShowSelect(CENTRE,wTrace);
 	SelectBehind(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 	}

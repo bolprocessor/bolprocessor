@@ -74,7 +74,7 @@ if(NewFile(w,gFileType[w],fn,&reply)) {
 		}
 	if(i == OK) {
 		/* Update text length before saving */
-		UpdateWindow(FALSE,Window[w]);
+		UpdateThisWindow(FALSE,Window[w]);
 		WriteHeader(w,refnum,*p_spec);
 		WriteFile(TRUE,MAC,refnum,w,GetTextLength(w));
 		WriteEnd(w,refnum);
@@ -118,7 +118,7 @@ SetCursor(&WatchCursor);
 // c2pstrcpy(p_spec->name, line);
 good = ((io=MyOpen(p_spec,fsCurPerm,&refnum)) == noErr);
 if(good) {
-	UpdateWindow(FALSE,Window[w]);
+	UpdateThisWindow(FALSE,Window[w]);
 	WriteHeader(w,refnum,*p_spec);
 	WriteFile(TRUE,MAC,refnum,w,GetTextLength(w));
 	WriteEnd(w,refnum);
@@ -137,7 +137,7 @@ if(good) {
 			if(Answer("Also save alphabet",'Y') == YES) {
 				c2pstrcpy(p_spec->name, FileName[wAlphabet]);
 				if(MyOpen(p_spec,fsCurPerm,&refnum) == noErr) {	// FIXME: alphabet may not be in same folder as grammar!
-					UpdateWindow(FALSE,Window[wAlphabet]);
+					UpdateThisWindow(FALSE,Window[wAlphabet]);
 					WriteHeader(wAlphabet,refnum,*p_spec);
 					WriteFile(TRUE,MAC,refnum,wAlphabet,GetTextLength(wAlphabet));
 					WriteEnd(wAlphabet,refnum);
@@ -1802,7 +1802,7 @@ return(io == noErr);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
 
-int GetVersion(int w)
+int GetThisVersion(int w)
 {
 int i,j,diff,r,fileversion;
 long pos,posho,posmax;
@@ -1811,7 +1811,7 @@ char c,*p,*q,**p_line,version[VERSIONLENGTH];
 pos = ZERO;
 p_line = NULL;
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("=> Err. GetVersion(). Incorrect window index");
+	if(Beta) Alert1("=> Err. GetThisVersion(). Incorrect window index");
 	return(MISSED);
 	}
 posmax = GetTextLength(w);
@@ -2035,7 +2035,7 @@ switch(w) {
 	case wPrototype7:
 	case wTrace:
 		GetFileDate(w,&(p_FileInfo[w]));
-		GetVersion(w);
+		GetThisVersion(w);
 		break;
 	default:
 		return(OK);

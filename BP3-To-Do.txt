@@ -14,7 +14,7 @@ Real-time MIDI output and input
 -------------------------------
 
 - The STOP button used to interrupt improvisations does not always immediately create the "_stop" file telling the application to stop.  Read below: "Interruption".
-- The current MIDI output sends MIDI messages to the first available MIDI destination. This is easy to improve. We just need to create a suitable form on the PHP interface that will select the destination and send its identifier to the console. To do this, create a file that the user will read via the interface.
+- We need to implement the MIDI input event handling that worked in BP2.
 - Remember that CoreMIDI is only used on MacOS. ALSA is used on Linux and MinGW on Windows.
 - There are still many parts of the code marked "WITH_REAL_TIME_MIDI". This marker has been changed to "WITH_REAL_TIME_MIDI_FORGET_THIS" to indicate that these need to be deleted, as they are remnants of BP2's real-time MIDI or initial (unfinished) implementation of real-time MIDI output. Leave them unchanged for now, as some code could be reused.
 

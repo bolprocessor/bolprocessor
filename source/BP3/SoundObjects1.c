@@ -245,14 +245,14 @@ switch((*p_PivType)[j]) {
    case 5: SwitchOn(NULL,wPrototype2,bPivMiddle); break;
    case 6: SwitchOn(NULL,wPrototype2,bPivMiddleNoteOnOff); break;
    case 7:
-      if((*p_PivMode)[j] == RELATIVE) {
+      if((*p_PivMode)[j] == RELATIF) {
          SwitchOn(NULL,wPrototype2,bSetPivotPC);
          WriteFloatToLine(line,(double)(*p_PivPos)[j]);
          SetField(NULL,wPrototype2,fSetPivotPC,line);
          sprintf(line,"%ld",(long)((*p_PivPos)[j] * (*p_Dur)[j] / 100.));
          SetField(NULL,wPrototype2,fSetPivotms,line);
          }
-      if((*p_PivMode)[j] == ABSOLUTE) {
+      if((*p_PivMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype2,bSetPivotms);
          sprintf(line,"%ld",(long)(*p_PivPos)[j]);
          SetField(NULL,wPrototype2,fSetPivotms,line);
@@ -284,7 +284,7 @@ else {
       }
    else {
       SwitchOff(NULL,wPrototype2,bNeverRelocate);
-      if((*p_DelayMode)[j] == ABSOLUTE) {
+      if((*p_DelayMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype2,bAllowDelayms);
          SwitchOff(NULL,wPrototype2,bAllowDelayPC);
          sprintf(line,"%ld",(long)(*p_MaxDelay)[j]);
@@ -302,7 +302,7 @@ else {
          sprintf(line,"%ld",(long)((*p_MaxDelay)[j] * (*p_Dur)[j] / 100.));
          SetField(NULL,wPrototype2,fAllowDelayms,line);
          }
-      if((*p_ForwardMode)[j] == ABSOLUTE) {
+      if((*p_ForwardMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype2,bAllowFwdms);
          SwitchOff(NULL,wPrototype2,bAllowFwdPC);
          sprintf(line,"%ld",(long)(*p_MaxForward)[j]);
@@ -344,7 +344,7 @@ if((*p_CoverBeg)[j]) {
 else {
    SwitchOff(NULL,wPrototype3,bCoverBegAtWill);
    if((*p_MaxCoverBeg)[j] > ZERO) {
-      if((*p_CoverBegMode)[j] == ABSOLUTE) {
+      if((*p_CoverBegMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype3,bCoverBegLessThanms);
          SwitchOff(NULL,wPrototype3,bCoverBegLessThanPC);
          sprintf(line,"%ld",(long)(*p_MaxCoverBeg)[j]);
@@ -382,7 +382,7 @@ if((*p_CoverEnd)[j]) {
 else {
    SwitchOff(NULL,wPrototype3,bCoverEndAtWill);
    if((*p_MaxCoverEnd)[j] > ZERO) {
-      if((*p_CoverEndMode)[j] == ABSOLUTE) {
+      if((*p_CoverEndMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype3,bCoverEndLessThanms);
          SwitchOff(NULL,wPrototype3,bCoverEndLessThanPC);
          sprintf(line,"%ld",(long)(*p_MaxCoverEnd)[j]);
@@ -420,7 +420,7 @@ if((*p_TruncBeg)[j]) {
 else {
    SwitchOff(NULL,wPrototype3,bTruncBegAtWill);
    if((*p_MaxTruncBeg)[j] > ZERO) {
-      if((*p_TruncBegMode)[j] == ABSOLUTE) {
+      if((*p_TruncBegMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype3,bTruncBegLessThanms);
          SwitchOff(NULL,wPrototype3,bTruncBegLessThanPC);
          sprintf(line,"%ld",(long)(*p_MaxTruncBeg)[j]);
@@ -458,7 +458,7 @@ if((*p_TruncEnd)[j]) {
 else {
    SwitchOff(NULL,wPrototype3,bTruncEndAtWill);
    if((*p_MaxTruncEnd)[j] > ZERO) {
-      if((*p_TruncEndMode)[j] == ABSOLUTE) {
+      if((*p_TruncEndMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype3,bTruncEndLessThanms);
          SwitchOff(NULL,wPrototype3,bTruncEndLessThanPC);
          sprintf(line,"%ld",(long)(*p_MaxTruncEnd)[j]);
@@ -496,7 +496,7 @@ else {
    SwitchOff(NULL,wPrototype3,bBreakTempoAtWill);
 /*   if((*p_MaxBreakTempo)[j] > ZERO) {
       sprintf(line,"%ld",(long)(*p_MaxBreakTempo)[j]);
-      if((*p_BreakTempoMode)[j] == ABSOLUTE) {
+      if((*p_BreakTempoMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype3,bBreakTempoLessThanms);
          SwitchOff(NULL,wPrototype3,bBreakTempoLessThanPC);
          SetField(NULL,wPrototype3,fBreakTempoLessThanms,line);
@@ -524,7 +524,7 @@ if((*p_ContBeg)[j]) {
    SwitchOn(NULL,wPrototype4,bForceContBeg);
    SwitchOff(NULL,wPrototype4,bDontForceContBeg);
    if((*p_MaxBegGap)[j] > ZERO) {
-      if((*p_ContBegMode)[j] == ABSOLUTE) {
+      if((*p_ContBegMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype4,bAllowGapBegms);
          SwitchOff(NULL,wPrototype4,bAllowGapBegPC);
          sprintf(line,"%ld",(long)(*p_MaxBegGap)[j]);
@@ -563,7 +563,7 @@ if((*p_ContEnd)[j]) {
    SwitchOn(NULL,wPrototype4,bForceContEnd);
    SwitchOff(NULL,wPrototype4,bDontForceContEnd);
    if((*p_MaxEndGap)[j] > ZERO) {
-      if((*p_ContEndMode)[j] == ABSOLUTE) {
+      if((*p_ContEndMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype4,bAllowGapEndms);
          SwitchOff(NULL,wPrototype4,bAllowGapEndPC);
          sprintf(line,"%ld",(long)(*p_MaxEndGap)[j]);
@@ -604,7 +604,7 @@ if((*p_Dur)[j] > EPSILON)
    WriteFloatToLine(line,(double)((*p_PreRoll)[j] * 100.) / (*p_Dur)[j]);
 else sprintf(line,"0");
 SetField(NULL,wPrototype4,fPreRollPC,line);
-if((*p_PreRollMode)[j] == ABSOLUTE) {
+if((*p_PreRollMode)[j] == ABSOLU) {
    SwitchOn(NULL,wPrototype4,bPreRollms);
    SwitchOff(NULL,wPrototype4,bPreRollPC);
    }
@@ -618,7 +618,7 @@ if((*p_Dur)[j] > EPSILON)
    WriteFloatToLine(line,(double)((*p_PostRoll)[j] * 100.) / (*p_Dur)[j]);
 else sprintf(line,"0");
 SetField(NULL,wPrototype4,fPostRollPC,line);
-if((*p_PostRollMode)[j] == ABSOLUTE) {
+if((*p_PostRollMode)[j] == ABSOLU) {
    SwitchOn(NULL,wPrototype4,bPostRollms);
    SwitchOff(NULL,wPrototype4,bPostRollPC);
    }
@@ -683,7 +683,7 @@ if(j < 2 || j >= Jbol) return(MISSED);
 
 // PERIOD
 WriteFloatToLine(line,(double)(*p_BeforePeriod)[j]);
-if((*p_PeriodMode)[j] == ABSOLUTE) {
+if((*p_PeriodMode)[j] == ABSOLU) {
    SwitchOn(NULL,wPrototype6,bBeforePeriodms);
    SwitchOff(NULL,wPrototype6,bBeforePeriodPC);
    SwitchOff(NULL,wPrototype6,bIrrelevantPeriod);
@@ -694,7 +694,7 @@ if((*p_PeriodMode)[j] == ABSOLUTE) {
       sprintf(line,"0");
    SetField(NULL,wPrototype6,fBeforePeriodPC,line);
    }
-if((*p_PeriodMode)[j] == RELATIVE) {
+if((*p_PeriodMode)[j] == RELATIF) {
    SwitchOn(NULL,wPrototype6,bBeforePeriodPC);
    SwitchOff(NULL,wPrototype6,bBeforePeriodms);
    SwitchOff(NULL,wPrototype6,bIrrelevantPeriod);

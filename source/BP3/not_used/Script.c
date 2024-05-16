@@ -744,7 +744,7 @@ HideWindow(Window[wInfo]);
 
 END:
 if(check && good && changed) {
-	UpdateWindow(FALSE,Window[wTrace]);
+	UpdateThisWindow(FALSE,Window[wTrace]);
 	ShowSelect(CENTRE,wTrace);
 	SetFPos(refnum,fsFromStart,ZERO);
 	WriteHeader(wScript,refnum,spec);

@@ -1790,7 +1790,7 @@ int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
         done = 0;
     	if(trace_driver) BPPrintMessage(odInfo,"Sending MIDI event time = %ld ms,\tstatus = %ld,\tdata1 = %ld,\tdata2 = %ld\n",(long)time,(long)p_e->status,(long)p_e->data1,(long)p_e->data2);
         while(eventCount > eventCountMax) {
-            WaitABit(1000); // Sleep for 1 millisecond
+            WaitABit(1); // Sleep for 1 millisecond
             MIDIflush();
         //    if(done++ == 0) BPPrintMessage(odInfo,"Reached the limit of the buffer...\n");
             }

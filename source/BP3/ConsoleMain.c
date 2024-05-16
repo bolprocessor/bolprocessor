@@ -120,7 +120,7 @@ int main (int argc, char* args[])
 	if (gOptions.useStdErr)	{
 		// split message output from "algorithmic output"
 		SetOutputDestinations(odInfo|odWarning|odError|odUserInt, stderr);
-	}
+		}
 	
 	if(check_memory_use) BPPrintMessage(odInfo,"Memory before Inits() = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	
@@ -313,7 +313,7 @@ int main (int argc, char* args[])
 		if(Panic) eventCount = 0L;
 		while(eventCount > 0L) {
 			MIDIflush();  // Process MIDI events
-			WaitABit(1000); // Sleep for 1 millisecond
+			if((result = WaitABit(100)) != OK) return EXIT_SUCCESS; // Sleep for 100 milliseconds
 		//	break;
 			}
 		AllNotesOffAllChannels();
@@ -332,7 +332,7 @@ int main (int argc, char* args[])
 	// FIXME: CloseCurrentDriver should eventually work for all drivers - akozar
 	// CloseCurrentDriver(FALSE);
 	return EXIT_SUCCESS;
-}
+	}
 
 void CreateDoneFile(void) {
 	FILE * thisfile;
@@ -367,10 +367,11 @@ void CreateStopFile(void) {
 
 int stop() {
 	FILE * ptr;
+	if(Panic || EmergencyExit) return ABORT;
 	ptr = fopen(StopfileName,"r");
 	if(ptr) {
 		Improvize = FALSE;
-		BPPrintMessage(odInfo,"Found 'stop' file after producing %ld items: %s\n",(long)ItemNumber,StopfileName);
+		BPPrintMessage(odInfo,"Found 'stop' file: %s\n",StopfileName);
 		fclose(ptr);
 		Panic = EmergencyExit = TRUE;
 		return ABORT;
@@ -946,42 +947,13 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 		}
 	if(opts->useRealtimeMidi == TRUE) {
 		resultinit = initializeMIDISystem();
-		if(resultinit != 0) return ABORT;
+		if(resultinit != OK) {
+			Panic = true;
+			return ABORT;
+			}
 		InBuiltDriverOn = TRUE;
 		OutMIDI = TRUE;
 		initTime = getClockTime();
-	/*	unsigned char midiData[4];  // Old code to check sendMIDIEvent
-		int dataSize;
-		dataSize = 3;
-		midiData[0] = 0x90;
-		midiData[1] = 60;
-		midiData[2] = 80;
-		sendMIDIEvent(midiData,dataSize);
-		WaitABit(500000);
-		midiData[0] = 0x80;
-		midiData[1] = 60;
-		midiData[2] = 0;
-		sendMIDIEvent(midiData,dataSize);
-		WaitABit(1000000);
-
-		eventCount = 0L;
-		int localchan = 1;
-		eventStack[eventCount].time = (unsigned long) 0;
-        eventStack[eventCount].type = NORMAL_EVENT;
-        eventStack[eventCount].status = NoteOn + localchan;
-        eventStack[eventCount].data1 = 72; 
-        eventStack[eventCount].data2 = 90;
-        eventCount++;
-		eventStack[eventCount].time = (unsigned long) 1000000; // microseconds
-        eventStack[eventCount].type = NORMAL_EVENT;
-        eventStack[eventCount].status = NoteOff + localchan;
-        eventStack[eventCount].data1 = 72; 
-        eventStack[eventCount].data2 = 0;
-        eventCount++;
-		while(eventCount > 0L) {
-			MIDIflush();  // Process MIDI events
-			WaitABit(1000); // Sleep for 1 millisecond
-			} */
 		}
 	return OK;
 	}

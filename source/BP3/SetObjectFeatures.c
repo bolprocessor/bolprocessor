@@ -854,7 +854,7 @@ while(TRUE) {
 				//	BPPrintMessage(odInfo,"Fix() time pattern k = %ld j = %ld alpha = %.2f Dur = %.2f, t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(*p_Dur)[j],(long)t1,(long)t2);
 					}
 				else {
-					if((*p_PivMode)[j] == RELATIVE)
+					if((*p_PivMode)[j] == RELATIF)
 						t1 = (*p_T)[i]
 							- (Milliseconds) ((*p_Instance)[k].dilationratio * (*p_Dur)[j]
 							* (*p_PivPos)[j] / 100.);
@@ -1226,7 +1226,7 @@ if(!(*p_FixScale)[j] && !(*p_OkExpand)[j] && !(*p_OkCompress)[j])
 	limit = TRUE;		/* dilation ratio has a specified upper limit */
 else limit = FALSE;		/* it hasn't */
 
-if((*p_PivMode)[j] == RELATIVE)
+if((*p_PivMode)[j] == RELATIF)
 	pivpos = (*p_Dur)[j] * (*p_PivPos)[j] / 100.;
 else
 	pivpos = (*p_PivPos)[j];
@@ -1234,7 +1234,7 @@ if(PlayFromInsertionPoint) pivpos = 0.;
 	
 // First consider objects that can't be stretched
 
-if(!limit && (!(*p_OkExpand)[j] || (*p_PeriodMode)[j] == ABSOLUTE)) {
+if(!limit && (!(*p_OkExpand)[j] || (*p_PeriodMode)[j] == ABSOLU)) {
 	*p_dilationratio = 1.;
 FINDCYCLES:
 	ncycles = (double)(((*p_alpha) * (*p_Dur)[j] / (*p_dilationratio))
@@ -1308,12 +1308,12 @@ for(i=ZERO;; i++) { // Fixed by BB 2021-03-22
 
 	maxcover1 = maxcover2 = Infpos;
 	if(j > 1 && j < 16384 && !(*p_CoverBeg)[j]) {
-		if((*p_CoverBegMode)[j] == ABSOLUTE) maxcover1 = (*p_MaxCoverBeg)[j];
+		if((*p_CoverBegMode)[j] == ABSOLU) maxcover1 = (*p_MaxCoverBeg)[j];
 		else maxcover1 = (dur * (*p_MaxCoverBeg)[j]) / 100.;
 		}
 	
 	if(j > 1 && j < 16384 && !(*p_CoverEnd)[j]) {
-		if((*p_CoverEndMode)[j] == ABSOLUTE) maxcover2 = (*p_MaxCoverEnd)[j];
+		if((*p_CoverEndMode)[j] == ABSOLU) maxcover2 = (*p_MaxCoverEnd)[j];
 		else maxcover2 = (dur * (*p_MaxCoverEnd)[j]) / 100.;
 		} 
 	
@@ -1326,27 +1326,27 @@ for(i=ZERO;; i++) { // Fixed by BB 2021-03-22
 	
 	maxgap1 = maxgap2 = Infpos;
 	if(j > 1 && j < 16384 && (*p_ContBeg)[j]) {
-		if((*p_ContBegMode)[j] == ABSOLUTE) maxgap1 = (*p_MaxBegGap)[j];
+		if((*p_ContBegMode)[j] == ABSOLU) maxgap1 = (*p_MaxBegGap)[j];
 		else maxgap1 = (dur * (*p_MaxBegGap)[j]) / 100.;
 		}
 	(*p_maxgapbeg)[i] = maxgap1;
 	
 	if(j > 1 && j < 16384 && (*p_ContEnd)[j]) {
-		if((*p_ContEndMode)[j] == ABSOLUTE) maxgap2 = (*p_MaxEndGap)[j];
+		if((*p_ContEndMode)[j] == ABSOLU) maxgap2 = (*p_MaxEndGap)[j];
 		else maxgap2 = (dur * (*p_MaxEndGap)[j]) / 100.;
 		}
 	(*p_maxgapend)[i] = maxgap2;
 	
 	maxtrunc1 = maxtrunc2 = dur;
 	if(j > 1 && j < 16384 && !(*p_TruncBeg)[j]) {
-		if((*p_TruncBegMode)[j] == ABSOLUTE) maxtrunc1 = (*p_MaxTruncBeg)[j];
+		if((*p_TruncBegMode)[j] == ABSOLU) maxtrunc1 = (*p_MaxTruncBeg)[j];
 		else maxtrunc1 = (dur * (*p_MaxTruncBeg)[j]) / 100.;
 		}
 	if(maxtrunc1 < dur) (*p_maxtruncbeg)[i] = maxtrunc1;
 	else (*p_maxtruncbeg)[i] = dur;
 	
 	if(j > 1 && j < 16384 && !(*p_TruncEnd)[j]) {
-		if((*p_TruncEndMode)[j] == ABSOLUTE) maxtrunc2 = (*p_MaxTruncEnd)[j];
+		if((*p_TruncEndMode)[j] == ABSOLU) maxtrunc2 = (*p_MaxTruncEnd)[j];
 		else maxtrunc2 = (dur * (*p_MaxTruncEnd)[j]) / 100.;
 		}
 	if(maxtrunc2 < dur) (*p_maxtruncend)[i] = maxtrunc2;

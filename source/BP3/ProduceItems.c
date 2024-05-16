@@ -264,7 +264,7 @@ if(Improvize) {
 			}
 		}
 	}
-if((r=stop()) != OK) goto QUIT;
+if((r = stop()) != OK) goto QUIT;
 if(pp_start != NULL) goto DOIT;
 if(!PlaySelectionOn && DeriveFurther) {
 	if(!Improvize && DisplayItems) {
@@ -1507,7 +1507,7 @@ long pos,pos1,posmax;
 char **p_line;
 
 #if BP_CARBON_GUI_FORGET_THIS
-UpdateWindow(FALSE,Window[wGrammar]); /* Update text length */
+UpdateThisWindow(FALSE,Window[wGrammar]); /* Update text length */
 ShowSelect(CENTRE,wGrammar);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 pos = pos1 = ZERO;

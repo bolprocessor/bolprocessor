@@ -174,7 +174,7 @@ int ShowError(int,int,int);
 int ShowNotBP(void);
 int SelectionToBuffer(int,int,int,tokenbyte***,long*,int);
 int GetDateSaved(char**,char***);
-int GetVersion(int);
+int GetThisVersion(int);
 int GetLinkedFileName(int w, int doc, char* filename);
 int GetAlphaName(int);
 int GetMiName(void);
@@ -358,7 +358,7 @@ int LineHeight(int);
 int SetVScroll(int);
 int ShowSelect(int,int);
 int SetViewRect(int);
-int UpdateWindow(int,WindowPtr);
+int UpdateThisWindow(int,WindowPtr);
 pascal void vScrollProc(ControlHandle,short);
 pascal void hScrollProc(ControlHandle,short);
 int DoContent(WindowPtr,EventRecord*,int*);
@@ -829,16 +829,16 @@ int IdentifyBPFileTypeByName(char* name);
 int IdentifyBPFileType(FSSpec* spec);
 Boolean CanSaveMultipleFormats(int w);
 int PromptForFileFormat(int w, char* filename, int* type);
-int CreateFile(int,int,int,Str255,NSWReply*,short*);
-int WriteFile(int,int,short,int,long);
+// int CreateFile(int,int,int,Str255,NSWReply*,short*);
+// int WriteFile(int,int,short,int,long);
 OSErr MyFSClose(int,short,FSSpec*);
-OSErr CopyFile (FSSpec *source, FSSpec *dest);
+// OSErr CopyFile (FSSpec *source, FSSpec *dest);
 int WriteHeader(int,short,FSSpec);
 int WriteEnd(int,short);
 int FindVersion(char**,char*);
 int ShowLengthType(int);
 int OutlineTextInDialog(int,int);
-int ReadFile(int,short);
+// int ReadFile(int,short);
 int ReadOne(int,int,int,FILE*,int,char***,char***,long*);
 int ReadInteger(FILE*,int*,long*);
 int ReadLong(FILE*,long*,long*);
@@ -1126,6 +1126,9 @@ int CreateMicrotonalScale(char*,char*,char*,char*,char*,char*);
 double GetPitchWithScale(int,int,double,int);
 int modulo(int,int);
 void delay(int);
+
+void save_midisetup(int,int,char*,char*);
+int read_midisetup(const char*,char*,char*);
 
 #if !TARGET_API_MAC_CARBON_FORGET_THIS
 /* Provide backwards compatibility for System 7 in the non-Carbon build by

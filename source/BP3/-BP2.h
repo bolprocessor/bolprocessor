@@ -184,6 +184,13 @@
 static HMIDIOUT hMidiOut = NULL;
 static HMIDIOUT hMidiIn = NULL;
 typedef unsigned long long UInt64;
+typedef size_t Size;
+typedef struct Rect {
+    int top;
+    int left;
+    int bottom;
+    int right;
+	} Rect;
 void usleep(DWORD waitTime) {
     LARGE_INTEGER perfCnt, start, now;
     QueryPerformanceFrequency(&perfCnt);
@@ -196,6 +203,10 @@ typedef struct {
     int dataSize;
     unsigned char midiData[3];
 	} MIDI_Event;
+typedef struct s_handle_priv {
+    void* memblock; // Pointer to the allocated memory block
+    size_t size;    // Size of the memory block	
+	} *Handle;
 #elif defined(__APPLE__)
     #include <CoreMIDI/CoreMIDI.h>
     #include <mach/mach_time.h>
@@ -206,6 +217,11 @@ typedef struct {
     // Global variable for ALSA MIDI sequencer handle
     static snd_seq_t *seq_handle = NULL;
     static int out_port,in_port;
+	typedef size_t Size;s
+	typedef struct s_handle_priv {
+		void* memblock; // Pointer to the allocated memory block
+		size_t size;    // Size of the memory block	
+		} *Handle;
 #endif
 
 // Moved macros and enum down here to avoid potential problems with replacing names
@@ -324,8 +340,8 @@ enum {
 #define ON 1
 #define LINE 2
 
-#define RELATIVE 0
-#define ABSOLUTE -1
+#define RELATIF 0
+#define ABSOLU -1
 #define IRRELEVANT -2
 #define LINEAR 0
 
@@ -387,7 +403,7 @@ enum {
 #define OPPC 0
 #define OPD 1
 #define CPS 2
-#define IGNORE 3
+#define IGNORER 3
 
 // File save preferences
 #define ALLSAME 0
@@ -2168,8 +2184,8 @@ typedef struct s_arc arc;
 	
 // ---------  Macros ------------------------
 
-#define topLeft(r)		(((Point *) &(r))[0])
-#define botRight(r)		(((Point *) &(r))[1])
+// #define topLeft(r)		(((Point *) &(r))[0])
+// #define botRight(r)		(((Point *) &(r))[1])
 #define ScriptLabel(k)  ((*h_Script)[(k)]).label
 #define ScriptArg(k)  ((*h_Script)[(k)]).arg
 #define p_ScriptLabelPart(k,i) (*(ScriptLabel(k)))[(i)]

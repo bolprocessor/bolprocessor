@@ -304,7 +304,7 @@ if(iarg > 0) {
 		if(i_scale < (NumberScales + 1)) { 
 			x = GetPitchWithScale(i_scale,key,cents,blockkey);
 			if(x == Infpos) return(ABORT);
-			pitch_format = IGNORE;
+			pitch_format = IGNORER;
 			}
 		}
 	switch(pitch_format) {
@@ -318,7 +318,7 @@ if(iarg > 0) {
 			x = A4freq * exp((((double)key + deltakey) - ((double)C4key + 9.)) / 12. * log(2.));
 			x = x * exp((cents / 1200.) * log(2.));
 			break;
-		case IGNORE: break;
+		case IGNORER: break;
 		}
 	(*scorearg)[iarg] = x;
 	}
@@ -704,7 +704,7 @@ sprintf(line2,"iarg = 1 line = %s\n",line);
 if(trace_cs_scoremake) BPPrintMessage(odInfo,"- %s",line2);
 
 for(iarg=2; iarg <= iargmax; iarg++) {
-	if(iarg != ipitch || pitch_format == IGNORE || pitch_format == CPS) {
+	if(iarg != ipitch || pitch_format == IGNORER || pitch_format == CPS) {
 		if(fabs((*scorearg)[iarg]) < 0.0001) (*scorearg)[iarg] = 0.;
 		sprintf(line,"%.3f ",(*scorearg)[iarg]);
 		}
@@ -833,7 +833,7 @@ if(NewFile(-1,1,PascalLine,*CsFileReply)) {
 			return(ABORT);
 			}
 /*		WriteToFile(NO,CsoundFileFormat,"\0",CsRefNum); */
-/*		UpdateWindow(FALSE,Window[wCsoundTables]); Suppressed 2022-02-18
+/*		UpdateThisWindow(FALSE,Window[wCsoundTables]); Suppressed 2022-02-18
 		ShowSelect(CENTRE,wCsoundTables);
 		length = GetTextLength(wCsoundTables);
 		ishtml = IsHTML[wCsoundTables];

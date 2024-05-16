@@ -1094,15 +1094,15 @@ for(j=0; j < 2 ; j++) {
 	(*p_FixScale)[j] = (*p_ContBeg)[j] = (*p_ContEnd)[j]
 		= (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = (*p_AlphaCtrl)[j] = (*p_ForceIntegerPeriod)[j]
 		= FALSE;
-	(*p_PivType)[j] = 1; (*p_PivMode)[j] = ABSOLUTE;
-	(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = RELATIVE;
+	(*p_PivType)[j] = 1; (*p_PivMode)[j] = ABSOLU;
+	(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = RELATIF;
 	(*p_MaxDelay)[j] = (*p_MaxForward)[j] = ZERO;
 	(*p_RescaleMode)[j] = LINEAR;
 	(*p_AlphaMin)[j] = 0; (*p_AlphaMax)[j] = 100.;
 		(*p_DelayMode)[j] = (*p_ForwardMode)[j] = (*p_BreakTempoMode)[j]
-			= (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLUTE;
+			= (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLU;
 		(*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j]
-			= (*p_TruncEndMode)[j] = RELATIVE;
+			= (*p_TruncEndMode)[j] = RELATIF;
 	(*p_PeriodMode)[j] = IRRELEVANT;
 	(*p_MaxBegGap)[j] = (*p_MaxEndGap)[j] = Infpos;
 	(*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = 100L;
@@ -1299,15 +1299,15 @@ if(Jbol < maxsounds) {
 			= (*p_DiscardNoteOffs)[j] = FALSE;
 		(*p_BreakTempo)[j] = TRUE; (*p_FixScale)[j] = (*p_TruncBeg)[j]
 			= (*p_TruncEnd)[j] = (*p_AlphaCtrl)[j] = (*p_ForceIntegerPeriod)[j] = FALSE;
-		(*p_PivType)[j] = 1; (*p_PivMode)[j] = ABSOLUTE;
-		(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = RELATIVE;
+		(*p_PivType)[j] = 1; (*p_PivMode)[j] = ABSOLU;
+		(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = RELATIF;
 		(*p_MaxDelay)[j] = (*p_MaxForward)[j] = ZERO;
 		(*p_RescaleMode)[j] = LINEAR;
 		(*p_AlphaMin)[j] = 0; (*p_AlphaMax)[j] = 100.;
 		(*p_DelayMode)[j] = (*p_ForwardMode)[j] = (*p_BreakTempoMode)[j]
-			= (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLUTE;
+			= (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLU;
 		(*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j]
-			= (*p_TruncEndMode)[j] = RELATIVE;
+			= (*p_TruncEndMode)[j] = RELATIF;
 		(*p_PeriodMode)[j] = IRRELEVANT;
 		(*p_MaxBegGap)[j] = (*p_MaxEndGap)[j] = Infpos;
 		(*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = ZERO;

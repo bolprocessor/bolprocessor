@@ -495,7 +495,7 @@ if(sol2 == 4) {		/* Revise preceding object(s) */
 		okmove = FALSE;
 		if(j < 16384 && !(*p_OkRelocate)[j]) {
 			if(shift2 < ZERO) {
-				if((*p_ForwardMode)[j] == ABSOLUTE)
+				if((*p_ForwardMode)[j] == ABSOLU)
 					maxmove = -(*p_MaxForward)[j];
 				else
 					maxmove = -(*p_MaxForward)[j] * ((*p_Instance)[k].dilationratio
@@ -503,7 +503,7 @@ if(sol2 == 4) {		/* Revise preceding object(s) */
 				if(shift2 >= maxmove) okmove = TRUE;
 				}
 			else {
-				if((*p_DelayMode)[j] == ABSOLUTE)
+				if((*p_DelayMode)[j] == ABSOLU)
 					maxmove = (*p_MaxDelay)[j];
 				else
 					maxmove = (*p_MaxDelay)[j] * ((*p_Instance)[k].dilationratio
@@ -841,7 +841,7 @@ else {
 		if(side == 1) mustmove = shift;
 		else mustmove = -shift;
 		if(mustmove > ZERO) {
-			if((*p_DelayMode)[j] == ABSOLUTE) maxmove = (*p_MaxDelay)[j];
+			if((*p_DelayMode)[j] == ABSOLU) maxmove = (*p_MaxDelay)[j];
 			else
 				maxmove = (*p_MaxDelay)[j] * ((*p_Instance)[k].dilationratio
 					* (double)(*p_Dur)[j] / 100.);
@@ -850,7 +850,7 @@ else {
 				}
 			}
 		else {
-			if((*p_ForwardMode)[j] == ABSOLUTE) maxmove = -(*p_MaxForward)[j];
+			if((*p_ForwardMode)[j] == ABSOLU) maxmove = -(*p_MaxForward)[j];
 			else
 				maxmove = -(*p_MaxForward)[j] * ((*p_Instance)[k].dilationratio
 					* (double)(*p_Dur)[j] / 100.);

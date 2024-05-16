@@ -253,7 +253,7 @@ for(k=2; k <= (*p_kmax); k++) {
 				im = (*p_CsoundSize)[j];
 			firstcycleduration = beta * (*p_Dur)[j];
 			(*p_iendperiod)[k] = im - 1;
-			if((*p_PreRollMode)[j] == ABSOLUTE) preroll = (*p_PreRoll)[j];
+			if((*p_PreRollMode)[j] == ABSOLU) preroll = (*p_PreRoll)[j];
 			else preroll = beta * (*p_PreRoll)[j];
 			if(alpha > 1.) {
 				if(GetPeriod(j,beta,&objectperiod,&beforeperiod) == OK) {
@@ -338,7 +338,7 @@ for(k=2; k <= (*p_kmax); k++) {
 	if(j < 0) j = -j;
 	if(j < 16384) {
 		beta = (*p_Instance)[k].dilationratio;
-		if((*p_PreRollMode)[j] == ABSOLUTE) preroll = (*p_PreRoll)[j];
+		if((*p_PreRollMode)[j] == ABSOLU) preroll = (*p_PreRoll)[j];
 		else preroll = beta * (*p_PreRoll)[j];
 		}
 	else preroll = 0.;
@@ -358,7 +358,7 @@ if(showpianoroll) {
 		if(j < 2) continue;
 		if(j < 16384) {
 			beta = (*p_Instance)[k].dilationratio;
-			if((*p_PostRollMode)[j] == ABSOLUTE) postroll = (*p_PostRollMode)[j];
+			if((*p_PostRollMode)[j] == ABSOLU) postroll = (*p_PostRollMode)[j];
 			else postroll = beta * (*p_PostRollMode)[j];
 			}
 		else postroll = 0.;

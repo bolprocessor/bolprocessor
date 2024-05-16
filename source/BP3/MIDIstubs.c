@@ -96,166 +96,267 @@ static time_t ClockZero = 0;
         // Check if the endpoint is offline
         result = MIDIObjectGetIntegerProperty(endpoint, kMIDIPropertyOffline, &offline);
         if(result != noErr) {
-            printf("Error getting MIDIObjectGetIntegerProperty.\n");
-            return false;
+            BPPrintMessage(odInfo,"Error getting MIDIObjectGetIntegerProperty.\n");
+            return(false);
             }
         // Return true if the device is online (offline == 0)
-        return offline == 0;
+        return(offline == 0);
         }
 #endif
 
-int initializeMIDISystem() {
+int read_midisetup(const char* filename,char* sourcename,char* outputname) {
     #if defined(_WIN64)
-        printf("Initializing Windows MIDI system (WinMM)\n");
+    char* basePath = "..\\midi_resources\\";
+    #else
+    char* basePath = "../midi_resources/";
+    #endif
+    char filePath[MAXLIN];
+    char *itemType, *itemNumber, *busName, line[MAXLIN];
+    FILE *file;
+    int result = FALSE;
+    sourcename[0] = outputname[0] = '\0';
+    snprintf(filePath, sizeof(filePath), "%s%s", basePath, filename);
+    file = fopen(filePath,"r");
+    if(file != NULL) {
+        BPPrintMessage(odInfo,"Reading the content of %s\n",filePath);
+        if(fgets(line, sizeof(line), file) != NULL) {
+            itemType = strtok(line, "\t");
+            itemNumber = strtok(NULL, "\t");
+            busName = strtok(NULL, "\n");
+            if(!busName) busName = "";
+            if(strcmp(itemType,"MIDIsource") == 0) {
+                MIDIsource = atoi(itemNumber);
+                if(strlen(busName) > 0) strcpy(sourcename,busName);
+                else strcpy(sourcename,"???");
+                if(fgets(line, sizeof(line), file) != NULL) {
+                    itemType = strtok(line, "\t");
+                    itemNumber = strtok(NULL, "\t");
+                    busName = strtok(NULL, "\n");
+                    if(!busName) busName = "";
+                    if(strcmp(itemType,"MIDIoutput") == 0) {
+                        MIDIoutput = atoi(itemNumber);
+                        if(strlen(busName) > 0) strcpy(outputname,busName);
+                        else strcpy(outputname,"???");
+                        BPPrintMessage(odInfo,"Your settings:\nMIDI source = %d: “%s”\nMIDI output = %d: “%s”\n",MIDIsource,sourcename,MIDIoutput,outputname);
+                        result = OK;
+                        }
+                    }
+                }
+            }
+        fclose(file);
+        }
+    return(result);
+    }
+
+int initializeMIDISystem() {
+    char sourcename[MAXNAME], outputname[MAXNAME];
+    int foundnum,foundname,changed;
+    char newname[MAXNAME];
+    sourcename[0] = '\0';
+    outputname[0] = '\0';
+    changed = false;
+    read_midisetup("last_midisetup",sourcename,outputname); // This will modify MIDIsource and MIDIoutput
+    #if defined(_WIN64)
+        BPPrintMessage(odInfo,"Setting up Windows MIDI system\n");
         // Get the number of MIDI out devices in the system
         UINT numDevs = midiOutGetNumDevs();
-        if (numDevs == 0) {
-            fprintf(stderr, "No MIDI output devices available.\n");
-            return -1;
+        if(numDevs == 0) {
+            BPPrintMessage(odError,"No MIDI output devices available.\n");
+            return(FALSE);
             }
         // Iterate through all available devices to list them
         MIDIOUTCAPS moc;
-        for (UINT i = 0; i < numDevs; i++) {
+        foundname = foundnum = 0;
+        for(UINT i = 0; i < numDevs; i++) {
             MMRESULT result = midiOutGetDevCaps(i, &moc, sizeof(MIDIOUTCAPS));
-            if (result != MMSYSERR_NOERROR) {
-                fprintf(stderr, "Error retrieving MIDI device capabilities.\n");
+            if(result != MMSYSERR_NOERROR) {
+                BPPrintMessage(odError,"Error retrieving MIDI device capabilities.\n");
                 continue; // Skip to next device
                 }
-            printf("MIDI Output Device %u: %s", i, moc.szPname);
-            if((int)i == MIDIoutput) printf(" => MIDIoutput (your choice at the top of MIDIstubs.c)");
-            printf("\n");
+            BPPrintMessage(odInfo,"MIDI (output) %u: “%s”", i, moc.szPname);
+            if(!foundname && strcmp(moc.szPname,outputname) == 0) {  // Name is a priority choice
+                BPPrintMessage(odInfo," = the name of your choice");
+                MIDIoutput = (int) i;
+                foundname = 1;
+                }
+            else if(!foundname && (int)i == MIDIoutput) {
+                BPPrintMessage(odInfo," = proposed MIDI output");
+                strcpy(newname,name);
+                foundnum = changed = 1;
+                }
+            BPPrintMessage(odInfo,"\n");
+            }
+        if(foundnum && !foundname) strcpy(outputname,newname);
+        if(!foundnum && !foundname && (int)numDevs <= MIDIoutput) {
+            BPPrintMessage(odError,"=> Error: MIDIoutput (%d) should be lower than %d\n",(int)MIDIoutput,(int)numDevs);
+            return(FALSE);
             }
         // Open the default MIDI output device (or the first one found)
         UINT deviceId = 0; // Typically, 0 represents the default MIDI device
         // HMIDIOUT hMidiOut; is a global variable
         MMRESULT result = midiOutOpen(&hMidiOut, deviceId,0,0,CALLBACK_NULL);
-        if (result != MMSYSERR_NOERROR) {
-            fprintf(stderr, "Error opening MIDI output device.\n");
-            return -1;
+        if(result != MMSYSERR_NOERROR) {
+            BPPrintMessage(odError,"Error opening MIDI output device.\n");
+            return(FALSE);
             }
         // Get the number of MIDI input devices in the system
         UINT numInDevs = midiInGetNumDevs();
-        if (numInDevs == 0) {
-            fprintf(stderr, "No MIDI input devices available.\n");
-            return -1;
+        if(numInDevs == 0) {
+            BPPrintMessage(odError,"No MIDI input devices available.\n");
+            return(FALSE);
             }
         // Iterate through all available input devices to list them
         MIDIINCAPS mic;
-        for (UINT i = 0; i < numInDevs; i++) {
-            if (midiInGetDevCaps(i, &mic, sizeof(mic)) != MMSYSERR_NOERROR) {
-                fprintf(stderr, "Error retrieving MIDI input device capabilities.\n");
+        foundname = foundnum = 0;
+        for(UINT i = 0; i < numInDevs; i++) {
+            if(midiInGetDevCaps(i, &mic, sizeof(mic)) != MMSYSERR_NOERROR) {
+                BPPrintMessage(odError,"Error retrieving MIDI input device capabilities.\n");
                 continue; // Skip to next device
                 }
-            printf("MIDI Input Device %u: %s\n", i, mic.szPname);
-            if((int)i == MIDIsource) printf(" => MIDIsource (your choice at the top of MIDIstubs.c)");
-            printf("\n");
+            BPPrintMessage(odInfo,"MIDI (source) %u: “%s”\n", i, mic.szPname);
+            if(!foundname && strcmp(name,sourcename) == 0) {  // Name is a priority choice
+                BPPrintMessage(odInfo," = the name of your choice");
+                MIDIsource = (int) i;
+                foundname = 1;
+                }
+            else if(!foundname && (int)i == MIDIsource) {
+                BPPrintMessage(odInfo," = proposed MIDI source");
+                strcpy(newname,mic.szPname);
+                foundnum = changed = 1;
+                }
+            BPPrintMessage(odInfo,"\n");
+            }
+        if(foundnum && !foundname) strcpy(sourcename,newname);
+        if(!foundnum && !foundname && (int)numInDevs <= MIDIsource) {
+            BPPrintMessage(odError,"=> Error: MIDIsource (%d) should be lower than %d\n",(int)MIDIsource,(int)numInDevs);
+            return(FALSE);
             }
         // Open the default MIDI input device (or the first one found)
-        if (midiInOpen(&hMidiIn, MIDIsource, (DWORD_PTR)midiInCallback, 0, CALLBACK_FUNCTION) != MMSYSERR_NOERROR) {
-            fprintf(stderr, "Error opening MIDI input device.\n");
-            return -1;
+        if(midiInOpen(&hMidiIn, MIDIsource, (DWORD_PTR)midiInCallback, 0, CALLBACK_FUNCTION) != MMSYSERR_NOERROR) {
+            BPPrintMessage(odError,"Error opening MIDI input device.\n");
+            return(FALSE);
             }
         // Start the MIDI input processing
-        if (midiInStart(hMidiIn) != MMSYSERR_NOERROR) {
-            fprintf(stderr, "Error starting MIDI input.\n");
-            return -1;
+        if(midiInStart(hMidiIn) != MMSYSERR_NOERROR) {
+            BPPrintMessage(odError,"Error starting MIDI input.\n");
+            return(FALSE);
             }
-        return(0);
     #elif defined(__APPLE__)
         OSStatus status;
         MIDIEndpointRef src;
         CFStringRef endpointName;
         int i;
-        BPPrintMessage(odInfo,"Initializing MacOS MIDI system (CoreMIDI)\n");
+        BPPrintMessage(odInfo,"Setting up MacOS MIDI system\n");
         status = MIDIClientCreate(CFSTR("MIDIcheck Client"),NULL,NULL,&midiClient);
         if(status != noErr) {
             BPPrintMessage(odError,"=> Error: Could not create MIDI client.\n");
-            return -1;
+            return(FALSE);
             }
         status = MIDIOutputPortCreate(midiClient,CFSTR("Output Port"),&MIDIoutPort);
         if(status != noErr) {
             BPPrintMessage(odError,"=> Error: Could not create output port.\n");
-            return -1;
+            return(FALSE);
             }
         ItemCount MIDIoutputinationCount = MIDIGetNumberOfDestinations();
         if(MIDIoutputinationCount == 0) {
             BPPrintMessage(odError,"=> Error: No MIDI destinations available.\n");
-            return -1;
+            return(FALSE);
             }
-        if(MIDIoutputinationCount < MIDIoutput) {
-            BPPrintMessage(odError,"=> Error: MIDIoutput (%d) should be lower than %d\n",(int)MIDIoutput,(int)MIDIoutputinationCount);
-            return -1;
-            }
+        foundname = foundnum = 0;
         for(ItemCount i = 0; i < MIDIoutputinationCount; ++i) {
             MIDIoutputdestination = MIDIGetDestination(i);
             CFStringRef endpointName = NULL;
-            if (MIDIObjectGetStringProperty(MIDIoutputdestination, kMIDIPropertyName, &endpointName) == noErr) {
+            if(MIDIObjectGetStringProperty(MIDIoutputdestination, kMIDIPropertyName, &endpointName) == noErr) {
                 char name[64];
                 CFStringGetCString(endpointName, name, sizeof(name), kCFStringEncodingUTF8);
-                BPPrintMessage(odInfo,"MIDI (output) %lu: %s",i,name);
-                if((int)i == MIDIoutput) BPPrintMessage(odInfo," = MIDIoutput (your choice at the top of MIDIstubs.c)");
+                BPPrintMessage(odInfo,"MIDI (output) %lu: “%s”",i,name);
+                if(!foundname && strcmp(name,outputname) == 0) {  // Name is a priority choice
+                    BPPrintMessage(odInfo," = the name of your choice");
+                    MIDIoutput = (int) i;
+                    foundname = 1;
+                    }
+                else if(!foundname && (int)i == MIDIoutput) {
+                    BPPrintMessage(odInfo," = proposed MIDI output");
+                    strcpy(newname,name);
+                    foundnum = changed = 1;
+                    }
                 BPPrintMessage(odInfo,"\n");
                 CFRelease(endpointName);
                 }
             if(!IsMIDIDestinationActive(MIDIoutputdestination))
-                printf("This MIDI (output) %lu is inactive.\n",i);
+                BPPrintMessage(odError,"This MIDI (output) %lu is inactive.\n",i);
+            }
+        if(foundnum && !foundname) strcpy(outputname,newname);
+        if(!foundnum && !foundname && MIDIoutputinationCount <= MIDIoutput) {
+            BPPrintMessage(odError,"=> Error: MIDIoutput (%d) should be lower than %d\n",(int)MIDIoutput,(int)MIDIoutputinationCount);
+            return(FALSE);
             }
         MIDIoutputdestination = MIDIGetDestination(MIDIoutput);
 
         // Create MIDI input client and port
         status = MIDIClientCreate(CFSTR("MIDI Client"),NULL,NULL,&midiInputClient);
         if(status != noErr) {
-            fprintf(stderr, "Could not create MIDI input client.\n");
-            return -1;
+            BPPrintMessage(odError,"Could not create MIDI input client.\n");
+            return(FALSE);
             }
-   /*   status = MIDIInputPortCreateWithProtocol(midiInputClient, CFSTR("Input Port"), kMIDIProtocol_1_0, &MIDIinPort,     MIDIInputCallback); would be better but too difficult to handle! */
+   /*   status = MIDIInputPortCreateWithProtocol(midiInputClient, CFSTR("Input Port"), kMIDIProtocol_1_0, &MIDIinPort,     MIDIInputCallback); would be better but difficult to handle! */
         status = MIDIInputPortCreate(midiInputClient, CFSTR("Input Port"),MIDIInputCallback,NULL,&MIDIinPort);
-        if (status != noErr) {
-            fprintf(stderr, "Could not create input port with MIDI Protocol 1.0.\n");
-            return -1;
+        if(status != noErr) {
+            BPPrintMessage(odError,"Could not create input port with MIDI Protocol 1.0.\n");
+            return(FALSE);
             }
         // Connect first source to input port
         ItemCount sourceCount = MIDIGetNumberOfSources();
-        if (sourceCount == 0) {
-            fprintf(stderr, "No MIDI sources found.\n");
-            return -1;
+        if(sourceCount == 0) {
+            BPPrintMessage(odError,"No MIDI sources found.\n");
+            return(FALSE);
             }
-        if(sourceCount < MIDIsource) {
-            BPPrintMessage(odError,"=> Error: MIDIsource (%d) should be lower than %d\n",(int)MIDIsource,(int)sourceCount);
-            return -1;
-            }
-        for (i = 0; i < sourceCount; ++i) {
+        foundname = foundnum = 0;
+        for(i = 0; i < sourceCount; ++i) {
             MIDIinputdestination = MIDIGetSource(i);
             endpointName = NULL;
-            if (MIDIObjectGetStringProperty(MIDIinputdestination, kMIDIPropertyName, &endpointName) == noErr) {
+            if(MIDIObjectGetStringProperty(MIDIinputdestination, kMIDIPropertyName, &endpointName) == noErr) {
                 char name[64];
                 CFStringGetCString(endpointName, name, sizeof(name), kCFStringEncodingUTF8);
-                printf("MIDI (source) %d: %s",i,name);
-                if((int)i == MIDIsource) printf(" = MIDIsource (your choice at the top of MIDIstubs.c)");
-                printf("\n");
+                BPPrintMessage(odInfo,"MIDI (source) %d: “%s”",i,name);
+                if(!foundname && strcmp(name,sourcename) == 0) {  // Name is a priority choice
+                    BPPrintMessage(odInfo," = the name of your choice");
+                    MIDIsource = (int) i;
+                    foundname = 1;
+                    }
+                else if(!foundname && (int)i == MIDIsource) {
+                    BPPrintMessage(odInfo," = proposed MIDI source");
+                    strcpy(newname,name);
+                    foundnum = changed = 1;
+                    }
+                BPPrintMessage(odInfo,"\n");
                 CFRelease(endpointName);
                 }
             if(!IsMIDIDestinationActive(MIDIinputdestination))
-                printf("This MIDI (source) %d is inactive.\n",i);
+                BPPrintMessage(odError,"This MIDI (source) %d is inactive.\n",i);
+            }
+        if(foundnum && !foundname) strcpy(sourcename,newname);
+        if(!foundnum && !foundname && sourceCount <= MIDIsource) {
+            BPPrintMessage(odError,"=> Error: MIDIsource (%d) should be lower than %d\n",(int)MIDIsource,(int)sourceCount);
+            return(FALSE);
             }
         src = MIDIGetSource(MIDIsource);
         MIDIPortConnectSource(MIDIinPort,src,NULL);
-        return(0);
     #elif defined(__linux__)
-        printf("Initializing Linux MIDI system (ALSA)\n");
+        BPPrintMessage(odInfo,"Setting up Linux MIDI system\n");
         // Open the ALSA sequencer
-        if (snd_seq_open(&seq_handle, "default", SND_SEQ_OPEN_OUTPUT, 0) < 0) {
-            fprintf(stderr, "Error opening ALSA sequencer.\n");
-            return -1;
+        if(snd_seq_open(&seq_handle, "default", SND_SEQ_OPEN_OUTPUT, 0) < 0) {
+            BPPrintMessage(odError,"Error opening ALSA sequencer.\n");
+            return(FALSE);
             }
         snd_seq_set_client_name(seq_handle, "My MIDI Application");
-        // Create an output port
+        // Create an output port (global variable)
         out_port = snd_seq_create_simple_port(seq_handle, "Out Port",
                                             SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
                                             SND_SEQ_PORT_TYPE_APPLICATION);
-        if (out_port < 0) {
-            fprintf(stderr, "Error creating sequencer port.\n");
-            return -1;
+        if(out_port < 0) {
+            BPPrintMessage(odError,"Error creating sequencer port\n");
+            return(FALSE);
             }
         // Enumerate and list all clients and ports
         snd_seq_client_info_t *cinfo;
@@ -264,18 +365,18 @@ int initializeMIDISystem() {
         snd_seq_port_info_alloca(&pinfo);
         int first_client = -1, first_port = -1;
         snd_seq_client_info_set_client(cinfo, -1);
-        while (snd_seq_query_next_client(seq_handle, cinfo) >= 0) {
+        while(snd_seq_query_next_client(seq_handle, cinfo) >= 0) {
             int client = snd_seq_client_info_get_client(cinfo);
             snd_seq_port_info_set_client(pinfo, client);
             snd_seq_port_info_set_port(pinfo, -1);
-            while (snd_seq_query_next_port(seq_handle, pinfo) >= 0) {
+            while(snd_seq_query_next_port(seq_handle, pinfo) >= 0) {
                 // Check if the port is an output port
-                if ((snd_seq_port_info_get_capability(pinfo) & (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE)) == (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE)) {
-                    printf("Output port found: Client %d, Port %d, Name: %s\n",
+                if((snd_seq_port_info_get_capability(pinfo) & (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE)) == (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE)) {
+                    BPPrintMessage(odInfo,"Output port found: Client %d, Port %d, Name: “%s”\n",
                         snd_seq_port_info_get_client(pinfo),
                         snd_seq_port_info_get_port(pinfo),
                         snd_seq_port_info_get_name(pinfo));
-                    if (first_client == -1) { // Check if this is the first available port
+                    if(first_client == -1) { // Check if this is the first available port
                         first_client = client;
                         first_port = snd_seq_port_info_get_port(pinfo);
                         }
@@ -284,61 +385,79 @@ int initializeMIDISystem() {
             }
         // Connect to the first available output port if found
         if(first_client != -1 && first_port != -1) {
-            if (snd_seq_connect_to(seq_handle, out_port, first_client, first_port) < 0) {
-                fprintf(stderr, "Error connecting to MIDI port: Client %d, Port %d\n", first_client, first_port);
-                return -1;
+            if(snd_seq_connect_to(seq_handle, out_port, first_client, first_port) < 0) {
+                BPPrintMessage(odError,"Error connecting to MIDI port: Client %d, Port %d\n", first_client, first_port);
+                return(FALSE);
                 }
-            printf("Connected to Client %d, Port %d\n", first_client, first_port);
+            BPPrintMessage(odInfo,"Connected to Client %d, Port %d\n", first_client, first_port);
             }
         else {
-            fprintf(stderr, "No available MIDI output ports found.\n");
-            return -1;
+            BPPrintMessage(odError,"No available MIDI output ports found.\n");
+            return(FALSE);
             }
-        // Create an input port
+        // Create an input port (global variable)
         in_port = snd_seq_create_simple_port(seq_handle, "Input Port",
                                             SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,
                                             SND_SEQ_PORT_TYPE_APPLICATION);
         if(in_port < 0) {
-            fprintf(stderr, "Error creating input sequencer port.\n");
-            return -1;
+            BPPrintMessage(odError,"Error creating input sequencer port.\n");
+            return(FALSE);
             }
         // Connect all available sources to this input port
         snd_seq_client_info_alloca(&cinfo);
         snd_seq_port_info_alloca(&pinfo);
         snd_seq_client_info_set_client(cinfo, -1);
-        while (snd_seq_query_next_client(seq_handle, cinfo) >= 0) {
+        while(snd_seq_query_next_client(seq_handle, cinfo) >= 0) {
             int client = snd_seq_client_info_get_client(cinfo);
             snd_seq_port_info_set_client(pinfo, client);
             snd_seq_port_info_set_port(pinfo, -1);
-            while (snd_seq_query_next_port(seq_handle, pinfo) >= 0) {
+            while(snd_seq_query_next_port(seq_handle, pinfo) >= 0) {
                 // Check if the port can be connected to our input port
-                if ((snd_seq_port_info_get_capability(pinfo) & (SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ)) == (SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ)) {
+                if((snd_seq_port_info_get_capability(pinfo) & (SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ)) == (SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ)) {
                     int src_client = snd_seq_port_info_get_client(pinfo);
                     int src_port = snd_seq_port_info_get_port(pinfo);
                     // Connect source to our input port
-                    if (snd_seq_connect_from(seq_handle, in_port, src_client, src_port) < 0) {
-                        fprintf(stderr, "Error connecting from src_client %d, src_port %d\n", src_client, src_port);
+                    if(snd_seq_connect_from(seq_handle, in_port, src_client, src_port) < 0) {
+                        BPPrintMessage(odError,"Error connecting from src_client %d, src_port %d\n", src_client, src_port);
                         }
                     else {
-                        printf("Connected from Client %d, Port %d\n", src_client, src_port);
+                        BPPrintMessage(odInfo,"Connected from Client %d, Port %d\n", src_client, src_port);
                         }
                     }
                 }
             }
-        return 0;
     #endif
+    if(changed) BPPrintMessage(odInfo,"=> Warning: name of MIDI source or/and output changed (see above)\n");
+    save_midisetup(MIDIsource,MIDIoutput,sourcename,outputname);
+    return(OK);
+    }
+
+void save_midisetup(int source,int output,char* sourcename,char* outputname) {
+    FILE* thefile;
+    #if defined(_WIN64)
+    char* filePath = "..\\midi_resources\\last_midisetup";
+    #else
+    char* filePath = "../midi_resources/last_midisetup";
+    #endif
+    thefile = fopen(filePath,"w");
+    if(thefile != NULL) {
+        BPPrintMessage(odInfo,"MIDI settings saved to %s\n",filePath);
+        fprintf(thefile, "MIDIsource\t%d\t%s\n",source,sourcename);
+        fprintf(thefile, "MIDIoutput\t%d\t%s\n",output,outputname);
+        fclose(thefile);
+        }
     }
 
 void closeMIDISystem() {
     BPPrintMessage(odInfo,"Closing MIDI system\n");
     #if defined(_WIN64)
         // Windows MIDI cleanup
-        printf("Closing Windows MIDI system\n");
+        BPPrintMessage(odInfo,"Closing Windows MIDI system\n");
         if(hMidiOut != NULL) {
             midiOutClose(hMidiOut);  // Close the MIDI output device
             hMidiOut = NULL;         // Reset the handle to NULL after closing
             }
-        if (hMidiIn != NULL) {
+        if(hMidiIn != NULL) {
             midiInStop(hMidiIn);
             midiInClose(hMidiIn);
             hMidiIn = NULL;
@@ -382,7 +501,7 @@ void sendMIDIEvent(unsigned char* midiData,int dataSize,long time) {
     // Windows MIDI event sending
     // Pack the bytes into a DWORD message
     DWORD msg = 0;
-    for (int i = 0; i < dataSize; i++) {
+    for(int i = 0; i < dataSize; i++) {
         msg |= (midiData[i] << (i * 8));
         }
     // Send the MIDI message
@@ -398,7 +517,7 @@ void sendMIDIEvent(unsigned char* midiData,int dataSize,long time) {
         if(seq_handle == NULL) {
             if(snd_seq_open(&seq_handle, "default", SND_SEQ_OPEN_OUTPUT, 0) < 0) {
                 BPPrintMessage(odError,"=> Error opening ALSA sequencer.\n");
-                return;
+                return(ABORT);
                 }
             snd_seq_set_client_name(seq_handle, "MIDI Sender");
             out_port = snd_seq_create_simple_port(seq_handle, "Out",SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,SND_SEQ_PORT_TYPE_APPLICATION);
@@ -421,17 +540,17 @@ void sendMIDIEvent(unsigned char* midiData,int dataSize,long time) {
 void MIDIflush() {
     unsigned long currentTime = getClockTime();
     currentTime -= initTime;
- //   BPPrintMessage(odInfo,"currentTime = %ld eventCount = %ld\n",(long)currentTime,(long)eventCount);
     long i = 0;
     long time;
     unsigned char midiData[4];
     int dataSize = 3;
+    int result;
     if(Panic) {
         eventCount = 0L;
         AllNotesOffAllChannels();
         }
     while(i < eventCount) {
-        if(stop() == ABORT) {
+        if((result = stop()) != OK) {
             eventCount = 0L;
             return;
             }
@@ -463,13 +582,13 @@ long getClockTime(void) {
         clock_gettime(CLOCK_MONOTONIC, &ts); // CLOCK_MONOTONIC provides uptime, not affected by system time changes
         the_time = (uint64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
     #endif
-    return the_time;
+    return(the_time);
     }
 
 /*  Null driver is always on */
 Boolean IsMidiDriverOn()
 {
-	return TRUE;
+	return(TRUE);
 }
 
 /*  Reading a MIDI event with the Null driver always fails */
@@ -498,7 +617,7 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 	if(!OutMIDI || MIDIfileOn) return(noErr);
 
 	/* FIXME: should we also register program changes to the MIDI orchestra ? */
-	return noErr;
+	return(noErr);
 }
 
 
@@ -509,7 +628,7 @@ int ResetMIDI(int wait)
 	if(!OutMIDI || AEventOn) return(OK);
 
 //	FlushDriver();
-	WaitABit(200L);
+	WaitABit(200L); // milliseconds
 //	ResetDriver();
 
 	ResetTicks(FALSE,TRUE,ZERO,0);
