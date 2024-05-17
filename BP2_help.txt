@@ -1,4 +1,4 @@
-// This is the help file for Bol Processor BP2 and BP3.
+// This is the help file of Bol Processor BP2 and BP3.
 // When editing it, beware that BP3 looks for prefixes. Therefore, if an item is
 // the prefix of another one then it should precede it in this file.
 ### Help 
@@ -1714,6 +1714,7 @@ A tool for "serial music".
     centre note p. For instance,
     _keyxpand(C4,-2) B3 C4 D4 E4   yields  D4 C4 G#3 E3.
 • Unlike "_keymap", this tool changes "simple notes" during the production of a "grammar".
+• x is an integer or a floating point number.
 • Just like "_retro", "_rndseq" and "_rotate", _keyxpand is applied recursively to the
     fields of a polymetric expression.  Values are cumulated multiplicatively if the centre
     note is the same. For instance,

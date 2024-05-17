@@ -743,14 +743,11 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 	if(cswrite) {
 TRYCSFILE:
 		/* Tempo assignment */
-		if(Pclock > 0.) 	{	/* Striated or measured smooth time */
+		if(Pclock > 0.) {	/* Striated or measured smooth time */
 			if(Simplify((double)INT_MAX,60L*Qclock,Pclock,&p,&q) != OK)
 				Simplify((double)INT_MAX,Qclock,floor(Pclock/60L),&p,&q);
-		/*	sprintf(Message,"t %.3f %.3f",
-				((double) torigin) * Qclock / ((double) Pclock) / 1000.,
-				((double) p)/q); */
 			sprintf(Message,"t %.3f 60",
-				((double) torigin) * Qclock / ((double) Pclock) / 1000.); // Fixed by BB 2022-02-18
+				((double) torigin) * Qclock / ((double) Pclock) / 1000.);
 			}
 		else {	/* Unmeasured smooth time */
 			sprintf(Message,"t %.3f 60",((double) torigin) / 1000.);

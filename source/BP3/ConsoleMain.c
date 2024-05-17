@@ -44,7 +44,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "CTextHandles.h"
 
 const size_t	READ_ENTIRE_FILE = 0;
-char StopfileName[500];
+char StopfileName[500],PanicfileName[500];
 
 // function prototypes
 void ConsoleInit(BPConsoleOpts* opts);
@@ -343,7 +343,7 @@ void CreateDoneFile(void) {
 	if(gOptions.outputFiles[ofiTraceFile].name != NULL) {
 		sprintf(Message,"%s",gOptions.outputFiles[ofiTraceFile].name);
 		remove_spaces(Message,line);
-		thefile = str_replace(line,".txt","_done.txt"); // Defined in Misc.c
+		thefile = str_replace(line,".txt","_done.txt"); // str_replace() is defined in Misc.c
 	/*	length = strlen(line2); // This is the code we used before implementing str_replace()
 		memset(line1,'\0',sizeof(line1));
 		strncpy(line1,line2,length - 4);
@@ -360,8 +360,17 @@ void CreateDoneFile(void) {
 	}
 
 void CreateStopFile(void) {
-		sprintf(StopfileName,"%s","../temp_bolprocessor/messages/_stop");
+	char line[200];
+	char* thefile;
+	if(gOptions.outputFiles[ofiTraceFile].name != NULL) {
+		sprintf(Message,"%s",gOptions.outputFiles[ofiTraceFile].name);
+		remove_spaces(Message,line);
+		thefile = str_replace(line,".txt","_stop");
+		sprintf(StopfileName,"%s",thefile);
 	    BPPrintMessage(odInfo,"Created path to expected 'stop' file: %s\n",StopfileName);
+		sprintf(PanicfileName,"%s","../temp_bolprocessor/messages/_panic");
+	    BPPrintMessage(odInfo,"Created path to expected 'panic' file: %s\n",PanicfileName);
+		}	
 	return;
 	}
 
@@ -372,6 +381,14 @@ int stop() {
 	if(ptr) {
 		Improvize = FALSE;
 		BPPrintMessage(odInfo,"Found 'stop' file: %s\n",StopfileName);
+		fclose(ptr);
+		Panic = EmergencyExit = TRUE;
+		return ABORT;
+		}
+	ptr = fopen(PanicfileName,"r");
+	if(ptr) {
+		Improvize = FALSE;
+		BPPrintMessage(odInfo,"Found 'stop' file: %s\n",PanicfileName);
 		fclose(ptr);
 		Panic = EmergencyExit = TRUE;
 		return ABORT;

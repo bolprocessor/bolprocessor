@@ -50,3 +50,10 @@ In this version, MIDI output is on port #0 and MIDI input is on port #1. Change 
 2024-05-16
 MIDI source and output ports can now be set up on the interface. The console checks that these ports are available and suggests changes to numbers and names if the match is not perfect. Ports are saved along with each project (Grammar or Data).
 Some (but not all?) types and procedures that were in conflict with similar ones in Windows have been fixed.
+
+-----
+2024-05-17
+Important change: multiple instances of BP3 can play together on the same browser. The STOP button now stops the performance it is attached to, while the PANIC button stops all performances.
+In addition, the STOP and PANIC buttons are always effective because a session_abort() was done in produce.php before the command was sent to the console.
+In a forthcoming version, these instances will be able to communicate and control each other (long with external MIDI devices) in terms of synchronisation and parameter changes.
+Progress has been made on checking compilation under Windows, although it is not yet complete.

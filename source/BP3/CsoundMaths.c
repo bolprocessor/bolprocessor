@@ -452,7 +452,6 @@ if(result == OK) {
 		}
 	if(CsoundTrace) ShowMessage(TRUE,wMessage,line);
 	if(trace_write_score) BPPrintMessage(odInfo,"%s\n",line);
-//	else if(ShowMessages) ShowMessage(TRUE,wMessage,line);
 	if(ConvertMIDItoCsound) Println(wPrototype7,line);
 	else WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
 	}

@@ -648,7 +648,7 @@ if((*p_CsInstrument)[ins].ipmax > 0 && (*perf)->numberparams > 0) {
 						case MULT:
 					//		BPPrintMessage(odInfo,"MULT iarg = %ld, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",(long)iarg,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
 							x = (*scorearg)[iarg] * x / (*instrparamlist)[i].defaultvalue;
-							BPPrintMessage(odInfo,"MULT \n");
+					//	BPPrintMessage(odInfo,"MULT \n");
 							break;
 						case ADD:
 					//		BPPrintMessage(odInfo,"ADD iarg = %ld, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",(long)iarg,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);

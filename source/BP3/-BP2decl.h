@@ -173,7 +173,7 @@ extern volatile char OKsend;
 #endif */
 extern volatile char ClockOverFlow,SchedulerIsActive;
 extern char Mute,Panic;
-extern char* StopfileName;
+extern char *StopfileName, *PanicfileName;
 
 /* extern char AlertMute; */
 
