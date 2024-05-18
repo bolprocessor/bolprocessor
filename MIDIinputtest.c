@@ -331,7 +331,7 @@ int initializeMIDISystem() {
             fprintf(stderr, "No MIDI destinationinations available.\n");
             return -1;
             }
-        if((int)MIDIoutputinationCount < MIDIoutput) {
+        if((int)MIDIoutputinationCount <= MIDIoutput) {
             fprintf(stderr,"=> Error: MIDIoutput (%d) should be lower than %d\n",(int)MIDIoutput,(int)MIDIoutputinationCount);
             return -1;
             }
@@ -369,7 +369,7 @@ int initializeMIDISystem() {
             fprintf(stderr, "No MIDI sources found.\n");
             return -1;
             }
-        if((int)sourceCount < MIDIsource) {
+        if((int)sourceCount <= MIDIsource) {
             fprintf(stderr, "=> Error: MIDIsource (%d) should be lower than %d\n",(int)MIDIsource,(int)sourceCount);
             return -1;
             }

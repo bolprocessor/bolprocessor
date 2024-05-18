@@ -1800,8 +1800,9 @@ int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 		MIDIflush();
 		return(OK);
 		}
+	
+	// The following is for MIDI files.
 	if(p_e->type == RAW_EVENT || p_e->type == TWO_BYTE_EVENT) {
-		// if(DriverWrite(time,nseq,p_e) != noErr) return(ABORT);
 		if(p_e->type == TWO_BYTE_EVENT) {
 			midibyte = p_e->status;
 			if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
@@ -1811,20 +1812,15 @@ int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 		*p_rs = 0;
 		goto OUT;
 		}
-		
-	/* The event is NORMAL_EVENT type */
-
+	// The event is NORMAL_EVENT type
 	/* Don't use running status when capturing event stream, or
 	when sending to any MIDI driver that does not communicate
 	directly with a Serial port (eg. OMS, CoreMIDI, etc.) */
-	/* Currently, only the MacOS 9 "built-in" driver allows rs */
-	if(ItemCapture || !InBuiltDriverOn) *p_rs = 0;
+	if(ItemCapture) *p_rs = 0;
 	status = ByteToInt(p_e->status);
 	chan = status % 16;
 	c0 = status - chan;
-
 	if(trace_driver) BPPrintMessage(odInfo,"++ SendToDriver() time = %ld c0 = %d\tc1 = %d\tc2 = %d\n",(long)time,c0,ByteToInt(p_e->data1),ByteToInt(p_e->data2));
-	
 	/* Store if volume */
 	if(MIDIfileOn && MIDIfileOpened) {
 		if(c0 == NoteOn && CurrentVolume[chan+1] == -1)
@@ -1836,10 +1832,9 @@ int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 				}
 			}
 		}
-		
 	if(status != *p_rs || c0 == ChannelMode /* || c0 == ProgramChange */) {
 		/* Send the full Midi event */
-		/* Unexpectedly, D-50 seems to mess running status with ChannelMode */
+		/* Unexpectedly, the Roland D-50 seems to mess running status with ChannelMode */
 		*p_rs = status;
 		if(p_e->data1 > 127) {
 			if(Beta) BPPrintMessage(odError,"=> Err. SendToDriver(). p_e->data1 > 127.");
@@ -1849,7 +1844,6 @@ int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 			if(Beta) BPPrintMessage(odError,"=> Err. SendToDriver(). p_e->data2 > 127.");
 			p_e->data2 = 127;
 			}
-		// DriverWrite(time,nseq,p_e);
 		midibyte = status;
 		if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 		midibyte = p_e->data1;
@@ -1859,8 +1853,8 @@ int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 		// if(trace_driver) BPPrintMessage(odInfo,"Full event status = %d c1 = %d c2= %d time = %ld\n",status,ByteToInt(p_e->data1),ByteToInt(p_e->data2),(long)time);
 		}
 	else {
-		/* Skip the status byte, send only data ("running status") */
-		/* This should probably only be used with direct Serial drivers */
+		// Skip the status byte, send only data ("running status")
+		// This should probably only be used with direct Serial drivers
 		if(p_e->data1 > 127) {
 			if(Beta) BPPrintMessage(odError,"=> Err. SendToDriver(). p_e->data1 > 127.");
 			p_e->data1 = 127;
@@ -1873,22 +1867,15 @@ int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 		c2 = ByteToInt(p_e->data2);
 		p_e->type = RAW_EVENT;
 		p_e->data2 = c1;
-		// if(DriverWrite(time,nseq,p_e) != noErr) return(ABORT);
-		
 		midibyte = status;
 		if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
-		/* Normally, MIDI files accept running status, but our */
-		/* procedure doesn't allow the accumulation of large streams */
-		
+		// Normally, MIDI files accept running status, but our procedure doesn't allow the accumulation of large streams.
 		midibyte = c1;
 		if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
-			
 		if(c0 != ChannelPressure && c0 != ProgramChange) {
 			p_e->time = time / Time_res;
 			p_e->type = RAW_EVENT;
 			p_e->data2 = c2;
-		//	if(DriverWrite(time,nseq,p_e) != noErr) return(ABORT);
-			
 			midibyte = c2;
 			if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 			}
@@ -1911,17 +1898,16 @@ int AllNotesOffAllChannels(void) {
 	/* We can afford to mute the current output and send NoteOffs at a low level */
 	SchedulerIsActive--;
 	for(channel=0; channel < MAXCHAN; channel++) {
+		WaitABit(20); // Waii for 20 ms
 		midiData[0] = ControlChange + channel;
 		midiData[1] = 123; // All Notes Off
 		midiData[2] = 0;
-		WaitABit(20);
-		sendMIDIEvent(midiData,dataSize,0);
-/*		for(key=0; key < 128; key++) {
-			midiData[0] = NoteOn + channel;
-			midiData[1] = key;
-			midiData[2] = 0;
-			sendMIDIEvent(midiData,dataSize,0);
-			} */
+		sendMIDIEvent(midiData,dataSize,0); // Sending immediately
+		midiData[0] = ControlChange + channel;
+		midiData[1] = 64; // Pedal Off
+		midiData[2] = 0;
+		sendMIDIEvent(midiData,dataSize,0); // Sending immediately
+
 		}
 	SchedulerIsActive++;
 	WaitABit(1000);

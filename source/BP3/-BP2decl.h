@@ -62,7 +62,7 @@ extern ResID DeviceMenuIcons[12];
     // Global variable for MIDI device handle
     extern static HMIDIOUT hMidiOut,hMidiIn;
 #elif defined(__APPLE__)
-    extern MIDIClientRef midiClient,midiInputClient;
+    extern MIDIClientRef MIDIoutputClient,MIDIinputClient;
     extern MIDIPortRef MIDIoutPort,MIDIinPort;
 #elif defined(__linux__)
     // Global variable for ALSA MIDI sequencer handle
@@ -362,7 +362,7 @@ extern long ThisTick[MAXTICKS][MAXBEATS];
 extern int InitOn,SetTimeOn,ComputeOn,PolyOn,CompileOn,SoundOn,SelectOn,PrintOn,InputOn,
 	ClickRuleOn,GraphicOn,ReadKeyBoardOn,ButtonOn,PauseOn,AlertOn,AllOn,PlaySelectionOn,PlayChunks,LastChunk,PlayAll,
 	PlayPrototypeOn,MIDIfileOn,WaitOn,ExpandOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram,
-	AEventOn,LoadOn,SaveOn,SelectPictureOn,InBuiltDriverOn,EnterOn,Option,EmptyBeat,TickDone,TickThere,
+	AEventOn,LoadOn,SaveOn,SelectPictureOn,EnterOn,Option,EmptyBeat,TickDone,TickThere,
 	FoundNote,NoCursor,ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
 
 extern double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;

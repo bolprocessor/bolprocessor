@@ -98,7 +98,7 @@ void sendMIDIEvent(unsigned char*,int,long);
 void MIDIflush(void);
 long getClockTime(void);
 
-/* in MIDIdrivers.c - used by both OMS and built-in drivers */
+/* OBSOLETE: in MIDIdrivers.c - used by both OMS and built-in drivers */
 /* #if WITH_REAL_TIME_MIDI_FORGET_THIS
 int GetNextMIDIevent(MIDI_Event*,int,int);
 OSErr DriverWrite(Milliseconds,int,MIDI_Event*);

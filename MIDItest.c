@@ -243,7 +243,7 @@ int initializeMIDISystem() {
         fprintf(stderr,"No MIDI destinationinations available.\n");
         return -1;
         }
-    if((int)MIDIoutputinationCount < MIDIoutput) {
+    if((int)MIDIoutputinationCount <= MIDIoutput) {
         fprintf(stderr,"=> Error: MIDIoutput (%d) should be lower than %d\n",(int)MIDIoutput,(int)MIDIoutputinationCount);
         return -1;
         }

@@ -111,7 +111,7 @@ Quantization = 10L;
   TotalTicks = ZERO;
 #endif */
 
-InBuiltDriverOn = FALSE;
+// InBuiltDriverOn = FALSE;
 
 Nw = 0;
  

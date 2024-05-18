@@ -308,14 +308,13 @@ int main (int argc, char* args[])
 	// CloseFileAndUpdateVolume(&TempRefnum);
 	CloseCsScore();
 	CloseOutputDestination(odTrace, &gOptions, ofiTraceFile);
-	CreateDoneFile();
-	if(InBuiltDriverOn && OutMIDI) {
+	if(OutMIDI) {
 		if(Panic) eventCount = 0L;
 		while(eventCount > 0L) {
 			MIDIflush();  // Process MIDI events
 			if((result = WaitABit(10)) != OK) return EXIT_SUCCESS; // Sleep for 10 milliseconds
-		//	break;
 			}
+		if((result = WaitABit(100)) != OK) return EXIT_SUCCESS; // Sleep for 100 milliseconds
 		AllNotesOffAllChannels();
 		closeMIDISystem();
 		}
@@ -324,13 +323,12 @@ int main (int argc, char* args[])
 	if(PhaseDiagramTime > 0) BPPrintMessage(odInfo, "Phase-diagram filling time: %ld seconds\n",(long)PhaseDiagramTime);
 	if(TimeSettingTime > 0) BPPrintMessage(odInfo, "Time-setting time: %ld seconds\n",(long)TimeSettingTime);
 	if(current_time > SessionStartTime) BPPrintMessage(odInfo, "Total computation time: %ld seconds\n",(long)(current_time-SessionStartTime));
+	CreateDoneFile();
 	
 	// deallocate space obtained during Inits() (not strictly necessary)
 /*	MyDisposeHandle((Handle*)&p_Oldvalue); */
 //	ClearLockedSpace();
 
-	// FIXME: CloseCurrentDriver should eventually work for all drivers - akozar
-	// CloseCurrentDriver(FALSE);
 	return EXIT_SUCCESS;
 	}
 
@@ -343,12 +341,8 @@ void CreateDoneFile(void) {
 	if(gOptions.outputFiles[ofiTraceFile].name != NULL) {
 		sprintf(Message,"%s",gOptions.outputFiles[ofiTraceFile].name);
 		remove_spaces(Message,line);
-		thefile = str_replace(line,".txt","_done.txt"); // str_replace() is defined in Misc.c
-	/*	length = strlen(line2); // This is the code we used before implementing str_replace()
-		memset(line1,'\0',sizeof(line1));
-		strncpy(line1,line2,length - 4);
-		strcat(line1,"_done.txt");
-		remove_spaces(line1,line2); */
+		thefile = str_replace(line,".txt",""); // str_replace() is defined in Misc.c
+		strcat(thefile,"_done");
 	    BPPrintMessage(odInfo,"Created 'done' file: %s",thefile);
 		BPPrintMessage(odInfo,"\n_____________________\n");
 		ptr = fopen(thefile,"w");
@@ -362,15 +356,19 @@ void CreateDoneFile(void) {
 void CreateStopFile(void) {
 	char line[200];
 	char* thefile;
+	// We may also need to read the "panic" file which is not specific to the project
+	sprintf(PanicfileName,"%s","../temp_bolprocessor/messages/_panic");
+	BPPrintMessage(odInfo,"Created path to expected '_panic' file: %s\n",PanicfileName);
 	if(gOptions.outputFiles[ofiTraceFile].name != NULL) {
 		sprintf(Message,"%s",gOptions.outputFiles[ofiTraceFile].name);
 		remove_spaces(Message,line);
-		thefile = str_replace(line,".txt","_stop");
+		thefile = str_replace(line,".txt","");
+		strcat(thefile,"_stop");
 		sprintf(StopfileName,"%s",thefile);
-	    BPPrintMessage(odInfo,"Created path to expected 'stop' file: %s\n",StopfileName);
-		sprintf(PanicfileName,"%s","../temp_bolprocessor/messages/_panic");
-	    BPPrintMessage(odInfo,"Created path to expected 'panic' file: %s\n",PanicfileName);
-		}	
+	    BPPrintMessage(odInfo,"Created path to expected '_stop' file: %s\n",StopfileName);
+		}
+	else 
+	    BPPrintMessage(odInfo,"=> Cannot create path to the expected '_stop' file because no Trace path has been provided: %s\n");
 	return;
 	}
 
@@ -425,18 +423,6 @@ void CreateImageFile(double time) {
 		sprintf(line2,"_image_%03ld-%.2f_temp.html",(long)N_image,(double)time);
 	else
 		sprintf(line2,"_image_%03ld_temp.html",(long)N_image);
-	if(!PlaySelectionOn && strcmp(gOptions.inputFilenames[wGrammar],"") != 0) { // fixed by BB 2022-02-17
-		GetFileName(line3,gOptions.inputFilenames[wGrammar]);
-		sprintf(Message,"_%s",line3);
-		remove_spaces(Message,line3);
-		strcat(line1,line3);
-		}
-	if(PlaySelectionOn && strcmp(gOptions.inputFilenames[wData],"") != 0) {
-		GetFileName(line3,gOptions.inputFilenames[wData]);
-		sprintf(Message,"_%s",line3);
-		remove_spaces(Message,line3);
-		strcat(line1,line3);
-		}
 	strcat(line1,line2);
 	remove_spaces(line1,line2);
     BPPrintMessage(odInfo,"Creating image file: ");
@@ -968,7 +954,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 			Panic = true;
 			return ABORT;
 			}
-		InBuiltDriverOn = TRUE;
+		// InBuiltDriverOn = TRUE;
 		OutMIDI = TRUE;
 		initTime = getClockTime();
 		}

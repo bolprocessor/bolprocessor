@@ -70,7 +70,7 @@
 int MIDIsource = 1; // Your MIDI input device (keyboard, etc.)
 int MIDIoutput = 0; // Your MIDI output device (synthesizer, etc.)
 
-MIDIClientRef midiClient,midiInputClient;
+MIDIClientRef MIDIoutputClient,MIDIinputClient;
 MIDIPortRef MIDIoutPort,MIDIinPort;
 MIDIEndpointRef MIDIoutputdestination;
 
@@ -247,12 +247,12 @@ int initializeMIDISystem() {
         CFStringRef endpointName;
         int i;
         BPPrintMessage(odInfo,"Setting up MacOS MIDI system\n");
-        status = MIDIClientCreate(CFSTR("MIDIcheck Client"),NULL,NULL,&midiClient);
+        status = MIDIClientCreate(CFSTR("MIDIcheck Client"),NULL,NULL,&MIDIoutputClient);
         if(status != noErr) {
             BPPrintMessage(odError,"=> Error: Could not create MIDI client.\n");
             return(FALSE);
             }
-        status = MIDIOutputPortCreate(midiClient,CFSTR("Output Port"),&MIDIoutPort);
+        status = MIDIOutputPortCreate(MIDIoutputClient,CFSTR("Output Port"),&MIDIoutPort);
         if(status != noErr) {
             BPPrintMessage(odError,"=> Error: Could not create output port.\n");
             return(FALSE);
@@ -294,13 +294,13 @@ int initializeMIDISystem() {
         MIDIoutputdestination = MIDIGetDestination(MIDIoutput);
 
         // Create MIDI input client and port
-        status = MIDIClientCreate(CFSTR("MIDI Client"),NULL,NULL,&midiInputClient);
+        status = MIDIClientCreate(CFSTR("MIDI Client"),NULL,NULL,&MIDIinputClient);
         if(status != noErr) {
             BPPrintMessage(odError,"Could not create MIDI input client.\n");
             return(FALSE);
             }
-   /*   status = MIDIInputPortCreateWithProtocol(midiInputClient, CFSTR("Input Port"), kMIDIProtocol_1_0, &MIDIinPort,     MIDIInputCallback); would be better but difficult to handle! */
-        status = MIDIInputPortCreate(midiInputClient, CFSTR("Input Port"),MIDIInputCallback,NULL,&MIDIinPort);
+   /*   status = MIDIInputPortCreateWithProtocol(MIDIinputClient, CFSTR("Input Port"), kMIDIProtocol_1_0, &MIDIinPort,     MIDIInputCallback); would be better but difficult to handle! */
+        status = MIDIInputPortCreate(MIDIinputClient, CFSTR("Input Port"),MIDIInputCallback,NULL,&MIDIinPort);
         if(status != noErr) {
             BPPrintMessage(odError,"Could not create input port with MIDI Protocol 1.0.\n");
             return(FALSE);
@@ -465,8 +465,9 @@ void closeMIDISystem() {
     #elif defined(__APPLE__)
     // MacOS MIDI cleanup
     MIDIPortDispose(MIDIoutPort);
-    MIDIClientDispose(midiClient);
-
+    MIDIPortDispose(MIDIinPort);
+    MIDIClientDispose(MIDIoutputClient);
+    MIDIClientDispose(MIDIinputClient);
     #elif defined(__linux__)
         // Linux MIDI cleanup
         if(seq_handle != NULL) {
@@ -474,13 +475,12 @@ void closeMIDISystem() {
             seq_handle = NULL;          // Reset the handle to NULL after closing
             }
     #endif
-    InBuiltDriverOn = FALSE;
+ //   InBuiltDriverOn = FALSE;
     }
 
 void sendMIDIEvent(unsigned char* midiData,int dataSize,long time) {
     int note,status,value,test_first_events,improvize;
     long clocktime;
-    
     test_first_events = 0;
     status = midiData[0];
     note = midiData[1];
@@ -547,7 +547,7 @@ void MIDIflush() {
     int result;
     if(Panic) {
         eventCount = 0L;
-        AllNotesOffAllChannels();
+   //     AllNotesOffAllChannels();
         }
     while(i < eventCount) {
         if((result = stop()) != OK) {
