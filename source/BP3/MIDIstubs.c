@@ -481,7 +481,7 @@ void closeMIDISystem() {
 void sendMIDIEvent(unsigned char* midiData,int dataSize,long time) {
     int note,status,value,test_first_events,improvize;
     unsigned long clocktime;
-    test_first_events = 1;
+    test_first_events = 0;
     status = midiData[0];
     note = midiData[1];
     value = midiData[2];

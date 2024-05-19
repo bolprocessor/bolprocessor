@@ -83,13 +83,21 @@ depend:
 	makedepend -I $(SRCDIR) -include $(PREFIX)  $(SRCS)
 
 clean:
-ifeq ($(OS),Windows_NT)
+	echo OS is $(UNAME_S)
+ifeq ($(UNAME_S),Darwin)
+	-rm -f $(EXE)
+	-rm -f $(SRCDIR)/*.o
+else ifeq ($(UNAME_S),Linux)
+	-rm -f $(EXE)
+	-rm -f $(SRCDIR)/*.o
+else ifneq (,$(findstring CYGWIN,$(UNAME_S)))
 	del /Q *.o $(EXE)
 	del /Q $(SRCDIR)/*.o
-else
-	rm $(EXE)
-	rm $(SRCDIR)/*.o
+else ifneq (,$(findstring MINGW,$(UNAME_S)))
+	del /Q *.o $(EXE)
+	del /Q $(SRCDIR)/*.o
 endif
+
 
 # DO NOT DELETE
 

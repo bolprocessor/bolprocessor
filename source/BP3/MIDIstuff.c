@@ -39,7 +39,7 @@
 #include "-BP2decl.h"
 
 int trace_midi_filter = 0;
-int trace_driver = 1;
+int trace_driver = 0;
 
 int ListenMIDI(int x0, int x1, int x2) {
 	int i,j,r,c,c0,c1,c2,filter,idummy,eventfound;
