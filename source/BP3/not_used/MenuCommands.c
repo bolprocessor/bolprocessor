@@ -43,7 +43,7 @@ mLoadTimePattern(int wind)
 {
 int rep;
 
-if(!OutMIDI) {
+if(!rtMIDI) {
 	Alert1("Cannot load time pattern because MIDI output is inactive");
 	return(MISSED);
 	}
@@ -264,7 +264,7 @@ mMIDIinputcheck(int wind)
 {
 TextOffset selbegin, selend;
 
-if(!OutMIDI) {
+if(!rtMIDI) {
 	Alert1("MIDI input is inactive (check the 'Devices' menu)");
 	return(MISSED);
 	}
@@ -292,7 +292,7 @@ return(OK);
 
 mMIDIoutputcheck(int wind)
 {
-if(!OutMIDI) {
+if(!rtMIDI) {
 	Alert1("MIDI output is inactive (check the 'Devices' menu)");
 	return(MISSED);
 	}
@@ -550,8 +550,8 @@ mMIDI(int wind)
 #if !WITH_REAL_TIME_MIDI_FORGET_THIS
 	Alert1("Real-time MIDI output is not available in this version of Bol Processor.");
 #else
-	OutMIDI = 1 - OutMIDI;
-	if(OutMIDI) {
+	rtMIDI = 1 - rtMIDI;
+	if(rtMIDI) {
 		AppendScript(20);
 		ResetMIDI(FALSE);
 		}
@@ -667,7 +667,7 @@ return(OK);
 mTypeNote(int wind)
 {
 if(!ReadKeyBoardOn) {
-	if(!OutMIDI) {
+	if(!rtMIDI) {
 		Alert1("Cannot type from MIDI because MIDI input/output is inactive");
 		return(MISSED);
 		}
@@ -997,7 +997,7 @@ if(OldFile(-1,1,PascalLine,&spec)) {
 		ptr = (Handle) p_Code;
 		MyDisposeHandle(&ptr);
 		p_Code = NULL;
-		while(Tcurr > drivertime  + (SetUpTime / Time_res)) {
+		while(Tcurr > drivertime  + (MIDIsetUpTime / Time_res)) {
 			drivertime = GetDriverTime();
 			PleaseWait();
 			}
@@ -1038,7 +1038,7 @@ OSErr io;
 
 w = FindGoodIndex(w);
 if(CheckEmergency() != OK) return(MISSED);
-oldoutmidi = OutMIDI;
+oldoutmidi = rtMIDI;
 badname = FALSE;
 if(w == wControlPannel || (!Editable[w] && !HasFields[w])) {
 	w = LastEditWindow;
@@ -1067,7 +1067,7 @@ switch(w) {
 		if((r=ClearWindow(FALSE,w)) != OK) return(r);
 		ForgetFileName(w);
 #if WITH_REAL_TIME_MIDI_FORGET_THIS // FIXME: can we load an interaction file without RT MIDI? What sd we do here? - akozar
-		Interactive = OutMIDI = TRUE; SetButtons(TRUE);
+		Interactive = rtMIDI = TRUE; SetButtons(TRUE);
 		if(!oldoutmidi) ResetMIDI(FALSE);
 #endif
 		LoadedIn = CompiledIn = anyfile = FALSE;
@@ -2569,7 +2569,7 @@ if((ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || Gra
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
 GetValues(TRUE);
-if(OutMIDI && Interactive && !LoadedIn) {
+if(rtMIDI && Interactive && !LoadedIn) {
 	if(GetInName(wData) != OK) GetInName(wGrammar);
 	if(LoadInteraction(TRUE,FALSE) != OK) return(OK);
 	}
@@ -2688,7 +2688,7 @@ if(RecordEditWindow(wind)) {
 	MystrcpyStringToTable(ScriptLine.arg,0,Message);
 	AppendScript(13);
 	}
-if(OutMIDI && Interactive && !LoadedIn) {
+if(rtMIDI && Interactive && !LoadedIn) {
 	if(GetInName(wData) != OK) GetInName(wGrammar);
 	if(LoadInteraction(TRUE,FALSE) != OK) return(OK);
 	}

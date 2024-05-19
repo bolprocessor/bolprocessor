@@ -73,7 +73,7 @@ extern ResID DeviceMenuIcons[12];
 extern int MIDIsource, MIDIoutput;
 extern int EmergencyExit,FixedMaxQuantization,
 	TraceMemory,EventState,Beta;
-extern int SetUpTime;
+extern int MIDIsetUpTime;
 extern int LoadedScript,PrototypesLoaded;
 extern int Jmessage;
 // extern TEStyleRec** StyleHandle[WMAX];
@@ -123,6 +123,7 @@ extern int InitThere,FirstTime,MaxScriptInstructions,KeyboardType,C4key,ProgNrFr
 	CurrentMIDIprogram[MAXCHAN+1],BlockScaleOnKey;
 extern double A4freq;
 extern time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTime,TimeSettingTime;
+extern unsigned long NextStop;
 extern char FindString[256],ReplaceString[256];
 extern t_gram Gram,GlossGram;
 extern int RunningStatus,StrikeAgainDefault;
@@ -155,7 +156,7 @@ extern char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulati
 	ChangedPressure[MAXCHAN+1],WhichCsoundInstrument[MAXCHAN+1];
 extern int Jbol,Jinstr,Jfunc,Jinscript,Maxinscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,
 	MaxVar,Jhomo,**p_VarStatus,iCsoundInstrument;
-extern int FreezeWindows,StartFromOne,OutMIDI,OutCsound,OutBPdata,MustChangeInput,
+extern int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput,
 	SmartCursor,NotSaidKpress,**p_MemGram,**p_MemRul;
 extern long ProduceStackDepth,ProduceStackIndex,DisplayStackIndex,
 	**p_LastStackIndex,**p_MemPos;
@@ -288,7 +289,7 @@ extern int Charstep,UndoFlag;
 extern char LineBuff[MAXLIN];
 extern Str255 PascalLine;
 
-extern long Tcurr,LastTcurr,DataOrigin,PianorollShift;
+extern long Tcurr,LastTime,DataOrigin,PianorollShift;
 extern unsigned long NextTickDate[MAXTICKS],NextBeatDate;
 
 extern int Nw,LastEditWindow,LastComputeWindow,OutputWindow,ResumeStopOn,
@@ -360,7 +361,7 @@ extern int TickChannel[MAXTICKS],TickKey[MAXTICKS],TickVelocity[MAXTICKS],MuteTi
 	HideTicks,PlayTicks,UseBullet,NeedZouleb;
 extern long ThisTick[MAXTICKS][MAXBEATS];
 extern int InitOn,SetTimeOn,ComputeOn,PolyOn,CompileOn,SoundOn,SelectOn,PrintOn,InputOn,
-	ClickRuleOn,GraphicOn,ReadKeyBoardOn,ButtonOn,PauseOn,AlertOn,AllOn,PlaySelectionOn,PlayChunks,LastChunk,PlayAll,
+	ClickRuleOn,GraphicOn,ReadKeyBoardOn,ButtonOn,PauseOn,AlertOn,AllOn,PlaySelectionOn,PlayChunks,LastChunk,PlayAllChunks,
 	PlayPrototypeOn,MIDIfileOn,WaitOn,ExpandOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram,
 	AEventOn,LoadOn,SaveOn,SelectPictureOn,EnterOn,Option,EmptyBeat,TickDone,TickThere,
 	FoundNote,NoCursor,ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
@@ -395,5 +396,6 @@ extern int WarnedBlockKey,WarnedRangeKey;
 extern MIDI_Event eventStack[MAXMIDIMESSAGES];
 extern long eventCount, eventCountMax;
 extern UInt64 initTime;
+extern int FirstMIDIevent;
 
 #endif /* BP2_DECL_H */

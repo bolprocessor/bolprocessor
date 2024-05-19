@@ -40,7 +40,7 @@
 
 long Tstart;
 int trace_compute = 0;
-long LastTcurr = ZERO;
+long LastTime = ZERO;
 long PianorollShift = ZERO;
 
 int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_repeat,int time_end_compute)
@@ -362,7 +362,7 @@ while(((nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom,igram,grtype,p_
 		goto QUIT;
 		}
 	foundone = TRUE;
-	if(LimCompute && OutMIDI && !StepProduce && !StepGrammars) {
+	if(LimCompute && rtMIDI && !StepProduce && !StepGrammars) {
 // #if WITH_REAL_TIME_MIDI_FORGET_THIS
 	//	time = GetDriverTime();
 		Tstart = getClockTime();
@@ -902,7 +902,7 @@ if(grtype == SUBtype) {
 			}
 		SkipFlag = FALSE;
 		}
-	if(OutMIDI) {
+	if(rtMIDI) {
 // #if WITH_REAL_TIME_MIDI_FORGET_THIS
 	//	Tstart = GetDriverTime();
 		Tstart = getClockTime();

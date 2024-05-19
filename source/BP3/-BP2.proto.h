@@ -96,7 +96,7 @@ int initializeMIDISystem(void);
 void closeMIDISystem();
 void sendMIDIEvent(unsigned char*,int,long);
 void MIDIflush(void);
-long getClockTime(void);
+unsigned long getClockTime(void);
 
 /* OBSOLETE: in MIDIdrivers.c - used by both OMS and built-in drivers */
 /* #if WITH_REAL_TIME_MIDI_FORGET_THIS
@@ -125,6 +125,8 @@ int ReadMidiDriverSettings(short refnum, FSSpec* spec);
 int SaveMidiDriverStartup(void);
 int SaveMidiDriverSettings(void);
 int WriteMidiDriverSettings(short refnum, FSSpec* spec);
+
+int BPPrintMessage(int dest, const char *format, ...);
 
 #if TRACE_EVENTS
 char* TEWindowName(WindowPtr wp);
@@ -572,7 +574,7 @@ int ClipVelocity(int,int,int,int);
 int ChannelConvert(int);
 int TransposeKey(int*,int);
 int WritePatchName(void);
-int AllNotesOffAllChannels(void);
+int AllNotesOffPedalsOffAllChannels(void);
 int WaitForLastSounds(long);
 int CheckLoadedPrototypes(void);
 int CheckMIDIOutPut(int);

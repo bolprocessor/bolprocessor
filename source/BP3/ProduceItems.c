@@ -79,7 +79,7 @@ ComputeOn++;
 CreateImageFile(-1.);
 
 SaidTooComplex = ShownBufferSize = FALSE;
-if(OutMIDI) {
+if(rtMIDI) {
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
 //	ResetMIDI(TRUE);
 	Interrupted = FALSE;
@@ -190,7 +190,7 @@ if(!PlaySelectionOn && ScriptRecOn) {
 		AppendScript(52);
 		}
 	else AppendScript(72);
-	sprintf(Message,"%ld",(long) SetUpTime);
+	sprintf(Message,"%ld",(long) MIDIsetUpTime);
 	MystrcpyStringToTable(ScriptLine.arg,0,Message);
 	AppendScript(58);
 	}
@@ -247,12 +247,12 @@ if(!PlaySelectionOn && DisplayProduce) {
 	Print(wTrace,"\n");
 	}
 if(Improvize) {
-	if(!OutMIDI && ItemNumber > 10) {
+	if(!rtMIDI && ItemNumber > 10) {
 		Improvize =  FALSE;
 		r = ABORT;
 		goto QUIT;
 		}
-	if(OutMIDI) {
+	if(rtMIDI) {
 		if(ItemNumber > 10) ShowGraphic = ShowPianoRoll = FALSE;
 	//	if(ItemNumber >= 20 || (r=ListenMIDI(0,0,0)) == ABORT) {
 		if((r=ListenMIDI(0,0,0)) == ABORT) {
@@ -324,7 +324,7 @@ SplitTimeObjects = splitmem;
 if(!PlaySelectionOn && Improvize) {
 	sprintf(Message,"Item #%ld\n",(long)(ItemNumber + 1L));
 	FlashInfo(Message);
-	if(!OutMIDI && !template && Improvize) BPPrintMessage(odInfo,Message);
+	if(!rtMIDI && !template && Improvize) BPPrintMessage(odInfo,Message);
 	ItemNumber++; // Needs to bee checked. Sometimes only 5 items created in improvize mode.
 	if(SkipFlag) goto MAKE;
 	if(!PlaySelectionOn && DisplayItems) {
@@ -333,7 +333,7 @@ if(!PlaySelectionOn && Improvize) {
 		if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
 	//	ShowSelect(CENTRE,OutputWindow);
 		}
-	if((OutMIDI || OutCsound || WriteMIDIfile || OutBPdata)
+	if((rtMIDI || OutCsound || WriteMIDIfile || OutBPdata)
 		&& ((r=PlayBuffer(pp_a,NO)) == ABORT || r == EXIT)) goto QUIT;
 	goto MAKE;
 	}
@@ -351,8 +351,8 @@ if(!PlaySelectionOn && DisplayItems) {
 	BPActivateWindow(SLOW,OutputWindow);
 	Dirty[OutputWindow] = TRUE;
 	}
-// if((!DisplayItems || PlaySelectionOn) && (OutMIDI || OutCsound || WriteMIDIfile)) {
-if(ShowGraphic || OutMIDI || OutCsound || WriteMIDIfile  || OutBPdata) {
+// if((!DisplayItems || PlaySelectionOn) && (rtMIDI || OutCsound || WriteMIDIfile)) {
+if(ShowGraphic || rtMIDI || OutCsound || WriteMIDIfile  || OutBPdata) {
 	r = PlayBuffer(pp_a,NO);
 	if(r == RESUME) goto MAKE;
 	goto QUIT;
@@ -901,7 +901,7 @@ TRYAGAIN:
 		if(r == ABORT || r == EXIT) goto END;
 		sprintf(Message,"Item #%ld\n",(long)(ItemNumber + 1L));
 		FlashInfo(Message);
-		if(!OutMIDI && !template && Improvize) BPPrintMessage(odInfo,Message);
+		if(!rtMIDI && !template && Improvize) BPPrintMessage(odInfo,Message);
 	//	ItemNumber++; 2024-05-02
 		r = CheckItemProduced(p_gram,pp_a,p_length,single,template,mode);
 		if(r == ABORT || r == EXIT) goto END;
@@ -2044,7 +2044,7 @@ WRITE:
 			}
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 		}
-	if(!template && (OutMIDI || OutCsound || WriteMIDIfile))  r = PlayBuffer(pp_a,NO);
+	if(!template && (rtMIDI || OutCsound || WriteMIDIfile))  r = PlayBuffer(pp_a,NO);
 	}
 END:
 return(r);

@@ -122,7 +122,7 @@ EventState = NO;
 SetTimeOn = ComputeOn = PolyOn = CompileOn = SoundOn = SelectOn = ButtonOn = ExpandOn
 	= PrintOn = ClickRuleOn = GraphicOn = CompleteDecisions = LoadOn = SaveOn = MIDIfileOn
 	= ReadKeyBoardOn = AlertOn = AllOn = HangOn = ScriptRecOn = PlayPrototypeOn
-	= PlaySelectionOn = PlayChunks = PlayAll = UseEachSub = SelectPictureOn = TypeScript = InputOn = EnterOn = AEventOn
+	= PlaySelectionOn = PlayChunks = PlayAllChunks = UseEachSub = SelectPictureOn = TypeScript = InputOn = EnterOn = AEventOn
 	= PauseOn = WaitOn = ItemOutPutOn = ItemCapture = TickCapture = TickCaptureStarted
 	= AskedAboutCsound = MustChangeInput = ToldSkipped = ShownBufferSize = FALSE;
 Option = TickDone = FoundNote = GotAlert = UsedRandom = SaidTooComplex = FALSE;
@@ -139,6 +139,7 @@ WarnedBlockKey = WarnedRangeKey  = FALSE;
 TimeMax = MAXTIME; Nalpha = 100L; SpeedRange = 6.;
 CorrectionFactor = 1.;
 Chunk_number = 0;
+NextStop = 0L;
 // Tracefile = NULL;
 
 Oms = FALSE;
@@ -365,7 +366,7 @@ NoAlphabet = TRUE;
 UseGraphicsColor = UseTextColor = TRUE;
 
 StartFromOne = TRUE;
-SetUpTime = 1000L;	/* ms */
+MIDIsetUpTime = 1000L;	/* ms */
 NewEnvironment = NewColors = Help = FALSE;
 for(i=0; i < WMAX; i++) ChangedCoordinates[i] = Dirty[i] = FALSE;
 ObjectMode = ObjectTry = Final = LoadedScript = FALSE;
@@ -1635,10 +1636,11 @@ return(OK);
 int InitButtons(void)
 {
 #if WITH_REAL_TIME_MIDI_FORGET_THIS && BP_CARBON_GUI_FORGET_THIS
-  OutMIDI = TRUE;
+  rtMIDI = TRUE;
 #else
-  OutMIDI = FALSE;
+  rtMIDI = FALSE;
 #endif
+FirstMIDIevent = 1;
 OutBPdata = FALSE;
 ObjectMode = ObjectTry = Improvize = StepProduce = StepGrammars
 	= PlanProduce = DisplayProduce = UseEachSub

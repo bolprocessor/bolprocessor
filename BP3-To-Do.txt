@@ -15,7 +15,7 @@ https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3
 MIDI input
 ----------
 
-- We will implement the MIDI input event handling that worked in BP2.
+- Implement the MIDI input event handling that worked in BP2.
 - This includes script commands.
 
 
@@ -59,7 +59,9 @@ Open Sound Control (OSC)
 HTML/PHP/Javascript interface
 -----------------------------
 
+- Implement find-replace
 - Implement command-s (on MacOS) or control-s (on Windows) to save a grammar, data, alphabet, etc. This is almost done in _header.php (line 41) and at the bottomof data.php
+- Oddly enough, while the console is playing, a page of the browser is constantly being reloaded, with the effect that BP2_help.html and _settings.php are being updated…
 
 
 Standalone application
@@ -103,6 +105,12 @@ Actions
 - Implement play-all action
 - Fix analyze-item action
 - Implement expand-item & show-beats actions
+
+
+Chunked data in real-time MIDI
+------------------------------
+
+- Faulty chunked data (e.g. “-da.Beethoven-fugue-b-flat-major”) produces timing errors in real-time MIDI, although MIDI files are acceptable. This may be difficult to fix due to the size of data.
 
 
 Settings

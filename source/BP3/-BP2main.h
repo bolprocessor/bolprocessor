@@ -85,7 +85,8 @@ ResID  DeviceMenuIcons[12] = { 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 144, 142 };
 // FIXME: figure out how to completely remove TempMemoryUsed (& FixedMaxQuantization?)
 int EmergencyExit,FixedMaxQuantization,TraceMemory,
 	EventState,Beta;
-int SetUpTime;  /* Time needed to set-up driver (ms) */
+int MIDIsetUpTime;  /* Time needed to set-up MIDI driver (ms) */
+int FirstMIDIevent;
 int LoadedScript;
 int Jmessage;
 // TEStyleRec** StyleHandle[WMAX];
@@ -148,6 +149,7 @@ int InitThere,FirstTime,MaxScriptInstructions,KeyboardType,C4key,ProgNrFrom,Test
 	CurrentMIDIprogram[MAXCHAN+1],BlockScaleOnKey;
 double A4freq;
 time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTime,TimeSettingTime;
+unsigned long NextStop;
 char FindString[256],ReplaceString[256];
 int RunningStatus,StrikeAgainDefault;
 int NoteOffPass,NoteOnPass,KeyPressurePass,ControlTypePass,ProgramTypePass,
@@ -178,7 +180,7 @@ char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulation[MAXC
 	ChangedPressure[MAXCHAN+1],WhichCsoundInstrument[MAXCHAN+1];
 int Jbol,Jfunc,Jinstr,Jinscript,Maxinscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,MaxVar,
 	Jhomo,**p_VarStatus,iCsoundInstrument;
-int FreezeWindows,StartFromOne,OutMIDI,OutCsound,OutBPdata,MustChangeInput,SmartCursor,NotSaidKpress,
+int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput,SmartCursor,NotSaidKpress,
 	**p_MemGram,**p_MemRul;
 long ProduceStackDepth,ProduceStackIndex,DisplayStackIndex,
 	**p_LastStackIndex,**p_MemPos;
@@ -305,7 +307,7 @@ int PictureWindow[MAXPICT];
 int Charstep,UndoFlag;
 char LineBuff[MAXLIN];
 Str255 PascalLine;
-long DataOrigin,Tcurr,LastTcurr,PianorollShift;
+long DataOrigin,Tcurr,LastTime,PianorollShift;
 unsigned long NextTickDate[MAXTICKS],NextBeatDate;
 
 int Nw,LastEditWindow,LastComputeWindow,OutputWindow,ResumeStopOn,ResetTickFlag,ResetTickInItemFlag;
@@ -415,7 +417,7 @@ int TickChannel[MAXTICKS],TickKey[MAXTICKS],TickVelocity[MAXTICKS],MuteTick[MAXT
 long ThisTick[MAXTICKS][MAXBEATS];
 int InitOn,SetTimeOn,ComputeOn,PolyOn,SoundOn,SelectOn,PrintOn,InputOn,ClickRuleOn,
 	EnterOn,Option,CompileOn,GraphicOn,ReadKeyBoardOn,ButtonOn,LoadOn,SaveOn,PauseOn,AlertOn,AllOn,
-	PlaySelectionOn,PlayChunks,LastChunk,PlayAll,PlayPrototypeOn,AEventOn,ExpandOn,SelectPictureOn,EmptyBeat,TickDone,TickThere,
+	PlaySelectionOn,PlayChunks,LastChunk,PlayAllChunks,PlayPrototypeOn,AEventOn,ExpandOn,SelectPictureOn,EmptyBeat,TickDone,TickThere,
 	FoundNote,NoCursor,MIDIfileOn,WaitOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram,
 	ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
 double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;

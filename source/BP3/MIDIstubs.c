@@ -480,19 +480,19 @@ void closeMIDISystem() {
 
 void sendMIDIEvent(unsigned char* midiData,int dataSize,long time) {
     int note,status,value,test_first_events,improvize;
-    long clocktime;
-    test_first_events = 0;
+    unsigned long clocktime;
+    test_first_events = 1;
     status = midiData[0];
     note = midiData[1];
     value = midiData[2];
-    if(test_first_events && NumEventsWritten < 500) {
-        clocktime = getClockTime() - initTime;
+    if(test_first_events && NumEventsWritten < 100) {
+        clocktime = getClockTime() - initTime; // microseconds
         improvize = Improvize;
         Improvize = 0; // Necessary to activate BPPrintMessage(odInfo,...
         if(status == NoteOn || status == NoteOff)
             BPPrintMessage(odInfo,"%.3f -> %.3f s status = %d, note = %d, value = %d\n",(float)clocktime/1000000,(float)time/1000000,status,note,value);
-        else
-            BPPrintMessage(odInfo,"%.3f -> %.3f s event %d-%d-%d\n",(float)clocktime/1000000,(float)time/1000000,status,note,value);
+     /*   else
+            BPPrintMessage(odInfo,"%.3f -> %.3f s event %d-%d-%d\n",(float)clocktime/1000000,(float)time/1000000,status,note,value); */
         Improvize = improvize;
         }
     if(NumEventsWritten < LONG_MAX) NumEventsWritten++;
@@ -538,45 +538,44 @@ void sendMIDIEvent(unsigned char* midiData,int dataSize,long time) {
     }
 
 void MIDIflush() {
-    unsigned long currentTime = getClockTime();
-    currentTime -= initTime;
+    unsigned long current_time = getClockTime();
+    current_time -= initTime;
     long i = 0;
     long time;
     unsigned char midiData[4];
     int dataSize = 3;
-    int result;
-    if(Panic) {
+    int result,size;
+    size = sizeof(MIDI_Event);
+    if(Panic) eventCount = 0L;
+    if((result = stop()) != OK) {
         eventCount = 0L;
-   //     AllNotesOffAllChannels();
+        return;
         }
     while(i < eventCount) {
-        if((result = stop()) != OK) {
-            eventCount = 0L;
-            return;
-            }
-        if(eventStack[i].time <= currentTime) {
+        if(eventStack[i].time <= current_time) {
             midiData[0] = eventStack[i].status;
             midiData[1] = eventStack[i].data1;
             midiData[2] = eventStack[i].data2;
             time = eventStack[i].time;
             sendMIDIEvent(midiData,dataSize,time);
             // Move remaining events forward
-            memmove(&eventStack[i], &eventStack[i + 1], (eventCount - i - 1) * sizeof(MIDI_Event));
+            memmove(&eventStack[i], &eventStack[i + 1], (eventCount - i - 1) * size);
             eventCount--;
             }
-        else i++; 
+        else i++;
         }
+    return;
     }
 
-long getClockTime(void) {
-    long the_time; // Microseconds
+unsigned long getClockTime(void) {  // Microseconds
+    unsigned long the_time;
     #if defined(_WIN64)
     LARGE_INTEGER freq, count;
     QueryPerformanceFrequency(&freq); // Get the frequency of the high-resolution performance counter
     QueryPerformanceCounter(&count);  // Get the current value of the performance counter
     the_time = (unsigned long)((count.QuadPart * 1000000) / freq.QuadPart);
     #elif defined(__APPLE__)
-        the_time = clock_gettime_nsec_np(CLOCK_UPTIME_RAW) / 1000L;
+        the_time = clock_gettime_nsec_np(CLOCK_UPTIME_RAW_APPROX) / 1000L;
     #elif defined(__linux__)
         struct timespec ts;
         clock_gettime(CLOCK_MONOTONIC, &ts); // CLOCK_MONOTONIC provides uptime, not affected by system time changes
@@ -614,7 +613,7 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 		(Break it out into a function?) - akozar */
 	++NumEventsWritten;
 	
-	if(!OutMIDI || MIDIfileOn) return(noErr);
+	if(!rtMIDI || MIDIfileOn) return(noErr);
 
 	/* FIXME: should we also register program changes to the MIDI orchestra ? */
 	return(noErr);
@@ -625,7 +624,7 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
     MIDIdrivers.c */
 int ResetMIDI(int wait)
 {
-	if(!OutMIDI || AEventOn) return(OK);
+	if(!rtMIDI || AEventOn) return(OK);
 
 //	FlushDriver();
 	WaitABit(200L); // milliseconds

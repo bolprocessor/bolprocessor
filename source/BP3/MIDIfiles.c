@@ -1269,7 +1269,7 @@ GetFileSavePreferences();
 
 if(EndFadeOut > 0.) {
 	rs = 0;
-	timeorigin = LastTcurr;
+	timeorigin = LastTime;
 	time_end = timeorigin + (1000 * EndFadeOut);
 	i_event_max = (int)(EndFadeOut * SamplingRate);
 	sprintf(Message,"Fading out MIDI stream %.3f sec as requested by the settings (or by default)\n",(float)EndFadeOut);

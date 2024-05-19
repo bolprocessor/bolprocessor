@@ -50,7 +50,7 @@ long gap;
 double fgap;
 
 if(!IsMidiDriverOn() || !TickThere || !PlayTicks || SoundOn || ComputeOn || PlaySelectionOn
-	|| LoadOn || InitOn || !OutMIDI) return(OK);
+	|| LoadOn || InitOn || !rtMIDI) return(OK);
 return(OK);
 }
 
@@ -194,7 +194,7 @@ int i;
 int itick;
 
 if(!IsMidiDriverOn() || (!force && (!TickThere || !PlayTicks
-	|| LoadOn || InitOn || !OutMIDI))) return(OK);
+	|| LoadOn || InitOn || !rtMIDI))) return(OK);
 
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
 if(zero) {
@@ -224,7 +224,7 @@ long time;
 int itick,messageshown;
 unsigned long nexttick,maxticktime,timeleft,formertime;
 
-if(OutMIDI && PlayTicks && TickThere && IsMidiDriverOn() && !PlaySelectionOn && !ComputeOn
+if(rtMIDI && PlayTicks && TickThere && IsMidiDriverOn() && !PlaySelectionOn && !ComputeOn
 		&& !LoadOn && !SoundOn && Nbytes > ZERO) {
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
 	maxticktime = ZERO;
@@ -288,7 +288,7 @@ Milliseconds oldt;
 
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
 
-if(!OutMIDI) return(MISSED);
+if(!rtMIDI) return(MISSED);
 for(itick=0; itick < MAXTICKS; itick++) {
 	postick = tickposition[itick];
 	time =  (t0 + tickdate[itick]) / Time_res;
@@ -386,7 +386,7 @@ int key,vel,ch,localchan;
 MIDI_Event e;
 long time;
 
-if(!OutMIDI) return(MISSED);
+if(!rtMIDI) return(MISSED);
 
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
 for(itick=0; itick < MAXTICKS; itick++) {
@@ -467,7 +467,7 @@ int im,overflow;
 unsigned long g,h,pmax,qmax,plcm,ppqlcm,ppq[MAXTICKS];
 
 if(!IsMidiDriverOn() || SoundOn || ComputeOn || PlaySelectionOn || LoadOn || InitOn
-	|| ItemCapture || !OutMIDI) return(OK);
+	|| ItemCapture || !rtMIDI) return(OK);
 	
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
 playticks = PlayTicks;

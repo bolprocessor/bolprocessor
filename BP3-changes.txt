@@ -61,4 +61,9 @@ Progress has been made on checking compilation under Windows, although it is not
 -----
 2024-05-18
 Fixed unwanted cross effects when playing multiple instances of BP3 together.
+
+-----
+2024-05-19
+Fixed timing problem in real-time MIDI when playing chunked data. Faulty chunked data still doesn't play well (in real time), although it produces acceptable MIDI files.
 (Next version will handle MIDI input events.)
+The stop() function that checks for "_stop" or "_panic" files now only performs this check twice per second. This saves time for sending MIDI events at the correct time.

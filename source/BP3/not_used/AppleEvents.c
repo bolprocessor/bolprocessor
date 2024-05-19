@@ -763,7 +763,7 @@ switch(theID) {
 		ItemNumber = ZERO;
 		Maxitems = ZERO;
 		ReadKeyBoardOn = FALSE; Jcontrol = -1;
-		if(OutMIDI && Interactive && !LoadedIn) {
+		if(rtMIDI && Interactive && !LoadedIn) {
 			if(GetInName(wData) != OK) GetInName(wGrammar);
 			if(LoadInteraction(TRUE,FALSE) != OK) return(OK);
 			}

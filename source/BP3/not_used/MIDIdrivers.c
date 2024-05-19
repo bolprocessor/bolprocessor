@@ -123,7 +123,7 @@ short itemtype;
 ControlHandle itemhandle;
 Rect r;
 
-if(!InBuiltDriverOn && OutMIDI && !Oms) {
+if(!InBuiltDriverOn && rtMIDI && !Oms) {
 	if(Beta) Println(wTrace,"=> Err. DriverWrite(). Driver is OFF");
 	return(noErr);
 	}
@@ -132,7 +132,7 @@ if((ItemCapture && ItemOutPutOn) || TickCaptureStarted) {
 	result = CaptureMidiEvent(time, nseq, p_e);
 	if (result != OK) return(noErr);
 	}
-if(!OutMIDI || MIDIfileOn) return(noErr);
+if(!rtMIDI || MIDIfileOn) return(noErr);
 
 // Register program change to the MIDI orchestra
 if(SoundOn && p_e->type == TWO_BYTE_EVENT && !ConvertMIDItoCsound && !ItemCapture
@@ -306,8 +306,8 @@ sprintf(Message,"MIDI output is now '%s' port",Portname[i]);
 Alert1(Message);
 Dirty[iSettings] = TRUE;
 
-if(!OutMIDI) {
-	OutMIDI = TRUE;
+if(!rtMIDI) {
+	rtMIDI = TRUE;
 	SetButtons(TRUE);
 	}
 ResetMIDI(FALSE);
@@ -510,7 +510,7 @@ MIDI_Event e;
 
 rep = OK;
 
-if(!OutMIDI || (AEventOn && !Oms && !NEWTIMER_FORGET_THIS)) return(OK);
+if(!rtMIDI || (AEventOn && !Oms && !NEWTIMER_FORGET_THIS)) return(OK);
 
 if(!InBuiltDriverOn && !Oms) {
 	if(Beta) Alert1("=> Err. ResetMIDI(). Driver is OFF");

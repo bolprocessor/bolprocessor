@@ -525,7 +525,7 @@ int DoKeyCommand(EventRecord *p_event)
 			if(!RunningOnOSX && (Nw >= wPrototype1 && Nw <= wPrototype7) || Nw == wPrototype8)
 				return(mPlaySelectionOrPrototype(Nw));
 			else if((Oms || NEWTIMER_FORGET_THIS) && (SoundOn || ComputeOn || PlaySelectionOn)
-					&& OutMIDI && !PlayPrototypeOn) {
+					&& rtMIDI && !PlayPrototypeOn) {
 				Mute = 1 - Mute;
 				MaintainMenus();
 				BPActivateWindow(SLOW,wControlPannel);
@@ -2333,7 +2333,7 @@ else {
 	}
 #endif
 
-if(OutMIDI) CheckMenuItem(myMenus[deviceM],outMIDICommand,TRUE);
+if(rtMIDI) CheckMenuItem(myMenus[deviceM],outMIDICommand,TRUE);
 else CheckMenuItem(myMenus[deviceM],outMIDICommand,FALSE);
 if(WriteMIDIfile) CheckMenuItem(myMenus[deviceM],outMIDIfileCommand,TRUE);
 else CheckMenuItem(myMenus[deviceM],outMIDIfileCommand,FALSE);

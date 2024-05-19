@@ -82,7 +82,7 @@ int PlaySelection(int w, int all) {
 	if(all) {
 		ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
 		BPPrintMessage(odError,"\n(No more message while playing many chunks.)\n");
-		PlayAll = TRUE;
+		PlayAllChunks = TRUE;
 		}
 
 	// PlaySelectionOn++; // Fixed by BB 2021-02-17
@@ -142,7 +142,6 @@ int PlaySelection(int w, int all) {
 	// BPPrintMessage(odInfo,"@ origin = %ld next_origin = %ld end = %ld\n",(long)origin,(long)next_origin,(long)end);
 	LastChunk = FALSE;
 	while((originmem=origin) < end) {
-	//	PleaseWait();
 		next_origin = origin;
 		time(&ProductionStartTime);
 		while(TRUE) {
@@ -161,7 +160,7 @@ int PlaySelection(int w, int all) {
 	//	BPPrintMessage(odInfo,"Playing selection\n");
 		Nplay = 1;
 		SaidTooComplex = ShownBufferSize = FALSE;
-	//	BPPrintMessage(odError,"Playing selection %ld to %ld (up to %ld)\n",(long)origin,(long)next_origin,(long)end);
+	//	BPPrintMessage(odInfo,"Playing selection %ld to %ld (up to %ld)\n",(long)origin,(long)next_origin,(long)end);
 		if((r=SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
 			MyDisposeHandle((Handle*)&p_a);
 			/* Could already be NULL because of PolyExpand() */
@@ -383,19 +382,19 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 
 	// if(ShowGraphic) BPPrintMessage(odInfo, "Shall we draw graphics?\n");
 
-	if(!Improvize) initTime = getClockTime();
+//	if(!Improvize) initTime = getClockTime();
 	if(onlypianoroll
 			|| (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && (tmax > tmin || Nature_of_time == SMOOTH))) {
 		if(!ShowPianoRoll && !onlypianoroll) {
 			result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
-			if(OutCsound || WriteMIDIfile || OutMIDI) result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
+			if(OutCsound || WriteMIDIfile || rtMIDI) result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
 			}
 		else {
 			result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
 			result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
 			}
 		}
-	else if(OutCsound || WriteMIDIfile || OutMIDI) result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
+	else if(OutCsound || WriteMIDIfile || rtMIDI) result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
 
 	/*if(result == AGAIN) {    // NOT USED AT THE MOMENT
 		again = TRUE;
@@ -445,7 +444,7 @@ if((*p_line)[0] == '\0') return(OK);
 #if BP_CARBON_GUI_FORGET_THIS
 if(GetTuning() != OK) return(ABORT);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
-if(!OutMIDI && !OutCsound && !onlypianoroll) {
+if(!rtMIDI && !OutCsound && !onlypianoroll) {
 	Alert1("Both MIDI and Csound outputs are inactive. Item can't be played");
 	BPActivateWindow(SLOW,wSettingsBottom);
 	return(MISSED);
@@ -575,115 +574,114 @@ return(r);
 }
 
 
-int TextToMIDIstream(int w)
-{
-int i,r,improvize,t,showmessages;
-MIDIcode **ptr1;
-tokenbyte **p_a;
-long origin,end,tr,x;
+int TextToMIDIstream(int w) {
+	int i,r,improvize,t,showmessages;
+	MIDIcode **ptr1;
+	tokenbyte **p_a;
+	long origin,end,tr,x;
 
-if(CheckEmergency() != OK) return(ABORT);
+	if(CheckEmergency() != OK) return(ABORT);
 
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta)
-		Alert1("=> Err. TextToMIDIstream(). Incorrect window index");
-	return(MISSED);
-	}
-if(!StrikeAgainDefault) {
-#if !BP_CARBON_GUI_FORGET_THIS
-	r = Alert1("The strike mode setting is \"Don't strike again NoteOn's\", which is unusual.");
-#else
-	r = Answer("The strike mode setting is 'Don't strike again NoteOn's', which is unusual. Change it?",
-		'N');
-	if(r == ABORT) return(r);
-	if(r == YES) {
-		ShowWindow(GetDialogWindow(StrikeModePtr));
-		SelectWindow(GetDialogWindow(StrikeModePtr));
-		SetDefaultStrikeMode();
-		BPUpdateDialog(StrikeModePtr);
-		return(ABORT);
+	if(w < 0 || w >= WMAX || !Editable[w]) {
+		if(Beta)
+			Alert1("=> Err. TextToMIDIstream(). Incorrect window index");
+		return(MISSED);
 		}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-	}
-TextGetSelection(&origin, &end, TEH[w]);
-if(end <= origin) {
-	Alert1("Selection is empty");
-	BPActivateWindow(SLOW,w);
-	return(MISSED);
-	}
-showmessages = ShowMessages;
-ShowMessages = FALSE;
-improvize = Improvize;
-Improvize = FALSE;
-SetButtons(TRUE);
-
-// PlaySelectionOn++; // Fixed by BB 2021-02-17
-/* ResetMIDI(TRUE); */
-
-r = ABORT; p_a = NULL;
-#if BP_CARBON_GUI_FORGET_THIS
-if(SaveCheck(wAlphabet) == ABORT) goto END;
-if(SaveCheck(wGrammar) == ABORT) goto END;
-if(SaveCheck(wInteraction) == ABORT) goto END;
-if(SaveCheck(wGlossary) == ABORT) goto END;
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
-	CompiledAl = FALSE;
-	if(CompileAlphabet() != OK) goto END;
-	}
-r = MISSED;
-// FIXME ? Why is this done a second time? - akozar 20130830
-if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
-	CompiledAl = FALSE;
-	if(CompileAlphabet() != OK) goto END;
-	}
-r = OK;
-SetSelect(origin,end,TEH[w]);
-ShowMessage(TRUE,wMessage,"Converting selected text to sound-object prototype...");
-Nplay = 1;
-if((r=SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
-	MyDisposeHandle((Handle*)&p_a);
-	if(ScriptExecOn) r = OK;
-	goto END;
-	}
-if(!NoVariable(&p_a)) {
-	Alert1("You can't convert the selection because it contains text that BP2 interprets as variables");
-	MyDisposeHandle((Handle*)&p_a);
-	goto END;
-	}
-else {
-	PleaseWait();
-	if(Stream.code == NULL) {
-		if((ptr1 = (MIDIcode**) GiveSpace((Size) 200L * sizeof(MIDIcode))) == NULL) {
-			r = ABORT; goto END;
+	if(!StrikeAgainDefault) {
+	#if !BP_CARBON_GUI_FORGET_THIS
+		r = Alert1("The strike mode setting is \"Don't strike again NoteOn's\", which is unusual.");
+	#else
+		r = Answer("The strike mode setting is 'Don't strike again NoteOn's', which is unusual. Change it?",
+			'N');
+		if(r == ABORT) return(r);
+		if(r == YES) {
+			ShowWindow(GetDialogWindow(StrikeModePtr));
+			SelectWindow(GetDialogWindow(StrikeModePtr));
+			SetDefaultStrikeMode();
+			BPUpdateDialog(StrikeModePtr);
+			return(ABORT);
 			}
-		Stream.code = ptr1;
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
 		}
-	ItemCapture = TRUE;
-	Stream.i = Stream.imax = ZERO;
-	Stream.period = ZERO;
-	Stream.cyclic = FALSE;
-	if(r == OK) r = PlayBuffer(&p_a,NO);
-	MyDisposeHandle((Handle*)&p_a);
-	if(Stream.i <= ZERO) Alert1("No events were captured...");
-	else Stream.imax = Stream.i;
-	Stream.pclock = (long) Pclock;
-	Stream.qclock = (long) Qclock;
-	ItemCapture = FALSE;
-	}
-if(ResetControllers) ResetMIDIControllers(NO,YES,YES);
+	TextGetSelection(&origin, &end, TEH[w]);
+	if(end <= origin) {
+		Alert1("Selection is empty");
+		BPActivateWindow(SLOW,w);
+		return(MISSED);
+		}
+	showmessages = ShowMessages;
+	ShowMessages = FALSE;
+	improvize = Improvize;
+	Improvize = FALSE;
+	SetButtons(TRUE);
 
-END:
-if(PlaySelectionOn) {
-	PlaySelectionOn = FALSE; // Fixed by BB 2021-02-17
-	BPPrintMessage(odInfo,"End of playing selection\n");
+	// PlaySelectionOn++; // Fixed by BB 2021-02-17
+	/* ResetMIDI(TRUE); */
+
+	r = ABORT; p_a = NULL;
+	#if BP_CARBON_GUI_FORGET_THIS
+	if(SaveCheck(wAlphabet) == ABORT) goto END;
+	if(SaveCheck(wGrammar) == ABORT) goto END;
+	if(SaveCheck(wInteraction) == ABORT) goto END;
+	if(SaveCheck(wGlossary) == ABORT) goto END;
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+	if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
+		CompiledAl = FALSE;
+		if(CompileAlphabet() != OK) goto END;
+		}
+	r = MISSED;
+	// FIXME ? Why is this done a second time? - akozar 20130830
+	if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
+		CompiledAl = FALSE;
+		if(CompileAlphabet() != OK) goto END;
+		}
+	r = OK;
+	SetSelect(origin,end,TEH[w]);
+	ShowMessage(TRUE,wMessage,"Converting selected text to sound-object prototype...");
+	Nplay = 1;
+	if((r=SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
+		MyDisposeHandle((Handle*)&p_a);
+		if(ScriptExecOn) r = OK;
+		goto END;
+		}
+	if(!NoVariable(&p_a)) {
+		Alert1("You can't convert the selection because it contains text that BP2 interprets as variables");
+		MyDisposeHandle((Handle*)&p_a);
+		goto END;
+		}
+	else {
+		PleaseWait();
+		if(Stream.code == NULL) {
+			if((ptr1 = (MIDIcode**) GiveSpace((Size) 200L * sizeof(MIDIcode))) == NULL) {
+				r = ABORT; goto END;
+				}
+			Stream.code = ptr1;
+			}
+		ItemCapture = TRUE;
+		Stream.i = Stream.imax = ZERO;
+		Stream.period = ZERO;
+		Stream.cyclic = FALSE;
+		if(r == OK) r = PlayBuffer(&p_a,NO);
+		MyDisposeHandle((Handle*)&p_a);
+		if(Stream.i <= ZERO) Alert1("No events were captured...");
+		else Stream.imax = Stream.i;
+		Stream.pclock = (long) Pclock;
+		Stream.qclock = (long) Qclock;
+		ItemCapture = FALSE;
+		}
+	if(ResetControllers) ResetMIDIControllers(NO,YES,YES);
+
+	END:
+	if(PlaySelectionOn) {
+		PlaySelectionOn = FALSE; // Fixed by BB 2021-02-17
+		BPPrintMessage(odInfo,"End of playing selection\n");
+		}
+	ShowMessages = showmessages;
+	Improvize = improvize;
+	SetButtons(TRUE);
+	HideWindow(Window[wMessage]);
+	return(r);
 	}
-ShowMessages = showmessages;
-Improvize = improvize;
-SetButtons(TRUE);
-HideWindow(Window[wMessage]);
-return(r);
-}
 
 
 /* 20130819: Allowed 'what' (the paste action) to be passed as a parameter.

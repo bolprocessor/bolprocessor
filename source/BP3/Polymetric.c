@@ -771,13 +771,6 @@ Maxevent += ((2 * Maxconc) + 1);
 /* Takes care of newswitch at the end of diagram */
 
 if(ShowMessages) ShowDuration(YES);
-
-/* if(Maxevent >= INT_MAX) {	// FIXME ? This comparison is never true with sizeof(long) == sizeof(int)
-	sprintf(Message,"Can't create %ld sound-objects. Limit: %ld",(long)Maxevent,(long)INT_MAX);
-	Alert1(Message);
-	r = MISSED;
-	goto QUIT;
-	} */
 	
 OkShowExpand = TRUE;	/* OK to display prolongational gaps "_" */
 if(nsymb > 15000L || numberprolongations > 2000 || ((Prod / firstscaling) > 200)) {
@@ -958,7 +951,7 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i += 2L) {
 			}
 		if(LoadedIn && (!CompiledIn && (result=CompileInteraction()) != OK))
 			goto OUT;
-		if(OutMIDI && Dirty[wTimeAccuracy]) {
+		if(rtMIDI && Dirty[wTimeAccuracy]) {
 			
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
 			result = ResetMIDI(FALSE);

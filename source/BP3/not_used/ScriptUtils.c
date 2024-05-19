@@ -64,7 +64,7 @@ ProcessInfoRec info;
 TextOffset selbegin, selend;
 
 r = OK; rs = 0;
-oldoutmidi = OutMIDI;
+oldoutmidi = rtMIDI;
 if(ScriptNrArg(instr) > 0) MystrcpyTableToString(MAXLIN,line,ScriptLine.arg,0);
 else line[0] = '\0';
 switch(instr) {
@@ -314,9 +314,9 @@ GOTIT:
 		if(wind == wInteraction || wind == wGlossary) return(MISSED);
 		if(check) return(OK);
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
-		OutMIDI = TRUE;
+		rtMIDI = TRUE;
 		SetButtons(TRUE);
-		if(OutMIDI && !oldoutmidi) ResetMIDI(FALSE);
+		if(rtMIDI && !oldoutmidi) ResetMIDI(FALSE);
 #else
 		return(MISSED);
 #endif
@@ -327,7 +327,7 @@ GOTIT:
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
 		if((r=WaitForEmptyBuffer()) != OK) return(r);
 #endif
-		OutMIDI = FALSE;
+		rtMIDI = FALSE;
 		SetButtons(TRUE);
 		break;
 	case 22:	/* Csound score ON */
@@ -877,7 +877,7 @@ GOTIT6:
 			Print(wTrace,"=> Incorrect MIDI set-up time.  (Range 0..2000)\n");
 			return(ABORT);
 			}
-		SetUpTime = j;
+		MIDIsetUpTime = j;
 		break;
 	case 59:	/* Selection start */
 		if(wind == wInteraction || wind == wGlossary) return(MISSED);
@@ -1551,15 +1551,15 @@ GOTIT7:
 		if(wind == wInteraction || wind == wGlossary) return(MISSED);
 		if(check) return(OK);
 	/*	if((r=WaitForEmptyBuffer()) != OK) return(r); */
-		OutMIDI = FALSE;  SetButtons(YES);
+		rtMIDI = FALSE;  SetButtons(YES);
 		break;
 	case 128:  	/* Use MIDI in/out ON */
 		if(wind == wInteraction || wind == wGlossary) return(MISSED);
 		if(check) return(OK);
 	/*	if((r=WaitForEmptyBuffer()) != OK) return(r); */
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
-		OutMIDI = TRUE;  SetButtons(YES);
-		if(OutMIDI && !oldoutmidi) ResetMIDI(FALSE);
+		rtMIDI = TRUE;  SetButtons(YES);
+		if(rtMIDI && !oldoutmidi) ResetMIDI(FALSE);
 #else
 		return(MISSED);
 #endif
@@ -1665,18 +1665,18 @@ GOTIT7:
 		ItemNumber = ZERO;
 		Maxitems = (*(ScriptLine.intarg))[0];
 		ReadKeyBoardOn = FALSE; Jcontrol = -1;
-		if(OutMIDI && Interactive && !LoadedIn) {
+		if(rtMIDI && Interactive && !LoadedIn) {
 			if(GetInName(wData) != OK) GetInName(wGrammar);
 			if(LoadInteraction(TRUE,FALSE) != OK) return(OK);
 			}
 		if(CompileCheck() != OK) return(MISSED);
 		i = CyclicPlay; CyclicPlay = FALSE;
 		j = Improvize; Improvize = TRUE;
-		oldoutmidi = OutMIDI;
+		oldoutmidi = rtMIDI;
 		if(!OutCsound) {
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
-			OutMIDI = TRUE;
-			if(OutMIDI && !oldoutmidi) ResetMIDI(FALSE);
+			rtMIDI = TRUE;
+			if(rtMIDI && !oldoutmidi) ResetMIDI(FALSE);
 #else
 			CyclicPlay = i; Improvize = j;
 			return(MISSED);
@@ -1694,7 +1694,7 @@ GOTIT7:
 		else if(r != EXIT) r = OK;
 		CyclicPlay = i; Improvize = j;
 		DisplayItems = displayitems;
-		OutMIDI = oldoutmidi;
+		rtMIDI = oldoutmidi;
 		SetButtons(YES);
 		if(r == EXIT) return(r);
 		break;

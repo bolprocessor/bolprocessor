@@ -39,7 +39,7 @@
 #include "-BP2decl.h"
 
 int trace_midi_filter = 0;
-int trace_driver = 0;
+int trace_driver = 1;
 
 int ListenMIDI(int x0, int x1, int x2) {
 	int i,j,r,c,c0,c1,c2,filter,idummy,eventfound;
@@ -53,12 +53,12 @@ int ListenMIDI(int x0, int x1, int x2) {
 	return(r);
 	}
 
-/* if((Oms || !OutMIDI) && !Interactive && !ReadKeyBoardOn && !ScriptRecOn) return(OK);
+/* if((Oms || !rtMIDI) && !Interactive && !ReadKeyBoardOn && !ScriptRecOn) return(OK);
 
 if(!IsMidiDriverOn()) {
 	if(Beta) {
 		Alert1("=> Err. ListenMIDI(). Driver is OFF");
-		OutMIDI = Interactive = ReadKeyBoardOn = ScriptRecOn = FALSE;
+		rtMIDI = Interactive = ReadKeyBoardOn = ScriptRecOn = FALSE;
 		SetButtons(TRUE);
 		}
 	return(ABORT);
@@ -1001,7 +1001,7 @@ long count = 12L;
 Milliseconds tcurr;
 
 if(!IsMidiDriverOn()) return(OK);
-if(!OutMIDI || MIDIfileOpened) return(OK);
+if(!rtMIDI || MIDIfileOpened) return(OK);
 return(OK);
 }
 
@@ -1123,7 +1123,7 @@ long p,q;
 char line[MAXFIELDCONTENT];
 unsigned long drivertime;
 
-if(SoundOn || !OutMIDI || CheckEmergency() != OK) return(MISSED);
+if(SoundOn || !rtMIDI || CheckEmergency() != OK) return(MISSED);
 
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
 rep = NO;
@@ -1177,7 +1177,7 @@ while(TRUE) {
 	e.data2 = 0;
 	SendToDriver(Tcurr * Time_res,0,&rs,&e);
 	drivertime = GetDriverTime();
-	while((Tcurr > drivertime + (SetUpTime / Time_res)) && !Button()) {
+	while((Tcurr > drivertime + (MIDIsetUpTime / Time_res)) && !Button()) {
 		/* Wait for the end of preceding play */
 		drivertime = GetDriverTime();
 		}
@@ -1201,7 +1201,7 @@ int key,channel,c0,c1,velocity;
 long count = 12L;
 char line[MAXFIELDCONTENT];
 
-if(!OutMIDI) {
+if(!rtMIDI) {
 	Alert1("Cannot record tick because MIDI output is inactive");
 	return(MISSED);
 	}
@@ -1706,7 +1706,7 @@ int key,duration,minkey,maxkey,stepkey,ch,stop;
 double r,x,kx;
 unsigned long drivertime;
 
-if (!OutMIDI) {
+if (!rtMIDI) {
 	Alert1("MIDI output is off,  Check the Drivers menu.");
 	return(MISSED);
 }
@@ -1780,24 +1780,31 @@ return(OK);
 
 int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 	long count = 12L;
-	int c0,c1,c2,status,chan,done;
+	int c0,c1,c2,status,chan,result;
+	unsigned long done;
 	byte midibyte;
 
-	LastTcurr = time;
+	LastTime = time;
 	if(Panic || EmergencyExit) return(ABORT);
-	if(!MIDIfileOn && !OutMIDI) return(OK);
-	if(OutMIDI) {
-        done = 0;
-    	if(trace_driver) BPPrintMessage(odInfo,"Sending MIDI event time = %ld ms,\tstatus = %ld,\tdata1 = %ld,\tdata2 = %ld\n",(long)time,(long)p_e->status,(long)p_e->data1,(long)p_e->data2);
+	if(!MIDIfileOn && !rtMIDI) return(OK);
+	if(rtMIDI) {
+		// Sending to the stack
+        done = 0L;
+    	if(trace_driver) BPPrintMessage(odInfo,"Sending MIDI event to stack, time = %ld ms,\tstatus = %ld,\tdata1 = %ld,\tdata2 = %ld\n",(long)time,(long)p_e->status,(long)p_e->data1,(long)p_e->data2);
+		MIDIflush();
         while(eventCount > eventCountMax) {
+			// The stack is full
             WaitABit(1); // Sleep for 1 millisecond
             MIDIflush();
-        //    if(done++ == 0) BPPrintMessage(odInfo,"Reached the limit of the buffer...\n");
+        //    if(done++ == 0L) BPPrintMessage(odInfo,"Reached the limit of the buffer...\n");
             }
 		eventStack[eventCount] = *p_e;
 		eventStack[eventCount].time = 1000 * time;
 		eventCount++;
-		MIDIflush();
+		if(FirstMIDIevent) {
+			FirstMIDIevent = FALSE;
+			initTime = (UInt64) getClockTime();
+			}
 		return(OK);
 		}
 	
@@ -1886,19 +1893,19 @@ int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 	}
 
 
-int AllNotesOffAllChannels(void) {
+int AllNotesOffPedalsOffAllChannels(void) {
 	int rs,key,channel;
 	unsigned char midiData[4];
 	int dataSize = 3;
-	if(!OutMIDI) {
+	if(!rtMIDI) {
 		BPPrintMessage(odError,"=> All Notes Off won't work since MIDI output is not active");	
 		return(OK);
 		}
 	BPPrintMessage(odInfo,"Sending AllNotesOff to all channels\n");
 	/* We can afford to mute the current output and send NoteOffs at a low level */
-	SchedulerIsActive--;
+//	SchedulerIsActive--;
 	for(channel=0; channel < MAXCHAN; channel++) {
-		WaitABit(20); // Waii for 20 ms
+		WaitABit(20); // Wait for 20 ms
 		midiData[0] = ControlChange + channel;
 		midiData[1] = 123; // All Notes Off
 		midiData[2] = 0;
@@ -1907,10 +1914,9 @@ int AllNotesOffAllChannels(void) {
 		midiData[1] = 64; // Pedal Off
 		midiData[2] = 0;
 		sendMIDIEvent(midiData,dataSize,0); // Sending immediately
-
 		}
-	SchedulerIsActive++;
-	WaitABit(1000);
+//	SchedulerIsActive++;
+	WaitABit(200);
 	return(OK);
 	}
 
@@ -1950,7 +1956,7 @@ unsigned long drivertime;
 long formertime,timeleft;
 int rep,compiledmem;
 
-if(!IsMidiDriverOn() || MIDIfileOn || !OutMIDI) return(OK);
+if(!IsMidiDriverOn() || MIDIfileOn || !rtMIDI) return(OK);
 
 if(Nbytes > (MaxMIDIbytes / 2) && Tbytes2 == ZERO) {
 	HideWindow(Window[wInfo]); HideWindow(Window[wMessage]);

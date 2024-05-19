@@ -423,13 +423,13 @@ QUIT:		Improvize = improvizemem;
 			SwitchOn(NULL,wControlPannel,bMIDIpanic);
 			if(Oms || NEWTIMER_FORGET_THIS) {
 				Mute++;
-				AllNotesOffAllChannels();
+				AllNotesOffPedalsOffAllChannels();
 				FlushDriver();
 				Mute--; 
 				}
 			else {
 				FlushDriver();
-				AllNotesOffAllChannels();
+				AllNotesOffPedalsOffAllChannels();
 				}
 			Panic = TRUE;
 			SwitchOff(NULL,wControlPannel,bMIDIpanic);
@@ -504,7 +504,7 @@ if(w == wTimeBase) {
 			if((rep=mSaveFile(w)) != OK) return(rep);
 			return(DONE);
 		case dCaptureTicks:
-			if(!OutMIDI) {
+			if(!rtMIDI) {
 				Alert1("=> Can't capture ticks because MIDI output is not active");
 				return(DONE);
 				}
@@ -517,7 +517,7 @@ if(w == wTimeBase) {
 #endif
 			break;
 		case dPlayTicks:
-			if(!PlayTicks && !OutMIDI) {
+			if(!PlayTicks && !rtMIDI) {
 				Alert1("=> Can't play ticks because MIDI output is not active");
 				return(DONE);
 				}
@@ -815,7 +815,7 @@ if(thedialog == MIDIprogramPtr) {
 			Alert1("If you run an old version of QuickTime, some instruments may not yet be implemented");
 			break;
 		case bMIDIprogramAllNotesOff:
-			AllNotesOffAllChannels();
+			AllNotesOffPedalsOffAllChannels();
 /*			Tcurr = ZERO;
 			ResetMIDI(FALSE); */
 			break;
@@ -1012,8 +1012,8 @@ if(thedialog == FileSavePreferencesPtr) {
 			break;
 		case bWriteLater:
 			FileWriteMode = LATER;
-			if(!OutMIDI) {
-				OutMIDI = TRUE;	// FIXME ? probably should check driver availability first! - akozar
+			if(!rtMIDI) {
+				rtMIDI = TRUE;	// FIXME ? probably should check driver availability first! - akozar
 				SetButtons(TRUE);
 				}
 			break;

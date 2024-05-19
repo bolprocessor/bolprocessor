@@ -46,7 +46,7 @@ int r;
 
 // GetPort(&saveport);  // FIXME ? is this necessary?
 r = OK;
-if(!PrototypesLoaded AND !ObjectMode && !ObjectTry && (OutMIDI || OutCsound || WriteMIDIfile)) {
+if(!PrototypesLoaded AND !ObjectMode && !ObjectTry && (rtMIDI || OutCsound || WriteMIDIfile)) {
    ObjectTry = TRUE;
    if(ResizeObjectSpace(YES,Jbol + Jpatt,0) != OK) {
       r = ABORT; goto OUT;

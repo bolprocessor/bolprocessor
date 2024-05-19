@@ -37,9 +37,7 @@
 
 #include "-BP2decl.h"
 
-#ifndef SHOWEVERYTHING
 #define SHOWEVERYTHING 0
-#endif
 
 extern FILE * imagePtr;
 
@@ -1063,7 +1061,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	shift = 0.;
 	if(strcmp(type,"pianoroll") == 0) shift = 0.; // Later we'll take care of this  2024-05-10
 	else {
-	//	if(OutMIDI || WriteMIDIfile || OutCsound || OutBPdata) shift = (double) PianorollShift;
+	//	if(rtMIDI || WriteMIDIfile || OutCsound || OutBPdata) shift = (double) PianorollShift;
 		if(Improvize) shift = (double) PianorollShift;
 		}
 	if(imagePtr == NULL) {
@@ -1238,7 +1236,7 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 		return(OK);
 		}
 	// if(strcmp(type,"midi") == 0) {
-		if(OutMIDI || WriteMIDIfile || OutCsound || OutBPdata) {
+		if(rtMIDI || WriteMIDIfile || OutCsound || OutBPdata) {
 			timeon -= PianorollShift;
 			timeoff -= PianorollShift;	
 			}

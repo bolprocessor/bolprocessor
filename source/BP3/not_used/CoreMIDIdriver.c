@@ -430,7 +430,7 @@ static void CMReadCallback(const MIDIPacketList* pktlist, void* readProcRefCon, 
 	int i;
 	const MIDIPacket *pkt = &pktlist->packet[0];
 	
-	// if (!OutMIDI || !CoreMidiInputOn)  return;	// FIXME ? should we check these ?
+	// if (!rtMIDI || !CoreMidiInputOn)  return;	// FIXME ? should we check these ?
 	for (i = 0; i < pktlist->numPackets; ++i) {
 		// check if we are receiving this type of event
 		if(AcceptEvent(ByteToInt(pkt->data[0]))) {
@@ -518,7 +518,7 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 	int result;
 	
 	err = noErr;
-	/*if(!CoreMidiOutputOn && OutMIDI) {
+	/*if(!CoreMidiOutputOn && rtMIDI) {
 		if(Beta) Println(wTrace,"=> Err. DriverWrite(). Driver output is OFF");
 		return(noErr);
 	}*/
@@ -527,7 +527,7 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 		result = CaptureMidiEvent(time, nseq, p_e);
 		if (result != OK) return(noErr);
 	}
-	if(!OutMIDI || MIDIfileOn) return(noErr);
+	if(!rtMIDI || MIDIfileOn) return(noErr);
 
 	// Register program change to the MIDI orchestra
 	if(SoundOn && p_e->type == TWO_BYTE_EVENT && !ConvertMIDItoCsound && !ItemCapture
@@ -647,7 +647,7 @@ int ResetMIDI(int wait)
 
 	rep = OK;
 
-	if(!OutMIDI || (AEventOn && !IsMidiDriverOn())) return(OK);
+	if(!rtMIDI || (AEventOn && !IsMidiDriverOn())) return(OK);
 
 	if(!IsMidiDriverOn()) {
 		if(Beta) Alert1("=> Err. ResetMIDI(). Driver is OFF");

@@ -450,9 +450,9 @@ GetValues(int force)
 {
 int oldoutmidi,oldwritemidifile,oldoutcsound,oms;
 
-oldoutmidi = OutMIDI;
+oldoutmidi = rtMIDI;
 if(force || Nw == wSettingsTop || Nw == wSettingsBottom) {
-	OutMIDI = GetControlValue(Hbutt[bMIDI]);
+	rtMIDI = GetControlValue(Hbutt[bMIDI]);
 	Improvize = GetControlValue(Hbutt[bImprovize]);
 	StepProduce = GetControlValue(Hbutt[bStepProduce]);
 	StepGrammars = GetControlValue(Hbutt[bStepGrammars]);
@@ -507,15 +507,15 @@ int SetButtons(int force)
 if(AllItems || Improvize) CyclicPlay = FALSE;
 if(AllItems) Improvize = FALSE;
 if(CyclicPlay || AllItems || OutCsound || WriteMIDIfile) ComputeWhilePlay = FALSE;
-if(!InitOn && !IsMidiDriverOn()) OutMIDI = FALSE; // added 012307 - akozar
-if((AllItems || Improvize) && !OutMIDI && !OutCsound && !WriteMIDIfile) DisplayItems = TRUE;
+if(!InitOn && !IsMidiDriverOn()) rtMIDI = FALSE; // added 012307 - akozar
+if((AllItems || Improvize) && !rtMIDI && !OutCsound && !WriteMIDIfile) DisplayItems = TRUE;
 if(StepTimeSet) TraceTimeSet = TRUE;
 if(TraceTimeSet) DisplayTimeSet = TRUE;
 if(PlanProduce) TraceProduce = StepProduce = TRUE;
 if(TraceProduce || StepProduce || StepGrammars) DisplayProduce = TRUE;
 #if BP_CARBON_GUI_FORGET_THIS
 if(force || (Nw == wSettingsTop) || (Nw == wSettingsBottom)) {
-	ChangeControlValue(force,Hbutt[bMIDI],OutMIDI);
+	ChangeControlValue(force,Hbutt[bMIDI],rtMIDI);
 	ChangeControlValue(force,Hbutt[bImprovize],Improvize);
 	ChangeControlValue(force,Hbutt[bStepProduce],StepProduce);
 	ChangeControlValue(force,Hbutt[bStepGrammars],StepGrammars);
@@ -1288,7 +1288,7 @@ sprintf(line,"%ld",(long)Time_res);
 SetField(NULL, wTimeAccuracy, fTimeRes, line);
 sprintf(line,"%ld",(long)Quantization);
 SetField(NULL, wTimeAccuracy, fQuantize, line);
-sprintf(line,"%ld",(long)SetUpTime);
+sprintf(line,"%ld",(long)MIDIsetUpTime);
 SetField(NULL, wTimeAccuracy, fSetUpTime, line);
 if(QuantizeOK) {
 	GetDialogItem(gpDialogs[wTimeAccuracy],dOff,&itemtype,
@@ -1337,7 +1337,7 @@ if(i < 0 || i > 2000) {
 	if(i > 2000) i = 2000;
 	else i = 0;
 	}
-SetUpTime = i;
+MIDIsetUpTime = i;
 GetDialogItem(gpDialogs[wTimeAccuracy],fTimeRes,&itemtype,&itemhandle,&r);
 GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,line);

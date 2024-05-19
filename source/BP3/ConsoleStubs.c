@@ -119,7 +119,7 @@ int StopCount(int i)
 
 int CheckLoadedPrototypes(void)
 {
-	if (NeedAlphabet && !ObjectMode && !ObjectTry && (OutMIDI || OutCsound || WriteMIDIfile)) {
+	if (NeedAlphabet && !ObjectMode && !ObjectTry && (rtMIDI || OutCsound || WriteMIDIfile)) {
 		ObjectTry = TRUE;
 	/*	BPPrintMessage(odWarning, "Loading object prototypes is not yet possible in the "
 			"console version, so MIDI and Csound output may not work correctly.\n");

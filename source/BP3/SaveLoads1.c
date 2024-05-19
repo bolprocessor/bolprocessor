@@ -735,7 +735,7 @@ WRITE:
 		
 		WriteToFile(NO,MAC," ",refnum);
 		
-		sprintf(LineBuff,"%ld\n%ld\n%ld",(long)Quantization,(long)Time_res,(long)SetUpTime);
+		sprintf(LineBuff,"%ld\n%ld\n%ld",(long)Quantization,(long)Time_res,(long)MIDIsetUpTime);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		sprintf(LineBuff,"%ld",(long)QuantizeOK); WriteToFile(NO,MAC,LineBuff,refnum);
 		sprintf(LineBuff,"%ld",(long)Nature_of_time); WriteToFile(NO,MAC,LineBuff,refnum);
@@ -1439,7 +1439,7 @@ char **p_line,**p_completeline;
 if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start LoadSettings = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 
 result = OK;
-oldoutmidi = OutMIDI;
+oldoutmidi = rtMIDI;
 p_line = p_completeline = NULL;
 if(startup) {
 	// FIXME: set filename = location of a startup settings file and continue? We'll see later (BB)
@@ -1479,8 +1479,8 @@ if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;	// serial port used by old b
 if(ReadOne(FALSE,FALSE,TRUE,sefile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;	// Not used but should be kept for consistency
 if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR; Quantization = k;
 if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR; Time_res = k;
-if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR; SetUpTime = j;
-if(trace_load_settings) BPPrintMessage(odError, "SetUpTime = %d\n",SetUpTime);
+if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR; MIDIsetUpTime = j;
+if(trace_load_settings) BPPrintMessage(odError, "MIDIsetUpTime = %d\n",MIDIsetUpTime);
 if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR; QuantizeOK = j;
 if(trace_load_settings) BPPrintMessage(odError, "QuantizeOK = %d\n",QuantizeOK);
 #if BP_CARBON_GUI_FORGET_THIS
@@ -1524,7 +1524,7 @@ if(ReadInteger(sefile,&StepTimeSet,&pos) == MISSED) goto ERR;
 if(ReadInteger(sefile,&TraceTimeSet,&pos) == MISSED) goto ERR; 
 if(jmax > 27) ReadInteger(sefile,&CsoundTrace,&pos);
 else CsoundTrace = FALSE;
-if(ReadInteger(sefile,&OutMIDI,&pos) == MISSED) goto ERR; 
+if(ReadInteger(sefile,&rtMIDI,&pos) == MISSED) goto ERR; 
 if(ReadInteger(sefile,&SynchronizeStart,&pos) == MISSED) goto ERR; 
 if(ReadInteger(sefile,&ComputeWhilePlay,&pos) == MISSED) goto ERR; 
 if(ReadInteger(sefile,&Interactive,&pos) == MISSED) goto ERR; 
@@ -1550,18 +1550,18 @@ Oms = FALSE;	// OMS is no more
    Note that this does not mark the settings file as Dirty either.
    -- 012307 akozar */
 #if !WITH_REAL_TIME_MIDI_FORGET_THIS
-	OutMIDI = FALSE;
+	rtMIDI = FALSE;
 //	Improvize = FALSE;
 #endif
 
-// if(!OutMIDI) Improvize = FALSE;
+// if(!rtMIDI) Improvize = FALSE;
 
 SetButtons(TRUE);
 
 #if BP_CARBON_GUI_FORGET_THIS
 if(oldoutcsound && !OutCsound && !startup) CloseCsScore();
 if(oldwritemidifile && !WriteMIDIfile && !startup) CloseMIDIFile();
-if(OutMIDI && !oldoutmidi && !InitOn && !startup) ResetMIDI(FALSE);
+if(rtMIDI && !oldoutmidi && !InitOn && !startup) ResetMIDI(FALSE);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
 if(ReadInteger(sefile,&SplitTimeObjects,&pos) == MISSED) goto ERR;

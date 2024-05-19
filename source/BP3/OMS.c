@@ -599,7 +599,7 @@ PushMIDIdata(unsigned char nbytes,unsigned char* data)
 long newtop;
 int i;
 
-if(!OutMIDI && !Interactive && !ReadKeyBoardOn && !ScriptRecOn) return(MISSED);
+if(!rtMIDI && !Interactive && !ReadKeyBoardOn && !ScriptRecOn) return(MISSED);
 
 newtop = BytesReceived + nbytes;
 if(newtop >= MaxOMSinputBufferSize) {

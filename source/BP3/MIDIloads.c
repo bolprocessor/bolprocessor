@@ -159,8 +159,8 @@ if(!IsMidiDriverOn()) {
 #if !WITH_REAL_TIME_MIDI_FORGET_THIS
   return(ABORT);
 #else
-if(!OutMIDI) {
-	OutMIDI = TRUE;
+if(!rtMIDI) {
+	rtMIDI = TRUE;
 	SetButtons(TRUE);
 	}
 if(ComputeOn || PolyOn || CompileOn || SoundOn || SelectOn ||
@@ -798,8 +798,8 @@ if(!IsMidiDriverOn()) { // added this check - 012307 akozar
 #if !WITH_REAL_TIME_MIDI_FORGET_THIS
   return(MISSED);
 #else
-if(!OutMIDI) {
-	OutMIDI = TRUE;
+if(!rtMIDI) {
+	rtMIDI = TRUE;
 	SetButtons(TRUE);
 	}
 i = ZERO;

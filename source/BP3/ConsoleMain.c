@@ -90,8 +90,8 @@ Boolean PrototypesLoaded = FALSE;
 
 MIDI_Event eventStack[MAXMIDIMESSAGES];
 long eventCount = 0L;
-long eventCountMax = MAXMIDIMESSAGES - 2L;
-UInt64 initTime = 0L;
+long eventCountMax = MAXMIDIMESSAGES - 4L;
+UInt64 initTime = 0L; // millisconds
 
 int main (int argc, char* args[])
 {
@@ -228,7 +228,7 @@ int main (int argc, char* args[])
 				PlaySelectionOn = PlayChunks = TRUE;
 				Improvize = FALSE;
 				result = PlaySelection(wData,1);
-				PlayAll = FALSE;
+				PlayAllChunks = FALSE;
 				if(result == OK) BPPrintMessage(odInfo,"\nErrors: 0\n");
 				else if(Beta && result != OK && result != ABORT) BPPrintMessage(odError,"=> PlaySelection() returned errors\n");
 				break;
@@ -308,14 +308,15 @@ int main (int argc, char* args[])
 	// CloseFileAndUpdateVolume(&TempRefnum);
 	CloseCsScore();
 	CloseOutputDestination(odTrace, &gOptions, ofiTraceFile);
-	if(OutMIDI) {
+	if(rtMIDI) {
 		if(Panic) eventCount = 0L;
 		while(eventCount > 0L) {
 			MIDIflush();  // Process MIDI events
 			if((result = WaitABit(10)) != OK) return EXIT_SUCCESS; // Sleep for 10 milliseconds
 			}
 		if((result = WaitABit(100)) != OK) return EXIT_SUCCESS; // Sleep for 100 milliseconds
-		AllNotesOffAllChannels();
+		AllNotesOffPedalsOffAllChannels();
+		BPPrintMessage(odInfo,"LastTime = %ld ms\n",LastTime); // Date of the last MIDI event
 		closeMIDISystem();
 		}
 	time(&current_time);
@@ -375,6 +376,9 @@ void CreateStopFile(void) {
 int stop() {
 	FILE * ptr;
 	if(Panic || EmergencyExit) return ABORT;
+	unsigned long current_time = getClockTime(); // microseconds
+	if(current_time < NextStop) return(OK); // Weonly check _stop and _panic every 500 ms
+	NextStop = current_time + 500000L; // microseconds
 	ptr = fopen(StopfileName,"r");
 	if(ptr) {
 		Improvize = FALSE;
@@ -955,8 +959,11 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 			return ABORT;
 			}
 		// InBuiltDriverOn = TRUE;
-		OutMIDI = TRUE;
-		initTime = getClockTime();
+		rtMIDI = TRUE;
+		AllNotesOffPedalsOffAllChannels();
+		WaitABit(500L); // 500 ms
+		MIDIflush();
+	//	initTime = (UInt64) getClockTime();
 		}
 	return OK;
 	}
@@ -974,14 +981,14 @@ int ApplyArgs(BPConsoleOpts* opts)
 	// If any of the score output or performance options were specified,
 	// then ignore all of those options from the settings file!
 	if (opts->outOptsChanged) {
-		DisplayItems = OutCsound = WriteMIDIfile = OutMIDI = FALSE;
+		DisplayItems = OutCsound = WriteMIDIfile = rtMIDI = FALSE;
 	}
 	
 	// apply options that were explicitly given on the command line
 	if (opts->displayItems != NOCHANGE)		DisplayItems = opts->displayItems;
 	if (opts->writeCsoundScore != NOCHANGE)	OutCsound = opts->writeCsoundScore;
 	if (opts->writeMidiFile != NOCHANGE)	WriteMIDIfile = opts->writeMidiFile;
-	if (opts->useRealtimeMidi != NOCHANGE)	OutMIDI = opts->useRealtimeMidi;
+	if (opts->useRealtimeMidi != NOCHANGE)	rtMIDI = opts->useRealtimeMidi;
 	if (opts->traceProduction != NOCHANGE)	{
 		DisplayProduce = opts->traceProduction;
 		TraceProduce = opts->traceProduction;
