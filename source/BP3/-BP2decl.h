@@ -393,9 +393,13 @@ extern int trace_scale;
 
 extern int WarnedBlockKey,WarnedRangeKey;
 
-extern MIDI_Event eventStack[MAXMIDIMESSAGES];
+extern size_t MaxMIDIMessages;
+extern MIDI_Event* eventStack;
 extern long eventCount, eventCountMax;
+extern MIDI_Event* eventStack;
 extern UInt64 initTime;
 extern int FirstMIDIevent;
+
+extern int stop(int);
 
 #endif /* BP2_DECL_H */

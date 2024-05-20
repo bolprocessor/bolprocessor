@@ -123,10 +123,6 @@
 #define WITH_REAL_TIME_MIDI_FORGET_THIS 0
 #endif
 
-#define MAXMIDIMESSAGES 1000
-
-//#include <ansi_prefix.mac.h>	// commented out - 010507 akozar
-
 #if UseMIDIMgr
 #  include <MIDI.h>
 #endif
@@ -1726,6 +1722,11 @@ typedef struct Slice {
 	struct Slice *next;			// next timeslice
 	} Slice;
 #endif */
+
+long eventCount,eventCountMax;
+UInt64 initTime;
+MIDI_Event* eventStack;
+size_t MaxMIDIMessages;
 
 struct s_chunck {
 	unsigned long origin,end;

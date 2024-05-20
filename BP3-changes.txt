@@ -67,3 +67,11 @@ Fixed unwanted cross effects when playing multiple instances of BP3 together.
 Fixed timing problem in real-time MIDI when playing chunked data. Faulty chunked data still doesn't play well (in real time), although it produces acceptable MIDI files.
 (Next version will handle MIDI input events.)
 The stop() function that checks for "_stop" or "_panic" files now only performs this check twice per second. This saves time for sending MIDI events at the correct time.
+
+-----
+2024-05-20
+Fixed bug loading Csound instruments to the console: comments are ignored.
+Fixed bug in timing the Csound score on chunked Data.
+In real-time MIDI, the clock is synchronised on the first NoteOn event.
+The stop() function has a "now" parameter to decide whether it should work immediately or wait for the next half second.
+MaxMIDIMessages = 1000. More may be necessary to handle very large chunks of data in real-time MIDI.

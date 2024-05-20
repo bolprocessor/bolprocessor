@@ -126,6 +126,28 @@ Print(wTrace,line);
 return(OK);
 }
 
+int Notify(char* message) { // Doesn't work on Mac because of authorizations, although the code is correct: it works when calling bp with Terminal command
+    #if defined(_WIN32) || defined(_WIN64)
+    MessageBox(NULL, message, "Alert", MB_OK | MB_ICONINFORMATION);
+    #elif defined(__APPLE__)
+    char command[1024];
+	int timeout = 5;
+    // Simplified AppleScript command without extra dialog properties
+    snprintf(command,sizeof(command), 
+        "osascript -e 'display notification \"%s\" with title \"BP3:\"'", message);
+    system(command);
+	BPPrintMessage(odInfo,"Alert = %s\n",message);
+    #elif defined(__linux__)
+    char linuxCommand[1024];
+    snprintf(linuxCommand, sizeof(linuxCommand), "zenity --info --text=\"%s\" --title=\"Alert\" --timeout=%d", message, timeout);
+    system(linuxCommand);
+    #else
+    printf("Unsupported platform\n");
+    #endif
+    return 0;
+	}
+
+
 // FIXME: GetInteger() likely originally assumed that ints were 2 bytes.
 // Change to int16_t Get2ByteInteger() ?? (needs careful checking!)
 int GetInteger(int test, const char* line, int* p_i)
@@ -2066,7 +2088,7 @@ return(ABORT);
 int WaitABit(long thedelay) {
 	// Wait for thedelay milliseconds
 	int result;
-	if(thedelay > 100L && (result = stop()) != OK) return result;
+	if(thedelay > 100L && (result = stop(1)) != OK) return result;
 	usleep(1000L * thedelay);
 
 	/* int i;

@@ -97,6 +97,7 @@ void closeMIDISystem();
 void sendMIDIEvent(unsigned char*,int,long);
 void MIDIflush(void);
 unsigned long getClockTime(void);
+int Notify(char*);
 
 /* OBSOLETE: in MIDIdrivers.c - used by both OMS and built-in drivers */
 /* #if WITH_REAL_TIME_MIDI_FORGET_THIS
@@ -1122,7 +1123,7 @@ char* str_replace(const char*, const char*, const char*);
 int ClearObjectSpace(void);
 void CreateDoneFile(void);
 void CreateStopFile(void);
-int stop(void);
+int stop(int);
 
 int CreateMicrotonalScale(char*,char*,char*,char*,char*,char*);
 double GetPitchWithScale(int,int,double,int);

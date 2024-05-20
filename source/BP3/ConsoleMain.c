@@ -88,18 +88,11 @@ int WarnedBlockKey,WarnedRangeKey;
 
 Boolean PrototypesLoaded = FALSE;
 
-MIDI_Event eventStack[MAXMIDIMESSAGES];
-long eventCount = 0L;
-long eventCountMax = MAXMIDIMESSAGES - 4L;
-UInt64 initTime = 0L; // millisconds
-
 int main (int argc, char* args[])
 {
 	int  result,i,j,this_size,improvize_mem;
 	long forgotten_mem, memory_before;
 	time_t current_time;
-		
-//	MemoryUsedInit = MemoryUsed = 0;
 
 	MaxHandles = ZERO;
 	MemoryUsed = 0;
@@ -150,6 +143,19 @@ int main (int argc, char* args[])
 #else
 	TraceMemory = FALSE;
 #endif
+
+	MaxMIDIMessages = 1000L;
+
+	eventStack = (MIDI_Event*) malloc(MaxMIDIMessages * sizeof(MIDI_Event));
+	if(eventStack == NULL) {
+        // Memory allocation failed, handle it appropriately
+        BPPrintMessage(odError,"=> Failed to allocate %ld cells for MIDI messages. Reduce ‘MaxMIDIMessages’ in ‘ConsoleMain.c’\n",MaxMIDIMessages);
+		Panic = TRUE;
+        goto CLEANUP;
+    	}
+	eventCount = 0L;
+	eventCountMax = MaxMIDIMessages - 4L;
+	initTime = 0L; // millisconds
 
 /* Some things that we might want to do later ...
 	
@@ -264,8 +270,7 @@ int main (int argc, char* args[])
 		}
 	}
 	
-	/* Cleanup ... */
-	
+CLEANUP:
 	// deallocate any remaining space obtained since Inits()
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (12) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	MyDisposeHandle((Handle*)&Stream.code);
@@ -316,20 +321,16 @@ int main (int argc, char* args[])
 			}
 		if((result = WaitABit(100)) != OK) return EXIT_SUCCESS; // Sleep for 100 milliseconds
 		AllNotesOffPedalsOffAllChannels();
-		BPPrintMessage(odInfo,"LastTime = %ld ms\n",LastTime); // Date of the last MIDI event
+		BPPrintMessage(odInfo,"Duration = %.3f seconds\n",(double)LastTime/1000.); // Date of the last MIDI event
 		closeMIDISystem();
 		}
 	time(&current_time);
 	if(ProductionTime > 0) BPPrintMessage(odInfo, "Production time: %ld seconds\n",(long)ProductionTime);
 	if(PhaseDiagramTime > 0) BPPrintMessage(odInfo, "Phase-diagram filling time: %ld seconds\n",(long)PhaseDiagramTime);
 	if(TimeSettingTime > 0) BPPrintMessage(odInfo, "Time-setting time: %ld seconds\n",(long)TimeSettingTime);
-	if(current_time > SessionStartTime) BPPrintMessage(odInfo, "Total computation time: %ld seconds\n",(long)(current_time-SessionStartTime));
+	if(current_time > SessionStartTime && !Panic) BPPrintMessage(odInfo, "Total computation time: %ld seconds\n",(long)(current_time-SessionStartTime));
 	CreateDoneFile();
-	
-	// deallocate space obtained during Inits() (not strictly necessary)
-/*	MyDisposeHandle((Handle*)&p_Oldvalue); */
-//	ClearLockedSpace();
-
+	free(eventStack);
 	return EXIT_SUCCESS;
 	}
 
@@ -373,16 +374,16 @@ void CreateStopFile(void) {
 	return;
 	}
 
-int stop() {
+int stop(int now) {
 	FILE * ptr;
 	if(Panic || EmergencyExit) return ABORT;
 	unsigned long current_time = getClockTime(); // microseconds
-	if(current_time < NextStop) return(OK); // Weonly check _stop and _panic every 500 ms
+	if(!now && (current_time < NextStop)) return(OK); // We only check _stop and _panic every 500 ms
 	NextStop = current_time + 500000L; // microseconds
 	ptr = fopen(StopfileName,"r");
 	if(ptr) {
 		Improvize = FALSE;
-		BPPrintMessage(odInfo,"Found 'stop' file: %s\n",StopfileName);
+		BPPrintMessage(odInfo,"=> Found 'stop' file: %s\n",StopfileName);
 		fclose(ptr);
 		Panic = EmergencyExit = TRUE;
 		return ABORT;
@@ -390,7 +391,7 @@ int stop() {
 	ptr = fopen(PanicfileName,"r");
 	if(ptr) {
 		Improvize = FALSE;
-		BPPrintMessage(odInfo,"Found 'stop' file: %s\n",PanicfileName);
+		BPPrintMessage(odInfo,"=> Found 'panic' file: %s\n",PanicfileName);
 		fclose(ptr);
 		Panic = EmergencyExit = TRUE;
 		return ABORT;
@@ -964,6 +965,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 		WaitABit(500L); // 500 ms
 		MIDIflush();
 	//	initTime = (UInt64) getClockTime();
+		Notify("Real-time MIDI started");
 		}
 	return OK;
 	}

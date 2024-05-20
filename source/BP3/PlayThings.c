@@ -80,8 +80,8 @@ int PlaySelection(int w, int all) {
 		SetButtons(TRUE);
 		}
 	if(all) {
-		ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
-		BPPrintMessage(odError,"\n(No more message while playing many chunks.)\n");
+	//	ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
+		BPPrintMessage(odError,"\n(No message when playing chunks.)\n");
 		PlayAllChunks = TRUE;
 		}
 

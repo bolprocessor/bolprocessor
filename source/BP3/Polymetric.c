@@ -816,8 +816,9 @@ if(trace_polymake) {
 	sprintf(Message,"Expanding polymetric expression [position %lu]...",(*p_pos));
 	ShowMessage(TRUE,wMessage,Message);
 	}
-PleaseWait();
 result = ABORT; compiledmem = CompiledGr;
+
+if(rtMIDI && ((r=stop(1)) != OK)) return(r);
 
 imbedded = TRUE;
 

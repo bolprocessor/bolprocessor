@@ -485,14 +485,15 @@ void sendMIDIEvent(unsigned char* midiData,int dataSize,long time) {
     status = midiData[0];
     note = midiData[1];
     value = midiData[2];
+
     if(test_first_events && NumEventsWritten < 100) {
         clocktime = getClockTime() - initTime; // microseconds
         improvize = Improvize;
         Improvize = 0; // Necessary to activate BPPrintMessage(odInfo,...
         if(status == NoteOn || status == NoteOff)
-            BPPrintMessage(odInfo,"%.3f -> %.3f s status = %d, note = %d, value = %d\n",(float)clocktime/1000000,(float)time/1000000,status,note,value);
+            BPPrintMessage(odInfo,"%.3f => %.3f s status = %d, note = %d, value = %d\n",(float)clocktime/1000000,(float)time/1000000,status,note,value);
      /*   else
-            BPPrintMessage(odInfo,"%.3f -> %.3f s event %d-%d-%d\n",(float)clocktime/1000000,(float)time/1000000,status,note,value); */
+            BPPrintMessage(odInfo,"%.3f => %.3f s event %d-%d-%d\n",(float)clocktime/1000000,(float)time/1000000,status,note,value); */
         Improvize = improvize;
         }
     if(NumEventsWritten < LONG_MAX) NumEventsWritten++;
@@ -547,7 +548,7 @@ void MIDIflush() {
     int result,size;
     size = sizeof(MIDI_Event);
     if(Panic) eventCount = 0L;
-    if((result = stop()) != OK) {
+    if((result = stop(0)) != OK) {
         eventCount = 0L;
         return;
         }

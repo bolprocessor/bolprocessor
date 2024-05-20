@@ -755,7 +755,7 @@ TRYCSFILE:
 			Println(wPrototype7,Message);
 		else {
 			if(CsoundTrace) ShowMessage(TRUE,wMessage,Message);
-			if(!Improvize || !AssignedTempoCsoundFile) {
+			if((!Improvize  && !PlayAllChunks) || !AssignedTempoCsoundFile) { // Fixed !PlayAllChunks 2024-05-20
 				AssignedTempoCsoundFile = TRUE;
 				if(WriteToFile(NO,CsoundFileFormat,Message,CsRefNum) != OK) {
 					BPPrintMessage(odError,"=> Couldn't write to file '%s'. May be it has been closed by another application\n");
@@ -2153,7 +2153,7 @@ if(add_time > ZERO  && (Improvize || PlayAllChunks)) { // 2024-05-09
 	}
 if(cswrite) LastTime += max_endtime;
 
-if(cswrite && result == OK && !Improvize && !ConvertMIDItoCsound) // ConvertMIDItoCsound is always false in the console version
+if(cswrite && result == OK && !Improvize && !PlayAllChunks && !ConvertMIDItoCsound) // ConvertMIDItoCsound is always false in the console version
 	WriteToFile(NO,CsoundFileFormat,"s",CsRefNum); // This line will automatically be deleted if this score belongs to a sound-object prototype — see function fix_csound_score() in prototype.php
 
 if(cswrite) WriteToFile(NO,CsoundFileFormat,";",CsRefNum);

@@ -1132,17 +1132,15 @@ for(j=0; j < jmax; j++) {
 	if(trace_load_csound_resources) BPPrintMessage(odInfo,"Loading Csound instrument %d = \"%s\" out of %d\n",(j+1),(*((*pp_CsInstrumentName)[j])),jmax);
 //	p_line = p_completeline = NULL; 
 	if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-//	ptr = (*pp_CsInstrumentComment)[j];
-	ptr = NULL; // Fixed by BB 2021-02-14
-	if((*p_completeline)[0] != '\0') {
+/*	if((*p_completeline)[0] != '\0') {
 		if(MySetHandleSize((Handle*)&ptr,(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
 			goto ERR;
 		MystrcpyHandleToHandle(0,&ptr,p_completeline);
 		(*pp_CsInstrumentComment)[j] = ptr;
 		if(trace_load_csound_resources) BPPrintMessage(odInfo,"Comment: %s\n",(*p_completeline));
 		}
-	else strcpy((*((*pp_CsInstrumentComment)[j])),""); // (*((*pp_CsInstrumentComment)[j]))[0] = '\0'; Fixed by BB 2021-02-14
-	
+	else strcpy((*((*pp_CsInstrumentComment)[j])),""); // (*((*pp_CsInstrumentComment)[j]))[0] = '\0'; Fixed by BB 2021-02-14 */
+	strcpy((*((*pp_CsInstrumentComment)[j])),""); // Forget comment! 2024-05-20
 	if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
 	(*p_CsInstrument)[j].iargmax = i;
 	if(trace_load_csound_resources) BPPrintMessage(odInfo,"iargmax = %d\n",i);

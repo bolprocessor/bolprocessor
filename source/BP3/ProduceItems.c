@@ -264,7 +264,7 @@ if(Improvize) {
 			}
 		}
 	}
-if((r = stop()) != OK) goto QUIT;
+if((r = stop(1)) != OK) goto QUIT;
 if(pp_start != NULL) goto DOIT;
 if(!PlaySelectionOn && DeriveFurther) {
 	if(!Improvize && DisplayItems) {

@@ -49,7 +49,7 @@ int ListenMIDI(int x0, int x1, int x2) {
 
 	r = OK;
 	if(EmergencyExit || Panic) return(ABORT); // 2024-05-03
-	if((r=stop()) != OK) return r;
+	if((r=stop(0)) != OK) return r;
 	return(r);
 	}
 
@@ -1787,6 +1787,7 @@ int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 	LastTime = time;
 	if(Panic || EmergencyExit) return(ABORT);
 	if(!MIDIfileOn && !rtMIDI) return(OK);
+	status = ByteToInt(p_e->status);
 	if(rtMIDI) {
 		// Sending to the stack
         done = 0L;
@@ -1801,10 +1802,10 @@ int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 		eventStack[eventCount] = *p_e;
 		eventStack[eventCount].time = 1000 * time;
 		eventCount++;
-		if(FirstMIDIevent) {
+		if(((status & 0xF0) == NoteOn) && FirstMIDIevent) {
 			FirstMIDIevent = FALSE;
 			initTime = (UInt64) getClockTime();
-			}
+			} 
 		return(OK);
 		}
 	
@@ -1824,7 +1825,6 @@ int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 	when sending to any MIDI driver that does not communicate
 	directly with a Serial port (eg. OMS, CoreMIDI, etc.) */
 	if(ItemCapture) *p_rs = 0;
-	status = ByteToInt(p_e->status);
 	chan = status % 16;
 	c0 = status - chan;
 	if(trace_driver) BPPrintMessage(odInfo,"++ SendToDriver() time = %ld c0 = %d\tc1 = %d\tc2 = %d\n",(long)time,c0,ByteToInt(p_e->data1),ByteToInt(p_e->data2));
