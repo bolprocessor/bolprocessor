@@ -264,7 +264,9 @@ if(Improvize) {
 			}
 		}
 	}
-if((r = stop(1)) != OK) goto QUIT;
+if((r = stop(1)) != OK) {
+	goto QUIT;
+	}
 if(pp_start != NULL) goto DOIT;
 if(!PlaySelectionOn && DeriveFurther) {
 	if(!Improvize && DisplayItems) {
@@ -360,17 +362,13 @@ if(ShowGraphic || rtMIDI || OutCsound || WriteMIDIfile  || OutBPdata) {
 r = OK;
 
 QUIT:
-
 ComputeOn--;
 
 SetButtons(TRUE);
-
 // if(ResetControllers) ResetMIDIControllers(NO,NO,YES);
 ResetMIDIfile();
-
 // if(ResetMIDI(TRUE) == EXIT) r = EXIT;
 if(ResetControllers) ResetMIDIControllers(YES,NO,YES);
-
 PedalOrigin = -1;
 /* Maxitems = ZERO;
 if(!ShowGraphic && !PlaySelectionOn && DisplayItems && !template) {

@@ -40,247 +40,227 @@
 
 int trace_polymake = 0;
 
-int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing)
-{
-tokenbyte m,p,**p_b,**ptr;
-char fixtempo,useful,toocomplex,alreadychangedquantize;
-int k,krep,rep,level,r,**p_nseq,**p_nseqmax,maxlevel,needalphabet,foundinit,overflow,toofast,
-	numberouttimeinseq,longestseqouttime,numbertoofast,longestnumbertoofast,morelines,max_quantization;
-double P,Q,tempo,tempomax,prodtempo,fmaxseq,nsymb,lcm,kpress,thelimit,speed,scaling,s,
-	limit1,limit2,imax,x,firstscaling,scalespeed,maxscalespeed;
-unsigned long i,maxid,pos_init,gcd,numberprolongations;
-long newquantize,newquantize2,totalbytes,a,b;
+	int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
+	tokenbyte m,p,**p_b,**ptr;
+	char fixtempo,useful,toocomplex,alreadychangedquantize;
+	int k,krep,rep,level,r,**p_nseq,**p_nseqmax,maxlevel,needalphabet,foundinit,overflow,toofast,
+		numberouttimeinseq,longestseqouttime,numbertoofast,longestnumbertoofast,morelines,max_quantization;
+	double P,Q,tempo,tempomax,prodtempo,fmaxseq,nsymb,lcm,kpress,thelimit,speed,scaling,s,
+		limit1,limit2,imax,x,firstscaling,scalespeed,maxscalespeed;
+	unsigned long i,maxid,pos_init,gcd,numberprolongations;
+	long newquantize,newquantize2,totalbytes,a,b;
 
-if(CheckEmergency() != OK) return(ABORT);
+	if(CheckEmergency() != OK) return(ABORT);
 
-r = MISSED;
-Pduration = 0.;
-Qduration = 1.;
-POLYconvert = OkShowExpand = FALSE;
-Ratio = Prod = 1.;
-Kpress = 1.;
-Maxevent = 3L;
-(*p_maxseq) = 10.;
+	r = MISSED;
+	Pduration = 0.;
+	Qduration = 1.;
+	POLYconvert = OkShowExpand = FALSE;
+	Ratio = Prod = 1.;
+	Kpress = 1.;
+	Maxevent = 3L;
+	(*p_maxseq) = 10.;
 
-p_b = NULL;
-p_nseq = p_nseqmax = NULL;
-if(*pp_a == NULL) {
-	if(Beta) Alert1("=> Err. PolyMake(). *pp_a = NULL");
-	return(ABORT);
-	}
-	
-maxid = (MyGetHandleSize((Handle)*pp_a) / sizeof(tokenbyte));
-if(maxid <= 2) {
-	return(MISSED);
-	}
-if(maxid < 30) maxid = 30;
-maxid += 20;
-if((p_b = (tokenbyte**) GiveSpace((Size)(maxid * sizeof(tokenbyte)))) == NULL)
-	return(ABORT);
-if(MySetHandleSize((Handle*)pp_a,(Size)(maxid * sizeof(tokenbyte))) != OK)
-	return(ABORT);
-
-PolyOn = TRUE;
-
-if(ShowMessages) ShowMessage(TRUE,wMessage,"Interpreting structure...");
-
-if(PrintArg(FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,stdout,wData,&p_b,pp_a) != OK) goto QUIT;
-	/* stdout and TEH are useless */
-	/* item is now in B[] without structure */
-
-//  Size of p_b may have been increased.  Force *pp_a to have the same size
-maxid = (MyGetHandleSize((Handle)p_b) / sizeof(tokenbyte));
-if(MySetHandleSize((Handle*)pp_a,(Size)(maxid * sizeof(tokenbyte))) != OK)
-	return(ABORT);
-maxid -= 16;
-	
-// Calculate sizes of arrays and check {} balance
-
-maxlevel = 2;	/* Otherwise *3/2 will not change it. */
-NeedZouleb = 0;
-for(i=ZERO,level=0; (*p_b)[i] != TEND || (*p_b)[i+1] != TEND; i+=2L) {
-	m = (*p_b)[i]; p = (*p_b)[i+1];
-	if((m == T12 && (p == 21 || p == 22 || p == 24)) || m == T39)
-		NeedZouleb++;
-	if(m == T0 && (p == 12 || p == 22)) level++;
-	if(m == T0 && (p == 13 || p == 23)) {
-		if(level > maxlevel) maxlevel = level;
-		level--;
+	p_b = NULL;
+	p_nseq = p_nseqmax = NULL;
+	if(*pp_a == NULL) {
+		if(Beta) Alert1("=> Err. PolyMake(). *pp_a = NULL");
+		return(ABORT);
 		}
-	}
-if(level != 0) {	/* '{' and '}' not balanced */
-	BPPrintMessage(odError,"=> Incorrect polymetric expression(s): '{' and '}' are not balanced. Can't proceed further...\n");
-	goto QUIT;
-	}
-
-pos_init = ZERO;
-level = 0;
-if(NeedZouleb > 0) {
-	if(ShowMessages) ShowMessage(TRUE,wMessage,"Applying serial tools...");
-	do {
-		r = Zouleb(&p_b,&level,&pos_init,FALSE,FALSE,0,FALSE,FALSE,NOSEED);
-		if(r != OK) goto QUIT;
+		
+	maxid = (MyGetHandleSize((Handle)*pp_a) / sizeof(tokenbyte));
+	if(maxid <= 2) {
+		return(MISSED);
 		}
-	while(level >= 0);
-	maxlevel++;	/* A pair of brackets {} may have been created around a sound-object at the deepest level */
-//	if(trace_polymake) HideWindow(Window[wMessage]);
-	}
+	if(maxid < 30) maxid = 30;
+	maxid += 20;
+	if((p_b = (tokenbyte**) GiveSpace((Size)(maxid * sizeof(tokenbyte)))) == NULL)
+		return(ABORT);
+	if(MySetHandleSize((Handle*)pp_a,(Size)(maxid * sizeof(tokenbyte))) != OK)
+		return(ABORT);
 
-if(Beta && NeedZouleb > 0) {
-	sprintf(Message,"NeedZouleb = %ld in polymetric expression",(long)NeedZouleb);
-	Println(wTrace,Message);
-	}
+	PolyOn = TRUE;
 
-if(ShowMessages) ShowMessage(TRUE,wMessage,"Expanding polymetric expression...");
+	if(ShowMessages) ShowMessage(TRUE,wMessage,"Interpreting structure...");
 
-needalphabet = FALSE;
+	if(PrintArg(FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,stdout,wData,&p_b,pp_a) != OK) goto QUIT;
+		/* stdout and TEH are useless */
+		/* item is now in B[] without structure */
 
-for(i=ZERO,level=0; ; i+=2L) {
-	m = (*p_b)[i]; p = (*p_b)[i+1];
-	if(m == TEND && p == TEND) break;
-	if(m == T3) {
-		if(p > 1) needalphabet = TRUE; 
-		continue;
-		}
-	if(m == T7 && p < 16384) needalphabet = TRUE;
-	if(m != T0) continue;
-	if(p == 12 || p == 22) {	/* '{' */
-		level++;
-		if(level > maxlevel) {
-			if(Beta) Alert1("=> Err. PolyMake(). level > maxlevel");
-			r = ABORT; goto QUIT;
+	//  Size of p_b may have been increased.  Force *pp_a to have the same size
+	maxid = (MyGetHandleSize((Handle)p_b) / sizeof(tokenbyte));
+	if(MySetHandleSize((Handle*)pp_a,(Size)(maxid * sizeof(tokenbyte))) != OK)
+		return(ABORT);
+	maxid -= 16;
+		
+	// Calculate sizes of arrays and check {} balance
+
+	maxlevel = 2;	/* Otherwise *3/2 will not change it. */
+	NeedZouleb = 0;
+	for(i=ZERO,level=0; (*p_b)[i] != TEND || (*p_b)[i+1] != TEND; i+=2L) {
+		m = (*p_b)[i]; p = (*p_b)[i+1];
+		if((m == T12 && (p == 21 || p == 22 || p == 24)) || m == T39)
+			NeedZouleb++;
+		if(m == T0 && (p == 12 || p == 22)) level++;
+		if(m == T0 && (p == 13 || p == 23)) {
+			if(level > maxlevel) maxlevel = level;
+			level--;
 			}
-		continue;
 		}
-	if(p == 13 || p == 23) {	/* '}' */
-		if(level < 1) {
-			if(Beta) Alert1("=> Err. PolyMake(). {} not balanced");
-			r = ABORT; goto QUIT;
+	if(level != 0) {	/* '{' and '}' not balanced */
+		BPPrintMessage(odError,"=> Incorrect polymetric expression(s): '{' and '}' are not balanced. Can't proceed further...\n");
+		goto QUIT;
+		}
+
+	pos_init = ZERO;
+	level = 0;
+	if(NeedZouleb > 0) {
+		if(ShowMessages) ShowMessage(TRUE,wMessage,"Applying serial tools...");
+		do {
+			r = Zouleb(&p_b,&level,&pos_init,FALSE,FALSE,0,FALSE,FALSE,NOSEED);
+			if(r != OK) goto QUIT;
 			}
-		level--;
-		continue;
+		while(level >= 0);
+		maxlevel++;	/* A pair of brackets {} may have been created around a sound-object at the deepest level */
+	//	if(trace_polymake) HideWindow(Window[wMessage]);
 		}
-	}
-Maxconc += 1;
-if(needalphabet && !ObjectMode) {
-	if(!NeedAlphabet) {
-		NeedAlphabet = TRUE;
-		ObjectMode = ObjectTry = FALSE;
+
+	if(Beta && NeedZouleb > 0) {
+		sprintf(Message,"NeedZouleb = %ld in polymetric expression",(long)NeedZouleb);
+		Println(wTrace,Message);
 		}
-	}
 
-// Copy and complete init section
-pos_init = ZERO;
-foundinit = FALSE;
-for(i=ZERO; ; i+=2L) {
-	m = (*p_b)[i];
-	p = (*p_b)[i+1];
-	if(m == TEND && p == TEND) break;
-	(**pp_a)[i] = (tokenbyte) m;
-	(**pp_a)[i+1] = (tokenbyte) p;
-	if(m == T1) continue;
-	if(m == T0 && p == 3) {	/* '+' */
-		foundinit = TRUE;
-		continue;
+	if(ShowMessages) ShowMessage(TRUE,wMessage,"Expanding polymetric expression...");
+
+	needalphabet = FALSE;
+
+	for(i=ZERO,level=0; ; i+=2L) {
+		m = (*p_b)[i]; p = (*p_b)[i+1];
+		if(m == TEND && p == TEND) break;
+		if(m == T3) {
+			if(p > 1) needalphabet = TRUE; 
+			continue;
+			}
+		if(m == T7 && p < 16384) needalphabet = TRUE;
+		if(m != T0) continue;
+		if(p == 12 || p == 22) {	/* '{' */
+			level++;
+			if(level > maxlevel) {
+				if(Beta) Alert1("=> Err. PolyMake(). level > maxlevel");
+				r = ABORT; goto QUIT;
+				}
+			continue;
+			}
+		if(p == 13 || p == 23) {	/* '}' */
+			if(level < 1) {
+				if(Beta) Alert1("=> Err. PolyMake(). {} not balanced");
+				r = ABORT; goto QUIT;
+				}
+			level--;
+			continue;
+			}
 		}
-	if(m == T0 && p == 11) { /* '/' */
-		pos_init = i;
-		break;
+	Maxconc += 1;
+	if(needalphabet && !ObjectMode) {
+		if(!NeedAlphabet) {
+			NeedAlphabet = TRUE;
+			ObjectMode = ObjectTry = FALSE;
+			}
 		}
-	if(foundinit) {
-		/* Insert '/1' speed marker because none has been found. Otherwise, the initial... */
-		/* ... section numbers might be wrongly interpreted */
-		pos_init = i;
-		(**pp_a)[i] = T0; (**pp_a)[i+1] = 11; /* '/' */
-		i += 2;
-		(**pp_a)[i] = T1; (**pp_a)[i+1] = 0;
-		i += 2;
-		(**pp_a)[i] = T1; (**pp_a)[i+1] = 1;
-		}
-	break;
-	}
-fixtempo = useful = FALSE;
-P = 0L;  Q = 1L;
 
-//////////////////////////////////
-r = PolyExpand(p_b,pp_a,pos_init,&maxid,&pos_init,&P,&Q,1.,&fixtempo,&useful,1.,notrailing);
-if(r != OK && r != SINGLE && r != IMBEDDED) goto QUIT;
-//////////////////////////////////
-
-if(trace_polymake) BPPrintMessage(odInfo,"After PolyExpand() maxid = %ld pos_init = %ld P = %ld Q = %ld fixtempo = %ld useful = %ld\n",(long)maxid,(long)pos_init,(long)P,(long)Q,(long)fixtempo,(long)useful);
-
-r = OK;
-scaling = speed = tempo = 1.;
-firstscaling = 0.;
-level = 0;
-
-// Calculate first scaling
-
-for(i=ZERO; ; i+=2L) {
-	m = (**pp_a)[i]; p = (**pp_a)[i+1];
-	if(m == TEND && p == TEND) break;
-	if(m == T3 || m == T25 || m == T9) {
-		if(firstscaling == 0.) {
-			firstscaling = scaling;
+	// Copy and complete init section
+	pos_init = ZERO;
+	foundinit = FALSE;
+	for(i=ZERO; ; i+=2L) {
+		m = (*p_b)[i];
+		p = (*p_b)[i+1];
+		if(m == TEND && p == TEND) break;
+		(**pp_a)[i] = (tokenbyte) m;
+		(**pp_a)[i+1] = (tokenbyte) p;
+		if(m == T1) continue;
+		if(m == T0 && p == 3) {	/* '+' */
+			foundinit = TRUE;
+			continue;
+			}
+		if(m == T0 && p == 11) { /* '/' */
+			pos_init = i;
 			break;
 			}
+		if(foundinit) {
+			/* Insert '/1' speed marker because none has been found. Otherwise, the initial... */
+			/* ... section numbers might be wrongly interpreted */
+			pos_init = i;
+			(**pp_a)[i] = T0; (**pp_a)[i+1] = 11; /* '/' */
+			i += 2;
+			(**pp_a)[i] = T1; (**pp_a)[i+1] = 0;
+			i += 2;
+			(**pp_a)[i] = T1; (**pp_a)[i+1] = 1;
+			}
+		break;
 		}
-	if(m == T0) {
-		switch(p) {
-			case 21:	/* '*' scaling up */
-				scaling = GetScalingValue((*pp_a),i);
-				i += 4L;
+	fixtempo = useful = FALSE;
+	P = 0L;  Q = 1L;
+
+	//////////////////////////////////
+	r = PolyExpand(p_b,pp_a,pos_init,&maxid,&pos_init,&P,&Q,1.,&fixtempo,&useful,1.,notrailing);
+	if(r != OK && r != SINGLE && r != IMBEDDED) goto QUIT;
+	//////////////////////////////////
+
+	if(trace_polymake) BPPrintMessage(odInfo,"After PolyExpand() maxid = %ld pos_init = %ld P = %ld Q = %ld fixtempo = %ld useful = %ld\n",(long)maxid,(long)pos_init,(long)P,(long)Q,(long)fixtempo,(long)useful);
+
+	r = OK;
+	scaling = speed = tempo = 1.;
+	firstscaling = 0.;
+	level = 0;
+
+	// Calculate first scaling
+
+	for(i=ZERO; ; i+=2L) {
+		m = (**pp_a)[i]; p = (**pp_a)[i+1];
+		if(m == TEND && p == TEND) break;
+		if(m == T3 || m == T25 || m == T9) {
+			if(firstscaling == 0.) {
+				firstscaling = scaling;
 				break;
-			case 24:	/* '**' scaling down */
-				scaling = GetScalingValue((*pp_a),i);
-				scaling = 1. / scaling;
-				i += 4L;
-				break;
+				}
+			}
+		if(m == T0) {
+			switch(p) {
+				case 21:	/* '*' scaling up */
+					scaling = GetScalingValue((*pp_a),i);
+					i += 4L;
+					break;
+				case 24:	/* '**' scaling down */
+					scaling = GetScalingValue((*pp_a),i);
+					scaling = 1. / scaling;
+					i += 4L;
+					break;
+				}
 			}
 		}
-	}
 
-// Calculate Prod
+	// Calculate Prod
 
-if(firstscaling == 0.) firstscaling = 1.;
-Prod = LCM(firstscaling,Q,&overflow);
-toocomplex = FALSE;
-scaling = speed = tempo = 1.;
-level = 0;
-maxscalespeed = 0.;
+	if(firstscaling == 0.) firstscaling = 1.;
+	Prod = LCM(firstscaling,Q,&overflow);
+	toocomplex = FALSE;
+	scaling = speed = tempo = 1.;
+	level = 0;
+	maxscalespeed = 0.;
 
-for(i=ZERO; ; i+=2L) {
-	m = (**pp_a)[i]; p = (**pp_a)[i+1];
-	if(m == TEND && p == TEND) break;
-	if(m == T0) {
-		switch(p) {
-			case 11: /* '/' speed up */
-				speed = firstscaling * GetScalingValue((*pp_a),i);
-				scalespeed = scaling / speed;
-				if(maxscalespeed < scalespeed) maxscalespeed = scalespeed;
-				if(!toocomplex) {
-					gcd = GCD(speed,scaling);
-					if(gcd < 1.) gcd = 1.;
-					tempo = speed / gcd;
-					lcm = LCM(Prod,tempo,&overflow);
-					if(lcm > 0.) Prod = lcm;
-					else {
-						TellComplex();
-						toocomplex = TRUE;
-						}
-					}
-				i += 4L;
-				break;
-			case 25:	/* '\' speed down */
-				speed = firstscaling / GetScalingValue((*pp_a),i);
-				scalespeed = scaling / speed;
-				if(maxscalespeed < scalespeed) maxscalespeed = scalespeed;
-				if(!toocomplex) {
-					if(scaling != 0.) {
-						tempo = speed / scaling;
-						}
-					else tempo = 0.;
-					if(tempo > 1.) {
+	for(i=ZERO; ; i+=2L) {
+		m = (**pp_a)[i]; p = (**pp_a)[i+1];
+		if(m == TEND && p == TEND) break;
+		if(m == T0) {
+			switch(p) {
+				case 11: /* '/' speed up */
+					speed = firstscaling * GetScalingValue((*pp_a),i);
+					scalespeed = scaling / speed;
+					if(maxscalespeed < scalespeed) maxscalespeed = scalespeed;
+					if(!toocomplex) {
+						gcd = GCD(speed,scaling);
+						if(gcd < 1.) gcd = 1.;
+						tempo = speed / gcd;
 						lcm = LCM(Prod,tempo,&overflow);
 						if(lcm > 0.) Prod = lcm;
 						else {
@@ -288,512 +268,531 @@ for(i=ZERO; ; i+=2L) {
 							toocomplex = TRUE;
 							}
 						}
-					}
-				i += 4L;
-				break;
-			case 21:	/* '*' scaling up */
-				scaling = GetScalingValue((*pp_a),i);
-				scalespeed = scaling / speed;
-				if(maxscalespeed < scalespeed) maxscalespeed = scalespeed;
-				i += 4L;
-				break;
-			case 24:	/* '**' scaling down */
-				scaling = GetScalingValue((*pp_a),i);
-				scaling = 1. / scaling;
-				scalespeed = scaling / speed;
-				if(maxscalespeed < scalespeed) maxscalespeed = scalespeed;
-				i += 4L;
-				break;
-			}
-		}
-	}
-
-PRODOK:
-
-numberprolongations = (Prod * maxscalespeed) / firstscaling;
-POLYconvert = TRUE;
-Ratio = Prod;
-Pduration = P;
-Qduration = Q;
-
-if(trace_polymake)  {
-	if(Qduration > 1.)
-		BPPrintMessage(odInfo,"Duration = %.0f/%.0f time units, Ratio = %.0f\n",Pduration,Qduration,(double)Ratio);
-	else BPPrintMessage(odInfo,"Duration = %.0f time units, Ratio = %.0f\n",Pduration,(double)Ratio);
-	}
-
-alreadychangedquantize = FALSE;
-
-// Calculate compression rate Kpress for quantization
-FINDCOMPRESSION:
-// BPPrintMessage(odInfo,"FINDCOMPRESSION\n");
-Kpress = 1.;
-if(Pclock > 0.) {
-	kpress = 1. + (((double)Quantization) * Qclock * Ratio) / Pclock / 1000.;
-	kpress = floor(1.00001 * kpress);
-	if(QuantizeOK && kpress > 1.) {
-		s = LCM(Ratio,kpress,&overflow) / Ratio;
-		if(s > 1. && s < 10. && Ratio < 1000000.) Ratio = Round(s * Ratio);
-		s = Round(Ratio / kpress);
-		if(s > 10.) Ratio = kpress * s;
-		Prod = Ratio;
-		}
-	if(QuantizeOK) {
-		Kpress = kpress;
-		BPPrintMessage(odInfo,"Using quantization = %ld ms with compression rate = %.0f\n",(long)Quantization,(double)Kpress);
-		}
-	else {
-		if((kpress >= 4. && NotSaidKpress) || kpress >= 100.) {
-			NotSaidKpress = FALSE;
-			BPPrintMessage(odInfo,"Forcing quantization to %ld ms\n",Quantization);
-			QuantizeOK = TRUE;
-			goto FINDCOMPRESSION;
-			}
-		}
-	}
-
-if(Pclock > 0.) {
-//	BPPrintMessage(odInfo,"maxscalespeed = %ld\n",(long)maxscalespeed);
-//	max_quantization = (int) (1000. * (Pclock/Qclock) * (Kpress - 1) / Kpress / maxscalespeed);
-	// Added by BB 2021-01-31
-/*	if(max_quantization < Quantization)
-		BPPrintMessage(odError,"=> To avoid skipping objects/notes, quantization should be less than %d ms\n",max_quantization); */
-	}
-
-// Calculate Maxevent, (*p_maxseq) and the final value of Maxconc
-
-if(Beta && p_nseq != NULL) {
-	Alert1("=> Err. PolyMake(). p_nseq != NULL");
-	}
-if(Beta && p_nseqmax != NULL) {
-	Alert1("=> Err. PolyMake(). p_nseqmax != NULL");
-	}
-if((p_nseq = (int**) GiveSpace((Size)((maxlevel+1)*sizeof(int)))) == NULL) {
-	r = ABORT; goto QUIT;
-	}
-if((p_nseqmax = (int**) GiveSpace((Size)((maxlevel+1)*sizeof(int)))) == NULL) {
-	r = ABORT; goto QUIT;
-	}
-(*p_nseq)[0] = (*p_nseqmax)[0] = 0;
-for(level=0; level <= maxlevel; level++) (*p_nseqmax)[level] = 0;
-level = 0;
-nsymb = ZERO;
-fmaxseq = (*p_maxseq) = 0.;
-Maxevent = 3L;
-tempomax = Prod / Kpress;
-Minconc = 0;
-Maxlevel = 1;
-longestseqouttime = numberouttimeinseq
-	= numbertoofast = longestnumbertoofast = morelines = 0;
-toofast = FALSE;
-speed = scaling = Prod / firstscaling;
-tempo = speed / scaling;
-prodtempo = Prod / tempo;
-// toofast = (tempo > tempomax);
-toofast = (tempo > tempomax || tempo == 0.); // Fixed by BB 2021-03-26
-
-for(i=ZERO; ; i+=2L) {
-	m = (tokenbyte)(**pp_a)[i];
-	p = (tokenbyte)(**pp_a)[i+1];
-	if(m == TEND && p == TEND) break;
-	if(m == T7) numberouttimeinseq++;
-	else {
-		if(numberouttimeinseq > 0) {
-			if(m == T25 || m == T3 || (m == T0 && p == 14)) {
-				if(numberouttimeinseq > longestseqouttime)
-					longestseqouttime = numberouttimeinseq;
-				numberouttimeinseq = 0;
+					i += 4L;
+					break;
+				case 25:	/* '\' speed down */
+					speed = firstscaling / GetScalingValue((*pp_a),i);
+					scalespeed = scaling / speed;
+					if(maxscalespeed < scalespeed) maxscalespeed = scalespeed;
+					if(!toocomplex) {
+						if(scaling != 0.) {
+							tempo = speed / scaling;
+							}
+						else tempo = 0.;
+						if(tempo > 1.) {
+							lcm = LCM(Prod,tempo,&overflow);
+							if(lcm > 0.) Prod = lcm;
+							else {
+								TellComplex();
+								toocomplex = TRUE;
+								}
+							}
+						}
+					i += 4L;
+					break;
+				case 21:	/* '*' scaling up */
+					scaling = GetScalingValue((*pp_a),i);
+					scalespeed = scaling / speed;
+					if(maxscalespeed < scalespeed) maxscalespeed = scalespeed;
+					i += 4L;
+					break;
+				case 24:	/* '**' scaling down */
+					scaling = GetScalingValue((*pp_a),i);
+					scaling = 1. / scaling;
+					scalespeed = scaling / speed;
+					if(maxscalespeed < scalespeed) maxscalespeed = scalespeed;
+					i += 4L;
+					break;
 				}
 			}
 		}
-	if(m == T3 || m == T9 || m == T25) {	/* sound-object, time pattern, simple note */
-		if(toofast) {
-			numbertoofast++;
+
+	PRODOK:
+
+	numberprolongations = (Prod * maxscalespeed) / firstscaling;
+	POLYconvert = TRUE;
+	Ratio = Prod;
+	Pduration = P;
+	Qduration = Q;
+
+	if(trace_polymake)  {
+		if(Qduration > 1.)
+			BPPrintMessage(odInfo,"Duration = %.0f/%.0f time units, Ratio = %.0f\n",Pduration,Qduration,(double)Ratio);
+		else BPPrintMessage(odInfo,"Duration = %.0f time units, Ratio = %.0f\n",Pduration,(double)Ratio);
+		}
+
+	alreadychangedquantize = FALSE;
+
+	// Calculate compression rate Kpress for quantization
+	FINDCOMPRESSION:
+	// BPPrintMessage(odInfo,"FINDCOMPRESSION\n");
+	Kpress = 1.;
+	if(Pclock > 0.) {
+		kpress = 1. + (((double)Quantization) * Qclock * Ratio) / Pclock / 1000.;
+		kpress = floor(1.00001 * kpress);
+		if(QuantizeOK && kpress > 1.) {
+			s = LCM(Ratio,kpress,&overflow) / Ratio;
+			if(s > 1. && s < 10. && Ratio < 1000000.) Ratio = Round(s * Ratio);
+			s = Round(Ratio / kpress);
+			if(s > 10.) Ratio = kpress * s;
+			Prod = Ratio;
+			}
+		if(QuantizeOK) {
+			Kpress = kpress;
+			BPPrintMessage(odInfo,"Using quantization = %ld ms with compression rate = %.0f\n",(long)Quantization,(double)Kpress);
+			}
+		else {
+			if((kpress >= 4. && NotSaidKpress) || kpress >= 100.) {
+				NotSaidKpress = FALSE;
+				BPPrintMessage(odInfo,"Forcing quantization to %ld ms\n",Quantization);
+				QuantizeOK = TRUE;
+				goto FINDCOMPRESSION;
+				}
+			}
+		}
+
+	if(Pclock > 0.) {
+	//	BPPrintMessage(odInfo,"maxscalespeed = %ld\n",(long)maxscalespeed);
+	//	max_quantization = (int) (1000. * (Pclock/Qclock) * (Kpress - 1) / Kpress / maxscalespeed);
+		// Added by BB 2021-01-31
+	/*	if(max_quantization < Quantization)
+			BPPrintMessage(odError,"=> To avoid skipping objects/notes, quantization should be less than %d ms\n",max_quantization); */
+		}
+
+	// Calculate Maxevent, (*p_maxseq) and the final value of Maxconc
+
+	if(Beta && p_nseq != NULL) {
+		Alert1("=> Err. PolyMake(). p_nseq != NULL");
+		}
+	if(Beta && p_nseqmax != NULL) {
+		Alert1("=> Err. PolyMake(). p_nseqmax != NULL");
+		}
+	if((p_nseq = (int**) GiveSpace((Size)((maxlevel+1)*sizeof(int)))) == NULL) {
+		r = ABORT; goto QUIT;
+		}
+	if((p_nseqmax = (int**) GiveSpace((Size)((maxlevel+1)*sizeof(int)))) == NULL) {
+		r = ABORT; goto QUIT;
+		}
+	(*p_nseq)[0] = (*p_nseqmax)[0] = 0;
+	for(level=0; level <= maxlevel; level++) (*p_nseqmax)[level] = 0;
+	level = 0;
+	nsymb = ZERO;
+	fmaxseq = (*p_maxseq) = 0.;
+	Maxevent = 3L;
+	tempomax = Prod / Kpress;
+	Minconc = 0;
+	Maxlevel = 1;
+	longestseqouttime = numberouttimeinseq
+		= numbertoofast = longestnumbertoofast = morelines = 0;
+	toofast = FALSE;
+	speed = scaling = Prod / firstscaling;
+	tempo = speed / scaling;
+	prodtempo = Prod / tempo;
+	// toofast = (tempo > tempomax);
+	toofast = (tempo > tempomax || tempo == 0.); // Fixed by BB 2021-03-26
+
+	for(i=ZERO; ; i+=2L) {
+		m = (tokenbyte)(**pp_a)[i];
+		p = (tokenbyte)(**pp_a)[i+1];
+		if(m == TEND && p == TEND) break;
+		if(m == T7) numberouttimeinseq++;
+		else {
+			if(numberouttimeinseq > 0) {
+				if(m == T25 || m == T3 || (m == T0 && p == 14)) {
+					if(numberouttimeinseq > longestseqouttime)
+						longestseqouttime = numberouttimeinseq;
+					numberouttimeinseq = 0;
+					}
+				}
+			}
+		if(m == T3 || m == T9 || m == T25) {	/* sound-object, time pattern, simple note */
+			if(toofast) {
+				numbertoofast++;
+				}
+			else {
+				if(numbertoofast > 0) {
+					if(numbertoofast > longestnumbertoofast)
+						longestnumbertoofast = numbertoofast;
+					numbertoofast = 0;
+					}
+				}
+			fmaxseq += prodtempo;
+			if(p >= 1 || m == T9 || m == T25) {	/* Even silence may become an event if preceded... */
+									/* ... by _pitchbend() for instance. */
+				Maxevent++;
+				if(toofast) nsymb += prodtempo;
+				else nsymb += 1.;
+				}
+			continue;
 			}
 		else {
 			if(numbertoofast > 0) {
-				if(numbertoofast > longestnumbertoofast)
-					longestnumbertoofast = numbertoofast;
-				numbertoofast = 0;
+				if((!toofast) || (m == T0 && (p == 13 || p == 14 || p == 23))) {
+					if(numbertoofast > longestnumbertoofast)
+						longestnumbertoofast = numbertoofast;
+					numbertoofast = 0;
+					}
 				}
 			}
-		fmaxseq += prodtempo;
-		if(p >= 1 || m == T9 || m == T25) {	/* Even silence may become an event if preceded... */
-								/* ... by _pitchbend() for instance. */
-			Maxevent++;
-			if(toofast) nsymb += prodtempo;
-			else nsymb += 1.;
-			}
-		continue;
-		}
-	else {
-		if(numbertoofast > 0) {
-			if((!toofast) || (m == T0 && (p == 13 || p == 14 || p == 23))) {
-				if(numbertoofast > longestnumbertoofast)
-					longestnumbertoofast = numbertoofast;
-				numbertoofast = 0;
-				}
-			}
-		}
-	switch(m) {
-		case T7: /* out-time object */
-		case T8: /* synchronization tag */
-		
-	//	case T10: // _chan() // Added by BB 2021-01-25
-	//	case T11: // _vel() // Added by BB 2021-01-25
-		
-		case T13: /* script line */
-		case T14: /* _mod() */
-		case T15: /* _pitchbend() */
-		case T16: /* _press() */
-		case T17: /* _switchon() */
-		case T18: /* _switchoff() */
-		case T19: /* _volume() */
-		case T20: /* _legato() */
-		
-		case T21: /* _pitchrange() */ 
-		case T22: /* _pitchrate() */
-		case T23: /* _modrate() */
-		case T24: /* _pressrate() */
-		
-		case T26: /* _transpose() */
-		
-		case T27: /* _volumerate() */
-		case T28: /* _volumecontrol() */
-		
-		case T29: /* _pan() */
-		
-		case T30: /* _panrate() */
-		case T31: /* _pancontrol() */
-		case T32: /* _ins() */
-		case T33: /* _step() */
-		case T34: /* _cont() */
-		
-		case T35: /* _value() */
-		
-		case T36: /* _fixed() */
-		
-		case T37: /* _keymap() */
-		
-		case T38: /* _rndvel() */
-		case T39: /* _rotate() */
-		case T40: /* _keyxpand() */
-		case T41: /* _rndtime() */
-		case T42: /* _srand() */
-		case T43: /* _tempo() */
-		case T44: /* _scale() */
-			fmaxseq += 1.;
-			Maxevent++;
-			nsymb += 1.;
-			continue;
-			break;
-		}
-	if(m == T0) {
-		switch(p) {
-			case 12:	/* '{' */
-			case 22:
-				if(++level > maxlevel) {
-					if(Beta) Alert1("=> Err. PolyMake(): level > maxlevel");
-					r = ABORT; goto QUIT;
-					}
-				(*p_nseqmax)[level] = (*p_nseq)[level] = (*p_nseq)[level-1];
-				if(level > Maxlevel) Maxlevel = level;
-				morelines++;  // Fixed by BB 2021-01-30 - probably not optimal
-				continue;
-				break;
-				
-			case 13:	/* '}' */
-			case 23:
-				if(level < 1) {
-					if(Beta) Alert1("=> Err. PolyMake(): level < 1");
-					r = ABORT; goto QUIT;
-					}
-				if((*p_nseqmax)[level] > (*p_nseqmax)[level-1])
-					(*p_nseqmax)[level-1] = (*p_nseqmax)[level];
-				level--;
-				continue;
-				break;
+		switch(m) {
+			case T7: /* out-time object */
+			case T8: /* synchronization tag */
 			
-			case 18:	/* '&' following terminal symbol */
-				morelines++;
-				continue;
-				break;
-					
-			case 14:	/* ',' */
-				(*p_nseqmax)[level]++;
-			//	(*p_nseqmax)[level] += 2;
-			//	(*p_nseq)[level] = (*p_nseqmax)[level];
-				(*p_nseq)[level] = (*p_nseqmax)[level] + 1; // Fixed by BB 2021-01-29
-				if((*p_nseq)[level] > Minconc) Minconc = (*p_nseq)[level];
+		//	case T10: // _chan() // Added by BB 2021-01-25
+		//	case T11: // _vel() // Added by BB 2021-01-25
+			
+			case T13: /* script line */
+			case T14: /* _mod() */
+			case T15: /* _pitchbend() */
+			case T16: /* _press() */
+			case T17: /* _switchon() */
+			case T18: /* _switchoff() */
+			case T19: /* _volume() */
+			case T20: /* _legato() */
+			
+			case T21: /* _pitchrange() */ 
+			case T22: /* _pitchrate() */
+			case T23: /* _modrate() */
+			case T24: /* _pressrate() */
+			
+			case T26: /* _transpose() */
+			
+			case T27: /* _volumerate() */
+			case T28: /* _volumecontrol() */
+			
+			case T29: /* _pan() */
+			
+			case T30: /* _panrate() */
+			case T31: /* _pancontrol() */
+			case T32: /* _ins() */
+			case T33: /* _step() */
+			case T34: /* _cont() */
+			
+			case T35: /* _value() */
+			
+			case T36: /* _fixed() */
+			
+			case T37: /* _keymap() */
+			
+			case T38: /* _rndvel() */
+			case T39: /* _rotate() */
+			case T40: /* _keyxpand() */
+			case T41: /* _rndtime() */
+			case T42: /* _srand() */
+			case T43: /* _tempo() */
+			case T44: /* _scale() */
+				fmaxseq += 1.;
+				Maxevent++;
 				nsymb += 1.;
 				continue;
 				break;
+			}
+		if(m == T0) {
+			switch(p) {
+				case 12:	/* '{' */
+				case 22:
+					if(++level > maxlevel) {
+						if(Beta) Alert1("=> Err. PolyMake(): level > maxlevel");
+						r = ABORT; goto QUIT;
+						}
+					(*p_nseqmax)[level] = (*p_nseq)[level] = (*p_nseq)[level-1];
+					if(level > Maxlevel) Maxlevel = level;
+					morelines++;  // Fixed by BB 2021-01-30 - probably not optimal
+					continue;
+					break;
+					
+				case 13:	/* '}' */
+				case 23:
+					if(level < 1) {
+						if(Beta) Alert1("=> Err. PolyMake(): level < 1");
+						r = ABORT; goto QUIT;
+						}
+					if((*p_nseqmax)[level] > (*p_nseqmax)[level-1])
+						(*p_nseqmax)[level-1] = (*p_nseqmax)[level];
+					level--;
+					continue;
+					break;
 				
-			case 11:	/* '/' speed up */
-				speed = GetScalingValue((*pp_a),i);
-				if(scaling != 0.) {
-					tempo = speed / scaling;
-					prodtempo = Prod / tempo;
-					}
-				else tempo = 0.;
-				toofast = (tempo > tempomax || tempo == 0.);
-				i += 4;
-				continue;
-				break;
-				
-			case 25:	/* '\' speed down */
-				if(Beta) FlashInfo("Speed down");
-				speed = GetScalingValue((*pp_a),i);
-				if(speed < 1.) {
+				case 18:	/* '&' following terminal symbol */
+					morelines++;
+					continue;
+					break;
+						
+				case 14:	/* ',' */
+					(*p_nseqmax)[level]++;
+				//	(*p_nseqmax)[level] += 2;
+				//	(*p_nseq)[level] = (*p_nseqmax)[level];
+					(*p_nseq)[level] = (*p_nseqmax)[level] + 1; // Fixed by BB 2021-01-29
+					if((*p_nseq)[level] > Minconc) Minconc = (*p_nseq)[level];
+					nsymb += 1.;
+					continue;
+					break;
+					
+				case 11:	/* '/' speed up */
+					speed = GetScalingValue((*pp_a),i);
+					if(scaling != 0.) {
+						tempo = speed / scaling;
+						prodtempo = Prod / tempo;
+						}
+					else tempo = 0.;
+					toofast = (tempo > tempomax || tempo == 0.);
+					i += 4;
+					continue;
+					break;
+					
+				case 25:	/* '\' speed down */
+					if(Beta) FlashInfo("Speed down");
+					speed = GetScalingValue((*pp_a),i);
+					if(speed < 1.) {
+						r = ABORT;
+						goto QUIT;
+						}
+					speed = 1. / speed;
+					if(scaling != 0.) {
+						tempo = speed / scaling;
+						prodtempo = Prod / tempo;
+						}
+					else tempo = 0.;
+					toofast = (tempo > tempomax || tempo == 0.);
+					i += 4;
+					continue;
+					break;
+		
+				case 21:		/* '*' scaling up */
+					scaling = GetScalingValue((*pp_a),i);
+					if(scaling != 0.) {
+						tempo = speed / scaling;
+						prodtempo = Prod / tempo;
+						}
+					else tempo = 0.;
+					toofast = (tempo > tempomax || tempo == 0.);
+					i += 4;
+					continue;
+					break;
+					
+				case 24:		/* '**' scaling down */
+					scaling = GetScalingValue((*pp_a),i);
+					scaling = 1. / scaling;
+					if(scaling < InvMaxTempo) scaling = 0.;
+					if(scaling != 0.) {
+						tempo = speed / scaling;
+						prodtempo = Prod / tempo;
+						}
+					else tempo = 0.;
+					toofast = (tempo > tempomax || tempo == 0.);
+					i += 4;
+					continue;
+					break;
+				}
+			}
+		}
+	if((*p_nseqmax)[0] > Minconc) {
+		BPPrintMessage(odError,"=> (*p_nseqmax)[0] = %ld Minconc = %ld\n",(long)(*p_nseqmax)[0],(long)Minconc);
+		Minconc = (*p_nseq)[0];
+		}
+	Minconc++;
+	if(numberouttimeinseq > longestseqouttime) longestseqouttime = numberouttimeinseq;
+	if(numbertoofast > longestnumbertoofast) longestnumbertoofast = numbertoofast;
+	fmaxseq += longestseqouttime + longestnumbertoofast; // Added by BB 2021-03-24
+	imax = fmaxseq / Kpress;
+	thelimit = ULONG_MAX - 10.;
+
+	if(imax >= thelimit) {
+	TOOBIG:
+		if(Pclock < 1.) {
+			BPActivateWindow(SLOW,wTimeAccuracy);
+			BPActivateWindow(SLOW,wMetronom);
+			if(!ScriptExecOn) Alert1("Quantization is required but you must set a metronom value");
+			else {
+				Pclock = Qclock = 1.;
+				goto SETMETRONOM;
+				}
+			
+	ENTERMETRONOM:
+			rep = AnswerWith("Set metronome to...","60",Message);
+			if(rep == ABORT) {
+				rep = Answer("Do you really want to abort this job",'N');
+				if(rep == YES) {
 					r = ABORT;
 					goto QUIT;
 					}
-				speed = 1. / speed;
-				if(scaling != 0.) {
-					tempo = speed / scaling;
-					prodtempo = Prod / tempo;
-					}
-				else tempo = 0.;
-				toofast = (tempo > tempomax || tempo == 0.);
-				i += 4;
-				continue;
-				break;
-	
-			case 21:		/* '*' scaling up */
-				scaling = GetScalingValue((*pp_a),i);
-				if(scaling != 0.) {
-					tempo = speed / scaling;
-					prodtempo = Prod / tempo;
-					}
-				else tempo = 0.;
-				toofast = (tempo > tempomax || tempo == 0.);
-				i += 4;
-				continue;
-				break;
-				
-			case 24:		/* '**' scaling down */
-				scaling = GetScalingValue((*pp_a),i);
-				scaling = 1. / scaling;
-				if(scaling < InvMaxTempo) scaling = 0.;
-				if(scaling != 0.) {
-					tempo = speed / scaling;
-					prodtempo = Prod / tempo;
-					}
-				else tempo = 0.;
-				toofast = (tempo > tempomax || tempo == 0.);
-				i += 4;
-				continue;
-				break;
-			}
-		}
-	}
-if((*p_nseqmax)[0] > Minconc) {
-	BPPrintMessage(odError,"=> (*p_nseqmax)[0] = %ld Minconc = %ld\n",(long)(*p_nseqmax)[0],(long)Minconc);
-	Minconc = (*p_nseq)[0];
-	}
-Minconc++;
-if(numberouttimeinseq > longestseqouttime) longestseqouttime = numberouttimeinseq;
-if(numbertoofast > longestnumbertoofast) longestnumbertoofast = numbertoofast;
-fmaxseq += longestseqouttime + longestnumbertoofast; // Added by BB 2021-03-24
-imax = fmaxseq / Kpress;
-thelimit = ULONG_MAX - 10.;
+				goto ENTERMETRONOM;
+				}
+			if(Myatof(Message,&a,&b) < 0.) {
+				Alert1("=> Incorrect value");
+				goto ENTERMETRONOM;
+				}
+			if(Simplify((double)INT_MAX,(double)a,(double)60L*b,&Qclock,&Pclock) != OK)
+				Simplify((double)INT_MAX,floor((double)a/60L),(double)b,&Qclock,&Pclock);
 
-if(imax >= thelimit) {
-TOOBIG:
-	if(Pclock < 1.) {
-		BPActivateWindow(SLOW,wTimeAccuracy);
-		BPActivateWindow(SLOW,wMetronom);
-		if(!ScriptExecOn) Alert1("Quantization is required but you must set a metronom value");
-		else {
-			Pclock = Qclock = 1.;
-			goto SETMETRONOM;
+	SETMETRONOM:
+			SetTickParameters(0,MAXBEATS);
+			ResetTickFlag = TRUE;
+			SetTempo();
+			SetTimeBase();
+			SetGrammarTempo();
 			}
-		
-ENTERMETRONOM:
-		rep = AnswerWith("Set metronome to...","60",Message);
-		if(rep == ABORT) {
-			rep = Answer("Do you really want to abort this job",'N');
-			if(rep == YES) {
+		if(!QuantizeOK) {
+			BPActivateWindow(SLOW,wTimeAccuracy);
+			rep = Answer("Set 'Quantize' to true (no other way!)",'Y');
+			if(rep != YES && Answer("Do you really want to abort this job",'Y') == YES) {
 				r = ABORT;
 				goto QUIT;
 				}
-			goto ENTERMETRONOM;
+			newquantize = Quantization;
+			QuantizeOK = TRUE;
+			goto SETQUANTIZE;
 			}
-		if(Myatof(Message,&a,&b) < 0.) {
-			Alert1("=> Incorrect value");
-			goto ENTERMETRONOM;
-			}
-		if(Simplify((double)INT_MAX,(double)a,(double)60L*b,&Qclock,&Pclock) != OK)
-			Simplify((double)INT_MAX,floor((double)a/60L),(double)b,&Qclock,&Pclock);
-
-SETMETRONOM:
-		SetTickParameters(0,MAXBEATS);
-		ResetTickFlag = TRUE;
-		SetTempo();
-		SetTimeBase();
-		SetGrammarTempo();
-		}
-	if(!QuantizeOK) {
-		BPActivateWindow(SLOW,wTimeAccuracy);
-		rep = Answer("Set 'Quantize' to true (no other way!)",'Y');
-		if(rep != YES && Answer("Do you really want to abort this job",'Y') == YES) {
-			r = ABORT;
-			goto QUIT;
-			}
-		newquantize = Quantization;
-		QuantizeOK = TRUE;
-		goto SETQUANTIZE;
-		}
-	else if(Pclock > 0.) {
-		x = (((double)Quantization) * (imax + 100L) / thelimit);
-		x = 10L * (long) ceil(((double) x) / 10.);
-		if(x < Quantization) {
-			BPPrintMessage(odError,"=> Polymetric expansion encountered an unpredicted overflow. Sorry, can't proceed further\n");
-			r = ABORT;
-			goto QUIT;
-			}
-		if(x > 2000.) {
-			if(FALSE && (Quantization > 100L)) {
-				rep = Answer("This item would require a large quantization (greater than 2000 ms). Use temporary memory instead",
-					'Y');
-				if(rep == YES) {
-					FixedMaxQuantization = TRUE;
-				//	AskedTempMemory = TRUE;
-					goto FORGETIT;
+		else if(Pclock > 0.) {
+			x = (((double)Quantization) * (imax + 100L) / thelimit);
+			x = 10L * (long) ceil(((double) x) / 10.);
+			if(x < Quantization) {
+				BPPrintMessage(odError,"=> Polymetric expansion encountered an unpredicted overflow. Sorry, can't proceed further\n");
+				r = ABORT;
+				goto QUIT;
+				}
+			if(x > 2000.) {
+				if(FALSE && (Quantization > 100L)) {
+					rep = Answer("This item would require a large quantization (greater than 2000 ms). Use temporary memory instead",
+						'Y');
+					if(rep == YES) {
+						FixedMaxQuantization = TRUE;
+					//	AskedTempMemory = TRUE;
+						goto FORGETIT;
+						}
+					else {
+						if(x < 32767.) newquantize = (long) x;
+						else newquantize = 2000L;
+						goto CHANGEQUANTIZE;
+						}
 					}
 				else {
-					if(x < 32767.) newquantize = (long) x;
-					else newquantize = 2000L;
-					goto CHANGEQUANTIZE;
-					}
-				}
-			else {
-				BPPrintMessage(odError,"=> Increasing quantization may not be sufficient to reduce memory requirement.\n");
-				rep = CANCEL; // Fixed by BB 2021-01-30
-			//	rep = Answer("Increasing quantization may not be sufficient to reduce memory requirement. Try it anyway",'Y');
-				newquantize = 2000L;
-				if(rep == YES) {
-					goto CHANGEQUANTIZE;
-					}
-			//	if(rep == CANCEL) goto WANTABORT;
-			//	AskedTempMemory = TRUE;
-				FixedMaxQuantization = TRUE;
-				goto FORGETIT;
-				}
-			}
-		newquantize = (long) x;
-	//	BPActivateWindow(SLOW,wTimeAccuracy);
-		if(!ScriptExecOn && !alreadychangedquantize) BPPrintMessage(odError,"Quantization of %ld ms will be increased to reduce memory requirement (%ld ms might work)\n",
-			(long) Quantization,(long) newquantize);
-		else goto SETQUANTIZE;
-	//	newquantize = 20L; // $$$
-		
-CHANGEQUANTIZE:
-	//	sprintf(Message,"%ld",(long)newquantize);
-	//	rep = AnswerWith("Setting quantization to...",Message,Message);
-	//	BPPrintMessage(odError,"Setting quantization to %ld ms\n",(long) newquantize);
-		
-/*		if(rep == ABORT) { // Fixed by BB 2021-02-25
-
-WANTABORT:
-			rep = Answer("Do you want to abort this job (answer 'no' to get another option)",'Y');
-			if(rep == YES) {
-				r = ABORT;
-				goto QUIT;
-				}
-			else {
-				rep = Answer("Allow BP2 to use additional memory",'Y');
-				if(rep == YES) {
-					AskedTempMemory = TRUE;
+					BPPrintMessage(odError,"=> Increasing quantization may not be sufficient to reduce memory requirement.\n");
+					rep = CANCEL; // Fixed by BB 2021-01-30
+				//	rep = Answer("Increasing quantization may not be sufficient to reduce memory requirement. Try it anyway",'Y');
+					newquantize = 2000L;
+					if(rep == YES) {
+						goto CHANGEQUANTIZE;
+						}
+				//	if(rep == CANCEL) goto WANTABORT;
+				//	AskedTempMemory = TRUE;
+					FixedMaxQuantization = TRUE;
 					goto FORGETIT;
 					}
-				if(rep == CANCEL) {
+				}
+			newquantize = (long) x;
+		//	BPActivateWindow(SLOW,wTimeAccuracy);
+			if(!ScriptExecOn && !alreadychangedquantize) BPPrintMessage(odError,"Quantization of %ld ms will be increased to reduce memory requirement (%ld ms might work)\n",
+				(long) Quantization,(long) newquantize);
+			else goto SETQUANTIZE;
+		//	newquantize = 20L; // $$$
+			
+	CHANGEQUANTIZE:
+		//	sprintf(Message,"%ld",(long)newquantize);
+		//	rep = AnswerWith("Setting quantization to...",Message,Message);
+		//	BPPrintMessage(odError,"Setting quantization to %ld ms\n",(long) newquantize);
+			
+	/*		if(rep == ABORT) { // Fixed by BB 2021-02-25
+
+	WANTABORT:
+				rep = Answer("Do you want to abort this job (answer 'no' to get another option)",'Y');
+				if(rep == YES) {
 					r = ABORT;
 					goto QUIT;
 					}
-				goto CHANGEQUANTIZE;
+				else {
+					rep = Answer("Allow BP2 to use additional memory",'Y');
+					if(rep == YES) {
+						AskedTempMemory = TRUE;
+						goto FORGETIT;
+						}
+					if(rep == CANCEL) {
+						r = ABORT;
+						goto QUIT;
+						}
+					goto CHANGEQUANTIZE;
+					}
 				}
+			newquantize2 = atol(Message);
+			if(newquantize2 <= Quantization) {
+				rep = Answer("Are you sure you don't want to increase the current quantization",'N');
+				if(rep != YES) goto CHANGEQUANTIZE;
+				}
+			if(newquantize2 < newquantize) FixedMaxQuantization = TRUE;
+			
+			newquantize = newquantize2; */
+			alreadychangedquantize = TRUE;
+			
+	SETQUANTIZE:
+			Quantization = newquantize;
+	#if BP_CARBON_GUI_FORGET_THIS
+			UpdateDirty(TRUE,iSettings);
+			SetTimeAccuracy();
+			BPActivateWindow(SLOW,wTimeAccuracy);
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+			MyDisposeHandle((Handle*)&p_nseq);
+			MyDisposeHandle((Handle*)&p_nseqmax);
+			goto FINDCOMPRESSION;
 			}
-		newquantize2 = atol(Message);
-		if(newquantize2 <= Quantization) {
-			rep = Answer("Are you sure you don't want to increase the current quantization",'N');
-			if(rep != YES) goto CHANGEQUANTIZE;
-			}
-		if(newquantize2 < newquantize) FixedMaxQuantization = TRUE;
-		
-		newquantize = newquantize2; */
-		alreadychangedquantize = TRUE;
-		
-SETQUANTIZE:
-		Quantization = newquantize;
-#if BP_CARBON_GUI_FORGET_THIS
-		UpdateDirty(TRUE,iSettings);
-		SetTimeAccuracy();
-		BPActivateWindow(SLOW,wTimeAccuracy);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-		MyDisposeHandle((Handle*)&p_nseq);
-		MyDisposeHandle((Handle*)&p_nseqmax);
-		goto FINDCOMPRESSION;
 		}
-	}
-// BPPrintMessage(odError,"@ morelines = %ld Minconc = %ld\n",(long)morelines,(long)Minconc);
-Minconc += morelines;
-// Minconc += Maxlevel;
-Maxlevel++;
-Maxconc = Minconc + 1 + longestseqouttime + longestnumbertoofast;
+	// BPPrintMessage(odError,"@ morelines = %ld Minconc = %ld\n",(long)morelines,(long)Minconc);
+	Minconc += morelines;
+	// Minconc += Maxlevel;
+	Maxlevel++;
+	Maxconc = Minconc + 1 + longestseqouttime + longestnumbertoofast;
 
-// BPPrintMessage(odInfo,"Minconc = %ld, longestseqouttime = %ld, longestnumbertoofast = %ld, Maxconc = %ld\n",(long)Minconc,(long)longestseqouttime,(long)longestnumbertoofast,(long)Maxconc);
-BPPrintMessage(odInfo,"Phase diagram contains %ld lines",(long)Maxconc);
-if(longestnumbertoofast > 0) BPPrintMessage(odInfo,", longest stream faster than quantization = %ld notes or sound-objects",(long)longestnumbertoofast);
-BPPrintMessage(odInfo,"\n");
+	// BPPrintMessage(odInfo,"Minconc = %ld, longestseqouttime = %ld, longestnumbertoofast = %ld, Maxconc = %ld\n",(long)Minconc,(long)longestseqouttime,(long)longestnumbertoofast,(long)Maxconc);
+	BPPrintMessage(odInfo,"Phase diagram contains %ld lines",(long)Maxconc);
+	if(longestnumbertoofast > 0) BPPrintMessage(odInfo,", longest stream faster than quantization = %ld notes or sound-objects",(long)longestnumbertoofast);
+	BPPrintMessage(odInfo,"\n");
 
-CHECKSIZE:
-// FIXME: This whole section needs reconsideration on OS X
-/* Maximum allowed memory for the phase diagram (?) is set by kMaxPhaseDiagramSize (currently
-   200 MB). That is pretty arbitrary but it is 10x the 20MB limit that MaxMem() was returning. 
-   A better solution is difficult since having no upper limit can lead to extreme thrashing,
-   and limiting the size to the computer's RAM does not prevent some virtual memory from 
-   being used (which the user might be OK with).
-   
-   Would it be good to allow the user to decide an upper limit ?
-   
-   Also, note that BP2 chooses a compression rate for quantization above (at label 
-   FINDCOMPRESSION, about line 327) before it even gets to this calculation.
-      -- akozar 20130904
- */
-
-FORGETIT:
-// Maxconc += Maxconc;
-Maxevent += ((2 * Maxconc) + 1);
-// Maxevent += Maxconc + 1;
-// Maxconc += 4;
-(*p_maxseq) = fmaxseq + 1.;
-/* Takes care of newswitch at the end of diagram */
-
-if(ShowMessages) ShowDuration(YES);
+	CHECKSIZE:
+	// FIXME: This whole section needs reconsideration on OS X
+	/* Maximum allowed memory for the phase diagram (?) is set by kMaxPhaseDiagramSize (currently
+	200 MB). That is pretty arbitrary but it is 10x the 20MB limit that MaxMem() was returning. 
+	A better solution is difficult since having no upper limit can lead to extreme thrashing,
+	and limiting the size to the computer's RAM does not prevent some virtual memory from 
+	being used (which the user might be OK with).
 	
-OkShowExpand = TRUE;	/* OK to display prolongational gaps "_" */
-if(nsymb > 15000L || numberprolongations > 2000 || ((Prod / firstscaling) > 200)) {
-	if(ShowMessages) {
-		if(nsymb > 15000L) {
-			BPPrintMessage(odInfo,"Expanded polymetric expression would contain %.0f symbols\n",nsymb);
+	Would it be good to allow the user to decide an upper limit ?
+	
+	Also, note that BP2 chooses a compression rate for quantization above (at label 
+	FINDCOMPRESSION, about line 327) before it even gets to this calculation.
+		-- akozar 20130904
+	*/
+
+	FORGETIT:
+	// Maxconc += Maxconc;
+	Maxevent += ((2 * Maxconc) + 1);
+	// Maxevent += Maxconc + 1;
+	// Maxconc += 4;
+	(*p_maxseq) = fmaxseq + 1.;
+	/* Takes care of newswitch at the end of diagram */
+
+	if(ShowMessages) ShowDuration(YES);
+		
+	OkShowExpand = TRUE;	/* OK to display prolongational gaps "_" */
+	if(nsymb > 15000L || numberprolongations > 2000 || ((Prod / firstscaling) > 200)) {
+		if(ShowMessages) {
+			if(nsymb > 15000L) {
+				BPPrintMessage(odInfo,"Expanded polymetric expression would contain %.0f symbols\n",nsymb);
+				}
+			if(ExpandOn) ShowMessage(TRUE,wMessage,"Expanded expression is too large for display");
 			}
-		if(ExpandOn) ShowMessage(TRUE,wMessage,"Expanded expression is too large for display");
+		OkShowExpand = FALSE;
 		}
-	OkShowExpand = FALSE;
+	r = OK;
+
+	QUIT:
+	// BPPrintMessage(odInfo,"@@ Maxconc = %ld\n",(long)Maxconc);
+	MyDisposeHandle((Handle*)&p_b);
+	MyDisposeHandle((Handle*)&p_nseq);
+	MyDisposeHandle((Handle*)&p_nseqmax);
+	PolyOn = FALSE;
+
+	if(r == IMBEDDED) r = OK;
+	return(r);
 	}
-r = OK;
-
-QUIT:
-// BPPrintMessage(odInfo,"@@ Maxconc = %ld\n",(long)Maxconc);
-MyDisposeHandle((Handle*)&p_b);
-MyDisposeHandle((Handle*)&p_nseq);
-MyDisposeHandle((Handle*)&p_nseqmax);
-PolyOn = FALSE;
-
-if(r == IMBEDDED) r = OK;
-return(r);
-}
 
 
 int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned long *p_maxid,
@@ -818,7 +817,7 @@ if(trace_polymake) {
 	}
 result = ABORT; compiledmem = CompiledGr;
 
-if(rtMIDI && ((r=stop(1)) != OK)) return(r);
+if((r=stop(1)) != OK) return(r);
 
 imbedded = TRUE;
 

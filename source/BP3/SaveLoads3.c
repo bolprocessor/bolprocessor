@@ -2227,7 +2227,7 @@ static OSErr CopyOneFork (FSSpec *source, FSSpec *dest, Boolean resourceFork)
 	buf = NewPtr(bufferSize);
 	err = MemError();
 	if (err != noErr) goto exit;
-	while (fileSize > 0) {
+	while(fileSize > 0) {
 		len = fileSize > bufferSize ? bufferSize : fileSize;
 		err = FSRead(sourceRefNum, &len, buf);
 		if (err != noErr) goto exit;

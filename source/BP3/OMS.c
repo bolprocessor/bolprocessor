@@ -672,7 +672,7 @@ for(i=0; i < im; i++) {
 		if(node.info[j].deviceH == NULL || (node.info[j].name)[0] == 0) break;
 		k = 0;
 		len = node.info[j].name[0];
-		while (--len >= 0) {
+		while(--len >= 0) {
 			Message[k] = node.info[j].name[k+1];
 			k++;
 			}

@@ -1796,8 +1796,8 @@ int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
         while(eventCount > eventCountMax) {
 			// The stack is full
             WaitABit(1); // Sleep for 1 millisecond
-            MIDIflush();
-        //    if(done++ == 0L) BPPrintMessage(odInfo,"Reached the limit of the buffer...\n");
+            if(MIDIflush() != OK) break;
+        //  if(done++ == 0L) BPPrintMessage(odInfo,"Reached the limit of the buffer...\n");
             }
 		eventStack[eventCount] = *p_e;
 		eventStack[eventCount].time = 1000 * time;

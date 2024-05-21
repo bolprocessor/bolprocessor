@@ -45,7 +45,7 @@ int PlaySelection(int w, int all) {
 	tokenbyte **p_a;
 	long origin,originmem,next_origin,firstorigin,end,x;
 
-	if(CheckEmergency() != OK) return(ABORT);
+	if(Panic || CheckEmergency() != OK) return(ABORT);
 
 	if(OutCsound) PrepareCsFile(); // The same file will be used for all chunks or items
 	if(WriteMIDIfile) PrepareMIDIFile();
@@ -142,6 +142,7 @@ int PlaySelection(int w, int all) {
 	// BPPrintMessage(odInfo,"@ origin = %ld next_origin = %ld end = %ld\n",(long)origin,(long)next_origin,(long)end);
 	LastChunk = FALSE;
 	while((originmem=origin) < end) {
+		if((r=stop(0)) != OK) return ABORT;
 		next_origin = origin;
 		time(&ProductionStartTime);
 		while(TRUE) {
@@ -165,6 +166,7 @@ int PlaySelection(int w, int all) {
 			MyDisposeHandle((Handle*)&p_a);
 			/* Could already be NULL because of PolyExpand() */
 			if(ScriptExecOn) r = OK;
+			if(stop(0) != OK) r = ABORT;
 			goto END;
 			}
 		if(!NoVariable(&p_a)) {
@@ -211,8 +213,8 @@ int PlaySelection(int w, int all) {
 		//	MyDisposeHandle((Handle*)&p_a);
 			/* Could already be NULL because of PolyExpand() */
 			if(r == ABORT || r == EXIT) {
+				if(Panic) return ABORT;
 			//	if(CyclicPlay) ResetMIDI(!Oms && !NEWTIMER_FORGET_THIS);
-			//	if(r == ABORT) r = OK; Fixed by BB 2021-02-25
 				break;
 				}
 			}
@@ -244,8 +246,8 @@ int PlaySelection(int w, int all) {
 int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll) {
 	int r;
 
-	if(CheckEmergency() != OK) return(ABORT);
-
+	if(Panic || CheckEmergency() != OK) return(ABORT);
+	if((r=stop(1)) != OK) return(r);
 	if(Jbol < 3) NoAlphabet = TRUE;
 	else NoAlphabet = FALSE;
 
@@ -371,6 +373,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		if(result != ABORT && ReleasePhaseDiagram(nmax,&p_imaxseq) != OK) result = ABORT;
 		if(result == MISSED) ShowError(37,0,0);
 	//	if((result == ABORT && !SkipFlag) || result == EXIT) goto RELEASE;
+		if(Panic) return ABORT;
 		if(result == ABORT || result == EXIT) goto RELEASE; // Fixed by BB 2021-02-26
 		result = MISSED;
 		goto RELEASE;
@@ -414,7 +417,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	// BPPrintMessage(odError,"@@ End MakeSound() nmax = %ld\n",(long)nmax);
 	if(result == ABORT) return(result);
 	if(ReleasePhaseDiagram(nmax,&p_imaxseq) != OK) return(ABORT);
-	if(result == MISSED) ShowMessage(TRUE,wMessage,"Item ignored");
+	if(result == MISSED) BPPrintMessage(odInfo,"Item ignored\n");
 
 	OUT:
 	if(store) {
@@ -486,6 +489,7 @@ askedvariables = derivevariables = FALSE;
 
 while(TRUE) {
 	SaidTooComplex = ShownBufferSize = FALSE;
+	if((r=stop(0)) != OK) return ABORT;
 	while(i < im && (isspace(c=(*p_line)[i]) || c == '\0')) i++;
 	i0 = i;
 	if(i >= im) break;
@@ -508,6 +512,7 @@ ENCODE:
 	if(p_ti == NULL) {
 		if(r != OK) {
 			MyDisposeHandle((Handle*)&p_ti);
+			Panic = TRUE;
 			return(r);
 			}
 		continue;
@@ -1032,8 +1037,6 @@ int ExpandSelection(int w) {
 	wout = OutputWindow;
 	ExpandOn = OkShowExpand = TRUE;
 	
-// while(origin < end) {
-	
 	origin = 0L;
 	end = GetTextHandleLength(TEH[w]);
 
@@ -1305,7 +1308,8 @@ if(GetTextChar(w,origin) == '[') {
 		origin++;
 		if(origin >= end) {
 			SelectOn = FALSE;
-		BPPrintMessage(odError,"=> SelectionToBuffer error 2\n");
+			Panic = TRUE;
+			BPPrintMessage(odError,"=> SelectionToBuffer error 2\n");
 			return(MISSED);
 			}
 		}
@@ -1345,6 +1349,7 @@ while(((*p2) != '\0') && (ret || (*p2) != '\r')) {
 		MyUnlock((Handle)*pp_buff);
 		MyDisposeHandle((Handle*)pp_buff);
 		SelectOn = FALSE;
+		Panic = TRUE;
 		return(MISSED);
 		}
 	} 
@@ -1404,6 +1409,7 @@ if(size < 2L) {
 	}
 if(*p_i >= im) return(MISSED);
 first = TRUE; oldc = '\0';
+if(stop(0) != OK) return ABORT;
 for(j=*p_i,k=0; j < im; j++) {
 	c = GetTextChar(w,j);
 //	BPPrintMessage(odInfo,"%c",c);

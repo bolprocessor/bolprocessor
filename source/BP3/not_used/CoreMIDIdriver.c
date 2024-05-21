@@ -350,7 +350,7 @@ static OSStatus TellDestinations(MIDIEndpointRef* endpoints)
 	MIDIEndpointRef* ep = endpoints;
 	
 	if (ep == NULL)  return paramErr;
-	while (*ep != NULL) {
+	while(*ep != NULL) {
 		err = MIDIObjectGetStringProperty(*ep, kMIDIPropertyName, &pname);
 		if (err == noErr) {
 			ok = CFStringGetCString(pname, name, sizeof(name), kCFStringEncodingMacRoman);
@@ -376,7 +376,7 @@ static OSStatus CMConnectToSources(MIDIEndpointRef* endpoints, Boolean tellConne
 	CoreMidiInputOn = false;
 	if (ep == NULL)  return paramErr;
 	anyerr = noErr;
-	while (*ep != NULL) {
+	while(*ep != NULL) {
 		err = MIDIPortConnectSource(CMInPort, *ep, NULL);
 		if (tellConnections) {
 			err2 = MIDIObjectGetStringProperty(*ep, kMIDIPropertyName, &pname);
@@ -406,7 +406,7 @@ static OSStatus CMDisconnectFromSources(MIDIEndpointRef* endpoints)
 	
 	if (ep == NULL)  return paramErr;
 	anyerr = noErr;
-	while (*ep != NULL) {
+	while(*ep != NULL) {
 		err = MIDIPortDisconnectSource(CMInPort, *ep);
 		if (err != noErr) anyerr = err;
 		++ep;
@@ -468,7 +468,7 @@ static int CMAddEventToQueue(const MIDIPacket* pkt)
 			// must look for status byte so that we don't leave pQueueFront
 			// pointing to the middle of an event
 			do if (++pQueueFront == pInputQueueEnd) pQueueFront = pInputQueue;
-			while (pQueueFront->byte < 128);
+			while(pQueueFront->byte < 128);
 			QueueOverflowed = true;
 		}
 	}
@@ -578,7 +578,7 @@ OSErr DriverWrite(Milliseconds time,int nseq,MIDI_Event *p_e)
 		curpkt = MIDIPacketListAdd(pktlist, sizeof(pktbuf), curpkt, cmtime, len, databuf);
 		if (curpkt != NULL) {
 			MIDIEndpointRef* dest = CMActiveDestinations;
-			while (*dest != NULL) {
+			while(*dest != NULL) {
 				err = MIDISend(CMOutPort, *dest, pktlist);
 				++dest;
 				++Nbytes;
@@ -605,7 +605,7 @@ int FlushDriver(void)
 	/* flush output */
 	if (CoreMidiOutputOn && CMActiveDestinations != NULL) {
 		MIDIEndpointRef* dest = CMActiveDestinations;
-		while (*dest != NULL) err = MIDIFlushOutput(*dest++);
+		while(*dest != NULL) err = MIDIFlushOutput(*dest++);
 	}
 	
 	/* flush input */

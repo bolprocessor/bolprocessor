@@ -940,7 +940,7 @@ do {
 			rep = OK; break;
 		}
 	}
-while (rep != OK && rep != ABORT);
+while(rep != OK && rep != ABORT);
 EnterOn = FALSE;
 AlertOn--;
 GetDialogItem(EnterPtr,fValue,&itemtype,&itemhandle,&r);

@@ -79,6 +79,7 @@ p_list ****p_waitlist,****p_scriptlist,**tag,**ptag;
 
 
 if(CheckEmergency() != OK) return(ABORT);
+if((result=stop(1)) != OK) return(result);
 if(trace_diagram) BPPrintMessage(odInfo,"Started filling phase diagram\n");
 
 AllSolTimeSet = StackFlag = (*p_bigitem) = ToldSkipped = FALSE;
@@ -356,10 +357,6 @@ instrument = channel = 0;
 part_of_ip = Kpress;
 
 for(id=istop=ZERO; ;id+=2,istop++) {
-/*	if((r=DoSystem()) != OK) {
-		result = r;
-		goto ENDDIAGRAM;
-		} */
 /*	if(istop == 20) istop = 0;
 	if((istop == 0 && Button()) && (r=InterruptTimeSet(FALSE,&tstart)) != OK) {
 		result = r;
@@ -368,6 +365,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 	m = (tokenbyte) (**pp_buff)[id];
 	p = (tokenbyte) (**pp_buff)[id+1];
 	if(m == TEND && p == TEND) break;
+	if((result=stop(0)) != OK) return(result);
 	if(trace_diagram)
 		BPPrintMessage(odInfo,"FillPhaseDiagram() m = %d p = %d level = %ld nseq = %ld id = %ld\n",m,p,(long)level,(long)nseq,(long)id);
 /*	if(m == T10) {	// Channel assignment _chan() // Fixed by BB 2021-02-15
@@ -1028,10 +1026,9 @@ DONEOUTTIMEOBJECT:
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
 						BPPrintMessage(odError,"=> Formula too complex (case 1)\n");
-						if(Beta) {
-							goto ENDDIAGRAM;
-							}
-						goto NEWSEQUENCE;
+						Panic = TRUE;
+						if(Beta) goto ENDDIAGRAM;
+						else goto NEWSEQUENCE;
 						}
 					if(nseq > (*p_nmax)) {
 						BPPrintMessage(odError,"=> Err. FillPhaseDiagram(). nseq > (*p_nmax) after '}'\n");
@@ -1099,6 +1096,7 @@ DONEOUTTIMEOBJECT:
 					if(trace_diagram) BPPrintMessage(odInfo,"@@ (*p_maxcol)[%ld + 1] = %ld\n",(long)nseq,(long)(*p_maxcol)[nseq+1]);
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
+						Panic = TRUE;
 						if(Beta) {
 							BPPrintMessage(odError,"=> Formula too complex (case 2)\n"); // BB 2021-01-29
 							BPPrintMessage(odError,"nseq = %ld Minconc = %ld classofinext = %ld inext = %.0f\n",(long)nseq,(long)Minconc,(long)classofinext,inext);
@@ -1273,6 +1271,7 @@ NEWSEQUENCE:
 				
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
+						Panic = TRUE;
 						if(Beta) {
 							Alert1("=> Err. FillPhaseDiagram(). nseq >= Minconc after '&'");
 							goto ENDDIAGRAM;

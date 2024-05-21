@@ -46,7 +46,7 @@ int i,len;
 
 i = 0;
 len = dest[i++] = *src++;
-while (--len >= 0) dest[i++] = *src++;
+while(--len >= 0) dest[i++] = *src++;
 }
 
 
@@ -79,7 +79,7 @@ StringPtr in_place_c2pstr(char* s)
 	char* p = s;
 	
 	cur = next = *s;
-	while (cur != '\0')	{
+	while(cur != '\0')	{
 		next = *(++p);
 		*p = cur;
 		cur = next;
@@ -509,7 +509,7 @@ char *repl_str(const char *str, const char *from, const char *to) {
 	size_t cpylen, orglen, retlen, tolen, fromlen = strlen(from);
 
 	/* Find all matches and cache their positions. */
-	while ((pstr2 = strstr(pstr, from)) != NULL) {
+	while((pstr2 = strstr(pstr, from)) != NULL) {
 		count++;
 
 		/* Increase the cache size when necessary. */

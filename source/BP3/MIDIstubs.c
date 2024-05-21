@@ -538,7 +538,7 @@ void sendMIDIEvent(unsigned char* midiData,int dataSize,long time) {
     #endif
     }
 
-void MIDIflush() {
+int MIDIflush() {
     unsigned long current_time = getClockTime();
     current_time -= initTime;
     long i = 0;
@@ -550,7 +550,7 @@ void MIDIflush() {
     if(Panic) eventCount = 0L;
     if((result = stop(0)) != OK) {
         eventCount = 0L;
-        return;
+        return result;
         }
     while(i < eventCount) {
         if(eventStack[i].time <= current_time) {
@@ -565,7 +565,7 @@ void MIDIflush() {
             }
         else i++;
         }
-    return;
+    return OK;
     }
 
 unsigned long getClockTime(void) {  // Microseconds

@@ -1059,14 +1059,16 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	Str255 label;
 
 	shift = 0.;
-	if(strcmp(type,"pianoroll") == 0) shift = 0.; // Later we'll take care of this  2024-05-10
-	else {
-	//	if(rtMIDI || WriteMIDIfile || OutCsound || OutBPdata) shift = (double) PianorollShift;
-		if(Improvize) shift = (double) PianorollShift;
-		}
+	//if(strcmp(type,"pianoroll") == 0) shift = 0.; // Later we'll take care of this  2024-05-10
+	//else {
+		if(Improvize || PlayAllChunks) shift = (double) PianorollShift;
+	//	}
 	if(imagePtr == NULL) {
 		N_image++;
-		if(strcmp(type,"pianoroll") != 0 && Improvize) CreateImageFile(shift/1000.);
+		if(strcmp(type,"pianoroll") != 0 && (Improvize || PlayAllChunks) && (ShowPianoRoll))
+	//	if(strcmp(type,"pianoroll") != 0 && (Improvize || PlayAllChunks) && (ShowPianoRoll || !rtMIDI))
+		// ShowPianoRoll, because if no pianoroll has been drawn, the value of shift is incorrect.
+			CreateImageFile(shift/1000.);
 		else CreateImageFile(-1.);  // Later we can use it
 		}	
 	result = OK;
@@ -1229,21 +1231,17 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 	char* word;
 	int length;
 
-	if(key < 0 || key > 127) {
-		return(OK);
+	if(key < 0 || key > 127) return(OK);
+	if(chan < 0 || chan >= MAXCHAN) return(OK);
+	if(stop(0) != OK) return(ABORT);
+	if(rtMIDI || WriteMIDIfile || OutCsound || OutBPdata) {
+		timeon -= PianorollShift;
+		timeoff -= PianorollShift;	
 		}
-	if(chan < 0 || chan >= MAXCHAN) {
-		return(OK);
+	else if(DisplayItems) {
+		timeon -= 600L;
+		timeoff -= 600L;
 		}
-	// if(strcmp(type,"midi") == 0) {
-		if(rtMIDI || WriteMIDIfile || OutCsound || OutBPdata) {
-			timeon -= PianorollShift;
-			timeoff -= PianorollShift;	
-			}
-		else if(DisplayItems) {
-			timeon -= 600L;
-			timeoff -= 600L;
-			}
 	timeon = Round(((double)timeon * GraphicScaleP) / GraphicScaleQ / 10.);
 	timeoff = Round(((double)timeoff * GraphicScaleP) / GraphicScaleQ / 10.);
 	x1 = p_r->left + leftoffset + timeon;
@@ -1274,7 +1272,6 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 int DrawNoteScale(Rect* p_r,int w,int minkey,int maxkey,int hrect,int leftoffset,int topoffset) {
 	int y,key,xmin,xmax;
 	char line[20];
-
 	pen_size(2,0);
 	xmin = p_r->left + 41;
 	xmax = p_r->right - 28;

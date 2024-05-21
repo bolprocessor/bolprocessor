@@ -192,7 +192,7 @@ void usleep(DWORD waitTime) {
     QueryPerformanceFrequency(&perfCnt);
     QueryPerformanceCounter(&start);
     do QueryPerformanceCounter((LARGE_INTEGER*)&now);
-	while ((now.QuadPart - start.QuadPart) / float(perfCnt.QuadPart) * 1000 * 1000 < waitTime);	
+	while((now.QuadPart - start.QuadPart) / float(perfCnt.QuadPart) * 1000 * 1000 < waitTime);	
 	}
 typedef struct {
     UInt64 eventTime; // Time in ms

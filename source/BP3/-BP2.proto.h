@@ -95,7 +95,7 @@ int Errors(DriverDataPtr);
 int initializeMIDISystem(void);
 void closeMIDISystem();
 void sendMIDIEvent(unsigned char*,int,long);
-void MIDIflush(void);
+int MIDIflush(void);
 unsigned long getClockTime(void);
 int Notify(char*);
 

@@ -401,5 +401,6 @@ extern UInt64 initTime;
 extern int FirstMIDIevent;
 
 extern int stop(int);
+extern int MIDIflush(void);
 
 #endif /* BP2_DECL_H */

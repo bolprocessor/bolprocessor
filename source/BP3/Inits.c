@@ -132,7 +132,7 @@ ItemNumber = ZERO;
 AssignedTempoCsoundFile = FALSE;
 MaxConsoleTime = 120;
 Ratio = 0.;  Prod = 1.;
-N_image = 1; imagePtr = NULL;
+N_image = 0; imagePtr = NULL;
 NumberScales = DefaultScale = 0; MaxScales = 2; Scale = NULL;
 ToldAboutScale = FALSE;
 WarnedBlockKey = WarnedRangeKey  = FALSE;

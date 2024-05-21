@@ -350,7 +350,7 @@ OUT:
 		r = EventState; goto OUT;
 		}
 #endif /* BP_CARBON_GUI_FORGET_THIS */
-	}  // while (Readline())
+	}  // while(Readline())
 
 END:
 MyDisposeHandle((Handle*)&p_line);

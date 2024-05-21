@@ -1818,7 +1818,7 @@ int ThreeOverTwo(long *p_x)
 
 int CheckEmergency(void)
 {
-if(EmergencyExit) {
+if((stop(0) != OK) || EmergencyExit) {
 //	Alert1("Out of memory. Save your work and exit...");
 	return(NO);
 	}

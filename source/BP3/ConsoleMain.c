@@ -105,8 +105,7 @@ int main (int argc, char* args[])
     ConsoleMessagesInit();
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (2) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	result = ParsePreInitArgs(argc, args, &gOptions);
-	if (result == EXIT)  return EXIT_SUCCESS;
-	else if (result != OK)  return EXIT_FAILURE;
+	if (result != OK) goto CLEANUP;
 	
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (3) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	
@@ -118,23 +117,22 @@ int main (int argc, char* args[])
 	if(check_memory_use) BPPrintMessage(odInfo,"Memory before Inits() = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	
 	memory_before = MemoryUsed;
-	if (Inits() != OK)	return EXIT_FAILURE;
+	if (Inits() != OK) goto CLEANUP;
 	MemoryUsed = memory_before;
-	
 	
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (5) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 //	MemoryUsedInit = MemoryUsed;
 	
 	result = ParsePostInitArgs(argc, args, &gOptions);
-	if (result != OK)  return EXIT_FAILURE;
+	if (result != OK) goto CLEANUP;
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (6) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 
 	result = LoadInputFiles(gOptions.inputFilenames);
-	if (result != OK)  return EXIT_FAILURE;
+	if (result != OK) goto CLEANUP;
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (7) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	// some command-line options are applied after loading the settings file
 	result = ApplyArgs(&gOptions);
-	if (result != OK)  return EXIT_FAILURE;
+	if (result != OK) goto CLEANUP;
 
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (8) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	
@@ -144,7 +142,7 @@ int main (int argc, char* args[])
 	TraceMemory = FALSE;
 #endif
 
-	MaxMIDIMessages = 1000L;
+	MaxMIDIMessages = 1000L;  // May be increased if necesssary to deal with very large chunks of events in real time
 
 	eventStack = (MIDI_Event*) malloc(MaxMIDIMessages * sizeof(MIDI_Event));
 	if(eventStack == NULL) {
@@ -153,6 +151,7 @@ int main (int argc, char* args[])
 		Panic = TRUE;
         goto CLEANUP;
     	}
+	if(rtMIDI) BPPrintMessage(odInfo,"Real-time MIDI events will use a buffer sized %ld\n",(long)MaxMIDIMessages);
 	eventCount = 0L;
 	eventCountMax = MaxMIDIMessages - 4L;
 	initTime = 0L; // millisconds
@@ -303,7 +302,7 @@ CLEANUP:
 				BPPrintMessage(odInfo,"Leaking handle %d containing %ld bytes = %ld, hist_mem = %d\n",(long)i,(long)size_mem_ptr[i],(long)this_size,hist_mem_ptr[i]);
 				}
 			}
-		BPPrintMessage(odInfo, "Uncleared %ld handles for %ld bytes\n",(long)j,(long)forgotten_mem);
+		BPPrintMessage(odInfo, "=> Uncleared %ld handles for %ld bytes\n",(long)j,(long)forgotten_mem);
 		}
 	
 	// close open files
@@ -316,10 +315,10 @@ CLEANUP:
 	if(rtMIDI) {
 		if(Panic) eventCount = 0L;
 		while(eventCount > 0L) {
-			MIDIflush();  // Process MIDI events
-			if((result = WaitABit(10)) != OK) return EXIT_SUCCESS; // Sleep for 10 milliseconds
+			if(MIDIflush() != OK) break;  // Process MIDI events
+			if((result = WaitABit(10)) != OK) break; // Sleep for 10 milliseconds
 			}
-		if((result = WaitABit(100)) != OK) return EXIT_SUCCESS; // Sleep for 100 milliseconds
+		WaitABit(100); // Sleep for 100 milliseconds
 		AllNotesOffPedalsOffAllChannels();
 		BPPrintMessage(odInfo,"Duration = %.3f seconds\n",(double)LastTime/1000.); // Date of the last MIDI event
 		closeMIDISystem();
@@ -382,16 +381,16 @@ int stop(int now) {
 	NextStop = current_time + 500000L; // microseconds
 	ptr = fopen(StopfileName,"r");
 	if(ptr) {
-		Improvize = FALSE;
-		BPPrintMessage(odInfo,"=> Found 'stop' file: %s\n",StopfileName);
+		Improvize = PlayAllChunks = FALSE;
+		BPPrintMessage(odError,"=> Found 'stop' file: %s\n",StopfileName);
 		fclose(ptr);
 		Panic = EmergencyExit = TRUE;
 		return ABORT;
 		}
 	ptr = fopen(PanicfileName,"r");
 	if(ptr) {
-		Improvize = FALSE;
-		BPPrintMessage(odInfo,"=> Found 'panic' file: %s\n",PanicfileName);
+		Improvize = PlayAllChunks = FALSE;
+		BPPrintMessage(odError,"=> Found 'panic' file: %s\n",PanicfileName);
 		fclose(ptr);
 		Panic = EmergencyExit = TRUE;
 		return ABORT;
@@ -685,7 +684,7 @@ int ParsePreInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 		return ABORT;
 	}
 	
-	while (argn < argc) {
+	while(argn < argc) {
 		if (strcmp(args[argn], "-h") == 0 || strcmp(args[argn], "--help") == 0)	{
 			PrintUsage(args[0]);
 			return EXIT;
@@ -718,11 +717,11 @@ int ParsePreInitArgs(int argc, char* args[], BPConsoleOpts* opts)
  */
 int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 {
-	int argn = 1, arglen, w, resultinit;
+	int argn = 1, arglen, w, resultinit, r;
 	Boolean argDone;
 	action_t action = no_action;
 
-	while (argn < argc) {
+	while(argn < argc) {
 		/* check if it is an input file */
 		argDone = FALSE;
 		if (args[argn][0] == '-' || args[argn][0] == '+') {
@@ -961,10 +960,10 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 			}
 		// InBuiltDriverOn = TRUE;
 		rtMIDI = TRUE;
+
 		AllNotesOffPedalsOffAllChannels();
 		WaitABit(500L); // 500 ms
-		MIDIflush();
-	//	initTime = (UInt64) getClockTime();
+		if((r = MIDIflush()) != OK) return r;
 		Notify("Real-time MIDI started");
 		}
 	return OK;
@@ -1381,7 +1380,7 @@ Boolean isInteger(const char* s)
 	int i = 0;
 	
 	if (s[i] != '-' && s[i] != '+' && !isdigit(s[i])) return FALSE;
-	while (s[++i] != '\0') {
+	while(s[++i] != '\0') {
 		if (!isdigit(s[i])) return FALSE;
 	}
 	

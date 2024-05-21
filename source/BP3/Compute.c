@@ -1067,7 +1067,8 @@ int rep;
 long size;
 
 if(*pp_a == NULL) {
-	if(Beta) Alert1("=> Err. Destroy(). *pp_a = NULL");
+	BPPrintMessage(odError,"=> Err. Destroy(). *pp_a = NULL\n");
+	Panic = TRUE;
 	return(ABORT);
 	}
 size = MyGetHandleSize((Handle)*pp_a);

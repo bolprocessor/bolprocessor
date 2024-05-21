@@ -72,27 +72,25 @@ Handle GiveZeroedSpace(Size size)
 	return GiveSpaceInternal(size, TRUE);
 }
 
-static Handle GiveSpaceInternal(Size size, Boolean clear)
-{
-	s_handle_priv*	h;
-		
+static Handle GiveSpaceInternal(Size size, Boolean clear) {
+	s_handle_priv*	h;	
 	// allocate a private handle structure
 	h = malloc(sizeof(s_handle_priv));
 	if(h == NULL) {
-		Alert1("BP3 ran out of memory before completing the current task."
-			   "You may want to save your work before continuing.");
+		BPPrintMessage(odError,"=> BP3 ran out of memory before completing the current task.\n");
+		Panic = TRUE;
 		return NULL;
-	}
+		}
 	
 	// allocate the requested block
 	if (clear)	h->memblock = calloc((size_t) 1, (size_t) size);
 	else		h->memblock = malloc((size_t) size);
 	if(h->memblock == NULL) {
 		free(h);
-		Alert1("BP3 ran out of memory before completing the current task."
-			   "You may want to save your work before continuing.");
+		BPPrintMessage(odError,"=> BP3 ran out of memory before completing the current task.\n");
+		Panic = TRUE;
 		return NULL;
-	}
+		}
 	else {
 		h->size = size;
 		// track memory usage
@@ -105,119 +103,115 @@ static Handle GiveSpaceInternal(Size size, Boolean clear)
 		i_ptr++;
 		MemoryUsed += (long) size;
 		if(MemoryUsed > MaxMemoryUsed) {
-			MaxMemoryUsed = MemoryUsed;
+				MaxMemoryUsed = MemoryUsed;
+			}
 		}
-	}
 	return (Handle)h;
-}
+	}
 
-Size MyGetHandleSize(Handle h)
-{
+Size MyGetHandleSize(Handle h) {
 	if(h == NULL) return (Size) ZERO;
 	else return ((s_handle_priv*)h)->size;
-}
+	}
 
-int MyDisposeHandle(Handle *p_h)
-{
+int MyDisposeHandle(Handle *p_h) {
 	int i;
-	
+	if(Panic) return ABORT;
 	if (p_h == NULL) {
 		BPPrintMessage(odError,"=> Err. MyDisposeHandle. p_h = NULL");
+		Panic = TRUE;
 		return(ABORT);
-	}
+		}
 	if(*p_h != NULL) {
-		s_handle_priv*	h = (s_handle_priv*) *p_h;
-		
-		for(i = 0; i < 5000; i++) {
+		s_handle_priv*	h = (s_handle_priv*) *p_h; 
+	/*	for(i = 0; i < 5000; i++) { // 2024-05-20
 			if(mem_ptr[i] == (Handle)(*p_h)) {
 				hist_mem_ptr[i] = 2;
 				}
-			}
+			} */
 		if(h->size < (Size)1) {
 			if(!EmergencyExit && Beta) Alert1("Err. MyDisposeHandle. size < 1");
 			*p_h = NULL;
+			Panic = TRUE;
 			return(ABORT);
-		}
+			}
 		MemoryUsed -= (long) h->size;
-		
 		free(h->memblock);
 		free(h);
 		if(check_memory_use && MemoryUsed < MemoryUsedInit) {
 			BPPrintMessage(odInfo,"WARNING! MemoryUsed = %ld < MemoryUsedInit = %ld in %s/%s\n",(long)MemoryUsed,(long)MemoryUsedInit,__FILE__,__FUNCTION__);
 			}
 		// no way to check for errors ?
-	}
+		}
 	*p_h = NULL;
 	return OK;
-}
+	}
  
-Handle IncreaseSpace(Handle h)
-{
+Handle IncreaseSpace(Handle h) {
 	Size oldsize, newsize;
 	int rep;
-
 	if(h == NULL) {
 		BPPrintMessage(odError,"=> Err. IncreaseSpace(). h = NULL");
+		Panic = TRUE;
 		return(NULL);
-	}
+		}
 	oldsize = MyGetHandleSize(h);
 	// increase existing space by 50 percent
 	// FIXME: how do we keep this calc from overflowing?
 	newsize = (Size)2 + ((oldsize * (Size)3) / (Size)2);
 	rep = MySetHandleSize(&h, newsize);
 	if(rep != OK) return NULL;
-	
 	return(h);
-}
+	}
 
 
-int MySetHandleSize(Handle* p_h,Size size)
-{
+int MySetHandleSize(Handle* p_h,Size size) {
 	s_handle_priv*	h;
 	Size oldsize;
 	int i;
-	
 //	BPPrintMessage(odInfo,"size = %ld\n",(long) size);
 	if(p_h == NULL) {
 		BPPrintMessage(odError,"=> Err. MySetHandleSize(). p_h == NULL");
+		Panic = TRUE;
 		return(ABORT);
-	}
+		}
 	if(*p_h != NULL) {
 		// if the handle exists, just resize its memory block
 		h = (s_handle_priv*) *p_h;
 		oldsize = h->size;
 		if(Beta && !InitOn && oldsize < (Size)1) {
 			BPPrintMessage(odError,"=> Err. MySetHandleSize(). oldsize = %ld (1)\n", (long) oldsize);
+			Panic = TRUE;
 			return (ABORT);
-		}
+			}
 		h->memblock = realloc(h->memblock, size);
 		if (h->memblock == NULL) {
-			Alert1("BP3 ran out of memory before completing the current task."
-				   "You may want to save your work before continuing.");
+			BPPrintMessage(odError,"=> BP3 ran out of memory before completing the current task.\n");
+			Panic = TRUE;
 			return (ABORT);
-		}
+			}
 		else {
 			h->size = size;
 		/*	if (size > oldsize) */  MemoryUsed += (long)(size - oldsize);
 		/*	else  MemoryUsed -= (unsigned long)(oldsize - size); */
 			if(MemoryUsed > MaxMemoryUsed) {
 				MaxMemoryUsed = MemoryUsed;
-			}
+				}
 			for(i = 0; i < 5000; i++) {
-			if(mem_ptr[i] == (Handle)h) {
-				size_mem_ptr[i] = (int) size;
-				break;
+				if(mem_ptr[i] == (Handle)h) {
+					size_mem_ptr[i] = (int) size;
+					break;
+					}
 				}
 			}
 		}
-	}
 	else {
 		// handle was NULL, so just do a fresh alloc
 		if((*p_h = GiveSpace(size)) == NULL) return(ABORT);
-	}
+		}
 //	BPPrintMessage(odInfo,"Done size = %ld\n",(long) size);
 	return(OK);
-}
+	}
 
 
 inline

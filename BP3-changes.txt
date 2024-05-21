@@ -75,3 +75,9 @@ Fixed bug in timing the Csound score on chunked Data.
 In real-time MIDI, the clock is synchronised on the first NoteOn event.
 The stop() function has a "now" parameter to decide whether it should work immediately or wait for the next half second.
 MaxMIDIMessages = 1000. More may be necessary to handle very large chunks of data in real-time MIDI.
+
+-----
+2024-05-21
+Images are displayed even if errors have been found. (Fixed in produce.php)
+All images can be displayed (if this option is selected) during the reading of chunked data.
+The STOP and PANIC buttons seem to succeed in shutting down the console for good when reading chunked data in real-time MIDI.

@@ -615,20 +615,9 @@ for(nseq=0; nseq < maxconc; nseq++) {
 for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurrence++) {
 	result = OK;
 //	PleaseWait();
+	if((result=stop(1)) != OK) goto OVER;
 	if(SkipFlag) goto OVER;
 //	BPPrintMessage(odError, "occurrence = %d\n",occurrence);
-#if BP_CARBON_GUI_FORGET_THIS
-	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-/*	if(!showpianoroll && (result=MyButton(1)) != MISSED) {
-		interruptedonce = TRUE;
-		if(result != OK || (result=InterruptSound()) != OK) goto OVER;
-		}
-	result = OK;
-	if(EventState != NO) {
-		result = EventState; goto OVER;
-		} */
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-	
 	for(k=2; k <= (*p_kmax); k++) {
 		(*p_inext)[k] = (*p_inext1)[k];
 		(*p_onoff)[k] = FALSE;
@@ -673,11 +662,6 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 		sprintf(Message,"%ldth repetition...",(long)occurrence+1L);
 		ShowMessage(TRUE,wMessage,Message);
 		}
-		
-	/* if((!Improvize || ItemNumber == ZERO || PlaySelectionOn || ItemCapture
-			|| cswrite || MIDIfileOn || showpianoroll) && !CyclicPlay)
-		Tcurr = ZERO; */
-	/* This value is used in ResetMIDIControllers() */
 	
 	if(!cswrite && !MIDIfileOn && ResetControllers && !ItemCapture && !CyclicPlay
 		&& !showpianoroll && resetok) ResetMIDIControllers(NO,FALSE,YES);
@@ -783,6 +767,7 @@ TRYCSFILE:
 	doneobjects = 0;
 	
 	while(kcurrentinstance > 0) {
+		if((result=stop(1)) != OK) goto OVER;
 		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"• kcurrentinstance = %d\n",kcurrentinstance);
 		currentinstancevalues = (*p_Instance)[kcurrentinstance].contparameters.values;
 		scale = (*p_Instance)[kcurrentinstance].scale;
@@ -1460,6 +1445,7 @@ PLAYOBJECT:
 			BPPrintMessage(odInfo,"\nPLAYOBJECT: k = %d j = %d objectduration = %ld t1 = %ld t2 = %ld t3 = %ld ievent = %d im = %d\n",kcurrentinstance,j,objectduration,(long)t1,(long)t2,(long)t3,ievent,im);
 		while(t1 <= t2  && t1 <= t3  && ievent < im) {
 	//	while(t1 <= t2  && t1 <= t3  && (ievent < im || j == 1)) { // Fixed by BB 2021-01
+			if((result=stop(0)) != OK) goto OVER;
 			Tcurr =  (t0 + t1) / Time_res;
 			if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Tcurr = %ld, j = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)j,(long)t0,(long)t1,(long)Time_res);
 			result = OK;
@@ -2053,24 +2039,14 @@ OVER:
 HideWindow(Window[wMessage]);
 HideWindow(Window[wInfo]);
 if(result == ENDREPEAT) result = OK;
-if(result == STOP) result = ABORT;
+if(Panic || result == STOP) result = ABORT;
 if(result == ABORT) {
-	BPPrintMessage(odError,"Canceled MakeSound()\n");
+	BPPrintMessage(odError,"Stopped playing\n");
 	goto GETOUT;
 	}
 
 OUTGRAPHIC:
-if(showpianoroll) {
-//	if(!overflow) DrawNoteScale(&graphrect,w,minkey,maxkey,hrect,leftoffset,topoffset);
-	
-// if NEWGRAF_FORGET_THIS
-/*	if(Offscreen) UnlockPixels(GetGWorldPixMap(gMainGWorld));
-endif
-	if(saveport != NULL) SetPort(saveport);
-	if(ShowMessages) ClearMessage(); */
-	goto GETOUT;
-// endif /* BP_CARBON_GUI_FORGET_THIS */
-	}
+if(showpianoroll) goto GETOUT;
 
 if(!cswrite && !Panic && (result == RESUME || (!Improvize && !PlayAllChunks && !CyclicPlay))) { // Fixed 2024-05-02
 	for(ch=0; ch < MAXCHAN; ch++) {
