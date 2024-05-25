@@ -391,7 +391,7 @@ if((ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || Gra
 	|| PolyOn || ScriptExecOn)) return(MISSED);
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
-GetValues(TRUE);
+// GetValues(TRUE);
 if(IsEmpty(wGrammar)) {
 	Alert1("Can't transliterate file because grammar is empty");
 	return(MISSED);	
@@ -559,7 +559,7 @@ mMIDI(int wind)
 	Dirty[iSettings] = TRUE;
 	ReadKeyBoardOn = FALSE; Jcontrol = -1;
 	HideWindow(Window[wMessage]);
-	SetButtons(TRUE);
+	
 #endif
 return(OK);
 }
@@ -578,7 +578,7 @@ else {
 Dirty[iSettings] = TRUE;
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
-SetButtons(TRUE);
+
 return(OK);
 }
 
@@ -604,7 +604,7 @@ else {
 Dirty[iSettings] = TRUE;
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
-SetButtons(TRUE);
+
 return(OK);
 }
 
@@ -908,7 +908,7 @@ HideWindow(Window[wMessage]);
 return(r);
 }
 
-
+/*
 mSendMIDI(int wind)
 {
 int r,k,sysex,send,nbytes,maxbytes;
@@ -923,10 +923,6 @@ char **p_line,**p_completeline;
 unsigned long drivertime;
 
 if(CheckEmergency() != OK) return(MISSED);
-if(!IsMidiDriverOn()) {
-	if(Beta) Alert1("=> Err. mSendMIDI(). Driver is OFF");
-	return(ABORT);
-	}
 
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
@@ -957,7 +953,7 @@ if(OldFile(-1,1,PascalLine,&spec)) {
 			(*p_Code)[i].byte = k;
 			(*p_Code)[i].sequence = 0;
 			if(Button() && Answer("Continue reading",'Y') != OK) break;
-			/* This timing is only needed for the control of overflow when sending codes */
+			 This timing is only needed for the control of overflow when sending codes
 			}
 		FSClose(refnum);
 		sprintf(Message,"Sending %ld bytes to MIDI device.",(long)im);
@@ -1024,7 +1020,7 @@ OUT:
 HideWindow(Window[wMessage]);
 return(r);
 #endif
-}
+} */
 
 
 mOpenFile(int w)
@@ -1067,7 +1063,7 @@ switch(w) {
 		if((r=ClearWindow(FALSE,w)) != OK) return(r);
 		ForgetFileName(w);
 #if WITH_REAL_TIME_MIDI_FORGET_THIS // FIXME: can we load an interaction file without RT MIDI? What sd we do here? - akozar
-		Interactive = rtMIDI = TRUE; SetButtons(TRUE);
+		Interactive = rtMIDI = TRUE; 
 		if(!oldoutmidi) ResetMIDI(FALSE);
 #endif
 		LoadedIn = CompiledIn = anyfile = FALSE;
@@ -2568,7 +2564,7 @@ if((ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || Gra
 	|| PolyOn)) return(MISSED);
 ReadKeyBoardOn = FALSE; Jcontrol = -1;
 HideWindow(Window[wMessage]);
-GetValues(TRUE);
+// GetValues(TRUE);
 if(rtMIDI && Interactive && !LoadedIn) {
 	if(GetInName(wData) != OK) GetInName(wGrammar);
 	if(LoadInteraction(TRUE,FALSE) != OK) return(OK);
@@ -2583,7 +2579,7 @@ if(WillRandomize) {
 //	ReseedOrShuffle(RANDOMIZE);
 	if(!AllowRandomize) {
 		Alert1("Since '_randomize' was found, button 'Allow randomize' has been checked");
-		AllowRandomize = TRUE; SetButtons(TRUE);
+		AllowRandomize = TRUE; 
 		BPActivateWindow(QUICK,wSettingsTop);
 		}
 	}
@@ -2823,7 +2819,7 @@ if(!ComputeOn && !PolyOn && !CompileOn && !SoundOn && !SelectOn &&
 if(PauseOn) return(OK);
 oldbuttonon = ButtonOn;
 /* ButtonOn = FALSE;	This will allow ResumeStop window to show up */
-SetButtons(TRUE);
+
 Interrupted = PauseOn = TRUE;
 datemem = CompileDate; UndoFlag = FALSE;
 SetResumeStop(TRUE);

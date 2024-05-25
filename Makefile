@@ -52,7 +52,6 @@ SRCS = \
   $(SRCDIR)/MakeSound.c \
   $(SRCDIR)/MIDIfiles.c \
   $(SRCDIR)/MIDIloads.c \
-  $(SRCDIR)/MIDIstubs.c \
   $(SRCDIR)/MIDIstuff.c \
   $(SRCDIR)/Misc.c \
   $(SRCDIR)/PlayThings.c \
@@ -60,6 +59,8 @@ SRCS = \
   $(SRCDIR)/ProduceItems.c \
   $(SRCDIR)/SaveLoads1.c \
   $(SRCDIR)/SaveLoads3.c \
+  $(SRCDIR)/Script.c \
+  $(SRCDIR)/ScriptUtils.c \
   $(SRCDIR)/SetObjectFeatures.c \
   $(SRCDIR)/SoundObjects2.c \
   $(SRCDIR)/SoundObjects3.c \
@@ -269,13 +270,6 @@ source/BP3/MIDIloads.o: source/BP3/MissingMacPrototypes.h
 source/BP3/MIDIloads.o: source/BP3/CTextHandles.h source/BP3/-BP2.h
 source/BP3/MIDIloads.o: source/BP3/midi1.h
 source/BP3/MIDIloads.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
-source/BP3/MIDIstubs.o: source/BP3/PrefixANSIDebug.h
-source/BP3/MIDIstubs.o: source/BP3/MissingMacTypes.h 
-source/BP3/MIDIstubs.o: source/BP3/MissingMacPrototypes.h
-source/BP3/MIDIstubs.o: source/BP3/CTextHandles.h 
-source/BP3/MIDIstubs.o: source/BP3/-BP2.h
-source/BP3/MIDIstubs.o: source/BP3/midi1.h
-source/BP3/MIDIstubs.o: source/BP3/-BP2.proto.h source/BP3/-BP2decl.h
 source/BP3/MIDIstuff.o: source/BP3/PrefixANSIDebug.h
 source/BP3/MIDIstuff.o: source/BP3/MissingMacTypes.h 
 source/BP3/MIDIstuff.o: source/BP3/MissingMacPrototypes.h

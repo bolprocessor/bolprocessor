@@ -1175,7 +1175,7 @@ for(ifield=1; ifield <= outfields; ifield++) {
 #if BP_CARBON_GUI_FORGET_THIS
 	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if((result=MyButton(0)) != MISSED) {
-		SetButtons(TRUE);
+		
 		Interrupted = TRUE;
 		dirtymem = Dirty[wAlphabet]; Dirty[wAlphabet] = FALSE;
 		compiledmem = CompiledGr;

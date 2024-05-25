@@ -520,12 +520,12 @@ return(OK);
 
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
-int SetButtons(int force)
+/* int SetButtons(int force)
 {
-  /* Might prefer #if BP_CARBON_GUI_FORGET_THIS here b/c changing settings in non-GUI build 
+  Might prefer #if BP_CARBON_GUI_FORGET_THIS here b/c changing settings in non-GUI build 
      might be undesirable (better to just report incompatible options and exit?)
 	 -- akozar 20130813
-   */
+   
 if(AllItems || Improvize) CyclicPlay = FALSE;
 if(AllItems) Improvize = FALSE;
 if(CyclicPlay || AllItems || OutCsound || WriteMIDIfile) ComputeWhilePlay = FALSE;
@@ -566,9 +566,9 @@ if(force || (Nw == wSettingsTop) || (Nw == wSettingsBottom)) {
 	ChangeControlValue(force,Hbutt[bCsoundTrace],CsoundTrace);
 	ChangeControlValue(force,Hbutt[bOMS],Oms);
 	}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
+#endif
 return(OK);
-}
+} */
 
 
 #if BP_CARBON_GUI_FORGET_THIS
@@ -2088,7 +2088,7 @@ return(ABORT);
 int WaitABit(long thedelay) {
 	// Wait for thedelay milliseconds
 	int result;
-	if(thedelay > 100L && (result = stop(1)) != OK) return result;
+	if(thedelay > 100L && (result = stop(1,"WaitABit")) != OK) return result;
 	usleep(1000L * thedelay);
 
 	/* int i;

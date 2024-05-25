@@ -43,644 +43,643 @@
 #endif
 
 
-int Inits(void)
-{
-int i,j,ch;
-OSStatus io;
-char **ptr;
-Rect r;
-long handlerRefcon;
-#if BP_CARBON_GUI_FORGET_THIS
-WDPBRec pb;
-AEEventHandlerUPP handler;
-ProcessInfoRec info;
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-FSSpec spec;
-long t;
+int Inits(void) {
+	int i,j,ch;
+	OSStatus io;
+	char **ptr;
+	Rect r;
+	long handlerRefcon;
+	#if BP_CARBON_GUI_FORGET_THIS
+	WDPBRec pb;
+	AEEventHandlerUPP handler;
+	ProcessInfoRec info;
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+	FSSpec spec;
+	long t;
 
-/* static char HTMLlatin[] Starting with "&#32" up to "&#255" 
-	= {' ','!','\"','#','$','%','&','\'','(',')','*','+',',','-','.','/','0','1','2','3',
-	'4','5','6','7','8','9',':',';','<','=','>','?','@','A','B','C','D','E','F','G','H',
-	'I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','[','\\',']',
-	'\0','_','\0',
-	'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t',
-	'u','v','w','x','y','z','{','|','}','~','\0','�','�','�','�','�','�','�','�',
-	'�','�','�','�','�','�','�','�','�','�','�','�','�','�','�','�','�',
-	'�','�','�','�','�','�','�','\0','�','�','�','�','�','|','�','�','�','�','"',
-	'�','\0','�','\0','�','�','�','�','\0','�','\0','�','�','�','�','�','�','�','�','�',
-	'�','"','�','�','�','�','�','�','�','�','�','�','�','�','�','�','\0','�','�','�','�',
-	'�','�','�','�','�','�','�','�','Y','\0','�','�','�','�','�','�','�','�','�','�','�','�',
-	'�','�','�','�','�','\0','�','�','�','�','�','�','�','�','�','�','�','�','y',
-	'\0','�'}; */
+	/* static char HTMLlatin[] Starting with "&#32" up to "&#255" 
+		= {' ','!','\"','#','$','%','&','\'','(',')','*','+',',','-','.','/','0','1','2','3',
+		'4','5','6','7','8','9',':',';','<','=','>','?','@','A','B','C','D','E','F','G','H',
+		'I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','[','\\',']',
+		'\0','_','\0',
+		'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t',
+		'u','v','w','x','y','z','{','|','}','~','\0','�','�','�','�','�','�','�','�',
+		'�','�','�','�','�','�','�','�','�','�','�','�','�','�','�','�','�',
+		'�','�','�','�','�','�','�','\0','�','�','�','�','�','|','�','�','�','�','"',
+		'�','\0','�','\0','�','�','�','�','\0','�','\0','�','�','�','�','�','�','�','�','�',
+		'�','"','�','�','�','�','�','�','�','�','�','�','�','�','�','�','\0','�','�','�','�',
+		'�','�','�','�','�','�','�','�','Y','\0','�','�','�','�','�','�','�','�','�','�','�','�',
+		'�','�','�','�','�','\0','�','�','�','�','�','�','�','�','�','�','�','�','y',
+		'\0','�'}; */
 
-#if BP_CARBON_GUI_FORGET_THIS
-InitCursor();
-#endif /* BP_CARBON_GUI_FORGET_THIS */
+	#if BP_CARBON_GUI_FORGET_THIS
+	InitCursor();
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
 
-#if USE_MLTE_FORGET_THIS
-io = TXNInitTextension(NULL, 0, 0);
-if (io != noErr) {
-	ParamText("\pBP could not initialize the Multilingual Text Engine library.  Quitting ...",
-	          "\p", "\p", "\p");
-	StopAlert(OKAlert,0L);
-	return EXIT;
-}
-#endif
-
-ForceTextColor = ForceGraphicColor = 0;
-
-#if BP_CARBON_GUI_FORGET_THIS
-if(!GoodMachine()) return(ABORT);
-FlushEvents(everyEvent,0);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-////////////////////////////////////
-////   Is this a beta version?  ////
-#if	COMPILING_BETA
-     Beta = YES;
-#else
-	Beta = NO;
-#endif
-////////////////////////////////////
-
-// In this part we systematically initialise ALL global variables
-
-Time_res = 10L; /* Time resolution for MIDI messages */
-Quantization = 10L;
-/* #if WITH_REAL_TIME_SCHEDULER_FORGET_THIS
-  TotalTicks = ZERO;
-#endif */
-
-// InBuiltDriverOn = FALSE;
-
-Nw = 0;
- 
-InitOn = NoCursor = NotSaidKpress = TRUE;
-ReceivedOpenAppEvent = FALSE;
-CheckMem = TRUE; EmergencyExit = FixedMaxQuantization = FALSE;
-EventState = NO;
-SetTimeOn = ComputeOn = PolyOn = CompileOn = SoundOn = SelectOn = ButtonOn = ExpandOn
-	= PrintOn = ClickRuleOn = GraphicOn = CompleteDecisions = LoadOn = SaveOn = MIDIfileOn
-	= ReadKeyBoardOn = AlertOn = AllOn = HangOn = ScriptRecOn = PlayPrototypeOn
-	= PlaySelectionOn = PlayChunks = PlayAllChunks = UseEachSub = SelectPictureOn = TypeScript = InputOn = EnterOn = AEventOn
-	= PauseOn = WaitOn = ItemOutPutOn = ItemCapture = TickCapture = TickCaptureStarted
-	= AskedAboutCsound = MustChangeInput = ToldSkipped = ShownBufferSize = FALSE;
-Option = TickDone = FoundNote = GotAlert = UsedRandom = SaidTooComplex = FALSE;
-POLYconvert = OkShowExpand = FALSE;
-NewOrchestra = TRUE;
-ItemNumber = ZERO;
-AssignedTempoCsoundFile = FALSE;
-MaxConsoleTime = 120;
-Ratio = 0.;  Prod = 1.;
-N_image = 0; imagePtr = NULL;
-NumberScales = DefaultScale = 0; MaxScales = 2; Scale = NULL;
-ToldAboutScale = FALSE;
-WarnedBlockKey = WarnedRangeKey  = FALSE;
-TimeMax = MAXTIME; Nalpha = 100L; SpeedRange = 6.;
-CorrectionFactor = 1.;
-Chunk_number = 0;
-NextStop = 0L;
-// Tracefile = NULL;
-
-Oms = FALSE;
-
-/* #if WITH_REAL_TIME_SCHEDULER_FORGET_THIS
-// Space for time scheduler
-if((p_Clock = (Slice***) NewHandle((Size)CLOCKSIZE * sizeof(Slice*))) == NULL)
-	return(ABORT);
-MyLock(TRUE,(Handle)p_Clock);
-Clock = *p_Clock;
-for(t=0; t < CLOCKSIZE; t++) Clock[t] = NULL;	// No event in the queue 
-
-if((p_AllSlices = (Slice**) NewHandle((Size)MAXTIMESLICES * sizeof(Slice))) == NULL)
-	return(ABORT);
-MyLock(TRUE,(Handle)p_AllSlices);
-SlicePool = NULL;
-for(i=ZERO; i < MAXTIMESLICES; i++) {
-	(*p_AllSlices)[i].next = SlicePool;
-	SlicePool = &((*p_AllSlices)[i]);
+	#if USE_MLTE_FORGET_THIS
+	io = TXNInitTextension(NULL, 0, 0);
+	if (io != noErr) {
+		ParamText("\pBP could not initialize the Multilingual Text Engine library.  Quitting ...",
+				"\p", "\p", "\p");
+		StopAlert(OKAlert,0L);
+		return EXIT;
 	}
-#endif */
+	#endif
 
-for(i=0; i < MAXMESSAGE; i++) {
-	ptr = (char**) GiveSpace((Size)(MAXLIN * sizeof(char)));
-	if(ptr == NULL) return(ABORT);
-	p_MessageMem[i] = ptr;
-	(*p_MessageMem[i])[0] = '\0';
-	}
-Jmessage = 0;
+	ForceTextColor = ForceGraphicColor = 0;
 
-if((p_TempFSspec=(FSSpec**) GiveSpace((Size)(WMAX * sizeof(FSSpec)))) == NULL)
-	return(ABORT);
+	#if BP_CARBON_GUI_FORGET_THIS
+	if(!GoodMachine()) return(ABORT);
+	FlushEvents(everyEvent,0);
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
 
-for(i=0; i < WMAX; i++) {
-	ptr = (char**) GiveSpace((Size)(MAXINFOLENGTH * sizeof(char)));
-	if(ptr == NULL) return(ABORT);
-	p_FileInfo[i] = ptr;
-	(*p_FileInfo[i])[0] = '\0';
-	(*p_TempFSspec)[i].name[0] = 0;
-	}
+	////////////////////////////////////
+	////   Is this a beta version?  ////
+	#if	COMPILING_BETA
+		Beta = YES;
+	#else
+		Beta = NO;
+	#endif
+	////////////////////////////////////
 
-if(NEWTIMER_FORGET_THIS) MaxMIDIbytes = MAXTIMESLICES - 50;
-else MaxMIDIbytes = ZERO;
+	// In this part we systematically initialise ALL global variables
 
-KeyboardType = QWERTY;
-C4key = 60;  A4freq = 440.;
-BlockScaleOnKey =  60; // Block frequency on C4 wheen changing scales
-ProgNrFrom = 1;	/* This has changed with version 2.7.3 */
-TestMIDIChannel = 1;
-for(i=0; i <= MAXCHAN; i++) {
-	CurrentMIDIprogram[i] = 0;
-	}
-ChangedMIDIprogram = FALSE;
+	Time_res = 10L; /* Time resolution for MIDI messages */
+	Quantization = 10L;
+	/* #if WITH_REAL_TIME_SCHEDULER_FORGET_THIS
+	TotalTicks = ZERO;
+	#endif */
 
-NumInstalledDrivers = 0;
-InstalledDrivers = NULL;
-InstalledMenuItems = NULL;
+	// InBuiltDriverOn = FALSE;
 
-Nbytes = Tbytes2 = ZERO;
-
-MIDIinputFilter = MIDIinputFilterstartup = FILTER_ALL_ON;
-MIDIoutputFilter = MIDIoutputFilterstartup = FILTER_ALL_OFF; // turn off Midi-thru by default - 061307 akozar
-ResetMIDIFilter();
-
-QuantizeOK = TRUE;
-LapWait = ZERO;
-PrefixTree.p = SuffixTree.p = NULL;
-PrefixTree.accept = SuffixTree.accept = FALSE;
-SmartCursor = Mute = Panic = ClockOverFlow = SchedulerIsActive = FALSE;
-/*AlertMute = FALSE;*/
-
-/* #if WITH_REAL_TIME_SCHEDULER_FORGET_THIS
-OKsend = FALSE;
-#endif */
-
-// Limits of speed and scale values
-TokenLimit = (((double)TOKBASE) * ((double)TOKBASE)) - 1.;
-InvTokenLimit = 1. / TokenLimit;
-MaxTempo = 100000.;
-MaxFrac = 1000000.;
-InvMaxTempo = 1. / MaxTempo;
-//
-
-Stream.code = NULL;
-Stream.imax = ZERO; Stream.cyclic = FALSE; Stream.period = ZERO;
-
-#if BP_CARBON_GUI_FORGET_THIS
-if(GetResource('MENU',MenuIDoffset) == NULL) {
-	SysBeep(20);
-	CantOpen();
-	return(ABORT);
-	}
-GetResource('ICON',EditObjectsIconID);
-GetResource('ICON',BP2iconID);
-GetResource('PICT',MIDIKeyboardPictID);
-GetResource('PICT',GreetingsPictID);
-GetResource('DITL',GreetingsDitlID);
-if(SetUpCursors() != OK) {
-	SysBeep(20);
-	CantOpen();
-	return(ABORT);
-	}
-SetUpMenus();
-InitColors();
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-if(LoadStrings() != OK) return(ABORT);
-
-// Replaced NewHandle/DisposeHandle with GiveSpace/MyDisposeHandle in this section - akozar 20130910
-if((p_Diacritical = (char****) GiveSpace((Size)(MAXHTMLDIACR) * sizeof(char**)))
-	== NULL) return(ABORT);
-MyLock(TRUE,(Handle)p_Diacritical);
-
-if((p_HTMLdiacritical = (char**) GiveSpace((Size)(MAXHTMLDIACR) * sizeof(char)))
-	== NULL) return(ABORT);
-MyLock(TRUE,(Handle)p_HTMLdiacritical);
-
-if((p_HTMLchar1 = (char**) GiveSpace((Size)(MAXHTMLDIACR) * sizeof(char)))
-	== NULL) return(ABORT);
-if((p_HTMLchar2 = (char**) GiveSpace((Size)256 * sizeof(char)))
-	== NULL) return(ABORT);
+	Nw = 0;
 	
-for(i=0; i < MAXHTMLDIACR; i++) {
-	if((ptr = (char**) GiveSpace((Size)((1 + MyHandleLen((*p_HTMLdiacrList)[i+i])) * sizeof(char))))
+	InitOn = NoCursor = NotSaidKpress = TRUE;
+	ReceivedOpenAppEvent = FALSE;
+	CheckMem = TRUE; EmergencyExit = FixedMaxQuantization = FALSE;
+	EventState = NO;
+	SetTimeOn = ComputeOn = PolyOn = CompileOn = SoundOn = SelectOn = ButtonOn = ExpandOn
+		= PrintOn = ClickRuleOn = GraphicOn = CompleteDecisions = LoadOn = SaveOn = MIDIfileOn
+		= ReadKeyBoardOn = AlertOn = AllOn = HangOn = ScriptRecOn = PlayPrototypeOn
+		= PlaySelectionOn = PlayChunks = PlayAllChunks = UseEachSub = SelectPictureOn = TypeScript = InputOn = EnterOn = AEventOn
+		= PauseOn = WaitOn = ItemOutPutOn = ItemCapture = TickCapture = TickCaptureStarted
+		= AskedAboutCsound = MustChangeInput = ToldSkipped = ShownBufferSize = FALSE;
+	Option = TickDone = FoundNote = GotAlert = UsedRandom = SaidTooComplex = FALSE;
+	POLYconvert = OkShowExpand = FALSE;
+	NewOrchestra = TRUE;
+	ItemNumber = ZERO;
+	AssignedTempoCsoundFile = FALSE;
+	MaxConsoleTime = 120;
+	Ratio = 0.;  Prod = 1.;
+	N_image = 0; imagePtr = NULL;
+	NumberScales = DefaultScale = 0; MaxScales = 2; Scale = NULL;
+	ToldAboutScale = FALSE;
+	WarnedBlockKey = WarnedRangeKey  = FALSE;
+	TimeMax = MAXTIME; Nalpha = 100L; SpeedRange = 6.;
+	CorrectionFactor = 1.;
+	Chunk_number = 0;
+	NextStop = 0L;
+	// Tracefile = NULL;
+
+	Oms = FALSE;
+
+	/* #if WITH_REAL_TIME_SCHEDULER_FORGET_THIS
+	// Space for time scheduler
+	if((p_Clock = (Slice***) NewHandle((Size)CLOCKSIZE * sizeof(Slice*))) == NULL)
+		return(ABORT);
+	MyLock(TRUE,(Handle)p_Clock);
+	Clock = *p_Clock;
+	for(t=0; t < CLOCKSIZE; t++) Clock[t] = NULL;	// No event in the queue 
+
+	if((p_AllSlices = (Slice**) NewHandle((Size)MAXTIMESLICES * sizeof(Slice))) == NULL)
+		return(ABORT);
+	MyLock(TRUE,(Handle)p_AllSlices);
+	SlicePool = NULL;
+	for(i=ZERO; i < MAXTIMESLICES; i++) {
+		(*p_AllSlices)[i].next = SlicePool;
+		SlicePool = &((*p_AllSlices)[i]);
+		}
+	#endif */
+
+	for(i=0; i < MAXMESSAGE; i++) {
+		ptr = (char**) GiveSpace((Size)(MAXLIN * sizeof(char)));
+		if(ptr == NULL) return(ABORT);
+		p_MessageMem[i] = ptr;
+		(*p_MessageMem[i])[0] = '\0';
+		}
+	Jmessage = 0;
+
+	if((p_TempFSspec=(FSSpec**) GiveSpace((Size)(WMAX * sizeof(FSSpec)))) == NULL)
+		return(ABORT);
+
+	for(i=0; i < WMAX; i++) {
+		ptr = (char**) GiveSpace((Size)(MAXINFOLENGTH * sizeof(char)));
+		if(ptr == NULL) return(ABORT);
+		p_FileInfo[i] = ptr;
+		(*p_FileInfo[i])[0] = '\0';
+		(*p_TempFSspec)[i].name[0] = 0;
+		}
+
+	if(NEWTIMER_FORGET_THIS) MaxMIDIbytes = MAXTIMESLICES - 50;
+	else MaxMIDIbytes = ZERO;
+
+	KeyboardType = QWERTY;
+	C4key = 60;  A4freq = 440.;
+	BlockScaleOnKey =  60; // Block frequency on C4 wheen changing scales
+	ProgNrFrom = 1;	/* This has changed with version 2.7.3 */
+	TestMIDIChannel = 1;
+	for(i=0; i <= MAXCHAN; i++) {
+		CurrentMIDIprogram[i] = 0;
+		}
+	ChangedMIDIprogram = FALSE;
+
+	NumInstalledDrivers = 0;
+	InstalledDrivers = NULL;
+	InstalledMenuItems = NULL;
+
+	Nbytes = Tbytes2 = ZERO;
+
+	MIDIinputFilter = MIDIinputFilterstartup = FILTER_ALL_ON;
+	MIDIoutputFilter = MIDIoutputFilterstartup = FILTER_ALL_OFF; // turn off Midi-thru by default - 061307 akozar
+	ResetMIDIFilter();
+
+	QuantizeOK = TRUE;
+	LapWait = ZERO;
+	PrefixTree.p = SuffixTree.p = NULL;
+	PrefixTree.accept = SuffixTree.accept = FALSE;
+	SmartCursor = Mute = Panic = ClockOverFlow = SchedulerIsActive = FALSE;
+	/*AlertMute = FALSE;*/
+
+	/* #if WITH_REAL_TIME_SCHEDULER_FORGET_THIS
+	OKsend = FALSE;
+	#endif */
+
+	// Limits of speed and scale values
+	TokenLimit = (((double)TOKBASE) * ((double)TOKBASE)) - 1.;
+	InvTokenLimit = 1. / TokenLimit;
+	MaxTempo = 100000.;
+	MaxFrac = 1000000.;
+	InvMaxTempo = 1. / MaxTempo;
+	//
+
+	Stream.code = NULL;
+	Stream.imax = ZERO; Stream.cyclic = FALSE; Stream.period = ZERO;
+
+	#if BP_CARBON_GUI_FORGET_THIS
+	if(GetResource('MENU',MenuIDoffset) == NULL) {
+		SysBeep(20);
+		CantOpen();
+		return(ABORT);
+		}
+	GetResource('ICON',EditObjectsIconID);
+	GetResource('ICON',BP2iconID);
+	GetResource('PICT',MIDIKeyboardPictID);
+	GetResource('PICT',GreetingsPictID);
+	GetResource('DITL',GreetingsDitlID);
+	if(SetUpCursors() != OK) {
+		SysBeep(20);
+		CantOpen();
+		return(ABORT);
+		}
+	SetUpMenus();
+	InitColors();
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+
+	if(LoadStrings() != OK) return(ABORT);
+
+	// Replaced NewHandle/DisposeHandle with GiveSpace/MyDisposeHandle in this section - akozar 20130910
+	if((p_Diacritical = (char****) GiveSpace((Size)(MAXHTMLDIACR) * sizeof(char**)))
 		== NULL) return(ABORT);
-	(*p_Diacritical)[i] = ptr;
-	MystrcpyHandleToHandle(0,&((*p_Diacritical)[i]),(*p_HTMLdiacrList)[i+i]);
-	MyLock(TRUE,(Handle)(*p_Diacritical)[i]);
-	(*p_HTMLchar1)[i] = (*((*p_HTMLdiacrList)[i+i+1]))[0];
+	MyLock(TRUE,(Handle)p_Diacritical);
+
+	if((p_HTMLdiacritical = (char**) GiveSpace((Size)(MAXHTMLDIACR) * sizeof(char)))
+		== NULL) return(ABORT);
+	MyLock(TRUE,(Handle)p_HTMLdiacritical);
+
+	if((p_HTMLchar1 = (char**) GiveSpace((Size)(MAXHTMLDIACR) * sizeof(char)))
+		== NULL) return(ABORT);
+	if((p_HTMLchar2 = (char**) GiveSpace((Size)256 * sizeof(char)))
+		== NULL) return(ABORT);
+		
+	for(i=0; i < MAXHTMLDIACR; i++) {
+		if((ptr = (char**) GiveSpace((Size)((1 + MyHandleLen((*p_HTMLdiacrList)[i+i])) * sizeof(char))))
+			== NULL) return(ABORT);
+		(*p_Diacritical)[i] = ptr;
+		MystrcpyHandleToHandle(0,&((*p_Diacritical)[i]),(*p_HTMLdiacrList)[i+i]);
+		MyLock(TRUE,(Handle)(*p_Diacritical)[i]);
+		(*p_HTMLchar1)[i] = (*((*p_HTMLdiacrList)[i+i+1]))[0];
+		}
+	for(i=0; i < MAXHTMLDIACR; i++) {
+		(*p_HTMLdiacritical)[i] = (*((*p_HTMLdiacrList)[i+i+1]))[0];
+		}
+	MyDisposeHandle((Handle*)&p_HTMLdiacrList);
+
+	/* for(i=0; i < 32; i++) (*p_HTMLchar2)[i] = '\0'; Fixed by BB 2022-02-18
+	for(i=32; i < 256; i++) (*p_HTMLchar2)[i] = HTMLlatin[i-32]; */
+
+	if(MakeWindows() != OK) return(ABORT);
+	// SetDialogFont(systemFont);
+	if(InitButtons() != OK) return(ABORT);
+	if(Beta) FlashInfo("This is a beta version for evaluation...\n");
+
+	#if NEWGRAF_FORGET_THIS
+	if(!HasGWorlds()) {
+		Alert1("Deep GWorlds not supported by this machine!");
+		return(ABORT);
+		}
+	else if(GWorldInit() != OK) return(ABORT);
+	Offscreen = TRUE;
+	#else
+	Offscreen = FALSE;
+	#endif
+	Nw = -1; Ndiagram = Npicture = 0;
+	LastEditWindow = OutputWindow = wData;
+	LastComputeWindow = wGrammar;
+	LastAction = NO;
+	Ke = log((double) 2.) / 64.;
+	strcpy(Message,"");
+	PictFrame.top = topDrawPrototype;
+	PictFrame.left = leftDrawPrototype;
+	PictFrame.bottom = bottomDrawPrototype;
+	PictFrame.right = rightDrawPrototype;
+	NoteScalePicture = NULL;
+	p_Tpict = NULL; Hpos = -1;
+	Jbol = Jfunc = iProto = Jpatt = Jvar = Jflag = Jhomo = N_err = BolsInGrammar
+		= ScriptExecOn = 0;
+	Jcontrol = -1;
+	for(i=0; i < MAXPARAMCTRL; i++) ParamControl[i] = ParamKey[i] = -1;
+	MaxRul = MaxGram = 0;
+	Gram.trueBP = Gram.hasTEMP = Gram.hasproc = FALSE;
+	pp_MIDIcode = NULL;
+	pp_CsoundTime = NULL;
+	p_Code = NULL;
+	pp_Comment = pp_CsoundScoreText = NULL;
+	p_CsoundSize = NULL;
+	pp_CsoundScore = NULL;
+	p_CsoundTables = NULL;
+	MaxCsoundTables = 0;
+	PointCsound = PointMIDI = FALSE;
+	CsFileName[0] = MIDIfileName[0] = CsoundOrchestraName[0] = '\0';
+	EndFadeOut = 2.;
+	MIDIfileOpened = FALSE;
+	MIDIfileReply = CsFileReply = NULL;
+	if((p_Oldvalue = (MIDIcontrolstatus**)
+		GiveSpace((Size)MAXCHAN*sizeof(MIDIcontrolstatus))) == NULL) return(ABORT);
+		
+	for(ch=0; ch < MAXCHAN; ch++) {
+		(*p_Oldvalue)[ch].volume = -1;
+		(*p_Oldvalue)[ch].panoramic = -1;
+		(*p_Oldvalue)[ch].pressure = -1;
+		(*p_Oldvalue)[ch].pitchbend = -1;
+		(*p_Oldvalue)[ch].modulation = -1;
+		}
+
+	// Variables for Csound instruments
+	p_CsInstrument = NULL;
+	p_CsInstrumentIndex = p_CsDilationRatioIndex = p_CsAttackVelocityIndex = p_CsReleaseVelocityIndex
+		= p_CsPitchIndex = p_CsPitchBendStartIndex
+		= p_CsVolumeStartIndex = p_CsPressureStartIndex = p_CsModulationStartIndex
+		= p_CsPanoramicStartIndex = p_CsPitchBendEndIndex = p_CsVolumeEndIndex
+		= p_CsPressureEndIndex = p_CsModulationEndIndex = p_CsPanoramicEndIndex
+		= NULL;
+	p_CsPitchFormat = NULL;
+	pp_CsInstrumentName = pp_CsInstrumentComment = p_StringConstant = NULL;
+	p_NumberConstant = NULL;
+	#if BP_CARBON_GUI_FORGET_THIS
+	FileSaveMode = ALLSAMEPROMPT;
+	FileWriteMode = LATER;
+	#else
+	FileSaveMode = ALLSAME;
+	FileWriteMode = NOW;
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+	ConvertMIDItoCsound = FALSE;
+	MIDIfileType = 1;
+	CsoundFileFormat = MAC;
+
+	for(i=0; i < 6; i++) {
+		p_CsPitchBend[i] = p_CsVolume[i] = p_CsPressure[i] = p_CsModulation[i]
+			= p_CsPanoramic[i] = NULL;
+		}
+		
+	NoAlphabet = TRUE;
+	UseGraphicsColor = UseTextColor = TRUE;
+
+	StartFromOne = TRUE;
+	MIDIsetUpTime = 1000L;	/* ms */
+	NewEnvironment = NewColors = Help = FALSE;
+	for(i=0; i < WMAX; i++) ChangedCoordinates[i] = Dirty[i] = FALSE;
+	ObjectMode = ObjectTry = Final = LoadedScript = FALSE;
+	LoadedIn = LoadedGl = FALSE;
+	TransposeInput = FALSE; TransposeValue = 0;
+	CompiledGr = CompiledAl = CompiledPt = CompiledIn = CompiledGl = CompiledCsObjects
+		= CompiledRegressions = NotFoundMetronom = NotFoundNatureTime = FALSE;
+	Pclock = Qclock = 1.;
+	Nature_of_time = STRIATED;
+	Pduration = 0.;  Qduration = 1.;
+	UseBufferLimit = FirstTime = FALSE;
+	OkWait = TRUE;
+	Nplay = 1;	/* Number of times each item is played */
+	SynchroSignal = OFF;
+	MaxDeriv = MAXDERIV;
+
+	Infneg = LONG_MIN;
+	Veryneg = Infneg + 1;
+	Infpos = - Veryneg;
+	Infpos1 = Infpos + 1.;
+	// BPPrintMessage(odError,"Infneg = %ld\n",Infneg);
+
+	InsertGramRuleNumbers = InsertGramCorrections = InsertNewBols = (BP_CARBON_GUI_FORGET_THIS ? TRUE : FALSE);
+	SplitTimeObjects = TRUE;	/* Terminal symbols separated by spaces */
+	SplitVariables = FALSE;	/* SplitVariables <=> variables displayed between '||' */
+	Token = SpaceOn = FALSE;	/* Typing text, not tokens */
+	FileName[iObjects][0] = '\0';
+	BufferSize = DeftBufferSize = MAXDISPL;
+	GraphicScaleP = GraphicScaleQ = 1L;
+	MatchWords = Finding = FALSE; IgnoreCase = TRUE;
+	strcpy(FindString,""); strcpy(ReplaceString,""); // Fixed by BB 2022-02-20
+	p_Image = p_NoteImage = NULL; p_Homo = NULL; p_Initbuff = NULL;
+	p_Bol = p_Patt = p_Var = p_Flagname = NULL;
+	p_Ppatt = p_Qpatt = NULL;
+	MaxScript = MAXEVENTSCRIPT; Jscriptline = 0;
+	p_Script = NULL;
+	InitThere = 0; JustCompiled = FALSE;
+	MIDIbytestate = MIDIfileTrackNumber = 0;
+	MidiLen_pos = ZERO;
+	MIDItracklength = Midi_msg = OldMIDIfileTime = ZERO;
+	LoadedCsoundInstruments = FALSE;
+	NumEventsWritten = 0L;
+
+	#if BP_CARBON_GUI_FORGET_THIS
+	// Allow BP2 to respond to Apple Events coming from remote machines
+
+	io = AESetInteractionAllowed(kAEInteractWithAll);
+
+	// Installing Apple Event handlers. Don't forget to register in GoodEvent()
+	// (We don't worry about saving UPPs since we will never dispose of them).
+
+	handler = NewAEEventHandlerUPP(MyHandleOAPP);
+	io = AEInstallEventHandler(kCoreEventClass,kAEOpenApplication,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(MyHandleODOC);
+	io = AEInstallEventHandler(kCoreEventClass,kAEOpenDocuments,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(MyHandleODOC);
+	io = AEInstallEventHandler(kCoreEventClass,kAEPrintDocuments,handler,0,FALSE);	/* Print is identified by handler */
+
+	/*  = NewAEEventHandlerUPP(MyHandlePDOC);
+	io = AEInstallEventHandler(kCoreEventClass,kAEPrintDocuments,handler,0,FALSE); */
+
+	handler = NewAEEventHandlerUPP(MyHandleQUIT);
+	io = AEInstallEventHandler(kCoreEventClass,kAEQuitApplication,handler,0,FALSE);
+
+	#if !TARGET_API_MAC_CARBON_FORGET_THIS	/* Edition Manager not in Carbon */
+	handler = NewAEEventHandlerUPP(MyHandleSectionReadEvent);
+	io = AEInstallEventHandler(sectionEventMsgClass,sectionReadMsgID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(MyHandleSectionWriteEvent);
+	io = AEInstallEventHandler(sectionEventMsgClass,sectionWriteMsgID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(MyHandleSectionScrollEvent);
+	io = AEInstallEventHandler(sectionEventMsgClass,sectionScrollMsgID,handler,0,FALSE);
+	#endif
+
+	handler = NewAEEventHandlerUPP(RemoteUseText);
+	io = AEInstallEventHandler(BP2Class,PlayEventID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteUseText);
+	io = AEInstallEventHandler(BP2Class,NameID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteUseText);
+	io = AEInstallEventHandler(BP2Class,GrammarID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteUseText);
+	io = AEInstallEventHandler(BP2Class,AlphabetID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteUseText);
+	io = AEInstallEventHandler(BP2Class,GlossaryID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteUseText);
+	io = AEInstallEventHandler(BP2Class,InteractionID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteUseText);
+	io = AEInstallEventHandler(BP2Class,DataID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteLoadCsoundInstruments);
+	io = AEInstallEventHandler(BP2Class,CsoundInstrID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteUseText);
+	io = AEInstallEventHandler(BP2Class,ScriptID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteControl);
+	io = AEInstallEventHandler(BP2Class,ImprovizeID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteControl);
+	io = AEInstallEventHandler(BP2Class,DoScriptID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteDoScriptLine);
+	io = AEInstallEventHandler(BP2Class,ScriptLineEventID,handler,0,FALSE);
+
+
+	handler = NewAEEventHandlerUPP(RemoteLoadSettings);
+	io = AEInstallEventHandler(BP2Class,LoadSettingsEventID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteSetConvention);
+	io = AEInstallEventHandler(BP2Class,NoteConventionEventID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteControl);
+	io = AEInstallEventHandler(BP2Class,BeepID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteControl);
+	io = AEInstallEventHandler(BP2Class,AbortID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteControl);
+	io = AEInstallEventHandler(BP2Class,AgainID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteControl);
+	io = AEInstallEventHandler(BP2Class,PauseID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteControl);
+	io = AEInstallEventHandler(BP2Class,QuickID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteControl);
+	io = AEInstallEventHandler(BP2Class,SkipID,handler,0,FALSE);
+
+	handler = NewAEEventHandlerUPP(RemoteControl);
+	io = AEInstallEventHandler(BP2Class,ResumeID,handler,0,FALSE);
+
+	/* io = AESetInteractionAllowed(kAEInteractWithAll); */  // duplicate call
+
+	/* Allocate scroll bar action UPPs once at init time to avoid leaks */
+	vScrollUPP = NewControlActionUPP(vScrollProc);
+	hScrollUPP = NewControlActionUPP(hScrollProc);
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+
+	Maxitems = ZERO;
+	p_Flag = NULL;
+	p_MemGram = p_MemRul = p_VarStatus = NULL;
+	p_MemPos = p_LastStackIndex = NULL;
+	p_ItemStart = p_ItemEnd = NULL;
+	pp_Scrap = &p_Scrap;
+
+	for(i=0; i < MAXPICT; i++) {
+		p_Picture[i] = NULL;
+		PictureWindow[i] = -1;
+		}
+
+	for(i=0; i < MAXDIAGRAM; i++) p_Diagram[i] = NULL;
+	p_StringList = NULL; pp_StringList = &p_StringList; NrStrings = 0;
+	if(ResetScriptQueue() != OK) return(ABORT);
+	p_InitScriptLine = NULL;
+	Maxinscript = 8; Jinscript = 0;
+	if((p_INscript=(INscripttype**) GiveSpace((Size) Maxinscript * sizeof(INscripttype)))
+		== NULL) return(ABORT);
+	for(i=0; i < Maxinscript; i++) ((*p_INscript)[i]).chan = -1;
+
+	#if BP_CARBON_GUI_FORGET_THIS
+	ResetPianoRollColors();
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+	ShowPianoRoll = ToldAboutPianoRoll = FALSE;
+	ShowObjectGraph = TRUE;
+
+	p_Instance = NULL;
+	p_ObjectSpecs = NULL;
+
+	p_Seq = NULL;
+
+	if(MakeSoundObjectSpace() != OK) return(ABORT);
+
+	MaxVar = MaxFlag = 0;
+	Gram.p_subgram = GlossGram.p_subgram = NULL;
+	Gram.number_gram = GlossGram.number_gram = 0;
+	RunningStatus = 0; NoRepeat = FALSE;
+	ScriptSyncKey = ScriptSyncChan = -1;
+	StrikeAgainDefault = TRUE;
+	Jwheel = Jfeet = Jdisk = 0;
+	EmptyBeat = TRUE;
+
+	DeftPitchbendRange = 0; // Fixed to 200 by BB 2021-02-14 than back to 0 by BB 2022-02-23
+	DeftVolume = DEFTVOLUME;
+	DeftVelocity = DEFTVELOCITY;
+	DeftPanoramic = DEFTPANORAMIC;
+	PanoramicController = PANORAMICCONTROL;
+	VolumeController = VOLUMECONTROL;
+	SamplingRate = SAMPLINGRATE;
+	for(i=0; i <= MAXCHAN; i++) {
+		CurrentVolume[i] = -1;
+		PitchbendRange[i] = DeftPitchbendRange;
+		VolumeControl[i] = VolumeController;
+		PressRate[i] = PitchbendRate[i] = ModulationRate[i] = VolumeRate[i] = PanoramicRate[i]
+			= SamplingRate;
+		PanoramicControl[i] = PanoramicController;
+		}
+	ForceRatio = -1.; PlayFromInsertionPoint = FALSE;
+
+	#if BP_CARBON_GUI_FORGET_THIS
+	if((p_Token = (char****) GiveSpace((Size) 52 * sizeof(char**))) == NULL) return(ABORT);
+	for(i=0; i < 52; i++) (*p_Token)[i] = NULL;
+	ResetKeyboard(TRUE);
+
+	// Find current directory and volume
+	/* FIXME ? I think these values are always the same as GetCurrentProcess()
+	returns below.  So, could remove this call and replace ParID/RefNumStartup
+	with ParID/RefNumbp2 throughout entire program. - akozar */
+	pb.ioCompletion = NULL;
+	pb.ioNamePtr = NULL; // (StringPtr) DeftVolName;
+	io = PBHGetVol(&pb,(Boolean)FALSE);
+	LastDir = ParIDstartup = pb.ioWDDirID;
+	LastVref = RefNumStartUp = pb.ioWDVRefNum;
+
+	// Find the folder and volume of BP2 so that -se.startup and BP2 help may be located
+	io = GetCurrentProcess(&PSN);
+	info.processName = NULL;
+	info.processAppSpec = &spec;
+	info.processInfoLength = sizeof(ProcessInfoRec);
+	io = GetProcessInformation(&PSN,&info);
+	ParIDbp2 = info.processAppSpec->parID;
+	RefNumbp2 = info.processAppSpec->vRefNum;
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+
+	OpenMIDIfilePtr = NULL;
+	HelpRefnum = TempRefnum = TraceRefnum = -1;
+	CsRefNum = -1; CsScoreOpened = MIDIfileTrackEmpty = FALSE;
+	for(i=0; i < WMAX; i++) {
+		WindowParID[i] = ParIDstartup;
+		TheVRefNum[i] = RefNumStartUp;
+		}
+	FileName[wScript][0] = '\0';
+	CurrentChannel = 1;	/* Used for program changes,by default. */
+	Seed = 1;
+	// ResetRandom();
+	#if BP_CARBON_GUI_FORGET_THIS
+	SetSeed();
+	if(ResetInteraction() != OK) return(ABORT);
+	if(SetFindReplace() != OK) return(ABORT);
+	if(ResetPannel() != OK) return(ABORT);
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+	if(SetNoteNames() != OK) return(ABORT);
+	NeedAlphabet = FALSE;
+	for(i=0; i < MAXCHAN; i++) {
+		ChangedVolume[i] = ChangedPanoramic[i] = ChangedModulation[i] = ChangedPitchbend[i] = ChangedSwitch[i]
+			= ChangedPressure[i] = FALSE;
+		WhichCsoundInstrument[i+1] = -1;
+		}
+
+	#if BP_CARBON_GUI_FORGET_THIS
+	SwitchOn(NULL,wPrototype5,bPlayPrototypeTicks);
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+	PrototypeTickChannel = 1; PrototypeTickKey = 84;
+	TickKey[0] = 96;
+	TickKey[1] = 84;
+	TickKey[2] = 72;
+	PrototypeTickVelocity = 64;
+	TickThere = PlayTicks = HideTicks = FALSE;
+	for(i=0; i < MAXTICKS; i++) {
+		TickChannel[i] = 1;
+		TickVelocity[i] = 64;
+		TickCycle[i] = 4;
+		if(Quantization < 50) TickDuration[i] = 50;
+		else  TickDuration[i] = Quantization;
+		NextTickDate[i] = ZERO;
+		for(j=0; j < MAXBEATS; j++) ThisTick[i][j] = ZERO;
+		ThisTick[0][0] = ThisTick[1][1] = ThisTick[1][2] = ThisTick[1][3] = 1L;
+		Ptick[i] = Qtick[i] = 1L;
+		MuteTick[i] = FALSE;
+		SetTickParameters(i+1,MAXBEATS);
+		}
+	SetTickParameters(0,MAXBEATS);
+	#if BP_CARBON_GUI_FORGET_THIS
+	SetField(NULL,wTimeBase,fTimeBaseComment,"[Comment on time base]");
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+	iTick = jTick = -1;
+	ResetTickFlag = TRUE; ResetTickInItemFlag = FALSE;
+	strcpy(Message,WindowName[wCsoundTables]);
+	#if BP_CARBON_GUI_FORGET_THIS
+	SetWTitle(Window[wCsoundTables],in_place_c2pstr(Message));
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+
+	// MaxHandles = ZERO;
+	PedalOrigin = -1;
+	Nalpha = 100L;
+	Jinstr = 0;
+	NeedZouleb = 0;
+	UseBullet = TRUE;
+	// Code[7] = '�';
+	Code[7] = '.'; // Fixed by BB 2022-02-18
+	if(ResizeCsoundInstrumentsSpace(1) != OK) return(ABORT);
+	iCsoundInstrument = 0;
+	ResetCsoundInstrument(iCsoundInstrument,YES,NO);
+	for(i=1; i <= MAXCHAN; i++) WhichCsoundInstrument[i] = -1; // FIXME: this is done above too?
+	// if BP_CARBON_GUI_FORGET_THIS
+	// SetCsoundInstrument(iCsoundInstrument,-1);
+	// endif /* BP_CARBON_GUI_FORGET_THIS */
+	/* ClearWindow(TRUE,wCsoundResources); */
+	// ErrorSound(MySoundProc);
+	#if BP_CARBON_GUI_FORGET_THIS
+	{int CheckDate();
+	if(!CheckDate()) return(ABORT);}
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+	return(OK);
 	}
-for(i=0; i < MAXHTMLDIACR; i++) {
-	(*p_HTMLdiacritical)[i] = (*((*p_HTMLdiacrList)[i+i+1]))[0];
-	}
-MyDisposeHandle((Handle*)&p_HTMLdiacrList);
-
-/* for(i=0; i < 32; i++) (*p_HTMLchar2)[i] = '\0'; Fixed by BB 2022-02-18
-for(i=32; i < 256; i++) (*p_HTMLchar2)[i] = HTMLlatin[i-32]; */
-
-if(MakeWindows() != OK) return(ABORT);
-// SetDialogFont(systemFont);
-if(InitButtons() != OK) return(ABORT);
-if(Beta) FlashInfo("This is a beta version for evaluation...\n");
-
-#if NEWGRAF_FORGET_THIS
-if(!HasGWorlds()) {
-	Alert1("Deep GWorlds not supported by this machine!");
-	return(ABORT);
-	}
-else if(GWorldInit() != OK) return(ABORT);
-Offscreen = TRUE;
-#else
-Offscreen = FALSE;
-#endif
-Nw = -1; Ndiagram = Npicture = 0;
-LastEditWindow = OutputWindow = wData;
-LastComputeWindow = wGrammar;
-LastAction = NO;
-Ke = log((double) 2.) / 64.;
-strcpy(Message,"");
-PictFrame.top = topDrawPrototype;
-PictFrame.left = leftDrawPrototype;
-PictFrame.bottom = bottomDrawPrototype;
-PictFrame.right = rightDrawPrototype;
-NoteScalePicture = NULL;
-p_Tpict = NULL; Hpos = -1;
-Jbol = Jfunc = iProto = Jpatt = Jvar = Jflag = Jhomo = N_err = BolsInGrammar
-	= ScriptExecOn = 0;
-Jcontrol = -1;
-for(i=0; i < MAXPARAMCTRL; i++) ParamControl[i] = ParamKey[i] = -1;
-MaxRul = MaxGram = 0;
-Gram.trueBP = Gram.hasTEMP = Gram.hasproc = FALSE;
-pp_MIDIcode = NULL;
-pp_CsoundTime = NULL;
-p_Code = NULL;
-pp_Comment = pp_CsoundScoreText = NULL;
-p_CsoundSize = NULL;
-pp_CsoundScore = NULL;
-p_CsoundTables = NULL;
-MaxCsoundTables = 0;
-PointCsound = PointMIDI = FALSE;
-CsFileName[0] = MIDIfileName[0] = CsoundOrchestraName[0] = '\0';
-EndFadeOut = 2.;
-MIDIfileOpened = FALSE;
-MIDIfileReply = CsFileReply = NULL;
-if((p_Oldvalue = (MIDIcontrolstatus**)
-	GiveSpace((Size)MAXCHAN*sizeof(MIDIcontrolstatus))) == NULL) return(ABORT);
-	
-for(ch=0; ch < MAXCHAN; ch++) {
-	(*p_Oldvalue)[ch].volume = -1;
-	(*p_Oldvalue)[ch].panoramic = -1;
-	(*p_Oldvalue)[ch].pressure = -1;
-	(*p_Oldvalue)[ch].pitchbend = -1;
-	(*p_Oldvalue)[ch].modulation = -1;
-	}
-
-// Variables for Csound instruments
-p_CsInstrument = NULL;
-p_CsInstrumentIndex = p_CsDilationRatioIndex = p_CsAttackVelocityIndex = p_CsReleaseVelocityIndex
-	= p_CsPitchIndex = p_CsPitchBendStartIndex
-	= p_CsVolumeStartIndex = p_CsPressureStartIndex = p_CsModulationStartIndex
-	= p_CsPanoramicStartIndex = p_CsPitchBendEndIndex = p_CsVolumeEndIndex
-	= p_CsPressureEndIndex = p_CsModulationEndIndex = p_CsPanoramicEndIndex
-	= NULL;
-p_CsPitchFormat = NULL;
-pp_CsInstrumentName = pp_CsInstrumentComment = p_StringConstant = NULL;
-p_NumberConstant = NULL;
-#if BP_CARBON_GUI_FORGET_THIS
-FileSaveMode = ALLSAMEPROMPT;
-FileWriteMode = LATER;
-#else
-FileSaveMode = ALLSAME;
-FileWriteMode = NOW;
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-ConvertMIDItoCsound = FALSE;
-MIDIfileType = 1;
-CsoundFileFormat = MAC;
-
-for(i=0; i < 6; i++) {
-	p_CsPitchBend[i] = p_CsVolume[i] = p_CsPressure[i] = p_CsModulation[i]
-		= p_CsPanoramic[i] = NULL;
-	}
-	
-NoAlphabet = TRUE;
-UseGraphicsColor = UseTextColor = TRUE;
-
-StartFromOne = TRUE;
-MIDIsetUpTime = 1000L;	/* ms */
-NewEnvironment = NewColors = Help = FALSE;
-for(i=0; i < WMAX; i++) ChangedCoordinates[i] = Dirty[i] = FALSE;
-ObjectMode = ObjectTry = Final = LoadedScript = FALSE;
-LoadedIn = LoadedGl = FALSE;
-TransposeInput = FALSE; TransposeValue = 0;
-CompiledGr = CompiledAl = CompiledPt = CompiledIn = CompiledGl = CompiledCsObjects
-	= CompiledRegressions = NotFoundMetronom = NotFoundNatureTime = FALSE;
-Pclock = Qclock = 1.;
-Nature_of_time = STRIATED;
-Pduration = 0.;  Qduration = 1.;
-UseBufferLimit = FirstTime = FALSE;
-OkWait = TRUE;
-Nplay = 1;	/* Number of times each item is played */
-SynchroSignal = OFF;
-MaxDeriv = MAXDERIV;
-
-Infneg = LONG_MIN;
-Veryneg = Infneg + 1;
-Infpos = - Veryneg;
-Infpos1 = Infpos + 1.;
-// BPPrintMessage(odError,"Infneg = %ld\n",Infneg);
-
-InsertGramRuleNumbers = InsertGramCorrections = InsertNewBols = (BP_CARBON_GUI_FORGET_THIS ? TRUE : FALSE);
-SplitTimeObjects = TRUE;	/* Terminal symbols separated by spaces */
-SplitVariables = FALSE;	/* SplitVariables <=> variables displayed between '||' */
-Token = SpaceOn = FALSE;	/* Typing text, not tokens */
-FileName[iObjects][0] = '\0';
-BufferSize = DeftBufferSize = MAXDISPL;
-GraphicScaleP = GraphicScaleQ = 1L;
-MatchWords = Finding = FALSE; IgnoreCase = TRUE;
-strcpy(FindString,""); strcpy(ReplaceString,""); // Fixed by BB 2022-02-20
-p_Image = p_NoteImage = NULL; p_Homo = NULL; p_Initbuff = NULL;
-p_Bol = p_Patt = p_Var = p_Flagname = NULL;
-p_Ppatt = p_Qpatt = NULL;
-MaxScript = MAXEVENTSCRIPT; Jscriptline = 0;
-p_Script = NULL;
-InitThere = 0; JustCompiled = FALSE;
-MIDIbytestate = MIDIfileTrackNumber = 0;
-MidiLen_pos = ZERO;
-MIDItracklength = Midi_msg = OldMIDIfileTime = ZERO;
-LoadedCsoundInstruments = FALSE;
-NumEventsWritten = 0L;
-
-#if BP_CARBON_GUI_FORGET_THIS
-// Allow BP2 to respond to Apple Events coming from remote machines
-
-io = AESetInteractionAllowed(kAEInteractWithAll);
-
-// Installing Apple Event handlers. Don't forget to register in GoodEvent()
-// (We don't worry about saving UPPs since we will never dispose of them).
-
-handler = NewAEEventHandlerUPP(MyHandleOAPP);
-io = AEInstallEventHandler(kCoreEventClass,kAEOpenApplication,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(MyHandleODOC);
-io = AEInstallEventHandler(kCoreEventClass,kAEOpenDocuments,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(MyHandleODOC);
-io = AEInstallEventHandler(kCoreEventClass,kAEPrintDocuments,handler,0,FALSE);	/* Print is identified by handler */
-
-/*  = NewAEEventHandlerUPP(MyHandlePDOC);
-io = AEInstallEventHandler(kCoreEventClass,kAEPrintDocuments,handler,0,FALSE); */
-
-handler = NewAEEventHandlerUPP(MyHandleQUIT);
-io = AEInstallEventHandler(kCoreEventClass,kAEQuitApplication,handler,0,FALSE);
-
-#if !TARGET_API_MAC_CARBON_FORGET_THIS	/* Edition Manager not in Carbon */
-  handler = NewAEEventHandlerUPP(MyHandleSectionReadEvent);
-  io = AEInstallEventHandler(sectionEventMsgClass,sectionReadMsgID,handler,0,FALSE);
-
-  handler = NewAEEventHandlerUPP(MyHandleSectionWriteEvent);
-  io = AEInstallEventHandler(sectionEventMsgClass,sectionWriteMsgID,handler,0,FALSE);
-
-  handler = NewAEEventHandlerUPP(MyHandleSectionScrollEvent);
-  io = AEInstallEventHandler(sectionEventMsgClass,sectionScrollMsgID,handler,0,FALSE);
-#endif
-
-handler = NewAEEventHandlerUPP(RemoteUseText);
-io = AEInstallEventHandler(BP2Class,PlayEventID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteUseText);
-io = AEInstallEventHandler(BP2Class,NameID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteUseText);
-io = AEInstallEventHandler(BP2Class,GrammarID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteUseText);
-io = AEInstallEventHandler(BP2Class,AlphabetID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteUseText);
-io = AEInstallEventHandler(BP2Class,GlossaryID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteUseText);
-io = AEInstallEventHandler(BP2Class,InteractionID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteUseText);
-io = AEInstallEventHandler(BP2Class,DataID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteLoadCsoundInstruments);
-io = AEInstallEventHandler(BP2Class,CsoundInstrID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteUseText);
-io = AEInstallEventHandler(BP2Class,ScriptID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteControl);
-io = AEInstallEventHandler(BP2Class,ImprovizeID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteControl);
-io = AEInstallEventHandler(BP2Class,DoScriptID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteDoScriptLine);
-io = AEInstallEventHandler(BP2Class,ScriptLineEventID,handler,0,FALSE);
-
-
-handler = NewAEEventHandlerUPP(RemoteLoadSettings);
-io = AEInstallEventHandler(BP2Class,LoadSettingsEventID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteSetConvention);
-io = AEInstallEventHandler(BP2Class,NoteConventionEventID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteControl);
-io = AEInstallEventHandler(BP2Class,BeepID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteControl);
-io = AEInstallEventHandler(BP2Class,AbortID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteControl);
-io = AEInstallEventHandler(BP2Class,AgainID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteControl);
-io = AEInstallEventHandler(BP2Class,PauseID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteControl);
-io = AEInstallEventHandler(BP2Class,QuickID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteControl);
-io = AEInstallEventHandler(BP2Class,SkipID,handler,0,FALSE);
-
-handler = NewAEEventHandlerUPP(RemoteControl);
-io = AEInstallEventHandler(BP2Class,ResumeID,handler,0,FALSE);
-
-/* io = AESetInteractionAllowed(kAEInteractWithAll); */  // duplicate call
-
-/* Allocate scroll bar action UPPs once at init time to avoid leaks */
-vScrollUPP = NewControlActionUPP(vScrollProc);
-hScrollUPP = NewControlActionUPP(hScrollProc);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-Maxitems = ZERO;
-p_Flag = NULL;
-p_MemGram = p_MemRul = p_VarStatus = NULL;
-p_MemPos = p_LastStackIndex = NULL;
-p_ItemStart = p_ItemEnd = NULL;
-pp_Scrap = &p_Scrap;
-
-for(i=0; i < MAXPICT; i++) {
-	p_Picture[i] = NULL;
-	PictureWindow[i] = -1;
-	}
-
-for(i=0; i < MAXDIAGRAM; i++) p_Diagram[i] = NULL;
-p_StringList = NULL; pp_StringList = &p_StringList; NrStrings = 0;
-if(ResetScriptQueue() != OK) return(ABORT);
-p_InitScriptLine = NULL;
-Maxinscript = 8; Jinscript = 0;
-if((p_INscript=(INscripttype**) GiveSpace((Size) Maxinscript * sizeof(INscripttype)))
-	== NULL) return(ABORT);
-for(i=0; i < Maxinscript; i++) ((*p_INscript)[i]).chan = -1;
-
-#if BP_CARBON_GUI_FORGET_THIS
-ResetPianoRollColors();
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-ShowPianoRoll = ToldAboutPianoRoll = FALSE;
-ShowObjectGraph = TRUE;
-
-p_Instance = NULL;
-p_ObjectSpecs = NULL;
-
-p_Seq = NULL;
-
-if(MakeSoundObjectSpace() != OK) return(ABORT);
-
-MaxVar = MaxFlag = 0;
-Gram.p_subgram = GlossGram.p_subgram = NULL;
-Gram.number_gram = GlossGram.number_gram = 0;
-RunningStatus = 0; NoRepeat = FALSE;
-ScriptSyncKey = ScriptSyncChan = -1;
-StrikeAgainDefault = TRUE;
-Jwheel = Jfeet = Jdisk = 0;
-EmptyBeat = TRUE;
-
-DeftPitchbendRange = 0; // Fixed to 200 by BB 2021-02-14 than back to 0 by BB 2022-02-23
-DeftVolume = DEFTVOLUME;
-DeftVelocity = DEFTVELOCITY;
-DeftPanoramic = DEFTPANORAMIC;
-PanoramicController = PANORAMICCONTROL;
-VolumeController = VOLUMECONTROL;
-SamplingRate = SAMPLINGRATE;
-for(i=0; i <= MAXCHAN; i++) {
-	CurrentVolume[i] = -1;
-	PitchbendRange[i] = DeftPitchbendRange;
-	VolumeControl[i] = VolumeController;
-	PressRate[i] = PitchbendRate[i] = ModulationRate[i] = VolumeRate[i] = PanoramicRate[i]
-		= SamplingRate;
-	PanoramicControl[i] = PanoramicController;
-	}
-ForceRatio = -1.; PlayFromInsertionPoint = FALSE;
-
-#if BP_CARBON_GUI_FORGET_THIS
-if((p_Token = (char****) GiveSpace((Size) 52 * sizeof(char**))) == NULL) return(ABORT);
-for(i=0; i < 52; i++) (*p_Token)[i] = NULL;
-ResetKeyboard(TRUE);
-
-// Find current directory and volume
-/* FIXME ? I think these values are always the same as GetCurrentProcess()
-   returns below.  So, could remove this call and replace ParID/RefNumStartup
-   with ParID/RefNumbp2 throughout entire program. - akozar */
-pb.ioCompletion = NULL;
-pb.ioNamePtr = NULL; // (StringPtr) DeftVolName;
-io = PBHGetVol(&pb,(Boolean)FALSE);
-LastDir = ParIDstartup = pb.ioWDDirID;
-LastVref = RefNumStartUp = pb.ioWDVRefNum;
-
-// Find the folder and volume of BP2 so that -se.startup and BP2 help may be located
-io = GetCurrentProcess(&PSN);
-info.processName = NULL;
-info.processAppSpec = &spec;
-info.processInfoLength = sizeof(ProcessInfoRec);
-io = GetProcessInformation(&PSN,&info);
-ParIDbp2 = info.processAppSpec->parID;
-RefNumbp2 = info.processAppSpec->vRefNum;
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-OpenMIDIfilePtr = NULL;
-HelpRefnum = TempRefnum = TraceRefnum = -1;
-CsRefNum = -1; CsScoreOpened = MIDIfileTrackEmpty = FALSE;
-for(i=0; i < WMAX; i++) {
-	WindowParID[i] = ParIDstartup;
-	TheVRefNum[i] = RefNumStartUp;
-	}
-FileName[wScript][0] = '\0';
-CurrentChannel = 1;	/* Used for program changes,by default. */
-Seed = 1;
-// ResetRandom();
-#if BP_CARBON_GUI_FORGET_THIS
-SetSeed();
-if(ResetInteraction() != OK) return(ABORT);
-if(SetFindReplace() != OK) return(ABORT);
-if(ResetPannel() != OK) return(ABORT);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-if(SetNoteNames() != OK) return(ABORT);
-NeedAlphabet = FALSE;
-for(i=0; i < MAXCHAN; i++) {
-	ChangedVolume[i] = ChangedPanoramic[i] = ChangedModulation[i] = ChangedPitchbend[i] = ChangedSwitch[i]
-		= ChangedPressure[i] = FALSE;
-	WhichCsoundInstrument[i+1] = -1;
-	}
-
-#if BP_CARBON_GUI_FORGET_THIS
-SwitchOn(NULL,wPrototype5,bPlayPrototypeTicks);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-PrototypeTickChannel = 1; PrototypeTickKey = 84;
-TickKey[0] = 96;
-TickKey[1] = 84;
-TickKey[2] = 72;
-PrototypeTickVelocity = 64;
-TickThere = PlayTicks = HideTicks = FALSE;
-for(i=0; i < MAXTICKS; i++) {
-	TickChannel[i] = 1;
-	TickVelocity[i] = 64;
-	TickCycle[i] = 4;
-	if(Quantization < 50) TickDuration[i] = 50;
-	else  TickDuration[i] = Quantization;
-	NextTickDate[i] = ZERO;
-	for(j=0; j < MAXBEATS; j++) ThisTick[i][j] = ZERO;
-	ThisTick[0][0] = ThisTick[1][1] = ThisTick[1][2] = ThisTick[1][3] = 1L;
-	Ptick[i] = Qtick[i] = 1L;
-	MuteTick[i] = FALSE;
-	SetTickParameters(i+1,MAXBEATS);
-	}
-SetTickParameters(0,MAXBEATS);
-#if BP_CARBON_GUI_FORGET_THIS
-SetField(NULL,wTimeBase,fTimeBaseComment,"[Comment on time base]");
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-iTick = jTick = -1;
-ResetTickFlag = TRUE; ResetTickInItemFlag = FALSE;
-strcpy(Message,WindowName[wCsoundTables]);
-#if BP_CARBON_GUI_FORGET_THIS
-SetWTitle(Window[wCsoundTables],in_place_c2pstr(Message));
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-// MaxHandles = ZERO;
-PedalOrigin = -1;
-Nalpha = 100L;
-Jinstr = 0;
-NeedZouleb = 0;
-UseBullet = TRUE;
-// Code[7] = '�';
-Code[7] = '.'; // Fixed by BB 2022-02-18
-if(ResizeCsoundInstrumentsSpace(1) != OK) return(ABORT);
-iCsoundInstrument = 0;
-ResetCsoundInstrument(iCsoundInstrument,YES,NO);
-for(i=1; i <= MAXCHAN; i++) WhichCsoundInstrument[i] = -1; // FIXME: this is done above too?
-// if BP_CARBON_GUI_FORGET_THIS
-// SetCsoundInstrument(iCsoundInstrument,-1);
-// endif /* BP_CARBON_GUI_FORGET_THIS */
-/* ClearWindow(TRUE,wCsoundResources); */
-// ErrorSound(MySoundProc);
-#if BP_CARBON_GUI_FORGET_THIS
-{int CheckDate();
-if(!CheckDate()) return(ABORT);}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-return(OK);
-}
 
 
 int SetNoteNames(void) {
@@ -1308,290 +1307,269 @@ MyLock(TRUE,(Handle)p_GeneralMIDIpatch);
 if(LoadStringResource(&p_HTMLdiacrList,NULL,NULL,
 	HTMLdiacriticalID,&max,YES) != OK) return(ABORT);
 	
-if(LoadScriptCommands(ScriptStringsID) != OK) return(ABORT);
+if(LoadScriptCommands() != OK) return(ABORT);
 return(OK);
 }
 
 
 int LoadStringResource(char***** pp_str,int ***pp_ndx,int ***pp_narg,int id,long *p_max,
-	int lock)
-{
-int i,im,j,j0,k,km;
-char **ptr;
-const char *buffer;
-Handle h_res;
+	int lock) {
+	int i,im,j,j0,k,km;
+	char **ptr;
+	const char *buffer;
+	Handle h_res;
 
-/* FIXME:  I would like to eventually convert the strings with multiple values in 
-   StringLists.h to appropriate data structures and then all of this code could be
-   dispensed with and accesses to all of these handles to arrays of string handles
-   and ints can be replaced with straightforward references to the constant data.
-   But for now, this will be easier (and less error-prone).
-   -- akozar  20130908
- */
+	/* FIXME:  I would like to eventually convert the strings with multiple values in 
+	StringLists.h to appropriate data structures and then all of this code could be
+	dispensed with and accesses to all of these handles to arrays of string handles
+	and ints can be replaced with straightforward references to the constant data.
+	But for now, this will be easier (and less error-prone).
+	-- akozar  20130908
+	*/
 
-#if !BP_CARBON_GUI_FORGET_THIS
-const char (*strarray)[MAX_STRINGLISTS_STR_LEN];
-// use the resource id to select the corresponding array
-switch(id)
-{
-	case GramProcedureStringsID:
-		strarray = GramProcedure;
-		im = NUM_GRAM_PROC_STRS;
-		break;
-	case PerformanceControlStringsID:
-		strarray = PerformanceControl;
-		im = NUM_PERF_CONTROL_STRS;
-		break;
-	case GeneralMIDIpatchesID:
-		strarray = GeneralMidiPatchName;
-		im = NUM_GEN_MIDI_PATCH_STRS;
-		break;
-	case HTMLdiacriticalID:
-		strarray = HTMLdiacritical;
-		im = NUM_HTML_DIACRITICAL_STRS;
-		break;
-	default:
-		if (Beta) fprintf(stderr, "=> Warning! Bad STR# id in LoadStringResource().\n");
-		return MISSED;
-		break;
-}
+	#if !BP_CARBON_GUI_FORGET_THIS
+	const char (*strarray)[MAX_STRINGLISTS_STR_LEN];
+	// use the resource id to select the corresponding array
+	switch(id) {
+		case GramProcedureStringsID:
+			strarray = GramProcedure;
+			im = NUM_GRAM_PROC_STRS;
+			break;
+		case PerformanceControlStringsID:
+			strarray = PerformanceControl;
+			im = NUM_PERF_CONTROL_STRS;
+			break;
+		case GeneralMIDIpatchesID:
+			strarray = GeneralMidiPatchName;
+			im = NUM_GEN_MIDI_PATCH_STRS;
+			break;
+		case HTMLdiacriticalID:
+			strarray = HTMLdiacritical;
+			im = NUM_HTML_DIACRITICAL_STRS;
+			break;
+		default:
+			if (Beta) fprintf(stderr, "=> Warning! Bad STR# id in LoadStringResource().\n");
+			return MISSED;
+			break;
+		}
 
-// h_res must be non-NULL when it is "locked" below to avoid an error return code
-h_res = (Handle) &buffer;	// WARNING! Dummy value -- don't use!
-#else
-h_res = GetResource('STR#',id);
-if((i=ResError()) != noErr) {
-	sprintf(Message,"=> Error %ld loading resource string list ID %ld",(long)i,(long)id);
-	ParamText(in_place_c2pstr(Message),"\p","\p","\p");
-	NoteAlert(OKAlert,0L);
-	EmergencyExit = TRUE;
-	return(MISSED);
-	}
-// resource begins with a two-byte integer which is the number of strings
-im = **((short**)h_res);
-buffer = (char*) *h_res;
-#endif /* BP_CARBON_GUI_FORGET_THIS */
+	// h_res must be non-NULL when it is "locked" below to avoid an error return code
+	h_res = (Handle) &buffer;	// WARNING! Dummy value -- don't use!
+	#else
+	h_res = GetResource('STR#',id);
+	if((i=ResError()) != noErr) {
+		sprintf(Message,"=> Error %ld loading resource string list ID %ld",(long)i,(long)id);
+		ParamText(in_place_c2pstr(Message),"\p","\p","\p");
+		NoteAlert(OKAlert,0L);
+		EmergencyExit = TRUE;
+		return(MISSED);
+		}
+	// resource begins with a two-byte integer which is the number of strings
+	im = **((short**)h_res);
+	buffer = (char*) *h_res;
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
 
-*p_max = im;
-	
-if((*pp_str = (char****) GiveSpace((Size)im * sizeof(char**))) == NULL)
-	return(ABORT);
-if(pp_ndx != NULL) {
-	if((*pp_ndx = (int**) GiveSpace((Size)im * sizeof(int))) == NULL)
+	*p_max = im;
+		
+	if((*pp_str = (char****) GiveSpace((Size)im * sizeof(char**))) == NULL)
 		return(ABORT);
-	}
-if(pp_narg != NULL) {
-	if((*pp_narg = (int**) GiveSpace((Size)im * sizeof(int))) == NULL)
-		return(ABORT);
-	}
-
-/* In Carbon, the strings start at the 3rd byte (buffer[2]) and follow one after another
-   without any padding (they are Pascal strings, so they begin with length bytes).
-   Variable j keeps track of the current offset in buffer. */
-for(i=0,j=1; i < im; i++) {
-#if !BP_CARBON_GUI_FORGET_THIS
-	// In console build, we set buffer to each consecutive C string in strarray and
-	// j to the non-existent "length byte" at position -1 (it will be incremented before use).
-	buffer = strarray[i];
-	j = -1;
-	km = strlen(buffer);
-#else
-	km = (*h_res)[++j]; /* length of P-string */
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-	j0 = j;
-	if(km == 0) goto ERR;
 	if(pp_ndx != NULL) {
-		j++;
-		MyLock(FALSE,(Handle)h_res);
-		k = GetInteger(NO,buffer,&j);
-		if(k == INT_MAX) goto ERR;
-		(**pp_ndx)[i] = k;
-		MyUnlock((Handle)h_res);
+		if((*pp_ndx = (int**) GiveSpace((Size)im * sizeof(int))) == NULL)
+			return(ABORT);
 		}
 	if(pp_narg != NULL) {
-		j++;
-		MyLock(FALSE,(Handle)h_res);
-		k = GetInteger(NO,buffer,&j);
-		if(k == INT_MAX) goto ERR;
-		(**pp_narg)[i] = k;
-		MyUnlock((Handle)h_res);
+		if((*pp_narg = (int**) GiveSpace((Size)im * sizeof(int))) == NULL)
+			return(ABORT);
 		}
-	km -= j - j0;
-	
-	ptr = (char**) GiveSpace((Size)(km+1) * sizeof(char));
-	if(((**pp_str)[i] = ptr) == NULL) return(ABORT);
-	if(lock) MyLock(TRUE,(Handle)ptr);
-	for(k=0; k < km; k++) {
-		(*((**pp_str)[i]))[k] = buffer[++j];
+
+	/* In Carbon, the strings start at the 3rd byte (buffer[2]) and follow one after another
+	without any padding (they are Pascal strings, so they begin with length bytes).
+	Variable j keeps track of the current offset in buffer. */
+	for(i=0,j=1; i < im; i++) {
+	#if !BP_CARBON_GUI_FORGET_THIS
+		// In console build, we set buffer to each consecutive C string in strarray and
+		// j to the non-existent "length byte" at position -1 (it will be incremented before use).
+		buffer = strarray[i];
+		j = -1;
+		km = strlen(buffer);
+	#else
+		km = (*h_res)[++j]; /* length of P-string */
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+		j0 = j;
+		if(km == 0) goto ERR;
+		if(pp_ndx != NULL) {
+			j++;
+			MyLock(FALSE,(Handle)h_res);
+			k = GetInteger(NO,buffer,&j);
+			if(k == INT_MAX) goto ERR;
+			(**pp_ndx)[i] = k;
+			MyUnlock((Handle)h_res);
+			}
+		if(pp_narg != NULL) {
+			j++;
+			MyLock(FALSE,(Handle)h_res);
+			k = GetInteger(NO,buffer,&j);
+			if(k == INT_MAX) goto ERR;
+			(**pp_narg)[i] = k;
+			MyUnlock((Handle)h_res);
+			}
+		km -= j - j0;
+		
+		ptr = (char**) GiveSpace((Size)(km+1) * sizeof(char));
+		if(((**pp_str)[i] = ptr) == NULL) return(ABORT);
+		if(lock) MyLock(TRUE,(Handle)ptr);
+		for(k=0; k < km; k++) {
+			(*((**pp_str)[i]))[k] = buffer[++j];
+			}
+		(*((**pp_str)[i]))[k] = '\0';
 		}
-	(*((**pp_str)[i]))[k] = '\0';
-	}
-#if BP_CARBON_GUI_FORGET_THIS
-ReleaseResource(h_res);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-return(OK);
+	#if BP_CARBON_GUI_FORGET_THIS
+	ReleaseResource(h_res);
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+	return(OK);
 
-ERR:
-sprintf(Message,"=> Error loading %ldth string in resource list ID %ld",
-	(long)i,(long)id);
-#if !BP_CARBON_GUI_FORGET_THIS
-fprintf(stderr, "%s\n", Message);
-#else
-ParamText(in_place_c2pstr(Message),"\p","\p","\p");
-NoteAlert(OKAlert,0L);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-EmergencyExit = TRUE;
-return(MISSED);
-}
-
-
-int LoadScriptCommands(int id)
-{
-int i,im,ilabel,iarg,j,k,km,kk,n,nmax,ic;
-char c,**ptr;
-Handle h_res;
-
-/* FIXME ?  The list of script commands is only used in a few isolated places
-   in code which is included in the console build.  It is possible though that
-   by not initializing this list, those places will crash.  The most likely to
-   cause problems are in CompileGlossary() and IsEmpty() which use the macro
-   p_ScriptLabelPart().  (DisplayGrammar() does also but it currently is not 
-   called anywhere).
- */
-
-#if BP_CARBON_GUI_FORGET_THIS
-h_res = GetResource('STR#',id);
-if((i=ResError()) != noErr) {
-	sprintf(Message,"=> Error %ld loading resource string list ID %ld",(long) i,
-		(long)id);
-ERR1:
+	ERR:
+	sprintf(Message,"=> Error loading %ldth string in resource list ID %ld",
+		(long)i,(long)id);
+	#if !BP_CARBON_GUI_FORGET_THIS
+	fprintf(stderr, "%s\n", Message);
+	#else
 	ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 	NoteAlert(OKAlert,0L);
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
 	EmergencyExit = TRUE;
 	return(MISSED);
 	}
-j = 1; nmax = 0;
-im = **((short**)h_res); // (*h_res)[j]; if(im < 0) im += 256;
-MaxScriptInstructions = im;
-if(im < 1 || im > 255) {
-	sprintf(Message,"=> Error im=%ld loading resource string list ID %ld",
-		(long)im,(long)id);
-	goto ERR1;
-	}
-if((h_Script = (scriptcommandtype**) GiveSpace((Size)im * sizeof(scriptcommandtype))) == NULL)
-	goto ERR2;
-if((h_ScriptIndex = (int**) GiveSpace((Size)im * sizeof(int))) == NULL)
-	goto ERR2;
-for(i=0; i < im; i++) {
-	(*h_ScriptIndex)[i] = i;
-	ScriptLabel(i) = ScriptArg(i) = NULL;
-	ScriptNrLabel(i) = ScriptNrArg(i) = 0;
-	}
-for(i=0; i < im; i++) {
-	PleaseWait();
-	km = (*h_res)[++j]; /* length of P-string */
-	if(km == 0) goto ERR;
-	j++; km += j;
-	MyLock(FALSE,(Handle)h_res);
-	k = GetInteger(NO,(char*)*h_res,&j);
-	if(k == INT_MAX) goto ERR;
-	if(k >= MaxScriptInstructions) goto ERR;
-	(*h_ScriptIndex)[i] = ic = k;
-	MyUnlock((Handle)h_res);
-	
-#if BP_CARBON_GUI_FORGET_THIS
-	/* Insert script command into script menu */
-	for(k=j+1; k < km; k++) PascalLine[k-j] = (*h_res)[k];
-	PascalLine[0] = km - j - 1;
-	AppendMenu(myMenus[scriptM],PascalLine);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-	
-	ilabel = iarg = n = 0;
-	for(k=j; k < km; k++) {
-		if((*h_res)[k] == '"') n++;
-		}
-	if(n > nmax) nmax = n;
-	if((ScriptLabel(ic) = (char****) GiveSpace((Size)(n+1) * sizeof(char**)))
-		== NULL) goto ERR2;
-	if(n > 0 && ((ScriptArg(ic) = (char****) GiveSpace((Size)(n) * sizeof(char**)))
-		== NULL)) goto ERR2;
-	
-NEWLABELPART:
-	while((c=(*h_res)[j]) == ' ' || c == '�') j++;
-	if(j >= km) {
-		j = km - 1; continue;
-		}
-	k = j; while((c=(*h_res)[k]) != '"' && k < km) k++;
-	k--; while((c=(*h_res)[k]) == ' ') k--; k++;
-	ptr = (char**) GiveSpace((Size)(k-j+2) * sizeof(char));
-	if((p_ScriptLabelPart(ic,ilabel) = ptr) == NULL) goto ERR2;
-	k -= j;
-	for(kk=0; kk < k; j++,kk++) {
-		c = (*h_res)[j];
-		(*(p_ScriptLabelPart(ic,ilabel)))[kk] = Filter(c);
-		}
-	(*(p_ScriptLabelPart(ic,ilabel)))[kk] = '\0';
-	ScriptNrLabel(ic) = ++ilabel;
 
-NEWARGPART:	
-	while((c=(*h_res)[j]) == ' ' || c == '"') j++;
-	if(j >= km) {
-		j = km - 1; continue;
+
+int LoadScriptCommands() {  // This is the way we will load all lists of strings later
+	int i,im,ilabel,iarg,j,k,script_length,kk,nargs,nmax_args,index,kjn,checkscriptcommands;
+	char c,**ptr;
+
+	checkscriptcommands = 0;
+	im = NUM_SCRIPT_CMD_STRS;
+	MaxScriptInstructions = 0;
+	if((h_Script = (scriptcommandtype**) GiveSpace((Size)im * sizeof(scriptcommandtype))) == NULL)
+		goto ERR2;
+	if((h_ScriptIndex = (int**) GiveSpace((Size)im * sizeof(int))) == NULL)
+		goto ERR2;
+	for(i=0; i < im; i++) {
+		ScriptLabel(i) = ScriptArg(i) = NULL;
+		ScriptNrLabel(i) = ScriptNrArg(i) = 0;
 		}
-	k = j; while((c=(*h_res)[k]) != '�' && k < km) k++;
-	ptr = (char**) GiveSpace((Size)(k-j+1) * sizeof(char));
-	if((p_ScriptArgPart(ic,iarg) = ptr) == NULL) goto ERR2;
-	k -= j;
-	for(kk=0; kk < k; j++,kk++) {
-		c = (*h_res)[j];
-		(*(p_ScriptArgPart(ic,iarg)))[kk] = Filter(c);
+	nmax_args = 0;
+	for(i=0; i < im; i++) {
+		script_length = strlen(ScriptCommand[i]);
+		if(script_length == 0) {
+			BPPrintMessage(odError,"Empty script command has been found\n");
+			goto OVER;
+			}
+		MaxScriptInstructions++;
+		j = ilabel = iarg = nargs = 0;
+		for(k=0; k < script_length; k++) {
+			if(ScriptCommand[i][k] == '_') nargs++;
+			}
+		nargs = nargs / 2; // Number of arguments is half the number of '_'
+		if(nargs > nmax_args) nmax_args = nargs;
+		if((ScriptLabel(i) = (char****) GiveSpace((Size)(nargs+1) * sizeof(char**)))
+			== NULL) goto ERR2;
+		if(nargs > 0 && ((ScriptArg(i) = (char****) GiveSpace((Size)(nargs) * sizeof(char**)))
+			== NULL)) goto ERR2;
+		if(checkscriptcommands) BPPrintMessage(odInfo,"\nScriptCommand[%d] = %s (%d args)\n",i,ScriptCommand[i],nargs);
+		// continue;
+		index = 0;
+		while((c=ScriptCommand[i][j]) != ' ') {
+			if(c >= '0' && c <= '9')
+				index = (10 * index) + c - '0';
+			else {
+				BPPrintMessage(odError,"Incorrect index in script command [%d] = %s\n",i,ScriptCommand[i]);
+				return ABORT;
+				}
+			j++;
+			}
+		(*h_ScriptIndex)[i] = index;
+		if(checkscriptcommands) BPPrintMessage(odInfo,"index = %d\n",(*h_ScriptIndex)[i]);
+
+	NEWLABELPART:
+		while((c=ScriptCommand[i][j]) == ' ' || c == '_') j++;
+		if(j >= script_length) {
+			continue;
+			}
+		k = j; while(k < script_length && (c=ScriptCommand[i][k]) != '_') k++;
+		k--; while((c=ScriptCommand[i][k]) == ' ') k--; k++;
+		kjn = k - j + 2;
+		if(checkscriptcommands) BPPrintMessage(odInfo,"size of next label = %d\n",kjn);
+		if(kjn < 1) {
+			BPPrintMessage(odError,"Error in script label: kjn = %d\n",kjn);
+			goto ERR2;
+			}
+		ptr = (char**) GiveSpace((Size)(kjn) * sizeof(char));
+		if((p_ScriptLabelPart(i,ilabel) = ptr) == NULL) goto ERR2;
+		k -= j;
+		for(kk=0; kk < k; j++,kk++) {
+			c = ScriptCommand[i][j];
+			(*(p_ScriptLabelPart(i,ilabel)))[kk] = c;
+			}
+		(*(p_ScriptLabelPart(i,ilabel)))[kk] = '\0';
+		if(checkscriptcommands) BPPrintMessage(odInfo,"ScriptLabel[%d] = %s\n",ilabel,(*(p_ScriptLabelPart(i,ilabel))));
+		ScriptNrLabel(i) = ++ilabel;
+
+	NEWARGPART:
+	//	if(nargs == 0) continue;
+		while((c=ScriptCommand[i][j]) == ' ' || c == '_') j++;
+		if(j >= script_length) {
+			continue;
+			}
+		k = j; while(k < script_length && (c=ScriptCommand[i][k]) != '_') k++;
+		kjn = k - j + 2;
+		if(checkscriptcommands) BPPrintMessage(odInfo,"size of next arg = %d\n",kjn);
+		if(kjn < 1) {
+			BPPrintMessage(odError,"Error in script arg: kjn = %d\n",kjn);
+			goto ERR2;
+			}
+		ptr = (char**) GiveSpace((Size)(kjn) * sizeof(char));
+		if((p_ScriptArgPart(i,iarg) = ptr) == NULL) goto ERR2;
+		k -= j;
+		for(kk=0; kk < k; j++,kk++) {
+			c = ScriptCommand[i][j];
+			(*(p_ScriptArgPart(i,iarg)))[kk] = c;
+			}
+		(*(p_ScriptArgPart(i,iarg)))[kk] = '\0';
+		if(checkscriptcommands) BPPrintMessage(odInfo,"ScriptArg[%d] = %s\n",iarg,(*(p_ScriptArgPart(i,iarg))));
+		ScriptNrArg(i) = ++iarg;
+		goto NEWLABELPART;
 		}
-	(*(p_ScriptArgPart(ic,iarg)))[kk] = '\0';
-	ScriptNrArg(ic) = ++iarg;
-	goto NEWLABELPART;
+
+	OVER:
+	nmax_args++;
+	if((ScriptLine.label=(char****) GiveSpace((Size)(nmax_args) * sizeof(char**))) == NULL)
+		goto ERR2;
+	if((ScriptLine.arg=(char****) GiveSpace((Size)(nmax_args) * sizeof(char**))) == NULL)
+		goto ERR2;
+	if((ScriptLine.intarg=(long**) GiveSpace((Size)(nmax_args) * sizeof(long))) == NULL)
+		goto ERR2;
+	if((ScriptLine.floatarg=(double**) GiveSpace((Size)(nmax_args) * sizeof(double))) == NULL)
+		goto ERR2;
+	if((ScriptLine.ularg=(unsigned long**) GiveSpace((Size)(nmax_args) * sizeof(unsigned long))) == NULL)
+		goto ERR2;
+	for(i=0; i < nmax_args; i++) {
+		if((ptr=(char**) GiveSpace((Size)MAXLIN * sizeof(char))) == NULL) goto ERR2;
+		(*(ScriptLine.label))[i] = ptr;
+		if((ptr=(char**) GiveSpace((Size)MAXLIN * sizeof(char))) == NULL) goto ERR2;
+		(*(ScriptLine.arg))[i] = ptr;
+		}
+	if(checkscriptcommands) BPPrintMessage(odInfo,"\nAll script instructions have been loaded\n\n");
+	// EmergencyExit = TRUE;
+	return(OK);
+	ERR:
+	BPPrintMessage(odError,"=> Error empty line in ScriptCommand %d (StringLists.h)\n",i);
+	ERR3:
+	EmergencyExit = TRUE;
+	return(MISSED);
+	ERR2:
+	BPPrintMessage(odError,"=> Error making space for label of script. Insufficient memory\n");
+	goto ERR3;
 	}
-ReleaseResource(h_res);
-nmax++;
-#else
-nmax = 8;	// this is the value BP 2.9.8 calculates
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-// need to allocate this space in console build as many functions try to append script lines
-if((ScriptLine.label=(char****) GiveSpace((Size)(nmax) * sizeof(char**))) == NULL)
-	goto ERR2;
-if((ScriptLine.arg=(char****) GiveSpace((Size)(nmax) * sizeof(char**))) == NULL)
-	goto ERR2;
-if((ScriptLine.intarg=(long**) GiveSpace((Size)(nmax) * sizeof(long))) == NULL)
-	goto ERR2;
-if((ScriptLine.floatarg=(double**) GiveSpace((Size)(nmax) * sizeof(double))) == NULL)
-	goto ERR2;
-if((ScriptLine.ularg=(unsigned long**) GiveSpace((Size)(nmax) * sizeof(unsigned long))) == NULL)
-	goto ERR2;
-for(i=0; i < nmax; i++) {
-	if((ptr=(char**) GiveSpace((Size)MAXLIN * sizeof(char))) == NULL) goto ERR2;
-	(*(ScriptLine.label))[i] = ptr;
-	if((ptr=(char**) GiveSpace((Size)MAXLIN * sizeof(char))) == NULL) goto ERR2;
-	(*(ScriptLine.arg))[i] = ptr;
-	}
-return(OK);
-
-ERR:
-sprintf(Message,"=> Error loading %ldth string in resource list ID %ld",
-	(long)i,(long)id);
-ERR3:
-#if !BP_CARBON_GUI_FORGET_THIS
-fprintf(stderr, "%s\n", Message);
-#else
-ParamText(in_place_c2pstr(Message),"\p","\p","\p");
-NoteAlert(OKAlert,0L);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-EmergencyExit = TRUE;
-return(MISSED);
-
-ERR2:
-sprintf(Message,"=> Error string resource list ID %ld. Insufficient memory",(long)id);
-goto ERR3;
-}
 
 
 #if BP_CARBON_GUI_FORGET_THIS
@@ -1647,11 +1625,10 @@ ObjectMode = ObjectTry = Improvize = StepProduce = StepGrammars
 	= TraceProduce = DisplayTimeSet = StepTimeSet = TraceTimeSet
 	= ShowGraphic = ComputeWhilePlay = NeverResetWeights = FALSE;
 SynchronizeStart = CyclicPlay = NoConstraint = AllItems
-	= WriteMIDIfile = Interactive = OutCsound = CsoundTrace = WillRandomize = FALSE;
+	= WriteMIDIfile = OutCsound = CsoundTrace = WillRandomize = FALSE;
 ResetWeights = ResetFlags = ResetControllers = DisplayItems = ShowMessages
 	= AllowRandomize = TRUE;
 NoteConvention = ENGLISH;
-SetButtons(TRUE);
 return(OK);
 }
 

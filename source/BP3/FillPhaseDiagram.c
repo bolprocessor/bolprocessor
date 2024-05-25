@@ -79,7 +79,7 @@ p_list ****p_waitlist,****p_scriptlist,**tag,**ptag;
 
 
 if(CheckEmergency() != OK) return(ABORT);
-if((result=stop(1)) != OK) return(result);
+if((result=stop(1,"FillPhaseDiagram")) != OK) return(result);
 if(trace_diagram) BPPrintMessage(odInfo,"Started filling phase diagram\n");
 
 AllSolTimeSet = StackFlag = (*p_bigitem) = ToldSkipped = FALSE;
@@ -365,7 +365,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 	m = (tokenbyte) (**pp_buff)[id];
 	p = (tokenbyte) (**pp_buff)[id+1];
 	if(m == TEND && p == TEND) break;
-	if((result=stop(0)) != OK) return(result);
+	if((result=stop(0,"FillPhaseDiagram")) != OK) return(result);
 	if(trace_diagram)
 		BPPrintMessage(odInfo,"FillPhaseDiagram() m = %d p = %d level = %ld nseq = %ld id = %ld\n",m,p,(long)level,(long)nseq,(long)id);
 /*	if(m == T10) {	// Channel assignment _chan() // Fixed by BB 2021-02-15

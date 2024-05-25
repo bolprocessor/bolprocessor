@@ -115,6 +115,8 @@ char ****p_GramProcedure,****p_PerformanceControl,****p_GeneralMIDIpatch,
 	****p_Diacritical,****p_HTMLdiacrList;
 long MaxProc,MaxPerformanceControl;
 INscripttype** p_INscript;
+int StopSound,TraceMIDIinput;
+unsigned long TimeStopped,Oldtimestopped;
 int **p_PerfCtrlNdx,**p_GeneralMIDIpatchNdx,**p_PerfCtrlNArg,**p_ProcNdx,**p_ProcNArg;
 char SubgramType[][TYPELENGTH] = {"RND","ORD","LIN","SUB","SUB1","TEM","POSLONG"};
 char Code[] = {'\0','?','#','+',':',';','=','.','(',')','S','/','{','}',',','<',

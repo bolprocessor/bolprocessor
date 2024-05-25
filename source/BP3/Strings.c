@@ -257,20 +257,19 @@ return(OK);
 }
 
 
-int Mystrcmp(char **p_t,char *s)
-{
-long i;
+int Mystrcmp(char **p_t,char *s) {
+	long i;
 
-i = ZERO;
-if(p_t == NULL) {
-	if(Beta) Alert1("=> Err. Mystrcmp(). p_t = NULL");
-	return(1);
+	i = ZERO;
+	if(p_t == NULL) {
+	//	if(Beta) Alert1("=> Err. Mystrcmp(). p_t = NULL");
+		return(1);
+		}
+	do 
+		if((*p_t)[i] != s[i]) return(1);
+	while(s[i++] != '\0');
+	return(0);
 	}
-do 
-	if((*p_t)[i] != s[i]) return(1);
-while(s[i++] != '\0');
-return(0);
-}
 
 
 int MyHandlecmp(char **p_t,char **p_s)

@@ -421,7 +421,7 @@ for(i=ia; ; i+=2L) {
 				AdjustTextInWindow(wind);
 				TextGetSelection(&dummy, &posmem, th);
 				}
-			Interrupted = TRUE; SetButtons(TRUE);
+			Interrupted = TRUE; 
 			compiledmem = CompiledGr;
 			if(r == OK) while((r = MainEvent()) != RESUME && r != STOP && r != EXIT);
 			if(r == EXIT) goto OUT;

@@ -15,8 +15,8 @@ https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3
 MIDI input
 ----------
 
-- Implement the MIDI input event handling that worked in BP2.
-- This includes script commands.
+- Implement most script instructions previously designed for BP2
+- Implement the filtering of input MIDI events
 
 
 Real-time MIDI output
@@ -69,9 +69,7 @@ Open Sound Control (OSC)
 HTML/PHP/Javascript interface
 -----------------------------
 
-- Implement find-replace
-- Implement command-s (on MacOS) or control-s (on Windows) to save a grammar, data, alphabet, etc. This is almost done in _header.php (line 41) and at the bottomof data.php
-- Oddly enough, while the console is playing, a page of the browser is constantly being reloaded, with the effect that BP2_help.html and _settings.php are being updated…
+- Implement command-s (on MacOS) or control-s (on Windows) to save a grammar, data, alphabet, etc. This is almost done in _header.php (line 41) and at the bottom of data.php
 
 
 Standalone application

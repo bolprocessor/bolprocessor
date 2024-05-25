@@ -1225,7 +1225,7 @@ if(Improvize && !WriteMIDIfile && !OutCsound) {
 // FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 if((result=MyButton(2)) != MISSED) {
 	StopCount(0);
-	SetButtons(TRUE);
+	
 	Interrupted = TRUE;
 	dirtymem = Dirty[wAlphabet]; Dirty[wAlphabet] = FALSE;
 	if(result == OK)

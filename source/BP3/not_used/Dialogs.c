@@ -347,7 +347,7 @@ QUIT:		Improvize = improvizemem;
 			StepProduce = stepProducemem;
 			DisplayProduce = displayProducemem;
 			TraceProduce = traceProducemem;
-			SetButtons(TRUE);
+			
 			/* ComputeOn = FALSE will cause InterruptCompute() to abort */
 			if(rep != OK) return(rep);
 			return(mStop(Nw));
@@ -1014,7 +1014,7 @@ if(thedialog == FileSavePreferencesPtr) {
 			FileWriteMode = LATER;
 			if(!rtMIDI) {
 				rtMIDI = TRUE;	// FIXME ? probably should check driver availability first! - akozar
-				SetButtons(TRUE);
+				
 				}
 			break;
 		case bType0:
@@ -1150,7 +1150,7 @@ if(w == wPrototype1) {
 			showgraphic = ShowGraphic; ShowGraphic = FALSE;
 			showmessages = ShowMessages; ShowMessages = FALSE;
 			displaytimeset = DisplayTimeSet; DisplayTimeSet = FALSE;
-			nature_time = Nature_of_time; SetButtons(TRUE);
+			nature_time = Nature_of_time; 
 			Nature_of_time = (GetCtrlValue(wPrototype1,bStriatedTimeTry) > 0);
 			MystrcpyTableToString(MAXFIELDCONTENT,line,p_Bol,iProto);
 			DefaultVolume = 127;
@@ -1170,7 +1170,7 @@ if(w == wPrototype1) {
 			DisplayTimeSet = displaytimeset;
 			ForceRatio = -1.;
 			ShowGraphic = showgraphic;
-			SetButtons(TRUE);
+			
 			Pclock = (double)pclock;
 			Qclock = (double)qclock;
 			Nature_of_time = nature_time;
@@ -1194,7 +1194,7 @@ if(w == wPrototype1) {
 			ShowGraphic = (GetCtrlValue(wPrototype1,bShowGraphicTry) > 0);
 			noconstraint = NoConstraint;
 			NoConstraint = (GetCtrlValue(wPrototype1,bIgnorePropertiesTry) > 0);
-			SetButtons(TRUE);
+			
 			GetField(NULL,FALSE,wPrototype1,fExpression,line,&p,&q);
 			if((h = (char**) GiveSpace((Size)((1+strlen(line)) * sizeof(char)))) == NULL)
 				return(ABORT);
@@ -1206,7 +1206,7 @@ if(w == wPrototype1) {
 			MyDisposeHandle((Handle*)&h);
 			if(rep != DONE) return(rep);
 			NoConstraint = noconstraint;
-			ShowGraphic = showgraphic; SetButtons(TRUE);
+			ShowGraphic = showgraphic; 
 			Pclock = (double)pclock;
 			Qclock = (double)qclock;
 			Nature_of_time = nature_time;

@@ -895,7 +895,7 @@ if(CheckEmergency() != OK) return(ABORT);
 HideWindow(Window[wMessage]);
 
 ObjectMode = ObjectTry = TRUE;
-SetButtons(TRUE);
+
 if(rep == OK) {
 	SetName(iObjects,YES,TRUE);
 	if(newbols) ResizeObjectSpace(NO,Jbol + Jpatt,0);

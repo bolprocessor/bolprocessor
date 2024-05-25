@@ -817,7 +817,7 @@ if(trace_polymake) {
 	}
 result = ABORT; compiledmem = CompiledGr;
 
-if((r=stop(1)) != OK) return(r);
+if((r=stop(1,"PolyExpand")) != OK) return(r);
 
 imbedded = TRUE;
 
@@ -930,7 +930,7 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i += 2L) {
 	// (or move this if block into a function InterruptExpand()) ?? -- akozar, 20130830
 /*	if((i % 100L) == ZERO && (result=MyButton(1)) != MISSED) {
 		StopCount(0);
-		SetButtons(TRUE);
+		
 		Interrupted = TRUE;
 		dirtymem = Dirty[wAlphabet]; Dirty[wAlphabet] = FALSE;
 		compiledmem = CompiledGr;

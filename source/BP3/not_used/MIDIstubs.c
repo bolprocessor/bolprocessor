@@ -84,11 +84,19 @@ static unsigned long ClockZero = 0;
 static time_t ClockZero = 0;
 #endif
 
-#if defined(__APPLE__)
+#if defined(_WIN64)
+    #include <windows.h>
+    #include <mmsystem.h>
+    #pragma comment(lib, "winmm.lib")
+    void CALLBACK MyMIDIInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2);
+    // Global variables for MIDI device handle
+    static HMIDIOUT hMidiOut = NULL;
+    static HMIDIOUT hMidiIn = NULL;
+#elif defined(__APPLE__)
     MIDIEndpointRef MIDIoutputdestination,MIDIinputdestination;
+    static void MyMIDIReadProc(const MIDIPacketList*,void*,void*);
     void MIDIInputCallback(const MIDIPacketList *pktlist, void *readProcRefCon, void *srcConnRefCon) {
-    //     MyMIDIReadProc(pktlist, readProcRefCon, srcConnRefCon);
-        return;
+        MyMIDIReadProc(pktlist, readProcRefCon, srcConnRefCon);
         }
     Boolean IsMIDIDestinationActive(MIDIEndpointRef endpoint) {
         SInt32 offline;
@@ -96,12 +104,20 @@ static time_t ClockZero = 0;
         // Check if the endpoint is offline
         result = MIDIObjectGetIntegerProperty(endpoint, kMIDIPropertyOffline, &offline);
         if(result != noErr) {
-            BPPrintMessage(odInfo,"Error getting MIDIObjectGetIntegerProperty.\n");
+            BPPrintMessage(odError,"=> Error getting MIDIObjectGetIntegerProperty.\n");
             return(false);
             }
         // Return true if the device is online (offline == 0)
         return(offline == 0);
         }
+#elif defined(__linux__)
+    #include <unistd.h> 
+    #include <alsa/asoundlib.h>
+    void MyAlsaMidiInProc(snd_seq_event_t *ev, void *refCon);
+    void handle_midi_input(snd_seq_event_t *ev);
+    // Global variable for ALSA MIDI sequencer handle
+    static snd_seq_t *seq_handle = NULL;
+    static int out_port,in_port;
 #endif
 
 int read_midisetup(const char* filename,char* sourcename,char* outputname) {
@@ -302,13 +318,13 @@ int initializeMIDISystem() {
    /*   status = MIDIInputPortCreateWithProtocol(MIDIinputClient, CFSTR("Input Port"), kMIDIProtocol_1_0, &MIDIinPort,     MIDIInputCallback); would be better but difficult to handle! */
         status = MIDIInputPortCreate(MIDIinputClient, CFSTR("Input Port"),MIDIInputCallback,NULL,&MIDIinPort);
         if(status != noErr) {
-            BPPrintMessage(odError,"Could not create input port with MIDI Protocol 1.0.\n");
+            BPPrintMessage(odError,"=> Could not create input port with MIDI Protocol 1.0.\n");
             return(FALSE);
             }
         // Connect first source to input port
         ItemCount sourceCount = MIDIGetNumberOfSources();
         if(sourceCount == 0) {
-            BPPrintMessage(odError,"No MIDI sources found.\n");
+            BPPrintMessage(odError,"=> No MIDI sources found.\n");
             return(FALSE);
             }
         foundname = foundnum = 0;
@@ -318,7 +334,7 @@ int initializeMIDISystem() {
             if(MIDIObjectGetStringProperty(MIDIinputdestination, kMIDIPropertyName, &endpointName) == noErr) {
                 char name[64];
                 CFStringGetCString(endpointName, name, sizeof(name), kCFStringEncodingUTF8);
-                BPPrintMessage(odInfo,"MIDI (source) %d: “%s”",i,name);
+                BPPrintMessage(odInfo,"MIDI (input) %d: “%s”",i,name);
                 if(!foundname && strcmp(name,sourcename) == 0) {  // Name is a priority choice
                     BPPrintMessage(odInfo," = the name of your choice");
                     MIDIsource = (int) i;
@@ -333,7 +349,7 @@ int initializeMIDISystem() {
                 CFRelease(endpointName);
                 }
             if(!IsMIDIDestinationActive(MIDIinputdestination))
-                BPPrintMessage(odError,"This MIDI (source) %d is inactive.\n",i);
+                BPPrintMessage(odError,"=> This MIDI (input) %d is inactive.\n",i);
             }
         if(foundnum && !foundname) strcpy(sourcename,newname);
         if(!foundnum && !foundname && sourceCount <= MIDIsource) {
@@ -478,6 +494,63 @@ void closeMIDISystem() {
  //   InBuiltDriverOn = FALSE;
     }
 
+#if defined(__APPLE__)
+// Placeholder for MacOS MIDI input
+static void MyMIDIReadProc(const MIDIPacketList* packetList, void* readProcRefCon, void* srcConnRefCon) {
+    (void)readProcRefCon;  // Unused parameter. This is necessary in order to avoid warnings.
+    (void)srcConnRefCon;  // Unused parameter
+    const MIDIPacket* packet = &packetList->packet[0];
+    if(packet == NULL) {
+        printf("No packets received.\n");
+        return;  // Early exit if packet is NULL
+        }
+ //   printf("packetList->numPackets = %d\n",(int)packetList->numPackets);
+    for(unsigned int i = 0; i < packetList->numPackets; i++) {
+        sendMIDIEvent(packet->data,packet->length,0); // Sending immediately
+        packet = MIDIPacketNext(packet);
+        }
+    }
+#elif defined(_WIN64)
+// Placeholder for Windows MIDI input callback
+void CALLBACK MyMIDIInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2) {
+    (void)dwInstance; // Typically unused
+    switch (wMsg) {
+        case MIM_OPEN:
+            printf("MIDI Device Opened\n");
+            break;
+        case MIM_CLOSE:
+            printf("MIDI Device Closed\n");
+            break;
+        case MIM_DATA:
+            unsigned char* midiData = (unsigned char*)&dwParam1;
+            sendMIDIEvent(midiData,3);  // MIDI message by dwParam1 are typically 3 bytes long
+            break;
+        case MIM_LONGDATA:
+            MIDIHDR *midiHdr = (MIDIHDR*)dwParam1;
+            sendMIDIEvent((unsigned char*)midiHdr->lpData, midiHdr->dwBytesRecorded);
+            // Once processed, prepare header for more input
+            midiInPrepareHeader(hMidiIn, midiHdr, sizeof(MIDIHDR));
+            midiInAddBuffer(hMidiIn, midiHdr, sizeof(MIDIHDR));
+            break;
+        case MIM_ERROR:
+            fprintf(stderr, "MIDI Input Error Occurred.\n");
+            break;
+        }
+    }
+#elif defined(__linux__)
+// Placeholder for ALSA MIDI input callback
+void MyAlsaMidiInProc(snd_seq_event_t *ev, void *refCon) {
+    (void)refCon; // Unused parameter
+    if (ev->type == SND_SEQ_EVENT_NOTEON || ev->type == SND_SEQ_EVENT_NOTEOFF) {
+        unsigned char midiData[3];
+        midiData[0] = (ev->type == SND_SEQ_EVENT_NOTEON) ? 0x90 : 0x80;
+        midiData[1] = ev->data.note.note;
+        midiData[2] = ev->data.note.velocity;
+        sendMIDIEvent(midiData, 3);
+        }
+    }
+#endif
+
 void sendMIDIEvent(unsigned char* midiData,int dataSize,long time) {
     int note,status,value,test_first_events,improvize;
     unsigned long clocktime;
@@ -548,7 +621,7 @@ int MIDIflush() {
     int result,size;
     size = sizeof(MIDI_Event);
     if(Panic) eventCount = 0L;
-    if((result = stop(0)) != OK) {
+    if((result = stop(0,"MIDIflush")) != OK) {
         eventCount = 0L;
         return result;
         }

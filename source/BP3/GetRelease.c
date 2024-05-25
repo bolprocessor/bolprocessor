@@ -117,7 +117,7 @@ if(ReleasePatternSpace() != OK) return(MISSED);
 if(check_memory_use) BPPrintMessage(odInfo,"Before ReleaseGlossarySpace() MemoryUsed = %ld\n",(long)MemoryUsed);
 if(ReleaseGlossarySpace() != OK) return(MISSED);
 if(check_memory_use) BPPrintMessage(odInfo,"Before ReleaseScriptSpace() MemoryUsed = %ld\n",(long)MemoryUsed);
-if(ReleaseScriptSpace() != OK) return(MISSED);
+if(init && (ReleaseScriptSpace() != OK)) return(MISSED);
 if(check_memory_use) BPPrintMessage(odInfo,"Before ReleaseConstants() MemoryUsed = %ld\n",(long)MemoryUsed);
 if(ReleaseConstants() != OK) return(MISSED);
 if(check_memory_use) BPPrintMessage(odInfo,"After ReleaseConstants() MemoryUsed = %ld\n",(long)MemoryUsed);
@@ -569,25 +569,24 @@ return(DoSystem());
 }
 
 
-int ReleaseScriptSpace(void)
-{
-int j;
-Handle ptr;
+int ReleaseScriptSpace(void) {
+	int j;
+	Handle ptr;
 
-if(p_Script != NULL) {
-	for(j=0; j < (MyGetHandleSize((Handle)p_Script) / sizeof(char**)); j++) {
-		ptr = (Handle) (*p_Script)[j];
+	if(p_Script != NULL) {
+		for(j=0; j < (MyGetHandleSize((Handle)p_Script) / sizeof(char**)); j++) {
+			ptr = (Handle) (*p_Script)[j];
+			MyDisposeHandle(&ptr);
+			}
+		ptr = (Handle) p_Script;
 		MyDisposeHandle(&ptr);
+		p_Script = NULL;
 		}
-	ptr = (Handle) p_Script;
-	MyDisposeHandle(&ptr);
-	p_Script = NULL;
+	Jscriptline = 0;
+	Jinscript = 0; /* also impossible to execute script instructions from interaction */
+	CompiledGr = CompiledGl = FALSE;
+	return(OK);
 	}
-Jscriptline = 0;
-Jinscript = 0; /* also impossible to execute script instructions from interaction */
-CompiledGr = CompiledGl = FALSE;
-return(DoSystem());
-}
 
 
 int ReleaseScaleSpace(void)
@@ -1818,7 +1817,7 @@ int ThreeOverTwo(long *p_x)
 
 int CheckEmergency(void)
 {
-if((stop(0) != OK) || EmergencyExit) {
+if((stop(0,"CheckEmergency") != OK) || EmergencyExit) {
 //	Alert1("Out of memory. Save your work and exit...");
 	return(NO);
 	}

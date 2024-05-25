@@ -80,4 +80,13 @@ MaxMIDIMessages = 1000. More may be necessary to handle very large chunks of dat
 2024-05-21
 Images are displayed even if errors have been found. (Fixed in produce.php)
 All images can be displayed (if this option is selected) during the reading of chunked data.
-The STOP and PANIC buttons seem to succeed in shutting down the console for good when reading chunked data in real-time MIDI.
+The STOP and PANIC buttons seem to succeed in shutting down the console for good when playing chunked data in real-time MIDI.
+Data and grammar pages have a search and replace function with the option of regular expressions.
+
+-----
+2024-05-25
+First version to handle incoming MIDI events.
+Script procedures have been partially rewritten. This version only supports command
+_script(IN Wait for C3 channel 1)
+which is used to delay the start of the performance.
+Unused MIDI code has been stored in MIDIstubs.c, which is no longer compiled. Useful MIDI code is available in MIDIstuff.c.

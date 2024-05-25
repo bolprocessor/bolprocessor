@@ -161,7 +161,7 @@ if(!IsMidiDriverOn()) {
 #else
 if(!rtMIDI) {
 	rtMIDI = TRUE;
-	SetButtons(TRUE);
+	
 	}
 if(ComputeOn || PolyOn || CompileOn || SoundOn || SelectOn ||
 	SetTimeOn || GraphicOn || PrintOn || ReadKeyBoardOn || HangOn || ScriptExecOn)
@@ -800,7 +800,7 @@ if(!IsMidiDriverOn()) { // added this check - 012307 akozar
 #else
 if(!rtMIDI) {
 	rtMIDI = TRUE;
-	SetButtons(TRUE);
+	
 	}
 i = ZERO;
 imax = isize;

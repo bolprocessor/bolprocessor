@@ -31,14 +31,8 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-#ifndef _H_BP2
 #include "-BP2.h"
-#endif
-
 #include "-BP2decl.h"
-
-
 
 int CompileGlossary(void)
 // A glossary is a mixture of certain script commands and "Define..." commands
@@ -47,7 +41,7 @@ int CompileGlossary(void)
 {
 long pos,posmax,posdir,posline;
 int i,is,j,r,length,irul,gap,meta,flagindex,changed,type,errors,undefined,keep,
-	noteconventionmem;
+	noteconventionmem,check;
 char **p_line,*p,*q,*p1,*p2,**pp1,**pp2,line[MAXLIN],line2[MAXNAME+1];
 t_rule **ptr;
 tokenbyte **p_arg;
@@ -156,7 +150,8 @@ while(ReadLine(YES,wGlossary,&pos,posmax,&p_line,&gap) == OK) {
 		}
 	if((*p_line)[is] == '\0') goto NEXTLINE;
 	type = 0; r = OK; posdir = -1L;
-	if((r=ExecScriptLine(NULL,wGlossary,FALSE,FALSE,p_line,posline+gap,&posdir,
+	check = 0; // this will create a script line
+	if((r=ExecScriptLine(NULL,wGlossary,FALSE,check,p_line,posline+gap,&posdir,
 		&changed,&keep)) != OK) goto BADLINE;
 	MystrcpyHandleToString(MAXLIN,is,line,p_line);
 	p = &(line[0]); q = &(line2[0]); length = strlen(line2);

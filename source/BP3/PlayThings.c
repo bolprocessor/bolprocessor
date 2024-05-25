@@ -41,7 +41,7 @@
 
 int PlaySelection(int w, int all) {
 	char c;
-	int i,ch,r,improvize,asked,askedvariables,derivevariables;
+	int i,ch,r,improvize,asked,askedvariables,derivevariables,check;
 	tokenbyte **p_a;
 	long origin,originmem,next_origin,firstorigin,end,x;
 
@@ -77,7 +77,7 @@ int PlaySelection(int w, int all) {
 	if(Improvize) {
 		improvize = TRUE;
 		Improvize = FALSE;
-		SetButtons(TRUE);
+		
 		}
 	if(all) {
 	//	ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
@@ -114,7 +114,7 @@ int PlaySelection(int w, int all) {
 			(*p_Oldvalue)[ch].pitchbend = -1;
 			(*p_Oldvalue)[ch].modulation = -1;
 			}
-		if(ResetControllers) ResetMIDIControllers(NO,NO,YES);
+	//	if(ResetControllers) ResetMIDIControllers(NO,NO,YES);
 		}
 	if(InitThere == 1) FirstTime = TRUE;
 	if(InitThere == 2) {
@@ -122,9 +122,8 @@ int PlaySelection(int w, int all) {
 			CurrentDir = WindowParID[wScript];
 			CurrentVref = TheVRefNum[wScript];
 			}
-		ScriptExecOn++;
-		r = ExecScriptLine(NULL,wScript,FALSE,TRUE,p_InitScriptLine,x,&x,&i,&i);
-		EndScript();
+		check = 0; // This will create a script line
+		r = ExecScriptLine(NULL,wScript,check,TRUE,p_InitScriptLine,x,&x,&i,&i);
 		if(r != OK) goto END;
 		}
 	firstorigin = origin; p_a = NULL;
@@ -142,7 +141,7 @@ int PlaySelection(int w, int all) {
 	// BPPrintMessage(odInfo,"@ origin = %ld next_origin = %ld end = %ld\n",(long)origin,(long)next_origin,(long)end);
 	LastChunk = FALSE;
 	while((originmem=origin) < end) {
-		if((r=stop(0)) != OK) return ABORT;
+		if((r=stop(0,"PlaySelection")) != OK) return ABORT;
 		next_origin = origin;
 		time(&ProductionStartTime);
 		while(TRUE) {
@@ -166,7 +165,7 @@ int PlaySelection(int w, int all) {
 			MyDisposeHandle((Handle*)&p_a);
 			/* Could already be NULL because of PolyExpand() */
 			if(ScriptExecOn) r = OK;
-			if(stop(0) != OK) r = ABORT;
+			if(stop(0,"PlaySelection") != OK) r = ABORT;
 			goto END;
 			}
 		if(!NoVariable(&p_a)) {
@@ -231,13 +230,13 @@ int PlaySelection(int w, int all) {
 
 	if(improvize) {
 		Improvize = TRUE;
-		SetButtons(TRUE);
+		
 		}
-	SetButtons(TRUE);
+	
 	if(r == OK) {
 		BPActivateWindow(SLOW,LastComputeWindow);
 		// ResetMIDI(TRUE);
-		if(ResetControllers) ResetMIDIControllers(YES,NO,NO);
+		// if(ResetControllers) ResetMIDIControllers(YES,NO,NO);
 		}
 	return(r);
 	}
@@ -247,7 +246,7 @@ int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll) {
 	int r;
 
 	if(Panic || CheckEmergency() != OK) return(ABORT);
-	if((r=stop(1)) != OK) return(r);
+	if((r=stop(1,"PlayBuffer")) != OK) return(r);
 	if(Jbol < 3) NoAlphabet = TRUE;
 	else NoAlphabet = FALSE;
 
@@ -337,6 +336,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		}
 
 	result = OK;
+	ShowMessages = TRUE; // 2024-05-23
 	while((result=PolyMake(pp_buff,&maxseqapprox,YES)) == AGAIN){};
 
 	/* if(trace_scale) {
@@ -477,7 +477,7 @@ if(!onlypianoroll) {
 			(*p_Oldvalue)[ch].pitchbend = -1;
 			(*p_Oldvalue)[ch].modulation = -1;
 			}
-		if(ResetControllers) ResetMIDIControllers(NO,NO,YES);
+		// if(ResetControllers) ResetMIDIControllers(NO,NO,YES);
 		}
 	}
 
@@ -489,7 +489,7 @@ askedvariables = derivevariables = FALSE;
 
 while(TRUE) {
 	SaidTooComplex = ShownBufferSize = FALSE;
-	if((r=stop(0)) != OK) return ABORT;
+	if((r=stop(0,"PlayHandle")) != OK) return ABORT;
 	while(i < im && (isspace(c=(*p_line)[i]) || c == '\0')) i++;
 	i0 = i;
 	if(i >= im) break;
@@ -524,7 +524,7 @@ ENCODE:
 		if(Improvize) {
 			improvize = TRUE;
 			Improvize = FALSE;
-			SetButtons(TRUE);
+			
 			}
 		if(NoVariable(&p_ti)) {
 NOVARIABLE:
@@ -547,7 +547,7 @@ NOVARIABLE:
 			//	if(PlaySelectionOn > 0) PlaySelectionOn--; // Fixed by BB 2021-02-17
 				if(improvize) {
 					Improvize = TRUE;
-					SetButtons(TRUE);
+					
 					}
 				if((r=CompileCheck()) != OK) break;
 				i = i0;
@@ -569,7 +569,7 @@ NOVARIABLE:
 		
 		if(improvize) {
 			Improvize = TRUE;
-			SetButtons(TRUE);
+			
 			}
 		}
 	MyDisposeHandle((Handle*)&p_ti);
@@ -618,7 +618,7 @@ int TextToMIDIstream(int w) {
 	ShowMessages = FALSE;
 	improvize = Improvize;
 	Improvize = FALSE;
-	SetButtons(TRUE);
+	
 
 	// PlaySelectionOn++; // Fixed by BB 2021-02-17
 	/* ResetMIDI(TRUE); */
@@ -674,7 +674,7 @@ int TextToMIDIstream(int w) {
 		Stream.qclock = (long) Qclock;
 		ItemCapture = FALSE;
 		}
-	if(ResetControllers) ResetMIDIControllers(NO,YES,YES);
+	// if(ResetControllers) ResetMIDIControllers(NO,YES,YES);
 
 	END:
 	if(PlaySelectionOn) {
@@ -683,7 +683,7 @@ int TextToMIDIstream(int w) {
 		}
 	ShowMessages = showmessages;
 	Improvize = improvize;
-	SetButtons(TRUE);
+	
 	HideWindow(Window[wMessage]);
 	return(r);
 	}
@@ -1409,7 +1409,7 @@ if(size < 2L) {
 	}
 if(*p_i >= im) return(MISSED);
 first = TRUE; oldc = '\0';
-if(stop(0) != OK) return ABORT;
+if(stop(0,"ReadToBuff") != OK) return ABORT;
 for(j=*p_i,k=0; j < im; j++) {
 	c = GetTextChar(w,j);
 //	BPPrintMessage(odInfo,"%c",c);

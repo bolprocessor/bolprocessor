@@ -421,7 +421,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	// refactor the shared code into a function ?? -- akozar, 20130830
 /*	if((r=MyButton(1)) != MISSED) {
 		StopCount(0);
-		SetButtons(TRUE);
+		
 		Interrupted = TRUE;
 		dirtymem = Dirty[wAlphabet]; Dirty[wAlphabet] = FALSE;
 		compiledmem = CompiledGr;

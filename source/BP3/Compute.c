@@ -145,7 +145,7 @@ if(r == OK) {
 HideWindow(Window[wMessage]);
 if(DisplayProduce != displayproducemem) {
 	DisplayProduce = displayproducemem;
-	SetButtons(TRUE);
+	
 	}
 if(Beta && NeedZouleb != 0) {
 	sprintf(Message,"NeedZouleb = %ld after Compute(). Should be 0",(long)NeedZouleb);
@@ -2290,7 +2290,7 @@ int r,rep;
 unsigned long datemem;
 
 StopCount(0);
-SetButtons(TRUE);
+
 Interrupted = TRUE;
 datemem = CompileDate;
 if(StepProduce) {

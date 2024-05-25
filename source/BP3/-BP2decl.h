@@ -104,6 +104,8 @@ extern char ****p_GramProcedure,****p_PerformanceControl,****p_GeneralMIDIpatch,
 extern long MaxProc,MaxPerformanceControl;
 extern int **p_PerfCtrlNArg,**p_ProcNArg,**p_PerfCtrlNdx,**p_ProcNdx,**p_GeneralMIDIpatchNdx;
 extern INscripttype** p_INscript;
+extern unsigned long TimeStopped,Oldtimestopped;
+extern int StopSound,TraceMIDIinput;
 extern char SubgramType[MAXTYPE][TYPELENGTH];
 extern char Code[MAXCODE2];
 extern char VersionName[MAXVERSION][VERSIONLENGTH];
@@ -400,7 +402,7 @@ extern MIDI_Event* eventStack;
 extern UInt64 initTime;
 extern int FirstMIDIevent;
 
-extern int stop(int);
+extern int stop(int,char*);
 extern int MIDIflush(void);
 
 #endif /* BP2_DECL_H */

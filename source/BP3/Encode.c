@@ -40,13 +40,12 @@
 
 tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1, char **pp2,
 	p_context *p_pleftcontext, p_context *p_prightcontext, int *p_meta, int arg_nr,
-	p_flaglist ***ph_flag,int quick,int *p_result)
+	p_flaglist ***ph_flag,int quick,int *p_result) {
 // arg_nr = 0: item 
 // arg_nr = 1: left argument (grammar)
 // arg_nr = 2: right argument (grammar)
 // arg_nr = 4: left argument (glossary)
 // arg_nr = 8: right argument (glossary)
-{
 tokenbyte **p_buff,**p_pi;
 int ii,ig,ir,j,jj,n,l,ln,lmax,bound,leftside,rightcontext,
 neg,cv,needsK,needsflag,i_scale,j_scale,result;
@@ -81,11 +80,8 @@ if(arg_nr == 0) {
 		}
 	}
 
-for(; (*pp) <= (*pp2);) {
-//	if(i % 25 == 0) PleaseWait();
-//	BPPrintMessage(odInfo,"%c",**pp);
-/*	if(**pp == '{' || **pp == '}') BPPrintMessage(odInfo,"%c",**pp);
-	else BPPrintMessage(odInfo,"%d ",**pp); */
+// for(; (*pp) <= (*pp2);) {  2024-05-24
+while((*pp) <= (*pp2)) {
 
 #if BP_CARBON_GUI_FORGET_THIS
 	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
@@ -177,6 +173,8 @@ NOTSCALE:
 					break;
 				case 4: /* _script() */
 					(*p_buff)[i++] = T13; (*p_buff)[i++] = (tokenbyte) n;
+					// It won't be used if it is a IN script
+					if(TraceMIDIinput) BPPrintMessage(odInfo,"Tokenised [T13.%d] as Jscriptline = %d in Encode()\n\n",(int)n,Jscriptline);
 					break;
 				case 5:	/* _mod() */
 					(*p_buff)[i++] = T14; (*p_buff)[i++] = (tokenbyte)n;

@@ -308,7 +308,7 @@ Dirty[iSettings] = TRUE;
 
 if(!rtMIDI) {
 	rtMIDI = TRUE;
-	SetButtons(TRUE);
+	
 	}
 ResetMIDI(FALSE);
 Port = i;

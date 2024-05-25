@@ -1233,7 +1233,7 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 
 	if(key < 0 || key > 127) return(OK);
 	if(chan < 0 || chan >= MAXCHAN) return(OK);
-	if(stop(0) != OK) return(ABORT);
+	if(stop(0,"DrawPianoNote") != OK) return(ABORT);
 	if(rtMIDI || WriteMIDIfile || OutCsound || OutBPdata) {
 		timeon -= PianorollShift;
 		timeoff -= PianorollShift;	

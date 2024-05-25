@@ -42,7 +42,7 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start)
 /* Produce items. Start string is selection in window w or in buffer p_start */
 {
 tokenbyte **p_buff,***pp_buff,**p_a,***pp_a;
-int i,ifunc,j,ch,splitmem,r,undefined,datamode,weightloss,hastabs,maxsounds;
+int i,ifunc,j,ch,splitmem,r,undefined,datamode,weightloss,hastabs,maxsounds,check;
 long endofselection,size,lengthA;
 int time_end_compute;
 
@@ -94,18 +94,16 @@ if(1 || ResetControllers) {
 		(*p_Oldvalue)[ch].modulation = -1;
 		}
 	}
-if(!PlaySelectionOn && ResetControllers) ResetMIDIControllers(YES,YES,NO);
+// if(!PlaySelectionOn && ResetControllers) ResetMIDIControllers(YES,YES,NO);
 if(!PlaySelectionOn && (InitThere == 2)) {
 	if(!ScriptExecOn) {
 		CurrentDir = WindowParID[wScript];
 		CurrentVref = TheVRefNum[wScript];
 		}
-	ScriptExecOn++;
-	if(ExecScriptLine(NULL,wScript,FALSE,TRUE,p_InitScriptLine,size,&size,&i,&i) != OK) {
-		EndScript();
+	check = 0; // This will create a script line
+	if(ExecScriptLine(NULL,wScript,check,TRUE,p_InitScriptLine,size,&size,&i,&i) != OK) {
 		r = MISSED; goto QUIT;
 		}
-	EndScript();
 	}
 SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 ifunc = weightloss = FALSE;
@@ -167,7 +165,7 @@ maxsounds = Jbol + Jpatt;
 ResizeObjectSpace(FALSE,maxsounds,0);
 
 r = OK;
-if(!PlaySelectionOn && ScriptRecOn) {
+/* if(!PlaySelectionOn && ScriptRecOn) {
 	sprintf(Message,"%.0f",(double) Qclock);
 	MystrcpyStringToTable(ScriptLine.arg,0,Message);
 	sprintf(Message,"%.0f",(double) Pclock);
@@ -193,7 +191,7 @@ if(!PlaySelectionOn && ScriptRecOn) {
 	sprintf(Message,"%ld",(long) MIDIsetUpTime);
 	MystrcpyStringToTable(ScriptLine.arg,0,Message);
 	AppendScript(58);
-	}
+	} */
 StartCount();
 SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 LimTimeSet = LimCompute = FALSE; TimeMax = MAXTIME;
@@ -216,10 +214,11 @@ if(pp_start == NULL && IsEmpty(w)) {
 		}
 	else goto QUIT;
 	}
-if(IsMidiDriverOn()) {
+/* if(IsMidiDriverOn()) {
 //	ComputeStart = GetDriverTime();
 	ComputeStart = getClockTime();
-	}
+	} */
+
 if(Improvize && ShowGraphic) {
 	ClearWindow(TRUE,wGraphic);
 	}
@@ -264,7 +263,7 @@ if(Improvize) {
 			}
 		}
 	}
-if((r = stop(1)) != OK) {
+if((r = stop(1,"ProduceItems")) != OK) {
 	goto QUIT;
 	}
 if(pp_start != NULL) goto DOIT;
@@ -364,11 +363,11 @@ r = OK;
 QUIT:
 ComputeOn--;
 
-SetButtons(TRUE);
+
 // if(ResetControllers) ResetMIDIControllers(NO,NO,YES);
 ResetMIDIfile();
 // if(ResetMIDI(TRUE) == EXIT) r = EXIT;
-if(ResetControllers) ResetMIDIControllers(YES,NO,YES);
+// if(ResetControllers) ResetMIDIControllers(YES,NO,YES);
 PedalOrigin = -1;
 /* Maxitems = ZERO;
 if(!ShowGraphic && !PlaySelectionOn && DisplayItems && !template) {

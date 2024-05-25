@@ -233,10 +233,8 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 			if(CompileOn) CompileOn--;
 			return(MISSED);
 			}
-		check = 2;
-		ScriptExecOn++;
+		check = 2; // Will not create a script line
 		rep = ExecScriptLine(NULL,wScript,check,FALSE,p_line2,dummy,&posinstr,&i,&i);
-		EndScript();
 		if(rep == OK) {
 			/* This will set InitThere to 1 if "Play ..." instruction has been found. */
 			if(InitThere == 0) {

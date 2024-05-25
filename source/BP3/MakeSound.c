@@ -122,7 +122,7 @@ rs = 0;
 resetok = TRUE;
 // max_endtime_event = max_endtime = ZERO;
 
-// if(MIDIfileOn) BPPrintMessage(odInfo, "MIDI file will be created\n");
+if(MIDIfileOn) BPPrintMessage(odInfo, "MIDI file will be created\n");
 
 #if BP_CARBON_GUI_FORGET_THIS
 // FIXME ? Should non-Carbon builds call a "poll events" callback here ?
@@ -130,7 +130,7 @@ if((rep=MyButton(1)) != MISSED) {
 	// any reason that InterruptSound() is not used here instead ?
 	StopCount(0);
 	Interrupted = TRUE; compiledmem = CompiledGr;
-	SetButtons(TRUE);
+	
 	if(rep == OK) while((rep = MainEvent()) != RESUME && rep != STOP && rep != EXIT);
 	if(rep == EXIT) return(rep);
 	if((rep == STOP) || (compiledmem && !CompiledGr)) {
@@ -502,7 +502,7 @@ if(!MIDIfileOn && !cswrite && rtMIDI && !ItemCapture && !FirstTime && !PlayProto
 					// any reason that InterruptSound() is not used here instead ?
 					StopCount(0);
 					interruptedonce = TRUE;
-					SetButtons(TRUE);
+					
 					compiledmem = CompiledGr;
 					if(rep == OK)
 						while((rep = MainEvent()) != RESUME && rep != STOP && rep != EXIT);
@@ -615,7 +615,7 @@ for(nseq=0; nseq < maxconc; nseq++) {
 for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurrence++) {
 	result = OK;
 //	PleaseWait();
-	if((result=stop(1)) != OK) goto OVER;
+	if((result=stop(1,"MakeSound")) != OK) goto OVER;
 	if(SkipFlag) goto OVER;
 //	BPPrintMessage(odError, "occurrence = %d\n",occurrence);
 	for(k=2; k <= (*p_kmax); k++) {
@@ -663,8 +663,8 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 		ShowMessage(TRUE,wMessage,Message);
 		}
 	
-	if(!cswrite && !MIDIfileOn && ResetControllers && !ItemCapture && !CyclicPlay
-		&& !showpianoroll && resetok) ResetMIDIControllers(NO,FALSE,YES);
+	/* if(!cswrite && !MIDIfileOn && ResetControllers && !ItemCapture && !CyclicPlay
+		&& !showpianoroll && resetok) ResetMIDIControllers(NO,FALSE,YES); */
 	
 	for(ch=0; ch < MAXCHAN; ch++) {
 	/*	firstvolume[ch] = firstmodulation[ch] = firstpitchbend[ch] = firstpressure[ch]
@@ -767,7 +767,7 @@ TRYCSFILE:
 	doneobjects = 0;
 	
 	while(kcurrentinstance > 0) {
-		if((result=stop(1)) != OK) goto OVER;
+		if((result=stop(1,"MakeSound")) != OK) goto OVER;
 		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"• kcurrentinstance = %d\n",kcurrentinstance);
 		currentinstancevalues = (*p_Instance)[kcurrentinstance].contparameters.values;
 		scale = (*p_Instance)[kcurrentinstance].scale;
@@ -1445,7 +1445,7 @@ PLAYOBJECT:
 			BPPrintMessage(odInfo,"\nPLAYOBJECT: k = %d j = %d objectduration = %ld t1 = %ld t2 = %ld t3 = %ld ievent = %d im = %d\n",kcurrentinstance,j,objectduration,(long)t1,(long)t2,(long)t3,ievent,im);
 		while(t1 <= t2  && t1 <= t3  && ievent < im) {
 	//	while(t1 <= t2  && t1 <= t3  && (ievent < im || j == 1)) { // Fixed by BB 2021-01
-			if((result=stop(0)) != OK) goto OVER;
+			if((result=stop(0,"MakeSound")) != OK) goto OVER;
 			Tcurr =  (t0 + t1) / Time_res;
 			if(trace_csound_pianoroll) BPPrintMessage(odInfo,"Tcurr = %ld, j = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)j,(long)t0,(long)t1,(long)Time_res);
 			result = OK;
@@ -2185,29 +2185,26 @@ SndSetSysBeepState(sysBeepEnable);
 return(result);
 }
 
+int ExecuteScriptList(p_list **scriptlist) {
+	int x,r,idummy,check;
+	p_list **ptag;
+	long jdummy;
 
-int ExecuteScriptList(p_list **scriptlist)
-{
-int x,r,idummy;
-p_list **ptag;
-long jdummy;
+	ptag = scriptlist;
+	r = OK;
+	check = 0; // This will create a script entry
+	do {
+		x = (**ptag).x;
+		ptag = (**ptag).p;
+	//	BPPrintMessage(odInfo,"ExecScriptLine in ExecuteScriptList\n");
+		if((r=ExecScriptLine(NULL,wScript,check,TRUE,(*p_Script)[x],jdummy,&jdummy,
+				&idummy,&idummy)) != OK) goto OUT;
+		}
+	while(ptag != NULL);
 
-ptag = scriptlist;
-r = OK;
-ScriptExecOn++;
-do {
-	x = (**ptag).x;
-	ptag = (**ptag).p;
-	if((r=ExecScriptLine(NULL,wScript,FALSE,TRUE,(*p_Script)[x],jdummy,&jdummy,
-			&idummy,&idummy)) != OK) goto OUT;
+	OUT:
+	return(r);
 	}
-while(ptag != NULL);
-
-OUT:
-if(ScriptExecOn > 0) ScriptExecOn--;
-return(r);
-}
-
 
 int ClipVelocity(int v,int localvelocity,int control,int rndvel)
 {
@@ -2310,7 +2307,7 @@ while(Button() || (timeleft = (Tcurr - drivertime)) > buffertime) {
 #if BP_CARBON_GUI_FORGET_THIS	/* not sure about cutting out this code ... akozar 20130817 */
 	if(MyButton(0)) {
 		StopCount(0);
-		SetButtons(TRUE);
+		
 		compiledmem = CompiledGr;
 		while((rep = MainEvent()) != RESUME && rep != STOP && rep != EXIT && rep != ABORT);
 		if(rep == EXIT || rep == ABORT) {
@@ -2394,7 +2391,7 @@ while((timeleft=(Tcurr - drivertime)) >  (CLOCKRES * Oms) /* (10 * CLOCKRES * Om
 	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 	if((rep=MyButton(0)) != MISSED) {
 		StopCount(0);
-		SetButtons(TRUE);
+		
 		compiledmem = CompiledGr;
 		if(rep == OK)
 			while((rep = MainEvent()) != RESUME && rep != STOP && rep != EXIT && rep != ABORT);
@@ -2440,7 +2437,7 @@ InterruptSound(void)
 int result,compiledmem;
 
 StopCount(0);
-SetButtons(TRUE);
+
 compiledmem = CompiledGr;
 
 

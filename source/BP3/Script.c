@@ -31,17 +31,10 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-#ifndef _H_BP2
 #include "-BP2.h"
-#endif
-
 #include "-BP2decl.h"
 
-// ExecScriptLine(), RunScriptOnDisk()
-
-
-RunScript(int w,int quick)
+/* int RunScript(int w,int quick)
 {
 long pos,posline,posmax,posdir;
 char **p_line,**p_keyon[MAXCHAN+1];
@@ -125,7 +118,7 @@ MoreTime = FALSE; Maxitems = ZERO;
 HideTicks = FALSE;
 CurrentDir = WindowParID[wScript];
 CurrentVref = TheVRefNum[wScript];
-CurrentChannel = 1;	/* Used for program changes, by default. */
+CurrentChannel = 1;	// Used for program changes, by default.
 ForceTextColor = ForceGraphicColor = 0;
 WaitEndDate = ZERO;
 posdir = -1L;
@@ -202,12 +195,11 @@ if(w == wScript) {
 	ShowSelect(CENTRE,w);
 	Activate(TEH[w]);
 	}
-/* if(r != OK) BPActivateWindow(SLOW,wTrace); */
 return(r);
-}
+} */
 
 
-InitWriteScript(void)
+/* InitWriteScript(void)
 {
 long i;
 
@@ -227,7 +219,7 @@ ShowSelect(CENTRE,wScript);
 CurrentVref = TheVRefNum[wScript];
 CurrentDir = WindowParID[wScript];
 return(OK);
-}
+} 
 
 
 EndWriteScript(void)
@@ -235,11 +227,11 @@ EndWriteScript(void)
 ScriptRecOn = FALSE;
 SwitchOff(NULL,wScriptDialog,bRecordScript);
 return(OK);
-}
+} */
 
 
-AppendScript(int i)
-/* Write script command i.  If command has arguments these should be provided in global variable Script */
+/* AppendScript(int i)
+// Write script command i.  If command has arguments these should be provided in global variable Script
 {
 int j;
 
@@ -258,10 +250,10 @@ if(ScriptRecOn) {
 	ShowSelect(CENTRE,wScript);
 	}
 return(OK);
-}
+} */
 
 
-StartCount(void)
+int StartCount(void)
 {
 if(CountOn) return(OK);
 WaitStartDate = clock();
@@ -270,7 +262,7 @@ return(OK);
 }
 
 
-StopCount(int i)
+int StopCount(int i)
 {
 if(!CountOn) {
 	if(TypeScript && i != 16 && ScriptRecOn) {
@@ -289,24 +281,7 @@ return(OK);
 }
 
 
-EndScript(void)
-{
-HideWindow(Window[wMessage]);
-if(ScriptExecOn > 0) ScriptExecOn--;
-if(ScriptExecOn == 0) {
-	if(Beta) CloseFileAndUpdateVolume(&TraceRefnum);
-	ShowPannel(wScriptDialog,bExecScript);
-	ShowPannel(wScriptDialog,bLoadScript);
-	ShowPannel(wScriptDialog,bClearScript);
-	ShowPannel(wScriptDialog,bWaitForSyncScript);
-	ShowPannel(wScriptDialog,bRecordScript);
-	SwitchOff(NULL,wScriptDialog,bExecScript);
-	}
-return(OK);
-}
-
-
-StartScript(void)
+/* StartScript(void)
 {
 EndWriteScript();
 HidePannel(wScriptDialog,bExecScript);
@@ -316,10 +291,10 @@ HidePannel(wScriptDialog,bWaitForSyncScript);
 HidePannel(wScriptDialog,bRecordScript);
 SwitchOn(NULL,wScriptDialog,bExecScript);
 return(OK);
-}
+} */
 
 
-InitWait(long maxticks)
+int InitWait(long maxticks)
 {
 if(!ScriptExecOn || CountOn) return(OK);
 StartCount(); LapWait = ZERO;
@@ -328,7 +303,7 @@ return(OK);
 }
 
 
-CheckEndOfWait(void)
+int CheckEndOfWait(void)
 {
 if(!ScriptExecOn || !CountOn) return(OK);
 if(WaitEndDate > ZERO && clock() > WaitEndDate) return(ABORT);
@@ -337,20 +312,20 @@ return(OK);
 }
 
 
-WaitForSyncScript(void)
+/* int WaitForSyncScript(void)
 {
 if(!ScriptRecOn) {
 	Alert1("'REC' should be on"); return(OK);
 	}
 if(Answer("Define MIDI synchronisation code or key stroke",'Y') != YES) return(OK);
 SwitchOn(NULL,wScriptDialog,bWaitForSyncScript);
-LoadMIDIsyncOrKey();
+// LoadMIDIsyncOrKey();
 SwitchOff(NULL,wScriptDialog,bWaitForSyncScript);
 return(OK);
-}
+} */
 
 
-SyncWait(void)
+/* int SyncWait(void)
 {
 int r;
 
@@ -359,142 +334,122 @@ while((r=MainEvent()) != RESUME && r != EXIT);
 HangOn = FALSE;
 if(r == EXIT) return(r);
 return(OK);
-}
+} */
 
 
-ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,long posline,
-	long* p_posdir,int* p_changed,int* p_keep)
-{
-MenuHandle themenu;
-Handle h;
-int i,is,j,r,quote;
-short itemnumber,iItemCnt;
-Str255 itemstring;
-long menuchoice;
-short menuID;
-char b,c,*p,*q,**p_arg,newarg;
+int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,long posline,
+	long* p_posdir,int* p_changed,int* p_keep) {
+	MenuHandle themenu;
+	Handle h;
+	int i,istart,j,r,quote;
+	short itemnumber,iItemCnt;
+	Str255 itemstring;
+	long menuchoice;
+	short menuID;
+	char b,c,*p,*q,**p_arg,newarg;
 
-if(p_line == NULL) {
-	if(Beta) Alert1("=> Err.ExecScriptLine(). p_line = NULL");
-	return(OK);
-	}
-if((*p_line)[0] == '\0') return(OK);
-
-is = 0; p_arg = NULL;
-/* Skip BP style remark */
-if((*p_line)[is] == '[') {
-	while((*p_line)[is] != ']' && (*p_line)[is] != '\0') is++;
-	is++;
-	while(MySpace((*p_line)[is])) is++;
-	}
-
-/* Suppress AppleScript style remark: Should use Arrow[1] */
-quote = OFF;
-for(i=is; i < MyHandleLen(p_line)-2; i++) {
-	c = (*p_line)[i];
-	if(c == '"') quote = 1 - quote;
-	if(!quote && c == '-' && (*p_line)[i+1] == '-' && (*p_line)[i+2] != '>') {
-		(*p_line)[i] = '\0';
-		break;
+	if(p_line == NULL) {
+		if(Beta) Alert1("=> ERROR: ExecScriptLine(). p_line = NULL");
+		return(OK);
 		}
-	}
+	if((*p_line)[0] == '\0') return(OK);
+//	BPPrintMessage(odError,"Match? line = “%s”\n",*p_line);
+	istart = 0; p_arg = NULL;
+	/* Skip BP style remark */
+	if((*p_line)[istart] == '[') {
+		while((*p_line)[istart] != ']' && (*p_line)[istart] != '\0') istart++;
+		istart++;
+		while(MySpace((*p_line)[istart])) istart++;
+		}
 
-/* Remove trailing spaces */
-i = MyHandleLen(p_line)-1;
-while(i >= is && MySpace((*p_line)[i])) (*p_line)[i--] = '\0';
+	/* Suppress AppleScript style remark: Should use Arrow[1] */
+	quote = OFF;
+	for(i=istart; i < MyHandleLen(p_line)-2; i++) {
+		c = (*p_line)[i];
+		if(c == '"') quote = 1 - quote;
+		if(!quote && c == '-' && (*p_line)[i+1] == '-' && (*p_line)[i+2] != '>') {
+			(*p_line)[i] = '\0';
+			break;
+			}
+		}
 
-if((*p_line)[is] == '\0') return(OK);
+	/* Remove trailing spaces */
+	i = MyHandleLen(p_line) - 1;
+	while(i >= istart && MySpace((*p_line)[i])) (*p_line)[i--] = '\0';
 
-if((p_arg = (char**) GiveSpace(MyGetHandleSize((Handle)p_line))) == NULL)
-	return(ABORT);
-MystrcpyHandleToHandle(is,&p_arg,p_line);
+	if((*p_line)[istart] == '\0') return(OK);
 
-/* Discard glossary line with "-->" */
+	if((p_arg = (char**) GiveSpace(MyGetHandleSize((Handle)p_line))) == NULL)
+		return(ABORT);
+	MystrcpyHandleToHandle(istart,&p_arg,p_line);
 
-MyLock(FALSE,(Handle)p_arg);
-if(w == wGlossary && strstr(*p_arg,Arrow[1]) != NULLSTR) {
+	/* Discard glossary line with "-->" */
+
+	MyLock(FALSE,(Handle)p_arg);
+	if(w == wGlossary && strstr(*p_arg,Arrow[1]) != NULLSTR) {
+		MyUnlock((Handle)p_arg);
+		r = OK; goto QUIT;
+		}
 	MyUnlock((Handle)p_arg);
-	r = OK; goto QUIT;
-	}
-MyUnlock((Handle)p_arg);
 
-if(w == wInteraction || w == wGlossary) goto MATCH;
+	/* Now, try to match script line with script command */
 
-/* First try to match script line with menu command */
-
-for(menuID=MenuIDoffset; menuID < MAXMENU + MenuIDoffset; menuID++) {
-	themenu = GetMenuHandle(menuID);
-	iItemCnt = CountMenuItems(themenu);
-	for(itemnumber=1; itemnumber <= iItemCnt; itemnumber++) {
-		GetMenuItemText(themenu,itemnumber,itemstring);
-		MyPtoCstr(255,itemstring,Message);
-		MyLock(FALSE,(Handle)p_arg);
-		if(strcmp(*p_arg,Message) == 0) {
-			MyUnlock((Handle)p_arg);
-			if(check) {
-				r = OK; goto QUIT;
+	MATCH:
+	ScriptExecOn++;
+//	BPPrintMessage(odError,"MaxScriptInstructions = %d\n",MaxScriptInstructions);
+	for(i=0; i < MaxScriptInstructions; i++) {
+		MystrcpyHandleToString(MAXLIN,0,Message,p_ScriptLabelPart(i,0));
+		j = strlen(Message);
+	//	BPPrintMessage(odInfo,"Match%d [%d] %s =? line = %s\n",check,i,Message,*p_arg);
+		if(j == 0) {
+			if(Beta) Println(wTrace,"=> Err. ExecScriptLine(): strlen = 0");
+			continue;
+			}
+		q = &(Message[0]);
+		if(Match(FALSE,p_arg,&q,j)) {
+	//		if(check) 
+			if(TraceMIDIinput) BPPrintMessage(odInfo,"Script command matches: [%d] “%s”, check = %d\n",(*h_ScriptIndex)[i],Message,check);
+			c = (*p_arg)[j];
+			if(c != '\0' && !isspace(c) && !isdigit(c) && !ispunct((*p_arg)[j-1])) continue;
+			r = GetScriptArguments(i,p_arg,istart);
+			newarg = FALSE;
+			if(r == OK) r = DoScript(i,p_keyon,w,check,(*h_ScriptIndex)[i],p_posdir,p_changed,&newarg,FALSE);
+	//		if(!check && ScriptExecOn == 0 && w == wScript && !SoundOn) r = ABORT;
+	/*		if(newarg && check) {
+				// Only for 'Open', 'Run script', etc.
+				sprintf(Message,"%s \"%s\"",*(p_ScriptLabelPart(i,0)),
+													*((*(ScriptLine.arg))[0]));
+				MystrcpyStringToHandle(&p_line,Message);
+				*p_changed = TRUE; *p_keep = FALSE;
+				} */
+			/* Reset the sizes of argument handles */
+			for(j=0; j < ScriptNrArg(i); j++) {
+				h = (Handle) (*(ScriptLine.arg))[j];
+				MySetHandleSize((Handle*)&h,(Size) MAXLIN * sizeof(char));
+				(*(ScriptLine.arg))[j] = h;
 				}
-			menuchoice = (long) itemnumber + (((long) menuID) << 16);
-			r = DoCommand(ScriptW,menuchoice);
-			if(!check && ScriptExecOn == 0 && w == wScript && r != EXIT) r = ABORT;
-			HideWindow(Window[wMessage]);
-			goto QUIT;
+			if(r != OK) goto ERR;
+			goto QUIT;	
 			}
-		else MyUnlock((Handle)p_arg);
 		}
+	r = MISSED;
+
+	ERR:
+	if(!nocomment || true) {
+		sprintf(Message,">>> Script aborted on: %s\n",*p_line);
+		Print(wTrace,Message);
+		goto QUIT;
+		if(r != EXIT) r = ABORT;
+		}
+		
+	QUIT:
+	MyDisposeHandle((Handle*)&p_arg);
+	EndScript();
+	return(r);
 	}
 
-/* Now, try to match script line with script command */
 
-MATCH:
-for(i=0; i < MaxScriptInstructions; i++) {
-	MystrcpyHandleToString(MAXLIN,0,Message,p_ScriptLabelPart(i,0));
-	j = strlen(Message);
-	if(j == 0) {
-		if(Beta) Println(wTrace,"=> Err. ExecScriptLine(). strlen(Message) == 0");
-		continue;
-		}
-	q = &(Message[0]);
-	if(Match(FALSE,p_arg,&q,j)) {
-		c = (*p_arg)[j];
-		if(c != '\0' && !isspace(c) && !isdigit(c) && !ispunct((*p_arg)[j-1])) continue;
-		r = GetScriptArguments(i,p_arg,is);
-		newarg = FALSE;
-		if(r == OK) r = DoScript(p_keyon,w,check,i,p_posdir,p_changed,&newarg,FALSE);
-		if(!check && ScriptExecOn == 0 && w == wScript && !SoundOn) r = ABORT;
-		if(newarg && check) {
-			/* Only for 'Open', 'Run script', etc. */
-			sprintf(Message,"%s \"%s\"",*(p_ScriptLabelPart(i,0)),
-												*((*(ScriptLine.arg))[0]));
-			MystrcpyStringToHandle(&p_line,Message);
-			*p_changed = TRUE; *p_keep = FALSE;
-			}
-		/* Reset the sizes of argument handles */
-		for(j=0; j < ScriptNrArg(i); j++) {
-			h = (Handle) (*(ScriptLine.arg))[j];
-			MySetHandleSize((Handle*)&h,(Size) MAXLIN * sizeof(char));
-			(*(ScriptLine.arg))[j] = h;
-			}
-		if(r != OK) goto ERR;
-		goto QUIT;	
-		}
-	}
-r = MISSED;
-
-ERR:
-if(!nocomment) {
-	sprintf(Message,">>> Script aborted on: %s\n",*p_line);
-	Print(wTrace,Message);
-	if(r != EXIT) r = ABORT;
-	}
-	
-QUIT:
-MyDisposeHandle((Handle*)&p_arg);
-return(r);
-}
-
-
-InterruptScript(void)
+int InterruptScript(void)
 {
 int r;
 
@@ -502,7 +457,7 @@ Interrupted = TRUE;
 ResumeStopOn = TRUE;
 ShowWindow(GetDialogWindow(ResumeStopPtr));
 BringToFront(GetDialogWindow(ResumeStopPtr));
-while((r = MainEvent()) != RESUME && r != STOP && r != ABORT && r != EXIT);
+// while((r = MainEvent()) != RESUME && r != STOP && r != ABORT && r != EXIT);
 if(r == RESUME) {
 	r = OK; EventState = NO;
 	}
@@ -510,14 +465,14 @@ return(r);
 }
 
 
-ScriptKeyStroke(int w,EventRecord *p_event)
+/* ScriptKeyStroke(int w,EventRecord *p_event)
 {
 char thechar;
 
 if(ScriptRecOn && ((p_event->modifiers & cmdKey) == 0)) {
 	if(w < 0 || w >= WMAX || !Editable[w] || w == wScript) return(MISSED);
 	thechar = ((char)(p_event->message & charCodeMask));
-	if(thechar == '\b') {	/* Delete key */
+	if(thechar == '\b') {	// Delete key
 		if(TypeScript) {
 			TypeScript = FALSE;
 			PrintBehind(wScript,"\n");
@@ -526,7 +481,7 @@ if(ScriptRecOn && ((p_event->modifiers & cmdKey) == 0)) {
 			RecordEditWindow(w);
 			}
 		MystrcpyStringToTable(ScriptLine.arg,0,"1");
-		AppendScript(19);
+		// AppendScript(19);
 		}
 	else {
 		if(thechar == '\r') {
@@ -534,7 +489,7 @@ if(ScriptRecOn && ((p_event->modifiers & cmdKey) == 0)) {
 			else RecordEditWindow(w);
 			TypeScript = FALSE;
 			MystrcpyStringToTable(ScriptLine.arg,0,"<return>");
-			if(Nw != wScript) AppendScript(16);
+			// if(Nw != wScript) AppendScript(16);
 			return(OK);
 			}
 		if(!TypeScript) {
@@ -549,10 +504,10 @@ if(ScriptRecOn && ((p_event->modifiers & cmdKey) == 0)) {
 		}
 	}
 return(OK);
-}
+} */
 
 
-RecordEditWindow(int w)
+/* RecordEditWindow(int w)
 {
 TextOffset selbegin, selend;
 
@@ -572,14 +527,15 @@ MystrcpyStringToTable(ScriptLine.arg,0,Message);
 AppendScript(60);
 ShowSelect(CENTRE,wScript);
 return(OK);
-}
+} */
 
 
 /* Returns an error code if anything goes wrong other than not
    finding or executing the script.  If the script was found
    and successfully executed, then returns TRUE in scriptCompleted.
    filename may be a relative pathname up to 255 chars long. */
-int RunScriptInPrefsOrAppFolder(StringPtr filename, int* scriptCompleted)
+
+/* int RunScriptInPrefsOrAppFolder(StringPtr filename, int* scriptCompleted)
 {
 	OSErr  err;
 	FSSpec scriptloc;
@@ -591,8 +547,8 @@ int RunScriptInPrefsOrAppFolder(StringPtr filename, int* scriptCompleted)
 	*scriptCompleted = FALSE;
 	rep = OK;
 	
-	/* Look first in the "Bol Processor" subfolder of the user (or system on OS 9)
-	   preferences folder.  If not found there, try the BP2 application folder */
+	// Look first in the "Bol Processor" subfolder of the user (or system on OS 9)
+	   preferences folder.  If not found there, try the BP2 application folder
 	err = FindFileInPrefsFolder(&scriptloc, filename);
 	if (err != noErr) {
 		err = FSMakeFSSpec(RefNumbp2, ParIDbp2, filename, &scriptloc);
@@ -617,10 +573,10 @@ int RunScriptInPrefsOrAppFolder(StringPtr filename, int* scriptCompleted)
 	}
 	
 	return rep;
-}
+} */
 
 
-RunScriptOnDisk(int check,char* filename,int *p_changed)
+/* int RunScriptOnDisk(int check,char* filename,int *p_changed)
 {
 int i,iv,io,r,rr,result,type,startup,shutdown,good,changed,keep,dirtymem,wmem;
 FSSpec spec;
@@ -661,7 +617,7 @@ if(check && ClearWindow(FALSE,wTrace) != OK) {
 	Print(wTrace,Message);
 	return(ABORT);
 	}
-/* if(!check) */ ScriptExecOn++;
+ ScriptExecOn++;
 WaitEndDate = ZERO; good = NO; changed = NO;
 PleaseWait();
 pos = posline = ZERO;
@@ -713,7 +669,7 @@ while((rr=ReadOne(TRUE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos)) != 
 		result = EXIT; good = YES;
 		break;
 		}
-	if(/* !check && */ ScriptExecOn == 0) {
+	if(ScriptExecOn == 0) {
 		result = ABORT;
 		break;
 		}
@@ -755,8 +711,7 @@ if(check && good && changed) {
 	FlushFile(refnum);
 	result = OK;
 	}
-if(check && !good /* && !changed */) {
-	/* Load faulty script to script window */
+if(check && !good ) {
 	ClearWindow(FALSE,wScript);
 	strcpy(FileName[wScript],filename);
 	SetFPos(refnum,fsFromStart,ZERO);
@@ -794,3 +749,4 @@ if(ScriptExecOn == 0) {
 if(changed) *p_changed = TRUE;
 return(result);
 }
+*/

@@ -1906,6 +1906,7 @@ struct s_INscripttype {	/* Script line executed by NoteOn */
 	int key;
 	int chan;
 	int scriptline;
+	unsigned long time;
 	};
 typedef struct s_INscripttype INscripttype;
 

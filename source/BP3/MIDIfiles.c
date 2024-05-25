@@ -105,16 +105,6 @@ FILE *fout;
 		OpenMIDIfilePtr = fout;
 		MIDIfileOpened = MIDIfileTrackEmpty = TRUE;
 		MIDIfileTrackNumber = 0;
-
-#if 0
-		/* Below is some interface and scripting business */
-		p2cstrcpy(MIDIfileName,filename);
-		SetField(FileSavePreferencesPtr,-1,fMIDIFileName,MIDIfileName);
-		sprintf(Message,"\"%s\"",MIDIfileName);
-		MystrcpyStringToTable(ScriptLine.arg,0,Message);
-		AppendScript(181);
-		/* End of interface business */
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 		
 		result = WriteMIDIFileHeader(fout);
 		if (result == OK) {
@@ -623,8 +613,7 @@ int rep;
 
 WriteMIDIorchestra();
 if(!MIDIfileOpened) {
-	/* Console version of PrepareMIDIFile() assumes that score file name
-	   has been set by a command-line argument */
+	// Console version of PrepareMIDIFile() assumes that score file name has been set by a command-line argument
 	if (gOptions.outputFiles[ofiMidiFile].name != NULL) {
 		return MakeMIDIFile(&(gOptions.outputFiles[ofiMidiFile]));
 		}
@@ -643,7 +632,6 @@ switch(FileSaveMode) {	// FIXME !!!!
 		rep = Answer(Message,'N');
 		if(rep == ABORT) return(rep);
 		if(rep == NO) return(OK);
-		/* no break */
 	case NEWFILE:
 		CloseMIDIFile();
 		return(MakeMIDIFile(&(gOptions.outputFiles[ofiMidiFile])));

@@ -755,13 +755,12 @@ if(result == OK && comeback) {
 return(result);
 }
 
-#if BP_CARBON_GUI_FORGET_THIS
 
-PrepareCsFile(void)
+/* int PrepareCsFile(void)
 {
 int rep;
 
-if(!CsScoreOpened) {
+ if(!CsScoreOpened) {
 	if((rep=GetCsoundScoreName()) == OK) 
 		return(MakeCsFile(CsFileName));
 	if(rep == MISSED) return(MISSED);
@@ -775,17 +774,16 @@ switch(FileSaveMode) {
 		rep = Answer(Message,'N');
 		if(rep == ABORT) return(rep);
 		if(rep == NO) return(OK);
-		/* no break */
 	case NEWFILE:
 		CloseCsScore();
-		return(MakeCsFile(NULL));
+	//	return(MakeCsFile(NULL));
 		break;
 	}
 return(OK);
-}
+} */
 
 
-MakeCsFile(const char* line)
+/* int MakeCsFile(const char* line)
 {
 short refnum;
 int rep,vref,ishtml;
@@ -797,7 +795,7 @@ long length;
 rep = MISSED;
 
 // need to save the NSWReply record until we close the file
-CsFileReply = (NSWReply**)GiveSpace(sizeof(NSWReply));
+ CsFileReply = (NSWReply**)GiveSpace(sizeof(NSWReply));
 MyLock(FALSE, (Handle)CsFileReply);
 io = NSWInitReply(*CsFileReply);
 
@@ -832,25 +830,12 @@ if(NewFile(-1,1,PascalLine,*CsFileReply)) {
 			CloseCsScore();
 			return(ABORT);
 			}
-/*		WriteToFile(NO,CsoundFileFormat,"\0",CsRefNum); */
-/*		UpdateThisWindow(FALSE,Window[wCsoundTables]); Suppressed 2022-02-18
-		ShowSelect(CENTRE,wCsoundTables);
-		length = GetTextLength(wCsoundTables);
-		ishtml = IsHTML[wCsoundTables];
-		IsHTML[wCsoundTables] = FALSE;
-		WriteFile(TRUE,CsoundFileFormat,CsRefNum,wCsoundTables,length);
-		IsHTML[wCsoundTables] = ishtml;
-		WriteToFile(NO,CsoundFileFormat,"\0",CsRefNum);
-		SetField(FileSavePreferencesPtr,-1,fCsoundFileName,CsFileName);
-		sprintf(Message,"\"%s\"",CsFileName);
-		MystrcpyStringToTable(ScriptLine.arg,0,Message);
-		AppendScript(180); */
 		}
 	}
 if (CsFileReply) MyUnlock((Handle)CsFileReply);
 ClearMessage();
 return(rep);
-}
+} */
 
 
 /* CloseCsScore(void)
@@ -889,4 +874,4 @@ SetField(FileSavePreferencesPtr,-1,fCsoundFileName,CsFileName);
 return(OK);
 } */
 
-#endif /* BP_CARBON_GUI_FORGET_THIS */
+

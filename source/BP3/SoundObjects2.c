@@ -967,7 +967,7 @@ if(GetPrePostRoll(j,&preroll,&postroll) != OK) {
 pclock = Pclock; qclock = Qclock;
 showgraphic = ShowGraphic; ShowGraphic = FALSE;
 displaytimeset = DisplayTimeSet; DisplayTimeSet = FALSE;
-SetButtons(TRUE);
+
 infothere = FALSE;
 if(Nature_of_time == STRIATED) {
 	p = (*p_Tref)[j];
@@ -1012,7 +1012,7 @@ PlayFromInsertionPoint = FALSE;
 DefaultVolume = DeftVolume;
 ShowGraphic = showgraphic;
 DisplayTimeSet = displaytimeset;
-SetButtons(TRUE);
+
 Pclock = pclock; Qclock = qclock;
 SetTempo();
 HideWindow(Window[wInfo]);

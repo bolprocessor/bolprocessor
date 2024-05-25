@@ -169,53 +169,59 @@ return(i);
 }
 
 
-int CreateEventScript(char *x,int quick)
-{
-int i,j,check,diff;
-char **ptr;
-long dummy;
-Handle h;
+int CreateEventScript(char *x,int quick) {
+	int i,j,check,diff;
+	char **ptr;
+	long dummy;
+	Handle h;
 
-if(p_Script == NULL) {
-	if(Beta) Alert1("=> Err. Create EventScript()");
-	return(ABORT);
-	}
-diff = TRUE;
-
-if(!quick && Jscriptline > 0) {
-/* quick is TRUE in the second argument of glossary instructions */
-	for(i=0; i < Jscriptline; i++) {
-		if((diff = Mystrcmp((*p_Script)[i],x)) == 0) {
-			diff = FALSE;
-			break;
-			}
-		}
-	}
-if(diff) {
-	if(Jscriptline >= MaxScript) {
-		h = (Handle) p_Script;
-		if((h = IncreaseSpace(h)) == NULL) return(ABORT);
-		p_Script = (char****) h;
-		MaxScript = (MyGetHandleSize((Handle)p_Script) / sizeof(char**));
-		for(i=Jscriptline; i < MaxScript; i++) (*p_Script)[i] = NULL;
-		}
-	if((*p_Script)[Jscriptline] != NULL) {
-		if(Beta) Alert1("=> Err. CreateEventScript(). (*p_Script)[Jscriptline] != NULL");
-		}
-	if((ptr = (char**) GiveSpace((Size)(strlen(x)+1))) == NULL) return(ABORT);
-	(*p_Script)[Jscriptline] = ptr;
-	MystrcpyStringToTable(p_Script,Jscriptline,x);
-	i = Jscriptline; check = 1;
-	if(ExecScriptLine(NULL,-1,check,FALSE,ptr,dummy,&dummy,&j,&j) != OK) {
-		h = (Handle) (*p_Script)[Jscriptline];
-		MyDisposeHandle(&h);
-		(*p_Script)[Jscriptline] = NULL;
+	if(p_Script == NULL) {
+		if(Beta) Alert1("=> Err. Create EventScript()");
 		return(ABORT);
 		}
-	Jscriptline++;
+	diff = TRUE;
+	if(TraceMIDIinput) BPPrintMessage(odInfo,"Creating script instruction during compilation from “%s”\nJscriptline = %d, MaxScript = %d\n",x,Jscriptline,MaxScript);
+	if(!quick && Jscriptline > 0) {
+	/* quick is TRUE in the second argument of glossary instructions */
+		for(i=0; i < Jscriptline; i++) {
+			if((diff = Mystrcmp((*p_Script)[i],x)) == 0) {
+			//	diff = FALSE;
+				BPPrintMessage(odInfo,"This script instruction already exists: “%s”\n",x);
+				break;
+				}
+			}
+		}
+	if(diff) {
+		if(++Jscriptline >= MaxScript) {
+			h = (Handle) p_Script;
+			if((h = IncreaseSpace(h)) == NULL) return(ABORT);
+			p_Script = (char****) h;
+			MaxScript = (MyGetHandleSize((Handle)p_Script) / sizeof(char**));
+			for(i = Jscriptline; i < MaxScript; i++) (*p_Script)[i] = NULL;
+			}
+		if((*p_Script)[Jscriptline] != NULL) {
+			BPPrintMessage(odError,"=> Err. CreateEventScript(). (*p_Script)[Jscriptline] != NULL\n");
+			}
+		if((ptr = (char**) GiveSpace((Size)(strlen(x)+1))) == NULL) return(ABORT);
+		(*p_Script)[Jscriptline] = ptr;
+		MystrcpyStringToTable(p_Script,Jscriptline,x);
+		i = Jscriptline;
+		check = quick; // If equal to zero it will create a script entry
+		if(ExecScriptLine(NULL,-1,check,FALSE,ptr,dummy,&dummy,&j,&j) != OK) {
+			BPPrintMessage(odError,"This script instruction is not valid: “%s”\n",x);
+			Jscriptline--;
+			h = (Handle) (*p_Script)[Jscriptline];
+			MyDisposeHandle(&h);
+			(*p_Script)[Jscriptline] = NULL;
+			return(ABORT);
+			}
+		else {
+			if(TraceMIDIinput) BPPrintMessage(odInfo,"Created script instruction: [%d] “%s”\n",Jscriptline,x);
+			}
+		}
+//	return(i);
+	return(Jscriptline);
 	}
-return(i);
-}
 
 
 long GetArgument(int mode,char **pp,int *p_inc,long *p_initparam,int *p_foundk,
@@ -1225,6 +1231,8 @@ if(c != ')') {
 	}
 switch(jinstr) {
 	case 4:
+//		BPPrintMessage(odInfo,"scriptline = “%s”\n",line);
+		quick = TRUE;
 		*p_n = CreateEventScript(line,quick);
 		if(*p_n < 0) return(*p_n);
 		break;

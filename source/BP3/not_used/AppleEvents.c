@@ -259,7 +259,7 @@ for(index=1,failedonce=loaded[iSettings]=FALSE; index <= itemsInList;) {
 			Created[wGlossary] = TRUE; // 020907 akozar
 			}
 		else if(wind == wInteraction) {
-			Interactive = TRUE; SetButtons(TRUE);
+			Interactive = TRUE; 
 			LoadInteraction(FALSE,FALSE);
 			BPActivateWindow(SLOW,wind);
 			if(print) mPrint(wind);
@@ -454,7 +454,7 @@ pascal OSErr RemoteDoScriptLine(const AppleEvent *p_event,AppleEvent *p_reply,
 OSErr io;
 char c,**h_text;
 long count,posdir,posline;
-int rep,changed,keep;
+int rep,changed,keep,check;
 Size size;
 DescType returnedType;
 AEKeyword keywd;
@@ -493,7 +493,8 @@ if(size > 0) {
 	(*h_text)[size] = '\0';
 	ShowMessage(TRUE,wMessage,"Received Apple Event class 'Bel0' ID 'scln' along with script line");
 	ScriptExecOn++;
-	rep = ExecScriptLine(NULL,wScript,FALSE,FALSE,h_text,posline,&posdir,&changed,&keep);
+	check = 0; // This will create a script line
+	rep = ExecScriptLine(NULL,wScript,check,FALSE,h_text,posline,&posdir,&changed,&keep);
 	EndScript();
 	if(rep == EXIT) io = dsForcedQuit;
 	}
@@ -769,17 +770,17 @@ switch(theID) {
 			}
 		if(CompileCheck() != OK) return(MISSED);
 		cyclicplay = CyclicPlay; CyclicPlay = FALSE;
-		improvize = Improvize; Improvize = TRUE; /* SetButtons(TRUE); */
+		improvize = Improvize; Improvize = TRUE; /*  */
 	/*	MIDI = TRUE; */
 		displayitems = DisplayItems; DisplayItems = FALSE;
-		SetButtons(YES);
-		GetValues(TRUE);
+	//	
+	//	GetValues(TRUE);
 		Ctrlinit();
 		HideWindow(Window[wMessage]);
 		r = ProduceItems(wStartString,FALSE,FALSE,NULL);
 		CyclicPlay = cyclicplay; Improvize = improvize;
 		DisplayItems = displayitems;
-		SetButtons(YES);
+		
 		if(r != OK) EventState = r;
 		else EventState = NO;
 		break;

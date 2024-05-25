@@ -98,6 +98,10 @@ int main (int argc, char* args[])
 	MemoryUsed = 0;
 	MemoryUsedInit = MemoryUsed;
 	SkipFlag = FALSE;
+	Interactive = FALSE;
+	StopSound = FALSE;
+	TraceMIDIinput = FALSE;
+	TimeStopped = Oldtimestopped = 0L;
 	
 //	system("sync");
 	ConsoleInit(&gOptions);
@@ -126,7 +130,6 @@ int main (int argc, char* args[])
 	result = ParsePostInitArgs(argc, args, &gOptions);
 	if (result != OK) goto CLEANUP;
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (6) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-
 	result = LoadInputFiles(gOptions.inputFilenames);
 	if (result != OK) goto CLEANUP;
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (7) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
@@ -151,7 +154,8 @@ int main (int argc, char* args[])
 		Panic = TRUE;
         goto CLEANUP;
     	}
-	if(rtMIDI) BPPrintMessage(odInfo,"Real-time MIDI events will use a buffer sized %ld\n",(long)MaxMIDIMessages);
+	if(rtMIDI) BPPrintMessage(odInfo,"\nReal-time events use a buffer of MaxMIDIMessages = %ld\n",(long)MaxMIDIMessages);
+	
 	eventCount = 0L;
 	eventCountMax = MaxMIDIMessages - 4L;
 	initTime = 0L; // millisconds
@@ -195,7 +199,6 @@ int main (int argc, char* args[])
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (10) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	if (result == OK) result = PrepareTraceDestination(&gOptions);
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (11) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-		
 	if (result == OK) {
 		// perform the action specified on the command line
 		switch (gOptions.action) {
@@ -373,7 +376,7 @@ void CreateStopFile(void) {
 	return;
 	}
 
-int stop(int now) {
+int stop(int now,char* where) {
 	FILE * ptr;
 	if(Panic || EmergencyExit) return ABORT;
 	unsigned long current_time = getClockTime(); // microseconds
@@ -382,7 +385,7 @@ int stop(int now) {
 	ptr = fopen(StopfileName,"r");
 	if(ptr) {
 		Improvize = PlayAllChunks = FALSE;
-		BPPrintMessage(odError,"=> Found 'stop' file: %s\n",StopfileName);
+		BPPrintMessage(odError,"=> Found 'stop' file (in %s): %s\n",where,StopfileName);
 		fclose(ptr);
 		Panic = EmergencyExit = TRUE;
 		return ABORT;
@@ -675,7 +678,7 @@ int ParsePreInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 	
 	if (argc == 1) {
 		PrintUsage(args[0]);
-		BPPrintMessage(odError, "=> Not enough arguments...\n\n");
+		BPPrintMessage(odError,"=> Not enough arguments...\n\n");
 		return ABORT;
 	}
 	else if (argc < 1) {
@@ -708,9 +711,7 @@ int ParsePreInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 	return OK;
 }
 
-/*	ParsePostInitArgs()
-	
-	Parses all command-line arguments, saves global options,
+/*	Parses all command-line arguments, saves global options,
 	action and input/output details (but does not perform actions).
 	
 	Returns ABORT if an error occured or OK if program should continue.
@@ -1074,10 +1075,8 @@ void GetFileName(char* name,const char* path) { // Added by BB 4 Nov 2020
 	
 	Returns MISSED if an error occured or OK if successful.
  */
-int LoadInputFiles(const char* pathnames[WMAX])
-{
+int LoadInputFiles(const char* pathnames[WMAX]) {
 	int w, result;
-	
 	for(w = 0; w < WMAX; w++) {
 		// The order of reading these files is important. For instance, iObjects should occur after wCsoundResources
 		if(pathnames[w] != NULL) {
@@ -1118,11 +1117,11 @@ int LoadInputFiles(const char* pathnames[WMAX])
 				default:
 					BPPrintMessage(odWarning, "Ignoring %.3s %s (%s files are currently unsupported)\n", FilePrefix[w], pathnames[w], DocumentTypeName[w]);
 					break;
+				}
 			}
 		}
-	}
 	return OK;
-}
+	}
 
 /*	LoadFileToTextHandle()
 
