@@ -50,6 +50,7 @@ SRCS = \
   $(SRCDIR)/Inits.c \
   $(SRCDIR)/Interface2.c \
   $(SRCDIR)/MakeSound.c \
+  $(SRCDIR)/MIDIdriver.c \
   $(SRCDIR)/MIDIfiles.c \
   $(SRCDIR)/MIDIloads.c \
   $(SRCDIR)/MIDIstuff.c \

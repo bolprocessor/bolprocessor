@@ -15,11 +15,10 @@ https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3
 MIDI input
 ----------
 
-- Implement most script instructions previously designed for BP2
-- Implement the filtering of input MIDI events
+- Implement script instructions previously designed for BP2
 
 
-Real-time MIDI output
+Real-time MIDI
 ---------------------
 
 - The "coreaudiomidi" process is still appearing as "sleeping" or "running" even after the console quits. This is possibly a sign of an incorrect cleanup process — although everything works fine!
@@ -27,6 +26,7 @@ Real-time MIDI output
 - Maybe use a dynamically resizable array for eventStack? Probably not beneficial.
 - The value of MaxMIDIMessages could also be spacified in the settings file of the project.
 - Check the accuracy of start times in sound-object pictures.
+- The use of PortMidi (https://github.com/PortMidi/) could replace the current procedures in MIDIdriver.c and secure the implementation of real-time MIDI in the three environments. Although it makes it easier to program low-level MIDI features, it seems that installing PortMidi itself would require technical skills on the part of the user. We are keeping this option open for the time being. Compilation in Windows and Linux needs to be checked and fixed on real machines.
 
 
 Csound orchestra
@@ -166,6 +166,7 @@ Images
 Compilation
 -----------
 
+- Finalise the compilation in Windows and Linux environments
 - Modify the C source to handle some Unicode characters that are not currently accepted, such as '≤', '≠', '•', etc.
 
 

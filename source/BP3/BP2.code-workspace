@@ -15,7 +15,8 @@
 			"string.h": "c",
 			"stdio.h": "c",
 			"stdlib.h": "c",
-			"typeinfo": "c"
+			"typeinfo": "c",
+			"portmidi.h": "c"
 		},
 		"search.useGlobalIgnoreFiles": false
 	}

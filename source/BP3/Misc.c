@@ -126,7 +126,7 @@ Print(wTrace,line);
 return(OK);
 }
 
-int Notify(char* message) { // Doesn't work on Mac because of authorizations, although the code is correct: it works when calling bp with Terminal command
+int Notify(char* message) { // Doesn't work on Mac because of authorisations, although the code is correct: it works when calling bp with Terminal command
     #if defined(_WIN32) || defined(_WIN64)
     MessageBox(NULL, message, "Alert", MB_OK | MB_ICONINFORMATION);
     #elif defined(__APPLE__)
@@ -141,8 +141,6 @@ int Notify(char* message) { // Doesn't work on Mac because of authorizations, al
     char linuxCommand[1024];
     snprintf(linuxCommand, sizeof(linuxCommand), "zenity --info --text=\"%s\" --title=\"Alert\" --timeout=%d", message, timeout);
     system(linuxCommand);
-    #else
-    printf("Unsupported platform\n");
     #endif
     return 0;
 	}

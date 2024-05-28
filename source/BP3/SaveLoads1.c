@@ -1735,13 +1735,13 @@ int LoadSettings(const char *filename, int startup) {
 	if(j <= 10 || j > 127) BlockScaleOnKey = 60;
 	else BlockScaleOnKey = j;
 
-	ResetMIDIFilter();
+	// ResetMIDIFilter();
 
 	if(iv > 4) {
 		if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR;
-		MIDIoutputFilter = k;
+	/*	MIDIoutputFilter = k;
 		if(startup) MIDIoutputFilterstartup = MIDIoutputFilter;
-		GetOutputFilterWord();
+		GetOutputFilterWord(); */
 		for(i=0; i < 12; i++) {
 			if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
 			NameChoice[i] = j;
@@ -1749,7 +1749,7 @@ int LoadSettings(const char *filename, int startup) {
 			}
 		}
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR;
-	if(k != 0L) {
+/*	if(k != 0L) {
 		MIDIinputFilter = k;
 	//	BPPrintMessage(odInfo,"MIDIinputFilter = %d\n",k);
 		if(startup) MIDIinputFilterstartup = MIDIinputFilter;
@@ -1757,7 +1757,7 @@ int LoadSettings(const char *filename, int startup) {
 		if(!ScriptExecOn && !NoteOnIn) {
 			Alert1("Reception of NoteOn's is disabled. Most MIDI data received by BP2 will be meaningless");
 			}
-		}
+		} */
 	#if BP_CARBON_GUI_FORGET_THIS
 	SetFilterDialog();
 	#endif /* BP_CARBON_GUI_FORGET_THIS */

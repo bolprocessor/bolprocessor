@@ -220,14 +220,14 @@ const char ScriptCommand[NUM_SCRIPT_CMD_STRS][MAX_STRINGLISTS_STR_LEN] =
 	"92 IN Repeat 'v' times _note_ channel _1..16_ [v = velocity]",
 	"90 IN Reset weights _note_ channel _1..16_ [toggle]",
 	"99 IN Set computation time to 'v' _note_ channel _1..16_ [v = velocity]",
-	"98 IN Set tempo controller #_0..127_ channel _1..16_ range _float_",
-	"102 IN Skip next item _note_ channel _1..16_",
-	"100 IN Smooth-striated time _note_ channel _1..16_ [toggle]",
-	"91 IN Start play _note_ channel _1..16_",
-	"104 IN Synchro tag _Wx_ = _note_ channel _1..16_",
-	"97 IN Wait for _note_ channel _1..16_ [toggle]",
-	"96 IN Use each substitution _note_ channel _1..16_ [toggle]",
-	"101 IN Use-ignore object constraints _note_ channel _1..16_ [toggle]"
+	"98 IN set tempo controller #_0..127_ channel _1..16_ range _float_",
+	"102 IN skip next item _note_ channel _1..16_",
+	"100 IN smooth-striated time _note_ channel _1..16_ [toggle]",
+	"91 IN start play _note_ channel _1..16_",
+	"104 IN synchro tag _Wx_ = _note_ channel _1..16_",
+	"97 IN wait for _note_ channel _1..16_ [toggle]",
+	"96 IN use each substitution _note_ channel _1..16_ [toggle]",
+	"101 IN use-ignore object constraints _note_ channel _1..16_ [toggle]"
 };
 
 

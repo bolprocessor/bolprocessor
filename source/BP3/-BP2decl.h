@@ -203,6 +203,7 @@ extern FILE* OpenMIDIfilePtr;
 extern short HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,
 	MIDIfileOpened,MIDIfileTrackEmpty;
 extern int MIDIbytestate,MIDIfileTrackNumber,StepScript,TypeScript,MoreTime;
+extern int NoteOffInputFilter,NoteOnInputFilter,KeyPressureInputFilter,ControlTypeInputFilter,ProgramTypeInputFilter,ChannelPressureInputFilter,PitchBendInputFilter,SysExInputFilter,TimeCodeInputFilter,SongPosInputFilter,SongSelInputFilter,TuneTypeInputFilter,EndSysExInputFilter,ClockTypeInputFilter,StartTypeInputFilter,ContTypeInputFilter,ActiveSenseInputFilter,ResetInputFilter;
 extern long MidiLen_pos,**p_Tref,**p_Tpict;
 extern dword MIDItracklength,Midi_msg;
 extern Milliseconds OldMIDIfileTime;

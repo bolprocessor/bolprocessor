@@ -102,6 +102,8 @@ int main (int argc, char* args[])
 	StopSound = FALSE;
 	TraceMIDIinput = FALSE;
 	TimeStopped = Oldtimestopped = 0L;
+
+	NoteOffInputFilter = NoteOnInputFilter = KeyPressureInputFilter = ControlTypeInputFilter = ProgramTypeInputFilter = ChannelPressureInputFilter = PitchBendInputFilter = SysExInputFilter = TimeCodeInputFilter = SongPosInputFilter = SongSelInputFilter = TuneTypeInputFilter = EndSysExInputFilter = ClockTypeInputFilter = StartTypeInputFilter = ContTypeInputFilter = ActiveSenseInputFilter = ResetInputFilter = 3;
 	
 //	system("sync");
 	ConsoleInit(&gOptions);
@@ -480,6 +482,7 @@ void EndImageFile(void)
 	if(ShowGraphic) {
 		final_name = repl_str(imageFileName,"_temp","");
 		remove_spaces(final_name,final_name);
+		if(TraceMIDIinput) BPPrintMessage(odInfo,"\n");
 		BPPrintMessage(odInfo,"Finalized image file to %s\n",final_name);
 		imagePtr = fopen(final_name,"w");
 		thisfile = fopen(imageFileName,"r");

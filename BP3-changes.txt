@@ -90,3 +90,10 @@ Script procedures have been partially rewritten. This version only supports comm
 _script(IN Wait for C3 channel 1)
 which is used to delay the start of the performance.
 Unused MIDI code has been stored in MIDIstubs.c, which is no longer compiled. Useful MIDI code is available in MIDIstuff.c.
+
+-----
+2024-05-28
+This version handles real-time MIDI input/output filters in the same way as BP2. Don't forget to download and update the PHP/Javascript interface!
+More scripts to come…
+All system-dependent codes dealing with MIDI have been stored in MIDIdriver.c
+Windows and Linux compilation still needs to be checked and fixed. The MacOS version is fully functional.

@@ -200,7 +200,7 @@ int Inits(void) {
 	Nbytes = Tbytes2 = ZERO;
 
 	MIDIinputFilter = MIDIinputFilterstartup = FILTER_ALL_ON;
-	MIDIoutputFilter = MIDIoutputFilterstartup = FILTER_ALL_OFF; // turn off Midi-thru by default - 061307 akozar
+	MIDIoutputFilter = MIDIoutputFilterstartup = FILTER_ALL_OFF;
 	ResetMIDIFilter();
 
 	QuantizeOK = TRUE;
