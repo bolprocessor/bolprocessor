@@ -99,7 +99,7 @@ int main (int argc, char* args[])
 	MemoryUsedInit = MemoryUsed;
 	SkipFlag = FALSE;
 	Interactive = FALSE;
-	StopSound = FALSE;
+	StopPlay = FALSE;
 	TraceMIDIinput = FALSE;
 	TimeStopped = Oldtimestopped = 0L;
 
@@ -724,6 +724,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 	int argn = 1, arglen, w, resultinit, r;
 	Boolean argDone;
 	action_t action = no_action;
+	char* thepath;
 
 	while(argn < argc) {
 		/* check if it is an input file */
@@ -957,7 +958,12 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 		return ABORT;
 		}
 	if(opts->useRealtimeMidi == TRUE) {
+	//	BPPrintMessage(odInfo,"opts->outputFiles[ofiTraceFile].name = %s\n",opts->outputFiles[ofiTraceFile].name);
+		thepath = str_replace(opts->outputFiles[ofiTraceFile].name,".txt","");
+		strcat(thepath,"_midiport");
+		strcpy(Midiportfilename,thepath);
 		resultinit = initializeMIDISystem();
+		free(thepath);
 		if(resultinit != OK) {
 			Panic = true;
 			return ABORT;
@@ -1070,19 +1076,17 @@ void GetFileName(char* name,const char* path) { // Added by BB 4 Nov 2020
 	return;
 	}
 
-/*	LoadInputFiles()
-	
-	Calls LoadFileToTextHandle() for each file in pathnames and copies the contents
+/*	Calls LoadFileToTextHandle() for each file in pathnames and copies the contents
 	to the corresponding TextHandle in TEH[].  pathnames must be an array of 
 	WMAX file/path names with file types that match the window indices in -BP2.h.
 	
-	Returns MISSED if an error occured or OK if successful.
- */
+	Returns MISSED if an error occured or OK if successful. */
 int LoadInputFiles(const char* pathnames[WMAX]) {
 	int w, result;
 	for(w = 0; w < WMAX; w++) {
 		// The order of reading these files is important. For instance, iObjects should occur after wCsoundResources
 		if(pathnames[w] != NULL) {
+		//	BPPrintMessage(odInfo,"pathnames[%d] = %s\n",w,pathnames[w]);
 			switch(w) {
 				case wGrammar:
 				case wAlphabet:
@@ -1098,7 +1102,7 @@ int LoadInputFiles(const char* pathnames[WMAX]) {
 						case wAlphabet:			LoadedAlphabet = TRUE; break;
 						case wStartString:		LoadedStartString = TRUE; break;
 						case wGlossary:			LoadedGl = TRUE; break;
-					}
+						}
 					break;
 				case wCsoundResources: 
 				//	BPPrintMessage(odInfo, ": %s\n", pathnames[w]);

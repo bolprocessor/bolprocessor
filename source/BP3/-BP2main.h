@@ -115,7 +115,7 @@ char ****p_GramProcedure,****p_PerformanceControl,****p_GeneralMIDIpatch,
 	****p_Diacritical,****p_HTMLdiacrList;
 long MaxProc,MaxPerformanceControl;
 INscripttype** p_INscript;
-int StopSound,TraceMIDIinput;
+int StopPlay,TraceMIDIinput;
 unsigned long TimeStopped,Oldtimestopped;
 int **p_PerfCtrlNdx,**p_GeneralMIDIpatchNdx,**p_PerfCtrlNArg,**p_ProcNdx,**p_ProcNArg;
 char SubgramType[][TYPELENGTH] = {"RND","ORD","LIN","SUB","SUB1","TEM","POSLONG"};
@@ -276,6 +276,7 @@ long Infpos,Infneg,Veryneg,MaxMIDIbytes,
 Milliseconds **p_T;
 long **p_Ppatt,**p_Qpatt;
 MIDIcode **p_Code; 
+char Midiportfilename[MAXNAME];
 double SpeedRange,Ke,CorrectionFactor;
 unsigned long NumEventsWritten;
 int DeriveFurther,DeriveFurtherKey,DeriveFurtherChan,ResetWeights,NeverResetWeights,

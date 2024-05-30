@@ -105,7 +105,7 @@ extern long MaxProc,MaxPerformanceControl;
 extern int **p_PerfCtrlNArg,**p_ProcNArg,**p_PerfCtrlNdx,**p_ProcNdx,**p_GeneralMIDIpatchNdx;
 extern INscripttype** p_INscript;
 extern unsigned long TimeStopped,Oldtimestopped;
-extern int StopSound,TraceMIDIinput;
+extern int StopPlay,TraceMIDIinput;
 extern char SubgramType[MAXTYPE][TYPELENGTH];
 extern char Code[MAXCODE2];
 extern char VersionName[MAXVERSION][VERSIONLENGTH];
@@ -256,6 +256,7 @@ extern long Infpos,Infneg,Veryneg,MaxMIDIbytes,
 extern Milliseconds **p_T;
 extern long **p_Ppatt,**p_Qpatt;
 extern MIDIcode **p_Code;
+extern char Midiportfilename[MAXNAME];
 
 extern double SpeedRange,Ke,CorrectionFactor;
 

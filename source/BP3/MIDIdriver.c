@@ -31,10 +31,10 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
-
 #include "-BP2.h"
 #include "-BP2decl.h"
 
+// The following are system-dependent codes for handling reaal-time MIDI
 
 int MIDIsource = 1; // Your MIDI input device (keyboard, etc.)
 int MIDIoutput = 0; // Your MIDI output device (synthesizer, etc.)
@@ -80,77 +80,14 @@ MIDIEndpointRef MIDIoutputdestination;
 #endif
 
 
-int read_midisetup(const char* filename,char* sourcename,char* outputname) {
-    #if defined(_WIN64)
-    char* basePath = "..\\midi_resources\\";
-    #else
-    char* basePath = "../midi_resources/";
-    #endif
-    char filePath[MAXLIN];
-    char *itemType, *itemNumber, *busName, line[MAXLIN];
-	char *key, *value;
-    FILE *file;
-	long long_value;
-	int int_value;
-    int result = FALSE;
-    sourcename[0] = outputname[0] = '\0';
-    snprintf(filePath, sizeof(filePath), "%s%s", basePath, filename);
-    file = fopen(filePath,"r");
-    if(file != NULL) {
-        BPPrintMessage(odInfo,"Reading the content of %s\n",filePath);
-        if(fgets(line, sizeof(line), file) != NULL) {
-            itemType = strtok(line, "\t");
-            itemNumber = strtok(NULL, "\t");
-            busName = strtok(NULL, "\n");
-            if(!busName) busName = "";
-            if(strcmp(itemType,"MIDIsource") == 0) {
-                MIDIsource = atoi(itemNumber);
-                if(strlen(busName) > 0) strcpy(sourcename,busName);
-                else strcpy(sourcename,"???");
-                if(fgets(line, sizeof(line), file) != NULL) {
-                    itemType = strtok(line, "\t");
-                    itemNumber = strtok(NULL, "\t");
-                    busName = strtok(NULL, "\n");
-                    if(!busName) busName = "";
-                    if(strcmp(itemType,"MIDIoutput") == 0) {
-                        MIDIoutput = atoi(itemNumber);
-                        if(strlen(busName) > 0) strcpy(outputname,busName);
-                        else strcpy(outputname,"???");
-                        BPPrintMessage(odInfo,"Your settings:\nMIDI source = %d: “%s”\nMIDI output = %d: “%s”\n",MIDIsource,sourcename,MIDIoutput,outputname);
-                        result = OK;
-                        }
-                    }
-                }
-            }
-		while(fgets(line, sizeof(line), file) != NULL) {
-			key = strtok(line, "\t");
-			value = strtok(NULL, "\n");
-			if (key != NULL && value != NULL) {
-				long_value = 0;
-        		if(value) {
-            		for (int i = 0; i < strlen(value); i++) {
-                		long_value = (long_value * 2) + (value[i] - '0');
-            			}
-					if(strcmp(key, "MIDIinputFilter") == 0) MIDIinputFilter = long_value;
-					else if (strcmp(key, "MIDIoutputFilter") == 0) MIDIoutputFilter = long_value;
-					GetInputFilterWord();
-					GetOutputFilterWord();
-					}
-        		}
-			}
-        fclose(file);
-        }
-    return(result);
-    }
-
-int initializeMIDISystem() {
+int initializeMIDISystem(void) {
     char sourcename[MAXNAME], outputname[MAXNAME];
     int foundnum,foundname,changed;
     char newname[MAXNAME];
     sourcename[0] = '\0';
     outputname[0] = '\0';
     changed = false;
-    read_midisetup("last_midiport",sourcename,outputname); // This will modify MIDIsource and MIDIoutput
+    read_midisetup(sourcename,outputname); // This will modify MIDIsource and MIDIoutput
     #if defined(_WIN64)
         BPPrintMessage(odInfo,"Setting up Windows MIDI system\n");
         // Get the number of MIDI out devices in the system
@@ -183,7 +120,7 @@ int initializeMIDISystem() {
             }
         if(foundnum && !foundname) strcpy(outputname,newname);
         if(!foundnum && !foundname && (int)numDevs <= MIDIoutput) {
-            BPPrintMessage(odError,"=> Error: MIDI output (%d) should be lower than %d\n",(int)MIDIoutput,(int)numDevs);
+            BPPrintMessage(odError,"=> Error: MIDI output (%d) should be zero to %d\n",(int)MIDIoutput,(int)numDevs);
             return(FALSE);
             }
         // Open the default MIDI output device (or the first one found)
@@ -223,7 +160,7 @@ int initializeMIDISystem() {
             }
         if(foundnum && !foundname) strcpy(sourcename,newname);
         if(!foundnum && !foundname && (int)numInDevs <= MIDIsource) {
-            BPPrintMessage(odError,"=> Error: MIDI source (%d) should be lower than %d\n",(int)MIDIsource,(int)numInDevs);
+            BPPrintMessage(odError,"=> Error: MIDI source (%d) should be zero to %d\n",(int)MIDIsource,(int)numInDevs);
             return(FALSE);
             }
         // Open the default MIDI input device (or the first one found)
@@ -283,7 +220,7 @@ int initializeMIDISystem() {
             }
         if(foundnum && !foundname) strcpy(outputname,newname);
         if(!foundnum && !foundname && MIDIoutputinationCount <= MIDIoutput) {
-            BPPrintMessage(odError,"=> Error: MIDI output (%d) should be lower than %d\n",(int)MIDIoutput,(int)MIDIoutputinationCount);
+            BPPrintMessage(odError,"=> Error: MIDI output (%d) should be zero to %d\n",(int)MIDIoutput,(int)MIDIoutputinationCount);
             return(FALSE);
             }
         MIDIoutputdestination = MIDIGetDestination(MIDIoutput);
@@ -332,7 +269,7 @@ int initializeMIDISystem() {
             }
         if(foundnum && !foundname) strcpy(sourcename,newname);
         if(!foundnum && !foundname && sourceCount <= MIDIsource) {
-            BPPrintMessage(odError,"=> Error: MIDIsource (%d) should be lower than %d\n",(int)MIDIsource,(int)sourceCount);
+            BPPrintMessage(odError,"=> Error: MIDIsource (%d) should be zero to %d\n",(int)MIDIsource,(int)sourceCount);
             return(FALSE);
             }
         src = MIDIGetSource(MIDIsource);

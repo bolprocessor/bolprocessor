@@ -1136,7 +1136,7 @@ int modulo(int,int);
 void delay(int);
 
 void save_midisetup(int,int,char*,char*);
-int read_midisetup(const char*,char*,char*);
+int read_midisetup(char*,char*);
 
 #if !TARGET_API_MAC_CARBON_FORGET_THIS
 /* Provide backwards compatibility for System 7 in the non-Carbon build by

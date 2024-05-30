@@ -204,7 +204,7 @@ int initializeMIDISystem() {
             }
         if(foundnum && !foundname) strcpy(outputname,newname);
         if(!foundnum && !foundname && (int)numDevs <= MIDIoutput) {
-            BPPrintMessage(odError,"=> Error: MIDIoutput (%d) should be lower than %d\n",(int)MIDIoutput,(int)numDevs);
+            BPPrintMessage(odError,"=> Error: MIDIoutput (%d) should be zero to %d\n",(int)MIDIoutput,(int)numDevs);
             return(FALSE);
             }
         // Open the default MIDI output device (or the first one found)
@@ -244,7 +244,7 @@ int initializeMIDISystem() {
             }
         if(foundnum && !foundname) strcpy(sourcename,newname);
         if(!foundnum && !foundname && (int)numInDevs <= MIDIsource) {
-            BPPrintMessage(odError,"=> Error: MIDIsource (%d) should be lower than %d\n",(int)MIDIsource,(int)numInDevs);
+            BPPrintMessage(odError,"=> Error: MIDIsource (%d) should be zero to %d\n",(int)MIDIsource,(int)numInDevs);
             return(FALSE);
             }
         // Open the default MIDI input device (or the first one found)
@@ -304,7 +304,7 @@ int initializeMIDISystem() {
             }
         if(foundnum && !foundname) strcpy(outputname,newname);
         if(!foundnum && !foundname && MIDIoutputinationCount <= MIDIoutput) {
-            BPPrintMessage(odError,"=> Error: MIDIoutput (%d) should be lower than %d\n",(int)MIDIoutput,(int)MIDIoutputinationCount);
+            BPPrintMessage(odError,"=> Error: MIDIoutput (%d) should be zero to %d\n",(int)MIDIoutput,(int)MIDIoutputinationCount);
             return(FALSE);
             }
         MIDIoutputdestination = MIDIGetDestination(MIDIoutput);
@@ -353,7 +353,7 @@ int initializeMIDISystem() {
             }
         if(foundnum && !foundname) strcpy(sourcename,newname);
         if(!foundnum && !foundname && sourceCount <= MIDIsource) {
-            BPPrintMessage(odError,"=> Error: MIDIsource (%d) should be lower than %d\n",(int)MIDIsource,(int)sourceCount);
+            BPPrintMessage(odError,"=> Error: MIDIsource (%d) should be zero to %d\n",(int)MIDIsource,(int)sourceCount);
             return(FALSE);
             }
         src = MIDIGetSource(MIDIsource);

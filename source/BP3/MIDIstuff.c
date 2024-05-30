@@ -38,19 +38,71 @@
 int trace_midi_filter = 0;
 int trace_driver = 0;
 
+int read_midisetup(char* sourcename,char* outputname) {
+    char *itemType, *itemNumber, *busName, line[MAXLIN];
+	char *key, *value;
+    FILE *file;
+	long long_value;
+	int int_value;
+    int result = FALSE;
+    sourcename[0] = outputname[0] = '\0';
+  //  snprintf(filePath, sizeof(filePath), "%s%s", basePath, filename);
+    file = fopen(Midiportfilename,"r");
+    if(file != NULL) {
+        BPPrintMessage(odInfo,"Reading the content of %s\n",Midiportfilename);
+        if(fgets(line, sizeof(line), file) != NULL) {
+            itemType = strtok(line, "\t");
+            itemNumber = strtok(NULL, "\t");
+            busName = strtok(NULL, "\n");
+            if(!busName) busName = "";
+            if(strcmp(itemType,"MIDIsource") == 0) {
+                MIDIsource = atoi(itemNumber);
+                if(strlen(busName) > 0) strcpy(sourcename,busName);
+                else strcpy(sourcename,"???");
+                if(fgets(line, sizeof(line), file) != NULL) {
+                    itemType = strtok(line, "\t");
+                    itemNumber = strtok(NULL, "\t");
+                    busName = strtok(NULL, "\n");
+                    if(!busName) busName = "";
+                    if(strcmp(itemType,"MIDIoutput") == 0) {
+                        MIDIoutput = atoi(itemNumber);
+                        if(strlen(busName) > 0) strcpy(outputname,busName);
+                        else strcpy(outputname,"???");
+                        BPPrintMessage(odInfo,"Your settings:\nMIDI source = %d: “%s”\nMIDI output = %d: “%s”\n",MIDIsource,sourcename,MIDIoutput,outputname);
+                        result = OK;
+                        }
+                    }
+                }
+            }
+		while(fgets(line, sizeof(line), file) != NULL) {
+			key = strtok(line, "\t");
+			value = strtok(NULL, "\n");
+			if (key != NULL && value != NULL) {
+				long_value = 0;
+        		if(value) {
+            		for (int i = 0; i < strlen(value); i++) {
+                		long_value = (long_value * 2) + (value[i] - '0');
+            			}
+					if(strcmp(key, "MIDIinputFilter") == 0) MIDIinputFilter = long_value;
+					else if (strcmp(key, "MIDIoutputFilter") == 0) MIDIoutputFilter = long_value;
+					GetInputFilterWord();
+					GetOutputFilterWord();
+					}
+        		}
+			}
+        fclose(file);
+        }
+    return(result);
+    }
+	
 void save_midisetup(int source,int output,char* sourcename,char* outputname) {
     FILE* thefile;
 	char* binaryString;
-    #if defined(_WIN64)
-    char* filePath = "..\\midi_resources\\last_midiport";
-    #else
-    char* filePath = "../midi_resources/last_midiport";
-    #endif
 	SetInputFilterWord();
 	SetOutputFilterWord();
-    thefile = fopen(filePath,"w");
+    thefile = fopen(Midiportfilename,"w");
     if(thefile != NULL) {
-        BPPrintMessage(odInfo,"MIDI settings saved to %s\n",filePath);
+        BPPrintMessage(odInfo,"MIDI settings saved to %s\n",Midiportfilename);
         fprintf(thefile, "MIDIsource\t%d\t%s\n",source,sourcename);
         fprintf(thefile, "MIDIoutput\t%d\t%s\n",output,outputname);
 		binaryString = longToBinary((unsigned long)MIDIinputFilter);
@@ -75,7 +127,7 @@ char* longToBinary(unsigned long num) {
 	}
 
 int MIDIflush() {
-    unsigned long current_time,time_now,oldtimestopped;
+    unsigned long current_time,time_now;
     long i = 0;
     long time;
     unsigned char midiData[4];
@@ -83,7 +135,7 @@ int MIDIflush() {
     int result,size;
     size = sizeof(MIDI_Event);
 	
-	oldtimestopped = 0L;
+	// oldtimestopped = 0L;
 	current_time = getClockTime();
     current_time -= initTime;
     if(Panic) eventCount = 0L;
@@ -113,16 +165,14 @@ int MaybeWait(unsigned long current_time) {
 	int result,i;
 	if(FirstMIDIevent) time = 0L;
 	else time = current_time;
-	check_stop_instructions(time); // This may set StopSound to TRUE
+	check_stop_instructions(time); // This may set StopPlay to TRUE
 	time_now = getClockTime(); // microseconds
 	i = 0;
-	while(StopSound) { // The proper input MIDI event will end this loop
+	while(StopPlay) { // The proper input MIDI event will end this loop, setting StopPlay to FALSE
 		if((result = stop(1,"Waiting loop")) != OK) return result;
-		WaitABit(50); // milliseconds
+		WaitABit(5); // milliseconds
 		i++;
-		if(i == 20) {
-			AllNotesOffPedalsOffAllChannels();
-			}
+		if(i == 200) AllNotesOffPedalsOffAllChannels();
 		}
 	TimeStopped += (getClockTime() - time_now);
 	if((TimeStopped / 10000L) != (Oldtimestopped / 10000L)) {
@@ -520,25 +570,31 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e) {
 			return(OK);
 			}
 		else {
-		if(TraceMIDIinput) BPPrintMessage(odInfo,"Received NoteOn key = %d channel %d, checking %d scripts\n",c1,channel,Jinscript);
-		if(FirstMIDIevent) {
-			if(TraceMIDIinput) BPPrintMessage(odInfo,"time_now = 0L in HandleInputEvent()\n");
-			time_now = 0L;
-			}
-		else time_now = getClockTime() - initTime; // microseconds
-		// Find the next expected NoteOn
-		for(j=1; j <= Jinscript; j++) {
-			thisscripttime = ((*p_INscript)[j]).time + TimeStopped;
-			if(((*p_INscript)[j]).chan == -1) continue; // This is a deactivated instruction
-			// We don't veryfy that velocity (c2) is greater than zero.
-			if(channel == ((*p_INscript)[j]).chan && c1 == ((*p_INscript)[j]).key && time_now >= thisscripttime) {
-				if(TraceMIDIinput) BPPrintMessage(odInfo,"[%d] Good NoteOn key = %d\n",j,c1);
-				if(TraceMIDIinput) BPPrintMessage(odInfo,"thisscripttime = %ul, time_now = %ul\n",thisscripttime / 1000L, time_now/1000L);
-				StopSound = FALSE;
-				((*p_INscript)[j]).chan = -1; // This input event is now deactivated
-				return OK;
+		if(Jinscript > 0) {
+			if(TraceMIDIinput) BPPrintMessage(odInfo,"Received NoteOn key = %d channel %d, checking %d script(s)\n",c1,channel,Jinscript);
+			if(FirstMIDIevent) {
+				if(TraceMIDIinput) BPPrintMessage(odInfo,"time_now = 0L in HandleInputEvent()\n");
+				time_now = 0L;
 				}
-			else return OK;
+			else time_now = getClockTime() - initTime; // microseconds
+			// Find the next expected NoteOn
+			for(j=1; j <= Jinscript; j++) {
+				if(((*p_INscript)[j]).chan == -1) { // This is a deactivated instruction
+					if(j == Jinscript) Jinscript = 0; // No need to try later
+					continue;
+					}
+				thisscripttime = ((*p_INscript)[j]).time + TimeStopped;
+				// We won't verify that velocity (c2) is greater than zero, because a NoteOn with velocity zero can be used as a soundless instruction
+				if(channel == ((*p_INscript)[j]).chan && c1 == ((*p_INscript)[j]).key && time_now >= thisscripttime) {
+					if(TraceMIDIinput) BPPrintMessage(odInfo,"[%d] Good NoteOn key = %d\n",j,c1);
+					if(TraceMIDIinput) BPPrintMessage(odInfo,"thisscripttime = %ul, time_now = %ul\n",thisscripttime / 1000L, time_now/1000L);
+					StopPlay = FALSE;
+					TimeStopped +=  250000L; // 250 ms, apparently necessary to restore the timing of the next events
+					((*p_INscript)[j]).chan = -1; // This input event is now deactivated
+					return OK;
+					}
+				else return OK;
+				}
 			}
 		}}}}}}}}}
 		if(ParamControlChan > 0) {
@@ -566,7 +622,7 @@ int check_stop_instructions(unsigned long time) {
 		if(((*p_INscript)[j]).scriptline != 97) continue;
 		thisscripttime = ((*p_INscript)[j]).time + TimeStopped;
 		if(thisscripttime > time) continue;
-		StopSound = TRUE;
+		StopPlay = TRUE;
 		Notify("Waiting for a note specified in score");
 		if(time == 0L) {
 			FirstMIDIevent = FALSE;
@@ -1943,7 +1999,7 @@ int AllNotesOffPedalsOffAllChannels(void) {
 		}
 	if(TraceMIDIinput) BPPrintMessage(odInfo,"Send AllNotesOff and reset controls on all channels\n");
 	/* We can afford to mute the current output and send NoteOffs at a low level */
-//	StopSound++;
+	// Mute++;
 	for(channel=0; channel < MAXCHAN; channel++) {
 		WaitABit(10); // Wait for 10 ms
 		midiData[0] = ControlChange + channel;
@@ -1955,7 +2011,7 @@ int AllNotesOffPedalsOffAllChannels(void) {
 		midiData[2] = 0;
 		sendMIDIEvent(midiData,dataSize,0); // Sending immediately
 		}
-//	StopSound--;
+	// Mute--;
 	WaitABit(10);
 	return(OK);
 	}
