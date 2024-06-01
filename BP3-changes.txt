@@ -102,3 +102,7 @@ Windows and Linux compilation still needs to be checked and fixed. The MacOS ver
 2024-05-30
 Important changes to facilitate real-time MIDI interaction between multiple instances of BP3. The MIDI port and filter settings are now stored in a file whose name depends on both the session number and the project name. This allows multiple projects to run simultaneously, either on different browsers or on the same browser under different names.
 If this temporary file is not found, it will be retrieved from the (permanent) "midi_resources" folder.
+
+-----
+2024-06-02
+This version accepts any number of sources for MIDI events. It is also ready to accept multiple MIDI outputs, but this needs to be checked and implemented on the interface. A "sync delay" parameter has been added to the settings to compensate for the delay when controlling another BP3.

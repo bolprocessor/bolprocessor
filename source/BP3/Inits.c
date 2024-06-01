@@ -199,8 +199,12 @@ int Inits(void) {
 
 	Nbytes = Tbytes2 = ZERO;
 
-	MIDIinputFilter = MIDIinputFilterstartup = FILTER_ALL_ON;
-	MIDIoutputFilter = MIDIoutputFilterstartup = FILTER_ALL_OFF;
+	MIDIinputFilterstartup = FILTER_ALL_ON;
+	MIDIoutputFilterstartup = FILTER_ALL_OFF;
+	for(i = 0; i < MAXPORTS; i++) {
+		MIDIinputFilter[i] = FILTER_ALL_ON;
+		MIDIoutputFilter[i] = FILTER_ALL_OFF;
+		}
 	ResetMIDIFilter();
 
 	QuantizeOK = TRUE;
@@ -365,7 +369,7 @@ int Inits(void) {
 	UseGraphicsColor = UseTextColor = TRUE;
 
 	StartFromOne = TRUE;
-	MIDIsetUpTime = 1000L;	/* ms */
+	MIDIsetUpTime = 700L;	/* ms */
 	NewEnvironment = NewColors = Help = FALSE;
 	for(i=0; i < WMAX; i++) ChangedCoordinates[i] = Dirty[i] = FALSE;
 	ObjectMode = ObjectTry = Final = LoadedScript = FALSE;

@@ -86,6 +86,7 @@ ResID  DeviceMenuIcons[12] = { 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 144, 142 };
 int EmergencyExit,FixedMaxQuantization,TraceMemory,
 	EventState,Beta;
 int MIDIsetUpTime;  /* Time needed to set-up MIDI driver (ms) */
+int MIDIsyncDelay;  
 int FirstMIDIevent;
 int LoadedScript;
 int Jmessage;
@@ -154,14 +155,12 @@ time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTime,Time
 unsigned long NextStop;
 char FindString[256],ReplaceString[256];
 int RunningStatus,StrikeAgainDefault;
-int NoteOffPass,NoteOnPass,KeyPressurePass,ControlTypePass,ProgramTypePass,
-	ChannelPressurePass,PitchBendPass,SysExPass,TimeCodePass,SongPosPass,SongSelPass,
-	TuneTypePass,EndSysExPass,ClockTypePass,StartTypePass,ContTypePass,
-	ActiveSensePass,ResetPass;
-int NoteOffIn,NoteOnIn,KeyPressureIn,ControlTypeIn,ProgramTypeIn,
-	ChannelPressureIn,PitchBendIn,SysExIn,TimeCodeIn,SongPosIn,SongSelIn,
-	TuneTypeIn,EndSysExIn,ClockTypeIn,StartTypeIn,ContTypeIn,
-	ActiveSenseIn,ResetIn;
+int NoteOffPass[MAXPORTS],NoteOnPass[MAXPORTS],KeyPressurePass[MAXPORTS],ControlTypePass[MAXPORTS],ProgramTypePass[MAXPORTS],
+	ChannelPressurePass[MAXPORTS],PitchBendPass[MAXPORTS],SysExPass[MAXPORTS],TimeCodePass[MAXPORTS],SongPosPass[MAXPORTS],SongSelPass[MAXPORTS],TuneTypePass[MAXPORTS],EndSysExPass[MAXPORTS],ClockTypePass[MAXPORTS],StartTypePass[MAXPORTS],ContTypePass[MAXPORTS],ActiveSensePass[MAXPORTS],ResetPass[MAXPORTS];
+int NoteOffIn[MAXPORTS],NoteOnIn[MAXPORTS],KeyPressureIn[MAXPORTS],ControlTypeIn[MAXPORTS],ProgramTypeIn[MAXPORTS],
+	ChannelPressureIn[MAXPORTS],PitchBendIn[MAXPORTS],SysExIn[MAXPORTS],TimeCodeIn[MAXPORTS],SongPosIn[MAXPORTS],SongSelIn[MAXPORTS],
+	TuneTypeIn[MAXPORTS],EndSysExIn[MAXPORTS],ClockTypeIn[MAXPORTS],StartTypeIn[MAXPORTS],ContTypeIn[MAXPORTS],
+	ActiveSenseIn[MAXPORTS],ResetIn[MAXPORTS];
 t_gram Gram,GlossGram;
 scriptcommandtype **h_Script;
 fullscriptcommandtype ScriptLine;
@@ -270,9 +269,10 @@ unsigned long Ptick[MAXTICKS],Qtick[MAXTICKS],GrandCycle[MAXTICKS],
 double Pclock,Qclock,OldPclock,OldQclock,MinPclock,MaxPclock,MinQclock,MaxQclock,
 	Prod,Ratio,Kpress,Pduration,Qduration;
 long Infpos,Infneg,Veryneg,MaxMIDIbytes,
-	TimeMax,Nalpha,Nbytes,Tbytes2,MIDIinputFilter,MIDIoutputFilter,
+	TimeMax,Nalpha,Nbytes,Tbytes2,
 	MIDIinputFilterstartup,
 	MIDIoutputFilterstartup,Ts,DataEnd;
+unsigned long MIDIinputFilter[MAXPORTS],MIDIoutputFilter[MAXPORTS];
 Milliseconds **p_T;
 long **p_Ppatt,**p_Qpatt;
 MIDIcode **p_Code; 
@@ -310,6 +310,9 @@ int Npicture,Offscreen;
 int PictureWindow[MAXPICT];
 int Charstep,UndoFlag;
 char LineBuff[MAXLIN];
+char InputMIDIportName[MAXPORTS][MAXNAME],OutputMIDIportName[MAXPORTS][MAXNAME];
+int MIDIinput[MAXPORTS], MIDIoutput[MAXPORTS];
+int MaxInputPorts, MaxOutputPorts;
 Str255 PascalLine;
 long DataOrigin,Tcurr,LastTime,PianorollShift;
 unsigned long NextTickDate[MAXTICKS],NextBeatDate;

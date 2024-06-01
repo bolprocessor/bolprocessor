@@ -682,7 +682,7 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 	if((MIDIfileOn || cswrite || showpianoroll || rtMIDI
 			|| ItemNumber == ZERO || PlaySelectionOn || ItemCapture) && !CyclicPlay) {
 		if(!cswrite && !MIDIfileOn && !ItemCapture) {
-			Tcurr += (MIDIsetUpTime + 600L) / Time_res;
+			Tcurr += (MIDIsetUpTime) / Time_res;
 			}
 		currenttime = Tcurr * Time_res;
 		Nbytes = 0; Tbytes2 = ZERO;
@@ -712,7 +712,7 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 	else {
 		Tcurr = (t0 + t1) / Time_res;
 		if(rtMIDI) {
-			PianorollShift = MIDIsetUpTime + 600L;
+			PianorollShift = MIDIsetUpTime;
 		//	if(!Improvize) PianorollShift = 0L;
 		//	BPPrintMessage(odInfo,"PianorollShift = %ld\n",(long)PianorollShift);
 			}

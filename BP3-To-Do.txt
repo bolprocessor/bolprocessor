@@ -21,6 +21,7 @@ MIDI input
 Real-time MIDI
 ---------------------
 
+- Fix MIDIdriver.c in _WIN64 and __linux__ to handle multiple MIDI inputs/outputs.
 - The "coreaudiomidi" process is still appearing as "sleeping" or "running" even after the console quits. This is possibly a sign of an incorrect cleanup process — although everything works fine!
 - When playing back chunked data in real-time MIDI, there may be gaps followed by garbled events due to the time taken to calculate large chunks. Check "-da.Beethoven-fugue-B-flat-major" for this. It's probably unavoidable: a larger value of MaxMIDIMessages (currently 1000 in ConsoleMain.c) is needed, but it blows the memory.
 - Maybe use a dynamically resizable array for eventStack? Probably not beneficial.

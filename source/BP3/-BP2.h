@@ -263,6 +263,7 @@ enum {
 #define MAXBUTT 32		/* number of buttons created in dialogs */
 #define MAXMESSAGE 70	/* number of messages remembered */
 #define MAXLIN 200		/* length of input line in any file */
+#define MAXPORTS 32		/* number of input/output MIDI ports */
 #define HTMLTOKENLENGTH 80 /* estimated max length of html token */
 #define MAXINFOLENGTH 50	/* length of date message */
 #define MAXFIELDCONTENT 255	/* length of edit field in dialog window */

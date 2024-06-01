@@ -67,7 +67,7 @@
 #include "-BP2decl.h"
 #endif
 
-int MIDIsource = 1; // Your MIDI input device (keyboard, etc.)
+int MIDIinput = 1; // Your MIDI input device (keyboard, etc.)
 int MIDIoutput = 0; // Your MIDI output device (synthesizer, etc.)
 
 MIDIClientRef MIDIoutputClient,MIDIinputClient;
@@ -140,8 +140,8 @@ int read_midisetup(const char* filename,char* sourcename,char* outputname) {
             itemNumber = strtok(NULL, "\t");
             busName = strtok(NULL, "\n");
             if(!busName) busName = "";
-            if(strcmp(itemType,"MIDIsource") == 0) {
-                MIDIsource = atoi(itemNumber);
+            if(strcmp(itemType,"MIDIinput") == 0) {
+                MIDIinput = atoi(itemNumber);
                 if(strlen(busName) > 0) strcpy(sourcename,busName);
                 else strcpy(sourcename,"???");
                 if(fgets(line, sizeof(line), file) != NULL) {
@@ -153,7 +153,7 @@ int read_midisetup(const char* filename,char* sourcename,char* outputname) {
                         MIDIoutput = atoi(itemNumber);
                         if(strlen(busName) > 0) strcpy(outputname,busName);
                         else strcpy(outputname,"???");
-                        BPPrintMessage(odInfo,"Your settings:\nMIDI source = %d: “%s”\nMIDI output = %d: “%s”\n",MIDIsource,sourcename,MIDIoutput,outputname);
+                        BPPrintMessage(odInfo,"Your settings:\nMIDI source = %d: “%s”\nMIDI output = %d: “%s”\n",MIDIinput,sourcename,MIDIoutput,outputname);
                         result = OK;
                         }
                     }
@@ -171,7 +171,7 @@ int initializeMIDISystem() {
     sourcename[0] = '\0';
     outputname[0] = '\0';
     changed = false;
-    read_midisetup("last_midisetup",sourcename,outputname); // This will modify MIDIsource and MIDIoutput
+    read_midisetup("last_midisetup",sourcename,outputname); // This will modify MIDIinput and MIDIoutput
     #if defined(_WIN64)
         BPPrintMessage(odInfo,"Setting up Windows MIDI system\n");
         // Get the number of MIDI out devices in the system
@@ -232,10 +232,10 @@ int initializeMIDISystem() {
             BPPrintMessage(odInfo,"MIDI (source) %u: “%s”\n", i, mic.szPname);
             if(!foundname && strcmp(name,sourcename) == 0) {  // Name is a priority choice
                 BPPrintMessage(odInfo," = the name of your choice");
-                MIDIsource = (int) i;
+                MIDIinput = (int) i;
                 foundname = 1;
                 }
-            else if(!foundname && (int)i == MIDIsource) {
+            else if(!foundname && (int)i == MIDIinput) {
                 BPPrintMessage(odInfo," = proposed MIDI source");
                 strcpy(newname,mic.szPname);
                 foundnum = changed = 1;
@@ -243,12 +243,12 @@ int initializeMIDISystem() {
             BPPrintMessage(odInfo,"\n");
             }
         if(foundnum && !foundname) strcpy(sourcename,newname);
-        if(!foundnum && !foundname && (int)numInDevs <= MIDIsource) {
-            BPPrintMessage(odError,"=> Error: MIDIsource (%d) should be zero to %d\n",(int)MIDIsource,(int)numInDevs);
+        if(!foundnum && !foundname && (int)numInDevs <= MIDIinput) {
+            BPPrintMessage(odError,"=> Error: MIDIinput (%d) should be zero to %d\n",(int)MIDIinput,(int)numInDevs);
             return(FALSE);
             }
         // Open the default MIDI input device (or the first one found)
-        if(midiInOpen(&hMidiIn, MIDIsource, (DWORD_PTR)midiInCallback, 0, CALLBACK_FUNCTION) != MMSYSERR_NOERROR) {
+        if(midiInOpen(&hMidiIn, MIDIinput, (DWORD_PTR)midiInCallback, 0, CALLBACK_FUNCTION) != MMSYSERR_NOERROR) {
             BPPrintMessage(odError,"Error opening MIDI input device.\n");
             return(FALSE);
             }
@@ -337,10 +337,10 @@ int initializeMIDISystem() {
                 BPPrintMessage(odInfo,"MIDI (input) %d: “%s”",i,name);
                 if(!foundname && strcmp(name,sourcename) == 0) {  // Name is a priority choice
                     BPPrintMessage(odInfo," = the name of your choice");
-                    MIDIsource = (int) i;
+                    MIDIinput = (int) i;
                     foundname = 1;
                     }
-                else if(!foundname && (int)i == MIDIsource) {
+                else if(!foundname && (int)i == MIDIinput) {
                     BPPrintMessage(odInfo," = proposed MIDI source");
                     strcpy(newname,name);
                     foundnum = changed = 1;
@@ -352,11 +352,11 @@ int initializeMIDISystem() {
                 BPPrintMessage(odError,"=> This MIDI (input) %d is inactive.\n",i);
             }
         if(foundnum && !foundname) strcpy(sourcename,newname);
-        if(!foundnum && !foundname && sourceCount <= MIDIsource) {
-            BPPrintMessage(odError,"=> Error: MIDIsource (%d) should be zero to %d\n",(int)MIDIsource,(int)sourceCount);
+        if(!foundnum && !foundname && sourceCount <= MIDIinput) {
+            BPPrintMessage(odError,"=> Error: MIDIinput (%d) should be zero to %d\n",(int)MIDIinput,(int)sourceCount);
             return(FALSE);
             }
-        src = MIDIGetSource(MIDIsource);
+        src = MIDIGetSource(MIDIinput);
         MIDIPortConnectSource(MIDIinPort,src,NULL);
     #elif defined(__linux__)
         BPPrintMessage(odInfo,"Setting up Linux MIDI system\n");
@@ -444,7 +444,7 @@ int initializeMIDISystem() {
             }
     #endif
     if(changed) BPPrintMessage(odInfo,"=> Warning: name of MIDI source or/and output changed (see above)\n");
-    save_midisetup(MIDIsource,MIDIoutput,sourcename,outputname);
+    save_midisetup(MIDIinput,MIDIoutput,sourcename,outputname);
     return(OK);
     }
 
@@ -458,13 +458,14 @@ void save_midisetup(int source,int output,char* sourcename,char* outputname) {
     thefile = fopen(filePath,"w");
     if(thefile != NULL) {
         BPPrintMessage(odInfo,"MIDI settings saved to %s\n",filePath);
-        fprintf(thefile, "MIDIsource\t%d\t%s\n",source,sourcename);
+        fprintf(thefile, "MIDIinput\t%d\t%s\n",source,sourcename);
         fprintf(thefile, "MIDIoutput\t%d\t%s\n",output,outputname);
         fclose(thefile);
         }
     }
 
 void closeMIDISystem() {
+    int index;
     BPPrintMessage(odInfo,"Closing MIDI system\n");
     #if defined(_WIN64)
         // Windows MIDI cleanup
@@ -480,10 +481,14 @@ void closeMIDISystem() {
             }
     #elif defined(__APPLE__)
     // MacOS MIDI cleanup
-    MIDIPortDispose(MIDIoutPort);
-    MIDIPortDispose(MIDIinPort);
-    MIDIClientDispose(MIDIoutputClient);
-    MIDIClientDispose(MIDIinputClient);
+    for(index = 0; index < MaxOutputPorts; index++) {
+        MIDIPortDispose(MIDIoutPort[index]);
+        MIDIClientDispose(MIDIoutputClient[index]);
+        }
+    for(index = 0; index < MaxInputPorts; index++) {
+        MIDIPortDispose(MIDIinPort[index]);
+        MIDIClientDispose(MIDIinputClient[index]);
+        }
     #elif defined(__linux__)
         // Linux MIDI cleanup
         if(seq_handle != NULL) {

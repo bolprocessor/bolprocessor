@@ -102,6 +102,7 @@ int main (int argc, char* args[])
 	StopPlay = FALSE;
 	TraceMIDIinput = FALSE;
 	TimeStopped = Oldtimestopped = 0L;
+	MIDIsyncDelay = 380; // ms
 
 	NoteOffInputFilter = NoteOnInputFilter = KeyPressureInputFilter = ControlTypeInputFilter = ProgramTypeInputFilter = ChannelPressureInputFilter = PitchBendInputFilter = SysExInputFilter = TimeCodeInputFilter = SongPosInputFilter = SongSelInputFilter = TuneTypeInputFilter = EndSysExInputFilter = ClockTypeInputFilter = StartTypeInputFilter = ContTypeInputFilter = ActiveSenseInputFilter = ResetInputFilter = 3;
 	

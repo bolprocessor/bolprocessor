@@ -136,7 +136,7 @@ int Notify(char* message) { // Doesn't work on Mac because of authorisations, al
     snprintf(command,sizeof(command), 
         "osascript -e 'display notification \"%s\" with title \"BP3:\"'", message);
     system(command);
-	BPPrintMessage(odInfo,"Alert = %s\n",message);
+	BPPrintMessage(odInfo,"👉 %s\n\n",message);
     #elif defined(__linux__)
     char linuxCommand[1024];
     snprintf(linuxCommand, sizeof(linuxCommand), "zenity --info --text=\"%s\" --title=\"Alert\" --timeout=%d", message, timeout);

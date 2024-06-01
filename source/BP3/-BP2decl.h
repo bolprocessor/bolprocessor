@@ -62,18 +62,17 @@ extern ResID DeviceMenuIcons[12];
     // Global variable for MIDI device handle
     extern static HMIDIOUT hMidiOut,hMidiIn;
 #elif defined(__APPLE__)
-    extern MIDIClientRef MIDIoutputClient,MIDIinputClient;
-    extern MIDIPortRef MIDIoutPort,MIDIinPort;
+    extern MIDIClientRef MIDIoutputClient, MIDIinputClient;
+    extern MIDIPortRef MIDIoutPort, MIDIinPort;
 #elif defined(__linux__)
     // Global variable for ALSA MIDI sequencer handle
     extern static snd_seq_t *seq_handle;
     extern static int out_port,in_port;
 #endif
 
-extern int MIDIsource, MIDIoutput;
 extern int EmergencyExit,FixedMaxQuantization,
 	TraceMemory,EventState,Beta;
-extern int MIDIsetUpTime;
+extern int MIDIsetUpTime,MIDIsyncDelay;
 extern int LoadedScript,PrototypesLoaded;
 extern int Jmessage;
 // extern TEStyleRec** StyleHandle[WMAX];
@@ -129,14 +128,12 @@ extern unsigned long NextStop;
 extern char FindString[256],ReplaceString[256];
 extern t_gram Gram,GlossGram;
 extern int RunningStatus,StrikeAgainDefault;
-extern int NoteOffPass,NoteOnPass,KeyPressurePass,ControlTypePass,ProgramTypePass,
-	ChannelPressurePass,PitchBendPass,SysExPass,TimeCodePass,SongPosPass,SongSelPass,
-	TuneTypePass,EndSysExPass,ClockTypePass,StartTypePass,ContTypePass,
-	ActiveSensePass,ResetPass;
-extern int NoteOffIn,NoteOnIn,KeyPressureIn,ControlTypeIn,ProgramTypeIn,
-	ChannelPressureIn,PitchBendIn,SysExIn,TimeCodeIn,SongPosIn,SongSelIn,
-	TuneTypeIn,EndSysExIn,ClockTypeIn,StartTypeIn,ContTypeIn,
-	ActiveSenseIn,ResetIn;
+extern int NoteOffPass[MAXPORTS],NoteOnPass[MAXPORTS],KeyPressurePass[MAXPORTS],ControlTypePass[MAXPORTS],ProgramTypePass[MAXPORTS],
+	ChannelPressurePass[MAXPORTS],PitchBendPass[MAXPORTS],SysExPass[MAXPORTS],TimeCodePass[MAXPORTS],SongPosPass[MAXPORTS],SongSelPass[MAXPORTS],TuneTypePass[MAXPORTS],EndSysExPass[MAXPORTS],ClockTypePass[MAXPORTS],StartTypePass[MAXPORTS],ContTypePass[MAXPORTS],ActiveSensePass[MAXPORTS],ResetPass[MAXPORTS];
+extern int NoteOffIn[MAXPORTS],NoteOnIn[MAXPORTS],KeyPressureIn[MAXPORTS],ControlTypeIn[MAXPORTS],ProgramTypeIn[MAXPORTS],
+	ChannelPressureIn[MAXPORTS],PitchBendIn[MAXPORTS],SysExIn[MAXPORTS],TimeCodeIn[MAXPORTS],SongPosIn[MAXPORTS],SongSelIn[MAXPORTS],
+	TuneTypeIn[MAXPORTS],EndSysExIn[MAXPORTS],ClockTypeIn[MAXPORTS],StartTypeIn[MAXPORTS],ContTypeIn[MAXPORTS],
+	ActiveSenseIn[MAXPORTS],ResetIn[MAXPORTS];
 extern scriptcommandtype **h_Script;
 extern fullscriptcommandtype ScriptLine;
 extern int **h_ScriptIndex;
@@ -251,8 +248,9 @@ extern unsigned long Ptick[MAXTICKS],Qtick[MAXTICKS],GrandCycle[MAXTICKS],
 extern double Pclock,Qclock,OldPclock,OldQclock,MinPclock,MaxPclock,
 	MinQclock,MaxQclock,Prod,Ratio,Kpress,Pduration,Qduration;
 extern long Infpos,Infneg,Veryneg,MaxMIDIbytes,
-	TimeMax,Nalpha,Nbytes,Tbytes2,MIDIinputFilter,MIDIoutputFilter,MIDIinputFilterstartup,
+	TimeMax,Nalpha,Nbytes,Tbytes2,MIDIinputFilterstartup,
 	MIDIoutputFilterstartup,Ts,DataEnd;
+extern unsigned long MIDIinputFilter[MAXPORTS],MIDIoutputFilter[MAXPORTS];
 extern Milliseconds **p_T;
 extern long **p_Ppatt,**p_Qpatt;
 extern MIDIcode **p_Code;
@@ -291,6 +289,9 @@ extern int Npicture,Offscreen;
 extern int PictureWindow[MAXPICT];
 extern int Charstep,UndoFlag;
 extern char LineBuff[MAXLIN];
+extern char InputMIDIportName[MAXPORTS][MAXNAME],OutputMIDIportName[MAXPORTS][MAXNAME];
+extern int MIDIinput[MAXPORTS], MIDIoutput[MAXPORTS];
+extern int MaxInputPorts, MaxOutputPorts;
 extern Str255 PascalLine;
 
 extern long Tcurr,LastTime,DataOrigin,PianorollShift;

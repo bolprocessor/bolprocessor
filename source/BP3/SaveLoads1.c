@@ -1477,7 +1477,7 @@ int LoadSettings(const char *filename, int startup) {
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR; Quantization = k;
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR; Time_res = k;
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR; MIDIsetUpTime = j;
-	if(trace_load_settings) BPPrintMessage(odError, "MIDIsetUpTime = %d\n",MIDIsetUpTime);
+	if(trace_load_settings) BPPrintMessage(odError, "MIDIsyncDelay = %d\n",MIDIsyncDelay);
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR; QuantizeOK = j;
 	if(trace_load_settings) BPPrintMessage(odError, "QuantizeOK = %d\n",QuantizeOK);
 	#if BP_CARBON_GUI_FORGET_THIS
