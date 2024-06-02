@@ -106,3 +106,4 @@ If this temporary file is not found, it will be retrieved from the (permanent) "
 -----
 2024-06-02
 This version accepts any number of sources for MIDI events. It is also ready to accept multiple MIDI outputs, but this needs to be checked and implemented on the interface. A "sync delay" parameter has been added to the settings to compensate for the delay when controlling another BP3.
+Comments can be attached to MIDI inputs and outputs to help identify peripherals.

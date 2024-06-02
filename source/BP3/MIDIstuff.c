@@ -39,17 +39,20 @@ int trace_midi_filter = 0;
 int trace_driver = 0;
 
 int read_midisetup() {
-    char *itemType, *itemIndex, *itemNumber, *portName, line[MAXLIN];
+    char *itemType, *itemIndex, *itemNumber, *portName, *portComment, line[MAXLIN];
 	char *key, *value;
     FILE *file;
 	unsigned long long_value;
 	int i, int_value, index;
 	size_t len;
     int result = FALSE;
-	MaxInputPorts = MaxOutputPorts = 0;
+	MaxInputPorts = 0;
+	MaxOutputPorts = 1;
 	for(i = 0; i < MAXPORTS; i++) {
 		strcpy(InputMIDIportName[i],"");
 		strcpy(OutputMIDIportName[i],"");
+		strcpy(OutputMIDIportComment[i],"");
+		strcpy(InputMIDIportComment[i],"");
 		MIDIoutput[i] = 0;  MIDIinput[i] = 1;
 		}
     file = fopen(Midiportfilename,"r");
@@ -60,11 +63,13 @@ int read_midisetup() {
             itemType = strtok(line, "\t");
             itemIndex = strtok(NULL, "\t");
             itemNumber = strtok(NULL, "\t");
-            portName = strtok(NULL, "\n");
+            portName = strtok(NULL, "\t");
+            portComment = strtok(NULL, "\n");
 			strip_newline(itemType);
 			strip_newline(itemIndex);
 			strip_newline(itemNumber);
 			strip_newline(portName);
+			strip_newline(portComment);
 			index = atoi(itemIndex);
 			if(index >= MAXPORTS) {
 				BPPrintMessage(odError,"=> ERROR: Incorrect index %d on this line: %s\n",index,line);
@@ -80,6 +85,8 @@ int read_midisetup() {
 					MIDIinput[index] = atoi(itemNumber);
 					if(strlen(portName) > 0) strcpy(InputMIDIportName[index],portName);
 					else strcpy(InputMIDIportName[index],"???");
+					if(strlen(portComment) > 0) strcpy(InputMIDIportComment[index],portComment);
+					else strcpy(InputMIDIportComment[index],"");
 					if((index + 1) > MaxInputPorts) MaxInputPorts = index + 1;
 					}
 				else {
@@ -92,6 +99,8 @@ int read_midisetup() {
 					MIDIoutput[index] = atoi(itemNumber);
 					if(strlen(portName) > 0) strcpy(OutputMIDIportName[index],portName);
 					else strcpy(OutputMIDIportName[index],"???");
+					if(strlen(portComment) > 0) strcpy(OutputMIDIportComment[index],portComment);
+					else strcpy(OutputMIDIportComment[index],"");
 					if((index + 1) > MaxOutputPorts) MaxOutputPorts = index + 1;
 					result = OK; // We need at least one MIDI output port
 					}
@@ -130,10 +139,10 @@ int read_midisetup() {
         fclose(file);
 		BPPrintMessage(odInfo,"Your MIDI settings:\n");
 		for(index = 0; index < MaxOutputPorts; index++) {
-			BPPrintMessage(odInfo,"MIDI output [%d] = %d: “%s”\n",index,MIDIoutput[index],OutputMIDIportName[index]);
+			BPPrintMessage(odInfo,"MIDI output [%d] = %d: “%s” - %s\n",index,MIDIoutput[index],OutputMIDIportName[index],OutputMIDIportComment[index]);
 			}
 		for(index = 0; index < MaxInputPorts; index++) {
-			BPPrintMessage(odInfo,"MIDI input [%d] = %d: “%s”\n",index,MIDIinput[index],InputMIDIportName[index]);
+			BPPrintMessage(odInfo,"MIDI input [%d] = %d: “%s” - %s\n",index,MIDIinput[index],InputMIDIportName[index],InputMIDIportComment[index]);
 			}
 		BPPrintMessage(odInfo,"\n");
         }
@@ -159,11 +168,11 @@ void save_midisetup() {
         BPPrintMessage(odInfo,"MIDI settings saved to %s\n",Midiportfilename);
 		for(index = 0; index < MaxOutputPorts; index++) {
 			if(strlen(OutputMIDIportName[index]) == 0) continue;
-			fprintf(thefile, "MIDIoutput\t%d\t%d\t%s\n",index,MIDIoutput[index],OutputMIDIportName[index]);
+			fprintf(thefile, "MIDIoutput\t%d\t%d\t%s\t%s\n",index,MIDIoutput[index],OutputMIDIportName[index],OutputMIDIportComment[index]);
 			}
 		for(index = 0; index < MaxInputPorts; index++) {
 			if(strlen(InputMIDIportName[index]) == 0) continue;
-			fprintf(thefile, "MIDIinput\t%d\t%d\t%s\n",index,MIDIinput[index],InputMIDIportName[index]);
+			fprintf(thefile, "MIDIinput\t%d\t%d\t%s\t%s\n",index,MIDIinput[index],InputMIDIportName[index],InputMIDIportComment[index]);
 			SetInputFilterWord(index);
 			binaryString = longToBinary((unsigned long)MIDIinputFilter[index]);
         	fprintf(thefile, "MIDIinputFilter\t%d\t%s\n",index,binaryString);
@@ -264,7 +273,8 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 
 	STARTCHECK:
 	if(packet == NULL) return OK;
-	// if(!AcceptEvent(ByteToInt(packet->data[0]),index)) return OK;
+	if(!AcceptEvent(ByteToInt(packet->data[0]),index)) return OK;
+	// This is redundant because acceptance has laready be checked at the input
 	if (packet->length > 0) {
 		e->type = packet->data[0];  // Assuming data[0] is the status byte
 		e->time = packet->timeStamp;
@@ -960,7 +970,6 @@ int ChannelEvent(int c) {
 
 int AcceptEvent(int c, int i) {
 	int c0;
-	BPPrintMessage(odInfo,"NoteOnIn[%d] = %d\n",i,NoteOnIn[i]);
 	switch(c) {
 		case SystemExclusive:
 			if(SysExIn[i]) return(YES);

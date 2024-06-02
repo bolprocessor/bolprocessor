@@ -191,7 +191,7 @@ int initializeMIDISystem() {
                 }
             BPPrintMessage(odInfo,"MIDI (output) %u: “%s”", i, moc.szPname);
             if(!foundname && strcmp(moc.szPname,outputname) == 0) {  // Name is a priority choice
-                BPPrintMessage(odInfo," = the name of your choice");
+                BPPrintMessage(odInfo," 👉 the name of your choice");
                 MIDIoutput = (int) i;
                 foundname = 1;
                 }
@@ -231,7 +231,7 @@ int initializeMIDISystem() {
                 }
             BPPrintMessage(odInfo,"MIDI (source) %u: “%s”\n", i, mic.szPname);
             if(!foundname && strcmp(name,sourcename) == 0) {  // Name is a priority choice
-                BPPrintMessage(odInfo," = the name of your choice");
+                BPPrintMessage(odInfo," 👉 the name of your choice");
                 MIDIinput = (int) i;
                 foundname = 1;
                 }
@@ -287,7 +287,7 @@ int initializeMIDISystem() {
                 CFStringGetCString(endpointName, name, sizeof(name), kCFStringEncodingUTF8);
                 BPPrintMessage(odInfo,"MIDI (output) %lu: “%s”",i,name);
                 if(!foundname && strcmp(name,outputname) == 0) {  // Name is a priority choice
-                    BPPrintMessage(odInfo," = the name of your choice");
+                    BPPrintMessage(odInfo," 👉 the name of your choice");
                     MIDIoutput = (int) i;
                     foundname = 1;
                     }
@@ -336,7 +336,7 @@ int initializeMIDISystem() {
                 CFStringGetCString(endpointName, name, sizeof(name), kCFStringEncodingUTF8);
                 BPPrintMessage(odInfo,"MIDI (input) %d: “%s”",i,name);
                 if(!foundname && strcmp(name,sourcename) == 0) {  // Name is a priority choice
-                    BPPrintMessage(odInfo," = the name of your choice");
+                    BPPrintMessage(odInfo," 👉 the name of your choice");
                     MIDIinput = (int) i;
                     foundname = 1;
                     }

@@ -975,7 +975,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 		AllNotesOffPedalsOffAllChannels();
 		WaitABit(500L); // 500 ms
 		if((r = MIDIflush()) != OK) return r;
-		Notify("Real-time MIDI started");
+	//	Notify("Real-time MIDI started");
 		}
 	return OK;
 	}

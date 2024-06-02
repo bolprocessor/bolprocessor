@@ -104,12 +104,12 @@ int initializeMIDISystem(void) {
                 }
             BPPrintMessage(odInfo,"MIDI (output) %u: “%s”", i, moc.szPname);
             if(!foundname && strcmp(moc.szPname,outputname) == 0) {  // Name is a priority choice
-                BPPrintMessage(odInfo," = the name of your choice");
+                BPPrintMessage(odInfo," 👉 the name of your choice");
                 MIDIoutput = (int) i;
                 foundname = 1;
                 }
             else if(!foundname && (int)i == MIDIoutput) {
-                BPPrintMessage(odInfo," = your number");
+                BPPrintMessage(odInfo," 👉 your number?");
                 strcpy(newname,name);
                 foundnum = changed = 1;
                 }
@@ -144,7 +144,7 @@ int initializeMIDISystem(void) {
                 }
             BPPrintMessage(odInfo,"MIDI (source) %u: “%s”\n", i, mic.szPname);
             if(!foundname && strcmp(name,sourcename) == 0) {  // Name is a priority choice
-                BPPrintMessage(odInfo," = the name of your choice");
+                BPPrintMessage(odInfo," 👉 the name of your choice");
                 MIDIinput = (int) i;
                 foundname = 1;
                 }
@@ -203,12 +203,12 @@ int initializeMIDISystem(void) {
                     CFStringGetCString(endpointName, name, sizeof(name), kCFStringEncodingUTF8);
                     BPPrintMessage(odInfo,"MIDI output [%d] = %lu: “%s”",index,i,name);
                     if(!foundname && strcmp(name,OutputMIDIportName[index]) == 0) {  // Name is a priority choice
-                        BPPrintMessage(odInfo," = the name of your choice");
+                        BPPrintMessage(odInfo," 👉 the name of your choice");
                         MIDIoutput[index] = (int) i;
                         foundname = 1;
                         }
                     else if(!foundname && (int)i == MIDIoutput[index]) {
-                        BPPrintMessage(odInfo," = your number");
+                        BPPrintMessage(odInfo," 👉 your number?");
                         strcpy(newname,name);
                         foundnum = changed = 1;
                         }
@@ -272,12 +272,12 @@ int initializeMIDISystem(void) {
                         strcpy(firstname,name);
                         }
                     if(!foundname && strcmp(name,InputMIDIportName[index]) == 0) {  // Name is a priority choice
-                        BPPrintMessage(odInfo," = the name of your choice");
+                        BPPrintMessage(odInfo," 👉 the name of your choice");
                         MIDIinput[index] = (int) i;
                         foundname = 1;
                         }
                     else if(!foundname && (int)i == MIDIinput[index]) {
-                        BPPrintMessage(odInfo," = your number");
+                        BPPrintMessage(odInfo," 👉 your number?");
                         strcpy(newname,name);
                         foundnum = changed = 1;
                         }
@@ -291,7 +291,8 @@ int initializeMIDISystem(void) {
             if(!foundnum && !foundname && firstchoice >= 0) {
                 MIDIinput[index] = firstchoice;
                 strcpy(InputMIDIportName[index],firstname);
-                BPPrintMessage(odInfo,"MIDIinput[%d] = %d: “%s” = choice by default\n",index,firstchoice,InputMIDIportName[index]);
+                BPPrintMessage(odInfo,"MIDIinput[%d] = %d: “%s” 👉 choice by default\n",index,firstchoice,InputMIDIportName[index]);
+                changed = 1;
                 }
             if(!foundnum && !foundname && sourceCount <= MIDIinput[index]) {
                 BPPrintMessage(odError,"=> Error: MIDI input should be zero to %d\n",(int)(sourceCount - 1));
@@ -302,7 +303,7 @@ int initializeMIDISystem(void) {
             *sourceIndices[index] = index;
             MIDIPortConnectSource(MIDIinPort,src,sourceIndices[index]);
             Interactive = TRUE;
-            BPPrintMessage(odInfo,"👉 BP3 will be interactive (input %d)\n",index);
+            BPPrintMessage(odInfo,"BP3 will be interactive (input %d)\n",index);
             }
     #elif defined(__linux__)
         BPPrintMessage(odInfo,"Setting up Linux MIDI system\n");
@@ -391,7 +392,7 @@ int initializeMIDISystem(void) {
     #endif
     if(changed) BPPrintMessage(odInfo,"=> Warning: name of MIDI source or/and output changed (see above)\n");
     save_midisetup();
- //   Panic = TRUE;
+  //  Panic = TRUE; return(ABORT);
     return(OK);
     }
 
