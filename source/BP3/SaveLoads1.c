@@ -1542,25 +1542,6 @@ int LoadSettings(const char *filename, int startup) {
 	else OutCsound = FALSE;
 	if(jmax > 26) ReadInteger(sefile,&j,&pos); // used to read p_oms
 	Oms = FALSE;	// OMS is no more
-
-	/* Silently reset this flag if real-time Midi is not available.
-	Note that this does not mark the settings file as Dirty either.
-	-- 012307 akozar */
-	#if !WITH_REAL_TIME_MIDI_FORGET_THIS
-		rtMIDI = FALSE;
-	//	Improvize = FALSE;
-	#endif
-
-	// if(!rtMIDI) Improvize = FALSE;
-
-
-
-	#if BP_CARBON_GUI_FORGET_THIS
-	if(oldoutcsound && !OutCsound && !startup) CloseCsScore();
-	if(oldwritemidifile && !WriteMIDIfile && !startup) CloseMIDIFile();
-	if(rtMIDI && !oldoutmidi && !InitOn && !startup) ResetMIDI(FALSE);
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
-
 	if(ReadInteger(sefile,&SplitTimeObjects,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&SplitVariables,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
@@ -1592,7 +1573,7 @@ int LoadSettings(const char *filename, int startup) {
 		ResetRandom();
 		}
 	else {
-		if(!PlaySelectionOn) BPPrintMessage(odInfo, "No new random seed as per settings\n");
+		if(!PlaySelectionOn) BPPrintMessage(odInfo, "Not using a random seed: shuffling the cards\n");
 		Randomize();
 		}
 

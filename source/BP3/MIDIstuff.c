@@ -139,10 +139,14 @@ int read_midisetup() {
         fclose(file);
 		BPPrintMessage(odInfo,"Your MIDI settings:\n");
 		for(index = 0; index < MaxOutputPorts; index++) {
-			BPPrintMessage(odInfo,"MIDI output [%d] = %d: “%s” - %s\n",index,MIDIoutput[index],OutputMIDIportName[index],OutputMIDIportComment[index]);
+			if(strcmp(OutputMIDIportComment[index],"void") == 0) strcpy(line,"");
+			else strcpy(line,OutputMIDIportComment[index]);
+			BPPrintMessage(odInfo,"MIDI output [%d] = %d: “%s” - %s\n",index,MIDIoutput[index],OutputMIDIportName[index],line);
 			}
 		for(index = 0; index < MaxInputPorts; index++) {
-			BPPrintMessage(odInfo,"MIDI input [%d] = %d: “%s” - %s\n",index,MIDIinput[index],InputMIDIportName[index],InputMIDIportComment[index]);
+			if(strcmp(InputMIDIportComment[index],"void") == 0) strcpy(line,"");
+			else strcpy(line,InputMIDIportComment[index]);
+			BPPrintMessage(odInfo,"MIDI input [%d] = %d: “%s” - %s\n",index,MIDIinput[index],InputMIDIportName[index],line);
 			}
 		BPPrintMessage(odInfo,"\n");
         }
@@ -298,15 +302,12 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 				e->time = 0;
 				e->type = RAW_EVENT;
 				e->data2 = c0;
-		/*		if(!Oms && SysExPass) DriverWrite(ZERO,0,&e);
-				if(GetNextMIDIevent(&e,FALSE,FALSE) != OK) break; */
 				c0 = e->data2;
 				}
 			while(c0 != EndSysEx && e->type != NULL_EVENT);
 			e->time = 0;
 			e->type = RAW_EVENT;
 			e->data2 = c0;
-		//	if(!Oms && SysExPass) DriverWrite(ZERO,0,&e);
 			return(OK);
 			}
 		if(c0 == SongPosition) {
@@ -314,40 +315,31 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 				e->time = 0;
 				e->type = RAW_EVENT;
 				e->data2 = c0;
-		/*		if(!Oms && SongPosPass) DriverWrite(ZERO,0,&e);
-				if(GetNextMIDIevent(&e,FALSE,FALSE) != OK) break; */
 				c0 = e->data2;
 				}
 			e->time = 0;
 			e->type = RAW_EVENT;
 			e->data2 = c0;
-		//	if(!Oms && SongPosPass) DriverWrite(ZERO,0,&e);
 			return(OK);
 			}
 		if(c0 == SongSelect) {
 			e->time = 0;
 			e->type = RAW_EVENT;
 			e->data2 = c0;
-		/*	if(!Oms && SongSelPass) DriverWrite(ZERO,0,&e);
-			if(GetNextMIDIevent(&e,FALSE,FALSE) != OK) return(OK); */
 			c0 = e->data2;
 			e->time = 0;
 			e->type = RAW_EVENT;
 			e->data2 = c0;
-		//	if(!Oms && SongSelPass) DriverWrite(ZERO,0,&e);
 			return(OK);
 			}
 		if(c == ProgramChange) {
 			e->time = 0;
 			e->type = RAW_EVENT;
 			e->data2 = c0;
-		//	if(!Oms && ProgramTypePass) DriverWrite(ZERO,0,&e);
-		//	if(GetNextMIDIevent(&e,FALSE,FALSE) != OK) return(OK);
 			sprintf(Message,"%ld",(long)(e->data2) + ProgNrFrom);
 			if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,0,Message);
 			e->time = 0;
 			e->type = RAW_EVENT;
-		//	if(!Oms && ProgramTypePass) DriverWrite(ZERO,0,&e);
 			sprintf(Message,"%ld",(long)((c0 % 16) + 1));
 			if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,1,Message);
 			if(!ScriptExecOn) AppendScript(71);
@@ -355,12 +347,10 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			}
 		if(c == ChannelPressure) {
 			e->type = RAW_EVENT;
-		//	if(GetNextMIDIevent(&e,FALSE,FALSE) != OK) return(OK);
 			c1 = e->data2;
 			e->time = 0;
 			e->type = TWO_BYTE_EVENT;
 			e->status = c;
-		//	if(!Oms && ChannelPressurePass) DriverWrite(ZERO,0,&e);
 			if(Jcontrol < 0) {
 				sprintf(Message,"Pressure = %ld channel %ld",(long)c1,
 					(long)(c0 - c + 1));
@@ -387,27 +377,8 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 	if(filter && c2 != 0 && (x0 == 0 || x0 == c0) && (x1 == 0 || x1 == c1)
 				&& (x2 == 0 || x2 == c2)) return(RESUME);
 
-/*	if((Interactive || ScriptRecOn || ReadKeyBoardOn) && c == ControlChange && c1 > 95
-			&& c1 < 122) {
-		// Undefined controllers
-		if(!ScriptExecOn) {
-			sprintf(Message,"%ld",(long)c1);
-			MystrcpyStringToTable(ScriptLine.arg,0,Message);
-			sprintf(Message,"%ld",(long)c2);
-			MystrcpyStringToTable(ScriptLine.arg,1,Message);
-			sprintf(Message,"%ld",(long)(c0 - c + 1));
-			MystrcpyStringToTable(ScriptLine.arg,2,Message);
-			AppendScript(75);
-			}
-		sprintf(LineBuff,"Controller #%ld = %ld channel %ld",(long)c1,(long)c2,
-			(long)c0-c+1);
-		if(Interactive && ShowMessages) ShowMessage(TRUE,wMessage,LineBuff);
-		return(OK);
-		} */
 	if((Interactive || ScriptRecOn) && c == ChannelMode && c1 > 121) {
-	//	LineBuff[0] = '\0';
-		strcpy(LineBuff,""); // Fixed by BB 2021-02-14
-
+		strcpy(LineBuff,"");
 		sprintf(Message,"%ld",(long)(c0 - c + 1));
 		if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,0,Message);
 		switch(c1) {
@@ -527,7 +498,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 					if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,0,Message);
 					AppendScript(86);
 					}
-				if(ShowMessages && Jcontrol == -1) ShowMessage(TRUE,wMessage,LineBuff);
+			//	if(ShowMessages && Jcontrol == -1) ShowMessage(TRUE,wMessage,LineBuff);
 				return(OK);
 				}
 			}
@@ -639,7 +610,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			for(i=1; i < MAXPARAMCTRL; i++) {
 				if(ParamChan[i] != -1 && ParamKey[i] == c1
 									&& c0 == (NoteOn + ParamChan[i] - 1)) {
-				/* IN Param key �Kx� = velocity �note� channel �1..16� */
+				/* IN Param key "Kx" = velocity "note" channel "1..16" */
 					sprintf(Message,"K%ld = %ld",(long)i,(long)c2);
 					ShowMessage(TRUE,wMessage,Message);
 					ParamValue[i] = c2;

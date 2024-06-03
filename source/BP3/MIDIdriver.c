@@ -81,9 +81,11 @@
 
 int initializeMIDISystem(void) {
     char sourcename[MAXNAME], outputname[MAXNAME];
-    int foundnum,foundname,changed,index;
-    char newname[MAXNAME];
-    changed = false;
+    int foundnum,foundname,changed,fixed,index;
+    char newname[MAXNAME],filename[MAXNAME];
+    FILE * ptr;
+
+    changed = fixed = false;
     read_midisetup(); // This will modify MIDIinput and MIDIoutput
     #if defined(_WIN64)
         BPPrintMessage(odInfo,"Setting up Windows MIDI system\n");
@@ -204,6 +206,7 @@ int initializeMIDISystem(void) {
                     BPPrintMessage(odInfo,"MIDI output [%d] = %lu: “%s”",index,i,name);
                     if(!foundname && strcmp(name,OutputMIDIportName[index]) == 0) {  // Name is a priority choice
                         BPPrintMessage(odInfo," 👉 the name of your choice");
+                        if(MIDIoutput[index] != i) fixed = 1;
                         MIDIoutput[index] = (int) i;
                         foundname = 1;
                         }
@@ -273,6 +276,7 @@ int initializeMIDISystem(void) {
                         }
                     if(!foundname && strcmp(name,InputMIDIportName[index]) == 0) {  // Name is a priority choice
                         BPPrintMessage(odInfo," 👉 the name of your choice");
+                        if(MIDIinput[index] != i) fixed = 1;
                         MIDIinput[index] = (int) i;
                         foundname = 1;
                         }
@@ -299,11 +303,11 @@ int initializeMIDISystem(void) {
                 return(FALSE);
                 }
             src = MIDIGetSource(MIDIinput[index]);
-           sourceIndices[index] = (int*)malloc(sizeof(int)); 
+            sourceIndices[index] = (int*)malloc(sizeof(int)); 
             *sourceIndices[index] = index;
             MIDIPortConnectSource(MIDIinPort,src,sourceIndices[index]);
             Interactive = TRUE;
-            BPPrintMessage(odInfo,"BP3 will be interactive (input %d)\n",index);
+            BPPrintMessage(odInfo,"BP3 will be interactive (MIDI input %d)\n",MIDIinput[index]);
             }
     #elif defined(__linux__)
         BPPrintMessage(odInfo,"Setting up Linux MIDI system\n");
@@ -390,8 +394,16 @@ int initializeMIDISystem(void) {
                 }
             }
     #endif
+    if(fixed && !changed) BPPrintMessage(odInfo,"MIDI port number(s) may have changed and will be updated when saving the page of your project\n");
+    if(changed || fixed) {
+        save_midisetup();
+        strcpy(filename,Midiportfilename);
+        strcat(filename,"_refresh");
+        ptr = fopen(filename,"w");
+		fputs("refresh this midiport!\n",ptr);
+		fclose(ptr);
+        }
     if(changed) BPPrintMessage(odInfo,"=> Warning: name of MIDI source or/and output changed (see above)\n");
-    save_midisetup();
   //  Panic = TRUE; return(ABORT);
     return(OK);
     }

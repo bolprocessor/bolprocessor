@@ -157,7 +157,7 @@ int main (int argc, char* args[])
 		Panic = TRUE;
         goto CLEANUP;
     	}
-	if(rtMIDI) BPPrintMessage(odInfo,"\nReal-time events use a buffer of MaxMIDIMessages = %ld\n",(long)MaxMIDIMessages);
+	if(rtMIDI) BPPrintMessage(odInfo,"Real-time events use a buffer of MaxMIDIMessages = %ld\n",(long)MaxMIDIMessages);
 	
 	eventCount = 0L;
 	eventCountMax = MaxMIDIMessages - 4L;
@@ -1016,7 +1016,7 @@ int ApplyArgs(BPConsoleOpts* opts)
 			ResetRandom();
 			}
 		else {
-			BPPrintMessage(odInfo, "No new random seed as per command line\n");
+			BPPrintMessage(odInfo, "Not using a random seed: shuffling the cards\n");
 			Randomize();
 			}
 	}

@@ -107,3 +107,8 @@ If this temporary file is not found, it will be retrieved from the (permanent) "
 2024-06-02
 This version accepts any number of sources for MIDI events. It is also ready to accept multiple MIDI outputs, but this needs to be checked and implemented on the interface. A "sync delay" parameter has been added to the settings to compensate for the delay when controlling another BP3.
 Comments can be attached to MIDI inputs and outputs to help identify peripherals.
+
+-----
+2024-06-03
+MIDI port number management has been improved. If they are changed from the console, the changes are automatically applied to the page when the project is saved.
+The display of the SHOW HELP ENTRIES command has been corrected.
