@@ -12,24 +12,6 @@ You can also check the history of changes:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-changes.txt
 
 
-MIDI input
-----------
-
-- Implement script instructions previously designed for BP2
-
-
-Real-time MIDI
----------------------
-
-- Fix MIDIdriver.c in _WIN64 and __linux__ to compile and handle multiple MIDI inputs/outputs.
-- The "coreaudiomidi" process is still appearing as "sleeping" or "running" even after the console quits. This is possibly a sign of an incorrect cleanup process — although everything works fine!
-- When playing back chunked data in real-time MIDI, there may be gaps followed by garbled events due to the time taken to calculate large chunks. Check "-da.Beethoven-fugue-B-flat-major" for this. It's probably unavoidable: a larger value of MaxMIDIMessages (currently 1000 in ConsoleMain.c) is needed, but it blows the memory.
-- Maybe use a dynamically resizable array for eventStack? Probably not beneficial.
-- The value of MaxMIDIMessages could also be spacified in the settings file of the project.
-- Check the accuracy of start times in sound-object pictures.
-- The use of PortMidi (https://github.com/PortMidi/) could replace the current procedures in MIDIdriver.c and secure the implementation of real-time MIDI in the three environments. Although it makes it easier to program low-level MIDI features, it seems that installing PortMidi itself would require technical skills on the part of the user. We are keeping this option open for the time being. Compilation in Windows and Linux needs to be checked and fixed on real machines.
-
-
 Csound orchestra
 ----------------
 
@@ -46,6 +28,25 @@ Csound orchestra
 - Study how BP could produce score instructions modifying parameters in some instruments
 - Find an instrument that would create a switched bandpass filter with either a sound file or another instrument as input. The idea is to reproduce the effect of sympathetic strings and use it to add partials to other instruments (much like the Indian tanpura). These devices had been successfully wired as "switch filters" in the Shruti Harmonium.
 - Modify "new-vina" to produce lower frequencies, minimum "C2"
+
+
+MIDI input
+----------
+
+- Implement script instructions previously designed for BP2
+
+
+Real-time MIDI
+--------------
+
+- Create filters for MIDI output: we may need to filter the types of events and assign channels to specific outputs.
+- Fix MIDIdriver.c in _WIN64 and __linux__ to compile and handle multiple MIDI inputs/outputs.
+- The "coreaudiomidi" process is still appearing as "sleeping" or "running" even after the console quits. This is possibly a sign of an incorrect cleanup process — although everything works fine!
+- When playing back chunked data in real-time MIDI, there may be gaps followed by garbled events due to the time taken to calculate large chunks. Check "-da.Beethoven-fugue-B-flat-major" for this. It's probably unavoidable: a larger value of MaxMIDIMessages (currently 1000 in ConsoleMain.c) is needed, but it blows the memory.
+- Maybe use a dynamically resizable array for eventStack? Probably not beneficial.
+- The value of MaxMIDIMessages could also be spacified in the settings file of the project.
+- Check the accuracy of start times in sound-object pictures.
+- The use of PortMidi (https://github.com/PortMidi/) could replace the current procedures in MIDIdriver.c and secure the implementation of real-time MIDI in the three environments. Although it makes it easier to program low-level MIDI features, it seems that installing PortMidi itself would require technical skills on the part of the user. We are keeping this option open for the time being. Compilation in Windows and Linux needs to be checked and fixed on real machines.
 
 
 Real-time Csound

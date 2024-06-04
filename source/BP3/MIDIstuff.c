@@ -49,8 +49,8 @@ int read_midisetup() {
 	MaxInputPorts = 0;
 	MaxOutputPorts = 1;
 	for(i = 0; i < MAXPORTS; i++) {
-		strcpy(InputMIDIportName[i],"");
-		strcpy(OutputMIDIportName[i],"");
+		strcpy(MIDIinputname[i],"");
+		strcpy(MIDIoutputname[i],"");
 		strcpy(OutputMIDIportComment[i],"");
 		strcpy(InputMIDIportComment[i],"");
 		MIDIoutput[i] = 0;  MIDIinput[i] = 1;
@@ -83,8 +83,8 @@ int read_midisetup() {
             if(strcmp(itemType,"MIDIinput") == 0) {
 				if(itemNumber && strlen(itemNumber) > 0) {
 					MIDIinput[index] = atoi(itemNumber);
-					if(strlen(portName) > 0) strcpy(InputMIDIportName[index],portName);
-					else strcpy(InputMIDIportName[index],"???");
+					if(strlen(portName) > 0) strcpy(MIDIinputname[index],portName);
+					else strcpy(MIDIinputname[index],"???");
 					if(strlen(portComment) > 0) strcpy(InputMIDIportComment[index],portComment);
 					else strcpy(InputMIDIportComment[index],"");
 					if((index + 1) > MaxInputPorts) MaxInputPorts = index + 1;
@@ -97,8 +97,8 @@ int read_midisetup() {
 			if(strcmp(itemType,"MIDIoutput") == 0) {
 				if(itemNumber && strlen(itemNumber) > 0) {
 					MIDIoutput[index] = atoi(itemNumber);
-					if(strlen(portName) > 0) strcpy(OutputMIDIportName[index],portName);
-					else strcpy(OutputMIDIportName[index],"???");
+					if(strlen(portName) > 0) strcpy(MIDIoutputname[index],portName);
+					else strcpy(MIDIoutputname[index],"???");
 					if(strlen(portComment) > 0) strcpy(OutputMIDIportComment[index],portComment);
 					else strcpy(OutputMIDIportComment[index],"");
 					if((index + 1) > MaxOutputPorts) MaxOutputPorts = index + 1;
@@ -141,12 +141,12 @@ int read_midisetup() {
 		for(index = 0; index < MaxOutputPorts; index++) {
 			if(strcmp(OutputMIDIportComment[index],"void") == 0) strcpy(line,"");
 			else strcpy(line,OutputMIDIportComment[index]);
-			BPPrintMessage(odInfo,"MIDI output [%d] = %d: “%s” - %s\n",index,MIDIoutput[index],OutputMIDIportName[index],line);
+			BPPrintMessage(odInfo,"MIDI output [%d] = %d: “%s” - %s\n",index,MIDIoutput[index],MIDIoutputname[index],line);
 			}
 		for(index = 0; index < MaxInputPorts; index++) {
 			if(strcmp(InputMIDIportComment[index],"void") == 0) strcpy(line,"");
 			else strcpy(line,InputMIDIportComment[index]);
-			BPPrintMessage(odInfo,"MIDI input [%d] = %d: “%s” - %s\n",index,MIDIinput[index],InputMIDIportName[index],line);
+			BPPrintMessage(odInfo,"MIDI input [%d] = %d: “%s” - %s\n",index,MIDIinput[index],MIDIinputname[index],line);
 			}
 		BPPrintMessage(odInfo,"\n");
         }
@@ -169,14 +169,14 @@ void save_midisetup() {
 	int index;
     thefile = fopen(Midiportfilename,"w");
     if(thefile != NULL) {
-        BPPrintMessage(odInfo,"MIDI settings saved to %s\n",Midiportfilename);
+        BPPrintMessage(odInfo,"MIDI settings saved to %s\n\n",Midiportfilename);
 		for(index = 0; index < MaxOutputPorts; index++) {
-			if(strlen(OutputMIDIportName[index]) == 0) continue;
-			fprintf(thefile, "MIDIoutput\t%d\t%d\t%s\t%s\n",index,MIDIoutput[index],OutputMIDIportName[index],OutputMIDIportComment[index]);
+			if(strlen(MIDIoutputname[index]) == 0) continue;
+			fprintf(thefile, "MIDIoutput\t%d\t%d\t%s\t%s\n",index,MIDIoutput[index],MIDIoutputname[index],OutputMIDIportComment[index]);
 			}
 		for(index = 0; index < MaxInputPorts; index++) {
-			if(strlen(InputMIDIportName[index]) == 0) continue;
-			fprintf(thefile, "MIDIinput\t%d\t%d\t%s\t%s\n",index,MIDIinput[index],InputMIDIportName[index],InputMIDIportComment[index]);
+			if(strlen(MIDIinputname[index]) == 0) continue;
+			fprintf(thefile, "MIDIinput\t%d\t%d\t%s\t%s\n",index,MIDIinput[index],MIDIinputname[index],InputMIDIportComment[index]);
 			SetInputFilterWord(index);
 			binaryString = longToBinary((unsigned long)MIDIinputFilter[index]);
         	fprintf(thefile, "MIDIinputFilter\t%d\t%s\n",index,binaryString);

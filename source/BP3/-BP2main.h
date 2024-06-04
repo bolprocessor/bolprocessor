@@ -310,7 +310,7 @@ int Npicture,Offscreen;
 int PictureWindow[MAXPICT];
 int Charstep,UndoFlag;
 char LineBuff[MAXLIN];
-char InputMIDIportName[MAXPORTS][MAXNAME],OutputMIDIportName[MAXPORTS][MAXNAME],OutputMIDIportComment[MAXPORTS][MAXNAME],InputMIDIportComment[MAXPORTS][MAXNAME];
+char MIDIinputname[MAXPORTS][MAXNAME],MIDIoutputname[MAXPORTS][MAXNAME],OutputMIDIportComment[MAXPORTS][MAXNAME],InputMIDIportComment[MAXPORTS][MAXNAME];
 int MIDIinput[MAXPORTS], MIDIoutput[MAXPORTS];
 int MaxInputPorts, MaxOutputPorts;
 Str255 PascalLine;

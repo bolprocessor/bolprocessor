@@ -63,7 +63,7 @@ extern ResID DeviceMenuIcons[12];
     extern static HMIDIOUT hMidiOut,hMidiIn;
 #elif defined(__APPLE__)
     extern MIDIClientRef MIDIoutputClient, MIDIinputClient;
-    extern MIDIPortRef MIDIoutPort, MIDIinPort;
+    extern MIDIPortRef MIDIoutPort[MAXPORTS], MIDIinPort[MAXPORTS];
 #elif defined(__linux__)
     // Global variable for ALSA MIDI sequencer handle
     extern static snd_seq_t *seq_handle;
@@ -289,7 +289,7 @@ extern int Npicture,Offscreen;
 extern int PictureWindow[MAXPICT];
 extern int Charstep,UndoFlag;
 extern char LineBuff[MAXLIN];
-extern char InputMIDIportName[MAXPORTS][MAXNAME],OutputMIDIportName[MAXPORTS][MAXNAME],OutputMIDIportComment[MAXPORTS][MAXNAME],InputMIDIportComment[MAXPORTS][MAXNAME];
+extern char MIDIinputname[MAXPORTS][MAXNAME],MIDIoutputname[MAXPORTS][MAXNAME],OutputMIDIportComment[MAXPORTS][MAXNAME],InputMIDIportComment[MAXPORTS][MAXNAME];
 extern int MIDIinput[MAXPORTS], MIDIoutput[MAXPORTS];
 extern int MaxInputPorts, MaxOutputPorts;
 extern Str255 PascalLine;
