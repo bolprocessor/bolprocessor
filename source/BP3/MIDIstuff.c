@@ -137,7 +137,7 @@ int read_midisetup() {
         		}
 			}
         fclose(file);
-		BPPrintMessage(odInfo,"Your MIDI settings:\n");
+		BPPrintMessage(odInfo,"Your real-time MIDI settings:\n");
 		for(index = 0; index < MaxOutputPorts; index++) {
 			if(strcmp(OutputMIDIportComment[index],"void") == 0) strcpy(line,"");
 			else strcpy(line,OutputMIDIportComment[index]);
@@ -169,7 +169,7 @@ void save_midisetup() {
 	int index;
     thefile = fopen(Midiportfilename,"w");
     if(thefile != NULL) {
-        BPPrintMessage(odInfo,"MIDI settings saved to %s\n\n",Midiportfilename);
+        BPPrintMessage(odInfo,"\nMIDI settings saved to %s\n",Midiportfilename);
 		for(index = 0; index < MaxOutputPorts; index++) {
 			if(strlen(MIDIoutputname[index]) == 0) continue;
 			fprintf(thefile, "MIDIoutput\t%d\t%d\t%s\t%s\n",index,MIDIoutput[index],MIDIoutputname[index],OutputMIDIportComment[index]);

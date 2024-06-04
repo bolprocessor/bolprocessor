@@ -83,6 +83,7 @@ int initializeMIDISystem(void) {
     int found,changed,fixed,index;
     char filename[MAXNAME];
     int i, firstchoice, done_input, done_inputport[MAXPORTS], done_output, done_outputport[MAXPORTS], busy[MAXPORTS];
+    char more_outputs, more_inputs;
     char name[MAXNAME],firstname[MAXNAME];
     FILE * ptr;
 
@@ -184,7 +185,7 @@ int initializeMIDISystem(void) {
             sourceIndices[index] = NULL;
             MIDIoutPort[index] = -1;
             }
-        BPPrintMessage(odInfo,"Setting up MacOS MIDI system\n");
+        BPPrintMessage(odInfo,"🎹 Setting up MacOS MIDI system\n");
         status = MIDIClientCreate(CFSTR("MIDIcheck Client"),NULL,NULL,&MIDIoutputClient);
         if(status != noErr) {
             BPPrintMessage(odError,"=> Error: Could not create MIDI client.\n");
@@ -293,6 +294,7 @@ int initializeMIDISystem(void) {
                             BPPrintMessage(odInfo," 👉 the number of your choice\n");
                             strcpy(MIDIoutputname[index],name);
                             done_output++;
+                            busy[i] = 1;
                             MIDIoutputdestination[index] = MIDIGetDestination(MIDIoutput[index]);
                             found = 1;
                             changed = 1;
@@ -310,6 +312,7 @@ int initializeMIDISystem(void) {
                             BPPrintMessage(odInfo," 👉 choice by default\n");
                             strcpy(MIDIoutputname[index],name);
                             done_output++;
+                            busy[firstchoice] = 1;
                             MIDIoutput[index] = firstchoice;
                             changed = 1;
                             MIDIoutputdestination[index] = MIDIGetDestination(MIDIoutput[index]);
@@ -342,6 +345,7 @@ int initializeMIDISystem(void) {
                             BPPrintMessage(odInfo," 👉 the number of your choice\n");
                             strcpy(MIDIinputname[index],name);
                             done_input++;
+                            busy[i] = 1;
                             MIDIinputdestination[index] = MIDIGetDestination(MIDIinput[index]);
                             src = MIDIGetSource(MIDIinput[index]);
                             sourceIndices[index] = (int*)malloc(sizeof(int)); 
@@ -365,6 +369,7 @@ int initializeMIDISystem(void) {
                             BPPrintMessage(odInfo," 👉 choice by default\n");
                             strcpy(MIDIinputname[index],name);
                             done_input++;
+                            busy[firstchoice] = 1;
                             MIDIinput[index] = firstchoice;
                             changed = 1;
                             MIDIinputdestination[index] = MIDIGetDestination(MIDIinput[index]);
@@ -377,6 +382,34 @@ int initializeMIDISystem(void) {
                             }
                         }
                     else BPPrintMessage(odInfo,"No port is available for the new input\n");
+                    }
+                }
+            }
+        // Suggest more options
+        more_outputs = 0;
+        for(i = 0; i < outputCount; i++) if(!busy[i]) more_outputs = 1;
+        for(i = 0; i < inputCount; i++) if(!busy[i]) more_inputs = 1;
+        if(more_outputs) {
+            BPPrintMessage(odInfo,"\n🎶 More MIDI output options are available:\n");
+            for(i = 0; i < outputCount; i++) {
+                if(busy[i]) continue;
+                outputdestination = MIDIGetDestination(i);
+                endpointName = NULL;
+                if(MIDIObjectGetStringProperty(outputdestination, kMIDIPropertyName, &endpointName) == noErr) {
+                    CFStringGetCString(endpointName, name, sizeof(name), kCFStringEncodingUTF8);
+                    BPPrintMessage(odInfo,"MIDI output = %d: “%s”\n",i,name);
+                    }
+                }
+            }
+        if(more_inputs) {
+            BPPrintMessage(odInfo,"\n🎶 More MIDI input options are available:\n");
+            for(i = 0; i < inputCount; i++) {
+                if(busy[i]) continue;
+                inputdestination = MIDIGetSource(firstchoice);
+                endpointName = NULL;
+                if(MIDIObjectGetStringProperty(inputdestination, kMIDIPropertyName, &endpointName) == noErr) {
+                    CFStringGetCString(endpointName, name, sizeof(name), kCFStringEncodingUTF8);
+                    BPPrintMessage(odInfo,"MIDI input = %d: “%s”\n",i,name);
                     }
                 }
             }
