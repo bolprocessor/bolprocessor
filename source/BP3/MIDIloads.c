@@ -1,6 +1,6 @@
 /* MIDIloads.c (BP3) */ 
 
-/*  This file is a part of Bol Processor 2
+/*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
     All rights reserved. 
     
@@ -646,7 +646,7 @@ Str255 t;
   return(MISSED);
 #else
 r = MISSED; error = NO;
-oldfilter = MIDIinputFilter;
+oldfilter = MIDIacceptFilter;
 SetCursor(&WatchCursor);
 if(ComputeOn || PolyOn || CompileOn || SoundOn || SelectOn || SetTimeOn || GraphicOn
 	|| PrintOn || ReadKeyBoardOn || HangOn || ScriptExecOn) return(MISSED);
@@ -655,7 +655,7 @@ if((p_Code = (MIDIcode**) GiveSpace((Size)imax * sizeof(MIDIcode))) == NULL)
 	return(ABORT);
 HideWindow(Window[wMessage]);
 FlashInfo("Receiving MIDI data. Click mouse when completed.");
-MIDIinputFilter = 0xffffffffL;
+MIDIacceptFilter = 0xffffffffL;
 ResetMIDI(FALSE);
 
 FlushEvents(everyEvent,0);
@@ -685,7 +685,7 @@ r = OK;
 
 END:
 HideWindow(Window[wInfo]);
-MIDIinputFilter = oldfilter;
+MIDIacceptFilter = oldfilter;
 StopWait();
 return(r);
 #endif

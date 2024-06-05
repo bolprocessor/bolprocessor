@@ -1,6 +1,6 @@
 /* SaveLoads1.c (BP3) */ 
 
-/*  This file is a part of Bol Processor 2
+/*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
     All rights reserved. 
     
@@ -792,11 +792,11 @@ WRITE:
 			sprintf(LineBuff,"%ld",(long)WindowTextSize[w]);
 			WriteToFile(NO,MAC,LineBuff,refnum);
 			}
-		sprintf(LineBuff,"%ld",(long)MIDIoutputFilter); WriteToFile(NO,MAC,LineBuff,refnum);
+		sprintf(LineBuff,"%ld",(long)MIDIpassFilter); WriteToFile(NO,MAC,LineBuff,refnum);
 		for(i=0; i < 12; i++) {
 			sprintf(LineBuff,"%ld",(long)NameChoice[i]); WriteToFile(NO,MAC,LineBuff,refnum);
 			}
-		sprintf(LineBuff,"%ld",(long)MIDIinputFilter); WriteToFile(NO,MAC,LineBuff,refnum);
+		sprintf(LineBuff,"%ld",(long)MIDIacceptFilter); WriteToFile(NO,MAC,LineBuff,refnum);
 		
 		if(Version > 19) {
 			sprintf(LineBuff,"%ld",(long)ShowObjectGraph);
@@ -1720,8 +1720,8 @@ int LoadSettings(const char *filename, int startup) {
 
 	if(iv > 4) {
 		if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR;
-	/*	MIDIoutputFilter = k;
-		if(startup) MIDIoutputFilterstartup = MIDIoutputFilter;
+	/*	MIDIpassFilter = k;
+		if(startup) MIDIoutputFilterstartup = MIDIpassFilter;
 		GetOutputFilterWord(); */
 		for(i=0; i < 12; i++) {
 			if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
@@ -1731,9 +1731,9 @@ int LoadSettings(const char *filename, int startup) {
 		}
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR;
 /*	if(k != 0L) {
-		MIDIinputFilter = k;
-	//	BPPrintMessage(odInfo,"MIDIinputFilter = %d\n",k);
-		if(startup) MIDIinputFilterstartup = MIDIinputFilter;
+		MIDIacceptFilter = k;
+	//	BPPrintMessage(odInfo,"MIDIacceptFilter = %d\n",k);
+		if(startup) MIDIinputFilterstartup = MIDIacceptFilter;
 		GetInputFilterWord();
 		if(!ScriptExecOn && !NoteOnIn) {
 			Alert1("Reception of NoteOn's is disabled. Most MIDI data received by BP2 will be meaningless");

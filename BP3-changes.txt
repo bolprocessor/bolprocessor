@@ -114,3 +114,6 @@ This version accepts any number of outputs for MIDI events.
 MIDI port number management has been improved. If they are changed from the console, the changes are automatically applied to the page when the project is saved.
 The display of the SHOW HELP ENTRIES command has been corrected.
 
+-----
+2024-06-05
+This version takes care of filters on MIDI outputs. These can specify the types and channels of events sent to each output.

@@ -1,6 +1,6 @@
 /* -BP2main.h  (BP3) */
 
-/*  This file is a part of Bol Processor 2
+/*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
     All rights reserved. 
     
@@ -272,7 +272,8 @@ long Infpos,Infneg,Veryneg,MaxMIDIbytes,
 	TimeMax,Nalpha,Nbytes,Tbytes2,
 	MIDIinputFilterstartup,
 	MIDIoutputFilterstartup,Ts,DataEnd;
-unsigned long MIDIinputFilter[MAXPORTS],MIDIoutputFilter[MAXPORTS];
+unsigned long MIDIacceptFilter[MAXPORTS],MIDIpassFilter[MAXPORTS];
+char MIDIchannelFilter[MAXPORTS][17],MIDIoutFilter[MAXPORTS][19];
 Milliseconds **p_T;
 long **p_Ppatt,**p_Qpatt;
 MIDIcode **p_Code; 

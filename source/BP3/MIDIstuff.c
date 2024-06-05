@@ -1,6 +1,6 @@
 /* MIDIstuff.c (BP3) */ 
 
-/*  This file is a part of Bol Processor 2
+/*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
     All rights reserved. 
     
@@ -106,7 +106,7 @@ int read_midisetup() {
 					}
 				else MIDIoutput[index] = -1;
 				}
-			if(strcmp(itemType,"MIDIinputFilter") == 0) {
+			if(strcmp(itemType,"MIDIacceptFilter") == 0) {
         		if(itemNumber && strlen(itemNumber) > 0) {
 					long_value = 0L;
             		for(i = 0; i < 18; i++) {
@@ -116,11 +116,11 @@ int read_midisetup() {
 							}
                 		long_value = (long_value * 2L) + (itemNumber[i] - '0');
             			}
-					MIDIinputFilter[index] = long_value;
+					MIDIacceptFilter[index] = long_value;
 					GetInputFilterWord(index);
 					}
 				}
-			if(strcmp(itemType,"MIDIoutputFilter") == 0) {
+			if(strcmp(itemType,"MIDIpassFilter") == 0) {
         		if(itemNumber && strlen(itemNumber) > 0) {
 					long_value = 0L;
             		for(i = 0; i < 18; i++) {
@@ -130,23 +130,35 @@ int read_midisetup() {
 							}
                 		long_value = (long_value * 2L) + (itemNumber[i] - '0');
             			}
-					MIDIoutputFilter[index] = long_value;
-				//	BPPrintMessage(odInfo,"Lu: MIDIoutputFilter[%d] = %ld = %s\n",index,MIDIoutputFilter[index],itemNumber);
+					MIDIpassFilter[index] = long_value;
+				//	BPPrintMessage(odInfo,"Lu: MIDIpassFilter[%d] = %ld = %s\n",index,MIDIpassFilter[index],itemNumber);
 					GetOutputFilterWord(index);
 					}
         		}
+			if(strcmp(itemType,"MIDIchannelFilter") == 0) {
+       			if(itemNumber && strlen(itemNumber) > 0) {
+					strcpy(MIDIchannelFilter[index],itemNumber);
+				//	BPPrintMessage(odInfo,"Lu: MIDIchannelFilter[%d] = %s\n",index,MIDIchannelFilter[index]);
+					}
+        		}
+			if(strcmp(itemType,"MIDIoutFilter") == 0) {
+				if(itemNumber && strlen(itemNumber) > 0) {
+					strcpy(MIDIoutFilter[index],itemNumber);
+				//	BPPrintMessage(odInfo,"Lu: MIDIoutFilter[%d] = %s\n",index,MIDIoutFilter[index]);
+					}
+				}
 			}
         fclose(file);
 		BPPrintMessage(odInfo,"Your real-time MIDI settings:\n");
 		for(index = 0; index < MaxOutputPorts; index++) {
 			if(strcmp(OutputMIDIportComment[index],"void") == 0) strcpy(line,"");
 			else strcpy(line,OutputMIDIportComment[index]);
-			BPPrintMessage(odInfo,"MIDI output [%d] = %d: “%s” - %s\n",index,MIDIoutput[index],MIDIoutputname[index],line);
+			BPPrintMessage(odInfo,"MIDI output = %d: “%s” - %s\n",MIDIoutput[index],MIDIoutputname[index],line);
 			}
 		for(index = 0; index < MaxInputPorts; index++) {
 			if(strcmp(InputMIDIportComment[index],"void") == 0) strcpy(line,"");
 			else strcpy(line,InputMIDIportComment[index]);
-			BPPrintMessage(odInfo,"MIDI input [%d] = %d: “%s” - %s\n",index,MIDIinput[index],MIDIinputname[index],line);
+			BPPrintMessage(odInfo,"MIDI input = %d: “%s” - %s\n",MIDIinput[index],MIDIinputname[index],line);
 			}
 		BPPrintMessage(odInfo,"\n");
         }
@@ -173,25 +185,26 @@ void save_midisetup() {
 		for(index = 0; index < MaxOutputPorts; index++) {
 			if(strlen(MIDIoutputname[index]) == 0) continue;
 			fprintf(thefile, "MIDIoutput\t%d\t%d\t%s\t%s\n",index,MIDIoutput[index],MIDIoutputname[index],OutputMIDIportComment[index]);
+	//		BPPrintMessage(odInfo,"Ecrit: MIDIchannelFilter[%d] = %s\n",index,MIDIchannelFilter[index]);
+        	fprintf(thefile, "MIDIchannelFilter\t%d\t%s\n",index,MIDIchannelFilter[index]);
 			}
 		for(index = 0; index < MaxInputPorts; index++) {
 			if(strlen(MIDIinputname[index]) == 0) continue;
 			fprintf(thefile, "MIDIinput\t%d\t%d\t%s\t%s\n",index,MIDIinput[index],MIDIinputname[index],InputMIDIportComment[index]);
 			SetInputFilterWord(index);
-			binaryString = longToBinary((unsigned long)MIDIinputFilter[index]);
-        	fprintf(thefile, "MIDIinputFilter\t%d\t%s\n",index,binaryString);
+			binaryString = longToBinary(18,(unsigned long)MIDIacceptFilter[index]);
+        	fprintf(thefile, "MIDIacceptFilter\t%d\t%s\n",index,binaryString);
 			free(binaryString);
 			SetOutputFilterWord(index);
-			binaryString = longToBinary((unsigned long)MIDIoutputFilter[index]);
-        	fprintf(thefile, "MIDIoutputFilter\t%d\t%s\n",index,binaryString);
+			binaryString = longToBinary(18,(unsigned long)MIDIpassFilter[index]);
+        	fprintf(thefile, "MIDIpassFilter\t%d\t%s\n",index,binaryString);
 			free(binaryString);
 			}
         fclose(thefile);
         }
     }
 
-char* longToBinary(unsigned long num) {
-    int totalBits = 18; // The total number of bits in the output
+char* longToBinary(int totalBits,unsigned long num) {
     char *binary = (char *)malloc(totalBits + 1); // Allocate memory for 18 bits plus null terminator
     unsigned long mask = 1UL << (totalBits - 1);
     for(int i = 0; i < totalBits; i++, mask >>= 1) {
@@ -790,7 +803,7 @@ int SetInputFilterWord(int i) {
 	if(ContTypeIn[i]) StartTypeIn[i] = TRUE;
 	if(NoteOnIn[i]) NoteOffIn[i] = TRUE;
 	if(NoteOffIn[i]) NoteOnIn[i] = TRUE;
-	MIDIinputFilter[i] =
+	MIDIacceptFilter[i] =
 		ResetIn[i] + 2L * (ActiveSenseIn[i] + 2L * (ContTypeIn[i] + 2L * (StartTypeIn[i] + 2L * (ClockTypeIn[i]
 		+ 2L * (EndSysExIn[i] + 2L * (TuneTypeIn[i] + 2L * (SongSelIn[i] + 2L * (SongPosIn[i]
 		+ 2L * (TimeCodeIn[i] + 2L * (SysExIn[i] + 2L * (PitchBendIn[i] + 2L * (ChannelPressureIn[i]
@@ -808,14 +821,14 @@ int SetOutputFilterWord(int i) {
 	if(ContTypePass[i]) StartTypePass[i] = TRUE;
 	if(NoteOnPass[i]) NoteOffPass[i] = TRUE;
 	if(NoteOffPass[i]) NoteOnPass[i] = TRUE;
-	MIDIoutputFilter[i] =
+	MIDIpassFilter[i] =
 		ResetPass[i] + 2L * (ActiveSensePass[i] + 2L * (ContTypePass[i] + 2L * (StartTypePass[i] + 2L * (ClockTypePass[i]
 		+ 2L * (EndSysExPass[i] + 2L * (TuneTypePass[i] + 2L * (SongSelPass[i] + 2L * (SongPosPass[i]
 		+ 2L * (TimeCodePass[i] + 2L * (SysExPass[i] + 2L * (PitchBendPass[i] + 2L * (ChannelPressurePass[i]
 		+ 2L * (ProgramTypePass[i] + 2L * (ControlTypePass[i] + 2L * (KeyPressurePass[i] + 2L * (NoteOnPass[i]
 		+ 2L * NoteOffPass[i]))))))))))))))));
 	/* To pass an event you should enable the driver to receive it... */
-	MIDIinputFilter[i] = MIDIinputFilter[i] | MIDIoutputFilter[i];
+	MIDIacceptFilter[i] = MIDIacceptFilter[i] | MIDIpassFilter[i];
 	GetInputFilterWord(i);
 //	BPPrintMessage(odInfo,"@@@ NoteOnPass = %d\n",NoteOnPass);
 	return(OK);
@@ -824,25 +837,25 @@ int SetOutputFilterWord(int i) {
 
 int GetInputFilterWord(int i) {
 	long n = 1L;
-    ResetIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    ActiveSenseIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    ContTypeIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    StartTypeIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    ClockTypeIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    EndSysExIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    TuneTypeIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    SongSelIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    SongPosIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    TimeCodeIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    SysExIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    PitchBendIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    ChannelPressureIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    ProgramTypeIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    ControlTypeIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    KeyPressureIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    NoteOnIn[i] = (MIDIinputFilter[i] & n) != 0; n <<= 1;
-    NoteOffIn[i] = (MIDIinputFilter[i] & n) != 0; // Last use of n
-/*	BPPrintMessage(odInfo,"@@@ MIDIinputFilter[%d] = %ld\n",i,MIDIinputFilter[i]);
+    ResetIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    ActiveSenseIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    ContTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    StartTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    ClockTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    EndSysExIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    TuneTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    SongSelIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    SongPosIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    TimeCodeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    SysExIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    PitchBendIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    ChannelPressureIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    ProgramTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    ControlTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    KeyPressureIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    NoteOnIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+    NoteOffIn[i] = (MIDIacceptFilter[i] & n) != 0; // Last use of n
+/*	BPPrintMessage(odInfo,"@@@ MIDIacceptFilter[%d] = %ld\n",i,MIDIacceptFilter[i]);
 	BPPrintMessage(odInfo,"@@@ NoteOnIn[%d] = %d\n",i,NoteOnIn[i]); */
 	return(OK);
 	}
@@ -850,26 +863,26 @@ int GetInputFilterWord(int i) {
 
 int GetOutputFilterWord(int i) {
 	long n = 1L;
- 	ResetPass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    ActiveSensePass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    ContTypePass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    StartTypePass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    ClockTypePass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    EndSysExPass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    TuneTypePass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    SongSelPass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    SongPosPass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    TimeCodePass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    SysExPass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    PitchBendPass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    ChannelPressurePass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    ProgramTypePass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    ControlTypePass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    KeyPressurePass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    NoteOnPass[i] = (MIDIoutputFilter[i] & n) != 0; n <<= 1;
-    NoteOffPass[i] = (MIDIoutputFilter[i] & n) != 0; // Last use of n
-/*	char* binaryStr = printBinary18(MIDIoutputFilter[i],18);
-	BPPrintMessage(odInfo,"MIDIoutputFilter[%d] = %s = %ld\n",i,binaryStr,MIDIoutputFilter[i]);
+ 	ResetPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    ActiveSensePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    ContTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    StartTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    ClockTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    EndSysExPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    TuneTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    SongSelPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    SongPosPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    TimeCodePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    SysExPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    PitchBendPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    ChannelPressurePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    ProgramTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    ControlTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    KeyPressurePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    NoteOnPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+    NoteOffPass[i] = (MIDIpassFilter[i] & n) != 0; // Last use of n
+/*	char* binaryStr = printBinary18(MIDIpassFilter[i],18);
+	BPPrintMessage(odInfo,"MIDIpassFilter[%d] = %s = %ld\n",i,binaryStr,MIDIpassFilter[i]);
 	BPPrintMessage(odInfo,"NoteOnPass[%d] = %d\n",i,NoteOnPass[i]);
 	free(binaryStr); */
 	return(OK);
@@ -878,8 +891,8 @@ int GetOutputFilterWord(int i) {
 int ResetMIDIFilter(void) {
 	int i;
 	for(i= 0; i < MaxInputPorts; i++) {
-		MIDIinputFilter[i] = MIDIinputFilterstartup;
-		MIDIoutputFilter[i] = MIDIoutputFilterstartup;
+		MIDIacceptFilter[i] = MIDIinputFilterstartup;
+		MIDIpassFilter[i] = MIDIoutputFilterstartup;
 		GetInputFilterWord(i);
 		GetOutputFilterWord(i);
 		SetOutputFilterWord(i);	/* Verifies consistency */
@@ -1000,7 +1013,7 @@ int AcceptEvent(int c, int i) {
 	}
 
 
-int PassEvent(int c, int i) {
+int PassInEvent(int c, int i) {
 	int c0;
 
 	switch(c) {
@@ -1061,6 +1074,66 @@ int PassEvent(int c, int i) {
 	return(NO);
 	}
 
+
+int PassOutEvent(int c, int i) {
+	int c0;
+	switch(c) {
+		case SystemExclusive:
+			if(MIDIoutFilter[i][7] == '0') return(NO);
+			break;
+		case SongPosition:
+			if(MIDIoutFilter[i][9] == '0') return(NO);
+			break;
+		case SongSelect:
+			if(MIDIoutFilter[i][10] == '0') return(NO);
+			break;
+		case TuneRequest:
+			if(MIDIoutFilter[i][11] == '0') return(NO);
+			break;
+		case EndSysEx:
+			if(MIDIoutFilter[i][12] == '0') return(NO);
+			break;
+		case TimingClock:
+			if(MIDIoutFilter[i][13] == '0') return(NO);
+			break;
+		case Start:
+		case Continue:
+		case Stop:
+			if(MIDIoutFilter[i][14] == '0') return(NO);
+			break;
+		case ActiveSensing:
+			if(MIDIoutFilter[i][16] == '0') return(NO);
+			break;
+		case SystemReset:
+			if(MIDIoutFilter[i][17] == '0') return(NO);
+			break;
+		}
+	c0 = c - (c % 16);
+	switch(c0) {
+		case NoteOff:
+			if(MIDIoutFilter[i][0] == '0') return(NO);
+			break;
+		case NoteOn:
+			if(MIDIoutFilter[i][1] == '0') return(NO);
+			break;
+		case KeyPressure:
+			if(MIDIoutFilter[i][2] == '0') return(NO);
+			break;
+		case ControlChange:
+			if(MIDIoutFilter[i][3] == '0') return(NO);
+			break;
+		case ProgramChange:
+			if(MIDIoutFilter[i][4] == '0') return(NO);
+			break;
+		case ChannelPressure:
+			if(MIDIoutFilter[i][5] == '0') return(NO);
+			break;
+		case PitchBend:
+			if(MIDIoutFilter[i][6] == '0') return(NO);
+			break;
+		}
+	return(YES);
+	}
 
 int SendMIDIstream(int check,char** p_line,int hexa)
 {

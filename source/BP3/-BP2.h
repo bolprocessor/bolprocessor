@@ -1,7 +1,7 @@
 /* -BP2.h (BP3) */
 
 
-/*  This file is a part of Bol Processor 2
+/*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
     All rights reserved. 
     

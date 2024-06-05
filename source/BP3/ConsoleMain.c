@@ -1,7 +1,7 @@
 /* ConsoleMain.c (BP3) */
 /* August 7, 2013 */
 
-/*  This file is a part of Bol Processor 2
+/*  This file is a part of Bol Processor
 Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
 Copyright (c) 2013, 2019, 2020 by Anthony Kozar
 All rights reserved. 
@@ -351,7 +351,7 @@ void CreateDoneFile(void) {
 		thefile = str_replace(line,".txt",""); // str_replace() is defined in Misc.c
 		strcat(thefile,"_done");
 	    BPPrintMessage(odInfo,"Created 'done' file: %s",thefile);
-		BPPrintMessage(odInfo,"\n_____________________\n");
+	//	BPPrintMessage(odInfo,"\n_____________________\n");
 		ptr = fopen(thefile,"w");
 		fputs("bp completed work!\n",ptr);
 		fclose(ptr);
@@ -388,7 +388,7 @@ int stop(int now,char* where) {
 	ptr = fopen(StopfileName,"r");
 	if(ptr) {
 		Improvize = PlayAllChunks = FALSE;
-		BPPrintMessage(odError,"=> Found 'stop' file (in %s): %s\n",where,StopfileName);
+		BPPrintMessage(odError,"Found 'stop' file (in %s): %s\n",where,StopfileName);
 		fclose(ptr);
 		Panic = EmergencyExit = TRUE;
 		return ABORT;
@@ -396,7 +396,7 @@ int stop(int now,char* where) {
 	ptr = fopen(PanicfileName,"r");
 	if(ptr) {
 		Improvize = PlayAllChunks = FALSE;
-		BPPrintMessage(odError,"=> Found 'panic' file: %s\n",PanicfileName);
+		BPPrintMessage(odError,"Found 'panic' file: %s\n",PanicfileName);
 		fclose(ptr);
 		Panic = EmergencyExit = TRUE;
 		return ABORT;

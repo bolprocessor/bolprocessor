@@ -1,6 +1,6 @@
 /* Inits.c (BP3) */
 
-/*  This file is a part of Bol Processor 2
+/*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
     All rights reserved. 
     
@@ -202,8 +202,10 @@ int Inits(void) {
 	MIDIinputFilterstartup = FILTER_ALL_ON;
 	MIDIoutputFilterstartup = FILTER_ALL_OFF;
 	for(i = 0; i < MAXPORTS; i++) {
-		MIDIinputFilter[i] = FILTER_ALL_ON;
-		MIDIoutputFilter[i] = FILTER_ALL_OFF;
+		MIDIacceptFilter[i] = FILTER_ALL_ON;
+		MIDIpassFilter[i] = FILTER_ALL_OFF;
+		sprintf(MIDIchannelFilter[i],"%s","1111111111111111");
+	//	BPPrintMessage(odInfo,"Init: MIDIchannelFilter[%d] = %s\n",i,MIDIchannelFilter[i]);
 		}
 	ResetMIDIFilter();
 

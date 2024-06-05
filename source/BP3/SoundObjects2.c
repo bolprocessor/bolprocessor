@@ -1,6 +1,6 @@
 /* SoundObjects2.c (BP3) */
 
-/*  This file is a part of Bol Processor 2
+/*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
     All rights reserved. 
     
@@ -77,14 +77,14 @@ imax = 10000L;	/* Initial size of MIDI buffer. Will be resized if needed. */
 if((p_Code = (MIDIcode**) GiveSpace((Size)imax * sizeof(MIDIcode))) == NULL) return(ABORT);
 HideWindow(Window[wMessage]);
 if(ResetControllers) ResetMIDIControllers(YES,YES,NO);
-oldfilter = MIDIinputFilter;
-MIDIinputFilter = 0xffffffffL;
+oldfilter = MIDIacceptFilter;
+MIDIacceptFilter = 0xffffffffL;
 if(!Oms) SetDriver();
 InputOn = TRUE;
 r = LoadMIDIprototype(j,imax);
 HideWindow(Window[wInfo]);
 SuppressAllNotesOff(NO,j);
-MIDIinputFilter = oldfilter;
+MIDIacceptFilter = oldfilter;
 if(!Oms) SetDriver();
 InputOn = FALSE;
 ptr = (Handle) p_Code;

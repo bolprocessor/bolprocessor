@@ -3,7 +3,7 @@
 // Written by Bernard Bel (bel@kagi.com) on the basis of the OMS Software Developers Kit
 // supplied by OpCode (ref. OMS 2.0 SDK 960523)
 
-/*  This file is a part of Bol Processor 2
+/*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
     All rights reserved. 
     
@@ -420,7 +420,7 @@ asm {
 				
 		/* Transmit message immediately if allowed. No time should be wasted. */
 		if(AcceptEvent(ByteToInt(pkt->data[0]))) {
-			if(gOutNodeRefNum != OMSInvalidRefNum && PassEvent(ByteToInt(pkt->data[0]))) {
+			if(gOutNodeRefNum != OMSInvalidRefNum && PassInEvent(ByteToInt(pkt->data[0]))) {
 				SchedulerIsActive--;
 				OMSWritePacket2(pkt,gOutNodeRefNum,gOutputPortRefNum);
 				SchedulerIsActive++;

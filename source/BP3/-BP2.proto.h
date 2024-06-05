@@ -1,6 +1,6 @@
 /* -BP2.proto.h (BP3) */
 
-/*  This file is a part of Bol Processor 2
+/*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
     All rights reserved. 
     
@@ -293,7 +293,7 @@ int GetTickParameters(void);
 int SetThisTick(void);
 int ClearCycle(int);
 int MyButton(int);
-char* longToBinary(unsigned long);
+char* longToBinary(int,unsigned long);
 char* printBinary18(long,int);
 int HandleMySpecialHLEvent(EventRecord*);
 int DoHighLevelEvent(EventRecord*);
@@ -646,7 +646,8 @@ int TwoByteEvent(int);
 int ThreeByteChannelEvent(int);
 int ChannelEvent(int);
 int AcceptEvent(int,int);
-int PassEvent(int,int);
+int PassInEvent(int,int);
+int PassOutEvent(int,int);
 int SetReceiveRaw(void);
 int SendMIDIstream(int,char**,int);
 int ResetMIDIControllers(int,int,int);

@@ -1,7 +1,7 @@
 /* GetRelease.c (BP3) */
 /* WARNING: Record carefully any change done here as it may take ages to trace bad consequences */
 
-/*  This file is a part of Bol Processor 2
+/*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
     All rights reserved. 
     

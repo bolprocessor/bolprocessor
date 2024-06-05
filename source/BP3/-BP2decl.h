@@ -1,6 +1,6 @@
 	// -BP2decl.h (BP3) 
 
-/*  This file is a part of Bol Processor 2
+/*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
     All rights reserved. 
     
@@ -63,7 +63,7 @@ extern ResID DeviceMenuIcons[12];
     extern static HMIDIOUT hMidiOut,hMidiIn;
 #elif defined(__APPLE__)
     extern MIDIClientRef MIDIoutputClient, MIDIinputClient;
-    extern MIDIPortRef MIDIoutPort[MAXPORTS], MIDIinPort[MAXPORTS];
+    extern MIDIPortRef MIDIoutPort, MIDIinPort[MAXPORTS];
 #elif defined(__linux__)
     // Global variable for ALSA MIDI sequencer handle
     extern static snd_seq_t *seq_handle;
@@ -250,7 +250,8 @@ extern double Pclock,Qclock,OldPclock,OldQclock,MinPclock,MaxPclock,
 extern long Infpos,Infneg,Veryneg,MaxMIDIbytes,
 	TimeMax,Nalpha,Nbytes,Tbytes2,MIDIinputFilterstartup,
 	MIDIoutputFilterstartup,Ts,DataEnd;
-extern unsigned long MIDIinputFilter[MAXPORTS],MIDIoutputFilter[MAXPORTS];
+extern unsigned long MIDIacceptFilter[MAXPORTS],MIDIpassFilter[MAXPORTS];
+extern char MIDIchannelFilter[MAXPORTS][17],MIDIoutFilter[MAXPORTS][19];
 extern Milliseconds **p_T;
 extern long **p_Ppatt,**p_Qpatt;
 extern MIDIcode **p_Code;

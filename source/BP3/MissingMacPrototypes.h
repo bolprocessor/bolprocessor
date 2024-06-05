@@ -1,6 +1,6 @@
 /*  MissingMacPrototypes.h (BP3) */
 
-/*  This file is a part of Bol Processor 2
+/*  This file is a part of Bol Processor
 Copyright (c) 2013 by Anthony Kozar
 All rights reserved. 
 
