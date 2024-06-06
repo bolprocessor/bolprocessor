@@ -90,7 +90,7 @@ const char BottomSettingsStr[NUM_BOTTOM_SETTINGS_STRS][MAX_STRINGLISTS_STR_LEN] 
 
 // TYPE STR# ;; Script commands
 // Script,303
-#define NUM_SCRIPT_CMD_STRS	134
+#define NUM_SCRIPT_CMD_STRS	135
 
 const char ScriptCommand[NUM_SCRIPT_CMD_STRS][MAX_STRINGLISTS_STR_LEN] = 
 {
@@ -188,7 +188,7 @@ const char ScriptCommand[NUM_SCRIPT_CMD_STRS][MAX_STRINGLISTS_STR_LEN] =
 	"128 Use MIDI ON",
 	"67 Use tokens OFF",
 	"66 Use tokens ON",
-	"17 Wait _long_ milliseconds",
+	"17 Halt _long_ milliseconds",
 	"78 MIDI all notes off channel _1..16_",
 	"75 MIDI controller #_0..127_ = _0..127_ channel _1..16_",
 	"83 MIDI decimal send _decimal data_",
@@ -226,6 +226,7 @@ const char ScriptCommand[NUM_SCRIPT_CMD_STRS][MAX_STRINGLISTS_STR_LEN] =
 	"91 IN start play _note_ channel _1..16_",
 	"104 IN synchro tag _Wx_ = _note_ channel _1..16_",
 	"97 IN wait for _note_ channel _1..16_ [toggle]",
+	"97 Wait for _note_ channel _1..16_ [toggle]",
 	"96 IN use each substitution _note_ channel _1..16_ [toggle]",
 	"101 IN use-ignore object constraints _note_ channel _1..16_ [toggle]"
 };
