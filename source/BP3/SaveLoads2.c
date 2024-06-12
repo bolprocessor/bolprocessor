@@ -369,7 +369,7 @@ FIND:
 	if(!tryname) return(MISSED);
 	if(FileName[iObjects][0] == '\0') {
 //		if(OkWait || !ScriptExecOn)
-//			Alert1("The note convention might be incorrect because I am looking for an unspecified '-mi' sound-object prototype file");
+//			Alert1("The note convention might be incorrect because I am looking for an unspecified '-so' sound-object prototype file");
 		sprintf(Message,"Find '-mi' sound-object prototype file...");
 		}
 	else

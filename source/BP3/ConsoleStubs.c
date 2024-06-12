@@ -116,7 +116,7 @@ int LoadAlphabet(int w, FSSpec *p_spec)
 		return OK;
 	else if (GetAlphaName(w) != OK) return OK;
 	
-	// Otherwise, if a -ho reference was found somewhere, we should load it.
+	// Otherwise, if a -al reference was found somewhere, we should load it.
 	// FIXME: for now, we just warn the user!
 	BPPrintMessage(odWarning, "Ignoring alphabet file specified in data or grammar file!\n");
 	BPPrintMessage(odWarning, "(You can specify an alphabet file as a command-line argument).\n");

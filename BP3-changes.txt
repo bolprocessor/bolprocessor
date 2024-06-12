@@ -117,3 +117,11 @@ The display of the SHOW HELP ENTRIES command has been corrected.
 -----
 2024-06-05
 This version takes care of filters on MIDI outputs. These can specify the types and channels of events sent to each output.
+
+-----
+2024-06-12
+The prefixes and suffixes of some files have been changed to make them more meaningful:
+• Prefix "-ho" and suffix "bpho" are replaced by "-al" and "bpal" (Alphabet files)
+• Prefix "-mi" and suffix "bpmi" are replaced by "-so" and "bpso" (Sound-object files)
+These changes are automatically managed by the interface.
+The old prefixes/suffixes were used to denote homomorphisms and MIDI codes. Alphabet files may still contain homomorphisms but this doesn't need to be emphasised. Sound-objects can now contain Csound scores in addition to MIDI codes.

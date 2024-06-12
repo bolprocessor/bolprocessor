@@ -1129,9 +1129,8 @@ PRINTPROLONGATIONS:
 				}
 			Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			if(p_Script == NULL || p >= Jscriptline || p < 0) {
-				if(Beta)
-					Alert1("=> Err. PrintArgSub(). Event script line not found");
-				r = ABORT; goto OUT;
+				BPPrintMessage(odError,"=> Event script line not found\n");
+				r = OK; goto OUT;
 				}
 			sprintf(line,"%s",*((*p_Script)[p]));
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,

@@ -1152,7 +1152,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				if(SelectionToBuffer(FALSE,FALSE,wGrammar,&p_Initbuff,p_posdir,PROD) == OK)
 					InitThere = ((int) LengthOf(&p_Initbuff) > 0);
 				else {
-					N_err++; sprintf(Message,"??? %s  Item can't be played.\n",line);
+					N_err++; sprintf(Message,"Compiling 'INIT:': ??? %s  This item can't be played.\n",line);
 					Print(wTrace,Message);
 					}
 				*p_posdir = -1L;

@@ -616,9 +616,9 @@ const char gOptionList[] =
 	"  -da fname        load data file 'fname'\n"
 	"  -gl fname        load glossary file 'fname'\n"
 	"  -gr fname        load grammar file 'fname'\n"
-	"  -ho fname        load alphabet file 'fname'\n"
+	"  -al fname        load alphabet file 'fname'\n"
 	"  -se fname        load settings file 'fname'\n"
-	"  -mi fname        load sound-object prototypes file 'fname'\n"
+	"  -so fname        load sound-object prototypes file 'fname'\n"
 	"\n"
 	"  These file-type markers currently are recognized but ignored:\n"
 	"      -cs  -in  -kb  -md  -mi  -or  -tb  -tr  -wg  +sc \n"
@@ -1117,7 +1117,7 @@ int LoadInputFiles(const char* pathnames[WMAX]) {
 					if (result != OK)  return result;
 					break;
 				case iObjects:
-					BPPrintMessage(odInfo, "Reading object prototypes file: %s\n", pathnames[w]);
+					BPPrintMessage(odInfo, "Reading sound-object prototypes file: %s\n", pathnames[w]);
 					strcpy(FileName[iObjects],pathnames[w]);
 					result = LoadObjectPrototypes(0,1);
 					if (result != OK)  return result;

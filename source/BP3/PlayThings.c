@@ -1309,7 +1309,7 @@ if(GetTextChar(w,origin) == '[') {
 		if(origin >= end) {
 			SelectOn = FALSE;
 			Panic = TRUE;
-			BPPrintMessage(odError,"=> SelectionToBuffer error 2\n");
+			BPPrintMessage(odError,"=> SelectionToBuffer error 2, can't find ']‘\n");
 			return(MISSED);
 			}
 		}
