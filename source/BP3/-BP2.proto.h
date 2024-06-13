@@ -694,6 +694,7 @@ int mMIDI(int);
 int mCsound(int);
 int mMIDIfile(int);
 // int mOMS(int);
+void adjust_prefix(char*);
 int mCsoundInstrumentsSpecs(int);
 int mOMSmidisetup(int);
 int mOMSstudiosetup(int);

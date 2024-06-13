@@ -266,6 +266,9 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	p = &(*p_line)[0]; q = &(FilePrefix[wAlphabet][0]);
 	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
 		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
+	p = &(*p_line)[0]; q = &(FileOldPrefix[wAlphabet][0]);
+	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
+		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
 	p = &(*p_line)[0]; q = &(FilePrefix[wInteraction][0]);
 	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
 		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
@@ -288,6 +291,9 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
 		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
 	p = &(*p_line)[0]; q = &(FilePrefix[iObjects][0]);
+	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
+		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
+	p = &(*p_line)[0]; q = &(FileOldPrefix[iObjects][0]);
 	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
 		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
 		
@@ -897,6 +903,7 @@ if(GetFileNameAndLoadIt(wMIDIorchestra,wAlphabet,LoadMIDIorchestra) != OK
 
 if(ReleaseAlphabetSpace() != OK) return(ABORT);
 Jhomo = 0; Jbol = 2;	/* Counting will not include "_" and "-" */
+
 if((rep=ReadAlphabet(TRUE)) != OK){		/* Just count */
 	Jbol = Jhomo = 0;
 	goto ERR;
@@ -916,9 +923,7 @@ if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end compilealphabet = %ld
 return(OK);
 
 ERR:
-// BPActivateWindow(SLOW,wTrace);
-ShowMessage(TRUE,wMessage,"Can't compile alphabet");
-BPPrintMessage(odError,"=> Can't compile alphabet");
+BPPrintMessage(odError,"=> Can't compile alphabet\n");
 return(rep);
 }
 
@@ -953,6 +958,8 @@ while(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
 	if(trace_compile_alphabet) BPPrintMessage(odInfo,"Reading: %s\n",(*p_line));
 	operatorinline = FALSE;
 	MystrcpyHandleToString(MAXLIN,0,line,p_line);
+	adjust_prefix(line);
+	strcpy(*p_line, line);
 	if(strstr(line,Arrowstring) != NULLSTR && strstr(line,operatorbetweenquotes) == NULLSTR)
 		foundoperatorthere = operatorinline = TRUE;
 	if(!inknown) {
@@ -1818,3 +1825,18 @@ for(i=ZERO;;i+=2L){
 	}
 return(YES);
 }
+
+
+void adjust_prefix(char *line) {
+    char temp[MAXLIN];
+    if (strncmp(line,"-mi.",4) == 0) {
+        strcpy(temp, line + 4);
+        strcpy(line,"-so.");
+        strcat(line, temp);
+		}
+    if (strncmp(line,"-ho.",4) == 0) {
+        strcpy(temp, line + 4);
+        strcpy(line,"-al.");
+        strcat(line, temp);
+		}
+	}

@@ -741,6 +741,7 @@ do {
 	if(ReadLine1(FALSE,w,&pos,posmax,line,MAXLIN) != OK) return(MISSED);
 	if(line[0] == '\0') continue;
 	if(line[0] == '-' && line[1] == '-') return(MISSED);
+	adjust_prefix(line);
 	p = line; q = FilePrefix[doc];
 	if(Match(TRUE,&p,&q,4) && line[4] != '<' && line[4] != '\334') {
 		Strip(line); // does this make sense?
