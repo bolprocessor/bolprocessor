@@ -8,7 +8,7 @@ https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3
 
 -----
 2024-05-07
-This is the first implementation of real-time MIDI output in the BP3.  It works well, but the STOP button used to interrupt improvisation does not always immediately create the "_stop" file that tells the application to stop.
+😀 This is the first implementation of real-time MIDI output in the BP3.  It works well, but the STOP button used to interrupt improvisation does not always immediately create the "_stop" file that tells the application to stop.
 The current MIDI output sends MIDI messages to the first available MIDI destination, but it will be easy to modify the interface and the console to select more destinations.
 
 This version should work on all platforms: MacOS, Linux and Windows. Conditional compilation of C code and interpretation of PHP code make it possible. However, we need feedback from Linux and Windows users.
@@ -85,7 +85,7 @@ Data and grammar pages have a search and replace function with the option of reg
 
 -----
 2024-05-25
-First version to handle incoming MIDI events.
+😀 First version to handle incoming MIDI events.
 Script procedures have been partially rewritten. This version only supports command
 _script(IN Wait for C3 channel 1) which is used to delay the start of the performance.
 Unused MIDI code has been stored in MIDIstubs.c, which is no longer compiled. Useful MIDI code is available in MIDIstuff.c.
@@ -125,3 +125,8 @@ The prefixes and suffixes of some files have been changed to make them more mean
 • Prefix "-mi" and suffix "bpmi" are replaced by "-so" and "bpso" (Sound-object files)
 These changes are automatically managed by the interface and by the console.
 The old prefixes/suffixes were used to denote homomorphisms and MIDI codes. Alphabet files may still contain homomorphisms but this doesn't need to be emphasised. Sound-objects can now contain Csound scores in addition to, or instead of, MIDI codes.
+
+-----
+2024-06-14
+This release has revised code for compilation on Windows and Linux. Some Linux procedures in initializeMIDISystem() need to be completed once the compilation has been checked and fixed.
+The display of the file index in each workspace has been improved: each file is placed in a specific box according to its type.

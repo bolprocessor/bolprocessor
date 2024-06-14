@@ -958,7 +958,7 @@ while(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
 	if(trace_compile_alphabet) BPPrintMessage(odInfo,"Reading: %s\n",(*p_line));
 	operatorinline = FALSE;
 	MystrcpyHandleToString(MAXLIN,0,line,p_line);
-	adjust_prefix(line);
+	adjust_prefix(line); // Added 2024-06-13
 	strcpy(*p_line, line);
 	if(strstr(line,Arrowstring) != NULLSTR && strstr(line,operatorbetweenquotes) == NULLSTR)
 		foundoperatorthere = operatorinline = TRUE;

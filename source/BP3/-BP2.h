@@ -176,9 +176,6 @@
 #include <windows.h>
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
-// Global variable for MIDI device handle
-static HMIDIOUT hMidiOut = NULL;
-static HMIDIOUT hMidiIn = NULL;
 typedef unsigned long long UInt64;
 typedef size_t Size;
 typedef struct Rect {
@@ -210,14 +207,6 @@ typedef struct s_handle_priv {
 #elif defined(__linux__)
     #include <alsa/asoundlib.h>
 	#include <unistd.h>
-    // Global variable for ALSA MIDI sequencer handle
-    static snd_seq_t *seq_handle = NULL;
-    static int out_port,in_port;
-	typedef size_t Size;s
-	typedef struct s_handle_priv {
-		void* memblock; // Pointer to the allocated memory block
-		size_t size;    // Size of the memory block	
-		} *Handle;
 #endif
 
 // Moved macros and enum down here to avoid potential problems with replacing names

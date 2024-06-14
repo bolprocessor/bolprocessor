@@ -271,14 +271,6 @@ int MaybeWait(unsigned long current_time) {
 	}
 
 
-int ListenMIDI(int x0, int x1, int x2) {
-	int r = OK;
-	if(EmergencyExit || Panic) return(ABORT); // 2024-05-03
-	if((r=stop(0,"ListenMIDI")) != OK) return r;
-	return(r);
-	}
-
-
 int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 	int x0,x1,x2,filter,c,c0,c1,c2,channel,i,j,r,idummy,eventfound;
 	long jdummy;
@@ -291,7 +283,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 	STARTCHECK:
 	if(packet == NULL) return OK;
 	if(!AcceptEvent(ByteToInt(packet->data[0]),index)) return OK;
-	// This is redundant because acceptance has laready be checked at the input
+	// This is redundant because acceptance has already be checked at the input
 	if (packet->length > 0) {
 		e->type = packet->data[0];  // Assuming data[0] is the status byte
 		e->time = packet->timeStamp;

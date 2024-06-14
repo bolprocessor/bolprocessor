@@ -1,7 +1,9 @@
 Bol Processor BP3 To Do List
 ============================
 
-This is a list of improvements that have been considered during the development of BP3. None of them are critical to its proper functioning. ;-)
+This is a list of technical improvements considered during the development of BP3. 
+None of them are critical to its proper functioning. 
+🎹 However, we need good musical examples to highlight BP3's features! 🎶
 
 The most requested improvements are listed at the top of the list.
 
@@ -25,9 +27,9 @@ Csound orchestra
  + saxo
  + marimba
  + drums
-- Study how BP could produce score instructions modifying parameters in some instruments
+- Study how BP could produce score instructions modifying parameters in some instruments.
 - Find an instrument that would create a switched bandpass filter with either a sound file or another instrument as input. The idea is to reproduce the effect of sympathetic strings and use it to add partials to other instruments (much like the Indian tanpura). These devices had been successfully wired as "switch filters" in the Shruti Harmonium.
-- Modify "new-vina" to produce lower frequencies, minimum "C2"
+- Modify "new-vina" to produce lower frequencies, minimum "C2".
 
 
 MIDI input
@@ -50,7 +52,7 @@ Real-time MIDI
 Real-time Csound
 ----------------
 
-- This development should be easy, using ChatGPT ;-)
+- This development should be easy, using AI tools.
 - Implement UDP for communicating with Csound. Links:
 https://csound.com/docs/manual/udpserver.html
 https://www.geeksforgeeks.org/udp-server-client-implementation-c/
@@ -60,7 +62,7 @@ https://www.geeksforgeeks.org/udp-server-client-implementation-c/
 Open Sound Control (OSC)
 ------------------------
 
-- This development should be easy, using ChatGPT ;-)
+- This development should be easy, using AI tools
 - Read https://en.wikipedia.org/wiki/Open_Sound_Control
 - This might create a framework for connecting BP3 with PYO (http://ajaxsoundstudio.com/software/pyo/)
 - Also try direct communication with MuseScore
@@ -124,7 +126,7 @@ Chunked data in real-time MIDI
 Settings
 --------
 
-- Use XML to store the settings of a project
+- Use XML to store the settings of projects
 
 
 MIDI file player
@@ -166,7 +168,7 @@ Images
 Compilation
 -----------
 
-- Finalise the compilation in Windows and Linux environments
+- Check and fix the compilation in Windows and Linux environments
 - Modify the C source to handle some Unicode characters that are not currently accepted, such as '≤', '≠', '•', etc.
 
 

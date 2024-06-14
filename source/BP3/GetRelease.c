@@ -58,22 +58,14 @@ for(w=0; w < WMAX; w++) {
 // PlayTicks = FALSE; SetTickParameters(0,MAXBEATS); ResetTickFlag = TRUE;
 NotSaidKpress = TRUE;
 IgnoreUndefinedVariables = ToldAboutPianoRoll = FALSE;
-/* for(i=0; i < MAXPARAMCTRL; i++) ParamControl[i] = ParamKey[i] = -1;
-HideWindow(Window[wPrototype2]);
-HideWindow(Window[wPrototype3]);
-HideWindow(Window[wPrototype4]);
-HideWindow(Window[wPrototype5]);
-HideWindow(Window[wPrototype6]);
-HideWindow(Window[wPrototype7]);
-HideWindow(Window[wPrototype8]); */
 if(init && !ScriptExecOn) {
-	if(!ScriptExecOn) {
+/*	if(!ScriptExecOn) {
 		WindowParID[iSettings] = ParIDbp2;
 		TheVRefNum[iSettings] = RefNumbp2;
-		}
-	if(InitButtons() != OK) return(MISSED);
+		} */
+//	if(InitButtons() != OK) return(MISSED);
 	if(LoadSettings(NULL, TRUE) == ABORT) return(ABORT);
-	for(w=0; w < WMAX; w++) {
+/*	for(w=0; w < WMAX; w++) {
 		switch(w) {
 			case wGrammar:
 			case wData:
@@ -91,11 +83,8 @@ if(init && !ScriptExecOn) {
 				WindowParID[w] = ParIDstartup;
 				break;
 			}
-		}
+		} */
 	}
-#if BP_CARBON_GUI_FORGET_THIS
-if(ResetPannel() != OK) return(MISSED);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 if(Find_leak) BPPrintMessage(odInfo,"OKdone1\n");
 if(ReleaseScaleSpace() != OK) return(MISSED);
@@ -123,9 +112,6 @@ if(ReleaseConstants() != OK) return(MISSED);
 if(check_memory_use) BPPrintMessage(odInfo,"After ReleaseConstants() MemoryUsed = %ld\n",(long)MemoryUsed);
 if(Find_leak) BPPrintMessage(odInfo,"OKdone4\n");
 
-#if BP_CARBON_GUI_FORGET_THIS
-if(ResetInteraction() != OK) return(MISSED);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 ItemNumber = 0L;
 ptr = (Handle) p_Initbuff;
 MyDisposeHandle(&ptr);
@@ -147,7 +133,7 @@ if(TraceMemory && check_memory_use) {
 		(long) MemoryUsed,(long)MemoryUsed - MemoryUsedInit);
 	ShowMessage(TRUE, wMessage, Message);
 	}
-return(DoSystem());
+return OK;
 }
 
 
@@ -844,12 +830,12 @@ int ReleaseObjectPrototypes(void)
 int i,j,maxsounds,max;
 Handle ptr;
 
-#if BP_CARBON_GUI_FORGET_THIS
-if(SaveCheck(iObjects) != OK) return(MISSED);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
+return OK; // For the moment, as the following tends to crash
+
 maxsounds = Jbol + Jpatt;
 if(pp_MIDIcode == NULL) max = 0;
 else max = MyGetHandleSize((Handle) pp_MIDIcode) / sizeof(MIDIcode**);
+// BPPrintMessage(odInfo,"max = %d\n",max);
 for(j=2; j < max; j++) {
 	/* Here we also release time-patterns */
 /*	if((*pp_MIDIcode)[j] != NULL) {
@@ -886,24 +872,14 @@ for(j=2; j < max; j++) {
 /* ptr = (Handle) p_MIDIsize;
 if(MyDisposeHandle(&ptr) != OK) return(ABORT); */
 
-if(DoSystem() != OK) return(ABORT);
+// if(DoSystem() != OK) return(ABORT);
 if(ResizeObjectSpace(YES,2,0) != OK) return(ABORT);
-#if BP_CARBON_GUI_FORGET_THIS
-SetField(NULL,wPrototype1,fProtoName,"[no sound-object prototype]");
-SetField(NULL,wPrototype1,fDuration,"0");
-SetField(NULL,wPrototype1,fPrototypeFileComment,"[Comments on file]");
-SetField(NULL,wPrototype1,fPrototypeComment,"[Comments on prototype]");
-SwitchOff(NULL,wPrototype1,bMIDIsequence);
-SwitchOff(NULL,wPrototype1,bSampledSound);
-SwitchOff(NULL,wPrototype1,bCsoundInstrument);
-KillDiagrams(wPrototype1);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 Dirty[iObjects] = Created[iObjects] = FALSE;
 ObjectMode = ObjectTry = FALSE;
 
 // BPPrintMessage(odInfo,"ReleaseObjectPrototypes() worked fine\n");
-return(DoSystem());
+return(OK);
 }
 
 int ClearObjectSpace(void) { // NOT USED

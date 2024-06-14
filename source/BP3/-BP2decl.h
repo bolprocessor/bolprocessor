@@ -58,18 +58,6 @@ extern ResID WindowMenuIcons[11];
 extern ResID DeviceMenuIcons[12];
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
-#if defined(_WIN64)
-    // Global variable for MIDI device handle
-    extern static HMIDIOUT hMidiOut,hMidiIn;
-#elif defined(__APPLE__)
-    extern MIDIClientRef MIDIoutputClient, MIDIinputClient;
-    extern MIDIPortRef MIDIoutPort, MIDIinPort[MAXPORTS];
-#elif defined(__linux__)
-    // Global variable for ALSA MIDI sequencer handle
-    extern static snd_seq_t *seq_handle;
-    extern static int out_port,in_port;
-#endif
-
 extern int EmergencyExit,FixedMaxQuantization,
 	TraceMemory,EventState,Beta;
 extern int MIDIsetUpTime,MIDIsyncDelay;

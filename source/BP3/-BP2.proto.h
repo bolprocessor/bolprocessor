@@ -1141,6 +1141,10 @@ void delay(int);
 void save_midisetup(void);
 int read_midisetup(void);
 
+#if defined(__linux__)
+   void MyAlsaMidiInProc(const snd_seq_event_t*);
+#endif
+
 #if !TARGET_API_MAC_CARBON_FORGET_THIS
 /* Provide backwards compatibility for System 7 in the non-Carbon build by
    macros that convert OS 8.5/9 functions to their InterfaceLib 7.1 equivalents. */
