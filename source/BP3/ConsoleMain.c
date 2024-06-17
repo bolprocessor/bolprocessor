@@ -100,7 +100,7 @@ int main (int argc, char* args[])
 	SkipFlag = FALSE;
 	Interactive = FALSE;
 	StopPlay = FALSE;
-	TraceMIDIinput = FALSE;
+	TraceMIDIinteraction = FALSE;
 	TimeStopped = Oldtimestopped = 0L;
 	MIDIsyncDelay = 380; // ms
 
@@ -325,7 +325,7 @@ CLEANUP:
 			if((result = WaitABit(10)) != OK) break; // Sleep for 10 milliseconds
 			}
 		WaitABit(100); // Sleep for 100 milliseconds
-		AllNotesOffPedalsOffAllChannels();
+		if(ResetNotes) AllNotesOffPedalsOffAllChannels();
 		BPPrintMessage(odInfo,"Duration = %.3f seconds\n",(double)LastTime/1000.); // Date of the last MIDI event
 		closeMIDISystem();
 		}
@@ -483,7 +483,7 @@ void EndImageFile(void)
 	if(ShowGraphic) {
 		final_name = repl_str(imageFileName,"_temp","");
 		remove_spaces(final_name,final_name);
-		if(TraceMIDIinput) BPPrintMessage(odInfo,"\n");
+		if(TraceMIDIinteraction) BPPrintMessage(odInfo,"\n");
 		BPPrintMessage(odInfo,"Finalized image file to %s\n",final_name);
 		imagePtr = fopen(final_name,"w");
 		thisfile = fopen(imageFileName,"r");
@@ -971,8 +971,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 			}
 		// InBuiltDriverOn = TRUE;
 		rtMIDI = TRUE;
-
-		AllNotesOffPedalsOffAllChannels();
+		if(ResetNotes) AllNotesOffPedalsOffAllChannels();
 		WaitABit(500L); // 500 ms
 		if((r = MIDIflush()) != OK) return r;
 	//	Notify("Real-time MIDI started");

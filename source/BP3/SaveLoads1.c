@@ -1522,9 +1522,9 @@ int LoadSettings(const char *filename, int startup) {
 	if(jmax > 27) ReadInteger(sefile,&CsoundTrace,&pos);
 	else CsoundTrace = FALSE;
 	if(ReadInteger(sefile,&rtMIDI,&pos) == MISSED) goto ERR; 
-	if(ReadInteger(sefile,&SynchronizeStart,&pos) == MISSED) goto ERR; 
+	if(ReadInteger(sefile,&ResetNotes,&pos) == MISSED) goto ERR; 
 	if(ReadInteger(sefile,&ComputeWhilePlay,&pos) == MISSED) goto ERR; 
-	if(ReadInteger(sefile,&TraceMIDIinput,&pos) == MISSED) goto ERR; // Previously it was 'Interactive'
+	if(ReadInteger(sefile,&TraceMIDIinteraction,&pos) == MISSED) goto ERR; // Previously it was 'Interactive'
 	if(jmax > 19) ReadInteger(sefile,&ResetWeights,&pos);
 	else ResetWeights = FALSE;
 	NeverResetWeights = FALSE;

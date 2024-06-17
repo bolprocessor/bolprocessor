@@ -479,6 +479,7 @@ else computetime = ZERO;
 if(!MIDIfileOn && !cswrite && rtMIDI && !ItemCapture && !FirstTime && !PlayPrototypeOn
 		&& !showpianoroll) {
 	if(OkWait && SynchronizeStart) {
+		// SynchronizeStart is no longer used
 #if !BP_CARBON_GUI_FORGET_THIS
 		FlashInfo("=> Synchronized start is not currently enabled in non-Carbon builds!");
 #else
@@ -1074,8 +1075,9 @@ TRYCSFILE:
 					}
 				}
 FORGETIT:
-			if(kcurrentinstance > 1) {
-				if(trace_csound_pianoroll) BPPrintMessage(odInfo,"kcurrentinstance = %ld and not showpianoroll\n",(long)kcurrentinstance);
+			if(kcurrentinstance > 1) { 
+				if(trace_csound_pianoroll) 
+					BPPrintMessage(odInfo,"kcurrentinstance = %ld\n",(long)kcurrentinstance);
 				Tcurr = (t0 + t1) / Time_res;
 				rs = 0;
 				/* Look at attached script line(s) */
@@ -1918,8 +1920,16 @@ FINDNEXTEVENT:
 	currenttime = Tcurr * Time_res;
 	mustwait = TRUE;
 	}
-
 // End of the Nplay performances
+if(rtMIDI) { // 2024-06-17
+	// Keep the driver alive to be able to handle MIDI input events
+	e.time = Tcurr;
+	e.type = NORMAL_EVENT;
+	e.status = ActiveSensing;
+	e.data1 = 0; // Not used
+	e.data2 = 0; // Not used
+	if((result=SendToDriver((t0 + t1),0,&rs,&e)) != OK) goto OVER;
+	}
 
 // Now, codes have been sent and may still being played by the MIDI
 // driver.  Before proceeding further we might wait until the buffer is empty

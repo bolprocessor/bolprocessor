@@ -86,13 +86,13 @@ extern char NilString[MAXNIL][NILLENGTH];
 extern char Reality[2][6];
 extern char Arrow[MAXARROW][ARROWLENGTH];
 extern MIDIcontrolstatus **p_Oldvalue;
-extern char ****p_GramProcedure,****p_PerformanceControl,****p_GeneralMIDIpatch,
-	****p_Diacritical,****p_HTMLdiacrList;
+extern char ****p_GramProcedure,****p_PerformanceControl,****p_GeneralMIDIpatch,****p_Diacritical,****p_HTMLdiacrList;
 extern long MaxProc,MaxPerformanceControl;
 extern int **p_PerfCtrlNArg,**p_ProcNArg,**p_PerfCtrlNdx,**p_ProcNdx,**p_GeneralMIDIpatchNdx;
 extern INscripttype** p_INscript;
+extern OUTscripttype** p_OUTscript;
 extern unsigned long TimeStopped,Oldtimestopped;
-extern int StopPlay,TraceMIDIinput;
+extern int StopPlay,TraceMIDIinteraction;
 extern char SubgramType[MAXTYPE][TYPELENGTH];
 extern char Code[MAXCODE2];
 extern char VersionName[MAXVERSION][VERSIONLENGTH];
@@ -141,7 +141,7 @@ extern int PitchbendRange[MAXCHAN+1],DeftPitchbendRange,PitchbendRate[MAXCHAN+1]
 	DeftVolume,DeftVelocity,DeftPanoramic,PanoramicController,VolumeController,SamplingRate;
 extern char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulation[MAXCHAN+1],ChangedPitchbend[MAXCHAN+1],ChangedSwitch[MAXCHAN+1],
 	ChangedPressure[MAXCHAN+1],WhichCsoundInstrument[MAXCHAN+1];
-extern int Jbol,Jinstr,Jfunc,Jinscript,Maxinscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,
+extern int Jbol,Jinstr,Jfunc,Jinscript,Joutscript,Maxinscript,Maxoutscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,
 	MaxVar,Jhomo,**p_VarStatus,iCsoundInstrument;
 extern int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput,
 	SmartCursor,NotSaidKpress,**p_MemGram,**p_MemRul;
@@ -228,7 +228,7 @@ extern short Maxlevel,MaxFlag,MaxScript,PlayFromInsertionPoint,
 	LimCompute,LimTimeSet,SkipFlag,StackFlag,Port,Portbit,
 	MIDI;
 extern int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,StepGrammars,DisplayProduce,UseTimeLimit,
-	DisplayTimeSet,StepTimeSet,TraceProduce,UseEachSub,PlanProduce,TraceTimeSet;
+	DisplayTimeSet,StepTimeSet,TraceProduce,UseEachSub,PlanProduce,TraceTimeSet,ResetNotes;
 extern int InsertGramRuleNumbers, InsertGramCorrections, InsertNewBols;
 extern unsigned long Ptick[MAXTICKS],Qtick[MAXTICKS],GrandCycle[MAXTICKS],
 	PosGrandCycle[MAXTICKS],GrandPeriod,BeatGrandCycle,BeatPosGrandCycle,

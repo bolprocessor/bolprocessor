@@ -42,6 +42,7 @@ Real-time MIDI
 --------------
 
 - Fix MIDIdriver.c in _WIN64 and __linux__ to compile and handle multiple MIDI inputs/outputs.
+- Sometimes -da.Alan is not starting when -da.Beatrix is waiting. Maybe a jam in MIDI messages.
 - When playing back chunked data in real-time MIDI, there may be gaps followed by garbled events due to the time taken to calculate large chunks. Check "-da.Beethoven-fugue-B-flat-major" for this. It's probably unavoidable: a larger value of MaxMIDIMessages (currently 1000 in ConsoleMain.c) is needed, but it blows the memory.
 - Maybe use a dynamically resizable array for eventStack? Probably not beneficial.
 - The value of MaxMIDIMessages could also be spacified in the settings file of the project.

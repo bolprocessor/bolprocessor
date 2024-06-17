@@ -536,10 +536,16 @@ int Inits(void) {
 	p_StringList = NULL; pp_StringList = &p_StringList; NrStrings = 0;
 	if(ResetScriptQueue() != OK) return(ABORT);
 	p_InitScriptLine = NULL;
+
 	Maxinscript = 8; Jinscript = 0;
 	if((p_INscript=(INscripttype**) GiveSpace((Size) Maxinscript * sizeof(INscripttype)))
 		== NULL) return(ABORT);
 	for(i=0; i < Maxinscript; i++) ((*p_INscript)[i]).chan = -1;
+
+	Maxoutscript = 8; Joutscript = 0;
+	if((p_OUTscript=(OUTscripttype**) GiveSpace((Size) Maxoutscript * sizeof(OUTscripttype)))
+		== NULL) return(ABORT);
+	for(i=0; i < Maxoutscript; i++) ((*p_OUTscript)[i]).chan = -1;
 
 	#if BP_CARBON_GUI_FORGET_THIS
 	ResetPianoRollColors();
@@ -1628,7 +1634,7 @@ FirstMIDIevent = 1;
 OutBPdata = FALSE;
 ObjectMode = ObjectTry = Improvize = StepProduce = StepGrammars
 	= PlanProduce = DisplayProduce = UseEachSub
-	= TraceProduce = DisplayTimeSet = StepTimeSet = TraceTimeSet
+	= TraceProduce = DisplayTimeSet = StepTimeSet = TraceTimeSet = ResetNotes
 	= ShowGraphic = ComputeWhilePlay = NeverResetWeights = FALSE;
 SynchronizeStart = CyclicPlay = NoConstraint = AllItems
 	= WriteMIDIfile = OutCsound = CsoundTrace = WillRandomize = FALSE;

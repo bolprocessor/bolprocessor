@@ -130,3 +130,12 @@ The old prefixes/suffixes were used to denote homomorphisms and MIDI codes. Alph
 2024-06-14
 This release has revised code for compilation on Windows and Linux. Some Linux procedures in initializeMIDISystem() need to be completed once the compilation has been checked and fixed.
 The display of the file index in each workspace has been improved: each file is placed in a specific box according to its type.
+
+-----
+2024-06-17
+New script instructions:
+• Hold for … milliseconds
+• MIDI send Start, Continue, Stop
+• Wait for Start, Continue, Stop
+"Reset notes and pedals off at the end of item" is now an option, because it is better to discard it in interactions
+A computer will be on hand in a few days to do the compilation fixes on Windows 10 and Linux.

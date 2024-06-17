@@ -852,7 +852,8 @@ void sendMIDIEvent(unsigned char* midiData,int dataSize,long time) {
     unsigned long clocktime;
     MIDIPortRef targetPort;
     test_first_events = 0;
-    status = midiData[0] & 0xF0;
+    if(dataSize == 3) status = midiData[0] & 0xF0;
+    else status = midiData[0];
     note = midiData[1];
     value = midiData[2];
     channel = midiData[0] & 0x0F;

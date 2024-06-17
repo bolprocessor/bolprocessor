@@ -116,7 +116,8 @@ char ****p_GramProcedure,****p_PerformanceControl,****p_GeneralMIDIpatch,
 	****p_Diacritical,****p_HTMLdiacrList;
 long MaxProc,MaxPerformanceControl;
 INscripttype** p_INscript;
-int StopPlay,TraceMIDIinput;
+OUTscripttype** p_OUTscript;
+int StopPlay,TraceMIDIinteraction;
 unsigned long TimeStopped,Oldtimestopped;
 int **p_PerfCtrlNdx,**p_GeneralMIDIpatchNdx,**p_PerfCtrlNArg,**p_ProcNdx,**p_ProcNArg;
 char SubgramType[][TYPELENGTH] = {"RND","ORD","LIN","SUB","SUB1","TEM","POSLONG"};
@@ -179,7 +180,7 @@ int PitchbendRange[MAXCHAN+1],DeftPitchbendRange,PitchbendRate[MAXCHAN+1],Modula
 	DeftVolume,DeftVelocity,DeftPanoramic,PanoramicController,VolumeController,SamplingRate;
 char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulation[MAXCHAN+1],ChangedPitchbend[MAXCHAN+1],ChangedSwitch[MAXCHAN+1],
 	ChangedPressure[MAXCHAN+1],WhichCsoundInstrument[MAXCHAN+1];
-int Jbol,Jfunc,Jinstr,Jinscript,Maxinscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,MaxVar,
+int Jbol,Jfunc,Jinstr,Jinscript,Joutscript,Maxinscript,Maxoutscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,MaxVar,
 	Jhomo,**p_VarStatus,iCsoundInstrument;
 int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput,SmartCursor,NotSaidKpress,
 	**p_MemGram,**p_MemRul;
@@ -261,7 +262,7 @@ short Maxlevel,MaxFlag,MaxScript,Jscriptline,Final,POLYconvert,
 	LimCompute,LimTimeSet,SkipFlag,StackFlag,PlayFromInsertionPoint,
 	Port,Portbit,MIDI;
 int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,StepGrammars,DisplayProduce,TraceProduce,UseTimeLimit,
-	DisplayTimeSet,StepTimeSet,UseEachSub,PlanProduce,TraceTimeSet;
+	DisplayTimeSet,StepTimeSet,UseEachSub,PlanProduce,TraceTimeSet,ResetNotes;
 int InsertGramRuleNumbers, InsertGramCorrections, InsertNewBols;
 unsigned long Ptick[MAXTICKS],Qtick[MAXTICKS],GrandCycle[MAXTICKS],
 	PosGrandCycle[MAXTICKS],GrandPeriod,BeatGrandCycle,BeatPosGrandCycle,

@@ -1602,7 +1602,7 @@ typedef enum {
 
 
 
-// -----------  BP2 constants  -------------------------------
+// -----------  BP3 constants  -------------------------------
 
 #define MAXMIDI 1000	/* length of line encoding MIDI event */
 #define BOLSIZE 30		/* length of terminal name */
@@ -1892,13 +1892,23 @@ typedef struct {
 #define PanoramicChannel(i) (*((*p_Instance)[i].contparameters.values))[IPANORAMIC].channel
 #define PanoramicMode(i) (*((*p_Instance)[i].contparameters.values))[IPANORAMIC].mode
 
-struct s_INscripttype {	/* Script line executed by NoteOn */
+struct s_INscripttype {	/* Script line executed by MIDI input event */
 	int key;
 	int chan;
 	int scriptline;
 	unsigned long time;
+	unsigned long duration;
 	};
 typedef struct s_INscripttype INscripttype;
+
+struct s_OUTscripttype {
+	int key;
+	int chan;
+	int scriptline;
+	unsigned long time;
+	unsigned long duration;
+	};
+typedef struct s_OUTscripttype OUTscripttype;
 
 
 struct s_express {	/* Expressions used in scripts */

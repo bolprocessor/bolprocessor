@@ -174,7 +174,7 @@ NOTSCALE:
 				case 4: /* _script() */
 					(*p_buff)[i++] = T13; (*p_buff)[i++] = (tokenbyte) n;
 					// It won't be used if it is a IN script
-					if(TraceMIDIinput) BPPrintMessage(odInfo,"Tokenised [T13.%d] as Jscriptline = %d in Encode()\n\n",(int)n,Jscriptline);
+					if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Tokenised [T13.%d] as Jscriptline = %d in Encode()\n\n",(int)n,Jscriptline);
 					break;
 				case 5:	/* _mod() */
 					(*p_buff)[i++] = T14; (*p_buff)[i++] = (tokenbyte)n;
@@ -589,7 +589,6 @@ STOREFLAG:
 					(long)l,(long)MAXWAIT);
 				Print(wTrace,Message);
 				ShowError(42,igram,irul);
-				
 				goto ERR;
 				}
 			(*p_buff)[i++] = T8; (*p_buff)[i++] = l;

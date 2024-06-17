@@ -408,7 +408,7 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 		q = &(Message[0]);
 		if(Match(FALSE,p_arg,&q,j)) {
 	//		if(check) 
-			if(TraceMIDIinput) BPPrintMessage(odInfo,"\nScript command matches: [%d] “%s”\n",(*h_ScriptIndex)[i],Message);
+			if(TraceMIDIinteraction) BPPrintMessage(odInfo,"\nScript command matches: [%d] “%s”\n",(*h_ScriptIndex)[i],Message);
 			c = (*p_arg)[j];
 			if(c != '\0' && !isspace(c) && !isdigit(c) && !ispunct((*p_arg)[j-1])) continue;
 			r = GetScriptArguments(i,p_arg,istart);

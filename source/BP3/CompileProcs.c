@@ -180,7 +180,7 @@ int CreateEventScript(char *x,int quick) {
 		return(ABORT);
 		}
 	diff = TRUE;
-	if(TraceMIDIinput) BPPrintMessage(odInfo,"Creating script instruction during compilation from “%s”\nJscriptline = %d, MaxScript = %d\n",x,Jscriptline,MaxScript);
+	if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Creating script instruction during compilation from “%s”\nJscriptline = %d, MaxScript = %d\n",x,Jscriptline,MaxScript);
 	if(!quick && Jscriptline > 0) {
 	/* quick is TRUE in the second argument of glossary instructions */
 		for(i=0; i < Jscriptline; i++) {
@@ -216,7 +216,7 @@ int CreateEventScript(char *x,int quick) {
 			return(ABORT);
 			}
 		else {
-			if(TraceMIDIinput) BPPrintMessage(odInfo,"Created script instruction: [%d] “%s”\n",Jscriptline,x);
+			if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Created script instruction: [%d] “%s”\n",Jscriptline,x);
 			}
 		}
 //	return(i);
