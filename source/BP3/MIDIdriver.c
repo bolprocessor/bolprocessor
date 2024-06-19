@@ -840,7 +840,9 @@ int ListenMIDI(int x0, int x1, int x2) {
     MyAlsaMidiInProc(ev);
     snd_seq_free_event(ev);
 #endif
-	if((r=stop(0,"ListenMIDI")) != OK) return r;
+	r = stop(0,"ListenMIDI");
+    if(!Interactive || r != OK) return r;
+    
 	return(r);
 	}
 

@@ -396,51 +396,54 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 
 	MATCH:
 	ScriptExecOn++;
-//	BPPrintMessage(odError,"MaxScriptInstructions = %d\n",MaxScriptInstructions);
+	// BPPrintMessage(odError,"MaxScriptInstructions = %d\n",MaxScriptInstructions);
 	for(i=0; i < MaxScriptInstructions; i++) {
 		MystrcpyHandleToString(MAXLIN,0,Message,p_ScriptLabelPart(i,0));
 		j = strlen(Message);
-	//	BPPrintMessage(odInfo,"Match%d [%d] %s =? line = %s\n",check,i,Message,*p_arg);
+	//	BPPrintMessage(odInfo,"Match%d #%d [%d] %s = etc. ? this line = %s\n",check,i,(*h_ScriptIndex)[i],Message,*p_arg);
 		if(j == 0) {
 			if(Beta) Println(wTrace,"=> Err. ExecScriptLine(): strlen = 0");
 			continue;
 			}
 		q = &(Message[0]);
 		if(Match(FALSE,p_arg,&q,j)) {
-	//		if(check) 
-			if(TraceMIDIinteraction) BPPrintMessage(odInfo,"\nScript command matches: [%d] “%s”\n",(*h_ScriptIndex)[i],Message);
-			c = (*p_arg)[j];
-			if(c != '\0' && !isspace(c) && !isdigit(c) && !ispunct((*p_arg)[j-1])) continue;
-			r = GetScriptArguments(i,p_arg,istart);
-			newarg = FALSE;
-			if(r == OK) r = DoScript(i,p_keyon,w,check,(*h_ScriptIndex)[i],p_posdir,p_changed,&newarg,FALSE);
-	//		if(!check && ScriptExecOn == 0 && w == wScript && !SoundOn) r = ABORT;
-	/*		if(newarg && check) {
-				// Only for 'Open', 'Run script', etc.
-				sprintf(Message,"%s \"%s\"",*(p_ScriptLabelPart(i,0)),
-													*((*(ScriptLine.arg))[0]));
-				MystrcpyStringToHandle(&p_line,Message);
-				*p_changed = TRUE; *p_keep = FALSE;
-				} */
-			/* Reset the sizes of argument handles */
-			for(j=0; j < ScriptNrArg(i); j++) {
-				h = (Handle) (*(ScriptLine.arg))[j];
-				MySetHandleSize((Handle*)&h,(Size) MAXLIN * sizeof(char));
-				(*(ScriptLine.arg))[j] = h;
-				}
-			if(r != OK) goto ERR;
+		//	if(check || 1) {
+				if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Script command matches #%d [%d] (out of %d) “%s”\n",i,(*h_ScriptIndex)[i],MaxScriptInstructions,Message);
+				c = (*p_arg)[j];
+				if(c != '\0' && !isspace(c) && !isdigit(c) && !ispunct((*p_arg)[j-1])) continue;
+				r = GetScriptArguments(i,p_arg,istart);
+				newarg = FALSE;
+				if(r == OK) r = DoScript(i,p_keyon,w,check,(*h_ScriptIndex)[i],p_posdir,p_changed,&newarg,FALSE);
+				else goto ERR;
+		/*		if(newarg && check) {
+					// Only for 'Open', 'Run script', etc.
+					sprintf(Message,"%s \"%s\"",*(p_ScriptLabelPart(i,0)),
+														*((*(ScriptLine.arg))[0]));
+					MystrcpyStringToHandle(&p_line,Message);
+					*p_changed = TRUE; *p_keep = FALSE;
+					} */
+				/* Reset the sizes of argument handles */
+			//	if(TraceMIDIinteraction) BPPrintMessage(odError,"Done setting script #%d (out of %ld) [%d] with %d args\n",i,(long)MaxScriptInstructions,(*h_ScriptIndex)[i],ScriptNrArg(i));
+				if(check) {
+					for(j=0; j < ScriptNrArg(i); j++) {
+						h = (Handle) (*(ScriptLine.arg))[j];
+						if((r = MySetHandleSize((Handle*)&h,(Size) MAXLIN * sizeof(char))) != OK) goto ERR;
+						(*(ScriptLine.arg))[j] = h;
+						}
+					}
+			//	if(TraceMIDIinteraction) BPPrintMessage(odError,"Done setting script #%d [%d], r = %d\n",i,(*h_ScriptIndex)[i],(int)r);
+				if(r != OK) goto ERR;
+		//		}
+		//	else r = OK;
 			goto QUIT;	
 			}
 		}
 	r = MISSED;
 
 	ERR:
-	if(!nocomment || true) {
-		sprintf(Message,">>> Script aborted on: %s\n",*p_line);
-		Print(wTrace,Message);
-		goto QUIT;
-		if(r != EXIT) r = ABORT;
-		}
+	sprintf(Message,">>> Script aborted on: %s\n",*p_line);
+	Print(wTrace,Message);
+	if(r != EXIT) r = ABORT;
 		
 	QUIT:
 	MyDisposeHandle((Handle*)&p_arg);

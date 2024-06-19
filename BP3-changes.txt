@@ -137,5 +137,15 @@ New script instructions:
 • Hold for … milliseconds
 • MIDI send Start, Continue, Stop
 • Wait for Start, Continue, Stop
-"Reset notes and pedals off at the end of item" is now an option, because it is better to discard it in interactions
+"Reset notes and pedals off at the end of item" is now an option, because it is better to discard it in interactions.
+BP3 now creates an invisible MIDI event (ActiveSensing) at the end of each element to which it can append the final scripts.
 A computer will be on hand in a few days to do the compilation fixes on Windows 10 and Linux.
+
+-----
+2024-06-19
+New script instructions:
+• Velocity parameter K... = <any note> channel ...
+• Control parameter K... = #<any MIDI controller> channel ...
+These scripts modify the values of the built-in parameters K1, K2, ... K127 by receiving the velocity of a given MIDI note or the value of a given MIDI controller.
+BP2_help has been updated to include these instructions.
+

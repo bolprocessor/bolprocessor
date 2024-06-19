@@ -1830,7 +1830,7 @@ if(!CompiledGr || !CompiledAl) {
 		if(r != OK) return(r);
 		}
 	if(ResetWeights && (Varweight = ResetRuleWeights(0)) == ABORT) {
-		if(Beta) Alert1("Can't fix bug in grammar code. Unexpected error");
+		Print(wTrace,"Can't fix bug in grammar code. Unexpected error\n");
 		return(MISSED);
 		}
 	}

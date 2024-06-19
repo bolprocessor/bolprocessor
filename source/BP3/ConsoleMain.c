@@ -388,7 +388,7 @@ int stop(int now,char* where) {
 	ptr = fopen(StopfileName,"r");
 	if(ptr) {
 		Improvize = PlayAllChunks = FALSE;
-		BPPrintMessage(odError,"Found 'stop' file (in %s): %s\n",where,StopfileName);
+		BPPrintMessage(odError,"Found 'stop' file (during “%s”): %s\n",where,StopfileName);
 		fclose(ptr);
 		Panic = EmergencyExit = TRUE;
 		return ABORT;
@@ -963,13 +963,15 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 		thepath = str_replace(opts->outputFiles[ofiTraceFile].name,".txt","");
 		strcat(thepath,"_midiport");
 		strcpy(Midiportfilename,thepath);
+		WaitABit(500L); // 500 ms
 		resultinit = initializeMIDISystem();
-		free(thepath);
+		if(thepath != NULL) free(thepath);
 		if(resultinit != OK) {
 			Panic = true;
 			return ABORT;
 			}
 		// InBuiltDriverOn = TRUE;
+		WaitABit(1000L); // 1000 ms
 		rtMIDI = TRUE;
 		if(ResetNotes) AllNotesOffPedalsOffAllChannels();
 		WaitABit(500L); // 500 ms

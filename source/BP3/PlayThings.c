@@ -123,6 +123,7 @@ int PlaySelection(int w, int all) {
 			CurrentVref = TheVRefNum[wScript];
 			}
 		check = 0; // This will create a script line
+	//	BPPrintMessage(odError,"InitThere = 2\n");
 		r = ExecScriptLine(NULL,wScript,check,TRUE,p_InitScriptLine,x,&x,&i,&i);
 		if(r != OK) goto END;
 		}
@@ -469,7 +470,7 @@ if(!CompiledAl || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 if(!onlypianoroll) {
 	if(CompileRegressions() != OK) return(r);
 	// ResetMIDI(TRUE);  Fixed by BB 2022-02-18
-	if(1 || ResetControllers) {
+	if(ResetControllers) {
 		for(ch=0; ch < MAXCHAN; ch++) {
 			(*p_Oldvalue)[ch].volume = -1;
 			(*p_Oldvalue)[ch].panoramic = -1;

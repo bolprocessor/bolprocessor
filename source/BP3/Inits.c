@@ -313,7 +313,7 @@ int Inits(void) {
 	Jbol = Jfunc = iProto = Jpatt = Jvar = Jflag = Jhomo = N_err = BolsInGrammar
 		= ScriptExecOn = 0;
 	Jcontrol = -1;
-	for(i=0; i < MAXPARAMCTRL; i++) ParamControl[i] = ParamKey[i] = -1;
+	for(i=0; i < MAXPARAMCTRL; i++) ParamControl[i] = ParamKey[i] = ParamChan[i] = -1;
 	MaxRul = MaxGram = 0;
 	Gram.trueBP = Gram.hasTEMP = Gram.hasproc = FALSE;
 	pp_MIDIcode = NULL;

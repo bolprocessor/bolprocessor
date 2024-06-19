@@ -22,7 +22,7 @@ select any word or group of words you need information about.
 • BP2/BP3 is able to control all MIDI parameters, including continuous parameters such as pitchbend,
     polyphonic pressure, panoramic, etc.  See "performance controls".
 • BP2/BP3 has interactive features used in the "improvize mode".  It responds to MIDI messages
-    (see "Interactive mode") and to "Apple Events".
+    (see "Interactive mode").
 • Thanks to Csound, BP2/BP3 bypasses limitations of MIDI, and takes advantage of both environments.
     (See "Csound implementation")
 ### How does the output of BP2/BP3 look like?
@@ -57,17 +57,14 @@ select any word or group of words you need information about.
 • MIDI files type 0, 1 or 2 can be imported to create "sound-object prototypes".
 • Csound scores can be imported to create "sound-object prototypes".
 • BP2 responds to input MIDI messages.  See "Interactive mode".
-• BP2 works in a client-server environment. It responds to "Apple Events" that may launch all
-    kinds of processes.  The data-base "TryAppleEvents.fm" is a good illustration of this.
 ### Interactive mode
 In this mode, BP2 is able to respond in real time to MIDI messages that are assigned certain tasks.
-Assignments are listed as script instructions in the "Interaction" window.
-    (Open '-in.abc1' to see an example)
 • For instance, instruction
-        IN Param K1 = controller #7 channel 16
-    assigns controller #7 on channel 16 to fix the value of parameter K1.
+        Control parameter K1 = #7 channel 16
+    instructs controller #7 on channel 16 to fix the value of parameter K1.
     This parameter may control weights in grammar rules, velocities, etc. (see "Variable arguments")
-• Related topic: "Apple Events"
+• A parameter can also be set to the velocity of a NoteOn, for example:
+        Velocity parameter K1 = C3 channel 16
 Contains most commands of BP2. You may document them with the on-line "Help".
 ### Variables
 BP2/BP3 recognizes strings starting with an uppercase character as "variables" in grammars
@@ -498,8 +495,7 @@ When checked, BP2/BP3 will use the quantization setting (in milliseconds) to sim
 • The result is a saving of memory space and "computation" time making it possible to
     compute very complex items.
 ### _script(scriptline) [Performance control]
-The script line will be executed at "performance time". Note that the line may be
-    a call to another script, etc.
+The script line will be executed at "performance time".
 ### _scale(name,blockkey) [Performance control]
 If microtonal scales have been defined in the Csound instruments file, they can be selected as follows:
 • By default, a 12-tone equal-tempered scale is used.
@@ -612,12 +608,10 @@ When this script is executed, «line» is printed in the window previously selec
 To define the wait event, the easiest is to check 'REC' in the script window,
     then click 'WAIT FOR:'.
 • Examples of correct syntax:
-    Wait for g -- waiting for key 'g' to be depressed
-    Wait for cmd-r -- waiting for command 'r' to be depressed
     Wait for Eb4 channel 1 -- waiting for a NoteOn on the MIDI input, key E flat,
         octave 4, channel 1
-    Wait for mib3 channel 16 -- identical to the third one, in French convention
-    Wait for space -- waiting for the space bar to be depressed
+    Wait for mib3 channel 1 -- identical to the third one, in Italian/Spanish/French convention
+    Wait for space -- waiting for the space bar to be depressed (not with BP3)
     Wait for Start -- waiting for a 'Start' MIDI message
     Wait for Continue -- waiting for a 'Continue' MIDI message
     Wait for Stop -- waiting for a 'Stop' MIDI message

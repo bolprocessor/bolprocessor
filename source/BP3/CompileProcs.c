@@ -180,7 +180,7 @@ int CreateEventScript(char *x,int quick) {
 		return(ABORT);
 		}
 	diff = TRUE;
-	if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Creating script instruction during compilation from “%s”\nJscriptline = %d, MaxScript = %d\n",x,Jscriptline,MaxScript);
+	if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Creating script instruction during compilation from “%s”\n",x);
 	if(!quick && Jscriptline > 0) {
 	/* quick is TRUE in the second argument of glossary instructions */
 		for(i=0; i < Jscriptline; i++) {
@@ -200,7 +200,8 @@ int CreateEventScript(char *x,int quick) {
 			for(i = Jscriptline; i < MaxScript; i++) (*p_Script)[i] = NULL;
 			}
 		if((*p_Script)[Jscriptline] != NULL) {
-			BPPrintMessage(odError,"=> Err. CreateEventScript(). (*p_Script)[Jscriptline] != NULL\n");
+		//	BPPrintMessage(odError,"=> Err. CreateEventScript(). (*p_Script)[Jscriptline] != NULL\n");
+			BPPrintMessage(odError,"=> Error creating a script\n");
 			}
 		if((ptr = (char**) GiveSpace((Size)(strlen(x)+1))) == NULL) return(ABORT);
 		(*p_Script)[Jscriptline] = ptr;
@@ -208,7 +209,9 @@ int CreateEventScript(char *x,int quick) {
 		i = Jscriptline;
 		check = quick; // If equal to zero it will create a script entry
 		if(ExecScriptLine(NULL,-1,check,FALSE,ptr,dummy,&dummy,&j,&j) != OK) {
-			BPPrintMessage(odError,"This script instruction is not valid: “%s”\n",x);
+			sprintf(Message,"This script instruction is not valid: “%s”\n",x);
+			Print(wTrace,Message);
+			BPPrintMessage(odError,Message);
 			Jscriptline--;
 			h = (Handle) (*p_Script)[Jscriptline];
 			MyDisposeHandle(&h);
@@ -219,7 +222,6 @@ int CreateEventScript(char *x,int quick) {
 			if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Created script instruction: [%d] “%s”\n",Jscriptline,x);
 			}
 		}
-//	return(i);
 	return(Jscriptline);
 	}
 

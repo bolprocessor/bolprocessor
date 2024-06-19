@@ -53,7 +53,9 @@ Handle ptr1;
 dummy = ZERO;
 
 strcpy(LastSeen_scale,"");
-if(CheckEmergency() != OK) return(ABORT);
+if(CheckEmergency() != OK) {
+	Panic = TRUE; return(ABORT);
+	}
 #if BP_CARBON_GUI_FORGET_THIS
 if(GetTuning() != OK) return(ABORT);
 ResetPannel();
@@ -175,7 +177,10 @@ ShowMessage(TRUE,wMessage,"Compiling subgrammar #1...");
 if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start compilegrammar = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 for(i=0; i < MAXNOTBPCASES; i++) NotBPCase[i] = FALSE;
 NotBPCase[8] = NotBPCase[3] = TRUE;
-for(i=1; i < MAXPARAMCTRL; i++) ParamInit[i] = ParamValue[i] = INT_MAX;
+for(i=1; i < MAXPARAMCTRL; i++) {
+	ParamInit[i] = ParamValue[i] = INT_MAX;
+	ParamChan[i] = -1;
+	}
 p_line = NULL;
 InitThere = 0; p_InitScriptLine = NULL;
 Deactivate(TEH[wGrammar]);
@@ -364,6 +369,7 @@ if((*(Gram.p_subgram))[Gram.number_gram].number_rule > MaxRul) {
 	sprintf(Message,"=> Err. number rules gram#%ld.",(long)Gram.number_gram);
 	if(Beta) Alert1(Message);
 	if(CompileOn) CompileOn--;
+	Panic =  TRUE; // 2024-06-18
 	return(ABORT);
 	}
 if((*(Gram.p_subgram))[Gram.number_gram].number_rule < 1) {
@@ -424,7 +430,7 @@ else {
 	Gram.trueBP = Gram.hasTEMP = Gram.hasproc = FALSE;
 	Dirty[wGrammar] = dirtymem;
 	if(CompileOn) CompileOn--;
-	SelectBehind(GramSelStart,GramSelEnd,TEH[wGrammar]);
+//	SelectBehind(GramSelStart,GramSelEnd,TEH[wGrammar]);
 	return(N_err == 0);
 	}
 }

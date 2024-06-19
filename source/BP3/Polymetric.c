@@ -1568,26 +1568,26 @@ FIXTEMP:
 		}
 	else {
 		if((m == T4 || m == T6 || (m == T0 && p == 1))) {
-			if(ShowMessages && (m != T4 || MaxVar > 0) && (ShowGraphic || !Improvize)) {
-				switch(m) {
+		/*	if(ShowMessages && (m != T4 || MaxVar > 0) && (ShowGraphic || !Improvize)) {
+				switch(m) {  // Suppressed 2024-06-19
 					case T4:
 						sprintf(Message,
-							"Variable '%s' was found (field level %ld)",*((*p_Var)[p]),
+							"Variable '%s' found and ignored (field level %ld)",*((*p_Var)[p]),
 								(long)a);
 						break;
 					case T6:
 						sprintf(Message,
-							"Unreplaced wild card '?%ld' was found (field level %ld)",
+							"Unreplaced wild card '?%ld' found and ignored (field level %ld)",
 								(long)p,(long)a);
 						break;
 					case T0:
 						sprintf(Message,
-							"Unreplaced wild card '?' was found (field level %ld)",
+							"Unreplaced wild card '?' found and ignored (field level %ld)",
 								(long)a);
 						break;
 					}
 				ShowMessage(TRUE,wMessage,Message);
-				}
+				} */
 			}
 		else {
 			if((m >= T10 && m <= T24) || (m >= T26 && m < MAXTOKENBYTE) || (m == T0

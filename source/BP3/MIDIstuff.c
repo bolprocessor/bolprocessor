@@ -541,10 +541,10 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			}
 		}
 	if(Interactive && (Ctrl_adjust(e,c0,c1,c2) == OK)) {
-		if(e->type == NULL_EVENT) return(OK);
+/*		if(e->type == NULL_EVENT) return(OK); // Suppressed 2024-06-19
 		RunningStatus = 0;
 		c0 = e->data2;
-		goto STARTCHECK;
+		goto STARTCHECK; */
 		}
 //	BPPrintMessage(odInfo,"Handling? c0 = %d, c1 = %d, c2 = %d, Interactive = %d\n",c0,c1,c2,Interactive);
 	if(Interactive && (c2 > 0)) {
@@ -649,8 +649,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 				if(ParamChan[i] != -1 && ParamKey[i] == c1
 									&& c0 == (NoteOn + ParamChan[i] - 1)) {
 				/* IN Param key "Kx" = velocity "note" channel "1..16" */
-					sprintf(Message,"K%ld = %ld",(long)i,(long)c2);
-					ShowMessage(TRUE,wMessage,Message);
+					if(TraceMIDIinteraction) BPPrintMessage(odError,"Setting K%d = %d (key %d channel %d)\n",i,c2,c1,ParamChan[i]);
 					ParamValue[i] = c2;
 					return(OK);
 					}
@@ -666,10 +665,11 @@ int check_stop_instructions(unsigned long time) {
 	unsigned long thisscripttime;
 	unsigned char midiData[4];
 	for(j=1; j <= Jinscript; j++) {
+//		BPPrintMessage(odInfo,"((*p_INscript)[%d]).chan = %d\n",j,((*p_INscript)[j]).chan);
 		if(((*p_INscript)[j]).chan == -1) continue;
 		instr = ((*p_INscript)[j]).scriptline;
 		switch(instr) {
-			case 97: break; // Wait for note
+			case 97: break; // Wait for a note
 			case 67: break; // Wait for Start
 			case 66: break; // wait for Continue
 			case 128: break; // wait for Stop
@@ -732,18 +732,17 @@ int check_stop_instructions(unsigned long time) {
 int Ctrl_adjust(MIDI_Event *p_e,int c0,int c1,int c2) {
 	int speed_change,i,j,r,c11;
 	long count = 12L,oldn,dt;
-
 	r = MISSED;
+//	if(TraceMIDIinteraction) BPPrintMessage(odError,"(controller %d) ParamControlChan = %d\n",c1,ParamControlChan);
 	if(ParamControlChan > 0) {
 		for(i=1; i < MAXPARAMCTRL; i++) {
-			if(ParamChan[i] != -1 && c0 == (ControlChange + ParamChan[i] - 1)
-				&& ParamControl[i] == c1) {
-			/* IN Param �Kx� = controller #�0..127� channel �1..16� */
+			if(ParamChan[i] != -1
+				&& ParamControl[i] == c1 && c0 == (ControlChange + ParamChan[i] - 1)) {
+			/* Control parameter _Kx_ from #_0..127_ channel _1..16_ */
 				ParamControlChan = ParamChan[i];
-				sprintf(Message,"K%ld = %ld",(long)i,(long)c2);
-				ShowMessage(TRUE,wMessage,Message);
 				ParamValue[i] = c2;
-				r= OK;
+				if(TraceMIDIinteraction) BPPrintMessage(odError,"Setting K%d = %d (controller %d channel %d)\n",i,c2,c1,ParamChan[i]);
+				return OK;
 				}
 			}
 		}
@@ -2191,6 +2190,7 @@ return(OK);
    too many Midi messages ?  CoreMIDI driver sets MaxMIDIbytes = LONG_MAX,
    so not sure if this function is likely to ever do anything.
    -- akozar 20130830
+   Apparently a reminiscence of the OMS system -- Bernard 2024-06-19
  */
 int CheckMIDIbytes(int tell)
 {
@@ -2198,6 +2198,7 @@ unsigned long drivertime;
 long formertime,timeleft;
 int rep,compiledmem;
 
+return OK; // 2024-06-19
 
 if(Nbytes > (MaxMIDIbytes / 2) && Tbytes2 == ZERO) {
 	HideWindow(Window[wInfo]); HideWindow(Window[wMessage]);

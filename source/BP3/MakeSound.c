@@ -705,7 +705,7 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 	
 	if((Improvize || PlayAllChunks) && (LastTime > ZERO)) {
 		PianorollShift = LastTime;
-		BPPrintMessage(odInfo,"(Tcurr * Time_res) = %ld, LastTime = %ld ms, currenttime = %ld\n",(long)Tcurr * Time_res,(long)LastTime,(long)currenttime);
+	//	BPPrintMessage(odInfo,"(Tcurr * Time_res) = %ld ms, LastTime = %ld ms, currenttime = %ld ms\n",(long)Tcurr * Time_res,(long)LastTime,(long)currenttime);
 		Tcurr = LastTime / Time_res; // 2024-05-02
 		t0 = Tcurr * Time_res;
 	//	BPPrintMessage(odInfo,"PianorollShift = %ld\n",(long)PianorollShift);
@@ -1105,6 +1105,7 @@ FORGETIT:
 						SetDriverTime(Tcurr);
 #endif
 						} */
+		//			if(TraceMIDIinteraction) BPPrintMessage(odError,"Done checking script list for instance %d\n",kcurrentinstance);
 					rs = 0;
 					}
 				

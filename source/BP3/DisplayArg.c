@@ -1121,15 +1121,15 @@ PRINTPROLONGATIONS:
 				}
 			}
 		else {
-			Reformat(wind,-1,-1,-1,&Blue,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 			sprintf(line,"%s(",*((*p_PerformanceControl)[4]));
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
 				goto OUT;
 				}
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
-			if(p_Script == NULL || p >= Jscriptline || p < 0) {
-				BPPrintMessage(odError,"=> Event script line not found\n");
+	//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
+			if(p_Script == NULL || p > Jscriptline || p < 0) { // Fixed > instead of >=  2024-06-18
+				BPPrintMessage(odError,"=> Event script line not found, p = %d, Jscriptline = %d\n",p,Jscriptline);
 				r = OK; goto OUT;
 				}
 			sprintf(line,"%s",*((*p_Script)[p]));
@@ -1137,12 +1137,12 @@ PRINTPROLONGATIONS:
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
 				goto OUT;
 				}
-			Reformat(wind,-1,-1,-1,&Blue,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,")",NULL,-1)) != OK) {
 				goto OUT;
 				}
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			sp = 2;
 			}
 		continue;

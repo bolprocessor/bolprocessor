@@ -42,7 +42,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 	int* p_changed,char* p_newarg,int quick) {
 	/* 'quick' is not used. */
 	int i,j,k,w,ww,pos,r,rs,firstchar,diffchar,channel,thekey,displayitems,
-		oldoutmidi,oldwritemidifile,oldoutcsound,oms,changed,tried;
+		oldoutmidi,oldwritemidifile,oldoutcsound,oms,changed,tried,oldparamcontrol,oldparamkey,oldparamchan;
 	unsigned int seed;
 	FSSpec spec;
 	long x,jj;
@@ -66,7 +66,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 	oldoutmidi = rtMIDI;
 	if(ScriptNrArg(instr) > 0) MystrcpyTableToString(MAXLIN,line,ScriptLine.arg,0);
 	else line[0] = '\0';
-//	BPPrintMessage(odInfo,"DoScript instruction = %d\n",instr);
+	// BPPrintMessage(odInfo,"DoScript instruction = %d\n",instr);
 	switch(instr) {
 	/*	case 0:	// Expand selection
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
@@ -241,25 +241,29 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			thechar = line[0];
 		//	r = WaitKeyStrokeOrAppleEvent(thechar,FALSE,KEYBOARDEVENT,0,0,NULL,NULL);
 			break;
-		case 15:	// IN Parameter "Kx" = velocity "note" channel "1..16" 
-			if(wind == wGlossary) return(MISSED);
-			if(check) return(OK);
+		case 15:	// Velocity parameter _Kx_ from _note_ channel _1..16_
+	//		if(wind == wGlossary) return(MISSED);
+			if(!check) return(OK);
 			i = (*(ScriptLine.intarg))[0];
-			if(wind == wInteraction && ParamChan[i] != -1 && ParamControl[i] != -1) {
+			oldparamchan = ParamChan[i];
+			oldparamkey = ParamKey[i];
+	/*		if(ParamChan[i] != -1 && ParamControl[i] != -1) {
 				sprintf(Message,"Parameter K%ld is already controlled by controller #%ld channel %ld\n",
 					(long)i,(long)ParamControl[i],(long)ParamChan[i]);
 				Print(wTrace,Message);
 				return(MISSED);
 				}
-			if(wind == wInteraction && ParamChan[i] != -1 && ParamKey[i] != -1) {
-				sprintf(Message,"Parameter K%ld is already controlled by controller #%ld channel %ld\n",
-					(long)i,(long)ParamControl[i],(long)ParamChan[i]);
+			if(ParamChan[i] != -1 && ParamKey[i] != -1) {
+				sprintf(Message,"Parameter K%ld is already controlled by key #%ld channel %ld\n",
+					(long)i,(long)ParamKey[i],(long)ParamChan[i]);
 				Print(wTrace,Message);
 				return(MISSED);
-				}
-			if(CheckUsedKey(p_keyon,1,2) != OK) return(MISSED);
+				} */
+	//		if(CheckUsedKey(p_keyon,1,2) != OK) return(MISSED);
 			ParamKey[i] = (*(ScriptLine.intarg))[1];
 			ParamControlChan = ParamChan[i] = (*(ScriptLine.intarg))[2];
+			if(TraceMIDIinteraction && (oldparamchan != ParamChan[i] || oldparamkey != ParamKey[i]))
+				BPPrintMessage(odInfo,"Script: K%d will be set by key %d chan %d\n",i,ParamKey[i],ParamChan[i]);
 			break;
 		case 16:	/* Type */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
@@ -1429,18 +1433,23 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			WaitKey[i] = (*(ScriptLine.intarg))[1];
 			WaitChan[i] = (*(ScriptLine.intarg))[2];
 			break;
-		case 105:	/* IN Param "Kx" = controller #"0..127" channel "1..16" */
-			if(wind == wGlossary) return(MISSED);
-			if(check) return(OK);
+		case 105:	/* Control parameter _Kx_ from #_0..127_ channel _1..16_ */
+		//	if(wind == wGlossary) return(MISSED);
+			if(!check) return(OK);
 			i = (*(ScriptLine.intarg))[0];
-			if(wind == wInteraction && ParamChan[i] != -1 && ParamControl[i] != -1) {
+			oldparamchan = ParamChan[i];
+			oldparamcontrol = ParamControl[i];
+	/*		if(ParamChan[i] != -1 && ParamControl[i] != -1) {
 				sprintf(Message,"Parameter K%ld is already controlled by controller #%ld channel %ld\n",
 					(long)i,(long)ParamControl[i],(long)ParamChan[i]);
 				Print(wTrace,Message);
 				return(MISSED);
-				}
+				} */
 			ParamControl[i] = (*(ScriptLine.intarg))[1];
 			ParamControlChan = ParamChan[i] = (*(ScriptLine.intarg))[2];
+			if(TraceMIDIinteraction && (oldparamchan != ParamChan[i] || oldparamcontrol != ParamControl[i]))
+				BPPrintMessage(odInfo,"Script: Parameter K%d will be set by controller #%d chan %d\n",i,ParamControl[i],ParamChan[i]);
+			return OK; // 2024-06-19
 			break;
 		case 106:	/* IN Adjust tempo minimum tempo "long" ticks in "long" secs key "note" maximum tempo "long" ticks in "long" secs key "note" channel "1..16" */
 			if(wind == wGlossary) return(MISSED);
@@ -2242,7 +2251,7 @@ BADCREATOR:
 		goto QUIT;
 		}
 	if(strcmp(line,"script instruction") == 0) {
-		continue; // 2024-05-24
+	//	continue; // 2024-05-24
 		if(p_Script == NULL && GetScriptSpace() != OK) {
 			r = ABORT; goto QUIT;
 			}
@@ -2406,10 +2415,19 @@ return(OK);
 
 int CheckUsedKey(char*** p_keyon,int i1,int i2)
 {
-int key,chan;
+int key,k,chan,ch;
 
 key = (*(ScriptLine.intarg))[i1];
 chan = (*(ScriptLine.intarg))[i2];
+if(p_keyon == NULL) { // 2024-06-18
+	return OK;
+/*	for(ch=0; ch < MAXCHAN; ch++) {
+		if((p_keyon[ch] = (char**) GiveSpace((Size)(MAXKEY+1)*sizeof(char))) == NULL) return(ABORT);
+		for(k=0; k < MAXKEY; k++) (*p_keyon[ch])[k] = 0;
+		}
+	return OK; */
+	}
+// BPPrintMessage(odInfo,"Script key = %d chan = %d, on = %d\n",key,chan,(int)(*p_keyon[chan])[key]);
 if((*p_keyon[chan])[key]) {
 	Print(wTrace,"Key '");
 	PrintNote(-1,key,chan,wTrace,Message);

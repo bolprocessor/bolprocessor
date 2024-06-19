@@ -48,7 +48,8 @@ int time_end_compute;
 
 BPPrintMessage(odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
 if(Improvize && ItemNumber == 0) {
-	ShowMessage(TRUE,wMessage,"\n(No message during improvization. Only 10 items are produced.)\n");
+	ShowMessage(TRUE,wMessage,"\nNo message during improvization\n");
+	if(!rtMIDI) ShowMessage(TRUE,wMessage,"Only 10 items will be produced.\n");
 	}
 time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
 
