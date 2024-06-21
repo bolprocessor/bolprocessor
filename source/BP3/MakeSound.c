@@ -65,14 +65,14 @@ int w,y,ii,iii,j,jj,k,kcurrentinstance,n,occurrence,s,in,itick,c,c0,c1,oldc1,c2,
 	octave,pitchclass,time_pattern,showpianoroll;
 	
 Milliseconds time,buffertime,torigin,t0,t1,t11,t2,t2obj,
-	t2tick,t22,t3,date1,**p_t1,**p_t2cont[MAXCHAN+1],timeon[MAXKEY],
-	**p_nextd,computetime,currenttime,objectduration,objectstarttime;
+	t2tick,t22,date1,**p_t1,**p_t2cont[MAXCHAN+1],timeon[MAXKEY],
+	**p_nextd,computetime,currenttime;
 
 Handle h;
 char **p_keyon[MAXCHAN+1],**p_onoff,**p_line,**p_active[MAXCHAN+1],line[4],line_image[200];
 long timeleft,formertime,size,istreak,posmin,localperiod,endxmax,endymax,oldtcurr,
 	i1,i2,oldi2,imap,gap,maxmapped,i,im,ievent,yruler,max_endtime_event,max_endtime,add_time;
-unsigned long currswitchstate[MAXCHAN+1],oldtime,maxmidibytes5,drivertime;
+unsigned long currswitchstate[MAXCHAN+1],oldtime,maxmidibytes5,drivertime,t3,objectstarttime,objectduration;
 unsigned int seed;
 int scale,blockkey;
 float howmuch;
@@ -827,9 +827,13 @@ TRYCSFILE:
 		t3 = (*p_Instance)[kcurrentinstance].endtime;
 		objectstarttime = (*p_Instance)[kcurrentinstance].starttime;
 		objectduration = t3 - objectstarttime;
-		if(objectduration > 500000) { // Fixed by BB 2021-02-26
-			BPPrintMessage(odError,"=> Incorrect object duration = %ld ms for k = %d (j = %d) in chunk #%d, starting %ld ms ending %ld ms\n",(long)objectduration,kcurrentinstance,(*p_Instance)[kcurrentinstance].object,Chunk_number,(*p_Instance)[kcurrentinstance].starttime,(long)t3);
-			t3 = (*p_Instance)[kcurrentinstance].endtime = objectstarttime; objectduration = ZERO;
+		if(objectduration < 0 || objectduration > 500000) { // Revised 2024-06-21
+			jj = (*p_Instance)[kcurrentinstance].object;
+		//	if(TraceMIDIinteraction) 
+			BPPrintMessage(odError,"=> Incorrect object duration for object #%d (jj = %d) in chunk #%d, starting %ld ms ending %ld ms\n",kcurrentinstance,(*p_Instance)[kcurrentinstance].object,Chunk_number,objectstarttime,(long)t3);
+			BPPrintMessage(odError,"startime = %ld, endtime = %ld\n",objectstarttime,(*p_Instance)[kcurrentinstance].endtime);
+			t3 = (*p_Instance)[kcurrentinstance].endtime = objectstarttime;
+			objectduration = ZERO;
 	//		result = ABORT; goto OVER;
 			}
 		
@@ -1738,8 +1742,10 @@ NEWPERIOD:
 #endif
 				}
 			else {
-				sprintf(Message,"%ld objects done out of %ld\n",(long)kcurrentinstance,(long)(*p_kmax));
-				if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
+				if(trace_csound_pianoroll) {
+					sprintf(Message,"%ld objects done out of %ld\n",(long)kcurrentinstance,(long)(*p_kmax));
+					BPPrintMessage(odInfo,Message);
+					}
 				if((MIDIfileOn || cswrite) && (!ItemCapture || ShowMessages)
 						&& doneobjects > 10) {
 					doneobjects = 0;

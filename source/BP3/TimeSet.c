@@ -56,7 +56,7 @@ time_t start_time,end_time;
 if(CheckEmergency() != OK) return(ABORT);
 
 *p_tmin = Infpos; *p_tmax = Infneg;
-Chunk_number++;
+if(!Improvize) Chunk_number++;
 // BPPrintMessage(odError,"\nChunk_number = %d\n",Chunk_number);
 
 if((p_articul = (short**) GiveSpace((Size)Maxevent*sizeof(short))) == NULL) return(ABORT);
@@ -143,7 +143,7 @@ int SetTimeObjects(int bigitem,unsigned long **p_imaxseq,unsigned long maxseq,in
 	long *p_kmx,long *p_tmin,long *p_tmax,short **p_articul)
 
 {
-int nseq,r,rep,BTflag,result,stepthis,first,dirtymem,compiledmem,nature_time,a,j,key,last_line;
+int nseq,r,rep,BTflag,result,stepthis,first,dirtymem,compiledmem,nature_time,a,j,key,last_line,outtimeevents;
 long **ptr;
 long k;
 long i,iseq;
@@ -728,11 +728,16 @@ QUEST2:
 
 /* Modify Alpha according to articulation (legato/staccato) */
 if(trace_timeset) BPPrintMessage(odInfo,"\nCalculating legato/staccato\n");
+outtimeevents = TRUE;
 for(k=2; k <= (*p_kmx); k++) {
-//	if((nature_time == STRIATED) && ((*p_Instance)[k].starttime > max_end_time || (*p_Instance)[k].endtime > max_end_time)) {
-	if((nature_time == STRIATED) && (*p_Instance)[k].starttime > max_end_time) { // Fixed by BB 2022-02-20
-		BPPrintMessage(odError,"=> Wrong start/end values for object #%d (j = %d) in chunk #%d\n",k,(*p_Instance)[k].object,Chunk_number);
-		BPPrintMessage(odError,"starttime = %ld endtime = %ld max_end_time = %ld kmx = %ld\n",(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)max_end_time,(long)*p_kmx);
+	j = (*p_Instance)[k].object; if(j > 0) outtimeevents = FALSE;
+	if((nature_time == STRIATED) && (*p_Instance)[k].starttime > max_end_time) {
+		// This can happen with an out-time object at the beginning of an item
+		if(0 && TraceMIDIinteraction) {  // Reactivate this to check -gr.koto3
+			BPPrintMessage(odError,"=> Incorrect start/end values for object #%d (j = %d) in chunk #%d\n",k,(*p_Instance)[k].object,Chunk_number);
+			BPPrintMessage(odError,"starttime = %ld endtime = %ld ms, max_end_time = %ld ms, kmx = %ld\n",(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)max_end_time,(long)*p_kmx);
+			}
+		if(outtimeevents) (*p_Instance)[k].starttime = (*p_Instance)[k].endtime = 0L;
 		continue; // Well, needs to be checked
 		// result = ABORT; goto EXIT1;
 		}

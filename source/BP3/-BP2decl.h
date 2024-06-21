@@ -394,7 +394,7 @@ extern MIDI_Event* eventStack;
 extern long eventCount, eventCountMax;
 extern MIDI_Event* eventStack;
 extern UInt64 initTime;
-extern int FirstMIDIevent;
+extern int FirstNoteOn;
 
 extern int stop(int,char*);
 extern int MIDIflush(void);

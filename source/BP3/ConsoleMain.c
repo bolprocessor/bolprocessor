@@ -328,6 +328,7 @@ CLEANUP:
 		if(ResetNotes) AllNotesOffPedalsOffAllChannels();
 		BPPrintMessage(odInfo,"Duration = %.3f seconds\n",(double)LastTime/1000.); // Date of the last MIDI event
 		closeMIDISystem();
+		WaitABit(500); // 500 milliseconds
 		}
 	time(&current_time);
 	if(ProductionTime > 0) BPPrintMessage(odInfo, "Production time: %ld seconds\n",(long)ProductionTime);

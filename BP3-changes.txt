@@ -139,7 +139,6 @@ New script instructions:
 • Wait for Start, Continue, Stop
 "Reset notes and pedals off at the end of item" is now an option, because it is better to discard it in interactions.
 BP3 now creates an invisible MIDI event (ActiveSensing) at the end of each element to which it can append the final scripts.
-A computer will be on hand in a few days to do the compilation fixes on Windows 10 and Linux.
 
 -----
 2024-06-19
@@ -149,3 +148,9 @@ New script instructions:
 These scripts modify the values of the built-in parameters K1, K2, ... K127 by receiving the velocity of a given MIDI note or the value of a given MIDI controller.
 BP2_help has been updated to include these instructions.
 
+-----
+2024-06-21
+If we have a phrase containing _script(wait for C3 channel 1) _script(wait for D3 channel 1)
+the performance will resume in case either note C3 or D3 is received.
+A few fixes to how scripts are handled during performance, especially when they pause on an out-time event.
+The HP computer has been received and set up for Windows. The installation and compilation of BP3 is being checked. Wait for next versions!

@@ -1570,7 +1570,7 @@ int LoadScriptCommands() {  // This is the way we will load all lists of strings
 		if((ptr=(char**) GiveSpace((Size)MAXLIN * sizeof(char))) == NULL) goto ERR2;
 		(*(ScriptLine.arg))[i] = ptr;
 		}
-	if(checkscriptcommands) BPPrintMessage(odInfo,"\nAll script instructions have been loaded\n\n");
+	if(checkscriptcommands) BPPrintMessage(odInfo,"\nAll %d script instructions have been loaded\n\n",im);
 	// EmergencyExit = TRUE;
 	return(OK);
 	ERR:
@@ -1630,7 +1630,7 @@ int InitButtons(void)
 #else
   rtMIDI = FALSE;
 #endif
-FirstMIDIevent = 1;
+FirstNoteOn = TRUE;
 OutBPdata = FALSE;
 ObjectMode = ObjectTry = Improvize = StepProduce = StepGrammars
 	= PlanProduce = DisplayProduce = UseEachSub

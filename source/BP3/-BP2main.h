@@ -87,7 +87,7 @@ int EmergencyExit,FixedMaxQuantization,TraceMemory,
 	EventState,Beta;
 int MIDIsetUpTime;  /* Time needed to set-up MIDI driver (ms) */
 int MIDIsyncDelay;  
-int FirstMIDIevent;
+int FirstNoteOn;
 int LoadedScript;
 int Jmessage;
 // TEStyleRec** StyleHandle[WMAX];
