@@ -1,10 +1,162 @@
 Bol Processor BP3 history of changes
-=================================
+====================================
 
 Current location of this file:
 https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.txt
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
+
+-----
+2024-07-07
+The first version that compiles and runs on both MacOS and Windows! 😀
+The Linux version is on the way.
+This version has been tested on an HP Intel Core i5-6200U (2.3 GHz, 8 GB RAM) running Windows 10 with a 64-bit x64 processor.
+MAMP, 7-Zip and MinGW (x86_64) have been installed to run the interface and compiler. Only MAMP (or XAMPP) is required to run the Bol Processor.
+The compilation is automatic (single click) on both MacOS and Windows platforms.
+Pre-compiled executables ("bp" for MacOS and "bp.exe" for Windows) are also distributed. This can save you the trouble of compiling.
+Csound (version 6.18) has been installed on the Windows computer by means of an "exe" installer.
+Real-time MIDI in/output has been checked on both platforms.
+👉 Don't forget to install the latest PHP interface:
+https://github.com/bolprocessor/php-frontend/archive/master.zip
+For geeks: Memory leaks have been traced and checked (on the Mac) using the LLDB debugger and compiling with the AddressSanitizer option. Use Makefile-full-tests to do the same.
+
+-----
+2024-06-21
+If we have a phrase containing _script(wait for C3 channel 1) _script(wait for D3 channel 1)
+the performance will resume in case either note C3 or D3 is received.
+A few fixes to how scripts are handled during performance, especially when they pause on an out-time event.
+The HP computer has been received and set up for Windows. The installation and compilation of BP3 is being checked. Wait for the next version!
+
+-----
+2024-06-19
+New script instructions:
+• Velocity parameter K... = <any note> channel ...
+• Control parameter K... = #<any MIDI controller> channel ...
+These scripts modify the values of the built-in parameters K1, K2, ... K127 by receiving the velocity of a given MIDI note or the value of a given MIDI controller.
+BP2_help has been updated to include these instructions.
+
+-----
+2024-06-17
+New script instructions:
+• Hold for … milliseconds
+• MIDI send Start, Continue, Stop
+• Wait for Start, Continue, Stop
+"Reset notes and pedals off at the end of item" is now an option, because it is better to discard it in interactions.
+BP3 now creates an invisible MIDI event (ActiveSensing) at the end of each element to which it can append the final scripts.
+
+-----
+2024-06-14
+This release has revised code for compilation on Windows and Linux. Some Linux procedures in initializeMIDISystem() need to be completed once the compilation has been checked and fixed.
+The display of the file index in each workspace has been improved: each file is placed in a specific box according to its type.
+
+-----
+2024-06-13
+The prefixes and suffixes of some files have been changed to make them more meaningful:
+• Prefix "-ho" and suffix "bpho" are replaced by "-al" and "bpal" (Alphabet files)
+• Prefix "-mi" and suffix "bpmi" are replaced by "-so" and "bpso" (Sound-object files)
+These changes are automatically managed by the interface and by the console.
+The old prefixes/suffixes were used to denote homomorphisms and MIDI codes. Alphabet files may still contain homomorphisms but this doesn't need to be emphasised. Sound-objects can now contain Csound scores in addition to, or instead of, MIDI codes.
+
+-----
+2024-06-05
+This version takes care of filters on MIDI outputs. These can specify the types and channels of events sent to each output.
+
+-----
+2024-06-02
+This version accepts any number of sources for MIDI events.
+A "sync delay" parameter has been added to the settings to compensate for the delay when controlling another BP3.
+Comments can be attached to MIDI inputs and outputs to help identify peripherals.
+
+-----
+2024-05-30
+Important changes to facilitate real-time MIDI interaction between multiple instances of BP3. The MIDI port and filter settings are now stored in a file whose name depends on both the session number and the project name. This allows multiple projects to run simultaneously, either on different browsers or on the same browser under different names.
+If this temporary file is not found, it will be retrieved from the (permanent) "midi_resources" folder.
+
+-----
+2024-05-28
+This version handles real-time MIDI input/output filters in the same way as BP2. Don't forget to download and update the PHP/Javascript interface!
+More scripts to come…
+All system-dependent codes dealing with MIDI have been stored in MIDIdriver.c
+Windows and Linux compilation still needs to be checked and fixed. The MacOS version is fully functional.
+
+-----
+2024-05-25
+😀 First version to handle incoming MIDI events.
+Script procedures have been partially rewritten. This version only supports command
+_script(IN Wait for C3 channel 1) which is used to delay the start of the performance.
+Unused MIDI code has been stored in MIDIstubs.c, which is no longer compiled. Useful MIDI code is available in MIDIstuff.c.
+
+-----
+2024-05-21
+Images are displayed even if errors have been found. (Fixed in produce.php)
+All images can be displayed (if this option is selected) during the reading of chunked data.
+The STOP and PANIC buttons seem to succeed in shutting down the console for good when playing chunked data in real-time MIDI.
+Data and grammar pages have a search and replace function with the option of regular expressions.
+
+-----
+2024-05-20
+Fixed bug loading Csound instruments to the console: comments are ignored.
+Fixed bug in timing the Csound score on chunked Data.
+In real-time MIDI, the clock is synchronised on the first NoteOn event.
+The stop() function has a "now" parameter to decide whether it should work immediately or wait for the next half second.
+MaxMIDIMessages = 1000. More may be necessary to handle very large chunks of data in real-time MIDI.
+
+-----
+2024-05-19
+Fixed timing problem in real-time MIDI when playing chunked data. Faulty chunked data still doesn't play well (in real time), although it produces acceptable MIDI files.
+(Next version will handle MIDI input events.)
+The stop() function that checks for "_stop" or "_panic" files now only performs this check twice per second. This saves time for sending MIDI events at the correct time.
+
+-----
+2024-05-18
+Fixed unwanted cross effects when playing multiple instances of BP3 together.
+
+-----
+2024-05-17
+Important change: multiple instances of BP3 can play together on the same browser. The STOP button now stops the performance it is attached to, while the PANIC button stops all performances.
+In addition, the STOP and PANIC buttons are always effective because a session_abort() was done in produce.php before the command was sent to the console.
+In a forthcoming version, these instances will be able to communicate and control each other (along with external MIDI devices) in terms of synchronisation and parameter changes.
+Progress has been made on checking compilation under Windows, although it is not yet complete.
+
+-----
+2024-05-16
+MIDI source and output ports can now be set up on the interface. The console checks that these ports are available and suggests changes to numbers and names if the match is not perfect. Ports are saved along with each project (Grammar or Data).
+Some (but not all?) types and procedures that were in conflict with similar ones in Windows have been fixed.
+
+-----
+2024-05-14
+Created "MIDIinputtest" to test the reception of MIDI messages (e.g. from a piano keyboard) and their immediate forwarding to the first available MIDI device (e.g. a synthesiser). Windows and Linux users are encouraged to compile and fix "MIDIinputtest.c".
+Real-time MIDI input/output functions have been included in the BP3 source code for the three environments. However, only MacOS (CoreMIDI) has been tested.
+In this version, MIDI output is on port #0 and MIDI input is on port #1. Change the values of MIDIoutput and MIDIsource at the top of MIDIstubs.c to adapt them. In the next version these parameters will be set by the interface.
+
+-----
+2024-05-13
+Modified "MIDItest.c" so that it compiles and run under Windows. Compilation was checked with Visual Studio.
+Then, BP3 was updated so that it will compile under Windows and produce real-time MIDI output.
+
+-----
+2024-05-12
+No changes to core algorithms. Only features that affect images.
+Fixed "Timeset.c" to correctly calculate the left image border when an out-time object is at time = 0.
+Limits of coordinates have been fixed to deal with very large images.
+Image links (objects, not pianoroll) now show start dates in Improvize mode.
+
+-----
+2024-05-11
+Interface now accepts alternative names of the Csound console.
+
+-----
+2024-05-10
+Fixed timing in Csound scores (when improvising).
+Real dates are displayed on sound-object graphs in the Improvize mode, but not yet on pianoroll graphs.
+Fixed add_time for silences at the end of items in the Improvize mode. (Needs more checking.)
+Sometimes the console stays hanging and the interface no longer responds. To get out of this problem, restart Apache (or the MAMP application).
+
+-----
+2024-06-04
+This version accepts any number of outputs for MIDI events.
+MIDI port number management has been improved. If they are changed from the console, the changes are automatically applied to the page when the project is saved.
+The display of the SHOW HELP ENTRIES command has been corrected.
 
 -----
 2024-05-07
@@ -18,139 +170,22 @@ Real-time MIDI uses CoreMIDI on MacOS, ALSA on Linux and MinGW on Windows. More 
 https://bolprocessor.org/check-bp3/#compile-bp-and-check-its-operation
 
 -----
-2024-05-10
-Fixed timing in Csound scores (when improvising).
-Real dates are displayed on sound-object graphs in the Improvize mode, but not yet on pianoroll graphs.
-Fixed add_time for silences at the end of items in the Improvize mode. (Needs more checking.)
-Sometimes the console stays hanging and the interface no longer responds. To get out of this problem, restart Apache (or the MAMP application).
 
------
-2024-05-11
-Interface now accepts alternative names of the Csound console.
 
------
-2024-05-12
-No changes to core algorithms. Only features that affect images.
-Fixed "Timeset.c" to correctly calculate the left image border when an out-time object is at time = 0.
-Limits of coordinates have been fixed to deal with very large images.
-Image links (objects, not pianoroll) now show start dates in Improvize mode.
 
------
-2024-05-13
-Modified "MIDItest.c" so that it compiles and run under Windows. Compilation was checked with Visual Studio.
-Then, BP3 was updated so that it will compile under Windows and produce real-time MIDI output.
 
------
-2024-05-14
-Created "MIDIinputtest" to test the reception of MIDI messages (e.g. from a piano keyboard) and their immediate forwarding to the first available MIDI device (e.g. a synthesiser). Windows and Linux users are encouraged to compile and fix "MIDIinputtest.c".
-Real-time MIDI input/output functions have been included in the BP3 source code for the three environments. However, only MacOS (CoreMIDI) has been tested.
-In this version, MIDI output is on port #0 and MIDI input is on port #1. Change the values of MIDIoutput and MIDIsource at the top of MIDIstubs.c to adapt them. In the next version these parameters will be set by the interface.
 
------
-2024-05-16
-MIDI source and output ports can now be set up on the interface. The console checks that these ports are available and suggests changes to numbers and names if the match is not perfect. Ports are saved along with each project (Grammar or Data).
-Some (but not all?) types and procedures that were in conflict with similar ones in Windows have been fixed.
 
------
-2024-05-17
-Important change: multiple instances of BP3 can play together on the same browser. The STOP button now stops the performance it is attached to, while the PANIC button stops all performances.
-In addition, the STOP and PANIC buttons are always effective because a session_abort() was done in produce.php before the command was sent to the console.
-In a forthcoming version, these instances will be able to communicate and control each other (along with external MIDI devices) in terms of synchronisation and parameter changes.
-Progress has been made on checking compilation under Windows, although it is not yet complete.
 
------
-2024-05-18
-Fixed unwanted cross effects when playing multiple instances of BP3 together.
 
------
-2024-05-19
-Fixed timing problem in real-time MIDI when playing chunked data. Faulty chunked data still doesn't play well (in real time), although it produces acceptable MIDI files.
-(Next version will handle MIDI input events.)
-The stop() function that checks for "_stop" or "_panic" files now only performs this check twice per second. This saves time for sending MIDI events at the correct time.
 
------
-2024-05-20
-Fixed bug loading Csound instruments to the console: comments are ignored.
-Fixed bug in timing the Csound score on chunked Data.
-In real-time MIDI, the clock is synchronised on the first NoteOn event.
-The stop() function has a "now" parameter to decide whether it should work immediately or wait for the next half second.
-MaxMIDIMessages = 1000. More may be necessary to handle very large chunks of data in real-time MIDI.
 
------
-2024-05-21
-Images are displayed even if errors have been found. (Fixed in produce.php)
-All images can be displayed (if this option is selected) during the reading of chunked data.
-The STOP and PANIC buttons seem to succeed in shutting down the console for good when playing chunked data in real-time MIDI.
-Data and grammar pages have a search and replace function with the option of regular expressions.
 
------
-2024-05-25
-😀 First version to handle incoming MIDI events.
-Script procedures have been partially rewritten. This version only supports command
-_script(IN Wait for C3 channel 1) which is used to delay the start of the performance.
-Unused MIDI code has been stored in MIDIstubs.c, which is no longer compiled. Useful MIDI code is available in MIDIstuff.c.
 
------
-2024-05-28
-This version handles real-time MIDI input/output filters in the same way as BP2. Don't forget to download and update the PHP/Javascript interface!
-More scripts to come…
-All system-dependent codes dealing with MIDI have been stored in MIDIdriver.c
-Windows and Linux compilation still needs to be checked and fixed. The MacOS version is fully functional.
 
------
-2024-05-30
-Important changes to facilitate real-time MIDI interaction between multiple instances of BP3. The MIDI port and filter settings are now stored in a file whose name depends on both the session number and the project name. This allows multiple projects to run simultaneously, either on different browsers or on the same browser under different names.
-If this temporary file is not found, it will be retrieved from the (permanent) "midi_resources" folder.
 
------
-2024-06-02
-This version accepts any number of sources for MIDI events.
-A "sync delay" parameter has been added to the settings to compensate for the delay when controlling another BP3.
-Comments can be attached to MIDI inputs and outputs to help identify peripherals.
 
------
-2024-06-04
-This version accepts any number of outputs for MIDI events.
-MIDI port number management has been improved. If they are changed from the console, the changes are automatically applied to the page when the project is saved.
-The display of the SHOW HELP ENTRIES command has been corrected.
 
------
-2024-06-05
-This version takes care of filters on MIDI outputs. These can specify the types and channels of events sent to each output.
 
------
-2024-06-13
-The prefixes and suffixes of some files have been changed to make them more meaningful:
-• Prefix "-ho" and suffix "bpho" are replaced by "-al" and "bpal" (Alphabet files)
-• Prefix "-mi" and suffix "bpmi" are replaced by "-so" and "bpso" (Sound-object files)
-These changes are automatically managed by the interface and by the console.
-The old prefixes/suffixes were used to denote homomorphisms and MIDI codes. Alphabet files may still contain homomorphisms but this doesn't need to be emphasised. Sound-objects can now contain Csound scores in addition to, or instead of, MIDI codes.
 
------
-2024-06-14
-This release has revised code for compilation on Windows and Linux. Some Linux procedures in initializeMIDISystem() need to be completed once the compilation has been checked and fixed.
-The display of the file index in each workspace has been improved: each file is placed in a specific box according to its type.
 
------
-2024-06-17
-New script instructions:
-• Hold for … milliseconds
-• MIDI send Start, Continue, Stop
-• Wait for Start, Continue, Stop
-"Reset notes and pedals off at the end of item" is now an option, because it is better to discard it in interactions.
-BP3 now creates an invisible MIDI event (ActiveSensing) at the end of each element to which it can append the final scripts.
-
------
-2024-06-19
-New script instructions:
-• Velocity parameter K... = <any note> channel ...
-• Control parameter K... = #<any MIDI controller> channel ...
-These scripts modify the values of the built-in parameters K1, K2, ... K127 by receiving the velocity of a given MIDI note or the value of a given MIDI controller.
-BP2_help has been updated to include these instructions.
-
------
-2024-06-21
-If we have a phrase containing _script(wait for C3 channel 1) _script(wait for D3 channel 1)
-the performance will resume in case either note C3 or D3 is received.
-A few fixes to how scripts are handled during performance, especially when they pause on an out-time event.
-The HP computer has been received and set up for Windows. The installation and compilation of BP3 is being checked. Wait for next versions!

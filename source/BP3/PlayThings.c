@@ -45,7 +45,7 @@ int PlaySelection(int w, int all) {
 	tokenbyte **p_a;
 	long origin,originmem,next_origin,firstorigin,end,x;
 
-	if(Panic || CheckEmergency() != OK) return(ABORT);
+	if(Panic || (CheckEmergency() != OK)) return(ABORT);
 
 	if(OutCsound) PrepareCsFile(); // The same file will be used for all chunks or items
 	if(WriteMIDIfile) PrepareMIDIFile();
@@ -57,27 +57,19 @@ int PlaySelection(int w, int all) {
 	asked = FALSE;
 	/* if(w != LastComputeWindow && w >= 0 && w < WMAX && Editable[w]) LastComputeWindow = w;
 	w = LastComputeWindow; */  
-	/* if(w < 0 || w >= WMAX || !Editable[w]) {
+	if(w < 0 || w >= WMAX || !Editable[w]) {
 		if(Beta) Alert1("=> Err. PlaySelection(). Incorrect window index");
 		return(MISSED);
-		} */
-		
-	#if BP_CARBON_GUI_FORGET_THIS
-	if(w == wScript) {
-		EndWriteScript();
-		return(RunScript(wScript,FALSE));
 		}
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 	// if(WillRandomize) ReseedOrShuffle(RANDOMIZE);
 
-	BPActivateWindow(SLOW,w);
 	TextGetSelection(&origin, &end, TEH[w]);
+  //  BPPrintMessage(odError,"origin = %ld, end = %ld\n",(long)origin,(long)end);
 	improvize = FALSE;
 	if(Improvize) {
 		improvize = TRUE;
 		Improvize = FALSE;
-		
 		}
 	if(all) {
 	//	ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
@@ -266,7 +258,7 @@ int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll) {
 		FirstTime = FALSE;
 		}
 	if(Maxitems > ZERO /* && !ShowGraphic && !DisplayItems */) {
-		sprintf(Message,"Item #%ld",(long)ItemNumber+1L);
+		my_sprintf(Message,"Item #%ld",(long)ItemNumber+1L);
 		ShowMessage(TRUE,wMessage,Message);
 		}
 	// if(!Improvize) initTime = getClockTime();
@@ -280,7 +272,7 @@ int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll) {
 		r = WaitForEmptyBuffer();
 		SoundOn = FALSE;
 		if(r != OK) return(r);
-		HideWindow(Window[wMessage]);
+		// HideWindow(Window[wMessage]);
 		BPPrintMessage(odInfo,"Aborted PlayBuffer()\n");
 		return(ABORT);
 		}
@@ -322,9 +314,9 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		showmessagesmem = ShowMessages;
 		usebufferlimitmem = UseBufferLimit;
 		MaxDeriv = MAXDERIV;
-		if((result=MakeComputeSpace(MaxDeriv)) != OK) goto OUT;
+		if((result=MakeComputeSpace(MaxDeriv)) != OK) goto SORTIR;
 		DisplayProduce = ShowMessages = UseBufferLimit = finish = repeat = FALSE;
-		time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
+        time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
 		
 		//////  Make derivation (unique substitution) with glossary ///////
 		result = ComputeInGram(pp_buff,&GlossGram,1,0,&length,&finish,&repeat,PROD,FALSE,
@@ -333,29 +325,30 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		DisplayProduce = displayProducemem;
 		ShowMessages = showmessagesmem;
 		UseBufferLimit = usebufferlimitmem;
-		if(result != OK) goto OUT;
+		if(result != OK) goto SORTIR;
 		}
 
 	result = OK;
 	ShowMessages = TRUE; // 2024-05-23
 	while((result=PolyMake(pp_buff,&maxseqapprox,YES)) == AGAIN){};
-
-	/* if(trace_scale) {
+	int trace_play = FALSE;
+	if(trace_play) {
 		i = 0;
+		BPPrintMessage(odInfo,"\nPlayBuffer1():\n");
 		while(TRUE) {
 			a = (**pp_buff)[i]; b = (**pp_buff)[i+1];
 			if(a == TEND && b == TEND) break;
-			BPPrintMessage(odInfo,"PlayBuffer1() %d %d\n",a,b);
+			BPPrintMessage(odInfo,"%d %d,\n",a,b);
 			i += 2;
 			}
-		} */
-
-	if(result == EMPTY) {
-		result = OK; goto OUT;
+		BPPrintMessage(odInfo,"\n");
 		}
-	if(result != OK) goto OUT;
+	if(result == EMPTY) {
+		result = OK; goto SORTIR;
+		}
+	if(result != OK) goto SORTIR;
 
-	if((result=MakeEventSpace(&p_imaxseq)) != OK) goto OUT;
+	if((result=MakeEventSpace(&p_imaxseq)) != OK) goto SORTIR;
 
 	again = FALSE;
 		
@@ -420,7 +413,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	if(ReleasePhaseDiagram(nmax,&p_imaxseq) != OK) return(ABORT);
 	if(result == MISSED) BPPrintMessage(odInfo,"Item ignored\n");
 
-	OUT:
+	SORTIR:
 	if(store) {
 		/* Restore original item */
 		if(CopyBuf(&p_b,pp_buff) == ABORT) return(ABORT);
@@ -685,7 +678,7 @@ int TextToMIDIstream(int w) {
 	ShowMessages = showmessages;
 	Improvize = improvize;
 	
-	HideWindow(Window[wMessage]);
+	// HideWindow(Window[wMessage]);
 	return(r);
 	}
 
@@ -742,7 +735,7 @@ else if (what == bAskPasteAction) what = Alert(PasteSelectionAlert,0L);
 switch(what) {
 	case bCancelPasteSelection:
 		if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-		goto OUT;
+		goto SORTIR;
 		break;
 	case bInsertBefore:
 		ifrom = ito = tfrom = ZERO;
@@ -759,7 +752,7 @@ switch(what) {
 		if((*p_Tpict)[j] == Infneg) {
 			Alert1("Can't insert because insert point is not defined or out of range");
 			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-			goto OUT;
+			goto SORTIR;
 			}
 		ito = ifrom;
 		newsize = Stream.imax + (*p_MIDIsize)[j];
@@ -769,12 +762,12 @@ switch(what) {
 		if((*p_Tpict)[j] == Infneg) {
 			Alert1("Can't replace because insert point is not defined or out of range");
 			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-			goto OUT;
+			goto SORTIR;
 			}
 		if(Answer("Part of the sound-object prototype will be replaced with the selection. Can't be undone. Proceed",
 				'N') != OK) {
 			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-			goto OUT;
+			goto SORTIR;
 			}
 		newsize = (*p_MIDIsize)[j] - (ito - ifrom) + Stream.imax;
 		(*p_PasteDone)[j] = FALSE;
@@ -784,7 +777,7 @@ switch(what) {
 			&& Answer("The sound-object prototype will be replaced with the selection. Can't be undone. Proceed",
 				'N') != OK) {
 			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-			goto OUT;
+			goto SORTIR;
 			}
 		newsize = Stream.imax;
 		ifrom = ito = tfrom = ZERO;
@@ -794,7 +787,7 @@ switch(what) {
 		if((*p_Tpict)[j] == Infneg) {
 			Alert1("Can't merge because insert point is not defined or out of range");
 			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-			goto OUT;
+			goto SORTIR;
 			}
 		newsize = Stream.imax + (*p_MIDIsize)[j];
 		(*p_PasteDone)[j] = FALSE;
@@ -804,13 +797,13 @@ switch(what) {
 		DisplayHelp("Paste text selection to sound-object prototype");
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 		if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-		goto OUT;
+		goto SORTIR;
 		break;
 	default:
-		sprintf(Message, "=> Err. PasteStreamToPrototype(): Invalid value for parameter 'what' (%d).", what);
+		my_sprintf(Message, "=> Err. PasteStreamToPrototype(): Invalid value for parameter 'what' (%d).", what);
 		if(Beta) Alert1(Message);
 		if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-		goto OUT;
+		goto SORTIR;
 		break;
 	}
 (*p_Ifrom)[j] = ifrom;
@@ -927,7 +920,7 @@ SetPrototype(j);
 UpdateDirty(TRUE,wPrototype1);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
-OUT:
+SORTIR:
 return(OK);
 
 ERR:
@@ -1046,22 +1039,22 @@ int ExpandSelection(int w) {
 	if((r = SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
 		MyDisposeHandle((Handle*)&p_a);
 		/* Could be NULL because of PolyExpand() */
-		goto OUT;
+		goto SORTIR;
 		}
 
 	while((r=PolyMake(&p_a,&maxseq,NO)) == AGAIN);
 	
-	if(r == ABORT || r == EXIT) goto OUT;
+	if(r == ABORT || r == EXIT) goto SORTIR;
 	if(r == OK) {
 	//	SetSelect(newend,newend,TEH[wout]);
 	//	if(newitem) Print(wout,"\n");
 	//	else TextGetSelection(&dummy, &neworigin, TEH[wout]);
 		Print(wout,"\n");
-		sprintf(Message,"Ratio = %lu, Prod = %lu, Kpress = %lu\n\n",(unsigned long)Ratio,(unsigned long)Prod,(unsigned long)Kpress);
+		my_sprintf(Message,"Ratio = %lu, Prod = %lu, Kpress = %lu\n\n",(unsigned long)Ratio,(unsigned long)Prod,(unsigned long)Kpress);
 		Print(wout,Message);
 		if(Prod == Ratio) r = PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wout,pp_Scrap,&p_a);
 		else {
-			sprintf(Message,"[Rescaled, dilation ratio = %.0f] ",(Prod/Ratio));
+			my_sprintf(Message,"[Rescaled, dilation ratio = %.0f] ",(Prod/Ratio));
 			Print(wout,Message);
 			Print(wout,"\n");
 			r = PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wout,pp_Scrap,&p_a);
@@ -1076,13 +1069,13 @@ int ExpandSelection(int w) {
 		}
 	MyDisposeHandle((Handle*)&p_a);
 	/* Could be NULL because of PolyExpand() */
-/*	if(r == EXIT || r == STOP || r == ABORT) goto OUT;
+/*	if(r == EXIT || r == STOP || r == ABORT) goto SORTIR;
 	newitem = TRUE;
 	}
 	SetSelect(neworigin,newend,TEH[wout]);
 	ShowSelect(CENTRE,wout); */
 	
-	OUT:
+	SORTIR:
 	ExpandOn = FALSE;
 	return(r);
 	}
@@ -1157,9 +1150,18 @@ return(r);
 }
 
 
-long LengthOf(tokenbyte ***pp_X)
-{
-#if 1  /* ! _FASTCODE */
+long LengthOf(tokenbyte ***pp_X) {
+    if (*pp_X == NULL) return -1L;
+    size_t imax = MyGetHandleSize((Handle)*pp_X) / sizeof(tokenbyte);
+    tokenbyte *tokens = **pp_X;
+    long i = 0;
+    while (i < imax - 1) {  // Ensure there's room for checking the next element
+        if (tokens[i] == TEND && tokens[i + 1] == TEND) return i;  // Return the length up to the first TEND
+        i++;
+    	}
+    return -1L;  // If no termination found, or error case
+	}
+/* #if ! _FASTCODE
 long i,l,imax;
 long lOffset;
 
@@ -1168,7 +1170,7 @@ imax = MyGetHandleSize((Handle) *pp_X) / sizeof(tokenbyte);
 // OPTIMIZE: use & incr temp pointers instead of **pp_X[i]
 for(i=0,l=0; ((**pp_X)[i] != TEND) || ((**pp_X)[i+1] != TEND); i+=2, l++) {
 	if(i >= imax) {
-		sprintf(Message,"=> Err. LengthOf(). i=%ld  imax=%ld",(long)i,(long)imax);
+		my_sprintf(Message,"=> Err. LengthOf(). i=%ld  imax=%ld",(long)i,(long)imax);
 		if(Beta) Println(wTrace,Message);
 		return(ZERO);
 		}
@@ -1179,100 +1181,56 @@ long lOffset;
 
 if(*pp_X == NULL) return(ZERO);
 lOffset = Munger((Handle)*pp_X,ZERO,EndStr,4L,NULL,ZERO);
-/* Problem because Endstr may be found too early if some parameter goes for instance 16383 */
 if(lOffset < ZERO) {
 	if(Beta) Alert1("=> Err. LengthOf()");
 	return(ZERO);
 	}
 return((int) (lOffset >> 1));
-#endif
-}
+#endif */
 	
 
-long CopyBuf(tokenbyte ***pp_X,tokenbyte ***pp_Y)	/* Copy X to Y */
-#if ! _FASTCODE
-{
-unsigned long i=0,im,l=0;
-tokenbyte **ptr;
+long CopyBuf(tokenbyte ***pp_X,tokenbyte ***pp_Y) {	// Copy X to Y
+	long length;
+	Size blocksize,maxsize;
+	tokenbyte *ptr1,*ptr2;
+	Size oldsize;
 
-if(*p_maxy > INT_MAX) {
-	if(Beta) Alert1("=> Err. CopyBuf().  *p_maxy > INT_MAX. ");
-	return(ABORT);
-	}
-im = (int) *p_maxy - 2;
-blocksize = (length + 2L) * sizeof(tokenbyte);
-maxsize = MyGetHandleSize((Handle)*pp_Y);
-if(maxsize <= blocksize) {
-	maxsize = (blocksize * 3L) / 2L;
-	MySetHandleSize((Handle*)pp_Y,(Size)maxsize);
-	}
-while(((**pp_X)[i] != TEND) || ((**pp_X)[i+1] != TEND)) {
-	(**pp_Y)[i] = (**pp_X)[i]; i++;
-	(**pp_Y)[i] = (**pp_X)[i]; i++;
-	if(i > im) {
-		if((*p_maxy) == MaxBufferSize) {
-			if(ExpandBuffers() != OK) return(ABORT);
-			(*p_maxy) = MaxBufferSize;
-			im = (int) *p_maxy - 2;
-			}
-		else {
-			if(Beta) Alert1("Increasing buffer in CopyBuf(). ");
-			if(ThreeOverTwo(p_maxy) != OK) return(ABORT);
-			im = (int) *p_maxy - 2;
-			ptr = *pp_Y;
-			if((ptr = (tokenbyte**) IncreaseSpace((Handle)ptr)) == NULL) return(ABORT);
-			*pp_Y = ptr;
-			}
+	length = LengthOf(pp_X);
+	blocksize = (length + 2L) * sizeof(tokenbyte);
+	if(*pp_X == NULL) {
+		if(Beta) Alert1("=> Err. CopyBuf(). *pp_X = NULL");
+		return(ABORT);
 		}
-	l++;
+	maxsize = oldsize = MyGetHandleSize((Handle)*pp_X);
+	if(maxsize <= blocksize) {
+		BPPrintMessage(odError,"=> Err. CopyBuf(). maxsize (%ld) <= blocksize (%ld)\n",(long)maxsize,(long)blocksize);
+		return(ABORT);
+	/*	maxsize = (blocksize * 3L) / 2L;
+		MemoryUsed += (maxsize - oldsize);
+		if(MemoryUsed > MaxMemoryUsed) {
+			MaxMemoryUsed = MemoryUsed;
+			}
+		if(MySetHandleSize((Handle*)pp_X, maxsize) != OK) return(ABORT); */
+		}
+	if((*pp_Y) == NULL) {
+		BPPrintMessage(odError,"=> Err. CopyBuf(). *pp_Y = NULL\n");
+		return(ABORT);
+		}
+	maxsize = oldsize = MyGetHandleSize((Handle)*pp_Y);
+	if(maxsize <= blocksize) {
+		maxsize = (blocksize * 3L) / 2L;
+		MemoryUsed += (maxsize - oldsize);
+		if(MemoryUsed > MaxMemoryUsed) {
+			MaxMemoryUsed = MemoryUsed;
+			}
+	//	BPPrintMessage(odInfo,"CopyBuf(). maxsize = %ld, blocksize = %ld\n",(long)maxsize,(long)blocksize);
+		if(MySetHandleSize((Handle*)pp_Y,maxsize) != OK) return(ABORT);
+		}
+	ptr1 = &(**pp_X)[0]; ptr2 = &(**pp_Y)[0];
+	memmove(ptr2, ptr1, blocksize);
+//	BPPrintMessage(wInfo,"Moved buffer size %ld to %ld\n",oldsize,maxsize);
+	return(length);
 	}
-(**pp_Y)[i++] = TEND; (**pp_Y)[i] = TEND;
-return(l+l);
-}
-#else
-{
-Size length;
-Size blocksize,maxsize;
-tokenbyte *ptr1,*ptr2;
-Size oldsize;
-
-length = (Size) LengthOf(pp_X);
-blocksize = (length + 2L) * sizeof(tokenbyte);
-if(*pp_X == NULL) {
-	if(Beta) Alert1("=> Err. CopyBuf(). *pp_X = NULL");
-	return(ABORT);
-	}
-maxsize = oldsize = MyGetHandleSize((Handle)*pp_X);
-if(maxsize < blocksize) {
-	maxsize = (blocksize * 3L) / 2L;
-/*	MemoryUsed += (maxsize - oldsize);
-	if(MemoryUsed > MaxMemoryUsed) {
-		MaxMemoryUsed = MemoryUsed;
-		} */
-	if(MySetHandleSize((Handle*)pp_X, maxsize) != OK) return(ABORT);
-	}
-if((*pp_Y) == NULL) {
-	if(Beta) Alert1("=> Err. CopyBuf(). *pp_Y = NULL");
-	return(ABORT);
-	}
-maxsize = oldsize = MyGetHandleSize((Handle)*pp_Y);
-if(maxsize < blocksize) {
-	maxsize = (blocksize * 3L) / 2L;
-/*	MemoryUsed += (maxsize - oldsize);
-	if(MemoryUsed > MaxMemoryUsed) {
-		MaxMemoryUsed = MemoryUsed;
-		} */
-	if(MySetHandleSize((Handle*)pp_Y, maxsize) != OK) return(ABORT);
-	}
-MyLock(FALSE,(Handle)*pp_X);
-MyLock(FALSE,(Handle)*pp_Y);
-ptr1 = &(**pp_X)[0]; ptr2 = &(**pp_Y)[0];
-memmove(ptr2, ptr1, blocksize);
-MyUnlock((Handle)*pp_X);
-MyUnlock((Handle)*pp_Y);
-return(length);
-}
-#endif
 
 
 int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
@@ -1330,7 +1288,7 @@ length = end - origin + 4L;
 if((ptr = (char**) GiveSpace((Size)(length * sizeof(char)))) == NULL) {
 	rep = ABORT;
 	if(Beta) Alert1("=> Err. SelectionToBuffer(). ptr == NULL");
-	goto OUT;
+	goto SORTIR;
 	}
 *pp_buff = ptr;
 // BPPrintMessage(odInfo,"Selection %d %d length %d\n",origin,end,length);
@@ -1378,7 +1336,7 @@ return(OK);
 BAD:
 MyDisposeHandle((Handle*)pp_buff);
 
-OUT:
+SORTIR:
 if(!ScriptExecOn) {
 	Alert1("No data selected");
 	BPPrintMessage(odError,"=> No data selected");

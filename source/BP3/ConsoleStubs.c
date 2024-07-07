@@ -103,11 +103,8 @@ int CheckLoadedPrototypes(void)
 	return OK; // ??
 }
 
-extern Boolean LoadedAlphabet;
-
-int LoadAlphabet(int w, FSSpec *p_spec)
+int LoadAlphabet(int w)
 {
-	BP_NOT_USED(p_spec);
 
 	// If an alphabet was loaded due to a command-line argument, or none is referenced
 	// in "window" w, the data file, or the grammar file, then everything's fine.
@@ -158,7 +155,7 @@ int ShowSelect(int dir,int w)
 	return OK;
 }
 
-int Reformat(int w,int font,int size,int face,RGBColor* p_color,int manual,int force)
+/* int Reformat(int w,int font,int size,int face,RGBColor* p_color,int manual,int force)
 {
 	BP_NOT_USED(w);
 	BP_NOT_USED(font);
@@ -168,7 +165,7 @@ int Reformat(int w,int font,int size,int face,RGBColor* p_color,int manual,int f
 	BP_NOT_USED(manual);
 	BP_NOT_USED(force);
 	return OK;
-}
+} */
 
 int InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode)
 {
@@ -219,7 +216,7 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo)
 		ShowMessage(TRUE,wMessage,"\nCreating new Csound score file...");
 		fout = OpenOutputFile(finfo, "w");
 		if (!fout) {
-			BPPrintMessage(odError, "\n=> Could not open file %s\n", finfo->name);
+			BPPrintMessage(odError, "\n=> Could not open file for score %s\n", finfo->name);
 			return MISSED;
 		}
 	}
@@ -255,12 +252,12 @@ int CloseCsScore(void)
 	
 	if(!CsScoreOpened) return(OK);
 	if(EndFadeOut > 0.) {
-		sprintf(line,"e %.3f",EndFadeOut); // This line will automatically be deleted if this score belongs to a sound-objectt prototype — see function fix_csound_score() in prototype.php
+		my_sprintf(line,"e %.3f",EndFadeOut); // This line will automatically be deleted if this score belongs to a sound-objectt prototype — see function fix_csound_score() in prototype.php
 		}
 	else strcpy(line,"e");
 	if(!ConvertMIDItoCsound) WriteToFile(NO,CsoundFileFormat,line,CsRefNum);	/* 'e' terminates a Csound score */
 	Date(line);
-	sprintf(Message,"\n; this score was created by BP console (version %s) on %s",VersionName[Version],line);
+	my_sprintf(Message,"\n; this score was created by BP console (version %s) on %s",VersionName[Version],line);
 	WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);
 	SetOutputDestinations(odCsScore, NULL);
 	CloseOutputFile(&(gOptions.outputFiles[ofiCsScore]));
@@ -289,7 +286,7 @@ void SysBeep(short duration)
 	return;
 }
 
-Boolean Button(void)
+int Button(void)
 {
 	// See docs-developer/Uses-of-Button.txt for a discussion of this function
 	// and why this return value may not be OK in the future! 

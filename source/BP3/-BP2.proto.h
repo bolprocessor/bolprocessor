@@ -34,21 +34,6 @@
 #ifndef BP2_PROTO_H
 #define BP2_PROTO_H
 
-/* in AppleEvents.c */ 
-/* pascal OSErr MyHandleOAPP(const AppleEvent*,AppleEvent*,long);
-pascal OSErr MyHandleODOC(const AppleEvent*,AppleEvent*,long);
-pascal OSErr MyHandleSectionReadEvent(const AppleEvent*,AppleEvent*,long);
-pascal OSErr MyHandleSectionWriteEvent(const AppleEvent*,AppleEvent*,long);
-pascal OSErr MyHandleSectionScrollEvent(const AppleEvent*,AppleEvent*,long);
-pascal OSErr MyHandleQUIT(const AppleEvent*,AppleEvent*,long);
-pascal OSErr RemoteControl(const AppleEvent*,AppleEvent*,long);
-pascal OSErr RemoteUseText(const AppleEvent*,AppleEvent*,long);
-pascal OSErr RemoteDoScriptLine(const AppleEvent*,AppleEvent*,long);
-pascal OSErr RemoteLoadSettings(const AppleEvent*,AppleEvent*,long);
-pascal OSErr RemoteLoadCsoundInstruments(const AppleEvent*,AppleEvent*,long);
-pascal OSErr RemoteSetConvention(const AppleEvent*,AppleEvent*,long);
-OSErr MyGotRequiredParams(const AppleEvent*); */
-
 /* in BP2main.c */
 int RecoverEmergencyMemory(void);
 int main (int, char*[]);
@@ -76,21 +61,6 @@ int InstallTMTask(void);
 int RemoveTMTask(void);
 #endif */
 
-/* in MIDIdrivers.c - these functions are only for the built-in driver */
-/* #if USE_BUILT_IN_MIDI_DRIVER_FORGET_THIS
-OSErr DriverOpen(unsigned char[]);
-OSErr DriverClose(void);
-OSErr DriverRead(MIDI_Event*);
-OSErr DriverStatus(short,MIDI_Parameters*);
-OSErr DriverControl(short,MIDI_Parameters*);
-OSErr DriverKill(void);
-int WriteInBuiltDriver(OMSMIDIPacket*);
-int FixPort(int);
-int Events(DriverDataPtr);
-int EmptyDriverInput(void);
-int DriverTime(DriverDataPtr);
-int Errors(DriverDataPtr);
-#endif  */
 
 int initializeMIDISystem(void);
 void closeMIDISystem();
@@ -98,7 +68,7 @@ void sendMIDIEvent(unsigned char*,int,long);
 int MIDIflush(void);
 unsigned long getClockTime(void);
 int MaybeWait(unsigned long);
-int Notify(char*);
+int Notify(char*,int);
 
 /* OBSOLETE: in MIDIdrivers.c - used by both OMS and built-in drivers */
 /* #if WITH_REAL_TIME_MIDI_FORGET_THIS
@@ -113,20 +83,20 @@ int CloseCurrentDriver(int);
 int ResetMIDI(int);
 #endif */
 
-// Boolean IsMidiDriverOn(void);
+// int IsMidiDriverOn(void);
 int FormatMIDIstream(MIDIcode**,long,MIDIcode**,int,long,long*,int);
 int SendToDriver(Milliseconds,int,int*,MIDI_Event*);
 int CaptureMidiEvent(Milliseconds time,int nseq,MIDI_Event *p_e);
 void RegisterProgramChange(MIDI_Event *p_e);
 
-int LoadMidiDriverStartup(void);
-int LoadLinkedMidiDriverSettings(int w);
-int OpenMidiDriverSettings(void);
-int LoadMidiDriverSettings(FSSpec* spec);
-int ReadMidiDriverSettings(short refnum, FSSpec* spec);
-int SaveMidiDriverStartup(void);
-int SaveMidiDriverSettings(void);
-int WriteMidiDriverSettings(short refnum, FSSpec* spec);
+// int LoadMidiDriverStartup(void);
+// int LoadLinkedMidiDriverSettings(int w);
+// int OpenMidiDriverSettings(void);
+// int LoadMidiDriverSettings(FSSpec* spec);
+// int ReadMidiDriverSettings(short refnum, FSSpec* spec);
+// int SaveMidiDriverStartup(void);
+// int SaveMidiDriverSettings(void);
+// int WriteMidiDriverSettings(short refnum, FSSpec* spec);
 
 int BPPrintMessage(int dest, const char *format, ...);
 
@@ -141,7 +111,7 @@ void	PrintCall(char* funcname, WindowPtr wp);
 #define PrintCall(x,y)
 #endif
 
-Boolean HasGWorlds(void);
+int HasGWorlds(void);
 int GWorldInit(void);
 short GetDepth(GDHandle);
 int Equal(double,double,double,double,double,int*);
@@ -161,7 +131,7 @@ double Round(double);
 int FindPattern(char**,char*,int*);
 int Match(int,char**,char**,int);
 int WriteFloatToLine(char*,double);
-int TooLongFileName(char*,DialogPtr,int,int);
+// int TooLongFileName(char*,DialogPtr,int,int);
 char UpperCase(char c);
 int UpperCaseString(char*);
 int Pause(void);
@@ -170,6 +140,9 @@ char NextChar(char**);
 int CheckEnd(char);
 char *GetEnd(char**);
 int ReadToBuff(int,int,int,long*,long,char***);
+void convert_path(char*);
+FILE* my_fopen(int,const char*,const char*);
+int my_fclose(FILE*);
 int NeedGlossary(tokenbyte***);
 pascal void MySoundProc(short sndNum);
 long LengthOf(tokenbyte***);
@@ -220,9 +193,9 @@ int GetCsoundInstrument(int);
 int CheckMinimumSpecsForInstrument(int);
 int SetCsoundInstrument(int,int);
 int SetCsoundMoreParametersWindow(int,int);
-int BadParameter(int,DialogPtr,int,int,int);
-pascal void DrawButtonBorder(DialogPtr);
-int GetThisTick(void);
+// int BadParameter(int,DialogPtr,int,int,int);
+// pascal void DrawButtonBorder(DialogPtr);
+// int GetThisTick(void);
 int PlaySelection(int,int);
 int ExpandSelection(int);
 int ShowPeriods(int);
@@ -242,7 +215,7 @@ int GetFindReplace(void);
 int ConvertSpecialChars(char*);
 int Strip(char*);
 Handle GiveSpace(Size);
-Handle GiveZeroedSpace(Size size);
+Handle GiveZeroedSpace(Size);
 Size MyGetHandleSize(Handle);
 int MyDisposeHandle(Handle*);
 int CheckEmergency(void);
@@ -270,11 +243,11 @@ int MySetHandleSize(Handle*,Size);
 int MySpace(char c);
 int HidePannel(int,int);
 int ShowPannel(int,int);
-int SwitchOnOff(DialogPtr,int,int,int);
-// int SwitchOn(DialogPtr,int,int);
-// int SwitchOff(DialogPtr,int,int);
+/* int SwitchOnOff(DialogPtr,int,int,int);
+int SwitchOn(DialogPtr,int,int);
+int SwitchOff(DialogPtr,int,int);
 int SetField(DialogPtr,int,int,char*);
-int GetField(DialogPtr,int,int,int,char*,long*,long*);
+int GetField(DialogPtr,int,int,int,char*,long*,long*); */
 short GetCtrlValue(int,int);
 int ToggleButton(int,int);
 int ByteToInt(char);
@@ -295,10 +268,10 @@ int ClearCycle(int);
 int MyButton(int);
 char* longToBinary(int,unsigned long);
 char* printBinary18(long,int);
-int HandleMySpecialHLEvent(EventRecord*);
+/* int HandleMySpecialHLEvent(EventRecord*);
 int DoHighLevelEvent(EventRecord*);
 int GoodEvent(EventRecord*);
-int SelectField(DialogPtr,int,int,int);
+int SelectField(DialogPtr,int,int,int); */
 int ResetProject(int);
 int ClearLockedSpace(void);
 int ResetScriptQueue(void);
@@ -317,7 +290,7 @@ int ReleaseObjectPrototypes(void);
 int ReleaseCsoundInstruments(void);
 int ReleaseConstants(void);
 int ResizeObjectSpace(int,int,int);
-int ResizeAlphabetSpace(int);
+// int ResizeAlphabetSpace(int);
 int MakeEventSpace(unsigned long***);
 int GetPatternSpace(void);
 int ResizeCsoundInstrumentsSpace(int);
@@ -351,10 +324,10 @@ int DoHelpKey(void);
 int GoodMachine(void);
 // int MainEvent(void);
 int GetHighLevelEvent(void);
-int DoEvent(EventRecord* );
+/* int DoEvent(EventRecord* );
 int DoPreMacOS8KeyCommand(char thechar);
 int DoKeyCommand(EventRecord *p_event);
-pascal Boolean MyIdleFunction(EventRecord*,long*,RgnHandle*);
+pascal int MyIdleFunction(EventRecord*,long*,RgnHandle*); */
 int ClearWindow(int,int);
 // int GoAway(int);
 int GetDialogValues(int);
@@ -364,11 +337,11 @@ int LineHeight(int);
 int SetVScroll(int);
 int ShowSelect(int,int);
 int SetViewRect(int);
-int UpdateThisWindow(int,WindowPtr);
-pascal void vScrollProc(ControlHandle,short);
-pascal void hScrollProc(ControlHandle,short);
-int DoContent(WindowPtr,EventRecord*,int*);
-int AdjustGraph(int,int,ControlHandle);
+/* int UpdateThisWindow(int,WindowPtr);
+// pascal void vScrollProc(ControlHandle,short);
+// pascal void hScrollProc(ControlHandle,short); */
+// int DoContent(WindowPtr,EventRecord*,int*);
+// int AdjustGraph(int,int,ControlHandle);
 int OffsetGraphs(int,int,int);
 // int MyGrowWindow(int,Point);
 void AdjustWindowContents(int w);
@@ -383,10 +356,10 @@ int RemoveWindowName(int);
 int PleaseWait(void);
 int StopWait(void);
 int IsEmpty(int);
-int BPSetMenuItemIcons(MenuHandle menu, ResID iconIDs[]);
+// int BPSetMenuItemIcons(MenuHandle menu, ResID iconIDs[]);
 int SetUpMenus(void);
 int UpdateDirty(int,int);
-// Boolean PointIsInEditTextItem(DialogRef dp, Point pt);
+// int PointIsInEditTextItem(DialogRef dp, Point pt);
 int MaintainCursor(void);
 void SetDefaultCursor(void);
 int TurnWheel(void);
@@ -409,19 +382,22 @@ int PrintBehindln(int,char*);
 int SelectSomething(int);
 int AdjustWindow(int,int,int,int,int,int);
 void CopyPString(const Str255 src,Str255 dest);
-int MyPtoCstr(int,Str255,char*);
-StringPtr in_place_c2pstr(char* s);
+// int MyPtoCstr(int,Str255,char*);
+// StringPtr in_place_c2pstr(char* s);
 int Pstrcmp(Str255,Str255);
 int MystrcpyStringToTable(char****,int,char*);
 int MystrcpyTableToString(int,char*,char****,int);
 int MystrcpyStringToHandle(char***,char*);
 int MystrcpyHandleToString(int,int,char*,char**);
+int CopyHandleToTextHandle(TEHandle,char**);
 int MystrcpyHandleToHandle(int,char***,char**);
 int GetTextHandle(char***,int);
 int Mystrcmp(char**,char*);
 int MyHandleLen(char**);
 int MyHandlecmp(char**,char**);
 Handle IncreaseSpace(Handle);
+size_t utf8_strsize(const char*);
+size_t utf8_strlen(const char*);
 int ThreeOverTwo(long*);
 int Date(char[]);
 int GetFileDate(int,char***);
@@ -444,9 +420,9 @@ int TextDeleteBehind(int);
 int SetResumeStop(int);
 int ChangeNames(char**);
 int FindGoodIndex(int);
-int DoDialog(EventRecord*);
+/* int DoDialog(EventRecord*);
 int BPUpdateDialog(DialogPtr dp);
-int BPSetDialogAppearance(DialogPtr d, Boolean useThemeBackground);
+int BPSetDialogAppearance(DialogPtr d, int useThemeBackground); */
 int CompileGrammar(int);
 int InsertSubgramTypes(void);
 int Renumber(char**,long,long*,int,int,long*,int*);
@@ -479,7 +455,7 @@ int GetArg(char**,char**,char**,char**,char**);
 int NumberWildCards(tokenbyte**);
 int AddWordToTree(char**,int,int);
 int AddWordToTrees(char**,int);
-int UpdateAutomata(void);
+// int UpdateAutomata(void);
 tokenbyte **Encode(int,int,int,int,char**,char**,p_context*,p_context*,int*,int,p_flaglist***,int,int*);
 int GetContext(int,int,char**,char**,p_context*,int*);
 long FindNumber(char**);
@@ -785,70 +761,72 @@ int LoadWeights(void);
 int SaveWeights(void);
 int LoadKeyboard(short);
 int LoadCsoundInstruments(int,int);
-int SaveKeyboard(FSSpec*);
-int SaveCsoundInstruments(FSSpec*);
+// int SaveKeyboard(FSSpec*);
+// int SaveCsoundInstruments(FSSpec*);
 int LoadTimeBase(short);
-int SaveTimeBase(FSSpec*);
+/* int SaveTimeBase(FSSpec*);
 int SaveObjectPrototypes(FSSpec*);
-int SaveSettings(int,int,Str255,FSSpec*);
+int SaveSettings(int,int,Str255,FSSpec*); */
 int LoadSettings(const char *filename, int startup);
-OSErr	FindBPPrefsFolder(FSSpecPtr location);
+/* OSErr	FindBPPrefsFolder(FSSpecPtr location);
 OSErr	FindFileInPrefsFolder(FSSpecPtr location, StringPtr filename);
-OSErr	GetFolderID(const FSSpecPtr loc, long* dirID);
+OSErr	GetFolderID(const FSSpecPtr loc, long* dirID); */
 int  CopyStartupSettings(void);
-void GetStartupSettingsSpec(FSSpecPtr spec);
+// void GetStartupSettingsSpec(FSSpecPtr spec);
 int SaveDecisions(void);
 int LoadDecisions(int);
 // int LoadInteraction(int,int);
-int SaveMIDIorchestra(Boolean doSaveAs);
+int SaveMIDIorchestra(int);
 int LoadMIDIorchestra(short,int);
 int LoadGlossary(int,int);
-int LoadAlphabet(int,FSSpec*);
-int LoadGrammar(FSSpec*,short);
+int LoadAlphabet(int);
+// int LoadGrammar(FSSpec*,short);
 int LoadObjectPrototypes(int,int);
-int newLoadObjectPrototypes(const char *filename, int startup);
+// int newLoadObjectPrototypes(const char*, int);
 int OpenHelp(void);
 int OpenTemp(void);
 int OpenTrace(void);
-int CreateTemporaryFile(FSSpecPtr spec, short *filerefnum, StringPtr filename, Boolean deleteIfExists);
-OSErr CloseAndDeleteTemp(void);
+// int CreateTemporaryFile(FSSpecPtr spec, short *filerefnum, StringPtr filename, int deleteIfExists);
+/* OSErr CloseAndDeleteTemp(void);
 OSErr CloseFileAndUpdateVolume(short *p_refnum);
-OSErr CloseMe(short*);
-int CheckFileName(int,char*,FSSpec*,short*,int,int);
+OSErr CloseMe(short*); */
+// int CheckFileName(int,char*,FSSpec*,short*,int,int);
 int CallUser(int);
 int Register(void);
 int RegisterThisOneWorks(void);
-int LaunchAnApplication(FSSpec);
-int FindApplication(OSType,short,FSSpec*);
+// int LaunchAnApplication(FSSpec);
+// int FindApplication(OSType,short,FSSpec*);
 int OpenApplication(OSType);
 int FlushFile(short);
-int SaveAs(Str255,FSSpec*,int);
-int SaveFile(Str255,FSSpec*,int);
+/* int SaveAs(Str255,FSSpec*,int);
+int SaveFile(Str255,FSSpec*,int); */
 int GetDefaultFileName(int w, char* filename);
 int GetProjectBaseName(char* basename);
-void SelectCreatorAndFileType(int type, OSType* thecreator, OSType* thetype);
+/* void SelectCreatorAndFileType(int type, OSType* thecreator, OSType* thetype);
 void FillTypeList(int type, SFTypeList typeList, int* numtypes);
 int MakeFormatMenuItems(int type, NavMenuItemSpecArrayHandle* handle);
 int OldFile(int,int,Str255,FSSpec*);
 int NewFile(int w, int type, Str255 fn, NSWReply *p_reply);
-FileTypeIndex MapFileTypeCodeToFileTypeIndex(OSType type);
+FileTypeIndex MapFileTypeCodeToFileTypeIndex(OSType type); */
 int FindMatchingFileNamePrefix(/*const*/ char* name);
 int FindMatchingFileNameExtension(/*const*/ char* name);
-Boolean MatchFileNameExtension(/*const*/ char* name, /*const*/ char* ext);
+int MatchFileNameExtension(/*const*/ char* name, /*const*/ char* ext);
 int IdentifyBPFileTypeByName(char* name);
-int IdentifyBPFileType(FSSpec* spec);
-Boolean CanSaveMultipleFormats(int w);
+// int IdentifyBPFileType(FSSpec* spec);
+int CanSaveMultipleFormats(int w);
 int PromptForFileFormat(int w, char* filename, int* type);
 // int CreateFile(int,int,int,Str255,NSWReply*,short*);
 // int WriteFile(int,int,short,int,long);
-OSErr MyFSClose(int,short,FSSpec*);
+// OSErr MyFSClose(int,short,FSSpec*);
 // OSErr CopyFile (FSSpec *source, FSSpec *dest);
-int WriteHeader(int,short,FSSpec);
+// int WriteHeader(int,short,FSSpec);
 int WriteEnd(int,short);
 int FindVersion(char**,char*);
 int ShowLengthType(int);
 int OutlineTextInDialog(int,int);
 // int ReadFile(int,short);
+void remove_double_slash_prefix(char*);
+void strip_trailing_spaces(char*);
 int ReadOne(int,int,int,FILE*,int,char***,char***,long*);
 int ReadInteger(FILE*,int*,long*);
 int ReadLong(FILE*,long*,long*);
@@ -864,7 +842,7 @@ int GetArgumentInTableLine(int,char**,int,char,char,char,char);
 int WriteTerminal(char*,char);
 int ShowIOerror(OSErr);
 int CheckTextSize(int);
-OSErr MyOpen(FSSpec*,char,short*);
+// OSErr MyOpen(FSSpec*,char,short*);
 int CleanLF(char**,long*,int*);
 int CheckHTML(int,int,char**,long*,int*);
 int DOStoMac(char*);
@@ -909,14 +887,14 @@ int TokenToIndex(tokenbyte,int);
 int IndexToToken(int);
 int AssignValue(int,double,int,int,long*,CurrentParameters**,CurrentParameters*,ContParameters**,long,tokenbyte***,double,double,Table**);
 long LocalPeriod(long*,long*,long);
-int InitColors(void);
-int CopyColor(RGBColor*,int);
-int Reformat(int,int,int,int,RGBColor*,int,int);
+/* int InitColors(void);
+int CopyColor(RGBColor*,int);  */
+// int Reformat(int,int,int,int,RGBColor*,int,int);
 int SetFontSize(int,int);
 int ChangeColor(void);
 int DrawItem(int,SoundObjectInstanceParameters**,Milliseconds**,Milliseconds**,long,long,long,unsigned long,
 	int,int,unsigned long**,int,int,Milliseconds**);
-int DrawObject(int,char*,int,double,int,int,int,int,long,long,long,long,long,int*,long*,long*,PicHandle);
+int DrawObject(int,char*,int,double,int,int,int,int,long,long,long,long,long,int*,long*,long*);
 int DrawSequence(int,SoundObjectInstanceParameters**,Milliseconds**,Milliseconds**,long,unsigned long,
 	unsigned long**,int,long**,long**,long**);
 int DrawPrototype(int,int,Rect*);
@@ -959,7 +937,7 @@ int DoScript(int,char***,int,int,int,long*,int*,char*,int);
 int BPGetWindowIndex(char*,int);
 // int RecordVrefInScript(FSSpec*);
 int GetScriptArguments(int,char**,int);
-int RunScriptInPrefsOrAppFolder(StringPtr filename, int* scriptCompleted);
+// int RunScriptInPrefsOrAppFolder(StringPtr filename, int* scriptCompleted);
 // int RunScriptOnDisk(int,char*,int*);
 int ChangeDirInfo(long,short,long*);
 // int RecordButtonClick(int,int);
@@ -969,7 +947,7 @@ int CheckPrintHandle(void);
 int PrintTextWindow(int);
 int PrintTextDocument(int);
 int HowMany(void);
-int PrintGraphicWindow(PicHandle,Rect*);
+// int PrintGraphicWindow(PicHandle,Rect*);
 int PolyMake(tokenbyte***,double*,int);
 int PolyExpand(tokenbyte**,tokenbyte***,unsigned long,unsigned long*,unsigned long*,double*,double*,double,char*,char*,double,int);
 int Check_ic(unsigned long,unsigned long**,int,tokenbyte****);
@@ -1018,7 +996,7 @@ int CopyPage8(int,int);
 int SetCsoundScore(int);
 int SetCsoundLogButtons(int);
 int GetCsoundScore(int);
-int GetValue(DialogPtr,int,int,int,double***,int);
+//int GetValue(DialogPtr,int,int,int,double***,int);
 int CheckDuration(int);
 int RecordPrototype(int);
 int AdjustDuration(int,Milliseconds);
@@ -1033,7 +1011,7 @@ int InsertSilence(int,Milliseconds);
 int AppendSilence(int,Milliseconds);
 int DurationToPoint(MIDIcode****,Milliseconds****,long**,int);
 int PointToDuration(MIDIcode****,Milliseconds****,long**,int);
-int ChangeControlValue(int,ControlHandle,int);
+// int ChangeControlValue(int,ControlHandle,int);
 int SortMIDIdates(long,int);
 int SortCsoundDates(long,int);
 int CheckiProto(void);
@@ -1061,13 +1039,13 @@ int CheckRegistration(void);
 int CheckDeterminism(t_gram*);
 int SameBuffer(tokenbyte**,tokenbyte**);
 
-Boolean TextIsSelectionEmpty(TextHandle th);
+int TextIsSelectionEmpty(TextHandle th);
 int TextGetSelection(TextOffset* start,TextOffset* end, TextHandle th);
 int SetSelect(long,long,TextHandle);
 int Activate(TextHandle);
 int Deactivate(TextHandle);
 int Idle(TextHandle);
-int DoKey(char,EventModifiers,TextHandle);
+// int DoKey(char,EventModifiers,TextHandle);
 int CalText(TextHandle);
 long GetTextLength(int);
 long GetTextHandleLength(TextHandle);
@@ -1079,31 +1057,26 @@ int TextCut(int);
 int TextPaste(int);
 int TextCopy(int);
 int TextAutoView(int,int,TextHandle);
-int TextSetStyle(short,TextStyle*,Boolean,TextHandle);
-int TextScroll(long,long,TextHandle);
+/* int TextSetStyle(short,TextStyle*,int,TextHandle);
+int TextScroll(long,long,TextHandle); */
 long LinesInText(int);
-int TextClick(int,EventRecord*);
+// int TextClick(int,EventRecord*);
 char GetTextChar(int,long);
 int TextDispose(TextHandle);
 int SetTextViewRect(Rect*,TextHandle);
 int SetTextDestRect(Rect*,TextHandle);
-int GetTextStyle(TextStyle*,short*,short*,TextHandle);
+// int GetTextStyle(TextStyle*,short*,short*,TextHandle);
 char** WindowTextHandle(TextHandle);
-#if WASTE_FORGET_THIS
-LongRect TextGetViewRect(TextHandle th);
-Rect LongRectToRect(LongRect);
-#else
 Rect LongRectToRect(Rect);
 Rect TextGetViewRect(TextHandle th);
-#endif
 
 // new global functions in the console build
-void CloseFile(FILE* file);
 void CreateImageFile(double);
-void EndImageFile(void);
+int EndImageFile(void);
 void remove_spaces(char*,char*);
-void remove_final_linefeed(const char*,char*);
-
+void remove_final_linefeed(char*);
+void remove_carriage_returns(char*);
+void my_sprintf(char*,const char*,...);
 
 void begin_path();
 void end_path();
@@ -1121,7 +1094,6 @@ void stroke_rect(Rect*);
 void fill_rect(Rect*,char*);
 void resize_rect(Rect*,int,int);
 
-char *repl_str(const char*, const char*, const char*);
 char *recode_tags(const char*);
 
 void GetFileName(char*,const char*);
@@ -1137,21 +1109,13 @@ int CreateMicrotonalScale(char*,char*,char*,char*,char*,char*);
 double GetPitchWithScale(int,int,double,int);
 int modulo(int,int);
 void delay(int);
+void mysleep(long);
 
 void save_midisetup(void);
 int read_midisetup(void);
 
 #if defined(__linux__)
    void MyAlsaMidiInProc(const snd_seq_event_t*);
-#endif
-
-#if !TARGET_API_MAC_CARBON_FORGET_THIS
-/* Provide backwards compatibility for System 7 in the non-Carbon build by
-   macros that convert OS 8.5/9 functions to their InterfaceLib 7.1 equivalents. */
-#define  InvalWindowRect(w,r)  InvalRect(r)
-#define  ValidWindowRect(w,r)  ValidRect(r)
-#define  EnableMenuItem   EnableItem
-#define  DisableMenuItem  DisableItem
 #endif
 
 #endif /* BP2_PROTO_H */

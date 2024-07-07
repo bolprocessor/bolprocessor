@@ -78,7 +78,7 @@ byte end_of_track[] = {0x00, 0xff, 0x2f, 0x00};
 
 int MakeMIDIFile(OutFileInfo* finfo);
 static int WriteMIDIFileHeader(FILE* fout);
-static int WriteBeginningOfTrack(FILE* fout, Boolean inclMetaEvts, Boolean isTempoOnlyTrk);
+static int WriteBeginningOfTrack(FILE* fout, int inclMetaEvts, int isTempoOnlyTrk);
 static int WriteEndOfTrack(FILE* fout);
 static int WriteRawBytes(FILE* fout, byte* data, size_t numbytes);
 static int WriteVarLenQuantity(FILE* fout, dword value, dword *tracklen);
@@ -98,7 +98,7 @@ FILE *fout;
 	ShowMessage(TRUE,wMessage,"Creating new MIDI file...");
 	fout = OpenOutputFile(finfo, "wb");
 	if (!fout) {
-		BPPrintMessage(odError, "=> Could not open file %s\n", finfo->name);
+		BPPrintMessage(odError, "=> Could not open file for MIDI %s\n", finfo->name);
 		return MISSED;
 	}
 	else {
@@ -179,7 +179,7 @@ static int WriteMIDIFileHeader(FILE* fout)
 	  isTempoOnlyTrk - TRUE if track is the "tempo track" for a Type-1 MIDI file; only
 		  meta events will be written to the track followed by an "End of Track" event.
  */
-static int WriteBeginningOfTrack(FILE* fout, Boolean inclMetaEvts, Boolean isTempoOnlyTrk)
+static int WriteBeginningOfTrack(FILE* fout, int inclMetaEvts, int isTempoOnlyTrk)
 {
 	int i, result;
 	dword length;
@@ -427,22 +427,20 @@ return result;
 
 
 /* Actually closes the MIDI file and resets globals */
-static int CloseMIDIFile2(void)
-{
-if (gOptions.outputFiles[ofiMidiFile].isOpen) {
-	fflush(gOptions.outputFiles[ofiMidiFile].fout);
-	CloseOutputFile(&(gOptions.outputFiles[ofiMidiFile]));
-	sprintf(Message,"Closed MIDI file %s",gOptions.outputFiles[ofiMidiFile].name);
-	ShowMessage(TRUE,wMessage,Message);
-}
-
-MIDIfileOpened = FALSE;
-NewOrchestra = TRUE;
-OpenMIDIfilePtr = NULL;
-// MIDIfileName[0] = '\0';
-strcpy(MIDIfileName,""); // Fixed by BB 2021-02-14
-return OK;
-}
+static int CloseMIDIFile2(void) {
+	if(gOptions.outputFiles[ofiMidiFile].isOpen) {
+		fflush(gOptions.outputFiles[ofiMidiFile].fout);
+		CloseOutputFile(&(gOptions.outputFiles[ofiMidiFile]));
+		my_sprintf(Message,"Closed MIDI file %s",gOptions.outputFiles[ofiMidiFile].name);
+		ShowMessage(TRUE,wMessage,Message);
+		}
+	MIDIfileOpened = FALSE;
+	NewOrchestra = TRUE;
+	OpenMIDIfilePtr = NULL;
+	// MIDIfileName[0] = '\0';
+	strcpy(MIDIfileName,""); // Fixed by BB 2021-02-14
+	return OK;
+	}
 
 
 int WriteReverse(FILE* fout, dword x)
@@ -628,7 +626,7 @@ switch(FileSaveMode) {	// FIXME !!!!
 		return(OK);
 		break;
 	case ALLSAMEPROMPT:
-		sprintf(Message,"Current MIDI file is '%s'. Change it",MIDIfileName);
+		my_sprintf(Message,"Current MIDI file is '%s'. Change it",MIDIfileName);
 		rep = Answer(Message,'N');
 		if(rep == ABORT) return(rep);
 		if(rep == NO) return(OK);
@@ -726,7 +724,7 @@ if(anyfile == ABORT) return(MISSED);
 TRYLOAD:
 LastAction = NO;
 
-sprintf(Message,"Locate MIDI file...");
+my_sprintf(Message,"Locate MIDI file...");
 ShowMessage(TRUE,wMessage,Message);
 
 type = 11;
@@ -739,7 +737,7 @@ if((p_buffer=(unsigned char**) GiveSpace((Size)(buffersize * sizeof(unsigned cha
 if(OldFile(-1,type,fn,&spec)) {
 	p2cstrcpy(LineBuff,fn);
 	if((io=MyOpen(&spec,fsRdPerm,&refnum)) == noErr) {
-		sprintf(Message,"Loading MIDI file...");
+		my_sprintf(Message,"Loading MIDI file...");
 		ShowMessage(TRUE,wMessage,Message);
 		
 		/* Read header */
@@ -774,7 +772,7 @@ if(OldFile(-1,type,fn,&spec)) {
 		ntracks = (*p_buffer)[11];
 		
 		if(format == 2 && ntracks > 2) {
-			sprintf(Message,
+			my_sprintf(Message,
 				"This type-2 MIDI file contains %ld items. BP2 will read only the first one",
 				(long) (ntracks - 1));
 			Alert1(Message);
@@ -846,7 +844,7 @@ if(OldFile(-1,type,fn,&spec)) {
 				if((result=MyButton(2)) != MISSED
 						&& Answer("Continue reading MIDI file",'Y') != OK) {
 					result = MISSED;
-					goto OUT;
+					goto SORTIR;
 					}
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 				result = OK;
@@ -952,7 +950,7 @@ META:
 						Simplify((long)LONG_MAX,(double)quarternotedur,1000000.,&p,&q);
 						if(track > 0) {
 							if(Beta) {
-								sprintf(Message,"Found tempo signature in track #%ld",
+								my_sprintf(Message,"Found tempo signature in track #%ld",
 									(long)track);
 								Println(wTrace,Message);
 								}
@@ -1015,18 +1013,18 @@ STORE:
 PRESERVE:
 							reply = Answer("Preserve channel information",'Y');
 							if(reply == ABORT) {
-								result = ABORT; goto OUT;
+								result = ABORT; goto SORTIR;
 								}
 							(*p_preservechannel) = reply;
 							if(!(*p_preservechannel)) {
 GETCHANNEL:
 								if((reply=AnswerWith("Force to channel...","1",Message)) == ABORT) {
-									result = ABORT; goto OUT;
+									result = ABORT; goto SORTIR;
 									}
 								if(reply == NO) goto PRESERVE;
 								uniquechan = ((int) atol(Message)) - 1;
 								if(uniquechan < 0 || uniquechan > 15) {
-									sprintf(Message,"Channel range 1..16\nCan't accept '%ld'",
+									my_sprintf(Message,"Channel range 1..16\nCan't accept '%ld'",
 										(long)uniquechan + 1L);
 									Alert1(Message);
 									goto GETCHANNEL;
@@ -1055,7 +1053,7 @@ GETCHANNEL:
 								break;
 							default:
 								if(Beta) {
-									sprintf(Message,"=> Err. ReadMIDIfile(). Unknown byte %ld",status);
+									my_sprintf(Message,"=> Err. ReadMIDIfile(). Unknown byte %ld",status);
 									Println(wTrace,Message);
 									if(!said) Alert1(Message);
 									said = TRUE;
@@ -1099,7 +1097,7 @@ STREAM:
 			}
 		}
 	else {
-		sprintf(Message,"Unexpected error opening '%s'",LineBuff);
+		my_sprintf(Message,"Unexpected error opening '%s'",LineBuff);
 		ShowMessage(TRUE,wMessage,Message);
 		TellError(75,io);
 		result = MISSED;
@@ -1127,7 +1125,7 @@ MyDisposeHandle((Handle*)&Stream.code);
 Stream.imax = Stream.i = ZERO;
 Stream.period = ZERO;
 Stream.cyclic = FALSE;
-if(maxevents == ZERO) goto OUT;
+if(maxevents == ZERO) goto SORTIR;
 
 if((ptr2=(MIDIcode**) GiveSpace((Size) maxevents * sizeof(MIDIcode))) == NULL) {
 	err = 23;
@@ -1157,7 +1155,7 @@ ptr2 = Stream.code;
 MySetHandleSize((Handle*)&ptr2,(Size)(Stream.imax) * sizeof(MIDIcode));
 Stream.code = ptr2;
 
-OUT:
+SORTIR:
 MyDisposeHandle((Handle*)&p_buffer);
 
 if(p_stream != NULL) {
@@ -1167,7 +1165,7 @@ if(p_stream != NULL) {
 		}
 	MyDisposeHandle((Handle*)&p_stream);
 	}
-sprintf(Message,"%ld bytes have been read on %ld track(s)",(long) totalbytes + nbytes,(long) ntracks);
+my_sprintf(Message,"%ld bytes have been read on %ld track(s)",(long) totalbytes + nbytes,(long) ntracks);
 ShowMessage(TRUE,wInfo,Message);
 if(severaltempo) 
 	Alert1("This MIDI file contains changes of tempo that were ignored by this import procedure");
@@ -1175,9 +1173,9 @@ return(result);
 
 ERR:
 if(track >= 0 && track < ntracks)
-	sprintf(Message,"=> Error on byte #%ld, track %ld. ",(long) totalbytes + nbytes,(long) track);
+	my_sprintf(Message,"=> Error on byte #%ld, track %ld. ",(long) totalbytes + nbytes,(long) track);
 else
-	sprintf(Message,"=> Error on byte #%ld. ",(long) totalbytes + nbytes);
+	my_sprintf(Message,"=> Error on byte #%ld. ",(long) totalbytes + nbytes);
 switch(err) {
 	case 0:
 		break;
@@ -1214,7 +1212,7 @@ switch(err) {
 ShowMessage(TRUE,wMessage,Message);
 Alert1("This file is incomplete or in a format that BP2 can't read");
 result = MISSED;
-goto OUT;
+goto SORTIR;
 }
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
@@ -1260,7 +1258,7 @@ if(EndFadeOut > 0.) {
 	timeorigin = LastTime;
 	time_end = timeorigin + (1000 * EndFadeOut);
 	i_event_max = (int)(EndFadeOut * SamplingRate);
-	sprintf(Message,"Fading out MIDI stream %.3f sec as requested by the settings (or by default)\n",(float)EndFadeOut);
+	my_sprintf(Message,"Fading out MIDI stream %.3f sec as requested by the settings (or by default)\n",(float)EndFadeOut);
 	BPPrintMessage(odInfo,Message);
 	for(chan=1; chan <= MAXCHAN; chan++)
 		current_volume[chan] = CurrentVolume[chan];
@@ -1283,13 +1281,13 @@ if(EndFadeOut > 0.) {
 			e.data2 = this_char;
 			if((rep=SendToDriver(time,0,&rs,&e)) != OK) {
 				BPPrintMessage(odInfo,"SendToDriver aborted! rep = %ld\n",(long)rep);
-				goto OUT;
+				goto SORTIR;
 				}
-			sprintf(Message,"%d/%d ratio = %.3f  channel %d: time = %ld ms, current_volume = %ld, e.data1 = %d, e.data2 = %d\n",i_event,i_event_max,ratio,chan,(long)time,(long)this_volume,e.data1,e.data2);
+			my_sprintf(Message,"%d/%d ratio = %.3f  channel %d: time = %ld ms, current_volume = %ld, e.data1 = %d, e.data2 = %d\n",i_event,i_event_max,ratio,chan,(long)time,(long)this_volume,e.data1,e.data2);
 			if(check_fade_out) BPPrintMessage(odInfo,Message);
 			}
 		}
-OUT:
+SORTIR:
 	for(chan=1; chan <= MAXCHAN; chan++) CurrentVolume[chan] = -1;
 	}
 return(OK);

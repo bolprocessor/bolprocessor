@@ -354,7 +354,7 @@ for(i=j0=ZERO; ; i++) {
 		}
 	if(j >= jmax) {
 		if((p_line2 = (char**) IncreaseSpace((Handle)p_line2)) == NULL) {
-			r = ABORT; goto OUT;
+			r = ABORT; goto SORTIR;
 			}
 		jmax = (((jmax + 10L) * 3L) / 2L) - 10L;
 		}
@@ -386,7 +386,7 @@ for(i=j0=ZERO; ; i++) {
 				(*p_line2)[j++] = (*((*p_Diacritical)[itoken]))[k];
 				if(j >= jmax) {
 					if((p_line2 = (char**) IncreaseSpace((Handle)p_line2)) == NULL) {
-						r = ABORT; goto OUT;
+						r = ABORT; goto SORTIR;
 						}
 					jmax = (((jmax + 10L) * 3L) / 2L) - 10L;
 					}
@@ -397,7 +397,7 @@ for(i=j0=ZERO; ; i++) {
 	(*p_line2)[j++] = '#';
 	for(itoken=32; itoken < 256; itoken++) {
 		if((*p_HTMLchar2)[itoken] == c) {
-			sprintf(line,"%ld",(long)itoken);
+			my_sprintf(line,"%ld",(long)itoken);
 			for(k=0; k < strlen(line); k++) {
 				(*p_line2)[j++] = line[k];
 				}
@@ -416,7 +416,7 @@ s = MyGetHandleSize((Handle)p_line2);
 if((r=MySetHandleSize((Handle*)pp_line,(Size)s)) != OK) return(r);
 if((r=MystrcpyHandleToHandle(0,pp_line,p_line2)) != OK) return(r);
 
-OUT:
+SORTIR:
 MyDisposeHandle((Handle*)&p_line2);
 return(r);
 }

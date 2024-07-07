@@ -55,10 +55,11 @@ int read_midisetup() {
 		strcpy(InputMIDIportComment[i],"");
 		MIDIoutput[i] = 0;  MIDIinput[i] = 1;
 		}
-    file = fopen(Midiportfilename,"r");
+    file = my_fopen(0,Midiportfilename,"r");
     if(file != NULL) {
-        BPPrintMessage(odInfo,"Reading the content of %s\n",Midiportfilename);
+        BPPrintMessage(odInfo,"Reading MIDI port settings %s\n",Midiportfilename);
         while(fgets(line, sizeof(line), file) != NULL) {
+			remove_carriage_returns(line);
 		//	BPPrintMessage(odInfo,"%s\n",line);
             itemType = strtok(line, "\t");
             itemIndex = strtok(NULL, "\t");
@@ -80,6 +81,7 @@ int read_midisetup() {
 				BPPrintMessage(odError,"=> ERROR: Name is longer than %d on this line: %s\n",MAXNAME,line);
 				break;
 				}
+          //  BPPrintMessage(odInfo,"index = %d, itemType = %s, itemIndex = %s, itemNumber = %s, portName = %s, portComment = %s\n",index, itemType,itemIndex,itemNumber,portName,portComment);
             if(strcmp(itemType,"MIDIinput") == 0) {
 				if(itemNumber && strlen(itemNumber) > 0) {
 					MIDIinput[index] = atoi(itemNumber);
@@ -107,6 +109,7 @@ int read_midisetup() {
 				else MIDIoutput[index] = -1;
 				}
 			if(strcmp(itemType,"MIDIacceptFilter") == 0) {
+        //        BPPrintMessage(odInfo,"MIDIacceptFilter = %s\n",itemNumber);
         		if(itemNumber && strlen(itemNumber) > 0) {
 					long_value = 0L;
             		for(i = 0; i < 18; i++) {
@@ -142,13 +145,14 @@ int read_midisetup() {
 					}
         		}
 			if(strcmp(itemType,"MIDIoutFilter") == 0) {
+         //   BPPrintMessage(odInfo,"MIDIoutFilter = %s\n",itemNumber);
 				if(itemNumber && strlen(itemNumber) > 0) {
 					strcpy(MIDIoutFilter[index],itemNumber);
-				//	BPPrintMessage(odInfo,"Lu: MIDIoutFilter[%d] = %s\n",index,MIDIoutFilter[index]);
+			//		BPPrintMessage(odInfo,"Lu: MIDIoutFilter[%d] = %s\n",index,MIDIoutFilter[index]);
 					}
 				}
 			}
-        fclose(file);
+        my_fclose(file);
 		BPPrintMessage(odInfo,"Your real-time MIDI settings:\n");
 		for(index = 0; index < MaxOutputPorts; index++) {
 			if(strcmp(OutputMIDIportComment[index],"void") == 0) strcpy(line,"");
@@ -160,7 +164,7 @@ int read_midisetup() {
 			else strcpy(line,InputMIDIportComment[index]);
 			BPPrintMessage(odInfo,"MIDI input = %d: “%s” - %s\n",MIDIinput[index],MIDIinputname[index],line);
 			}
-		BPPrintMessage(odInfo,"\n");
+	//	BPPrintMessage(odInfo,"\n");
         }
     return(result);
     }
@@ -179,17 +183,22 @@ void save_midisetup() {
     FILE* thefile;
 	char* binaryString;
 	int index;
-    thefile = fopen(Midiportfilename,"w");
+    thefile = my_fopen(1,Midiportfilename,"w");
     if(thefile != NULL) {
         BPPrintMessage(odInfo,"\nMIDI settings saved to %s\n",Midiportfilename);
 		for(index = 0; index < MaxOutputPorts; index++) {
 			if(strlen(MIDIoutputname[index]) == 0) continue;
+            if(strlen(OutputMIDIportComment[index]) == 0)
+                strcpy(OutputMIDIportComment[index],"void");
 			fprintf(thefile, "MIDIoutput\t%d\t%d\t%s\t%s\n",index,MIDIoutput[index],MIDIoutputname[index],OutputMIDIportComment[index]);
-	//		BPPrintMessage(odInfo,"Ecrit: MIDIchannelFilter[%d] = %s\n",index,MIDIchannelFilter[index]);
+		//	BPPrintMessage(odInfo,"Ecrit: MIDIoutput[%d] = %d\t%s\t%s\n",index,MIDIoutput[index],MIDIoutputname[index],OutputMIDIportComment[index]);
+		//	BPPrintMessage(odInfo,"Ecrit: MIDIchannelFilter[%d] = %s\n",index,MIDIchannelFilter[index]);
         	fprintf(thefile, "MIDIchannelFilter\t%d\t%s\n",index,MIDIchannelFilter[index]);
 			}
 		for(index = 0; index < MaxInputPorts; index++) {
 			if(strlen(MIDIinputname[index]) == 0) continue;
+            if(strlen(InputMIDIportComment[index]) == 0)
+                strcpy(InputMIDIportComment[index],"void");
 			fprintf(thefile, "MIDIinput\t%d\t%d\t%s\t%s\n",index,MIDIinput[index],MIDIinputname[index],InputMIDIportComment[index]);
 			SetInputFilterWord(index);
 			binaryString = longToBinary(18,(unsigned long)MIDIacceptFilter[index]);
@@ -200,7 +209,7 @@ void save_midisetup() {
         	fprintf(thefile, "MIDIpassFilter\t%d\t%s\n",index,binaryString);
 			free(binaryString);
 			}
-        fclose(thefile);
+        my_fclose(thefile);
         }
     }
 
@@ -286,7 +295,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 	// This is redundant because acceptance has already be checked at the input
 	if (packet->length > 0) {
 		e->type = packet->data[0];  // Assuming data[0] is the status byte
-		e->time = packet->timeStamp;
+//		e->time = packet->timeStamp;
 		}
 	if (packet->length > 1)
 		e->data1 = packet->data[1];  // Assuming data[1] is the first data byte
@@ -341,11 +350,11 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			e->time = 0;
 			e->type = RAW_EVENT;
 			e->data2 = c0;
-			sprintf(Message,"%ld",(long)(e->data2) + ProgNrFrom);
+			my_sprintf(Message,"%ld",(long)(e->data2) + ProgNrFrom);
 			if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,0,Message);
 			e->time = 0;
 			e->type = RAW_EVENT;
-			sprintf(Message,"%ld",(long)((c0 % 16) + 1));
+			my_sprintf(Message,"%ld",(long)((c0 % 16) + 1));
 			if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,1,Message);
 			if(!ScriptExecOn) AppendScript(71);
 			return(OK);
@@ -357,7 +366,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			e->type = TWO_BYTE_EVENT;
 			e->status = c;
 			if(Jcontrol < 0) {
-				sprintf(Message,"Pressure = %ld channel %ld",(long)c1,
+				my_sprintf(Message,"Pressure = %ld channel %ld",(long)c1,
 					(long)(c0 - c + 1));
 				if(Interactive && ShowMessages) ShowMessage(TRUE,wMessage,Message);
 				if(Interactive) {
@@ -416,40 +425,40 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 
 	if((Interactive || ScriptRecOn) && c == ChannelMode && c1 > 121) {
 		strcpy(LineBuff,"");
-		sprintf(Message,"%ld",(long)(c0 - c + 1));
+		my_sprintf(Message,"%ld",(long)(c0 - c + 1));
 		if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,0,Message);
 		switch(c1) {
 			case 122:
 				if(c2 == 0) {	/* Local control off */
-					AppendScript(76); sprintf(LineBuff,"Local control off channel %ld",
+					AppendScript(76); my_sprintf(LineBuff,"Local control off channel %ld",
 						(long)(c0-c+1));
 					break;
 					}
 				if(c2 == 127) {	/* Local control on */
-					AppendScript(77); sprintf(LineBuff,"Local control on channel %ld",
+					AppendScript(77); my_sprintf(LineBuff,"Local control on channel %ld",
 						(long)(c0-c+1));
 					break;
 					}
 				break;
 			case 123: /* if(c2 == 0) AppendScript(78) */ break;	/* All notes off */
 			case 124: if(c2 == 0) {	/* Omni mode off */
-				AppendScript(79); sprintf(LineBuff,"Omni mode off channel %ld",(long)(c0-c+1));
+				AppendScript(79); my_sprintf(LineBuff,"Omni mode off channel %ld",(long)(c0-c+1));
 				break;
 				}
 			case 125: if(c2 == 0) {	/* Omni mode on */
-				AppendScript(80); sprintf(LineBuff,"Omni mode on channel %ld",(long)(c0-c+1));
+				AppendScript(80); my_sprintf(LineBuff,"Omni mode on channel %ld",(long)(c0-c+1));
 				break;
 				}
 			case 127: if(c2 == 0) {	/* Poly mode on */
-				AppendScript(82); sprintf(LineBuff,"Poly mode on channel %ld",(long)(c0-c+1));
+				AppendScript(82); my_sprintf(LineBuff,"Poly mode on channel %ld",(long)(c0-c+1));
 				break;
 				}
 			case 126:	/* Mono mode on, c2 channels */
-				sprintf(LineBuff,"Mono mode on (%ld channels) channel %ld",(long)c2,
+				my_sprintf(LineBuff,"Mono mode on (%ld channels) channel %ld",(long)c2,
 					(long)(c0-c+1));
-				sprintf(Message,"%ld",(long)(c0 - c + 1));
+				my_sprintf(Message,"%ld",(long)(c0 - c + 1));
 				if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,1,Message);
-				sprintf(Message,"%ld",(long)c2);
+				my_sprintf(Message,"%ld",(long)c2);
 				if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,0,Message);
 				AppendScript(81);
 				break;
@@ -460,7 +469,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 	if(Interactive || ScriptRecOn || ReadKeyBoardOn) {
 		if(c == PitchBend) {
 			if(Jcontrol == -1) {
-				sprintf(Message,"Pitchbend = %ld channel %ld",(long) c1 + 128L*c2,
+				my_sprintf(Message,"Pitchbend = %ld channel %ld",(long) c1 + 128L*c2,
 					(long)(c0 - c + 1));
 				if(ShowMessages) ShowMessage(TRUE,wMessage,Message);
 				if(Interactive) {
@@ -473,7 +482,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 		if(c == ControlChange) {
 			if(c1 == VolumeControl[c0-c+1]) {	/* Volume */
 				if(Jcontrol == -1) {
-					sprintf(Message,"Volume = %ld channel %ld",(long)c2,
+					my_sprintf(Message,"Volume = %ld channel %ld",(long)c2,
 						(long)(c0 - c + 1));
 					if(ShowMessages) ShowMessage(TRUE,wMessage,Message);
 					if(Interactive) {
@@ -486,7 +495,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			else
 			if(c1 == PanoramicControl[c0-c+1]) {	/* Panoramic */
 				if(Jcontrol == -1) {
-					sprintf(Message,"Panoramic = %ld channel %ld",(long)c2,
+					my_sprintf(Message,"Panoramic = %ld channel %ld",(long)c2,
 						(long)(c0 - c + 1));
 					if(ShowMessages) ShowMessage(TRUE,wMessage,Message);
 					if(Interactive) {
@@ -499,7 +508,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			else
 			if(c1 == 1) {	/* Modulation MSB */
 				OldModulation = (long) 128L * c2;
-				sprintf(Message,"Modulation = %ld channel %ld",(long)OldModulation,
+				my_sprintf(Message,"Modulation = %ld channel %ld",(long)OldModulation,
 					(long)(c0 - c + 1));
 				if(ShowMessages && Jcontrol == -1) ShowMessage(TRUE,wMessage,Message);
 				return(OK);
@@ -507,7 +516,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			else
 			if(c1 == 33) {	/* Modulation LSB */
 				if(Jcontrol == -1) {
-					sprintf(Message,"Modulation = %ld channel %ld",(long)(c2+OldModulation),
+					my_sprintf(Message,"Modulation = %ld channel %ld",(long)(c2+OldModulation),
 						(long)(c0 - c + 1));
 					if(ShowMessages) ShowMessage(TRUE,wMessage,Message);
 					if(Interactive) {
@@ -520,18 +529,18 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			else
 			if(c1 >= 64 && c1 <= 95) {
 				if(!ScriptExecOn) {
-					sprintf(Message,"%ld",(long)(c0-c+1));
+					my_sprintf(Message,"%ld",(long)(c0-c+1));
 					MystrcpyStringToTable(ScriptLine.arg,1,Message);
 					}
 				if(c2 == 0) {
-					sprintf(LineBuff,"Switch %ld OFF channel %ld",(long)c1,(long)(c0-c+1));
-					sprintf(Message,"%ld",(long)c1);
+					my_sprintf(LineBuff,"Switch %ld OFF channel %ld",(long)c1,(long)(c0-c+1));
+					my_sprintf(Message,"%ld",(long)c1);
 					if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,0,Message);
 					AppendScript(87);
 					}
 				else {
-					sprintf(LineBuff,"Switch %ld ON channel %ld",(long)c1,(long)(c0-c+1));
-					sprintf(Message,"%ld",(long)c1);
+					my_sprintf(LineBuff,"Switch %ld ON channel %ld",(long)c1,(long)(c0-c+1));
+					my_sprintf(Message,"%ld",(long)c1);
 					if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,0,Message);
 					AppendScript(86);
 					}
@@ -564,7 +573,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 		if(MuteOffChan > 0 && c1 == MuteOffKey && c0 == (NoteOn+MuteOffChan-1)) {
 			Mute = FALSE;
 			ShowMessage(TRUE,wMessage,"Received MIDI message telling to stop muting output");
-			HideWindow(Window[wInfo]);
+			// HideWindow(Window[wInfo]);
 			return(OK);
 			}
 		else {
@@ -594,7 +603,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			Nplay = c2;
 			SynchroSignal = OFF;
 			ClearMessage();
-			sprintf(Message,"Playing %ld times... (",(long)Nplay);
+			my_sprintf(Message,"Playing %ld times... (",(long)Nplay);
 			Print(wMessage,Message);
 			PrintNote(-1,EndRepeatKey,EndRepeatChan,wMessage,Message);
 			Print(wMessage," will stop)");
@@ -618,12 +627,12 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 		else {
 		if(Jinscript > 0) {
 			if(FirstNoteOn) {
-				if(TraceMIDIinteraction) BPPrintMessage(odInfo,"time_now = 0L in HandleInputEvent()\n");
+				if(TraceMIDIinteraction) BPPrintMessage(odError,"time_now = 0L in HandleInputEvent()\n");
 				time_now = 0L;
 				}
 			else time_now = getClockTime() - initTime; // microseconds
 	//		if((r = MaybeWait(time_now)) != OK) return r;
-			if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Received NoteOn key = %d channel %d date %ld ms, checking %d script(s)\n",c1,channel,time_now / 1000L,Jinscript);
+			if(TraceMIDIinteraction) BPPrintMessage(odError,"Received NoteOn key = %d channel %d date %ld ms, checking %d script(s)\n",c1,channel,time_now / 1000L,Jinscript);
 			// Find the next expected NoteOn
 			for(j = 1; j <= Jinscript; j++) {
 				if(((*p_INscript)[j]).chan == -1) { // This is a deactivated instruction
@@ -631,20 +640,22 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 					continue;
 					}
 				thisscripttime = ((*p_INscript)[j]).time + TimeStopped;
+		//		thisscripttime = ((*p_INscript)[j]).time + Oldtimestopped;
 				// We won't verify that velocity (c2) is greater than zero, because a NoteOn with velocity zero can be used as a soundless instruction
-				if(channel == ((*p_INscript)[j]).chan && c1 == ((*p_INscript)[j]).key && time_now >= thisscripttime) {
-					if(TraceMIDIinteraction) BPPrintMessage(odInfo,"[%d] Good NoteOn key = %d, time_now = %ld ms, thisscripttime = %ld ms\n",j,c1,time_now/1000L,thisscripttime/1000L);
-					sprintf(Message,"Received NoteOn key = %d",c1);
-					Notify(Message);
+				if(channel == ((*p_INscript)[j]).chan && c1 == ((*p_INscript)[j]).key && time_now > thisscripttime) {
+					if(TraceMIDIinteraction) BPPrintMessage(odError,"[%d] Good NoteOn key = %d, time_now = %ld ms, thisscripttime = %ld ms\n",j,c1,time_now/1000L,thisscripttime/1000L);
+					my_sprintf(Message,"Received NoteOn key = %d at date %ld ms",c1,time_now/1000L);
+					Notify(Message,0);
 					strcpy(Message,"");
 					StopPlay = FALSE;
+				//	Oldtimestopped = TimeStopped; // 2024-07-03
 					TimeStopped +=  1000 * MIDIsyncDelay; // Necessary to restore the timing of the next events
 					((*p_INscript)[j]).chan = -1; // This input event is now deactivated
 					for(jj = 1; jj <= Jinscript; jj++) { //  Now we deactivate all input events at the same date
-						if(((*p_INscript)[j]).time == ((*p_INscript)[jj]).time && ((*p_INscript)[jj]).chan != -1) {
+						if(((*p_INscript)[j]).time >= ((*p_INscript)[jj]).time && ((*p_INscript)[jj]).chan != -1) {
 							((*p_INscript)[jj]).chan = -1;
-							sprintf(Message,"Canceled waiting for NoteOn key = %d",((*p_INscript)[jj]).key);
-							Notify(Message);
+							my_sprintf(Message,"Canceled waiting for NoteOn key = %d at date %ld ms",((*p_INscript)[jj]).key,((*p_INscript)[jj]).time / 1000L);
+							Notify(Message,0);
 							strcpy(Message,"");
 							}
 						}
@@ -658,8 +669,8 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 				if(ParamChan[i] != -1 && ParamKey[i] == c1
 									&& c0 == (NoteOn + ParamChan[i] - 1)) {
 				/* IN Param key "Kx" = velocity "note" channel "1..16" */
-					sprintf(Message,"Setting K%d = %d (key %d channel %d)",i,c2,c1,ParamChan[i]);
-					Notify(Message);
+					my_sprintf(Message,"Setting K%d = %d (key %d channel %d)",i,c2,c1,ParamChan[i]);
+					Notify(Message,0);
 					strcpy(Message,"");
 					ParamValue[i] = c2;
 					return(OK);
@@ -694,7 +705,7 @@ int check_stop_instructions(unsigned long time) {
 		if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Stopped sound at time %ld ms <= %ld ms as per instruction %d\n",(long)thisscripttime / 1000L,(long)time / 1000L,instr);
 		switch(instr) {
 			case 97: // Wait for note
-				sprintf(Message,"Waiting for note key %d at date %ld ms",((*p_INscript)[j]).key,(long)thisscripttime / 1000L);
+				my_sprintf(Message,"Waiting for note key %d at date %ld ms",((*p_INscript)[j]).key,(long)thisscripttime / 1000L);
 				break;
 			case 67: // Wait for Start
 				strcpy(Message, "Waiting for MIDI Start (250)"); break;
@@ -706,7 +717,7 @@ int check_stop_instructions(unsigned long time) {
 				strcpy(Message,"");
 				break;
 			}
-		Notify(Message);
+		Notify(Message,0); // It should be 1 but the "OK" button is problematic on Windows
 		strcpy(Message,"");
 		}
 	for(j=1; j <= Joutscript; j++) {
@@ -727,13 +738,16 @@ int check_stop_instructions(unsigned long time) {
 		(*p_OUTscript)[j].chan = -1; // Now this script can be deleted
 		if(instr == 17) {
 			if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Holding from time %ld ms during %ld ms as per instruction %d\n",(long)thisscripttime / 1000L,((*p_OUTscript)[j]).duration / 1000L,instr);
-			sprintf(Message,"Holding during %ld ms",((*p_OUTscript)[j]).duration / 1000L);
-			Notify(Message);
+			my_sprintf(Message,"Holding during %ld ms",((*p_OUTscript)[j]).duration / 1000L);
+			Notify(Message,0);
 			strcpy(Message,"");
 			}
 		else {
 			if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Sending MIDI message %d date %ld ms as per instruction %d\n",mssg,(long)thisscripttime / 1000L,instr);
 			midiData[0] = mssg;
+			my_sprintf(Message,"Sending MIDI instruction (%d) at date %ld ms",mssg,(long)thisscripttime / 1000L);
+			Notify(Message,0);
+			strcpy(Message,"");
 			sendMIDIEvent(midiData,1,thisscripttime);
 			}
 	//	break; 2024-06-21
@@ -753,8 +767,8 @@ int Ctrl_adjust(MIDI_Event *p_e,int c0,int c1,int c2) {
 			/* Control parameter _Kx_ from #_0..127_ channel _1..16_ */
 				ParamControlChan = ParamChan[i];
 				ParamValue[i] = c2;
-				sprintf(Message,"Setting K%d = %d (controller %d channel %d)",i,c2,c1,ParamChan[i]);
-				Notify(Message);
+				my_sprintf(Message,"Setting K%d = %d (controller %d channel %d)",i,c2,c1,ParamChan[i]);
+				Notify(Message,0);
 				strcpy(Message,"");
 				return OK;
 				}
@@ -782,8 +796,8 @@ int Ctrl_adjust(MIDI_Event *p_e,int c0,int c1,int c2) {
 			PedalPosition = c2;
 			if(c2 == PedalOrigin) return(OK);
 			SetTempo(); SetTimeBase();
-			ShowWindow(Window[wMetronom]);
-			BringToFront(Window[wMetronom]);
+	/*		ShowWindow(Window[wMetronom]);
+			BringToFront(Window[wMetronom]); */
 			}
 		r = OK;
 		}
@@ -798,21 +812,21 @@ int ChangeStatus(int c0,int c1,int c2) {
 		ResetWeights = 1 - ResetWeights;
 		if(ResetWeights) NeverResetWeights = FALSE;
 		if(!Improvize) 
-		sprintf(Message,"Reset weights: %s",Reality[ResetWeights]);
+		my_sprintf(Message,"Reset weights: %s",Reality[ResetWeights]);
 		ShowMessage(TRUE,wMessage,Message);
 		}
 	else {
 		if(UseEachSubChan > 0 && SUBthere && c1 == UseEachSubKey
 			&& c0 == (NoteOn + UseEachSubChan - 1)) {
 			UseEachSub = 1 - UseEachSub; if(!Improvize) 
-			sprintf(Message,"Play each substitution: %s",Reality[UseEachSub]);
+			my_sprintf(Message,"Play each substitution: %s",Reality[UseEachSub]);
 			ShowMessage(TRUE,wMessage,Message);
 			}
 		else {
 			if(SynchronizeStartChan > 0 && c1 == SynchronizeStartKey
 				&& c0 == (NoteOn + SynchronizeStartChan - 1)) {
 				SynchronizeStart = 1 - SynchronizeStart; if(!Improvize) 
-				sprintf(Message,"Synchronize start: %s",Reality[SynchronizeStart]);
+				my_sprintf(Message,"Synchronize start: %s",Reality[SynchronizeStart]);
 				ShowMessage(TRUE,wMessage,Message);
 				}
 			else {
@@ -821,7 +835,7 @@ int ChangeStatus(int c0,int c1,int c2) {
 						&& c0 == (NoteOn + SetTimeChan - 1)) {
 					TimeMax = (long) c2 * 472;
 					/* UseTimeLimit = */ LimCompute = LimTimeSet = TRUE;
-					sprintf(Message,
+					my_sprintf(Message,
 						"Max computation time: %4.2f s.",(double) TimeMax/1000.);
 					ShowMessage(TRUE,wMessage,Message);
 					}
@@ -829,7 +843,7 @@ int ChangeStatus(int c0,int c1,int c2) {
 					if(StriatedChan > 0 && c1 == StriatedKey
 								&& c0 == (NoteOn + StriatedChan - 1)) {
 						Nature_of_time = 1 - Nature_of_time;
-						sprintf(Message,
+						my_sprintf(Message,
 							"Striated time: %s",Reality[Nature_of_time]);
 						ShowMessage(TRUE,wMessage,Message);
 						SetTempo(); SetTimeBase();
@@ -840,7 +854,7 @@ int ChangeStatus(int c0,int c1,int c2) {
 									&& c0 == (NoteOn + NoConstraintChan - 1)) {
 							NoConstraint = 1 - NoConstraint;
 							if(!Improvize) 
-							sprintf(Message,
+							my_sprintf(Message,
 								"Ignore constraints: %s",Reality[NoConstraint]);
 							ShowMessage(TRUE,wMessage,Message);
 							Newstatus = TRUE;
@@ -859,8 +873,8 @@ int ChangeStatus(int c0,int c1,int c2) {
 								Nalpha = 100L;
 								PedalOrigin = -1;
 								SetTempo(); SetTimeBase();
-								ShowWindow(Window[wMetronom]);
-								BringToFront(Window[wMetronom]);
+						/*		ShowWindow(Window[wMetronom]);
+								BringToFront(Window[wMetronom]); */
 								Newstatus = TRUE;
 								}
 							else {
@@ -1237,7 +1251,7 @@ do {
 	if(!hexa && (n = GetInteger(YES,*p_line,&i)) == INT_MAX) break;
 	if(hexa && (n = GetHexa(*p_line,&i)) == INT_MAX) break;
 	if(n > 255 || n < 0) {
-		sprintf(Message,"\nCan't send %ld as MIDI data.\n",(long)n);
+		my_sprintf(Message,"\nCan't send %ld as MIDI data.\n",(long)n);
 		Print(wTrace,Message);
 		 goto QUIT;
 		}
@@ -1279,7 +1293,7 @@ for(ch=0; ch < 16; ch++) {
 			e.status = ControlChange + ch;
 			e.data1 = 64 + j;
 			e.data2 = 0;
-			if(SendToDriver(tcurr * Time_res,0,&rs,&e) != OK) goto OUT;
+			if(SendToDriver(tcurr * Time_res,0,&rs,&e) != OK) goto SORTIR;
 			if(givetime) Tcurr += 10L / Time_res;
 			}
 		}
@@ -1293,7 +1307,7 @@ for(ch=0; ch < 16; ch++) {
 		msb = (((long)DEFTPITCHBEND) - lsb) >> 7;
 		e.data1 = lsb;
 		e.data2 = msb;
-		if(SendToDriver(tcurr * Time_res,0,&rs,&e) != OK) goto OUT;
+		if(SendToDriver(tcurr * Time_res,0,&rs,&e) != OK) goto SORTIR;
 		if(givetime) Tcurr += 10L / Time_res;
 		}
 	if(force || ChangedPressure[ch]) {
@@ -1303,7 +1317,7 @@ for(ch=0; ch < 16; ch++) {
 		e.status = ChannelPressure + ch;
 		(*p_Oldvalue)[ch].pressure = DEFTPRESSURE;
 		e.data2 = DEFTPRESSURE;
-		if(SendToDriver(tcurr * Time_res,0,&rs,&e) != OK) goto OUT;
+		if(SendToDriver(tcurr * Time_res,0,&rs,&e) != OK) goto SORTIR;
 		if(givetime) Tcurr += 10L / Time_res;
 		}
 	if(force || ChangedModulation[ch]) {
@@ -1316,13 +1330,13 @@ for(ch=0; ch < 16; ch++) {
 		msb = (((long)DEFTMODULATION) - lsb) >> 7;
 		e.data1 = 1;
 		e.data2 = msb;	/* MSB */
-		if(SendToDriver(tcurr * Time_res,0,&rs,&e) != OK) goto OUT;
+		if(SendToDriver(tcurr * Time_res,0,&rs,&e) != OK) goto SORTIR;
 		e.time = tcurr;
 		e.type = NORMAL_EVENT;
 		e.status = ControlChange + ch;
 		e.data1 = 33;
 		e.data2 = lsb;	/* LSB */
-		if(SendToDriver(tcurr * Time_res,0,&rs,&e) != OK) goto OUT;
+		if(SendToDriver(tcurr * Time_res,0,&rs,&e) != OK) goto SORTIR;
 		if(givetime) Tcurr += 10L / Time_res;
 		}
 	if(force || ChangedVolume[ch]) {
@@ -1333,7 +1347,7 @@ for(ch=0; ch < 16; ch++) {
 		(*p_Oldvalue)[ch].volume = DeftVolume;
 		e.data1 = VolumeControl[ch+1];
 		e.data2 = DeftVolume;
-		if(SendToDriver(tcurr * Time_res,0,&rs,&e) != OK) goto OUT;
+		if(SendToDriver(tcurr * Time_res,0,&rs,&e) != OK) goto SORTIR;
 		if(givetime) Tcurr += 10L / Time_res;
 		}
 	if(force || ChangedPanoramic[ch]) {
@@ -1344,7 +1358,7 @@ for(ch=0; ch < 16; ch++) {
 		(*p_Oldvalue)[ch].panoramic = DeftPanoramic;
 		e.data1 = PanoramicControl[ch+1];
 		e.data2 = DeftPanoramic;
-		if(SendToDriver(tcurr * Time_res,0,&rs,&e) != OK) goto OUT;
+		if(SendToDriver(tcurr * Time_res,0,&rs,&e) != OK) goto SORTIR;
 		if(givetime) Tcurr += 10L / Time_res;
 		}
 	}
@@ -1352,7 +1366,7 @@ HideTicks = FALSE;
 if(now) WaitABit(500L);
 result = OK;
 
-OUT:
+SORTIR:
 #if BP_CARBON_GUI_FORGET_THIS
 SwitchOff(NULL,wControlPannel,bResetControllers);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
@@ -1386,7 +1400,7 @@ velocity = PrototypeTickVelocity;
 if(rep == OK) rep = GetField(NULL,TRUE,wPrototype5,fTref,line,&p,&q);
 duration = p/q;
 if(duration < EPSILON) {
-	sprintf(Message,"You can't play ticks when Tref is only %ldms",(long)duration);
+	my_sprintf(Message,"You can't play ticks when Tref is only %ldms",(long)duration);
 	Alert1(Message);
 	rep = MISSED;
 	}
@@ -1440,7 +1454,7 @@ while(Button());
 
 FlushEvents(mDownMask+mUpMask,0);
 
-HideWindow(Window[wInfo]);
+// HideWindow(Window[wInfo]);
 return(OK);
 #endif
 }
@@ -1485,7 +1499,7 @@ while(!Button()) {
 ReadKeyBoardOn = FALSE;
 FlushEvents(mDownMask+mUpMask,0);
 
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 SetDefaultCursor();
 
 if(key > -1) {
@@ -1501,11 +1515,11 @@ if(key > -1) {
 			TickVelocity[i] = velocity;
 			break;
 		case 3:
-			sprintf(line,"%ld",(long)velocity);
+			my_sprintf(line,"%ld",(long)velocity);
 			SetField(NULL,wTickDialog,fThisTickVelocity,line);
-			sprintf(line,"%ld",(long)key);
+			my_sprintf(line,"%ld",(long)key);
 			SetField(NULL,wTickDialog,fThisTickKey,line);
-			sprintf(line,"%ld",(long)channel);
+			my_sprintf(line,"%ld",(long)channel);
 			SetField(NULL,wTickDialog,fThisTickChannel,line);
 			GetThisTick();
 		}
@@ -1804,7 +1818,7 @@ for(i=i; i < iend; i++) {
 		case 29:	/* _pitchrange */
 			if(Jcontrol == 8) {
 				if(n < 0 || n > 16383) {
-					sprintf(Message,
+					my_sprintf(Message,
 						"Range for _pitchrange(x) is 0..16383. Can't accept %ld",(long)n);
 					Alert1(Message);
 					return(MISSED);
@@ -1815,7 +1829,7 @@ for(i=i; i < iend; i++) {
 		case 35:	/* _volumecontrol */
 			if(Jcontrol == 16) {
 				if(n < 0 || n > 127) {
-					sprintf(Message,
+					my_sprintf(Message,
 						"Range for _volumecontrol(x) is 0..127. Can't accept %ld",(long)n);
 					Alert1(Message);
 					return(MISSED);
@@ -1826,7 +1840,7 @@ for(i=i; i < iend; i++) {
 		case 41:	/* _pancontrol */
 			if(Jcontrol == 36) {
 				if(n < 0 || n > 127) {
-					sprintf(Message,
+					my_sprintf(Message,
 						"Range for _pancontrol(x) is 0..127. Can't accept %ld",(long)n);
 					Alert1(Message);
 					return(MISSED);
@@ -1898,7 +1912,7 @@ switch(Jcontrol) {
 		break;
 	default: return(MISSED);
 	}
-sprintf(Message,"%ld",(long)x);
+my_sprintf(Message,"%ld",(long)x);
 TextDelete(LastEditWindow);
 #if USE_MLTE_FORGET_THIS
 // FIXME ? Is there a reason the Print() call is inbetween getting origin & end below ?
@@ -1967,7 +1981,7 @@ if (!rtMIDI) {
 if(Mute) {
 	Alert1("The 'Mute' button was checked on the control pannel...");
 	Mute = FALSE;
-	HideWindow(Window[wInfo]);
+	// HideWindow(Window[wInfo]);
 	MaintainMenus();
 	BPActivateWindow(SLOW,wControlPannel);
 	return(MISSED);
@@ -1978,7 +1992,7 @@ if(SoundOn) {
 	}
 ResetMIDIControllers(YES,YES,YES);
 
-sprintf(Message,"Playing test on MIDI channel %ld... (Click to stop)",(long)(channel+1));
+my_sprintf(Message,"Playing test on MIDI channel %ld... (Click to stop)",(long)(channel+1));
 FlashInfo(Message);
 ShowMessage(TRUE,wMessage,"Tempo is set by the metronome. Click and type cmd-M to modify it.");
 ResetMIDI(FALSE);
@@ -2023,7 +2037,7 @@ ResetMIDI(FALSE);
 FlushEvents(mDownMask+mUpMask,0);
 // #endif
 
-HideWindow(Window[wInfo]);
+// HideWindow(Window[wInfo]);
 return(OK);
 #endif
 }
@@ -2073,7 +2087,7 @@ int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 		midibyte = p_e->data2;
 		if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 		*p_rs = 0;
-		goto OUT;
+		goto SORTIR;
 		}
 	// The event is NORMAL_EVENT type
 	/* Don't use running status when capturing event stream, or
@@ -2143,7 +2157,7 @@ int SendToDriver(Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 			}
 		else if(Beta) BPPrintMessage(odError,"=> Err. SendToDriver(). c0 == ChannelPressure");
 		}
-	OUT:
+	SORTIR:
 	return(OK);
 	}
 
@@ -2215,17 +2229,17 @@ int rep,compiledmem;
 return OK; // 2024-06-19
 
 if(Nbytes > (MaxMIDIbytes / 2) && Tbytes2 == ZERO) {
-	HideWindow(Window[wInfo]); HideWindow(Window[wMessage]);
+	// HideWindow(Window[wInfo]); // HideWindow(Window[wMessage]);
 	Tbytes2 = Tcurr;
 	}
 if(Nbytes > MaxMIDIbytes) {
-	HideWindow(Window[wInfo]); HideWindow(Window[wMessage]);
+	// HideWindow(Window[wInfo]); // HideWindow(Window[wMessage]);
 	// drivertime = GetDriverTime();
 	formertime = ZERO;
 	while((timeleft = Tbytes2 - drivertime) > ZERO) {
 		if((timeleft * Time_res / 1000L) != formertime && tell) {
 			formertime = timeleft * Time_res / 1000L;
-			sprintf(Message,"Idling (%ld sec)",(long)formertime + 1L);
+			my_sprintf(Message,"Idling (%ld sec)",(long)formertime + 1L);
 			PleaseWait();
 			ShowMessage(FALSE,wMessage,Message);
 			}
@@ -2252,7 +2266,7 @@ if(Nbytes > MaxMIDIbytes) {
 			|| rep == EXIT) return(rep);
 //		drivertime = GetDriverTime();
 		}
-	HideWindow(Window[wMessage]);
+	// HideWindow(Window[wMessage]);
 	Tbytes2 = ZERO; Nbytes = MaxMIDIbytes/2;
 	}
 return(OK);
@@ -2315,7 +2329,7 @@ void RegisterProgramChange(MIDI_Event *p_e)
 {
 	int j, thisevent, channel, program;
 	short itemtype;
-	ControlHandle itemhandle;
+//	ControlHandle itemhandle;
 	Rect r;
 	
 	// Register program change to the MIDI orchestra
@@ -2338,7 +2352,7 @@ void RegisterProgramChange(MIDI_Event *p_e)
 #if BP_CARBON_GUI_FORGET_THIS
 			for(j=0; j < 128; j++) {
 				if((*p_GeneralMIDIpatchNdx)[j] == program) {
-					sprintf(Message,"[%ld] %s",(long)program,*((*p_GeneralMIDIpatch)[j]));
+					my_sprintf(Message,"[%ld] %s",(long)program,*((*p_GeneralMIDIpatch)[j]));
 					SetField(NULL,wMIDIorchestra,(channel+1),Message);
 					break;
 				}

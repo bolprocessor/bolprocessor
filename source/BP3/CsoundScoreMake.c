@@ -75,27 +75,27 @@ if(chan < 0 || chan >= MAXCHAN) {
 perf = (*pp_currentparams)[nseq]; 
 
 if(trace_cs_scoremake)
-	BPPrintMessage(odInfo,"\nRunning CscoreWrite for iline = %d channel = %d instrument = %d\n",iline,chan,instrument);
+	BPPrintMessage(odInfo,"\nRunning CscoreWrite for iline = %d channel = %d instrument = %d k = %d\n",iline,chan,instrument,kcurrentinstance);
 
 if(onoffline == LINE) {
 	if(j >= Jbol) {
-		sprintf(Message,"=> Err. CscoreWrite(). j >= Jbol, j = %ld\n",(long)j);
+		my_sprintf(Message,"=> Err. CscoreWrite(). j >= Jbol, j = %ld\n",(long)j);
 		BPPrintMessage(odInfo,Message);
-		goto OUT;
+		goto SORTIR;
 		} 
 	if(iline < 0 || (iline >= (*p_CsoundSize)[j])) {
-		sprintf(Message,"=> Err. CscoreWrite(). iline < 0 || iline >= (*p_CsoundSize)[j] iline = %ld\n",(long)iline);
+		my_sprintf(Message,"=> Err. CscoreWrite(). iline < 0 || iline >= (*p_CsoundSize)[j] iline = %ld\n",(long)iline);
 		BPPrintMessage(odInfo,Message);
-		goto OUT;
+		goto SORTIR;
 		}
 	dur = (*((*pp_CsoundScore)[j]))[iline].duration * dilationratio;
 	key = 0;
 	}
 else {
 	if(key < 0 || key >= MAXKEY) {
-		sprintf(Message,"=> Err. CscoreWrite(). Incorrect key = %ld\n",(long)key);
+		my_sprintf(Message,"=> Err. CscoreWrite(). Incorrect key = %ld\n",(long)key);
 		BPPrintMessage(odInfo,Message);
-		goto OUT;
+		goto SORTIR;
 		}
 	}
 
@@ -133,9 +133,10 @@ instrparamlist = (*p_CsInstrument)[ins].paramlist;
 
 time = ((double) time_ms) / 1000.;	 // Fixed by BB 2022-02-10
 
-if(trace_cs_scoremake) BPPrintMessage(odInfo,"Pclock = %ld Qclock = %ld, t = %ld, time = %.3f\n",(long)Pclock,(long)Qclock,(long)time_ms,time);
+if(trace_cs_scoremake) BPPrintMessage(odInfo,"Pclock = %ld Qclock = %ld, t = %ld, time = %.3f, onoffline = %d\n",(long)Pclock,(long)Qclock,(long)time_ms,time,onoffline);
 
 comeback = FALSE;
+maxparam = (*p_Instance)[kcurrentinstance].contparameters.number; // Fixed by BB 2024-07-05
 
 if(onoffline == ON) {
 	if((*perf)->level[key] > 0) {
@@ -149,7 +150,7 @@ if(onoffline == ON) {
 		else {
 			(*perf)->level[key]++;
 			result = OK;
-			goto OUT;
+			goto SORTIR;
 			}
 		}
 
@@ -161,26 +162,29 @@ SETON:
 	(*perf)->dilationratio[key] = dilationratio;
 	
 //	maxparam = (*((*pp_currentparams)[nseq]))->numberparams; 
-	maxparam = (*p_Instance)[kcurrentinstance].contparameters.number; // Fixed by BB 2021-02-15
+//	maxparam = (*p_Instance)[kcurrentinstance].contparameters.number; // Fixed by BB 2024-07-05
 	
 	if((paramscopy = (ParameterStatus**)
-		GiveSpace((Size)(maxparam * sizeof(ParameterStatus)))) == NULL) goto OUT;
+		GiveSpace((Size)(maxparam * sizeof(ParameterStatus)))) == NULL) {
+			BPPrintMessage(odError,"Err. GiveSpace in CscoreWrite(). maxparam = %ld\n",(long)maxparam);
+			goto SORTIR;
+			}
 	for(i=0; i < maxparam; i++) (*paramscopy)[i] = (*((*perf)->params))[i];
 	(*perf)->startparams[key] = paramscopy;
 	result = OK;
 //	BPPrintMessage(odInfo,"Start CscoreWrite(). maxparam = %ld\n",(long)maxparam);
-	goto OUT;
+	goto SORTIR;
 	}
 
 if(onoffline == OFF && (*perf)->level[key] < 1) {
 	BPPrintMessage(odError,"=> Err. CscoreWrite(). (*perf)->level[key] < 1 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
 	result = OK; // $$$ TEMP
-	goto OUT;
+	goto SORTIR;
 	}
 
 if(onoffline != LINE && (--((*perf)->level[key])) > 0) {
 	result = OK;
-	goto OUT;
+	goto SORTIR;
 	}
 
 SETOFF:
@@ -193,7 +197,7 @@ else
 
 if(params == NULL) {
 	if(Beta) Alert1("=> Err. CscoreWrite(). params == NULL");
-	goto OUT;
+	goto SORTIR;
 	}
 
 iargmax = (*p_CsInstrument)[ins].iargmax;
@@ -203,7 +207,7 @@ if(iargmax < 4) {
 	}
 
 if((scorearg=(double**) GiveSpace((Size)((iargmax + 1) * sizeof(double)))) == NULL)
-	goto OUT;
+	goto SORTIR;
 	
 for(iarg=0; iarg <= iargmax; iarg++) (*scorearg)[iarg] = 0.;
 
@@ -218,14 +222,12 @@ if(onoffline != LINE) {
 //	(*scorearg)[2] = (*perf)->starttime[key] * Qclock / ((double) Pclock);
 	(*scorearg)[2] = (*perf)->starttime[key]; // Fixed by BB 2022-02-10
 	(*scorearg)[3] = time - (*scorearg)[2];
-	sprintf(Message,"onoffline != LINE, key = %d, starttime = %.3f, time = %ld, scorearg[2] = %.3f, scorearg[3] = %.3f\n",key,(*perf)->starttime[key],(long)time,(*scorearg)[2],(*scorearg)[3]);
-	if(trace_cs_scoremake) BPPrintMessage(odInfo,Message);
+	if(trace_cs_scoremake) BPPrintMessage(odInfo,"onoffline != LINE, key = %d, starttime = %.3f, time = %ld, scorearg[2] = %.3f, scorearg[3] = %.3f\n",key,(*perf)->starttime[key],(long)time,(*scorearg)[2],(*scorearg)[3]);
 	}
 else {
 	(*scorearg)[2] = time;
 	(*scorearg)[3] = dur * ratio;
-	sprintf(Message,"onoffline == LINE, scorearg[2] = %ld, scorearg[3] = %ld\n",(long)(*scorearg)[2],(long)(*scorearg)[3]);
-	if(trace_cs_scoremake) BPPrintMessage(odInfo,Message);
+	if(trace_cs_scoremake) BPPrintMessage(odInfo,"onoffline == LINE, scorearg[2] = %ld, scorearg[3] = %ld\n",(long)(*scorearg)[2],(long)(*scorearg)[3]);
 	for(iarg=4; iarg < (4+(*((*pp_CsoundScore)[j]))[iline].nbparameters); iarg++) {
 		(*scorearg)[iarg] = (*((*((*pp_CsoundScore)[j]))[iline].h_param))[iarg-4];
 		}
@@ -272,7 +274,7 @@ if(iarg > 0) {
 		if((*params)[IPITCHBEND].mode != FIXED) {
 			if((*params)[IPITCHBEND].dur <= 0.) {
 				if(Beta) Alert1("=> Err. CsScoreWrite(). (*params)[IPITCHBEND].dur <= 0");
-				goto OUT;
+				goto SORTIR;
 				}
 			alpha1 = (((*scorearg)[2] / ratio) - (*params)[IPITCHBEND].starttime)
 				/ (*params)[IPITCHBEND].dur;
@@ -332,7 +334,7 @@ if(iarg > 0) {
 		if((*params)[IPITCHBEND].mode != FIXED) {
 			if((*params)[IPITCHBEND].dur <= 0.) {
 				if(Beta) Alert1("=> Err. CsScoreWrite(). (*params)[IPITCHBEND].dur <= 0");
-				goto OUT;
+				goto SORTIR;
 				}
 			alpha1 = (((*scorearg)[2] / ratio) - (*params)[IPITCHBEND].starttime)
 				/ (*params)[IPITCHBEND].dur;
@@ -349,7 +351,7 @@ if(iarg > 0) {
 	else x = DEFTPITCHBEND;
 	if(onoffline == LINE) x = (*scorearg)[iarg] + x - DEFTPITCHBEND;
 	x = Remap(x,ins,IPITCHBEND,&overflow);
-	if(overflow) goto OUT;
+	if(overflow) goto SORTIR;
 	
 	if((*params)[IPITCHBEND].active && imax > ZERO && (*params)[IPITCHBEND].mode == CONTINUOUS
 			&& (itable=(*p_CsInstrument)[ins].pitchbendtable) > -1) {
@@ -371,7 +373,7 @@ if(iarg > 0) {	/* (*p_CsPitchBendStartIndex)[ins] was also > 0, therefore alpha2
 			x = GetTableValue(alpha2,imax,(*params)[IPITCHBEND].point,startvalue,endvalue);
 			if(onoffline == LINE) x = (*scorearg)[iarg] + x - DEFTPITCHBEND;
 			x = Remap(x,ins,IPITCHBEND,&overflow);
-			if(overflow) goto OUT;
+			if(overflow) goto SORTIR;
 			}
 		}
 	(*scorearg)[iarg] = x;
@@ -399,7 +401,7 @@ if(iarg > 0) {
 	else x = DeftVolume;
 	if(onoffline == LINE) x = (*scorearg)[iarg] * x / DeftVolume;
 	x = Remap(x,ins,IVOLUME,&overflow);
-	if(overflow) goto OUT;
+	if(overflow) goto SORTIR;
 	if((*params)[IVOLUME].active && imax > ZERO && (*params)[IVOLUME].mode == CONTINUOUS
 			&& (itable=(*p_CsInstrument)[ins].volumetable) > -1) {
 		// BPPrintMessage(odInfo,"Calling MakeCsoundFunctionTable() for IVOLUME = %ld\n");
@@ -420,7 +422,7 @@ if(iarg > 0) {
 			x = GetTableValue(alpha2,imax,(*params)[IVOLUME].point,startvalue,endvalue);
 			if(onoffline == LINE) x = (*scorearg)[iarg] * x / DeftVolume;
 			x = Remap(x,ins,IVOLUME,&overflow);
-			if(overflow) goto OUT;
+			if(overflow) goto SORTIR;
 			}
 		}
 	(*scorearg)[iarg] = x;
@@ -448,7 +450,7 @@ if(iarg > 0) {
 	else x = DEFTPRESSURE;
 	if(onoffline == LINE) x = (*scorearg)[iarg] + x - DEFTPRESSURE;
 	x = Remap(x,ins,IPRESSURE,&overflow);
-	if(overflow) goto OUT;
+	if(overflow) goto SORTIR;
 	if((*params)[IPRESSURE].active && imax > ZERO && (*params)[IPRESSURE].mode == CONTINUOUS
 			&& (itable=(*p_CsInstrument)[ins].pressuretable) > -1) {
 		// BPPrintMessage(odInfo,"Calling MakeCsoundFunctionTable() for IPRESSURE = %ld\n");
@@ -469,7 +471,7 @@ if(iarg > 0) {
 			x = GetTableValue(alpha2,imax,(*params)[IPRESSURE].point,startvalue,endvalue);
 			if(onoffline == LINE) x = (*scorearg)[iarg] + x - DEFTPRESSURE;
 			x = Remap(x,ins,IPRESSURE,&overflow);
-			if(overflow) goto OUT;
+			if(overflow) goto SORTIR;
 			}
 		}
 	(*scorearg)[iarg] = x;
@@ -497,7 +499,7 @@ if(iarg > 0) {
 	else x = DEFTMODULATION;
 	if(onoffline == LINE) x = (*scorearg)[iarg] + x - DEFTMODULATION;
 	x = Remap(x,ins,IMODULATION,&overflow);
-	if(overflow) goto OUT;
+	if(overflow) goto SORTIR;
 	if((*params)[IMODULATION].active && imax > ZERO && (*params)[IMODULATION].mode == CONTINUOUS
 			&& (itable=(*p_CsInstrument)[ins].modulationtable) > -1) {
 		// BPPrintMessage(odInfo,"Calling MakeCsoundFunctionTable() for IMODULATION = %ld\n");
@@ -519,7 +521,7 @@ if(iarg > 0) {
 				startvalue,endvalue);
 			if(onoffline == LINE) x = (*scorearg)[iarg] + x - DEFTMODULATION;
 			x = Remap(x,ins,IMODULATION,&overflow);
-			if(overflow) goto OUT;
+			if(overflow) goto SORTIR;
 			}
 		}
 	(*scorearg)[iarg] = x;
@@ -547,7 +549,7 @@ if(iarg > 0) {
 	else x = DeftPanoramic;
 	if(onoffline == LINE) x = (*scorearg)[iarg] + x - DeftPanoramic;
 	x = Remap(x,ins,IPANORAMIC,&overflow);
-	if(overflow) goto OUT;
+	if(overflow) goto SORTIR;
 	if((*params)[IPANORAMIC].active && imax > ZERO && (*params)[IPANORAMIC].mode == CONTINUOUS
 			&& (itable=(*p_CsInstrument)[ins].panoramictable) > -1) {
 		//	BPPrintMessage(odInfo,"Calling MakeCsoundFunctionTable() for IPANORAMIC = %ld\n");
@@ -569,7 +571,7 @@ if(iarg > 0) {
 				startvalue,endvalue);
 			if(onoffline == LINE) x = (*scorearg)[iarg] + x - DeftPanoramic;
 			x = Remap(x,ins,IPANORAMIC,&overflow);
-			if(overflow) goto OUT;
+			if(overflow) goto SORTIR;
 			}
 		}
 	(*scorearg)[iarg] = x;
@@ -591,6 +593,8 @@ if((*p_CsInstrument)[ins].ipmax > 0 && (*perf)->numberparams > 0) {
 		paramnameindex = (*instrparamlist)[i].nameindex;
 		if(paramnameindex < 0) continue;
 		if(paramnameindex >= (*perf)->numberparams) continue;
+		BPPrintMessage(odInfo,"paramnameindex = %d, (*perf)->numberparams = %d\n",(int)paramnameindex,(*perf)->numberparams);
+		BPPrintMessage(odInfo,"(*params)[paramnameindex].active = %d\n",(int)(*params)[paramnameindex].active);
 		if((*params)[paramnameindex].active) {
 			startvalue = (*params)[paramnameindex].startvalue;
 			endvalue = (*params)[paramnameindex].endvalue;
@@ -693,27 +697,27 @@ if(ShowPianoRoll) {
 if(!OutCsound) {
 	result = OK;
 	if(trace_cs_scoremake) BPPrintMessage(odInfo,"going out because !OutCsound)\n");
-	goto OUT;
+	goto SORTIR;
 	}
 
 // Now to the score
-sprintf(line,"i%ld ",(long)index);
+my_sprintf(line,"i%ld ",(long)index);
 if(!ConvertMIDItoCsound) NoReturnWriteToFile(line,CsRefNum);
 strcpy(Message,line);
-sprintf(line2,"iarg = 1 line = %s\n",line);
+my_sprintf(line2,"iarg = 1 line = %s\n",line);
 if(trace_cs_scoremake) BPPrintMessage(odInfo,"- %s",line2);
 
 for(iarg=2; iarg <= iargmax; iarg++) {
 	if(iarg != ipitch || pitch_format == IGNORER || pitch_format == CPS) {
 		if(fabs((*scorearg)[iarg]) < 0.0001) (*scorearg)[iarg] = 0.;
-		sprintf(line,"%.3f ",(*scorearg)[iarg]);
+		my_sprintf(line,"%.3f ",(*scorearg)[iarg]);
 		}
 	else
-		sprintf(line,"%.2f ",(*scorearg)[iarg]);
+		my_sprintf(line,"%.2f ",(*scorearg)[iarg]);
 	if(!ConvertMIDItoCsound) NoReturnWriteToFile(line,CsRefNum);
 	strcat(Message,line);
 	
-	sprintf(line2,"iarg = %ld -> %s\n",(long)iarg,line);
+	my_sprintf(line2,"iarg = %ld -> %s\n",(long)iarg,line);
 	if(trace_cs_scoremake) BPPrintMessage(odInfo,line2);
 	}
 
@@ -742,7 +746,7 @@ if(trace_cs_scoremake) BPPrintMessage(odInfo,"line = %s\n",line);
 strcpy(Message,"");
 
 
-OUT:
+SORTIR:
 MyDisposeHandle((Handle*)&scorearg);
 if(result == OK && onoffline == OFF) {
 	MyDisposeHandle((Handle*)&params);	/* This had been created while onoffline == ON */
@@ -770,7 +774,7 @@ switch(FileSaveMode) {
 		return(OK);
 		break;
 	case ALLSAMEPROMPT:
-		sprintf(Message,"Current Csound score file is '%s'. Change it",CsFileName);
+		my_sprintf(Message,"Current Csound score file is '%s'. Change it",CsFileName);
 		rep = Answer(Message,'N');
 		if(rep == ABORT) return(rep);
 		if(rep == NO) return(OK);
@@ -847,12 +851,12 @@ long timeout;
 
 if(!CsScoreOpened) return(OK);
 if(EndFadeOut > 0.) {
-	sprintf(line,"e %.3f",EndFadeOut);
+	my_sprintf(line,"e %.3f",EndFadeOut);
 	}
 else strcpy(line,"e");
 WriteToFile(NO,CsoundFileFormat,line,CsRefNum);	// 'e' terminates a Csound score 
 Date(line);
-sprintf(Message,"; this score was created by Bol Processor BP2 (version %s) on %s",
+my_sprintf(Message,"; this score was created by Bol Processor BP2 (version %s) on %s",
 	VersionName[Version],line);
 WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);
 GetFPos(CsRefNum,&count);
@@ -866,7 +870,7 @@ if (CsFileReply) {
 	err = NSWCleanupReply(*CsFileReply);
 	MyDisposeHandle((Handle*)&CsFileReply);
 }
-sprintf(Message,"Closed Csound score file '%s'",CsFileName);
+my_sprintf(Message,"Closed Csound score file '%s'",CsFileName);
 ShowMessage(TRUE,wMessage,Message);
 // CsFileName[0] = '\0';
 strcpy(CsFileName,""); // Fixed by BB 2021-02-14

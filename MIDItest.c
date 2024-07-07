@@ -30,7 +30,7 @@ void usleep(DWORD waitTime) {
     QueryPerformanceCounter(&start);
     do {
         QueryPerformanceCounter((LARGE_INTEGER*)&now);
-    } while ((now.QuadPart - start.QuadPart) / float(perfCnt.QuadPart) * 1000 * 1000 < waitTime);
+    } while((now.QuadPart - start.QuadPart) / (float)(perfCnt.QuadPart) * 1000 * 1000 < waitTime);
 }
 
 #elif defined(__APPLE__)

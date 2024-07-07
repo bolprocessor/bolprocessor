@@ -65,7 +65,7 @@ if(!CompiledGr || !CompiledAl) {
 	}
 if(DoSystem() != OK) return(ABORT);
 
-sprintf(Message,"Compiling '%s' glossary...",FileName[wGlossary]);
+my_sprintf(Message,"Compiling '%s' glossary...",FileName[wGlossary]);
 ShowMessage(TRUE,wMessage,Message);
 
 if(p_Var == NULL && GetVariableSpace() != OK) return(ABORT);
@@ -165,7 +165,7 @@ while(ReadLine(YES,wGlossary,&pos,posmax,&p_line,&gap) == OK) {
 		}
 	*pp1 = &(line[length]); while(MySpace(**pp1)) (*pp1)++;
 	if(((**pp1) < 'A' || (**pp1) > 'Z') && (**pp1) != '|') {
-		sprintf(Message,
+		my_sprintf(Message,
 		"Left argument in glossary must be a variable, starting with uppercase character or '|'. Can't make sense of '%c'...\n",
 		(**pp1));
 		Print(wTrace,Message); r = MISSED;
@@ -180,13 +180,13 @@ while(ReadLine(YES,wGlossary,&pos,posmax,&p_line,&gap) == OK) {
 		return(ABORT);
 		}
 	if((*p_VarStatus)[j] & 4) {
-		sprintf(Message,"Can't accept multiple definitions of variable '%s' in glossary.\n",
+		my_sprintf(Message,"Can't accept multiple definitions of variable '%s' in glossary.\n",
 			*((*p_Var)[j]));
 		Print(wTrace,Message); r = MISSED;
 		goto BADLINE;
 		}
 	if((*p_VarStatus)[j] & 1) {
-		sprintf(Message,"Variable '%s' is already derived in grammar. Probably a mistake.\n",
+		my_sprintf(Message,"Variable '%s' is already derived in grammar. Probably a mistake.\n",
 			*((*p_Var)[j]));
 		Print(wTrace,Message);
 		}
@@ -262,7 +262,7 @@ if(!errors && r == OK && irul > 0) {
 		Print(wTrace,"\nUNDEFINED VARIABLES IN GLOSSARY:\n");
 		for(j=1; j <= Jvar; j++) {
 			if(!((*p_VarStatus)[j] & 4) && ((*p_VarStatus)[j] & 8)) { 
-				sprintf(Message,"%s ",*((*p_Var)[j]));
+				my_sprintf(Message,"%s ",*((*p_Var)[j]));
 				Print(wTrace,Message);
 				errors++;
 				}
@@ -272,7 +272,7 @@ if(!errors && r == OK && irul > 0) {
 	}
 	
 if(errors || r != OK) goto ERR;
-sprintf(Message,"=> Errors: %ld",(long)errors);
+my_sprintf(Message,"=> Errors: %ld",(long)errors);
 if(irul == 0) ReleaseGlossarySpace();
 else ShowMessage(TRUE,wMessage,Message);
 CompiledGl = TRUE;
@@ -284,7 +284,7 @@ MyDisposeHandle((Handle*)&p_line);
 if(errors) {
 	Print(wTrace,"\nError(s) in 'Glossary' window.\n\n");
 	ShowSelect(CENTRE,wTrace);
-	sprintf(Message,"=> Errors: %ld",(long)errors);
+	my_sprintf(Message,"=> Errors: %ld",(long)errors);
 	ShowMessage(TRUE,wMessage,Message);
 	}
 CompiledGl = FALSE;

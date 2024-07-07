@@ -13,9 +13,18 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-To-Do.txt
 You can also check the history of changes:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-changes.txt
 
+If you are interested in taking part in this project, join the BP developer's list:
+https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
+
+
+Distribution
+------------
+
+- Now that BP3 compiles on MacOS and Windows, create "pkg"  and "exe" installers to facilitate the implementation.
+
 
 Csound orchestra
-----------------s
+----------------
 
 - New instruments are needed in the styles of:
  + pipe organ
@@ -41,19 +50,19 @@ MIDI input
 Real-time MIDI
 --------------
 
-- Fix MIDIdriver.c in _WIN64 and __linux__ to compile and handle multiple MIDI inputs/outputs.
+- Fix synchronisation problem in -gr.Beatrix & -gr.Alan.
+- Try using a dedicated thread to handle MIDI input in Windows.
 - Put scripts on top of a grammar (the INIT: section) to run them before the production is started. This will notably allow setting up parameters K1, K2… K127.
 - When playing back chunked data in real-time MIDI, there may be gaps followed by garbled events due to the time taken to calculate large chunks. Check "-da.Beethoven-fugue-B-flat-major" for this. It's probably unavoidable: a larger value of MaxMIDIMessages (currently 1000 in ConsoleMain.c) is needed, but it blows the memory.
 - Maybe use a dynamically resizable array for eventStack? Probably not beneficial.
-- The value of MaxMIDIMessages could also be spacified in the settings file of the project.
+- The value of MaxMIDIMessages could also be specified in the settings file of the project.
 - Check the accuracy of start times in sound-object pictures.
-- The use of PortMidi (https://github.com/PortMidi/) could replace the current procedures in MIDIdriver.c and secure the implementation of real-time MIDI in the three environments. Although it makes it easier to program low-level MIDI features, it seems that installing PortMidi itself would require technical skills on the part of the user. We are keeping this option open for the time being. Compilation in Windows and Linux needs to be checked and fixed on real machines.
 
 
 Real-time Csound
 ----------------
 
-- This development should be easy, using AI tools.
+- This development should be easy with the help of AI tools.
 - Implement UDP for communicating with Csound. Links:
 https://csound.com/docs/manual/udpserver.html
 https://www.geeksforgeeks.org/udp-server-client-implementation-c/
@@ -63,7 +72,7 @@ https://www.geeksforgeeks.org/udp-server-client-implementation-c/
 Open Sound Control (OSC)
 ------------------------
 
-- This development should be easy, using AI tools
+- This development should be easy with the help of AI tools.
 - Read https://en.wikipedia.org/wiki/Open_Sound_Control
 - This might create a framework for connecting BP3 with PYO (http://ajaxsoundstudio.com/software/pyo/)
 - Also try direct communication with MuseScore
@@ -127,7 +136,7 @@ Chunked data in real-time MIDI
 Settings
 --------
 
-- Use XML to store the settings of projects
+- Use XML format to store the settings of projects
 
 
 MIDI file player
@@ -136,26 +145,6 @@ MIDI file player
 - Implement Pause and Resume (check https://www.midijs.net/midijs_api.html)
 - Standalone application might not accept to call remote midi.js
 - Implement connection with FluidSynth (https://www.fluidsynth.org/)
-
-
-Cloud version (probably unrealistic)
--------------
-
-- This has been envisaged as an option. Creating a standalone application seems a better choice.
-- Install a html/php/MySQL server for the sharing of BP console + PHP interface (+ website?)
-- Set up restricted access via (free) non-anonymous subscription (in compliance with RGPD)
-- Grant every user some storage space (with time limit?)
-- Run all features except real-time MIDI in/out
-- Csound scores could be exported and/or processed by Csound, and WAV files dowloaded and/or played on line via HTML <audio> tags
-- MIDI files could be dowloaded and/or played on line via MIDIjs
-- Beware of bandwidth with online playing
-
-
-Input files
------------
-
-- Interpret script commands producing MIDI messages such as _script(MIDI program …) or _script(MIDI controller …)
-- Implement the -s/-S options for specifying the start string => not necessary as it exists on the Grammar window of the PHP interface
 
 
 Images
@@ -169,15 +158,14 @@ Images
 Compilation
 -----------
 
-- Check and fix the compilation in Windows and Linux environments
 - Modify the C source to handle some Unicode characters that are not currently accepted, such as '≤', '≠', '•', etc.
 
 
-Claning up the code
+Cleaning up the code
 -------------------
 
-- The console code contains many obsolete parts (marked as such and not compiled). These are mostly remnants of BP2's built-in interface, at the time we wanted to maintain a MacOS standalone version of BP2 using conditional compilation. These will be removed unless they are useful for further development.
-- Unused code files have been moved to a "not_used" folder in the "BP3" folder. These can be deleted later.
+- The console code contains many obsolete parts (marked as such and not compiled). These are mostly remnants of BP2's built-in interface, at the time we wanted to maintain a MacOS standalone version of BP2 using conditional compilation. These will be removed unless they turn out to be useful for further development.
+- Unused code files have been moved to a "not_used" folder in the "source" folder. These can be deleted later.
 - There are still many parts of the code marked "WITH_REAL_TIME_MIDI". This marker has been changed to "WITH_REAL_TIME_MIDI_FORGET_THIS" to indicate that these need to be deleted, as they are remnants of BP2's real-time MIDI or initial (unfinished) implementation of real-time MIDI in/output. Leave them unchanged for now, as some code could be reused.
 
 
@@ -205,7 +193,3 @@ Documentation
 - Convert BP2 documentation to an (open-source) authoring system that can help maintain the organization & internal links as well as output in multiple formats (HTML, PDF, etc.) ??
 
 ========
-
-IMPORTANT NOTE: If you are interested in taking part in this project, join the BP developer's list:
-https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
-

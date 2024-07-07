@@ -40,12 +40,12 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 
 void SysBeep(short duration);
-Boolean Button(void);
+int Button(void);
 
 
-#define	BringToFront(windowPtr)
-#define	HideWindow(windowPtr)
-#define	ShowWindow(windowPtr)
-#define	SelectWindow(windowPtr)
+// #define	BringToFront(windowPtr)
+// #define	HideWindow(windowPtr)
+// #define	ShowWindow(windowPtr)
+// #define	SelectWindow(windowPtr)
 
 #endif /* BP_MISSINGMACPROTOTYPES_H */

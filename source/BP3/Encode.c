@@ -137,18 +137,18 @@ NOTSCALE:
 	if(c == '[') {
 		if(arg_nr == 0 || arg_nr == 2 || arg_nr == 8) break;
 		else {
-			sprintf(Message,"Misplaced comment in left argument\n");
+			my_sprintf(Message,"Misplaced comment in left argument\n");
 			Print(wTrace,Message);
 			goto ERR;
 			}
 		}
 	if(c == '>') {
-		sprintf(Message, "Found illicit character '>'...\n");
+		my_sprintf(Message, "Found illicit character '>'...\n");
 		Print(wTrace,Message);
 		goto ERR;
 		}
 	if(rightcontext) {	/* Remote right context has been read */
-		sprintf(Message,
+		my_sprintf(Message,
 			"Can't make sense of expression between parentheses. May be found incorrect grammar procedure, performance control, or misplaced right context...\n");
 		Print(wTrace,Message);
 		goto ERR;
@@ -361,7 +361,7 @@ NOTSCALE:
 				goto ERR;
 				}
 			if((ii=(*(Gram.p_subgram))[igram].type) == SUBtype || ii == SUB1type || ii == POSLONGtype) {
-				sprintf(Message,
+				my_sprintf(Message,
 					"Can't accept rule procedure '_goto', etc., in SUB or SUB1 or POSLONG subgrammar\n");
 				Print(wTrace,Message);
 				goto ERR;
@@ -422,7 +422,7 @@ NOTSCALE:
 			}
 		if(!isdigit(c)) { /*  not a tempo marker */
 			if(arg_nr == 0 || arg_nr > 2) {
-				sprintf(Message,"Slash is followed by \"%c\" which does not make sense\n",c);
+				my_sprintf(Message,"Slash is followed by \"%c\" which does not make sense\n",c);
 				Print(wTrace,Message);
 				goto ERR;
 				}
@@ -436,7 +436,7 @@ NOTSCALE:
 				(*p_x)[l++] = c;
 				if(l >= BOLSIZE) {
 					ShowError(4,igram,irul);
-					sprintf(Message, "Max flag length: %ld chars!\n",(long)BOLSIZE);
+					my_sprintf(Message, "Max flag length: %ld chars!\n",(long)BOLSIZE);
 					Print(wTrace,Message);
 					goto ERR;
 					}
@@ -479,7 +479,7 @@ NOTSCALE:
 							(*p_x)[j++] = d;
 							if(j >= BOLSIZE) {
 								ShowError(4,igram,irul);
-								sprintf(Message,"Max flag length: %ld chars!\n",(long)BOLSIZE);
+								my_sprintf(Message,"Max flag length: %ld chars!\n",(long)BOLSIZE);
 								Print(wTrace,Message);
 								goto ERR;
 								}
@@ -576,7 +576,7 @@ STOREFLAG:
 			l = 0;
 			while((c=(**pp)) != '>') {
 				if(!isdigit(c)) {
-					sprintf(Message,"Expecting integer in synchonization tag '<<Wx>>'\n");
+					my_sprintf(Message,"Expecting integer in synchonization tag '<<Wx>>'\n");
 					Print(wTrace,Message);
 					ShowError(42,igram,irul);
 					goto ERR;
@@ -585,7 +585,7 @@ STOREFLAG:
 				(*pp)++;
 				}
 			if(l > MAXWAIT){
-				sprintf(Message,"Tag '<<W%ld>>' inacceptable.  Not more than %ld tags allowed\n",
+				my_sprintf(Message,"Tag '<<W%ld>>' inacceptable.  Not more than %ld tags allowed\n",
 					(long)l,(long)MAXWAIT);
 				Print(wTrace,Message);
 				ShowError(42,igram,irul);
@@ -606,7 +606,7 @@ STOREFLAG:
 		if(!OkBolChar(c=NextChar(pp))) {
 			(*p_x)[l++] = c;
 			(*p_x)[l] = '\0';
-			sprintf(Message,
+			my_sprintf(Message,
 			"Terminal <<%s...>> starts with incorrect character '%c'\n",(*p_x),c);
 			Print(wTrace,Message);
 			ShowError(27,igram,irul);
@@ -616,7 +616,7 @@ STOREFLAG:
 			(*p_x)[l++] = c;
 			if(!OkBolChar2(c) || c == '-') {
 				(*p_x)[l] = '\0';
-				sprintf(Message,
+				my_sprintf(Message,
 				"Terminal <<%s...>> contains incorrect character '%c'\n",(*p_x),c);
 				Print(wTrace,Message);
 				ShowError(27,igram,irul);
@@ -624,7 +624,7 @@ STOREFLAG:
 				}
 			if(l >= BOLSIZE) {
 				(*p_x)[l] = '\0';
-				sprintf(Message,"Terminal <<%s...>> is too long. Max length: %ld chars.\n",
+				my_sprintf(Message,"Terminal <<%s...>> is too long. Max length: %ld chars.\n",
 					(*p_x),(long)BOLSIZE);
 				Print(wTrace,Message);
 				ShowError(22,igram,irul);
@@ -689,7 +689,7 @@ FOUNDNOTE1:
 		/* It must be an out-time sound-object */
 		if(l >= BOLSIZE) {
 			ShowError(4,igram,irul);
-			sprintf(Message,"Max length: %ld chars!\n",(long)BOLSIZE);
+			my_sprintf(Message,"Max length: %ld chars!\n",(long)BOLSIZE);
 			Print(wTrace,Message);
 			goto ERR;
 			}
@@ -718,7 +718,7 @@ SEARCHCONTEXT:
 		d = (*pp)[1];
 		if((d != '=') && (d != ':')) {		/* Context */
 			if(arg_nr != 1) {
-				sprintf(Message,
+				my_sprintf(Message,
 					"Remote context should only be in left argument of grammar rule. May be misspelled '_goto','_failed','_chan'...\n");
 				Print(wTrace,Message);
 				goto ERR;
@@ -729,7 +729,7 @@ SEARCHCONTEXT:
 			if(leftside) {
 				if(GetContext(igram,irul,pp,pp2,
 					p_pleftcontext,p_meta) == MISSED) {
-					sprintf(Message,
+					my_sprintf(Message,
 						"Error in left context!\n");
 					Print(wTrace,Message);
 					goto ERR;
@@ -740,7 +740,7 @@ SEARCHCONTEXT:
 			else {
 				if(GetContext(igram,irul,
 					pp,pp2,p_prightcontext,p_meta) == MISSED) {
-					sprintf(Message,
+					my_sprintf(Message,
 						"Error in right context!\n");
 					Print(wTrace,Message);
 					goto ERR;
@@ -772,7 +772,7 @@ SEARCHCONTEXT:
 			while(d >= '0' && d <= '9') {
 				n = (10 * n) + d - '0';
 				if(n > MAXMETA) {
-					sprintf(Message,"Maxi %ld wildcards!\n",(long)MAXMETA);
+					my_sprintf(Message,"Maxi %ld wildcards!\n",(long)MAXMETA);
 					Print(wTrace,Message);
 					ShowError(28,igram,irul);
 					
@@ -854,8 +854,8 @@ FOUNDNOTE2:
 		jj += (C4key - 60);
 		if(jj < 0 || jj > 127) {
 			BPPrintMessage(odError,"=> Simple note '%s' is out of range.\n",q);
-			ShowWindow(GetDialogWindow(TuningPtr));
-			SelectWindow(GetDialogWindow(TuningPtr));
+		/*	ShowWindow(GetDialogWindow(TuningPtr));
+			SelectWindow(GetDialogWindow(TuningPtr)); */
 			goto ERR;
 			}
 		(*p_buff)[i++] = (tokenbyte) jj;
@@ -992,7 +992,7 @@ OKCODE:
 		while((c=(**pp)) != '\'') {
 			if(l >= BOLSIZE-4) {
 				(*p_x)[++l] = '\0';
-				sprintf(Message,
+				my_sprintf(Message,
 				"Terminal %s...' is too long. Max length: %ld chars.\n",(*p_x),(long)BOLSIZE);
 				Print(wTrace,Message);
 				ShowError(22,igram,irul);
@@ -1003,7 +1003,7 @@ OKCODE:
 			(*pp)++;
 			if((*pp) > (*pp2)) {
 				(*p_x)[l] = '\0';
-				sprintf(Message,"Missing single quote for terminal %s...\n",(*p_x));
+				my_sprintf(Message,"Missing single quote for terminal %s...\n",(*p_x));
 				Print(wTrace,Message);
 				ShowError(11,igram,irul);
 				
@@ -1036,7 +1036,7 @@ SEARCHVAR:
 
 	if(!OkChar(c) && c != '|') {
 		ShowError(55,igram,irul);
-		sprintf(Message,"Can't accept '%c'\n",c);
+		my_sprintf(Message,"Can't accept '%c'\n",c);
 		Print(wTrace,Message);
 		goto ERR;
 		}
@@ -1085,7 +1085,7 @@ if(p_pi == NULL) return(p_pi); 	// FIXME
 	while(TRUE) {
 		a = (*p_pi)[i]; b = (*p_pi)[i+1];
 		if(a == TEND && b == TEND) break;
-		BPPrintMessage(odInfo,"%d %d\n",a,b);
+		BPPrintMessage(odInfo,"tok = %d %d\n",a,b);
 		i += 2;
 		}
 	} */
@@ -1126,7 +1126,7 @@ for(levpar = 1; (*pp) <= (*ppmax); (*pp)++) {
 	}
 /* printf("levpar=%ld",(long)levpar); Pause(0); */
 if(levpar != 0) {
-	sprintf(Message,"Incorrect bracketting.\n");
+	my_sprintf(Message,"Incorrect bracketting.\n");
 	Print(wTrace,Message);
 	return(MISSED);
 	}
@@ -1138,14 +1138,14 @@ if((p = Encode(FALSE,TRUE,igram,irul,pp1,pp2,&ppx,&ppy,p_meta,0,NULL,FALSE,&resu
 		== NULL) {
 	(*(*p_ppc))->p_arg = NULL;
 	if(result < 0) return(result);
-	sprintf(Message,"Can't encode remote context!");
+	my_sprintf(Message,"Can't encode remote context!");
 	Print(wTrace,Message);
 	if(EmergencyExit) return(ABORT);
 	return(MISSED);
 	}
 (*(*p_ppc))->p_arg = p;
 if((ppx != NULL) || (ppy != NULL)) {
-	sprintf(Message,"Can't have multilayered remote context!");
+	my_sprintf(Message,"Can't have multilayered remote context!");
 	Print(wTrace,Message);
 	return(MISSED);
 	}
@@ -1204,12 +1204,12 @@ if(!isupper(c) && !bracket) {
 	for(i=0,(*pp)=porg; (*pp) <= (*ppmax) && !MySpace(**pp) && i < MAXLIN; (*pp)++,i++)
 					line[i] = **pp;
 	line[i] = '\0'; im = i;
-	sprintf(Message,
+	my_sprintf(Message,
 	"Variable must start with uppercase character or '|'. Can't make sense of \"%s\".",
 		line);
 	Print(wTrace,Message);
 	if(OkBolChar(c)) {
-		sprintf(Message,
+		my_sprintf(Message,
 			" May be unknown terminal symbol, time-pattern or incorrect note convention?");
 		Print(wTrace,Message);
 		}
@@ -1233,7 +1233,7 @@ for(i=0; (*pp) <= (*ppmax)+1; (*pp)++,i++) {
 	c = **pp;
 	if(MaxVar > 0 && i >= MAXLIN) {
 		(*((*p_Var)[Jvar]))[i-1] = '\0';
-		sprintf(Message,"Max %ld chars in variable! Can't accept \"%s...\"",
+		my_sprintf(Message,"Max %ld chars in variable! Can't accept \"%s...\"",
 			(long)MAXLIN-1L,(*((*p_Var)[Jvar])));
 		Print(wTrace,Message);
 		ptr = (*p_Var)[Jvar];
@@ -1266,7 +1266,7 @@ for(i=0; (*pp) <= (*ppmax)+1; (*pp)++,i++) {
 				(*p_Var)[Jvar] = ptr;
 				for(i=0; i < MAXMODE; i++) {
 					if(Mystrcmp((*p_Var)[Jvar],Mode[i]) == 0) {
-						sprintf(Message,"Misplaced '%s': it should be placed immediately after the weight",
+						my_sprintf(Message,"Misplaced '%s': it should be placed immediately after the weight",
 							Mode[i]);
 						Print(wTrace,Message);
 						ptr = (*p_Var)[Jvar];
@@ -1370,10 +1370,10 @@ FindMaster(pp_buff,orgmaster,endmaster,&nbmaster,p_imax);
 if(nbmaster == 0) Print(wTrace,"none\n");
 else
 	for(j=1; j<= nbmaster; j++) {
-		sprintf(Message,"\n<%ld> ",(long)j);
+		my_sprintf(Message,"\n<%ld> ",(long)j);
 		Print(wTrace,Message);
 		for(i=orgmaster[j]; i <= endmaster[j]; i=i+2) {
-			sprintf(Message," %ld.%ld",(long)(**pp_buff)[i],(long)(**pp_buff)[i+1]);
+			my_sprintf(Message," %ld.%ld",(long)(**pp_buff)[i],(long)(**pp_buff)[i+1]);
 			Print(wTrace,Message);
 			}
 		}
@@ -1662,7 +1662,7 @@ static char* err[] = {"",
 "only one flag allowed in left argument",			/* 45 */
 "incorrect time pattern name(s)",						/* 46 */
 "incorrect time value in pattern(s)",					/* 47 */
-"same pattern(s) defined twice",						/* 48 */
+"same time-pattern(s) defined twice",						/* 48 */
 "/flags/ not allowed in SUB or SUB1 or POSLONG subgrammar or glossary",	/* 49 */
 "/flag = .../ assignment or comparison should occur only in argument of rule", /* 50 */
 "/flag/ incrementation or comparison should occur only in left argument of rule",	/* 51 */
@@ -1673,9 +1673,9 @@ static char* err[] = {"",
 	};
 
 if(i < 0) return(TRUE);
-sprintf(Message,"Error code %ld: %s",(long)i,err[i]);
+my_sprintf(Message,"Error code %ld: %s",(long)i,err[i]);
 if(igram != 0) {
-	sprintf(t," in gram#%ld rule %ld\n",(long)igram,(long)irul);
+	my_sprintf(t," in gram#%ld rule %ld\n",(long)igram,(long)irul);
 	}
 else {
 	strcpy(t,"\n");

@@ -26,13 +26,14 @@ gcc -o MIDIinputtest.exe MIDIinputtest.c -lwinmm -D_CRT_SECURE_NO_WARNINGS -Wall
 
 // Switch on your MIDI devices (input + output) and run the "MIDIinputtest" program:
 ./MIDIinputtest (in MacOS)
-MIDIinputtest (in Windows and Linux)
+MIDIinputtest.exe (in Windows)
+MIDIinputtest (in Linux)
 
 If you hear nothing and/or see nothing, make sure that:
-1) Your MIDI devices are switched on and hooked to IAC (on Mac)
+1) Your MIDI devices are switched on (and hooked to IAC on Mac)
 2) The numbers MIDIsource and MIDIoutput at the top of MIDIinputtest.c are the ones displayed at startup when MIDIinputtest is scanning the list of available devices.
 
-Please send back your modified "MIDIinputtest.c" code file to:
+Please send your suggestions or modified "MIDIinputtest.c" files to:
 contact@bolprocessor.org
 
 More information:

@@ -38,16 +38,13 @@
 #endif
 
 #include "-BP2decl.h"
-#include "CTextHandles.h"
 #include "ConsoleMessages.h"
 
 /*	NewTextHandle()
-	
 	Creates and inits a new TEHandle (TERec**)
 	TextHandle is a synonym for TEHandle (defined in -BP2.h)
  */
-TEHandle NewTextHandle(void)
-{
+TEHandle NewTextHandle(void) {
 	TEHandle th;
 	TERec* tp;
 	
@@ -61,7 +58,7 @@ TEHandle NewTextHandle(void)
 	if (tp->hText == NULL) {
 		MyDisposeHandle((Handle*)&th);
 		return NULL;
-	}
+		}
 	else (*tp->hText)[0] = '\0';
 	
 	// initialize other fields
@@ -69,16 +66,15 @@ TEHandle NewTextHandle(void)
 	tp->selEnd = 0;
 	tp->length = 0;
 	
-	return th;
-}
+	return th;	
+	}
 
 /*	CopyStringToTextHandle()
 	
 	Copies str to the internal text buffer of th.
 	Maintains the correct buffer size and other TEHandle fields.
  */
-int CopyStringToTextHandle(TEHandle th, const char* str)
-{
+int CopyStringToTextHandle(TEHandle th, const char* str) {
 	int	res;
 	size_t len;
 	TERec* tp;
@@ -96,9 +92,50 @@ int CopyStringToTextHandle(TEHandle th, const char* str)
 	tp->length = (int32_t) len;
 	if (tp->selStart > tp->length)	tp->selStart = tp->length;
 	if (tp->selEnd > tp->length)	tp->selEnd = tp->length;
-	
 	return OK;
-}
+	}
+
+
+int CopyHandleToTextHandle(TEHandle handle_copy,char** handle_source) {
+	 // Validate pointers
+    if (handle_copy == NULL || *handle_copy == NULL) {
+        BPPrintMessage(odError,"=> CopyHandleToTextHandle error: Source handle is NULL\n");
+        return MISSED; 
+    	}
+    if (handle_source == NULL) {
+        BPPrintMessage(odError,"=> CopyHandleToTextHandle error: Destination handle is NULL\n");
+        return MISSED;
+    	}
+
+    TERec *rec = *handle_copy;
+
+    // Check if the text handle is already allocated or not
+    if (*handle_source != NULL) {
+        BPPrintMessage(odError,"=> CopyHandleToTextHandle error: *handle_source != NULL\n");
+        free(*handle_source); // Prevent memory leaks by freeing existing memory
+   		}
+
+    // Allocate memory for the text in the destination handle
+    *handle_source = malloc((rec->length + 1) * sizeof(char)); // +1 for null terminator
+    if (*handle_source == NULL) {
+        BPPrintMessage(odError,"=> CopyHandleToTextHandle error: Memory allocation failed\n");
+        return MISSED;
+    	}
+
+    // Check if the text buffer in TEHandle is valid
+    if (rec->hText == NULL || *(rec->hText) == NULL) {
+        free(*handle_source);
+        *handle_source = NULL;
+        BPPrintMessage(odError,"=> CopyHandleToTextHandle error: Text buffer in source handle is NULL\n");
+        return MISSED;
+    	}
+
+    // Copy the text from the source to the destination
+	strcpy(*handle_source, (const char *)*(rec->hText));
+
+    return OK; // Success	
+	}
+
 
 
 /* The functions below are skeleton reimplementations and stubs for some
@@ -108,7 +145,7 @@ int CopyStringToTextHandle(TEHandle th, const char* str)
    windows" can be removed in the future! -- akozar, 20130826
  */
 
-Boolean TextIsSelectionEmpty(TextHandle th)
+int TextIsSelectionEmpty(TextHandle th)
 {
 	return (((*th)->selEnd - (*th)->selStart) == ZERO);
 }
@@ -175,7 +212,7 @@ char GetTextChar(int w,long pos)
 		return '\0';
 	}
 	if (pos < 0 || pos > (*TEH[w])->length) {
-		Alert1("=> Err. GetTextChar(). pos out of range");
+		BPPrintMessage(odError,"=> Err. GetTextChar in %s: 'pos' (%ld) is out of range (max %ld)\n",WindowName[w],(long)pos,(long)(*TEH[w])->length);
 		return '\0';
 	}
 	else if (pos == (*TEH[w])->length) {
@@ -203,7 +240,7 @@ int Deactivate(TextHandle th)
 	return OK;
 }
 
-int DoKey(char c,EventModifiers modifiers,TextHandle th)
+/* int DoKey(char c,EventModifiers modifiers,TextHandle th)
 {
 	char cbuffer[2];
 	
@@ -218,7 +255,7 @@ int DoKey(char c,EventModifiers modifiers,TextHandle th)
 		TextInsert(cbuffer, 1L, th);
 	}
 	return OK;
-}
+} */
 
 int TextDelete(int w)
 {

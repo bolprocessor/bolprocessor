@@ -47,7 +47,10 @@ int j,rep;
 
 if(CompiledRegressions) return(OK);
 for(j=0; j < Jinstr; j++) {
-	if((rep=GetRegressions(j)) != OK) return(rep);
+	if((rep=GetRegressions(j)) != OK) {
+		BPPrintMessage(odError,"=> Problem in GetRegressions()\n");
+		return(rep);
+		}
 	}
 CompiledRegressions = YES;
 return(OK);
@@ -275,7 +278,7 @@ if(p_r->islogy && !p_r->islogx) {
 return(y);
 
 DO_OVERFLOW:
-sprintf(Message,
+my_sprintf(Message,
 	"Parameter value '%.2f' is out of range...\nCheck parameter mappings in Csound instrument %ld",
 	xin,(long)(*p_CsInstrumentIndex)[ins]);
 Alert1(Message);
@@ -344,7 +347,7 @@ if(p_r->islogx && !p_r->islogy) {
 return(x);
 
 DO_OVERFLOW:
-sprintf(Message,
+my_sprintf(Message,
 	"Parameter value '%.2f' does not match specified range: check parameter mappings in Csound instrument %ld",
 	yin,(long)(*p_CsInstrumentIndex)[ins]);
 iCsoundInstrument = ins;
@@ -401,7 +404,7 @@ if(result == ABORT) return(result);
 if(subtable.imax <= ZERO) {
 //	if(Beta) Alert1("=> Err. MakeCsoundFunctionTable(). subtable.imax <= ZERO");
 	r = MISSED;
-	goto OUT;
+	goto SORTIR;
 	}
 if(result == OK) {
 	usescorevalues = onoffline;
@@ -423,10 +426,10 @@ if(result == OK) {
 	oldx = 0.;
 	if(usescorevalues) y = CombineScoreValues(y,oldx,xmax,v0,v1,ins,paramnameindex,ip);
 	y = Remap(y,ins,paramnameindex,&overflow);
-	if(overflow) goto OUT;
+	if(overflow) goto SORTIR;
 	FunctionTable++;
 	gentype = GetGENtype(ins,ip,paramnameindex);
-	sprintf(line,"f%ld %.3f %ld -%ld %.3f",(long)FunctionTable,(*scorearg)[2],
+	my_sprintf(line,"f%ld %.3f %ld -%ld %.3f",(long)FunctionTable,(*scorearg)[2],
 		(long)n,(long)gentype,y);
 	newx = sum = 0;
 	oldx = 0.;
@@ -437,7 +440,7 @@ if(result == OK) {
 			newx = MyInt(((*(subtable.point))[i].x - oldx) * iscale);
 		oldx = (*(subtable.point))[i].x;
 		sum += newx;
-		sprintf(line2," %ld",(long)newx);
+		my_sprintf(line2," %ld",(long)newx);
 		strcat(line,line2);
 		y = (*(subtable.point))[i].value;
 		if(i == lasti && trace_write_score) BPPrintMessage(odInfo,"y(1) = %.3f for i = %ld\n",y,(long)i);
@@ -445,9 +448,9 @@ if(result == OK) {
 		if(i == lasti && trace_write_score) BPPrintMessage(odInfo,"y(2) = %.3f for i = %ld\n",y,(long)i);
 		y = Remap(y,ins,paramnameindex,&overflow);
 		if(i == lasti && trace_write_score) BPPrintMessage(odInfo,"y(3) = %.3f for i = %ld\n",y,(long)i);
-		if(overflow) goto OUT;
+		if(overflow) goto SORTIR;
 		if(i == lasti && trace_write_score) BPPrintMessage(odInfo,"y(4) = %.3f for i = %ld\n",y,(long)i);
-		sprintf(line2," %.3f",y);
+		my_sprintf(line2," %.3f",y);
 		strcat(line,line2);
 		}
 	if(CsoundTrace) ShowMessage(TRUE,wMessage,line);
@@ -457,7 +460,7 @@ if(result == OK) {
 	}
 r = OK;
 
-OUT:
+SORTIR:
 h = (Handle) subtable.point;
 MyDisposeHandle(&h);
 return(r);

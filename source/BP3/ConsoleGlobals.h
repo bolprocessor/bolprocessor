@@ -58,7 +58,7 @@ typedef int CLOption;
 typedef struct OutFileInfo {
 	const char	*name;
 	FILE		*fout;
-	Boolean		isOpen;
+	int		isOpen;
 } OutFileInfo;
 
 typedef struct BPConsoleOpts {
@@ -69,10 +69,10 @@ typedef struct BPConsoleOpts {
 	const char	*midiOutDestination;
 	const char	*inputFilenames[WMAX];
 	OutFileInfo	outputFiles[MAXOUTFILES];
-	Boolean		useStdErr;
-	Boolean		useStartString;
-	Boolean		seedProvided;
-	Boolean		outOptsChanged;
+	int		useStdErr;
+	int		useStartString;
+	int		seedProvided;
+	int		outOptsChanged;
 	CLOption	displayItems;
 	CLOption	writeCsoundScore;
 	CLOption	writeMidiFile;

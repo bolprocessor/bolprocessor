@@ -235,7 +235,7 @@ if(j > 0 && j < Jbol) {
 		/* Here we need (*p_DefaultChannel)[1] = 0. */
 		(*p_Instance)[k].channel = (*p_DefaultChannel)[j];
 		if((*p_Instance)[k].channel > MAXCHAN || (*p_Instance)[k].channel < 1) {
-			sprintf(Message,"'%s' has channel %ld.  Should be 1..%ld\n",
+			my_sprintf(Message,"'%s' has channel %ld.  Should be 1..%ld\n",
 				(*((*p_Bol)[j])),(long)(*p_DefaultChannel)[j],(long)MAXCHAN);
 			Print(wTrace,Message);
 			ShowError(32,0,0);
@@ -1243,7 +1243,7 @@ FINDCYCLES:
 		if((ncycles - (int)ncycles) > 0.5) ncycles = ceil(ncycles);
 		else ncycles = floor(ncycles);
 		}
-	goto OUT;
+	goto SORTIR;
 	}
 
 // Now, objects that can be stretched
@@ -1263,7 +1263,7 @@ if((!limit && !(*p_OkExpand)[j] && *p_dilationratio > 1.)
 	goto FINDCYCLES;
 	}
 
-OUT:
+SORTIR:
 if((*p_Dur)[j] > EPSILON) {
 	*p_alpha = *p_dilationratio * (beforeperiod + (ncycles * objectperiod)) / (*p_Dur)[j];
 	*p_ncycles = (int) ncycles;
@@ -1372,6 +1372,7 @@ if((*p_contparameters)[level].values == NULL) {
 (*((*p_contparameters)[level].values))[index].v0
 	= (*((*p_contparameters)[level].values))[index].start
 	= value;
+// BPPrintMessage(odInfo,"active = TRUE for index = %d\n",index);
 (*((*p_contparameters)[level].values))[index].active = TRUE;
 (*((*p_contparameters)[level].values))[index].known = TRUE;
 
@@ -1475,10 +1476,10 @@ if(m == T15 || paramnameindex == IPITCHBEND) { // Fixed "chan > 0" by BB 2021-02
 //	BPPrintMessage(odInfo,"Pitchbend x = %ld, xx = %ld, range = %ld\n",(long)x,(long)xx,(long)PitchbendRange[chan]);
 	if(x < 0 || x > 16383) {
 		if(PitchbendRange[chan] > 0)
-			sprintf(Message,"=> Pitchbend value (%ld cents) on channel %ld out of range (-%ld..%ld cents)",
+			my_sprintf(Message,"=> Pitchbend value (%ld cents) on channel %ld out of range (-%ld..%ld cents)",
 				(long)xx,(long)chan,(long)PitchbendRange[chan],(long)PitchbendRange[chan]);
 		else
-			sprintf(Message,"=> Pitchbend value (%ld) on channel %ld out of range (0..16383)",
+			my_sprintf(Message,"=> Pitchbend value (%ld) on channel %ld out of range (0..16383)",
 				(long)xx,(long)chan);
 		Alert1(Message);
 		return(Infpos);
@@ -1508,9 +1509,9 @@ if(m_org != T3 && m_org != T25 && m_org != T9) {
 	}
 
 if((p_duration_of_field = (double**) GiveSpace((Size)(Maxlevel+1)*sizeof(double))) == NULL)
-	goto OUT;
+	goto SORTIR;
 if((p_duration_org = (double**) GiveSpace((Size)(Maxlevel+1)*sizeof(double))) == NULL)
-	goto OUT;
+	goto SORTIR;
 for(level = 0; level <= Maxlevel; level++) {
 	(*p_duration_of_field)[level] = (*p_duration_org)[level] = 0.;
 	}
@@ -1518,7 +1519,7 @@ for(level = 0; level <= Maxlevel; level++) {
 if(orgspeed == 0.) {
 	if(Beta) BPPrintMessage(odError,"=> Err. GetSymbolicDuration(). orgspeed == ZERO");
 	objectduration = 0.;
-	goto OUT;
+	goto SORTIR;
 	}
 tempomax = Prod / Kpress;
 scaling = orgscaling;
@@ -1568,7 +1569,7 @@ for(i=i; ; i+=2) {
 	if(!ignoreconcat && i == id) {
 		if(m != m_org || p != p_org || (*p_buff)[i+2] != T0 || (*p_buff)[i+3] != 18 || channel != channel_org || instrument != instrument_org) {
 			if(trace_get_duration) BPPrintMessage(odInfo,"\n=> Error: %ld|%ld channel %d instrument %d does not match the call %ld|%ld channel %d instrument %d\n",(long)m,(long)p,channel,instrument,(long)m_org,(long)p_org,channel_org,instrument_org);
-			goto OUT;
+			goto SORTIR;
 			}
 		else {
 			tick_start = (*p_duration_of_field)[level];
@@ -1643,14 +1644,14 @@ for(i=i; ; i+=2) {
 				break;
 			case 12:	// '{'
 			case 22:
-				if(ignoreconcat) goto OUT;
+				if(ignoreconcat) goto SORTIR;
 				(*p_duration_org)[level+1] = (*p_duration_of_field)[level+1] = (*p_duration_of_field)[level];
 				level++;
 				if(trace_get_duration) BPPrintMessage(odInfo,"{(%ld) ",(long)(*p_duration_of_field)[level]);
 				break;
 			case 13:	// '}'
 			case 23:
-				if(ignoreconcat) goto OUT;
+				if(ignoreconcat) goto SORTIR;
 				level--;
 				(*p_duration_of_field)[level] = (*p_duration_of_field)[level+1];
 				if(trace_get_duration) BPPrintMessage(odInfo,"}(%ld) ",(long)(*p_duration_of_field)[level]);
@@ -1671,7 +1672,7 @@ for(i=i; ; i+=2) {
 					if(trace_get_duration)
 						BPPrintMessage(odInfo,"\nFound '&' following terminal\n");
 					if(!tie_is_open && !justfinishedconcatenation) {
-						goto OUT;
+						goto SORTIR;
 						}
 					if(trace_get_duration)
 						BPPrintMessage(odInfo,"• Starting tie: %ld|%ld location %.2f\n",(long)old_m,(long)old_p,tick_start);
@@ -1698,7 +1699,7 @@ for(i=i; ; i+=2) {
 		}
 	if(ignoreconcat) {
 		tick_start = 0.; tick_end = prodtempo;
-		goto OUT;
+		goto SORTIR;
 		}
 	justfinishedconcatenation = FALSE;
 	old_m = m; old_p = p;
@@ -1730,7 +1731,7 @@ for(i=i; ; i+=2) {
 		}
 	}
 
-OUT:
+SORTIR:
 
 if(trace_get_duration)
 	BPPrintMessage(odInfo,"\nDuration of expression = %.2f\n",(*p_duration_of_field)[level]);

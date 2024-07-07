@@ -122,11 +122,11 @@ int trace_polymake = 0;
 			}
 		while(level >= 0);
 		maxlevel++;	/* A pair of brackets {} may have been created around a sound-object at the deepest level */
-	//	if(trace_polymake) HideWindow(Window[wMessage]);
+	//	if(trace_polymake) // HideWindow(Window[wMessage]);
 		}
 
 	if(Beta && NeedZouleb > 0) {
-		sprintf(Message,"NeedZouleb = %ld in polymetric expression",(long)NeedZouleb);
+		my_sprintf(Message,"NeedZouleb = %ld in polymetric expression",(long)NeedZouleb);
 		Println(wTrace,Message);
 		}
 
@@ -688,7 +688,7 @@ int trace_polymake = 0;
 		//	newquantize = 20L; // $$$
 			
 	CHANGEQUANTIZE:
-		//	sprintf(Message,"%ld",(long)newquantize);
+		//	my_sprintf(Message,"%ld",(long)newquantize);
 		//	rep = AnswerWith("Setting quantization to...",Message,Message);
 		//	BPPrintMessage(odError,"Setting quantization to %ld ms\n",(long) newquantize);
 			
@@ -812,7 +812,7 @@ long level;
 unsigned long i,j,jmax,gcd,g,h,lastbyte,oldpos,ic,id,**p_maxic,useless,ptempo,qtempo;
 
 if(trace_polymake) {
-	sprintf(Message,"Expanding polymetric expression [position %lu]...",(*p_pos));
+	my_sprintf(Message,"Expanding polymetric expression [position %lu]...",(*p_pos));
 	ShowMessage(TRUE,wMessage,Message);
 	}
 result = ABORT; compiledmem = CompiledGr;
@@ -860,31 +860,31 @@ for(a = 0; a < k; a++) {
 	if(ptr == NULL) return(ABORT);
 	(*pp_c)[a] = ptr;
 	}
-if((p_e = (tokenbyte**) GiveSpace((Size) FIELDSIZE * sizeof(tokenbyte))) == NULL) goto OUT;
+if((p_e = (tokenbyte**) GiveSpace((Size) FIELDSIZE * sizeof(tokenbyte))) == NULL) goto SORTIR;
 jmax = FIELDSIZE - 16L;
 
 if((ptr_fixtempo = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) 
-	goto OUT;
+	goto SORTIR;
 if((p_vargap = (int**) GiveSpace((Size)sizeof(int) * k)) == NULL) 
-	goto OUT;
+	goto SORTIR;
 if((p_firstistempo = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) 
-	goto OUT;
+	goto SORTIR;
 if((p_empty = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) 
-	goto OUT;
+	goto SORTIR;
 if((p_useful = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) 
-	goto OUT;
+	goto SORTIR;
 if((p_p = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
-	goto OUT;
+	goto SORTIR;
 if((p_q = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
-	goto OUT;
+	goto SORTIR;
 if((p_pp = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
-	goto OUT;
+	goto SORTIR;
 if((p_r = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
-	goto OUT;
+	goto SORTIR;
 if((p_pgap = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
-	goto OUT;
+	goto SORTIR;
 if((p_qgap = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
-	goto OUT;
+	goto SORTIR;
 	
 (*p_pgap)[0] = 0.; (*p_qgap)[0]= 1.;
 oldpos = (*p_pos);
@@ -892,7 +892,7 @@ restart = FALSE;
 if(period && comma) {
 	BPPrintMessage(odError,"=> Error in polymetric expression.\nThe same expression contains both a bullet and a comma...\n");
 	result = ABORT;
-	goto OUT;
+	goto SORTIR;
 	}
 
 START:
@@ -916,7 +916,7 @@ prevscale = scaling = oldscaling;
 prevspeed = speed = oldspeed;
 if(speed > TokenLimit || (1./speed) > TokenLimit) {
 	BPPrintMessage(odError,"=> Unexpected overflow in polymetric formula (case 14). You may send this item to the designers...\n");
-	result = ABORT; goto OUT;
+	result = ABORT; goto SORTIR;
 	}
 
 just_fill_gap = FALSE;
@@ -936,46 +936,46 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i += 2L) {
 		compiledmem = CompiledGr;
 		if(result == OK)
 			while((result = MainEvent()) != RESUME && result != STOP && result != EXIT);
-		if(result == EXIT) goto OUT;
+		if(result == EXIT) goto SORTIR;
 		if(Nw >= 0 && Editable[Nw]) {
 			lastbyte =  GetTextLength(Nw);
 			SetSelect(lastbyte,lastbyte,TEH[Nw]);
 			}
 		if(Dirty[wAlphabet]) {
 			Alert1("Alphabet changed. Must recompile...");
-			result = ABORT; goto OUT;
+			result = ABORT; goto SORTIR;
 			}
 		Dirty[wAlphabet] = dirtymem;
 		if(result == STOP || (compiledmem && !CompiledGr)) {
-			result = ABORT; goto OUT;
+			result = ABORT; goto SORTIR;
 			}
 		if(LoadedIn && (!CompiledIn && (result=CompileInteraction()) != OK))
-			goto OUT;
+			goto SORTIR;
 		if(rtMIDI && Dirty[wTimeAccuracy]) {
 			
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
 			result = ResetMIDI(FALSE);
-			if(result == ABORT || result == EXIT) goto OUT;
-			if((result=CheckSettings()) == ABORT) goto OUT;
+			if(result == ABORT || result == EXIT) goto SORTIR;
+			if((result=CheckSettings()) == ABORT) goto SORTIR;
 			else {
 				Dirty[wTimeAccuracy] = FALSE; result = AGAIN;
 				}
 #endif
-			goto OUT;
+			goto SORTIR;
 			}
 		}
 	result = OK;
 	if(EventState != NO) {
-		result = EventState; goto OUT;
+		result = EventState; goto SORTIR;
 		}
 	if(Panic) {
-		result = ABORT; goto OUT;
+		result = ABORT; goto SORTIR;
 		} */
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
 	p = (*p_b)[i+1];
 	if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-		result = ABORT; goto OUT;
+		result = ABORT; goto SORTIR;
 		}
  	if(m == T0 && p == 21) {  /* '*' scaling up */
  		scaling = 0.;
@@ -1062,7 +1062,7 @@ FIXTEMP:
 			speedbeforegap = speed;
 			if(g > 1000.) {
 				if(MakeRatio(1000.,(((double)g) / ((double)h)),&x,&y) != OK) {
-					result = ABORT; goto OUT;
+					result = ABORT; goto SORTIR;
 					}
 				g = (unsigned long) x;
 				h = (unsigned long) y;
@@ -1088,7 +1088,7 @@ FIXTEMP:
 		if(isequal == ABORT) {
 			if(Beta) {
 				BPPrintMessage(odError,"=> Err. PolyExpand(). isequal == ABORT\n");
-				result = ABORT; goto OUT;
+				result = ABORT; goto SORTIR;
 				}
 			isequal = FALSE;
 			}
@@ -1114,7 +1114,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./scaling) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 				}
 			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-				result = ABORT; goto OUT;
+				result = ABORT; goto SORTIR;
 				}
 			if(speed >= 1.) {
 				y = modf((speed / (double)TOKBASE),&x);
@@ -1135,7 +1135,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./speed) - (((tokenbyte) x) * TOKBASE);  /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 				}
 			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-				result = ABORT; goto OUT;
+				result = ABORT; goto SORTIR;
 				}
 			}
 		h = ZERO;
@@ -1146,7 +1146,7 @@ FIXTEMP:
 		if(g > ZERO) {
 			if(Add((*p_p)[a],(*p_q)[a],(double) g * scaling,speed,&xp,&xq,
 					&overflow) != OK) {
-				result = ABORT; goto OUT;
+				result = ABORT; goto SORTIR;
 				}
 			if(overflow) TellComplex();
 			
@@ -1167,7 +1167,7 @@ FIXTEMP:
 			g--;
 			while(g > ZERO) {
 				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-					result = ABORT; goto OUT;
+					result = ABORT; goto SORTIR;
 					}
 				(*((*pp_c)[a]))[ic++] = T3;
 				(*((*pp_c)[a]))[ic++] = 0;	/* '_' */
@@ -1181,7 +1181,7 @@ FIXTEMP:
 			if(isequal == ABORT) {
 				if(Beta) {
 					BPPrintMessage(odError,"=> Err. PolyExpand(). isequal == ABORT\n");
-					result = ABORT; goto OUT;
+					result = ABORT; goto SORTIR;
 					}
 				isequal = FALSE;
 				}
@@ -1209,7 +1209,7 @@ FIXTEMP:
 					(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./scaling) - (((tokenbyte) x) * TOKBASE);  /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 					}
 				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-					result = ABORT; goto OUT;
+					result = ABORT; goto SORTIR;
 					}
 				if(speed >= 1.) {
 					y = modf((speed / (double)TOKBASE),&x);
@@ -1230,7 +1230,7 @@ FIXTEMP:
 					(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./speed) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 					}
 				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-					result = ABORT; goto OUT;
+					result = ABORT; goto SORTIR;
 					}
 				}
 			}
@@ -1273,7 +1273,7 @@ FIXTEMP:
 		if(isequal == ABORT) {
 			if(Beta) {
 				Alert1("=> Err. PolyExpand(). isequal == ABORT");
-				result = ABORT; goto OUT;
+				result = ABORT; goto SORTIR;
 				}
 			isequal = FALSE;
 			}
@@ -1299,7 +1299,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./scaling) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 				}
 			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-				result = ABORT; goto OUT;
+				result = ABORT; goto SORTIR;
 				}
 			if(speed >= 1.) {
 				y = modf((speed / (double)TOKBASE),&x);
@@ -1320,7 +1320,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./speed) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 				}
 			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-				result = ABORT; goto OUT;
+				result = ABORT; goto SORTIR;
 				}
 			}
 		continue;
@@ -1334,7 +1334,7 @@ FIXTEMP:
 			xq = (*p_qgap)[a] * (scaling);
 			if(xp > ULONG_MAX || xq > ULONG_MAX)  {
 				if(MakeRatio(ULONG_MAX,(xq/xp),&xq,&xp) != OK) {
-					result = ABORT; goto OUT;
+					result = ABORT; goto SORTIR;
 					}
 				TellComplex();
 				}
@@ -1362,7 +1362,7 @@ FIXTEMP:
 		
 		if(r != OK && r != SINGLE && r != EMPTY && r != IMBEDDED) {
 			result = r;
-			goto OUT;
+			goto SORTIR;
 			}
 		
 		if(r != EMPTY) {
@@ -1379,10 +1379,10 @@ FIXTEMP:
 			for(j=ZERO; (*p_e)[j] != TEND || (*p_e)[j+1] != TEND; j += 2L) {
 				if(j > jmax) {
 					if(Beta) Alert1("=> Err. PolyExpand() j > jmax");
-					result = ABORT; goto OUT;
+					result = ABORT; goto SORTIR;
 					}
 				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-					result = ABORT; goto OUT;
+					result = ABORT; goto SORTIR;
 					}
 				m = (*p_e)[j];
 				p = (*p_e)[j+1];
@@ -1418,7 +1418,7 @@ FIXTEMP:
 				}
 			prevscale = scaling;
 			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-				result = ABORT; goto OUT;
+				result = ABORT; goto SORTIR;
 				}
 			if(speed >= 1.) {
 				(*((*pp_c)[a]))[ic++] = T0;
@@ -1440,7 +1440,7 @@ FIXTEMP:
 				}
 			prevspeed = speed;
 			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-				result = ABORT; goto OUT;
+				result = ABORT; goto SORTIR;
 				}
 			}
 		continue;
@@ -1450,7 +1450,7 @@ FIXTEMP:
 		(*((*pp_c)[a]))[ic++] = TEND;
 		(*((*pp_c)[a]))[ic++] = TEND;
 		if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-			result = ABORT; goto OUT;
+			result = ABORT; goto SORTIR;
 			}
 		(*p_pos) = i;
 		if(foundtokens) imbedded = FALSE;
@@ -1461,13 +1461,13 @@ FIXTEMP:
 		(*((*pp_c)[a]))[ic++] = TEND;
 		(*((*pp_c)[a]))[ic++] = TEND;
 		if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-			result = ABORT; goto OUT;
+			result = ABORT; goto SORTIR;
 			}
 		foundtokens = TRUE;
 		
 		a++;	/* Next field */
 		if(a >= k) {
-			sprintf(Message,"=> Err in PolyExpand() k = %ld",(long)k);
+			my_sprintf(Message,"=> Err in PolyExpand() k = %ld",(long)k);
 			if(Beta) Alert1(Message);
 			break;
 			}
@@ -1507,7 +1507,7 @@ FIXTEMP:
 			(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./scaling) - (((tokenbyte) x) * TOKBASE);
 			}
 		if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-			result = ABORT; goto OUT;
+			result = ABORT; goto SORTIR;
 			}
 		if(speed >= 1.) {
 			(*((*pp_c)[a]))[ic++] = T0;
@@ -1528,7 +1528,7 @@ FIXTEMP:
 			(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./speed) - (((tokenbyte) x) * TOKBASE);
 			}
 		if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-			result = ABORT; goto OUT;
+			result = ABORT; goto SORTIR;
 			}
 		continue;
 		}
@@ -1546,7 +1546,7 @@ FIXTEMP:
 		firstistempo = FALSE;
 		if(m == T3 || m == T9 || m == T25) {
 			if(Add((*p_p)[a],(*p_q)[a],scaling,speed,&xp,&xq,&overflow) != OK){
-				result = ABORT; goto OUT;
+				result = ABORT; goto SORTIR;
 				}
 			if(overflow) TellComplex();
 			if(trace_polymake) BPPrintMessage(odInfo,"MaxFrac = %.0f, m = %d p = %d, xp = %.0f xq = %.0f\n",MaxFrac,m,p,xp,xq);
@@ -1562,7 +1562,7 @@ FIXTEMP:
 		(*((*pp_c)[a]))[ic++] = (tokenbyte) m;
 		(*((*pp_c)[a]))[ic++] = (tokenbyte) p;
 		if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-			result = ABORT; goto OUT;
+			result = ABORT; goto SORTIR;
 			}
 		(*p_empty)[a] = FALSE;
 		}
@@ -1571,17 +1571,17 @@ FIXTEMP:
 		/*	if(ShowMessages && (m != T4 || MaxVar > 0) && (ShowGraphic || !Improvize)) {
 				switch(m) {  // Suppressed 2024-06-19
 					case T4:
-						sprintf(Message,
+						my_sprintf(Message,
 							"Variable '%s' found and ignored (field level %ld)",*((*p_Var)[p]),
 								(long)a);
 						break;
 					case T6:
-						sprintf(Message,
+						my_sprintf(Message,
 							"Unreplaced wild card '?%ld' found and ignored (field level %ld)",
 								(long)p,(long)a);
 						break;
 					case T0:
-						sprintf(Message,
+						my_sprintf(Message,
 							"Unreplaced wild card '?' found and ignored (field level %ld)",
 								(long)a);
 						break;
@@ -1598,7 +1598,7 @@ FIXTEMP:
 				(*p_empty)[a] = FALSE;
 				foundtokens = TRUE;
 				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-					result = ABORT; goto OUT;
+					result = ABORT; goto SORTIR;
 					}
 				}
 			}
@@ -1607,12 +1607,12 @@ FIXTEMP:
 (*((*pp_c)[a]))[ic++] = TEND;
 (*((*pp_c)[a]))[ic++] = TEND;
 if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-	result = ABORT; goto OUT;
+	result = ABORT; goto SORTIR;
 	}
 
 END:
 if((a+1) != k) {
-	sprintf(Message,"=> Err. PolyExpand(). a+1=%ld k=%ld",
+	my_sprintf(Message,"=> Err. PolyExpand(). a+1=%ld k=%ld",
 		(long)(a+1L),(long)k);
 	if(Beta) Alert1(Message);
 	}
@@ -1647,7 +1647,7 @@ for(a=kk=0; a < k; a++) {
 	if(!toobigitem) {
 		if((L=LCM(L,(*p_p)[a],&overflow)) < 1.) {
 			Println(wTrace,"Unexpected overflow in polymetric formula (case 1). You may send this item to the designers...");
-			result = MISSED; goto OUT;
+			result = MISSED; goto SORTIR;
 			}
 		if(overflow) {
 			TellComplex();
@@ -1659,15 +1659,15 @@ for(a=kk=0; a < k; a++) {
 		if(overflow) TellComplex();
 		if(isequal == ABORT) {
 			Println(wTrace,"Unexpected overflow in polymetric formula (case 5). You may send this item to the designers...");
-			result = MISSED; goto OUT;
+			result = MISSED; goto SORTIR;
 			}
 		if(fixlength && (isequal != TRUE)) {
-			if(comma) sprintf(Message,"Conflicting field duration (field %ld)...\n",
+			if(comma) my_sprintf(Message,"Conflicting field duration (field %ld)...\n",
 				(long)(a+1L));
-			else sprintf(Message,"Conflicting beat duration (beat %ld)...\n",
+			else my_sprintf(Message,"Conflicting beat duration (beat %ld)...\n",
 				(long)(a+1L));
 			Print(wTrace,Message);
-			result = MISSED; goto OUT;
+			result = MISSED; goto SORTIR;
 			}
 		fixlength = TRUE;
 		pmax = (*p_p)[a];
@@ -1685,7 +1685,7 @@ if(a0 == -1) {
 if(result == EMPTY) {
 	(**pp_a)[0] = TEND;
 	(**pp_a)[1] = TEND;
-	goto OUT;
+	goto SORTIR;
 	}
 	
 for(a=0; a < k; a++) {	/* Calculate undetermined rests */
@@ -1696,13 +1696,13 @@ for(a=0; a < k; a++) {	/* Calculate undetermined rests */
 		if(sign < 0 || xp < 1.) {
 			if((*ptr_fixtempo)[a0]) {
 				if(comma)
-					sprintf(Message,"Not enough time for undetermined rest (field %ld)\n",
+					my_sprintf(Message,"Not enough time for undetermined rest (field %ld)\n",
 						(long)(a+1L));
 				else
-					sprintf(Message,"Not enough time for undetermined rest (beat %ld)\n",
+					my_sprintf(Message,"Not enough time for undetermined rest (beat %ld)\n",
 						(long)(a+1L));
 				Print(wTrace,Message);
-				result = MISSED; goto OUT;
+				result = MISSED; goto SORTIR;
 				}
 			else {
 				gcd = GCD((*p_p)[a],(double)(*p_vargap)[a]);
@@ -1711,7 +1711,7 @@ for(a=0; a < k; a++) {	/* Calculate undetermined rests */
 				(*p_q)[a] = (*p_q)[a] * ((*p_vargap)[a] / gcd);
 				if((lcm=LCM(qmax,(*p_q)[a],&overflow)) < 1.) {
 					Println(wTrace,"Unexpected overflow in polymetric formula (case 2). You may send this item to the designers...");
-					result = ABORT; goto OUT;
+					result = ABORT; goto SORTIR;
 					}
 				if(overflow) TellComplex();
 				
@@ -1741,7 +1741,7 @@ if(restart) goto START;		/* Now rests are known */
 if(comma) {
 	if(Add((*p_P),(*p_Q),pmax,qmax,&xp,&xq,&overflow) != OK) {
 		Println(wTrace,"Unexpected overflow in polymetric formula (case 7). You may send this item to the designers...");
-		result = ABORT; goto OUT;
+		result = ABORT; goto SORTIR;
 		}
 	if(overflow) TellComplex();
 	if(xp > MaxFrac || xq > MaxFrac) {
@@ -1756,7 +1756,7 @@ else {
 	if(Add((*p_P),(*p_Q),((double) kk * pmax),qmax,&xp,&xq,&overflow)
 			!= OK) {
 		Println(wTrace,"Unexpected overflow in polymetric formula (case 8). You may send this item to the designers...");
-		result = ABORT; goto OUT;
+		result = ABORT; goto SORTIR;
 		}
 	if(overflow) TellComplex();
 	if(xp > MaxFrac || xq > MaxFrac) {
@@ -1777,7 +1777,7 @@ if(!toobigitem) {
 		if((M = LCM(M,(*p_q)[a] * (*p_pp)[a],&overflow)) < 1.) {
 			Println(wTrace,"Unexpected overflow in polymetric formula (case 10). You may send this item to the designers...");
 			result = ABORT;
-			goto OUT;
+			goto SORTIR;
 			}
 		if(overflow) {
 			TellComplex();
@@ -1820,7 +1820,7 @@ for(a=0; a < k; a++) {
 	if(comma && a > a1) {
 		(**pp_a)[id++] = T0;
 		(**pp_a)[id++] = 14; /* ',' */
-		if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto OUT;
+		if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
 		}
 	scaling = rescale * oldscaling;
 	speed = oldspeed * (*p_r)[a];
@@ -1849,7 +1849,7 @@ for(a=0; a < k; a++) {
 			(**pp_a)[id++] = T1;
 			(**pp_a)[id++] = (tokenbyte)  (1./scaling) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 			}
-		if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto OUT;
+		if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
 		if(speed >= 1.) {
 			y = modf((speed / (double)TOKBASE),&x);
 			(**pp_a)[id++] = T0;
@@ -1868,7 +1868,7 @@ for(a=0; a < k; a++) {
 			(**pp_a)[id++] = T1;
 			(**pp_a)[id++] = (tokenbyte)  (1./speed) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 			}
-		if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto OUT;
+		if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
 		}
 	
 	prevscale = scaling;
@@ -1876,7 +1876,7 @@ for(a=0; a < k; a++) {
 	space = forceshowtempo = FALSE;
 	
 	for(ic=ZERO; ; ic+=2L) {
-		if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto OUT;
+		if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
 		m = (*((*pp_c)[a]))[ic];
 		p = (*((*pp_c)[a]))[ic+1];
 		if(m == T3 && p == 1) {
@@ -1944,7 +1944,7 @@ for(a=0; a < k; a++) {
 					if(isequal == ABORT) {
 						if(Beta) {
 							Alert1("=> Err. PolyExpand(). isequal == ABORT");
-							result = ABORT; goto OUT;
+							result = ABORT; goto SORTIR;
 							}
 						isequal = FALSE;
 						}
@@ -1970,7 +1970,7 @@ for(a=0; a < k; a++) {
 							(**pp_a)[id++] = T1;
 							(**pp_a)[id++] = (tokenbyte)  (1. / xq) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 							}
-						if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto OUT;
+						if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
 						if(xp >= 1.) {
 							y = modf((xp / (double)TOKBASE),&x);
 							(**pp_a)[id++] = T0;
@@ -1989,7 +1989,7 @@ for(a=0; a < k; a++) {
 							(**pp_a)[id++] = T1;
 							(**pp_a)[id++] = (tokenbyte)  (1./xp) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 							}
-						if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto OUT;
+						if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
 						}
 					ic += 4L;
 					break;
@@ -1999,14 +1999,14 @@ for(a=0; a < k; a++) {
 COPYIT:
 			(**pp_a)[id++] = (tokenbyte) m;
 			(**pp_a)[id++] = (tokenbyte) p;
-			if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto OUT;
+			if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
 			}
 		}
 	kmax++;
 	}
 
 (**pp_a)[id++] = TEND; (**pp_a)[id++] = TEND;
-if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto OUT;
+if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
 
 if(Beta && level != ZERO) {
 	Alert1("=> Err. PolyExpand(). level != ZERO (end)");
@@ -2015,7 +2015,7 @@ if(Beta && level != ZERO) {
 result = OK;
 if(kmax == 1) result = SINGLE; /* Indicates that structure had one single field */
 
-OUT:
+SORTIR:
 
 MyDisposeHandle((Handle*)&ptr_fixtempo); MyDisposeHandle((Handle*)&p_vargap);
 MyDisposeHandle((Handle*)&p_empty); MyDisposeHandle((Handle*)&p_useful);

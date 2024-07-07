@@ -33,7 +33,6 @@
 */
 
 #include <stdarg.h>
-#include <stdio.h>
 
 #ifndef _H_BP2
 #include "-BP2.h"
@@ -63,8 +62,7 @@ static FILE*	gOutDestinations[MAXOUTDEST] =
 
 static bp_message_callback_t	gMessageCallback = NULL;
 
-void ConsoleMessagesInit()
-{
+void ConsoleMessagesInit() {
     gOutDestinations[odiDisplay] = stdout;
     gOutDestinations[odiMidiDump] = stdout;
     gOutDestinations[odiCsScore] = stdout;
@@ -73,10 +71,9 @@ void ConsoleMessagesInit()
     gOutDestinations[odiWarning] = stdout;
     gOutDestinations[odiError] = stdout;
     gOutDestinations[odiUserInt] = stdout;
-}
+    }
 
-void SetOutputDestinations(int dest, FILE* file)
-{
+void SetOutputDestinations(int dest, FILE* file) {
 	// set each destination in 'dest' to 'file'
 	if (dest & odDisplay)	gOutDestinations[odiDisplay] = file;
 	if (dest & odMidiDump)	gOutDestinations[odiMidiDump] = file;
@@ -86,41 +83,69 @@ void SetOutputDestinations(int dest, FILE* file)
 	if (dest & odError)		gOutDestinations[odiError] = file;
 	if (dest & odWarning)	gOutDestinations[odiWarning] = file;
 	if (dest & odInfo)		gOutDestinations[odiInfo] = file;
-}
+    }
 
 
 /* Functions for displaying messages and writing output in the console build */
 
-int BPPrintMessage(int dest, const char *format, ...)
-{
+int BPPrintMessage(int dest, const char *format, ...) {
 	va_list	args;
-	
-	va_start(args, format);
-	
-	// send message to gMessageCallback if it was set
-	if (gMessageCallback != NULL)  gMessageCallback(NULL, dest, format, args);
-	
-	// This will all probably be revised later, but for now
-	// send message to only one destination from each group below.
-	
-	// output of item processing
-	if (dest & odDisplay) vfprintf(gOutDestinations[odiDisplay], format, args);
-	else if (dest & odMidiDump)	vfprintf(gOutDestinations[odiMidiDump], format, args);
-	else if (dest & odCsScore)	vfprintf(gOutDestinations[odiCsScore], format, args);
-	
-	// print trace
-	if (dest & odTrace)	vfprintf(gOutDestinations[odiTrace], format, args);
-	
-	// messages or questions for user (give priority to odUserInt, then odError)
-	if (dest & odUserInt)		vfprintf(gOutDestinations[odiUserInt], format, args);
-	else if (dest & odError)	vfprintf(gOutDestinations[odiError], format, args);
-	else if ((dest & odWarning) && !PlayAllChunks && (!Improvize || ItemNumber < 1))	vfprintf(gOutDestinations[odiWarning], format, args);
-	else if ((dest & odInfo) && !PlayAllChunks && (!Improvize || ItemNumber < 1))		vfprintf(gOutDestinations[odiInfo], format, args); 
+
+
+    // Handle callback if set
+    if (gMessageCallback != NULL) {
+        va_start(args, format);
+        gMessageCallback(NULL, dest, format, args);
+        va_end(args);
+    }
+
+    // Handle standard destinations
+    if (dest & odDisplay) {
+        va_start(args, format);
+        vfprintf(gOutDestinations[odiDisplay], format, args);
+        va_end(args);
+    }
+    if (dest & odMidiDump) {
+        va_start(args, format);
+        vfprintf(gOutDestinations[odiMidiDump], format, args);
+        va_end(args);
+    }
+    if (dest & odCsScore) {
+        va_start(args, format);
+        vfprintf(gOutDestinations[odiCsScore], format, args);
+        va_end(args);
+    }
+    if (dest & odTrace) {
+        va_start(args, format);
+        vfprintf(gOutDestinations[odiTrace], format, args);
+        va_end(args);
+    }
+    if (dest & odUserInt) {
+        va_start(args, format);
+        vfprintf(gOutDestinations[odiUserInt], format, args);
+        va_end(args);
+    }
+    if (dest & odError) {
+        va_start(args, format);
+        vfprintf(gOutDestinations[odiError], format, args);
+        va_end(args);
+    }
+    if (dest & odWarning && !PlayAllChunks && (!Improvize || ItemNumber < 1)) {
+        va_start(args, format);
+        vfprintf(gOutDestinations[odiWarning], format, args);
+        va_end(args);
+    }
+    if (dest & odInfo && !PlayAllChunks && (!Improvize || ItemNumber < 1)) {
+        va_start(args, format);
+        vfprintf(gOutDestinations[odiInfo], format, args);
+        va_end(args);
+    }
+
+
 //	else if ((dest & odInfo) && (!Improvize || ItemNumber < 1))		vfprintf(gOutDestinations[odiInfo], format, args); 
 //	else if ((dest & odInfo) && !PlayAllChunks)		vfprintf(gOutDestinations[odiInfo], format, args);  2024-05-02
-	va_end(args);
 	return OK;
-}
+    }
 
 int BPSetMessageCallback(bp_message_callback_t func)
 {
@@ -175,7 +200,7 @@ int Answer(char *what, char c)
 		if (c == 'Y') reply = YES;
 		else reply = NO;
 		if (strlen(what) < MAXLIN - 5) 
-			sprintf(line,"%s ? %c", what, c);
+			my_sprintf(line,"%s ? %c", what, c);
 		else fprintf(stderr, "=> Err. Answer(): 'what' is too long: %s\n", what);
 		if (ScriptExecOn) {
 			if (wTrace != OutputWindow) PrintBehind(wTrace,line);

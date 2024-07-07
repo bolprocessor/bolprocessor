@@ -5,9 +5,9 @@ BIGTEST in -BP2.h   If set, displays memory leakage.
 
 -------  Encoding tokens ------
 
-T0,T1,T2... are constants of (tokenbyte) type.
+T0,T1,T2... are constants of (tokenbyte) type, i.e. integers.
 
-TEND TEND  End of argument (TEND = -1)
+TEND TEND  End of argument (with TEND = -1)
 
 T0 1 ? wildcard
 T0 2 # negative context

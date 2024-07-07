@@ -93,7 +93,7 @@ max_tempo_in_skipped_object = 0.;
 maxseqapprox = ((ceil(maxseqapprox) / Kpress) + 6.) * 1.01;	/* This is an approximation. */
 if(ShowMessages || Maxevent > 500L) {
 	if(Kpress > 1.) {
-		ShowWindow(Window[wTimeAccuracy]);
+		// ShowWindow(Window[wTimeAccuracy]);
 		if(Kpress < ULONG_MAX)
 			BPPrintMessage(odInfo,"Creating phase diagram with compression rate = %u\n",
 				(unsigned long)Kpress);
@@ -249,7 +249,7 @@ if(DisplayTimeSet && !ScriptExecOn && !Improvize) {
 if(!StepTimeSet) {
 /*	LimTimeSet = TRUE; */
 /*	if(!WriteMIDIfile && !Improvize && !OutCsound) {
-		sprintf(Message,
+		my_sprintf(Message,
 		"Current time limit is: %4.2f sec. Stop at limit",
 			(double) TimeMax/1000.);
 		if((LimTimeSet = Answer(Message,'N')) == ABORT)
@@ -760,8 +760,10 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 					}
 				for(i=0; i < (*p_contparameters)[level].number; i++) {
 					if((*((*p_contparameters)[level].values))[i].active) {
-						if((*((*p_contparameters)[level].values))[i].increment == 0)
+						if((*((*p_contparameters)[level].values))[i].increment == 0) {
+						//	BPPrintMessage(odInfo,"active = FALSE for i = %d\n",i);
 							(*((*p_contparameters)[level].values))[i].active = FALSE;
+							}
 						}
 					}
 				// BPPrintMessage(odInfo,"Sequence toofast = %d overstrike = %d\n",toofast,overstrike);
@@ -836,8 +838,10 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 						}
 					for(i=0; i < (*p_contparameters)[level].number; i++) {
 						if((*((*p_contparameters)[level].values))[i].active) {
-							if((*((*p_contparameters)[level].values))[i].increment == 0)
+							if((*((*p_contparameters)[level].values))[i].increment == 0) {
+								BPPrintMessage(odInfo,"active = FALSE for i = %d\n",i);
 								(*((*p_contparameters)[level].values))[i].active = FALSE;
+								}
 							}
 						}
 					}
@@ -924,8 +928,10 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 				}
 			for(i=0; i < (*p_contparameters)[level].number; i++) {
 				if((*((*p_contparameters)[level].values))[i].active) {
-					if((*((*p_contparameters)[level].values))[i].increment == 0)
+					if((*((*p_contparameters)[level].values))[i].increment == 0) {
+				//		BPPrintMessage(odInfo,"active = FALSE for i = %d\n",i);
 						(*((*p_contparameters)[level].values))[i].active = FALSE;
+						}
 					}
 				}
 			}
@@ -1248,7 +1254,7 @@ NEWSEQUENCE:
 					classofinext = Class(inext);
 					
 					if((oldm != T3 && oldm != T25) || oldp < 1 || id < 2L) {
-						sprintf(Message,"=> Concatenation '&' should follow a sound-object or simple note. One of them is misplaced");
+						my_sprintf(Message,"=> Concatenation '&' should follow a sound-object or simple note. One of them is misplaced");
 						if(!ScriptExecOn) Alert1(Message);
 						else Println(wTrace,Message);
 						goto NEXTTOKEN;
@@ -1482,7 +1488,7 @@ NEWSEQUENCE:
 			if(currentparameters.xpandkey > -1
 					&& currentparameters.xpandkey == (*p_deftcurrentparameters)[level].xpandkey) {
 				newval = (*p_NumberConstant)[newxpandval];
-				sprintf(line,"%.4f",orgval * newval);
+				my_sprintf(line,"%.4f",orgval * newval);
 				if((r=FixNumberConstant(line)) < 0) {
 					result = ABORT;
 					goto ENDDIAGRAM;
@@ -1746,7 +1752,7 @@ failed = FALSE;
 
 ENDDIAGRAM:
 
-if(ShowMessages || Maxevent > 500) HideWindow(Window[wInfo]);
+if(ShowMessages || Maxevent > 500) // HideWindow(Window[wInfo]);
 
 for(i=0; i < MAXSTRINGCONSTANTS; i++) {
 	h = (Handle)(*h_table)[i].point;
@@ -2319,7 +2325,7 @@ int ShowProgress(int k)
 {
 if(!ShowMessages || ((k % 50) != 0)) return(OK);
 PleaseWait();
-sprintf(Message,"Time-objects created: %ld.  Estimated: %ld",(long)k,(long)(Maxevent-1));
+my_sprintf(Message,"Time-objects created: %ld.  Estimated: %ld",(long)k,(long)(Maxevent-1));
 // FlashInfo(Message);
 return(OK);
 }

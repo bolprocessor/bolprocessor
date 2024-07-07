@@ -373,7 +373,7 @@ for(j=*p_i; j < im; j++) {
 		line[k] = '\0';
 		*p_i = ++j;
 		if(check) {
-			sprintf(Message,"\nSelection too long, truncated: %s...\n",line);
+			my_sprintf(Message,"\nSelection too long, truncated: %s...\n",line);
 			if(!ScriptExecOn) Alert1(Message);
 			else PrintBehindln(wTrace,Message);
 			return(MISSED);
@@ -420,7 +420,8 @@ if(w >= 0 && w < WMAX && Editable[w]) {
 	if(w == wGrammar) strcpy(line,"COMMENT:");
 	len = strlen(line);
 	while(ReadLine(YES,w,&pos,posmax,&p_line,&gap) == OK) {
-		if((*p_line)[0] == '\0' || (*p_line)[0] == '\r') continue;
+	//	BPPrintMessage(odInfo,"line = %s\n",*p_line);
+		if((*p_line)[0] == '\0' || (*p_line)[0] == '\r' || (*p_line)[0] == '\n') continue;
 		for(j=0; j < WMAX; j++) {
 			if(FilePrefix[j][0] == '\0') continue;
 			q = &(FilePrefix[j][0]);
@@ -607,11 +608,11 @@ r.top = 10;
 r.left = rtemp.right - rtemp.left - 60;
 r.bottom = r.top + 20;
 r.right = r.left + 50;
-h_ctrl[1] = NewControl(GetDialogWindow(p_dia),&r,"\p==>",(Boolean)1,(short)0,(short)0,(short)1,
+h_ctrl[1] = NewControl(GetDialogWindow(p_dia),&r,"\p==>",(int)1,(short)0,(short)0,(short)1,
 	(short)pushButProc,0L);
 r.left = rtemp.right - rtemp.left - 120;
 r.right = r.left + 50;
-h_ctrl[2] = NewControl(GetDialogWindow(p_dia),&r,"\p<==",(Boolean)1,(short)0,(short)0,(short)1,
+h_ctrl[2] = NewControl(GetDialogWindow(p_dia),&r,"\p<==",(int)1,(short)0,(short)0,(short)1,
 	(short)pushButProc,0L);
 ibot = (bottom - top) / vpitch;
 im = 2;
@@ -859,7 +860,7 @@ char line[MAXLIN];
 if(ScriptExecOn || (AEventOn && !OkWait)) {
 	if(c == 'Y') r = YES;
 	else r = NO;
-	sprintf(line,"%s ? %c\n",what,c);
+	my_sprintf(line,"%s ? %c\n",what,c);
 	if(ScriptExecOn) {
 		if(wTrace != OutputWindow) PrintBehind(wTrace,line);
 		}
@@ -946,7 +947,7 @@ AlertOn--;
 GetDialogItem(EnterPtr,fValue,&itemtype,&itemhandle,&r);
 GetDialogItemText(itemhandle,t);
 MyPtoCstr(255,t,value);
-HideWindow(GetDialogWindow(EnterPtr));
+// HideWindow(GetDialogWindow(EnterPtr));
 UpdateThisWindow(FALSE,Window[wGraphic]);
 UpdateThisWindow(FALSE,Window[wPrototype1]);
 return(rep);
@@ -1000,14 +1001,14 @@ return(OK);
 int SetOptionMenu(int option)
 {
 if(option)
-	sprintf(Message,"Open (any) file...");
+	my_sprintf(Message,"Open (any) file...");
 else
-	sprintf(Message,"Open file...");
+	my_sprintf(Message,"Open file...");
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[fileM],fmOpen,PascalLine);
 
 if(option && CompiledGr && !IsEmpty(wGrammar))
-	sprintf(Message,"Tokenized grammar");
+	my_sprintf(Message,"Tokenized grammar");
 else {
 	strcpy(Message," ");	/* This avoids messing the menu as name starts with '-' */
 	if(FileName[wGrammar][0] == '\0') strcpy(Message,WindowName[wGrammar]);
@@ -1017,7 +1018,7 @@ c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[windowM],grammarCommand,PascalLine);
 
 if(option && CompiledAl && !IsEmpty(wAlphabet))
-	sprintf(Message,"Tokenized alphabet");
+	my_sprintf(Message,"Tokenized alphabet");
 else {
 	strcpy(Message," ");	/* This avoids messing the menu as name starts with '-' */
 	if(FileName[wAlphabet][0] == '\0') strcpy(Message,WindowName[wAlphabet]);
@@ -1027,7 +1028,7 @@ c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[windowM],alphabetCommand,PascalLine);
 
 if(option && CompiledGl && GlossGram.p_subgram != NULL)
-	sprintf(Message,"Tokenized glossary");
+	my_sprintf(Message,"Tokenized glossary");
 else {
 	strcpy(Message," ");	/* This avoids messing the menu as name starts with '-' */
 	if(FileName[wGlossary][0] == '\0') strcpy(Message,WindowName[wGlossary]);
@@ -1254,41 +1255,35 @@ return(OK);
 
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
-int SelectBehind(long pos1,long pos2,TextHandle teh)
+int SelectBehind(long pos1,long pos2,TextHandle teh) {
 /* Doesn't force selection to scroll */
-{
-#if !USE_MLTE_FORGET_THIS
 	long maxoffset;
-	/* clamp range to text bounds (needed for WASTE_FORGET_THIS since we are bypassing its checks) */
 	maxoffset = GetTextHandleLength(teh);
-	if (pos1 < ZERO) {
+	if(pos1 < ZERO) {
 		if(Beta) Alert1("=> Err. SelectBehind(). pos1 < ZERO");
 		pos1 = ZERO;
-	}
-	else if (pos1 > maxoffset) {
+    	}
+	else if(pos1 > maxoffset) {
 		if(Beta) Alert1("=> Err. SelectBehind(). pos1 > maxoffset");
 		pos1 = maxoffset;
-	}
-	if (pos2 < ZERO) {
+	    }
+	if(pos2 < ZERO) {
 		if(Beta) Alert1("=> Err. SelectBehind(). pos2 < ZERO");
 		pos2 = ZERO;
-	}
-	else if (pos2 > maxoffset) {
+	    }
+	else if(pos2 > maxoffset) {
 		if(Beta) Alert1("=> Err. SelectBehind(). pos2 > maxoffset");
 		pos2 = maxoffset;
-	}
+	    }
 	(*teh)->selStart = pos1; (*teh)->selEnd = pos2;
-#else // FIXME: how do we do this with MLTE ?
-if (Beta) printf("=> Err.  SelectBehind() not implemented for MLTE!\n");
-#endif
-return(OK);
-}
+    return(OK);
+    }
 
 
 int TextDeleteBehind(int w)
 {
-Deactivate(TEH[w]);
-TextDelete(w);
+/* Deactivate(TEH[w]);
+TextDelete(w);  */
 return(OK);
 }
 
@@ -1302,20 +1297,20 @@ if((!AlertOn && !ButtonOn) || force) {
 			&& !HangOn && !ScriptExecOn && !WaitOn) {
 		if(ResumeStopOn || force) {
 			ResumeStopOn = FALSE;
-			HideWindow(GetDialogWindow(ResumeUndoStopPtr));
-			HideWindow(GetDialogWindow(ResumeStopPtr));
+			// HideWindow(GetDialogWindow(ResumeUndoStopPtr));
+			// HideWindow(GetDialogWindow(ResumeStopPtr));
 			}
 		}
 	else {
 		if(!ResumeStopOn || force) {
 			ResumeStopOn = TRUE;
 			if(UndoFlag) {
-				HideWindow(GetDialogWindow(ResumeStopPtr));
+				// HideWindow(GetDialogWindow(ResumeStopPtr));
 				ShowWindow(GetDialogWindow(ResumeUndoStopPtr));
 				BringToFront(GetDialogWindow(ResumeUndoStopPtr));
 				}
 			else {
-				HideWindow(GetDialogWindow(ResumeUndoStopPtr));
+				// HideWindow(GetDialogWindow(ResumeUndoStopPtr));
 				ShowWindow(GetDialogWindow(ResumeStopPtr));
 				BringToFront(GetDialogWindow(ResumeStopPtr));
 				}
@@ -1356,7 +1351,7 @@ while(TRUE) {
 		i++; j++;
 		if(j >= MAXNAME) {
 			line[j] = '\0';
-			sprintf(Message,"\nToo long name: %s... [max %ld chars]\n", line,(long)MAXNAME);
+			my_sprintf(Message,"\nToo long name: %s... [max %ld chars]\n", line,(long)MAXNAME);
 			Print(wTrace,Message);
 			return(MISSED);
 			}
@@ -1411,7 +1406,7 @@ while(TRUE) {
 	if(Match(TRUE,p_line,&q,4)) {
 		w = wMIDIorchestra; goto FIX;
 		}
-	sprintf(Message,"\n=> Incorrect name: %s...\n",line);
+	my_sprintf(Message,"\n=> Incorrect name: %s...\n",line);
 	Print(wTrace,Message);
 	r = MISSED;
 	continue;
@@ -1552,46 +1547,46 @@ int r;
 r = OK;
 if(oserr != noErr) {
 	if(!InitOn) {
-		sprintf(Message,"\nMac error %ld (case %ld)",(long)oserr,(long)thecase);
+		my_sprintf(Message,"\nMac error %ld (case %ld)",(long)oserr,(long)thecase);
 		if(TraceRefnum > -1) WriteToFile(NO,MAC,Message,TraceRefnum);
 		if(TempRefnum > -1) WriteToFile(NO,MAC,Message,TempRefnum);
 		}
 	r = ABORT;
 	return(r);
 	/* switch(oserr) { Fixed by BB 2022-02-18
-		case procNotFound: sprintf(line,"Process not found");
+		case procNotFound: my_sprintf(line,"Process not found");
 			break;
-		case paramErr: sprintf(line,"paramErr: attempting to open folder instead of file, or 'inOutCount' was negative, or no default volume, or process serial number is invalid");
+		case paramErr: my_sprintf(line,"paramErr: attempting to open folder instead of file, or 'inOutCount' was negative, or no default volume, or process serial number is invalid");
 			break;
-		case badUnitErr: sprintf(line,"'badUnitErr' error: refNum doesn't match unit table");
+		case badUnitErr: my_sprintf(line,"'badUnitErr' error: refNum doesn't match unit table");
 			break;
-		case unitEmptyErr: sprintf(line,"'UnitEmptyErr' error: refNum specifies NIL handle in unit table");
+		case unitEmptyErr: my_sprintf(line,"'UnitEmptyErr' error: refNum specifies NIL handle in unit table");
 			break;
-		case notOpenErr: sprintf(line,"'notOpenErr' error: driver is closed");
+		case notOpenErr: my_sprintf(line,"'notOpenErr' error: driver is closed");
 			break;
-		case readErr: sprintf(line,"'readErr' error: driver can't respond to Read");
+		case readErr: my_sprintf(line,"'readErr' error: driver can't respond to Read");
 			break;
-		case posErr: sprintf(line,"'posErr' error: attempt to position before start of file");
+		case posErr: my_sprintf(line,"'posErr' error: attempt to position before start of file");
 			break;
-		case bdNamErr: sprintf(line,"=> Incorrect file name");
+		case bdNamErr: my_sprintf(line,"=> Incorrect file name");
 			break;
-		case fnfErr: sprintf(line,"File was not found");
+		case fnfErr: my_sprintf(line,"File was not found");
 			break;
-		case fnOpnErr: sprintf(line,"File was not open");
+		case fnOpnErr: my_sprintf(line,"File was not open");
 			break;
-		case ioErr: sprintf(line,"Input/output error");
+		case ioErr: my_sprintf(line,"Input/output error");
 			break;
-		case eofErr: sprintf(line,"End of file error");
+		case eofErr: my_sprintf(line,"End of file error");
 			break;
-		case rfNumErr: sprintf(line,"Bad file reference number");
+		case rfNumErr: my_sprintf(line,"Bad file reference number");
 			break;
-		case extFSErr: sprintf(line,"External file system");
+		case extFSErr: my_sprintf(line,"External file system");
 			break;
-		case nsvErr: sprintf(line,"No such volume");
+		case nsvErr: my_sprintf(line,"No such volume");
 			break;
-		case opWrErr: sprintf(line,"File already open for writing");
+		case opWrErr: my_sprintf(line,"File already open for writing");
 			break;
-		case tmfoErr: sprintf(line,"Too many files open");
+		case tmfoErr: my_sprintf(line,"Too many files open");
 			break;
 		case dskFulErr:
 			strcpy(line,"Disk full"); break;
@@ -1650,7 +1645,7 @@ if(oserr != noErr) {
 		case -919:
 			strcpy(line,"Unexpected error: 'PPC record is invalid'"); break;
 		default:
-			sprintf(line,"Unknown OS error #%ld. Ignored...",(long)oserr);
+			my_sprintf(line,"Unknown OS error #%ld. Ignored...",(long)oserr);
 			r = MISSED;
 		}
 	if(!InitOn) {
@@ -1791,9 +1786,9 @@ if(!Dirty[w] || ScriptExecOn || AEventOn) return(OK);
 if(NeedSave[w] && !IsEmpty(w)) {
 	StopWait();
 	if(FileName[w][0] == '\0')
-		sprintf(Message,"Save changes for \"%s\"",DeftName[w]);
+		my_sprintf(Message,"Save changes for \"%s\"",DeftName[w]);
 	else
-		sprintf(Message,"Save changes for \"%s\"",FileName[w]);
+		my_sprintf(Message,"Save changes for \"%s\"",FileName[w]);
 	rep = Answer(Message,'Y');
 	switch(rep) {
 		case YES:
@@ -1814,36 +1809,37 @@ return(result);
 
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
-int CompileCheck(void)
-{
-int r,compiledgl;
-
-r = OK;
-compiledgl = CompiledGl;
-if(CheckEmergency() != OK) return(ABORT);
-if(!CompiledGr && (AddBolsInGrammar() > BolsInGrammar)) CompiledAl = FALSE;
-if(!CompiledGr || !CompiledAl) {
-/*	KillSubTree(PrefixTree); KillSubTree(SuffixTree); */
-	if((r=CompileGrammar(1)) != OK) {
-		if(r == MISSED && CompiledGr && !CompiledAl) r = CompileAlphabet();
-		if(CompiledGr && CompiledAl) r = OK;
-		if(r != OK) return(r);
+int CompileCheck(void) {
+	int r,compiledgl;
+	r = OK;
+	compiledgl = CompiledGl;
+	if(CheckEmergency() != OK) return(ABORT);
+	if(!CompiledGr && (AddBolsInGrammar() > BolsInGrammar)) CompiledAl = FALSE;
+	if(!CompiledGr || !CompiledAl) {
+	/*	KillSubTree(PrefixTree); KillSubTree(SuffixTree); */
+		if((r=CompileGrammar(1)) != OK) {
+			if(r == MISSED && CompiledGr && !CompiledAl) r = CompileAlphabet();
+			if(CompiledGr && CompiledAl) r = OK;
+			if(r != OK) {
+				BPPrintMessage(odError,"=> Problem compiling grammar and/or alphabet\n");
+				return(r);
+				}
+			}
+		if(ResetWeights && (Varweight = ResetRuleWeights(0)) == ABORT) {
+			Print(wTrace,"Can't fix bug in grammar code. Unexpected error\n");
+			return(MISSED);
+			}
 		}
-	if(ResetWeights && (Varweight = ResetRuleWeights(0)) == ABORT) {
-		Print(wTrace,"Can't fix bug in grammar code. Unexpected error\n");
-		return(MISSED);
-		}
+	CompiledGl = compiledgl;
+	if(ObjectMode && ((r=CompileCsoundObjects()) != OK)) return(r);
+	#if BP_CARBON_GUI_FORGET_THIS
+	if(LoadedIn && (!CompiledIn && (r=CompileInteraction()) != OK)) return(r);
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+	if((r=UpdateGlossary()) != OK) return(r);
+	if(!CompiledPt) if((r=CompilePatterns()) != OK) return(r);
+	// if(SmartCursor) r = UpdateAutomata();
+	return(r);
 	}
-CompiledGl = compiledgl;
-if(ObjectMode && ((r=CompileCsoundObjects()) != OK)) return(r);
-#if BP_CARBON_GUI_FORGET_THIS
-if(LoadedIn && (!CompiledIn && (r=CompileInteraction()) != OK)) return(r);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-if((r=UpdateGlossary()) != OK) return(r);
-if(!CompiledPt) if((r=CompilePatterns()) != OK) return(r);
-if(SmartCursor) r = UpdateAutomata();
-return(r);
-}
 
 // -----------------------  FIND - REPLACE ------------------------
 
@@ -1899,7 +1895,7 @@ while(!done);
 QUIT:
 Activate(TEH[TargetWindow]);
 BPActivateWindow(SLOW,TargetWindow);
-sprintf(Message,"%ld occurrence(s) found...",(long)i);
+my_sprintf(Message,"%ld occurrence(s) found...",(long)i);
 ShowMessage(TRUE,wMessage,Message);
 return(OK);
 }
@@ -2021,7 +2017,7 @@ do {
 		}
 	}
 while(!found);
-HideWindow(GetDialogWindow(ReplaceCommandPtr));
+// HideWindow(GetDialogWindow(ReplaceCommandPtr));
 
 // #ifndef __POWERPC
 FlushEvents(everyEvent,0);
@@ -2110,7 +2106,7 @@ GetDialogItem(thedialog,(short)ifield,&itemtype,&itemhandle,&r);
 if(((itemtype & 127)  != editText && (itemtype & 127)  != statText)
 		|| itemhandle == NULL) {
 	if(Beta) {
-		sprintf(Message,"=> Err SetField(%ld,%ld,%s)",(long)w,
+		my_sprintf(Message,"=> Err SetField(%ld,%ld,%s)",(long)w,
 			(long)ifield,(long)string);
 		Alert1(Message);
 		}
@@ -2155,7 +2151,7 @@ GetDialogItem(thedialog,(short)ifield,&itemtype,&itemhandle,&r);
 if(((itemtype & 127) != editText && (itemtype & 127)  != statText)
 		|| itemhandle == NULL) {
 	if(Beta) {
-		sprintf(Message,"=> Err GetField(%ld,%ld)",(long)w,(long)ifield);
+		my_sprintf(Message,"=> Err GetField(%ld,%ld)",(long)w,(long)ifield);
 		Alert1(Message);
 		}
 	return(MISSED);
@@ -2233,7 +2229,7 @@ GetDialogItem(gpDialogs[w],(short)icontrol,&itemtype,(Handle*)&itemhandle,&r);
 if((((itemtype & 127) != (ctrlItem+radCtrl)) && ((itemtype & 127) != (ctrlItem+chkCtrl)))
 	|| itemhandle == NULL) {
 	if(Beta) {
-		sprintf(Message,"=> Err GetCtrlValue(%ld,%ld)",(long)w,(long)icontrol);
+		my_sprintf(Message,"=> Err GetCtrlValue(%ld,%ld)",(long)w,(long)icontrol);
 		Alert1(Message);
 		}
 	return(0);
@@ -2256,7 +2252,7 @@ GetDialogItem(gpDialogs[w],(short)icontrol,&itemtype,(Handle*)&itemhandle,&r);
 if((((itemtype & 127) != (ctrlItem+radCtrl)) && ((itemtype & 127) != (ctrlItem+chkCtrl)))
 	|| itemhandle == NULL) {
 	if(Beta)  {
-		sprintf(Message,"=> Err ToggleButton(%ld,%ld)",(long)w,(long)icontrol);
+		my_sprintf(Message,"=> Err ToggleButton(%ld,%ld)",(long)w,(long)icontrol);
 		Alert1(Message);
 		}
 	return(MISSED);
@@ -2295,7 +2291,7 @@ itemtype = (itemtype & 127) - ctrlItem;
 if(itemtype != radCtrl && itemtype != chkCtrl && itemtype != btnCtrl
 		|| itemhandle == NULL) {
 	if(Beta) {
-		sprintf(Message,"=> Err SwitchOn(NULL,%ld,%ld)",(long)w,(long)i);
+		my_sprintf(Message,"=> Err SwitchOn(NULL,%ld,%ld)",(long)w,(long)i);
 		Alert1(Message);
 		}
 	return(ABORT);
@@ -2330,7 +2326,7 @@ itemtype = (itemtype & 127) - ctrlItem;
 if(itemtype != radCtrl && itemtype != chkCtrl && itemtype != btnCtrl
 		|| itemhandle == NULL) {
 	if(Beta) {
-		sprintf(Message,"=> Err SwitchOff(%ld,%ld)",(long)w,(long)i);
+		my_sprintf(Message,"=> Err SwitchOff(%ld,%ld)",(long)w,(long)i);
 		Alert1(Message);
 		}
 	return(ABORT);
@@ -2358,7 +2354,7 @@ itemtype = (itemtype & 127) - ctrlItem;
 if(itemtype != radCtrl && itemtype != chkCtrl && itemtype != btnCtrl
 		|| itemhandle == NULL) {
 	if(Beta) {
-		sprintf(Message,"=> Err ShowPannel(%ld,%ld)",(long)w,(long)i);
+		my_sprintf(Message,"=> Err ShowPannel(%ld,%ld)",(long)w,(long)i);
 		Alert1(Message);
 		}
 	return(ABORT);
@@ -2383,7 +2379,7 @@ itemtype = (itemtype & 127) - ctrlItem;
 if(itemtype != radCtrl && itemtype != chkCtrl && itemtype != btnCtrl
 		|| itemhandle == NULL) {
 	if(Beta) {
-		sprintf(Message,"=> Err HidePannel(%ld,%ld)",(long)w,(long)i);
+		my_sprintf(Message,"=> Err HidePannel(%ld,%ld)",(long)w,(long)i);
 		Alert1(Message);
 		}
 	return(ABORT);
@@ -2419,7 +2415,7 @@ long n;
 char line[MAXLIN];
 
 n = GetTextLength(w);
-sprintf(line,"%ld chars.",(long)n);
+my_sprintf(line,"%ld chars.",(long)n);
 if(IsHTML[w]) {
 	strcat(line,"  File format: HTML");
 	if(IsText[w])

@@ -83,7 +83,7 @@ if(w == wScript) {
 	if(AppendStringList(FileName[wScript]) != OK) goto QUIT1;
 	if((posmax > pos) && !quick) {
 		ShowSelect(CENTRE,w);
-		// sprintf(Message,"Execute script '%s'",FileName[w]);  // suppressed 041007, akozar
+		// my_sprintf(Message,"Execute script '%s'",FileName[w]);  // suppressed 041007, akozar
 		// if(Answer(Message,'Y') != OK) goto QUIT1;
 		if((r=Answer("Execute only the current selection",'Y')) == ABORT) goto QUIT1;
 		if(r == YES) {
@@ -110,7 +110,7 @@ if(Beta && w == wScript) {
 	}
 r = OK;
 if(w != wScript) goto HERE;
-sprintf(Message,"Running script '%s'\nExecute step by step",FileName[w]);
+my_sprintf(Message,"Running script '%s'\nExecute step by step",FileName[w]);
 if(!quick && (r=Answer(Message,'N')) == OK) StepScript = TRUE;
 if(r == ABORT) goto QUIT1;
 ScriptExecOn = 1; OkWait = OK;
@@ -271,9 +271,9 @@ if(!CountOn) {
 		}
 	return(OK);
 	}
-/* sprintf(Message,"%ld",(long) clock() - WaitStartDate - LapWait);
+/* my_sprintf(Message,"%ld",(long) clock() - WaitStartDate - LapWait);
 MystrcpyStringToTable(ScriptLine.arg,0,Message); */
-sprintf(Message,"%ld",(long)ItemNumber-1L);
+my_sprintf(Message,"%ld",(long)ItemNumber-1L);
 MystrcpyStringToTable(ScriptLine.arg,0,Message);
 CountOn = FALSE;
 /* AppendScript(18); */
@@ -339,7 +339,7 @@ return(OK);
 
 int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,long posline,
 	long* p_posdir,int* p_changed,int* p_keep) {
-	MenuHandle themenu;
+	// MenuHandle themenu;
 	Handle h;
 	int i,istart,j,r,quote;
 	short itemnumber,iItemCnt;
@@ -414,10 +414,13 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 				r = GetScriptArguments(i,p_arg,istart);
 				newarg = FALSE;
 				if(r == OK) r = DoScript(i,p_keyon,w,check,(*h_ScriptIndex)[i],p_posdir,p_changed,&newarg,FALSE);
-				else goto ERR;
+				else {
+					BPPrintMessage(odError,"=> Error GetScriptArguments()\n");
+					goto ERR;
+					}
 		/*		if(newarg && check) {
 					// Only for 'Open', 'Run script', etc.
-					sprintf(Message,"%s \"%s\"",*(p_ScriptLabelPart(i,0)),
+					my_sprintf(Message,"%s \"%s\"",*(p_ScriptLabelPart(i,0)),
 														*((*(ScriptLine.arg))[0]));
 					MystrcpyStringToHandle(&p_line,Message);
 					*p_changed = TRUE; *p_keep = FALSE;
@@ -441,7 +444,7 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 	r = MISSED;
 
 	ERR:
-	sprintf(Message,">>> Script aborted on: %s\n",*p_line);
+	my_sprintf(Message,">>> Script aborted on: %s\n",*p_line);
 	Print(wTrace,Message);
 	if(r != EXIT) r = ABORT;
 		
@@ -458,8 +461,8 @@ int r;
 
 Interrupted = TRUE;
 ResumeStopOn = TRUE;
-ShowWindow(GetDialogWindow(ResumeStopPtr));
-BringToFront(GetDialogWindow(ResumeStopPtr));
+/* ShowWindow(GetDialogWindow(ResumeStopPtr));
+BringToFront(GetDialogWindow(ResumeStopPtr)); */
 // while((r = MainEvent()) != RESUME && r != STOP && r != ABORT && r != EXIT);
 if(r == RESUME) {
 	r = OK; EventState = NO;
@@ -518,14 +521,14 @@ if(!ScriptRecOn) return(OK);
 if(w < 0 || w >= WMAX || !Editable[w] || w == wScript) {
 	return(MISSED);
 	}
-sprintf(Message,"\"%s\"",WindowName[w]);
+my_sprintf(Message,"\"%s\"",WindowName[w]);
 MystrcpyStringToTable(ScriptLine.arg,0,Message);
 AppendScript(42);
 TextGetSelection(&selbegin, &selend, TEH[w]);
-sprintf(Message,"%ld",(long)selbegin);
+my_sprintf(Message,"%ld",(long)selbegin);
 MystrcpyStringToTable(ScriptLine.arg,0,Message);
 AppendScript(59);
-sprintf(Message,"%ld",(long)selend);
+my_sprintf(Message,"%ld",(long)selend);
 MystrcpyStringToTable(ScriptLine.arg,0,Message);
 AppendScript(60);
 ShowSelect(CENTRE,wScript);
@@ -610,13 +613,13 @@ if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
 	TheVRefNum[wScript] = spec.vRefNum;
 	WindowParID[wScript] = spec.parID;
 	}
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 if(ScriptExecOn == 0) {
 	dirtymem = Dirty[iSettings];
 	Maxitems = ZERO; OkWait = OK;
 	}
 if(check && ClearWindow(FALSE,wTrace) != OK) {
-	sprintf(Message,"\n\nInterrupted script '%s'\n\n",filename);
+	my_sprintf(Message,"\n\nInterrupted script '%s'\n\n",filename);
 	Print(wTrace,Message);
 	return(ABORT);
 	}
@@ -630,8 +633,8 @@ CurrentVref = spec.vRefNum;
 if(ReadOne(TRUE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto END;
 if(CheckVersion(&iv,p_line,filename) != OK) goto END;
 if(ReadOne(TRUE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto END;
-if(!check) sprintf(Message,"Running script '%s'",filename);
-else sprintf(Message,"Checking script '%s'",filename);
+if(!check) my_sprintf(Message,"Running script '%s'",filename);
+else my_sprintf(Message,"Checking script '%s'",filename);
 ShowMessage(TRUE,wMessage,Message);
 good = YES;
 StartScript();
@@ -641,7 +644,7 @@ while((rr=ReadOne(TRUE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos)) != 
 		MyLock(FALSE,(Handle)p_line);
 		FlashInfo(*p_line);
 		MyUnlock((Handle)p_line);
-		sprintf(Message,"Running script '%s'",filename);
+		my_sprintf(Message,"Running script '%s'",filename);
 		ShowMessage(TRUE,wMessage,Message);
 		}
 	if((r=MyButton(0)) != MISSED || (!check && StepScript)) {
@@ -663,7 +666,7 @@ while((rr=ReadOne(TRUE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos)) != 
 	keep = TRUE;
 	if((r=ExecScriptLine(NULL,wScript,check,FALSE,p_line,posline,&posdir,&changed,&keep))
 			== ABORT) {
-		sprintf(Message,"\nInterrupted script '%s'\n\n",filename);
+		my_sprintf(Message,"\nInterrupted script '%s'\n\n",filename);
 		Print(wTrace,Message);
 		good = NO;
 		break;
@@ -680,7 +683,7 @@ while((rr=ReadOne(TRUE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos)) != 
 		good = NO;
 		if(!check) {
 			MyLock(FALSE,(Handle)p_line);
-			sprintf(Message,">>> Error in script '%s': %s\n",filename,*p_line);
+			my_sprintf(Message,">>> Error in script '%s': %s\n",filename,*p_line);
 			MyUnlock((Handle)p_line);
 			Print(wTrace,Message);
 			ShowSelect(CENTRE,wScript);
@@ -699,7 +702,7 @@ while((rr=ReadOne(TRUE,FALSE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos)) != 
 	posline = pos;
 	if(rr == STOP) break;
 	}
-HideWindow(Window[wInfo]);
+// HideWindow(Window[wInfo]);
 
 END:
 if(check && good && changed) {
@@ -724,7 +727,7 @@ if(check && !good ) {
 		SetName(wScript,TRUE,TRUE);
 		}
 	else {
-		sprintf(Message,"Can't read '%s'...",FileName[wScript]);
+		my_sprintf(Message,"Can't read '%s'...",FileName[wScript]);
 		Alert1(Message);
 		}
 	ShowSelect(CENTRE,wTrace);
@@ -732,7 +735,7 @@ if(check && !good ) {
 	result = ABORT;
 	}
 if(FSClose(refnum) != noErr) {
-	sprintf(Message,"=> Error closing '%s' script file...",filename);
+	my_sprintf(Message,"=> Error closing '%s' script file...",filename);
 	Alert1(Message);
 	}
 EndScript();
@@ -743,7 +746,7 @@ if(check && good) {
 	}
 MyDisposeHandle((Handle*)&p_line);
 MyDisposeHandle((Handle*)&p_completeline);
-if(!check || !good) HideWindow(Window[wMessage]);
+if(!check || !good) // HideWindow(Window[wMessage]);
 if(ScriptExecOn == 0) {
 	Dirty[iSettings] = dirtymem;
 	OutputWindow = wData;

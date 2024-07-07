@@ -40,7 +40,7 @@
 
 // PROCEDURES FOR BUILDING TREE AUTOMATA RECOGNIZING TOKENS
 
-int UpdateAutomata(void)
+/* int UpdateAutomata(void)
 {
 int j,s,jmax;
 
@@ -59,9 +59,9 @@ for(j=1; j < jmax; j++) {
 	if((s & 1) || (s & 2)) AddWordToTrees((*p_Var)[j],VAR);
 	}
 for(j=0; j < Jpatt; j++) AddWordToTrees((*p_Patt)[j],PAT);
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 return(OK);
-}
+} */
 
 
 int AddWordToTrees(char** p_word,int type)

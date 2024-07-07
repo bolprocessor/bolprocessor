@@ -112,7 +112,7 @@ while(TRUE) {
 STOREOBJECT:
 			end = i;
 			if((r=StoreChunk(&p_chunk,&ichunk,&ichunkmax,origin,end)) != OK)
-				goto OUT;
+				goto SORTIR;
 			continue;
 			break;
 		case T12:
@@ -131,23 +131,23 @@ STOREOBJECT:
 			switch(p) {
 				case 21:	/* _retro */
 					if((r=Zouleb(pp_a,&newlevel,&i,1-retro,rndseq,rotate,repeat,FALSE,seed))
-						!= OK) goto OUT;
+						!= OK) goto SORTIR;
 					if(!retro) ischanged = FALSE;
 					break;
 				case 22:	/* _rndseq */
 					if((r=Zouleb(pp_a,&newlevel,&i,FALSE,TRUE,0,repeat,FALSE,seed))
-						!= OK) goto OUT;
+						!= OK) goto SORTIR;
 					ischanged = FALSE;
 					break;
 				case 24:	/* _ordseq */
 					if((r=Zouleb(pp_a,&newlevel,&i,FALSE,FALSE,0,repeat,FALSE,seed))
-						!= OK) goto OUT;
+						!= OK) goto SORTIR;
 					break;
 				}
 STORE:
 			end = i;
 			if((r=StoreChunk(&p_chunk,&ichunk,&ichunkmax,origin,end)) != OK)
-				goto OUT;
+				goto SORTIR;
 			more--;
 			continue;
 			break;
@@ -159,7 +159,7 @@ STORE:
 			newlevel = orglevel;
 			if((r=Zouleb(pp_a,&newlevel,&i,retro,rndseq,rotate+newrotate,
 					repeat,FALSE,seed)) != OK)
-				goto OUT;
+				goto SORTIR;
 			ischanged = ((rotate+newrotate) == 0);
 			goto STORE;
 			break;
@@ -184,7 +184,7 @@ STORE:
 			while(m == T1);
 			}
 		end = i;
-		if((r=StoreChunk(&p_chunk,&ichunk,&ichunkmax,origin,end)) != OK) goto OUT;
+		if((r=StoreChunk(&p_chunk,&ichunk,&ichunkmax,origin,end)) != OK) goto SORTIR;
 		continue;
 		}
 	
@@ -203,13 +203,13 @@ STORE:
 		newlevel = orglevel + 1;
 		do {
 			r = Zouleb(pp_a,&newlevel,&newpos,retro,rndseq,rotate,repeat,TRUE,seed);
-			if(r != OK) goto OUT;
+			if(r != OK) goto SORTIR;
 			}
 		while(newlevel > orglevel);
 		end = i = newpos;
 		ischanged = TRUE;
 		if(retro || rndseq || (rotate != 0)) ischanged = FALSE;
-		if((r=StoreChunk(&p_chunk,&ichunk,&ichunkmax,origin,end)) != OK) goto OUT;
+		if((r=StoreChunk(&p_chunk,&ichunk,&ichunkmax,origin,end)) != OK) goto SORTIR;
 		continue;
 		}
 NEXT:
@@ -220,9 +220,9 @@ nchunks = ichunk;
 
 if(repeat) {
 	if(ProduceStackDepth == -1) {
-		sprintf(Message,"Can't repeat: more than %ld computations",(long)MAXDERIV);
+		my_sprintf(Message,"Can't repeat: more than %ld computations",(long)MAXDERIV);
 		Alert1(Message);
-		r = ABORT; goto OUT;
+		r = ABORT; goto SORTIR;
 		}
 	}
 	
@@ -237,7 +237,7 @@ p_index = NULL;
 if(rndseq) {
 	if(!repeat) ReseedOrShuffle(orgseed);
 	r = MakeRandomSequence(&p_index,nchunks,repeat,store);
-	if(r != OK) goto OUT;
+	if(r != OK) goto SORTIR;
 	}
 else {
 	if(rotate != 0) {
@@ -246,7 +246,7 @@ else {
 			rotate = 0;
 			}
 		r = RotateSequence(&p_index,nchunks,rotate);
-		if(r != OK) goto OUT;
+		if(r != OK) goto SORTIR;
 		}
 	}
 
@@ -276,7 +276,7 @@ while(TRUE) {
 		}
 		
 	if(m == T0 && (p == 12 || p == 22)) {	/* '{' */
-		if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto OUT;
+		if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto SORTIR;
 		GetChunk(p_chunk,&ichunk,nchunks,rndseq,retro,rotate,&ib,&ibmax,&i,*pp_a,p_b,p_index,(p == 22),
 			&more);
 		continue;
@@ -319,7 +319,7 @@ GETITBACK:
 	if(m == T0 && (p == 11 || p == 21 || p == 24 || p == 25)) {	/* '/' '*' '**' '\' */
 		do {
 			(*p_b)[ib++] = m; (*p_b)[ib++] = p;
-			if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto OUT;
+			if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto SORTIR;
 			i += 2L;
 			m = (**pp_a)[i]; p = (**pp_a)[i+1];
 			}
@@ -329,11 +329,11 @@ GETITBACK:
 		
 NEXT2:
 	(*p_b)[ib++] = m; (*p_b)[ib++] = p;
-	if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto OUT;
+	if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto SORTIR;
 	i += 2L;
 	}
 (*p_b)[ib++] = TEND; (*p_b)[ib++] = TEND;
-if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto OUT;
+if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto SORTIR;
 
 MyDisposeHandle((Handle*) &p_index);
 
@@ -343,7 +343,7 @@ if(more > 0) {
 	i = iorg;
 	while((**pp_a)[i] != TEND || (**pp_a)[i+1] != TEND) i += 2L;
 	j = i + more + more;
-	if((r=CheckBuffer(j+2L,&imax,pp_a)) != OK) goto OUT;
+	if((r=CheckBuffer(j+2L,&imax,pp_a)) != OK) goto SORTIR;
 	for(j=j; ; i-=2L,j-=2L) {
 		(**pp_a)[j] = (**pp_a)[i];
 		(**pp_a)[j+1] = (**pp_a)[i+1];
@@ -366,7 +366,7 @@ for(i=iorg, ib=0; ; i+=2L, ib+=2L) {
 	(**pp_a)[i+1] = p;
 	}
 
-OUT:
+SORTIR:
 MyDisposeHandle((Handle*)&p_chunk);
 MyDisposeHandle((Handle*)&p_b);
 return(r);

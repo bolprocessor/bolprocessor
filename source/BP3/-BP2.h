@@ -100,25 +100,6 @@
 #define NEWTIMER_FORGET_THIS 0
 #endif
 
-// enable or disable built-in MIDI driver at compile time (not finished yet) - 010507 akozar
-// The following are obsolete in BP3 as the real-time MIDI driver is built differently - 2024-05-01 Bernard  Bel
-#ifndef USE_BUILT_IN_MIDI_DRIVER_FORGET_THIS
-#  if !TARGET_API_MAC_CARBON_FORGET_THIS
-#    define USE_BUILT_IN_MIDI_DRIVER_FORGET_THIS 1
-#  else
-#    define USE_BUILT_IN_MIDI_DRIVER_FORGET_THIS 0
-#  endif
-#endif
-
-// The following are obsolete in BP3
-#if USE_BUILT_IN_MIDI_DRIVER_FORGET_THIS
-// #  define WITH_REAL_TIME_MIDI_FORGET_THIS 1
-// #  define WITH_REAL_TIME_SCHEDULER_FORGET_THIS 1
-// #  else
-// #  define WITH_REAL_TIME_MIDI_FORGET_THIS 0
-// Needs to be fixed as compiler warns: "'WITH_REAL_TIME_MIDI_FORGET_THIS' macro redefined" (BB 2022-02-20)
-#endif
-
 #ifndef WITH_REAL_TIME_MIDI_FORGET_THIS
 #define WITH_REAL_TIME_MIDI_FORGET_THIS 0
 #endif
@@ -154,52 +135,60 @@
 #include "WASTEIntf.h"
 #endif
 
-#ifndef BP_CTEXTHANDLES_H
-#include "CTextHandles.h"
-#endif
+typedef char** Handle2;
+
+typedef struct TERec {
+	int32_t		selStart;		// start of selection (range [0,length])
+	int32_t		selEnd;			// end of selection (range [0,length])
+	Handle2		hText;			// text buffer
+	int32_t		length;			// length of text in buffer (not buffer size)
+} TERec, **TEHandle;
+
+TEHandle NewTextHandle(void);
+int CopyStringToTextHandle(TEHandle th, const char* str);
+
+typedef struct {
+	long time;
+	unsigned char type,status,data1,data2;
+	} MIDI_Event, *MIDI_EventPtr;
 
 #define _NOERRORCHECK_	/* Needed in <math.h> */
 #define _NOSYNONYMS_
 
-#include "midi1.h"
+// #include "midi1.h"
+
+/* Valid MIDI_Event types */ 
+#define RAW_EVENT 0		/* data only in low order byte */
+#define NORMAL_EVENT 1	/* data packed into three low order bytes */
+#define NULL_EVENT 2	/* no data */
+#define TWO_BYTE_EVENT 3	/* This I added on 5/10/97 (Bernard Bel) */
+
+/* Add extensions for channel definitions as part of the type byte. */
+#define PORTA 0
+#define PORTB 32
+#define PORTB_COMPLEMENT 0xffdf /* long complement of PORTB */
+
+/* Control/Status codes 
+ * These codes are common for both A & B ports */
+#define CLOCKTIME_CODE 0		/* control/status */
+#define TICKSIZE_CODE 1			/* control/status */
+#define CHANNELIZE_CODE 2		/* control only */
+#define CLEAR_SCHEDULER_CODE 3	/* control only */
+
 
 #if BP_CARBON_GUI_FORGET_THIS
-#  include "NavServWrapper.h"
+#include "NavServWrapper.h"
 #endif
 
 #if !BP_CARBON_GUI_FORGET_THIS
-#  include "ConsoleMessages.h"
+#include "ConsoleMessages.h"
 #endif
 
-// Define platform-specific constants and include headers
 #if defined(_WIN64)
-#include <windows.h>
-#include <mmsystem.h>
-#pragma comment(lib, "winmm.lib")
-typedef unsigned long long UInt64;
-typedef size_t Size;
-typedef struct Rect {
-    int top;
-    int left;
-    int bottom;
-    int right;
-	} Rect;
-void usleep(DWORD waitTime) {
-    LARGE_INTEGER perfCnt, start, now;
-    QueryPerformanceFrequency(&perfCnt);
-    QueryPerformanceCounter(&start);
-    do QueryPerformanceCounter((LARGE_INTEGER*)&now);
-	while((now.QuadPart - start.QuadPart) / float(perfCnt.QuadPart) * 1000 * 1000 < waitTime);	
-	}
-typedef struct {
-    UInt64 eventTime; // Time in ms
-    int dataSize;
-    unsigned char midiData[3];
-	} MIDI_Event;
-typedef struct s_handle_priv {
-    void* memblock; // Pointer to the allocated memory block
-    size_t size;    // Size of the memory block	
-	} *Handle;
+	#include <windows.h>
+	#include <mmsystem.h>
+	#pragma comment(lib, "winmm.lib")
+    #define noErr 0
 #elif defined(__APPLE__)
     #include <CoreMIDI/CoreMIDI.h>
     #include <mach/mach_time.h>
@@ -709,6 +698,7 @@ typedef enum {
 } FileTypeIndex;
 
 #define MAXFILETYPEINDEX	20
+#define MAX_BUFFER_SIZE 1024
 
 // Menu indexes
 #define appleM			0
@@ -1689,34 +1679,31 @@ typedef struct {
 } OurMLTERecord;
 #endif
 
-#if WASTE_FORGET_THIS
-typedef WEHandle TextHandle;
-typedef long TextOffset;
-#elif USE_MLTE_FORGET_THIS
-typedef OurMLTERecord** TextHandle;
-typedef long TextOffset;	// should be TXNOffset (unsigned long), but there are many incompatible assumptions of long - akozar
-#else
-typedef TEHandle TextHandle;
-typedef long TextOffset;	// should be short, but there are many assumptions of long - akozar
+// Define platform-specific constants and include headers
+#if defined(_WIN64)
+	typedef unsigned long long UInt64;
+	typedef size_t Size;
+	typedef struct Rect {
+		int top;
+		int left;
+		int bottom;
+		int right;
+		} Rect;
+	typedef struct {
+		unsigned char* data;  // MIDI data bytes
+		int length;           // Number of bytes in the data array
+		unsigned long timestamp;  // Timestamp (optional, can be adapted to your needs)
+		} MIDIPacket;
+	typedef char** Handle;
 #endif
 
-/* #if WITH_REAL_TIME_SCHEDULER_FORGET_THIS
-// Types for time scheduler
-typedef OMSAPI(void) (*voidOMSdoPacket)(OMSMIDIPacket*,short,short);
-typedef struct Slice {
-	voidOMSdoPacket routine;	// routine to be called at time n
-	OMSMIDIPacket pkt;			// parameter for routine
-	short dat1,dat2;			// parameters for routine
-	long loopstep;				// number of clock cycles from the preceding event on
-								// the same tick.
-	struct Slice *next;			// next timeslice
-	} Slice;
-#endif */
+typedef TEHandle TextHandle;
+typedef long TextOffset;	// should be short, but there are many assumptions of long - akozar
 
-long eventCount,eventCountMax;
+/* long eventCount,eventCountMax;
 UInt64 initTime;
 MIDI_Event* eventStack;
-size_t MaxMIDIMessages;
+size_t MaxMIDIMessages; */
 
 struct s_chunck {
 	unsigned long origin,end;
@@ -1724,7 +1711,7 @@ struct s_chunck {
 typedef struct s_chunck ChunkPointer;
 
 typedef int (*IntProcPtr)(int);
-typedef int (*Int2ProcPtr)(short,int);
+typedef int (*Int2ProcPtr)(int,int);
 
 typedef uint32_t dword;
 typedef unsigned char byte;
@@ -1785,7 +1772,7 @@ typedef struct s_list2 p_list2;
 struct s_rule {
 	p_flaglist **p_leftflag;	/* list of flags attached to left argument */
 	p_flaglist **p_rightflag;	/* list of flags attached to right argument */
-	short mode;
+	int mode;
 	int operator;
 	int weight;			/* original weight */
 	int incweight;		/* weight increment */
@@ -2196,11 +2183,11 @@ typedef struct s_arc arc;
 #define ScriptNrArg(k)  ((*h_Script)[(k)]).nrarg
 #define StringList(i) *((*p_StringList)[(i)])
 
-
+/*
 // Structures for dynamically registering devices & MIDI drivers
 
 // signature for custom menu item enable procedures
-typedef OSStatus (*MenuEnableProcPtr)(MenuItemIndex /*index*/, int* /*enable*/, int* /*check*/ );
+typedef OSStatus (*MenuEnableProcPtr)(MenuItemIndex , int* , int*  );
 
 struct BPMidiDriver {
 	struct BPMidiDriver** next;
@@ -2212,7 +2199,7 @@ struct BPMidiDriver {
 	MenuItemIndex	lastMItem;		// the last menu item registered
 	// add function pointers for driver calls here later
 };
-typedef struct BPMidiDriver BPMidiDriver;
+typedef struct BPMidiDriver BPMidiDriver; 
 
 struct DynamicMenuItem {
 	struct DynamicMenuItem** next;
@@ -2225,7 +2212,7 @@ struct DynamicMenuItem {
 	IntProcPtr		commandProc;	// function to call when selected
 	// char*		helpText;		// ??
 };
-typedef struct DynamicMenuItem DynamicMenuItem;
+typedef struct DynamicMenuItem DynamicMenuItem; */
 
 
 #include "-BP2.proto.h"

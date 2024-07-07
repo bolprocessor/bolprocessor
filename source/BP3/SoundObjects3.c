@@ -92,7 +92,7 @@ if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 (*p_DefaultChannel)[j] = (*p_Quan)[j] = 0;
 (*p_StrikeAgain)[j] = -1;
 (*p_Tpict)[j] = ZERO;
-(*p_ObjectColor)[j].red = (*p_ObjectColor)[j].green = (*p_ObjectColor)[j].blue = -1L;
+// (*p_ObjectColor)[j].red = (*p_ObjectColor)[j].green = (*p_ObjectColor)[j].blue = -1L;
 ptr = (Handle)(*pp_Comment)[j];
 if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 (*pp_Comment)[j] = NULL;
@@ -114,7 +114,7 @@ if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 (*p_CsoundAssignedInstr)[j] = -1;
 (*p_MIDIsize)[j] = (*p_CsoundSize)[j] = ZERO;
 ChangedProtoType(j);
-CompiledCsObjects = (*p_CompiledCsoundScore)[j] = FALSE;
+CompiledCsObjects = (*p_CompiledCsoundScore)[j] = 0;
 return(OK);
 }
 
@@ -243,7 +243,7 @@ if(GetField(NULL,TRUE,wPrototype5,fQuantizeFractionBeat,line,&p,&q) == OK) {
 
 if(GetField(NULL,TRUE,wPrototype5,fPrototypeTickKey,line,&p,&q) == OK) {
    if(p/q < 0 || p/q > 127) {
-      sprintf(Message,"=> Tick key should be in range 0..127. Can't accept %ld",
+      my_sprintf(Message,"=> Tick key should be in range 0..127. Can't accept %ld",
          (long)(p/q));
       Alert1(Message);
       }
@@ -257,7 +257,7 @@ if(GetField(NULL,TRUE,wPrototype5,fPrototypeTickChannel,line,&p,&q) == OK) {
 
 if(GetField(NULL,TRUE,wPrototype5,fPrototypeTickVelocity,line,&p,&q) == OK) {
    if(p/q < 1 || p/q > 127) {
-      sprintf(Message,"=> Tick velocity should be in range 1..127. Can't accept %ld",
+      my_sprintf(Message,"=> Tick velocity should be in range 1..127. Can't accept %ld",
          (long)(p/q));
       Alert1(Message);
       }
@@ -267,15 +267,15 @@ if(GetField(NULL,TRUE,wPrototype5,fPrototypeTickVelocity,line,&p,&q) == OK) {
 if((*p_PeriodMode)[iProto] == ABSOLU) {
    if(GetField(NULL,TRUE,wPrototype6,fBeforePeriodms,line,&p,&q) == OK) {
       if((dur=(*p_Dur)[iProto]) < p/q) {
-         sprintf(Message,"Initial part before period can't be longer than %ldms",
+         my_sprintf(Message,"Initial part before period can't be longer than %ldms",
             (long)dur);
          Alert1(Message);
-         p = dur; q = 1L; sprintf(line,"%ld",(long)p);
+         p = dur; q = 1L; my_sprintf(line,"%ld",(long)p);
          SetField(NULL,wPrototype6,fBeforePeriodms,line);
          }
       if(p < ZERO) {
          Alert1("Initial part before period can't be negative");
-         p = ZERO; q = 1L; sprintf(line,"%ld",(long)p);
+         p = ZERO; q = 1L; my_sprintf(line,"%ld",(long)p);
          SetField(NULL,wPrototype6,fBeforePeriodms,line);
          SetField(NULL,wPrototype6,fBeforePeriodPC,line);
          }
@@ -285,12 +285,12 @@ if((*p_PeriodMode)[iProto] == RELATIF) {
    if(GetField(NULL,TRUE,wPrototype6,fBeforePeriodPC,line,&p,&q) == OK) {
       if(p/q > 100.) {
          Alert1("Initial part before period can't be longer than 100% duration");
-         p = 100L; q = 1L; sprintf(line,"%ld",(long)p);
+         p = 100L; q = 1L; my_sprintf(line,"%ld",(long)p);
          SetField(NULL,wPrototype6,fBeforePeriodPC,line);
          }
       if(p < ZERO) {
          Alert1("Initial part before period can't be negative");
-         p = ZERO; q = 1L; sprintf(line,"%ld",(long)p);
+         p = ZERO; q = 1L; my_sprintf(line,"%ld",(long)p);
          SetField(NULL,wPrototype6,fBeforePeriodPC,line);
          SetField(NULL,wPrototype6,fBeforePeriodms,line);
          }
@@ -382,7 +382,7 @@ if(!ObjectMode && !ObjectTry) {
 r = OK;
    
 END:
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 return(r);
 }
 #endif /* BP_CARBON_GUI_FORGET_THIS */
@@ -580,7 +580,7 @@ if((*p_TruncBegMode)[j] == RELATIF && (*p_MaxTruncBeg)[j] == 100L)
 if((*p_TruncEndMode)[j] == RELATIF && (*p_MaxTruncEnd)[j] == 100L)
    (*p_TruncEnd)[j] = TRUE;
 if(check && (bugg > 0)) {
-   sprintf(Message,"Found inconsistencies in sound-object prototype '%s'. These have been corrected.\n",
+   my_sprintf(Message,"Found inconsistencies in sound-object prototype '%s'. These have been corrected.\n",
       *((*p_Bol)[j]));
    Print(wTrace,Message);
    }
@@ -615,33 +615,33 @@ if(Jbol < 3) {
    return(OK);
    }
 if(SaveCheck(w) == ABORT) return(MISSED);
-sprintf(Message,"This object is empty");
+my_sprintf(Message,"This object is empty");
 j = DoThings(p_Bol,2,Jbol,NULL,16,CheckPrototypeSize,Message,(int) pushButProc);
 if(j == iProto || j < 2) return(OK);
 switch(w) {
    case wPrototype1:
-      sprintf(Message,"Copy all properties, MIDI codes, Csound score from '%s'",
+      my_sprintf(Message,"Copy all properties, MIDI codes, Csound score from '%s'",
          *((*p_Bol)[j])); break;
    case wPrototype2:
-      sprintf(Message,"Copy Duration/Pivot/Location properties from '%s'",
+      my_sprintf(Message,"Copy Duration/Pivot/Location properties from '%s'",
          *((*p_Bol)[j])); break;
    case wPrototype3:
-      sprintf(Message,"Copy Cover/Truncate/Break tempo properties from '%s'",
+      my_sprintf(Message,"Copy Cover/Truncate/Break tempo properties from '%s'",
          *((*p_Bol)[j])); break;
    case wPrototype4:
-      sprintf(Message,"Copy Continuity/Pre-postroll properties from '%s'",
+      my_sprintf(Message,"Copy Continuity/Pre-postroll properties from '%s'",
          *((*p_Bol)[j])); break;
    case wPrototype5:
-      sprintf(Message,"Copy MIDI codes (sound) from '%s'",
+      my_sprintf(Message,"Copy MIDI codes (sound) from '%s'",
          *((*p_Bol)[j])); break;
    case wPrototype6:
-      sprintf(Message,"Copy period settings from '%s'",
+      my_sprintf(Message,"Copy period settings from '%s'",
          *((*p_Bol)[j])); break;
    case wPrototype7:
-      sprintf(Message,"Copy Csound score from '%s'",
+      my_sprintf(Message,"Copy Csound score from '%s'",
          *((*p_Bol)[j])); break;
    case wPrototype8:
-      sprintf(Message,"Copy MIDI and Csound properties from '%s'",
+      my_sprintf(Message,"Copy MIDI and Csound properties from '%s'",
          *((*p_Bol)[j])); break;
    }
 rep = Answer(Message,'N');
@@ -820,7 +820,7 @@ else {
    if(MyDisposeHandle(&ptr) != OK) return(ABORT);
    (*pp_CsoundTime)[j] = NULL;
    (*p_CsoundSize)[j] = 0;
-   CompiledCsObjects = (*p_CompiledCsoundScore)[j] = FALSE;
+   CompiledCsObjects = (*p_CompiledCsoundScore)[j] = 0;
    }
 #if BP_CARBON_GUI_FORGET_THIS
 SetCsoundScore(j);

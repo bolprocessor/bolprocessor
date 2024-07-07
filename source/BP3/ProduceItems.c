@@ -51,20 +51,19 @@ if(Improvize && ItemNumber == 0) {
 	ShowMessage(TRUE,wMessage,"\nNo message during improvization\n");
 	if(!rtMIDI) ShowMessage(TRUE,wMessage,"Only 10 items will be produced.\n");
 	}
-time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
+// time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
+time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
 
 if(CheckEmergency() != OK) return(ABORT);
 
 if(((SetTimeOn || PrintOn || SoundOn || SelectOn) && !repeat)
 					|| CompileOn || GraphicOn || PolyOn) return(RESUME);
-#if BP_CARBON_GUI_FORGET_THIS
-if(SaveCheck(wGrammar) == ABORT) return(MISSED);
-if(SaveCheck(wAlphabet) == ABORT) return(MISSED);
-if(SaveCheck(wInteraction) == ABORT) return(MISSED);
-if(SaveCheck(wGlossary) == ABORT) return(MISSED);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
-if(CompileCheck() != OK) return(MISSED);
+if(CompileCheck() != OK) {
+	Improvize = FALSE;
+	BPPrintMessage(odError,"=> Compilation failed\n");
+	return(MISSED);
+	}
 
 if(!template && CheckLoadedPrototypes() != OK) return(MISSED);
 
@@ -77,7 +76,8 @@ pp_buff = &p_buff; p_buff = NULL;
 r = OK;
 
 ComputeOn++;
-CreateImageFile(-1.);
+// if(ShowGraphic) CreateImageFile(-1.);
+if(Panic) return ABORT;
 
 SaidTooComplex = ShownBufferSize = FALSE;
 if(rtMIDI) {
@@ -127,7 +127,7 @@ if(undefined && !repeat && !IgnoreUndefinedVariables) {
 		if(((*p_VarStatus)[j] & 2) && !((*p_VarStatus)[j] & 1)
 									&& !((*p_VarStatus)[j] & 4))  {
 			if(i > 0) BPPrintMessage(odError,", ");
-			sprintf(Message,"%s",*((*p_Var)[j]));
+			my_sprintf(Message,"%s",*((*p_Var)[j]));
 			BPPrintMessage(odError,Message);
 			i++;
 			}
@@ -167,29 +167,29 @@ ResizeObjectSpace(FALSE,maxsounds,0);
 
 r = OK;
 /* if(!PlaySelectionOn && ScriptRecOn) {
-	sprintf(Message,"%.0f",(double) Qclock);
+	my_sprintf(Message,"%.0f",(double) Qclock);
 	MystrcpyStringToTable(ScriptLine.arg,0,Message);
-	sprintf(Message,"%.0f",(double) Pclock);
+	my_sprintf(Message,"%.0f",(double) Pclock);
 	MystrcpyStringToTable(ScriptLine.arg,1,Message);
 	AppendScript(45);
 	if(UseBufferLimit) {
 		AppendScript(46);
-		sprintf(Message,"%ld",(long) BufferSize / 2L - 1L);
+		my_sprintf(Message,"%ld",(long) BufferSize / 2L - 1L);
 		MystrcpyStringToTable(ScriptLine.arg,0,Message);
 		AppendScript(48);
-		sprintf(Message,"%ld",(long) DeftBufferSize / 2L - 1L);
+		my_sprintf(Message,"%ld",(long) DeftBufferSize / 2L - 1L);
 		MystrcpyStringToTable(ScriptLine.arg,0,Message);
 		AppendScript(73);
 		}
 	else AppendScript(47);
 	if(QuantizeOK) {
-		sprintf(Message,"%ld",(long) Quantization);
+		my_sprintf(Message,"%ld",(long) Quantization);
 		MystrcpyStringToTable(ScriptLine.arg,0,Message);
 		AppendScript(65);
 		AppendScript(52);
 		}
 	else AppendScript(72);
-	sprintf(Message,"%ld",(long) MIDIsetUpTime);
+	my_sprintf(Message,"%ld",(long) MIDIsetUpTime);
 	MystrcpyStringToTable(ScriptLine.arg,0,Message);
 	AppendScript(58);
 	} */
@@ -312,6 +312,7 @@ Prod = 1.;
 if(!PlaySelectionOn && !Improvize && ShowItem(-1,&Gram,0,pp_a,repeat,PROD,FALSE) == ABORT) goto QUIT;
 if(pp_start == NULL) LastComputeWindow = w;
 
+// BPPrintMessage(odError,"OK OK!\n");
 // HERE WE DO IT ///////////////////////////////////////////////////////////
 if((((r=Compute(pp_a,1,Gram.number_gram,&lengthA,&repeat,time_end_compute)) != OK) && !SkipFlag) || r == EXIT) goto QUIT;
 ////////////////////////////////////////////////////////////////////////////
@@ -324,13 +325,13 @@ ResetDone = ifunc = FALSE;
 OkShowExpand = FALSE;
 SplitTimeObjects = splitmem;
 if(!PlaySelectionOn && Improvize) {
-	sprintf(Message,"Item #%ld\n",(long)(ItemNumber + 1L));
+	my_sprintf(Message,"Item #%ld\n",(long)(ItemNumber + 1L));
 	FlashInfo(Message);
 	if(!rtMIDI && !template && Improvize) BPPrintMessage(odInfo,Message);
 	ItemNumber++; // Needs to bee checked. Sometimes only 5 items created in improvize mode.
 	if(SkipFlag) goto MAKE;
 	if(!PlaySelectionOn && DisplayItems) {
-		Dirty[OutputWindow] = TRUE;
+	//	Dirty[OutputWindow] = TRUE;
 		datamode = DisplayMode(pp_a,&ifunc,&hastabs);
 		if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
 	//	ShowSelect(CENTRE,OutputWindow);
@@ -340,18 +341,22 @@ if(!PlaySelectionOn && Improvize) {
 	goto MAKE;
 	}
 if(!StepProduce && !TraceProduce && !PlaySelectionOn
-	&& ((r=ShowItem(-1,&Gram,0,pp_a,repeat,PROD,FALSE)) == ABORT || r == EXIT))
+	&& ((r=ShowItem(-1,&Gram,0,pp_a,repeat,PROD,FALSE)) == ABORT || r == EXIT)) {
+		BPPrintMessage(odError, "=> Failed in ShowItem()\n");
 		goto QUIT;
+		}
+// BPPrintMessage(odInfo, "DisplayItems = %d\n",DisplayItems);
 if(!PlaySelectionOn && DisplayItems) {
 	SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
 	datamode = DisplayMode(pp_a,&ifunc,&hastabs);
-	BPPrintMessage(odInfo, "Preparing item for display\n");
+	BPPrintMessage(odInfo, "\nBol Processor score:\n");
 	if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
-	BPPrintMessage(odInfo, "Created item for display\n");
+	Print(OutputWindow,"\n\n");
+//	BPPrintMessage(odInfo, "Created item for display\n");
 	DataEnd = GetTextLength(OutputWindow);
 	SetSelect(DataOrigin,DataEnd,TEH[OutputWindow]);
-	BPActivateWindow(SLOW,OutputWindow);
-	Dirty[OutputWindow] = TRUE;
+/*	BPActivateWindow(SLOW,OutputWindow);
+	Dirty[OutputWindow] = TRUE; */
 	}
 // if((!DisplayItems || PlaySelectionOn) && (rtMIDI || OutCsound || WriteMIDIfile)) {
 if(ShowGraphic || rtMIDI || OutCsound || WriteMIDIfile  || OutBPdata) {
@@ -512,9 +517,9 @@ while(origin < end) {
 	MyDisposeHandle((Handle*)pp_a);
 	if(r == ABORT || r == EXIT) goto END;
 	else r = OK;
-	sprintf(Message,""); // Fixed by BB 2022-02-2
-	if(result == OK) sprintf(Message,"[PASSED] ");
-	if(result == MISSED) sprintf(Message,"[MISSED] ");
+	my_sprintf(Message,""); // Fixed by BB 2022-02-2
+	if(result == OK) my_sprintf(Message,"[PASSED] ");
+	if(result == MISSED) my_sprintf(Message,"[MISSED] ");
 	dif = strlen(Message);
 	if(dif > 0 && w != wTrace) {
 		Print(w,Message);
@@ -661,7 +666,7 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 			while((*p_line)[++i] != '>' && (*p_line)[i] != '\334' && i < j) pos2++;
 			SetSelect(pos1,pos2,TEH[wGrammar]);
 			TextDelete(wGrammar);
-			sprintf(Message,"%ld",
+			my_sprintf(Message,"%ld",
 				(long)((*((*(Gram.p_subgram))[igram].p_rule))[irul].weight));
 			Print(wGrammar,Message);
 			dif = strlen(Message) - (pos2 - pos1);
@@ -671,7 +676,7 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 		else {	/* No weight found.  Create one. */
 			pos1 = posline + gap + i;
 			SetSelect(pos1,pos1,TEH[wGrammar]);
-			sprintf(Message," <%ld> ",
+			my_sprintf(Message," <%ld> ",
 				(long)((*((*(Gram.p_subgram))[igram].p_rule))[irul].weight));
 			Print(wGrammar,Message);
 			dif = strlen(Message);
@@ -705,7 +710,8 @@ depth = 0; maxdepth = 20L;
 single = FALSE;
 ProduceStackIndex = DisplayStackIndex = SkipFlag = FALSE;
 
-time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
+// time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
+time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
 
 if(Varweight) {
 	if(ResetRuleWeights(0) == ABORT) {
@@ -714,8 +720,8 @@ if(Varweight) {
 	weightloss = TRUE;
 	}
 if((r=ClearWindow(FALSE,wTrace)) != OK) return(r);
-if(!template) sprintf(Message,"Computing all possible items...");
-else sprintf(Message,"Computing templates...");
+if(!template) my_sprintf(Message,"Computing all possible items...");
+else my_sprintf(Message,"Computing templates...");
 ShowMessage(TRUE,wMessage,Message);
 (**(pp_a))[0] = T0; (**(pp_a))[1] = 10;
 (**(pp_a))[2] = TEND; (**(pp_a))[3] = TEND;
@@ -796,12 +802,12 @@ AllOn = FALSE;
 #if BP_CARBON_GUI_FORGET_THIS
 if(single) CloseAndDeleteTemp();
 if(template && ItemNumber > 10L) SysBeep(10);
-HideWindow(Window[wInfo]);
+// HideWindow(Window[wInfo]);
 if(!template) {
-	sprintf(Message,"Produced %ld items", ItemNumber);
+	my_sprintf(Message,"Produced %ld items", ItemNumber);
 	ShowMessage(TRUE,wMessage,Message);
 	}
-else HideWindow(Window[wMessage]);
+else // HideWindow(Window[wMessage]);
 if((*p_gram).hasTEMP && template) {
 	ShowSelect(CENTRE,wGrammar);
 	BPActivateWindow(SLOW,wGrammar);
@@ -897,7 +903,7 @@ TRYAGAIN:
 		(*p_length) = LengthOf(pp_a);
 		r = Compute(pp_a,igram,(*p_gram).number_gram,p_length,&repeat,time_end_compute);
 		if(r == ABORT || r == EXIT) goto END;
-		sprintf(Message,"Item #%ld\n",(long)(ItemNumber + 1L));
+		my_sprintf(Message,"Item #%ld\n",(long)(ItemNumber + 1L));
 		FlashInfo(Message);
 		if(!rtMIDI && !template && Improvize) BPPrintMessage(odInfo,Message);
 	//	ItemNumber++; 2024-05-02
@@ -1028,7 +1034,7 @@ int r,endgram,wantgram;
 endgram = Gram.number_gram;
 if(endgram == 1 || igram == 1) return(igram);
 
-sprintf(defaultvalue,"%ld",(long)igram);
+my_sprintf(defaultvalue,"%ld",(long)igram);
 wantgram = igram;
 
 TRY:
@@ -1038,7 +1044,7 @@ if(!ScriptExecOn && !AEventOn) {
 			defaultvalue,value)) != OK) return(r);
 	wantgram = (int) atol(value); 	/* Don't use atoi() because int's are 4 bytes */
 	if(wantgram < 1 || wantgram > endgram) {
-		sprintf(Message,"Range should be [1,%ld]. Try again...",(long)endgram);
+		my_sprintf(Message,"Range should be [1,%ld]. Try again...",(long)endgram);
 		Alert1(Message);
 		goto TRY;
 		}
@@ -1133,7 +1139,7 @@ for(igram=1; igram <= Gram.number_gram; igram++) {
 	found = FALSE;
 	for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
 		if(StructuralRule(igram,irul)) {
- /*			sprintf(Message,"igram=%ld  irul=%ld  is structural\n",(long)igram,
+ /*			my_sprintf(Message,"igram=%ld  irul=%ld  is structural\n",(long)igram,
 				(long)irul);
 			Println(wTrace,Message); */
 			found = TRUE; break;
@@ -1166,15 +1172,15 @@ for(i=i0; ((*p_arg)[i] != TEND || (*p_arg)[i+1] != TEND) && i < i1; i+=2) {
 	switch(p) {
 		case T2:		/* Parenthesis */
 		case T5:		/* Homomorphism */
-/*			sprintf(Message,"Found %ld.%ld position %ld i0=%ld  i1=%ld",
+/*			my_sprintf(Message,"Found %ld.%ld position %ld i0=%ld  i1=%ld",
 				(long)p,(long)q,(long)i,(long)i0,(long)i1);
 			Println(wTrace,Message);
-			sprintf(Message,"lenc=%ld  LengthOf(&p_arg)=%ld  (*((*(Gram.p_subgram))[igram].p_rule))[irul].leftoffset=%ld  (*((*(Gram.p_subgram))[igram].p_rule))[irul].rightoffset=%ld",
+			my_sprintf(Message,"lenc=%ld  LengthOf(&p_arg)=%ld  (*((*(Gram.p_subgram))[igram].p_rule))[irul].leftoffset=%ld  (*((*(Gram.p_subgram))[igram].p_rule))[irul].rightoffset=%ld",
 				(long)lenc,(long)LengthOf(&p_arg),(long)(*((*(Gram.p_subgram))[igram].p_rule))[irul].leftoffset,
 				(long)(*((*(Gram.p_subgram))[igram].p_rule))[irul].rightoffset);
 			Println(wTrace,Message);
 			for(i=0; ((*p_arg)[i] != TEND || (*p_arg)[i+1] != TEND); i+=2) {
-				sprintf(Message,"%ld.%ld ",(long)(*p_arg)[i],(long)(*p_arg)[i+1]);
+				my_sprintf(Message,"%ld.%ld ",(long)(*p_arg)[i],(long)(*p_arg)[i+1]);
 				Print(wTrace,Message);
 				}
 			Print(wTrace,"\n");  */
@@ -1275,7 +1281,7 @@ if(pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL) {
 	return(OK);
 	}
 foundspeed = foundscaling = FALSE; speed = 1L; setting_section = TRUE;
-sprintf(Message,"[%ld] ",(long)ItemNumber);
+my_sprintf(Message,"[%ld] ",(long)ItemNumber);
 Print(w,Message);
 for(i=ZERO; ; i+=2L) {
 	m = (**pp_a)[i]; p = (**pp_a)[i+1];
@@ -1307,14 +1313,14 @@ TAKEIT:
 				}
 			break;
 		case T1:	/* Number */
-			sprintf(line,"%.0f",(double)(((double)TOKBASE * p) + (**pp_a)[i+3]));
+			my_sprintf(line,"%.0f",(double)(((double)TOKBASE * p) + (**pp_a)[i+3]));
 			Print(w,line);
 			if(!setting_section && ((**pp_a)[i+4] != T0 || (**pp_a)[i+5] != 11))
 				Print(w," ");
 			i += 2;
 			break;
 		case T2:	/* Parenthesis marker */
-			sprintf(line,"@%ld ",(long)p);
+			my_sprintf(line,"@%ld ",(long)p);
 			Print(w,line); break;
 		case T3:	/* Sound-object */
 		case T25:	/* Simple note */
@@ -1322,20 +1328,20 @@ TAKEIT:
 			Print(w,"_"); break;
 		case T5:	/* Homomorphism */
 			if(p < Jhomo) {
-				sprintf(line," %s ",*((*p_Homo)[p]));
+				my_sprintf(line," %s ",*((*p_Homo)[p]));
 				Print(w,line);
 				}
 			break;
 		case T9:	/* Time pattern */
-			sprintf(line," %s ",*((*p_Patt)[p]));
+			my_sprintf(line," %s ",*((*p_Patt)[p]));
 			Print(w,line); break;
 		case T43:	/* _tempo */
-			sprintf(line," %s(%ld/",*((*p_PerformanceControl)[61]),(long)p);
+			my_sprintf(line," %s(%ld/",*((*p_PerformanceControl)[61]),(long)p);
 			Print(w,line);
 			i += 2L;
 			m = (**pp_a)[i];
 			p = (**pp_a)[i+1];
-			sprintf(line,"%ld)",(long)p);
+			my_sprintf(line,"%ld)",(long)p);
 			Print(w,line);
 			break;
 		}
@@ -1517,18 +1523,18 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	if((*p_line)[0] == '\0') {
 		pos1 = pos; continue;
 		}
-	if(Mystrcmp(p_line,"DATA:") == 0) goto OUT;
-	if(Mystrcmp(p_line,"COMMENT:") == 0) goto OUT;
+	if(Mystrcmp(p_line,"DATA:") == 0) goto SORTIR;
+	if(Mystrcmp(p_line,"COMMENT:") == 0) goto SORTIR;
 	if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
 		do {
-			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto OUT;
+			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto SORTIR;
 			if((*p_line)[0] == '\0') continue;
 			}
 		while((*p_line)[0] != '-' || (*p_line)[1] != '-');
 		pos1--;
 		SetSelect(pos1,pos,TEH[wGrammar]);
 		TextDelete(wGrammar);
-		goto OUT;
+		goto SORTIR;
 		}
 	if((*p_line)[0] == '-' && (*p_line)[1] == '-') separator = TRUE;
 	else separator = FALSE;
@@ -1536,7 +1542,7 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	}
 pos1 = posmax;
 
-OUT:
+SORTIR:
 MyDisposeHandle((Handle*)&p_line);
 SetSelect(pos1,pos1,TEH[wGrammar]);
 if(!separator) {
@@ -1598,8 +1604,8 @@ r = OK; (*p_result) = ABORT;
 
 lastbyte = GetTextLength(wTrace);
 SetSelect(lastbyte,lastbyte,TEH[wTrace]);
-if(remark[0] == '\0') sprintf(LineBuff,"");
-else sprintf(LineBuff,"[%s] ",remark);
+if(remark[0] == '\0') my_sprintf(LineBuff,"");
+else my_sprintf(LineBuff,"[%s] ",remark);
 if((all && templates) || DisplayProduce) {
 	if(remark[0] == '\0') {
 		Print(wTrace,">>> Analyzing item: ");
@@ -1607,7 +1613,7 @@ if((all && templates) || DisplayProduce) {
 			return(r);
 		}
 	else {
-		sprintf(Message,">>> Analyzing item [%s]\n",remark);
+		my_sprintf(Message,">>> Analyzing item [%s]\n",remark);
 		Print(wTrace,Message);
 		}
 	if(StepProduce) {
@@ -1661,7 +1667,7 @@ if(templates) {
 	if(ReadTemplate(wGrammar,pos,&posend,pp_b,&itemp) != OK) {
 		(*p_result) = MISSED;
 		if(!foundone) {
-			sprintf(Message,"Item matched no template...");
+			my_sprintf(Message,"Item matched no template...");
 			ShowMessage(TRUE,wMessage,Message);
 			if(StepProduce) {
 				r = InterruptCompute(-1,&Gram,*p_repeat,-1,ANAL);
@@ -1670,7 +1676,7 @@ if(templates) {
 					goto END;
 					}
 				}
-			sprintf(Message,"Item %smatched no template...\n\n",LineBuff);
+			my_sprintf(Message,"Item %smatched no template...\n\n",LineBuff);
 			Print(wTrace,Message);
 			}
 		else if(good) *p_result = OK;
@@ -1697,20 +1703,20 @@ if(templates) {
 		}
 	MyDisposeHandle((Handle*)pp_b);
 	foundone = TRUE;
-/*	sprintf(Message,"Item %smatched template [%ld]",LineBuff,(long)itemp);
+/*	my_sprintf(Message,"Item %smatched template [%ld]",LineBuff,(long)itemp);
 	ShowMessage(TRUE,wMessage,Message); */
 	if(ScriptExecOn || all || DisplayProduce) {
 		lastbyte = GetTextLength(wTrace);
 		SetSelect(lastbyte,lastbyte,TEH[wTrace]);
 		if(DisplayProduce) {
-			sprintf(Message,"Item matched template [%ld], yielding:\n",(long)itemp);
+			my_sprintf(Message,"Item matched template [%ld], yielding:\n",(long)itemp);
 			Print(wTrace,Message);
 			if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wTrace,pp_Scrap,
 				pp_a)) != OK) goto END;
 			ShowSelect(CENTRE,wTrace);
 			}
 		else {
-			sprintf(Message,"Item %smatched template [%ld]\n",LineBuff,(long)itemp);
+			my_sprintf(Message,"Item %smatched template [%ld]\n",LineBuff,(long)itemp);
 			Print(wTrace,Message);
 			ShowSelect(CENTRE,wTrace);
 			}
@@ -1722,7 +1728,8 @@ if(templates) {
 	}
 ClearMarkers(pp_a);
 
-time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
+// time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
+time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
 
 for(igram=Gram.number_gram; igram >= 1; igram--) {
 	PleaseWait();
@@ -1767,12 +1774,12 @@ for(i=0; ; i+=2) {
 	}
 if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 10) { /* 'S' */
 	good = (*p_result) = YES;
-	if(!templates) sprintf(Message,"Item %saccepted by grammar...",LineBuff);
-	else sprintf(Message,
+	if(!templates) my_sprintf(Message,"Item %saccepted by grammar...",LineBuff);
+	else my_sprintf(Message,
 		"Item %smatching template [%ld] accepted by grammar...",LineBuff,(long)itemp);
 	ShowMessage(TRUE,wMessage,Message);
-	if(!templates) sprintf(Message,"Item %saccepted by grammar...\n\n",LineBuff);
-	else sprintf(Message,"Item %smatching template [%ld] accepted by grammar...\n\n",
+	if(!templates) my_sprintf(Message,"Item %saccepted by grammar...\n\n",LineBuff);
+	else my_sprintf(Message,"Item %smatching template [%ld] accepted by grammar...\n\n",
 		LineBuff,(long)itemp);
 	if(1 || all || DisplayProduce || ScriptExecOn) {
 		Print(wTrace,Message);
@@ -1785,16 +1792,16 @@ if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 10) { /* 'S' */
 	if(all && templates) goto NEXTTEMPLATE;
 	}
 else {
-	sprintf(Message,"Item %srejected by grammar...",LineBuff);
+	my_sprintf(Message,"Item %srejected by grammar...",LineBuff);
 	(*p_result) = MISSED;
 	ShowMessage(TRUE,wMessage,Message);
 	if(templates)
-		sprintf(Message,"Item %smatching template [%ld] rejected by grammar...\n",LineBuff,
+		my_sprintf(Message,"Item %smatching template [%ld] rejected by grammar...\n",LineBuff,
 			(long)itemp);
 	else
-		sprintf(Message,"Item %srejected by grammar...\n",LineBuff);
+		my_sprintf(Message,"Item %srejected by grammar...\n",LineBuff);
 	Print(wTrace,Message);
-	sprintf(Message,"Result of failed analysis:\n");
+	my_sprintf(Message,"Result of failed analysis:\n");
 	Print(wTrace,Message);
 	if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wTrace,pp_Scrap,pp_a)) != OK)
 		goto END;
@@ -1996,7 +2003,7 @@ WRITE:
 			r = ABORT; goto END;
 			}
 		for(i=ZERO; i < (*p_length+2); i++) {
-			sprintf(Message,"%ld ",(long)(**(pp_a))[i]);
+			my_sprintf(Message,"%ld ",(long)(**(pp_a))[i]);
 			NoReturnWriteToFile(Message,TempRefnum);
 			}
 		NoReturnWriteToFile("\n",TempRefnum);

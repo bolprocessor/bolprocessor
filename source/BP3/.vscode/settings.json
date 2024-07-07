@@ -13,7 +13,13 @@
         "sstream": "c",
         "streambuf": "c",
         "string": "c",
-        "string_view": "c"
+        "string_view": "c",
+        "float.h": "c",
+        "unistd.h": "c",
+        "mach_time.h": "c",
+        "ios": "c",
+        "consoleglobals.h": "c",
+        "stringlists.h": "c"
     },
     "search.useParentIgnoreFiles": true,
     "search.useGlobalIgnoreFiles": false

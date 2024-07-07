@@ -75,14 +75,14 @@ if(p_Code != NULL) {
 	}
 imax = 10000L;	/* Initial size of MIDI buffer. Will be resized if needed. */
 if((p_Code = (MIDIcode**) GiveSpace((Size)imax * sizeof(MIDIcode))) == NULL) return(ABORT);
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 if(ResetControllers) ResetMIDIControllers(YES,YES,NO);
 oldfilter = MIDIacceptFilter;
 MIDIacceptFilter = 0xffffffffL;
 if(!Oms) SetDriver();
 InputOn = TRUE;
 r = LoadMIDIprototype(j,imax);
-HideWindow(Window[wInfo]);
+// HideWindow(Window[wInfo]);
 SuppressAllNotesOff(NO,j);
 MIDIacceptFilter = oldfilter;
 if(!Oms) SetDriver();
@@ -105,7 +105,7 @@ Milliseconds oldeventrange,neweventrange;
 
 if(j < 0 || j >= Jbol) {
 	if(Beta) {
-		sprintf(Message,"=> Err. AdjustDuration(). j = %ld",(long)j);
+		my_sprintf(Message,"=> Err. AdjustDuration(). j = %ld",(long)j);
 		Alert1(Message);
 		}
 	return(MISSED);
@@ -510,7 +510,7 @@ if(warn && Answer("Suppress AllNotesOff can't be undone. Proceed anyway",'N') !=
 	return(MISSED);
 if(GetPrePostRoll(j,&preroll,&postroll) != OK) {
 	if(Beta) {
-		sprintf(Message,"=> Err. SuppressAllNotesOff(). j = %ld",(long)j);
+		my_sprintf(Message,"=> Err. SuppressAllNotesOff(). j = %ld",(long)j);
 		Alert1(Message);
 		}
 	return(MISSED);
@@ -571,7 +571,7 @@ if(Answer("Suppress messages can't be undone. Proceed anyway",'N') != YES)
 	return(MISSED);
 if(GetPrePostRoll(j,&preroll,&postroll) != OK) {
 	if(Beta) {
-		sprintf(Message,"=> Err. SuppressMessages(). j = %ld",(long)j);
+		my_sprintf(Message,"=> Err. SuppressMessages(). j = %ld",(long)j);
 		Alert1(Message);
 		}
 	return(MISSED);
@@ -649,7 +649,7 @@ double preroll,postroll;
 if(CheckNonEmptyMIDI(j) != OK) return(MISSED);
 if(GetPrePostRoll(j,&preroll,&postroll) != OK) {
 	if(Beta) {
-		sprintf(Message,"=> Err. InsertSilence(). j = %ld",(long)j);
+		my_sprintf(Message,"=> Err. InsertSilence(). j = %ld",(long)j);
 		Alert1(Message);
 		}
 	return(MISSED);
@@ -959,7 +959,7 @@ if(!((*p_Type)[j] & 1)) {
 	}
 if(GetPrePostRoll(j,&preroll,&postroll) != OK) {
 	if(Beta) {
-		sprintf(Message,"=> Err. PlayPrototype(). j = %ld",(long)j);
+		my_sprintf(Message,"=> Err. PlayPrototype(). j = %ld",(long)j);
 		Alert1(Message);
 		}
 	return(MISSED);
@@ -986,28 +986,28 @@ if((*p_Tpict)[j] > ZERO && !ConvertMIDItoCsound) {
 	infothere = TRUE;
 	}
 if(p > EPSILON) {
-	if((r=Simplify((double)INT_MAX,1000.,(double)p,&Qclock,&Pclock)) != OK) goto OUT;
+	if((r=Simplify((double)INT_MAX,1000.,(double)p,&Qclock,&Pclock)) != OK) goto SORTIR;
 	SetTempo();
 	}
 MystrcpyTableToString(MAXFIELDCONTENT,line,p_Bol,j);
 DefaultVolume = 127;
 if((h = (char**) GiveSpace((Size)((1+strlen(line)) * sizeof(char)))) == NULL) {
-	r = ABORT; goto OUT;
+	r = ABORT; goto SORTIR;
 	}
-if((r=MystrcpyStringToHandle(&h,line)) != OK) goto OUT;
+if((r=MystrcpyStringToHandle(&h,line)) != OK) goto SORTIR;
 if(infothere) WaitABit(500L);
 NoRepeat = PlayPrototypeOn = TRUE;
 
 r = PlayHandle(h,NO);
 
 NoRepeat = PlayPrototypeOn = FALSE;
-if(MyDisposeHandle((Handle*)&h) != OK) goto OUT;
+if(MyDisposeHandle((Handle*)&h) != OK) goto SORTIR;
 
 #if BP_CARBON_GUI_FORGET_THIS
 if(ConvertMIDItoCsound) GetCsoundScore(iProto);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
-OUT:
+SORTIR:
 PlayFromInsertionPoint = FALSE;
 DefaultVolume = DeftVolume;
 ShowGraphic = showgraphic;
@@ -1015,7 +1015,7 @@ DisplayTimeSet = displaytimeset;
 
 Pclock = pclock; Qclock = qclock;
 SetTempo();
-HideWindow(Window[wInfo]);
+// HideWindow(Window[wInfo]);
 return(r);
 }
 
@@ -1026,7 +1026,7 @@ int c;
 
 c = 0;
 if(*p_q == ZERO || (c = *p_p / *p_q) < 1 || c > MAXCHAN) {
-	sprintf(Message,"=> MIDI channel should be in range 1..%ld. Can't accept %ld",
+	my_sprintf(Message,"=> MIDI channel should be in range 1..%ld. Can't accept %ld",
 		(long)MAXCHAN,(long)c);
 	Alert1(Message);
 	*p_p = *p_q = 1;
@@ -1061,7 +1061,7 @@ if(dur < 0.) dur = 0.;
 
 CSOUND:
 size = (*p_CsoundSize)[j];
-if(size < 1L) goto OUT;
+if(size < 1L) goto SORTIR;
 
 if(DurationToPoint(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) return(ABORT);
 
@@ -1082,7 +1082,7 @@ if(((dur - (*p_Dur)[j]) < (- Time_res)) && (*p_MIDIsize)[j] > ZERO)
 
 if(PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) return(ABORT);
 
-OUT:
+SORTIR:
 if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 #if BP_CARBON_GUI_FORGET_THIS
 SetPrototypePage5(j);

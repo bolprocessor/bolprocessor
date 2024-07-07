@@ -680,11 +680,11 @@ for(i=0; i < im; i++) {
 		Strip(Message);
 		if(strcmp(Message,name) == 0) {
 			id = node.info[j].uniqueID;
-			goto OUT;
+			goto SORTIR;
 			}
 		}
 	}
-OUT:
+SORTIR:
 OMSDisposeHandle(nodelist);
 return(id);
 }

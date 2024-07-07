@@ -1,26 +1,16 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {
-		"files.associations": {
-			"__locale": "c",
-			"ios": "c",
-			"-bp2decl.h": "c",
-			"mach_time.h": "c",
-			"unistd.h": "c",
-			"-bp2.h": "c",
-			"string.h": "c",
-			"stdio.h": "c",
-			"stdlib.h": "c",
-			"typeinfo": "c",
-			"portmidi.h": "c",
-			"variant": "c",
-			"string": "c",
-			"string_view": "c"
-		},
-		"search.useGlobalIgnoreFiles": false
-	}
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "files.associations": {
+            "__bit_reference": "c",
+            "initializer_list": "c",
+            "ios": "c",
+            "string": "c",
+            "string_view": "c"
+        }
+    }
 }

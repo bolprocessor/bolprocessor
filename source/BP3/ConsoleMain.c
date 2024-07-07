@@ -12,7 +12,7 @@ modification, are permitted provided that the following conditions are met:
 Redistributions of source code must retain the above copyright notice, 
 this list of conditions and the following disclaimer. 
 
-Redistributions in binary form must reproduce the above copyright notice,
+Redistributions in binary form must }roduce the above copyright notice,
 this list of conditions and the following disclaimer in the documentation
 and/or other materials provided with the distribution. 
 
@@ -33,18 +33,19 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
+/* #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string.h> */
 
 #include "-BP2.h"
 #include "-BP2main.h"
+
 #include "ConsoleGlobals.h"
 #include "ConsoleMessages.h"
-#include "CTextHandles.h"
 
 const size_t	READ_ENTIRE_FILE = 0;
-char StopfileName[500],PanicfileName[500];
+char StopfileName[500] = {0};
+char PanicfileName[500] = {0};
 
 // function prototypes
 void ConsoleInit(BPConsoleOpts* opts);
@@ -58,16 +59,15 @@ int ApplyArgs(BPConsoleOpts* opts);
 const char* ActionTypeToStr(action_t action);
 int LoadInputFiles(const char* pathnames[WMAX]);
 int LoadFileToTextHandle(const char* pathname, TEHandle th);
-int OpenAndReadFile(const char* pathname, char*** buffer);
-int ReadNewHandleFromFile(FILE* fin, size_t numbytes, Handle* data);
+int OpenAndReadFile(const char*,char**);
 int PrepareProdItemsDestination(BPConsoleOpts* opts);
 int PrepareTraceDestination(BPConsoleOpts* opts);
 void CloseOutputDestination(int dest, BPConsoleOpts* opts, outfileidx_t fileidx);
-Boolean isInteger(const char* s);
+int isInteger(const char* s);
 
 // globals only for the console app
-Boolean LoadedAlphabet = FALSE;
-Boolean LoadedStartString = FALSE;
+int LoadedAlphabet  = FALSE;
+int LoadedStartString = FALSE;
 BPConsoleOpts gOptions;
 FILE * imagePtr;
 char imageFileName[500];
@@ -79,14 +79,14 @@ char LastSeen_scale[100]; // Last scale found during compilation of grammar
 Handle mem_ptr[5000];
 int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 
-Boolean Find_leak = FALSE; // Flag to locate place where negative leak starts
-Boolean check_memory_use = FALSE;
+int Find_leak = FALSE; // Flag to locate place where negative leak starts
+int check_memory_use = FALSE;
 
 int trace_scale = 0;
 
 int WarnedBlockKey,WarnedRangeKey;
 
-Boolean PrototypesLoaded = FALSE;
+int PrototypesLoaded = FALSE;
 
 int main (int argc, char* args[])
 {
@@ -102,13 +102,13 @@ int main (int argc, char* args[])
 	StopPlay = FALSE;
 	TraceMIDIinteraction = FALSE;
 	TimeStopped = Oldtimestopped = 0L;
-	MIDIsyncDelay = 380; // ms
+	MIDIsyncDelay = 380; // ms default value
+	DisplayItems = FALSE;
 
 	NoteOffInputFilter = NoteOnInputFilter = KeyPressureInputFilter = ControlTypeInputFilter = ProgramTypeInputFilter = ChannelPressureInputFilter = PitchBendInputFilter = SysExInputFilter = TimeCodeInputFilter = SongPosInputFilter = SongSelInputFilter = TuneTypeInputFilter = EndSysExInputFilter = ClockTypeInputFilter = StartTypeInputFilter = ContTypeInputFilter = ActiveSenseInputFilter = ResetInputFilter = 3;
 	
-//	system("sync");
 	ConsoleInit(&gOptions);
-//	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (1) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (1) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
     ConsoleMessagesInit();
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (2) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	result = ParsePreInitArgs(argc, args, &gOptions);
@@ -124,13 +124,15 @@ int main (int argc, char* args[])
 	if(check_memory_use) BPPrintMessage(odInfo,"Memory before Inits() = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	
 	memory_before = MemoryUsed;
+	MemoryUsed = memory_before;
 	if (Inits() != OK) goto CLEANUP;
 	MemoryUsed = memory_before;
 	
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (5) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-//	MemoryUsedInit = MemoryUsed;
+	MemoryUsedInit = MemoryUsed;
 	
 	result = ParsePostInitArgs(argc, args, &gOptions);
+//    BPPrintMessage(odInfo,"So far it works\n");
 	if (result != OK) goto CLEANUP;
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (6) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	result = LoadInputFiles(gOptions.inputFilenames);
@@ -183,7 +185,7 @@ int main (int argc, char* args[])
 	// load data
 	if (!LoadedStartString)  CopyStringToTextHandle(TEH[wStartString], "S\n");
 		
-//	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (9) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (9) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 //	BPPrintMessage(odInfo,"\nMemory used so far = %ld bytes\n",(long)MemoryUsed);
 
 	// The following is a global record of the status of handles created and disposed
@@ -224,9 +226,12 @@ int main (int argc, char* args[])
 		//		if (Beta && result != OK)  BPPrintMessage(odError, "=> ProduceItems() returned errors\n");
 				break;
 			case play:
-				BPPrintMessage(odInfo,"Playing single item…\n");
+				BPPrintMessage(odInfo,"Playing single item...\n");
 				PlaySelectionOn = TRUE;
 				Improvize = FALSE;
+                TextOffset start = 0;
+                TextOffset end = GetTextLength(wData);
+                SetSelect(start,end,TEH[wData]);
 				result = PlaySelection(wData,0);
 				if(result == OK) BPPrintMessage(odInfo,"\nErrors: 0\n");
 				else if(Beta && result != OK && result != ABORT) BPPrintMessage(odError,"=> PlaySelection() returned errors\n");
@@ -282,13 +287,16 @@ CLEANUP:
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (13) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	Stream.imax = ZERO;
 	Stream.period = ZERO;
-	EndImageFile();
+	if(imagePtr != NULL) {
+		BPPrintMessage(odInfo, "(Last image) ");
+		result = EndImageFile();
+		}
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (14) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	if(check_memory_use && (MemoryUsed < MemoryUsedInit)) {
 		BPPrintMessage(odInfo,"WARNING! MemoryUsed = %ld < MemoryUsedInit = %ld in %s/%s\n",(long)MemoryUsed,(long)MemoryUsedInit,__FILE__,__FUNCTION__);
 		}
-	if(TraceMemory && Beta) {
-		// reset everything and report memory usage & any leaked space
+	if(TraceMemory && Beta && !Panic) {
+		// reset everything and }ort memory usage & any leaked space
 		if((result = ResetProject(FALSE)) != OK)
 			BPPrintMessage(odError, "=> ResetProject() returned errors\n");
 		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (21) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
@@ -298,7 +306,7 @@ CLEANUP:
 			(long) MaxMemoryUsed,(long)MaxHandles,
 			(long) (MemoryUsed - MemoryUsedInit)); */
 		}
-	if(check_memory_use) {
+	if(check_memory_use && !Panic) {
 		j = forgotten_mem = 0;
 		for(i = 0; i < 5000; i++) {
 			if(hist_mem_ptr[i] == 1) { // Handles that we forgot to dispose of
@@ -328,13 +336,15 @@ CLEANUP:
 		if(ResetNotes) AllNotesOffPedalsOffAllChannels();
 		BPPrintMessage(odInfo,"Duration = %.3f seconds\n",(double)LastTime/1000.); // Date of the last MIDI event
 		closeMIDISystem();
-		WaitABit(500); // 500 milliseconds
+		WaitABit(100); // 100 milliseconds
 		}
-	time(&current_time);
-	if(ProductionTime > 0) BPPrintMessage(odInfo, "Production time: %ld seconds\n",(long)ProductionTime);
-	if(PhaseDiagramTime > 0) BPPrintMessage(odInfo, "Phase-diagram filling time: %ld seconds\n",(long)PhaseDiagramTime);
-	if(TimeSettingTime > 0) BPPrintMessage(odInfo, "Time-setting time: %ld seconds\n",(long)TimeSettingTime);
-	if(current_time > SessionStartTime && !Panic) BPPrintMessage(odInfo, "Total computation time: %ld seconds\n",(long)(current_time-SessionStartTime));
+    if(result == OK) {
+        time(&current_time);
+        if(ProductionTime > 0) BPPrintMessage(odInfo, "Production time: %ld seconds\n",(long)ProductionTime);
+        if(PhaseDiagramTime > 0) BPPrintMessage(odInfo, "Phase-diagram filling time: %ld seconds\n",(long)PhaseDiagramTime);
+        if(TimeSettingTime > 0) BPPrintMessage(odInfo, "Time-setting time: %ld seconds\n",(long)TimeSettingTime);
+        if(current_time > SessionStartTime && !Panic) BPPrintMessage(odInfo, "Total computation time: %ld seconds\n",(long)(current_time-SessionStartTime));
+        }
 	CreateDoneFile();
 	free(eventStack);
 	return EXIT_SUCCESS;
@@ -343,63 +353,103 @@ CLEANUP:
 void CreateDoneFile(void) {
 	FILE * thisfile;
 	FILE * ptr;
-	char line[200];
+	char line[MAXLIN];
 	char* thefile;
+	char* new_thefile;
 	int length;
 	if(gOptions.outputFiles[ofiTraceFile].name != NULL) {
-		sprintf(Message,"%s",gOptions.outputFiles[ofiTraceFile].name);
+		my_sprintf(Message,"%s",gOptions.outputFiles[ofiTraceFile].name);
 		remove_spaces(Message,line);
-		thefile = str_replace(line,".txt",""); // str_replace() is defined in Misc.c
-		strcat(thefile,"_done");
-	    BPPrintMessage(odInfo,"Created 'done' file: %s",thefile);
+		thefile = str_replace(".txt","",line);
+		if(thefile != NULL) {
+            // Allocate new space for modified thefile to include "_done"
+            new_thefile = malloc(strlen(thefile) + strlen("_done") + 1);
+            if(new_thefile != NULL) {
+                strcpy(new_thefile,thefile);
+                strcat(new_thefile,"_done");
+                snprintf(StopfileName,sizeof(StopfileName),"%s",new_thefile);
+            	}
+			else {
+				BPPrintMessage(odError,"=> Memory allocation failed for new_thefile in CreateDoneFile()\n");
+				return;
+				}
+            }
+		else {
+			BPPrintMessage(odError, "=> Memory allocation failed for thefile in CreateDoneFile()\n");
+			return;
+			}
+	    BPPrintMessage(odInfo,"Created 'done' file: %s",new_thefile);
 	//	BPPrintMessage(odInfo,"\n_____________________\n");
-		ptr = fopen(thefile,"w");
+		ptr = my_fopen(1,new_thefile,"w");
 		fputs("bp completed work!\n",ptr);
-		fclose(ptr);
+		my_fclose(ptr);
+        free(new_thefile);
 		free(thefile);
 		}
 	return;
 	}
 
 void CreateStopFile(void) {
-	char line[200];
+	char line[MAXLIN];
 	char* thefile;
+	char* new_thefile;
 	// We may also need to read the "panic" file which is not specific to the project
-	sprintf(PanicfileName,"%s","../temp_bolprocessor/messages/_panic");
+	my_sprintf(PanicfileName,"%s","../temp_bolprocessor/messages/_panic");
 	BPPrintMessage(odInfo,"Created path to expected '_panic' file: %s\n",PanicfileName);
 	if(gOptions.outputFiles[ofiTraceFile].name != NULL) {
-		sprintf(Message,"%s",gOptions.outputFiles[ofiTraceFile].name);
+		my_sprintf(Message,"%s",gOptions.outputFiles[ofiTraceFile].name);
 		remove_spaces(Message,line);
-		thefile = str_replace(line,".txt","");
-		strcat(thefile,"_stop");
-		sprintf(StopfileName,"%s",thefile);
-	    BPPrintMessage(odInfo,"Created path to expected '_stop' file: %s\n",StopfileName);
+		thefile = str_replace(".txt","",line);
+		if(thefile != NULL) {
+            // Allocate new space for modified thefile to include "_stop"
+            new_thefile = malloc(strlen(thefile) + strlen("_stop") + 1);
+            if(new_thefile != NULL) {
+                strcpy(new_thefile,thefile);
+                strcat(new_thefile,"_stop");
+                snprintf(StopfileName,sizeof(StopfileName),"%s",new_thefile);
+                free(new_thefile);
+            	}
+			else BPPrintMessage(odError, "=> Memory allocation failed for new_thefile in CreateStopFile()\n");
+        	free(thefile);
+	    	BPPrintMessage(odInfo,"Created path to expected '_stop' file: %s\n",StopfileName);
+            }
+		else {
+	    	BPPrintMessage(odInfo,"=> Memory allocation failed for thefile in CreateStopFile()\n");
+			return;
+			}
 		}
 	else 
-	    BPPrintMessage(odInfo,"=> Cannot create path to the expected '_stop' file because no Trace path has been provided: %s\n");
+	    BPPrintMessage(odInfo,"=> Cannot create path to the expected '_stop' file because no Trace path has been provided\n");
 	return;
 	}
 
 int stop(int now,char* where) {
 	FILE * ptr;
+    int r;
 	if(Panic || EmergencyExit) return ABORT;
+    if((r = ListenMIDI(0,0,0)) != OK) return r;
 	unsigned long current_time = getClockTime(); // microseconds
 	if(!now && (current_time < NextStop)) return(OK); // We only check _stop and _panic every 500 ms
 	NextStop = current_time + 500000L; // microseconds
-	ptr = fopen(StopfileName,"r");
+    if(strlen(StopfileName) == 0) return OK;
+	ptr = my_fopen(0,StopfileName,"r");
 	if(ptr) {
 		Improvize = PlayAllChunks = FALSE;
-		BPPrintMessage(odError,"Found 'stop' file (during “%s”): %s\n",where,StopfileName);
-		fclose(ptr);
+		my_sprintf(Message,"Found 'stop' file (during “%s”): %s\n",where,StopfileName);
+        Notify(Message,0);
+        strcpy(Message,"");
+		my_fclose(ptr);
 		Panic = EmergencyExit = TRUE;
 		return ABORT;
 		}
-	ptr = fopen(PanicfileName,"r");
+    if(strlen(PanicfileName) == 0) return OK;
+	ptr = my_fopen(0,PanicfileName,"r");
 	if(ptr) {
 		Improvize = PlayAllChunks = FALSE;
 		BPPrintMessage(odError,"Found 'panic' file: %s\n",PanicfileName);
-		fclose(ptr);
+		my_fclose(ptr);
 		Panic = EmergencyExit = TRUE;
+        my_fclose(ptr);
 		return ABORT;
 		}
 	return OK;
@@ -407,142 +457,168 @@ int stop(int now,char* where) {
 
 
 void CreateImageFile(double time) {
-	FILE * thisfile; 
+	FILE* thisfile; 
 	char* someline;
-	char line1[200], line2[200], line3[200];
+    char* thefile;
+	char* new_thefile;
+	char line1[MAXLIN], line2[MAXLIN], line3[MAXLIN];
 	size_t length = 0;
 	ssize_t number;
-	char cwd[PATH_MAX];
+	char cwd[4096];
 	
+    if(!ShowGraphic) return;
 	if(imagePtr != NULL) {
-		EndImageFile();
-		N_image++;
+		int result = fflush(imagePtr);
+		if(result != 0) {
+			BPPrintMessage(odError, "=> Error #%d flushing image content\n,result");
+			my_fclose(imagePtr);
+			return;
+			}
+		result = EndImageFile();
+		if(result != OK) return;
 		}
+	imageHits = 0;
+	N_image++;
+//	BPPrintMessage(odInfo,"N_image = %d\n",N_image);
 	if(gOptions.outputFiles[ofiTraceFile].name == NULL) {
 		BPPrintMessage(odInfo,"=> Cannot create image file because no path is specified and trace mode is not active\n");
 		ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
 		return;
 		}
-	sprintf(line3,"%s",gOptions.outputFiles[ofiTraceFile].name);
-	remove_spaces(line3,line2);
-//	BPPrintMessage(odInfo,"\n\nline3 = %s\n\n",line3);
-	length = strlen(line2);
-	memset(line1,'\0',sizeof(line1));
-	strncpy(line1,line2,length - 4);
-//	BPPrintMessage(odInfo,"\n\nline1 = %s\n\n",line1);
-	if(time >= 0.)
-		sprintf(line2,"_image_%03ld-%.2f_temp.html",(long)N_image,(double)time);
-	else
-		sprintf(line2,"_image_%03ld_temp.html",(long)N_image);
-	strcat(line1,line2);
+    my_sprintf(line1,"%s",gOptions.outputFiles[ofiTraceFile].name);
 	remove_spaces(line1,line2);
-    BPPrintMessage(odInfo,"Creating image file: ");
-	BPPrintMessage(odInfo,line2);
-	BPPrintMessage(odInfo,"\n");
-	imagePtr = fopen(line2,"w");
-	strcpy(imageFileName,line2);
-	thisfile = fopen("CANVAS_header.txt","r");
+	thefile = str_replace(".txt","",line2);
+	if(thefile == NULL) {
+		BPPrintMessage(odError, "=> Error CreateImageFile(). thefile == NULL\n,result");
+		return;
+		}
+	if(time >= 0.)
+		my_sprintf(line2,"_image_%03ld-%.2f_temp.html",(long)N_image,(double)time);
+	else
+		my_sprintf(line2,"_image_%03ld_temp.html",(long)N_image);
+	new_thefile = malloc(strlen(thefile) + strlen(line2) + 1);
+	strcpy(new_thefile,thefile);
+	strcat(new_thefile,line2);
+    BPPrintMessage(odInfo,"Creating image #%d: %s\n",N_image,new_thefile);
+	imagePtr = my_fopen(1,new_thefile,"w");
+	strcpy(imageFileName,new_thefile);
+    getcwd(cwd,sizeof(cwd));
+    convert_path(cwd);
+    if(strlen(cwd) > 259) BPPrintMessage(odError,"=> Warning: this path might be too long: %s\n",cwd);
+  //  BPPrintMessage(odInfo,"cwd = %s\n",cwd);
+    my_sprintf(line1,"%s/CANVAS_header.txt",cwd);
+   // BPPrintMessage(odInfo,"Reading %s\n",line1);
+	thisfile = my_fopen(1,line1,"r");
 	if(thisfile == NULL) {
-		BPPrintMessage(odInfo,"‘CANVAS_header.txt’ is missing!\n");
-		fclose(imagePtr);
+		BPPrintMessage(odError,"=> %s is missing!\n",line1);
+		my_fclose(imagePtr);
+        imagePtr = NULL;
 		}
 	else {
-		someline = (char *) malloc(100);
-		while((number = getline(&someline,&length,thisfile)) != -1) {
+		someline = (char*) malloc(MAXLIN);
+		while(fgets(someline,sizeof(someline),thisfile) != NULL) {
+			remove_carriage_returns(someline);
+		//	BPPrintMessage(odInfo,"someline = %s\n",someline);
 			fputs(someline,imagePtr);
 			}
-		fclose(thisfile);
+		my_fclose(thisfile);
 		fputs("\n",imagePtr);
 		free(someline);
 		}
 	return;
 	}
 
-void EndImageFile(void)
-{
-	FILE * thisfile;
-	char *pick_a_line = NULL;
+int EndImageFile(void) {
+	FILE* thisfile;
+	char pick_a_line[MAXLIN];
+    char cwd[4096],line[MAXLIN];
 	char *final_name = NULL, *someline = NULL, *anotherline = NULL;
 	size_t length;
 	ssize_t number;
-	
-	if(imagePtr == NULL) return;
-	someline = (char *) malloc(200);
-	thisfile = fopen("CANVAS_footer.txt","r");
-	if(thisfile == NULL) BPPrintMessage(odInfo,"‘CANVAS_footer.txt’ is missing!\n");
+	int result;
+	if(imagePtr == NULL) {
+		BPPrintMessage(odError,"=> Error closing an image that is already closed\n");
+		return ABORT;
+		}
+	if(imageHits < 1) {
+        BPPrintMessage(odError, "Closing an empty image: %s\n",imageFileName);
+		my_fclose(imagePtr);
+		remove(imageFileName);
+        return OK;
+        }
+	result = fflush(imagePtr);
+    if(result != 0) {
+        BPPrintMessage(odError, "=> Error #%d flushing image content\n,result");
+		my_fclose(imagePtr);
+        return ABORT;
+        }
+	imageHits = 0;
+    getcwd(cwd,sizeof(cwd));
+    convert_path(cwd);
+    my_sprintf(line,"%s/CANVAS_footer.txt",cwd);
+	thisfile = my_fopen(1,line,"r");
+	if(thisfile == NULL) {
+        BPPrintMessage(odInfo,"%s is missing!\n",line);
+        }
 	else {
-		while((number = getline(&pick_a_line,&length,thisfile)) != -1) {
+		while(fgets(pick_a_line,sizeof(pick_a_line),thisfile) != NULL) {
+			remove_carriage_returns(pick_a_line);
         	fputs(pick_a_line,imagePtr);
 			}
-		fclose(thisfile);
+		my_fclose(thisfile);
 		}
-	free(pick_a_line);
-  	pick_a_line = NULL;
-	fclose(imagePtr);
+	if(imagePtr != NULL) my_fclose(imagePtr);
 	imagePtr = NULL;
 	// BPPrintMessage(odInfo,"Closing temporary image file\n");
 	if(ShowGraphic) {
-		final_name = repl_str(imageFileName,"_temp","");
+		final_name = str_replace("_temp","",imageFileName);
 		remove_spaces(final_name,final_name);
 		if(TraceMIDIinteraction) BPPrintMessage(odInfo,"\n");
-		BPPrintMessage(odInfo,"Finalized image file to %s\n",final_name);
-		imagePtr = fopen(final_name,"w");
-		thisfile = fopen(imageFileName,"r");
+		BPPrintMessage(odInfo,"Finalizing image #%d: %s\n",N_image,final_name);
+		imagePtr = my_fopen(1,final_name,"w");
+		thisfile = my_fopen(1,imageFileName,"r");
 		free(final_name);
-		while((number = getline(&pick_a_line,&length,thisfile)) != -1) {
+		while(fgets(pick_a_line, 200, thisfile) != NULL) {
+		//	BPPrintMessage(odInfo,"pick_a_line: %s",pick_a_line);
+			remove_carriage_returns(pick_a_line);
 			if(strstr(pick_a_line,"THE_TITLE") != NULLSTR) {
-				// remove_final_linefeed(pick_a_line,Message);
-				if(!PlaySelectionOn) someline = repl_str(pick_a_line,"THE_TITLE",gOptions.inputFilenames[wGrammar]);
-				else someline = repl_str(pick_a_line,"THE_TITLE",gOptions.inputFilenames[wData]);
-				anotherline = recode_tags(pick_a_line);
-				remove_final_linefeed(anotherline,anotherline);
-			//	BPPrintMessage(odInfo,"Found: %s\n",anotherline);
+				if(!PlaySelectionOn) someline = str_replace("THE_TITLE",gOptions.inputFilenames[wGrammar],pick_a_line);
+				else someline = str_replace("THE_TITLE",gOptions.inputFilenames[wData],pick_a_line);
+			//	BPPrintMessage(odInfo,"someline: %s",someline);
 				fputs(someline,imagePtr);
-				someline = recode_tags(someline);
-				remove_final_linefeed(someline,someline);
-			//	BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
+				fflush(imagePtr);
+				free(someline);
 				}
-	      else if(strstr(pick_a_line,"THE_WIDTH") != NULLSTR) {
-			//	remove_final_linefeed(pick_a_line,Message);
-				sprintf(Message,"%ld",WidthMax);
-				someline = repl_str(pick_a_line,"THE_WIDTH",Message);
+	      	else if(strstr(pick_a_line,"THE_WIDTH") != NULLSTR) {
+				my_sprintf(line,"%ld",WidthMax);
+				someline = str_replace("THE_WIDTH",line,pick_a_line);
+			//	BPPrintMessage(odInfo,"someline: %s",someline);
 				fputs(someline,imagePtr);
-				anotherline = recode_tags(pick_a_line);
-				remove_final_linefeed(anotherline,anotherline);
-			//	BPPrintMessage(odInfo,"Found: %s\n",anotherline);
-				someline = recode_tags(someline);
-				remove_final_linefeed(someline,someline);
-			//	BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
+				fflush(imagePtr);
+				free(someline);
 				}
 	        else if(strstr(pick_a_line,"THE_HEIGHT") != NULLSTR) {
-			//	remove_final_linefeed(pick_a_line,Message);
-				sprintf(Message,"%ld",HeightMax);
-				someline = repl_str(pick_a_line,"THE_HEIGHT",Message);
+				my_sprintf(line,"%ld",HeightMax);
+				someline = str_replace("THE_HEIGHT",line,pick_a_line);
 				fputs(someline,imagePtr);
-				anotherline = recode_tags(pick_a_line);
-				remove_final_linefeed(anotherline,anotherline);
-			//	BPPrintMessage(odInfo,"Found: %s\n",anotherline);
-				someline = recode_tags(someline);
-				remove_final_linefeed(someline,someline);
-			//	BPPrintMessage(odInfo,"Replaced with: %s\n",someline);
+				fflush(imagePtr);
+				free(someline);
 				}
 	        else fputs(pick_a_line,imagePtr);
-	     //   free(pick_a_line);
 			}
-		fclose(thisfile);
-		fclose(imagePtr);
-		free(someline);
-		imagePtr = NULL;
+		my_fclose(thisfile);
+		my_fclose(imagePtr);
 		}
 	remove(imageFileName);
-	BPPrintMessage(odInfo,"Removed: %s\n",imageFileName);
-	return;
-}
+	imagePtr = NULL;
+	BPPrintMessage(odInfo,"Removed %s\n",imageFileName);
+	return OK;
+    }
 
-void ConsoleInit(BPConsoleOpts* opts)
+
+void ConsoleInit(BPConsoleOpts* opts) // OBSOLETE
 {
 	int i;
-	
 	opts->action = no_action;
 	opts->itemNumber = 0;
 	opts->startString = NULL;
@@ -605,7 +681,7 @@ const char gOptionList[] =
 	"  expand           expand item in the input data file to a complete polymetric expression\n"
 	"  show-beats N     display the Nth item using periods to show the beats\n"
 	"\n"
-	"  compile          check the syntax of input files and report errors\n"
+	"  compile          check the syntax of input files and }ort errors\n"
 	"  templates        produce templates from the grammar\n" 
 	"\n"
 	"FILE-TYPES: Input files are automatically recognized if they use BP's naming\n"
@@ -724,9 +800,10 @@ int ParsePreInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 {
 	int argn = 1, arglen, w, resultinit, r;
-	Boolean argDone;
+	int argDone;
 	action_t action = no_action;
 	char* thepath;
+	char* new_thepath;
 
 	while(argn < argc) {
 		/* check if it is an input file */
@@ -769,15 +846,16 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 		if (!argDone) {
 			/* check if it is an option */
 			if (args[argn][0] == '-') {
-				if (strcmp(args[argn], "-D") == 0 || strcmp(args[argn], "--display") == 0)	{
+				if (strcmp(args[argn], "-d") == 0 || strcmp(args[argn], "-D") == 0 || strcmp(args[argn], "--display") == 0)	{ // Modified 2024-06-29
 					opts->displayItems = TRUE;
-					opts->outOptsChanged = TRUE;
+					opts->outOptsChanged = FALSE;
 					}
-				else if (strcmp(args[argn], "-d") == 0 || strcmp(args[argn], "--no-display") == 0)	{
+		//		else if (strcmp(args[argn], "-d") == 0 || strcmp(args[argn], "--no-display") == 0)	{
+				else if (strcmp(args[argn], "--no-display") == 0)	{
 					opts->displayItems = FALSE;
-					opts->outOptsChanged = TRUE;
+					opts->outOptsChanged = FALSE;
 					}
-				else if (strcmp(args[argn], "-o") == 0)	{
+				else  if (strcmp(args[argn], "-o") == 0)	{
 					// look at the next argument for the output file name
 					if (++argn < argc)  {
 						opts->displayItems = TRUE;
@@ -953,31 +1031,41 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 		++argn;
 		}
 	
-	// an action is required
 	if (opts->action == no_action)	{
 		BPPrintMessage(odError, "\n=> Missing required action command in arguments.\n");
 		BPPrintMessage(odError, "Use '%s --help' to see help information.\n\n", args[0]);
 		return ABORT;
 		}
 	if(opts->useRealtimeMidi == TRUE) {
-	//	BPPrintMessage(odInfo,"opts->outputFiles[ofiTraceFile].name = %s\n",opts->outputFiles[ofiTraceFile].name);
-		thepath = str_replace(opts->outputFiles[ofiTraceFile].name,".txt","");
-		strcat(thepath,"_midiport");
-		strcpy(Midiportfilename,thepath);
-		WaitABit(500L); // 500 ms
-		resultinit = initializeMIDISystem();
-		if(thepath != NULL) free(thepath);
-		if(resultinit != OK) {
-			Panic = true;
+	// BPPrintMessage(odInfo,"opts->outputFiles[ofiTraceFile].name = %s\n",opts->outputFiles[ofiTraceFile].name);
+		thepath = str_replace(".txt","",opts->outputFiles[ofiTraceFile].name);
+		if(thepath == NULL) {
+			BPPrintMessage(odError, "=> Error ParsePostInitArgs(). thepath == NULL\n,result");
 			return ABORT;
 			}
-		// InBuiltDriverOn = TRUE;
-		WaitABit(1000L); // 1000 ms
+		new_thepath = malloc(strlen(thepath) + strlen("_midiport") + 1);
+		if(new_thepath == NULL) {
+			BPPrintMessage(odError, "=> Error ParsePostInitArgs(). new_thepath == NULL\n,result");
+			return ABORT;
+			}
+		strcpy(new_thepath,thepath);
+		free(thepath);
+		strcat(new_thepath,"_midiport");
+		strcpy(Midiportfilename,new_thepath);
+        BPPrintMessage(odInfo,"Midiportfilename = %s\n",Midiportfilename);
+		WaitABit(100L); // 100 ms
+		resultinit = initializeMIDISystem();
+		if(new_thepath != NULL) free(new_thepath);
+		if(resultinit != OK) {
+			Panic = 1;
+			return ABORT;
+			}
+		WaitABit(100L); // 100 ms
 		rtMIDI = TRUE;
 		if(ResetNotes) AllNotesOffPedalsOffAllChannels();
-		WaitABit(500L); // 500 ms
+		WaitABit(100L); // 100 ms
 		if((r = MIDIflush()) != OK) return r;
-	//	Notify("Real-time MIDI started");
+		Notify("Real-time MIDI started",0);
 		}
 	return OK;
 	}
@@ -995,7 +1083,7 @@ int ApplyArgs(BPConsoleOpts* opts)
 	// If any of the score output or performance options were specified,
 	// then ignore all of those options from the settings file!
 	if (opts->outOptsChanged) {
-		DisplayItems = OutCsound = WriteMIDIfile = rtMIDI = FALSE;
+		OutCsound = WriteMIDIfile = rtMIDI = FALSE;
 	}
 	
 	// apply options that were explicitly given on the command line
@@ -1100,7 +1188,11 @@ int LoadInputFiles(const char* pathnames[WMAX]) {
 					if(check_memory_use) BPPrintMessage(odInfo,"Before Reading %s file MemoryUsed = %ld\n",DocumentTypeName[w],(long)MemoryUsed);
 					result = LoadFileToTextHandle(pathnames[w], TEH[w]);
 					if(check_memory_use) BPPrintMessage(odInfo,"After Reading %s file MemoryUsed = %ld\n",DocumentTypeName[w],(long)MemoryUsed);
-					if (result != OK)  return result;
+					if(result != OK)  {
+						Notify("You first need to save the Grammar or Data",1);
+						BPPrintMessage(odError,"\n");
+						return result;
+						}
 					switch(w) {
 						case wAlphabet:			LoadedAlphabet = TRUE; break;
 						case wStartString:		LoadedStartString = TRUE; break;
@@ -1134,88 +1226,88 @@ int LoadInputFiles(const char* pathnames[WMAX]) {
 	}
 
 /*	LoadFileToTextHandle()
-
 	Reads in the entire contents of the file at 'pathname' and copies
 	it to the existing TEHandle th. 
 	
 	Returns OK on success, ABORT if the parameters from the caller
 	are bad, or MISSED if there was an error.
  */
-int LoadFileToTextHandle(const char* pathname, TEHandle th)
-{
-	int result;
-	char **filecontents = NULL;
 
+int LoadFileToTextHandle(const char* pathname,TEHandle th) {
+	int result;
+	char* filecontents;
+	filecontents = NULL;
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start LoadFileToTextHandle = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	if (pathname == NULL) {
 		if (Beta)  BPPrintMessage(odError, "=> Err. LoadFileToTextHandle(): pathname == NULL\n");
 		return ABORT;
-	}
-	if (th == NULL) {
+		}
+	if(th == NULL) {
 		if (Beta)  BPPrintMessage(odError, "=> Err. LoadFileToTextHandle(): th == NULL\n");
 		return ABORT;
+		}
+	result = OpenAndReadFile(pathname,&filecontents);
+//	BPPrintMessage(odInfo,"%s\n",filecontents);
+	if(result != OK)  return result;
+	result = CopyStringToTextHandle(th,filecontents);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed before end LoadFileToTextHandle = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	free(filecontents);
+	filecontents = NULL;
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end LoadFileToTextHandle = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	return result;	
 	}
 
-	result = OpenAndReadFile(pathname, &filecontents);
-	if (result != OK)  return result;
-	// FIXME: Need to convert line endings and HTML -- do it here ?
-	// CleanLF(filecontents,&count,&dos);
-	// CheckHTML(FALSE,w,filecontents,&count,&html);
-	result = CopyStringToTextHandle(th, *filecontents);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed before end LoadFileToTextHandle = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-	MyDisposeHandle((Handle*) &filecontents);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end LoadFileToTextHandle = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-	return result;
-}
 
-/*	OpenAndReadFile()
-
-	Opens the file at 'pathname' and reads the entire contents into
-	a new Handle and returns a pointer to that Handle in 'buffer'. 
-	
-	Returns OK on success, ABORT if the parameters from the caller
-	are bad, or MISSED if there was an error.
- */
-int OpenAndReadFile(const char* pathname, char*** buffer)
-{
+int OpenAndReadFile(const char* pathname,char** buffer) { // Rewritten 2024-06-25
 	FILE *fin;
-	Handle data;
 	int result;
+    char line[MAXLIN];
+	long pos;
 	
 	if (pathname == NULL) {
 		if (Beta)  BPPrintMessage(odError, "=> Err. LoadFileToTextHandle(): pathname == NULL\n");
-		return ABORT;
-	}
+		return MISSED;
+		}
 	if (pathname[0] == '\0') {
 		if (Beta)  BPPrintMessage(odError, "=> Err. LoadFileToTextHandle(): pathname is empty\n");
-		return ABORT;
-	}
-	if (buffer == NULL) {
-		if (Beta)  BPPrintMessage(odError, "=> Err. LoadFileToTextHandle(): buffer == NULL\n");
-		return ABORT;
-	}
-
-	// open the file for reading
-	fin = fopen(pathname, "r");
-	if (!fin) {
-		BPPrintMessage(odError, "=> Could not open file %s\n", pathname);
 		return MISSED;
-	}
-	
-	// read the entire file
-	result = ReadNewHandleFromFile(fin, READ_ENTIRE_FILE, &data);
-	if (result != OK) {
-		*buffer = NULL;
-		CloseFile(fin);
-		return result;
-	}
-	else *buffer = (char**) data;
-	
-	CloseFile(fin);
-	return OK;
-}
+		}
+	fin = my_fopen(1,pathname, "r");
+	if(!fin) {
+		BPPrintMessage(odError, "=> Could not open file for reading: %s\n", pathname);
+		return MISSED;
+		}
+//	BPPrintMessage(odInfo, "Opened file: %s\n", pathname);
 
-/*	ReadNewHandleFromFile()
+	*buffer = NULL;
+    size_t bufferLength = 0;
+    int i = 0;
+	pos = ZERO;;
+    while(fgets(line, sizeof(line),fin) != NULL) {
+		remove_carriage_returns(line);
+        if(strlen(line) == 0) continue;
+        i++;
+  //      BPPrintMessage(odInfo, "line[%d] (%d) = %s\n",i,utf8_strsize(line),line);
+		size_t lineSize = utf8_strsize(line);
+        char* newBuffer = realloc(*buffer, bufferLength + lineSize + 2); // +1 for '\n' and +1 for '\0'
+		if(newBuffer == NULL) {
+			// Handle allocation failure; clean up and exit
+			BPPrintMessage(odError, "=> Failed to allocate memory for buffer\n");
+			return MISSED;
+			}
+		*buffer =  newBuffer;
+        memcpy(*buffer + bufferLength, line, lineSize);
+        bufferLength += lineSize;
+		}
+	if (bufferLength > 0)
+		(*buffer)[bufferLength] = '\0'; // Null-terminate the block
+	else *buffer = strdup(""); // Handle empty file case
+//	BPPrintMessage(odInfo,"OK reading\n");
+	my_fclose(fin);
+	return OK;
+	}
+
+/*	ReadNewHandleFromFile()  OBSOLETE
 
 	Allocates a new Handle and reads data from fin.  If numbytes is
 	READ_ENTIRE_FILE, then the file pointer is reset to the beginning
@@ -1224,79 +1316,102 @@ int OpenAndReadFile(const char* pathname, char*** buffer)
 	
 	The file data is returned in 'data' and the function returns OK
 	on success or MISSED if there was an error.
- */
-int ReadNewHandleFromFile(FILE* fin, size_t numbytes, Handle* data)
-{
-	Handle	buffer;
-	size_t	bsize;
-	long	pos;
-	
-	if (fin == NULL) {
-		if (Beta)  BPPrintMessage(odError, "=> Err. ReadNewHandleFromFile(): fin == NULL\n");
-		return ABORT;
-	}
-	if (data == NULL) {
-		if (Beta)  BPPrintMessage(odError, "=> Err. ReadNewHandleFromFile(): data == NULL\n");
-		return ABORT;
-	}
-	
-	if (numbytes == READ_ENTIRE_FILE) {
-		// find the length of the file
-		if (fseek(fin, 0L, SEEK_END) == 0) {
-			pos = ftell(fin); 
-			if (pos > 0) {
-				numbytes = (size_t)pos;			// numbytes is file length
-				fseek(fin, 0L, SEEK_SET);		// rewind to beginning
-			}
-			else {
-				BPPrintMessage(odError, "=> Error finding file length (input file may be empty).\n");
-				return MISSED;
-			}
-		}
-		else {
-			BPPrintMessage(odError, "=> Error seeking to the end of input file.\n");
-			return MISSED;
-		}
-	}
-	// else use numbytes and fin pointer as is
-	
-	// allocate space for data plus a null char
-	bsize = numbytes + 1;
-	buffer = GiveSpace(bsize);
-	if (buffer == NULL) return MISSED;
-	
-	// read from the file
-	if (fread(*buffer, 1, numbytes, fin) != numbytes) {
-		BPPrintMessage(odError, "=> Error reading data from file.\n");
-		MyDisposeHandle(&buffer);
-		return MISSED;
-	}
-	
-	// terminate the string and return Handle
-	((char*)*buffer)[numbytes] = '\0';
-	*data = buffer;
-	return OK;
-}
 
-/*	CloseFile()
- 
-	Generic wrapper for closing files opened with C library.
- */
-void CloseFile(FILE* file)
-{
+int ReadNewHandleFromFile(FILE* fin, size_t numbytes, Handle* data) {
+    char* buffer;
+    size_t bsize;
+    long pos;
+
+    if (fin == NULL) {
+        if (Beta) BPPrintMessage(odError, "=> Err. ReadNewHandleFromFile(): fin == NULL\n");
+        return ABORT;
+    }
+    if (data == NULL) {
+        if (Beta) BPPrintMessage(odError, "=> Err. ReadNewHandleFromFile(): data is NULL\n");
+        return ABORT;
+    }
+
+    if (numbytes == READ_ENTIRE_FILE) {
+        BPPrintMessage(odInfo, "Reading entire file\n");
+        // find the length of the file
+        if (fseek(fin, 0L, SEEK_END) == 0) {
+            pos = ftell(fin);
+            if (pos == -1) {
+                BPPrintMessage(odError, "=> Error finding file length (input file may be empty)\n");
+                return MISSED;
+            }
+            numbytes = (size_t)pos; // numbytes is file length
+            fseek(fin, 0L, SEEK_SET);
+            if (fseek(fin, 0L, SEEK_SET) != 0) {  // rewind to beginning
+                BPPrintMessage(odError, "=> Error rewinding the file.\n");
+                return MISSED;
+            }
+        } else {
+            BPPrintMessage(odError, "=> Error seeking to the end of input file\n");
+            return MISSED;
+        }
+    }
+
+    // allocate space for data plus a null char
+    BPPrintMessage(odInfo,"Reading %d bytes\n",(int)numbytes);
+    bsize = numbytes + 1;
+    buffer = (char*)malloc(bsize);
+    if (buffer == NULL) {
+        BPPrintMessage(odError, "=> Error allocating memory\n");
+        return MISSED;
+    }
+
+    // read from the file
+    size_t bytesRead = fread(buffer, 1, numbytes, fin);
+
+    // terminate the string and return Handle
+    buffer[numbytes] = '\0';
+    *data = (Handle)buffer;
+    BPPrintMessage(odInfo, "Read entire file:\n%s\n",*data);
+    return OK;
+} */
+
+
+FILE* my_fopen(int check, const char* path, const char* mode) {
+	char thismode[3];
+	if(strcmp(mode,"r") == 0) strcpy(thismode,"rb");
+	else strcpy(thismode,mode);
+    char convertedPath[4096];  // Buffer to store the converted path
+    FILE* file;
+	if(path == NULL) {
+        BPPrintMessage(odError, "=> Err. in my_fopen(). path == NULL\n");
+        return NULL;
+		}
+    strcpy(convertedPath,path);  // Copy the original path to the buffer
+    convert_path(convertedPath);  // Change backslashes to normal
+	file = fopen(convertedPath,thismode);
+    if(!file) {
+		if(check) BPPrintMessage(odError,"=> Failed to open: %s in '%s' mode\n",convertedPath,thismode);
+		}
+    return file;  // Return the file pointer 
+    }
+
+int my_fclose(FILE *file) {
 	int result;
-	
-	if (file == NULL) {
-	//	if (Beta)  BPPrintMessage(odError, "=> Err. CloseFile(): file == NULL\n");
-		return;
-	}
+    if (file == NULL) {
+        BPPrintMessage(odError, "=> Attempt to close a NULL file pointer\n");
+        return ABORT;
+        }
+	result = fflush(file);
+    if(result != 0) {
+        BPPrintMessage(odError, "=> Error #%d flushing a file\n, result");
+		fclose(file);
+		file = NULL;
+        return ABORT;
+        }
 	result = fclose(file);
-	if (Beta && result != 0) {
-		BPPrintMessage(odError, "=> Err. CloseFile(): fclose() error #%d\n",result);
-	}
-	
-	return;
-}
+	file = NULL;
+    if(result != 0) {
+        BPPrintMessage(odError, "=> Error #%d closing a file\n, result");
+        return ABORT;
+        }
+    return OK;
+    }
 
 /*	OpenOutputFile()
  
@@ -1307,7 +1422,7 @@ void CloseFile(FILE* file)
  */
 FILE* OpenOutputFile(OutFileInfo* finfo, const char* mode)
 {
-	finfo->fout = fopen(finfo->name, mode);
+	finfo->fout = my_fopen(1,finfo->name, mode);
 	if (finfo->fout != NULL)  finfo->isOpen = TRUE;
 	
 	return finfo->fout;
@@ -1317,81 +1432,66 @@ FILE* OpenOutputFile(OutFileInfo* finfo, const char* mode)
  
 	Closes the file controlled by an OutFileInfo struct.
  */
-void CloseOutputFile(OutFileInfo* finfo)
-{
-	if (finfo->isOpen && finfo->fout != NULL) {
-		CloseFile(finfo->fout);
+void CloseOutputFile(OutFileInfo* finfo) {
+	if(finfo->isOpen && finfo->fout != NULL) {
+		my_fclose(finfo->fout);
 		finfo->fout = NULL;
 		finfo->isOpen = FALSE;
-	}
-	
+		}
 	return;
-}
+	}
 
 /*	CloseOutputDestination()
  
 	Cleans up an output destination and closes any file associated with it.
  */
-void CloseOutputDestination(int dest, BPConsoleOpts* opts, outfileidx_t fileidx)
-{
+void CloseOutputDestination(int dest, BPConsoleOpts* opts, outfileidx_t fileidx) {
 	if (opts->outputFiles[fileidx].isOpen)	{
 		SetOutputDestinations(dest, NULL);
 		CloseOutputFile(&(opts->outputFiles[fileidx]));
-		BPPrintMessage(odInfo, "Closed output file: %s\n", opts->outputFiles[fileidx].name);
-	}
-	
+		BPPrintMessage(odInfo, "Closed file: %s\n", opts->outputFiles[fileidx].name);
+		}
 	return;
-}
+	}
 
-int PrepareProdItemsDestination(BPConsoleOpts* opts)
-{
+int PrepareProdItemsDestination(BPConsoleOpts* opts) {
 	FILE *fout;
-	
 	// prepare output file if requested
 	if (opts->displayItems && opts->outputFiles[ofiProdItems].name != NULL)	{
 		BPPrintMessage(odInfo, "Opening output file %s\n", opts->outputFiles[ofiProdItems].name);
 		fout = OpenOutputFile(&(opts->outputFiles[ofiProdItems]), "w");
 		if (!fout) {
-			BPPrintMessage(odError, "=> Could not open file %s\n", opts->outputFiles[ofiProdItems].name);
+			BPPrintMessage(odError, "=> Could not open file for output %s\n", opts->outputFiles[ofiProdItems].name);
 			return MISSED;
-		}
-		SetOutputDestinations(odDisplay, fout);
-		
-	}
-	
+		    }
+		SetOutputDestinations(odDisplay, fout);	
+	    }
 	return OK;
-}
+    }
 
-int PrepareTraceDestination(BPConsoleOpts* opts)
-{
+int PrepareTraceDestination(BPConsoleOpts* opts) {
 	FILE *fout;
-	
 	// prepare trace output file if requested
-	if (opts->outputFiles[ofiTraceFile].name != NULL)	{
-		BPPrintMessage(odInfo, "Opening trace file: %s\n", opts->outputFiles[ofiTraceFile].name);
+	if(opts->outputFiles[ofiTraceFile].name != NULL) {
 		fout = OpenOutputFile(&(opts->outputFiles[ofiTraceFile]), "w");
-		if (!fout) {
-			BPPrintMessage(odError, "=> Could not open file %s\n", opts->outputFiles[ofiTraceFile].name);
+		if(!fout) {
+			BPPrintMessage(odError, "=> Could not create trace file %s\n", opts->outputFiles[ofiTraceFile].name);
 			return MISSED;
-		}
+		    }
+        else BPPrintMessage(odInfo, "Creating trace file: %s\n", opts->outputFiles[ofiTraceFile].name);
 		SetOutputDestinations(odTrace, fout);
-		
-	}
-	
-	return OK;
-}
+	    }
+    return OK;
+    }
 
 /* Utility functions */
 
 /* Returns TRUE if string s is an integer, otherwise FALSE. */
-Boolean isInteger(const char* s)
-{
+int isInteger(const char* s) {
 	int i = 0;
-	
 	if (s[i] != '-' && s[i] != '+' && !isdigit(s[i])) return FALSE;
 	while(s[++i] != '\0') {
 		if (!isdigit(s[i])) return FALSE;
-	}
-	
+    	}
 	return TRUE;
-}
+    }

@@ -51,7 +51,7 @@ int i,result,bigitem,maxties,j,missed_ties;
 short **p_articul;
 time_t start_time,end_time;
 
-// HideWindow(Window[wInfo]);
+// // HideWindow(Window[wInfo]);
 
 if(CheckEmergency() != OK) return(ABORT);
 
@@ -90,7 +90,7 @@ result = FillPhaseDiagram(pp_buff,p_kmx,p_maxseq,p_nmax,p_imaxseq,
 time(&end_time);
 PhaseDiagramTime += end_time - start_time;
 	
-if(result != OK) goto OUT;
+if(result != OK) goto SORTIR;
 
 start_time = end_time;
 result = SetTimeObjects(bigitem,p_imaxseq,*p_maxseq,p_nmax,p_kmx,p_tmin,p_tmax,p_articul);
@@ -100,7 +100,7 @@ TimeSettingTime += end_time - start_time;
 
 if(trace_timeset) BPPrintMessage(odInfo,"End TimeSet() maxseq = %ld\n\n",(long)*p_maxseq);
 
-OUT:
+SORTIR:
 MyDisposeHandle((Handle*)&p_articul);
 
 missed_ties = 0;
@@ -116,8 +116,8 @@ for(j = 0; j <= MAXCHAN; j++) {
 	}
 if(missed_ties > 0) {
 	if(!PlayChunks)
-		BPPrintMessage(odError,"=> Total %d missed tied notes\n\n",missed_ties);
-	else BPPrintMessage(odError,"=> Total %d missed tied notes in chunk #%d\n\n",missed_ties,Chunk_number);
+		BPPrintMessage(odError,"=> Total %d tied notes have been missed\n\n",missed_ties);
+	else BPPrintMessage(odError,"=> Total %d tied notes have been missed in chunk #%d\n\n",missed_ties,Chunk_number);
 	}
 
 missed_ties = 0;
@@ -133,7 +133,7 @@ for(j = 0; j < MAXINSTRUMENTS; j++) {
 	}
 if(missed_ties > 0) BPPrintMessage(odError,"=> Total %d missed tied events in chunk #%d\n\n",missed_ties,Chunk_number);
 
-// sprintf(Message,"");
+// my_sprintf(Message,"");
 strcpy(Message,""); // Fixed by BB 2022-02-20
 return(result);
 }
@@ -178,7 +178,6 @@ period = ((double) Pclock) * 1000. * CorrectionFactor / Qclock;
 // if(trace_timeset)
 BPPrintMessage(odInfo,"Setting time streaks on %d lines\n",(*p_nmax));
 
-
 while(TRUE) {
 	jj= Class(in);
 	if(jj > maxseq) break;
@@ -209,33 +208,33 @@ for(k=ZERO; k < Maxevent; k++) {
 	if((j=(*p_Instance)[k].object) >= 0) {
 		if(j >= Jbol) {
 			if(j < 16384)
-				sprintf(Message,"(Pattern %s)",*((*p_Patt)[j-Jbol]));
+				my_sprintf(Message,"(Pattern %s)",*((*p_Patt)[j-Jbol]));
 			else {
 				key = j - 16384;
 				key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
 					&((*p_Instance)[k].map0),&((*p_Instance)[k].map1));
 				PrintNote(-1,key,0,-1,LineBuff);
-				sprintf(Message,"(%ld %s chan %ld)",(long)k,
+				my_sprintf(Message,"(%ld %s chan %ld)",(long)k,
 					LineBuff,(long)ChannelConvert((*p_Instance)[k].channel));
 				}
 			}
-		else sprintf(Message,"(%s chan %ld)",*((*p_Bol)[j]),(long)ChannelConvert((*p_Instance)[k].channel));
+		else my_sprintf(Message,"(%s chan %ld)",*((*p_Bol)[j]),(long)ChannelConvert((*p_Instance)[k].channel));
 		}
 	else {
 		j = -j;
 		if(j >= Jbol) {
 			if(j < 16384)
-				sprintf(Message,"(<<Pattern %s>>)",*((*p_Patt)[j-Jbol]));
+				my_sprintf(Message,"(<<Pattern %s>>)",*((*p_Patt)[j-Jbol]));
 			else {
 				key = j - 16384;
 				key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
 					&((*p_Instance)[k].map0),&((*p_Instance)[k].map1));
 				PrintNote(-1,key,0,-1,LineBuff);
-				sprintf(Message,"(%ld <<%s>> chan %ld)",(long)k,
+				my_sprintf(Message,"(%ld <<%s>> chan %ld)",(long)k,
 					LineBuff,(long)ChannelConvert((*p_Instance)[k].channel));
 				}
 			}
-		else sprintf(Message,"(<<%s>> chan %ld)",*((*p_Bol)[j]),(long)ChannelConvert((*p_Instance)[k].channel));;
+		else my_sprintf(Message,"(<<%s>> chan %ld)",*((*p_Bol)[j]),(long)ChannelConvert((*p_Instance)[k].channel));;
 		}
 	if(trace_timeset)
 		BPPrintMessage(odInfo,Message);
@@ -254,7 +253,7 @@ if(Maxevent < 1000) {
 				if((*p_ObjectSpecs)[k] != NULL) {
 					ptag = WaitList(k);
 					while(ptag != NULL) {
-						sprintf(Message,"<<W%ld>>",(long)((**ptag).x));
+						my_sprintf(Message,"<<W%ld>>",(long)((**ptag).x));
 						ptag = (**ptag).p;
 						}
 					}
@@ -262,34 +261,34 @@ if(Maxevent < 1000) {
 				if(j >= 0) {
 					if(j >= Jbol) {
 						if(j < 16384)
-							sprintf(Message,"%s ",*((*p_Patt)[j-Jbol]));
+							my_sprintf(Message,"%s ",*((*p_Patt)[j-Jbol]));
 						else {
 							key = j - 16384;
 							key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
 								&((*p_Instance)[k].map0),&((*p_Instance)[k].map1));
 							PrintNote(-1,key,0,-1,LineBuff);
-							sprintf(Message,"%s ",LineBuff);
+							my_sprintf(Message,"%s ",LineBuff);
 							}
 						}
 					else {
 					/*	if(k > 1 && j == 1)
-							sprintf(Message,"~ ");
-						else */ sprintf(Message,"%s ",*((*p_Bol)[j]));
+							my_sprintf(Message,"~ ");
+						else */ my_sprintf(Message,"%s ",*((*p_Bol)[j]));
 						}
 					}
 				else {
 					j = -j;
 			/*		if(k > 1 && j == 1)
-						sprintf(Message,"<<~>> ");
+						my_sprintf(Message,"<<~>> ");
 					else { */
 						if(j < 16384)
-							sprintf(Message,"<<%s>> ",*((*p_Bol)[j]));
+							my_sprintf(Message,"<<%s>> ",*((*p_Bol)[j]));
 						else {
 							key = j - 16384;
 							key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
 								&((*p_Instance)[k].map0),&((*p_Instance)[k].map1));
 							PrintNote(-1,key,0,-1,LineBuff);
-							sprintf(Message,"<<%s>> ",LineBuff);
+							my_sprintf(Message,"<<%s>> ",LineBuff);
 							}
 				//		}
 					}
@@ -394,14 +393,14 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	if(trace_timeset) {
 		if(Kpress > 1.) {
 			if(Kpress < ULONG_MAX)
-				sprintf(Message,"%ld objects. Compression rate = %.0f  Sequence %ld/%ld",
+				my_sprintf(Message,"%ld objects. Compression rate = %.0f  Sequence %ld/%ld",
 					(long)(*p_kmx),Kpress,((long)nseq)+1L,((long)(*p_nmax))+1L);
 			else
-				sprintf(Message,"%ld objects. Compression rate = %.0f  Sequence %ld/%ld",
+				my_sprintf(Message,"%ld objects. Compression rate = %.0f  Sequence %ld/%ld",
 					(long)(*p_kmx),Kpress,((long)nseq)+1L,((long)(*p_nmax))+1L);
 			}
 		else
-			sprintf(Message,"%ld objects. No compression.  Sequence %ld/%ld",
+			my_sprintf(Message,"%ld objects. No compression.  Sequence %ld/%ld",
 				(long)(*p_kmx),(long)nseq+1,(long)(*p_nmax)+1L);
 		FlashInfo(Message);
 		}
@@ -658,10 +657,10 @@ QUEST2:
 		if(trace_timeset)
 			ShowMessage(TRUE,wMessage,"Starting again algorithm (broke tempo)...");
 		if(DisplayTimeSet) {
-			sprintf(Message,"\nBroke tempo. T[i], i = 1,maxseq:\n");
+			my_sprintf(Message,"\nBroke tempo. T[i], i = 1,maxseq:\n");
 			Print(wTrace,Message);
 			for(i=1; i <= maxseq; i++) {
-				sprintf(Message,"%ld ",(long)(*p_T)[i]);
+				my_sprintf(Message,"%ld ",(long)(*p_T)[i]);
 				Print(wTrace,Message);
 				}
 			}
@@ -772,9 +771,9 @@ MyDisposeHandle((Handle*)&p_maxtruncbeg);
 MyDisposeHandle((Handle*)&p_maxtruncend);
 MyDisposeHandle((Handle*)&p_alphadone);
 if(EmergencyExit) result = ABORT;
-if(trace_timeset) {
-	HideWindow(Window[wMessage]);
-	HideWindow(Window[wInfo]);
-	}
+/* if(trace_timeset) {
+	// HideWindow(Window[wMessage]);
+	// HideWindow(Window[wInfo]);
+	} */
 return(result);
 }

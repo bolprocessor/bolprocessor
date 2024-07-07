@@ -70,6 +70,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	unsigned char c;
 	p_list **waitlist;
 
+    if(!ShowGraphic) return OK;
 	if(!ShowObjectGraph) return(OK);
 	// BPPrintMessage(odInfo,"Creating image %d based on objects\n",N_image);
 
@@ -207,10 +208,10 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 				if(i_scale > NumberScales) i_scale = -1;
 				}
 			if(j > 0) {
-				if(j >= Jbol && j < 16384) sprintf(line,"%s",*((*p_Patt)[j-Jbol]));
+				if(j >= Jbol && j < 16384) my_sprintf(line,"%s",*((*p_Patt)[j-Jbol]));
 				else {
 					if(j < 16364) {
-						sprintf(line,"%s",*((*p_Bol)[j]));
+						my_sprintf(line,"%s",*((*p_Bol)[j]));
 						if(trace_graphic) BPPrintMessage(odInfo,"(*p_Bol)[%ld] = %s\n",(long)j,line);
 						}
 					else {
@@ -230,7 +231,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 				}
 			else {
 				j = -j;
-				if(j < 16364) sprintf(line,"<<%s>>",*((*p_Bol)[j]));
+				if(j < 16364) my_sprintf(line,"<<%s>>",*((*p_Bol)[j]));
 					else {
 						strcpy(line,"<<");
 						key = j - 16384;
@@ -248,7 +249,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 						}
 				}
 			if(SHOWEVERYTHING) {
-				sprintf(line2," #%ld",(long)k);
+				my_sprintf(line2," #%ld",(long)k);
 				strcat(line,line2);
 				}
 			for(xc = 0; xc < strlen(line); xc++) {
@@ -317,7 +318,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 					
 			if(DrawObject(j,label,moved_up,(*p_Instance)[k].dilationratio,(*p_top)[linenum],hrect,htext,
 					leftoffset,pivloc,t1,t2,trbeg,trend,&morespace,
-					&endx,&endy,p_Picture[0]) == ABORT) {
+					&endx,&endy) == ABORT) {
 				rep = OK;
 				goto ENDGRAPH;
 				}
@@ -345,6 +346,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 			}
 	//	endx = (*p_endx)[linenum] = 0; // Fixed by BB 2021-01-30
 	//	(*p_morespace)[linenum] = 0; // Fixed by BB 2021-01-31
+		if(imagePtr != NULL) fflush(imagePtr);
 		}
 
 	ENDGRAPH:
@@ -370,14 +372,14 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	MyDisposeHandle((Handle*)&p_endx);
 	MyDisposeHandle((Handle*)&p_endy);
 	GraphicOn = FALSE;
-
-	EndImageFile();
-	return(rep);
+	return OK;
+//	rep = EndImageFile();
+//	return(rep);
 	}
 
 
 int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect, int htext, int leftoffset,
-	long pivloc, long t1, long t2, long trbeg, long trend, int *p_morespace, long *p_endx, long *p_endy, PicHandle picture) {
+	long pivloc, long t1, long t2, long trbeg, long trend, int *p_morespace, long *p_endx, long *p_endy) {
 	// Pattern pat;
 	Rect r,r1,r2,r3;
 	int tab,rep,x_startpivot,y_startpivot;
@@ -400,11 +402,11 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 	stroke_style("black");
 	stroke_rect(&r);
 
-	sprintf(Message,"j = %ld, r.left = %ld, r.right = %ld, r.top = %ld, r.bottom = %ld\n",(long)j,(long)r.left,(long)r.right,(long)r.top,(long)r.bottom);
+	my_sprintf(Message,"j = %ld, r.left = %ld, r.right = %ld, r.top = %ld, r.bottom = %ld\n",(long)j,(long)r.left,(long)r.right,(long)r.top,(long)r.bottom);
 	if(trace_graphic) BPPrintMessage(odInfo,Message);
 	r2 = r;
 	resize_rect(&r2,-1,-1);
-	sprintf(Message,"j = %ld, r2.left = %ld, r2.right = %ld, r2.top = %ld, r2.bottom = %ld\n",(long)j,(long)r2.left,(long)r2.right,(long)r2.top,(long)r2.bottom);
+	my_sprintf(Message,"j = %ld, r2.left = %ld, r2.right = %ld, r2.top = %ld, r2.bottom = %ld\n",(long)j,(long)r2.left,(long)r2.right,(long)r2.top,(long)r2.bottom);
 	if(trace_graphic) BPPrintMessage(odInfo,Message);
 	if(j >= Jbol && j < 16384) { // Time pattern
 		fill_rect(&r2,"LightCyan");
@@ -469,7 +471,7 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 			}
 		else {
 			draw_line(x_startpivot,y_startpivot,x_startpivot,(y_startpivot + 5),"");
-			sprintf(Message,"Pivot x = %ld, y = %ld\n",(long)x_startpivot,(long)y_startpivot);
+			my_sprintf(Message,"Pivot x = %ld, y = %ld\n",(long)x_startpivot,(long)y_startpivot);
 			if(trace_graphic) BPPrintMessage(odInfo,Message);
 			}
 		
@@ -525,14 +527,10 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 	}
 
 
-int KillDiagrams(int w){
+/* int KillDiagrams(int w){
 // Currently not used
 	int n;
 	w = wGraphic;
-	/* if(w < 0 || w >= WMAX) {
-		if(Beta) Alert1("=> Err. KillDiagrams. w < 0 || w >= WMAX");
-		return(OK);
-		} */
 	for(n=Ndiagram-1; n >= 0; n--) {
 		if(n < 0 || n >= MAXDIAGRAM) {
 		//	if(Beta) Alert1("=> Err. KillDiagrams. n < 0 || n >= MAXDIAGRAM");
@@ -544,10 +542,6 @@ int KillDiagrams(int w){
 			p_Diagram[n] = NULL;
 			if(n == Ndiagram-1) Ndiagram--;
 			}
-		}
-	if(w == wGraphic && NoteScalePicture != NULL) {
-		// KillPicture(NoteScalePicture);
-		NoteScalePicture = NULL;
 		}
 	if(!Offscreen) {
 		for(n=Npicture-1; n >= 0; n--) {
@@ -569,7 +563,7 @@ int KillDiagrams(int w){
 	Hzero[w] = Vzero[w] = 0;
 	Vmin[w] = INT_MAX; Vmax[w] = - INT_MAX;
 	return(OK);
-	}
+	} */
 
 
 int DrawSequence(int nseq,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
@@ -634,10 +628,10 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	// GetPort(&saveport);
 	// SetPortWindowPort(Window[w]);
 	// KillDiagrams(w);
-	if(p_Picture[1] != NULL) {
+	/* if(p_Picture[1] != NULL) {
 	//	KillPicture(p_Picture[1]);
 		p_Picture[1] = NULL;
-		}
+		} */
 	/* r = (*p_frame);
 	ClipRect(&r); */
 	// p_Picture[1] = OpenPicture(&r);
@@ -656,7 +650,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	// htext = WindowTextSize[w] + 2;
 	htext = 12 + 2;
 	if((*p_MIDIsize)[j] <= ZERO && (*p_CsoundSize)[j] <= ZERO) {
-		sprintf(Message,"Sound-object is empty");
+		my_sprintf(Message,"Sound-object is empty");
 	//	c2pstrcpy(label, Message);
 	/*	move_to((p_frame->left + p_frame->right - strlen(label))/2,
 			(p_frame->top + p_frame->bottom - htext)/2);
@@ -749,12 +743,12 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 				}
 			}
 		y = r.top + htext + 1;
-		sprintf(line,"0");
+		my_sprintf(line,"0");
 	//	c2pstrcpy(label, line);
 	//	move_to(xmin - strlen(label)/2,y); fill_text(label);
 		k = 20.; while((k * grscale * p) > (xmax - xmin)) k = k / 2.;
 		for(i=1; ; i++) {
-			sprintf(line,"%.2fs",((double)i) * (k * p) / 1000.);
+			my_sprintf(line,"%.2fs",((double)i) * (k * p) / 1000.);
 			// c2pstrcpy(label, line);
 			x = xmin + k * i * grscale * p - strlen(line)/2;
 			if(x > xmax) break;
@@ -778,7 +772,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	r.bottom = r.top + htext;
 	r.left = p_frame->left + 2;
 	if(((*p_CoverBeg)[j] && (*p_CoverEnd)[j]) || (maxcover1 == dur && maxcover2 == dur)) {
-		sprintf(line,"This object may be entirely covered");
+		my_sprintf(line,"This object may be entirely covered");
 		}
 	else {
 		if(maxcover1+maxcover2 > dur) {
@@ -940,7 +934,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 			}
 		}
 	// Draw label
-	sprintf(Message,"%s",*((*p_Bol)[j]));
+	my_sprintf(Message,"%s",*((*p_Bol)[j]));
 	// c2pstrcpy(label, Message);
 	r1.left = r.left + (r.right - r.left - strlen(line)) / 2 - 1;
 	r1.right = r.right - (r.right - r.left - strlen(line)) / 2 - 1;
@@ -982,7 +976,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 			stroke_style(&Red);
 			line_to(Hpos,p_frame->bottom - htext - htext);
 			stroke_style(&Black); */
-			sprintf(Message,"%ld ms",(long)(*p_Tpict)[iProto]);
+			my_sprintf(Message,"%ld ms",(long)(*p_Tpict)[iProto]);
 		//	c2pstrcpy(label, Message);
 			if(Hpos + (strlen(line) / 2) > (p_frame->right - 2))
 				x = p_frame->right - 2 - strlen(line);
@@ -996,9 +990,9 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	// Csound instrument status
 	if((*p_Type)[iProto] & 4) {
 		if((*p_CsoundInstr)[iProto] > 0)
-		sprintf(Message,"Force to Csound instrument %ld",(long)(*p_CsoundInstr)[iProto]);
-		else if((*p_CsoundInstr)[iProto] == 0) sprintf(Message,"Force to current Csound instrument");
-			else sprintf(Message,"Never change Csound instruments");
+		my_sprintf(Message,"Force to Csound instrument %ld",(long)(*p_CsoundInstr)[iProto]);
+		else if((*p_CsoundInstr)[iProto] == 0) my_sprintf(Message,"Force to current Csound instrument");
+			else my_sprintf(Message,"Never change Csound instruments");
 	//	c2pstrcpy(label, Message);
 		x = p_frame->right - 4 - strlen(line);
 	/*	move_to(x,p_frame->bottom - (4 * htext));
@@ -1006,7 +1000,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 		}
 	else {
 		if((*p_CsoundAssignedInstr)[iProto] >= 1) {
-			sprintf(Message,"Send MIDI messages to Csound instrument %ld",
+			my_sprintf(Message,"Send MIDI messages to Csound instrument %ld",
 				(long)(*p_CsoundAssignedInstr)[iProto]);
 		//	c2pstrcpy(label, Message);
 			x = p_frame->right - 4 - strlen(line);
@@ -1016,9 +1010,9 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 		}
 	// MIDI channel status
 	if((*p_DefaultChannel)[iProto] > 0)
-	sprintf(Message,"Force to MIDI channel %ld",(long)(*p_DefaultChannel)[iProto]);
-	else if((*p_DefaultChannel)[iProto] == 0) sprintf(Message,"Force to current MIDI channel");
-		else sprintf(Message,"Never change MIDI channels");
+	my_sprintf(Message,"Force to MIDI channel %ld",(long)(*p_DefaultChannel)[iProto]);
+	else if((*p_DefaultChannel)[iProto] == 0) my_sprintf(Message,"Force to current MIDI channel");
+		else my_sprintf(Message,"Never change MIDI channels");
 	// c2pstrcpy(label, Message);
 	x = p_frame->right - 4 - strlen(line);
 	/* move_to(x,p_frame->bottom - (3 * htext));
@@ -1027,7 +1021,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	// Object type
 	if(!((*p_Type)[iProto] & 1) && (*p_MIDIsize)[iProto] > ZERO) {
 	//	stroke_style(&Red);
-		sprintf(Message,"MIDI sequence is INACTIVE");
+		my_sprintf(Message,"MIDI sequence is INACTIVE");
 	//	c2pstrcpy(label, Message);
 		x = p_frame->right - 4 - strlen(line);
 	/*	move_to(x,p_frame->bottom - htext - htext);
@@ -1058,19 +1052,21 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	char line[BOLSIZE+5],showsmalldivisions,line_image[200];
 	Str255 label;
 
+    if(!ShowGraphic) return OK;
 	shift = 0.;
-	//if(strcmp(type,"pianoroll") == 0) shift = 0.; // Later we'll take care of this  2024-05-10
-	//else {
+	if(strcmp(type,"pianoroll") == 0) shift = 0.; // Later we'll take care of this  2024-05-10
+	else {
 		if(Improvize || PlayAllChunks) shift = (double) PianorollShift;
-	//	}
-	if(imagePtr == NULL) {
-		N_image++;
+		}
+	// if(imagePtr == NULL) {
+	//	N_image++;
 		if(strcmp(type,"pianoroll") != 0 && (Improvize || PlayAllChunks) && (ShowPianoRoll))
 	//	if(strcmp(type,"pianoroll") != 0 && (Improvize || PlayAllChunks) && (ShowPianoRoll || !rtMIDI))
 		// ShowPianoRoll, because if no pianoroll has been drawn, the value of shift is incorrect.
 			CreateImageFile(shift/1000.);
 		else CreateImageFile(-1.);  // Later we can use it
-		}	
+        if(Panic) return ABORT;
+	//	}
 	result = OK;
 	pen_size(1,0);
 	text_style(htext,"arial");
@@ -1137,14 +1133,14 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 			}
 		}
 	y = p_r->top + htext + 1;
-	if(shift == 0.) sprintf(line,"0");
-	else sprintf(line,"%.2fs",shift / 1000.);
+	if(shift == 0.) my_sprintf(line,"0");
+	else my_sprintf(line,"%.2fs",shift / 1000.);
 	fill_text(line,leftoffset - 6,y);
 	k = 10; if((k * p) > 400) k = 1;
 	tmem2 = - Infpos;
 	for(i = 1; ; i++) {
-		if(k == 10) sprintf(line,"%.2fs",(double)i * xscale * k / 10. + shift / 1000.);
-		if(k == 1) sprintf(line,"%.3fs",(double)i * xscale * k / 10. + shift / 1000.);
+		if(k == 10) my_sprintf(line,"%.2fs",(double)i * xscale * k / 10. + shift / 1000.);
+		if(k == 1) my_sprintf(line,"%.3fs",(double)i * xscale * k / 10. + shift / 1000.);
 		t1 = leftoffset + Round(k * i * p) - 10;
 		t2 = t1 + 12;
 		if(t2 >= xmax) break;
@@ -1203,7 +1199,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 		if(rr >= Ratio) {
 			rr -= Ratio;
 			if(t1 > tmem2  && t1 < xmax) {
-				sprintf(line,"%ld",(long)(k + StartFromOne));
+				my_sprintf(line,"%ld",(long)(k + StartFromOne));
 				t2 = t1 + 12;
 				if(t1 > tmem3) {
 					fill_text(line,t1 - 5,y - 4);
@@ -1231,9 +1227,15 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 	char* word;
 	int length;
 
-	if(key < 0 || key > 127) return(OK);
-	if(chan < 0 || chan >= MAXCHAN) return(OK);
-	if(stop(0,"DrawPianoNote") != OK) return(ABORT);
+	if(key < 0 || key > 127) {
+		BPPrintMessage(odError,"=> Err. DrawPianoNote() key = %d\n",key);
+		return(OK);
+		}
+	if(chan < 0 || chan >= MAXCHAN) {
+		BPPrintMessage(odError,"=> Err. DrawPianoNote() chan = %d\n",chan);
+		return(OK);
+		}
+	// if(stop(0,"DrawPianoNote") != OK) return(ABORT);
 	if(rtMIDI || WriteMIDIfile || OutCsound || OutBPdata) {
 		timeon -= PianorollShift;
 		timeoff -= PianorollShift;	
@@ -1265,6 +1267,7 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 	else stroke_style("black");
 	draw_line(x1,y,x2,y,"");
 	if(trace_draw_piano_note) BPPrintMessage(odInfo,"Note #%d x1 = %d, x2 = %d,  %s\n",key,(x1 - 42) * 5,(x2 - 42) * 5,type);
+	imageHits++;
 	return(OK);
 	}
 
@@ -1320,16 +1323,18 @@ int DrawNoteScale(Rect* p_r,int w,int minkey,int maxkey,int hrect,int leftoffset
 void begin_path() {
 	char line[100];
 	if(strcmp(graphic_scheme,"canvas") == 0) {
-		sprintf(line,"ctx.beginPath();\n");
+		my_sprintf(line,"ctx.beginPath();\n");
 		fputs(line,imagePtr);
+		imageHits++;
 		}
 	}
 
 void end_path() {
 	char line[100];
 	if(strcmp(graphic_scheme,"canvas") == 0) {
-		sprintf(line,"ctx.stroke();\n");
+		my_sprintf(line,"ctx.stroke();\n");
 		fputs(line,imagePtr);
+		imageHits++;
 		}
 	}
 	
@@ -1337,8 +1342,9 @@ void move_to(int x,int y) {
 	char line[100];
 	if(x >= 0 && x <= max_coordinate && y >= 0 && y <= max_coordinate) {
 		if(strcmp(graphic_scheme,"canvas") == 0) {
-			sprintf(line,"ctx.moveTo(%ld,%ld);\n",(long)resize * x,(long)resize * y);
+			my_sprintf(line,"ctx.moveTo(%ld,%ld);\n",(long)resize * x,(long)resize * y);
 			fputs(line,imagePtr);
+			imageHits++;
 			}
 		}
 	}
@@ -1349,8 +1355,9 @@ void line_to(int x,int y) {
 	if(y < 0 || y > max_coordinate) y = max_coordinate;
 	if(x >= 0 && x <= max_coordinate && y >= 0 && y <= max_coordinate) {
 		if(strcmp(graphic_scheme,"canvas") == 0) {
-			sprintf(line,"ctx.lineTo(%ld,%ld);\n",(long)resize * x,(long)resize * y);
+			my_sprintf(line,"ctx.lineTo(%ld,%ld);\n",(long)resize * x,(long)resize * y);
 			fputs(line,imagePtr);
+			imageHits++;
 			}
 		}
 	}
@@ -1362,10 +1369,11 @@ void draw_line(int x1,int y1,int x2,int y2,char* style) {
 	if(x1 >= 0 && x1 <= max_coordinate && y1 >= 0 && y1 <= max_coordinate && x2 >= 0 && x2 <= max_coordinate && y2 >= 0 && y2 <= max_coordinate) {
 		if(strcmp(graphic_scheme,"canvas") == 0) {
 			if(strcmp(style,"round") == 0)
-				sprintf(line,"ctx.beginPath();\nctx.lineCap = \"round\";\nctx.moveTo(%ld,%ld);\nctx.lineTo(%ld,%ld);\nctx.stroke();\n",(long)resize * x1,(long)resize * y1,(long)resize * x2,(long)resize * y2);
+				my_sprintf(line,"ctx.beginPath();\nctx.lineCap = \"round\";\nctx.moveTo(%ld,%ld);\nctx.lineTo(%ld,%ld);\nctx.stroke();\n",(long)resize * x1,(long)resize * y1,(long)resize * x2,(long)resize * y2);
 			else
-				sprintf(line,"ctx.beginPath();\nctx.moveTo(%ld,%ld);\nctx.lineTo(%ld,%ld);\nctx.stroke();\n",(long)resize * x1,(long)resize * y1,(long)resize * x2,(long)resize * y2);
+				my_sprintf(line,"ctx.beginPath();\nctx.moveTo(%ld,%ld);\nctx.lineTo(%ld,%ld);\nctx.stroke();\n",(long)resize * x1,(long)resize * y1,(long)resize * x2,(long)resize * y2);
 			fputs(line,imagePtr);
+			imageHits++;
 			}
 		}
 	}
@@ -1375,7 +1383,7 @@ void pen_size(int x,int y) {
 	float ratio;
 	if(strcmp(graphic_scheme,"canvas") == 0) {
 		ratio = (float) x + (0.1 * (float) y);
-		sprintf(line,"ctx.lineWidth = %ld;\n",(long)ratio);
+		my_sprintf(line,"ctx.lineWidth = %ld;\n",(long)ratio);
 		fputs(line,imagePtr);
 		}
 	}
@@ -1383,16 +1391,18 @@ void pen_size(int x,int y) {
 void stroke_style(char* color) {
 	char line[100];
 	if(strcmp(graphic_scheme,"canvas") == 0) {
-		sprintf(line,"ctx.strokeStyle = '%s';\n",color);
+		my_sprintf(line,"ctx.strokeStyle = '%s';\n",color);
 		fputs(line,imagePtr);
+		imageHits++;
 		}
 	}
 	
 void fill_style(char* color) {
 	char line[100];
 	if(strcmp(graphic_scheme,"canvas") == 0) {
-		sprintf(line,"ctx.fillStyle = '%s';\n",color);
+		my_sprintf(line,"ctx.fillStyle = '%s';\n",color);
 		fputs(line,imagePtr);
+		imageHits++;
 		}
 	}
 
@@ -1400,8 +1410,9 @@ void stroke_text(char* txt,int x,int y) {
 	char line[500];
 	if(x >= 0 && x <= max_coordinate && y >= 0 && y <= max_coordinate) {
 		if(strcmp(graphic_scheme,"canvas") == 0) {
-			sprintf(line,"ctx.strokeText('%s',%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
+			my_sprintf(line,"ctx.strokeText('%s',%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
 			fputs(line,imagePtr);
+			imageHits++;
 			}
 		}
 	}
@@ -1411,8 +1422,9 @@ void fill_text(char* txt,int x,int y) {
 	if(x >= 0 && x <= max_coordinate && y >= 0 && y <= max_coordinate) {
 		if(trace_graphic) BPPrintMessage(odInfo,"text = %s\n",txt);
 		if(strcmp(graphic_scheme,"canvas") == 0) {
-			sprintf(line,"ctx.fillText(\"%s\",%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
+			my_sprintf(line,"ctx.fillText(\"%s\",%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
 			fputs(line,imagePtr);
+			imageHits++;
 			}
 		}
 	}
@@ -1429,8 +1441,9 @@ void stroke_rect(Rect* p_r) {
 			w = x2 - x1;
 			h = y2 - y1;
 			if(x1 >= 0 && y1 >= 0) {
-				sprintf(line,"ctx.strokeRect(%ld,%ld,%ld,%ld);\n",(long)x1,(long)y1,(long)w,(long)h);
+				my_sprintf(line,"ctx.strokeRect(%ld,%ld,%ld,%ld);\n",(long)x1,(long)y1,(long)w,(long)h);
 				fputs(line,imagePtr);
+				imageHits++;
 				}
 			}
 		}
@@ -1448,12 +1461,13 @@ void fill_rect(Rect* p_r,char* color) {
 			w = x2 - x1;
 			h = y2 - y1;
 			if(x1 >= 0 && y1 >= 0) {
-				sprintf(line,"ctx.fillStyle = '%s';\n",color);
+				my_sprintf(line,"ctx.fillStyle = '%s';\n",color);
 				fputs(line,imagePtr);
-				sprintf(line,"ctx.fillRect(%ld,%ld,%ld,%ld);\n",(long)x1,(long)y1,(long)w,(long)h);
+				my_sprintf(line,"ctx.fillRect(%ld,%ld,%ld,%ld);\n",(long)x1,(long)y1,(long)w,(long)h);
 				fputs(line,imagePtr);
-				sprintf(line,"ctx.fillStyle = 'black';\n");
+				my_sprintf(line,"ctx.fillStyle = 'black';\n");
 				fputs(line,imagePtr);
+				imageHits++;
 				}
 			}
 		}
@@ -1462,7 +1476,7 @@ void fill_rect(Rect* p_r,char* color) {
 void text_style(int size,char* font) {
 	char line[100];
 	if(strcmp(graphic_scheme,"canvas") == 0) {
-		sprintf(line,"ctx.font = \"%ldpx %s\";\n",(long)(resize *size),font);
+		my_sprintf(line,"ctx.font = \"%ldpx %s\";\n",(long)(resize *size),font);
 		fputs(line,imagePtr);
 		}
 	}
@@ -1477,7 +1491,7 @@ void erase_rect(Rect* p_r) {
 			y1 = resize * p_r->top;
 			y2 = resize * p_r->bottom;
 			if(x1 >= 0 && x2 >= 0 && y1 >= 0 && y2 >= 0) {
-				sprintf(line,"ctx.fillStyle = 'white';\nctx.fillRect(%ld,%ld,%ld,%ld);\nctx.fillStyle = 'black';\n",(long)x1,(long)y1,(long)(x2 - x1),(long)(y2 - y1));
+				my_sprintf(line,"ctx.fillStyle = 'white';\nctx.fillRect(%ld,%ld,%ld,%ld);\nctx.fillStyle = 'black';\n",(long)x1,(long)y1,(long)(x2 - x1),(long)(y2 - y1));
 				fputs(line,imagePtr);
 				}
 			}

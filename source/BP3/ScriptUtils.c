@@ -38,13 +38,16 @@
 
 #include "-BP2decl.h"
 
+int trace_script = 0;
+
 int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_posdir,
 	int* p_changed,char* p_newarg,int quick) {
 	/* 'quick' is not used. */
 	int i,j,k,w,ww,pos,r,rs,firstchar,diffchar,channel,thekey,displayitems,
 		oldoutmidi,oldwritemidifile,oldoutcsound,oms,changed,tried,oldparamcontrol,oldparamkey,oldparamchan;
 	unsigned int seed;
-	FSSpec spec;
+	unsigned long timethisscript;
+	// FSSpec spec;
 	long x,jj;
 	OSErr io;
 	short refnum;
@@ -52,21 +55,21 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 	char thechar,c,*p,*q,line[MAXLIN],**p_line,type1[5],type2[5],type3[5];
 	MIDI_Event e;
 	long count = 12L;
-	AEEventClass theclass;
-	AEEventID theID;
+	// AEEventClass theclass;
+	// AEEventID theID;
 	OSType thesignature;
 	// AEAddressDesc thetarget;
-	AppleEvent theAppleEvent,reply;
+	// AppleEvent theAppleEvent,reply;
 	// AESendPriority priority;
-	ProcessSerialNumber psn;
 	// ProcessInfoRec info;
 	TextOffset selbegin, selend;
 
 	r = OK; rs = 0;
 	oldoutmidi = rtMIDI;
-	if(ScriptNrArg(instr) > 0) MystrcpyTableToString(MAXLIN,line,ScriptLine.arg,0);
+	if(trace_script) BPPrintMessage(odInfo,"ScriptNrArg(%d) = %d\n",i_script,ScriptNrArg(i_script));
+	if(ScriptNrArg(i_script) > 0) MystrcpyTableToString(MAXLIN,line,ScriptLine.arg,0);
 	else line[0] = '\0';
-	// BPPrintMessage(odInfo,"DoScript instruction = %d\n",instr);
+	if(trace_script) BPPrintMessage(odInfo,"DoScript instruction = %d\n",instr);
 	switch(instr) {
 	/*	case 0:	// Expand selection
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
@@ -103,10 +106,10 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				if(ResetProject(FALSE) != OK) return(ABORT);
 				if(Beta && ScriptExecOn  && TraceRefnum != -1)
 					WriteToFile(NO,MAC,"----------------",TraceRefnum);
-				sprintf(Message,"Loading project: '%s'",line);
+				my_sprintf(Message,"Loading project: '%s'",line);
 				ShowMessage(TRUE,wMessage,Message);
 				if(TraceMemory) {
-					sprintf(LineBuff,"%s %ld [%ld]\n", Message,
+					my_sprintf(LineBuff,"%s %ld [%ld]\n", Message,
 						(long) MemoryUsed,(long)MemoryUsed - MemoryUsedInit);
 					ShowMessage(TRUE, wMessage, LineBuff);
 					}
@@ -134,7 +137,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				spec.parID = CurrentDir;
 				if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) goto GOTIT;
 				if(!check) {
-					sprintf(Message,"Can't find '%s'. You should check script.\n",line);
+					my_sprintf(Message,"Can't find '%s'. You should check script.\n",line);
 					Print(wTrace,Message);
 					}
 				else {
@@ -248,13 +251,13 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			oldparamchan = ParamChan[i];
 			oldparamkey = ParamKey[i];
 	/*		if(ParamChan[i] != -1 && ParamControl[i] != -1) {
-				sprintf(Message,"Parameter K%ld is already controlled by controller #%ld channel %ld\n",
+				my_sprintf(Message,"Parameter K%ld is already controlled by controller #%ld channel %ld\n",
 					(long)i,(long)ParamControl[i],(long)ParamChan[i]);
 				Print(wTrace,Message);
 				return(MISSED);
 				}
 			if(ParamChan[i] != -1 && ParamKey[i] != -1) {
-				sprintf(Message,"Parameter K%ld is already controlled by key #%ld channel %ld\n",
+				my_sprintf(Message,"Parameter K%ld is already controlled by key #%ld channel %ld\n",
 					(long)i,(long)ParamKey[i],(long)ParamChan[i]);
 				Print(wTrace,Message);
 				return(MISSED);
@@ -283,7 +286,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			for(k=0;; k++) {
 				thechar = (*p_line)[k];
 				if(thechar == '\0') break;
-				DoKey(thechar,0,TEH[ScriptW]);
+				// DoKey(thechar,0,TEH[ScriptW]);
 				}
 			ShowSelect(CENTRE,ScriptW);
 			MyDisposeHandle((Handle*)&p_line);
@@ -326,7 +329,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			jj = (*(ScriptLine.intarg))[0];
 			while(jj > 0) {
-				DoKey('\b',0,TEH[ScriptW]);
+			//	DoKey('\b',0,TEH[ScriptW]);
 				jj--;
 				}
 			ShowSelect(CENTRE,ScriptW);
@@ -369,10 +372,10 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				if((r=WaitForEmptyBuffer()) != OK) return(r);/
 				if(Beta && ScriptExecOn  && TraceRefnum != -1)
 					NoReturnWriteToFile("\n",TraceRefnum);
-				sprintf(Message,"Loading file: '%s'",line);
+				my_sprintf(Message,"Loading file: '%s'",line);
 				ShowMessage(TRUE,wMessage,Message);
 				if(TraceMemory) {
-					sprintf(LineBuff,"%s %ld [%ld]\n", Message,
+					my_sprintf(LineBuff,"%s %ld [%ld]\n", Message,
 						(long) MemoryUsed,(long)MemoryUsed - MemoryUsedInit);
 					ShowMessage(TRUE,wMessage,LineBuff);
 					}
@@ -393,7 +396,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				case wData:
 				case wAlphabet:
 					if(SoundOn) {
-						sprintf(Message,"\nYou can't load '%s' while playing.\n",line);
+						my_sprintf(Message,"\nYou can't load '%s' while playing.\n",line);
 						Print(wTrace,Message);
 						return(MISSED);
 						}
@@ -437,7 +440,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 						spec.parID = WindowParID[wCsoundResources]
 							= WindowParID[iObjects] = CurrentDir;
 						if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-							sprintf(Message,"\nCan't find '%s'. You should check the script.\n",
+							my_sprintf(Message,"\nCan't find '%s'. You should check the script.\n",
 								line);
 							Print(wTrace,Message);
 							return(ABORT);
@@ -504,7 +507,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 						spec.vRefNum = TheVRefNum[wInteraction] = CurrentVref;
 						spec.parID = WindowParID[wInteraction] = CurrentDir;
 						if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-							sprintf(Message,"\nCan't find '%s'. You should check the script.\n",
+							my_sprintf(Message,"\nCan't find '%s'. You should check the script.\n",
 								line);
 							Print(wTrace,Message);
 							return(ABORT);
@@ -550,7 +553,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 						spec.vRefNum = TheVRefNum[wGlossary] = CurrentVref;
 						spec.parID = WindowParID[wGlossary] = CurrentDir;
 						if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-							sprintf(Message,"\nCan't find '%s'. You should check the script.\n",
+							my_sprintf(Message,"\nCan't find '%s'. You should check the script.\n",
 								line);
 							Print(wTrace,Message);
 							return(ABORT);
@@ -564,7 +567,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 					break;
 				}
 			if (strlen(line) > MAXNAME) {
-				sprintf(Message,"\nFilename '%s' is too long. You should check the script.\n", line);
+				my_sprintf(Message,"\nFilename '%s' is too long. You should check the script.\n", line);
 				Print(wTrace,Message);
 				return(ABORT);
 			}
@@ -581,7 +584,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 					return(OK);
 					}
 				if(w < 0 || w >= WMAX || !Editable[w]) {
-					sprintf(Message,"Can't load non-editable file '%s'\n",line);
+					my_sprintf(Message,"Can't load non-editable file '%s'\n",line);
 					Print(wTrace,Message);
 					FSClose(refnum);
 					return(ABORT);
@@ -605,7 +608,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 					return(r);
 					}
 				if(ReadFile(w,refnum) != OK) {
-					sprintf(Message,"Can't read '%s'... (no data)",FileName[w]);
+					my_sprintf(Message,"Can't read '%s'... (no data)",FileName[w]);
 					Alert1(Message);
 					FSClose(refnum);
 					return(ABORT);
@@ -658,7 +661,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 						spec.parID = WindowParID[ww];
 						if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) goto GOTIT5;
 						}
-					sprintf(Message,"Can't find '%s'. You should check script.\n",
+					my_sprintf(Message,"Can't find '%s'. You should check script.\n",
 						line);
 					Print(wTrace,Message);
 					}
@@ -723,7 +726,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				spec.vRefNum = TheVRefNum[iSettings] = CurrentVref;
 				spec.parID = WindowParID[iSettings] = CurrentDir;
 				if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-					sprintf(Message,"\nCan't find '%s'. You should check the script.\n",
+					my_sprintf(Message,"\nCan't find '%s'. You should check the script.\n",
 						line);
 					Print(wTrace,Message);
 					return(ABORT);
@@ -894,7 +897,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(Editable[ScriptW]) {
 				if(check) return(OK);
 				if (j > GetTextLength(ScriptW)) {
-					sprintf(Message,"Selection start value '%d' is out of bounds.\n", j);
+					my_sprintf(Message,"Selection start value '%d' is out of bounds.\n", j);
 					Print(wTrace,Message);
 					r = ABORT;
 					break;
@@ -906,7 +909,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 					SelectBehind((long)j,(long)j,TEH[ScriptW]);
 				}
 			else {
-				sprintf(Message,"Window '%s' is not editable.\n",WindowName[ScriptW]);
+				my_sprintf(Message,"Window '%s' is not editable.\n",WindowName[ScriptW]);
 				Print(wTrace,Message);
 				r = ABORT;
 				}
@@ -917,7 +920,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(Editable[ScriptW]) {
 				if(check) return(OK);
 				if (j > GetTextLength(ScriptW)) {
-					sprintf(Message,"Selection end value '%d' is out of bounds.\n", j);
+					my_sprintf(Message,"Selection end value '%d' is out of bounds.\n", j);
 					Print(wTrace,Message);
 					r = ABORT;
 					break;
@@ -930,7 +933,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				ShowSelect(CENTRE,ScriptW);
 				}
 			else {
-				sprintf(Message,"Window '%s' is not editable.\n",WindowName[ScriptW]);
+				my_sprintf(Message,"Window '%s' is not editable.\n",WindowName[ScriptW]);
 				Print(wTrace,Message);
 				r = ABORT;
 				}
@@ -944,19 +947,29 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 		case 67: /* Wait for Start */
 		case 128: /* Wait for Stop */
 			if(check) return(OK);
-			if(++Jinscript >= Maxinscript) {
-				if((p_INscript = (INscripttype**) IncreaseSpace((Handle)p_INscript)) == NULL)
-					return(ABORT);
-				Maxinscript = MyGetHandleSize((Handle)p_INscript) / sizeof(INscripttype);
-				for(i = Jinscript; i < Maxinscript; i++) (*p_INscript)[i].chan = -1;
+			timethisscript = 1000 * Tcurr * Time_res; // microseconds
+			for(j = 1; j <= Jinscript; j++) { // Is this script already there? It happens in improvisation
+				if(((*p_INscript)[j]).scriptline == instr && ((*p_INscript)[j]).chan == 0 && ((*p_INscript)[j]).time == timethisscript) return OK;
 				}
-			((*p_INscript)[Jinscript]).chan = 0;
-			((*p_INscript)[Jinscript]).scriptline = instr;
-			((*p_INscript)[Jinscript]).time = 1000 * Tcurr * Time_res; // microseconds
-			if(instr == 66) ((*p_INscript)[Jinscript]).key = Continue;
-			if(instr == 67) ((*p_INscript)[Jinscript]).key = Start;
-			if(instr == 128) ((*p_INscript)[Jinscript]).key = Stop;
-			if(TraceMIDIinteraction) BPPrintMessage(odInfo,"[%d] INscript instruction %d, wait for MIDI event %d, time = %lu ms\n",Jinscript,instr,((*p_INscript)[Jinscript]).key,((*p_INscript)[Jinscript]).time / 1000L);
+			for(j = 1; j <= Jinscript; j++) {  // Find empty space
+				if((*p_INscript)[j].chan == -1) break;
+				}
+			if(j > Jinscript) {
+				j = Jinscript + 1;
+				if(++Jinscript >= Maxinscript) {
+					if((p_INscript = (INscripttype**) IncreaseSpace((Handle)p_INscript)) == NULL)
+						return(ABORT);
+					Maxinscript = MyGetHandleSize((Handle)p_INscript) / sizeof(INscripttype);
+					for(i = Jinscript; i < Maxinscript; i++) (*p_INscript)[i].chan = -1; // 2024-05-24
+					}
+				}
+			((*p_INscript)[j]).chan = 0;
+			((*p_INscript)[j]).scriptline = instr;
+			((*p_INscript)[j]).time = timethisscript; // microseconds
+			if(instr == 66) ((*p_INscript)[j]).key = Continue;
+			if(instr == 67) ((*p_INscript)[j]).key = Start;
+			if(instr == 128) ((*p_INscript)[j]).key = Stop;
+			if(TraceMIDIinteraction) BPPrintMessage(odInfo,"[%d] INscript instruction %d, wait for MIDI event %d, time = %lu ms\n",j,instr,((*p_INscript)[j]).key,((*p_INscript)[j]).time / 1000L);
 			break;
 		case 68:	/* Return */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
@@ -1008,7 +1021,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check == 2) return(OK);
 			if(MemberStringList(line)) {
-				sprintf(Message,"Script '%s' is already running. Can't restart it\n",
+				my_sprintf(Message,"Script '%s' is already running. Can't restart it\n",
 					line);
 				Print(wTrace,Message);
 				return(ABORT);
@@ -1023,7 +1036,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 					spec.vRefNum = TheVRefNum[wScript] = CurrentVref;
 					spec.parID = WindowParID[wScript] = CurrentDir;
 					if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-						sprintf(Message,"\nCan't find '%s'. You should check the script.\n",
+						my_sprintf(Message,"\nCan't find '%s'. You should check the script.\n",
 							line);
 						Print(wTrace,Message);
 						return(MISSED);
@@ -1167,7 +1180,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 		case 85: /* Play item */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(SoundOn) {
-				sprintf(Message,"\nYou can't play '%s' while playing another item.\n",
+				my_sprintf(Message,"\nYou can't play '%s' while playing another item.\n",
 					line);
 				Print(wTrace,Message);
 				return(MISSED);
@@ -1180,7 +1193,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				if(SelectionToBuffer(FALSE,FALSE,wGrammar,&p_Initbuff,p_posdir,PROD) == OK)
 					InitThere = ((int) LengthOf(&p_Initbuff) > 0);
 				else {
-					N_err++; sprintf(Message,"Compiling 'INIT:': ??? %s  This item can't be played.\n",line);
+					N_err++; my_sprintf(Message,"Compiling 'INIT:': ??? %s  This item can't be played.\n",line);
 					Print(wTrace,Message);
 					}
 				*p_posdir = -1L;
@@ -1325,25 +1338,35 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			UseEachSubChan = (*(ScriptLine.intarg))[1];
 			break;
 		case 97:	/* IN Wait for note */
-			if(wind == wGlossary) return(MISSED);
-			if(check) return(OK);
-			if(++Jinscript >= Maxinscript) {
-				if((p_INscript = (INscripttype**) IncreaseSpace((Handle)p_INscript)) == NULL)
-					return(ABORT);
-				Maxinscript = MyGetHandleSize((Handle)p_INscript) / sizeof(INscripttype);
-				for(i = Jinscript; i < Maxinscript; i++) (*p_INscript)[i].chan = -1; // 2024-05-24
+	//		if(wind == wGlossary) return(MISSED);
+			if(check) return OK;
+			timethisscript = 1000 * Tcurr * Time_res; // microseconds
+			for(j = 1; j <= Jinscript; j++) { // Is this script already there? It happens in improvisation
+				if(((*p_INscript)[j]).key == (*(ScriptLine.intarg))[0] && ((*p_INscript)[j]).chan == (*(ScriptLine.intarg))[1] && ((*p_INscript)[j]).scriptline == instr && ((*p_INscript)[j]).time == timethisscript) return OK;
 				}
-			((*p_INscript)[Jinscript]).key = (*(ScriptLine.intarg))[0];
-			((*p_INscript)[Jinscript]).chan = (*(ScriptLine.intarg))[1];
-			((*p_INscript)[Jinscript]).scriptline = instr;
-			((*p_INscript)[Jinscript]).time = 1000 * Tcurr * Time_res; // microseconds
-			if(TraceMIDIinteraction) BPPrintMessage(odInfo,"[%d] INscript instruction %d, key = %d chan = %d, time = %lu ms\n",Jinscript,instr,(*(ScriptLine.intarg))[0],(*(ScriptLine.intarg))[1],((*p_INscript)[Jinscript]).time / 1000L);
+			for(j = 1; j <= Jinscript; j++) {  // Find empty space
+				if((*p_INscript)[j].chan == -1) break;
+				}
+			if(j > Jinscript) {
+				j = Jinscript + 1;
+				if(++Jinscript >= Maxinscript) {
+					if((p_INscript = (INscripttype**) IncreaseSpace((Handle)p_INscript)) == NULL)
+						return(ABORT);
+					Maxinscript = MyGetHandleSize((Handle)p_INscript) / sizeof(INscripttype);
+					for(i = Jinscript; i < Maxinscript; i++) (*p_INscript)[i].chan = -1; // 2024-05-24
+					}
+				}
+			((*p_INscript)[j]).key = (*(ScriptLine.intarg))[0];
+			((*p_INscript)[j]).chan = (*(ScriptLine.intarg))[1];
+			((*p_INscript)[j]).scriptline = instr;
+			((*p_INscript)[j]).time = timethisscript; // microseconds
+			if(TraceMIDIinteraction) BPPrintMessage(odInfo,"[%d] INscript instruction %d, key = %d chan = %d, time = %lu ms\n",j,instr,(*(ScriptLine.intarg))[0],(*(ScriptLine.intarg))[1],((*p_INscript)[j]).time / 1000L);
 			break;
 		case 98:	/* IN Control tempo controller #"0..127" channel "1..16" range "float" */
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && SynchronizeStartChan != -1) {
-				sprintf(Message,"Tempo is already controlled by controller #%ld channel %ld\n",
+				my_sprintf(Message,"Tempo is already controlled by controller #%ld channel %ld\n",
 					(long)SpeedCtrl,(long)SpeedChan);
 				Print(wTrace,Message);
 				return(MISSED);
@@ -1422,7 +1445,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			i = (*(ScriptLine.intarg))[0];
 			if(wind == wInteraction && WaitChan[i] != -1) {
-				sprintf(Message,"Synchronisation tag W%ld is already controlled by ",
+				my_sprintf(Message,"Synchronisation tag W%ld is already controlled by ",
 					(long)i);
 				Print(wTrace,Message);
 				PrintNote(-1,WaitKey[i],WaitChan[i],wTrace,Message);
@@ -1440,7 +1463,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			oldparamchan = ParamChan[i];
 			oldparamcontrol = ParamControl[i];
 	/*		if(ParamChan[i] != -1 && ParamControl[i] != -1) {
-				sprintf(Message,"Parameter K%ld is already controlled by controller #%ld channel %ld\n",
+				my_sprintf(Message,"Parameter K%ld is already controlled by controller #%ld channel %ld\n",
 					(long)i,(long)ParamControl[i],(long)ParamChan[i]);
 				Print(wTrace,Message);
 				return(MISSED);
@@ -1703,7 +1726,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 		//	GetValues(TRUE);
 			r = OK;
 			Ctrlinit();
-			HideWindow(Window[wMessage]);
+			// HideWindow(Window[wMessage]);
 			r = ProduceItems(wStartString,FALSE,FALSE,NULL);
 			if(!check && ScriptExecOn == 0 && wind == wScript) r = ABORT;
 			else if(r != EXIT) r = OK;
@@ -1782,11 +1805,11 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			break; */
 		case 159:	/* Text Color ON */
 			if(check) return(OK);
-			ForceTextColor = +1; UseTextColor = TRUE;
+			// ForceTextColor = +1; UseTextColor = TRUE;
 			break;
 		case 160:	/* Text Color OFF */
 			if(check) return(OK);
-			ForceTextColor = -1; UseTextColor = FALSE;
+			// ForceTextColor = -1; UseTextColor = FALSE;
 			break;
 		case 161:	/* IN On note channel "1..16" do "script instruction" */
 		//	if(wind != wInteraction) return(MISSED);
@@ -1805,12 +1828,12 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 		case 162:	/* Graphic Color ON */
 			if(check) return(OK);
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
-			ForceGraphicColor = +1; UseGraphicsColor = TRUE;
+			// ForceGraphicColor = +1; UseGraphicsColor = TRUE;
 			break;
 		case 163:	/* Graphic Color OFF */
 			if(check) return(OK);
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
-			ForceGraphicColor = -1; UseGraphicsColor = FALSE;
+			// ForceGraphicColor = -1; UseGraphicsColor = FALSE;
 			break;
 		case 164:	/* Set output window "windowname" */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
@@ -1841,7 +1864,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			MystrcpyTableToString(5,type1,ScriptLine.arg,0);
 			MystrcpyTableToString(5,type2,ScriptLine.arg,1);
 			MystrcpyTableToString(5,type3,ScriptLine.arg,2);
-			sprintf(Message,"Sending Apple Event class '%s' ID '%s' to '%s'",
+			my_sprintf(Message,"Sending Apple Event class '%s' ID '%s' to '%s'",
 				type1,type2,type3);
 			if(ShowMessages) ShowMessage(TRUE,wMessage,Message);
 			tried = FALSE;
@@ -1867,7 +1890,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 					goto SENDAE;
 					}
 	BAD:		
-				sprintf(Message,"\nApple Event class '%s' ID '%s' couldn't reach application '%s'...",
+				my_sprintf(Message,"\nApple Event class '%s' ID '%s' couldn't reach application '%s'...",
 					type1,type2,type3);
 				Println(wTrace,Message);
 				if(OkWait) r = MISSED;
@@ -2031,13 +2054,13 @@ if(!ScriptRecOn) return(OK);
 parid = p_spec->parID;
 vref = p_spec->vRefNum;
 if(CurrentVref != vref) {
-	sprintf(Message,"%ld",(long)vref);
+	my_sprintf(Message,"%ld",(long)vref);
 	MystrcpyStringToTable(ScriptLine.arg,0,Message);
 	AppendScript(39);
 	CurrentVref = vref;
 	}
 if(CurrentDir != parid) {
-	sprintf(Message,"%ld",(long)parid);
+	my_sprintf(Message,"%ld",(long)parid);
 	MystrcpyStringToTable(ScriptLine.arg,0,Message);
 	AppendScript(70);
 	CurrentDir = parid;
@@ -2056,7 +2079,6 @@ unsigned long x;
 i = istart;
 r = MISSED;
 (*((*(ScriptLine.arg))[0]))[0] = '\0';
-MyLock(FALSE,(Handle)p_args);
 for(j=0; j < ScriptNrArg(k); j++) {
 	if(i >= MyHandleLen(p_args)) {
 		Print(wTrace,"\n=> Incorrect number of arguments\n");
@@ -2068,9 +2090,13 @@ for(j=0; j < ScriptNrArg(k); j++) {
 	MystrcpyHandleToString(MAXLIN,0,line,p_ScriptLabelPart(k,j));
 	p = &((*p_args)[i]); q = &(line[0]);
 	n = strlen(line);
-	if(!Match(FALSE,&p,&q,n)) goto QUIT;
+	if(!Match(FALSE,&p,&q,n)) {
+		BPPrintMessage(odError,"=> Mismatch of script argument\n");
+		goto QUIT;
+		}
 	i += n; while(MySpace((*p_args)[i])) i++;
 	MystrcpyHandleToString(MAXLIN,0,line,p_ScriptArgPart(k,j));
+//	BPPrintMessage(odError,"line = %s\n",line);
 	if(strcmp(line,"int") == 0) {
 		if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
 			goto QUIT;
@@ -2131,7 +2157,7 @@ for(j=0; j < ScriptNrArg(k); j++) {
 		continue;
 		}
 	if(strcmp(line,"unsigned") == 0) {
-		if(((*(ScriptLine.intarg))[j] = (long) GetUnsigned((*p_args),&i)) == INT_MAX * 2L)
+		if(((*(ScriptLine.intarg))[j] = (long) GetUnsigned((*p_args),&i)) == UINT16_MAX)
 			goto QUIT;
 		continue;
 		}
@@ -2142,7 +2168,7 @@ for(j=0; j < ScriptNrArg(k); j++) {
 		}
 	if(strcmp(line,"note") == 0) {
 		if(GetNote(&((*p_args)[i]),&n,&ii,TRUE) != OK) {
-			sprintf(Message,"\n=> Incorrect note. (May be wrong note convention)\n");
+			my_sprintf(Message,"\n=> Incorrect note. (May be wrong note convention)\n");
 			Print(wTrace,Message);
 			goto QUIT;
 			}
@@ -2162,7 +2188,7 @@ for(j=0; j < ScriptNrArg(k); j++) {
 		if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
 			goto QUIT;
 		if(n < 1 || n >= MAXPARAMCTRL) {
-			sprintf(Message,"\nController 'Kx' out of range: 0 < x < %ld\n",(long)MAXPARAMCTRL);
+			my_sprintf(Message,"\nController 'Kx' out of range: 0 < x < %ld\n",(long)MAXPARAMCTRL);
 			Print(wTrace,Message);
 			goto QUIT;
 			}
@@ -2177,7 +2203,7 @@ for(j=0; j < ScriptNrArg(k); j++) {
 		if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
 			goto QUIT;
 		if(n < 1 || n > MAXWAIT) {
-			sprintf(Message,"\nSynchro tag 'Wx' out of range: 0 < x < %ld\n",(long)MAXWAIT+1);
+			my_sprintf(Message,"\nSynchro tag 'Wx' out of range: 0 < x < %ld\n",(long)MAXWAIT+1);
 			Print(wTrace,Message);
 			goto QUIT;
 			}
@@ -2196,7 +2222,7 @@ BADVAR:
 		Print(wTrace,"\n=> Incorrect variable\n");
 		goto QUIT;
 		}
-	if(strcmp(line,"AEclass") == 0) {
+/*	if(strcmp(line,"AEclass") == 0) {
 		x = ZERO;
 		for(ii=i; ii < i+4; ii++) {
 			type[ii-i] = (*p_args)[ii];
@@ -2209,8 +2235,8 @@ BADVAR:
 		(*(ScriptLine.ularg))[j] = x;
 		MystrcpyStringToTable(ScriptLine.arg,j,type);
 		continue;
-BADCLASS:
-		sprintf(Message,"\n=> Incorrect Apple Event class '%s'\n",type);
+	BADCLASS:
+		my_sprintf(Message,"\n=> Incorrect Apple Event class '%s'\n",type);
 		Print(wTrace,Message);
 		goto QUIT;
 		}
@@ -2228,7 +2254,7 @@ BADCLASS:
 		MystrcpyStringToTable(ScriptLine.arg,j,type);
 		continue;
 BADID:
-		sprintf(Message,"\n=> Incorrect Apple Event ID '%s'\n",type);
+		my_sprintf(Message,"\n=> Incorrect Apple Event ID '%s'\n",type);
 		Print(wTrace,Message);
 		goto QUIT;
 		}
@@ -2246,10 +2272,10 @@ BADID:
 		MystrcpyStringToTable(ScriptLine.arg,j,type);
 		continue;
 BADCREATOR:
-		sprintf(Message,"\n=> Incorrect application creator '%s'\n",type);
+		my_sprintf(Message,"\n=> Incorrect application creator '%s'\n",type);
 		Print(wTrace,Message);
 		goto QUIT;
-		}
+		} */
 	if(strcmp(line,"script instruction") == 0) {
 	//	continue; // 2024-05-24
 		if(p_Script == NULL && GetScriptSpace() != OK) {
@@ -2300,7 +2326,6 @@ BADCREATOR:
 r = OK;
 
 QUIT:
-MyUnlock((Handle)p_args);
 return(r);
 }
 
@@ -2333,12 +2358,12 @@ if(pos < posmax) {
 	if(vref != CurrentVref) {
 		PrintBehind(wTrace,*(p_ScriptLabelPart(39,0)));
 		PrintBehind(wTrace," ");
-		sprintf(Message,"%ld\n",(long)vref);
+		my_sprintf(Message,"%ld\n",(long)vref);
 		PrintBehind(wTrace,Message);
 		}
 	PrintBehind(wTrace,*(p_ScriptLabelPart(70,0)));
 	PrintBehind(wTrace," ");
-	sprintf(Message,"%ld\n",(long)dir);
+	my_sprintf(Message,"%ld\n",(long)dir);
 	PrintBehind(wTrace,Message);
 	UpdateThisWindow(FALSE,Window[wTrace]);
 	ShowSelect(CENTRE,wTrace);

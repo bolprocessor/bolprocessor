@@ -55,7 +55,7 @@ for(i=ZERO,space=TRUE,start=TRUE,k=0,nitem=1,runningstatus=0,
 	c = GetTextChar(w1,i);
 	if(c == '\r' || c == '\n') {
 		nitem++;
-		sprintf(Message,"Attempting to read item #%ld",(long)nitem);
+		my_sprintf(Message,"Attempting to read item #%ld",(long)nitem);
 		ShowMessage(TRUE,wMessage,Message);
 		Print(w2,"\n"); space = start = TRUE; k = 0;
 		continue;
@@ -182,21 +182,21 @@ while(ReadLine(YES,wind,&pos,posmax,&p_line,&gap) == OK) {
 	if((*p_line)[0] == '\0') {
 		pos1 = pos; continue;
 		}
-	if(Mystrcmp(p_line,"DATA:") == 0) goto OUT;
-	if(Mystrcmp(p_line,"COMMENT:") == 0) goto OUT;
+	if(Mystrcmp(p_line,"DATA:") == 0) goto SORTIR;
+	if(Mystrcmp(p_line,"COMMENT:") == 0) goto SORTIR;
 	if(Mystrcmp(p_line,"TIMEPATTERNS:") == 0) {
-		isthere = TRUE; goto OUT;
+		isthere = TRUE; goto SORTIR;
 		}
 	pos1 = pos;
 	}
 pos1 = posmax + 1L;
 
-OUT:
+SORTIR:
 pos1 -= 1L;
 SetSelect(pos1,pos1,TEH[wind]);
 if(!isthere) Print(wind,"\nTIMEPATTERNS:\n------------");
 pos2 = pos1 + 15L;
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 ResetMIDI(FALSE);
 FlushEvents(everyEvent,0);
 imax = 200L;
@@ -243,7 +243,7 @@ for(ibyte=i=ZERO; ibyte < nbytes; ibyte++) {
 		if(i >= imax) {
 			if((p_t = (Milliseconds**) IncreaseSpace((Handle)p_t)) == NULL) {
 				MyDisposeHandle((Handle*)&p_line);
-				HideWindow(Window[wInfo]);
+				// HideWindow(Window[wInfo]);
 				ReadKeyBoardOn = FALSE;
 				return(ABORT);
 				}
@@ -253,7 +253,7 @@ for(ibyte=i=ZERO; ibyte < nbytes; ibyte++) {
 	}
 
 im = i;
-HideWindow(Window[wInfo]);
+// HideWindow(Window[wInfo]);
 /* if(im < 2) {
 	Alert1("No data received...");
 	goto END;
@@ -262,7 +262,7 @@ for(i=0; i < 4; i++) MainEvent();
 StopWait();
 d = im - 1;
 if (d < 1)  d = 1;
-sprintf(Message, "%d", d);
+my_sprintf(Message, "%d", d);
 SetField(PatternPtr, wUnknown, fPatternDuration, Message);
 SelectField(PatternPtr, wUnknown, fPatternName, TRUE);
 
@@ -288,7 +288,7 @@ while(TRUE) {
 		}
 	if(rep == OK || rep == ABORT) break;
 	}
-HideWindow(GetDialogWindow(PatternPtr));
+// HideWindow(GetDialogWindow(PatternPtr));
 if(rep == ABORT) goto END;
 // reading the text boxes was moved from the switch cases above
 // for efficiency and to prevent bug where LineBuff is not changed - akozar 052107
@@ -307,7 +307,7 @@ if(strlen(name) > 0) {
 	for(i=0; i < strlen(name); i++) {
 		c = name[i];
 		if(!isalnum(c)) {
-			sprintf(Message,
+			my_sprintf(Message,
 		"=> Space or incorrect character in name.  Can't accept '%c'",c);
 			Alert1(Message);
 			goto TRY;
@@ -317,7 +317,7 @@ if(strlen(name) > 0) {
 for(i=0; i < strlen(LineBuff); i++) { // FIXME: This check seems unnecessary - akozar
 	c = LineBuff[i];
 	if(!isdigit(c)) {
-		sprintf(Message,
+		my_sprintf(Message,
 		 "=> Unexpected character '%c'.\nThe symbolic duration must be a positive integer.",c);
 		Alert1(Message);
 		goto TRY;
@@ -334,7 +334,7 @@ for(i=1; i < im; i++) {
 	if(Simplify((double)INT_MAX,(double)((*p_t)[i] - (*p_t)[i-1]),(double)period,&p,&q) != OK)
 		goto END;
 	ipatt++;
-	sprintf(Message,"t%ld = %u/%u  ",(long)ipatt,(unsigned long)p,
+	my_sprintf(Message,"t%ld = %u/%u  ",(long)ipatt,(unsigned long)p,
 		(unsigned long)q);
 	Print(wind,Message); UpdateDirty(TRUE,wAlphabet);
 	if((i % 5) == 0) {
@@ -345,12 +345,12 @@ for(i=1; i < im; i++) {
 if(!isthere) Print(wind,"\n");
 if(strlen(name) > 0) {
 	SetSelect(pos1,pos1,TEH[wind]);
-	sprintf(Message,"\n%s -->",name);
+	my_sprintf(Message,"\n%s -->",name);
 	Print(wind,Message);
 	ipatt = Jpatt;
 	for(i=1; i < im; i++) {
 		ipatt++;
-		sprintf(Message," t%ld",(long)ipatt);
+		my_sprintf(Message," t%ld",(long)ipatt);
 		Print(wind,Message);
 		}
 	}
@@ -433,7 +433,7 @@ EVENT:
 		break;
 		}
 	}
-HideWindow(Window[wInfo]);
+// HideWindow(Window[wInfo]);
 ReadKeyBoardOn = FALSE;
 
 FlushEvents(mDownMask+mUpMask,0);
@@ -456,7 +456,7 @@ key -= (C4key - 60);
 pitchclass = modulo(key,12);
 octave = (key - pitchclass) / 12;
 channelstring[0] = '\0';
-if(channel > 0) sprintf(channelstring," channel %ld",(long)channel);
+if(channel > 0) my_sprintf(channelstring," channel %ld",(long)channel);
 if(NameChoice[pitchclass] == 1 && pitchclass == 0) octave--;
 if(NameChoice[pitchclass] == 1 && pitchclass == 11) octave++;
 // BPPrintMessage(odInfo,"i_scale = %d key =  %d NumberScales = %d NoteConvention = %d\n",i_scale,key,NumberScales,NoteConvention);
@@ -469,7 +469,7 @@ if(i_scale > NumberScales) {
 jscale = i_scale + 3;
 if(jscale > 3) {
 //	jscale = i_scale + 3;
-	sprintf(line,"%s%s",*((*(p_NoteName[jscale]))[key]),channelstring);
+	my_sprintf(line,"%s%s",*((*(p_NoteName[jscale]))[key]),channelstring);
 	}	
 else {	
 	switch(NoteConvention) {
@@ -478,21 +478,21 @@ else {
 			switch(octave) {
 				case -2:
 					if(NameChoice[pitchclass] == 0)
-						sprintf(line,"%s000%s",Frenchnote[pitchclass],channelstring);
+						my_sprintf(line,"%s000%s",Frenchnote[pitchclass],channelstring);
 					else
-						sprintf(line,"%s000%s",AltFrenchnote[pitchclass],channelstring);
+						my_sprintf(line,"%s000%s",AltFrenchnote[pitchclass],channelstring);
 					break;
 				case -1:
 					if(NameChoice[pitchclass] == 0)
-						sprintf(line,"%s00%s",Frenchnote[pitchclass],channelstring);
+						my_sprintf(line,"%s00%s",Frenchnote[pitchclass],channelstring);
 					else
-						sprintf(line,"%s00%s",AltFrenchnote[pitchclass],channelstring);
+						my_sprintf(line,"%s00%s",AltFrenchnote[pitchclass],channelstring);
 					break;
 				default:
 					if(NameChoice[pitchclass] == 0)
-						sprintf(line,"%s%ld%s",Frenchnote[pitchclass],(long)octave,channelstring);
+						my_sprintf(line,"%s%ld%s",Frenchnote[pitchclass],(long)octave,channelstring);
 					else
-						sprintf(line,"%s%ld%s",AltFrenchnote[pitchclass],(long)octave,channelstring);
+						my_sprintf(line,"%s%ld%s",AltFrenchnote[pitchclass],(long)octave,channelstring);
 					break;
 				}
 			break;
@@ -501,15 +501,15 @@ else {
 			switch(octave) {
 				case -1:
 					if(NameChoice[pitchclass] == 0)
-						sprintf(line,"%s00%s",Englishnote[pitchclass],channelstring);
+						my_sprintf(line,"%s00%s",Englishnote[pitchclass],channelstring);
 					else
-						sprintf(line,"%s00%s",AltEnglishnote[pitchclass],channelstring);
+						my_sprintf(line,"%s00%s",AltEnglishnote[pitchclass],channelstring);
 					break;
 				default:
 					if(NameChoice[pitchclass] == 0)
-						sprintf(line,"%s%ld%s",Englishnote[pitchclass],(long)octave,channelstring);
+						my_sprintf(line,"%s%ld%s",Englishnote[pitchclass],(long)octave,channelstring);
 					else
-						sprintf(line,"%s%ld%s",AltEnglishnote[pitchclass],(long)octave,channelstring);
+						my_sprintf(line,"%s%ld%s",AltEnglishnote[pitchclass],(long)octave,channelstring);
 					break;
 				}
 			break;
@@ -518,20 +518,20 @@ else {
 			switch(octave) {
 				case -1:
 					if(NameChoice[pitchclass] == 0)
-						sprintf(line,"%s00%s",Indiannote[pitchclass],channelstring);
+						my_sprintf(line,"%s00%s",Indiannote[pitchclass],channelstring);
 					else
-						sprintf(line,"%s00%s",AltIndiannote[pitchclass],channelstring);
+						my_sprintf(line,"%s00%s",AltIndiannote[pitchclass],channelstring);
 					break;
 				default:
 					if(NameChoice[pitchclass] == 0)
-						sprintf(line,"%s%ld%s",Indiannote[pitchclass],(long)octave,channelstring);
+						my_sprintf(line,"%s%ld%s",Indiannote[pitchclass],(long)octave,channelstring);
 					else
-						sprintf(line,"%s%ld%s",AltIndiannote[pitchclass],(long)octave,channelstring);
+						my_sprintf(line,"%s%ld%s",AltIndiannote[pitchclass],(long)octave,channelstring);
 					break;
 				}
 			break;
 		default: // This includes 'KEYS'
-			sprintf(line,"%s%ld%s",KeyString,(long)key,channelstring);
+			my_sprintf(line,"%s%ld%s",KeyString,(long)key,channelstring);
 			break;
 		}
 	}
@@ -653,7 +653,7 @@ if(ComputeOn || PolyOn || CompileOn || SoundOn || SelectOn || SetTimeOn || Graph
 imax = 120000L; 
 if((p_Code = (MIDIcode**) GiveSpace((Size)imax * sizeof(MIDIcode))) == NULL)
 	return(ABORT);
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 FlashInfo("Receiving MIDI data. Click mouse when completed.");
 MIDIacceptFilter = 0xffffffffL;
 ResetMIDI(FALSE);
@@ -677,14 +677,14 @@ while(!Button()) {
 FlushEvents(mDownMask+mUpMask,0);
 
 (*p_im) = i;
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 if((*p_im) < 2L) {
 	Alert1("No data received..."); goto END;
 	}
 r = OK;
 
 END:
-HideWindow(Window[wInfo]);
+// HideWindow(Window[wInfo]);
 MIDIacceptFilter = oldfilter;
 StopWait();
 return(r);
@@ -712,13 +712,13 @@ if(b < 128) {
 		vel = ByteToInt((*p_Code)[i].byte) % 256;
 		if(br == NoteOn) {
 			if(vel > 0)
-				sprintf(Message,"NoteOn channel %ld %ld %ld ",
+				my_sprintf(Message,"NoteOn channel %ld %ld %ld ",
 					(long)channel,(long)key,(long)vel);
 			else
-				sprintf(Message,"NoteOff channel %ld %ld 127 ",
+				my_sprintf(Message,"NoteOff channel %ld %ld 127 ",
 					(long)channel,(long)key);
 			}
-		else sprintf(Message,"NoteOff channel %ld %ld %ld ",
+		else my_sprintf(Message,"NoteOff channel %ld %ld %ld ",
 			(long)channel,(long)key,(long)vel);
 		Print(w,Message);
 		goto NEXTBYTE;
@@ -749,10 +749,10 @@ if(b == NoteOn) {
 	i++; if(i >= im) goto QUIT;
 	vel = ByteToInt((*p_Code)[i].byte);
 	if(vel > 0)
-		sprintf(Message,"NoteOn channel %ld %ld %ld ",
+		my_sprintf(Message,"NoteOn channel %ld %ld %ld ",
 			(long)channel,(long)key,(long)vel);
 	else
-		sprintf(Message,"NoteOff channel %ld %ld 127 ",
+		my_sprintf(Message,"NoteOff channel %ld %ld 127 ",
 			(long)channel,(long)key);
 	Print(w,Message);
 	goto NEXTBYTE;
@@ -762,7 +762,7 @@ if(b == NoteOff) {
 	key = ByteToInt((*p_Code)[i].byte);
 	i++; if(i >= im) goto QUIT;
 	vel = ByteToInt((*p_Code)[i].byte);
-	sprintf(Message,"NoteOff channel %ld %ld %ld ",
+	my_sprintf(Message,"NoteOff channel %ld %ld %ld ",
 		(long)channel,(long)key,(long)vel);
 	Print(w,Message);
 	goto NEXTBYTE;
@@ -815,7 +815,7 @@ velocity = PrototypeTickVelocity;
 if(GetField(NULL,TRUE,wPrototype5,fTref,line,&p,&q) != OK) return(MISSED);
 dur = p/q;
 if(dur < EPSILON) {
-	sprintf(Message,"You can't play ticks because Tref is only %ldms",(long)dur);
+	my_sprintf(Message,"You can't play ticks because Tref is only %ldms",(long)dur);
 	Alert1(Message);
 	key = -1; dur = 1000;
 	goto DOIT;
@@ -879,7 +879,7 @@ while(Button());
 FlushEvents(mDownMask+mUpMask,0);
 
 ResetMIDI(TRUE);
-HideWindow(Window[wInfo]);
+// HideWindow(Window[wInfo]);
 StopWait();
 if(imax < 2L) {
 	Alert1("No data received...");

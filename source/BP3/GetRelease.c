@@ -129,7 +129,7 @@ for(i=0; i <= MAXCHAN; i++) {
 	}
 LastAction = NO;
 if(TraceMemory && check_memory_use) {
-	sprintf(Message,"New project memory use: %ld [leaked: %ld]",
+	my_sprintf(Message,"New project memory use: %ld [leaked: %ld]",
 		(long) MemoryUsed,(long)MemoryUsed - MemoryUsedInit);
 	ShowMessage(TRUE, wMessage, Message);
 	}
@@ -264,7 +264,7 @@ for(w=0; w < MAXWIND; w++) {
 		Window[w] = NULL;
 		}
 	else {
-		sprintf(Message,"Window #%ld is NULL. ",(long)w);
+		my_sprintf(Message,"Window #%ld is NULL. ",(long)w);
 		if(Beta) Alert1(Message);
 		}
 	}
@@ -278,7 +278,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 		Window[w] = NULL;
 		}
 	else {
-		sprintf(Message,"Dialog #%ld is NULL. ",(long)w);
+		my_sprintf(Message,"Dialog #%ld is NULL. ",(long)w);
 		if(Beta) Alert1(Message);
 		}
 	/* if(Editable[w]) TextDispose(TEH[w]); */
@@ -296,61 +296,58 @@ return(DoSystem());
 #endif
 
 
-int ReleaseAlphabetSpace(void)
-{
-int j,jmax;
-Handle ptr;
-
-CompiledAl = CompiledGr = CompiledGl = FALSE;
-NoAlphabet = TRUE; Jfunc = 0;
-if(p_Bol == NULL) jmax = 0;
-else jmax = MyGetHandleSize((Handle)p_Bol) / sizeof(char**);
-for(j=0; j < jmax; j++) {
-	ptr = (Handle)(*p_Bol)[j];
+int ReleaseAlphabetSpace(void) {
+	int j,jmax;
+	Handle ptr;
+	CompiledAl = CompiledGr = CompiledGl = FALSE;
+	NoAlphabet = TRUE; Jfunc = 0;
+	if(p_Bol == NULL) jmax = 0;
+	else jmax = Jbol;
+	// jmax = MyGetHandleSize((Handle)p_Bol) / sizeof(char**);
+	for(j=0; j < jmax; j++) {
+	//	BPPrintMessage(odInfo,"(*p_Bol)[j] = %s, j = %d, Jbol = %d\n",*((*p_Bol)[j]),j,Jbol);
+		ptr = (Handle)(*p_Bol)[j];
+		MyDisposeHandle(&ptr);
+		}
+	ptr = (Handle) p_Bol;
 	MyDisposeHandle(&ptr);
-	}
-ptr = (Handle) p_Bol;
-MyDisposeHandle(&ptr);
-p_Bol = NULL;
-
-if(DoSystem() != OK) return(ABORT);
-
-if(p_Image == NULL) jmax = 0;
-else {
-	jmax = MyGetHandleSize((Handle)p_Image) / sizeof(int**);
-	if(p_Homo == NULL) if(Beta) Alert1("=> Err. ReleaseAlphabetSpace(). p_Image = NULL");
-	}
-for(j=0; j < jmax; j++) {
-	ptr = (Handle)(*p_Image)[j];
+	p_Bol = NULL;
+	if(p_Image == NULL) jmax = 0;
+	else {
+		jmax = MyGetHandleSize((Handle)p_Image) / sizeof(int**);
+		if(p_Homo == NULL) if(Beta) Alert1("=> Err. ReleaseAlphabetSpace(). p_Image = NULL");
+		}
+	for(j=0; j < jmax; j++) {
+		ptr = (Handle)(*p_Image)[j];
+		MyDisposeHandle(&ptr);
+		(*p_Image)[j] = NULL;
+		}
+	if(p_Homo == NULL) jmax = 0;
+	else jmax = MyGetHandleSize((Handle)p_Homo) / sizeof(int**);
+	for(j=0; j < jmax; j++) {
+		ptr = (Handle)(*p_Homo)[j];
+		MyDisposeHandle(&ptr);
+		(*p_Homo)[j] = NULL;
+		}
+	if(p_NoteImage == NULL) jmax = 0;
+	else jmax = MyGetHandleSize((Handle)p_NoteImage) / sizeof(int**);
+	for(j=0; j < jmax; j++) {
+		ptr = (Handle)(*p_NoteImage)[j];
+		MyDisposeHandle(&ptr);
+		(*p_NoteImage)[j] = NULL;
+		}
+	ptr = (Handle) p_Image;
 	MyDisposeHandle(&ptr);
-	(*p_Image)[j] = NULL;
-	}
-if(p_Homo == NULL) jmax = 0;
-else jmax = MyGetHandleSize((Handle)p_Homo) / sizeof(int**);
-for(j=0; j < jmax; j++) {
-	ptr = (Handle)(*p_Homo)[j];
+	p_Image = NULL;
+	ptr = (Handle) p_NoteImage;
 	MyDisposeHandle(&ptr);
-	(*p_Homo)[j] = NULL;
-	}
-if(p_NoteImage == NULL) jmax = 0;
-else jmax = MyGetHandleSize((Handle)p_NoteImage) / sizeof(int**);
-for(j=0; j < jmax; j++) {
-	ptr = (Handle)(*p_NoteImage)[j];
+	p_NoteImage = NULL;
+	ptr = (Handle) p_Homo;
 	MyDisposeHandle(&ptr);
-	(*p_NoteImage)[j] = NULL;
+	p_Homo = NULL;
+	Jbol = Jhomo = 0;
+	return(DoSystem());
 	}
-ptr = (Handle) p_Image;
-MyDisposeHandle(&ptr);
-p_Image = NULL;
-ptr = (Handle) p_NoteImage;
-MyDisposeHandle(&ptr);
-p_NoteImage = NULL;
-ptr = (Handle) p_Homo;
-MyDisposeHandle(&ptr);
-p_Homo = NULL;
-Jbol = Jhomo = 0;
-return(DoSystem());
-}
 
 
 int ReleasePatternSpace(void)
@@ -421,7 +418,7 @@ if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 			//		BPPrintMessage(odInfo, "left flags\n");
 					do {
 						if((**h).x > Jflag || (**h).x < 0) {
-							sprintf(Message,"=> Err in flag list. ");
+							my_sprintf(Message,"=> Err in flag list. ");
 							if(Beta) Alert1(Message);
 							break;
 							}
@@ -436,7 +433,7 @@ if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 					if(Find_leak) BPPrintMessage(odInfo, "right flags\n");
 					do {
 						if((**h).x > Jflag || (**h).x < 0) {
-							sprintf(Message,"=> Err in flag list. ");
+							my_sprintf(Message,"=> Err in flag list. ");
 							if(Beta) Alert1(Message);
 							break;
 							}
@@ -716,7 +713,7 @@ int ResizeCsoundInstrumentsSpace(int howmany)
 int i,j;
 char **ptr;
 
-if(howmany != Jinstr) CompiledCsObjects = CompiledRegressions = FALSE;
+if(howmany != Jinstr) CompiledCsObjects = CompiledRegressions = 0;
  
 if(howmany == 0) {
 	BPPrintMessage(odError,"=> Err. ResizeCsoundInstrumentsSpace(). howmany == 0\n");
@@ -883,232 +880,233 @@ return(OK);
 }
 
 int ClearObjectSpace(void) { // NOT USED
-MyDisposeHandle((Handle*)&p_Type);
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (a) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-MyDisposeHandle((Handle*)&p_FixScale);
-MyDisposeHandle((Handle*)&p_OkExpand);
-MyDisposeHandle((Handle*)&p_OkCompress);
-MyDisposeHandle((Handle*)&p_AlphaMin);
-MyDisposeHandle((Handle*)&p_AlphaMax);
-MyDisposeHandle((Handle*)&p_OkRelocate);
-MyDisposeHandle((Handle*)&p_BreakTempo);
-MyDisposeHandle((Handle*)&p_OkTransp);
-MyDisposeHandle((Handle*)&p_OkArticul);
-MyDisposeHandle((Handle*)&p_OkVolume);
-MyDisposeHandle((Handle*)&p_OkPan);
-MyDisposeHandle((Handle*)&p_OkMap);
-MyDisposeHandle((Handle*)&p_OkVelocity);
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (b) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-MyDisposeHandle((Handle*)&p_ContBeg);
-MyDisposeHandle((Handle*)&p_ContEnd);
-MyDisposeHandle((Handle*)&p_CoverBeg);
-MyDisposeHandle((Handle*)&p_CoverEnd);
-MyDisposeHandle((Handle*)&p_TruncBeg);
-MyDisposeHandle((Handle*)&p_TruncEnd);
-MyDisposeHandle((Handle*)&p_PivType);
-MyDisposeHandle((Handle*)&p_PivMode);
-MyDisposeHandle((Handle*)&p_RescaleMode);
-MyDisposeHandle((Handle*)&p_DelayMode);
-MyDisposeHandle((Handle*)&p_ForwardMode);
-MyDisposeHandle((Handle*)&p_BreakTempoMode);
-MyDisposeHandle((Handle*)&p_ContBegMode);
-MyDisposeHandle((Handle*)&p_ContEndMode);
-MyDisposeHandle((Handle*)&p_CoverBegMode);
-MyDisposeHandle((Handle*)&p_CoverEndMode);
-MyDisposeHandle((Handle*)&p_TruncBegMode);
-MyDisposeHandle((Handle*)&p_TruncEndMode);
-MyDisposeHandle((Handle*)&p_PreRollMode);
-MyDisposeHandle((Handle*)&p_PostRollMode);
-MyDisposeHandle((Handle*)&p_PeriodMode);
-MyDisposeHandle((Handle*)&p_StrikeAgain);
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (c) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-MyDisposeHandle((Handle*)&p_CompiledCsoundScore);
-MyDisposeHandle((Handle*)&p_DiscardNoteOffs);
-MyDisposeHandle((Handle*)&p_ForceIntegerPeriod);
-MyDisposeHandle((Handle*)&p_PivPos);
-MyDisposeHandle((Handle*)&p_PreRoll);
-MyDisposeHandle((Handle*)&p_PostRoll);
-MyDisposeHandle((Handle*)&p_BeforePeriod);
-MyDisposeHandle((Handle*)&p_MaxDelay);
-MyDisposeHandle((Handle*)&p_MaxForward);
-MyDisposeHandle((Handle*)&p_MaxBegGap);
-MyDisposeHandle((Handle*)&p_MaxEndGap);
-MyDisposeHandle((Handle*)&p_MaxCoverBeg);
-MyDisposeHandle((Handle*)&p_MaxCoverEnd);
-MyDisposeHandle((Handle*)&p_MaxTruncBeg);
-MyDisposeHandle((Handle*)&p_MaxTruncEnd);
-MyDisposeHandle((Handle*)&p_AlphaCtrl);
-MyDisposeHandle((Handle*)&p_AlphaCtrlNr);
-MyDisposeHandle((Handle*)&p_AlphaCtrlChan);
-MyDisposeHandle((Handle*)&p_MIDIsize);
-MyDisposeHandle((Handle*)&p_CsoundSize);
-MyDisposeHandle((Handle*)&p_Ifrom);
-MyDisposeHandle((Handle*)&p_Quan);
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (d) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-MyDisposeHandle((Handle*)&p_DefaultChannel);
-MyDisposeHandle((Handle*)&p_PasteDone);
-MyDisposeHandle((Handle*)&p_Tref);
-MyDisposeHandle((Handle*)&p_Tpict);
-MyDisposeHandle((Handle*)&p_ObjectColor);
-MyDisposeHandle((Handle*)&p_Resolution);
-MyDisposeHandle((Handle*)&p_CsoundInstr);
-MyDisposeHandle((Handle*)&p_CsoundAssignedInstr);
-MyDisposeHandle((Handle*)&p_CsoundTempo);
-MyDisposeHandle((Handle*)&p_Dur);
-MyDisposeHandle((Handle*)&pp_MIDIcode);
-MyDisposeHandle((Handle*)&pp_CsoundTime);
-MyDisposeHandle((Handle*)&pp_Comment);
-MyDisposeHandle((Handle*)&pp_CsoundScoreText);
-MyDisposeHandle((Handle*)&pp_CsoundScore);
-return(OK);
-}
-
-int MakeSoundObjectSpace(void)
-{
-int i,j,**ptr;
-MIDIcode **ptr1;
-Milliseconds **ptr2;
- 
-// BPPrintMessage(odInfo, "Running MakeSoundObjectSpace()\n");
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start MakeSoundObjectSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-
-if((p_Type = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_FixScale = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_OkExpand = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_OkCompress = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_AlphaMin = (double**) GiveSpace((Size)2 *sizeof(double))) == NULL) goto ERR;
-if((p_AlphaMax = (double**) GiveSpace((Size)2 *sizeof(double))) == NULL) goto ERR;
-if((p_OkRelocate = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_BreakTempo = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_OkTransp = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_OkArticul = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_OkVolume = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_OkPan = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_OkMap = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_OkVelocity = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_ContBeg = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_ContEnd = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_CoverBeg = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_CoverEnd = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_TruncBeg = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_TruncEnd = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_PivType = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_PivMode = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_RescaleMode = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_DelayMode = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_ForwardMode = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_BreakTempoMode = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_ContBegMode = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_ContEndMode = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_CoverBegMode = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_CoverEndMode = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_TruncBegMode = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_TruncEndMode = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_PreRollMode = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_PostRollMode = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_PeriodMode = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_StrikeAgain = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_CompiledCsoundScore = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_DiscardNoteOffs = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_ForceIntegerPeriod = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_PivPos = (float**) GiveSpace((Size)2 *sizeof(float))) == NULL) goto ERR;
-if((p_PreRoll = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
-if((p_PostRoll = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
-if((p_BeforePeriod = (float**) GiveSpace((Size)2 *sizeof(float))) == NULL) goto ERR;
-if((p_MaxDelay = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
-if((p_MaxForward = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
-if((p_MaxBegGap = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
-if((p_MaxEndGap = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
-if((p_MaxCoverBeg = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
-if((p_MaxCoverEnd = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
-if((p_MaxTruncBeg = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
-if((p_MaxTruncEnd = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
-
-if((p_AlphaCtrl = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_AlphaCtrlNr = (int**) GiveSpace((Size)2 *sizeof(int))) == NULL) goto ERR;
-if((p_AlphaCtrlChan = (int**) GiveSpace((Size)2 *sizeof(int))) == NULL) goto ERR;
-
-if((p_MIDIsize = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
-if((p_CsoundSize = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
-if((p_Ifrom = (int**) GiveSpace((Size)2 *sizeof(int))) == NULL) goto ERR;
-if((p_Quan = (double**) GiveSpace((Size)2 *sizeof(double))) == NULL) goto ERR;
-if((p_DefaultChannel = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_PasteDone = (char**) GiveSpace((Size)2 *sizeof(char))) == NULL) goto ERR;
-if((p_Tref = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
-if((p_Tpict = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
-if((p_ObjectColor = (RGBColor**) GiveSpace((Size)2 *sizeof(RGBColor))) == NULL) goto ERR;
-if((p_Resolution = (int**) GiveSpace((Size)2 *sizeof(int))) == NULL) goto ERR;
-if((p_CsoundInstr = (int**) GiveSpace((Size)2 *sizeof(int))) == NULL) goto ERR;
-if((p_CsoundAssignedInstr = (int**) GiveSpace((Size)2 *sizeof(int))) == NULL) goto ERR;
-if((p_CsoundTempo = (float**) GiveSpace((Size)2 *sizeof(float))) == NULL) goto ERR;
-
-if((p_Dur = (long**) GiveSpace((Size)2 *sizeof(long))) == NULL) goto ERR;
-if((pp_MIDIcode = (MIDIcode****) GiveSpace((Size)2 *sizeof(MIDIcode**))) == NULL) goto ERR;
-if((pp_CsoundTime = (Milliseconds****) GiveSpace((Size)2 *sizeof(Milliseconds**))) == NULL) goto ERR;
-if((pp_Comment = (char****) GiveSpace((Size)2 *sizeof(char**))) == NULL) goto ERR;
-if((pp_CsoundScoreText = (char****) GiveSpace((Size)2 *sizeof(char**))) == NULL) goto ERR;
-if((pp_CsoundScore = (CsoundLine****) GiveSpace((Size)2 *sizeof(CsoundLine**))) == NULL) goto ERR;
-	 
-for(j=0; j < 2 ; j++) {
-	(*p_MIDIsize)[j] = (*p_CsoundSize)[j] = ZERO;
-	(*p_Ifrom)[j] = 0; (*p_Type)[j] = 0;
-	(*p_PivPos)[j] = (*p_BeforePeriod)[j] = 0.;
-	(*p_PeriodMode)[j] = IRRELEVANT;
-	(*p_PreRoll)[j] = (*p_PostRoll)[j] = ZERO;
-	(*p_AlphaCtrlNr)[j] = 0; (*p_AlphaCtrlChan)[j] = 1;
-	(*pp_MIDIcode)[j] = NULL; (*pp_CsoundTime)[j] = NULL;
-	(*pp_Comment)[j] = (*pp_CsoundScoreText)[j] = NULL;
-	(*pp_CsoundScore)[j] = NULL;
-	(*p_CoverBeg)[j] = (*p_CoverEnd)[j] = (*p_OkRelocate)[j] = (*p_OkExpand)[j]
-		= (*p_OkCompress)[j] = TRUE;
-	(*p_StrikeAgain)[j] = -1;
-	(*p_CompiledCsoundScore)[j] = TRUE;
-	(*p_OkTransp)[j] = (*p_OkPan)[j] = (*p_OkMap)[j] = (*p_OkVolume)[j] = (*p_OkArticul)[j]
-		= (*p_OkVelocity)[j] = (*p_DiscardNoteOffs)[j] = (*p_PasteDone)[j] = FALSE;
-	(*p_BreakTempo)[j] = TRUE;
-	(*p_FixScale)[j] = (*p_ContBeg)[j] = (*p_ContEnd)[j]
-		= (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = (*p_AlphaCtrl)[j] = (*p_ForceIntegerPeriod)[j]
-		= FALSE;
-	(*p_PivType)[j] = 1; (*p_PivMode)[j] = ABSOLU;
-	(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = RELATIF;
-	(*p_MaxDelay)[j] = (*p_MaxForward)[j] = ZERO;
-	(*p_RescaleMode)[j] = LINEAR;
-	(*p_AlphaMin)[j] = 0; (*p_AlphaMax)[j] = 100.;
-		(*p_DelayMode)[j] = (*p_ForwardMode)[j] = (*p_BreakTempoMode)[j]
-			= (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLU;
-		(*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j]
-			= (*p_TruncEndMode)[j] = RELATIF;
-	(*p_PeriodMode)[j] = IRRELEVANT;
-	(*p_MaxBegGap)[j] = (*p_MaxEndGap)[j] = Infpos;
-	(*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = 100L;
-	(*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = 0L;
-	(*p_Tref)[j] = ZERO; (*p_Resolution)[j] = 1; (*p_Dur)[j] = (*p_PivPos)[j]
-	 = (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_BeforePeriod)[j] = ZERO;
-	(*p_DefaultChannel)[j] = (*p_Quan)[j] = 0;
-	(*p_Tpict)[j] = Infneg;
-	(*p_CsoundInstr)[j] = 0;
-	(*p_CsoundAssignedInstr)[j] = -1;
-	(*p_ObjectColor)[j].red = (*p_ObjectColor)[j].green = (*p_ObjectColor)[j].blue = -1L;
+	MyDisposeHandle((Handle*)&p_Type);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (a) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	MyDisposeHandle((Handle*)&p_FixScale);
+	MyDisposeHandle((Handle*)&p_OkExpand);
+	MyDisposeHandle((Handle*)&p_OkCompress);
+	MyDisposeHandle((Handle*)&p_AlphaMin);
+	MyDisposeHandle((Handle*)&p_AlphaMax);
+	MyDisposeHandle((Handle*)&p_OkRelocate);
+	MyDisposeHandle((Handle*)&p_BreakTempo);
+	MyDisposeHandle((Handle*)&p_OkTransp);
+	MyDisposeHandle((Handle*)&p_OkArticul);
+	MyDisposeHandle((Handle*)&p_OkVolume);
+	MyDisposeHandle((Handle*)&p_OkPan);
+	MyDisposeHandle((Handle*)&p_OkMap);
+	MyDisposeHandle((Handle*)&p_OkVelocity);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (b) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	MyDisposeHandle((Handle*)&p_ContBeg);
+	MyDisposeHandle((Handle*)&p_ContEnd);
+	MyDisposeHandle((Handle*)&p_CoverBeg);
+	MyDisposeHandle((Handle*)&p_CoverEnd);
+	MyDisposeHandle((Handle*)&p_TruncBeg);
+	MyDisposeHandle((Handle*)&p_TruncEnd);
+	MyDisposeHandle((Handle*)&p_PivType);
+	MyDisposeHandle((Handle*)&p_PivMode);
+	MyDisposeHandle((Handle*)&p_RescaleMode);
+	MyDisposeHandle((Handle*)&p_DelayMode);
+	MyDisposeHandle((Handle*)&p_ForwardMode);
+	MyDisposeHandle((Handle*)&p_BreakTempoMode);
+	MyDisposeHandle((Handle*)&p_ContBegMode);
+	MyDisposeHandle((Handle*)&p_ContEndMode);
+	MyDisposeHandle((Handle*)&p_CoverBegMode);
+	MyDisposeHandle((Handle*)&p_CoverEndMode);
+	MyDisposeHandle((Handle*)&p_TruncBegMode);
+	MyDisposeHandle((Handle*)&p_TruncEndMode);
+	MyDisposeHandle((Handle*)&p_PreRollMode);
+	MyDisposeHandle((Handle*)&p_PostRollMode);
+	MyDisposeHandle((Handle*)&p_PeriodMode);
+	MyDisposeHandle((Handle*)&p_StrikeAgain);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (c) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	MyDisposeHandle((Handle*)&p_CompiledCsoundScore);
+	MyDisposeHandle((Handle*)&p_DiscardNoteOffs);
+	MyDisposeHandle((Handle*)&p_ForceIntegerPeriod);
+	MyDisposeHandle((Handle*)&p_PivPos);
+	MyDisposeHandle((Handle*)&p_PreRoll);
+	MyDisposeHandle((Handle*)&p_PostRoll);
+	MyDisposeHandle((Handle*)&p_BeforePeriod);
+	MyDisposeHandle((Handle*)&p_MaxDelay);
+	MyDisposeHandle((Handle*)&p_MaxForward);
+	MyDisposeHandle((Handle*)&p_MaxBegGap);
+	MyDisposeHandle((Handle*)&p_MaxEndGap);
+	MyDisposeHandle((Handle*)&p_MaxCoverBeg);
+	MyDisposeHandle((Handle*)&p_MaxCoverEnd);
+	MyDisposeHandle((Handle*)&p_MaxTruncBeg);
+	MyDisposeHandle((Handle*)&p_MaxTruncEnd);
+	MyDisposeHandle((Handle*)&p_AlphaCtrl);
+	MyDisposeHandle((Handle*)&p_AlphaCtrlNr);
+	MyDisposeHandle((Handle*)&p_AlphaCtrlChan);
+	MyDisposeHandle((Handle*)&p_MIDIsize);
+	MyDisposeHandle((Handle*)&p_CsoundSize);
+	MyDisposeHandle((Handle*)&p_Ifrom);
+	MyDisposeHandle((Handle*)&p_Quan);
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (d) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	MyDisposeHandle((Handle*)&p_DefaultChannel);
+	MyDisposeHandle((Handle*)&p_PasteDone);
+	MyDisposeHandle((Handle*)&p_Tref);
+	MyDisposeHandle((Handle*)&p_Tpict);
+	// MyDisposeHandle((Handle*)&p_ObjectColor);
+	MyDisposeHandle((Handle*)&p_Resolution);
+	MyDisposeHandle((Handle*)&p_CsoundInstr);
+	MyDisposeHandle((Handle*)&p_CsoundAssignedInstr);
+	MyDisposeHandle((Handle*)&p_CsoundTempo);
+	MyDisposeHandle((Handle*)&p_Dur);
+	MyDisposeHandle((Handle*)&pp_MIDIcode);
+	MyDisposeHandle((Handle*)&pp_CsoundTime);
+	MyDisposeHandle((Handle*)&pp_Comment);
+	MyDisposeHandle((Handle*)&pp_CsoundScoreText);
+	MyDisposeHandle((Handle*)&pp_CsoundScore);
+	return(OK);
 	}
-(*p_Tref)[1] = (*p_Dur)[1] = 1000L;
-(*p_OkPan)[1] = (*p_OkVolume)[1] = (*p_OkMap)[1] = (*p_OkVelocity)[1] = TRUE;
 
-// Silence should have (empty) MIDI and TIME
-// (these are used if silence is preceded by synchro tag)
+int MakeSoundObjectSpace(void) {
+	int i,j,jmax,**ptr;
+	MIDIcode **ptr1;
+	Milliseconds **ptr2;
+	
+	// BPPrintMessage(odInfo, "Running MakeSoundObjectSpace()\n");
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start MakeSoundObjectSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 
-if((ptr1 = (MIDIcode**) GiveSpace((Size)sizeof(MIDIcode))) == NULL) goto ERR;
-(*pp_MIDIcode)[1] = ptr1;
-(*((*pp_MIDIcode)[1]))[0].time = ZERO;
-(*((*pp_MIDIcode)[1]))[0].byte = TimingClock;
-(*((*pp_MIDIcode)[1]))[0].sequence = 0;
+	jmax = Jbol;
 
+	if(MySetHandleSize((char***)&p_Bol,(Size)jmax *sizeof(char**)) != OK) return(ABORT);
+	if((p_Type = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_FixScale = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_OkExpand = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_OkCompress = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_AlphaMin = (double**) GiveSpace((Size) jmax *sizeof(double))) == NULL) goto ERR;
+	if((p_AlphaMax = (double**) GiveSpace((Size) jmax *sizeof(double))) == NULL) goto ERR;
+	if((p_OkRelocate = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_BreakTempo = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_OkTransp = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_OkArticul = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_OkVolume = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_OkPan = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_OkMap = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_OkVelocity = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_ContBeg = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_ContEnd = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_CoverBeg = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_CoverEnd = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_TruncBeg = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_TruncEnd = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_PivType = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_PivMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_RescaleMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_DelayMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_ForwardMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_BreakTempoMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_ContBegMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_ContEndMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_CoverBegMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_CoverEndMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_TruncBegMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_TruncEndMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_PreRollMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_PostRollMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_PeriodMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_StrikeAgain = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_CompiledCsoundScore = (int**) GiveSpace((Size) jmax *sizeof(int))) == NULL) goto ERR;
+	if((p_DiscardNoteOffs = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_ForceIntegerPeriod = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_PivPos = (float**) GiveSpace((Size) jmax *sizeof(float))) == NULL) goto ERR;
+	if((p_PreRoll = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
+	if((p_PostRoll = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
+	if((p_BeforePeriod = (float**) GiveSpace((Size) jmax *sizeof(float))) == NULL) goto ERR;
+	if((p_MaxDelay = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
+	if((p_MaxForward = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
+	if((p_MaxBegGap = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
+	if((p_MaxEndGap = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
+	if((p_MaxCoverBeg = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
+	if((p_MaxCoverEnd = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
+	if((p_MaxTruncBeg = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
+	if((p_MaxTruncEnd = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
 
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end MakeSoundObjectSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-return(OK);
+	if((p_AlphaCtrl = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_AlphaCtrlNr = (int**) GiveSpace((Size) jmax *sizeof(int))) == NULL) goto ERR;
+	if((p_AlphaCtrlChan = (int**) GiveSpace((Size) jmax *sizeof(int))) == NULL) goto ERR;
 
-ERR:
-return(ABORT);
-}
+	if((p_MIDIsize = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
+	if((p_CsoundSize = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
+	if((p_Ifrom = (int**) GiveSpace((Size) jmax *sizeof(int))) == NULL) goto ERR;
+	if((p_Quan = (double**) GiveSpace((Size) jmax *sizeof(double))) == NULL) goto ERR;
+	if((p_DefaultChannel = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_PasteDone = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_Tref = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
+	if((p_Tpict = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
+	/* if((p_ObjectColor = (RGBColor**) GiveSpace((Size) jmax *sizeof(RGBColor))) == NULL) goto ERR; */
+	if((p_Resolution = (int**) GiveSpace((Size) jmax *sizeof(int))) == NULL) goto ERR;
+	if((p_CsoundInstr = (int**) GiveSpace((Size) jmax *sizeof(int))) == NULL) goto ERR;
+	if((p_CsoundAssignedInstr = (int**) GiveSpace((Size) jmax *sizeof(int))) == NULL) goto ERR;
+	if((p_CsoundTempo = (float**) GiveSpace((Size) jmax *sizeof(float))) == NULL) goto ERR;
+
+	if((p_Dur = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
+	if((pp_MIDIcode = (MIDIcode****) GiveSpace((Size) jmax *sizeof(MIDIcode**))) == NULL) goto ERR;
+	if((pp_CsoundTime = (Milliseconds****) GiveSpace((Size) jmax *sizeof(Milliseconds**))) == NULL) goto ERR;
+	if((pp_Comment = (char****) GiveSpace((Size) jmax *sizeof(char**))) == NULL) goto ERR;
+	if((pp_CsoundScoreText = (char****) GiveSpace((Size) jmax *sizeof(char**))) == NULL) goto ERR;
+	if((pp_CsoundScore = (CsoundLine****) GiveSpace((Size) jmax *sizeof(CsoundLine**))) == NULL) goto ERR;
+		
+	for(j=0; j < 2 ; j++) {
+		(*p_MIDIsize)[j] = (*p_CsoundSize)[j] = ZERO;
+		(*p_Ifrom)[j] = 0; (*p_Type)[j] = 0;
+		(*p_PivPos)[j] = (*p_BeforePeriod)[j] = 0.;
+		(*p_PeriodMode)[j] = IRRELEVANT;
+		(*p_PreRoll)[j] = (*p_PostRoll)[j] = ZERO;
+		(*p_AlphaCtrlNr)[j] = 0; (*p_AlphaCtrlChan)[j] = 1;
+		(*pp_MIDIcode)[j] = NULL; (*pp_CsoundTime)[j] = NULL;
+		(*pp_Comment)[j] = (*pp_CsoundScoreText)[j] = NULL;
+		(*pp_CsoundScore)[j] = NULL;
+		(*p_CoverBeg)[j] = (*p_CoverEnd)[j] = (*p_OkRelocate)[j] = (*p_OkExpand)[j]
+			= (*p_OkCompress)[j] = TRUE;
+		(*p_StrikeAgain)[j] = -1;
+		(*p_CompiledCsoundScore)[j] = 1;
+		(*p_OkTransp)[j] = (*p_OkPan)[j] = (*p_OkMap)[j] = (*p_OkVolume)[j] = (*p_OkArticul)[j]
+			= (*p_OkVelocity)[j] = (*p_DiscardNoteOffs)[j] = (*p_PasteDone)[j] = FALSE;
+		(*p_BreakTempo)[j] = TRUE;
+		(*p_FixScale)[j] = (*p_ContBeg)[j] = (*p_ContEnd)[j]
+			= (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = (*p_AlphaCtrl)[j] = (*p_ForceIntegerPeriod)[j]
+			= FALSE;
+		(*p_PivType)[j] = 1; (*p_PivMode)[j] = ABSOLU;
+		(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = RELATIF;
+		(*p_MaxDelay)[j] = (*p_MaxForward)[j] = ZERO;
+		(*p_RescaleMode)[j] = LINEAR;
+		(*p_AlphaMin)[j] = 0; (*p_AlphaMax)[j] = 100.;
+			(*p_DelayMode)[j] = (*p_ForwardMode)[j] = (*p_BreakTempoMode)[j]
+				= (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLU;
+			(*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j]
+				= (*p_TruncEndMode)[j] = RELATIF;
+		(*p_PeriodMode)[j] = IRRELEVANT;
+		(*p_MaxBegGap)[j] = (*p_MaxEndGap)[j] = Infpos;
+		(*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = 100L;
+		(*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = 0L;
+		(*p_Tref)[j] = ZERO; (*p_Resolution)[j] = 1; (*p_Dur)[j] = (*p_PivPos)[j]
+		= (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_BeforePeriod)[j] = ZERO;
+		(*p_DefaultChannel)[j] = (*p_Quan)[j] = 0;
+		(*p_Tpict)[j] = Infneg;
+		(*p_CsoundInstr)[j] = 0;
+		(*p_CsoundAssignedInstr)[j] = -1;
+		// (*p_ObjectColor)[j].red = (*p_ObjectColor)[j].green = (*p_ObjectColor)[j].blue = -1L;
+		}
+	(*p_Tref)[1] = (*p_Dur)[1] = 1000L;
+	(*p_OkPan)[1] = (*p_OkVolume)[1] = (*p_OkMap)[1] = (*p_OkVelocity)[1] = TRUE;
+
+	// Silence should have (empty) MIDI and TIME
+	// (these are used if silence is preceded by synchro tag)
+
+	if((ptr1 = (MIDIcode**) GiveSpace((Size)sizeof(MIDIcode))) == NULL) goto ERR;
+	(*pp_MIDIcode)[1] = ptr1;
+	(*((*pp_MIDIcode)[1]))[0].time = ZERO;
+	(*((*pp_MIDIcode)[1]))[0].byte = TimingClock;
+	(*((*pp_MIDIcode)[1]))[0].sequence = 0;
+
+	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end MakeSoundObjectSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	return(OK);
+
+	ERR:
+	return(ABORT);
+	}
 
 
 int ResizeObjectSpace(int reset,int maxsounds,int addbol)
@@ -1181,7 +1179,7 @@ MySetHandleSize((Handle*)&p_PreRollMode,(Size)maxsounds*sizeof(char));
 MySetHandleSize((Handle*)&p_PostRollMode,(Size)maxsounds*sizeof(char));
 MySetHandleSize((Handle*)&p_PeriodMode,(Size)maxsounds*sizeof(char));
 MySetHandleSize((Handle*)&p_StrikeAgain,(Size)maxsounds*sizeof(char));
-MySetHandleSize((Handle*)&p_CompiledCsoundScore,(Size)maxsounds*sizeof(char));
+MySetHandleSize((Handle*)&p_CompiledCsoundScore,(Size)maxsounds*sizeof(int));
 MySetHandleSize((Handle*)&p_DiscardNoteOffs,(Size)maxsounds*sizeof(char));
 MySetHandleSize((Handle*)&p_ForceIntegerPeriod,(Size)maxsounds*sizeof(char));
 MySetHandleSize((Handle*)&p_PivPos,(Size)maxsounds*sizeof(float));
@@ -1209,7 +1207,7 @@ MySetHandleSize((Handle*)&p_DefaultChannel,(Size)maxsounds*sizeof(char));
 MySetHandleSize((Handle*)&p_PasteDone,(Size)maxsounds*sizeof(char));
 MySetHandleSize((Handle*)&p_Tref,(Size)maxsounds*sizeof(long));
 MySetHandleSize((Handle*)&p_Tpict,(Size)maxsounds*sizeof(long));
-MySetHandleSize((Handle*)&p_ObjectColor,(Size)maxsounds*sizeof(RGBColor));
+/* MySetHandleSize((Handle*)&p_ObjectColor,(Size)maxsounds*sizeof(RGBColor));*/
 MySetHandleSize((Handle*)&p_Resolution,(Size)maxsounds*sizeof(int));
 MySetHandleSize((Handle*)&p_CsoundInstr,(Size)maxsounds*sizeof(int));
 MySetHandleSize((Handle*)&p_CsoundAssignedInstr,(Size)maxsounds*sizeof(int));
@@ -1224,6 +1222,7 @@ MySetHandleSize((Handle*)&pp_CsoundScore,(Size)maxsounds*sizeof(CsoundLine**));
 
 // if(DoSystem() != OK) return(ABORT);
 
+reset = 0;
 if(reset) {
 	for(j=2; j < Jbol && j < maxsounds; j++) {
 		ptr = (Handle)(*pp_MIDIcode)[j];
@@ -1234,6 +1233,7 @@ if(reset) {
 		(*pp_CsoundTime)[j] = NULL;
 		ptr = (Handle)(*pp_Comment)[j];
 		if(MyDisposeHandle(&ptr) != OK) return(ABORT);
+		BPPrintMessage(odInfo,"OK 2\n");
 		(*pp_Comment)[j] = NULL;
 		ptr = (Handle)(*pp_CsoundScoreText)[j];
 		if(MyDisposeHandle(&ptr) != OK) return(ABORT);
@@ -1245,18 +1245,13 @@ if(reset) {
 		(*p_BreakTempo)[j] = TRUE;
 		(*p_Type)[j] = 0;
 		}
-#if BP_CARBON_GUI_FORGET_THIS
-	SetField(NULL,wPrototype5,fMinVelocity,"64");
-	SetField(NULL,wPrototype5,fMaxVelocity,"64");
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 	}
 
 // Create objects for time patterns
 if(Jbol < maxsounds) {
 	if(Jbol >= 2) j = Jbol;
 	else j = 2;
-	sprintf(Message,"Running ResizeObjectSpace() Jbol = %ld maxsounds = %ld\n",(long)Jbol,(long)maxsounds);
-//	BPPrintMessage(odInfo,Message);
+	BPPrintMessage(odInfo,"Running time patterns in ResizeObjectSpace() Jbol = %ld maxsounds = %ld\n",(long)Jbol,(long)maxsounds);
 	for(j=j; j < maxsounds; j++) {
 		(*p_MIDIsize)[j] = (*p_CsoundSize)[j] = ZERO;
 		(*p_Ifrom)[j] = 0; (*p_Type)[j] = 0;
@@ -1268,7 +1263,7 @@ if(Jbol < maxsounds) {
 		(*p_OkRelocate)[j] = FALSE; (*p_OkExpand)[j] = (*p_OkCompress)[j]
 			= TRUE;
 		(*p_StrikeAgain)[j] = -1;
-		(*p_CompiledCsoundScore)[j] = TRUE;
+		(*p_CompiledCsoundScore)[j] = 0; // Fixed 2024-07-04
 		(*p_ContBeg)[j] = (*p_ContEnd)[j] = (*p_OkTransp)[j] = (*p_OkPan)[j] = (*p_OkMap)[j]
 			= (*p_OkVelocity)[j] = (*p_OkArticul)[j] = (*p_OkVolume)[j]
 			= (*p_DiscardNoteOffs)[j] = FALSE;
@@ -1301,7 +1296,7 @@ if(Jbol < maxsounds) {
 					}
 				(*p_Tref)[j] = (*p_Qpatt)[j-Jbol-addbol];
 				(*p_Dur)[j] = (*p_Ppatt)[j-Jbol-addbol];
-				sprintf(Message,"ResizeObjectSpace() j = %ld Dur = %ld Tref = %ld\n",(long)j,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+				my_sprintf(Message,"ResizeObjectSpace() j = %ld Dur = %ld Tref = %ld\n",(long)j,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 				// BPPrintMessage(odInfo,Message);
 				}
 			else BPPrintMessage(odError,"=> Err. ResizeObjectSpace(). Jpatt = %d, p_Ppatt or p_Qpatt = NULL\n",Jpatt);
@@ -1311,11 +1306,11 @@ if(Jbol < maxsounds) {
 		(*p_CsoundAssignedInstr)[j] = -1;
 		(*p_DefaultChannel)[j] = (*p_Quan)[j] = 0;
 		(*p_Tpict)[j] = Infneg;
-		(*p_ObjectColor)[j].red = (*p_ObjectColor)[j].green = (*p_ObjectColor)[j].blue = -1L;
+	/*	(*p_ObjectColor)[j].red = (*p_ObjectColor)[j].green = (*p_ObjectColor)[j].blue = -1L; */
 		}
 	}
 if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (20) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-return(DoSystem());
+return OK;
 }
 
 
@@ -1461,35 +1456,33 @@ if(p_Image != NULL || p_NoteImage != NULL || p_Homo != NULL) {
 	return(ABORT);
 	}
 /* p_Image = p_NoteImage = NULL; p_Homo = NULL; */
-if(Jhomo > 0) {
+/* if(Jhomo > 0) {
 	if((p_Image = (int****) GiveSpace((Size)(Jhomo) * sizeof(int**))) == NULL)
 		return(ABORT);
 	if((p_NoteImage = (int****) GiveSpace((Size)(Jhomo) * sizeof(int**))) == NULL)
 		return(ABORT);
 	if((p_Homo = (char****) GiveSpace((Size)(Jhomo) * sizeof(char**))) == NULL) return(ABORT);
-	}
-for(i=0; i < Jhomo; i++) {
+	} */
+/* for(i=0; i < Jhomo; i++) {
 	if((ptr2 = (char**) GiveSpace((Size)HOMOSIZE)) == NULL) return(ABORT);
 	(*p_Homo)[i] = ptr2;
 	MystrcpyStringToTable(p_Homo,i,"\0");
 	
 	if((ptr1 = (int**) GiveSpace((Size)(Jbol) * sizeof(int))) == NULL) return(ABORT);
 	(*p_Image)[i] = ptr1;
-	/* Every homomorphism is set to identity */
 	for(j=0; j < Jbol; j++) (*((*p_Image)[i]))[j] = j;
 	
 	if((ptr1 = (int**) GiveSpace((Size)(128) * sizeof(int))) == NULL) return(ABORT);
 	(*p_NoteImage)[i] = ptr1;
-	/* Every homomorphism is set to identity */
 	for(j=0; j < 128; j++) (*((*p_NoteImage)[i]))[j] = 16384 + j;
-	}
+	} */
 Jbol = 0; Jhomo = 0;
 MystrcpyStringToHandle(&p_x,"_");
 if(CreateBol(TRUE,FALSE,p_x,FALSE,FALSE,BOL) < 0) return(ABORT);
 MystrcpyStringToHandle(&p_x,"-");
 if(CreateBol(TRUE,FALSE,p_x,FALSE,FALSE,BOL) < 0) return(ABORT);
 MyDisposeHandle((Handle*)&p_x);
-return(DoSystem());
+return OK;
 }
 
 
@@ -1550,12 +1543,12 @@ tokenbyte** ptr;
 
 BufferSize = DeftBufferSize;
 if(*pp_buff == NULL) {
-	if((ptr=(tokenbyte**) GiveSpace((Size) MAXDISPL*sizeof(tokenbyte)))
+	if((ptr=(tokenbyte**) GiveSpace((Size) MAXDISPL * sizeof(tokenbyte)))
 		== NULL) return(ABORT);
 	*pp_buff = ptr;
 	}
 else {
-	MySetHandleSize((Handle*)pp_buff,(Size) MAXDISPL*sizeof(tokenbyte));
+	MySetHandleSize((Handle*)pp_buff,(Size) MAXDISPL * sizeof(tokenbyte));
 	}
 (**pp_buff)[0] = (**pp_buff)[1] = TEND;
 return(DoSystem());

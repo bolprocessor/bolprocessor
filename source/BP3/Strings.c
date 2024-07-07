@@ -38,6 +38,20 @@
 
 #include "-BP2decl.h"
 
+void my_sprintf(char* buffer, const char *format, ...) {
+    va_list args;
+    // Start extracting arguments based on the format string
+    va_start(args, format);   
+    // Use vsnprintf instead of snprintf to pass the argument list
+//	sprintf(buffer, format, args);
+	int n_chars = vsnprintf(buffer, MAX_BUFFER_SIZE, format, args);
+    // Clean up the argument list
+    va_end(args);
+    if (n_chars >= MAX_BUFFER_SIZE) {
+        BPPrintMessage(odError,"=> Truncation occurred in my_sprintf()\n");
+    	}
+	}
+
 
 void CopyPString(const Str255 src,Str255 dest)
 /* copies a pascal string from src to dest */
@@ -52,7 +66,7 @@ while(--len >= 0) dest[i++] = *src++;
 
 /* Copies a pascal string to a C string, truncating if necessary.
    WARNING: this function also converts whitespace characters! */
-int MyPtoCstr(int max,Str255 s,char *t)
+/* int MyPtoCstr(int max,Str255 s,char *t)
 {
 int i,len;
 char c;
@@ -69,10 +83,10 @@ for(i=0; i < len; i++) {
 	}
 t[len] = '\0';
 return(OK);
-}
+} */
 
 
-StringPtr in_place_c2pstr(char* s)
+/* StringPtr in_place_c2pstr(char* s)
 {
 	unsigned int len = 0;
 	char  cur, next;
@@ -88,7 +102,7 @@ StringPtr in_place_c2pstr(char* s)
 	s[0] = (unsigned char)((len>255) ? 255 : len);
 	
 	return (StringPtr)(s);
-}
+} */
 
 
 int Pstrcmp(Str255 s1,Str255 s2)
@@ -149,20 +163,27 @@ int MystrcpyStringToHandle(char ***pp_t,char *s)
 {
 long i,imt,ims;
 
-ims = (long) strlen(s) + 1L;
+if (s == NULL) {
+	BPPrintMessage(odError, "=> Err. MystrcpyStringToHandle(). Input string is NULL\n");
+	return ABORT;
+    }
+ims = utf8_strsize(s) + 1L;
 if(*pp_t == NULL) {
-	if((*pp_t = (char**) GiveSpace((Size)ims * sizeof(char))) == NULL)
+	if((*pp_t = (char**) GiveSpace((Size)ims * sizeof(char))) == NULL) {
+		BPPrintMessage(odError,"=> Err. MystrcpyStringToHandle(). *pp_t == NULL\n");
 		return(ABORT);
+		}
 	}
 else {
 	imt = (long) MyGetHandleSize((Handle)*pp_t) / sizeof(char);
 	if(imt < ims) {
-		if(MySetHandleSize((Handle*)pp_t,(Size)ims * sizeof(char)) != OK) return(ABORT);
+		if(MySetHandleSize((Handle*)pp_t,(Size)ims * sizeof(char)) != OK) {
+			BPPrintMessage(odError,"=> Err. MystrcpyStringToHandle(). MySetHandleSize(%ld) failed\n",(long)ims);
+			return(ABORT);
+			}
 		}
 	}
-i = ZERO;
-do (**pp_t)[i] = s[i];
-while(s[i++] != '\0');
+strcpy(**pp_t, s);
 return(OK);
 }
 
@@ -186,47 +207,50 @@ return(OK);
 }
 
 
-int MystrcpyHandleToHandle(int offset,char ***pp_s,char **p_t)
+int MystrcpyHandleToHandle(int offset,char ***pp_s,char **p_t) {
 // Copy t to s
-{
 long i;
-Size ims,imt;
+Size ims = 0,imt = 0;
 
-if(*pp_s != NULL) ims = (long) MyGetHandleSize((Handle)*pp_s);
-else {
-	ims = ZERO;
-	if(Beta) Alert1("=> Err. MystrcpyHandleToHandle(). ims = ZERO");
-	}
-imt = ZERO;
-if(p_t == NULL) {
-	Alert1("=> Err. MystrcpyHandleToHandle(). p_t = NULL");
-	if(*pp_s != NULL && ims > ZERO) (**pp_s)[0] = '\0';
-	// FIXME ? what if *pp_s == NULL ? Will caller expect a valid handle?
-	goto OUT;
-	}
-else {
-	while((*p_t)[offset+imt] != '\0') imt++;
-	}
-if(imt == ZERO) {
-	if(*pp_s != NULL && ims > ZERO) (**pp_s)[0] = '\0';
-	// FIXME ? what if *pp_s == NULL ? Will caller expect a valid handle?
-	goto OUT;
-	}
+// Validate input pointers
+    if (pp_s == NULL || *pp_s == NULL) {
+        BPPrintMessage(odError, "=> Err. MystrcpyHandleToHandle(). pp_s is NULL\n");
+        return ABORT;
+   		}
+    if (p_t == NULL || *p_t == NULL) {
+        BPPrintMessage(odError, "=> Err. MystrcpyHandleToHandle(). p_t is NULL\n");
+        (**pp_s)[0] = '\0';
+        return ABORT;
+   		}
+    // Calculate the length of the source string starting at offset
+    char* source = *p_t + offset;
+    while(source[imt] != '\0') imt++;
 
-imt = (imt + 1L) * sizeof(char);
-if(imt > ims) {
-	if(MySetHandleSize((Handle*)pp_s,imt) != OK) return(ABORT);
+    // If the source string is empty, set destination to empty and exit
+    if(imt == 0) {
+        (**pp_s)[0] = '\0';
+        if (MySetHandleSize((Handle*)pp_s,1) != OK) {
+            BPPrintMessage(odError, "=> Err. MySetHandleSize(%ld) in MystrcpyHandleToHandle()\n",(long)imt);
+            return ABORT;
+			}
+        return OK;
+    	}
+    // Include space for null-terminator
+    imt = (imt + 1) * sizeof(char);
+    // Get the current size of the destination handle
+    ims = (long) MyGetHandleSize((Handle)*pp_s);
+    // Resize the destination handle if needed
+    if (imt > ims) {
+        if (MySetHandleSize((Handle*)pp_s, imt) != OK) {
+            BPPrintMessage(odError, "=> Err. Err. MySetHandleSize(0) in MystrcpyHandleToHandle()\n");
+            return ABORT;
+			}
+		}
+    // Copy string from source to destination
+    for (i = 0; source[i] != '\0'; i++) (**pp_s)[i] = source[i];
+    (**pp_s)[i] = '\0';  // Ensure null termination
+    return OK;
 	}
-i = ZERO;
-do {
-	(**pp_s)[i++] = (*p_t)[offset];
-	}
-while((*p_t)[offset++] != '\0');
-(**pp_s)[i] = '\0'; // Fixed by BB 23 Nov 2020
-
-OUT:
-return(OK);
-}
 
 
 int GetTextHandle(char ***pp_h,int w)
@@ -288,46 +312,43 @@ return(0);
 }
 
 
-int MyHandleLen(char **p_t)
-{
-long i,im;
-
-i = ZERO;
-if(p_t == NULL) {
-	if(Beta) Alert1("=> Err. MyHandleLen(). p_t = NULL");
-	return(0);
-	}
-im = MyGetHandleSize((Handle)p_t);
-im = (im / sizeof(char)) - 1L;
-while((*p_t)[i] != '\0') {
-	i++;
-	if(i >= im) break;
-	}
-if((*p_t)[i] != '\0') {
-	if(Beta) Alert1("=> Err. MyHandleLen(). (*p_t)[i] != nullchar");
-	}
-return(i);
-}
-
-
-int Strip(char *word)
-// Eliminate leading and trailing blanks
-{
-int i,j;
-
-if(word[0] == '\0') return(OK);
-j = 0; while(isspace(word[j])) j++;
-if(j > 0) {
-	for(i=j; i <= strlen(word); i++) {
-		word[i-j] = word[i];
+int MyHandleLen(char **p_t) {
+	long i,im;
+	i = ZERO;
+	if(p_t == NULL) {
+		if(Beta) Alert1("=> Err. MyHandleLen(). p_t = NULL");
+		return(0);
 		}
+	im = MyGetHandleSize((Handle)p_t);
+	im = (im / sizeof(char)) - 1L;
+	while((*p_t)[i] != '\0') {
+		i++;
+		if(i >= im) break;
+		}
+	if((*p_t)[i] != '\0') {
+		if(Beta) Alert1("=> Err. MyHandleLen(). (*p_t)[i] != nullchar");
+		}
+	return(i);
 	}
-i = strlen(word) - 1;
-while(isspace(word[i])) {
-	word[i] = '\0'; i--;
+
+
+int Strip(char *word) {
+// Eliminate leading and trailing blanks
+	int i,j;
+
+	if(word[0] == '\0') return(OK);
+	j = 0; while(isspace(word[j])) j++;
+	if(j > 0) {
+		for(i=j; i <= strlen(word); i++) {
+			word[i-j] = word[i];
+			}
+		}
+	i = strlen(word) - 1;
+	while(isspace(word[i])) {
+		word[i] = '\0'; i--;
+		}
+	return(OK);
 	}
-return(OK);
-}
 
 
 int StripHandle(char **p_line)
@@ -441,13 +462,61 @@ if(((*p_t)[i]) == '\0' && i == length) return(YES);
 return(NO);
 }
 
+// Function to calculate the length of a UTF-8 encoded string
+size_t utf8_strlen(const char *s) {
+    size_t length = 0;
+    while (*s) {
+        length++;  // Count each UTF-8 character
+        s += (*s & 0xC0) != 0x80;  // Move to the next character
+    }
+    return length;
+}
+
+// Function to calculate the byte size of a UTF-8 encoded string
+size_t utf8_strsize(const char *s) {
+    size_t byteSize = 0;
+    while (*s) {
+        if ((*s & 0x80) == 0) {  // 0xxxxxxx, 1 byte
+            byteSize++;
+        } else if ((*s & 0xE0) == 0xC0) {  // 110xxxxx, 2 bytes
+            byteSize += 2;
+        } else if ((*s & 0xF0) == 0xE0) {  // 1110xxxx, 3 bytes
+            byteSize += 3;
+        } else if ((*s & 0xF8) == 0xF0) {  // 11110xxx, 4 bytes
+            byteSize += 4;
+        }
+        s++;
+    }
+    return byteSize;
+}
+
+
+void convert_path(char* path) {  // Converts a path to forward slashes
+    if (path == NULL) return;
+    int writeIndex = 0;  // This keeps track of where to write in the array
+    for (int readIndex = 0; path[readIndex] != '\0'; readIndex++) {
+        if (path[readIndex] == '\\' && path[readIndex + 1] == '\\') {
+            // When two backslashes are found, skip the next one
+            path[writeIndex++] = '/';  // Replace double backslashes with one forward slash
+            readIndex++;  // Skip the next backslash
+        } else if (path[readIndex] == '\\') {
+            // Single backslash found, convert it to a forward slash
+            path[writeIndex++] = '/';
+        } else {
+            // Normal character, just copy
+            path[writeIndex++] = path[readIndex];
+            }
+        }
+    path[writeIndex] = '\0';  // Null-terminate the modified string
+    }
+
 
 int WriteFloatToLine(char *line,double x)
 {
-if(x >= Infpos) sprintf(line,"%ld",(long)Infpos);
+if(x >= Infpos) my_sprintf(line,"%ld",(long)Infpos);
 else {
-	if(x == ((long) x)) sprintf(line,"%ld",(long)x);
-	else sprintf(line,"%.2f",x);
+	if(x == ((long) x)) my_sprintf(line,"%ld",(long)x);
+	else my_sprintf(line,"%.2f",x);
 	}
 return(OK);
 }
@@ -456,15 +525,63 @@ return(OK);
 void remove_spaces(char *input, char *result) {
 	char c;
 	int i, j = 0;
+	if (input == NULL) {
+		BPPrintMessage(odError,"=> Error remove_spaces(). input == NULL\n");
+		return;
+		}
+	if (result == NULL) {
+		BPPrintMessage(odError,"=> Error remove_spaces(). result == NULL\n");
+		return;
+		}
 	for(i = 0; input[i] != '\0'; i++) {
 		c = (char) input[i];
-		if(isalnum(c) || c == '_' || c == '/' || c == '.' || c == '-') result[j++] = input[i];
+		if(isalnum(c) || c == '(' || c == ')' || c == ':' || c == '_' || c == '/' || c == '\\' || c == '.' || c == ',' || c == '-') result[j++] = input[i];
 		}
 	result[j] = '\0';
+	return;
 	}
 
 
-void remove_final_linefeed(const char *input, char *result)
+void remove_carriage_returns(char *line) {
+    char *src = line, *dst = line;
+	if (line == NULL) {
+		BPPrintMessage(odError,"=> Error remove_carriage_returns(). line == NULL\n");
+		return;
+		}
+    while (*src != '\0') {
+        if (*src != '\r') { // Copy over everything that's not a '\r'
+            *dst++ = *src;
+        	}
+        src++;
+    	}
+    *dst = '\0'; // Null-terminate the modified string
+	}
+
+void remove_final_linefeed(char *line) {
+    size_t len = strlen(line);
+    while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r')) {
+        line[--len] = '\0';
+    }
+}
+
+/*
+void remove_final_linefeed(char *line) {
+    char *src = line, *dst = line;
+	if (line == NULL) {
+		BPPrintMessage(odError,"=> Error remove_final_linefeed(). line == NULL\n");
+		return;
+		}
+    while (*src != '\0') {
+        if (*src != '\n') { // Copy over everything that's not a '\n'
+            *dst++ = *src;
+        	}
+        src++;
+    	}
+    *dst = '\0'; // Null-terminate the modified string
+	return;
+	} */
+
+/* void remove_final_linefeed(const char *input, char *result)
 {
 	unsigned char c;
 	int i, j = 0;
@@ -473,100 +590,17 @@ void remove_final_linefeed(const char *input, char *result)
 		if (isgraph(c) && c != '\n' && c != '\r') result[j++] = input[i];
 		}
 	result[j] = '\0';
-}
+} */
 
 
-char *recode_tags(const char *input)
+char* recode_tags(const char *input)  // Not used
 {
-	char *temp_line, *result;
-	temp_line = repl_str(input,"<","&lt;");
-	return(repl_str(temp_line,">","&gt;"));
+	char *temp_line1, *temp_line2;
+	temp_line1 = str_replace("<","&lt;",input);
+	temp_line2 = str_replace(">","&gt;",temp_line1);
+	free(temp_line1);
+	return(temp_line2);
 }
-
-
-char *repl_str(const char *str, const char *from, const char *to) {
-
-	// Thanks! https://creativeandcritical.net/str-replace-c
-
-	/* Increment positions cache size initially by this number. */
-	size_t cache_sz_inc = 16;
-	/* Thereafter, each time capacity needs to be increased,
-	 * multiply the increment by this factor. */
-	const size_t cache_sz_inc_factor = 3;
-	/* But never increment capacity by more than this number. */
-	const size_t cache_sz_inc_max = 1048576;
-
-	char *pret, *ret = NULL;
-	const char *pstr2, *pstr = str;
-	size_t i, count = 0;
-	#if (__STDC_VERSION__ >= 199901L)
-	uintptr_t *pos_cache_tmp, *pos_cache = NULL;
-	#else
-	ptrdiff_t *pos_cache_tmp, *pos_cache = NULL;
-	#endif
-	size_t cache_sz = 0;
-	size_t cpylen, orglen, retlen, tolen, fromlen = strlen(from);
-
-	/* Find all matches and cache their positions. */
-	while((pstr2 = strstr(pstr, from)) != NULL) {
-		count++;
-
-		/* Increase the cache size when necessary. */
-		if (cache_sz < count) {
-			cache_sz += cache_sz_inc;
-			pos_cache_tmp = realloc(pos_cache, sizeof(*pos_cache) * cache_sz);
-			if (pos_cache_tmp == NULL) {
-				goto end_repl_str;
-			} else pos_cache = pos_cache_tmp;
-			cache_sz_inc *= cache_sz_inc_factor;
-			if (cache_sz_inc > cache_sz_inc_max) {
-				cache_sz_inc = cache_sz_inc_max;
-			}
-		}
-
-		pos_cache[count-1] = pstr2 - str;
-		pstr = pstr2 + fromlen;
-	}
-
-	orglen = pstr - str + strlen(pstr);
-
-	/* Allocate memory for the post-replacement string. */
-	if (count > 0) {
-		tolen = strlen(to);
-		retlen = orglen + (tolen - fromlen) * count;
-	} else	retlen = orglen;
-	ret = malloc(retlen + 1);
-	if (ret == NULL) {
-		goto end_repl_str;
-	}
-
-	if (count == 0) {
-		/* If no matches, then just duplicate the string. */
-		strcpy(ret, str);
-	} else {
-		/* Otherwise, duplicate the string whilst performing
-		 * the replacements using the position cache. */
-		pret = ret;
-		memcpy(pret, str, pos_cache[0]);
-		pret += pos_cache[0];
-		for (i = 0; i < count; i++) {
-			memcpy(pret, to, tolen);
-			pret += tolen;
-			pstr = str + pos_cache[i] + fromlen;
-			cpylen = (i == count-1 ? orglen : pos_cache[i+1]) - pos_cache[i] - fromlen;
-			memcpy(pret, pstr, cpylen);
-			pret += cpylen;
-		}
-		ret[retlen] = '\0';
-	}
-
-end_repl_str:
-	/* Free the cache and return the post-replacement string,
-	 * which will be NULL in the event of an error. */
-	free(pos_cache);
-	return ret;
-}
-
 
 #if BP_CARBON_GUI_FORGET_THIS
 TooLongFileName(char* line,DialogPtr ptr,int w,int field)
@@ -587,7 +621,7 @@ else {
 if(strlen(line) > MAXNAME) {
 	line[MAXNAME-1] = '�';
 	line[MAXNAME] = '\0';
-	sprintf(Message,"File name is too long. Truncating to '%s'",line);
+	my_sprintf(Message,"File name is too long. Truncating to '%s'",line);
 	Alert1(Message);
 	BPActivateWindow(QUICK,w);
 	SetField(thedialog,w,field,line);

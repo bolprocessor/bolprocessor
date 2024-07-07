@@ -179,7 +179,7 @@ ISZERO:
 	
 if(q == 0.) {
 	result = MISSED;
-	goto OUT;
+	goto SORTIR;
 	}
 
 if(p < 1.) {
@@ -223,7 +223,7 @@ while(p > limit || q > limit) {
 if(q < 1.) result = MISSED;
 if(p < 1.) goto ISZERO;
 
-OUT:
+SORTIR:
 (*p_p) = p;
 (*p_q) = q;
 if(neg) (*p_p) = - (*p_p);
@@ -285,10 +285,10 @@ for(i=0; i < imax; i++) {
 	x = LCM(x,(double)p[i],p_overflow);
 	if(x < 1. || x >= ULONG_MAX || (*p_overflow)) {
 		x = xold;
-		goto OUT;
+		goto SORTIR;
 		}
 	}
-OUT:
+SORTIR:
 result = (unsigned long) x;
 return(result);
 }
@@ -332,7 +332,7 @@ for(i=i; i < j; i++) {
 		if(dot) q = 10L * q;
 		if(p > maxp || p < ZERO) {
 			if(!dot) q = ZERO;	/* Overflow */
-			sprintf(Message,"Number '%s' creates overflow. Max value is %ld...",
+			my_sprintf(Message,"Number '%s' creates overflow. Max value is %ld...",
 				s,(long)Infpos);
 			Println(wTrace,Message);
 			goto END;
@@ -341,7 +341,7 @@ for(i=i; i < j; i++) {
 		}
 	if(c == '.' || c == ',') {
 		if(dot) {
-			sprintf(Message,"Two decimal points or commas. Can't accept '%s' as a number...",
+			my_sprintf(Message,"Two decimal points or commas. Can't accept '%s' as a number...",
 				s);
 			Println(wTrace,Message);
 			q = ZERO;	/* Error in string */

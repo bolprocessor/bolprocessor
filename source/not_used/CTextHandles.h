@@ -37,16 +37,6 @@
 #ifndef BP_CTEXTHANDLES_H
 #define BP_CTEXTHANDLES_H
 
-// TERec is not defined here to be compatible with Mac OS
-// FIXME: All text handling should be changed to not rely on this struct!
-typedef struct TERec {
-	int32_t		selStart;		// start of selection (range [0,length])
-	int32_t		selEnd;			// end of selection (range [0,length])
-	Handle2		hText;			// text buffer
-	int32_t		length;			// length of text in buffer (not buffer size)
-} TERec, **TEHandle;
 
-TEHandle NewTextHandle(void);
-int CopyStringToTextHandle(TEHandle th, const char* str);
 
-#endif /* BP_CTEXTHANDLES_H */
+#endif /* BP_CTEXTHANDLES_H */ 

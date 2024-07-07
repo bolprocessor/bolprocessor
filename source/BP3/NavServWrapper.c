@@ -50,10 +50,10 @@ void	NSWOptionsInit(NSWOptions* opts)
 	return;
 }
 
-static Boolean NSW_have_checked_for_NavServ = false;
-static Boolean NSW_have_NavServ = false;
+static int NSW_have_checked_for_NavServ = false;
+static int NSW_have_NavServ = false;
 
-static Boolean IsNavServAvailable()
+static int IsNavServAvailable()
 {
 	if (NSW_have_checked_for_NavServ)	return NSW_have_NavServ;
 	else {

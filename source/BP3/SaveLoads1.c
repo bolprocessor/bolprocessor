@@ -42,7 +42,9 @@ int trace_load_settings = 0;
 int trace_load_prototypes = 0;
 int trace_load_csound_resources = 0;
 
+
 #if BP_CARBON_GUI_FORGET_THIS
+// KEEP THIS AS SOME MIGHT BE REUSED LATER
 #include "CarbonCompatUtil.h"
 
 #define OKOMS 1
@@ -97,7 +99,7 @@ NOERR:
 	MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 	}
 else {
-	HideWindow(Window[wMessage]);
+	// HideWindow(Window[wMessage]);
 	LoadOn--;
 	return(MISSED);
 	}
@@ -106,7 +108,7 @@ if(Beta && LoadOn > 0) {
 	Alert1("=> Err. LoadOn > 0 ");
 	LoadOn = 0;
 	}
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 if(!IsEmpty(wInfo)) BringToFront(Window[wInfo]);
 return(OK);
 }
@@ -140,12 +142,12 @@ if(NewFile(-1,12,fn,&reply)) {
 	if(i == OK) {
 		SetCursor(&WatchCursor);
 		WriteHeader(iWeights,refnum,reply.sfFile);
-		sprintf(LineBuff,"%ld",(long)CompileDate);
+		my_sprintf(LineBuff,"%ld",(long)CompileDate);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		for(igram=1; igram <= Gram.number_gram; igram++) {
 			for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
 				w = (*((*(Gram.p_subgram))[igram].p_rule))[irul].weight;
-				sprintf(LineBuff,"%ld",(long)w);
+				my_sprintf(LineBuff,"%ld",(long)w);
 				WriteToFile(NO,MAC,LineBuff,(long)refnum);
 				}
 			}
@@ -161,7 +163,7 @@ if(NewFile(-1,12,fn,&reply)) {
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"=> Error creating '%s'",LineBuff);
+		my_sprintf(Message,"=> Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -211,7 +213,7 @@ goto QUIT;
 ERR:
 GetKeyboard();
 result = MISSED;
-sprintf(Message,"=> Error reading '%s' keyboard file...",FileName[wKeyboard]);
+my_sprintf(Message,"=> Error reading '%s' keyboard file...",FileName[wKeyboard]);
 Alert1(Message);
 FileName[wKeyboard][0] = '\0';
 
@@ -220,7 +222,7 @@ MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 SetKeyboard();
 if(Token) AppendScript(66); else AppendScript(67);
 if(FSClose(refnum) != noErr) {
-	sprintf(Message,"=> Error closing '%s' keyboard file...",FileName[wKeyboard]);
+	my_sprintf(Message,"=> Error closing '%s' keyboard file...",FileName[wKeyboard]);
 	Alert1(Message);
 	result = MISSED;
 	}
@@ -230,7 +232,7 @@ if(result == OK) {
 	}
 else	Created[wKeyboard] = FALSE;
 Dirty[wKeyboard] = FALSE;
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 LoadOn--;
 return(result);
 }
@@ -271,10 +273,10 @@ WRITE:
 		WriteHeader(wKeyboard,refnum,*p_spec);
 		WriteToFile(NO,MAC,"52",refnum);
 		for(i=0; i < 52; i++) {
-			sprintf(LineBuff,"%s",*((*p_Token)[i]));
+			my_sprintf(LineBuff,"%s",*((*p_Token)[i]));
 			WriteToFile(YES,MAC,LineBuff,refnum);
 			}
-		sprintf(LineBuff,"%ld",(long)KeyboardType);
+		my_sprintf(LineBuff,"%ld",(long)KeyboardType);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		WriteToFile(NO,MAC,"1\n1\n1\n1\n0\n0\n0\n0\n\0",refnum);
 		WriteEnd(wKeyboard,refnum);
@@ -294,7 +296,7 @@ WRITE:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"=> Error creating '%s'",LineBuff);
+		my_sprintf(Message,"=> Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -363,7 +365,7 @@ goto QUIT;
 ERR:
 GetTimeBase(); GetTickParameters();
 result = MISSED;
-sprintf(Message,"=> Error reading '%s' time base file...",FileName[wTimeBase]);
+my_sprintf(Message,"=> Error reading '%s' time base file...",FileName[wTimeBase]);
 Alert1(Message);
 FileName[wTimeBase][0] = '\0';
 
@@ -373,7 +375,7 @@ MyDisposeHandle((Handle*)&p_completeline);
 for(i=0; i < MAXTICKS; i++) SetTickParameters(i+1,MAXBEATS);
 SetTickParameters(0,MAXBEATS);
 if(FSClose(refnum) != noErr) {
-	sprintf(Message,"=> Error closing '%s' time base file...",FileName[wTimeBase]);
+	my_sprintf(Message,"=> Error closing '%s' time base file...",FileName[wTimeBase]);
 	Alert1(Message);
 	result = MISSED;
 	}
@@ -382,7 +384,7 @@ if(result == OK) {
 	Created[wTimeBase] = TRUE;
 	}
 else	Created[wTimeBase] = FALSE;
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 ResetTickFlag = TRUE;
 Dirty[wTimeBase] = FALSE;
 LoadOn--;
@@ -424,18 +426,18 @@ if(NewFile(-1,gFileType[wTimeBase],fn,&reply)) {
 WRITE:
 		SetCursor(&WatchCursor);
 		WriteHeader(wTimeBase,refnum,*p_spec);
-		sprintf(LineBuff,"%ld",(long)MAXTICKS); WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%ld",(long)MAXBEATS); WriteToFile(NO,MAC,LineBuff,refnum);
+		my_sprintf(LineBuff,"%ld",(long)MAXTICKS); WriteToFile(NO,MAC,LineBuff,refnum);
+		my_sprintf(LineBuff,"%ld",(long)MAXBEATS); WriteToFile(NO,MAC,LineBuff,refnum);
 		for(i=0; i < MAXTICKS; i++) {
-			sprintf(LineBuff,"1\n7");	/* '1' is the type and '4' the number of parameters */
+			my_sprintf(LineBuff,"1\n7");	/* '1' is the type and '4' the number of parameters */
 			WriteToFile(NO,MAC,LineBuff,refnum);
-			sprintf(LineBuff,"%ld\n%ld\n%ld\n%ld\n%ld\n%ld\n%ld",
+			my_sprintf(LineBuff,"%ld\n%ld\n%ld\n%ld\n%ld\n%ld\n%ld",
 				(long)TickKey[i],(long)TickChannel[i],
 				(long)TickVelocity[i],(long)TickCycle[i],(long)Ptick[i],
 				(long)Qtick[i],(long)TickDuration[i]);
 			WriteToFile(NO,MAC,LineBuff,refnum);
 			for(j=0; j < MAXBEATS; j++) {
-				sprintf(LineBuff,"%ld",(long)ThisTick[i][j]);
+				my_sprintf(LineBuff,"%ld",(long)ThisTick[i][j]);
 				WriteToFile(NO,MAC,LineBuff,refnum);
 				}
 			}
@@ -458,7 +460,7 @@ WRITE:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"=> Error creating '%s'",LineBuff);
+		my_sprintf(Message,"=> Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -501,14 +503,14 @@ if(NewFile(-1,gFileType[wCsoundResources],fn,&reply)) {
 WRITE:
 		SaveOn++;
 		WriteHeader(wCsoundResources,refnum,*p_spec);
-		sprintf(line,"%ld",(long)MAXCHAN);
+		my_sprintf(line,"%ld",(long)MAXCHAN);
 		WriteToFile(NO,MAC,line,refnum);
 		for(i=1; i <= MAXCHAN; i++) {
-			sprintf(line,"%ld",(long)WhichCsoundInstrument[i]);
+			my_sprintf(line,"%ld",(long)WhichCsoundInstrument[i]);
 			WriteToFile(NO,MAC,line,refnum);
 			}
 		WriteToFile(YES,MAC,CsoundOrchestraName,refnum);
-		sprintf(line,"%ld",(long)Jinstr);
+		my_sprintf(line,"%ld",(long)Jinstr);
 		WriteToFile(NO,MAC,line,refnum);
 		for(j=0; j < Jinstr; j++) {
 			PleaseWait();
@@ -518,86 +520,86 @@ WRITE:
 			MystrcpyHandleToString(MAXFIELDCONTENT,0,line,
 				(*pp_CsInstrumentComment)[j]);
 			WriteToFile(YES,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].iargmax);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].iargmax);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrumentIndex)[j]);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrumentIndex)[j]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsDilationRatioIndex)[j]);
+			my_sprintf(line,"%ld",(long)(*p_CsDilationRatioIndex)[j]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsAttackVelocityIndex)[j]);
+			my_sprintf(line,"%ld",(long)(*p_CsAttackVelocityIndex)[j]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsReleaseVelocityIndex)[j]);
+			my_sprintf(line,"%ld",(long)(*p_CsReleaseVelocityIndex)[j]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsPitchIndex)[j]);
+			my_sprintf(line,"%ld",(long)(*p_CsPitchIndex)[j]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsPitchFormat)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			
-			sprintf(line,"%.4f",(*p_CsInstrument)[j].pitchbendrange);
+			my_sprintf(line,"%ld",(long)(*p_CsPitchFormat)[j]);
 			WriteToFile(NO,MAC,line,refnum);
 			
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPitchBend.islogx);
-			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPitchBend.islogy);
-			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rVolume.islogx);
-			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rVolume.islogy);
-			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPressure.islogx);
-			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPressure.islogy);
-			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rModulation.islogx);
-			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rModulation.islogy);
-			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPanoramic.islogx);
-			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPanoramic.islogy);
+			my_sprintf(line,"%.4f",(*p_CsInstrument)[j].pitchbendrange);
 			WriteToFile(NO,MAC,line,refnum);
 			
-			sprintf(line,"%ld",(long)(*p_CsPitchBendStartIndex)[j]);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPitchBend.islogx);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsVolumeStartIndex)[j]);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPitchBend.islogy);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsPressureStartIndex)[j]);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rVolume.islogx);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsModulationStartIndex)[j]);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rVolume.islogy);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsPanoramicStartIndex)[j]);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPressure.islogx);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsPitchBendEndIndex)[j]);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPressure.islogy);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsVolumeEndIndex)[j]);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rModulation.islogx);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsPressureEndIndex)[j]);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rModulation.islogy);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsModulationEndIndex)[j]);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPanoramic.islogx);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsPanoramicEndIndex)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].pitchbendtable);
-			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].volumetable);
-			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].pressuretable);
-			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].modulationtable);
-			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].panoramictable);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPanoramic.islogy);
 			WriteToFile(NO,MAC,line,refnum);
 			
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].pitchbendGEN);
+			my_sprintf(line,"%ld",(long)(*p_CsPitchBendStartIndex)[j]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].volumeGEN);
+			my_sprintf(line,"%ld",(long)(*p_CsVolumeStartIndex)[j]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].pressureGEN);
+			my_sprintf(line,"%ld",(long)(*p_CsPressureStartIndex)[j]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].modulationGEN);
+			my_sprintf(line,"%ld",(long)(*p_CsModulationStartIndex)[j]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].panoramicGEN);
+			my_sprintf(line,"%ld",(long)(*p_CsPanoramicStartIndex)[j]);
+			WriteToFile(NO,MAC,line,refnum);
+			my_sprintf(line,"%ld",(long)(*p_CsPitchBendEndIndex)[j]);
+			WriteToFile(NO,MAC,line,refnum);
+			my_sprintf(line,"%ld",(long)(*p_CsVolumeEndIndex)[j]);
+			WriteToFile(NO,MAC,line,refnum);
+			my_sprintf(line,"%ld",(long)(*p_CsPressureEndIndex)[j]);
+			WriteToFile(NO,MAC,line,refnum);
+			my_sprintf(line,"%ld",(long)(*p_CsModulationEndIndex)[j]);
+			WriteToFile(NO,MAC,line,refnum);
+			my_sprintf(line,"%ld",(long)(*p_CsPanoramicEndIndex)[j]);
+			WriteToFile(NO,MAC,line,refnum);
+			
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].pitchbendtable);
+			WriteToFile(NO,MAC,line,refnum);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].volumetable);
+			WriteToFile(NO,MAC,line,refnum);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].pressuretable);
+			WriteToFile(NO,MAC,line,refnum);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].modulationtable);
+			WriteToFile(NO,MAC,line,refnum);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].panoramictable);
+			WriteToFile(NO,MAC,line,refnum);
+			
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].pitchbendGEN);
+			WriteToFile(NO,MAC,line,refnum);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].volumeGEN);
+			WriteToFile(NO,MAC,line,refnum);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].pressureGEN);
+			WriteToFile(NO,MAC,line,refnum);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].modulationGEN);
+			WriteToFile(NO,MAC,line,refnum);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].panoramicGEN);
 			WriteToFile(NO,MAC,line,refnum);
 			
 			for(i=0; i < 6; i++) {
@@ -613,7 +615,7 @@ WRITE:
 				WriteToFile(NO,MAC,line,refnum);
 				}
 			
-			sprintf(line,"%ld",(long)(*p_CsInstrument)[j].ipmax);
+			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].ipmax);
 			WriteToFile(NO,MAC,line,refnum);
 			for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
 				PleaseWait();
@@ -627,21 +629,21 @@ WRITE:
 				MystrcpyHandleToString(MAXFIELDCONTENT,0,line,
 					(*((*p_CsInstrument)[j].paramlist))[i].comment);
 				WriteToFile(YES,MAC,line,refnum);
-				sprintf(line,"%ld\n%ld",
+				my_sprintf(line,"%ld\n%ld",
 					(long)(*((*p_CsInstrument)[j].paramlist))[i].startindex,
 					(long)(*((*p_CsInstrument)[j].paramlist))[i].endindex);
 				WriteToFile(NO,MAC,line,refnum);
 				if(Version > 12) {
-					sprintf(line,"%ld",
+					my_sprintf(line,"%ld",
 						(long)(*((*p_CsInstrument)[j].paramlist))[i].table);
 					WriteToFile(NO,MAC,line,refnum);
-					sprintf(line,"%.3f",
+					my_sprintf(line,"%.3f",
 						(*((*p_CsInstrument)[j].paramlist))[i].defaultvalue);
 					WriteToFile(NO,MAC,line,refnum);
-					sprintf(line,"%ld",
+					my_sprintf(line,"%ld",
 						(long)(*((*p_CsInstrument)[j].paramlist))[i].GENtype);
 					WriteToFile(NO,MAC,line,refnum);
-					sprintf(line,"%ld",
+					my_sprintf(line,"%ld",
 						(long)(*((*p_CsInstrument)[j].paramlist))[i].combinationtype);
 					WriteToFile(NO,MAC,line,refnum);
 					}
@@ -675,7 +677,7 @@ WRITE:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"=> Error creating '%s'",LineBuff);
+		my_sprintf(Message,"=> Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -726,105 +728,105 @@ if(NewFile(iSettings,gFileType[iSettings],fn,&reply)) {
 	if(io == OK) {
 WRITE:
 		SaveOn++;
-		sprintf(Message,"Saving '%s'...",line);
+		my_sprintf(Message,"Saving '%s'...",line);
 		PleaseWait();
 		ShowMessage(TRUE,wMessage,Message);
 		WriteHeader(iSettings,refnum,*p_spec);
-		sprintf(LineBuff,"%ld",(long)Port);
+		my_sprintf(LineBuff,"%ld",(long)Port);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		
 		WriteToFile(NO,MAC," ",refnum);
 		
-		sprintf(LineBuff,"%ld\n%ld\n%ld",(long)Quantization,(long)Time_res,(long)MIDIsetUpTime);
+		my_sprintf(LineBuff,"%ld\n%ld\n%ld",(long)Quantization,(long)Time_res,(long)MIDIsetUpTime);
 		WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%ld",(long)QuantizeOK); WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%ld",(long)Nature_of_time); WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%.0f",(double)Pclock); WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%.0f",(double)Qclock); WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%ld",(long)Jbutt); WriteToFile(NO,MAC,LineBuff,refnum);
+		my_sprintf(LineBuff,"%ld",(long)QuantizeOK); WriteToFile(NO,MAC,LineBuff,refnum);
+		my_sprintf(LineBuff,"%ld",(long)Nature_of_time); WriteToFile(NO,MAC,LineBuff,refnum);
+		my_sprintf(LineBuff,"%.0f",(double)Pclock); WriteToFile(NO,MAC,LineBuff,refnum);
+		my_sprintf(LineBuff,"%.0f",(double)Qclock); WriteToFile(NO,MAC,LineBuff,refnum);
+		my_sprintf(LineBuff,"%ld",(long)Jbutt); WriteToFile(NO,MAC,LineBuff,refnum);
 		for(i=0; i < Jbutt; i++) {	/* Store radio button settings */
 			PleaseWait();
-			sprintf(LineBuff,"%ld",(long)GetControlValue(Hbutt[i]));
+			my_sprintf(LineBuff,"%ld",(long)GetControlValue(Hbutt[i]));
 			WriteToFile(NO,MAC,LineBuff,refnum);
 			}
-		sprintf(LineBuff,"%ld\n%ld\n%ld\n%ld\n%ld",(long)SplitTimeObjects,(long)SplitVariables,
+		my_sprintf(LineBuff,"%ld\n%ld\n%ld\n%ld\n%ld",(long)SplitTimeObjects,(long)SplitVariables,
 			(long)UseTextColor,(long)DeftBufferSize,(long)UseGraphicsColor);
 		WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%ld",(long)UseBufferLimit); WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%ld",(long)TimeMax); WriteToFile(NO,MAC,LineBuff,refnum);
+		my_sprintf(LineBuff,"%ld",(long)UseBufferLimit); WriteToFile(NO,MAC,LineBuff,refnum);
+		my_sprintf(LineBuff,"%ld",(long)TimeMax); WriteToFile(NO,MAC,LineBuff,refnum);
 		GetSeed();
-		sprintf(LineBuff,"%.0f\n%ld",(double)Seed,(long)Token);
+		my_sprintf(LineBuff,"%.0f\n%ld",(double)Seed,(long)Token);
 		WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%ld\n%ld\n%ld",(long)NoteConvention,(long)StartFromOne,
+		my_sprintf(LineBuff,"%ld\n%ld\n%ld",(long)NoteConvention,(long)StartFromOne,
 			(long)SmartCursor);
 		WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%ld\n%ld",(long)GraphicScaleP,(long)GraphicScaleQ);
+		my_sprintf(LineBuff,"%ld\n%ld",(long)GraphicScaleP,(long)GraphicScaleQ);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 
 		// old settings for OMS
-		sprintf(LineBuff,"<no input device>");
+		my_sprintf(LineBuff,"<no input device>");
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		MoveDisk();
-		sprintf(LineBuff,"<no output device>");
+		my_sprintf(LineBuff,"<no output device>");
 		WriteToFile(NO,MAC,LineBuff,refnum);
 			
-		sprintf(LineBuff,"%ld",(long)UseBullet); WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%ld",(long)PlayTicks); WriteToFile(NO,MAC,LineBuff,refnum);
+		my_sprintf(LineBuff,"%ld",(long)UseBullet); WriteToFile(NO,MAC,LineBuff,refnum);
+		my_sprintf(LineBuff,"%ld",(long)PlayTicks); WriteToFile(NO,MAC,LineBuff,refnum);
 		
-		sprintf(LineBuff,"%ld\n%ld",(long)FileSaveMode,(long)FileWriteMode);
+		my_sprintf(LineBuff,"%ld\n%ld",(long)FileSaveMode,(long)FileWriteMode);
 		WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%ld\n%ld\n%ld\n%.2f",(long)MIDIfileType,(long)CsoundFileFormat,
+		my_sprintf(LineBuff,"%ld\n%ld\n%ld\n%.2f",(long)MIDIfileType,(long)CsoundFileFormat,
 			(long)ProgNrFrom,EndFadeOut);
 		WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%ld",(long)C4key);
+		my_sprintf(LineBuff,"%ld",(long)C4key);
 		WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%.4f",A4freq);
+		my_sprintf(LineBuff,"%.4f",A4freq);
 		WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%ld",(long)StrikeAgainDefault);
+		my_sprintf(LineBuff,"%ld",(long)StrikeAgainDefault);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		
-		sprintf(LineBuff,"%ld\n%ld\n%ld\n%ld\n%ld\n%ld",(long)DeftVolume,(long)VolumeController,
+		my_sprintf(LineBuff,"%ld\n%ld\n%ld\n%ld\n%ld\n%ld",(long)DeftVolume,(long)VolumeController,
 			(long)DeftVelocity,(long)DeftPanoramic,(long)PanoramicController,(long)SamplingRate);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 			
-		sprintf(LineBuff,"%ld",(long)WMAX); WriteToFile(NO,MAC,LineBuff,refnum);
+		my_sprintf(LineBuff,"%ld",(long)WMAX); WriteToFile(NO,MAC,LineBuff,refnum);
 		for(w=0; w < WMAX; w++) {
-			sprintf(LineBuff,"%ld",(long)WindowTextSize[w]);
+			my_sprintf(LineBuff,"%ld",(long)WindowTextSize[w]);
 			WriteToFile(NO,MAC,LineBuff,refnum);
 			}
-		sprintf(LineBuff,"%ld",(long)MIDIpassFilter); WriteToFile(NO,MAC,LineBuff,refnum);
+		my_sprintf(LineBuff,"%ld",(long)MIDIpassFilter); WriteToFile(NO,MAC,LineBuff,refnum);
 		for(i=0; i < 12; i++) {
-			sprintf(LineBuff,"%ld",(long)NameChoice[i]); WriteToFile(NO,MAC,LineBuff,refnum);
+			my_sprintf(LineBuff,"%ld",(long)NameChoice[i]); WriteToFile(NO,MAC,LineBuff,refnum);
 			}
-		sprintf(LineBuff,"%ld",(long)MIDIacceptFilter); WriteToFile(NO,MAC,LineBuff,refnum);
+		my_sprintf(LineBuff,"%ld",(long)MIDIacceptFilter); WriteToFile(NO,MAC,LineBuff,refnum);
 		
 		if(Version > 19) {
-			sprintf(LineBuff,"%ld",(long)ShowObjectGraph);
+			my_sprintf(LineBuff,"%ld",(long)ShowObjectGraph);
 			WriteToFile(NO,MAC,LineBuff,refnum);
-			sprintf(LineBuff,"%ld",(long)ShowPianoRoll);
+			my_sprintf(LineBuff,"%ld",(long)ShowPianoRoll);
 			WriteToFile(NO,MAC,LineBuff,refnum);
-			sprintf(LineBuff,"%ld",(long)MAXCHAN);
+			my_sprintf(LineBuff,"%ld",(long)MAXCHAN);
 			WriteToFile(NO,MAC,LineBuff,refnum);
 			for(i=0; i < MAXCHAN; i++) {
 				PleaseWait();
-				sprintf(LineBuff,"%ld",(long)PianoColor[i].red);
+				my_sprintf(LineBuff,"%ld",(long)PianoColor[i].red);
 				WriteToFile(NO,MAC,LineBuff,refnum);
-				sprintf(LineBuff,"%ld",(long)PianoColor[i].green);
+				my_sprintf(LineBuff,"%ld",(long)PianoColor[i].green);
 				WriteToFile(NO,MAC,LineBuff,refnum);
-				sprintf(LineBuff,"%ld",(long)PianoColor[i].blue);
+				my_sprintf(LineBuff,"%ld",(long)PianoColor[i].blue);
 				WriteToFile(NO,MAC,LineBuff,refnum);
 				}
 			}
 			
-		sprintf(LineBuff,"%ld",(long)(NewEnvironment && !FreezeWindows));
+		my_sprintf(LineBuff,"%ld",(long)(NewEnvironment && !FreezeWindows));
 			WriteToFile(NO,MAC,LineBuff,refnum);
 		if(NewEnvironment && !FreezeWindows) {
-			sprintf(LineBuff,"%ld",(long)WMAX); WriteToFile(NO,MAC,LineBuff,refnum);
+			my_sprintf(LineBuff,"%ld",(long)WMAX); WriteToFile(NO,MAC,LineBuff,refnum);
 			GetPort(&saveport);
 			for(w=0; w < WMAX; w++) {
 				PleaseWait();
 				MoveDisk();
-				sprintf(LineBuff,"%ld",(long)ChangedCoordinates[w]);
+				my_sprintf(LineBuff,"%ld",(long)ChangedCoordinates[w]);
 				SetPortWindowPort(Window[w]);
 				WriteToFile(NO,MAC,LineBuff,refnum);
 				if(ChangedCoordinates[w]) {
@@ -833,13 +835,13 @@ WRITE:
 					LocalToGlobal(&p);
 					q = botRight(r);
 					LocalToGlobal(&q);
-					sprintf(LineBuff,"%ld",(long)(p.v));	/* top */
+					my_sprintf(LineBuff,"%ld",(long)(p.v));	/* top */
 					WriteToFile(NO,MAC,LineBuff,refnum);
-					sprintf(LineBuff,"%ld",(long)(p.h));	/* left */
+					my_sprintf(LineBuff,"%ld",(long)(p.h));	/* left */
 					WriteToFile(NO,MAC,LineBuff,refnum);
-					sprintf(LineBuff,"%ld",(long)(q.v));	/* bottom */
+					my_sprintf(LineBuff,"%ld",(long)(q.v));	/* bottom */
 					WriteToFile(NO,MAC,LineBuff,refnum);
-					sprintf(LineBuff,"%ld",(long)(q.h));	/* right */
+					my_sprintf(LineBuff,"%ld",(long)(q.h));	/* right */
 					WriteToFile(NO,MAC,LineBuff,refnum);
 					}
 				}
@@ -847,13 +849,13 @@ WRITE:
 			else if(Beta) Alert1("=> Err SaveSettings(). saveport == NULL");
 			}
 		imax = MAXCOLOR; if(!NewColors) imax = 0;
-		sprintf(LineBuff,"%ld",(long)imax); WriteToFile(NO,MAC,LineBuff,refnum);
+		my_sprintf(LineBuff,"%ld",(long)imax); WriteToFile(NO,MAC,LineBuff,refnum);
 		if(imax > 0) {
 			for(i=0; i < imax; i++) {
 				PleaseWait();
-				sprintf(LineBuff,"%ld",(long)(Color[i].red)); WriteToFile(NO,MAC,LineBuff,refnum);
-				sprintf(LineBuff,"%ld",(long)(Color[i].green)); WriteToFile(NO,MAC,LineBuff,refnum);
-				sprintf(LineBuff,"%ld",(long)(Color[i].blue)); WriteToFile(NO,MAC,LineBuff,refnum);
+				my_sprintf(LineBuff,"%ld",(long)(Color[i].red)); WriteToFile(NO,MAC,LineBuff,refnum);
+				my_sprintf(LineBuff,"%ld",(long)(Color[i].green)); WriteToFile(NO,MAC,LineBuff,refnum);
+				my_sprintf(LineBuff,"%ld",(long)(Color[i].blue)); WriteToFile(NO,MAC,LineBuff,refnum);
 				}
 			}
 LASTPART:
@@ -885,13 +887,13 @@ LASTPART:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,line);
-		sprintf(Message,"=> Error creating '%s'",line);
+		my_sprintf(Message,"=> Error creating '%s'",line);
 		Alert1(Message);
 		result = MISSED;
 		}
 	}
 err = NSWCleanupReply(&reply);
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 return(result);
 }
 
@@ -920,8 +922,8 @@ OSErr	FindBPPrefsFolder(FSSpecPtr location)
 	}
 	else if (err != noErr) return err;
 	else {
-		Boolean targetIsFolder;
-		Boolean wasAliased;
+		int targetIsFolder;
+		int wasAliased;
 
 		err = ResolveAliasFile(location, true, &targetIsFolder, &wasAliased);
 		if (err != noErr) return err;
@@ -951,8 +953,8 @@ OSErr	FindFileInPrefsFolder(FSSpecPtr location, StringPtr filename)
 	err = FSMakeFSSpec(prefVRefNum, bpDirID, filename, location);
 	if (err != noErr) return err;
 	else	{
-		Boolean targetIsFolder;
-		Boolean wasAliased;
+		int targetIsFolder;
+		int wasAliased;
 
 		err = ResolveAliasFile(location, true, &targetIsFolder, &wasAliased);
 		if (targetIsFolder) return paramErr; // there is a folder where the file should be
@@ -1012,7 +1014,7 @@ int CopyStartupSettings()
 void GetStartupSettingsSpec(FSSpecPtr spec)
 {
 	OSErr err;
-	Boolean haveStartupSpec = FALSE;
+	int haveStartupSpec = FALSE;
 	
 	// on OS X, check the user's preferences folder first
 	if (RunningOnOSX) {
@@ -1060,29 +1062,28 @@ if(LoadedCsoundInstruments) return(OK);
 iCsoundInstrument = 0;
 LoadOn++;
 pos = ZERO;
-Dirty[wCsoundResources] = CompiledRegressions = CompiledCsObjects = FALSE;
+Dirty[wCsoundResources] = CompiledRegressions = CompiledCsObjects = 0;
 p_line = p_completeline = NULL;
 
 if(trace_load_csound_resources) BPPrintMessage(odInfo,"Opening Csound resource file %s\n",FileName[wCsoundResources]);
 
 // Check whether file is being saved
-sprintf(line,"%s_lock",FileName[wCsoundResources]);
-csfile = fopen(line,"r");
+my_sprintf(line,"%s_lock",FileName[wCsoundResources]);
+csfile = my_fopen(0,line,"r");
 if(csfile != NULL) {
 	BPPrintMessage(odError,"\n=> As the Csound resource file was locked I waited for 3 seconds...\n");
 //	sleep(2);
 	delay(3); // Fixed by BB 2022-02-20
 	}
 
-csfile = fopen(FileName[wCsoundResources],"r");
+csfile = my_fopen(0,FileName[wCsoundResources],"r");
 if(csfile == NULL) {
 	BPPrintMessage(odError,"=> Could not find and open Csound resource file %s\n",FileName[wCsoundResources]);
 	goto ERR;
 	}
 
 if(ReadOne(FALSE,FALSE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-BPPrintMessage(odInfo,"Loading: %s...\n",FileName[wCsoundResources]);
-
+BPPrintMessage(odInfo,"Loading: %s\n",FileName[wCsoundResources]);
 if(trace_load_csound_resources) BPPrintMessage(odInfo, "Line = %s\n",*p_line);
 if(CheckVersion(&iv,p_line,FileName[wCsoundResources]) != OK) goto ERR;
 if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
@@ -1123,7 +1124,7 @@ for(j=0; j < jmax; j++) {
 		MystrcpyHandleToString(MAXLIN,0,LineBuff,p_completeline);
 	//	if(ShowMessages) ShowMessage(TRUE,wMessage,LineBuff);
 		if(MySetHandleSize((Handle*)&ptr,(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
-				goto ERR;
+			goto ERR;
 		MystrcpyHandleToHandle(0,&ptr,p_completeline);
 		(*pp_CsInstrumentName)[j] = ptr;
 		}
@@ -1301,15 +1302,27 @@ for(j=0; j < jmax; j++) {
 			}
 		
 		if(trace_load_csound_resources) BPPrintMessage(odInfo,"-> Parameter: \"%s\"\n",*p_completeline);
-		strcpy(line,"");
-		fscanf(csfile, "%[^\n]",line); // Necessary to read a line that might be empty
+	//	strcpy(line,"");
+		fseek(csfile,pos,SEEK_SET);
+		if(fgets(line,sizeof(line),csfile) != NULL) { // Necessary to read a line that might be empty
+			remove_carriage_returns(line);
+			pos = ftell(csfile);
+			}
+		else {
+			BPPrintMessage(odError,"=> Error reading line in LoadCsoundInstruments()\n");
+			goto ERR;
+			}
+		// fscanf(csfile, "%[^\n]",line2); Obsolete, not good for Windows
 		if(strlen(line) > 0) {
 			MystrcpyStringToHandle(&ptr,line);
 			(*((*p_CsInstrument)[j].paramlist))[ip].comment = ptr;
-			pos += strlen(line);
+		//	pos += strlen(line);
 			}
-		if(trace_load_csound_resources) BPPrintMessage(odInfo, "Comment: %s\n",line);
-		if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
+		if(trace_load_csound_resources) BPPrintMessage(odInfo, "This line: %s\n",line);
+		if(ReadInteger(csfile,&i,&pos) == MISSED) {
+			BPPrintMessage(odError, "Missed the first integer in LoadCsoundInstruments()\n");
+			goto ERR;
+			}
 		(*((*p_CsInstrument)[j].paramlist))[ip].startindex = i;
 		if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
 		(*((*p_CsInstrument)[j].paramlist))[ip].endindex = i;
@@ -1324,7 +1337,7 @@ for(j=0; j < jmax; j++) {
 			(*((*p_CsInstrument)[j].paramlist))[ip].combinationtype = i;
 			if(i == MULT && fabs(r) < 0.01) {
 				(*((*p_CsInstrument)[j].paramlist))[ip].defaultvalue = 1.;
-				sprintf(Message,"In instrument %ld a default parameter value '%.3f' was replaced with '1' because its combination mode is multiplicative",
+				my_sprintf(Message,"In instrument %ld a default parameter value '%.3f' was replaced with '1' because its combination mode is multiplicative",
 					(long)(*p_CsInstrumentIndex)[j],r);
 				Alert1(Message);
 				}
@@ -1402,7 +1415,7 @@ BPPrintMessage(odError,"=> Error reading '%s' Csound resource file...\n",FileNam
 QUIT:
 MyDisposeHandle((Handle*)&p_line);
 MyDisposeHandle((Handle*)&p_completeline);
-CloseFile(csfile);
+my_fclose(csfile);
 if(result == OK) {
 	Created[wCsoundResources] = TRUE;
 	LoadedCsoundInstruments = TRUE;
@@ -1451,30 +1464,38 @@ int LoadSettings(const char *filename, int startup) {
 		}
 
 	// open the file for reading
-	sefile = fopen(filename, "r");
-	if (sefile == NULL) {
+	sefile = my_fopen(1,filename, "rb");
+	if(sefile == NULL) {
 		BPPrintMessage(odError, "=> Could not open settings file %s\n", filename);
 		return MISSED;
-	}
+	    }
 
 	pos = ZERO; Dirty[iSettings] = Created[iSettings] = FALSE;
 
 	LoadOn++;
 
-	if(ReadOne(FALSE,FALSE,FALSE,sefile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
+	if(ReadOne(FALSE,FALSE,FALSE,sefile,TRUE,&p_line,&p_completeline,&pos) == MISSED) {
+        BPPrintMessage(odError,"=> Error ReadOne() in LoadSettings()\n");
+        goto ERR;
+        }
+    if(trace_load_settings) BPPrintMessage(odError, "Version line = %s\n",*p_completeline);
 	if(CheckVersion(&iv,p_line,filename) != OK) {
 		result = MISSED;
 		goto QUIT;
 		}
-		
 	if(trace_load_settings) BPPrintMessage(odError, "Settings file version %d\n",iv);
 	if(ReadOne(FALSE,FALSE,FALSE,sefile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
+    if(trace_load_settings) BPPrintMessage(odError, "%s\n",*p_completeline);
 
-	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;	// serial port used by old built-in Midi driver
+	if(ReadInteger(sefile,&j,&pos) == MISSED) {
+        BPPrintMessage(odError,"=> Error ReadInteger() in LoadSettings()\n");
+        goto ERR;	// serial port used by old built-in Midi driver
+        }
 	// if(startup) Port = j;
 
 	if(ReadOne(FALSE,FALSE,TRUE,sefile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;	// Not used but should be kept for consistency
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR; Quantization = k;
+    if(trace_load_settings) BPPrintMessage(odError, "Quantization = %ld\n",k);
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR; Time_res = k;
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR; MIDIsetUpTime = j;
 	if(trace_load_settings) BPPrintMessage(odError, "MIDIsyncDelay = %d\n",MIDIsyncDelay);
@@ -1493,7 +1514,7 @@ int LoadSettings(const char *filename, int startup) {
 
 	if(ReadInteger(sefile,&jmax,&pos) == MISSED) goto ERR;
 	if(jmax != Jbutt) {
-		sprintf(Message,"\nError in settings file:  jmax = %d instead of %d\n",jmax,Jbutt);
+		my_sprintf(Message,"\nError in settings file:  jmax = %d instead of %d\n",jmax,Jbutt);
 		if(Beta) Alert1(Message);
 		goto ERR;
 		}
@@ -1545,17 +1566,17 @@ int LoadSettings(const char *filename, int startup) {
 	if(ReadInteger(sefile,&SplitTimeObjects,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&SplitVariables,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
-	UseTextColor = (j > 0);
+	// UseTextColor = (j > 0);
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR;
 	if(k < 100) k = 1000;
 	DeftBufferSize = BufferSize = k;
 	// BPPrintMessage(odInfo, "Default buffer size = %ld symbols\n", DeftBufferSize);
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
-	UseGraphicsColor = (j > 0);
+	/* UseGraphicsColor = (j > 0);
 	if(ForceTextColor == 1) UseTextColor = TRUE;
 	if(ForceTextColor == -1) UseTextColor = FALSE;
 	if(ForceGraphicColor == 1) UseGraphicsColor = TRUE;
-	if(ForceGraphicColor == -1) UseGraphicsColor = FALSE;
+	if(ForceGraphicColor == -1) UseGraphicsColor = FALSE; */
 	if(ReadInteger(sefile,&UseBufferLimit,&pos) == MISSED) goto ERR;
 	UseBufferLimit = FALSE;
 
@@ -1563,9 +1584,10 @@ int LoadSettings(const char *filename, int startup) {
 	SetBufferSize();
 	#endif /* BP_CARBON_GUI_FORGET_THIS */
 
-	if(ReadLong(sefile,&MaxConsoleTime,&pos) == MISSED) goto ERR; // Previously it was TimeMax
-	if(trace_load_settings) BPPrintMessage(odInfo, "MaxConsoleTime = %ld\n",(long)MaxConsoleTime);
-
+	if(ReadLong(sefile,&MaxConsoleTime,&pos) == MISSED) goto ERR; // OBSOLETE
+	MaxConsoleTime = 0L; // No limit
+ //   if(trace_load_settings && MaxConsoleTime > 0L) BPPrintMessage(odInfo, "MaxConsoleTime = %ld\n",(long)MaxConsoleTime);
+    
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR;
 	Seed = (unsigned) (k % 32768L);
 	if(Seed > 0) {
@@ -1587,7 +1609,7 @@ int LoadSettings(const char *filename, int startup) {
 		}
 	if(ReadInteger(sefile,&StartFromOne,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
-	SmartCursor = (j == 1);
+	// SmartCursor = (j == 1);
 	if(ReadInteger(sefile,&GraphicScaleP,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&GraphicScaleQ,&pos) == MISSED) goto ERR;
 
@@ -1646,10 +1668,10 @@ int LoadSettings(const char *filename, int startup) {
 		if(ReadFloat(sefile,&x,&pos) == MISSED) goto ERR;
 		if(iv > 19) EndFadeOut = x;
 		else EndFadeOut = 2.;
-		sprintf(Message,"EndFadeOut = %.2f sec\n",EndFadeOut);
+		my_sprintf(Message,"EndFadeOut = %.2f sec\n",EndFadeOut);
 	//	BPPrintMessage(odInfo,Message);
 	#if BP_CARBON_GUI_FORGET_THIS
-		sprintf(Message,"%.2f",EndFadeOut);
+		my_sprintf(Message,"%.2f",EndFadeOut);
 		SetField(FileSavePreferencesPtr,-1,fFadeOut,Message);
 	#endif /* BP_CARBON_GUI_FORGET_THIS */
 		
@@ -1771,12 +1793,12 @@ int LoadSettings(const char *filename, int startup) {
 
 	ERR:
 	result = MISSED;
-	sprintf(Message,"=> Error reading '%s' settings file...",filename);
+	my_sprintf(Message,"=> Error reading '%s' settings file...",filename);
 	Alert1(Message);
 
 	QUIT:
 	MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
-	CloseFile(sefile);
+	my_fclose(sefile);
 
 	LoadOn--;
 
@@ -1807,12 +1829,12 @@ if(NewFile(-1,4,PascalLine,&reply)) {
 		SetCursor(&WatchCursor);
 		if(!ComputeOn) WriteToFile(NO,MAC,"END",refnum);
 		WriteHeader(-1,refnum,reply.sfFile);
-		sprintf(LineBuff,"%ld",(long)CompileDate);
+		my_sprintf(LineBuff,"%ld",(long)CompileDate);
 		WriteToFile(NO,MAC,LineBuff,refnum);
-		sprintf(LineBuff,"%ld",(long)ProduceStackDepth);
+		my_sprintf(LineBuff,"%ld",(long)ProduceStackDepth);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		for(i=0; i < ProduceStackDepth; i++) {
-			sprintf(LineBuff,"%ld\n%ld\n%ld",
+			my_sprintf(LineBuff,"%ld\n%ld\n%ld",
 				(long)(*p_MemGram)[i],(long)(*p_MemRul)[i],(long)(*p_MemPos)[i]);
 			WriteToFile(NO,MAC,LineBuff,refnum);
 			}
@@ -1832,7 +1854,7 @@ if(NewFile(-1,4,PascalLine,&reply)) {
 		}
 	else {
 		MyPtoCstr(MAXNAME,PascalLine,LineBuff);
-		sprintf(Message,"=> Error creating '%s'",LineBuff);
+		my_sprintf(Message,"=> Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
@@ -1917,10 +1939,10 @@ NOERR:
 	}
 else {
 	/* Alert1("=> Error reading decision file..."); */  // user may have cancelled
-	HideWindow(Window[wMessage]);
+	// HideWindow(Window[wMessage]);
 	return(MISSED);
 	}
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 if(!IsEmpty(wInfo)) BringToFront(Window[wInfo]);
 return(OK);
 }
@@ -1963,7 +1985,7 @@ if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
 		return(MISSED);
 		}
 	}
-sprintf(Message,"Loading %s...",FileName[wInteraction]);
+my_sprintf(Message,"Loading %s...",FileName[wInteraction]);
 ShowMessage(TRUE,wMessage,Message);
 pos = 0L;
 LoadOn++;
@@ -2072,7 +2094,7 @@ for(i=1; i <= maxwait; i++) {
 	if((iv > 3) && (ReadInteger(refnum,&s,&pos) == MISSED))
 			goto ERR;	/* type 0 = MIDi keyboard, 1 = ... */
 	if(iv > 3 && s != 0) {
-		sprintf(Message, "Unknown synchro tag type #%ld in %s",(long)s,
+		my_sprintf(Message, "Unknown synchro tag type #%ld in %s",(long)s,
 			FileName[wInteraction]);
 		Alert1(Message);
 		goto ERR;
@@ -2173,7 +2195,7 @@ MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 if(FSClose(refnum) != noErr) {
 	if(Beta) Alert1("=> Error closing interactive code file...");
 	}
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 if(result == OK) {
 	LoadedIn = TRUE;
 	if(oldversion) {
@@ -2189,13 +2211,13 @@ if(result == OK) {
 	}
 else	Created[wInteraction] = FALSE;
 Dirty[wInteraction] = FALSE;
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 LoadOn--;
 return(result);
 }
 
 
-SaveMIDIorchestra(Boolean doSaveAs)
+SaveMIDIorchestra(int doSaveAs)
 {
 int rep,i,j,type,result;
 short refnum;
@@ -2222,25 +2244,25 @@ c2pstrcpy(fn, Message);
 type = gFileType[wMIDIorchestra];
 
 /* rep = Answer("Export as text file",'N');
-if(rep == ABORT) goto OUT;
+if(rep == ABORT) goto SORTIR;
 if(rep == OK) type = ftiText; */
 reply.sfFile.vRefNum = TheVRefNum[wMIDIorchestra];	/* Added 30/3/98 */
 reply.sfFile.parID = WindowParID[wMIDIorchestra];
 if(NewFile(wMIDIorchestra,type,fn,&reply)) {
 	rep = CreateFile(wMIDIorchestra,wMIDIorchestra,type,fn,&reply,&refnum);
-	if(rep == ABORT) goto OUT;
+	if(rep == ABORT) goto SORTIR;
 	if(rep == OK) {
 
 WRITE:
 		SetCursor(&WatchCursor);
 		WriteHeader(wMIDIorchestra,refnum,reply.sfFile);
-		sprintf(LineBuff,"%ld",(long)MAXCHAN);
+		my_sprintf(LineBuff,"%ld",(long)MAXCHAN);
 		WriteToFile(NO,MAC,LineBuff,refnum);
 		for(i=1; i <= MAXCHAN; i++) {
 			for(j=0; j < 128; j++) {
 				if((*p_GeneralMIDIpatchNdx)[j] == i) break;
 				}
-			sprintf(LineBuff,"%ld %s",(long)CurrentMIDIprogram[i],
+			my_sprintf(LineBuff,"%ld %s",(long)CurrentMIDIprogram[i],
 				*((*p_GeneralMIDIpatch)[j]));
 			WriteToFile(NO,MAC,LineBuff,refnum);
 			}
@@ -2262,11 +2284,11 @@ WRITE:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,LineBuff);
-		sprintf(Message,"=> Error creating '%s'",LineBuff);
+		my_sprintf(Message,"=> Error creating '%s'",LineBuff);
 		Alert1(Message);
 		}
 	}
-OUT:
+SORTIR:
 err = NSWCleanupReply(&reply);
 ClearMessage();
 return(result);
@@ -2316,7 +2338,7 @@ if(OldFile(-1,type,PascalLine,&spec)) {
 	if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
 	
 READIT:
-		sprintf(Message,"Loading '%s' orchestra file...",FileName[wMIDIorchestra]);
+		my_sprintf(Message,"Loading '%s' orchestra file...",FileName[wMIDIorchestra]);
 		ShowMessage(TRUE,wMessage,Message);
 		pos = ZERO;
 		if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
@@ -2346,7 +2368,7 @@ READIT:
 					SendToDriver(Tcurr * Time_res,0,&rs,&e);
 				for(j=0; j < 128; j++) {
 					if((*p_GeneralMIDIpatchNdx)[j] == w) {
-						sprintf(Message,"[%ld] %s",(long)w,*((*p_GeneralMIDIpatch)[j]));
+						my_sprintf(Message,"[%ld] %s",(long)w,*((*p_GeneralMIDIpatch)[j]));
 						SetField(NULL,wMIDIorchestra,i,Message);
 						break;
 						}
@@ -2360,7 +2382,7 @@ READIT:
 				HiliteControl((ControlHandle) itemhandle,kControlButtonPart);
 				for(j=0; j < 128; j++) {
 					if((*p_GeneralMIDIpatchNdx)[j] == CurrentMIDIprogram[TestMIDIChannel]) {
-						sprintf(Message,"[%ld] %s",(long)CurrentMIDIprogram[TestMIDIChannel],
+						my_sprintf(Message,"[%ld] %s",(long)CurrentMIDIprogram[TestMIDIChannel],
 							*((*p_GeneralMIDIpatch)[j]));
 						SetField(MIDIprogramPtr,-1,fPatchName,Message);
 						break;
@@ -2388,20 +2410,20 @@ NOERR:
 	MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 	}
 else {
-	HideWindow(Window[wMessage]);
+	// HideWindow(Window[wMessage]);
 	LoadOn--;
 	return(MISSED);
 	}
 LoadOn--;
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 return(OK);
 }
 
 
-static OSErr GetMidiDriverStartupSpec(FSSpecPtr spec, Boolean saving)
+static OSErr GetMidiDriverStartupSpec(FSSpecPtr spec, int saving)
 {
 	OSErr err;
-	Boolean haveStartupSpec = FALSE;
+	int haveStartupSpec = FALSE;
 	
 	// on OS X, check the user's preferences folder first
 	if (RunningOnOSX) {
@@ -2471,10 +2493,10 @@ int OpenMidiDriverSettings()
 	int		result;
 	FSSpec	mdfile;
 	
-	sprintf(Message, "Select a %s file...", DocumentTypeName[iMidiDriver]);
+	my_sprintf(Message, "Select a %s file...", DocumentTypeName[iMidiDriver]);
 	ShowMessage(TRUE,wMessage,Message);
 	result = OldFile(wUnknown, ftiMidiDriver, PascalLine, &mdfile);
-	HideWindow(Window[wMessage]);
+	// HideWindow(Window[wMessage]);
 	if (result == OK) result = LoadMidiDriverSettings(&mdfile);
 	
 	return result;
@@ -2492,7 +2514,7 @@ int LoadMidiDriverSettings(FSSpec* mdfile)
 	err = MyOpen(mdfile, fsRdPerm, &refnum);
 	if (err != noErr)  {
 		p2cstrcpy(cname, mdfile->name);
-		sprintf(Message,"=> Error opening the file '%s'.", cname);
+		my_sprintf(Message,"=> Error opening the file '%s'.", cname);
 		Alert1(Message);
 		return (MISSED);
 	}
@@ -2501,7 +2523,7 @@ int LoadMidiDriverSettings(FSSpec* mdfile)
 	if (result == OK) RememberMdFile(mdfile);
 	else {
 		p2cstrcpy(cname, mdfile->name);
-		sprintf(Message,"=> Error reading the file '%s'.", cname);
+		my_sprintf(Message,"=> Error reading the file '%s'.", cname);
 		Alert1(Message);
 		return (MISSED);
 	}
@@ -2610,19 +2632,19 @@ int SaveMidiDriverSettings()
 			if (io == OK) {
 				reply.saveCompleted = true;
 				RememberMdFile(&(reply.sfFile));
-				sprintf(Message,"Successfully saved '%s'", FileName[iMidiDriver]);
+				my_sprintf(Message,"Successfully saved '%s'", FileName[iMidiDriver]);
 				ShowMessage(TRUE,wMessage,Message);
 			}
 			else {
 				p2cstrcpy(defaultname, fn);
-				sprintf(Message, "=> Error writing file '%s'", defaultname);
+				my_sprintf(Message, "=> Error writing file '%s'", defaultname);
 				Alert1(Message);
-				HideWindow(Window[wMessage]);
+				// HideWindow(Window[wMessage]);
 			}
 		}
 		else {
 			MyPtoCstr(MAXNAME,fn,defaultname);
-			sprintf(Message, "=> Error creating file '%s'", defaultname);
+			my_sprintf(Message, "=> Error creating file '%s'", defaultname);
 			Alert1(Message);
 		}
 	}		
@@ -2642,7 +2664,7 @@ int WriteMidiDriverSettings(short refnum, FSSpec* spec)
 	
 	SaveOn++;
 	p2cstrcpy(fname, spec->name);
-	sprintf(Message,"Saving '%s'...", fname);
+	my_sprintf(Message,"Saving '%s'...", fname);
 	ShowMessage(TRUE,wMessage,Message);
 	PleaseWait();
 	
@@ -2681,17 +2703,15 @@ long pos,imax;
 long k,kk;
 double r;
 short refnum,refnum2;
-FSSpec spec;
-Str63 filename;
 Handle h,ptr;
-FILE* mifile;
+FILE* sofile;
 
 CompileAlphabet();
 
 if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start LoadObjectPrototypes = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 
 rep = MISSED;
-newinstruments = CompiledCsObjects = FALSE;
+newinstruments = CompiledCsObjects = 0;
 pos = 0L;
 line2[0] = '\0';
 // if(!tryname) FileName[iObjects][0] = '\0';
@@ -2699,47 +2719,56 @@ p_line = p_completeline = NULL;
 
 LoadOn++;
 
-mifile = fopen(FileName[iObjects], "r");
-if (mifile == NULL) {
+sofile = my_fopen(1,FileName[iObjects], "r");
+if (sofile == NULL) {
 	BPPrintMessage(odError, "=> Could not find and open prototypes file %s\n",FileName[iObjects]);
 //	return MISSED;
 	return ABORT; // Fixed by BB 2022-02-18
 	}
 
-if(ReadOne(FALSE,FALSE,FALSE,mifile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-sprintf(Message,"Loading %s...",FileName[iObjects]);
+if(ReadOne(FALSE,FALSE,FALSE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
+my_sprintf(Message,"Loading %s...",FileName[iObjects]);
 ShowMessage(TRUE,wMessage,Message);
 if(trace_load_prototypes) BPPrintMessage(odInfo, "Line = %s\n",*p_line);
 if(CheckVersion(&iv,p_line,FileName[iObjects]) != OK) goto ERR;
 if(trace_load_prototypes) BPPrintMessage(odInfo, "Version = %d\n",iv);
 
 if(iv > 2) {
-	ReadOne(FALSE,TRUE,FALSE,mifile,TRUE,&p_line,&p_completeline,&pos);
+	if(ReadOne(FALSE,TRUE,FALSE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 //	GetDateSaved(p_completeline,&(p_FileInfo[iObjects]));
 	}
 newbols = FALSE;
 
-if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
+if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 PrototypeTickKey = s;
-if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
+if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 PrototypeTickChannel = s;
-if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
+if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 PrototypeTickVelocity = s;
-
-fscanf(mifile, "%[^\n]",line2); // Necessary to read a line that might be empty
-
-if(trace_load_prototypes) BPPrintMessage(odInfo, "Line = %s\n",line2);
+fseek(sofile,pos,SEEK_SET);
+if(fgets(line2,sizeof(line2),sofile) != NULL) { // Necessary to read a line that might be empty
+	pos = ftell(sofile);
+	remove_carriage_returns(line2);
+	}
+else {
+	BPPrintMessage(odError,"=> Error reading line2 in LoadObjectPrototypes()\n");
+	goto ERR;
+	}
+// fscanf(sofile, "%[^\n]",line2); Obsolete, not good for Windows
+if(trace_load_prototypes) BPPrintMessage(odInfo, "Line (empty?) = %s\n",line2);
 if(strlen(line2) > 5) { // Fixed by BB 2022-02-18
 	BPPrintMessage(odInfo,"Trying to load Csound resource %s\n",line2);
 	// Note that line2 contains the path (csound_resources)
-	sprintf(Message,"../%s",line2);
+	my_sprintf(Message,"../%s",line2);
 	strcpy(FileName[wCsoundResources],Message);
 	if((result = LoadCsoundInstruments(0,1)) != OK) return(result);
-	pos += strlen(line2);
+//	pos += strlen(line2);
 	}
-		
 MAXSOUNDS:
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) {
+		BPPrintMessage(odError, "Missed the first integer in LoadObjectPrototypes()\n");
+		goto ERR;
+		}
 	maxsounds = s;
 	if(trace_load_prototypes) BPPrintMessage(odInfo, "maxsounds = %d Jbol = %d\n",s,Jbol);
 //	if(CheckTerminalSpace() != OK) goto ERR;
@@ -2757,8 +2786,8 @@ rep = notsaid = OK;
 
 NEXTBOL:
 PleaseWait(); j = -1;
-if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == MISSED) {
-	sprintf(Message,"Unexpected end of '%s' file...  May be old version?",
+if(ReadOne(FALSE,TRUE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) {
+	my_sprintf(Message,"Unexpected end of '%s' file...  May be old version?",
 		FileName[iObjects]);
 	BPPrintMessage(odInfo,Message);
 	goto ERR;
@@ -2767,34 +2796,35 @@ if(trace_load_prototypes) BPPrintMessage(odInfo, "line = %s\n",*p_line);
 
 if(p_completeline == NULL) {
 	if(Beta) Alert1("=> Err. LoadObjectPrototypes(). p_completeline == NULL");
-	goto OUT;
+	goto SORTIR;
 	}
-if(MyHandleLen(p_completeline) < 1) goto OUT;
+if(MyHandleLen(p_completeline) < 1) goto SORTIR;
 if(Mystrcmp(p_completeline,"DATA:") == 0) {
-	if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
+	if(ReadOne(FALSE,TRUE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 	if((*p_completeline)[0] == '\0')
 		MystrcpyStringToHandle(&p_completeline,"[Comment on prototype file]");
 	MystrcpyHandleToString(MAXFIELDCONTENT,0,line,p_completeline);
 	if(trace_load_prototypes) BPPrintMessage(odInfo, "General comment = %s\n",line);
 	//	rep = SetField(NULL,wPrototype1,fPrototypeFileComment,line);
 //	else SetField(NULL,wPrototype1,fPrototypeFileComment,"[Comment on prototype file]");
-	goto OUT;
+	goto SORTIR;
 	}
-if(Mystrcmp(p_completeline,"_endSoundObjectFile_") == 0) goto OUT;
+if(Mystrcmp(p_completeline,"_endSoundObjectFile_") == 0) goto SORTIR;
 if((iv > 3) && (Mystrcmp(p_completeline,"TABLES:") == 0)) {
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto OUT;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto SORTIR;
 	if(s > 0 && 0) {
 		NumberTables = s;
 		for(i=1; i <= s; i++) {
 			/*  Read table i */
 			}
 		}
-	goto OUT;
+	goto SORTIR;
 	}
 if(iv > 4 && newbols) {
 	oldjbol = Jbol;
 	if(Jbol == 0) {
 		Jbol = 2;
+		BPPrintMessage(odError,"=> Warning: probable error in CreateBol()\n");
 		GetAlphabetSpace();
 		}
 //	p_Bol = (char****) GiveSpace((Size)(Jbol) * sizeof(char**));
@@ -2804,48 +2834,39 @@ if(iv > 4 && newbols) {
 		goto ERR;
 		}
 	j = jj;
-	if(trace_load_prototypes) BPPrintMessage(odInfo, "Creating sound-object for j = %d named %s\n",j,*p_completeline);
+	if(trace_load_prototypes) BPPrintMessage(odInfo, "Trying to create sound-object for j = %d named %s\n",j,*p_completeline);
 	if(Jbol > oldjbol) {
-		compilemem = CompiledGr;
-		if(notsaid) {
-			ShowMessage(TRUE,wMessage,"New terminal symbols have been appended to alphabet.");
-	/*		SetSelect(GetTextLength(wAlphabet),GetTextLength(wAlphabet),
-				TEH[wAlphabet]);
-			PrintBehind(wAlphabet,"\n"); */
+		Jbol = oldjbol;
+		BPPrintMessage(odInfo,"This sound-object has not been created because it is not in the alphabet\n");
+	/* 	if(notsaid) {
+			BPPrintMessage(odInfo,"New terminal symbols have been appended to alphabet\n");
 			}
 		notsaid = FALSE;
-		MystrcpyHandleToString(MAXLIN,0,Message,p_completeline);
-		strcat(Message," ");
-	//	PrintBehind(wAlphabet,Message);
-		CompiledAl = TRUE; /* Dirty[wAlphabet] = FALSE; */
-		CompiledGr = compilemem;
+		CompiledAl = TRUE; */
 		}
 	}
 
-diff = FALSE; // Old variable for backward  compatibility. It should be suppressed.
-
 if(trace_load_prototypes) BPPrintMessage(odInfo, "Final Jbol = %d\n",Jbol);
 // if(iv > 3) { 
-	if(ReadInteger(mifile,&objecttype,&pos) == MISSED) goto ERR;
+	if(ReadInteger(sofile,&objecttype,&pos) == MISSED) goto ERR;
 	if(trace_load_prototypes) BPPrintMessage(odInfo, "object type = %d\n",objecttype);
 	(*p_Type)[j] = objecttype;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	(*p_Resolution)[j] = s;
 	if(trace_load_prototypes) BPPrintMessage(odInfo, "(*p_Resolution)[%d] = %d\n",j,(*p_Resolution)[j]);
 //	}
-/* else if(!diff) {
+/* else {
 	(*p_Type)[j] = 1;
 	(*p_Resolution)[j] = 1; 
 	} */
-if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
+if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 (*p_DefaultChannel)[j] = s;
-if(ReadLong(mifile,&k,&pos) == MISSED) goto ERR;
+if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 (*p_Tref)[j] = ((long) k * (*p_Resolution)[j]);
-if(ReadFloat(mifile,&r,&pos) == MISSED) goto ERR;
+if(ReadFloat(sofile,&r,&pos) == MISSED) goto ERR;
 (*p_Quan)[j] = r;
-if(ReadOne(FALSE,FALSE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
+if(ReadOne(FALSE,FALSE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 if(trace_load_prototypes) BPPrintMessage(odInfo,"line3 = %s\n",*p_line);
-
 	i = 0;
 	pivbeg = (*p_line)[i++]-'0';
 	pivend = (*p_line)[i++]-'0';
@@ -2870,155 +2891,154 @@ if(trace_load_prototypes) BPPrintMessage(odInfo,"line3 = %s\n",*p_line);
 		+ 5 * pivcent + 6 * pivcentonoff + 7 * pivspec;
 	(*p_AlphaCtrl)[j] = (*p_line)[i++]-'0';
 
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR; /* rescalemode */
-	if(!diff) (*p_RescaleMode)[j] = s;
-	if(ReadFloat(mifile,&r,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_AlphaMin)[j] = r;
-	if(ReadFloat(mifile,&r,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_AlphaMax)[j] = r;
-	if(!diff && iv < 5) {	/* Fixing a bug in default values */
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* rescalemode */
+	(*p_RescaleMode)[j] = s;
+	if(ReadFloat(sofile,&r,&pos) == MISSED) goto ERR;
+	(*p_AlphaMin)[j] = r;
+	if(ReadFloat(sofile,&r,&pos) == MISSED) goto ERR;
+	(*p_AlphaMax)[j] = r;
+	if(iv < 5) {	/* Fixing a bug in default values */
 		(*p_AlphaMax)[j] = 10L;
 		}
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR; /* delaymode */
-	if(!diff) (*p_DelayMode)[j] = s;
-	if(ReadLong(mifile,&k,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_MaxDelay)[j] = k;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* delaymode */
+	(*p_DelayMode)[j] = s;
+	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
+	(*p_MaxDelay)[j] = k;
 	if(iv > 4) {
-		if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR; /* forwardmode */
-		if(!diff) (*p_ForwardMode)[j] = s;
+		if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* forwardmode */
+		(*p_ForwardMode)[j] = s;
 		}
-	if(ReadLong(mifile,&k,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_MaxForward)[j] = k;
-	if(!diff && iv < 5) {	/* Fixing a bug in default values */
+	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
+	(*p_MaxForward)[j] = k;
+	if(iv < 5) {	/* Fixing a bug in default values */
 		(*p_MaxDelay)[j] = (*p_MaxForward)[j] = ZERO;
 		}
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR; /* brktempomode */
-	if(!diff) (*p_BreakTempoMode)[j] = s;
-	if(ReadLong(mifile,&k,&pos) == MISSED) goto ERR;
-/*	if(!diff) (*p_MaxBreakTempo)[j] = k;
-	if(!diff && iv < 5) {
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* brktempomode */
+	(*p_BreakTempoMode)[j] = s;
+	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
+/*	(*p_MaxBreakTempo)[j] = k;
+	if(iv < 5) {
 		(*p_MaxBreakTempo)[j] = ZERO;
 		} */
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR; /* contbegmode */
-	if(!diff) (*p_ContBegMode)[j] = s;
-	if(ReadLong(mifile,&k,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_MaxBegGap)[j] = k;
-	if(!diff && iv < 5) {	/* Fixing a bug in default values */
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* contbegmode */
+	(*p_ContBegMode)[j] = s;
+	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
+	(*p_MaxBegGap)[j] = k;
+	if(iv < 5) {	/* Fixing a bug in default values */
 		(*p_MaxBegGap)[j] = ZERO;
 		}
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR; /* contendmode */
-	if(!diff) (*p_ContEndMode)[j] = s;
-	if(ReadLong(mifile,&k,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_MaxEndGap)[j] = k;
-	if(!diff && iv < 5) {	/* Fixing a bug in default values */
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* contendmode */
+	(*p_ContEndMode)[j] = s;
+	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
+	(*p_MaxEndGap)[j] = k;
+	if(iv < 5) {	/* Fixing a bug in default values */
 		(*p_MaxEndGap)[j] = ZERO;
 		}
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR; /* coverbegmode */
-	if(!diff) (*p_CoverBegMode)[j] = s;
-	if(ReadLong(mifile,&k,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_MaxCoverBeg)[j] = k;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR; /* coverendmode */
-	if(!diff) (*p_CoverEndMode)[j] = s;
-	if(ReadLong(mifile,&k,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_MaxCoverEnd)[j] = k;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR; /* truncbegmode */
-	if(!diff) (*p_TruncBegMode)[j] = s;
-	if(ReadLong(mifile,&k,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_MaxTruncBeg)[j] = k;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR; /* truncendmode */
-	if(!diff) (*p_TruncEndMode)[j] = s;
-	if(ReadLong(mifile,&k,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_MaxTruncEnd)[j] = k;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_PivMode)[j] = s;
-	if(ReadFloat(mifile,&r,&pos) == MISSED) goto ERR;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* coverbegmode */
+	(*p_CoverBegMode)[j] = s;
+	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
+	(*p_MaxCoverBeg)[j] = k;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* coverendmode */
+	(*p_CoverEndMode)[j] = s;
+	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
+	(*p_MaxCoverEnd)[j] = k;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* truncbegmode */
+	(*p_TruncBegMode)[j] = s;
+	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
+	(*p_MaxTruncBeg)[j] = k;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* truncendmode */
+	(*p_TruncEndMode)[j] = s;
+	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
+	(*p_MaxTruncEnd)[j] = k;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	(*p_PivMode)[j] = s;
+	if(ReadFloat(sofile,&r,&pos) == MISSED) goto ERR;
 		(*p_PivPos)[j] = r;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_AlphaCtrlNr)[j] = s;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_AlphaCtrlChan)[j] = s;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_OkTransp)[j] = s;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_OkArticul)[j] = s;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_OkVolume)[j] = s;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_OkPan)[j] = s;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_OkMap)[j] = s;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	(*p_AlphaCtrlNr)[j] = s;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	(*p_AlphaCtrlChan)[j] = s;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	(*p_OkTransp)[j] = s;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	(*p_OkArticul)[j] = s;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	(*p_OkVolume)[j] = s;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	(*p_OkPan)[j] = s;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	(*p_OkMap)[j] = s;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 		(*p_OkVelocity)[j] = s;
-	if(ReadFloat(mifile,&r,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_PreRoll)[j] = r;
-	if(ReadFloat(mifile,&r,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_PostRoll)[j] = r;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_PreRollMode)[j] = s;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_PostRollMode)[j] = s;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_PeriodMode)[j] = s;
-	if(ReadFloat(mifile,&r,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_BeforePeriod)[j] = r;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_ForceIntegerPeriod)[j] = s;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_DiscardNoteOffs)[j] = s;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_StrikeAgain)[j] = s;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_CsoundAssignedInstr)[j] = s;
-	if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
+	if(ReadFloat(sofile,&r,&pos) == MISSED) goto ERR;
+	(*p_PreRoll)[j] = r;
+	if(ReadFloat(sofile,&r,&pos) == MISSED) goto ERR;
+	(*p_PostRoll)[j] = r;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	(*p_PreRollMode)[j] = s;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	(*p_PostRollMode)[j] = s;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	(*p_PeriodMode)[j] = s;
+	if(ReadFloat(sofile,&r,&pos) == MISSED) goto ERR;
+	(*p_BeforePeriod)[j] = r;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	(*p_ForceIntegerPeriod)[j] = s;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	(*p_DiscardNoteOffs)[j] = s;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	(*p_StrikeAgain)[j] = s;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	(*p_CsoundAssignedInstr)[j] = s;
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 		(*p_CsoundInstr)[j] = s;
-	if(ReadLong(mifile,&k,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_Tpict)[j] = k;
+	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
+	(*p_Tpict)[j] = k;
 if(iv > 21) { // These are no longer used
-	if(ReadLong(mifile,&k,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_ObjectColor)[j].red = k;
-	if(ReadLong(mifile,&k,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_ObjectColor)[j].green = k;
-	if(ReadLong(mifile,&k,&pos) == MISSED) goto ERR;
-	if(!diff) (*p_ObjectColor)[j].blue = k;
+	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
+	// (*p_ObjectColor)[j].red = k;
+	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
+	// (*p_ObjectColor)[j].green = k;
+	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
+	// (*p_ObjectColor)[j].blue = k;
 	if(trace_load_prototypes) BPPrintMessage(odInfo, "(*p_ObjectColor)[j].blue = %ld\n",k);
-	}
-else {
-	if(!diff) {
-		(*p_ObjectColor)[j].red = (*p_ObjectColor)[j].green = (*p_ObjectColor)[j].blue = -1L;
-		}
 	}
 
 (*pp_CsoundTime)[j] = NULL;
+(*p_CompiledCsoundScore)[j] = 0; // Added 2024-07-04
+(*p_CsoundSize)[j]= 0; // Added 2024-07-04
+(*pp_CsoundScore)[j] = NULL; // Added 2024-07-04
+(*pp_CsoundScoreText)[j] = NULL; // Added 2024-07-04
 
-	/* Read pp_CsoundScoreText */
-if(ReadOne(FALSE,FALSE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-StripHandle(p_line);
+// Read pp_CsoundScoreText
+if(ReadOne(FALSE,FALSE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
+// StripHandle(p_line);
 if(trace_load_prototypes) BPPrintMessage(odInfo, "line2 = %s\n",*p_line);
 
 if(Mystrcmp(p_line,"_beginCsoundScore_") != 0) goto ERR;
 
-if(ReadOne(FALSE,FALSE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
+if(ReadOne(FALSE,FALSE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 
 if(trace_load_prototypes) BPPrintMessage(odInfo, "line3 = %s\n",*p_line);
 
 if((ptr = (Handle) GiveSpace(MyGetHandleSize((Handle)p_completeline))) == NULL) goto ERR;
     (*pp_CsoundScoreText)[j] = (char**) ptr;
-MystrcpyHandleToHandle(0,&((*pp_CsoundScoreText)[j]),p_completeline);
+if(MystrcpyHandleToHandle(0,&((*pp_CsoundScoreText)[j]),p_completeline) != OK) goto ERR;
 
-if((rep=CompileObjectScore(j,&longerCsound)) != OK) {
+/* if((rep=CompileObjectScore(j,&longerCsound)) != OK) {
 	OutCsound = FALSE;
 	goto ERR;
-	}
+	} */
 Dirty[iObjects] = Dirty[wPrototype7] = FALSE;
 if(trace_load_prototypes) BPPrintMessage(odInfo,"Compiled Csound score\n");
 
-if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
+if(ReadOne(FALSE,TRUE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 if(trace_load_prototypes) BPPrintMessage(odInfo, "line4 = %s\n",*p_line);
 if(Mystrcmp(p_completeline,"_endCsoundScore_") == 0) goto READSIZE;
 else goto ERR;
 
 READSIZE:
-if(ReadInteger(mifile,&s,&pos) == MISSED) goto ERR;
+if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 if(trace_load_prototypes) BPPrintMessage(odInfo, "Size of MIDI code = %d\n",s);
 imax = s;
 	(*p_PasteDone)[j] = FALSE;
@@ -3031,10 +3051,10 @@ if(imax > 0) {
 if((*p_CsoundSize)[j] == 0) (*p_Dur)[j] = t1 = t2 = ZERO;
 if(imax > 0) {
 	for(i=0,tm=ZERO,okt1=FALSE; i < imax; i++) {
-		if(ReadLong(mifile,&k,&pos) == MISSED) goto ERR;
+		if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 	//	if(trace_load_prototypes) BPPrintMessage(odInfo, "k = %ld\n",k);
 		if(Eucl(k,256L,(unsigned long*)&t,(unsigned long*)&kk) != 0) goto ERR;
-		if(!diff) (*p_b)[i].byte = (int) kk;
+		(*p_b)[i].byte = (int) kk;
 		if(143L < kk  &&  kk < 160L) {   /* NoteOn or NoteOff */
 			t2 = t;
 			if(!okt1) {
@@ -3042,9 +3062,7 @@ if(imax > 0) {
 				t1 = t;
 				}
 			}
-		if(!diff) {
-			(*p_b)[i].time = (Milliseconds) t;
-			}
+		(*p_b)[i].time = (Milliseconds) t;
 		}
 	imax = i;
 	if(trace_load_prototypes) BPPrintMessage(odInfo, "imax = %d\n",imax);
@@ -3053,52 +3071,45 @@ if(imax > 0) {
 	if(MyDisposeHandle((Handle*)&p_b) != OK) goto ERR;
 	}
 
-if(!diff && CheckConsistency(j,TRUE) != OK) goto ERR;
+if(CheckConsistency(j,TRUE) != OK) goto ERR;
 if(trace_load_prototypes) BPPrintMessage(odInfo, "CheckConsistency is OK for j = %d\n",j);
 if(iv > 9) {
-	if(ReadOne(FALSE,TRUE,TRUE,mifile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
+	if(ReadOne(FALSE,TRUE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 	if(p_completeline == NULL) {
 		if(Beta) Alert1("=> Err. LoadObjectPrototypes(). p_completeline == NULL");
 		goto ERR;
 		}
-	if(!diff) {
-		s = MyHandleLen(p_completeline);
-		if(s > MAXFIELDCONTENT) {
-			s = MAXFIELDCONTENT;
-			(*p_completeline)[s] = '\0';
-			}
-		if((h = (Handle) GiveSpace((Size)(1+s) * sizeof(char))) == NULL) goto ERR;
-		(*pp_Comment)[j] = (char**) h;
-		MystrcpyHandleToHandle(0,&((*pp_Comment)[j]),p_completeline);
-		if(trace_load_prototypes) BPPrintMessage(odInfo, "comment for %d = %s\n\n",j,*p_completeline);
+	s = MyHandleLen(p_completeline);
+	if(s > MAXFIELDCONTENT) {
+		s = MAXFIELDCONTENT;
+		(*p_completeline)[s] = '\0';
 		}
+	if((h = (Handle) GiveSpace((Size)(1+s) * sizeof(char))) == NULL) goto ERR;
+	(*pp_Comment)[j] = (char**) h;
+	MystrcpyHandleToHandle(0,&((*pp_Comment)[j]),p_completeline);
+	if(trace_load_prototypes) BPPrintMessage(odInfo, "comment for %d = %s\n\n",j,*p_completeline);
 	}
 goto NEXTBOL;
 
 ERR:
-if(!diff) {
-	if(j > 1 && j < Jbol) ResetPrototype(j);
-	}
+if(j > 1 && j < Jbol) ResetPrototype(j);
 if(CheckEmergency() == OK) {
 	rep = MISSED;
-	sprintf(Message,"File '%s' may be corrupted or in some unknown format",
-		FileName[iObjects]);
-	Alert1(Message);
+	BPPrintMessage(odError,"=> This sound-object file may be corrupted or in some unknown format\n");
 	if(j > 1 && j < Jbol) {
-		sprintf(Message,"An error occured while reading '%s'",*((*p_Bol)[j]));
-		Println(wTrace,Message);
+		BPPrintMessage(odError,"An error occured while reading '%s'\n",*((*p_Bol)[j]));
 		}
-	Println(wTrace,
-		"You may read the file to the 'Scrap' window and try to fix inconsistencies.");
+	else BPPrintMessage(odError,"The error did not occur while reading a sound-object\n");
+	BPPrintMessage(odInfo,"You may load the sound-object file in a text editor and try to fix inconsistencies\n");
 	}
 else rep = ABORT;
 
-OUT:
+SORTIR:
 LoadOn--;
 MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
-CloseFile(mifile);
+my_fclose(sofile);
 // if(CheckEmergency() != OK) return(ABORT);
-// HideWindow(Window[wMessage]);
+// // HideWindow(Window[wMessage]);
 
 ObjectMode = ObjectTry = TRUE;
 if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end LoadObjectPrototypes = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);

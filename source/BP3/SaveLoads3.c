@@ -146,7 +146,7 @@ if(good) {
 					FlushFile(refnum);
 					MyFSClose(wAlphabet,refnum,p_spec);
 					Dirty[wAlphabet] = FALSE;
-					sprintf(Message,"Also saved '%s'",FileName[wAlphabet]);
+					my_sprintf(Message,"Also saved '%s'",FileName[wAlphabet]);
 					ShowMessage(TRUE,wMessage,Message);
 					CheckTextSize(wAlphabet);
 					}
@@ -162,7 +162,7 @@ if(good) {
 else {
 	TellError(76,io);
 	MyPtoCstr(MAXNAME,fn,LineBuff);
-	sprintf(Message,"=> Error opening '%s'",LineBuff);
+	my_sprintf(Message,"=> Error opening '%s'",LineBuff);
 	ShowMessage(TRUE,wMessage,Message);
 	return(MISSED);
 	}
@@ -488,7 +488,7 @@ int MakeFormatMenuItems(int type, NavMenuItemSpecArrayHandle* p_handle)
 }
 
 /* returns TRUE if this window can be saved in multiple formats */
-Boolean CanSaveMultipleFormats(int w)
+int CanSaveMultipleFormats(int w)
 {
 	if (w == wHelp || w == wNotice || w == wPrototype7 || w == wCsoundTables)
 		return (FALSE);
@@ -669,7 +669,7 @@ int FindMatchingFileNameExtension(/*const*/ char* name)
 }
 
 // FIXME: name and ext should be const, but Match needs to take const char * instead of char**
-Boolean MatchFileNameExtension(/*const*/ char* name, /*const*/ char* ext)
+int MatchFileNameExtension(/*const*/ char* name, /*const*/ char* ext)
 {
 	char* nameExt;
 	
@@ -711,379 +711,95 @@ int IdentifyBPFileTypeByName(/*const*/ char* name)
 	return wUnknown;
 }
 
-#if BP_CARBON_GUI_FORGET_THIS
 
-/* Attempts to determine if a file is a BP2 document, and if so, what type
-   of BP2 document.  Uses all available information starting with filetype and
-   creator codes; then examines filename prefix if any, then filename extension.
-   Finally, it (will eventually) examine the contents of the file looking for 
-   the header comments that BP2 usually writes to documents.
-   Returns the index within the gFileType array that corresponds to the document
-   type (usually the same as its window index) or it returns wUnknown (-1). */ 
-int IdentifyBPFileType(FSSpec* spec)
-{
-	OSErr err;
-	OSType thetype,thecreator;
-	FileTypeIndex typeindex;
-	int	wfindex;			// window/file index (result)
-	FInfo fndrinfo;
-	char name[64];			// FSSpec.name is a Str63
-	
-	// try to use Finder filetype code first
-	err = FSpGetFInfo(spec,&fndrinfo);
-	if (err == noErr) {
-		thetype    = fndrinfo.fdType;
-		thecreator = fndrinfo.fdCreator;
-	}
-	else  thetype = thecreator = '????';
-	
-	typeindex = MapFileTypeCodeToFileTypeIndex(thetype);
-	wfindex = FileTypeIndexToWindowFileIndex[typeindex];
-	// If wfindex is not wUnknown, then we have a positive match.
-	// Note that 'TEXT' files are "unknown" at this point.
-	if (wfindex != wUnknown)  return wfindex;
-	
-	// next try the filename's prefix or extension, if any
-	p2cstrcpy(name, spec->name);	// MyPtoCstr() converts whitespace characters
-	wfindex = IdentifyBPFileTypeByName(name);
-	if (wfindex != wUnknown)  return wfindex;	
-	
-	// here, we should examine the file contents
-	// for now, if it is a text file, we assume that it is a BP2 Data file
-	if (thetype == 'TEXT')  return wData;
-	
-	return wUnknown;
+void strip_trailing_spaces(char *str) {
+    if (str == NULL) return;
+    int len = strlen(str);
+    while (len > 0 && isspace((unsigned char)str[len - 1])) {
+        len--;
+    }
+    str[len] = '\0';
 }
 
-int PromptForFileFormat(int w, char* filename, int* type)
-{
-	sprintf(Message,"Saving %s...  In which format?", filename);
-	ShowMessage(TRUE,wMessage,Message);
-	IsHTML[w] = IsText[w] = FALSE;
-	StopWait();
-	switch(Alert(SaveAsAlert,0L)) {
-		case dBP2format:
-			break;
-		case dhtmlText:
-			IsText[w] = TRUE;
-			*type = ftiHTML;
-			IsHTML[w] = TRUE;
-			break;
-		case dhtml:
-			IsHTML[w] = TRUE;
-			break;
-		case dPlainText:
-			IsText[w] = TRUE;
-			*type = ftiText;
-			break;
-		}
-	Weird[w] = FALSE;
-	HideWindow(Window[wMessage]);
-	
-	return(OK);
+void remove_double_slash_prefix(char *str) {
+    if (strncmp(str, "//", 2) == 0) {
+        // Shift everything to the left over the "//"
+        memmove(str, str + 2, strlen(str) - 1);
+    }
 }
-
-/* CreateFile()
-   type is the file type constant (see SelectCreatorAndFileType() above).
-   
-   w is the window index used in determining the possible save formats;
-   While w is the expected index for editable text documents, document
-   types that use dialogs (e.g. Time-base) usually pass -1 (there are exceptions)
-   and document types without a dedicated window pass -1 as well. 
-   
-   wref seems to be the index for the document window if one exists,
-   otherwise it is -1. wref is used to save the temp file FSSpec when
-   doing a safe save. (Therefore, a value of -1 does an "unsafe" save. */
-int CreateFile(int wref,int w,int type,Str255 fn,NSWReply *p_reply,short *p_refnum)
-{
-int io,already;
-FSSpec spec;
-OSType thetype,thecreator;
-FInfo fndrinfo;
-char name[MAXNAME+1];
-unsigned long seconds;
-Str255 tempname;
-short tempvrefnum;
-long tempdirid;
-
-if(w < -1 || w >= WMAX) {
-	if(Beta) Alert1("=> Err. CreateFile(). Incorrect window index");
-	return(MISSED);
-	}
-spec = p_reply->sfFile;
-
-/* If not using NavServices, we may need to prompt the user for file format */
-if (!p_reply->usedNavServices) {
-	/* FileName check doesn't work when saving to a new location with
-	   the same name -- even when saving to the same location, if the
-	   user chose "Save As", then they may want to choose a new format.
-	   -- 020607 akozar */
-	/* if(w >= 0) {
-		p2cstrcpy(name,spec.name);
-		if(strcmp(name,FileName[w]) != 0) askformat = TRUE;
-		else if(IsText[w]) type = ftiText;
-		} */
-
-	// always ask for format if there are multiple choices
-	if(CanSaveMultipleFormats(w)) PromptForFileFormat(w, name, &type);
-	}
-else  if (w >= 0) {  // use the values set by PutFileEventProc
-	IsHTML[w] = p_reply->isHTML;
-	IsText[w] = p_reply->isText;
-	if (IsText[w] == TRUE && IsHTML[w] == TRUE) type = ftiHTML;
-	else if (IsText[w] == TRUE) type = ftiText;
-	Weird[w] = FALSE;
-	}
-
-SelectCreatorAndFileType(type, &thecreator, &thetype);
-
-CREATE:
-io = FSpCreate(&spec,thecreator,thetype,p_reply->sfScript);
-already = FALSE;
-if(io == dupFNErr) {
-	/* This is important: if we are replacing a file with the same name, */
-	/* we must first change its type and creator to the same ones as the new file */
-	/* otherwise the Finder may crash... */
-	FSpGetFInfo(&spec,&fndrinfo);
-	fndrinfo.fdType = thetype;
-	fndrinfo.fdCreator = thecreator;
-	FSpSetFInfo(&spec,&fndrinfo);
-	already = TRUE;
-	io = noErr;
-	}
-	
-#ifndef __POWERPC
-wref = -1;
-#endif
-
-if(io == noErr) {
-	CopyPString(fn,spec.name);
-	io = MyOpen(&spec,fsCurPerm,p_refnum);
-	if(io != noErr) {
-		if(io == opWrErr) {
-			Alert1("File is already open with write permission");
-			}
-		else {
-			sprintf(Message,"=> Err. CreateFile(). io = %ld",(long)io);
-			if(Beta) Alert1(Message);
-			}
-		return(ABORT);
-		}
-	else {
-		if(already) {
-			if(wref < 0) SetEOF((*p_refnum),0L);
-			else {
-				FSClose(*p_refnum);
-				GetDateTime(&seconds);
-				NumToString(seconds,tempname);
-			
-				// find the temporary folder;
-				// create it if necessary
-				io = FindFolder(spec.vRefNum,kTemporaryFolderType,kCreateFolder,
-						&tempvrefnum,&tempdirid);
-				if(io != noErr) goto ERR;
-				// make an FSSpec for the
-				// temporary filename
-				spec = (*p_TempFSspec)[wref];
-				io = FSMakeFSSpec(tempvrefnum,tempdirid,tempname,&spec);
-				(*p_TempFSspec)[wref] = spec;
-				if(io == fnfErr) io = noErr;
-				if(io != noErr) goto ERR;
-				io = FSpCreate(&spec,'trsh','trsh',p_reply->sfScript);
-				(*p_TempFSspec)[wref] = spec;
-				if(io != noErr) goto ERR;
-				// check for error
-			
-				// open the newly created file
-				io = FSpOpenDF(&spec,fsRdWrPerm,p_refnum);
-				if(io != noErr) goto ERR;
-				}
-			}	
-		else {
-			if(wref >= 0) {
-				(*p_TempFSspec)[wref].name[0] = 0;
-				}
-			}
-		}
-	return(OK);
-	}
-ERR:
-TellError(77,io);
-return(MISSED);
-}
-
-
-int WriteFile(int forcelf,int format,short refnum,int w,long num)
-// OBSOLETE
-/* This writes the content of the text handle in window w to the file */
-/* It also calls for HTML conversion if needed */
-{
-int i,io,len,totlen,r,less,ishtml,linefeed;
-char **h;
-long pos,posmax;
-char **p_line;
-
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("=> Err. WriteFile(). Incorrect window index");
-	return(MISSED);
-	}
-r = OK;
-h = WindowTextHandle(TEH[w]);
-less = FALSE;
-
-if(refnum == -1) {
-	if(Beta) Alert1("=> Err. WriteFile(). refnum == -1");
-	return(MISSED);
-	}
-while(num > ZERO && isspace((*h)[num-1])) {
-	num--; less = TRUE;
-	}
-if(less) num++;
-
-if(!IsHTML[w] && format == MAC) {
-	MyLock(TRUE,(Handle)h);
-	/* Beware, h is a handle! That's why we needed to lock it */
-	io = FSWrite(refnum,&num,*h);
-	MyUnlock((Handle)h);
-	if(io != noErr) {
-		TellError(78,io);
-		r = ABORT;
-		}
-	}
-else {
-	pos = ZERO; totlen = 0;
-	p_line = NULL;
-	posmax = num;
-	linefeed = FALSE;
-	do {
-		/* Read a line in the text window */
-		if(ReadLine(NO,w,&pos,posmax,&p_line,&i) != OK) goto OUT;
-		StripHandle(p_line);
-		if(linefeed) {
-			if((*p_line)[0] == '\0') {
-				r = NoReturnWriteToFile("<P>",refnum);
-				}
-			else {
-				r = NoReturnWriteToFile("<BR>",refnum);
-				linefeed = FALSE;
-				}
-			if(totlen > 80) {
-				WriteToFile(NO,DOS,"\0",refnum);
-				totlen = 0;
-				}
-			if(linefeed) {
-				linefeed = FALSE;
-				continue;
-				}
-			}
-		if(IsHTML[w]) {
-			if((len=MyHandleLen(p_line)) < 80) totlen += len;
-			else totlen = len % 80;	/* This line will be broken */
-			if((r=MacToHTML(forcelf,&p_line,NO)) != OK) break;
-			}
-			
-		MyLock(FALSE,(Handle)p_line);
-		
-		if(IsHTML[w]) {
-			r = NoReturnWriteToFile(*p_line,refnum);
-			linefeed = TRUE;
-			}
-		else  r = WriteToFile(NO,format,*p_line,refnum);
-		
-		MyUnlock((Handle)p_line);
-		}
-	while(r == OK);
-OUT:
-	MyDisposeHandle((Handle*)&p_line);
-	}
-return(r);
-}
-
-
-int ReadFile(int w, short refnum)
-// Read content of file to a text handle in window index w
-// This also calls the automatic HTML converter
-{
-char **p_buffer;
-long count,n,totalcount;
-int io,dos,html;
-
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("=> Err. ReadFile(). Incorrect window index");
-	return(MISSED);
-	}
-SetSelect(GetTextLength(w),GetTextLength(w),TEH[w]);
-if((p_buffer = (char**) GiveSpace((Size)(TEXTEDIT_MAXCHARS * sizeof(char)))) == NULL) {
-	return(ABORT);
-	}
-dos = html = FALSE; totalcount = ZERO;
-
-LoadOn++;
-
-do {
-	count = TEXTEDIT_MAXCHARS;
-	MyLock(NO,(Handle) p_buffer);
-	io = FSRead(refnum,&count,*p_buffer);
-	MyUnlock((Handle) p_buffer);
-	CleanLF(p_buffer,&count,&dos);
-	if(Editable[w]) CheckHTML(FALSE,w,p_buffer,&count,&html);
-	totalcount += count;
-	if(!WASTE_FORGET_THIS && totalcount >= TEXTEDIT_MAXCHARS) {
-		sprintf(Message, "Beware! file is larger than %d chars and cannot be entirely loaded", 
-		          TEXTEDIT_MAXCHARS);
-		if(!ScriptExecOn) Alert1(Message);
-		else Println(wTrace,Message);
-		io = eofErr;
-		}
-	MyLock(NO,(Handle) p_buffer);
-	if(io == noErr || io == eofErr) TextInsert(*p_buffer,count,TEH[w]);
-	MyUnlock((Handle) p_buffer);
-	}
-while(io == noErr);
-
-MyDisposeHandle((Handle*)&p_buffer);
-
-LoadOn--;
-
-SetSelect(ZERO,ZERO,TEH[w]);
-ShowSelect(CENTRE,w);
-AdjustTextInWindow(w);
-if(io == eofErr) {
-	IsHTML[w] = html;
-	if(!ScriptExecOn) {
-		n = GetTextLength(w);
-		if(n > ZERO) CheckTextSize(w);
-		}
-	return(OK);
-	}
-else {
-	TellError(79,io);
-	return(MISSED);
-	}
-}
-
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 int ReadOne(int bindlines,int careforhtml,int nocomment,FILE* fin,int strip,char ***pp_line,
 	char ***pp_completeline,long *p_pos)
 // Read a line in the file and save it to text handle 'pp_completeline'
 // If the line starts with "//", discard it
+// bindlines is now irrelevant
 {
-char c,oldc;
-long imax,oldcount,discount,count;
-int i,is,rep,j,jm,empty,offset,dos,firsttime,html;
-char **p_buffer, *result;
-long size;
+int i, html;
+char *buffer;
+long size, count;
+char line[1000];
+buffer = NULL;
 
 MyDisposeHandle((Handle*)pp_line);
 MyDisposeHandle((Handle*)pp_completeline);
-size = MAXLIN;
+size = 1000;
 if((*pp_line = (char**) GiveSpace((Size)size * sizeof(char))) == NULL) return(ABORT);
 if((*pp_completeline = (char**) GiveSpace((Size)size * sizeof(char))) == NULL) return(ABORT);
-empty = dos = FALSE; offset = 0;
-if((p_buffer = (char**) GiveSpace((Size)(MAXLIN * sizeof(char)))) == NULL) {
-	return(ABORT);
+
+// BPPrintMessage(odError,"pos1 = %ld\n",*p_pos);
+if(fseek(fin, *p_pos, SEEK_SET) != 0) {
+    perror("fseek failed");
+    // Handle error or exit
+    }
+	// *p_pos = ftell(fin);
+    // BPPrintMessage(odError,"pos2 = %ld\n",*p_pos);
+if(fgets(line, sizeof(line),fin) != NULL) {
+    if(ferror(fin)) {
+        fprintf(stderr, "Error reading from file.\n");
+        clearerr(fin);  // Clear the error indicator for the stream
+        }
+    remove_final_linefeed(line);
+	*p_pos = ftell(fin);
+    // BPPrintMessage(odError,"pos3 = %ld\n",*p_pos);
+	size_t lineSize = utf8_strsize(line);
+	char* newBuffer = realloc(buffer,lineSize + 2); // +1 for '\n' and +1 for '\0'
+	if(newBuffer == NULL) {
+		BPPrintMessage(odError, "=> Err. ReadOne(). newBuffer == NULL\n");
+		return MISSED;
+		}
+	buffer =  newBuffer;
+	memcpy(buffer, line, lineSize);
+	buffer[lineSize] = '\0';
+	if (lineSize == 0) {
+        char *emptyStr = strdup(""); // Handle empty file case
+        if (emptyStr != NULL) {
+            free(buffer);
+            buffer = emptyStr;
+       		}
+		else {
+            BPPrintMessage(odError, "Memory allocation failed for empty string\n");
+            free(buffer);
+            return MISSED;
+        	}
+		}
+	remove_carriage_returns(line);
+	// BPPrintMessage(odInfo,"thisline = %s\n",buffer);
+	MystrcpyStringToHandle(pp_completeline,buffer);
+	if(strip) strip_trailing_spaces(buffer);
+	if(careforhtml) {
+		count = 1L + MyHandleLen(*pp_completeline);
+		html = TRUE;
+		CheckHTML(FALSE,0,*pp_completeline,&count,&html);
+		}
+	if(nocomment) remove_double_slash_prefix(buffer);
+	MystrcpyStringToHandle(pp_line,buffer);
+    free(buffer);
+	return OK;
 	}
+return STOP;
+}
+
+/*
 discount = 0; firsttime = TRUE;
 
 RESTART:
@@ -1095,12 +811,13 @@ CleanLF(p_buffer,&count,&dos);
 // Here we cleaned the extra LF of DOS files
 
 discount = oldcount - count;
-if(discount > 0 && firsttime) *p_pos += 1;
+// if(discount > 0 && firsttime) *p_pos += 1;  2024-06-24
 firsttime = FALSE;
-if (oldcount < MAXLIN) {
+// if (oldcount < MAXLIN) {
+if(count == 0) {
 	// at end of file
 	rep = STOP;
-}
+	}
 else rep = OK;
 is = 0;
 if(offset == 0) {
@@ -1116,7 +833,6 @@ for(i=is; i < count; i++) {
 	c = (*p_buffer)[i];
 	j = i - is + offset;
 	
-	/* '�' means the line continues on the next line */
 //	if(((oldc != '�' || !bindlines) && (c == '\n' || c == '\r')) || c == '\0' || j >= (size-discount-1)) {
 	if(c == '\n' || c == '\r' || c == '\0' || j >= (size-discount-1)) { // Fixed by BB 2021-02-14
 		(*p_pos) += (i + 1);
@@ -1127,17 +843,17 @@ for(i=is; i < count; i++) {
 			size += (MAXLIN - discount);
 			if(MySetHandleSize((Handle*)pp_line,size * sizeof(char)) != OK) return(ABORT);
 			if(MySetHandleSize((Handle*)pp_completeline,size * sizeof(char)) != OK) return(ABORT);
-			offset += i - is + 1; /* Added "-is" on 9/11/00 */
+			offset += i - is + 1; 
 			oldc = c;
 			goto RESTART;
 			}
 		(**pp_line)[j] = '\0';
 		(**pp_completeline)[j] = '\0';
 		rep = OK;
-		goto OUT;
+		goto SORTIR;
 		}
 	oldc = c;
-	if(strip && (/* (c == '�' && !bindlines) || */ c == '\r')) is++; // Fixed by BB 2022-02-18
+	if(strip && (c == '\r')) is++; // Fixed by BB 2022-02-18
 	else {
 		(**pp_line)[j] = c;
 		(**pp_completeline)[j] = c;
@@ -1148,10 +864,9 @@ if(rep == STOP) {
 	(**pp_completeline)[i-is+offset] = '\0';
 	}
 
-OUT:
+SORTIR:
 MyDisposeHandle((Handle*)&p_buffer);
 
-/* Suppress trailing blanks */
 if(empty) (**pp_line)[0] = '\0';
 jm = MyHandleLen(*pp_line) - 1;
 for(j=jm; j > 0; j--) {
@@ -1168,7 +883,7 @@ if(careforhtml) {
 	}
 
 return(rep);
-}
+} */
 
 
 int ReadInteger(FILE* fin,int* p_i,long* p_pos)
@@ -1235,7 +950,7 @@ if((rep = ReadOne(FALSE,FALSE,TRUE,fin,TRUE,&p_line,&p_completeline,p_pos)) == M
 if(MyHandleLen(p_line) == 0) return(MISSED);
 i = 0; while(MySpace(c=(*p_line)[i])) i++;
 if(c != '-' && c != '+' && !isdigit(c)) {
-	sprintf(Message,"\nUnexpected characters in integer: %s",(*p_line));
+	my_sprintf(Message,"\nUnexpected characters in integer: %s",(*p_line));
 	Println(wTrace,Message);
 	rep = MISSED;
 	goto QUIT;
@@ -1246,7 +961,7 @@ MyLock(FALSE,(Handle)p_line);
 
 /* x = atol(*p_line);
 if(x < ZERO) {
-	sprintf(Message,"\nUnexpected negative integer: %ld",x);
+	my_sprintf(Message,"\nUnexpected negative integer: %ld",x);
 	Println(wTrace,Message);
 	rep = MISSED;
 	goto QUIT;
@@ -1303,7 +1018,7 @@ int NewWriteToFile(char* line,FILE* fout) {
 	char* line2;
 
 	numbytes = strlen(line);
-	sprintf(line2,"%s\n",line);
+	my_sprintf(line2,"%s\n",line);
 	written = fwrite(line2, (size_t)1, (size_t) numbytes, fout);
 	if(written < numbytes)	{
 		BPPrintMessage(odError, "=> Error while writing to file.\n");
@@ -1413,15 +1128,15 @@ n = GetTextLength(w);
 if(n > (TEXTEDIT_MAXCHARS - 100)) {
 	if (WindowFullAlertLevel[w] < 1) {	// this test cannot be in the previous 'if'
 		if(FileName[w][0] != '\0')
-			sprintf(Message,"Window '%s' is almost full",FileName[w]);
+			my_sprintf(Message,"Window '%s' is almost full",FileName[w]);
 		else
-			sprintf(Message,"Window '%s' is almost full",WindowName[w]);
+			my_sprintf(Message,"Window '%s' is almost full",WindowName[w]);
 		Alert1(Message);
 		WindowFullAlertLevel[w] = 1;	// 1 means we've warned about being almost full
 		}
 	}
 else if (n < 0) {
-	sprintf(Message, "Text has overflowed the '%s' window! Save your work and quit...", WindowName[w]);
+	my_sprintf(Message, "Text has overflowed the '%s' window! Save your work and quit...", WindowName[w]);
 	Alert1(Message);
 	EmergencyExit = TRUE;
 	WindowFullAlertLevel[w] = 3;	// 3 means overflowed
@@ -1437,7 +1152,7 @@ OSErr MyOpen(FSSpec *p_spec,char perm,short *p_refnum)
 // Open a file via its chain of aliases if necessary
 {
 OSErr io;
-Boolean targetIsFolder,wasAliased;
+int targetIsFolder,wasAliased;
 
 (*p_refnum) = -1;	// initialize fRefNum
 
@@ -1463,8 +1178,9 @@ return(io);
 int CleanLF(char** p_buffer,long* p_count,int* p_dos)
 // Remove line feeds from buffer and transcode high ASCII so that
 // DOS files may be read
+// This should be rewritten using a simple preg_replace()!
 {
-/* register */ int i,j;
+int i,j;
 char c;
 
 if(!*p_dos) {
@@ -1475,16 +1191,23 @@ if(!*p_dos) {
 				if((*p_buffer)[i+1] == '\n') {
 					*p_dos = TRUE; break;
 					}
-				else return(OK);	/* Not a DOS file */
+				else {
+		//			BPPrintMessage(odInfo,"NOT DOS\n");
+					return(OK);	/* Not a DOS file */
+					}
 				}
 			}
 		}
 	}
-if(!*p_dos) return(OK);
+if(!*p_dos) {
+//	BPPrintMessage(odInfo,"NOT DOS\n");
+	return(OK);
+	}
 
 for(i=j=0; ; i++) {
 	if(i >= *p_count) break;
 	while((c=(*p_buffer)[i+j]) == '\n' && (i == 0 || (*p_buffer)[i+j-1] == '\r')) {
+	//	BPPrintMessage(odInfo,"i = %d, j = %d, count = %d\n",i,j,*p_count);
 		j++; (*p_count)--;
 		}
 	// DOStoMac(&c); Fixed by BB 2022-02-18
@@ -1526,7 +1249,7 @@ return(OK);
    in the BP2 application folder if FindFolder() fails.  You only need to provide
    a pascal string filename and space for spec and filerefnum which are returned 
    to the caller */
-int CreateTemporaryFile(FSSpecPtr spec, short *filerefnum, StringPtr filename, Boolean deleteIfExists)
+int CreateTemporaryFile(FSSpecPtr spec, short *filerefnum, StringPtr filename, int deleteIfExists)
 {
 OSErr err;
 int rep, namecount;
@@ -1553,7 +1276,7 @@ if (err == noErr && deleteIfExists)	{	// file exists
 	if (err != noErr) {
 		if(Beta) {
 			p2cstrcpy(LineBuff, filename);
-			sprintf(Message, "Can't delete temporary file '%s'", LineBuff);
+			my_sprintf(Message, "Can't delete temporary file '%s'", LineBuff);
 			Alert1(Message);
 			}
 		}
@@ -1570,7 +1293,7 @@ if (rep == OK && err == fnfErr) {		// FSSpec is good
 	else {
 		if(Beta) {
 			p2cstrcpy(LineBuff, filename);
-			sprintf(Message, "Can't create temporary file '%s'", LineBuff);
+			my_sprintf(Message, "Can't create temporary file '%s'", LineBuff);
 			Alert1(Message);
 			}
 		return(ABORT);
@@ -1671,15 +1394,15 @@ Str255 fn;
 FIND:
 if(filename[0] != '\0') {
 	if(DocumentTypeName[w][0] != '\0' && w != wTrace)
-		sprintf(line3,"Locate '%s' or other %s file",filename,DocumentTypeName[w]);
+		my_sprintf(line3,"Locate '%s' or other %s file",filename,DocumentTypeName[w]);
 	else
-		sprintf(line3,"Locate '%s'",filename);
+		my_sprintf(line3,"Locate '%s'",filename);
 	}
 else {
 	if(DocumentTypeName[w][0] != '\0' && w != wTrace)
-		sprintf(line3,"Select a(n) %s file",DocumentTypeName[w]);
+		my_sprintf(line3,"Select a(n) %s file",DocumentTypeName[w]);
 	else
-		sprintf(line3,"Select a file");
+		my_sprintf(line3,"Select a file");
 	}
 
 ShowMessage(TRUE,wMessage,line3);
@@ -1687,12 +1410,12 @@ if(AEventOn && CallUser(1) != OK) return(ABORT);
 
 TRYOPEN:
 if(!OldFile(w,type,fn,p_spec)) {
-	HideWindow(Window[wMessage]);
+	// HideWindow(Window[wMessage]);
 	return(MISSED);
 	}
 p2cstrcpy(line2,fn);
 if(gFileType[w] != ftiAny && gFileType[w] != ftiText && IdentifyBPFileType(p_spec) != w) {
-	sprintf(Message,"BP2 is not sure that '%s' is a(n) %s file. Do you want to load it anyway",
+	my_sprintf(Message,"BP2 is not sure that '%s' is a(n) %s file. Do you want to load it anyway",
 		line2, DocumentTypeName[w]);
 	memexec = ScriptExecOn; ScriptExecOn = 0;
 	rep = Answer(Message,'Y'); // default to 'Y' in case script is running
@@ -1718,7 +1441,7 @@ if(filename[0] != '\0') {
 					}
 				/* break;
 			case ABORT:
-				HideWindow(Window[wMessage]);
+				// HideWindow(Window[wMessage]);
 				return(MISSED);
 			} */
 		}
@@ -1731,12 +1454,12 @@ else {
 		}
 	}
 InputOn++;
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 // c2pstrcpy(p_spec->name, line2);
 // FIXME ? if (!openreally), should we be calling MyOpen().  If so, how does the
 //         file get closed later ?  - akozar
 if((io=MyOpen(p_spec,fsCurPerm,p_refnum)) != noErr && io != opWrErr) {
-	sprintf(Message,"Can't open '%s'",filename);
+	my_sprintf(Message,"Can't open '%s'",filename);
 	Alert1(Message);
 	TellError(83,io);
 	InputOn--;
@@ -1745,7 +1468,7 @@ if((io=MyOpen(p_spec,fsCurPerm,p_refnum)) != noErr && io != opWrErr) {
 if(io == opWrErr) {
 	io = SetFPos(*p_refnum,fsFromStart,ZERO);
 	if(io != noErr) {
-		sprintf(Message,"Can't reopen '%s'",filename);
+		my_sprintf(Message,"Can't reopen '%s'",filename);
 		Alert1(Message);
 		TellError(84,io);
 		InputOn--;
@@ -1769,7 +1492,7 @@ FlushVolume()
 {
 IOParam pb;
 OSErr io;
-Boolean async;
+int async;
 
 async = FALSE;
 /* MacOS bombs if async is true! */
@@ -1788,7 +1511,7 @@ int FlushFile(short refnum)
 {
 IOParam pb;
 OSErr io;
-Boolean async;
+int async;
 
 pb.ioCompletion = NULL;
 async = FALSE;
@@ -1818,7 +1541,7 @@ posmax = GetTextLength(w);
 r = MISSED;
 
 REDO:
-if(ReadLine(NO,w,&pos,posmax,&p_line,&j) != OK) goto OUT;
+if(ReadLine(NO,w,&pos,posmax,&p_line,&j) != OK) goto SORTIR;
 if((*p_line)[0] == '\0') goto REDO;
 FindVersion(p_line,version);
 diff = TRUE;
@@ -1830,24 +1553,24 @@ if(diff) {
 	}
 if(fileversion > Version) {
 	// It would be unusual for VersionName[fileversion] to exist if fileversion > Version
-	sprintf(Message,
+	my_sprintf(Message,
 		"Can't use file version %s\nbecause 'BP2' version is %s.\n",
 		VersionName[fileversion],VersionName[Version]);
 	if(!ScriptExecOn) Alert1(Message);
 	else PrintBehind(wTrace,Message);
-	goto OUT;
+	goto SORTIR;
 	}
 if(fileversion >= 3) {
 	/* Delete info and date line */
 REDO2:
-	if(ReadLine(NO,w,&pos,posmax,&p_line,&j) != OK) goto OUT;
+	if(ReadLine(NO,w,&pos,posmax,&p_line,&j) != OK) goto SORTIR;
 	if((*p_line)[0] == '\0') goto REDO2;
 	}
 SetSelect(ZERO,pos,TEH[w]);
 TextDelete(w);
 r = OK;
 
-OUT:
+SORTIR:
 MyDisposeHandle((Handle*)&p_line);
 return(r);
 }
@@ -1872,7 +1595,7 @@ for(iv=0; iv < MAXVERSION; iv++)
 	if((diff = strcmp(version,VersionName[iv])) == 0) break;
 if(iv > Version && name[0] != '\0') {
 	BPPrintMessage(odError,"=> File '%s' was created with a version of BP2 more recent than %s\n",name,VersionName[Version]);
-/*	sprintf(Message,
+/*	my_sprintf(Message,
 		"File '%s' was created with a version of BP2 more recent than %s. Try to read it anyway (risky)",
 			name,VersionName[Version]);
 	rep = Answer(Message,'N'); */
@@ -1952,15 +1675,15 @@ if(refnum == -1) {
 	}
 MyPtoCstr(MAXNAME,spec.name,name);
 if(w >= 0 && IsHTML[w]) {
-	sprintf(line,"<HTML><HEAD><TITLE>%s</TITLE>",name);
+	my_sprintf(line,"<HTML><HEAD><TITLE>%s</TITLE>",name);
 	WriteToFile(NO,DOS,line,refnum);
-	sprintf(line,"<META HTTP-EQUIV=\"content-type\" CONTENT=\"text/html;charset=iso-8859-1\">");
+	my_sprintf(line,"<META HTTP-EQUIV=\"content-type\" CONTENT=\"text/html;charset=iso-8859-1\">");
 	WriteToFile(NO,DOS,line,refnum);
-	sprintf(line,"<META NAME=\"generator\" CONTENT=\"Bol Processor BP2\">");
+	my_sprintf(line,"<META NAME=\"generator\" CONTENT=\"Bol Processor BP2\">");
 	WriteToFile(NO,DOS,line,refnum);
-	sprintf(line,"<META NAME=\"keywords\" CONTENT=\"computer music, Bol Processor, BP2\">");
+	my_sprintf(line,"<META NAME=\"keywords\" CONTENT=\"computer music, Bol Processor, BP2\">");
 	WriteToFile(NO,DOS,line,refnum);
-	sprintf(line,"</HEAD><BODY BGCOLOR=\"White\">");
+	my_sprintf(line,"</HEAD><BODY BGCOLOR=\"White\">");
 	WriteToFile(NO,DOS,line,refnum);
 	}
 switch(w) {
@@ -1972,7 +1695,7 @@ switch(w) {
 	}
 if((p_line = (char**) GiveSpace((Size)(MAXLIN * sizeof(char)))) == NULL)
 	return(ABORT);
-sprintf(line,"// Bol Processor version %s",VersionName[Version]);
+my_sprintf(line,"// Bol Processor version %s",VersionName[Version]);
 if(w >= 0 && IsHTML[w]) {
 	strcat(line,"<BR>");
 	WriteToFile(NO,DOS,line,refnum);
@@ -1981,9 +1704,9 @@ else WriteToFile(NO,MAC,line,refnum);
 Date(line);
 
 if(w >= 0)
-	sprintf(Message,"// %s file saved as '%s'. %s",WindowName[w],name,line);
+	my_sprintf(Message,"// %s file saved as '%s'. %s",WindowName[w],name,line);
 else
-	sprintf(Message,"// File saved as '%s'. %s",name,line);
+	my_sprintf(Message,"// File saved as '%s'. %s",name,line);
 	
 if(w >= 0 && Editable[w] && IsHTML[w]) {
 	MystrcpyStringToHandle(&p_line,Message);
@@ -2174,7 +1897,7 @@ pascal void PutFileEventProc(NavEventCallbackMessage callBackSelector,
 	Exit:	function result = error code.
 ----------------------------------------------------------------------------*/
 
-static OSErr CopyOneFork (FSSpec *source, FSSpec *dest, Boolean resourceFork)
+static OSErr CopyOneFork (FSSpec *source, FSSpec *dest, int resourceFork)
 {
 	const Size bufferSize = 1024;
 	short sourceRefNum = 0;

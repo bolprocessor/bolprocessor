@@ -60,7 +60,7 @@ if(CheckEmergency() != OK) {
 if(GetTuning() != OK) return(ABORT);
 ResetPannel();
 #endif /* BP_CARBON_GUI_FORGET_THIS */
-SelectBehind(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
+// SelectBehind(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 if(!ScriptExecOn) PrintBehind(wTrace,"\n");
 fatal = changednumber = FALSE;
 CompiledGr = Gram.trueBP = Gram.hasTEMP = Gram.hasproc = WillRandomize = FALSE;
@@ -183,13 +183,12 @@ for(i=1; i < MAXPARAMCTRL; i++) {
 	}
 p_line = NULL;
 InitThere = 0; p_InitScriptLine = NULL;
-Deactivate(TEH[wGrammar]);
+// Deactivate(TEH[wGrammar]);
 while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
-	if(DoSystem() != OK) {
+/*	if(DoSystem() != OK) {
 		if(CompileOn) CompileOn--;
 		return(ABORT);
-		}
-	PleaseWait();
+		} */
 	if((*p_line)[0] == '\0') goto NEXTLINE;
 	if(Mystrcmp(p_line,"DATA:") == 0) break;
 	if(Mystrcmp(p_line,"COMMENT:") == 0) break;
@@ -303,17 +302,17 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
 		
 	needsnumber = FALSE; igram = 0; irul = 0;
-	MyLock(TRUE,(Handle)p_line);
+//	MyLock(TRUE,(Handle)p_line);
 	if(trace_compile_grammar) BPPrintMessage(odInfo,"Parsing: %s\n",*p_line);
 	i = ParseGrammarLine(p_line,&onerulefound,tracecompile,&igram,&irul,
 														&needsnumber,&done);
-	MyUnlock((Handle)p_line);
+//	MyUnlock((Handle)p_line);
 	if(i != 0) {
 		if(EmergencyExit || (i < 0)) {
 			MyDisposeHandle((Handle*)&p_line);
 			ReleaseGrammarSpace();
 			if(CompileOn) CompileOn--;
-			if(EmergencyExit) return(ABORT);
+			if(Panic || EmergencyExit) return(ABORT);
 			else return(i);
 			}
 		Print(wTrace,"\n");
@@ -335,38 +334,15 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	
 NEXTLINE:
 	posline = pos;
-#if BP_CARBON_GUI_FORGET_THIS
-	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-	if((r=MyButton(1)) != MISSED) {
-		Interrupted = TRUE;
-		if(r != OK) goto OUT;
-		if((r=InterruptCompile()) != OK) {
-OUT:
-			if((*(Gram.p_subgram))[Gram.number_gram].number_rule < 1) Gram.number_gram--;
-			MaxGram = Gram.number_gram;
-			for(i=1; i < MAXPARAMCTRL; i++) {
-				if(ParamInit[i] == INT_MAX) ParamInit[i] = ParamValue[i] = 127;
-				}
-			ReleaseGrammarSpace();
-			MyDisposeHandle((Handle*)&p_line);
-			if(CompileOn) CompileOn--;
-			if(r == EXIT || r == STOP) return(r);
-			return(ABORT);
-			}
-		}
-	r = OK;
-	if(EventState != NO) {
-		r = EventState; goto OUT;
-		}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 	}  // while(Readline())
 
 END:
 MyDisposeHandle((Handle*)&p_line);
-if(tracecompile) Print(wTrace,"\n");
+BPPrintMessage(odInfo,"Parsing completed\n");
+// if(tracecompile) Print(wTrace,"\n");  2024-07-03
 if(trace_compile_grammar) BPPrintMessage(odInfo,"\n");
 if((*(Gram.p_subgram))[Gram.number_gram].number_rule > MaxRul) {
-	sprintf(Message,"=> Err. number rules gram#%ld.",(long)Gram.number_gram);
+	my_sprintf(Message,"=> Err. number rules gram#%ld.",(long)Gram.number_gram);
 	if(Beta) Alert1(Message);
 	if(CompileOn) CompileOn--;
 	Panic =  TRUE; // 2024-06-18
@@ -392,8 +368,8 @@ for(i=1; i < MAXPARAMCTRL; i++) {
 if(Jflag > 0) for(i=1; i <= Jflag; i++) (*p_Flag)[i] = ZERO;
 SelectBehind(starttrace,GetTextLength(wTrace),TEH[wTrace]);
 if(changednumber) {
-/*	SelectBehind(ZERO,ZERO,TEH[wGrammar]);
-	ShowSelect(CENTRE,wGrammar); */
+	SelectBehind(ZERO,ZERO,TEH[wGrammar]);
+/*	ShowSelect(CENTRE,wGrammar); */
 	Dirty[wGrammar] = TRUE;
 	}
 
@@ -484,9 +460,9 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 			if(Pclock != 0.) {
 				if(Simplify((double)INT_MAX,(double)60L*Qclock,Pclock,&n,&d) != OK)
 					Simplify((double)INT_MAX,Qclock,floor((double)Pclock/60.),&n,&d);
-				sprintf(Message,"%s(%.4f) ",*((*p_GramProcedure)[13]),((double)n)/d);
+				my_sprintf(Message,"%s(%.4f) ",*((*p_GramProcedure)[13]),((double)n)/d);
 				}
-			else sprintf(Message,"%s(no clock) ",*((*p_GramProcedure)[13]));
+			else my_sprintf(Message,"%s(no clock) ",*((*p_GramProcedure)[13]));
 			PrintBehind(wGrammar,Message);
 			dif = strlen(Message);
 			MaintainSelectionInGrammar(pos,dif);
@@ -496,9 +472,9 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 			}
 		if(NotFoundNatureTime) {
 			if(Nature_of_time == STRIATED)
-				sprintf(Message,"%s\n",*((*p_GramProcedure)[14]));
+				my_sprintf(Message,"%s\n",*((*p_GramProcedure)[14]));
 			else
-				sprintf(Message,"%s\n",*((*p_GramProcedure)[15]));
+				my_sprintf(Message,"%s\n",*((*p_GramProcedure)[15]));
 			PrintBehind(wGrammar,Message);
 			dif = strlen(Message);
 			MaintainSelectionInGrammar(pos,dif);
@@ -515,7 +491,7 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 		if(!found) {
 PUTIT:
 			SelectBehind(posline+gap,posline+gap,TEH[wGrammar]);
-			sprintf(Message,"%s\n",SubgramType[(*(Gram.p_subgram))[igram].type]);
+			my_sprintf(Message,"%s\n",SubgramType[(*(Gram.p_subgram))[igram].type]);
 			PrintBehind(wGrammar,Message);
 			dif = strlen(Message);
 			MaintainSelectionInGrammar(posline+gap,dif);
@@ -581,7 +557,7 @@ if(Match(FALSE,&p,&q,5)) {
 		*p_changednumber = TRUE;
 		SelectBehind(pos1,pos2,TEH[wGrammar]);
 		TextDeleteBehind(wGrammar);
-		sprintf(line2,"%ld",(long)igram);
+		my_sprintf(line2,"%ld",(long)igram);
 		PrintBehind(wGrammar,line2);
 		dif = strlen(line2) - (pos2 - pos1);
 		MaintainSelectionInGrammar(pos1,dif);
@@ -603,7 +579,7 @@ else {
 	/* Insert 'gram#' and subgram index */
 	*p_changednumber = TRUE;
 	SelectBehind(posline,posline,TEH[wGrammar]);
-	sprintf(line2,"%s%ld",GRAMstring,(long)igram);
+	my_sprintf(line2,"%s%ld",GRAMstring,(long)igram);
 	PrintBehind(wGrammar,line2);
 	dif = strlen(line2);
 	MaintainSelectionInGrammar(posline,dif);
@@ -631,7 +607,7 @@ if((*p_line)[i] == '[') {
 	if(k == irul) return(OK); 	/* Index was correct */
 	SelectBehind(pos1,pos2,TEH[wGrammar]);
 	TextDeleteBehind(wGrammar);
-	sprintf(line2,"%ld",(long)irul);
+	my_sprintf(line2,"%ld",(long)irul);
 	PrintBehind(wGrammar,line2);
 	dif = strlen(line2) - (pos2 - pos1);
 	MaintainSelectionInGrammar(pos1,dif);
@@ -648,10 +624,10 @@ if((*p_line)[i] == '[') {
 else {
 /* No index found.  Insert it. */
 NOTFOUND:
-	if(insertedgram) sprintf(line2,"[%ld] ",(long)irul);
+	if(insertedgram) my_sprintf(line2,"[%ld] ",(long)irul);
 	else {
 		pos3--;
-		sprintf(line2,"[%ld]",(long)irul);
+		my_sprintf(line2,"[%ld]",(long)irul);
 		}
 	SelectBehind(pos3,pos3,TEH[wGrammar]);
 	PrintBehind(wGrammar,line2);
@@ -674,7 +650,7 @@ for(igram=1; igram <= Gram.number_gram; igram++) {
 		if((*((*(Gram.p_subgram))[igram].p_rule))[irul].repeat > 0) {
 			if((i=(*(Gram.p_subgram))[igram].type) == SUBtype ||
 					i == SUB1type || i == POSLONGtype) {
-				sprintf(Message,
+				my_sprintf(Message,
 					"=> gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
 					(long)igram,*((*p_GramProcedure)[2]));
 				N_err++;
@@ -686,7 +662,7 @@ for(igram=1; igram <= Gram.number_gram; igram++) {
 			NewIndex(&newig,&newir);
 			if((i=(*(Gram.p_subgram))[igram].type) == SUBtype ||
 					i == SUB1type || i == POSLONGtype) {
-				sprintf(Message,
+				my_sprintf(Message,
 					"=> gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
 					(long)igram,*((*p_GramProcedure)[0]));
 				N_err++;
@@ -700,7 +676,7 @@ for(igram=1; igram <= Gram.number_gram; igram++) {
 				UpdateProcedureIndex(0,igram,irul,newig,newir,0);
 				}
 			if(newig > Gram.number_gram) {
-				sprintf(Message,"gram#%ld[%ld] has incorrect grammar index in '%s'\n",
+				my_sprintf(Message,"gram#%ld[%ld] has incorrect grammar index in '%s'\n",
 					(long)igram,(long)irul,*((*p_GramProcedure)[0]));
 				N_err++;
 				Print(wTrace,Message);
@@ -709,7 +685,7 @@ for(igram=1; igram <= Gram.number_gram; igram++) {
 			else {
 				if(((i=(*(Gram.p_subgram))[newig].type) == SUBtype ||
 					i == SUB1type || i == POSLONGtype) && newir > 0) {
-					sprintf(Message,
+					my_sprintf(Message,
 						"gram#%ld[%ld] contains '%s' addressing rule in 'SUB' or 'SUB1' or 'POSLONG' subgrammar.\n",
 						(long)igram,(long)irul,*((*p_GramProcedure)[0]));
 					N_err++;
@@ -718,7 +694,7 @@ for(igram=1; igram <= Gram.number_gram; igram++) {
 					}
 				else {
 					if(newir > (*(Gram.p_subgram))[newig].number_rule) {
-						sprintf(Message,"gram#%ld[%ld] has incorrect rule index in '%s'\n",
+						my_sprintf(Message,"gram#%ld[%ld] has incorrect rule index in '%s'\n",
 							(long)igram,(long)irul,*((*p_GramProcedure)[0]));
 						N_err++;
 						Print(wTrace,Message);
@@ -732,7 +708,7 @@ for(igram=1; igram <= Gram.number_gram; igram++) {
 			NewIndex(&newig,&newir);
 			if((i=(*(Gram.p_subgram))[igram].type) == SUBtype ||
 					i == SUB1type || i == POSLONGtype) {
-				sprintf(Message,
+				my_sprintf(Message,
 					"=> gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
 					(long)igram,*((*p_GramProcedure)[1]));
 				N_err++;
@@ -746,7 +722,7 @@ for(igram=1; igram <= Gram.number_gram; igram++) {
 				UpdateProcedureIndex(1,igram,irul,newig,newir,0);
 				}
 			if(newig > Gram.number_gram) {
-				sprintf(Message,"gram#%ld[%ld] has incorrect grammar index in '%s'\n",
+				my_sprintf(Message,"gram#%ld[%ld] has incorrect grammar index in '%s'\n",
 					(long)igram,(long)irul,*((*p_GramProcedure)[1]));
 				N_err++;
 				Print(wTrace,Message);
@@ -755,7 +731,7 @@ for(igram=1; igram <= Gram.number_gram; igram++) {
 			else {
 				if(((i=(*(Gram.p_subgram))[newig].type) == SUBtype ||
 						i == SUB1type || i == POSLONGtype) && newir > 0) {
-					sprintf(Message,
+					my_sprintf(Message,
 						"gram#%ld[%ld] contains '%s' addressing rule in 'SUB' or 'SUB1' or 'POSLONG' subgrammar.\n",
 						(long)igram,(long)irul,*((*p_GramProcedure)[1]));
 					N_err++;
@@ -764,7 +740,7 @@ for(igram=1; igram <= Gram.number_gram; igram++) {
 					}
 				else {
 					if(newir > (*(Gram.p_subgram))[newig].number_rule) {
-						sprintf(Message,"gram#%ld[%ld] has incorrect rule index in '%s'\n",
+						my_sprintf(Message,"gram#%ld[%ld] has incorrect rule index in '%s'\n",
 							(long)igram,(long)irul,*((*p_GramProcedure)[1]));
 						N_err++;
 						Print(wTrace,Message);
@@ -822,9 +798,9 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 				switch(mode) {
 					case 0:
 					case 2:
-						sprintf(Message,"%ld",(long)ig); break;
+						my_sprintf(Message,"%ld",(long)ig); break;
 					case 1:
-						sprintf(Message,"%ld?",(long)ig); break;
+						my_sprintf(Message,"%ld?",(long)ig); break;
 					}
 				PrintBehind(wGrammar,Message);
 				dif = strlen(Message) - (pos2 - pos1);
@@ -837,9 +813,9 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 				switch(mode) {
 					case 0:
 					case 1:
-						sprintf(Message,"%ld",(long)ir); break;
+						my_sprintf(Message,"%ld",(long)ir); break;
 					case 2:
-						sprintf(Message,"%ld?",(long)ir); break;
+						my_sprintf(Message,"%ld?",(long)ir); break;
 					}
 				PrintBehind(wGrammar,Message);
 				dif = strlen(Message) - (pos2 - pos1);
@@ -878,7 +854,9 @@ return(OK);
 
 int CompileAlphabet(void)
 {
-int rep;
+int rep, i, j;
+int **ptr1;
+char **ptr2;
 
 if(PrototypesLoaded) return(OK);
 
@@ -893,7 +871,7 @@ if(GetTuning() != OK) return(ABORT);
 
 BPPrintMessage(odInfo,"Compiling alphabet...\n");
 if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start compilealphabet = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-if(!NoAlphabet && IsEmpty(wAlphabet) && (LoadAlphabet(-1,NULL) != OK)) goto ERR;
+if(!NoAlphabet && IsEmpty(wAlphabet) && (LoadAlphabet(-1) != OK)) goto ERR;
 // GetMiName();
 
 #if BP_CARBON_GUI_FORGET_THIS
@@ -908,18 +886,51 @@ if(GetFileNameAndLoadIt(wMIDIorchestra,wAlphabet,LoadMIDIorchestra) != OK
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
 if(ReleaseAlphabetSpace() != OK) return(ABORT);
+
 Jhomo = 0; Jbol = 2;	/* Counting will not include "_" and "-" */
 
-if((rep=ReadAlphabet(TRUE)) != OK){		/* Just count */
-	Jbol = Jhomo = 0;
-	goto ERR;
-	}
-BolsInGrammar = AddBolsInGrammar();
-Jbol = Jbol + BolsInGrammar;
-if((rep=GetAlphabetSpace()) != OK) {	/* This creates "_" and "-" */
+if((rep=GetAlphabetSpace()) != OK) {	// This creates "_" and "-"
 	ReleaseAlphabetSpace();
 	goto ERR;
 	}
+if((rep=ReadAlphabet(TRUE)) != OK){		/* Just count */
+	ReleaseAlphabetSpace();
+	goto ERR;
+	}
+if(Jhomo > 0) {
+	if(trace_compile_alphabet) BPPrintMessage(odInfo,"Found %d homomorphism(s)\n",Jhomo);
+	if((p_Image = (int****) GiveSpace((Size)(Jhomo) * sizeof(int**))) == NULL)
+		return(ABORT);
+	if((p_NoteImage = (int****) GiveSpace((Size)(Jhomo) * sizeof(int**))) == NULL)
+		return(ABORT);
+	if((p_Homo = (char****) GiveSpace((Size)(Jhomo) * sizeof(char**))) == NULL) return(ABORT);
+	for(i=0; i < Jhomo; i++) {
+		if((ptr2 = (char**) GiveSpace((Size)HOMOSIZE)) == NULL) return(ABORT);
+		(*p_Homo)[i] = ptr2;
+		MystrcpyStringToTable(p_Homo,i,"\0");
+		if((ptr1 = (int**) GiveSpace((Size)(Jbol) * sizeof(int))) == NULL) return(ABORT);
+		(*p_Image)[i] = ptr1;
+		/* Every homomorphism is set to identity */
+		for(j=0; j < Jbol; j++) (*((*p_Image)[i]))[j] = j;
+		if((ptr1 = (int**) GiveSpace((Size)(128) * sizeof(int))) == NULL) return(ABORT);
+		(*p_NoteImage)[i] = ptr1;
+		/* Every homomorphism is set to identity */
+		for(j=0; j < 128; j++) (*((*p_NoteImage)[i]))[j] = 16384 + j;
+		}
+	}
+BolsInGrammar = AddBolsInGrammar();
+Jbol = Jbol + BolsInGrammar;
+if(trace_compile_alphabet) BPPrintMessage(odInfo,"Jbol = %d, BolsInGrammar = %d\n",Jbol,BolsInGrammar);
+Jhomo = 0;
+
+MakeSoundObjectSpace(); // 2024-07-05
+
+/* if((rep=GetAlphabetSpace()) != OK) {	// This creates "_" and "-"
+	ReleaseAlphabetSpace();
+	goto ERR;
+	} */
+
+Jbol = 2;
 if((rep=ReadAlphabet(FALSE)) != OK) {	/* Now creating bols */
 	ReleaseAlphabetSpace();
 	goto ERR;
@@ -934,168 +945,167 @@ return(rep);
 }
 
 
-int ReadAlphabet(int justcount)
-{
-long pos,posmax;
-char *q,**p_line,line[MAXLIN],operatorbetweenquotes[MAXLIN];
-int done,foundoperator,foundoperatorthere,fatal,i,operatorinline,
-	miknown=FALSE,inknown=FALSE,kbknown=FALSE,glknown=FALSE,tbknown=FALSE,
-	csknown=FALSE,orknown=FALSE,rep,gap;
+int ReadAlphabet(int justcount) {
+	long pos,posmax;
+	char *q,**p_line,line[MAXLIN],operatorbetweenquotes[MAXLIN];
+	int done,foundoperator,foundoperatorthere,fatal,i,operatorinline,
+		miknown=FALSE,inknown=FALSE,kbknown=FALSE,glknown=FALSE,tbknown=FALSE,
+		csknown=FALSE,orknown=FALSE,rep,gap;
 
-pos = ZERO; done = foundoperator = FALSE;
-posmax = GetTextLength(wAlphabet);
+	pos = ZERO; done = foundoperator = FALSE;
+	posmax = GetTextLength(wAlphabet);
 
-CompileOn++;
+	CompileOn++;
 
-p_line = NULL;
-sprintf(operatorbetweenquotes,"\'%s\'",Arrowstring);
-while(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
-	if((*p_line)[0] != '\0' && strstr(*p_line,Arrowstring) != NULLSTR
-			&& strstr(*p_line,operatorbetweenquotes) == NULLSTR) {
-		/*  Arrow is there and it is not between single quotes (check is incomplete) $$$ */
-		foundoperator = TRUE;
-		break;
-		}
-	}
-MyDisposeHandle((Handle*)&p_line);
-pos = ZERO; foundoperatorthere = FALSE;
-while(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
-	if((*p_line)[0] == '\0' || (*p_line)[0] == '\r') goto NEXTLINE;
-	if(trace_compile_alphabet) BPPrintMessage(odInfo,"Reading: %s\n",(*p_line));
-	operatorinline = FALSE;
-	MystrcpyHandleToString(MAXLIN,0,line,p_line);
-	adjust_prefix(line); // Added 2024-06-13
-	strcpy(*p_line, line);
-	if(strstr(line,Arrowstring) != NULLSTR && strstr(line,operatorbetweenquotes) == NULLSTR)
-		foundoperatorthere = operatorinline = TRUE;
-	if(!inknown) {
-		q = &(FilePrefix[wInteraction][0]);
-		if(Match(TRUE,p_line,&q,4)) {
-			inknown = TRUE; goto NEXTLINE;
+	p_line = NULL;
+	my_sprintf(operatorbetweenquotes,"\'%s\'",Arrowstring);
+	while(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
+		if((*p_line)[0] != '\0' && strstr(*p_line,Arrowstring) != NULLSTR
+				&& strstr(*p_line,operatorbetweenquotes) == NULLSTR) {
+			/*  Arrow is there and it is not between single quotes (check is incomplete) $$$ */
+			foundoperator = TRUE;
+			break;
 			}
 		}
-	if(!glknown) {
-		q = &(FilePrefix[wGlossary][0]);
-		if(Match(TRUE,p_line,&q,4)) {
-			glknown = TRUE; goto NEXTLINE;
-			}
-		}
-	if(!miknown) {
-		q = &(FilePrefix[iObjects][0]);
-		if(Match(TRUE,p_line,&q,4)) {
-			miknown = TRUE; goto NEXTLINE;
-			}
-		}
-	if(!kbknown) {
-		q = &(FilePrefix[wKeyboard][0]);
-		if(Match(TRUE,p_line,&q,4)) {
-			kbknown = TRUE; goto NEXTLINE;
-			}
-		}
-	if(!csknown) {
-		q = &(FilePrefix[wCsoundResources][0]);
-		if(Match(TRUE,p_line,&q,4)) {
-			csknown = TRUE; goto NEXTLINE;
-			}
-		}
-	if(!orknown) {
-		q = &(FilePrefix[wMIDIorchestra][0]);
-		if(Match(TRUE,p_line,&q,4)) {
-			orknown = TRUE; goto NEXTLINE;
-			}
-		}
-	if(!tbknown) {
-		q = &(FilePrefix[wTimeBase][0]);
-		if(Match(TRUE,p_line,&q,4)) {
-			tbknown = TRUE; goto NEXTLINE;
-			}
-		}
-#if BP_CARBON_GUI_FORGET_THIS
-	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-	if(!justcount && (rep=MyButton(1)) != MISSED) {
-		if(rep != OK || (rep=InterruptCompile()) != OK) {
-			MyDisposeHandle((Handle*)&p_line);
-			if(CompileOn) CompileOn--;
-			return(rep);
-			}
-		}
-	rep = OK;
-	if(EventState != NO) {
-		MyDisposeHandle((Handle*)&p_line);
-		if(CompileOn) CompileOn--;
-		return(EventState);
-		}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-	if(Mystrcmp(p_line,"TIMEPATTERNS:") == 0) {
-		do {
-			if(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) != OK) goto END;
-			if((*p_line)[0] == '\0') {
-				goto NEXTLINE;
+	MyDisposeHandle((Handle*)&p_line);
+	pos = ZERO; foundoperatorthere = FALSE;
+	while(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
+		if((*p_line)[0] == '\0' || (*p_line)[0] == '\r') goto NEXTLINE;
+		if(trace_compile_alphabet) BPPrintMessage(odInfo,"Reading: %s\n",(*p_line));
+		operatorinline = FALSE;
+		MystrcpyHandleToString(MAXLIN,0,line,p_line);
+		adjust_prefix(line); // Added 2024-06-13
+		strcpy(*p_line, line);
+		if(strstr(line,Arrowstring) != NULLSTR && strstr(line,operatorbetweenquotes) == NULLSTR)
+			foundoperatorthere = operatorinline = TRUE;
+		if(!inknown) {
+			q = &(FilePrefix[wInteraction][0]);
+			if(Match(TRUE,p_line,&q,4)) {
+				inknown = TRUE; goto NEXTLINE;
 				}
 			}
-		while((*p_line)[0] != '-' || (*p_line)[1] != '-');
-		goto NEXTLINE;
-		}
-	if(foundoperator && !done) {
-		done = TRUE;
-		if(strstr(line,Arrowstring) != NULLSTR && strstr(line,operatorbetweenquotes) == NULLSTR) {
-			Print(wTrace,"??? "); Print(wTrace,line);
-			Println(wTrace,"  This line is expected to contain a homomorphism label only.");
-			if(CompileOn) CompileOn--;
-			MyDisposeHandle((Handle*)&p_line);
-			return(ABORT);
+		if(!glknown) {
+			q = &(FilePrefix[wGlossary][0]);
+			if(Match(TRUE,p_line,&q,4)) {
+				glknown = TRUE; goto NEXTLINE;
+				}
 			}
-		if((i=GetHomomorph(p_line,justcount)) > 0) {
-			N_err++;
-			Print(wTrace,"??? "); Println(wTrace,line);
-			if((fatal=ShowError(i,0,0))) {
+		if(!miknown) {
+			q = &(FilePrefix[iObjects][0]);
+			if(Match(TRUE,p_line,&q,4)) {
+				miknown = TRUE; goto NEXTLINE;
+				}
+			}
+		if(!kbknown) {
+			q = &(FilePrefix[wKeyboard][0]);
+			if(Match(TRUE,p_line,&q,4)) {
+				kbknown = TRUE; goto NEXTLINE;
+				}
+			}
+		if(!csknown) {
+			q = &(FilePrefix[wCsoundResources][0]);
+			if(Match(TRUE,p_line,&q,4)) {
+				csknown = TRUE; goto NEXTLINE;
+				}
+			}
+		if(!orknown) {
+			q = &(FilePrefix[wMIDIorchestra][0]);
+			if(Match(TRUE,p_line,&q,4)) {
+				orknown = TRUE; goto NEXTLINE;
+				}
+			}
+		if(!tbknown) {
+			q = &(FilePrefix[wTimeBase][0]);
+			if(Match(TRUE,p_line,&q,4)) {
+				tbknown = TRUE; goto NEXTLINE;
+				}
+			}
+	#if BP_CARBON_GUI_FORGET_THIS
+		// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
+		if(!justcount && (rep=MyButton(1)) != MISSED) {
+			if(rep != OK || (rep=InterruptCompile()) != OK) {
+				MyDisposeHandle((Handle*)&p_line);
+				if(CompileOn) CompileOn--;
+				return(rep);
+				}
+			}
+		rep = OK;
+		if(EventState != NO) {
+			MyDisposeHandle((Handle*)&p_line);
+			if(CompileOn) CompileOn--;
+			return(EventState);
+			}
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+		if(Mystrcmp(p_line,"TIMEPATTERNS:") == 0) {
+			do {
+				if(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) != OK) goto END;
+				if((*p_line)[0] == '\0') {
+					goto NEXTLINE;
+					}
+				}
+			while((*p_line)[0] != '-' || (*p_line)[1] != '-');
+			goto NEXTLINE;
+			}
+		if(foundoperator && !done) {
+			done = TRUE;
+			if(strstr(line,Arrowstring) != NULLSTR && strstr(line,operatorbetweenquotes) == NULLSTR) {
+				Print(wTrace,"??? "); Print(wTrace,line);
+				Println(wTrace,"  This line is expected to contain a homomorphism label only.");
 				if(CompileOn) CompileOn--;
 				MyDisposeHandle((Handle*)&p_line);
 				return(ABORT);
 				}
-			}
-		if(trace_compile_alphabet) BPPrintMessage(odInfo,"\nFound homomorphism operator: %s\n",(*p_line));
-		}
-	else {
-		if((*p_line)[0] == '-' && (*p_line)[1] == '-') {
-			done = FALSE;
-			if(!foundoperatorthere) {
-				Print(wTrace,"=> Error in alphabet: section should contain the definition of an homomorphism.");
-				if(CompileOn) CompileOn--;
-				MyDisposeHandle((Handle*)&p_line);
-				return(ABORT);
-				}
-			foundoperatorthere = FALSE;
-			}
-		else {
-			if((i=GetBols(p_line,justcount,operatorinline)) != 0) {
+			if((i=GetHomomorph(p_line,justcount)) > 0) {
 				N_err++;
-				if(i == ABORT) goto BAD;
 				Print(wTrace,"??? "); Println(wTrace,line);
 				if((fatal=ShowError(i,0,0))) {
-BAD:
-					MyDisposeHandle((Handle*)&p_line);
 					if(CompileOn) CompileOn--;
+					MyDisposeHandle((Handle*)&p_line);
 					return(ABORT);
 					}
 				}
+			if(trace_compile_alphabet) BPPrintMessage(odInfo,"\nFound homomorphism operator: %s\n",(*p_line));
 			}
+		else {
+			if((*p_line)[0] == '-' && (*p_line)[1] == '-') {
+				done = FALSE;
+				if(!foundoperatorthere) {
+					Print(wTrace,"=> Error in alphabet: section should contain the definition of an homomorphism.");
+					if(CompileOn) CompileOn--;
+					MyDisposeHandle((Handle*)&p_line);
+					return(ABORT);
+					}
+				foundoperatorthere = FALSE;
+				}
+			else {
+				if((i=GetBols(p_line,justcount,operatorinline)) != 0) {
+					N_err++;
+					if(i == ABORT) goto BAD;
+					Print(wTrace,"??? "); Println(wTrace,line);
+					if((fatal=ShowError(i,0,0))) {
+	BAD:
+						MyDisposeHandle((Handle*)&p_line);
+						if(CompileOn) CompileOn--;
+						return(ABORT);
+						}
+					}
+				}
+			}
+	NEXTLINE: ;
 		}
-NEXTLINE: ;
+		
+	END:
+	MyDisposeHandle((Handle*)&p_line);
+	if(CompileOn) CompileOn--;
+	if(Jbol < 3) NoAlphabet = TRUE;
+	else NoAlphabet = FALSE;
+	if(N_err) {
+		if(!ScriptExecOn) Alert1("Alphabet is incorrect...");
+		else PrintBehindln(wTrace,"Alphabet is incorrect...");
+		return(MISSED);
+		}
+	else return(OK);
 	}
-	
-END:
-MyDisposeHandle((Handle*)&p_line);
-if(CompileOn) CompileOn--;
-if(Jbol < 3) NoAlphabet = TRUE;
-else NoAlphabet = FALSE;
-if(N_err) {
-	if(!ScriptExecOn) Alert1("Alphabet is incorrect...");
-	else PrintBehindln(wTrace,"Alphabet is incorrect...");
-	return(MISSED);
-	}
-else return(OK);
-}
 
 
 int AddBolsInGrammar(void)
@@ -1157,14 +1167,14 @@ char c,**p_y,*p,*q;
 int i,j,k,k1,k2,l,length,r;
 
 l = MyHandleLen(p_line)-1;
-if(trace_compile_alphabet) BPPrintMessage(odInfo, "Starting GetBols() l = %d\n",l);
+if(trace_compile_alphabet) BPPrintMessage(odInfo, "Starting GetBols(%s) length of line = %d\n",(*p_line),l);
 if((p_y = (char**) GiveSpace((Size)((BOLSIZE+1) * sizeof(char)))) == NULL) {
 	return(26);
 	}
 r = 0;
 for(i=0,k1=0; i <= l;) {
 	if((length=GetBol(p_line,&i)) > BOLSIZE) {
-		sprintf(Message,"\nMaximum length: %ld chars.\n",(long)BOLSIZE);
+		my_sprintf(Message,"\nMaximum length: %ld chars.\n",(long)BOLSIZE);
 		Print(wTrace,Message);
 		if(trace_compile_alphabet) BPPrintMessage(odError,Message);
 	//	ShowError(22,0,0);
@@ -1179,7 +1189,7 @@ for(i=0,k1=0; i <= l;) {
 	j = i + length;
 	c = (*p_line)[j];
 	if(!isspace(c) && c != '\0') {
-		sprintf(Message,"Can't accept character \"%c\" in alphabet\n",c);
+		my_sprintf(Message,"Can't accept character \"%c\" in alphabet\n",c);
 		Print(wTrace,Message);
 		if(trace_compile_alphabet) BPPrintMessage(odError,"Can't accept character \"%c\" in alphabet. length = %d\n",c,length);
 		r = ABORT; goto QUIT;
@@ -1205,7 +1215,7 @@ for(i=0,k1=0; i <= l;) {
 	if(operatorthere) {
 		p = &((*p_line)[j]); q = &Arrowstring[0];
 		if(!Match(TRUE,&p,&q,3)) {
-			sprintf(Message,"'-->' not found!\n");
+			my_sprintf(Message,"'-->' not found!\n");
 			Print(wTrace,Message);
 			r = 24; goto QUIT;
 			}
@@ -1259,8 +1269,9 @@ while(TRUE) {
 	i++;
 	}
 line[j] = '\0';
+(*p_Type)[j] = 0;
 if(trace_compile_alphabet) BPPrintMessage(odError,"Can't make sense of \"%s\"\n",line);
-sprintf(Message,"Can't make sense of \"%s\"\n",line);
+my_sprintf(Message,"Can't make sense of \"%s\"\n",line);
 Print(wTrace,Message);
 return(-1);
 }
@@ -1318,109 +1329,104 @@ return(NO);
 }
  
 
-int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int type)
-{
-int j,ln,diff,jmax,cv,compiledptmem,dirtyalphabetmem;
-char **ptr,****p_t,*q,line[MAXLIN];
-// char **ptr,*q,line[MAXLIN];
-// char **p_t[MAXBOL];
+int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int type) {
+	int j,ln,diff,jmax,cv,compiledptmem,dirtyalphabetmem;
+	char **ptr,****p_t,*q,line[MAXLIN];
+	// char **ptr,*q,line[MAXLIN];
+	// char **p_t[MAXBOL];
 
-if(trace_compile_alphabet) BPPrintMessage(odInfo, "CreateBol() Jbol = %d\n",Jbol);
-if(type == BOL) {
-	jmax = Jbol; p_t = p_Bol;
-	}
-else {
-	jmax = Jpatt; p_t = p_Patt;
-	}
-if(justcount) {
-	jmax++;
-	if(type == BOL) Jbol = jmax;
-	else Jpatt = jmax;
-	return(0);
-	}
-diff = TRUE;
-for(j=0; j < MAXNIL; j++) {
-	if(Mystrcmp(p_x,NilString[j]) == 0) {
-		ShowError(54,0,0);
-		return(ABORT);
-		}
-	}
-if(trace_compile_alphabet) BPPrintMessage(odInfo, "jmax = %d\n",jmax);
-if(jmax > 0) {
-	if(p_t == NULL) {
-		if(Beta) Alert1("=> Err. CreateBol(). p_t == NULL");
-		return(ABORT);
-		}
-	for(j=0; j < jmax; j++) {
-		if((diff = MyHandlecmp((*p_t)[j],p_x)) == 0) break;
-		}
-	}
-if(diff && checknotes) {
-	/* Maybe it's a simple note */
-	cv = NoteConvention;
-	if(trace_compile_alphabet) BPPrintMessage(odInfo, "Checking notes, convention = %d\n",cv);
-	for(j=0; j < 128; j++) {
-		MystrcpyHandleToString(MAXLIN,0,line,(*(p_NoteName[cv]))[j]);
-		q = &(line[0]); ln = strlen(line);
-		if(Match(TRUE,p_x,&q,ln) && !isdigit((*p_x)[ln])) {
-FOUNDNOTE:
-			j += (C4key - 60);
-			if(j < 0 || j > 127) {
-				BPPrintMessage(odError, "=> A simple note is out of range. Probably wrong value of C4 key number = %ld\n",(long)C4key);
-				return(ABORT);
-				}
-			return(j+16384);
-			}
-		}
-	for(j=0; j < 128; j++) {
-		MystrcpyHandleToString(MAXLIN,0,line,(*(p_AltNoteName[cv]))[j]);
-		q = &(line[0]); ln = strlen(line);
-		if(Match(TRUE,p_x,&q,ln) && !isdigit((*p_x)[ln])) {
-			goto FOUNDNOTE;
-			}
-		}
-	}
-if(diff) {
-	j = jmax;
-	if(trace_compile_alphabet) BPPrintMessage(odInfo, "Creating Bol %d = %s\n",j,*p_x);
+	if(trace_compile_alphabet) BPPrintMessage(odInfo, "CreateBol() Jbol = %d\n",Jbol);
 	if(type == BOL) {
-		if(reload) ObjectMode = ObjectTry = FALSE;
-	//	dirtyalphabetmem = Dirty[wAlphabet];
-		if(Mystrcmp(p_x,"'-->'") == 0) Jfunc = j;
-	/*	if(mark) {
-			if(ReleaseObjectPrototypes() != OK) return(ABORT);
-			Jbol = jmax + 1;
-			if(CheckTerminalSpace() != OK) return(ABORT);
-			p_t = p_Bol;
-			compiledptmem = CompiledPt;
-			SelectBehind(GetTextLength(wAlphabet),GetTextLength(wAlphabet),
-																		TEH[wAlphabet]);
-			sprintf(Message,"\n%s",*p_x);
-			PrintBehind(wAlphabet,Message);
-			CompiledAl = TRUE;
-			Dirty[wAlphabet] = dirtyalphabetmem;
-			CompiledPt = compiledptmem;
-			ShowMessage(TRUE,wMessage,"New terminal symbols have been created.");
-			}*/
+		jmax = Jbol; p_t = p_Bol;
 		}
-//	BPPrintMessage(odInfo, "size = %ld\n",(long)MyHandleLen(p_x));
-	if((ptr=(char**) GiveSpace((Size)MyHandleLen(p_x)+1)) == NULL) return(ABORT);
-	(*p_t)[jmax] = ptr;
-//	BPPrintMessage(odInfo, "j = %d\n",jmax);
-	MystrcpyHandleToHandle(0,&((*p_t)[jmax]),p_x);
-	jmax++;
-//	BPPrintMessage(odInfo, "jmax = %d\n",jmax);
+	else {
+		jmax = Jpatt; p_t = p_Patt;
+		}
+	if(justcount) {
+		jmax++;
+		if(type == BOL) Jbol = jmax;
+		else Jpatt = jmax;
+		return(0);
+		}
+	if(p_t == NULL) {
+		BPPrintMessage(odError, "=> Err. CreateBol(). p_t == NULL\n");
+		return ABORT;
+		}
+	diff = TRUE;
+	for(j=0; j < MAXNIL; j++) {
+		if(Mystrcmp(p_x,NilString[j]) == 0) {
+			ShowError(54,0,0);
+			return(ABORT);
+			}
+		}
+	if(trace_compile_alphabet) BPPrintMessage(odInfo, "jmax = %d\n",jmax);
+	if(jmax > 0) {
+		if(p_t == NULL) {
+			if(Beta) Alert1("=> Err. CreateBol(). p_t == NULL");
+			return(ABORT);
+			}
+		for(j=0; j < jmax; j++) {
+			if((MyHandlecmp((*p_t)[j],p_x)) == 0) {
+				diff = 0;
+				break;
+				}
+			}
+		}
+	if(diff && checknotes) {
+		/* Maybe it's a simple note */
+		cv = NoteConvention;
+		if(trace_compile_alphabet) BPPrintMessage(odInfo, "Checking notes, convention = %d\n",cv);
+		for(j=0; j < 128; j++) {
+			MystrcpyHandleToString(MAXLIN,0,line,(*(p_NoteName[cv]))[j]);
+			q = &(line[0]); ln = strlen(line);
+			if(Match(TRUE,p_x,&q,ln) && !isdigit((*p_x)[ln])) {
+	FOUNDNOTE:
+				j += (C4key - 60);
+				if(j < 0 || j > 127) {
+					BPPrintMessage(odError, "=> A simple note is out of range. Probably wrong value of C4 key number = %ld\n",(long)C4key);
+					return(ABORT);
+					}
+				return(j+16384);
+				}
+			}
+		for(j=0; j < 128; j++) {
+			MystrcpyHandleToString(MAXLIN,0,line,(*(p_AltNoteName[cv]))[j]);
+			q = &(line[0]); ln = strlen(line);
+			if(Match(TRUE,p_x,&q,ln) && !isdigit((*p_x)[ln])) {
+				goto FOUNDNOTE;
+				}
+			}
+		}
+	if(diff) {
+		j = jmax;
+		if(trace_compile_alphabet) {
+			if(type == BOL) BPPrintMessage(odInfo, "Creating Bol[%d] = %s\n",j,*p_x);
+			else BPPrintMessage(odInfo, "Creating Patt[%d] = %s\n",j,*p_x);
+			}
+		if(type == BOL) {
+			if(reload) ObjectMode = ObjectTry = FALSE;
+		//	if(Mystrcmp(p_x,"'-->'") == 0) Jfunc = j;
+			}
+	//	BPPrintMessage(odInfo, "size of bol = %ld, j = %d\n",(long)MyHandleLen(p_x),j);
+		if((ptr=(char**) GiveSpace((Size)MyHandleLen(p_x)+1)) == NULL) return(ABORT);
+		(*p_t)[j] = ptr;
+	//	BPPrintMessage(odInfo, "j = %d, Jbol = %d\n",j,Jbol);
+		MystrcpyHandleToHandle(0,&((*p_t)[j]),p_x);
+		if(type == BOL && j > 1 && j <= Jbol) (*p_Type)[j] = 0;
+		jmax++;
+		}
+	else if(type == PATTERN) {
+		my_sprintf(Message,"\nCan't accept this as a time-pattern: %s\n",*p_x);
+		Print(wTrace,Message);
+		ShowError(48,0,0);
+		return(ABORT);
+		}
+	if(type == BOL) {
+		Jbol = jmax;
+		}
+	else Jpatt = jmax;
+	return(j);
 	}
-else if(type == PATTERN) {
-	sprintf(Message,"\nCan't accept %s\n",*p_x);
-	Print(wTrace,Message);
-	ShowError(48,0,0);
-	return(ABORT);
-	}
-if(type == BOL) Jbol = jmax;
-else Jpatt = jmax;
-return(j);
-}
 
 
 int ParseGrammarLine(char** p_line,int *p_onerulefound,int tracecompile,int *p_igram,
@@ -1453,21 +1459,21 @@ if((*p_line)[0] == '-' && (*p_line)[MyHandleLen(p_line)-1] == '-') {
 if(newsubgram) {
 	*p_done = TRUE;
 	if((*(Gram.p_subgram))[igram].number_rule > MaxRul) {
-		sprintf(Message,
+		my_sprintf(Message,
 			"=> Err. number rules gram#%ld. ",(long)Gram.number_gram);
 		if(Beta) Alert1(Message);
 		N_err++; return(2);
 		}
 	if(tracecompile) Print(wTrace,"------------------------\n");
 	if((++Gram.number_gram) > MaxGram) {
-		sprintf(Message,"=> Err. number grams = %ld  MaxGram = %ld. ",
+		my_sprintf(Message,"=> Err. number grams = %ld  MaxGram = %ld. ",
 				(long)Gram.number_gram,(long)MaxGram);
 		if(Beta) Alert1(Message);
 		N_err++; return(1);
 		}
 	*p_igram = ++igram;
 	(*(Gram.p_subgram))[igram].number_rule = *p_irul = 0;
-	sprintf(Message,"Compiling subgrammar #%ld...",(long)igram);
+	my_sprintf(Message,"Compiling subgrammar #%ld...",(long)igram);
 	ShowMessage(TRUE,wMessage,Message);
 	(*(Gram.p_subgram))[igram].type = RNDtype;
 	(*(Gram.p_subgram))[igram].oldindex = 0;
@@ -1617,7 +1623,7 @@ if((**ptr) == '<' || (**ptr) == '\334') {
 			i = - w - 1;
 			NotBPCase[5] = TRUE;
 			if(i < 1 || i >= MAXPARAMCTRL) {
-				sprintf(Message,"'<K%ld>' not accepted.  Range [1,%ld]\n",
+				my_sprintf(Message,"'<K%ld>' not accepted.  Range [1,%ld]\n",
 					(long)i,(long)MAXPARAMCTRL-1);
 				Print(wTrace,Message);
 				return(20);
@@ -1627,7 +1633,7 @@ if((**ptr) == '<' || (**ptr) == '\334') {
 				}
 			else {	/* Found '<Kx=y>' */
 				if(initparam < 0) {
-					sprintf(Message,"Negative weight '<K%ld=%ld>' not allowed...\n",
+					my_sprintf(Message,"Negative weight '<K%ld=%ld>' not allowed...\n",
 						(long)i,(long)initparam);
 					Print(wTrace,Message);
 					return(20);
@@ -1636,7 +1642,7 @@ if((**ptr) == '<' || (**ptr) == '\334') {
 					ParamInit[i] = ParamValue[i] = (int) initparam;
 				else {
 					if(ParamInit[i] != initparam) {
-						sprintf(Message,
+						my_sprintf(Message,
 							"Initial value of '<K%ld>' already set to %ld...\n",
 								(long)i,(long)ParamInit[i]);
 						Print(wTrace,Message);
@@ -1648,7 +1654,7 @@ if((**ptr) == '<' || (**ptr) == '\334') {
 		else {
 			if(w == INT_MIN) w = INT_MAX;
 			if(w < 0) {
-				sprintf(Message,"Negative weight '<%ld>' not allowed...\n",(long)w);
+				my_sprintf(Message,"Negative weight '<%ld>' not allowed...\n",(long)w);
 				Print(wTrace,Message);
 				return(20);
 				}
@@ -1719,7 +1725,7 @@ if(h_flag != NULL) NotBPCase[6] = TRUE;
 if((i = FindLeftoffset(pp_leftp,pp_rightp,&lenc)) == -1) {
 	(*((*(Gram.p_subgram))[igram].p_rule))[irul].leftoffset = 0;
 	(*((*(Gram.p_subgram))[igram].p_rule))[irul].leftnegcontext = 0;
-	sprintf(Message,"Can't have only negative contexts in argument!\n");
+	my_sprintf(Message,"Can't have only negative contexts in argument!\n");
 	Print(wTrace,Message);
 	return(15);
 	}
@@ -1729,7 +1735,7 @@ i = FindRightoffset(pp_leftp,pp_rightp,&lenarg);
 (*((*(Gram.p_subgram))[igram].p_rule))[irul].rightoffset = i;
 if((i=NumberWildCards(pp_leftp)) < (j=NumberWildCards(pp_rightp))) {
 	ShowError(29,igram,irul);
-	sprintf(Message,"(left side %ld, right side %ld)\n",(long)i,(long)j);
+	my_sprintf(Message,"NumberWildCards left side (%ld) is less than on right side (%ld)\n",(long)i,(long)j);
 	Print(wTrace,Message);
 	N_err++;
 	}
@@ -1758,11 +1764,11 @@ static char *err[] = {
 
 if(!CompiledGr || Gram.trueBP) return(OK);
 BPActivateWindow(SLOW,wTrace);
-sprintf(Message,"\nThis is not a true BP grammar.\nThe following features are not standard:\n");
+my_sprintf(Message,"\nThis is not a true BP grammar.\nThe following features are not standard:\n");
 Print(wTrace,Message);
 for(i=0; i < MAXNOTBPCASES; i++) {
 	if(NotBPCase[i]) {
-		sprintf(Message,"[%ld] %s\n",(long)j,err[i]);
+		my_sprintf(Message,"[%ld] %s\n",(long)j,err[i]);
 		Print(wTrace,Message);
 		j++;
 		}

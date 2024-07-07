@@ -34,18 +34,18 @@
 #ifndef BP2_DECL_H
 #define BP2_DECL_H
 
-#if  defined(__POWERPC) && !TARGET_API_MAC_CARBON_FORGET_THIS
+/* #if  defined(__POWERPC) && !TARGET_API_MAC_CARBON_FORGET_THIS
 extern QDGlobals Qd;
 #endif
 
 extern GWorldPtr gMainGWorld;
-extern GDHandle gCurDev; 
+extern GDHandle gCurDev; */
 extern int Version;
 
-#if BP_MACHO
+/* #if BP_MACHO
 // CoreMIDI globals (these are allocated in CoreMIDIdriver.c)
 extern DialogPtr CMSettings;
-#endif	
+#endif	*/
 
 // extern ProcessSerialNumber PSN;					
 extern long MemoryUsed,MemoryUsedInit,MaxMemoryUsed,
@@ -66,16 +66,17 @@ extern int Jmessage;
 // extern TEStyleRec** StyleHandle[WMAX];
 
 extern long GramSelStart,GramSelEnd;
+extern int LoadedAlphabet,LoadedStartString;
 
-extern FSSpec **p_TempFSspec;
+// extern FSSpec **p_TempFSspec;
 
 extern char **p_MessageMem[MAXMESSAGE],**p_HTMLchar1,**p_HTMLchar2,**p_HTMLdiacritical;
 extern MIDIstream Stream;
 
-extern RGBColor White,Black,Red,Green,Blue,Yellow,Magenta,Cyan,Brown,None,
+/* extern RGBColor White,Black,Red,Green,Blue,Yellow,Magenta,Cyan,Brown,None,
 	NoteScaleColor1,NoteScaleColor2;
 extern RGBColor Color[MAXCOLOR],PianoColor[MAXCHAN+1],**p_ObjectColor;
-extern int UseGraphicsColor,UseTextColor,ForceTextColor,ForceGraphicColor;
+extern int UseGraphicsColor,UseTextColor,ForceTextColor,ForceGraphicColor; */
 
 extern node PrefixTree,SuffixTree;
 extern long SwitchState;
@@ -136,6 +137,7 @@ extern short CurrentVref,LastVref;
 extern int ScriptW,CurrentChannel;
 extern long CurrentDir,LastDir,OldModulation;
 extern unsigned long NumEventsWritten;
+extern int imageHits;
 extern int PitchbendRange[MAXCHAN+1],DeftPitchbendRange,PitchbendRate[MAXCHAN+1],ModulationRate[MAXCHAN+1],PressRate[MAXCHAN+1],
 	VolumeRate[MAXCHAN+1],VolumeControl[MAXCHAN+1],PanoramicRate[MAXCHAN+1],PanoramicControl[MAXCHAN+1],
 	DeftVolume,DeftVelocity,DeftPanoramic,PanoramicController,VolumeController,SamplingRate;
@@ -212,9 +214,9 @@ extern char **p_DefaultChannel,**p_PasteDone,
 	**p_PivType,**p_PivMode,**p_RescaleMode,**p_DelayMode,**p_ForwardMode,
 	**p_BreakTempoMode,**p_ContBegMode,**p_ContEndMode,**p_CoverBegMode,**p_CoverEndMode,
 	**p_TruncBegMode,**p_TruncEndMode,**p_PreRollMode,**p_PostRollMode,
-	**p_PeriodMode,**p_ForceIntegerPeriod,**p_StrikeAgain,**p_CompiledCsoundScore,
+	**p_PeriodMode,**p_ForceIntegerPeriod,**p_StrikeAgain,
 	****pp_Comment,****pp_CsoundScoreText,****p_CsoundTables;
-extern int **p_AlphaCtrlNr,**p_AlphaCtrlChan,MaxCsoundTables;
+extern int **p_AlphaCtrlNr,**p_AlphaCtrlChan,MaxCsoundTables,**p_CompiledCsoundScore;
 extern CsoundLine ****pp_CsoundScore;
 extern double **p_AlphaMin,**p_AlphaMax,**p_Quan,ForceRatio,Infpos1;
 extern float **p_PivPos,**p_BeforePeriod;
@@ -268,11 +270,11 @@ extern long CountOn;
 extern unsigned long WaitStartDate,WaitEndDate;
 extern char Message[MAXLIN],TheName[MAXNAME];
 extern char DateMark[6];
-extern PolyHandle p_Diagram[MAXDIAGRAM];
+// extern PolyHandle p_Diagram[MAXDIAGRAM];
 extern int Ndiagram,ObjectMode,ObjectTry;
 extern int DiagramWindow[MAXDIAGRAM];
 extern int Finding,Hpos;
-extern PicHandle NoteScalePicture,p_Picture[MAXPICT];
+// extern PicHandle NoteScalePicture,p_Picture[MAXPICT];
 extern Rect NoteScaleRect,PictRect[MAXPICT];
 extern int Npicture,Offscreen;
 extern int PictureWindow[MAXPICT];
@@ -288,24 +290,24 @@ extern unsigned long NextTickDate[MAXTICKS],NextBeatDate;
 
 extern int Nw,LastEditWindow,LastComputeWindow,OutputWindow,ResumeStopOn,
 	ResetTickFlag,ResetTickInItemFlag;
-extern WindowPtr Window[WMAX];
-extern DialogPtr ResumeStopPtr,ResumeUndoStopPtr,MIDIkeyboardPtr;
-extern DialogPtr PatternPtr,ReplaceCommandPtr,EnterPtr,GreetingsPtr,FAQPtr,SixteenPtr,FileSavePreferencesPtr,
-	StrikeModePtr,TuningPtr,DefaultPerformanceValuesPtr,CsoundInstrMorePtr,OMSinoutPtr,MIDIprogramPtr;
-extern DialogPtr gpDialogs[WMAX];
+// extern WindowPtr Window[WMAX];
+// extern DialogPtr ResumeStopPtr,ResumeUndoStopPtr,MIDIkeyboardPtr;
+/* extern DialogPtr PatternPtr,ReplaceCommandPtr,EnterPtr,GreetingsPtr,FAQPtr,SixteenPtr,FileSavePreferencesPtr,
+	StrikeModePtr,TuningPtr,DefaultPerformanceValuesPtr,CsoundInstrMorePtr,OMSinoutPtr,MIDIprogramPtr; */
+// extern DialogPtr gpDialogs[WMAX];
 /*extern DialogRecord EnterDR,ReplaceCommandDR,TuningDR,DefaultPerformanceValuesDR,CsoundInstrMoreDR,
 	MIDIprogramDR,PatternDR,FileSavePreferencesDR; */
 
 extern TextHandle TEH[WMAX];
 
 extern int linesInFolder[WMAX];
-extern Boolean WindowFullAlertLevel[WMAX];
-extern MenuHandle myMenus[MAXMENU+1];
+extern int WindowFullAlertLevel[WMAX];
+// extern MenuHandle myMenus[MAXMENU+1];
 extern int Buttonheight;
 extern int NewEnvironment,NewColors,ShowPianoRoll,ToldAboutPianoRoll,ShowObjectGraph,
 	Help,ChangedCoordinates[WMAX];
-extern RGBColor CurrentColor[WMAX];
-extern ControlHandle vScroll[WMAX],hScroll[WMAX];
+/* extern RGBColor CurrentColor[WMAX];
+extern ControlHandle vScroll[WMAX],hScroll[WMAX]; */
 extern int SlideH[WMAX],SlideV[WMAX];
 extern int WindowTextSize[WMAX];
 extern short GrafWindow[WMAX];
@@ -318,15 +320,15 @@ extern int Freebottom[WMAX];
 extern short Editable[WMAX],IsHTML[WMAX],IsText[WMAX],Weird[WMAX];
 extern short HasFields[WMAX];
 extern short IsDialog[WMAX];
-extern Boolean WindowUsesThemeBkgd[WMAX];
+extern int WindowUsesThemeBkgd[WMAX];
 extern int FileTypeIndexToWindowFileIndex[MAXFILETYPEINDEX];
 extern short gFileType[WMAX];
 extern char **p_FileInfo[WMAX];
-extern Cursor EditCursor,WatchCursor,CrossCursor,HelpCursor,KeyboardCursor,
-	WheelCursor[4],FootCursor[8],DiskCursor[2];
+// extern Cursor EditCursor,WatchCursor,CrossCursor,HelpCursor,KeyboardCursor,
+//	WheelCursor[4],FootCursor[8],DiskCursor[2];
 extern int Jwheel,Jfeet,Jdisk;
 extern int Jbutt;
-extern ControlHandle Hbutt[MAXBUTT];
+// extern ControlHandle Hbutt[MAXBUTT];
 extern int Dirty[WMAX],CompiledGr,CompiledPt,CompiledAl,CompiledIn,CompiledGl,
 	CompiledCsObjects,CompiledRegressions,LoadedIn,LoadedGl,LoadedCsoundInstruments,
 	Interactive,NotFoundMetronom,NotFoundNatureTime;
@@ -335,7 +337,7 @@ extern int Hmin[WMAX],Hmax[WMAX],Hzero[WMAX],Vmin[WMAX],Vmax[WMAX],Vzero[WMAX];
 extern int Created[WMAX];
 extern char FileName[WMAX][MAXNAME+1],CsFileName[MAXNAME+1],MIDIfileName[MAXNAME+1],
 	CsoundOrchestraName[MAXNAME+1];
-extern FSSpec MIDIfileSpec;
+// extern FSSpec MIDIfileSpec;
 extern float EndFadeOut;
 extern int CurrentVolume[MAXCHAN+1];
 extern char FilePrefix[WMAX][5];
@@ -364,15 +366,15 @@ extern int InitOn,SetTimeOn,ComputeOn,PolyOn,CompileOn,SoundOn,SelectOn,PrintOn,
 
 extern double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 extern double MaxFrac;
-extern Boolean HaveAppearanceManager;
-extern Boolean RunningOnOSX;
-extern ControlActionUPP vScrollUPP,hScrollUPP;
-extern NSWReply** MIDIfileReply;
-extern NSWReply** CsFileReply;
-extern FSSpec TempSpec;
-extern UInt32 NumInstalledDrivers;
-extern BPMidiDriver** InstalledDrivers;
-extern DynamicMenuItem** InstalledMenuItems;
+extern int HaveAppearanceManager;
+extern int RunningOnOSX;
+// extern ControlActionUPP vScrollUPP,hScrollUPP;
+// extern NSWReply** MIDIfileReply;
+// extern NSWReply** CsFileReply;
+// extern FSSpec TempSpec;
+// extern UInt32 NumInstalledDrivers;
+// extern BPMidiDriver** InstalledDrivers;
+// extern DynamicMenuItem** InstalledMenuItems;
 extern long WidthMax,HeightMax;
 
 extern int Find_leak, check_memory_use;

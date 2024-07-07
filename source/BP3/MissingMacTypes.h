@@ -40,26 +40,24 @@ POSSIBILITY OF SUCH DAMAGE.
 
 /* This file contains type definitions from Mac OS that are used by BP2 */
 
-typedef uint8_t		UInt8;
+/* typedef uint8_t		UInt8;
 typedef int8_t		SInt8;
 typedef uint16_t	UInt16;
 typedef int16_t		SInt16;
 typedef uint32_t	UInt32;
-typedef int32_t		SInt32;
+typedef int32_t		SInt32; */
 
-typedef long (*ProcPtr2)();
-typedef ProcPtr2	ControlActionUPP, ModalFilterUPP;
+/* typedef long (*ProcPtr2)();
+typedef ProcPtr2	ControlActionUPP, ModalFilterUPP; */
 
 typedef	int8_t	sbyte;
 // typedef sbyte*	Ptr;
-typedef sbyte**	Handle2;
-typedef	size_t	Size2;
+// typedef	size_t	Size2;
 
 // these are unsigned on Mac OS, but might be better replaced as "plain" char ??
 typedef	uint8_t		Str255[256], Str63[64], Str31[32];
 typedef uint8_t*	StringPtr;
 
-typedef uint8_t		Boolean;
 typedef int16_t		OSErr;
 typedef int32_t		OSStatus;
 typedef uint32_t	OSType, AEEventClass, AEEventID;	// must be a 32-bit unsigned int
@@ -71,18 +69,18 @@ typedef uint16_t	EventModifiers;
 typedef int16_t		MenuID;
 typedef uint16_t	MenuItemIndex;
 
-typedef Handle2	NavMenuItemSpecArrayHandle;
+/* typedef Handle2	NavMenuItemSpecArrayHandle;
 typedef Handle2	PicHandle, PolyHandle, RgnHandle;
 typedef Handle2	MenuHandle;
-typedef Handle2	ControlHandle;
+typedef Handle2	ControlHandle; */
 
 // FSSpec is not defined here to be compatible with Mac OS
 // I am assuming that this struct will be replaced in BP3 at some point ...
-typedef struct {
+/* typedef struct {
 	int		vRefNum;
 	int		parID;
 	Str255	name;
-} FSSpec, *FSSpecPtr;
+} FSSpec, *FSSpecPtr; */
 
 typedef struct {
 } NavReplyRecord;
@@ -114,14 +112,14 @@ typedef struct {
 	int32_t right;
 } Rect; */
 
-typedef struct RGBColor {
+/* typedef struct RGBColor {
 	uint16_t red;
 	uint16_t green;
 	uint16_t blue;
-} RGBColor;
+} RGBColor; */
 
-typedef struct {
-} TextStyle;
+/* typedef struct {
+} TextStyle; */
 
 /* typedef struct {
 } ProcessSerialNumber;

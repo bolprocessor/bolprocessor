@@ -37,15 +37,15 @@
 #endif
 
 #include "-BP2decl.h"
-#include "CarbonCompatUtil.h"
+// #include "CarbonCompatUtil.h"
 
-LoadGrammar(FSSpec *p_spec,short refnum)
+/* LoadGrammar(FSSpec *p_spec,short refnum)
 {
 int r,oms;
 
 if((r=ClearWindow(FALSE,wGrammar)) != OK) return(r);
 if(ReadFile(wGrammar,refnum) == OK) {
-	TheVRefNum[wKeyboard] = TheVRefNum[iObjects] = TheVRefNum[wGrammar]
+TheVRefNum[wKeyboard] = TheVRefNum[iObjects] = TheVRefNum[wGrammar]
 	= TheVRefNum[wInteraction] = TheVRefNum[wGlossary] = TheVRefNum[iSettings]
 	= TheVRefNum[wAlphabet] = TheVRefNum[wTimeBase]
 	= TheVRefNum[wCsoundResources] = TheVRefNum[wMIDIorchestra] = p_spec->vRefNum;
@@ -53,20 +53,20 @@ if(ReadFile(wGrammar,refnum) == OK) {
 	= WindowParID[wInteraction] = WindowParID[wGlossary] = WindowParID[iSettings]
 	= WindowParID[wAlphabet] = WindowParID[wTimeBase]
 	= WindowParID[wCsoundResources] = WindowParID[wMIDIorchestra] = p_spec->parID;
-	p2cstrcpy(FileName[wGrammar],p_spec->name);
+	// p2cstrcpy(FileName[wGrammar],p_spec->name);
 	SetName(wGrammar,TRUE,TRUE);
 	CompiledPt = Dirty[wGrammar] = FALSE;
 	FSClose(refnum);
 	}
 else {
-	sprintf(Message,"Can't read '%s'... (no data)",FileName[wGrammar]);
+	my_sprintf(Message,"Can't read '%s'... (no data)",FileName[wGrammar]);
 	Alert1(Message);
 	FSClose(refnum);
 	ForgetFileName(wGrammar);
 	return(MISSED);
 	}
 GetHeader(wGrammar);
-CompiledAl = FALSE;	/* Because grammar may contain new terminal symbols */
+CompiledAl = FALSE;
 // if(GetSeName(wGrammar) == OK) r = LoadSettings(TRUE,TRUE,FALSE,FALSE,&oms); 2024-05-05
 LoadLinkedMidiDriverSettings(wGrammar);
 GetFileNameAndLoadIt(wMIDIorchestra,wGrammar,LoadMIDIorchestra);
@@ -75,10 +75,10 @@ if(GetGlName(wGrammar) == OK) CompiledGl = LoadedGl = FALSE;
 GetAlphaName(wGrammar);
 GetTimeBaseName(wGrammar);
 ShowSelect(CENTRE,wGrammar);
-Activate(TEH[wGrammar]);	/* Needed to speed up if window was resized. */
+Activate(TEH[wGrammar]);
 Created[wGrammar] = TRUE;
 return(r);
-}
+} */
 
 /*
 SaveObjectPrototypes(FSSpec *p_spec)
@@ -113,32 +113,32 @@ if(NewFile(-1,gFileType[iObjects],fn,&reply)) {
 WRITE:
 		SaveOn++;
 		WriteHeader(iObjects,refnum,*p_spec);
-		sprintf(line,"%ld",(long)PrototypeTickKey);
+		my_sprintf(line,"%ld",(long)PrototypeTickKey);
 		WriteToFile(NO,MAC,line,refnum);
-		sprintf(line,"%ld",(long)PrototypeTickChannel);
+		my_sprintf(line,"%ld",(long)PrototypeTickChannel);
 		WriteToFile(NO,MAC,line,refnum);
-		sprintf(line,"%ld",(long)PrototypeTickVelocity);
+		my_sprintf(line,"%ld",(long)PrototypeTickVelocity);
 		WriteToFile(NO,MAC,line,refnum);
 		WriteToFile(NO,MAC,FileName[wCsoundResources],refnum);
-		sprintf(line,"%ld",(long)Jbol);
+		my_sprintf(line,"%ld",(long)Jbol);
 		WriteToFile(NO,MAC,line,refnum);
 		for(i=2; i < Jbol; i++) {
 			PleaseWait();
 			if((*p_MIDIsize)[i] == ZERO && (*pp_CsoundScoreText)[i] == NULL) continue;
 			CheckConsistency(i,TRUE);
-			sprintf(line,"%s",*((*p_Bol)[i]));
+			my_sprintf(line,"%s",*((*p_Bol)[i]));
 			WriteToFile(YES,MAC,line,refnum);
 			ShowMessage(TRUE,wMessage,line);
-			sprintf(line,"%ld",(long)(*p_Type)[i]);
+			my_sprintf(line,"%ld",(long)(*p_Type)[i]);
 			WriteToFile(NO,MAC,line,refnum);
 			(*p_Resolution)[i] = 1;	// Previously = Time_res (changed 1/10/96)
-			sprintf(line,"%ld",(long)(*p_Resolution)[i]);
+			my_sprintf(line,"%ld",(long)(*p_Resolution)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_DefaultChannel)[i]);
+			my_sprintf(line,"%ld",(long)(*p_DefaultChannel)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)((*p_Tref)[i] / (*p_Resolution)[i]));
+			my_sprintf(line,"%ld",(long)((*p_Tref)[i] / (*p_Resolution)[i]));
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%.4f",(long)(*p_Quan)[i]);
+			my_sprintf(line,"%.4f",(long)(*p_Quan)[i]);
 			WriteToFile(NO,MAC,line,refnum);
 			pivbeg = pivend = pivbegon = pivendoff = pivcent = pivcentonoff = pivspec
 				= FALSE;
@@ -177,102 +177,102 @@ WRITE:
 			line[j++] = (*p_AlphaCtrl)[i] + '0';
 			line[j++] = '\0';
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_RescaleMode)[i]);
+			my_sprintf(line,"%ld",(long)(*p_RescaleMode)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%.4f",(*p_AlphaMin)[i]);
+			my_sprintf(line,"%.4f",(*p_AlphaMin)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%.4f",(*p_AlphaMax)[i]);
+			my_sprintf(line,"%.4f",(*p_AlphaMax)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_DelayMode)[i]);
+			my_sprintf(line,"%ld",(long)(*p_DelayMode)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_MaxDelay)[i]);
+			my_sprintf(line,"%ld",(long)(*p_MaxDelay)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_ForwardMode)[i]);
+			my_sprintf(line,"%ld",(long)(*p_ForwardMode)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_MaxForward)[i]);
+			my_sprintf(line,"%ld",(long)(*p_MaxForward)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"1"); // Not used 
+			my_sprintf(line,"1"); // Not used 
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"1"); // Not used
+			my_sprintf(line,"1"); // Not used
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_ContBegMode)[i]);
+			my_sprintf(line,"%ld",(long)(*p_ContBegMode)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_MaxBegGap)[i]);
+			my_sprintf(line,"%ld",(long)(*p_MaxBegGap)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_ContEndMode)[i]);
+			my_sprintf(line,"%ld",(long)(*p_ContEndMode)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_MaxEndGap)[i]);
+			my_sprintf(line,"%ld",(long)(*p_MaxEndGap)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CoverBegMode)[i]);
+			my_sprintf(line,"%ld",(long)(*p_CoverBegMode)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_MaxCoverBeg)[i]);
+			my_sprintf(line,"%ld",(long)(*p_MaxCoverBeg)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CoverEndMode)[i]);
+			my_sprintf(line,"%ld",(long)(*p_CoverEndMode)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_MaxCoverEnd)[i]);
+			my_sprintf(line,"%ld",(long)(*p_MaxCoverEnd)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_TruncBegMode)[i]);
+			my_sprintf(line,"%ld",(long)(*p_TruncBegMode)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_MaxTruncBeg)[i]);
+			my_sprintf(line,"%ld",(long)(*p_MaxTruncBeg)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_TruncEndMode)[i]);
+			my_sprintf(line,"%ld",(long)(*p_TruncEndMode)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_MaxTruncEnd)[i]);
+			my_sprintf(line,"%ld",(long)(*p_MaxTruncEnd)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_PivMode)[i]);
+			my_sprintf(line,"%ld",(long)(*p_PivMode)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%.4f",(*p_PivPos)[i]);
+			my_sprintf(line,"%.4f",(*p_PivPos)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-	//		sprintf(line,"%ld",(long)ByteToInt((*p_AlphaCtrlNr)[i]));
-			sprintf(line,"%ld",(long) (*p_AlphaCtrlNr)[i]); // Fixed by BB 2022-02-17
+	//		my_sprintf(line,"%ld",(long)ByteToInt((*p_AlphaCtrlNr)[i]));
+			my_sprintf(line,"%ld",(long) (*p_AlphaCtrlNr)[i]); // Fixed by BB 2022-02-17
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_AlphaCtrlChan)[i]);
+			my_sprintf(line,"%ld",(long)(*p_AlphaCtrlChan)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_OkTransp)[i]);
+			my_sprintf(line,"%ld",(long)(*p_OkTransp)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_OkArticul)[i]);
+			my_sprintf(line,"%ld",(long)(*p_OkArticul)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_OkVolume)[i]);
+			my_sprintf(line,"%ld",(long)(*p_OkVolume)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_OkPan)[i]);
+			my_sprintf(line,"%ld",(long)(*p_OkPan)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_OkMap)[i]);
+			my_sprintf(line,"%ld",(long)(*p_OkMap)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_OkVelocity)[i]);
+			my_sprintf(line,"%ld",(long)(*p_OkVelocity)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_PreRoll)[i]);
+			my_sprintf(line,"%ld",(long)(*p_PreRoll)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_PostRoll)[i]);
+			my_sprintf(line,"%ld",(long)(*p_PostRoll)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_PreRollMode)[i]);
+			my_sprintf(line,"%ld",(long)(*p_PreRollMode)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_PostRollMode)[i]);
+			my_sprintf(line,"%ld",(long)(*p_PostRollMode)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_PeriodMode)[i]);
+			my_sprintf(line,"%ld",(long)(*p_PeriodMode)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%.4f",(*p_BeforePeriod)[i]);
+			my_sprintf(line,"%.4f",(*p_BeforePeriod)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_ForceIntegerPeriod)[i]);
+			my_sprintf(line,"%ld",(long)(*p_ForceIntegerPeriod)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_DiscardNoteOffs)[i]);
+			my_sprintf(line,"%ld",(long)(*p_DiscardNoteOffs)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_StrikeAgain)[i]);
+			my_sprintf(line,"%ld",(long)(*p_StrikeAgain)[i]);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_CsoundAssignedInstr)[i]);
-			WriteToFile(NO,MAC,line,refnum);
-			
-			sprintf(line,"%ld",(long)(*p_CsoundInstr)[i]);
+			my_sprintf(line,"%ld",(long)(*p_CsoundAssignedInstr)[i]);
 			WriteToFile(NO,MAC,line,refnum);
 			
-			sprintf(line,"%ld",(long)(*p_Tpict)[i]);
+			my_sprintf(line,"%ld",(long)(*p_CsoundInstr)[i]);
+			WriteToFile(NO,MAC,line,refnum);
+			
+			my_sprintf(line,"%ld",(long)(*p_Tpict)[i]);
 			WriteToFile(NO,MAC,line,refnum);
 			
 			
-			sprintf(line,"%ld",(long)(*p_ObjectColor)[i].red);
+			my_sprintf(line,"%ld",(long)(*p_ObjectColor)[i].red);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_ObjectColor)[i].green);
+			my_sprintf(line,"%ld",(long)(*p_ObjectColor)[i].green);
 			WriteToFile(NO,MAC,line,refnum);
-			sprintf(line,"%ld",(long)(*p_ObjectColor)[i].blue);
+			my_sprintf(line,"%ld",(long)(*p_ObjectColor)[i].blue);
 			WriteToFile(NO,MAC,line,refnum);
 			
 			WriteToFile(NO,MAC,"_beginCsoundScore_",refnum);
@@ -282,15 +282,15 @@ WRITE:
 				MyUnlock((Handle)(*pp_CsoundScoreText)[i]);
 				}
 			WriteToFile(NO,MAC,"_endCsoundScore_",refnum);
-			sprintf(line,"%ld",(long)(*p_MIDIsize)[i]);
+			my_sprintf(line,"%ld",(long)(*p_MIDIsize)[i]);
 			WriteToFile(NO,MAC,line,refnum);
 			for(j=ZERO,t=ZERO; j < (*p_MIDIsize)[i]; j++) {
 				t += (*((*pp_MIDIcode)[i]))[j].time;
-				sprintf(line,"%ld",(long)(*((*pp_MIDIcode)[i]))[j].byte + (256L * t));
+				my_sprintf(line,"%ld",(long)(*((*pp_MIDIcode)[i]))[j].byte + (256L * t));
 				WriteToFile(NO,MAC,line,refnum);
 				}
 			for(j=ZERO; j < (*p_MIDIsize)[i]; j++) {
-				sprintf(line,"%ld",(long)(*((*pp_MIDIcode)[i]))[j].sequence);
+				my_sprintf(line,"%ld",(long)(*((*pp_MIDIcode)[i]))[j].sequence);
 				WriteToFile(NO,MAC,line,refnum);
 				}
 			if((*pp_Comment)[i] == NULL) {
@@ -324,7 +324,7 @@ WRITE:
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,line);
-		sprintf(Message,"=> Error creating '%s'",line);
+		my_sprintf(Message,"=> Error creating '%s'",line);
 		Alert1(Message);
 		Created[iObjects] = FALSE;
 		}
@@ -347,7 +347,6 @@ long pos,imax;
 long k,kk;
 double r;
 short refnum,refnum2;
-FSSpec spec;
 Str63 filename;
 Handle h,ptr;
 
@@ -358,22 +357,22 @@ pos = 0L;
 if(!tryname) FileName[iObjects][0] = '\0';
 p_line = p_completeline = NULL;
 c2pstrcpy(PascalLine, DeftName[iObjects]);
-SetWTitle(Window[iObjects], PascalLine);
+// SetWTitle(Window[iObjects], PascalLine);
 if(!tryname) GetMiName();
-c2pstrcpy(PascalLine,FileName[iObjects]);
-CopyPString(PascalLine, spec.name);
+/* c2pstrcpy(PascalLine,FileName[iObjects]);
+ CopyPString(PascalLine, spec.name);
 spec.vRefNum = TheVRefNum[iObjects];
-spec.parID = WindowParID[iObjects];
+spec.parID = WindowParID[iObjects];  */
 if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) {	// FIXME: don't use MyOpen if no FileName[iObjects] ?? 
 FIND:
 	if(!tryname) return(MISSED);
 	if(FileName[iObjects][0] == '\0') {
 //		if(OkWait || !ScriptExecOn)
 //			Alert1("The note convention might be incorrect because I am looking for an unspecified '-so' sound-object prototype file");
-		sprintf(Message,"Find '-mi' sound-object prototype file...");
+		my_sprintf(Message,"Find '-mi' sound-object prototype file...");
 		}
 	else
-	sprintf(Message,"Find '%s' or other sound-object prototype file",FileName[iObjects]);
+	my_sprintf(Message,"Find '%s' or other sound-object prototype file",FileName[iObjects]);
 	ShowMessage(TRUE,wMessage,Message);
 	if(Option) r = YES; /* Answer("Open old sound-object prototype file (text created by HyperMIDI)",'N'); */
 	else r = NO;
@@ -395,16 +394,16 @@ FIND:
 				// TellOthersMyName(iObjects); // this is taken care of by SetName() at end - akozar 050707
 				break;
 			case ABORT:
-				HideWindow(Window[wMessage]);
+		//		HideWindow(Window[wMessage]);
 				return(ABORT);
 			}
 		}
 	// c2pstrcpy(spec.name, FileName[iObjects]);
 	if(MyOpen(&spec,fsCurPerm,&refnum) != noErr) return(ABORT);
 	}
-TheVRefNum[wCsoundResources] = TheVRefNum[iObjects] = spec.vRefNum;
-WindowParID[wCsoundResources] = WindowParID[iObjects] = spec.parID;
-HideWindow(Window[wMessage]);
+/* TheVRefNum[wCsoundResources] = TheVRefNum[iObjects] = spec.vRefNum;
+WindowParID[wCsoundResources] = WindowParID[iObjects] = spec.parID; */
+// HideWindow(Window[wMessage]);
 rep = ABORT;
 j = -1;
 
@@ -413,14 +412,14 @@ LoadOn++;
 if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 if(CheckVersion(&iv,p_line,FileName[iObjects]) != OK) goto ERR;
 
-sprintf(Message,"Loading %s...",FileName[iObjects]);
+my_sprintf(Message,"Loading %s...",FileName[iObjects]);
 ShowMessage(TRUE,wMessage,Message);
 
 if(iv == 0) {
 	FSClose(refnum);
-	HideWindow(Window[wMessage]);
+	// HideWindow(Window[wMessage]);
 	pos = 0L;
-	MyOpen(&spec,fsCurPerm,&refnum);
+	// MyOpen(&spec,fsCurPerm,&refnum);
 	}
 if(iv > 2) {
 	ReadOne(FALSE,TRUE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos);
@@ -443,13 +442,13 @@ if(iv > 4) {
 				if(SaveCheck(wCsoundResources) == ABORT) goto MAXSOUNDS;
 				strcpy(FileName[wCsoundResources],line);
 				type = gFileType[wCsoundResources];
-				c2pstrcpy(spec.name, line);
+			/*	c2pstrcpy(spec.name, line);
 				spec.vRefNum = TheVRefNum[wCsoundResources];
-				spec.parID = WindowParID[wCsoundResources];
-				if(MyOpen(&spec,fsCurPerm,&refnum2) != noErr) {
+				spec.parID = WindowParID[wCsoundResources]; */
+		/*		if(MyOpen(&spec,fsCurPerm,&refnum2) != noErr) {
 					if(CheckFileName(wCsoundResources,FileName[wCsoundResources],
 						&spec,&refnum2,type,TRUE) != OK) goto MAXSOUNDS;
-					}
+					} */
 				rep = LoadCsoundInstruments(refnum2,FALSE);
 				if(rep == OK) {
 					dirtymem = Dirty[wAlphabet];
@@ -477,7 +476,7 @@ else {
 	if(checkversion && (Jbol < 3 || p_Bol == NULL)) {
 		Alert1("This is an old type of object prototype file. To load it you must first load or create the corresponding alphabet");
 		FileName[iObjects][0] = '\0';	// FIXME: this wasn't enough when TellOthersMyName() was called above; is it OK now ?
-		goto OUT;	// changed from goto ERR - akozar 050707
+		goto SORTIR;	// changed from goto ERR - akozar 050707
 		}
 	if(ResizeObjectSpace(YES,Jbol + Jpatt,0) != OK) goto ERR;
 	}
@@ -495,7 +494,7 @@ if(Button() && (Answer("Stop reading sound-object file",'N') == YES)) {
 	}
 if(ReadOne(FALSE,TRUE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) {
 	if(iv > 3) {
-		sprintf(Message,"Unexpected end of '%s' file...  May be old version?",
+		my_sprintf(Message,"Unexpected end of '%s' file...  May be old version?",
 			FileName[iObjects]);
 		Println(wTrace,Message);
 		}
@@ -503,9 +502,9 @@ if(ReadOne(FALSE,TRUE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) 
 	}
 if(p_completeline == NULL) {
 	if(Beta) Alert1("=> Err. LoadObjectPrototypes(). p_completeline == NULL");
-	goto OUT;
+	goto SORTIR;
 	}
-if(MyHandleLen(p_completeline) < 1) goto OUT;
+if(MyHandleLen(p_completeline) < 1) goto SORTIR;
 if(Mystrcmp(p_completeline,"DATA:") == 0) {
 	if(iv > 9) {
 		if(ReadOne(FALSE,TRUE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
@@ -515,18 +514,18 @@ if(Mystrcmp(p_completeline,"DATA:") == 0) {
 		rep = SetField(NULL,wPrototype1,fPrototypeFileComment,line);
 		}
 	else SetField(NULL,wPrototype1,fPrototypeFileComment,"[Comment on prototype file]");
-	goto OUT;
+	goto SORTIR;
 	}
-if(Mystrcmp(p_completeline,"_endSoundObjectFile_") == 0) goto OUT;
+if(Mystrcmp(p_completeline,"_endSoundObjectFile_") == 0) goto SORTIR;
 if((iv > 3) && (Mystrcmp(p_completeline,"TABLES:") == 0)) {
-	if(ReadInteger(refnum,&s,&pos) == MISSED) goto OUT;
+	if(ReadInteger(refnum,&s,&pos) == MISSED) goto SORTIR;
 	if(s > 0 && 0) {
 		NumberTables = s;
 		for(i=1; i <= s; i++) {
 			/*  Read table i */
 			}
 		}
-	goto OUT;
+	goto SORTIR;
 	}
 if(iv > 4 && newbols) {
 	oldjbol = Jbol;
@@ -771,13 +770,13 @@ else {
 		(*p_ObjectColor)[j].red = (*p_ObjectColor)[j].green = (*p_ObjectColor)[j].blue = -1L;
 		}
 	}
-if(!diff) {
+/* if(!diff) { 2024-07-04
 	ptr = (Handle) (*pp_CsoundScoreText)[j];
 	if(MyDisposeHandle(&ptr) != OK) goto ERR;
 	(*pp_CsoundScoreText)[j] = NULL;
-	(*p_CompiledCsoundScore)[j] = TRUE;
+	(*p_CompiledCsoundScore)[j] = 1;
 	(*pp_CsoundTime)[j] = NULL;
-	}
+	} */
 if(iv > 9) {
 	/* Read pp_CsoundScoreText */
 	if(!diff) ClearWindow(NO,wPrototype7);
@@ -789,8 +788,8 @@ NEXTCSOUNDSCORELINE:
 	if(ReadOne(FALSE,TRUE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 	if(Mystrcmp(p_completeline,"_endCsoundScore_") == 0) {
 		if(!diff) {
-			if((rep=GetCsoundScore(j)) != OK) goto OUT;
-			if((rep=CompileObjectScore(j,&longerCsound)) != OK) goto OUT;
+			if((rep=GetCsoundScore(j)) != OK) goto SORTIR;
+			if((rep=CompileObjectScore(j,&longerCsound)) != OK) goto SORTIR;
 			}
 		goto READSIZE;
 		}
@@ -798,7 +797,9 @@ NEXTCSOUNDSCORELINE:
 		PrintHandleBehind(wPrototype7,p_completeline);
 		PrintBehind(wPrototype7,"\n");
 		Dirty[iObjects] = Dirty[wPrototype7] = FALSE;
-		CompiledCsObjects = (*p_CompiledCsoundScore)[j] = FALSE;
+		BPPrintMessage(odInfo,"=> CompiledCsObjects = 0\n");
+		CompiledCsObjects = (*p_CompiledCsoundScore)[j] = 0;
+		(*p_CsoundSize)[j] = 0;
 		}
 	goto NEXTCSOUNDSCORELINE;
 	}
@@ -875,11 +876,11 @@ if(!diff) {
 	}
 if(CheckEmergency() == OK) {
 	rep = MISSED;
-	sprintf(Message,"Object prototypes file '%s' may be corrupted or in some unknown format",
+	my_sprintf(Message,"Object prototypes file '%s' may be corrupted or in some unknown format",
 		FileName[iObjects]);
 	Alert1(Message);
 	if(j > 1 && j < Jbol) {
-		sprintf(Message,"An error occured while reading '%s'",*((*p_Bol)[j]));
+		my_sprintf(Message,"An error occured while reading '%s'",*((*p_Bol)[j]));
 		Println(wTrace,Message);
 		}
 	Println(wTrace,
@@ -887,7 +888,7 @@ if(CheckEmergency() == OK) {
 	}
 else rep = ABORT;
 
-OUT:
+SORTIR:
 LoadOn--;
 MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 FSClose(refnum);
@@ -918,7 +919,7 @@ double r;
 
 if(LoadedGl) return(OK);
 
-if(!ScriptExecOn) ShowWindow(Window[wGlossary]);
+// if(!ScriptExecOn) ShowWindow(Window[wGlossary]);
 result = MISSED;
 // p_line = p_completeline = NULL;
 type = gFileType[wGlossary];
@@ -934,7 +935,7 @@ if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
 		return(MISSED);
 		}
 	}
-sprintf(Message,"Loading %s...",FileName[wGlossary]);
+my_sprintf(Message,"Loading %s...",FileName[wGlossary]);
 ShowMessage(TRUE,wMessage,Message);
 pos = 0L; LoadOn++;
 
@@ -986,7 +987,7 @@ return(result);
 }
 
 
-LoadAlphabet(int w,FSSpec *p_spec)
+/* LoadAlphabet(int w,FSSpec *p_spec)
 {
 short refnum;
 FSSpec spec;
@@ -998,7 +999,7 @@ if(w == -1 && GetAlphaName(wData) != OK && GetAlphaName(wGrammar) != OK)
 	return(OK);
 else if(GetAlphaName(w) != OK) return(OK);
 if((rep=ClearWindow(FALSE,wAlphabet)) != OK) return(rep);
-if(!ScriptExecOn) ShowWindow(Window[wAlphabet]);
+// if(!ScriptExecOn) ShowWindow(Window[wAlphabet]);
 c2pstrcpy(spec.name, FileName[wAlphabet]);
 strcpy(LineBuff, FileName[wAlphabet]);
 if(p_spec != NULL) {
@@ -1011,7 +1012,7 @@ else {
 	}
 if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
 FIND:
-	sprintf(Message,"Find '%s' or other alphabet file",LineBuff);
+	my_sprintf(Message,"Find '%s' or other alphabet file",LineBuff);
 	ShowMessage(TRUE,wMessage,Message);
 	if(!OldFile(wAlphabet,6,PascalLine,&spec)) {
 		HideWindow(Window[wMessage]);
@@ -1036,7 +1037,7 @@ FIND:
 			}
 		}
 	if((io=MyOpen(&spec,fsCurPerm,&refnum)) != noErr) {
-		sprintf(Message,"Can't open '%s'",FileName[wAlphabet]);
+		my_sprintf(Message,"Can't open '%s'",FileName[wAlphabet]);
 		ShowMessage(TRUE,wMessage,Message);
 		ForgetFileName(wAlphabet);
 		TellError(58,io);
@@ -1058,7 +1059,7 @@ if(ReadFile(wAlphabet,refnum) == OK) {
 	Created[wAlphabet] = TRUE;
 	}
 else {
-	sprintf(Message,"Can't read '%s'... (no data)",FileName[wAlphabet]);
+	my_sprintf(Message,"Can't read '%s'... (no data)",FileName[wAlphabet]);
 	Alert1(Message);
 	ForgetFileName(wAlphabet);
 	result = MISSED;
@@ -1069,4 +1070,4 @@ if(FSClose(refnum) != noErr) {
 ShowSelect(CENTRE,wAlphabet);
 LoadOn--;
 return(result);
-}
+} */

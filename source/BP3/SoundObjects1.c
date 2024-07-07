@@ -49,7 +49,7 @@ r = OK;
 if(!PrototypesLoaded AND !ObjectMode && !ObjectTry && (rtMIDI || OutCsound || WriteMIDIfile)) {
    ObjectTry = TRUE;
    if(ResizeObjectSpace(YES,Jbol + Jpatt,0) != OK) {
-      r = ABORT; goto OUT;
+      r = ABORT; goto SORTIR;
       }
    if(NeedAlphabet) {
       if(/*(FileName[iObjects][0] == '\0'
@@ -61,14 +61,14 @@ if(!PrototypesLoaded AND !ObjectMode && !ObjectTry && (rtMIDI || OutCsound || Wr
     //     SetName(iObjects,TRUE,TRUE);
          Dirty[iObjects] = Created[iObjects] = FALSE;
          iProto = 0;
-         goto OUT;
+         goto SORTIR;
          }
       else if(iProto >= Jbol) iProto = 2;
       }
    }
 r = CompileCsoundObjects();
 
-OUT:
+SORTIR:
 // if(saveport != NULL) SetPort(saveport);
 // else if(Beta) Alert1("=> Err CheckLoadedPrototypes(). saveport == NULL");
 return(r);
@@ -84,7 +84,7 @@ if(Jbol < 3) {
    Alert1("No sound-object prototype has been created/loaded");
    return(OK);
    }
-sprintf(failedstring,"Empty object");
+my_sprintf(failedstring,"Empty object");
 r = DoThings(p_Bol,2,Jbol,NULL,16,MINUSPROC,failedstring,(int) pushButProc);
 if(r > 0) iProto = r;
 return(OK);
@@ -140,10 +140,10 @@ if(line[0] == '\0') strcpy(line,"[Comment on this prototype]");
 SetField(NULL,wPrototype1,fPrototypeComment,line);
 
 MystrcpyTableToString(MAXFIELDCONTENT,line,p_Bol,j);
-sprintf(Message,"<<%s>>",line);
+my_sprintf(Message,"<<%s>>",line);
 SetField(NULL,wPrototype1,fProtoName,Message);
 
-sprintf(line,"%ld",(long)(*p_Dur)[j]);
+my_sprintf(line,"%ld",(long)(*p_Dur)[j]);
 SetField(NULL,wPrototype1,fDuration,line);
 
 if((*p_MIDIsize)[j] > ZERO) ShowPannel(wPrototype1,bConvertToCsound);
@@ -186,9 +186,9 @@ else SwitchOff(NULL,wPrototype2,bOKrescale);
 if((*p_FixScale)[j]) SwitchOn(NULL,wPrototype2,bNeverRescale);
 else SwitchOff(NULL,wPrototype2,bNeverRescale);
 if(!(*p_OkExpand)[j] && !(*p_OkCompress)[j] && !(*p_FixScale)[j]) {
-   sprintf(line,"%.2f",(*p_AlphaMin)[j]);
+   my_sprintf(line,"%.2f",(*p_AlphaMin)[j]);
    SetField(NULL,wPrototype2,fMinDilationRatio,line);
-   sprintf(line,"%.2f",(*p_AlphaMax)[j]);
+   my_sprintf(line,"%.2f",(*p_AlphaMax)[j]);
    SetField(NULL,wPrototype2,fMaxDilationRatio,line);
    SwitchOn(NULL,wPrototype2,bDilationRatioRange);
    }
@@ -197,7 +197,7 @@ if((*p_AlphaCtrl)[j]) {
    SwitchOn(NULL,wPrototype2,bSendAlpha);
   // k = ByteToInt((*p_AlphaCtrlNr)[j]);
    k = (*p_AlphaCtrlNr)[j]; // Fixed by BB 2022-02-17
-   sprintf(line,"%ld",(long) k);
+   my_sprintf(line,"%ld",(long) k);
    if((*p_AlphaCtrlNr)[j] >= 0 && (*p_AlphaCtrlNr)[j] < MAXPARAMCTRL)
       SetField(NULL,wPrototype2,fSendAlphaControl,line);
    else {
@@ -211,7 +211,7 @@ if((*p_AlphaCtrl)[j]) {
       }
  //  k = ByteToInt((*p_AlphaCtrlChan)[j]);
    k = (*p_AlphaCtrlChan)[j]; // Fixed by BB 2022-02-18
-   sprintf(line,"%ld",(long) k);
+   my_sprintf(line,"%ld",(long) k);
    if((*p_AlphaCtrlChan)[j] > 0 && (*p_AlphaCtrlChan)[j] <= MAXCHAN)
       SetField(NULL,wPrototype2,fSendAlphaChannel,line);
    else {
@@ -249,16 +249,16 @@ switch((*p_PivType)[j]) {
          SwitchOn(NULL,wPrototype2,bSetPivotPC);
          WriteFloatToLine(line,(double)(*p_PivPos)[j]);
          SetField(NULL,wPrototype2,fSetPivotPC,line);
-         sprintf(line,"%ld",(long)((*p_PivPos)[j] * (*p_Dur)[j] / 100.));
+         my_sprintf(line,"%ld",(long)((*p_PivPos)[j] * (*p_Dur)[j] / 100.));
          SetField(NULL,wPrototype2,fSetPivotms,line);
          }
       if((*p_PivMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype2,bSetPivotms);
-         sprintf(line,"%ld",(long)(*p_PivPos)[j]);
+         my_sprintf(line,"%ld",(long)(*p_PivPos)[j]);
          SetField(NULL,wPrototype2,fSetPivotms,line);
          if((*p_Dur)[j] > EPSILON)
             WriteFloatToLine(line,(double)((*p_PivPos)[j] * 100.) / (*p_Dur)[j]);
-         else sprintf(line,"0");
+         else my_sprintf(line,"0");
          SetField(NULL,wPrototype2,fSetPivotPC,line);
          }
       break;
@@ -287,11 +287,11 @@ else {
       if((*p_DelayMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype2,bAllowDelayms);
          SwitchOff(NULL,wPrototype2,bAllowDelayPC);
-         sprintf(line,"%ld",(long)(*p_MaxDelay)[j]);
+         my_sprintf(line,"%ld",(long)(*p_MaxDelay)[j]);
          SetField(NULL,wPrototype2,fAllowDelayms,line);
          if((*p_Dur)[j] > EPSILON)
             WriteFloatToLine(line,(double)((*p_MaxDelay)[j] * 100.) / (*p_Dur)[j]);
-         else sprintf(line,"0");
+         else my_sprintf(line,"0");
          SetField(NULL,wPrototype2,fAllowDelayPC,line);
          }
       else {
@@ -299,17 +299,17 @@ else {
          SwitchOff(NULL,wPrototype2,bAllowDelayms);
          WriteFloatToLine(line,(double)(*p_MaxDelay)[j]);
          SetField(NULL,wPrototype2,fAllowDelayPC,line);
-         sprintf(line,"%ld",(long)((*p_MaxDelay)[j] * (*p_Dur)[j] / 100.));
+         my_sprintf(line,"%ld",(long)((*p_MaxDelay)[j] * (*p_Dur)[j] / 100.));
          SetField(NULL,wPrototype2,fAllowDelayms,line);
          }
       if((*p_ForwardMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype2,bAllowFwdms);
          SwitchOff(NULL,wPrototype2,bAllowFwdPC);
-         sprintf(line,"%ld",(long)(*p_MaxForward)[j]);
+         my_sprintf(line,"%ld",(long)(*p_MaxForward)[j]);
          SetField(NULL,wPrototype2,fAllowFwdms,line);
          if((*p_Dur)[j] > EPSILON)
             WriteFloatToLine(line,(double)((*p_MaxForward)[j] * 100.) / (*p_Dur)[j]);
-         else sprintf(line,"0");
+         else my_sprintf(line,"0");
          SetField(NULL,wPrototype2,fAllowFwdPC,line);
          }
       else {
@@ -317,7 +317,7 @@ else {
          SwitchOff(NULL,wPrototype2,bAllowFwdms);
          WriteFloatToLine(line,(double)(*p_MaxForward)[j]);
          SetField(NULL,wPrototype2,fAllowFwdPC,line);
-         sprintf(line,"%ld",(long)((*p_MaxForward)[j] * (*p_Dur)[j] / 100.));
+         my_sprintf(line,"%ld",(long)((*p_MaxForward)[j] * (*p_Dur)[j] / 100.));
          SetField(NULL,wPrototype2,fAllowFwdms,line);
          }
       }
@@ -347,11 +347,11 @@ else {
       if((*p_CoverBegMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype3,bCoverBegLessThanms);
          SwitchOff(NULL,wPrototype3,bCoverBegLessThanPC);
-         sprintf(line,"%ld",(long)(*p_MaxCoverBeg)[j]);
+         my_sprintf(line,"%ld",(long)(*p_MaxCoverBeg)[j]);
          SetField(NULL,wPrototype3,fCoverBegLessThanms,line);
          if((*p_Dur)[j] > EPSILON)
             WriteFloatToLine(line,(double)((*p_MaxCoverBeg)[j] * 100.) / (*p_Dur)[j]);
-         else sprintf(line,"0");
+         else my_sprintf(line,"0");
          SetField(NULL,wPrototype3,fCoverBegLessThanPC,line);
          }
       else {
@@ -359,7 +359,7 @@ else {
          SwitchOff(NULL,wPrototype3,bCoverBegLessThanms);
          WriteFloatToLine(line,(double)(*p_MaxCoverBeg)[j]);
          SetField(NULL,wPrototype3,fCoverBegLessThanPC,line);
-         sprintf(line,"%ld",(long)((*p_MaxCoverBeg)[j] * (*p_Dur)[j] / 100.));
+         my_sprintf(line,"%ld",(long)((*p_MaxCoverBeg)[j] * (*p_Dur)[j] / 100.));
          SetField(NULL,wPrototype3,fCoverBegLessThanms,line);
          }
       }
@@ -385,11 +385,11 @@ else {
       if((*p_CoverEndMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype3,bCoverEndLessThanms);
          SwitchOff(NULL,wPrototype3,bCoverEndLessThanPC);
-         sprintf(line,"%ld",(long)(*p_MaxCoverEnd)[j]);
+         my_sprintf(line,"%ld",(long)(*p_MaxCoverEnd)[j]);
          SetField(NULL,wPrototype3,fCoverEndLessThanms,line);
          if((*p_Dur)[j] > EPSILON)
             WriteFloatToLine(line,(double)((*p_MaxCoverEnd)[j] * 100.) / (*p_Dur)[j]);
-         else sprintf(line,"0");
+         else my_sprintf(line,"0");
          SetField(NULL,wPrototype3,fCoverEndLessThanPC,line);
          }
       else {
@@ -397,7 +397,7 @@ else {
          SwitchOff(NULL,wPrototype3,bCoverEndLessThanms);
          WriteFloatToLine(line,(double)(*p_MaxCoverEnd)[j]);
          SetField(NULL,wPrototype3,fCoverEndLessThanPC,line);
-         sprintf(line,"%ld",(long)((*p_MaxCoverEnd)[j] * (*p_Dur)[j] / 100.));
+         my_sprintf(line,"%ld",(long)((*p_MaxCoverEnd)[j] * (*p_Dur)[j] / 100.));
          SetField(NULL,wPrototype3,fCoverEndLessThanms,line);
          }
       }
@@ -423,11 +423,11 @@ else {
       if((*p_TruncBegMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype3,bTruncBegLessThanms);
          SwitchOff(NULL,wPrototype3,bTruncBegLessThanPC);
-         sprintf(line,"%ld",(long)(*p_MaxTruncBeg)[j]);
+         my_sprintf(line,"%ld",(long)(*p_MaxTruncBeg)[j]);
          SetField(NULL,wPrototype3,fTruncBegLessThanms,line);
          if((*p_Dur)[j] > EPSILON)
             WriteFloatToLine(line,(double)((*p_MaxTruncBeg)[j] * 100.) / (*p_Dur)[j]);
-         else sprintf(line,"0");
+         else my_sprintf(line,"0");
          SetField(NULL,wPrototype3,fTruncBegLessThanPC,line);
          }
       else {
@@ -435,7 +435,7 @@ else {
          SwitchOff(NULL,wPrototype3,bTruncBegLessThanms);
          WriteFloatToLine(line,(double)(*p_MaxTruncBeg)[j]);
          SetField(NULL,wPrototype3,fTruncBegLessThanPC,line);
-         sprintf(line,"%ld",(long)((*p_MaxTruncBeg)[j] * (*p_Dur)[j] / 100.));
+         my_sprintf(line,"%ld",(long)((*p_MaxTruncBeg)[j] * (*p_Dur)[j] / 100.));
          SetField(NULL,wPrototype3,fTruncBegLessThanms,line);
          }
       }
@@ -461,11 +461,11 @@ else {
       if((*p_TruncEndMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype3,bTruncEndLessThanms);
          SwitchOff(NULL,wPrototype3,bTruncEndLessThanPC);
-         sprintf(line,"%ld",(long)(*p_MaxTruncEnd)[j]);
+         my_sprintf(line,"%ld",(long)(*p_MaxTruncEnd)[j]);
          SetField(NULL,wPrototype3,fTruncEndLessThanms,line);
          if((*p_Dur)[j] > EPSILON)
             WriteFloatToLine(line,(double)((*p_MaxTruncEnd)[j] * 100.) / (*p_Dur)[j]);
-         else sprintf(line,"0");
+         else my_sprintf(line,"0");
          SetField(NULL,wPrototype3,fTruncEndLessThanPC,line);
          }
       else {
@@ -473,7 +473,7 @@ else {
          SwitchOff(NULL,wPrototype3,bTruncEndLessThanms);
          WriteFloatToLine(line,(double)(*p_MaxTruncEnd)[j]);
          SetField(NULL,wPrototype3,fTruncEndLessThanPC,line);
-         sprintf(line,"%ld",(long)((*p_MaxTruncEnd)[j] * (*p_Dur)[j] / 100.));
+         my_sprintf(line,"%ld",(long)((*p_MaxTruncEnd)[j] * (*p_Dur)[j] / 100.));
          SetField(NULL,wPrototype3,fTruncEndLessThanms,line);
          }
       }
@@ -495,7 +495,7 @@ else {
    SwitchOn(NULL,wPrototype3,bNeverBreakTempo);
    SwitchOff(NULL,wPrototype3,bBreakTempoAtWill);
 /*   if((*p_MaxBreakTempo)[j] > ZERO) {
-      sprintf(line,"%ld",(long)(*p_MaxBreakTempo)[j]);
+      my_sprintf(line,"%ld",(long)(*p_MaxBreakTempo)[j]);
       if((*p_BreakTempoMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype3,bBreakTempoLessThanms);
          SwitchOff(NULL,wPrototype3,bBreakTempoLessThanPC);
@@ -527,11 +527,11 @@ if((*p_ContBeg)[j]) {
       if((*p_ContBegMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype4,bAllowGapBegms);
          SwitchOff(NULL,wPrototype4,bAllowGapBegPC);
-         sprintf(line,"%ld",(long)(*p_MaxBegGap)[j]);
+         my_sprintf(line,"%ld",(long)(*p_MaxBegGap)[j]);
          SetField(NULL,wPrototype4,fAllowGapBegms,line);
          if((*p_Dur)[j] > EPSILON)
             WriteFloatToLine(line,(double)((*p_MaxBegGap)[j] * 100.) / (*p_Dur)[j]);
-         else sprintf(line,"0");
+         else my_sprintf(line,"0");
          SetField(NULL,wPrototype4,fAllowGapBegPC,line);
          }
       else {
@@ -539,12 +539,12 @@ if((*p_ContBeg)[j]) {
          SwitchOff(NULL,wPrototype4,bAllowGapBegms);
          WriteFloatToLine(line,(double)(*p_MaxBegGap)[j]);
          SetField(NULL,wPrototype4,fAllowGapBegPC,line);
-         sprintf(line,"%ld",(long)((*p_MaxBegGap)[j] * (*p_Dur)[j] / 100.));
+         my_sprintf(line,"%ld",(long)((*p_MaxBegGap)[j] * (*p_Dur)[j] / 100.));
          SetField(NULL,wPrototype4,fAllowGapBegms,line);
          }
       }
    else {
-      sprintf(line,"0");
+      my_sprintf(line,"0");
       SetField(NULL,wPrototype4,fAllowGapBegms,line);
       SetField(NULL,wPrototype4,fAllowGapBegPC,line);
       }
@@ -566,11 +566,11 @@ if((*p_ContEnd)[j]) {
       if((*p_ContEndMode)[j] == ABSOLU) {
          SwitchOn(NULL,wPrototype4,bAllowGapEndms);
          SwitchOff(NULL,wPrototype4,bAllowGapEndPC);
-         sprintf(line,"%ld",(long)(*p_MaxEndGap)[j]);
+         my_sprintf(line,"%ld",(long)(*p_MaxEndGap)[j]);
          SetField(NULL,wPrototype4,fAllowGapEndms,line);
          if((*p_Dur)[j] > EPSILON)
             WriteFloatToLine(line,(double)((*p_MaxEndGap)[j] * 100.) / (*p_Dur)[j]);
-         else sprintf(line,"0");
+         else my_sprintf(line,"0");
          SetField(NULL,wPrototype4,fAllowGapEndPC,line);
          }
       else {
@@ -578,12 +578,12 @@ if((*p_ContEnd)[j]) {
          SwitchOff(NULL,wPrototype4,bAllowGapEndms);
          WriteFloatToLine(line,(double)(*p_MaxEndGap)[j]);
          SetField(NULL,wPrototype4,fAllowGapEndPC,line);
-         sprintf(line,"%ld",(long)((*p_MaxEndGap)[j] * (*p_Dur)[j] / 100.));
+         my_sprintf(line,"%ld",(long)((*p_MaxEndGap)[j] * (*p_Dur)[j] / 100.));
          SetField(NULL,wPrototype4,fAllowGapEndms,line);
          }
       }
    else {
-      sprintf(line,"0");
+      my_sprintf(line,"0");
       SetField(NULL,wPrototype4,fAllowGapEndms,line);
       SetField(NULL,wPrototype4,fAllowGapEndPC,line);
       }
@@ -598,11 +598,11 @@ else {
    }
 
 // PRE-ROLL, POST-ROLL
-sprintf(line,"%ld",(long)(*p_PreRoll)[j]);
+my_sprintf(line,"%ld",(long)(*p_PreRoll)[j]);
 SetField(NULL,wPrototype4,fPreRollms,line);
 if((*p_Dur)[j] > EPSILON)
    WriteFloatToLine(line,(double)((*p_PreRoll)[j] * 100.) / (*p_Dur)[j]);
-else sprintf(line,"0");
+else my_sprintf(line,"0");
 SetField(NULL,wPrototype4,fPreRollPC,line);
 if((*p_PreRollMode)[j] == ABSOLU) {
    SwitchOn(NULL,wPrototype4,bPreRollms);
@@ -612,11 +612,11 @@ else {
    SwitchOn(NULL,wPrototype4,bPreRollPC);
    SwitchOff(NULL,wPrototype4,bPreRollms);
    }
-sprintf(line,"%ld",(long)(*p_PostRoll)[j]);
+my_sprintf(line,"%ld",(long)(*p_PostRoll)[j]);
 SetField(NULL,wPrototype4,fPostRollms,line);
 if((*p_Dur)[j] > EPSILON)
    WriteFloatToLine(line,(double)((*p_PostRoll)[j] * 100.) / (*p_Dur)[j]);
-else sprintf(line,"0");
+else my_sprintf(line,"0");
 SetField(NULL,wPrototype4,fPostRollPC,line);
 if((*p_PostRollMode)[j] == ABSOLU) {
    SwitchOn(NULL,wPrototype4,bPostRollms);
@@ -638,7 +638,7 @@ double beats;
 if(j < 2 || j >= Jbol) return(MISSED);
 
 if((*p_Tref)[j] > EPSILON) {
-   sprintf(line,"%ld",(long)(*p_Tref)[j]);
+   my_sprintf(line,"%ld",(long)(*p_Tref)[j]);
    SetField(NULL,wPrototype5,fTref,line);
    SwitchOn(NULL,wPrototype5,bStriatedObject);
    }
@@ -646,30 +646,30 @@ else {
    SwitchOff(NULL,wPrototype5,bStriatedObject);
    }
 if((*p_Quan)[j] > 0.01) {
-   sprintf(line,"%ld",(long)((double)(*p_Tref)[j] / (*p_Quan)[j]));
+   my_sprintf(line,"%ld",(long)((double)(*p_Tref)[j] / (*p_Quan)[j]));
    SetField(NULL,wPrototype5,fQuantizeFractionBeat,line);
    }
-sprintf(line,"%ld",(long)(*p_Dur)[j]);
+my_sprintf(line,"%ld",(long)(*p_Dur)[j]);
 SetField(NULL,wPrototype5,fDurationAdjustms,line);
 if((*p_Tref)[j] > EPSILON && (*p_Dur)[j] > EPSILON) {
    beats = ((double)(*p_Dur)[j]) / (*p_Tref)[j];
-   sprintf(line,"%.3f",beats);
+   my_sprintf(line,"%.3f",beats);
    SetField(NULL,wPrototype5,fCurrentBeats,line);
    if((beats - (int)beats) > 0.5) beats = 1. + (int) beats;
    else beats = (int) beats;
    if(beats < 1.) beats = 1.;
-   sprintf(line,"%.1f",beats);
+   my_sprintf(line,"%.1f",beats);
    SetField(NULL,wPrototype5,fDurationAdjustbeats,line);
    }
 else {
    SetField(NULL,wPrototype5,fCurrentBeats,"\0");
    SetField(NULL,wPrototype5,fDurationAdjustbeats,"\0");
    }
-sprintf(line,"%ld",(long)PrototypeTickKey);
+my_sprintf(line,"%ld",(long)PrototypeTickKey);
 SetField(NULL,wPrototype5,fPrototypeTickKey,line);
-sprintf(line,"%ld",(long)PrototypeTickChannel);
+my_sprintf(line,"%ld",(long)PrototypeTickChannel);
 SetField(NULL,wPrototype5,fPrototypeTickChannel,line);
-sprintf(line,"%ld",(long)PrototypeTickVelocity);
+my_sprintf(line,"%ld",(long)PrototypeTickVelocity);
 SetField(NULL,wPrototype5,fPrototypeTickVelocity,line);
 return(DoSystem());
 }
@@ -691,7 +691,7 @@ if((*p_PeriodMode)[j] == ABSOLU) {
    if((*p_Dur)[j] > EPSILON)
       WriteFloatToLine(line,((double)100. * (*p_BeforePeriod)[j]) / (*p_Dur)[j]);
    else
-      sprintf(line,"0");
+      my_sprintf(line,"0");
    SetField(NULL,wPrototype6,fBeforePeriodPC,line);
    }
 if((*p_PeriodMode)[j] == RELATIF) {
@@ -699,7 +699,7 @@ if((*p_PeriodMode)[j] == RELATIF) {
    SwitchOff(NULL,wPrototype6,bBeforePeriodms);
    SwitchOff(NULL,wPrototype6,bIrrelevantPeriod);
    SetField(NULL,wPrototype6,fBeforePeriodPC,line);
-   sprintf(line,"%.1f",((double)(*p_BeforePeriod)[j] * (*p_Dur)[j]) / 100L);
+   my_sprintf(line,"%.1f",((double)(*p_BeforePeriod)[j] * (*p_Dur)[j]) / 100L);
    SetField(NULL,wPrototype6,fBeforePeriodms,line);
    }
 if((*p_PeriodMode)[j] == IRRELEVANT) {
@@ -752,7 +752,7 @@ if(j < 2 || j >= Jbol) return(MISSED);
 
 // MIDI
 if((*p_DefaultChannel)[j] > 0) {
-   sprintf(line,"%ld",(long)(*p_DefaultChannel)[j]);
+   my_sprintf(line,"%ld",(long)(*p_DefaultChannel)[j]);
    SetField(NULL,wPrototype8,fForceToChannel,line);
    SwitchOn(NULL,wPrototype8,bForceToChannel);
    SwitchOff(NULL,wPrototype8,bDontChangeChannel);
@@ -772,7 +772,7 @@ else {
 
 // CSOUND
 if((*p_CsoundInstr)[j] > 0) {
-   sprintf(line,"%ld",(long)(*p_CsoundInstr)[j]);
+   my_sprintf(line,"%ld",(long)(*p_CsoundInstr)[j]);
    SetField(NULL,wPrototype8,fForceToInstrument,line);
    SwitchOn(NULL,wPrototype8,bForceToInstrument);
    SwitchOff(NULL,wPrototype8,bDontChangeInstrument);
@@ -805,7 +805,7 @@ if((*p_OkVelocity)[j]) SwitchOn(NULL,wPrototype8,bAcceptVelocity);
 else SwitchOff(NULL,wPrototype8,bAcceptVelocity);
 
 if((*p_CsoundAssignedInstr)[j] < 1) strcpy(line,"[None]");
-else sprintf(line,"%ld",(long)(*p_CsoundAssignedInstr)[j]);
+else my_sprintf(line,"%ld",(long)(*p_CsoundAssignedInstr)[j]);
 SetField(NULL,wPrototype8,fAssignInstrument,line);
 
 return(DoSystem());

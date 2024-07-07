@@ -42,6 +42,7 @@
 #include "StringLists.h"
 #endif
 
+int trace_scriptcommands = 0;
 
 int Inits(void) {
 	int i,j,ch;
@@ -54,7 +55,7 @@ int Inits(void) {
 	AEEventHandlerUPP handler;
 	ProcessInfoRec info;
 	#endif /* BP_CARBON_GUI_FORGET_THIS */
-	FSSpec spec;
+	// FSSpec spec;
 	long t;
 
 	/* static char HTMLlatin[] Starting with "&#32" up to "&#255" 
@@ -86,7 +87,7 @@ int Inits(void) {
 	}
 	#endif
 
-	ForceTextColor = ForceGraphicColor = 0;
+	// ForceTextColor = ForceGraphicColor = 0;
 
 	#if BP_CARBON_GUI_FORGET_THIS
 	if(!GoodMachine()) return(ABORT);
@@ -113,6 +114,9 @@ int Inits(void) {
 	// InBuiltDriverOn = FALSE;
 
 	Nw = 0;
+
+	long LastTime = ZERO;
+	long PianorollShift = ZERO;
 	
 	InitOn = NoCursor = NotSaidKpress = TRUE;
 	ReceivedOpenAppEvent = FALSE;
@@ -129,7 +133,7 @@ int Inits(void) {
 	NewOrchestra = TRUE;
 	ItemNumber = ZERO;
 	AssignedTempoCsoundFile = FALSE;
-	MaxConsoleTime = 120;
+	MaxConsoleTime = 0; // No limit
 	Ratio = 0.;  Prod = 1.;
 	N_image = 0; imagePtr = NULL;
 	NumberScales = DefaultScale = 0; MaxScales = 2; Scale = NULL;
@@ -169,15 +173,15 @@ int Inits(void) {
 		}
 	Jmessage = 0;
 
-	if((p_TempFSspec=(FSSpec**) GiveSpace((Size)(WMAX * sizeof(FSSpec)))) == NULL)
-		return(ABORT);
+	/* if((p_TempFSspec=(FSSpec**) GiveSpace((Size)(WMAX * sizeof(FSSpec)))) == NULL)
+		return(ABORT); */
 
 	for(i=0; i < WMAX; i++) {
 		ptr = (char**) GiveSpace((Size)(MAXINFOLENGTH * sizeof(char)));
 		if(ptr == NULL) return(ABORT);
 		p_FileInfo[i] = ptr;
 		(*p_FileInfo[i])[0] = '\0';
-		(*p_TempFSspec)[i].name[0] = 0;
+	//	(*p_TempFSspec)[i].name[0] = 0;
 		}
 
 	if(NEWTIMER_FORGET_THIS) MaxMIDIbytes = MAXTIMESLICES - 50;
@@ -193,9 +197,9 @@ int Inits(void) {
 		}
 	ChangedMIDIprogram = FALSE;
 
-	NumInstalledDrivers = 0;
+/*	NumInstalledDrivers = 0;
 	InstalledDrivers = NULL;
-	InstalledMenuItems = NULL;
+	InstalledMenuItems = NULL; */
 
 	Nbytes = Tbytes2 = ZERO;
 
@@ -204,7 +208,7 @@ int Inits(void) {
 	for(i = 0; i < MAXPORTS; i++) {
 		MIDIacceptFilter[i] = FILTER_ALL_ON;
 		MIDIpassFilter[i] = FILTER_ALL_OFF;
-		sprintf(MIDIchannelFilter[i],"%s","1111111111111111");
+		my_sprintf(MIDIchannelFilter[i],"%s","1111111111111111");
 	//	BPPrintMessage(odInfo,"Init: MIDIchannelFilter[%d] = %s\n",i,MIDIchannelFilter[i]);
 		}
 	ResetMIDIFilter();
@@ -286,7 +290,7 @@ int Inits(void) {
 	if(MakeWindows() != OK) return(ABORT);
 	// SetDialogFont(systemFont);
 	if(InitButtons() != OK) return(ABORT);
-	if(Beta) FlashInfo("This is a beta version for evaluation...\n");
+	// if(Beta) FlashInfo("This is a beta version for evaluation...\n");
 
 	#if NEWGRAF_FORGET_THIS
 	if(!HasGWorlds()) {
@@ -308,7 +312,7 @@ int Inits(void) {
 	PictFrame.left = leftDrawPrototype;
 	PictFrame.bottom = bottomDrawPrototype;
 	PictFrame.right = rightDrawPrototype;
-	NoteScalePicture = NULL;
+	// NoteScalePicture = NULL;
 	p_Tpict = NULL; Hpos = -1;
 	Jbol = Jfunc = iProto = Jpatt = Jvar = Jflag = Jhomo = N_err = BolsInGrammar
 		= ScriptExecOn = 0;
@@ -319,6 +323,7 @@ int Inits(void) {
 	pp_MIDIcode = NULL;
 	pp_CsoundTime = NULL;
 	p_Code = NULL;
+	p_Type = NULL;
 	pp_Comment = pp_CsoundScoreText = NULL;
 	p_CsoundSize = NULL;
 	pp_CsoundScore = NULL;
@@ -328,7 +333,7 @@ int Inits(void) {
 	CsFileName[0] = MIDIfileName[0] = CsoundOrchestraName[0] = '\0';
 	EndFadeOut = 2.;
 	MIDIfileOpened = FALSE;
-	MIDIfileReply = CsFileReply = NULL;
+	// MIDIfileReply = CsFileReply = NULL;
 	if((p_Oldvalue = (MIDIcontrolstatus**)
 		GiveSpace((Size)MAXCHAN*sizeof(MIDIcontrolstatus))) == NULL) return(ABORT);
 		
@@ -368,7 +373,7 @@ int Inits(void) {
 		}
 		
 	NoAlphabet = TRUE;
-	UseGraphicsColor = UseTextColor = TRUE;
+	// UseGraphicsColor = UseTextColor = TRUE;
 
 	StartFromOne = TRUE;
 	MIDIsetUpTime = 700L;	/* ms */
@@ -378,7 +383,7 @@ int Inits(void) {
 	LoadedIn = LoadedGl = FALSE;
 	TransposeInput = FALSE; TransposeValue = 0;
 	CompiledGr = CompiledAl = CompiledPt = CompiledIn = CompiledGl = CompiledCsObjects
-		= CompiledRegressions = NotFoundMetronom = NotFoundNatureTime = FALSE;
+		= CompiledRegressions = NotFoundMetronom = NotFoundNatureTime = 0;
 	Pclock = Qclock = 1.;
 	Nature_of_time = STRIATED;
 	Pduration = 0.;  Qduration = 1.;
@@ -527,12 +532,12 @@ int Inits(void) {
 	p_ItemStart = p_ItemEnd = NULL;
 	pp_Scrap = &p_Scrap;
 
-	for(i=0; i < MAXPICT; i++) {
+	/* for(i=0; i < MAXPICT; i++) {
 		p_Picture[i] = NULL;
 		PictureWindow[i] = -1;
-		}
+		} */
 
-	for(i=0; i < MAXDIAGRAM; i++) p_Diagram[i] = NULL;
+	// for(i=0; i < MAXDIAGRAM; i++) p_Diagram[i] = NULL;
 	p_StringList = NULL; pp_StringList = &p_StringList; NrStrings = 0;
 	if(ResetScriptQueue() != OK) return(ABORT);
 	p_InitScriptLine = NULL;
@@ -558,7 +563,7 @@ int Inits(void) {
 
 	p_Seq = NULL;
 
-	if(MakeSoundObjectSpace() != OK) return(ABORT);
+	// if(MakeSoundObjectSpace() != OK) return(ABORT);
 
 	MaxVar = MaxFlag = 0;
 	Gram.p_subgram = GlossGram.p_subgram = NULL;
@@ -597,7 +602,7 @@ int Inits(void) {
 	with ParID/RefNumbp2 throughout entire program. - akozar */
 	pb.ioCompletion = NULL;
 	pb.ioNamePtr = NULL; // (StringPtr) DeftVolName;
-	io = PBHGetVol(&pb,(Boolean)FALSE);
+	io = PBHGetVol(&pb,(int)FALSE);
 	LastDir = ParIDstartup = pb.ioWDDirID;
 	LastVref = RefNumStartUp = pb.ioWDVRefNum;
 
@@ -720,11 +725,11 @@ int SetNoteNames(void) {
 					octave -= 2;
 					switch(octave) {
 						case -2:
-							sprintf(Message,"%s000",Frenchnote[notenum]); break;
+							my_sprintf(Message,"%s000",Frenchnote[notenum]); break;
 						case -1:
-							sprintf(Message,"%s00",Frenchnote[notenum]); break;
+							my_sprintf(Message,"%s00",Frenchnote[notenum]); break;
 						default:
-							sprintf(Message,"%s%ld",Frenchnote[notenum],(long)octave);
+							my_sprintf(Message,"%s%ld",Frenchnote[notenum],(long)octave);
 							break;
 						}
 					break;
@@ -732,9 +737,9 @@ int SetNoteNames(void) {
 					octave--;
 					switch(octave) {
 						case -1:
-							sprintf(Message,"%s00",Englishnote[notenum]); break;
+							my_sprintf(Message,"%s00",Englishnote[notenum]); break;
 						default:
-							sprintf(Message,"%s%ld",Englishnote[notenum],(long)octave);
+							my_sprintf(Message,"%s%ld",Englishnote[notenum],(long)octave);
 							break;
 						}
 					break;
@@ -742,16 +747,16 @@ int SetNoteNames(void) {
 					octave--;
 					switch(octave) {
 						case -1:
-							sprintf(Message,"%s00",Indiannote[notenum]); break;
+							my_sprintf(Message,"%s00",Indiannote[notenum]); break;
 						default:
-							sprintf(Message,"%s%ld",Indiannote[notenum],(long)octave);
+							my_sprintf(Message,"%s%ld",Indiannote[notenum],(long)octave);
 							break;
 						}
 					break;
 				default:
 			//	case KEYS:
 			//	case CUSTOM:
-					sprintf(Message,"%s%ld",KeyString,(long)j);
+					my_sprintf(Message,"%s%ld",KeyString,(long)j);
 					break;
 				}
 		//	BPPrintMessage(odInfo,"key = %d notenum = %d octave = %d  name = %s\n",j,notenum,octave,Message);
@@ -765,11 +770,11 @@ int SetNoteNames(void) {
 					octave -= 2;
 					switch(octave) {
 						case -2:
-							sprintf(Message,"%s000",AltFrenchnote[notenum]); break;
+							my_sprintf(Message,"%s000",AltFrenchnote[notenum]); break;
 						case -1:
-							sprintf(Message,"%s00",AltFrenchnote[notenum]); break;
+							my_sprintf(Message,"%s00",AltFrenchnote[notenum]); break;
 						default:
-							sprintf(Message,"%s%ld",AltFrenchnote[notenum],(long)octave);
+							my_sprintf(Message,"%s%ld",AltFrenchnote[notenum],(long)octave);
 							break;
 						}
 					break;
@@ -777,9 +782,9 @@ int SetNoteNames(void) {
 					octave--;
 					switch(octave) {
 						case -1:
-							sprintf(Message,"%s00",AltEnglishnote[notenum]); break;
+							my_sprintf(Message,"%s00",AltEnglishnote[notenum]); break;
 						default:
-							sprintf(Message,"%s%ld",AltEnglishnote[notenum],(long)octave);
+							my_sprintf(Message,"%s%ld",AltEnglishnote[notenum],(long)octave);
 							break;
 						}
 					break;
@@ -788,16 +793,16 @@ int SetNoteNames(void) {
 					octave--;
 					switch(octave) {
 						case -1:
-							sprintf(Message,"%s00",AltIndiannote[notenum]); break;
+							my_sprintf(Message,"%s00",AltIndiannote[notenum]); break;
 						default:
-							sprintf(Message,"%s%ld",AltIndiannote[notenum],(long)octave);
+							my_sprintf(Message,"%s%ld",AltIndiannote[notenum],(long)octave);
 							break;
 						}
 					break;
 				default:
 			//	case KEYS:
 			//	case CUSTOM:
-					sprintf(Message,"%s%ld",KeyString,(long)j);
+					my_sprintf(Message,"%s%ld",KeyString,(long)j);
 					break;
 				}
 		//	BPPrintMessage(odInfo,"ALT key = %d notenum = %d octave = %d  name = %s\n",j,notenum,octave,Message);
@@ -833,13 +838,14 @@ for(i=1; i < MAXPARAMCTRL; i++) {
 			if((*((*(Gram.p_subgram))[igram].p_rule))[irul].ctrl == i) {
 				(*((*(Gram.p_subgram))[igram].p_rule))[irul].w
 					= (*((*(Gram.p_subgram))[igram].p_rule))[irul].weight = k;
+			//	BPPrintMessage(odInfo,"Ctrlinit(%d). igram = %d irul = %d weight = %ld\n",i,igram,irul,(long)k);
 				}
 			if((*((*(Gram.p_subgram))[igram].p_rule))[irul].repeatcontrol == i) {
 				(*((*(Gram.p_subgram))[igram].p_rule))[irul].repeat = k;
 				}
 			}
 		}
-/*	sprintf(Message,"K%ld = %ld ",(long)i,(long)k);
+/*	my_sprintf(Message,"K%ld = %ld ",(long)i,(long)k);
 	Print(wTrace,Message); */
 	}
 return(OK);
@@ -861,7 +867,7 @@ OSErr err;
 DialogPtr* miscdialogs[] = { &ResumeStopPtr,&ResumeUndoStopPtr,&MIDIkeyboardPtr,
 	&PatternPtr,&ReplaceCommandPtr,&EnterPtr,&FAQPtr,&SixteenPtr,&FileSavePreferencesPtr,
 	&StrikeModePtr,&TuningPtr,&DefaultPerformanceValuesPtr,&CsoundInstrMorePtr,&MIDIprogramPtr };
-Boolean miscdlgThemed[] = { 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0 };
+int miscdlgThemed[] = { 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0 };
 
 ReplaceCommandPtr = GetNewDialog(ReplaceCommandID,NULL,0L); // could use kLastWindowOfClass instead of 0L
 ResumeStopPtr = GetNewDialog(ResumeStopID,NULL,0L);
@@ -897,12 +903,12 @@ bad = FALSE;
 ResumeStopOn = FALSE;
 Jbutt = 0;
 for(w=0; w < WMAX; w++) {
-	Window[w] = NULL;
-	CurrentColor[w] = Black;
+/*	Window[w] = NULL;
+	CurrentColor[w] = Black; */
 	IsHTML[w] = FALSE;
 	WindowFullAlertLevel[w] = 0;
 #if !BP_CARBON_GUI_FORGET_THIS
-	gpDialogs[w] = NULL;
+//	gpDialogs[w] = NULL;
 	Weird[w] = FALSE;
 	SetUpWindow(w);		// this is to create text buffers
 #endif
@@ -913,7 +919,7 @@ IsHTML[wCsoundTables] = TRUE;
 for(w=0; w < MAXWIND; w++) {
 	PleaseWait();
 	if((Window[w] = GetNewCWindow(WindowIDoffset+w, NULL, 0L)) == NULL) {
-		sprintf(Message,"Can't load resource window ID#%ld",
+		my_sprintf(Message,"Can't load resource window ID#%ld",
 			(long)WindowIDoffset+w);
 		EmergencyExit = TRUE;
 		ParamText(in_place_c2pstr(Message),"\p","\p","\p");
@@ -944,7 +950,7 @@ FlashInfo("Bol Processor Mac OS X (Carbon) GUI");
 FlashInfo("Bol Processor console app");
 #endif
 
-sprintf(Message,"%s",IDSTRING);
+my_sprintf(Message,"%s",IDSTRING);
 ShowMessage(TRUE,wMessage,Message);
 
 #if BP_CARBON_GUI_FORGET_THIS
@@ -975,7 +981,7 @@ stroke_text("canvas",title);
 for(w=MAXWIND; w < WMAX; w++) {
 	PleaseWait();
 	if((gpDialogs[w] = GetNewDialog(WindowIDoffset+w,NULL,0L)) == NULL) {
-		sprintf(Message,"Can't load dialog window ID#%ld",
+		my_sprintf(Message,"Can't load dialog window ID#%ld",
 			(long)WindowIDoffset+w);
 		EmergencyExit = TRUE;
 		ParamText(in_place_c2pstr(Message),"\p","\p","\p");
@@ -995,7 +1001,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 			case 2: proc = pushButProc; break;
 			case 3: proc = checkBoxProc; break;
 			default:
-				sprintf(Message,"=> Incorrect button type in window %ld",(long)w);
+				my_sprintf(Message,"=> Incorrect button type in window %ld",(long)w);
 				EmergencyExit = TRUE;
 				ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 				NoteAlert(OKAlert,0L);
@@ -1004,7 +1010,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 		id = (int)((((rc % 256L) - type) / 4L) + DialogStringsBaseID); /* string list ID */
 		h_res = GetResource('STR#',id);
 		if((i=ResError()) != noErr) {
-			sprintf(Message,
+			my_sprintf(Message,
 		"=> Error %ld loading resource string list for window %ld",(long)i,(long)w);
 			EmergencyExit = TRUE;
 			ParamText(in_place_c2pstr(Message),"\p","\p","\p");
@@ -1013,7 +1019,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 			}
 		im = **((short**)h_res); // (*h_res)[1];
 		if(im < 1) {
-			sprintf(Message,
+			my_sprintf(Message,
 					"=> Error in resource string list for window %ld",(long)w);
 			EmergencyExit = TRUE;
 			ParamText(in_place_c2pstr(Message),"\p","\p","\p");
@@ -1038,7 +1044,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 			PleaseWait();
 			km = (*h_res)[j]; /* length of P-string */
 			if(km == 0) {
-				sprintf(Message,
+				my_sprintf(Message,
 					"=> Error in resource string list for window %ld",(long)w);
 				EmergencyExit = TRUE;
 				ParamText(in_place_c2pstr(Message),"\p","\p","\p");
@@ -1058,7 +1064,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 			r.bottom = r.top + Buttonheight;
 			r.right = r.left + Buttonheight + (widmax * Charstep); 
 			if(r.right > right) {
-				sprintf(Message,
+				my_sprintf(Message,
 					"Can't put more than %ld buttons on window %ld",
 						(long)i+1L,(long)w);
 				EmergencyExit = TRUE;
@@ -1072,7 +1078,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 				NoteAlert(OKAlert,0L);
 				return(MISSED);
 				}
-			Hbutt[Jbutt++] = NewControl(Window[w],&r,title,(Boolean)1,
+			Hbutt[Jbutt++] = NewControl(Window[w],&r,title,(int)1,
 				(short)0,(short)0,(short)1,(short)(proc + 8),0L);
 			}
 		if (RunningOnOSX)  { Buttonheight = oldheight; }
@@ -1174,7 +1180,7 @@ if(OKvScroll[w]) {
 	scrollrect.right = r.right + 1;
 	scrollrect.bottom = r.bottom - (SBARWIDTH - 1) - Freebottom[w];
 	scrollrect.top = r.top - 1;
-	vScroll[w] = NewControl(Window[w],&scrollrect,"\p",(Boolean)1,(short)0,
+	vScroll[w] = NewControl(Window[w],&scrollrect,"\p",(int)1,(short)0,
 		(short)0,(short)0,(short)scrollBarProc,0L);
 	Vmin[w] = INT_MAX; Vmax[w] = - INT_MAX;
 	Vzero[w] = 0;
@@ -1184,7 +1190,7 @@ if(OKhScroll[w]) {
 	scrollrect.right = r.right - (SBARWIDTH - 1);
 	scrollrect.bottom = r.bottom - Freebottom[w];
 	scrollrect.top = r.bottom - SBARWIDTH - Freebottom[w];
-	hScroll[w] = NewControl(Window[w],&scrollrect,"\p",(Boolean)1,(short)0,
+	hScroll[w] = NewControl(Window[w],&scrollrect,"\p",(int)1,(short)0,
 		(short)0,(short)0,(short)scrollBarProc,0L);
 	Hmin[w] = INT_MAX; Hmax[w] = - INT_MAX;
 	Hzero[w] = 0;
@@ -1370,7 +1376,7 @@ int LoadStringResource(char***** pp_str,int ***pp_ndx,int ***pp_narg,int id,long
 	#else
 	h_res = GetResource('STR#',id);
 	if((i=ResError()) != noErr) {
-		sprintf(Message,"=> Error %ld loading resource string list ID %ld",(long)i,(long)id);
+		my_sprintf(Message,"=> Error %ld loading resource string list ID %ld",(long)i,(long)id);
 		ParamText(in_place_c2pstr(Message),"\p","\p","\p");
 		NoteAlert(OKAlert,0L);
 		EmergencyExit = TRUE;
@@ -1441,7 +1447,7 @@ int LoadStringResource(char***** pp_str,int ***pp_ndx,int ***pp_narg,int id,long
 	return(OK);
 
 	ERR:
-	sprintf(Message,"=> Error loading %ldth string in resource list ID %ld",
+	my_sprintf(Message,"=> Error loading %ldth string in resource list ID %ld",
 		(long)i,(long)id);
 	#if !BP_CARBON_GUI_FORGET_THIS
 	fprintf(stderr, "%s\n", Message);
@@ -1455,10 +1461,9 @@ int LoadStringResource(char***** pp_str,int ***pp_ndx,int ***pp_narg,int id,long
 
 
 int LoadScriptCommands() {  // This is the way we will load all lists of strings later
-	int i,im,ilabel,iarg,j,k,script_length,kk,nargs,nmax_args,index,kjn,checkscriptcommands;
+	int i,im,ilabel,iarg,j,k,script_length,kk,nargs,nmax_args,index,kjn;
 	char c,**ptr;
 
-	checkscriptcommands = 0;
 	im = NUM_SCRIPT_CMD_STRS;
 	MaxScriptInstructions = 0;
 	if((h_Script = (scriptcommandtype**) GiveSpace((Size)im * sizeof(scriptcommandtype))) == NULL)
@@ -1483,12 +1488,12 @@ int LoadScriptCommands() {  // This is the way we will load all lists of strings
 			}
 		nargs = nargs / 2; // Number of arguments is half the number of '_'
 		if(nargs > nmax_args) nmax_args = nargs;
+		if(trace_scriptcommands) BPPrintMessage(odInfo,"\nScriptCommand[%d] = %s (%d args)\n",i,ScriptCommand[i],nargs);
+		ScriptNrArg(i) = 0; // 2024-07-06
 		if((ScriptLabel(i) = (char****) GiveSpace((Size)(nargs+1) * sizeof(char**)))
 			== NULL) goto ERR2;
-		if(nargs > 0 && ((ScriptArg(i) = (char****) GiveSpace((Size)(nargs) * sizeof(char**)))
-			== NULL)) goto ERR2;
-		if(checkscriptcommands) BPPrintMessage(odInfo,"\nScriptCommand[%d] = %s (%d args)\n",i,ScriptCommand[i],nargs);
-		// continue;
+		if(nargs > 0 && ((ScriptArg(i) = (char****) GiveSpace((Size)(nargs) * sizeof(char**))) == NULL)) goto ERR2;
+	//	if((ScriptArg(i) = (char****) GiveSpace((Size)(nargs) * sizeof(char**))) == NULL) goto ERR2;
 		index = 0;
 		while((c=ScriptCommand[i][j]) != ' ') {
 			if(c >= '0' && c <= '9')
@@ -1500,22 +1505,22 @@ int LoadScriptCommands() {  // This is the way we will load all lists of strings
 			j++;
 			}
 		(*h_ScriptIndex)[i] = index;
-		if(checkscriptcommands) BPPrintMessage(odInfo,"index = %d\n",(*h_ScriptIndex)[i]);
+		if(trace_scriptcommands) BPPrintMessage(odInfo,"index = %d\n",(*h_ScriptIndex)[i]);
 
 	NEWLABELPART:
 		while((c=ScriptCommand[i][j]) == ' ' || c == '_') j++;
 		if(j >= script_length) {
-			continue;
+			continue; // To next script
 			}
 		k = j; while(k < script_length && (c=ScriptCommand[i][k]) != '_') k++;
 		k--; while((c=ScriptCommand[i][k]) == ' ') k--; k++;
 		kjn = k - j + 2;
-		if(checkscriptcommands) BPPrintMessage(odInfo,"size of next label = %d\n",kjn);
+		if(trace_scriptcommands) BPPrintMessage(odInfo,"size of next label = %d\n",kjn);
 		if(kjn < 1) {
 			BPPrintMessage(odError,"Error in script label: kjn = %d\n",kjn);
 			goto ERR2;
 			}
-		ptr = (char**) GiveSpace((Size)(kjn) * sizeof(char));
+		ptr = (char**) GiveSpace((Size)(kjn + 1) * sizeof(char));
 		if((p_ScriptLabelPart(i,ilabel) = ptr) == NULL) goto ERR2;
 		k -= j;
 		for(kk=0; kk < k; j++,kk++) {
@@ -1523,18 +1528,17 @@ int LoadScriptCommands() {  // This is the way we will load all lists of strings
 			(*(p_ScriptLabelPart(i,ilabel)))[kk] = c;
 			}
 		(*(p_ScriptLabelPart(i,ilabel)))[kk] = '\0';
-		if(checkscriptcommands) BPPrintMessage(odInfo,"ScriptLabel[%d] = %s\n",ilabel,(*(p_ScriptLabelPart(i,ilabel))));
+		if(trace_scriptcommands) BPPrintMessage(odInfo,"ScriptLabel[%d] = %s\n",ilabel,(*(p_ScriptLabelPart(i,ilabel))));
 		ScriptNrLabel(i) = ++ilabel;
 
 	NEWARGPART:
-	//	if(nargs == 0) continue;
 		while((c=ScriptCommand[i][j]) == ' ' || c == '_') j++;
 		if(j >= script_length) {
 			continue;
 			}
 		k = j; while(k < script_length && (c=ScriptCommand[i][k]) != '_') k++;
 		kjn = k - j + 2;
-		if(checkscriptcommands) BPPrintMessage(odInfo,"size of next arg = %d\n",kjn);
+		if(trace_scriptcommands) BPPrintMessage(odInfo,"size of next arg = %d\n",kjn);
 		if(kjn < 1) {
 			BPPrintMessage(odError,"Error in script arg: kjn = %d\n",kjn);
 			goto ERR2;
@@ -1547,7 +1551,7 @@ int LoadScriptCommands() {  // This is the way we will load all lists of strings
 			(*(p_ScriptArgPart(i,iarg)))[kk] = c;
 			}
 		(*(p_ScriptArgPart(i,iarg)))[kk] = '\0';
-		if(checkscriptcommands) BPPrintMessage(odInfo,"ScriptArg[%d] = %s\n",iarg,(*(p_ScriptArgPart(i,iarg))));
+		if(trace_scriptcommands) BPPrintMessage(odInfo,"ScriptArg[%d] = %s\n",iarg,(*(p_ScriptArgPart(i,iarg))));
 		ScriptNrArg(i) = ++iarg;
 		goto NEWLABELPART;
 		}
@@ -1570,7 +1574,7 @@ int LoadScriptCommands() {  // This is the way we will load all lists of strings
 		if((ptr=(char**) GiveSpace((Size)MAXLIN * sizeof(char))) == NULL) goto ERR2;
 		(*(ScriptLine.arg))[i] = ptr;
 		}
-	if(checkscriptcommands) BPPrintMessage(odInfo,"\nAll %d script instructions have been loaded\n\n",im);
+	if(trace_scriptcommands) BPPrintMessage(odInfo,"\nAll %d script instructions have been loaded\n\n",im);
 	// EmergencyExit = TRUE;
 	return(OK);
 	ERR:
@@ -1638,7 +1642,7 @@ ObjectMode = ObjectTry = Improvize = StepProduce = StepGrammars
 	= ShowGraphic = ComputeWhilePlay = NeverResetWeights = FALSE;
 SynchronizeStart = CyclicPlay = NoConstraint = AllItems
 	= WriteMIDIfile = OutCsound = CsoundTrace = WillRandomize = FALSE;
-ResetWeights = ResetFlags = ResetControllers = DisplayItems = ShowMessages
+ResetWeights = ResetFlags = ResetControllers = ShowMessages
 	= AllowRandomize = TRUE;
 NoteConvention = ENGLISH;
 return(OK);
@@ -1695,7 +1699,7 @@ if(!gestaltErr) {
 		}
 #endif
 	if(gestaltAnswer < 0x002) {
-		sprintf(Message,"BP3 requires at least a 68020 processor.\nThis machine has a %s processor",
+		my_sprintf(Message,"BP3 requires at least a 68020 processor.\nThis machine has a %s processor",
 			processor[gestaltAnswer]);
 		ParamText(in_place_c2pstr(Message), "\p", "\p", "\p");
 		StopAlert(OKAlert, NULL);
@@ -1789,11 +1793,11 @@ for (i = fileM; i <= MAXMENU; i++) {
 #endif
 
 if (!HaveAppearanceManager) {
-	sprintf(Message,"Find again %c-option A",(char) commandMark);
+	my_sprintf(Message,"Find again %c-option A",(char) commandMark);
 	c2pstrcpy(PascalLine, Message);
 	SetMenuItemText(myMenus[searchM],findagainCommand,PascalLine);
 
-	sprintf(Message,"Enter and find %c-option E",(char) commandMark);
+	my_sprintf(Message,"Enter and find %c-option E",(char) commandMark);
 	c2pstrcpy(PascalLine, Message);
 	SetMenuItemText(myMenus[searchM],enterfindCommand,PascalLine);
 	}
@@ -1806,7 +1810,7 @@ else {  // use Appearance Mgr features to set option-key shortcuts
 EnableMenuItem(myMenus[searchM],enterfindCommand);
 
 if (!HaveAppearanceManager) {
-	sprintf(Message,"Type tokens [toggle] %c-option T",(char) commandMark);
+	my_sprintf(Message,"Type tokens [toggle] %c-option T",(char) commandMark);
 	c2pstrcpy(PascalLine, Message);
 	SetMenuItemText(myMenus[editM],tokenCommand,PascalLine);
 	}
@@ -1816,7 +1820,7 @@ else {  // use Appearance Mgr features to set option-key shortcuts
 	}
 EnableMenuItem(myMenus[editM],tokenCommand);
 
-/*sprintf(Message,"Help                       %c-?",(char) commandMark);
+/*my_sprintf(Message,"Help                       %c-?",(char) commandMark);
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[actionM],helpCommand,PascalLine);
 EnableMenuItem(myMenus[actionM],helpCommand);*/
@@ -1911,7 +1915,7 @@ return(OK);
 }
 
 
-int Boolean HasGWorlds(void)
+int int HasGWorlds(void)
 {
 long qdResponse,mask;
 OSErr err;
@@ -1997,9 +2001,9 @@ if(io == noErr) {
 	if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ENTERNAME;
 	MystrcpyHandleToString(MAXNAME,0,UserInstitution,p_completeline);
 	CloseMe(&refnum);
-	sprintf(Message,"Bonjour %s!",UserName);
+	my_sprintf(Message,"Bonjour %s!",UserName);
 	FlashInfo(Message);
-	goto OUT;
+	goto SORTIR;
 	
 ENTERNAME:
 	CloseMe(&refnum);
@@ -2025,7 +2029,7 @@ else {
 			Alert1("This copy of BP2 has been used for more than 30 days.\nIt's a good idea to click the 'Register' button...");
 			goto REGISTERED;
 			}
-		goto OUT;
+		goto SORTIR;
 ERR:
 		CloseMe(&refnum);
 		goto MAKE;
@@ -2042,10 +2046,10 @@ MAKE:
 		result = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
 		if(result != OK) {
 			Alert1("Unexpected problem creating the registration file.  Is the hard disk full?\nContact the authors");
-			goto OUT;
+			goto SORTIR;
 			}
 		WriteHeader(-1,refnum,reply.sfFile);
-		sprintf(Message,"%.0f",(double)today);
+		my_sprintf(Message,"%.0f",(double)today);
 		WriteToFile(NO,MAC,Message,refnum);
 		CloseMe(&refnum);
 		spec = reply.sfFile;
@@ -2057,7 +2061,7 @@ REGISTERED:
 		Alert1("If you already registered, contact <bel@kagi.com> to get an activation key");
 		}
 	}
-OUT:
+SORTIR:
 MyDisposeHandle((Handle*)&p_line);
 MyDisposeHandle((Handle*)&p_completeline);
 return(OK);
@@ -2114,29 +2118,29 @@ if(formyself && line[0] == '\0') {
 	goto TRYENTER;
 	}
 if(strlen(line) >= MAXNAME) {
-	sprintf(Message,"Name can't be more than %ld chars",(long)(MAXNAME-1L));
+	my_sprintf(Message,"Name can't be more than %ld chars",(long)(MAXNAME-1L));
 	Alert1(Message);
 	goto TRYENTER;
 	}
 strcpy(UserName,line);
-if(UserName[0] == '\0') sprintf(UserName,"<unknown>");
+if(UserName[0] == '\0') my_sprintf(UserName,"<unknown>");
 
 GetDialogItem(enternameptr,fInstitution,&itemtype,&itemhandle,&r);
 GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,line);
 Strip(line);
 if(strlen(line) >= MAXNAME) {
-	sprintf(Message,"Institution can't be more than %ld chars",(long)(MAXNAME-1L));
+	my_sprintf(Message,"Institution can't be more than %ld chars",(long)(MAXNAME-1L));
 	Alert1(Message);
 	goto TRYENTER;
 	}
 strcpy(UserInstitution,line);
-if(UserInstitution[0] == '\0') sprintf(UserInstitution,"<unknown>");
+if(UserInstitution[0] == '\0') my_sprintf(UserInstitution,"<unknown>");
 
 if(formyself) {
-	sprintf(Message,"Your name is: %s",UserName);
+	my_sprintf(Message,"Your name is: %s",UserName);
 	if(Answer(Message,'Y') != YES) goto TRYENTER;
-	sprintf(Message,"Your institution is: %s",UserInstitution);
+	my_sprintf(Message,"Your institution is: %s",UserInstitution);
 	if(Answer(Message,'Y') != YES) goto TRYENTER;
 	}
 

@@ -94,14 +94,19 @@ int Jmessage;
 
 long GramSelStart,GramSelEnd;
 
-FSSpec **p_TempFSspec;
+long eventCount,eventCountMax;
+UInt64 initTime;
+MIDI_Event* eventStack;
+size_t MaxMIDIMessages;
+
+// FSSpec **p_TempFSspec;
 
 char **p_MessageMem[MAXMESSAGE],**p_HTMLchar1,**p_HTMLchar2,**p_HTMLdiacritical;
 MIDIstream Stream;
 
-RGBColor White,Black,Red,Green,Blue,Yellow,Magenta,Cyan,Brown,None,NoteScaleColor1,NoteScaleColor2;
+/* RGBColor White,Black,Red,Green,Blue,Yellow,Magenta,Cyan,Brown,None,NoteScaleColor1,NoteScaleColor2;
 RGBColor Color[MAXCOLOR],PianoColor[MAXCHAN+1],**p_ObjectColor;
-int UseGraphicsColor,UseTextColor,ForceTextColor,ForceGraphicColor;
+int UseGraphicsColor,UseTextColor,ForceTextColor,ForceGraphicColor; */
 
 node PrefixTree,SuffixTree;
 long SwitchState;
@@ -115,6 +120,7 @@ MIDIcontrolstatus **p_Oldvalue;
 char ****p_GramProcedure,****p_PerformanceControl,****p_GeneralMIDIpatch,
 	****p_Diacritical,****p_HTMLdiacrList;
 long MaxProc,MaxPerformanceControl;
+int LoadedAlphabet,LoadedStartString;
 INscripttype** p_INscript;
 OUTscripttype** p_OUTscript;
 int StopPlay,TraceMIDIinteraction;
@@ -174,6 +180,7 @@ char **p_InitScriptLine;
 unsigned Seed,UsedRandom;
 short CurrentVref,LastVref;
 int ScriptW,CurrentChannel;
+int imageHits;
 long CurrentDir,LastDir,OldModulation;
 int PitchbendRange[MAXCHAN+1],DeftPitchbendRange,PitchbendRate[MAXCHAN+1],ModulationRate[MAXCHAN+1],PressRate[MAXCHAN+1],
 	VolumeRate[MAXCHAN+1],VolumeControl[MAXCHAN+1],PanoramicRate[MAXCHAN+1],PanoramicControl[MAXCHAN+1],
@@ -248,9 +255,9 @@ char **p_DefaultChannel,**p_AlphaCtrlChan,**p_AlphaCtrl,**p_Type,**p_PasteDone,
 	**p_RescaleMode,**p_DelayMode,**p_ForwardMode,
 	**p_BreakTempoMode,**p_ContBegMode,**p_ContEndMode,**p_CoverBegMode,**p_CoverEndMode,
 	**p_TruncBegMode,**p_TruncEndMode,**p_PreRollMode,**p_PostRollMode,**p_PeriodMode,
-	**p_ForceIntegerPeriod,**p_StrikeAgain,**p_CompiledCsoundScore,
+	**p_ForceIntegerPeriod,**p_StrikeAgain,
 	****pp_Comment,****pp_CsoundScoreText,****p_CsoundTables;
-int **p_AlphaCtrlNr,MaxCsoundTables;
+int **p_AlphaCtrlNr,MaxCsoundTables,**p_CompiledCsoundScore;
 CsoundLine ****pp_CsoundScore;
 double **p_AlphaMin,**p_AlphaMax,**p_Quan,ForceRatio,Infpos1;
 float **p_PivPos,**p_BeforePeriod;
@@ -302,11 +309,11 @@ long CountOn;
 unsigned long WaitStartDate,WaitEndDate;
 char Message[MAXLIN],TheName[MAXNAME];
 char DateMark[] = "Date:";
-PolyHandle p_Diagram[MAXDIAGRAM];
+// PolyHandle p_Diagram[MAXDIAGRAM];
 int Ndiagram,ObjectMode,ObjectTry;
 int DiagramWindow[MAXDIAGRAM];
 int Finding,Hpos;
-PicHandle NoteScalePicture,p_Picture[MAXPICT];
+// PicHandle NoteScalePicture,p_Picture[MAXPICT];
 Rect NoteScaleRect,PictRect[MAXPICT];
 int Npicture,Offscreen;
 int PictureWindow[MAXPICT];
@@ -320,23 +327,23 @@ long DataOrigin,Tcurr,LastTime,PianorollShift;
 unsigned long NextTickDate[MAXTICKS],NextBeatDate;
 
 int Nw,LastEditWindow,LastComputeWindow,OutputWindow,ResumeStopOn,ResetTickFlag,ResetTickInItemFlag;
-WindowPtr Window[WMAX];
+/* WindowPtr Window[WMAX];
 DialogPtr ResumeStopPtr,ResumeUndoStopPtr,MIDIkeyboardPtr;
 DialogPtr PatternPtr,ReplaceCommandPtr,EnterPtr,GreetingsPtr,FAQPtr,SixteenPtr,FileSavePreferencesPtr,
 	StrikeModePtr,TuningPtr,DefaultPerformanceValuesPtr,CsoundInstrMorePtr,OMSinoutPtr,MIDIprogramPtr;
-DialogPtr gpDialogs[WMAX];
+DialogPtr gpDialogs[WMAX]; */
 /* DialogRecord EnterDR,ReplaceCommandDR,TuningDR,DefaultPerformanceValuesDR,CsoundInstrMoreDR,PatternDR,
 	MIDIprogramDR,FileSavePreferencesDR; */
 
 TextHandle TEH[WMAX];
 
 int linesInFolder[WMAX];
-Boolean WindowFullAlertLevel[WMAX];	// used in TextEdit build to track which alerts have been shown
-MenuHandle myMenus[MAXMENU+1];
+int WindowFullAlertLevel[WMAX];	// used in TextEdit build to track which alerts have been shown
+// MenuHandle myMenus[MAXMENU+1];
 int Buttonheight = 14;
 int NewEnvironment,NewColors,ShowPianoRoll,ToldAboutPianoRoll,ShowObjectGraph,Help,ChangedCoordinates[WMAX];
-RGBColor CurrentColor[WMAX];
-ControlHandle vScroll[WMAX],hScroll[WMAX];
+// RGBColor CurrentColor[WMAX];
+// ControlHandle vScroll[WMAX],hScroll[WMAX];
 int SlideH[WMAX],SlideV[WMAX],Hmin[WMAX],Hmax[WMAX],Hzero[WMAX],
 	Vmin[WMAX],Vmax[WMAX],Vzero[WMAX];
 short IsHTML[WMAX],IsText[WMAX],Weird[WMAX];
@@ -363,7 +370,7 @@ int Freebottom[] =	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 short Editable[] =	{1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0};
 short HasFields[] =  	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,1,0,0,1,1,1,1,1,1,0,0,1,1,1,0,1}; // Note: HasFields[n] true also assumes IsDialog[n] true
 short IsDialog[] =  	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-Boolean WindowUsesThemeBkgd[] = 
+int WindowUsesThemeBkgd[] = 
 				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,1,0,0,0,0,0,0,0,1,0,0,0,0,1};
 
 	// gFileType maps window/file index to a FileTypeIndex
@@ -408,16 +415,16 @@ char WindowName[][MAXNAME] = {"Grammar","Alphabet","Start string",
 
 char FileName[WMAX][MAXNAME+1],CsFileName[MAXNAME+1],MIDIfileName[MAXNAME+1],
 	CsoundOrchestraName[MAXNAME+1];
-FSSpec MIDIfileSpec;
+// FSSpec MIDIfileSpec;
 float EndFadeOut;
 int CurrentVolume[MAXCHAN+1];
 long WindowParID[WMAX],ParIDstartup,ParIDbp2;
 // Str255 DeftVolName;
-Cursor EditCursor,WatchCursor,CrossCursor,HelpCursor,KeyboardCursor,WheelCursor[4],
-	FootCursor[8],DiskCursor[2];
+/* Cursor EditCursor,WatchCursor,CrossCursor,HelpCursor,KeyboardCursor,WheelCursor[4],
+	FootCursor[8],DiskCursor[2]; */
 int Jwheel,Jfeet,Jdisk;
 int Jbutt; /* Number of buttons created in dialogs */
-ControlHandle Hbutt[MAXBUTT];
+// ControlHandle Hbutt[MAXBUTT];
 int Dirty[WMAX],CompiledGr,CompiledPt,CompiledAl,CompiledIn,CompiledGl,CompiledCsObjects,
 	CompiledRegressions,LoadedIn,LoadedGl,LoadedCsoundInstruments,Interactive,
 	NotFoundMetronom,NotFoundNatureTime;
@@ -437,15 +444,15 @@ int InitOn,SetTimeOn,ComputeOn,PolyOn,SoundOn,SelectOn,PrintOn,InputOn,ClickRule
 	ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
 double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 double MaxFrac;
-Boolean HaveAppearanceManager;
-Boolean RunningOnOSX;
-ControlActionUPP vScrollUPP,hScrollUPP;
-NSWReply** MIDIfileReply;
-NSWReply** CsFileReply;
-FSSpec TempSpec;
-UInt32 NumInstalledDrivers;
-BPMidiDriver** InstalledDrivers;
-DynamicMenuItem** InstalledMenuItems;
+int HaveAppearanceManager;
+int RunningOnOSX;
+// ControlActionUPP vScrollUPP,hScrollUPP;
+// NSWReply** MIDIfileReply;
+// NSWReply** CsFileReply;
+// FSSpec TempSpec;
+// UInt32 NumInstalledDrivers;
+// BPMidiDriver** InstalledDrivers;
+// DynamicMenuItem** InstalledMenuItems;
 
 long WidthMax,HeightMax;
 

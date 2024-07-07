@@ -38,9 +38,28 @@
 
 #include "-BP2decl.h"
 
+#if defined(_WIN64)
+	void mysleep(long waitTime) {
+		LARGE_INTEGER perfCnt, start, now;
+		QueryPerformanceFrequency(&perfCnt);
+		QueryPerformanceCounter(&start);
+		do QueryPerformanceCounter((LARGE_INTEGER*)&now);
+		while((now.QuadPart - start.QuadPart) / (float)(perfCnt.QuadPart) * 1000 * 1000 < waitTime);	
+		}
+#elif defined(__APPLE__)
+    void mysleep(long waitTime) {
+        usleep(waitTime);
+        }
+#elif defined(__linux__)
+    void mysleep(long waitTime) {
+        usleep(waitTime);
+        }
+#endif
+
+
 int trace_FixNumberConstant = 0;
 
-char* str_replace(const char *str, const char *search, const char *replace) {
+char* str_replace(const char *search, const char *replace, const char *str) {
     char *result; // The return string
     const char *insert_point; // Next insert point
     int count; // Number of replacements
@@ -113,23 +132,24 @@ int Expect(char c,char* string,char d)
 char line[MAXLIN];
 
 if(isspace(d))
-	sprintf(line,"=> Expecting '%c' after '%s'. Found a space instead.\n",
+	my_sprintf(line,"=> Expecting '%c' after '%s'. Found a space instead.\n",
 		c,string);
 else
 	if(isgraph(d))
-		sprintf(line,"=> Expecting '%c' after '%s'. Found '%c' instead.\n",
+		my_sprintf(line,"=> Expecting '%c' after '%s'. Found '%c' instead.\n",
 			c,string,d);
 	else
-		sprintf(line,"=> Expecting '%c' after '%s'. Found '%c' (ASCII %ld) instead.\n",
+		my_sprintf(line,"=> Expecting '%c' after '%s'. Found '%c' (ASCII %ld) instead.\n",
 			c,string,d,(long)((256L + d) % 256L));
 Print(wTrace,line);
 return(OK);
 }
 
-int Notify(char* message) { // Doesn't work on Mac because of authorisations, although the code is correct: it works when calling bp with Terminal command
+int Notify(char* message,int up) { // Doesn't work on Mac because of authorisations, although the code is correct: it works when calling bp with Terminal command
 	if(strcmp(message,"") == 0) return OK;
+    BPPrintMessage(odError,"👉 %s\n",message); // We use 'odError' so that it displays even in Improvize mode 
     #if defined(_WIN32) || defined(_WIN64)
-    MessageBox(NULL, message, "Alert", MB_OK | MB_ICONINFORMATION);
+    if(up) MessageBox(NULL, message, "Alert", MB_OK | MB_ICONINFORMATION);
     #elif defined(__APPLE__)
     char command[1024];
 	int timeout = 5;
@@ -137,11 +157,12 @@ int Notify(char* message) { // Doesn't work on Mac because of authorisations, al
     snprintf(command,sizeof(command), 
         "osascript -e 'display notification \"%s\" with title \"BP3:\"'", message);
     system(command);
-	BPPrintMessage(odError,"👉 %s\n",message); // We use 'odError' so that it displays even in Improvize mode 
-    #elif defined(__linux__)
-    char linuxCommand[1024];
-    snprintf(linuxCommand, sizeof(linuxCommand), "zenity --info --text=\"%s\" --title=\"Alert\" --timeout=%d", message, timeout);
-    system(linuxCommand);
+	#elif defined(__linux__)
+    if(up) {
+        char linuxCommand[1024];
+        snprintf(linuxCommand, sizeof(linuxCommand), "zenity --info --text=\"%s\" --title=\"Alert\" --timeout=%d", message, timeout);
+        system(linuxCommand);
+        }
     #endif
     return OK;
 	}
@@ -167,7 +188,7 @@ do {
 	if(c == '\0' || !isdigit(c)) break;
 	n = 10L * n + (long) (c - '0'); done = TRUE;
 	if(n > INT_MAX) {	// FIXME: can never be true when sizeof(long) == sizeof(int)
-		sprintf(Message,"\n=> Maximum integer value: %ld.\n",(long)INT_MAX);
+		my_sprintf(Message,"\n=> Maximum integer value: %ld.\n",(long)INT_MAX);
 		Print(wTrace,Message);
 		return(INT_MAX);
 		}
@@ -213,7 +234,7 @@ do {
 		}
 	n = 16L * n + (long) j; done = TRUE;
 	if(n > INT_MAX) {	// FIXME: can never be true when sizeof(long) == sizeof(int)
-		sprintf(Message,"\n=> Maximum integer value: %ld.\n",(long)INT_MAX);
+		my_sprintf(Message,"\n=> Maximum integer value: %ld.\n",(long)INT_MAX);
 		Print(wTrace,Message);
 		return(INT_MAX);
 		}
@@ -249,7 +270,7 @@ do {
 	if(c == '\0' || !isdigit(c)) break;
 	n = 10L * n + (long) (c - '0'); done = TRUE;
 	if(n >= Infpos) {	// FIXME: can never be true (Infpos == LONG_MAX)
-		sprintf(Message,"\n=> Maximum value: %ld.\n",(long)Infpos-1);
+		my_sprintf(Message,"\n=> Maximum value: %ld.\n",(long)Infpos-1);
 		Print(wTrace,Message);
 		return(Infpos);
 		}
@@ -273,28 +294,28 @@ int done;
 char c;
 
 n = 0; done = FALSE;
-if(*p_i >= strlen(line)) return(INT_MAX * 2L);	// FIXME: integer overflow (*2UL or UINT16_MAX ?)
+if(*p_i >= strlen(line)) return(UINT16_MAX);	// FIXME: integer overflow (*2UL or UINT16_MAX ?)
 do {
 	c = line[*p_i];
 	if(!done && c == '-') {
 		Print(wTrace,"\n=> Unsigned integer should not be negative");
-		return(INT_MAX * 2L);
+		return(UINT16_MAX);
 		}
 	c = line[*p_i];
 	if(c == '\0' || !isdigit(c)) break;
 	n = 10L * n + (long) (c - '0'); done = TRUE;
-	if(n >= INT_MAX * 2L) {	// FIXME: use wider integers and proper max value
-		sprintf(Message,"\nMaximum unsigned value: %ld.\n",
-			(long) INT_MAX * 2L - 1L);	// FIXME (UINT16_MAX = INT16_MAX*2 + 1)
+	if(n >= UINT16_MAX) {	// FIXME: use wider integers and proper max value
+		my_sprintf(Message,"\nMaximum unsigned value: %ld.\n",
+			(long) UINT16_MAX - 1L);	// FIXME (UINT16_MAX = INT16_MAX*2 + 1)
 		Print(wTrace,Message);
-		return(INT_MAX * 2L);
+		return(UINT16_MAX);
 		}
 	(*p_i)++;
 	}
 while(c != '\0');
 if(!done) {
 	Print(wTrace,"\n=> Number missing.\n");
-	return(INT_MAX * 2L);
+	return(UINT16_MAX);
 	}
 return((unsigned) n);
 }
@@ -631,7 +652,7 @@ if(GetCtrlValue(wTickDialog,dSpecialTick)) {
 	GetField(NULL,TRUE,wTickDialog,fThisTickVelocity,line,&p,&q);
 	v =  p/q;
 	if(v < 0 || v > 127) {
-		sprintf(line,"=> Velocity range is 0..127\nCan't accept %ld",(long)v);
+		my_sprintf(line,"=> Velocity range is 0..127\nCan't accept %ld",(long)v);
 		Alert1(line);
 		SetField(NULL,wTickDialog,fThisTickVelocity,"[?]");
 		SelectField(NULL,wTickDialog,fThisTickVelocity,TRUE);
@@ -640,7 +661,7 @@ if(GetCtrlValue(wTickDialog,dSpecialTick)) {
 	GetField(NULL,TRUE,wTickDialog,fThisTickChannel,line,&p,&q);
 	c =  p/q;
 	if(c < 1 || c > 16) {
-		sprintf(line,"=> Channel range is 1..16\nCan't accept %ld",(long)c);
+		my_sprintf(line,"=> Channel range is 1..16\nCan't accept %ld",(long)c);
 		Alert1(line);
 		SetField(NULL,wTickDialog,fThisTickChannel,"[?]");
 		SelectField(NULL,wTickDialog,fThisTickChannel,TRUE);
@@ -649,7 +670,7 @@ if(GetCtrlValue(wTickDialog,dSpecialTick)) {
 	GetField(NULL,TRUE,wTickDialog,fThisTickKey,line,&p,&q);
 	k =  p/q;
 	if(k < 0 || k > 127) {
-		sprintf(line,"=> Key range is 0..127\nCan't accept %ld",(long)k);
+		my_sprintf(line,"=> Key range is 0..127\nCan't accept %ld",(long)k);
 		Alert1(line);
 		SetField(NULL,wTickDialog,fThisTickKey,"[?]");
 		SelectField(NULL,wTickDialog,fThisTickKey,TRUE);
@@ -705,11 +726,11 @@ vel = TickVelocity[iTick];
 ch = TickChannel[iTick];
 key = TickKey[iTick];
 FindTickValues(ThisTick[iTick][jTick],&vel,&ch,&key);
-sprintf(line,"%ld",(long)vel);
+my_sprintf(line,"%ld",(long)vel);
 SetField(NULL,wTickDialog,fThisTickVelocity,line);
-sprintf(line,"%ld",(long)ch);
+my_sprintf(line,"%ld",(long)ch);
 SetField(NULL,wTickDialog,fThisTickChannel,line);
-sprintf(line,"%ld",(long)key);
+my_sprintf(line,"%ld",(long)key);
 SetField(NULL,wTickDialog,fThisTickKey,line);
 return(OK);
 }
@@ -962,7 +983,7 @@ switch(j) {
 	case 13:
 		MakeRatio((double)ULONG_MAX,x,&p,&q);
 		if(p < 0.) {
-			sprintf(Message,"=> Metronome cannot be set to negative value. '%.4f' not accepted",
+			my_sprintf(Message,"=> Metronome cannot be set to negative value. '%.4f' not accepted",
 				x);
 			Alert1(Message);
 			return(ABORT);
@@ -1019,7 +1040,7 @@ return(OK);
 int SetTempo(void)
 {
 Rect r;
-ControlHandle itemhandle;
+// ControlHandle itemhandle;
 short itemtype;
 int speed_change;
 double p,q;
@@ -1042,7 +1063,7 @@ if(Pclock == 0.) {
 else {
 	if(Simplify((double)INT_MAX,(double)60L*Qclock,Pclock,&p,&q) != OK)
 		Simplify((double)INT_MAX,Qclock,floor((double)Pclock/60.),&p,&q);
-	sprintf(line,"%.4f", ((double)p)/q);
+	my_sprintf(line,"%.4f", ((double)p)/q);
 	}
 
 #if BP_CARBON_GUI_FORGET_THIS
@@ -1170,9 +1191,9 @@ ControlHandle itemhandle;
 short itemtype;
 char line[MAXFIELDCONTENT];
 
-sprintf(line,"%ld",(long)BufferSize / 2L - 1L);
+my_sprintf(line,"%ld",(long)BufferSize / 2L - 1L);
 SetField(NULL, wBufferSize, fBufferSize, line);
-sprintf(line,"%ld",(long)DeftBufferSize / 2L - 1L);
+my_sprintf(line,"%ld",(long)DeftBufferSize / 2L - 1L);
 SetField(NULL, wBufferSize, fDeftBufferSize, line);
 if(UseBufferLimit) {
 	GetDialogItem(gpDialogs[wBufferSize],dNoSizeLimit,&itemtype,(Handle*)&itemhandle,&r);
@@ -1278,7 +1299,7 @@ MyPtoCstr(MAXFIELDCONTENT,t,s);
 if((FloatToNiceRatio(s,&p,&q) != OK) || (p == ZERO)
 		|| (Simplify((double)INT_MAX,(double)5. * q,(double)p,&pp,&qq) != OK)) {
 	Alert1("=> Scale out of range");
-	goto OUT;
+	goto SORTIR;
 	}
 while((pp > INT_MAX) || (qq > INT_MAX)) {
 	pp = (pp / 2.);
@@ -1289,11 +1310,11 @@ if(GraphicScaleP != pp || GraphicScaleQ != qq) {
 	}
 GraphicScaleP = (int) pp;
 GraphicScaleQ = (int) qq;
-/* sprintf(Message,"Scale = %ld / %ld",(long)GraphicScaleP,(long)GraphicScaleQ);
+/* my_sprintf(Message,"Scale = %ld / %ld",(long)GraphicScaleP,(long)GraphicScaleQ);
 ShowMessage(TRUE,wMessage,Message); */
 rep = OK;
 
-OUT:
+SORTIR:
 InputOn--;
 return(rep);
 }
@@ -1306,11 +1327,11 @@ ControlHandle itemhandle;
 short itemtype;
 char line[MAXFIELDCONTENT];
 
-sprintf(line,"%ld",(long)Time_res);
+my_sprintf(line,"%ld",(long)Time_res);
 SetField(NULL, wTimeAccuracy, fTimeRes, line);
-sprintf(line,"%ld",(long)Quantization);
+my_sprintf(line,"%ld",(long)Quantization);
 SetField(NULL, wTimeAccuracy, fQuantize, line);
-sprintf(line,"%ld",(long)MIDIsetUpTime);
+my_sprintf(line,"%ld",(long)MIDIsetUpTime);
 SetField(NULL, wTimeAccuracy, fSetUpTime, line);
 if(QuantizeOK) {
 	GetDialogItem(gpDialogs[wTimeAccuracy],dOff,&itemtype,
@@ -1379,7 +1400,7 @@ GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,line);
 k = atol(line);
 if(k < Time_res) {
-	sprintf(Message,"=> Minimum quantization: %ldms",(long)Time_res);
+	my_sprintf(Message,"=> Minimum quantization: %ldms",(long)Time_res);
 	Alert1(Message);
 	Quantization = Time_res;
 	SetTimeAccuracy();
@@ -1597,7 +1618,7 @@ if(OutCsound)
 	SetField(FileSavePreferencesPtr,-1,fCsoundFileName,CsFileName);
 if(WriteMIDIfile)
 	SetField(FileSavePreferencesPtr,-1,fMIDIFileName,MIDIfileName);
-sprintf(line,"%.2f",EndFadeOut);
+my_sprintf(line,"%.2f",EndFadeOut);
 SetField(FileSavePreferencesPtr,-1,fFadeOut,line);
 return(OK);
 }
@@ -1630,7 +1651,7 @@ if(EndFadeOut < 0. || EndFadeOut > 100.) {
 	else {
 		Myatof(line,&p,&q);
 		EndFadeOut = ((float)p) / q;
-		sprintf(line,"%.2f",EndFadeOut);
+		my_sprintf(line,"%.2f",EndFadeOut);
 		SetField(FileSavePreferencesPtr,-1,fFadeOut,line);
 		BPUpdateDialog(FileSavePreferencesPtr);
 		}
@@ -1659,7 +1680,7 @@ if(TransposeValue != oldtransposevalue && TransposeValue != 0
 	&& TransposeInput && ReadKeyBoardOn && Jcontrol == -1 && LastEditWindow != wScript) {
 	if(!EmptyBeat) Print(LastEditWindow," ");
 	PrintHandle(LastEditWindow,(*p_PerformanceControl)[33]);
-	sprintf(Message,"(%ld)",(long)-TransposeValue);
+	my_sprintf(Message,"(%ld)",(long)-TransposeValue);
 	Print(LastEditWindow,Message);
 	EmptyBeat = FALSE;
 	}
@@ -1678,7 +1699,7 @@ oldC4key = C4key;
 GetField(TuningPtr,TRUE,-1,fC4key,line,&p,&q);
 i = p / q;
 if(i < 2 || i > 127) {
-	sprintf(Message,"=> Key for C4 should be in range 2..127 (typ. 60). Can't accept %ld",(long) i);
+	my_sprintf(Message,"=> Key for C4 should be in range 2..127 (typ. 60). Can't accept %ld",(long) i);
 	Alert1(Message);
 	ShowWindow(GetDialogWindow(TuningPtr));
 	SelectWindow(GetDialogWindow(TuningPtr));
@@ -1691,7 +1712,7 @@ if(C4key != oldC4key) CompiledGr = CompiledGl = FALSE;
 int GetField(TuningPtr,TRUE,-1,fA4freq,line,&p,&q);
 x = ((double) p) / q;
 if(x < 25. || x > 2000.) {
-	sprintf(Message,"=> Frequency for A4 should be in range 25..2000 (typ. 440). Can't accept %.2f",x);
+	my_sprintf(Message,"=> Frequency for A4 should be in range 25..2000 (typ. 440). Can't accept %.2f",x);
 	Alert1(Message);
 	ShowWindow(GetDialogWindow(TuningPtr));
 	SelectWindow(GetDialogWindow(TuningPtr));
@@ -1705,9 +1726,9 @@ return(OK);
 
 int SetTuning(void)
 {
-sprintf(Message,"%ld",(long)C4key);
+my_sprintf(Message,"%ld",(long)C4key);
 SetField(TuningPtr,-1,fC4key,Message);
-sprintf(Message,"%.4f",A4freq);
+my_sprintf(Message,"%.4f",A4freq);
 SetField(TuningPtr,-1,fA4freq,Message);
 return(OK);
 }
@@ -1722,7 +1743,7 @@ int i;
 GetField(DefaultPerformanceValuesPtr,TRUE,-1,fDeftVolume,line,&p,&q);
 i = p / q;
 if(i < 1 || i > 127) {
-	sprintf(Message,"=> Default volume should be in range 1..127 (typ. 90). Can't accept %ld",
+	my_sprintf(Message,"=> Default volume should be in range 1..127 (typ. 90). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
@@ -1735,7 +1756,7 @@ DeftVolume = i;
 GetField(DefaultPerformanceValuesPtr,TRUE,-1,fDeftVelocity,line,&p,&q);
 i = p / q;
 if(i < 1 || i > 127) {
-	sprintf(Message,"=> Default velocity should be in range 1..127 (typ. 64). Can't accept %ld",
+	my_sprintf(Message,"=> Default velocity should be in range 1..127 (typ. 64). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
@@ -1748,7 +1769,7 @@ DeftVelocity = i;
 GetField(DefaultPerformanceValuesPtr,TRUE,-1,fDeftPanoramic,line,&p,&q);
 i = p / q;
 if(i < 0 || i > 127) {
-	sprintf(Message,"=> Default panoramic should be in range 0..127 (typ. 64). Can't accept %ld",
+	my_sprintf(Message,"=> Default panoramic should be in range 0..127 (typ. 64). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
@@ -1761,7 +1782,7 @@ DeftPanoramic = i;
 GetField(DefaultPerformanceValuesPtr,TRUE,-1,fPanoramicController,line,&p,&q);
 i = p / q;
 if(i < 0 || i > 127) {
-	sprintf(Message,"=> Panoramic control index should be in range 0..127 (typ. 10). Can't accept %ld",
+	my_sprintf(Message,"=> Panoramic control index should be in range 0..127 (typ. 10). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
@@ -1774,7 +1795,7 @@ PanoramicController = i;
 GetField(DefaultPerformanceValuesPtr,TRUE,-1,fVolumeController,line,&p,&q);
 i = p / q;
 if(i < 0 || i > 127) {
-	sprintf(Message,"=> Volume control index should be in range 0..127 (typ. 7). Can't accept %ld",
+	my_sprintf(Message,"=> Volume control index should be in range 0..127 (typ. 7). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
@@ -1787,7 +1808,7 @@ VolumeController = i;
 GetField(DefaultPerformanceValuesPtr,TRUE,-1,fSamplingRate,line,&p,&q);
 i = p / q;
 if(i < 1 || i > 500) {
-	sprintf(Message,"=> Default sample rate should be in range 1..500 (typ. 50). Can't accept %ld",
+	my_sprintf(Message,"=> Default sample rate should be in range 1..500 (typ. 50). Can't accept %ld",
 		(long) i);
 	Alert1(Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
@@ -1803,22 +1824,22 @@ return(OK);
 
 int SetDefaultPerformanceValues(void)
 {
-sprintf(Message,"%ld",(long)DeftVolume);
+my_sprintf(Message,"%ld",(long)DeftVolume);
 SetField(DefaultPerformanceValuesPtr,-1,fDeftVolume,Message);
 
-sprintf(Message,"%ld",(long)DeftVelocity);
+my_sprintf(Message,"%ld",(long)DeftVelocity);
 SetField(DefaultPerformanceValuesPtr,-1,fDeftVelocity,Message);
 
-sprintf(Message,"%ld",(long)DeftPanoramic);
+my_sprintf(Message,"%ld",(long)DeftPanoramic);
 SetField(DefaultPerformanceValuesPtr,-1,fDeftPanoramic,Message);
 
-sprintf(Message,"%ld",(long)PanoramicController);
+my_sprintf(Message,"%ld",(long)PanoramicController);
 SetField(DefaultPerformanceValuesPtr,-1,fPanoramicController,Message);
 
-sprintf(Message,"%ld",(long)VolumeController);
+my_sprintf(Message,"%ld",(long)VolumeController);
 SetField(DefaultPerformanceValuesPtr,-1,fVolumeController,Message);
 
-sprintf(Message,"%ld",(long)SamplingRate);
+my_sprintf(Message,"%ld",(long)SamplingRate);
 SetField(DefaultPerformanceValuesPtr,-1,fSamplingRate,Message);
 return(OK);
 }
@@ -1946,7 +1967,7 @@ if (strftime(tt, MAXNAME, "%I:%M %p", loctime) == 0) {
 	}
 #endif
 
-sprintf(line,"%s %s -- %s",DateMark,dd,tt);
+my_sprintf(line,"%s %s -- %s",DateMark,dd,tt);
 return(OK);
 }
 
@@ -1999,7 +2020,7 @@ for(j=0; j < maxparam; j++) {
 if(found) return(j);
 
 if(j >= MAXSTRINGCONSTANTS) {
-	sprintf(Message,
+	my_sprintf(Message,
 			"Too many identifiers found (max %ld)\nCan't store '%s'\n",
 				(long)MAXSTRINGCONSTANTS,line);
 	Alert1(Message);
@@ -2063,7 +2084,7 @@ if(j < maxparam) {
 	return(j);
 	}
 if(j >= MAXSTRINGCONSTANTS) {
-	sprintf(Message,
+	my_sprintf(Message,
 		"=> Too many numeric constants found (max %ld)\nCan't store '%s'\n",(long)MAXSTRINGCONSTANTS,line);
 	Alert1(Message);
 	return(ABORT);
@@ -2089,29 +2110,7 @@ int WaitABit(long thedelay) {
 	// Wait for thedelay milliseconds
 	int result;
 	if(thedelay > 100L && (result = stop(1,"WaitABit")) != OK) return result;
-	usleep(1000L * thedelay);
-
-	/* int i;
-	unsigned long endtime;
-	i = 0;
-	if(Oms || NEWTIMER_FORGET_THIS) {
-	#if WITH_REAL_TIME_SCHEDULER_FORGET_THIS
-		endtime = TotalTicks + (thedelay / CLOCKRES);
-		while(TotalTicks < endtime) {
-			if(i++ > 50) {
-				PleaseWait(); i = 0;
-				}
-			}
-	#endif
-		}
-	else {
-		endtime = clock() + ((thedelay * 6L) / 100L);
-		while(clock() < endtime) {
-			if(i++ > 50) {
-				PleaseWait(); i = 0;
-				}
-			}
-		} */
+	mysleep(1000L * thedelay);
 	return(OK);
 	}
 
@@ -2162,7 +2161,7 @@ Handle itemhandle;
 short itemtype;
 char line[MAXFIELDCONTENT];
 
-sprintf(line,"%.0f",(double) Seed);
+my_sprintf(line,"%.0f",(double) Seed);
 SetField(NULL, wRandomSequence, fSeed, line);
 return(OK);
 }
@@ -2206,7 +2205,7 @@ int Randomize(void)
 {
 if(Seed > 0) return(OK);
 ReseedOrShuffle(NEWSEED);
-sprintf(Message,"%.0f",(double)Seed);
+my_sprintf(Message,"%.0f",(double)Seed);
 MystrcpyStringToTable(ScriptLine.arg,0,Message);
 AppendScript(57);
 return(OK);

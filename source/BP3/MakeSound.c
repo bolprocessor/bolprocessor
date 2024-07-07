@@ -37,9 +37,6 @@
 
 #include "-BP2decl.h" 
 
-extern FILE * imagePtr;
-extern int resize;
-
 int trace_csound_pianoroll = 0;
 
 int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
@@ -82,10 +79,7 @@ double value,streakposition[MAXTICKS],tickdate[MAXTICKS],fstreak,alpha,beta,date
 p_list **waitlist,**scriptlist;
 MIDI_Event e;
 MappedKey **p_currmapped;
-CGrafPtr port;
-GDHandle gdh;
 Rect graphrect,labelrect;
-GrafPtr saveport;
 Str255 label;
 Milliseconds time_ms;
 
@@ -103,7 +97,10 @@ if(CompileRegressions() != OK) return(ABORT);
 
 showpianoroll = ShowPianoRoll;
 if(ConvertMIDItoCsound || ItemCapture) showpianoroll = FALSE;
-if(showpianoroll) BPPrintMessage(odInfo,"Showing piano roll\n");
+if(showpianoroll) {
+	BPPrintMessage(odInfo,"Showing piano roll\n");
+//	CreateImageFile(-1.);
+	}
 
 cswrite = FALSE;
 if(((OutCsound && (FileWriteMode == NOW || !rtMIDI))
@@ -112,6 +109,8 @@ if(((OutCsound && (FileWriteMode == NOW || !rtMIDI))
 MIDIfileOn = FALSE;
 if(WriteMIDIfile && (FileWriteMode == NOW || !rtMIDI) && !ItemCapture)
 	MIDIfileOn = TRUE;
+
+// BPPrintMessage(odInfo,"cswrite = %d, OutCsound = %d, WriteMIDIfile = %d, MIDIfileOn = %d\n",cswrite,OutCsound,WriteMIDIfile,MIDIfileOn);
 
 if(!cswrite && !rtMIDI && !MIDIfileOn && !ShowGraphic && !showpianoroll) {
 	BPPrintMessage(odInfo, "=> Cancelling MakeSound()\n");
@@ -122,7 +121,7 @@ rs = 0;
 resetok = TRUE;
 // max_endtime_event = max_endtime = ZERO;
 
-if(MIDIfileOn) BPPrintMessage(odInfo, "MIDI file will be created\n");
+// if(MIDIfileOn) BPPrintMessage(odInfo, "MIDI file will be created\n");
 
 #if BP_CARBON_GUI_FORGET_THIS
 // FIXME ? Should non-Carbon builds call a "poll events" callback here ?
@@ -216,13 +215,13 @@ t11 = t22 = Infpos;
 for(k=2; k <= (*p_kmax); k++) {
 	j = (*p_Instance)[k].object;
 	if(j == 0) continue;
-//	sprintf(Message,"Jbol = %ld, k = %ld -> j = %ld\n",(long)Jbol,(long)k,(long)j);
+//	my_sprintf(Message,"Jbol = %ld, k = %ld -> j = %ld\n",(long)Jbol,(long)k,(long)j);
 //	BPPrintMessage(odInfo,Message);
 	if(j >= Jbol && j < 16384) { // Time pattern;
 		(*p_inext1)[k] = 0;
 		(*p_onoff)[k] = FALSE;
 		(*p_istartperiod)[k] = (*p_iendperiod)[k] = -1;
-	/*	sprintf(Message,"ERROR in MakeSound(): found time pattern: k = %ld, j = %ld\n",(long)k,(long)j);
+	/*	my_sprintf(Message,"ERROR in MakeSound(): found time pattern: k = %ld, j = %ld\n",(long)k,(long)j);
 		BPPrintMessage(odInfo,Message); */
 	//	continue;
 		}
@@ -234,7 +233,7 @@ for(k=2; k <= (*p_kmax); k++) {
 	alpha = (*p_Instance)[k].alpha;
 	beta = (*p_Instance)[k].dilationratio;	// alpha != beta if the sound-object is cyclic
 	if((*p_Instance)[k].ncycles < 2 && beta != alpha) {
-		sprintf(Message,"=> Err. MakeSound(). beta != alpha\n");
+		my_sprintf(Message,"=> Err. MakeSound(). beta != alpha\n");
 		BPPrintMessage(odInfo,Message);
 		beta = (*p_Instance)[k].dilationratio = alpha;
 		}
@@ -279,7 +278,7 @@ for(k=2; k <= (*p_kmax); k++) {
 	if(j > 1 && j < 16384) {	/* Sound-object or time pattern */
 		/* Look for first event in object and for first and last events in its periodical part */
 		if(Beta && j >= Jbol && Jbol < 2) {
-			sprintf(Message,"=> Err. MakeSound(). j >= Jbol && Jbol < 2\n");
+			my_sprintf(Message,"=> Err. MakeSound(). j >= Jbol && Jbol < 2\n");
 			BPPrintMessage(odInfo,Message);
 			}
 		for(i=0; i < im; i++) {
@@ -529,7 +528,7 @@ if(!MIDIfileOn && !cswrite && rtMIDI && !ItemCapture && !FirstTime && !PlayProto
 				if(SkipFlag) goto OVER;
 				}
 			while((SynchroSignal == OFF) && SynchronizeStart);
-			HideWindow(Window[wMessage]);
+			// HideWindow(Window[wMessage]);
 			LapWait += (clock() - WhenItStarted);
 			if(ScriptExecOn && CountOn && WaitEndDate > ZERO) WaitEndDate += LapWait;
 			}
@@ -556,7 +555,7 @@ if(!MIDIfileOn && !cswrite && rtMIDI && !ItemCapture && !FirstTime && !PlayProto
 				if(themessage == SystemExclusive) exclusive = TRUE;
 				if(themessage == EndSysEx) exclusive = FALSE;
 				}
-			HideWindow(Window[wInfo]);
+			// HideWindow(Window[wInfo]);
 			SetDefaultCursor();
 			}
 #endif /* BP_CARBON_GUI_FORGET_THIS */
@@ -598,10 +597,11 @@ for(nseq=0; nseq < maxconc; nseq++) {
 	(*ptrperf)->transpose = 0;
 	
 	maxparam = (*ptrperf)->numberparams;
-//	BPPrintMessage(odInfo,"\nMakeSound() nseq = %d number = %d numberparams = %d\n",nseq,(*p_control)[nseq].number,(*ptrperf)->numberparams);
+//	BPPrintMessage(odInfo,"\nMakeSound() nseq = %d number = %d maxparam = %d\n",nseq,(*p_control)[nseq].number,maxparam);
+//	BPPrintMessage(odInfo,"active = FALSE (3) with maxparam = %d\n",maxparam);
 	for(i=0; i < maxparam; i++) (*((*ptrperf)->params))[i].active = FALSE;
 	if(maxparam <= IPANORAMIC) {
-	//	if(Beta) Alert1("=> Err. MakeSound(). Beta && maxparam <= IPANORAMIC");
+		BPPrintMessage(odInfo,"=> Err. MakeSound(). maxparam <= IPANORAMIC\n");
 		goto OVER;
 		}
 	for(i=0; i < (*p_control)[nseq].number; i++) {
@@ -623,8 +623,6 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 		(*p_inext)[k] = (*p_inext1)[k];
 		(*p_onoff)[k] = FALSE;
 		(*p_nextd)[k] = (*p_Instance)[k].starttime + (*p_t1)[k];		
-	/*	sprintf(Message,"k = %ld starttime = %ld (*p_t1)[k] = %ld (*p_nextd)[k] = %ld\n",(long)k,(long)(*p_Instance)[k].starttime,(long)(*p_t1)[k],(long)(*p_nextd)[k]);
-		if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message); */
 		if(trace_csound_pianoroll)
 			BPPrintMessage(odInfo,"k = %ld starttime = %ld endtime = %ld  (*p_t1)[k] = %ld (*p_nextd)[k] = %ld\n",(long)k,(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)(*p_t1)[k],(long)(*p_nextd)[k]);
 		}
@@ -649,7 +647,7 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 				&& (Tcurr > drivertime + ((MIDIsetUpTime + 600L) / Time_res)))
 			FlashInfo("Waiting until previous item is over...");
 		result = WaitForEmptyBuffer();
-		HideWindow(Window[wInfo]);
+		// HideWindow(Window[wInfo]);
 #endif
 		}
 	else result = OK;
@@ -660,7 +658,7 @@ for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurren
 	mustwait = FALSE;
 	
 	if(Improvize && (Nplay > 1 || SynchroSignal == PLAYFOREVER)) {
-		sprintf(Message,"%ldth repetition...",(long)occurrence+1L);
+		my_sprintf(Message,"%ldth repetition...",(long)occurrence+1L);
 		ShowMessage(TRUE,wMessage,Message);
 		}
 	
@@ -730,11 +728,11 @@ TRYCSFILE:
 		if(Pclock > 0.) {	/* Striated or measured smooth time */
 			if(Simplify((double)INT_MAX,60L*Qclock,Pclock,&p,&q) != OK)
 				Simplify((double)INT_MAX,Qclock,floor(Pclock/60L),&p,&q);
-			sprintf(Message,"t %.3f 60",
+			my_sprintf(Message,"t %.3f 60",
 				((double) torigin) * Qclock / ((double) Pclock) / 1000.);
 			}
 		else {	/* Unmeasured smooth time */
-			sprintf(Message,"t %.3f 60",((double) torigin) / 1000.);
+			my_sprintf(Message,"t %.3f 60",((double) torigin) / 1000.);
 			}
 		if(ConvertMIDItoCsound)
 			Println(wPrototype7,Message);
@@ -1017,16 +1015,18 @@ TRYCSFILE:
 #endif
 				}
 			if(t2 > t2tick && t2 != Infpos) t2 = t2tick;
-			if(trace_csound_pianoroll) BPPrintMessage(odInfo,"fixed t2 = %ld\n",(long)t2);
+			if(trace_csound_pianoroll)
+				BPPrintMessage(odInfo,"fixed t2 = %ld\n",(long)t2);
 			if(!cswrite && !MIDIfileOn && !showpianoroll && (result=CheckMIDIbytes(YES)) != OK
 				&& result != RESUME) goto OVER;
 			
 			result = OK;
 			
 			/* Pass on parameters to pp_currentparams used by Csound */
+		//	BPPrintMessage(odInfo,"k = %ld, contparameters.number = %d\n",(long)kcurrentinstance,(*p_Instance)[kcurrentinstance].contparameters.number);
 			if((kcurrentinstance > 1) && (*p_Instance)[kcurrentinstance].contparameters.number > 0) {
 				if(trace_csound_pianoroll)
-					BPPrintMessage(odInfo,"kcurrentinstance = %ld > 1 contparameters.number = %d\n",(long)kcurrentinstance,(*p_Instance)[kcurrentinstance].contparameters.number);
+					BPPrintMessage(odInfo,"k = %ld > 1, contparameters.number = %d\n",(long)kcurrentinstance,(*p_Instance)[kcurrentinstance].contparameters.number);
 				if(currentinstancevalues == NULL) {
 				//	if(Beta) Alert1("=> Err. MakeSound(). currentinstancevalues == NULL");
 					goto FORGETIT;
@@ -1037,29 +1037,35 @@ TRYCSFILE:
 					if((ptrs=(ParameterStatus**) GiveSpace((Size)maxparam * sizeof(ParameterStatus))) == NULL)
 						return(ABORT);
 					(*((*pp_currentparams)[nseq]))->params = ptrs;
-					for(index=0; index < maxparam; index++)
+			//		BPPrintMessage(odInfo,"active = FALSE (1) with maxparam = %d\n",maxparam);
+					for(index=0; index < maxparam; index++) {
 						(*params)[index].active = FALSE;
+						}
 					}
 					
 				maxparam = MyGetHandleSize((Handle)(*((*pp_currentparams)[nseq]))->params) / sizeof(ParameterStatus);
 				// This value maybe oversized if continuous _value() statements were found earlier on this sequence
 				// but this will be fixed in CscoreWrite() - BB 2021-02-15
 				params = (*((*pp_currentparams)[nseq]))->params;
+		//		BPPrintMessage(odInfo,"Found maxparam = %d, (*p_Instance)[%d].contparameters.number = %d\n",maxparam,kcurrentinstance,(*p_Instance)[kcurrentinstance].contparameters.number);
+				(*p_Instance)[kcurrentinstance].contparameters.number = maxparam; // 2024-07-05
 				for(i=0; i < (*p_Instance)[kcurrentinstance].contparameters.number; i++) {
 					index = (*currentinstancevalues)[i].index;
 					if(index < 0) continue;
 					if(index >= maxparam) {
 						iparam = maxparam;
-					//	BPPrintMessage(odInfo,"Resizing for index (1) = %ld\n",(long)index);
 						maxparam = index + 1;
+						BPPrintMessage(odInfo,"Resizing maxparam = %ld, k = %d, index (1) = %ld\n",(long)maxparam,(int)kcurrentinstance,(long)index);
 						h = (Handle) params;
 						MySetHandleSize(&h,(Size)maxparam * sizeof(ParameterStatus));
 						params = (*((*pp_currentparams)[nseq]))->params = (ParameterStatus**) h;
-						for(iparam=iparam; iparam < maxparam; iparam++)
+			//			BPPrintMessage(odInfo,"active = FALSE (2) with maxparam = %d\n",maxparam);
+						for(iparam=iparam; iparam < maxparam; iparam++) {
 							(*params)[iparam].active = FALSE;
+							}
 						}
 					if(index >= (*((*pp_currentparams)[nseq]))->numberparams) {
-					//	BPPrintMessage(odInfo,"Resizing for index (2) = %ld\n",(long)index);
+						BPPrintMessage(odInfo,"Resizing for index (2) = %ld\n",(long)index);
 						(*((*pp_currentparams)[nseq]))->numberparams = index + 1;
 						}
 						
@@ -1071,6 +1077,7 @@ TRYCSFILE:
 							= t0 + (*p_Instance)[kcurrentinstance].starttime;
 					(*params)[index].mode = (*currentinstancevalues)[i].mode;
 					(*params)[index].point = (*currentinstancevalues)[i].point;
+			//		BPPrintMessage(odInfo,"active = changed for index = %d\n",index);
 					if((index == IPANORAMIC && j < Jbol && !(*p_OkPan)[j])
 								|| (index == IVOLUME && j < Jbol && !(*p_OkVolume)[j]))
 						(*params)[index].active = FALSE;
@@ -1326,7 +1333,7 @@ SWITCHES:
 											if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 											}
 										if(cswrite) {
-											sprintf(Message,"Before CscoreWrite(1) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld\n",(long)kcurrentinstance,beta,(long)j,(long)t0,(long)t1,(long)c1,(long)c2);
+											my_sprintf(Message,"Before CscoreWrite(1) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld\n",(long)kcurrentinstance,beta,(long)j,(long)t0,(long)t1,(long)c1,(long)c2);
 											if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
 											if((result=
 		CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,OFF,beta,(t0 + t1),-1,c1,c2,localchan,instrument,j,
@@ -1383,7 +1390,7 @@ SWITCHES:
 										if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 										}
 									if(cswrite) {
-										sprintf(Message,"Before CscoreWrite(2) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,(long)c1,(long)c2);
+										my_sprintf(Message,"Before CscoreWrite(2) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,(long)c1,(long)c2);
 										if(trace_csound_pianoroll) BPPrintMessage(odInfo,Message);
 										if((result=
 		CscoreWrite(&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
@@ -1736,14 +1743,14 @@ NEWPERIOD:
 					|| result == EXIT) goto OVER;
 				if(result == AGAIN) {
 					occurrence--; /* Repeat once */
-					sprintf(Message,"Current item will be played again...");
+					my_sprintf(Message,"Current item will be played again...");
 					ShowMessage(TRUE,wMessage,Message);
 					}
 #endif
 				}
 			else {
 				if(trace_csound_pianoroll) {
-					sprintf(Message,"%ld objects done out of %ld\n",(long)kcurrentinstance,(long)(*p_kmax));
+					my_sprintf(Message,"%ld objects done out of %ld\n",(long)kcurrentinstance,(long)(*p_kmax));
 					BPPrintMessage(odInfo,Message);
 					}
 				if((MIDIfileOn || cswrite) && (!ItemCapture || ShowMessages)
@@ -1956,7 +1963,7 @@ if(rtMIDI && !cswrite && !MIDIfileOn && !CyclicPlay && !ItemCapture && !showpian
 	if(Improvize) {
 		buffertime = (MaxComputeTime * 3L) / 2L;
 		if(ShowMessages) {
-			sprintf(Message,"Maximum compute time: %.1f sec.",
+			my_sprintf(Message,"Maximum compute time: %.1f sec.",
 									((double) (MaxComputeTime * Time_res)) / 1000.);
 			ShowMessage(TRUE,wMessage,Message);
 			}
@@ -1982,11 +1989,11 @@ else if(waitcompletion) result = WaitForEmptyBuffer();
 if(result != OK) goto OVER;
 
 #if BP_CARBON_GUI_FORGET_THIS
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 
 QUESTION:
 
-HideWindow(Window[wInfo]);
+// HideWindow(Window[wInfo]);
 rep = OK; rep1 = rep2 = rep3 = NO;
 if(!CyclicPlay && !ScriptExecOn) StopWait();
 SndSetSysBeepState(sysBeepDisable);
@@ -2053,8 +2060,9 @@ if(rep == ABORT) result = ABORT;
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
 OVER:
-HideWindow(Window[wMessage]);
-HideWindow(Window[wInfo]);
+// HideWindow(Window[wMessage]);
+// HideWindow(Window[wInfo]);
+// if(imagePtr != NULL) result = EndImageFile();
 if(result == ENDREPEAT) result = OK;
 if(Panic || result == STOP) result = ABORT;
 if(result == ABORT) {
@@ -2139,8 +2147,8 @@ if(add_time > ZERO  && (Improvize || PlayAllChunks)) { // 2024-05-09
 		}
 	if(cswrite) {
 	//	BPPrintMessage(odInfo,"Added silence of %.3f sec at time = %.3f sec.\n",(add_time / 1000.),((LastTime + max_endtime_event) / 1000.));
-		sprintf(Message,"i1 %.3f %.3f 0.00 0 0 ; silence",((LastTime + max_endtime_event) /1000.),add_time /1000.);
-	//	sprintf(Message,"s %.3f ; silence",add_time /1000.); // Doesn't work: too long?
+		my_sprintf(Message,"i1 %.3f %.3f 0.00 0 0 ; silence",((LastTime + max_endtime_event) /1000.),add_time /1000.);
+	//	my_sprintf(Message,"s %.3f ; silence",add_time /1000.); // Doesn't work: too long?
 		WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);
 		}
 	}
@@ -2192,15 +2200,15 @@ if(!MIDIfileOn && !cswrite && rtMIDI && !showpianoroll) {
 	}
 
 if(showpianoroll) Tcurr = oldtcurr;
-EndImageFile();
 
-if(cswrite && CsoundTrace) ShowSelect(CENTRE,wTrace);
+// if(cswrite && CsoundTrace) ShowSelect(CENTRE,wTrace);
 Interrupted = FALSE;
 #if BP_CARBON_GUI_FORGET_THIS
 SndSetSysBeepState(sysBeepEnable);
 #endif
 return(result);
 }
+
 
 int ExecuteScriptList(p_list **scriptlist) {
 	int x,r,idummy,check;
@@ -2215,11 +2223,11 @@ int ExecuteScriptList(p_list **scriptlist) {
 		ptag = (**ptag).p;
 	//	BPPrintMessage(odInfo,"ExecScriptLine in ExecuteScriptList\n");
 		if((r=ExecScriptLine(NULL,wScript,check,TRUE,(*p_Script)[x],jdummy,&jdummy,
-				&idummy,&idummy)) != OK) goto OUT;
+				&idummy,&idummy)) != OK) goto SORTIR;
 		}
 	while(ptag != NULL);
 
-	OUT:
+	SORTIR:
 	return(r);
 	}
 
@@ -2229,7 +2237,7 @@ int r;
 float x;
 
 if(control >= MAXPARAMCTRL) {
-	sprintf(Message,"=> Err. ClipVelocity(). control = %ld",(long)control);
+	my_sprintf(Message,"=> Err. ClipVelocity(). control = %ld",(long)control);
 //	if(Beta) Alert1(Message);
 	control = -1;
 	}
@@ -2256,7 +2264,7 @@ int x;
 if(ch < 0) ch += 256;
 if(ch < 128) {
 	if(ch > MAXCHAN) {
-		sprintf(Message,"=> Trying to assign channel #%ld.\nValue should be 1..%ld",
+		my_sprintf(Message,"=> Trying to assign channel #%ld.\nValue should be 1..%ld",
 			(long)ch,(long)MAXCHAN);
 	//	Alert1(Message);
 		return(ABORT);
@@ -2266,7 +2274,7 @@ if(ch < 128) {
 /* Channel is determined by Kx */
 x = ch - 128;
 if(x < 1 || x >= MAXPARAMCTRL) {
-	sprintf(Message,"=> Trying to fix channel with incorrect K%ld.\nValue should be 1..%ld",
+	my_sprintf(Message,"=> Trying to fix channel with incorrect K%ld.\nValue should be 1..%ld",
 		(long)x,(long)MAXPARAMCTRL-1L);
 	// Alert1(Message);
 	return(ABORT);
@@ -2274,16 +2282,16 @@ if(x < 1 || x >= MAXPARAMCTRL) {
 ch = ParamValue[x];
 if(ch < 1 || ch > MAXCHAN) {
 	if(ParamControl[x] >= 0) {
-		sprintf(Message,"=> Trying to assign channel #%ld by K%ld (MIDI controller #%ld).\nValue should be 1..%ld",
+		my_sprintf(Message,"=> Trying to assign channel #%ld by K%ld (MIDI controller #%ld).\nValue should be 1..%ld",
 			(long)ch,(long)x,(long)ParamControl[x],(long)MAXCHAN);
 		}
 	else {
 		if(ParamKey[x] >= 0) {
-			sprintf(Message,"=> Trying to assign channel #%ld by K%ld (Key #%ld).\nValue should be 1..%ld",
+			my_sprintf(Message,"=> Trying to assign channel #%ld by K%ld (Key #%ld).\nValue should be 1..%ld",
 				(long)ch,(long)x,(long)ParamKey[x],(long)MAXCHAN);
 			}
 		else {
-		sprintf(Message,"=> Trying to assign channel #%ld by K%ld.\nValue should be 1..%ld",
+		my_sprintf(Message,"=> Trying to assign channel #%ld by K%ld.\nValue should be 1..%ld",
 			(long)ch,(long)x,(long)MAXCHAN);
 			}
 		}
@@ -2342,7 +2350,7 @@ while(Button() || (timeleft = (Tcurr - drivertime)) > buffertime) {
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 	if((timeleft * Time_res / 1000L) != formertime) {
 		formertime = timeleft * Time_res / 1000L;
-		sprintf(Message,"Remaining performance time: %ld sec...",
+		my_sprintf(Message,"Remaining performance time: %ld sec...",
 			(long)formertime + 1L);
 		ShowMessage(FALSE,wMessage,Message);
 		PleaseWait();
@@ -2400,7 +2408,7 @@ WaitOn++;
 while((timeleft=(Tcurr - drivertime)) >  (CLOCKRES * Oms) /* (10 * CLOCKRES * Oms) */) {
 	if((timeleft * Time_res / 1000L) != formertime) {
 		formertime = timeleft * Time_res / 1000L;
-		sprintf(Message,"Waiting for end of play (%ld sec)",(long)formertime + 1L);
+		my_sprintf(Message,"Waiting for end of play (%ld sec)",(long)formertime + 1L);
 		ShowMessage(FALSE,wMessage,Message);
 		PleaseWait();
 		}
@@ -2441,7 +2449,7 @@ Nbytes = 0; Tbytes2 = ZERO;
 	
 OVER:
 if(WaitOn > 0) WaitOn--;
-HideWindow(Window[wMessage]);
+// HideWindow(Window[wMessage]);
 WhenItStarted = clock();
 #endif /* WITH_REAL_TIME_MIDI_FORGET_THIS */
 return(result);
@@ -2556,7 +2564,7 @@ if(value > 16383. && value < 16384.) value = 16383.;
 
 if(value < 0. || value > 16383.) {
 	if(Beta) {
-		sprintf(Message,"=> Err. SendControl(). value = %.3f\n",value);
+		my_sprintf(Message,"=> Err. SendControl(). value = %.3f\n",value);
 		Print(wTrace,Message);
 		BPPrintMessage(odError,"=> Err. SendControl(). value = %.3f\n",value);
 		}

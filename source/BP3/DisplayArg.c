@@ -58,7 +58,7 @@ int itab,h,nhomo,pos,levpar,homoname[MAXLEVEL],r,wasactive,
 unsigned long i,ia,ib,maxib;
 double tempo,tempo2,firsttempo,prodtempo,scale,firstscale,s,speed;
 TextHandle th;
-GrafPtr saveport;
+// GrafPtr saveport;
 Rect vr;
 tokenbyte m,p;
 PrintargType printarg;
@@ -74,7 +74,7 @@ if(wind >= 0 && wind < WMAX && Editable[wind]) {
 	GetPort(&saveport);
 	SetPortWindowPort(Window[wind]);
 	TextSize(WindowTextSize[wind]);
-	Reformat(wind,-1,WindowTextSize[wind],(int)normal,&Black,NO,NO);
+	Reformat(wind,-1,WindowTextSize[wind],(int)0,&Black,NO,NO);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 #if WASTE_FORGET_THIS
 	wasactive = WEIsActive(th);
@@ -333,7 +333,7 @@ else {
 					}
 				}
 			}
-		if(ret) DoKey('\n',0,th);
+	//	if(ret) DoKey('\n',0,th);
 		// else  DoKey('\0',0,th);	/* Forces text to be drawn and vertical scroll to be fixed */
 		}
 	else if(ret) OutChar(f,th,'\n');
@@ -424,7 +424,7 @@ for(i=ia; ; i+=2L) {
 			Interrupted = TRUE; 
 			compiledmem = CompiledGr;
 			if(r == OK) while((r = MainEvent()) != RESUME && r != STOP && r != EXIT);
-			if(r == EXIT) goto OUT;
+			if(r == EXIT) goto SORTIR;
 			if(th != NULL) {
 				SetSelect(posmem,posmem,th);
 	#if WASTE_FORGET_THIS
@@ -433,28 +433,28 @@ for(i=ia; ; i+=2L) {
 				}
 			if(r == STOP || (compiledmem && !CompiledGr)) {
 				if(th != NULL) {
-					Reformat(wind,(int) kFontIDCourier,WindowTextSize[wind],(int) normal,&Black,TRUE,NO);
+					Reformat(wind,(int) kFontIDCourier,WindowTextSize[wind],(int) 0,&Black,TRUE,NO);
 					Print(wind,"\n");
 					}
-				r = ABORT; goto OUT;
+				r = ABORT; goto SORTIR;
 				}
 			}
 		else if(WASTE_FORGET_THIS) PleaseWait();
 		r = OK;
 		}
 	if(EventState != NO) {
-		r = EventState; goto OUT;
+		r = EventState; goto SORTIR;
 		}
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 	if(m == T3 || m == T25) {
 		if((r=CheckPeriodOrLine(print_periods,p_newline,p_newsection,f,th,&beat,numberprolongations,
-				&sp)) != OK) goto OUT;
+				&sp)) != OK) goto SORTIR;
 		}
 	if(m == T0 && setting_section && (p == 3 || p == 11)) {	/* '+'  or initial '/' */
 		if(datamode) {
 			if((*p_itab) >= MAXTAB) {
 				Alert1("Too many tab sections: check '.+.+./.' in begining");
-				r = ABORT; goto OUT;
+				r = ABORT; goto SORTIR;
 				}
 			tab[(*p_itab)++] = n;
 			for(j=(*p_itab); j < MAXTAB; j++) tab[j] = 0;
@@ -462,7 +462,7 @@ for(i=ia; ; i+=2L) {
 		if(((!datamode || setting_section) || nocode || prodtempo == 0.) && p != 11) {
 			if((r=Display(Code[p],nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					m,p,nocode,pp_b,p_ib,f,th,"%c",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			sp = 0;
 			}
@@ -485,7 +485,7 @@ for(i=ia; ; i+=2L) {
 				}
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,
 					p,nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			continue;
 			}
@@ -579,45 +579,45 @@ for(i=ia; ; i+=2L) {
 				y = modf(((*p_scale) / (double)TOKBASE),&x);
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T0,
 						(tokenbyte)21,nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				}
 			else {
 				y = modf((1. / (*p_scale) / (double)TOKBASE),&x);
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T0,
 						(tokenbyte)24,nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				}
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T1,
 					(tokenbyte) x,nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T1,
 					(tokenbyte) (y * TOKBASE),nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			if((*p_speed) >= 1. || (*p_speed) == 0.) {
 				y = modf(((*p_speed) / (double)TOKBASE),&x);
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T0,
 						(tokenbyte)11,nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				}
 			else {
 				y = modf((1. / (*p_speed) / (double)TOKBASE),&x);
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T0,
 						(tokenbyte)25,nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				}
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T1,
 					(tokenbyte) x,nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T1,
 					(tokenbyte) (y * TOKBASE),nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			}
 		else {
@@ -630,73 +630,73 @@ for(i=ia; ; i+=2L) {
 				if(perioddivision < 2.) goto DONESPEED;
 				if(!setting_section) {
 					if(sp > 0 && OutChar(f,th,' ') != OK) {
-						r = ABORT; goto OUT;
+						r = ABORT; goto SORTIR;
 						}
 					}
 				else {
 		/*			if(OutChar(f,th,'*') != OK) {
-						r = ABORT; goto OUT;
+						r = ABORT; goto SORTIR;
 						}
 					if(OutChar(f,th,'1') != OK) {
-						r = ABORT; goto OUT;
+						r = ABORT; goto SORTIR;
 						} */
 					}
 				if(OutChar(f,th,'/') != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 					(tokenbyte)0,nocode,pp_b,p_ib,f,th,"%ld",NULL,(long)perioddivision)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				sp = 1;
 				goto DONESPEED;
 				}
 			if(sp > 0 && OutChar(f,th,' ') != OK) {
-				r = ABORT; goto OUT;
+				r = ABORT; goto SORTIR;
 				}
 			scale = (*p_scale);
 			if(scale < InvMaxTempo) scale = 0.;
 			if(scale > 1. || scale == 0. || (forceshowtempo && scale == 1.)) {
 				if(OutChar(f,th,'*') != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 					(tokenbyte)0,nocode,pp_b,p_ib,f,th,"%ld",NULL,(long)scale)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				}
 			else if(scale < 1.) {
 				if(OutChar(f,th,'*') != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 				if(OutChar(f,th,'*') != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 					(tokenbyte)0,nocode,pp_b,p_ib,f,th,"%ld",NULL,(long)(1./scale))) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				}
 			if((*p_speed) >= 1.) {
 				if(OutChar(f,th,'/') != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 					(tokenbyte)0,nocode,pp_b,p_ib,f,th,"%ld",NULL,(long)(*p_speed))) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				}
 			else  {
 				if(OutChar(f,th,'\\') != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 					(tokenbyte)0,nocode,pp_b,p_ib,f,th,"%ld",NULL,(long)(1./(*p_speed)))) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				}
 			if(OutChar(f,th,' ') != OK) {
-				r = ABORT; goto OUT;
+				r = ABORT; goto SORTIR;
 				}
 			}
 		sp = 1;
@@ -707,7 +707,7 @@ DONESPEED:
 	if(m == T25) {	/* Simple note */
 		if(!nocode && sp != 4 && sp && (sp < 3 || (datamode && *(p_speed) < 2.)
 			|| SplitTimeObjects)) if(Space(f,th,&sp) != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 		p += 16384;
 		goto TERMINAL;
@@ -715,7 +715,7 @@ DONESPEED:
 	if(m == T3 && p < Jbol && p_Bol != NULL) {				/* Terminal */
 		if(!nocode && sp != 4 && sp && (sp < 3 || SplitTimeObjects))
 			if(Space(f,th,&sp) != OK) {
-				r = ABORT; goto OUT;
+				r = ABORT; goto SORTIR;
 				}
 TERMINAL:
 		setting_section = FALSE;
@@ -724,46 +724,46 @@ TERMINAL:
 			if(h >= Jhomo) {
 				if(Beta) {
 					Alert1("=> Err. PrintArgSub(). h >= Jhomo");
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 				}
 			if(depth[n] < levpar) p = Image(h,p);
 			}
 		if(p >= 16384) m = T25;
 		else m = T3;
-		if(!nocode && UseTextColor) {
-			if(p < 2) Reformat(wind,-1,-1,-1,&Black,NO,NO);	/* '-' or '_' */
+	/*	if(!nocode && UseTextColor) {
+			if(p < 2) Reformat(wind,-1,-1,-1,&Black,NO,NO);	// '-' or '_'
 			else	if(p < 16384) Reformat(wind,-1,-1,-1,&Color[TerminalC],NO,NO);
 					else Reformat(wind,-1,-1,-1,&Color[NoteC],NO,NO);
-			}
+			} */
 		if(ifunc && !nocode && p < Jbol && (*((*p_Bol)[p]))[0] == '\'') {
 			for(j=1; (*((*p_Bol)[p]))[j] != '\''; j++) {
 				if(OutChar(f,th,(*((*p_Bol)[p]))[j]) != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 				}
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			}
 		else {
 			if(p < 16384) {
 				if(!nocode && (*((*p_Bol)[p]))[0] == '\'' && OutChar(f,th,' ') != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,nocode,
 						pp_b,p_ib,f,th,"%s",(*p_Bol)[p],-1)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				}
 			else {
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p-16384,
 						nocode,pp_b,p_ib,f,th,"\0",NULL,-1)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				}
 			if(nocode) continue;
 			
 PRINTPROLONGATIONS:
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
+			// Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			if(print_periods && (++(*p_pos)) >= perioddivision) {
 				(*p_pos) = 0;
 				(*p_newsection) = TRUE;
@@ -776,14 +776,14 @@ PRINTPROLONGATIONS:
 			if(numberprolongations > 0) {
 				for(j=1; j < numberprolongations; j++) {
 					if((r=CheckPeriodOrLine(print_periods,p_newline,p_newsection,f,th,&beat,
-							numberprolongations,&sp)) != OK) goto OUT;
+							numberprolongations,&sp)) != OK) goto SORTIR;
 					
 					if(!nocode && sp) if(Space(f,th,&sp) != OK) {
-						r = ABORT; goto OUT;
+						r = ABORT; goto SORTIR;
 						}
 					if((r=Display('_',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T3,
 							(tokenbyte)0,nocode,pp_b,p_ib,f,th,"%c",NULL,-1)) != OK) {
-						goto OUT;
+						goto SORTIR;
 						}
 					if(SplitTimeObjects) sp = 1;
 					if(print_periods && (++(*p_pos)) >= perioddivision) {
@@ -800,7 +800,7 @@ PRINTPROLONGATIONS:
 			}
 		if(sp == 4 || ifunc) {
 			if(OutChar(f,th,' ') != OK) {
-				r = ABORT; goto OUT;
+				r = ABORT; goto SORTIR;
 				}
 			}
 		sp = 3;
@@ -819,28 +819,28 @@ PRINTPROLONGATIONS:
 					if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,
 							istemplate,(**pp_a)[ii],(**pp_a)[ii+1],nocode,pp_b,
 							p_ib,f,th,"",NULL,-1)) != OK) {
-						goto OUT;
+						goto SORTIR;
 						}
 					}
 				}
 			else {
 				if(OutChar(f,th,' ') != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 						nocode,pp_b,p_ib,f,th,"%ld",NULL,(long)n)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				if(OutChar(f,th,'/') != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 						m,p,nocode,pp_b,p_ib,f,th,"%ld",NULL,(long)
 						(((long)TOKBASE * (**pp_a)[i+5]) + (**pp_a)[i+7]))) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				if(OutChar(f,th,' ') != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 				sp = 0;
 				}
@@ -848,25 +848,25 @@ PRINTPROLONGATIONS:
 			continue;
 			}
 		if(!nocode && sp >= 2) if(Space(f,th,&sp) != OK) {
-			r = ABORT; goto OUT;
+			r = ABORT; goto SORTIR;
 			}
 		if(nocode) {
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T1,
 					p,nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T1,
 					(**pp_a)[i+1],nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			}
 		else {
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 					nocode,pp_b,p_ib,f,th,"%ld",NULL,n)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			if(Space(f,th,&sp) != OK) {
-				r = ABORT; goto OUT;
+				r = ABORT; goto SORTIR;
 				}
 			}
 		if(!setting_section) sp = 2;
@@ -876,16 +876,16 @@ PRINTPROLONGATIONS:
 		
 	if(m == T12) {	/* Performance Control without argument: _velcont, etc. */
 		if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
-			r = ABORT; goto OUT;
+			r = ABORT; goto SORTIR;
 			}
 		if(nocode) {
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 					nocode,pp_b,p_ib,f,th,"%c",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			}
 		else {
-			Reformat(wind,-1,-1,-1,&Blue,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 			switch(p) {
 				case 0:	/* _velcont */
 				case 1:	/* _velstep */
@@ -930,12 +930,12 @@ PRINTPROLONGATIONS:
 				case 30: /* _transposestep */
 					p += 34; break;
 				}
-			sprintf(line,"%s ",*((*p_PerformanceControl)[p]));
+			my_sprintf(line,"%s ",*((*p_PerformanceControl)[p]));
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 				(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
+			// Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			sp = 0;
 			}
 		continue;
@@ -943,31 +943,31 @@ PRINTPROLONGATIONS:
 		
 	if(m == T43) {	/* Performance Control '_tempo()' */
 		if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
-			r = ABORT; goto OUT;
+			r = ABORT; goto SORTIR;
 			}
 		if(nocode) {
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 					nocode,pp_b,p_ib,f,th,"%c",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			}
 		else {
-			Reformat(wind,-1,-1,-1,&Blue,NO,NO);
-			sprintf(line,"%s(",*((*p_PerformanceControl)[61]));
+	//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
+			my_sprintf(line,"%s(",*((*p_PerformanceControl)[61]));
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
-			sprintf(line,"%ld",(long)p);
+	//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
+			my_sprintf(line,"%ld",(long)p);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 					(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Blue,NO,NO);
+		//	Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,"/",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			i += 2L;
 			m = (**pp_a)[i];
@@ -977,18 +977,18 @@ PRINTPROLONGATIONS:
 				i -= 2L;
 				continue;
 				}
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
-			sprintf(line,"%ld",(long)p);
+		//	Reformat(wind,-1,-1,-1,&Black,NO,NO);
+			my_sprintf(line,"%ld",(long)p);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 					(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Blue,NO,NO);
+		//	Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,")",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			sp = 2;
 			}
 		continue;
@@ -996,42 +996,42 @@ PRINTPROLONGATIONS:
 		
 	if(m == T37) {	/* Performance Control '_keymap()' */
 		if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
-			r = ABORT; goto OUT;
+			r = ABORT; goto SORTIR;
 			}
 		if(nocode) {
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 					nocode,pp_b,p_ib,f,th,"%c",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			}
 		else {
-			Reformat(wind,-1,-1,-1,&Blue,NO,NO);
-			sprintf(line,"%s(",*((*p_PerformanceControl)[52]));
+	//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
+			my_sprintf(line,"%s(",*((*p_PerformanceControl)[52]));
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			PrintNote(-1,p % 128,-1,-1,line);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Blue,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,",",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			PrintNote(-1,(p - (p % 128)) / 128,-1,-1,line);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Blue,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,",",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 				
 			i += 2L;
@@ -1043,29 +1043,29 @@ PRINTPROLONGATIONS:
 				i -= 2L;
 				continue;
 				}
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			PrintNote(-1,p % 128,-1,-1,line);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Blue,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,",",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
+		//	Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			PrintNote(-1,(p - (p % 128)) / 128,-1,-1,line);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Blue,NO,NO);
+		//	Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,")",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			sp = 2;
 			}
 		continue;
@@ -1074,37 +1074,37 @@ PRINTPROLONGATIONS:
 		
 	if(m == T40) {	/*Tool '_keyxpand()' */
 		if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
-			r = ABORT; goto OUT;
+			r = ABORT; goto SORTIR;
 			}
 		if(nocode) {
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 					nocode,pp_b,p_ib,f,th,"%c",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			}
 		else {
-			Reformat(wind,-1,-1,-1,&Blue,NO,NO);
-			sprintf(line,"%s(",*((*p_PerformanceControl)[58]));
+	//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
+			my_sprintf(line,"%s(",*((*p_PerformanceControl)[58]));
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			key = p % 256;
 			if(key > 127) {
-				sprintf(line,"K%ld=%ld",(long)key-128,(long)ParamValue[key-128]);
+				my_sprintf(line,"K%ld=%ld",(long)key-128,(long)ParamValue[key-128]);
 				}
 			else PrintNote(-1,key,-1,-1,line);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Blue,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,",",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			goto SHOWNUMBER;
 			}
 		continue;
@@ -1112,35 +1112,35 @@ PRINTPROLONGATIONS:
 		
 	if(m == T13) {	/* Performance Control '_script()' */
 		if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
-			r = ABORT; goto OUT;
+			r = ABORT; goto SORTIR;
 			}
 		if(nocode) {
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 					nocode,pp_b,p_ib,f,th,"%c",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			}
 		else {
 	//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
-			sprintf(line,"%s(",*((*p_PerformanceControl)[4]));
+			my_sprintf(line,"%s(",*((*p_PerformanceControl)[4]));
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 	//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			if(p_Script == NULL || p > Jscriptline || p < 0) { // Fixed > instead of >=  2024-06-18
 				BPPrintMessage(odError,"=> Event script line not found, p = %d, Jscriptline = %d\n",p,Jscriptline);
-				r = OK; goto OUT;
+				r = OK; goto SORTIR;
 				}
-			sprintf(line,"%s",*((*p_Script)[p]));
+			my_sprintf(line,"%s",*((*p_Script)[p]));
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 	//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,")",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 	//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			sp = 2;
@@ -1150,7 +1150,7 @@ PRINTPROLONGATIONS:
 		
 	if(ifunc && m == T0 && p == 5) { /* interpreting grammar: ';' becomes '\r' */
 		if(OutChar(f,th,'\n') != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 		sp = 0;
 		continue;
@@ -1159,7 +1159,7 @@ PRINTPROLONGATIONS:
 	if(ifunc && m == T3 && p == Jfunc) {	/* interpreting grammar */
 		if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 				(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th," --> ",NULL,-1)) != OK) {
-			goto OUT;
+			goto SORTIR;
 			}
 		sp = 0;
 		continue;
@@ -1169,28 +1169,28 @@ PRINTPROLONGATIONS:
 		if(p_Var == NULL) continue;	/* Happens when there is no grammar and no glossary */
 		if(!nocode) {
 			if(sp != 4 && Space(f,th,&sp) != OK) {
-				r = ABORT; goto OUT;
+				r = ABORT; goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Color[VariableC],NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Color[VariableC],NO,NO);
 			}
 		if(SplitVariables) {
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 					nocode,pp_b,p_ib,f,th,"|%s|",(*p_Var)[p],-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			if(sp != 4) sp = 0;
 			}
 		else {
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 					nocode,pp_b,p_ib,f,th,"%s",(*p_Var)[p],-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			if(sp != 4) sp = 2;
 			}
-		if(th != NULL) Reformat(wind,-1,-1,-1,&Black,NO,NO);
+	//	if(th != NULL) Reformat(wind,-1,-1,-1,&Black,NO,NO);
 		if(sp == 4) {
 			if(OutChar(f,th,' ') != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 			sp = 0;
 			}
@@ -1198,7 +1198,7 @@ PRINTPROLONGATIONS:
 		}
 		
 	if(m == T0) {
-		if(p == 10 && th != NULL) Reformat(wind,-1,-1,(int) bold,&None,NO,NO);	/* 'S' */
+	//	if(p == 10 && th != NULL) Reformat(wind,-1,-1,(int) 1,&None,NO,NO);	// 'S'
 		if(p == 12) {	/* '{' */
 			level++;
 			if(level >= maxpoly) {
@@ -1224,13 +1224,13 @@ PRINTPROLONGATIONS:
 						/* Insert closing '|' for bracketing sequential expression */
 						if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T0,
 								(tokenbyte)23,nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
-							goto OUT;
+							goto SORTIR;
 							}
 						}
 					}
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,nocode,
 						pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				if((p == 12 || p == 14) && !(*p_sequence)[level]
 						&& SequenceField(pp_a,i+2)) {			/* '{', comma */
@@ -1238,7 +1238,7 @@ PRINTPROLONGATIONS:
 					/* Insert opening '|' for bracketing sequential expression */
 					if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T0,
 							(tokenbyte)22,nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
-						goto OUT;
+						goto SORTIR;
 						}
 					}
 				}
@@ -1248,20 +1248,20 @@ PRINTPROLONGATIONS:
 				if((p != 1 || sp != 4) && p != 9 && p != 8 && p != 18 /* && p != 7 */
 						&& (p < 12 || p > 14)) // FIXED by BB 2020-10-22
 					if(Space(f,th,&sp) != OK) {
-						r = ABORT; goto OUT;
+						r = ABORT; goto SORTIR;
 						}
 				if(p == 17) {
-					sprintf(line,"%s",*((*p_PerformanceControl)[42]));
+					my_sprintf(line,"%s",*((*p_PerformanceControl)[42]));
 					if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 							(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-						goto OUT;
+						goto SORTIR;
 						}
 					}
 				else {
 					if(p < MAXCODE2 && Display(Code[p],nhomo,levpar,homoname,depth,
 						p_maxib,pp_a,&i,istemplate,m,p,nocode,pp_b,p_ib,f,th,"%c",NULL,-1)
 								== ABORT) {
-						goto OUT;
+						goto SORTIR;
 						}
 					}
 				sp = 2;
@@ -1291,14 +1291,14 @@ PRINTPROLONGATIONS:
 		if(p == 13 && level > 0) {
 			level--;
 			}
-		if(p == 10 && th != NULL) Reformat(wind,-1,-1,(int) normal,&None,NO,NO);	/* 'S' */
+	//	if(p == 10 && th != NULL) Reformat(wind,-1,-1,(int) 0,&None,NO,NO);	// 'S'
 		if(p == 8 && (++levpar) >= MAXLEVEL) {	/* '(' */
 			ShowError(40,0,0);
-			r = ABORT; goto OUT;
+			r = ABORT; goto SORTIR;
 			}	
 		if(p == 9) {										/* ')' */
 			if(levpar == 1 && copylevel) {	/* End of copying master */
-				r = OK; goto OUT;
+				r = OK; goto SORTIR;
 				}
 			if(levpar > 0) levpar--;
 			for(n=nhomo; n >= 1; n--) if(depth[n] >= levpar) nhomo--;
@@ -1311,18 +1311,18 @@ PRINTPROLONGATIONS:
 			sp = 2;
 			if(p == 0) {
 				if(OutChar(f,th,'=') != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					} /* ZERO marker  */
 				}
 			else {
 				if(OutChar(f,th,':') != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					} /* slave marker */
 				}
 			}
 		if(p > 0) {							/* slave marker */
 			if((ia=SearchOrigin(pp_a,i,p)) == -1) {
-				r = ABORT; goto OUT;
+				r = ABORT; goto SORTIR;
 				}
 			for(j=1; j <= nhomo; j++)
 				new_depth[j] = depth[j] - levpar;
@@ -1344,7 +1344,7 @@ PRINTPROLONGATIONS:
 						new_depth,copylevel,tab,setting_section,beat,p_h,
 						p_section,sp,print_periods,p_firstslash,p_newline,p_newsection,
 						p_scale)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 			copylevel--;
 			if(levpar > 0) levpar--;
@@ -1357,17 +1357,17 @@ PRINTPROLONGATIONS:
 		
 	if(m == T9 && p < Jpatt) {				/* Time pattern */
 		if(!nocode && sp != 4 && sp) if(Space(f,th,&sp) != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
-		if(th != NULL) Reformat(wind,-1,-1,-1,&Color[TimePatternC],NO,NO);
+	//	if(th != NULL) Reformat(wind,-1,-1,-1,&Color[TimePatternC],NO,NO);
 		if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 				nocode,pp_b,p_ib,f,th,"%s",(*p_Patt)[p],-1)) != OK) {
-			goto OUT;
+			goto SORTIR;
 			}
-		if(th != NULL) Reformat(wind,-1,-1,-1,&Black,NO,NO);
+	//	if(th != NULL) Reformat(wind,-1,-1,-1,&Black,NO,NO);
 		if(sp == 4 || ifunc) {
 			if(OutChar(f,th,' ') != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 			}
 		sp = 3;
@@ -1377,29 +1377,29 @@ PRINTPROLONGATIONS:
 	if(m == T8 && p <= MAXWAIT) {	/* Synchronization tag */
 		if(!nocode) {
 			if(Space(f,th,&sp) != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 			sp = 1;
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 					nocode,pp_b,p_ib,f,th,"<<",NULL,-1)) != OK) {
 				{
-					goto OUT;
+					goto SORTIR;
 					}
 				}
-			Reformat(wind,-1,-1,-1,&Color[TagC],NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Color[TagC],NO,NO);
 			}
 		if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 				nocode,pp_b,p_ib,f,th,"W%ld",NULL,p)) != OK) {
 			{
-					goto OUT;
+					goto SORTIR;
 					}
 			}
 		if(!nocode) {
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 				nocode,pp_b,p_ib,f,th,">>",NULL,-1)) != OK) {
 				{
-					goto OUT;
+					goto SORTIR;
 					}
 				}
 			}
@@ -1409,19 +1409,19 @@ PRINTPROLONGATIONS:
 	if(m == T7 && (p < Jbol || p > 16383)) {	/* Out-time object or out-time simple note */
 		if(!nocode) {
 			if(Space(f,th,&sp) != OK) {
-					r = ABORT; goto OUT;
+					r = ABORT; goto SORTIR;
 					}
 			sp = 1;
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 					(tokenbyte)0,nocode,pp_b,p_ib,f,th,"<<",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
-			Reformat(wind,-1,-1,-1,&Color[TerminalC],NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Color[TerminalC],NO,NO);
 			}
 		if(p < 16384) {
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 					nocode,pp_b,p_ib,f,th,"%s",(*p_Bol)[p],-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			}
 		else {	/* Simple note */
@@ -1430,33 +1430,33 @@ PRINTPROLONGATIONS:
 			else {
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T25,p-16384,
 						nocode,pp_b,p_ib,f,th,"%s",NULL,-1)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				}
 			}
 		if(!nocode) {
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
+	//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 					(tokenbyte)0,nocode,pp_b,p_ib,f,th,">>",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			}
 		continue;
 		}
 		
 	if(m == T5) {				/* Homomorphism */
-		if(th != NULL) Reformat(wind,-1,-1,-1,&Color[HomomorphismC],NO,NO);
+	//	if(th != NULL) Reformat(wind,-1,-1,-1,&Color[HomomorphismC],NO,NO);
 		if(!nocode && !datamode && Jhomo > 0) {
 			if(Space(f,th,&sp) != OK) {
-				r = ABORT; goto OUT;
+				r = ABORT; goto SORTIR;
 				}
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 					nocode,pp_b,p_ib,f,th,"%s",(*p_Homo)[p],-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			sp = 1;
 			}
-		if(th != NULL) Reformat(wind,-1,-1,-1,&Black,NO,NO);
+		// if(th != NULL) Reformat(wind,-1,-1,-1,&Black,NO,NO);
 		if(p >= 0) {
 			nhomo++;
 			depth[nhomo] = levpar;
@@ -1472,16 +1472,16 @@ PRINTPROLONGATIONS:
 		// _pressrate(),_transpose(),_volumerate(),_volumecontrol(),_panrate(),_pancontrol()
 		// _ins(), _value(), _step(), _cont(), _rndvel(), _rotate(), _rndtime() _srand()
 		if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
-			r = ABORT; goto OUT;
+			r = ABORT; goto SORTIR;
 			}
 		if(nocode) {
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 					nocode,pp_b,p_ib,f,th,"%c",NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			}
 		else {
-			Reformat(wind,-1,-1,-1,&Blue,NO,NO);
+		//	Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 			switch(m) {
 				case T10:
 				case T11:
@@ -1545,39 +1545,39 @@ PRINTPROLONGATIONS:
 				case T44:
 					ii = 65; break;
 				}
-			sprintf(line,"%s(",*((*p_PerformanceControl)[ii]));
+			my_sprintf(line,"%s(",*((*p_PerformanceControl)[ii]));
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 					(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-				goto OUT;
+				goto SORTIR;
 				}
 			if(p >= 128 && AcceptControl(m)) {
-				Reformat(wind,-1,-1,-1,&Color[ControlC],NO,NO);
-				sprintf(line,"K%ld",(long)(p-128L));
+	//			Reformat(wind,-1,-1,-1,&Color[ControlC],NO,NO);
+				my_sprintf(line,"K%ld",(long)(p-128L));
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 						(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				if(ParamValue[p-128] != INT_MAX) {
-					Reformat(wind,-1,-1,-1,&Black,NO,NO);
-					sprintf(line,"=%ld",(long)ParamValue[p-128]);
+		//			Reformat(wind,-1,-1,-1,&Black,NO,NO);
+					my_sprintf(line,"=%ld",(long)ParamValue[p-128]);
 					if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 							(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-						goto OUT;
+						goto SORTIR;
 						}
 					}
 				}
 			else {
-				Reformat(wind,-1,-1,-1,&Black,NO,NO);
+		//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 				switch(m) {
 					case T17:
 					case T18:
-						sprintf(line,"%ld,%ld",(long)(p%128),(long)((p-p%128)/128));
+						my_sprintf(line,"%ld,%ld",(long)(p%128),(long)((p-p%128)/128));
 						break;
 					case T26:
 						if(((p / 100) * 100) != p)
-							sprintf(line,"%.2f",((double) p) / 100.);
+							my_sprintf(line,"%.2f",((double) p) / 100.);
 						else
-							sprintf(line,"%ld",(long) p / 100);
+							my_sprintf(line,"%ld",(long) p / 100);
 						break;
 					case T32:
 						for(ii=0; ii < Jinstr; ii++) {
@@ -1587,14 +1587,14 @@ PRINTPROLONGATIONS:
 									&& (*((*pp_CsInstrumentName)[ii]))[0] != '\0') {
 							MystrcpyHandleToString(MAXLIN,0,line,(*pp_CsInstrumentName)[ii]);
 							}
-						else sprintf(line,"%ld",(long)p);
+						else my_sprintf(line,"%ld",(long)p);
 						break;
 					case T33:
 					case T34:
 					case T36:
 						if(p_StringConstant == NULL) {
 							if(Beta) Alert1("=> Err PrintArgSub(). p_StringConstant == NULL");
-							sprintf(line,"???");
+							my_sprintf(line,"???");
 							}
 						else MystrcpyHandleToString(MAXLIN,0,line,(*p_StringConstant)[p]);
 						break;
@@ -1602,51 +1602,51 @@ PRINTPROLONGATIONS:
 						ii = p % 256;
 						if(p_StringConstant == NULL) {
 							if(Beta) Alert1("=> Err PrintArgSub(). p_StringConstant == NULL");
-							sprintf(line,"???");
+							my_sprintf(line,"???");
 							}
 						else MystrcpyHandleToString(MAXLIN,0,line,(*p_StringConstant)[ii]);
 						break;
 					default:
-						sprintf(line,"%ld",(long)p);
+						my_sprintf(line,"%ld",(long)p);
 						break;
 					}
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 						(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				}
-			Reformat(wind,-1,-1,-1,&Blue,NO,NO);
+		//	Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 			if(m != T35) {
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 						(tokenbyte)0,nocode,pp_b,p_ib,f,th,")",NULL,-1)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				}
 			else {
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 						(tokenbyte)0,nocode,pp_b,p_ib,f,th,",",NULL,-1)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
 				}
-			Reformat(wind,-1,-1,-1,&Black,NO,NO);
+		//	Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			if(m == T35) {
 SHOWNUMBER:
 				ii = (p - (p % 256)) / 256;
 				if(p_NumberConstant == NULL) {
 					if(Beta) Alert1("=> Err PrintArgSub(). p_NumberConstant == NULL");
-					sprintf(line,"???");
+					my_sprintf(line,"???");
 					}
-				else sprintf(line,"%.4f",(*p_NumberConstant)[ii]);
+				else my_sprintf(line,"%.4f",(*p_NumberConstant)[ii]);
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 						(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
-				Reformat(wind,-1,-1,-1,&Blue,NO,NO);
+		//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 						(tokenbyte)0,nocode,pp_b,p_ib,f,th,")",NULL,-1)) != OK) {
-					goto OUT;
+					goto SORTIR;
 					}
-				Reformat(wind,-1,-1,-1,&Black,NO,NO);
+			//	Reformat(wind,-1,-1,-1,&Black,NO,NO);
 				}
 			sp = 1;
 			}
@@ -1655,27 +1655,27 @@ SHOWNUMBER:
 		
 	if(!nocode && m == T6) {
 		if(Space(f,th,&sp) != OK) {
-			r = ABORT; goto OUT;
+			r = ABORT; goto SORTIR;
 			}
-		Reformat(wind,-1,-1,-1,&Magenta,NO,NO);
+	//	Reformat(wind,-1,-1,-1,&Magenta,NO,NO);
 		if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 				nocode,pp_b,p_ib,f,th,"?%ld",NULL,p)) != OK) {
-			goto OUT;
+			goto SORTIR;
 			}
-		Reformat(wind,-1,-1,-1,&Black,NO,NO);
+	//	Reformat(wind,-1,-1,-1,&Black,NO,NO);
 		sp = 1;
 		}
 	else {	/* Unknown token */
 		if(!nocode) if(Space(f,th,&sp) != OK) {
-			r = ABORT; goto OUT;
+			r = ABORT; goto SORTIR;
 			}
 		if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 				nocode,pp_b,p_ib,f,th,"%ld.",NULL,m)) != OK) {
-			goto OUT;
+			goto SORTIR;
 			}
 		if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 				nocode,pp_b,p_ib,f,th,"%ld ",NULL,p)) != OK) {
-			goto OUT;
+			goto SORTIR;
 			}
 		Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 			nocode,pp_b,p_ib,f,th," ???",NULL,-1);
@@ -1683,7 +1683,7 @@ SHOWNUMBER:
 		}
 	}
 	
-OUT:
+SORTIR:
 if(nocode) MyDisposeHandle((Handle*)&p_sequence);
 return(r);
 }
@@ -1833,17 +1833,17 @@ else {
 		}
 	if(integ == -1) {
 		if(p_smthing != NULL) {
-			sprintf(s,format,*p_smthing);
+			my_sprintf(s,format,*p_smthing);
 			}
 		else {
 			if(thechar != '\0') {
 				s[0] = thechar; s[1] = '\0';
 				}
-			else sprintf(s,format,"");
+			else my_sprintf(s,format,"");
 			}
 		}
 	else {
-		sprintf(s,format,(long)integ);
+		my_sprintf(s,format,(long)integ);
 		}
 PRINT:
 	if(f == stdout) {
@@ -1868,7 +1868,7 @@ if(j < 2 || j >= Jbol) return(MISSED);
 ClearWindow(NO,wNotice);
 if((*p_MIDIsize)[j] > ZERO) {
 	if((*((*pp_MIDIcode)[j]))[0].time > ZERO) {
-		sprintf(Message,"Silence=%ldms ",(long)(*((*pp_MIDIcode)[j]))[0].time);
+		my_sprintf(Message,"Silence=%ldms ",(long)(*((*pp_MIDIcode)[j]))[0].time);
 		PrintBehind(wNotice,Message);
 		}
 	for(i=0; i < (*p_MIDIsize)[j]; i++) {
@@ -1879,12 +1879,12 @@ if((*p_MIDIsize)[j] > ZERO) {
 			ch++;
 			}
 		if(w == NoteOn && (*((*pp_MIDIcode)[j]))[i+2].byte > 0) {
-			sprintf(Message,"NoteOn#%ld[%ld] ",(long)(*((*pp_MIDIcode)[j]))[i+1].byte,(long)ch);
+			my_sprintf(Message,"NoteOn#%ld[%ld] ",(long)(*((*pp_MIDIcode)[j]))[i+1].byte,(long)ch);
 			PrintBehind(wNotice,Message); i+= 2;
 			}
 		else {
 			if(w == NoteOff || (w == NoteOn && (*((*pp_MIDIcode)[j]))[i+2].byte == 0)) {
-				sprintf(Message,"NoteOff#%ld[%ld] ",(long)(*((*pp_MIDIcode)[j]))[i+1].byte,(long)ch);
+				my_sprintf(Message,"NoteOff#%ld[%ld] ",(long)(*((*pp_MIDIcode)[j]))[i+1].byte,(long)ch);
 				PrintBehind(wNotice,Message);
 				i+= 2;
 				}
@@ -1892,39 +1892,39 @@ if((*p_MIDIsize)[j] > ZERO) {
 				if(w > 127) {
 					switch(w) {
 						case ChannelPressure:
-							sprintf(Message,"ChPress=%ld[%ld] ",
+							my_sprintf(Message,"ChPress=%ld[%ld] ",
 								(long)(*((*pp_MIDIcode)[j]))[i+1].byte,(long)ch);
 							PrintBehind(wNotice,Message);
 							i += 1; break;
 						case PitchBend:
-							sprintf(Message,"Bend=%ld[%ld] ",(long)((*((*pp_MIDIcode)[j]))[i+1].byte
+							my_sprintf(Message,"Bend=%ld[%ld] ",(long)((*((*pp_MIDIcode)[j]))[i+1].byte
 								+ 128 * (*((*pp_MIDIcode)[j]))[i+2].byte),(long)ch); // Fixed by BB 2022-02-20
 							PrintBehind(wNotice,Message);
 							i += 2; break;
 						case ProgramChange:
-							sprintf(Message,"Progr#%ld[%ld] ",
+							my_sprintf(Message,"Progr#%ld[%ld] ",
 								(long)(*((*pp_MIDIcode)[j]))[i+1].byte + ProgNrFrom,(long)ch);
 							PrintBehind(wNotice,Message);
 							i += 1;
 							break;
 						case TimingClock:
-							sprintf(Message,"Silence %ldms ",(long)(*((*pp_MIDIcode)[j]))[i].time);
+							my_sprintf(Message,"Silence %ldms ",(long)(*((*pp_MIDIcode)[j]))[i].time);
 							if(i == (*p_MIDIsize)[j]-1 && i > 0) PrintBehind(wNotice,Message);
 							break;
 						case ControlChange:
 							if((*((*pp_MIDIcode)[j]))[i+1].byte == 123
 													&& (*((*pp_MIDIcode)[j]))[i+2].byte == 0) {
-								sprintf(Message,"AllNotesOff[%ld] ",(long)ch);
+								my_sprintf(Message,"AllNotesOff[%ld] ",(long)ch);
 								PrintBehind(wNotice,Message);
 								i += 2; break;
 								}
 							if((*((*pp_MIDIcode)[j]))[i+1].byte == 1 && (*((*pp_MIDIcode)[j]))[i+4].byte == 33) {
-								sprintf(Message,"Mod=%ld[%ld] ",(long)(128L * (*((*pp_MIDIcode)[j]))[i+2].byte)	+ (*((*pp_MIDIcode)[j]))[i+5].byte,(long)ch); // Fixed by BB 2022-02-20
+								my_sprintf(Message,"Mod=%ld[%ld] ",(long)(128L * (*((*pp_MIDIcode)[j]))[i+2].byte)	+ (*((*pp_MIDIcode)[j]))[i+5].byte,(long)ch); // Fixed by BB 2022-02-20
 								PrintBehind(wNotice,Message);
 								i += 5; break;
 								}
 							else {
-								sprintf(Message,"Ctrl#%ld=%ld[%ld] ",
+								my_sprintf(Message,"Ctrl#%ld=%ld[%ld] ",
 									(long)(*((*pp_MIDIcode)[j]))[i+1].byte,
 									(long)(*((*pp_MIDIcode)[j]))[i+2].byte,(long)ch);
 								PrintBehind(wNotice,Message);
@@ -1932,13 +1932,13 @@ if((*p_MIDIsize)[j] > ZERO) {
 								}
 							/* Here we fall into default */
 						default:
-							sprintf(Message,"<%ld> ",(long)w);
+							my_sprintf(Message,"<%ld> ",(long)w);
 							PrintBehind(wNotice,Message);
 							break;																 
 						}
 					}
 				else {
-					sprintf(Message,"%ld ",(long)w);
+					my_sprintf(Message,"%ld ",(long)w);
 					PrintBehind(wNotice,Message);
 					}
 				}
@@ -1993,9 +1993,9 @@ r = OK;
 if(*p_newline) {
 	if(print_periods > 2) {
 		(*p_beat)++;
-		if((r=PrintPeriod(f,th)) != OK) goto OUT;
+		if((r=PrintPeriod(f,th)) != OK) goto SORTIR;
 		if(/* OutChar(f,th,'�') != OK || */ OutChar(f,th,'\n') != OK) {
-			r = ABORT; goto OUT;
+			r = ABORT; goto SORTIR;
 			}
 		(*p_sp) = 0;
 		}
@@ -2004,13 +2004,13 @@ if(*p_newline) {
 if(*p_newsection) {
 	if(print_periods) {
 		(*p_beat)++;
-		if((r=PrintPeriod(f,th)) != OK) goto OUT;
+		if((r=PrintPeriod(f,th)) != OK) goto SORTIR;
 		(*p_sp) = 0;
 		}
 	else if(numberprolongations > 1L) (*p_sp) = 1;
 	(*p_newsection) = FALSE;
 	}
 	
-OUT:
+SORTIR:
 return(r);
 }
