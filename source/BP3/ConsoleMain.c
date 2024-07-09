@@ -1038,6 +1038,14 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 		}
 	if(opts->useRealtimeMidi == TRUE) {
 	// BPPrintMessage(odInfo,"opts->outputFiles[ofiTraceFile].name = %s\n",opts->outputFiles[ofiTraceFile].name);
+		if(opts->outputFiles[ofiTraceFile].name == NULL) {
+			BPPrintMessage(odError, "=> The path to the trace file is missing\n");
+			return ABORT;
+			}
+		if(strlen(opts->outputFiles[ofiTraceFile].name) == 0) {
+			BPPrintMessage(odError, "=> The path to the trace file is missing\n");
+			return ABORT;
+			}
 		thepath = str_replace(".txt","",opts->outputFiles[ofiTraceFile].name);
 		if(thepath == NULL) {
 			BPPrintMessage(odError, "=> Error ParsePostInitArgs(). thepath == NULL\n,result");
@@ -1052,8 +1060,8 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 		free(thepath);
 		strcat(new_thepath,"_midiport");
 		strcpy(Midiportfilename,new_thepath);
-        BPPrintMessage(odInfo,"Midiportfilename = %s\n",Midiportfilename);
-		WaitABit(100L); // 100 ms
+     //   BPPrintMessage(odInfo,"Midiportfilename = %s\n",Midiportfilename);
+		// WaitABit(100L); // 100 ms
 		resultinit = initializeMIDISystem();
 		if(new_thepath != NULL) free(new_thepath);
 		if(resultinit != OK) {
@@ -1406,7 +1414,7 @@ int my_fclose(FILE *file) {
         }
 	result = fclose(file);
 	file = NULL;
-    if(result != 0) {
+    if(result != 0 && !Panic) {
         BPPrintMessage(odError, "=> Error #%d closing a file\n, result");
         return ABORT;
         }

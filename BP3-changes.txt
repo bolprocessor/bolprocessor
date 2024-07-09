@@ -7,6 +7,11 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 -----
+2024-07-09
+On Windows, MIDI input is now handled by a dedicated thread. This results in a faster response to input messages.
+This version handles (temporary) scripts on the interface. Download https://github.com/bolprocessor/bp3-ctests/archive/main.zip to get updated scripts!
+
+-----
 2024-07-07
 The first version that compiles and runs on both MacOS and Windows! 😀
 The Linux version is on the way.

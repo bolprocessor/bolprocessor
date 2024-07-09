@@ -42,6 +42,7 @@
     // Global variables for MIDI device handle
     static HMIDIOUT hMidiOut[MAXPORTS];
     static HMIDIIN hMidiIn[MAXPORTS];
+    DWORD WINAPI MidiMessageThread(LPVOID);
 #endif
 #if defined(__APPLE__)
     MIDIClientRef MIDIoutputClient, MIDIinputClient;
@@ -291,6 +292,12 @@ int initializeMIDISystem(void) {
                 BPPrintMessage(odInfo,"MIDI intput = %d: “%s”\n",i,mic.szPname);
                 }
             }
+        HANDLE threadHandle = CreateThread(NULL, 0, MidiMessageThread, NULL, 0, NULL);
+        if (threadHandle == NULL) {
+            BPPrintMessage(odError,"Error opening MidiMessageThread. Input(s) won't work\n");
+            Interactive = FALSE;
+            }
+
     #endif
     #if defined(__APPLE__)
         OSStatus status;
@@ -731,7 +738,6 @@ void closeMIDISystem() {
                     e.data1 = midiHdr->lpData[1];
                     e.data2 = midiHdr->lpData[2];
            //         e.timestamp = dwParam2;  // Assume timestamp is passed as dwParam2
-          //          HandleInputEvent(midiHdr->lpData, &e, index);
                     HandleInputEvent(&dwParam1, &e, index);
                     if(PassInEvent(midiHdr->lpData[0], index)) {
                         sendMIDIEvent((unsigned char*)midiHdr->lpData, midiHdr->dwBytesRecorded, 0);
@@ -837,11 +843,11 @@ int ListenMIDI(int x0, int x1, int x2) {
 	if(EmergencyExit || Panic) return(ABORT);
  //   if(!Interactive) return r;
 #if defined(_WIN64)
-    MSG msg;
+/*    MSG msg;
     while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
-        }
+        } */
 #elif defined(__linux__)
 	snd_seq_event_t* ev;
     snd_seq_event_input(seq_handle, &ev);
@@ -850,6 +856,17 @@ int ListenMIDI(int x0, int x1, int x2) {
 #endif
 	return(r);
 	}
+
+#if defined(_WIN64)
+DWORD WINAPI MidiMessageThread(LPVOID param) {
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+    return 0;
+}
+#endif
 
 
 // SEND MIDI EVENTS

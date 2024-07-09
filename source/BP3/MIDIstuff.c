@@ -57,7 +57,7 @@ int read_midisetup() {
 		}
     file = my_fopen(0,Midiportfilename,"r");
     if(file != NULL) {
-        BPPrintMessage(odInfo,"Reading MIDI port settings %s\n",Midiportfilename);
+        BPPrintMessage(odInfo,"Reading MIDI port settings: %s\n",Midiportfilename);
         while(fgets(line, sizeof(line), file) != NULL) {
 			remove_carriage_returns(line);
 		//	BPPrintMessage(odInfo,"%s\n",line);
