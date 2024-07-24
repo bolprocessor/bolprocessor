@@ -6,6 +6,8 @@ with real-time MIDI, MIDI file, and Csound output.  It produces music from a
 set of rules (a compositional grammar) or from text scores typed or captured
 from a MIDI instrument.
 
+BP3 compiles and runs in the MacOS, Linux and Windows environments.
+
 Bol Processor is now released as free software (open source) under a
 BSD-style license (please see the License.txt file for complete terms).  
 BP development is now hosted by GitHub at
@@ -30,7 +32,7 @@ Windows) or embedding BP3 algorithms into custom tools.
 If you would like to help with any stage of this process, please get in
 contact with us either privately or via the mailing lists:
 
-he BP users help forum: https://sourceforge.net/p/bolprocessor/discussion/555617
+The BP users help forum: https://sourceforge.net/p/bolprocessor/discussion/555617
 BP open discussion forum: https://sourceforge.net/p/bolprocessor/discussion/555616
 BP developers list: https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
 
