@@ -62,11 +62,12 @@ if(p_Script == NULL && GetScriptSpace() != OK) return(NULL);
 if(p_Flagname == NULL && GetFlagSpace() != OK) return(NULL);
 if(p_Var == NULL && GetVariableSpace() != OK) return(NULL);
 for(i=0,p=(*pp1); p < (*pp2); i++,p++) {
-//	BPPrintMessage(odInfo,"%c",*p);
+//	BPPrintMessage(odInfo,"%c",*p); // 2024-07-11
 	}
 pp = pp1;
 imax = 4L * i + 6L;
 buffsize = imax + 4L;
+
 if((p_buff = (tokenbyte**) GiveSpace((Size) buffsize * sizeof(tokenbyte))) == NULL) return(NULL);
 if((p_x = (char**) GiveSpace((Size)((BOLSIZE+2) * sizeof(char)))) == NULL) return(NULL);
 leftside = TRUE;
@@ -1068,18 +1069,22 @@ imax = (int) LengthOf(&p_buff);	// OPTIMIZE: can't we just do imax = i - (1 or 2
 j = Recode(notargument,&imax,&p_buff);
 if(j > 0) {
 	ShowError(j,igram,irul);
-	DoSystem();
+//	DoSystem();
 	goto ERR;
 	}
+
+
+return(p_buff); //  2024-07-11
+
 if((p_pi = (tokenbyte**) GiveSpace((Size)(imax+2)*sizeof(tokenbyte))) == NULL)
 	goto ERR;
-siz = imax + 2L;	// FIXME: siz is never used
+siz = imax + 2L;	// FIXME: siz is never used 
 // OPTIMIZE: why make a copy of p_buff just to return the copy and dispose of p_buff ??
 // Just resizing p_buff should be faster.
 if(CopyBuf(&p_buff,&p_pi) == ABORT) p_pi = NULL;
 MyDisposeHandle((Handle*)&p_buff);
-if(DoSystem() != OK) p_pi = NULL;	// FIXME ? why fail just because DoSystem() does ??
-if(p_pi == NULL) return(p_pi); 	// FIXME
+/* if(DoSystem() != OK) p_pi = NULL;	// FIXME ? why fail just because DoSystem() does ??
+if(p_pi == NULL) return(p_pi); 	// FIXME */
 /* if(trace_scale) {
 	i = 0;
 	while(TRUE) {
@@ -1094,7 +1099,7 @@ return(p_pi);
 ERR:
 MyDisposeHandle((Handle*)&p_x);
 MyDisposeHandle((Handle*)&p_buff);
-ShowSelect(CENTRE,wTrace);
+// ShowSelect(CENTRE,wTrace);
 return(NULL);
 }
 

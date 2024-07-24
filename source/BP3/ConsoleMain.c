@@ -112,13 +112,14 @@ int main (int argc, char* args[])
     ConsoleMessagesInit();
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (2) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	result = ParsePreInitArgs(argc, args, &gOptions);
-	if (result != OK) goto CLEANUP;
+	// if (result != OK) goto CLEANUP;
 	
 	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (3) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	
 	if (gOptions.useStdErr)	{
 		// split message output from "algorithmic output"
 		SetOutputDestinations(odInfo|odWarning|odError|odUserInt, stderr);
+		BPPrintMessage(odInfo,"Splitting message output from algorithmic output\n");
 		}
 	
 	if(check_memory_use) BPPrintMessage(odInfo,"Memory before Inits() = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
@@ -132,23 +133,14 @@ int main (int argc, char* args[])
 	MemoryUsedInit = MemoryUsed;
 	
 	result = ParsePostInitArgs(argc, args, &gOptions);
-//    BPPrintMessage(odInfo,"So far it works\n");
 	if (result != OK) goto CLEANUP;
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (6) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	result = LoadInputFiles(gOptions.inputFilenames);
 	if (result != OK) goto CLEANUP;
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (7) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	// some command-line options are applied after loading the settings file
 	result = ApplyArgs(&gOptions);
 	if (result != OK) goto CLEANUP;
-
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (8) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	
-#if BIGTEST
-	TraceMemory = TRUE;
-#else
-	TraceMemory = FALSE;
-#endif
+TraceMemory = FALSE;
 
 	MaxMIDIMessages = 1000L;  // May be increased if necesssary to deal with very large chunks of events in real time
 
@@ -358,6 +350,7 @@ void CreateDoneFile(void) {
 	char* new_thefile;
 	int length;
 	if(gOptions.outputFiles[ofiTraceFile].name != NULL) {
+	    BPPrintMessage(odInfo,"Creating 'done' file: %s\n",gOptions.outputFiles[ofiTraceFile].name);
 		my_sprintf(Message,"%s",gOptions.outputFiles[ofiTraceFile].name);
 		remove_spaces(Message,line);
 		thefile = str_replace(".txt","",line);
@@ -367,7 +360,7 @@ void CreateDoneFile(void) {
             if(new_thefile != NULL) {
                 strcpy(new_thefile,thefile);
                 strcat(new_thefile,"_done");
-                snprintf(StopfileName,sizeof(StopfileName),"%s",new_thefile);
+          //      snprintf(StopfileName,sizeof(StopfileName),"%s",new_thefile);
             	}
 			else {
 				BPPrintMessage(odError,"=> Memory allocation failed for new_thefile in CreateDoneFile()\n");
@@ -378,14 +371,18 @@ void CreateDoneFile(void) {
 			BPPrintMessage(odError, "=> Memory allocation failed for thefile in CreateDoneFile()\n");
 			return;
 			}
-	    BPPrintMessage(odInfo,"Created 'done' file: %s",new_thefile);
 	//	BPPrintMessage(odInfo,"\n_____________________\n");
 		ptr = my_fopen(1,new_thefile,"w");
-		fputs("bp completed work!\n",ptr);
-		my_fclose(ptr);
+		if(ptr != NULL) {
+	    	BPPrintMessage(odInfo,"Created 'done' file: %s\n",new_thefile);
+			fputs("bp completed work!\n",ptr);
+			my_fclose(ptr);
+			}
+		else BPPrintMessage(odError,"=> Error creating 'done' file: %s\n",new_thefile);
         free(new_thefile);
 		free(thefile);
 		}
+	else BPPrintMessage(odError,"=> No path found in CreateDoneFile()\n");
 	return;
 	}
 
@@ -530,8 +527,8 @@ void CreateImageFile(double time) {
 
 int EndImageFile(void) {
 	FILE* thisfile;
-	char pick_a_line[MAXLIN];
-    char cwd[4096],line[MAXLIN];
+	char pick_a_line[400];
+    char cwd[4096],line[400];
 	char *final_name = NULL, *someline = NULL, *anotherline = NULL;
 	size_t length;
 	ssize_t number;
@@ -569,17 +566,17 @@ int EndImageFile(void) {
 		}
 	if(imagePtr != NULL) my_fclose(imagePtr);
 	imagePtr = NULL;
-	// BPPrintMessage(odInfo,"Closing temporary image file\n");
+	BPPrintMessage(odInfo,"Closing temporary image file\n");
 	if(ShowGraphic) {
 		final_name = str_replace("_temp","",imageFileName);
 		remove_spaces(final_name,final_name);
 		if(TraceMIDIinteraction) BPPrintMessage(odInfo,"\n");
 		BPPrintMessage(odInfo,"Finalizing image #%d: %s\n",N_image,final_name);
-		imagePtr = my_fopen(1,final_name,"w");
-		thisfile = my_fopen(1,imageFileName,"r");
+		imagePtr = my_fopen(1,final_name,"wb");
+		thisfile = my_fopen(1,imageFileName,"rb");
 		free(final_name);
-		while(fgets(pick_a_line, 200, thisfile) != NULL) {
-		//	BPPrintMessage(odInfo,"pick_a_line: %s",pick_a_line);
+		while(fgets(pick_a_line,sizeof(pick_a_line),thisfile) != NULL) {
+	//		BPPrintMessage(odInfo,"pick_a_line: %s",pick_a_line);
 			remove_carriage_returns(pick_a_line);
 			if(strstr(pick_a_line,"THE_TITLE") != NULLSTR) {
 				if(!PlaySelectionOn) someline = str_replace("THE_TITLE",gOptions.inputFilenames[wGrammar],pick_a_line);
@@ -604,10 +601,28 @@ int EndImageFile(void) {
 				fflush(imagePtr);
 				free(someline);
 				}
-	        else fputs(pick_a_line,imagePtr);
+	        else {
+				if(strlen(pick_a_line ) == 0) {
+					BPPrintMessage(odError,"=> Err trying to write empty line to: %s\n",imageFileName);
+					return ABORT;
+					}
+				if(imagePtr == NULL) {
+					BPPrintMessage(odError,"=> Err trying to write to empty pointer in: %s\n",imageFileName);
+					return ABORT;
+					}
+				fputs(pick_a_line,imagePtr);
+				}
 			}
 		my_fclose(thisfile);
+	/*	result = chmod(imageFileName,0777);
+	    if(result != 0) {
+			BPPrintMessage(odError,"=> Err chmod() after closing %s\n",imageFileName);
+			} */
 		my_fclose(imagePtr);
+	/*	result = chmod(final_name,0777);
+	    if(result != 0) {
+			BPPrintMessage(odError,"=> Err chmod() after closing %s\n",final_name);
+			} */
 		}
 	remove(imageFileName);
 	imagePtr = NULL;
@@ -1062,18 +1077,21 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 		strcpy(Midiportfilename,new_thepath);
      //   BPPrintMessage(odInfo,"Midiportfilename = %s\n",Midiportfilename);
 		// WaitABit(100L); // 100 ms
+		rtMIDI = TRUE;
 		resultinit = initializeMIDISystem();
 		if(new_thepath != NULL) free(new_thepath);
 		if(resultinit != OK) {
 			Panic = 1;
 			return ABORT;
 			}
-		WaitABit(100L); // 100 ms
-		rtMIDI = TRUE;
-		if(ResetNotes) AllNotesOffPedalsOffAllChannels();
-		WaitABit(100L); // 100 ms
-		if((r = MIDIflush()) != OK) return r;
-		Notify("Real-time MIDI started",0);
+		if(rtMIDI) {
+			WaitABit(100L); // 100 ms
+			if(ResetNotes) AllNotesOffPedalsOffAllChannels();
+			WaitABit(100L); // 100 ms
+			if((r = MIDIflush()) != OK) return r;
+			Notify("Real-time MIDI started",0);
+			}
+		else Notify("Real-time MIDI failed to start",1);
 		}
 	return OK;
 	}
@@ -1393,8 +1411,9 @@ FILE* my_fopen(int check, const char* path, const char* mode) {
     strcpy(convertedPath,path);  // Copy the original path to the buffer
     convert_path(convertedPath);  // Change backslashes to normal
 	file = fopen(convertedPath,thismode);
-    if(!file) {
-		if(check) BPPrintMessage(odError,"=> Failed to open: %s in '%s' mode\n",convertedPath,thismode);
+    if(file == NULL) {
+		if(check) BPPrintMessage(odError, "=> Failed to open: %s in '%s' mode. Error: %s\n",
+                   convertedPath, thismode, strerror(errno));
 		}
     return file;  // Return the file pointer 
     }
@@ -1432,7 +1451,6 @@ FILE* OpenOutputFile(OutFileInfo* finfo, const char* mode)
 {
 	finfo->fout = my_fopen(1,finfo->name, mode);
 	if (finfo->fout != NULL)  finfo->isOpen = TRUE;
-	
 	return finfo->fout;
 }
 
@@ -1441,10 +1459,19 @@ FILE* OpenOutputFile(OutFileInfo* finfo, const char* mode)
 	Closes the file controlled by an OutFileInfo struct.
  */
 void CloseOutputFile(OutFileInfo* finfo) {
+	int result;
 	if(finfo->isOpen && finfo->fout != NULL) {
 		my_fclose(finfo->fout);
 		finfo->fout = NULL;
 		finfo->isOpen = FALSE;
+		}
+	// result = chmod(finfo->name, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	result = chmod(finfo->name,0777);
+//	result = 0;
+//	BPPrintMessage(odError,"chmod() after closing %s\n",finfo->name);
+	if(result != 0) {
+		BPPrintMessage(odError,"=> Err chmod() after closing %s\n",finfo->name);
+		return;
 		}
 	return;
 	}

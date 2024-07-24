@@ -1,8 +1,0 @@
-// Bol Processor version BP2.7.3
-// Script file saved as '+sc.checkAnalysis'. Date: Sun, Oct 12, 1997 -- 19:23
-Set directory 14183 
-Reset random sequence
-Load Project "-gr.dhin--" 
-Use tokens OFF
-Produce items
-Analyze selection in window "Data" 

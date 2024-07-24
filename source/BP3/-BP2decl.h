@@ -282,8 +282,13 @@ extern int Charstep,UndoFlag;
 extern char LineBuff[MAXLIN];
 extern char MIDIinputname[MAXPORTS][MAXNAME],MIDIoutputname[MAXPORTS][MAXNAME],OutputMIDIportComment[MAXPORTS][MAXNAME],InputMIDIportComment[MAXPORTS][MAXNAME];
 extern int MIDIinput[MAXPORTS], MIDIoutput[MAXPORTS];
+#if defined(__linux__)
+    extern snd_seq_t* Seq_handle;
+    extern int Out_port[MAXPORTS],In_port[MAXPORTS];
+    extern int MIDIinputport[MAXPORTS],MIDIoutputport[MAXPORTS];
+#endif
 extern int MaxInputPorts, MaxOutputPorts;
-extern Str255 PascalLine;
+// extern Str255 PascalLine;
 
 extern long Tcurr,LastTime,DataOrigin,PianorollShift;
 extern unsigned long NextTickDate[MAXTICKS],NextBeatDate;

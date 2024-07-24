@@ -7,82 +7,39 @@ EXE    = bp
 UNAME_S := Windows
 UNAME_M := x86_64
 
-# Only set Unix-specific flags if on Unix (this part will just be skipped on Windows)
+# Detect operating system
 ifeq ($(OS),Windows_NT)
+	UNAME_S := Windows
 	CFLAGS =
 	FRAMEWORKS = -lwinmm -Wall -Wextra
 	EXE = bp.exe
 else
 	UNAME_S := $(shell uname -s)
-	UNAME_M := $(shell uname -m)
 	ifeq ($(UNAME_S),Darwin)
-		CFLAGS =
+		CFLAGS = -fsanitize=address -fsanitize-recover=address -g
 		FRAMEWORKS = -framework CoreMIDI -framework CoreFoundation
 	endif
 	ifeq ($(UNAME_S),Linux)
-		CFLAGS = 
+		CFLAGS = -fsanitize=address -fsanitize-recover=address -g
 		FRAMEWORKS = -lasound
+		EXE = bp3
 	endif
 endif
 
 # Print the operating system detected (optional, for debugging)
 $(info Operating System: $(UNAME_S))
 
-SRCS = \
-	$(SRCDIR)/Arithmetic.c \
-	$(SRCDIR)/Automata.c \
-	$(SRCDIR)/CompileGrammar.c \
-	$(SRCDIR)/CompileProcs.c \
-	$(SRCDIR)/Compute.c \
-	$(SRCDIR)/ConsoleMain.c \
-	$(SRCDIR)/ConsoleMemory.c \
-	$(SRCDIR)/ConsoleMessages.c \
-	$(SRCDIR)/ConsoleStubs.c \
-	$(SRCDIR)/Csound.c \
-	$(SRCDIR)/CsoundMaths.c \
-	$(SRCDIR)/CsoundScoreMake.c \
-	$(SRCDIR)/CTextHandles.c \
-	$(SRCDIR)/DisplayArg.c \
-	$(SRCDIR)/DisplayThings.c \
-	$(SRCDIR)/Encode.c \
-	$(SRCDIR)/FillPhaseDiagram.c \
-	$(SRCDIR)/GetRelease.c \
-	$(SRCDIR)/Glossary.c \
-	$(SRCDIR)/Graphic.c \
-	$(SRCDIR)/HTML.c \
-	$(SRCDIR)/Inits.c \
-	$(SRCDIR)/Interface2.c \
-	$(SRCDIR)/MakeSound.c \
-	$(SRCDIR)/MIDIdriver.c \
-	$(SRCDIR)/MIDIfiles.c \
-	$(SRCDIR)/MIDIloads.c \
-	$(SRCDIR)/MIDIstuff.c \
-	$(SRCDIR)/Misc.c \
-	$(SRCDIR)/PlayThings.c \
-	$(SRCDIR)/Polymetric.c \
-	$(SRCDIR)/ProduceItems.c \
-	$(SRCDIR)/SaveLoads1.c \
-	$(SRCDIR)/SaveLoads3.c \
-	$(SRCDIR)/Script.c \
-	$(SRCDIR)/ScriptUtils.c \
-	$(SRCDIR)/SetObjectFeatures.c \
-	$(SRCDIR)/SoundObjects2.c \
-	$(SRCDIR)/SoundObjects3.c \
-	$(SRCDIR)/Strings.c \
-	$(SRCDIR)/Ticks.c \
-	$(SRCDIR)/TimeSet.c \
-	$(SRCDIR)/TimeSetFunctions.c \
-	$(SRCDIR)/Zouleb.c
+SRCS = $(wildcard $(SRCDIR)/*.c)
 
 OBJS = $(SRCS:.c=.o)
 
 all:  $(EXE)
 
 $(EXE): $(OBJS)
-	$(CC) -fsanitize-recover=address -g -o $(EXE) $(OBJS) $(LIBS) $(FRAMEWORKS)
+	$(CC) $(CFLAGS) -o $(EXE) $(OBJS) $(LIBS) $(FRAMEWORKS)
 
 %.o : %.c
-	$(CC) -fsanitize-recover=address -g -c $(CFLAGS) -I $(SRCDIR) -include $(PREFIX)  $< -o $@
+	$(CC) $(CFLAGS) -c -I$(SRCDIR) -include $(PREFIX) $< -o $@
 
 depend: 
 	makedepend -I $(SRCDIR) -include $(PREFIX)  $(SRCS)

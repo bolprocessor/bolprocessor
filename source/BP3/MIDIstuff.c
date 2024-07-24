@@ -53,7 +53,7 @@ int read_midisetup() {
 		strcpy(MIDIoutputname[i],"");
 		strcpy(OutputMIDIportComment[i],"");
 		strcpy(InputMIDIportComment[i],"");
-		MIDIoutput[i] = 0;  MIDIinput[i] = 1;
+		MIDIoutput[i] = -1;  MIDIinput[i] = -1;
 		}
     file = my_fopen(0,Midiportfilename,"r");
     if(file != NULL) {
@@ -145,7 +145,7 @@ int read_midisetup() {
 					}
         		}
 			if(strcmp(itemType,"MIDIoutFilter") == 0) {
-         //   BPPrintMessage(odInfo,"MIDIoutFilter = %s\n",itemNumber);
+            //  BPPrintMessage(odInfo,"MIDIoutFilter = %s\n",itemNumber);
 				if(itemNumber && strlen(itemNumber) > 0) {
 					strcpy(MIDIoutFilter[index],itemNumber);
 			//		BPPrintMessage(odInfo,"Lu: MIDIoutFilter[%d] = %s\n",index,MIDIoutFilter[index]);
@@ -153,7 +153,7 @@ int read_midisetup() {
 				}
 			}
         my_fclose(file);
-		BPPrintMessage(odInfo,"Your real-time MIDI settings:\n");
+		BPPrintMessage(odInfo,"🎹 Your real-time MIDI settings:\n");
 		for(index = 0; index < MaxOutputPorts; index++) {
 			if(strcmp(OutputMIDIportComment[index],"void") == 0) strcpy(line,"");
 			else strcpy(line,OutputMIDIportComment[index]);
@@ -164,7 +164,7 @@ int read_midisetup() {
 			else strcpy(line,InputMIDIportComment[index]);
 			BPPrintMessage(odInfo,"MIDI input = %d: “%s” - %s\n",MIDIinput[index],MIDIinputname[index],line);
 			}
-	//	BPPrintMessage(odInfo,"\n");
+		BPPrintMessage(odInfo,"\n");
         }
     return(result);
     }
@@ -192,6 +192,8 @@ void save_midisetup() {
                 strcpy(OutputMIDIportComment[index],"void");
 			fprintf(thefile, "MIDIoutput\t%d\t%d\t%s\t%s\n",index,MIDIoutput[index],MIDIoutputname[index],OutputMIDIportComment[index]);
 		//	BPPrintMessage(odInfo,"Ecrit: MIDIoutput[%d] = %d\t%s\t%s\n",index,MIDIoutput[index],MIDIoutputname[index],OutputMIDIportComment[index]);
+		//	BPPrintMessage(odInfo,"Ecrit: MIDIoutFilter[%d] = %s\n",index,MIDIoutFilter[index]);
+			fprintf(thefile, "MIDIoutFilter\t%d\t%s\n",index,MIDIoutFilter[index]);
 		//	BPPrintMessage(odInfo,"Ecrit: MIDIchannelFilter[%d] = %s\n",index,MIDIchannelFilter[index]);
         	fprintf(thefile, "MIDIchannelFilter\t%d\t%s\n",index,MIDIchannelFilter[index]);
 			}
@@ -469,9 +471,9 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 	if(Interactive || ScriptRecOn || ReadKeyBoardOn) {
 		if(c == PitchBend) {
 			if(Jcontrol == -1) {
-				my_sprintf(Message,"Pitchbend = %ld channel %ld",(long) c1 + 128L*c2,
+			/*	my_sprintf(Message,"Pitchbend = %ld channel %ld",(long) c1 + 128L*c2,
 					(long)(c0 - c + 1));
-				if(ShowMessages) ShowMessage(TRUE,wMessage,Message);
+				if(ShowMessages) ShowMessage(TRUE,wMessage,Message); */
 				if(Interactive) {
 					(*p_Oldvalue)[c0-c].pitchbend = c1 + (128L * c2);
 					ChangedPitchbend[c0-c] = TRUE;
@@ -482,9 +484,9 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 		if(c == ControlChange) {
 			if(c1 == VolumeControl[c0-c+1]) {	/* Volume */
 				if(Jcontrol == -1) {
-					my_sprintf(Message,"Volume = %ld channel %ld",(long)c2,
+			/*		my_sprintf(Message,"Volume = %ld channel %ld",(long)c2,
 						(long)(c0 - c + 1));
-					if(ShowMessages) ShowMessage(TRUE,wMessage,Message);
+					if(ShowMessages) ShowMessage(TRUE,wMessage,Message); */
 					if(Interactive) {
 						(*p_Oldvalue)[c0-c].volume = c2;
 						ChangedVolume[c0-c] = TRUE;
@@ -495,9 +497,9 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			else
 			if(c1 == PanoramicControl[c0-c+1]) {	/* Panoramic */
 				if(Jcontrol == -1) {
-					my_sprintf(Message,"Panoramic = %ld channel %ld",(long)c2,
+			/*		my_sprintf(Message,"Panoramic = %ld channel %ld",(long)c2,
 						(long)(c0 - c + 1));
-					if(ShowMessages) ShowMessage(TRUE,wMessage,Message);
+					if(ShowMessages) ShowMessage(TRUE,wMessage,Message); */
 					if(Interactive) {
 						(*p_Oldvalue)[c0-c].panoramic = c2;
 						ChangedPanoramic[c0-c] = TRUE;
@@ -508,17 +510,17 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			else
 			if(c1 == 1) {	/* Modulation MSB */
 				OldModulation = (long) 128L * c2;
-				my_sprintf(Message,"Modulation = %ld channel %ld",(long)OldModulation,
+			/*	my_sprintf(Message,"Modulation = %ld channel %ld",(long)OldModulation,
 					(long)(c0 - c + 1));
-				if(ShowMessages && Jcontrol == -1) ShowMessage(TRUE,wMessage,Message);
+				if(ShowMessages && Jcontrol == -1) ShowMessage(TRUE,wMessage,Message); */
 				return(OK);
 				}
 			else
 			if(c1 == 33) {	/* Modulation LSB */
 				if(Jcontrol == -1) {
-					my_sprintf(Message,"Modulation = %ld channel %ld",(long)(c2+OldModulation),
+			/*		my_sprintf(Message,"Modulation = %ld channel %ld",(long)(c2+OldModulation),
 						(long)(c0 - c + 1));
-					if(ShowMessages) ShowMessage(TRUE,wMessage,Message);
+					if(ShowMessages) ShowMessage(TRUE,wMessage,Message); */
 					if(Interactive) {
 						(*p_Oldvalue)[c0-c].modulation = c2 + OldModulation;
 						ChangedModulation[c0-c] = TRUE;
@@ -644,7 +646,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 				// We won't verify that velocity (c2) is greater than zero, because a NoteOn with velocity zero can be used as a soundless instruction
 				if(channel == ((*p_INscript)[j]).chan && c1 == ((*p_INscript)[j]).key && time_now > thisscripttime) {
 					if(TraceMIDIinteraction) BPPrintMessage(odError,"[%d] Good NoteOn key = %d, time_now = %ld ms, thisscripttime = %ld ms\n",j,c1,time_now/1000L,thisscripttime/1000L);
-					my_sprintf(Message,"Received NoteOn key = %d at date %ld ms",c1,time_now/1000L);
+				//	my_sprintf(Message,"On key = %d at date %ld ms",c1,time_now/1000L);
 					Notify(Message,0);
 					strcpy(Message,"");
 					StopPlay = FALSE;
@@ -654,7 +656,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 					for(jj = 1; jj <= Jinscript; jj++) { //  Now we deactivate all input events at the same date
 						if(((*p_INscript)[j]).time >= ((*p_INscript)[jj]).time && ((*p_INscript)[jj]).chan != -1) {
 							((*p_INscript)[jj]).chan = -1;
-							my_sprintf(Message,"Canceled waiting for NoteOn key = %d at date %ld ms",((*p_INscript)[jj]).key,((*p_INscript)[jj]).time / 1000L);
+						//	my_sprintf(Message,"Canceled waiting for NoteOn key = %d at date %ld ms",((*p_INscript)[jj]).key,((*p_INscript)[jj]).time / 1000L);
 							Notify(Message,0);
 							strcpy(Message,"");
 							}
@@ -897,8 +899,8 @@ int ChangeStatus(int c0,int c1,int c2) {
 int SetInputFilterWord(int i) {
 	if(EndSysExIn[i]) SysExIn[i] = TRUE;
 	if(SysExIn[i]) EndSysExIn[i] = TRUE;
-	if(StartTypeIn[i]) ContTypeIn[i] = TRUE;
-	if(ContTypeIn[i]) StartTypeIn[i] = TRUE;
+/*	if(StartTypeIn[i]) ContTypeIn[i] = TRUE;
+	if(ContTypeIn[i]) StartTypeIn[i] = TRUE; */
 	if(NoteOnIn[i]) NoteOffIn[i] = TRUE;
 	if(NoteOffIn[i]) NoteOnIn[i] = TRUE;
 	MIDIacceptFilter[i] =
@@ -915,8 +917,8 @@ int SetOutputFilterWord(int i) {
 	if(SetInputFilterWord(i) != OK) return(ABORT);
 	if(EndSysExPass[i]) SysExPass[i] = TRUE;
 	if(SysExPass[i]) EndSysExPass[i] = TRUE;
-	if(StartTypePass[i]) ContTypePass[i] = TRUE;
-	if(ContTypePass[i]) StartTypePass[i] = TRUE;
+/*	if(StartTypePass[i]) ContTypePass[i] = TRUE;
+	if(ContTypePass[i]) StartTypePass[i] = TRUE; */
 	if(NoteOnPass[i]) NoteOffPass[i] = TRUE;
 	if(NoteOffPass[i]) NoteOnPass[i] = TRUE;
 	MIDIpassFilter[i] =
@@ -1072,9 +1074,11 @@ int AcceptEvent(int c, int i) {
 			if(ClockTypeIn[i]) return(YES);
 			break;
 		case Start:
-		case Continue:
 		case Stop:
 			if(StartTypeIn[i]) return(YES);
+			break;
+		case Continue:
+			if(ContTypeIn[i]) return(YES);
 			break;
 		case ActiveSensing:
 			if(ActiveSenseIn[i]) return(YES);
@@ -1134,9 +1138,11 @@ int PassInEvent(int c, int i) {
 			if(ClockTypePass[i]) return(YES);
 			break;
 		case Start:
-		case Continue:
 		case Stop:
 			if(StartTypePass[i]) return(YES);
+			break;
+		case Continue:
+			if(ContTypePass[i]) return(YES);
 			break;
 		case ActiveSensing:
 			if(ActiveSensePass[i]) return(YES);
@@ -1195,7 +1201,11 @@ int PassOutEvent(int c, int i) {
 			if(MIDIoutFilter[i][13] == '0') return(NO);
 			break;
 		case Start:
+			if(MIDIoutFilter[i][14] == '0') return(NO);
+			break;
 		case Continue:
+			if(MIDIoutFilter[i][15] == '0') return(NO);
+			break;
 		case Stop:
 			if(MIDIoutFilter[i][14] == '0') return(NO);
 			break;

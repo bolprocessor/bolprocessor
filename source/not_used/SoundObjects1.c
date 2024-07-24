@@ -39,14 +39,14 @@
 #include "-BP2decl.h"
 
 
-CheckLoadedPrototypes(void)
+int CheckLoadedPrototypes(void)
 {
 int r;
 // GrafPtr saveport;
 
 // GetPort(&saveport);  // FIXME ? is this necessary?
 r = OK;
-if(!PrototypesLoaded AND !ObjectMode && !ObjectTry && (rtMIDI || OutCsound || WriteMIDIfile)) {
+if(!PrototypesLoaded && !ObjectMode && !ObjectTry && (rtMIDI || OutCsound || WriteMIDIfile)) {
    ObjectTry = TRUE;
    if(ResizeObjectSpace(YES,Jbol + Jpatt,0) != OK) {
       r = ABORT; goto SORTIR;

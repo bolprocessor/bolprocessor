@@ -48,7 +48,7 @@ int PlaySelection(int w, int all) {
 	if(Panic || (CheckEmergency() != OK)) return(ABORT);
 
 	if(OutCsound) PrepareCsFile(); // The same file will be used for all chunks or items
-	if(WriteMIDIfile) PrepareMIDIFile();
+	// if(WriteMIDIfile) PrepareMIDIFile(); 2024-07-12
 
 	#if BP_CARBON_GUI_FORGET_THIS
 	if(GetTuning() != OK) return(ABORT);

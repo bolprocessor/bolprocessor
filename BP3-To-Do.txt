@@ -20,7 +20,17 @@ https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
 Distribution
 ------------
 
-- Now that BP3 compiles on MacOS and Windows, create "pkg"  and "exe" installers to facilitate the implementation.
+- Now that BP3 compiles on MacOS/Windows/Linux, create installers to facilitate the implementation. (This is easy!)
+
+
+Microtonal scales and tuning systems
+------------------------------------
+
+- Separate tuning systems from Csound instruments, as tuning is applicable to many other environments. Create "-tu.mytuning" files to this effect.
+- Export/import tunings in the Scala (SCL) file format (https://www.huygens-fokker.org/scala/scl_format.html) used by Microtuner Ableton (https://www.ableton.com/en/packs/microtuner/), etc.
+- Also try the Scala Keyboard Mapping (KBM) format (https://www.huygens-fokker.org/scala/help.htm#mappings).
+- Include values for optional stretching of each octave.
+- Implement a performance control to set the A4 frequency (diapason) in the score.
 
 
 Csound orchestra
@@ -50,12 +60,13 @@ MIDI input
 Real-time MIDI
 --------------
 
-- Fix synchronisation problem in -gr.Beatrix & -gr.Alan.
+- Fix synchronisation problem in -gr.Beatrix & -gr.Alan, -da.Beatrix and -da.Alan. Problems occur differently on different systems, due to peculiarities of the MIDI driver.
 - Put scripts on top of a grammar (the INIT: section) to run them before the production is started. This will notably allow setting up parameters K1, K2… K127.
 - When playing back chunked data in real-time MIDI, there may be gaps followed by garbled events due to the time taken to calculate large chunks. Check "-da.Beethoven-fugue-B-flat-major" for this. It's probably unavoidable: a larger value of MaxMIDIMessages (currently 1000 in ConsoleMain.c) is needed, but it blows the memory.
 - Maybe use a dynamically resizable array for eventStack? Probably not beneficial.
 - The value of MaxMIDIMessages could also be specified in the settings file of the project.
 - Check the accuracy of start times in sound-object pictures.
+- Implement MPE protocol (MIDI Polyphonic Expression).
 
 
 Real-time Csound
@@ -68,19 +79,25 @@ https://www.geeksforgeeks.org/udp-server-client-implementation-c/
 - Implement OSC ?
 
 
+Antescofo Score Language
+------------------------
+
+- Study ASCL. Antescofo can be used as a standalone program or as an extension in environments like Max/MSP (https://antescofo-doc.ircam.fr/).
+
+
 Open Sound Control (OSC)
 ------------------------
 
 - This development should be easy with the help of AI tools.
 - Read https://en.wikipedia.org/wiki/Open_Sound_Control
 - This might create a framework for connecting BP3 with PYO (http://ajaxsoundstudio.com/software/pyo/)
-- Also try direct communication with MuseScore
+- Also try direct communication with MuseScore.
 
 
 HTML/PHP/Javascript interface
 -----------------------------
 
-- Implement command-s (on MacOS) or control-s (on Windows) to save a grammar, data, alphabet, etc. This is almost done in _header.php (line 41) and at the bottom of data.php
+- Implement command-s (on MacOS) or control-s (on Windows/Linux) to save a grammar, data, alphabet, etc. This is almost done in _header.php (line 41) and at the bottom of data.php
 
 
 Standalone application
@@ -104,26 +121,19 @@ Alternate options in case "phpdesktop" doesn't fit:
 Csound
 ------
 
-- (optionally) Revise CsoundWrite to make sure that events are ordered by "note-on" dates, notably with tied notes/sound-objects
+- (Optional) Revise CsoundWrite to make sure that events are ordered by "note-on" dates, notably with tied notes/sound-objects
 - Reference: https://csound.com/docs/manual/i.html => use negated p1 for distinct note-off?
 - Implement output to DAC in the interface: https://csound.com/docs/manual/CommandFlags.html
 - Csound can compile orchestras and scores directly from strings of text: this feature could be exploited
 
 
-Microtonal scales
-----------------
-
-- Include values for optionally stretching each octave
-- Implement a performance control to set A4 frequency (diapason) in the score
-
-
 Actions
 -------
 
-- Implement produce-items N action
-- Implement play-all action
-- Fix analyze-item action
-- Implement expand-item & show-beats actions
+- Implement produce-items N action.
+- Implement play-all action.
+- Fix analyze-item action.
+- Implement expand-item & show-beats options.
 
 
 Chunked data in real-time MIDI
@@ -135,12 +145,13 @@ Chunked data in real-time MIDI
 Settings
 --------
 
-- Use XML format to store the settings of projects
+- Use XML format to store the settings of projects.
 
 
 MIDI file player
 ----------------
 
+- The player won't work if the computer doesn't have an internet connection. Download version of the player?
 - Implement Pause and Resume (check https://www.midijs.net/midijs_api.html)
 - Standalone application might not accept to call remote midi.js
 - Implement connection with FluidSynth (https://www.fluidsynth.org/)
@@ -157,7 +168,7 @@ Images
 Compilation
 -----------
 
-- Modify the C source to handle some Unicode characters that are not currently accepted, such as '≤', '≠', '•', etc.
+- Modify the C source to handle some Unicode characters that are not currently accepted, such as '≤', '≠', '•', '…', etc.
 
 
 Cleaning up the code
@@ -189,6 +200,6 @@ Documentation
 -------------
 
 - Write new docs for BP3 (command-line usage, etc.)
-- Convert BP2 documentation to an (open-source) authoring system that can help maintain the organization & internal links as well as output in multiple formats (HTML, PDF, etc.) ??
+- Convert BP2 documentation to an (open-source) authoring system that can help maintain the organization and internal links as well as output in multiple formats (HTML, PDF, etc.) ??
 
 ========

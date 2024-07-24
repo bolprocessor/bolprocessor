@@ -90,7 +90,7 @@ void SetOutputDestinations(int dest, FILE* file) {
 
 int BPPrintMessage(int dest, const char *format, ...) {
 	va_list	args;
-
+    int result;
 
     // Handle callback if set
     if (gMessageCallback != NULL) {
@@ -127,7 +127,8 @@ int BPPrintMessage(int dest, const char *format, ...) {
     }
     if (dest & odError) {
         va_start(args, format);
-        vfprintf(gOutDestinations[odiError], format, args);
+    //    vfprintf(gOutDestinations[odiError], format, args);
+        vfprintf(stdout, format, args);
         va_end(args);
     }
     if (dest & odWarning && !PlayAllChunks && (!Improvize || ItemNumber < 1)) {
@@ -137,13 +138,12 @@ int BPPrintMessage(int dest, const char *format, ...) {
     }
     if (dest & odInfo && !PlayAllChunks && (!Improvize || ItemNumber < 1)) {
         va_start(args, format);
-        vfprintf(gOutDestinations[odiInfo], format, args);
+   //     fprintf(stderr, "ok %s\n",format);
+   //     vfprintf(gOutDestinations[odiInfo], format, args);
+        result = vfprintf(stdout, format, args);
+        if (result < 0) fprintf(stderr, "Error occurred during writing to stdout.\n");
         va_end(args);
-    }
-
-
-//	else if ((dest & odInfo) && (!Improvize || ItemNumber < 1))		vfprintf(gOutDestinations[odiInfo], format, args); 
-//	else if ((dest & odInfo) && !PlayAllChunks)		vfprintf(gOutDestinations[odiInfo], format, args);  2024-05-02
+        }
 	return OK;
     }
 

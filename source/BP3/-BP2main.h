@@ -320,9 +320,14 @@ int PictureWindow[MAXPICT];
 int Charstep,UndoFlag;
 char LineBuff[MAXLIN];
 char MIDIinputname[MAXPORTS][MAXNAME],MIDIoutputname[MAXPORTS][MAXNAME],OutputMIDIportComment[MAXPORTS][MAXNAME],InputMIDIportComment[MAXPORTS][MAXNAME];
-int MIDIinput[MAXPORTS], MIDIoutput[MAXPORTS];
+int MIDIinput[MAXPORTS], MIDIoutput[MAXPORTS]; // In Linux, these are 'clients'. Otherwise, 'ports'.
+#if defined(__linux__)
+    snd_seq_t *Seq_handle = NULL;
+    int Out_port[MAXPORTS],In_port[MAXPORTS];
+	int MIDIinputport[MAXPORTS],MIDIoutputport[MAXPORTS];
+#endif
 int MaxInputPorts, MaxOutputPorts;
-Str255 PascalLine;
+// Str255 PascalLine;
 long DataOrigin,Tcurr,LastTime,PianorollShift;
 unsigned long NextTickDate[MAXTICKS],NextBeatDate;
 

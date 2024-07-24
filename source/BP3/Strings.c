@@ -192,11 +192,13 @@ int MystrcpyHandleToString(int imax,int offset,char *s,char **p_t)
 {
 long i;
 char c;
+int jmax;
 
 if(p_t == NULL) {
 	s[0] = '\0';
 	return(OK);
 	}
+jmax = strlen(s);
 i = 0;
 while((c = (*p_t)[offset++]) != '\0' && (i < imax || imax == 0))
 	s[i++] = c;

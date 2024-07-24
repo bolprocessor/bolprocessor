@@ -1115,7 +1115,7 @@ void save_midisetup(void);
 int read_midisetup(void);
 
 #if defined(__linux__)
-   void MyAlsaMidiInProc(const snd_seq_event_t*);
+   void MyAlsaMidiInProc(snd_seq_event_t*);
 #endif
 
 #endif /* BP2_PROTO_H */

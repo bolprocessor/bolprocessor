@@ -89,18 +89,20 @@ int trace_writing_midi_file = 0;
 int MakeMIDIFile(OutFileInfo* finfo)
 {
 int result;
-Str255 filename;
 FILE *fout;
 
-	BP_NOT_USED(filename);
 	result = MISSED;
+	if(OpenMIDIfilePtr != NULL) {
+		BPPrintMessage(odError, "MIDI file is already open: %s\n", finfo->name);
+		return OK; // 2024-07-12
+		}
 
 	ShowMessage(TRUE,wMessage,"Creating new MIDI file...");
-	fout = OpenOutputFile(finfo, "wb");
+	fout = OpenOutputFile(finfo,"wb");
 	if (!fout) {
 		BPPrintMessage(odError, "=> Could not open file for MIDI %s\n", finfo->name);
 		return MISSED;
-	}
+		}
 	else {
 		OpenMIDIfilePtr = fout;
 		MIDIfileOpened = MIDIfileTrackEmpty = TRUE;
@@ -616,12 +618,12 @@ if(!MIDIfileOpened) {
 		return MakeMIDIFile(&(gOptions.outputFiles[ofiMidiFile]));
 		}
 	else {
-		// BPPrintMessage(odError, "=> Error in PrepareMIDIFile(): file name is NULL.\n");
+		BPPrintMessage(odError, "=> Error in PrepareMIDIFile(): file name is NULL.\n");
 		return MISSED;
 		}
 	}
 // else MIDI file is already open
-switch(FileSaveMode) {	// FIXME !!!!
+/* switch(FileSaveMode) {	// FIXME !!!!
 	case ALLSAME:
 		return(OK);
 		break;
@@ -634,7 +636,7 @@ switch(FileSaveMode) {	// FIXME !!!!
 		CloseMIDIFile();
 		return(MakeMIDIFile(&(gOptions.outputFiles[ofiMidiFile])));
 		break;
-	}
+	} */
 return(OK);
 }
 

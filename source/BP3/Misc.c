@@ -148,11 +148,11 @@ return(OK);
 int Notify(char* message,int up) { // Doesn't work on Mac because of authorisations, although the code is correct: it works when calling bp with Terminal command
 	if(strcmp(message,"") == 0) return OK;
     BPPrintMessage(odError,"👉 %s\n",message); // We use 'odError' so that it displays even in Improvize mode 
+	int timeout = 5;
     #if defined(_WIN32) || defined(_WIN64)
     if(up) MessageBox(NULL, message, "Alert", MB_OK | MB_ICONINFORMATION);
     #elif defined(__APPLE__)
     char command[1024];
-	int timeout = 5;
     // Simplified AppleScript command without extra dialog properties
     snprintf(command,sizeof(command), 
         "osascript -e 'display notification \"%s\" with title \"BP3:\"'", message);

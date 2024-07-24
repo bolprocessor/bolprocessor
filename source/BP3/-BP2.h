@@ -39,7 +39,7 @@
 #ifndef _H_BP2
 #define _H_BP2
 
-#define SHORT_VERSION "3.0.1 (2024-07-08)"
+#define SHORT_VERSION "3.0.2 (2024-07-11)"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -196,6 +196,7 @@ typedef struct {
 #elif defined(__linux__)
     #include <alsa/asoundlib.h>
 	#include <unistd.h>
+    #include <time.h>
 #endif
 
 // Moved macros and enum down here to avoid potential problems with replacing names
@@ -240,8 +241,9 @@ enum {
 #define MAXPICT 2		/* number of pictures displayed in graphic windows */
 #define MAXBUTT 32		/* number of buttons created in dialogs */
 #define MAXMESSAGE 70	/* number of messages remembered */
-#define MAXLIN 200		/* length of input line in any file */
+#define MAXLIN 400		/* length of input line in any file */
 #define MAXPORTS 32		/* number of input/output MIDI ports */
+#define MAXCLIENTS 512 /* number of MIDI clients (in Linux) */
 #define HTMLTOKENLENGTH 80 /* estimated max length of html token */
 #define MAXINFOLENGTH 50	/* length of date message */
 #define MAXFIELDCONTENT 255	/* length of edit field in dialog window */
@@ -388,6 +390,10 @@ enum {
 #define NOW 0
 #define LATER 1
 
+#if defined(__linux__)
+#define noErr 0
+#endif
+
 // Default values of MIDI parameters
 #define DEFTVOLUME 90
 #define DEFTVELOCITY 64
@@ -408,6 +414,10 @@ enum {
 // Csound parameter combination options
 #define MULT 0
 #define ADD 1
+
+#if defined(__linux__)
+#define noErr 0
+#endif
 
 // Locations in phase diagram
 #define INTIME 0
@@ -1671,17 +1681,9 @@ typedef enum {
 //	#define MyDisposeHandle((handle*)&p_(x)) DisposPointer((x))
 // #endif
 
-#if USE_MLTE_FORGET_THIS
-typedef struct {
-	TXNObject	textobj;
-	TXNFrameID	id;
-	Rect		viewRect;
-} OurMLTERecord;
-#endif
-
-// Define platform-specific constants and include headers
-#if defined(_WIN64)
-	typedef unsigned long long UInt64;
+// Define platform-specific types
+#if !defined(__APPLE__)
+	typedef uint64_t UInt64;
 	typedef size_t Size;
 	typedef struct Rect {
 		int top;
@@ -1699,11 +1701,6 @@ typedef struct {
 
 typedef TEHandle TextHandle;
 typedef long TextOffset;	// should be short, but there are many assumptions of long - akozar
-
-/* long eventCount,eventCountMax;
-UInt64 initTime;
-MIDI_Event* eventStack;
-size_t MaxMIDIMessages; */
 
 struct s_chunck {
 	unsigned long origin,end;

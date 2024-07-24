@@ -7,6 +7,22 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 -----
+2024-07-24
+😀 This is the first version of BP3 to compile and run on Linux, MacOS and Windows!
+Tested on an HP Intel Core i5-6200U (2.3 GHz, 8 GB RAM) running Linux Lite 7.0 (64-bit) in the Ubuntu environment.
+
+Csound has not been checked yet… because the installation procedure is not clear. Read and try to figure out:
+https://packages.ubuntu.com/search?suite=all&searchon=names&keywords=csound
+
+A few bugs remain regarding the synchronisation of multiple instances of the program in real-time MIDI. Still, protection against bouncing messages has been implemented.
+
+There will be installers for Linux, Windows and MacOS. On Linux, we need to run shell scripts in admin mode to get the owners and permissions set up correctly. Linux geeks will of course be able to install this version (and its interface!) themselves. The installation instructions (https://bolprocessor.org/check-bp3/) will be updated.
+
+The Windows MIDI driver has been fixed to handle multiple input/output devices.
+
+For geeks: The "compile.php" file is now in the "php" folder. This can be taken into account during installation.
+
+-----
 2024-07-09
 On Windows, MIDI input is now handled by a dedicated thread. This results in a faster response to input messages.
 This version handles (temporary) scripts on the interface. Download https://github.com/bolprocessor/bp3-ctests/archive/main.zip to get updated scripts, and the interface!
