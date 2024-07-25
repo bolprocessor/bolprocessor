@@ -737,12 +737,12 @@ int ReadOne(int bindlines,int careforhtml,int nocomment,FILE* fin,int strip,char
 int i, html;
 char *buffer;
 long size, count;
-char line[1000];
+char line[3000];
 buffer = NULL;
 
 MyDisposeHandle((Handle*)pp_line);
 MyDisposeHandle((Handle*)pp_completeline);
-size = 1000;
+size = 3000;
 if((*pp_line = (char**) GiveSpace((Size)size * sizeof(char))) == NULL) return(ABORT);
 if((*pp_completeline = (char**) GiveSpace((Size)size * sizeof(char))) == NULL) return(ABORT);
 
@@ -798,92 +798,6 @@ if(fgets(line, sizeof(line),fin) != NULL) {
 	}
 return STOP;
 }
-
-/*
-discount = 0; firsttime = TRUE;
-
-RESTART:
-imax = count = MAXLIN;
-count = fread(*p_buffer,sizeof(char),count,fin);
-oldcount = count;
-
-CleanLF(p_buffer,&count,&dos);
-// Here we cleaned the extra LF of DOS files
-
-discount = oldcount - count;
-// if(discount > 0 && firsttime) *p_pos += 1;  2024-06-24
-firsttime = FALSE;
-// if (oldcount < MAXLIN) {
-if(count == 0) {
-	// at end of file
-	rep = STOP;
-	}
-else rep = OK;
-is = 0;
-if(offset == 0) {
-	while(MySpace((*p_buffer)[is]) && (*p_buffer)[is] != '\r') is++;
-	if((*p_buffer)[is] == '\0' || (nocomment && (*p_buffer)[is] == '/'
-			&& (*p_buffer)[is+1] == '/')) {
-		empty = TRUE;
-		}
-	oldc = '\0';
-	}
-if(!strip) is = 0;
-for(i=is; i < count; i++) {
-	c = (*p_buffer)[i];
-	j = i - is + offset;
-	
-//	if(((oldc != '�' || !bindlines) && (c == '\n' || c == '\r')) || c == '\0' || j >= (size-discount-1)) {
-	if(c == '\n' || c == '\r' || c == '\0' || j >= (size-discount-1)) { // Fixed by BB 2021-02-14
-		(*p_pos) += (i + 1);
-		fseek(fin,*p_pos,SEEK_SET);
-		if(j >= (size-discount-1)) {
-			(**pp_line)[j] = c;
-			(**pp_completeline)[j] = c;
-			size += (MAXLIN - discount);
-			if(MySetHandleSize((Handle*)pp_line,size * sizeof(char)) != OK) return(ABORT);
-			if(MySetHandleSize((Handle*)pp_completeline,size * sizeof(char)) != OK) return(ABORT);
-			offset += i - is + 1; 
-			oldc = c;
-			goto RESTART;
-			}
-		(**pp_line)[j] = '\0';
-		(**pp_completeline)[j] = '\0';
-		rep = OK;
-		goto SORTIR;
-		}
-	oldc = c;
-	if(strip && (c == '\r')) is++; // Fixed by BB 2022-02-18
-	else {
-		(**pp_line)[j] = c;
-		(**pp_completeline)[j] = c;
-		}
-	}
-if(rep == STOP) {
-	(**pp_line)[i-is+offset] = '\0';
-	(**pp_completeline)[i-is+offset] = '\0';
-	}
-
-SORTIR:
-MyDisposeHandle((Handle*)&p_buffer);
-
-if(empty) (**pp_line)[0] = '\0';
-jm = MyHandleLen(*pp_line) - 1;
-for(j=jm; j > 0; j--) {
-	if(MySpace((**pp_line)[j])) {
-		(**pp_line)[j] = '\0';
-		}
-	else break;
-	}
-	
-if(careforhtml) {
-	count = 1L + MyHandleLen(*pp_completeline);
-	html = TRUE;
-	CheckHTML(FALSE,0,*pp_completeline,&count,&html);
-	}
-
-return(rep);
-} */
 
 
 int ReadInteger(FILE* fin,int* p_i,long* p_pos)

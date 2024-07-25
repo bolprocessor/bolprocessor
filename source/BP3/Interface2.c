@@ -2121,7 +2121,7 @@ c2pstrcpy(line,string);
 SetDialogItemText(itemhandle,line);
 // SelectDialogItemText(thedialog,ifield,0,0); // don't change keyboard focus - akozar 052107
 // if((itemtype & 127) == statText) TEDeactivate(GetDialogTextEditHandle(thedialog)); // we should not mess with Dialog Manager's state? - akozar 051707
-return(DoSystem());
+return OK;
 }
 
 
@@ -2258,7 +2258,7 @@ if((((itemtype & 127) != (ctrlItem+radCtrl)) && ((itemtype & 127) != (ctrlItem+c
 	return(MISSED);
 	}
 SetControlValue(itemhandle,1 - (GetControlValue(itemhandle) > 0));
-return(DoSystem());
+return OK;
 }
 
 

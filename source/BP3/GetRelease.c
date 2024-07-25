@@ -155,7 +155,7 @@ SizeStringList = 10; NrStrings = 0;
 if((p_StringList=(char****)GiveSpace((Size)(SizeStringList * sizeof(char**))))
 	== NULL) return(ABORT);
 for(i=0; i < SizeStringList; i++) (*p_StringList)[i] = NULL;
-return(DoSystem());
+return OK;
 }
 
 
@@ -244,7 +244,7 @@ ptr = (Handle) p_Instance;
 MyDisposeHandle(&ptr);
 p_Instance = NULL;
 
-return(DoSystem());
+return OK;
 }
 
 
@@ -291,7 +291,7 @@ DisposeDialog(GreetingsPtr);
 DisposeDialog(FAQPtr);
 DisposeDialog(SixteenPtr);
 DisposeDialog(MIDIprogramPtr);
-return(DoSystem());
+return OK;
 }
 #endif
 
@@ -346,7 +346,7 @@ int ReleaseAlphabetSpace(void) {
 	MyDisposeHandle(&ptr);
 	p_Homo = NULL;
 	Jbol = Jhomo = 0;
-	return(DoSystem());
+	return OK;
 	}
 
 
@@ -369,7 +369,7 @@ ptr = (Handle) p_Qpatt;
 MyDisposeHandle(&ptr);
 p_Qpatt = NULL;
 Jpatt = 0; CompiledPt = FALSE;
-return(DoSystem());
+return OK;
 }
 
 
@@ -500,7 +500,7 @@ GlossGram.p_subgram = NULL;
 GlossGram.number_gram = 0;
 ResetVariables(wGlossary);
 CompiledGl = FALSE;
-return(DoSystem());
+return OK;
 }
 
 
@@ -525,7 +525,7 @@ ptr = (Handle) p_Flag;
 MyDisposeHandle(&ptr);
 p_Flag = NULL;
 CompiledGr = FALSE;
-return(DoSystem());
+return OK;
 }
 
 
@@ -548,7 +548,7 @@ MyDisposeHandle(&ptr);
 p_VarStatus = NULL;
 Jvar = MaxVar = 0;
 CompiledGl = CompiledGr = FALSE;
-return(DoSystem());
+return OK;
 }
 
 
@@ -1248,51 +1248,57 @@ if(reset) {
 	}
 
 // Create objects for time patterns
-if(Jbol < maxsounds) {
-	if(Jbol >= 2) j = Jbol;
-	else j = 2;
-	BPPrintMessage(odInfo,"Running time patterns in ResizeObjectSpace() Jbol = %ld maxsounds = %ld\n",(long)Jbol,(long)maxsounds);
-	for(j=j; j < maxsounds; j++) {
-		(*p_MIDIsize)[j] = (*p_CsoundSize)[j] = ZERO;
-		(*p_Ifrom)[j] = 0; (*p_Type)[j] = 0;
-		(*pp_MIDIcode)[j] = NULL; (*pp_CsoundTime)[j] = NULL;
-		(*pp_Comment)[j] = (*pp_CsoundScoreText)[j] = NULL;
-		(*pp_CsoundScore)[j] = NULL;
-		(*p_AlphaCtrlNr)[j] = 0; (*p_AlphaCtrlChan)[j] = 1;
-		(*p_CoverBeg)[j] = (*p_CoverEnd)[j] = (*p_PasteDone)[j] = FALSE;
-		(*p_OkRelocate)[j] = FALSE; (*p_OkExpand)[j] = (*p_OkCompress)[j]
-			= TRUE;
-		(*p_StrikeAgain)[j] = -1;
-		(*p_CompiledCsoundScore)[j] = 0; // Fixed 2024-07-04
-		(*p_ContBeg)[j] = (*p_ContEnd)[j] = (*p_OkTransp)[j] = (*p_OkPan)[j] = (*p_OkMap)[j]
-			= (*p_OkVelocity)[j] = (*p_OkArticul)[j] = (*p_OkVolume)[j]
-			= (*p_DiscardNoteOffs)[j] = FALSE;
-		(*p_BreakTempo)[j] = TRUE; (*p_FixScale)[j] = (*p_TruncBeg)[j]
-			= (*p_TruncEnd)[j] = (*p_AlphaCtrl)[j] = (*p_ForceIntegerPeriod)[j] = FALSE;
-		(*p_PivType)[j] = 1; (*p_PivMode)[j] = ABSOLU;
-		(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = RELATIF;
-		(*p_MaxDelay)[j] = (*p_MaxForward)[j] = ZERO;
-		(*p_RescaleMode)[j] = LINEAR;
-		(*p_AlphaMin)[j] = 0; (*p_AlphaMax)[j] = 100.;
-		(*p_DelayMode)[j] = (*p_ForwardMode)[j] = (*p_BreakTempoMode)[j]
-			= (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLU;
-		(*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j]
-			= (*p_TruncEndMode)[j] = RELATIF;
-		(*p_PeriodMode)[j] = IRRELEVANT;
-		(*p_MaxBegGap)[j] = (*p_MaxEndGap)[j] = Infpos;
-		(*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = ZERO;
-		(*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = (*p_PivPos)[j]
-			 = (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_BeforePeriod)[j] = ZERO;
-		(*p_Tref)[j] = 1000L;
-		(*p_Dur)[j] = ZERO;
-		if(j >= (Jbol + addbol)) {	/* Fixed 13/4/98 */
-		//	if(Jpatt <= 0 || p_Ppatt != NULL && p_Qpatt != NULL) {
-			if(p_Ppatt != NULL && p_Qpatt != NULL) {  // Fixed by BB 2022-02-20
-				if((*p_Ppatt)[j-Jbol-addbol] < 100L || (*p_Qpatt)[j-Jbol-addbol] < 100L) {
-					// BPPrintMessage(odInfo,"1) Jpatt = %d, Ppatt[%d] = %ld, Qpatt[%d] = %ld\n",Jpatt,j-Jbol-addbol,(long)(*p_Ppatt)[j-Jbol-addbol],j-Jbol-addbol,(long)(*p_Qpatt)[j-Jbol-addbol]);
-					(*p_Ppatt)[j-Jbol-addbol] = 100L * (*p_Ppatt)[j-Jbol-addbol];
-					(*p_Qpatt)[j-Jbol-addbol] = 100L * (*p_Qpatt)[j-Jbol-addbol];
-					// BPPrintMessage(odInfo,"2) Jpatt = %d, Ppatt[%d] = %ld, Qpatt[%d] = %ld\n",Jpatt,j-Jbol-addbol,(long)(*p_Ppatt)[j-Jbol-addbol],j-Jbol-addbol,(long)(*p_Qpatt)[j-Jbol-addbol]);
+	if (Jbol < maxsounds && Nature_of_time == SMOOTH) {  //  2024-07-25
+		if (Jbol >= 2)
+			j = Jbol;
+		else
+			j = 2;
+		//	BPPrintMessage(odInfo,"Running time patterns in ResizeObjectSpace() Jbol = %ld maxsounds = %ld\n",(long)Jbol,(long)maxsounds);
+		for (j = j; j < maxsounds; j++)
+		{
+			(*p_MIDIsize)[j] = (*p_CsoundSize)[j] = ZERO;
+			(*p_Ifrom)[j] = 0;
+			(*p_Type)[j] = 0;
+			(*pp_MIDIcode)[j] = NULL;
+			(*pp_CsoundTime)[j] = NULL;
+			(*pp_Comment)[j] = (*pp_CsoundScoreText)[j] = NULL;
+			(*pp_CsoundScore)[j] = NULL;
+			(*p_AlphaCtrlNr)[j] = 0;
+			(*p_AlphaCtrlChan)[j] = 1;
+			(*p_CoverBeg)[j] = (*p_CoverEnd)[j] = (*p_PasteDone)[j] = FALSE;
+			(*p_OkRelocate)[j] = FALSE;
+			(*p_OkExpand)[j] = (*p_OkCompress)[j] = TRUE;
+			(*p_StrikeAgain)[j] = -1;
+			(*p_CompiledCsoundScore)[j] = 0; // Fixed 2024-07-04
+			(*p_ContBeg)[j] = (*p_ContEnd)[j] = (*p_OkTransp)[j] = (*p_OkPan)[j] = (*p_OkMap)[j] = (*p_OkVelocity)[j] = (*p_OkArticul)[j] = (*p_OkVolume)[j] = (*p_DiscardNoteOffs)[j] = FALSE;
+			(*p_BreakTempo)[j] = TRUE;
+			(*p_FixScale)[j] = (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = (*p_AlphaCtrl)[j] = (*p_ForceIntegerPeriod)[j] = FALSE;
+			(*p_PivType)[j] = 1;
+			(*p_PivMode)[j] = ABSOLU;
+			(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = RELATIF;
+			(*p_MaxDelay)[j] = (*p_MaxForward)[j] = ZERO;
+			(*p_RescaleMode)[j] = LINEAR;
+			(*p_AlphaMin)[j] = 0;
+			(*p_AlphaMax)[j] = 100.;
+			(*p_DelayMode)[j] = (*p_ForwardMode)[j] = (*p_BreakTempoMode)[j] = (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLU;
+			(*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j] = (*p_TruncEndMode)[j] = RELATIF;
+			(*p_PeriodMode)[j] = IRRELEVANT;
+			(*p_MaxBegGap)[j] = (*p_MaxEndGap)[j] = Infpos;
+			(*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = ZERO;
+			(*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = (*p_PivPos)[j] = (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_BeforePeriod)[j] = ZERO;
+			(*p_Tref)[j] = 1000L;
+			(*p_Dur)[j] = ZERO;
+			if (j >= (Jbol + addbol))
+			{	/* Fixed 13/4/98 */
+				//	if(Jpatt <= 0 || p_Ppatt != NULL && p_Qpatt != NULL) {
+				if (p_Ppatt != NULL && p_Qpatt != NULL)
+				{ // Fixed by BB 2022-02-20
+					if ((*p_Ppatt)[j - Jbol - addbol] < 100L || (*p_Qpatt)[j - Jbol - addbol] < 100L)
+					{
+						// BPPrintMessage(odInfo,"1) Jpatt = %d, Ppatt[%d] = %ld, Qpatt[%d] = %ld\n",Jpatt,j-Jbol-addbol,(long)(*p_Ppatt)[j-Jbol-addbol],j-Jbol-addbol,(long)(*p_Qpatt)[j-Jbol-addbol]);
+						(*p_Ppatt)[j - Jbol - addbol] = 100L * (*p_Ppatt)[j - Jbol - addbol];
+						(*p_Qpatt)[j - Jbol - addbol] = 100L * (*p_Qpatt)[j - Jbol - addbol];
+						// BPPrintMessage(odInfo,"2) Jpatt = %d, Ppatt[%d] = %ld, Qpatt[%d] = %ld\n",Jpatt,j-Jbol-addbol,(long)(*p_Ppatt)[j-Jbol-addbol],j-Jbol-addbol,(long)(*p_Qpatt)[j-Jbol-addbol]);
 					}
 				(*p_Tref)[j] = (*p_Qpatt)[j-Jbol-addbol];
 				(*p_Dur)[j] = (*p_Ppatt)[j-Jbol-addbol];
@@ -1341,7 +1347,7 @@ for(k = 0; k < Maxevent; k++) {
 	(*p_Instance)[k].contparameters.number = 0;
 	}
 
-return(DoSystem());
+return OK;
 }
 
 
@@ -1354,7 +1360,7 @@ if((p_Patt = (char****) GiveSpace((Size)(Jpatt) * sizeof(char**))) == NULL) retu
 for(j=0; j < Jpatt; j++) (*p_Patt)[j] = NULL;
 if((p_Ppatt = (long**) GiveSpace((Size)(Jpatt) * sizeof(long))) == NULL) return(ABORT);
 if((p_Qpatt = (long**) GiveSpace((Size)(Jpatt) * sizeof(long))) == NULL) return(ABORT);
-return(DoSystem());
+return OK;
 }
 
 
@@ -1433,7 +1439,7 @@ for(igram=1; igram <= numbergram; igram++) {
 	(*(Gram.p_subgram))[igram].number_rule = 0;
 	}
 MaxGram = numbergram;
-return(DoSystem());
+return OK;
 }
 
 
@@ -1501,7 +1507,7 @@ if((p_VarStatus = (int**) GiveSpace((Size)MaxVar * sizeof(int))) == NULL) {
 for(i=0; i < MaxVar; i++) {
 	(*p_Var)[i] = NULL; (*p_VarStatus)[i] = 0;
 	}
-return(DoSystem());
+return OK;
 }
 
 
@@ -1518,7 +1524,7 @@ for(i=0; i < MaxFlag; i++) (*p_Flagname)[i] = NULL;
 if((p_Flag = (long**) GiveSpace((Size)MaxFlag * sizeof(long))) == NULL) {
 	return(ABORT);
 	}
-return(DoSystem());
+return OK;
 }
 
 
@@ -1533,7 +1539,7 @@ if((p_Script = (char****) GiveSpace((Size)MaxScript * sizeof(char**))) == NULL) 
 	}
 for(i=0; i < MaxScript; i++) (*p_Script)[i] = NULL;
 Jscriptline = 0;
-return(DoSystem());
+return OK;
 }
 
 
@@ -1551,7 +1557,7 @@ else {
 	MySetHandleSize((Handle*)pp_buff,(Size) MAXDISPL * sizeof(tokenbyte));
 	}
 (**pp_buff)[0] = (**pp_buff)[1] = TEND;
-return(DoSystem());
+return OK;
 }
 
 
@@ -1579,7 +1585,7 @@ if((p_ItemStart == NULL) &&
 if((p_ItemEnd == NULL) &&
 	((p_ItemEnd = (long**) GiveSpace((Size)maxderiv*sizeof(long)))
 		== NULL)) return(ABORT);
-return(DoSystem());
+return OK;
 }
 
 /* int ReleaseComputeSpace(void)
@@ -1620,7 +1626,7 @@ p_ItemStart = (long**) ptr;
 ptr = (Handle) p_ItemEnd;
 if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
 p_ItemEnd = (long**) ptr;
-return(DoSystem());
+return OK;
 }
 
 
@@ -1657,7 +1663,7 @@ if(Jbol < 2) {
 	if(CreateBol(TRUE,FALSE,p_x,FALSE,FALSE,BOL) < 0) return(ABORT);
 	}
 MyDisposeHandle((Handle*)&p_x);
-return(DoSystem());
+return OK;
 }
 
 
@@ -1796,7 +1802,7 @@ return(OK);
 
 /*	FIXME ? There are about 60 calls to this function left,
 	mostly as the last step in a function:
-		return(DoSystem());
+		return OK;
 	It used to call SystemTask() and MemError() but now
 	obviously only calls PlayTick().  It is not clear to me
 	though whether those calls are needed or not.  PlayTick()

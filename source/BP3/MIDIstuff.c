@@ -634,7 +634,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 				}
 			else time_now = getClockTime() - initTime; // microseconds
 	//		if((r = MaybeWait(time_now)) != OK) return r;
-			if(TraceMIDIinteraction) BPPrintMessage(odError,"Received NoteOn key = %d channel %d date %ld ms, checking %d script(s)\n",c1,channel,time_now / 1000L,Jinscript);
+			if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Received NoteOn key = %d channel %d date %ld ms, checking %d script(s)\n",c1,channel,time_now / 1000L,Jinscript);
 			// Find the next expected NoteOn
 			for(j = 1; j <= Jinscript; j++) {
 				if(((*p_INscript)[j]).chan == -1) { // This is a deactivated instruction
@@ -645,7 +645,8 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 		//		thisscripttime = ((*p_INscript)[j]).time + Oldtimestopped;
 				// We won't verify that velocity (c2) is greater than zero, because a NoteOn with velocity zero can be used as a soundless instruction
 				if(channel == ((*p_INscript)[j]).chan && c1 == ((*p_INscript)[j]).key && time_now > thisscripttime) {
-					if(TraceMIDIinteraction) BPPrintMessage(odError,"[%d] Good NoteOn key = %d, time_now = %ld ms, thisscripttime = %ld ms\n",j,c1,time_now/1000L,thisscripttime/1000L);
+					if(TraceMIDIinteraction)
+						BPPrintMessage(odInfo, "[%d] Good NoteOn key = %d, time_now = %ld ms, thisscripttime = %ld ms\n", j, c1, time_now / 1000L, thisscripttime / 1000L);
 				//	my_sprintf(Message,"On key = %d at date %ld ms",c1,time_now/1000L);
 					Notify(Message,0);
 					strcpy(Message,"");

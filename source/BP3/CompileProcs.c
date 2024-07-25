@@ -1606,7 +1606,7 @@ if((rep=GetPatterns(wGrammar,FALSE)) != OK) {
 if(Jpatt > 0 && Nature_of_time != SMOOTH) {
 	if(!ScriptExecOn) {
 		Alert1("Since time-patterns are used you might want to use smooth time");
-		BPActivateWindow(SLOW,wMetronom);
+//		BPActivateWindow(SLOW,wMetronom);
 		}
 	else {
 		PrintBehindln(wTrace,"Since time-patterns were found, time was set to 'smooth'.");

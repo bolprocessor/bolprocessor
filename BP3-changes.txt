@@ -6,6 +6,13 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+
+-----
+2024-07-25
+Resized maximum length of lines in ReadOne() as -cs.tryTunings wasn't loading.
+Fixed the timing when time-patterns are used in a striated time structure.
+Added the "change_permissions" shell script for the Linux version.
+
 -----
 2024-07-24
 😀 This is the first version of BP3 to compile and run on Linux, MacOS and Windows!

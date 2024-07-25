@@ -26,6 +26,7 @@ Distribution
 Microtonal scales and tuning systems
 ------------------------------------
 
+- Limit to 2500 the size of Comment describing the tuning process (scale.php), or revise ReadOne() in SaveLoads3.c
 - Separate tuning systems from Csound instruments, as tuning is applicable to many other environments. Create "-tu.mytuning" files to this effect.
 - Export/import tunings in the Scala (SCL) file format (https://www.huygens-fokker.org/scala/scl_format.html) used by Microtuner Ableton (https://www.ableton.com/en/packs/microtuner/), etc.
 - Also try the Scala Keyboard Mapping (KBM) format (https://www.huygens-fokker.org/scala/help.htm#mappings).
@@ -60,7 +61,9 @@ MIDI input
 Real-time MIDI
 --------------
 
-- Fix synchronisation problem in -gr.Beatrix & -gr.Alan, -da.Beatrix and -da.Alan. Problems occur differently on different systems, due to peculiarities of the MIDI driver.
+- Use client:port as MIDI input/output on Linux.  Currently, only the client is mentioned in the settings. Some devices may allocate several ports to the same client.
+- Check -gr.Alan and -gr.Beatrix for a synchronisation problem
+- Try on Windows and MacOS the anti-bouncing procedure that is working on Linux (in MIDIdriver.c).
 - Put scripts on top of a grammar (the INIT: section) to run them before the production is started. This will notably allow setting up parameters K1, K2… K127.
 - When playing back chunked data in real-time MIDI, there may be gaps followed by garbled events due to the time taken to calculate large chunks. Check "-da.Beethoven-fugue-B-flat-major" for this. It's probably unavoidable: a larger value of MaxMIDIMessages (currently 1000 in ConsoleMain.c) is needed, but it blows the memory.
 - Maybe use a dynamically resizable array for eventStack? Probably not beneficial.

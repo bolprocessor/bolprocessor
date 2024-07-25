@@ -427,7 +427,7 @@ SetNameChoice();
 ShowWindow(GetDialogWindow(MIDIkeyboardPtr));
 SelectWindow(GetDialogWindow(MIDIkeyboardPtr));
 BPUpdateDialog(MIDIkeyboardPtr); /* Needed to show static text! */
-return(DoSystem());
+return OK;
 }
 
 
@@ -451,7 +451,7 @@ for(i=1; i <= 12; i++) {
 		SetControlValue(itemhandle,1);
 		}
 	}
-return(DoSystem());
+return OK;
 }
 
 #endif /* BP_CARBON_GUI_FORGET_THIS */
