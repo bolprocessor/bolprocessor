@@ -35,6 +35,7 @@
 #include "-BP2decl.h"
 
 int test_first_events = 0;
+int trace_all_interactions = 0;
 
 // DECLARATIONS
 
@@ -64,16 +65,13 @@ int test_first_events = 0;
         return(offline == 0);
         }
 #endif
-#if defined(__linux__)
-   // int get_port_for_client(snd_seq_t*,int);
-#endif
 
 // OPEN MIDI SYSTEM
 
 int initializeMIDISystem(void) {
     int found,changed,fixed,index;
     char filename[MAXNAME];
-    int i, firstchoice, error, done_input, done_inputport[MAXPORTS], done_output, done_outputport[MAXPORTS], busyinput[MAXPORTS], busyoutput[MAXPORTS],doneMIDIinput[MAXPORTS],MIDIinputclient[MAXPORTS],doneMIDIoutput[MAXCLIENTS];
+    int i, firstchoice, result, error, done_input, done_inputport[MAXPORTS], done_output, done_outputport[MAXPORTS], busyinput[MAXPORTS], busyoutput[MAXPORTS],doneMIDIinput[MAXPORTS],MIDIinputclient[MAXPORTS],doneMIDIoutput[MAXCLIENTS];
     char more_outputs, more_inputs;
     char name[MAXNAME],firstname[MAXNAME];
     FILE * ptr;
@@ -82,18 +80,21 @@ int initializeMIDISystem(void) {
     changed = fixed = 0;
     done_input = done_output = 0;
     for(i = 0; i < MAXPORTS; i++) {
-        busyoutput[i] = busyinput[i] = done_inputport[i] = done_outputport[i] = 0;
-        doneMIDIoutput[i] = doneMIDIinput[i] = 0;
+        busyoutput[i] = done_outputport[i] = 0;
+        doneMIDIoutput[i] = 0;
+        busyinput[i] = done_inputport[i] = 0;
+        doneMIDIinput[i] = 0;
         }
     #if defined(_WIN64)
         MIDIOUTCAPS moc;
         MIDIINCAPS mic;
-        int theport;
+        int theport, ok;
+        MMRESULT resultopen;
         for (theport = 0; theport < MAXPORTS; theport++) {
             hMIDIout[theport] = NULL;
             hMIDIin[theport] = NULL;
             }
-        BPPrintMessage(odInfo,"\n🎹 Setting up Windows MIDI\n");
+        BPPrintMessage(odInfo, "🎹 Setting up MIDI\n");
         // Get the number of MIDI out devices in the system
         UINT numMidiOutDevs = midiOutGetNumDevs();
         if(numMidiOutDevs == 0) {
@@ -105,8 +106,10 @@ int initializeMIDISystem(void) {
             BPPrintMessage(odInfo,"No MIDI input device available\n");
             }
         else BPPrintMessage(odInfo,"%d MIDI input devices available, we need %d\n",numMidiInDevs,MaxInputPorts);
+
         // Assign output ports to those with names
         for(index = 0; index < MaxOutputPorts; index++) {
+            if (strlen(MIDIoutputname[index]) == 0) continue;
             for(i = 0; i < numMidiOutDevs; i++) {
                 if(midiOutGetDevCaps(i, &moc, sizeof(MIDIOUTCAPS)) != MMSYSERR_NOERROR) {
                     BPPrintMessage(odError,"Error retrieving MIDI device capabilities #%d\n",i);
@@ -115,11 +118,15 @@ int initializeMIDISystem(void) {
                     }
                 if(strcmp(moc.szPname,MIDIoutputname[index]) == 0) {
                     busyoutput[i] = 1;
-                    if(midiOutOpen(&hMIDIout[i], i, 0,0,CALLBACK_NULL) != MMSYSERR_NOERROR) {
-                        BPPrintMessage(odError,"Error opening MIDI output device #%d\n",i);
+                    resultopen = midiOutOpen(&hMIDIout[i], i, 0,0,CALLBACK_NULL);
+                    if (resultopen != MMSYSERR_NOERROR) {
+                        char errorText[256]; // Buffer to hold the error description
+                        midiInGetErrorText(resultopen, errorText, sizeof(errorText)); // Get the error text
+                        BPPrintMessage(odError, "=> Error opening MIDI output on %s\n%s\n", MIDIoutputname[index], errorText);
                         continue;
                         }
-                    BPPrintMessage(odInfo,"MIDI output = %d: “%s”",i,moc.szPname);
+            //        BPPrintMessage(odInfo,"MIDI output = %d: “%s”",i,moc.szPname);
+                    BPPrintMessage(odInfo, "MIDI output = %d: “%s” (handle: %p)", i, moc.szPname, (void*)hMIDIout[i]);
                     BPPrintMessage(odInfo," 👉 the name of your choice\n");
                     done_output++; done_outputport[index] = 1;
                     if(MIDIoutput[index] != i) fixed = 1;
@@ -127,39 +134,48 @@ int initializeMIDISystem(void) {
                     break;
                     }
                 }
+            if(!done_outputport[index]) BPPrintMessage(odError,"No valid output for “%s”\n",MIDIoutputname[index]);
             }
+
         // Assign input ports to those with names
         for(index = 0; index < MaxInputPorts; index++) {
+            if(strlen(MIDIinputname[index]) == 0) continue;
             for(i = 0; i < numMidiInDevs; i++) {
+                if (busyinput[i]) continue;
                 if(midiInGetDevCaps(i, &mic, sizeof(mic)) != MMSYSERR_NOERROR) {
                     BPPrintMessage(odError,"Error retrieving MIDI input device capabilities #%d\n",i);
                     busyinput[i] = 1;
                     continue; // Skip to next device
                     }
-                if(busyinput[i]) continue;
                 if(strcmp(mic.szPname,MIDIinputname[index]) == 0) {
                     busyinput[i] = 1;
-                    if(midiInOpen(&hMIDIin[i], i, (DWORD_PTR)MyMIDIInProc, (DWORD_PTR) i, CALLBACK_FUNCTION) != MMSYSERR_NOERROR) {
-                        BPPrintMessage(odError,"Error opening MIDI input device #%d\n",i);
-                        continue; // Skip to next device
+                    resultopen = midiInOpen(&hMIDIin[i], i, (DWORD_PTR)MyMIDIInProc, (DWORD_PTR)i, CALLBACK_FUNCTION);
+                    if (resultopen != MMSYSERR_NOERROR) {
+                        char errorText[256]; // Buffer to hold the error description
+                        midiInGetErrorText(resultopen, errorText, sizeof(errorText)); // Get the error text
+                        BPPrintMessage(odError, "=> Error opening MIDI input on “%s”\n%s\n", MIDIinputname[index], errorText);
+                        continue; // Skip to the next device
                         }
                     if(midiInStart(hMIDIin[i]) != MMSYSERR_NOERROR) {
-                        BPPrintMessage(odError,"Error starting MIDI input #%d\n",i);
+                        BPPrintMessage(odError,"=> Error starting MIDI input on “%s”\n",MIDIinputname[index]);
                         continue; // Skip to next device
                         }
-                    BPPrintMessage(odInfo,"MIDI input = %d: “%s”",i,mic.szPname);
+                    BPPrintMessage(odInfo,"MIDI input = %d: “%s” (handle: %p)",i,mic.szPname,(void*)hMIDIin[i]);
+        //             BPPrintMessage(odInfo,"MIDI input = %d: “%s”",i,mic.szPname);
                     BPPrintMessage(odInfo," 👉 the name of your choice\n");
                     done_input++; done_inputport[index] = 1;
                     if(MIDIinput[index] != i) fixed = 1;
-                    MIDIinput[index] = (int) i;
-              /*      sourceIndices[index] = (int*)malloc(sizeof(int)); 
-                    *sourceIndices[index] = index; */
+                    MIDIinput[index] = (int)i;
+                    /*  sourceIndices[index] = (int*)malloc(sizeof(int));
+                     *sourceIndices[index] = index; */
                     Interactive = TRUE;
                     BPPrintMessage(odInfo,"MIDI input %d makes BP3 interactive\n",MIDIinput[index]);
                     break;
                     }
                 }
+            if(!done_inputport[index]) BPPrintMessage(odError,"=> No valid input for “%s”\n",MIDIinputname[index]);
             }
+
         // Assign output ports to those without names but possibly with numbers
         if(done_output <  MaxOutputPorts) {
             BPPrintMessage(odInfo,"Trying to assign ports to %d output(s) without names but possibly with numbers\n",(MaxOutputPorts - done_output));
@@ -170,12 +186,17 @@ int initializeMIDISystem(void) {
                     if(busyoutput[i]) continue;
                     if(midiOutGetDevCaps(i, &moc, sizeof(MIDIOUTCAPS)) != MMSYSERR_NOERROR) {
                         BPPrintMessage(odError,"Error retrieving MIDI device capabilities #%d\n",i);
+                        busyoutput[i] = 1;
                         continue; // Skip to next device
                         }
-                    if(midiOutOpen(&hMIDIout[i], i, 0,0,CALLBACK_NULL) != MMSYSERR_NOERROR) {
-                        BPPrintMessage(odError,"Error opening MIDI output device #%d\n",i);
-                        continue; // Skip to next device
-                        }   
+                    resultopen = midiOutOpen(&hMIDIout[i], i, 0,0,CALLBACK_NULL);
+                    if (resultopen != MMSYSERR_NOERROR) {
+                        char errorText[256]; // Buffer to hold the error description
+                        midiInGetErrorText(resultopen, errorText, sizeof(errorText)); // Get the error text
+                        BPPrintMessage(odError, "=> Error opening MIDI output device #%d\n%s\n", i, errorText);
+                        busyoutput[i] = 1;
+                        continue;
+                        }
                     if(firstchoice < 0) firstchoice = i;
                     if(!found && MIDIoutput[index] == i) {
                         BPPrintMessage(odInfo,"MIDI output = %d: “%s”",i,name);
@@ -191,7 +212,6 @@ int initializeMIDISystem(void) {
                 if(!found) {
                     if(firstchoice >= 0) {
                         midiOutGetDevCaps(firstchoice, &moc, sizeof(MIDIOUTCAPS));
-                     //   midiOutOpen(&hMIDIout[firstchoice], firstchoice, 0,0,CALLBACK_NULL);
                         BPPrintMessage(odInfo,"MIDI output = %d: “%s”",firstchoice,moc.szPname);
                         BPPrintMessage(odInfo," 👉 choice by default\n");
                         strcpy(MIDIoutputname[index],name);
@@ -200,10 +220,11 @@ int initializeMIDISystem(void) {
                         MIDIoutput[index] = firstchoice;
                         changed = 1;
                         }
-                    else BPPrintMessage(odInfo,"No port is available for a MIDI output\n");
                     }
                 }
             }
+        if(!done_output && MaxOutputPorts > 0) BPPrintMessage(odError,"=> No port is available for a MIDI output\n");
+
         // Assign input ports to those without names but possibly with numbers
         if(done_input <  MaxInputPorts) {
             BPPrintMessage(odInfo,"Trying to assign ports to %d input(s) without names but possibly with numbers\n",(MaxInputPorts - done_input));
@@ -213,15 +234,21 @@ int initializeMIDISystem(void) {
                 for(i = 0; i < numMidiInDevs; i++) {
                     if(busyinput[i]) continue;
                     if(midiInGetDevCaps(i, &mic, sizeof(mic)) != MMSYSERR_NOERROR) {
-                        BPPrintMessage(odError,"Error retrieving MIDI input device capabilities #%d\n",i);
+                        BPPrintMessage(odError,"=> Error retrieving MIDI input device capabilities #%d\n",i);
+                        busyinput[i] = 1;
                         continue; // Skip to next device
                         }
-                    if(midiInOpen(&hMIDIin[i], i, (DWORD_PTR)MyMIDIInProc, (DWORD_PTR) i, CALLBACK_FUNCTION) != MMSYSERR_NOERROR) {
-                        BPPrintMessage(odError,"Error opening MIDI input device #%d\n",i);
-                        continue; // Skip to next device
+                    resultopen = midiInOpen(&hMIDIin[i], i, (DWORD_PTR)MyMIDIInProc, (DWORD_PTR)i, CALLBACK_FUNCTION);
+                    if (resultopen != MMSYSERR_NOERROR) {
+                        char errorText[256]; // Buffer to hold the error description
+                        midiInGetErrorText(resultopen, errorText, sizeof(errorText)); // Get the error text
+                        BPPrintMessage(odError, "=> Error opening MIDI input device #%d.\n%s\n", i, errorText);
+                        busyinput[i] = 1;
+                        continue; // Skip to the next device
                         }
                     if(midiInStart(hMIDIin[i]) != MMSYSERR_NOERROR) {
-                        BPPrintMessage(odError,"Error starting MIDI input #%d\n",i);
+                        BPPrintMessage(odError,"=> Error starting MIDI input #%d\n",i);
+                        busyinput[i] = 1;
                         continue; // Skip to next device
                         }
                     if(firstchoice < 0) firstchoice = i;
@@ -241,11 +268,6 @@ int initializeMIDISystem(void) {
                 if(!found) {
                     if(firstchoice >= 0) {
                         midiInGetDevCaps(firstchoice, &mic, sizeof(mic));
-                    //    midiInOpen(&hMIDIin[firstchoice], firstchoice, (DWORD_PTR)MyMIDIInProc, (DWORD_PTR) firstchoice, CALLBACK_FUNCTION);
-                   /*     if(midiInStart(hMIDIin[firstchoice]) != MMSYSERR_NOERROR) {
-                            BPPrintMessage(odError,"Error starting MIDI input #%d\n",i);
-                            continue; // Skip to next device
-                            } */
                         BPPrintMessage(odInfo,"MIDI input = %d: “%s”",firstchoice,mic.szPname);
                         BPPrintMessage(odInfo," 👉 choice by default\n");
                         strcpy(MIDIinputname[index],mic.szPname);
@@ -255,11 +277,13 @@ int initializeMIDISystem(void) {
                         changed = 1;
                         Interactive = TRUE;
                         BPPrintMessage(odInfo,"MIDI input %d makes BP3 interactive\n",MIDIinput[index]);
+                        continue;
                         }
-                    else BPPrintMessage(odInfo,"No port is available for a MIDI input\n");
                     }
                 }
             }
+        if(!done_input && MaxInputPorts > 0) BPPrintMessage(odError,"=> No port is available for a MIDI input\n");
+
         // Suggest more options
         more_outputs = more_inputs = 0;
         for(i = 0; i < numMidiOutDevs; i++) if(!busyoutput[i]) more_outputs = 1;
@@ -272,8 +296,10 @@ int initializeMIDISystem(void) {
                 if(0 && midiOutOpen(&hMIDIout[i], i, 0,0,CALLBACK_NULL) != MMSYSERR_NOERROR) {
                     continue; // Skip to next device
                     }
+                BPPrintMessage(odInfo,"MIDI output = %d: “%s”\n",i,moc.szPname); 
+           //     BPPrintMessage(odInfo,"MIDI output = %d: “%s” (handle %p)\n",i,moc.szPname,(void*)hMIDIout[i]);
+           //     midiOutClose(hMIDIout[i]);
                 hMIDIout[i] = NULL;
-                BPPrintMessage(odInfo,"MIDI output = %d: “%s”\n",i,moc.szPname);   
                 }
             }
         if(more_inputs) {
@@ -284,16 +310,12 @@ int initializeMIDISystem(void) {
                 if(0 && midiInOpen(&hMIDIin[i], i, (DWORD_PTR)MyMIDIInProc, (DWORD_PTR) i, CALLBACK_FUNCTION) != MMSYSERR_NOERROR) {
                     continue; // Skip to next device
                     }
-                hMIDIin[i] = NULL;
                 BPPrintMessage(odInfo,"MIDI intput = %d: “%s”\n",i,mic.szPname);
+           /*     BPPrintMessage(odInfo,"MIDI intput = %d: “%s” (handle %p)\n",i,mic.szPname,(void*)hMIDIin[i]);
+                midiInClose(hMIDIin[i]); */
+                hMIDIin[i] = NULL;
                 }
             }
-   /*     HANDLE threadHandle = CreateThread(NULL, 0, MidiMessageThread, NULL, 0, NULL);
-        if (threadHandle == NULL) {
-            BPPrintMessage(odError,"Error opening MidiMessageThread. Input(s) won't work\n");
-            Interactive = FALSE;
-            } */
-
     #endif
     #if defined(__APPLE__)
         OSStatus status;
@@ -538,7 +560,7 @@ int initializeMIDISystem(void) {
         char somename[64];
         BPPrintMessage(odInfo,"\n🎹 Setting up Linux MIDI system\n");
         if((error = snd_seq_open(&Seq_handle, "default", SND_SEQ_OPEN_DUPLEX, 0)) < 0) {
-            BPPrintMessage(odError, "=> Error opening ALSA sequencer: %s\n", snd_strerror(error));
+            BPPrintMessage(odError, "=> Error opening ALSA sequencer “%s”\n", snd_strerror(error));
             return ABORT;
             }
         snd_seq_set_client_name(Seq_handle, "BP3 client");
@@ -548,15 +570,15 @@ int initializeMIDISystem(void) {
             my_sprintf(somename, "Output Port %d", i);
             Out_port[i] = snd_seq_create_simple_port(Seq_handle, somename,SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,SND_SEQ_PORT_TYPE_MIDI_GENERIC | SND_SEQ_PORT_TYPE_APPLICATION);
             if(Out_port[i] < 0)
-                BPPrintMessage(odError,"=> Failed to create output port %d: %s\n", i,snd_strerror(Out_port[i]));
+                BPPrintMessage(odError,"=> Failed to create output port %d. %s\n", i,snd_strerror(Out_port[i]));
         //    else BPPrintMessage(odInfo,"Created output port [%d] = %d\n", i,Out_port[i]);
             }
         for(i = 0; i < MaxInputPorts; i++) {
             my_sprintf(somename, "Input Port %d", i);
             In_port[i] = snd_seq_create_simple_port(Seq_handle, somename,SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,SND_SEQ_PORT_TYPE_MIDI_GENERIC | SND_SEQ_PORT_TYPE_APPLICATION);
             if(In_port[i] < 0)
-                BPPrintMessage(odError,"=> Failed to create input port %d: %s\n", i,snd_strerror(In_port[i]));
-        //    else BPPrintMessage(odInfo,"Created input port [%d] = %d\n", i,In_port[i]);
+                BPPrintMessage(odError,"=> Failed to create input port %d. %s\n", i,snd_strerror(In_port[i]));
+         //   else BPPrintMessage(odInfo,"Created input port [%d] = %d\n", i,In_port[i]);
             }
 
         // Allocate temporary data for port info
@@ -700,8 +722,13 @@ int initializeMIDISystem(void) {
                     if(strcmp(port_name, MIDIoutputname[index]) == 0) {
                         for (i = 0; i < MaxOutputPorts; i++) {
                             if(Out_port[i] < 0) continue;
-                            snd_seq_connect_to(Seq_handle, Out_port[i], client, port_id);
-                            BPPrintMessage(odInfo, "MIDI output = %d: \"%s\" (port %d) 👉 the name of your choice\n",client,port_name,port_id);
+                            result = snd_seq_connect_to(Seq_handle, Out_port[i], client, port_id);
+                         //   BPPrintMessage(odInfo,"Out_port[%d] = %d\n",i,Out_port[i]);
+                            if (result < 0) {
+                                BPPrintMessage(odError,"=> Error connecting to MIDI port: Client %d, Port %d, Error: %s\n", client, port_id, snd_strerror(result));
+                                return ABORT;
+                                }
+                            BPPrintMessage(odInfo,"MIDI output = %d: \"%s\" (port %d) 👉 the name of your choice\n",client,port_name,port_id);
                             doneMIDIoutput[client] = 1;
                             done_output++;
                             if(MIDIoutput[index] != client) fixed = 1;
@@ -936,68 +963,109 @@ void closeMIDISystem() {
 #if defined(_WIN64)
     // Placeholder for Windows MIDI input callback
     void CALLBACK MyMIDIInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2) {
-        MIDIHDR* midiHdr;
+        MIDIHDR *midiHdr;
         MIDI_Event e;
-        int index;
-   //     int index = (int)dwInstance; // Assuming you pass the source index as the instance data
-        for(index = 0; index < MaxInputPorts; index++) {
-            if(hMIDIin[MIDIinput[index]] == hMidiIn) break;
+        static MIDI_Event last_e = {0, 0, 0};
+        int index, type, status;
+        static int last_index = -1;
+        static int already = 0;
+        // Find index of this MIDI input
+        for (index = 0; index < MaxInputPorts; index++) {
+            if (hMIDIin[MIDIinput[index]] == hMidiIn) break;
             }
-     //   BPPrintMessage(odInfo,"OK\n");
+        if(index >= MaxInputPorts) {
+        //      if(trace_all_interactions) BPPrintMessage(odError, "=> Error index in MyMIDIInProc() for event #%d\n",wMsg);
+            return;
+            }
+        // if(trace_all_interactions) BPPrintMessage(odInfo, "OK %d index = %d\n",(int)wMsg,index);
         switch (wMsg) {
+            case MIM_ERROR:
+            case MIM_LONGERROR:
             case MIM_OPEN:
-                // MIDI device has been opened
-                break;
             case MIM_CLOSE:
-                // MIDI device has been closed
                 break;
             case MIM_DATA:
-                // MIDI Short Message received, dwParam1 is the MIDI data, dwParam2 is the timestamp
-                e.status = (unsigned char)(dwParam1 & 0xFF);
-                e.data1 = (unsigned char)((dwParam1 >> 8) & 0xFF);
-                e.data2 = (unsigned char)((dwParam1 >> 16) & 0xFF);
-             //   e.timestamp = dwParam2;  // Using dwParam2 as the timestamp
-                unsigned char midiData[3] = {e.status, e.data1, e.data2};
-                MIDIPacket packet = {
-                    .data = midiData,
-                    .length = 3,
-                    .timestamp = dwParam2  // Or use another source for timestamp if needed
-                    };
-                if(AcceptEvent(dwParam1 & 0xFF, index)) {
-                    HandleInputEvent(&packet, &e, index);
-                    if(PassInEvent(dwParam1 & 0xFF, index)) {
-                        sendMIDIEvent((unsigned char*)&dwParam1, 3, 0); // Assuming 3 bytes for a short message
+                status = e.status = dwParam1;
+                e.data1 = e.data2 = 0;
+                if (AcceptEvent(status, index)) {
+                    if (status == TimingClock || status == ActiveSensing) break;
+                    if (status > TimingClock) {
+                        if(trace_all_interactions) BPPrintMessage(odInfo, "+ Received: %d\n",status);
+                        // These are real-time messages that can be processed immediately
+                        unsigned char midiData[1] = {status};
+                        MIDIPacket packet = {
+                            .data = midiData,
+                            .length = 1,
+                            .timestamp = dwParam2
+                            };
+                       HandleInputEvent(&packet, &e, index);
+                        if (PassInEvent(status, index)) {
+                            sendMIDIEvent(midiData, 1, 0); // Note: timestamp is not used here
+                            }
+                        }
+                    else {
+                        // MIDI Short Message received, dwParam1 is the MIDI data, dwParam2 is the timestamp
+            // if(trace_all_interactions) BPPrintMessage(odInfo, "+++ Received: %d\n",status);
+                        e.status = (unsigned char)(dwParam1 & 0xFF);
+                        e.data1 = (unsigned char)((dwParam1 >> 8) & 0xFF);
+                        e.data2 = (unsigned char)((dwParam1 >> 16) & 0xFF);
+                        type = e.status & 0xF0;
+                        unsigned char midiData[3] = {e.status, e.data1, e.data2};
+                        MIDIPacket packet = {
+                            .data = midiData,
+                            .length = 3,
+                            .timestamp = dwParam2 // Use dwParam2 as timestamp
+                            };
+                        HandleInputEvent(&packet, &e, index);
+                        if (PassInEvent(type, index)) {
+                            switch (type) {
+                                case NoteOn:
+                                case NoteOff:
+                                case ControlChange:
+                                case ProgramChange:
+                                case ChannelPressure:
+                                case PitchBend:
+                                    // Check for duplicate events to stop bouncing
+                                    if (e.status == last_e.status && e.data1 == last_e.data1 && e.data2 == last_e.data2 && index == last_index) {
+                                        if (already < 10) {
+                                            BPPrintMessage(odError, "=> Duplicate event detected, skipping:\n");
+                                            BPPrintMessage(odError, "➡ Event Type = %d, Data1 = %d, Data2 = %d\n", e.status, e.data1, e.data2);
+                                            }
+                                        already++;
+                                        return;
+                                        }
+                                    last_e = e;
+                                    last_index = index;
+                                    break;
+                                default:
+                                    // Handle system real-time messages or others here
+                                    break;
+                                }
+                            sendMIDIEvent(midiData, 3, 0);
+                            }
                         }
                     }
                 break;
             case MIM_LONGDATA:
                 // MIDI Sysex or Long Message received, dwParam1 points to a MIDIHDR structure
-    /*            midiHdr = (MIDIHDR*)dwParam1;
-                if(AcceptEvent(midiHdr->lpData[0], index)) {
-                    // Assuming the first byte is the status byte for simplicity
-                    e.status = midiHdr->lpData[0];
-                    e.data1 = midiHdr->lpData[1];
-                    e.data2 = midiHdr->lpData[2];
-           //         e.timestamp = dwParam2;  // Assume timestamp is passed as dwParam2
-                    HandleInputEvent(&dwParam1, &e, index);
-                    if(PassInEvent(midiHdr->lpData[0], index)) {
-                        sendMIDIEvent((unsigned char*)midiHdr->lpData, midiHdr->dwBytesRecorded, 0);
-                        }
-                    }
-                // Once processed, prepare it for more input
-                midiInPrepareHeader(hMidiIn, midiHdr, sizeof(MIDIHDR));
-                midiInAddBuffer(hMidiIn, midiHdr, sizeof(MIDIHDR)); */
+                midiHdr = (MIDIHDR *)dwParam1;
+                // Handle SysEx or long messages
                 break;
             }
+        return;
         }
 #endif
+
 #if defined(__APPLE__)
     // Placeholder for MacOS MIDI input
     static void MyMIDIReadProc(const MIDIPacketList* packetList, void* readProcRefCon, void* srcConnRefCon) {
         (void)readProcRefCon;  // Unused parameter. This is necessary in order to avoid warnings.
         const MIDIPacket* packet;
         MIDI_Event e;
-        int index;
+        static MIDI_Event last_e = {0, 0, 0};
+        int index, status;
+        static int last_index = -1;
+        static int already = 0;
         packet = &packetList->packet[0];
         if(!srcConnRefCon) {
             BPPrintMessage(odError,"=> Received NULL srcConnRefCon\n");
@@ -1012,13 +1080,31 @@ void closeMIDISystem() {
         if(AcceptEvent(ByteToInt(packet->data[0]),index)) {
             for(unsigned int i = 0; i < packetList->numPackets; i++) {
                 HandleInputEvent(packet,&e,index);
-                if(PassInEvent(ByteToInt(packet->data[0]),index)) sendMIDIEvent((unsigned char*) packet->data,packet->length,0);
-                // Sending immediately
-                packet = MIDIPacketNext(packet);
+                if(PassInEvent(ByteToInt(packet->data[0]),index)) {
+                    status = e.type & 0xF0;
+                    // Check for duplicate events to stop bouncing
+                    if (status == NoteOn || status == NoteOff) {
+                        if (e.type == last_e.type && e.data1 == last_e.data1 && e.data2 == last_e.data2 && index == last_index) {
+                            if (trace_all_interactions) already = 0;
+                            if (already < 10) {
+                                BPPrintMessage(odError, "=> Duplicate event detected, skipping:\n");
+                                BPPrintMessage(odError, "➡ Note = %d velocity = %d\n", e.data1, e.data2);
+                                }
+                            already++;
+                            return;
+                            }
+                        last_e = e;
+                        last_index = index;
+                        }
+                    sendMIDIEvent((unsigned char*) packet->data,packet->length,0);
+                    }
+                packet = MIDIPacketNext(packet); // Move to the next packet
                 }
             }
+        return;
         }
 #endif
+
 #if defined(__linux__)
     void MyAlsaMidiInProc(snd_seq_event_t* ev) {
         MIDI_Event e;
@@ -1026,8 +1112,6 @@ void closeMIDISystem() {
         int index, midiData[3];
         static snd_seq_event_t* lastEvent = NULL;
         static int lastClient = -1;
-        static int already = 0;
-
         if (!ev) {
             BPPrintMessage(odError,"=> Invalid event pointer passed to MyAlsaMidiInProc()\n");
             return;
@@ -1035,26 +1119,13 @@ void closeMIDISystem() {
         int source_port = ev->source.port;  // ALSA event source port
         int source_client = ev->source.client;
 
-        // Check for duplicate events
-        if (lastEvent &&
-            ev == lastEvent &&
-  /*          ev->data.note.note == lastEvent->data.note.note &&
-            ev->data.note.velocity == lastEvent->data.note.velocity && */
-            source_client == lastClient) {
-            if(!already) BPPrintMessage(odError,"=> Duplicate event detected, skipping.\n");
-            already = 1;
-            return;
-            }
-        lastEvent = ev;
-        lastClient = source_client;
-
      //   BPPrintMessage(odInfo,"Processing Event: %p source %d port %d\n",ev,source_client,source_port);
         for(index = 0; index < MaxInputPorts; index++)
             if(MIDIinput[index] == source_client) break;
         if(index >= MaxInputPorts) goto SORTIE;
         unsigned char data_buffer[256];  // Adjust size as needed, especially for SysEx events
         packet.data = data_buffer;
-        packet.timestamp = ev->time.tick;  // Using tick time; adapt as necessary
+        packet.timestamp = ev->time.time.tv_sec * 1000000000L + ev->time.time.tv_nsec;
         switch (ev->type) {
             case SND_SEQ_EVENT_NOTEON:
                 e.status = 0x90 | (ev->data.note.channel & 0x0F);  // Note On command with channel
@@ -1064,7 +1135,7 @@ void closeMIDISystem() {
                 packet.data[0] = e.status;
                 packet.data[1] = e.data1;
                 packet.data[2] = e.data2;
-        //        if(TraceMIDIinteraction) BPPrintMessage(odInfo,"👉 Received NoteOn %d\n",e.data1);
+                //  if(TraceMIDIinteraction && AcceptEvent(e.status, index)) BPPrintMessage(odInfo,"👉 Received NoteOn %d velocity %d, client %d\n",e.data1,e.data2,source_client);
                 break;
             case SND_SEQ_EVENT_NOTEOFF:
                 e.status = 0x80 | (ev->data.note.channel & 0x0F);  // Note Off command with channel
@@ -1120,19 +1191,19 @@ void closeMIDISystem() {
                 e.status = 0xFA;  // Start command (250)
                 packet.length = 1;
                 packet.data[0] = e.status;
-                if(TraceMIDIinteraction) BPPrintMessage(odInfo,"👉 Received START\n");
+                if(TraceMIDIinteraction && AcceptEvent(e.status, index)) BPPrintMessage(odInfo,"👉 Received START\n");
                 break;
             case SND_SEQ_EVENT_CONTINUE:
                 e.status = 0xFB;  // Continue command (251)
                 packet.length = 1;
                 packet.data[0] = e.status;
-                if(TraceMIDIinteraction) BPPrintMessage(odInfo,"👉 Received CONTINUE\n");
+                if(TraceMIDIinteraction && AcceptEvent(e.status, index)) BPPrintMessage(odInfo,"👉 Received CONTINUE\n");
                 break;
             case SND_SEQ_EVENT_STOP:
                 e.status = 0xFC;  // Stop command (252)
                 packet.length = 1;
                 packet.data[0] = e.status;
-                if(TraceMIDIinteraction) BPPrintMessage(odInfo,"👉 Received STOP\n");
+                if(TraceMIDIinteraction && AcceptEvent(e.status, index)) BPPrintMessage(odInfo,"👉 Received STOP\n");
                 break;
             case SND_SEQ_EVENT_SENSING:
                 e.status = 0xFE;  // Active Sensing
@@ -1145,13 +1216,31 @@ void closeMIDISystem() {
                 goto SORTIE;
             }
         if(AcceptEvent(e.status, index)) {
-   //         BPPrintMessage(odInfo, "Received client = %d, status = %d, data1 = %d, data2 = %d\n", source_client, e.status, e.data1, e.data2);
+    //         BPPrintMessage(odInfo, "Received client = %d, status = %d, data1 = %d, data2 = %d\n", source_client, e.status, e.data1, e.data2);
             HandleInputEvent(&packet,&e,index);
-            if (PassInEvent(e.status, index))
+            if (PassInEvent(e.status, index)) {
+                // Check for duplicate events to stop bouncing
+                if (ev->type == SND_SEQ_EVENT_NOTEON || ev->type == SND_SEQ_EVENT_NOTEOFF) {
+                    if(ev == lastEvent && ev->data.note.note == lastEvent->data.note.note &&
+                ev->data.note.velocity == lastEvent->data.note.velocity && source_client == lastClient) {
+                        if(trace_all_interactions) already = 0;
+                        if(already < 10) {
+                            BPPrintMessage(odError,"=> Duplicate event detected, skipping:\n");
+                            BPPrintMessage(odError,"➡ Note = %d velocity = %d, client = %d\n",ev->data.note.note,ev->data.note.velocity,lastClient);
+                            }
+                        already++;
+                        goto SORTIE;
+                        }
+                    lastEvent = ev;
+                    lastClient = source_client;
+                    }
+                if(trace_all_interactions) BPPrintMessage(odInfo, "Forwarding client = %d, status = %d, data1 = %d, data2 = %d, ev = %p\n", source_client, e.status, e.data1, e.data2,ev);
                 sendMIDIEvent(packet.data, packet.length, packet.timestamp);
+                }
             }
     SORTIE:
         snd_seq_free_event(ev);
+        return;
         }
 #endif
 
@@ -1166,14 +1255,9 @@ int ListenMIDI(int x0, int x1, int x2) {
     snd_seq_event_t* ev = NULL;
     int result;
 
-    while ((result = snd_seq_event_input(Seq_handle, &ev)) >= 0) {
+    if ((result = snd_seq_event_input(Seq_handle, &ev)) >= 0) {
         if(ev == NULL) {
-            continue;  // Skip this iteration if the event is NULL
-            }
-
-        if (ev->source.client == 20 && ev->source.port == 0) {
-            snd_seq_free_event(ev);
-            continue;
+            return r;  // Skip this iteration if the event is NULL
             }
         MyAlsaMidiInProc(ev);  // Process the event
         snd_seq_free_event(ev); // Free the event data structure
@@ -1193,53 +1277,57 @@ int ListenMIDI(int x0, int x1, int x2) {
 void sendMIDIEvent(unsigned char* midiData,int dataSize,long time) {
     int note,status,value,improvize,index,channel;
     unsigned long clocktime;
-    if(dataSize == 3) status = midiData[0] & 0xF0;
-    else status = midiData[0];
-    note = midiData[1];
-    value = midiData[2];
-    channel = midiData[0] & 0x0F;
-    if(test_first_events && NumEventsWritten < 100) {
-        clocktime = getClockTime() - initTime; // microseconds
-        improvize = Improvize;
-        Improvize = 0; // Necessary to activate BPPrintMessage(odInfo,...
-        if(status == NoteOn || status == NoteOff)
-            BPPrintMessage(odInfo,"%.3f => %.3f s status = %d, note = %d, value = %d channel = %d\n",(float)clocktime/1000000,(float)time/1000000,status,note,value,(channel + 1));
-        Improvize = improvize;
+    status = midiData[0];
+    if(dataSize == 3) {
+        status &= 0xF0;
+        note = midiData[1];
+        value = midiData[2];
+        channel = midiData[0] & 0x0F;
+        if(test_first_events && NumEventsWritten < 100) {
+            clocktime = getClockTime() - initTime; // microseconds
+            improvize = Improvize;
+            Improvize = 0; // Necessary to activate BPPrintMessage(odInfo,...
+            if(status == NoteOn || status == NoteOff)
+                BPPrintMessage(odInfo,"%.3f => %.3f s status = %d, note = %d, value = %d channel = %d\n",(float)clocktime/1000000,(float)time/1000000,status,note,value,(channel + 1));
+            Improvize = improvize;
+            }
+        if(NumEventsWritten < LONG_MAX) NumEventsWritten++;
+    //   BPPrintMessage(odInfo,"Sending MIDI event time = %ld ms, status = %ld, note %ld, value = %ld\n",(long)time/1000L,(long)status,(long)note,(long)value);
         }
-    if(NumEventsWritten < LONG_MAX) NumEventsWritten++;
- //   BPPrintMessage(odInfo,"Sending MIDI event time = %ld ms, status = %ld, note %ld, value = %ld\n",(long)time/1000L,(long)status,(long)note,(long)value);
     #if defined(_WIN64)
-    DWORD message = 0;
-/*   for(int i = 0; i < dataSize; i++) {
-        message |= (midiData[i] << (i * 8));
-        } */
-    if(dataSize <= 3) {
-        message = midiData[0] | (midiData[1] << 8) | (midiData[2] << 16);
-        }
-    // Send the MIDI message
-    for(index = 0; index < MaxOutputPorts; index++) {
-        // Filter out based on channel and other criteria
-        if(MIDIchannelFilter[index][channel] == '0') continue;
-        if(!PassOutEvent(status, index)) continue;
-        // Send the MIDI message
-        int port = MIDIoutput[index];
-        if(hMIDIout[port] != NULL) {  // Check if the output handle is valid
-         //   BPPrintMessage(odInfo,"Sending index = %d\n",index);
-            if(dataSize <= 3) {
-                midiOutShortMsg(hMIDIout[port], message);
+        DWORD message = 0;
+        status = midiData[0];
+        channel = -1;  // Default to -1 for messages that do not use channels
+        if (dataSize == 1)
+            message = midiData[0];
+        else if (dataSize == 3) {
+            status = midiData[0] & 0xF0;
+            channel = midiData[0] & 0x0F;
+            message = midiData[0] | (midiData[1] << 8) | (midiData[2] << 16);
+            }
+        for (index = 0; index < MaxOutputPorts; index++) {
+            if (hMIDIout[MIDIoutput[index]] == NULL) continue;
+// BPPrintMessage(odInfo,"1) MIDI event time = %ld ms, status = %ld, note %ld, velocity = %ld channel = %d\n",(long)time/1000L,(long)status,(long)note,(long)value,channel);
+            if (channel != -1 && MIDIchannelFilter[index][channel] == '0') continue;
+// BPPrintMessage(odInfo,"2) MIDI event time = %ld ms, status = %ld, note %ld, velocity = %ld channel = %d\n",(long)time/1000L,(long)status,(long)note,(long)value,channel);
+            if (!PassOutEvent(status, index)) continue;
+            if (dataSize <= 3) {
+             //    if (trace_all_interactions && dataSize == 3) BPPrintMessage(odInfo,"Sending MIDI event time = %ld ms, status = %ld, note %ld, velocity = %ld, output = %d\n",(long)time/1000L,(long)status,(long)note,(long)value,MIDIoutput[index]);
+                 if (trace_all_interactions && dataSize == 1) BPPrintMessage(odInfo,"Sending MIDI event time = %ld ms, status = %ld, ouput = %d\n",(long)time/1000L,(long)status,MIDIoutput[index]);
+                midiOutShortMsg(hMIDIout[MIDIoutput[index]], message);
                 }
             else {
-                // For long messages, you would need to use midiOutLongMsg
+                // Handle long messages such as SysEx
                 MIDIHDR midiHdr;
+                memset(&midiHdr, 0, sizeof(MIDIHDR));
                 midiHdr.lpData = (LPSTR)midiData;
                 midiHdr.dwBufferLength = dataSize;
-                midiHdr.dwFlags = 0;
-                midiOutPrepareHeader(hMIDIout[port], &midiHdr, sizeof(MIDIHDR));
-                midiOutLongMsg(hMIDIout[port], &midiHdr, sizeof(MIDIHDR));
-                midiOutUnprepareHeader(hMIDIout[port], &midiHdr, sizeof(MIDIHDR));
+                midiHdr.dwBytesRecorded = dataSize;
+                midiOutPrepareHeader(hMIDIout[MIDIoutput[index]], &midiHdr, sizeof(MIDIHDR));
+                midiOutLongMsg(hMIDIout[MIDIoutput[index]], &midiHdr, sizeof(MIDIHDR));
+                midiOutUnprepareHeader(hMIDIout[MIDIoutput[index]], &midiHdr, sizeof(MIDIHDR));
                 }
             }
-        }
     #endif
     #if defined(__APPLE__)
         // MacOS MIDI event sending
@@ -1268,18 +1356,19 @@ void sendMIDIEvent(unsigned char* midiData,int dataSize,long time) {
         snd_seq_ev_clear(&ev);
         snd_seq_ev_set_subs(&ev);
         snd_seq_ev_set_direct(&ev);
+        int bytes_queued;
          // Set the correct event type
         if(TraceMIDIinteraction) strcpy(Message,"");
         switch (status) {
             case 0x90: // Note On
-      //          sprintf(Message,"Sending NoteOn %d value %d",note,value);
+               if(trace_all_interactions) sprintf(Message,"Sending NoteOn %d velocity %d ",note,value);
                 if (value == 0) // Velocity of 0 should be treated as Note Off
                     snd_seq_ev_set_noteoff(&ev, channel, note, value);
                 else
                     snd_seq_ev_set_noteon(&ev, channel, note, value);
                 break;
             case 0x80: // Note Off
-       //         sprintf(Message,"Sending NoteOff %d value %d",note,value);
+             sprintf(Message,"Sending NoteOff %d value %d",note,value);
                 snd_seq_ev_set_noteoff(&ev, channel, note, value);
                 break;
             case 0xB0: // Control Change
@@ -1315,7 +1404,7 @@ void sendMIDIEvent(unsigned char* midiData,int dataSize,long time) {
                 break;
                 // There is no direct handling for Active Sensing and Timing Clock in the ALSA sequencer
             default:
-                BPPrintMessage(odError,"=> Unsupported MIDI message type %d %d %d\n", status, note, value);
+                if(trace_all_interactions) BPPrintMessage(odError,"=> Unsupported MIDI message  %d %d %d\n", status, note, value);
                 return;
                 break;
             }
@@ -1325,12 +1414,23 @@ void sendMIDIEvent(unsigned char* midiData,int dataSize,long time) {
             if (MIDIchannelFilter[index][channel] == '0') continue;
             if (!PassOutEvent(status,index)) continue;
             int port = MIDIoutputport[index];
-            if(TraceMIDIinteraction && strlen(Message) > 0) {
-                sprintf(line,"%s, client %d, port %d",Message,client,port);
-                BPPrintMessage(odInfo,"%s\n",line);
+            if(TraceMIDIinteraction || trace_all_interactions) {
+                if(strlen(Message) > 0) {
+                    sprintf(line,"%s, client %d, port %d",Message,client,port);
+                    BPPrintMessage(odInfo,"%s\n",line);
+                    }
+                else {
+                    BPPrintMessage(odInfo,"Some message sent to client %d, port %d\n",client,port);
+                    }
                 }
             snd_seq_ev_set_source(&ev,port);
-            snd_seq_event_output(Seq_handle,&ev);
+            bytes_queued = snd_seq_event_output(Seq_handle,&ev);
+            if (bytes_queued < 0) {
+                if(trace_all_interactions) BPPrintMessage(odError,"=> Error sending MIDI event: %s\n", snd_strerror(bytes_queued));
+                }
+            else {
+                if(trace_all_interactions) BPPrintMessage(odInfo,"Event queued successfully, %d bytes queued, index = %d\n", bytes_queued,index);
+                }
             snd_seq_drain_output(Seq_handle);
             }
         snd_seq_free_event(&ev);

@@ -293,11 +293,11 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 
 	STARTCHECK:
 	if(packet == NULL) return OK;
-	if(!AcceptEvent(ByteToInt(packet->data[0]),index)) return OK;
+	// if(!AcceptEvent(ByteToInt(packet->data[0]),index)) return OK;
 	// This is redundant because acceptance has already be checked at the input
 	if (packet->length > 0) {
 		e->type = packet->data[0];  // Assuming data[0] is the status byte
-//		e->time = packet->timeStamp;
+	//	e->time = packet->timestamp;
 		}
 	if (packet->length > 1)
 		e->data1 = packet->data[1];  // Assuming data[1] is the first data byte
@@ -358,7 +358,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			e->type = RAW_EVENT;
 			my_sprintf(Message,"%ld",(long)((c0 % 16) + 1));
 			if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,1,Message);
-			if(!ScriptExecOn) AppendScript(71);
+		/*	if(!ScriptExecOn) AppendScript(71); */
 			return(OK);
 			}
 		if(c == ChannelPressure) {
@@ -368,9 +368,9 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			e->type = TWO_BYTE_EVENT;
 			e->status = c;
 			if(Jcontrol < 0) {
-				my_sprintf(Message,"Pressure = %ld channel %ld",(long)c1,
+			/*	my_sprintf(Message,"Pressure = %ld channel %ld",(long)c1,
 					(long)(c0 - c + 1));
-				if(Interactive && ShowMessages) ShowMessage(TRUE,wMessage,Message);
+				if(Interactive && ShowMessages) ShowMessage(TRUE,wMessage,Message); */
 				if(Interactive) {
 					(*p_Oldvalue)[c0-c].pressure = c1;
 					ChangedPressure[c0-c] = TRUE;
@@ -634,7 +634,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 				}
 			else time_now = getClockTime() - initTime; // microseconds
 	//		if((r = MaybeWait(time_now)) != OK) return r;
-			if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Received NoteOn key = %d channel %d date %ld ms, checking %d script(s)\n",c1,channel,time_now / 1000L,Jinscript);
+	//		if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Received NoteOn key = %d channel %d date %ld ms, checking %d script(s)\n",c1,channel,time_now / 1000L,Jinscript);
 			// Find the next expected NoteOn
 			for(j = 1; j <= Jinscript; j++) {
 				if(((*p_INscript)[j]).chan == -1) { // This is a deactivated instruction
@@ -648,7 +648,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 					if(TraceMIDIinteraction)
 						BPPrintMessage(odInfo, "[%d] Good NoteOn key = %d, time_now = %ld ms, thisscripttime = %ld ms\n", j, c1, time_now / 1000L, thisscripttime / 1000L);
 				//	my_sprintf(Message,"On key = %d at date %ld ms",c1,time_now/1000L);
-					Notify(Message,0);
+				//	Notify(Message,0);
 					strcpy(Message,"");
 					StopPlay = FALSE;
 				//	Oldtimestopped = TimeStopped; // 2024-07-03
@@ -658,7 +658,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 						if(((*p_INscript)[j]).time >= ((*p_INscript)[jj]).time && ((*p_INscript)[jj]).chan != -1) {
 							((*p_INscript)[jj]).chan = -1;
 						//	my_sprintf(Message,"Canceled waiting for NoteOn key = %d at date %ld ms",((*p_INscript)[jj]).key,((*p_INscript)[jj]).time / 1000L);
-							Notify(Message,0);
+						//	Notify(Message,0);
 							strcpy(Message,"");
 							}
 						}
@@ -2181,7 +2181,7 @@ int AllNotesOffPedalsOffAllChannels(void) {
 		BPPrintMessage(odError,"=> All Notes Off won't work since MIDI output is not active");	
 		return(OK);
 		}
-	if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Sending AllNotesOff and reset controls on all channels\n");
+	if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Sending AllNotesOff and resetting controls on all channels\n");
 	/* We can afford to mute the current output and send NoteOffs at a low level */
 	// Mute++;
 	for(channel=0; channel < MAXCHAN; channel++) {

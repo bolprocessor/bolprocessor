@@ -6,12 +6,14 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-
 -----
-2024-07-25
-Resized maximum length of lines in ReadOne() as -cs.tryTunings wasn't loading.
-Fixed the timing when time-patterns are used in a striated time structure.
-Added the "change_permissions" shell script for the Linux version.
+2024-07-29 (version 3.0.4)
+Problems with MIDI device connections have been solved in the Windows version.
+A check for duplicate input MIDI events has been implemented for MacOS, Windows and Linux. This avoids a "chain reaction" if there is a loop in the connection.
+The Linux version displays detailed error messages when MIDI connections don't work. These include insufficient memory.
+Resized the maximum line length in ReadOne() as -cs.tryTunings wasn't loading.
+Fixed timing when using time patterns in a striated time structure.
+Finalised shell scripts for installation and versioning on Linux.
 
 -----
 2024-07-24
