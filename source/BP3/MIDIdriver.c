@@ -168,8 +168,9 @@ int initializeMIDISystem(void) {
                     MIDIinput[index] = (int)i;
                     /*  sourceIndices[index] = (int*)malloc(sizeof(int));
                      *sourceIndices[index] = index; */
+                    if(!Interactive)
+                        BPPrintMessage(odInfo, "MIDI input %d makes BP3 interactive\n", MIDIinput[index]);
                     Interactive = TRUE;
-                    BPPrintMessage(odInfo,"MIDI input %d makes BP3 interactive\n",MIDIinput[index]);
                     break;
                     }
                 }
@@ -199,9 +200,9 @@ int initializeMIDISystem(void) {
                         }
                     if(firstchoice < 0) firstchoice = i;
                     if(!found && MIDIoutput[index] == i) {
-                        BPPrintMessage(odInfo,"MIDI output = %d: “%s”",i,name);
-                        BPPrintMessage(odInfo," 👉 the number of your choice\n");
                         strcpy(MIDIoutputname[index], moc.szPname);
+                        BPPrintMessage(odInfo, "MIDI output = %d: “%s”", i, MIDIoutputname[index]);
+                        BPPrintMessage(odInfo," 👉 the number of your choice\n");
                         done_output++;
                         busyoutput[i] = 1;
                         found = 1;
@@ -258,8 +259,9 @@ int initializeMIDISystem(void) {
                         strcpy(MIDIinputname[index],mic.szPname);
                         busyinput[i] = 1;
                         done_input++;
+                        if (!Interactive)
+                            BPPrintMessage(odInfo, "MIDI input %d makes BP3 interactive\n", MIDIinput[index]);
                         Interactive = TRUE;
-                        BPPrintMessage(odInfo,"MIDI input %d makes BP3 interactive\n",MIDIinput[index]);
                         found = 1;
                         changed = 1;
                         break;
@@ -275,8 +277,9 @@ int initializeMIDISystem(void) {
                         busyinput[firstchoice] = 1;
                         MIDIinput[index] = firstchoice;
                         changed = 1;
+                        if (!Interactive)
+                            BPPrintMessage(odInfo, "MIDI input %d makes BP3 interactive\n", MIDIinput[index]);
                         Interactive = TRUE;
-                        BPPrintMessage(odInfo,"MIDI input %d makes BP3 interactive\n",MIDIinput[index]);
                         continue;
                         }
                     }
@@ -403,8 +406,9 @@ int initializeMIDISystem(void) {
                         sourceIndices[index] = (int*)malloc(sizeof(int)); 
                         *sourceIndices[index] = index;
                         MIDIPortConnectSource(MIDIinPort[index],src,sourceIndices[index]);
+                        if (!Interactive)
+                            BPPrintMessage(odInfo, "MIDI input %d makes BP3 interactive\n", MIDIinput[index]);
                         Interactive = TRUE;
-                        BPPrintMessage(odInfo,"MIDI input %d makes BP3 interactive\n",MIDIinput[index]);
                         break;
                         }
                     }
@@ -489,8 +493,9 @@ int initializeMIDISystem(void) {
                             sourceIndices[index] = (int*)malloc(sizeof(int)); 
                             *sourceIndices[index] = index;
                             MIDIPortConnectSource(MIDIinPort[index],src,sourceIndices[index]);
+                            if (!Interactive)
+                                BPPrintMessage(odInfo, "MIDI input %d makes BP3 interactive\n", MIDIinput[index]);
                             Interactive = TRUE;
-                            BPPrintMessage(odInfo,"MIDI input %d makes BP3 interactive\n",MIDIinput[index]);
                             found = 1;
                             changed = 1;
                             break;
@@ -515,8 +520,9 @@ int initializeMIDISystem(void) {
                             sourceIndices[index] = (int*)malloc(sizeof(int)); 
                             *sourceIndices[index] = index;
                             MIDIPortConnectSource(MIDIinPort[index],src,sourceIndices[index]);
+                            if (!Interactive)
+                                BPPrintMessage(odInfo, "MIDI input %d makes BP3 interactive\n", MIDIinput[index]);
                             Interactive = TRUE;
-                            BPPrintMessage(odInfo,"MIDI input %d makes BP3 interactive\n",MIDIinput[index]);
                             }
                         }
                     else BPPrintMessage(odInfo,"No port is available for the new input\n");
@@ -601,14 +607,14 @@ int initializeMIDISystem(void) {
                         port_cap = snd_seq_port_info_get_capability(pinfo);
                         port_id = snd_seq_port_info_get_port(pinfo);
                         port_name = snd_seq_port_info_get_name(pinfo);
-                  //      BPPrintMessage(odInfo, "#??? MIDI input = %d: \"%s\" (port %d)\n",client,port_name,port_id);
+                    //      BPPrintMessage(odInfo, "#??? MIDI input = %d: \"%s\" (port %d)\n",client,port_name,port_id);
                         if((port_cap & SND_SEQ_PORT_CAP_READ) && !(port_cap & SND_SEQ_PORT_CAP_NO_EXPORT)) {
-                   //         BPPrintMessage(odInfo, "??? MIDI input = %d: \"%s\" (port %d)\n",client,port_name,port_id);
+                    //         BPPrintMessage(odInfo, "??? MIDI input = %d: \"%s\" (port %d)\n",client,port_name,port_id);
                             if(strcmp(port_name, MIDIinputname[index]) == 0) {
                                 port_id = snd_seq_port_info_get_port(pinfo);
                                 for (i = 0; i < MaxInputPorts; i++) {
                                     if(In_port[i] < 0) continue;
-                          // Unexpectedly, In_port[i] = 1 although the port is 0. So, we do the following:
+                            // Unexpectedly, In_port[i] = 1 although the port is 0. So, we do the following:
                                     if(1 || snd_seq_connect_from(Seq_handle, In_port[i], client, port_id) < 0) {
                                         BPPrintMessage(odInfo,"Unexpectedly forcing the following port to %d\n",port_id);
                                         snd_seq_connect_from(Seq_handle, port_id, client, port_id);
@@ -620,7 +626,7 @@ int initializeMIDISystem(void) {
                                     if(MIDIinput[index] != client) fixed = 1;
                                     MIDIinput[index] = client;
                                     MIDIinputport[index] = port_id;
-                                    if(!Interactive) BPPrintMessage(odInfo,"😀 MIDI input %d makes the application interactive\n", client);
+                                    if(!Interactive) BPPrintMessage(odInfo,"MIDI input %d makes BP3 interactive\n", client);
                                     Interactive = TRUE;
                                     break;
                                     }
@@ -667,7 +673,7 @@ int initializeMIDISystem(void) {
                                     changed = 1;
                                     MIDIinputport[index] = port_id;
                                     strcpy(MIDIinputname[index],port_name);
-                                    if(!Interactive) BPPrintMessage(odInfo,"😀 MIDI input %d makes the application interactive\n", client);
+                                    if(!Interactive) BPPrintMessage(odInfo,"MIDI input %d makes BP3 interactive\n", client);
                                     Interactive = found = 1;
                                     break;
                                     }
@@ -1109,7 +1115,7 @@ void closeMIDISystem() {
     void MyAlsaMidiInProc(snd_seq_event_t* ev) {
         MIDI_Event e;
         MIDIPacket packet;
-        int index, midiData[3];
+        int index, midiData[3],already;
         static snd_seq_event_t* lastEvent = NULL;
         static int lastClient = -1;
         if (!ev) {

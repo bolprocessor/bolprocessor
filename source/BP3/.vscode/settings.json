@@ -19,7 +19,8 @@
         "mach_time.h": "c",
         "ios": "c",
         "consoleglobals.h": "c",
-        "stringlists.h": "c"
+        "stringlists.h": "c",
+        "typeinfo": "c"
     },
     "search.useParentIgnoreFiles": true,
     "search.useGlobalIgnoreFiles": false
