@@ -1115,7 +1115,8 @@ void closeMIDISystem() {
     void MyAlsaMidiInProc(snd_seq_event_t* ev) {
         MIDI_Event e;
         MIDIPacket packet;
-        int index, midiData[3],already;
+        int index, midiData[3];
+        static int already = 0;
         static snd_seq_event_t* lastEvent = NULL;
         static int lastClient = -1;
         if (!ev) {
