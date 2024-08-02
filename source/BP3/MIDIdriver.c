@@ -125,8 +125,8 @@ int initializeMIDISystem(void) {
                         BPPrintMessage(odError, "=> Error opening MIDI output on %s\n%s\n", MIDIoutputname[index], errorText);
                         continue;
                         }
-            //        BPPrintMessage(odInfo,"MIDI output = %d: “%s”",i,moc.szPname);
-                    BPPrintMessage(odInfo, "MIDI output = %d: “%s” (handle: %p)", i, moc.szPname, (void*)hMIDIout[i]);
+                    if(trace_all_interactions) BPPrintMessage(odInfo, "MIDI output = %d: “%s” (handle: %p)", i, moc.szPname, (void*)hMIDIout[i]);
+                    else BPPrintMessage(odInfo, "MIDI output = %d: “%s”", i, moc.szPname);
                     BPPrintMessage(odInfo," 👉 the name of your choice\n");
                     done_output++; done_outputport[index] = 1;
                     if(MIDIoutput[index] != i) fixed = 1;
@@ -160,8 +160,8 @@ int initializeMIDISystem(void) {
                         BPPrintMessage(odError,"=> Error starting MIDI input on “%s”\n",MIDIinputname[index]);
                         continue; // Skip to next device
                         }
-                    BPPrintMessage(odInfo,"MIDI input = %d: “%s” (handle: %p)",i,mic.szPname,(void*)hMIDIin[i]);
-        //             BPPrintMessage(odInfo,"MIDI input = %d: “%s”",i,mic.szPname);
+                    if(trace_all_interactions) BPPrintMessage(odInfo,"MIDI input = %d: “%s” (handle: %p)",i,mic.szPname,(void*)hMIDIin[i]);
+                    else BPPrintMessage(odInfo,"MIDI input = %d: “%s”",i,mic.szPname);
                     BPPrintMessage(odInfo," 👉 the name of your choice\n");
                     done_input++; done_inputport[index] = 1;
                     if(MIDIinput[index] != i) fixed = 1;
@@ -300,8 +300,8 @@ int initializeMIDISystem(void) {
                     continue; // Skip to next device
                     }
                 BPPrintMessage(odInfo,"MIDI output = %d: “%s”\n",i,moc.szPname); 
-           //     BPPrintMessage(odInfo,"MIDI output = %d: “%s” (handle %p)\n",i,moc.szPname,(void*)hMIDIout[i]);
-           //     midiOutClose(hMIDIout[i]);
+            //  BPPrintMessage(odInfo,"MIDI output = %d: “%s” (handle %p)\n",i,moc.szPname,(void*)hMIDIout[i]);
+            //  midiOutClose(hMIDIout[i]);
                 hMIDIout[i] = NULL;
                 }
             }
@@ -314,8 +314,8 @@ int initializeMIDISystem(void) {
                     continue; // Skip to next device
                     }
                 BPPrintMessage(odInfo,"MIDI intput = %d: “%s”\n",i,mic.szPname);
-           /*     BPPrintMessage(odInfo,"MIDI intput = %d: “%s” (handle %p)\n",i,mic.szPname,(void*)hMIDIin[i]);
-                midiInClose(hMIDIin[i]); */
+                // BPPrintMessage(odInfo,"MIDI intput = %d: “%s” (handle %p)\n",i,mic.szPname,(void*)hMIDIin[i]);
+                // midiInClose(hMIDIin[i]);
                 hMIDIin[i] = NULL;
                 }
             }
