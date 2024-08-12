@@ -2266,35 +2266,34 @@ return(ABORT);
 }
 
 
-int ResetMoreParameter(int j,int ip)
-{
-char **ptr;
-Handle h;
-CsoundParam **paramlist;
+int ResetMoreParameter(int j,int ip) {
+	char **ptr;
+	Handle h;
+	CsoundParam **paramlist;
 
-paramlist = (*p_CsInstrument)[j].paramlist;
+	paramlist = (*p_CsInstrument)[j].paramlist;
 
-if(paramlist == NULL) {
-	if(Beta) Alert1("=> Err. ResetMoreParameter(). paramlist == NULL");
+	if(paramlist == NULL) {
+		if(Beta) Alert1("=> Err. ResetMoreParameter(). paramlist == NULL");
+		return(OK);
+		}
+	h = (Handle) (*paramlist)[ip].name;
+	MyDisposeHandle(&h);
+	(*paramlist)[ip].name = NULL;
+	h = (Handle) (*paramlist)[ip].comment;
+	MyDisposeHandle(&h);
+	(*paramlist)[ip].comment = NULL;
+
+	(*paramlist)[ip].startindex
+		= (*paramlist)[ip].endindex
+		= (*paramlist)[ip].nameindex
+		= (*paramlist)[ip].table = -1;
+
+	(*paramlist)[ip].defaultvalue = 0.;
+	(*paramlist)[ip].GENtype = 7;
+	(*paramlist)[ip].combinationtype = ADD;
 	return(OK);
 	}
-h = (Handle) (*paramlist)[ip].name;
-MyDisposeHandle(&h);
-(*paramlist)[ip].name = NULL;
-h = (Handle) (*paramlist)[ip].comment;
-MyDisposeHandle(&h);
-(*paramlist)[ip].comment = NULL;
-
-(*paramlist)[ip].startindex
-	= (*paramlist)[ip].endindex
-	= (*paramlist)[ip].nameindex
-	= (*paramlist)[ip].table = -1;
-
-(*paramlist)[ip].defaultvalue = 0.;
-(*paramlist)[ip].GENtype = 7;
-(*paramlist)[ip].combinationtype = ADD;
-return(OK);
-}
 
 
 int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_numbers, char* fractions, char* baseoctave_string) { // Should be placed somewhere else
@@ -2496,7 +2495,7 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) { // 
 		this_key = 0;
 		if(!WarnedRangeKey) {
 			MystrcpyHandleToString(0,0,Message,(*Scale)[i_scale].label);
-			BPPrintMessage(odInfo,"\n=> ERROR Pitch class ‘%d’ does not exist in _scale(%s). No Csound score produced\n",pitchclass,Message);
+			BPPrintMessage(odInfo,"\n=> ERROR Pitch class ‘%d’ does not exist in _scale(%s) which has numgrades = %d. No Csound score produced\n",pitchclass,Message,numgrades);
 			WarnedRangeKey = TRUE;
 			return(Infpos);
 			}

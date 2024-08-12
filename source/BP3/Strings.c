@@ -188,25 +188,20 @@ return(OK);
 }
 
 
-int MystrcpyHandleToString(int imax,int offset,char *s,char **p_t)
-{
-long i;
-char c;
-int jmax;
-
-if(p_t == NULL) {
-	s[0] = '\0';
+int MystrcpyHandleToString(int imax,int offset,char *s,char **p_t) {
+	long i;
+	char c;
+	if(p_t == NULL) {
+		s[0] = '\0';
+		return(OK);
+		}
+	i = 0;
+	while((c = (*p_t)[offset++]) != '\0' && (i < imax || imax == 0))
+		s[i++] = c;
+	if (i > imax && imax > 0) i = imax;
+	s[i] = '\0';	/* The content might have been truncated */
 	return(OK);
 	}
-jmax = strlen(s);
-i = 0;
-while((c = (*p_t)[offset++]) != '\0' && (i < imax || imax == 0))
-	s[i++] = c;
-if (i > imax && imax > 0) i = imax;
-s[i] = '\0';	/* The content might have been truncated */
-
-return(OK);
-}
 
 
 int MystrcpyHandleToHandle(int offset,char ***pp_s,char **p_t) {
@@ -350,6 +345,15 @@ int Strip(char *word) {
 		word[i] = '\0'; i--;
 		}
 	return(OK);
+	}
+
+void remove_trailing_newline(char *str) {
+	size_t len = strlen(str);
+	// Iterate from the end of the string towards the beginning
+	while (len > 0 && (str[len - 1] == '\n' || str[len - 1] == '\r')) {
+		str[len - 1] = '\0'; // Replace with null terminator
+		len--;
+		}
 	}
 
 

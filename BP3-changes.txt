@@ -7,6 +7,12 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 -----
+2024-08-12 (version 3.0.5)
+Tonality files "-to" are completely independent of Csound resources "-cs".
+Old "-cs" files containing scale definitions will automatically create an associated "-to" file containing those definitions.
+MIDI orchestra files "-or" are no longer used.
+
+-----
 2024-07-29 (version 3.0.4)
 Problems with MIDI device connections have been solved in the Windows version.
 A check for duplicate input MIDI events has been implemented for MacOS, Windows and Linux. This avoids a "chain reaction" if there is a loop in the connection.

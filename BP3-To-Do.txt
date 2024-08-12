@@ -17,19 +17,11 @@ If you are interested in taking part in this project, join the BP developer's li
 https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
 
 
-Distribution
-------------
-
-- Now that BP3 compiles on MacOS/Windows/Linux, create installers to facilitate the implementation. (This is easy!)
-
-
 Microtonal scales and tuning systems
 ------------------------------------
 
-- Limit to 2500 the size of Comment describing the tuning process (scale.php), or revise ReadOne() in SaveLoads3.c
-- Separate tuning systems from Csound instruments, as tuning is applicable to many other environments. Create "-tu.mytuning" files to this effect.
-- Export/import tunings in the Scala (SCL) file format (https://www.huygens-fokker.org/scala/scl_format.html) used by Microtuner Ableton (https://www.ableton.com/en/packs/microtuner/), etc.
-- Also try the Scala Keyboard Mapping (KBM) format (https://www.huygens-fokker.org/scala/help.htm#mappings).
+- Try the Scala Keyboard Mapping (KBM) format (https://www.huygens-fokker.org/scala/help.htm#mappings).
+- Implement MIDI Polyphonic Expression (MPE) protocol (https://midi.org/mpe-midi-polyphonic-expression).
 - Include values for optional stretching of each octave.
 - Implement a performance control to set the A4 frequency (diapason) in the score.
 
@@ -42,7 +34,7 @@ Csound orchestra
  + flute
  + piano
  + harpsichord
- + guitar
+ + guitar (check guitar.orc in Csound resources)
  + horn
  + saxo
  + marimba
@@ -61,14 +53,13 @@ MIDI input
 Real-time MIDI
 --------------
 
-- Use client:port as MIDI input/output on Linux.  Currently, only the client is mentioned in the settings. Some devices may allocate several ports to the same client.
+- Use client:port as MIDI input/output on Linux.  Currently, only the client is mentioned in the settings. Some devices might allocate several ports to the same client.
 - Check -gr.Alan and -gr.Beatrix for a synchronisation problem after more than 2 turns.
 — In Linux, it seems that the two virtual ports 'VirMIDI 0-0' and 'VirMIDI 0-1' are not communicating with other ports even though connections are valid.
 - Put scripts on top of a grammar (the INIT: section) to run them before the production is started. This will notably allow setting up parameters K1, K2… K127.
 - When playing back chunked data in real-time MIDI, there may be gaps followed by garbled events due to the time taken to calculate large chunks. Check "-da.Beethoven-fugue-B-flat-major" for this. It's probably unavoidable: a larger value of MaxMIDIMessages (currently 1000 in ConsoleMain.c) is needed, but it blows the memory.
 - The value of MaxMIDIMessages could be specified in the settings file of the project.
 - Check the accuracy of start times in sound-object pictures.
-- Implement MPE protocol (MIDI Polyphonic Expression).
 
 
 Real-time Csound

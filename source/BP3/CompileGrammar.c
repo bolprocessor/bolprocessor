@@ -288,7 +288,7 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	p = &(*p_line)[0]; q = &(FilePrefix[wCsoundResources][0]);
 	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
 		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
-	p = &(*p_line)[0]; q = &(FilePrefix[wMIDIorchestra][0]);
+	p = &(*p_line)[0]; q = &(FilePrefix[wTonality][0]);
 	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
 		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
 	p = &(*p_line)[0]; q = &(FilePrefix[iMidiDriver][0]);
@@ -950,7 +950,7 @@ int ReadAlphabet(int justcount) {
 	char *q,**p_line,line[MAXLIN],operatorbetweenquotes[MAXLIN];
 	int done,foundoperator,foundoperatorthere,fatal,i,operatorinline,
 		miknown=FALSE,inknown=FALSE,kbknown=FALSE,glknown=FALSE,tbknown=FALSE,
-		csknown=FALSE,orknown=FALSE,rep,gap;
+		csknown=FALSE,rep,gap;
 
 	pos = ZERO; done = foundoperator = FALSE;
 	posmax = GetTextLength(wAlphabet);
@@ -1008,12 +1008,12 @@ int ReadAlphabet(int justcount) {
 				csknown = TRUE; goto NEXTLINE;
 				}
 			}
-		if(!orknown) {
+	/*	if(!orknown) {
 			q = &(FilePrefix[wMIDIorchestra][0]);
 			if(Match(TRUE,p_line,&q,4)) {
 				orknown = TRUE; goto NEXTLINE;
 				}
-			}
+			} */
 		if(!tbknown) {
 			q = &(FilePrefix[wTimeBase][0]);
 			if(Match(TRUE,p_line,&q,4)) {

@@ -20,7 +20,8 @@
         "ios": "c",
         "consoleglobals.h": "c",
         "stringlists.h": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "-bp2.h": "c"
     },
     "search.useParentIgnoreFiles": true,
     "search.useGlobalIgnoreFiles": false

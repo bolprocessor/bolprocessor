@@ -166,7 +166,7 @@ TraceMemory = FALSE;
 	time(&SessionStartTime);
 	ProductionTime = ProductionStartTime = PhaseDiagramTime = TimeSettingTime = (time_t) 0L;
 	time(&ProductionStartTime);
-	BPPrintMessage(odInfo,"\nBP3 Console completed initialization and will use:");
+	BPPrintMessage(odInfo,"\nBP3 Console completed its initialization and will use:");
 	BPPrintMessage(odInfo,"\n%s\n%s\n\n",gOptions.inputFilenames[wGrammar],gOptions.inputFilenames[wData]);
 	
 	CreateStopFile();
@@ -708,19 +708,19 @@ const char gOptionList[] =
 	"  -da fname        load data file 'fname'\n"
 	"  -gl fname        load glossary file 'fname'\n"
 	"  -gr fname        load grammar file 'fname'\n"
+	"  -to fname        load tonality file 'fname'\n"
 	"  -al fname        load alphabet file 'fname'\n"
 	"  -se fname        load settings file 'fname'\n"
 	"  -so fname        load sound-object prototypes file 'fname'\n"
+	"  -cs fname        load Csound instrument definitions file 'fname'\n"
 	"\n"
 	"  These file-type markers currently are recognized but ignored:\n"
-	"      -cs  -in  -kb  -md  -mi  -or  -tb  -tr  -wg  +sc \n"
+	"      -in  -kb  -md  -mi  -tb  -tr  -wg  +sc \n"
 	"\n"
-/*	"  -cs fname        load Csound instrument definitions file 'fname'\n"
-	"  -de fname        load decisions file 'fname'\n"
+/*	"  -de fname        load decisions file 'fname'\n"
 	"  -in fname        load interaction file 'fname'\n"
 	"  -kb fname        load keyboard file 'fname'\n"
 	"  -md fname        load MIDI driver settings file 'fname'\n"
-	"  -or fname        load MIDI orchestra file 'fname'\n"
 	"  -tb fname        load time base file 'fname'\n"
 	"  -wg fname        load weights file 'fname'\n"
 	"  +sc fname        load script file 'fname'\n"
@@ -1128,7 +1128,7 @@ int ApplyArgs(BPConsoleOpts* opts)
 	if (opts->seedProvided)	{
 		Seed = opts->seed;
 		if(Seed > 0) {
-			BPPrintMessage(odInfo, "Resetting random seed to %u as per command line\n", Seed);
+			BPPrintMessage(odInfo, "Random seed = %u as per command line\n", Seed);
 			ResetRandom();
 			}
 		else {
@@ -1211,12 +1211,9 @@ int LoadInputFiles(const char* pathnames[WMAX]) {
 				case wData:
 				case wGlossary:
 					BPPrintMessage(odInfo, "Reading %s file: %s\n", DocumentTypeName[w], pathnames[w]);
-					if(check_memory_use) BPPrintMessage(odInfo,"Before Reading %s file MemoryUsed = %ld\n",DocumentTypeName[w],(long)MemoryUsed);
 					result = LoadFileToTextHandle(pathnames[w], TEH[w]);
-					if(check_memory_use) BPPrintMessage(odInfo,"After Reading %s file MemoryUsed = %ld\n",DocumentTypeName[w],(long)MemoryUsed);
 					if(result != OK)  {
-						Notify("You first need to save the Grammar or Data",1);
-						BPPrintMessage(odError,"\n");
+						BPPrintMessage(odError,"=> You first need to save the Grammar or Data\n");
 						return result;
 						}
 					switch(w) {
@@ -1225,10 +1222,14 @@ int LoadInputFiles(const char* pathnames[WMAX]) {
 						case wGlossary:			LoadedGl = TRUE; break;
 						}
 					break;
-				case wCsoundResources: 
-				//	BPPrintMessage(odInfo, ": %s\n", pathnames[w]);
+				case wCsoundResources:
 					strcpy(FileName[wCsoundResources],pathnames[w]);
 					result = LoadCsoundInstruments(0,1);
+					if(result != OK)  return result;
+					break;
+				case wTonality:
+					strcpy(FileName[wTonality],pathnames[w]);
+					result = LoadTonality();
 					if(result != OK)  return result;
 					break;
 				case iSettings:
@@ -1420,9 +1421,9 @@ FILE* my_fopen(int check, const char* path, const char* mode) {
 
 int my_fclose(FILE *file) {
 	int result;
-    if (file == NULL) {
-        BPPrintMessage(odError, "=> Attempt to close a NULL file pointer\n");
-        return ABORT;
+    if(file == NULL) {
+   //     BPPrintMessage(odError, "=> Attempt to close a NULL file pointer\n");
+        return OK;
         }
 	result = fflush(file);
     if(result != 0) {

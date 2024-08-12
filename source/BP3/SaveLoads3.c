@@ -729,75 +729,74 @@ void remove_double_slash_prefix(char *str) {
 }
 
 int ReadOne(int bindlines,int careforhtml,int nocomment,FILE* fin,int strip,char ***pp_line,
-	char ***pp_completeline,long *p_pos)
+	char ***pp_completeline,long *p_pos) {
 // Read a line in the file and save it to text handle 'pp_completeline'
 // If the line starts with "//", discard it
 // bindlines is now irrelevant
-{
-int i, html;
-char *buffer;
-long size, count;
-char line[3000];
-buffer = NULL;
+	int i, html;
+	char *buffer;
+	long size, count;
+	char line[3000];
+	buffer = NULL;
 
-MyDisposeHandle((Handle*)pp_line);
-MyDisposeHandle((Handle*)pp_completeline);
-size = 3000;
-if((*pp_line = (char**) GiveSpace((Size)size * sizeof(char))) == NULL) return(ABORT);
-if((*pp_completeline = (char**) GiveSpace((Size)size * sizeof(char))) == NULL) return(ABORT);
+	MyDisposeHandle((Handle*)pp_line);
+	MyDisposeHandle((Handle*)pp_completeline);
+	size = 3000;
+	if((*pp_line = (char**) GiveSpace((Size)size * sizeof(char))) == NULL) return(ABORT);
+	if((*pp_completeline = (char**) GiveSpace((Size)size * sizeof(char))) == NULL) return(ABORT);
 
-// BPPrintMessage(odError,"pos1 = %ld\n",*p_pos);
-if(fseek(fin, *p_pos, SEEK_SET) != 0) {
-    perror("fseek failed");
-    // Handle error or exit
-    }
-	// *p_pos = ftell(fin);
-    // BPPrintMessage(odError,"pos2 = %ld\n",*p_pos);
-if(fgets(line, sizeof(line),fin) != NULL) {
-    if(ferror(fin)) {
-        fprintf(stderr, "Error reading from file.\n");
-        clearerr(fin);  // Clear the error indicator for the stream
-        }
-    remove_final_linefeed(line);
-	*p_pos = ftell(fin);
-    // BPPrintMessage(odError,"pos3 = %ld\n",*p_pos);
-	size_t lineSize = utf8_strsize(line);
-	char* newBuffer = realloc(buffer,lineSize + 2); // +1 for '\n' and +1 for '\0'
-	if(newBuffer == NULL) {
-		BPPrintMessage(odError, "=> Err. ReadOne(). newBuffer == NULL\n");
-		return MISSED;
+	// BPPrintMessage(odError,"pos1 = %ld\n",*p_pos);
+	if(fseek(fin, *p_pos, SEEK_SET) != 0) {
+		perror("fseek failed");
+		// Handle error or exit
 		}
-	buffer =  newBuffer;
-	memcpy(buffer, line, lineSize);
-	buffer[lineSize] = '\0';
-	if (lineSize == 0) {
-        char *emptyStr = strdup(""); // Handle empty file case
-        if (emptyStr != NULL) {
-            free(buffer);
-            buffer = emptyStr;
-       		}
-		else {
-            BPPrintMessage(odError, "Memory allocation failed for empty string\n");
-            free(buffer);
-            return MISSED;
-        	}
+		// *p_pos = ftell(fin);
+		// BPPrintMessage(odError,"pos2 = %ld\n",*p_pos);
+	if(fgets(line, sizeof(line),fin) != NULL) {
+		if(ferror(fin)) {
+			fprintf(stderr, "Error reading from file.\n");
+			clearerr(fin);  // Clear the error indicator for the stream
+			}
+		remove_final_linefeed(line);
+		*p_pos = ftell(fin);
+		// BPPrintMessage(odError,"pos3 = %ld\n",*p_pos);
+		size_t lineSize = utf8_strsize(line);
+		char* newBuffer = realloc(buffer,lineSize + 2); // +1 for '\n' and +1 for '\0'
+		if(newBuffer == NULL) {
+			BPPrintMessage(odError, "=> Err. ReadOne(). newBuffer == NULL\n");
+			return MISSED;
+			}
+		buffer =  newBuffer;
+		memcpy(buffer, line, lineSize);
+		buffer[lineSize] = '\0';
+		if (lineSize == 0) {
+			char *emptyStr = strdup(""); // Handle empty file case
+			if (emptyStr != NULL) {
+				free(buffer);
+				buffer = emptyStr;
+				}
+			else {
+				BPPrintMessage(odError, "Memory allocation failed for empty string\n");
+				free(buffer);
+				return MISSED;
+				}
+			}
+		remove_carriage_returns(line);
+		// BPPrintMessage(odInfo,"thisline = %s\n",buffer);
+		MystrcpyStringToHandle(pp_completeline,buffer);
+		if(strip) strip_trailing_spaces(buffer);
+		if(careforhtml) {
+			count = 1L + MyHandleLen(*pp_completeline);
+			html = TRUE;
+			CheckHTML(FALSE,0,*pp_completeline,&count,&html);
+			}
+		if(nocomment) remove_double_slash_prefix(buffer);
+		MystrcpyStringToHandle(pp_line,buffer);
+		free(buffer);
+		return OK;
 		}
-	remove_carriage_returns(line);
-	// BPPrintMessage(odInfo,"thisline = %s\n",buffer);
-	MystrcpyStringToHandle(pp_completeline,buffer);
-	if(strip) strip_trailing_spaces(buffer);
-	if(careforhtml) {
-		count = 1L + MyHandleLen(*pp_completeline);
-		html = TRUE;
-		CheckHTML(FALSE,0,*pp_completeline,&count,&html);
-		}
-	if(nocomment) remove_double_slash_prefix(buffer);
-	MystrcpyStringToHandle(pp_line,buffer);
-    free(buffer);
-	return OK;
+	return STOP;
 	}
-return STOP;
-}
 
 
 int ReadInteger(FILE* fin,int* p_i,long* p_pos)

@@ -46,7 +46,7 @@ int i,ifunc,j,ch,splitmem,r,undefined,datamode,weightloss,hastabs,maxsounds,chec
 long endofselection,size,lengthA;
 int time_end_compute;
 
-BPPrintMessage(odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
+// BPPrintMessage(odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
 if(Improvize && ItemNumber == 0) {
 	ShowMessage(TRUE,wMessage,"\nNo message during improvization\n");
 	if(!rtMIDI) ShowMessage(TRUE,wMessage,"Only 10 items will be produced.\n");
