@@ -1367,7 +1367,7 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 			}
 		for(j=0; j < jmax; j++) {
 			if((MyHandlecmp((*p_t)[j],p_x)) == 0) {
-				diff = 0;
+				diff = FALSE;
 				break;
 				}
 			}
@@ -1407,7 +1407,10 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 			if(reload) ObjectMode = ObjectTry = FALSE;
 		//	if(Mystrcmp(p_x,"'-->'") == 0) Jfunc = j;
 			}
-	//	BPPrintMessage(odInfo, "size of bol = %ld, j = %d\n",(long)MyHandleLen(p_x),j);
+		if(j >= Jbol) { // 2024-08-18
+			MySetHandleSize((Handle*)&p_t,(Size)(j + 1) * sizeof(char**));
+			}
+	//	BPPrintMessage(odInfo, "size of bol %s = %ld, j = %d\n",*p_x,(long)MyHandleLen(p_x),j);
 		if((ptr=(char**) GiveSpace((Size)MyHandleLen(p_x)+1)) == NULL) return(ABORT);
 		(*p_t)[j] = ptr;
 	//	BPPrintMessage(odInfo, "j = %d, Jbol = %d\n",j,Jbol);

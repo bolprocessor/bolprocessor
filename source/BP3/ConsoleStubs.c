@@ -175,10 +175,10 @@ int InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode)
 	BP_NOT_USED(grtype);
 	BP_NOT_USED(mode);
 	
-	if (StepProduce || StepGrammars) {
+/*	if (StepProduce || StepGrammars) {
 		BPPrintMessage(odWarning, "Step-by-step production and step subgrammars options "
 			"do not work yet in the console version.\n");
-	}
+	} */
 	BPPrintMessage(odWarning, "Continuing from InterruptCompute()...\n");
 	return OK;
 }

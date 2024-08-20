@@ -161,7 +161,7 @@ double A4freq;
 time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTime,TimeSettingTime;
 unsigned long NextStop;
 char FindString[256],ReplaceString[256];
-int RunningStatus,StrikeAgainDefault;
+int RunningStatus,StrikeAgainDefault,MIDImicrotonality;
 int NoteOffPass[MAXPORTS],NoteOnPass[MAXPORTS],KeyPressurePass[MAXPORTS],ControlTypePass[MAXPORTS],ProgramTypePass[MAXPORTS],
 	ChannelPressurePass[MAXPORTS],PitchBendPass[MAXPORTS],SysExPass[MAXPORTS],TimeCodePass[MAXPORTS],SongPosPass[MAXPORTS],SongSelPass[MAXPORTS],TuneTypePass[MAXPORTS],EndSysExPass[MAXPORTS],ClockTypePass[MAXPORTS],StartTypePass[MAXPORTS],ContTypePass[MAXPORTS],ActiveSensePass[MAXPORTS],ResetPass[MAXPORTS];
 int NoteOffIn[MAXPORTS],NoteOnIn[MAXPORTS],KeyPressureIn[MAXPORTS],ControlTypeIn[MAXPORTS],ProgramTypeIn[MAXPORTS],
@@ -268,7 +268,7 @@ short Maxlevel,MaxFlag,MaxScript,Jscriptline,Final,POLYconvert,
 	KeepFlag,CoverOK,DiscontinuityOK,AllSolTimeSet,
 	LimCompute,LimTimeSet,SkipFlag,StackFlag,PlayFromInsertionPoint,
 	Port,Portbit,MIDI;
-int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,StepGrammars,DisplayProduce,TraceProduce,UseTimeLimit,
+int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,TraceMicrotonality,DisplayProduce,TraceProduce,UseTimeLimit,
 	DisplayTimeSet,StepTimeSet,UseEachSub,PlanProduce,TraceTimeSet,ResetNotes;
 int InsertGramRuleNumbers, InsertGramCorrections, InsertNewBols;
 unsigned long Ptick[MAXTICKS],Qtick[MAXTICKS],GrandCycle[MAXTICKS],
@@ -404,7 +404,7 @@ char DeftName[][MAXNAME] = {"New Grammar","New Alphabet",
 	"Random","Time accuracy","Time base","Buffer","Find","Graphic settings","Control",
 	"New Keyboard","Script","Metronom","\0","\0","New prototypes",
 	"\0","\0","\0","\0","Period","Csound object prototype","MIDI filter","Tick settings",
-	"Csound resources","\0","\0","MIDI orchestra"};
+	"Csound resources","\0","\0","Tonal resource"};
 	/* See window and dialog indexes in -BP2.h */
 char WindowName[][MAXNAME] = {"Grammar","Alphabet","Start string",
 	"Message","Graphic","Trace","Info",
@@ -414,7 +414,7 @@ char WindowName[][MAXNAME] = {"Grammar","Alphabet","Start string",
 	"Computation settings","General settings","Object Prototypes",
 	"Prototypes (2)","Prototypes (3)","Prototypes (4)","Prototypes (5)","Prototypes (6)",
 	"Prototypes (7)","MIDI filter","Tick settings","Csound instruments","Prototypes (8)",
-	"Csound tables","MIDI orchestra"};
+	"Csound tables","Tonal resource"};
 
 // End of section
 
@@ -451,6 +451,9 @@ double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 double MaxFrac;
 int HaveAppearanceManager;
 int RunningOnOSX;
+int WaitForSpace;
+short MPEnote[17];
+int ToldPitchbend;
 // ControlActionUPP vScrollUPP,hScrollUPP;
 // NSWReply** MIDIfileReply;
 // NSWReply** CsFileReply;

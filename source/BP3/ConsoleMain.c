@@ -108,29 +108,16 @@ int main (int argc, char* args[])
 	NoteOffInputFilter = NoteOnInputFilter = KeyPressureInputFilter = ControlTypeInputFilter = ProgramTypeInputFilter = ChannelPressureInputFilter = PitchBendInputFilter = SysExInputFilter = TimeCodeInputFilter = SongPosInputFilter = SongSelInputFilter = TuneTypeInputFilter = EndSysExInputFilter = ClockTypeInputFilter = StartTypeInputFilter = ContTypeInputFilter = ActiveSenseInputFilter = ResetInputFilter = 3;
 	
 	ConsoleInit(&gOptions);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (1) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
     ConsoleMessagesInit();
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (2) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	result = ParsePreInitArgs(argc, args, &gOptions);
 	// if (result != OK) goto CLEANUP;
-	
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (3) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	
 	if (gOptions.useStdErr)	{
 		// split message output from "algorithmic output"
 		SetOutputDestinations(odInfo|odWarning|odError|odUserInt, stderr);
 		BPPrintMessage(odInfo,"Splitting message output from algorithmic output\n");
 		}
-	
-	if(check_memory_use) BPPrintMessage(odInfo,"Memory before Inits() = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-	
-	memory_before = MemoryUsed;
-	MemoryUsed = memory_before;
 	if (Inits() != OK) goto CLEANUP;
-	MemoryUsed = memory_before;
-	
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (5) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-	MemoryUsedInit = MemoryUsed;
 	
 	result = ParsePostInitArgs(argc, args, &gOptions);
 	if (result != OK) goto CLEANUP;
@@ -140,7 +127,7 @@ int main (int argc, char* args[])
 	result = ApplyArgs(&gOptions);
 	if (result != OK) goto CLEANUP;
 	
-TraceMemory = FALSE;
+	TraceMemory = FALSE;
 
 	MaxMIDIMessages = 1000L;  // May be increased if necesssary to deal with very large chunks of events in real time
 
@@ -151,7 +138,7 @@ TraceMemory = FALSE;
 		Panic = TRUE;
         goto CLEANUP;
     	}
-	if(rtMIDI) BPPrintMessage(odInfo,"Real-time events use a buffer of MaxMIDIMessages = %ld\n",(long)MaxMIDIMessages);
+	if(rtMIDI) BPPrintMessage(odInfo,"👉 Real-time events use a buffer of MaxMIDIMessages = %ld\n",(long)MaxMIDIMessages);
 	
 	eventCount = 0L;
 	eventCountMax = MaxMIDIMessages - 4L;
@@ -168,34 +155,29 @@ TraceMemory = FALSE;
 	time(&ProductionStartTime);
 	BPPrintMessage(odInfo,"\nBP3 Console completed its initialization and will use:");
 	BPPrintMessage(odInfo,"\n%s\n%s\n\n",gOptions.inputFilenames[wGrammar],gOptions.inputFilenames[wData]);
+//	if(OutCsound) MIDImicrotonality = FALSE;
 	
 	CreateStopFile();
-
 	SessionTime = clock();
 	if (!gOptions.seedProvided) ReseedOrShuffle(NEWSEED);
 	
 	// load data
 	if (!LoadedStartString)  CopyStringToTextHandle(TEH[wStartString], "S\n");
-		
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (9) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-//	BPPrintMessage(odInfo,"\nMemory used so far = %ld bytes\n",(long)MemoryUsed);
 
 	// The following is a global record of the status of handles created and disposed
 	// hist_mem_ptr[] is 1 after a GiveSpace() and 2 after a DisposHandle()
-	if(check_memory_use) {
+/*	if(check_memory_use) {
 		i_ptr = 0;
 		BPPrintMessage(odInfo,"\nChecking memory use starts here with MemoryUsed = %ld and i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 		for(i=0; i < 5000; i++) {
 			hist_mem_ptr[i] = size_mem_ptr[i] = 0;
 			mem_ptr[i] = NULL;
 			}
-		}
+		} */
 	
 	// configure output destinations
 	result = PrepareProdItemsDestination(&gOptions);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (10) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	if (result == OK) result = PrepareTraceDestination(&gOptions);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (11) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	if (result == OK) {
 		// perform the action specified on the command line
 		switch (gOptions.action) {
@@ -204,7 +186,6 @@ TraceMemory = FALSE;
 				if (Beta && result != OK)  BPPrintMessage(odError,"=> CompileCheck() returned errors\n");
 				break;
 			case produce:
-				if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start ProduceItems = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 				improvize_mem = Improvize;
 				result = ProduceItems(wStartString,FALSE,FALSE,NULL);
 			//	if (Beta && result != OK && !improvize_mem)  BPPrintMessage(odError, "=> ProduceItems() returned errors\n");
@@ -274,44 +255,14 @@ TraceMemory = FALSE;
 	
 CLEANUP:
 	// deallocate any remaining space obtained since Inits()
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (12) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	MyDisposeHandle((Handle*)&Stream.code);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (13) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	Stream.imax = ZERO;
 	Stream.period = ZERO;
 	if(imagePtr != NULL) {
 		BPPrintMessage(odInfo, "(Last image) ");
 		result = EndImageFile();
 		}
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (14) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-	if(check_memory_use && (MemoryUsed < MemoryUsedInit)) {
-		BPPrintMessage(odInfo,"WARNING! MemoryUsed = %ld < MemoryUsedInit = %ld in %s/%s\n",(long)MemoryUsed,(long)MemoryUsedInit,__FILE__,__FUNCTION__);
-		}
-	if(TraceMemory && Beta && !Panic) {
-		// reset everything and }ort memory usage & any leaked space
-		if((result = ResetProject(FALSE)) != OK)
-			BPPrintMessage(odError, "=> ResetProject() returned errors\n");
-		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (21) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-		// ClearObjectSpace();
-		if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (23) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-	/*	BPPrintMessage(odInfo, "\nThis session used %ld bytes overall.  %ld handles created and released. [%ld bytes leaked]\n",
-			(long) MaxMemoryUsed,(long)MaxHandles,
-			(long) (MemoryUsed - MemoryUsedInit)); */
-		}
-	if(check_memory_use && !Panic) {
-		j = forgotten_mem = 0;
-		for(i = 0; i < 5000; i++) {
-			if(hist_mem_ptr[i] == 1) { // Handles that we forgot to dispose of
-				j++;
-				forgotten_mem += size_mem_ptr[i];
-				this_size = (int) MyGetHandleSize((Handle)(mem_ptr[i])); // Checking again
-				BPPrintMessage(odInfo,"Leaking handle %d containing %ld bytes = %ld, hist_mem = %d\n",(long)i,(long)size_mem_ptr[i],(long)this_size,hist_mem_ptr[i]);
-				}
-			}
-		BPPrintMessage(odInfo, "=> Uncleared %ld handles for %ld bytes\n",(long)j,(long)forgotten_mem);
-		}
-	
-	// close open files
+	// Close open files
 	CloseOutputDestination(odDisplay, &gOptions, ofiProdItems);
 	CloseMIDIFile();
 	// CloseFileAndUpdateVolume(&TraceRefnum);
@@ -424,7 +375,7 @@ int stop(int now,char* where) {
 	FILE * ptr;
     int r;
 	if(Panic || EmergencyExit) return ABORT;
-    if((r = ListenMIDI(0,0,0)) != OK) return r;
+    if((r = ListenToEvents()) != OK) return r;
 	unsigned long current_time = getClockTime(); // microseconds
 	if(!now && (current_time < NextStop)) return(OK); // We only check _stop and _panic every 500 ms
 	NextStop = current_time + 500000L; // microseconds
@@ -1531,3 +1482,67 @@ int isInteger(const char* s) {
     	}
 	return TRUE;
     }
+
+void StopWaiting(int key,char ch) {
+	unsigned long time_now,thisscripttime;
+	int j;
+	if(FirstNoteOn) {
+		if(TraceMIDIinteraction) BPPrintMessage(odInfo,"time_now = 0L in HandleInputEvent()\n");
+		time_now = 0L;
+		}
+	else time_now = getClockTime() - initTime; // microseconds
+	if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Received MIDI event %d date %ld ms, checking %d script(s)\n",key,time_now / 1000L,Jinscript);
+	for(j=1; j <= Jinscript; j++) {
+		if(((*p_INscript)[j]).chan == -1) { // This is a deactivated instruction
+	//		if(j == Jinscript) Jinscript = 0; // No need to try this later
+			continue;
+			}
+		if(TraceMIDIinteraction && key > 0) BPPrintMessage(odInfo,"[%d] Instruction %d time_now = %ld ms, waiting for MIDI event %d, this script date = %ld ms\n",j,((*p_INscript)[Jinscript]).scriptline, time_now / 1000L, ((*p_INscript)[j]).key, (((*p_INscript)[j]).time + TimeStopped)/1000L);
+		if(((*p_INscript)[j]).key != key) continue;
+		if(key == 0 && (((*p_INscript)[j]).scriptline != 46 || ch != ' ')) continue;  // Wait for Space
+		if(key == Start && ((*p_INscript)[j]).scriptline != 67) continue;
+		if(key == Continue && ((*p_INscript)[j]).scriptline != 66) continue;
+		if(key == Stop && ((*p_INscript)[j]).scriptline != 128) continue;
+		thisscripttime = ((*p_INscript)[j]).time + TimeStopped;
+		if(key == ((*p_INscript)[j]).key && time_now >= thisscripttime) {
+			if(TraceMIDIinteraction) BPPrintMessage(odInfo,"[%d] Good real-time message %d, time_now = %ld ms\n",j,key,time_now/1000L);
+			StopPlay = FALSE;
+			TimeStopped +=  1000 * MIDIsyncDelay; // Necessary to restore the timing of the next events
+			((*p_INscript)[j]).chan = -1; // This input script is now deactivated
+			return;
+			}
+		else continue;
+		}
+	return;
+	}
+
+#if !defined(_WIN64)
+struct termios orig_termios;
+void disable_raw_mode() {
+    // Restore the original terminal settings
+    tcsetattr(STDIN_FILENO, TCSANOW, &orig_termios);
+	}
+
+void enable_raw_mode() {
+    struct termios raw;
+    // Get the current terminal settings
+    tcgetattr(STDIN_FILENO, &orig_termios);
+    // Register the disable_raw_mode to run when the program exits
+    atexit(disable_raw_mode);
+    // Start with the original settings
+    raw = orig_termios;
+    // Input modes: no break, no CR to NL, no parity check, no strip char, no start/stop output control
+    raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+    // Output modes: disable post-processing
+    raw.c_oflag &= ~(OPOST);
+    // Control modes: set 8-bit chars
+    raw.c_cflag |= (CS8);
+    // Local modes: echoing off, canonical mode off, no signal chars, no extended functions
+    raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
+    // Control characters: set the read timeout to return immediately
+    raw.c_cc[VMIN] = 0;
+    raw.c_cc[VTIME] = 1;
+    // Apply the new terminal settings
+    tcsetattr(STDIN_FILENO, TCSANOW, &raw);
+	}
+#endif

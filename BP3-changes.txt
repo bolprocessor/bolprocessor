@@ -6,6 +6,14 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+
+2024-08-20 (version 3.0.6)
+😀 This is the first version of BP3 to deal with microtonality in real time MIDI. This is achieved by using scales stored in "-to" tonality files, already used by Csound. It mimics the MIDI Polymetric Expression (MPE) method of modifying pitchbend values on notes distributed on separate channels (up to 15 simultaneous notes). However, it works on devices that are not MPE-compliant. They should only be sensitive to pitchbend messages.
+Test the operation with "-da.tryMPE"
+While waiting for a MIDI event, the computer can retune any incoming NoteOn/NoteOff to a tonal scale and send it to the output.
+• The diapason of the external MIDI device is tried to be adjusted if it is different from 440 Hz. (Not all devices support this.)
+• A backup of the previous version is created when a data or grammar project is saved.
+
 -----
 2024-08-12 (version 3.0.5)
 Tonality files "-to" are completely independent of Csound resources "-cs".

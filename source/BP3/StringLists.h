@@ -181,7 +181,7 @@ const char ScriptCommand[NUM_SCRIPT_CMD_STRS][MAX_STRINGLISTS_STR_LEN] =
 	"156 Time setting trace OFF",
 	"157 Time setting trace ON",
 	"47 Use buffer limit OFF",
-	"46 Use buffer limit ON",
+	"46 Wait for space",
 	"117 Use each substitution OFF",
 	"118 Use each substitution ON",
 	"127 Use MIDI OFF",

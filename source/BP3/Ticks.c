@@ -129,7 +129,7 @@ for(itick=0; itick < MAXTICKS; itick++) {
 			e.data1 = key;
 			e.data2 = vel;
 			rs = 0;
-			SendToDriver(nexttick,itick,&rs,&e);
+			SendToDriver(kcurrentinstance,scale,blockkey,nexttick,itick,&rs,&e);
 			/* Send NoteOff */
 			e.type = NORMAL_EVENT;
 			e.time = (nexttick + TickDuration[itick]) / Time_res;
@@ -137,7 +137,7 @@ for(itick=0; itick < MAXTICKS; itick++) {
 			e.data1 = key;
 			e.data2 = 0;
 			rs = 0;
-			SendToDriver((nexttick + TickDuration[itick]),itick,&rs,&e);
+			SendToDriver(kcurrentinstance,scale,blockkey,(nexttick + TickDuration[itick]),itick,&rs,&e);
 			}
 		TickPosition[itick] = (TickPosition[itick] + 1L) % TickCycle[itick];
 		if(PosGrandCycle[itick] > ZERO
@@ -310,7 +310,7 @@ for(itick=0; itick < MAXTICKS; itick++) {
 						e.status = NoteOn + localchan;
 						e.data1 = key;
 						e.data2 = 0;
-						SendToDriver(time * Time_res,itick,p_rs,&e);
+						SendToDriver(kcurrentinstance,scale,blockkey,time * Time_res,itick,p_rs,&e);
 						}
 					}
 				}
@@ -324,7 +324,7 @@ for(itick=0; itick < MAXTICKS; itick++) {
 						e.status = NoteOn + localchan;
 						e.data1 = key;
 						e.data2 = 0;
-						SendToDriver(time * Time_res,itick,p_rs,&e);
+						SendToDriver(kcurrentinstance,scale,blockkey,time * Time_res,itick,p_rs,&e);
 						}
 					((*p_keyon[localchan])[key])++;
 					e.time = time;
@@ -332,7 +332,7 @@ for(itick=0; itick < MAXTICKS; itick++) {
 					e.status = NoteOn + localchan;
 					e.data1 = key;
 					e.data2 = vel;
-					SendToDriver(time * Time_res,itick,p_rs,&e);
+					SendToDriver(kcurrentinstance,scale,blockkey,time * Time_res,itick,p_rs,&e);
 					}
 				}
 			}
@@ -405,7 +405,7 @@ for(itick=0; itick < MAXTICKS; itick++) {
 				e.status = NoteOn + localchan;
 				e.data1 = key;
 				e.data2 = 0;
-				SendToDriver(Tcurr * Time_res,itick,p_rs,&e);
+				SendToDriver(kcurrentinstance,scale,blockkey,Tcurr * Time_res,itick,p_rs,&e);
 				}
 			}
 		}

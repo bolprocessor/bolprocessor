@@ -1216,7 +1216,7 @@ unsigned long drivertime;
 
 compiledmem = CompiledGr;
 if(Improvize && !WriteMIDIfile && !OutCsound) {
-	result = ListenMIDI(0,0,0);
+	result = ListenToEvents();
 	if(result == ENDREPEAT) return(result);
 	if(Improvize && (result == ABORT || SkipFlag)) return(ABORT);
 	if(result == QUICK || result == EXIT) return(result);

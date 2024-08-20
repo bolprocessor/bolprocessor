@@ -120,10 +120,10 @@ TRYSUBGRAM:
 		if((r = Undo(pp_a,(*p_repeat))) != OK) goto SORTIR;
 		goto REDO;
 		}
-	if(StepGrammars && !StepProduce) {
+/*	if(StepGrammars && !StepProduce) {
 		r = InterruptCompute(igram,&Gram,*p_repeat,0,PROD);
 		if(r != OK) break;
-		}
+		} */
 	}
 CompleteDecisions = TRUE;
 
@@ -206,12 +206,12 @@ if((p_prefrule = (int**) GiveSpace((Size)(subgram.number_rule+1) * sizeof(int)))
 	goto QUIT;
 rep = MISSED;
 
-if(StepProduce || StepGrammars || TraceProduce) {
+/* if(StepProduce || StepGrammars || TraceProduce) {
 	my_sprintf(Message,"\n// Subgrammar %ld/%ld",(long)igram,(long)(*p_gram).number_gram);
 	Println(wTrace,Message); 
 //	ShowSelect(CENTRE,wTrace);
 	}
-else {
+else { */
 	if(DisplayProduce || (ShowMessages && (*p_gram).number_gram > 1)) {
 		my_sprintf(Message,"Subgrammar %ld/%ld\n",(long)igram,(long)(*p_gram).number_gram);
 		BPPrintMessage(odInfo,Message);
@@ -220,7 +220,7 @@ else {
 	//		Print(wTrace,"\n// "); Println(wTrace,Message);
 			}
 		}
-	}
+//	}
 if((*p_repeat) && (ProduceStackIndex >= ProduceStackDepth)) {
 	(*p_repeat) = PlanProduce = FALSE;
 	if(CompleteDecisions
@@ -363,9 +363,7 @@ while(((nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom,igram,grtype,p_
 		goto QUIT;
 		}
 	foundone = TRUE;
-	if(LimCompute && rtMIDI && !StepProduce && !StepGrammars) {
-// #if WITH_REAL_TIME_MIDI_FORGET_THIS
-	//	time = GetDriverTime();
+	if(LimCompute && rtMIDI) {
 		Tstart = getClockTime();
 		if(Tstart + TimeMax/10L < time) {
 			my_sprintf(Message,"Max time elapsed!");
@@ -378,7 +376,6 @@ while(((nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom,igram,grtype,p_
 			halt = TRUE;
 			break;
 			}
-#// endif
 		}
 	if(PlanProduce || (*p_repeat)) {
 		TextOffset dummy, selend;
@@ -669,7 +666,7 @@ MORE:
 						goto QUIT;
 						}
 					else {
-						StepProduce = StepGrammars = DisplayProduce
+						StepProduce = DisplayProduce
 							= PlanProduce = TraceProduce = FALSE;
 						}
 					}
@@ -948,7 +945,7 @@ if(DisplayStackIndex > 1) {
 		}
 	if(r == STOP) {
 		if(repeat) {
-			StepProduce = StepGrammars = DisplayProduce = PlanProduce
+			StepProduce = DisplayProduce = PlanProduce
 				= TraceProduce = FALSE;
 			r = OK;	/* Computation should be completed. */
 			}
@@ -1048,363 +1045,362 @@ while(TRUE) {
 int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,int grtype,
 	int **p_candidate,long **p_totwght,long **p_pos,int **p_prefrule,
 	long leftpos,int *p_maxpref,int *p_freedom,int repeat,int mode,
-	int *p_equalweight,int learn,int time_end_compute)
+	int *p_equalweight,int learn,int time_end_compute) {
 	
 // Does this grammar contain candidate rules ?
 // enlist them in *p_candidate[], store their cumulated weights
 // in *p_totwght[], and leftmost occurrence of left arg in *p_pos[]
 
-{
-t_rule rule;
-/* register */ int i,j,rep;
-tokenbyte **arg,instan[MAXLIN],meta[MAXMETA2],meta1[MAXMETA2];
-long pos,posmin,posmax,length,istart,jstart,value,lenc1,**p_length,lengthmax;
-int jj,sumwght,irul,n,w,s,r,dir,weight;
-p_flaglist **h;
+	t_rule rule;
+	/* register */ int i,j,rep;
+	tokenbyte **arg,instan[MAXLIN],meta[MAXMETA2],meta1[MAXMETA2];
+	long pos,posmin,posmax,length,istart,jstart,value,lenc1,**p_length,lengthmax;
+	int jj,sumwght,irul,n,w,s,r,dir,weight;
+	p_flaglist **h;
 
-if((rep=ListenMIDI(0,0,0)) < 0) return(rep);
+	if((rep=ListenToEvents()) < 0) return(rep);
 
-if(CheckEmergency() != OK) return(ABORT);
-
-/* if(!Improvize && time_end_compute > 0L && getClockTime() > time_end_compute) {
-	EmergencyExit =TRUE; BPPrintMessage(odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent in FindCandidateRules(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
-	return(ABORT);
-	} */
-
-if(trace_compute) BPPrintMessage(odInfo,"FindCandidateRules() leftpos = %ld\n",leftpos);
-
-p_length = NULL;
-*p_freedom = FALSE; *p_equalweight = FALSE; weight = -1;
-if(AllItems && (grtype == SUBtype)) {
-	Alert1("You cannot produce all items in a 'SUB' subgrammar");
-	return(ABORT);
-	}
-if(p_candidate == NULL || p_totwght == NULL || p_pos == NULL || p_prefrule == NULL) {
-	if(Beta) Alert1("=> Err. FindCandidateRules(). Null handle");
-	return(ABORT);
-	}
-	 
-if(leftpos < 0L) return(0); 		/* Happens in 'SUB' grammars... */
-									/* ... because of NextPos() */
-
-n = (*((*p_gram).p_subgram))[igram].number_rule;
-// BPPrintMessage(odInfo,"igram = %d n = %d\n",igram,n);
-(*p_totwght)[0] = 0;
-sumwght = 0;
-
-	/* SUB: first try preference rules... */
-
-if(grtype == SUBtype && (*p_maxpref) > 0) {
-	for(j=0; j < *p_maxpref; j++) {
-		if(Improvize && SkipFlag) return(ABORT);
-		if(Improvize && ((rep=ListenMIDI(0,0,0)) != OK)) return(rep);
-		irul = (*p_prefrule)[j];
-		rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
-		h = rule.p_leftflag;
-		if(h != NULL) {
-			do {
-				s = (**h).x;
-				if(s > Jflag) {
-					if(Beta) Alert1("=> Err. p_Swtch. ");
-					return(ABORT);
-					}
-				if(s > 0) {
-					if((**h).operator != OFF) {
-						if((**h).paramcontrol == 1)
-							value = ParamValue[(**h).refvalue];
-						if((**h).paramcontrol == 2)
-							value = (*p_Flag)[(**h).refvalue];
-						else value = (**h).refvalue;
-						switch((**h).operator) {
-							case EQUAL:
-								if((*p_Flag)[s] != value) goto NEXTRULE;
-								break;
-							case DIF:
-								if((*p_Flag)[s] == value) goto NEXTRULE;
-								break;
-							case INFEQUAL:
-								if((*p_Flag)[s] > value) goto NEXTRULE;
-								break;
-							case SUPEQUAL:
-								if((*p_Flag)[s] < value) goto NEXTRULE;
-								break;
-							case INF:
-								if((*p_Flag)[s] >= value) goto NEXTRULE;
-								break;
-							case SUP:
-								if((*p_Flag)[s] <= value) goto NEXTRULE;
-								break;
-							default:
-								if(Beta) Alert1("=> Err.FindCandidateRules(). Invalid flag comparison");
-								goto NEXTRULE;
-							}
-						}
-					else {
-						if((*p_Flag)[s] <= 0) goto NEXTRULE;
-						}
-					}
-				h = (**h).p;
-				}
-			while(h != NULL);
-			}
-		if(rule.ctrl > 0) {		/* <Kx> */
-			rule.w = rule.weight = ParamValue[rule.ctrl];
-			if(trace_weights) BPPrintMessage(odInfo,"ParamValue[%d] = %ld for rule.ctrl = %d\n",rule.ctrl,ParamValue[rule.ctrl],rule.ctrl);
-			}
-		
-		if((w = rule.w) > 0
-			&& Found(pp_a,grtype,rule.p_leftarg,rule.leftoffset,rule.leftnegcontext,
-			&lenc1,leftpos,1,instan,meta,meta1,&istart,&jstart,
-			&length,rule.ismeta,time_end_compute)
-			&& OkContext(pp_a,grtype,rule,leftpos,length,meta,instan,
-				mode,time_end_compute)) {
-			if(TraceProduce) {
-				my_sprintf(Message,"\nRule already selected: ");
-				Print(wTrace,Message);
-				ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,TRUE,TRUE);
-			 	}
-			(*p_candidate)[0] = irul;
-			(*p_totwght)[0] = 1;
-			*p_freedom = FALSE;
-			return(1);
-			}
-NEXTRULE: ;
-		}
-	}
-	
-	/* Now try all the remaining rules... */
-
-
-if(trace_compute) BPPrintMessage(odInfo,"Remaining rules startfrom = %d\n",startfrom);
-if(startfrom > n) return(0);
-if(grtype == POSLONGtype && ((p_length)=(long**)GiveSpace((Size) (n + 1) * sizeof(long))) == NULL)
-	return(ABORT);
-(*p_totwght)[0] = 1;	/* Needed if only one candidate in a LIN grammar */
-if(mode == ANAL) {
-	startfrom = n; dir = -1; *p_equalweight = FALSE;
-	}
-else {
-	dir = 1;
-	if(!(*p_gram).hasproc && (grtype == RNDtype) && !AllItems) *p_equalweight = TRUE;
-	}
-
-for(irul=startfrom,i=0,sumwght=0; irul >= 1 && irul <= n; irul+=dir) {
-//	if(trace_compute) 
-	
-	if(!StepProduce && !StepGrammars) {
-		if(Improvize && SkipFlag) {
-			i = ABORT; goto OVER;
-			}
-/*		if(Improvize && ((rep=ListenMIDI(0,0,0)) != OK)) {
-			i = rep; goto OVER;
-			} */
-		}
-	rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
-	if(mode == PROD) {
-		if(rule.ctrl > 0) {		/* <Kx> */
-			rule.w = rule.weight = ParamValue[rule.ctrl];
-			*p_equalweight = FALSE;
-			if(trace_weights) BPPrintMessage(odInfo,"irul = %d rule.ctrl = %d w = %ld\n",irul,rule.ctrl,(long)rule.w);
-			}
-		if((w = rule.w) == 0) {
-			continue;
-			}
-		if(rule.operator == 2) continue; /*  <--  */
-		}
-	if(mode == TEMP && rule.operator == 2) continue; /*  <--  */
-	if(mode == ANAL) {
-		if(rule.operator == 1) continue; /*  -->  */
-		if(!learn && (w = rule.weight) == 0) continue;
-		}
-	if(mode == PROD || mode == TEMP) {
-		h = rule.p_leftflag;
-		if(h != NULL) {
-			do {
-				s = (**h).x;
-				if(s > Jflag) {
-					if(Beta) Alert1("=> Err. p_Swtch. ");
-					i = ABORT;
-					goto OVER;
-					}
-				if(s > 0) {
-					if((**h).operator != OFF) {
-						if((**h).paramcontrol == 1)
-							value = ParamValue[(**h).refvalue];
-						if((**h).paramcontrol == 2)
-							value = (*p_Flag)[(**h).refvalue];
-						else value = (**h).refvalue;
-						switch((**h).operator) {
-							case EQUAL:
-								if((*p_Flag)[s] != value) goto NEXTRULE2;
-								break;
-							case DIF:
-								if((*p_Flag)[s] == value) goto NEXTRULE2;
-								break;
-							case INFEQUAL:
-								if((*p_Flag)[s] > value) goto NEXTRULE2;
-								break;
-							case SUPEQUAL:
-								if((*p_Flag)[s] < value) goto NEXTRULE2;
-								break;
-							case INF:
-								if((*p_Flag)[s] >= value) goto NEXTRULE2;
-								break;
-							case SUP:
-								if((*p_Flag)[s] <= value) goto NEXTRULE2;
-								break;
-							default:
-								if(Beta) Alert1("=> Err.FindCandidateRules(). Invalid flag comparison");
-								goto NEXTRULE2;
-							}
-						}
-					else {
-						if((*p_Flag)[s] <= 0) goto NEXTRULE2;
-						}
-					}
-				h = (**h).p;
-				}
-			while(h != NULL);
-			*p_equalweight = FALSE;
-			}
-		 arg = rule.p_leftarg;
-		 if(mode == TEMP) *p_equalweight = FALSE;
-		 if(*p_equalweight) {
-		 	if(weight == -1) weight = rule.w;
-		 	else if(weight != rule.w) *p_equalweight = FALSE;
-		 	}
-		 }
-	else {
-		 arg = rule.p_rightarg;
-		 }
 	if(CheckEmergency() != OK) return(ABORT);
-	if((grtype != SUBtype && (pos=FindArg(pp_a,grtype,arg,TRUE,&length,meta,instan,rule,
-					mode,time_end_compute)) != -1)
-			|| (grtype == SUBtype && Found(pp_a,grtype,arg,rule.leftoffset,rule.leftnegcontext,&lenc1,
-				leftpos,1,instan,meta,meta1,&istart,&jstart,&length,rule.ismeta,time_end_compute)
-					&& OkContext(pp_a,grtype,rule,leftpos,length,meta,instan,PROD,time_end_compute))) {
-		(*p_pos)[i] = pos;
-		if(pos == ABORT) return(ABORT);
-		if(grtype == POSLONGtype) (*p_length)[i] = length;
-		if(((grtype != LINtype && grtype != SUBtype) && ((mode == ANAL)
-				|| ((mode == PROD) && (w == INT_MAX || grtype == ORDtype || grtype == SUB1type))))) {
-			(*p_candidate)[0] = (*p_prefrule)[0] = irul;
-			(*p_totwght)[0] = 1; (*p_pos)[0] = pos;
-			(*p_maxpref) = 1;
-			(*p_freedom) = (*p_equalweight) = FALSE;
-			i = 1;
-			goto OVER;
-			}
-		(*p_candidate)[i] = irul;
-		if(trace_compute) BPPrintMessage(odInfo,"(*p_candidate)[%d] = %d\n",i,irul);
-		if(grtype != LINtype && grtype != POSLONGtype) {
-			if(trace_weights)
-				BPPrintMessage(odInfo,"1) sumwght = %ld w = %ld\n",(long)sumwght,(long)w);
-			sumwght = (*p_totwght)[i] = sumwght + w;
-			}
-		i++;
+
+	/* if(!Improvize && time_end_compute > 0L && getClockTime() > time_end_compute) {
+		EmergencyExit =TRUE; BPPrintMessage(odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent in FindCandidateRules(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+		return(ABORT);
+		} */
+
+	if(trace_compute) BPPrintMessage(odInfo,"FindCandidateRules() leftpos = %ld\n",leftpos);
+
+	p_length = NULL;
+	*p_freedom = FALSE; *p_equalweight = FALSE; weight = -1;
+	if(AllItems && (grtype == SUBtype)) {
+		Alert1("You cannot produce all items in a 'SUB' subgrammar");
+		return(ABORT);
 		}
-NEXTRULE2: ;
-	}
-	
-if(i > 1) {
-	(*p_freedom) = TRUE;
-	if(grtype == LINtype) {	/* Find left/rightmost derivation(s) */
-		switch(mode) {
-			case PROD:
-			case TEMP:
-				posmin = INT_MAX;
-				for(j=0; j < i; j++) {
-					irul = (*p_candidate)[j];
-					rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
-					(*p_pos)[j] += rule.leftoffset;
-					if((pos=(*p_pos)[j]) <= posmin) {
-						posmin = pos;
+	if(p_candidate == NULL || p_totwght == NULL || p_pos == NULL || p_prefrule == NULL) {
+		if(Beta) Alert1("=> Err. FindCandidateRules(). Null handle");
+		return(ABORT);
+		}
+		
+	if(leftpos < 0L) return(0); 		/* Happens in 'SUB' grammars... */
+										/* ... because of NextPos() */
+
+	n = (*((*p_gram).p_subgram))[igram].number_rule;
+	// BPPrintMessage(odInfo,"igram = %d n = %d\n",igram,n);
+	(*p_totwght)[0] = 0;
+	sumwght = 0;
+
+		/* SUB: first try preference rules... */
+
+	if(grtype == SUBtype && (*p_maxpref) > 0) {
+		for(j=0; j < *p_maxpref; j++) {
+			if(Improvize && SkipFlag) return(ABORT);
+			if(Improvize && ((rep=ListenToEvents()) != OK)) return(rep);
+			irul = (*p_prefrule)[j];
+			rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
+			h = rule.p_leftflag;
+			if(h != NULL) {
+				do {
+					s = (**h).x;
+					if(s > Jflag) {
+						if(Beta) Alert1("=> Err. p_Swtch. ");
+						return(ABORT);
 						}
+					if(s > 0) {
+						if((**h).operator != OFF) {
+							if((**h).paramcontrol == 1)
+								value = ParamValue[(**h).refvalue];
+							if((**h).paramcontrol == 2)
+								value = (*p_Flag)[(**h).refvalue];
+							else value = (**h).refvalue;
+							switch((**h).operator) {
+								case EQUAL:
+									if((*p_Flag)[s] != value) goto NEXTRULE;
+									break;
+								case DIF:
+									if((*p_Flag)[s] == value) goto NEXTRULE;
+									break;
+								case INFEQUAL:
+									if((*p_Flag)[s] > value) goto NEXTRULE;
+									break;
+								case SUPEQUAL:
+									if((*p_Flag)[s] < value) goto NEXTRULE;
+									break;
+								case INF:
+									if((*p_Flag)[s] >= value) goto NEXTRULE;
+									break;
+								case SUP:
+									if((*p_Flag)[s] <= value) goto NEXTRULE;
+									break;
+								default:
+									if(Beta) Alert1("=> Err.FindCandidateRules(). Invalid flag comparison");
+									goto NEXTRULE;
+								}
+							}
+						else {
+							if((*p_Flag)[s] <= 0) goto NEXTRULE;
+							}
+						}
+					h = (**h).p;
 					}
-				sumwght = 0;
-				for(j=jj=0; j < i; j++) {
-					if((*p_pos)[j] == posmin) {
-						(*p_candidate)[jj] = irul = (*p_candidate)[j];
+				while(h != NULL);
+				}
+			if(rule.ctrl > 0) {		/* <Kx> */
+				rule.w = rule.weight = ParamValue[rule.ctrl];
+				if(trace_weights) BPPrintMessage(odInfo,"ParamValue[%d] = %ld for rule.ctrl = %d\n",rule.ctrl,ParamValue[rule.ctrl],rule.ctrl);
+				}
+			
+			if((w = rule.w) > 0
+				&& Found(pp_a,grtype,rule.p_leftarg,rule.leftoffset,rule.leftnegcontext,
+				&lenc1,leftpos,1,instan,meta,meta1,&istart,&jstart,
+				&length,rule.ismeta,time_end_compute)
+				&& OkContext(pp_a,grtype,rule,leftpos,length,meta,instan,
+					mode,time_end_compute)) {
+				if(TraceProduce) {
+					my_sprintf(Message,"\nRule already selected: ");
+					Print(wTrace,Message);
+					ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,TRUE,TRUE);
+					}
+				(*p_candidate)[0] = irul;
+				(*p_totwght)[0] = 1;
+				*p_freedom = FALSE;
+				return(1);
+				}
+	NEXTRULE: ;
+			}
+		}
+		
+		/* Now try all the remaining rules... */
+
+
+	if(trace_compute) BPPrintMessage(odInfo,"Remaining rules startfrom = %d\n",startfrom);
+	if(startfrom > n) return(0);
+	if(grtype == POSLONGtype && ((p_length)=(long**)GiveSpace((Size) (n + 1) * sizeof(long))) == NULL)
+		return(ABORT);
+	(*p_totwght)[0] = 1;	/* Needed if only one candidate in a LIN grammar */
+	if(mode == ANAL) {
+		startfrom = n; dir = -1; *p_equalweight = FALSE;
+		}
+	else {
+		dir = 1;
+		if(!(*p_gram).hasproc && (grtype == RNDtype) && !AllItems) *p_equalweight = TRUE;
+		}
+
+	for(irul=startfrom,i=0,sumwght=0; irul >= 1 && irul <= n; irul+=dir) {
+	//	if(trace_compute) 
+		
+	/*	if(!StepProduce && !StepGrammars) {
+			if(Improvize && SkipFlag) {
+				i = ABORT; goto OVER;
+				}
+			if(Improvize && ((rep=ListenToEvents()) != OK)) {
+				i = rep; goto OVER;
+				}
+			} */
+		rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
+		if(mode == PROD) {
+			if(rule.ctrl > 0) {		/* <Kx> */
+				rule.w = rule.weight = ParamValue[rule.ctrl];
+				*p_equalweight = FALSE;
+				if(trace_weights) BPPrintMessage(odInfo,"irul = %d rule.ctrl = %d w = %ld\n",irul,rule.ctrl,(long)rule.w);
+				}
+			if((w = rule.w) == 0) {
+				continue;
+				}
+			if(rule.operator == 2) continue; /*  <--  */
+			}
+		if(mode == TEMP && rule.operator == 2) continue; /*  <--  */
+		if(mode == ANAL) {
+			if(rule.operator == 1) continue; /*  -->  */
+			if(!learn && (w = rule.weight) == 0) continue;
+			}
+		if(mode == PROD || mode == TEMP) {
+			h = rule.p_leftflag;
+			if(h != NULL) {
+				do {
+					s = (**h).x;
+					if(s > Jflag) {
+						if(Beta) Alert1("=> Err. p_Swtch. ");
+						i = ABORT;
+						goto OVER;
+						}
+					if(s > 0) {
+						if((**h).operator != OFF) {
+							if((**h).paramcontrol == 1)
+								value = ParamValue[(**h).refvalue];
+							if((**h).paramcontrol == 2)
+								value = (*p_Flag)[(**h).refvalue];
+							else value = (**h).refvalue;
+							switch((**h).operator) {
+								case EQUAL:
+									if((*p_Flag)[s] != value) goto NEXTRULE2;
+									break;
+								case DIF:
+									if((*p_Flag)[s] == value) goto NEXTRULE2;
+									break;
+								case INFEQUAL:
+									if((*p_Flag)[s] > value) goto NEXTRULE2;
+									break;
+								case SUPEQUAL:
+									if((*p_Flag)[s] < value) goto NEXTRULE2;
+									break;
+								case INF:
+									if((*p_Flag)[s] >= value) goto NEXTRULE2;
+									break;
+								case SUP:
+									if((*p_Flag)[s] <= value) goto NEXTRULE2;
+									break;
+								default:
+									if(Beta) Alert1("=> Err.FindCandidateRules(). Invalid flag comparison");
+									goto NEXTRULE2;
+								}
+							}
+						else {
+							if((*p_Flag)[s] <= 0) goto NEXTRULE2;
+							}
+						}
+					h = (**h).p;
+					}
+				while(h != NULL);
+				*p_equalweight = FALSE;
+				}
+			arg = rule.p_leftarg;
+			if(mode == TEMP) *p_equalweight = FALSE;
+			if(*p_equalweight) {
+				if(weight == -1) weight = rule.w;
+				else if(weight != rule.w) *p_equalweight = FALSE;
+				}
+			}
+		else {
+			arg = rule.p_rightarg;
+			}
+		if(CheckEmergency() != OK) return(ABORT);
+		if((grtype != SUBtype && (pos=FindArg(pp_a,grtype,arg,TRUE,&length,meta,instan,rule,
+						mode,time_end_compute)) != -1)
+				|| (grtype == SUBtype && Found(pp_a,grtype,arg,rule.leftoffset,rule.leftnegcontext,&lenc1,
+					leftpos,1,instan,meta,meta1,&istart,&jstart,&length,rule.ismeta,time_end_compute)
+						&& OkContext(pp_a,grtype,rule,leftpos,length,meta,instan,PROD,time_end_compute))) {
+			(*p_pos)[i] = pos;
+			if(pos == ABORT) return(ABORT);
+			if(grtype == POSLONGtype) (*p_length)[i] = length;
+			if(((grtype != LINtype && grtype != SUBtype) && ((mode == ANAL)
+					|| ((mode == PROD) && (w == INT_MAX || grtype == ORDtype || grtype == SUB1type))))) {
+				(*p_candidate)[0] = (*p_prefrule)[0] = irul;
+				(*p_totwght)[0] = 1; (*p_pos)[0] = pos;
+				(*p_maxpref) = 1;
+				(*p_freedom) = (*p_equalweight) = FALSE;
+				i = 1;
+				goto OVER;
+				}
+			(*p_candidate)[i] = irul;
+			if(trace_compute) BPPrintMessage(odInfo,"(*p_candidate)[%d] = %d\n",i,irul);
+			if(grtype != LINtype && grtype != POSLONGtype) {
+				if(trace_weights)
+					BPPrintMessage(odInfo,"1) sumwght = %ld w = %ld\n",(long)sumwght,(long)w);
+				sumwght = (*p_totwght)[i] = sumwght + w;
+				}
+			i++;
+			}
+	NEXTRULE2: ;
+		}
+		
+	if(i > 1) {
+		(*p_freedom) = TRUE;
+		if(grtype == LINtype) {	/* Find left/rightmost derivation(s) */
+			switch(mode) {
+				case PROD:
+				case TEMP:
+					posmin = INT_MAX;
+					for(j=0; j < i; j++) {
+						irul = (*p_candidate)[j];
 						rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
-						if(rule.w == INT_MAX) {
-							(*p_candidate)[0] = irul;
-							(*p_totwght)[0] = 1;	/* Not used */
-							(*p_pos)[0] = posmin - rule.leftoffset;
-							*p_maxpref = 1;
-							jj = 1;
+						(*p_pos)[j] += rule.leftoffset;
+						if((pos=(*p_pos)[j]) <= posmin) {
+							posmin = pos;
+							}
+						}
+					sumwght = 0;
+					for(j=jj=0; j < i; j++) {
+						if((*p_pos)[j] == posmin) {
+							(*p_candidate)[jj] = irul = (*p_candidate)[j];
+							rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
+							if(rule.w == INT_MAX) {
+								(*p_candidate)[0] = irul;
+								(*p_totwght)[0] = 1;	/* Not used */
+								(*p_pos)[0] = posmin - rule.leftoffset;
+								*p_maxpref = 1;
+								jj = 1;
+								break;
+								}
+							(*p_pos)[jj] = posmin - rule.leftoffset;
+							if(trace_weights)
+								BPPrintMessage(odInfo,"2) sumwght = %ld w = %ld weight = %ld irul = %d ParamValue[%d] = %d\n",(long)sumwght,(long)rule.w,(long)rule.weight,irul,rule.ctrl,ParamValue[rule.ctrl]);
+							sumwght = (*p_totwght)[jj] = sumwght + rule.w;
+							jj++;
+							}
+						}
+					i = jj; if(i < 2) *p_freedom = FALSE;
+					break;
+				case ANAL:
+					posmax = -1;
+					for(j=0; j < i; j++) {
+						irul = (*p_candidate)[j];
+						rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
+						(*p_pos)[j] -= rule.rightoffset;
+						if((pos=(*p_pos)[j]) >= posmax) {
+							posmax = pos;
+							}
+						}
+					for(j=0; j < i; j++) {
+						if((*p_pos)[j] == posmax) {
+							(*p_candidate)[0] = irul = (*p_candidate)[j];
+							rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
+							(*p_pos)[0] = posmax + rule.rightoffset;
 							break;
 							}
-						(*p_pos)[jj] = posmin - rule.leftoffset;
-						if(trace_weights)
-							BPPrintMessage(odInfo,"2) sumwght = %ld w = %ld weight = %ld irul = %d ParamValue[%d] = %d\n",(long)sumwght,(long)rule.w,(long)rule.weight,irul,rule.ctrl,ParamValue[rule.ctrl]);
-						sumwght = (*p_totwght)[jj] = sumwght + rule.w;
-						jj++;
 						}
-					}
-				i = jj; if(i < 2) *p_freedom = FALSE;
-				break;
-			case ANAL:
-				posmax = -1;
-				for(j=0; j < i; j++) {
-					irul = (*p_candidate)[j];
-					rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
-					(*p_pos)[j] -= rule.rightoffset;
-					if((pos=(*p_pos)[j]) >= posmax) {
-						posmax = pos;
-						}
-					}
-				for(j=0; j < i; j++) {
-					if((*p_pos)[j] == posmax) {
-						(*p_candidate)[0] = irul = (*p_candidate)[j];
-						rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
-						(*p_pos)[0] = posmax + rule.rightoffset;
-						break;
-						}
-					}
-				i = 1; break;
-				break;
-			}
-		}
-	if(grtype == POSLONGtype) {	/* Find leftmost + longest derivation */
-		posmin = INT_MAX;
-		for(j=0; j < i; j++) {
-			irul = (*p_candidate)[j];
-			rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
-			(*p_pos)[j] += rule.leftoffset;
-			if((pos=(*p_pos)[j]) <= posmin) posmin = pos;
-			}
-		lengthmax = ZERO;
-		for(j=0; j < i; j++) {
-			if((*p_pos)[j] == posmin) {
-				if(lengthmax < (*p_length)[j]) lengthmax = (*p_length)[j];
+					i = 1; break;
+					break;
 				}
 			}
-		sumwght = 0;
-		for(j=jj=0; j < i; j++) {
-			if((*p_pos)[j] == posmin && lengthmax == (*p_length)[j]) {
-				(*p_candidate)[jj] = irul = (*p_candidate)[j];
+		if(grtype == POSLONGtype) {	/* Find leftmost + longest derivation */
+			posmin = INT_MAX;
+			for(j=0; j < i; j++) {
+				irul = (*p_candidate)[j];
 				rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
-				(*p_candidate)[0] = irul;
-				(*p_totwght)[0] = 1;	/* Not used */
-				(*p_pos)[0] = posmin - rule.leftoffset;
-				*p_maxpref = 1;
-				jj = 1;
-				break;
+				(*p_pos)[j] += rule.leftoffset;
+				if((pos=(*p_pos)[j]) <= posmin) posmin = pos;
 				}
+			lengthmax = ZERO;
+			for(j=0; j < i; j++) {
+				if((*p_pos)[j] == posmin) {
+					if(lengthmax < (*p_length)[j]) lengthmax = (*p_length)[j];
+					}
+				}
+			sumwght = 0;
+			for(j=jj=0; j < i; j++) {
+				if((*p_pos)[j] == posmin && lengthmax == (*p_length)[j]) {
+					(*p_candidate)[jj] = irul = (*p_candidate)[j];
+					rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
+					(*p_candidate)[0] = irul;
+					(*p_totwght)[0] = 1;	/* Not used */
+					(*p_pos)[0] = posmin - rule.leftoffset;
+					*p_maxpref = 1;
+					jj = 1;
+					break;
+					}
+				}
+			i = jj; if(i < 2) *p_freedom = FALSE;
 			}
-		i = jj; if(i < 2) *p_freedom = FALSE;
 		}
-	}
-else {
-	if(grtype == SUBtype && i == 1) (*p_prefrule)[(*p_maxpref)++] = (*p_candidate)[0];
-	}
+	else {
+		if(grtype == SUBtype && i == 1) (*p_prefrule)[(*p_maxpref)++] = (*p_candidate)[0];
+		}
 
-OVER:
-MyDisposeHandle((Handle*)&p_length);
-if(trace_compute) BPPrintMessage(odInfo,"End FindCandidateRules i = %d\n",i);
+	OVER:
+	MyDisposeHandle((Handle*)&p_length);
+	if(trace_compute) BPPrintMessage(odInfo,"End FindCandidateRules i = %d\n",i);
 
-return(i);
-}
+	return(i);
+	}
 
 
 int OkContext(tokenbyte ***pp_a,int grtype,t_rule rule,long pos,long length,

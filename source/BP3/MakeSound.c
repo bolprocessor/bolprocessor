@@ -87,6 +87,7 @@ w = wGraphic;
 maxmidibytes5 = MaxMIDIbytes / 5L;
 oldtcurr = Tcurr;
 time_pattern = FALSE;
+scale = -1;
 
 // BPPrintMessage(odInfo, "\nRunning MakeSound() (Tcurr * Time_res) = %ld, tmin = %ld ms, tmax = %ld ms\n",(long) Tcurr * Time_res,tmin,tmax);
 
@@ -522,7 +523,7 @@ if(!MIDIfileOn && !cswrite && rtMIDI && !ItemCapture && !FirstTime && !PlayProto
 					result = EventState; goto OVER;
 					}
 				PleaseWait();
-				if((result = ListenMIDI(0,0,0)) != OK && result != RESUME
+				if((result = ListenToEvents()) != OK && result != RESUME
 					&& result != QUICK && result != ENDREPEAT) goto OVER;
 				if(result == QUICK || result == ENDREPEAT) break;
 				if(SkipFlag) goto OVER;
@@ -540,7 +541,7 @@ if(!MIDIfileOn && !cswrite && rtMIDI && !ItemCapture && !FirstTime && !PlayProto
 			exclusive = FALSE;
 			while(Button());
 			while(!Button()) {
-				if((result = ListenMIDI(0,0,0)) != OK && result != RESUME
+				if((result = ListenToEvents()) != OK && result != RESUME
 					&& result != QUICK && result != ENDREPEAT) goto OVER;
 				if(result == QUICK || result == ENDREPEAT) break;
 				if(SkipFlag) goto OVER;
@@ -565,6 +566,95 @@ if(cswrite || MIDIfileOn || ItemCapture) {
 	BPPrintMessage(odInfo,"Writing %ld sound-objects\n",(long)(*p_kmax)-2L);
 	}
 
+if(!cswrite && rtMIDI && A4freq != 440) {
+	// Set the diapason of the MIDI device
+	double cents = 1200 * (log(A4freq/440.) / log(2.));
+	BPPrintMessage(odInfo,"👉 Trying to tune the MIDI device to %.2f Hz, i.e. %d cents from 440 Hz\n",A4freq,(int)cents);
+	int semitones = 0;
+	if(cents < 0) {
+		semitones++;
+		while((cents = (100 * semitones + cents)) < 0) semitones++;
+		}
+	if(semitones > 0) BPPrintMessage(odInfo,"... which means %d semitone(s) lower, then up +%d cents\n",semitones,(int)cents);
+	time = 0;
+	for(chan = 1; chan <= 15; chan++) {
+		e.status = ControlChange + chan;
+		e.data1 = 101;  // RPN MSB
+		e.data2 = 0;    // Set to 0 for RPN MSB
+		SendToDriver(-1,0,0,time,0,&rs,&e);
+		e.data1 = 100;  // RPN LSB
+		e.data2 = 2;    // Set to 2 for A4 tuning
+		SendToDriver(-1,0,0,time,0,&rs,&e);
+		// Set A4 Tuning to 442 Hz (approximately +8 cents)
+		e.data1 = 6;    // Data Entry MSB
+		e.data2 = semitones;    // 0 semitones
+		SendToDriver(-1,0,0,time,0,&rs,&e);
+		e.data1 = 38;   // Data Entry LSB
+		e.data2 = (int) cents;
+		SendToDriver(-1,0,0,time,0,&rs,&e);
+		}
+	}
+
+if(!cswrite && MIDImicrotonality && rtMIDI) {
+	// Set receiver to Mode 3 ("Poly)
+	time = 0;
+	e.type = NORMAL_EVENT;
+	e.status = ControlChange;
+	e.data1 = 126;
+	e.data2 = 0;
+	SendToDriver(-1,0,0,time,0,&rs,&e);
+
+	// MPE Configuration, see page 20 of MPE specs
+	// This doesn't seem to work on PianoTeq STAGE
+	BPPrintMessage(odInfo,"👉 Trying to set up MPE with a lower zone using member channels 2-16\nand pitchbend sensitivity of ± 200 cents on each channel\n");
+	BPPrintMessage(odInfo,"(This is not really necessary)\n");
+	time = 10;
+	e.type = NORMAL_EVENT;
+	e.status = ControlChange;
+	e.data1 = 101;
+	e.data2 = 0;
+	SendToDriver(-1,0,0,time,0,&rs,&e);
+	time = 20;
+	e.type = NORMAL_EVENT;
+	e.status = ControlChange;
+	e.data1 = 100;
+	e.data2 = 6;
+	SendToDriver(-1,0,0,time,0,&rs,&e);
+	time = 30;
+	e.type = NORMAL_EVENT;
+	e.status = ControlChange;
+	e.data1 = 6;
+	e.data2 = 15;
+	SendToDriver(-1,0,0,time,0,&rs,&e);
+
+	// Set PitchBend sensitivity to ± 2 semitones on all member channels, see pages 24 and 14 of MPE specs
+	for(chan = 2; chan <= 15; chan++) {
+		time = 30 + (30 * chan);
+		e.type = NORMAL_EVENT;
+		e.status = ControlChange + chan;
+		e.data1 = 101;
+		e.data2 = 0;
+		SendToDriver(-1,0,0,time,0,&rs,&e);
+		time = 40 + (30 * chan);
+		e.type = NORMAL_EVENT;
+		e.status = ControlChange + chan;
+		e.data1 = 100;
+		e.data2 = 0;
+		SendToDriver(-1,0,0,time,0,&rs,&e);
+		time = 50 + (30 * chan);
+		e.type = NORMAL_EVENT;
+		e.status = ControlChange + chan;
+		e.data1 = 6; // Data Entry MSB
+		e.data2 = 2; //  semitone(s)
+		SendToDriver(-1,0,0,time,0,&rs,&e);
+		e.type = NORMAL_EVENT;
+		e.status = ControlChange + chan;
+		e.data1 = 38;   // Data Entry LSB
+		e.data2 = 0;    // 0 cents
+		SendToDriver(-1,0,0,time,0,&rs,&e); // This one is not shown page 24 of MPE specs
+		}
+	}
+
 START2:
 
 if(cswrite) {
@@ -584,6 +674,7 @@ if(MIDIfileOn) {
 	if((result=PrepareMIDIFile()) != OK) goto OVER;
 	Nplay = 1;
 	}
+
 
 mustwait = FALSE;
 rs = 0;
@@ -785,7 +876,7 @@ TRYCSFILE:
 			}
 		sequence = 0;  /* Normally not required */
 		instrument = (*p_Instance)[kcurrentinstance].instrument;
-	//	BPPrintMessage(odInfo,"kcurrentinstance = %d, channel = %d instrument = %d\n",kcurrentinstance,(*p_Instance)[kcurrentinstance].channel,(*p_Instance)[kcurrentinstance].instrument);
+	//	BPPrintMessage(odInfo,"kcurrentinstance = %d, channel = %d instrument = %d scale = %d\n",kcurrentinstance,(*p_Instance)[kcurrentinstance].channel,(*p_Instance)[kcurrentinstance].instrument,scale);
 		nseq = (*p_Instance)[kcurrentinstance].nseq;
 		if(nseq < 0 || nseq >= maxconc) {
 			BPPrintMessage(odError,"=> Err. MakeSound(). nseq < 0 || nseq >= maxconc");
@@ -914,10 +1005,10 @@ TRYCSFILE:
 						e.status = ControlChange + chan;
 						e.data1 = VolumeControl[chan+1];
 						e.data2 = volume;
-						if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+						if((result=SendToDriver(-1,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 						}
 					}
-				if(okpanoramic && (panoramic != (*p_Oldvalue)[chan].panoramic /* || firstpanoramic[chan] */)
+				if(okpanoramic && panoramic != (*p_Oldvalue)[chan].panoramic
 						&& (j >= 16384 || (*p_OkPan)[j])) {
 					(*p_Oldvalue)[chan].panoramic = panoramic;
 					ChangedPanoramic[chan] = TRUE;
@@ -927,24 +1018,24 @@ TRYCSFILE:
 						e.status = ControlChange + chan;
 						e.data1 = PanoramicControl[chan+1];
 						e.data2 = panoramic;
-						if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+						if((result=SendToDriver(-1,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 						}
 					}
-				if(okpitchbend && (pitchbend != (*p_Oldvalue)[chan].pitchbend /* || firstpitchbend[chan] */)) {
+				if(okpitchbend && pitchbend != (*p_Oldvalue)[chan].pitchbend && pitchbend >= 0) {
 					(*p_Oldvalue)[chan].pitchbend = pitchbend;
 					ChangedPitchbend[chan] = TRUE;
 					lsb = ((long)pitchbend) % 128;
 					msb = (((long)pitchbend) - lsb) >> 7;
-					if(!cswrite) {
+					if(!MIDImicrotonality && !cswrite) {
 						e.time = Tcurr;
 						e.type = NORMAL_EVENT;
 						e.status = PitchBend + chan;
 						e.data1 = lsb;
 						e.data2 = msb;
-						if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+						if((result=SendToDriver(-1,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 						}
 					}
-				if(okpressure && (pressure != (*p_Oldvalue)[chan].pressure /* || firstpressure[chan] */)) {
+				if(okpressure && pressure != (*p_Oldvalue)[chan].pressure) {
 					(*p_Oldvalue)[chan].pressure = pressure;
 					ChangedPressure[chan] = TRUE;
 					if(!cswrite) {
@@ -952,10 +1043,10 @@ TRYCSFILE:
 						e.type = TWO_BYTE_EVENT;
 						e.status = ChannelPressure + chan;
 						e.data2 = pressure;
-						if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+						if((result=SendToDriver(-1,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 						}
 					}
-				if(okmodulation && (modulation != (*p_Oldvalue)[chan].modulation /* || firstmodulation[chan] */)) {
+				if(okmodulation && modulation != (*p_Oldvalue)[chan].modulation) {
 					(*p_Oldvalue)[chan].modulation = modulation;
 					ChangedModulation[chan] = TRUE;
 					lsb = ((long)modulation) % 128;
@@ -967,13 +1058,13 @@ TRYCSFILE:
 						e.status = ControlChange + chan;
 						e.data1 = 1;
 						e.data2 = msb;
-						if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+						if((result=SendToDriver(-1,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 						e.time = Tcurr;
 						e.type = NORMAL_EVENT;
 						e.status = ControlChange + chan;
 						e.data1 = 33;
 						e.data2 = lsb;
-						if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+						if((result=SendToDriver(-1,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 						}
 					}
 				}
@@ -1237,7 +1328,7 @@ SWITCHES:
 									e.status = ControlChange + ii;
 									e.data1 = 64 + jj;
 									e.data2 = s;
-									if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+									if((result=SendToDriver(-1,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 									}
 								}
 							}
@@ -1266,7 +1357,7 @@ SWITCHES:
 				//	e.data1 = ByteToInt((*p_AlphaCtrlNr)[j]);
 					e.data1 = (*p_AlphaCtrlNr)[j]; // Fixed by BB 2022-02-17
 					e.data2 = alph;
-					if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+					if((result=SendToDriver(-1,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 					}
 				}
 
@@ -1330,7 +1421,7 @@ SWITCHES:
 											e.status = NoteOn + localchan;
 											e.data1 = c1;
 											e.data2 = 0;
-											if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+											if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 											}
 										if(cswrite) {
 											my_sprintf(Message,"Before CscoreWrite(1) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld\n",(long)kcurrentinstance,beta,(long)j,(long)t0,(long)t1,(long)c1,(long)c2);
@@ -1365,7 +1456,7 @@ SWITCHES:
 											e.status = NoteOn + localchan;
 											e.data1 = c1;
 											e.data2 = 0;
-											if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+											if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 											}
 										}
 									else strike = FALSE;
@@ -1387,7 +1478,7 @@ SWITCHES:
 										e.status = c0 + localchan;
 										e.data1 = c1;
 										e.data2 = c2;
-										if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+										if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 										}
 									if(cswrite) {
 										my_sprintf(Message,"Before CscoreWrite(2) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,(long)c1,(long)c2);
@@ -1414,7 +1505,7 @@ SWITCHES:
 									e.status = c0;
 									e.data1 = c1;
 									e.data2 = c2;
-									if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+									if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 									}
 								t1 += (Milliseconds)(beta
 									* ((*((*pp_MIDIcode)[j]))[ievent-1].time
@@ -1429,7 +1520,7 @@ SWITCHES:
 										e.type = TWO_BYTE_EVENT;
 										e.status = c0;
 										e.data2 = c2;
-										if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+										if((result=SendToDriver(-1,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 										}
 									t1 += (Milliseconds)(beta * (*((*pp_MIDIcode)[j]))[ievent].time);
 									}
@@ -1441,7 +1532,7 @@ SWITCHES:
 											e.time = Tcurr;
 											e.type = RAW_EVENT;
 											e.data2 = c0;
-											if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+											if((result=SendToDriver(-1,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 											}
 										}
 									}
@@ -1548,7 +1639,7 @@ SENDNOTEOFF:
 									e.status = NoteOn + localchan;
 									e.data1 = c1;
 									e.data2 = 0;
-									if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+									if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 									}
 								else {
 									if(trace_csound_pianoroll)
@@ -1594,7 +1685,7 @@ SENDNOTEOFF:
 									e.status = NoteOn + localchan;
 									e.data1 = c1;
 									e.data2 = 0;
-									if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+									if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 									}
 								if(showpianoroll) { // Added by BB 4 Nov 2020
 									if(trace_csound_pianoroll) BPPrintMessage(odInfo,"** DrawPianoNote() t1 = %ld nseq = %d\n",t1,nseq);
@@ -1624,7 +1715,7 @@ SENDNOTEOFF:
 								e.status = c0 + localchan;
 								e.data1 = c1;
 								e.data2 = c2;
-								if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+								if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 								}
 							if(cswrite) {
 								if(trace_csound_pianoroll)
@@ -1665,7 +1756,7 @@ SENDNOTEOFF:
 							e.status = c0;
 							e.data1 = c1;
 							e.data2 = c2;
-							if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+							if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 							}
 						t1 += (Milliseconds)(beta
 							* ((*((*pp_MIDIcode)[j]))[ievent-1].time
@@ -1680,7 +1771,7 @@ SENDNOTEOFF:
 								e.type = TWO_BYTE_EVENT;
 								e.status = c0;
 								e.data2 = c2;
-								if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+								if((result=SendToDriver(-1,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 								}
 							t1 += (Milliseconds)(beta * (*((*pp_MIDIcode)[j]))[ievent].time);
 							}
@@ -1692,7 +1783,7 @@ SENDNOTEOFF:
 									e.time = Tcurr;
 									e.type = RAW_EVENT;
 									e.data2 = c0;
-									if((result=SendToDriver((t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+									if((result=SendToDriver(-1,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 									}
 								}
 							}
@@ -1739,7 +1830,7 @@ NEWPERIOD:
 			doneobjects++;
 			if(!MIDIfileOn && !cswrite && rtMIDI && !ItemCapture && !showpianoroll) {
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
-				if((result = ListenMIDI(0,0,0)) == ABORT || result == ENDREPEAT
+				if((result = ListenToEvents()) == ABORT || result == ENDREPEAT
 					|| result == EXIT) goto OVER;
 				if(result == AGAIN) {
 					occurrence--; /* Repeat once */
@@ -1879,7 +1970,7 @@ FINDNEXTEVENT:
 						e.status = NoteOn + localchan;
 						e.data1 = c1;
 						e.data2 = 0;
-						if((result=SendToDriver((t0 + tickdate[itick]),itick,&rs,&e)) != OK) goto OVER;
+						if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + tickdate[itick]),itick,&rs,&e)) != OK) goto OVER;
 						}
 					}
 				}
@@ -1942,7 +2033,7 @@ if(rtMIDI) { // 2024-06-17
 	e.status = ActiveSensing;
 	e.data1 = 0; // Not used
 	e.data2 = 0; // Not used
-	if((result=SendToDriver((t0 + t1),0,&rs,&e)) != OK) goto OVER;
+	if((result=SendToDriver(-1,0,0,(t0 + t1),0,&rs,&e)) != OK) goto OVER;
 	}
 
 // Now, codes have been sent and may still being played by the MIDI
@@ -1976,7 +2067,7 @@ else waitcompletion = FALSE;
 
 SynchroSignal = OFF;
 
-RunningStatus = 0;	/* This is used by ListenMIDI() */
+RunningStatus = 0;	/* This is used by ListenToEvents() */
 
 if(showpianoroll || (!waitcompletion && !CyclicPlay)) {
 	result = OK;
@@ -2084,7 +2175,7 @@ if(!cswrite && !Panic && (result == RESUME || (!Improvize && !PlayAllChunks && !
 				e.status = NoteOn + ch;
 				e.data1 = k;
 				e.data2 = 0;
-				if(SendToDriver(Tcurr * Time_res,0,&rs,&e) != OK) {
+				if(SendToDriver(kcurrentinstance,scale,blockkey,Tcurr * Time_res,0,&rs,&e) != OK) {
 					result = ABORT;
 					goto GETOUT;
 					}
@@ -2100,7 +2191,7 @@ if(!cswrite && !Panic && (result == RESUME || (!Improvize && !PlayAllChunks && !
 					e.status = ControlChange + ch;
 					e.data1 = 64 + jj;
 					e.data2 = 0;
-					if(SendToDriver(Tcurr * Time_res,0,&rs,&e) != OK) {
+					if(SendToDriver(-1,0,0,Tcurr * Time_res,0,&rs,&e) != OK) {
 						result = ABORT;
 						goto GETOUT;
 						}
@@ -2137,13 +2228,13 @@ if(add_time > ZERO  && (Improvize || PlayAllChunks)) { // 2024-05-09
 		e.status = NoteOn;
 		e.data1 = 0;
 		e.data2 = 0;
-		if((result=SendToDriver((Tcurr * Time_res),nseq,&rs,&e)) != OK) goto OVER;
+		if((result=SendToDriver(kcurrentinstance,scale,blockkey,(Tcurr * Time_res),nseq,&rs,&e)) != OK) goto OVER;
 		e.time = Tcurr + (add_time / Time_res);
 		e.type = NORMAL_EVENT;
 		e.status = NoteOn;
 		e.data1 = 0;
 		e.data2 = 0;
-		if((result=SendToDriver(((Tcurr * Time_res) + add_time),nseq,&rs,&e)) != OK) goto OVER;
+		if((result=SendToDriver(kcurrentinstance,scale,blockkey,((Tcurr * Time_res) + add_time),nseq,&rs,&e)) != OK) goto OVER;
 		}
 	if(cswrite) {
 	//	BPPrintMessage(odInfo,"Added silence of %.3f sec at time = %.3f sec.\n",(add_time / 1000.),((LastTime + max_endtime_event) / 1000.));
@@ -2361,7 +2452,7 @@ while(Button() || (timeleft = (Tcurr - drivertime)) > buffertime) {
 		goto OVER;
 		}
 #endif /* BP_CARBON_GUI_FORGET_THIS */
-	if((result = ListenMIDI(0,0,0)) != OK && result != RESUME && result != QUICK
+	if((result = ListenToEvents()) != OK && result != RESUME && result != QUICK
 			&& result != ENDREPEAT) break;
 	if(result == EXIT || result == ABORT) break;
 	
@@ -2435,7 +2526,7 @@ while((timeleft=(Tcurr - drivertime)) >  (CLOCKRES * Oms) /* (10 * CLOCKRES * Om
 		result = EventState; goto OVER;
 		}
 #endif /* BP_CARBON_GUI_FORGET_THIS */
-	if((result = ListenMIDI(0,0,0)) == ABORT
+	if((result = ListenToEvents()) == ABORT
 		|| result == EXIT || result == ENDREPEAT || result == QUICK) goto OVER;
 #if BP_CARBON_GUI_FORGET_THIS
 	if(EventState != NO) {
@@ -2592,7 +2683,7 @@ switch(iparam) {
 			e.status = PitchBend + chan;
 			e.data1 = lsb;
 			e.data2 = msb;
-			if((result=SendToDriver(time,seq,p_rs,&e)) != OK) goto OVER;
+			if((result=SendToDriver(-1,0,0,time,seq,p_rs,&e)) != OK) goto OVER;
 			}
 		break;
 	case IPRESSURE:
@@ -2603,7 +2694,7 @@ switch(iparam) {
 			e.type = TWO_BYTE_EVENT;
 			e.status = ChannelPressure + chan;
 			e.data2 = value;
-			if((result=SendToDriver(time,seq,p_rs,&e)) != OK) goto OVER;
+			if((result=SendToDriver(-1,0,0,time,seq,p_rs,&e)) != OK) goto OVER;
 			}
 		break;
 	case IMODULATION:
@@ -2615,13 +2706,13 @@ switch(iparam) {
 			e.status = ControlChange + chan;
 			e.data1 = 1;
 			e.data2 = msb;
-			if((result=SendToDriver(time,seq,p_rs,&e)) != OK) goto OVER;
+			if((result=SendToDriver(-1,0,0,time,seq,p_rs,&e)) != OK) goto OVER;
 			e.time = Tcurr;
 			e.type = NORMAL_EVENT;
 			e.status = ControlChange + chan;
 			e.data1 = 33;
 			e.data2 = lsb;
-			if((result=SendToDriver(time,seq,p_rs,&e)) != OK) goto OVER;
+			if((result=SendToDriver(-1,0,0,time,seq,p_rs,&e)) != OK) goto OVER;
 			}
 		break;
 	case IVOLUME: // Later consider that it also may have a LSB
@@ -2633,7 +2724,7 @@ switch(iparam) {
 			e.status = ControlChange + chan;
 			e.data1 = VolumeControl[chan+1];
 			e.data2 = value;
-			if((result=SendToDriver(time,seq,p_rs,&e)) != OK) goto OVER;
+			if((result=SendToDriver(-1,0,0,time,seq,p_rs,&e)) != OK) goto OVER;
 			}
 		break;
 	case IPANORAMIC: // Later consider that it also may have a LSB
@@ -2645,7 +2736,7 @@ switch(iparam) {
 			e.status = ControlChange + chan;
 			e.data1 = PanoramicControl[chan+1];
 			e.data2 = value;
-			if((result=SendToDriver(time,seq,p_rs,&e)) != OK) goto OVER;
+			if((result=SendToDriver(-1,0,0,time,seq,p_rs,&e)) != OK) goto OVER;
 			}
 		break;
 	}
@@ -2702,71 +2793,68 @@ return(result);
 
 
 double GetTableValue(double alpha,long imax,Coordinates** coords,double startvalue,
-																		double endvalue)
-{
-double x,y,y1,y2;
-long i,xmax,x1,x2;
+																		double endvalue) {
+	double x,y,y1,y2;
+	long i,xmax,x1,x2;
 
-if(alpha < 0.) {
-	// if(Beta && alpha < -0.01) Alert1("=> Err. GetTableValue(). alpha < -0.01");
-	alpha = 0.;
-	}
-if(alpha > 1.) {
-	// if(Beta && alpha > 1.01) Alert1("=> Err. GetTableValue(). alpha > 1.01");
-	alpha = 1.;
-	}
-if(imax == ZERO) {
-	/* No table: just interpolate */
-	y = startvalue + alpha * (endvalue - startvalue);
+	if(alpha < 0.) {
+		// if(Beta && alpha < -0.01) Alert1("=> Err. GetTableValue(). alpha < -0.01");
+		alpha = 0.;
+		}
+	if(alpha > 1.) {
+		// if(Beta && alpha > 1.01) Alert1("=> Err. GetTableValue(). alpha > 1.01");
+		alpha = 1.;
+		}
+	if(imax == ZERO) {
+		/* No table: just interpolate */
+		y = startvalue + alpha * (endvalue - startvalue);
+		return(y);
+		}
+
+	if(imax < ZERO) {
+		// if(Beta) Alert1("=> Err. GetTableValue(). imax < ZERO || imax > 255");
+		return(Infpos);
+		}
+	if(coords == NULL) {
+		// if(Beta) Alert1("=> Err. GetTableValue(). coords == NULL");
+		return(Infpos);
+		}
+	if(Beta) {
+		if(imax > MyGetHandleSize((Handle)coords) / sizeof(Coordinates)) {
+		//	Alert1("=> Err. GetTableValue(). imax >= MyGetHandleSize((Handle)coords) / sizeof(Coordinates)");
+			return(Infpos);
+			}
+		}
+	xmax = (*(coords))[imax-1L].i;
+	x = alpha * (double) xmax;
+	i = 0; while((*(coords))[i].i < x) i++;
+	if(i == 0) y = (*(coords))[ZERO].value;
+	else {
+		x2 = (*(coords))[i].i;
+		x1 = (*(coords))[i-1L].i; 
+		y2 = (*(coords))[i].value;
+		y1 = (*(coords))[i-1L].value;
+		if(x1 >= x2) {
+		//	if(Beta) Alert1("=> Err. GetTableValue(). x1 >= x2");
+			return(Infpos);
+			}
+		y = y1 + (y2 - y1) * (x - x1) / (x2 - x1);
+		}
 	return(y);
 	}
 
-if(imax < ZERO) {
-	// if(Beta) Alert1("=> Err. GetTableValue(). imax < ZERO || imax > 255");
-	return(Infpos);
-	}
-if(coords == NULL) {
-	// if(Beta) Alert1("=> Err. GetTableValue(). coords == NULL");
-	return(Infpos);
-	}
-if(Beta) {
-	if(imax > MyGetHandleSize((Handle)coords) / sizeof(Coordinates)) {
-	//	Alert1("=> Err. GetTableValue(). imax >= MyGetHandleSize((Handle)coords) / sizeof(Coordinates)");
-		return(Infpos);
+
+int GoodKey(int j) {
+	int key;
+	key = j - 16384;
+	if(key < 0 || key > 127) {
+	//	Println(wTrace,"MIDI key out of range");
+		BPPrintMessage(odError, "=> A MIDI key is out of range: key = %ld\n",(long)key);
+		while(key < 0) key += 12;
+		while(key > 127) key -= 12;
 		}
+	return(key);
 	}
-xmax = (*(coords))[imax-1L].i;
-x = alpha * (double) xmax;
-i = 0; while((*(coords))[i].i < x) i++;
-if(i == 0) y = (*(coords))[ZERO].value;
-else {
-	x2 = (*(coords))[i].i;
-	x1 = (*(coords))[i-1L].i; 
-	y2 = (*(coords))[i].value;
-	y1 = (*(coords))[i-1L].value;
-	if(x1 >= x2) {
-	//	if(Beta) Alert1("=> Err. GetTableValue(). x1 >= x2");
-		return(Infpos);
-		}
-	y = y1 + (y2 - y1) * (x - x1) / (x2 - x1);
-	}
-return(y);
-}
-
-
-int GoodKey(int j)
-{
-int key;
-
-key = j - 16384;
-if(key < 0 || key > 127) {
-//	Println(wTrace,"MIDI key out of range");
-	BPPrintMessage(odError, "=> A MIDI key is out of range: key = %ld\n",(long)key);
-	while(key < 0) key += 12;
-	while(key > 127) key -= 12;
-	}
-return(key);
-}
 
 
 int StoreMappedKey(int orgkey,int imagekey,int k,int channel,
