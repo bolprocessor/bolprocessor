@@ -39,7 +39,7 @@
 #ifndef _H_BP2
 #define _H_BP2
 
-#define SHORT_VERSION "3.0.5 (Olympic)"
+#define SHORT_VERSION "3.0.6 (Olympic)"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -150,6 +150,7 @@ int CopyStringToTextHandle(TEHandle th, const char* str);
 typedef struct {
 	long time;
 	unsigned char type,status,data1,data2;
+//	int i_scale,blockkey;
 	} MIDI_Event, *MIDI_EventPtr;
 
 #define _NOERRORCHECK_	/* Needed in <math.h> */
@@ -187,15 +188,18 @@ typedef struct {
 #if defined(_WIN64)
 	#include <windows.h>
 	#include <mmsystem.h>
+	#include <conio.h> 
 	#pragma comment(lib, "winmm.lib")
     #define noErr 0
 #elif defined(__APPLE__)
     #include <CoreMIDI/CoreMIDI.h>
     #include <mach/mach_time.h>
 	#include <unistd.h>
+	#include <termios.h>
 #elif defined(__linux__)
     #include <alsa/asoundlib.h>
 	#include <unistd.h>
+	#include <termios.h>
     #include <time.h>
 #endif
 
@@ -1811,12 +1815,13 @@ typedef struct s_gram t_gram;
 
 struct s_scale {
 	int index;
-	int **keys;
-	char **label;
-	char ****notenames;
+	int** keys;
+	char** label;
+	char**** notenames;
 	int numgrades,basekey,baseoctave;
 	double basefreq,interval;
-	double **tuningratio;
+	double** tuningratio;
+	short** deviation;
 	};
 typedef struct s_scale t_scale;
 
@@ -2162,12 +2167,12 @@ struct s_arc {
 	};
 typedef struct s_arc arc;
 
-// Values for node.accept
+/* // Values for node.accept
 #define PROC 1
 #define CTRL 2
 #define TERM 3
 #define VAR 4
-#define PAT 5
+#define PAT 5 */
 	
 // ---------  Macros ------------------------
 

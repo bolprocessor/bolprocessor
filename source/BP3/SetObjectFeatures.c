@@ -44,235 +44,234 @@ int trace_set_variation = 0;
 
 int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int j,
 	CurrentParameters *p_currentparameters,ContParameters **p_contparameters,
-	Table **h_table)
-{
-ParameterSpecs **currentinstancevalues;
-long size;
-int i,ii,n,ip,ins,index,chan,scale,blockkey;
-short mode;
-double v0,v1;
-Coordinates **ptr;
+	Table **h_table) {
+	ParameterSpecs **currentinstancevalues;
+	long size;
+	int i,ii,n,ip,ins,index,chan,scale,blockkey;
+	short mode;
+	double v0,v1;
+	Coordinates **ptr;
 
-if(k < 2) {
-	BPPrintMessage(odError,"=> Err. SetObjectParams(). k < 2\n");
-	return(ABORT); // Fixed by BB 2021-02-26
-	}
-if(nseq >= Maxconc) {
-	BPPrintMessage(odError,"=> Err. SetObjectParams(). nseq >= Maxconc\n");
-	return(ABORT); // Fixed by BB 2021-02-26
-	}
-
-if(Beta && (*p_Instance)[k].contparameters.values != NULL) {
-	BPPrintMessage(odError,"=> Err. SetObjectParams(). (*p_Instance)[k].contparameters.values != NULL\n");
-	return(ABORT); // Fixed by BB 2021-02-26
-	}
-
-(*p_Instance)[k].contparameters.values = NULL;
-(*p_Instance)[k].contparameters.number = 0;
-
-if(level >= 0) {
-	n = (*p_contparameters)[level].number;
-	if(n <= IPANORAMIC) n = (IPANORAMIC + 1);
-	if((currentinstancevalues=(ParameterSpecs**) GiveSpace((Size)(n) * sizeof(ParameterSpecs))) == NULL)
-		return(ABORT);
-	(*p_Instance)[k].contparameters.values = currentinstancevalues;
-	(*p_Instance)[k].contparameters.number = n;
-	
-	if((*p_contparameters)[level].values == NULL) {
-		BPPrintMessage(odError,"=> Err. SetObjectParams(). (*p_contparameters)[level].values == NULL\n");
-		return(ABORT);
+	if(k < 2) {
+		BPPrintMessage(odError,"=> Err. SetObjectParams(). k < 2\n");
+		return(ABORT); // Fixed by BB 2021-02-26
 		}
-	for(i=0; i < (*p_contparameters)[level].number; i++) {
-		chan = (*((*p_contparameters)[level].values))[i].channel;
-		scale = (*((*p_contparameters)[level].values))[i].scale;
-		blockkey = (*((*p_contparameters)[level].values))[i].blockkey;
-		if(i <= IPANORAMIC && !(*((*p_contparameters)[level].values))[i].known) {
-			switch(i) {
-				case IMODULATION:
-					if(!ResetControllers && (*p_Oldvalue)[chan].modulation > -1)
-						v0 = (*p_Oldvalue)[chan].modulation;
-					else
-						v0 = DEFTMODULATION;
-					break;
-				case IPITCHBEND:
-					if(!ResetControllers && (*p_Oldvalue)[chan].pitchbend > -1)
-						v0 = (*p_Oldvalue)[chan].pitchbend;
-					else
-						v0 = DEFTPITCHBEND;
-					break;
-				case IPRESSURE:
-					if(!ResetControllers && (*p_Oldvalue)[chan].pressure > -1)
-						v0 = (*p_Oldvalue)[chan].pressure;
-					else
-						v0 = DEFTPRESSURE;
-					break;
-				case IVOLUME:
-					if(!ResetControllers && (*p_Oldvalue)[chan].volume > -1)
-						v0 = (*p_Oldvalue)[chan].volume;
-					else
-						v0 = DeftVolume;
-					break;
-				case IPANORAMIC:
-					if(!ResetControllers && (*p_Oldvalue)[chan].panoramic > -1)
-						v0 = (*p_Oldvalue)[chan].panoramic;
-					else
-						v0 = DeftPanoramic;
-					break;
-				}
-			(*((*p_contparameters)[level].values))[i].known = TRUE;
-			v1 = v0;
-			mode = FIXED;
-			}
-		else {
-			v0 = (*((*p_contparameters)[level].values))[i].v0;
-			v1 = (*((*p_contparameters)[level].values))[i].v1;
-			mode = (*((*p_contparameters)[level].values))[i].mode;
-			}
-		(*currentinstancevalues)[i].v0 = v0;
-		(*currentinstancevalues)[i].v1 = v1;
-		(*currentinstancevalues)[i].mode = mode;
-		(*currentinstancevalues)[i].control = (*((*p_contparameters)[level].values))[i].control;
-		(*currentinstancevalues)[i].channel = chan;
-		(*currentinstancevalues)[i].scale = scale;
-	//	if(trace_scale) BPPrintMessage(odInfo,"1) scale =%d\n",scale);
-		(*currentinstancevalues)[i].blockkey = blockkey;
-		(*currentinstancevalues)[i].index = (*((*p_contparameters)[level].values))[i].index;
-		(*currentinstancevalues)[i].imax = ZERO;
-		(*currentinstancevalues)[i].point = NULL;
-		if(i == IPANORAMIC && j < Jbol && !(*p_OkPan)[j]) continue;
-		if(i == IVOLUME && j < Jbol && !(*p_OkVolume)[j]) continue;
-		if(h_table == NULL) {
-			if(Beta) Alert1("=> Err. SetObjectParams(). h_table == NULL");
-			}
+	if(nseq >= Maxconc) {
+		BPPrintMessage(odError,"=> Err. SetObjectParams(). nseq >= Maxconc\n");
+		return(ABORT); // Fixed by BB 2021-02-26
+		}
+
+	if(Beta && (*p_Instance)[k].contparameters.values != NULL) {
+		BPPrintMessage(odError,"=> Err. SetObjectParams(). (*p_Instance)[k].contparameters.values != NULL\n");
+		return(ABORT); // Fixed by BB 2021-02-26
+		}
+
+	(*p_Instance)[k].contparameters.values = NULL;
+	(*p_Instance)[k].contparameters.number = 0;
+
+	if(level >= 0) {
+		n = (*p_contparameters)[level].number;
+		if(n <= IPANORAMIC) n = (IPANORAMIC + 1);
+		if((currentinstancevalues=(ParameterSpecs**) GiveSpace((Size)(n) * sizeof(ParameterSpecs))) == NULL)
+			return(ABORT);
+		(*p_Instance)[k].contparameters.values = currentinstancevalues;
+		(*p_Instance)[k].contparameters.number = n;
 		
-		if(isobject && (*h_table)[i].point != NULL) {
-			if((*h_table)[i].offset == 0) {
-				if((ptr=(Coordinates**)
-					GiveSpace((Size)((*h_table)[i].imax) * sizeof(Coordinates))) == NULL)
-					return(ABORT);
-				(*currentinstancevalues)[i].point = ptr;
-				(*currentinstancevalues)[i].imax = (*h_table)[i].imax;
-				for(ii=0; ii < (*h_table)[i].imax; ii++) {
-					(*((*currentinstancevalues)[i].point))[ii] = (*((*h_table)[i].point))[ii];
-					}
-				/* Here we set v1, at last */
-				(*currentinstancevalues)[i].v1 = (*((*h_table)[i].point))[ii-1].value;
-				}
-			((*h_table)[i].offset)--;
+		if((*p_contparameters)[level].values == NULL) {
+			BPPrintMessage(odError,"=> Err. SetObjectParams(). (*p_contparameters)[level].values == NULL\n");
+			return(ABORT);
 			}
+		for(i=0; i < (*p_contparameters)[level].number; i++) {
+			chan = (*((*p_contparameters)[level].values))[i].channel;
+			scale = (*((*p_contparameters)[level].values))[i].scale;
+			blockkey = (*((*p_contparameters)[level].values))[i].blockkey;
+			if(i <= IPANORAMIC && !(*((*p_contparameters)[level].values))[i].known) {
+				switch(i) {
+					case IMODULATION:
+						if(!ResetControllers && (*p_Oldvalue)[chan].modulation > -1)
+							v0 = (*p_Oldvalue)[chan].modulation;
+						else
+							v0 = DEFTMODULATION;
+						break;
+					case IPITCHBEND:
+						if(!ResetControllers && (*p_Oldvalue)[chan].pitchbend > -1)
+							v0 = (*p_Oldvalue)[chan].pitchbend;
+						else
+							v0 = DEFTPITCHBEND;
+						break;
+					case IPRESSURE:
+						if(!ResetControllers && (*p_Oldvalue)[chan].pressure > -1)
+							v0 = (*p_Oldvalue)[chan].pressure;
+						else
+							v0 = DEFTPRESSURE;
+						break;
+					case IVOLUME:
+						if(!ResetControllers && (*p_Oldvalue)[chan].volume > -1)
+							v0 = (*p_Oldvalue)[chan].volume;
+						else
+							v0 = DeftVolume;
+						break;
+					case IPANORAMIC:
+						if(!ResetControllers && (*p_Oldvalue)[chan].panoramic > -1)
+							v0 = (*p_Oldvalue)[chan].panoramic;
+						else
+							v0 = DeftPanoramic;
+						break;
+					}
+				(*((*p_contparameters)[level].values))[i].known = TRUE;
+				v1 = v0;
+				mode = FIXED;
+				}
+			else {
+				v0 = (*((*p_contparameters)[level].values))[i].v0;
+				v1 = (*((*p_contparameters)[level].values))[i].v1;
+				mode = (*((*p_contparameters)[level].values))[i].mode;
+				}
+			(*currentinstancevalues)[i].v0 = v0;
+			(*currentinstancevalues)[i].v1 = v1;
+			(*currentinstancevalues)[i].mode = mode;
+			(*currentinstancevalues)[i].control = (*((*p_contparameters)[level].values))[i].control;
+			(*currentinstancevalues)[i].channel = chan;
+			(*currentinstancevalues)[i].scale = scale;
+			if(trace_scale) BPPrintMessage(odInfo,"1) scale = %d\n",scale);
+			(*currentinstancevalues)[i].blockkey = blockkey;
+			(*currentinstancevalues)[i].index = (*((*p_contparameters)[level].values))[i].index;
+			(*currentinstancevalues)[i].imax = ZERO;
+			(*currentinstancevalues)[i].point = NULL;
+			if(i == IPANORAMIC && j < Jbol && !(*p_OkPan)[j]) continue;
+			if(i == IVOLUME && j < Jbol && !(*p_OkVolume)[j]) continue;
+			if(h_table == NULL) {
+				if(Beta) Alert1("=> Err. SetObjectParams(). h_table == NULL");
+				}
 			
-		if((*((*p_contparameters)[level].values))[i].v0
-				== (*((*p_contparameters)[level].values))[i].v1
-				&& (*h_table)[i].point == NULL)
-			(*currentinstancevalues)[i].mode = FIXED;
-			
-		if((*((*p_contparameters)[level].values))[i].channel > 0)
-			(*currentinstancevalues)[i].channel
-				= (*((*p_contparameters)[level].values))[i].channel;
-		else
-			(*currentinstancevalues)[i].channel = p_currentparameters->currchan;
-			
-		if((*((*p_contparameters)[level].values))[i].scale != 0) {
-			(*currentinstancevalues)[i].scale
-				= (*((*p_contparameters)[level].values))[i].scale;
-		//	if(trace_scale) BPPrintMessage(odInfo,"2) scale =%d\n",(*((*p_contparameters)[level].values))[i].scale);
+			if(isobject && (*h_table)[i].point != NULL) {
+				if((*h_table)[i].offset == 0) {
+					if((ptr=(Coordinates**)
+						GiveSpace((Size)((*h_table)[i].imax) * sizeof(Coordinates))) == NULL)
+						return(ABORT);
+					(*currentinstancevalues)[i].point = ptr;
+					(*currentinstancevalues)[i].imax = (*h_table)[i].imax;
+					for(ii=0; ii < (*h_table)[i].imax; ii++) {
+						(*((*currentinstancevalues)[i].point))[ii] = (*((*h_table)[i].point))[ii];
+						}
+					/* Here we set v1, at last */
+					(*currentinstancevalues)[i].v1 = (*((*h_table)[i].point))[ii-1].value;
+					}
+				((*h_table)[i].offset)--;
+				}
+				
+			if((*((*p_contparameters)[level].values))[i].v0
+					== (*((*p_contparameters)[level].values))[i].v1
+					&& (*h_table)[i].point == NULL)
+				(*currentinstancevalues)[i].mode = FIXED;
+				
+			if((*((*p_contparameters)[level].values))[i].channel > 0)
+				(*currentinstancevalues)[i].channel
+					= (*((*p_contparameters)[level].values))[i].channel;
+			else
+				(*currentinstancevalues)[i].channel = p_currentparameters->currchan;
+				
+			if((*((*p_contparameters)[level].values))[i].scale != 0) {
+				(*currentinstancevalues)[i].scale
+					= (*((*p_contparameters)[level].values))[i].scale;
+				if(trace_scale) BPPrintMessage(odInfo,"2) scale = %d\n",(*((*p_contparameters)[level].values))[i].scale);
+				}
+			else {
+				(*currentinstancevalues)[i].scale = p_currentparameters->scale;
+				if(trace_scale) BPPrintMessage(odInfo,"3) scale = %d\n",p_currentparameters->scale);
+				}
+				
+			if((*((*p_contparameters)[level].values))[i].blockkey != BlockScaleOnKey)
+				(*currentinstancevalues)[i].blockkey
+					= (*((*p_contparameters)[level].values))[i].blockkey;
+			else
+				(*currentinstancevalues)[i].blockkey = p_currentparameters->blockkey;
+			}
+		}
+
+	(*p_Instance)[k].nseq = nseq;
+	(*p_Instance)[k].velocity = p_currentparameters->currvel;
+	(*p_Instance)[k].rndvel = p_currentparameters->rndvel;
+	(*p_Instance)[k].velcontrol = p_currentparameters->velcontrol;
+	(*p_Instance)[k].randomtime = p_currentparameters->randomtime;
+	(*p_Instance)[k].seed = p_currentparameters->seed;
+
+	if(j < 1 || j >= Jbol || (*p_OkMap)[j]) {
+		(*p_Instance)[k].map0 = p_currentparameters->map0;
+		(*p_Instance)[k].map1 = p_currentparameters->map1;
+		(*p_Instance)[k].mapmode = p_currentparameters->mapmode;
+		(*p_Instance)[k].xpandkey = p_currentparameters->xpandkey;
+		(*p_Instance)[k].xpandval = p_currentparameters->xpandval;
+		}
+	else {
+		(*p_Instance)[k].map0.p1 = (*p_Instance)[k].map1.p1 = -1;
+		(*p_Instance)[k].xpandkey = -1;
+		(*p_Instance)[k].xpandval = 0;
+		}
+
+	(*p_Instance)[k].transposition = 0;
+	(*p_Instance)[k].lastistranspose = p_currentparameters->lastistranspose;
+	if(j < 1 || j >= Jbol) {
+		(*p_Instance)[k].transposition = p_currentparameters->currtranspose;
+		if(p_articul != NULL) {
+		//	if(p_currentparameters->currarticul >= 0)
+				(*p_articul)[k] = p_currentparameters->currarticul;
+		//	else (*p_articul)[k] = MAXINT + p_currentparameters->currarticul;
+			}
+		}
+	else {
+		if((*p_OkTransp)[j]) (*p_Instance)[k].transposition = p_currentparameters->currtranspose;
+		if(p_articul != NULL) {
+			if((*p_OkArticul)[j]) {
+		//		if(p_currentparameters->currarticul >= 0)
+					(*p_articul)[k] = p_currentparameters->currarticul;
+		//		else (*p_articul)[k] = MAXINT + p_currentparameters->currarticul;
+				}
+			}
+		}
+	if(j > 0 && j < Jbol) {
+		if((*p_DefaultChannel)[j] > 0) {	/* Object has specific channel */
+			/* Here we need (*p_DefaultChannel)[1] = 0. */
+			(*p_Instance)[k].channel = (*p_DefaultChannel)[j];
+			if((*p_Instance)[k].channel > MAXCHAN || (*p_Instance)[k].channel < 1) {
+				my_sprintf(Message,"'%s' has channel %ld.  Should be 1..%ld\n",
+					(*((*p_Bol)[j])),(long)(*p_DefaultChannel)[j],(long)MAXCHAN);
+				Print(wTrace,Message);
+				ShowError(32,0,0);
+				return(MISSED);
+				}
 			}
 		else {
-			(*currentinstancevalues)[i].scale = p_currentparameters->scale;
-		//	if(trace_scale) BPPrintMessage(odInfo,"3) scale =%d\n",p_currentparameters->scale);
+			if((*p_DefaultChannel)[j] == 0)
+				(*p_Instance)[k].channel = p_currentparameters->currchan;
+			else (*p_Instance)[k].channel = 0;
 			}
-			
-		if((*((*p_contparameters)[level].values))[i].blockkey != BlockScaleOnKey)
-			(*currentinstancevalues)[i].blockkey
-				= (*((*p_contparameters)[level].values))[i].blockkey;
-		else
-			(*currentinstancevalues)[i].blockkey = p_currentparameters->blockkey;
-		}
-	}
-
-(*p_Instance)[k].nseq = nseq;
-(*p_Instance)[k].velocity = p_currentparameters->currvel;
-(*p_Instance)[k].rndvel = p_currentparameters->rndvel;
-(*p_Instance)[k].velcontrol = p_currentparameters->velcontrol;
-(*p_Instance)[k].randomtime = p_currentparameters->randomtime;
-(*p_Instance)[k].seed = p_currentparameters->seed;
-
-if(j < 1 || j >= Jbol || (*p_OkMap)[j]) {
-	(*p_Instance)[k].map0 = p_currentparameters->map0;
-	(*p_Instance)[k].map1 = p_currentparameters->map1;
-	(*p_Instance)[k].mapmode = p_currentparameters->mapmode;
-	(*p_Instance)[k].xpandkey = p_currentparameters->xpandkey;
-	(*p_Instance)[k].xpandval = p_currentparameters->xpandval;
-	}
-else {
-	(*p_Instance)[k].map0.p1 = (*p_Instance)[k].map1.p1 = -1;
-	(*p_Instance)[k].xpandkey = -1;
-	(*p_Instance)[k].xpandval = 0;
-	}
-
-(*p_Instance)[k].transposition = 0;
-(*p_Instance)[k].lastistranspose = p_currentparameters->lastistranspose;
-if(j < 1 || j >= Jbol) {
-	(*p_Instance)[k].transposition = p_currentparameters->currtranspose;
-	if(p_articul != NULL) {
-	//	if(p_currentparameters->currarticul >= 0)
-			(*p_articul)[k] = p_currentparameters->currarticul;
-	//	else (*p_articul)[k] = MAXINT + p_currentparameters->currarticul;
-		}
-	}
-else {
-	if((*p_OkTransp)[j]) (*p_Instance)[k].transposition = p_currentparameters->currtranspose;
-	if(p_articul != NULL) {
-		if((*p_OkArticul)[j]) {
-	//		if(p_currentparameters->currarticul >= 0)
-				(*p_articul)[k] = p_currentparameters->currarticul;
-	//		else (*p_articul)[k] = MAXINT + p_currentparameters->currarticul;
+		if((*p_CsoundInstr)[j] > 0) {	/* Object has specific instrument */
+			/* Here we need (*p_CsoundInstr)[1] = 0. */
+			(*p_Instance)[k].instrument = (*p_CsoundInstr)[j];
 			}
-		}
-	}
-if(j > 0 && j < Jbol) {
-	if((*p_DefaultChannel)[j] > 0) {	/* Object has specific channel */
-		/* Here we need (*p_DefaultChannel)[1] = 0. */
-		(*p_Instance)[k].channel = (*p_DefaultChannel)[j];
-		if((*p_Instance)[k].channel > MAXCHAN || (*p_Instance)[k].channel < 1) {
-			my_sprintf(Message,"'%s' has channel %ld.  Should be 1..%ld\n",
-				(*((*p_Bol)[j])),(long)(*p_DefaultChannel)[j],(long)MAXCHAN);
-			Print(wTrace,Message);
-			ShowError(32,0,0);
-			return(MISSED);
+		else {
+			if((*p_CsoundInstr)[j] == 0)
+				(*p_Instance)[k].instrument = p_currentparameters->currinstr;
+			else (*p_Instance)[k].instrument = 0;
 			}
 		}
 	else {
-		if((*p_DefaultChannel)[j] == 0)
-			(*p_Instance)[k].channel = p_currentparameters->currchan;
-		else (*p_Instance)[k].channel = 0;
+		(*p_Instance)[k].channel = p_currentparameters->currchan;
+		(*p_Instance)[k].instrument = p_currentparameters->currinstr;
 		}
-	if((*p_CsoundInstr)[j] > 0) {	/* Object has specific instrument */
-		/* Here we need (*p_CsoundInstr)[1] = 0. */
-		(*p_Instance)[k].instrument = (*p_CsoundInstr)[j];
-		}
-	else {
-		if((*p_CsoundInstr)[j] == 0)
-			(*p_Instance)[k].instrument = p_currentparameters->currinstr;
-		else (*p_Instance)[k].instrument = 0;
-		}
-	}
-else {
-	(*p_Instance)[k].channel = p_currentparameters->currchan;
-	(*p_Instance)[k].instrument = p_currentparameters->currinstr;
-	}
-(*p_Instance)[k].scale = p_currentparameters->scale;
-// if(trace_scale) BPPrintMessage(odInfo,"4) scale =%d\n",p_currentparameters->scale); 
-(*p_Instance)[k].blockkey = p_currentparameters->blockkey;
+	(*p_Instance)[k].scale = p_currentparameters->scale;
+	if(trace_scale) BPPrintMessage(odInfo,"4) scale = %d\n",p_currentparameters->scale); 
+	(*p_Instance)[k].blockkey = p_currentparameters->blockkey;
 
-/* VolumeStart(k) = DEFTVOLUME;
-PanoramicStart(k) = DEFTPANORAMIC;
-PitchbendStart(k) = DEFTPITCHBEND;
-PressureStart(k) = DEFTPRESSURE;
-ModulationStart(k) = DEFTMODULATION; */
+	/* VolumeStart(k) = DEFTVOLUME;
+	PanoramicStart(k) = DEFTPANORAMIC;
+	PitchbendStart(k) = DEFTPITCHBEND;
+	PressureStart(k) = DEFTPRESSURE;
+	ModulationStart(k) = DEFTMODULATION; */
 
-return(OK);
-}
+	return(OK);
+	}
 
 
 int AttachObjectLists(long k,int nseq,p_list ****p_waitlist,p_list ****p_scriptlist,
@@ -714,14 +713,16 @@ MORE:
 		}
 	
 	if(m == T10) {		/* _chan() */
-		x = FindValue(m,p,chan);
-		if(chan == (int) x) continue;
-		/* A channel change in the sequence should be the end of the variation */
-		/* ... of a continuous MIDI parameter */
-		if(objectsfound > 0 && index >= 0 && index <= IPANORAMIC) okincrease = FALSE;
-		 BPPrintMessage(odInfo,"_chan() chan = %d\n",x);
-		chan = (int) x;
-		if(maxbeats == 0.) chanorg = chan;
+		if(!MIDImicrotonality) {
+			x = FindValue(m,p,chan);
+			if(chan == (int) x) continue;
+			/* A channel change in the sequence should be the end of the variation */
+			/* ... of a continuous MIDI parameter */
+			if(objectsfound > 0 && index >= 0 && index <= IPANORAMIC) okincrease = FALSE;
+			BPPrintMessage(odInfo,"_chan() chan = %d\n",x);
+			chan = (int) x;
+			if(maxbeats == 0.) chanorg = chan;
+			}
 		continue;
 		}
 	if(m == T32) {		/* _ins() */

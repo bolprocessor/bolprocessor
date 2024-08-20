@@ -254,8 +254,8 @@ if(Improvize) {
 		}
 	if(rtMIDI) {
 		if(ItemNumber > 10) ShowGraphic = ShowPianoRoll = FALSE;
-	//	if(ItemNumber >= 20 || (r=ListenMIDI(0,0,0)) == ABORT) {
-		if((r=ListenMIDI(0,0,0)) == ABORT) {
+	//	if(ItemNumber >= 20 || (r=ListenToEvents()) == ABORT) {
+		if((r=ListenToEvents()) == ABORT) {
 			Improvize = FALSE;
 			BPPrintMessage(odInfo,"%ld items have been produced.\n",(long)ItemNumber);
 			if(r == ABORT) BPPrintMessage(odInfo,"Production has been canceled by user.\n");
@@ -1750,10 +1750,10 @@ for(igram=Gram.number_gram; igram >= 1; igram--) {
 		igram = (*p_MemGram)[ProduceStackIndex];
 		igram++; continue;
 		}
-	if(StepGrammars && !StepProduce) {
+/*	if(StepGrammars && !StepProduce) {
 		r = InterruptCompute(igram,&Gram,*p_repeat,-1,ANAL);
 		if(r != OK) goto END;
-		}
+		} */
 	}
 for(i=0; ; i+=2) {
 	m = (**pp_a)[i]; p = (**pp_a)[i+1];

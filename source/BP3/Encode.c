@@ -334,7 +334,7 @@ NOTSCALE:
 					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 34);
 					break;
 				case 65: /* _scale */
-					if(OutCsound) {
+					if(OutCsound || rtMIDI) {
 						(*p_buff)[i++] = T44; (*p_buff)[i++] = (tokenbyte) n;
 						if(trace_scale) BPPrintMessage(odInfo,"Encode() T44 i = %d n = %d\n",i,n);
 						}

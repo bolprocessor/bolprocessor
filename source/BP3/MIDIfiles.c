@@ -1236,7 +1236,7 @@ for(i=1; i <= MAXCHAN; i++) {
 		e.status = ProgramChange + i - 1;
 		e.data2 = w - 1;
 		rs = 0;
-		SendToDriver(Tcurr * Time_res,0,&rs,&e);
+		SendToDriver(-1,0,0,Tcurr * Time_res,0,&rs,&e);
 		}
 	}
 return(OK);
@@ -1281,7 +1281,7 @@ if(EndFadeOut > 0.) {
 			e.data1 = this_char;
 			this_char = (unsigned char)value2;
 			e.data2 = this_char;
-			if((rep=SendToDriver(time,0,&rs,&e)) != OK) {
+			if((rep=SendToDriver(-1,0,0,time,0,&rs,&e)) != OK) {
 				BPPrintMessage(odInfo,"SendToDriver aborted! rep = %ld\n",(long)rep);
 				goto SORTIR;
 				}

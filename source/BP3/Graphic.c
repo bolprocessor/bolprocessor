@@ -192,21 +192,26 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	#else
 			if(j == 0 || j == 1 || j == -1) continue;
 	#endif
-			scale = (*p_Instance)[k].scale;
-			if(scale < 0) i_scale = -1;
-			else if(scale == 0) {
-				i_scale = DefaultScale;
-				if(trace_scale) BPPrintMessage(odInfo,"Default scale will be used\n");
-				}
-			else {
-				if(trace_graphic) BPPrintMessage(odInfo,"j = %d k = %d scale = %d NumberScales = %d\n",j,k,scale,NumberScales);
-				for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
-					result = MyHandlecmp((*p_StringConstant)[scale],(*Scale)[i_scale].label);
-					if(trace_graphic) BPPrintMessage(odInfo,"i_scale = %d (*p_StringConstant)[scale] = %s result = %d\n",i_scale,*((*p_StringConstant)[scale]),result);
-					if(result == 0) break;
+			if(OutCsound || MIDImicrotonality) {
+				scale = (*p_Instance)[k].scale;
+				if(scale < 0) i_scale = -1;
+				else if(scale == 0) {
+					i_scale = DefaultScale;
+					if(trace_scale) BPPrintMessage(odInfo,"Default scale will be used\n");
 					}
-				if(i_scale > NumberScales) i_scale = -1;
+				else {
+					if(trace_graphic) BPPrintMessage(odInfo,"j = %d k = %d scale = %d NumberScales = %d\n",j,k,scale,NumberScales);
+					for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
+					// ‘scale’ is not the index of the scale. It is the index of its name in StringConstant
+						if(trace_graphic) BPPrintMessage(odInfo,"scale = %d  i_scale = %d label = %s StringConstant = %s\n",scale,i_scale,(*Scale)[i_scale].label,(*p_StringConstant)[scale]);
+						result = MyHandlecmp((*p_StringConstant)[scale],(*Scale)[i_scale].label);
+						if(trace_graphic) BPPrintMessage(odInfo,"i_scale = %d (*p_StringConstant)[scale] = %s result = %d\n",i_scale,*((*p_StringConstant)[scale]),result);
+						if(result == 0) break;
+						}
+					if(i_scale > NumberScales) i_scale = -1;
+					}
 				}
+			else i_scale = -1;
 			if(j > 0) {
 				if(j >= Jbol && j < 16384) my_sprintf(line,"%s",*((*p_Patt)[j-Jbol]));
 				else {

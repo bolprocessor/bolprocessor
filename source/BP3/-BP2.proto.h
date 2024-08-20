@@ -64,7 +64,7 @@ int RemoveTMTask(void);
 
 int initializeMIDISystem(void);
 void closeMIDISystem();
-void sendMIDIEvent(unsigned char*,int,long);
+void sendMIDIEvent(int,int,unsigned char*,int,long);
 int MIDIflush(void);
 unsigned long getClockTime(void);
 int MaybeWait(unsigned long);
@@ -85,7 +85,7 @@ int ResetMIDI(int);
 
 // int IsMidiDriverOn(void);
 int FormatMIDIstream(MIDIcode**,long,MIDIcode**,int,long,long*,int);
-int SendToDriver(Milliseconds,int,int*,MIDI_Event*);
+int SendToDriver(int,int,int,Milliseconds,int,int*,MIDI_Event*);
 int CaptureMidiEvent(Milliseconds time,int nseq,MIDI_Event *p_e);
 void RegisterProgramChange(MIDI_Event *p_e);
 
@@ -567,7 +567,7 @@ int UndoPasteSelection(int);
 long FindGoodInsertPoint(int,long);
 int CaptureCodes(int);
 int CaptureTicks(void);
-int ListenMIDI(int,int,int);
+int ListenToEvents(void);
 int PlayTick(int);
 int ResetTicks(int,int,Milliseconds,int);
 int WaitForLastTicks(void);
@@ -596,6 +596,7 @@ int SetOutputFilterWord(int);
 int GetInputFilterWord(int);
 int GetOutputFilterWord(int);
 int ResetMIDIFilter(void);
+int FindScale(int);
 int ResetCsoundInstrument(int,int,int);
 // int CopyCsoundInstrument(int,int);
 int Findabc(double***,int,regression*);
@@ -1107,6 +1108,7 @@ void CreateDoneFile(void);
 void CreateStopFile(void);
 int stop(int,char*);
 
+void StopWaiting(int,char);
 int CreateMicrotonalScale(char*,char*,char*,char*,char*,char*);
 double GetPitchWithScale(int,int,double,int);
 int modulo(int,int);
@@ -1116,8 +1118,15 @@ void mysleep(long);
 void save_midisetup(void);
 int read_midisetup(void);
 
+int AssignUniqueChannel(int,int,int);
+
 #if defined(__linux__)
    void MyAlsaMidiInProc(snd_seq_event_t*);
+#endif
+
+#if !defined(_WIN64)
+    void enable_raw_mode(void);
+    void disable_raw_mode(void);
 #endif
 
 #endif /* BP2_PROTO_H */

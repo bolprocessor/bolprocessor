@@ -116,7 +116,7 @@ extern time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTi
 extern unsigned long NextStop;
 extern char FindString[256],ReplaceString[256];
 extern t_gram Gram,GlossGram;
-extern int RunningStatus,StrikeAgainDefault;
+extern int RunningStatus,StrikeAgainDefault,MIDImicrotonality;
 extern int NoteOffPass[MAXPORTS],NoteOnPass[MAXPORTS],KeyPressurePass[MAXPORTS],ControlTypePass[MAXPORTS],ProgramTypePass[MAXPORTS],
 	ChannelPressurePass[MAXPORTS],PitchBendPass[MAXPORTS],SysExPass[MAXPORTS],TimeCodePass[MAXPORTS],SongPosPass[MAXPORTS],SongSelPass[MAXPORTS],TuneTypePass[MAXPORTS],EndSysExPass[MAXPORTS],ClockTypePass[MAXPORTS],StartTypePass[MAXPORTS],ContTypePass[MAXPORTS],ActiveSensePass[MAXPORTS],ResetPass[MAXPORTS];
 extern int NoteOffIn[MAXPORTS],NoteOnIn[MAXPORTS],KeyPressureIn[MAXPORTS],ControlTypeIn[MAXPORTS],ProgramTypeIn[MAXPORTS],
@@ -229,7 +229,7 @@ extern short Maxlevel,MaxFlag,MaxScript,PlayFromInsertionPoint,
 	KeepFlag,CoverOK,DiscontinuityOK,AllSolTimeSet,
 	LimCompute,LimTimeSet,SkipFlag,StackFlag,Port,Portbit,
 	MIDI;
-extern int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,StepGrammars,DisplayProduce,UseTimeLimit,
+extern int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,TraceMicrotonality,DisplayProduce,UseTimeLimit,
 	DisplayTimeSet,StepTimeSet,TraceProduce,UseEachSub,PlanProduce,TraceTimeSet,ResetNotes;
 extern int InsertGramRuleNumbers, InsertGramCorrections, InsertNewBols;
 extern unsigned long Ptick[MAXTICKS],Qtick[MAXTICKS],GrandCycle[MAXTICKS],
@@ -373,6 +373,8 @@ extern double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 extern double MaxFrac;
 extern int HaveAppearanceManager;
 extern int RunningOnOSX;
+extern int WaitForSpace;
+extern short MPEnote[17];
 // extern ControlActionUPP vScrollUPP,hScrollUPP;
 // extern NSWReply** MIDIfileReply;
 // extern NSWReply** CsFileReply;
@@ -399,9 +401,9 @@ extern int WarnedBlockKey,WarnedRangeKey;
 extern size_t MaxMIDIMessages;
 extern MIDI_Event* eventStack;
 extern long eventCount, eventCountMax;
-extern MIDI_Event* eventStack;
 extern UInt64 initTime;
 extern int FirstNoteOn;
+extern int ToldPitchbend;
 
 extern int stop(int,char*);
 extern int MIDIflush(void);

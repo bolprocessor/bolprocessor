@@ -136,7 +136,8 @@ int Inits(void) {
 	MaxConsoleTime = 0; // No limit
 	Ratio = 0.;  Prod = 1.;
 	N_image = 0; imagePtr = NULL;
-	NumberScales = DefaultScale = 0; MaxScales = 2; Scale = NULL;
+	NumberScales = 0;
+	DefaultScale = -1; MaxScales = 2; Scale = NULL;
 	ToldAboutScale = FALSE;
 	WarnedBlockKey = WarnedRangeKey  = FALSE;
 	TimeMax = MAXTIME; Nalpha = 100L; SpeedRange = 6.;
@@ -234,6 +235,8 @@ int Inits(void) {
 
 	Stream.code = NULL;
 	Stream.imax = ZERO; Stream.cyclic = FALSE; Stream.period = ZERO;
+
+	for(ch = 0; ch < 16; ch++) MPEnote[ch] = 0;
 
 	#if BP_CARBON_GUI_FORGET_THIS
 	if(GetResource('MENU',MenuIDoffset) == NULL) {
@@ -383,11 +386,11 @@ int Inits(void) {
 	LoadedIn = LoadedGl = FALSE;
 	TransposeInput = FALSE; TransposeValue = 0;
 	CompiledGr = CompiledAl = CompiledPt = CompiledIn = CompiledGl = CompiledCsObjects
-		= CompiledRegressions = NotFoundMetronom = NotFoundNatureTime = 0;
+		= CompiledRegressions = NotFoundMetronom = NotFoundNatureTime = ToldPitchbend = 0;
 	Pclock = Qclock = 1.;
 	Nature_of_time = STRIATED;
 	Pduration = 0.;  Qduration = 1.;
-	UseBufferLimit = FirstTime = FALSE;
+	UseBufferLimit = FirstTime = WaitForSpace = FALSE;
 	OkWait = TRUE;
 	Nplay = 1;	/* Number of times each item is played */
 	SynchroSignal = OFF;
@@ -571,6 +574,7 @@ int Inits(void) {
 	RunningStatus = 0; NoRepeat = FALSE;
 	ScriptSyncKey = ScriptSyncChan = -1;
 	StrikeAgainDefault = TRUE;
+	MIDImicrotonality = FALSE;
 	Jwheel = Jfeet = Jdisk = 0;
 	EmptyBeat = TRUE;
 
@@ -1627,26 +1631,25 @@ return(OK);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
 
-int InitButtons(void)
-{
-#if WITH_REAL_TIME_MIDI_FORGET_THIS && BP_CARBON_GUI_FORGET_THIS
-  rtMIDI = TRUE;
-#else
-  rtMIDI = FALSE;
-#endif
-FirstNoteOn = TRUE;
-OutBPdata = FALSE;
-ObjectMode = ObjectTry = Improvize = StepProduce = StepGrammars
-	= PlanProduce = DisplayProduce = UseEachSub
-	= TraceProduce = DisplayTimeSet = StepTimeSet = TraceTimeSet = ResetNotes
-	= ShowGraphic = ComputeWhilePlay = NeverResetWeights = FALSE;
-SynchronizeStart = CyclicPlay = NoConstraint = AllItems
-	= WriteMIDIfile = OutCsound = CsoundTrace = WillRandomize = FALSE;
-ResetWeights = ResetFlags = ResetControllers = ShowMessages
-	= AllowRandomize = TRUE;
-NoteConvention = ENGLISH;
-return(OK);
-}
+int InitButtons(void) {
+	#if WITH_REAL_TIME_MIDI_FORGET_THIS && BP_CARBON_GUI_FORGET_THIS
+	rtMIDI = TRUE;
+	#else
+	rtMIDI = FALSE;
+	#endif
+	FirstNoteOn = TRUE;
+	OutBPdata = FALSE;
+	ObjectMode = ObjectTry = Improvize = StepProduce = TraceMicrotonality
+		= PlanProduce = DisplayProduce = UseEachSub
+		= TraceProduce = DisplayTimeSet = StepTimeSet = TraceTimeSet = ResetNotes
+		= ShowGraphic = ComputeWhilePlay = NeverResetWeights = FALSE;
+	SynchronizeStart = CyclicPlay = NoConstraint = AllItems
+		= WriteMIDIfile = OutCsound = CsoundTrace = WillRandomize = FALSE;
+	ResetWeights = ResetFlags = ResetControllers = ShowMessages
+		= AllowRandomize = TRUE;
+	NoteConvention = ENGLISH;
+	return(OK);
+	}
 
 
 #if BP_CARBON_GUI_FORGET_THIS

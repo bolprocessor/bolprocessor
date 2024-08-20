@@ -1322,8 +1322,10 @@ NEWSEQUENCE:
 		case T44:	/* _scale() */
 			currentparameters.scale = p % MAXSTRINGCONSTANTS;
 			if(trace_scale) BPPrintMessage(odInfo,"FillPhaseDiagram() _scale() value = %ld\n",(long)value);
-			if(currentparameters.scale > -1)
+			if(currentparameters.scale > -1) {
 				newkeyval = (p - currentparameters.scale) / MAXSTRINGCONSTANTS;
+				DefaultScale = currentparameters.scale;
+				}
 			else newkeyval = BlockScaleOnKey;
 			if(trace_scale) BPPrintMessage(odInfo,"newkeyval = %ld currentparameters.scale = %d\n",(long)newkeyval,currentparameters.scale);
 			if(newkeyval < 0 || newkeyval > 127) {
@@ -1338,6 +1340,7 @@ NEWSEQUENCE:
 					}
 				if(trace_scale) BPPrintMessage(odInfo,"blockkey = %ld\n",(long)newval);
 				currentparameters.blockkey = newval;
+				if(newval > 0) BlockScaleOnKey = newval;
 				}
 			else currentparameters.blockkey = BlockScaleOnKey;
 			break;

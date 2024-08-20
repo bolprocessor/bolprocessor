@@ -824,11 +824,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			Pclock = (double)(*(ScriptLine.intarg))[1];
 			SetTempo(); SetTimeBase();
 			break;
-		/* case 46:	// Use buffer limit
-			if(wind == wInteraction || wind == wGlossary) return(MISSED);
-			if(check) return(OK);
-			UseBufferLimit = TRUE; SetBufferSize(); break;
-		case 47:	// Ignore buffer limit
+		/* case 47:	// Ignore buffer limit
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			UseBufferLimit = FALSE; SetBufferSize(); break; */
@@ -943,6 +939,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			Quantization = (*(ScriptLine.intarg))[0];
 			break;
+		case 46:	// Wait for Space
 		case 66: /* Wait for Continue */
 		case 67: /* Wait for Start */
 		case 128: /* Wait for Stop */
@@ -966,10 +963,14 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			((*p_INscript)[j]).chan = 0;
 			((*p_INscript)[j]).scriptline = instr;
 			((*p_INscript)[j]).time = timethisscript; // microseconds
+			if(instr == 46) ((*p_INscript)[j]).key = 0; // Wait for Space
 			if(instr == 66) ((*p_INscript)[j]).key = Continue;
 			if(instr == 67) ((*p_INscript)[j]).key = Start;
 			if(instr == 128) ((*p_INscript)[j]).key = Stop;
-			if(TraceMIDIinteraction) BPPrintMessage(odInfo,"[%d] INscript instruction %d, wait for MIDI event %d, time = %lu ms\n",j,instr,((*p_INscript)[j]).key,((*p_INscript)[j]).time / 1000L);
+			if(TraceMIDIinteraction) {
+				if(instr == 46) BPPrintMessage(odInfo,"[%d] INscript instruction %d, wait for Space, time = %lu ms\n",j,instr,((*p_INscript)[j]).time / 1000L);
+				else  BPPrintMessage(odInfo,"[%d] INscript instruction %d, wait for MIDI event %d, time = %lu ms\n",j,instr,((*p_INscript)[j]).key,((*p_INscript)[j]).time / 1000L);
+				}
 			break;
 		case 68:	/* Return */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
@@ -1005,7 +1006,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				(*(ScriptLine.intarg))[0] = 0;
 				}
 			e.data2 = (*(ScriptLine.intarg))[0] - ProgNrFrom;
-			if((r=SendToDriver(Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
+			if((r=SendToDriver(-1,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
 		case 72:	/* Quantize off */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
@@ -1078,7 +1079,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.status = ControlChange + (*(ScriptLine.intarg))[2] - 1;
 			e.data1 = (*(ScriptLine.intarg))[0];
 			e.data2 = (*(ScriptLine.intarg))[1];
-			if((r=SendToDriver(Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
+			if((r=SendToDriver(-1,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
 		case 76: /* MIDI local control off */
 			if(wind == wInteraction) return(MISSED);
@@ -1089,7 +1090,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.status = ControlChange + (*(ScriptLine.intarg))[0] - 1;
 			e.data1 = 122;
 			e.data2 = 0;
-			if((r=SendToDriver(Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
+			if((r=SendToDriver(-1,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
 		case 77: /* MIDI local control on */
 			if(wind == wInteraction) return(MISSED);
@@ -1100,7 +1101,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.status = ControlChange + (*(ScriptLine.intarg))[0] - 1;
 			e.data1 = 122;
 			e.data2 = 127;
-			if((r=SendToDriver(Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
+			if((r=SendToDriver(-1,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
 		case 78: /* MIDI all notes off */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
@@ -1111,7 +1112,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.status = ControlChange + (*(ScriptLine.intarg))[0] - 1;
 			e.data1 = 123;
 			e.data2 = 0;
-			if((r=SendToDriver(Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
+			if((r=SendToDriver(-1,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
 		case 79: /* MIDI Omni mode off */
 			if(wind == wInteraction) return(MISSED);
@@ -1122,7 +1123,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.status = ControlChange + (*(ScriptLine.intarg))[0] - 1;
 			e.data1 = 124;
 			e.data2 = 0;
-			if((r=SendToDriver(Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
+			if((r=SendToDriver(-1,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
 		case 80: /* MIDI Omni mode on */
 			if(wind == wInteraction) return(MISSED);
@@ -1133,7 +1134,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.status = ControlChange + (*(ScriptLine.intarg))[0] - 1;
 			e.data1 = 125;
 			e.data2 = 0;
-			if((r=SendToDriver(Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
+			if((r=SendToDriver(-1,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
 		case 81: /* MIDI Mono mode ON ["0..16" voices] channel "1..16" */
 			if(wind == wInteraction) return(MISSED);
@@ -1144,7 +1145,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.status = ControlChange + (*(ScriptLine.intarg))[1] - 1;
 			e.data1 = 126;
 			e.data2 = (*(ScriptLine.intarg))[0];
-			if((r=SendToDriver(Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
+			if((r=SendToDriver(-1,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
 		case 82: /* Poly mode ON channel "1..16" */
 			if(wind == wInteraction) return(MISSED);
@@ -1155,7 +1156,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.status = ControlChange + (*(ScriptLine.intarg))[0] - 1;
 			e.data1 = 127;
 			e.data2 = 0;
-			if((r=SendToDriver(Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
+			if((r=SendToDriver(-1,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
 		case 83: /* MIDI decimal send "decimal data" */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
@@ -1217,7 +1218,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.status = ControlChange + (*(ScriptLine.intarg))[1] - 1;
 			e.data1 = (*(ScriptLine.intarg))[0];
 			e.data2 = 127;
-			if((r=SendToDriver(Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
+			if((r=SendToDriver(-1,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
 		case 87: /* MIDI switch OFF "64..95" channel "1..16" */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
@@ -1227,7 +1228,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.status = ControlChange + (*(ScriptLine.intarg))[1] - 1;
 			e.data1 = (*(ScriptLine.intarg))[0];
 			e.data2 = 0;
-			if((r=SendToDriver(Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
+			if((r=SendToDriver(-1,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
 		case 88:	/* Indian convention */
 			if(check) return(OK);

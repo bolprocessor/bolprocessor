@@ -1898,7 +1898,7 @@ ShowMessage(TRUE,wMessage,"Type answer!");
 #if BP_CARBON_GUI_FORGET_THIS
 while(!WaitNextEvent(everyEvent,&theEvent,3L,NULL) || ((theEvent.what != keyDown)
 		&& (theEvent.what != autoKey))) {
-	ListenMIDI(0,0,0);
+	ListenToEvents();
 	if(Button()) {
 		compiledmem = CompiledGr;
 		dirtymem = Dirty[wAlphabet]; Dirty[wAlphabet] = FALSE;
@@ -1990,7 +1990,6 @@ if(maxparam == 0) {
 	if((pp_h = (char****) GiveSpace((Size)(10) * sizeof(char**))) == NULL) return(ABORT);
 	p_StringConstant = pp_h;
 	maxparam = 10;
-	
 	if((ptr = (char**) GiveSpace((Size)(strlen("pitchbend")+1))) == NULL) return(ABORT);
 	(*p_StringConstant)[IPITCHBEND] = ptr;
 	MystrcpyStringToTable(p_StringConstant,IPITCHBEND,"pitchbend");

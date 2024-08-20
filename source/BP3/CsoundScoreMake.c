@@ -299,6 +299,7 @@ if(iarg > 0) {
 			MystrcpyHandleToString(MAXLIN,0,Message,(*p_StringConstant)[scale]);
 			if(trace_scale) BPPrintMessage(odInfo,"scale = %d => \"%s\"\n",scale,Message);
 			for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
+			// ‘scale’ is not the index of the scale. It is the index of its name in StringConstant
 				result = MyHandlecmp((*p_StringConstant)[scale],(*Scale)[i_scale].label);
 				if(result == 0) break;
 				}

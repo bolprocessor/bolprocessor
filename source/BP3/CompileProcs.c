@@ -1282,7 +1282,11 @@ switch(jinstr) {
 		break;
 	case 65:	/* _scale() */
 		if(trace_scale) BPPrintMessage(odInfo,"_scale() found in compilation\n");
-		if(strcmp(line,"0") == 0 || !OutCsound) k = 0; 
+		if(!OutCsound && (rtMIDI || WriteMIDIfile)) {
+			if(!MIDImicrotonality) BPPrintMessage(odInfo,"👉 Microtonality mimics MIDI Polyphonic Expression\n");
+			MIDImicrotonality = TRUE;
+			}
+		if(strcmp(line,"0") == 0 || (!OutCsound && !rtMIDI)) k = 0; 
 		else {
 			k = FixStringConstant(line);
 			if(k < 0) return(k);
