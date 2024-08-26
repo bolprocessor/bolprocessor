@@ -223,8 +223,8 @@ for(k=0; k < Maxevent; k++) {
 	(*p_Instance)[k].object = 0;
 	(*p_ObjectSpecs)[k] = NULL;
 	(*p_Instance)[k].channel = 0;
-	(*p_Instance)[k].scale = DefaultScale;
-	(*p_Instance)[k].blockkey = BlockScaleOnKey;
+	(*p_Instance)[k].scale = DefaultScaleParam;
+	(*p_Instance)[k].blockkey = DefaultBlockKey;
 	(*p_Instance)[k].transposition = 0;
 	(*p_Instance)[k].xpandkey = -1;
 	(*p_Instance)[k].xpandval = 0;
@@ -305,8 +305,8 @@ startmap.p1 = startmap.q1 = 0;
 startmap.p2 = startmap.q2 = 127;
 
 currentparameters.currchan = 1;
-currentparameters.scale = DefaultScale;
-currentparameters.blockkey = BlockScaleOnKey;
+currentparameters.scale = DefaultScaleParam;
+currentparameters.blockkey = DefaultBlockKey;
 currentparameters.currinstr = 0;
 
 currentparameters.currtranspose = starttranspose = (*p_deftstarttranspose)[0] = 0.;
@@ -1321,28 +1321,33 @@ NEWSEQUENCE:
 			break;
 		case T44:	/* _scale() */
 			currentparameters.scale = p % MAXSTRINGCONSTANTS;
-			if(trace_scale) BPPrintMessage(odInfo,"FillPhaseDiagram() _scale() value = %ld\n",(long)value);
+			if(trace_scale)
+				BPPrintMessage(odInfo,"FillPhaseDiagram() _scale() value = %ld\n",(long)value);
 			if(currentparameters.scale > -1) {
+				int i_scale = FindScale(currentparameters.scale);
+				BPPrintMessage(odInfo,"This tonal scale will be used: #%d\n",i_scale);
 				newkeyval = (p - currentparameters.scale) / MAXSTRINGCONSTANTS;
-				DefaultScale = currentparameters.scale;
+				if(DefaultScaleParam == -1) DefaultScaleParam = currentparameters.scale;
 				}
-			else newkeyval = BlockScaleOnKey;
-			if(trace_scale) BPPrintMessage(odInfo,"newkeyval = %ld currentparameters.scale = %d\n",(long)newkeyval,currentparameters.scale);
+			else newkeyval = DefaultBlockKey;
+			if(trace_scale) 
+				BPPrintMessage(odInfo,"newkeyval = %ld currentparameters.scale = %d\n",(long)newkeyval,currentparameters.scale);
 			if(newkeyval < 0 || newkeyval > 127) {
 				if(Beta) Println(wTrace,"=> Err. FillPhaseDiagram(). newblockkey < 0 || newblockkey > 127");
-				currentparameters.blockkey = BlockScaleOnKey;
+				currentparameters.blockkey = DefaultBlockKey;
 				}
 			else if(currentparameters.scale > -1) {
 				newval = (*p_NumberConstant)[newkeyval];
+				if(newval == 0) newval = 60;
 				if(newval < 0 || newval > 127) {	 
-					BPPrintMessage(odError,"\n=> Error on block key in \"_scale()\" statement. It should be in range [0..127], or a note in your convention. Its default value will be used: %d\n",BlockScaleOnKey);
-					newval = BlockScaleOnKey;
+					BPPrintMessage(odError,"\n=> Error on block key in \"_scale()\" statement. It should be in range [0..127], or a note in your convention. Its default value will be used: %d\n",DefaultBlockKey);
+					newval = DefaultBlockKey;
 					}
 				if(trace_scale) BPPrintMessage(odInfo,"blockkey = %ld\n",(long)newval);
 				currentparameters.blockkey = newval;
-				if(newval > 0) BlockScaleOnKey = newval;
+				if(newval > 0) DefaultBlockKey = newval;
 				}
-			else currentparameters.blockkey = BlockScaleOnKey;
+			else currentparameters.blockkey = DefaultBlockKey;
 			break;
 		case T21:	/* _pitchrange() */
 			PitchbendRange[currentparameters.currchan] = p;
@@ -2009,8 +2014,8 @@ if((*p_param)[level].values == NULL) {
 			= (*((*p_param)[level].values))[j].v1
 			= 0.;
 		(*((*p_param)[level].values))[j].channel = 0;
-		(*((*p_param)[level].values))[j].scale = DefaultScale;
-		(*((*p_param)[level].values))[j].blockkey = BlockScaleOnKey;
+		(*((*p_param)[level].values))[j].scale = DefaultScaleParam;
+		(*((*p_param)[level].values))[j].blockkey = DefaultBlockKey;
 		(*((*p_param)[level].values))[j].imax = 0;
 		(*((*p_param)[level].values))[j].ibeats = 0;
 		(*((*p_param)[level].values))[j].point = NULL;
@@ -2073,8 +2078,8 @@ if(i >= maxnumber) {
 			= (*((*p_param)[level].values))[j].v1
 			= 0.;
 		(*((*p_param)[level].values))[j].channel = 0;
-		(*((*p_param)[level].values))[j].scale = DefaultScale;
-		(*((*p_param)[level].values))[j].blockkey = BlockScaleOnKey;
+		(*((*p_param)[level].values))[j].scale = DefaultScaleParam;
+		(*((*p_param)[level].values))[j].blockkey = DefaultBlockKey;
 		(*((*p_param)[level].values))[j].imax = 0;
 		(*((*p_param)[level].values))[j].ibeats = 0;
 		(*((*p_param)[level].values))[j].point = NULL;
@@ -2135,8 +2140,8 @@ if((*((*p_contparameters)[level].values))[i].active) {
 else
 	(*((*p_contparameters)[level].values))[i].v0
 		= (*((*p_contparameters)[level].values))[i].v1 = start;
-(*((*p_contparameters)[level].values))[i].scale = DefaultScale;
-(*((*p_contparameters)[level].values))[i].blockkey = BlockScaleOnKey;
+(*((*p_contparameters)[level].values))[i].scale = DefaultScaleParam;
+(*((*p_contparameters)[level].values))[i].blockkey = DefaultBlockKey;
 return(OK);
 }
 

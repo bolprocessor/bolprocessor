@@ -194,21 +194,15 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	#endif
 			if(OutCsound || MIDImicrotonality) {
 				scale = (*p_Instance)[k].scale;
+				if(trace_graphic)
+					BPPrintMessage(odInfo,"j = %d k = %d scale = %d NumberScales = %d, DefaultScaleParam = %d\n",j,k,scale,NumberScales,DefaultScaleParam);
 				if(scale < 0) i_scale = -1;
 				else if(scale == 0) {
-					i_scale = DefaultScale;
+					i_scale = 0;
 					if(trace_scale) BPPrintMessage(odInfo,"Default scale will be used\n");
 					}
 				else {
-					if(trace_graphic) BPPrintMessage(odInfo,"j = %d k = %d scale = %d NumberScales = %d\n",j,k,scale,NumberScales);
-					for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
-					// ‘scale’ is not the index of the scale. It is the index of its name in StringConstant
-						if(trace_graphic) BPPrintMessage(odInfo,"scale = %d  i_scale = %d label = %s StringConstant = %s\n",scale,i_scale,(*Scale)[i_scale].label,(*p_StringConstant)[scale]);
-						result = MyHandlecmp((*p_StringConstant)[scale],(*Scale)[i_scale].label);
-						if(trace_graphic) BPPrintMessage(odInfo,"i_scale = %d (*p_StringConstant)[scale] = %s result = %d\n",i_scale,*((*p_StringConstant)[scale]),result);
-						if(result == 0) break;
-						}
-					if(i_scale > NumberScales) i_scale = -1;
+					i_scale = FindScale(scale);
 					}
 				}
 			else i_scale = -1;
@@ -945,10 +939,6 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	r1.right = r.right - (r.right - r.left - strlen(line)) / 2 - 1;
 	r1.top = r.top + 2;
 	r1.bottom = r.bottom - 2;
-	// erase_rect(&r1);
-	// FillRect(&r1,GetQDGlobalsWhite(&pat));
-	/* move_to(r.left + (r.right - r.left - strlen(label)) / 2,r.bottom - 3);
-	fill_text(label); */
 		
 	if((*p_Tref)[j] > EPSILON) {
 		// Draw vertical line of pivot (if non relocatable)
@@ -1284,7 +1274,7 @@ int DrawNoteScale(Rect* p_r,int w,int minkey,int maxkey,int hrect,int leftoffset
 	xmin = p_r->left + 41;
 	xmax = p_r->right - 28;
 	if(leftoffset < 0) xmax -= (hrect * (leftoffset - 1));
-	if(NoteConvention > 3) {
+	if(NoteConvention > KEYS) {
 		stroke_style("rgb(186,186,0)");
 		fill_style("rgb(186,186,0)");
 		for(key=6; key < 128; key+=2) {

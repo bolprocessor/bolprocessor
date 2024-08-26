@@ -287,24 +287,28 @@ if(iarg > 0) {
 		}
 	else cents = 0.;
 	pitch_format = (*p_CsPitchFormat)[ins];
+	// BPPrintMessage(odInfo,"The A4freq = %.3f\n",A4freq);
 	if((pitch_format == OPPC || pitch_format == OPD) && (A4freq != 440. || C4key != 60))
 		pitch_format = CPS;
-	if(scale == 0) i_scale = 0;
-	if(NumberScales > 0 && scale != 0) {
+	if(scale <= 0) i_scale = 0;
+	if(NumberScales > 0 && scale >= 0) {
+		// BPPrintMessage(odInfo,"The scale = %d\n",scale);
 		if(scale == -1) {
 			i_scale = 1;
 			if(trace_scale) BPPrintMessage(odInfo,"Default scale will be used\n");
 			}
 		else {
-			MystrcpyHandleToString(MAXLIN,0,Message,(*p_StringConstant)[scale]);
+			i_scale = FindScale(scale);
+	/*		MystrcpyHandleToString(MAXLIN,0,Message,(*p_StringConstant)[scale]);
 			if(trace_scale) BPPrintMessage(odInfo,"scale = %d => \"%s\"\n",scale,Message);
 			for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
 			// ‘scale’ is not the index of the scale. It is the index of its name in StringConstant
 				result = MyHandlecmp((*p_StringConstant)[scale],(*Scale)[i_scale].label);
 				if(result == 0) break;
-				}
+				} */
 			}
-		if(i_scale < (NumberScales + 1)) { 
+		if(i_scale <= NumberScales) { 
+		//	BPPrintMessage(odInfo,"blockkey = %d\n",blockkey);
 			x = GetPitchWithScale(i_scale,key,cents,blockkey);
 			if(x == Infpos) return(ABORT);
 			pitch_format = IGNORER;
@@ -726,6 +730,12 @@ if(pitchclass >= 0) {
 	strcpy(line,"; ");
 	PrintNote(i_scale,key,0,-1,LineBuff);
 	strcat(line,LineBuff);
+	int cent_value = (int) cents;
+	if(cent_value != 0) {
+		if(cent_value > 0) my_sprintf(LineBuff," + %d cents",cent_value);
+		if(cent_value < 0) my_sprintf(LineBuff," - %d cents",cent_value);
+		strcat(line,LineBuff);
+		}
 	strcat(Message,line);
 	}
 else line[0] = '\0';

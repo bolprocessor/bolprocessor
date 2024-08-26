@@ -379,83 +379,6 @@ if(!done) {
 return(n * sign);
 }
 
-#if BP_CARBON_GUI_FORGET_THIS
-
-int ShowMIDIkeyboard(void)
-{
-short i,itemtype;
-Rect r;
-ControlHandle itemhandle;
-Str255 textStr;
-GrafPtr saveport, dport;
-
-for(i=1; i <= 24; i++) {
-	GetDialogItem(MIDIkeyboardPtr,i,&itemtype,(Handle*) &itemhandle,&r);
-	switch(i) {
-		case 15:
-		case 20:
-		case 22:
-		HideControl(itemhandle);
-		continue;
-		}
-	switch(NoteConvention) {
-		case FRENCH:
-			if(i < 13)
-				strcpy(Message,Frenchnote[i-1]);
-			else
-				strcpy(Message,AltFrenchnote[i-13]);
-			break;
-		case ENGLISH:
-			if(i < 13)
-				strcpy(Message,Englishnote[i-1]);
-			else
-				strcpy(Message,AltEnglishnote[i-13]);
-			break;
-		case INDIAN:
-			if(i < 13)
-				strcpy(Message,Indiannote[i-1]);
-			else
-				strcpy(Message,AltIndiannote[i-13]);
-			break;
-		default: return(OK); break;
-		
-		}
-	c2pstrcpy(textStr, Message);
-	SetControlTitle(itemhandle,textStr);
-	}
-SetNameChoice();
-ShowWindow(GetDialogWindow(MIDIkeyboardPtr));
-SelectWindow(GetDialogWindow(MIDIkeyboardPtr));
-BPUpdateDialog(MIDIkeyboardPtr); /* Needed to show static text! */
-return OK;
-}
-
-
-int SetNameChoice(void)
-{
-short i,itemtype;
-Rect r;
-ControlHandle itemhandle;
-
-for(i=1; i <= 12; i++) {
-	if(NameChoice[i-1] == 0) {
-		GetDialogItem(MIDIkeyboardPtr,i,&itemtype,(Handle*) &itemhandle,&r);
-		SetControlValue(itemhandle,1);
-		GetDialogItem(MIDIkeyboardPtr,i+12,&itemtype,(Handle*) &itemhandle,&r);
-		SetControlValue(itemhandle,0);
-		}
-	else {
-		GetDialogItem(MIDIkeyboardPtr,i,&itemtype,(Handle*) &itemhandle,&r);
-		SetControlValue(itemhandle,0);
-		GetDialogItem(MIDIkeyboardPtr,i+12,&itemtype,(Handle*) &itemhandle,&r);
-		SetControlValue(itemhandle,1);
-		}
-	}
-return OK;
-}
-
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
 int MySpace(char c)
 {
 if(c == '\r' || c == '\n' || c == '\0') return(NO);
@@ -486,124 +409,70 @@ while((*p_k) < (*p_imax)+2) (**pp_buff)[j++] = (**pp_buff)[(*p_k)++];
 return(OK);
 }
 
-#if BP_CARBON_GUI_FORGET_THIS
 
-GetValues(int force)
-{
-int oldoutmidi,oldwritemidifile,oldoutcsound,oms;
+void insert_space_between_digits(char* str) {
+    char result[20] = ""; // Buffer to store the resulting string
+    int i = 0, j = 0;
 
-oldoutmidi = rtMIDI;
-if(force || Nw == wSettingsTop || Nw == wSettingsBottom) {
-	rtMIDI = GetControlValue(Hbutt[bMIDI]);
-	Improvize = GetControlValue(Hbutt[bImprovize]);
-	StepProduce = GetControlValue(Hbutt[bStepProduce]);
-	StepGrammars = GetControlValue(Hbutt[bStepGrammars]);
-	PlanProduce = GetControlValue(Hbutt[bPlanProduce]);
-	DisplayProduce = GetControlValue(Hbutt[bDisplayProduce]);
-	UseEachSub = GetControlValue(Hbutt[bUseEachSub]);
-	AllItems = GetControlValue(Hbutt[bAllItems]);
-	TraceProduce = GetControlValue(Hbutt[bTraceProduce]);
-	DisplayTimeSet = GetControlValue(Hbutt[bDisplayTimeSet]);
-	StepTimeSet = GetControlValue(Hbutt[bStepTimeSet]);
-	TraceTimeSet = GetControlValue(Hbutt[bTraceTimeSet]);
-	AllowRandomize = GetControlValue(Hbutt[bAllowRandomize]);
-	CyclicPlay = GetControlValue(Hbutt[bCyclicPlay]);
-	SynchronizeStart = GetControlValue(Hbutt[bSynchronizeStart]);
-	DisplayItems = GetControlValue(Hbutt[bDisplayItems]);
-	ResetWeights = GetControlValue(Hbutt[bResetWeights]);
-	if(ResetWeights) NeverResetWeights = FALSE;
-	ResetFlags = GetControlValue(Hbutt[bResetFlags]);
-	ResetControllers = GetControlValue(Hbutt[bResetControllers]);
-	NoConstraint = GetControlValue(Hbutt[bNoConstraint]);
-	ShowGraphic = GetControlValue(Hbutt[bShowGraphic]);
-	
-	oldwritemidifile = WriteMIDIfile;
-	WriteMIDIfile = GetControlValue(Hbutt[bWriteMIDIfile]);
-	if(oldwritemidifile && !WriteMIDIfile) CloseMIDIFile();
-	
-	ComputeWhilePlay = GetControlValue(Hbutt[bComputeWhilePlay]);
-	Interactive = GetControlValue(Hbutt[bInteractive]);
-	ShowMessages = GetControlValue(Hbutt[bShowMessages]);
-	
-	oldoutcsound = OutCsound;
-	OutCsound = GetControlValue(Hbutt[bCsound]);
-	if(oldoutcsound && !OutCsound) CloseCsScore();
-	
-	CsoundTrace = GetControlValue(Hbutt[bCsoundTrace]);
-	oms = GetControlValue(Hbutt[bOMS]);
-	if(oms != Oms) mOMS(0);
-	
-	SetButtons(force);
+    while (str[i] != '\0') {
+        if (str[i] == '#') {
+            i++; // Move to the next character after '#'
+            while (isdigit(str[i])) {
+                char num[5] = ""; // To hold the current number, considering max 4 digits
+                int k = 0;
+                while (isdigit(str[i]) && k < 4) {
+                    num[k++] = str[i++];
+                }
+                num[k] = '\0'; // Null-terminate the number string
+                
+                int num_len = strlen(num);
+                if (num_len == 3) {
+                    // Insert space between the last two digits
+                    j += snprintf(result + j, sizeof(result) - j, "%c%c %c", num[0], num[1], num[2]);
+                } else if (num_len == 4) {
+                    // Insert space in the middle (between second and third digit)
+                    j += snprintf(result + j, sizeof(result) - j, "%c%c %c%c", num[0], num[1], num[2], num[3]);
+                } else {
+                    // If it's not 3 or 4 digits, just append the number as it is
+                    j += snprintf(result + j, sizeof(result) - j, "%s", num);
+                }
+            }
+        } else {
+            result[j++] = str[i++];
+			}
+		}
+    result[j] = '\0'; // Null-terminate the result string
+    // Copy the result back to the original string
+    strcpy(str, result);
 	}
-return(OK);
-}
 
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
-/* int SetButtons(int force)
-{
-  Might prefer #if BP_CARBON_GUI_FORGET_THIS here b/c changing settings in non-GUI build 
-     might be undesirable (better to just report incompatible options and exit?)
-	 -- akozar 20130813
-   
-if(AllItems || Improvize) CyclicPlay = FALSE;
-if(AllItems) Improvize = FALSE;
-if(CyclicPlay || AllItems || OutCsound || WriteMIDIfile) ComputeWhilePlay = FALSE;
-if(!InitOn && !IsMidiDriverOn()) rtMIDI = FALSE; // added 012307 - akozar
-if((AllItems || Improvize) && !rtMIDI && !OutCsound && !WriteMIDIfile) DisplayItems = TRUE;
-if(StepTimeSet) TraceTimeSet = TRUE;
-if(TraceTimeSet) DisplayTimeSet = TRUE;
-if(PlanProduce) TraceProduce = StepProduce = TRUE;
-if(TraceProduce || StepProduce || StepGrammars) DisplayProduce = TRUE;
-#if BP_CARBON_GUI_FORGET_THIS
-if(force || (Nw == wSettingsTop) || (Nw == wSettingsBottom)) {
-	ChangeControlValue(force,Hbutt[bMIDI],rtMIDI);
-	ChangeControlValue(force,Hbutt[bImprovize],Improvize);
-	ChangeControlValue(force,Hbutt[bStepProduce],StepProduce);
-	ChangeControlValue(force,Hbutt[bStepGrammars],StepGrammars);
-	ChangeControlValue(force,Hbutt[bPlanProduce],PlanProduce);
-	ChangeControlValue(force,Hbutt[bDisplayProduce],DisplayProduce);
-	ChangeControlValue(force,Hbutt[bUseEachSub],UseEachSub);
-	ChangeControlValue(force,Hbutt[bAllItems],AllItems);
-	ChangeControlValue(force,Hbutt[bTraceProduce],TraceProduce);
-	ChangeControlValue(force,Hbutt[bDisplayTimeSet],DisplayTimeSet);
-	ChangeControlValue(force,Hbutt[bStepTimeSet],StepTimeSet);
-	ChangeControlValue(force,Hbutt[bTraceTimeSet],TraceTimeSet);
-	ChangeControlValue(force,Hbutt[bAllowRandomize],AllowRandomize);
-	ChangeControlValue(force,Hbutt[bCyclicPlay],CyclicPlay);
-	ChangeControlValue(force,Hbutt[bSynchronizeStart],SynchronizeStart);
-	ChangeControlValue(force,Hbutt[bDisplayItems],DisplayItems);
-	ChangeControlValue(force,Hbutt[bResetWeights],ResetWeights);
-	ChangeControlValue(force,Hbutt[bResetFlags],ResetFlags);
-	ChangeControlValue(force,Hbutt[bResetControllers],ResetControllers);
-	ChangeControlValue(force,Hbutt[bNoConstraint],NoConstraint);
-	ChangeControlValue(force,Hbutt[bShowGraphic],ShowGraphic);
-	ChangeControlValue(force,Hbutt[bComputeWhilePlay],ComputeWhilePlay);
-	ChangeControlValue(force,Hbutt[bWriteMIDIfile],WriteMIDIfile);
-	ChangeControlValue(force,Hbutt[bInteractive],Interactive);
-	ChangeControlValue(force,Hbutt[bShowMessages],ShowMessages);
-	ChangeControlValue(force,Hbutt[bCsound],OutCsound);
-	ChangeControlValue(force,Hbutt[bCsoundTrace],CsoundTrace);
-	ChangeControlValue(force,Hbutt[bOMS],Oms);
+void trim_digits_after_key_hash(char* str) {
+    char result[20] = ""; // Buffer to store the resulting string
+    int i = 0, j = 0;
+
+    while (str[i] != '\0') {
+        if (str[i] == '#' && i > 0 && str[i-1] == 'y' && str[i-2] == 'e' && str[i-3] == 'k') {
+            result[j++] = str[i++]; // Copy the '#' character
+            int digit_count = 0;
+            while (isdigit(str[i]) && digit_count < 2) {
+                result[j++] = str[i++];
+                digit_count++;
+            }
+            // Skip any remaining digits after the first two
+            while (isdigit(str[i])) {
+                i++;
+            }
+        } else {
+            result[j++] = str[i++];
+        }
+    }
+
+    result[j] = '\0'; // Null-terminate the result string
+
+    // Copy the result back to the original string
+    strncpy(str, result, strlen(result) + 1);
 	}
-#endif
-return(OK);
-} */
-
-
-#if BP_CARBON_GUI_FORGET_THIS
-
-int ChangeControlValue(int force,ControlHandle hbutt,int ib)
-{
-if(ib != GetControlValue(hbutt)) {
-	if(!force && MustBeSaved(ib)) UpdateDirty(TRUE,iSettings);
-	SetControlValue(hbutt,ib);
-	}
-return(OK);
-}
-
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
 
 int ConvertSpecialChars(char* line) {
 int i,j;

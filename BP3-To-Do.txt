@@ -21,8 +21,10 @@ Microtonal scales and tuning systems
 ------------------------------------
 
 - Create tonal scales imported from SCALA.
+- Implement the Keyboard Manager (KBM, https://github.com/microsoft/PowerToys/wiki/Keyboard-Manager-Overview/29169060108efe7ff318da4e66aeffa80a69dff0)
 - Include values for optional stretching of each octave.
 - Implement a performance control to set the A4 frequency (diapason) in the score.
+- Implement more systems, such as a few ones listed on the page https://midi.org/microtuning-and-alternative-intonation-systems
 
 
 Csound orchestra
@@ -113,6 +115,7 @@ Alternate options in case "phpdesktop" doesn't fit:
 Csound
 ------
 
+- Bug: OutCsound is true
 - (Optional) Revise CsoundWrite to make sure that events are ordered by "note-on" dates, notably with tied notes/sound-objects
 - Reference: https://csound.com/docs/manual/i.html => use negated p1 for distinct note-off?
 - Implement output to DAC in the interface: https://csound.com/docs/manual/CommandFlags.html

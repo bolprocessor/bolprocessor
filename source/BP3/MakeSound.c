@@ -606,7 +606,7 @@ if(!cswrite && MIDImicrotonality && rtMIDI) {
 
 	// MPE Configuration, see page 20 of MPE specs
 	// This doesn't seem to work on PianoTeq STAGE
-	BPPrintMessage(odInfo,"👉 Trying to set up MPE with a lower zone using member channels 2-16\nand pitchbend sensitivity of ± 200 cents on each channel\n");
+	BPPrintMessage(odInfo,"👉 Trying to set up MPE with a lower zone using member channels 2-16\n... and pitchbend sensitivity of ± 200 cents on each channel\n");
 	BPPrintMessage(odInfo,"(This is not really necessary)\n");
 	time = 10;
 	e.type = NORMAL_EVENT;
@@ -861,6 +861,7 @@ TRYCSFILE:
 		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"• kcurrentinstance = %d\n",kcurrentinstance);
 		currentinstancevalues = (*p_Instance)[kcurrentinstance].contparameters.values;
 		scale = (*p_Instance)[kcurrentinstance].scale;
+		// BPPrintMessage(odInfo,"§§§ scale = %d\n",scale);
 		blockkey = (*p_Instance)[kcurrentinstance].blockkey;
 		j = (*p_Instance)[kcurrentinstance].object;
 		if(j == 0) {

@@ -1234,200 +1234,198 @@ long CopyBuf(tokenbyte ***pp_X,tokenbyte ***pp_Y) {	// Copy X to Y
 
 
 int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
-	long *p_end,int mode)
-{
-char c,*p1,*p2,**ptr,**p_buff,***pp_buff;
-p_context *p_plx,*p_prx;
-int i,notargument,meta=0,jbolmem,rep,ret;
-long origin,end,length;
-tokenbyte **p_ti;
+	long *p_end,int mode) {
+	char c,*p1,*p2,**ptr,**p_buff,***pp_buff;
+	p_context *p_plx,*p_prx;
+	int i,notargument,meta=0,jbolmem,rep,ret;
+	long origin,end,length;
+	tokenbyte **p_ti;
 
-if(!CompiledPt) {
-	if((rep=CompilePatterns()) != OK) return(rep);
-	}
-rep = MISSED;
-MyDisposeHandle((Handle*)pp_X);
-pp_buff = &p_buff; p_buff = NULL;
-if(!Editable[w]) return(MISSED);
-TextGetSelection(&origin, &end, TEH[w]);
-*p_end = end;
-SelectOn = TRUE;
-
-POSITION:
-while(MySpace(c=GetTextChar(w,origin))) {
-	origin++;
-	if(origin >= end) {
-		SelectOn = FALSE;
-		BPPrintMessage(odError,"=> SelectionToBuffer error 1\n");
-		return(MISSED);
+	if(!CompiledPt) {
+		if((rep=CompilePatterns()) != OK) return(rep);
 		}
-	}
-if(GetTextChar(w,origin) == '[') {
-	while((c=GetTextChar(w,origin)) != ']') {
+	rep = MISSED;
+	MyDisposeHandle((Handle*)pp_X);
+	pp_buff = &p_buff; p_buff = NULL;
+	if(!Editable[w]) return(MISSED);
+	TextGetSelection(&origin, &end, TEH[w]);
+	*p_end = end;
+	SelectOn = TRUE;
+
+	POSITION:
+	while(MySpace(c=GetTextChar(w,origin))) {
 		origin++;
 		if(origin >= end) {
 			SelectOn = FALSE;
-			Panic = TRUE;
-			BPPrintMessage(odError,"=> SelectionToBuffer error 2, can't find ']‘\n");
+			BPPrintMessage(odError,"=> SelectionToBuffer error 1\n");
 			return(MISSED);
 			}
 		}
-	origin++; goto POSITION;
-	}
-if(origin >= end) {
-	SelectOn = FALSE;
-		BPPrintMessage(odError,"=> SelectionToBuffer error 3\n");
-	return(MISSED);
-	}
-length = end - origin + 4L;
-/* if(length > 32000L) {
-	if(!ScriptExecOn) Alert1("Selection larger than 32,000 chars.  Can't encode");
-	else PrintBehind(wTrace,"Selection larger than 32,000 chars.  Can't encode.\n");
-	SelectOn = FALSE; return(MISSED);
-	} */
-if((ptr = (char**) GiveSpace((Size)(length * sizeof(char)))) == NULL) {
-	rep = ABORT;
-	if(Beta) Alert1("=> Err. SelectionToBuffer(). ptr == NULL");
-	goto SORTIR;
-	}
-*pp_buff = ptr;
-// BPPrintMessage(odInfo,"Selection %d %d length %d\n",origin,end,length);
-if(ReadToBuff(YES,noreturn,w,&origin,end,pp_buff) != OK) goto BAD;
-
-*p_end = origin;
-MyLock(TRUE,(Handle)*pp_buff);
-p1 = **pp_buff; p2 = p1; i = 0; ret = FALSE;
-// OPTIMIZE? Is all of this "re-checking" necessary? Look at ReadToBuff() - akozar
-// We'll check it later - BB
-while(((*p2) != '\0') && (ret || (*p2) != '\r')) {
-	// if((*p2) == '�') ret = TRUE; Fixed by BB 2022-02-18
-	if(!MySpace((*p2))) ret = FALSE;
-	p2++;
-	if(++i > length) {
-		if(Beta) Alert1("=> Err. SelectionToBuffer(). i > length");
-		MyUnlock((Handle)*pp_buff);
-		MyDisposeHandle((Handle*)pp_buff);
+	if(GetTextChar(w,origin) == '[') {
+		while((c=GetTextChar(w,origin)) != ']') {
+			origin++;
+			if(origin >= end) {
+				SelectOn = FALSE;
+				Panic = TRUE;
+				BPPrintMessage(odError,"=> SelectionToBuffer error 2, can't find ']‘\n");
+				return(MISSED);
+				}
+			}
+		origin++; goto POSITION;
+		}
+	if(origin >= end) {
 		SelectOn = FALSE;
-		Panic = TRUE;
+			BPPrintMessage(odError,"=> SelectionToBuffer error 3\n");
 		return(MISSED);
 		}
-	} 
-if(p1 == p2) {
-	MyUnlock((Handle)*pp_buff);
-	goto BAD;
-	}
-jbolmem = Jbol;
-notargument = TRUE;
-p_ti = Encode(sequence,notargument,0,0,&p1,&p2,p_plx,p_prx,&meta,0,NULL,FALSE,&rep);
-MyUnlock((Handle)*pp_buff);
-MyDisposeHandle((Handle*)pp_buff);
-if(p_ti == NULL) {
-	SelectOn = FALSE;
-	if(EmergencyExit) return(ABORT);
-	else {
-		if(rep == OK) return(MISSED);
-		else return(rep);
+	length = end - origin + 4L;
+	/* if(length > 32000L) {
+		if(!ScriptExecOn) Alert1("Selection larger than 32,000 chars.  Can't encode");
+		else PrintBehind(wTrace,"Selection larger than 32,000 chars.  Can't encode.\n");
+		SelectOn = FALSE; return(MISSED);
+		} */
+	if((ptr = (char**) GiveSpace((Size)(length * sizeof(char)))) == NULL) {
+		rep = ABORT;
+		if(Beta) Alert1("=> Err. SelectionToBuffer(). ptr == NULL");
+		goto SORTIR;
 		}
-	}
-*pp_X = p_ti;
-SelectOn = FALSE;
-return(OK);
+	*pp_buff = ptr;
+	// BPPrintMessage(odInfo,"Selection %d %d length %d\n",origin,end,length);
+	if(ReadToBuff(YES,noreturn,w,&origin,end,pp_buff) != OK) goto BAD;
 
-BAD:
-MyDisposeHandle((Handle*)pp_buff);
+	*p_end = origin;
+	MyLock(TRUE,(Handle)*pp_buff);
+	p1 = **pp_buff; p2 = p1; i = 0; ret = FALSE;
+	// OPTIMIZE? Is all of this "re-checking" necessary? Look at ReadToBuff() - akozar
+	// We'll check it later - BB
+	while(((*p2) != '\0') && (ret || (*p2) != '\r')) {
+		// if((*p2) == '�') ret = TRUE; Fixed by BB 2022-02-18
+		if(!MySpace((*p2))) ret = FALSE;
+		p2++;
+		if(++i > length) {
+			if(Beta) Alert1("=> Err. SelectionToBuffer(). i > length");
+			MyUnlock((Handle)*pp_buff);
+			MyDisposeHandle((Handle*)pp_buff);
+			SelectOn = FALSE;
+			Panic = TRUE;
+			return(MISSED);
+			}
+		} 
+	if(p1 == p2) {
+		MyUnlock((Handle)*pp_buff);
+		goto BAD;
+		}
+	jbolmem = Jbol;
+	notargument = TRUE;
+	p_ti = Encode(sequence,notargument,0,0,&p1,&p2,p_plx,p_prx,&meta,0,NULL,FALSE,&rep);
+	MyUnlock((Handle)*pp_buff);
+	MyDisposeHandle((Handle*)pp_buff);
+	if(p_ti == NULL) {
+		SelectOn = FALSE;
+		if(EmergencyExit) return(ABORT);
+		else {
+			if(rep == OK) return(MISSED);
+			else return(rep);
+			}
+		}
+	*pp_X = p_ti;
+	SelectOn = FALSE;
+	return(OK);
 
-SORTIR:
-if(!ScriptExecOn) {
-	Alert1("No data selected");
-	BPPrintMessage(odError,"=> No data selected");
+	BAD:
+	MyDisposeHandle((Handle*)pp_buff);
+
+	SORTIR:
+	if(!ScriptExecOn) {
+		Alert1("No data selected");
+		BPPrintMessage(odError,"=> No data selected");
+		}
+	else {
+		PrintBehind(wTrace,"No data selected.\n");
+		}
+	SelectOn = FALSE;
+	return(rep);
 	}
-else {
-	PrintBehind(wTrace,"No data selected.\n");
-	}
-SelectOn = FALSE;
-return(rep);
-}
 
 
 int ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buff)
-/* Read TExt buffer */
-{
-int first;
-long j,size,k,length;
-char c,oldc,**ptr;
+/* Read TExt buffer */ {
+	int first;
+	long j,size,k,length;
+	char c,oldc,**ptr;
 
-if(*pp_buff == NULL) {
-	if(Beta) Alert1("=> Err. ReadToBuff(). *pp_buff == NULL");
-	return(ABORT);
-	}
-size = (long) MyGetHandleSize((Handle)*pp_buff);
-size = (long) (size / sizeof(char)) - 1L;
-if(size < 2L) {
-	if(Beta) Alert1("=> Err. ReadToBuff(). size < 2 ");
-	return(ABORT);
-	}
-if(*p_i >= im) return(MISSED);
-first = TRUE; oldc = '\0';
-if(stop(0,"ReadToBuff") != OK) return ABORT;
-for(j=*p_i,k=0; j < im; j++) {
-	c = GetTextChar(w,j);
-//	BPPrintMessage(odInfo,"%c",c);
-	if(nocomment && c == '*' && oldc == '/') {
-		/* Skip C-type remark */
-		oldc = '\0'; j++; k--;
-		while(TRUE) {
-			c = GetTextChar(w,j);
-			if(j >= im) {
-				c = '\r';
-				break;
-				}
-			if(c == '/' && oldc == '*') {
-				j++;
+	if(*pp_buff == NULL) {
+		if(Beta) Alert1("=> Err. ReadToBuff(). *pp_buff == NULL");
+		return(ABORT);
+		}
+	size = (long) MyGetHandleSize((Handle)*pp_buff);
+	size = (long) (size / sizeof(char)) - 1L;
+	if(size < 2L) {
+		if(Beta) Alert1("=> Err. ReadToBuff(). size < 2 ");
+		return(ABORT);
+		}
+	if(*p_i >= im) return(MISSED);
+	first = TRUE; oldc = '\0';
+	if(stop(0,"ReadToBuff") != OK) return ABORT;
+	for(j=*p_i,k=0; j < im; j++) {
+		c = GetTextChar(w,j);
+	//	BPPrintMessage(odInfo,"%c",c);
+		if(nocomment && c == '*' && oldc == '/') {
+			/* Skip C-type remark */
+			oldc = '\0'; j++; k--;
+			while(TRUE) {
 				c = GetTextChar(w,j);
-				break;
+				if(j >= im) {
+					c = '\r';
+					break;
+					}
+				if(c == '/' && oldc == '*') {
+					j++;
+					c = GetTextChar(w,j);
+					break;
+					}
+				oldc = c;
+				j++;
 				}
-			oldc = c;
-			j++;
+			}
+		if(c == '\r' /* && oldc != '�' */) {
+			if(first || noreturn) continue;
+			else break;
+			}
+		if(c == '\r' /* && oldc == '�' */) {
+			c = ' ';
+			}
+		oldc = c;
+		first = FALSE;
+		if(noreturn && nocomment && c == '[') {
+			j--; break;
+			}
+	//	if(c == '�') (**pp_buff)[k++] = ' ';
+		c = Filter(c);
+		if(/* c != '�' && */ (c != '\r' || noreturn)) (**pp_buff)[k++] = c;
+		if(k >= size) {
+			if(ThreeOverTwo(&size) != OK) {
+				*p_i = ++j;
+				if(!ScriptExecOn) Alert1("Too long paragraph in selection");
+				else PrintBehind(wTrace,"Too long paragraph in selection. Aborted.\n");
+				return(MISSED);
+				}
+			ptr = *pp_buff;
+			if((ptr = (char**) IncreaseSpace((Handle)ptr)) == NULL) {
+				*p_i = ++j;
+				return(ABORT);
+				}
+			*pp_buff = ptr;
 			}
 		}
-	if(c == '\r' /* && oldc != '�' */) {
-		if(first || noreturn) continue;
-		else break;
-		}
-	if(c == '\r' /* && oldc == '�' */) {
-		c = ' ';
-		}
-	oldc = c;
-	first = FALSE;
-	if(noreturn && nocomment && c == '[') {
-		j--; break;
-		}
-//	if(c == '�') (**pp_buff)[k++] = ' ';
-	c = Filter(c);
-	if(/* c != '�' && */ (c != '\r' || noreturn)) (**pp_buff)[k++] = c;
-	if(k >= size) {
-		if(ThreeOverTwo(&size) != OK) {
-			*p_i = ++j;
-			if(!ScriptExecOn) Alert1("Too long paragraph in selection");
-			else PrintBehind(wTrace,"Too long paragraph in selection. Aborted.\n");
-			return(MISSED);
-			}
-		ptr = *pp_buff;
-		if((ptr = (char**) IncreaseSpace((Handle)ptr)) == NULL) {
-			*p_i = ++j;
-			return(ABORT);
-			}
-		*pp_buff = ptr;
-		}
-	}
-(**pp_buff)[k] = '\0';
-*p_i = ++j;
+	(**pp_buff)[k] = '\0';
+	*p_i = ++j;
 
-CLEAN:
-length = MyHandleLen(*pp_buff);
-if(length > 0 && ((c=(**pp_buff)[length-1]) == 10 || MySpace(c))) {
-	(**pp_buff)[length-1] = '\0';
-	goto CLEAN;
+	CLEAN:
+	length = MyHandleLen(*pp_buff);
+	if(length > 0 && ((c=(**pp_buff)[length-1]) == 10 || MySpace(c))) {
+		(**pp_buff)[length-1] = '\0';
+		goto CLEAN;
+		}
+	return(OK);
 	}
-return(OK);
-}

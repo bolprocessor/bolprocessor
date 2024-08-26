@@ -47,7 +47,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 // arg_nr = 4: left argument (glossary)
 // arg_nr = 8: right argument (glossary)
 tokenbyte **p_buff,**p_pi;
-int ii,ig,ir,j,jj,n,l,ln,lmax,bound,leftside,rightcontext,
+int ii,ig,ir,j,jj,key,n,l,ln,lmax,bound,leftside,rightcontext,
 neg,cv,needsK,needsflag,i_scale,j_scale,result;
 long i,imax,k,siz,buffsize,y,u,v;
 char c,d,**pp,*p,*q,*qmax,*r,*ptr,line[MAXLIN],**p_x;
@@ -650,18 +650,18 @@ end1:	(*pp)++;
 		/* May be it's an out-time simple note */
 		cv = NoteConvention;
 		lmax = 0;
-		for(j=0; j < 128; j++) {
+		for(j=0; j < MAXKEY; j++) {
 			ln = (*(p_NoteLength[cv]))[j];
 			if(ln > 0 && Match(TRUE,p_x,(*(p_NoteName[cv]))[j],ln) && !isdigit((*p_x)[ln])) {
-				lmax = ln; jj = j;
+				lmax = ln; key = j;
 				qmax = q + ln;
 				goto FOUNDNOTE1;
 				}
 			}
-		for(j=0; j < 128; j++) {
+		for(j=0; j < MAXKEY; j++) {
 			ln = (*(p_AltNoteLength[cv]))[j];
 			if(ln > 0 && Match(TRUE,p_x,(*(p_AltNoteName[cv]))[j],ln) && !isdigit((*p_x)[ln])) {
-				lmax = ln; jj = j;
+				lmax = ln; key = j;
 				qmax = q + ln;
 				goto FOUNDNOTE1;
 				}
@@ -670,15 +670,14 @@ FOUNDNOTE1:
 		if(lmax  > 0) {
 			leftside = neg = FALSE;
 			(*p_buff)[i++] = T7;
-			jj += (C4key - 60);
-			if(jj < 0 || jj > 127) {
+			key += (C4key - 60);
+			// BPPrintMessage(odInfo, "key = %d\n",key);
+			if(key < 0 || key >= MAXKEY) {
 			//	Alert1("Simple note is out of range. (May be check \"Tuning\")");
 				BPPrintMessage(odError, "=> A simple note is out of range. Probably wrong value of C4 key number = %ld\n",(long)C4key);
-			//	ShowWindow(GetDialogWindow(TuningPtr));
-			//	SelectWindow(GetDialogWindow(TuningPtr));
 				goto ERR;
 				}
-			(*p_buff)[i++] = (tokenbyte) (jj + 16384);
+			(*p_buff)[i++] = (tokenbyte) (key + 16384);
 			if(i > imax) {
 				if(Beta) Alert1("=> i > imax. Err. Encode()");
 				goto ERR;
@@ -804,46 +803,46 @@ SEARCHNOTE:
 		if(i_scale > NumberScales) i_scale = -1;
 		else {
 			j_scale = i_scale + 3;
-			for(j=0; j < 128; j++) {
+			for(j=0; j < MAXKEY; j++) {
 				q = *pp; l = (*(p_NoteLength[j_scale]))[j];
-				if(l > 0 && Match(TRUE,&q,(*(p_NoteName[j_scale]))[j],l)
-						&& !isdigit(q[l])) {
-					lmax = l; jj = j;
+				if(l > 0 && Match(TRUE,&q,(*(p_NoteName[j_scale]))[j],l) && !isdigit(q[l])) {
+					lmax = l; key = j;
 					qmax = q + l;
-					if(trace_scale) BPPrintMessage(odInfo,"Found note '%s' in current scale, j_scale = %d key = %d\n",q,j_scale,jj);
+					if(trace_scale) 
+						BPPrintMessage(odInfo,"Found note '%s' in current scale, j_scale = %d key = %d\n",q,j_scale,key);
 					goto FOUNDNOTE2;
 					}
 				}
 			}
 		}
-   if(NoteConvention < 4) {
-		for(j=0; j < 128; j++) {
+   if(NoteConvention <= KEYS) {
+		for(j=0; j < MAXKEY; j++) {
 			q = *pp; l = (*(p_NoteLength[NoteConvention]))[j];
 			if(l > 0 && Match(TRUE,&q,(*(p_NoteName[NoteConvention]))[j],l)
 					&& !isdigit(q[l])) {
-				lmax = l; jj = j;
+				lmax = l; key = j;
 				qmax = q + l;
 				goto FOUNDNOTE2;
 				}
 			}
-		for(j=0; j < 128; j++) {
+		for(j=0; j < MAXKEY; j++) {
 			q = *pp; l = (*(p_AltNoteLength[NoteConvention]))[j];
 			if(l > 0 && Match(TRUE,&q,(*(p_AltNoteName[NoteConvention]))[j],l)
 					&& !isdigit(q[l])) {
-				lmax = l; jj = j;
+				lmax = l; key = j;
 				qmax = q + l;
 				goto FOUNDNOTE2;
 				}
 			}
 		}
 	for(j_scale = 4; j_scale < MAXCONVENTIONS; j_scale++) {
-		for(j=0; j < 128; j++) {
+		for(j=0; j < MAXKEY; j++) {
 			q = *pp; l = (*(p_NoteLength[j_scale]))[j];
 			if(l > 0 && Match(TRUE,&q,(*(p_NoteName[j_scale]))[j],l)
 					&& !isdigit(q[l])) {
-				lmax = l; jj = j;
+				lmax = l; key = j;
 				qmax = q + l;
-				if(trace_scale) BPPrintMessage(odInfo,"Found note '%s' in other scale, j_scale = %d key = %d\n",q,j_scale,jj);
+				if(trace_scale) BPPrintMessage(odInfo,"Found note '%s' in other scale, j_scale = %d key = %d\n",q,j_scale,key);
 				goto FOUNDNOTE2;
 				}
 			}
@@ -852,14 +851,14 @@ SEARCHNOTE:
 FOUNDNOTE2:
 		leftside = neg = FALSE;
 		(*p_buff)[i++] = T25;
-		jj += (C4key - 60);
-		if(jj < 0 || jj > 127) {
+		key += (C4key - 60);
+		if(key < 0 || key >= MAXKEY) {
 			BPPrintMessage(odError,"=> Simple note '%s' is out of range.\n",q);
 		/*	ShowWindow(GetDialogWindow(TuningPtr));
 			SelectWindow(GetDialogWindow(TuningPtr)); */
 			goto ERR;
 			}
-		(*p_buff)[i++] = (tokenbyte) jj;
+		(*p_buff)[i++] = (tokenbyte) key;
 		*pp = qmax;
 		if(i > imax) {
 			if(Beta) Alert1("=> i > imax. Err. Encode()");

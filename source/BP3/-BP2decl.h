@@ -110,7 +110,7 @@ extern int Chunk_number;
 extern char ****p_NoteName[MAXCONVENTIONS],****p_AltNoteName[MAXCONVENTIONS];
 extern int **p_NoteLength[MAXCONVENTIONS],**p_AltNoteLength[MAXCONVENTIONS];
 extern int InitThere,FirstTime,MaxScriptInstructions,KeyboardType,C4key,ProgNrFrom,TestMIDIChannel,
-	CurrentMIDIprogram[MAXCHAN+1],BlockScaleOnKey;
+	CurrentMIDIprogram[MAXCHAN+1],DefaultBlockKey;
 extern double A4freq;
 extern time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTime,TimeSettingTime;
 extern unsigned long NextStop;
@@ -166,6 +166,7 @@ extern char Mute,Panic;
 extern char *StopfileName, *PanicfileName;
 
 /* extern char AlertMute; */
+extern int WarnedBasedKey;
 
 // Variables for Csound instruments
 extern CsoundInstrument **p_CsInstrument;
@@ -374,7 +375,7 @@ extern double MaxFrac;
 extern int HaveAppearanceManager;
 extern int RunningOnOSX;
 extern int WaitForSpace;
-extern short MPEnote[17];
+extern short MPEnote[17], MPEscale[17];
 // extern ControlActionUPP vScrollUPP,hScrollUPP;
 // extern NSWReply** MIDIfileReply;
 // extern NSWReply** CsFileReply;
@@ -391,7 +392,7 @@ extern int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 extern FILE * imagePtr;
 extern int N_image;
 extern long MaxConsoleTime;
-extern int NumberScales, MaxScales, DefaultScale, ToldAboutScale;
+extern int NumberScales, MaxScales, DefaultScaleParam, ToldAboutScale;
 extern char LastSeen_scale[100];
 extern t_scale** Scale;
 extern int trace_scale;

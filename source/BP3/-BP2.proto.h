@@ -1118,7 +1118,9 @@ void mysleep(long);
 void save_midisetup(void);
 int read_midisetup(void);
 
-int AssignUniqueChannel(int,int,int);
+int AssignUniqueChannel(int,int,int,int);
+void insert_space_between_digits(char*);
+void trim_digits_after_key_hash(char*);
 
 #if defined(__linux__)
    void MyAlsaMidiInProc(snd_seq_event_t*);

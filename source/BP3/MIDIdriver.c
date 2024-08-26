@@ -1048,7 +1048,7 @@ void closeMIDISystem() {
                                     // Handle system real-time messages or others here
                                     break;
                                 }
-                            i_scale = FindScale(DefaultScale);
+                            i_scale = FindScale(DefaultScaleParam);
                             sendMIDIEvent(i_scale,0,midiData,3,0);
                             }
                         }
@@ -1104,8 +1104,8 @@ void closeMIDISystem() {
                         last_e = e;
                         last_index = index;
                         }
-                //  BPPrintMessage(odInfo, "DefaultScale = %d:\n",DefaultScale);
-                    i_scale = FindScale(DefaultScale);
+                //  BPPrintMessage(odInfo, "DefaultScaleParam = %d:\n",DefaultScaleParam);
+                    i_scale = FindScale(DefaultScaleParam);
                     sendMIDIEvent(i_scale,0,(unsigned char*) packet->data,packet->length,0);
                     }
                 packet = MIDIPacketNext(packet); // Move to the next packet
@@ -1246,7 +1246,7 @@ void closeMIDISystem() {
                     lastClient = source_client;
                     }
                 if(trace_all_interactions) BPPrintMessage(odInfo, "Forwarding client = %d, status = %d, data1 = %d, data2 = %d, ev = %p\n", source_client, e.status, e.data1, e.data2,ev);
-                i_scale = FindScale(DefaultScale);
+                i_scale = FindScale(DefaultScaleParam);
                 sendMIDIEvent(i_scale,0,packet.data, packet.length, packet.timestamp);
                 }
             }
@@ -1321,18 +1321,25 @@ void sendMIDIEvent(int i_scale,int blockkey,unsigned char* midiData,int dataSize
         note = midiData[1];
         value = midiData[2];
         channel = channel_org = midiData[0] & 0x0F;
-        //  BPPrintMessage(odInfo,"§§ Note %d channel %d\n",note,channel);
+    //  BPPrintMessage(odInfo,"§§ Note %d channel %d i_scale = %d\n",note,channel,i_scale);
         if(MIDImicrotonality && (status == NoteOn || status == NoteOff) && i_scale <= NumberScales && i_scale > 0) {
             // This is only used for input events because the microtonality is dealt with in SendToDriver() otherwise
-            channel = AssignUniqueChannel(status,note,value);
+            int numnotes = (*Scale)[i_scale].numnotes;
+            int basekey = (*Scale)[i_scale].basekey;
+            if(basekey != C4key) {
+                note += basekey - C4key;
+                midiData[1] = note;
+                }
+            if(note < 0 || note >= MAXKEY) return;
+            channel = AssignUniqueChannel(status,note,value,i_scale);
             if(channel > 0) midiData[0] = status + channel;
         //  if(status == NoteOff || value == 0) BPPrintMessage(odInfo,"NoteOff %d channel %d\n",note,channel);
             if(status == NoteOn && value > 0 && channel > 0) {
-                if(blockkey == 0) blockkey = BlockScaleOnKey;
+                if(blockkey == 0) blockkey = DefaultBlockKey;
                 correction = (*(*Scale)[i_scale].deviation)[note] - (*(*Scale)[i_scale].deviation)[blockkey];
                 if(TraceMicrotonality) {
-                    BPPrintMessage(odInfo,"NoteOn %d channel %d",note,(channel+1));
-                    BPPrintMessage(odInfo," blockkey %d correction %d cents\n",blockkey,correction);
+                    BPPrintMessage(odInfo,"§ NoteOn %d channel %d",note,(channel+1));
+                    BPPrintMessage(odInfo," basekey %d blockkey %d correction %d cents\n",blockkey,basekey,correction);
                     }
                 // With a pitch bend sensitivity of 2 semitones, the entire pitch bend range (14-bit) will correspond to ± 2 semitones.
                 // The 14-bit range is 16384 values (from 0 to 16383), with 8192 being the center (no pitch bend).
