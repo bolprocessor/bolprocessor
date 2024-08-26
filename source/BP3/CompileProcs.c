@@ -702,7 +702,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 	KeyNumberMap *p_map) 
 {
 int i,im,j,jinstr,p,length,chan,foundk,cntl,result,i_scale,j_scale,
-key,this_key,note_class,l,numgrades,basekey,notenum, octave,pitchclass;
+key,this_key,note_class,numnotes,l,numgrades,basekey,notenum, octave,pitchclass;
 long k,initparam;
 char c,d,*ptr,*ptr2,*p_line,*q,line[MAXLIN];
 double x;
@@ -1301,49 +1301,32 @@ switch(jinstr) {
 				}
 			else {
 				numgrades = (*Scale)[i_scale].numgrades;
+				numnotes = (*Scale)[i_scale].numnotes;
 				basekey = (*Scale)[i_scale].basekey;
+				int baseoctave = (*Scale)[i_scale].baseoctave;
 				strcpy(LastSeen_scale,line);
-				if(trace_scale) BPPrintMessage(odInfo,"Recording note names of scale %d '%s' with %d grades and 'basekey' = %d\n",i_scale,line,numgrades,basekey);
+				if(TraceMicrotonality)
+					BPPrintMessage(odInfo,"Recording the note names of scale %d '%s' with %d grades and base key = %d\n",i_scale,line,numgrades,basekey);
 				j_scale = i_scale + 3;
-				
-			/**	for(this_key = 0; this_key < numgrades; this_key++) {
-					note_class = (*((*Scale)[i_scale].keys))[this_key];
-					} */
-				for(j = 0; j < 128; j++) {
-					pitchclass = modulo((j - C4key),12);
-					octave = (*Scale)[i_scale].baseoctave + floor((((double)j - C4key)) / 12);
-					for(this_key = 0; this_key < numgrades; this_key++) {
-						note_class = (*((*Scale)[i_scale].keys))[this_key];
-						if(note_class == pitchclass) break;
-						}
-					if(this_key >= numgrades) {
-						MystrcpyStringToTable(p_NoteName[j_scale],j,"");
-						MystrcpyStringToTable(p_AltNoteName[j_scale],j,"");
-						(*(p_NoteLength[j_scale]))[j] = (*(p_AltNoteLength[j_scale]))[j] = 0;
-						continue;
-						}
-					if(trace_scale) BPPrintMessage(odInfo,"j = %d, pitchclass = %d,  octave = %d, this_key = %d\n",j,pitchclass,octave,this_key);
-			/*		the_key = C4key + (*((*Scale)[i_scale].keys))[note_class];
-					if(trace_scale) BPPrintMessage(odInfo,"i_scale = %d, j = %d, scale.keys[note_class] = %d, the_key = %d, C4key = %d\n",i_scale,j,(*((*Scale)[i_scale].keys))[note_class],the_key,C4key); */
+				for(key = 0; key < MAXKEY; key++) {
+					this_key = modulo(key - basekey, numnotes);
+					int keyclass = (*((*Scale)[i_scale].keyclass))[this_key];
+					octave = baseoctave + floor((((double)key - basekey)) / numnotes);
+					if(trace_scale) 
+						BPPrintMessage(odInfo,"key = %d, keyclass = %d, octave = %d keyclass = %d\n",key,keyclass,octave,keyclass);
 					switch(octave) {
 						case -1:
-						//	my_sprintf(Message,"%s00",*((*((*Scale)[i_scale].notenames))[pitchclass])); break;
-							my_sprintf(Message,"%s00",*((*((*Scale)[i_scale].notenames))[this_key]));
+							my_sprintf(Message,"%s00",*((*((*Scale)[i_scale].notenames))[keyclass]));
 							break;
 						default:
-						//	my_sprintf(Message,"%s%ld",*((*((*Scale)[i_scale].notenames))[pitchclass]),(long)octave);
-							my_sprintf(Message,"%s%ld",*((*((*Scale)[i_scale].notenames))[this_key]),(long)octave);
+							my_sprintf(Message,"%s%ld",*((*((*Scale)[i_scale].notenames))[keyclass]),(long)octave);
 							break;
 						}
-					if(trace_scale) BPPrintMessage(odInfo,"i_scale = %d, j = %d, '%s'\n",i_scale,j,Message);
-				/*	MystrcpyStringToTable(p_NoteName[j_scale],j,Message);
-					MystrcpyStringToTable(p_AltNoteName[j_scale],j,Message);
-					(*(p_NoteLength[i_scale + 3]))[j] = (*(p_AltNoteLength[j_scale]))[j] = strlen(Message);*/
-					
-					MystrcpyStringToTable(p_NoteName[j_scale],j,Message);
-					MystrcpyStringToTable(p_AltNoteName[j_scale],j,Message);
-					(*(p_NoteLength[j_scale]))[j] = (*(p_AltNoteLength[j_scale]))[j] = strlen(Message);
-			//		note_class++;
+					if(trace_scale)
+						BPPrintMessage(odInfo,"i_scale = %d, key = %d, '%s'\n",i_scale,key,Message);
+					MystrcpyStringToTable(p_NoteName[j_scale],key,Message);
+					MystrcpyStringToTable(p_AltNoteName[j_scale],key,Message);
+					(*(p_NoteLength[j_scale]))[key] = (*(p_AltNoteLength[j_scale]))[key] = strlen(Message);
 					}
 				}
 			}
@@ -1465,7 +1448,7 @@ if(isalpha(line[0])) {
 				}
 			}
 		}
-	if(NoteConvention < 4) {
+	if(NoteConvention <= KEYS) {
 		for(key = 0; key < 128; key++) {
 			l = (*(p_NoteLength[NoteConvention]))[key];
 			if(l > 0 && Match(TRUE,&p_line,(*(p_NoteName[NoteConvention]))[key],l)
@@ -1485,7 +1468,7 @@ if(isalpha(line[0])) {
 		}
 	else {
 		 for(j_scale = 4; j_scale < MAXCONVENTIONS; j_scale++) {
-			for(key=0; key < 128; key++) {
+			for(key=0; key < MAXKEY; key++) {
 				l = (*(p_NoteLength[j_scale]))[key];
 				if(l > 0 && Match(TRUE,&p_line,(*(p_NoteName[j_scale]))[key],l)
 						&& !isdigit(p_line[l])) {

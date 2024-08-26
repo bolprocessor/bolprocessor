@@ -1060,11 +1060,6 @@ int LoadTonality(void) {
 		goto ERREUR;
 		}
 	else BPPrintMessage(odInfo, "Loading tonality: %s\n", FileName[wTonality]);
-/*	my_sprintf(label,"0");
-	if(Scale == NULL) Scale = (t_scale**) GiveSpace((Size)(MaxScales * sizeof(t_scale)));
-	(*Scale)[0].label = (char**) GiveSpace((Size)(strlen(label) * sizeof(char)));
-	MystrcpyStringToHandle(&((*Scale)[0].label),label);
-	BPPrintMessage(odInfo,"label[0] = %s\n",*((*Scale)[0].label)); */
 	while(TRUE) {
 		if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) != OK) goto QUITTER;
 		if(Mystrcmp(p_line,"_begin tables") == 0) {
@@ -1108,7 +1103,7 @@ int LoadTonality(void) {
 		if(length > 0) {
 			result = CreateMicrotonalScale(*p_line,name,note_names,key_numbers,fractions,baseoctave_string);
 			strcpy(name,""); strcpy(note_names,""); strcpy(key_numbers,""); strcpy(baseoctave_string,"");
-			i_scale++;
+			if(result == OK) i_scale++;
 			}
 		}
 	if(i_scale > 0) {
@@ -1471,10 +1466,10 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		LoadedCsoundInstruments = TRUE;
 	/*	if(FALSE && NumberScales == 1) {
 			BPPrintMessage(odInfo, "\nThis microtonal scale will be used for Csound scores in replacement of the equal-tempered 12-tone scale\nPitch will be adjusted to the diapason\n");
-			DefaultScale = -1;
+			DefaultScaleParam = -1;
 			}
 		else */
-		DefaultScale = -1; // Don't use scales until the _scale() instruction has been found
+		DefaultScaleParam = -1; // Don't use scales until the _scale() instruction has been found
 		}
 	else {
 		Created[wCsoundResources] = FALSE;
@@ -1653,7 +1648,7 @@ int LoadSettings(const char *filename, int startup) {
 	if(Token > 0) Token = TRUE;
 	else Token = FALSE;
 	if(ReadInteger(sefile,&NoteConvention,&pos) == MISSED) goto ERR;
-	if(NoteConvention > 4) {
+	if(NoteConvention > (KEYS + 1)) {
 		BPPrintMessage(odInfo, "\n=> ERROR NoteConvention = %d\n",NoteConvention);
 		goto ERR;
 		}
@@ -1720,10 +1715,6 @@ int LoadSettings(const char *filename, int startup) {
 		else EndFadeOut = 2.;
 		my_sprintf(Message,"EndFadeOut = %.2f sec\n",EndFadeOut);
 	//	BPPrintMessage(odInfo,Message);
-	#if BP_CARBON_GUI_FORGET_THIS
-		my_sprintf(Message,"%.2f",EndFadeOut);
-		SetField(FileSavePreferencesPtr,-1,fFadeOut,Message);
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 		
 		if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
 		if(j > 1 && j < 128) C4key = j;
@@ -1731,7 +1722,6 @@ int LoadSettings(const char *filename, int startup) {
 		ReadFloat(sefile,&x,&pos);
 		if(x > 1.) A4freq = x;
 		else A4freq = 440.;
-		
 		if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
 		StrikeAgainDefault = j;
 		}
@@ -1739,7 +1729,7 @@ int LoadSettings(const char *filename, int startup) {
 		MIDIfileType = 1;
 		CsoundFileFormat = UNIX;
 		StrikeAgainDefault = TRUE;
-		// C4key = 48;	/* Here we compensate bad convention on old projects */
+		// C4key = 48;	/* Here we compensate wrong conventions on old projects */
 		// A4freq = 220.;	/* ditto */
 		C4key = 60;
 		A4freq = 440.0;
@@ -1785,16 +1775,13 @@ int LoadSettings(const char *filename, int startup) {
 			}
 		}
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
-	if(j <= 10 || j > 127) BlockScaleOnKey = 60;
-	else BlockScaleOnKey = j;
+	if(j <= 10 || j > 127) DefaultBlockKey = 60;
+	else DefaultBlockKey = j;
 
 	// ResetMIDIFilter();
 
 	if(iv > 4) {
 		if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR;
-	/*	MIDIpassFilter = k;
-		if(startup) MIDIoutputFilterstartup = MIDIpassFilter;
-		GetOutputFilterWord(); */
 		for(i=0; i < 12; i++) {
 			if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
 			NameChoice[i] = j;
@@ -1802,18 +1789,6 @@ int LoadSettings(const char *filename, int startup) {
 			}
 		}
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR;
-/*	if(k != 0L) {
-		MIDIacceptFilter = k;
-	//	BPPrintMessage(odInfo,"MIDIacceptFilter = %d\n",k);
-		if(startup) MIDIinputFilterstartup = MIDIacceptFilter;
-		GetInputFilterWord();
-		if(!ScriptExecOn && !NoteOnIn) {
-			Alert1("Reception of NoteOn's is disabled. Most MIDI data received by BP2 will be meaningless");
-			}
-		} */
-	#if BP_CARBON_GUI_FORGET_THIS
-	SetFilterDialog();
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 	if(iv > 19) {
 		if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;

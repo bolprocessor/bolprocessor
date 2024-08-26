@@ -181,7 +181,7 @@ int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int
 				if(trace_scale) BPPrintMessage(odInfo,"3) scale = %d\n",p_currentparameters->scale);
 				}
 				
-			if((*((*p_contparameters)[level].values))[i].blockkey != BlockScaleOnKey)
+			if((*((*p_contparameters)[level].values))[i].blockkey != DefaultBlockKey)
 				(*currentinstancevalues)[i].blockkey
 					= (*((*p_contparameters)[level].values))[i].blockkey;
 			else

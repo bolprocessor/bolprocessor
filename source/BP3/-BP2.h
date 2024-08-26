@@ -39,7 +39,7 @@
 #ifndef _H_BP2
 #define _H_BP2
 
-#define SHORT_VERSION "3.0.6 (Olympic)"
+#define SHORT_VERSION "3.0.7"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -515,8 +515,8 @@ enum {
 #define KEYS 3
 // #define CUSTOM 4
 
-#define NOTESIZE 20	/* Length of note/key name. Used by EnglishNotes(), FrenchNotes()É */
-					/* É and p_NoteName and p_AltNoteName */
+#define NOTESIZE 20	/* Length of note/key name. Used by EnglishNotes(), FrenchNotes() */
+					/*  and p_NoteName and p_AltNoteName */
 
 #define BOL 0
 #define PATTERN 1
@@ -1816,9 +1816,10 @@ typedef struct s_gram t_gram;
 struct s_scale {
 	int index;
 	int** keys;
+	int** keyclass;
 	char** label;
 	char**** notenames;
-	int numgrades,basekey,baseoctave;
+	int numgrades,numnotes,basekey,baseoctave;
 	double basefreq,interval;
 	double** tuningratio;
 	short** deviation;

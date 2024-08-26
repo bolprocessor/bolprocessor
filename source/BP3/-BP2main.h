@@ -156,7 +156,7 @@ int Chunk_number; // Added by BB 2021-02-11
 char ****p_NoteName[MAXCONVENTIONS],****p_AltNoteName[MAXCONVENTIONS];
 int **p_NoteLength[MAXCONVENTIONS],**p_AltNoteLength[MAXCONVENTIONS];
 int InitThere,FirstTime,MaxScriptInstructions,KeyboardType,C4key,ProgNrFrom,TestMIDIChannel,
-	CurrentMIDIprogram[MAXCHAN+1],BlockScaleOnKey;
+	CurrentMIDIprogram[MAXCHAN+1],DefaultBlockKey;
 double A4freq;
 time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTime,TimeSettingTime;
 unsigned long NextStop;
@@ -212,6 +212,7 @@ char Mute,Panic;
 /* char AlertMute; */   // obsolete; only used by ErrorSound callback - 011707 - akozar
 
 int WaitKey[MAXWAIT+1],WaitChan[MAXWAIT+1];
+int WarnedBasedKey;
 
 // Variables for Csound instruments
 CsoundInstrument **p_CsInstrument;
@@ -452,7 +453,7 @@ double MaxFrac;
 int HaveAppearanceManager;
 int RunningOnOSX;
 int WaitForSpace;
-short MPEnote[17];
+short MPEnote[17], MPEscale[17];
 int ToldPitchbend;
 // ControlActionUPP vScrollUPP,hScrollUPP;
 // NSWReply** MIDIfileReply;

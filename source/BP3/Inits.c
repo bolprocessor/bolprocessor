@@ -117,6 +117,7 @@ int Inits(void) {
 
 	long LastTime = ZERO;
 	long PianorollShift = ZERO;
+	rtMIDI = OutCsound = FALSE;
 	
 	InitOn = NoCursor = NotSaidKpress = TRUE;
 	ReceivedOpenAppEvent = FALSE;
@@ -137,7 +138,7 @@ int Inits(void) {
 	Ratio = 0.;  Prod = 1.;
 	N_image = 0; imagePtr = NULL;
 	NumberScales = 0;
-	DefaultScale = -1; MaxScales = 2; Scale = NULL;
+	DefaultScaleParam = -1; MaxScales = 2; Scale = NULL;
 	ToldAboutScale = FALSE;
 	WarnedBlockKey = WarnedRangeKey  = FALSE;
 	TimeMax = MAXTIME; Nalpha = 100L; SpeedRange = 6.;
@@ -190,7 +191,7 @@ int Inits(void) {
 
 	KeyboardType = QWERTY;
 	C4key = 60;  A4freq = 440.;
-	BlockScaleOnKey =  60; // Block frequency on C4 wheen changing scales
+	DefaultBlockKey =  60; // Block frequency on C4 wheen changing scales
 	ProgNrFrom = 1;	/* This has changed with version 2.7.3 */
 	TestMIDIChannel = 1;
 	for(i=0; i <= MAXCHAN; i++) {
@@ -219,6 +220,7 @@ int Inits(void) {
 	PrefixTree.p = SuffixTree.p = NULL;
 	PrefixTree.accept = SuffixTree.accept = FALSE;
 	SmartCursor = Mute = Panic = ClockOverFlow = SchedulerIsActive = FALSE;
+	WarnedBasedKey = FALSE;
 	/*AlertMute = FALSE;*/
 
 	/* #if WITH_REAL_TIME_SCHEDULER_FORGET_THIS
@@ -236,7 +238,7 @@ int Inits(void) {
 	Stream.code = NULL;
 	Stream.imax = ZERO; Stream.cyclic = FALSE; Stream.period = ZERO;
 
-	for(ch = 0; ch < 16; ch++) MPEnote[ch] = 0;
+	for(ch = 0; ch < 16; ch++) MPEnote[ch] = MPEscale[ch] = 0;
 
 	#if BP_CARBON_GUI_FORGET_THIS
 	if(GetResource('MENU',MenuIDoffset) == NULL) {
@@ -291,9 +293,7 @@ int Inits(void) {
 	for(i=32; i < 256; i++) (*p_HTMLchar2)[i] = HTMLlatin[i-32]; */
 
 	if(MakeWindows() != OK) return(ABORT);
-	// SetDialogFont(systemFont);
 	if(InitButtons() != OK) return(ABORT);
-	// if(Beta) FlashInfo("This is a beta version for evaluation...\n");
 
 	#if NEWGRAF_FORGET_THIS
 	if(!HasGWorlds()) {
@@ -1632,11 +1632,6 @@ return(OK);
 
 
 int InitButtons(void) {
-	#if WITH_REAL_TIME_MIDI_FORGET_THIS && BP_CARBON_GUI_FORGET_THIS
-	rtMIDI = TRUE;
-	#else
-	rtMIDI = FALSE;
-	#endif
 	FirstNoteOn = TRUE;
 	OutBPdata = FALSE;
 	ObjectMode = ObjectTry = Improvize = StepProduce = TraceMicrotonality
@@ -1644,7 +1639,7 @@ int InitButtons(void) {
 		= TraceProduce = DisplayTimeSet = StepTimeSet = TraceTimeSet = ResetNotes
 		= ShowGraphic = ComputeWhilePlay = NeverResetWeights = FALSE;
 	SynchronizeStart = CyclicPlay = NoConstraint = AllItems
-		= WriteMIDIfile = OutCsound = CsoundTrace = WillRandomize = FALSE;
+		= WriteMIDIfile = CsoundTrace = WillRandomize = FALSE;
 	ResetWeights = ResetFlags = ResetControllers = ShowMessages
 		= AllowRandomize = TRUE;
 	NoteConvention = ENGLISH;
