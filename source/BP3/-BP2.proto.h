@@ -635,7 +635,7 @@ int LoadMIDIprototype(int,long);
 int MIDItoPrototype(int,int,int,MIDIcode**,long);
 int SelectControlArgument(int,char*);
 int WaitABit(long);
-int CheckMIDIbytes(int);
+// int CheckMIDIbytes(int);
 int mLoadTimePattern(int);
 int mGetInfo(int);
 int mShowMessages(int);

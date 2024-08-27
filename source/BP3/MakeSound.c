@@ -122,7 +122,7 @@ rs = 0;
 resetok = TRUE;
 // max_endtime_event = max_endtime = ZERO;
 
-// if(MIDIfileOn) BPPrintMessage(odInfo, "MIDI file will be created\n");
+if(MIDIfileOn) BPPrintMessage(odInfo,"👉 a MIDI file will be created\n");
 
 #if BP_CARBON_GUI_FORGET_THIS
 // FIXME ? Should non-Carbon builds call a "poll events" callback here ?
@@ -571,13 +571,15 @@ if(!cswrite && rtMIDI && A4freq != 440) {
 	double cents = 1200 * (log(A4freq/440.) / log(2.));
 	BPPrintMessage(odInfo,"👉 Trying to tune the MIDI device to %.2f Hz, i.e. %d cents from 440 Hz\n",A4freq,(int)cents);
 	int semitones = 0;
-	if(cents < 0) {
-		semitones++;
-		while((cents = (100 * semitones + cents)) < 0) semitones++;
+	semitones = (int)(cents / 100);  // Calculate the number of semitones
+	cents -= semitones * 100;            // Adjust cents to be within one semitone
+	if (cents < 0) {
+		semitones -= 1;  // Move down one more semitone
+		cents += 100;    // Adjust cents to be positive within this lower semitone
 		}
-	if(semitones > 0) BPPrintMessage(odInfo,"... which means %d semitone(s) lower, then up +%d cents\n",semitones,(int)cents);
+	if(semitones != 0) BPPrintMessage(odInfo,"... which means %d semitone(s) lower, then up +%d cents\n",(-semitones),(int)cents);
 	time = 0;
-	for(chan = 1; chan <= 15; chan++) {
+	for(chan = 0; chan < 16; chan++) {
 		e.status = ControlChange + chan;
 		e.data1 = 101;  // RPN MSB
 		e.data2 = 0;    // Set to 0 for RPN MSB
@@ -587,17 +589,18 @@ if(!cswrite && rtMIDI && A4freq != 440) {
 		SendToDriver(-1,0,0,time,0,&rs,&e);
 		// Set A4 Tuning to 442 Hz (approximately +8 cents)
 		e.data1 = 6;    // Data Entry MSB
-		e.data2 = semitones;    // 0 semitones
+		e.data2 = (semitones >= 0) ? semitones : (127 + semitones + 1);    // 0 semitones
 		SendToDriver(-1,0,0,time,0,&rs,&e);
 		e.data1 = 38;   // Data Entry LSB
 		e.data2 = (int) cents;
 		SendToDriver(-1,0,0,time,0,&rs,&e);
+		time += 10;
 		}
 	}
 
 if(!cswrite && MIDImicrotonality && rtMIDI) {
 	// Set receiver to Mode 3 ("Poly)
-	time = 0;
+	time += 10;
 	e.type = NORMAL_EVENT;
 	e.status = ControlChange;
 	e.data1 = 126;
@@ -607,20 +610,20 @@ if(!cswrite && MIDImicrotonality && rtMIDI) {
 	// MPE Configuration, see page 20 of MPE specs
 	// This doesn't seem to work on PianoTeq STAGE
 	BPPrintMessage(odInfo,"👉 Trying to set up MPE with a lower zone using member channels 2-16\n... and pitchbend sensitivity of ± 200 cents on each channel\n");
-	BPPrintMessage(odInfo,"(This is not really necessary)\n");
-	time = 10;
+	BPPrintMessage(odInfo,"... This is probably not necessary\n");
+	time += 10;
 	e.type = NORMAL_EVENT;
 	e.status = ControlChange;
 	e.data1 = 101;
 	e.data2 = 0;
 	SendToDriver(-1,0,0,time,0,&rs,&e);
-	time = 20;
+	time += 10;
 	e.type = NORMAL_EVENT;
 	e.status = ControlChange;
 	e.data1 = 100;
 	e.data2 = 6;
 	SendToDriver(-1,0,0,time,0,&rs,&e);
-	time = 30;
+	time += 10;
 	e.type = NORMAL_EVENT;
 	e.status = ControlChange;
 	e.data1 = 6;
@@ -629,19 +632,19 @@ if(!cswrite && MIDImicrotonality && rtMIDI) {
 
 	// Set PitchBend sensitivity to ± 2 semitones on all member channels, see pages 24 and 14 of MPE specs
 	for(chan = 2; chan <= 15; chan++) {
-		time = 30 + (30 * chan);
+		time += 10;
 		e.type = NORMAL_EVENT;
 		e.status = ControlChange + chan;
 		e.data1 = 101;
 		e.data2 = 0;
 		SendToDriver(-1,0,0,time,0,&rs,&e);
-		time = 40 + (30 * chan);
+		time += 10;
 		e.type = NORMAL_EVENT;
 		e.status = ControlChange + chan;
 		e.data1 = 100;
 		e.data2 = 0;
 		SendToDriver(-1,0,0,time,0,&rs,&e);
-		time = 50 + (30 * chan);
+		time += 10;
 		e.type = NORMAL_EVENT;
 		e.status = ControlChange + chan;
 		e.data1 = 6; // Data Entry MSB
@@ -675,6 +678,7 @@ if(MIDIfileOn) {
 	Nplay = 1;
 	}
 
+if(A4freq != 440 && TraceMicrotonality) BPPrintMessage(odInfo,"👉 The diapason (A4) is set to %.2f Hz. This multiplies the frequencies by %.2f\n",A4freq, (A4freq / 440.));
 
 mustwait = FALSE;
 rs = 0;
@@ -861,7 +865,7 @@ TRYCSFILE:
 		if(trace_csound_pianoroll) BPPrintMessage(odInfo,"• kcurrentinstance = %d\n",kcurrentinstance);
 		currentinstancevalues = (*p_Instance)[kcurrentinstance].contparameters.values;
 		scale = (*p_Instance)[kcurrentinstance].scale;
-		// BPPrintMessage(odInfo,"§§§ scale = %d\n",scale);
+	//	BPPrintMessage(odInfo,"§§§ scale = %d\n",scale);
 		blockkey = (*p_Instance)[kcurrentinstance].blockkey;
 		j = (*p_Instance)[kcurrentinstance].object;
 		if(j == 0) {
@@ -1109,8 +1113,7 @@ TRYCSFILE:
 			if(t2 > t2tick && t2 != Infpos) t2 = t2tick;
 			if(trace_csound_pianoroll)
 				BPPrintMessage(odInfo,"fixed t2 = %ld\n",(long)t2);
-			if(!cswrite && !MIDIfileOn && !showpianoroll && (result=CheckMIDIbytes(YES)) != OK
-				&& result != RESUME) goto OVER;
+			if(!cswrite && !MIDIfileOn && !showpianoroll) goto OVER;
 			
 			result = OK;
 			
@@ -1194,8 +1197,7 @@ FORGETIT:
 					if((result=ExecuteScriptList(scriptlist)) != OK && result != RESUME)
 						goto OVER;
 						
-					if(!cswrite && !MIDIfileOn && !showpianoroll && (result=CheckMIDIbytes(YES)) != OK
-						&& result != RESUME) goto OVER;
+			//		if(!cswrite && !MIDIfileOn && !showpianoroll && (result=CheckMIDIbytes(YES)) != OK && result != RESUME) goto OVER;  2024-08-27
 						
 					LapWait += (clock() - WhenItStarted);
 					if(ScriptExecOn && CountOn && WaitEndDate > ZERO)
@@ -1506,6 +1508,7 @@ SWITCHES:
 									e.status = c0;
 									e.data1 = c1;
 									e.data2 = c2;
+								//	BPPrintMessage(odInfo,"scale1 = %d\n",scale);
 									if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 									}
 								t1 += (Milliseconds)(beta
@@ -1640,6 +1643,7 @@ SENDNOTEOFF:
 									e.status = NoteOn + localchan;
 									e.data1 = c1;
 									e.data2 = 0;
+									// BPPrintMessage(odInfo,"scale2 = %d\n",scale);
 									if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 									}
 								else {
@@ -1686,6 +1690,7 @@ SENDNOTEOFF:
 									e.status = NoteOn + localchan;
 									e.data1 = c1;
 									e.data2 = 0;
+									// BPPrintMessage(odInfo,"scale3 = %d\n",scale);
 									if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 									}
 								if(showpianoroll) { // Added by BB 4 Nov 2020
@@ -1716,6 +1721,7 @@ SENDNOTEOFF:
 								e.status = c0 + localchan;
 								e.data1 = c1;
 								e.data2 = c2;
+								// BPPrintMessage(odInfo,"scale4 = %d\n",scale);
 								if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 								}
 							if(cswrite) {
@@ -1757,6 +1763,7 @@ SENDNOTEOFF:
 							e.status = c0;
 							e.data1 = c1;
 							e.data2 = c2;
+							// BPPrintMessage(odInfo,"scale5 = %d\n",scale);
 							if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 							}
 						t1 += (Milliseconds)(beta
@@ -1852,8 +1859,7 @@ NEWPERIOD:
 				}
 			}
 
-		if(!cswrite && (result=CheckMIDIbytes(YES)) != OK
-												&& result != RESUME) goto OVER;
+//		if(!cswrite && (result=CheckMIDIbytes(YES)) != OK && result != RESUME) goto OVER;
 #if BP_CARBON_GUI_FORGET_THIS
 		// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
 		// Does the call to MyButton() happen now that maxmidibytes5 = LONG_MAX / 5 ?
@@ -2229,12 +2235,14 @@ if(add_time > ZERO  && (Improvize || PlayAllChunks)) { // 2024-05-09
 		e.status = NoteOn;
 		e.data1 = 0;
 		e.data2 = 0;
+		// BPPrintMessage(odInfo,"scale6 = %d\n",scale);
 		if((result=SendToDriver(kcurrentinstance,scale,blockkey,(Tcurr * Time_res),nseq,&rs,&e)) != OK) goto OVER;
 		e.time = Tcurr + (add_time / Time_res);
 		e.type = NORMAL_EVENT;
 		e.status = NoteOn;
 		e.data1 = 0;
 		e.data2 = 0;
+		// BPPrintMessage(odInfo,"scale7 = %d\n",scale);
 		if((result=SendToDriver(kcurrentinstance,scale,blockkey,((Tcurr * Time_res) + add_time),nseq,&rs,&e)) != OK) goto OVER;
 		}
 	if(cswrite) {

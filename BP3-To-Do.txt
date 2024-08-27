@@ -20,8 +20,6 @@ https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
 Microtonal scales and tuning systems
 ------------------------------------
 
-- Create tonal scales imported from SCALA.
-- Implement the Keyboard Manager (KBM, https://github.com/microsoft/PowerToys/wiki/Keyboard-Manager-Overview/29169060108efe7ff318da4e66aeffa80a69dff0)
 - Include values for optional stretching of each octave.
 - Implement a performance control to set the A4 frequency (diapason) in the score.
 - Implement more systems, such as a few ones listed on the page https://midi.org/microtuning-and-alternative-intonation-systems
@@ -48,7 +46,7 @@ Csound orchestra
 MIDI input
 ----------
 
-- Implement more script instructions previously designed for BP2. Try to fix "_script(Wait for space)" - no hope!
+- Implement more script instructions previously designed for BP2. Try to fix "_script(Wait for space)" (no hope!)
 
 
 Real-time MIDI
@@ -58,7 +56,6 @@ Real-time MIDI
 - Check -gr.Alan and -gr.Beatrix for a synchronisation problem after more than 2 turns.
 — In Linux, it seems that the two virtual ports 'VirMIDI 0-0' and 'VirMIDI 0-1' are not communicating with other ports even though connections are valid.
 - Put some scripts on top of a grammar (the INIT: section) to run them before the production is started. This will notably allow setting up parameters K1, K2… K127.
-- When playing back chunked data in real-time MIDI, there may be gaps followed by garbled events due to the time taken to calculate large chunks. Check "-da.Beethoven-fugue-B-flat-major" for this. It's probably unavoidable: a larger value of MaxMIDIMessages (currently 1000 in ConsoleMain.c) is needed, but it blows the memory.
 - The value of MaxMIDIMessages could be specified in the settings file of the project.
 - Check the accuracy of start times in sound-object pictures.
 
@@ -115,7 +112,6 @@ Alternate options in case "phpdesktop" doesn't fit:
 Csound
 ------
 
-- Bug: OutCsound is true
 - (Optional) Revise CsoundWrite to make sure that events are ordered by "note-on" dates, notably with tied notes/sound-objects
 - Reference: https://csound.com/docs/manual/i.html => use negated p1 for distinct note-off?
 - Implement output to DAC in the interface: https://csound.com/docs/manual/CommandFlags.html

@@ -1436,7 +1436,7 @@ void CloseOutputDestination(int dest, BPConsoleOpts* opts, outfileidx_t fileidx)
 	if (opts->outputFiles[fileidx].isOpen)	{
 		SetOutputDestinations(dest, NULL);
 		CloseOutputFile(&(opts->outputFiles[fileidx]));
-		BPPrintMessage(odInfo, "Closed file: %s\n", opts->outputFiles[fileidx].name);
+		BPPrintMessage(odInfo, "Closing file: %s\n", opts->outputFiles[fileidx].name);
 		}
 	return;
 	}

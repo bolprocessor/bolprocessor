@@ -6,6 +6,12 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+-----
+2024-08-27
+Microtonal adjustments can now be saved in MIDI files. This works with all MIDI devices that are pitch-bending sensitive, regardless of their compatibility with MPE.
+Microtonality issues with Csound have been fixed. The "Trace microtonality" option shows the cent corrections and the frequencies of the notes. This takes into account the tuning of the A4 diapason. This tuning may not be effective in the MIDI device.
+
+-----
 2024-08-26 (version 3.0.7)
 Microtonality is now fully compliant with tonal scales defined in "-to" tonality resources, both in real-time MIDI and in Csound. This includes the retuning of incoming MIDI events.
 The new PHP interface imports and exports SCALA (scale) and KBM (keyboard mapping) files.
