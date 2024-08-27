@@ -273,8 +273,9 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 	int this_block_key, i_note, note_class, octave, keyclass,blockkey_pitch_class, numgrades, numnotes, basekey, basekeyclass, baseoctave, delta_key;
 	double basefreq, pitch_ratio, fix_ratio_0, blockkey_pitch_ratio, blockkey_correction, diapason_correction, interval, frequency;
+	char this_key[100];
 	
-	int check_getpitch = TRUE;
+	int check_getpitch = FALSE;
 
 	if(i_scale > NumberScales) { 
 		BPPrintMessage(odError,"\n=> Scale number %d is out of range (maximum %d). No Csound score produced\n\n",i_scale,NumberScales);
@@ -298,6 +299,7 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 		}
 	if(numgrades <= 12) {
 		keyclass = modulo(key - basekey, 12);
+	//	BPPrintMessage(odInfo,"i_scale = %d basekey = %d\n",i_scale,basekey);
 		basekeyclass = (*((*Scale)[i_scale].keyclass))[modulo(basekey, 12)];
 		octave = baseoctave + floor(((double)key - basekey) / 12);
 		}
@@ -323,7 +325,12 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 	int correction = (*(*Scale)[i_scale].deviation)[key] - (*(*Scale)[i_scale].deviation)[blockkey];
 	frequency = frequency * pow(interval, ((double) correction / 600. / interval));
 
-if(check_getpitch) BPPrintMessage(odInfo,"• key = %d, C4key = %d, basekey = %d, basekeyclass = %d, basefreq = %.3f baseoctave = %d, numgrades = %d interval = %.3f, keyclass = %d pitch_ratio = %.3f, fix_ratio_0 = %.3f, diapason_correction = %.4f blockkey = %d, correction = %d, octave = %d, cents = %.1f, frequency = %.3f Hz\n",key,C4key,(*Scale)[i_scale].basekey,basekeyclass,basefreq,baseoctave,numgrades,interval,keyclass,pitch_ratio,fix_ratio_0,diapason_correction,blockkey,correction,octave,cents,frequency);
+	my_sprintf(this_key,"%s%d",*((*(*Scale)[i_scale].notenames)[keyclass]),octave);
+	trim_digits_after_key_hash(this_key); // Remove the octave number after key#xx
+
+	if(TraceMicrotonality) BPPrintMessage(odInfo,"§ key %d: \"%s\" octave %d scale #%d, block key %d, corr %d cents, freq %.3f Hz\n",key,this_key,octave,i_scale,blockkey,correction,frequency);
+
+	if(check_getpitch) BPPrintMessage(odInfo,"• key = %d, C4key = %d, basekey = %d, basekeyclass = %d, basefreq = %.3f baseoctave = %d, numgrades = %d interval = %.3f, keyclass = %d pitch_ratio = %.3f, fix_ratio_0 = %.3f, diapason_correction = %.4f blockkey = %d, correction = %d, octave = %d, cents = %.1f, frequency = %.3f Hz\n",key,C4key,(*Scale)[i_scale].basekey,basekeyclass,basefreq,baseoctave,numgrades,interval,keyclass,pitch_ratio,fix_ratio_0,diapason_correction,blockkey,correction,octave,cents,frequency);
 
 	return frequency;
 	}

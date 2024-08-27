@@ -342,7 +342,6 @@ if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
 	if(time < OldMIDIfileTime) OldMIDIfileTime = time;
 	/* This could happen with a bad rounding. Normally BP2 sorts out events */
 	
-		
 	/* Write out variable length delta time value. */
 	if(WriteVarLenQuantity(OpenMIDIfilePtr, (dword)(time-OldMIDIfileTime),
 			&MIDItracklength) != OK) goto BAD;
@@ -433,7 +432,7 @@ static int CloseMIDIFile2(void) {
 	if(gOptions.outputFiles[ofiMidiFile].isOpen) {
 		fflush(gOptions.outputFiles[ofiMidiFile].fout);
 		CloseOutputFile(&(gOptions.outputFiles[ofiMidiFile]));
-		my_sprintf(Message,"Closed MIDI file %s",gOptions.outputFiles[ofiMidiFile].name);
+		my_sprintf(Message,"Closing MIDI file %s",gOptions.outputFiles[ofiMidiFile].name);
 		ShowMessage(TRUE,wMessage,Message);
 		}
 	MIDIfileOpened = FALSE;

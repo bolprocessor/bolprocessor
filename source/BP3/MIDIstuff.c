@@ -1703,18 +1703,6 @@ return(OK);
 }
 
 
-int CheckMIDIOutPut(int channel)
-{
-MIDI_Event e;
-int key,duration,minkey,maxkey,stepkey,ch,stop;
-double r,x,kx;
-unsigned long drivertime;
-
-if (!rtMIDI) {
-	Alert1("MIDI output is off,  Check the Drivers menu.");
-	return(MISSED);
-}
-
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
 if(Mute) {
 	Alert1("The 'Mute' button was checked on the control pannel...");
@@ -1841,8 +1829,8 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 	note = ByteToInt(p_e->data1);
 	value = ByteToInt(p_e->data2);
 	type = status & 0xF0;
+	if(type != NoteOn && type != NoteOff) i_scale = blockkey = 0;
 	if(rtMIDI) {
-		// Sending to the event stack
         done = 0L;
 	//	trace_driver = TRUE;
     	if(trace_driver) 
@@ -1854,88 +1842,102 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
             if(MIDIflush() != OK) break;
         //  if(done++ == 0L) BPPrintMessage(odInfo,"Reached the limit of the buffer...\n");
             }
-		if(type != NoteOn && type != NoteOff) i_scale = blockkey = 0;
-		else if(MIDImicrotonality) {
-			i_scale = FindScale(scale);
-			int check_corrections = FALSE;
-			if((type == NoteOn || type == NoteOff) && i_scale <= NumberScales && i_scale > 0) {
-				chan = AssignUniqueChannel(type,note,value,i_scale);
-				if(chan > 0) p_e->status = type + chan;
-				if(type == NoteOn && value > 0 && chan > 0) {
-					if(blockkey < 0) blockkey = DefaultBlockKey;
-					correction = (*(*Scale)[i_scale].deviation)[note] - (*(*Scale)[i_scale].deviation)[blockkey];
-					if(TraceMicrotonality) {
-						int basekey = (*Scale)[i_scale].basekey;
-						int numgrades = (*Scale)[i_scale].numgrades;
-						int numnotes = (*Scale)[i_scale].numnotes;
-						int baseoctave = (*Scale)[i_scale].baseoctave;
-						double interval = (*Scale)[i_scale].interval;
-						if(numgrades <= 12) { 
-							i_note = 0;
-							keyclass = modulo(note - basekey, 12);
-							basekeyclass = (*((*Scale)[i_scale].keyclass))[modulo(basekey, 12)];
-							octave = baseoctave + floor((double) (note - basekey)  / 12.);
-							}
-						else {
-							i_note = modulo(note - basekey, numnotes);
-							keyclass = (*((*Scale)[i_scale].keyclass))[i_note];
-							basekeyclass = (*((*Scale)[i_scale].keyclass))[modulo(basekey, numnotes)];
-							octave = baseoctave + floor((double) (note - basekey) / numnotes);
-							}
-						double pitch_ratio = (*((*Scale)[i_scale].tuningratio))[keyclass];
-						double n = log(pitch_ratio * pow(interval,octave - baseoctave)) / log(interval);
-						double frequency = (*Scale)[NumberScales].basefreq  * pow(interval,n);
-						frequency = frequency * pow(interval, ((double) correction / 600. / interval));
-						frequency = frequency * (*((*Scale)[i_scale].tuningratio))[basekeyclass];
-						if(check_corrections) BPPrintMessage(odInfo,"i_note = %d, keyclass = %d, numnotes = %d, pitch_ratio = %.3f, basekey = %d, basekeyclass = %d, block key = %d, octave = %d\n",i_note,keyclass,numnotes,pitch_ratio,basekey,basekeyclass,blockkey,octave);
-						my_sprintf(this_key,"%s%d",*((*(*Scale)[i_scale].notenames)[keyclass]),octave);
-						trim_digits_after_key_hash(this_key); // Remove the octave number after key#xx
-						BPPrintMessage(odInfo,"§ key %d: \"%s\" chan %d",note,this_key,(chan+1));
-						BPPrintMessage(odInfo," scale #%d, block key %d, corr %d cents, freq %.3f Hz",i_scale,blockkey,correction,frequency);
-						if(basekey != 60) BPPrintMessage(odInfo," (base key %d in scale)",basekey);
-						BPPrintMessage(odInfo,"\n");
+		}
+	if(MIDImicrotonality && (type == NoteOn || type == NoteOff)) {
+		i_scale = FindScale(scale);
+	//	BPPrintMessage(odInfo,"i_scale = %d\n",i_scale);
+		int check_corrections = FALSE;
+		if((type == NoteOn || type == NoteOff) && i_scale <= NumberScales && i_scale > 0) {
+			chan = AssignUniqueChannel(type,note,value,i_scale);
+			if(chan > 0) p_e->status = type + chan;
+			if(type == NoteOn && value > 0 && chan > 0) {
+				if(blockkey < 0) blockkey = DefaultBlockKey;
+				correction = (*(*Scale)[i_scale].deviation)[note] - (*(*Scale)[i_scale].deviation)[blockkey];
+				if(TraceMicrotonality) {
+					int basekey = (*Scale)[i_scale].basekey;
+					int numgrades = (*Scale)[i_scale].numgrades;
+					int numnotes = (*Scale)[i_scale].numnotes;
+					int baseoctave = (*Scale)[i_scale].baseoctave;
+					double interval = (*Scale)[i_scale].interval;
+					if(numgrades <= 12) { 
+						i_note = 0;
+						keyclass = modulo(note - basekey, 12);
+						basekeyclass = (*((*Scale)[i_scale].keyclass))[modulo(basekey, 12)];
+						octave = baseoctave + floor((double) (note - basekey)  / 12.);
 						}
-					// With a pitch bend sensitivity of 2 semitones, the entire pitch bend range (14-bit) will correspond to ± 2 semitones.
-					// The 14-bit range is 16384 values (from 0 to 16383), with 8192 being the center (no pitch bend).
-					// Therefore, 2 semitones = 200 cents corresponds to 8192 units, and 1 cent is 8192 / 200 units
-					sensitivity = 2; // semitones
-					pitchbend_master = (int) PitchbendStart(kcurrentinstance);
-					if(pitchbend_master > 0 && pitchbend_master < 16384) pitchbend_master -= DEFTPITCHBEND;
-					else pitchbend_master = 0;
-					if(pitchbend_master != 0  && TraceMicrotonality) BPPrintMessage(odInfo,"--> with additional pitchbendvalue %d\n",pitchbend_master);
-					if(correction < -200 || correction >= 200) {
-						if(ToldPitchbend++ < 4) BPPrintMessage(odError,"=> Microtonality pitchbender out of range ± 200 cents: %d  cents note %d\n",correction,note);
-						correction = 0;
+					else {
+						i_note = modulo(note - basekey, numnotes);
+						keyclass = (*((*Scale)[i_scale].keyclass))[i_note];
+						basekeyclass = (*((*Scale)[i_scale].keyclass))[modulo(basekey, numnotes)];
+						octave = baseoctave + floor((double) (note - basekey) / numnotes);
 						}
-					if(correction != 0) {
-						pitchBendValue = pitchbend_master + DEFTPITCHBEND + (int)(correction * (0.01 * DEFTPITCHBEND / sensitivity));
-						if(pitchBendValue < 0) {
-							if(ToldPitchbend++ < 4) BPPrintMessage(odError,"=> Pitchbender out of range has been set to 0\n");
-							pitchBendValue = 0;
-							}
-						if(pitchBendValue > 16383) {
-							if(ToldPitchbend++ < 4) BPPrintMessage(odError,"=> Pitchbender out of range has been set to 16383\n");
-							pitchBendValue = 16383;
-							}
-						pitchBendLSB = pitchBendValue & 0x7F; // Lower 7 bits
-						pitchBendMSB = (pitchBendValue >> 7) & 0x7F; // Upper 7 bits
-						pb_event.status = PitchBend + chan;
-						pb_event.data1 = pitchBendLSB;  // Pitch Bend LSB
-						pb_event.data2 = pitchBendMSB;  // Pitch Bend MSB
-					//  	BPPrintMessage(odInfo,"• pitchBendValue channel %d: %d = %d %d %d\n",chan,pitchBendValue,(int)pb_event.status,(int)pb_event.data1,(int)pb_event.data2);
+					double pitch_ratio = (*((*Scale)[i_scale].tuningratio))[keyclass];
+					double n = log(pitch_ratio * pow(interval,octave - baseoctave)) / log(interval);
+					double frequency = (*Scale)[NumberScales].basefreq  * pow(interval,n);
+					frequency = frequency * pow(interval, ((double) correction / 600. / interval));
+					frequency = frequency * (*((*Scale)[i_scale].tuningratio))[basekeyclass];
+					frequency = frequency * A4freq / 440.;
+
+					if(check_corrections) BPPrintMessage(odInfo,"i_note = %d, keyclass = %d, numnotes = %d, pitch_ratio = %.3f, basekey = %d, basekeyclass = %d, block key = %d, octave = %d\n",i_note,keyclass,numnotes,pitch_ratio,basekey,basekeyclass,blockkey,octave);
+
+					my_sprintf(this_key,"%s%d",*((*(*Scale)[i_scale].notenames)[keyclass]),octave);
+					trim_digits_after_key_hash(this_key); // Remove the octave number after key#xx
+					BPPrintMessage(odInfo,"§ key %d: \"%s\" chan %d",note,this_key,(chan+1));
+					BPPrintMessage(odInfo," scale #%d, block key %d, corr %d cents, freq %.3f Hz",i_scale,blockkey,correction,frequency);
+					if(basekey != 60) BPPrintMessage(odInfo," (base key %d in scale)",basekey);
+					BPPrintMessage(odInfo,"\n");
+					}
+				// With a pitch bend sensitivity of 2 semitones, the entire pitch bend range (14-bit) will correspond to ± 2 semitones.
+				// The 14-bit range is 16384 values (from 0 to 16383), with 8192 being the center (no pitch bend).
+				// Therefore, 2 semitones = 200 cents corresponds to 8192 units, and 1 cent is 8192 / 200 units
+				sensitivity = 2; // semitones
+				pitchbend_master = (int) PitchbendStart(kcurrentinstance);
+				if(pitchbend_master > 0 && pitchbend_master < 16384) pitchbend_master -= DEFTPITCHBEND;
+				else pitchbend_master = 0;
+				if(pitchbend_master != 0  && TraceMicrotonality) BPPrintMessage(odInfo,"--> with additional pitchbendvalue %d\n",pitchbend_master);
+				if(correction < -200 || correction >= 200) {
+					if(ToldPitchbend++ < 4) BPPrintMessage(odError,"=> Microtonality pitchbender out of range ± 200 cents: %d  cents note %d\n",correction,note);
+					correction = 0;
+					}
+				if(correction != 0) {
+					pitchBendValue = pitchbend_master + DEFTPITCHBEND + (int)(correction * (0.01 * DEFTPITCHBEND / sensitivity));
+					if(pitchBendValue < 0) {
+						if(ToldPitchbend++ < 4) BPPrintMessage(odError,"=> Pitchbender out of range has been set to 0\n");
+						pitchBendValue = 0;
+						}
+					if(pitchBendValue > 16383) {
+						if(ToldPitchbend++ < 4) BPPrintMessage(odError,"=> Pitchbender out of range has been set to 16383\n");
+						pitchBendValue = 16383;
+						}
+					pitchBendLSB = pitchBendValue & 0x7F; // Lower 7 bits
+					pitchBendMSB = (pitchBendValue >> 7) & 0x7F; // Upper 7 bits
+					pb_event.status = PitchBend + chan;
+					pb_event.data1 = pitchBendLSB;  // Pitch Bend LSB
+					pb_event.data2 = pitchBendMSB;  // Pitch Bend MSB
+				//  BPPrintMessage(odInfo,"• pitchBendValue channel %d: %d = %d %d %d\n",chan,pitchBendValue,(int)pb_event.status,(int)pb_event.data1,(int)pb_event.data2);
+					if(rtMIDI) {
 						eventStack[eventCount] = pb_event;
 						eventStack[eventCount].time = 1000 * time;
-			/*			eventStack[eventCount].i_scale = 0;
-						eventStack[eventCount].blockkey = 0; */
 						eventCount++;
+						}
+					else {  // Send pitchbend to MIDI file
+						midibyte = pb_event.status;
+						if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+						midibyte = pb_event.data1;
+						if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+						midibyte = pb_event.data2;
+						if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+						if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Sending pitchbend to MIDI file: %d %d %d\n",pb_event.status,pb_event.data1,pb_event.data2);
+						status = type + chan;
 						}
 					}
 				}
 			}
+		}
+	if(rtMIDI) {
+		// Sending to the event stack
 		eventStack[eventCount] = *p_e;
 		eventStack[eventCount].time = 1000 * time;
-	/*	eventStack[eventCount].i_scale = 0;
-		eventStack[eventCount].blockkey = 0; */
 		eventCount++;
 		if((type == NoteOn) && FirstNoteOn) {
 			FirstNoteOn = FALSE;
@@ -1944,8 +1946,8 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 			} 
 		return(OK);
 		}
-	
-	// The following is for MIDI files.
+
+	// The following is for MIDI files
 	if(p_e->type == RAW_EVENT || p_e->type == TWO_BYTE_EVENT) {
 		if(p_e->type == TWO_BYTE_EVENT) {
 			midibyte = p_e->status;
@@ -2015,7 +2017,7 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 		midibyte = c1;
 		if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 		if(c0 != ChannelPressure && c0 != ProgramChange) {
-			p_e->time = time / Time_res;
+			p_e->time = time / Time_res; // ???
 			p_e->type = RAW_EVENT;
 			p_e->data2 = c2;
 			midibyte = c2;
@@ -2056,28 +2058,27 @@ int AllNotesOffPedalsOffAllChannels(void) {
 	}
 
 
-int SetMIDIPrograms(void)
-{
-int i,p,rs;
-MIDI_Event e;
+int SetMIDIPrograms(void) {
+	int i,p,rs;
+	MIDI_Event e;
 
-for(i=1; i <= 16; i++) {
-	p = CurrentMIDIprogram[i];
-	if(p > 0 && p <= 128) {
-		ChangedMIDIprogram = TRUE;
-		e.time = Tcurr;
-		e.type = TWO_BYTE_EVENT;
-		e.status = ProgramChange + i - 1;
-		e.data2 = p - 1;
-		rs = 0;
-#if WITH_REAL_TIME_MIDI_FORGET_THIS
-		if(IsMidiDriverOn() && !InitOn)
-			SendToDriver(kcurrentinstance,scale,blockkey,Tcurr * Time_res,0,&rs,&e);
-#endif
+	for(i=1; i <= 16; i++) {
+		p = CurrentMIDIprogram[i];
+		if(p > 0 && p <= 128) {
+			ChangedMIDIprogram = TRUE;
+			e.time = Tcurr;
+			e.type = TWO_BYTE_EVENT;
+			e.status = ProgramChange + i - 1;
+			e.data2 = p - 1;
+			rs = 0;
+	#if WITH_REAL_TIME_MIDI_FORGET_THIS
+			if(IsMidiDriverOn() && !InitOn)
+				SendToDriver(kcurrentinstance,scale,blockkey,Tcurr * Time_res,0,&rs,&e);
+	#endif
+			}
 		}
+	return(OK);
 	}
-return(OK);
-}
 
 
 /* ??? Not sure what the purpose of this functions is.  To prevent sending
@@ -2086,7 +2087,7 @@ return(OK);
    -- akozar 20130830
    Apparently a reminiscence of the OMS system -- Bernard 2024-06-19
  */
-int CheckMIDIbytes(int tell)
+/* int CheckMIDIbytes(int tell)
 {
 unsigned long drivertime;
 long formertime,timeleft;
@@ -2109,25 +2110,6 @@ if(Nbytes > MaxMIDIbytes) {
 			PleaseWait();
 			ShowMessage(FALSE,wMessage,Message);
 			}
-#if BP_CARBON_GUI_FORGET_THIS
-	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-		if((rep=MyButton(0)) != MISSED) {
-			StopCount(0);
-			
-			compiledmem = CompiledGr;
-			if(rep == OK)
-				while((rep = MainEvent()) != RESUME && rep != STOP && rep != EXIT);
-			if(rep == RESUME) {
-				rep = OK; EventState = NO;
-				}
-			if(rep != OK) return(rep);
-			if(compiledmem && !CompiledGr) return(ABORT);
-			if(LoadedIn && (!CompiledIn && (rep=CompileInteraction()) != OK))
-				 return(rep);
-			}
-		rep = OK;
-		if(EventState != NO) return(EventState);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 		if((rep=ListenToEvents()) == ABORT || rep == ENDREPEAT
 			|| rep == EXIT) return(rep);
 //		drivertime = GetDriverTime();
@@ -2136,7 +2118,7 @@ if(Nbytes > MaxMIDIbytes) {
 	Tbytes2 = ZERO; Nbytes = MaxMIDIbytes/2;
 	}
 return(OK);
-}
+} */
 
 int CaptureMidiEvent(Milliseconds time,int nseq,MIDI_Event *p_e)
 {
@@ -2204,26 +2186,7 @@ void RegisterProgramChange(MIDI_Event *p_e)
 	if(thisevent == ProgramChange) {
 		program = ByteToInt(p_e->data2) + 1;
 		if(CurrentMIDIprogram[channel+1] != program) {
-#if BP_CARBON_GUI_FORGET_THIS
-			if(TestMIDIChannel == (channel+1) && CurrentMIDIprogram[TestMIDIChannel] > 0) {
-				GetDialogItem(MIDIprogramPtr, (short)CurrentMIDIprogram[TestMIDIChannel],
-							&itemtype, (Handle*)&itemhandle, &r);
-				if(itemhandle != NULL) HiliteControl((ControlHandle) itemhandle,0);
-				GetDialogItem(MIDIprogramPtr, (short)program, &itemtype, (Handle*)&itemhandle, &r);
-				if(itemhandle != NULL) HiliteControl((ControlHandle) itemhandle,kControlButtonPart);
-				WritePatchName();
-				}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 			CurrentMIDIprogram[channel+1] = program;
-#if BP_CARBON_GUI_FORGET_THIS
-			for(j=0; j < 128; j++) {
-				if((*p_GeneralMIDIpatchNdx)[j] == program) {
-					my_sprintf(Message,"[%ld] %s",(long)program,*((*p_GeneralMIDIpatch)[j]));
-					SetField(NULL,wMIDIorchestra,(channel+1),Message);
-					break;
-				}
-			}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 		}
 	}
 }

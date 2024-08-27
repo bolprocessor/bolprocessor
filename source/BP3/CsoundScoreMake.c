@@ -307,7 +307,7 @@ if(iarg > 0) {
 				if(result == 0) break;
 				} */
 			}
-		if(i_scale <= NumberScales) { 
+		if(i_scale > 0 && i_scale <= NumberScales) { 
 		//	BPPrintMessage(odInfo,"blockkey = %d\n",blockkey);
 			x = GetPitchWithScale(i_scale,key,cents,blockkey);
 			if(x == Infpos) return(ABORT);
@@ -881,7 +881,7 @@ if (CsFileReply) {
 	err = NSWCleanupReply(*CsFileReply);
 	MyDisposeHandle((Handle*)&CsFileReply);
 }
-my_sprintf(Message,"Closed Csound score file '%s'",CsFileName);
+my_sprintf(Message,"Closing Csound score file '%s'",CsFileName);
 ShowMessage(TRUE,wMessage,Message);
 // CsFileName[0] = '\0';
 strcpy(CsFileName,""); // Fixed by BB 2021-02-14

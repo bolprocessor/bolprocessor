@@ -80,12 +80,6 @@ ComputeOn++;
 if(Panic) return ABORT;
 
 SaidTooComplex = ShownBufferSize = FALSE;
-if(rtMIDI) {
-#if WITH_REAL_TIME_MIDI_FORGET_THIS
-//	ResetMIDI(TRUE);
-	Interrupted = FALSE;
-#endif
-	}
 if(1 || ResetControllers) {
 	for(ch=0; ch < MAXCHAN; ch++) {
 		(*p_Oldvalue)[ch].volume = -1;
@@ -2049,7 +2043,7 @@ WRITE:
 			}
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 		}
-	if(!template && (rtMIDI || OutCsound || WriteMIDIfile))  r = PlayBuffer(pp_a,NO);
+	if(!template && (rtMIDI || OutCsound || WriteMIDIfile)) r = PlayBuffer(pp_a,NO);
 	}
 END:
 return(r);

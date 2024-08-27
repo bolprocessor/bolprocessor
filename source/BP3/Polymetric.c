@@ -922,57 +922,6 @@ if(speed > TokenLimit || (1./speed) > TokenLimit) {
 just_fill_gap = FALSE;
 		
 for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i += 2L) {
-	
-#if BP_CARBON_GUI_FORGET_THIS
-	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-	// This block is very similar to the middle of InterruptTimeSet() and to code in
-	// SetTimeObjects().  Could we refactor the shared code into a function ?? 
-	// (or move this if block into a function InterruptExpand()) ?? -- akozar, 20130830
-/*	if((i % 100L) == ZERO && (result=MyButton(1)) != MISSED) {
-		StopCount(0);
-		
-		Interrupted = TRUE;
-		dirtymem = Dirty[wAlphabet]; Dirty[wAlphabet] = FALSE;
-		compiledmem = CompiledGr;
-		if(result == OK)
-			while((result = MainEvent()) != RESUME && result != STOP && result != EXIT);
-		if(result == EXIT) goto SORTIR;
-		if(Nw >= 0 && Editable[Nw]) {
-			lastbyte =  GetTextLength(Nw);
-			SetSelect(lastbyte,lastbyte,TEH[Nw]);
-			}
-		if(Dirty[wAlphabet]) {
-			Alert1("Alphabet changed. Must recompile...");
-			result = ABORT; goto SORTIR;
-			}
-		Dirty[wAlphabet] = dirtymem;
-		if(result == STOP || (compiledmem && !CompiledGr)) {
-			result = ABORT; goto SORTIR;
-			}
-		if(LoadedIn && (!CompiledIn && (result=CompileInteraction()) != OK))
-			goto SORTIR;
-		if(rtMIDI && Dirty[wTimeAccuracy]) {
-			
-#if WITH_REAL_TIME_MIDI_FORGET_THIS
-			result = ResetMIDI(FALSE);
-			if(result == ABORT || result == EXIT) goto SORTIR;
-			if((result=CheckSettings()) == ABORT) goto SORTIR;
-			else {
-				Dirty[wTimeAccuracy] = FALSE; result = AGAIN;
-				}
-#endif
-			goto SORTIR;
-			}
-		}
-	result = OK;
-	if(EventState != NO) {
-		result = EventState; goto SORTIR;
-		}
-	if(Panic) {
-		result = ABORT; goto SORTIR;
-		} */
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
 	p = (*p_b)[i+1];
 	if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 		result = ABORT; goto SORTIR;

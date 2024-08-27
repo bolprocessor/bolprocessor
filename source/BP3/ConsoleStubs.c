@@ -262,7 +262,7 @@ int CloseCsScore(void)
 	SetOutputDestinations(odCsScore, NULL);
 	CloseOutputFile(&(gOptions.outputFiles[ofiCsScore]));
 	CsScoreOpened = FALSE;
-	BPPrintMessage(odInfo, "Closed the Csound score file %s\n", gOptions.outputFiles[ofiCsScore].name);
+	BPPrintMessage(odInfo, "Closing the Csound score file %s\n", gOptions.outputFiles[ofiCsScore].name);
 
 	return OK;
 }
