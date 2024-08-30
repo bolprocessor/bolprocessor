@@ -47,9 +47,9 @@ long count;
 int i,w,r;
 Handle ptr;
 
-if(check_memory_use) BPPrintMessage(odInfo,"Before ResetProject() MemoryUsed = %ld\n",(long)MemoryUsed);
+if(check_memory_use) BPPrintMessage(0,odInfo,"Before ResetProject() MemoryUsed = %ld\n",(long)MemoryUsed);
 ;
-if(Find_leak) BPPrintMessage(odInfo,"OKdone7\n");
+if(Find_leak) BPPrintMessage(0,odInfo,"OKdone7\n");
 for(w=0; w < WMAX; w++) {
 	// just clearing the name of all files enough ? - akozar 20130830
 	FileName[w][0] = '\0';
@@ -86,36 +86,36 @@ if(init && !ScriptExecOn) {
 		} */
 	}
 
-if(Find_leak) BPPrintMessage(odInfo,"OKdone1\n");
+if(Find_leak) BPPrintMessage(0,odInfo,"OKdone1\n");
 if(ReleaseScaleSpace() != OK) return(MISSED);
 if(ReleaseProduceStackSpace() != OK) return(MISSED);
 if(ReleaseObjectPrototypes() != OK) return(MISSED);
 
-if(Find_leak) BPPrintMessage(odInfo,"OKdone2\n");
-if(check_memory_use) BPPrintMessage(odInfo,"Before ReleaseGrammarSpace() MemoryUsed = %ld\n",(long)MemoryUsed);
+if(Find_leak) BPPrintMessage(0,odInfo,"OKdone2\n");
+if(check_memory_use) BPPrintMessage(0,odInfo,"Before ReleaseGrammarSpace() MemoryUsed = %ld\n",(long)MemoryUsed);
 
 if(ReleaseGrammarSpace() != OK) return(MISSED);
-if(Find_leak) BPPrintMessage(odInfo,"OKdone3\n");
+if(Find_leak) BPPrintMessage(0,odInfo,"OKdone3\n");
 
-if(check_memory_use) BPPrintMessage(odInfo,"Before ReleaseVariableSpace() MemoryUsed = %ld\n",(long)MemoryUsed);
+if(check_memory_use) BPPrintMessage(0,odInfo,"Before ReleaseVariableSpace() MemoryUsed = %ld\n",(long)MemoryUsed);
 if(ReleaseVariableSpace() != OK) return(MISSED);
-if(check_memory_use) BPPrintMessage(odInfo,"Before ReleaseAlphabetSpace() MemoryUsed = %ld\n",(long)MemoryUsed);
+if(check_memory_use) BPPrintMessage(0,odInfo,"Before ReleaseAlphabetSpace() MemoryUsed = %ld\n",(long)MemoryUsed);
 if(ReleaseAlphabetSpace() != OK) return(MISSED);
-if(check_memory_use) BPPrintMessage(odInfo,"Before ReleasePatternSpace() MemoryUsed = %ld\n",(long)MemoryUsed);
+if(check_memory_use) BPPrintMessage(0,odInfo,"Before ReleasePatternSpace() MemoryUsed = %ld\n",(long)MemoryUsed);
 if(ReleasePatternSpace() != OK) return(MISSED);
-if(check_memory_use) BPPrintMessage(odInfo,"Before ReleaseGlossarySpace() MemoryUsed = %ld\n",(long)MemoryUsed);
+if(check_memory_use) BPPrintMessage(0,odInfo,"Before ReleaseGlossarySpace() MemoryUsed = %ld\n",(long)MemoryUsed);
 if(ReleaseGlossarySpace() != OK) return(MISSED);
-if(check_memory_use) BPPrintMessage(odInfo,"Before ReleaseScriptSpace() MemoryUsed = %ld\n",(long)MemoryUsed);
+if(check_memory_use) BPPrintMessage(0,odInfo,"Before ReleaseScriptSpace() MemoryUsed = %ld\n",(long)MemoryUsed);
 if(init && (ReleaseScriptSpace() != OK)) return(MISSED);
-if(check_memory_use) BPPrintMessage(odInfo,"Before ReleaseConstants() MemoryUsed = %ld\n",(long)MemoryUsed);
+if(check_memory_use) BPPrintMessage(0,odInfo,"Before ReleaseConstants() MemoryUsed = %ld\n",(long)MemoryUsed);
 if(ReleaseConstants() != OK) return(MISSED);
-if(check_memory_use) BPPrintMessage(odInfo,"After ReleaseConstants() MemoryUsed = %ld\n",(long)MemoryUsed);
-if(Find_leak) BPPrintMessage(odInfo,"OKdone4\n");
+if(check_memory_use) BPPrintMessage(0,odInfo,"After ReleaseConstants() MemoryUsed = %ld\n",(long)MemoryUsed);
+if(Find_leak) BPPrintMessage(0,odInfo,"OKdone4\n");
 
 ItemNumber = 0L;
 ptr = (Handle) p_Initbuff;
 MyDisposeHandle(&ptr);
-if(Find_leak) BPPrintMessage(odInfo,"OKdone5\n");
+if(Find_leak) BPPrintMessage(0,odInfo,"OKdone5\n");
 p_Initbuff = NULL;
 for(i=0; i <= MAXCHAN; i++) {
 	PressRate[i] = SamplingRate;
@@ -305,7 +305,7 @@ int ReleaseAlphabetSpace(void) {
 	else jmax = Jbol;
 	// jmax = MyGetHandleSize((Handle)p_Bol) / sizeof(char**);
 	for(j=0; j < jmax; j++) {
-	//	BPPrintMessage(odInfo,"(*p_Bol)[j] = %s, j = %d, Jbol = %d\n",*((*p_Bol)[j]),j,Jbol);
+	//	BPPrintMessage(0,odInfo,"(*p_Bol)[j] = %s, j = %d, Jbol = %d\n",*((*p_Bol)[j]),j,Jbol);
 		ptr = (Handle)(*p_Bol)[j];
 		MyDisposeHandle(&ptr);
 		}
@@ -384,12 +384,12 @@ if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 	for(igram=1; igram < (MyGetHandleSize((Handle)Gram.p_subgram) / sizeof(t_subgram));
 																			igram++) {
 																				
-		if(Find_leak) BPPrintMessage(odInfo, "igram = %d\n",igram);
+		if(Find_leak) BPPrintMessage(0,odInfo, "igram = %d\n",igram);
 		if((*(Gram.p_subgram))[igram].p_rule != NULL) {
 			for(irul=1; irul < (MyGetHandleSize((Handle)(*(Gram.p_subgram))[igram].p_rule)
 					/ sizeof(t_rule)); irul++) {
 			//	continue;							
-				if(Find_leak) BPPrintMessage(odInfo, "irul = %d\n",irul);
+				if(Find_leak) BPPrintMessage(0,odInfo, "irul = %d\n",irul);
 				rule = (*((*(Gram.p_subgram))[igram].p_rule))[irul];
 				if(rule.p_leftcontext != NULL) {
 					ptr = (Handle)
@@ -409,13 +409,13 @@ if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 					}
 				ptr = (Handle) (*((*(Gram.p_subgram))[igram].p_rule))[irul].p_leftarg;
 				MyDisposeHandle(&ptr);
-				if(Find_leak) BPPrintMessage(odInfo, "left arg\n");
+				if(Find_leak) BPPrintMessage(0,odInfo, "left arg\n");
 				ptr = (Handle) (*((*(Gram.p_subgram))[igram].p_rule))[irul].p_rightarg;
 				MyDisposeHandle(&ptr);
-				if(Find_leak) BPPrintMessage(odInfo, "right arg\n");
+				if(Find_leak) BPPrintMessage(0,odInfo, "right arg\n");
 				h = (*((*(Gram.p_subgram))[igram].p_rule))[irul].p_leftflag;
 				if(h != NULL) {
-			//		BPPrintMessage(odInfo, "left flags\n");
+			//		BPPrintMessage(0,odInfo, "left flags\n");
 					do {
 						if((**h).x > Jflag || (**h).x < 0) {
 							my_sprintf(Message,"=> Err in flag list. ");
@@ -430,7 +430,7 @@ if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 					}
 				h = (*((*(Gram.p_subgram))[igram].p_rule))[irul].p_rightflag;
 				if(h != NULL) {
-					if(Find_leak) BPPrintMessage(odInfo, "right flags\n");
+					if(Find_leak) BPPrintMessage(0,odInfo, "right flags\n");
 					do {
 						if((**h).x > Jflag || (**h).x < 0) {
 							my_sprintf(Message,"=> Err in flag list. ");
@@ -446,7 +446,7 @@ if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 				}
 			ptr = (Handle) (*(Gram.p_subgram))[igram].p_rule;
 			MyDisposeHandle(&ptr);
-			if(Find_leak) BPPrintMessage(odInfo, "rule done\n");
+			if(Find_leak) BPPrintMessage(0,odInfo, "rule done\n");
 			(*(Gram.p_subgram))[igram].p_rule = NULL;
 			}
 		}
@@ -454,10 +454,10 @@ if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 	MyDisposeHandle(&ptr);
 	Gram.p_subgram = NULL;
 	}
-if(Find_leak) BPPrintMessage(odInfo, "Before p_InitScriptLine\n");
+if(Find_leak) BPPrintMessage(0,odInfo, "Before p_InitScriptLine\n");
 ptr = (Handle) p_InitScriptLine;
 MyDisposeHandle(&ptr);
-if(Find_leak) BPPrintMessage(odInfo, "After p_InitScriptLine\n");
+if(Find_leak) BPPrintMessage(0,odInfo, "After p_InitScriptLine\n");
 p_InitScriptLine = NULL;
 MaxRul = N_err = 0;
 MaxGram = Gram.number_gram = 0;
@@ -600,7 +600,7 @@ int ReleaseProduceStackSpace(void)
 {
 Handle ptr;
 
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start ReleaseProduceStackSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start ReleaseProduceStackSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 ptr = (Handle) p_MemGram;
 MyDisposeHandle(&ptr);
 p_MemGram = NULL;
@@ -619,7 +619,7 @@ p_ItemStart = NULL;
 ptr = (Handle) p_ItemEnd;
 MyDisposeHandle(&ptr);
 p_ItemEnd = NULL;
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end ReleaseProduceStackSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end ReleaseProduceStackSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 return(OK);
 }
 
@@ -716,7 +716,7 @@ char **ptr;
 if(howmany != Jinstr) CompiledCsObjects = CompiledRegressions = 0;
  
 if(howmany == 0) {
-	BPPrintMessage(odError,"=> Err. ResizeCsoundInstrumentsSpace(). howmany == 0\n");
+	BPPrintMessage(0,odError,"=> Err. ResizeCsoundInstrumentsSpace(). howmany == 0\n");
 	return(ReleaseCsoundInstruments());
 	}
 if(Jinstr == 0) {
@@ -832,7 +832,7 @@ return OK; // For the moment, as the following tends to crash
 maxsounds = Jbol + Jpatt;
 if(pp_MIDIcode == NULL) max = 0;
 else max = MyGetHandleSize((Handle) pp_MIDIcode) / sizeof(MIDIcode**);
-// BPPrintMessage(odInfo,"max = %d\n",max);
+// BPPrintMessage(0,odInfo,"max = %d\n",max);
 for(j=2; j < max; j++) {
 	/* Here we also release time-patterns */
 /*	if((*pp_MIDIcode)[j] != NULL) {
@@ -875,13 +875,13 @@ if(ResizeObjectSpace(YES,2,0) != OK) return(ABORT);
 Dirty[iObjects] = Created[iObjects] = FALSE;
 ObjectMode = ObjectTry = FALSE;
 
-// BPPrintMessage(odInfo,"ReleaseObjectPrototypes() worked fine\n");
+// BPPrintMessage(0,odInfo,"ReleaseObjectPrototypes() worked fine\n");
 return(OK);
 }
 
 int ClearObjectSpace(void) { // NOT USED
 	MyDisposeHandle((Handle*)&p_Type);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (a) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed (a) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	MyDisposeHandle((Handle*)&p_FixScale);
 	MyDisposeHandle((Handle*)&p_OkExpand);
 	MyDisposeHandle((Handle*)&p_OkCompress);
@@ -895,7 +895,7 @@ int ClearObjectSpace(void) { // NOT USED
 	MyDisposeHandle((Handle*)&p_OkPan);
 	MyDisposeHandle((Handle*)&p_OkMap);
 	MyDisposeHandle((Handle*)&p_OkVelocity);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (b) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed (b) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	MyDisposeHandle((Handle*)&p_ContBeg);
 	MyDisposeHandle((Handle*)&p_ContEnd);
 	MyDisposeHandle((Handle*)&p_CoverBeg);
@@ -918,7 +918,7 @@ int ClearObjectSpace(void) { // NOT USED
 	MyDisposeHandle((Handle*)&p_PostRollMode);
 	MyDisposeHandle((Handle*)&p_PeriodMode);
 	MyDisposeHandle((Handle*)&p_StrikeAgain);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (c) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed (c) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	MyDisposeHandle((Handle*)&p_CompiledCsoundScore);
 	MyDisposeHandle((Handle*)&p_DiscardNoteOffs);
 	MyDisposeHandle((Handle*)&p_ForceIntegerPeriod);
@@ -941,7 +941,7 @@ int ClearObjectSpace(void) { // NOT USED
 	MyDisposeHandle((Handle*)&p_CsoundSize);
 	MyDisposeHandle((Handle*)&p_Ifrom);
 	MyDisposeHandle((Handle*)&p_Quan);
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (d) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed (d) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	MyDisposeHandle((Handle*)&p_DefaultChannel);
 	MyDisposeHandle((Handle*)&p_PasteDone);
 	MyDisposeHandle((Handle*)&p_Tref);
@@ -965,8 +965,8 @@ int MakeSoundObjectSpace(void) {
 	MIDIcode **ptr1;
 	Milliseconds **ptr2;
 	
-	// BPPrintMessage(odInfo, "Running MakeSoundObjectSpace()\n");
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start MakeSoundObjectSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	// BPPrintMessage(0,odInfo, "Running MakeSoundObjectSpace()\n");
+	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start MakeSoundObjectSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 
 	jmax = Jbol;
 
@@ -1101,7 +1101,7 @@ int MakeSoundObjectSpace(void) {
 	(*((*pp_MIDIcode)[1]))[0].byte = TimingClock;
 	(*((*pp_MIDIcode)[1]))[0].sequence = 0;
 
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end MakeSoundObjectSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end MakeSoundObjectSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	return(OK);
 
 	ERR:
@@ -1120,8 +1120,8 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol)
 int j;
 Handle ptr;
 
-// BPPrintMessage(odInfo, "Running ResizeSoundObjectSpace() for maxsounds = %d, Jbol = %d, reset = %d addbol = %d\n",maxsounds,Jbol,reset,addbol);
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (19) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+// BPPrintMessage(0,odInfo, "Running ResizeSoundObjectSpace() for maxsounds = %d, Jbol = %d, reset = %d addbol = %d\n",maxsounds,Jbol,reset,addbol);
+if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed (19) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 
 if(maxsounds < Jbol) {
 	for(j = maxsounds; j < Jbol; j++) {
@@ -1233,7 +1233,7 @@ if(reset) {
 		(*pp_CsoundTime)[j] = NULL;
 		ptr = (Handle)(*pp_Comment)[j];
 		if(MyDisposeHandle(&ptr) != OK) return(ABORT);
-		BPPrintMessage(odInfo,"OK 2\n");
+		BPPrintMessage(0,odInfo,"OK 2\n");
 		(*pp_Comment)[j] = NULL;
 		ptr = (Handle)(*pp_CsoundScoreText)[j];
 		if(MyDisposeHandle(&ptr) != OK) return(ABORT);
@@ -1253,7 +1253,7 @@ if(reset) {
 			j = Jbol;
 		else
 			j = 2;
-		//	BPPrintMessage(odInfo,"Running time patterns in ResizeObjectSpace() Jbol = %ld maxsounds = %ld\n",(long)Jbol,(long)maxsounds);
+		//	BPPrintMessage(0,odInfo,"Running time patterns in ResizeObjectSpace() Jbol = %ld maxsounds = %ld\n",(long)Jbol,(long)maxsounds);
 		for (j = j; j < maxsounds; j++)
 		{
 			(*p_MIDIsize)[j] = (*p_CsoundSize)[j] = ZERO;
@@ -1295,17 +1295,17 @@ if(reset) {
 				{ // Fixed by BB 2022-02-20
 					if ((*p_Ppatt)[j - Jbol - addbol] < 100L || (*p_Qpatt)[j - Jbol - addbol] < 100L)
 					{
-						// BPPrintMessage(odInfo,"1) Jpatt = %d, Ppatt[%d] = %ld, Qpatt[%d] = %ld\n",Jpatt,j-Jbol-addbol,(long)(*p_Ppatt)[j-Jbol-addbol],j-Jbol-addbol,(long)(*p_Qpatt)[j-Jbol-addbol]);
+						// BPPrintMessage(0,odInfo,"1) Jpatt = %d, Ppatt[%d] = %ld, Qpatt[%d] = %ld\n",Jpatt,j-Jbol-addbol,(long)(*p_Ppatt)[j-Jbol-addbol],j-Jbol-addbol,(long)(*p_Qpatt)[j-Jbol-addbol]);
 						(*p_Ppatt)[j - Jbol - addbol] = 100L * (*p_Ppatt)[j - Jbol - addbol];
 						(*p_Qpatt)[j - Jbol - addbol] = 100L * (*p_Qpatt)[j - Jbol - addbol];
-						// BPPrintMessage(odInfo,"2) Jpatt = %d, Ppatt[%d] = %ld, Qpatt[%d] = %ld\n",Jpatt,j-Jbol-addbol,(long)(*p_Ppatt)[j-Jbol-addbol],j-Jbol-addbol,(long)(*p_Qpatt)[j-Jbol-addbol]);
+						// BPPrintMessage(0,odInfo,"2) Jpatt = %d, Ppatt[%d] = %ld, Qpatt[%d] = %ld\n",Jpatt,j-Jbol-addbol,(long)(*p_Ppatt)[j-Jbol-addbol],j-Jbol-addbol,(long)(*p_Qpatt)[j-Jbol-addbol]);
 					}
 				(*p_Tref)[j] = (*p_Qpatt)[j-Jbol-addbol];
 				(*p_Dur)[j] = (*p_Ppatt)[j-Jbol-addbol];
 				my_sprintf(Message,"ResizeObjectSpace() j = %ld Dur = %ld Tref = %ld\n",(long)j,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
-				// BPPrintMessage(odInfo,Message);
+				// BPPrintMessage(0,odInfo,Message);
 				}
-			else BPPrintMessage(odError,"=> Err. ResizeObjectSpace(). Jpatt = %d, p_Ppatt or p_Qpatt = NULL\n",Jpatt);
+			else BPPrintMessage(0,odError,"=> Err. ResizeObjectSpace(). Jpatt = %d, p_Ppatt or p_Qpatt = NULL\n",Jpatt);
 			}
 		(*p_Resolution)[j] = 1;
 		(*p_CsoundInstr)[j] = 0;
@@ -1315,7 +1315,7 @@ if(reset) {
 	/*	(*p_ObjectColor)[j].red = (*p_ObjectColor)[j].green = (*p_ObjectColor)[j].blue = -1L; */
 		}
 	}
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed (20) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed (20) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 return OK;
 }
 

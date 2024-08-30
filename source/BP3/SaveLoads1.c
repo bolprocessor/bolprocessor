@@ -1056,10 +1056,10 @@ int LoadTonality(void) {
 	strcpy(name,""); strcpy(note_names,""); strcpy(key_numbers,""); strcpy(baseoctave_string,"");
 	csfile = my_fopen(1, FileName[wTonality], "r");
 	if(csfile == NULL) {
-		BPPrintMessage(odError, "=> Could not open tonality file: %s\n", FileName[wTonality]);
+		BPPrintMessage(0,odError, "=> Could not open tonality file: %s\n", FileName[wTonality]);
 		goto ERREUR;
 		}
-	else BPPrintMessage(odInfo, "Loading tonality: %s\n", FileName[wTonality]);
+	else BPPrintMessage(0,odInfo, "Loading tonality: %s\n", FileName[wTonality]);
 	while(TRUE) {
 		if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) != OK) goto QUITTER;
 		if(Mystrcmp(p_line,"_begin tables") == 0) {
@@ -1073,10 +1073,10 @@ int LoadTonality(void) {
 		Strip(*p_line);
 		if(strlen(*p_line) == 0) goto QUITTER; // Required because 'pos' is not incremented when reading an empty line
 		if(Mystrcmp(p_line,"_end tables") == 0) break;
-		if(trace_load_scales) BPPrintMessage(odInfo, "table line = [%s]\n",*p_line);
+		if(trace_load_scales) BPPrintMessage(0,odInfo, "table line = [%s]\n",*p_line);
 		if((*p_line)[0] == '"') { // This line contains the name of the next scale
 			MystrcpyHandleToString((strlen(*p_line) - 2),1,name,p_line);
-	//		BPPrintMessage(odInfo, "name = [%s]\n",name);
+	//		BPPrintMessage(0,odInfo, "name = [%s]\n",name);
 			continue;
 			}
 		if((*p_line)[0] == '<') continue; // Ignore comments
@@ -1088,7 +1088,7 @@ int LoadTonality(void) {
 		if((*p_line)[0] == 's') continue; // Ignore series
 		if((*p_line)[0] == '|') { // baseoctave
 			MystrcpyHandleToString(strlen(*p_line)-2,1,baseoctave_string,p_line);
-	//		BPPrintMessage(odInfo, "baseoctave_string = [%s]\n",baseoctave_string);
+	//		BPPrintMessage(0,odInfo, "baseoctave_string = [%s]\n",baseoctave_string);
 			continue;
 			}
 		if((*p_line)[0] == '/') { // This line contains note names for this scale
@@ -1107,7 +1107,7 @@ int LoadTonality(void) {
 			}
 		}
 	if(i_scale > 0) {
-		BPPrintMessage(odInfo,"%d tonal scale(s) found\n",i_scale);
+		BPPrintMessage(0,odInfo,"%d tonal scale(s) found\n\n",i_scale);
 		}
 
 QUITTER:
@@ -1130,10 +1130,10 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 	double r;
 	FILE* csfile;
 
-	if(trace_load_csound_instruments) BPPrintMessage(odInfo, "LoadCsoundInstruments(%d,%d)\n",checkversion,tryname);
+	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo, "LoadCsoundInstruments(%d,%d)\n",checkversion,tryname);
 
 	if(LoadedCsoundInstruments) {
-		if(trace_load_csound_instruments) BPPrintMessage(odInfo,"Csound instruments file has already been loaded\n");
+		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Csound instruments file has already been loaded\n");
 		return(OK);
 		}
 
@@ -1143,32 +1143,32 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 	Dirty[wCsoundResources] = CompiledRegressions = CompiledCsObjects = 0;
 	p_line = p_completeline = NULL;
 
-	if(trace_load_csound_instruments) BPPrintMessage(odInfo,"Opening Csound instruments file: %s\n",FileName[wCsoundResources]);
+	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Opening Csound instruments file: %s\n",FileName[wCsoundResources]);
 
 	// Check whether file is being saved
 	my_sprintf(line,"%s_lock",FileName[wCsoundResources]);
 	csfile = my_fopen(0,line,"r");
 	if(csfile != NULL) {
-		BPPrintMessage(odError,"\n=> As the Csound instruments file was locked I waited for 3 seconds...\n");
+		BPPrintMessage(0,odError,"\n=> As the Csound instruments file was locked I waited for 3 seconds...\n");
 	//	sleep(2);
 		delay(3); // Fixed by BB 2022-02-20
 		}
 
 	csfile = my_fopen(1,FileName[wCsoundResources],"r");
 	if(csfile == NULL) {
-		BPPrintMessage(odError,"=> Could not open Csound instruments file: %s\n",FileName[wCsoundResources]);
+		BPPrintMessage(0,odError,"=> Could not open Csound instruments file: %s\n",FileName[wCsoundResources]);
 		goto ERR;
 		}
 
 	if(ReadOne(FALSE,FALSE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-	BPPrintMessage(odInfo,"Loading: %s\n",FileName[wCsoundResources]);
-	if(trace_load_csound_instruments) BPPrintMessage(odInfo, "Line = %s\n",*p_line);
+	BPPrintMessage(0,odInfo,"Loading: %s\n",FileName[wCsoundResources]);
+	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo, "Line = %s\n",*p_line);
 	if(CheckVersion(&iv,p_line,FileName[wCsoundResources]) != OK) goto ERR;
 	if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 	// GetDateSaved(p_completeline,&(p_FileInfo[wCsoundResources]));
 	if(ReadInteger(csfile,&jmax,&pos) == MISSED) goto ERR;
-	if(jmax < 16 || jmax > MAXCHAN) {
-		BPPrintMessage(odError,"=> This file is empty or in an unknown format\n");
+	if(jmax != MAXCHAN) {
+		BPPrintMessage(0,odError,"=> This file is empty or in an unknown format\n");
 		goto QUIT;
 		}
 	for(j=1; j <= jmax; j++) {
@@ -1180,21 +1180,21 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		MystrcpyHandleToString(MAXNAME,0,CsoundOrchestraName,p_completeline);
 		}
 	else CsoundOrchestraName[0] = '\0';
-	if(trace_load_csound_instruments) BPPrintMessage(odInfo,"CsoundOrchestraName = %s\n",CsoundOrchestraName);
+	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"CsoundOrchestraName = %s\n",CsoundOrchestraName);
 	if(ReadInteger(csfile,&jmax,&pos) == MISSED) goto ERR;
-	if(trace_load_csound_instruments) BPPrintMessage(odInfo,"jmax = %d\n",jmax);
+	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"jmax = %d\n",jmax);
 	if(jmax < 0) {
-		BPPrintMessage(odError,"=> This file is empty or in an unknown format\n");
+		BPPrintMessage(0,odError,"=> This file is empty or in an unknown format\n");
 		goto QUIT;
 		}
 	if(jmax > 0 && (result=ResizeCsoundInstrumentsSpace(jmax)) != OK) goto ERR;
 	result = MISSED;
 
-	if(trace_load_csound_instruments) BPPrintMessage(odInfo,"Jinstr = %d\n",Jinstr);
+	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Jinstr = %d\n",Jinstr);
 
 	for(j=0; j < jmax; j++) {
 		ResetCsoundInstrument(j,YES,YES);
-		if(trace_load_csound_instruments) BPPrintMessage(odInfo,"j = %d\n",j);
+		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"j = %d\n",j);
 		if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 	//	ptr = (*pp_CsInstrumentName)[j];
 		ptr = NULL; // Fixed by BB 2021-02-14
@@ -1208,7 +1208,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 			}
 		else strcpy((*((*pp_CsInstrumentName)[j])),""); // (*((*pp_CsInstrumentName)[j]))[0] = '\0'; Fixed by BB 2021-02-14
 		
-		if(trace_load_csound_instruments) BPPrintMessage(odInfo,"Loading Csound instrument %d = \"%s\" out of %d\n",(j+1),(*((*pp_CsInstrumentName)[j])),jmax);
+		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Loading Csound instrument %d = \"%s\" out of %d\n",(j+1),(*((*pp_CsInstrumentName)[j])),jmax);
 	//	p_line = p_completeline = NULL; 
 		if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 	/*	if((*p_completeline)[0] != '\0') {
@@ -1216,17 +1216,17 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 				goto ERR;
 			MystrcpyHandleToHandle(0,&ptr,p_completeline);
 			(*pp_CsInstrumentComment)[j] = ptr;
-			if(trace_load_csound_instruments) BPPrintMessage(odInfo,"Comment: %s\n",(*p_completeline));
+			if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Comment: %s\n",(*p_completeline));
 			}
 		else strcpy((*((*pp_CsInstrumentComment)[j])),""); // (*((*pp_CsInstrumentComment)[j]))[0] = '\0'; Fixed by BB 2021-02-14 */
 		strcpy((*((*pp_CsInstrumentComment)[j])),""); // Forget comment! 2024-05-20
 		if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
 		(*p_CsInstrument)[j].iargmax = i;
-		if(trace_load_csound_instruments) BPPrintMessage(odInfo,"iargmax = %d\n",i);
+		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"iargmax = %d\n",i);
 		
 		if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
 		(*p_CsInstrumentIndex)[j] = i;
-		if(trace_load_csound_instruments) BPPrintMessage(odInfo,"CsInstrumentIndex = %d\n",i);
+		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"CsInstrumentIndex = %d\n",i);
 		
 		if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
 		(*p_CsDilationRatioIndex)[j] = i;
@@ -1244,7 +1244,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		if(ReadFloat(csfile,&r,&pos) == MISSED) goto ERR;
 		if(r == -1.) r = (float) DeftPitchbendRange;
 		(*p_CsInstrument)[j].pitchbendrange = r;
-		if(trace_load_csound_instruments) BPPrintMessage(odInfo,"pitchbendrange = %.3f\n",r);
+		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"pitchbendrange = %.3f\n",r);
 		
 		if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
 		(*p_CsInstrument)[j].rPitchBend.islogx = i;
@@ -1287,7 +1287,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		(*p_CsModulationEndIndex)[j] = i;
 		if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
 		(*p_CsPanoramicEndIndex)[j] = i;
-		if(trace_load_csound_instruments) BPPrintMessage(odInfo,"PanoramicEndIndex = %d\n",i);
+		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"PanoramicEndIndex = %d\n",i);
 
 		if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
 		(*p_CsInstrument)[j].pitchbendtable = i;
@@ -1299,7 +1299,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		(*p_CsInstrument)[j].modulationtable = i;
 		if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
 		(*p_CsInstrument)[j].panoramictable = i;
-		if(trace_load_csound_instruments) BPPrintMessage(odInfo,"panoramictable = %d\n",i);
+		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"panoramictable = %d\n",i);
 		
 		if(iv > 13) {
 			if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
@@ -1312,7 +1312,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 			(*p_CsInstrument)[j].modulationGEN = i;
 			if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
 			(*p_CsInstrument)[j].panoramicGEN = i;
-			if(trace_load_csound_instruments) BPPrintMessage(odInfo,"panoramicGEN = %d\n",i);
+			if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"panoramicGEN = %d\n",i);
 			}
 		else {
 			(*p_CsInstrument)[j].pitchbendGEN = (*p_CsInstrument)[j].volumeGEN
@@ -1333,7 +1333,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 			(*(p_CsPanoramic[i]))[j] = r;
 			}
 		
-		if(trace_load_csound_instruments) BPPrintMessage(odInfo,"ipmax = %d j = %d\n",(*p_CsInstrument)[j].ipmax,j);
+		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"ipmax = %d j = %d\n",(*p_CsInstrument)[j].ipmax,j);
 		
 		for(ip=0; ip < (*p_CsInstrument)[j].ipmax; ip++) {
 			if((*p_CsInstrument)[j].paramlist == NULL) {
@@ -1353,7 +1353,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		(*p_CsInstrument)[j].ipmax = 0;
 		
 		if(ReadInteger(csfile,&ipmax,&pos) == MISSED) goto ERR;
-		if(trace_load_csound_instruments) BPPrintMessage(odInfo,"Read ipmax again = %d\n",ipmax);
+		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Read ipmax again = %d\n",ipmax);
 		if(ipmax < 1) continue;
 		if((ptr3=(CsoundParam**) GiveSpace((Size)(ipmax * sizeof(CsoundParam)))) == NULL)
 			goto ERR;
@@ -1377,7 +1377,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 				if(i >= 0) (*((*p_CsInstrument)[j].paramlist))[ip].nameindex = i;
 				}
 			
-			if(trace_load_csound_instruments) BPPrintMessage(odInfo,"-> Parameter: \"%s\"\n",*p_completeline);
+			if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"-> Parameter: \"%s\"\n",*p_completeline);
 		//	strcpy(line,"");
 			fseek(csfile,pos,SEEK_SET);
 			if(fgets(line,sizeof(line),csfile) != NULL) { // Necessary to read a line that might be empty
@@ -1385,7 +1385,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 				pos = ftell(csfile);
 				}
 			else {
-				BPPrintMessage(odError,"=> Error reading line in LoadCsoundInstruments()\n");
+				BPPrintMessage(0,odError,"=> Error reading line in LoadCsoundInstruments()\n");
 				goto ERR;
 				}
 			// fscanf(csfile, "%[^\n]",line2); Obsolete, not good for Windows
@@ -1394,9 +1394,9 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 				(*((*p_CsInstrument)[j].paramlist))[ip].comment = ptr;
 			//	pos += strlen(line);
 				}
-			if(trace_load_csound_instruments) BPPrintMessage(odInfo, "This line: %s\n",line);
+			if(trace_load_csound_instruments) BPPrintMessage(0,odInfo, "This line: %s\n",line);
 			if(ReadInteger(csfile,&i,&pos) == MISSED) {
-				BPPrintMessage(odError, "Missed the first integer in LoadCsoundInstruments()\n");
+				BPPrintMessage(0,odError, "Missed the first integer in LoadCsoundInstruments()\n");
 				goto ERR;
 				}
 			(*((*p_CsInstrument)[j].paramlist))[ip].startindex = i;
@@ -1426,8 +1426,8 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 				}
 			}
 		}
-	if(j > 0) BPPrintMessage(odInfo,"%d Csound instrument(s) found\n",j);
-	else BPPrintMessage(odInfo,"No Csound instrument was found. The default one will be used.\n");
+	if(j > 0) BPPrintMessage(0,odInfo,"%d Csound instrument(s) found\n",j);
+	else BPPrintMessage(0,odInfo,"No Csound instrument was found. The default one will be used.\n");
 	if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto QUIT;
 	result = OK;
 	i_table = 0;
@@ -1437,7 +1437,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 			Strip(*p_line);
 			if(strlen(*p_line) == 0) goto QUIT; // Required because 'pos' is not incremented when reading an empty line
 			if(Mystrcmp(p_line,"_end tables") == 0) break;
-			if(trace_load_csound_instruments) BPPrintMessage(odInfo, "table line = [%s]\n",*p_line);
+			if(trace_load_csound_instruments) BPPrintMessage(0,odInfo, "table line = [%s]\n",*p_line);
 			if(i_table >= MaxCsoundTables) {
 				p_CsoundTables = (char****) IncreaseSpace((Handle)p_CsoundTables);
 				MaxCsoundTables = (MyGetHandleSize((Handle)p_CsoundTables) / sizeof(char**));
@@ -1455,7 +1455,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 	goto QUIT;
 
 	ERR:
-	BPPrintMessage(odError,"=> Error reading Csound instruments file:  %s\n",FileName[wCsoundResources]);
+	BPPrintMessage(0,odError,"=> Error reading Csound instruments file:  %s\n",FileName[wCsoundResources]);
 
 	QUIT:
 	MyDisposeHandle((Handle*)&p_line);
@@ -1465,7 +1465,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		Created[wCsoundResources] = TRUE;
 		LoadedCsoundInstruments = TRUE;
 	/*	if(FALSE && NumberScales == 1) {
-			BPPrintMessage(odInfo, "\nThis microtonal scale will be used for Csound scores in replacement of the equal-tempered 12-tone scale\nPitch will be adjusted to the diapason\n");
+			BPPrintMessage(0,odInfo, "\nThis microtonal scale will be used for Csound scores in replacement of the equal-tempered 12-tone scale\nPitch will be adjusted to the diapason\n");
 			DefaultScaleParam = -1;
 			}
 		else */
@@ -1473,7 +1473,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		}
 	else {
 		Created[wCsoundResources] = FALSE;
-		BPPrintMessage(odError, "=> Error reading Csound instruments file:  %s\n", FileName[wCsoundResources]);
+		BPPrintMessage(0,odError, "=> Error reading Csound instruments file:  %s\n", FileName[wCsoundResources]);
 		EmergencyExit = TRUE;
 		}
 	if(iCsoundInstrument >= Jinstr) iCsoundInstrument = 0;
@@ -1491,7 +1491,7 @@ int LoadSettings(const char *filename, int startup) {
 	double x;
 	char **p_line,**p_completeline;
 
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start LoadSettings = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start LoadSettings = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 
 	result = OK;
 	oldoutmidi = rtMIDI;
@@ -1503,7 +1503,7 @@ int LoadSettings(const char *filename, int startup) {
 	else {
 		// filename cannot be NULL or empty
 		if (filename == NULL || filename[0] == '\0') {
-			BPPrintMessage(odError, "=> Err. LoadSettings(): filename was NULL or empty\n");
+			BPPrintMessage(0,odError, "=> Err. LoadSettings(): filename was NULL or empty\n");
 			return MISSED;
 			}
 		}
@@ -1511,7 +1511,7 @@ int LoadSettings(const char *filename, int startup) {
 	// open the file for reading
 	sefile = my_fopen(1,filename, "rb");
 	if(sefile == NULL) {
-		BPPrintMessage(odError, "=> Could not open settings file %s\n", filename);
+		BPPrintMessage(0,odError, "=> Could not open settings file %s\n", filename);
 		return MISSED;
 	    }
 
@@ -1520,32 +1520,32 @@ int LoadSettings(const char *filename, int startup) {
 	LoadOn++;
 
 	if(ReadOne(FALSE,FALSE,FALSE,sefile,TRUE,&p_line,&p_completeline,&pos) == MISSED) {
-        BPPrintMessage(odError,"=> Error ReadOne() in LoadSettings()\n");
+        BPPrintMessage(0,odError,"=> Error ReadOne() in LoadSettings()\n");
         goto ERR;
         }
-    if(trace_load_settings) BPPrintMessage(odError, "Version line = %s\n",*p_completeline);
+    if(trace_load_settings) BPPrintMessage(0,odError, "Version line = %s\n",*p_completeline);
 	if(CheckVersion(&iv,p_line,filename) != OK) {
 		result = MISSED;
 		goto QUIT;
 		}
-	if(trace_load_settings) BPPrintMessage(odError, "Settings file version %d\n",iv);
+	if(trace_load_settings) BPPrintMessage(0,odError, "Settings file version %d\n",iv);
 	if(ReadOne(FALSE,FALSE,FALSE,sefile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-    if(trace_load_settings) BPPrintMessage(odError, "%s\n",*p_completeline);
+    if(trace_load_settings) BPPrintMessage(0,odError, "%s\n",*p_completeline);
 
 	if(ReadInteger(sefile,&j,&pos) == MISSED) {
-        BPPrintMessage(odError,"=> Error ReadInteger() in LoadSettings()\n");
+        BPPrintMessage(0,odError,"=> Error ReadInteger() in LoadSettings()\n");
         goto ERR;	// serial port used by old built-in Midi driver
         }
 	// if(startup) Port = j;
 
 	if(ReadOne(FALSE,FALSE,TRUE,sefile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;	// Not used but should be kept for consistency
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR; Quantization = k;
-    if(trace_load_settings) BPPrintMessage(odError, "Quantization = %ld\n",k);
+    if(trace_load_settings) BPPrintMessage(0,odError, "Quantization = %ld\n",k);
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR; Time_res = k;
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR; MIDIsetUpTime = j;
-	if(trace_load_settings) BPPrintMessage(odError, "MIDIsyncDelay = %d\n",MIDIsyncDelay);
+	if(trace_load_settings) BPPrintMessage(0,odError, "MIDIsyncDelay = %d\n",MIDIsyncDelay);
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR; QuantizeOK = j;
-	if(trace_load_settings) BPPrintMessage(odError, "QuantizeOK = %d\n",QuantizeOK);
+	if(trace_load_settings) BPPrintMessage(0,odError, "QuantizeOK = %d\n",QuantizeOK);
 	#if BP_CARBON_GUI_FORGET_THIS
 	SetTimeAccuracy(); // We'll see later what to do with Time_res
 	Dirty[wTimeAccuracy] = FALSE;
@@ -1568,7 +1568,7 @@ int LoadSettings(const char *filename, int startup) {
 	oldoutcsound = OutCsound;
 
 	if(ReadInteger(sefile,&Improvize,&pos) == MISSED) goto ERR;
-	if(trace_load_settings) BPPrintMessage(odError, "Improvize = %d\n",Improvize);
+	if(trace_load_settings) BPPrintMessage(0,odError, "Improvize = %d\n",Improvize);
 	if(PlaySelectionOn) Improvize = 0;
 	if(ReadInteger(sefile,&CyclicPlay,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&UseEachSub,&pos) == MISSED) goto ERR;
@@ -1580,7 +1580,7 @@ int LoadSettings(const char *filename, int startup) {
 	if(ReadInteger(sefile,&PlanProduce,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&DisplayItems,&pos) == MISSED) goto ERR; 
 	if(ReadInteger(sefile,&ShowGraphic,&pos) == MISSED) goto ERR;
-	// if(ShowGraphic) BPPrintMessage(odInfo,"Graphics activated\n");
+	// if(ShowGraphic) BPPrintMessage(0,odInfo,"Graphics activated\n");
 	if(ReadInteger(sefile,&AllowRandomize,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&DisplayTimeSet,&pos) == MISSED) goto ERR; 
 	if(ReadInteger(sefile,&StepTimeSet,&pos) == MISSED) goto ERR; 
@@ -1615,7 +1615,7 @@ int LoadSettings(const char *filename, int startup) {
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR;
 	if(k < 100) k = 1000;
 	DeftBufferSize = BufferSize = k;
-	// BPPrintMessage(odInfo, "Default buffer size = %ld symbols\n", DeftBufferSize);
+	// BPPrintMessage(0,odInfo, "Default buffer size = %ld symbols\n", DeftBufferSize);
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
 	/* UseGraphicsColor = (j > 0);
 	if(ForceTextColor == 1) UseTextColor = TRUE;
@@ -1631,16 +1631,16 @@ int LoadSettings(const char *filename, int startup) {
 
 	if(ReadLong(sefile,&MaxConsoleTime,&pos) == MISSED) goto ERR; // OBSOLETE
 	MaxConsoleTime = 0L; // No limit
- //   if(trace_load_settings && MaxConsoleTime > 0L) BPPrintMessage(odInfo, "MaxConsoleTime = %ld\n",(long)MaxConsoleTime);
+ //   if(trace_load_settings && MaxConsoleTime > 0L) BPPrintMessage(0,odInfo, "MaxConsoleTime = %ld\n",(long)MaxConsoleTime);
     
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR;
 	Seed = (unsigned) (k % 32768L);
 	if(Seed > 0) {
-		if(!PlaySelectionOn) BPPrintMessage(odInfo, "Random seed = %u as per settings\n", Seed);
+		if(!PlaySelectionOn) BPPrintMessage(0,odInfo, "Random seed = %u as per settings\n", Seed);
 		ResetRandom();
 		}
 	else {
-		if(!PlaySelectionOn) BPPrintMessage(odInfo, "Not using a random seed: shuffling the cards\n");
+		if(!PlaySelectionOn) BPPrintMessage(0,odInfo, "Not using a random seed: shuffling the cards\n");
 		Randomize();
 		}
 
@@ -1649,7 +1649,7 @@ int LoadSettings(const char *filename, int startup) {
 	else Token = FALSE;
 	if(ReadInteger(sefile,&NoteConvention,&pos) == MISSED) goto ERR;
 	if(NoteConvention > (KEYS + 1)) {
-		BPPrintMessage(odInfo, "\n=> ERROR NoteConvention = %d\n",NoteConvention);
+		BPPrintMessage(0,odInfo, "\n=> ERROR NoteConvention = %d\n",NoteConvention);
 		goto ERR;
 		}
 	if(ReadInteger(sefile,&StartFromOne,&pos) == MISSED) goto ERR;
@@ -1714,7 +1714,7 @@ int LoadSettings(const char *filename, int startup) {
 		if(iv > 19) EndFadeOut = x;
 		else EndFadeOut = 2.;
 		my_sprintf(Message,"EndFadeOut = %.2f sec\n",EndFadeOut);
-	//	BPPrintMessage(odInfo,Message);
+	//	BPPrintMessage(0,odInfo,Message);
 		
 		if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
 		if(j > 1 && j < 128) C4key = j;
@@ -1737,7 +1737,7 @@ int LoadSettings(const char *filename, int startup) {
 	if(iv > 15) {
 		if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
 		DeftVolume = j;
-	//	BPPrintMessage(odInfo,"Default volume = %d\n",j);
+	//	BPPrintMessage(0,odInfo,"Default volume = %d\n",j);
 		if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
 		VolumeController = j;
 		if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
@@ -1748,7 +1748,7 @@ int LoadSettings(const char *filename, int startup) {
 		PanoramicController = j;
 		if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
 		SamplingRate = j;
-	//	BPPrintMessage(odInfo,"Sampling rate = %d\n",j);
+	//	BPPrintMessage(0,odInfo,"Sampling rate = %d\n",j);
 		}
 	else {
 		DeftVolume = DEFTVOLUME;
@@ -1768,7 +1768,7 @@ int LoadSettings(const char *filename, int startup) {
 	// This block reads in font sizes for Carbon GUI text windows
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
 	wmax = j;
-	// BPPrintMessage(odInfo,"Number of windows = %d\n",j);
+	// BPPrintMessage(0,odInfo,"Number of windows = %d\n",j);
 	if(wmax > 0) {
 		for(w=0; w < (wmax - 1); w++) {
 			if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
@@ -1785,7 +1785,7 @@ int LoadSettings(const char *filename, int startup) {
 		for(i=0; i < 12; i++) {
 			if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
 			NameChoice[i] = j;
-		//	BPPrintMessage(odInfo,"NameChoice[%d] = %d\n",i,j);
+		//	BPPrintMessage(0,odInfo,"NameChoice[%d] = %d\n",i,j);
 			}
 		}
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR;
@@ -1805,11 +1805,11 @@ int LoadSettings(const char *filename, int startup) {
 
 	if(ShowObjectGraph || ShowPianoRoll) ShowGraphic = TRUE;
 	if(!ShowGraphic) ShowObjectGraph = ShowPianoRoll = FALSE;
-	if(ShowPianoRoll) BPPrintMessage(odInfo,"Pianoroll graphics will be displayed\n");
-	if(ShowObjectGraph) BPPrintMessage(odInfo,"Object graphics will be displayed\n");
-	BPPrintMessage(odInfo,"Metronome will be %.3f beats/mn by default (as per settings)\n",(Qclock * 60.)/Pclock); 
-	if(Nature_of_time == STRIATED) BPPrintMessage(odInfo,"Time is STRIATED\n");
-	else BPPrintMessage(odInfo,"Time is SMOOTH (no metronome)\n");
+	if(ShowPianoRoll) BPPrintMessage(0,odInfo,"Pianoroll graphics will be displayed\n");
+	if(ShowObjectGraph) BPPrintMessage(0,odInfo,"Object graphics will be displayed\n");
+	BPPrintMessage(0,odInfo,"Metronome will be %.3f beats/mn by default (as per settings)\n",(Qclock * 60.)/Pclock); 
+	if(Nature_of_time == STRIATED) BPPrintMessage(0,odInfo,"Time is STRIATED\n");
+	else BPPrintMessage(0,odInfo,"Time is SMOOTH (no metronome)\n");
 
 	if(PlaySelectionOn) Improvize = 0;			
 	/* Removed code for reading "NewEnvironment", window coordinates & text colors */
@@ -1827,7 +1827,7 @@ int LoadSettings(const char *filename, int startup) {
 
 	LoadOn--;
 
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end LoadSettings = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end LoadSettings = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	return(result);
 	}
 
@@ -1848,7 +1848,7 @@ int LoadObjectPrototypes(int checkversion,int tryname) {
 
 	CompileAlphabet();
 
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start LoadObjectPrototypes = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start LoadObjectPrototypes = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 
 	rep = MISSED;
 	newinstruments = CompiledCsObjects = 0;
@@ -1861,7 +1861,7 @@ int LoadObjectPrototypes(int checkversion,int tryname) {
 
 	sofile = my_fopen(1,FileName[iObjects], "r");
 	if (sofile == NULL) {
-		BPPrintMessage(odError, "=> Could not open prototypes file %s\n",FileName[iObjects]);
+		BPPrintMessage(0,odError, "=> Could not open prototypes file %s\n",FileName[iObjects]);
 	//	return MISSED;
 		return ABORT; // Fixed by BB 2022-02-18
 		}
@@ -1869,9 +1869,9 @@ int LoadObjectPrototypes(int checkversion,int tryname) {
 	if(ReadOne(FALSE,FALSE,FALSE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 	my_sprintf(Message,"Loading %s...",FileName[iObjects]);
 	ShowMessage(TRUE,wMessage,Message);
-	if(trace_load_prototypes) BPPrintMessage(odInfo, "Line = %s\n",*p_line);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "Line = %s\n",*p_line);
 	if(CheckVersion(&iv,p_line,FileName[iObjects]) != OK) goto ERR;
-	if(trace_load_prototypes) BPPrintMessage(odInfo, "Version = %d\n",iv);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "Version = %d\n",iv);
 
 	if(iv > 2) {
 		if(ReadOne(FALSE,TRUE,FALSE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
@@ -1891,27 +1891,27 @@ int LoadObjectPrototypes(int checkversion,int tryname) {
 		remove_carriage_returns(line2);
 		}
 	else {
-		BPPrintMessage(odError,"=> Error reading line2 in LoadObjectPrototypes()\n");
+		BPPrintMessage(0,odError,"=> Error reading line2 in LoadObjectPrototypes()\n");
 		goto ERR;
 		}
 	// fscanf(sofile, "%[^\n]",line2); Obsolete, not good for Windows
 	remove_trailing_newline(line2);
-	if(trace_load_prototypes) BPPrintMessage(odInfo, "Line (empty?) = [%s]\n",line2);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "Line (empty?) = [%s]\n",line2);
 	if(strlen(line2) > 5) { // Fixed by BB 2022-02-18
 		// Note that line2 contains the path (csound_resources)
 		my_sprintf(Message,"../%s",line2);
 		strcpy(FileName[wCsoundResources], Message);
-		BPPrintMessage(odInfo, "Trying to load Csound instruments: %s\n", FileName[wCsoundResources]);
+		BPPrintMessage(0,odInfo, "Trying to load Csound instruments: %s\n", FileName[wCsoundResources]);
 		if((result = LoadCsoundInstruments(0,1)) != OK) return(result);
 	//	pos += strlen(line2);
 		}
 MAXSOUNDS:
 	if(ReadInteger(sofile,&s,&pos) == MISSED) {
-		BPPrintMessage(odError, "Missed the first integer in LoadObjectPrototypes()\n");
+		BPPrintMessage(0,odError, "Missed the first integer in LoadObjectPrototypes()\n");
 		goto ERR;
 		}
 	maxsounds = s;
-	if(trace_load_prototypes) BPPrintMessage(odInfo, "maxsounds = %d Jbol = %d\n",s,Jbol);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "maxsounds = %d Jbol = %d\n",s,Jbol);
 //	if(CheckTerminalSpace() != OK) goto ERR;
 	oldjbol = Jbol;
 	Jbol += maxsounds;
@@ -1930,10 +1930,10 @@ NEXTBOL:
 	if(ReadOne(FALSE,TRUE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) {
 		my_sprintf(Message,"Unexpected end of '%s' file...  May be old version?",
 			FileName[iObjects]);
-		BPPrintMessage(odInfo,Message);
+		BPPrintMessage(0,odInfo,Message);
 		goto ERR;
 		}
-	if(trace_load_prototypes) BPPrintMessage(odInfo, "line = %s\n",*p_line);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "line = %s\n",*p_line);
 
 	if(p_completeline == NULL) {
 		if(Beta) Alert1("=> Err. LoadObjectPrototypes(). p_completeline == NULL");
@@ -1945,7 +1945,7 @@ NEXTBOL:
 		if((*p_completeline)[0] == '\0')
 			MystrcpyStringToHandle(&p_completeline,"[Comment on prototype file]");
 		MystrcpyHandleToString(MAXFIELDCONTENT,0,line,p_completeline);
-		if(trace_load_prototypes) BPPrintMessage(odInfo, "General comment = %s\n",line);
+		if(trace_load_prototypes) BPPrintMessage(0,odInfo, "General comment = %s\n",line);
 		//	rep = SetField(NULL,wPrototype1,fPrototypeFileComment,line);
 	//	else SetField(NULL,wPrototype1,fPrototypeFileComment,"[Comment on prototype file]");
 		goto SORTIR;
@@ -1962,13 +1962,13 @@ NEXTBOL:
 		goto SORTIR;
 		}
 	if(iv > 4 && newbols) {
-	/*	BPPrintMessage(odInfo,"This sound-object has not been created because it is not in the alphabet: %s\n",*p_completeline); // 2024-08-18
+	/*	BPPrintMessage(0,odInfo,"This sound-object has not been created because it is not in the alphabet: %s\n",*p_completeline); // 2024-08-18
 		goto NEXTBOL; */
 
 		oldjbol = Jbol;
 		if(Jbol == 0) {
 			Jbol = 2;
-			BPPrintMessage(odError,"=> Warning: probable error in CreateBol()\n");
+			BPPrintMessage(0,odError,"=> Warning: probable error in CreateBol()\n");
 			GetAlphabetSpace();
 			}
 	//	p_Bol = (char****) GiveSpace((Size)(Jbol) * sizeof(char**));
@@ -1978,20 +1978,20 @@ NEXTBOL:
 			goto ERR;
 			}
 		j = jj;
-		if(trace_load_prototypes) BPPrintMessage(odInfo, "Trying to create sound-object for j = %d named %s\n",j,*p_completeline);
+		if(trace_load_prototypes) BPPrintMessage(0,odInfo, "Trying to create sound-object for j = %d named %s\n",j,*p_completeline);
 		if(Jbol > oldjbol) {
 			Jbol = oldjbol;
-			BPPrintMessage(odInfo,"This sound-object has not been created because it is not in the alphabet: %s\n",*p_completeline);
+			BPPrintMessage(0,odInfo,"This sound-object has not been created because it is not in the alphabet: %s\n",*p_completeline);
 			}
 		}
 
-	if(trace_load_prototypes) BPPrintMessage(odInfo, "Final Jbol = %d\n",Jbol);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "Final Jbol = %d\n",Jbol);
 	if(ReadInteger(sofile,&objecttype,&pos) == MISSED) goto ERR;
-	if(trace_load_prototypes) BPPrintMessage(odInfo, "object type = %d\n",objecttype);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "object type = %d\n",objecttype);
 	(*p_Type)[j] = objecttype;
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	(*p_Resolution)[j] = s;
-	if(trace_load_prototypes) BPPrintMessage(odInfo, "(*p_Resolution)[%d] = %d\n",j,(*p_Resolution)[j]);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "(*p_Resolution)[%d] = %d\n",j,(*p_Resolution)[j]);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	(*p_DefaultChannel)[j] = s;
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
@@ -1999,7 +1999,7 @@ NEXTBOL:
 	if(ReadFloat(sofile,&r,&pos) == MISSED) goto ERR;
 	(*p_Quan)[j] = r;
 	if(ReadOne(FALSE,FALSE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-	if(trace_load_prototypes) BPPrintMessage(odInfo,"line3 = %s\n",*p_line);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo,"line3 = %s\n",*p_line);
 	i = 0;
 	pivbeg = (*p_line)[i++]-'0';
 	pivend = (*p_line)[i++]-'0';
@@ -2134,7 +2134,7 @@ NEXTBOL:
 		// (*p_ObjectColor)[j].green = k;
 		if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 		// (*p_ObjectColor)[j].blue = k;
-		if(trace_load_prototypes) BPPrintMessage(odInfo, "(*p_ObjectColor)[j].blue = %ld\n",k);
+		if(trace_load_prototypes) BPPrintMessage(0,odInfo, "(*p_ObjectColor)[j].blue = %ld\n",k);
 		}
 	(*pp_CsoundTime)[j] = NULL;
 	(*p_CompiledCsoundScore)[j] = 0; // Added 2024-07-04
@@ -2145,13 +2145,13 @@ NEXTBOL:
 	// Read pp_CsoundScoreText
 	if(ReadOne(FALSE,FALSE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 	// StripHandle(p_line);
-	if(trace_load_prototypes) BPPrintMessage(odInfo, "line2 = %s\n",*p_line);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "line2 = %s\n",*p_line);
 
 	if(Mystrcmp(p_line,"_beginCsoundScore_") != 0) goto ERR;
 
 	if(ReadOne(FALSE,FALSE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 
-	if(trace_load_prototypes) BPPrintMessage(odInfo, "line3 = %s\n",*p_line);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "line3 = %s\n",*p_line);
 
 	if((ptr = (Handle) GiveSpace(MyGetHandleSize((Handle)p_completeline))) == NULL) goto ERR;
 		(*pp_CsoundScoreText)[j] = (char**) ptr;
@@ -2162,16 +2162,16 @@ NEXTBOL:
 		goto ERR;
 		} */
 	Dirty[iObjects] = Dirty[wPrototype7] = FALSE;
-	if(trace_load_prototypes) BPPrintMessage(odInfo,"Compiled Csound score\n");
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo,"Compiled Csound score\n");
 
 	if(ReadOne(FALSE,TRUE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-	if(trace_load_prototypes) BPPrintMessage(odInfo, "line4 = %s\n",*p_line);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "line4 = %s\n",*p_line);
 	if(Mystrcmp(p_completeline,"_endCsoundScore_") == 0) goto READSIZE;
 	else goto ERR;
 
 	READSIZE:
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
-	if(trace_load_prototypes) BPPrintMessage(odInfo, "Size of MIDI code = %d\n",s);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "Size of MIDI code = %d\n",s);
 	imax = s;
 		(*p_PasteDone)[j] = FALSE;
 		(*p_MIDIsize)[j] = (*p_Ifrom)[j] = ZERO;
@@ -2184,7 +2184,7 @@ NEXTBOL:
 	if(imax > 0) {
 		for(i=0,tm=ZERO,okt1=FALSE; i < imax; i++) {
 			if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
-		//	if(trace_load_prototypes) BPPrintMessage(odInfo, "k = %ld\n",k);
+		//	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "k = %ld\n",k);
 			if(Eucl(k,256L,(unsigned long*)&t,(unsigned long*)&kk) != 0) goto ERR;
 			(*p_b)[i].byte = (int) kk;
 			if(143L < kk  &&  kk < 160L) {   /* NoteOn or NoteOff */
@@ -2197,14 +2197,14 @@ NEXTBOL:
 			(*p_b)[i].time = (Milliseconds) t;
 			}
 		imax = i;
-		if(trace_load_prototypes) BPPrintMessage(odInfo, "imax = %d\n",imax);
+		if(trace_load_prototypes) BPPrintMessage(0,odInfo, "imax = %d\n",imax);
 
 		if(MIDItoPrototype(FALSE,TRUE,j,p_b,imax) != OK) goto ERR;
 		if(MyDisposeHandle((Handle*)&p_b) != OK) goto ERR;
 		}
 
 	if(CheckConsistency(j,TRUE) != OK) goto ERR;
-	if(trace_load_prototypes) BPPrintMessage(odInfo, "CheckConsistency is OK for j = %d\n",j);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "CheckConsistency is OK for j = %d\n",j);
 	if(iv > 9) {
 		if(ReadOne(FALSE,TRUE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 		if(p_completeline == NULL) {
@@ -2219,7 +2219,7 @@ NEXTBOL:
 		if((h = (Handle) GiveSpace((Size)(1+s) * sizeof(char))) == NULL) goto ERR;
 		(*pp_Comment)[j] = (char**) h;
 		MystrcpyHandleToHandle(0,&((*pp_Comment)[j]),p_completeline);
-		if(trace_load_prototypes) BPPrintMessage(odInfo, "comment for %d = %s\n\n",j,*p_completeline);
+		if(trace_load_prototypes) BPPrintMessage(0,odInfo, "comment for %d = %s\n\n",j,*p_completeline);
 		}
 	goto NEXTBOL;
 
@@ -2227,12 +2227,12 @@ NEXTBOL:
 	if(j > 1 && j < Jbol) ResetPrototype(j);
 	if(CheckEmergency() == OK) {
 		rep = MISSED;
-		BPPrintMessage(odError,"=> This sound-object file may be corrupted or in some unknown format\n");
+		BPPrintMessage(0,odError,"=> This sound-object file may be corrupted or in some unknown format\n");
 		if(j > 1 && j < Jbol) {
-			BPPrintMessage(odError,"An error occured while reading '%s'\n",*((*p_Bol)[j]));
+			BPPrintMessage(0,odError,"An error occured while reading '%s'\n",*((*p_Bol)[j]));
 			}
-		else BPPrintMessage(odError,"The error did not occur while reading a sound-object\n");
-		BPPrintMessage(odInfo,"You may load the sound-object file in a text editor and try to fix inconsistencies\n");
+		else BPPrintMessage(0,odError,"The error did not occur while reading a sound-object\n");
+		BPPrintMessage(0,odInfo,"You may load the sound-object file in a text editor and try to fix inconsistencies\n");
 		}
 	else rep = ABORT;
 
@@ -2244,14 +2244,14 @@ NEXTBOL:
 	// // HideWindow(Window[wMessage]);
 
 	ObjectMode = ObjectTry = TRUE;
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end LoadObjectPrototypes = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end LoadObjectPrototypes = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 
 	// 
 	if(rep == OK) {
 	//	SetName(iObjects,YES,TRUE);
 		if(newbols) {
 			ResizeObjectSpace(NO,Jbol + Jpatt,0);
-			// BPPrintMessage(odInfo,"Resizing object space for Jbol = %d and Jpatt = %ld\n",Jbol,Jpatt);
+			// BPPrintMessage(0,odInfo,"Resizing object space for Jbol = %d and Jpatt = %ld\n",Jbol,Jpatt);
 			}
 		}
 	PrototypesLoaded = TRUE;

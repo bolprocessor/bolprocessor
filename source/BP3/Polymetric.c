@@ -108,7 +108,7 @@ int trace_polymake = 0;
 			}
 		}
 	if(level != 0) {	/* '{' and '}' not balanced */
-		BPPrintMessage(odError,"=> Incorrect polymetric expression(s): '{' and '}' are not balanced. Can't proceed further...\n");
+		BPPrintMessage(0,odError,"=> Incorrect polymetric expression(s): '{' and '}' are not balanced. Can't proceed further...\n");
 		goto QUIT;
 		}
 
@@ -206,7 +206,7 @@ int trace_polymake = 0;
 	if(r != OK && r != SINGLE && r != IMBEDDED) goto QUIT;
 	//////////////////////////////////
 
-	if(trace_polymake) BPPrintMessage(odInfo,"After PolyExpand() maxid = %ld pos_init = %ld P = %ld Q = %ld fixtempo = %ld useful = %ld\n",(long)maxid,(long)pos_init,(long)P,(long)Q,(long)fixtempo,(long)useful);
+	if(trace_polymake) BPPrintMessage(0,odInfo,"After PolyExpand() maxid = %ld pos_init = %ld P = %ld Q = %ld fixtempo = %ld useful = %ld\n",(long)maxid,(long)pos_init,(long)P,(long)Q,(long)fixtempo,(long)useful);
 
 	r = OK;
 	scaling = speed = tempo = 1.;
@@ -317,15 +317,15 @@ int trace_polymake = 0;
 
 	if(trace_polymake)  {
 		if(Qduration > 1.)
-			BPPrintMessage(odInfo,"Duration = %.0f/%.0f time units, Ratio = %.0f\n",Pduration,Qduration,(double)Ratio);
-		else BPPrintMessage(odInfo,"Duration = %.0f time units, Ratio = %.0f\n",Pduration,(double)Ratio);
+			BPPrintMessage(0,odInfo,"Duration = %.0f/%.0f time units, Ratio = %.0f\n",Pduration,Qduration,(double)Ratio);
+		else BPPrintMessage(0,odInfo,"Duration = %.0f time units, Ratio = %.0f\n",Pduration,(double)Ratio);
 		}
 
 	alreadychangedquantize = FALSE;
 
 	// Calculate compression rate Kpress for quantization
 	FINDCOMPRESSION:
-	// BPPrintMessage(odInfo,"FINDCOMPRESSION\n");
+	// BPPrintMessage(0,odInfo,"FINDCOMPRESSION\n");
 	Kpress = 1.;
 	if(Pclock > 0.) {
 		kpress = 1. + (((double)Quantization) * Qclock * Ratio) / Pclock / 1000.;
@@ -339,12 +339,12 @@ int trace_polymake = 0;
 			}
 		if(QuantizeOK) {
 			Kpress = kpress;
-			BPPrintMessage(odInfo,"Using quantization = %ld ms with compression rate = %.0f\n",(long)Quantization,(double)Kpress);
+			BPPrintMessage(0,odInfo,"Using quantization = %ld ms with compression rate = %.0f\n",(long)Quantization,(double)Kpress);
 			}
 		else {
 			if((kpress >= 4. && NotSaidKpress) || kpress >= 100.) {
 				NotSaidKpress = FALSE;
-				BPPrintMessage(odInfo,"Forcing quantization to %ld ms\n",Quantization);
+				BPPrintMessage(0,odInfo,"Forcing quantization to %ld ms\n",Quantization);
 				QuantizeOK = TRUE;
 				goto FINDCOMPRESSION;
 				}
@@ -352,11 +352,11 @@ int trace_polymake = 0;
 		}
 
 	if(Pclock > 0.) {
-	//	BPPrintMessage(odInfo,"maxscalespeed = %ld\n",(long)maxscalespeed);
+	//	BPPrintMessage(0,odInfo,"maxscalespeed = %ld\n",(long)maxscalespeed);
 	//	max_quantization = (int) (1000. * (Pclock/Qclock) * (Kpress - 1) / Kpress / maxscalespeed);
 		// Added by BB 2021-01-31
 	/*	if(max_quantization < Quantization)
-			BPPrintMessage(odError,"=> To avoid skipping objects/notes, quantization should be less than %d ms\n",max_quantization); */
+			BPPrintMessage(0,odError,"=> To avoid skipping objects/notes, quantization should be less than %d ms\n",max_quantization); */
 		}
 
 	// Calculate Maxevent, (*p_maxseq) and the final value of Maxconc
@@ -587,7 +587,7 @@ int trace_polymake = 0;
 			}
 		}
 	if((*p_nseqmax)[0] > Minconc) {
-		BPPrintMessage(odError,"=> (*p_nseqmax)[0] = %ld Minconc = %ld\n",(long)(*p_nseqmax)[0],(long)Minconc);
+		BPPrintMessage(0,odError,"=> (*p_nseqmax)[0] = %ld Minconc = %ld\n",(long)(*p_nseqmax)[0],(long)Minconc);
 		Minconc = (*p_nseq)[0];
 		}
 	Minconc++;
@@ -647,7 +647,7 @@ int trace_polymake = 0;
 			x = (((double)Quantization) * (imax + 100L) / thelimit);
 			x = 10L * (long) ceil(((double) x) / 10.);
 			if(x < Quantization) {
-				BPPrintMessage(odError,"=> Polymetric expansion encountered an unpredicted overflow. Sorry, can't proceed further\n");
+				BPPrintMessage(0,odError,"=> Polymetric expansion encountered an unpredicted overflow. Sorry, can't proceed further\n");
 				r = ABORT;
 				goto QUIT;
 				}
@@ -667,7 +667,7 @@ int trace_polymake = 0;
 						}
 					}
 				else {
-					BPPrintMessage(odError,"=> Increasing quantization may not be sufficient to reduce memory requirement.\n");
+					BPPrintMessage(0,odError,"=> Increasing quantization may not be sufficient to reduce memory requirement.\n");
 					rep = CANCEL; // Fixed by BB 2021-01-30
 				//	rep = Answer("Increasing quantization may not be sufficient to reduce memory requirement. Try it anyway",'Y');
 					newquantize = 2000L;
@@ -682,7 +682,7 @@ int trace_polymake = 0;
 				}
 			newquantize = (long) x;
 		//	BPActivateWindow(SLOW,wTimeAccuracy);
-			if(!ScriptExecOn && !alreadychangedquantize) BPPrintMessage(odError,"Quantization of %ld ms will be increased to reduce memory requirement (%ld ms might work)\n",
+			if(!ScriptExecOn && !alreadychangedquantize) BPPrintMessage(0,odError,"Quantization of %ld ms will be increased to reduce memory requirement (%ld ms might work)\n",
 				(long) Quantization,(long) newquantize);
 			else goto SETQUANTIZE;
 		//	newquantize = 20L; // $$$
@@ -690,7 +690,7 @@ int trace_polymake = 0;
 	CHANGEQUANTIZE:
 		//	my_sprintf(Message,"%ld",(long)newquantize);
 		//	rep = AnswerWith("Setting quantization to...",Message,Message);
-		//	BPPrintMessage(odError,"Setting quantization to %ld ms\n",(long) newquantize);
+		//	BPPrintMessage(0,odError,"Setting quantization to %ld ms\n",(long) newquantize);
 			
 	/*		if(rep == ABORT) { // Fixed by BB 2021-02-25
 
@@ -735,16 +735,16 @@ int trace_polymake = 0;
 			goto FINDCOMPRESSION;
 			}
 		}
-	// BPPrintMessage(odError,"@ morelines = %ld Minconc = %ld\n",(long)morelines,(long)Minconc);
+	// BPPrintMessage(0,odError,"@ morelines = %ld Minconc = %ld\n",(long)morelines,(long)Minconc);
 	Minconc += morelines;
 	// Minconc += Maxlevel;
 	Maxlevel++;
 	Maxconc = Minconc + 1 + longestseqouttime + longestnumbertoofast;
 
-	// BPPrintMessage(odInfo,"Minconc = %ld, longestseqouttime = %ld, longestnumbertoofast = %ld, Maxconc = %ld\n",(long)Minconc,(long)longestseqouttime,(long)longestnumbertoofast,(long)Maxconc);
-	BPPrintMessage(odInfo,"Phase diagram contains %ld lines",(long)Maxconc);
-	if(longestnumbertoofast > 0) BPPrintMessage(odInfo,", longest stream faster than quantization = %ld notes or sound-objects",(long)longestnumbertoofast);
-	BPPrintMessage(odInfo,"\n");
+	// BPPrintMessage(0,odInfo,"Minconc = %ld, longestseqouttime = %ld, longestnumbertoofast = %ld, Maxconc = %ld\n",(long)Minconc,(long)longestseqouttime,(long)longestnumbertoofast,(long)Maxconc);
+	BPPrintMessage(0,odInfo,"Phase diagram contains %ld lines",(long)Maxconc);
+	if(longestnumbertoofast > 0) BPPrintMessage(0,odInfo,", longest stream faster than quantization = %ld notes or sound-objects",(long)longestnumbertoofast);
+	BPPrintMessage(0,odInfo,"\n");
 
 	CHECKSIZE:
 	// FIXME: This whole section needs reconsideration on OS X
@@ -775,7 +775,7 @@ int trace_polymake = 0;
 	if(nsymb > 15000L || numberprolongations > 2000 || ((Prod / firstscaling) > 200)) {
 		if(ShowMessages) {
 			if(nsymb > 15000L) {
-				BPPrintMessage(odInfo,"Expanded polymetric expression would contain %.0f symbols\n",nsymb);
+				BPPrintMessage(0,odInfo,"Expanded polymetric expression would contain %.0f symbols\n",nsymb);
 				}
 			if(ExpandOn) ShowMessage(TRUE,wMessage,"Expanded expression is too large for display");
 			}
@@ -784,7 +784,7 @@ int trace_polymake = 0;
 	r = OK;
 
 	QUIT:
-	// BPPrintMessage(odInfo,"@@ Maxconc = %ld\n",(long)Maxconc);
+	// BPPrintMessage(0,odInfo,"@@ Maxconc = %ld\n",(long)Maxconc);
 	MyDisposeHandle((Handle*)&p_b);
 	MyDisposeHandle((Handle*)&p_nseq);
 	MyDisposeHandle((Handle*)&p_nseqmax);
@@ -890,7 +890,7 @@ if((p_qgap = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL)
 oldpos = (*p_pos);
 restart = FALSE;
 if(period && comma) {
-	BPPrintMessage(odError,"=> Error in polymetric expression.\nThe same expression contains both a bullet and a comma...\n");
+	BPPrintMessage(0,odError,"=> Error in polymetric expression.\nThe same expression contains both a bullet and a comma...\n");
 	result = ABORT;
 	goto SORTIR;
 	}
@@ -915,7 +915,7 @@ ptempo = qtempo = 1L;
 prevscale = scaling = oldscaling;
 prevspeed = speed = oldspeed;
 if(speed > TokenLimit || (1./speed) > TokenLimit) {
-	BPPrintMessage(odError,"=> Unexpected overflow in polymetric formula (case 14). You may send this item to the designers...\n");
+	BPPrintMessage(0,odError,"=> Unexpected overflow in polymetric formula (case 14). You may send this item to the designers...\n");
 	result = ABORT; goto SORTIR;
 	}
 
@@ -1036,7 +1036,7 @@ FIXTEMP:
 		isequal = Equal(0.005,scaling,speed,prevscale,prevspeed,&overflow);
 		if(isequal == ABORT) {
 			if(Beta) {
-				BPPrintMessage(odError,"=> Err. PolyExpand(). isequal == ABORT\n");
+				BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT\n");
 				result = ABORT; goto SORTIR;
 				}
 			isequal = FALSE;
@@ -1099,7 +1099,7 @@ FIXTEMP:
 				}
 			if(overflow) TellComplex();
 			
-			if(trace_polymake) BPPrintMessage(odInfo,"MaxFrac = %.0f, xp = %.0f xq = %.0f\n",MaxFrac,xp,xq);
+			if(trace_polymake) BPPrintMessage(0,odInfo,"MaxFrac = %.0f, xp = %.0f xq = %.0f\n",MaxFrac,xp,xq);
 			if(xp > MaxFrac || xq > MaxFrac) {
 				MakeRatio(MaxFrac,(xp/xq),&xp,&xq);
 				TellComplex();
@@ -1107,7 +1107,7 @@ FIXTEMP:
 			else Simplify(MaxFrac,xp,xq,&xp,&xq);
 			
 			(*p_p)[a] = xp; (*p_q)[a] = xq;
-			if(trace_polymake) BPPrintMessage(odInfo,"xp = %.0f xq = %.0f\n",xp,xq);
+			if(trace_polymake) BPPrintMessage(0,odInfo,"xp = %.0f xq = %.0f\n",xp,xq);
 			
 			/* Replace number with '-' */
 			(*((*pp_c)[a]))[ic++] = T3;
@@ -1129,7 +1129,7 @@ FIXTEMP:
 			isequal = Equal(0.005,scaling,speed,scalebeforegap,speedbeforegap,&overflow);
 			if(isequal == ABORT) {
 				if(Beta) {
-					BPPrintMessage(odError,"=> Err. PolyExpand(). isequal == ABORT\n");
+					BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT\n");
 					result = ABORT; goto SORTIR;
 					}
 				isequal = FALSE;
@@ -1403,7 +1403,7 @@ FIXTEMP:
 			}
 		(*p_pos) = i;
 		if(foundtokens) imbedded = FALSE;
-		if(trace_polymake) BPPrintMessage(odInfo,"} foundtokens = %ld ic = %ld (*p_useful)[a] = %ld\n",(long)foundtokens,(long)ic,(long)(*p_useful)[a]);
+		if(trace_polymake) BPPrintMessage(0,odInfo,"} foundtokens = %ld ic = %ld (*p_useful)[a] = %ld\n",(long)foundtokens,(long)ic,(long)(*p_useful)[a]);
 		goto END;
 		}
 	if(m == T0 && (p == 14 || p == 7)) {		/* Either ',' or period */
@@ -1498,13 +1498,13 @@ FIXTEMP:
 				result = ABORT; goto SORTIR;
 				}
 			if(overflow) TellComplex();
-			if(trace_polymake) BPPrintMessage(odInfo,"MaxFrac = %.0f, m = %d p = %d, xp = %.0f xq = %.0f\n",MaxFrac,m,p,xp,xq);
+			if(trace_polymake) BPPrintMessage(0,odInfo,"MaxFrac = %.0f, m = %d p = %d, xp = %.0f xq = %.0f\n",MaxFrac,m,p,xp,xq);
 			if(xp > MaxFrac || xq > MaxFrac) {
 				MakeRatio(MaxFrac,(xp/xq),&xp,&xq);
 				TellComplex();
 				}
 			else Simplify(MaxFrac,xp,xq,&xp,&xq);;
-			if(trace_polymake) BPPrintMessage(odInfo,"xp = %.0f xq = %.0f\n",xp,xq);
+			if(trace_polymake) BPPrintMessage(0,odInfo,"xp = %.0f xq = %.0f\n",xp,xq);
 			
 			(*p_p)[a] = xp; (*p_q)[a] = xq;
 			}
@@ -2008,8 +2008,8 @@ int TellComplex(void)
 {
 if(!SaidTooComplex) {
 	SaidTooComplex = TRUE;
-//	BPPrintMessage(odInfo,"Formula is complex. Roundings are performed... (ULONG_MAX = %ul)\n",ULONG_MAX);
-	BPPrintMessage(odInfo,"Formula is complex. Roundings are performed\n");
+//	BPPrintMessage(0,odInfo,"Formula is complex. Roundings are performed... (ULONG_MAX = %ul)\n",ULONG_MAX);
+	BPPrintMessage(0,odInfo,"Formula is complex. Roundings are performed\n");
 	}
 return(OK);
 }

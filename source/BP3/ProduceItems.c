@@ -46,7 +46,7 @@ int i,ifunc,j,ch,splitmem,r,undefined,datamode,weightloss,hastabs,maxsounds,chec
 long endofselection,size,lengthA;
 int time_end_compute;
 
-// BPPrintMessage(odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
+// BPPrintMessage(0,odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
 if(Improvize && ItemNumber == 0) {
 	ShowMessage(TRUE,wMessage,"\nNo message during improvization\n");
 	if(!rtMIDI) ShowMessage(TRUE,wMessage,"Only 10 items will be produced.\n");
@@ -61,7 +61,7 @@ if(((SetTimeOn || PrintOn || SoundOn || SelectOn) && !repeat)
 
 if(CompileCheck() != OK) {
 	Improvize = FALSE;
-	BPPrintMessage(odError,"=> Compilation failed\n");
+	BPPrintMessage(0,odError,"=> Compilation failed\n");
 	return(MISSED);
 	}
 
@@ -116,17 +116,17 @@ for(j=1; j <= Jvar; j++) {
 		}
 	}
 if(undefined && !repeat && !IgnoreUndefinedVariables) {
-	BPPrintMessage(odError,"\n=> Undefined variable(s) found and ignored:\n=> ");
+	BPPrintMessage(0,odError,"\n=> Undefined variable(s) found and ignored:\n=> ");
 	for(j = 1, i = 0; j <= Jvar; j++) {
 		if(((*p_VarStatus)[j] & 2) && !((*p_VarStatus)[j] & 1)
 									&& !((*p_VarStatus)[j] & 4))  {
-			if(i > 0) BPPrintMessage(odError,", ");
+			if(i > 0) BPPrintMessage(0,odError,", ");
 			my_sprintf(Message,"%s",*((*p_Var)[j]));
-			BPPrintMessage(odError,Message);
+			BPPrintMessage(0,odError,Message);
 			i++;
 			}
 		}
-	BPPrintMessage(odError,"\n");
+	BPPrintMessage(0,odError,"\n");
 	}
 PedalOrigin = -1;
 if(Jflag > 0) for(i=1; i <= Jflag; i++) (*p_Flag)[i] = ZERO;
@@ -139,11 +139,11 @@ if(pp_start != NULL) pp_a = pp_start;
 else if(CreateBuffer(pp_a) != OK)  {
 	r = MISSED; goto QUIT;
 	}
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start MakeComputeSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start MakeComputeSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 if(MakeComputeSpace(MaxDeriv) != OK) {
 	r = MISSED; goto QUIT;
 	}
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end MakeComputeSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end MakeComputeSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 if(!ResetWeights && !NeverResetWeights && Varweight && !JustCompiled) {
 	if((r=Answer("Reset rule weights to initial values",'N')) == OK) {
 		Varweight = ResetRuleWeights(0);
@@ -156,7 +156,7 @@ if(!ResetWeights && !NeverResetWeights && Varweight && !JustCompiled) {
 JustCompiled = FALSE;
 
 maxsounds = Jbol + Jpatt;
-// BPPrintMessage(odInfo,"Jbol = %ld, Jpatt = %ld\n",(long)Jbol,(long)Jpatt);
+// BPPrintMessage(0,odInfo,"Jbol = %ld, Jpatt = %ld\n",(long)Jbol,(long)Jpatt);
 ResizeObjectSpace(FALSE,maxsounds,0);
 
 r = OK;
@@ -251,8 +251,8 @@ if(Improvize) {
 	//	if(ItemNumber >= 20 || (r=ListenToEvents()) == ABORT) {
 		if((r=ListenToEvents()) == ABORT) {
 			Improvize = FALSE;
-			BPPrintMessage(odInfo,"%ld items have been produced.\n",(long)ItemNumber);
-			if(r == ABORT) BPPrintMessage(odInfo,"Production has been canceled by user.\n");
+			BPPrintMessage(0,odInfo,"%ld items have been produced.\n",(long)ItemNumber);
+			if(r == ABORT) BPPrintMessage(0,odInfo,"Production has been canceled by user.\n");
 			r = ABORT;
 			goto QUIT;
 			}
@@ -306,12 +306,12 @@ Prod = 1.;
 if(!PlaySelectionOn && !Improvize && ShowItem(-1,&Gram,0,pp_a,repeat,PROD,FALSE) == ABORT) goto QUIT;
 if(pp_start == NULL) LastComputeWindow = w;
 
-// BPPrintMessage(odError,"OK OK!\n");
+// BPPrintMessage(0,odError,"OK OK!\n");
 // HERE WE DO IT ///////////////////////////////////////////////////////////
 if((((r=Compute(pp_a,1,Gram.number_gram,&lengthA,&repeat,time_end_compute)) != OK) && !SkipFlag) || r == EXIT) goto QUIT;
 ////////////////////////////////////////////////////////////////////////////
 
-// if(ShowGraphic) BPPrintMessage(odInfo, "After computing we'll try graphics\n");
+// if(ShowGraphic) BPPrintMessage(0,odInfo, "After computing we'll try graphics\n");
 if(!ShowGraphic && !PlaySelectionOn && !Improvize && DisplayItems)
 	BPActivateWindow(QUICK,OutputWindow);
 Final = TRUE;
@@ -321,7 +321,7 @@ SplitTimeObjects = splitmem;
 if(!PlaySelectionOn && Improvize) {
 	my_sprintf(Message,"Item #%ld\n",(long)(ItemNumber + 1L));
 	FlashInfo(Message);
-	if(!rtMIDI && !template && Improvize) BPPrintMessage(odInfo,Message);
+	if(!rtMIDI && !template && Improvize) BPPrintMessage(0,odInfo,Message);
 	ItemNumber++; // Needs to bee checked. Sometimes only 5 items created in improvize mode.
 	if(SkipFlag) goto MAKE;
 	if(!PlaySelectionOn && DisplayItems) {
@@ -336,17 +336,17 @@ if(!PlaySelectionOn && Improvize) {
 	}
 if(!StepProduce && !TraceProduce && !PlaySelectionOn
 	&& ((r=ShowItem(-1,&Gram,0,pp_a,repeat,PROD,FALSE)) == ABORT || r == EXIT)) {
-		BPPrintMessage(odError, "=> Failed in ShowItem()\n");
+		BPPrintMessage(0,odError, "=> Failed in ShowItem()\n");
 		goto QUIT;
 		}
-// BPPrintMessage(odInfo, "DisplayItems = %d\n",DisplayItems);
+// BPPrintMessage(0,odInfo, "DisplayItems = %d\n",DisplayItems);
 if(!PlaySelectionOn && DisplayItems) {
 	SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
 	datamode = DisplayMode(pp_a,&ifunc,&hastabs);
-	BPPrintMessage(odInfo, "\nBol Processor score:\n");
+	BPPrintMessage(0,odInfo, "\nBol Processor score:\n");
 	if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
 	Print(OutputWindow,"\n\n");
-//	BPPrintMessage(odInfo, "Created item for display\n");
+//	BPPrintMessage(0,odInfo, "Created item for display\n");
 	DataEnd = GetTextLength(OutputWindow);
 	SetSelect(DataOrigin,DataEnd,TEH[OutputWindow]);
 /*	BPActivateWindow(SLOW,OutputWindow);
@@ -899,7 +899,7 @@ TRYAGAIN:
 		if(r == ABORT || r == EXIT) goto END;
 		my_sprintf(Message,"Item #%ld\n",(long)(ItemNumber + 1L));
 		FlashInfo(Message);
-		if(!rtMIDI && !template && Improvize) BPPrintMessage(odInfo,Message);
+		if(!rtMIDI && !template && Improvize) BPPrintMessage(0,odInfo,Message);
 	//	ItemNumber++; 2024-05-02
 		r = CheckItemProduced(p_gram,pp_a,p_length,single,template,mode);
 		if(r == ABORT || r == EXIT) goto END;
@@ -1401,11 +1401,10 @@ for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\0'; pos++) {
 		
 	if(c == '_') {
 		if(isalpha(GetTextChar(w,pos+1))) {
+		//	BPPrintMessage(0,odInfo,"c == '_'\n");
 			/* Look for tool or performance control */
-			MyLock(NO,(Handle) h);
 			p = &((*h)[pos]);
 			j = GetPerformanceControl(&p,0,&n,NO,&u,&v,&map);
-			MyUnlock((Handle) h);
 			if(j == 61) {	/* _tempo */
 				(**pp_a)[i++] = T43; (**pp_a)[i++] = (tokenbyte) u;
 				(**pp_a)[i++] = T43; (**pp_a)[i++] = (tokenbyte) v;

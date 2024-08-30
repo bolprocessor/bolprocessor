@@ -420,7 +420,7 @@ if(w >= 0 && w < WMAX && Editable[w]) {
 	if(w == wGrammar) strcpy(line,"COMMENT:");
 	len = strlen(line);
 	while(ReadLine(YES,w,&pos,posmax,&p_line,&gap) == OK) {
-	//	BPPrintMessage(odInfo,"line = %s\n",*p_line);
+	//	BPPrintMessage(0,odInfo,"line = %s\n",*p_line);
 		if((*p_line)[0] == '\0' || (*p_line)[0] == '\r' || (*p_line)[0] == '\n') continue;
 		for(j=0; j < WMAX; j++) {
 			if(FilePrefix[j][0] == '\0') continue;
@@ -1821,7 +1821,7 @@ int CompileCheck(void) {
 			if(r == MISSED && CompiledGr && !CompiledAl) r = CompileAlphabet();
 			if(CompiledGr && CompiledAl) r = OK;
 			if(r != OK) {
-				BPPrintMessage(odError,"=> Problem compiling grammar and/or alphabet\n");
+				BPPrintMessage(0,odError,"=> Problem compiling grammar and/or alphabet\n");
 				return(r);
 				}
 			}

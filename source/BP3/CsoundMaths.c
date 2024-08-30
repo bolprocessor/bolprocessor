@@ -48,7 +48,7 @@ int j,rep;
 if(CompiledRegressions) return(OK);
 for(j=0; j < Jinstr; j++) {
 	if((rep=GetRegressions(j)) != OK) {
-		BPPrintMessage(odError,"=> Problem in GetRegressions()\n");
+		BPPrintMessage(0,odError,"=> Problem in GetRegressions()\n");
 		return(rep);
 		}
 	}
@@ -65,7 +65,7 @@ regression r;
 
 // Calculate quadratic regressions
 
-if(trace_csound_maths) BPPrintMessage(odInfo,"Compiling regressions for Csound instrument %d\n",j);
+if(trace_csound_maths) BPPrintMessage(0,odInfo,"Compiling regressions for Csound instrument %d\n",j);
 
 r = (*p_CsInstrument)[j].rPitchBend;
 if((result=Findabc(p_CsPitchBend,j,&r)) == ABORT) {
@@ -152,8 +152,8 @@ else return(MISSED);
 if((*(p_xy[5]))[j] < infinite_number) y3 = (*(p_xy[5]))[j];
 else return(MISSED);
 
-// BPPrintMessage(odError,"Infpos = %ld\n",Infpos);
-if(trace_csound_maths) BPPrintMessage(odError,"x1 = %.3f y1 = %.3f x2 = %.3f y2 = %.3f x3 = %.3f y3 = %.3f \n",x1,y1,x2,y2,x3,y3);
+// BPPrintMessage(0,odError,"Infpos = %ld\n",Infpos);
+if(trace_csound_maths) BPPrintMessage(0,odError,"x1 = %.3f y1 = %.3f x2 = %.3f y2 = %.3f x3 = %.3f y3 = %.3f \n",x1,y1,x2,y2,x3,y3);
 
 if(y1 < y2) p_r->crescent = TRUE;
 else p_r->crescent = FALSE;
@@ -443,18 +443,18 @@ if(result == OK) {
 		my_sprintf(line2," %ld",(long)newx);
 		strcat(line,line2);
 		y = (*(subtable.point))[i].value;
-		if(i == lasti && trace_write_score) BPPrintMessage(odInfo,"y(1) = %.3f for i = %ld\n",y,(long)i);
+		if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(1) = %.3f for i = %ld\n",y,(long)i);
 		if(usescorevalues) y = CombineScoreValues(y,oldx,xmax,v0,v1,ins,paramnameindex,ip);
-		if(i == lasti && trace_write_score) BPPrintMessage(odInfo,"y(2) = %.3f for i = %ld\n",y,(long)i);
+		if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(2) = %.3f for i = %ld\n",y,(long)i);
 		y = Remap(y,ins,paramnameindex,&overflow);
-		if(i == lasti && trace_write_score) BPPrintMessage(odInfo,"y(3) = %.3f for i = %ld\n",y,(long)i);
+		if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(3) = %.3f for i = %ld\n",y,(long)i);
 		if(overflow) goto SORTIR;
-		if(i == lasti && trace_write_score) BPPrintMessage(odInfo,"y(4) = %.3f for i = %ld\n",y,(long)i);
+		if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(4) = %.3f for i = %ld\n",y,(long)i);
 		my_sprintf(line2," %.3f",y);
 		strcat(line,line2);
 		}
 	if(CsoundTrace) ShowMessage(TRUE,wMessage,line);
-	if(trace_write_score) BPPrintMessage(odInfo,"%s\n",line);
+	if(trace_write_score) BPPrintMessage(0,odInfo,"%s\n",line);
 	if(ConvertMIDItoCsound) Println(wPrototype7,line);
 	else WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
 	}
@@ -561,7 +561,7 @@ ix1 = alpha1 * (double) xmax;
 i = 0; while((*(coords))[i].i < ix1) i++;
 i1 = i;
 
-if(trace_write_score) BPPrintMessage(odInfo,"i1 = %ld\n",i1);
+if(trace_write_score) BPPrintMessage(0,odInfo,"i1 = %ld\n",i1);
 
 if(i1 > ZERO) {
 	x2 = (*(coords))[i1].i;
@@ -573,18 +573,18 @@ if(i1 > ZERO) {
 		return(MISSED);
 		}
 	startvalue = y1 + (y2 - y1) * (ix1 - x1) / (x2 - x1);
-	if(trace_write_score) BPPrintMessage(odInfo,"i1 = %ld, x1 = %.3f, y1 = %.3f, x2 = %.3f, y2 = %.3f, ix1 = %.3f, startvalue = %.3f\n",i1,x1,y1,x2,y2,ix1,startvalue);
+	if(trace_write_score) BPPrintMessage(0,odInfo,"i1 = %ld, x1 = %.3f, y1 = %.3f, x2 = %.3f, y2 = %.3f, ix1 = %.3f, startvalue = %.3f\n",i1,x1,y1,x2,y2,ix1,startvalue);
 	}
 else {
 	startvalue = (*(coords))[ZERO].value;
-	if(trace_write_score) BPPrintMessage(odInfo,"i1 = ZERO startvalue = %.3f\n",startvalue);
+	if(trace_write_score) BPPrintMessage(0,odInfo,"i1 = ZERO startvalue = %.3f\n",startvalue);
 	}
 
 ix2 = alpha2 * (double) xmax;
 i = 0; while((*(coords))[i].i < ix2) i++;
 i2 = i;
 
-if(trace_write_score) BPPrintMessage(odInfo,"i2 = %ld\n",i2);
+if(trace_write_score) BPPrintMessage(0,odInfo,"i2 = %ld\n",i2);
 
 if(i2 > ZERO) {
 	x2 = (*(coords))[i2].i;
@@ -592,27 +592,27 @@ if(i2 > ZERO) {
 	y2 = (*(coords))[i2].value;
 	if(y2 < Infneg || y2 > Infpos) {
 		y2 = 0.; // Dirty fix by BB, 10 Nov. 2020 after seeing rare problem occurring in -gr.vina3
-		BPPrintMessage(odError,"=> Error in GetPartOfTable(). y2 = %.3f, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",y2,x1,x2,(long)i2);
+		BPPrintMessage(0,odError,"=> Error in GetPartOfTable(). y2 = %.3f, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",y2,x1,x2,(long)i2);
 		}
 	y1 = (*(coords))[i2-1L].value;
 	if(y1 < Infneg || y1 > Infpos) {
 		y1 = 0.; // Dirty fix by BB, 10 Nov. 2020 after seeing rare problem occurring in -gr.vina3
-		BPPrintMessage(odError,"=> Error in GetPartOfTable(). y1 = %.3f, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",y1,x1,x2,(long)i2);
+		BPPrintMessage(0,odError,"=> Error in GetPartOfTable(). y1 = %.3f, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",y1,x1,x2,(long)i2);
 		}
 	if(x1 >= x2) {
 		if(Beta) Alert1("=> Err. GetPartOfTable(). x1 >= x2");
-		BPPrintMessage(odError,"=> Error in GetPartOfTable(). x1 >= x2\n");
+		BPPrintMessage(0,odError,"=> Error in GetPartOfTable(). x1 >= x2\n");
 		return(MISSED);
 		}
 	endvalue = y1 + (y2 - y1) * (ix2 - x1) / (x2 - x1);
-	if(trace_write_score) BPPrintMessage(odInfo,"i2 = %ld, x1 = %.3f, y1 = %.3f, x2 = %.3f, y2 = %.3f, ix2 = %.3f, endvalue = %.3f\n",i2,x1,y1,x2,y2,ix2,endvalue);
+	if(trace_write_score) BPPrintMessage(0,odInfo,"i2 = %ld, x1 = %.3f, y1 = %.3f, x2 = %.3f, y2 = %.3f, ix2 = %.3f, endvalue = %.3f\n",i2,x1,y1,x2,y2,ix2,endvalue);
 	}
 else {
 	endvalue = (*(coords))[ZERO].value;
-	if(trace_write_score) BPPrintMessage(odInfo,"i2 = ZERO endvalue = %.3f\n",endvalue);
+	if(trace_write_score) BPPrintMessage(0,odInfo,"i2 = ZERO endvalue = %.3f\n",endvalue);
 	}
 p_subtable->imax = i2 - i1 + 3L;
-if(trace_write_score) BPPrintMessage(odInfo,"p_subtable i1 = %ld i2 = %ld imax = %ld\n",(long)i1,(long)i2,(long)imax);
+if(trace_write_score) BPPrintMessage(0,odInfo,"p_subtable i1 = %ld i2 = %ld imax = %ld\n",(long)i1,(long)i2,(long)imax);
 if((p_subtable->point = (XYCoordinates**) GiveSpace((Size)((imax + 1) * sizeof(XYCoordinates)))) == NULL)
 	return(ABORT);
 
@@ -631,10 +631,10 @@ for(i=i1+1L; i <= i2; i++) {
 	}
 
 (*(p_subtable->point))[j-1].value = endvalue;
-// BPPrintMessage(odInfo,"(*(p_subtable->point))[j-1].value = %.3f\n",endvalue);
+// BPPrintMessage(0,odInfo,"(*(p_subtable->point))[j-1].value = %.3f\n",endvalue);
 (*(p_subtable->point))[j-1].x = ix2;	/* May not be integer value */
 
-// if(trace_write_score) BPPrintMessage(odInfo,"startvalue = %.3f endvalue = %.3f\n",startvalue,endvalue);
+// if(trace_write_score) BPPrintMessage(0,odInfo,"startvalue = %.3f endvalue = %.3f\n",startvalue,endvalue);
 
 if(j < 3L) return(MISSED);
 

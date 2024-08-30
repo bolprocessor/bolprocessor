@@ -62,7 +62,7 @@ if(p_Script == NULL && GetScriptSpace() != OK) return(NULL);
 if(p_Flagname == NULL && GetFlagSpace() != OK) return(NULL);
 if(p_Var == NULL && GetVariableSpace() != OK) return(NULL);
 for(i=0,p=(*pp1); p < (*pp2); i++,p++) {
-//	BPPrintMessage(odInfo,"%c",*p); // 2024-07-11
+//	BPPrintMessage(0,odInfo,"%c",*p); // 2024-07-11
 	}
 pp = pp1;
 imax = 4L * i + 6L;
@@ -175,7 +175,7 @@ NOTSCALE:
 				case 4: /* _script() */
 					(*p_buff)[i++] = T13; (*p_buff)[i++] = (tokenbyte) n;
 					// It won't be used if it is a IN script
-					if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Tokenised [T13.%d] as Jscriptline = %d in Encode()\n\n",(int)n,Jscriptline);
+					if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"Tokenised [T13.%d] as Jscriptline = %d in Encode()\n\n",(int)n,Jscriptline);
 					break;
 				case 5:	/* _mod() */
 					(*p_buff)[i++] = T14; (*p_buff)[i++] = (tokenbyte)n;
@@ -336,7 +336,7 @@ NOTSCALE:
 				case 65: /* _scale */
 					if(OutCsound || rtMIDI || WriteMIDIfile) {
 						(*p_buff)[i++] = T44; (*p_buff)[i++] = (tokenbyte) n;
-						if(trace_scale) BPPrintMessage(odInfo,"Encode() T44 i = %d n = %d\n",i,n);
+						if(trace_scale) BPPrintMessage(0,odInfo,"Encode() T44 i = %d n = %d\n",i,n);
 						}
 					break;
 				}
@@ -671,10 +671,10 @@ FOUNDNOTE1:
 			leftside = neg = FALSE;
 			(*p_buff)[i++] = T7;
 			key += (C4key - 60);
-			// BPPrintMessage(odInfo, "key = %d\n",key);
+			// BPPrintMessage(0,odInfo, "key = %d\n",key);
 			if(key < 0 || key >= MAXKEY) {
 			//	Alert1("Simple note is out of range. (May be check \"Tuning\")");
-				BPPrintMessage(odError, "=> A simple note is out of range. Probably wrong value of C4 key number = %ld\n",(long)C4key);
+				BPPrintMessage(0,odError, "=> A simple note is out of range. Probably wrong value of C4 key number = %ld\n",(long)C4key);
 				goto ERR;
 				}
 			(*p_buff)[i++] = (tokenbyte) (key + 16384);
@@ -809,7 +809,7 @@ SEARCHNOTE:
 					lmax = l; key = j;
 					qmax = q + l;
 					if(trace_scale) 
-						BPPrintMessage(odInfo,"Found note '%s' in current scale, j_scale = %d key = %d\n",q,j_scale,key);
+						BPPrintMessage(0,odInfo,"Found note '%s' in current scale, j_scale = %d key = %d\n",q,j_scale,key);
 					goto FOUNDNOTE2;
 					}
 				}
@@ -842,7 +842,7 @@ SEARCHNOTE:
 					&& !isdigit(q[l])) {
 				lmax = l; key = j;
 				qmax = q + l;
-				if(trace_scale) BPPrintMessage(odInfo,"Found note '%s' in other scale, j_scale = %d key = %d\n",q,j_scale,key);
+				if(trace_scale) BPPrintMessage(0,odInfo,"Found note '%s' in other scale, j_scale = %d key = %d\n",q,j_scale,key);
 				goto FOUNDNOTE2;
 				}
 			}
@@ -853,7 +853,7 @@ FOUNDNOTE2:
 		(*p_buff)[i++] = T25;
 		key += (C4key - 60);
 		if(key < 0 || key >= MAXKEY) {
-			BPPrintMessage(odError,"=> Simple note '%s' is out of range.\n",q);
+			BPPrintMessage(0,odError,"=> Simple note '%s' is out of range.\n",q);
 		/*	ShowWindow(GetDialogWindow(TuningPtr));
 			SelectWindow(GetDialogWindow(TuningPtr)); */
 			goto ERR;
@@ -1058,7 +1058,7 @@ FINISHED:
 
 (*p_buff)[i++] = TEND; (*p_buff)[i] = TEND;
 
-// BPPrintMessage(odInfo,"@ End of encoding\n");
+// BPPrintMessage(0,odInfo,"@ End of encoding\n");
 MyDisposeHandle((Handle*)&p_x);
 if((i+1) > imax) {
 	if(Beta) Alert1("=> i > imax. Err. Encode()");
@@ -1089,7 +1089,7 @@ if(p_pi == NULL) return(p_pi); 	// FIXME */
 	while(TRUE) {
 		a = (*p_pi)[i]; b = (*p_pi)[i+1];
 		if(a == TEND && b == TEND) break;
-		BPPrintMessage(odInfo,"tok = %d %d\n",a,b);
+		BPPrintMessage(0,odInfo,"tok = %d %d\n",a,b);
 		i += 2;
 		}
 	} */
@@ -1685,7 +1685,7 @@ else {
 	strcpy(t,"\n");
 	}
 strcat(Message,t);
-// BPPrintMessage(odError,Message);
+// BPPrintMessage(0,odError,Message);
 BPActivateWindow(SLOW,wTrace);
 Print(wTrace,Message);
 ShowSelect(CENTRE,wTrace);

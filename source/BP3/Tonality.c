@@ -60,7 +60,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 				if(abs((int) atol(curr_arg)) != 51) return(EXIT); // This is a different table function
 				NumberScales++;
 				if((NumberScales + 3) > MAXCONVENTIONS) {
-					BPPrintMessage(odError,"\n=> Too many scales! Maximum is %d\n",MAXCONVENTIONS);
+					BPPrintMessage(0,odError,"\n=> Too many scales! Maximum is %d\n",MAXCONVENTIONS);
 					return(ABORT);
 					}
 				if(Scale == NULL) Scale = (t_scale**) GiveSpace((Size)(MaxScales * sizeof(t_scale)));
@@ -72,13 +72,13 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 					}
 				}
 			if(n_args == 5) {
-			//	BPPrintMessage(odInfo,"Scale %d (%s), n_args = %d\n",NumberScales,name,n_args);
+			//	BPPrintMessage(0,odInfo,"Scale %d (%s), n_args = %d\n",NumberScales,name,n_args);
 				(*Scale)[NumberScales].deviation = (short**) GiveSpace((Size)(MAXKEY * sizeof(short)));
 				}
 			switch(n_args) {
 				case 5:
 					(*Scale)[NumberScales].numgrades = numgrades = (int) atol(curr_arg); /* Don't use atoi() because integers are 4 bytes */
-				//	BPPrintMessage(odError,"numgrades = %d\n",numgrades);
+				//	BPPrintMessage(0,odError,"numgrades = %d\n",numgrades);
 					(*Scale)[NumberScales].tuningratio = (double**) GiveSpace((Size)((numgrades + 1) * sizeof(double)));
 					(*Scale)[NumberScales].notenames = (char****) GiveSpace((Size)((numgrades + 1) * sizeof(char**)));
 					(*Scale)[NumberScales].keys = (int**) GiveSpace((Size)((numgrades + 1) * sizeof(int)));
@@ -89,7 +89,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 				case 7: (*Scale)[NumberScales].basefreq = strtod(curr_arg,NULL); break;
 				case 8: (*Scale)[NumberScales].basekey = basekey = (int) atol(curr_arg);
 					if(TraceMicrotonality) 
-						BPPrintMessage(odInfo,"\nCreating key numbers for « %s » (scale %d) with base key #%d:\n%s\n",name,NumberScales,basekey,key_numbers);
+						BPPrintMessage(0,odInfo,"\nCreating key numbers for « %s » (scale %d) with base key #%d:\n%s\n",name,NumberScales,basekey,key_numbers);
 					if(strlen(key_numbers) > 0) {
 						j = i_note = 0; key_number_string[0] = '\0';
 						for(i = 1; i < strlen(key_numbers); i++) {
@@ -102,7 +102,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 								if(key >= basekey) key = key - basekey;
 								(*((*Scale)[NumberScales].keys))[i_note] = key;
 								if(trace_each_scale) 
-									BPPrintMessage(odInfo,"Creating i_note = %d key = %d\n",i_note,key);
+									BPPrintMessage(0,odInfo,"Creating i_note = %d key = %d\n",i_note,key);
 								j = 0; i_note++;
 								}
 							}
@@ -113,7 +113,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 						}
 					j = i_note = j_note  = numnotes = 0;
 					if(TraceMicrotonality) 
-						BPPrintMessage(odInfo,"\nLoading note names for « %s » (scale %d):\n%s\n",name,NumberScales,note_names);
+						BPPrintMessage(0,odInfo,"\nLoading note names for « %s » (scale %d):\n%s\n",name,NumberScales,note_names);
 					for(i = 1; i < strlen(note_names); i++) {
 						c = note_names[i];
 						this_note[j] = '\0';
@@ -127,12 +127,12 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 								(*((*Scale)[NumberScales].keyclass))[i_note] = j_note;
 								numnotes++;
 								if(trace_each_scale)
-									BPPrintMessage(odInfo,"Creating note %d = %s, keyclass = %d\n",i_note,this_note,(*((*Scale)[NumberScales].keyclass))[i_note]);
+									BPPrintMessage(0,odInfo,"Creating note %d = %s, keyclass = %d\n",i_note,this_note,(*((*Scale)[NumberScales].keyclass))[i_note]);
 								i_note++; j_note++;
 								}
 							else {
 								if(trace_each_scale)
-									BPPrintMessage(odInfo,"Creating %s, keyclass = %d\n",this_note,j_note);
+									BPPrintMessage(0,odInfo,"Creating %s, keyclass = %d\n",this_note,j_note);
 								j_note++;
 								}
 							j = 0; 
@@ -146,7 +146,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 					(*((*Scale)[NumberScales].keyclass))[numnotes] = (*((*Scale)[NumberScales].keyclass))[0];
 					if(strlen(fractions) > 0) {
 						if(TraceMicrotonality)
-							BPPrintMessage(odInfo,"\nLoading note ratios for « %s » (scale %d):\n%s\n",name,NumberScales,fractions);
+							BPPrintMessage(0,odInfo,"\nLoading note ratios for « %s » (scale %d):\n%s\n",name,NumberScales,fractions);
 						j = i_note = 0;
 						numerator = TRUE;
 						for(i = 1; i < strlen(fractions); i++) {
@@ -160,7 +160,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 								else {
 									den[i_note] = atoi(this_fraction_arg);
 								if(trace_each_scale) 
-									BPPrintMessage(odInfo,"Creating position = %d ratio %d/%d\n",i_note,num[i_note],den[i_note]);
+									BPPrintMessage(0,odInfo,"Creating position = %d ratio %d/%d\n",i_note,num[i_note],den[i_note]);
 									i_note++;
 									}
 								numerator = 1 - numerator;
@@ -172,13 +172,13 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 				default:
 					if(n_args > 8) {
 						if((n_args - 9) >= numgrades) {
-							BPPrintMessage(odError,"\n=> This GEN51 function table is incorrect because it contains more than %d ratios:\n%s\n",numgrades,line);
+							BPPrintMessage(0,odError,"\n=> This GEN51 function table is incorrect because it contains more than %d ratios:\n%s\n",numgrades,line);
 							NumberScales--;
 							return(OK);
 							}
 						(*((*Scale)[NumberScales].tuningratio))[n_args-9] = strtod(curr_arg,NULL);
 						if(trace_each_scale)
-							BPPrintMessage(odInfo,"position = %d, floating ratio = %.3f\n",n_args-9,(*((*Scale)[NumberScales].tuningratio))[n_args-9]);
+							BPPrintMessage(0,odInfo,"position = %d, floating ratio = %.3f\n",n_args-9,(*((*Scale)[NumberScales].tuningratio))[n_args-9]);
 						}
 					break;
 				}
@@ -191,7 +191,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 		}
 	n_args++;
 	if((n_args - 8) < (numgrades + 1)) {
-		BPPrintMessage(odError,"\n=> This GEN51 function table is incorrect because it contains %d ratios instead of %d:\n%s\n",(n_args - 8),(numgrades +1),line);
+		BPPrintMessage(0,odError,"\n=> This GEN51 function table is incorrect because it contains %d ratios instead of %d:\n%s\n",(n_args - 8),(numgrades +1),line);
 		NumberScales--;
 		return(OK);
 		}
@@ -201,17 +201,17 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 	if(baseoctave <= 0 || baseoctave > 14) baseoctave = 4;
 	(*Scale)[i_scale].baseoctave = baseoctave;
 	if(trace_each_scale)
-		BPPrintMessage(odInfo,"\nbaseoctave_string = « %s » (*Scale)[i_scale].baseoctave = %d\n",baseoctave_string,baseoctave);
+		BPPrintMessage(0,odInfo,"\nbaseoctave_string = « %s » (*Scale)[i_scale].baseoctave = %d\n",baseoctave_string,baseoctave);
 	(*((*Scale)[i_scale].tuningratio))[n_args-9] = strtod(curr_arg,NULL);
 	if(strlen(name) > 0) my_sprintf(label,"%s",name);
 	else my_sprintf(label,"scale_%d",i_scale); // Name by default
 	(*Scale)[i_scale].label = (char**) GiveSpace((Size)(1 + strlen(label) * sizeof(char)));
 	MystrcpyStringToHandle(&((*Scale)[i_scale].label),label);
 	if(TraceMicrotonality) {
-		BPPrintMessage(odInfo,"👉 Microtonal scale #%d \"%s\" loaded from tonality resources:  %d grades, %d notes\n",i_scale,*((*Scale)[i_scale].label),(*Scale)[i_scale].numgrades,numnotes);
-		BPPrintMessage(odInfo,"Deviations are corrections in cents from an equal tempered scale of ");
-		if(numgrades <= 12) BPPrintMessage(odInfo,"12 tones\n");
-		else BPPrintMessage(odInfo,"%d tones\n",numgrades);
+		BPPrintMessage(0,odInfo,"👉 Microtonal scale #%d \"%s\" loaded from tonality resources:  %d grades, %d notes\n",i_scale,*((*Scale)[i_scale].label),(*Scale)[i_scale].numgrades,numnotes);
+		BPPrintMessage(0,odInfo,"Deviations are corrections in cents from an equal tempered scale of ");
+		if(numgrades <= 12) BPPrintMessage(0,odInfo,"12 tones\n");
+		else BPPrintMessage(0,odInfo,"%d tones\n",numgrades);
 		}
 	blockkey_temp_freq = (*Scale)[i_scale].basefreq * exp((9. / 12) * log((*Scale)[i_scale].interval));
 	
@@ -223,8 +223,8 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 		}
 
 	if(basekey != C4key && !WarnedBasedKey) {
-		BPPrintMessage(odError,"👉 The base key of your microtonal scale ‘%s’ (%d) is not the ‘C4’ (60) used by default\n",*((*Scale)[i_scale].label),basekey);
-		BPPrintMessage(odInfo,"--> This may be the case with other scales. Check that it meets the requirements of your MIDI output device!\n");
+		BPPrintMessage(0,odError,"👉 The base key of your microtonal scale ‘%s’ (%d) is not the ‘C4’ (60) used by default\n",*((*Scale)[i_scale].label),basekey);
+		BPPrintMessage(0,odInfo,"--> This may be the case with other scales. Check that it meets the requirements of your MIDI output device!\n");
 		WarnedBasedKey = TRUE;
 		}
 
@@ -245,26 +245,26 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 			temp_pitch = (*Scale)[i_scale].basefreq * pow(2,((double)keyclass/numgrades)) * pow(2,octave - baseoctave);
 			}
 		strcpy(name,*((*(*Scale)[i_scale].notenames)[keyclass]));
-		if(check_corrections) BPPrintMessage(odInfo,"‘%s’ temp_pitch = %.3f, keyclass = %d octave = %d, interval = %.3f\n",name,temp_pitch,keyclass,octave,interval);
+		if(check_corrections) BPPrintMessage(0,odInfo,"‘%s’ temp_pitch = %.3f, keyclass = %d octave = %d, interval = %.3f\n",name,temp_pitch,keyclass,octave,interval);
 		pitch_ratio = (*((*Scale)[i_scale].tuningratio))[keyclass];
 	//	double n = log(pitch_ratio * pow(2,octave - baseoctave)) / log(2.0);
 		double n = log(pitch_ratio * pow(interval,octave - baseoctave)) / log(interval);
 		pitch = (*Scale)[i_scale].basefreq  * pow(interval,n);
-		if(check_corrections) BPPrintMessage(odInfo,"temp_pitch = %.3f, pitch = %.3f, pitch_ratio = %.3f, n = %.3f\n",temp_pitch,pitch,pitch_ratio,n);
+		if(check_corrections) BPPrintMessage(0,odInfo,"temp_pitch = %.3f, pitch = %.3f, pitch_ratio = %.3f, n = %.3f\n",temp_pitch,pitch,pitch_ratio,n);
 		(*(*Scale)[i_scale].deviation)[key] = (short) (1200. * log2(pitch/temp_pitch));
 		if(TraceMicrotonality) {
-			BPPrintMessage(odInfo,"• [%d] %s deviation = %d cents\n",key,name,(*(*Scale)[i_scale].deviation)[key]);
+			BPPrintMessage(0,odInfo,"• [%d] %s deviation = %d cents\n",key,name,(*(*Scale)[i_scale].deviation)[key]);
 			}
 		}
 
 	if(TraceMicrotonality) {
 		// for(i = 0; i <= (*Scale)[i_scale].numgrades; i++)
-		//	BPPrintMessage(odInfo,"%.3f ",(*((*Scale)[i_scale].tuningratio))[i]);
-		if(strlen(note_names) > 0) BPPrintMessage(odInfo,"\nNames of the %d notes in this scale: %s",numnotes,note_names);
-		BPPrintMessage(odInfo,"\nWith 'interval' = %.3f, 'basefreq' = %.3f Hz, 'basekey' = %d and 'baseoctave' = %d\n",(*Scale)[i_scale].interval,(*Scale)[i_scale].basefreq,(*Scale)[i_scale].basekey,(*Scale)[i_scale].baseoctave);
-		BPPrintMessage(odInfo,"A4 frequency of a tempered scale with the same 'basefreq' and 'interval' would be %.3f Hz\n",blockkey_temp_freq);
+		//	BPPrintMessage(0,odInfo,"%.3f ",(*((*Scale)[i_scale].tuningratio))[i]);
+		if(strlen(note_names) > 0) BPPrintMessage(0,odInfo,"\nNames of the %d notes in this scale: %s",numnotes,note_names);
+		BPPrintMessage(0,odInfo,"\nWith 'interval' = %.3f, 'basefreq' = %.3f Hz, 'basekey' = %d and 'baseoctave' = %d\n",(*Scale)[i_scale].interval,(*Scale)[i_scale].basefreq,(*Scale)[i_scale].basekey,(*Scale)[i_scale].baseoctave);
+		BPPrintMessage(0,odInfo,"A4 frequency of a tempered scale with the same 'basefreq' and 'interval' would be %.3f Hz\n",blockkey_temp_freq);
 		PrintNote(-1,DefaultBlockKey,-1,-1,Message);
-		BPPrintMessage(odInfo,"Frequency will be blocked for the base note key #%d = ‘%s’, but this may be changed in performance controls: \"_scale(some_scale, blockkey)\"\n",DefaultBlockKey,Message);
+		BPPrintMessage(0,odInfo,"Frequency will be blocked for the base note key #%d = ‘%s’, but this may be changed in performance controls: \"_scale(some_scale, blockkey)\"\n",DefaultBlockKey,Message);
 		}
 	return(OK);
 	}
@@ -278,11 +278,11 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 	int check_getpitch = FALSE;
 
 	if(i_scale > NumberScales) { 
-		BPPrintMessage(odError,"\n=> Scale number %d is out of range (maximum %d). No Csound score produced\n\n",i_scale,NumberScales);
+		BPPrintMessage(0,odError,"\n=> Scale number %d is out of range (maximum %d). No Csound score produced\n\n",i_scale,NumberScales);
 		return(Infpos);
 		}
 	if(key < 0 || key > 127) {
-		BPPrintMessage(odError,"\n=> Key #%d is out of range [0..127]. No Csound score produced\n\n",key);
+		BPPrintMessage(0,odError,"\n=> Key #%d is out of range [0..127]. No Csound score produced\n\n",key);
 		return(Infpos);
 		}
 	numgrades = (*Scale)[i_scale].numgrades; // Most often 12
@@ -294,12 +294,12 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 	
 	if(!ToldAboutScale && !TraceMicrotonality) {
 		MystrcpyHandleToString(0,0,Message,(*Scale)[i_scale].label);
-		BPPrintMessage(odInfo,"👉 Custom scale \"%s\" (and maybe more scales) used for microtonality\n",Message);
+		BPPrintMessage(0,odInfo,"👉 Custom scale \"%s\" (and maybe more scales) used for microtonality\n",Message);
 		ToldAboutScale = TRUE;
 		}
 	if(numgrades <= 12) {
 		keyclass = modulo(key - basekey, 12);
-	//	BPPrintMessage(odInfo,"i_scale = %d basekey = %d\n",i_scale,basekey);
+	//	BPPrintMessage(0,odInfo,"i_scale = %d basekey = %d\n",i_scale,basekey);
 		basekeyclass = (*((*Scale)[i_scale].keyclass))[modulo(basekey, 12)];
 		octave = baseoctave + floor(((double)key - basekey) / 12);
 		}
@@ -311,8 +311,10 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 		}
 
 	pitch_ratio = (*((*Scale)[i_scale].tuningratio))[keyclass];
-	double n = log(pitch_ratio * pow(interval,octave - baseoctave)) / log(interval);
-	frequency = (*Scale)[i_scale].basefreq  * pow(interval,n);
+	/* double n = log(pitch_ratio * pow(interval,octave - baseoctave)) / log(interval);
+	frequency = (*Scale)[i_scale].basefreq  * pow(interval,n); */
+	double n = log(pitch_ratio * pow(2.,octave - baseoctave)) / log(2.);
+	frequency = (*Scale)[i_scale].basefreq  * pow(2.,n);
 
 	frequency = frequency * (*((*Scale)[i_scale].tuningratio))[basekeyclass];
 	
@@ -323,14 +325,15 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 	if(blockkey == 0) blockkey = DefaultBlockKey;
 
 	int correction = (*(*Scale)[i_scale].deviation)[key] - (*(*Scale)[i_scale].deviation)[blockkey];
-	frequency = frequency * pow(interval, ((double) correction / 600. / interval));
+	// frequency = frequency * pow(interval, ((double) correction / 600. / interval));
+	frequency = frequency * pow(2., ((double) correction / 1200.));
 
 	my_sprintf(this_key,"%s%d",*((*(*Scale)[i_scale].notenames)[keyclass]),octave);
 	trim_digits_after_key_hash(this_key); // Remove the octave number after key#xx
 
-	if(TraceMicrotonality) BPPrintMessage(odInfo,"§ key %d: \"%s\" octave %d scale #%d, block key %d, corr %d cents, freq %.3f Hz\n",key,this_key,octave,i_scale,blockkey,correction,frequency);
+	if(TraceMicrotonality) BPPrintMessage(0,odInfo,"§ key %d: \"%s\" octave %d scale #%d, block key %d, corr %d cents, freq %.3f Hz\n",key,this_key,octave,i_scale,blockkey,correction,frequency);
 
-	if(check_getpitch) BPPrintMessage(odInfo,"• key = %d, C4key = %d, basekey = %d, basekeyclass = %d, basefreq = %.3f baseoctave = %d, numgrades = %d interval = %.3f, keyclass = %d pitch_ratio = %.3f, fix_ratio_0 = %.3f, diapason_correction = %.4f blockkey = %d, correction = %d, octave = %d, cents = %.1f, frequency = %.3f Hz\n",key,C4key,(*Scale)[i_scale].basekey,basekeyclass,basefreq,baseoctave,numgrades,interval,keyclass,pitch_ratio,fix_ratio_0,diapason_correction,blockkey,correction,octave,cents,frequency);
+	if(check_getpitch) BPPrintMessage(0,odInfo,"• key = %d, C4key = %d, basekey = %d, basekeyclass = %d, basefreq = %.3f baseoctave = %d, numgrades = %d interval = %.3f, keyclass = %d pitch_ratio = %.3f, fix_ratio_0 = %.3f, diapason_correction = %.4f blockkey = %d, correction = %d, octave = %d, cents = %.1f, frequency = %.3f Hz\n",key,C4key,(*Scale)[i_scale].basekey,basekeyclass,basefreq,baseoctave,numgrades,interval,keyclass,pitch_ratio,fix_ratio_0,diapason_correction,blockkey,correction,octave,cents,frequency);
 
 	return frequency;
 	}

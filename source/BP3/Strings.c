@@ -48,7 +48,7 @@ void my_sprintf(char* buffer, const char *format, ...) {
     // Clean up the argument list
     va_end(args);
     if (n_chars >= MAX_BUFFER_SIZE) {
-        BPPrintMessage(odError,"=> Truncation occurred in my_sprintf()\n");
+        BPPrintMessage(0,odError,"=> Truncation occurred in my_sprintf()\n");
     	}
 	}
 
@@ -164,13 +164,13 @@ int MystrcpyStringToHandle(char ***pp_t,char *s)
 long i,imt,ims;
 
 if (s == NULL) {
-	BPPrintMessage(odError, "=> Err. MystrcpyStringToHandle(). Input string is NULL\n");
+	BPPrintMessage(0,odError, "=> Err. MystrcpyStringToHandle(). Input string is NULL\n");
 	return ABORT;
     }
 ims = utf8_strsize(s) + 1L;
 if(*pp_t == NULL) {
 	if((*pp_t = (char**) GiveSpace((Size)ims * sizeof(char))) == NULL) {
-		BPPrintMessage(odError,"=> Err. MystrcpyStringToHandle(). *pp_t == NULL\n");
+		BPPrintMessage(0,odError,"=> Err. MystrcpyStringToHandle(). *pp_t == NULL\n");
 		return(ABORT);
 		}
 	}
@@ -178,7 +178,7 @@ else {
 	imt = (long) MyGetHandleSize((Handle)*pp_t) / sizeof(char);
 	if(imt < ims) {
 		if(MySetHandleSize((Handle*)pp_t,(Size)ims * sizeof(char)) != OK) {
-			BPPrintMessage(odError,"=> Err. MystrcpyStringToHandle(). MySetHandleSize(%ld) failed\n",(long)ims);
+			BPPrintMessage(0,odError,"=> Err. MystrcpyStringToHandle(). MySetHandleSize(%ld) failed\n",(long)ims);
 			return(ABORT);
 			}
 		}
@@ -211,11 +211,11 @@ Size ims = 0,imt = 0;
 
 // Validate input pointers
     if (pp_s == NULL || *pp_s == NULL) {
-        BPPrintMessage(odError, "=> Err. MystrcpyHandleToHandle(). pp_s is NULL\n");
+        BPPrintMessage(0,odError, "=> Err. MystrcpyHandleToHandle(). pp_s is NULL\n");
         return ABORT;
    		}
     if (p_t == NULL || *p_t == NULL) {
-        BPPrintMessage(odError, "=> Err. MystrcpyHandleToHandle(). p_t is NULL\n");
+        BPPrintMessage(0,odError, "=> Err. MystrcpyHandleToHandle(). p_t is NULL\n");
         (**pp_s)[0] = '\0';
         return ABORT;
    		}
@@ -227,7 +227,7 @@ Size ims = 0,imt = 0;
     if(imt == 0) {
         (**pp_s)[0] = '\0';
         if (MySetHandleSize((Handle*)pp_s,1) != OK) {
-            BPPrintMessage(odError, "=> Err. MySetHandleSize(%ld) in MystrcpyHandleToHandle()\n",(long)imt);
+            BPPrintMessage(0,odError, "=> Err. MySetHandleSize(%ld) in MystrcpyHandleToHandle()\n",(long)imt);
             return ABORT;
 			}
         return OK;
@@ -239,7 +239,7 @@ Size ims = 0,imt = 0;
     // Resize the destination handle if needed
     if (imt > ims) {
         if (MySetHandleSize((Handle*)pp_s, imt) != OK) {
-            BPPrintMessage(odError, "=> Err. Err. MySetHandleSize(0) in MystrcpyHandleToHandle()\n");
+            BPPrintMessage(0,odError, "=> Err. Err. MySetHandleSize(0) in MystrcpyHandleToHandle()\n");
             return ABORT;
 			}
 		}
@@ -532,11 +532,11 @@ void remove_spaces(char *input, char *result) {
 	char c;
 	int i, j = 0;
 	if (input == NULL) {
-		BPPrintMessage(odError,"=> Error remove_spaces(). input == NULL\n");
+		BPPrintMessage(0,odError,"=> Error remove_spaces(). input == NULL\n");
 		return;
 		}
 	if (result == NULL) {
-		BPPrintMessage(odError,"=> Error remove_spaces(). result == NULL\n");
+		BPPrintMessage(0,odError,"=> Error remove_spaces(). result == NULL\n");
 		return;
 		}
 	for(i = 0; input[i] != '\0'; i++) {
@@ -551,7 +551,7 @@ void remove_spaces(char *input, char *result) {
 void remove_carriage_returns(char *line) {
     char *src = line, *dst = line;
 	if (line == NULL) {
-		BPPrintMessage(odError,"=> Error remove_carriage_returns(). line == NULL\n");
+		BPPrintMessage(0,odError,"=> Error remove_carriage_returns(). line == NULL\n");
 		return;
 		}
     while (*src != '\0') {
@@ -574,7 +574,7 @@ void remove_final_linefeed(char *line) {
 void remove_final_linefeed(char *line) {
     char *src = line, *dst = line;
 	if (line == NULL) {
-		BPPrintMessage(odError,"=> Error remove_final_linefeed(). line == NULL\n");
+		BPPrintMessage(0,odError,"=> Error remove_final_linefeed(). line == NULL\n");
 		return;
 		}
     while (*src != '\0') {

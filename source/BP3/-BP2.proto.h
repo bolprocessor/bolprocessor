@@ -65,7 +65,7 @@ int RemoveTMTask(void);
 int initializeMIDISystem(void);
 void closeMIDISystem();
 void sendMIDIEvent(int,int,unsigned char*,int,long);
-int MIDIflush(void);
+int MIDIflush(int);
 unsigned long getClockTime(void);
 int MaybeWait(unsigned long);
 int Notify(char*,int);
@@ -87,7 +87,8 @@ int ResetMIDI(int);
 int FormatMIDIstream(MIDIcode**,long,MIDIcode**,int,long,long*,int);
 int SendToDriver(int,int,int,Milliseconds,int,int*,MIDI_Event*);
 int CaptureMidiEvent(Milliseconds time,int nseq,MIDI_Event *p_e);
-void RegisterProgramChange(MIDI_Event *p_e);
+int CleanUpBuffer(void);
+// void RegisterProgramChange(MIDI_Event *p_e);
 
 // int LoadMidiDriverStartup(void);
 // int LoadLinkedMidiDriverSettings(int w);
@@ -98,7 +99,7 @@ void RegisterProgramChange(MIDI_Event *p_e);
 // int SaveMidiDriverSettings(void);
 // int WriteMidiDriverSettings(short refnum, FSSpec* spec);
 
-int BPPrintMessage(int dest, const char *format, ...);
+int BPPrintMessage(int, int, const char*, ...);
 
 #if TRACE_EVENTS
 char* TEWindowName(WindowPtr wp);
@@ -616,7 +617,7 @@ int GetNote(char*,int*,int*,int);
 int PreviewLine(char**,int);
 int TransliterateRecord(char**,FieldProcess**,short,int,int*);
 int ComputeField(char**,int,int);
-int SetMIDIPrograms(void);
+// int SetMIDIPrograms(void);
 int LoadRawData(long*);
 int TranslateMIDIdata(int,long);
 int ThreeByteEvent(int);

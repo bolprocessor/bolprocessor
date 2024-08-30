@@ -7,6 +7,10 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 -----
+2024-08-30
+Fixed the display of frequencies when tracing the microtonality, and a bug in the Improvize mode. 
+
+-----
 2024-08-27
 Microtonal adjustments can now be saved in MIDI files. This works with all MIDI devices that are pitch-bending sensitive, regardless of their compatibility with MPE.
 Microtonality issues with Csound have been fixed. The "Trace microtonality" option shows the cent corrections and the frequencies of the notes. This takes into account the tuning of the A4 diapason. This tuning may not be effective in the MIDI device.

@@ -353,7 +353,7 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 		return(OK);
 		}
 	if((*p_line)[0] == '\0') return(OK);
-//	BPPrintMessage(odError,"Match? line = “%s”\n",*p_line);
+//	BPPrintMessage(0,odError,"Match? line = “%s”\n",*p_line);
 	istart = 0; p_arg = NULL;
 	/* Skip BP style remark */
 	if((*p_line)[istart] == '[') {
@@ -396,11 +396,11 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 
 	MATCH:
 	ScriptExecOn++;
-	// BPPrintMessage(odError,"MaxScriptInstructions = %d\n",MaxScriptInstructions);
+	// BPPrintMessage(0,odError,"MaxScriptInstructions = %d\n",MaxScriptInstructions);
 	for(i=0; i < MaxScriptInstructions; i++) {
 		MystrcpyHandleToString(MAXLIN,0,Message,p_ScriptLabelPart(i,0));
 		j = strlen(Message);
-	//	BPPrintMessage(odInfo,"Match%d #%d [%d] %s = etc. ? this line = %s\n",check,i,(*h_ScriptIndex)[i],Message,*p_arg);
+	//	BPPrintMessage(0,odInfo,"Match%d #%d [%d] %s = etc. ? this line = %s\n",check,i,(*h_ScriptIndex)[i],Message,*p_arg);
 		if(j == 0) {
 			if(Beta) Println(wTrace,"=> Err. ExecScriptLine(): strlen = 0");
 			continue;
@@ -408,14 +408,14 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 		q = &(Message[0]);
 		if(Match(FALSE,p_arg,&q,j)) {
 		//	if(check || 1) {
-				if(TraceMIDIinteraction) BPPrintMessage(odInfo,"Script command matches #%d [%d] (out of %d) “%s”\n",i,(*h_ScriptIndex)[i],MaxScriptInstructions,Message);
+				if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"Script command matches #%d [%d] (out of %d) “%s”\n",i,(*h_ScriptIndex)[i],MaxScriptInstructions,Message);
 				c = (*p_arg)[j];
 				if(c != '\0' && !isspace(c) && !isdigit(c) && !ispunct((*p_arg)[j-1])) continue;
 				r = GetScriptArguments(i,p_arg,istart);
 				newarg = FALSE;
 				if(r == OK) r = DoScript(i,p_keyon,w,check,(*h_ScriptIndex)[i],p_posdir,p_changed,&newarg,FALSE);
 				else {
-					BPPrintMessage(odError,"=> Error GetScriptArguments()\n");
+					BPPrintMessage(0,odError,"=> Error GetScriptArguments()\n");
 					goto ERR;
 					}
 		/*		if(newarg && check) {
@@ -426,7 +426,7 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 					*p_changed = TRUE; *p_keep = FALSE;
 					} */
 				/* Reset the sizes of argument handles */
-			//	if(TraceMIDIinteraction) BPPrintMessage(odError,"Done setting script #%d (out of %ld) [%d] with %d args\n",i,(long)MaxScriptInstructions,(*h_ScriptIndex)[i],ScriptNrArg(i));
+			//	if(TraceMIDIinteraction) BPPrintMessage(0,odError,"Done setting script #%d (out of %ld) [%d] with %d args\n",i,(long)MaxScriptInstructions,(*h_ScriptIndex)[i],ScriptNrArg(i));
 				if(check) {
 					for(j=0; j < ScriptNrArg(i); j++) {
 						h = (Handle) (*(ScriptLine.arg))[j];
@@ -434,7 +434,7 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 						(*(ScriptLine.arg))[j] = h;
 						}
 					}
-			//	if(TraceMIDIinteraction) BPPrintMessage(odError,"Done setting script #%d [%d], r = %d\n",i,(*h_ScriptIndex)[i],(int)r);
+			//	if(TraceMIDIinteraction) BPPrintMessage(0,odError,"Done setting script #%d [%d], r = %d\n",i,(*h_ScriptIndex)[i],(int)r);
 				if(r != OK) goto ERR;
 		//		}
 		//	else r = OK;

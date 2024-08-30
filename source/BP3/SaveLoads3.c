@@ -53,7 +53,7 @@ NSWReply reply;
 OSErr err;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	BPPrintMessage(odError,"=> Err. SaveAs(). Incorrect window index '%d'\n",w);
+	BPPrintMessage(0,odError,"=> Err. SaveAs(). Incorrect window index '%d'\n",w);
 	return(MISSED);
 	}
 err = NSWInitReply(&reply);
@@ -90,7 +90,7 @@ if(NewFile(w,gFileType[w],fn,&reply)) {
 		}
 	else {
 		MyPtoCstr(MAXNAME,fn,Message);
-		BPPrintMessage(odError,"Can't create file '%s'\n",Message);
+		BPPrintMessage(0,odError,"Can't create file '%s'\n",Message);
 		}
 	}
 err = NSWCleanupReply(&reply);
@@ -108,7 +108,7 @@ long count,k;
 OSErr io;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	BPPrintMessage(odError,"=> Err. SaveFile(). Incorrect window index '%d'\n",w);
+	BPPrintMessage(0,odError,"=> Err. SaveFile(). Incorrect window index '%d'\n",w);
 	return(MISSED);
 	}
 SetCursor(&WatchCursor);
@@ -151,7 +151,7 @@ if(good) {
 					CheckTextSize(wAlphabet);
 					}
 				else {
-					BPPrintMessage(odError,"=> Error saving '%s'\n",FileName[wAlphabet]);
+					BPPrintMessage(0,odError,"=> Error saving '%s'\n",FileName[wAlphabet]);
 					}
 				}
 			Dirty[wAlphabet] = FALSE;
@@ -173,7 +173,7 @@ else {
 int GetDefaultFileName(int w, char* filename)
 {
 	if(w < 0 || w >= WMAX) {
-		BPPrintMessage(odError,"=> Err. GetDefaultFileName(). Incorrect window index '%d'\n",w);
+		BPPrintMessage(0,odError,"=> Err. GetDefaultFileName(). Incorrect window index '%d'\n",w);
 		return(MISSED);
 	}
 	if (RunningOnOSX) {
@@ -206,7 +206,7 @@ int GetProjectBaseName(char* basename)
 	else return (MISSED);
 	
 	if(len > MAXNAME) {
-		BPPrintMessage(odError,"=> Err. GetProjectBaseName(): len > MAXNAME\n");
+		BPPrintMessage(0,odError,"=> Err. GetProjectBaseName(): len > MAXNAME\n");
 		return (MISSED);
 	}
 	
@@ -745,13 +745,13 @@ int ReadOne(int bindlines,int careforhtml,int nocomment,FILE* fin,int strip,char
 	if((*pp_line = (char**) GiveSpace((Size)size * sizeof(char))) == NULL) return(ABORT);
 	if((*pp_completeline = (char**) GiveSpace((Size)size * sizeof(char))) == NULL) return(ABORT);
 
-	// BPPrintMessage(odError,"pos1 = %ld\n",*p_pos);
+	// BPPrintMessage(0,odError,"pos1 = %ld\n",*p_pos);
 	if(fseek(fin, *p_pos, SEEK_SET) != 0) {
 		perror("fseek failed");
 		// Handle error or exit
 		}
 		// *p_pos = ftell(fin);
-		// BPPrintMessage(odError,"pos2 = %ld\n",*p_pos);
+		// BPPrintMessage(0,odError,"pos2 = %ld\n",*p_pos);
 	if(fgets(line, sizeof(line),fin) != NULL) {
 		if(ferror(fin)) {
 			fprintf(stderr, "Error reading from file.\n");
@@ -759,11 +759,11 @@ int ReadOne(int bindlines,int careforhtml,int nocomment,FILE* fin,int strip,char
 			}
 		remove_final_linefeed(line);
 		*p_pos = ftell(fin);
-		// BPPrintMessage(odError,"pos3 = %ld\n",*p_pos);
+		// BPPrintMessage(0,odError,"pos3 = %ld\n",*p_pos);
 		size_t lineSize = utf8_strsize(line);
 		char* newBuffer = realloc(buffer,lineSize + 2); // +1 for '\n' and +1 for '\0'
 		if(newBuffer == NULL) {
-			BPPrintMessage(odError, "=> Err. ReadOne(). newBuffer == NULL\n");
+			BPPrintMessage(0,odError, "=> Err. ReadOne(). newBuffer == NULL\n");
 			return MISSED;
 			}
 		buffer =  newBuffer;
@@ -776,13 +776,13 @@ int ReadOne(int bindlines,int careforhtml,int nocomment,FILE* fin,int strip,char
 				buffer = emptyStr;
 				}
 			else {
-				BPPrintMessage(odError, "Memory allocation failed for empty string\n");
+				BPPrintMessage(0,odError, "Memory allocation failed for empty string\n");
 				free(buffer);
 				return MISSED;
 				}
 			}
 		remove_carriage_returns(line);
-		// BPPrintMessage(odInfo,"thisline = %s\n",buffer);
+		// BPPrintMessage(0,odInfo,"thisline = %s\n",buffer);
 		MystrcpyStringToHandle(pp_completeline,buffer);
 		if(strip) strip_trailing_spaces(buffer);
 		if(careforhtml) {
@@ -934,7 +934,7 @@ int NewWriteToFile(char* line,FILE* fout) {
 	my_sprintf(line2,"%s\n",line);
 	written = fwrite(line2, (size_t)1, (size_t) numbytes, fout);
 	if(written < numbytes)	{
-		BPPrintMessage(odError, "=> Error while writing to file.\n");
+		BPPrintMessage(0,odError, "=> Error while writing to file.\n");
 		return ABORT;
 		}
 	return(OK);
@@ -951,7 +951,7 @@ OSErr io;
 char **p_line;
 
 if(refnum == -1) {
-	if(Beta) BPPrintMessage(odError,"=> Err. WriteToFile(). refnum == -1 line = \"%s\"\n",line);
+	if(Beta) BPPrintMessage(0,odError,"=> Err. WriteToFile(). refnum == -1 line = \"%s\"\n",line);
 	return(MISSED);
 	}
 p_line = NULL;
@@ -991,7 +991,7 @@ if(io != noErr) {
 	BP_NOT_USED(format);	// need to rethink whether this option sd be used
 
 	// I think '\n' will always print as the native line ending using fprintf
-	BPPrintMessage((int)refnum, "%s\n", *p_line);
+	BPPrintMessage(0,(int)refnum, "%s\n", *p_line);
 	MyDisposeHandle((Handle*)&p_line);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
@@ -1021,7 +1021,7 @@ if(io != noErr) {
 	// A temporary console version of file output until I decide how to rewrite
 	// the interface to support both Mac and ANSI file refs. - akozar 20130903
 	// 'refnum' is (ab)used to specify the output destination (see ConsoleMessages.h)
-	BPPrintMessage((int)refnum, line);
+	BPPrintMessage(0,(int)refnum, line);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
 return(OK);
@@ -1105,7 +1105,7 @@ if(!*p_dos) {
 					*p_dos = TRUE; break;
 					}
 				else {
-		//			BPPrintMessage(odInfo,"NOT DOS\n");
+		//			BPPrintMessage(0,odInfo,"NOT DOS\n");
 					return(OK);	/* Not a DOS file */
 					}
 				}
@@ -1113,14 +1113,14 @@ if(!*p_dos) {
 		}
 	}
 if(!*p_dos) {
-//	BPPrintMessage(odInfo,"NOT DOS\n");
+//	BPPrintMessage(0,odInfo,"NOT DOS\n");
 	return(OK);
 	}
 
 for(i=j=0; ; i++) {
 	if(i >= *p_count) break;
 	while((c=(*p_buffer)[i+j]) == '\n' && (i == 0 || (*p_buffer)[i+j-1] == '\r')) {
-	//	BPPrintMessage(odInfo,"i = %d, j = %d, count = %d\n",i,j,*p_count);
+	//	BPPrintMessage(0,odInfo,"i = %d, j = %d, count = %d\n",i,j,*p_count);
 		j++; (*p_count)--;
 		}
 	// DOStoMac(&c); Fixed by BB 2022-02-18
@@ -1499,7 +1499,7 @@ diff = 1;
 if(p_line == NULL || (*p_line)[0] == '\0') {
 	if(Beta) {
 	//	Alert1("=> Err. CheckVersion(). p_line == NULL || (*p_line)[0] == '\0'");
-		BPPrintMessage(odError,"=> Error loading this file: version cannot be found. Did you save it?\n");
+		BPPrintMessage(0,odError,"=> Error loading this file: version cannot be found. Did you save it?\n");
 		}
 	return(MISSED);
 	}
@@ -1507,7 +1507,7 @@ FindVersion(p_line,version);
 for(iv=0; iv < MAXVERSION; iv++)
 	if((diff = strcmp(version,VersionName[iv])) == 0) break;
 if(iv > Version && name[0] != '\0') {
-	BPPrintMessage(odError,"=> File '%s' was created with a version of BP2 more recent than %s\n",name,VersionName[Version]);
+	BPPrintMessage(0,odError,"=> File '%s' was created with a version of BP2 more recent than %s\n",name,VersionName[Version]);
 /*	my_sprintf(Message,
 		"File '%s' was created with a version of BP2 more recent than %s. Try to read it anyway (risky)",
 			name,VersionName[Version]);

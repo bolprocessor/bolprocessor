@@ -175,12 +175,13 @@ tokenbyte ***pp_b,**p_b,**p_c,***pp_c,instan[MAXLIN],meta[MAXMETA2];
 t_subgram subgram;
 
 PleaseWait();
+
 if(p_gram == NULL) {
 	Alert1("=> Err. in ComputeInGram(). p_gram == NULL");
 	return(ABORT);
 	}
 /* if(!Improvize && time_end_compute > 0L && getClockTime() > time_end_compute) {
-	EmergencyExit = TRUE; BPPrintMessage(odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+	EmergencyExit = TRUE; BPPrintMessage(0,odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 	return(ABORT);
 	} */
 if(p_gram->p_subgram == NULL) return(OK);
@@ -194,7 +195,7 @@ p_origin = p_pos = NULL;
 rep = ABORT;
 shootagain = FALSE;
 try = irep = 0;
-if(trace_compute) BPPrintMessage(odInfo,"ComputeInGram() igram = %d subgram.number_rule = %d\n",igram,subgram.number_rule);
+if(trace_compute) BPPrintMessage(0,odInfo,"ComputeInGram() igram = %d subgram.number_rule = %d\n",igram,subgram.number_rule);
 
 if((p_candidate = (int**) GiveSpace((Size)(subgram.number_rule+1) * sizeof(int))) == NULL)
 	goto QUIT;
@@ -214,7 +215,7 @@ rep = MISSED;
 else { */
 	if(DisplayProduce || (ShowMessages && (*p_gram).number_gram > 1)) {
 		my_sprintf(Message,"Subgrammar %ld/%ld\n",(long)igram,(long)(*p_gram).number_gram);
-		BPPrintMessage(odInfo,Message);
+		BPPrintMessage(0,odInfo,Message);
 	//	ShowMessage(TRUE,wMessage,Message);
 		if(DisplayProduce && !ScriptExecOn) {
 	//		Print(wTrace,"\n// "); Println(wTrace,Message);
@@ -349,11 +350,11 @@ while(((nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom,igram,grtype,p_
 	mode,&equalweight,learn,time_end_compute)) > 0) || (nb_candidates == AGAIN)) {
 
 /*	if(!Improvize &&  && getClockTime() > time_end_compute) {
-		EmergencyExit =TRUE; BPPrintMessage(odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+		EmergencyExit =TRUE; BPPrintMessage(0,odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return(ABORT);
 		} */
 	try = irep = 0;
-	if(trace_compute) BPPrintMessage(odInfo,"nb_candidates = %d (*p_repeat) = %d\n",nb_candidates,(*p_repeat));
+	if(trace_compute) BPPrintMessage(0,odInfo,"nb_candidates = %d (*p_repeat) = %d\n",nb_candidates,(*p_repeat));
 	if(nb_candidates == EXIT) {
 		rep = ABORT; goto QUIT;
 		}
@@ -388,12 +389,12 @@ while(((nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom,igram,grtype,p_
 			if(grtype == ORDtype) {
 				my_sprintf(Message,"'ORD' grammar: selecting first candidate rule:\n");
 				Print(wTrace,Message);
-				if(trace_compute) BPPrintMessage(odInfo,Message);
+				if(trace_compute) BPPrintMessage(0,odInfo,Message);
 				}
 			else {
 				my_sprintf(Message,"\nChoice:\n");
 				Print(wTrace,Message);
-				if(trace_compute) BPPrintMessage(odInfo,Message);
+				if(trace_compute) BPPrintMessage(0,odInfo,Message);
 				}
 			}
 		if((p_origin=(long**) GiveSpace((Size)(nb_candidates+1) * sizeof(long))) == NULL) {
@@ -429,19 +430,19 @@ ENTER:
 			}
 		}
 	else {
-		if(trace_compute) BPPrintMessage(odInfo,"nb_candidates (2) = %d\n",nb_candidates);
+		if(trace_compute) BPPrintMessage(0,odInfo,"nb_candidates (2) = %d\n",nb_candidates);
 		if(nb_candidates > 1) {
 			randomnumber = rand();
 			int total = (*p_totwght)[nb_candidates-1];
 			choice = (total + 1) * (randomnumber/((double)RAND_MAX)); // Fixed 2024-07-06
 			if(choice > total) choice = total;
-		if(trace_weights) BPPrintMessage(odInfo,"ComputeInGram(%d). choice = %ld nb_candidates =  %d (*p_totwght)[nb_candidates-1] = %ld, randomnumber = %ld RAND_MAX = %ld\n",igram,(long)choice,nb_candidates,(long)(*p_totwght)[nb_candidates-1],(long)randomnumber,(long)RAND_MAX);
+		if(trace_weights) BPPrintMessage(0,odInfo,"ComputeInGram(%d). choice = %ld nb_candidates =  %d (*p_totwght)[nb_candidates-1] = %ld, randomnumber = %ld RAND_MAX = %ld\n",igram,(long)choice,nb_candidates,(long)(*p_totwght)[nb_candidates-1],(long)randomnumber,(long)RAND_MAX);
 			UsedRandom = TRUE;
 			j = 0;
 			while(choice > (*p_totwght)[j]) { // Fixed 2024-07-06
-			//	BPPrintMessage(odInfo,"igram =  %d (*p_totwght)[%d] = %ld\n",igram,j,(*p_totwght)[j]);
+			//	BPPrintMessage(0,odInfo,"igram =  %d (*p_totwght)[%d] = %ld\n",igram,j,(*p_totwght)[j]);
 				if(++j >= nb_candidates) {
-					BPPrintMessage(odInfo,"=> Err. ComputeInGram(). j = %ld, nb_candidates = %ld\n",
+					BPPrintMessage(0,odInfo,"=> Err. ComputeInGram(). j = %ld, nb_candidates = %ld\n",
 							(long)j,(long)nb_candidates);
 					j = nb_candidates - 1; break;
 					}
@@ -454,7 +455,7 @@ ENTER:
 DOIT:
 	if((*p_repeat)) {
 		irul = (*p_MemRul)[ProduceStackIndex];
-		if(trace_compute) BPPrintMessage(odInfo,"Repeating irul= %d\n",irul);
+		if(trace_compute) BPPrintMessage(0,odInfo,"Repeating irul= %d\n",irul);
 		if(irul > subgram.number_rule) {
 			Alert1("New grammar does not match old one. Aborting...");
 			rep = ABORT; goto QUIT;
@@ -465,7 +466,7 @@ DOIT:
 			}
 		}
 	else irul = (*p_candidate)[j];
-	if(trace_compute) BPPrintMessage(odInfo,"irul = %d\n",irul);
+	if(trace_compute) BPPrintMessage(0,odInfo,"irul = %d\n",irul);
 	rule = (*(subgram.p_rule))[irul];
 	if(grtype == SUB1type) startfrom = irul;
 	if(grtype == SUBtype && nb_candidates > 1) {
@@ -474,7 +475,7 @@ DOIT:
 	if(equalweight && try > 0) {
 TRY2:
 // Try any rule (see doc "Random problem")
-		if(trace_compute) BPPrintMessage(odInfo,"try = %ld maxtry = %ld\n",(long)try,(long)maxtry);
+		if(trace_compute) BPPrintMessage(0,odInfo,"try = %ld maxtry = %ld\n",(long)try,(long)maxtry);
 		if(try > maxtry) {
 			(*p_length) = LengthOf(pp_a);	/* was changed by FindArg() */
 			if((*p_length) <= ZERO) {
@@ -521,7 +522,7 @@ TRY3:	(*p_length) = LengthOf(pp_a);	/* was changed by FindArg() */
 			rep = ABORT; goto QUIT;
 			}
 		}
-	if(trace_compute) BPPrintMessage(odInfo,"(*p_pos)[j] = %ld (*p_repeat) = %ld mode = %d PROD = %d\n",(long)(*p_pos)[j],(long)(*p_repeat),mode,PROD);
+	if(trace_compute) BPPrintMessage(0,odInfo,"(*p_pos)[j] = %ld (*p_repeat) = %ld mode = %d PROD = %d\n",(long)(*p_pos)[j],(long)(*p_repeat),mode,PROD);
 	if(mode != PROD) goto NOPROD;
 	if((c=rule.print) == 1 || c == 3) {
 		datamode = DisplayMode(pp_a,&ifunc,&hastabs);
@@ -564,7 +565,7 @@ NOPROD:
 		rep = pos1; goto QUIT;
 		}
 /*	if(!Improvize &&  && getClockTime() > time_end_compute) {
-		EmergencyExit =TRUE; BPPrintMessage(odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+		EmergencyExit =TRUE; BPPrintMessage(0,odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return(ABORT); 
 		} */
 	if(pos1 == STOP) {
@@ -642,7 +643,7 @@ MORE:
 		(*((*((*p_gram).p_subgram))[igram].p_rule))[irul].w = w;
 		}
 /*	if(!Improvize && time_end_compute > 0L && getClockTime() > time_end_compute) {
-		EmergencyExit =TRUE; BPPrintMessage(odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+		EmergencyExit =TRUE; BPPrintMessage(0,odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return(ABORT);
 		} */
 	if(Flagthere && (grtype != SUBtype) && !shootagain)
@@ -657,7 +658,7 @@ MORE:
 					goto QUIT;
 					}
 				if(CopyBuf(pp_b,pp_c) == ABORT) return(ABORT);
-			//	BPPrintMessage(odInfo,"ShowItem()\n");
+			//	BPPrintMessage(0,odInfo,"ShowItem()\n");
 				c = ShowItem(igram,p_gram,FALSE,pp_c,(*p_repeat),mode,FALSE);
 				MyDisposeHandle((Handle*)pp_c);
 				if(c == ABORT || c == FINISH || c == EXIT || c == STOP) {
@@ -760,30 +761,30 @@ if(nb_candidates == ABORT || nb_candidates == EXIT || nb_candidates == FINISH
 		|| nb_candidates == STOP) {
 	rep = nb_candidates;
 	if(rep == ABORT) {
-		BPPrintMessage(odError,"=> Error finding nb_candidates in Compute.c\n");
+		BPPrintMessage(0,odError,"=> Error finding nb_candidates in Compute.c\n");
 		}
 	goto QUIT;
 	}
 if(grtype == SUBtype) {
 	if(*pp_b == NULL) {
-		BPPrintMessage(odError,"=> Error ComputeInGram(). *pp_b = NULL");
+		BPPrintMessage(0,odError,"=> Error ComputeInGram(). *pp_b = NULL");
 		goto QUIT;
 		}
-//	BPPrintMessage(odInfo,"\nfoundone = %d, UseEachSub = %d, DisplayItems = %d, PlaySelectionOn =%d\n",foundone,UseEachSub,DisplayItems,PlaySelectionOn);
+//	BPPrintMessage(0,odInfo,"\nfoundone = %d, UseEachSub = %d, DisplayItems = %d, PlaySelectionOn =%d\n",foundone,UseEachSub,DisplayItems,PlaySelectionOn);
 	if(UseEachSub && foundone && !PlaySelectionOn && DisplayItems) { // Added by BB 7 Nov 2020
 		datamode = DisplayMode(pp_b,&ifunc,&hastabs);
 		long length = LengthOf(pp_b);
-	//	BPPrintMessage(odError,"Subst ItemNumber = %d length = %ld datamode = %d hastabs = %d ifunc = %d\n",ItemNumber,length,datamode,hastabs,ifunc);
+	//	BPPrintMessage(0,odError,"Subst ItemNumber = %d length = %ld datamode = %d hastabs = %d ifunc = %d\n",ItemNumber,length,datamode,hastabs,ifunc);
 		if((rep=PrintResult(datamode && hastabs,wTrace,hastabs,ifunc,pp_b)) != OK) {
-			BPPrintMessage(odError,"=> Error calling PrintResult(1) in Compute.c\n");
+			BPPrintMessage(0,odError,"=> Error calling PrintResult(1) in Compute.c\n");
 			goto QUIT;
 			}
 		if((rep=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_b)) != OK) {
-			BPPrintMessage(odError,"=> Error calling PrintResult(2) in Compute.c\n");
+			BPPrintMessage(0,odError,"=> Error calling PrintResult(2) in Compute.c\n");
 			goto QUIT;
 			}
 		Print(wTrace,"\n");
-		if(length > 0) BPPrintMessage(odError,"\n");  // odError to force printing if Improvize
+		if(length > 0) BPPrintMessage(0,odError,"\n");  // odError to force printing if Improvize
 		}
 	if(!halt && (leftpos = NextPos(pp_a,pp_b,&lastpos,&incmark,leftpos,1)) > -1L) {
 		/* Skip next symbol and retry */
@@ -793,7 +794,7 @@ if(grtype == SUBtype) {
 	if(*p_length == ABORT) {
 		rep = ABORT;
 		if(rep == ABORT) {
-			BPPrintMessage(odError,"=> Error calling CopyBuf() in Compute.c\n");
+			BPPrintMessage(0,odError,"=> Error calling CopyBuf() in Compute.c\n");
 			goto QUIT;
 			}
 		}
@@ -801,14 +802,14 @@ if(grtype == SUBtype) {
 	if(UseEachSub) { 
 		if(foundone && !PlaySelectionOn && DisplayItems) {
 			datamode = DisplayMode(pp_a,&ifunc,&hastabs);
-		//	BPPrintMessage(odInfo,"OutputWindow\n");
-		//	BPPrintMessage(odError,"ItemNumber = %d datamode = %d hastabs = %d ifunc = %d\n",ItemNumber,datamode,hastabs,ifunc);
+		//	BPPrintMessage(0,odInfo,"OutputWindow\n");
+		//	BPPrintMessage(0,odError,"ItemNumber = %d datamode = %d hastabs = %d ifunc = %d\n",ItemNumber,datamode,hastabs,ifunc);
 			if((rep=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) {
-				BPPrintMessage(odError,"=> Error calling PrintResult(3) in Compute.c\n");
+				BPPrintMessage(0,odError,"=> Error calling PrintResult(3) in Compute.c\n");
 				goto QUIT;
 				}
 		//	Print(OutputWindow,"\n");
-			BPPrintMessage(odError,"\n");  // odError to force printing if Improvize
+			BPPrintMessage(0,odError,"\n");  // odError to force printing if Improvize
 			}
 		if(!SkipFlag) {
 			if((p_c = (tokenbyte**)
@@ -822,7 +823,7 @@ if(grtype == SUBtype) {
 			rep = ShowItem(igram,p_gram,TRUE,pp_c,(*p_repeat),mode,FALSE);
 			MyDisposeHandle((Handle*)pp_c);
 			if(rep == ABORT) {
-				if(!Panic) BPPrintMessage(odError,"=> Error calling ShowItem() in Compute.c\n");
+				if(!Panic) BPPrintMessage(0,odError,"=> Error calling ShowItem() in Compute.c\n");
 				goto QUIT;
 				}
 			if(rep == ABORT || rep == FINISH || rep == EXIT || rep == STOP) goto QUIT;
@@ -981,7 +982,7 @@ int rep;
 long size;
 
 if(*pp_a == NULL) {
-	BPPrintMessage(odError,"=> Err. Destroy(). *pp_a = NULL\n");
+	BPPrintMessage(0,odError,"=> Err. Destroy(). *pp_a = NULL\n");
 	Panic = TRUE;
 	return(ABORT);
 	}
@@ -1063,11 +1064,11 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 	if(CheckEmergency() != OK) return(ABORT);
 
 	/* if(!Improvize && time_end_compute > 0L && getClockTime() > time_end_compute) {
-		EmergencyExit =TRUE; BPPrintMessage(odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent in FindCandidateRules(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+		EmergencyExit =TRUE; BPPrintMessage(0,odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent in FindCandidateRules(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return(ABORT);
 		} */
 
-	if(trace_compute) BPPrintMessage(odInfo,"FindCandidateRules() leftpos = %ld\n",leftpos);
+	if(trace_compute) BPPrintMessage(0,odInfo,"FindCandidateRules() leftpos = %ld\n",leftpos);
 
 	p_length = NULL;
 	*p_freedom = FALSE; *p_equalweight = FALSE; weight = -1;
@@ -1084,7 +1085,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 										/* ... because of NextPos() */
 
 	n = (*((*p_gram).p_subgram))[igram].number_rule;
-	// BPPrintMessage(odInfo,"igram = %d n = %d\n",igram,n);
+	// BPPrintMessage(0,odInfo,"igram = %d n = %d\n",igram,n);
 	(*p_totwght)[0] = 0;
 	sumwght = 0;
 
@@ -1145,7 +1146,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 				}
 			if(rule.ctrl > 0) {		/* <Kx> */
 				rule.w = rule.weight = ParamValue[rule.ctrl];
-				if(trace_weights) BPPrintMessage(odInfo,"ParamValue[%d] = %ld for rule.ctrl = %d\n",rule.ctrl,ParamValue[rule.ctrl],rule.ctrl);
+				if(trace_weights) BPPrintMessage(0,odInfo,"ParamValue[%d] = %ld for rule.ctrl = %d\n",rule.ctrl,ParamValue[rule.ctrl],rule.ctrl);
 				}
 			
 			if((w = rule.w) > 0
@@ -1171,7 +1172,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 		/* Now try all the remaining rules... */
 
 
-	if(trace_compute) BPPrintMessage(odInfo,"Remaining rules startfrom = %d\n",startfrom);
+	if(trace_compute) BPPrintMessage(0,odInfo,"Remaining rules startfrom = %d\n",startfrom);
 	if(startfrom > n) return(0);
 	if(grtype == POSLONGtype && ((p_length)=(long**)GiveSpace((Size) (n + 1) * sizeof(long))) == NULL)
 		return(ABORT);
@@ -1200,7 +1201,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 			if(rule.ctrl > 0) {		/* <Kx> */
 				rule.w = rule.weight = ParamValue[rule.ctrl];
 				*p_equalweight = FALSE;
-				if(trace_weights) BPPrintMessage(odInfo,"irul = %d rule.ctrl = %d w = %ld\n",irul,rule.ctrl,(long)rule.w);
+				if(trace_weights) BPPrintMessage(0,odInfo,"irul = %d rule.ctrl = %d w = %ld\n",irul,rule.ctrl,(long)rule.w);
 				}
 			if((w = rule.w) == 0) {
 				continue;
@@ -1291,10 +1292,10 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 				goto OVER;
 				}
 			(*p_candidate)[i] = irul;
-			if(trace_compute) BPPrintMessage(odInfo,"(*p_candidate)[%d] = %d\n",i,irul);
+			if(trace_compute) BPPrintMessage(0,odInfo,"(*p_candidate)[%d] = %d\n",i,irul);
 			if(grtype != LINtype && grtype != POSLONGtype) {
 				if(trace_weights)
-					BPPrintMessage(odInfo,"1) sumwght = %ld w = %ld\n",(long)sumwght,(long)w);
+					BPPrintMessage(0,odInfo,"1) sumwght = %ld w = %ld\n",(long)sumwght,(long)w);
 				sumwght = (*p_totwght)[i] = sumwght + w;
 				}
 			i++;
@@ -1332,7 +1333,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 								}
 							(*p_pos)[jj] = posmin - rule.leftoffset;
 							if(trace_weights)
-								BPPrintMessage(odInfo,"2) sumwght = %ld w = %ld weight = %ld irul = %d ParamValue[%d] = %d\n",(long)sumwght,(long)rule.w,(long)rule.weight,irul,rule.ctrl,ParamValue[rule.ctrl]);
+								BPPrintMessage(0,odInfo,"2) sumwght = %ld w = %ld weight = %ld irul = %d ParamValue[%d] = %d\n",(long)sumwght,(long)rule.w,(long)rule.weight,irul,rule.ctrl,ParamValue[rule.ctrl]);
 							sumwght = (*p_totwght)[jj] = sumwght + rule.w;
 							jj++;
 							}
@@ -1397,7 +1398,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 
 	OVER:
 	MyDisposeHandle((Handle*)&p_length);
-	if(trace_compute) BPPrintMessage(odInfo,"End FindCandidateRules i = %d\n",i);
+	if(trace_compute) BPPrintMessage(0,odInfo,"End FindCandidateRules i = %d\n",i);
 
 	return(i);
 	}
@@ -1489,7 +1490,7 @@ int nexist,nefound,result;
 if(CheckEmergency() != OK) return(ABORT);
 
 /* if(!Improvize && time_end_compute > 0L && getClockTime() > time_end_compute) {
-		EmergencyExit =TRUE; BPPrintMessage(odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent in Found(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+		EmergencyExit =TRUE; BPPrintMessage(0,odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent in Found(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return(ABORT);
 		} */
 		
@@ -1515,7 +1516,7 @@ istart = 4 * (lenc - (pos - offset) / 2);
 jstart = 0; nefound = TRUE;
 if(istart <=  0) {
 	jstart = pos - offset - 2 * lenc; istart = 0; nefound = FALSE;
-	if(trace_compute) BPPrintMessage(odInfo,"Found() istart = %d lenc = %d jstart = %d pos = %ld offset = %ld\n",istart,lenc,jstart,(long)pos,(long)offset);
+	if(trace_compute) BPPrintMessage(0,odInfo,"Found() istart = %d lenc = %d jstart = %d pos = %ld offset = %ld\n",istart,lenc,jstart,(long)pos,(long)offset);
 	}
 *p_lenc1 = lenc - (istart / 4);	/* Used only for SUB */
 if(jstart < 0) return(FALSE);	/* Not found */
@@ -1659,7 +1660,7 @@ NEXT:	(*p_length)++;
 	}
 if(grtype == SUBtype) (*p_length) = (*p_length) - (*p_lenc1); 
 (*p_length) *= 2;
-if(trace_compute) BPPrintMessage(odInfo,"Found() length = %ld grtype = %d SUBtype = %d\n",(long)(*p_length),grtype,SUBtype);
+if(trace_compute) BPPrintMessage(0,odInfo,"Found() length = %ld grtype = %d SUBtype = %d\n",(long)(*p_length),grtype,SUBtype);
 result = (!nexist || nefound);
 if(ismeta && result && !reset) {	/* searching context */
 	for(i=0; i< MAXMETA2; i+=2) {
@@ -1695,7 +1696,7 @@ unsigned long i,i1;
 long pos1,offset,dif,inmark;
 t_rule rule;
 
-if(trace_compute) BPPrintMessage(odInfo,"Derive() igram = %d irul = %d\n",igram,irul);
+if(trace_compute) BPPrintMessage(0,odInfo,"Derive() igram = %d irul = %d\n",igram,irul);
 rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
 switch(mode) {
 	case PROD:
@@ -1733,11 +1734,11 @@ else {
 	}
 inmark = CountMarkers(&dif,p_arg1,p_arg2);
 
-// BPPrintMessage(odInfo,"Begin Derive() pos = %ld dif = %d repeat = %d\n",(long)pos,(long)dif,repeat);
+// BPPrintMessage(0,odInfo,"Begin Derive() pos = %ld dif = %d repeat = %d\n",(long)pos,(long)dif,repeat);
 pos1 = Insert(grtype,pp_a,pp_b,rule,pos,offset,dif,p_arg1,p_arg2,p_length,p_leftpos,
 	imode,inmark,p_lastpos,p_incmark,repeat,mode,time_end_compute);
 // if(trace_compute)
-// BPPrintMessage(odInfo,"End Derive() pos1 = %ld\n",(long)pos1);
+// BPPrintMessage(0,odInfo,"End Derive() pos1 = %ld\n",(long)pos1);
 return(pos1);
 }
 
@@ -1745,7 +1746,7 @@ return(pos1);
 void ExpandBufferLimit(long requiredSize) {
 	while(requiredSize >= (BufferSize - 2L))
 		BufferSize = (BufferSize * 3L) / 2L;
-	BPPrintMessage(odInfo,"Buffer limit expanded to %ld tokens (%ld were required)\n",(long)BufferSize,requiredSize);
+	BPPrintMessage(0,odInfo,"Buffer limit expanded to %ld tokens (%ld were required)\n",(long)BufferSize,requiredSize);
 	return;
 	}
 
@@ -1771,7 +1772,7 @@ oldsize = MyGetHandleSize((Handle)*pp_dest);
 sizedest = (oldsize / sizeof(tokenbyte)) - 2L;
 if((grtype != SUBtype) && (((*p_lengthorigin) + dif) >= BufferSize)) {
 	if(trace_compute) 
-		BPPrintMessage(odInfo,"ExpandBufferLimit lengthorigin = %ld dif = %ld BufferSize = %ld\n",(long)(*p_lengthorigin),(long)dif,(long)BufferSize);
+		BPPrintMessage(0,odInfo,"ExpandBufferLimit lengthorigin = %ld dif = %ld BufferSize = %ld\n",(long)(*p_lengthorigin),(long)dif,(long)BufferSize);
 	ExpandBufferLimit((*p_lengthorigin) + dif);
 	}
 if(((*p_lengthorigin) + dif) >= sizedest) {
@@ -1779,20 +1780,20 @@ if(((*p_lengthorigin) + dif) >= sizedest) {
 		sizedest = (sizedest * 3L) / 2L;
 		}
 	newsize = (Size)(sizedest + 2L) * sizeof(tokenbyte);
-//	BPPrintMessage(odInfo,"MySetHandleSize %ld\n",(long) newsize);
+//	BPPrintMessage(0,odInfo,"MySetHandleSize %ld\n",(long) newsize);
 	MySetHandleSize((Handle*)pp_dest,newsize);
 	}
 incmark = (*p_incmark); /* used in SUB subgrammar only */
 pos1 = pos;
-if(trace_compute) BPPrintMessage(odInfo,"Insert() pos1 = %ld\n",(long)pos1);
+if(trace_compute) BPPrintMessage(0,odInfo,"Insert() pos1 = %ld\n",(long)pos1);
 
 if(trace_compute) {
-	BPPrintMessage(odInfo,"\nWork string:\n");
+	BPPrintMessage(0,odInfo,"\nWork string:\n");
 	for(i = 0; (**pp_origin)[i] != TEND || (**pp_origin)[i+1] != TEND; i+=2) {
 		m = (int) (**pp_origin)[i]; p = (int)(**pp_origin)[i+1];
-		BPPrintMessage(odInfo,"i = %ld m = %d p = %d\n",(long)i,m,p);
+		BPPrintMessage(0,odInfo,"i = %ld m = %d p = %d\n",(long)i,m,p);
 		}
-	BPPrintMessage(odInfo,"\n");
+	BPPrintMessage(0,odInfo,"\n");
 	}
 
 if(CheckEmergency() != OK) return(ABORT);
@@ -1806,10 +1807,10 @@ case 0:	{						/* RND rule */
 			pos1 = pos + 2 * (int)(posdif
 			* (randomnumber / ((double)RAND_MAX) / 2.));
 	/*		if(!Improvize && time_end_compute > 0L && getClockTime() > time_end_compute) {
-				EmergencyExit =TRUE; BPPrintMessage(odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent in Insert(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+				EmergencyExit =TRUE; BPPrintMessage(0,odInfo,"\n➡ Maximum allowed time (%d seconds) has been spent in Insert(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 				return(ABORT);
 				} */
-		if(trace_compute) BPPrintMessage(odInfo,"Insert() randomnumber = %ld pos1 = %ld\n",(long)randomnumber,(long)pos1);
+		if(trace_compute) BPPrintMessage(0,odInfo,"Insert() randomnumber = %ld pos1 = %ld\n",(long)randomnumber,(long)pos1);
 			}
 		while(!Found(pp_origin,grtype,p_arg1,offset,rule.leftnegcontext,&lenc1,pos1,
 			1,instan,meta,meta1,&istart,&jstart,&length,rule.ismeta,time_end_compute) ||
@@ -1875,7 +1876,7 @@ if(grtype == SUBtype) {	/* Don't rewrite leftmost contexts */
 
 if(jmax >= (BufferSize - 2L)) ExpandBufferLimit(jmax);
 
-if(trace_compute) BPPrintMessage(odInfo,"jstart = %ld jmax = %ld pos1 = %ld length = %ld lenc1 = %ld dif = %ld\n",(long)jstart,(long)jmax,(long)pos1,(long)length,(long)lenc1,(long)dif);
+if(trace_compute) BPPrintMessage(0,odInfo,"jstart = %ld jmax = %ld pos1 = %ld length = %ld lenc1 = %ld dif = %ld\n",(long)jstart,(long)jmax,(long)pos1,(long)length,(long)lenc1,(long)dif);
 
 if(grtype != SUBtype) {
 	i0 = pos1 + length - (2 * lenc1);
@@ -1902,7 +1903,7 @@ if(grtype != SUBtype) {
 #else
 	if(dif != 0) {	/* This is a quicker procedure */
 		if(trace_compute) 
-			BPPrintMessage(odError,"Moving memory quickly dif = %ld\n",(long)dif);
+			BPPrintMessage(0,odError,"Moving memory quickly dif = %ld\n",(long)dif);
 		blocksize = (LengthOf(pp_dest) - i0 + 2) * sizeof(tokenbyte);
 		ptr1 = &(**pp_dest)[i0]; ptr2 = &(**pp_dest)[j0];
 		memmove(ptr2, ptr1, blocksize);
@@ -1911,17 +1912,17 @@ if(grtype != SUBtype) {
 	}
 
 if(trace_compute) {
-	BPPrintMessage(odInfo,"\nRight argument of rule:\n");
+	BPPrintMessage(0,odInfo,"\nRight argument of rule:\n");
 	for(i = 0; (*p_arg2)[i] != TEND || (*p_arg2)[i+1] != TEND; i+=2) {
 		m = (int) (*p_arg2)[i]; p = (int)(*p_arg2)[i+1];
-		BPPrintMessage(odInfo,"i = %ld m = %d p = %d\n",(long)i,m,p);
+		BPPrintMessage(0,odInfo,"i = %ld m = %d p = %d\n",(long)i,m,p);
 		}
-	BPPrintMessage(odInfo,"\n");
+	BPPrintMessage(0,odInfo,"\n");
 	}
 	
-if(trace_compute) BPPrintMessage(odInfo,"istart = %ld jstart = %d\n",(long)istart,(long)jstart);
+if(trace_compute) BPPrintMessage(0,odInfo,"istart = %ld jstart = %d\n",(long)istart,(long)jstart);
 for(i=istart,j=jstart; j < jmax; i+=2,j+=2) {
-	if(trace_compute) BPPrintMessage(odInfo,"wild cards? i = %d j = %d jmax = %d xi = %d\n",i,j,jmax,xi);
+	if(trace_compute) BPPrintMessage(0,odInfo,"wild cards? i = %d j = %d jmax = %d xi = %d\n",i,j,jmax,xi);
 	if(xi > MAXLIN - 2) {
 		my_sprintf(Message,"Too many wild cards in a rule argument. Not more than %ld allowed.\n",
 			(long)(MAXLIN / 2 - 1));
@@ -1932,7 +1933,7 @@ for(i=istart,j=jstart; j < jmax; i+=2,j+=2) {
 	if((*p_arg2)[i] == T0 && (*p_arg2)[i+1] == 2) {		/* '#' */
 		m = (**pp_dest)[j] = instan[xi++];
 		p = (**pp_dest)[j+1] = instan[xi++];
-		if(trace_compute) BPPrintMessage(odInfo,"wild card '#' i = %d j = %d m = %d p = %d xi = %d\n",i,j,m,p,xi);
+		if(trace_compute) BPPrintMessage(0,odInfo,"wild card '#' i = %d j = %d m = %d p = %d xi = %d\n",i,j,m,p,xi);
 		i += 2;
 		}
 	else {
@@ -1961,7 +1962,7 @@ for(i=istart,j=jstart; j < jmax; i+=2,j+=2) {
 				}
 			}
 		}
-	if(trace_compute) BPPrintMessage(odInfo,"p_arg2[%d] m = %d p = %d\n",j,m,p);
+	if(trace_compute) BPPrintMessage(0,odInfo,"p_arg2[%d] m = %d p = %d\n",j,m,p);
 	if((m == T12 && (p == 21 || p == 22 || p == 24)) || m == T39)
 		NeedZouleb++;
 	}
@@ -1977,12 +1978,12 @@ else {
 	(*p_incmark) = incmark;
 	}
 if(trace_compute) {
-	BPPrintMessage(odInfo,"\nBuffer after:\n");
+	BPPrintMessage(0,odInfo,"\nBuffer after:\n");
 	for(i = 0; (**pp_dest)[i] != TEND || (**pp_dest)[i+1] != TEND; i+=2) {
 		m = (int) (**pp_dest)[i]; p = (int)(**pp_dest)[i+1];
-		BPPrintMessage(odInfo,"i = %ld m = %d p = %d\n",(long)i,m,p);
+		BPPrintMessage(0,odInfo,"i = %ld m = %d p = %d\n",(long)i,m,p);
 		}
-	BPPrintMessage(odInfo,"\n");
+	BPPrintMessage(0,odInfo,"\n");
 	}
 return(pos1);
 }
@@ -1999,11 +2000,11 @@ tokenbyte m,p,q;		/* 'from' is the position of rightmost symbol inserted */
 for(i = from, q = 1; (**pp_a)[i] != TEND || (**pp_a)[i+1] != TEND; i+=2) {
 	m = (int) (**pp_a)[i];
 	if(m >= MAXTOKENBYTE) {
-		if(trace_compute) BPPrintMessage(odError,"=> Error in Cormark() from = %ld inmark = %d\n",(long)from,inmark);
+		if(trace_compute) BPPrintMessage(0,odError,"=> Error in Cormark() from = %ld inmark = %d\n",(long)from,inmark);
 		return(MISSED);
 		}
 	p = (int)(**pp_a)[i+1];
-	if(trace_compute) BPPrintMessage(odInfo,"Cormark() i = %ld m = %d p =%d q = %ld\n",(long)i,m,p,(long)q);
+	if(trace_compute) BPPrintMessage(0,odInfo,"Cormark() i = %ld m = %d p =%d q = %ld\n",(long)i,m,p,(long)q);
 	if(m == 2 && p == 0) q++; /* zero marker */
 	else if(m == 2 && p >= q) (**pp_a)[i+1] = (tokenbyte)(p + inmark);
 	}
@@ -2112,7 +2113,7 @@ if(justplay) {
 	goto QUIT;
 	}
 if(DisplayProduce) {
-//	BPPrintMessage(odInfo,"DisplayProduce\n");
+//	BPPrintMessage(0,odInfo,"DisplayProduce\n");
 	datamode = DisplayMode(pp_a,&ifunc,&hastabs);
 	if(mode == ANAL || all) datamode = FALSE;
 	Dirty[wTrace] = TRUE;

@@ -726,7 +726,7 @@ return(OK);
 
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
-/* 061307: New argument "newinstr" should be YES when the instrument space
+/* New argument "newinstr" should be YES when the instrument space
    is newly allocated and uninitialized.  This is the case when called from 
    ResizeCsoundInstrumentsSpace().  When "all" is NO, then the instrument
    index, name, and comment are preserved.  Changes by BB. */
@@ -738,7 +738,7 @@ int i,channel;
 if(!newinstr) {
 	// Jinstr has not been adjusted yet when resizing
 	if(j < 0 || j >= Jinstr) { 
-		BPPrintMessage(odError,"=> Err. ResetCsoundInstrument(). Incorrect index = %d\n",j);
+		BPPrintMessage(0,odError,"=> Err. ResetCsoundInstrument(). Incorrect index = %d\n",j);
 		return(MISSED);
 		}
 	for(channel=1; channel <= MAXCHAN; channel++) {
@@ -789,7 +789,7 @@ if(all || newinstr) (*p_CsInstrumentIndex)[j] = -1;
 if(!newinstr) {
 	for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
 		if((*p_CsInstrument)[j].paramlist == NULL) {
-			BPPrintMessage(odError,"=> Err. ResetCsoundInstrument(). (*p_CsInstrument)[j].paramlist == NULL\n",j);
+			BPPrintMessage(0,odError,"=> Err. ResetCsoundInstrument(). (*p_CsInstrument)[j].paramlist == NULL\n",j);
 			continue;
 			}
 		ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].name;
@@ -1633,14 +1633,14 @@ if(Jbol < 2) return(OK);
 rep = OK;
 CompileOn++;
 maxsounds = MyGetHandleSize((Handle)p_Type) / sizeof(char);
-if(trace_csound) BPPrintMessage(odInfo,"Running CompileCsoundObjects() for maxsounds = %ld\n",(long)maxsounds);
+if(trace_csound) BPPrintMessage(0,odInfo,"Running CompileCsoundObjects() for maxsounds = %ld\n",(long)maxsounds);
 
 for(j=2; j < maxsounds; j++) {
-	if(trace_csound) BPPrintMessage(odInfo,"(*p_Type)[%d] = %d\n",j,(*p_Type)[j]);
+	if(trace_csound) BPPrintMessage(0,odInfo,"(*p_Type)[%d] = %d\n",j,(*p_Type)[j]);
 	if((*p_Type)[j] == 0) continue;
 	if(!((*p_Type)[j] & 4)) {  // The third bit is not 1
 		if((*pp_CsoundScoreText)[j] == NULL) {
-			if(trace_csound) BPPrintMessage(odInfo, "No Csound score in %d\n",j);
+			if(trace_csound) BPPrintMessage(0,odInfo, "No Csound score in %d\n",j);
 			continue;
 			}
 		(*p_Type)[j] |= 4; // Set the third bit to 1
@@ -1679,18 +1679,18 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 
 	if(j < 2 || j >= Jbol) return(OK);
 
-	if(trace_csound) BPPrintMessage(odInfo,"CompileObjectScore(%d)\n",j);
+	if(trace_csound) BPPrintMessage(0,odInfo,"CompileObjectScore(%d)\n",j);
 	p_line = (*pp_CsoundScoreText)[j];
 	if(p_line == NULL) {
-		if(trace_csound) BPPrintMessage(odInfo, "=> Warning CompileObjectScore(%d). p_line == NULL\n",j);
+		if(trace_csound) BPPrintMessage(0,odInfo, "=> Warning CompileObjectScore(%d). p_line == NULL\n",j);
 		return OK;
 		}
-	if(trace_csound) BPPrintMessage(odInfo, "Compiling object score line[%d] = %s\n",j,(*p_line));
+	if(trace_csound) BPPrintMessage(0,odInfo, "Compiling object score line[%d] = %s\n",j,(*p_line));
 
 	if(strlen(*p_line) == 0 || strcmp((*p_line),"<HTML></HTML>") == 0) {
 	/*	ptr = (Handle) (*pp_CsoundScore)[j];
 		if(ptr != NULL) {
-			if(trace_csound) BPPrintMessage(odError, "=> Error (*pp_CsoundScore)[%d] != NULL, (*p_CsoundSize)[%d] = %d\n",j,j,(*p_CsoundSize)[j]);
+			if(trace_csound) BPPrintMessage(0,odError, "=> Error (*pp_CsoundScore)[%d] != NULL, (*p_CsoundSize)[%d] = %d\n",j,j,(*p_CsoundSize)[j]);
 			for(i=0; i < (*p_CsoundSize)[j]; i++) {
 				ptr2 = (Handle) (*((*pp_CsoundScore)[j]))[i].h_param;
 				MyDisposeHandle(&ptr2);
@@ -1708,14 +1708,14 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 
 	if((result=CompileRegressions()) != OK) return(result);
 
-	// if(trace_csound) BPPrintMessage(odError,"Compiling ObjectScore(%d) ? CompiledCsoundScore = %d\n",j,(int)(*p_CompiledCsoundScore)[j]);
+	// if(trace_csound) BPPrintMessage(0,odError,"Compiling ObjectScore(%d) ? CompiledCsoundScore = %d\n",j,(int)(*p_CompiledCsoundScore)[j]);
 
 	if((*p_CompiledCsoundScore)[j]) {
-		if(trace_csound) BPPrintMessage(odError,"ObjectScore « %s » is already compiled\n",*((*p_Bol)[j]));
+		if(trace_csound) BPPrintMessage(0,odError,"ObjectScore « %s » is already compiled\n",*((*p_Bol)[j]));
 		return(OK);
 		}
 
-	if(trace_csound) BPPrintMessage(odInfo, "Compiling Csound score in object « %s »\n",*((*p_Bol)[j]));
+	if(trace_csound) BPPrintMessage(0,odInfo, "Compiling Csound score in object « %s »\n",*((*p_Bol)[j]));
 
 	maxevents = 12;
 
@@ -1750,7 +1750,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 
 	CompileOn++;
 
-	// BPPrintMessage(odError,"Now compiling ObjectScore(%d)\n",j);
+	// BPPrintMessage(0,odError,"Now compiling ObjectScore(%d)\n",j);
 	count = 1L + MyHandleLen(p_line);
 	html = TRUE;
 	CheckHTML(TRUE,0,p_line,&count,&html);
@@ -1759,7 +1759,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 
 	l = strlen((*p_line)); 
 	if(l == 0) return(OK);
-	if(trace_csound) BPPrintMessage(odInfo,"Compiling Csound score (length %d):\n%s\n",l,(*p_line));
+	if(trace_csound) BPPrintMessage(0,odInfo,"Compiling Csound score (length %d):\n%s\n",l,(*p_line));
 
 	while(TRUE) {
 		result = OK;
@@ -1778,7 +1778,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 		c = (*p_line)[i0];
 		if(c == '_') goto NEXTLINE;
 		if(c != 'i' && c != 't' && c != 'f' && c != ';' && c != 'e') {
-			BPPrintMessage(odInfo,"\n=> Csound score line must start with 'i', 'f', 't' or a semi-colon. Can't accept '%c' in the score of object « %s ».\nPart of this score will be ignored:\n%s\n",c,*((*p_Bol)[j]),(*p_line));
+			BPPrintMessage(0,odInfo,"\n=> Csound score line must start with 'i', 'f', 't' or a semi-colon. Can't accept '%c' in the score of object « %s ».\nPart of this score will be ignored:\n%s\n",c,*((*p_Bol)[j]),(*p_line));
 			result = OK; goto SORTIR;
 			}
 		foundevent = FALSE;
@@ -1799,7 +1799,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 		if(c == 't') istempo = TRUE;
 		if(c == 'e') finished = TRUE;
 		if(c == 'f') {
-			BPPrintMessage(odInfo,"\n=> Opcode 'f' (table definition) is not supported in sound-object scores. The incorrect line has been ignored in object « %s »:\n%s\n",*((*p_Bol)[j]),(*p_line));
+			BPPrintMessage(0,odInfo,"\n=> Opcode 'f' (table definition) is not supported in sound-object scores. The incorrect line has been ignored in object « %s »:\n%s\n",*((*p_Bol)[j]),(*p_line));
 			goto NEXTLINE;
 			}
 
@@ -2068,7 +2068,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 		}
 
 	PointCsound = TRUE;
-	// BPPrintMessage(odError,"CompiledObjectScore(%d)\n",j);
+	// BPPrintMessage(0,odError,"CompiledObjectScore(%d)\n",j);
 
 	if(PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) return(ABORT); 
 
@@ -2076,8 +2076,8 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 
 	if(iProto == 0 && Jbol > 2) iProto = 2;
 	(*p_CompiledCsoundScore)[j] = 1;
-	if(result == OK) BPPrintMessage(odError,"Csound score of object « %s » successfully compiled\n",*((*p_Bol)[j]));
-	else BPPrintMessage(odError,"Csound score of object « %s » not successfully compiled\n",*((*p_Bol)[j]));
+	if(result == OK) BPPrintMessage(0,odError,"Csound score of object « %s » successfully compiled\n",*((*p_Bol)[j]));
+	else BPPrintMessage(0,odError,"Csound score of object « %s » not successfully compiled\n",*((*p_Bol)[j]));
 	return(result);
 	}
 
@@ -2240,14 +2240,14 @@ for(i=0; i < strlen(line); i++) {
 if(isnumber) {
 	i = (int) atol(line);
 	for(j=0; j < Jinstr; j++) {
-//		BPPrintMessage(odInfo,"InstrumentIndex = %d, j = %d\n",(*p_CsInstrumentIndex)[j],j);
+//		BPPrintMessage(0,odInfo,"InstrumentIndex = %d, j = %d\n",(*p_CsInstrumentIndex)[j],j);
 		if(i == (*p_CsInstrumentIndex)[j]) break;
 		}
 	if(j < Jinstr) return(i);
 	goto ERR;
 	}
 for(j=0; j < Jinstr; j++) {
-//	BPPrintMessage(odInfo,"InstrumentName = %s, j = %d\n",(*(*pp_CsInstrumentName)[j]),j);
+//	BPPrintMessage(0,odInfo,"InstrumentName = %s, j = %d\n",(*(*pp_CsInstrumentName)[j]),j);
 	if(Mystrcmp((*pp_CsInstrumentName)[j],line) == 0) break;
 	}
 if(j < Jinstr) return((*p_CsInstrumentIndex)[j]);
@@ -2260,7 +2260,7 @@ if(isnumber) my_sprintf(Message,"=> Instrument %ld was not found in the '-cs' in
 	(long) i);
 else my_sprintf(Message,"=> Instrument \"%s\" was not found in the '-cs' instrument file\n",
 	line);
-BPPrintMessage(odError,Message);
+BPPrintMessage(0,odError,Message);
 return(ABORT);
 }
 
