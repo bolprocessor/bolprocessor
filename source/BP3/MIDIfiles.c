@@ -93,14 +93,14 @@ FILE *fout;
 
 	result = MISSED;
 	if(OpenMIDIfilePtr != NULL) {
-		BPPrintMessage(odError, "MIDI file is already open: %s\n", finfo->name);
+		BPPrintMessage(0,odError, "MIDI file is already open: %s\n", finfo->name);
 		return OK; // 2024-07-12
 		}
 
 	ShowMessage(TRUE,wMessage,"Creating new MIDI file...");
 	fout = OpenOutputFile(finfo,"wb");
 	if (!fout) {
-		BPPrintMessage(odError, "=> Could not open file for MIDI %s\n", finfo->name);
+		BPPrintMessage(0,odError, "=> Could not open file for MIDI %s\n", finfo->name);
 		return MISSED;
 		}
 	else {
@@ -190,7 +190,7 @@ static int WriteBeginningOfTrack(FILE* fout, int inclMetaEvts, int isTempoOnlyTr
 	
 	if (isTempoOnlyTrk && !inclMetaEvts) {
 		// this function does not support writing an empty track without meta events
-		BPPrintMessage(odError, "=> Error in WriteBeginningOfTrack(): inconsistent parameters\n");
+		BPPrintMessage(0,odError, "=> Error in WriteBeginningOfTrack(): inconsistent parameters\n");
 		return ABORT;
 	}
 	
@@ -208,7 +208,7 @@ static int WriteBeginningOfTrack(FILE* fout, int inclMetaEvts, int isTempoOnlyTr
 		/* Remember where to write the track length */
 		MidiLen_pos  = ftell(fout);
 		if (MidiLen_pos < 0) {
-			BPPrintMessage(odError, "=> Error in WriteBeginningOfTrack(): ftell() returned %ld.\n", MidiLen_pos);
+			BPPrintMessage(0,odError, "=> Error in WriteBeginningOfTrack(): ftell() returned %ld.\n", MidiLen_pos);
 			return ABORT;
 		}
 		if (WriteReverse(fout,(dword)0x00000000) != OK) return(ABORT);
@@ -266,7 +266,7 @@ static int WriteEndOfTrack(FILE* fout)
 	int result;
 	long pos;
 	
-	if(trace_writing_midi_file) BPPrintMessage(odInfo, "Writing end of track\n");
+	if(trace_writing_midi_file) BPPrintMessage(0,odInfo, "Writing end of track\n");
 	result = FadeOut();
 	if (result != OK)  return result;
 	
@@ -289,7 +289,7 @@ static int WriteEndOfTrack(FILE* fout)
 	/* Remember where we are */
 	pos  = ftell(fout);
 	if (pos < 0) {
-		BPPrintMessage(odError, "=> Error in WriteEndOfTrack(): ftell() returned %ld.\n", pos);
+		BPPrintMessage(0,odError, "=> Error in WriteEndOfTrack(): ftell() returned %ld.\n", pos);
 		return ABORT;
 	}
 	
@@ -313,7 +313,7 @@ static int WriteRawBytes(FILE* fout, byte* data, size_t numbytes)
 	
 	written = fwrite(data, (size_t)1, numbytes, fout);
 	if (written < numbytes)	{
-		BPPrintMessage(odError, "=> Error while writing to Midi file.\n");
+		BPPrintMessage(0,odError, "=> Error while writing to Midi file.\n");
 		return ABORT;
 	}
 	
@@ -353,16 +353,16 @@ if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
 	MIDIbytestate = 1;
 	
 	if(trace_writing_midi_file)
-		BPPrintMessage(odInfo,"midi_byte = %d time = %ld OldMIDIfileTime = %ld MIDItracklength = %ld Midi_msg = %ld\n",midi_byte,(long)time,(long)OldMIDIfileTime,(long)MIDItracklength,(long)Midi_msg);
+		BPPrintMessage(0,odInfo,"midi_byte = %d time = %ld OldMIDIfileTime = %ld MIDItracklength = %ld Midi_msg = %ld\n",midi_byte,(long)time,(long)OldMIDIfileTime,(long)MIDItracklength,(long)Midi_msg);
 	
 	}
 else {
 
 	if(trace_writing_midi_file)
-		BPPrintMessage(odInfo,"midi_byte = %d time = %ld OldMIDIfileTime = %ld MIDItracklength = %ld Midi_msg = %ld\n",midi_byte,(long)time,(long)OldMIDIfileTime,(long)MIDItracklength,(long)Midi_msg);
+		BPPrintMessage(0,odInfo,"midi_byte = %d time = %ld OldMIDIfileTime = %ld MIDItracklength = %ld Midi_msg = %ld\n",midi_byte,(long)time,(long)OldMIDIfileTime,(long)MIDItracklength,(long)Midi_msg);
 	if(MIDIbytestate > 3 || MIDIbytestate < 1) {
 	//	if(Beta) Alert1("=> Err. WriteMIDIbyte(). MIDIbytestate > 3 || MIDIbytestate < 1");
-		BPPrintMessage(odError, "=> Correcting the byte state (%d) in MIDI file\n",MIDIbytestate);
+		BPPrintMessage(0,odError, "=> Correcting the byte state (%d) in MIDI file\n",MIDIbytestate);
 		return(OK);
 		}
 	Midi_msg |= ((dword)midi_byte) << (8 * MIDIbytestate); /* accumulate msg */
@@ -371,7 +371,7 @@ else {
 return(OK);
 
 BAD:
-BPPrintMessage(odError,"=> Canceling creation of MIDIfile\n");
+BPPrintMessage(0,odError,"=> Canceling creation of MIDIfile\n");
 CloseMIDIFile2();
 return(ABORT);
 }
@@ -404,6 +404,7 @@ int result;
 byte byteval;
 
 if(!MIDIfileOpened) return(OK);
+// BPPrintMessage(0,odInfo,"Closing MIDI file\n");
 
 result = WriteEndOfTrack(OpenMIDIfilePtr);
 if (result == OK) {
@@ -515,7 +516,7 @@ static int WriteVarLenQuantity(FILE* fout, dword value, dword *tracklen)
 	
 	if (value > 268435455)	{
 		if (Beta)	{
-			BPPrintMessage(odError, "=> Err. WriteVarLenQuantity(): value %u is out of range in chunk #%d\n",value,Chunk_number);
+			BPPrintMessage(0,odError, "=> Err. WriteVarLenQuantity(): value %u is out of range in chunk #%d\n",value,Chunk_number);
 		}
 		return ABORT; // Fixed by BB 2021-02-25
 	}
@@ -617,7 +618,7 @@ if(!MIDIfileOpened) {
 		return MakeMIDIFile(&(gOptions.outputFiles[ofiMidiFile]));
 		}
 	else {
-		BPPrintMessage(odError, "=> Error in PrepareMIDIFile(): file name is NULL.\n");
+		BPPrintMessage(0,odError, "=> Error in PrepareMIDIFile(): file name is NULL.\n");
 		return MISSED;
 		}
 	}
@@ -1235,7 +1236,7 @@ for(i=1; i <= MAXCHAN; i++) {
 		e.status = ProgramChange + i - 1;
 		e.data2 = w - 1;
 		rs = 0;
-		SendToDriver(-1,0,0,Tcurr * Time_res,0,&rs,&e);
+		SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e);
 		}
 	}
 return(OK);
@@ -1260,7 +1261,7 @@ if(EndFadeOut > 0.) {
 	time_end = timeorigin + (1000 * EndFadeOut);
 	i_event_max = (int)(EndFadeOut * SamplingRate);
 	my_sprintf(Message,"Fading out MIDI stream %.3f sec as requested by the settings (or by default)\n",(float)EndFadeOut);
-	BPPrintMessage(odInfo,Message);
+	BPPrintMessage(0,odInfo,Message);
 	for(chan=1; chan <= MAXCHAN; chan++)
 		current_volume[chan] = CurrentVolume[chan];
 	for(i_event = 1; i_event <= i_event_max; i_event++) {
@@ -1280,12 +1281,12 @@ if(EndFadeOut > 0.) {
 			e.data1 = this_char;
 			this_char = (unsigned char)value2;
 			e.data2 = this_char;
-			if((rep=SendToDriver(-1,0,0,time,0,&rs,&e)) != OK) {
-				BPPrintMessage(odInfo,"SendToDriver aborted! rep = %ld\n",(long)rep);
+			if((rep=SendToDriver(0,0,0,time,0,&rs,&e)) != OK) {
+				BPPrintMessage(0,odInfo,"SendToDriver aborted! rep = %ld\n",(long)rep);
 				goto SORTIR;
 				}
 			my_sprintf(Message,"%d/%d ratio = %.3f  channel %d: time = %ld ms, current_volume = %ld, e.data1 = %d, e.data2 = %d\n",i_event,i_event_max,ratio,chan,(long)time,(long)this_volume,e.data1,e.data2);
-			if(check_fade_out) BPPrintMessage(odInfo,Message);
+			if(check_fade_out) BPPrintMessage(0,odInfo,Message);
 			}
 		}
 SORTIR:

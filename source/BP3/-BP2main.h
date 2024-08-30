@@ -213,6 +213,7 @@ char Mute,Panic;
 
 int WaitKey[MAXWAIT+1],WaitChan[MAXWAIT+1];
 int WarnedBasedKey;
+int force_messages;
 
 // Variables for Csound instruments
 CsoundInstrument **p_CsInstrument;
@@ -454,7 +455,7 @@ int HaveAppearanceManager;
 int RunningOnOSX;
 int WaitForSpace;
 short MPEnote[17], MPEscale[17];
-int ToldPitchbend;
+int ToldPitchbend, ToldStop;
 // ControlActionUPP vScrollUPP,hScrollUPP;
 // NSWReply** MIDIfileReply;
 // NSWReply** CsFileReply;

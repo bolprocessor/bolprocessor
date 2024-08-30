@@ -75,17 +75,17 @@ if(chan < 0 || chan >= MAXCHAN) {
 perf = (*pp_currentparams)[nseq]; 
 
 if(trace_cs_scoremake)
-	BPPrintMessage(odInfo,"\nRunning CscoreWrite for iline = %d channel = %d instrument = %d k = %d\n",iline,chan,instrument,kcurrentinstance);
+	BPPrintMessage(0,odInfo,"\nRunning CscoreWrite for iline = %d channel = %d instrument = %d k = %d\n",iline,chan,instrument,kcurrentinstance);
 
 if(onoffline == LINE) {
 	if(j >= Jbol) {
 		my_sprintf(Message,"=> Err. CscoreWrite(). j >= Jbol, j = %ld\n",(long)j);
-		BPPrintMessage(odInfo,Message);
+		BPPrintMessage(0,odInfo,Message);
 		goto SORTIR;
 		} 
 	if(iline < 0 || (iline >= (*p_CsoundSize)[j])) {
 		my_sprintf(Message,"=> Err. CscoreWrite(). iline < 0 || iline >= (*p_CsoundSize)[j] iline = %ld\n",(long)iline);
-		BPPrintMessage(odInfo,Message);
+		BPPrintMessage(0,odInfo,Message);
 		goto SORTIR;
 		}
 	dur = (*((*pp_CsoundScore)[j]))[iline].duration * dilationratio;
@@ -94,7 +94,7 @@ if(onoffline == LINE) {
 else {
 	if(key < 0 || key >= MAXKEY) {
 		my_sprintf(Message,"=> Err. CscoreWrite(). Incorrect key = %ld\n",(long)key);
-		BPPrintMessage(odInfo,Message);
+		BPPrintMessage(0,odInfo,Message);
 		goto SORTIR;
 		}
 	}
@@ -133,7 +133,7 @@ instrparamlist = (*p_CsInstrument)[ins].paramlist;
 
 time = ((double) time_ms) / 1000.;	 // Fixed by BB 2022-02-10
 
-if(trace_cs_scoremake) BPPrintMessage(odInfo,"Pclock = %ld Qclock = %ld, t = %ld, time = %.3f, onoffline = %d\n",(long)Pclock,(long)Qclock,(long)time_ms,time,onoffline);
+if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"Pclock = %ld Qclock = %ld, t = %ld, time = %.3f, onoffline = %d\n",(long)Pclock,(long)Qclock,(long)time_ms,time,onoffline);
 
 comeback = FALSE;
 maxparam = (*p_Instance)[kcurrentinstance].contparameters.number; // Fixed by BB 2024-07-05
@@ -156,7 +156,7 @@ if(onoffline == ON) {
 
 SETON:
 	(*perf)->level[key]++;
-	if(trace_cs_scoremake) BPPrintMessage(odInfo,"key = %d level = %d\n",key,(*perf)->level[key]);
+	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"key = %d level = %d\n",key,(*perf)->level[key]);
 	(*perf)->starttime[key] = time;
 	(*perf)->velocity[key] = velocity;
 	(*perf)->dilationratio[key] = dilationratio;
@@ -166,18 +166,18 @@ SETON:
 	
 	if((paramscopy = (ParameterStatus**)
 		GiveSpace((Size)(maxparam * sizeof(ParameterStatus)))) == NULL) {
-			BPPrintMessage(odError,"Err. GiveSpace in CscoreWrite(). maxparam = %ld\n",(long)maxparam);
+			BPPrintMessage(0,odError,"Err. GiveSpace in CscoreWrite(). maxparam = %ld\n",(long)maxparam);
 			goto SORTIR;
 			}
 	for(i=0; i < maxparam; i++) (*paramscopy)[i] = (*((*perf)->params))[i];
 	(*perf)->startparams[key] = paramscopy;
 	result = OK;
-//	BPPrintMessage(odInfo,"Start CscoreWrite(). maxparam = %ld\n",(long)maxparam);
+//	BPPrintMessage(0,odInfo,"Start CscoreWrite(). maxparam = %ld\n",(long)maxparam);
 	goto SORTIR;
 	}
 
 if(onoffline == OFF && (*perf)->level[key] < 1) {
-	BPPrintMessage(odError,"=> Err. CscoreWrite(). (*perf)->level[key] < 1 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
+	BPPrintMessage(0,odError,"=> Err. CscoreWrite(). (*perf)->level[key] < 1 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
 	result = OK; // $$$ TEMP
 	goto SORTIR;
 	}
@@ -222,12 +222,12 @@ if(onoffline != LINE) {
 //	(*scorearg)[2] = (*perf)->starttime[key] * Qclock / ((double) Pclock);
 	(*scorearg)[2] = (*perf)->starttime[key]; // Fixed by BB 2022-02-10
 	(*scorearg)[3] = time - (*scorearg)[2];
-	if(trace_cs_scoremake) BPPrintMessage(odInfo,"onoffline != LINE, key = %d, starttime = %.3f, time = %ld, scorearg[2] = %.3f, scorearg[3] = %.3f\n",key,(*perf)->starttime[key],(long)time,(*scorearg)[2],(*scorearg)[3]);
+	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"onoffline != LINE, key = %d, starttime = %.3f, time = %ld, scorearg[2] = %.3f, scorearg[3] = %.3f\n",key,(*perf)->starttime[key],(long)time,(*scorearg)[2],(*scorearg)[3]);
 	}
 else {
 	(*scorearg)[2] = time;
 	(*scorearg)[3] = dur * ratio;
-	if(trace_cs_scoremake) BPPrintMessage(odInfo,"onoffline == LINE, scorearg[2] = %ld, scorearg[3] = %ld\n",(long)(*scorearg)[2],(long)(*scorearg)[3]);
+	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"onoffline == LINE, scorearg[2] = %ld, scorearg[3] = %ld\n",(long)(*scorearg)[2],(long)(*scorearg)[3]);
 	for(iarg=4; iarg < (4+(*((*pp_CsoundScore)[j]))[iline].nbparameters); iarg++) {
 		(*scorearg)[iarg] = (*((*((*pp_CsoundScore)[j]))[iline].h_param))[iarg-4];
 		}
@@ -287,20 +287,20 @@ if(iarg > 0) {
 		}
 	else cents = 0.;
 	pitch_format = (*p_CsPitchFormat)[ins];
-	// BPPrintMessage(odInfo,"The A4freq = %.3f\n",A4freq);
+	// BPPrintMessage(0,odInfo,"The A4freq = %.3f\n",A4freq);
 	if((pitch_format == OPPC || pitch_format == OPD) && (A4freq != 440. || C4key != 60))
 		pitch_format = CPS;
 	if(scale <= 0) i_scale = 0;
 	if(NumberScales > 0 && scale >= 0) {
-		// BPPrintMessage(odInfo,"The scale = %d\n",scale);
+		// BPPrintMessage(0,odInfo,"The scale = %d\n",scale);
 		if(scale == -1) {
 			i_scale = 1;
-			if(trace_scale) BPPrintMessage(odInfo,"Default scale will be used\n");
+			if(trace_scale) BPPrintMessage(0,odInfo,"Default scale will be used\n");
 			}
 		else {
 			i_scale = FindScale(scale);
 	/*		MystrcpyHandleToString(MAXLIN,0,Message,(*p_StringConstant)[scale]);
-			if(trace_scale) BPPrintMessage(odInfo,"scale = %d => \"%s\"\n",scale,Message);
+			if(trace_scale) BPPrintMessage(0,odInfo,"scale = %d => \"%s\"\n",scale,Message);
 			for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
 			// ‘scale’ is not the index of the scale. It is the index of its name in StringConstant
 				result = MyHandlecmp((*p_StringConstant)[scale],(*Scale)[i_scale].label);
@@ -308,7 +308,7 @@ if(iarg > 0) {
 				} */
 			}
 		if(i_scale > 0 && i_scale <= NumberScales) { 
-		//	BPPrintMessage(odInfo,"blockkey = %d\n",blockkey);
+		//	BPPrintMessage(0,odInfo,"blockkey = %d\n",blockkey);
 			x = GetPitchWithScale(i_scale,key,cents,blockkey);
 			if(x == Infpos) return(ABORT);
 			pitch_format = IGNORER;
@@ -360,7 +360,7 @@ if(iarg > 0) {
 	
 	if((*params)[IPITCHBEND].active && imax > ZERO && (*params)[IPITCHBEND].mode == CONTINUOUS
 			&& (itable=(*p_CsInstrument)[ins].pitchbendtable) > -1) {
-		// BPPrintMessage(odInfo,"Calling MakeCsoundFunctionTable() for IPITCHBEND = %ld\n");
+		// BPPrintMessage(0,odInfo,"Calling MakeCsoundFunctionTable() for IPITCHBEND = %ld\n");
 		if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 				(*params)[IPITCHBEND].point,ins,IPITCHBEND,-1,
 				(*p_CsPitchBendStartIndex)[ins],(*p_CsPitchBendEndIndex)[ins]) == OK)
@@ -409,7 +409,7 @@ if(iarg > 0) {
 	if(overflow) goto SORTIR;
 	if((*params)[IVOLUME].active && imax > ZERO && (*params)[IVOLUME].mode == CONTINUOUS
 			&& (itable=(*p_CsInstrument)[ins].volumetable) > -1) {
-		// BPPrintMessage(odInfo,"Calling MakeCsoundFunctionTable() for IVOLUME = %ld\n");
+		// BPPrintMessage(0,odInfo,"Calling MakeCsoundFunctionTable() for IVOLUME = %ld\n");
 		if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 				(*params)[IVOLUME].point,ins,IVOLUME,-1,(*p_CsVolumeStartIndex)[ins],
 				(*p_CsVolumeEndIndex)[ins]) == OK)
@@ -458,7 +458,7 @@ if(iarg > 0) {
 	if(overflow) goto SORTIR;
 	if((*params)[IPRESSURE].active && imax > ZERO && (*params)[IPRESSURE].mode == CONTINUOUS
 			&& (itable=(*p_CsInstrument)[ins].pressuretable) > -1) {
-		// BPPrintMessage(odInfo,"Calling MakeCsoundFunctionTable() for IPRESSURE = %ld\n");
+		// BPPrintMessage(0,odInfo,"Calling MakeCsoundFunctionTable() for IPRESSURE = %ld\n");
 		if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 				(*params)[IPRESSURE].point,ins,IPRESSURE,-1,(*p_CsPressureStartIndex)[ins],
 				(*p_CsPressureEndIndex)[ins]) == OK)
@@ -507,7 +507,7 @@ if(iarg > 0) {
 	if(overflow) goto SORTIR;
 	if((*params)[IMODULATION].active && imax > ZERO && (*params)[IMODULATION].mode == CONTINUOUS
 			&& (itable=(*p_CsInstrument)[ins].modulationtable) > -1) {
-		// BPPrintMessage(odInfo,"Calling MakeCsoundFunctionTable() for IMODULATION = %ld\n");
+		// BPPrintMessage(0,odInfo,"Calling MakeCsoundFunctionTable() for IMODULATION = %ld\n");
 		if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 				(*params)[IMODULATION].point,ins,IMODULATION,-1,(*p_CsModulationStartIndex)[ins],
 				(*p_CsModulationEndIndex)[ins]) == OK)
@@ -557,7 +557,7 @@ if(iarg > 0) {
 	if(overflow) goto SORTIR;
 	if((*params)[IPANORAMIC].active && imax > ZERO && (*params)[IPANORAMIC].mode == CONTINUOUS
 			&& (itable=(*p_CsInstrument)[ins].panoramictable) > -1) {
-		//	BPPrintMessage(odInfo,"Calling MakeCsoundFunctionTable() for IPANORAMIC = %ld\n");
+		//	BPPrintMessage(0,odInfo,"Calling MakeCsoundFunctionTable() for IPANORAMIC = %ld\n");
 		if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 				(*params)[IPANORAMIC].point,ins,IPANORAMIC,-1,(*p_CsPanoramicStartIndex)[ins],
 				(*p_CsPanoramicEndIndex)[ins]) == OK)
@@ -598,8 +598,8 @@ if((*p_CsInstrument)[ins].ipmax > 0 && (*perf)->numberparams > 0) {
 		paramnameindex = (*instrparamlist)[i].nameindex;
 		if(paramnameindex < 0) continue;
 		if(paramnameindex >= (*perf)->numberparams) continue;
-		BPPrintMessage(odInfo,"paramnameindex = %d, (*perf)->numberparams = %d\n",(int)paramnameindex,(*perf)->numberparams);
-		BPPrintMessage(odInfo,"(*params)[paramnameindex].active = %d\n",(int)(*params)[paramnameindex].active);
+		BPPrintMessage(0,odInfo,"paramnameindex = %d, (*perf)->numberparams = %d\n",(int)paramnameindex,(*perf)->numberparams);
+		BPPrintMessage(0,odInfo,"(*params)[paramnameindex].active = %d\n",(int)(*params)[paramnameindex].active);
 		if((*params)[paramnameindex].active) {
 			startvalue = (*params)[paramnameindex].startvalue;
 			endvalue = (*params)[paramnameindex].endvalue;
@@ -622,11 +622,11 @@ if((*p_CsInstrument)[ins].ipmax > 0 && (*perf)->numberparams > 0) {
 		if(onoffline == LINE) {
 			switch((*instrparamlist)[i].combinationtype) {
 				case MULT:
-			//		BPPrintMessage(odInfo,"MULT iarg = %ld, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",(long)iarg,x,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
+			//		BPPrintMessage(0,odInfo,"MULT iarg = %ld, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",(long)iarg,x,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
 					x = (*scorearg)[iarg] * x / (*instrparamlist)[i].defaultvalue;
 					break;
 				case ADD:
-			//		BPPrintMessage(odInfo,"ADD iarg = %ld, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",(long)iarg,x,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
+			//		BPPrintMessage(0,odInfo,"ADD iarg = %ld, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",(long)iarg,x,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
 					x = (*scorearg)[iarg] + x - (*instrparamlist)[i].defaultvalue;
 					break;
 				default:
@@ -636,7 +636,7 @@ if((*p_CsInstrument)[ins].ipmax > 0 && (*perf)->numberparams > 0) {
 		if((*params)[paramnameindex].active && imax > ZERO
 				&& (*params)[paramnameindex].mode == CONTINUOUS
 				&& (itable=(*instrparamlist)[i].table) > -1) {
-		//	BPPrintMessage(odInfo,"Calling MakeCsoundFunctionTable() for paramnameindex = %ld\n",(long)paramnameindex);
+		//	BPPrintMessage(0,odInfo,"Calling MakeCsoundFunctionTable() for paramnameindex = %ld\n",(long)paramnameindex);
 			if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 					(*params)[paramnameindex].point,ins,paramnameindex,i,
 					(*instrparamlist)[i].startindex,(*instrparamlist)[i].endindex) == OK)
@@ -655,12 +655,12 @@ if((*p_CsInstrument)[ins].ipmax > 0 && (*perf)->numberparams > 0) {
 				if(onoffline == LINE) {
 					switch((*instrparamlist)[i].combinationtype) {
 						case MULT:
-					//		BPPrintMessage(odInfo,"MULT iarg = %ld, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",(long)iarg,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
+					//		BPPrintMessage(0,odInfo,"MULT iarg = %ld, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",(long)iarg,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
 							x = (*scorearg)[iarg] * x / (*instrparamlist)[i].defaultvalue;
-					//	BPPrintMessage(odInfo,"MULT \n");
+					//	BPPrintMessage(0,odInfo,"MULT \n");
 							break;
 						case ADD:
-					//		BPPrintMessage(odInfo,"ADD iarg = %ld, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",(long)iarg,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
+					//		BPPrintMessage(0,odInfo,"ADD iarg = %ld, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",(long)iarg,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
 							x = (*scorearg)[iarg] + x - (*instrparamlist)[i].defaultvalue;
 							break;
 						default:
@@ -694,14 +694,14 @@ if(ShowPianoRoll) {
 	timeon = (Milliseconds) 1000 * (*scorearg)[2];
 	timeoff = (Milliseconds) 1000 * ((*scorearg)[2] + (*scorearg)[3]); // Fixed by BB 2022-02-10
 		
-	if(trace_cs_scoremake) BPPrintMessage(odInfo,"key = %d chan = %d timeon = %ld timeoff = %ld minkey = %d maxkey = %d\n",key,chan,(long)timeon,(long)timeoff,minkey,maxkey);
+	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"key = %d chan = %d timeon = %ld timeoff = %ld minkey = %d maxkey = %d\n",key,chan,(long)timeon,(long)timeoff,minkey,maxkey);
 	DrawPianoNote("csound",key,chan,timeon,timeoff,leftoffset,topoffset,hrect,minkey,maxkey,p_graphrect);
-//	BPPrintMessage(odInfo," key #%d draw_line(%d,%d) p_r->left = %d\n",key,timeon,timeoff,p_graphrect->left);
+//	BPPrintMessage(0,odInfo," key #%d draw_line(%d,%d) p_r->left = %d\n",key,timeon,timeoff,p_graphrect->left);
 	}
 
 if(!OutCsound) {
 	result = OK;
-	if(trace_cs_scoremake) BPPrintMessage(odInfo,"going out because !OutCsound)\n");
+	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"going out because !OutCsound)\n");
 	goto SORTIR;
 	}
 
@@ -710,7 +710,7 @@ my_sprintf(line,"i%ld ",(long)index);
 if(!ConvertMIDItoCsound) NoReturnWriteToFile(line,CsRefNum);
 strcpy(Message,line);
 my_sprintf(line2,"iarg = 1 line = %s\n",line);
-if(trace_cs_scoremake) BPPrintMessage(odInfo,"- %s",line2);
+if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"- %s",line2);
 
 for(iarg=2; iarg <= iargmax; iarg++) {
 	if(iarg != ipitch || pitch_format == IGNORER || pitch_format == CPS) {
@@ -723,7 +723,7 @@ for(iarg=2; iarg <= iargmax; iarg++) {
 	strcat(Message,line);
 	
 	my_sprintf(line2,"iarg = %ld -> %s\n",(long)iarg,line);
-	if(trace_cs_scoremake) BPPrintMessage(odInfo,line2);
+	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,line2);
 	}
 
 if(pitchclass >= 0) {
@@ -752,7 +752,7 @@ if(ConvertMIDItoCsound) Println(wPrototype7,Message);
 else WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
 result = OK;
 
-if(trace_cs_scoremake) BPPrintMessage(odInfo,"line = %s\n",line);
+if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"line = %s\n",line);
 
 strcpy(Message,"");
 

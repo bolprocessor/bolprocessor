@@ -88,7 +88,7 @@ void SetOutputDestinations(int dest, FILE* file) {
 
 /* Functions for displaying messages and writing output in the console build */
 
-int BPPrintMessage(int dest, const char *format, ...) {
+int BPPrintMessage(int force,int dest, const char *format, ...) {
 	va_list	args;
     int result;
 
@@ -136,7 +136,7 @@ int BPPrintMessage(int dest, const char *format, ...) {
         vfprintf(gOutDestinations[odiWarning], format, args);
         va_end(args);
     }
-    if (dest & odInfo && !PlayAllChunks && (!Improvize || ItemNumber < 1)) {
+    if (dest & odInfo && !PlayAllChunks && (!Improvize || ItemNumber < 1 || force)) {
         va_start(args, format);
    //     fprintf(stderr, "ok %s\n",format);
    //     vfprintf(gOutDestinations[odiInfo], format, args);
@@ -167,7 +167,7 @@ int ShowMessage(int store, int w, char *message)
 		MystrcpyStringToHandle(&(p_MessageMem[Jmessage]), message);
 	}
 	
-	BPPrintMessage(odInfo, "%s\n", message);
+	BPPrintMessage(0,odInfo, "%s\n", message);
 	return OK;
 }
 
@@ -178,14 +178,14 @@ int ClearMessage(void)
 
 int FlashInfo(char* message)
 {
-	BPPrintMessage(odInfo, "%s\n", message);
+	BPPrintMessage(0,odInfo, "%s\n", message);
 	return OK;
 }
 
 int Alert1(char message[])
 {
 	// Alerts could be warnings or errors ...
-	BPPrintMessage(odError, "=> %s\n", message);
+	BPPrintMessage(0,odError, "=> %s\n", message);
 	return OK;
 }
 
@@ -218,6 +218,6 @@ int AnswerWith(char message[], char defaultvalue[], char value[])
 	// for now, always return the default answer 
 	strncpy(value, defaultvalue, 255);
 	value[255] = '\0';
-	BPPrintMessage(odUserInt,"%s ? %s\n", message, value);
+	BPPrintMessage(0,odUserInt,"%s ? %s\n", message, value);
 	return OK;
 }

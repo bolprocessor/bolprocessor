@@ -147,7 +147,7 @@ return(OK);
 
 int Notify(char* message,int up) { // Doesn't work on Mac because of authorisations, although the code is correct: it works when calling bp with Terminal command
 	if(strcmp(message,"") == 0) return OK;
-    BPPrintMessage(odError,"👉 %s\n",message); // We use 'odError' so that it displays even in Improvize mode 
+    BPPrintMessage(1,odError,"👉 %s\n",message); // We use 'odError' so that it displays even in Improvize mode 
 	int timeout = 5;
     #if defined(_WIN32) || defined(_WIN64)
     if(up) MessageBox(NULL, message, "Alert", MB_OK | MB_ICONINFORMATION);
@@ -619,7 +619,7 @@ if (filename == NULL) {
 	return(MISSED);
 	}
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) BPPrintMessage(odError,"=> Err. GetLinkedFileName(). Bad window index %d\n",w);;
+	if(Beta) BPPrintMessage(0,odError,"=> Err. GetLinkedFileName(). Bad window index %d\n",w);;
 	return(MISSED);
 	}
 if(doc < 0 || doc >= WMAX || FilePrefix[doc][0] == '\0') {
@@ -881,15 +881,15 @@ if((striated && Nature_of_time != STRIATED)
 		|| (!striated && Nature_of_time == STRIATED)
 		|| newp != Pclock || newq != Qclock) {
 MAKECHANGE:
-	if(newp != Pclock || newq != Qclock) BPPrintMessage(odInfo,"Metronome has been set to %.3f beats/mn while reading grammar/data\n",(newq * 60.)/newp); 
+	if(newp != Pclock || newq != Qclock) BPPrintMessage(0,odInfo,"Metronome has been set to %.3f beats/mn while reading grammar/data\n",(newq * 60.)/newp); 
 	Pclock = newp;
 	Qclock = newq;
 	if(striated) {
-		if(Nature_of_time == SMOOTH) BPPrintMessage(odInfo,"Time has been set to STRIATED while reading grammar/data\n");
+		if(Nature_of_time == SMOOTH) BPPrintMessage(0,odInfo,"Time has been set to STRIATED while reading grammar/data\n");
 		Nature_of_time = STRIATED;
 		}
 	else {
-		if(Nature_of_time == STRIATED) BPPrintMessage(odInfo,"Time has been set to SMOOTH while reading grammar/data\n");
+		if(Nature_of_time == STRIATED) BPPrintMessage(0,odInfo,"Time has been set to SMOOTH while reading grammar/data\n");
 		Nature_of_time = SMOOTH;
 		}
 	SetTempo();
@@ -1906,7 +1906,7 @@ if(j >= maxparam) {
 if((ptr = (char**) GiveSpace((Size)(strlen(line)+1))) == NULL) return(ABORT);
 (*p_StringConstant)[j] = ptr;
 MystrcpyStringToTable(p_StringConstant,j,line);
-if(trace_scale) BPPrintMessage(odInfo, "FixStringConstant() j = %d, line = %s\n",j,line);
+if(trace_scale) BPPrintMessage(0,odInfo, "FixStringConstant() j = %d, line = %s\n",j,line);
 return(j);
 
 ERR:
@@ -1926,7 +1926,7 @@ Strip(line);
 if(line[0] == '\0') goto ERR;
 
 x = Myatof(line,&p,&q);
-// if(trace_scale) BPPrintMessage(odInfo,"FixNumberConstant line = %s x = %.3f\n",line,x);
+// if(trace_scale) BPPrintMessage(0,odInfo,"FixNumberConstant line = %s x = %.3f\n",line,x);
 
 if(p_NumberConstant == NULL) maxparam = 0;
 else maxparam = (MyGetHandleSize((Handle)p_NumberConstant) / sizeof(double));
@@ -1948,7 +1948,7 @@ for(j = 1; j < maxparam; j++) {
 		}
 	}
 if(j < maxparam) {
-	if(trace_FixNumberConstant || trace_scale) BPPrintMessage(odInfo,"FixNumberConstant() line = %s j = %ld, x = %.3f\n",line,(long)j,x);
+	if(trace_FixNumberConstant || trace_scale) BPPrintMessage(0,odInfo,"FixNumberConstant() line = %s j = %ld, x = %.3f\n",line,(long)j,x);
 	return(j);
 	}
 if(j >= MAXSTRINGCONSTANTS) {
@@ -1966,7 +1966,7 @@ maxparam = (MyGetHandleSize((Handle)p_NumberConstant) / sizeof(double));
 for(i = oldmaxparam + 1; i < maxparam; i++) (*p_NumberConstant)[i] = Infpos;
 		
 (*p_NumberConstant)[j] = x;
-if(trace_FixNumberConstant) BPPrintMessage(odInfo,"FixNumberConstant() after increasing space line = '%s' j = %ld, x = %.3f\n",line,(long)j,x);
+if(trace_FixNumberConstant) BPPrintMessage(0,odInfo,"FixNumberConstant() after increasing space line = '%s' j = %ld, x = %.3f\n",line,(long)j,x);
 return(j);
 
 ERR:
@@ -2060,7 +2060,7 @@ int ResetRandom(void)
 {
 if(Seed > 0) {
 	srand(Seed);
-//	BPPrintMessage(odInfo, "Random seed reset to %u\n", Seed);
+//	BPPrintMessage(0,odInfo, "Random seed reset to %u\n", Seed);
 	UsedRandom = FALSE;
 	}
 else Randomize();
@@ -2099,7 +2099,7 @@ switch(what) {
 		if(seed == 0) seed = 1;
 		Seed = seed;
 		if(Seed > 0) {
-			BPPrintMessage(odInfo, "New random seed = %u\n", seed);
+			BPPrintMessage(0,odInfo, "New random seed = %u\n", seed);
 			srand(Seed);
 			UsedRandom = FALSE;
 			}
@@ -2112,7 +2112,7 @@ switch(what) {
 			// FIXME ? Why seed a second time (with a restricted range for the seed too) ?
 			randomnumber = rand();
 			seed = (unsigned int) (randomnumber % 32768);
-			BPPrintMessage(odInfo, "Random seed = %u\n", seed);
+			BPPrintMessage(0,odInfo, "Random seed = %u\n", seed);
 			srand(seed);
 			UsedRandom = TRUE;
 			}

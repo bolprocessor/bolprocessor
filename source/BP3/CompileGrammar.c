@@ -67,16 +67,16 @@ CompiledGr = Gram.trueBP = Gram.hasTEMP = Gram.hasproc = WillRandomize = FALSE;
 NotBPCase[8] = NotFoundMetronom = NotFoundNatureTime = TRUE;
 
 if(mode == 1 && IsEmpty(wGrammar)) {
-	if(trace_compile_grammar) BPPrintMessage(odInfo,"Grammar is empty\n");
+	if(trace_compile_grammar) BPPrintMessage(0,odInfo,"Grammar is empty\n");
 	CompiledGr = TRUE;
 	return(MISSED);
 	}
-BPPrintMessage(odInfo,"Compiling grammar...\n");
+BPPrintMessage(0,odInfo,"Compiling grammar...\n");
 
 TextGetSelection(&GramSelStart, &GramSelEnd, TEH[wGrammar]);
 startsel = GramSelStart;
 endsel = GramSelEnd;
-if(trace_compile_grammar) BPPrintMessage(odInfo,"startsel = %ld, endsel = %ld\n",(long)startsel,(long)endsel);
+if(trace_compile_grammar) BPPrintMessage(0,odInfo,"startsel = %ld, endsel = %ld\n",(long)startsel,(long)endsel);
 
 #if BP_CARBON_GUI_FORGET_THIS
 GetDateTime((unsigned long*)&CompileDate);
@@ -174,7 +174,7 @@ onerulefound = FALSE;
 pos = posline = ZERO;
 posmax = GetTextLength(wGrammar);
 ShowMessage(TRUE,wMessage,"Compiling subgrammar #1...");
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start compilegrammar = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start compilegrammar = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 for(i=0; i < MAXNOTBPCASES; i++) NotBPCase[i] = FALSE;
 NotBPCase[8] = NotBPCase[3] = TRUE;
 for(i=1; i < MAXPARAMCTRL; i++) {
@@ -303,7 +303,7 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 		
 	needsnumber = FALSE; igram = 0; irul = 0;
 //	MyLock(TRUE,(Handle)p_line);
-	if(trace_compile_grammar) BPPrintMessage(odInfo,"Parsing: %s\n",*p_line);
+	if(trace_compile_grammar) BPPrintMessage(0,odInfo,"Parsing: %s\n",*p_line);
 	i = ParseGrammarLine(p_line,&onerulefound,tracecompile,&igram,&irul,
 														&needsnumber,&done);
 //	MyUnlock((Handle)p_line);
@@ -338,9 +338,9 @@ NEXTLINE:
 
 END:
 MyDisposeHandle((Handle*)&p_line);
-BPPrintMessage(odInfo,"Parsing completed\n");
+BPPrintMessage(0,odInfo,"Parsing completed\n");
 // if(tracecompile) Print(wTrace,"\n");  2024-07-03
-if(trace_compile_grammar) BPPrintMessage(odInfo,"\n");
+if(trace_compile_grammar) BPPrintMessage(0,odInfo,"\n");
 if((*(Gram.p_subgram))[Gram.number_gram].number_rule > MaxRul) {
 	my_sprintf(Message,"=> Err. number rules gram#%ld.",(long)Gram.number_gram);
 	if(Beta) Alert1(Message);
@@ -361,7 +361,7 @@ if(Gram.number_gram == 0) {
 	Gram.p_subgram = NULL;
 	}
 CheckGotoFailed();
-BPPrintMessage(odInfo,"\nErrors: %ld\n",(long)N_err);
+BPPrintMessage(0,odInfo,"\nErrors: %ld\n",(long)N_err);
 for(i=1; i < MAXPARAMCTRL; i++) {
 	if(ParamInit[i] == INT_MAX) ParamInit[i] = ParamValue[i] = 127;
 	}
@@ -394,7 +394,7 @@ if((N_err == 0) && onerulefound) {
 #if BP_CARBON_GUI_FORGET_THIS
 	SelectBehind(GramSelStart,GramSelEnd,TEH[wGrammar]);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
-	if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end compilegrammar = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end compilegrammar = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	return(OK);
 	}
 else {
@@ -869,8 +869,8 @@ if(GetTuning() != OK) return(ABORT);
 
 // if(ReleaseObjectPrototypes() != OK) return(ABORT);
 
-BPPrintMessage(odInfo,"Compiling alphabet...\n");
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed start compilealphabet = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+BPPrintMessage(0,odInfo,"Compiling alphabet...\n");
+if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start compilealphabet = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 if(!NoAlphabet && IsEmpty(wAlphabet) && (LoadAlphabet(-1) != OK)) goto ERR;
 // GetMiName();
 
@@ -898,7 +898,7 @@ if((rep=ReadAlphabet(TRUE)) != OK){		/* Just count */
 	goto ERR;
 	}
 if(Jhomo > 0) {
-	if(trace_compile_alphabet) BPPrintMessage(odInfo,"Found %d homomorphism(s)\n",Jhomo);
+	if(trace_compile_alphabet) BPPrintMessage(0,odInfo,"Found %d homomorphism(s)\n",Jhomo);
 	if((p_Image = (int****) GiveSpace((Size)(Jhomo) * sizeof(int**))) == NULL)
 		return(ABORT);
 	if((p_NoteImage = (int****) GiveSpace((Size)(Jhomo) * sizeof(int**))) == NULL)
@@ -920,7 +920,7 @@ if(Jhomo > 0) {
 	}
 BolsInGrammar = AddBolsInGrammar();
 Jbol = Jbol + BolsInGrammar;
-if(trace_compile_alphabet) BPPrintMessage(odInfo,"Jbol = %d, BolsInGrammar = %d\n",Jbol,BolsInGrammar);
+if(trace_compile_alphabet) BPPrintMessage(0,odInfo,"Jbol = %d, BolsInGrammar = %d\n",Jbol,BolsInGrammar);
 Jhomo = 0;
 
 MakeSoundObjectSpace(); // 2024-07-05
@@ -936,11 +936,11 @@ if((rep=ReadAlphabet(FALSE)) != OK) {	/* Now creating bols */
 	goto ERR;
 	}
 CompiledAl = TRUE;
-if(check_memory_use) BPPrintMessage(odInfo,"MemoryUsed end compilealphabet = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end compilealphabet = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 return(OK);
 
 ERR:
-BPPrintMessage(odError,"=> Can't compile alphabet\n");
+BPPrintMessage(0,odError,"=> Can't compile alphabet\n");
 return(rep);
 }
 
@@ -971,7 +971,7 @@ int ReadAlphabet(int justcount) {
 	pos = ZERO; foundoperatorthere = FALSE;
 	while(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
 		if((*p_line)[0] == '\0' || (*p_line)[0] == '\r') goto NEXTLINE;
-		if(trace_compile_alphabet) BPPrintMessage(odInfo,"Reading: %s\n",(*p_line));
+		if(trace_compile_alphabet) BPPrintMessage(0,odInfo,"Reading: %s\n",(*p_line));
 		operatorinline = FALSE;
 		MystrcpyHandleToString(MAXLIN,0,line,p_line);
 		adjust_prefix(line); // Added 2024-06-13
@@ -1064,7 +1064,7 @@ int ReadAlphabet(int justcount) {
 					return(ABORT);
 					}
 				}
-			if(trace_compile_alphabet) BPPrintMessage(odInfo,"\nFound homomorphism operator: %s\n",(*p_line));
+			if(trace_compile_alphabet) BPPrintMessage(0,odInfo,"\nFound homomorphism operator: %s\n",(*p_line));
 			}
 		else {
 			if((*p_line)[0] == '-' && (*p_line)[1] == '-') {
@@ -1167,7 +1167,7 @@ char c,**p_y,*p,*q;
 int i,j,k,k1,k2,l,length,r;
 
 l = MyHandleLen(p_line)-1;
-if(trace_compile_alphabet) BPPrintMessage(odInfo, "Starting GetBols(%s) length of line = %d\n",(*p_line),l);
+if(trace_compile_alphabet) BPPrintMessage(0,odInfo, "Starting GetBols(%s) length of line = %d\n",(*p_line),l);
 if((p_y = (char**) GiveSpace((Size)((BOLSIZE+1) * sizeof(char)))) == NULL) {
 	return(26);
 	}
@@ -1176,13 +1176,13 @@ for(i=0,k1=0; i <= l;) {
 	if((length=GetBol(p_line,&i)) > BOLSIZE) {
 		my_sprintf(Message,"\nMaximum length: %ld chars.\n",(long)BOLSIZE);
 		Print(wTrace,Message);
-		if(trace_compile_alphabet) BPPrintMessage(odError,Message);
+		if(trace_compile_alphabet) BPPrintMessage(0,odError,Message);
 	//	ShowError(22,0,0);
 		MyDisposeHandle((Handle*)&p_y);
 		return(26);
 		}
 	if(length == -1) {
-		if(trace_compile_alphabet) BPPrintMessage(odError, "GetBols() failed, length = %d\n",length);
+		if(trace_compile_alphabet) BPPrintMessage(0,odError, "GetBols() failed, length = %d\n",length);
 		MyDisposeHandle((Handle*)&p_y);
 		return(27);
 		}
@@ -1191,12 +1191,12 @@ for(i=0,k1=0; i <= l;) {
 	if(!isspace(c) && c != '\0') {
 		my_sprintf(Message,"Can't accept character \"%c\" in alphabet\n",c);
 		Print(wTrace,Message);
-		if(trace_compile_alphabet) BPPrintMessage(odError,"Can't accept character \"%c\" in alphabet. length = %d\n",c,length);
+		if(trace_compile_alphabet) BPPrintMessage(0,odError,"Can't accept character \"%c\" in alphabet. length = %d\n",c,length);
 		r = ABORT; goto QUIT;
 		} 
 	(*p_line)[j++] = '\0';
 	for(k=0; (i+k) < j; k++) (*p_y)[k] = (*p_line)[i+k];
-	if(trace_compile_alphabet) BPPrintMessage(odInfo, "Will try CreateBol for (*p_y) = %s\n",(*p_y));
+	if(trace_compile_alphabet) BPPrintMessage(0,odInfo, "Will try CreateBol for (*p_y) = %s\n",(*p_y));
 	k2 = CreateBol(TRUE,TRUE,p_y,justcount,FALSE,BOL);
 	if(k2 < 0) {
 		r = ABORT; goto QUIT;
@@ -1240,12 +1240,12 @@ char c,line[MAXLIN];
 // firstc = (*p_line)[*p_i];
 while(MySpace(c=(*p_line)[*p_i])) (*p_i)++;
 i = (*p_i);
-if(trace_compile_alphabet) BPPrintMessage(odInfo,"Getting bols in line: %s\n",(*p_line));
+if(trace_compile_alphabet) BPPrintMessage(0,odInfo,"Getting bols in line: %s\n",(*p_line));
 if((*p_line)[*p_i] == '\'') {
 	/* Read terminal between single quotes */
 	for(j=(*p_i)+1;(c=(*p_line)[j]) != '\0' && c != '\''; j++){};
 	j++;
-	if(trace_compile_alphabet) BPPrintMessage(odInfo,"terminal between single quotes j = %d\n",j);
+	if(trace_compile_alphabet) BPPrintMessage(0,odInfo,"terminal between single quotes j = %d\n",j);
 	}
 else {
 	if(!OkBolChar((*p_line)[*p_i])) goto ERR;
@@ -1255,9 +1255,9 @@ else {
 			goto ERR;
 			}
 		}
-	if(trace_compile_alphabet) BPPrintMessage(odInfo,"normal terminal j = %d\n",j);
+	if(trace_compile_alphabet) BPPrintMessage(0,odInfo,"normal terminal j = %d\n",j);
 	}
-if(trace_compile_alphabet) BPPrintMessage(odInfo,"length = %d\n",j-(*p_i));
+if(trace_compile_alphabet) BPPrintMessage(0,odInfo,"length = %d\n",j-(*p_i));
 return(j-(*p_i));
 
 ERR:
@@ -1270,7 +1270,7 @@ while(TRUE) {
 	}
 line[j] = '\0';
 (*p_Type)[j] = 0;
-if(trace_compile_alphabet) BPPrintMessage(odError,"Can't make sense of \"%s\"\n",line);
+if(trace_compile_alphabet) BPPrintMessage(0,odError,"Can't make sense of \"%s\"\n",line);
 my_sprintf(Message,"Can't make sense of \"%s\"\n",line);
 Print(wTrace,Message);
 return(-1);
@@ -1335,7 +1335,7 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 	// char **ptr,*q,line[MAXLIN];
 	// char **p_t[MAXBOL];
 
-	if(trace_compile_alphabet) BPPrintMessage(odInfo, "CreateBol() Jbol = %d\n",Jbol);
+	if(trace_compile_alphabet) BPPrintMessage(0,odInfo, "CreateBol() Jbol = %d\n",Jbol);
 	if(type == BOL) {
 		jmax = Jbol; p_t = p_Bol;
 		}
@@ -1349,7 +1349,7 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 		return(0);
 		}
 	if(p_t == NULL) {
-		BPPrintMessage(odError, "=> Err. CreateBol(). p_t == NULL\n");
+		BPPrintMessage(0,odError, "=> Err. CreateBol(). p_t == NULL\n");
 		return ABORT;
 		}
 	diff = TRUE;
@@ -1359,7 +1359,7 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 			return(ABORT);
 			}
 		}
-	if(trace_compile_alphabet) BPPrintMessage(odInfo, "jmax = %d\n",jmax);
+	if(trace_compile_alphabet) BPPrintMessage(0,odInfo, "jmax = %d\n",jmax);
 	if(jmax > 0) {
 		if(p_t == NULL) {
 			if(Beta) Alert1("=> Err. CreateBol(). p_t == NULL");
@@ -1375,7 +1375,7 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 	if(diff && checknotes) {
 		/* Maybe it's a simple note */
 		cv = NoteConvention;
-		if(trace_compile_alphabet) BPPrintMessage(odInfo, "Checking notes, convention = %d\n",cv);
+		if(trace_compile_alphabet) BPPrintMessage(0,odInfo, "Checking notes, convention = %d\n",cv);
 		for(j=0; j < 128; j++) {
 			MystrcpyHandleToString(MAXLIN,0,line,(*(p_NoteName[cv]))[j]);
 			q = &(line[0]); ln = strlen(line);
@@ -1383,7 +1383,7 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 	FOUNDNOTE:
 				j += (C4key - 60);
 				if(j < 0 || j > 127) {
-					BPPrintMessage(odError, "=> A simple note is out of range. Probably wrong value of C4 key number = %ld\n",(long)C4key);
+					BPPrintMessage(0,odError, "=> A simple note is out of range. Probably wrong value of C4 key number = %ld\n",(long)C4key);
 					return(ABORT);
 					}
 				return(j+16384);
@@ -1400,8 +1400,8 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 	if(diff) {
 		j = jmax;
 		if(trace_compile_alphabet) {
-			if(type == BOL) BPPrintMessage(odInfo, "Creating Bol[%d] = %s\n",j,*p_x);
-			else BPPrintMessage(odInfo, "Creating Patt[%d] = %s\n",j,*p_x);
+			if(type == BOL) BPPrintMessage(0,odInfo, "Creating Bol[%d] = %s\n",j,*p_x);
+			else BPPrintMessage(0,odInfo, "Creating Patt[%d] = %s\n",j,*p_x);
 			}
 		if(type == BOL) {
 			if(reload) ObjectMode = ObjectTry = FALSE;
@@ -1410,10 +1410,10 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 		if(j >= Jbol) { // 2024-08-18
 			MySetHandleSize((Handle*)&p_t,(Size)(j + 1) * sizeof(char**));
 			}
-	//	BPPrintMessage(odInfo, "size of bol %s = %ld, j = %d\n",*p_x,(long)MyHandleLen(p_x),j);
+	//	BPPrintMessage(0,odInfo, "size of bol %s = %ld, j = %d\n",*p_x,(long)MyHandleLen(p_x),j);
 		if((ptr=(char**) GiveSpace((Size)MyHandleLen(p_x)+1)) == NULL) return(ABORT);
 		(*p_t)[j] = ptr;
-	//	BPPrintMessage(odInfo, "j = %d, Jbol = %d\n",j,Jbol);
+	//	BPPrintMessage(0,odInfo, "j = %d, Jbol = %d\n",j,Jbol);
 		MystrcpyHandleToHandle(0,&((*p_t)[j]),p_x);
 		if(type == BOL && j > 1 && j <= Jbol) (*p_Type)[j] = 0;
 		jmax++;

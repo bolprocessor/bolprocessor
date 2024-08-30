@@ -99,11 +99,11 @@ int CopyStringToTextHandle(TEHandle th, const char* str) {
 int CopyHandleToTextHandle(TEHandle handle_copy,char** handle_source) {
 	 // Validate pointers
     if (handle_copy == NULL || *handle_copy == NULL) {
-        BPPrintMessage(odError,"=> CopyHandleToTextHandle error: Source handle is NULL\n");
+        BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: Source handle is NULL\n");
         return MISSED; 
     	}
     if (handle_source == NULL) {
-        BPPrintMessage(odError,"=> CopyHandleToTextHandle error: Destination handle is NULL\n");
+        BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: Destination handle is NULL\n");
         return MISSED;
     	}
 
@@ -111,14 +111,14 @@ int CopyHandleToTextHandle(TEHandle handle_copy,char** handle_source) {
 
     // Check if the text handle is already allocated or not
     if (*handle_source != NULL) {
-        BPPrintMessage(odError,"=> CopyHandleToTextHandle error: *handle_source != NULL\n");
+        BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: *handle_source != NULL\n");
         free(*handle_source); // Prevent memory leaks by freeing existing memory
    		}
 
     // Allocate memory for the text in the destination handle
     *handle_source = malloc((rec->length + 1) * sizeof(char)); // +1 for null terminator
     if (*handle_source == NULL) {
-        BPPrintMessage(odError,"=> CopyHandleToTextHandle error: Memory allocation failed\n");
+        BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: Memory allocation failed\n");
         return MISSED;
     	}
 
@@ -126,7 +126,7 @@ int CopyHandleToTextHandle(TEHandle handle_copy,char** handle_source) {
     if (rec->hText == NULL || *(rec->hText) == NULL) {
         free(*handle_source);
         *handle_source = NULL;
-        BPPrintMessage(odError,"=> CopyHandleToTextHandle error: Text buffer in source handle is NULL\n");
+        BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: Text buffer in source handle is NULL\n");
         return MISSED;
     	}
 
@@ -212,7 +212,7 @@ char GetTextChar(int w,long pos)
 		return '\0';
 	}
 	if (pos < 0 || pos > (*TEH[w])->length) {
-		BPPrintMessage(odError,"=> Err. GetTextChar in %s: 'pos' (%ld) is out of range (max %ld)\n",WindowName[w],(long)pos,(long)(*TEH[w])->length);
+		BPPrintMessage(0,odError,"=> Err. GetTextChar in %s: 'pos' (%ld) is out of range (max %ld)\n",WindowName[w],(long)pos,(long)(*TEH[w])->length);
 		return '\0';
 	}
 	else if (pos == (*TEH[w])->length) {
@@ -280,10 +280,10 @@ int TextInsert(char *s,long length,TextHandle th)
 		default:		od = odInfo; break;
 	}
 	if (od == odInfo) {
-		BPPrintMessage(od, "TextInsert(%s): %s\n", (w < WMAX) ? WindowName[w] : "", s);
+		BPPrintMessage(0,od, "TextInsert(%s): %s\n", (w < WMAX) ? WindowName[w] : "", s);
 	}
 	else {
-		BPPrintMessage(od, "%s", s);
+		BPPrintMessage(0,od, "%s", s);
 	}
 	
 	return OK;

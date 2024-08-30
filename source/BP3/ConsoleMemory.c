@@ -75,13 +75,13 @@ Handle GiveZeroedSpace(Size size) {
 static Handle GiveSpaceInternal(Size size, int clear) {
 	s_handle_priv*	h;
 	if(size <= 0L) {
-		BPPrintMessage(wInfo,"=> Err. GiveSpaceInternal() size <= 0\n");
+		BPPrintMessage(0,wInfo,"=> Err. GiveSpaceInternal() size <= 0\n");
 		return NULL;
 		}
 	// allocate a private handle structure
 	h = malloc(sizeof(s_handle_priv));
 	if(h == NULL) {
-		BPPrintMessage(odError,"=> Out of memory in GiveSpaceInternal(), h == NULL\n");
+		BPPrintMessage(0,odError,"=> Out of memory in GiveSpaceInternal(), h == NULL\n");
 		Panic = TRUE;
 		return NULL;
 		}
@@ -90,7 +90,7 @@ static Handle GiveSpaceInternal(Size size, int clear) {
 	else		h->memblock = malloc((size_t) size);
 	if(h->memblock == NULL) {
 		free(h);
-		BPPrintMessage(odError,"=> Out of memory in GiveSpaceInternal(), h->memblock == NULL\n");
+		BPPrintMessage(0,odError,"=> Out of memory in GiveSpaceInternal(), h->memblock == NULL\n");
 		Panic = TRUE;
 		return NULL;
 		}
@@ -114,7 +114,7 @@ static Handle GiveSpaceInternal(Size size, int clear) {
 Size MyGetHandleSize(Handle h) {
 	if(h == NULL) return (Size) ZERO;
 	if(((s_handle_priv*)h)->memblock == NULL) {
-        BPPrintMessage(odError,"=> Err. MyGetHandleSize(). h->memblock == NULL\n");
+        BPPrintMessage(0,odError,"=> Err. MyGetHandleSize(). h->memblock == NULL\n");
         return (Size) ZERO;
     	}
 	return ((s_handle_priv*)h)->size;
@@ -124,13 +124,13 @@ int MyDisposeHandle(Handle *p_h) {
 	int i;
 	if(Panic) return ABORT;
 	if (p_h == NULL || *p_h == NULL) {
-	//	BPPrintMessage(odError,"=> Err. MyDisposeHandle. p_h or *p_h == NULL\n");
+	//	BPPrintMessage(0,odError,"=> Err. MyDisposeHandle. p_h or *p_h == NULL\n");
 		*p_h = NULL;
 		return OK;
 		}
 	s_handle_priv*	h = (s_handle_priv*) *p_h;
 	if(h->memblock == NULL) {
-		BPPrintMessage(odError,"=> Err. MyDisposeHandle(). h->memblock == NULL\n");
+		BPPrintMessage(0,odError,"=> Err. MyDisposeHandle(). h->memblock == NULL\n");
 		return(ABORT);
 		}
 /*	for(i = 0; i < 5000; i++) { // 2024-05-20
@@ -139,7 +139,7 @@ int MyDisposeHandle(Handle *p_h) {
 			}
 		} */
 	if(h->size < 1) {
-		BPPrintMessage(odError,"=> Err. MyDisposeHandle(). size < 1\n");
+		BPPrintMessage(0,odError,"=> Err. MyDisposeHandle(). size < 1\n");
 		*p_h = NULL;
 		return(ABORT);
 		}
@@ -147,7 +147,7 @@ int MyDisposeHandle(Handle *p_h) {
 	free(h->memblock);
 	free(h);
 /*	if(check_memory_use && MemoryUsed < MemoryUsedInit) {
-		BPPrintMessage(odInfo,"=> WARNING! MemoryUsed (%ld) < MemoryUsedInit (%ld) in %s/%s\n",(long)MemoryUsed,(long)MemoryUsedInit,__FILE__,__FUNCTION__);
+		BPPrintMessage(0,odInfo,"=> WARNING! MemoryUsed (%ld) < MemoryUsedInit (%ld) in %s/%s\n",(long)MemoryUsed,(long)MemoryUsedInit,__FILE__,__FUNCTION__);
 		} */
 	*p_h = NULL;
 	return OK;
@@ -158,7 +158,7 @@ Handle IncreaseSpace(Handle h) {
 	Size oldsize, newsize;
 	int rep;
 	if(h == NULL) {
-		BPPrintMessage(odError,"=> Err. IncreaseSpace(). h == NULL\n");
+		BPPrintMessage(0,odError,"=> Err. IncreaseSpace(). h == NULL\n");
 		return(NULL);
 		}
 	oldsize = MyGetHandleSize(h);
@@ -175,13 +175,13 @@ int MySetHandleSize(Handle* p_h, Size size) {
 	s_handle_priv*	h;
 	Size oldsize;
 	int i;
-//	BPPrintMessage(odInfo,"size = %ld\n",(long) size);
+//	BPPrintMessage(0,odInfo,"size = %ld\n",(long) size);
 	if(size <= 0L) {
-		BPPrintMessage(odError,"=> Err. MySetHandleSize() size <= 0\n");
+		BPPrintMessage(0,odError,"=> Err. MySetHandleSize() size <= 0\n");
 		return ABORT;
 		}
 	if(p_h == NULL) {
-		BPPrintMessage(odError,"=> Err. MySetHandleSize(). p_h == NULL");
+		BPPrintMessage(0,odError,"=> Err. MySetHandleSize(). p_h == NULL");
 		Panic = TRUE;
 		return(ABORT);
 		}
@@ -189,17 +189,17 @@ int MySetHandleSize(Handle* p_h, Size size) {
 		// if the handle exists, just resize its memory block
 		h = (s_handle_priv*) *p_h;
 		if(h->memblock == NULL) {
-			BPPrintMessage(odError,"=> Error(1) MySetHandleSize(). h->memblock == NULL\n");
+			BPPrintMessage(0,odError,"=> Error(1) MySetHandleSize(). h->memblock == NULL\n");
 			return ABORT;
 			}
 		oldsize = h->size;
 		if(!InitOn && oldsize < (Size)1) {
-			BPPrintMessage(odError,"=> Err. MySetHandleSize(). oldsize = %ld (1)\n", (long) oldsize);
+			BPPrintMessage(0,odError,"=> Err. MySetHandleSize(). oldsize = %ld (1)\n", (long) oldsize);
 			return ABORT;
 			}
 		void* new_mem = realloc(h->memblock, size);
 		if (new_mem == NULL) {
-			BPPrintMessage(odError,"=> Error(2) MySetHandleSize(). new_mem == NULL\n");
+			BPPrintMessage(0,odError,"=> Error(2) MySetHandleSize(). new_mem == NULL\n");
 			return ABORT;
 			}
 		h->memblock = new_mem;
@@ -218,13 +218,13 @@ int MySetHandleSize(Handle* p_h, Size size) {
 		}
 	else {
 		// handle was NULL, so just do a fresh alloc
-	//	BPPrintMessage(odError,"=> Warning: MySetHandleSize(%ld), handle was NULL\n",(long)size);
+	//	BPPrintMessage(0,odError,"=> Warning: MySetHandleSize(%ld), handle was NULL\n",(long)size);
 		if((*p_h = GiveSpace(size)) == NULL) {
-			BPPrintMessage(odError,"=> Err. MySetHandleSize(%ld), handle == NULL\n",(long)size);
+			BPPrintMessage(0,odError,"=> Err. MySetHandleSize(%ld), handle == NULL\n",(long)size);
 			return(ABORT);
 			}
 		}
-//	BPPrintMessage(odInfo,"Done size = %ld\n",(long) size);
+//	BPPrintMessage(0,odInfo,"Done size = %ld\n",(long) size);
 	return OK;
 	}
 

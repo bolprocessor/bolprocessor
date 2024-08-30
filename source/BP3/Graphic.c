@@ -72,18 +72,18 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 
     if(!ShowGraphic) return OK;
 	if(!ShowObjectGraph) return(OK);
-	// BPPrintMessage(odInfo,"Creating image %d based on objects\n",N_image);
+	// BPPrintMessage(0,odInfo,"Creating image %d based on objects\n",N_image);
 
 	if(tmin == Infpos) {
-		BPPrintMessage(odError,"=> Err. DrawObject(). tmin == Infpos\n");
+		BPPrintMessage(0,odError,"=> Err. DrawObject(). tmin == Infpos\n");
 		return(OK);
 		}
 	if(CheckLoadedPrototypes() != OK) {
-		BPPrintMessage(odInfo,"No sound-object prototypes have been loaded. Graphic is cancelled.\n");
+		BPPrintMessage(0,odInfo,"No sound-object prototypes have been loaded. Graphic is cancelled.\n");
 		return(OK);
 		}
-	// BPPrintMessage(odInfo,"Drawing graphics in ‘objects’ mode...\n");
-	if(trace_graphic) BPPrintMessage(odInfo,"Jbol = %d Jpatt = %d\n",Jbol,Jpatt);
+	// BPPrintMessage(0,odInfo,"Drawing graphics in ‘objects’ mode...\n");
+	if(trace_graphic) BPPrintMessage(0,odInfo,"Jbol = %d Jpatt = %d\n",Jbol,Jpatt);
 
 	rep = OK;
 	GraphicOn = TRUE; overflow = FALSE;
@@ -103,9 +103,9 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	hrect = 13;
 	htext = 12;
 	leftoffset = hrect - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
-	// BPPrintMessage(odInfo,"hrect = %d, tmin = %ld, leftoffset = %d\n",hrect,(long)tmin,leftoffset);
+	// BPPrintMessage(0,odInfo,"hrect = %d, tmin = %ld, leftoffset = %d\n",hrect,(long)tmin,leftoffset);
 	if(leftoffset < 20) {
-		if(leftoffset < -10) BPPrintMessage(odError,"=> Fixed leftoffset = %d\n",leftoffset);
+		if(leftoffset < -10) BPPrintMessage(0,odError,"=> Fixed leftoffset = %d\n",leftoffset);
 		leftoffset = 20; // Added BB 2021-03-13
 		}
 	topoffset = (4 * htext) + 8;
@@ -114,13 +114,13 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	r.left = 0;
 	endxmax = leftoffset + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10
 		+ BOLSIZE * 10;
-	if(trace_graphic) BPPrintMessage(odInfo,"GraphicScaleP = %d GraphicScaleQ = %d tmin = %d tmax =%d endxmax = %d\n",GraphicScaleP,GraphicScaleQ,tmin,tmax,endxmax);
+	if(trace_graphic) BPPrintMessage(0,odInfo,"GraphicScaleP = %d GraphicScaleQ = %d tmin = %d tmax =%d endxmax = %d\n",GraphicScaleP,GraphicScaleQ,tmin,tmax,endxmax);
 	if(endxmax < 100) endxmax = 100;
 
 	if(WidthMax < 32000) WidthMax = 2 * endxmax + 40;
-	//	BPPrintMessage(odInfo,"WidthMax (2) = %ld\n",WidthMax);
+	//	BPPrintMessage(0,odInfo,"WidthMax (2) = %ld\n",WidthMax);
 	if(WidthMax > 32000) {
-		BPPrintMessage(odInfo,"\nImage width %ld was too large: it has been cropped to 32000\n",(long)WidthMax);
+		BPPrintMessage(0,odInfo,"\nImage width %ld was too large: it has been cropped to 32000\n",(long)WidthMax);
 		WidthMax = endxmax = 32000;
 		}
 	r.right = r.left + endxmax;
@@ -139,38 +139,38 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	// if(0 < Vmin[w]) Vmin[w] = 0;
 	Hmin[w] = 0;
 	Vmin[w] = 0;
-	if(trace_graphic) BPPrintMessage(odInfo,"\ntopoffset = %ld nmax = %d maxlines = %d\n",(long)topoffset,nmax,maxlines);
+	if(trace_graphic) BPPrintMessage(0,odInfo,"\ntopoffset = %ld nmax = %d maxlines = %d\n",(long)topoffset,nmax,maxlines);
 	for(nseq = nmin; nseq <= nmax; nseq++) {
-		if(trace_graphic) BPPrintMessage(odInfo,"\nnseq = %d\n",nseq);
+		if(trace_graphic) BPPrintMessage(0,odInfo,"\nnseq = %d\n",nseq);
 		foundone = FALSE;
 	//	for(i=1; i < (*p_imaxseq)[nseq] && i <= imax; i++) {
 		for(i=ZERO; i < (*p_imaxseq)[nseq] && i <= imax; i++) { // Fixed by BB 2021-03-20
 			k = (*((*p_Seq)[nseq]))[i];
 			if(trace_graphic) {
-				if(k > 0) BPPrintMessage(odInfo,"k = %d \n",k);
-			//	else BPPrintMessage(odInfo,"_");
+				if(k > 0) BPPrintMessage(0,odInfo,"k = %d \n",k);
+			//	else BPPrintMessage(0,odInfo,"_");
 				}
-			if(k < 0) BPPrintMessage(odError,"=> Err. 'k' in DrawItem(): nseq = %ld, i = %ld, k = %ld\n",(long)nseq,(long)i,(long)k);
+			if(k < 0) BPPrintMessage(0,odError,"=> Err. 'k' in DrawItem(): nseq = %ld, i = %ld, k = %ld\n",(long)nseq,(long)i,(long)k);
 			if(k < 2) continue;	/* Reject '_' and '-' */
 			if(kmode) {
-				if(trace_graphic) BPPrintMessage(odInfo,"kmode = TRUE\n");
+				if(trace_graphic) BPPrintMessage(0,odInfo,"kmode = TRUE\n");
 				if(p_object == NULL) {
-					BPPrintMessage(odError,"=> Err. DrawObject(). p_object == NULL\n");
+					BPPrintMessage(0,odError,"=> Err. DrawObject(). p_object == NULL\n");
 					return(ABORT);
 					}
 				t1 = (*p_object)[k].starttime;
 				t2 = (*p_object)[k].endtime;
 				}
 			else {
-				if(trace_graphic) BPPrintMessage(odInfo,"kmode = FALSE\n");
+				if(trace_graphic) BPPrintMessage(0,odInfo,"kmode = FALSE\n");
 				t1 = (*p_t1)[i];
 				t2 = (*p_t2)[i];
 				}
-			if(trace_graphic) BPPrintMessage(odInfo,"GraphicScaleP = %ld GraphicScaleQ = %ld, t1 = %ld t2 = %ld\n",GraphicScaleP,GraphicScaleQ,(long)t1,(long)t2);
+			if(trace_graphic) BPPrintMessage(0,odInfo,"GraphicScaleP = %ld GraphicScaleQ = %ld, t1 = %ld t2 = %ld\n",GraphicScaleP,GraphicScaleQ,(long)t1,(long)t2);
 			t1 =  (t1 * GraphicScaleP) / GraphicScaleQ / 10;
 			t2 =  (t2 * GraphicScaleP) / GraphicScaleQ / 10;
 			j = (*p_Instance)[k].object; /* Beware: j < 0 for out-time objects */
-			if(trace_graphic) BPPrintMessage(odInfo,"j = %ld t1 = %d t2 = %d endx = %ld\n",(long)j,t1,t2,(long)endx);
+			if(trace_graphic) BPPrintMessage(0,odInfo,"j = %ld t1 = %d t2 = %d endx = %ld\n",(long)j,t1,t2,(long)endx);
 			trbeg = ((*p_Instance)[k].truncbeg * GraphicScaleP) / GraphicScaleQ / 10;
 			tt1 = leftoffset + t1 - trbeg;
 			trend = ((*p_Instance)[k].truncend * GraphicScaleP) / GraphicScaleQ / 10;
@@ -195,11 +195,11 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 			if(OutCsound || MIDImicrotonality) {
 				scale = (*p_Instance)[k].scale;
 				if(trace_graphic)
-					BPPrintMessage(odInfo,"j = %d k = %d scale = %d NumberScales = %d, DefaultScaleParam = %d\n",j,k,scale,NumberScales,DefaultScaleParam);
+					BPPrintMessage(0,odInfo,"j = %d k = %d scale = %d NumberScales = %d, DefaultScaleParam = %d\n",j,k,scale,NumberScales,DefaultScaleParam);
 				if(scale < 0) i_scale = -1;
 				else if(scale == 0) {
 					i_scale = 0;
-					if(trace_scale) BPPrintMessage(odInfo,"Default scale will be used\n");
+					if(trace_scale) BPPrintMessage(0,odInfo,"Default scale will be used\n");
 					}
 				else {
 					i_scale = FindScale(scale);
@@ -211,7 +211,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 				else {
 					if(j < 16364) {
 						my_sprintf(line,"%s",*((*p_Bol)[j]));
-						if(trace_graphic) BPPrintMessage(odInfo,"(*p_Bol)[%ld] = %s\n",(long)j,line);
+						if(trace_graphic) BPPrintMessage(0,odInfo,"(*p_Bol)[%ld] = %s\n",(long)j,line);
 						}
 					else {
 						key = j - 16384;
@@ -224,7 +224,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 							&((*p_Instance)[k].map0),
 							&((*p_Instance)[k].map1));
 						PrintNote(i_scale,key,0,-1,line);
-						if(trace_scale) BPPrintMessage(odInfo,"DrawItem i_scale = %d\n",i_scale);
+						if(trace_scale) BPPrintMessage(0,odInfo,"DrawItem i_scale = %d\n",i_scale);
 						}
 					}
 				}
@@ -259,12 +259,12 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 			label[xc] = '\0';
 			tab = ((int) t2 - (int) t1 - strlen(line)) / 2;
 			if(tab < 2) tt1 = (int) t1 + leftoffset + 1 + tab;
-			if(trace_graphic) BPPrintMessage(odInfo,"t1 = %ld t2 = %ld tt1= %ld (*p_endx)[%ld] = %ld\n",(long)t1,(long)t2,(long)tt1,(long)linenum,(long)(*p_endx)[linenum]);
+			if(trace_graphic) BPPrintMessage(0,odInfo,"t1 = %ld t2 = %ld tt1= %ld (*p_endx)[%ld] = %ld\n",(long)t1,(long)t2,(long)tt1,(long)linenum,(long)(*p_endx)[linenum]);
 		//	if(endx < t2) endx = t2;
 			old_linenum = linenum;
 		//	if(tt1 < (*p_endx)[linenum]) { // Fixed by BB 2021-01-30 = Now we try to push up every object
 				for(linenum=linemin; linenum <= linemax; linenum++) { 
-					if(trace_graphic) BPPrintMessage(odInfo,"+ linenum = %ld linemax = %ld (*p_morespace)[linenum] = %ld, (*p_endx)[linenum] = %ld\n",(long)linenum,(long)linemax,(long)(*p_morespace)[linenum],(long)(*p_endx)[linenum]);
+					if(trace_graphic) BPPrintMessage(0,odInfo,"+ linenum = %ld linemax = %ld (*p_morespace)[linenum] = %ld, (*p_endx)[linenum] = %ld\n",(long)linenum,(long)linemax,(long)(*p_morespace)[linenum],(long)(*p_endx)[linenum]);
 			//		if(tt1 > (*p_endx)[linenum]) goto CONT;
 					if(tt1 >= (*p_endx)[linenum]) goto CONT; // Fixed by BB 2021-02-03
 					}
@@ -273,9 +273,9 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 				(*p_morespace)[linenum] = 0;
 			//	linemax = linenum + 1;
 				foundone = TRUE;
-				if(trace_graphic) BPPrintMessage(odInfo,"New linenum = %ld\n",(long)linenum);
+				if(trace_graphic) BPPrintMessage(0,odInfo,"New linenum = %ld\n",(long)linenum);
 				if(linenum >= maxlines) {
-					BPPrintMessage(odError,"=> Err. (1) linenum = %ld  maxlines = %ld  DrawItem()\n",
+					BPPrintMessage(0,odError,"=> Err. (1) linenum = %ld  maxlines = %ld  DrawItem()\n",
 						(long)linenum,(long)maxlines);
 					rep = ABORT;
 					goto ENDGRAPH;
@@ -285,7 +285,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	CONT:
 			if(old_linenum != linenum) {
 		//	if(linenum < linemax) {
-				if(trace_graphic) BPPrintMessage(odInfo,"Moved from line %d to line %d\n",old_linenum,linenum);
+				if(trace_graphic) BPPrintMessage(0,odInfo,"Moved from line %d to line %d\n",old_linenum,linenum);
 				moved_up =  TRUE;
 				}
 			else moved_up = FALSE;
@@ -305,15 +305,15 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 			else pivloc = 0.;
 			pivloc -= trbeg;
 			if((*p_top)[linenum] <= 0) {
-				BPPrintMessage(odError,"=> Error Graphic linenum = %ld top <= 0\n",(long)linenum);
+				BPPrintMessage(0,odError,"=> Error Graphic linenum = %ld top <= 0\n",(long)linenum);
 				(*p_top)[linenum] = 0;
 				}
 			if(morespace < 0) {
-				BPPrintMessage(odError,"=> Error Graphic morespace < 0\n");
+				BPPrintMessage(0,odError,"=> Error Graphic morespace < 0\n");
 				morespace = 0;
 				}
 			
-			if(trace_graphic) BPPrintMessage(odInfo,"\nRunning DrawObject(%s) for t1 = %ld t2= %ld linenum = %ld, endx = %ld morespace = %ld, top = %ld\n",label,(long)t1,(long)t2,(long)linenum,(long)endx,(long)morespace,(long)(*p_top)[linenum]);
+			if(trace_graphic) BPPrintMessage(0,odInfo,"\nRunning DrawObject(%s) for t1 = %ld t2= %ld linenum = %ld, endx = %ld morespace = %ld, top = %ld\n",label,(long)t1,(long)t2,(long)linenum,(long)endx,(long)morespace,(long)(*p_top)[linenum]);
 					
 			if(DrawObject(j,label,moved_up,(*p_Instance)[k].dilationratio,(*p_top)[linenum],hrect,htext,
 					leftoffset,pivloc,t1,t2,trbeg,trend,&morespace,
@@ -321,7 +321,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 				rep = OK;
 				goto ENDGRAPH;
 				}
-			if(trace_graphic) BPPrintMessage(odInfo,"endx = %ld linenum = %ld\n",(long)endx,(long)linenum);
+			if(trace_graphic) BPPrintMessage(0,odInfo,"endx = %ld linenum = %ld\n",(long)endx,(long)linenum);
 			(*p_morespace)[linenum] = morespace;
 			(*p_endx)[linenum] = endx;
 			(*p_endy)[linenum] = endy;
@@ -330,16 +330,16 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 			if((*p_endx)[linenum] > endxmax) endxmax = (*p_endx)[linenum];
 			if((*p_endy)[linenum] > endymax) endymax = (*p_endy)[linenum];
 			
-			if(trace_graphic) BPPrintMessage(odInfo,"linenum = %ld, linemax = %ld, morespace[%ld] = %ld\n",(long)linenum,(long)linemax,(long)linenum,(long)(*p_morespace)[linenum]);
+			if(trace_graphic) BPPrintMessage(0,odInfo,"linenum = %ld, linemax = %ld, morespace[%ld] = %ld\n",(long)linenum,(long)linemax,(long)linenum,(long)(*p_morespace)[linenum]);
 			}
 		if(foundone) {
 			linemax += 1;
 			(*p_morespace)[linemax] = 0; // Fixed by BB 2021-01-31
 			(*p_endx)[linemax] = 0; // Fixed by BB 2021-01-31
 			}
-		if(trace_graphic) BPPrintMessage(odInfo,"linenum = %ld, linemax = %ld, (*p_top)[linenum] = %ld\n",(long)linenum,(long)linemax,(long)(*p_top)[linenum]);
+		if(trace_graphic) BPPrintMessage(0,odInfo,"linenum = %ld, linemax = %ld, (*p_top)[linenum] = %ld\n",(long)linenum,(long)linemax,(long)(*p_top)[linenum]);
 		if(linenum >= maxlines) {
-			BPPrintMessage(odError,"=> Err. (2) linenum = %ld  maxlines = %ld in DrawItem()\n",(long)linenum,(long)maxlines);
+			BPPrintMessage(0,odError,"=> Err. (2) linenum = %ld  maxlines = %ld in DrawItem()\n",(long)linenum,(long)maxlines);
 			rep = ABORT;
 			goto ENDGRAPH;
 			}
@@ -352,17 +352,17 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 
 	QUIT:
 	if(WidthMax < 32000) WidthMax = 2 * endxmax + 40;
-	// BPPrintMessage(odInfo,"WidthMax (1) = %ld\n",WidthMax);
+	// BPPrintMessage(0,odInfo,"WidthMax (1) = %ld\n",WidthMax);
 	if(WidthMax > 32000) {
-		BPPrintMessage(odInfo,"\nImage width %d was too large: it has been cropped to 32000\n",WidthMax);
+		BPPrintMessage(0,odInfo,"\nImage width %d was too large: it has been cropped to 32000\n",WidthMax);
 		WidthMax = endxmax = 32000;
 		}
 
-	// BPPrintMessage(odInfo,"endymax = %ld\n",endymax);
+	// BPPrintMessage(0,odInfo,"endymax = %ld\n",endymax);
 	HeightMax = 2 * endymax + 20;
-	// BPPrintMessage(odInfo,"HeightMax (1) = %ld\n",HeightMax);
+	// BPPrintMessage(0,odInfo,"HeightMax (1) = %ld\n",HeightMax);
 	if(HeightMax > 32000) {
-		BPPrintMessage(odInfo,"\nImage height %d was too large: it has been cropped to 32767\n",HeightMax);
+		BPPrintMessage(0,odInfo,"\nImage height %d was too large: it has been cropped to 32767\n",HeightMax);
 		HeightMax = endymax = 32000;
 		}
 
@@ -389,7 +389,7 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 	r.left = (int)t1 + leftoffset;
 	r.right = (int)t2 + leftoffset;
 	r.bottom = r.top + hrect;
-	if(trace_graphic) BPPrintMessage(odInfo,"j = %ld, leftoffset = %d,  t1 = %ld, t2 = %ld, endx = %ld\n",(long)j,leftoffset,t1,t2,(*p_endx));
+	if(trace_graphic) BPPrintMessage(0,odInfo,"j = %ld, leftoffset = %d,  t1 = %ld, t2 = %ld, endx = %ld\n",(long)j,leftoffset,t1,t2,(*p_endx));
 
 	// Erase background 
 	r2 = r;
@@ -402,11 +402,11 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 	stroke_rect(&r);
 
 	my_sprintf(Message,"j = %ld, r.left = %ld, r.right = %ld, r.top = %ld, r.bottom = %ld\n",(long)j,(long)r.left,(long)r.right,(long)r.top,(long)r.bottom);
-	if(trace_graphic) BPPrintMessage(odInfo,Message);
+	if(trace_graphic) BPPrintMessage(0,odInfo,Message);
 	r2 = r;
 	resize_rect(&r2,-1,-1);
 	my_sprintf(Message,"j = %ld, r2.left = %ld, r2.right = %ld, r2.top = %ld, r2.bottom = %ld\n",(long)j,(long)r2.left,(long)r2.right,(long)r2.top,(long)r2.bottom);
-	if(trace_graphic) BPPrintMessage(odInfo,Message);
+	if(trace_graphic) BPPrintMessage(0,odInfo,Message);
 	if(j >= Jbol && j < 16384) { // Time pattern
 		fill_rect(&r2,"LightCyan");
 		}
@@ -471,7 +471,7 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 		else {
 			draw_line(x_startpivot,y_startpivot,x_startpivot,(y_startpivot + 5),"");
 			my_sprintf(Message,"Pivot x = %ld, y = %ld\n",(long)x_startpivot,(long)y_startpivot);
-			if(trace_graphic) BPPrintMessage(odInfo,Message);
+			if(trace_graphic) BPPrintMessage(0,odInfo,Message);
 			}
 		
 		// Now draw arrow of pivot
@@ -572,7 +572,7 @@ int DrawSequence(int nseq,SoundObjectInstanceParameters **p_object,Milliseconds 
 	Milliseconds t,tmin,tmax,**p_delta;
 	unsigned long i,im,k;
 
-	BPPrintMessage(odInfo,"Drawing sequence\n");
+	BPPrintMessage(0,odInfo,"Drawing sequence\n");
 	tmin = Infpos; tmax = Infneg;
 	im = imax;
 	if(im >  (*p_imaxseq)[nseq]) im =  (*p_imaxseq)[nseq];
@@ -585,7 +585,7 @@ int DrawSequence(int nseq,SoundObjectInstanceParameters **p_object,Milliseconds 
 		if(k < 2) continue;
 		if(kmode) {
 			if(p_object == NULL) {
-				BPPrintMessage(odError,"=> Err. DrawSequence(). p_object == NULL\n");
+				BPPrintMessage(0,odError,"=> Err. DrawSequence(). p_object == NULL\n");
 				return(ABORT);
 				}
 			if((t = (*p_object)[k].starttime - (*p_Instance)[k].truncbeg) < tmin) tmin = t;
@@ -1069,7 +1069,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	if(ymax > 16300) ymax = p_r->bottom = 16300;
 	if(HeightMax < 32000) HeightMax = 2 * ymax + 20;
 	if(HeightMax > 32000) {
-		BPPrintMessage(odInfo,"\nImage height %d was too large: it has been cropped to 32000\n",HeightMax);
+		BPPrintMessage(0,odInfo,"\nImage height %d was too large: it has been cropped to 32000\n",HeightMax);
 		HeightMax = ymax = 32000;
 		ymax = (HeightMax - 20) / 2;
 		p_r->bottom = ymax;
@@ -1095,7 +1095,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 		}
 
 	if(trace_graphic) 
-		BPPrintMessage(odInfo,"DrawItemBackground() imax = %ld, xmax = %ld\n",(long)imax,(long)xmax);
+		BPPrintMessage(0,odInfo,"DrawItemBackground() imax = %ld, xmax = %ld\n",(long)imax,(long)xmax);
 
 	if(Nature_of_time == SMOOTH) while(imax > 1L && (*p_T)[imax] == ZERO) imax--;
 	t2 = ((double)(*p_T)[imax] * GraphicScaleP) / GraphicScaleQ / 10. + leftoffset;
@@ -1104,7 +1104,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	pen_size(1,0);
 	draw_line(leftoffset,y,xmax,y,"");
 	if(trace_graphic)
-		BPPrintMessage(odInfo,"leftoffset = %d, y = %d, xmax = %d\n",leftoffset,y,xmax);
+		BPPrintMessage(0,odInfo,"leftoffset = %d, y = %d, xmax = %d\n",leftoffset,y,xmax);
 
 	p = 50. / x;
 	for(i = j = 0; ; i++,j++) {
@@ -1164,7 +1164,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	// showsmalldivisions = TRUE;
 	for(i=1L,rr=Ratio,k=0; i < imax; i++, rr += Kpress) {
 		t1 = (*p_T)[i] / CorrectionFactor;
-		// BPPrintMessage(odInfo, " %ld",(long) t1);
+		// BPPrintMessage(0,odInfo, " %ld",(long) t1);
 		if(p_delta != NULL) t1 += (*p_delta)[i];
 		t1 = leftoffset + Round(t1 * p);
 		if((t1 > tmem1 && showsmalldivisions && t1 < xmax) || tmem1 == -Infpos) {
@@ -1174,7 +1174,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 			tmem1 = t1 + 4; // 2022-02-17
 			}
 		}
-	// BPPrintMessage(odInfo, "\n\n");
+	// BPPrintMessage(0,odInfo, "\n\n");
 
 	// Draw horizontal white lines to break time subdivisional time streaks
 	pen_size(3,0);
@@ -1223,11 +1223,11 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 	int length;
 
 	if(key < 0 || key > 127) {
-		BPPrintMessage(odError,"=> Err. DrawPianoNote() key = %d\n",key);
+		BPPrintMessage(0,odError,"=> Err. DrawPianoNote() key = %d\n",key);
 		return(OK);
 		}
 	if(chan < 0 || chan >= MAXCHAN) {
-		BPPrintMessage(odError,"=> Err. DrawPianoNote() chan = %d\n",chan);
+		BPPrintMessage(0,odError,"=> Err. DrawPianoNote() chan = %d\n",chan);
 		return(OK);
 		}
 	// if(stop(0,"DrawPianoNote") != OK) return(ABORT);
@@ -1261,7 +1261,7 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 		}
 	else stroke_style("black");
 	draw_line(x1,y,x2,y,"");
-	if(trace_draw_piano_note) BPPrintMessage(odInfo,"Note #%d x1 = %d, x2 = %d,  %s\n",key,(x1 - 42) * 5,(x2 - 42) * 5,type);
+	if(trace_draw_piano_note) BPPrintMessage(0,odInfo,"Note #%d x1 = %d, x2 = %d,  %s\n",key,(x1 - 42) * 5,(x2 - 42) * 5,type);
 	imageHits++;
 	return(OK);
 	}
@@ -1415,7 +1415,7 @@ void stroke_text(char* txt,int x,int y) {
 void fill_text(char* txt,int x,int y) {
 	char line[500];
 	if(x >= 0 && x <= max_coordinate && y >= 0 && y <= max_coordinate) {
-		if(trace_graphic) BPPrintMessage(odInfo,"text = %s\n",txt);
+		if(trace_graphic) BPPrintMessage(0,odInfo,"text = %s\n",txt);
 		if(strcmp(graphic_scheme,"canvas") == 0) {
 			my_sprintf(line,"ctx.fillText(\"%s\",%ld,%ld);\n",txt,(long)resize * x,(long)resize * y);
 			fputs(line,imagePtr);

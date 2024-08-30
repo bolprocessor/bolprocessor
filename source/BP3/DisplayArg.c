@@ -1129,7 +1129,7 @@ PRINTPROLONGATIONS:
 				}
 	//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			if(p_Script == NULL || p > Jscriptline || p < 0) { // Fixed > instead of >=  2024-06-18
-				BPPrintMessage(odError,"=> Event script line not found, p = %d, Jscriptline = %d\n",p,Jscriptline);
+				BPPrintMessage(0,odError,"=> Event script line not found, p = %d, Jscriptline = %d\n",p,Jscriptline);
 				r = OK; goto SORTIR;
 				}
 			my_sprintf(line,"%s",*((*p_Script)[p]));

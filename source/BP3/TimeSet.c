@@ -57,12 +57,12 @@ if(CheckEmergency() != OK) return(ABORT);
 
 *p_tmin = Infpos; *p_tmax = Infneg;
 if(!Improvize) Chunk_number++;
-// BPPrintMessage(odError,"\nChunk_number = %d\n",Chunk_number);
+// BPPrintMessage(0,odError,"\nChunk_number = %d\n",Chunk_number);
 
 if((p_articul = (short**) GiveSpace((Size)Maxevent*sizeof(short))) == NULL) return(ABORT);
 
 maxties = Jbol + Jpatt;
-// BPPrintMessage(odInfo,"\n\n@@ maxties = %d\n\n",maxties);
+// BPPrintMessage(0,odInfo,"\n\n@@ maxties = %d\n\n",maxties);
 for(i = 0; i < MAXINSTRUMENTS; i++)
 	if((p_Tie_event[i] = (char**) GiveSpace((Size)maxties*sizeof(short))) == NULL) return(ABORT); // Added by BB 2021-02-07
 for(i = 0; i <= MAXCHAN; i++)
@@ -98,7 +98,7 @@ time(&end_time);
 TimeSettingTime += end_time - start_time;
 // ProductionTime += TimeSettingTime;
 
-if(trace_timeset) BPPrintMessage(odInfo,"End TimeSet() maxseq = %ld\n\n",(long)*p_maxseq);
+if(trace_timeset) BPPrintMessage(0,odInfo,"End TimeSet() maxseq = %ld\n\n",(long)*p_maxseq);
 
 SORTIR:
 MyDisposeHandle((Handle*)&p_articul);
@@ -107,7 +107,7 @@ missed_ties = 0;
 for(j = 0; j <= MAXCHAN; j++) {
 	for(i = 0; i < 128; i++) {
 		if((*(p_Missed_tie_note[j]))[i] > 0) {
-			BPPrintMessage(odError,"=> Missed tied note key #%d (%d occurrences MIDI channel %d)\n",i,(*(p_Missed_tie_note[j]))[i],j);
+			BPPrintMessage(0,odError,"=> Missed tied note key #%d (%d occurrences MIDI channel %d)\n",i,(*(p_Missed_tie_note[j]))[i],j);
 			missed_ties++;
 			}
 		}
@@ -116,22 +116,22 @@ for(j = 0; j <= MAXCHAN; j++) {
 	}
 if(missed_ties > 0) {
 	if(!PlayChunks)
-		BPPrintMessage(odError,"=> Total %d tied notes have been missed\n\n",missed_ties);
-	else BPPrintMessage(odError,"=> Total %d tied notes have been missed in chunk #%d\n\n",missed_ties,Chunk_number);
+		BPPrintMessage(0,odError,"=> Total %d tied notes have been missed\n\n",missed_ties);
+	else BPPrintMessage(0,odError,"=> Total %d tied notes have been missed in chunk #%d\n\n",missed_ties,Chunk_number);
 	}
 
 missed_ties = 0;
 for(j = 0; j < MAXINSTRUMENTS; j++) {
 	for(i = 0; i < maxties; i++) {
 		if((*(p_Missed_tie_event[j]))[i] > 0) {
-			BPPrintMessage(odError,"=> Missed tied event #%d (%d occurrences Csound instrument %d)\n",i,(*(p_Missed_tie_event[j]))[i],j);
+			BPPrintMessage(0,odError,"=> Missed tied event #%d (%d occurrences Csound instrument %d)\n",i,(*(p_Missed_tie_event[j]))[i],j);
 			missed_ties++;
 			}
 		}
 	MyDisposeHandle((Handle*)&(p_Tie_event[j]));
 	MyDisposeHandle((Handle*)&(p_Missed_tie_event[j]));
 	}
-if(missed_ties > 0) BPPrintMessage(odError,"=> Total %d missed tied events in chunk #%d\n\n",missed_ties,Chunk_number);
+if(missed_ties > 0) BPPrintMessage(0,odError,"=> Total %d missed tied events in chunk #%d\n\n",missed_ties,Chunk_number);
 
 // my_sprintf(Message,"");
 strcpy(Message,""); // Fixed by BB 2022-02-20
@@ -161,7 +161,7 @@ nature_time = Nature_of_time;	/* Must not change during computation */
 
 handle_size = maxseq + 50; // Added by BB 2021-03-23
 if(trace_timeset)
-	BPPrintMessage(odInfo,"\nhandle_size for Seq[nseq] and DELTA = %ld\n",(long)handle_size);
+	BPPrintMessage(0,odInfo,"\nhandle_size for Seq[nseq] and DELTA = %ld\n",(long)handle_size);
 
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	ptr = (*p_Seq)[nseq];
@@ -173,10 +173,10 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	
 in = 1.; jn = ZERO;
 period = ((double) Pclock) * 1000. * CorrectionFactor / Qclock;
-// BPPrintMessage(odInfo,"Pclock = %ld Qclock = %ld, CorrectionFactor = %.3f\n",(long)Pclock,(long)Qclock,CorrectionFactor);
+// BPPrintMessage(0,odInfo,"Pclock = %ld Qclock = %ld, CorrectionFactor = %.3f\n",(long)Pclock,(long)Qclock,CorrectionFactor);
 
 // if(trace_timeset)
-BPPrintMessage(odInfo,"Setting time streaks on %d lines\n",(*p_nmax));
+BPPrintMessage(0,odInfo,"Setting time streaks on %d lines\n",(*p_nmax));
 
 while(TRUE) {
 	jj= Class(in);
@@ -185,7 +185,7 @@ while(TRUE) {
 		jn = jj;		/* Write only once */
 		if(nature_time == STRIATED) {
 			(*p_T)[jn] = (Milliseconds) ((period * (in - 1.)) / Ratio);
-			// BPPrintMessage(odError,"jn = %ld (*p_T)[jn] = %ld in = %ld period = %.0f Ratio = %.0f\n",(long)jn,(long)(*p_T)[jn],(long)in,(double)period,(double)Ratio);
+			// BPPrintMessage(0,odError,"jn = %ld (*p_T)[jn] = %ld in = %ld period = %.0f Ratio = %.0f\n",(long)jn,(long)(*p_T)[jn],(long)in,(double)period,(double)Ratio);
 			if(Kpress > 2) { // Compensates roundings // Added by BB 2021-03-21
 				if(jn > 0) (*p_T)[jn-1] = (*p_T)[jn];
 				if((jn + 1) <= maxseq) (*p_T)[jn+1] = (*p_T)[jn];
@@ -200,8 +200,8 @@ while(TRUE) {
 #if DISPLAY_PHASE_DIAGRAM
 
 if(trace_timeset) {
-	BPPrintMessage(odInfo,"\n");
-	BPPrintMessage(odInfo,"@Minconc = %ld    Maxconc = %ld\n\n",(long)Minconc,(long)Maxconc);
+	BPPrintMessage(0,odInfo,"\n");
+	BPPrintMessage(0,odInfo,"@Minconc = %ld    Maxconc = %ld\n\n",(long)Minconc,(long)Maxconc);
 	}
 
 for(k=ZERO; k < Maxevent; k++) {
@@ -237,12 +237,12 @@ for(k=ZERO; k < Maxevent; k++) {
 		else my_sprintf(Message,"(<<%s>> chan %ld)",*((*p_Bol)[j]),(long)ChannelConvert((*p_Instance)[k].channel));;
 		}
 	if(trace_timeset)
-		BPPrintMessage(odInfo,Message);
+		BPPrintMessage(0,odInfo,Message);
 	}
-BPPrintMessage(odInfo,"\n");
+BPPrintMessage(0,odInfo,"\n");
 	
 if(Maxevent < 1000) {
-	BPPrintMessage(odInfo,"\n");
+	BPPrintMessage(0,odInfo,"\n");
 //	if((*p_nmax) > 1) last_line = (*p_nmax) - 1;
 //	else last_line =  1;
 	last_line = (*p_nmax);
@@ -292,30 +292,30 @@ if(Maxevent < 1000) {
 							}
 				//		}
 					}
-				BPPrintMessage(odInfo,Message);
+				BPPrintMessage(0,odInfo,Message);
 				}
-			else BPPrintMessage(odInfo,"(%ld) ",(long)k);
+			else BPPrintMessage(0,odInfo,"(%ld) ",(long)k);
 			}
-		BPPrintMessage(odInfo,"\n");
+		BPPrintMessage(0,odInfo,"\n");
 		}
-	BPPrintMessage(odInfo,"\n");
+	BPPrintMessage(0,odInfo,"\n");
 	}
 
 /* if(trace_timeset) {
-	BPPrintMessage(odInfo,"\nT[i], i = 1,%ld:\n",(long)maxseq);
+	BPPrintMessage(0,odInfo,"\nT[i], i = 1,%ld:\n",(long)maxseq);
 	for(i=1L; i <= maxseq; i++)
-		BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
+		BPPrintMessage(0,odInfo,"%ld ",(long)(*p_T)[i]);
 	} */
 
-BPPrintMessage(odInfo,"\n");
+BPPrintMessage(0,odInfo,"\n");
 
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
-	if(trace_timeset) BPPrintMessage(odInfo,"\nnseq = %d, imaxseq[nseq] = %ld\n",nseq,(long)(*p_imaxseq)[nseq]);
+	if(trace_timeset) BPPrintMessage(0,odInfo,"\nnseq = %d, imaxseq[nseq] = %ld\n",nseq,(long)(*p_imaxseq)[nseq]);
 	for(iseq=0L; iseq <= (*p_imaxseq)[nseq]; iseq++) {
 		k = (*((*p_Seq)[nseq]))[iseq];
 		if(k == -1) break;
 		if(k > 0) {
-			if(trace_timeset) BPPrintMessage(odInfo,"(k=%d ",k);
+			if(trace_timeset) BPPrintMessage(0,odInfo,"(k=%d ",k);
 			if((*p_ObjectSpecs)[k] != NULL) {
 				ptag = WaitList(k);
 				while(ptag != NULL) {
@@ -324,33 +324,33 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 				}
 			j = (*p_Instance)[k].object;
 			if(trace_timeset) {
-				if(j > 16383) BPPrintMessage(odInfo,"%s) ",*((*(p_NoteName[NoteConvention]))[j-16384]));
-				else BPPrintMessage(odInfo,"j=%d) ",j);
+				if(j > 16383) BPPrintMessage(0,odInfo,"%s) ",*((*(p_NoteName[NoteConvention]))[j-16384]));
+				else BPPrintMessage(0,odInfo,"j=%d) ",j);
 				}
 			if(j >= Jbol+Jpatt && j < 16384) {
-				if(trace_timeset) BPPrintMessage(odError,"\n=> ERROR: j >= Jbol+Jpatt\n");
+				if(trace_timeset) BPPrintMessage(0,odError,"\n=> ERROR: j >= Jbol+Jpatt\n");
 				return(ABORT);
 				}
 			}
 		else {
-			if(trace_timeset && k < 0) BPPrintMessage(odError,"=> ERROR: k < 0 nseq=%ld i=%ld im=%ul k=%ld\n",(long)nseq,(long)i,(unsigned long)maxseq,(long)k);
+			if(trace_timeset && k < 0) BPPrintMessage(0,odError,"=> ERROR: k < 0 nseq=%ld i=%ld im=%ul k=%ld\n",(long)nseq,(long)i,(unsigned long)maxseq,(long)k);
 			}
 		}
-	if(trace_timeset) BPPrintMessage(odInfo,"\n");
+	if(trace_timeset) BPPrintMessage(0,odInfo,"\n");
 	}
 #endif
 // End DISPLAY_PHASE_DIAGRAM
 
 if(trace_timeset) {
-	BPPrintMessage(odError,"\nT[i], i = 1,%ld:\n",(long)maxseq);
+	BPPrintMessage(0,odError,"\nT[i], i = 1,%ld:\n",(long)maxseq);
 	for(i=1L; i <= maxseq; i++)
-		BPPrintMessage(odError,"%ld ",(long)(*p_T)[i]);
+		BPPrintMessage(0,odError,"%ld ",(long)(*p_T)[i]);
 	}
 max_end_time = (*p_T)[maxseq];
-if(trace_timeset) BPPrintMessage(odError,"\nmax_end_time = %ld\n",(long)max_end_time);
+if(trace_timeset) BPPrintMessage(0,odError,"\nmax_end_time = %ld\n",(long)max_end_time);
 
 if(trace_timeset)
-	BPPrintMessage(odError,"\nPositioning %ld sound-objects...\n",(long)(*p_kmx));
+	BPPrintMessage(0,odError,"\nPositioning %ld sound-objects...\n",(long)(*p_kmx));
 
 // if(DoSystem() != OK) return(ABORT);
 
@@ -458,7 +458,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
 	if(DisplayTimeSet) {
-		if(trace_timeset) BPPrintMessage(odInfo,"\nSequence #%ld\n",(long)(nseq+1L));
+		if(trace_timeset) BPPrintMessage(0,odInfo,"\nSequence #%ld\n",(long)(nseq+1L));
 		}
 	CoverOK = DiscontinuityOK = stepthis = FALSE;
 	if(NoConstraint) {
@@ -466,38 +466,38 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 		}
 
 /*	if(trace_timeset) {
-		BPPrintMessage(odInfo,"\nBefore Fix(), T[i], i = 1,%ld:\n",(long)maxseq);
+		BPPrintMessage(0,odInfo,"\nBefore Fix(), T[i], i = 1,%ld:\n",(long)maxseq);
 		for(i=1L; i <= maxseq; i++)
-			BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
-		BPPrintMessage(odInfo,"%s","\n");
+			BPPrintMessage(0,odInfo,"%ld ",(long)(*p_T)[i]);
+		BPPrintMessage(0,odInfo,"%s","\n");
 		} */
 
 TRY:
 	if(trace_timeset) ShowMessage(FALSE,wMessage,"\nPlacing objects");
 /*	if(trace_timeset) {
-		BPPrintMessage(odInfo,"\nBefore Fix(), T[i], i = 1,%ld:\n",(long)maxseq);
+		BPPrintMessage(0,odInfo,"\nBefore Fix(), T[i], i = 1,%ld:\n",(long)maxseq);
 		for(i=1L; i <= maxseq; i++)
-			BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
-		BPPrintMessage(odInfo,"%s","\n");
-		BPPrintMessage(odInfo,"Before Fix(), time2:\n");
+			BPPrintMessage(0,odInfo,"%ld ",(long)(*p_T)[i]);
+		BPPrintMessage(0,odInfo,"%s","\n");
+		BPPrintMessage(0,odInfo,"Before Fix(), time2:\n");
 		for(i=1L; i <= maxseq; i++)
-			BPPrintMessage(odInfo,"[%ld]%ld ",(long)i,(long)(*p_time2)[i]);
-		BPPrintMessage(odInfo,"%s","\n");
+			BPPrintMessage(0,odInfo,"[%ld]%ld ",(long)i,(long)(*p_time2)[i]);
+		BPPrintMessage(0,odInfo,"%s","\n");
 		} */
 	if((result=Fix(nseq,p_time1,p_time2,nature_time)) != OK) goto EXIT1;
 
 /*	if(trace_timeset) {
-		BPPrintMessage(odInfo,"\nAfter Fix(), T[i], i = 1,%ld:\n",(long)maxseq);
+		BPPrintMessage(0,odInfo,"\nAfter Fix(), T[i], i = 1,%ld:\n",(long)maxseq);
 		for(i=1L; i <= maxseq; i++)
-			BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
-		BPPrintMessage(odInfo,"%s","\n");
-		BPPrintMessage(odInfo,"After Fix(), time2:\n");
+			BPPrintMessage(0,odInfo,"%ld ",(long)(*p_T)[i]);
+		BPPrintMessage(0,odInfo,"%s","\n");
+		BPPrintMessage(0,odInfo,"After Fix(), time2:\n");
 		for(i=1L; i <= maxseq; i++)
-			BPPrintMessage(odInfo,"[%ld]%ld ",(long)i,(long)(*p_time2)[i]);
-		BPPrintMessage(odInfo,"%s","\n");
+			BPPrintMessage(0,odInfo,"[%ld]%ld ",(long)i,(long)(*p_time2)[i]);
+		BPPrintMessage(0,odInfo,"%s","\n");
 		} */
 	
-	if(trace_timeset) BPPrintMessage(odInfo,"Solving constraints Locate() for nseq = %ld\n",(long)nseq);
+	if(trace_timeset) BPPrintMessage(0,odInfo,"Solving constraints Locate() for nseq = %ld\n",(long)nseq);
 	r = Locate(nseq,p_imaxseq,maxseq,*p_kmx,p_DELTA,&tstart,p_time1,
 			p_time2,p_maxcoverbeg,p_maxcoverend,p_maxgapbeg,p_maxgapend,p_maxtruncbeg,
 			p_maxtruncend,nature_time,first,p_marked);
@@ -507,14 +507,14 @@ TRY:
 		}
 	
 	/* if(trace_timeset) {
-		BPPrintMessage(odInfo,"\nAfter Locate(), T[i], i = 1,%ld:\n",(long)maxseq);
+		BPPrintMessage(0,odInfo,"\nAfter Locate(), T[i], i = 1,%ld:\n",(long)maxseq);
 		for(i=1L; i <= maxseq; i++)
-			BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
-		BPPrintMessage(odInfo,"%s","\n");
-		BPPrintMessage(odInfo,"After Locate(), DELTA[i], i = 1,%ld:\n",(long)maxseq);
+			BPPrintMessage(0,odInfo,"%ld ",(long)(*p_T)[i]);
+		BPPrintMessage(0,odInfo,"%s","\n");
+		BPPrintMessage(0,odInfo,"After Locate(), DELTA[i], i = 1,%ld:\n",(long)maxseq);
 		for(i=1L; i <= maxseq; i++)
-			BPPrintMessage(odInfo,"%ld ",(long)(*p_DELTA)[i]);
-		BPPrintMessage(odInfo,"%s","\n");
+			BPPrintMessage(0,odInfo,"%ld ",(long)(*p_DELTA)[i]);
+		BPPrintMessage(0,odInfo,"%s","\n");
 		} */
 	
 	if(r == MISSED || r == QUICK) {
@@ -629,7 +629,7 @@ QUEST2:
 			if(i <= (*p_imaxseq)[nseq] && ((k=(*((*p_Seq)[nseq]))[i]) >= 1 || k == -1))
 						(*p_marked)[i] = TRUE;
 			if((*p_marked)[i] == TRUE) {
-				// BPPrintMessage(odInfo,"+ marked i = %ld k = %ld T[i] = %ld, DELTA[i] = %ld\n",(long)i,(long)k,(long)(*p_T)[i],(long)(*p_DELTA)[i]);
+				// BPPrintMessage(0,odInfo,"+ marked i = %ld k = %ld T[i] = %ld, DELTA[i] = %ld\n",(long)i,(long)k,(long)(*p_T)[i],(long)(*p_DELTA)[i]);
 				(*p_T)[i] = (*p_T)[i] + (*p_DELTA)[i];
 				if((*p_T)[i] >= tmax) tmax = (*p_T)[i];
 				else {	/* Must be increasing.  Sometimes local errors in smooth time */
@@ -638,7 +638,7 @@ QUEST2:
 				}
 			else {
 				if(i <= (*p_imaxseq)[nseq] && (*p_T)[i] != ZERO) {
-					if(trace_timeset) BPPrintMessage(odError,"=> Err. SetTimeObjects() nseq = %ld maxseq = %ld (*p_T)[%ld] = %ld\n",(long)nseq,(long)maxseq,(long)i,(long)(*p_T)[i]);
+					if(trace_timeset) BPPrintMessage(0,odError,"=> Err. SetTimeObjects() nseq = %ld maxseq = %ld (*p_T)[%ld] = %ld\n",(long)nseq,(long)maxseq,(long)i,(long)(*p_T)[i]);
 					(*p_T)[i] = ZERO;
 					}
 				}
@@ -647,10 +647,10 @@ QUEST2:
 		}
 	
 	/* if(trace_timeset) {
-		BPPrintMessage(odInfo,"\nAfter Interpolating streaks, T[i], i = 1,%ld:\n",(long)maxseq);
+		BPPrintMessage(0,odInfo,"\nAfter Interpolating streaks, T[i], i = 1,%ld:\n",(long)maxseq);
 		for(i=1L; i <= maxseq; i++)
-			BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
-		BPPrintMessage(odInfo,"%s","\n");
+			BPPrintMessage(0,odInfo,"%ld ",(long)(*p_T)[i]);
+		BPPrintMessage(0,odInfo,"%s","\n");
 		} */
 
 	if(BTflag) {
@@ -668,50 +668,50 @@ QUEST2:
 		}
 	
 	if(trace_timeset) {
-		BPPrintMessage(odInfo,"\nT[i], i = 1,%ld:\n",(long)maxseq);
+		BPPrintMessage(0,odInfo,"\nT[i], i = 1,%ld:\n",(long)maxseq);
 		for(i=1L; i <= maxseq; i++)
-			BPPrintMessage(odInfo,"%ld ",(long)(*p_T)[i]);
-		BPPrintMessage(odInfo,"\n");
+			BPPrintMessage(0,odInfo,"%ld ",(long)(*p_T)[i]);
+		BPPrintMessage(0,odInfo,"\n");
 		for(k = 2; k < 8; k++) {
-			BPPrintMessage(odInfo,"k = %d, starttime = %ld, endtime = %ld\n",k,(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime);
+			BPPrintMessage(0,odInfo,"k = %d, starttime = %ld, endtime = %ld\n",k,(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime);
 			}
 		}
 
 	/* Update tmin and tmax */
 	imax = (*p_imaxseq)[nseq] - 1L;
 	if(trace_timeset) {
-		BPPrintMessage(odInfo,"\nimax = %ld\n",(long)imax);
+		BPPrintMessage(0,odInfo,"\nimax = %ld\n",(long)imax);
 		for(i = 0; i <= imax; i++) {
-			BPPrintMessage(odInfo,"i = %ld, k = %ld\n",(long)i,(long)(*((*p_Seq)[nseq]))[i]);
+			BPPrintMessage(0,odInfo,"i = %ld, k = %ld\n",(long)i,(long)(*((*p_Seq)[nseq]))[i]);
 			}
 		}
 	if(imax >= 0) {  // 2024-05-11 fixed ">=" this condition is probably useless
-		if(trace_timeset) BPPrintMessage(odInfo,"\nUpdating tmin and tmax, nseq = %ld, imax = %ld, kmx = %ld\n",(long)nseq,(long)imax,(long)*p_kmx);
+		if(trace_timeset) BPPrintMessage(0,odInfo,"\nUpdating tmin and tmax, nseq = %ld, imax = %ld, kmx = %ld\n",(long)nseq,(long)imax,(long)*p_kmx);
 		i = imax;
 		while(i >= 0 && (k=(*((*p_Seq)[nseq]))[i]) < 2) i--;
-		if(trace_timeset) BPPrintMessage(odInfo,"max: i = %ld, k = %ld\n",(long)i,(long)k);
+		if(trace_timeset) BPPrintMessage(0,odInfo,"max: i = %ld, k = %ld\n",(long)i,(long)k);
 		if(k > *p_kmx)
-			BPPrintMessage(odError,"=> Error in TimeSet(). k > *p_kmx\n");
+			BPPrintMessage(0,odError,"=> Error in TimeSet(). k > *p_kmx\n");
 		else if(i > 0 && (t=((*p_Instance)[k].endtime+(*p_Instance)[k].truncend)) >= *p_tmax) // 2024-05-11 fixed ">="
 			*p_tmax = t;
-		if(trace_timeset) BPPrintMessage(odInfo,"t = %ld, tmax = %ld, endtime = %ld, truncend = %ld\n",(long)t,(long)*p_tmax,(long)(*p_Instance)[k].endtime,(long)(*p_Instance)[k].truncend);
+		if(trace_timeset) BPPrintMessage(0,odInfo,"t = %ld, tmax = %ld, endtime = %ld, truncend = %ld\n",(long)t,(long)*p_tmax,(long)(*p_Instance)[k].endtime,(long)(*p_Instance)[k].truncend);
 		// i = 1L;
 		i = ZERO; // Fixed by BB 2021-03-22
 		while(i <= imax && (k=(*((*p_Seq)[nseq]))[i]) < 2) i++;
-		if(trace_timeset) BPPrintMessage(odInfo,"min: i = %ld, k = %ld\n",(long)i,(long)k);
+		if(trace_timeset) BPPrintMessage(0,odInfo,"min: i = %ld, k = %ld\n",(long)i,(long)k);
 		if(k > *p_kmx) {
-			BPPrintMessage(odError,"=> Error in TimeSet(). k > *p_kmx\n");
+			BPPrintMessage(0,odError,"=> Error in TimeSet(). k > *p_kmx\n");
 			}
 		else if(i <= imax && (t=((*p_Instance)[k].starttime-(*p_Instance)[k].truncbeg)) <= *p_tmin) // 2024-05-11 fixed "<="
 			*p_tmin = t;
-		if(trace_timeset) BPPrintMessage(odInfo,"t = %ld\n",(long)t);
-		// BPPrintMessage(odInfo,"nseq = %d tmin = %ld tmax = %ld\n",nseq,(long)*p_tmin,(long)*p_tmax);
+		if(trace_timeset) BPPrintMessage(0,odInfo,"t = %ld\n",(long)t);
+		// BPPrintMessage(0,odInfo,"nseq = %d tmin = %ld tmax = %ld\n",nseq,(long)*p_tmin,(long)*p_tmax);
 		}
-	else if(imax < 0 && trace_timeset) BPPrintMessage(odInfo,"\n=> imax = %ld for nseq = %ld\n",(long)imax,(long)nseq);
+	else if(imax < 0 && trace_timeset) BPPrintMessage(0,odInfo,"\n=> imax = %ld for nseq = %ld\n",(long)imax,(long)nseq);
 		
 	/* Last object must not be played legato */ // Revised by BB 2022-03-02 
 	if((PlayChunks && !LastChunk) || AllItems || Improvize) {
-	//	BPPrintMessage(odError,"\nSuppressing last legato\n");
+	//	BPPrintMessage(0,odError,"\nSuppressing last legato\n");
 		i = (*p_imaxseq)[nseq] - 1L;
 		while((k=(*((*p_Seq)[nseq]))[i]) <= 0 || (*p_Instance)[k].object <= 1) {
 			i--;
@@ -726,15 +726,15 @@ QUEST2:
 	}
 
 /* Modify Alpha according to articulation (legato/staccato) */
-if(trace_timeset) BPPrintMessage(odInfo,"\nCalculating legato/staccato\n");
+if(trace_timeset) BPPrintMessage(0,odInfo,"\nCalculating legato/staccato\n");
 outtimeevents = TRUE;
 for(k=2; k <= (*p_kmx); k++) {
 	j = (*p_Instance)[k].object; if(j > 0) outtimeevents = FALSE;
 	if((nature_time == STRIATED) && (*p_Instance)[k].starttime > max_end_time) {
 		// This can happen with an out-time object at the beginning of an item
 		if(0 && TraceMIDIinteraction) {  // Reactivate this to check -gr.koto3
-			BPPrintMessage(odError,"=> Incorrect start/end values for object #%d (j = %d) in chunk #%d\n",k,(*p_Instance)[k].object,Chunk_number);
-			BPPrintMessage(odError,"starttime = %ld endtime = %ld ms, max_end_time = %ld ms, kmx = %ld\n",(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)max_end_time,(long)*p_kmx);
+			BPPrintMessage(0,odError,"=> Incorrect start/end values for object #%d (j = %d) in chunk #%d\n",k,(*p_Instance)[k].object,Chunk_number);
+			BPPrintMessage(0,odError,"starttime = %ld endtime = %ld ms, max_end_time = %ld ms, kmx = %ld\n",(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)max_end_time,(long)*p_kmx);
 			}
 		if(outtimeevents) (*p_Instance)[k].starttime = (*p_Instance)[k].endtime = 0L;
 		continue; // Well, needs to be checked
@@ -751,7 +751,7 @@ for(k=2; k <= (*p_kmx); k++) {
 	(*p_Instance)[k].endtime = (*p_Instance)[k].starttime + ((*p_Instance)[k].endtime
 		- (*p_Instance)[k].starttime) * (1. + ((double) a) / 100.);
 		
-//		BPPrintMessage(odInfo,"legato k = %ld starttime = %ld endtime = %ld  a = %ld\n",(long)k,(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)a);
+//		BPPrintMessage(0,odInfo,"legato k = %ld starttime = %ld endtime = %ld  a = %ld\n",(long)k,(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)a);
 		
 	if((*p_Instance)[k].ncycles < 2)	/* Object is not cyclic */
 		(*p_Instance)[k].dilationratio = (*p_Instance)[k].alpha;

@@ -167,6 +167,7 @@ extern char *StopfileName, *PanicfileName;
 
 /* extern char AlertMute; */
 extern int WarnedBasedKey;
+extern int force_messages;
 
 // Variables for Csound instruments
 extern CsoundInstrument **p_CsInstrument;
@@ -404,9 +405,9 @@ extern MIDI_Event* eventStack;
 extern long eventCount, eventCountMax;
 extern UInt64 initTime;
 extern int FirstNoteOn;
-extern int ToldPitchbend;
+extern int ToldPitchbend, ToldStop;
 
 extern int stop(int,char*);
-extern int MIDIflush(void);
+extern int MIDIflush(int);
 
 #endif /* BP2_DECL_H */

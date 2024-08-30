@@ -211,7 +211,7 @@ int Inits(void) {
 		MIDIacceptFilter[i] = FILTER_ALL_ON;
 		MIDIpassFilter[i] = FILTER_ALL_OFF;
 		my_sprintf(MIDIchannelFilter[i],"%s","1111111111111111");
-	//	BPPrintMessage(odInfo,"Init: MIDIchannelFilter[%d] = %s\n",i,MIDIchannelFilter[i]);
+	//	BPPrintMessage(0,odInfo,"Init: MIDIchannelFilter[%d] = %s\n",i,MIDIchannelFilter[i]);
 		}
 	ResetMIDIFilter();
 
@@ -238,7 +238,7 @@ int Inits(void) {
 	Stream.code = NULL;
 	Stream.imax = ZERO; Stream.cyclic = FALSE; Stream.period = ZERO;
 
-	for(ch = 0; ch < 16; ch++) MPEnote[ch] = MPEscale[ch] = 0;
+	for(ch = 0; ch < MAXCHAN; ch++) MPEnote[ch] = MPEscale[ch] = 0;
 
 	#if BP_CARBON_GUI_FORGET_THIS
 	if(GetResource('MENU',MenuIDoffset) == NULL) {
@@ -386,7 +386,7 @@ int Inits(void) {
 	LoadedIn = LoadedGl = FALSE;
 	TransposeInput = FALSE; TransposeValue = 0;
 	CompiledGr = CompiledAl = CompiledPt = CompiledIn = CompiledGl = CompiledCsObjects
-		= CompiledRegressions = NotFoundMetronom = NotFoundNatureTime = ToldPitchbend = 0;
+		= CompiledRegressions = NotFoundMetronom = NotFoundNatureTime = ToldPitchbend = ToldStop = 0;
 	Pclock = Qclock = 1.;
 	Nature_of_time = STRIATED;
 	Pduration = 0.;  Qduration = 1.;
@@ -400,7 +400,7 @@ int Inits(void) {
 	Veryneg = Infneg + 1;
 	Infpos = - Veryneg;
 	Infpos1 = Infpos + 1.;
-	// BPPrintMessage(odError,"Infneg = %ld\n",Infneg);
+	// BPPrintMessage(0,odError,"Infneg = %ld\n",Infneg);
 
 	InsertGramRuleNumbers = InsertGramCorrections = InsertNewBols = (BP_CARBON_GUI_FORGET_THIS ? TRUE : FALSE);
 	SplitTimeObjects = TRUE;	/* Terminal symbols separated by spaces */
@@ -763,7 +763,7 @@ int SetNoteNames(void) {
 					my_sprintf(Message,"%s%ld",KeyString,(long)j);
 					break;
 				}
-		//	BPPrintMessage(odInfo,"key = %d notenum = %d octave = %d  name = %s\n",j,notenum,octave,Message);
+		//	BPPrintMessage(0,odInfo,"key = %d notenum = %d octave = %d  name = %s\n",j,notenum,octave,Message);
 			MystrcpyStringToTable(p_NoteName[i],j,Message);
 			(*(p_NoteLength[i]))[j] = MyHandleLen((*(p_NoteName[i]))[j]);
 			octave = (j - notenum) / 12;
@@ -809,7 +809,7 @@ int SetNoteNames(void) {
 					my_sprintf(Message,"%s%ld",KeyString,(long)j);
 					break;
 				}
-		//	BPPrintMessage(odInfo,"ALT key = %d notenum = %d octave = %d  name = %s\n",j,notenum,octave,Message);
+		//	BPPrintMessage(0,odInfo,"ALT key = %d notenum = %d octave = %d  name = %s\n",j,notenum,octave,Message);
 			MystrcpyStringToTable(p_AltNoteName[i],j,Message);
 			(*(p_AltNoteLength[i]))[j] = MyHandleLen((*(p_AltNoteName[i]))[j]);
 			}
@@ -842,7 +842,7 @@ for(i=1; i < MAXPARAMCTRL; i++) {
 			if((*((*(Gram.p_subgram))[igram].p_rule))[irul].ctrl == i) {
 				(*((*(Gram.p_subgram))[igram].p_rule))[irul].w
 					= (*((*(Gram.p_subgram))[igram].p_rule))[irul].weight = k;
-			//	BPPrintMessage(odInfo,"Ctrlinit(%d). igram = %d irul = %d weight = %ld\n",i,igram,irul,(long)k);
+			//	BPPrintMessage(0,odInfo,"Ctrlinit(%d). igram = %d irul = %d weight = %ld\n",i,igram,irul,(long)k);
 				}
 			if((*((*(Gram.p_subgram))[igram].p_rule))[irul].repeatcontrol == i) {
 				(*((*(Gram.p_subgram))[igram].p_rule))[irul].repeat = k;
@@ -1319,7 +1319,7 @@ MyLock(TRUE,(Handle)p_PerformanceControl);
 
 /* if(trace_scale) {
 	for(i=0; i < MaxPerformanceControl; i++)
-		BPPrintMessage(odInfo,"%d) %s()\n",i,*((*p_PerformanceControl)[i]));
+		BPPrintMessage(0,odInfo,"%d) %s()\n",i,*((*p_PerformanceControl)[i]));
 	} */
 	
 if(LoadStringResource(&p_GeneralMIDIpatch,&p_GeneralMIDIpatchNdx,NULL,
@@ -1482,7 +1482,7 @@ int LoadScriptCommands() {  // This is the way we will load all lists of strings
 	for(i=0; i < im; i++) {
 		script_length = strlen(ScriptCommand[i]);
 		if(script_length == 0) {
-			BPPrintMessage(odError,"Empty script command has been found\n");
+			BPPrintMessage(0,odError,"Empty script command has been found\n");
 			goto OVER;
 			}
 		MaxScriptInstructions++;
@@ -1492,7 +1492,7 @@ int LoadScriptCommands() {  // This is the way we will load all lists of strings
 			}
 		nargs = nargs / 2; // Number of arguments is half the number of '_'
 		if(nargs > nmax_args) nmax_args = nargs;
-		if(trace_scriptcommands) BPPrintMessage(odInfo,"\nScriptCommand[%d] = %s (%d args)\n",i,ScriptCommand[i],nargs);
+		if(trace_scriptcommands) BPPrintMessage(0,odInfo,"\nScriptCommand[%d] = %s (%d args)\n",i,ScriptCommand[i],nargs);
 		ScriptNrArg(i) = 0; // 2024-07-06
 		if((ScriptLabel(i) = (char****) GiveSpace((Size)(nargs+1) * sizeof(char**)))
 			== NULL) goto ERR2;
@@ -1503,13 +1503,13 @@ int LoadScriptCommands() {  // This is the way we will load all lists of strings
 			if(c >= '0' && c <= '9')
 				index = (10 * index) + c - '0';
 			else {
-				BPPrintMessage(odError,"Incorrect index in script command [%d] = %s\n",i,ScriptCommand[i]);
+				BPPrintMessage(0,odError,"Incorrect index in script command [%d] = %s\n",i,ScriptCommand[i]);
 				return ABORT;
 				}
 			j++;
 			}
 		(*h_ScriptIndex)[i] = index;
-		if(trace_scriptcommands) BPPrintMessage(odInfo,"index = %d\n",(*h_ScriptIndex)[i]);
+		if(trace_scriptcommands) BPPrintMessage(0,odInfo,"index = %d\n",(*h_ScriptIndex)[i]);
 
 	NEWLABELPART:
 		while((c=ScriptCommand[i][j]) == ' ' || c == '_') j++;
@@ -1519,9 +1519,9 @@ int LoadScriptCommands() {  // This is the way we will load all lists of strings
 		k = j; while(k < script_length && (c=ScriptCommand[i][k]) != '_') k++;
 		k--; while((c=ScriptCommand[i][k]) == ' ') k--; k++;
 		kjn = k - j + 2;
-		if(trace_scriptcommands) BPPrintMessage(odInfo,"size of next label = %d\n",kjn);
+		if(trace_scriptcommands) BPPrintMessage(0,odInfo,"size of next label = %d\n",kjn);
 		if(kjn < 1) {
-			BPPrintMessage(odError,"Error in script label: kjn = %d\n",kjn);
+			BPPrintMessage(0,odError,"Error in script label: kjn = %d\n",kjn);
 			goto ERR2;
 			}
 		ptr = (char**) GiveSpace((Size)(kjn + 1) * sizeof(char));
@@ -1532,7 +1532,7 @@ int LoadScriptCommands() {  // This is the way we will load all lists of strings
 			(*(p_ScriptLabelPart(i,ilabel)))[kk] = c;
 			}
 		(*(p_ScriptLabelPart(i,ilabel)))[kk] = '\0';
-		if(trace_scriptcommands) BPPrintMessage(odInfo,"ScriptLabel[%d] = %s\n",ilabel,(*(p_ScriptLabelPart(i,ilabel))));
+		if(trace_scriptcommands) BPPrintMessage(0,odInfo,"ScriptLabel[%d] = %s\n",ilabel,(*(p_ScriptLabelPart(i,ilabel))));
 		ScriptNrLabel(i) = ++ilabel;
 
 	NEWARGPART:
@@ -1542,9 +1542,9 @@ int LoadScriptCommands() {  // This is the way we will load all lists of strings
 			}
 		k = j; while(k < script_length && (c=ScriptCommand[i][k]) != '_') k++;
 		kjn = k - j + 2;
-		if(trace_scriptcommands) BPPrintMessage(odInfo,"size of next arg = %d\n",kjn);
+		if(trace_scriptcommands) BPPrintMessage(0,odInfo,"size of next arg = %d\n",kjn);
 		if(kjn < 1) {
-			BPPrintMessage(odError,"Error in script arg: kjn = %d\n",kjn);
+			BPPrintMessage(0,odError,"Error in script arg: kjn = %d\n",kjn);
 			goto ERR2;
 			}
 		ptr = (char**) GiveSpace((Size)(kjn) * sizeof(char));
@@ -1555,7 +1555,7 @@ int LoadScriptCommands() {  // This is the way we will load all lists of strings
 			(*(p_ScriptArgPart(i,iarg)))[kk] = c;
 			}
 		(*(p_ScriptArgPart(i,iarg)))[kk] = '\0';
-		if(trace_scriptcommands) BPPrintMessage(odInfo,"ScriptArg[%d] = %s\n",iarg,(*(p_ScriptArgPart(i,iarg))));
+		if(trace_scriptcommands) BPPrintMessage(0,odInfo,"ScriptArg[%d] = %s\n",iarg,(*(p_ScriptArgPart(i,iarg))));
 		ScriptNrArg(i) = ++iarg;
 		goto NEWLABELPART;
 		}
@@ -1578,16 +1578,16 @@ int LoadScriptCommands() {  // This is the way we will load all lists of strings
 		if((ptr=(char**) GiveSpace((Size)MAXLIN * sizeof(char))) == NULL) goto ERR2;
 		(*(ScriptLine.arg))[i] = ptr;
 		}
-	if(trace_scriptcommands) BPPrintMessage(odInfo,"\nAll %d script instructions have been loaded\n\n",im);
+	if(trace_scriptcommands) BPPrintMessage(0,odInfo,"\nAll %d script instructions have been loaded\n\n",im);
 	// EmergencyExit = TRUE;
 	return(OK);
 	ERR:
-	BPPrintMessage(odError,"=> Error empty line in ScriptCommand %d (StringLists.h)\n",i);
+	BPPrintMessage(0,odError,"=> Error empty line in ScriptCommand %d (StringLists.h)\n",i);
 	ERR3:
 	EmergencyExit = TRUE;
 	return(MISSED);
 	ERR2:
-	BPPrintMessage(odError,"=> Error making space for label of script. Insufficient memory\n");
+	BPPrintMessage(0,odError,"=> Error making space for label of script. Insufficient memory\n");
 	goto ERR3;
 	}
 

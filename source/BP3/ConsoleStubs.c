@@ -96,7 +96,7 @@ int CheckLoadedPrototypes(void)
 {
 	if (NeedAlphabet && !ObjectMode && !ObjectTry && (rtMIDI || OutCsound || WriteMIDIfile)) {
 		ObjectTry = TRUE;
-	/*	BPPrintMessage(odWarning, "Loading object prototypes is not yet possible in the "
+	/*	BPPrintMessage(0,odWarning, "Loading object prototypes is not yet possible in the "
 			"console version, so MIDI and Csound output may not work correctly.\n");
 		return MISSED; */
 	}
@@ -115,8 +115,8 @@ int LoadAlphabet(int w)
 	
 	// Otherwise, if a -al reference was found somewhere, we should load it.
 	// FIXME: for now, we just warn the user!
-	BPPrintMessage(odWarning, "Ignoring alphabet file specified in data or grammar file!\n");
-	BPPrintMessage(odWarning, "(You can specify an alphabet file as a command-line argument).\n");
+	BPPrintMessage(0,odWarning, "Ignoring alphabet file specified in data or grammar file!\n");
+	BPPrintMessage(0,odWarning, "(You can specify an alphabet file as a command-line argument).\n");
 	return MISSED;
 }	
 
@@ -133,8 +133,8 @@ int LoadGlossary(int anyfile,int manual)
 	else {
 		// Otherwise, if a -gl reference was found somewhere, we should load it.
 		// FIXME: for now, we just warn the user!
-		BPPrintMessage(odWarning, "Ignoring glossary file specified in data or grammar file!\n");
-		BPPrintMessage(odWarning, "(You can specify a glossary file as a command-line argument).\n");
+		BPPrintMessage(0,odWarning, "Ignoring glossary file specified in data or grammar file!\n");
+		BPPrintMessage(0,odWarning, "(You can specify a glossary file as a command-line argument).\n");
 		return MISSED;
 	}	
 }
@@ -176,10 +176,10 @@ int InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode)
 	BP_NOT_USED(mode);
 	
 /*	if (StepProduce || StepGrammars) {
-		BPPrintMessage(odWarning, "Step-by-step production and step subgrammars options "
+		BPPrintMessage(0,odWarning, "Step-by-step production and step subgrammars options "
 			"do not work yet in the console version.\n");
 	} */
-	BPPrintMessage(odWarning, "Continuing from InterruptCompute()...\n");
+	BPPrintMessage(0,odWarning, "Continuing from InterruptCompute()...\n");
 	return OK;
 }
 
@@ -216,7 +216,7 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo)
 		ShowMessage(TRUE,wMessage,"\nCreating new Csound score file...");
 		fout = OpenOutputFile(finfo, "w");
 		if (!fout) {
-			BPPrintMessage(odError, "\n=> Could not open file for score %s\n", finfo->name);
+			BPPrintMessage(0,odError, "\n=> Could not open file for score %s\n", finfo->name);
 			return MISSED;
 		}
 	}
@@ -234,7 +234,7 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo)
 	for(i = 0; i < MaxCsoundTables; i++) {
 		if((*p_CsoundTables)[i] !=  NULL) {
 			i_table++;
-			if(trace_scale) BPPrintMessage(odInfo, "Writing: %s\n",(*(*p_CsoundTables)[i]));
+			if(trace_scale) BPPrintMessage(0,odInfo, "Writing: %s\n",(*(*p_CsoundTables)[i]));
 			WriteToFile(NO,CsoundFileFormat,(*(*p_CsoundTables)[i]),CsRefNum);
 			}
 		}
@@ -262,7 +262,7 @@ int CloseCsScore(void)
 	SetOutputDestinations(odCsScore, NULL);
 	CloseOutputFile(&(gOptions.outputFiles[ofiCsScore]));
 	CsScoreOpened = FALSE;
-	BPPrintMessage(odInfo, "Closing the Csound score file %s\n", gOptions.outputFiles[ofiCsScore].name);
+	BPPrintMessage(0,odInfo, "Closing the Csound score file %s\n", gOptions.outputFiles[ofiCsScore].name);
 
 	return OK;
 }
@@ -282,7 +282,7 @@ void SysBeep(short duration)
 {
 	BP_NOT_USED(duration);
 	// FIXME: should probably only send \007 to a terminal ?
-	BPPrintMessage(odWarning, "\007Beep!\n");
+	BPPrintMessage(0,odWarning, "\007Beep!\n");
 	return;
 }
 

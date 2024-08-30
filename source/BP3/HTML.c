@@ -114,7 +114,7 @@ FOUND:
 	if(Answer("Interpret HTML",'Y') != YES) return(OK);
 	} */
 *p_html = html = TRUE;
-// BPPrintMessage(odError, "(*p_buffer) = %s\n",(*p_buffer));
+// BPPrintMessage(0,odError, "(*p_buffer) = %s\n",(*p_buffer));
 for(i=j=0; ;i++,j++) {
 	if(j >= *p_count) break;
 	c = (*p_buffer)[j];

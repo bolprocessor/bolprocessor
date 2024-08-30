@@ -47,10 +47,10 @@ int PrintNote(int i_scale,int key,int channel,int wind,char* line) {
 		}
 	channelstring[0] = '\0';
 	if(channel > 0) my_sprintf(channelstring," channel %ld",(long)channel);
-	// BPPrintMessage(odInfo,"i_scale = %d key =  %d NumberScales = %d NoteConvention = %d\n",i_scale,key,NumberScales,NoteConvention);
+	// BPPrintMessage(0,odInfo,"i_scale = %d key =  %d NumberScales = %d NoteConvention = %d\n",i_scale,key,NumberScales,NoteConvention);
 
 	if(i_scale > NumberScales) {
-		BPPrintMessage(odError,"=> Error: i_scale (%ld) > NumberScales (%d)\n",(long)i_scale,NumberScales);
+		BPPrintMessage(0,odError,"=> Error: i_scale (%ld) > NumberScales (%d)\n",(long)i_scale,NumberScales);
 		return(OK);
 		}
 
@@ -217,7 +217,7 @@ CONT:
 CONT2:
 	*p_thekey = 12 * octave + pitchclass;
 	*p_thekey += (C4key - 60);
-//	BPPrintMessage(odInfo,"\nkey = %d Englishnote[pitchclass] = %s AltEnglishnote[pitchclass] = %s pitchclass = %d octave = %d NameChoice[pitchclass] = %d\n",*p_thekey,Englishnote[pitchclass],pitchclass,octave,NameChoice[pitchclass]);
+//	BPPrintMessage(0,odInfo,"\nkey = %d Englishnote[pitchclass] = %s AltEnglishnote[pitchclass] = %s pitchclass = %d octave = %d NameChoice[pitchclass] = %d\n",*p_thekey,Englishnote[pitchclass],pitchclass,octave,NameChoice[pitchclass]);
 	}
 if(ignorechannel) return(OK);
 while(MySpace(line[i])) i++;

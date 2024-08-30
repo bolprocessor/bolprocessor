@@ -65,15 +65,10 @@ int PlaySelection(int w, int all) {
 	// if(WillRandomize) ReseedOrShuffle(RANDOMIZE);
 
 	TextGetSelection(&origin, &end, TEH[w]);
-  //  BPPrintMessage(odError,"origin = %ld, end = %ld\n",(long)origin,(long)end);
-	improvize = FALSE;
-	if(Improvize) {
-		improvize = TRUE;
-		Improvize = FALSE;
-		}
+  //  BPPrintMessage(0,odError,"origin = %ld, end = %ld\n",(long)origin,(long)end);
 	if(all) {
 	//	ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
-		BPPrintMessage(odError,"\n(No message when playing chunks.)\n");
+		BPPrintMessage(0,odError,"\n(No message when playing chunks.)\n");
 		PlayAllChunks = TRUE;
 		}
 
@@ -115,7 +110,7 @@ int PlaySelection(int w, int all) {
 			CurrentVref = TheVRefNum[wScript];
 			}
 		check = 0; // This will create a script line
-	//	BPPrintMessage(odError,"InitThere = 2\n");
+	//	BPPrintMessage(0,odError,"InitThere = 2\n");
 		r = ExecScriptLine(NULL,wScript,check,TRUE,p_InitScriptLine,x,&x,&i,&i);
 		if(r != OK) goto END;
 		}
@@ -131,7 +126,7 @@ int PlaySelection(int w, int all) {
 		end++;
 		}
 
-	// BPPrintMessage(odInfo,"@ origin = %ld next_origin = %ld end = %ld\n",(long)origin,(long)next_origin,(long)end);
+	// BPPrintMessage(0,odInfo,"@ origin = %ld next_origin = %ld end = %ld\n",(long)origin,(long)next_origin,(long)end);
 	LastChunk = FALSE;
 	while((originmem=origin) < end) {
 		if((r=stop(0,"PlaySelection")) != OK) return ABORT;
@@ -142,7 +137,7 @@ int PlaySelection(int w, int all) {
 			if(c == '\r' || c == '\n' || c == '\0') break;
 			next_origin++;
 			if(next_origin > end) {
-				BPPrintMessage(odError,"=> Error searching for linefeed\n");
+				BPPrintMessage(0,odError,"=> Error searching for linefeed\n");
 				SelectOn = FALSE; return(MISSED);
 				}
 			}
@@ -150,10 +145,10 @@ int PlaySelection(int w, int all) {
 		if((next_origin + 1) == end) LastChunk = TRUE;
 		r = OK;
 		SetSelect(origin,next_origin,TEH[w]);
-	//	BPPrintMessage(odInfo,"Playing selection\n");
+	//	BPPrintMessage(0,odInfo,"Playing selection\n");
 		Nplay = 1;
 		SaidTooComplex = ShownBufferSize = FALSE;
-	//	BPPrintMessage(odInfo,"Playing selection %ld to %ld (up to %ld)\n",(long)origin,(long)next_origin,(long)end);
+	//	BPPrintMessage(0,odInfo,"Playing selection %ld to %ld (up to %ld)\n",(long)origin,(long)next_origin,(long)end);
 		if((r=SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
 			MyDisposeHandle((Handle*)&p_a);
 			/* Could already be NULL because of PolyExpand() */
@@ -220,17 +215,12 @@ int PlaySelection(int w, int all) {
 	// if(PlaySelectionOn > 0) PlaySelectionOn--; */ // Fixed by BB 2021-02-17
 
 	ResetMIDIfile();
-
-	if(improvize) {
-		Improvize = TRUE;
-		
-		}
 	
-	if(r == OK) {
+	/* if(r == OK) {
 		BPActivateWindow(SLOW,LastComputeWindow);
 		// ResetMIDI(TRUE);
 		// if(ResetControllers) ResetMIDIControllers(YES,NO,NO);
-		}
+		} */
 	return(r);
 	}
 
@@ -243,15 +233,15 @@ int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll) {
 	if(Jbol < 3) NoAlphabet = TRUE;
 	else NoAlphabet = FALSE;
 
-	// BPPrintMessage(odInfo,"Running PlayBuffer()\n");
+	// BPPrintMessage(0,odInfo,"Running PlayBuffer()\n");
 	if(FirstTime && !onlypianoroll) {
 		if(p_Initbuff == NULL) {
 		//	if(Beta) Alert1("=> Err. PlayBuffer(). p_Initbuff = NULL. ");
-			BPPrintMessage(odError,"=> Err. PlayBuffer(). p_Initbuff = NULL\n");
+			BPPrintMessage(0,odError,"=> Err. PlayBuffer(). p_Initbuff = NULL\n");
 			return(ABORT);
 			}
 		if((r=PlayBuffer1(&p_Initbuff,NO)) != OK) {
-			BPPrintMessage(odError,"=> PlayBuffer1() cancelled\n");
+			BPPrintMessage(0,odError,"=> PlayBuffer1() cancelled\n");
 			return(r);
 			}
 		WaitABit(1000L);	/* This is necessary notably if sending a program change */
@@ -273,10 +263,10 @@ int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll) {
 		SoundOn = FALSE;
 		if(r != OK) return(r);
 		// HideWindow(Window[wMessage]);
-		BPPrintMessage(odInfo,"Aborted PlayBuffer()\n");
+		BPPrintMessage(0,odInfo,"Aborted PlayBuffer()\n");
 		return(ABORT);
 		}
-	// BPPrintMessage(odInfo,"End of PlayBuffer()\n");
+	// BPPrintMessage(0,odInfo,"End of PlayBuffer()\n");
 	return(r);
 	}
 
@@ -334,14 +324,14 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	int trace_play = FALSE;
 	if(trace_play) {
 		i = 0;
-		BPPrintMessage(odInfo,"\nPlayBuffer1():\n");
+		BPPrintMessage(0,odInfo,"\nPlayBuffer1():\n");
 		while(TRUE) {
 			a = (**pp_buff)[i]; b = (**pp_buff)[i+1];
 			if(a == TEND && b == TEND) break;
-			BPPrintMessage(odInfo,"%d %d,\n",a,b);
+			BPPrintMessage(0,odInfo,"%d %d,\n",a,b);
 			i += 2;
 			}
-		BPPrintMessage(odInfo,"\n");
+		BPPrintMessage(0,odInfo,"\n");
 		}
 	if(result == EMPTY) {
 		result = OK; goto SORTIR;
@@ -354,7 +344,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		
 	SETTIME:
 	if((result=CheckLoadedPrototypes()) != OK) {
-		BPPrintMessage(odInfo, "No sound-object prototypes loaded\n");
+		BPPrintMessage(0,odInfo, "No sound-object prototypes loaded\n");
 		goto RELEASE;
 		}
 	#if BP_CARBON_GUI_FORGET_THIS
@@ -375,9 +365,9 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	if(result == AGAIN) again = TRUE;
 	result = OK;
 	SetTimeOn = FALSE;
-	// BPPrintMessage(odInfo,"\ntmin = %ld, tmax = %ld\n\n",(long)tmin,(long)tmax);
+	// BPPrintMessage(0,odInfo,"\ntmin = %ld, tmax = %ld\n\n",(long)tmin,(long)tmax);
 
-	// if(ShowGraphic) BPPrintMessage(odInfo, "Shall we draw graphics?\n");
+	// if(ShowGraphic) BPPrintMessage(0,odInfo, "Shall we draw graphics?\n");
 
 //	if(!Improvize) initTime = getClockTime();
 	if(onlypianoroll
@@ -408,10 +398,10 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		} */
 
 	RELEASE:
-	// BPPrintMessage(odError,"@@ End MakeSound() nmax = %ld\n",(long)nmax);
+	// BPPrintMessage(0,odError,"@@ End MakeSound() nmax = %ld\n",(long)nmax);
 	if(result == ABORT) return(result);
 	if(ReleasePhaseDiagram(nmax,&p_imaxseq) != OK) return(ABORT);
-	if(result == MISSED) BPPrintMessage(odInfo,"Item ignored\n");
+	if(result == MISSED) BPPrintMessage(0,odInfo,"Item ignored\n");
 
 	SORTIR:
 	if(store) {
@@ -419,7 +409,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		if(CopyBuf(&p_b,pp_buff) == ABORT) return(ABORT);
 		MyDisposeHandle((Handle*)&p_b);
 		}
-	// BPPrintMessage(odInfo,"@@ End PlayBuffer1()\n");
+	// BPPrintMessage(0,odInfo,"@@ End PlayBuffer1()\n");
 	return(result);
 	}
 
@@ -514,12 +504,7 @@ ENCODE:
 	else {
 	//	PlaySelectionOn++; // Fixed by BB 2021-02-17
 	//	if(!onlypianoroll) ResetMIDI(TRUE); Fixed by BB 2022-02-18
-		improvize = FALSE;
-		if(Improvize) {
-			improvize = TRUE;
-			Improvize = FALSE;
-			
-			}
+	//		}
 		if(NoVariable(&p_ti)) {
 NOVARIABLE:
 			r = PlayBuffer(&p_ti,onlypianoroll);
@@ -539,10 +524,6 @@ NOVARIABLE:
 			if(!CompiledGr || !CompiledGl) {
 				MyDisposeHandle((Handle*)&p_ti);
 			//	if(PlaySelectionOn > 0) PlaySelectionOn--; // Fixed by BB 2021-02-17
-				if(improvize) {
-					Improvize = TRUE;
-					
-					}
 				if((r=CompileCheck()) != OK) break;
 				i = i0;
 				goto ENCODE;
@@ -560,11 +541,6 @@ NOVARIABLE:
 	//	if(PlaySelectionOn > 0) PlaySelectionOn--; // Fixed by BB 2021-02-17
 		
 		if(!onlypianoroll) ResetMIDIfile();
-		
-		if(improvize) {
-			Improvize = TRUE;
-			
-			}
 		}
 	MyDisposeHandle((Handle*)&p_ti);
 	if(r == ABORT || r == EXIT) break;
@@ -610,10 +586,7 @@ int TextToMIDIstream(int w) {
 		}
 	showmessages = ShowMessages;
 	ShowMessages = FALSE;
-	improvize = Improvize;
-	Improvize = FALSE;
 	
-
 	// PlaySelectionOn++; // Fixed by BB 2021-02-17
 	/* ResetMIDI(TRUE); */
 
@@ -673,10 +646,9 @@ int TextToMIDIstream(int w) {
 	END:
 	if(PlaySelectionOn) {
 		PlaySelectionOn = FALSE; // Fixed by BB 2021-02-17
-		BPPrintMessage(odInfo,"End of playing selection\n");
+		BPPrintMessage(0,odInfo,"End of playing selection\n");
 		}
 	ShowMessages = showmessages;
-	Improvize = improvize;
 	
 	// HideWindow(Window[wMessage]);
 	return(r);
@@ -1203,7 +1175,7 @@ long CopyBuf(tokenbyte ***pp_X,tokenbyte ***pp_Y) {	// Copy X to Y
 		}
 	maxsize = oldsize = MyGetHandleSize((Handle)*pp_X);
 	if(maxsize <= blocksize) {
-		BPPrintMessage(odError,"=> Err. CopyBuf(). maxsize (%ld) <= blocksize (%ld)\n",(long)maxsize,(long)blocksize);
+		BPPrintMessage(0,odError,"=> Err. CopyBuf(). maxsize (%ld) <= blocksize (%ld)\n",(long)maxsize,(long)blocksize);
 		return(ABORT);
 	/*	maxsize = (blocksize * 3L) / 2L;
 		MemoryUsed += (maxsize - oldsize);
@@ -1213,7 +1185,7 @@ long CopyBuf(tokenbyte ***pp_X,tokenbyte ***pp_Y) {	// Copy X to Y
 		if(MySetHandleSize((Handle*)pp_X, maxsize) != OK) return(ABORT); */
 		}
 	if((*pp_Y) == NULL) {
-		BPPrintMessage(odError,"=> Err. CopyBuf(). *pp_Y = NULL\n");
+		BPPrintMessage(0,odError,"=> Err. CopyBuf(). *pp_Y = NULL\n");
 		return(ABORT);
 		}
 	maxsize = oldsize = MyGetHandleSize((Handle)*pp_Y);
@@ -1223,12 +1195,12 @@ long CopyBuf(tokenbyte ***pp_X,tokenbyte ***pp_Y) {	// Copy X to Y
 		if(MemoryUsed > MaxMemoryUsed) {
 			MaxMemoryUsed = MemoryUsed;
 			}
-	//	BPPrintMessage(odInfo,"CopyBuf(). maxsize = %ld, blocksize = %ld\n",(long)maxsize,(long)blocksize);
+	//	BPPrintMessage(0,odInfo,"CopyBuf(). maxsize = %ld, blocksize = %ld\n",(long)maxsize,(long)blocksize);
 		if(MySetHandleSize((Handle*)pp_Y,maxsize) != OK) return(ABORT);
 		}
 	ptr1 = &(**pp_X)[0]; ptr2 = &(**pp_Y)[0];
 	memmove(ptr2, ptr1, blocksize);
-//	BPPrintMessage(wInfo,"Moved buffer size %ld to %ld\n",oldsize,maxsize);
+//	BPPrintMessage(0,wInfo,"Moved buffer size %ld to %ld\n",oldsize,maxsize);
 	return(length);
 	}
 
@@ -1257,7 +1229,7 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 		origin++;
 		if(origin >= end) {
 			SelectOn = FALSE;
-			BPPrintMessage(odError,"=> SelectionToBuffer error 1\n");
+			BPPrintMessage(0,odError,"=> SelectionToBuffer error 1\n");
 			return(MISSED);
 			}
 		}
@@ -1267,7 +1239,7 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 			if(origin >= end) {
 				SelectOn = FALSE;
 				Panic = TRUE;
-				BPPrintMessage(odError,"=> SelectionToBuffer error 2, can't find ']‘\n");
+				BPPrintMessage(0,odError,"=> SelectionToBuffer error 2, can't find ']‘\n");
 				return(MISSED);
 				}
 			}
@@ -1275,7 +1247,7 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 		}
 	if(origin >= end) {
 		SelectOn = FALSE;
-			BPPrintMessage(odError,"=> SelectionToBuffer error 3\n");
+			BPPrintMessage(0,odError,"=> SelectionToBuffer error 3\n");
 		return(MISSED);
 		}
 	length = end - origin + 4L;
@@ -1290,7 +1262,7 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 		goto SORTIR;
 		}
 	*pp_buff = ptr;
-	// BPPrintMessage(odInfo,"Selection %d %d length %d\n",origin,end,length);
+	// BPPrintMessage(0,odInfo,"Selection %d %d length %d\n",origin,end,length);
 	if(ReadToBuff(YES,noreturn,w,&origin,end,pp_buff) != OK) goto BAD;
 
 	*p_end = origin;
@@ -1338,7 +1310,7 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 	SORTIR:
 	if(!ScriptExecOn) {
 		Alert1("No data selected");
-		BPPrintMessage(odError,"=> No data selected");
+		BPPrintMessage(0,odError,"=> No data selected");
 		}
 	else {
 		PrintBehind(wTrace,"No data selected.\n");
@@ -1369,7 +1341,7 @@ int ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buf
 	if(stop(0,"ReadToBuff") != OK) return ABORT;
 	for(j=*p_i,k=0; j < im; j++) {
 		c = GetTextChar(w,j);
-	//	BPPrintMessage(odInfo,"%c",c);
+	//	BPPrintMessage(0,odInfo,"%c",c);
 		if(nocomment && c == '*' && oldc == '/') {
 			/* Skip C-type remark */
 			oldc = '\0'; j++; k--;
