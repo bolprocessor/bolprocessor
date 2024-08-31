@@ -272,7 +272,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 
 double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 	int this_block_key, i_note, note_class, octave, keyclass,blockkey_pitch_class, numgrades, numnotes, basekey, basekeyclass, baseoctave, delta_key;
-	double basefreq, pitch_ratio, fix_ratio_0, blockkey_pitch_ratio, blockkey_correction, diapason_correction, interval, frequency;
+	double basefreq, blockkey_pitch_ratio, blockkey_correction, basekey_ratio, diapason_correction, interval, n, frequency;
 	char this_key[100];
 	
 	int check_getpitch = FALSE;
@@ -299,25 +299,18 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 		}
 	if(numgrades <= 12) {
 		keyclass = modulo(key - basekey, 12);
-	//	BPPrintMessage(0,odInfo,"i_scale = %d basekey = %d\n",i_scale,basekey);
-		basekeyclass = (*((*Scale)[i_scale].keyclass))[modulo(basekey, 12)];
 		octave = baseoctave + floor(((double)key - basekey) / 12);
+		frequency = (*Scale)[i_scale].basefreq * pow(2,((double)keyclass/12)) * pow(2,octave - baseoctave);
 		}
 	else {
 		i_note = modulo(key - basekey, numnotes);
 		keyclass = (*((*Scale)[i_scale].keyclass))[i_note];
-		basekeyclass = (*((*Scale)[i_scale].keyclass))[modulo(basekey, numnotes)];
 		octave = baseoctave + floor((((double)key - basekey)) / numnotes);
+		frequency = (*Scale)[i_scale].basefreq * pow(2,((double)keyclass/numgrades)) * pow(2,octave - baseoctave);
 		}
-
-	pitch_ratio = (*((*Scale)[i_scale].tuningratio))[keyclass];
-	/* double n = log(pitch_ratio * pow(interval,octave - baseoctave)) / log(interval);
-	frequency = (*Scale)[i_scale].basefreq  * pow(interval,n); */
-	double n = log(pitch_ratio * pow(2.,octave - baseoctave)) / log(2.);
-	frequency = (*Scale)[i_scale].basefreq  * pow(2.,n);
-
-	frequency = frequency * (*((*Scale)[i_scale].tuningratio))[basekeyclass];
 	
+	basekey_ratio = (*((*Scale)[i_scale].tuningratio))[0];
+	frequency = frequency * basekey_ratio;
 	diapason_correction = A4freq / 440.; 
 	frequency = frequency * diapason_correction;
 	frequency = frequency * pow(2, ((double) cents / 1200.));
@@ -325,7 +318,6 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 	if(blockkey == 0) blockkey = DefaultBlockKey;
 
 	int correction = (*(*Scale)[i_scale].deviation)[key] - (*(*Scale)[i_scale].deviation)[blockkey];
-	// frequency = frequency * pow(interval, ((double) correction / 600. / interval));
 	frequency = frequency * pow(2., ((double) correction / 1200.));
 
 	my_sprintf(this_key,"%s%d",*((*(*Scale)[i_scale].notenames)[keyclass]),octave);
@@ -333,7 +325,7 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 
 	if(TraceMicrotonality) BPPrintMessage(0,odInfo,"§ key %d: \"%s\" octave %d scale #%d, block key %d, corr %d cents, freq %.3f Hz\n",key,this_key,octave,i_scale,blockkey,correction,frequency);
 
-	if(check_getpitch) BPPrintMessage(0,odInfo,"• key = %d, C4key = %d, basekey = %d, basekeyclass = %d, basefreq = %.3f baseoctave = %d, numgrades = %d interval = %.3f, keyclass = %d pitch_ratio = %.3f, fix_ratio_0 = %.3f, diapason_correction = %.4f blockkey = %d, correction = %d, octave = %d, cents = %.1f, frequency = %.3f Hz\n",key,C4key,(*Scale)[i_scale].basekey,basekeyclass,basefreq,baseoctave,numgrades,interval,keyclass,pitch_ratio,fix_ratio_0,diapason_correction,blockkey,correction,octave,cents,frequency);
+	if(check_getpitch) BPPrintMessage(0,odInfo,"• key = %d, C4key = %d, basekey = %d, basekeyclass = %d, basefreq = %.3f baseoctave = %d, numgrades = %d interval = %.3f, keyclass = %d, diapason_correction = %.4f blockkey = %d, correction = %d, octave = %d, cents = %.1f, tuningratio[basekeyclass] = %.3f frequency = %.3f Hz\n",key,C4key,(*Scale)[i_scale].basekey,basekeyclass,basefreq,baseoctave,numgrades,interval,keyclass,diapason_correction,blockkey,correction,octave,cents,(*((*Scale)[i_scale].tuningratio))[basekeyclass],frequency);
 
 	return frequency;
 	}

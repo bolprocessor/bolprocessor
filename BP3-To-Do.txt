@@ -57,6 +57,7 @@ Real-time MIDI
 — In Linux, it seems that the two virtual ports 'VirMIDI 0-0' and 'VirMIDI 0-1' are not communicating with other ports even though connections are valid.
 - A _script(wait for key…) in the beginning of a grammar does not always work. This needs to be clarified.
 - Put some scripts on top of a grammar (the INIT: section) to run them before the production is started. This will notably allow setting up parameters K1, K2… K127.
+- Implement a _script(wait forever) instruction that will be used for retuning input notes.
 - Check the accuracy of start times in sound-object pictures.
 
 

@@ -1497,13 +1497,16 @@ int AssignUniqueChannel(int status,int note,int value,int i_scale) {
 int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 	// nseq is useless
 	long count = 12L;
-	int c0,c1,c2,status,chan,result,type,i_scale,note,i_note,keyclass,basekeyclass,octave,value,sensitivity,correction;
+	int c0,c1,c2,status,chan,result,type,i_scale,note,i_note,keyclass,octave,value,sensitivity,correction;
 	unsigned long done;
 	byte midibyte;
 	MIDI_Event pb_event;
+	double frequency;
     unsigned int pitchBendValue, pitchbend_master;
     unsigned char pitchBendLSB, pitchBendMSB;
 	char this_key[100];
+
+	int check_corrections = TRUE;
 
 	LastTime = time;
 	if(Panic || EmergencyExit) return(ABORT);
@@ -1513,17 +1516,9 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 	value = ByteToInt(p_e->data2);
 	type = status & 0xF0;
 	if(type != NoteOn && type != NoteOff) i_scale = blockkey = 0;
-	/* if(rtMIDI) {
-		if((result = MIDIflush(0)) != OK) return result;
-  		if(trace_driver) {
-			BPPrintMessage(0,odInfo,"Sending MIDI event to stack, date = %ld ms,\tstatus = %ld,\tdata1 = %ld,\tdata2 = %ld\n",(long)time,(long)p_e->status,(long)p_e->data1,(long)p_e->data2);
-			}
-    	if((result = CleanUpBuffer()) != OK) return result;
-		} */
 	if(MIDImicrotonality && (type == NoteOn || type == NoteOff)) {
 		i_scale = FindScale(scale);
 	//	BPPrintMessage(0,odInfo,"i_scale = %d\n",i_scale);
-		int check_corrections = FALSE;
 		if((type == NoteOn || type == NoteOff) && i_scale <= NumberScales && i_scale > 0) {
 			chan = AssignUniqueChannel(type,note,value,i_scale);
 			if(chan > 0) p_e->status = type + chan;
@@ -1535,36 +1530,32 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 					int numgrades = (*Scale)[i_scale].numgrades;
 					int numnotes = (*Scale)[i_scale].numnotes;
 					int baseoctave = (*Scale)[i_scale].baseoctave;
-					double interval = (*Scale)[i_scale].interval;
 					if(numgrades <= 12) { 
 						i_note = 0;
 						keyclass = modulo(note - basekey, 12);
-						basekeyclass = (*((*Scale)[i_scale].keyclass))[modulo(basekey, 12)];
 						octave = baseoctave + floor((double) (note - basekey)  / 12.);
+						frequency = (*Scale)[i_scale].basefreq * pow(2,((double)keyclass/12)) * pow(2,octave - baseoctave);
 						}
 					else {
 						i_note = modulo(note - basekey, numnotes);
 						keyclass = (*((*Scale)[i_scale].keyclass))[i_note];
-						basekeyclass = (*((*Scale)[i_scale].keyclass))[modulo(basekey, numnotes)];
 						octave = baseoctave + floor((double) (note - basekey) / numnotes);
+						frequency = (*Scale)[i_scale].basefreq * pow(2,((double)keyclass/numgrades)) * pow(2,octave - baseoctave);
 						}
-					double pitch_ratio = (*((*Scale)[i_scale].tuningratio))[keyclass];
-				/*	double n = log(pitch_ratio * pow(interval,octave - baseoctave)) / log(interval);
-					double frequency = (*Scale)[NumberScales].basefreq  * pow(interval,n);*/
-					double n = log(pitch_ratio * pow(2,octave - baseoctave)) / log(2.);
-					double frequency = (*Scale)[NumberScales].basefreq  * pow(2,n);
-				//	frequency = frequency * pow(interval, ((double) correction / 600. / interval));
-					frequency = frequency * pow(2, ((double) correction / 1200.));
-					frequency = frequency * (*((*Scale)[i_scale].tuningratio))[basekeyclass];
-					frequency = frequency * A4freq / 440.;
+					double basekey_ratio = (*((*Scale)[i_scale].tuningratio))[0];
 
-					if(check_corrections) BPPrintMessage(0,odInfo,"i_note = %d, keyclass = %d, numnotes = %d, pitch_ratio = %.3f, basekey = %d, basekeyclass = %d, block key = %d, octave = %d\n",i_note,keyclass,numnotes,pitch_ratio,basekey,basekeyclass,blockkey,octave);
+					if(check_corrections) BPPrintMessage(0,odInfo,"i_note = %d, keyclass = %d, numnotes = %d, basekey = %d, block key = %d, octave = %d\n",i_note,keyclass,numnotes,basekey,blockkey,octave);
+
+					frequency = frequency * basekey_ratio;
+					frequency = frequency * pow(2, ((double) correction / 1200.));
+					frequency = frequency * A4freq / 440.;
 
 					my_sprintf(this_key,"%s%d",*((*(*Scale)[i_scale].notenames)[keyclass]),octave);
 					trim_digits_after_key_hash(this_key); // Remove the octave number after key#xx
 					BPPrintMessage(0,odInfo,"§ key %d: \"%s\" chan %d",note,this_key,(chan+1));
 					BPPrintMessage(0,odInfo," scale #%d, block key %d, corr %d cents, freq %.3f Hz",i_scale,blockkey,correction,frequency);
-					if(basekey != 60) BPPrintMessage(0,odInfo," (base key %d in scale)",basekey);
+					if(basekey != 60) BPPrintMessage(0,odInfo," — base key %d in scale",basekey);
+					if(basekey_ratio < 0.9 || basekey_ratio > 1.1) BPPrintMessage(0,odInfo,", ratio %;3f",basekey_ratio);
 					BPPrintMessage(0,odInfo,"\n");
 					}
 				// With a pitch bend sensitivity of 2 semitones, the entire pitch bend range (14-bit) will correspond to ± 2 semitones.
