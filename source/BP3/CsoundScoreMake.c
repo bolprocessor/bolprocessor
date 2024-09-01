@@ -309,7 +309,7 @@ if(iarg > 0) {
 			}
 		if(i_scale > 0 && i_scale <= NumberScales) { 
 		//	BPPrintMessage(0,odInfo,"blockkey = %d\n",blockkey);
-			x = GetPitchWithScale(i_scale,key,cents,blockkey);
+			x = GetPitchWithScale(i_scale,kcurrentinstance,key,cents,blockkey);
 			if(x == Infpos) return(ABORT);
 			pitch_format = IGNORER;
 			}

@@ -45,7 +45,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 	char c, curr_arg[MAXLIN], label[MAXLIN], this_note[MAXLIN], this_fraction_arg[MAXLIN], note_name[20],key_number_string[20];
 	char** ptr;
 	int i,n,i_note,j_note,key,this_key,octave,numnotes,note_key_class,keyclass,j,k,pos,n_args,space,numgrades,baseoctave,basekey,numerator,delta_key,pitchclass,num[100],den[100];
-	double blockkey_temp_freq, pitch, temp_pitch, pitch_ratio, interval;
+	double blockkey_temp_freq, frequency, temp_pitch, pitch_ratio, interval;
 	
 	if(strlen(line) == 0 || line[0] != 'f') return(OK);
 	n_args = 0;
@@ -247,11 +247,10 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 		strcpy(name,*((*(*Scale)[i_scale].notenames)[keyclass]));
 		if(check_corrections) BPPrintMessage(0,odInfo,"‘%s’ temp_pitch = %.3f, keyclass = %d octave = %d, interval = %.3f\n",name,temp_pitch,keyclass,octave,interval);
 		pitch_ratio = (*((*Scale)[i_scale].tuningratio))[keyclass];
-	//	double n = log(pitch_ratio * pow(2,octave - baseoctave)) / log(2.0);
 		double n = log(pitch_ratio * pow(interval,octave - baseoctave)) / log(interval);
-		pitch = (*Scale)[i_scale].basefreq  * pow(interval,n);
-		if(check_corrections) BPPrintMessage(0,odInfo,"temp_pitch = %.3f, pitch = %.3f, pitch_ratio = %.3f, n = %.3f\n",temp_pitch,pitch,pitch_ratio,n);
-		(*(*Scale)[i_scale].deviation)[key] = (short) (1200. * log2(pitch/temp_pitch));
+		frequency = (*Scale)[i_scale].basefreq  * pow(interval,n);
+		if(check_corrections) BPPrintMessage(0,odInfo,"temp_pitch = %.3f, frequency = %.3f, pitch_ratio = %.3f, n = %.3f\n",temp_pitch,frequency,pitch_ratio,n);
+		(*(*Scale)[i_scale].deviation)[key] = (short) (1200. * log2(frequency/temp_pitch));
 		if(TraceMicrotonality) {
 			BPPrintMessage(0,odInfo,"• [%d] %s deviation = %d cents\n",key,name,(*(*Scale)[i_scale].deviation)[key]);
 			}
@@ -270,8 +269,8 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 	}
 
 
-double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
-	int this_block_key, i_note, note_class, octave, keyclass,blockkey_pitch_class, numgrades, numnotes, basekey, basekeyclass, baseoctave, delta_key;
+double GetPitchWithScale(int i_scale, int kcurrentinstance, int key, double cents, int blockkey) {
+	int this_block_key, i_note, note_class, octave, keyclass,blockkey_pitch_class, numgrades, numnotes, basekey, basekeyclass, baseoctave, delta_key, pitchbend_master;
 	double basefreq, blockkey_pitch_ratio, blockkey_correction, basekey_ratio, diapason_correction, interval, n, frequency;
 	char this_key[100];
 	
@@ -323,7 +322,13 @@ double GetPitchWithScale(int i_scale, int key, double cents, int blockkey) {
 	my_sprintf(this_key,"%s%d",*((*(*Scale)[i_scale].notenames)[keyclass]),octave);
 	trim_digits_after_key_hash(this_key); // Remove the octave number after key#xx
 
-	if(TraceMicrotonality) BPPrintMessage(0,odInfo,"§ key %d: \"%s\" octave %d scale #%d, block key %d, corr %d cents, freq %.3f Hz\n",key,this_key,octave,i_scale,blockkey,correction,frequency);
+	if(TraceMicrotonality) {
+		pitchbend_master = (int) PitchbendStart(kcurrentinstance);
+		if(pitchbend_master > 0 && pitchbend_master < 16384) pitchbend_master -= DEFTPITCHBEND;
+		else pitchbend_master = 0;
+		BPPrintMessage(0,odInfo,"§ key %d: \"%s\" octave %d scale #%d, block key %d, corr %d cents, freq %.3f Hz\n",key,this_key,octave,i_scale,blockkey,correction,frequency);
+		if(pitchbend_master != 0) BPPrintMessage(0,odInfo,"--> with additional pitchbend value of %d\n",pitchbend_master);
+		}
 
 	if(check_getpitch) BPPrintMessage(0,odInfo,"• key = %d, C4key = %d, basekey = %d, basekeyclass = %d, basefreq = %.3f baseoctave = %d, numgrades = %d interval = %.3f, keyclass = %d, diapason_correction = %.4f blockkey = %d, correction = %d, octave = %d, cents = %.1f, tuningratio[basekeyclass] = %.3f frequency = %.3f Hz\n",key,C4key,(*Scale)[i_scale].basekey,basekeyclass,basefreq,baseoctave,numgrades,interval,keyclass,diapason_correction,blockkey,correction,octave,cents,(*((*Scale)[i_scale].tuningratio))[basekeyclass],frequency);
 
