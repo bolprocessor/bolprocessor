@@ -7,7 +7,7 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 -----
-2024-09-01
+2024-09-01 (several uploads)
 Fixed the display of frequencies when tracing the microtonality, the calculation of Csound frequencies using microtonal scales, and a bug in the Improvize mode. 
 
 -----
