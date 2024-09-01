@@ -1506,7 +1506,7 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
     unsigned char pitchBendLSB, pitchBendMSB;
 	char this_key[100];
 
-	int check_corrections = TRUE;
+	int check_corrections = FALSE;
 
 	LastTime = time;
 	if(Panic || EmergencyExit) return(ABORT);
@@ -1565,12 +1565,12 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 				pitchbend_master = (int) PitchbendStart(kcurrentinstance);
 				if(pitchbend_master > 0 && pitchbend_master < 16384) pitchbend_master -= DEFTPITCHBEND;
 				else pitchbend_master = 0;
-				if(pitchbend_master != 0  && TraceMicrotonality) BPPrintMessage(0,odInfo,"--> with additional pitchbendvalue %d\n",pitchbend_master);
+				if(pitchbend_master != 0  && TraceMicrotonality) BPPrintMessage(0,odInfo,"--> with additional pitchbend value of %d\n",pitchbend_master);
 				if(correction < -200 || correction >= 200) {
 					if(ToldPitchbend++ < 4) BPPrintMessage(0,odError,"=> Microtonality pitchbender out of range ± 200 cents: %d  cents note %d\n",correction,note);
 					correction = 0;
 					}
-				if(correction != 0) {
+				if(correction != 0 || pitchbend_master != 0) {
 					pitchBendValue = pitchbend_master + DEFTPITCHBEND + (int)(correction * (0.01 * DEFTPITCHBEND / sensitivity));
 					if(pitchBendValue < 0) {
 						if(ToldPitchbend++ < 4) BPPrintMessage(0,odError,"=> Pitchbender out of range has been set to 0\n");

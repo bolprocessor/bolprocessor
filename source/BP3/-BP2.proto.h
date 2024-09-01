@@ -1111,7 +1111,7 @@ int stop(int,char*);
 
 void StopWaiting(int,char);
 int CreateMicrotonalScale(char*,char*,char*,char*,char*,char*);
-double GetPitchWithScale(int,int,double,int);
+double GetPitchWithScale(int,int,int,double,int);
 int modulo(int,int);
 void delay(int);
 void mysleep(long);
