@@ -1570,7 +1570,7 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 					if(ToldPitchbend++ < 4) BPPrintMessage(0,odError,"=> Microtonality pitchbender out of range ± 200 cents: %d  cents note %d\n",correction,note);
 					correction = 0;
 					}
-				if(correction != 0 || pitchbend_master != 0) {
+		//		if(correction != 0 || pitchbend_master != 0) {
 					pitchBendValue = pitchbend_master + DEFTPITCHBEND + (int)(correction * (0.01 * DEFTPITCHBEND / sensitivity));
 					if(pitchBendValue < 0) {
 						if(ToldPitchbend++ < 4) BPPrintMessage(0,odError,"=> Pitchbender out of range has been set to 0\n");
@@ -1601,7 +1601,7 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 						if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"Sending pitchbend to MIDI file: %d %d %d\n",pb_event.status,pb_event.data1,pb_event.data2);
 						status = type + chan;
 						}
-					}
+			//		}
 				}
 			}
 		}

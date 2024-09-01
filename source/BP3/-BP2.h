@@ -57,12 +57,8 @@
 #define COMPILING_BETA 0
 #endif
 
-// Select compilation options
-
-// MACOS is currently unused 
-/* #ifndef MACOS
-#define MACOS 1
-#endif */
+// Select compilation options (ALL OBSOLETE)
+// The only compilation options are the ones selecting code for MacOS, Windows and Linux.
 
 // 1 if building the OS X Carbon GUI, 0 otherwise
 #ifndef BP_CARBON_GUI_FORGET_THIS
