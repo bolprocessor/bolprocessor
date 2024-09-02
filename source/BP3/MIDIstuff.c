@@ -1716,8 +1716,6 @@ int AllNotesOffPedalsOffAllChannels(void) {
 		return(OK);
 		}
 	if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"Sending AllNotesOff and resetting controls on all channels\n");
-	/* We can afford to mute the current output and send NoteOffs at a low level */
-	// Mute++;
 	for(channel=0; channel < MAXCHAN; channel++) {
 		WaitABit(10); // Wait for 10 ms
 		midiData[0] = ControlChange + channel;
@@ -1728,8 +1726,11 @@ int AllNotesOffPedalsOffAllChannels(void) {
 		midiData[1] = 64; // Pedal Off
 		midiData[2] = 0;
 		sendMIDIEvent(0,0,midiData,dataSize,0); // Sending immediately
+		midiData[0] = PitchBend + channel;
+		midiData[1] = 0x00;
+		midiData[2] = 0x40;
+		sendMIDIEvent(0,0,midiData,dataSize,0); // Sending immediately
 		}
-	// Mute--;
 	WaitABit(10);
 	return(OK);
 	}
