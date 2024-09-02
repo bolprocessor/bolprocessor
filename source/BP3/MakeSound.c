@@ -963,7 +963,7 @@ TRYCSFILE:
 					ChangedPitchbend[chan] = TRUE;
 					lsb = ((long)pitchbend) % 128;
 					msb = (((long)pitchbend) - lsb) >> 7;
-					if(!MIDImicrotonality && !cswrite) {
+					if(!cswrite) {
 						e.time = Tcurr;
 						e.type = NORMAL_EVENT;
 						e.status = PitchBend + chan;

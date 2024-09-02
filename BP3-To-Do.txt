@@ -191,6 +191,7 @@ MIDI files (Probably unnecessary, as MIDI file creation works perfectly.)
 Documentation
 -------------
 
+- The file BP2_help.txt still needs updates (and a renaming, to be checked by installers)
 - Write new docs for BP3 (command-line usage, etc.)
 - Convert BP2 documentation to an (open-source) authoring system that can help maintain the organization and internal links as well as output in multiple formats (HTML, PDF, etc.) ??
 

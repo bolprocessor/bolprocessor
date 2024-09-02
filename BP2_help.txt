@@ -1,4 +1,4 @@
-// This is the help file of Bol Processor BP2 and BP3.
+// This is the help file of Bol Processor BP3.
 // When editing it, beware that BP3 looks for prefixes. Therefore, if an item is
 // the prefix of another one then it should precede it in this file.
 ### Help 
@@ -6,8 +6,8 @@
 The cursor becomes a question mark.  Select a menu command, click a button or
 select any word or group of words you need information about.
 • In the "Help" text, expressions between quotes are hyperlinks to more entries.
-### What style of music is BP2/BP3 dealing with?
-• BP2/BP3 is not designed for a particular musical style. It stemmed out of formalizing
+### What style of music is BP3 dealing with?
+• BP3 is not designed for a particular musical style. It stemmed out of formalizing
     music representation and composition tasks in the context of non-western music, notably
     North-Indian rhythm. For this reason it focused on text-oriented representations and formal
     grammmars.  'Bol Processor' originates from the word 'bol' (Hindi/Urdu 'bolna', to speak)
@@ -16,16 +16,16 @@ select any word or group of words you need information about.
     were replaced with "sound-objects", i.e. arbitrary sequences of events encoded as MIDI messages.
 • Simplified sound-objects named "simple notes" have later been introduced to facilitate work
     with western tonal systems in English, French or Indian "note conventions".
-• BP2/BP3 is now able to deal with polyphony, and does it in a smart way. See "polymetric structures".
-• BP2/BP3 also deals with incomplete representations of polyrhythmic sequences.
+• BP3 is now able to deal with polyphony, and does it in a smart way. See "polymetric structures".
+• BP3 also deals with incomplete representations of polyrhythmic sequences.
     See "period notation".
-• BP2/BP3 is able to control all MIDI parameters, including continuous parameters such as pitchbend,
+• BP3 is able to control all MIDI parameters, including continuous parameters such as pitchbend,
     polyphonic pressure, panoramic, etc.  See "performance controls".
-• BP2/BP3 has interactive features used in the "improvize mode".  It responds to MIDI messages
+• BP3 has interactive features used in the "improvize mode".  It responds to MIDI messages
     (see "Interactive mode").
-• Thanks to Csound, BP2/BP3 bypasses limitations of MIDI, and takes advantage of both environments.
+• Thanks to Csound, BP3 bypasses limitations of MIDI, and takes advantage of both environments.
     (See "Csound implementation")
-### How does the output of BP2/BP3 look like?
+### How does the output of BP3 look like?
 • There are three representation levels:
 1) The symbolic level, at which music is represented as a TEXT score. This score uses either
     "simple notes" or "sound-objects" completed with "performance controls".
@@ -42,32 +42,32 @@ select any word or group of words you need information about.
     is given to display the text score.
 • A text score may be displayed in graphic and played on the MIDI output: select the text and do
     "Play selection" in the "Action" menu.
-### How does the input of BP2/BP3 look like?
+### How does the input of BP3 look like?
 • A score in text format may be selected and played on the MIDI output: select "Play selection"
     in the "Action" menu.  Try it for example on "C5 C5 C5 D5 E5_ D5_ C5 E5 D5 D5 C5_ _ _".
 • Examples of (less trivial) text format scores are stored in '-da' files that may be loaded to
     the "Data" window.  There are more examples in the enclosed data-base "TryAppleEvents.fm"
     which may be opened under Claris FileMaker Pro.
-• A grammar is the formal description of a process producing musical text scores which BP2/BP3 is able
+• A grammar is the formal description of a process producing musical text scores which BP3 is able
     to play on its MIDI output.  Load for instance '-gr.Mozart' in the "Grammar" window, then
     type command-R or select "Produce items" in the "Action" window.
-• A script is a sequence of meta-instructions performing all operations automatically in BP2.
-    Scripts are discussed in the initial part ("QuickStart") of the enclosed MS-Word document
-    "BP2 doc - MS Word".
+• A script is a sequence of meta-instructions performing all operations automatically in BP2 or BP3.
+    Scripts are discussed in the initial part ("QuickStart") of the old document:
+    https://bolprocessor.org/misc/docs/
 • MIDI files type 0, 1 or 2 can be imported to create "sound-object prototypes".
 • Csound scores can be imported to create "sound-object prototypes".
-• BP2 responds to input MIDI messages.  See "Interactive mode".
+• BP3 responds to input MIDI messages.  See "Interactive mode" and https://bolprocessor.org/real-time-midi/
 ### Interactive mode
-In this mode, BP2 is able to respond in real time to MIDI messages that are assigned certain tasks.
-• For instance, instruction
+Read https://bolprocessor.org/real-time-midi/
+In this mode, BP3 is able to respond in real time to MIDI messages that are assigned certain tasks.
+• For instance, instruction (not yet implemented)
         Control parameter K1 = #7 channel 16
     instructs controller #7 on channel 16 to fix the value of parameter K1.
     This parameter may control weights in grammar rules, velocities, etc. (see "Variable arguments")
 • A parameter can also be set to the velocity of a NoteOn, for example:
         Velocity parameter K1 = C3 channel 16
-Contains most commands of BP2. You may document them with the on-line "Help".
 ### Variables
-BP2/BP3 recognizes strings starting with an uppercase character as "variables" in grammars
+BP3 recognizes strings starting with an uppercase character as "variables" in grammars
     or in its glossary. It creates a variable if it is not already there, so be careful
     with spelling mistakes.
 • You may however start a variable with a lower-case character provided that you write
@@ -86,18 +86,19 @@ A structure of "sound-objects" represented as a "polymetric expression".
     Example:
     {C4 D4 E4,G3 E3} (brackets optional) means that "C4 D4 E4" will be played in the same
     time as "G3 E3".
-• BP2/BP3 manages to adjust durations.  Here, the duration of each beat is determined by the
+• BP3 manages to adjust durations.  Here, the duration of each beat is determined by the
     first beat "C4 D4 E4", hence three beats. It will be interpreted:
       /2 {C4_ D4_ E4_,G3_ _ E3 _ _}
     yielding the phase diagram:
         C4 _  D4 _  E4 _
         G3 _  _  E3 _  _
-• BP2/BP3 uses the same algorithm to deal with polymetric expressions and with "period notation".
+• BP3 uses the same algorithm to deal with polymetric expressions and with "period notation".
 • A polymetric expression can contain another polymetric expression, including expressions in
     "period notation".
     Try to play: {C4 D4 E4,{G3,C3} E3} for instance [with "English convention" checked
         in the 'Misc' menu].
 • Many commented examples will be found in "-da.checkPoly".
+• Read https://bolprocessor.org/polymetric-structure/
 ### Undetermined rests
 • These are notated '_rest'.
     The old notation '…' (be careful: this is a single character, not three periods!)
@@ -121,6 +122,7 @@ A structure of "sound-objects" represented as a "polymetric expression".
        /8 {C3_ _ _ _ _ _ _ D3_ _ _ _ _ _ _ B2_ _ _ _ _ _ _,
                                      -_ _ C4_ _ _ _ _ D4_ _ _ _ _ -_ _ B3_ _ _ _ _}
    in which each rest has a duration of 3/8 beats.
+• Read https://bolprocessor.org/polymetric-structure/#undetermined-rests
 ### Period notation
 • Periods are used to indicate 'beats', i.e. sequences of "sound-objects" that are
     constrained to equal symbolic durations. For instance,
@@ -129,7 +131,7 @@ A structure of "sound-objects" represented as a "polymetric expression".
 • The duration of each beat is determined by the first beat "C4 D4 E4", hence three
 	time units. It will be interpreted:
         /2 C4_ D4_ E4_ • G3_ _ E3_ _
-• BP2/BP3 uses the same algorithm to deal with period notation and with "polymetric expressions".
+• BP3 uses the same algorithm to deal with period notation and with "polymetric expressions".
     Thus, {C4 D4 E4,G3 E3}  (the period has been replaced with a comma)
     will be interpreted:
         /2 {C4_ D4_ E4_,G3_ _ E3_ _}
@@ -137,11 +139,12 @@ A structure of "sound-objects" represented as a "polymetric expression".
         C4 _  D4 _  E4 _
         G3 _  _  E3 _  _
 • Many commented examples will be found in example file '-da.checkPoly'.
+• Read https://bolprocessor.org/polymetric-structure/
 ### Terminal symbols
 See "Terminal alphabet"
 ### Terminal alphabet
 • A 'vocabulary' of arbitrary words (terminal symbols) designating "sound-objects".
-• Each word is defined in the 'alphabet' window saved as '-ho.filename'.
+• Each word is defined in the 'alphabet' window saved as '-al.filename'.
 • A terminal symbol may also be defined at "compile time" if it appears between
     single quotes in the grammar, or if it is used in an out-time "sound-object":
         <<iAmAnOutTimeSoundObject>>.
@@ -157,7 +160,7 @@ See "Terminal alphabet"
 • Terminal symbols are mapped to "sound-object prototypes" thanks to the information
     contained in "-mi.filename".  The name of this file should be inserted on top of the
     'alphabet' window.
-• BP2/BP3 also recognizes predefined terminal symbols called "simple notes".
+• BP3 also recognizes predefined terminal symbols called "simple notes".
 • Related topics: "Variables", "sound-objects".
 ### Metavariables
 See "Wild cards"
@@ -174,14 +177,12 @@ Symbols '?', '?1', '?2', ... '?n' are used as wild cards in grammar rules.  They
 • The same wildcards may be found in the right argument of a rule.  For instance, the
     following rule will reverse the order of two (distinct) symbols:
         ?1 ?2 --> ?2 ?1
-### Compile project
-Compiles current alphabet, grammar, interactive codes and glossary (if any).
 ### Compile time
 The time when a grammar is being compiled, or some data is being "tokenized". This may
     be opposed to "performance time".
 ### Tokenized data
 Grammars and musical items are represented with reserved words, "terminal symbols"
-    and variables. Before using them, BP2/BP3 replaces them with tokens, i.e. numeric
+    and variables. Before using them, BP3 replaces them with tokens, i.e. numeric
     codes. These codes are not visible to users.
 ### Performance time
 The time when a musical item is being played on the sound output. This may be opposed
@@ -210,59 +211,31 @@ These are predefined terminal symbols mapped to predefined "sound-objects"
 • The conventional 440Hz tone may be written 'A4', 'la3' or 'dha4', depending on the
     note convention set in the 'Misc' menu, and the one in the "Tuning" dialog.
 • See: "English convention", "French convention", "Indian convention","Key numbers".
-### MIDI [Devices menu]
-This menu item can be toggled.  When checked, items produced by the grammar are played
-    using the real-time MIDI output device.
-• This setting is also available in the "Input-output settings" window as "Use MIDI in/out".
-• May be modified with the script commands "Use MIDI OFF" and "Use MIDI ON"
-• Related Topics:  "MIDI format"
-### Use MIDI in/out
-When checked, items produced by the grammar are played using the real-time MIDI
-    output device.
-• This setting is also available in the 'Devices' menu as "MIDI".
-• May be modified with the script commands "Use MIDI OFF" and "Use MIDI ON"
-• Related Topics:  "MIDI format"
-### Use MIDI OFF [Script command]
-Turns off real-time MIDI output.  See "Use MIDI in/out".
-### Use MIDI ON [Script command]
-Turns on real-time MIDI output.  See "Use MIDI in/out".
 ### Tuning dialog
 This dialog makes it possible to modify the MIDI keyboard mapping and diapason
     reference used by Csound.
-• Usually, key 60 is assigned to C4 (do3 in French, sa4 in Indian), but some MIDI programs,
-    notably old versions of BP2/BP3, use alternate note names such as C5 (do4).
-• The diapason value has no effect on the MIDI output.  Its is used by Csound for
-    instruments requiring a "cps (Hz)" format for pitch.
-### Csound
-Displays the Csound score attached to this "sound-object prototype".
-### Csound tuning
-See "Tuning dialog".
-### A4 / la3 / dha4 frequency is
-See "Tuning dialog".
-### MIDI mapping
-See "Tuning dialog".
-### C4 / do3 / sa4  is MIDI key
-See "Tuning dialog".
-• A4 is conventionally 440Hz but you may want to change it if your Mac gets too hot :-)
+• Usually, key 60 is assigned to C4 (do3 in French, sa4 in Indian)
 ### Relocatable sound-object
 A "sound-object" that may be relocated by the "time-setting algorithm".
 ### Sound objects
 See "Sound-objects"
 ### Sound-objects
 See the reference manual and publications.
-• In short, a sound-object in BP2/BP3 is a sequence of 'elementary' events, such as MIDI
+• In short, a sound-object in BP3 is a sequence of 'elementary' events, such as MIDI
     or Csound instructions.
 • A typical simple sound-object is a "simple note", i.e. a NoteOn/NoteOff
     pair on the same MIDI key and channel.
-• Sound-objects are designated by "terminal symbols". Each object is mapped to
+• Sound-objects are labelled as "terminal symbols". Each object is mapped to
     a unique "sound-object prototype" bearing the same name, which defines its metric
-    and topologic properties.  (See reference manual).
+    and topologic properties.
+• Example: https://bolprocessor.org/interactive-improvisation/
 ### Sound-object prototypes
 These contain information about "sound-objects" bearing the same name: the list of
 elementary events, and metric and topologic properties used by the "time-setting algorithm".
 • Elementary events may be MIDI events, Csound events, or both.
+• Read https://bolprocessor.org/check-bp3/#sound-object-prototypes
 ### Time-setting algorithm
-An algorithm used by BP2/BP3 to calculate the timings of elementary events (e.g.
+An algorithm used by BP3 to calculate the timings of elementary events (e.g.
    MIDI or Csound events) in a musical item. It takes into account the properties of
     "sound-objects" (defined by their "sound-object prototypes") and may relocate or
     truncate objects in order to satisfy all constraints arising therefrom.
@@ -270,7 +243,7 @@ An algorithm used by BP2/BP3 to calculate the timings of elementary events (e.g.
 This is an optional relation on the "terminal alphabet" used by a grammar. It is
     defined over all the terminal symbols and identified by a label. For
     instance, let us call TRANS the one-semitone upward transposition in an alphabet of
-    notes. The alphabet file (saved as "-ho.mynotes") would begin like this:
+    notes. The alphabet file (saved as "-al.mynotes") would begin like this:
         TRANS
         do0 --> do#0 --> re0 --> re#0  etc... --> si9
 • If a "terminal alphabet" uses no homomorphism then arrows "-->" should of course not
@@ -308,7 +281,7 @@ See "Inference engine".
 See "Inference engine".
 ### Rule derivation mode
 In "production", there are three derivation modes for rules in a "subgrammar":
-• RND (default mode): the position of the derivation is choosen randomly
+• RND (default mode): the position of the derivation is chosen randomly
     in the "work string";
 • LEFT: the position of the derivation is the leftmost occurrence of the left argument
     of this rule;
@@ -427,9 +400,9 @@ A "grammar procedure" or a "tool".
     "New seed".
 ### _goto(igram,irul) [Grammar procedure]
 This procedure is found in the right argument of a rule.
-• _goto(igram,irul) will cause BP2/BP3 to jump to "subgrammar" igram, rule irul, when the rule
+• _goto(igram,irul) will cause BP3 to jump to "subgrammar" igram, rule irul, when the rule
     that contains it has been applied.  If (igram,irul) does not point at a candidate rule,
-    BP2/BP3 will either execute a "_failed" conditional jump or search a candidate rule in
+    BP3 will either execute a "_failed" conditional jump or search a candidate rule in
     subgrammar igram.  If none is found it will jump to subgrammar igram+1, etc. as usual.
 • _goto(igram,0) causes to jump to "subgrammar" igram and go on selecting rules according to the
     subgrammar type.
@@ -482,46 +455,44 @@ Sets the random generator's seed to 'x' and resets the random sequence.
     grammars.  The range is 0..32767.
 • The effect of _srand(x) is cancelled by "_randomize".
 • Using _srand(x) is a proper way of repeating random patterns. However, it is not
-    certain that these patterns will remain the same ones each time BP2/BP3 is run.
-    Sequences of random choices depend on machines, system versions, BP2/BP3 versions,
+    certain that these patterns will remain the same ones each time BP3 is run.
+    Sequences of random choices depend on machines, system versions, BP3 versions,
     and the grammar itself.
 • Related topics: "_randomize", "Randomize", "Reset random sequence", "Set random seed",
     "New seed".
 ### OFF (quantization)
 Cancels the effect of ON (quantization).
 ### ON (quantization)
-When checked, BP2/BP3 will use the quantization setting (in milliseconds) to simplify
+When checked, BP3 will use the quantization setting (in milliseconds) to simplify
     tables containing "sound-object" structures (the phase diagram, see manual).
 • The result is a saving of memory space and "computation" time making it possible to
     compute very complex items.
 ### _script(scriptline) [Performance control]
 The script line will be executed at "performance time".
 ### _scale(name,blockkey) [Performance control]
-If microtonal scales have been defined in the Csound instruments file, they can be selected as follows:
+Read https://bolprocessor.org/check-midi-microtonality/
+If microtonal scales have been defined in the ‘-to’ Tonality resource file, they can be selected as follows:
 • By default, a 12-tone equal-tempered scale is used.
 • "name" is the label of the scale, by default "scale_1", "scale_2" etc. (no space)
 • "blockkey" specifies the key of the note whose frequency should always match equal-temperament. For instance, if blockkey = 69 then 'A4' will stick to diapason (A4 frequency). Default value of 'blockkey' is stored in the settings.
-• If blockkey is 0 in a _scale() statement, it is set to its value found in the settings or by default 60.
+• If blockkey is 0 in a _scale() statement, it is set to its value found in the settings, or by default 60.
 • In a _scale() statement, blockkey may be specified as a note, e.g. 'G4', instead of a key number. Beware of using the same note convention as in the grammar...
 • _scale(0,blockkey) will reset the scale to equal-tempered, in which case 'blockkey' is irrelevant.
-• If exactly 1 scale has been loaded from the Csound instruments file, it will be used by default, i.e. even if no _scale(name,blockkey) instruction is used.
-• Values of 'scale' and 'blockkey' are carried through fields of polymetric expressions and not influenced by _chan() nor 
+• Values of 'scale' and 'blockkey' are carried through fields of polymetric expressions and not influenced by _chan() 
 ### MIDI format
 Musical Instrument Digital Interface: a standard for communications between between
     computers and electronic musical instruments.
 ### Csound format
 • Csound uses two text files as an input: an 'orchestra' file describing sound production
     procedures (a set of virtual instruments), and a 'score' file describing sound events.
-• BP2/BP3 (above version 2.6.2) produces Csound score files using its own representation
+• The Bol Processor produces Csound score files using its own representation
     of musical items, grammars and scripts, and a minimum amount of information about
     the arguments expected by instruments in the Csound orchestra file.
 • Related topic: "Csound implementation"
-### Delete «unsigned» chars [Script command]
-Deletes specified number of chars in current edit window
 ### Expand selection window «windowname»
-Displays selected "polymetric structure" as interpreted by BP2/BP3.
+Displays selected "polymetric structure" as interpreted by BP3.
 • Two equivalent interprations are displayed.  The first one is the most compact
-    representation (the one used internally by BP2/BP3).  The second one is the complete
+    representation (the one used internally by BP3).  The second one is the complete
     expression, containing no explicit "tempo marker".  The first expression may
     imply a rescaling.
 • For instance,
@@ -546,8 +517,8 @@ If a, b, c are sound objects, a sequence may be notated:
 • Note that there must be a period before a line break, otherwise the last beat would be
     merged with the first one of the next line.
 • The old notation "3/4/2/4 abbabccabcca /3 abcccbaab /1 bbb" is no more valid.
-### French convention
-Use French names of notes: dob, do, do#, reb, re, re#, mib, mi, mi#, fab, fa, fa#, solb,
+### Italian/Spanish/French convention
+Use Italian/Spanish/French names of notes: dob, do, do#, reb, re, re#, mib, mi, mi#, fab, fa, fa#, solb,
     sol, sol#, lab, la, la#, sib, si, si# and octave numbers such that la3 = 440 Hz.
 • Related topic: "Tuning"
 ### English convention
@@ -555,7 +526,7 @@ Use English names of notes: Cb, C, C#, Db, D, D#, Eb, E, E#, Fb, F, F#, Gb, G,
     G#, Ab, A, A#, Bb, B, B# and octave numbers such that A4 = 440 Hz
 • Related topic: "Tuning"
 ### Indian convention
-Use Indian names of notes: sab, sa, sa#, reb, re, re#, gab, ga, ga#, mab, ma, ma#, pab,
+Use (modified) Indian names of notes: sab, sa, sa#, reb, re, re#, gab, ga, ga#, mab, ma, ma#, pab,
 pa, pa#, dhab, dha, dha#, nib, ni, ni# and octave numbers such that dha4 = 440 Hz.
 • Related topic: "Tuning"
 ### Key numbers
@@ -565,46 +536,36 @@ Use MIDI key numbers to represent notes, for example 'key#60' is middle C.
 Conventions used for writing "simple notes".
 • Related topics:
     "Note convention = English"
-    "Note convention = French"
+    "Note convention = Italian/Spanish/French"
     "Note convention = Indian"
     "Note convention = key numbers"
     "Tuning"
-### Quantization «long» milliseconds [Script command]
+### Quantization «long» milliseconds
 The minimum significant duration. It is convenient to set quantization to the largest
     acceptable value in order to save "computation" time and space.
-• Note that quantization in BP2/BP3 has no effect on long-term accuracy.
-### Quantize OFF [Script command]
+• Note that quantization in BP3 has no effect on long-term accuracy.
+### Quantize OFF
 Cancels the effect of "Quantize ON".
-### Quantize ON [Script command]
+### Quantize ON
 See "Quantization".
-### Reset random sequence  [Script command]
+### Reset random sequence
 Reseeds the random number generator with the value specified by "Set random seed"
 • Related topics: "_srand", "_randomize", "Randomize", "Set random seed", "New seed".
-### Run script «filename» [Script command]
-Runs the specified script, if found on the disk in current directory.
 ### _smooth
 • Related topic: "Smooth time"
-### Smooth time [Script command]
-Sets time to smooth.  (See the "Metronome" dialog)
+### Smooth time
+Sets time to smooth.
 • This means that time streaks will not be generated by the metronome, but by the
    first sequence of objects. This is often associated with "time patterns".
 • Related topic: "Striated time"
 ### _striated
 • Related topic: "Striated time"
-### Striated time [Script command]
-Sets time to striated.  (See the "Metronome" dialog)
+### Striated time
+Sets time to striated.
 • This means that the metronome will generate time streaks on which the pivots of
     "sound-objects" may be placed.
 • Related topic: "Smooth time"
-### Tempo «long» ticks in «long» secs [Script command]
-Sets the time base to specified values.  (See the "Time base" dialog.)
-### Time resolution «long» milliseconds [Script command]
-Sets time resolution to specified value.  (See the "Time accuracy" dialog.)
-### Type «line» [Script command]
-When this script is executed, «line» is printed in the window previously selected by
-   script instruction "Activate window".
-• "Type <return>" inserts line feeds.
-### Wait for «key stroke or MIDI event» [Script command]
+### Wait for «key stroke or MIDI event»
 To define the wait event, the easiest is to check 'REC' in the script window,
     then click 'WAIT FOR:'.
 • Examples of correct syntax:
@@ -700,7 +661,7 @@ _value(param,x) assigns numeric value 'x' to "Performance parameter" 'param'.
     different 'x' values.
 • Related topics: "_fixed", "_step", "_cont", "Performance parameter".
 ### Performance parameter
-Up to 256 parameters with arbitrary names may be handled by BP2 apart from the
+Up to 256 parameters with arbitrary names may be handled by BP3 apart from the
     predefined ones: pitchbend, pressure, modulation, etc. which generate
     MIDI messages and Csound events.
 • An arbitrary parameter is automatically created when refered to in a "_value", "_fixed",
@@ -832,10 +793,10 @@ Indicates that panoramic should change stepwise between two specified values.
 Indicates that panoramic should change continuously between two specified values.
 • See "Continuous performance control"
 ### _volumecontrol(x) [Current channel]  [Performance control]
-Informs BP2/BP3 that MIDI controller x controls the volume (on the current channel).
+Informs BP3 that MIDI controller x controls the volume (on the current channel).
 • Default value is 7, in agreement with "General MIDI" specs.
 ### _pancontrol(x) [Current channel]  [Performance control]
-informs BP2/BP3 that MIDI controller x controls the panoramic (on the current channel).
+informs BP3 that MIDI controller x controls the panoramic (on the current channel).
 • Default value is 10, in agreement with "General MIDI" specs.
 ### Wait for:
 When in RECording script mode, this allows you to enter a script line
@@ -846,61 +807,32 @@ Execute the script displayed in the script window, if any.
 Resets switches, pitch benders, modulation, channel pressure, panoramic and volume
     on all channels once an item has been played. This option is recommended although it may
     be time consuming.
-• Note that BP2/BP3 keeps track of the channels on which controllers
+• Note that BP3 keeps track of the channels on which controllers
     have been changed, so normal reset will only occur on those channels. (Consequently,
-    if a controller has been changed by another device than BP2, it may not be reset
+    if a controller has been changed by another device than BP3, it may not be reset
     properly.)  However, general reset is forced when invoking "Produce items" if this
     option is checked.
 • From version 2.7.4 onward, only those switches that have explicitly be changed by "_switchon"
     are reset.
-### Reset controllers OFF [Script command]
-Cancels "Reset controllers ON".
-### Reset controllers ON [Script command]
-Resets pitch benders, modulation, channel pressure and volume on all channels
-before an item is played. This option is recommended.
 ### Reset rule weights
 Resets weights in grammar to original values before producing a new item.
-### Reset rule weights OFF [Script command]
-Cancels the effect of "Reset rule weights ON".
-### Reset rule weights ON [Script command]
-See "Reset rule weights".
 ### Reset rule flags
 Resets "flags" in grammar to 'zero' before producing a new item.
-### Reset rule flags OFF [Script command]
-Cancels the effect of "Reset rule flags ON".
-### Reset rule flags ON [Script command]
-See "Reset rule flags".
 ### Non-stop improvize
-Allows BP2/BP3 to produce unlimited number of items with the same grammar.
-### Non-stop improvize OFF [Script command]
-Cancels the effect of "Non-stop improvize ON".
-### Non-stop improvize ON [Script command]
-See "Non-stop improvize".
+Allows BP3 to produce unlimited number of items with the same grammar.
 ### Cyclic play
 Allows the same item to be repeated forever.
-### Cyclic play OFF [Script command]
-Cancels the effect of "Cyclic play ON".
-### Cyclic play ON [Script command]
-See "Cyclic play".
 ### Use each substitution
-When SUB "subgrammars" are used, allows BP2/BP3 to play items produced after each substitution.
+When SUB "subgrammars" are used, allows BP3 to play items produced after each substitution.
     (See "-gr.koto3" for instance)
-### Use each substitution OFF [Script command]
-Cancels the effect of "Use each substitution ON".
-### Use each substitution ON [Script command]
-See "Use each substitution".
 ### Produce all items
-Produces all items generated by grammar.
-### Produce all items OFF [Script command]
-Cancels the effect of "Produce all items ON".
-### Produce all items ON [Script command]
 Produces all items generated by grammar.
 ### Display production
 Displays all steps of the "production" in the "Trace" window.
 ### Step-by-step produce
-Displays all steps of the "production" in the "Trace" window, and allows BP2/BP3 to pause.
+Displays all steps of the "production" in the "Trace" window, and allows BP3 to pause.
 ### Step subgrammars
-Allows BP2/BP3 to pause each time a "subgrammar" has been used entirely in "production".
+Allows BP3 to pause each time a "subgrammar" has been used entirely in "production".
 ### Trace production
 Displays all steps of the "production" in the "Trace" window along with decisions
     taken while producing an item.
@@ -909,23 +841,11 @@ Allows user to produce items by choosing candidate rules manually.
 ### Display items
 Allows the display of item(s) produced by the grammar. This option should be OFF if
     items are very complex.
-### Display items OFF [Script command]
-Cancels the effect of "Display items ON".
-### Display items ON [Script command]
-See "Display items".
 ### Show graphics
 Displays items on the graphics window before playing them on the MIDI output.
 • This option should be OFF if items are very complex.
-### Show graphics OFF [Script command]
-Cancels the effect of "Show graphics ON".
-### Show graphics ON [Script command]
-See "Show graphics".
 ### Use time limit
 Uses specified time limit, if any, to perform "computations".
-### Use time limit OFF [Script command]
-Cancels the effect of "Use time limit ON".
-### Use time limit ON [Script command]
-See "Use time limit".
 ### Computations
 Computation comprizes:
 • the "production" of an item by a grammar, or the interpretation
@@ -948,21 +868,12 @@ Creates an arbitrary new seed that will be used for random generation. This is t
     (This is the usual format for "true BP grammars")
 ### true BP grammars
 These grammars can be used both in "production" and in analysis (parsing).
-    See the reference manual. When compiling a grammar, BP2/BP3 checks whether it may be taken
+    See the reference manual. When compiling a grammar, BP3 checks whether it may be taken
     as a true BP grammar.
 ### GEN type of a Csound parameter
 Indicates the Csound generator used with function tables describing variations of this
     parameter.  GEN07 (linear interpolation) is assumed by default.  GEN08 (cubic spline)
     is another option.
-### General MIDI
-An international standard aimed at making it easy to play MIDI files with predictable
-    results on different synthesizers. Basic specifications are a mapping of
-    128 typical instruments to 128 program numbers (numbered 1 to 128), and a mapping of
-    key numbers to typical percussive sounds (to be played on channel 10).
-• In BP2, General MIDI (and customized mappings) is defined as a glossary, namely
-    "-gl.GeneralMIDI".  Information about General MIDI may be obtained from Tom White,
-    RolandCorp, 7200 Dominion Circle, Los Angeles CA 90040, USA.  You may also contact
-    jeff@millie.loc.gov.
 ### Reset this object
 Deletes the displayed "sound-object prototype" and resets its properties to default.
 • To delete a sound-object prototype permanently, first reset it and save the '-mi'
@@ -987,19 +898,9 @@ or part thereof.  (This feature is not yet implemented).
 When checked, indicates that this "sound-object prototype" contains a Csound score.
 To create or edit a Csound score for this object, click the "Csound" button.
 • Related topics: "Csound format", "Csound implementation", "Csound"
-### Csound score OFF [script command]
-Turns off the "Write Csound scores" option.
-• Related topics: "Csound format", "Csound implementation"
-### Csound score ON [script command]
-Turns on the "Write Csound scores" option.
-• Related topics: "Csound format", "Csound implementation"
-### Csound scores [Devices menu]
-This menu item can be toggled off and on.  When checked, musical items that BP2 produces
-    are also written as Csound scores.  You may control how score files are created from
-    the "File save preferences" window.
-• This setting is also accessible from the "Input-output settings" window as 
-    "Write Csound scores").
-• May be toggled with the script commands: "Csound score ON" and "Csound score OFF".
+### Csound scores / CSOUND file
+When checked, musical items that BP3 produces
+    are written as Csound scores.
 • Related topics: "Csound format", "Csound implementation"
 ### (striated time)
 Decide to play expression in striated or smooth time. (See "Striated time")
@@ -1286,15 +1187,15 @@ Delay between the last event of a "sound-object" and the end of its time-span in
 ### Cyclic sound-objects
 Any sound-object may contain a periodical part starting at an arbitrary point of its
     time-span interval (see "Periodical after").
-• BP2/BP3 handles two typical cases:
+• BP3 handles two typical cases:
     1) The sequence of events in the periodical part must be sent again
        to the sound device when that part is repeated.  This happens for instance
        with sound-objects produced by a MIDI synthesizer.
     2) Cyclic properties are defined but there is no need to repeat the sequence in
        the periodical part.  This happens for instance with sound-objects produced
-       by a MIDI sampler: the sampler expects BP2/BP3 to trigger the sample with a
+       by a MIDI sampler: the sampler expects BP3 to trigger the sample with a
        NoteOn and it takes care of repetitions until a NoteOff is received.
-  In '-mi.abc1', for instance, 'cycle1' illustrates case 1 and 'cycle2' case 2.
+  In '-so.abc1', for instance, 'cycle1' illustrates case 1 and 'cycle2' case 2.
 • Property "Discard NoteOff's except in last period" is useful with objects in case 2.
     It prevents the sample from setting off as soon as the first cycle is completed.
     This property is generally combined with "Don't strike again NoteOn's".
@@ -1306,7 +1207,7 @@ Any sound-object may contain a periodical part starting at an arbitrary point of
 	time are ignored.
 • Beware when setting the startpoint of the periodical part: the balance between
     NoteOn's and NoteOff's should be equal in the periodical part.
-    BP2/BP3 compensates some balance problems by avoiding two successive NoteOn's on the
+    BP3 compensates some balance problems by avoiding two successive NoteOn's on the
     same key and channel (see "Strike NoteOn's according to default") and appending
     extra NoteOff's after the item when necessary, but an improper balance may result
     in unwanted auditive results.
@@ -1343,23 +1244,23 @@ This property is used with cyclic sound-objects, notably the ones representing s
 • Related topic: "Cyclic sound-objects".
 ### Strike again NoteOn's
 If a NoteOn must be sent while the same key of the same channel is already active
-    (because a NoteOn has already been sent) then BP2/BP3 will first send a NoteOff to
+    (because a NoteOn has already been sent) then BP3 will first send a NoteOff to
     deactivate the key.
-This is the default mode in BP2/BP3 (see "Strike NoteOn's according to default").
+This is the default mode in BP3 (see "Strike NoteOn's according to default").
 • Some MIDI sound devices may hang if two successive NoteOn's are sent to the same
-    key and the same channel.  BP2/BP3 keeps track of key on/off status to make sure this
+    key and the same channel.  BP3 keeps track of key on/off status to make sure this
     never happens.
 • Related topic: "Don't strike again NoteOn's"
 ### Don't strike again NoteOn's
 If a NoteOn must be sent while the same key of the same channel is already active
-    (because a NoteOn has already been sent) then BP2/BP3 will ignore it.
-• This is not BP2/BP3's default mode: see "Strike NoteOn's according to default"
+    (because a NoteOn has already been sent) then BP3 will ignore it.
+• This is not BP3's default mode: see "Strike NoteOn's according to default"
 • Related topics: "Strike again NoteOn's", "Discard NoteOff's except in last period"
 ### Strike NoteOn's according to default
 If a NoteOn must be sent while the same key of the same channel is already active
-    (because a NoteOn has already been sent) then BP2/BP3 will behave as per its default
+    (because a NoteOn has already been sent) then BP3 will behave as per its default
     setting.
-• BP2/BP3's default setting is the behaviour defined as "Strike again NoteOn's".
+• BP3's default setting is the behaviour defined as "Strike again NoteOn's".
 • Related topic: "Don't strike again NoteOn's"
 ### % of duration
 The specified value is a percentage of the sound-object's duration, so the actual
@@ -1368,37 +1269,37 @@ The specified value is a percentage of the sound-object's duration, so the actua
 • Csound is a 100% software environment for the design and transformation of digitized
     sounds.  It runs on most platforms, including MacOS 9 & X, Linux, and Windows.
     Csound is "free software" (open source) distributed under the GNU LGPL license.
-• To download Csound, connect to https://csound.com
-• BP2/BP3 produces Csound scores in the same way it produces MIDI files or real-time MIDI:
-    the "Csound scores" option may be selected in the "Output" menu and is saved with 
+• To download Csound, follow instructions on the https://bolprocessor.org/check-bp3/ page
+• BP3 produces Csound scores in the same way it produces MIDI files or real-time MIDI:
+    the "CSOUND file" option may be selected in the "Output" menu and is saved with 
     the options of the current project or data.
 • Once the option has been selected you may produce a Csound score for each musical item
-    produced by a grammar or played from its text representation (a BP2/BP3 "score").  Items
+    produced by a grammar or played from its text representation (a BP3 "score").  Items
     may be played on real-time MIDI, saved to Csound scores, to MIDI files, or any
     combination of these.
 • If the musical item contains simple notes or sound-objects defined as streams of MIDI
-    messages, BP2/BP3 converts the stream to a sequence of Csound events, using the
+    messages, BP3 converts the stream to a sequence of Csound events, using the
     specifications of Csound instruments defined in a "Csound instrument file".  This file
     can be created and edited in the "Csound instruments" dialog accessible from the
     "Devices" menu.  Csound instrument specifications should contain data that is
     consistent with the "orchestra" file that will be invoked by Csound when compiling
-    the score produced by BP2/BP3.
-• If no "Csound instrument file" is loaded, BP2/BP3 uses a default instrument which has only
+    the score produced by BP3.
+• If no "Csound instrument file" is loaded, BP3 uses a default instrument which has only
     the start/end timing arguments and accepts pitch in the "octave point pitch-class"
     representation.  It is more clever to design a Cound orchestra with instruments
-    accepting parameters like pitchbend, pressure, modulation etc., which BP2/BP3 handles
+    accepting parameters like pitchbend, pressure, modulation etc., which BP3 handles
     in a smart way, using a "vector" representation of continuous parameter changes.
-• Sound-object protoypes may also contain Csound scores.  In this case, BP2/BP3 creates a
+• Sound-object protoypes may also contain Csound scores.  In this case, BP3 creates a
     score of the musical item arranging these individual scores after changing their
     timings and arguments according to the musical item and specifications of Csound
-    instruments.  BP2/BP3 may therefore produce Csound scores using only Csound events and
+    instruments.  BP3 may therefore produce Csound scores using only Csound events and
     Csound instrument specifications as an input, thereby bypassing current limitations
     of MIDI.
 • The mapping between Csound argument values (the ones found in the Csound score) and
-    MIDI / BP2/BP3 ranges is defined automatically once the user has supplied three typical
-    pairs of values.  BP2/BP3 performs linear or quadratic interpolation, plus logarithmic
+    MIDI / BP3 ranges is defined automatically once the user has supplied three typical
+    pairs of values.  BP3 performs linear or quadratic interpolation, plus logarithmic
     mapping if requested to do so.
-• In addition, BP2/BP3 handles "Performance parameters" with arbitrary names the values
+• In addition, BP3 handles "Performance parameters" with arbitrary names the values
     of which may be taken as arguments by Csound instruments.
 • Related topic: "Csound format"
 ### octave point pitch-class
@@ -1432,7 +1333,7 @@ Boxes contain the indexes of arguments sending pitchbend information to this
 ### Pitchbender range (cents) +/-
 This box contains the range (in cents) of the pitchbend used in MIDI format, which
     may have been specified in the data or grammar with "_pitchrange(x)".
-• This information may be needed by BP2/BP3 for a correct remapping of pitchbend values
+• This information may be needed by BP3 for a correct remapping of pitchbend values
     from MIDI to Csound.
 ### Volume arguments:
 Boxes contain the indexes of arguments sending volume information to this
@@ -1511,14 +1412,14 @@ This is the index of the argument used in a Csound event to pass on the index of
 • The middle box is only used for "continuous performance control".  It contains the
     index of the argument taking the final value of this control.
 • The rightmost box contains the index of the argument taking the reference of the
-    function table that BP2/BP3 creates for defining complex parameter variations.
+    function table that BP3 creates for defining complex parameter variations.
     (See "Continuous performance control")
 ### Continuous performance control
 • A few MIDI parameters such as pitchbend, modulation, volume, channel pressure and
     panoramic may be controlled continuously at a given sampling rate.  For example,
-    a portamento may be produced by the following BP2/BP3 score:
+    a portamento may be produced by the following BP3 score:
         _pitchcont _pitchrate(20) _pitchbend(6000) A4 B4 _pitchbend(9000)
-    in which BP2/BP3 will insert 20 pitchbend messages per second.
+    in which BP3 will insert 20 pitchbend messages per second.
 • Similarly, arbitrary parameters may be handled with effect only on the Csound
    output.  (See "Performance parameter").  For instance,
        _cont(blurb) _value(blurb,154.2) A4 B4 _value(blurb,-21) C4
@@ -1527,17 +1428,17 @@ This is the index of the argument used in a Csound event to pass on the index of
     necessary to supply the start and end values of the argument which will be
     interpolated by the procedure associated with the Csound instrument.  For instance,
     let the start value of pitchbend be sent as argument 5 and the end value as
-    argument 6.  The score produced by BP2/BP3 using the preceding item reads:
+    argument 6.  The score produced by BP3 using the preceding item reads:
         i1 0 1 8.09 6000 7500
         i1 1 1 8.11 7500 9000
    ("8.09" and "8.11" are the respective pitch values of A4 and B4.)
-• Another option with Csound is to allow BP2/BP3 to create function tables to control
+• Another option with Csound is to allow BP3 to create function tables to control
     the values.  An argument of the instrument should be reserved to passing on the
     table reference.
 • Related topic: "Step performance control"
 ### Step performance control
 • By default, all MIDI controls are modified only when explicit values are assigned
-    to them by the BP2/BP3 score.  For instance, the following score assigns different
+    to them by the BP3 score.  For instance, the following score assigns different
     modulation values to notes B4, C5 and D5:
         _modstep A4 _mod(2000) B4 C5 _mod(9000) D5
     Replacing "_modstep" (which is optional here) with "_modcont" would
@@ -1550,16 +1451,16 @@ If checked, all musical items are stored to the same MIDI or Csound score file.
 ### Change name
 Click this button to close the current MIDI or Csound score file and create a new one.
 ### MIDI file format
-BP2/BP3 supports three MIDI file formats: types 0, 1 and 2.  Here are tips for choosing
+BP3 supports three MIDI file formats: types 0, 1 and 2.  Here are tips for choosing
     an output format:
 •	If the file will contain a single musical item, or a sequence of items produced by a
     grammar in the "Improvize" mode, any format is OK.  Keep in mind, however, that
     format 2 may be rejected by single-track MIDI programs.
-•	In the current version, BP2/BP3 saves each item to a single track. Types 0 and 1 may
+•	In the current version, BP3 saves each item to a single track. Types 0 and 1 may
     therefore be considered equivalent.
 •	If the file will contain several independent musical items (each of which might
     have a different tempo or time signature), then type 2 must be used.
-• BP2/BP3 imports files type 0, 1 or 2.  With format 1 it superimposes the tracks even if
+• BP3 imports files type 0, 1 or 2.  With format 1 it superimposes the tracks even if
     they have different time signatures.  With format 2, however, an error message
     will be displayed if the file contains several items.
 ### Convert to Csound
@@ -1572,7 +1473,7 @@ Creates a Csound score attached to this "sound-object prototype" on the basis of
     description is used.
 • Related topic: "Csound instrument file"
 ### Import MIDI file
-Reads a MIDI file (type 0, 1, 2) and uses its content as a MIDI stream for this
+Reads a MIDI file and uses its content as a MIDI stream for this
     sound-object prototype.
 ### Change instrument file
 Define or change a '-cs' "Csound instrument file" attached to these "sound-object prototypes".
@@ -1582,7 +1483,7 @@ Define or change a '-cs' "Csound instrument file" attached to these "sound-objec
     "sound-objects" and/or "simple notes".
 • The file is accessed in the "Csound instruments" dialog of the "Output" menu.
 • This description must be consistent with the Csound orchestra file used to
-    play items produced by BP2.  This consistency is not checked by the present
+    play items produced by BP3.  This consistency is not checked by the present
     version.
 • "Sound-object prototypes" may contain a Csound score that must relate to these
     Csound instruments.
@@ -1604,14 +1505,6 @@ Displays the dialog for setting these parameters.
 "Cover at will", "Never cover"
 "Truncate at will", "Never truncate"
 "Break at will", "Never break after this object"
-### Duration / pivot / location
-Opens dialog for changing these properties.
-• Related topics:
-"OK Rescale", "Expand at will", "Compress at will", "Dilation ratio range"
-"Set pivot", "Beginning", "Middle"
-"Never relocate", "Relocate at will"
-### Chan / instr / accept
-Opens dialog for changing these properties.
 ### Csound file format
 Csound scores are text files saved as Unicode UTF8.
 ### ADDval
@@ -1643,7 +1536,7 @@ Below this header, anything written is ignored by the grammar compiler.
 • "COMMENT:" is equivalent to "DATA:"
 ### Grammar procedures
 A set of tools modifying the application of rules in a grammar.
-### Serial music with BP2/BP3
+### Serial music with BP3
 • Version 2.8.1 of BP2 introduced a few tools facilitating the design of musical structures
     following principles of serial music. However, these tools are applied to structures
     that may be more complex than simple sequences of sound-objects: "polymetric expressions",
@@ -1729,7 +1622,7 @@ Multiplies the tempo by 'x'
 • The above example shows that speed change is relative.
     Thus, '_tempo(2)' is not the strict equivalent of '/2' (the obsolete "tempo marker"
     notation) although it should replace it in most cases. "Tempo markers" are kept only
-    for compatibility with old BP2/BP3 projects.
+    for compatibility with old BP3 projects.
 ### Variable arguments
 Some "performance controls", "tools", and rule weights in a grammar, can be given arguments
     notated K1, K2, ... Kx.
@@ -1745,4 +1638,4 @@ Some "performance controls", "tools", and rule weights in a grammar, can be give
     the performance.
 ### TIMEPATTERNS
 A set of time ratios used to fix relative durations (only in the context of smooth time)
-### END OF BP2/BP3 help
+### END OF BP3 help
