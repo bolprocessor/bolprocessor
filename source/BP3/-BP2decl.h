@@ -377,6 +377,7 @@ extern int HaveAppearanceManager;
 extern int RunningOnOSX;
 extern int WaitForSpace;
 extern short MPEnote[17], MPEscale[17];
+extern int MPEpitch[17];
 // extern ControlActionUPP vScrollUPP,hScrollUPP;
 // extern NSWReply** MIDIfileReply;
 // extern NSWReply** CsFileReply;

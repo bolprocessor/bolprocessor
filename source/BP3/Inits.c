@@ -238,7 +238,11 @@ int Inits(void) {
 	Stream.code = NULL;
 	Stream.imax = ZERO; Stream.cyclic = FALSE; Stream.period = ZERO;
 
-	for(ch = 0; ch < MAXCHAN; ch++) MPEnote[ch] = MPEscale[ch] = 0;
+	for(ch = 0; ch < MAXCHAN; ch++) {
+		MPEnote[ch] = 0;
+		MPEscale[ch] = -1;
+		MPEpitch[ch] = -1;
+		}
 
 	#if BP_CARBON_GUI_FORGET_THIS
 	if(GetResource('MENU',MenuIDoffset) == NULL) {
