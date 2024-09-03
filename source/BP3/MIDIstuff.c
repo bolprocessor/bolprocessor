@@ -1465,7 +1465,7 @@ int FindScale(int scale) {
 	return i_scale;
 	}
 
-int AssignUniqueChannel(int status,int note,int value,int i_scale) {
+int AssignUniqueChannel(int status,int note,int value,int i_scale, int pitch) {
     int ch;
 	if(i_scale < 0) i_scale = 0;
 	if(i_scale >= MAXCONVENTIONS) {
@@ -1474,19 +1474,21 @@ int AssignUniqueChannel(int status,int note,int value,int i_scale) {
 		}
     for(ch = 1; ch < MAXCHAN; ch++) {
         if(MPEnote[ch] == note)  {
-            if((status == NoteOff || value == 0) && MPEscale[ch] == i_scale) {
+            if((status == NoteOff || value == 0) && MPEscale[ch] == i_scale && MPEpitch[ch] == pitch) {
 				MPEnote[ch] = 0;
-				MPEscale[ch] = 0;
+				MPEscale[ch] = -1;
+				MPEpitch[ch] = -1;
             	return ch;
 				}
-			if(status == NoteOn && value > 0 && MPEscale[ch] == i_scale) return ch;
+			if(status == NoteOn && value > 0 && MPEscale[ch] == i_scale && MPEpitch[ch] == pitch) return ch;
             }
         }
     for(ch = 1; ch < MAXCHAN; ch++) {
-        if(MPEnote[ch] == 0 && MPEscale[ch] == 0) {
+        if(MPEnote[ch] == 0 && MPEscale[ch] == -1) {
             if(status == NoteOn && value > 0) {
                 MPEnote[ch] = note;
 				MPEscale[ch] = i_scale;
+				MPEpitch[ch] = pitch;
                 return ch;
                 }
             }
@@ -1497,12 +1499,12 @@ int AssignUniqueChannel(int status,int note,int value,int i_scale) {
 int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
 	// nseq is useless
 	long count = 12L;
-	int c0,c1,c2,status,chan,result,type,i_scale,note,i_note,keyclass,octave,value,sensitivity,correction;
+	int c0,c1,c2,status,chan,result,type,i_scale,note,i_note,keyclass,octave,value,sensitivity,correction,pitchbend_master;
 	unsigned long done;
 	byte midibyte;
 	MIDI_Event pb_event;
 	double frequency;
-    unsigned int pitchBendValue, pitchbend_master;
+    unsigned int pitchBendValue;
     unsigned char pitchBendLSB, pitchBendMSB;
 	char this_key[100];
 
@@ -1516,16 +1518,29 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 	value = ByteToInt(p_e->data2);
 	type = status & 0xF0;
 	if(type != NoteOn && type != NoteOff) i_scale = blockkey = 0;
+	// BPPrintMessage(0,odInfo,"scale = %d\n",scale);
 	if(MIDImicrotonality && (type == NoteOn || type == NoteOff)) {
 		i_scale = FindScale(scale);
-	//	BPPrintMessage(0,odInfo,"i_scale = %d\n",i_scale);
-		if((type == NoteOn || type == NoteOff) && i_scale <= NumberScales && i_scale > 0) {
-			chan = AssignUniqueChannel(type,note,value,i_scale);
+		// BPPrintMessage(0,odInfo,"i_scale = %d\n",i_scale);
+		if((type == NoteOn || type == NoteOff) && i_scale <= NumberScales && i_scale >= 0) {
+			pitchbend_master = (int) PitchbendStart(kcurrentinstance);
+			if(pitchbend_master > 0 && pitchbend_master < 16384) pitchbend_master -= DEFTPITCHBEND;
+			else pitchbend_master = 0;
+			chan = AssignUniqueChannel(type,note,value,i_scale,pitchbend_master);
 			if(chan > 0) p_e->status = type + chan;
 			if(type == NoteOn && value > 0 && chan > 0) {
 				if(blockkey < 0) blockkey = DefaultBlockKey;
-				correction = (*(*Scale)[i_scale].deviation)[note] - (*(*Scale)[i_scale].deviation)[blockkey];
-				if(TraceMicrotonality) {
+				if(i_scale == 0) { // 12-grade equal tempered scale
+					correction = 0;
+					if(TraceMicrotonality) {
+						keyclass = modulo(note - 60, 12);
+						octave = 4 + floor((double) (note - 60)  / 12.);
+						PrintNote(-1,note,0,-1,this_key);
+						BPPrintMessage(0,odInfo,"§ key %d: \"%s\" chan %d\n",note,this_key,(chan+1));
+						}
+					}
+				else correction = (*(*Scale)[i_scale].deviation)[note] - (*(*Scale)[i_scale].deviation)[blockkey];
+				if(TraceMicrotonality && i_scale > 0) {
 					int basekey = (*Scale)[i_scale].basekey;
 					int numgrades = (*Scale)[i_scale].numgrades;
 					int numnotes = (*Scale)[i_scale].numnotes;
@@ -1562,46 +1577,44 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 				// The 14-bit range is 16384 values (from 0 to 16383), with 8192 being the center (no pitch bend).
 				// Therefore, 2 semitones = 200 cents corresponds to 8192 units, and 1 cent is 8192 / 200 units
 				sensitivity = 2; // semitones
-				pitchbend_master = (int) PitchbendStart(kcurrentinstance);
+		/*		pitchbend_master = (int) PitchbendStart(kcurrentinstance);
 				if(pitchbend_master > 0 && pitchbend_master < 16384) pitchbend_master -= DEFTPITCHBEND;
-				else pitchbend_master = 0;
+				else pitchbend_master = 0; */
 				if(pitchbend_master != 0  && TraceMicrotonality) BPPrintMessage(0,odInfo,"--> with additional pitchbend value of %d\n",pitchbend_master);
 				if(correction < -200 || correction >= 200) {
 					if(ToldPitchbend++ < 4) BPPrintMessage(0,odError,"=> Microtonality pitchbender out of range ± 200 cents: %d  cents note %d\n",correction,note);
 					correction = 0;
 					}
-		//		if(correction != 0 || pitchbend_master != 0) {
-					pitchBendValue = pitchbend_master + DEFTPITCHBEND + (int)(correction * (0.01 * DEFTPITCHBEND / sensitivity));
-					if(pitchBendValue < 0) {
-						if(ToldPitchbend++ < 4) BPPrintMessage(0,odError,"=> Pitchbender out of range has been set to 0\n");
-						pitchBendValue = 0;
-						}
-					if(pitchBendValue > 16383) {
-						if(ToldPitchbend++ < 4) BPPrintMessage(0,odError,"=> Pitchbender out of range has been set to 16383\n");
-						pitchBendValue = 16383;
-						}
-					pitchBendLSB = pitchBendValue & 0x7F; // Lower 7 bits
-					pitchBendMSB = (pitchBendValue >> 7) & 0x7F; // Upper 7 bits
-					pb_event.status = PitchBend + chan;
-					pb_event.data1 = pitchBendLSB;  // Pitch Bend LSB
-					pb_event.data2 = pitchBendMSB;  // Pitch Bend MSB
-				//  BPPrintMessage(0,odInfo,"• pitchBendValue channel %d: %d = %d %d %d\n",chan,pitchBendValue,(int)pb_event.status,(int)pb_event.data1,(int)pb_event.data2);
-					if(rtMIDI) {
-						eventStack[eventCount] = pb_event;
-						eventStack[eventCount].time = 1000 * time;
-						eventCount++;
-						}
-					else {  // Send pitchbend to MIDI file
-						midibyte = pb_event.status;
-						if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
-						midibyte = pb_event.data1;
-						if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
-						midibyte = pb_event.data2;
-						if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
-						if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"Sending pitchbend to MIDI file: %d %d %d\n",pb_event.status,pb_event.data1,pb_event.data2);
-						status = type + chan;
-						}
-			//		}
+				pitchBendValue = pitchbend_master + DEFTPITCHBEND + (int)(correction * (0.01 * DEFTPITCHBEND / sensitivity));
+				if(pitchBendValue < 0) {
+					if(ToldPitchbend++ < 4) BPPrintMessage(0,odError,"=> Pitchbender out of range has been set to 0\n");
+					pitchBendValue = 0;
+					}
+				if(pitchBendValue > 16383) {
+					if(ToldPitchbend++ < 4) BPPrintMessage(0,odError,"=> Pitchbender out of range has been set to 16383\n");
+					pitchBendValue = 16383;
+					}
+				pitchBendLSB = pitchBendValue & 0x7F; // Lower 7 bits
+				pitchBendMSB = (pitchBendValue >> 7) & 0x7F; // Upper 7 bits
+				pb_event.status = PitchBend + chan;
+				pb_event.data1 = pitchBendLSB;  // Pitch Bend LSB
+				pb_event.data2 = pitchBendMSB;  // Pitch Bend MSB
+			//  BPPrintMessage(0,odInfo,"• pitchBendValue channel %d: %d = %d %d %d\n",chan,pitchBendValue,(int)pb_event.status,(int)pb_event.data1,(int)pb_event.data2);
+				if(rtMIDI) {
+					eventStack[eventCount] = pb_event;
+					eventStack[eventCount].time = 1000 * time;
+					eventCount++;
+					}
+				else {  // Send pitchbend to MIDI file
+					midibyte = pb_event.status;
+					if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+					midibyte = pb_event.data1;
+					if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+					midibyte = pb_event.data2;
+					if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+					if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"Sending pitchbend to MIDI file: %d %d %d\n",pb_event.status,pb_event.data1,pb_event.data2);
+					status = type + chan;
+					}
 				}
 			}
 		}
@@ -1617,7 +1630,7 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 		if((type == NoteOn) && FirstNoteOn) {
 			FirstNoteOn = FALSE;
 			initTime = (UInt64) getClockTime();
-			if(TraceMIDIinteraction) {
+			if(check_corrections) {
 				BPPrintMessage(1,odInfo,"First NoteOn at %ld ms\n",(long)time);
 				}
 			} 

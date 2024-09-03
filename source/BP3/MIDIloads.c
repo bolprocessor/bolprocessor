@@ -39,6 +39,7 @@
 #include "-BP2decl.h"
 
 int PrintNote(int i_scale,int key,int channel,int wind,char* line) {
+	// wind is not used
 	int pitchclass, octave;
 	char channelstring[20], jscale;
 	if(key < 0) {

@@ -1336,7 +1336,7 @@ void sendMIDIEvent(int i_scale,int blockkey,unsigned char* midiData,int dataSize
                 midiData[1] = note;
                 }
             if(note < 0 || note >= MAXKEY) return;
-            channel = AssignUniqueChannel(status,note,value,i_scale);
+            channel = AssignUniqueChannel(status,note,value,i_scale,0);
             if(channel > 0) midiData[0] = status + channel;
         //  if(status == NoteOff || value == 0) BPPrintMessage(0,odInfo,"NoteOff %d channel %d\n",note,channel);
             if(status == NoteOn && value > 0 && channel > 0) {

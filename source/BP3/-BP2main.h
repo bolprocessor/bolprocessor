@@ -455,6 +455,7 @@ int HaveAppearanceManager;
 int RunningOnOSX;
 int WaitForSpace;
 short MPEnote[17], MPEscale[17];
+int MPEpitch[17];
 int ToldPitchbend, ToldStop;
 // ControlActionUPP vScrollUPP,hScrollUPP;
 // NSWReply** MIDIfileReply;
