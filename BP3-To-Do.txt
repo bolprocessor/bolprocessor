@@ -20,9 +20,17 @@ https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
 Microtonal scales and tuning systems
 ------------------------------------
 
+- Retuning the MIDI device to diapason A4 ≠ 440 Hz does not work or makes a mess (e.g. Windows 10, Microsoft GS Wavetable Synth).
+- Also check that setting pitchbend range to ± 200 cents on all channels works.
 - Include values for optional stretching of each octave.
 - Implement a performance control to set the A4 frequency (diapason) in the score.
 - Implement more systems, such as a few ones listed on the page https://midi.org/microtuning-and-alternative-intonation-systems
+
+
+Capture (in process)
+-------
+
+- Capture incoming NoteOn/Noteoff events and build a polymetric structure that reproduces the stream. The difficulty lies in the design of the most significant polymetric structure - for which AI tolls may be helpful in the future. Proper time quantization is also needed to avoid overly complicated results.
 
 
 Csound orchestra
@@ -55,10 +63,18 @@ Real-time MIDI
 - Use client:port as MIDI input/output on Linux.  Currently, only the client is mentioned in the settings. Some devices might allocate several ports to the same client.
 - Check -gr.Alan and -gr.Beatrix for a synchronisation problem after more than 2 turns.
 — In Linux, it seems that the two virtual ports 'VirMIDI 0-0' and 'VirMIDI 0-1' are not communicating with other ports even though connections are valid.
+- Install a pitchbender sensitive MIDI output device on Linux.
 - A _script(wait for key…) in the beginning of a grammar does not always work. This needs to be clarified.
 - Put some scripts on top of a grammar (the INIT: section) to run them before the production is started. This will notably allow setting up parameters K1, K2… K127.
 - Implement a _script(wait forever) instruction that will be used for retuning input notes.
 - Check the accuracy of start times in sound-object pictures.
+
+
+Installers
+----------
+
+- Update MacOS installer to download "BP3_help.txt" (instead of "BP2_help.txt") when it's ready.
+- Get full registration for the MacOS installer.
 
 
 Real-time Csound
@@ -113,6 +129,7 @@ Alternate options in case "phpdesktop" doesn't fit:
 Csound
 ------
 
+- The Csound orchestra file "0-default.orc" does not work on Linux. It returns Csound error 1 (on line 47).
 - (Optional) Revise CsoundWrite to make sure that events are ordered by "note-on" dates, notably with tied notes/sound-objects
 - Reference: https://csound.com/docs/manual/i.html => use negated p1 for distinct note-off?
 - Implement output to DAC in the interface: https://csound.com/docs/manual/CommandFlags.html

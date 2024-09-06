@@ -394,7 +394,7 @@ int Inits(void) {
 	Pclock = Qclock = 1.;
 	Nature_of_time = STRIATED;
 	Pduration = 0.;  Qduration = 1.;
-	UseBufferLimit = FirstTime = WaitForSpace = FALSE;
+	UseBufferLimit = FirstTime = WaitForSpace = WaitForEver = FALSE;
 	OkWait = TRUE;
 	Nplay = 1;	/* Number of times each item is played */
 	SynchroSignal = OFF;

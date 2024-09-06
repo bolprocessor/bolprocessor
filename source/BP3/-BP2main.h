@@ -453,7 +453,7 @@ double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 double MaxFrac;
 int HaveAppearanceManager;
 int RunningOnOSX;
-int WaitForSpace;
+int WaitForSpace, WaitForEver;
 short MPEnote[17], MPEscale[17];
 int MPEpitch[17];
 int ToldPitchbend, ToldStop;

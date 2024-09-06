@@ -940,6 +940,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			Quantization = (*(ScriptLine.intarg))[0];
 			break;
 		case 46:	// Wait for Space
+		case 47:	// Wait forever
 		case 66: /* Wait for Continue */
 		case 67: /* Wait for Start */
 		case 128: /* Wait for Stop */
@@ -964,11 +965,13 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			((*p_INscript)[j]).scriptline = instr;
 			((*p_INscript)[j]).time = timethisscript; // microseconds
 			if(instr == 46) ((*p_INscript)[j]).key = 0; // Wait for Space
+			if(instr == 47) ((*p_INscript)[j]).key = 0; // Wait forever
 			if(instr == 66) ((*p_INscript)[j]).key = Continue;
 			if(instr == 67) ((*p_INscript)[j]).key = Start;
 			if(instr == 128) ((*p_INscript)[j]).key = Stop;
 			if(TraceMIDIinteraction) {
 				if(instr == 46) BPPrintMessage(0,odInfo,"[%d] INscript instruction %d, wait for Space, time = %lu ms\n",j,instr,((*p_INscript)[j]).time / 1000L);
+				else if(instr == 47) BPPrintMessage(0,odInfo,"[%d] INscript instruction %d, wait forever, time = %lu ms\n",j,instr,((*p_INscript)[j]).time / 1000L);
 				else  BPPrintMessage(0,odInfo,"[%d] INscript instruction %d, wait for MIDI event %d, time = %lu ms\n",j,instr,((*p_INscript)[j]).key,((*p_INscript)[j]).time / 1000L);
 				}
 			break;
