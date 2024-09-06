@@ -677,6 +677,7 @@ int check_stop_instructions(unsigned long time) {
 		instr = ((*p_INscript)[j]).scriptline;
 		switch(instr) {
 			case 46: break; // Wait for space
+			case 47: break; // Wait forever
 			case 97: break; // Wait for a note
 			case 67: break; //  Start
 			case 66: break; // wait for Continue
@@ -694,6 +695,10 @@ int check_stop_instructions(unsigned long time) {
 			case 46: // Wait for Space
 				WaitForSpace = TRUE;
 				strcpy(Message, "Waiting for a spacebar hit");
+				break;
+			case 47: // Wait forever
+				WaitForEver = TRUE;
+				strcpy(Message, "Waiting forever");
 				break;
 			case 97: // Wait for note
 				my_sprintf(Message,"Waiting for note #key %d channel %d at date %ld ms",((*p_INscript)[j]).key,((*p_INscript)[j]).chan,(long)thisscripttime / 1000L);
