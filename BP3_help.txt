@@ -1,5 +1,6 @@
-// This is the help file of Bol Processor BP3.
-// When editing it, beware that BP3 looks for prefixes. Therefore, if an item is
+// This is the help file of Bol Processor.
+// This version still includes many features from BP2 that haven't been implemented in BP3.
+// When editing it, beware that the compiler looks for prefixes. Therefore, if an item is
 // the prefix of another one then it should precede it in this file.
 ### Help 
 • To access on-line help, type cmd-? or select "Help" in the "Action" menu.

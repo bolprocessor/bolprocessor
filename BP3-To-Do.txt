@@ -70,13 +70,6 @@ Real-time MIDI
 - Check the accuracy of start times in sound-object pictures.
 
 
-Installers
-----------
-
-- Update MacOS installer to download "BP3_help.txt" (instead of "BP2_help.txt") when it's ready.
-- Get full registration for the MacOS installer.
-
-
 Real-time Csound
 ----------------
 
