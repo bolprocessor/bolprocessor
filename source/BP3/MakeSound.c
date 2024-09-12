@@ -1579,7 +1579,7 @@ SENDNOTEOFF:
 									e.status = NoteOn + localchan;
 									e.data1 = c1;
 									e.data2 = 0;
-									// BPPrintMessage(0,odInfo,"scale2 = %d\n",scale);
+								//	BPPrintMessage(0,odInfo,"scale2 = %d\n",scale);
 									if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 									}
 								else {
@@ -1626,7 +1626,7 @@ SENDNOTEOFF:
 									e.status = NoteOn + localchan;
 									e.data1 = c1;
 									e.data2 = 0;
-									// BPPrintMessage(0,odInfo,"scale3 = %d\n",scale);
+								//	BPPrintMessage(0,odInfo,"scale3 = %d\n",scale);
 									if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 									}
 								if(showpianoroll) { // Added by BB 4 Nov 2020
@@ -1657,7 +1657,7 @@ SENDNOTEOFF:
 								e.status = c0 + localchan;
 								e.data1 = c1;
 								e.data2 = c2;
-								// BPPrintMessage(0,odInfo,"scale4 = %d\n",scale);
+							//	BPPrintMessage(0,odInfo,"scale4 = %d\n",scale);
 								if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 								}
 							if(cswrite) {
@@ -1699,7 +1699,7 @@ SENDNOTEOFF:
 							e.status = c0;
 							e.data1 = c1;
 							e.data2 = c2;
-							// BPPrintMessage(0,odInfo,"scale5 = %d\n",scale);
+						//	BPPrintMessage(0,odInfo,"scale5 = %d\n",scale);
 							if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 							}
 						t1 += (Milliseconds)(beta
@@ -2120,7 +2120,7 @@ if(!cswrite && !Panic && (result == RESUME || (!Improvize && !PlayAllChunks && !
 				e.status = NoteOn + ch;
 				e.data1 = k;
 				e.data2 = 0;
-				if(SendToDriver(kcurrentinstance,scale,blockkey,Tcurr * Time_res,0,&rs,&e) != OK) {
+				if(SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e) != OK) {
 					result = ABORT;
 					goto GETOUT;
 					}
@@ -2174,14 +2174,14 @@ if(add_time > ZERO  && (Improvize || PlayAllChunks)) { // 2024-05-09
 		e.data1 = 0;
 		e.data2 = 0;
 		// BPPrintMessage(0,odInfo,"scale6 = %d\n",scale);
-		if((result=SendToDriver(kcurrentinstance,scale,blockkey,(Tcurr * Time_res),nseq,&rs,&e)) != OK) goto OVER;
+		if((result=SendToDriver(0,scale,blockkey,(Tcurr * Time_res),nseq,&rs,&e)) != OK) goto OVER;
 		e.time = Tcurr + (add_time / Time_res);
 		e.type = NORMAL_EVENT;
 		e.status = NoteOn;
 		e.data1 = 0;
 		e.data2 = 0;
 		// BPPrintMessage(0,odInfo,"scale7 = %d\n",scale);
-		if((result=SendToDriver(kcurrentinstance,scale,blockkey,((Tcurr * Time_res) + add_time),nseq,&rs,&e)) != OK) goto OVER;
+		if((result=SendToDriver(0,scale,blockkey,((Tcurr * Time_res) + add_time),nseq,&rs,&e)) != OK) goto OVER;
 		}
 	if(cswrite) {
 	//	BPPrintMessage(0,odInfo,"Added silence of %.3f sec at time = %.3f sec.\n",(add_time / 1000.),((LastTime + max_endtime_event) / 1000.));

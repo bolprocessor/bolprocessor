@@ -1466,11 +1466,11 @@ PRINTPROLONGATIONS:
 		}
 	
 	if(m == T10 || m == T11 || (m >= T14 && m <= T24) || (m >= T26 && m <= T36) || m == T38
-			|| m == T39 || m == T41 || m == T42 || m == T44) {
+			|| m == T39 || m == T41 || m == T42 || m == T44 || m == T45) {
 		// _chan(), _vel(), _mod(), _pitchbend(), _press(), _switchon(,), _switchoff(,)
 		// _volume(), _pan(),_legato(), _staccato(),_pitchrange(),_pitchrate(),_modrate(),
 		// _pressrate(),_transpose(),_volumerate(),_volumecontrol(),_panrate(),_pancontrol()
-		// _ins(), _value(), _step(), _cont(), _rndvel(), _rotate(), _rndtime() _srand()
+		// _ins(), _value(), _step(), _cont(), _rndvel(), _rotate(), _rndtime() _srand() _capture()
 		if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
 			r = ABORT; goto SORTIR;
 			}

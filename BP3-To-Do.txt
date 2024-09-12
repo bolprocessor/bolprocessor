@@ -30,7 +30,7 @@ Microtonal scales and tuning systems
 Capture (in process)
 -------
 
-- Capture incoming NoteOn/Noteoff events and build a polymetric structure that reproduces the stream. The difficulty lies in the design of the most significant polymetric structure - for which AI tolls may be helpful in the future. Proper time quantization is also needed to avoid overly complicated results.
+- Use the captured incoming NoteOn/Noteoff events to build a polymetric structure that reproduces the stream. The difficulty lies in the design of the most significant polymetric structure - for which AI tolls may be helpful in the future. Proper time quantization is also needed to avoid overly complicated results.
 
 
 Csound orchestra
@@ -66,7 +66,6 @@ Real-time MIDI
 - Install a pitchbender sensitive MIDI output device on Linux.
 - A _script(wait for key…) in the beginning of a grammar does not always work. This needs to be clarified.
 - Put some scripts on top of a grammar (the INIT: section) to run them before the production is started. This will notably allow setting up parameters K1, K2… K127.
-- Implement a _script(wait forever) instruction that will be used for retuning input notes.
 - Check the accuracy of start times in sound-object pictures.
 
 

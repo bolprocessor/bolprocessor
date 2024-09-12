@@ -228,6 +228,7 @@ char* longToBinary(int totalBits,unsigned long num) {
 int MIDIflush(int quick) {
     unsigned long current_time,time_now;
     long i;
+	int kcurrentinstance;
     long time;
     unsigned char midiData[4];
     int dataSize = 3;
@@ -252,12 +253,14 @@ int MIDIflush(int quick) {
             midiData[0] = eventStack[i].status;
             midiData[1] = eventStack[i].data1;
             midiData[2] = eventStack[i].data2;
+			kcurrentinstance =  eventStack[i].instance;
             time = eventStack[i].time + TimeStopped;
 			type = eventStack[i].status & 0xF0;
 	//		i_scale = blockkey = 0; // These are only required for input events
-    //   	if(type == NoteOn || type == NoteOff) BPPrintMessage(0,odInfo,"§ type %d Note %d value %d time %ld\n",type,eventStack[i].data1,midiData[2],(long)time); 
+    //  	if(type == NoteOn || type == NoteOff) BPPrintMessage(0,odInfo,"§ type %d Note %d value %d time %ld\n",type,eventStack[i].data1,midiData[2],(long)time); 
 	//		BPPrintMessage(1,odInfo,"§ %ld ms, %d %d %d, TimeStopped = %ld\n",(long)time/1000L,midiData[0],midiData[1],midiData[2],(long)TimeStopped/1000L); 
-            sendMIDIEvent(0,0,midiData,dataSize,time); // i_scale = blockkey = 0
+            sendMIDIEvent(kcurrentinstance,0,0,midiData,dataSize,time);
+			// i_scale = blockkey = 0 because this is an output
             // Move remaining events forward
             memmove(&eventStack[i], &eventStack[i + 1], (eventCount - i - 1) * size);
             eventCount--;
@@ -287,6 +290,7 @@ int MaybeWait(unsigned long current_time) {
 	if((TimeStopped / 10000L) != (Oldtimestopped / 10000L)) {
 		if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"TimeStopped = %d ms\n",(int) TimeStopped / 1000L);
 		}
+	// if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"TimeStopped = %d ms\n",(int) TimeStopped / 1000L);
 	Oldtimestopped = TimeStopped;
 	return OK;
 	}
@@ -744,7 +748,7 @@ int check_stop_instructions(unsigned long time) {
 			my_sprintf(Message,"Sending MIDI instruction (%d) at date %ld ms",mssg,(long)thisscripttime / 1000L);
 			Notify(Message,0);
 			strcpy(Message,"");
-			sendMIDIEvent(0,0,midiData,1,thisscripttime);
+			sendMIDIEvent(-1,0,0,midiData,1,thisscripttime);
 			}
 		}
 	return OK;
@@ -1565,11 +1569,9 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 					double basekey_ratio = (*((*Scale)[i_scale].tuningratio))[0];
 
 					if(check_corrections) BPPrintMessage(0,odInfo,"i_note = %d, keyclass = %d, numnotes = %d, basekey = %d, block key = %d, octave = %d\n",i_note,keyclass,numnotes,basekey,blockkey,octave);
-
 					frequency = frequency * basekey_ratio;
 					frequency = frequency * pow(2, ((double) correction / 1200.));
 					frequency = frequency * A4freq / 440.;
-
 					my_sprintf(this_key,"%s%d",*((*(*Scale)[i_scale].notenames)[keyclass]),octave);
 					trim_digits_after_key_hash(this_key); // Remove the octave number after key#xx
 					BPPrintMessage(0,odInfo,"§ key %d: \"%s\" chan %d",note,this_key,(chan+1));
@@ -1607,6 +1609,7 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 			//  BPPrintMessage(0,odInfo,"• pitchBendValue channel %d: %d = %d %d %d\n",chan,pitchBendValue,(int)pb_event.status,(int)pb_event.data1,(int)pb_event.data2);
 				if(rtMIDI) {
 					eventStack[eventCount] = pb_event;
+					eventStack[eventCount].instance = kcurrentinstance;
 					eventStack[eventCount].time = 1000 * time;
 					eventCount++;
 					}
@@ -1630,6 +1633,7 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 		if((result = MIDIflush(0)) != OK) return result;
 		eventStack[eventCount] = *p_e;
 		eventStack[eventCount].time = 1000 * time;
+		eventStack[eventCount].instance = kcurrentinstance;
 		eventCount++;
     	if((result = CleanUpBuffer()) != OK) return result;
 		if((type == NoteOn) && FirstNoteOn) {
@@ -1739,15 +1743,15 @@ int AllNotesOffPedalsOffAllChannels(void) {
 		midiData[0] = ControlChange + channel;
 		midiData[1] = 123; // All Notes Off
 		midiData[2] = 0;
-		sendMIDIEvent(0,0,midiData,dataSize,0); // Sending immediately
+		sendMIDIEvent(-1,0,0,midiData,dataSize,0); // Sending immediately
 		midiData[0] = ControlChange + channel;
 		midiData[1] = 64; // Pedal Off
 		midiData[2] = 0;
-		sendMIDIEvent(0,0,midiData,dataSize,0); // Sending immediately
+		sendMIDIEvent(-1,0,0,midiData,dataSize,0); // Sending immediately
 		midiData[0] = PitchBend + channel;
 		midiData[1] = 0x00;
 		midiData[2] = 0x40;
-		sendMIDIEvent(0,0,midiData,dataSize,0); // Sending immediately
+		sendMIDIEvent(-1,0,0,midiData,dataSize,0); // Sending immediately
 		}
 	WaitABit(10);
 	return(OK);
@@ -1883,6 +1887,21 @@ int CleanUpBuffer(void) {
 			}
 		}
 	return r;
+	}
+
+#define PITCH_BEND_CENTER 8192   // Center value of pitch bend (no bend)
+#define PITCH_BEND_RANGE  200    // ±200 cents
+
+double calculate_pitchbend_cents(unsigned char lsb, unsigned char msb) {
+    // Combine the 7-bit LSB and MSB into a 14-bit value
+    int pitch_bend_value = (msb << 7) | lsb;
+
+    // Calculate the deviation from the center position
+    int deviation_from_center = pitch_bend_value - PITCH_BEND_CENTER;
+
+    // Calculate the range in cents (±200 cents)
+    double correction_in_cents = (double)deviation_from_center * PITCH_BEND_RANGE / PITCH_BEND_CENTER;
+    return correction_in_cents;
 	}
 
 /* void RegisterProgramChange(MIDI_Event *p_e)

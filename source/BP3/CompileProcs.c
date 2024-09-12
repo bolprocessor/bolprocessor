@@ -749,6 +749,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 		case 57: /* _rotate() */
 		case 59: /* _rndtime() */
 		case 60: /* _srand() */
+		case 66: /* _capture() */
 			goto GETARG;
 			break;
 		case 8:	/* _pitchbend() */
@@ -971,6 +972,14 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 							*((*p_PerformanceControl)[jinstr]));
 					Print(wTrace,Message);
 					return(ABORT);
+					break;
+				case 66: /* _capture() */
+					my_sprintf(Message,
+						"\nIncorrect argument in %s. Integer value required (0..128)",
+							*((*p_PerformanceControl)[jinstr]));
+					Print(wTrace,Message);
+					return(ABORT);
+					break;
 				case 59: /* _rndtime() */ 
 				case 60: /* _srand() */
 					my_sprintf(Message,
@@ -1157,6 +1166,11 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 			if(jinstr == 59 && (k < 0 || k > 32767)) {
 				my_sprintf(Message,
 					"\nRandom timing range is 0..32767 milliseconds. Can't accept '_rndtime(%ld)'",
+						(long)k);
+				}
+			if(jinstr == 66 && (k < 0 || k > 127)) {
+				my_sprintf(Message,
+					"\nCapture stream is 0..127. Can't accept '_capture(%ld)'",
 						(long)k);
 				}
 			if(jinstr == 60 && (k < 0 || k > 32767)) {

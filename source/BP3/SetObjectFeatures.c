@@ -211,6 +211,7 @@ int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int
 
 	(*p_Instance)[k].transposition = 0;
 	(*p_Instance)[k].lastistranspose = p_currentparameters->lastistranspose;
+	(*p_Instance)[k].capture = p_currentparameters->capture;
 	if(j < 1 || j >= Jbol) {
 		(*p_Instance)[k].transposition = p_currentparameters->currtranspose;
 		if(p_articul != NULL) {
@@ -1429,65 +1430,64 @@ switch(index) {
 }
 
 
-double FindValue(tokenbyte m,tokenbyte p,int chan)
-{
-double x,xx;
-int value,paramvalueindex,paramnameindex;
+double FindValue(tokenbyte m,tokenbyte p,int chan) {
+	double x,xx;
+	int value,paramvalueindex,paramnameindex;
 
-if(m == T37) return(0.); // _keymap()
+	if(m == T37) return(0.); // _keymap()
 
-// BPPrintMessage(0,odInfo,"FindValue m = %ld p = %ld chan = %d\n",(long)m,(long)p,chan);
+	// BPPrintMessage(0,odInfo,"FindValue m = %ld p = %ld chan = %d\n",(long)m,(long)p,chan);
 
-paramnameindex = -1;
-switch(m) { // Modified by BB 2021-02-08 - fixed 2021-02-15
-	case T10: // _chan()
-	case T11: // _vel()
-	case T16: // _press()
-	case T19: // _volume()
-	case T20: // _legato()
-//	case T26: /* _transpose() */
-	case T29: // _pan()
-//	case T32: /* _ins() */
-	case T38: // _rndvel()
-	case T39: // _rotate() 
-		if(p >= 128 && m != T26 && (m != T20 || p < 0)) {
-			value = ParamValue[p-128];
-			if(value == INT_MAX) {
-				if(Beta) Alert1("=> Err. FindValue(). value == INT_MAX");
-				value = 127;
+	paramnameindex = -1;
+	switch(m) {
+		case T10: // _chan()
+		case T11: // _vel()
+		case T16: // _press()
+		case T19: // _volume()
+		case T20: // _legato()
+	//	case T26: /* _transpose() */
+		case T29: // _pan()
+	//	case T32: /* _ins() */
+		case T38: // _rndvel()
+		case T39: // _rotate() 
+			if(p >= 128 && m != T26 && (m != T20 || p < 0)) {
+				value = ParamValue[p-128];
+				if(value == INT_MAX) {
+					if(Beta) Alert1("=> Err. FindValue(). value == INT_MAX");
+					value = 127;
+					}
+				return((double) value);
 				}
-			return((double) value);
-			}
-		else return((double) p);
-		break;
-	}
-if(m == T35) {	/* _value() */
-	paramnameindex = (p % 256);
-	paramvalueindex = (p - paramnameindex) / 256;
-	x = (*p_NumberConstant)[paramvalueindex];
-	if(trace_set_variation)
-		BPPrintMessage(0,odInfo,"T35 paramnameindex = %d paramvalueindex = %d, x = %.3f\n",paramnameindex,paramvalueindex,x);
-	}
-else x = (double) p;
-if(m == T15 || paramnameindex == IPITCHBEND) { // Fixed "chan > 0" by BB 2021-02-08
-// if((m == T15 || paramnameindex == IPITCHBEND) && chan > 0) { // Fixed "chan > 0" by BB 2021-02-08
-	xx = x;
-	if(PitchbendRange[chan] > 0)
-		x = DEFTPITCHBEND + ((double) x * DEFTPITCHBEND / (double) PitchbendRange[chan]);
-//	BPPrintMessage(0,odInfo,"Pitchbend x = %ld, xx = %ld, range = %ld\n",(long)x,(long)xx,(long)PitchbendRange[chan]);
-	if(x < 0 || x > 16383) {
-		if(PitchbendRange[chan] > 0)
-			my_sprintf(Message,"=> Pitchbend value (%ld cents) on channel %ld out of range (-%ld..%ld cents)",
-				(long)xx,(long)chan,(long)PitchbendRange[chan],(long)PitchbendRange[chan]);
-		else
-			my_sprintf(Message,"=> Pitchbend value (%ld) on channel %ld out of range (0..16383)",
-				(long)xx,(long)chan);
-		Alert1(Message);
-		return(Infpos);
+			else return((double) p);
+			break;
 		}
+	if(m == T35) {	/* _value() */
+		paramnameindex = (p % 256);
+		paramvalueindex = (p - paramnameindex) / 256;
+		x = (*p_NumberConstant)[paramvalueindex];
+		if(trace_set_variation)
+			BPPrintMessage(0,odInfo,"T35 paramnameindex = %d paramvalueindex = %d, x = %.3f\n",paramnameindex,paramvalueindex,x);
+		}
+	else x = (double) p;
+	if(m == T15 || paramnameindex == IPITCHBEND) { // Fixed "chan > 0" by BB 2021-02-08
+	// if((m == T15 || paramnameindex == IPITCHBEND) && chan > 0) { // Fixed "chan > 0" by BB 2021-02-08
+		xx = x;
+		if(PitchbendRange[chan] > 0)
+			x = DEFTPITCHBEND + ((double) x * DEFTPITCHBEND / (double) PitchbendRange[chan]);
+	//	BPPrintMessage(0,odInfo,"Pitchbend x = %ld, xx = %ld, range = %ld\n",(long)x,(long)xx,(long)PitchbendRange[chan]);
+		if(x < 0 || x > 16383) {
+			if(PitchbendRange[chan] > 0)
+				my_sprintf(Message,"=> Pitchbend value (%ld cents) on channel %ld out of range (-%ld..%ld cents)",
+					(long)xx,(long)chan,(long)PitchbendRange[chan],(long)PitchbendRange[chan]);
+			else
+				my_sprintf(Message,"=> Pitchbend value (%ld) on channel %ld out of range (0..16383)",
+					(long)xx,(long)chan);
+			Alert1(Message);
+			return(Infpos);
+			}
+		}
+	return(x);
 	}
-return(x);
-}
 
 
 double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,

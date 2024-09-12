@@ -53,51 +53,19 @@ int DoCMSettingsEvent(EventRecord* event, short itemHit);
 int mShowCMSettings(int);
 int mOpenAudioMidiSetup(int);
 
-/* in Schedule.c */
-/* #if WITH_REAL_TIME_SCHEDULER_FORGET_THIS
-int Cause(voidOMSdoPacket,Milliseconds,OMSMIDIPacket*,short,short);
-int FlushOutputEventQueueAfter(Milliseconds);
-int InstallTMTask(void);
-int RemoveTMTask(void);
-#endif */
-
-
 int initializeMIDISystem(void);
 void closeMIDISystem();
-void sendMIDIEvent(int,int,unsigned char*,int,long);
+void sendMIDIEvent(int, int,int,unsigned char*,int,long);
+FILE* CreateCaptureFile(FILE*);
 int MIDIflush(int);
 unsigned long getClockTime(void);
 int MaybeWait(unsigned long);
 int Notify(char*,int);
 
-/* OBSOLETE: in MIDIdrivers.c - used by both OMS and built-in drivers */
-/* #if WITH_REAL_TIME_MIDI_FORGET_THIS
-int GetNextMIDIevent(MIDI_Event*,int,int);
-OSErr DriverWrite(Milliseconds,int,MIDI_Event*);
-unsigned long GetDriverTime(void);
-int SetDriverTime(long);
-int FlushDriver(void);
-int ResetDriver(void);
-int SetDriver(void);
-int CloseCurrentDriver(int);
-int ResetMIDI(int);
-#endif */
-
-// int IsMidiDriverOn(void);
 int FormatMIDIstream(MIDIcode**,long,MIDIcode**,int,long,long*,int);
 int SendToDriver(int,int,int,Milliseconds,int,int*,MIDI_Event*);
 int CaptureMidiEvent(Milliseconds time,int nseq,MIDI_Event *p_e);
 int CleanUpBuffer(void);
-// void RegisterProgramChange(MIDI_Event *p_e);
-
-// int LoadMidiDriverStartup(void);
-// int LoadLinkedMidiDriverSettings(int w);
-// int OpenMidiDriverSettings(void);
-// int LoadMidiDriverSettings(FSSpec* spec);
-// int ReadMidiDriverSettings(short refnum, FSSpec* spec);
-// int SaveMidiDriverStartup(void);
-// int SaveMidiDriverSettings(void);
-// int WriteMidiDriverSettings(short refnum, FSSpec* spec);
 
 int BPPrintMessage(int, int, const char*, ...);
 
@@ -145,6 +113,7 @@ void convert_path(char*);
 FILE* my_fopen(int,const char*,const char*);
 int my_fclose(FILE*);
 int NeedGlossary(tokenbyte***);
+double calculate_pitchbend_cents(unsigned char, unsigned char);
 pascal void MySoundProc(short sndNum);
 long LengthOf(tokenbyte***);
 long CopyBuf(tokenbyte***,tokenbyte***);

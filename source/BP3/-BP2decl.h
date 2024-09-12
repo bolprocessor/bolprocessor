@@ -145,8 +145,10 @@ extern char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulati
 	ChangedPressure[MAXCHAN+1],WhichCsoundInstrument[MAXCHAN+1];
 extern int Jbol,Jinstr,Jfunc,Jinscript,Joutscript,Maxinscript,Maxoutscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,
 	MaxVar,Jhomo,**p_VarStatus,iCsoundInstrument;
-extern int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput,
+extern int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput,Capture0n,
 	SmartCursor,NotSaidKpress,**p_MemGram,**p_MemRul;
+extern int CaptureSource;
+extern FILE* CapturePtr;
 extern long ProduceStackDepth,ProduceStackIndex,DisplayStackIndex,
 	**p_LastStackIndex,**p_MemPos;
 extern long **p_ItemStart,**p_ItemEnd,CompileDate,ComputeStart,MaxComputeTime,
@@ -397,7 +399,7 @@ extern long MaxConsoleTime;
 extern int NumberScales, MaxScales, DefaultScaleParam, ToldAboutScale;
 extern char LastSeen_scale[100];
 extern t_scale** Scale;
-extern int trace_scale;
+extern int trace_scale, trace_capture;
 
 extern int WarnedBlockKey,WarnedRangeKey;
 

@@ -481,6 +481,7 @@ int trace_polymake = 0;
 			case T42: /* _srand() */
 			case T43: /* _tempo() */
 			case T44: /* _scale() */
+			case T45: /* _capture() */
 				fmaxseq += 1.;
 				Maxevent++;
 				nsymb += 1.;

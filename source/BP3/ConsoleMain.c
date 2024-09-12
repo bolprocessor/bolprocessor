@@ -83,6 +83,7 @@ int Find_leak = FALSE; // Flag to locate place where negative leak starts
 int check_memory_use = FALSE;
 
 int trace_scale = 0;
+int trace_capture = 1;
 int force_messages = 0;
 
 int WarnedBlockKey,WarnedRangeKey;
@@ -266,6 +267,10 @@ CLEANUP:
 		closeMIDISystem();
 		WaitABit(100); // 100 milliseconds
 		}
+	Handle ptr = (Handle) p_Instance;
+	MyDisposeHandle(&ptr);
+	my_fclose(CapturePtr);
+	p_Instance = NULL;
     if(result == OK) {
         time(&current_time);
         if(ProductionTime > 0) BPPrintMessage(0,odInfo, "Production time: %ld seconds\n",(long)ProductionTime);
@@ -286,7 +291,7 @@ void CreateDoneFile(void) {
 	char* new_thefile;
 	int length;
 	if(gOptions.outputFiles[ofiTraceFile].name != NULL) {
-	    BPPrintMessage(0,odInfo,"Creating 'done' file: %s\n",gOptions.outputFiles[ofiTraceFile].name);
+	//    BPPrintMessage(0,odInfo,"Creating 'done' file: %s\n",gOptions.outputFiles[ofiTraceFile].name);
 		my_sprintf(Message,"%s",gOptions.outputFiles[ofiTraceFile].name);
 		remove_spaces(Message,line);
 		thefile = str_replace(".txt","",line);
@@ -354,6 +359,51 @@ void CreateStopFile(void) {
 	else 
 	    BPPrintMessage(0,odInfo,"=> Cannot create path to the expected '_stop' file because no Trace path has been provided\n");
 	return;
+	}
+
+FILE* CreateCaptureFile(FILE* oldptr) {
+	FILE * thisfile;
+	FILE * ptr;
+	char line[MAXLIN];
+	char* thefile;
+	char* new_thefile;
+	int length;
+	if(oldptr != NULL) return oldptr;
+	if(gOptions.outputFiles[ofiTraceFile].name != NULL) {
+		my_sprintf(Message,"%s",gOptions.outputFiles[ofiTraceFile].name);
+		remove_spaces(Message,line);
+		thefile = str_replace(".txt","",line);
+		if(thefile != NULL) {
+            // Allocate new space for modified thefile to include "_capture"
+            new_thefile = malloc(strlen(thefile) + strlen("_capture") + 1);
+            if(new_thefile != NULL) {
+                strcpy(new_thefile,thefile);
+                strcat(new_thefile,"_capture");
+            	}
+			else {
+				BPPrintMessage(0,odError,"=> Memory allocation failed for new_thefile in CreateCaptureFile()\n");
+				return NULL;
+				}
+            }
+		else {
+			BPPrintMessage(0,odError, "=> Memory allocation failed for thefile in CreateCaptureFile()\n");
+			return NULL;
+			}
+		ptr = my_fopen(1,new_thefile,"w");
+		free(thefile);
+		if(ptr != NULL) {
+	    	BPPrintMessage(0,odInfo,"Creating 'capture' file: %s\n",new_thefile);
+			fprintf(ptr, "time\tdata size\tsource\tstatus\tdata1\tdata2\tchannel\tcorrection (cents)\tmethod\n");
+        	free(new_thefile);
+			return ptr;
+			}
+		else {
+			BPPrintMessage(0,odError,"=> Error creating 'done' file: %s\n",new_thefile);
+        	free(new_thefile);
+			}
+		}
+	else BPPrintMessage(0,odError,"=> No path found in CreateDoneFile()\n");
+	return NULL;
 	}
 
 int stop(int now,char* where) {

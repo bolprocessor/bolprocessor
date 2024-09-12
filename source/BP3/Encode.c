@@ -41,404 +41,601 @@
 tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1, char **pp2,
 	p_context *p_pleftcontext, p_context *p_prightcontext, int *p_meta, int arg_nr,
 	p_flaglist ***ph_flag,int quick,int *p_result) {
-// arg_nr = 0: item 
-// arg_nr = 1: left argument (grammar)
-// arg_nr = 2: right argument (grammar)
-// arg_nr = 4: left argument (glossary)
-// arg_nr = 8: right argument (glossary)
-tokenbyte **p_buff,**p_pi;
-int ii,ig,ir,j,jj,key,n,l,ln,lmax,bound,leftside,rightcontext,
-neg,cv,needsK,needsflag,i_scale,j_scale,result;
-long i,imax,k,siz,buffsize,y,u,v;
-char c,d,**pp,*p,*q,*qmax,*r,*ptr,line[MAXLIN],**p_x;
-// wchar_t c;
+	// arg_nr = 0: item 
+	// arg_nr = 1: left argument (grammar)
+	// arg_nr = 2: right argument (grammar)
+	// arg_nr = 4: left argument (glossary)
+	// arg_nr = 8: right argument (glossary)
+	tokenbyte **p_buff,**p_pi;
+	int ii,ig,ir,j,jj,key,n,l,ln,lmax,bound,leftside,rightcontext,
+	neg,cv,needsK,needsflag,i_scale,j_scale,result;
+	long i,imax,k,siz,buffsize,y,u,v;
+	char c,d,**pp,*p,*q,*qmax,*r,*ptr,line[MAXLIN],**p_x;
+	// wchar_t c;
 
-p_flaglist **nexth,**oldh;
-KeyNumberMap map;
-double x;
+	p_flaglist **nexth,**oldh;
+	KeyNumberMap map;
+	double x;
 
-*p_result = OK;
-if(p_Script == NULL && GetScriptSpace() != OK) return(NULL);
-if(p_Flagname == NULL && GetFlagSpace() != OK) return(NULL);
-if(p_Var == NULL && GetVariableSpace() != OK) return(NULL);
-for(i=0,p=(*pp1); p < (*pp2); i++,p++) {
-//	BPPrintMessage(0,odInfo,"%c",*p); // 2024-07-11
-	}
-pp = pp1;
-imax = 4L * i + 6L;
-buffsize = imax + 4L;
-
-if((p_buff = (tokenbyte**) GiveSpace((Size) buffsize * sizeof(tokenbyte))) == NULL) return(NULL);
-if((p_x = (char**) GiveSpace((Size)((BOLSIZE+2) * sizeof(char)))) == NULL) return(NULL);
-leftside = TRUE;
-rightcontext = bound = neg = FALSE;
-i = 0;
-if(arg_nr == 0) {
-	for(j=0; j < WMAX; j++) {
-		if(FilePrefix[j][0] == '\0') continue;
-		q = &(FilePrefix[j][0]);
-		if(Match(TRUE,pp1,&q,4)) goto FINISHED;
+	*p_result = OK;
+	if(p_Script == NULL && GetScriptSpace() != OK) return(NULL);
+	if(p_Flagname == NULL && GetFlagSpace() != OK) return(NULL);
+	if(p_Var == NULL && GetVariableSpace() != OK) return(NULL);
+	for(i=0,p=(*pp1); p < (*pp2); i++,p++) {
+	//	BPPrintMessage(0,odInfo,"%c",*p); // 2024-07-11
 		}
-	}
+	pp = pp1;
+	imax = 4L * i + 6L;
+	buffsize = imax + 4L;
 
-// for(; (*pp) <= (*pp2);) {  2024-05-24
-while((*pp) <= (*pp2)) {
-
-#if BP_CARBON_GUI_FORGET_THIS
-	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-	if((SelectOn || CompileOn) && ((*p_result)=MyButton(2)) != MISSED) {
-		if((*p_result) != OK || ((*p_result)=InterruptCompile()) != OK) goto ERR;
-		PleaseWait();
+	if((p_buff = (tokenbyte**) GiveSpace((Size) buffsize * sizeof(tokenbyte))) == NULL) return(NULL);
+	if((p_x = (char**) GiveSpace((Size)((BOLSIZE+2) * sizeof(char)))) == NULL) return(NULL);
+	leftside = TRUE;
+	rightcontext = bound = neg = FALSE;
+	i = 0;
+	if(arg_nr == 0) {
+		for(j=0; j < WMAX; j++) {
+			if(FilePrefix[j][0] == '\0') continue;
+			q = &(FilePrefix[j][0]);
+			if(Match(TRUE,pp1,&q,4)) goto FINISHED;
+			}
 		}
-	(*p_result) = OK;
-	if(EventState != NO) goto ERR;
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
-	while(GetNilString(pp) == OK){}; /* Skip "lambda" */
-	c = NextChar(pp);
-	if(isdigit(c)) {
-SEARCHNUMBER:
-		if((k=FindNumber(pp)) != -1) {
-			(*p_buff)[i++] = T1;
-			(*p_buff)[i++] = (tokenbyte)((k - (k % TOKBASE)) / TOKBASE);
-			(*p_buff)[i++] = T1;
-			(*p_buff)[i++] = (tokenbyte)(k % TOKBASE);
-			if(i > imax) {
-				if(Beta) Alert1("=> i > imax. Err. Encode()");
-				goto ERR;
+	// for(; (*pp) <= (*pp2);) {  2024-05-24
+	while((*pp) <= (*pp2)) {
+
+	#if BP_CARBON_GUI_FORGET_THIS
+		// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
+		if((SelectOn || CompileOn) && ((*p_result)=MyButton(2)) != MISSED) {
+			if((*p_result) != OK || ((*p_result)=InterruptCompile()) != OK) goto ERR;
+			PleaseWait();
+			}
+		(*p_result) = OK;
+		if(EventState != NO) goto ERR;
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+
+		while(GetNilString(pp) == OK){}; /* Skip "lambda" */
+		c = NextChar(pp);
+		if(isdigit(c)) {
+	SEARCHNUMBER:
+			if((k=FindNumber(pp)) != -1) {
+				(*p_buff)[i++] = T1;
+				(*p_buff)[i++] = (tokenbyte)((k - (k % TOKBASE)) / TOKBASE);
+				(*p_buff)[i++] = T1;
+				(*p_buff)[i++] = (tokenbyte)(k % TOKBASE);
+				if(i > imax) {
+					if(Beta) Alert1("=> i > imax. Err. Encode()");
+					goto ERR;
+					}
+				c = NextChar(pp);
+				continue;
 				}
-			c = NextChar(pp);
+			}
+		if(c == '*') {
+			(*pp)++;
+			if(!isdigit(**pp)) {
+				(*pp)--;
+				goto SEARCHHOMO;
+				}
+			(*p_buff)[i++] = T0;
+			(*p_buff)[i++] = 21; /* '*' scale up */
+			c = (**pp);
+			if(c == '*') {
+				(*p_buff)[--i] = 24; /* '**' scale down */
+				i++;
+				}
+			c = NextChar(pp);	
 			continue;
 			}
-		}
-	if(c == '*') {
-		(*pp)++;
-		if(!isdigit(**pp)) {
-			(*pp)--;
-			goto SEARCHHOMO;
+			
+	NOTSCALE:
+		/* if(c == '�') {
+			(*pp)++;
+			while(isspace(c=**pp) && (*pp) < (*pp2)) (*pp)++;
+			continue;
+			} */
+		if(c == '\n' || c == '\r' || c == '\0') break;
+		if(c == '[') {
+			if(arg_nr == 0 || arg_nr == 2 || arg_nr == 8) break;
+			else {
+				my_sprintf(Message,"Misplaced comment in left argument\n");
+				Print(wTrace,Message);
+				goto ERR;
+				}
 			}
-		(*p_buff)[i++] = T0;
-		(*p_buff)[i++] = 21; /* '*' scale up */
-		c = (**pp);
-		if(c == '*') {
-			(*p_buff)[--i] = 24; /* '**' scale down */
-			i++;
-			}
-		c = NextChar(pp);	
-		continue;
-		}
-		
-NOTSCALE:
-	/* if(c == '�') {
-		(*pp)++;
-		while(isspace(c=**pp) && (*pp) < (*pp2)) (*pp)++;
-		continue;
-		} */
-	if(c == '\n' || c == '\r' || c == '\0') break;
-	if(c == '[') {
-		if(arg_nr == 0 || arg_nr == 2 || arg_nr == 8) break;
-		else {
-			my_sprintf(Message,"Misplaced comment in left argument\n");
+		if(c == '>') {
+			my_sprintf(Message, "Found illicit character '>'...\n");
 			Print(wTrace,Message);
 			goto ERR;
 			}
-		}
-	if(c == '>') {
-		my_sprintf(Message, "Found illicit character '>'...\n");
-		Print(wTrace,Message);
-		goto ERR;
-		}
-	if(rightcontext) {	/* Remote right context has been read */
-		my_sprintf(Message,
-			"Can't make sense of expression between parentheses. May be found incorrect grammar procedure, performance control, or misplaced right context...\n");
-		Print(wTrace,Message);
-		goto ERR;
-		}
-	if(c == '-') goto SEARCHTERMINAL2;
-	if(c == '_') {
-		j = RESUME;
-		if((j=GetPerformanceControl(pp,arg_nr,&n,quick,&u,&v,&map)) == ABORT) {
+		if(rightcontext) {	/* Remote right context has been read */
+			my_sprintf(Message,
+				"Can't make sense of expression between parentheses. May be found incorrect grammar procedure, performance control, or misplaced right context...\n");
+			Print(wTrace,Message);
 			goto ERR;
 			}
-		if(j != RESUME) {
-			switch(j) {
-				case 0:	/* _chan() */
-					(*p_buff)[i++] = T10; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 1:	/* _vel() */
-					(*p_buff)[i++] = T11; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 2:	/* _velstep */
-				case 3:	/* _velcont */
-					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 2);
-					break;
-				case 4: /* _script() */
-					(*p_buff)[i++] = T13; (*p_buff)[i++] = (tokenbyte) n;
-					// It won't be used if it is a IN script
-					if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"Tokenised [T13.%d] as Jscriptline = %d in Encode()\n\n",(int)n,Jscriptline);
-					break;
-				case 5:	/* _mod() */
-					(*p_buff)[i++] = T14; (*p_buff)[i++] = (tokenbyte)n;
-					break;
-				case 6:	/* _modstep */
-				case 7:	/* _modcont */
-					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 4);
-					break;
-				case 8:	/* _pitchbend */
-					(*p_buff)[i++] = T15; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 9:	/* _pitchstep */
-				case 10: /* _pitchcont */
-					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 5);
-					break;
-				case 11: /* _press */
-					(*p_buff)[i++] = T16; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 12: /* _presstep */
-				case 13: /* _presscont */
-					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 6);
-					break;
-				case 14: /* _switchon */
-					(*p_buff)[i++] = T17; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 15: /* _switchoff */
-					(*p_buff)[i++] = T18; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 16: /* _volume */
-					(*p_buff)[i++] = T19; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 17: /* _volumestep */
-				case 18: /* _volumecont */
-					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 9);
-					break;
-				case 19:	/* _legato() */
-					(*p_buff)[i++] = T20; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 20:	/* _staccato() */
-					(*p_buff)[i++] = T20; (*p_buff)[i++] = (tokenbyte)(- n);
-					break;
-				case 21: /* _articulstep */
-				case 22: /* _articulcont */
-					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 11);
-					break;
-				case 23: /* _velfixed */
-				case 24: /* _modfixed */
-				case 25: /* _pitchfixed */
-				case 26: /* _pressfixed */
-				case 27: /* _volumefixed */
-				case 28: /* _articulfixed */
-					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 11);
-					break;
-				case 29: /* _pitchrange */
-					(*p_buff)[i++] = T21; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 30: /* _pitchrate */
-					(*p_buff)[i++] = T22; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 31: /* _modrate */
-					(*p_buff)[i++] = T23; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 32: /* _pressrate */
-					(*p_buff)[i++] = T24; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 33: /* _transpose */
-					(*p_buff)[i++] = T26; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 34: /* _volumerate */
-					(*p_buff)[i++] = T27; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 35: /* _volumecontrol */
-					(*p_buff)[i++] = T28; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 36: /* _pan */
-					(*p_buff)[i++] = T29; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 37: /* _panstep */
-					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 19;
-					break;
-				case 38: /* _pancont */
-					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 20;
-					break;
-				case 40: /* _panrate */
-					(*p_buff)[i++] = T30; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 41: /* _pancontrol */
-					(*p_buff)[i++] = T31; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 42: /* _rest */
-					(*p_buff)[i++] = T0; (*p_buff)[i++] = 17;
-					break;
-				case 43: /* _ins() */
-					if(OutCsound) {
-						(*p_buff)[i++] = T32; (*p_buff)[i++] = (tokenbyte) n;
-						}
-					break;
-				case 44: /* _value() */
-					(*p_buff)[i++] = T35; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 45: /* _step() */
-					(*p_buff)[i++] = T33; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 46: /* _cont() */
-					(*p_buff)[i++] = T34; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 47: /* _fixed() */
-					(*p_buff)[i++] = T36; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 48: /* _retro */
-					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 21;
-					if(arg_nr == 2) NotBPCase[7] = TRUE;
-					break;
-				case 49: /* _rndseq */
-					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 22;
-					if(arg_nr == 2) NotBPCase[7] = TRUE;
-					break;
-				case 50: /* _randomize */
-					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 23;
-					if(arg_nr < 4) WillRandomize = TRUE;
-					break;
-				case 51: /* _ordseq */
-					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 24;
-					break;
-				case 52: /* _keymap */
-					(*p_buff)[i++] = T37; (*p_buff)[i++] = (tokenbyte)(map.p1 + 128 * map.q1);
-					(*p_buff)[i++] = T37; (*p_buff)[i++] = (tokenbyte)(map.p2 + 128 * map.q2);
-					break;
-				case 53: /* _mapfixed */
-				case 54: /* _mapcont */
-				case 55: /* _mapstep */
-					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 28);
-					break;
-				case 56:	/* _rndvel() */
-					(*p_buff)[i++] = T38; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 57:	/* _rotate() */
-					(*p_buff)[i++] = T39; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 58: /* _keyxpand() */
-					(*p_buff)[i++] = T40; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 59: /* _rndtime() */
-					(*p_buff)[i++] = T41; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 60: /* _srand() */
-					(*p_buff)[i++] = T42; (*p_buff)[i++] = (tokenbyte) n;
-					break;
-				case 61: /* _tempo() */
-					(*p_buff)[i++] = T43; (*p_buff)[i++] = (tokenbyte) u;
-					(*p_buff)[i++] = T43; (*p_buff)[i++] = (tokenbyte) v;
-					break;
-				case 62: /* _transposefixed */
-				case 63: /* _transposecont */
-				case 64: /* _transposestep */
-					(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 34);
-					break;
-				case 65: /* _scale */
-					if(OutCsound || rtMIDI || WriteMIDIfile) {
-						(*p_buff)[i++] = T44; (*p_buff)[i++] = (tokenbyte) n;
-						if(trace_scale) BPPrintMessage(0,odInfo,"Encode() T44 i = %d n = %d\n",i,n);
-						}
-					break;
+		if(c == '-') goto SEARCHTERMINAL2;
+		if(c == '_') {
+			j = RESUME;
+			if((j=GetPerformanceControl(pp,arg_nr,&n,quick,&u,&v,&map)) == ABORT) {
+				goto ERR;
 				}
-			c = NextChar(pp);
-			continue;
-			}
-		j = GetProcedure(igram,pp,arg_nr,&ig,&ir,&x,&y);
-		switch(j) {
-			case 13:
-			case 14:
-			case 15:
-				if(ChangeMetronom(j,x) != OK) goto ERR;
+			if(j != RESUME) {
+				switch(j) {
+					case 0:	/* _chan() */
+						(*p_buff)[i++] = T10; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 1:	/* _vel() */
+						(*p_buff)[i++] = T11; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 2:	/* _velstep */
+					case 3:	/* _velcont */
+						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 2);
+						break;
+					case 4: /* _script() */
+						(*p_buff)[i++] = T13; (*p_buff)[i++] = (tokenbyte) n;
+						// It won't be used if it is a IN script
+						if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"Tokenised [T13.%d] as Jscriptline = %d in Encode()\n\n",(int)n,Jscriptline);
+						break;
+					case 5:	/* _mod() */
+						(*p_buff)[i++] = T14; (*p_buff)[i++] = (tokenbyte)n;
+						break;
+					case 6:	/* _modstep */
+					case 7:	/* _modcont */
+						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 4);
+						break;
+					case 8:	/* _pitchbend */
+						(*p_buff)[i++] = T15; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 9:	/* _pitchstep */
+					case 10: /* _pitchcont */
+						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 5);
+						break;
+					case 11: /* _press */
+						(*p_buff)[i++] = T16; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 12: /* _presstep */
+					case 13: /* _presscont */
+						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 6);
+						break;
+					case 14: /* _switchon */
+						(*p_buff)[i++] = T17; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 15: /* _switchoff */
+						(*p_buff)[i++] = T18; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 16: /* _volume */
+						(*p_buff)[i++] = T19; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 17: /* _volumestep */
+					case 18: /* _volumecont */
+						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 9);
+						break;
+					case 19:	/* _legato() */
+						(*p_buff)[i++] = T20; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 20:	/* _staccato() */
+						(*p_buff)[i++] = T20; (*p_buff)[i++] = (tokenbyte)(- n);
+						break;
+					case 21: /* _articulstep */
+					case 22: /* _articulcont */
+						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 11);
+						break;
+					case 23: /* _velfixed */
+					case 24: /* _modfixed */
+					case 25: /* _pitchfixed */
+					case 26: /* _pressfixed */
+					case 27: /* _volumefixed */
+					case 28: /* _articulfixed */
+						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 11);
+						break;
+					case 29: /* _pitchrange */
+						(*p_buff)[i++] = T21; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 30: /* _pitchrate */
+						(*p_buff)[i++] = T22; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 31: /* _modrate */
+						(*p_buff)[i++] = T23; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 32: /* _pressrate */
+						(*p_buff)[i++] = T24; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 33: /* _transpose */
+						(*p_buff)[i++] = T26; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 34: /* _volumerate */
+						(*p_buff)[i++] = T27; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 35: /* _volumecontrol */
+						(*p_buff)[i++] = T28; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 36: /* _pan */
+						(*p_buff)[i++] = T29; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 37: /* _panstep */
+						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 19;
+						break;
+					case 38: /* _pancont */
+						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 20;
+						break;
+					case 40: /* _panrate */
+						(*p_buff)[i++] = T30; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 41: /* _pancontrol */
+						(*p_buff)[i++] = T31; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 42: /* _rest */
+						(*p_buff)[i++] = T0; (*p_buff)[i++] = 17;
+						break;
+					case 43: /* _ins() */
+						if(OutCsound) {
+							(*p_buff)[i++] = T32; (*p_buff)[i++] = (tokenbyte) n;
+							}
+						break;
+					case 44: /* _value() */
+						(*p_buff)[i++] = T35; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 45: /* _step() */
+						(*p_buff)[i++] = T33; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 46: /* _cont() */
+						(*p_buff)[i++] = T34; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 47: /* _fixed() */
+						(*p_buff)[i++] = T36; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 48: /* _retro */
+						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 21;
+						if(arg_nr == 2) NotBPCase[7] = TRUE;
+						break;
+					case 49: /* _rndseq */
+						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 22;
+						if(arg_nr == 2) NotBPCase[7] = TRUE;
+						break;
+					case 50: /* _randomize */
+						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 23;
+						if(arg_nr < 4) WillRandomize = TRUE;
+						break;
+					case 51: /* _ordseq */
+						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 24;
+						break;
+					case 52: /* _keymap */
+						(*p_buff)[i++] = T37; (*p_buff)[i++] = (tokenbyte)(map.p1 + 128 * map.q1);
+						(*p_buff)[i++] = T37; (*p_buff)[i++] = (tokenbyte)(map.p2 + 128 * map.q2);
+						break;
+					case 53: /* _mapfixed */
+					case 54: /* _mapcont */
+					case 55: /* _mapstep */
+						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 28);
+						break;
+					case 56:	/* _rndvel() */
+						(*p_buff)[i++] = T38; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 57:	/* _rotate() */
+						(*p_buff)[i++] = T39; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 58: /* _keyxpand() */
+						(*p_buff)[i++] = T40; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 59: /* _rndtime() */
+						(*p_buff)[i++] = T41; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 60: /* _srand() */
+						(*p_buff)[i++] = T42; (*p_buff)[i++] = (tokenbyte) n;
+						break;
+					case 61: /* _tempo() */
+						(*p_buff)[i++] = T43; (*p_buff)[i++] = (tokenbyte) u;
+						(*p_buff)[i++] = T43; (*p_buff)[i++] = (tokenbyte) v;
+						break;
+					case 62: /* _transposefixed */
+					case 63: /* _transposecont */
+					case 64: /* _transposestep */
+						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 34);
+						break;
+					case 65: /* _scale */
+						if(OutCsound || rtMIDI || WriteMIDIfile) {
+							(*p_buff)[i++] = T44; (*p_buff)[i++] = (tokenbyte) n;
+							if(trace_scale) BPPrintMessage(0,odInfo,"Encode() T44 i = %d n = %d\n",i,n);
+							}
+						break;
+					case 66: /* _capture() */
+						if(rtMIDI) {
+							(*p_buff)[i++] = T45; (*p_buff)[i++] = (tokenbyte) n;
+							if(trace_capture) BPPrintMessage(0,odInfo,"👉 Capture() T45 i = %d n = %d\n",i,n);
+							}
+						break;
+					}
 				c = NextChar(pp);
 				continue;
-				break;
-			}
-		if(!notargument && j == ABORT) {
-			goto ERR;
-			}
-		if(!notargument && j >= 0) {
-			if(igram < 1 || Gram.p_subgram == NULL || igram > Gram.number_gram) {
-				if(Beta) Alert1("=> Err. Encode(). igram < 1 || Gram.p_subgram == NULL || igram > Gram.number_gram");
-				goto ERR;
 				}
-			if((ii=(*(Gram.p_subgram))[igram].type) == SUBtype || ii == SUB1type || ii == POSLONGtype) {
-				my_sprintf(Message,
-					"Can't accept rule procedure '_goto', etc., in SUB or SUB1 or POSLONG subgrammar\n");
-				Print(wTrace,Message);
-				goto ERR;
-				}
-			Gram.hasproc = TRUE;
+			j = GetProcedure(igram,pp,arg_nr,&ig,&ir,&x,&y);
 			switch(j) {
-				case 0:	/* _goto */
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotogram = ig;
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotorule = ir;
-					break;
-				case 1:	/* _failed */
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].failedgram = ig;
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].failedrule = ir;
-					break;
-				case 2:	/* _repeat */
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].repeat = ig;
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].repeatcontrol = ir;
-					break;
-				case 3:	/* _stop */
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].stop += arg_nr;
-					break;
-				case 4:	/* _print */
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].print += arg_nr;
-					break;
-				case 5:	/* _printOn */
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].printon += arg_nr;
-					break;
-				case 6:	/* _printOff */
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].printoff += arg_nr;
-					break;
-				case 7:	/* _stepOn */
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].stepon += arg_nr;
-					break;
-				case 8:	/* _stepOff */
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].stepoff += arg_nr;
-					break;
-				case 9:	/* _traceOn */
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].traceon += arg_nr;
-					break;
-				case 10:	/* _traceOff */
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].traceoff += arg_nr;
-					break;
-				case 11:	/* _destru */
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].destru = TRUE;
+				case 13:
+				case 14:
+				case 15:
+					if(ChangeMetronom(j,x) != OK) goto ERR;
+					c = NextChar(pp);
+					continue;
 					break;
 				}
-			c = NextChar(pp);
-			continue;
-			}
-		goto SEARCHTERMINAL2;	/* Found "_" */
-		}
-	if(islower(c)) goto SEARCHNOTE;
-	if(c == '/') {		/* Look for /flag/ */
-		q = *pp;
-		c = *(++q);
-		if(c == '/' && arg_nr == 0) { /* Remark starting with "//" */ 
-			break;
-			}
-		if(!isdigit(c)) { /*  not a tempo marker */
-			if(arg_nr == 0 || arg_nr > 2) {
-				my_sprintf(Message,"Slash is followed by \"%c\" which does not make sense\n",c);
-				Print(wTrace,Message);
+			if(!notargument && j == ABORT) {
 				goto ERR;
 				}
-			(*pp)++; NextChar(pp);
-			l = 0;
-		/*	while(!MySpace(c=**pp) && c != '/' && c != '=' && c != '-' && c != '+'
-					&& c != '<' && c != '\8800' && c != '>' && c != '\8804'
-					&& c != '\8805') { */
-			while(!MySpace(c=**pp) && c != '/' && c != '=' && c != '-' && c != '+'
-					&& c != '<' && c != '>') {
-				(*p_x)[l++] = c;
-				if(l >= BOLSIZE) {
-					ShowError(4,igram,irul);
-					my_sprintf(Message, "Max flag length: %ld chars!\n",(long)BOLSIZE);
+			if(!notargument && j >= 0) {
+				if(igram < 1 || Gram.p_subgram == NULL || igram > Gram.number_gram) {
+					if(Beta) Alert1("=> Err. Encode(). igram < 1 || Gram.p_subgram == NULL || igram > Gram.number_gram");
+					goto ERR;
+					}
+				if((ii=(*(Gram.p_subgram))[igram].type) == SUBtype || ii == SUB1type || ii == POSLONGtype) {
+					my_sprintf(Message,
+						"Can't accept rule procedure '_goto', etc., in SUB or SUB1 or POSLONG subgrammar\n");
 					Print(wTrace,Message);
+					goto ERR;
+					}
+				Gram.hasproc = TRUE;
+				switch(j) {
+					case 0:	/* _goto */
+						(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotogram = ig;
+						(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotorule = ir;
+						break;
+					case 1:	/* _failed */
+						(*((*(Gram.p_subgram))[igram].p_rule))[irul].failedgram = ig;
+						(*((*(Gram.p_subgram))[igram].p_rule))[irul].failedrule = ir;
+						break;
+					case 2:	/* _repeat */
+						(*((*(Gram.p_subgram))[igram].p_rule))[irul].repeat = ig;
+						(*((*(Gram.p_subgram))[igram].p_rule))[irul].repeatcontrol = ir;
+						break;
+					case 3:	/* _stop */
+						(*((*(Gram.p_subgram))[igram].p_rule))[irul].stop += arg_nr;
+						break;
+					case 4:	/* _print */
+						(*((*(Gram.p_subgram))[igram].p_rule))[irul].print += arg_nr;
+						break;
+					case 5:	/* _printOn */
+						(*((*(Gram.p_subgram))[igram].p_rule))[irul].printon += arg_nr;
+						break;
+					case 6:	/* _printOff */
+						(*((*(Gram.p_subgram))[igram].p_rule))[irul].printoff += arg_nr;
+						break;
+					case 7:	/* _stepOn */
+						(*((*(Gram.p_subgram))[igram].p_rule))[irul].stepon += arg_nr;
+						break;
+					case 8:	/* _stepOff */
+						(*((*(Gram.p_subgram))[igram].p_rule))[irul].stepoff += arg_nr;
+						break;
+					case 9:	/* _traceOn */
+						(*((*(Gram.p_subgram))[igram].p_rule))[irul].traceon += arg_nr;
+						break;
+					case 10:	/* _traceOff */
+						(*((*(Gram.p_subgram))[igram].p_rule))[irul].traceoff += arg_nr;
+						break;
+					case 11:	/* _destru */
+						(*((*(Gram.p_subgram))[igram].p_rule))[irul].destru = TRUE;
+						break;
+					}
+				c = NextChar(pp);
+				continue;
+				}
+			goto SEARCHTERMINAL2;	/* Found "_" */
+			}
+		if(islower(c)) goto SEARCHNOTE;
+		if(c == '/') {		/* Look for /flag/ */
+			q = *pp;
+			c = *(++q);
+			if(c == '/' && arg_nr == 0) { /* Remark starting with "//" */ 
+				break;
+				}
+			if(!isdigit(c)) { /*  not a tempo marker */
+				if(arg_nr == 0 || arg_nr > 2) {
+					my_sprintf(Message,"Slash is followed by \"%c\" which does not make sense\n",c);
+					Print(wTrace,Message);
+					goto ERR;
+					}
+				(*pp)++; NextChar(pp);
+				l = 0;
+			/*	while(!MySpace(c=**pp) && c != '/' && c != '=' && c != '-' && c != '+'
+						&& c != '<' && c != '\8800' && c != '>' && c != '\8804'
+						&& c != '\8805') { */
+				while(!MySpace(c=**pp) && c != '/' && c != '=' && c != '-' && c != '+'
+						&& c != '<' && c != '>') {
+					(*p_x)[l++] = c;
+					if(l >= BOLSIZE) {
+						ShowError(4,igram,irul);
+						my_sprintf(Message, "Max flag length: %ld chars!\n",(long)BOLSIZE);
+						Print(wTrace,Message);
+						goto ERR;
+						}
+					(*pp)++;
+					if((*pp) > (*pp2)) {
+						ShowError(11,igram,irul);
+						goto ERR;
+						}
+					}
+				(*p_x)[l++] = '\0';
+				StripHandle(p_x);
+				if((jj = CreateFlag(p_x)) == ABORT) {
+					goto ERR;
+					}
+				if(MySpace(c)) c = NextChar(pp);
+				needsK = needsflag = FALSE;
+			/*	if(c == '=' || c == '-' || c == '+' || c == '>' || c == '<' || c == '\8800'
+								|| c == '\8804' || c == '\8805') { */
+				if(c == '=' || c == '-' || c == '+' || c == '>' || c == '<') {
+					if(c == '=' && arg_nr != 1 && arg_nr != 2) {
+						ShowError(50,igram,irul);
+						goto ERR;
+						}
+					(*pp)++; NextChar(pp);
+				/*	if(c == '>' || c == '<' || c == '\8800'
+								|| c == '\8804' || c == '\8805' || c == '=') { */
+					if(c == '>' || c == '<' || c == '=') {
+						if(c != '='	&& arg_nr != 1) {
+							ShowError(51,igram,irul);
+							goto ERR;
+							}
+						if(**pp == 'K') {
+							needsK = TRUE;
+							(*pp)++; NextChar(pp);
+							}
+						j = 0;
+						if(needsK && !isdigit(**pp)) (*p_x)[j++] = 'K';
+						if(!isdigit(**pp)) {
+							while(!MySpace(d=**pp) && d != '/') {
+								(*p_x)[j++] = d;
+								if(j >= BOLSIZE) {
+									ShowError(4,igram,irul);
+									my_sprintf(Message,"Max flag length: %ld chars!\n",(long)BOLSIZE);
+									Print(wTrace,Message);
+									goto ERR;
+									}
+								(*pp)++;
+								if((*pp) > (*pp2)) {
+									ShowError(11,igram,irul);
+									goto ERR;
+									}
+								}
+							(*p_x)[j++] = '\0';
+							StripHandle(p_x);
+							if((n = CreateFlag(p_x)) == ABORT) {
+								goto ERR;
+								}
+							if(MySpace(d)) d = NextChar(pp);
+							needsflag = TRUE;
+							goto STOREFLAG;
+							}
+						}
+					j = 0;
+					MystrcpyHandleToString(MAXLIN,0,line,pp);
+					if((n=GetInteger(YES,line,&j)) == INT_MAX) {
+						ShowError(53,igram,irul);
+						goto ERR;
+						}
+					(*pp) += j;
+					if(NextChar(pp) != '/') {
+						ShowError(52,igram,irul);
+						goto ERR;
+						}
+					}
+				/* Append new flag to list */
+	STOREFLAG:
+				oldh = nexth = *(ph_flag);
+				while(nexth != NULL) {
+					oldh = nexth;
+					nexth = (**nexth).p;
+					}
+				if((nexth=(p_flaglist**) GiveSpace((Size)sizeof(p_flaglist))) == NULL)
+					goto ERR;
+				(**nexth).p = NULL;
+				(**nexth).x = jj;
+				(**nexth).refvalue = n;
+				(**nexth).paramcontrol = 0;
+				if(needsK) (**nexth).paramcontrol = 1;
+				if(needsflag) (**nexth).paramcontrol = 2;
+				if(arg_nr == 2) (**nexth).increment = 1;
+				if(arg_nr == 1) (**nexth).increment = 0;
+				if(c == '+') (**nexth).increment = n;
+				if(c == '-') (**nexth).increment = - n;
+				(**nexth).operator = OFF;
+				if(c == '=') {
+					if(arg_nr == 1)  (**nexth).operator = EQUAL;
+					if(arg_nr == 2) (**nexth).operator = ASSIGN;
+					}
+				if(arg_nr == 1) {
+					switch(c) {
+				/*		case '\8800': // Check https://wutils.com/unicode/
+							(**nexth).operator = DIF;
+							break; */
+						case '<':
+							(**nexth).operator = INF;
+							break;
+						case '>':
+							(**nexth).operator = SUP;
+							break;
+				/*		case '\8805':
+							(**nexth).operator = SUPEQUAL;
+							break; */
+				/*		case '\8804':
+							(**nexth).operator = INFEQUAL;
+							break; */
+						}
+					}
+				if(*(ph_flag) == NULL) *(ph_flag) = nexth;
+				else (**oldh).p = nexth;
+				(*pp)++;
+				c = NextChar(pp);
+				continue;
+				}
+			}
+		c = (**pp);
+		if(c == '<') {		/* Out-time object or <<Wx>> */
+			(*pp)++;
+			c = (**pp);
+			if(c != '<') {
+				Expect('<',"<",c);
+				ShowError(41,igram,irul);
+				goto ERR;
+				}
+			(*pp)++;
+			if((c=(**pp)) == 'W') {	/* <<Wx>> */
+				(*pp)++;
+				l = 0;
+				while((c=(**pp)) != '>') {
+					if(!isdigit(c)) {
+						my_sprintf(Message,"Expecting integer in synchonization tag '<<Wx>>'\n");
+						Print(wTrace,Message);
+						ShowError(42,igram,irul);
+						goto ERR;
+						}
+					l = 10 * l + (c - '0');
+					(*pp)++;
+					}
+				if(l > MAXWAIT){
+					my_sprintf(Message,"Tag '<<W%ld>>' inacceptable.  Not more than %ld tags allowed\n",
+						(long)l,(long)MAXWAIT);
+					Print(wTrace,Message);
+					ShowError(42,igram,irul);
+					goto ERR;
+					}
+				(*p_buff)[i++] = T8; (*p_buff)[i++] = l;
+				(*pp)++;
+				if((c=(**pp)) != '>') {
+					Expect('>',"synchronization tag",c);
+					ShowError(41,igram,irul);
+					goto ERR;
+					}
+				(*pp)++;
+				c = NextChar(pp);
+				continue;
+				}
+			l = 0;
+			if(!OkBolChar(c=NextChar(pp))) {
+				(*p_x)[l++] = c;
+				(*p_x)[l] = '\0';
+				my_sprintf(Message,
+				"Terminal <<%s...>> starts with incorrect character '%c'\n",(*p_x),c);
+				Print(wTrace,Message);
+				ShowError(27,igram,irul);
+				goto ERR;
+				}
+			while((c=NextChar(pp)) != '>') {
+				(*p_x)[l++] = c;
+				if(!OkBolChar2(c) || c == '-') {
+					(*p_x)[l] = '\0';
+					my_sprintf(Message,
+					"Terminal <<%s...>> contains incorrect character '%c'\n",(*p_x),c);
+					Print(wTrace,Message);
+					ShowError(27,igram,irul);
+					goto ERR;
+					}
+				if(l >= BOLSIZE) {
+					(*p_x)[l] = '\0';
+					my_sprintf(Message,"Terminal <<%s...>> is too long. Max length: %ld chars.\n",
+						(*p_x),(long)BOLSIZE);
+					Print(wTrace,Message);
+					ShowError(22,igram,irul);
+					
 					goto ERR;
 					}
 				(*pp)++;
@@ -447,449 +644,228 @@ NOTSCALE:
 					goto ERR;
 					}
 				}
-			(*p_x)[l++] = '\0';
-			StripHandle(p_x);
-			if((jj = CreateFlag(p_x)) == ABORT) {
-				goto ERR;
-				}
-			if(MySpace(c)) c = NextChar(pp);
-			needsK = needsflag = FALSE;
-		/*	if(c == '=' || c == '-' || c == '+' || c == '>' || c == '<' || c == '\8800'
-							 || c == '\8804' || c == '\8805') { */
-			if(c == '=' || c == '-' || c == '+' || c == '>' || c == '<') {
-				if(c == '=' && arg_nr != 1 && arg_nr != 2) {
-					ShowError(50,igram,irul);
-					goto ERR;
-					}
-				(*pp)++; NextChar(pp);
-			/*	if(c == '>' || c == '<' || c == '\8800'
-							 || c == '\8804' || c == '\8805' || c == '=') { */
-				if(c == '>' || c == '<' || c == '=') {
-					if(c != '='	&& arg_nr != 1) {
-						ShowError(51,igram,irul);
-						goto ERR;
-						}
-					if(**pp == 'K') {
-						needsK = TRUE;
-						(*pp)++; NextChar(pp);
-						}
-					j = 0;
-					if(needsK && !isdigit(**pp)) (*p_x)[j++] = 'K';
-					if(!isdigit(**pp)) {
-						while(!MySpace(d=**pp) && d != '/') {
-							(*p_x)[j++] = d;
-							if(j >= BOLSIZE) {
-								ShowError(4,igram,irul);
-								my_sprintf(Message,"Max flag length: %ld chars!\n",(long)BOLSIZE);
-								Print(wTrace,Message);
-								goto ERR;
-								}
-							(*pp)++;
-							if((*pp) > (*pp2)) {
-								ShowError(11,igram,irul);
-								goto ERR;
-								}
-							}
-						(*p_x)[j++] = '\0';
-						StripHandle(p_x);
-						if((n = CreateFlag(p_x)) == ABORT) {
-							goto ERR;
-							}
-						if(MySpace(d)) d = NextChar(pp);
-						needsflag = TRUE;
-						goto STOREFLAG;
-						}
-					}
-				j = 0;
-				MystrcpyHandleToString(MAXLIN,0,line,pp);
-				if((n=GetInteger(YES,line,&j)) == INT_MAX) {
-					ShowError(53,igram,irul);
-					goto ERR;
-					}
-				(*pp) += j;
-				if(NextChar(pp) != '/') {
-					ShowError(52,igram,irul);
-					goto ERR;
-					}
-				}
-			/* Append new flag to list */
-STOREFLAG:
-			oldh = nexth = *(ph_flag);
-			while(nexth != NULL) {
-				oldh = nexth;
-				nexth = (**nexth).p;
-				}
- 			if((nexth=(p_flaglist**) GiveSpace((Size)sizeof(p_flaglist))) == NULL)
-				goto ERR;
-			(**nexth).p = NULL;
-			(**nexth).x = jj;
-			(**nexth).refvalue = n;
-			(**nexth).paramcontrol = 0;
-			if(needsK) (**nexth).paramcontrol = 1;
-			if(needsflag) (**nexth).paramcontrol = 2;
-			if(arg_nr == 2) (**nexth).increment = 1;
-			if(arg_nr == 1) (**nexth).increment = 0;
-			if(c == '+') (**nexth).increment = n;
-			if(c == '-') (**nexth).increment = - n;
-			(**nexth).operator = OFF;
-			if(c == '=') {
-				if(arg_nr == 1)  (**nexth).operator = EQUAL;
-				if(arg_nr == 2) (**nexth).operator = ASSIGN;
-				}
-			if(arg_nr == 1) {
-				switch(c) {
-			/*		case '\8800': // Check https://wutils.com/unicode/
-						(**nexth).operator = DIF;
-						break; */
-					case '<':
-						(**nexth).operator = INF;
-						break;
-					case '>':
-						(**nexth).operator = SUP;
-						break;
-			/*		case '\8805':
-						(**nexth).operator = SUPEQUAL;
-						break; */
-			/*		case '\8804':
-						(**nexth).operator = INFEQUAL;
-						break; */
-					}
-				}
-			if(*(ph_flag) == NULL) *(ph_flag) = nexth;
-			else (**oldh).p = nexth;
-			(*pp)++;
-			c = NextChar(pp);
-			continue;
-			}
-		}
-	c = (**pp);
-	if(c == '<') {		/* Out-time object or <<Wx>> */
-		(*pp)++;
-		c = (**pp);
-		if(c != '<') {
-			Expect('<',"<",c);
-			ShowError(41,igram,irul);
-			goto ERR;
-			}
-		(*pp)++;
-		if((c=(**pp)) == 'W') {	/* <<Wx>> */
-			(*pp)++;
-			l = 0;
-			while((c=(**pp)) != '>') {
-				if(!isdigit(c)) {
-					my_sprintf(Message,"Expecting integer in synchonization tag '<<Wx>>'\n");
-					Print(wTrace,Message);
-					ShowError(42,igram,irul);
-					goto ERR;
-					}
-				l = 10 * l + (c - '0');
-				(*pp)++;
-				}
-			if(l > MAXWAIT){
-				my_sprintf(Message,"Tag '<<W%ld>>' inacceptable.  Not more than %ld tags allowed\n",
-					(long)l,(long)MAXWAIT);
-				Print(wTrace,Message);
-				ShowError(42,igram,irul);
-				goto ERR;
-				}
-			(*p_buff)[i++] = T8; (*p_buff)[i++] = l;
-			(*pp)++;
+	end1:	(*pp)++;
 			if((c=(**pp)) != '>') {
-				Expect('>',"synchronization tag",c);
+				Expect('>',">",c);
 				ShowError(41,igram,irul);
 				goto ERR;
 				}
 			(*pp)++;
-			c = NextChar(pp);
-			continue;
-			}
-		l = 0;
-		if(!OkBolChar(c=NextChar(pp))) {
-			(*p_x)[l++] = c;
-			(*p_x)[l] = '\0';
-			my_sprintf(Message,
-			"Terminal <<%s...>> starts with incorrect character '%c'\n",(*p_x),c);
-			Print(wTrace,Message);
-			ShowError(27,igram,irul);
-			goto ERR;
-			}
-		while((c=NextChar(pp)) != '>') {
-			(*p_x)[l++] = c;
-			if(!OkBolChar2(c) || c == '-') {
-				(*p_x)[l] = '\0';
-				my_sprintf(Message,
-				"Terminal <<%s...>> contains incorrect character '%c'\n",(*p_x),c);
+			(*p_x)[l++] = '\0';
+			
+			/* May be it's an out-time simple note */
+			cv = NoteConvention;
+			lmax = 0;
+			for(j=0; j < MAXKEY; j++) {
+				ln = (*(p_NoteLength[cv]))[j];
+				if(ln > 0 && Match(TRUE,p_x,(*(p_NoteName[cv]))[j],ln) && !isdigit((*p_x)[ln])) {
+					lmax = ln; key = j;
+					qmax = q + ln;
+					goto FOUNDNOTE1;
+					}
+				}
+			for(j=0; j < MAXKEY; j++) {
+				ln = (*(p_AltNoteLength[cv]))[j];
+				if(ln > 0 && Match(TRUE,p_x,(*(p_AltNoteName[cv]))[j],ln) && !isdigit((*p_x)[ln])) {
+					lmax = ln; key = j;
+					qmax = q + ln;
+					goto FOUNDNOTE1;
+					}
+				}
+	FOUNDNOTE1:
+			if(lmax  > 0) {
+				leftside = neg = FALSE;
+				(*p_buff)[i++] = T7;
+				key += (C4key - 60);
+				// BPPrintMessage(0,odInfo, "key = %d\n",key);
+				if(key < 0 || key >= MAXKEY) {
+				//	Alert1("Simple note is out of range. (May be check \"Tuning\")");
+					BPPrintMessage(0,odError, "=> A simple note is out of range. Probably wrong value of C4 key number = %ld\n",(long)C4key);
+					goto ERR;
+					}
+				(*p_buff)[i++] = (tokenbyte) (key + 16384);
+				if(i > imax) {
+					if(Beta) Alert1("=> i > imax. Err. Encode()");
+					goto ERR;
+					}
+				c = NextChar(pp);
+				continue;
+				}
+			
+			/* It must be an out-time sound-object */
+			if(l >= BOLSIZE) {
+				ShowError(4,igram,irul);
+				my_sprintf(Message,"Max length: %ld chars!\n",(long)BOLSIZE);
 				Print(wTrace,Message);
-				ShowError(27,igram,irul);
 				goto ERR;
 				}
-			if(l >= BOLSIZE) {
-				(*p_x)[l] = '\0';
-				my_sprintf(Message,"Terminal <<%s...>> is too long. Max length: %ld chars.\n",
-					(*p_x),(long)BOLSIZE);
-				Print(wTrace,Message);
-				ShowError(22,igram,irul);
+			if((jj=CreateBol(TRUE,FALSE,p_x,FALSE,TRUE,BOL)) < 0) {
+				goto ERR;
+				}
+			if(jj >= Jbol) {
+				if(Beta) Alert1("=> Err. Encode(). jj >= Jbol");
 				
 				goto ERR;
 				}
-			(*pp)++;
-			if((*pp) > (*pp2)) {
-				ShowError(11,igram,irul);
+			for(ii=0; ii < Jhomo; ii++) (*((*p_Image)[ii]))[jj] = (tokenbyte) jj;
+			(*p_buff)[i++] = T7; (*p_buff)[i++] = (tokenbyte) jj;
+			if(i > imax) {
+				if(Beta) Alert1("=> i > imax. Err. Encode()");
+				
 				goto ERR;
 				}
-			}
-end1:	(*pp)++;
-		if((c=(**pp)) != '>') {
-			Expect('>',">",c);
-			ShowError(41,igram,irul);
-			goto ERR;
-			}
-		(*pp)++;
-		(*p_x)[l++] = '\0';
-		
-		/* May be it's an out-time simple note */
-		cv = NoteConvention;
-		lmax = 0;
-		for(j=0; j < MAXKEY; j++) {
-			ln = (*(p_NoteLength[cv]))[j];
-			if(ln > 0 && Match(TRUE,p_x,(*(p_NoteName[cv]))[j],ln) && !isdigit((*p_x)[ln])) {
-				lmax = ln; key = j;
-				qmax = q + ln;
-				goto FOUNDNOTE1;
-				}
-			}
-		for(j=0; j < MAXKEY; j++) {
-			ln = (*(p_AltNoteLength[cv]))[j];
-			if(ln > 0 && Match(TRUE,p_x,(*(p_AltNoteName[cv]))[j],ln) && !isdigit((*p_x)[ln])) {
-				lmax = ln; key = j;
-				qmax = q + ln;
-				goto FOUNDNOTE1;
-				}
-			}
-FOUNDNOTE1:
-		if(lmax  > 0) {
 			leftside = neg = FALSE;
-			(*p_buff)[i++] = T7;
-			key += (C4key - 60);
-			// BPPrintMessage(0,odInfo, "key = %d\n",key);
-			if(key < 0 || key >= MAXKEY) {
-			//	Alert1("Simple note is out of range. (May be check \"Tuning\")");
-				BPPrintMessage(0,odError, "=> A simple note is out of range. Probably wrong value of C4 key number = %ld\n",(long)C4key);
-				goto ERR;
-				}
-			(*p_buff)[i++] = (tokenbyte) (key + 16384);
-			if(i > imax) {
-				if(Beta) Alert1("=> i > imax. Err. Encode()");
-				goto ERR;
-				}
 			c = NextChar(pp);
 			continue;
 			}
-		
-		/* It must be an out-time sound-object */
-		if(l >= BOLSIZE) {
-			ShowError(4,igram,irul);
-			my_sprintf(Message,"Max length: %ld chars!\n",(long)BOLSIZE);
-			Print(wTrace,Message);
-			goto ERR;
-			}
-		if((jj=CreateBol(TRUE,FALSE,p_x,FALSE,TRUE,BOL)) < 0) {
-			goto ERR;
-			}
-		if(jj >= Jbol) {
-			if(Beta) Alert1("=> Err. Encode(). jj >= Jbol");
-			
-			goto ERR;
-			}
-		for(ii=0; ii < Jhomo; ii++) (*((*p_Image)[ii]))[jj] = (tokenbyte) jj;
-		(*p_buff)[i++] = T7; (*p_buff)[i++] = (tokenbyte) jj;
-		if(i > imax) {
-			if(Beta) Alert1("=> i > imax. Err. Encode()");
-			
-			goto ERR;
-			}
-		leftside = neg = FALSE;
-		c = NextChar(pp);
-		continue;
-		}
 
-SEARCHCONTEXT:	
-	if(c == '(') {
-		d = (*pp)[1];
-		if((d != '=') && (d != ':')) {		/* Context */
-			if(arg_nr != 1) {
-				my_sprintf(Message,
-					"Remote context should only be in left argument of grammar rule. May be misspelled '_goto','_failed','_chan'...\n");
-				Print(wTrace,Message);
-				goto ERR;
-				}
-			if(neg) {	/* erase preceding '#' */
-				i--;i--;
-				}
-			if(leftside) {
-				if(GetContext(igram,irul,pp,pp2,
-					p_pleftcontext,p_meta) == MISSED) {
+	SEARCHCONTEXT:	
+		if(c == '(') {
+			d = (*pp)[1];
+			if((d != '=') && (d != ':')) {		/* Context */
+				if(arg_nr != 1) {
 					my_sprintf(Message,
-						"Error in left context!\n");
+						"Remote context should only be in left argument of grammar rule. May be misspelled '_goto','_failed','_chan'...\n");
 					Print(wTrace,Message);
 					goto ERR;
 					}
-				leftside = 0;
-				(**p_pleftcontext)->sign = 1 - neg;
+				if(neg) {	/* erase preceding '#' */
+					i--;i--;
+					}
+				if(leftside) {
+					if(GetContext(igram,irul,pp,pp2,
+						p_pleftcontext,p_meta) == MISSED) {
+						my_sprintf(Message,
+							"Error in left context!\n");
+						Print(wTrace,Message);
+						goto ERR;
+						}
+					leftside = 0;
+					(**p_pleftcontext)->sign = 1 - neg;
+					}
+				else {
+					if(GetContext(igram,irul,
+						pp,pp2,p_prightcontext,p_meta) == MISSED) {
+						my_sprintf(Message,
+							"Error in right context!\n");
+						Print(wTrace,Message);
+						goto ERR;
+						}
+					rightcontext = TRUE;
+					(**p_prightcontext)->sign = 1 - neg;
+					}
+				neg = FALSE;
+				c = NextChar(pp);
+				continue;
 				}
-			else {
-				if(GetContext(igram,irul,
-					pp,pp2,p_prightcontext,p_meta) == MISSED) {
-					my_sprintf(Message,
-						"Error in right context!\n");
-					Print(wTrace,Message);
+			}
+		if(c == '?') {
+			(*pp)++;
+			leftside = neg = FALSE;
+			if((d = (**pp)) < '0' || d > '9') {
+				(*pp)--;
+				j = 1;
+				goto OKCODE;
+				}
+			else {				/* found '?n' */
+				n = 0;
+				*p_meta = 1;
+				(*p_buff)[i++] = T6;
+				if(i > imax) {
+					if(Beta) Alert1("=> i > imax. Err. Encode()");
 					goto ERR;
 					}
-				rightcontext = TRUE;
-				(**p_prightcontext)->sign = 1 - neg;
-				}
-			neg = FALSE;
-			c = NextChar(pp);
-			continue;
-			}
-		}
-	if(c == '?') {
-		(*pp)++;
-		leftside = neg = FALSE;
-		if((d = (**pp)) < '0' || d > '9') {
-			(*pp)--;
-			j = 1;
-			goto OKCODE;
-			}
-		else {				/* found '?n' */
-			n = 0;
-			*p_meta = 1;
-			(*p_buff)[i++] = T6;
-			if(i > imax) {
-				if(Beta) Alert1("=> i > imax. Err. Encode()");
-				goto ERR;
-				}
-			while(d >= '0' && d <= '9') {
-				n = (10 * n) + d - '0';
-				if(n > MAXMETA) {
-					my_sprintf(Message,"Maxi %ld wildcards!\n",(long)MAXMETA);
-					Print(wTrace,Message);
-					ShowError(28,igram,irul);
+				while(d >= '0' && d <= '9') {
+					n = (10 * n) + d - '0';
+					if(n > MAXMETA) {
+						my_sprintf(Message,"Maxi %ld wildcards!\n",(long)MAXMETA);
+						Print(wTrace,Message);
+						ShowError(28,igram,irul);
+						
+						goto ERR;
+						}
+					(*pp)++; d = (**pp);
+					}
+				(*p_buff)[i++] = (tokenbyte) n;
+				if(i > imax) {
+					if(Beta) Alert1("=> i > imax. Err. Encode()");
 					
 					goto ERR;
 					}
-				(*pp)++; d = (**pp);
+				c = NextChar(pp);
+				continue;
 				}
-			(*p_buff)[i++] = (tokenbyte) n;
-			if(i > imax) {
-				if(Beta) Alert1("=> i > imax. Err. Encode()");
-				
-				goto ERR;
+			}
+			
+	SEARCHNOTE:
+		/* Look for simple note in current convention */
+		lmax = 0;
+		if(strlen(LastSeen_scale) > 0) {
+			ptr = LastSeen_scale;
+			for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
+				result = MyHandlecmp(&ptr,(*Scale)[i_scale].label);
+				if(result == 0) break;
 				}
-			c = NextChar(pp);
-			continue;
+			if(i_scale > NumberScales) i_scale = -1;
+			else {
+				j_scale = i_scale + 3;
+				for(j=0; j < MAXKEY; j++) {
+					q = *pp; l = (*(p_NoteLength[j_scale]))[j];
+					if(l > 0 && Match(TRUE,&q,(*(p_NoteName[j_scale]))[j],l) && !isdigit(q[l])) {
+						lmax = l; key = j;
+						qmax = q + l;
+						if(trace_scale) 
+							BPPrintMessage(0,odInfo,"Found note '%s' in current scale, j_scale = %d key = %d\n",q,j_scale,key);
+						goto FOUNDNOTE2;
+						}
+					}
+				}
 			}
-		}
-		
-SEARCHNOTE:
-	/* Look for simple note in current convention */
-	lmax = 0;
-	if(strlen(LastSeen_scale) > 0) {
-		ptr = LastSeen_scale;
-		for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
-			result = MyHandlecmp(&ptr,(*Scale)[i_scale].label);
-			if(result == 0) break;
-			}
-		if(i_scale > NumberScales) i_scale = -1;
-		else {
-			j_scale = i_scale + 3;
+	if(NoteConvention <= KEYS) {
 			for(j=0; j < MAXKEY; j++) {
-				q = *pp; l = (*(p_NoteLength[j_scale]))[j];
-				if(l > 0 && Match(TRUE,&q,(*(p_NoteName[j_scale]))[j],l) && !isdigit(q[l])) {
+				q = *pp; l = (*(p_NoteLength[NoteConvention]))[j];
+				if(l > 0 && Match(TRUE,&q,(*(p_NoteName[NoteConvention]))[j],l)
+						&& !isdigit(q[l])) {
 					lmax = l; key = j;
 					qmax = q + l;
-					if(trace_scale) 
-						BPPrintMessage(0,odInfo,"Found note '%s' in current scale, j_scale = %d key = %d\n",q,j_scale,key);
+					goto FOUNDNOTE2;
+					}
+				}
+			for(j=0; j < MAXKEY; j++) {
+				q = *pp; l = (*(p_AltNoteLength[NoteConvention]))[j];
+				if(l > 0 && Match(TRUE,&q,(*(p_AltNoteName[NoteConvention]))[j],l)
+						&& !isdigit(q[l])) {
+					lmax = l; key = j;
+					qmax = q + l;
 					goto FOUNDNOTE2;
 					}
 				}
 			}
-		}
-   if(NoteConvention <= KEYS) {
-		for(j=0; j < MAXKEY; j++) {
-			q = *pp; l = (*(p_NoteLength[NoteConvention]))[j];
-			if(l > 0 && Match(TRUE,&q,(*(p_NoteName[NoteConvention]))[j],l)
-					&& !isdigit(q[l])) {
-				lmax = l; key = j;
-				qmax = q + l;
-				goto FOUNDNOTE2;
-				}
-			}
-		for(j=0; j < MAXKEY; j++) {
-			q = *pp; l = (*(p_AltNoteLength[NoteConvention]))[j];
-			if(l > 0 && Match(TRUE,&q,(*(p_AltNoteName[NoteConvention]))[j],l)
-					&& !isdigit(q[l])) {
-				lmax = l; key = j;
-				qmax = q + l;
-				goto FOUNDNOTE2;
-				}
-			}
-		}
-	for(j_scale = 4; j_scale < MAXCONVENTIONS; j_scale++) {
-		for(j=0; j < MAXKEY; j++) {
-			q = *pp; l = (*(p_NoteLength[j_scale]))[j];
-			if(l > 0 && Match(TRUE,&q,(*(p_NoteName[j_scale]))[j],l)
-					&& !isdigit(q[l])) {
-				lmax = l; key = j;
-				qmax = q + l;
-				if(trace_scale) BPPrintMessage(0,odInfo,"Found note '%s' in other scale, j_scale = %d key = %d\n",q,j_scale,key);
-				goto FOUNDNOTE2;
-				}
-			}
-		}
-	if(lmax  > 0) {
-FOUNDNOTE2:
-		leftside = neg = FALSE;
-		(*p_buff)[i++] = T25;
-		key += (C4key - 60);
-		if(key < 0 || key >= MAXKEY) {
-			BPPrintMessage(0,odError,"=> Simple note '%s' is out of range.\n",q);
-		/*	ShowWindow(GetDialogWindow(TuningPtr));
-			SelectWindow(GetDialogWindow(TuningPtr)); */
-			goto ERR;
-			}
-		(*p_buff)[i++] = (tokenbyte) key;
-		*pp = qmax;
-		if(i > imax) {
-			if(Beta) Alert1("=> i > imax. Err. Encode()");
-			goto ERR;
-			}
-		if((**pp) == '&') bound = TRUE;
-		c = NextChar(pp);
-		continue;
-		}
-
-SEARCHTERMINAL:
-	if(OkBolChar(c)) {
-		
-SEARCHTERMINAL2:
-		lmax = 0;		/* Look for terminal symbol */
-		for(j=0; j < Jbol; j++) {
-			q = *pp;
-			l = MyHandleLen((*p_Bol)[j]);
-			if(l == 0) {
-				if(Beta) Alert1("=> Err. Encode(). l == 0");
-				break;
-				}
-			if(Match(TRUE,&q,(*p_Bol)[j],l) && l > lmax) {
-				lmax = l; jj = j;
-				qmax = q + l;
+		for(j_scale = 4; j_scale < MAXCONVENTIONS; j_scale++) {
+			for(j=0; j < MAXKEY; j++) {
+				q = *pp; l = (*(p_NoteLength[j_scale]))[j];
+				if(l > 0 && Match(TRUE,&q,(*(p_NoteName[j_scale]))[j],l)
+						&& !isdigit(q[l])) {
+					lmax = l; key = j;
+					qmax = q + l;
+					if(trace_scale) BPPrintMessage(0,odInfo,"Found note '%s' in other scale, j_scale = %d key = %d\n",q,j_scale,key);
+					goto FOUNDNOTE2;
+					}
 				}
 			}
 		if(lmax  > 0) {
+	FOUNDNOTE2:
 			leftside = neg = FALSE;
-			(*p_buff)[i++] = T3; (*p_buff)[i++] = (tokenbyte) jj;
-			(*pp) = qmax;
+			(*p_buff)[i++] = T25;
+			key += (C4key - 60);
+			if(key < 0 || key >= MAXKEY) {
+				BPPrintMessage(0,odError,"=> Simple note '%s' is out of range.\n",q);
+			/*	ShowWindow(GetDialogWindow(TuningPtr));
+				SelectWindow(GetDialogWindow(TuningPtr)); */
+				goto ERR;
+				}
+			(*p_buff)[i++] = (tokenbyte) key;
+			*pp = qmax;
 			if(i > imax) {
 				if(Beta) Alert1("=> i > imax. Err. Encode()");
 				goto ERR;
@@ -898,209 +874,239 @@ SEARCHTERMINAL2:
 			c = NextChar(pp);
 			continue;
 			}
+
+	SEARCHTERMINAL:
+		if(OkBolChar(c)) {
+			
+	SEARCHTERMINAL2:
+			lmax = 0;		/* Look for terminal symbol */
+			for(j=0; j < Jbol; j++) {
+				q = *pp;
+				l = MyHandleLen((*p_Bol)[j]);
+				if(l == 0) {
+					if(Beta) Alert1("=> Err. Encode(). l == 0");
+					break;
+					}
+				if(Match(TRUE,&q,(*p_Bol)[j],l) && l > lmax) {
+					lmax = l; jj = j;
+					qmax = q + l;
+					}
+				}
+			if(lmax  > 0) {
+				leftside = neg = FALSE;
+				(*p_buff)[i++] = T3; (*p_buff)[i++] = (tokenbyte) jj;
+				(*pp) = qmax;
+				if(i > imax) {
+					if(Beta) Alert1("=> i > imax. Err. Encode()");
+					goto ERR;
+					}
+				if((**pp) == '&') bound = TRUE;
+				c = NextChar(pp);
+				continue;
+				}
+			}
+			
+	SEARCHTIMEPATTERN:
+		lmax = 0;	/* Look for time pattern */
+		for(j=0; j < Jpatt; j++) {
+			q = *pp;
+			l = MyHandleLen((*p_Patt)[j]);
+			if(l == 0) {
+				if(Beta) Alert1("=> Err. Encode(). l == 0 in SEARCHTIMEPATTERN");
+				break;
+				}
+			if(Match(TRUE,&q,(*p_Patt)[j],l) && l > lmax) {
+				lmax = l; jj = j;
+				qmax = q + l;
+				}
+			}
+		if(lmax  > 0) {
+			leftside = neg = FALSE;
+			(*p_buff)[i++] = T9; (*p_buff)[i++] = (tokenbyte) jj;
+			*pp = qmax;
+			if(i > imax) {
+				if(Beta) Alert1("=> i > imax. Err. Encode()");
+				goto ERR;
+				}
+			if((**pp) == '&') bound = TRUE;
+			c = NextChar(pp);
+			continue;
+			}
+		
+	SEARCHHOMO:
+		lmax = 0;
+		for(j=0; j < Jhomo; j++) {
+			q = *pp; l = MyHandleLen((*p_Homo)[j]);
+			if(l == 0) {
+				if(Beta) Alert1("=> Err. Encode(). l == 0 in SEARCHHOMO");
+				break;
+				}
+			r = *((*p_Homo)[j]);
+			if(Match(TRUE,&q,&r,l) && l > lmax) {
+				lmax = l; jj = j;
+				qmax = q + l;
+				}
+			}
+		if(lmax > 0) {				/* Found homomorphism */
+			leftside = neg = FALSE;
+			(*p_buff)[i++] = 5;
+			(*p_buff)[i++] = (tokenbyte) jj;
+			*pp = qmax;
+			if(i > imax) {
+				if(Beta) Alert1("=> i > imax. Err. Encode()");
+				goto ERR;
+				}
+			c = NextChar(pp);
+			continue;
+			}
+		
+	SEARCHCODE:
+		neg = FALSE;
+		if((j=FindCode(c)) != -1) {	/* found special char */
+			if(j == 10) { 		/* 'S' */
+				(*pp)++;
+				if(OkChar(**pp) && (*pp) <= (*pp2)) {
+					(*pp)--;
+					goto SEARCHVAR;
+					}
+				else (*pp)--;
+				}
+			if(j == 18) {		/* '&' */
+				if(!bound) j = 19; /* precedes terminal or variable */
+				else bound = FALSE;
+				}
+			if(j == 2) {		/* '#' */
+				neg = TRUE;
+				}
+			if(j == 7) {		/* '�' */
+	//			NotBPCase[9] = TRUE;
+				}
+	OKCODE:	
+			(*p_buff)[i++] = T0;
+			(*p_buff)[i++] = (tokenbyte) j;
+			if(i > imax) {
+				if(Beta) Alert1("=> i > imax. Err. Encode()");
+				goto ERR;
+				}
+			(*pp)++;
+			c = NextChar(pp);
+			continue;
+			}
+		if(c == '\'') {			/* terminal between single quotes */
+			(*pp)++;
+			(*p_x)[0] = '\''; l = 0;
+			while((c=(**pp)) != '\'') {
+				if(l >= BOLSIZE-4) {
+					(*p_x)[++l] = '\0';
+					my_sprintf(Message,
+					"Terminal %s...' is too long. Max length: %ld chars.\n",(*p_x),(long)BOLSIZE);
+					Print(wTrace,Message);
+					ShowError(22,igram,irul);
+					
+					goto ERR;
+					}
+				(*p_x)[++l] = c;
+				(*pp)++;
+				if((*pp) > (*pp2)) {
+					(*p_x)[l] = '\0';
+					my_sprintf(Message,"Missing single quote for terminal %s...\n",(*p_x));
+					Print(wTrace,Message);
+					ShowError(11,igram,irul);
+					
+					goto ERR;
+					}
+				}
+			(*p_x)[++l] = '\''; (*p_x)[++l] = '\0';
+			(*pp)++;
+			if((jj=CreateBol(TRUE,FALSE,p_x,FALSE,TRUE,BOL)) < 0) {
+				goto ERR;
+				}
+			if(jj >= Jbol) {
+				if(Beta) Alert1("=> Err. Encode(). (2) jj >= Jbol");
+				goto ERR;
+				}
+			for(ii=0; ii < Jhomo; ii++) (*((*p_Image)[ii]))[jj] = (tokenbyte) jj;
+			(*p_buff)[i++] = T3; (*p_buff)[i++] = (tokenbyte) jj;
+			if(i > imax) {
+				if(Beta) Alert1("=> i > imax. Err. Encode()");
+				
+				goto ERR;
+				}
+			if((**pp) == '&') bound = TRUE;
+			leftside = neg = FALSE;
+			c = NextChar(pp);
+			continue;
+			}
+
+	SEARCHVAR:
+
+		if(!OkChar(c) && c != '|') {
+			ShowError(55,igram,irul);
+			my_sprintf(Message,"Can't accept '%c'\n",c);
+			Print(wTrace,Message);
+			goto ERR;
+			}
+		if((j=GetVar(pp,pp2)) < 0) goto ERR;
+		(*p_buff)[i++] = T4;
+		(*p_buff)[i++] = (tokenbyte) j;
+		if(j > 0) (*p_VarStatus)[j] = (*p_VarStatus)[j] | arg_nr;	/* j > 0 added 8/3/98 */
+		if(i > imax) {
+			if(Beta) Alert1("=> i > imax. Err. Encode()");
+			goto ERR;
+			}
+		leftside = 0;
+		if((**pp) == '&') bound = TRUE;
+		if(MySpace(**pp)) bound = FALSE;
+		c = NextChar(pp);
 		}
 		
-SEARCHTIMEPATTERN:
-	lmax = 0;	/* Look for time pattern */
-	for(j=0; j < Jpatt; j++) {
-		q = *pp;
-		l = MyHandleLen((*p_Patt)[j]);
-		if(l == 0) {
-			if(Beta) Alert1("=> Err. Encode(). l == 0 in SEARCHTIMEPATTERN");
-			break;
-			}
-		if(Match(TRUE,&q,(*p_Patt)[j],l) && l > lmax) {
-			lmax = l; jj = j;
-			qmax = q + l;
-			}
-		}
-	if(lmax  > 0) {
-		leftside = neg = FALSE;
-		(*p_buff)[i++] = T9; (*p_buff)[i++] = (tokenbyte) jj;
-		*pp = qmax;
-		if(i > imax) {
-			if(Beta) Alert1("=> i > imax. Err. Encode()");
-			goto ERR;
-			}
-		if((**pp) == '&') bound = TRUE;
-		c = NextChar(pp);
-		continue;
-		}
-	
-SEARCHHOMO:
-	lmax = 0;
-	for(j=0; j < Jhomo; j++) {
-		q = *pp; l = MyHandleLen((*p_Homo)[j]);
-		if(l == 0) {
-			if(Beta) Alert1("=> Err. Encode(). l == 0 in SEARCHHOMO");
-			break;
-			}
-		r = *((*p_Homo)[j]);
-		if(Match(TRUE,&q,&r,l) && l > lmax) {
-			lmax = l; jj = j;
-			qmax = q + l;
-			}
-		}
-	if(lmax > 0) {				/* Found homomorphism */
-		leftside = neg = FALSE;
-		(*p_buff)[i++] = 5;
-		(*p_buff)[i++] = (tokenbyte) jj;
-		*pp = qmax;
-		if(i > imax) {
-			if(Beta) Alert1("=> i > imax. Err. Encode()");
-			goto ERR;
-			}
-		c = NextChar(pp);
-		continue;
-		}
-	
-SEARCHCODE:
-	neg = FALSE;
-	if((j=FindCode(c)) != -1) {	/* found special char */
-		if(j == 10) { 		/* 'S' */
-			(*pp)++;
-			if(OkChar(**pp) && (*pp) <= (*pp2)) {
-				(*pp)--;
-				goto SEARCHVAR;
-				}
-			else (*pp)--;
-			}
-		if(j == 18) {		/* '&' */
-			if(!bound) j = 19; /* precedes terminal or variable */
-			else bound = FALSE;
-			}
-		if(j == 2) {		/* '#' */
-			neg = TRUE;
-			}
-		if(j == 7) {		/* '�' */
-//			NotBPCase[9] = TRUE;
-			}
-OKCODE:	
-		(*p_buff)[i++] = T0;
-		(*p_buff)[i++] = (tokenbyte) j;
-		if(i > imax) {
-			if(Beta) Alert1("=> i > imax. Err. Encode()");
-			goto ERR;
-			}
-		(*pp)++;
-		c = NextChar(pp);
-		continue;
-		}
-	if(c == '\'') {			/* terminal between single quotes */
-		(*pp)++;
-		(*p_x)[0] = '\''; l = 0;
-		while((c=(**pp)) != '\'') {
-			if(l >= BOLSIZE-4) {
-				(*p_x)[++l] = '\0';
-				my_sprintf(Message,
-				"Terminal %s...' is too long. Max length: %ld chars.\n",(*p_x),(long)BOLSIZE);
-				Print(wTrace,Message);
-				ShowError(22,igram,irul);
-				
-				goto ERR;
-				}
-			(*p_x)[++l] = c;
-			(*pp)++;
-			if((*pp) > (*pp2)) {
-				(*p_x)[l] = '\0';
-				my_sprintf(Message,"Missing single quote for terminal %s...\n",(*p_x));
-				Print(wTrace,Message);
-				ShowError(11,igram,irul);
-				
-				goto ERR;
-				}
-			}
-		(*p_x)[++l] = '\''; (*p_x)[++l] = '\0';
-		(*pp)++;
-		if((jj=CreateBol(TRUE,FALSE,p_x,FALSE,TRUE,BOL)) < 0) {
-			goto ERR;
-			}
-		if(jj >= Jbol) {
-			if(Beta) Alert1("=> Err. Encode(). (2) jj >= Jbol");
-			goto ERR;
-			}
-		for(ii=0; ii < Jhomo; ii++) (*((*p_Image)[ii]))[jj] = (tokenbyte) jj;
-		(*p_buff)[i++] = T3; (*p_buff)[i++] = (tokenbyte) jj;
-		if(i > imax) {
-			if(Beta) Alert1("=> i > imax. Err. Encode()");
-			
-			goto ERR;
-			}
-		if((**pp) == '&') bound = TRUE;
-		leftside = neg = FALSE;
-		c = NextChar(pp);
-		continue;
-		}
+	FINISHED:
 
-SEARCHVAR:
+	(*p_buff)[i++] = TEND; (*p_buff)[i] = TEND;
 
-	if(!OkChar(c) && c != '|') {
-		ShowError(55,igram,irul);
-		my_sprintf(Message,"Can't accept '%c'\n",c);
-		Print(wTrace,Message);
-		goto ERR;
-		}
-	if((j=GetVar(pp,pp2)) < 0) goto ERR;
-	(*p_buff)[i++] = T4;
-	(*p_buff)[i++] = (tokenbyte) j;
-	if(j > 0) (*p_VarStatus)[j] = (*p_VarStatus)[j] | arg_nr;	/* j > 0 added 8/3/98 */
-	if(i > imax) {
+	// BPPrintMessage(0,odInfo,"@ End of encoding\n");
+	MyDisposeHandle((Handle*)&p_x);
+	if((i+1) > imax) {
 		if(Beta) Alert1("=> i > imax. Err. Encode()");
 		goto ERR;
 		}
-	leftside = 0;
-	if((**pp) == '&') bound = TRUE;
-	if(MySpace(**pp)) bound = FALSE;
-	c = NextChar(pp);
-	}
-	
-FINISHED:
-
-(*p_buff)[i++] = TEND; (*p_buff)[i] = TEND;
-
-// BPPrintMessage(0,odInfo,"@ End of encoding\n");
-MyDisposeHandle((Handle*)&p_x);
-if((i+1) > imax) {
-	if(Beta) Alert1("=> i > imax. Err. Encode()");
-	goto ERR;
-	}
-imax = (int) LengthOf(&p_buff);	// OPTIMIZE: can't we just do imax = i - (1 or 2)?
-j = Recode(notargument,&imax,&p_buff);
-if(j > 0) {
-	ShowError(j,igram,irul);
-//	DoSystem();
-	goto ERR;
-	}
-
-
-return(p_buff); //  2024-07-11
-
-if((p_pi = (tokenbyte**) GiveSpace((Size)(imax+2)*sizeof(tokenbyte))) == NULL)
-	goto ERR;
-siz = imax + 2L;	// FIXME: siz is never used 
-// OPTIMIZE: why make a copy of p_buff just to return the copy and dispose of p_buff ??
-// Just resizing p_buff should be faster.
-if(CopyBuf(&p_buff,&p_pi) == ABORT) p_pi = NULL;
-MyDisposeHandle((Handle*)&p_buff);
-/* if(DoSystem() != OK) p_pi = NULL;	// FIXME ? why fail just because DoSystem() does ??
-if(p_pi == NULL) return(p_pi); 	// FIXME */
-/* if(trace_scale) {
-	i = 0;
-	while(TRUE) {
-		a = (*p_pi)[i]; b = (*p_pi)[i+1];
-		if(a == TEND && b == TEND) break;
-		BPPrintMessage(0,odInfo,"tok = %d %d\n",a,b);
-		i += 2;
+	imax = (int) LengthOf(&p_buff);	// OPTIMIZE: can't we just do imax = i - (1 or 2)?
+	j = Recode(notargument,&imax,&p_buff);
+	if(j > 0) {
+		ShowError(j,igram,irul);
+	//	DoSystem();
+		goto ERR;
 		}
-	} */
-return(p_pi);
 
-ERR:
-MyDisposeHandle((Handle*)&p_x);
-MyDisposeHandle((Handle*)&p_buff);
-// ShowSelect(CENTRE,wTrace);
-return(NULL);
-}
+
+	return(p_buff); //  2024-07-11
+
+	if((p_pi = (tokenbyte**) GiveSpace((Size)(imax+2)*sizeof(tokenbyte))) == NULL)
+		goto ERR;
+	siz = imax + 2L;	// FIXME: siz is never used 
+	// OPTIMIZE: why make a copy of p_buff just to return the copy and dispose of p_buff ??
+	// Just resizing p_buff should be faster.
+	if(CopyBuf(&p_buff,&p_pi) == ABORT) p_pi = NULL;
+	MyDisposeHandle((Handle*)&p_buff);
+	/* if(DoSystem() != OK) p_pi = NULL;	// FIXME ? why fail just because DoSystem() does ??
+	if(p_pi == NULL) return(p_pi); 	// FIXME */
+	/* if(trace_scale) {
+		i = 0;
+		while(TRUE) {
+			a = (*p_pi)[i]; b = (*p_pi)[i+1];
+			if(a == TEND && b == TEND) break;
+			BPPrintMessage(0,odInfo,"tok = %d %d\n",a,b);
+			i += 2;
+			}
+		} */
+	return(p_pi);
+
+	ERR:
+	MyDisposeHandle((Handle*)&p_x);
+	MyDisposeHandle((Handle*)&p_buff);
+	// ShowSelect(CENTRE,wTrace);
+	return(NULL);
+	}
 
 
 int GetContext(int igram, int irul, char **pp, char **ppmax, p_context *p_ppc, int *p_meta)

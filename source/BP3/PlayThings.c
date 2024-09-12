@@ -193,19 +193,17 @@ int PlaySelection(int w, int all) {
 			}
 		else {
 	NOVARIABLE:
-	//		PleaseWait();
 			if(r == OK) {
+		//		BPPrintMessage(0,odInfo,"@@@ PlayBuffer\n");
 				r = PlayBuffer(&p_a,NO);	/* HERE WE DO IT */
 				}
 		//	MyDisposeHandle((Handle*)&p_a);
 			/* Could already be NULL because of PolyExpand() */
 			if(r == ABORT || r == EXIT) {
 				if(Panic) return ABORT;
-			//	if(CyclicPlay) ResetMIDI(!Oms && !NEWTIMER_FORGET_THIS);
 				break;
 				}
 			}
-		// ResetMIDI(TRUE);
 		origin = next_origin + 1;
 		// if(ReleasePhaseDiagram(nmax,&p_imaxseq) != OK) return(ABORT); // Added by BB 2021-03-21
 		}
@@ -320,15 +318,26 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 
 	result = OK;
 	ShowMessages = TRUE; // 2024-05-23
-	while((result=PolyMake(pp_buff,&maxseqapprox,YES)) == AGAIN){};
 	int trace_play = FALSE;
 	if(trace_play) {
 		i = 0;
-		BPPrintMessage(0,odInfo,"\nPlayBuffer1():\n");
+		BPPrintMessage(0,odInfo,"\nPlayBuffer1 before PolyMake:\n");
 		while(TRUE) {
 			a = (**pp_buff)[i]; b = (**pp_buff)[i+1];
 			if(a == TEND && b == TEND) break;
-			BPPrintMessage(0,odInfo,"%d %d,\n",a,b);
+			BPPrintMessage(0,odInfo,"%d %d, ",a,b);
+			i += 2;
+			}
+		BPPrintMessage(0,odInfo,"\n");
+		}
+	while((result=PolyMake(pp_buff,&maxseqapprox,YES)) == AGAIN){};
+	if(trace_play) {
+		i = 0;
+		BPPrintMessage(0,odInfo,"\nPlayBuffer after PolyMake:\n");
+		while(TRUE) {
+			a = (**pp_buff)[i]; b = (**pp_buff)[i+1];
+			if(a == TEND && b == TEND) break;
+			BPPrintMessage(0,odInfo,"%d %d, ",a,b);
 			i += 2;
 			}
 		BPPrintMessage(0,odInfo,"\n");
@@ -354,7 +363,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	if((result = TimeSet(pp_buff,&kmax,&tmin,&tmax,&maxseq,&nmax,p_imaxseq,maxseqapprox))
 								== MISSED || result == ABORT || result == EXIT) {
 		SetTimeOn = FALSE;
-		if(result != ABORT && ReleasePhaseDiagram(nmax,&p_imaxseq) != OK) result = ABORT;
+	//	if(result != ABORT && nmax,&p_imaxseq) != OK) result = ABORT;
 		if(result == MISSED) ShowError(37,0,0);
 	//	if((result == ABORT && !SkipFlag) || result == EXIT) goto RELEASE;
 		if(Panic) return ABORT;
@@ -483,7 +492,7 @@ ENCODE:
 			i++;
 		continue;
 		}
-	MyLock(FALSE,(Handle)p_line);
+//	MyLock(FALSE,(Handle)p_line);
 	p1 = &((*p_line)[i]);
 	while(i < im && (*p_line)[i] != '\r' && (*p_line)[i] != '\n' && (*p_line)[i] != '\0')
 		i++;
@@ -491,8 +500,9 @@ ENCODE:
 	i++;
 	p_plx = &plx; p_prx = &prx;
 	*p_plx = *p_prx = NULL;
+//	BPPrintMessage(0,odInfo,"@@@ Encode\n");
 	p_ti = Encode(FALSE,TRUE,0,0,&p1,&p2,p_plx,p_prx,&meta,0,NULL,FALSE,&r);
-	MyUnlock((Handle)p_line);
+//	MyUnlock((Handle)p_line);
 	if(p_ti == NULL) {
 		if(r != OK) {
 			MyDisposeHandle((Handle*)&p_ti);
@@ -1251,22 +1261,17 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 		return(MISSED);
 		}
 	length = end - origin + 4L;
-	/* if(length > 32000L) {
-		if(!ScriptExecOn) Alert1("Selection larger than 32,000 chars.  Can't encode");
-		else PrintBehind(wTrace,"Selection larger than 32,000 chars.  Can't encode.\n");
-		SelectOn = FALSE; return(MISSED);
-		} */
 	if((ptr = (char**) GiveSpace((Size)(length * sizeof(char)))) == NULL) {
 		rep = ABORT;
 		if(Beta) Alert1("=> Err. SelectionToBuffer(). ptr == NULL");
 		goto SORTIR;
 		}
 	*pp_buff = ptr;
-	// BPPrintMessage(0,odInfo,"Selection %d %d length %d\n",origin,end,length);
+//	BPPrintMessage(0,odInfo,"@@@ Selection %d %d length %d\n",origin,end,length);
 	if(ReadToBuff(YES,noreturn,w,&origin,end,pp_buff) != OK) goto BAD;
 
 	*p_end = origin;
-	MyLock(TRUE,(Handle)*pp_buff);
+//	MyLock(TRUE,(Handle)*pp_buff);
 	p1 = **pp_buff; p2 = p1; i = 0; ret = FALSE;
 	// OPTIMIZE? Is all of this "re-checking" necessary? Look at ReadToBuff() - akozar
 	// We'll check it later - BB
@@ -1276,7 +1281,7 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 		p2++;
 		if(++i > length) {
 			if(Beta) Alert1("=> Err. SelectionToBuffer(). i > length");
-			MyUnlock((Handle)*pp_buff);
+//			MyUnlock((Handle)*pp_buff);
 			MyDisposeHandle((Handle*)pp_buff);
 			SelectOn = FALSE;
 			Panic = TRUE;
@@ -1289,8 +1294,9 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 		}
 	jbolmem = Jbol;
 	notargument = TRUE;
+//	BPPrintMessage(0,odInfo,"@@@ Encode\n");
 	p_ti = Encode(sequence,notargument,0,0,&p1,&p2,p_plx,p_prx,&meta,0,NULL,FALSE,&rep);
-	MyUnlock((Handle)*pp_buff);
+//	MyUnlock((Handle)*pp_buff);
 	MyDisposeHandle((Handle*)pp_buff);
 	if(p_ti == NULL) {
 		SelectOn = FALSE;

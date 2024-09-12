@@ -6,6 +6,13 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+
+-----
+2024-09-12 (version 3.0.8)
+This version of the console is able to capture events from the MIDI input(s) while playing a piece. The command that controls this is _capture(x), where x (in the range 1...127) is an identifier of the 'source'.
+The captured events and the events performed on them are listed in a 'capture' file in the 'temp_bolprocessor' folder.
+Currently the interface does not process this data. Work is currently underway to construct a polymetric structure containing both the performed and captured data.
+
 -----
 2024-09-06
 This release accepts the "_script(Wait forever)" command. Installation files and scripts have been updated to handle the future "BP3_help.txt" documentation source.
