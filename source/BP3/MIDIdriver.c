@@ -1337,14 +1337,15 @@ void sendMIDIEvent(int kcurrentinstance, int i_scale,int blockkey,unsigned char*
                 midiData[1] = note;
                 }
             if(note < 0 || note >= MAXKEY) return;
-            channel = AssignUniqueChannel(status,note,value,i_scale,0);
-            if(channel > 0) midiData[0] = status + channel;
+       /*     channel = AssignUniqueChannel(status,note,value,i_scale,0);
+            if(channel > 0) midiData[0] = status + channel; */
+            channel = 0; midiData[0] = status; // Input events are forced to channel 1
         //  if(status == NoteOff || value == 0) BPPrintMessage(0,odInfo,"NoteOff %d channel %d\n",note,channel);
-            if(status == NoteOn && value > 0 && channel > 0) {
+            if(status == NoteOn && value > 0) {
                 if(blockkey == 0) blockkey = DefaultBlockKey;
                 correction = (*(*Scale)[i_scale].deviation)[note] - (*(*Scale)[i_scale].deviation)[blockkey];
                 if(TraceMicrotonality) {
-                    BPPrintMessage(0,odInfo,"§ NoteOn %d channel %d",note,(channel+1));
+                    BPPrintMessage(0,odInfo,"§ NoteOn %d chan %d scale #%d",note,(channel+1),i_scale);
                     BPPrintMessage(0,odInfo," basekey %d blockkey %d correction %d cents\n",blockkey,basekey,correction);
                     }
                 // With a pitch bend sensitivity of 2 semitones, the entire pitch bend range (14-bit) will correspond to ± 2 semitones.
@@ -1404,17 +1405,14 @@ void sendMIDIEvent(int kcurrentinstance, int i_scale,int blockkey,unsigned char*
                 if(status == PitchBend) {
                     correction = (int) calculate_pitchbend_cents(midiData[1],midiData[2]);
                     }
-         /*       time_now = getClockTime() ;
-                long clocktime = (getClockTime() - initTime - TimeStopped) / 1000L - MIDIsetUpTime; // milliseconds
-                clocktime = (int)((float)clocktime / Quantization + 0.5) * Quantization;
-                clocktime = (int)((float)clocktime / Time_res + 0.5) * Time_res; */
-                if(status == PitchBend)
-                    fprintf(CapturePtr, "%ld\t%d\t0\t%d\t%d\t%d\t%d\t%d\tpitch2\n",clocktime,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
-                else if(status == NoteOn || status == NoteOff) {
-                    fprintf(CapturePtr, "%ld\t%d\t0\t%d\t%d\t%d\t%d\t%d\tnote2\n",clocktime,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
-                    note2_ok = TRUE;
+                if(CaptureSource > 0) {
+                    if(status == PitchBend)
+                        fprintf(CapturePtr, "%ld\t%d\t0\t%d\t%d\t%d\t%d\t%d\tpitch2\n",clocktime,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
+                    else if(status == NoteOn || status == NoteOff) {
+                        fprintf(CapturePtr, "%ld\t%d\t0\t%d\t%d\t%d\t%d\t%d\tnote2\n",clocktime,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
+                        note2_ok = TRUE;
+                        }
                     }
-          //      TimeStopped += (getClockTime() - time_now);
                 }
             }
         if(!note2_ok && CaptureSource > 0) {

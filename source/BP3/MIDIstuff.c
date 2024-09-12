@@ -1474,7 +1474,7 @@ int FindScale(int scale) {
 	return i_scale;
 	}
 
-int AssignUniqueChannel(int status,int note,int value,int i_scale, int pitch) {
+int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch) {
     int ch;
 	if(i_scale < 0) i_scale = 0;
 	if(i_scale >= MAXCONVENTIONS) {
@@ -1584,9 +1584,6 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 				// The 14-bit range is 16384 values (from 0 to 16383), with 8192 being the center (no pitch bend).
 				// Therefore, 2 semitones = 200 cents corresponds to 8192 units, and 1 cent is 8192 / 200 units
 				sensitivity = 2; // semitones
-		/*		pitchbend_master = (int) PitchbendStart(kcurrentinstance);
-				if(pitchbend_master > 0 && pitchbend_master < 16384) pitchbend_master -= DEFTPITCHBEND;
-				else pitchbend_master = 0; */
 				if(pitchbend_master != 0  && TraceMicrotonality) BPPrintMessage(0,odInfo,"--> with additional pitchbend value of %d\n",pitchbend_master);
 				if(correction < -200 || correction >= 200) {
 					if(ToldPitchbend++ < 4) BPPrintMessage(0,odError,"=> Microtonality pitchbender out of range ± 200 cents: %d  cents note %d\n",correction,note);
