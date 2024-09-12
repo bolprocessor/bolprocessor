@@ -146,6 +146,7 @@ int CopyStringToTextHandle(TEHandle th, const char* str);
 typedef struct {
 	long time;
 	unsigned char type,status,data1,data2;
+	int instance;
 //	int i_scale,blockkey;
 	} MIDI_Event, *MIDI_EventPtr;
 
@@ -496,7 +497,8 @@ enum {
 #define T42 (tokenbyte) 42
 #define T43 (tokenbyte) 43
 #define T44 (tokenbyte) 44 // _scale()
-#define MAXTOKENBYTE 45
+#define T45 (tokenbyte) 45 // _capture()
+#define MAXTOKENBYTE 46
 
 // Inference modes
 #define ANAL 0	/* Modus tollens */
@@ -2003,7 +2005,7 @@ typedef struct {
 	} KeyNumberMap;
 
 struct s_CurrentParameters {
-	int currvel,rndvel,velcontrol,currarticul,currchan,scale,blockkey,currinstr;
+	int currvel,rndvel,velcontrol,currarticul,currchan,scale,blockkey,currinstr,capture;
 	float currtranspose;
 	short xpandkey,xpandval,randomtime,seed;
 	char velmode,articulmode,mapmode,transposemode,lastistranspose;
@@ -2078,6 +2080,7 @@ struct s_SoundObjectInstanceParameters {
 	Milliseconds truncbeg,truncend;
 	char velocity,channel;
 	int scale,blockkey;
+	int capture;
 	short rndvel,velcontrol,randomtime;
 	short xpandkey,xpandval;
 	short transposition,instrument;

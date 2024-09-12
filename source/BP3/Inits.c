@@ -117,7 +117,9 @@ int Inits(void) {
 
 	long LastTime = ZERO;
 	long PianorollShift = ZERO;
-	rtMIDI = OutCsound = FALSE;
+	rtMIDI = OutCsound = Capture0n = FALSE;
+	CaptureSource = -1;
+	CapturePtr = NULL;
 	
 	InitOn = NoCursor = NotSaidKpress = TRUE;
 	ReceivedOpenAppEvent = FALSE;

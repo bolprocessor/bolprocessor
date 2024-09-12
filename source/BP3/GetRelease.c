@@ -159,93 +159,92 @@ return OK;
 }
 
 
-int ReleasePhaseDiagram(int nmax,unsigned long*** pp_imaxseq)
-{
-int i,k,nseq;
-p_list **ptag,**newptag;
-Handle ptr;
+int ReleasePhaseDiagram(int nmax,unsigned long*** pp_imaxseq) {
+	int i,k,nseq;
+	p_list **ptag,**newptag;
+	Handle ptr;
 
-ptr = (Handle) p_T;
-MyDisposeHandle(&ptr);
-p_T = NULL;
-MyDisposeHandle((Handle*)pp_imaxseq);
-if(p_Seq != NULL) {
-	for(nseq = 0; nseq < (MyGetHandleSize((Handle)p_Seq) / sizeof(long**)); nseq++) {
-		ptr = (Handle) (*p_Seq)[nseq];
-		MyDisposeHandle(&ptr);
-		}
-	ptr = (Handle) p_Seq;
+	ptr = (Handle) p_T;
 	MyDisposeHandle(&ptr);
-	p_Seq = NULL;
-	}
-	
-if(p_Instance != NULL) {
-	for(k=0; k < (MyGetHandleSize((Handle)p_Instance) / sizeof(SoundObjectInstanceParameters)); k++) {
-		for(i=0; i < ((*p_Instance)[k].contparameters.number); i++) {
-			ptr = (Handle) (*((*p_Instance)[k].contparameters.values))[i].point;
+	p_T = NULL;
+	MyDisposeHandle((Handle*)pp_imaxseq);
+	if(p_Seq != NULL) {
+		for(nseq = 0; nseq < (MyGetHandleSize((Handle)p_Seq) / sizeof(long**)); nseq++) {
+			ptr = (Handle) (*p_Seq)[nseq];
 			MyDisposeHandle(&ptr);
 			}
-		ptr = (Handle) (*p_Instance)[k].contparameters.values;
+		ptr = (Handle) p_Seq;
 		MyDisposeHandle(&ptr);
+		p_Seq = NULL;
 		}
-	}
-	
-if(p_ObjectSpecs != NULL) {
-	for(i=0; i < (MyGetHandleSize((Handle)p_ObjectSpecs) / sizeof(objectspecs**)); i++) {
-		if((*p_ObjectSpecs)[i] != NULL) {
-			if(WaitList(i) != NULL) {
-				ptag = WaitList(i);
-				if((**ptag).p != NULL) {
-					do {
-						newptag = (**ptag).p;
-						MyDisposeHandle((Handle*)&ptag);
-						ptag = newptag;
-						}
-					while(ptag != NULL);
-					WaitList(i) = NULL;	/* Already disposed of */
-					}
-				else {
-					MyDisposeHandle((Handle*)&ptag);
-					WaitList(i) = NULL;
-					}
-				}
-			if(ObjScriptLine(i) != NULL) {
-				ptag = ObjScriptLine(i);
-				if((**ptag).p != NULL) {
-					do {
-						newptag = (**ptag).p;
-						MyDisposeHandle((Handle*)&ptag);
-						ptag = newptag;
-						}
-					while(ptag != NULL);
-					ObjScriptLine(i) = NULL;	/* Already disposed of */
-					}
-				else {
-					MyDisposeHandle((Handle*)&ptag);
-					ObjScriptLine(i) = NULL;
-					}
-				}
-			if(SwitchState(i) != NULL) {
-				ptr = (Handle) SwitchState(i);
-				MyDisposeHandle(&ptr);
-				SwitchState(i) = NULL;
-				}
-			ptr = (Handle) (*p_ObjectSpecs)[i];
-			MyDisposeHandle(&ptr);
-			(*p_ObjectSpecs)[i] = NULL;
-			}
 		
+	if(p_Instance != NULL) {
+		for(k=0; k < (MyGetHandleSize((Handle)p_Instance) / sizeof(SoundObjectInstanceParameters)); k++) {
+			for(i=0; i < ((*p_Instance)[k].contparameters.number); i++) {
+				ptr = (Handle) (*((*p_Instance)[k].contparameters.values))[i].point;
+				MyDisposeHandle(&ptr);
+				}
+			ptr = (Handle) (*p_Instance)[k].contparameters.values;
+			MyDisposeHandle(&ptr);
+			}
 		}
-	ptr = (Handle) p_ObjectSpecs;
+		
+	if(p_ObjectSpecs != NULL) {
+		for(i=0; i < (MyGetHandleSize((Handle)p_ObjectSpecs) / sizeof(objectspecs**)); i++) {
+			if((*p_ObjectSpecs)[i] != NULL) {
+				if(WaitList(i) != NULL) {
+					ptag = WaitList(i);
+					if((**ptag).p != NULL) {
+						do {
+							newptag = (**ptag).p;
+							MyDisposeHandle((Handle*)&ptag);
+							ptag = newptag;
+							}
+						while(ptag != NULL);
+						WaitList(i) = NULL;	/* Already disposed of */
+						}
+					else {
+						MyDisposeHandle((Handle*)&ptag);
+						WaitList(i) = NULL;
+						}
+					}
+				if(ObjScriptLine(i) != NULL) {
+					ptag = ObjScriptLine(i);
+					if((**ptag).p != NULL) {
+						do {
+							newptag = (**ptag).p;
+							MyDisposeHandle((Handle*)&ptag);
+							ptag = newptag;
+							}
+						while(ptag != NULL);
+						ObjScriptLine(i) = NULL;	/* Already disposed of */
+						}
+					else {
+						MyDisposeHandle((Handle*)&ptag);
+						ObjScriptLine(i) = NULL;
+						}
+					}
+				if(SwitchState(i) != NULL) {
+					ptr = (Handle) SwitchState(i);
+					MyDisposeHandle(&ptr);
+					SwitchState(i) = NULL;
+					}
+				ptr = (Handle) (*p_ObjectSpecs)[i];
+				MyDisposeHandle(&ptr);
+				(*p_ObjectSpecs)[i] = NULL;
+				}
+			
+			}
+		ptr = (Handle) p_ObjectSpecs;
+		MyDisposeHandle(&ptr);
+		p_ObjectSpecs = NULL;
+		}
+/*	ptr = (Handle) p_Instance;
 	MyDisposeHandle(&ptr);
-	p_ObjectSpecs = NULL;
+	p_Instance = NULL;
+	BPPrintMessage(0,odInfo,"§§§ p_Instance = NULL\n"); */
+	return OK;
 	}
-ptr = (Handle) p_Instance;
-MyDisposeHandle(&ptr);
-p_Instance = NULL;
-
-return OK;
-}
 
 
 #if 0  /* this function appears not to be called - akozar */

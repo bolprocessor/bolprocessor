@@ -1007,7 +1007,7 @@ void closeMIDISystem() {
                             };
                        HandleInputEvent(&packet, &e, index);
                         if (PassInEvent(status, index)) {
-                            sendMIDIEvent(0,0,midiData, 1, 0); // Note: timestamp is not used here
+                            sendMIDIEvent(-1,0,0,midiData, 1, 0); // Note: timestamp is not used here
                             }
                         }
                     else {
@@ -1049,7 +1049,7 @@ void closeMIDISystem() {
                                     break;
                                 }
                             i_scale = FindScale(DefaultScaleParam);
-                            sendMIDIEvent(i_scale,0,midiData,3,0);
+                            sendMIDIEvent(-1,i_scale,0,midiData,3,0);
                             }
                         }
                     }
@@ -1106,7 +1106,7 @@ void closeMIDISystem() {
                         }
                 //  BPPrintMessage(0,odInfo, "DefaultScaleParam = %d:\n",DefaultScaleParam);
                     i_scale = FindScale(DefaultScaleParam);
-                    sendMIDIEvent(i_scale,0,(unsigned char*) packet->data,packet->length,0);
+                    sendMIDIEvent(-1,i_scale,0,(unsigned char*) packet->data,packet->length,0);
                     }
                 packet = MIDIPacketNext(packet); // Move to the next packet
                 }
@@ -1247,7 +1247,7 @@ void closeMIDISystem() {
                     }
                 if(trace_all_interactions) BPPrintMessage(0,odInfo, "Forwarding client = %d, status = %d, data1 = %d, data2 = %d, ev = %p\n", source_client, e.status, e.data1, e.data2,ev);
                 i_scale = FindScale(DefaultScaleParam);
-                sendMIDIEvent(i_scale,0,packet.data, packet.length, packet.timestamp);
+                sendMIDIEvent(-1,i_scale,0,packet.data, packet.length, packet.timestamp);
                 }
             }
     SORTIE:
@@ -1312,15 +1312,16 @@ int ListenToEvents() {
 
 // SEND MIDI EVENTS
 
-void sendMIDIEvent(int i_scale,int blockkey,unsigned char* midiData,int dataSize,long time) {
-    int note,status,value,improvize,index,channel,sensitivity,channel_org;
-    unsigned long clocktime;
-    short correction;
+void sendMIDIEvent(int kcurrentinstance, int i_scale,int blockkey,unsigned char* midiData,int dataSize,long time) {
+    // This is real time, unlike SendToDriver() which sends events to eventStack
+    int note,status,value,improvize,index,channel,sensitivity,channel_org,capture,note2_ok;
+    unsigned long clocktime, time_now;
+    int correction = 0;
     status = midiData[0];
     unsigned int pitchBendValue;
     unsigned char pitchBendLSB, pitchBendMSB;
     unsigned char midiData2[3];
-    channel = -1;
+    channel = capture = -1;
     if(dataSize == 3) {
         status &= 0xF0;
         note = midiData[1];
@@ -1328,7 +1329,7 @@ void sendMIDIEvent(int i_scale,int blockkey,unsigned char* midiData,int dataSize
         channel = channel_org = midiData[0] & 0x0F;
         // BPPrintMessage(0,odInfo,"§§ Note %d channel %d i_scale = %d\n",note,channel,i_scale);
         if(MIDImicrotonality && (status == NoteOn || status == NoteOff) && i_scale <= NumberScales && i_scale > 0) {
-            // This is only used for input events because the microtonality is dealt with in SendToDriver() otherwise
+            // This is only used for input events because the microtonality is dealt with in SendToDriver() otherwise. For output events, i_scale has been forced to 0.
             int numnotes = (*Scale)[i_scale].numnotes;
             int basekey = (*Scale)[i_scale].basekey;
             if(basekey != C4key) {
@@ -1362,18 +1363,66 @@ void sendMIDIEvent(int i_scale,int blockkey,unsigned char* midiData,int dataSize
                     midiData2[1] = pitchBendLSB;  // Pitch Bend LSB
                     midiData2[2] = pitchBendMSB;  // Pitch Bend MSB
                 //  BPPrintMessage(0,odInfo,"• pitchBendValue channel %d: %d = %d %d %d\n",channel,pitchBendValue,(int)midiData2[0],(int)midiData2[1],(int)midiData2[2]);
-                    sendMIDIEvent(-1,0,midiData2,3,time);
+                    if(CaptureSource > 0 && CapturePtr != NULL) { 
+                        time_now = getClockTime() ;
+                        long clocktime = (getClockTime() - initTime - TimeStopped) / 1000L - MIDIsetUpTime; // milliseconds
+                        clocktime = (int)((float)clocktime / Quantization + 0.5) * Quantization;
+                        clocktime = (int)((float)clocktime / Time_res + 0.5) * Time_res;
+                        fprintf(CapturePtr, "%ld\t%d\t%d\t%d\t%d\t%d\t%d\t%d\tpitch1\n",clocktime,dataSize,CaptureSource,(int)midiData2[0],(int)midiData2[1],(int)midiData2[2],(channel_org + 1),correction);
+                        // We record channel_org instead of channel because the channel won't be changed in the following note
+                        TimeStopped += (getClockTime() - time_now);
+                        }
+                    sendMIDIEvent(kcurrentinstance,-1,0,midiData2,3,time);
                     }
                 }
-            else channel = channel_org;
+            else {
+                channel = channel_org;
+                }
             }
         if(test_first_events && NumEventsWritten < 100) {
             clocktime = getClockTime() - initTime; // microseconds
             if(status == NoteOn || status == NoteOff || status == ControlChange)
                 BPPrintMessage(0,odInfo,"%.3f => %.3f s status = %d, data1 = %d, data2 = %d channel = %d\n",(float)clocktime/1000000,(float)time/1000000,status,note,value,(channel + 1));
             }
-        if(NumEventsWritten < LONG_MAX) NumEventsWritten++;
         }
+    if(NumEventsWritten < LONG_MAX) NumEventsWritten++;
+
+    if(CapturePtr != NULL) {
+        note2_ok = FALSE;
+        status = midiData[0] & 0xF0;
+        channel = midiData[0] & 0x0F;
+        time_now = getClockTime() ;
+        long clocktime = (getClockTime() - initTime - TimeStopped) / 1000L - MIDIsetUpTime; // milliseconds
+        clocktime = (int)((float)clocktime / Quantization + 0.5) * Quantization;
+        clocktime = (int)((float)clocktime / Time_res + 0.5) * Time_res;
+        if(kcurrentinstance > 0) {
+            capture = (*p_Instance)[kcurrentinstance].capture;
+        //  if(trace_capture) BPPrintMessage(0,odInfo,"👉👉 CaptureSource = %d\n",kcurrentinstance,capture);
+            if(capture >= 0 && capture < 128) {
+                CaptureSource = capture;
+                if(trace_capture) BPPrintMessage(0,odInfo,"👉 CaptureSource = %d, status %d\n",capture,status);
+                if(status == PitchBend) {
+                    correction = (int) calculate_pitchbend_cents(midiData[1],midiData[2]);
+                    }
+         /*       time_now = getClockTime() ;
+                long clocktime = (getClockTime() - initTime - TimeStopped) / 1000L - MIDIsetUpTime; // milliseconds
+                clocktime = (int)((float)clocktime / Quantization + 0.5) * Quantization;
+                clocktime = (int)((float)clocktime / Time_res + 0.5) * Time_res; */
+                if(status == PitchBend)
+                    fprintf(CapturePtr, "%ld\t%d\t0\t%d\t%d\t%d\t%d\t%d\tpitch2\n",clocktime,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
+                else if(status == NoteOn || status == NoteOff) {
+                    fprintf(CapturePtr, "%ld\t%d\t0\t%d\t%d\t%d\t%d\t%d\tnote2\n",clocktime,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
+                    note2_ok = TRUE;
+                    }
+          //      TimeStopped += (getClockTime() - time_now);
+                }
+            }
+        if(!note2_ok && CaptureSource > 0) {
+            if(status == NoteOn || status == NoteOff) fprintf(CapturePtr, "%ld\t%d\t%d\t%d\t%d\t%d\t%d\t0\tnote1\n",clocktime,dataSize,CaptureSource,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel_org + 1));
+            }
+        TimeStopped += (getClockTime() - time_now);
+        }
+
     #if defined(_WIN64)
         DWORD message = 0;
         status = midiData[0];
@@ -1414,6 +1463,7 @@ void sendMIDIEvent(int i_scale,int blockkey,unsigned char* midiData,int dataSize
         MIDIPacketList packetList;
         MIDIPortRef targetPort;
         MIDIPacket *packet = MIDIPacketListInit(&packetList);
+        if(dataSize == 1) midiData[1] = midiData[2] = 0; // Make it clean, we never know!
         packet = MIDIPacketListAdd(&packetList, sizeof(packetList), packet, mach_absolute_time(), dataSize, midiData);
         targetPort = MIDIoutPort;
         if(packet) {
@@ -1421,8 +1471,14 @@ void sendMIDIEvent(int i_scale,int blockkey,unsigned char* midiData,int dataSize
                 // Here use filters to decide which port(s) this event should be sent to.
                 if(!MIDImicrotonality && channel >= 0 && channel < MAXCHAN && MIDIchannelFilter[index][channel] == '0') continue;
                 if(!MIDImicrotonality && !PassOutEvent(status,index)) continue;
-                if(trace_messages) BPPrintMessage(0,odInfo,"Sending MIDI event time = %ld ms, data0 = %ld, data1 = %ld, data2 = %ld, index = %d\n",(long)time/1000L,(long)midiData[0],(long)midiData[1],(long)midiData[2],index);
                 MIDISend(targetPort, MIDIoutputdestination[index], &packetList);
+                if(trace_messages) BPPrintMessage(0,odInfo,"Sending MIDI event time = %ld ms, kcurrentinstance = %d, data0 = %ld, data1 = %ld, data2 = %ld, index = %d\n",(long)time/1000L,kcurrentinstance,(long)midiData[0],(long)midiData[1],(long)midiData[2],index);
+           /*     if(dataSize == 1) {  // Trying to reduce the delay in processing Start, Continue, Stop
+                    midiData[0] = 248;  // by sending a clock message. But it doesn't work…
+                    packet = MIDIPacketListAdd(&packetList, sizeof(packetList), packet, mach_absolute_time(), dataSize, midiData);
+                    MIDISend(targetPort, MIDIoutputdestination[index], &packetList);
+                    if(trace_messages) BPPrintMessage(0,odInfo,"Sending MIDI event time = %ld ms, data0 = %ld, data1 = %ld, data2 = %ld, index = %d\n",(long)time/1000L,(long)midiData[0],(long)midiData[1],(long)midiData[2],index);
+                    } */
                 }
             }
     #endif

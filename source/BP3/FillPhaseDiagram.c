@@ -236,6 +236,7 @@ for(k=0; k < Maxevent; k++) {
 	(*p_Instance)[k].velocity = DeftVelocity;
 	(*p_Instance)[k].instrument = (*p_Instance)[k].nseq = 0;
 	(*p_articul)[k] = 0;
+	(*p_Instance)[k].capture = -1;
 	}
 
 failed = TRUE;
@@ -305,6 +306,7 @@ startmap.p1 = startmap.q1 = 0;
 startmap.p2 = startmap.q2 = 127;
 
 currentparameters.currchan = 1;
+currentparameters.capture = -1;
 currentparameters.scale = DefaultScaleParam;
 currentparameters.blockkey = DefaultBlockKey;
 currentparameters.currinstr = 0;
@@ -356,7 +358,13 @@ iplot = ZERO;
 instrument = channel = 0;
 part_of_ip = Kpress;
 
-for(id=istop=ZERO; ;id+=2,istop++) {
+/* for(id=ZERO; ;id += 2) {
+	m = (tokenbyte) (**pp_buff)[id];
+	p = (tokenbyte) (**pp_buff)[id+1];
+	BPPrintMessage(0,odInfo,"id = %d, m = %d, p = %d\n",id,m,p);
+	if(m == TEND && p == TEND) break;
+	} */
+for(id=istop=ZERO; ;id += 2,istop++) {
 /*	if(istop == 20) istop = 0;
 	if((istop == 0 && Button()) && (r=InterruptTimeSet(FALSE,&tstart)) != OK) {
 		result = r;
@@ -367,18 +375,7 @@ for(id=istop=ZERO; ;id+=2,istop++) {
 	if(m == TEND && p == TEND) break;
 	if((result=stop(0,"FillPhaseDiagram")) != OK) return(result);
 	if(trace_diagram)
-		BPPrintMessage(0,odInfo,"FillPhaseDiagram() m = %d p = %d level = %ld nseq = %ld id = %ld\n",m,p,(long)level,(long)nseq,(long)id);
-/*	if(m == T10) {	// Channel assignment _chan() // Fixed by BB 2021-02-15
-		channel = (int) FindValue(m,p,0);
-		if(trace_diagram)
-			BPPrintMessage(0,odInfo,"\nFillPhaseDiagram() channel = %d\n",channel);
-		goto NEXTTOKEN;
-		} */
-/*	if(m == T32) { // Instrument assignment _ins() // Fixed by BB 2021-02-15
-		instrument = (int) FindValue(m,p,0);
-		if(trace_diagram) BPPrintMessage(0,odInfo,"\nFillPhaseDiagram() instrument = %d\n",instrument);
-		goto NEXTTOKEN;
-		} */
+		BPPrintMessage(0,odInfo,"1) FillPhaseDiagram() m = %d p = %d level = %ld nseq = %ld id = %ld\n",m,p,(long)level,(long)nseq,(long)id);
 	if(m != T3 || p != 0) part_of_ip = Kpress; // Added by BB 2021-03-25
 	if(m == T33 || m == T34) {	/* _step() or _cont() */
 		paramnameindex = p;
@@ -941,7 +938,7 @@ DONEOUTTIMEOBJECT:
 		oldp = -1;
 		goto NEXTTOKEN;
 		}
-//	if(trace_diagram) BPPrintMessage(0,odInfo,"FillPhaseDiagram() m = %d p = %d level = %ld\n",m,p,(long)level);
+	if(trace_diagram) BPPrintMessage(0,odInfo,"FillPhaseDiagram() m = %d p = %d level = %ld\n",m,p,(long)level);
 	switch(m) {
 		case T0:
 			switch(p) {
@@ -1313,6 +1310,7 @@ NEWSEQUENCE:
 			currentparameters.currchan = value = FindValue(m,p,currentparameters.currchan);
 			if(value == Infpos) goto ENDDIAGRAM;
 			channel = roundf(value);
+	//		if(trace_capture) BPPrintMessage(0,odInfo,"§§ channel = %d\n",channel);
 			break;
 		case T32:	/* Instrument assignment _ins() */
 			currentparameters.currinstr = value = FindValue(m,p,currentparameters.currchan);
@@ -1511,6 +1509,14 @@ NEWSEQUENCE:
 			break;
 		case T42:	/* Reseed and reset random sequence _srand() */
 			currentparameters.seed = p;
+			break;
+		case T45:	/* Capture input MIDI stream _capture() */
+			if(Interactive) {
+				currentparameters.capture = p;
+				if(trace_capture) BPPrintMessage(0,odInfo,"👉 Found CaptureSource = %d\n",p);
+				Capture0n = TRUE;
+				CapturePtr = CreateCaptureFile(CapturePtr);
+				}
 			break;
 		case T11:	/* Velocity assignment _vel() */
 	//		if(level >= Maxlevel) goto NEXTTOKEN;
@@ -1760,7 +1766,7 @@ failed = FALSE;
 
 ENDDIAGRAM:
 
-if(ShowMessages || Maxevent > 500) // HideWindow(Window[wInfo]);
+// if(ShowMessages || Maxevent > 500) // HideWindow(Window[wInfo]); 2024-09-11
 
 for(i=0; i < MAXSTRINGCONSTANTS; i++) {
 	h = (Handle)(*h_table)[i].point;
@@ -1850,119 +1856,116 @@ return(OK);
 
 int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,int force,
 	int *p_nmax,unsigned long **p_maxcol,double **p_im,
-	long ****p_seq,int *p_nseq,double maxseq,unsigned long iplot,int newk)
-{
-int oldk,gotnewline,nseq;
-
-(*p_overstrike) = FALSE;
-
-switch(where) {
-	case INTIME: // Normal mode
-		oldk = (*((*p_seq)[*p_nseq]))[iplot];
-	//	if(iplot < 50 && *p_nseq > 2 && *p_nseq < 10 && newk == 0)
-	//		BPPrintMessage(0,odInfo,"Plot(2) nseq = %d, iplot = %ld, oldk = %d, newk = %d\n",*p_nseq,(long)iplot, oldk, newk);
-		if(!force && oldk > 1) {
-			/* This may happen due to roundings after arithmetic overflows */
-		//	BPPrintMessage(0,odInfo,"Plot(2) PLOTOUTSIDE nseq = %d, iplot = %ld, oldk = %d, newk = %d\n",*p_nseq,(long)iplot, oldk, newk);
-			goto PLOTOUTSIDE;
-			}
-		// if(force && oldk > 1 && newk != 1) { 
-		if(force && oldk > 1 && newk > 1) { // Fixed by BB 2021-01-25
-			/* When newk == 1 with force, table contains arbitrary numbers, so oldk is irrelevant */
-			BPPrintMessage(0,odError,"=> Error Plot(): overwrote object #%d\n",oldk);
-			(*p_Instance)[oldk].object = 0;
-			}
-	//	BPPrintMessage(0,odInfo,"Plot(3) INTIME nseq = %d, iplot = %ld, oldk = %d, newk = %d\n",*p_nseq,(long)iplot,oldk,newk);
-		(*((*p_seq)[*p_nseq]))[iplot] = newk;
-		break;
-	case OUTTIME: // Out-time object or simple note
-PLOTOUTSIDE:
-		if(iplot > (*p_iplot)) {
-			(*p_iplot) = iplot;
-			(*p_nseqplot) = Minconc + 1;
-			}
-		if(newk == 0 || newk == 1) {
-//			(*p_overstrike) = TRUE;
-			return(OK);
-			}
-		if((*p_nseqplot) >= Maxconc) {
-NEWCOLUMN:
-			(*p_nseqplot) = Minconc + 1;
-			(*p_iplot)++;
-			}
-//		if((*p_iplot) >= maxseq || ((((*p_iplot) - iplot)) > (200L / Quantization) && !force)) {
-		if((*p_iplot) >= maxseq || ((((*p_iplot) - iplot) > (200L / Quantization)) && !force)) { // Fixed by BB 2021-03-22, up to 2000L on 2021-03-25
-			(*p_overstrike) = TRUE;
-			if(trace_overstrike) BPPrintMessage(0,odError,"overstrike1 (*p_iplot) = %ld maxseq = %ld iplot = %ld force = %d\n",(long)(*p_iplot),(long)maxseq,(long)iplot,(int)force);
-			TellSkipped();
-			return(OK);
-			}
-		if((*p_nseqplot) > (*p_nmax)) {
-		//	BPPrintMessage(0,odInfo,"MakeNewLineInPhaseTable(1)\n");
-			if((gotnewline=MakeNewLineInPhaseTable((*p_nseqplot),p_nmax,p_im,maxseq,
-					p_maxcol)) != OK) {
-				if(gotnewline == ABORT) return(ABORT);
-				goto NEWCOLUMN;
+	long ****p_seq,int *p_nseq,double maxseq,unsigned long iplot,int newk) {
+	int oldk,gotnewline,nseq;
+	(*p_overstrike) = FALSE;
+	switch(where) {
+		case INTIME: // Normal mode
+			oldk = (*((*p_seq)[*p_nseq]))[iplot];
+		//	if(iplot < 50 && *p_nseq > 2 && *p_nseq < 10 && newk == 0)
+		//		BPPrintMessage(0,odInfo,"Plot(2) nseq = %d, iplot = %ld, oldk = %d, newk = %d\n",*p_nseq,(long)iplot, oldk, newk);
+			if(!force && oldk > 1) {
+				/* This may happen due to roundings after arithmetic overflows */
+			//	BPPrintMessage(0,odInfo,"Plot(2) PLOTOUTSIDE nseq = %d, iplot = %ld, oldk = %d, newk = %d\n",*p_nseq,(long)iplot, oldk, newk);
+				goto PLOTOUTSIDE;
 				}
-			}
-		oldk = (*((*p_seq)[*p_nseqplot]))[*p_iplot];
-		(*((*p_seq)[*p_nseqplot]))[*p_iplot] = newk;
-		if((*p_iplot) > (*p_maxcol)[*p_nseqplot])
-			(*p_maxcol)[*p_nseqplot] = (*p_iplot);
-		(*p_nseqplot)++;
-		break;
-	case ANYWHERE: // Append <<->> anywhere on the phase diagram
-		if(newk == 0 || newk == 1) {
-			return(OK);
-			}
-		for(nseq=0; nseq < Maxconc; nseq++) {
-			if(nseq > (*p_nmax)) {
-				if((*p_ObjectSpecs)[newk] == NULL && ObjScriptLine(newk) == NULL) {
-					(*p_overstrike) = TRUE;
-					if(trace_overstrike) BPPrintMessage(0,odError,"overstrike2 nseq = %ld\n",(long)nseq);
-					return(OK);
-					}
-		//		BPPrintMessage(0,odInfo,"MakeNewLineInPhaseTable(2)\n");
-				if((gotnewline=MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseq,p_maxcol))
-						!= OK) {
+			// if(force && oldk > 1 && newk != 1) { 
+			if(force && oldk > 1 && newk > 1) { // Fixed by BB 2021-01-25
+				/* When newk == 1 with force, table contains arbitrary numbers, so oldk is irrelevant */
+				BPPrintMessage(0,odError,"=> Error Plot(): overwrote object #%d\n",oldk);
+				(*p_Instance)[oldk].object = 0;
+				}
+		//	BPPrintMessage(0,odInfo,"Plot(3) INTIME nseq = %d, iplot = %ld, oldk = %d, newk = %d\n",*p_nseq,(long)iplot,oldk,newk);
+			(*((*p_seq)[*p_nseq]))[iplot] = newk;
+			break;
+		case OUTTIME: // Out-time object or simple note
+	PLOTOUTSIDE:
+			if(iplot > (*p_iplot)) {
+				(*p_iplot) = iplot;
+				(*p_nseqplot) = Minconc + 1;
+				}
+			if(newk == 0 || newk == 1) {
+	//			(*p_overstrike) = TRUE;
+				return(OK);
+				}
+			if((*p_nseqplot) >= Maxconc) {
+	NEWCOLUMN:
+				(*p_nseqplot) = Minconc + 1;
+				(*p_iplot)++;
+				}
+	//		if((*p_iplot) >= maxseq || ((((*p_iplot) - iplot)) > (200L / Quantization) && !force)) {
+			if((*p_iplot) >= maxseq || ((((*p_iplot) - iplot) > (200L / Quantization)) && !force)) { // Fixed by BB 2021-03-22, up to 2000L on 2021-03-25
+				(*p_overstrike) = TRUE;
+				if(trace_overstrike) BPPrintMessage(0,odError,"overstrike1 (*p_iplot) = %ld maxseq = %ld iplot = %ld force = %d\n",(long)(*p_iplot),(long)maxseq,(long)iplot,(int)force);
+				TellSkipped();
+				return(OK);
+				}
+			if((*p_nseqplot) > (*p_nmax)) {
+			//	BPPrintMessage(0,odInfo,"MakeNewLineInPhaseTable(1)\n");
+				if((gotnewline=MakeNewLineInPhaseTable((*p_nseqplot),p_nmax,p_im,maxseq,
+						p_maxcol)) != OK) {
 					if(gotnewline == ABORT) return(ABORT);
-					force = TRUE;
 					goto NEWCOLUMN;
 					}
 				}
-			oldk = (*((*p_seq)[nseq]))[iplot];
-			if(oldk > 1) continue;
-			(*((*p_seq)[nseq]))[iplot] = newk;
-			(*p_nseq) = nseq;
-			if(iplot > (*p_maxcol)[nseq]) (*p_maxcol)[nseq] = iplot;
-			return(OK);
-			}
-		(*p_overstrike) = TRUE;
-		if(trace_overstrike) BPPrintMessage(0,odError,"overstrike3\n");
-		break;
-	case BORDERLINE: // At the end of the item
-		if(newk == 0 || newk == 1) {
-//			(*p_overstrike) = TRUE;
-			return(OK);
-			}
-		nseq = Minconc;
-		oldk = (*((*p_seq)[nseq]))[iplot];
-		if(oldk > 1) {
-			force = TRUE;
-			if((*p_ObjectSpecs)[newk] == NULL && ObjScriptLine(newk) == NULL) {
-//				(*p_Instance)[newk].object = 0;
-				(*p_overstrike) = TRUE;
-				if(trace_overstrike) BPPrintMessage(0,odError,"overstrike4\n");
+			oldk = (*((*p_seq)[*p_nseqplot]))[*p_iplot];
+			(*((*p_seq)[*p_nseqplot]))[*p_iplot] = newk;
+			if((*p_iplot) > (*p_maxcol)[*p_nseqplot])
+				(*p_maxcol)[*p_nseqplot] = (*p_iplot);
+			(*p_nseqplot)++;
+			break;
+		case ANYWHERE: // Append <<->> anywhere on the phase diagram
+			if(newk == 0 || newk == 1) {
 				return(OK);
 				}
-			else goto PLOTOUTSIDE;
-			}
-		(*((*p_seq)[nseq]))[iplot] = newk;
-		if(iplot > (*p_maxcol)[nseq]) (*p_maxcol)[nseq] = iplot;
-		break;
+			for(nseq=0; nseq < Maxconc; nseq++) {
+				if(nseq > (*p_nmax)) {
+					if((*p_ObjectSpecs)[newk] == NULL && ObjScriptLine(newk) == NULL) {
+						(*p_overstrike) = TRUE;
+						if(trace_overstrike) BPPrintMessage(0,odError,"overstrike2 nseq = %ld\n",(long)nseq);
+						return(OK);
+						}
+			//		BPPrintMessage(0,odInfo,"MakeNewLineInPhaseTable(2)\n");
+					if((gotnewline=MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseq,p_maxcol))
+							!= OK) {
+						if(gotnewline == ABORT) return(ABORT);
+						force = TRUE;
+						goto NEWCOLUMN;
+						}
+					}
+				oldk = (*((*p_seq)[nseq]))[iplot];
+				if(oldk > 1) continue;
+				(*((*p_seq)[nseq]))[iplot] = newk;
+				(*p_nseq) = nseq;
+				if(iplot > (*p_maxcol)[nseq]) (*p_maxcol)[nseq] = iplot;
+				return(OK);
+				}
+			(*p_overstrike) = TRUE;
+			if(trace_overstrike) BPPrintMessage(0,odError,"overstrike3\n");
+			break;
+		case BORDERLINE: // At the end of the item
+			if(newk == 0 || newk == 1) {
+	//			(*p_overstrike) = TRUE;
+				return(OK);
+				}
+			nseq = Minconc;
+			oldk = (*((*p_seq)[nseq]))[iplot];
+			if(oldk > 1) {
+				force = TRUE;
+				if((*p_ObjectSpecs)[newk] == NULL && ObjScriptLine(newk) == NULL) {
+	//				(*p_Instance)[newk].object = 0;
+					(*p_overstrike) = TRUE;
+					if(trace_overstrike) BPPrintMessage(0,odError,"overstrike4\n");
+					return(OK);
+					}
+				else goto PLOTOUTSIDE;
+				}
+			(*((*p_seq)[nseq]))[iplot] = newk;
+			if(iplot > (*p_maxcol)[nseq]) (*p_maxcol)[nseq] = iplot;
+			break;
+		}
+	return(OK);
 	}
-return(OK);
-}
 
 
 unsigned long Class(double i)
