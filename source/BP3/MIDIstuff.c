@@ -228,7 +228,7 @@ char* longToBinary(int totalBits,unsigned long num) {
 int MIDIflush(int quick) {
     unsigned long current_time,time_now;
     long i;
-	int kcurrentinstance;
+	int kcurrentinstance,j_scale;
     long time;
     unsigned char midiData[4];
     int dataSize = 3;
@@ -254,12 +254,13 @@ int MIDIflush(int quick) {
             midiData[1] = eventStack[i].data1;
             midiData[2] = eventStack[i].data2;
 			kcurrentinstance =  eventStack[i].instance;
+			j_scale = eventStack[i].scale;
             time = eventStack[i].time + TimeStopped;
 			type = eventStack[i].status & 0xF0;
 	//		i_scale = blockkey = 0; // These are only required for input events
     //  	if(type == NoteOn || type == NoteOff) BPPrintMessage(0,odInfo,"§ type %d Note %d value %d time %ld\n",type,eventStack[i].data1,midiData[2],(long)time); 
 	//		BPPrintMessage(1,odInfo,"§ %ld ms, %d %d %d, TimeStopped = %ld\n",(long)time/1000L,midiData[0],midiData[1],midiData[2],(long)TimeStopped/1000L); 
-            sendMIDIEvent(kcurrentinstance,0,0,midiData,dataSize,time);
+            sendMIDIEvent(kcurrentinstance,0,j_scale,0,midiData,dataSize,time);
 			// i_scale = blockkey = 0 because this is an output
             // Move remaining events forward
             memmove(&eventStack[i], &eventStack[i + 1], (eventCount - i - 1) * size);
@@ -748,7 +749,7 @@ int check_stop_instructions(unsigned long time) {
 			my_sprintf(Message,"Sending MIDI instruction (%d) at date %ld ms",mssg,(long)thisscripttime / 1000L);
 			Notify(Message,0);
 			strcpy(Message,"");
-			sendMIDIEvent(-1,0,0,midiData,1,thisscripttime);
+			sendMIDIEvent(-1,0,0,0,midiData,1,thisscripttime);
 			}
 		}
 	return OK;
@@ -1526,6 +1527,7 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 	note = ByteToInt(p_e->data1);
 	value = ByteToInt(p_e->data2);
 	type = status & 0xF0;
+	i_scale = -1;
 	if(type != NoteOn && type != NoteOff) i_scale = blockkey = 0;
 	// BPPrintMessage(0,odInfo,"scale = %d\n",scale);
 	if(MIDImicrotonality && (type == NoteOn || type == NoteOff)) {
@@ -1608,6 +1610,7 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 					eventStack[eventCount] = pb_event;
 					eventStack[eventCount].instance = kcurrentinstance;
 					eventStack[eventCount].time = 1000 * time;
+					eventStack[eventCount].scale = i_scale;
 					eventCount++;
 					}
 				else {  // Send pitchbend to MIDI file
@@ -1631,6 +1634,7 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 		eventStack[eventCount] = *p_e;
 		eventStack[eventCount].time = 1000 * time;
 		eventStack[eventCount].instance = kcurrentinstance;
+		eventStack[eventCount].scale = i_scale;
 		eventCount++;
     	if((result = CleanUpBuffer()) != OK) return result;
 		if((type == NoteOn) && FirstNoteOn) {
@@ -1740,15 +1744,15 @@ int AllNotesOffPedalsOffAllChannels(void) {
 		midiData[0] = ControlChange + channel;
 		midiData[1] = 123; // All Notes Off
 		midiData[2] = 0;
-		sendMIDIEvent(-1,0,0,midiData,dataSize,0); // Sending immediately
+		sendMIDIEvent(-1,0,0,0,midiData,dataSize,0); // Sending immediately
 		midiData[0] = ControlChange + channel;
 		midiData[1] = 64; // Pedal Off
 		midiData[2] = 0;
-		sendMIDIEvent(-1,0,0,midiData,dataSize,0); // Sending immediately
+		sendMIDIEvent(-1,0,0,0,midiData,dataSize,0); // Sending immediately
 		midiData[0] = PitchBend + channel;
 		midiData[1] = 0x00;
 		midiData[2] = 0x40;
-		sendMIDIEvent(-1,0,0,midiData,dataSize,0); // Sending immediately
+		sendMIDIEvent(-1,0,0,0,midiData,dataSize,0); // Sending immediately
 		}
 	WaitABit(10);
 	return(OK);
@@ -1899,6 +1903,197 @@ double calculate_pitchbend_cents(unsigned char lsb, unsigned char msb) {
     // Calculate the range in cents (±200 cents)
     double correction_in_cents = (double)deviation_from_center * PITCH_BEND_RANGE / PITCH_BEND_CENTER;
     return correction_in_cents;
+	}
+
+int GetNote(char* line,int* p_thekey,int* p_channel,int ignorechannel) {
+	char *p,*q,line2[MAXLIN];
+	int i,j,pitchclass,octave,l;
+
+	i = j = 0; while(MySpace(line[i])) i++;
+	strcpy(line2,line);
+	if(NoteConvention == KEYS) {
+		while(line[i] != '\0' && line[i] == KeyString[j]) {
+			i++; j++;
+			}
+		if(KeyString[j] != '\0') return(MISSED);
+		*p_thekey = GetInteger(YES,line2,&i);
+		if(*p_thekey == INT_MAX) return(MISSED);
+		}
+	else {
+		for(pitchclass=0; pitchclass < 12; pitchclass++) {
+			p = &line2[i];
+			switch(NoteConvention) {
+				case FRENCH: {
+					q = &Frenchnote[pitchclass][0]; l = strlen(Frenchnote[pitchclass]);
+					if(l > 0 && Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
+					p = &line2[i];
+					q = &AltFrenchnote[pitchclass][0]; l = strlen(AltFrenchnote[pitchclass]);
+					if(l > 0 && Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
+					break;
+					}
+				case ENGLISH: {
+					q = &Englishnote[pitchclass][0]; l = strlen(Englishnote[pitchclass]);
+					if(l > 0 && Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
+					p = &line2[i];
+					q = &AltEnglishnote[pitchclass][0]; l = strlen(AltEnglishnote[pitchclass]);
+					if(l > 0 && Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
+					break;
+					}
+				case INDIAN:
+					q = &Indiannote[pitchclass][0]; l = strlen(Indiannote[pitchclass]);
+					if(l > 0 && Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
+					p = &line2[i];
+					q = &AltIndiannote[pitchclass][0]; l = strlen(AltIndiannote[pitchclass]);
+					if(l > 0 && Match(TRUE,&p,&q,l) && isdigit(p[l])) goto CONT;
+					break;
+				}
+			}
+		return(MISSED);
+	CONT:
+		while(!isdigit(line[i]) && line[i] != '\0') i++;
+		if(NoteConvention == FRENCH) {
+			if(line[i] == '0' && line[i+1] == '0' && line[i+2] == '0') {
+				octave = 0; i += 3;
+				goto CONT2;
+				}
+			if(line[i] == '0' && line[i+1] == '0') {
+				octave = 1; i += 2;
+				goto CONT2;
+				}
+			}
+		if(NoteConvention == ENGLISH || NoteConvention == INDIAN) {
+			if(line[i] == '0' && line[i+1] == '0') {
+				octave = 0; i += 2;
+				goto CONT2;
+				}
+			}
+		if((octave=GetInteger(YES,line2,&i)) == INT_MAX) return(MISSED);
+		if(NoteConvention == FRENCH) octave += 2;
+		if(NoteConvention == ENGLISH || NoteConvention == INDIAN) octave++;
+		
+	CONT2:
+		*p_thekey = 12 * octave + pitchclass;
+		*p_thekey += (C4key - 60);
+	//	BPPrintMessage(0,odInfo,"\nkey = %d Englishnote[pitchclass] = %s AltEnglishnote[pitchclass] = %s pitchclass = %d octave = %d NameChoice[pitchclass] = %d\n",*p_thekey,Englishnote[pitchclass],pitchclass,octave,NameChoice[pitchclass]);
+		}
+	if(ignorechannel) return(OK);
+	while(MySpace(line[i])) i++;
+	strcpy(Message,"channel");
+	p = &line2[i]; q = &(Message[0]);
+	if(!Match(FALSE,&p,&q,strlen(Message))) return(MISSED);
+	while(!isdigit(line[i]) && line[i] != '\0') i++;
+	if((*p_channel=GetInteger(YES,line2,&i)) == INT_MAX) return(MISSED);
+	return(OK);
+	}
+
+
+int PrintNote(int i_scale,int key,int channel,int wind,char* line) {
+	// wind is not used
+	int pitchclass, octave;
+	char channelstring[20], jscale;
+	if(key < 0) {
+		strcpy(line,"<void>");
+		return(OK);
+		}
+	channelstring[0] = '\0';
+	if(channel > 0) my_sprintf(channelstring," channel %ld",(long)channel);
+	// BPPrintMessage(0,odInfo,"i_scale = %d key =  %d NumberScales = %d NoteConvention = %d\n",i_scale,key,NumberScales,NoteConvention);
+
+	if(i_scale > NumberScales) {
+		BPPrintMessage(0,odError,"=> Error: i_scale (%ld) > NumberScales (%d)\n",(long)i_scale,NumberScales);
+		return(OK);
+		}
+
+	if(i_scale > 0) {
+		int keyclass;
+		int basekey = (*Scale)[i_scale].basekey;
+		int numgrades = (*Scale)[i_scale].numgrades;
+		int numnotes = (*Scale)[i_scale].numnotes;
+		int baseoctave = (*Scale)[i_scale].baseoctave;
+		if(numgrades <= 12) {
+			keyclass = modulo(key - basekey, 12);
+			octave = baseoctave + floor(((double)key - basekey) / 12);
+			}
+		else {
+			int i_note = modulo(key - basekey, numnotes);
+			keyclass = (*((*Scale)[i_scale].keyclass))[i_note];
+			octave = baseoctave + floor((((double)key - basekey)) / numnotes);
+			}
+		my_sprintf(line,"%s%d%s",*((*(*Scale)[i_scale].notenames)[keyclass]),octave,channelstring);
+	//	my_sprintf(line,"%s%s",*((*(p_NoteName[jscale]))[key]),channelstring);
+		}	
+	else {	
+	/*	key -= (C4key - 60);
+		pitchclass = modulo(key,12); */
+		pitchclass = modulo((key - C4key),12);
+		octave = (key - pitchclass) / 12;
+		if(NameChoice[pitchclass] == 1 && pitchclass == 0) octave--;
+		if(NameChoice[pitchclass] == 1 && pitchclass == 11) octave++;
+		switch(NoteConvention) {
+			case FRENCH:
+				octave -= 2;
+				switch(octave) {
+					case -2:
+						if(NameChoice[pitchclass] == 0)
+							my_sprintf(line,"%s000%s",Frenchnote[pitchclass],channelstring);
+						else
+							my_sprintf(line,"%s000%s",AltFrenchnote[pitchclass],channelstring);
+						break;
+					case -1:
+						if(NameChoice[pitchclass] == 0)
+							my_sprintf(line,"%s00%s",Frenchnote[pitchclass],channelstring);
+						else
+							my_sprintf(line,"%s00%s",AltFrenchnote[pitchclass],channelstring);
+						break;
+					default:
+						if(NameChoice[pitchclass] == 0)
+							my_sprintf(line,"%s%ld%s",Frenchnote[pitchclass],(long)octave,channelstring);
+						else
+							my_sprintf(line,"%s%ld%s",AltFrenchnote[pitchclass],(long)octave,channelstring);
+						break;
+					}
+				break;
+			case ENGLISH:
+				octave--;
+				switch(octave) {
+					case -1:
+						if(NameChoice[pitchclass] == 0)
+							my_sprintf(line,"%s00%s",Englishnote[pitchclass],channelstring);
+						else
+							my_sprintf(line,"%s00%s",AltEnglishnote[pitchclass],channelstring);
+						break;
+					default:
+						if(NameChoice[pitchclass] == 0)
+							my_sprintf(line,"%s%ld%s",Englishnote[pitchclass],(long)octave,channelstring);
+						else
+							my_sprintf(line,"%s%ld%s",AltEnglishnote[pitchclass],(long)octave,channelstring);
+						break;
+					}
+				break;
+			case INDIAN:
+				octave--;
+				switch(octave) {
+					case -1:
+						if(NameChoice[pitchclass] == 0)
+							my_sprintf(line,"%s00%s",Indiannote[pitchclass],channelstring);
+						else
+							my_sprintf(line,"%s00%s",AltIndiannote[pitchclass],channelstring);
+						break;
+					default:
+						if(NameChoice[pitchclass] == 0)
+							my_sprintf(line,"%s%ld%s",Indiannote[pitchclass],(long)octave,channelstring);
+						else
+							my_sprintf(line,"%s%ld%s",AltIndiannote[pitchclass],(long)octave,channelstring);
+						break;
+					}
+				break;
+			default: // This includes 'KEYS'
+				my_sprintf(line,"%s%ld%s",KeyString,(long)key,channelstring);
+				break;
+			}
+		}
+	trim_digits_after_key_hash(line); // Remove the octave number after key#xx
+	return(OK);
 	}
 
 /* void RegisterProgramChange(MIDI_Event *p_e)

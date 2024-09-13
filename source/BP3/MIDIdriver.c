@@ -730,7 +730,7 @@ int initializeMIDISystem(void) {
                         for (i = 0; i < MaxOutputPorts; i++) {
                             if(Out_port[i] < 0) continue;
                             result = snd_seq_connect_to(Seq_handle, Out_port[i], client, port_id);
-                         //   BPPrintMessage(0,odInfo,"Out_port[%d] = %d\n",i,Out_port[i]);
+                        //   BPPrintMessage(0,odInfo,"Out_port[%d] = %d\n",i,Out_port[i]);
                             if (result < 0) {
                                 BPPrintMessage(0,odError,"=> Error connecting to MIDI port: Client %d, Port %d, Error: %s\n", client, port_id, snd_strerror(result));
                                 return ABORT;
@@ -766,7 +766,7 @@ int initializeMIDISystem(void) {
                         port_id = snd_seq_port_info_get_port(pinfo);
                         if (!(port_cap & SND_SEQ_PORT_CAP_WRITE) || (port_cap & SND_SEQ_PORT_CAP_NO_EXPORT)) continue;
                         port_name = snd_seq_port_info_get_name(pinfo);
-                     // BPPrintMessage(0,odInfo, "??? MIDI output = %d: \"%s\" client %d\n", port_id, port_name, client);
+                    //  BPPrintMessage(0,odInfo, "??? MIDI output = %d: \"%s\" client %d\n", port_id, port_name, client);
                         if(firstchoice < 0) {
                             firstchoice = port_id;
                             firstclient = client;
@@ -1007,7 +1007,7 @@ void closeMIDISystem() {
                             };
                        HandleInputEvent(&packet, &e, index);
                         if (PassInEvent(status, index)) {
-                            sendMIDIEvent(-1,0,0,midiData, 1, 0); // Note: timestamp is not used here
+                            sendMIDIEvent(-1,0,0,0,midiData, 1, 0); // Note: timestamp is not used here
                             }
                         }
                     else {
@@ -1049,7 +1049,7 @@ void closeMIDISystem() {
                                     break;
                                 }
                             i_scale = FindScale(DefaultScaleParam);
-                            sendMIDIEvent(-1,i_scale,0,midiData,3,0);
+                            sendMIDIEvent(-1,i_scale,i_scale,0,midiData,3,0);
                             }
                         }
                     }
@@ -1106,7 +1106,7 @@ void closeMIDISystem() {
                         }
                 //  BPPrintMessage(0,odInfo, "DefaultScaleParam = %d:\n",DefaultScaleParam);
                     i_scale = FindScale(DefaultScaleParam);
-                    sendMIDIEvent(-1,i_scale,0,(unsigned char*) packet->data,packet->length,0);
+                    sendMIDIEvent(-1,i_scale,i_scale,0,(unsigned char*) packet->data,packet->length,0);
                     }
                 packet = MIDIPacketNext(packet); // Move to the next packet
                 }
@@ -1247,7 +1247,7 @@ void closeMIDISystem() {
                     }
                 if(trace_all_interactions) BPPrintMessage(0,odInfo, "Forwarding client = %d, status = %d, data1 = %d, data2 = %d, ev = %p\n", source_client, e.status, e.data1, e.data2,ev);
                 i_scale = FindScale(DefaultScaleParam);
-                sendMIDIEvent(-1,i_scale,0,packet.data, packet.length, packet.timestamp);
+                sendMIDIEvent(-1,i_scale,i_scale,0,packet.data, packet.length, packet.timestamp);
                 }
             }
     SORTIE:
@@ -1312,9 +1312,11 @@ int ListenToEvents() {
 
 // SEND MIDI EVENTS
 
-void sendMIDIEvent(int kcurrentinstance, int i_scale,int blockkey,unsigned char* midiData,int dataSize,long time) {
+void sendMIDIEvent(int kcurrentinstance,int i_scale,int j_scale,int blockkey,unsigned char* midiData,int dataSize,long time) {
     // This is real time, unlike SendToDriver() which sends events to eventStack
-    int note,status,value,improvize,index,channel,sensitivity,channel_org,capture,note2_ok;
+    // j_scale is normally equal to i_scale, except for output events where i_scale is
+    // set to 0, as microtonal adjustments have already been made in SendToDriver().
+    int key,status,value,improvize,index,channel,sensitivity,channel_org,capture,note2_ok;
     unsigned long clocktime, time_now;
     int correction = 0;
     status = midiData[0];
@@ -1322,30 +1324,32 @@ void sendMIDIEvent(int kcurrentinstance, int i_scale,int blockkey,unsigned char*
     unsigned char pitchBendLSB, pitchBendMSB;
     unsigned char midiData2[3];
     channel = capture = -1;
+	char this_key[100];
+    strcpy(this_key,"");
     if(dataSize == 3) {
         status &= 0xF0;
-        note = midiData[1];
+        key = midiData[1];
         value = midiData[2];
         channel = channel_org = midiData[0] & 0x0F;
-        // BPPrintMessage(0,odInfo,"§§ Note %d channel %d i_scale = %d\n",note,channel,i_scale);
+        PrintNote(j_scale,key,0,-1,this_key);
+        // BPPrintMessage(0,odInfo,"§§ Note %d channel %d i_scale = %d\n",key,channel,i_scale);
         if(MIDImicrotonality && (status == NoteOn || status == NoteOff) && i_scale <= NumberScales && i_scale > 0) {
             // This is only used for input events because the microtonality is dealt with in SendToDriver() otherwise. For output events, i_scale has been forced to 0.
             int numnotes = (*Scale)[i_scale].numnotes;
             int basekey = (*Scale)[i_scale].basekey;
             if(basekey != C4key) {
-                note += basekey - C4key;
-                midiData[1] = note;
+                key += basekey - C4key;
+                midiData[1] = key;
                 }
-            if(note < 0 || note >= MAXKEY) return;
-       /*     channel = AssignUniqueChannel(status,note,value,i_scale,0);
+            if(key < 0 || key >= MAXKEY) return;
+       /*     channel = AssignUniqueChannel(status,key,value,i_scale,0);
             if(channel > 0) midiData[0] = status + channel; */
             channel = 0; midiData[0] = status; // Input events are forced to channel 1
-        //  if(status == NoteOff || value == 0) BPPrintMessage(0,odInfo,"NoteOff %d channel %d\n",note,channel);
             if(status == NoteOn && value > 0) {
                 if(blockkey == 0) blockkey = DefaultBlockKey;
-                correction = (*(*Scale)[i_scale].deviation)[note] - (*(*Scale)[i_scale].deviation)[blockkey];
+                correction = (*(*Scale)[i_scale].deviation)[key] - (*(*Scale)[i_scale].deviation)[blockkey];
                 if(TraceMicrotonality) {
-                    BPPrintMessage(0,odInfo,"§ NoteOn %d chan %d scale #%d",note,(channel+1),i_scale);
+                    BPPrintMessage(0,odInfo,"§ NoteOn %d chan %d scale #%d",key,(channel+1),i_scale);
                     BPPrintMessage(0,odInfo," basekey %d blockkey %d correction %d cents\n",blockkey,basekey,correction);
                     }
                 // With a pitch bend sensitivity of 2 semitones, the entire pitch bend range (14-bit) will correspond to ± 2 semitones.
@@ -1353,7 +1357,7 @@ void sendMIDIEvent(int kcurrentinstance, int i_scale,int blockkey,unsigned char*
                 // Therefore, 2 semitones = 200 cents corresponds to 8192 units, and 1 cent is 8192 / 200 units
                 sensitivity = 2; // semitones
                 if(correction < -200 || correction >= 200) {
-                    if(TRUE || TraceMicrotonality) BPPrintMessage(0,odError,"=> MPE pitchbender out of range ± 200 cents: %d  cents note %d\n",correction,note);
+                    if(TRUE || TraceMicrotonality) BPPrintMessage(0,odError,"=> MPE pitchbender out of range ± 200 cents: %d  cents key %d\n",correction,key);
                     correction = 0;
                     }
                 if(correction != 0) {
@@ -1369,11 +1373,11 @@ void sendMIDIEvent(int kcurrentinstance, int i_scale,int blockkey,unsigned char*
                         long clocktime = (getClockTime() - initTime - TimeStopped) / 1000L - MIDIsetUpTime; // milliseconds
                         clocktime = (int)((float)clocktime / Quantization + 0.5) * Quantization;
                         clocktime = (int)((float)clocktime / Time_res + 0.5) * Time_res;
-                        fprintf(CapturePtr, "%ld\t%d\t%d\t%d\t%d\t%d\t%d\t%d\tpitch1\n",clocktime,dataSize,CaptureSource,(int)midiData2[0],(int)midiData2[1],(int)midiData2[2],(channel_org + 1),correction);
-                        // We record channel_org instead of channel because the channel won't be changed in the following note
+                        fprintf(CapturePtr, "%ld\t\tpitchbend\t%d\t%d\t%d\t%d\t%d\t%d\t%d\tpitch1\n",clocktime,dataSize,CaptureSource,(int)midiData2[0],(int)midiData2[1],(int)midiData2[2],(channel_org + 1),correction);
+                        // We record channel_org instead of channel because the channel won't be changed in the following key
                         TimeStopped += (getClockTime() - time_now);
                         }
-                    sendMIDIEvent(kcurrentinstance,-1,0,midiData2,3,time);
+                    sendMIDIEvent(kcurrentinstance,-1,-1,0,midiData2,3,time);
                     }
                 }
             else {
@@ -1383,7 +1387,7 @@ void sendMIDIEvent(int kcurrentinstance, int i_scale,int blockkey,unsigned char*
         if(test_first_events && NumEventsWritten < 100) {
             clocktime = getClockTime() - initTime; // microseconds
             if(status == NoteOn || status == NoteOff || status == ControlChange)
-                BPPrintMessage(0,odInfo,"%.3f => %.3f s status = %d, data1 = %d, data2 = %d channel = %d\n",(float)clocktime/1000000,(float)time/1000000,status,note,value,(channel + 1));
+                BPPrintMessage(0,odInfo,"%.3f => %.3f s status = %d, data1 = %d, data2 = %d channel = %d\n",(float)clocktime/1000000,(float)time/1000000,status,key,value,(channel + 1));
             }
         }
     if(NumEventsWritten < LONG_MAX) NumEventsWritten++;
@@ -1407,16 +1411,26 @@ void sendMIDIEvent(int kcurrentinstance, int i_scale,int blockkey,unsigned char*
                     }
                 if(CaptureSource > 0) {
                     if(status == PitchBend)
-                        fprintf(CapturePtr, "%ld\t%d\t0\t%d\t%d\t%d\t%d\t%d\tpitch2\n",clocktime,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
-                    else if(status == NoteOn || status == NoteOff) {
-                        fprintf(CapturePtr, "%ld\t%d\t0\t%d\t%d\t%d\t%d\t%d\tnote2\n",clocktime,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
+                        fprintf(CapturePtr, "%ld\t\tpitchbend\t%d\t0\t%d\t%d\t%d\t%d\t%d\tpitch2\n",clocktime,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
+                    else {
+                        if(status == NoteOn) {
+                            fprintf(CapturePtr, "%ld\t%s\tNoteOn\t%d\t0\t%d\t%d\t%d\t%d\t%d\tnote2\n",clocktime,this_key,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
+                            }
+                        if(status == NoteOff || (status == NoteOn && midiData[2] == 0)) {
+                            fprintf(CapturePtr, "%ld\t%s\tNoteOff\t%d\t0\t%d\t%d\t%d\t%d\t%d\tnote2\n",clocktime,this_key,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
+                            }
                         note2_ok = TRUE;
                         }
                     }
                 }
             }
         if(!note2_ok && CaptureSource > 0) {
-            if(status == NoteOn || status == NoteOff) fprintf(CapturePtr, "%ld\t%d\t%d\t%d\t%d\t%d\t%d\t0\tnote1\n",clocktime,dataSize,CaptureSource,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel_org + 1));
+            if(status == NoteOn) {
+                fprintf(CapturePtr, "%ld\t%s\tNoteOn\t%d\t%d\t%d\t%d\t%d\t%d\t0\tnote1\n",clocktime,this_key,dataSize,CaptureSource,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel_org + 1));
+                }
+            if(status == NoteOff || (status == NoteOn && midiData[2] == 0)) {
+                fprintf(CapturePtr, "%ld\t%s\tNoteOff\t%d\t%d\t%d\t%d\t%d\t%d\t0\tnote1\n",clocktime,this_key,dataSize,CaptureSource,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel_org + 1));
+                }
             }
         TimeStopped += (getClockTime() - time_now);
         }
@@ -1434,12 +1448,12 @@ void sendMIDIEvent(int kcurrentinstance, int i_scale,int blockkey,unsigned char*
             }
         for (index = 0; index < MaxOutputPorts; index++) {
             if (hMIDIout[MIDIoutput[index]] == NULL) continue;
-// BPPrintMessage(0,odInfo,"1) MIDI event time = %ld ms, status = %ld, note %ld, velocity = %ld channel = %d\n",(long)time/1000L,(long)status,(long)note,(long)value,channel);
+// BPPrintMessage(0,odInfo,"1) MIDI event time = %ld ms, status = %ld, key %ld, velocity = %ld channel = %d\n",(long)time/1000L,(long)status,(long)key,(long)value,channel);
             if (!MIDImicrotonality && channel >= 0 && channel < MAXCHAN && MIDIchannelFilter[index][channel] == '0') continue;
-// BPPrintMessage(0,odInfo,"2) MIDI event time = %ld ms, status = %ld, note %ld, velocity = %ld channel = %d\n",(long)time/1000L,(long)status,(long)note,(long)value,channel);
+// BPPrintMessage(0,odInfo,"2) MIDI event time = %ld ms, status = %ld, key %ld, velocity = %ld channel = %d\n",(long)time/1000L,(long)status,(long)key,(long)value,channel);
             if (!MIDImicrotonality && !PassOutEvent(status, index)) continue;
             if (dataSize <= 3) {
-             //    if (trace_all_interactions && dataSize == 3) BPPrintMessage(0,odInfo,"Sending MIDI event time = %ld ms, status = %ld, note %ld, velocity = %ld, output = %d\n",(long)time/1000L,(long)status,(long)note,(long)value,MIDIoutput[index]);
+             //    if (trace_all_interactions && dataSize == 3) BPPrintMessage(0,odInfo,"Sending MIDI event time = %ld ms, status = %ld, key %ld, velocity = %ld, output = %d\n",(long)time/1000L,(long)status,(long)key,(long)value,MIDIoutput[index]);
                  if (trace_all_interactions && dataSize == 1) BPPrintMessage(0,odInfo,"Sending MIDI event time = %ld ms, status = %ld, ouput = %d\n",(long)time/1000L,(long)status,MIDIoutput[index]);
                 midiOutShortMsg(hMIDIout[MIDIoutput[index]], message);
                 }
@@ -1495,25 +1509,25 @@ void sendMIDIEvent(int kcurrentinstance, int i_scale,int blockkey,unsigned char*
         if(TraceMIDIinteraction) strcpy(Message,"");
         switch (status) {
             case 0x90: // Note On
-               if(trace_all_interactions) sprintf(Message,"Sending NoteOn %d velocity %d ",note,value);
+               if(trace_all_interactions) sprintf(Message,"Sending NoteOn %d velocity %d ",key,value);
                 if (value == 0) // Velocity of 0 should be treated as Note Off
-                    snd_seq_ev_set_noteoff(&ev, channel, note, value);
+                    snd_seq_ev_set_noteoff(&ev, channel, key, value);
                 else
-                    snd_seq_ev_set_noteon(&ev, channel, note, value);
+                    snd_seq_ev_set_noteon(&ev, channel, key, value);
                 break;
             case 0x80: // Note Off
-             sprintf(Message,"Sending NoteOff %d value %d",note,value);
-                snd_seq_ev_set_noteoff(&ev, channel, note, value);
+             sprintf(Message,"Sending NoteOff %d value %d",key,value);
+                snd_seq_ev_set_noteoff(&ev, channel, key, value);
                 break;
             case 0xB0: // Control Change
-                snd_seq_ev_set_controller(&ev, channel, note, value);
+                snd_seq_ev_set_controller(&ev, channel, key, value);
                 break;
             case 0xE0:  // Pitch Bend Change
-                int bend_value = (value << 7) | note; // Combining MSB and LSB
+                int bend_value = (value << 7) | key; // Combining MSB and LSB
                 snd_seq_ev_set_pitchbend(&ev, channel, bend_value - 8192);
                 break;
             case 0xA0: // Key Pressure (Aftertouch)
-                snd_seq_ev_set_keypress(&ev, channel, note, value);
+                snd_seq_ev_set_keypress(&ev, channel, key, value);
                 break;
             case 0xD0: // Channel Pressure (Aftertouch)
                 snd_seq_ev_set_chanpress(&ev, channel, value);
@@ -1538,7 +1552,7 @@ void sendMIDIEvent(int kcurrentinstance, int i_scale,int blockkey,unsigned char*
                 break;
                 // There is no direct handling for Active Sensing and Timing Clock in the ALSA sequencer
             default:
-                if(trace_all_interactions) BPPrintMessage(0,odError,"=> Unsupported MIDI message  %d %d %d\n", status, note, value);
+                if(trace_all_interactions) BPPrintMessage(0,odError,"=> Unsupported MIDI message  %d %d %d\n", status, key, value);
                 return;
                 break;
             }
