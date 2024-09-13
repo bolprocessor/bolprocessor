@@ -1413,11 +1413,11 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int j_scale,int blockkey,uns
                     if(status == PitchBend)
                         fprintf(CapturePtr, "%ld\t\tpitchbend\t%d\t0\t%d\t%d\t%d\t%d\t%d\tpitch2\n",clocktime,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
                     else {
-                        if(status == NoteOn) {
-                            fprintf(CapturePtr, "%ld\t%s\tNoteOn\t%d\t0\t%d\t%d\t%d\t%d\t%d\tnote2\n",clocktime,this_key,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
-                            }
                         if(status == NoteOff || (status == NoteOn && midiData[2] == 0)) {
                             fprintf(CapturePtr, "%ld\t%s\tNoteOff\t%d\t0\t%d\t%d\t%d\t%d\t%d\tnote2\n",clocktime,this_key,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
+                            }
+                        else if(status == NoteOn) {
+                            fprintf(CapturePtr, "%ld\t%s\tNoteOn\t%d\t0\t%d\t%d\t%d\t%d\t%d\tnote2\n",clocktime,this_key,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
                             }
                         note2_ok = TRUE;
                         }
@@ -1425,11 +1425,11 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int j_scale,int blockkey,uns
                 }
             }
         if(!note2_ok && CaptureSource > 0) {
-            if(status == NoteOn) {
-                fprintf(CapturePtr, "%ld\t%s\tNoteOn\t%d\t%d\t%d\t%d\t%d\t%d\t0\tnote1\n",clocktime,this_key,dataSize,CaptureSource,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel_org + 1));
-                }
             if(status == NoteOff || (status == NoteOn && midiData[2] == 0)) {
                 fprintf(CapturePtr, "%ld\t%s\tNoteOff\t%d\t%d\t%d\t%d\t%d\t%d\t0\tnote1\n",clocktime,this_key,dataSize,CaptureSource,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel_org + 1));
+                }
+            else if(status == NoteOn) {
+                fprintf(CapturePtr, "%ld\t%s\tNoteOn\t%d\t%d\t%d\t%d\t%d\t%d\t0\tnote1\n",clocktime,this_key,dataSize,CaptureSource,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel_org + 1));
                 }
             }
         TimeStopped += (getClockTime() - time_now);
