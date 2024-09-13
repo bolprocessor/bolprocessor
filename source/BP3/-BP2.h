@@ -146,8 +146,7 @@ int CopyStringToTextHandle(TEHandle th, const char* str);
 typedef struct {
 	long time;
 	unsigned char type,status,data1,data2;
-	int instance;
-//	int i_scale,blockkey;
+	int instance,scale;
 	} MIDI_Event, *MIDI_EventPtr;
 
 #define _NOERRORCHECK_	/* Needed in <math.h> */

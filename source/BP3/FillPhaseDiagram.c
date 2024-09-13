@@ -1108,7 +1108,7 @@ DONEOUTTIMEOBJECT:
 						goto NEWSEQUENCE;
 						}
 					if(nseq > (*p_nmax)) {
-						if(Beta) Println(wTrace,"\n=> Error 3 FillPhaseDiagram(). nseq > (*p_nmax) after ','");
+						Println(wTrace,"\n=> Error 3 FillPhaseDiagram(). nseq > (*p_nmax) after ','");
 						if((gotnewline=MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseqapprox,p_maxcol))
 								!= OK) {
 							if(gotnewline == ABORT) goto ENDDIAGRAM;
@@ -1459,11 +1459,9 @@ NEWSEQUENCE:
 	//		if(level >= Maxlevel) goto NEXTTOKEN;
 			value = FindValue(m,p,currentparameters.currchan);
 			if(value == Infpos) goto ENDDIAGRAM;
-			
 			currentparameters.currtranspose = starttranspose
 				= (*p_deftcurrentparameters)[level].currtranspose + value;
 			currentparameters.lastistranspose = TRUE;
-			
 			if(SetVariation(m,p_deftcurrentparameters,&currentparameters,p_contparameters,level,-1,id,*pp_buff,
 					speed,scale,&endtranspose,&mapendvalue,&maxbeatstranspose,h_table) != OK)
 				goto ENDDIAGRAM;
@@ -1517,6 +1515,7 @@ NEWSEQUENCE:
 				Capture0n = TRUE;
 				CapturePtr = CreateCaptureFile(CapturePtr);
 				}
+			else BPPrintMessage(0,odError,"=> _capture(%d) will be ignored because there is no input\n",p);
 			break;
 		case T11:	/* Velocity assignment _vel() */
 	//		if(level >= Maxlevel) goto NEXTTOKEN;

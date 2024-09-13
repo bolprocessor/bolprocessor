@@ -393,7 +393,7 @@ FILE* CreateCaptureFile(FILE* oldptr) {
 		free(thefile);
 		if(ptr != NULL) {
 	    	BPPrintMessage(0,odInfo,"Creating 'capture' file: %s\n",new_thefile);
-			fprintf(ptr, "time\tdata size\tsource\tstatus\tdata1\tdata2\tchannel\tcorrection (cents)\tmethod\n");
+			fprintf(ptr, "time\tnote\tevent\tsize\tsource\tstatus\tdata1\tdata2\tchannel\tcents correction\tmethod\n");
         	free(new_thefile);
 			return ptr;
 			}

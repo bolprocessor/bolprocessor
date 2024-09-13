@@ -55,7 +55,7 @@ int mOpenAudioMidiSetup(int);
 
 int initializeMIDISystem(void);
 void closeMIDISystem();
-void sendMIDIEvent(int, int,int,unsigned char*,int,long);
+void sendMIDIEvent(int,int,int,int,unsigned char*,int,long);
 FILE* CreateCaptureFile(FILE*);
 int MIDIflush(int);
 unsigned long getClockTime(void);
