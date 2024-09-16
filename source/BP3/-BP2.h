@@ -39,7 +39,7 @@
 #ifndef _H_BP2
 #define _H_BP2
 
-#define SHORT_VERSION "3.0.8"
+#define SHORT_VERSION "3.0.9"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -164,6 +164,9 @@ typedef struct {
 #define PORTA 0
 #define PORTB 32
 #define PORTB_COMPLEMENT 0xffdf /* long complement of PORTB */
+
+#define IN 0
+#define OUT 1
 
 /* Control/Status codes 
  * These codes are common for both A & B ports */

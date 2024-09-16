@@ -228,7 +228,7 @@ char* longToBinary(int totalBits,unsigned long num) {
 int MIDIflush(int quick) {
     unsigned long current_time,time_now;
     long i;
-	int kcurrentinstance,j_scale;
+	int kcurrentinstance,i_scale;
     long time;
     unsigned char midiData[4];
     int dataSize = 3;
@@ -254,13 +254,13 @@ int MIDIflush(int quick) {
             midiData[1] = eventStack[i].data1;
             midiData[2] = eventStack[i].data2;
 			kcurrentinstance =  eventStack[i].instance;
-			j_scale = eventStack[i].scale;
+			i_scale = eventStack[i].scale; // ??? $$$
             time = eventStack[i].time + TimeStopped;
 			type = eventStack[i].status & 0xF0;
 	//		i_scale = blockkey = 0; // These are only required for input events
     //  	if(type == NoteOn || type == NoteOff) BPPrintMessage(0,odInfo,"§ type %d Note %d value %d time %ld\n",type,eventStack[i].data1,midiData[2],(long)time); 
 	//		BPPrintMessage(1,odInfo,"§ %ld ms, %d %d %d, TimeStopped = %ld\n",(long)time/1000L,midiData[0],midiData[1],midiData[2],(long)TimeStopped/1000L); 
-            sendMIDIEvent(kcurrentinstance,0,j_scale,0,midiData,dataSize,time);
+            sendMIDIEvent(kcurrentinstance,0,OUT,0,midiData,dataSize,time);
 			// i_scale = blockkey = 0 because this is an output
             // Move remaining events forward
             memmove(&eventStack[i], &eventStack[i + 1], (eventCount - i - 1) * size);
@@ -749,7 +749,7 @@ int check_stop_instructions(unsigned long time) {
 			my_sprintf(Message,"Sending MIDI instruction (%d) at date %ld ms",mssg,(long)thisscripttime / 1000L);
 			Notify(Message,0);
 			strcpy(Message,"");
-			sendMIDIEvent(-1,0,0,0,midiData,1,thisscripttime);
+			sendMIDIEvent(-1,0,OUT,0,midiData,1,thisscripttime);
 			}
 		}
 	return OK;
@@ -1744,15 +1744,15 @@ int AllNotesOffPedalsOffAllChannels(void) {
 		midiData[0] = ControlChange + channel;
 		midiData[1] = 123; // All Notes Off
 		midiData[2] = 0;
-		sendMIDIEvent(-1,0,0,0,midiData,dataSize,0); // Sending immediately
+		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0); // Sending immediately
 		midiData[0] = ControlChange + channel;
 		midiData[1] = 64; // Pedal Off
 		midiData[2] = 0;
-		sendMIDIEvent(-1,0,0,0,midiData,dataSize,0); // Sending immediately
+		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0); // Sending immediately
 		midiData[0] = PitchBend + channel;
 		midiData[1] = 0x00;
 		midiData[2] = 0x40;
-		sendMIDIEvent(-1,0,0,0,midiData,dataSize,0); // Sending immediately
+		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0); // Sending immediately
 		}
 	WaitABit(10);
 	return(OK);
