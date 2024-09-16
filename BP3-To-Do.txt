@@ -24,7 +24,7 @@ Microtonal scales and tuning systems
 - Also check that setting pitchbend range to ± 200 cents on all channels works.
 - Include values for optional stretching of each octave.
 - Implement a performance control to set the A4 frequency (diapason) in the score.
-- Implement more systems, such as a few ones listed on the page https://midi.org/microtuning-and-alternative-intonation-systems
+- Try more systems, such as a few ones listed on the page https://midi.org/microtuning-and-alternative-intonation-systems
 
 
 Capture (in process)

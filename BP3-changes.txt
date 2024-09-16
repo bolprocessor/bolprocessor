@@ -6,6 +6,10 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+-----
+2024-09-16 (version 3.0.9)
+Controller and pitchbend MIDI messages can also be recorded. This means that MIDI streams designed for MIDI Polymetric Expression can be captured.
+MIDI events can be captured even if they are not sent to the output.  Only the "treat" option is required.
 
 -----
 2024-09-13 (version 3.0.8)
