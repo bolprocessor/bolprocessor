@@ -686,7 +686,6 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 						}
 					}
 				}
-		//	if(m == T25 || m == T9 || p > 1 || objectduration > 1. || isMIDIcontinuous) { // Fixed by BB 2021-04-01
 			if((m == T25 || m == T9 || p > 1 || objectduration > 1. || isMIDIcontinuous) && !foundendconcatenation) {
 				/* Non-empty sound-object or time pattern or simple note */
 				// p > 1 implies that silences won't be played as objects
@@ -890,11 +889,12 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 			(*p_Instance)[kobj].object = - p;
 			if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,
 				currswitchstate) == ABORT) goto ENDDIAGRAM;
-			ip = Class((*p_im)[nseq]);
+			ip = Class((*p_im)[nseq] + prodtempo); // Fixed +prodtempo by BB 2024-09-17
 			if(Plot(OUTTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
 					&nseq,maxseqapprox,ip,kobj) != OK) {
 				goto ENDDIAGRAM;
 				}
+		//	(*p_maxcol)[nseq]--; // Fixed by BB 2024-09-17
 			if(overstrike) {
 				kobj--;
 				(*p_numberobjects) = kobj;
@@ -1640,12 +1640,14 @@ if(DoSystem() != OK) return(ABORT);
 
 imax = ZERO;
 for(nseq=nseqmem=0; nseq <= (*p_nmax); nseq++) {
-	(*p_maxcol)[nseq]++;
+	k = (*((*p_Seq)[nseq]))[(*p_maxcol)[nseq]];
+	j = (*p_Instance)[k].object;
+//	BPPrintMessage(0,odInfo,"@ nseq = %ld maxcol[nseq] = %ld, k = %d, j = %d\n",nseq,(*p_maxcol)[nseq],k,j);
+	if(j > 0) (*p_maxcol)[nseq]++; // Fixed if(j > 0) 2024-09-17
 	ip = (*p_maxcol)[nseq];
 	// if(trace_diagram) BPPrintMessage(0,odInfo,"@ nseq = %ld maxcol[nseq] = %ld\n",nseq,(*p_maxcol)[nseq]);
 	oldnseq = nseq;
-	if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,&nseq,
-		maxseqapprox,ip,1) != OK) goto ENDDIAGRAM;
+	if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,&nseq,maxseqapprox,ip,1) != OK) goto ENDDIAGRAM;
 	/* This shortens objects that would be too long because of roundings when Kpress > 1 */
 	/* Note than an object that was just at the end (in too fast tempo) hasn't been overstriken */
 	nseq = oldnseq; // nseq might have been changed by Plot() // Added by BB 2021-03-22
@@ -1672,12 +1674,12 @@ if(j < 0) {
 
 CorrectionFactor = 1.;
 
-if(imax > 0.) { 
+if(imax > 0.) {
 	if(imax > 1.) {
 		CorrectionFactor = (((Ratio * Pduration) / Qduration) / (Kpress * (imax - 1.)));
 	/* This compensates errors due to overflow in calculating Prod and Ratio */
-		if(CorrectionFactor < 0.95 || CorrectionFactor > 1.05) {
-			BPPrintMessage(0,odError,"=> Correction factor = %.3f (imax = %ld nseqmem = %ld  nseqmax = %ld) - probable error",CorrectionFactor,(long)imax,(long)nseqmem,(long)(*p_nmax));
+		if(CorrectionFactor < 0.9 || CorrectionFactor > 1.1) {
+			BPPrintMessage(0,odError,"=> Correction factor = %.3f (imax = %ld nseqmem = %ld  nseqmax = %ld): probable error",CorrectionFactor,(long)imax,(long)nseqmem,(long)(*p_nmax));
 			if(!PlayChunks) BPPrintMessage(0,odError,"\n");
 			else BPPrintMessage(0,odError," in chunk #%d\n\n",Chunk_number);
 			}
@@ -1861,15 +1863,12 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 	switch(where) {
 		case INTIME: // Normal mode
 			oldk = (*((*p_seq)[*p_nseq]))[iplot];
-		//	if(iplot < 50 && *p_nseq > 2 && *p_nseq < 10 && newk == 0)
-		//		BPPrintMessage(0,odInfo,"Plot(2) nseq = %d, iplot = %ld, oldk = %d, newk = %d\n",*p_nseq,(long)iplot, oldk, newk);
 			if(!force && oldk > 1) {
 				/* This may happen due to roundings after arithmetic overflows */
 			//	BPPrintMessage(0,odInfo,"Plot(2) PLOTOUTSIDE nseq = %d, iplot = %ld, oldk = %d, newk = %d\n",*p_nseq,(long)iplot, oldk, newk);
 				goto PLOTOUTSIDE;
 				}
-			// if(force && oldk > 1 && newk != 1) { 
-			if(force && oldk > 1 && newk > 1) { // Fixed by BB 2021-01-25
+			if(force && oldk > 1 && newk > 1) {
 				/* When newk == 1 with force, table contains arbitrary numbers, so oldk is irrelevant */
 				BPPrintMessage(0,odError,"=> Error Plot(): overwrote object #%d\n",oldk);
 				(*p_Instance)[oldk].object = 0;
@@ -1892,10 +1891,9 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 				(*p_nseqplot) = Minconc + 1;
 				(*p_iplot)++;
 				}
-	//		if((*p_iplot) >= maxseq || ((((*p_iplot) - iplot)) > (200L / Quantization) && !force)) {
-			if((*p_iplot) >= maxseq || ((((*p_iplot) - iplot) > (200L / Quantization)) && !force)) { // Fixed by BB 2021-03-22, up to 2000L on 2021-03-25
+			if((*p_iplot) >= maxseq || ((((*p_iplot) - iplot) > (200L / Quantization)) && !force)) {
 				(*p_overstrike) = TRUE;
-				if(trace_overstrike) BPPrintMessage(0,odError,"overstrike1 (*p_iplot) = %ld maxseq = %ld iplot = %ld force = %d\n",(long)(*p_iplot),(long)maxseq,(long)iplot,(int)force);
+				if(trace_overstrike) BPPrintMessage(0,odError,"=> overstrike1 (*p_iplot) = %ld maxseq = %ld iplot = %ld force = %d\n",(long)(*p_iplot),(long)maxseq,(long)iplot,(int)force);
 				TellSkipped();
 				return(OK);
 				}
@@ -1909,8 +1907,10 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 				}
 			oldk = (*((*p_seq)[*p_nseqplot]))[*p_iplot];
 			(*((*p_seq)[*p_nseqplot]))[*p_iplot] = newk;
-			if((*p_iplot) > (*p_maxcol)[*p_nseqplot])
+			if((*p_iplot) > (*p_maxcol)[*p_nseqplot]) {
+		//		BPPrintMessage(0,odInfo,"iplot = %ld\n",(*p_iplot));
 				(*p_maxcol)[*p_nseqplot] = (*p_iplot);
+				}
 			(*p_nseqplot)++;
 			break;
 		case ANYWHERE: // Append <<->> anywhere on the phase diagram

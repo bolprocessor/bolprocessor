@@ -6,6 +6,12 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+
+2024-09-18 (version 3.0.10)
+Fixed (old) bug with locating out-of-time objects.
+A clean warning if the settings file is empty (because it hasn't been saved).
+Fixed errors handling 2-byte input events. Channel pressure (aftertouch) can now be caught by _capture().
+
 -----
 2024-09-16 (version 3.0.9)
 Controller and pitchbend MIDI messages can also be recorded. This means that MIDI streams designed for MIDI Polymetric Expression can be captured.
