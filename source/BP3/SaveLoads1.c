@@ -1519,11 +1519,12 @@ int LoadSettings(const char *filename, int startup) {
 
 	LoadOn++;
 
-	if(ReadOne(FALSE,FALSE,FALSE,sefile,TRUE,&p_line,&p_completeline,&pos) == MISSED) {
-        BPPrintMessage(0,odError,"=> Error ReadOne() in LoadSettings()\n");
+	if(ReadOne(FALSE,FALSE,FALSE,sefile,TRUE,&p_line,&p_completeline,&pos) != OK) {
+    //   BPPrintMessage(0,odError,"=> Error reading settings file\n");
         goto ERR;
         }
-    if(trace_load_settings) BPPrintMessage(0,odError, "Version line = %s\n",*p_completeline);
+	if(trace_load_settings) 
+		BPPrintMessage(0,odInfo, "Version line = %s\n",*p_completeline);
 	if(CheckVersion(&iv,p_line,filename) != OK) {
 		result = MISSED;
 		goto QUIT;
@@ -1631,7 +1632,7 @@ int LoadSettings(const char *filename, int startup) {
 
 	if(ReadLong(sefile,&MaxConsoleTime,&pos) == MISSED) goto ERR; // OBSOLETE
 	MaxConsoleTime = 0L; // No limit
- //   if(trace_load_settings && MaxConsoleTime > 0L) BPPrintMessage(0,odInfo, "MaxConsoleTime = %ld\n",(long)MaxConsoleTime);
+//   if(trace_load_settings && MaxConsoleTime > 0L) BPPrintMessage(0,odInfo, "MaxConsoleTime = %ld\n",(long)MaxConsoleTime);
     
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR;
 	Seed = (unsigned) (k % 32768L);
@@ -1818,8 +1819,7 @@ int LoadSettings(const char *filename, int startup) {
 
 	ERR:
 	result = MISSED;
-	my_sprintf(Message,"=> Error reading '%s' settings file...",filename);
-	Alert1(Message);
+	BPPrintMessage(0,odError,"=> Error reading '%s' settings file\n",filename);
 
 	QUIT:
 	MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);

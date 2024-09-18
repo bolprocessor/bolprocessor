@@ -980,6 +980,7 @@ TRYCSFILE:
 						e.type = TWO_BYTE_EVENT;
 						e.status = ChannelPressure + chan;
 						e.data2 = pressure;
+				//		BPPrintMessage(0,odInfo,"@@@ Sending pressure = %d\n",pressure);
 						if((result=SendToDriver(0,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 						}
 					}

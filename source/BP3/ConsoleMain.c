@@ -83,7 +83,7 @@ int Find_leak = FALSE; // Flag to locate place where negative leak starts
 int check_memory_use = FALSE;
 
 int trace_scale = 0;
-int trace_capture = 1;
+int trace_capture = 0;
 int force_messages = 0;
 
 int WarnedBlockKey,WarnedRangeKey;

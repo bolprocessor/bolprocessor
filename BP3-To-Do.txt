@@ -172,6 +172,11 @@ Compilation
 - Modify the C source to handle some Unicode characters that are not currently accepted, such as '≤', '≠', '•', '…', etc.
 
 
+Various errors
+--------------
+- Check why CorrectionFactor = 1.059 in -gr.koto3. (Line 1679 in FillPhaseDiagram) Probably when an out-time object falls at the end of a sequence.
+
+
 Cleaning up the code
 -------------------
 

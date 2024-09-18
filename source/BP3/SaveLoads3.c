@@ -717,16 +717,18 @@ void strip_trailing_spaces(char *str) {
     int len = strlen(str);
     while (len > 0 && isspace((unsigned char)str[len - 1])) {
         len--;
-    }
-    str[len] = '\0';
-}
+		}
+		str[len] = '\0';
+	}
+
 
 void remove_double_slash_prefix(char *str) {
     if (strncmp(str, "//", 2) == 0) {
         // Shift everything to the left over the "//"
         memmove(str, str + 2, strlen(str) - 1);
-    }
-}
+		}
+	}
+
 
 int ReadOne(int bindlines,int careforhtml,int nocomment,FILE* fin,int strip,char ***pp_line,
 	char ***pp_completeline,long *p_pos) {
@@ -747,15 +749,21 @@ int ReadOne(int bindlines,int careforhtml,int nocomment,FILE* fin,int strip,char
 
 	// BPPrintMessage(0,odError,"pos1 = %ld\n",*p_pos);
 	if(fseek(fin, *p_pos, SEEK_SET) != 0) {
-		perror("fseek failed");
-		// Handle error or exit
+		BPPrintMessage(0,odError, "Error reading from file\n");
+	//	perror("fseek failed");
+		MyDisposeHandle((Handle*)pp_line);
+		MyDisposeHandle((Handle*)pp_completeline);
+		return MISSED;
 		}
 		// *p_pos = ftell(fin);
 		// BPPrintMessage(0,odError,"pos2 = %ld\n",*p_pos);
 	if(fgets(line, sizeof(line),fin) != NULL) {
 		if(ferror(fin)) {
-			fprintf(stderr, "Error reading from file.\n");
+			BPPrintMessage(0,odError, "Error reading from file.\n");
 			clearerr(fin);  // Clear the error indicator for the stream
+			MyDisposeHandle((Handle*)pp_line);
+			MyDisposeHandle((Handle*)pp_completeline);
+			return MISSED;
 			}
 		remove_final_linefeed(line);
 		*p_pos = ftell(fin);
@@ -1088,821 +1096,189 @@ return(io);
 
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
-int CleanLF(char** p_buffer,long* p_count,int* p_dos)
+int CleanLF(char** p_buffer,long* p_count,int* p_dos) {
 // Remove line feeds from buffer and transcode high ASCII so that
 // DOS files may be read
 // This should be rewritten using a simple preg_replace()!
-{
-int i,j;
-char c;
+	int i,j;
+	char c;
 
-if(!*p_dos) {
-	if((*p_buffer)[0] == '\n') *p_dos = TRUE;
-	else {
-		for(i=0; i < ((*p_count) - 1); i++) {
-			if((*p_buffer)[i] == '\r') {
-				if((*p_buffer)[i+1] == '\n') {
-					*p_dos = TRUE; break;
-					}
-				else {
-		//			BPPrintMessage(0,odInfo,"NOT DOS\n");
-					return(OK);	/* Not a DOS file */
+	if(!*p_dos) {
+		if((*p_buffer)[0] == '\n') *p_dos = TRUE;
+		else {
+			for(i=0; i < ((*p_count) - 1); i++) {
+				if((*p_buffer)[i] == '\r') {
+					if((*p_buffer)[i+1] == '\n') {
+						*p_dos = TRUE; break;
+						}
+					else {
+			//			BPPrintMessage(0,odInfo,"NOT DOS\n");
+						return(OK);	/* Not a DOS file */
+						}
 					}
 				}
 			}
 		}
-	}
-if(!*p_dos) {
-//	BPPrintMessage(0,odInfo,"NOT DOS\n");
-	return(OK);
-	}
-
-for(i=j=0; ; i++) {
-	if(i >= *p_count) break;
-	while((c=(*p_buffer)[i+j]) == '\n' && (i == 0 || (*p_buffer)[i+j-1] == '\r')) {
-	//	BPPrintMessage(0,odInfo,"i = %d, j = %d, count = %d\n",i,j,*p_count);
-		j++; (*p_count)--;
+	if(!*p_dos) {
+	//	BPPrintMessage(0,odInfo,"NOT DOS\n");
+		return(OK);
 		}
-	// DOStoMac(&c); Fixed by BB 2022-02-18
-	(*p_buffer)[i] = c;
-	}
-return(OK);
-}
 
-#if BP_CARBON_GUI_FORGET_THIS
-
-int OpenHelp(void)
-{
-OSErr io;
-int type,r;
-FSSpec spec;
-char line[MAXLIN];
-
-if(HelpRefnum != -1) return(OK);	/* already open */
-strcpy(line, "BP2 help");
-c2pstrcpy(spec.name, line);
-spec.vRefNum = RefNumbp2;
-spec.parID = ParIDbp2;
-type = gFileType[wHelp];
-if((io=MyOpen(&spec,fsRdPerm,&HelpRefnum)) != noErr) {
-	if((r=CheckFileName(wHelp,line,&spec,&HelpRefnum,type,TRUE)) != OK) {
-		HelpRefnum = -1;
-		return(r);
-		}
-	/*else {  // suppressed since can impair finding other files - akozar 040907
-		RefNumbp2 = spec.vRefNum;
-		ParIDbp2 = spec.parID;
-		}*/
-	}
-return(OK);
-}
-
-
-/* Tries to create a file in the temporary directory returned by FindFolder() or
-   in the BP2 application folder if FindFolder() fails.  You only need to provide
-   a pascal string filename and space for spec and filerefnum which are returned 
-   to the caller */
-int CreateTemporaryFile(FSSpecPtr spec, short *filerefnum, StringPtr filename, int deleteIfExists)
-{
-OSErr err;
-int rep, namecount;
-NSWReply reply;
-short refnum, vrefnum;
-long parid;
-
-rep = OK;
-err = NSWInitReply(&reply);
-
-
-// find the temporary folder on the System disk
-err = FindFolder(kOnSystemDisk, kTemporaryFolderType, kCreateFolder, &vrefnum, &parid);
-if(err != noErr) {
-	// try to use the application's folder (FIXME ? not a great choice on OS X)
-	vrefnum = RefNumbp2;
-	parid = ParIDbp2;
-	}
-	
-err = FSMakeFSSpec(vrefnum, parid, filename, &reply.sfFile);
-
-if (err == noErr && deleteIfExists)	{	// file exists
-	err = FSpDelete(&reply.sfFile);	// try to delete it
-	if (err != noErr) {
-		if(Beta) {
-			p2cstrcpy(LineBuff, filename);
-			my_sprintf(Message, "Can't delete temporary file '%s'", LineBuff);
-			Alert1(Message);
+	for(i=j=0; ; i++) {
+		if(i >= *p_count) break;
+		while((c=(*p_buffer)[i+j]) == '\n' && (i == 0 || (*p_buffer)[i+j-1] == '\r')) {
+		//	BPPrintMessage(0,odInfo,"i = %d, j = %d, count = %d\n",i,j,*p_count);
+			j++; (*p_count)--;
 			}
+		// DOStoMac(&c); Fixed by BB 2022-02-18
+		(*p_buffer)[i] = c;
 		}
-	else err = fnfErr;
-	}
-if (rep == OK && err == fnfErr) {		// FSSpec is good
-	reply.sfReplacing = FALSE;
-	CopyPString(filename,PascalLine);
-	rep = CreateFile(wUnknown,wUnknown,ftiText,PascalLine,&reply,&refnum);
-	if(rep == OK) {
-		*filerefnum = refnum;
-		*spec = reply.sfFile;
-		}
-	else {
-		if(Beta) {
-			p2cstrcpy(LineBuff, filename);
-			my_sprintf(Message, "Can't create temporary file '%s'", LineBuff);
-			Alert1(Message);
-			}
-		return(ABORT);
-		}
-	}
-else rep = ABORT;
-return(rep);
-}
-
-
-int OpenTemp(void)
-{
-if(TempRefnum != -1) {
-	if(Beta) Alert1("=> Err. OpenTemp(). TempRefnum != -1");
 	return(OK);
 	}
-return CreateTemporaryFile(&TempSpec, &TempRefnum, kBPTempFile, TRUE);
-}
 
+int GetThisVersion(int w) {
+	int i,j,diff,r,fileversion;
+	long pos,posho,posmax;
+	char c,*p,*q,**p_line,version[VERSIONLENGTH];
 
-int OpenTrace(void)
-{
-FSSpec tracespec;	// not saved
-
-if(TraceRefnum != -1) {
-	if(Beta) Alert1("=> Err. OpenTrace(). TraceRefnum != -1");
-	return(OK);
-	}
-return CreateTemporaryFile(&tracespec, &TraceRefnum, kBPTraceFile, TRUE);
-}
-
-
-OSErr CloseAndDeleteTemp()
-{
-	OSErr io;
-
-	io = noErr;
-	if(TempRefnum != -1) {
-		io = CloseMe(&TempRefnum);
-		io = FSpDelete(&TempSpec);
-		FlushVol(NULL, TempSpec.vRefNum);
-		if(io != noErr && Beta) {
-			TellError(11,io);
-			Alert1("=> Err. deleting 'BP2.temp'");
-		}
-	}
-
-	return io;
-}
-
-/* Closes an open file that has been written to, flushing the volume.
-   Requires only the file refnum. */
-OSErr CloseFileAndUpdateVolume(short *p_refnum)
-{
-	OSErr err;
-	short vrefnum;
-
-	if(*p_refnum != -1) {
-		err = GetVRefNum(*p_refnum, &vrefnum);
-		if (err == noErr) {
-			err = CloseMe(p_refnum);
-			FlushVol(NULL, vrefnum);
-		}
-	}	
-	return err;
-}
-
-/* Closes an open file using the file refnum.
-   Call this function for a file that was opened for reading only.
-   Use CloseFileAndUpdateVolume() for files opened for writing. */
-OSErr CloseMe(short *p_refnum)
-{
-OSErr io;
-	
-io = noErr;
-if(*p_refnum != -1) {
-	io = FSClose(*p_refnum);
-	if(io != noErr && Beta) {
-		TellError(82,io);
-		Alert1("Er. CloseMe()");
-		}
-	}
-*p_refnum = -1;
-return(io);
-}
-
-
-int CheckFileName(int w,char *filename,FSSpec *p_spec,short *p_refnum,int type,int openreally)
-// The file couldn't be opened.  Try to find its actual name and location
-// If openreally is false it means we're just checking, not opening
-{
-char line2[64],line3[MAXLIN];
-int rep,io, memexec;
-Str255 fn;
-
-/* Usually, type = gFileType[w] */
-
-FIND:
-if(filename[0] != '\0') {
-	if(DocumentTypeName[w][0] != '\0' && w != wTrace)
-		my_sprintf(line3,"Locate '%s' or other %s file",filename,DocumentTypeName[w]);
-	else
-		my_sprintf(line3,"Locate '%s'",filename);
-	}
-else {
-	if(DocumentTypeName[w][0] != '\0' && w != wTrace)
-		my_sprintf(line3,"Select a(n) %s file",DocumentTypeName[w]);
-	else
-		my_sprintf(line3,"Select a file");
-	}
-
-ShowMessage(TRUE,wMessage,line3);
-if(AEventOn && CallUser(1) != OK) return(ABORT);
-
-TRYOPEN:
-if(!OldFile(w,type,fn,p_spec)) {
-	// HideWindow(Window[wMessage]);
-	return(MISSED);
-	}
-p2cstrcpy(line2,fn);
-if(gFileType[w] != ftiAny && gFileType[w] != ftiText && IdentifyBPFileType(p_spec) != w) {
-	my_sprintf(Message,"BP2 is not sure that '%s' is a(n) %s file. Do you want to load it anyway",
-		line2, DocumentTypeName[w]);
-	memexec = ScriptExecOn; ScriptExecOn = 0;
-	rep = Answer(Message,'Y'); // default to 'Y' in case script is running
-	ScriptExecOn = memexec;
-	if (rep == NO) goto TRYOPEN;
-	else if (rep == ABORT) return(ABORT);
-	}
-	
-// Strip(filename);
-if(filename[0] != '\0') {
-	if(strcmp(filename,line2) != 0) {
-		// Don't ask since the user already chose the file - akozar, 031907
-		/* rep = Answer("Changing file",'N');
-		switch(rep) {
-			case NO:
-				goto FIND;
-				break;
-			case YES: */
-				strcpy(filename,line2);
-				if(openreally) {
-					strcpy(FileName[w],filename);
-					TellOthersMyName(w);
-					}
-				/* break;
-			case ABORT:
-				// HideWindow(Window[wMessage]);
-				return(MISSED);
-			} */
-		}
-	}
-else {
-	strcpy(filename,line2);
-	if(openreally) {
-		strcpy(FileName[w],filename);
-/*		TellOthersMyName(w); */
-		}
-	}
-InputOn++;
-// HideWindow(Window[wMessage]);
-// c2pstrcpy(p_spec->name, line2);
-// FIXME ? if (!openreally), should we be calling MyOpen().  If so, how does the
-//         file get closed later ?  - akozar
-if((io=MyOpen(p_spec,fsCurPerm,p_refnum)) != noErr && io != opWrErr) {
-	my_sprintf(Message,"Can't open '%s'",filename);
-	Alert1(Message);
-	TellError(83,io);
-	InputOn--;
-	return(ABORT);
-	}
-if(io == opWrErr) {
-	io = SetFPos(*p_refnum,fsFromStart,ZERO);
-	if(io != noErr) {
-		my_sprintf(Message,"Can't reopen '%s'",filename);
-		Alert1(Message);
-		TellError(84,io);
-		InputOn--;
-		return(ABORT);
-		}
-	}
-if(openreally) {
-	SetName(w,FALSE,TRUE);
-	TheVRefNum[w] = p_spec->vRefNum;
-	WindowParID[w] = p_spec->parID;
-	}
-InputOn--;
-return(OK);
-}
-
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-#if 0
-/* FIXME ? Shouldn't we be flushing the vRefNum of the file that was written ?? - akozar */
-FlushVolume()
-{
-IOParam pb;
-OSErr io;
-int async;
-
-async = FALSE;
-/* MacOS bombs if async is true! */
-
-pb.ioCompletion = NULL;
-pb.ioNamePtr = NIL;
-pb.ioVRefNum = 0;
-io = PBFlushVol((ParmBlkPtr)&pb,async);
-return(io == noErr);
-}
-#endif
-
-
-#if BP_CARBON_GUI_FORGET_THIS
-int FlushFile(short refnum)
-{
-IOParam pb;
-OSErr io;
-int async;
-
-pb.ioCompletion = NULL;
-async = FALSE;
-/* MacOS bombs if async is true! */
-
-pb.ioRefNum = refnum;
-io = PBFlushFile((ParmBlkPtr)&pb,async);
-if(io != noErr) TellError(85,io);
-return(io == noErr);
-}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-
-int GetThisVersion(int w)
-{
-int i,j,diff,r,fileversion;
-long pos,posho,posmax;
-char c,*p,*q,**p_line,version[VERSIONLENGTH];
-
-pos = ZERO;
-p_line = NULL;
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("=> Err. GetThisVersion(). Incorrect window index");
-	return(MISSED);
-	}
-posmax = GetTextLength(w);
-r = MISSED;
-
-REDO:
-if(ReadLine(NO,w,&pos,posmax,&p_line,&j) != OK) goto SORTIR;
-if((*p_line)[0] == '\0') goto REDO;
-FindVersion(p_line,version);
-diff = TRUE;
-for(fileversion = 0; fileversion < MAXVERSION; fileversion++)
-	if((diff = strcmp(version,VersionName[fileversion])) == 0) break;
-if(diff) {
-	fileversion = 2;
 	pos = ZERO;
-	}
-if(fileversion > Version) {
-	// It would be unusual for VersionName[fileversion] to exist if fileversion > Version
-	my_sprintf(Message,
-		"Can't use file version %s\nbecause 'BP2' version is %s.\n",
-		VersionName[fileversion],VersionName[Version]);
-	if(!ScriptExecOn) Alert1(Message);
-	else PrintBehind(wTrace,Message);
-	goto SORTIR;
-	}
-if(fileversion >= 3) {
-	/* Delete info and date line */
-REDO2:
+	p_line = NULL;
+	if(w < 0 || w >= WMAX || !Editable[w]) {
+		if(Beta) Alert1("=> Err. GetThisVersion(). Incorrect window index");
+		return(MISSED);
+		}
+	posmax = GetTextLength(w);
+	r = MISSED;
+
+	REDO:
 	if(ReadLine(NO,w,&pos,posmax,&p_line,&j) != OK) goto SORTIR;
-	if((*p_line)[0] == '\0') goto REDO2;
+	if((*p_line)[0] == '\0') goto REDO;
+	FindVersion(p_line,version);
+	diff = TRUE;
+	for(fileversion = 0; fileversion < MAXVERSION; fileversion++)
+		if((diff = strcmp(version,VersionName[fileversion])) == 0) break;
+	if(diff) {
+		fileversion = 2;
+		pos = ZERO;
+		}
+	if(fileversion > Version) {
+		// It would be unusual for VersionName[fileversion] to exist if fileversion > Version
+		my_sprintf(Message,
+			"Can't use file version %s\nbecause 'BP2' version is %s.\n",
+			VersionName[fileversion],VersionName[Version]);
+		if(!ScriptExecOn) Alert1(Message);
+		else PrintBehind(wTrace,Message);
+		goto SORTIR;
+		}
+	if(fileversion >= 3) {
+		/* Delete info and date line */
+	REDO2:
+		if(ReadLine(NO,w,&pos,posmax,&p_line,&j) != OK) goto SORTIR;
+		if((*p_line)[0] == '\0') goto REDO2;
+		}
+	SetSelect(ZERO,pos,TEH[w]);
+	TextDelete(w);
+	r = OK;
+
+	SORTIR:
+	MyDisposeHandle((Handle*)&p_line);
+	return(r);
 	}
-SetSelect(ZERO,pos,TEH[w]);
-TextDelete(w);
-r = OK;
-
-SORTIR:
-MyDisposeHandle((Handle*)&p_line);
-return(r);
-}
 
 
-int CheckVersion(int *p_iv, char **p_line, const char name[])
-{
-int diff,rep,iv;
-char version[VERSIONLENGTH];
+int CheckVersion(int *p_iv, char** p_line, const char name[]) {
+	int diff,rep,iv;
+	char version[VERSIONLENGTH];
 
-(*p_iv) = 0;
-diff = 1;
-if(p_line == NULL || (*p_line)[0] == '\0') {
-	if(Beta) {
-	//	Alert1("=> Err. CheckVersion(). p_line == NULL || (*p_line)[0] == '\0'");
+	(*p_iv) = 0;
+	diff = 1;
+	if(p_line == NULL || strlen((*p_line)) < 5) {
 		BPPrintMessage(0,odError,"=> Error loading this file: version cannot be found. Did you save it?\n");
+		return(MISSED);
 		}
+	FindVersion(p_line,version);
+	for(iv=0; iv < MAXVERSION; iv++)
+		if((diff = strcmp(version,VersionName[iv])) == 0) break;
+	if(iv > Version && name[0] != '\0') {
+		BPPrintMessage(0,odError,"=> File '%s' was created with a version of BP2 more recent than %s\n",name,VersionName[Version]);
+		rep = NO;
+		if(rep != YES) goto ERR;
+		iv = Version;
+		}
+	(*p_iv) = iv;
+	return(OK);
+
+	ERR:
 	return(MISSED);
 	}
-FindVersion(p_line,version);
-for(iv=0; iv < MAXVERSION; iv++)
-	if((diff = strcmp(version,VersionName[iv])) == 0) break;
-if(iv > Version && name[0] != '\0') {
-	BPPrintMessage(0,odError,"=> File '%s' was created with a version of BP2 more recent than %s\n",name,VersionName[Version]);
-/*	my_sprintf(Message,
-		"File '%s' was created with a version of BP2 more recent than %s. Try to read it anyway (risky)",
-			name,VersionName[Version]);
-	rep = Answer(Message,'N'); */
-	rep = NO;
-	if(rep != YES) goto ERR;
-	iv = Version;
-	}
-(*p_iv) = iv;
-return(OK);
-
-ERR:
-return(MISSED);
-}
 
 
-int GetFileDate(int w,char ***pp_result)
-{
-int i,diff,gap,result;
-long pos,posmax;
-char *p,*q,**p_line;
+int GetFileDate(int w,char ***pp_result) {
+	int i,diff,gap,result;
+	long pos,posmax;
+	char *p,*q,**p_line;
 
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("=> Err. GetFileDate(). w < 0 || w >= WMAX || !Editable[w]");
+	if(w < 0 || w >= WMAX || !Editable[w]) {
+		if(Beta) Alert1("=> Err. GetFileDate(). w < 0 || w >= WMAX || !Editable[w]");
+		return(OK);
+		}
+	pos = ZERO; p_line = NULL;
+	posmax = GetTextLength(w);
+	(**pp_result)[0] = '\0';
+	if(ReadLine(NO,w,&pos,posmax,&p_line,&gap) != OK) return(OK);
+	pos = ZERO;
+	while((result=ReadLine(NO,w,&pos,posmax,&p_line,&gap)) == OK) {
+		if(GetDateSaved(p_line,pp_result) == OK) break;
+		}
+	MyDisposeHandle((Handle*)&p_line);
 	return(OK);
 	}
-pos = ZERO; p_line = NULL;
-posmax = GetTextLength(w);
-(**pp_result)[0] = '\0';
-if(ReadLine(NO,w,&pos,posmax,&p_line,&gap) != OK) return(OK);
-pos = ZERO;
-while((result=ReadLine(NO,w,&pos,posmax,&p_line,&gap)) == OK) {
-	if(GetDateSaved(p_line,pp_result) == OK) break;
-	}
-MyDisposeHandle((Handle*)&p_line);
-return(OK);
-}
 
 
-int GetDateSaved(char **p_line,char ***pp_result)
-{
-char c,*p,*q;
-int i0,offset;
+int GetDateSaved(char **p_line,char ***pp_result) {
+	char c,*p,*q;
+	int i0,offset;
 
-i0 = strlen(DateMark);
-MyLock(FALSE,(Handle)p_line);
-p = strstr(*p_line,DateMark); q = DateMark;
-if(p != NULLSTR && Match(FALSE,&p,&q,i0)) {
-	if(p != (*p_line)) {
-		p--;
-		c = *p;
-		*p = '\0';
-		offset = 1 + strlen(*p_line);
+	i0 = strlen(DateMark);
+	MyLock(FALSE,(Handle)p_line);
+	p = strstr(*p_line,DateMark); q = DateMark;
+	if(p != NULLSTR && Match(FALSE,&p,&q,i0)) {
+		if(p != (*p_line)) {
+			p--;
+			c = *p;
+			*p = '\0';
+			offset = 1 + strlen(*p_line);
+			}
+		else offset = 0;
+		MystrcpyHandleToHandle(offset,pp_result,p_line);
+		if(offset > 0) *p = c;	/* fixed 11/3/99 */
+		MyUnlock((Handle)p_line);
+		return(OK);
 		}
-	else offset = 0;
-	MystrcpyHandleToHandle(offset,pp_result,p_line);
-	if(offset > 0) *p = c;	/* fixed 11/3/99 */
 	MyUnlock((Handle)p_line);
+	return(MISSED);
+	}
+
+int FindVersion(char **p_line,char* version) {
+	char c,*p;
+	int i;
+
+	if(p_line == NULL || (*p_line)[0] == '\0') return(MISSED);
+	StripHandle(p_line);
+	MyLock(FALSE,(Handle)p_line);
+	p = strstr((*p_line),"version");
+	if(p == NULLSTR) p = (*p_line);
+	else {
+		p += strlen("version");
+		while(MySpace(c=(*p))) p++;
+		}
+	i = 0;
+	while(!isspace(c=(*p))) {	/* Fixed 24/2/99 */
+		if(i >= (VERSIONLENGTH-1)) break;
+		version[i] = c; p++; i++;
+		}
+	version[i] = '\0';
+	MyUnlock((Handle)p_line);
+	Strip(version);
 	return(OK);
 	}
-MyUnlock((Handle)p_line);
-return(MISSED);
-}
-
-#if BP_CARBON_GUI_FORGET_THIS
-
-int WriteHeader(int w,short refnum,FSSpec spec)
-{
-char line[MAXLIN],name[64],**p_line;
-long count;
-
-if(w >= WMAX || (w >= 0 && !Editable[w] && !HasFields[w] && w != iSettings)) {
-	if(Beta) Alert1("=> Err. WriteHeader(). w >= WMAX || (!Editable[w] && !HasFields[w])");
-	}
-if(refnum == -1) {
-	if(Beta) Alert1("=> Err. WriteHeader(). refnum == -1");
-	return(MISSED);
-	}
-MyPtoCstr(MAXNAME,spec.name,name);
-if(w >= 0 && IsHTML[w]) {
-	my_sprintf(line,"<HTML><HEAD><TITLE>%s</TITLE>",name);
-	WriteToFile(NO,DOS,line,refnum);
-	my_sprintf(line,"<META HTTP-EQUIV=\"content-type\" CONTENT=\"text/html;charset=iso-8859-1\">");
-	WriteToFile(NO,DOS,line,refnum);
-	my_sprintf(line,"<META NAME=\"generator\" CONTENT=\"Bol Processor BP2\">");
-	WriteToFile(NO,DOS,line,refnum);
-	my_sprintf(line,"<META NAME=\"keywords\" CONTENT=\"computer music, Bol Processor, BP2\">");
-	WriteToFile(NO,DOS,line,refnum);
-	my_sprintf(line,"</HEAD><BODY BGCOLOR=\"White\">");
-	WriteToFile(NO,DOS,line,refnum);
-	}
-switch(w) {
-	case wScrap:
-	case wHelp:
-	case wNotice:
-		return(OK);
-		break;
-	}
-if((p_line = (char**) GiveSpace((Size)(MAXLIN * sizeof(char)))) == NULL)
-	return(ABORT);
-my_sprintf(line,"// Bol Processor version %s",VersionName[Version]);
-if(w >= 0 && IsHTML[w]) {
-	strcat(line,"<BR>");
-	WriteToFile(NO,DOS,line,refnum);
-	}
-else WriteToFile(NO,MAC,line,refnum);
-Date(line);
-
-if(w >= 0)
-	my_sprintf(Message,"// %s file saved as '%s'. %s",WindowName[w],name,line);
-else
-	my_sprintf(Message,"// File saved as '%s'. %s",name,line);
-	
-if(w >= 0 && Editable[w] && IsHTML[w]) {
-	MystrcpyStringToHandle(&p_line,Message);
-	MacToHTML(YES,&p_line,NO);
-	MystrcpyHandleToString(MAXLIN,0,Message,p_line);
-	strcat(Message,"<BR>");
-	WriteToFile(NO,DOS,Message,refnum);
-	}
-else WriteToFile(NO,MAC,Message,refnum);
-
-MyDisposeHandle((Handle*)&p_line);
-
-return(OK);
-}
-
-
-int WriteEnd(int w,short refnum)
-{
-char line[MAXLIN],name[MAXNAME+1],**p_line;
-long count;
-
-if(refnum == -1) {
-	if(Beta) Alert1("=> Err. WriteEnd(). refnum == -1");
-	return(MISSED);
-	}
-if(w >= 0 && IsHTML[w]) {
-	WriteToFile(NO,DOS,"\r\n<HR>\r\n</BODY>\r\n</HTML>",refnum); // FIXME? Will this write CR-CR-LF on Windows?
-	}
-else NoReturnWriteToFile("\0",refnum);
-return(OK);
-}
-
-
-int GetHeader(int w)
-{
-if(!Editable[w]) return(OK);
-switch(w) {
-	case wScrap:
-	case wHelp:
-	case wNotice:
-		break;
-	case wStartString:
-	case wGrammar:
-	case wAlphabet:
-	case wScript:
-	case wInteraction:
-	case wGlossary:
-	case wData:
-	case wPrototype7:
-	case wTrace:
-		GetFileDate(w,&(p_FileInfo[w]));
-		GetThisVersion(w);
-		break;
-	default:
-		return(OK);
-	}
-UpdateDirty(TRUE,w);
-Dirty[w] /* = Created[w] */ = FALSE;
-#if WASTE_FORGET_THIS
-WEResetModCount(TEH[w]);
-#endif
-return(OK);
-}
-
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-int FindVersion(char **p_line,char* version)
-{
-char c,*p;
-int i;
-
-if(p_line == NULL || (*p_line)[0] == '\0') return(MISSED);
-StripHandle(p_line);
-MyLock(FALSE,(Handle)p_line);
-p = strstr((*p_line),"version");
-if(p == NULLSTR) p = (*p_line);
-else {
-	p += strlen("version");
-	while(MySpace(c=(*p))) p++;
-	}
-i = 0;
-while(!isspace(c=(*p))) {	/* Fixed 24/2/99 */
-	if(i >= (VERSIONLENGTH-1)) break;
-	version[i] = c; p++; i++;
-	}
-version[i] = '\0';
-MyUnlock((Handle)p_line);
-Strip(version);
-return(OK);
-}
-
-#if BP_CARBON_GUI_FORGET_THIS
-
-OSErr MyFSClose(int w,short refnum,FSSpec *p_spec)
-{
-OSErr io;
-FSSpec spec;
-
-io = FSClose(refnum);
-if(io == noErr && w >= 0 && w < WMAX) {
-	spec = (*p_TempFSspec)[w];
-	if(spec.name[0] != 0) {
-		io = FSpExchangeFiles(&spec,p_spec);
-		if(io == noErr) io = FSpDelete(&spec);
-		}
-	(*p_TempFSspec)[w].name[0] = 0;
-	io = FlushVol(NULL, p_spec->vRefNum);
-	}
-if(io != noErr) TellError(86,io);
-return(io);
-}
-
-/* PutFile event filter procedure - customized for Bol Processor. */
-pascal void PutFileEventProc(NavEventCallbackMessage callBackSelector,
-					NavCBRecPtr callBackParms,
-					NavCallBackUserData callBackUD)
-{
-	NSWReply*		reply;
-	//WindowPtr		window;
-	NavMenuItemSpec*	item;
-	
-	// Be careful not to access fields in callBackParms before checking the
-	// callBackSelector; They are not valid every time this function is called!
-	
-	switch (callBackSelector)
-	{
-		case kNavCBEvent:
-   			switch (((callBackParms->eventData).eventDataParms).event->what)
-			{
-				case updateEvt:
-					//window = (WindowPtr)callBackParms->eventData.eventDataParms.event->message;
-					//HandleNavServUpdateEvent(window,
-					//	(EventRecord*)callBackParms->eventData.eventDataParms.event);
-					DoEvent((EventRecord*)callBackParms->eventData.eventDataParms.event);
-					break;
-				default:
-					break;
-			}
-			break;
-		case kNavCBPopupMenuSelect:
-			{ char str[100];
-			
-			// save the user's selection of our custom format options
-			item = (NavMenuItemSpec*) callBackParms->eventData.eventDataParms.param;
-			reply = (NSWReply*) callBackUD;
-			p2cstrcpy(str, item->menuItemName);
-			if (strcmp(str, FormatNames[18]) == 0) {		// HTML
-				reply->isHTML = TRUE; reply->isText = TRUE;
-			}
-			else if (strcmp(str, FormatNames[1]) == 0) {	// plain text
-				reply->isHTML = FALSE; reply->isText = TRUE;
-			}
-			else if (strstr(str, HTMLFormat) != NULL)	{	// BP2 HTML
-				reply->isHTML = TRUE; reply->isText = FALSE;
-			}
-			else {							// BP2 native
-				reply->isHTML = FALSE; reply->isText = FALSE;
-			}
-			}
-			break;
-		default:
-			break;
-	}
-}
-
-/*----------------------------------------------------------------------------
-
-	The next two functions (CopyOneFork & CopyFile) are by John Norstad
-	and are freely reusable and redistributable with his permission.
-	(I have modified them a little to not rely on his other utility files).
-	
-	fileutil.c   (from Norstad's Reusables)
-	
-	Copyright � 1994-1995, Northwestern University.
-
-----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-	CopyOneFork
-	
-	Copy one fork of a file.
-	
-	Entry:	source = pointer to source file spec.
-			dest = pointer to destination file spec.
-			resourceFork = true to copy resource fork, false to copy
-				data fork.
-	
-	Exit:	function result = error code.
-----------------------------------------------------------------------------*/
-
-static OSErr CopyOneFork (FSSpec *source, FSSpec *dest, int resourceFork)
-{
-	const Size bufferSize = 1024;
-	short sourceRefNum = 0;
-	short destRefNum = 0;
-	long fileSize, len;
-	Ptr buf;
-	FInfo fInfo;
-	OSErr err = noErr;
-	
-	/* Open source fork. */
-	
-	if (resourceFork) {
-		err = FSpOpenRF(source, fsRdPerm, &sourceRefNum);
-	} else {
-		err = FSpOpenDF(source, fsRdPerm, &sourceRefNum);
-	}
-	if (err == fnfErr) return noErr;
-	if (err != noErr) goto exit;
-	err = GetEOF(sourceRefNum, &fileSize);
-	if (err != noErr) goto exit;
-	
-	/* Open destination fork. Create the fork if it is missing. */
-	
-	if (resourceFork) {
-		err = FSpOpenRF(dest, fsRdWrPerm, &destRefNum);
-	} else {
-		err = FSpOpenDF(dest, fsRdWrPerm, &destRefNum);
-	}
-	if (err == fnfErr) {
-		err = FSpGetFInfo(source, &fInfo);
-		if (err != noErr) goto exit;
-		if (resourceFork) {
-			FSpCreateResFile(dest, fInfo.fdCreator, fInfo.fdType, smSystemScript);
-			err = ResError();
-		} else {
-			err = FSpCreate(dest, fInfo.fdCreator, fInfo.fdType, smSystemScript);
-		}
-		if (err != noErr) goto exit;
-		if (resourceFork) {
-			err = FSpOpenRF(dest, fsRdWrPerm, &destRefNum);
-		} else {
-			err = FSpOpenDF(dest, fsRdWrPerm, &destRefNum);
-		}
-	}
-	if (err != noErr) goto exit;
-	err = SetFPos(destRefNum, fsFromStart, 0);
-	if (err != noErr) goto exit;
-	
-	/* Copy the source fork to the destination fork. */
-	buf = NewPtr(bufferSize);
-	err = MemError();
-	if (err != noErr) goto exit;
-	while(fileSize > 0) {
-		len = fileSize > bufferSize ? bufferSize : fileSize;
-		err = FSRead(sourceRefNum, &len, buf);
-		if (err != noErr) goto exit;
-		err = FSWrite(destRefNum, &len, buf);
-		if (err != noErr) goto exit;
-		fileSize -= len;
-	}
-	
-exit:
-
-	if (sourceRefNum != 0) err = FSClose(sourceRefNum);
-	if (destRefNum != 0) {
-		FSClose(destRefNum);
-		err = FlushVol(NULL, dest->vRefNum);
-	}
-	if (buf != nil) DisposePtr(buf);
-	return err;
-}
-
-
-
-/*----------------------------------------------------------------------------
-	CopyFile
-	
-	Make a copy of a file (both forks).
-	
-	Entry:	source = pointer to source file spec.
-			dest = pointer to destination file spec.
-	
-	Exit:	function result = error code.
-----------------------------------------------------------------------------*/
-
-OSErr CopyFile (FSSpec *source, FSSpec *dest)
-{
-	OSErr err = noErr;
-
-	err = CopyOneFork(source, dest, true);
-	if (err != noErr) return err;
-	return CopyOneFork(source, dest, false);
-}
-
-#endif /* BP_CARBON_GUI_FORGET_THIS */
