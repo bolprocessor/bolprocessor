@@ -860,7 +860,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 		j = 0;
 		j = GetInteger(YES,ptr,&j);
 		if(j == INT_MAX) {
-			if(GetNote(ptr,&j,&chan,YES) != OK) {
+			if(GetThisNote(ptr,&j,&chan,YES) != OK) {
 				Print(wTrace,"\nIncorrect argument in _keymap(). Key numbers or note names expected...");
 				return(ABORT);
 				}
@@ -1381,7 +1381,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 				ptr = line;
 				j = GetInteger(YES,ptr,&j);
 				if(j == INT_MAX) {
-					if(GetNote(ptr,&j,&chan,YES) != OK) {
+					if(GetThisNote(ptr,&j,&chan,YES) != OK) {
 						Print(wTrace,
 							"Incorrect first argument in _keyxpand(). Key number or note name expected...");
 						return(ABORT);

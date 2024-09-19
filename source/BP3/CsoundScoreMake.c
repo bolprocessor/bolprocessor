@@ -728,7 +728,7 @@ for(iarg=2; iarg <= iargmax; iarg++) {
 
 if(pitchclass >= 0) {
 	strcpy(line,"; ");
-	PrintNote(i_scale,key,0,-1,LineBuff);
+	PrintThisNote(i_scale,key,0,-1,LineBuff);
 	strcat(line,LineBuff);
 	int cent_value = (int) cents;
 	if(cent_value != 0) {
