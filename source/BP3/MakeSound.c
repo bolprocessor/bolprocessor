@@ -979,6 +979,7 @@ TRYCSFILE:
 						e.time = Tcurr;
 						e.type = TWO_BYTE_EVENT;
 						e.status = ChannelPressure + chan;
+                        e.data1 = 0;
 						e.data2 = pressure;
 				//		BPPrintMessage(0,odInfo,"@@@ Sending pressure = %d\n",pressure);
 						if((result=SendToDriver(0,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
@@ -1577,7 +1578,7 @@ SENDNOTEOFF:
 								if(!cswrite) {
 									e.time = Tcurr;
 									e.type = NORMAL_EVENT;
-									e.status = NoteOn + localchan;
+									e.status = NoteOff + localchan; // Replaced NoteOn with NoteOff 2024-09-18
 									e.data1 = c1;
 									e.data2 = 0;
 								//	BPPrintMessage(0,odInfo,"scale2 = %d\n",scale);
@@ -1624,13 +1625,13 @@ SENDNOTEOFF:
 								if(!cswrite) {
 									e.time = Tcurr;
 									e.type = NORMAL_EVENT;
-									e.status = NoteOn + localchan;
+									e.status = NoteOff + localchan; // Replaced NoteOn with NoteOff 2024-09-18
 									e.data1 = c1;
 									e.data2 = 0;
 								//	BPPrintMessage(0,odInfo,"scale3 = %d\n",scale);
 									if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 									}
-								if(showpianoroll) { // Added by BB 4 Nov 2020
+								if(showpianoroll) {
 									if(trace_csound_pianoroll) BPPrintMessage(0,odInfo,"** DrawPianoNote() t1 = %ld nseq = %d\n",t1,nseq);
 									result = DrawPianoNote("midi",c1,localchan,timeon[c1],(t0 + t1),
 										leftoffset,topoffset,hrect,
@@ -2641,6 +2642,7 @@ switch(iparam) {
 			e.time = Tcurr;
 			e.type = TWO_BYTE_EVENT;
 			e.status = ChannelPressure + chan;
+            e.data1 = 0;
 			e.data2 = value;
 			if((result=SendToDriver(0,0,0,time,seq,p_rs,&e)) != OK) goto OVER;
 			}

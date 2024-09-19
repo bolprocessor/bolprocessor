@@ -158,7 +158,7 @@ typedef struct {
 #define RAW_EVENT 0		/* data only in low order byte */
 #define NORMAL_EVENT 1	/* data packed into three low order bytes */
 #define NULL_EVENT 2	/* no data */
-#define TWO_BYTE_EVENT 3	/* This I added on 5/10/97 (Bernard Bel) */
+#define TWO_BYTE_EVENT 3	
 
 /* Add extensions for channel definitions as part of the type byte. */
 #define PORTA 0
@@ -1687,7 +1687,7 @@ typedef enum {
 // #endif
 
 // Define platform-specific types
-#if !defined(__APPLE__)
+#if defined(_WIN64) || defined(__linux__)
 	typedef uint64_t UInt64;
 	typedef size_t Size;
 	typedef struct Rect {

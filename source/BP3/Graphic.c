@@ -223,7 +223,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 						key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
 							&((*p_Instance)[k].map0),
 							&((*p_Instance)[k].map1));
-						PrintNote(i_scale,key,0,-1,line);
+						PrintThisNote(i_scale,key,0,-1,line);
 						if(trace_scale) BPPrintMessage(0,odInfo,"DrawItem i_scale = %d\n",i_scale);
 						}
 					}
@@ -242,7 +242,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 						key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
 							&((*p_Instance)[k].map0),
 							&((*p_Instance)[k].map1));
-						PrintNote(i_scale,key,0,-1,line2);
+						PrintThisNote(i_scale,key,0,-1,line2);
 						strcat(line,line2);
 						strcat(line,">>");
 						}
@@ -1280,7 +1280,7 @@ int DrawNoteScale(Rect* p_r,int w,int minkey,int maxkey,int hrect,int leftoffset
 		for(key=6; key < 128; key+=2) {
 			if(key < minkey || key > maxkey) continue;
 			y = (maxkey - key) * hrect + topoffset;
-			PrintNote(-1,key,0,-1,line);
+			PrintThisNote(-1,key,0,-1,line);
 			draw_line(xmin,y,xmax,y,"");
 			}
 		}
@@ -1291,7 +1291,7 @@ int DrawNoteScale(Rect* p_r,int w,int minkey,int maxkey,int hrect,int leftoffset
 		for(key=0; key < 128; key+=12) {
 			if(key < minkey || key > maxkey) continue;
 			y = (maxkey - key) * hrect + topoffset;
-			PrintNote(-1,key,0,-1,line);
+			PrintThisNote(-1,key,0,-1,line);
 			fill_text(line,5,y + 3);
 			fill_text(line,xmax+ 5,y + 3);
 			draw_line(xmin,y,xmax,y,"");
@@ -1301,7 +1301,7 @@ int DrawNoteScale(Rect* p_r,int w,int minkey,int maxkey,int hrect,int leftoffset
 		for(key=6; key < 128; key+=12) {
 			if(key < minkey || key > maxkey) continue;
 			y = (maxkey - key) * hrect + topoffset;
-			PrintNote(-1,key,0,-1,line);
+			PrintThisNote(-1,key,0,-1,line);
 			fill_text(line,5,y + 3);
 			fill_text(line,xmax + 5,y + 3);
 			draw_line(xmin,y,xmax,y,"");

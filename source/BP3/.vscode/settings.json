@@ -22,7 +22,8 @@
         "stringlists.h": "c",
         "typeinfo": "c",
         "-bp2.h": "c",
-        "-bp2decl.h": "c"
+        "-bp2decl.h": "c",
+        "consolemessages.h": "c"
     },
     "search.useParentIgnoreFiles": true,
     "search.useGlobalIgnoreFiles": false

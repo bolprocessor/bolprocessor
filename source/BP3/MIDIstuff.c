@@ -254,17 +254,22 @@ int MIDIflush(int quick) {
 			type = eventStack[i].status & 0xF0;
             midiData[1] = eventStack[i].data1;
 			midiData[2] = eventStack[i].data2;
-			if(type == ChannelPressure) {
+			if(eventStack[i].type == TWO_BYTE_EVENT) {
 				midiData[1] = 0; dataSize = 2;
 			//	BPPrintMessage(0,odInfo,"@@@ data = %d %d\n",midiData[0],midiData[2]);
 				}
-			else dataSize = 3;
-			kcurrentinstance =  eventStack[i].instance;
-			i_scale = eventStack[i].scale;
-            time = eventStack[i].time + TimeStopped;
-    //  	if(type == NoteOn || type == NoteOff) BPPrintMessage(0,odInfo,"§ type %d Note %d value %d time %ld\n",type,eventStack[i].data1,midiData[2],(long)time); 
-	//		BPPrintMessage(1,odInfo,"§ %ld ms, %d %d %d, TimeStopped = %ld\n",(long)time/1000L,midiData[0],midiData[1],midiData[2],(long)TimeStopped/1000L); 
-            sendMIDIEvent(kcurrentinstance,i_scale,OUT,0,midiData,dataSize,time);
+			else {
+				if(eventStack[i].type == NORMAL_EVENT) dataSize = 3;
+				if(eventStack[i].type == RAW_EVENT) dataSize = 1;
+				}
+			if(eventStack[i].type != NULL_EVENT) {
+				kcurrentinstance =  eventStack[i].instance;
+				i_scale = eventStack[i].scale;
+				time = eventStack[i].time + TimeStopped;
+		//  	if(type == NoteOn || type == NoteOff) BPPrintMessage(0,odInfo,"§ type %d Note %d value %d time %ld\n",type,eventStack[i].data1,midiData[2],(long)time); 
+		//		BPPrintMessage(1,odInfo,"§ %ld ms, %d %d %d, TimeStopped = %ld\n",(long)time/1000L,midiData[0],midiData[1],midiData[2],(long)TimeStopped/1000L); 
+				sendMIDIEvent(kcurrentinstance,i_scale,OUT,0,midiData,dataSize,time);
+				}
             // Move remaining events forward
             memmove(&eventStack[i], &eventStack[i + 1], (eventCount - i - 1) * size);
             eventCount--;
@@ -361,28 +366,14 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			e->time = 0;
 			e->type = RAW_EVENT;
 			e->data2 = c0;
-			c0 = e->data2;
-			e->time = 0;
-			e->type = RAW_EVENT;
-			e->data2 = c0;
 			return(OK);
 			}
 		if(c == ProgramChange) {
 			e->time = 0;
-			e->type = RAW_EVENT;
-			e->data2 = c0;
-			my_sprintf(Message,"%ld",(long)(e->data2) + ProgNrFrom);
-			if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,0,Message);
-			e->time = 0;
-			e->type = RAW_EVENT;
-			my_sprintf(Message,"%ld",(long)((c0 % 16) + 1));
-			if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,1,Message);
-		/*	if(!ScriptExecOn) AppendScript(71); */
+			e->type = TWO_BYTE_EVENT;
 			return(OK);
 			}
 		if(c == ChannelPressure) {
-		/*	e->type = RAW_EVENT;
-			c1 = e->data2; */
 			e->time = 0; 
 			e->type = TWO_BYTE_EVENT;
 			e->status = c;
@@ -552,7 +543,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 		goto STARTCHECK; */
 		}
 //	BPPrintMessage(0,odInfo,"Handling? c0 = %d, c1 = %d, c2 = %d, Interactive = %d\n",c0,c1,c2,Interactive);
-	if(Interactive && (c2 > 0)) {
+	if(Interactive && (c2 > 0 || c == NoteOn)) {
 		if(EndRepeatChan > 0 && c1 == EndRepeatKey && c0 == (NoteOn+EndRepeatChan-1)) {
 			Nplay = 1; SynchroSignal = OFF;
 			ShowMessage(TRUE,wMessage,"Stop repeating!");
@@ -590,7 +581,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			SynchroSignal = PLAYFOREVER;
 			ClearMessage();
 			Print(wMessage,"Play forever! (");
-			PrintNote(-1,EndRepeatKey,EndRepeatChan,wMessage,Message);
+			PrintThisNote(-1,EndRepeatKey,EndRepeatChan,wMessage,Message);
 			Print(wMessage," will stop)");
 			return(OK);
 			}
@@ -601,7 +592,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 			ClearMessage();
 			my_sprintf(Message,"Playing %ld times... (",(long)Nplay);
 			Print(wMessage,Message);
-			PrintNote(-1,EndRepeatKey,EndRepeatChan,wMessage,Message);
+			PrintThisNote(-1,EndRepeatKey,EndRepeatChan,wMessage,Message);
 			Print(wMessage," will stop)");
 			return(OK);
 			}
@@ -627,7 +618,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 				time_now = 0L;
 				}
 			else time_now = getClockTime() - initTime; // microseconds
-	//		if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"Received NoteOn key = %d channel %d date %ld ms, checking %d script(s)\n",c1,channel,time_now / 1000L,Jinscript);
+			if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"@ Received NoteOn key = %d channel %d date %ld ms, checking %d script(s)\n",c1,channel,time_now / 1000L,Jinscript);
 			// Find the next expected NoteOn
 			for(j = 1; j <= Jinscript; j++) {
 				if(((*p_INscript)[j]).chan == -1) { // This is a deactivated instruction
@@ -1510,7 +1501,7 @@ int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch)
     return(-1);
     }
 
-int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,int nseq,int *p_rs,MIDI_Event *p_e) {
+int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds time, int nseq, int *p_rs, MIDI_Event *p_e) {
 	// nseq is useless
 	long count = 12L;
 	int c0,c1,c2,status,channel,result,type,i_scale,note,i_note,keyclass,octave,value,sensitivity,correction,pitchbend_master;
@@ -1531,7 +1522,6 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 	note = ByteToInt(p_e->data1);
 	type = status & 0xF0;
 	value = ByteToInt(p_e->data2);
-//	if(type == ChannelPressure) BPPrintMessage(0,odInfo,"@@@ pressure value = %d\n",value);
 	if(p_e->type == TWO_BYTE_EVENT) p_e->data1 = 0;
 	i_scale = -1;
 	if(type != NoteOn && type != NoteOff) i_scale = blockkey = 0;
@@ -1553,7 +1543,7 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 					if(TraceMicrotonality) {
 						keyclass = modulo(note - 60, 12);
 						octave = 4 + floor((double) (note - 60)  / 12.);
-						PrintNote(-1,note,0,-1,this_key);
+						PrintThisNote(-1,note,0,-1,this_key);
 						BPPrintMessage(0,odInfo,"§ key %d: \"%s\" channel %d\n",note,this_key,(channel+1));
 						}
 					}
@@ -1609,6 +1599,7 @@ int SendToDriver(int kcurrentinstance,int scale,int blockkey,Milliseconds time,i
 					}
 				pitchBendLSB = pitchBendValue & 0x7F; // Lower 7 bits
 				pitchBendMSB = (pitchBendValue >> 7) & 0x7F; // Upper 7 bits
+				pb_event.type = TWO_BYTE_EVENT;
 				pb_event.status = PitchBend + channel;
 				pb_event.data1 = pitchBendLSB;  // Pitch Bend LSB
 				pb_event.data2 = pitchBendMSB;  // Pitch Bend MSB
@@ -1912,7 +1903,7 @@ double calculate_pitchbend_cents(unsigned char lsb, unsigned char msb) {
     return correction_in_cents;
 	}
 
-int GetNote(char* line,int* p_thekey,int* p_channel,int ignorechannel) {
+int GetThisNote(char* line,int* p_thekey,int* p_channel,int ignorechannel) {
 	char *p,*q,line2[MAXLIN];
 	int i,j,pitchclass,octave,l;
 
@@ -1994,7 +1985,7 @@ int GetNote(char* line,int* p_thekey,int* p_channel,int ignorechannel) {
 	}
 
 
-int PrintNote(int i_scale,int key,int channel,int wind,char* line) {
+int PrintThisNote(int i_scale,int key,int channel,int wind,char* line) {
 	// wind is not used
 	int pitchclass, octave;
 	char channelstring[20], jscale;

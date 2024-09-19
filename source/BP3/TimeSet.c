@@ -213,7 +213,7 @@ for(k=ZERO; k < Maxevent; k++) {
 				key = j - 16384;
 				key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
 					&((*p_Instance)[k].map0),&((*p_Instance)[k].map1));
-				PrintNote(-1,key,0,-1,LineBuff);
+				PrintThisNote(-1,key,0,-1,LineBuff);
 				my_sprintf(Message,"(%ld %s chan %ld)",(long)k,
 					LineBuff,(long)ChannelConvert((*p_Instance)[k].channel));
 				}
@@ -229,7 +229,7 @@ for(k=ZERO; k < Maxevent; k++) {
 				key = j - 16384;
 				key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
 					&((*p_Instance)[k].map0),&((*p_Instance)[k].map1));
-				PrintNote(-1,key,0,-1,LineBuff);
+				PrintThisNote(-1,key,0,-1,LineBuff);
 				my_sprintf(Message,"(%ld <<%s>> chan %ld)",(long)k,
 					LineBuff,(long)ChannelConvert((*p_Instance)[k].channel));
 				}
@@ -266,7 +266,7 @@ if(Maxevent < 1000) {
 							key = j - 16384;
 							key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
 								&((*p_Instance)[k].map0),&((*p_Instance)[k].map1));
-							PrintNote(-1,key,0,-1,LineBuff);
+							PrintThisNote(-1,key,0,-1,LineBuff);
 							my_sprintf(Message,"%s ",LineBuff);
 							}
 						}
@@ -287,7 +287,7 @@ if(Maxevent < 1000) {
 							key = j - 16384;
 							key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
 								&((*p_Instance)[k].map0),&((*p_Instance)[k].map1));
-							PrintNote(-1,key,0,-1,LineBuff);
+							PrintThisNote(-1,key,0,-1,LineBuff);
 							my_sprintf(Message,"<<%s>> ",LineBuff);
 							}
 				//		}

@@ -1643,7 +1643,9 @@ for(nseq=nseqmem=0; nseq <= (*p_nmax); nseq++) {
 	k = (*((*p_Seq)[nseq]))[(*p_maxcol)[nseq]];
 	j = (*p_Instance)[k].object;
 //	BPPrintMessage(0,odInfo,"@ nseq = %ld maxcol[nseq] = %ld, k = %d, j = %d\n",nseq,(*p_maxcol)[nseq],k,j);
-	if(j > 0) (*p_maxcol)[nseq]++; // Fixed if(j > 0) 2024-09-17
+	if(j > 0 || (j == 0 && k == 0))
+	// Fixed 2024-09-18 for out-time objects in -gr.koto3 and time-patterns in -gr.tryTimePatterns
+		(*p_maxcol)[nseq]++;
 	ip = (*p_maxcol)[nseq];
 	// if(trace_diagram) BPPrintMessage(0,odInfo,"@ nseq = %ld maxcol[nseq] = %ld\n",nseq,(*p_maxcol)[nseq]);
 	oldnseq = nseq;

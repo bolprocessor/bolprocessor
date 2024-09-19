@@ -234,7 +234,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				if(WaitKeyStrokeOrAppleEvent(thechar,TRUE,KEYBOARDEVENT,0,0,NULL,NULL) != OK) return(MISSED);
 				return(OK);
 				} */
-		/*	if(GetNote(line,&thekey,&channel,FALSE) == OK) {
+		/*	if(GetThisNote(line,&thekey,&channel,FALSE) == OK) {
 				if(check) return(OK);
 				r = WaitForNoteOn(channel,thekey);
 				if(r != ABORT) r = OK;
@@ -1242,7 +1242,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if(wind == wInteraction && DeriveFurtherChan != -1) {
 				Print(wTrace,"'Derive further' is already controlled by ");
-				PrintNote(-1,DeriveFurtherKey,DeriveFurtherChan,wTrace,Message);
+				PrintThisNote(-1,DeriveFurtherKey,DeriveFurtherChan,wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -1255,7 +1255,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if(wind == wInteraction && ResetWeightChan != -1) {
 				Print(wTrace,"'Reset weights' is already controlled by ");
-				PrintNote(-1,ResetWeightKey,ResetWeightChan,wTrace,Message);
+				PrintThisNote(-1,ResetWeightKey,ResetWeightChan,wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -1268,7 +1268,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if(wind == wInteraction && PlayChan != -1) {
 				Print(wTrace,"'Start play' is already controlled by ");
-				PrintNote(-1,PlayKey,PlayChan,wTrace,Message);
+				PrintThisNote(-1,PlayKey,PlayChan,wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -1281,7 +1281,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if(wind == wInteraction && RepeatChan != -1) {
 				Print(wTrace,"'Repeat v times' is already controlled by ");
-				PrintNote(-1,RepeatKey,RepeatChan,wTrace,Message);
+				PrintThisNote(-1,RepeatKey,RepeatChan,wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -1294,7 +1294,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if(wind == wInteraction && EndRepeatChan != -1) {
 				Print(wTrace,"'End repeat' is already controlled by ");
-				PrintNote(-1,EndRepeatKey,EndRepeatChan,wTrace,Message);
+				PrintThisNote(-1,EndRepeatKey,EndRepeatChan,wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -1307,7 +1307,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if(wind == wInteraction && EverChan != -1) {
 				Print(wTrace,"'Repeat forever' is already controlled by ");
-				PrintNote(-1,EverKey,EverChan,wTrace,Message);
+				PrintThisNote(-1,EverKey,EverChan,wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -1320,7 +1320,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if(wind == wInteraction && QuitChan != -1) {
 				Print(wTrace,"'Quit' is already controlled by ");
-				PrintNote(-1,QuitKey,QuitChan,wTrace,Message);
+				PrintThisNote(-1,QuitKey,QuitChan,wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -1333,7 +1333,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if(wind == wInteraction && UseEachSubChan != -1) {
 				Print(wTrace,"'Use each substitution' is already controlled by ");
-				PrintNote(-1,UseEachSubKey,UseEachSubChan,wTrace,Message);
+				PrintThisNote(-1,UseEachSubKey,UseEachSubChan,wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -1384,7 +1384,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if(wind == wInteraction && SetTimeChan != -1) {
 				Print(wTrace,"'Set computation time' is already controlled by ");
-				PrintNote(-1,SetTimeKey,SetTimeChan,wTrace,Message);
+				PrintThisNote(-1,SetTimeKey,SetTimeChan,wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -1397,7 +1397,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if(wind == wInteraction && StriatedChan != -1) {
 				Print(wTrace,"'Smooth/striated time' is already controlled by ");
-				PrintNote(-1,StriatedKey,StriatedChan,wTrace,Message);
+				PrintThisNote(-1,StriatedKey,StriatedChan,wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -1410,7 +1410,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if(wind == wInteraction && NoConstraintChan != -1) {
 				Print(wTrace,"'Use/ignore object constraints' is already controlled by ");
-				PrintNote(-1,NoConstraintKey,NoConstraintChan,wTrace,Message);
+				PrintThisNote(-1,NoConstraintKey,NoConstraintChan,wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -1423,7 +1423,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if(wind == wInteraction && SkipChan != -1) {
 				Print(wTrace,"'Skip next item' is already controlled by ");
-				PrintNote(-1,SkipKey,SkipChan,wTrace,Message);
+				PrintThisNote(-1,SkipKey,SkipChan,wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -1436,7 +1436,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if(wind == wInteraction && AgainChan != -1) {
 				Print(wTrace,"'Play again item' is already controlled by ");
-				PrintNote(-1,AgainKey,AgainChan,wTrace,Message);
+				PrintThisNote(-1,AgainKey,AgainChan,wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -1452,7 +1452,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				my_sprintf(Message,"Synchronisation tag W%ld is already controlled by ",
 					(long)i);
 				Print(wTrace,Message);
-				PrintNote(-1,WaitKey[i],WaitChan[i],wTrace,Message);
+				PrintThisNote(-1,WaitKey[i],WaitChan[i],wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -1483,9 +1483,9 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if(wind == wInteraction && TclockChan != -1) {
 				Print(wTrace,"'Adjust tempo' is already controlled by ");
-				PrintNote(-1,MinTclockKey,TclockChan,wTrace,Message);
+				PrintThisNote(-1,MinTclockKey,TclockChan,wTrace,Message);
 				Print(wTrace," and ");
-				PrintNote(-1,MaxTclockKey,TclockChan,wTrace,Message);
+				PrintThisNote(-1,MaxTclockKey,TclockChan,wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -1996,7 +1996,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if(wind == wInteraction && MuteOnChan != -1) {
 				Print(wTrace,"'Mute ON' is already controlled by ");
-				PrintNote(-1,MuteOnKey,MuteOnChan,wTrace,Message);
+				PrintThisNote(-1,MuteOnKey,MuteOnChan,wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -2013,7 +2013,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if(wind == wInteraction && MuteOffChan != -1) {
 				Print(wTrace,"'Mute OFF' is already controlled by ");
-				PrintNote(-1,MuteOffKey,MuteOffChan,wTrace,Message);
+				PrintThisNote(-1,MuteOffKey,MuteOffChan,wTrace,Message);
 				Print(wTrace,"\n");
 				return(MISSED);
 				}
@@ -2171,7 +2171,7 @@ for(j=0; j < ScriptNrArg(k); j++) {
 		continue;
 		}
 	if(strcmp(line,"note") == 0) {
-		if(GetNote(&((*p_args)[i]),&n,&ii,TRUE) != OK) {
+		if(GetThisNote(&((*p_args)[i]),&n,&ii,TRUE) != OK) {
 			my_sprintf(Message,"\n=> Incorrect note. (May be wrong note convention)\n");
 			Print(wTrace,Message);
 			goto QUIT;
@@ -2459,7 +2459,7 @@ if(p_keyon == NULL) { // 2024-06-18
 // BPPrintMessage(0,odInfo,"Script key = %d chan = %d, on = %d\n",key,chan,(int)(*p_keyon[chan])[key]);
 if((*p_keyon[chan])[key]) {
 	Print(wTrace,"Key '");
-	PrintNote(-1,key,chan,wTrace,Message);
+	PrintThisNote(-1,key,chan,wTrace,Message);
 	Print(wTrace,"' is already used.\n");
 	return(MISSED);
 	}

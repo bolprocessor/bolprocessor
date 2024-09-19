@@ -262,7 +262,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 		if(strlen(note_names) > 0) BPPrintMessage(0,odInfo,"\nNames of the %d notes in this scale: %s",numnotes,note_names);
 		BPPrintMessage(0,odInfo,"\nWith 'interval' = %.3f, 'basefreq' = %.3f Hz, 'basekey' = %d and 'baseoctave' = %d\n",(*Scale)[i_scale].interval,(*Scale)[i_scale].basefreq,(*Scale)[i_scale].basekey,(*Scale)[i_scale].baseoctave);
 		BPPrintMessage(0,odInfo,"A4 frequency of a tempered scale with the same 'basefreq' and 'interval' would be %.3f Hz\n",blockkey_temp_freq);
-		PrintNote(-1,DefaultBlockKey,-1,-1,Message);
+		PrintThisNote(-1,DefaultBlockKey,-1,-1,Message);
 		BPPrintMessage(0,odInfo,"Frequency will be blocked for the base note key #%d = ‘%s’, but this may be changed in performance controls: \"_scale(some_scale, blockkey)\"\n",DefaultBlockKey,Message);
 		}
 	return(OK);
