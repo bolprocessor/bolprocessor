@@ -7,11 +7,13 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 
-2024-09-18 and 19 (version 3.0.10)
+2024-09-18 -> 2024-09-21 (version 3.0.10)
 Fixed (old) bug with locating out-of-time objects.
 A clean warning if the settings file is empty (because it hasn't been saved).
 Fixed errors handling 2-byte input events. Channel pressure (aftertouch) can now be caught by _capture().
 Fixed NoteOff ≠ NoteOn in MacOS, Windows, Linux.
+Fixed e.type = NORMAL_EVENT in MakeSound.c
+Updated BP3_help.txt.
 
 -----
 2024-09-16 (version 3.0.9)
