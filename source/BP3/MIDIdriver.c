@@ -1424,6 +1424,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
         long clocktime = (getClockTime() - initTime - TimeStopped) / 1000L - MIDIsetUpTime; // milliseconds
         clocktime = (int)((float)clocktime / Quantization + 0.5) * Quantization;
         clocktime = (int)((float)clocktime / Time_res + 0.5) * Time_res;
+        clocktime -= ClockInitCapture;
     //    if(trace_capture) BPPrintMessage(0,odInfo,"@ kcurrentinstance = %d, CaptureSource = %d, data %d %d %d\n",kcurrentinstance,CaptureSource,midiData[0],midiData[1],midiData[2]);
         if(kcurrentinstance >= 0) { // Fixed >= 2024-09-17
             if(kcurrentinstance > 0) capture = (*p_Instance)[kcurrentinstance].capture;
@@ -1466,6 +1467,15 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
                 }
             }
         if(!pb2_done && !note2_done && !ctrl2_done && !press2_done && CaptureSource > 0) {
+            if(ClockInitCapture == 0) {
+                ClockInitCapture = clocktime;
+                clocktime = 0;
+                }
+            if(FirstNoteIn && (status == NoteOn || status == NoteOff)) {
+                FirstNoteIn = FALSE;
+                ClockInitCapture += clocktime;
+                clocktime = 0;
+                }
             if(!MIDImicrotonality && channel == 0) {
                 channel = 1; midiData[0]++;
                 }

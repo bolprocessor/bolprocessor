@@ -80,7 +80,7 @@ ComputeOn++;
 if(Panic) return ABORT;
 
 SaidTooComplex = ShownBufferSize = FALSE;
-if(1 || ResetControllers) {
+if(ResetControllers) {
 	for(ch=0; ch < MAXCHAN; ch++) {
 		(*p_Oldvalue)[ch].volume = -1;
 		(*p_Oldvalue)[ch].panoramic = -1;

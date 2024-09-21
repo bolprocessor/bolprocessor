@@ -1071,9 +1071,9 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 			return ABORT;
 			}
 		if(rtMIDI) {
-			WaitABit(100L); // 100 ms
+		/*	WaitABit(100L); // 100 ms
 			if(ResetNotes) AllNotesOffPedalsOffAllChannels();
-			WaitABit(100L); // 100 ms
+			WaitABit(100L); // 100 ms */
 			if((r = MIDIflush(0)) != OK) return r;
 			Notify("Real-time MIDI started",0);
 			}

@@ -338,6 +338,8 @@ int Inits(void) {
 	pp_CsoundScore = NULL;
 	p_CsoundTables = NULL;
 	MaxCsoundTables = 0;
+	ClockInitCapture = 0;
+	FirstNoteIn = TRUE;
 	PointCsound = PointMIDI = FALSE;
 	CsFileName[0] = MIDIfileName[0] = CsoundOrchestraName[0] = '\0';
 	EndFadeOut = 2.;
