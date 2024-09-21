@@ -992,7 +992,7 @@ TRYCSFILE:
 					lsb = ((long)modulation) % 128;
 					msb = (((long)modulation) - lsb) >> 7;
 					if(!cswrite) {
-				//		BPPrintMessage(0,odInfo,"Sending modulation = %d\n",modulation);
+		//				BPPrintMessage(0,odInfo,"Sending modulation = %d\n",modulation);
 						e.time = Tcurr;
 						e.type = NORMAL_EVENT;
 						e.status = ControlChange + chan;

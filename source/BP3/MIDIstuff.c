@@ -293,7 +293,7 @@ int MaybeWait(unsigned long current_time) {
 		if((result = stop(1,"Waiting loop")) != OK) return result;
 		WaitABit(5); // milliseconds
 		i++;
-		if(i == 100L && ResetNotes) AllNotesOffPedalsOffAllChannels();
+		if(i == 100L && ResetNotes && CapturePtr == NULL) AllNotesOffPedalsOffAllChannels();
 		}
 	TimeStopped += (getClockTime() - time_now);
 	if((TimeStopped / 10000L) != (Oldtimestopped / 10000L)) {
