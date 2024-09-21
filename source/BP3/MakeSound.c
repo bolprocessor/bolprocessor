@@ -499,6 +499,7 @@ if(!cswrite && rtMIDI && A4freq != 440) {
 		cents += 100;    // Adjust cents to be positive within this lower semitone
 		}
 	if(semitones != 0) BPPrintMessage(0,odInfo,"... which means %d semitone(s) lower, then up +%d cents\n",(-semitones),(int)cents);
+	e.type = NORMAL_EVENT;
 	for(chan = 0; chan < MAXCHAN; chan++) {
 		e.status = ControlChange + chan;
 		e.data1 = 101;  // RPN MSB
@@ -507,14 +508,14 @@ if(!cswrite && rtMIDI && A4freq != 440) {
 		e.data1 = 100;  // RPN LSB
 		e.data2 = 2;    // Set to 2 for A4 tuning
 		SendToDriver(0,0,0,time,0,&rs,&e);
-		// Set A4 Tuning to 442 Hz (approximately +8 cents)
+		// Set A4 tuning
 		e.data1 = 6;    // Data Entry MSB
 		e.data2 = (semitones >= 0) ? semitones : (127 + semitones + 1);    // 0 semitones
 		SendToDriver(0,0,0,time,0,&rs,&e);
 		e.data1 = 38;   // Data Entry LSB
 		e.data2 = (int) cents;
 		SendToDriver(0,0,0,time,0,&rs,&e);
-		// time += 10;
+//		time += 10;
 		}
 	}
 
@@ -552,7 +553,7 @@ if(FALSE && !cswrite && MIDImicrotonality && rtMIDI) {
 	}
 
 if(FALSE && !cswrite && MIDImicrotonality && rtMIDI) {
-	// Not sure this is necessary. It creates unwanted noisies when improvising -gr.Mozart
+	// Not sure this is necessary. It creates unwanted noises when improvising -gr.Mozart
 	time += 10;
 	// Set PitchBend sensitivity to ± 2 semitones on all member channels
 	BPPrintMessage(0,odInfo,"👉 Setting pitchbend sensitivity to ± 2 semitones on channels 2-16\n");

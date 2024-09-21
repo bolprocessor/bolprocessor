@@ -1032,10 +1032,12 @@ void closeMIDISystem() {
                                 case NoteOff:
                                 case ControlChange:
                                 case PitchBend:
+                                    e.type = NORMAL_EVENT;
                                     length = 3;
                                     break;
                                 case ProgramChange:
                                 case ChannelPressure:
+                                    e.type = TWO_BYTE_EVENT;
                                     length = 2;
                                     break;
                                 }

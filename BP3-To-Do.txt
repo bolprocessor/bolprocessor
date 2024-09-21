@@ -175,6 +175,7 @@ Compilation
 Various errors
 --------------
 - Check why CorrectionFactor = 1.059 in -gr.koto3. (Line 1679 in FillPhaseDiagram) Probably when an out-time object falls at the end of a sequence.
+- Check that scripts can be attached to out-time objects
 
 
 Cleaning up the code

@@ -60,6 +60,7 @@ select any word or group of words you need information about.
 • BP3 responds to input MIDI messages.  See "Interactive mode" and https://bolprocessor.org/real-time-midi/
 ### Interactive mode
 Read https://bolprocessor.org/real-time-midi/
+This is the real-time MIDI mode when a MIDI device is connected to an input.
 In this mode, BP3 is able to respond in real time to MIDI messages that are assigned certain tasks.
 • For instance, instruction (not yet implemented)
         Control parameter K1 = #7 channel 16
@@ -468,6 +469,9 @@ When checked, BP3 will use the quantization setting (in milliseconds) to simplif
     tables containing "sound-object" structures (the phase diagram, see manual).
 • The result is a saving of memory space and "computation" time making it possible to
     compute very complex items.
+### _capture(x) [Performance control]
+In real-time MIDI, if Interactive mode is on, _capture(x) sets the machine to record incoming MIDI events and store them in a "capture" file. Parameter 'x' (range 1 to 127) is an arbitrary flag indicating the source. The command _capture(0) ends the capture.
+Read explanations: https://bolprocessor.org/capture-midi-input/
 ### _script(scriptline) [Performance control]
 The script line will be executed at "performance time".
 ### _scale(name,blockkey) [Performance control]
