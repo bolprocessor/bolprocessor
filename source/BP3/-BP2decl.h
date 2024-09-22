@@ -283,7 +283,7 @@ extern Rect NoteScaleRect,PictRect[MAXPICT];
 extern int Npicture,Offscreen;
 extern int PictureWindow[MAXPICT];
 extern int Charstep,UndoFlag;
-extern int ClockInitCapture, FirstNoteIn;
+extern long ClockInitCapture;
 extern char LineBuff[MAXLIN];
 extern char MIDIinputname[MAXPORTS][MAXNAME],MIDIoutputname[MAXPORTS][MAXNAME],OutputMIDIportComment[MAXPORTS][MAXNAME],InputMIDIportComment[MAXPORTS][MAXNAME];
 extern int MIDIinput[MAXPORTS], MIDIoutput[MAXPORTS];

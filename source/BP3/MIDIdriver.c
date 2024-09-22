@@ -1394,14 +1394,6 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
                     midiData2[2] = pitchBendMSB;  // Pitch Bend MSB
           //        BPPrintMessage(0,odInfo,"• pitchBendValue channel %d: %d = %d %d %d\n",channel,pitchBendValue,(int)midiData2[0],(int)midiData2[1],(int)midiData2[2]);
                     sendMIDIEvent(kcurrentinstance,0,OUT,0,midiData2,3,time);
-        /*            if(CaptureSource > 0 && CapturePtr != NULL) { 
-                        time_now = getClockTime() ;
-                        long clocktime = (getClockTime() - initTime - TimeStopped) / 1000L - MIDIsetUpTime; // milliseconds
-                        clocktime = (int)((float)clocktime / Quantization + 0.5) * Quantization;
-                        clocktime = (int)((float)clocktime / Time_res + 0.5) * Time_res;
-                        fprintf(CapturePtr, "%ld\t\tpitchbend\t%d\t%d\t%d\t%d\t%d\t%d\t%d\tpitch3\n",clocktime,dataSize,CaptureSource,(int)midiData2[0],(int)midiData2[1],(int)midiData2[2],(channel + 1),correction);
-                        TimeStopped += getClockTime() - time_now;
-                        } */
                     }
                 }
             else {
@@ -1415,18 +1407,24 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
             }
         }
     if(NumEventsWritten < LONG_MAX) NumEventsWritten++;
-
     if(CapturePtr != NULL) {
         note2_done = ctrl2_done = pb2_done = press2_done = FALSE;
         status = midiData[0] & 0xF0;
         channel = midiData[0] & 0x0F;
         time_now = getClockTime() ;
         long clocktime = (getClockTime() - initTime - TimeStopped) / 1000L - MIDIsetUpTime; // milliseconds
-        clocktime = (int)((float)clocktime / Quantization + 0.5) * Quantization;
-        clocktime = (int)((float)clocktime / Time_res + 0.5) * Time_res;
-        clocktime -= ClockInitCapture;
-    //    if(trace_capture) BPPrintMessage(0,odInfo,"@ kcurrentinstance = %d, CaptureSource = %d, data %d %d %d\n",kcurrentinstance,CaptureSource,midiData[0],midiData[1],midiData[2]);
-        if(kcurrentinstance >= 0) { // Fixed >= 2024-09-17
+        clocktime = (long)((float)clocktime / Quantization + 0.5) * Quantization;
+        clocktime = (long)((float)clocktime / Time_res + 0.5) * Time_res;
+        if(ClockInitCapture < 0L) {
+            if(kcurrentinstance >= 0 && (status == NoteOn || status == NoteOff)) {
+                ClockInitCapture = clocktime;
+                BPPrintMessage(0,odInfo,"clocktime = %ld\n",clocktime);
+                }
+            clocktime = 0;
+            }
+        else clocktime -= ClockInitCapture;
+    //    if(trace_capture) BPPrintMessage(0,odInfo,"@ kcurrentinstance = %d, CaptureSource = %d, ClockInitCapture = %d, data %d %d %d\n",kcurrentinstance,CaptureSource,ClockInitCapture,midiData[0],midiData[1],midiData[2]);
+        if(kcurrentinstance >= 0) { 
             if(kcurrentinstance > 0) capture = (*p_Instance)[kcurrentinstance].capture;
             else capture = CaptureSource;
             if(trace_capture) BPPrintMessage(0,odInfo,"👉👉 kcurrentinstance = %d, CaptureSource = %d, capture = %d, %d %d %d\n",kcurrentinstance,CaptureSource,capture,midiData[0],midiData[1],midiData[2]);
@@ -1467,15 +1465,6 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
                 }
             }
         if(!pb2_done && !note2_done && !ctrl2_done && !press2_done && CaptureSource > 0) {
-            if(ClockInitCapture == 0) {
-                ClockInitCapture = clocktime;
-                clocktime = 0;
-                }
-            if(FirstNoteIn && (status == NoteOn || status == NoteOff)) {
-                FirstNoteIn = FALSE;
-                ClockInitCapture += clocktime;
-                clocktime = 0;
-                }
             if(!MIDImicrotonality && channel == 0) {
                 channel = 1; midiData[0]++;
                 }
@@ -1496,7 +1485,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
                 fprintf(CapturePtr, "%ld\t\tControl\t%d\t%d\t%d\t%d\t%d\t%d\t0\tctrl1\n",clocktime,dataSize,CaptureSource,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1));
                 }
             }
-        TimeStopped += getClockTime() - time_now;
+        TimeStopped += (getClockTime() - time_now);
         }
 
     #if defined(__APPLE__)

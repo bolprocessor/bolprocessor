@@ -421,8 +421,9 @@ int stop(int now,char* where) {
 		my_sprintf(Message,"Found 'stop' file (during “%s”): %s\n",where,StopfileName);
         Notify(Message,0);
         strcpy(Message,"");
-		my_fclose(ptr);
 		Panic = EmergencyExit = TRUE;
+		my_fclose(ptr);
+		my_fclose(CapturePtr);
 		return ABORT;
 		}
     if(strlen(PanicfileName) == 0) return OK;
@@ -433,6 +434,7 @@ int stop(int now,char* where) {
 		my_fclose(ptr);
 		Panic = EmergencyExit = TRUE;
         my_fclose(ptr);
+		my_fclose(CapturePtr);
 		return ABORT;
 		}
 	return OK;
