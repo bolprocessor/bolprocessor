@@ -322,7 +322,7 @@ Rect NoteScaleRect,PictRect[MAXPICT];
 int Npicture,Offscreen;
 int PictureWindow[MAXPICT];
 int Charstep,UndoFlag;
-int ClockInitCapture, FirstNoteIn;
+long ClockInitCapture;
 char LineBuff[MAXLIN];
 char MIDIinputname[MAXPORTS][MAXNAME],MIDIoutputname[MAXPORTS][MAXNAME],OutputMIDIportComment[MAXPORTS][MAXNAME],InputMIDIportComment[MAXPORTS][MAXNAME];
 int MIDIinput[MAXPORTS], MIDIoutput[MAXPORTS]; // In Linux, these are 'clients'. Otherwise, 'ports'.
