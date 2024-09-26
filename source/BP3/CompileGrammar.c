@@ -641,118 +641,117 @@ return(OK);
 }
 
 
-int CheckGotoFailed(void)
-{
-int i,igram,irul,ig,ir,newig,newir;
+int CheckGotoFailed(void) {
+	int i,igram,irul,ig,ir,newig,newir;
 
-for(igram=1; igram <= Gram.number_gram; igram++) {
-	for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
-		if((*((*(Gram.p_subgram))[igram].p_rule))[irul].repeat > 0) {
-			if((i=(*(Gram.p_subgram))[igram].type) == SUBtype ||
-					i == SUB1type || i == POSLONGtype) {
-				my_sprintf(Message,
-					"=> gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
-					(long)igram,*((*p_GramProcedure)[2]));
-				N_err++;
-				Print(wTrace,Message);
-				}
-			}
-		if((newig=ig=(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotogram) > 0) {
-			newir = ir = (*((*(Gram.p_subgram))[igram].p_rule))[irul].gotorule;
-			NewIndex(&newig,&newir);
-			if((i=(*(Gram.p_subgram))[igram].type) == SUBtype ||
-					i == SUB1type || i == POSLONGtype) {
-				my_sprintf(Message,
-					"=> gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
-					(long)igram,*((*p_GramProcedure)[0]));
-				N_err++;
-				Print(wTrace,Message);
-				UpdateProcedureIndex(0,igram,irul,newig,newir,1);
-				continue;
-				}
-			if(newig != ig || newir != ir) {
-				(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotogram = newig;
-				(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotorule = newir;
-				UpdateProcedureIndex(0,igram,irul,newig,newir,0);
-				}
-			if(newig > Gram.number_gram) {
-				my_sprintf(Message,"gram#%ld[%ld] has incorrect grammar index in '%s'\n",
-					(long)igram,(long)irul,*((*p_GramProcedure)[0]));
-				N_err++;
-				Print(wTrace,Message);
-				UpdateProcedureIndex(0,igram,irul,newig,newir,1);
-				}
-			else {
-				if(((i=(*(Gram.p_subgram))[newig].type) == SUBtype ||
-					i == SUB1type || i == POSLONGtype) && newir > 0) {
+	for(igram=1; igram <= Gram.number_gram; igram++) {
+		for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
+			if((*((*(Gram.p_subgram))[igram].p_rule))[irul].repeat > 0) {
+				if((i=(*(Gram.p_subgram))[igram].type) == SUBtype ||
+						i == SUB1type || i == POSLONGtype) {
 					my_sprintf(Message,
-						"gram#%ld[%ld] contains '%s' addressing rule in 'SUB' or 'SUB1' or 'POSLONG' subgrammar.\n",
+						"=> gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
+						(long)igram,*((*p_GramProcedure)[2]));
+					N_err++;
+					Print(wTrace,Message);
+					}
+				}
+			if((newig=ig=(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotogram) > 0) {
+				newir = ir = (*((*(Gram.p_subgram))[igram].p_rule))[irul].gotorule;
+				NewIndex(&newig,&newir);
+				if((i=(*(Gram.p_subgram))[igram].type) == SUBtype ||
+						i == SUB1type || i == POSLONGtype) {
+					my_sprintf(Message,
+						"=> gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
+						(long)igram,*((*p_GramProcedure)[0]));
+					N_err++;
+					Print(wTrace,Message);
+					UpdateProcedureIndex(0,igram,irul,newig,newir,1);
+					continue;
+					}
+				if(newig != ig || newir != ir) {
+					(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotogram = newig;
+					(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotorule = newir;
+					UpdateProcedureIndex(0,igram,irul,newig,newir,0);
+					}
+				if(newig > Gram.number_gram) {
+					my_sprintf(Message,"gram#%ld[%ld] has incorrect grammar index in '%s'\n",
 						(long)igram,(long)irul,*((*p_GramProcedure)[0]));
 					N_err++;
 					Print(wTrace,Message);
 					UpdateProcedureIndex(0,igram,irul,newig,newir,1);
 					}
 				else {
-					if(newir > (*(Gram.p_subgram))[newig].number_rule) {
-						my_sprintf(Message,"gram#%ld[%ld] has incorrect rule index in '%s'\n",
+					if(((i=(*(Gram.p_subgram))[newig].type) == SUBtype ||
+						i == SUB1type || i == POSLONGtype) && newir > 0) {
+						my_sprintf(Message,
+							"gram#%ld[%ld] contains '%s' addressing rule in 'SUB' or 'SUB1' or 'POSLONG' subgrammar.\n",
 							(long)igram,(long)irul,*((*p_GramProcedure)[0]));
 						N_err++;
 						Print(wTrace,Message);
-						UpdateProcedureIndex(0,igram,irul,newig,newir,2);
+						UpdateProcedureIndex(0,igram,irul,newig,newir,1);
+						}
+					else {
+						if(newir > (*(Gram.p_subgram))[newig].number_rule) {
+							my_sprintf(Message,"gram#%ld[%ld] has incorrect rule index in '%s'\n",
+								(long)igram,(long)irul,*((*p_GramProcedure)[0]));
+							N_err++;
+							Print(wTrace,Message);
+							UpdateProcedureIndex(0,igram,irul,newig,newir,2);
+							}
 						}
 					}
 				}
-			}
-		if((newig=ig=(*((*(Gram.p_subgram))[igram].p_rule))[irul].failedgram) > 0) {
-			newir = ir = (*((*(Gram.p_subgram))[igram].p_rule))[irul].failedrule;
-			NewIndex(&newig,&newir);
-			if((i=(*(Gram.p_subgram))[igram].type) == SUBtype ||
-					i == SUB1type || i == POSLONGtype) {
-				my_sprintf(Message,
-					"=> gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
-					(long)igram,*((*p_GramProcedure)[1]));
-				N_err++;
-				Print(wTrace,Message);
-				UpdateProcedureIndex(1,igram,irul,newig,newir,1);
-				continue;
-				}
-			if(newig != ig || newir != ir) {
-				(*((*(Gram.p_subgram))[igram].p_rule))[irul].failedgram = newig;
-				(*((*(Gram.p_subgram))[igram].p_rule))[irul].failedrule = newir;
-				UpdateProcedureIndex(1,igram,irul,newig,newir,0);
-				}
-			if(newig > Gram.number_gram) {
-				my_sprintf(Message,"gram#%ld[%ld] has incorrect grammar index in '%s'\n",
-					(long)igram,(long)irul,*((*p_GramProcedure)[1]));
-				N_err++;
-				Print(wTrace,Message);
-				UpdateProcedureIndex(1,igram,irul,newig,newir,1);
-				}
-			else {
-				if(((i=(*(Gram.p_subgram))[newig].type) == SUBtype ||
-						i == SUB1type || i == POSLONGtype) && newir > 0) {
+			if((newig=ig=(*((*(Gram.p_subgram))[igram].p_rule))[irul].failedgram) > 0) {
+				newir = ir = (*((*(Gram.p_subgram))[igram].p_rule))[irul].failedrule;
+				NewIndex(&newig,&newir);
+				if((i=(*(Gram.p_subgram))[igram].type) == SUBtype ||
+						i == SUB1type || i == POSLONGtype) {
 					my_sprintf(Message,
-						"gram#%ld[%ld] contains '%s' addressing rule in 'SUB' or 'SUB1' or 'POSLONG' subgrammar.\n",
+						"=> gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
+						(long)igram,*((*p_GramProcedure)[1]));
+					N_err++;
+					Print(wTrace,Message);
+					UpdateProcedureIndex(1,igram,irul,newig,newir,1);
+					continue;
+					}
+				if(newig != ig || newir != ir) {
+					(*((*(Gram.p_subgram))[igram].p_rule))[irul].failedgram = newig;
+					(*((*(Gram.p_subgram))[igram].p_rule))[irul].failedrule = newir;
+					UpdateProcedureIndex(1,igram,irul,newig,newir,0);
+					}
+				if(newig > Gram.number_gram) {
+					my_sprintf(Message,"gram#%ld[%ld] has incorrect grammar index in '%s'\n",
 						(long)igram,(long)irul,*((*p_GramProcedure)[1]));
 					N_err++;
 					Print(wTrace,Message);
 					UpdateProcedureIndex(1,igram,irul,newig,newir,1);
 					}
 				else {
-					if(newir > (*(Gram.p_subgram))[newig].number_rule) {
-						my_sprintf(Message,"gram#%ld[%ld] has incorrect rule index in '%s'\n",
+					if(((i=(*(Gram.p_subgram))[newig].type) == SUBtype ||
+							i == SUB1type || i == POSLONGtype) && newir > 0) {
+						my_sprintf(Message,
+							"gram#%ld[%ld] contains '%s' addressing rule in 'SUB' or 'SUB1' or 'POSLONG' subgrammar.\n",
 							(long)igram,(long)irul,*((*p_GramProcedure)[1]));
 						N_err++;
 						Print(wTrace,Message);
-						UpdateProcedureIndex(1,igram,irul,newig,newir,2);
+						UpdateProcedureIndex(1,igram,irul,newig,newir,1);
+						}
+					else {
+						if(newir > (*(Gram.p_subgram))[newig].number_rule) {
+							my_sprintf(Message,"gram#%ld[%ld] has incorrect rule index in '%s'\n",
+								(long)igram,(long)irul,*((*p_GramProcedure)[1]));
+							N_err++;
+							Print(wTrace,Message);
+							UpdateProcedureIndex(1,igram,irul,newig,newir,2);
+							}
 						}
 					}
 				}
 			}
 		}
+	return(OK);
 	}
-return(OK);
-}
 
 
 int UpdateProcedureIndex(int jproc,int igram,int irul,int ig,int ir,int mode)

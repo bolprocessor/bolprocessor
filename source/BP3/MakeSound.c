@@ -100,10 +100,7 @@ if(CompileRegressions() != OK) return(ABORT);
 
 showpianoroll = ShowPianoRoll;
 if(ConvertMIDItoCsound || ItemCapture) showpianoroll = FALSE;
-if(showpianoroll) {
-	BPPrintMessage(0,odInfo,"Showing piano roll\n");
-//	CreateImageFile(-1.);
-	}
+if(FALSE && showpianoroll) BPPrintMessage(0,odInfo,"Showing piano roll\n");
 
 cswrite = FALSE;
 if(((OutCsound && (FileWriteMode == NOW || !rtMIDI))

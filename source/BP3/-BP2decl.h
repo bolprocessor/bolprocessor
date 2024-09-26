@@ -233,6 +233,7 @@ extern short Maxlevel,MaxFlag,MaxScript,PlayFromInsertionPoint,
 	KeepFlag,CoverOK,DiscontinuityOK,AllSolTimeSet,
 	LimCompute,LimTimeSet,SkipFlag,StackFlag,Port,Portbit,
 	MIDI;
+extern int MaxItemsDisplay;
 extern int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,TraceMicrotonality,DisplayProduce,UseTimeLimit,
 	DisplayTimeSet,StepTimeSet,TraceProduce,UseEachSub,PlanProduce,TraceTimeSet,ResetNotes;
 extern int InsertGramRuleNumbers, InsertGramCorrections, InsertNewBols;
@@ -284,6 +285,7 @@ extern int Npicture,Offscreen;
 extern int PictureWindow[MAXPICT];
 extern int Charstep,UndoFlag;
 extern long ClockInitCapture;
+extern long NumberCharsTrace, NumberCharsData, NumberInferences;
 extern char LineBuff[MAXLIN];
 extern char MIDIinputname[MAXPORTS][MAXNAME],MIDIoutputname[MAXPORTS][MAXNAME],OutputMIDIportComment[MAXPORTS][MAXNAME],InputMIDIportComment[MAXPORTS][MAXNAME];
 extern int MIDIinput[MAXPORTS], MIDIoutput[MAXPORTS];

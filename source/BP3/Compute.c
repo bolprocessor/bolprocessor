@@ -51,6 +51,7 @@ unsigned long ix;
 
 ReleaseProduceStackSpace();
 MaxDeriv = MAXDERIV;
+NumberInferences = 0L;
 
 if(MakeComputeSpace(MaxDeriv) != OK) return(ABORT);
 displayproducemem = DisplayProduce;
@@ -147,7 +148,6 @@ if(r == OK) {
 // HideWindow(Window[wMessage]);
 if(DisplayProduce != displayproducemem) {
 	DisplayProduce = displayproducemem;
-	
 	}
 if(Beta && NeedZouleb != 0) {
 	my_sprintf(Message,"NeedZouleb = %ld after Compute(). Should be 0",(long)NeedZouleb);
@@ -173,8 +173,6 @@ long i,position,firstposition,**p_origin,**p_pos,leftpos,lastpos,pos1,incmark,
 unsigned long datemem,time;
 tokenbyte ***pp_b,**p_b,**p_c,***pp_c,instan[MAXLIN],meta[MAXMETA2];
 t_subgram subgram;
-
-PleaseWait();
 
 if(p_gram == NULL) {
 	Alert1("=> Err. in ComputeInGram(). p_gram == NULL");
@@ -214,12 +212,11 @@ rep = MISSED;
 	}
 else { */
 	if(DisplayProduce || (ShowMessages && (*p_gram).number_gram > 1)) {
-		my_sprintf(Message,"Subgrammar %ld/%ld\n",(long)igram,(long)(*p_gram).number_gram);
+		my_sprintf(Message,"• Subgrammar %ld/%ld\n",(long)igram,(long)(*p_gram).number_gram);
 		BPPrintMessage(0,odInfo,Message);
-	//	ShowMessage(TRUE,wMessage,Message);
-		if(DisplayProduce && !ScriptExecOn) {
-	//		Print(wTrace,"\n// "); Println(wTrace,Message);
-			}
+/*		if(DisplayProduce && !ScriptExecOn) {
+			Print(wTrace,"\n// "); Println(wTrace,Message);
+			} */
 		}
 //	}
 if((*p_repeat) && (ProduceStackIndex >= ProduceStackDepth)) {
@@ -505,12 +502,15 @@ TRY3:	(*p_length) = LengthOf(pp_a);	/* was changed by FindArg() */
 		}
 	rule = (*(subgram.p_rule))[irul];	/* Added 24/11/97 */
 	if(TraceProduce) {
-		if(ProduceStackIndex >= 0)
-			my_sprintf(Message,"\n[Step #%ld] Selected: ",(long)ProduceStackIndex + 1);
-		else
-			my_sprintf(Message,"\nSelected: ");
-		Print(wTrace,Message);
-		ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,TRUE,TRUE);
+		 if(NumberCharsTrace < MAXCHARTRACE) {
+			if(ProduceStackIndex >= 0)
+				my_sprintf(Message,"\n[Step #%ld] Selected: ",(long)ProduceStackIndex + 1);
+			else
+				my_sprintf(Message,"\nSelected: ");
+			Print(wTrace,Message);
+			ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,TRUE,TRUE);
+			NumberCharsTrace += strlen(Message);
+			}
 		}
 	if(grtype == SUBtype) {
 		(*p_pos)[j] = leftpos;
@@ -760,7 +760,7 @@ MORE:
 if(nb_candidates == ABORT || nb_candidates == EXIT || nb_candidates == FINISH
 		|| nb_candidates == STOP) {
 	rep = nb_candidates;
-	if(rep == ABORT) {
+	if(rep == ABORT && !Panic) {
 		BPPrintMessage(0,odError,"=> Error finding nb_candidates in Compute.c\n");
 		}
 	goto QUIT;
@@ -775,16 +775,25 @@ if(grtype == SUBtype) {
 		datamode = DisplayMode(pp_b,&ifunc,&hastabs);
 		long length = LengthOf(pp_b);
 	//	BPPrintMessage(0,odError,"Subst ItemNumber = %d length = %ld datamode = %d hastabs = %d ifunc = %d\n",ItemNumber,length,datamode,hastabs,ifunc);
-		if((rep=PrintResult(datamode && hastabs,wTrace,hastabs,ifunc,pp_b)) != OK) {
-			BPPrintMessage(0,odError,"=> Error calling PrintResult(1) in Compute.c\n");
-			goto QUIT;
+		if(TraceProduce) {
+			if(NumberCharsTrace < MAXCHARTRACE) {
+				if((rep=PrintResult(datamode && hastabs,wTrace,hastabs,ifunc,pp_b)) != OK) {
+					BPPrintMessage(0,odError,"=> Error calling PrintResult(1) in Compute.c\n");
+					goto QUIT;
+					}
+				Print(wTrace,"\n");
+				NumberCharsTrace += 20;
+				}
 			}
-		if((rep=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_b)) != OK) {
-			BPPrintMessage(0,odError,"=> Error calling PrintResult(2) in Compute.c\n");
-			goto QUIT;
+		if(NumberCharsData < MAXCHARDATA) {
+			if((rep=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_b)) != OK) {
+				BPPrintMessage(0,odError,"=> Error calling PrintResult(2) in Compute.c\n");
+				goto QUIT;
+				}
+			Print(OutputWindow,"\n");
+			NumberCharsData += 20;
 			}
-		Print(wTrace,"\n");
-		if(length > 0) BPPrintMessage(0,odError,"\n");  // odError to force printing if Improvize
+	//	if(length > 0) BPPrintMessage(1,odInfo,"\n");
 		}
 	if(!halt && (leftpos = NextPos(pp_a,pp_b,&lastpos,&incmark,leftpos,1)) > -1L) {
 		/* Skip next symbol and retry */
@@ -804,12 +813,15 @@ if(grtype == SUBtype) {
 			datamode = DisplayMode(pp_a,&ifunc,&hastabs);
 		//	BPPrintMessage(0,odInfo,"OutputWindow\n");
 		//	BPPrintMessage(0,odError,"ItemNumber = %d datamode = %d hastabs = %d ifunc = %d\n",ItemNumber,datamode,hastabs,ifunc);
-			if((rep=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) {
-				BPPrintMessage(0,odError,"=> Error calling PrintResult(3) in Compute.c\n");
-				goto QUIT;
+			if(NumberCharsData < MAXCHARDATA) {
+				if((rep=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) {
+					BPPrintMessage(0,odError,"=> Error calling PrintResult(3) in Compute.c\n");
+					goto QUIT;
+					}
+			//	Print(OutputWindow,"\n");
+				NumberCharsData += 20;
 				}
-		//	Print(OutputWindow,"\n");
-			BPPrintMessage(0,odError,"\n");  // odError to force printing if Improvize
+		//	BPPrintMessage(0,odError,"@\n");  // odError to force printing if Improvize
 			}
 		if(!SkipFlag) {
 			if((p_c = (tokenbyte**)
@@ -867,8 +879,11 @@ if(grtype == SUBtype) {
 				p_pos,p_prefrule,leftpos,&maxpref,&freedom,*p_repeat,
 				mode,&equalweight,learn,time_end_compute)) > 0) {
 		if(TraceProduce || trace_compute) {
-			my_sprintf(Message,"Trying same grammar for new rules\n");
-			Print(wTrace,Message);
+			if(NumberCharsTrace < MAXCHARTRACE) {
+				my_sprintf(Message,"Trying same grammar for new rules\n");
+				Print(wTrace,Message);
+				NumberCharsTrace += strlen(Message);
+				}
 			}
 		lastpos = leftpos = ZERO; maxpref = incmark = 0;
 		goto RETRY;
@@ -1696,6 +1711,12 @@ unsigned long i,i1;
 long pos1,offset,dif,inmark;
 t_rule rule;
 
+if(NumberInferences > MAXINFERENCES) {
+	Panic = TRUE;
+	BPPrintMessage(1,odError,"=> Calculation overflow: task abandoned. Loop?\n");
+	return(ABORT);
+	}
+NumberInferences++;
 if(trace_compute) BPPrintMessage(0,odInfo,"Derive() igram = %d irul = %d\n",igram,irul);
 rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
 switch(mode) {
@@ -2112,8 +2133,7 @@ if(justplay) {
 	r = PlayBuffer(pp_a,NO);
 	goto QUIT;
 	}
-if(DisplayProduce) {
-//	BPPrintMessage(0,odInfo,"DisplayProduce\n");
+if(TraceProduce) {
 	datamode = DisplayMode(pp_a,&ifunc,&hastabs);
 	if(mode == ANAL || all) datamode = FALSE;
 	Dirty[wTrace] = TRUE;
@@ -2125,13 +2145,16 @@ if(DisplayProduce) {
 		}
 	(*p_ItemStart)[DisplayStackIndex] = lastbyte = GetTextLength(wTrace);
 	SetSelect(lastbyte,lastbyte,TEH[wTrace]);
-	if((r=PrintResult(datamode && hastabs,wTrace,hastabs,ifunc,pp_a)) != OK) goto QUIT;
-	Print(wTrace,"\n");
+	if(NumberCharsTrace < MAXCHARTRACE) {
+		if((r=PrintResult(datamode && hastabs,wTrace,hastabs,ifunc,pp_a)) != OK) goto QUIT;
+		Print(wTrace,"\n");
+		NumberCharsTrace += 20;
+		}
 	(*p_ItemEnd)[DisplayStackIndex] = GetTextLength(wTrace);
 	(*p_LastStackIndex)[DisplayStackIndex] = ProduceStackIndex;
 	if(++DisplayStackIndex >= MaxDeriv
 		&& IncreaseComputeSpace() != OK) return(ABORT);
-//	ShowSelect(CENTRE,wTrace);
+	ShowSelect(CENTRE,wTrace);
 	}
 if(mode == PROD && PlanProduce && (DisplayStackIndex > 1)) UndoFlag = TRUE;
 r = OK;

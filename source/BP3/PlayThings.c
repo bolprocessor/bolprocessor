@@ -317,7 +317,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		}
 
 	result = OK;
-	ShowMessages = TRUE; // 2024-05-23
+ 	ShowMessages = TRUE; // 2024-05-23
 	int trace_play = FALSE;
 	if(trace_play) {
 		i = 0;

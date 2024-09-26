@@ -104,18 +104,13 @@ SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 ifunc = weightloss = FALSE;
 splitmem = SplitTimeObjects;
 
-#if BP_CARBON_GUI_FORGET_THIS
-if(LoadInteraction(TRUE,FALSE) != OK) {
-	r = MISSED; goto QUIT;
-	}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 undefined = FALSE;
 for(j=1; j <= Jvar; j++) {
 	if(((*p_VarStatus)[j] & 2) && !((*p_VarStatus)[j] & 1) && !((*p_VarStatus)[j] & 4)) {
 		undefined = TRUE; break;
 		}
 	}
-if(undefined && !repeat && !IgnoreUndefinedVariables) {
+if(!OutBPdata && undefined && !repeat && !IgnoreUndefinedVariables) {
 	BPPrintMessage(0,odError,"\n=> Undefined variable(s) found and ignored:\n=> ");
 	for(j = 1, i = 0; j <= Jvar; j++) {
 		if(((*p_VarStatus)[j] & 2) && !((*p_VarStatus)[j] & 1)
@@ -241,7 +236,7 @@ if(!PlaySelectionOn && DisplayProduce) {
 	Print(wTrace,"\n");
 	}
 if(Improvize) {
-	if(!rtMIDI && ItemNumber > 10) {
+	if(!rtMIDI && ItemNumber > MaxItemsDisplay) {
 		Improvize =  FALSE;
 		r = ABORT;
 		goto QUIT;
@@ -326,9 +321,12 @@ if(!PlaySelectionOn && Improvize) {
 	if(SkipFlag) goto MAKE;
 	if(!PlaySelectionOn && DisplayItems) {
 	//	Dirty[OutputWindow] = TRUE;
-		datamode = DisplayMode(pp_a,&ifunc,&hastabs);
-		if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
-	//	ShowSelect(CENTRE,OutputWindow);
+		if(NumberCharsData < MAXCHARDATA) {
+			datamode = DisplayMode(pp_a,&ifunc,&hastabs);
+			if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
+			Print(OutputWindow,"\n");
+			NumberCharsData += 20;
+			}
 		}
 	if((rtMIDI || OutCsound || WriteMIDIfile || OutBPdata)
 		&& ((r=PlayBuffer(pp_a,NO)) == ABORT || r == EXIT)) goto QUIT;
@@ -341,16 +339,17 @@ if(!StepProduce && !TraceProduce && !PlaySelectionOn
 		}
 // BPPrintMessage(0,odInfo, "DisplayItems = %d\n",DisplayItems);
 if(!PlaySelectionOn && DisplayItems) {
-	SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
-	datamode = DisplayMode(pp_a,&ifunc,&hastabs);
-	BPPrintMessage(0,odInfo, "\nBol Processor score:\n");
-	if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
-	Print(OutputWindow,"\n\n");
-//	BPPrintMessage(0,odInfo, "Created item for display\n");
-	DataEnd = GetTextLength(OutputWindow);
-	SetSelect(DataOrigin,DataEnd,TEH[OutputWindow]);
-/*	BPActivateWindow(SLOW,OutputWindow);
-	Dirty[OutputWindow] = TRUE; */
+	if(NumberCharsData < MAXCHARDATA) {
+		SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
+		datamode = DisplayMode(pp_a,&ifunc,&hastabs);
+	//	BPPrintMessage(0,odInfo, "\nBol Processor score:\n");
+		if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
+		Print(OutputWindow,"\n\n");
+		DataEnd = GetTextLength(OutputWindow);
+		SetSelect(DataOrigin,DataEnd,TEH[OutputWindow]);
+		NumberCharsData += 20;
+	//	if(Improvize) ShowMessages = FALSE;
+		}
 	}
 // if((!DisplayItems || PlaySelectionOn) && (rtMIDI || OutCsound || WriteMIDIfile)) {
 if(ShowGraphic || rtMIDI || OutCsound || WriteMIDIfile  || OutBPdata) {
@@ -1853,41 +1852,40 @@ return(r);
 }
 
 
-int PrintResult(int expand,int w,int datamode,int ifunc,tokenbyte ***pp_a)
-{
-int r;
-tokenbyte **p_b;
-double maxseqapprox;
+int PrintResult(int expand,int w,int datamode,int ifunc,tokenbyte ***pp_a) {
+	int r;
+	tokenbyte **p_b;
+	double maxseqapprox;
 
-r = OK;
-if(expand && datamode && !ifunc) {
-	if((p_b=(tokenbyte**) GiveSpace((Size) MyGetHandleSize((Handle)*pp_a))) == NULL) {
-		r = ABORT; goto QUIT;
+	r = OK;
+	if(expand && datamode && !ifunc) {
+		if((p_b=(tokenbyte**) GiveSpace((Size) MyGetHandleSize((Handle)*pp_a))) == NULL) {
+			r = ABORT; goto QUIT;
+			}
+		if(CopyBuf(pp_a,&p_b) == ABORT) {
+			r = ABORT; goto QUIT;
+			}
+		if((r=PolyMake(pp_a,&maxseqapprox,NO)) == ABORT || r == EXIT) {
+			MyDisposeHandle((Handle*)&p_b);
+			goto QUIT;
+			}
+		if(r != OK) {
+			if((r=CopyBuf(&p_b,pp_a)) != OK) goto QUIT;
+			MyDisposeHandle((Handle*)&p_b);
+			datamode = FALSE;
+			}
 		}
-	if(CopyBuf(pp_a,&p_b) == ABORT) {
-		r = ABORT; goto QUIT;
-		}
-	if((r=PolyMake(pp_a,&maxseqapprox,NO)) == ABORT || r == EXIT) {
+	r = PrintArg(datamode,FALSE,1,datamode,ifunc,0,stdout,w,pp_Scrap,pp_a);
+	if(expand && datamode && !ifunc) {
+		if(CopyBuf(&p_b,pp_a) == ABORT) {
+			r = ABORT; goto QUIT;
+			}
 		MyDisposeHandle((Handle*)&p_b);
-		goto QUIT;
 		}
-	if(r != OK) {
-		if((r=CopyBuf(&p_b,pp_a)) != OK) goto QUIT;
-		MyDisposeHandle((Handle*)&p_b);
-		datamode = FALSE;
-		}
-	}
-r = PrintArg(datamode,FALSE,1,datamode,ifunc,0,stdout,w,pp_Scrap,pp_a);
-if(expand && datamode && !ifunc) {
-	if(CopyBuf(&p_b,pp_a) == ABORT) {
-		r = ABORT; goto QUIT;
-		}
-	MyDisposeHandle((Handle*)&p_b);
-	}
 
-QUIT:
-return(r);
-}
+	QUIT:
+	return(r);
+	}
 
 
 int CheckItemProduced(t_gram *p_gram,tokenbyte ***pp_a,long *p_length,int single,
@@ -2019,6 +2017,7 @@ WRITE:
 			}
 		else {
 			if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto END;
+			Print(OutputWindow,"\n");
 			Dirty[OutputWindow] = TRUE;
 			}
 #if BP_CARBON_GUI_FORGET_THIS

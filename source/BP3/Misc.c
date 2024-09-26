@@ -2020,124 +2020,84 @@ err = SndDisposeChannel(myChan,FALSE);
 
 // ------------------------  Random numbers -------------------------
 
-#if BP_CARBON_GUI_FORGET_THIS
-
-int SetSeed(void)
-{
-Rect r;
-Handle itemhandle;
-short itemtype;
-char line[MAXFIELDCONTENT];
-
-my_sprintf(line,"%.0f",(double) Seed);
-SetField(NULL, wRandomSequence, fSeed, line);
-return(OK);
-}
-
-
-int GetSeed(void)
-{
-char line[MAXFIELDCONTENT];
-long p,q,newseed;
-
-GetField(NULL,TRUE,wRandomSequence,fSeed,line,&p,&q);
-newseed = p / q;
-if(newseed < 0 || newseed > 32767) {
-	Alert1("Random seed must be in range [0..32767]");
-	ShowWindow(GetDialogWindow(gpDialogs[wRandomSequence]));
-	BringToFront(GetDialogWindow(gpDialogs[wRandomSequence]));
-	BPUpdateDialog(gpDialogs[wRandomSequence]);
-	SelectField(NULL,wRandomSequence,fSeed,TRUE);
-	return(MISSED);
+int ResetRandom(void) {
+	if(Seed > 0) {
+		srand(Seed);
+	//	BPPrintMessage(0,odInfo, "Random seed reset to %u\n", Seed);
+		UsedRandom = FALSE;
+		}
+	else Randomize();
+	AppendScript(55);
+	return(OK);
 	}
-Seed = (unsigned int) newseed;
-return(OK);
-}
 
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
-int ResetRandom(void)
-{
-if(Seed > 0) {
-	srand(Seed);
-//	BPPrintMessage(0,odInfo, "Random seed reset to %u\n", Seed);
-	UsedRandom = FALSE;
+int Randomize(void) {
+	if(Seed > 0) return(OK);
+	ReseedOrShuffle(NEWSEED);
+	my_sprintf(Message,"%.0f",(double)Seed);
+	MystrcpyStringToTable(ScriptLine.arg,0,Message);
+	AppendScript(57);
+	return(OK);
 	}
-else Randomize();
-AppendScript(55);
-return(OK);
-}
 
 
-int Randomize(void)
-{
-if(Seed > 0) return(OK);
-ReseedOrShuffle(NEWSEED);
-my_sprintf(Message,"%.0f",(double)Seed);
-MystrcpyStringToTable(ScriptLine.arg,0,Message);
-AppendScript(57);
-return(OK);
-}
+int ReseedOrShuffle(int what) {
+	unsigned int seed;
+	int randomnumber;
 
-
-int ReseedOrShuffle(int what)
-{
-unsigned int seed;
-int randomnumber;
-
-switch(what) {
-	case NOSEED:
-		Seed = 0;
-		break;
-	case NEWSEED:
-		if(Seed == 0) {
-			seed = (unsigned int) time(NULL);
-			srand(seed);
-			}
-		randomnumber = rand();
-		seed = (unsigned int) (randomnumber % 32768);
-		if(seed == 0) seed = 1;
-		Seed = seed;
-		if(Seed > 0) {
-			BPPrintMessage(0,odInfo, "New random seed = %u\n", seed);
-			srand(Seed);
-			UsedRandom = FALSE;
-			}
-		break;
-	case RANDOMIZE:
-		if(Seed == 0) {
-			// We need this initial srand() so that sequences of rand() are not identical
-			seed = (unsigned int) time(NULL);
-			srand(seed);
-			// FIXME ? Why seed a second time (with a restricted range for the seed too) ?
+	switch(what) {
+		case NOSEED:
+			Seed = 0;
+			break;
+		case NEWSEED:
+			if(Seed == 0) {
+				seed = (unsigned int) time(NULL);
+				srand(seed);
+				}
 			randomnumber = rand();
 			seed = (unsigned int) (randomnumber % 32768);
-			BPPrintMessage(0,odInfo, "Random seed = %u\n", seed);
+			if(seed == 0) seed = 1;
+			Seed = seed;
+			if(Seed > 0) {
+				BPPrintMessage(0,odInfo, "New random seed = %u\n", seed);
+				srand(Seed);
+				UsedRandom = FALSE;
+				}
+			break;
+		case RANDOMIZE:
+			if(Seed == 0) {
+				// We need this initial srand() so that sequences of rand() are not identical
+				seed = (unsigned int) time(NULL);
+				srand(seed);
+				// FIXME ? Why seed a second time (with a restricted range for the seed too) ?
+				randomnumber = rand();
+				seed = (unsigned int) (randomnumber % 32768);
+				BPPrintMessage(0,odInfo, "Random seed = %u\n", seed);
+				srand(seed);
+				UsedRandom = TRUE;
+				}
+			break;
+		default:
+			seed = (unsigned int) ((Seed + what) % 32768);
 			srand(seed);
 			UsedRandom = TRUE;
-			}
-		break;
-	default:
-		seed = (unsigned int) ((Seed + what) % 32768);
-		srand(seed);
-		UsedRandom = TRUE;
-		break;
+			break;
+		}
+	return(OK);
 	}
-return(OK);
-}
 
 
-double GetScalingValue(tokenbyte **p_a,unsigned long i)
-{
-tokenbyte m,p;
-double value;
+double GetScalingValue(tokenbyte **p_a,unsigned long i) {
+	tokenbyte m,p;
+	double value;
 
-m = (*p_a)[i+3L];
-p = (*p_a)[i+5L];
-if(m < 0 || p < 0) {
-	if(Beta) Alert1("=> Err. GetScalingValue(). m < 0 || p < 0");
-	return(1.);
+	m = (*p_a)[i+3L];
+	p = (*p_a)[i+5L];
+	if(m < 0 || p < 0) {
+		if(Beta) Alert1("=> Err. GetScalingValue(). m < 0 || p < 0");
+		return(1.);
+		}
+	value = ((double)TOKBASE * m) + p;
+	return(value);
 	}
-value = ((double)TOKBASE * m) + p;
-return(value);
-}

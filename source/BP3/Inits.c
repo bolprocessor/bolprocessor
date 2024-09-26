@@ -135,6 +135,7 @@ int Inits(void) {
 	POLYconvert = OkShowExpand = FALSE;
 	NewOrchestra = TRUE;
 	ItemNumber = ZERO;
+	MaxItemsDisplay = 20;
 	AssignedTempoCsoundFile = FALSE;
 	MaxConsoleTime = 0; // No limit
 	Ratio = 0.;  Prod = 1.;
@@ -338,6 +339,7 @@ int Inits(void) {
 	pp_CsoundScore = NULL;
 	p_CsoundTables = NULL;
 	MaxCsoundTables = 0;
+	NumberCharsTrace = NumberCharsData = NumberInferences =  0L;
 	ClockInitCapture = -1L;
 	PointCsound = PointMIDI = FALSE;
 	CsFileName[0] = MIDIfileName[0] = CsoundOrchestraName[0] = '\0';

@@ -1571,7 +1571,8 @@ int LoadSettings(const char *filename, int startup) {
 	if(ReadInteger(sefile,&Improvize,&pos) == MISSED) goto ERR;
 	if(trace_load_settings) BPPrintMessage(0,odError, "Improvize = %d\n",Improvize);
 	if(PlaySelectionOn) Improvize = 0;
-	if(ReadInteger(sefile,&CyclicPlay,&pos) == MISSED) goto ERR;
+	if(ReadInteger(sefile,&MaxItemsDisplay,&pos) == MISSED) goto ERR;
+	if(MaxItemsDisplay < 2) MaxItemsDisplay = 20;
 	if(ReadInteger(sefile,&UseEachSub,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&AllItems,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&DisplayProduce,&pos) == MISSED) goto ERR;
