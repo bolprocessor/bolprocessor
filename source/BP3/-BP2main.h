@@ -272,6 +272,7 @@ short Maxlevel,MaxFlag,MaxScript,Jscriptline,Final,POLYconvert,
 	KeepFlag,CoverOK,DiscontinuityOK,AllSolTimeSet,
 	LimCompute,LimTimeSet,SkipFlag,StackFlag,PlayFromInsertionPoint,
 	Port,Portbit,MIDI;
+int MaxItemsDisplay;
 int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,TraceMicrotonality,DisplayProduce,TraceProduce,UseTimeLimit,
 	DisplayTimeSet,StepTimeSet,UseEachSub,PlanProduce,TraceTimeSet,ResetNotes;
 int InsertGramRuleNumbers, InsertGramCorrections, InsertNewBols;
@@ -323,6 +324,7 @@ int Npicture,Offscreen;
 int PictureWindow[MAXPICT];
 int Charstep,UndoFlag;
 long ClockInitCapture;
+long NumberCharsTrace, NumberCharsData, NumberInferences;
 char LineBuff[MAXLIN];
 char MIDIinputname[MAXPORTS][MAXNAME],MIDIoutputname[MAXPORTS][MAXNAME],OutputMIDIportComment[MAXPORTS][MAXNAME],InputMIDIportComment[MAXPORTS][MAXNAME];
 int MIDIinput[MAXPORTS], MIDIoutput[MAXPORTS]; // In Linux, these are 'clients'. Otherwise, 'ports'.

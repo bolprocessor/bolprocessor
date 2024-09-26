@@ -40,7 +40,7 @@
 
 int trace_polymake = 0;
 
-	int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
+int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	tokenbyte m,p,**p_b,**ptr;
 	char fixtempo,useful,toocomplex,alreadychangedquantize;
 	int k,krep,rep,level,r,**p_nseq,**p_nseqmax,maxlevel,needalphabet,foundinit,overflow,toofast,

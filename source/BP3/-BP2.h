@@ -1625,6 +1625,9 @@ typedef enum {
 #define MAXPARAMCTRL 128	/* number of MIDI controllers + 1 */
 #define MAXWAIT 64		/* number of synchronization tags */
 #define MAXTIME 59944L	/* max computation time (milliseconds) */
+#define MAXCHARTRACE 2000000
+#define MAXCHARDATA 2000000
+#define MAXINFERENCES 2000000
 
 #define MAXMODE 3		/* number of derivation modes: LEFT, etc. */
 #define MODELENGTH 6

@@ -618,7 +618,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 				time_now = 0L;
 				}
 			else time_now = getClockTime() - initTime; // microseconds
-			if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"@ Received NoteOn key = %d channel %d date %ld ms, checking %d script(s)\n",c1,channel,time_now / 1000L,Jinscript);
+		//	if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"@ Received NoteOn key = %d channel %d date %ld ms, checking %d script(s)\n",c1,channel,time_now / 1000L,Jinscript);
 			// Find the next expected NoteOn
 			for(j = 1; j <= Jinscript; j++) {
 				if(((*p_INscript)[j]).chan == -1) { // This is a deactivated instruction
@@ -1663,7 +1663,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	if(ItemCapture) *p_rs = 0;
 	channel = status % 16;
 	c0 = status - channel;
-	if(trace_driver) BPPrintMessage(0,odInfo,"++ SendToDriver(kcurrentinstance,scale,blockkey,) time = %ld c0 = %d\tc1 = %d\tc2 = %d\n",(long)time,c0,ByteToInt(p_e->data1),ByteToInt(p_e->data2));
+	if(trace_driver) BPPrintMessage(0,odInfo,"++ SendToDriver() time = %ld c0 = %d\tc1 = %d\tc2 = %d\n",(long)time,c0,ByteToInt(p_e->data1),ByteToInt(p_e->data2));
 	/* Store if volume */
 	if(MIDIfileOn && MIDIfileOpened) {
 		if(c0 == NoteOn && CurrentVolume[channel+1] == -1)
@@ -1678,12 +1678,12 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	if(status != *p_rs || c0 == ChannelMode /* || c0 == ProgramChange */) {
 		/* Send the full Midi event */
 		*p_rs = status;
-		if(p_e->data1 > 127) {
-			if(Beta) BPPrintMessage(0,odError,"=> Err. SendToDriver(kcurrentinstance,scale,blockkey,). p_e->data1 > 127.");
+		if(p_e->data1 > 255) {
+			if(Beta) BPPrintMessage(0,odError,"=> Err. SendToDriver(). p_e->data1 = %d\n",p_e->data1);
 			p_e->data1 = 127;
 			}
-		if(p_e->data2 > 127) {
-			if(Beta) BPPrintMessage(0,odError,"=> Err. SendToDriver(kcurrentinstance,scale,blockkey,). p_e->data2 > 127.");
+		if(p_e->data2 > 255) {
+			if(Beta) BPPrintMessage(0,odError,"=> Err. SendToDriver(). p_e->data2 = %d\n",p_e->data2);
 			p_e->data2 = 127;
 			}
 		midibyte = status;
@@ -1692,17 +1692,18 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 		if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 		midibyte = p_e->data2;
 		if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
-		// if(trace_driver) BPPrintMessage(0,odInfo,"Full event status = %d c1 = %d c2= %d time = %ld\n",status,ByteToInt(p_e->data1),ByteToInt(p_e->data2),(long)time);
+		// if(trace_driver) 
+		BPPrintMessage(0,odInfo,"Full event status = %d c1 = %d c2= %d time = %ld\n",status,ByteToInt(p_e->data1),ByteToInt(p_e->data2),(long)time);
 		}
 	else {
 		// Skip the status byte, send only data ("running status")
 		// This should probably only be used with direct Serial drivers
-		if(p_e->data1 > 127) {
-			if(Beta) BPPrintMessage(0,odError,"=> Err. SendToDriver(kcurrentinstance,scale,blockkey,). p_e->data1 > 127.");
+		if(p_e->data1 > 255) {
+			if(Beta) BPPrintMessage(0,odError,"=> Err. SendToDriver(). p_e->data1 = %d\n",p_e->data1);
 			p_e->data1 = 127;
 			}
-		if(p_e->data2 > 127) {
-			if(Beta) BPPrintMessage(0,odError,"=> Err. SendToDriver(kcurrentinstance,scale,blockkey,). p_e->data2 > 127.");
+		if(p_e->data2 > 255) {
+			if(Beta) BPPrintMessage(0,odError,"=> Err. SendToDriver(). p_e->data2 = %d\n",p_e->data2);
 			p_e->data2 = 127;
 			}
 		c1 = ByteToInt(p_e->data1);
@@ -1721,7 +1722,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 			midibyte = c2;
 			if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 			}
-		else if(Beta) BPPrintMessage(0,odError,"=> Err. SendToDriver(kcurrentinstance,scale,blockkey,). c0 == ChannelPressure");
+		else BPPrintMessage(0,odError,"=> Err. SendToDriver(). c0 == ChannelPressure\n");
 		}
 	SORTIR:
 	return(OK);
