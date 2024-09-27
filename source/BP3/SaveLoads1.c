@@ -1589,7 +1589,8 @@ int LoadSettings(const char *filename, int startup) {
 	if(ReadInteger(sefile,&TraceTimeSet,&pos) == MISSED) goto ERR; 
 	if(jmax > 27) ReadInteger(sefile,&CsoundTrace,&pos);
 	else CsoundTrace = FALSE;
-	if(ReadInteger(sefile,&rtMIDI,&pos) == MISSED) goto ERR; 
+	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
+	// rtMIDI  = j;
 	if(ReadInteger(sefile,&ResetNotes,&pos) == MISSED) goto ERR; 
 	if(ReadInteger(sefile,&ComputeWhilePlay,&pos) == MISSED) goto ERR; 
 	if(ReadInteger(sefile,&TraceMIDIinteraction,&pos) == MISSED) goto ERR; // Previously it was 'Interactive'
@@ -1626,13 +1627,7 @@ int LoadSettings(const char *filename, int startup) {
 	if(ForceGraphicColor == -1) UseGraphicsColor = FALSE; */
 	if(ReadInteger(sefile,&UseBufferLimit,&pos) == MISSED) goto ERR;
 	UseBufferLimit = FALSE;
-
-	#if BP_CARBON_GUI_FORGET_THIS
-	SetBufferSize();
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-	if(ReadLong(sefile,&MaxConsoleTime,&pos) == MISSED) goto ERR; // OBSOLETE
-	MaxConsoleTime = 0L; // No limit
+	if(ReadLong(sefile,&MaxConsoleTime,&pos) == MISSED) goto ERR;
 //   if(trace_load_settings && MaxConsoleTime > 0L) BPPrintMessage(0,odInfo, "MaxConsoleTime = %ld\n",(long)MaxConsoleTime);
     
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR;

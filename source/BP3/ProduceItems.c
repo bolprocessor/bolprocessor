@@ -44,14 +44,13 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start)
 tokenbyte **p_buff,***pp_buff,**p_a,***pp_a;
 int i,ifunc,j,ch,splitmem,r,undefined,datamode,weightloss,hastabs,maxsounds,check;
 long endofselection,size,lengthA;
-int time_end_compute;
+long time_end_compute;
 
-// BPPrintMessage(0,odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
+BPPrintMessage(0,odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
 if(Improvize && ItemNumber == 0) {
 	ShowMessage(TRUE,wMessage,"\nNo message during improvization\n");
 	if(!rtMIDI) ShowMessage(TRUE,wMessage,"Only 10 items will be produced.\n");
 	}
-// time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
 time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
 
 if(CheckEmergency() != OK) return(ABORT);
@@ -695,7 +694,7 @@ int i,igram,r,showmessages,
 long maxdepth,length,****p_flag,****p_weight;
 tokenbyte ****p_stack;
 OSErr io;
-int time_end_compute;
+long time_end_compute;
 
 if(template && ShowNotBP() != OK) return(OK);
 p_flag = NULL; p_weight = NULL;
@@ -703,7 +702,6 @@ depth = 0; maxdepth = 20L;
 single = FALSE;
 ProduceStackIndex = DisplayStackIndex = SkipFlag = FALSE;
 
-// time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
 time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
 
 if(Varweight) {
@@ -812,7 +810,7 @@ return(r);
 
 int AllFollowingItems(t_gram *p_gram,tokenbyte ***pp_a,long ****p_weight,long ****p_flag,
 	long *p_length,int igram,int all,int template,int endgram,tokenbyte ****p_stack,
-	int *p_depth,long *p_maxdepth,int single,int mode,int time_end_compute)
+	int *p_depth,long *p_maxdepth,int single,int mode,long time_end_compute)
 {
 int icandidate,irul,r,w,repeat,changed,grtype,irep,nrep;
 long ipos,leftpos,lastpos,incmark;
@@ -1047,7 +1045,7 @@ return(wantgram);
 
 
 int NextDerivation(tokenbyte ***pp_a,long *p_length,int *p_igram,int *p_irul,
-	long *p_ipos,int *p_icandidate,int mode,int time_end_compute)
+	long *p_ipos,int *p_icandidate,int mode,long time_end_compute)
 {
 int r,nb_candidates,**p_prefrule,**p_candidate,maxpref,freedom,equalweight,maxrul,
 	repeat;
@@ -1583,10 +1581,10 @@ int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templa
 /* pos = position of first template considered in grammar window */
 {
 int i,itemp,r,igram,finish,again,foundone,good,hasperiods;
-int time_end_compute;
 long posend,lastbyte;
 tokenbyte m,p,**p_b,***pp_b,**p_c,***pp_c,**p_d,***pp_d;
 double maxseqapprox;
+long time_end_compute;
 
 ProduceStackDepth = itemp = 0; posend = pos; foundone = good = again = FALSE;
 p_b = p_c = p_d = NULL;
@@ -1720,7 +1718,6 @@ if(templates) {
 	}
 ClearMarkers(pp_a);
 
-// time_end_compute = clock() + (MaxConsoleTime * CLOCKS_PER_SEC);
 time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
 
 for(igram=Gram.number_gram; igram >= 1; igram--) {

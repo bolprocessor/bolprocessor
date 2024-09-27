@@ -7,8 +7,9 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 
-2024-09-26
+2024-09-26 -> 2024-09-27
 Added code to warn against looping processes (instead of crashing the server) and protection against excessively large data or trace files.
+Maximum compute time is also checked.
 
 -----
 2024-09-18 -> 2024-09-22 (version 3.0.10)
