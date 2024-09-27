@@ -133,7 +133,7 @@ Actions
 -------
 
 - Implement produce-items N action.
-- Implement play-all action. (Difficult)
+- Implement play-all action.
 - Fix analyze-item action.
 - Implement expand-item & show-beats options.
 
