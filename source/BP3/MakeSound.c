@@ -2295,49 +2295,48 @@ return(v);
 }
 
 
-int ChannelConvert(int ch)
-{
-int x;
+int ChannelConvert(int ch) {
+	int x;
 
-if(ch < 0) ch += 256;
-if(ch < 128) {
-	if(ch > MAXCHAN) {
-		my_sprintf(Message,"=> Trying to assign channel #%ld.\nValue should be 1..%ld",
-			(long)ch,(long)MAXCHAN);
+	if(ch < 0) ch += 256;
+	if(ch < 128) {
+		if(ch > MAXCHAN) {
+			my_sprintf(Message,"=> Trying to assign channel #%ld.\nValue should be 1..%ld",
+				(long)ch,(long)MAXCHAN);
+		//	Alert1(Message);
+			return(ABORT);
+			}
+		return(ch);	/* Fixed channel */
+		}
+	/* Channel is determined by Kx */
+	x = ch - 128;
+	if(x < 1 || x >= MAXPARAMCTRL) {
+		my_sprintf(Message,"=> Trying to fix channel with incorrect K%ld.\nValue should be 1..%ld",
+			(long)x,(long)MAXPARAMCTRL-1L);
+		// Alert1(Message);
+		return(ABORT);
+		}
+	ch = ParamValue[x];
+	if(ch < 1 || ch > MAXCHAN) {
+		if(ParamControl[x] >= 0) {
+			my_sprintf(Message,"=> Trying to assign channel #%ld by K%ld (MIDI controller #%ld).\nValue should be 1..%ld",
+				(long)ch,(long)x,(long)ParamControl[x],(long)MAXCHAN);
+			}
+		else {
+			if(ParamKey[x] >= 0) {
+				my_sprintf(Message,"=> Trying to assign channel #%ld by K%ld (Key #%ld).\nValue should be 1..%ld",
+					(long)ch,(long)x,(long)ParamKey[x],(long)MAXCHAN);
+				}
+			else {
+			my_sprintf(Message,"=> Trying to assign channel #%ld by K%ld.\nValue should be 1..%ld",
+				(long)ch,(long)x,(long)MAXCHAN);
+				}
+			}
 	//	Alert1(Message);
 		return(ABORT);
 		}
-	return(ch);	/* Fixed channel */
+	return(ch);
 	}
-/* Channel is determined by Kx */
-x = ch - 128;
-if(x < 1 || x >= MAXPARAMCTRL) {
-	my_sprintf(Message,"=> Trying to fix channel with incorrect K%ld.\nValue should be 1..%ld",
-		(long)x,(long)MAXPARAMCTRL-1L);
-	// Alert1(Message);
-	return(ABORT);
-	}
-ch = ParamValue[x];
-if(ch < 1 || ch > MAXCHAN) {
-	if(ParamControl[x] >= 0) {
-		my_sprintf(Message,"=> Trying to assign channel #%ld by K%ld (MIDI controller #%ld).\nValue should be 1..%ld",
-			(long)ch,(long)x,(long)ParamControl[x],(long)MAXCHAN);
-		}
-	else {
-		if(ParamKey[x] >= 0) {
-			my_sprintf(Message,"=> Trying to assign channel #%ld by K%ld (Key #%ld).\nValue should be 1..%ld",
-				(long)ch,(long)x,(long)ParamKey[x],(long)MAXCHAN);
-			}
-		else {
-		my_sprintf(Message,"=> Trying to assign channel #%ld by K%ld.\nValue should be 1..%ld",
-			(long)ch,(long)x,(long)MAXCHAN);
-			}
-		}
-//	Alert1(Message);
-	return(ABORT);
-	}
-return(ch);
-}
 								
 								
 double ContinuousParameter(Milliseconds time_ms,int paramseq,ControlStream **p_stream)

@@ -17,10 +17,10 @@ find_target_directory() {
 # Find the target directory
 find_target_directory
 
-# Change ownership to 'daemon' and permissions to '777' recursively
-echo "Changing owner to 'daemon' and permissions to '777' for all files and directories in $TARGET_DIR..."
+# Change ownership to 'daemon' and permissions to '775' recursively
+echo "Changing owner to 'daemon' and permissions to '775' for all files and directories in $TARGET_DIR..."
 
 sudo chown -R daemon:daemon "$TARGET_DIR"
-sudo chmod -R 777 "$TARGET_DIR"
+sudo chmod -R 775 "$TARGET_DIR"
 
-echo "Completed changing owner to 'daemon' and permissions to '777' for all files and directories in $TARGET_DIR."
+echo "Completed changing owner to 'daemon' and permissions to '775' for all files and directories in $TARGET_DIR."
