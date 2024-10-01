@@ -1618,7 +1618,7 @@ typedef enum {
 #define HOMOSIZE 20		/* length of homomorphism identifier */
 #define MAXDISPL 1000	/* minimum size of display */
 #define MAXLEVEL 128	/* parentheses level */
-#define MAXDERIV 200 	/* number of derivation steps */
+#define MAXDERIV 2000 	/* number of derivation steps */
 #define MAXTAB 20		/* number of tab sections for display */
 #define MAXMETA 32		/* number of metavariables in a rule */
 #define MAXMETA2 65		/* 2 * MAXMETA + 1 */

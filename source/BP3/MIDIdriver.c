@@ -1148,7 +1148,9 @@ void closeMIDISystem() {
         MIDIPacket packet;
         int index, i_scale, midiData[3];
         static int already = 0;
-        static snd_seq_event_t* lastEvent = NULL;
+    //    static snd_seq_event_t* lastEvent = NULL;
+        static int lastnote = -1;
+        static int lastvel = -1;
         static int lastClient = -1;
         if (!ev) {
             BPPrintMessage(0,odError,"=> Invalid event pointer passed to MyAlsaMidiInProc()\n");
@@ -1238,7 +1240,7 @@ void closeMIDISystem() {
                 if(TraceMIDIinteraction && AcceptEvent(e.status, index)) BPPrintMessage(0,odInfo,"👉 Received CONTINUE\n");
                 break;
             case SND_SEQ_EVENT_STOP:
-                e.status = 0xFC;  // Stop command (252)
+                e.status = 0xFC;  // Stop command (252) 
                 packet.length = 1;
                 packet.data[0] = e.status;
                 if(TraceMIDIinteraction && AcceptEvent(e.status, index)) BPPrintMessage(0,odInfo,"👉 Received STOP\n");
@@ -1256,11 +1258,11 @@ void closeMIDISystem() {
         if(AcceptEvent(e.status, index)) {
     //         BPPrintMessage(0,odInfo, "Received client = %d, status = %d, data1 = %d, data2 = %d\n", source_client, e.status, e.data1, e.data2);
             HandleInputEvent(&packet,&e,index);
-            if (PassInEvent(e.status, index)) {
+            if(PassInEvent(e.status, index)) {
                 // Check for duplicate events to stop bouncing
-                if (ev->type == SND_SEQ_EVENT_NOTEON || ev->type == SND_SEQ_EVENT_NOTEOFF) {
-                    if(ev == lastEvent && ev->data.note.note == lastEvent->data.note.note &&
-                ev->data.note.velocity == lastEvent->data.note.velocity && source_client == lastClient) {
+                if(FALSE && ev->type == SND_SEQ_EVENT_NOTEON) { // Needs to be checked with da.tryReceive
+                    if(ev->data.note.note == lastnote &&
+                ev->data.note.velocity == lastvel && source_client == lastClient) {
                         if(trace_all_interactions) already = 0;
                         if(already < 10) {
                             BPPrintMessage(0,odError,"=> Duplicate event detected, skipping:\n");
@@ -1269,10 +1271,12 @@ void closeMIDISystem() {
                         already++;
                         goto SORTIE;
                         }
-                    lastEvent = ev;
+                    lastnote = ev->data.note.note;
+                    lastvel = ev->data.note.velocity;
                     lastClient = source_client;
                     }
-                if(trace_all_interactions) BPPrintMessage(0,odInfo, "Forwarding client = %d, status = %d, data1 = %d, data2 = %d, ev = %p\n", source_client, e.status, e.data1, e.data2,ev);
+                if(trace_all_interactions) 
+                    BPPrintMessage(0,odInfo, "Forwarding client = %d, status = %d, data1 = %d, data2 = %d, ev = %p\n", source_client, e.status, e.data1, e.data2,ev);
                 }
             i_scale = FindScale(DefaultScaleParam);
             sendMIDIEvent(-1,i_scale,IN,0,packet.data, packet.length, packet.timestamp);
@@ -1418,7 +1422,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
         if(ClockInitCapture < 0L) {
             if(kcurrentinstance >= 0 && (status == NoteOn || status == NoteOff)) {
                 ClockInitCapture = clocktime;
-                BPPrintMessage(0,odInfo,"clocktime = %ld\n",clocktime);
+          //    BPPrintMessage(0,odInfo,"clocktime = %ld\n",clocktime);
                 }
             clocktime = 0;
             }

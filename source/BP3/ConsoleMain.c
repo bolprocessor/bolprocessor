@@ -247,12 +247,10 @@ CLEANUP:
 		result = EndImageFile();
 		}
 	// Close open files
-	CloseOutputDestination(odDisplay, &gOptions, ofiProdItems);
 	CloseMIDIFile();
 	// CloseFileAndUpdateVolume(&TraceRefnum);
 	// CloseFileAndUpdateVolume(&TempRefnum);
 	CloseCsScore();
-	CloseOutputDestination(odTrace, &gOptions, ofiTraceFile);
 	if(rtMIDI) {
 		if(Panic) eventCount = 0L;
 	//	MIDIflush(0);
@@ -267,6 +265,8 @@ CLEANUP:
 		closeMIDISystem();
 		WaitABit(100); // 100 milliseconds
 		}
+	CloseOutputDestination(odDisplay, &gOptions, ofiProdItems);
+	CloseOutputDestination(odTrace, &gOptions, ofiTraceFile);
 	Handle ptr = (Handle) p_Instance;
 	MyDisposeHandle(&ptr);
 	my_fclose(CapturePtr);
@@ -390,6 +390,7 @@ FILE* CreateCaptureFile(FILE* oldptr) {
 			return NULL;
 			}
 		ptr = my_fopen(1,new_thefile,"w");
+
 		free(thefile);
 		if(ptr != NULL) {
 	    	BPPrintMessage(0,odInfo,"Creating 'capture' file: %s\n",new_thefile);
@@ -397,10 +398,10 @@ FILE* CreateCaptureFile(FILE* oldptr) {
         	free(new_thefile);
 			return ptr;
 			}
-		else {
-			BPPrintMessage(0,odError,"=> Error creating 'done' file: %s\n",new_thefile);
+	/*	else {
+			BPPrintMessage(0,odError,"=> Error creating 'capture' file: %s\n",new_thefile);
         	free(new_thefile);
-			}
+			} */
 		}
 	else BPPrintMessage(0,odError,"=> No path found in CreateDoneFile()\n");
 	return NULL;
@@ -1322,70 +1323,6 @@ int OpenAndReadFile(const char* pathname,char** buffer) { // Rewritten 2024-06-2
 	return OK;
 	}
 
-/*	ReadNewHandleFromFile()  OBSOLETE
-
-	Allocates a new Handle and reads data from fin.  If numbytes is
-	READ_ENTIRE_FILE, then the file pointer is reset to the beginning
-	and the entire file is read; otherwise, ReadNewHandleFromFile reads
-	numbytes from the file pointer's current location.
-	
-	The file data is returned in 'data' and the function returns OK
-	on success or MISSED if there was an error.
-
-int ReadNewHandleFromFile(FILE* fin, size_t numbytes, Handle* data) {
-    char* buffer;
-    size_t bsize;
-    long pos;
-
-    if (fin == NULL) {
-        if (Beta) BPPrintMessage(0,odError, "=> Err. ReadNewHandleFromFile(): fin == NULL\n");
-        return ABORT;
-    }
-    if (data == NULL) {
-        if (Beta) BPPrintMessage(0,odError, "=> Err. ReadNewHandleFromFile(): data is NULL\n");
-        return ABORT;
-    }
-
-    if (numbytes == READ_ENTIRE_FILE) {
-        BPPrintMessage(0,odInfo, "Reading entire file\n");
-        // find the length of the file
-        if (fseek(fin, 0L, SEEK_END) == 0) {
-            pos = ftell(fin);
-            if (pos == -1) {
-                BPPrintMessage(0,odError, "=> Error finding file length (input file may be empty)\n");
-                return MISSED;
-            }
-            numbytes = (size_t)pos; // numbytes is file length
-            fseek(fin, 0L, SEEK_SET);
-            if (fseek(fin, 0L, SEEK_SET) != 0) {  // rewind to beginning
-                BPPrintMessage(0,odError, "=> Error rewinding the file.\n");
-                return MISSED;
-            }
-        } else {
-            BPPrintMessage(0,odError, "=> Error seeking to the end of input file\n");
-            return MISSED;
-        }
-    }
-
-    // allocate space for data plus a null char
-    BPPrintMessage(0,odInfo,"Reading %d bytes\n",(int)numbytes);
-    bsize = numbytes + 1;
-    buffer = (char*)malloc(bsize);
-    if (buffer == NULL) {
-        BPPrintMessage(0,odError, "=> Error allocating memory\n");
-        return MISSED;
-    }
-
-    // read from the file
-    size_t bytesRead = fread(buffer, 1, numbytes, fin);
-
-    // terminate the string and return Handle
-    buffer[numbytes] = '\0';
-    *data = (Handle)buffer;
-    BPPrintMessage(0,odInfo, "Read entire file:\n%s\n",*data);
-    return OK;
-} */
-
 
 FILE* my_fopen(int check, const char* path, const char* mode) {
 	char thismode[3];
@@ -1399,10 +1336,20 @@ FILE* my_fopen(int check, const char* path, const char* mode) {
 		}
     strcpy(convertedPath,path);  // Copy the original path to the buffer
     convert_path(convertedPath);  // Change backslashes to normal
+	struct stat file_stat;
 	file = fopen(convertedPath,thismode);
     if(file == NULL) {
 		if(check) BPPrintMessage(0,odError, "=> Failed to open: %s in '%s' mode. Error: %s\n",
                    convertedPath, thismode, strerror(errno));
+		}
+	else if(strcmp(mode,"w") == 0 || strcmp(mode,"wb") == 0) {
+        if(stat(convertedPath, &file_stat) == 0) {
+            if((file_stat.st_mode & 0777) != 0777) {
+				int result = chmod(convertedPath,0777);
+				if(result != 0)
+					BPPrintMessage(0,odError,"=> Error chmod 777 after opening %s. %s\n",convertedPath, strerror(errno));
+				}
+			}
 		}
     return file;  // Return the file pointer 
     }
@@ -1415,65 +1362,51 @@ int my_fclose(FILE *file) {
         }
 	result = fflush(file);
     if(result != 0) {
-        BPPrintMessage(0,odError, "=> Error #%d flushing a file\n, result");
+     //   BPPrintMessage(0,odError, "=> Error #%d flushing a file\n, result");
 		fclose(file);
 		file = NULL;
         return ABORT;
         }
 	result = fclose(file);
-	file = NULL;
     if(result != 0 && !Panic) {
-        BPPrintMessage(0,odError, "=> Error #%d closing a file\n, result");
+     //   BPPrintMessage(0,odError, "=> Error #%d closing a file\n, result");
         return ABORT;
         }
+	file = NULL;
     return OK;
     }
 
-/*	OpenOutputFile()
- 
-	Open the file controlled by an OutFileInfo struct.
- 
-	finfo->name should be set to the pathname.
-	Returns the FILE pointer referenced by finfo->fout (NULL if failed).
- */
-FILE* OpenOutputFile(OutFileInfo* finfo, const char* mode)
-{
+
+FILE* OpenOutputFile(OutFileInfo* finfo, const char* mode) {
+	// Opens the file controlled by an OutFileInfo struct.
 	finfo->fout = my_fopen(1,finfo->name, mode);
 	if (finfo->fout != NULL)  finfo->isOpen = TRUE;
 	return finfo->fout;
-}
+	}
 
-/*	CloseOutputFile()
- 
-	Closes the file controlled by an OutFileInfo struct.
- */
+
 void CloseOutputFile(OutFileInfo* finfo) {
+	// Closes the file controlled by an OutFileInfo struct.
 	int result;
 	if(finfo->isOpen && finfo->fout != NULL) {
-		my_fclose(finfo->fout);
+		result = my_fclose(finfo->fout);
 		finfo->fout = NULL;
 		finfo->isOpen = FALSE;
 		}
-	// result = chmod(finfo->name, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-	result = chmod(finfo->name,0777);
-//	result = 0;
-//	BPPrintMessage(0,odError,"chmod() after closing %s\n",finfo->name);
+/*	result = chmod(finfo->name,0777);
 	if(result != 0) {
 		BPPrintMessage(0,odError,"=> Err chmod() after closing %s\n",finfo->name);
 		return;
-		}
+		} */
 	return;
 	}
 
-/*	CloseOutputDestination()
- 
-	Cleans up an output destination and closes any file associated with it.
- */
 void CloseOutputDestination(int dest, BPConsoleOpts* opts, outfileidx_t fileidx) {
+	// Cleans up an output destination and closes any file associated with it.
 	if (opts->outputFiles[fileidx].isOpen)	{
-		SetOutputDestinations(dest, NULL);
-		CloseOutputFile(&(opts->outputFiles[fileidx]));
 		BPPrintMessage(0,odInfo, "Closing file: %s\n", opts->outputFiles[fileidx].name);
+		CloseOutputFile(&(opts->outputFiles[fileidx]));
+		SetOutputDestinations(dest, NULL);
 		}
 	return;
 	}
@@ -1502,8 +1435,8 @@ int PrepareTraceDestination(BPConsoleOpts* opts) {
 			BPPrintMessage(0,odError, "=> Could not create trace file %s\n", opts->outputFiles[ofiTraceFile].name);
 			return MISSED;
 		    }
-        else BPPrintMessage(0,odInfo, "Creating trace file: %s\n", opts->outputFiles[ofiTraceFile].name);
 		SetOutputDestinations(odTrace, fout);
+        BPPrintMessage(0,odInfo, "Creating trace file: %s\n", opts->outputFiles[ofiTraceFile].name);
 	    }
     return OK;
     }

@@ -44,118 +44,117 @@ int trace_weights = 0;
 /* long LastTime = ZERO;
 long PianorollShift = ZERO; */
 
-int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_repeat,long time_end_compute)
-{
-int r,igram,inrul,finish,again,outgram,outrul,displayproducemem,level;
-unsigned long ix;
+int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_repeat,long time_end_compute) {
+	int r,igram,inrul,finish,again,outgram,outrul,displayproducemem,level;
+	unsigned long ix;
 
-ReleaseProduceStackSpace();
-MaxDeriv = MAXDERIV;
-NumberInferences = 0L;
+	ReleaseProduceStackSpace();
+	MaxDeriv = MAXDERIV;
+	NumberInferences = 0L;
 
-if(MakeComputeSpace(MaxDeriv) != OK) return(ABORT);
-displayproducemem = DisplayProduce;
-if(DisplayProduce && !ScriptExecOn) {
-	BPActivateWindow(QUICK,wTrace);
-	}
-again = FALSE;
-if((*p_repeat)) {
-	if(ProduceStackDepth == -1) {
-		my_sprintf(Message,"Can't repeat: more than %ld computations",(long)MAXDERIV);
-		Alert1(Message);
-		return(MISSED);
+	if(MakeComputeSpace(MaxDeriv) != OK) return(ABORT);
+	displayproducemem = DisplayProduce;
+	if(DisplayProduce && !ScriptExecOn) {
+		BPActivateWindow(QUICK,wTrace);
 		}
-	ShowMessage(TRUE,wMessage,"Repeating...");
-	}
-else ProduceStackDepth = 0;
+	again = FALSE;
+	if((*p_repeat)) {
+		if(ProduceStackDepth == -1) {
+			my_sprintf(Message,"Can't repeat: more than %ld computations",(long)MAXDERIV);
+			Alert1(Message);
+			return(MISSED);
+			}
+		ShowMessage(TRUE,wMessage,"Repeating...");
+		}
+	else ProduceStackDepth = 0;
 
-// Tstart = GetDriverTime();  
-Tstart = getClockTime();
-r = OK;
-NeedZouleb = 0;
-Ctrlinit(); // Added 2024-07-06
+	// Tstart = GetDriverTime();  
+	Tstart = getClockTime();
+	r = OK;
+	NeedZouleb = 0;
+	Ctrlinit(); // Added 2024-07-06
 
-REDO:
-for(igram=fromigram; igram <= toigram; igram++) {
-	inrul = 0;
-	if((*p_repeat) && p_MemGram != NULL && igram < (*p_MemGram)[ProduceStackIndex])
-		continue;
-	if(again && p_MemGram != NULL && igram < (*p_MemGram)[ProduceStackDepth]) continue;
-TRYSUBGRAM:
-	finish = FALSE;
-	r = ComputeInGram(pp_a,&Gram,igram,inrul,p_length,&finish,p_repeat,PROD,FALSE,
-		&outgram,&outrul,time_end_compute);
-		
-	if(DisplayProduce) ShowSelect(CENTRE,wTrace);
-	if(r == ABORT || r == EXIT || r == STOP) goto SORTIR;
-	if(outgram > 0) {
-		igram = outgram; inrul = outrul; goto TRYSUBGRAM;
-		}
-	if(r == MISSED) break;
-	if(r == FINISH) continue;
-	if(finish) {
-		if(!SkipFlag
-			&& (((r = ShowItem(igram,&Gram,FALSE,pp_a,(*p_repeat),PROD,FALSE)) == ABORT)
-				|| r == EXIT || r == STOP)) goto SORTIR;
-		StepProduce = DisplayProduce = TRUE;
-		PlanProduce = TraceProduce = finish - 1;
-		}
-	if((r == BACKTRACK || r == AGAIN) && p_MemGram != NULL) {
-		igram = (*p_MemGram)[ProduceStackIndex];
-		igram--;
-		continue;
-		}
-	if((r == UNDO)  || (r == ENDREPEAT)) {
-		if((*p_repeat)) {
-			if((r = Answer("Forget further choices",'N')) == NO) {
-				if((r = Undo(pp_a,(*p_repeat))) != OK) goto SORTIR;
-				goto REDO;
+	REDO:
+	for(igram=fromigram; igram <= toigram; igram++) {
+		inrul = 0;
+		if((*p_repeat) && p_MemGram != NULL && igram < (*p_MemGram)[ProduceStackIndex])
+			continue;
+		if(again && p_MemGram != NULL && igram < (*p_MemGram)[ProduceStackDepth]) continue;
+	TRYSUBGRAM:
+		finish = FALSE;
+		r = ComputeInGram(pp_a,&Gram,igram,inrul,p_length,&finish,p_repeat,PROD,FALSE,
+			&outgram,&outrul,time_end_compute);
+			
+		if(DisplayProduce) ShowSelect(CENTRE,wTrace);
+		if(r == ABORT || r == EXIT || r == STOP) goto SORTIR;
+		if(outgram > 0) {
+			igram = outgram; inrul = outrul; goto TRYSUBGRAM;
+			}
+		if(r == MISSED) break;
+		if(r == FINISH) continue;
+		if(finish) {
+			if(!SkipFlag
+				&& (((r = ShowItem(igram,&Gram,FALSE,pp_a,(*p_repeat),PROD,FALSE)) == ABORT)
+					|| r == EXIT || r == STOP)) goto SORTIR;
+			StepProduce = DisplayProduce = TRUE;
+			PlanProduce = TraceProduce = finish - 1;
+			}
+		if((r == BACKTRACK || r == AGAIN) && p_MemGram != NULL) {
+			igram = (*p_MemGram)[ProduceStackIndex];
+			igram--;
+			continue;
+			}
+		if((r == UNDO)  || (r == ENDREPEAT)) {
+			if((*p_repeat)) {
+				if((r = Answer("Forget further choices",'N')) == NO) {
+					if((r = Undo(pp_a,(*p_repeat))) != OK) goto SORTIR;
+					goto REDO;
+					}
+				if(r != YES) goto SORTIR;
+				(*p_repeat) = FALSE;
+				if((r = Answer("Choose computations",'Y')) == YES)
+					PlanProduce = TraceProduce = TRUE;
+				if(r != NO) goto SORTIR;
 				}
-			if(r != YES) goto SORTIR;
-			(*p_repeat) = FALSE;
-			if((r = Answer("Choose computations",'Y')) == YES)
-				PlanProduce = TraceProduce = TRUE;
-			if(r != NO) goto SORTIR;
+			again = TRUE;
+			if((r = Undo(pp_a,(*p_repeat))) != OK) goto SORTIR;
+			goto REDO;
 			}
-		again = TRUE;
-		if((r = Undo(pp_a,(*p_repeat))) != OK) goto SORTIR;
-		goto REDO;
-		}
-/*	if(StepGrammars && !StepProduce) {
-		r = InterruptCompute(igram,&Gram,*p_repeat,0,PROD);
-		if(r != OK) break;
-		} */
-	}
-CompleteDecisions = TRUE;
-
-SORTIR:
-
-if(r == OK) {
-	ix = ZERO;
-	level = 0;
-	if(NeedZouleb > 0) {
-		if(ShowMessages) ShowMessage(TRUE,wMessage,"Applying serial tools...");
-		do {
-			r = Zouleb(pp_a,&level,&ix,FALSE,FALSE,0,(*p_repeat),FALSE,NOSEED);
+	/*	if(StepGrammars && !StepProduce) {
+			r = InterruptCompute(igram,&Gram,*p_repeat,0,PROD);
 			if(r != OK) break;
-			}
-		while(level >= 0);
-		r = ShowItem(igram,&Gram,FALSE,pp_a,(*p_repeat),PROD,FALSE);
-	//	if(ShowMessages) HideWindow(Window[wMessage]);
+			} */
 		}
+	CompleteDecisions = TRUE;
+
+	SORTIR:
+
+	if(r == OK) {
+		ix = ZERO;
+		level = 0;
+		if(NeedZouleb > 0) {
+			if(ShowMessages) ShowMessage(TRUE,wMessage,"Applying serial tools...");
+			do {
+				r = Zouleb(pp_a,&level,&ix,FALSE,FALSE,0,(*p_repeat),FALSE,NOSEED);
+				if(r != OK) break;
+				}
+			while(level >= 0);
+			r = ShowItem(igram,&Gram,FALSE,pp_a,(*p_repeat),PROD,FALSE);
+		//	if(ShowMessages) HideWindow(Window[wMessage]);
+			}
+		}
+		
+	// HideWindow(Window[wMessage]);
+	if(DisplayProduce != displayproducemem) {
+		DisplayProduce = displayproducemem;
+		}
+	if(Beta && NeedZouleb != 0) {
+		my_sprintf(Message,"NeedZouleb = %ld after Compute(). Should be 0",(long)NeedZouleb);
+		ShowMessage(TRUE,wMessage,Message);
+		}
+	if(ItemNumber == 0) ItemNumber = 1;
+	return(r);
 	}
-	
-// HideWindow(Window[wMessage]);
-if(DisplayProduce != displayproducemem) {
-	DisplayProduce = displayproducemem;
-	}
-if(Beta && NeedZouleb != 0) {
-	my_sprintf(Message,"NeedZouleb = %ld after Compute(). Should be 0",(long)NeedZouleb);
-	ShowMessage(TRUE,wMessage,Message);
-	}
-if(ItemNumber == 0) ItemNumber = 1;
-return(r);
-}
 
 
 int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_length,
@@ -232,7 +231,7 @@ if((*p_repeat) && (ProduceStackIndex >= ProduceStackDepth)) {
 		goto QUIT;
 		}
 	}
-maxtry = subgram.number_rule / 2; /* See note on RND */
+maxtry = subgram.number_rule / 2; // See note on RND: https://bolprocessor.org/random-selection-of-an-item/
 
 if(mode != PROD) goto NOPROD1;
 
@@ -571,14 +570,14 @@ NOPROD:
 		BPPrintMessage(0,odInfo,"=> Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return(ABORT); 
 		}
-	if(pos1 == STOP) {
+/*	if(pos1 == STOP) {
 		rep = MISSED;
 		if(igram < (*p_gram).number_gram) {
 			my_sprintf(Message,"Jump to subgrammar #%ld",(long)igram+1);
 			rep = Answer(Message,'Y');
 			}
 		goto QUIT;
-		}
+		} */
 	if(!(*p_repeat) && !DeriveFurther && mode == PROD && p_MemGram != NULL) {
 		(*p_MemGram)[ProduceStackDepth] = igram;
 		(*p_MemRul)[ProduceStackDepth] = irul;

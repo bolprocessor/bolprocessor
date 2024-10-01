@@ -7,6 +7,10 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 
+2024-10-01
+Problems of file permissions in Linux have been solved. Now running with 775 permissions on htdocs/bolprocessor.
+
+-----
 2024-09-26 -> 2024-09-27
 Added code to warn against looping processes (instead of crashing the server) and protection against excessively large data or trace files.
 Maximum compute time is also checked.
