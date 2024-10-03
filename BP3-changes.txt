@@ -7,6 +7,10 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 
+2024-10-03
+Fixed microtonality for numgrades < 12
+
+-----
 2024-10-01
 Problems of file permissions in Linux have been solved. Now running with 775 permissions on htdocs/bolprocessor.
 

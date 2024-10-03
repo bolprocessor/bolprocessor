@@ -1362,8 +1362,8 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
         value = midiData[2];
         channel = channel_org = midiData[0] & 0x0F;
         PrintThisNote(i_scale,key,0,-1,this_key);
-    //  BPPrintMessage(0,odInfo,"§§ sendMIDIEvent %d %d %d, channel %d, i_scale = %d\n",midiData[0],midiData[1],midiData[2],channel,i_scale);
-        // BPPrintMessage(0,odInfo,"§§ Note %d channel %d i_scale = %d\n",key,channel,i_scale);
+        //  BPPrintMessage(0,odInfo,"§§ sendMIDIEvent %d %d %d, channel %d, i_scale = %d\n",midiData[0],midiData[1],midiData[2],(channel + 1),i_scale);
+        //  BPPrintMessage(0,odInfo,"§§ Note %d channel %d i_scale = %d\n",key,channel,i_scale);
         if(MIDImicrotonality && (status == NoteOn || status == NoteOff) && i_scale <= NumberScales && i_scale > 0 && direction == IN) {
             // This is only used for input events because microtonal corrections are done by SendToDriver() otherwise.
             int numnotes = (*Scale)[i_scale].numnotes;
@@ -1396,7 +1396,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
                     midiData2[0] = PitchBend + channel; // In fact, channel = 0 (input event)
                     midiData2[1] = pitchBendLSB;  // Pitch Bend LSB
                     midiData2[2] = pitchBendMSB;  // Pitch Bend MSB
-          //        BPPrintMessage(0,odInfo,"• pitchBendValue channel %d: %d = %d %d %d\n",channel,pitchBendValue,(int)midiData2[0],(int)midiData2[1],(int)midiData2[2]);
+            //      BPPrintMessage(0,odInfo,"• pitchBendValue channel %d: %d = %d %d %d\n",channel,pitchBendValue,(int)midiData2[0],(int)midiData2[1],(int)midiData2[2]);
                     sendMIDIEvent(kcurrentinstance,0,OUT,0,midiData2,3,time);
                     }
                 }

@@ -233,9 +233,11 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 	int check_corrections = FALSE;
 	for(key = 0; key < MAXKEY; key++) {
 		if(numgrades <= 12) {
-			keyclass = modulo(key - basekey, 12);
-			octave = baseoctave + floor(((double)key - basekey) / 12);
+			keyclass = modulo(key - basekey, numgrades); // 2024-10-03
+			octave = baseoctave + floor(((double)key - basekey) / numgrades); // 2024-10-03
 			temp_pitch = (*Scale)[i_scale].basefreq * pow(2,((double)keyclass/12)) * pow(2,octave - baseoctave);
+	//		BPPrintMessage(0,odInfo,"§§ key %d, keyclass %d\n",key,keyclass);
+	//		BPPrintMessage(0,odInfo,"§§§ key %d, keyclass %d, %s\n",key,keyclass, *((*(*Scale)[i_scale].notenames)[keyclass]));
 			strcpy(name,*((*(*Scale)[i_scale].notenames)[keyclass]));
 			}
 		else {
