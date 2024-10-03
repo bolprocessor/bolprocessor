@@ -1585,7 +1585,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 				sensitivity = 2; // semitones
 				if(pitchbend_master != 0  && TraceMicrotonality) BPPrintMessage(0,odInfo,"--> with additional pitchbend value of %d\n",pitchbend_master);
 				if(correction < -200 || correction >= 200) {
-					if(ToldPitchbend++ < 4) BPPrintMessage(0,odError,"=> Microtonality pitchbender out of range ± 200 cents: %d  cents note %d\n",correction,note);
+					if(ToldPitchbend++ < 20) BPPrintMessage(0,odError,"=> Microtonality pitchbender out of range ± 200 cents: %d cents, key #%d\n",correction,note);
 					correction = 0;
 					}
 				pitchBendValue = pitchbend_master + DEFTPITCHBEND + (int)(correction * (0.01 * DEFTPITCHBEND / sensitivity));
@@ -1599,11 +1599,11 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 					}
 				pitchBendLSB = pitchBendValue & 0x7F; // Lower 7 bits
 				pitchBendMSB = (pitchBendValue >> 7) & 0x7F; // Upper 7 bits
-				pb_event.type = TWO_BYTE_EVENT;
+				pb_event.type = NORMAL_EVENT; // 2024-10-03
 				pb_event.status = PitchBend + channel;
 				pb_event.data1 = pitchBendLSB;  // Pitch Bend LSB
 				pb_event.data2 = pitchBendMSB;  // Pitch Bend MSB
-			//  BPPrintMessage(0,odInfo,"• pitchBendValue channel %d: %d = %d %d %d\n",channel,pitchBendValue,(int)pb_event.status,(int)pb_event.data1,(int)pb_event.data2);
+			//  BPPrintMessage(0,odInfo,"• pitchBendValue channel %d: %d = %d %d %d\n",(channel + 1),pitchBendValue,(int)pb_event.status,(int)pb_event.data1,(int)pb_event.data2);
 				if(rtMIDI) {
 					eventStack[eventCount] = pb_event;
 					eventStack[eventCount].instance = kcurrentinstance;
