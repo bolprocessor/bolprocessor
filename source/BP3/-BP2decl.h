@@ -381,7 +381,7 @@ extern double MaxFrac;
 extern int HaveAppearanceManager;
 extern int RunningOnOSX;
 extern int WaitForSpace, WaitForEver;
-extern short MPEnote[17], MPEscale[17];
+extern short MPEnote[17], MPEold_note[17], MPEnew_note[17], MPEscale[17];
 extern int MPEpitch[17];
 // extern ControlActionUPP vScrollUPP,hScrollUPP;
 // extern NSWReply** MIDIfileReply;

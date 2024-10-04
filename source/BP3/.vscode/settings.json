@@ -23,7 +23,8 @@
         "typeinfo": "c",
         "-bp2.h": "c",
         "-bp2decl.h": "c",
-        "consolemessages.h": "c"
+        "consolemessages.h": "c",
+        "complex": "c"
     },
     "search.useParentIgnoreFiles": true,
     "search.useGlobalIgnoreFiles": false

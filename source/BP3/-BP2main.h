@@ -459,7 +459,7 @@ double MaxFrac;
 int HaveAppearanceManager;
 int RunningOnOSX;
 int WaitForSpace, WaitForEver;
-short MPEnote[17], MPEscale[17];
+short MPEnote[17], MPEold_note[17], MPEnew_note[17], MPEscale[17];
 int MPEpitch[17];
 int ToldPitchbend, ToldStop;
 // ControlActionUPP vScrollUPP,hScrollUPP;

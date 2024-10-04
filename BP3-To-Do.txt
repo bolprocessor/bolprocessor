@@ -20,12 +20,10 @@ https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
 Microtonal scales and tuning systems
 ------------------------------------
 
-- If the interval is very different from 2 (e.g. 3 in Bohlen-Pierce), try transposing notes so that pitchbend corrections are within ± 200 cents.
 - Retuning the MIDI device to diapason A4 ≠ 440 Hz does not work or makes a mess (e.g. Windows 10, Microsoft GS Wavetable Synth).
 - Also check that setting pitchbend range to ± 200 cents on all channels works.
 - Include values for optional stretching of each octave.
 - Implement a performance control to set the A4 frequency (diapason) in the score.
-- Try more systems, such as a few ones listed on the page https://midi.org/microtuning-and-alternative-intonation-systems
 
 
 Capture (in process)
