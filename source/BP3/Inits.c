@@ -243,6 +243,7 @@ int Inits(void) {
 
 	for(ch = 0; ch < MAXCHAN; ch++) {
 		MPEnote[ch] = 0;
+		MPEold_note[ch] = MPEnew_note[ch] = -1;
 		MPEscale[ch] = -1;
 		MPEpitch[ch] = -1;
 		}

@@ -1376,7 +1376,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
             channel = 0; midiData[0] = status; // Input events are forced to channel 1
             if(status == NoteOn && value > 0) {
                 if(blockkey == 0) blockkey = DefaultBlockKey;
-                correction = (*(*Scale)[i_scale].deviation)[key] - (*(*Scale)[i_scale].deviation)[blockkey];
+                correction = (*(*Scale)[i_scale].deviation)[key] + (*(*Scale)[i_scale].blockkey_shift)[blockkey];
                 if(TraceMicrotonality) {
                     BPPrintMessage(0,odInfo,"§ NoteOn %d chan %d scale #%d",key,(channel+1),i_scale);
                     BPPrintMessage(0,odInfo," basekey %d blockkey %d correction %d cents\n",blockkey,basekey,correction);

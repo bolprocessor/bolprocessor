@@ -7,8 +7,9 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 
-2024-10-03
-Fixed microtonality for numgrades < 12
+2024-10-04 (version 3.0.11)
+Fixed microtonality algorithms so that any scale can be used in real-time MIDI or MIDI files as well as in Csound. For example, the Bohlen-Pierce scale with a a "tritave" interval of ratio 3/1 instead of 2/1.
+See updates on https://bolprocessor.org/check-midi-microtonality/
 
 -----
 2024-10-01

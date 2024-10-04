@@ -1477,6 +1477,16 @@ int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch)
 		BPPrintMessage(0,odError,"=> i_scale >= MAXCONVENTIONS (100)\n");
 		i_scale = 0;
 		}
+	if(status == NoteOff || value == 0) {
+		for(ch = 1; ch < MAXCHAN; ch++) {
+			if(MPEold_note[ch] == note && MPEscale[ch] == i_scale && MPEpitch[ch] == pitch) {
+				MPEnote[ch] = 0;
+				MPEscale[ch] = -1;
+				MPEpitch[ch] = -1;
+            	return ch;
+				}
+			}
+		}
     for(ch = 1; ch < MAXCHAN; ch++) {
         if(MPEnote[ch] == note)  {
             if((status == NoteOff || value == 0) && MPEscale[ch] == i_scale && MPEpitch[ch] == pitch) {
@@ -1491,7 +1501,7 @@ int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch)
     for(ch = 1; ch < MAXCHAN; ch++) {
         if(MPEnote[ch] == 0 && MPEscale[ch] == -1) {
             if(status == NoteOn && value > 0) {
-                MPEnote[ch] = note;
+				MPEnote[ch] = note;
 				MPEscale[ch] = i_scale;
 				MPEpitch[ch] = pitch;
                 return ch;
@@ -1504,7 +1514,7 @@ int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch)
 int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds time, int nseq, int *p_rs, MIDI_Event *p_e) {
 	// nseq is useless
 	long count = 12L;
-	int c0,c1,c2,status,channel,result,type,i_scale,note,i_note,keyclass,octave,value,sensitivity,correction,pitchbend_master;
+	int c0,c1,c2,status,channel,result,type,i_scale,note,i_note,temp_note,this_note,keyclass,octave,temp_octave,value,sensitivity,correction,pitchbend_master;
 	unsigned long done;
 	byte midibyte;
 	MIDI_Event pb_event;
@@ -1526,7 +1536,6 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	i_scale = -1;
 	if(type != NoteOn && type != NoteOff) i_scale = blockkey = 0;
 //	BPPrintMessage(0,odInfo,"scale = %d\n",scale);
-//	if(MIDImicrotonality && (type == NoteOn || type == NoteOff)) {
 	if(MIDImicrotonality ) {
 		i_scale = FindScale(scale);
 		// BPPrintMessage(0,odInfo,"i_scale = %d\n",i_scale);
@@ -1535,7 +1544,11 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 			if(pitchbend_master > 0 && pitchbend_master < 16384) pitchbend_master -= DEFTPITCHBEND;
 			else pitchbend_master = 0;
 			channel = AssignUniqueChannel(type,note,value,i_scale,pitchbend_master);
-			if(channel > 0) p_e->status = type + channel;
+			p_e->status = type + channel;
+			if(type == NoteOff || (type == NoteOn && value == 0)) {
+				if(MPEold_note[channel] == note) note = p_e->data1 = MPEnew_note[channel];
+				MPEold_note[channel] = MPEnew_note[channel] = -1;
+				}
 			if(type == NoteOn && value > 0 && channel > 0) {
 				if(blockkey < 0) blockkey = DefaultBlockKey;
 				if(i_scale == 0) { // 12-grade equal tempered scale
@@ -1547,46 +1560,62 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 						BPPrintMessage(0,odInfo,"§ key %d: \"%s\" channel %d\n",note,this_key,(channel+1));
 						}
 					}
-				else correction = (*(*Scale)[i_scale].deviation)[note] - (*(*Scale)[i_scale].deviation)[blockkey];
-				if(TraceMicrotonality && i_scale > 0) {
-					int basekey = (*Scale)[i_scale].basekey;
-					int numgrades = (*Scale)[i_scale].numgrades;
-					int numnotes = (*Scale)[i_scale].numnotes;
-					int baseoctave = (*Scale)[i_scale].baseoctave;
-					if(numgrades <= 12) { 
-						i_note = 0;
-						keyclass = modulo(note - basekey, 12);
-						octave = baseoctave + floor((double) (note - basekey)  / 12.);
-						frequency = (*Scale)[i_scale].basefreq * pow(2,((double)keyclass/12)) * pow(2,octave - baseoctave);
-						}
-					else {
-						i_note = modulo(note - basekey, numnotes);
-						keyclass = (*((*Scale)[i_scale].keyclass))[i_note];
-						octave = baseoctave + floor((double) (note - basekey) / numnotes);
-						frequency = (*Scale)[i_scale].basefreq * pow(2,((double)keyclass/numgrades)) * pow(2,octave - baseoctave);
-						}
-					double basekey_ratio = (*((*Scale)[i_scale].tuningratio))[0];
-
-					if(check_corrections) BPPrintMessage(0,odInfo,"i_note = %d, keyclass = %d, numnotes = %d, basekey = %d, block key = %d, octave = %d\n",i_note,keyclass,numnotes,basekey,blockkey,octave);
-					frequency = frequency * basekey_ratio;
-					frequency = frequency * pow(2, ((double) correction / 1200.));
-					frequency = frequency * A4freq / 440.;
-					my_sprintf(this_key,"%s%d",*((*(*Scale)[i_scale].notenames)[keyclass]),octave);
-					trim_digits_after_key_hash(this_key); // Remove the octave number after key#xx
-					BPPrintMessage(0,odInfo,"§ key %d: \"%s\" channel %d",note,this_key,(channel+1));
-					BPPrintMessage(0,odInfo," scale #%d, block key %d, corr %d cents, freq %.3f Hz",i_scale,blockkey,correction,frequency);
-					if(basekey != 60) BPPrintMessage(0,odInfo," — base key %d in scale",basekey);
-					if(basekey_ratio < 0.9 || basekey_ratio > 1.1) BPPrintMessage(0,odInfo,", ratio %;3f",basekey_ratio);
-					BPPrintMessage(0,odInfo,"\n");
+				else {
+					correction = (*(*Scale)[i_scale].deviation)[note] + (*(*Scale)[i_scale].blockkey_shift)[blockkey];
 					}
 				// With a pitch bend sensitivity of 2 semitones, the entire pitch bend range (14-bit) will correspond to ± 2 semitones.
 				// The 14-bit range is 16384 values (from 0 to 16383), with 8192 being the center (no pitch bend).
 				// Therefore, 2 semitones = 200 cents corresponds to 8192 units, and 1 cent is 8192 / 200 units
 				sensitivity = 2; // semitones
 				if(pitchbend_master != 0  && TraceMicrotonality) BPPrintMessage(0,odInfo,"--> with additional pitchbend value of %d\n",pitchbend_master);
-				if(correction < -200 || correction >= 200) {
-					if(ToldPitchbend++ < 20) BPPrintMessage(0,odError,"=> Microtonality pitchbender out of range ± 200 cents: %d cents, key #%d\n",correction,note);
-					correction = 0;
+				this_note = note;
+				if(correction < -100 || correction >= 100) {
+					int new_note = note + floor(correction / 100.);
+					if(new_note >= 0 && new_note < 128) {
+						correction -= 100. * (new_note - note);
+						MPEold_note[channel] = note;
+						note = p_e->data1 = new_note;
+						MPEnote[channel] = MPEnew_note[channel] = note;
+						}
+					else {
+						BPPrintMessage(0,odError,"=> Microtonality pitchbender out of range ± 200 cents: %d cents, key #%d, can't be processed\n",correction,note);
+						correction = 0;
+						}
+					}
+				if(TraceMicrotonality && i_scale > 0) {
+					int basekey = (*Scale)[i_scale].basekey;
+					int numgrades = (*Scale)[i_scale].numgrades;
+					int numnotes = (*Scale)[i_scale].numnotes;
+					int baseoctave = (*Scale)[i_scale].baseoctave;
+					double interval = (*Scale)[i_scale].interval;
+					if(numgrades <= 12) { 
+						i_note = 0;
+						keyclass = modulo(this_note - basekey, numgrades);
+						octave = baseoctave + floor((double) (this_note - basekey)  / numgrades);
+						}
+					else {
+						i_note = modulo(this_note - basekey, numnotes);
+						keyclass = (*((*Scale)[i_scale].keyclass))[i_note];
+						octave = baseoctave + floor((double) (this_note - basekey) / numnotes);
+						}
+					double basekey_ratio = (*((*Scale)[i_scale].tuningratio))[0];
+					temp_note = modulo(note - basekey, 12);
+					temp_octave = baseoctave + floor((double) (note - basekey) / 12);
+					frequency = (*Scale)[i_scale].basefreq * pow(2,((double)temp_note/12)) * pow(2,temp_octave - baseoctave);
+					if(check_corrections) 
+						BPPrintMessage(0,odInfo,"i_note = %d, keyclass = %d, numnotes = %d, basekey = %d, block key = %d, octave = %d\n",i_note,keyclass,numnotes,basekey,blockkey,octave);
+					frequency = frequency * basekey_ratio;
+					frequency = frequency * pow(2, ((double) correction / 1200.));
+					frequency = frequency * A4freq / 440.;
+					my_sprintf(this_key,"%s%d",*((*(*Scale)[i_scale].notenames)[keyclass]),octave);
+					trim_digits_after_key_hash(this_key); // Remove the octave number after key#xx
+					BPPrintMessage(0,odInfo,"§ key %d: \"%s\" channel %d, scale #%d (block key %d) ",this_note,this_key,(channel+1),i_scale,blockkey);
+					if(note != this_note)
+						BPPrintMessage(0,odInfo,"-> key %d ",note);
+					BPPrintMessage(0,odInfo,"corr %d cents, freq %.3f Hz",correction,frequency);
+					if(basekey != 60) BPPrintMessage(0,odInfo," — base key %d in scale",basekey);
+					if(basekey_ratio < 0.9 || basekey_ratio > 1.1) BPPrintMessage(0,odInfo,", ratio %;3f",basekey_ratio);
+					BPPrintMessage(0,odInfo,"\n");
 					}
 				pitchBendValue = pitchbend_master + DEFTPITCHBEND + (int)(correction * (0.01 * DEFTPITCHBEND / sensitivity));
 				if(pitchBendValue < 0) {
@@ -2010,8 +2039,8 @@ int PrintThisNote(int i_scale,int key,int channel,int wind,char* line) {
 		int numnotes = (*Scale)[i_scale].numnotes;
 		int baseoctave = (*Scale)[i_scale].baseoctave;
 		if(numgrades <= 12) {
-			keyclass = modulo(key - basekey, 12);
-			octave = baseoctave + floor(((double)key - basekey) / 12);
+			keyclass = modulo(key - basekey, numgrades);
+			octave = baseoctave + floor(((double)key - basekey) / numgrades);
 			}
 		else {
 			int i_note = modulo(key - basekey, numnotes);
@@ -2019,7 +2048,6 @@ int PrintThisNote(int i_scale,int key,int channel,int wind,char* line) {
 			octave = baseoctave + floor((((double)key - basekey)) / numnotes);
 			}
 		my_sprintf(line,"%s%d%s",*((*(*Scale)[i_scale].notenames)[keyclass]),octave,channelstring);
-	//	my_sprintf(line,"%s%s",*((*(p_NoteName[jscale]))[key]),channelstring);
 		}	
 	else {	
 	/*	key -= (C4key - 60);
