@@ -1514,7 +1514,7 @@ int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch)
 int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds time, int nseq, int *p_rs, MIDI_Event *p_e) {
 	// nseq is useless
 	long count = 12L;
-	int c0,c1,c2,status,channel,result,type,i_scale,note,i_note,temp_note,this_note,keyclass,octave,temp_octave,value,sensitivity,correction,pitchbend_master;
+	int c1,c2,status,channel,result,type,i_scale,note,i_note,temp_note,this_note,keyclass,octave,temp_octave,value,sensitivity,correction,pitchbend_master;
 	unsigned long done;
 	byte midibyte;
 	MIDI_Event pb_event;
@@ -1529,6 +1529,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	if(Panic || EmergencyExit) return(ABORT);
 	if(!MIDIfileOn && !rtMIDI) return(OK);
 	status = ByteToInt(p_e->status);
+	channel = status % 16;
 	note = ByteToInt(p_e->data1);
 	type = status & 0xF0;
 	value = ByteToInt(p_e->data2);
@@ -1564,14 +1565,13 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 					correction = (*(*Scale)[i_scale].deviation)[note] + (*(*Scale)[i_scale].blockkey_shift)[blockkey];
 					}
 				// With a pitch bend sensitivity of 2 semitones, the entire pitch bend range (14-bit) will correspond to ± 2 semitones.
-				// The 14-bit range is 16384 values (from 0 to 16383), with 8192 being the center (no pitch bend).
-				// Therefore, 2 semitones = 200 cents corresponds to 8192 units, and 1 cent is 8192 / 200 units
+				// The 14-bit range is 16384 values (from 0 to 16383), with 8192 being the center (no pitch bend). Therefore, 2 semitones = 200 cents corresponds to 8192 units, and 1 cent is 8192 / 200 units
 				sensitivity = 2; // semitones
 				if(pitchbend_master != 0  && TraceMicrotonality) BPPrintMessage(0,odInfo,"--> with additional pitchbend value of %d\n",pitchbend_master);
 				this_note = note;
 				if(correction < -100 || correction >= 100) {
 					int new_note = note + floor(correction / 100.);
-					if(new_note >= 0 && new_note < 128) {
+					if(new_note >= 0 && new_note < MAXKEY) {
 						correction -= 100. * (new_note - note);
 						MPEold_note[channel] = note;
 						note = p_e->data1 = new_note;
@@ -1640,23 +1640,22 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 					eventStack[eventCount].scale = i_scale;
 					eventCount++;
 					}
-				else {  // Send pitchbend to MIDI file
+				else if(MIDIfileOn && MIDIfileOpened) {  // Send pitchbend to MIDI file
 					midibyte = pb_event.status;
-					if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+					if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 					midibyte = pb_event.data1;
-					if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+					if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 					midibyte = pb_event.data2;
-					if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
-					if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"Sending pitchbend to MIDI file: %d %d %d\n",pb_event.status,pb_event.data1,pb_event.data2);
-					status = type + channel;
+					if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+					if(TraceMIDIinteraction) 
+						BPPrintMessage(0,odInfo,"Sending pitchbend to MIDI file: %d %d %d\n",pb_event.status,pb_event.data1,pb_event.data2);
 					}
 				}
 			}
 		}
 	if(rtMIDI) {
-  		if(trace_driver) {
+  		if(trace_driver)
 			BPPrintMessage(0,odInfo,"Sending MIDI event to stack, date = %ld ms,\tstatus = %ld,\tdata1 = %ld,\tdata2 = %ld\n",(long)time,(long)p_e->status,(long)p_e->data1,(long)p_e->data2);
-			}
 		if((result = MIDIflush(0)) != OK) return result;
 		eventStack[eventCount] = *p_e;
 		eventStack[eventCount].time = 1000 * time;
@@ -1675,36 +1674,31 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 		}
 
 	// The following is for MIDI files
+	if(!MIDIfileOn || !MIDIfileOpened) return OK;
+	status = type + channel;
 	if(p_e->type == RAW_EVENT || p_e->type == TWO_BYTE_EVENT) {
 		if(p_e->type == TWO_BYTE_EVENT) {
 			midibyte = p_e->status;
-			if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+			if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 			}
 		midibyte = p_e->data2;
-		if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+		if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 		*p_rs = 0;
 		return(OK);
 		}
-	// The event is NORMAL_EVENT type
-	/* Don't use running status when capturing event stream, or
-	when sending to any MIDI driver that does not communicate
-	directly with a Serial port (eg. OMS, CoreMIDI, etc.) */
 	if(ItemCapture) *p_rs = 0;
-	channel = status % 16;
-	c0 = status - channel;
-	if(trace_driver) BPPrintMessage(0,odInfo,"++ SendToDriver() time = %ld c0 = %d\tc1 = %d\tc2 = %d\n",(long)time,c0,ByteToInt(p_e->data1),ByteToInt(p_e->data2));
+	if(trace_driver) 
+		BPPrintMessage(0,odInfo,"++ SendToDriver() time = %ld channel = %d type = %d\tc1 = %d\tc2 = %d\n",(long)time,channel,type,ByteToInt(p_e->data1),ByteToInt(p_e->data2));
 	/* Store if volume */
-	if(MIDIfileOn && MIDIfileOpened) {
-		if(c0 == NoteOn && CurrentVolume[channel+1] == -1)
-			CurrentVolume[channel+1] = DeftVolume;
-		if(c0 == ControlChange) {
-			c1 = ByteToInt(p_e->data1);
-			if(c1 == VolumeControl[channel+1]) {
-				CurrentVolume[channel+1] = ByteToInt(p_e->data2);
-				}
+	if(type == NoteOn && CurrentVolume[channel+1] == -1)
+		CurrentVolume[channel+1] = DeftVolume;
+	if(type == ControlChange) {
+		c1 = ByteToInt(p_e->data1);
+		if(c1 == VolumeControl[channel+1]) {
+			CurrentVolume[channel+1] = ByteToInt(p_e->data2);
 			}
 		}
-	if(status != *p_rs || c0 == ChannelMode /* || c0 == ProgramChange */) {
+	if(status != *p_rs || type == ChannelMode /* || type == ProgramChange */) {
 		/* Send the full Midi event */
 		*p_rs = status;
 		if(p_e->data1 > 255) {
@@ -1716,17 +1710,16 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 			p_e->data2 = 127;
 			}
 		midibyte = status;
-		if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+		if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 		midibyte = p_e->data1;
-		if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+		if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 		midibyte = p_e->data2;
-		if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
-		// if(trace_driver) 
-		BPPrintMessage(0,odInfo,"Full event status = %d c1 = %d c2= %d time = %ld\n",status,ByteToInt(p_e->data1),ByteToInt(p_e->data2),(long)time);
+		if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+		if(trace_driver) 
+			BPPrintMessage(0,odInfo,"Full event status = %d c1 = %d c2= %d time = %ld\n",status,ByteToInt(p_e->data1),ByteToInt(p_e->data2),(long)time);
 		}
 	else {
 		// Skip the status byte, send only data ("running status")
-		// This should probably only be used with direct Serial drivers
 		if(p_e->data1 > 255) {
 			if(Beta) BPPrintMessage(0,odError,"=> Err. SendToDriver(). p_e->data1 = %d\n",p_e->data1);
 			p_e->data1 = 127;
@@ -1743,17 +1736,16 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 		if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 		// Normally, MIDI files accept running status, but our procedure doesn't allow the accumulation of large streams.
 		midibyte = c1;
-		if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
-		if(c0 != ChannelPressure && c0 != ProgramChange) {
-			p_e->time = time / Time_res; // ???
+		if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+		if(type != ChannelPressure && type != ProgramChange) {
+			p_e->time = time;
 			p_e->type = RAW_EVENT;
 			p_e->data2 = c2;
 			midibyte = c2;
-			if(MIDIfileOn && WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
+			if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 			}
-		else BPPrintMessage(0,odError,"=> Err. SendToDriver(). c0 == ChannelPressure\n");
+		else BPPrintMessage(0,odError,"=> Err. SendToDriver(). type == ChannelPressure\n");
 		}
-	SORTIR:
 	return(OK);
 	}
 

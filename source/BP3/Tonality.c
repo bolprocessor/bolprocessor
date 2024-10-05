@@ -90,7 +90,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 				case 7: (*Scale)[NumberScales].basefreq = strtod(curr_arg,NULL); break;
 				case 8: (*Scale)[NumberScales].basekey = basekey = (int) atol(curr_arg);
 					if(TraceMicrotonality) 
-						BPPrintMessage(0,odInfo,"\nCreating key numbers for « %s » (scale %d) with base key #%d:\n%s\n",name,NumberScales,basekey,key_numbers);
+						BPPrintMessage(0,odInfo,"\nCreating key numbers for « %s » (scale #%d) with base key #%d:\n%s\n",name,NumberScales,basekey,key_numbers);
 					if(strlen(key_numbers) > 0) {
 						j = i_note = 0; key_number_string[0] = '\0';
 						for(i = 1; i < strlen(key_numbers); i++) {
@@ -114,7 +114,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 						}
 					j = i_note = j_note  = numnotes = 0;
 					if(TraceMicrotonality) 
-						BPPrintMessage(0,odInfo,"\nLoading note names for « %s » (scale %d):\n%s\n",name,NumberScales,note_names);
+						BPPrintMessage(0,odInfo,"Loading note names for « %s » (scale #%d):\n%s\n",name,NumberScales,note_names);
 					for(i = 1; i < strlen(note_names); i++) {
 						c = note_names[i];
 						this_note[j] = '\0';
@@ -147,7 +147,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 					(*((*Scale)[NumberScales].keyclass))[numnotes] = (*((*Scale)[NumberScales].keyclass))[0];
 					if(strlen(fractions) > 0) {
 						if(TraceMicrotonality)
-							BPPrintMessage(0,odInfo,"\nLoading note ratios for « %s » (scale %d):\n%s\n",name,NumberScales,fractions);
+							BPPrintMessage(0,odInfo,"Loading note ratios for « %s » (scale #%d):\n%s\n",name,NumberScales,fractions);
 						j = i_note = 0;
 						numerator = TRUE;
 						for(i = 1; i < strlen(fractions); i++) {
@@ -210,9 +210,10 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 	MystrcpyStringToHandle(&((*Scale)[i_scale].label),label);
 	if(TraceMicrotonality) {
 		BPPrintMessage(0,odInfo,"👉 Microtonal scale #%d \"%s\" loaded from tonality resources:  %d grades, %d notes\n",i_scale,*((*Scale)[i_scale].label),(*Scale)[i_scale].numgrades,numnotes);
-		BPPrintMessage(0,odInfo,"Deviations are corrections in cents from an equal tempered scale of ");
-		if(numgrades <= 12) BPPrintMessage(0,odInfo,"12 tones\n");
-		else BPPrintMessage(0,odInfo,"%d tones\n",numgrades);
+		BPPrintMessage(0,odInfo,"Deviations are the corrections in cents from a 12-tone equal temperament scale\n");
+		BPPrintMessage(0,odInfo,"Blockkey shift is the additional correction for matching the note to a 12-tone equal temperament scale\n\n");
+	/*	if(numgrades <= 12) BPPrintMessage(0,odInfo,"12 tones\n");
+		else BPPrintMessage(0,odInfo,"%d tones\n",numgrades);*/
 		}
 	blockkey_temp_freq = (*Scale)[i_scale].basefreq * exp((9. / 12) * log((*Scale)[i_scale].interval));
 	
@@ -257,7 +258,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 		if(check_corrections) BPPrintMessage(0,odInfo,"temp_pitch = %.3f, frequency = %.3f, pitch_ratio = %.3f, n = %.3f\n",temp_pitch,frequency,pitch_ratio,n);
 		(*(*Scale)[i_scale].deviation)[key] = (short) (1200. * log2(frequency/temp_pitch));
 		if(TraceMicrotonality) {
-			BPPrintMessage(0,odInfo,"• [%d] %s deviation = %d c, [oct %d] %.3f Hz -> [oct %d] %.3f blockkey shift %d c\n",key,name,(*(*Scale)[i_scale].deviation)[key],temp_octave,temp_pitch,octave,frequency,(*(*Scale)[i_scale].blockkey_shift)[key]);
+			BPPrintMessage(0,odInfo,"key #%d \"%s\" deviation %d c, [oct %d] %.3f Hz -> [oct %d] %.3f Hz, blockkey shift %d c\n",key,name,(*(*Scale)[i_scale].deviation)[key],temp_octave,temp_pitch,octave,frequency,(*(*Scale)[i_scale].blockkey_shift)[key]);
 			}
 		}
 	if(TraceMicrotonality) {

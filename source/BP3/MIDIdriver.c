@@ -1345,7 +1345,7 @@ int ListenToEvents() {
 void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,unsigned char* midiData,int dataSize,long time) {
     // This is real time, unlike SendToDriver() which sends events to eventStack
     // Here we deal with both output and input events (see "direction") even if the latter are not sent to the output because PassInEvent() is not true.
-    int key,status,value,improvize,index,channel,sensitivity,channel_org,capture,note2_done,ctrl2_done,pb2_done, press2_done;
+    int key,this_note,status,value,improvize,index,channel,sensitivity,channel_org,capture,note2_done,ctrl2_done,pb2_done, press2_done;
     unsigned long clocktime, time_now;
     int correction = 0;
     status = midiData[0];
@@ -1373,21 +1373,38 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
                 midiData[1] = key;
                 }
             if(key < 0 || key >= MAXKEY) return;
-            channel = 0; midiData[0] = status; // Input events are forced to channel 1
+			channel = AssignUniqueChannel(status,key,value,i_scale,DEFTPITCHBEND);
+			if(status == NoteOff || (status == NoteOn && value == 0)) {
+				if(MPEold_note[channel] == key) key = midiData[1] = MPEnew_note[channel];
+				MPEold_note[channel] = MPEnew_note[channel] = -1;
+				}
+        //    BPPrintMessage(0,odInfo,"§§ Note %d velocity %d channel %d i_scale = %d\n",key,value,channel,i_scale);
+            midiData[0] = status + channel;
             if(status == NoteOn && value > 0) {
                 if(blockkey == 0) blockkey = DefaultBlockKey;
                 correction = (*(*Scale)[i_scale].deviation)[key] + (*(*Scale)[i_scale].blockkey_shift)[blockkey];
-                if(TraceMicrotonality) {
-                    BPPrintMessage(0,odInfo,"§ NoteOn %d chan %d scale #%d",key,(channel+1),i_scale);
-                    BPPrintMessage(0,odInfo," basekey %d blockkey %d correction %d cents\n",blockkey,basekey,correction);
-                    }
                 // With a pitch bend sensitivity of 2 semitones, the entire pitch bend range (14-bit) will correspond to ± 2 semitones.
-                // The 14-bit range is 16384 values (from 0 to 16383), with 8192 being the center (no pitch bend).
-                // Therefore, 2 semitones = 200 cents corresponds to 8192 units, and 1 cent is 8192 / 200 units
+                // The 14-bit range is 16384 values (from 0 to 16383), with 8192 being the center (no pitch bend). Therefore, 2 semitones = 200 cents corresponds to 8192 units, and 1 cent is 8192 / 200 units
                 sensitivity = 2; // semitones
-                if(correction < -200 || correction >= 200) {
-                    BPPrintMessage(0,odError,"=> Pitchbender is out of range ± 200 cents: %d  cents key %d\n",correction,key);
-                    correction = 0;
+                this_note = key;
+                if(correction < -100 || correction >= 100) {
+					int new_key = key + floor(correction / 100.);
+					if(new_key >= 0 && new_key < MAXKEY) {
+						correction -= 100. * (new_key - key);
+						MPEold_note[channel] = key;
+						key = midiData[1] = new_key;
+						MPEnote[channel] = MPEnew_note[channel] = key;
+						}
+					else {
+						BPPrintMessage(0,odError,"=> Microtonality pitchbender out of range ± 200 cents: %d cents, key #%d, can't be processed\n",correction,key);
+						correction = 0;
+						}
+                    }
+                if(TraceMicrotonality) {
+                    BPPrintMessage(0,odInfo,"§ key %d chan %d, scale #%d ",this_note,(channel+1),i_scale);
+					if(key != this_note)
+						BPPrintMessage(0,odInfo,"-> key %d ",key);
+					BPPrintMessage(0,odInfo,"corr %d cents\n",correction);
                     }
                 if(correction != 0) {
                     pitchBendValue = DEFTPITCHBEND + (int)(correction * (0.01 * DEFTPITCHBEND / sensitivity));
@@ -1399,9 +1416,6 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
             //      BPPrintMessage(0,odInfo,"• pitchBendValue channel %d: %d = %d %d %d\n",channel,pitchBendValue,(int)midiData2[0],(int)midiData2[1],(int)midiData2[2]);
                     sendMIDIEvent(kcurrentinstance,0,OUT,0,midiData2,3,time);
                     }
-                }
-            else {
-                channel = channel_org;
                 }
             }
         if(test_first_events && direction == OUT && NumEventsWritten < 100) {
