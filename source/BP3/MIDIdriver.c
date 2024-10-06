@@ -72,7 +72,7 @@ int trace_messages = 0;
 int initializeMIDISystem(void) {
     int found,changed,fixed,index;
     char filename[MAXNAME];
-    int i, firstchoice, result, error, done_input, done_inputport[MAXPORTS], done_output, done_outputport[MAXPORTS], busyinput[MAXPORTS], busyoutput[MAXPORTS],doneMIDIinput[MAXPORTS],MIDIinputclient[MAXPORTS],doneMIDIoutput[MAXCLIENTS];
+    int i, j, firstchoice, result, error, done_input, busyforoutput, done_inputport[MAXPORTS], done_output, done_outputport[MAXPORTS], busyinput[MAXPORTS], busyoutput[MAXPORTS],doneMIDIinput[MAXPORTS],MIDIinputclient[MAXPORTS],doneMIDIoutput[MAXCLIENTS];
     char more_outputs, more_inputs;
     char name[MAXNAME],firstname[MAXNAME];
     FILE * ptr;
@@ -148,6 +148,11 @@ int initializeMIDISystem(void) {
                     busyinput[i] = 1;
                     continue; // Skip to next device
                     }
+                busyforoutput = FALSE; // 2024-10-06
+                for(j = 0; j < MaxOutputPorts; j++) {
+                    if(MIDIoutput[j] == i) busyforoutput =TRUE;
+                    }
+                if(busyforoutput) continue;
                 if(strcmp(mic.szPname,MIDIinputname[index]) == 0) {
                     busyinput[i] = 1;
                     resultopen = midiInOpen(&hMIDIin[i], i, (DWORD_PTR)MyMIDIInProc, (DWORD_PTR)i, CALLBACK_FUNCTION);
@@ -235,6 +240,11 @@ int initializeMIDISystem(void) {
                 found = 0; firstchoice = -1;
                 for(i = 0; i < numMidiInDevs; i++) {
                     if(busyinput[i]) continue;
+                    busyforoutput = FALSE; // 2024-10-06
+                    for(j = 0; j < MaxOutputPorts; j++) {
+                        if(MIDIoutput[j] == i) busyforoutput =TRUE;
+                        }
+                    if(busyforoutput) continue;
                     if(midiInGetDevCaps(i, &mic, sizeof(mic)) != MMSYSERR_NOERROR) {
                         BPPrintMessage(0,odError,"=> Error retrieving MIDI input device capabilities #%d\n",i);
                         busyinput[i] = 1;
@@ -278,7 +288,7 @@ int initializeMIDISystem(void) {
                         busyinput[firstchoice] = 1;
                         MIDIinput[index] = firstchoice;
                         changed = 1;
-                        if (!Interactive)
+                        if(!Interactive)
                             BPPrintMessage(0,odInfo, "MIDI input %d makes BP3 interactive\n", MIDIinput[index]);
                         Interactive = TRUE;
                         continue;
@@ -395,6 +405,11 @@ int initializeMIDISystem(void) {
                         BPPrintMessage(0,odError,"This MIDI input %d is inactive\n",i);
                         continue;
                         }
+                    busyforoutput = FALSE; // 2024-10-06
+                    for(j = 0; j < MaxOutputPorts; j++) {
+                        if(MIDIoutput[j] == i) busyforoutput =TRUE;
+                        }
+                    if(busyforoutput) continue;
                     if(strcmp(name,MIDIinputname[index]) == 0) {
                         BPPrintMessage(0,odInfo,"MIDI input = %d: “%s”",i,name);
                         BPPrintMessage(0,odInfo," 👉 the name of your choice\n");
@@ -482,6 +497,11 @@ int initializeMIDISystem(void) {
                     endpointName = NULL;
                     if(MIDIObjectGetStringProperty(inputdestination, kMIDIPropertyName, &endpointName) == noErr) {
                         CFStringGetCString(endpointName, name, sizeof(name), kCFStringEncodingUTF8);
+                        busyforoutput = FALSE; // 2024-10-06
+                        for(j = 0; j < MaxOutputPorts; j++) {
+                            if(MIDIoutput[j] == i) busyforoutput =TRUE;
+                            }
+                        if(busyforoutput) continue;
                         if(firstchoice < 0) firstchoice = i;
                         if(!found && MIDIinput[index] == i) {
                             BPPrintMessage(0,odInfo,"MIDI input = %d: “%s”",i,name);
@@ -611,6 +631,11 @@ int initializeMIDISystem(void) {
                     //      BPPrintMessage(0,odInfo, "#??? MIDI input = %d: \"%s\" (port %d)\n",client,port_name,port_id);
                         if((port_cap & SND_SEQ_PORT_CAP_READ) && !(port_cap & SND_SEQ_PORT_CAP_NO_EXPORT)) {
                     //         BPPrintMessage(0,odInfo, "??? MIDI input = %d: \"%s\" (port %d)\n",client,port_name,port_id);
+                            busyforoutput = FALSE; // 2024-10-06
+                            for(j = 0; j < MaxOutputPorts; j++) {
+                                if(strcmp(port_name,MIDIoutputname[j]) == 0) busyforoutput =TRUE;
+                                }
+                            if(busyforoutput) continue;
                             if(strcmp(port_name, MIDIinputname[index]) == 0) {
                                 port_id = snd_seq_port_info_get_port(pinfo);
                                 for (i = 0; i < MaxInputPorts; i++) {
@@ -657,6 +682,11 @@ int initializeMIDISystem(void) {
                         port_id = snd_seq_port_info_get_port(pinfo);
                         port_name = snd_seq_port_info_get_name(pinfo);
                         if((port_cap & SND_SEQ_PORT_CAP_READ) && !(port_cap & SND_SEQ_PORT_CAP_NO_EXPORT)) {
+                            busyforoutput = FALSE; // 2024-10-06
+                            for(j = 0; j < MaxOutputPorts; j++) {
+                                if(strcmp(port_name,MIDIoutputname[j]) == 0) busyforoutput =TRUE;
+                                }
+                            if(busyforoutput) continue;
                             if(firstchoice < 0) {
                                 firstchoice = port_id;
                                 firstclient = client;
