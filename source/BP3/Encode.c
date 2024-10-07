@@ -50,7 +50,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 	int ii,ig,ir,j,jj,key,n,l,ln,lmax,bound,leftside,rightcontext,
 	neg,cv,needsK,needsflag,i_scale,j_scale,result;
 	long i,imax,k,siz,buffsize,y,u,v;
-	char c,d,**pp,*p,*q,*qmax,*r,*ptr,line[MAXLIN],**p_x;
+	char c,d,**pp,*p_mem,*p,*q,*qmax,*r,*ptr,line[MAXLIN],**p_x;
 	// wchar_t c;
 
 	p_flaglist **nexth,**oldh;
@@ -416,6 +416,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 						break;
 					}
 				c = NextChar(pp);
+				p_mem = *pp;
 				continue;
 				}
 			goto SEARCHTERMINAL2;	/* Found "_" */
@@ -424,6 +425,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 		if(c == '/') {		/* Look for /flag/ */
 			q = *pp;
 			c = *(++q);
+			p_mem = *pp;
 			if(c == '/' && arg_nr == 0) { /* Remark starting with "//" */ 
 				break;
 				}
@@ -433,13 +435,14 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 					Print(wTrace,Message);
 					goto ERR;
 					}
-				(*pp)++; NextChar(pp);
+		/*		if((unsigned char) **pp >= 0xC0) (*pp) += 2; // 2-byte Unicode
+				else */
+		//		(*pp)++;
+				MoveOneChar(pp);
+				NextChar(pp);
+				p_mem = *pp;
 				l = 0;
-			/*	while(!MySpace(c=**pp) && c != '/' && c != '=' && c != '-' && c != '+'
-						&& c != '<' && c != '\8800' && c != '>' && c != '\8804'
-						&& c != '\8805') { */
-				while(!MySpace(c=**pp) && c != '/' && c != '=' && c != '-' && c != '+'
-						&& c != '<' && c != '>') {
+				while(!MySpace(c = **pp) && strncmp(&c, "/", 1) != 0 && strncmp(&c, "=", 1) != 0 && strncmp(&c, "-", 1) != 0 && strncmp(&c, "+", 1) != 0 && strncmp(&c, "<", 1) != 0 && strncmp(&c, ">", 1) != 0 && strncmp(p_mem, "≥", strlen("≥")) != 0 && strncmp(p_mem, "≤", strlen("≤")) != 0 && strncmp(p_mem, "≠", strlen("≠")) != 0) {
 					(*p_x)[l++] = c;
 					if(l >= BOLSIZE) {
 						ShowError(4,igram,irul);
@@ -447,7 +450,11 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 						Print(wTrace,Message);
 						goto ERR;
 						}
-					(*pp)++;
+			/*		if((unsigned char) **pp >= 0xC0) (*pp) += 2; // 2-byte Unicode
+					else */
+				//	(*pp)++;
+					MoveOneChar(pp);
+					p_mem = *pp;
 					if((*pp) > (*pp2)) {
 						ShowError(11,igram,irul);
 						goto ERR;
@@ -459,19 +466,17 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 					goto ERR;
 					}
 				if(MySpace(c)) c = NextChar(pp);
+				p_mem =  *pp;
 				needsK = needsflag = FALSE;
-			/*	if(c == '=' || c == '-' || c == '+' || c == '>' || c == '<' || c == '\8800'
-								|| c == '\8804' || c == '\8805') { */
-				if(c == '=' || c == '-' || c == '+' || c == '>' || c == '<') {
-					if(c == '=' && arg_nr != 1 && arg_nr != 2) {
+				if(strncmp(&c, "=", 1) == 0 || strncmp(&c, "-", 1) == 0 || strncmp(&c, "+", 1) == 0 || strncmp(&c, ">", 1) == 0 || strncmp(&c, "<", 1) == 0 || strncmp(*pp, "≥", strlen("≥")) == 0 || strncmp(*pp, "≤", strlen("≤")) == 0 || strncmp(*pp, "≠", strlen("≠")) == 0) {
+					if(strncmp(&c, "=", 1) == 0 && arg_nr != 1 && arg_nr != 2) {
 						ShowError(50,igram,irul);
 						goto ERR;
 						}
-					(*pp)++; NextChar(pp);
-				/*	if(c == '>' || c == '<' || c == '\8800'
-								|| c == '\8804' || c == '\8805' || c == '=') { */
-					if(c == '>' || c == '<' || c == '=') {
-						if(c != '='	&& arg_nr != 1) {
+					MoveOneChar(pp);
+					NextChar(pp);
+					if(strncmp(&c, "=", 1) == 0 || strncmp(&c, ">", 1) == 0 || strncmp(&c, "<", 1) == 0 || strncmp(p_mem, "≥", strlen("≥")) == 0 || strncmp(p_mem, "≤", strlen("≤")) == 0 || strncmp(p_mem, "≠", strlen("≠")) == 0) {
+						if(strncmp(&c, "=", 1) != 0	&& arg_nr != 1) {
 							ShowError(51,igram,irul);
 							goto ERR;
 							}
@@ -482,7 +487,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 						j = 0;
 						if(needsK && !isdigit(**pp)) (*p_x)[j++] = 'K';
 						if(!isdigit(**pp)) {
-							while(!MySpace(d=**pp) && d != '/') {
+							while(!MySpace(d = **pp) && strncmp(&d, "/", 1) != 0) {
 								(*p_x)[j++] = d;
 								if(j >= BOLSIZE) {
 									ShowError(4,igram,irul);
@@ -490,7 +495,10 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 									Print(wTrace,Message);
 									goto ERR;
 									}
-								(*pp)++;
+				/*				if((unsigned char) **pp >= 0xC0) (*pp) += 2; // 2-byte Unicode
+								else */
+						//		(*pp)++;
+								MoveOneChar(pp);
 								if((*pp) > (*pp2)) {
 									ShowError(11,igram,irul);
 									goto ERR;
@@ -535,36 +543,35 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 				if(needsflag) (**nexth).paramcontrol = 2;
 				if(arg_nr == 2) (**nexth).increment = 1;
 				if(arg_nr == 1) (**nexth).increment = 0;
-				if(c == '+') (**nexth).increment = n;
-				if(c == '-') (**nexth).increment = - n;
+				if(strncmp(&c,"+",1) == 0) (**nexth).increment = n;
+				if(strncmp(&c,"-",1) == 0) (**nexth).increment = - n;
 				(**nexth).operator = OFF;
-				if(c == '=') {
+				if(strncmp(&c,"=",1) == 0) {
 					if(arg_nr == 1)  (**nexth).operator = EQUAL;
 					if(arg_nr == 2) (**nexth).operator = ASSIGN;
+				//	BPPrintMessage(0,odInfo,"@@ EQUAL\n");
 					}
 				if(arg_nr == 1) {
-					switch(c) {
-				/*		case '\8800': // Check https://wutils.com/unicode/
-							(**nexth).operator = DIF;
-							break; */
-						case '<':
-							(**nexth).operator = INF;
-							break;
-						case '>':
-							(**nexth).operator = SUP;
-							break;
-				/*		case '\8805':
-							(**nexth).operator = SUPEQUAL;
-							break; */
-				/*		case '\8804':
-							(**nexth).operator = INFEQUAL;
-							break; */
+					if (strncmp(p_mem, "≠", strlen("≠")) == 0)
+						(**nexth).operator = DIF;
+					else if (c == '<')
+						(**nexth).operator = INF;
+					else if (c == '>') {
+						(**nexth).operator = SUP;
+				//		BPPrintMessage(0,odInfo,"@@ SUP\n");
 						}
+					else if (strncmp(p_mem, "≥", strlen("≥")) == 0) {
+						(**nexth).operator = SUPEQUAL;
+				//		BPPrintMessage(0,odInfo,"@@ SUPEQUAL\n");
+						}
+					else if (strncmp(p_mem, "≤", strlen("≤")) == 0)
+						(**nexth).operator = INFEQUAL;
 					}
 				if(*(ph_flag) == NULL) *(ph_flag) = nexth;
 				else (**oldh).p = nexth;
 				(*pp)++;
 				c = NextChar(pp);
+				p_mem = *pp;
 				continue;
 				}
 			}
@@ -607,6 +614,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 					}
 				(*pp)++;
 				c = NextChar(pp);
+				p_mem = *pp;
 				continue;
 				}
 			l = 0;
@@ -689,6 +697,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 					goto ERR;
 					}
 				c = NextChar(pp);
+				p_mem = *pp;
 				continue;
 				}
 			
@@ -716,6 +725,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 				}
 			leftside = neg = FALSE;
 			c = NextChar(pp);
+			p_mem = *pp;
 			continue;
 			}
 
@@ -756,6 +766,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 					}
 				neg = FALSE;
 				c = NextChar(pp);
+				p_mem = *pp;
 				continue;
 				}
 			}
@@ -793,6 +804,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 					goto ERR;
 					}
 				c = NextChar(pp);
+				p_mem = *pp;
 				continue;
 				}
 			}
@@ -872,6 +884,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 				}
 			if((**pp) == '&') bound = TRUE;
 			c = NextChar(pp);
+			p_mem = *pp;
 			continue;
 			}
 
@@ -902,6 +915,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 					}
 				if((**pp) == '&') bound = TRUE;
 				c = NextChar(pp);
+				p_mem = *pp;
 				continue;
 				}
 			}
@@ -930,6 +944,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 				}
 			if((**pp) == '&') bound = TRUE;
 			c = NextChar(pp);
+			p_mem = *pp;
 			continue;
 			}
 		
@@ -957,6 +972,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 				goto ERR;
 				}
 			c = NextChar(pp);
+			p_mem = *pp;
 			continue;
 			}
 		
@@ -990,6 +1006,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 				}
 			(*pp)++;
 			c = NextChar(pp);
+			p_mem = *pp;
 			continue;
 			}
 		if(c == '\'') {			/* terminal between single quotes */
@@ -1035,6 +1052,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 			if((**pp) == '&') bound = TRUE;
 			leftside = neg = FALSE;
 			c = NextChar(pp);
+			p_mem = *pp;
 			continue;
 			}
 
@@ -1058,6 +1076,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 		if((**pp) == '&') bound = TRUE;
 		if(MySpace(**pp)) bound = FALSE;
 		c = NextChar(pp);
+		p_mem = *pp;
 		}
 		
 	FINISHED:
@@ -1077,7 +1096,6 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 	//	DoSystem();
 		goto ERR;
 		}
-
 
 	return(p_buff); //  2024-07-11
 
@@ -1621,8 +1639,7 @@ return(FALSE);
 int ShowError(int i,int igram,int irul)
 {
 char t[255];
-static int fatal[] = {0,1,1,0,0,0,1,0,0,0,0,0,0,1,
-	0,0,0,0,0,1,0,1,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0};
+static int fatal[] = {0,1,1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0};
 static char* err[] = {"",
 "too many grammars", 		/* 1 */
 "too many rules",			/* 2 */
@@ -1687,9 +1704,7 @@ my_sprintf(Message,"Error code %ld: %s",(long)i,err[i]);
 if(igram != 0) {
 	my_sprintf(t," in gram#%ld rule %ld\n",(long)igram,(long)irul);
 	}
-else {
-	strcpy(t,"\n");
-	}
+else strcpy(t,"\n");
 strcat(Message,t);
 // BPPrintMessage(0,odError,Message);
 BPActivateWindow(SLOW,wTrace);
