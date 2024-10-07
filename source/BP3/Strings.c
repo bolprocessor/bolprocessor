@@ -404,13 +404,33 @@ for(i=0; i < strlen(line); i++) line[i] = UpperCase(line[i]);
 return(OK);
 }
 
+char NextChar(char **pp) {
+    while (MySpace(**pp) && **pp != '\r' && **pp != '\n') {
+        // Get the first byte as an unsigned char for proper range checks.
+        unsigned char c = (unsigned char) **pp;
+        if (c >= 0xF0)
+            // 4-byte UTF-8 character
+            (*pp) += 4;
+        else if (c >= 0xE0)
+            // 3-byte UTF-8 character
+            (*pp) += 3;
+        else if (c >= 0xC0)
+            // 2-byte UTF-8 character
+            (*pp) += 2;
+        else
+            // Single-byte character (ASCII)
+            (*pp)++;
+    	}
+    return **pp;
+	}
 
-char NextChar(char **pp)
-{
-while(MySpace(**pp) && **pp != '\r' && **pp != '\n') (*pp)++;
-return(**pp);
-}
-
+void MoveOneChar(char **pp) {
+	if((unsigned char) **pp >= 0xE0) (*pp) += 3; // 4-byte Unicode
+	else if((unsigned char) **pp >= 0xE0) (*pp) += 3; // 3-byte Unicode
+	else if((unsigned char) **pp >= 0xC0) (*pp) += 2; // 2-byte Unicode
+	else (*pp)++;
+	return;
+	}
 
 int CheckEnd(char c)
 {

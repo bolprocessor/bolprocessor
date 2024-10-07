@@ -107,6 +107,7 @@ int Pause(void);
 char GetCap(void);
 char NextChar(char**);
 int CheckEnd(char);
+void MoveOneChar(char**);
 char *GetEnd(char**);
 int ReadToBuff(int,int,int,long*,long,char***);
 void convert_path(char*);
