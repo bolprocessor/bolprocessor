@@ -465,7 +465,6 @@ if(showpianoroll) {
 	}
 
 if(!MIDIfileOn && !cswrite && rtMIDI && !showpianoroll)
-//	drivertime = GetDriverTime();
 	drivertime = getClockTime();
 
 if(Improvize && !Interrupted && !FirstTime && !ItemCapture && !showpianoroll) {
