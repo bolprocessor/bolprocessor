@@ -1699,11 +1699,12 @@ unsigned long getClockTime(void) {  // Microseconds
         QueryPerformanceCounter(&count);  // Get the current value of the performance counter
         the_time = (unsigned long)((count.QuadPart * 1000000) / freq.QuadPart);
     #elif defined(__APPLE__)
-        the_time = clock_gettime_nsec_np(CLOCK_UPTIME_RAW_APPROX) / 1000L;
+        the_time = (unsigned long) clock_gettime_nsec_np(CLOCK_UPTIME_RAW_APPROX) / 1000L;
     #elif defined(__linux__)
         struct timespec ts;
         clock_gettime(CLOCK_MONOTONIC, &ts); // CLOCK_MONOTONIC provides uptime, not affected by system time changes
-        the_time = (uint64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+    //  the_time = (uint64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+        the_time = (unsigned long)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
     #endif
     return(the_time); 
     }

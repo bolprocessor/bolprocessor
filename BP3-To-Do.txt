@@ -21,7 +21,7 @@ Microtonal scales and tuning systems
 ------------------------------------
 
 - Retuning the MIDI device to diapason A4 ≠ 440 Hz does not work or makes a mess (e.g. Windows 10, Microsoft GS Wavetable Synth).
-- Also check that setting pitchbend range to ± 200 cents on all channels works.
+- Check that setting pitchbend range to ± 200 cents on all channels works.
 - Include values for optional stretching of each octave.
 - Implement a performance control to set the A4 frequency (diapason) in the score.
 
@@ -164,12 +164,6 @@ Images
 - In Graphic.c, in the Improvize mode, dates on the ruler are adjusted by the "shift" variable. This doesn't yet work on the "pianoroll" type, because its background is drawn before updating PianorollShift. This can be solved (if felt necessary) by drawing the pianoroll graph after the completion of MakeSound, i.e. when calling DrawItem(). To this effect, the drawings of notes would be stored in a structure.
 - When no settings file is specified, allow the creation of images via a command line option. This option should specify a location for images. Currently, image location is the one of the trace file, which is always specified by the HTML/PHP interface.
 - Revise the drawing of time streaks (the vertical blue lines). These should be adjusted to the (varying) tempo instead of the default metronomic setting.
-
-
-Compilation
------------
-
-- Modify the C source to handle some Unicode characters that are not currently accepted, such as '≤', '≠', '•', '…', etc.
 
 
 Various errors
