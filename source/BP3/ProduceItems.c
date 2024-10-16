@@ -38,6 +38,8 @@
 
 #include "-BP2decl.h"
 
+int trace_produce_all = 0;
+
 int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start)
 /* Produce items. Start string is selection in window w or in buffer p_start */
 {
@@ -49,7 +51,7 @@ unsigned long time_end_compute;
 BPPrintMessage(0,odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
 if(Improvize && ItemNumber == 0) {
 	ShowMessage(TRUE,wMessage,"\nNo message during improvization\n");
-	if(!rtMIDI) ShowMessage(TRUE,wMessage,"Only 10 items will be produced.\n");
+	if(!rtMIDI) BPPrintMessage(1,odInfo,"Only %ld items will be produced.\n",MaxItemsDisplay);
 	}
 time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
 
@@ -203,14 +205,6 @@ if(pp_start == NULL && IsEmpty(w)) {
 		}
 	else goto QUIT;
 	}
-/* if(IsMidiDriverOn()) {
-//	ComputeStart = GetDriverTime();
-	ComputeStart = getClockTime();
-	} */
-
-if(Improvize && ShowGraphic) {
-	ClearWindow(TRUE,wGraphic);
-	}
 
 MAKE:
 if(!Improvize || ShowMessages) ShowMessage(TRUE,wMessage,"\nProducing item(s)...");
@@ -236,6 +230,7 @@ if(!PlaySelectionOn && DisplayProduce) {
 	}
 if(Improvize) {
 	if(!rtMIDI && ItemNumber > MaxItemsDisplay) {
+		BPPrintMessage(0,odInfo,"%ld items have been produced.\n",(long)ItemNumber);
 		Improvize =  FALSE;
 		r = ABORT;
 		goto QUIT;
@@ -361,20 +356,11 @@ r = OK;
 QUIT:
 ComputeOn--;
 
-
 // if(ResetControllers) ResetMIDIControllers(NO,NO,YES);
 ResetMIDIfile();
 // if(ResetMIDI(TRUE) == EXIT) r = EXIT;
 // if(ResetControllers) ResetMIDIControllers(YES,NO,YES);
 PedalOrigin = -1;
-/* Maxitems = ZERO;
-if(!ShowGraphic && !PlaySelectionOn && DisplayItems && !template) {
-	BPActivateWindow(SLOW,OutputWindow);
-	}
-if(!PlaySelectionOn) {
-	if(Improvize) AppendScript(147);
-	else AppendScript(10);
-	} */
 MyDisposeHandle((Handle*)pp_a);
 // ReleaseComputeSpace();
 return(r);
@@ -687,576 +673,512 @@ return(OK);
 }
 
 
-int ProduceAll(t_gram *p_gram,tokenbyte ***pp_a,int template)
-{
-int i,igram,r,showmessages,
-	depth,weightloss,endgram,single,mode;
-long maxdepth,length,****p_flag,****p_weight;
-tokenbyte ****p_stack;
-OSErr io;
-unsigned long time_end_compute;
+int ProduceAll(t_gram *p_gram,tokenbyte ***pp_a,int template) {
+	int i,igram,irul,irep,r,showmessages,depth,weightloss,endgram,mode;
+	long maxdepth,length,****p_flag,****p_weight;
+	tokenbyte ****p_stack;
+	OSErr io;
+	unsigned long time_end_compute;
 
-if(template && ShowNotBP() != OK) return(OK);
-p_flag = NULL; p_weight = NULL;
-depth = 0; maxdepth = 20L;
-single = FALSE;
-ProduceStackIndex = DisplayStackIndex = SkipFlag = FALSE;
+	if(template && ShowNotBP() != OK) return(OK);
+	p_flag = NULL; p_weight = NULL;
+	depth = 0;
+	maxdepth = 20L;
+	ProduceStackIndex = DisplayStackIndex = SkipFlag = FALSE;
 
-time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
+	time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
+	if(rtMIDI) HideMessages = TRUE;
 
-if(Varweight) {
-	if(ResetRuleWeights(0) == ABORT) {
-		if(CompileCheck() != OK) return(OK);
+	if(Varweight) {
+		if(ResetRuleWeights(0) == ABORT) {
+			if(CompileCheck() != OK) return(OK);
+			}
+		weightloss = TRUE;
 		}
-	weightloss = TRUE;
-	}
-if((r=ClearWindow(FALSE,wTrace)) != OK) return(r);
-if(!template) my_sprintf(Message,"Computing all possible items...");
-else my_sprintf(Message,"Computing templates...");
-ShowMessage(TRUE,wMessage,Message);
-(**(pp_a))[0] = T0; (**(pp_a))[1] = 10;
-(**(pp_a))[2] = TEND; (**(pp_a))[3] = TEND;
-if((p_stack = (tokenbyte****) GiveSpace((Size) maxdepth * sizeof(tokenbyte**)))
-			== NULL) return(ABORT);
-if(Jflag > 0) {
-	for(i=1; i <= Jflag; i++) (*p_Flag)[i] = ZERO;
-	if((p_flag = (long****) GiveSpace((Size) maxdepth * sizeof(long**))) == NULL){
+	if(!template) my_sprintf(Message,"Computing all possible items...\n");
+	else my_sprintf(Message,"Computing templates...\n");
+	BPPrintMessage(0,odInfo,Message);
+	(**(pp_a))[0] = T0; (**(pp_a))[1] = 10; // 'S'
+	(**(pp_a))[2] = TEND; (**(pp_a))[3] = TEND;
+	if((p_stack = (tokenbyte****) GiveSpace((Size) maxdepth * sizeof(tokenbyte**))) == NULL) return(ABORT);
+	if(Jflag > 0) {
+		for(i=1; i <= Jflag; i++) (*p_Flag)[i] = ZERO;
+		if((p_flag = (long****) GiveSpace((Size) maxdepth * sizeof(long**))) == NULL) {
+			r = ABORT; goto END;
+			}
+		}
+	ResetRuleWeights(0);
+	if((p_weight=(long****) GiveSpace((Size) maxdepth * sizeof(long**))) == NULL) {
 		r = ABORT; goto END;
 		}
-	}
-ResetRuleWeights(0);
-if((p_weight=(long****) GiveSpace((Size) maxdepth * sizeof(long**))) == NULL) {
-	r = ABORT; goto END;
-	}
-if(!template) {
-	DataOrigin = GetTextLength(OutputWindow);
-	SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
-	}
-
-Prod = 1.; r = OK;
-length = LengthOf(pp_a);
-if(template) {
-	mode = TEMP;
-	endgram = LastStructuralSubgrammar();
-	if(endgram == ABORT) goto END;
-	if(endgram == 0) {
-		Alert1("This grammar has no structural rules\nand does not require templates");
-		goto END;
+	if(!template) {
+		DataOrigin = GetTextLength(OutputWindow);
+		SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
 		}
-	if((r=DeleteTemplates()) != OK) goto END;
-	}
-else {
-	mode = PROD;
-	// FIXME ? Should we bother asking this when (*p_gram).number_gram == 1 ?
-	if((r = Answer("Try all rules\nin all grammars",'Y')) == ABORT) goto END;
-	if(r == OK) endgram = (*p_gram).number_gram;
+	Prod = 1.; r = OK;
+	length = LengthOf(pp_a);
+	if(template) {
+		mode = TEMP;
+		endgram = LastStructuralSubgrammar();
+		if(endgram == ABORT) goto END;
+		if(endgram == 0) {
+			BPPrintMessage(0,odError,"=> This grammar has no structural rules\nand does not require templates\n");
+			goto END;
+			}
+		if((r=DeleteTemplates()) != OK) goto END;
+		}
 	else {
-		r = OK;
-		if((endgram=LastGrammarWanted((*p_gram).number_gram)) == ABORT) goto END;
+		mode = PROD;
+		endgram = (*p_gram).number_gram;
+/*		if((r = Answer("Try all rules\nin all grammars",'Y')) == ABORT) goto END;
+		if(r == OK) endgram = (*p_gram).number_gram;
+		else {
+			r = OK;
+			if((endgram=LastGrammarWanted((*p_gram).number_gram)) == ABORT) goto END;
+			} */
 		}
-	}
-#if BP_CARBON_GUI_FORGET_THIS
-// FIXME: Need to redo temp file I/O in order to be able to discard repeats in console build
-// FIXME: "Discard repeated items" should be an option that can be set before the operation
-if(!template) {
-	r = Answer("Discard repeated items\n(May take time...)",'Y');
-	if(r == ABORT) goto END;
-	}
-else r = YES;
-if(r == YES) {
-	single = TRUE;
-	if(OpenTemp() != OK) {
-		Alert1("Couldn't create 'BP2.temp' file in temporary folder...  No possibility to reject identical items");
-		single = FALSE;
-		}
-	}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-igram = 1;
-AllOn = TRUE;
-showmessages = ShowMessages;
-ShowMessages = FALSE;
-
-if((r = ShowItem(1,p_gram,FALSE,pp_a,FALSE,mode,TRUE))
-	== ABORT || r == FINISH || r == EXIT) goto END;
-r = AllFollowingItems(p_gram,pp_a,p_weight,p_flag,&length,igram,TRUE,
-	template,endgram,p_stack,&depth,&maxdepth,single,mode,time_end_compute);
-
-ShowMessages = showmessages;
-
+	igram = irul = irep = 1;
+	showmessages = ShowMessages;
+	ShowMessages = FALSE;
+	if((r = ShowItem(1,p_gram,FALSE,pp_a,FALSE,mode,TRUE)) == ABORT || r == FINISH || r == EXIT) goto END;
+	r = AllFollowingItems(p_gram,pp_a,p_weight,p_flag,&length,igram,irul,irep,TRUE,
+		template,endgram,p_stack,&depth,&maxdepth,mode,time_end_compute,0);
+	ShowMessages = showmessages;
+	BPPrintMessage(0,odInfo,"👉 %d items have been produced\n",ItemNumber);
 END:
-MyDisposeHandle((Handle*)&p_stack);
-MyDisposeHandle((Handle*)&p_weight);
-MyDisposeHandle((Handle*)&p_flag);
-
-AllOn = FALSE;
-#if BP_CARBON_GUI_FORGET_THIS
-if(single) CloseAndDeleteTemp();
-if(template && ItemNumber > 10L) SysBeep(10);
-// HideWindow(Window[wInfo]);
-if(!template) {
-	my_sprintf(Message,"Produced %ld items", ItemNumber);
-	ShowMessage(TRUE,wMessage,Message);
+	MyDisposeHandle((Handle*)&p_stack);
+	MyDisposeHandle((Handle*)&p_weight);
+	MyDisposeHandle((Handle*)&p_flag);
+	if(rtMIDI) HideMessages = FALSE;
+	return(r);
 	}
-else // HideWindow(Window[wMessage]);
-if((*p_gram).hasTEMP && template) {
-	ShowSelect(CENTRE,wGrammar);
-	BPActivateWindow(SLOW,wGrammar);
-	}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-return(r);
-}
 
 
 int AllFollowingItems(t_gram *p_gram,tokenbyte ***pp_a,long ****p_weight,long ****p_flag,
-	long *p_length,int igram,int all,int template,int endgram,tokenbyte ****p_stack,
-	int *p_depth,long *p_maxdepth,int single,int mode,unsigned long time_end_compute)
-{
-int icandidate,irul,r,w,repeat,changed,grtype,irep,nrep;
-long ipos,leftpos,lastpos,incmark;
+	long *p_length,int igram,int irul,int irep,int all,int template,int endgram,tokenbyte ****p_stack,
+	int *p_depth,long *p_maxdepth,int mode,unsigned long time_end_compute,int xxx) {
 
-icandidate = 0;
-ipos = ZERO;
-#if BP_CARBON_GUI_FORGET_THIS
-// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-if((r=MyButton(2)) != MISSED) {
-	if(r == OK) r = InterruptCompute(igram,p_gram,FALSE,ORDtype,mode);
-	if(r != OK) return(r);
-	}
-r = OK;
-if(EventState != NO) {
-	if(Beta) Alert1("EventState != NO in AllFollowingItems()");
-	return(EventState);
-	}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
+		// RECENT
 
-NEXTPOS:
-(*p_length) = LengthOf(pp_a);
-PleaseWait();
-if((r=NextDerivation(pp_a,p_length,&igram,&irul,&ipos,&icandidate,mode,time_end_compute)) == OK) {
-	if((r=PushStack(pp_a,&p_weight,&p_flag,p_length,&p_stack,p_depth,p_maxdepth)) != OK)
-		goto END;
-	if(igram > (*p_gram).number_gram) {
-		if(Beta) Alert1("=> Err. AllFollowingItems(). igram > number_gram [1]");
-		r = ABORT; goto ENDPULL;
+	int icandidate,r,w,repeat,changed,grtype,nrep,old_gram,old_rul,new_gram,new_rul;
+	static int try_number = 1;
+	long leftpos,lastpos,incmark,new_pos;
+	long ipos = ZERO;
+	icandidate = nrep = old_gram = old_rul = 0;
+
+	if((time_end_compute > 0L) && getClockTime() > time_end_compute) {
+		EmergencyExit = TRUE;
+		BPPrintMessage(1,odError,"=> Maximum allowed time (%d seconds) has been spent in AllFollowingItems(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+		return ABORT;
 		}
-	if(irul > (*((*p_gram).p_subgram))[igram].number_rule) {
-		if(Beta) Alert1("=> Err. AllFollowingItems(). irul > number_rule [1]");
-		r = ABORT; goto ENDPULL;
+//	if(igram > endgram) return MISSED;
+	if(FALSE && igram > (*p_gram).number_gram) {
+		BPPrintMessage(1,odError,"=> Err. AllFollowingItems(). igram (%d) > number_gram (%d) [1]\n",igram,(*p_gram).number_gram);
+		return ABORT;
+		}
+	if(FALSE && irul > (*((*p_gram).p_subgram))[igram].number_rule) {
+		BPPrintMessage(1,odError,"=> Err. AllFollowingItems(). irul (%d) > number_rule (%d) [1]\n",irul,(*((*p_gram).p_subgram))[igram].number_rule);
+		return ABORT;
 		}
 	if((grtype=(*((*p_gram).p_subgram))[igram].type) == SUBtype || grtype == SUB1type || grtype == POSLONGtype) {
-		Alert1("Can't produce all items in a 'SUB' or 'SUB1' or 'POSLONG' subgrammar");
-		r = ABORT; goto ENDPULL;
+		BPPrintMessage(1,odError,"=> Can't produce all items in 'SUB' or 'SUB1' or 'POSLONG' subgrammar gram#%d\n",igram);
+		return ABORT;
 		}
 	irep = 1;
-TRY:
-	grtype = ORDtype;
-	repeat = TRUE;	/* This forces imode to 1 in Insert() */
-	leftpos = ZERO; /* Not used */
-	if((r=Derive(pp_a,p_gram,pp_a,p_length,igram,irul,ipos,
-			&leftpos,grtype,repeat,&changed,&lastpos,&incmark,mode,time_end_compute)) < ZERO) {
-		goto ENDPULL; /* Happens if buffer problem */
-		}
-	if((r=ShowItem(igram,p_gram,FALSE,pp_a,FALSE,mode,TRUE)) != OK) goto ENDPULL;
-	/* Check '_repeat' */
-	nrep = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].repeat;
-	if(irep < nrep) {
-TRYAGAIN:
-		if((r=NextDerivation(pp_a,p_length,&igram,&irul,&ipos,&icandidate,mode,time_end_compute)) == OK) {
-			irep++;
-			goto TRY;	/* This needs to be revised */
+NEXTPOS:
+	(*p_length) = LengthOf(pp_a);
+	old_gram = igram; old_rul = irul;
+	if(trace_produce_all) BPPrintMessage(1,odInfo,"\n%d) NextDerivation igram = %d irul = %d icandidate = %d ipos = %d, irep = %d\n",try_number,igram,irul,icandidate,ipos,irep);
+	if((r = NextDerivation(pp_a,p_length,&igram,&irul,&ipos,&icandidate,mode,time_end_compute)) == OK) {
+		if(trace_produce_all) BPPrintMessage(1,odInfo,"PUSH %d\n",(*p_depth));
+		if(igram > endgram) goto END;
+		if(PushStack(pp_a,&p_weight,&p_flag,p_length,&p_stack,p_depth,p_maxdepth) != OK) return ABORT;
+		grtype = ORDtype;
+		repeat = TRUE;	// This forces imode to 1 in Insert()
+		leftpos = ZERO; // Not used
+		if(trace_produce_all) BPPrintMessage(1,odInfo,"Derive igram = %d irul = %d ipos = %d\n",igram,irul,ipos);
+		r = Derive(pp_a,p_gram,pp_a,p_length,igram,irul,ipos,&leftpos,grtype,repeat,&changed,&lastpos,&incmark,mode,time_end_compute);
+		if(r < ZERO) {
+			BPPrintMessage(1,odError,"=> Could not derive in igram = %d irul = %d\n",igram,irul);
+			return r; // Happens if buffer problem
 			}
-		if(r == ABORT || r == EXIT) return(r);
+		if((r = ShowItem(igram,p_gram,FALSE,pp_a,FALSE,mode,TRUE)) != OK) return r;
+		// Check '_repeat', '_goto'
+		nrep = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].repeat;
+		if(nrep == 0) irep = 0;
+		new_gram = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].gotogram;
+		new_rul = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].gotorule;
+		if(nrep > 0) {
+			if(irep <= nrep) {
+				if(trace_produce_all) BPPrintMessage(1,odInfo,"repeat irep = %d nrep = %d\n",irep,nrep);
+				irep++;
+				ipos += 2L;
+				goto NEXTPOS;
+				}
+			BPPrintMessage(1,odInfo,"=> Gram#%d[%d] _repeat(%d): this rule is repeating and could create an infinite size. It has been used only %d times.\n",igram,irul,nrep,nrep);
+			(*((*((*p_gram).p_subgram))[igram].p_rule))[irul].w = 0;
+			// Rule will no longer be candidate. Even PullStack() will not restore its weight.
+			}
+		if(new_gram > 0) {
+			if(trace_produce_all) BPPrintMessage(1,odInfo,"_goto: new_gram = %d new_rul = %d\n",new_gram,new_rul);
+			r = AllFollowingItems(p_gram,pp_a,p_weight,p_flag,p_length,new_gram,new_rul,irep,all,template,endgram,p_stack,p_depth,p_maxdepth,mode,time_end_compute,xxx);
+			if(r == ABORT || r == EXIT) return r;
+			if(PullStack(pp_a,p_weight,p_flag,p_length,p_stack,p_depth,p_maxdepth) != OK) {
+				BPPrintMessage(0,odError,"=> PullStack() != OK in AllFollowingItems()\n");
+				return(ABORT);
+				}
+			if(trace_produce_all) BPPrintMessage(1,odInfo,"PULL %d\n",(*p_depth));
+			ipos += 2L;
+			goto NEXTPOS;
+			}
+		if(ChangeFlagsInRule(p_gram,igram,irul) != OK) {
+			BPPrintMessage(1,odError,"=> Could not change flags in igram = %d irul = %d\n",igram,irul);
+			return ABORT;
+			}
+		if(Varweight) {
+			w = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].w;
+			w += (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].incweight;
+			if(w < 0) w = 0;
+			(*((*((*p_gram).p_subgram))[igram].p_rule))[irul].w = w;
+			}
+		try_number++;
+		r = AllFollowingItems(p_gram,pp_a,p_weight,p_flag,p_length,igram,irul,irep,all,template,endgram,p_stack,p_depth,p_maxdepth,mode,time_end_compute,xxx);
+		if(PullStack(pp_a,p_weight,p_flag,p_length,p_stack,p_depth,p_maxdepth) != OK) {
+			BPPrintMessage(0,odError,"=> PullStack() != OK in AllFollowingItems()\n");
+			return(ABORT);
+			}
+		if(trace_produce_all) BPPrintMessage(1,odInfo,"PULL %d\n",(*p_depth));
+		if(r == ABORT || r == EXIT) return r;
+		ipos += 2L;
+		goto NEXTPOS;
 		}
-	
-	if(igram > (*p_gram).number_gram) {
-		if(Beta) Alert1("=> Err. AllFollowingItems(). igram > number_gram [2]");
-		r = ABORT; goto ENDPULL;
-		}
-	if(irul > (*((*p_gram).p_subgram))[igram].number_rule) {
-		if(Beta) Alert1("=> Err. AllFollowingItems(). irul > number_rule [2]");
-		r = ABORT; goto ENDPULL;
-		}
-	if((r=ChangeFlagsInRule(p_gram,igram,irul)) != OK) goto ENDPULL;
-	if(Varweight) {
-		w = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].w;
-		w += (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].incweight;
-		if(w < 0) w = 0;
-		(*((*((*p_gram).p_subgram))[igram].p_rule))[irul].w = w;
-		}
-	/* Look for '_failed'  this is wrong */					
-	if(nrep > 0 && (igram=(*((*((*p_gram).p_subgram))[igram].p_rule))[irul].failedgram) > 0) {
-		irul = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].failedrule;
-		goto TRYAGAIN;
-		}
-	if(igram > endgram) {
-		all = repeat = FALSE;
-		(*p_length) = LengthOf(pp_a);
-		r = Compute(pp_a,igram,(*p_gram).number_gram,p_length,&repeat,time_end_compute);
-		if(r == ABORT || r == EXIT) goto END;
-		my_sprintf(Message,"Item #%ld\n",(long)(ItemNumber + 1L));
-		FlashInfo(Message);
-		if(!rtMIDI && !template && Improvize) BPPrintMessage(0,odInfo,Message);
-	//	ItemNumber++; 2024-05-02
-		r = CheckItemProduced(p_gram,pp_a,p_length,single,template,mode);
-		if(r == ABORT || r == EXIT) goto END;
-		}
-	else {
-		r = AllFollowingItems(p_gram,pp_a,p_weight,p_flag,p_length,igram,
-			all,template,endgram,p_stack,p_depth,p_maxdepth,single,mode,time_end_compute);
-		}
-	if(PullStack(pp_a,p_weight,p_flag,p_length,p_stack,p_depth,p_maxdepth) != OK) {
-		if(Beta) Alert1("PullStack() != OK in AllFollowingItems()");
-		return(ABORT);
-		}
-	if(r == ABORT || r == EXIT) goto END;
-	ipos += 2L;
-	goto NEXTPOS;
-	}
-	
-if(r != MISSED) goto END;
-r = CheckItemProduced(p_gram,pp_a,p_length,single,template,mode);
-
 END:
-return(r);
-
-ENDPULL:
-PullStack(pp_a,p_weight,p_flag,p_length,p_stack,p_depth,p_maxdepth);
-return(r);
-}
+	CheckItemProduced(p_gram,pp_a,p_length,template,mode);
+	// Look for '_failed'				
+	if(old_gram > 0 && (igram = (*((*((*p_gram).p_subgram))[old_gram].p_rule))[old_rul].failedgram) > 0) {
+		irul = (*((*((*p_gram).p_subgram))[old_gram].p_rule))[old_rul].failedrule;
+		if(trace_produce_all) BPPrintMessage(1,odInfo,"_failed, goto: igram = %d irul = %d\n",igram,irul);
+		ipos += 2L;
+		goto NEXTPOS;
+		}
+	return(r);
+	}
 
 
 int PushStack(tokenbyte ***pp_a,long *****pp_weight,long *****pp_flag,long *p_length,
-	tokenbyte *****pp_stack,int *p_depth,long *p_maxdepth)
-{
-long i,igram,irul,**ptr4;
-Handle ptr;
-tokenbyte **ptr2;
-long **ptr3;
+	tokenbyte *****pp_stack,int *p_depth,long *p_maxdepth) {
+	long i,igram,irul,**ptr4;
+	Handle ptr;
+	tokenbyte **ptr2;
+	long **ptr3;
 
-if((++(*p_depth)) >= (*p_maxdepth)) {
-	if(ThreeOverTwo(p_maxdepth) != OK) return(ABORT);
-	ptr = (Handle) (*pp_stack);
-	if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
-	(*pp_stack) = (tokenbyte****) ptr;
-	ptr = (Handle) (*pp_weight);
-	if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
-	(*pp_weight) = (long****) ptr;
-	if((*pp_flag) != NULL) {
-		ptr = (Handle) (*pp_flag);
+	if((++(*p_depth)) >= (*p_maxdepth)) {
+		if(ThreeOverTwo(p_maxdepth) != OK) return(ABORT);
+		BPPrintMessage(0,odInfo,"Increasing stack depth to %ld levels\n",(*p_maxdepth));
+		ptr = (Handle) (*pp_stack);
 		if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
-		(*pp_flag) = (long****) ptr;
+		(*pp_stack) = (tokenbyte****) ptr;
+		ptr = (Handle) (*pp_weight);
+		if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
+		(*pp_weight) = (long****) ptr;
+		if((*pp_flag) != NULL) {
+			ptr = (Handle) (*pp_flag);
+			if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
+			(*pp_flag) = (long****) ptr;
+			}
 		}
-	}
-if((ptr2=(tokenbyte**) GiveSpace((Size)(*p_length+2L)*sizeof(tokenbyte))) == NULL)
-	return(ABORT);
-(**pp_stack)[(*p_depth)] = ptr2;
-for(i=ZERO; i < (*p_length+2L); i++) (*((**pp_stack)[(*p_depth)]))[i] = (**pp_a)[i];
-if((*pp_flag) != NULL) {
-	if((ptr4=(long**) GiveSpace((Size)(Jflag+1)*sizeof(long))) == NULL) return(ABORT);
-	(**pp_flag)[(*p_depth)] = ptr4;
-	for(i=1L; i <= Jflag; i++) (*((**pp_flag)[(*p_depth)]))[i] = (*p_Flag)[i];
-	}
-/* else (**pp_flag)[(*p_depth)] = NULL;  Added 8/5/98 */
-if((ptr3=(long**) GiveSpace((Size)(MaxRul+1) * (Gram.number_gram + 1) * sizeof(long)))
-	== NULL) return(ABORT);
-
-(**pp_weight)[(*p_depth)] = ptr3;
-for(igram=1,i=0; igram <= Gram.number_gram; igram++) {
-	for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
-		(*((**pp_weight)[(*p_depth)]))[i] = (*((*(Gram.p_subgram))[igram].p_rule))[irul].w;
-		i++;
+	if((ptr2 = (tokenbyte**) GiveSpace((Size)(*p_length+2L) * sizeof(tokenbyte))) == NULL)
+		return(ABORT);
+	(**pp_stack)[(*p_depth)] = ptr2;
+	for(i=ZERO; i < (*p_length+2L); i++) (*((**pp_stack)[(*p_depth)]))[i] = (**pp_a)[i];
+	if((*pp_flag) != NULL) {
+		if((ptr4 = (long**) GiveSpace((Size)(Jflag+1) * sizeof(long))) == NULL) return(ABORT);
+		(**pp_flag)[(*p_depth)] = ptr4;
+		for(i = 1L; i <= Jflag; i++) (*((**pp_flag)[(*p_depth)]))[i] = (*p_Flag)[i];
 		}
+	if((ptr3 = (long**) GiveSpace((Size)(MaxRul+1) * (Gram.number_gram + 1) * sizeof(long)))
+		== NULL) return(ABORT);
+	(**pp_weight)[(*p_depth)] = ptr3;
+	for(igram = 1,i = 0; igram <= Gram.number_gram; igram++) {
+		for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
+			(*((**pp_weight)[(*p_depth)]))[i] = (*((*(Gram.p_subgram))[igram].p_rule))[irul].w;
+			i++;
+			}
+		}
+	return(OK);
 	}
-return(OK);
-}
-
 
 int PullStack(tokenbyte ***pp_a,long ****p_weight,long ****p_flag,long *p_length,
-	tokenbyte ****p_stack,int *p_depth,long *p_maxdepth)
-{
-int p,q;
-long i,igram,irul;
-Handle ptr;
+	tokenbyte ****p_stack,int *p_depth,long *p_maxdepth) {
+	int p,q;
+	long i,igram,irul;
+	Handle ptr;
 
-if((*p_depth) < 0  || (*p_depth) >= *p_maxdepth) {
-	if(Beta) Alert1("=> Err. PullStack(). *p_depth < 0  || (*p_depth) >= *p_maxdepth");
-	return(ABORT);
-	}
-(*p_length) = ZERO;
-for(i=0; ; i+=2) {
-	p = (*((*p_stack)[(*p_depth)]))[i];
-	q = (*((*p_stack)[(*p_depth)]))[i+1];
-	if(p == TEND && q == TEND) break;
-	(**pp_a)[i] = p; (**pp_a)[i+1] = q;
-	(*p_length) += 2;
-	}
-(**pp_a)[i] = (**pp_a)[i+1] = TEND;
-ptr = (Handle) (*p_stack)[(*p_depth)];
-MyDisposeHandle(&ptr);
-(*p_stack)[(*p_depth)] = NULL;
-
-if(p_flag != NULL && (*p_flag)[(*p_depth)] != NULL) {
-	for(i=1; i <= Jflag; i++) (*p_Flag)[i] = (*((*p_flag)[(*p_depth)]))[i];
-	ptr = (Handle) (*p_flag)[(*p_depth)];
+	if((*p_depth) < 0  || (*p_depth) >= *p_maxdepth) {
+		if(Beta) Alert1("=> Err. PullStack(). *p_depth < 0  || (*p_depth) >= *p_maxdepth");
+		return(ABORT);
+		}
+	(*p_length) = ZERO;
+	for(i=0; ; i+=2) {
+		p = (*((*p_stack)[(*p_depth)]))[i];
+		q = (*((*p_stack)[(*p_depth)]))[i+1];
+		if(p == TEND && q == TEND) break;
+		(**pp_a)[i] = p; (**pp_a)[i+1] = q;
+		(*p_length) += 2;
+		}
+	(**pp_a)[i] = (**pp_a)[i+1] = TEND;
+	ptr = (Handle) (*p_stack)[(*p_depth)];
 	MyDisposeHandle(&ptr);
-	(*p_flag)[(*p_depth)] = NULL;
-	}
-	
-for(igram=1,i=0; igram <= Gram.number_gram; igram++) {
-	for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
-		(*((*(Gram.p_subgram))[igram].p_rule))[irul].w = (*((*p_weight)[(*p_depth)]))[i];
-		i++;
+	(*p_stack)[(*p_depth)] = NULL;
+	if(p_flag != NULL && (*p_flag)[(*p_depth)] != NULL) {
+		for(i=1; i <= Jflag; i++) (*p_Flag)[i] = (*((*p_flag)[(*p_depth)]))[i];
+		ptr = (Handle) (*p_flag)[(*p_depth)];
+		MyDisposeHandle(&ptr);
+		(*p_flag)[(*p_depth)] = NULL;
 		}
-	}
-ptr = (Handle) (*p_weight)[(*p_depth)];
-MyDisposeHandle(&ptr);
-(*p_weight)[(*p_depth)] = NULL;
-(*p_depth)--;
-return(OK);
-}
-
-
-int LastGrammarWanted(int igram)
-{
-char defaultvalue[MAXFIELDCONTENT],value[MAXFIELDCONTENT];
-int r,endgram,wantgram;
-
-endgram = Gram.number_gram;
-if(endgram == 1 || igram == 1) return(igram);
-
-my_sprintf(defaultvalue,"%ld",(long)igram);
-wantgram = igram;
-
-TRY:
-
-if(!ScriptExecOn && !AEventOn) {
-	if((r=AnswerWith("Last grammar in which\nall rules should be tried?",
-			defaultvalue,value)) != OK) return(r);
-	wantgram = (int) atol(value); 	/* Don't use atoi() because int's are 4 bytes */
-	if(wantgram < 1 || wantgram > endgram) {
-		my_sprintf(Message,"Range should be [1,%ld]. Try again...",(long)endgram);
-		Alert1(Message);
-		goto TRY;
+	for(igram=1,i=0; igram <= Gram.number_gram; igram++) {
+		for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
+			if(!(AllItems && (*((*(Gram.p_subgram))[igram].p_rule))[irul].repeat > 0 && (*((*(Gram.p_subgram))[igram].p_rule))[irul].w == 0))
+				// This happens in a repeating rule when max number of repetitions has been reached
+				(*((*(Gram.p_subgram))[igram].p_rule))[irul].w = (*((*p_weight)[(*p_depth)]))[i];
+			i++;
+			}
 		}
+	ptr = (Handle) (*p_weight)[(*p_depth)];
+	MyDisposeHandle(&ptr);
+	(*p_weight)[(*p_depth)] = NULL;
+	(*p_depth)--;
+	return(OK);
 	}
-return(wantgram);
-}
+
+
+int LastGrammarWanted(int igram) {
+	char defaultvalue[MAXFIELDCONTENT],value[MAXFIELDCONTENT];
+	int r,endgram,wantgram;
+
+	endgram = Gram.number_gram;
+	if(endgram == 1 || igram == 1) return(igram);
+	my_sprintf(defaultvalue,"%ld",(long)igram);
+	wantgram = igram;
+
+	TRY:
+	if(!ScriptExecOn && !AEventOn) {
+		if((r=AnswerWith("Last grammar in which\nall rules should be tried?",
+				defaultvalue,value)) != OK) return(r);
+		wantgram = (int) atol(value); 	/* Don't use atoi() because int's are 4 bytes */
+		if(wantgram < 1 || wantgram > endgram) {
+			my_sprintf(Message,"Range should be [1,%ld]. Try again...",(long)endgram);
+			Alert1(Message);
+			goto TRY;
+			}
+		}
+	return(wantgram);
+	}
 
 
 int NextDerivation(tokenbyte ***pp_a,long *p_length,int *p_igram,int *p_irul,
-	long *p_ipos,int *p_icandidate,int mode,unsigned long time_end_compute)
-{
-int r,nb_candidates,**p_prefrule,**p_candidate,maxpref,freedom,equalweight,maxrul,
-	repeat;
-tokenbyte instan[MAXLIN],meta[MAXMETA2],meta1[MAXMETA2];
-long **p_pos,leftpos,istart,jstart,pos,length,lenc1,**p_totwght;
+	long *p_ipos,int *p_icandidate,int mode,unsigned long time_end_compute) {
+	int r,nb_candidates,**p_prefrule,**p_candidate,maxpref,freedom,equalweight,maxrul,
+		repeat;
+	tokenbyte instan[MAXLIN],meta[MAXMETA2],meta1[MAXMETA2];
+	long **p_pos,leftpos,istart,jstart,pos,length,lenc1,**p_totwght;
 
-maxrul = (*(Gram.p_subgram))[*p_igram].number_rule + 1;
-if((p_totwght = (long**) GiveSpace((Size)maxrul * sizeof(long))) == NULL)
-	return(ABORT);
-if((p_pos = (long**) GiveSpace((Size)maxrul * sizeof(long))) == NULL)
-	return(ABORT);
-if((p_candidate = (int**) GiveSpace((Size)maxrul * sizeof(int))) == NULL)
-	return(ABORT);
-if((p_prefrule = (int**) GiveSpace((Size)maxrul * sizeof(int))) == NULL)
-	return(ABORT);
-leftpos = maxpref = 0;
-repeat = FALSE;
-nb_candidates = FindCandidateRules(pp_a,&Gram,1,*p_igram,(*(Gram.p_subgram))[*p_igram].type,
-	p_candidate,p_totwght,p_pos,p_prefrule,leftpos,&maxpref,&freedom,repeat,mode,&equalweight,
-	FALSE,time_end_compute);
-if(nb_candidates <= (*p_icandidate)) {
-	if(nb_candidates == ABORT || nb_candidates == EXIT) {
-		r = nb_candidates; goto QUIT;
-		}
+	maxrul = (*(Gram.p_subgram))[*p_igram].number_rule + 1;
+	if((p_totwght = (long**) GiveSpace((Size)maxrul * sizeof(long))) == NULL)
+		return(ABORT);
+	if((p_pos = (long**) GiveSpace((Size)maxrul * sizeof(long))) == NULL)
+		return(ABORT);
+	if((p_candidate = (int**) GiveSpace((Size)maxrul * sizeof(int))) == NULL)
+		return(ABORT);
+	if((p_prefrule = (int**) GiveSpace((Size)maxrul * sizeof(int))) == NULL)
+		return(ABORT);
+	leftpos = maxpref = 0;
+	repeat = FALSE;
+	nb_candidates = FindCandidateRules(pp_a,&Gram,1,*p_igram,(*(Gram.p_subgram))[*p_igram].type,
+		p_candidate,p_totwght,p_pos,p_prefrule,leftpos,&maxpref,&freedom,repeat,mode,&equalweight,
+		FALSE,time_end_compute);
+	if(trace_produce_all) BPPrintMessage(1,odInfo,"igram = %d, nb_candidates = %d, icandidate = %d\n",(*p_igram),nb_candidates,(*p_icandidate));
+	if(nb_candidates <= (*p_icandidate)) {
+		if(nb_candidates == ABORT || nb_candidates == EXIT) {
+			r = nb_candidates; goto QUIT;
+			}
 NEXTGRAM:
-	if(++(*p_igram) > Gram.number_gram) {
-		r = MISSED; goto QUIT;
+		if(++(*p_igram) > Gram.number_gram) {
+			r = MISSED; goto QUIT;
+			}
+		(*p_icandidate) = 0; (*p_ipos) = 0;
+		MyDisposeHandle((Handle*)&p_candidate);
+		MyDisposeHandle((Handle*)&p_totwght);
+		MyDisposeHandle((Handle*)&p_pos);
+		MyDisposeHandle((Handle*)&p_prefrule);
+		return(NextDerivation(pp_a,p_length,p_igram,p_irul,p_ipos,p_icandidate,mode,time_end_compute));
 		}
-	(*p_icandidate) = 0; (*p_ipos) = 0;
+FOUND:
+	if((*p_irul) != (*p_candidate)[*p_icandidate]) (*p_ipos) = 0;
+	if((*p_ipos) < (*p_pos)[*p_icandidate]) (*p_ipos) = (*p_pos)[*p_icandidate];
+	(*p_irul) = (*p_candidate)[*p_icandidate];
+	if((*(Gram.p_subgram))[*p_igram].type == LINtype) {
+		if((*p_ipos) == (*p_pos)[*p_icandidate]) {
+			r = OK;
+			goto QUIT;
+			}
+		else goto NEXTCANDIDATE;
+		}
+	for(pos = (*p_ipos); pos < (*p_length); pos += 2L) {
+		r = Found(pp_a,ORDtype,(*((*(Gram.p_subgram))[*p_igram].p_rule))[*p_irul].p_leftarg,0,
+				(*((*(Gram.p_subgram))[*p_igram].p_rule))[*p_irul].leftnegcontext,&lenc1,pos,TRUE,
+				instan,meta,meta1,&istart,&jstart,&length,
+				(*((*(Gram.p_subgram))[*p_igram].p_rule))[*p_irul].ismeta,time_end_compute);
+		if(r == ABORT) goto QUIT; // Fixed by BB 7 Nov 2020
+		if(r && OkContext(pp_a,ORDtype,(*((*(Gram.p_subgram))[*p_igram].p_rule))[*p_irul],pos,
+				length,meta,instan,mode,time_end_compute)) {
+			(*p_ipos) = pos;
+			r = OK;
+			goto QUIT;
+			}
+		}
+NEXTCANDIDATE:
+	if(++(*p_icandidate) >= nb_candidates) goto NEXTGRAM;
+	(*p_ipos) = 0;
+	goto FOUND;
+QUIT:
 	MyDisposeHandle((Handle*)&p_candidate);
 	MyDisposeHandle((Handle*)&p_totwght);
 	MyDisposeHandle((Handle*)&p_pos);
 	MyDisposeHandle((Handle*)&p_prefrule);
-	return(NextDerivation(pp_a,p_length,p_igram,p_irul,p_ipos,p_icandidate,mode,time_end_compute));
+	return(r);
 	}
 
-FOUND:
-if((*p_irul) != (*p_candidate)[*p_icandidate]) (*p_ipos) = 0;
-if((*p_ipos) < (*p_pos)[*p_icandidate]) (*p_ipos) = (*p_pos)[*p_icandidate];
-(*p_irul) = (*p_candidate)[*p_icandidate];
-if((*(Gram.p_subgram))[*p_igram].type == LINtype) {
-	if((*p_ipos) == (*p_pos)[*p_icandidate]) {
-		r = OK;
-		goto QUIT;
+
+int LastStructuralSubgrammar(void) {
+	int igram,irul,found,ilast;
+	ilast = 0;
+	for(igram=1; igram <= Gram.number_gram; igram++) {
+		found = FALSE;
+		for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
+			if(StructuralRule(igram,irul)) {
+	/*			my_sprintf(Message,"igram=%ld  irul=%ld  is structural\n",(long)igram,
+					(long)irul);
+				Println(wTrace,Message); */
+				found = TRUE; break;
+				}
+			}
+		if(found) ilast = igram;
 		}
-	else goto NEXTCANDIDATE;
-	}
-for(pos = (*p_ipos); pos < (*p_length); pos += 2L) {
-	r = Found(pp_a,ORDtype,(*((*(Gram.p_subgram))[*p_igram].p_rule))[*p_irul].p_leftarg,0,
-			(*((*(Gram.p_subgram))[*p_igram].p_rule))[*p_irul].leftnegcontext,&lenc1,pos,TRUE,
-			instan,meta,meta1,&istart,&jstart,&length,
-			(*((*(Gram.p_subgram))[*p_igram].p_rule))[*p_irul].ismeta,time_end_compute);
-	if(r == ABORT) goto QUIT; // Fixed by BB 7 Nov 2020
-	if(r && OkContext(pp_a,ORDtype,(*((*(Gram.p_subgram))[*p_igram].p_rule))[*p_irul],pos,
-			length,meta,instan,mode,time_end_compute)) {
-		(*p_ipos) = pos;
-		r = OK;
-		goto QUIT;
-		}
+	if(ilast == 0) return(ilast);
+	return(LastGrammarWanted(ilast));
 	}
 
-NEXTCANDIDATE:
-if(++(*p_icandidate) >= nb_candidates) goto NEXTGRAM;
-(*p_ipos) = 0;
-goto FOUND;
 
-QUIT:
-MyDisposeHandle((Handle*)&p_candidate);
-MyDisposeHandle((Handle*)&p_totwght);
-MyDisposeHandle((Handle*)&p_pos);
-MyDisposeHandle((Handle*)&p_prefrule);
-return(r);
-}
+int StructuralRule(int igram, int irul) {
+	t_rule rule;
+	tokenbyte **p_arg;
+	int i,i0,i1,p,q,lenc,funct;
 
-
-int LastStructuralSubgrammar(void)
-{
-int igram,irul,found,ilast;
-
-ilast = 0;
-for(igram=1; igram <= Gram.number_gram; igram++) {
-	found = FALSE;
-	for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
-		if(StructuralRule(igram,irul)) {
- /*			my_sprintf(Message,"igram=%ld  irul=%ld  is structural\n",(long)igram,
-				(long)irul);
-			Println(wTrace,Message); */
-			found = TRUE; break;
+	/* Rule is structural if some structure markers are found in its... */
+	/* ... argument, yet not in its left or right context. */
+	rule = (*((*(Gram.p_subgram))[igram].p_rule))[irul];
+	funct = rule.operator; if(funct == 2) return(FALSE);	/* "<--" */
+	p_arg = rule.p_rightarg;
+	if(p_arg == NULL) return(FALSE);
+	lenc = 4 * (*((*(Gram.p_subgram))[igram].p_rule))[irul].leftnegcontext;
+	i0 = (*((*(Gram.p_subgram))[igram].p_rule))[irul].leftoffset + lenc;
+	i1 = (int) LengthOf(&p_arg) - 1 /* -(*((*(Gram.p_subgram))[igram].p_rule))[irul].rightoffset */;
+	for(i=i0; ((*p_arg)[i] != TEND || (*p_arg)[i+1] != TEND) && i < i1; i+=2) {
+		p = (int) (*p_arg)[i]; q = (int) (*p_arg)[i+1];
+		switch(p) {
+			case T2:		/* Parenthesis */
+			case T5:		/* Homomorphism */
+	/*			my_sprintf(Message,"Found %ld.%ld position %ld i0=%ld  i1=%ld",
+					(long)p,(long)q,(long)i,(long)i0,(long)i1);
+				Println(wTrace,Message);
+				my_sprintf(Message,"lenc=%ld  LengthOf(&p_arg)=%ld  (*((*(Gram.p_subgram))[igram].p_rule))[irul].leftoffset=%ld  (*((*(Gram.p_subgram))[igram].p_rule))[irul].rightoffset=%ld",
+					(long)lenc,(long)LengthOf(&p_arg),(long)(*((*(Gram.p_subgram))[igram].p_rule))[irul].leftoffset,
+					(long)(*((*(Gram.p_subgram))[igram].p_rule))[irul].rightoffset);
+				Println(wTrace,Message);
+				for(i=0; ((*p_arg)[i] != TEND || (*p_arg)[i+1] != TEND); i+=2) {
+					my_sprintf(Message,"%ld.%ld ",(long)(*p_arg)[i],(long)(*p_arg)[i+1]);
+					Print(wTrace,Message);
+					}
+				Print(wTrace,"\n");  */
+				return(TRUE);
+			case T0:
+				switch(q) {
+					case 3:		/* '+' */
+					case 4:		/* ':' */
+					case 5:		/* ';' */
+					case 6:		/* '=' */
+					case 11:	/* '/' */
+					case 25:	/* '\' */
+						return(TRUE);
+					}
 			}
 		}
-	if(found) ilast = igram;
+	return(FALSE);
 	}
-if(ilast == 0) return(ilast);
-return(LastGrammarWanted(ilast));
-}
 
 
-int StructuralRule(int igram, int irul)
-{
-t_rule rule;
-tokenbyte **p_arg;
-int i,i0,i1,p,q,lenc,funct;
-
-/* Rule is structural if some structure markers are found in its... */
-/* ... argument, yet not in its left or right context. */
-rule = (*((*(Gram.p_subgram))[igram].p_rule))[irul];
-funct = rule.operator; if(funct == 2) return(FALSE);	/* "<--" */
-p_arg = rule.p_rightarg;
-if(p_arg == NULL) return(FALSE);
-lenc = 4 * (*((*(Gram.p_subgram))[igram].p_rule))[irul].leftnegcontext;
-i0 = (*((*(Gram.p_subgram))[igram].p_rule))[irul].leftoffset + lenc;
-i1 = (int) LengthOf(&p_arg) - 1 /* -(*((*(Gram.p_subgram))[igram].p_rule))[irul].rightoffset */;
-for(i=i0; ((*p_arg)[i] != TEND || (*p_arg)[i+1] != TEND) && i < i1; i+=2) {
-	p = (int) (*p_arg)[i]; q = (int) (*p_arg)[i+1];
-	switch(p) {
-		case T2:		/* Parenthesis */
-		case T5:		/* Homomorphism */
-/*			my_sprintf(Message,"Found %ld.%ld position %ld i0=%ld  i1=%ld",
-				(long)p,(long)q,(long)i,(long)i0,(long)i1);
-			Println(wTrace,Message);
-			my_sprintf(Message,"lenc=%ld  LengthOf(&p_arg)=%ld  (*((*(Gram.p_subgram))[igram].p_rule))[irul].leftoffset=%ld  (*((*(Gram.p_subgram))[igram].p_rule))[irul].rightoffset=%ld",
-				(long)lenc,(long)LengthOf(&p_arg),(long)(*((*(Gram.p_subgram))[igram].p_rule))[irul].leftoffset,
-				(long)(*((*(Gram.p_subgram))[igram].p_rule))[irul].rightoffset);
-			Println(wTrace,Message);
-			for(i=0; ((*p_arg)[i] != TEND || (*p_arg)[i+1] != TEND); i+=2) {
-				my_sprintf(Message,"%ld.%ld ",(long)(*p_arg)[i],(long)(*p_arg)[i+1]);
-				Print(wTrace,Message);
-				}
-			Print(wTrace,"\n");  */
-			return(TRUE);
-		case T0:
-			switch(q) {
-				case 3:		/* '+' */
-				case 4:		/* ':' */
-				case 5:		/* ';' */
-				case 6:		/* '=' */
-				case 11:	/* '/' */
-				case 25:	/* '\' */
-					return(TRUE);
-				}
+int NoVariable(tokenbyte ***pp_a) {
+	int i,p,q;
+	for(i=0;((p=(**pp_a)[i]) != TEND || (**pp_a)[i+1] != TEND); i+=2) {
+		q = (**pp_a)[i+1];
+		if(p == T0 && q == 10) return(FALSE);	/* 'S' */
+		if(p == T4 && ((Gram.p_subgram != NULL && p_VarStatus != NULL
+			&& q <= Jvar && (((*p_VarStatus)[q] & 1) || ((*p_VarStatus)[q] & 4)))
+				|| ((*p_VarStatus)[q] == 0 && (!CompiledGr || !CompiledGl))))
+					return(FALSE);
 		}
+	return(TRUE);
 	}
-return(FALSE);
-}
 
 
-int NoVariable(tokenbyte ***pp_a)
-{
-/* register */ int i,p,q;
+int MakeTemplate(tokenbyte ***pp_a) {
+	unsigned long i;
+	tokenbyte m,p;
 
-for(i=0;((p=(**pp_a)[i]) != TEND || (**pp_a)[i+1] != TEND);i+=2) {
-	q = (**pp_a)[i+1];
-	if(p == T0 && q == 10) return(FALSE);	/* 'S' */
-	if(p == T4 && ((Gram.p_subgram != NULL && p_VarStatus != NULL
-		&& q <= Jvar && (((*p_VarStatus)[q] & 1) || ((*p_VarStatus)[q] & 4)))
-			|| ((*p_VarStatus)[q] == 0 && (!CompiledGr || !CompiledGl))))
-				return(FALSE);
-	}
-return(TRUE);
-}
-
-
-int MakeTemplate(tokenbyte ***pp_a)
-{
-unsigned long i;
-tokenbyte m,p;
-
-ClearMarkers(pp_a);
-for(i=ZERO; ((m=(**pp_a)[i]) != TEND || (**pp_a)[i+1] != TEND); i+=2L) {
-	p = (**pp_a)[i+1];
-	if(m == T3 || m == T7 || m == T25) {	/* Terminal or out-time object or simple note */
-		if(p >= 0) {
-			(**pp_a)[i] = T3; (**pp_a)[i+1] = 0;	/* '_' */
+	ClearMarkers(pp_a);
+	for(i=ZERO; ((m=(**pp_a)[i]) != TEND || (**pp_a)[i+1] != TEND); i+=2L) {
+		p = (**pp_a)[i+1];
+		if(m == T3 || m == T7 || m == T25) {	/* Terminal or out-time object or simple note */
+			if(p >= 0) {
+				(**pp_a)[i] = T3; (**pp_a)[i+1] = 0;	/* '_' */
+				}
 			}
 		}
-	}
-ClearMarkers(pp_a);
-return(OK);
-}
-
-
-int ClearMarkers(tokenbyte ***pp_a)
-/* Suppress '¥' beat markers */
-{
-unsigned long i,k;
-tokenbyte m,p;
-int setting_sections;
-
-if(pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL) {
-	if(Beta) Alert1("=> Err. ClearMarkers(). pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL");
+	ClearMarkers(pp_a);
 	return(OK);
 	}
-setting_sections = TRUE;
-for(i=k=ZERO; ;) {
-	m = (**pp_a)[i+k]; p = (**pp_a)[i+k+1L];
-	if(setting_sections && m == T0 && p == 21)	{ /* '*' */
-		k += 6; continue;
+
+
+int ClearMarkers(tokenbyte ***pp_a) {
+/* Suppress '¥' beat markers */
+	unsigned long i,k;
+	tokenbyte m,p;
+	int setting_sections;
+
+	if(pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL) {
+		if(Beta) Alert1("=> Err. ClearMarkers(). pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL");
+		return(OK);
 		}
-//	if(m == T0 && p == 7) {		/* '¥' */
-//		k += 2; continue;
-//		}
-	if(k > 0) {
-		(**pp_a)[i] = m;
-		(**pp_a)[i+1] = p;
+	setting_sections = TRUE;
+	for(i=k=ZERO; ;) {
+		m = (**pp_a)[i+k]; p = (**pp_a)[i+k+1L];
+		if(setting_sections && m == T0 && p == 21)	{ /* '*' */
+			k += 6; continue;
+			}
+	//	if(m == T0 && p == 7) {		/* '¥' */
+	//		k += 2; continue;
+	//		}
+		if(k > 0) {
+			(**pp_a)[i] = m;
+			(**pp_a)[i+1] = p;
+			}
+		if(m != T1 && (m != T0 || p != 3)) setting_sections = FALSE;
+		i += 2L;
+		if(m == TEND && p == TEND) break;
 		}
-	if(m != T1 && (m != T0 || p != 3)) setting_sections = FALSE;
-	i += 2L;
-	if(m == TEND && p == TEND) break;
+	return(OK);
 	}
-return(OK);
-}
 
 
 int WriteTemplate(int w,tokenbyte ***pp_a)
@@ -1552,301 +1474,297 @@ return(OK);
 
 
 int AnalyzeBuffer(tokenbyte ***pp_a,int learn,int templates,int all,long pos,int *p_result,
-	char *remark)
+	char *remark) {
 /* Analyze item in a[] */
 /* 'pos' is position of first template considered in grammar window */
-{
-int repeat,r;
-long lengthA;
+	int repeat,r;
+	long lengthA;
 
-WaitForLastTicks();
-ComputeOn++;
-FirstTime = InitThere = FALSE;
-lengthA = LengthOf(pp_a);
-repeat = FALSE; r = OK;
-if(lengthA == ZERO) goto QUIT;
-do {
-	r = Analyze(pp_a,&lengthA,&repeat,learn,templates,all,pos,p_result,remark);
+	WaitForLastTicks();
+	ComputeOn++;
+	FirstTime = InitThere = FALSE;
+	lengthA = LengthOf(pp_a);
+	repeat = FALSE; r = OK;
+	if(lengthA == ZERO) goto QUIT;
+	do {
+		r = Analyze(pp_a,&lengthA,&repeat,learn,templates,all,pos,p_result,remark);
+		}
+	while(repeat == TRUE && r == OK);
+
+	QUIT:
+	ComputeOn--;
+	return(r);
 	}
-while(repeat == TRUE && r == OK);
-
-QUIT:
-ComputeOn--;
-return(r);
-}
 
 
 int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templates,int all,
-	long pos,int *p_result,char *remark)
+	long pos,int *p_result,char *remark) {
 /* pos = position of first template considered in grammar window */
-{
-int i,itemp,r,igram,finish,again,foundone,good,hasperiods;
-long posend,lastbyte;
-tokenbyte m,p,**p_b,***pp_b,**p_c,***pp_c,**p_d,***pp_d;
-double maxseqapprox;
-unsigned long time_end_compute;
+	int i,itemp,r,igram,finish,again,foundone,good,hasperiods;
+	long posend,lastbyte;
+	tokenbyte m,p,**p_b,***pp_b,**p_c,***pp_c,**p_d,***pp_d;
+	double maxseqapprox;
+	unsigned long time_end_compute;
 
-ProduceStackDepth = itemp = 0; posend = pos; foundone = good = again = FALSE;
-p_b = p_c = p_d = NULL;
-pp_b = &p_b; pp_c = &p_c; pp_d = &p_d;
+	ProduceStackDepth = itemp = 0; posend = pos; foundone = good = again = FALSE;
+	p_b = p_c = p_d = NULL;
+	pp_b = &p_b; pp_c = &p_c; pp_d = &p_d;
 
-r = OK; (*p_result) = ABORT;
+	r = OK; (*p_result) = ABORT;
 
-lastbyte = GetTextLength(wTrace);
-SetSelect(lastbyte,lastbyte,TEH[wTrace]);
-if(remark[0] == '\0') my_sprintf(LineBuff,"");
-else my_sprintf(LineBuff,"[%s] ",remark);
-if((all && templates) || DisplayProduce) {
-	if(remark[0] == '\0') {
-		Print(wTrace,">>> Analyzing item: ");
-		if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wTrace,pp_Scrap,pp_a)) != OK)
-			return(r);
-		}
-	else {
-		my_sprintf(Message,">>> Analyzing item [%s]\n",remark);
-		Print(wTrace,Message);
-		}
-	if(StepProduce) {
-		r = InterruptCompute(-1,&Gram,*p_repeat,-1,ANAL);
-		if(r != OK) return(r);
-		}
-	}
-ShowSelect(CENTRE,wTrace);
-BufferSize = MAXDISPL;
-if(*pp_a == NULL) {
-	if(Beta) Alert1("=> Err. Analyze(). *pp_a = NULL");
-	return(ABORT);
-	}
-
-if(templates) {
-	if((*pp_d = (tokenbyte**) GiveSpace((Size)MyGetHandleSize((Handle)*pp_a))) == NULL) {
-		return(ABORT);
-		}
-	if(CopyBuf(pp_a,pp_d) == ABORT) {
-		r = ABORT; goto END;
-		}
-	
-	if(FoundPeriod(pp_a) || HasStructure(*pp_a)) {
-		if((r=PolyMake(pp_a,&maxseqapprox,NO)) == ABORT || r == EXIT) {
-			goto END;
+	lastbyte = GetTextLength(wTrace);
+	SetSelect(lastbyte,lastbyte,TEH[wTrace]);
+	if(remark[0] == '\0') my_sprintf(LineBuff,"");
+	else my_sprintf(LineBuff,"[%s] ",remark);
+	if((all && templates) || DisplayProduce) {
+		if(remark[0] == '\0') {
+			Print(wTrace,">>> Analyzing item: ");
+			if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wTrace,pp_Scrap,pp_a)) != OK)
+				return(r);
 			}
-		if(r != OK) {
-			r = MISSED; goto END;
-			}
-		}
-	}
-	
-if((*pp_c = (tokenbyte**) GiveSpace((Size)MyGetHandleSize((Handle)*pp_a))) == NULL) {
-	return(ABORT);
-	}
-if(CopyBuf(pp_a,pp_c) == ABORT) {
-	r = ABORT; goto END;
-	}
-	
-NEXTTEMPLATE:
-PleaseWait();
-if(CopyBuf(pp_c,pp_a) == ABORT) {
-	r = ABORT; goto END;
-	}
-if(templates) {
-	pos = posend;
-	if((*pp_b = (tokenbyte**)
-		GiveSpace((Size) MAXDISPL * sizeof(tokenbyte))) == NULL) {
-		r = ABORT; goto END;
-		}
-	if(ReadTemplate(wGrammar,pos,&posend,pp_b,&itemp) != OK) {
-		(*p_result) = MISSED;
-		if(!foundone) {
-			my_sprintf(Message,"Item matched no template...");
-			ShowMessage(TRUE,wMessage,Message);
-			if(StepProduce) {
-				r = InterruptCompute(-1,&Gram,*p_repeat,-1,ANAL);
-				if(r != OK) {
-					MyDisposeHandle((Handle*)pp_b);
-					goto END;
-					}
-				}
-			my_sprintf(Message,"Item %smatched no template...\n\n",LineBuff);
+		else {
+			my_sprintf(Message,">>> Analyzing item [%s]\n",remark);
 			Print(wTrace,Message);
 			}
-		else if(good) *p_result = OK;
-		MyDisposeHandle((Handle*)pp_b);
-	/*	if(!all) r = MISSED;
-		else */ r = OK;
-		goto END;
+		if(StepProduce) {
+			r = InterruptCompute(-1,&Gram,*p_repeat,-1,ANAL);
+			if(r != OK) return(r);
+			}
 		}
-	hasperiods = FoundPeriod(pp_b);
-	if((r=MatchTemplate(pp_a,pp_b)) != OK) {
-		MyDisposeHandle((Handle*)pp_b);
-		if(r == ABORT || r == EXIT) goto END;
-		goto NEXTTEMPLATE;
+	ShowSelect(CENTRE,wTrace);
+	BufferSize = MAXDISPL;
+	if(*pp_a == NULL) {
+		if(Beta) Alert1("=> Err. Analyze(). *pp_a = NULL");
+		return(ABORT);
 		}
-	if(hasperiods) {
-		if(CopyBuf(pp_d,pp_a) == ABORT) {
+
+	if(templates) {
+		if((*pp_d = (tokenbyte**) GiveSpace((Size)MyGetHandleSize((Handle)*pp_a))) == NULL) {
+			return(ABORT);
+			}
+		if(CopyBuf(pp_a,pp_d) == ABORT) {
+			r = ABORT; goto END;
+			}
+		
+		if(FoundPeriod(pp_a) || HasStructure(*pp_a)) {
+			if((r=PolyMake(pp_a,&maxseqapprox,NO)) == ABORT || r == EXIT) {
+				goto END;
+				}
+			if(r != OK) {
+				r = MISSED; goto END;
+				}
+			}
+		}
+		
+	if((*pp_c = (tokenbyte**) GiveSpace((Size)MyGetHandleSize((Handle)*pp_a))) == NULL) {
+		return(ABORT);
+		}
+	if(CopyBuf(pp_a,pp_c) == ABORT) {
+		r = ABORT; goto END;
+		}
+		
+	NEXTTEMPLATE:
+	PleaseWait();
+	if(CopyBuf(pp_c,pp_a) == ABORT) {
+		r = ABORT; goto END;
+		}
+	if(templates) {
+		pos = posend;
+		if((*pp_b = (tokenbyte**)
+			GiveSpace((Size) MAXDISPL * sizeof(tokenbyte))) == NULL) {
+			r = ABORT; goto END;
+			}
+		if(ReadTemplate(wGrammar,pos,&posend,pp_b,&itemp) != OK) {
+			(*p_result) = MISSED;
+			if(!foundone) {
+				my_sprintf(Message,"Item matched no template...");
+				ShowMessage(TRUE,wMessage,Message);
+				if(StepProduce) {
+					r = InterruptCompute(-1,&Gram,*p_repeat,-1,ANAL);
+					if(r != OK) {
+						MyDisposeHandle((Handle*)pp_b);
+						goto END;
+						}
+					}
+				my_sprintf(Message,"Item %smatched no template...\n\n",LineBuff);
+				Print(wTrace,Message);
+				}
+			else if(good) *p_result = OK;
+			MyDisposeHandle((Handle*)pp_b);
+		/*	if(!all) r = MISSED;
+			else */ r = OK;
+			goto END;
+			}
+		hasperiods = FoundPeriod(pp_b);
+		if((r=MatchTemplate(pp_a,pp_b)) != OK) {
+			MyDisposeHandle((Handle*)pp_b);
+			if(r == ABORT || r == EXIT) goto END;
+			goto NEXTTEMPLATE;
+			}
+		if(hasperiods) {
+			if(CopyBuf(pp_d,pp_a) == ABORT) {
+				MyDisposeHandle((Handle*)pp_b);
+				r = ABORT; goto END;
+				}
+			}
+		else if(CopyBuf(pp_b,pp_a) == ABORT) {
 			MyDisposeHandle((Handle*)pp_b);
 			r = ABORT; goto END;
 			}
-		}
-	else if(CopyBuf(pp_b,pp_a) == ABORT) {
 		MyDisposeHandle((Handle*)pp_b);
-		r = ABORT; goto END;
+		foundone = TRUE;
+	/*	my_sprintf(Message,"Item %smatched template [%ld]",LineBuff,(long)itemp);
+		ShowMessage(TRUE,wMessage,Message); */
+		if(ScriptExecOn || all || DisplayProduce) {
+			lastbyte = GetTextLength(wTrace);
+			SetSelect(lastbyte,lastbyte,TEH[wTrace]);
+			if(DisplayProduce) {
+				my_sprintf(Message,"Item matched template [%ld], yielding:\n",(long)itemp);
+				Print(wTrace,Message);
+				if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wTrace,pp_Scrap,pp_a)) != OK) goto END;
+				ShowSelect(CENTRE,wTrace);
+				}
+			else {
+				my_sprintf(Message,"Item %smatched template [%ld]\n",LineBuff,(long)itemp);
+				Print(wTrace,Message);
+				ShowSelect(CENTRE,wTrace);
+				}
+			}
+		if(StepProduce) {
+			r = InterruptCompute(-1,&Gram,*p_repeat,-1,ANAL);
+			if(r != OK) goto END;
+			}
 		}
-	MyDisposeHandle((Handle*)pp_b);
-	foundone = TRUE;
-/*	my_sprintf(Message,"Item %smatched template [%ld]",LineBuff,(long)itemp);
-	ShowMessage(TRUE,wMessage,Message); */
-	if(ScriptExecOn || all || DisplayProduce) {
-		lastbyte = GetTextLength(wTrace);
-		SetSelect(lastbyte,lastbyte,TEH[wTrace]);
-		if(DisplayProduce) {
-			my_sprintf(Message,"Item matched template [%ld], yielding:\n",(long)itemp);
+	ClearMarkers(pp_a);
+
+	time_end_compute = 0L;
+
+	for(igram=Gram.number_gram; igram >= 1; igram--) {
+		PleaseWait();
+		finish = FALSE;
+		r = ComputeInGram(pp_a,&Gram,igram,0,p_lengthA,&finish,p_repeat,ANAL,learn,&i,&i,time_end_compute);
+		if(r == MISSED) break;
+		if(r == FINISH) continue;
+		if(finish) {
+			if((r = ShowItem(igram,&Gram,FALSE,pp_a,(*p_repeat),PROD,FALSE))
+				== ENDREPEAT || r == ABORT || r == EXIT) {
+				goto END;
+				}
+			StepProduce = DisplayProduce = TRUE;
+			PlanProduce = TraceProduce = finish - 1;
+			}
+		if(r == ABORT || r == EXIT) goto END;
+		if((r == BACKTRACK || r == AGAIN)  && p_MemGram != NULL) {
+			igram = (*p_MemGram)[ProduceStackIndex];
+			igram++; continue;
+			}
+	/*	if(StepGrammars && !StepProduce) {
+			r = InterruptCompute(igram,&Gram,*p_repeat,-1,ANAL);
+			if(r != OK) goto END;
+			} */
+		}
+	for(i=0; ; i+=2) {
+		m = (**pp_a)[i]; p = (**pp_a)[i+1];
+		if(m == TEND && p == TEND) goto NEXTTEMPLATE;
+		/* Skip speed markers */
+		if(m == T0) {
+			switch(p) {
+				case 11:
+				case 21:
+				case 24:
+				case 25:
+					continue;
+					break;
+				}
+			}
+		if(m == T1) continue;
+		break;
+		}
+	if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 10) { /* 'S' */
+		good = (*p_result) = YES;
+		if(!templates) my_sprintf(Message,"Item %saccepted by grammar...",LineBuff);
+		else my_sprintf(Message,
+			"Item %smatching template [%ld] accepted by grammar...",LineBuff,(long)itemp);
+		ShowMessage(TRUE,wMessage,Message);
+		if(!templates) my_sprintf(Message,"Item %saccepted by grammar...\n\n",LineBuff);
+		else my_sprintf(Message,"Item %smatching template [%ld] accepted by grammar...\n\n",
+			LineBuff,(long)itemp);
+		if(1 || all || DisplayProduce || ScriptExecOn) {
 			Print(wTrace,Message);
-			if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wTrace,pp_Scrap,
-				pp_a)) != OK) goto END;
 			ShowSelect(CENTRE,wTrace);
 			}
-		else {
-			my_sprintf(Message,"Item %smatched template [%ld]\n",LineBuff,(long)itemp);
-			Print(wTrace,Message);
-			ShowSelect(CENTRE,wTrace);
+		if(StepProduce) {
+			r = InterruptCompute(-1,&Gram,*p_repeat,-1,ANAL);
+			if(r != OK) goto END;
 			}
+		if(all && templates) goto NEXTTEMPLATE;
 		}
-	if(StepProduce) {
-		r = InterruptCompute(-1,&Gram,*p_repeat,-1,ANAL);
-		if(r != OK) goto END;
-		}
-	}
-ClearMarkers(pp_a);
-
-time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
-
-for(igram=Gram.number_gram; igram >= 1; igram--) {
-	PleaseWait();
-	finish = FALSE;
-	r = ComputeInGram(pp_a,&Gram,igram,0,p_lengthA,&finish,p_repeat,ANAL,learn,&i,&i,time_end_compute);
-	if(r == MISSED) break;
-	if(r == FINISH) continue;
-	if(finish) {
-		if((r = ShowItem(igram,&Gram,FALSE,pp_a,(*p_repeat),PROD,FALSE))
-			== ENDREPEAT || r == ABORT || r == EXIT) {
-			goto END;
-			}
-		StepProduce = DisplayProduce = TRUE;
-		PlanProduce = TraceProduce = finish - 1;
-		}
-	if(r == ABORT || r == EXIT) goto END;
-	if((r == BACKTRACK || r == AGAIN)  && p_MemGram != NULL) {
-		igram = (*p_MemGram)[ProduceStackIndex];
-		igram++; continue;
-		}
-/*	if(StepGrammars && !StepProduce) {
-		r = InterruptCompute(igram,&Gram,*p_repeat,-1,ANAL);
-		if(r != OK) goto END;
-		} */
-	}
-for(i=0; ; i+=2) {
-	m = (**pp_a)[i]; p = (**pp_a)[i+1];
-	if(m == TEND && p == TEND) goto NEXTTEMPLATE;
-	/* Skip speed markers */
-	if(m == T0) {
-		switch(p) {
-			case 11:
-			case 21:
-			case 24:
-			case 25:
-				continue;
-				break;
-			}
-		}
-	if(m == T1) continue;
-	break;
-	}
-if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 10) { /* 'S' */
-	good = (*p_result) = YES;
-	if(!templates) my_sprintf(Message,"Item %saccepted by grammar...",LineBuff);
-	else my_sprintf(Message,
-		"Item %smatching template [%ld] accepted by grammar...",LineBuff,(long)itemp);
-	ShowMessage(TRUE,wMessage,Message);
-	if(!templates) my_sprintf(Message,"Item %saccepted by grammar...\n\n",LineBuff);
-	else my_sprintf(Message,"Item %smatching template [%ld] accepted by grammar...\n\n",
-		LineBuff,(long)itemp);
-	if(1 || all || DisplayProduce || ScriptExecOn) {
+	else {
+		my_sprintf(Message,"Item %srejected by grammar...",LineBuff);
+		(*p_result) = MISSED;
+		ShowMessage(TRUE,wMessage,Message);
+		if(templates)
+			my_sprintf(Message,"Item %smatching template [%ld] rejected by grammar...\n",LineBuff,
+				(long)itemp);
+		else
+			my_sprintf(Message,"Item %srejected by grammar...\n",LineBuff);
 		Print(wTrace,Message);
+		my_sprintf(Message,"Result of failed analysis:\n");
+		Print(wTrace,Message);
+		if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wTrace,pp_Scrap,pp_a)) != OK)
+			goto END;
 		ShowSelect(CENTRE,wTrace);
+		if(templates) goto NEXTTEMPLATE;
+		if(learn) {
+			r = ABORT; goto END;
+			}
+		if((r=InterruptCompute(-1,&Gram,FALSE,-1,ANAL)) != OK) goto END;
 		}
-	if(StepProduce) {
-		r = InterruptCompute(-1,&Gram,*p_repeat,-1,ANAL);
-		if(r != OK) goto END;
-		}
-	if(all && templates) goto NEXTTEMPLATE;
-	}
-else {
-	my_sprintf(Message,"Item %srejected by grammar...",LineBuff);
-	(*p_result) = MISSED;
-	ShowMessage(TRUE,wMessage,Message);
-	if(templates)
-		my_sprintf(Message,"Item %smatching template [%ld] rejected by grammar...\n",LineBuff,
-			(long)itemp);
-	else
-		my_sprintf(Message,"Item %srejected by grammar...\n",LineBuff);
-	Print(wTrace,Message);
-	my_sprintf(Message,"Result of failed analysis:\n");
-	Print(wTrace,Message);
-	if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wTrace,pp_Scrap,pp_a)) != OK)
-		goto END;
+
+	END:
 	ShowSelect(CENTRE,wTrace);
-	if(templates) goto NEXTTEMPLATE;
-	if(learn) {
-		r = ABORT; goto END;
-		}
-	if((r=InterruptCompute(-1,&Gram,FALSE,-1,ANAL)) != OK) goto END;
+	MyDisposeHandle((Handle*)pp_c);
+	MyDisposeHandle((Handle*)pp_d);
+	return(r);
 	}
 
-END:
-ShowSelect(CENTRE,wTrace);
-MyDisposeHandle((Handle*)pp_c);
-MyDisposeHandle((Handle*)pp_d);
-return(r);
-}
 
-
-int MatchTemplate(tokenbyte ***pp_a,tokenbyte ***pp_b)
+int MatchTemplate(tokenbyte ***pp_a,tokenbyte ***pp_b) {
 /* p_a is item without structure, p_b is template */
 /* On normal exit p_a should have structure derived from template */
-{
-tokenbyte **p_c;
-double maxseqapprox;
-int r,hasperiods;
+	tokenbyte **p_c;
+	double maxseqapprox;
+	int r,hasperiods;
 
-r = OK;
-hasperiods = FALSE; p_c = NULL;
-// datamode = DisplayMode(pp_a,&ifunc,&hastabs);
-if((hasperiods=FoundPeriod(pp_b) && !HasStructure(*pp_b))) {
-	if((p_c=(tokenbyte**) GiveSpace((Size) MyGetHandleSize((Handle)*pp_b))) == NULL) {
-		r = ABORT; goto QUIT;
+	r = OK;
+	hasperiods = FALSE; p_c = NULL;
+	// datamode = DisplayMode(pp_a,&ifunc,&hastabs);
+	if((hasperiods=FoundPeriod(pp_b) && !HasStructure(*pp_b))) {
+		if((p_c=(tokenbyte**) GiveSpace((Size) MyGetHandleSize((Handle)*pp_b))) == NULL) {
+			r = ABORT; goto QUIT;
+			}
+		if(CopyBuf(pp_b,&p_c) == ABORT) {
+			r = ABORT; goto QUIT;
+			}
+		if((r=PolyMake(pp_b,&maxseqapprox,NO)) == ABORT || r == EXIT) {
+			goto QUIT;
+			}
+		if(r != OK) {
+			MyDisposeHandle((Handle*)&p_c);
+			return(MISSED);
+			}
 		}
-	if(CopyBuf(pp_b,&p_c) == ABORT) {
-		r = ABORT; goto QUIT;
-		}
-	if((r=PolyMake(pp_b,&maxseqapprox,NO)) == ABORT || r == EXIT) {
-		goto QUIT;
-		}
-	if(r != OK) {
+	r = PrintArg(FALSE,TRUE,FALSE,FALSE,FALSE,TRUE,stdout,0,pp_a,pp_b);
+	if(r == ABORT || r == EXIT) goto QUIT;
+	if(r != OK) r = MISSED;
+	if(hasperiods) {
+	//	if(CopyBuf(&p_c,pp_b) == ABORT) r = ABORT;
 		MyDisposeHandle((Handle*)&p_c);
-		return(MISSED);
-		}
+		} 
+		
+	QUIT:
+	return(r);
 	}
-r = PrintArg(FALSE,TRUE,FALSE,FALSE,FALSE,TRUE,stdout,0,pp_a,pp_b);
-if(r == ABORT || r == EXIT) goto QUIT;
-if(r != OK) r = MISSED;
-if(hasperiods) {
-//	if(CopyBuf(&p_c,pp_b) == ABORT) r = ABORT;
-	MyDisposeHandle((Handle*)&p_c);
-	} 
-	
-QUIT:
-return(r);
-}
 
 
 int PrintResult(int expand,int w,int datamode,int ifunc,tokenbyte ***pp_a) {
@@ -1872,174 +1790,107 @@ int PrintResult(int expand,int w,int datamode,int ifunc,tokenbyte ***pp_a) {
 			datamode = FALSE;
 			}
 		}
-	r = PrintArg(datamode,FALSE,1,datamode,ifunc,0,stdout,w,pp_Scrap,pp_a);
+	if((r = PrintArg(datamode,FALSE,1,datamode,ifunc,0,stdout,w,pp_Scrap,pp_a)) != OK) goto QUIT;
 	if(expand && datamode && !ifunc) {
 		if(CopyBuf(&p_b,pp_a) == ABORT) {
 			r = ABORT; goto QUIT;
 			}
 		MyDisposeHandle((Handle*)&p_b);
 		}
-
-	QUIT:
+QUIT:
 	return(r);
 	}
 
 
-int CheckItemProduced(t_gram *p_gram,tokenbyte ***pp_a,long *p_length,int single,
-	int template,int mode)
-{
-int j,sign,r,datamode,ifunc,hastabs;
-unsigned long i,imax;
-long count;
-OSErr io;
-char c,buffer[2];
-
-r = OK;
-if(NoVariable(pp_a)) {
-	datamode = DisplayMode(pp_a,&ifunc,&hastabs);
-	/* if(datamode && !ifunc && !template) {
-		if((r=PolyMake(pp_a,&maxseqapprox)) == ABORT || r == EXIT) {
-			goto END;
-			}
-		} */
-	(*p_length) = LengthOf(pp_a);
-	if(template) MakeTemplate(pp_a);
-
-#if BP_CARBON_GUI_FORGET_THIS
-	/* The code below reads/writes items as space-separated integers from/to the
-	   file "BP2.temp".  The current item is compared to each item already
-	   in the temp file (one per line) and if it finds a match, both writing
-	   the current item to the OutputWindow and the temp file are skipped.
-	   
-	   This code needs to be rewritten for cross-platform use.  At a minimum,
-	   I would break it out into a function and relace Mac OS file I/O with
-	   either our own x-platform wrappers or just Std. C routines for all.
-	   Reading items back in one character at a time and translating integers
-	   to and from text is also unnecssarily slow.  One of the following should
-	   also be implemented:
-	       1) Read the entire file back in all at once each time, or
-		   2) Write items as binary data and read them all back in at once, or
-		   3) No temp file, keep all the items in a linked list in memory, or
-		   4) #3 plus compute a hash for each item and only compare items if
-		      their hashes match.
-		   
-	   -- akozar 20130912
-	 */
-	if(single) {
-		SetFPos(TempRefnum,fsFromStart,ZERO);
-		imax = (*p_length+2);
-		for(i=ZERO; i <= imax; i++) {
-START:		j = 0; sign = 1;
-			while(TRUE) {
-				count = 1L;
-				io = FSRead(TempRefnum,&count,buffer);
-				if(io == eofErr) goto WRITE;
-				if(io != noErr) {
-					if(Beta) TellError(19,io);
-					r = ABORT; goto END;
-					}
-				c = buffer[0];
-				switch(c) {
-					case -1:
-					case '\0':
-						goto WRITE;
-						break;
-					case '-' :
-						sign = -1;
-						continue;
-						break;
-					case ' ':
-						goto COMPARE;
-						break;
-					case '\n':
-						if(i == imax) goto END;
-						else {
-							i = ZERO; goto START;
-							}
-						break;
-					}
-				j = (10L * j) + (c - '0');
-				}
-COMPARE:
-			j = (sign * j);
-			if(i < imax && j == (int)(**(pp_a))[i]) continue;
-			i = -1L;
-			do {
-				count = 1L;
-				io = FSRead(TempRefnum,&count,buffer);
-				if(io == eofErr) goto WRITE;
-				if(io != noErr) {
-					if(Beta) TellError(20,io);
-					r = ABORT; goto END;
-					}
-				c = buffer[0];
-				if(c == '\0' || c == -1) goto WRITE;
-				}
-			while(c != '\n');
-			}
-		goto END;
-		
-WRITE:
-		io = GetEOF(TempRefnum,&count);
-		if(io != noErr) {
-			TellError(20,io);
-			r = ABORT; goto END;
-			}
-		io = SetFPos(TempRefnum,fsFromStart,count);
-		if(io != noErr) {
-			TellError(20,io);
-			r = ABORT; goto END;
-			}
-		for(i=ZERO; i < (*p_length+2); i++) {
-			my_sprintf(Message,"%ld ",(long)(**(pp_a))[i]);
-			NoReturnWriteToFile(Message,TempRefnum);
-			}
-		NoReturnWriteToFile("\n",TempRefnum);
-		GetFPos(TempRefnum,&count);
-		io = SetEOF(TempRefnum,count);
-//		FlushVolume();
-		if(io != noErr) {
-			TellError(20,io);
-			r = ABORT; goto END;
-			}
-		}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-	
-	ResetDone = ifunc = FALSE;
-	OkShowExpand = FALSE;
-	if(template || DisplayItems) {
-		if(template) {
-			WriteTemplate(wGrammar,pp_a);
-			Dirty[wGrammar] = TRUE;
-			}
-		else {
-			if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto END;
-			Print(OutputWindow,"\n");
-			Dirty[OutputWindow] = TRUE;
-			}
-#if BP_CARBON_GUI_FORGET_THIS
-	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-		if((r=MyButton(1)) != MISSED || StepProduce) {
-			if(r == ABORT || r == EXIT) goto END;
-			if(r != OK && !StepProduce) {
-				if(Beta) Alert1("r != OK && !StepProduce in AllFollowingItems()");
+int CheckItemProduced(t_gram *p_gram,tokenbyte ***pp_a,long *p_length,
+	int template,int mode)  {
+	int j,sign,result,r,datamode,ifunc,hastabs;
+	unsigned long i,imax;
+	long count;
+	OSErr io;
+	char c,buffer[2];
+	result = OK;
+	if(NoVariable(pp_a)) {
+		datamode = DisplayMode(pp_a,&ifunc,&hastabs);
+		/* if(datamode && !ifunc && !template) {
+			if((result=PolyMake(pp_a,&maxseqapprox)) == ABORT || result == EXIT) {
 				goto END;
 				}
-			if((r=InterruptCompute(-1,p_gram,FALSE,ORDtype,mode)) != OK) {
-				if(Beta) Alert1("InterruptCompute() != OK in AllFollowingItems()");
-				goto END;
+			} */
+		(*p_length) = LengthOf(pp_a);
+		if(template) MakeTemplate(pp_a);
+		ResetDone = ifunc = FALSE;
+		OkShowExpand = FALSE;
+	//	if(template || DisplayItems) {
+			if(template) {
+				WriteTemplate(wGrammar,pp_a);
+				Dirty[wGrammar] = TRUE;
 				}
-			}
-		r = OK;
-		if(EventState != NO) {
-			if(Beta) Alert1("EventState != NO in AllFollowingItems()");
-			r = EventState;
-			goto END;
-			}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
+			else {
+				if((result=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto END;
+				Print(OutputWindow,"\n");
+				r = check_and_remove_duplicate_last_line(OutFileName);
+				if(trace_produce_all) BPPrintMessage(1,odInfo,"=> ???\n");
+				if(r) {
+					ItemNumber++;
+					if(trace_produce_all) BPPrintMessage(1,odInfo,"=> *** %d\n",ItemNumber);
+					if(!template && (rtMIDI || OutCsound || WriteMIDIfile)) result = PlayBuffer(pp_a,NO);
+					}
+				if(ItemNumber >= MaxItemsDisplay) {
+					BPPrintMessage(0,odInfo,"%ld items have been produced, as per the limit in settings.\n",(long)ItemNumber);
+					result = ABORT;
+					goto END;
+					}
+				}
+	//		}
 		}
-	if(!template && (rtMIDI || OutCsound || WriteMIDIfile)) r = PlayBuffer(pp_a,NO);
-	}
 END:
-return(r);
-}
+	return(result);
+	}
+
+
+int check_and_remove_duplicate_last_line(const char *filename) {
+	int result = TRUE;
+	if(outPtr) {
+		fflush(outPtr);
+		fclose(outPtr);
+		outPtr = NULL;
+		}
+	else return FALSE;
+    FILE *file = my_fopen(1,filename,"r");
+    if(file == NULL) return FALSE;
+    char *lines[1000]; // Assuming a maximum of 1000 lines
+    int line_count = 0;
+    char buffer[5000];
+    while(fgets(buffer,5000, file) != NULL) {
+		remove_trailing_newline(buffer);
+        lines[line_count] = strdup(buffer);
+        line_count++;
+   		}
+    fclose(file);
+    int is_duplicate = 0;
+    if(line_count > 1) {
+        for (int i = 0; i < line_count - 1; i++) {
+            if (strcmp(lines[i], lines[line_count - 1]) == 0) {
+                is_duplicate = 1;
+                break;
+				}
+			}
+		}
+    // If duplicate, remove the last line.
+    if (is_duplicate) {
+        free(lines[line_count - 1]);
+        line_count--;
+		result = FALSE;
+    	}
+    // Write the updated content back to the file.
+ 	file = my_fopen(1,filename,"wb");
+    if(file == NULL) return FALSE;
+    for(int i = 0; i < line_count; i++) {
+		fprintf(file,"%s\n",lines[i]);
+        free(lines[i]);
+    	}
+    fclose(file);
+	outPtr = fopen(filename,"a");
+	return result;
+	}

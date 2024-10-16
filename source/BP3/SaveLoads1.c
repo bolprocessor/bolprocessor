@@ -1570,11 +1570,12 @@ int LoadSettings(const char *filename, int startup) {
 
 	if(ReadInteger(sefile,&Improvize,&pos) == MISSED) goto ERR;
 	if(trace_load_settings) BPPrintMessage(0,odError, "Improvize = %d\n",Improvize);
-	if(PlaySelectionOn) Improvize = 0;
+	if(PlaySelectionOn) Improvize = FALSE;
 	if(ReadInteger(sefile,&MaxItemsDisplay,&pos) == MISSED) goto ERR;
 	if(MaxItemsDisplay < 2) MaxItemsDisplay = 20;
 	if(ReadInteger(sefile,&UseEachSub,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&AllItems,&pos) == MISSED) goto ERR;
+	if(AllItems) Improvize = FALSE;
 	if(ReadInteger(sefile,&DisplayProduce,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&StepProduce,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&TraceMicrotonality,&pos) == MISSED) goto ERR;

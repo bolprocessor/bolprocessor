@@ -139,15 +139,6 @@ int LoadGlossary(int anyfile,int manual)
 	}	
 }
 
-
-int ClearWindow(int reset,int w)
-{
-	BP_NOT_USED(reset);
-	BP_NOT_USED(w);
-	// do we need some of the logic from ClearWindow() in Interface1.c ?
-	return OK;
-}
-
 int ShowSelect(int dir,int w)
 {
 	BP_NOT_USED(dir);

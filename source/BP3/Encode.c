@@ -378,6 +378,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 					case 0:	/* _goto */
 						(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotogram = ig;
 						(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotorule = ir;
+					//	BPPrintMessage(0,odInfo,"gotogram = %d, gotorule = %d, igram = %d, irul = %d\n",ig,ir,igram,irul);
 						break;
 					case 1:	/* _failed */
 						(*((*(Gram.p_subgram))[igram].p_rule))[irul].failedgram = ig;
@@ -386,6 +387,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 					case 2:	/* _repeat */
 						(*((*(Gram.p_subgram))[igram].p_rule))[irul].repeat = ig;
 						(*((*(Gram.p_subgram))[igram].p_rule))[irul].repeatcontrol = ir;
+					//	BPPrintMessage(0,odInfo,"repeat = %d, ir = %d, igram = %d, irul = %d\n",ig,ir,igram,irul);
 						break;
 					case 3:	/* _stop */
 						(*((*(Gram.p_subgram))[igram].p_rule))[irul].stop += arg_nr;

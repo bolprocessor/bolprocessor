@@ -96,7 +96,6 @@ if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 ptr = (Handle)(*pp_Comment)[j];
 if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 (*pp_Comment)[j] = NULL;
-ClearWindow(FALSE,wPrototype7);
 ptr = (Handle)(*pp_CsoundScoreText)[j];
 if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 (*pp_CsoundScoreText)[j] = NULL;

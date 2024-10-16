@@ -161,6 +161,7 @@ double A4freq;
 time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTime,TimeSettingTime;
 unsigned long NextStop;
 char FindString[256],ReplaceString[256];
+char OutFileName[MAXLIN];
 int RunningStatus,StrikeAgainDefault,MIDImicrotonality;
 int NoteOffPass[MAXPORTS],NoteOnPass[MAXPORTS],KeyPressurePass[MAXPORTS],ControlTypePass[MAXPORTS],ProgramTypePass[MAXPORTS],
 	ChannelPressurePass[MAXPORTS],PitchBendPass[MAXPORTS],SysExPass[MAXPORTS],TimeCodePass[MAXPORTS],SongPosPass[MAXPORTS],SongSelPass[MAXPORTS],TuneTypePass[MAXPORTS],EndSysExPass[MAXPORTS],ClockTypePass[MAXPORTS],StartTypePass[MAXPORTS],ContTypePass[MAXPORTS],ActiveSensePass[MAXPORTS],ResetPass[MAXPORTS];
@@ -196,7 +197,7 @@ FILE* CapturePtr;
 long ProduceStackDepth,ProduceStackIndex,DisplayStackIndex,
 	**p_LastStackIndex,**p_MemPos;
 long **p_ItemStart,**p_ItemEnd,CompileDate,ComputeStart,MaxComputeTime,
-	ComputeTime,ItemNumber,Maxitems,Interrupted,MaxDeriv,Sel1,Sel2,AssignedTempoCsoundFile;
+	ComputeTime,ItemNumber,Interrupted,MaxDeriv,Sel1,Sel2,AssignedTempoCsoundFile;
 int Nplay,SynchroSignal,QuantizeOK,IgnoreCase,MatchWords,
 	TargetWindow,GraphicScaleP,GraphicScaleQ;
 long Time_res,Quantization;
@@ -450,10 +451,11 @@ int TickChannel[MAXTICKS],TickKey[MAXTICKS],TickVelocity[MAXTICKS],MuteTick[MAXT
 	TickCycle[MAXTICKS],TickPosition[MAXTICKS],iTick,jTick,HideTicks,PlayTicks,UseBullet,NeedZouleb;
 long ThisTick[MAXTICKS][MAXBEATS];
 int InitOn,SetTimeOn,ComputeOn,PolyOn,SoundOn,SelectOn,PrintOn,InputOn,ClickRuleOn,
-	EnterOn,Option,CompileOn,GraphicOn,ReadKeyBoardOn,ButtonOn,LoadOn,SaveOn,PauseOn,AlertOn,AllOn,
+	EnterOn,Option,CompileOn,GraphicOn,ReadKeyBoardOn,ButtonOn,LoadOn,SaveOn,PauseOn,AlertOn,
 	PlaySelectionOn,PlayChunks,LastChunk,PlayAllChunks,PlayPrototypeOn,AEventOn,ExpandOn,SelectPictureOn,EmptyBeat,TickDone,TickThere,
 	FoundNote,NoCursor,MIDIfileOn,WaitOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram,
 	ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
+int HideMessages;
 double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 double MaxFrac;
 int HaveAppearanceManager;

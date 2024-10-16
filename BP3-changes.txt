@@ -7,15 +7,21 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 
-2024-10-07 -> 2024-10-09 (version 3.0.12)
+2024-10-16 (version 3.0.13)
+The "Produce all items" mode has been extended to real-time MIDI, MIDI files and Csound scores. It also takes care of "repeating" rules using _repeat() and _failed() statements.
+Don't forget to update the PHP interface!
+
+-----
+2024-10-07 -> 2024-10-10 (version 3.0.12)
 Glyphs ‘≠’, ‘≤’ and ‘≥’ are now accepted in grammar flags.
 This extends the use of conditions, e.g. /K12 ≥ 0/, beyond ‘=’, ‘<’ and ‘>’.
+The "Produce all items" mode is working.
 
 -----
 2024-10-04 -> 2024-10-06 (version 3.0.11)
 Fixed microtonality algorithms so that any scale can be used in real-time MIDI (out and in) or MIDI files as well as in Csound. For example, the Bohlen-Pierce scale with a a "tritave" interval of ratio 3/1 instead of 2/1.
 See updates on https://bolprocessor.org/check-midi-microtonality/
-Protection against setting the same port for input and output
+Protection against setting the same port for both the input and the output (which would cause a loop). Checked in MacOS, Windows and Linux.
 
 -----
 2024-10-01

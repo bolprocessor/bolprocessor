@@ -711,6 +711,7 @@ QUEST2:
 		
 	/* Last object must not be played legato */ // Revised by BB 2022-03-02 
 	if((PlayChunks && !LastChunk) || AllItems || Improvize) {
+	// Suppressing last legato
 	//	BPPrintMessage(0,odError,"\nSuppressing last legato\n");
 		i = (*p_imaxseq)[nseq] - 1L;
 		while((k=(*((*p_Seq)[nseq]))[i]) <= 0 || (*p_Instance)[k].object <= 1) {

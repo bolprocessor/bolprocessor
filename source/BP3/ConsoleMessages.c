@@ -136,7 +136,7 @@ int BPPrintMessage(int force,int dest, const char *format, ...) {
         vfprintf(gOutDestinations[odiWarning], format, args);
         va_end(args);
     }
-    if (dest & odInfo && !PlayAllChunks && (!Improvize || ItemNumber < 1 || force)) {
+    if (dest & odInfo && !PlayAllChunks && (((!Improvize || ItemNumber < 1) && !HideMessages) || force)) {
         va_start(args, format);
    //     fprintf(stderr, "ok %s\n",format);
    //     vfprintf(gOutDestinations[odiInfo], format, args);
