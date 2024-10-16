@@ -1598,35 +1598,34 @@ MyDisposeHandle((Handle*)&p_ItemEnd);
 return(OK);
 } */
 
-int IncreaseComputeSpace(void)
-{
-Handle ptr;
+int IncreaseComputeSpace(void) {
+	Handle ptr;
 
-if(ThreeOverTwo(&MaxDeriv) != OK) return(ABORT);
-ptr = (Handle) p_MemGram;
-if(ptr == NULL) {
-	if(Beta) Alert1("=> Err. IncreaseComputeSpace(). ptr = NULL");
-	return(ABORT);
+	if(ThreeOverTwo(&MaxDeriv) != OK) return(ABORT);
+	ptr = (Handle) p_MemGram;
+	if(ptr == NULL) {
+		if(Beta) Alert1("=> Err. IncreaseComputeSpace(). ptr = NULL");
+		return(ABORT);
+		}
+	if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
+	p_MemGram = (int**) ptr;
+	ptr = (Handle) p_MemRul;
+	if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
+	p_MemRul = (int**) ptr;
+	ptr = (Handle) p_MemPos;
+	if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
+	p_MemPos = (long**) ptr;
+	ptr = (Handle) p_LastStackIndex;
+	if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
+	p_LastStackIndex = (long**) ptr;
+	ptr = (Handle) p_ItemStart;
+	if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
+	p_ItemStart = (long**) ptr;
+	ptr = (Handle) p_ItemEnd;
+	if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
+	p_ItemEnd = (long**) ptr;
+	return OK;
 	}
-if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
-p_MemGram = (int**) ptr;
-ptr = (Handle) p_MemRul;
-if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
-p_MemRul = (int**) ptr;
-ptr = (Handle) p_MemPos;
-if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
-p_MemPos = (long**) ptr;
-ptr = (Handle) p_LastStackIndex;
-if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
-p_LastStackIndex = (long**) ptr;
-ptr = (Handle) p_ItemStart;
-if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
-p_ItemStart = (long**) ptr;
-ptr = (Handle) p_ItemEnd;
-if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
-p_ItemEnd = (long**) ptr;
-return OK;
-}
 
 
 int CheckTerminalSpace(void)

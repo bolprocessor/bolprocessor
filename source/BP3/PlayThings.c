@@ -181,14 +181,14 @@ int PlaySelection(int w, int all) {
 		//	TextGetSelection(&originmem,&next_origin,TEH[w]);
 			Ctrlinit();
 			if(!AllowRandomize) ResetRandom();
-			else {
+		/*	else {
 				asked = TRUE;
 				if(UsedRandom && !ScriptExecOn && !AllItems && !AEventOn && !asked) {
 					if((r=Answer("Reset random sequence",'N')) == OK) ResetRandom();
 					UsedRandom = FALSE;
 					asked = TRUE;
 					}
-				}
+				} */
 			if((r=ProduceItems(w,FALSE,FALSE,NULL)) != OK) goto END;
 			}
 		else {
@@ -245,26 +245,24 @@ int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll) {
 		WaitABit(1000L);	/* This is necessary notably if sending a program change */
 		FirstTime = FALSE;
 		}
-	if(Maxitems > ZERO /* && !ShowGraphic && !DisplayItems */) {
+	/* if(MaxItemsDisplay > ZERO) {
 		my_sprintf(Message,"Item #%ld",(long)ItemNumber+1L);
 		ShowMessage(TRUE,wMessage,Message);
-		}
+		} */
 	// if(!Improvize) initTime = getClockTime();
 	r = PlayBuffer1(pp_buff,onlypianoroll);
 
 	// if(!PlaySelectionOn && ++ItemNumber > INT_MAX) ItemNumber = 1L;
 	if(!PlaySelectionOn && ItemNumber > INT_MAX) ItemNumber = 1L;
-	if(r != EXIT && Maxitems > ZERO && ItemNumber >= Maxitems && !onlypianoroll) {
-		/* Script ordered to terminate production. */
+/*	if(r != EXIT && MaxItemsDisplay > ZERO && ItemNumber >= MaxItemsDisplay && !onlypianoroll) {
+		// Script ordered to terminate production
 		SoundOn = TRUE;
 		r = WaitForEmptyBuffer();
 		SoundOn = FALSE;
 		if(r != OK) return(r);
-		// HideWindow(Window[wMessage]);
 		BPPrintMessage(0,odInfo,"Aborted PlayBuffer()\n");
 		return(ABORT);
-		}
-	// BPPrintMessage(0,odInfo,"End of PlayBuffer()\n");
+		}  */
 	return(r);
 	}
 
@@ -1122,7 +1120,7 @@ while(origin < end) {
 	MyDisposeHandle((Handle*)&p_a);
 	/* Could be NULL because of PolyExpand() */
 	}
-if(Dirty[w]) SetSelect(UndoPos,newend,TEH[w]);
+// if(Dirty[w]) SetSelect(UndoPos,newend,TEH[w]);
 ShowSelect(CENTRE,w);
 return(r);
 

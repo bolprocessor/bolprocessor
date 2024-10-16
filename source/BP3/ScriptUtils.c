@@ -389,7 +389,6 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				
 			if(!check) {
 				strcpy(FileName[w],line);
-				ClearWindow(FALSE,w);
 				}
 			switch(w) {
 				case wGrammar:
@@ -1705,7 +1704,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if((r=WaitForEmptyBuffer()) != OK) return(r);
 			ItemNumber = ZERO;
-			Maxitems = (*(ScriptLine.intarg))[0];
+			MaxItemsDisplay = (*(ScriptLine.intarg))[0];
 			ReadKeyBoardOn = FALSE; Jcontrol = -1;
 		/*	if(rtMIDI && Interactive && !LoadedIn) {
 				if(GetInName(wData) != OK) GetInName(wGrammar);

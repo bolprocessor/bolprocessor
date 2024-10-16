@@ -556,6 +556,10 @@ switch(jproc) {
 	case 1:	/* _failed */
 	case 2:	/* _repeat */
 		NotBPCase[7] = TRUE;
+	/*	if(AllItems) {
+			BPPrintMessage(0,odError,"=> Cannot produce all items because this grammar contains a '%s' instruction\n",*((*p_GramProcedure)[jproc]));
+			return(ABORT);
+			} */
 		/* no break */
 	case 16:	/* _srand */
 		if(jproc != 16 && arg_nr != 2) {

@@ -131,8 +131,6 @@ Read https://forum.csound.com/t/orchestra-file-rejected-by-linux/1780
 Actions
 -------
 
-- Implement produce-items N action.
-- Implement play-all action.
 - Fix analyze-item action.
 - Implement expand-item & show-beats options.
 

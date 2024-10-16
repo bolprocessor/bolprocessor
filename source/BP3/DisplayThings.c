@@ -527,8 +527,7 @@ if((pp_ctxt =
 	Print(wind,Message);
 	// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
 	ptr = (*pp_ctxt)->p_arg;
-	if(PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&ptr)
-			!= OK) {
+	if(PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&ptr) != OK) {
 		r = ABORT; goto END;
 		}
 	

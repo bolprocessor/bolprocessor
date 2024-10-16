@@ -70,6 +70,7 @@ int LoadedAlphabet  = FALSE;
 int LoadedStartString = FALSE;
 BPConsoleOpts gOptions;
 FILE * imagePtr;
+FILE * outPtr;
 char imageFileName[500];
 int N_image;
 long MaxConsoleTime; // seconds: time allowed for console work
@@ -1412,16 +1413,17 @@ void CloseOutputDestination(int dest, BPConsoleOpts* opts, outfileidx_t fileidx)
 	}
 
 int PrepareProdItemsDestination(BPConsoleOpts* opts) {
-	FILE *fout;
+//	FILE *fout;
 	// prepare output file if requested
 	if (opts->displayItems && opts->outputFiles[ofiProdItems].name != NULL)	{
 		BPPrintMessage(0,odInfo, "Opening output file %s\n", opts->outputFiles[ofiProdItems].name);
-		fout = OpenOutputFile(&(opts->outputFiles[ofiProdItems]), "w");
-		if (!fout) {
+		strcpy(OutFileName,opts->outputFiles[ofiProdItems].name);
+		outPtr = OpenOutputFile(&(opts->outputFiles[ofiProdItems]),"w");
+		if (!outPtr) {
 			BPPrintMessage(0,odError, "=> Could not open file for output %s\n", opts->outputFiles[ofiProdItems].name);
 			return MISSED;
 		    }
-		SetOutputDestinations(odDisplay, fout);	
+		SetOutputDestinations(odDisplay,outPtr);	
 	    }
 	return OK;
     }
@@ -1435,7 +1437,7 @@ int PrepareTraceDestination(BPConsoleOpts* opts) {
 			BPPrintMessage(0,odError, "=> Could not create trace file %s\n", opts->outputFiles[ofiTraceFile].name);
 			return MISSED;
 		    }
-		SetOutputDestinations(odTrace, fout);
+		SetOutputDestinations(odTrace,fout);
         BPPrintMessage(0,odInfo, "Creating trace file: %s\n", opts->outputFiles[ofiTraceFile].name);
 	    }
     return OK;

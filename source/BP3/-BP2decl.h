@@ -152,7 +152,7 @@ extern FILE* CapturePtr;
 extern long ProduceStackDepth,ProduceStackIndex,DisplayStackIndex,
 	**p_LastStackIndex,**p_MemPos;
 extern long **p_ItemStart,**p_ItemEnd,CompileDate,ComputeStart,MaxComputeTime,
-	ComputeTime,Maxitems,ItemNumber,Interrupted,MaxDeriv,Sel1,Sel2,AssignedTempoCsoundFile;
+	ComputeTime,ItemNumber,Interrupted,MaxDeriv,Sel1,Sel2,AssignedTempoCsoundFile;
 extern int Nplay,SynchroSignal,QuantizeOK,IgnoreCase,
 	MatchWords,TargetWindow,GraphicScaleP,GraphicScaleQ;
 extern long Time_res,Quantization;
@@ -359,6 +359,7 @@ extern char FileOldExtension[WMAX][6];
 extern char DocumentTypeName[WMAX][21];
 extern char DeftName[WMAX][MAXNAME];
 extern char WindowName[WMAX][MAXNAME];
+extern char OutFileName[MAXLIN];
 extern long WindowParID[WMAX],ParIDstartup,ParIDbp2;
 // extern Str255 DeftVolName;
 extern short TheVRefNum[WMAX],RefNumStartUp,RefNumbp2;
@@ -371,11 +372,12 @@ extern int TickChannel[MAXTICKS],TickKey[MAXTICKS],TickVelocity[MAXTICKS],MuteTi
 	HideTicks,PlayTicks,UseBullet,NeedZouleb;
 extern long ThisTick[MAXTICKS][MAXBEATS];
 extern int InitOn,SetTimeOn,ComputeOn,PolyOn,CompileOn,SoundOn,SelectOn,PrintOn,InputOn,
-	ClickRuleOn,GraphicOn,ReadKeyBoardOn,ButtonOn,PauseOn,AlertOn,AllOn,PlaySelectionOn,PlayChunks,LastChunk,PlayAllChunks,
+	ClickRuleOn,GraphicOn,ReadKeyBoardOn,ButtonOn,PauseOn,AlertOn,PlaySelectionOn,PlayChunks,LastChunk,PlayAllChunks,
 	PlayPrototypeOn,MIDIfileOn,WaitOn,ExpandOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram,
 	AEventOn,LoadOn,SaveOn,SelectPictureOn,EnterOn,Option,EmptyBeat,TickDone,TickThere,
 	FoundNote,NoCursor,ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
 
+extern int HideMessages;
 extern double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 extern double MaxFrac;
 extern int HaveAppearanceManager;
@@ -397,6 +399,7 @@ extern Handle mem_ptr[5000];
 extern int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 
 extern FILE * imagePtr;
+extern FILE * outPtr;
 extern int N_image;
 extern long MaxConsoleTime;
 extern int NumberScales, MaxScales, DefaultScaleParam, ToldAboutScale;

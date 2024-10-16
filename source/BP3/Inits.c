@@ -50,49 +50,8 @@ int Inits(void) {
 	char **ptr;
 	Rect r;
 	long handlerRefcon;
-	#if BP_CARBON_GUI_FORGET_THIS
-	WDPBRec pb;
-	AEEventHandlerUPP handler;
-	ProcessInfoRec info;
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 	// FSSpec spec;
 	long t;
-
-	/* static char HTMLlatin[] Starting with "&#32" up to "&#255" 
-		= {' ','!','\"','#','$','%','&','\'','(',')','*','+',',','-','.','/','0','1','2','3',
-		'4','5','6','7','8','9',':',';','<','=','>','?','@','A','B','C','D','E','F','G','H',
-		'I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','[','\\',']',
-		'\0','_','\0',
-		'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t',
-		'u','v','w','x','y','z','{','|','}','~','\0','�','�','�','�','�','�','�','�',
-		'�','�','�','�','�','�','�','�','�','�','�','�','�','�','�','�','�',
-		'�','�','�','�','�','�','�','\0','�','�','�','�','�','|','�','�','�','�','"',
-		'�','\0','�','\0','�','�','�','�','\0','�','\0','�','�','�','�','�','�','�','�','�',
-		'�','"','�','�','�','�','�','�','�','�','�','�','�','�','�','�','\0','�','�','�','�',
-		'�','�','�','�','�','�','�','�','Y','\0','�','�','�','�','�','�','�','�','�','�','�','�',
-		'�','�','�','�','�','\0','�','�','�','�','�','�','�','�','�','�','�','�','y',
-		'\0','�'}; */
-
-	#if BP_CARBON_GUI_FORGET_THIS
-	InitCursor();
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-	#if USE_MLTE_FORGET_THIS
-	io = TXNInitTextension(NULL, 0, 0);
-	if (io != noErr) {
-		ParamText("\pBP could not initialize the Multilingual Text Engine library.  Quitting ...",
-				"\p", "\p", "\p");
-		StopAlert(OKAlert,0L);
-		return EXIT;
-	}
-	#endif
-
-	// ForceTextColor = ForceGraphicColor = 0;
-
-	#if BP_CARBON_GUI_FORGET_THIS
-	if(!GoodMachine()) return(ABORT);
-	FlushEvents(everyEvent,0);
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 	////////////////////////////////////
 	////   Is this a beta version?  ////
@@ -127,8 +86,8 @@ int Inits(void) {
 	EventState = NO;
 	SetTimeOn = ComputeOn = PolyOn = CompileOn = SoundOn = SelectOn = ButtonOn = ExpandOn
 		= PrintOn = ClickRuleOn = GraphicOn = CompleteDecisions = LoadOn = SaveOn = MIDIfileOn
-		= ReadKeyBoardOn = AlertOn = AllOn = HangOn = ScriptRecOn = PlayPrototypeOn
-		= PlaySelectionOn = PlayChunks = PlayAllChunks = UseEachSub = SelectPictureOn = TypeScript = InputOn = EnterOn = AEventOn
+		= ReadKeyBoardOn = AlertOn = HangOn = ScriptRecOn = PlayPrototypeOn
+		= PlaySelectionOn = PlayChunks = PlayAllChunks = UseEachSub = SelectPictureOn = TypeScript = InputOn = EnterOn = AEventOn = HideMessages
 		= PauseOn = WaitOn = ItemOutPutOn = ItemCapture = TickCapture = TickCaptureStarted
 		= AskedAboutCsound = MustChangeInput = ToldSkipped = ShownBufferSize = FALSE;
 	Option = TickDone = FoundNote = GotAlert = UsedRandom = SaidTooComplex = FALSE;
@@ -139,7 +98,8 @@ int Inits(void) {
 	AssignedTempoCsoundFile = FALSE;
 	MaxConsoleTime = 0; // No limit
 	Ratio = 0.;  Prod = 1.;
-	N_image = 0; imagePtr = NULL;
+	N_image = 0; imagePtr = outPtr = NULL;
+	strcpy(OutFileName,"");
 	NumberScales = 0;
 	DefaultScaleParam = -1; MaxScales = 2; Scale = NULL;
 	ToldAboutScale = FALSE;
@@ -148,27 +108,8 @@ int Inits(void) {
 	CorrectionFactor = 1.;
 	Chunk_number = 0;
 	NextStop = 0L;
-	// Tracefile = NULL;
 
 	Oms = FALSE;
-
-	/* #if WITH_REAL_TIME_SCHEDULER_FORGET_THIS
-	// Space for time scheduler
-	if((p_Clock = (Slice***) NewHandle((Size)CLOCKSIZE * sizeof(Slice*))) == NULL)
-		return(ABORT);
-	MyLock(TRUE,(Handle)p_Clock);
-	Clock = *p_Clock;
-	for(t=0; t < CLOCKSIZE; t++) Clock[t] = NULL;	// No event in the queue 
-
-	if((p_AllSlices = (Slice**) NewHandle((Size)MAXTIMESLICES * sizeof(Slice))) == NULL)
-		return(ABORT);
-	MyLock(TRUE,(Handle)p_AllSlices);
-	SlicePool = NULL;
-	for(i=ZERO; i < MAXTIMESLICES; i++) {
-		(*p_AllSlices)[i].next = SlicePool;
-		SlicePool = &((*p_AllSlices)[i]);
-		}
-	#endif */
 
 	for(i=0; i < MAXMESSAGE; i++) {
 		ptr = (char**) GiveSpace((Size)(MAXLIN * sizeof(char)));
@@ -178,15 +119,11 @@ int Inits(void) {
 		}
 	Jmessage = 0;
 
-	/* if((p_TempFSspec=(FSSpec**) GiveSpace((Size)(WMAX * sizeof(FSSpec)))) == NULL)
-		return(ABORT); */
-
 	for(i=0; i < WMAX; i++) {
 		ptr = (char**) GiveSpace((Size)(MAXINFOLENGTH * sizeof(char)));
 		if(ptr == NULL) return(ABORT);
 		p_FileInfo[i] = ptr;
 		(*p_FileInfo[i])[0] = '\0';
-	//	(*p_TempFSspec)[i].name[0] = 0;
 		}
 
 	if(NEWTIMER_FORGET_THIS) MaxMIDIbytes = MAXTIMESLICES - 50;
@@ -201,10 +138,6 @@ int Inits(void) {
 		CurrentMIDIprogram[i] = 0;
 		}
 	ChangedMIDIprogram = FALSE;
-
-/*	NumInstalledDrivers = 0;
-	InstalledDrivers = NULL;
-	InstalledMenuItems = NULL; */
 
 	Nbytes = Tbytes2 = ZERO;
 
@@ -224,11 +157,6 @@ int Inits(void) {
 	PrefixTree.accept = SuffixTree.accept = FALSE;
 	SmartCursor = Mute = Panic = ClockOverFlow = SchedulerIsActive = FALSE;
 	WarnedBasedKey = FALSE;
-	/*AlertMute = FALSE;*/
-
-	/* #if WITH_REAL_TIME_SCHEDULER_FORGET_THIS
-	OKsend = FALSE;
-	#endif */
 
 	// Limits of speed and scale values
 	TokenLimit = (((double)TOKBASE) * ((double)TOKBASE)) - 1.;
@@ -247,26 +175,6 @@ int Inits(void) {
 		MPEscale[ch] = -1;
 		MPEpitch[ch] = -1;
 		}
-
-	#if BP_CARBON_GUI_FORGET_THIS
-	if(GetResource('MENU',MenuIDoffset) == NULL) {
-		SysBeep(20);
-		CantOpen();
-		return(ABORT);
-		}
-	GetResource('ICON',EditObjectsIconID);
-	GetResource('ICON',BP2iconID);
-	GetResource('PICT',MIDIKeyboardPictID);
-	GetResource('PICT',GreetingsPictID);
-	GetResource('DITL',GreetingsDitlID);
-	if(SetUpCursors() != OK) {
-		SysBeep(20);
-		CantOpen();
-		return(ABORT);
-		}
-	SetUpMenus();
-	InitColors();
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 	if(LoadStrings() != OK) return(ABORT);
 
@@ -297,22 +205,10 @@ int Inits(void) {
 		}
 	MyDisposeHandle((Handle*)&p_HTMLdiacrList);
 
-	/* for(i=0; i < 32; i++) (*p_HTMLchar2)[i] = '\0'; Fixed by BB 2022-02-18
-	for(i=32; i < 256; i++) (*p_HTMLchar2)[i] = HTMLlatin[i-32]; */
-
 	if(MakeWindows() != OK) return(ABORT);
 	if(InitButtons() != OK) return(ABORT);
 
-	#if NEWGRAF_FORGET_THIS
-	if(!HasGWorlds()) {
-		Alert1("Deep GWorlds not supported by this machine!");
-		return(ABORT);
-		}
-	else if(GWorldInit() != OK) return(ABORT);
-	Offscreen = TRUE;
-	#else
 	Offscreen = FALSE;
-	#endif
 	Nw = -1; Ndiagram = Npicture = 0;
 	LastEditWindow = OutputWindow = wData;
 	LastComputeWindow = wGrammar;
@@ -369,13 +265,8 @@ int Inits(void) {
 	p_CsPitchFormat = NULL;
 	pp_CsInstrumentName = pp_CsInstrumentComment = p_StringConstant = NULL;
 	p_NumberConstant = NULL;
-	#if BP_CARBON_GUI_FORGET_THIS
-	FileSaveMode = ALLSAMEPROMPT;
-	FileWriteMode = LATER;
-	#else
 	FileSaveMode = ALLSAME;
 	FileWriteMode = NOW;
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 	ConvertMIDItoCsound = FALSE;
 	MIDIfileType = 1;
 	CsoundFileFormat = MAC;
@@ -386,8 +277,6 @@ int Inits(void) {
 		}
 		
 	NoAlphabet = TRUE;
-	// UseGraphicsColor = UseTextColor = TRUE;
-
 	StartFromOne = TRUE;
 	MIDIsetUpTime = 700L;	/* ms */
 	NewEnvironment = NewColors = Help = FALSE;
@@ -411,7 +300,6 @@ int Inits(void) {
 	Infpos = - Veryneg;
 	Infpos1 = Infpos + 1.;
 	// BPPrintMessage(0,odError,"Infneg = %ld\n",Infneg);
-
 	InsertGramRuleNumbers = InsertGramCorrections = InsertNewBols = (BP_CARBON_GUI_FORGET_THIS ? TRUE : FALSE);
 	SplitTimeObjects = TRUE;	/* Terminal symbols separated by spaces */
 	SplitVariables = FALSE;	/* SplitVariables <=> variables displayed between '||' */
@@ -432,125 +320,11 @@ int Inits(void) {
 	MIDItracklength = Midi_msg = OldMIDIfileTime = ZERO;
 	LoadedCsoundInstruments = FALSE;
 	NumEventsWritten = 0L;
-
-	#if BP_CARBON_GUI_FORGET_THIS
-	// Allow BP2 to respond to Apple Events coming from remote machines
-
-	io = AESetInteractionAllowed(kAEInteractWithAll);
-
-	// Installing Apple Event handlers. Don't forget to register in GoodEvent()
-	// (We don't worry about saving UPPs since we will never dispose of them).
-
-	handler = NewAEEventHandlerUPP(MyHandleOAPP);
-	io = AEInstallEventHandler(kCoreEventClass,kAEOpenApplication,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(MyHandleODOC);
-	io = AEInstallEventHandler(kCoreEventClass,kAEOpenDocuments,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(MyHandleODOC);
-	io = AEInstallEventHandler(kCoreEventClass,kAEPrintDocuments,handler,0,FALSE);	/* Print is identified by handler */
-
-	/*  = NewAEEventHandlerUPP(MyHandlePDOC);
-	io = AEInstallEventHandler(kCoreEventClass,kAEPrintDocuments,handler,0,FALSE); */
-
-	handler = NewAEEventHandlerUPP(MyHandleQUIT);
-	io = AEInstallEventHandler(kCoreEventClass,kAEQuitApplication,handler,0,FALSE);
-
-	#if !TARGET_API_MAC_CARBON_FORGET_THIS	/* Edition Manager not in Carbon */
-	handler = NewAEEventHandlerUPP(MyHandleSectionReadEvent);
-	io = AEInstallEventHandler(sectionEventMsgClass,sectionReadMsgID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(MyHandleSectionWriteEvent);
-	io = AEInstallEventHandler(sectionEventMsgClass,sectionWriteMsgID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(MyHandleSectionScrollEvent);
-	io = AEInstallEventHandler(sectionEventMsgClass,sectionScrollMsgID,handler,0,FALSE);
-	#endif
-
-	handler = NewAEEventHandlerUPP(RemoteUseText);
-	io = AEInstallEventHandler(BP2Class,PlayEventID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteUseText);
-	io = AEInstallEventHandler(BP2Class,NameID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteUseText);
-	io = AEInstallEventHandler(BP2Class,GrammarID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteUseText);
-	io = AEInstallEventHandler(BP2Class,AlphabetID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteUseText);
-	io = AEInstallEventHandler(BP2Class,GlossaryID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteUseText);
-	io = AEInstallEventHandler(BP2Class,InteractionID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteUseText);
-	io = AEInstallEventHandler(BP2Class,DataID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteLoadCsoundInstruments);
-	io = AEInstallEventHandler(BP2Class,CsoundInstrID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteUseText);
-	io = AEInstallEventHandler(BP2Class,ScriptID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteControl);
-	io = AEInstallEventHandler(BP2Class,ImprovizeID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteControl);
-	io = AEInstallEventHandler(BP2Class,DoScriptID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteDoScriptLine);
-	io = AEInstallEventHandler(BP2Class,ScriptLineEventID,handler,0,FALSE);
-
-
-	handler = NewAEEventHandlerUPP(RemoteLoadSettings);
-	io = AEInstallEventHandler(BP2Class,LoadSettingsEventID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteSetConvention);
-	io = AEInstallEventHandler(BP2Class,NoteConventionEventID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteControl);
-	io = AEInstallEventHandler(BP2Class,BeepID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteControl);
-	io = AEInstallEventHandler(BP2Class,AbortID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteControl);
-	io = AEInstallEventHandler(BP2Class,AgainID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteControl);
-	io = AEInstallEventHandler(BP2Class,PauseID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteControl);
-	io = AEInstallEventHandler(BP2Class,QuickID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteControl);
-	io = AEInstallEventHandler(BP2Class,SkipID,handler,0,FALSE);
-
-	handler = NewAEEventHandlerUPP(RemoteControl);
-	io = AEInstallEventHandler(BP2Class,ResumeID,handler,0,FALSE);
-
-	/* io = AESetInteractionAllowed(kAEInteractWithAll); */  // duplicate call
-
-	/* Allocate scroll bar action UPPs once at init time to avoid leaks */
-	vScrollUPP = NewControlActionUPP(vScrollProc);
-	hScrollUPP = NewControlActionUPP(hScrollProc);
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-	Maxitems = ZERO;
 	p_Flag = NULL;
 	p_MemGram = p_MemRul = p_VarStatus = NULL;
 	p_MemPos = p_LastStackIndex = NULL;
 	p_ItemStart = p_ItemEnd = NULL;
 	pp_Scrap = &p_Scrap;
-
-	/* for(i=0; i < MAXPICT; i++) {
-		p_Picture[i] = NULL;
-		PictureWindow[i] = -1;
-		} */
-
-	// for(i=0; i < MAXDIAGRAM; i++) p_Diagram[i] = NULL;
 	p_StringList = NULL; pp_StringList = &p_StringList; NrStrings = 0;
 	if(ResetScriptQueue() != OK) return(ABORT);
 	p_InitScriptLine = NULL;
@@ -565,9 +339,6 @@ int Inits(void) {
 		== NULL) return(ABORT);
 	for(i=0; i < Maxoutscript; i++) ((*p_OUTscript)[i]).chan = -1;
 
-	#if BP_CARBON_GUI_FORGET_THIS
-	ResetPianoRollColors();
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 	ShowPianoRoll = ToldAboutPianoRoll = FALSE;
 	ShowObjectGraph = TRUE;
 
@@ -575,9 +346,6 @@ int Inits(void) {
 	p_ObjectSpecs = NULL;
 
 	p_Seq = NULL;
-
-	// if(MakeSoundObjectSpace() != OK) return(ABORT);
-
 	MaxVar = MaxFlag = 0;
 	Gram.p_subgram = GlossGram.p_subgram = NULL;
 	Gram.number_gram = GlossGram.number_gram = 0;
@@ -588,7 +356,7 @@ int Inits(void) {
 	Jwheel = Jfeet = Jdisk = 0;
 	EmptyBeat = TRUE;
 
-	DeftPitchbendRange = 0; // Fixed to 200 by BB 2021-02-14 than back to 0 by BB 2022-02-23
+	DeftPitchbendRange = 0;
 	DeftVolume = DEFTVOLUME;
 	DeftVelocity = DEFTVELOCITY;
 	DeftPanoramic = DEFTPANORAMIC;
@@ -605,31 +373,6 @@ int Inits(void) {
 		}
 	ForceRatio = -1.; PlayFromInsertionPoint = FALSE;
 
-	#if BP_CARBON_GUI_FORGET_THIS
-	if((p_Token = (char****) GiveSpace((Size) 52 * sizeof(char**))) == NULL) return(ABORT);
-	for(i=0; i < 52; i++) (*p_Token)[i] = NULL;
-	ResetKeyboard(TRUE);
-
-	// Find current directory and volume
-	/* FIXME ? I think these values are always the same as GetCurrentProcess()
-	returns below.  So, could remove this call and replace ParID/RefNumStartup
-	with ParID/RefNumbp2 throughout entire program. - akozar */
-	pb.ioCompletion = NULL;
-	pb.ioNamePtr = NULL; // (StringPtr) DeftVolName;
-	io = PBHGetVol(&pb,(int)FALSE);
-	LastDir = ParIDstartup = pb.ioWDDirID;
-	LastVref = RefNumStartUp = pb.ioWDVRefNum;
-
-	// Find the folder and volume of BP2 so that -se.startup and BP2 help may be located
-	io = GetCurrentProcess(&PSN);
-	info.processName = NULL;
-	info.processAppSpec = &spec;
-	info.processInfoLength = sizeof(ProcessInfoRec);
-	io = GetProcessInformation(&PSN,&info);
-	ParIDbp2 = info.processAppSpec->parID;
-	RefNumbp2 = info.processAppSpec->vRefNum;
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
-
 	OpenMIDIfilePtr = NULL;
 	HelpRefnum = TempRefnum = TraceRefnum = -1;
 	CsRefNum = -1; CsScoreOpened = MIDIfileTrackEmpty = FALSE;
@@ -640,13 +383,6 @@ int Inits(void) {
 	FileName[wScript][0] = '\0';
 	CurrentChannel = 1;	/* Used for program changes,by default. */
 	Seed = 1;
-	// ResetRandom();
-	#if BP_CARBON_GUI_FORGET_THIS
-	SetSeed();
-	if(ResetInteraction() != OK) return(ABORT);
-	if(SetFindReplace() != OK) return(ABORT);
-	if(ResetPannel() != OK) return(ABORT);
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 	if(SetNoteNames() != OK) return(ABORT);
 	NeedAlphabet = FALSE;
 	for(i=0; i < MAXCHAN; i++) {
@@ -654,10 +390,6 @@ int Inits(void) {
 			= ChangedPressure[i] = FALSE;
 		WhichCsoundInstrument[i+1] = -1;
 		}
-
-	#if BP_CARBON_GUI_FORGET_THIS
-	SwitchOn(NULL,wPrototype5,bPlayPrototypeTicks);
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 	PrototypeTickChannel = 1; PrototypeTickKey = 84;
 	TickKey[0] = 96;
 	TickKey[1] = 84;
@@ -678,15 +410,9 @@ int Inits(void) {
 		SetTickParameters(i+1,MAXBEATS);
 		}
 	SetTickParameters(0,MAXBEATS);
-	#if BP_CARBON_GUI_FORGET_THIS
-	SetField(NULL,wTimeBase,fTimeBaseComment,"[Comment on time base]");
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 	iTick = jTick = -1;
 	ResetTickFlag = TRUE; ResetTickInItemFlag = FALSE;
 	strcpy(Message,WindowName[wCsoundTables]);
-	#if BP_CARBON_GUI_FORGET_THIS
-	SetWTitle(Window[wCsoundTables],in_place_c2pstr(Message));
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 	// MaxHandles = ZERO;
 	PedalOrigin = -1;
@@ -700,15 +426,6 @@ int Inits(void) {
 	iCsoundInstrument = 0;
 	ResetCsoundInstrument(iCsoundInstrument,YES,NO);
 	for(i=1; i <= MAXCHAN; i++) WhichCsoundInstrument[i] = -1; // FIXME: this is done above too?
-	// if BP_CARBON_GUI_FORGET_THIS
-	// SetCsoundInstrument(iCsoundInstrument,-1);
-	// endif /* BP_CARBON_GUI_FORGET_THIS */
-	/* ClearWindow(TRUE,wCsoundResources); */
-	// ErrorSound(MySoundProc);
-	#if BP_CARBON_GUI_FORGET_THIS
-	{int CheckDate();
-	if(!CheckDate()) return(ABORT);}
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 	return(OK);
 	}
 
@@ -967,144 +684,7 @@ FlashInfo("Bol Processor console app");
 my_sprintf(Message,"%s",IDSTRING);
 ShowMessage(TRUE,wMessage,Message);
 
-#if BP_CARBON_GUI_FORGET_THIS
-SelectWindow(GetDialogWindow(GreetingsPtr));
-SetPortDialogPort(GreetingsPtr);
-TextSize(10); TextFont(kFontIDCourier);
-stroke_style("canvas",&Red);
-x0 = 253; y0 = 18;
-CopyPString("\pInternational",title);
-move_to("canvas",x0 - StringWidth(title)/2,y0);
-stroke_text("canvas",title);
-y0 += 11;
-CopyPString("\paward",title);
-move_to("canvas",x0 - StringWidth(title)/2,y0);
-stroke_text("canvas",title);
-y0 += 11;
-CopyPString("\pBourges",title);
-move_to("canvas",x0 - StringWidth(title)/2,y0);
-stroke_text("canvas",title);
-y0 += 11;
-CopyPString("\p1997",title);
-move_to("canvas",x0 - StringWidth(title)/2,y0);
-stroke_text("canvas",title);
-#if TARGET_API_MAC_CARBON_FORGET_THIS
-  QDFlushPortBuffer(GetDialogPort(GreetingsPtr), NULL);
-#endif
-	
-for(w=MAXWIND; w < WMAX; w++) {
-	PleaseWait();
-	if((gpDialogs[w] = GetNewDialog(WindowIDoffset+w,NULL,0L)) == NULL) {
-		my_sprintf(Message,"Can't load dialog window ID#%ld",
-			(long)WindowIDoffset+w);
-		EmergencyExit = TRUE;
-		ParamText(in_place_c2pstr(Message),"\p","\p","\p");
-		NoteAlert(OKAlert,0L);
-		bad = TRUE;
-		}
-	if(bad) continue;
-	Window[w] = GetDialogWindow(gpDialogs[w]);  /* should probably not duplicate DialogPtrs as WindowPtrs, but may be neccessary for now -- 010907 akozar */
-	SetPortWindowPort(Window[w]);
-	BPSetDialogAppearance(gpDialogs[w], WindowUsesThemeBkgd[w]);
-	rc = GetWRefCon(GetDialogWindow(gpDialogs[w]));
-	if(rc != 0L) {
-		TextSize(WindowTextSize[w]);
-		type = (int) (rc % 4L);
-		switch(type) {
-			case 1: proc = radioButProc; break;
-			case 2: proc = pushButProc; break;
-			case 3: proc = checkBoxProc; break;
-			default:
-				my_sprintf(Message,"=> Incorrect button type in window %ld",(long)w);
-				EmergencyExit = TRUE;
-				ParamText(in_place_c2pstr(Message),"\p","\p","\p");
-				NoteAlert(OKAlert,0L);
-				return(MISSED);
-			}
-		id = (int)((((rc % 256L) - type) / 4L) + DialogStringsBaseID); /* string list ID */
-		h_res = GetResource('STR#',id);
-		if((i=ResError()) != noErr) {
-			my_sprintf(Message,
-		"=> Error %ld loading resource string list for window %ld",(long)i,(long)w);
-			EmergencyExit = TRUE;
-			ParamText(in_place_c2pstr(Message),"\p","\p","\p");
-			NoteAlert(OKAlert,0L);
-			return(MISSED);
-			}
-		im = **((short**)h_res); // (*h_res)[1];
-		if(im < 1) {
-			my_sprintf(Message,
-					"=> Error in resource string list for window %ld",(long)w);
-			EmergencyExit = TRUE;
-			ParamText(in_place_c2pstr(Message),"\p","\p","\p");
-			NoteAlert(OKAlert,0L);
-			return(MISSED);
-			}
-		if (RunningOnOSX)  { oldheight = Buttonheight; Buttonheight = 18; }
-		GetPortBounds(GetDialogPort(gpDialogs[w]), &rw);
-		top = (int)(((rc - (rc % 536870912L)) / 536870912L) * 64)+4;
-		if(top == 0) top = rw.top;
-		left = (int)((((rc - (rc % 67108864L)) / 67108864L) % 8) * 64)+4;
-		if(left == 0) left = rw.left;
-		bottom = (int)(((rc - (rc % 131072L)) / 131072L) % 512);
-		if(bottom == 0) bottom = rw.bottom;
-		right = (int)(((rc - (rc % 256L)) / 256L) % 512);
-		if(right == 0) right = rw.right;
-		ibot = (bottom - top) / Buttonheight;
-		j = 2;
-		widmax = 0;
-		leftoffset = -Buttonheight;
-		for(i=0; i < im; i++) {
-			PleaseWait();
-			km = (*h_res)[j]; /* length of P-string */
-			if(km == 0) {
-				my_sprintf(Message,
-					"=> Error in resource string list for window %ld",(long)w);
-				EmergencyExit = TRUE;
-				ParamText(in_place_c2pstr(Message),"\p","\p","\p");
-				NoteAlert(OKAlert,0L);
-				return(MISSED);
-				}
-			for(k=0; k <= km; j++,k++) {
-				title[k] = (*h_res)[j];
-				}
-			if((i % ibot) == 0) {
-				leftoffset += Buttonheight + (widmax * Charstep);
-				widmax = km;
-				}
-			else if(widmax < km) widmax = km;
-			r.top = top + (i % ibot) * Buttonheight;
-			r.left = left + leftoffset;
-			r.bottom = r.top + Buttonheight;
-			r.right = r.left + Buttonheight + (widmax * Charstep); 
-			if(r.right > right) {
-				my_sprintf(Message,
-					"Can't put more than %ld buttons on window %ld",
-						(long)i+1L,(long)w);
-				EmergencyExit = TRUE;
-				ParamText(in_place_c2pstr(Message),"\p","\p","\p");
-				NoteAlert(OKAlert,0L);
-				return(MISSED);
-				}
-			if((Jbutt+1) >= MAXBUTT) {
-				EmergencyExit = TRUE;
-				ParamText("\pIncrease MAXBUTT: too many buttons","\p","\p","\p");
-				NoteAlert(OKAlert,0L);
-				return(MISSED);
-				}
-			Hbutt[Jbutt++] = NewControl(Window[w],&r,title,(int)1,
-				(short)0,(short)0,(short)1,(short)(proc + 8),0L);
-			}
-		if (RunningOnOSX)  { Buttonheight = oldheight; }
-		ReleaseResource(h_res);
-		}
-	SetUpWindow(w);
-	}
-if(bad) return(MISSED);
-ClearWindow(TRUE,wMIDIorchestra);
-#else
 Jbutt = 28;  // number of buttons must not be less than that found within settings files
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 return(OK);
 }
@@ -1601,46 +1181,6 @@ int LoadScriptCommands() {  // This is the way we will load all lists of strings
 	goto ERR3;
 	}
 
-
-#if BP_CARBON_GUI_FORGET_THIS
-int SetUpCursors(void)
-{
-CursHandle	hCurs;
-int i;
-
-hCurs = GetCursor(iBeamCursor);
-EditCursor = **hCurs;
-
-hCurs = GetCursor(watchCursor);
-WatchCursor = **hCurs;
-
-hCurs = GetCursor(crossCursor);
-CrossCursor = **hCurs;
-
-if((hCurs=GetCursor(KeyboardID)) == NULL)  return(ABORT);
-KeyboardCursor = **hCurs;
-
-if((hCurs=GetCursor(QuestionID)) == NULL) return(ABORT);
-HelpCursor = **hCurs;
-
-for(i=0; i < 4; i++) {
-	if((hCurs = GetCursor(WheelID+i)) == NULL) return(ABORT);
-	WheelCursor[i] = **hCurs;
-	}
-for(i=0; i < 8; i++) {
-	if((hCurs = GetCursor(FeetID+i)) == NULL) return(ABORT);
-	FootCursor[i] = **hCurs;
-	}
-for(i=0; i < 2; i++) {
-	if((hCurs = GetCursor(DiskID+i)) == NULL) return(ABORT);
-	DiskCursor[i] = **hCurs;
-	}
-NoCursor = FALSE;
-return(OK);
-}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-
 int InitButtons(void) {
 	FirstNoteOn = TRUE;
 	OutBPdata = FALSE;
@@ -1655,616 +1195,3 @@ int InitButtons(void) {
 	NoteConvention = ENGLISH;
 	return(OK);
 	}
-
-
-#if BP_CARBON_GUI_FORGET_THIS
-
-int ResetPannel(void)
-{
-HidePannel(wControlPannel,dDeriveFurther);
-HidePannel(wControlPannel,dSaveDecisions);
-HidePannel(wControlPannel,dShowGramWeights);
-HidePannel(wControlPannel,dAnalyze);
-/* HidePannel(wControlPannel,dLoadWeights);
-HidePannel(wControlPannel,dLearnWeights);
-HidePannel(wControlPannel,dSaveWeights);
-HidePannel(wControlPannel,dSetWeights); */
-ShowPannel(wControlPannel,dTemplates);
-return(OK);
-}
-
-
-int GoodMachine(void)
-{
-char *processor[] = {
-	"mc68000",
-	"mc68010",
-	"mc68020",
-	"mc68030",
-	"mc68040"
-	};
-char *fpu[] = {
-	"<none>",
-	"mc68881",
-	"mc68882",
-	"mc68040 built-in"
-	};
-long gestaltAnswer;
-OSErr gestaltErr;
-short depth;
-
-/* Determine whether we can use Gestalt or not,and if so,what version */
-gestaltErr = Gestalt(gestaltVersion,&gestaltAnswer);
-
-if(!gestaltErr) {
-	/* Check the processor type */
-	Gestalt('cput',&gestaltAnswer);
-#ifdef __POWERPC
-	if(gestaltAnswer < 0x101) {
-		ParamText("\pThis version of BP2 runs only on a PowerMac. Use the 68k version instead.", "\p", "\p", "\p");
-		StopAlert(OKAlert, NULL);
-		return(MISSED);
-		}
-#endif
-	if(gestaltAnswer < 0x002) {
-		my_sprintf(Message,"BP3 requires at least a 68020 processor.\nThis machine has a %s processor",
-			processor[gestaltAnswer]);
-		ParamText(in_place_c2pstr(Message), "\p", "\p", "\p");
-		StopAlert(OKAlert, NULL);
-		return(MISSED);
-		}
-	
-	/* Determine the coprocessor type -- useless */
-	Gestalt(gestaltFPUType,&gestaltAnswer);
-	
-	/* Determine system version */
-	Gestalt(gestaltSystemVersion,&gestaltAnswer);
-	if(gestaltAnswer < 0x00000701) {
-		ParamText("\p=> System version is too old. BP2 requires at least MacOS version 7.1", "\p", "\p", "\p");
-		StopAlert(OKAlert, NULL);
-		return(MISSED);
-		}
-	/* Check color possibility */
-	Gestalt(gestaltQuickdrawVersion,&gestaltAnswer);
-	if(gestaltAnswer < 0x100
-			|| ((depth=GetDepth(GetMainDevice())) < 4)) {
-		/* Color QuickDraw not there or pixel depth insufficient */
-		/* HasDepth() might be a better solution */
-		ForceTextColor = ForceGraphicColor = -1;
-		}
-	
-	/* Check for Appearance Manager */
-	Gestalt(gestaltAppearanceAttr, &gestaltAnswer);
-	if (gestaltAnswer & (1 << gestaltAppearanceExists))  HaveAppearanceManager = TRUE;
-	else  HaveAppearanceManager = FALSE;
-
-	/* Check for running on MacOS X */
-	Gestalt(gestaltMenuMgrAttr,&gestaltAnswer);
-	if(gestaltAnswer & gestaltMenuMgrAquaLayoutMask)  RunningOnOSX = TRUE;
-	else  RunningOnOSX = FALSE;
-	
-	return(OK);
-	}
-ParamText("\p=> System version is too old. BP2 requires at least System 7.1", "\p", "\p", "\p");
-StopAlert(OKAlert, NULL);
-return(MISSED);
-}
-
-
-/* The first element of iconlist should be the number of sequential items
-   in the menu to set icons for, and the rest of the array should be the
-   resource IDs for the icon families of the first, second, etc. menu items. 
-   You can set an array element to 0 to skip that menu item. */
-int BPSetMenuItemIcons(MenuHandle menu, ResID iconIDs[])
-{
-	Handle iconsuite;
-	OSErr  err;
-	int    i;
-
-	// SetMenuItemIconHandle() only available with Appearance Mgr
-	if (!HaveAppearanceManager)  return (MISSED);
-
-	for (i = 1; i <= iconIDs[0]; ++i) {
-		if (iconIDs[i] > 0) {
-			err = GetIconSuite(&iconsuite, iconIDs[i], kSelectorAllSmallData);
-			if (err == noErr)
-				err =  SetMenuItemIconHandle(menu, i, kMenuIconSuiteType, iconsuite);
-		}
-	}
-	
-	return (OK);
-}
-
-
-int SetUpMenus(void)
-{
-int	i;
-
-ClearMenuBar();
-myMenus[appleM] = GetMenu(MenuIDoffset);
-InsertMenu(myMenus[appleM],0) ;
-#if !TARGET_API_MAC_CARBON_FORGET_THIS
-  AppendResMenu(myMenus[appleM],'DRVR');
-#endif
-
-for (i = fileM; i <= MAXMENU; i++) {
-	/* Also loading 'Script' menu */
-	myMenus[i] = GetMenu(MenuIDoffset + i);
-	InsertMenu(myMenus[i],0);
-	}
-/* On OS X, remove the Quit item and separator from the File menu */ 
-#if TARGET_API_MAC_CARBON_FORGET_THIS
-  if (RunningOnOSX && myMenus[fileM] != NULL) {
-  	DeleteMenuItem(myMenus[fileM], fmQuit);
-  	DeleteMenuItem(myMenus[fileM], fmQuit - 1);
-  	}
-#endif
-
-if (!HaveAppearanceManager) {
-	my_sprintf(Message,"Find again %c-option A",(char) commandMark);
-	c2pstrcpy(PascalLine, Message);
-	SetMenuItemText(myMenus[searchM],findagainCommand,PascalLine);
-
-	my_sprintf(Message,"Enter and find %c-option E",(char) commandMark);
-	c2pstrcpy(PascalLine, Message);
-	SetMenuItemText(myMenus[searchM],enterfindCommand,PascalLine);
-	}
-else {  // use Appearance Mgr features to set option-key shortcuts
-	SetItemCmd(myMenus[searchM],enterfindCommand,'E');
-	SetMenuItemModifiers(myMenus[searchM],enterfindCommand,kMenuOptionModifier);
-	SetItemCmd(myMenus[searchM],findagainCommand,'A');
-	SetMenuItemModifiers(myMenus[searchM],findagainCommand,kMenuOptionModifier);
-	}
-EnableMenuItem(myMenus[searchM],enterfindCommand);
-
-if (!HaveAppearanceManager) {
-	my_sprintf(Message,"Type tokens [toggle] %c-option T",(char) commandMark);
-	c2pstrcpy(PascalLine, Message);
-	SetMenuItemText(myMenus[editM],tokenCommand,PascalLine);
-	}
-else {  // use Appearance Mgr features to set option-key shortcuts
-	SetItemCmd(myMenus[editM],tokenCommand,'T');
-	SetMenuItemModifiers(myMenus[editM],tokenCommand,kMenuOptionModifier);
-	}
-EnableMenuItem(myMenus[editM],tokenCommand);
-
-/*my_sprintf(Message,"Help                       %c-?",(char) commandMark);
-c2pstrcpy(PascalLine, Message);
-SetMenuItemText(myMenus[actionM],helpCommand,PascalLine);
-EnableMenuItem(myMenus[actionM],helpCommand);*/
-
-BPSetMenuItemIcons(myMenus[windowM], WindowMenuIcons);
-BPSetMenuItemIcons(myMenus[deviceM], DeviceMenuIcons);
-DrawMenuBar();
-return(OK);
-}
-
-
-int AdjustWindow(int newplace,int w,int top,int left,int bottom,int right)
-{
-int vdrag,hdrag,wresize,hresize,height,width,screenwidth,screenheight,d;
-Rect r; Point p,q;
-GrafPtr saveport;
-BitMap  screenBits;
-
-if(w < 0 || w >= WMAX
-		|| (!Adjustable[w] && w != wMessage && w != wInfo)) return(OK);
-if(ScriptExecOn || InitOn) PleaseWait();
-
-GetWindowPortBounds(Window[w], &r);
-
-GetPort(&saveport);
-SetPortWindowPort(Window[w]);
-
-p = topLeft(r); LocalToGlobal(&p);
-q = botRight(r); LocalToGlobal(&q);
-
-/* First readjust coordinates so that window will not disappear */
-GetQDGlobalsScreenBits(&screenBits);
-screenwidth = screenBits.bounds.right - screenBits.bounds.left;
-screenheight = screenBits.bounds.bottom - screenBits.bounds.top;
-
-if(w == wMessage || w == wInfo) {
-	height = 12;
-	if(w == wMessage) bottom = screenheight;
-	else bottom = screenheight - height - 1;
-	top = bottom - height;
-	right = screenwidth;
-	if(w == wMessage) left = 0;
-	else left = screenwidth / 3;
-	}
-else if(!newplace) {
-	top = p.v; left = p.h; bottom = q.v; right = q.h;
-	}
-
-if(!OKgrow[w] && w != wMessage && w != wInfo) {
-	d = (q.h - p.h) - (right - left);
-	right += d;
-	d = (q.v - p.v) - (bottom - top);
-	bottom += d;
-	}
-	
-d = bottom - screenheight;
-if(d > 0) {
-	bottom = screenheight;
-	top = top - d;
-	if(top < (2 * GetMBarHeight() + 4)) top = (2 * GetMBarHeight() + 4);
-	}
-	
-d = right - screenwidth;
-if(d > 0) {
-	right = screenwidth;
-	left = left - d;
-	if(left < 0) left = 0;
-	}
-
-vdrag = top - p.v;	/* top */
-hdrag = left - p.h;	/* left */
-wresize = (right - left) - (q.h - p.v);
-hresize = (bottom - top) - (q.v - p.h);
-
-if(Editable[w] && !LockedWindow[w]) Deactivate(TEH[w]);
-
-if((vdrag != 0) || (hdrag != 0)) {
-	MoveWindow(Window[w],left,top,FALSE);	/* Don't activate */
-	}
-if((OKgrow[w] || w == wMessage || w == wInfo) && ((wresize != 0) || (hresize != 0))) {
-	SizeWindow(Window[w],right - left,bottom - top,TRUE);	/* Update */
-	AdjustWindowContents(w);
-	}
-if(w == wScript && ScriptExecOn) {
-	BPActivateWindow(SLOW,w);
-	Activate(TEH[w]);
-	}
-	
-if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("=> Err AdjustWindow(). saveport == NULL");
-return(OK);
-}
-
-
-int int HasGWorlds(void)
-{
-long qdResponse,mask;
-OSErr err;
-
-err = Gestalt(gestaltQuickdrawFeatures,&qdResponse );
-
-if(err != noErr) {
-	Alert1("=> Error calling Gestalt");
-	return false;
-	}
-
-mask = 1 << gestaltHasDeepGWorlds;
-	
-if(qdResponse & mask)
-	return true;
-else
-	return false;
-}
-
-
-int GWorldInit(void)
-{
-OSErr	err;
-Rect	r;
-WindowPtr	window;	
-
-window = Window[wGraphic];
-GetWindowPortBounds(window, &r);
-OffsetRect(&r,-r.left,-r.top);
-
-err = NewGWorld(&gMainGWorld,16,&r,nil,nil,pixPurge);
-
-if(err != noErr) {
-	Alert1("=> Error calling NewGWorld");
-	return(ABORT);
-	}
-return(OK);
-}
-
-
-short GetDepth(GDHandle gdevice)
-{
-short depth = 0;
-if(gdevice && (*gdevice)->gdPMap) depth = (*((*gdevice)->gdPMap))->pixelSize;
-return(depth);
-}
-
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-#if 0
-CheckRegistration(void)
-{
-int result,iv;
-short type,refnum;
-OSErr io;
-FSSpec spec;
-unsigned long today,secs;
-FInfo fndrinfo;
-NSWReply reply;
-char **p_line,**p_completeline;
-long pos;
-
-p_line = p_completeline = NULL;
-c2pstrcpy(spec.name, "_bp2_key");
-spec.vRefNum = RefNumbp2;
-spec.parID = ParIDbp2;
-io = FSpGetFInfo(&spec,&fndrinfo);
-if(io == noErr) {
-	if(!(fndrinfo.fdFlags & fInvisible)) {
-		fndrinfo.fdFlags |= fInvisible;
-		io = FSpSetFInfo(&spec,&fndrinfo);
-		io = FSDelete("\p_bp2_startdate",0);
-		}
-	MyOpen(&spec,fsRdPerm,&refnum);
-	pos = ZERO;
-	if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ENTERNAME;
-	if(CheckVersion(&iv,p_line,"'\0'") != OK) goto ENTERNAME;
-	if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ENTERNAME;
-	if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ENTERNAME;
-	MystrcpyHandleToString(MAXNAME,0,UserName,p_completeline);
-	Strip(UserName);
-	if(UserName[0] == '\0' || strcmp(UserName,"<unknown>") == 0) goto ENTERNAME;
-	if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ENTERNAME;
-	MystrcpyHandleToString(MAXNAME,0,UserInstitution,p_completeline);
-	CloseMe(&refnum);
-	my_sprintf(Message,"Bonjour %s!",UserName);
-	FlashInfo(Message);
-	goto SORTIR;
-	
-ENTERNAME:
-	CloseMe(&refnum);
-	if(MakeNewKeyFile(TRUE) == OK) io = FSDelete("\p_bp2_startdate",0);
-	}
-else {
-	GetDateTime(&today);
-	c2pstrcpy(spec.name, "_bp2_startdate");
-	spec.vRefNum = RefNumbp2;
-	spec.parID = ParIDbp2;
-	type = 0;
-	io = FSpGetFInfo(&spec,&fndrinfo);
-	if(io == noErr) {
-		MyOpen(&spec,fsRdPerm,&refnum);
-		pos = ZERO;
-		if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-		if(CheckVersion(&iv,p_line,"'\0'") != OK) goto ERR;
-		if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-		if(ReadUnsignedLong(refnum,&secs,&pos) == MISSED) goto ERR;
-		CloseMe(&refnum);
-//		if(Beta) goto MAKE;
-		if((today-secs) > (86400L * 30L)) {
-			Alert1("This copy of BP2 has been used for more than 30 days.\nIt's a good idea to click the 'Register' button...");
-			goto REGISTERED;
-			}
-		goto SORTIR;
-ERR:
-		CloseMe(&refnum);
-		goto MAKE;
-		}
-	else {
-MAKE:
-		io = FSDelete("\p_bp2_startdate",0);
-		err = NSWInitReply(&reply);	
-		reply.sfFile.vRefNum = RefNumbp2;
-		reply.sfFile.parID = ParIDbp2;
-		reply.sfReplacing = FALSE;
-		CopyPString("\p_bp2_startdate",PascalLine);
-		CopyPString(PascalLine,reply.sfFile.name);
-		result = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
-		if(result != OK) {
-			Alert1("Unexpected problem creating the registration file.  Is the hard disk full?\nContact the authors");
-			goto SORTIR;
-			}
-		WriteHeader(-1,refnum,reply.sfFile);
-		my_sprintf(Message,"%.0f",(double)today);
-		WriteToFile(NO,MAC,Message,refnum);
-		CloseMe(&refnum);
-		spec = reply.sfFile;
-		io = FSpGetFInfo(&spec,&fndrinfo);
-		fndrinfo.fdFlags |= fInvisible;
-		io = FSpSetFInfo(&spec,&fndrinfo);
-		Alert1("This is a fresh copy of BP2.\nIt's a good idea to click the 'Register' button...");
-REGISTERED:
-		Alert1("If you already registered, contact <bel@kagi.com> to get an activation key");
-		}
-	}
-SORTIR:
-MyDisposeHandle((Handle*)&p_line);
-MyDisposeHandle((Handle*)&p_completeline);
-return(OK);
-}
-
-
-int MakeNewKeyFile(int formyself)
-{
-int result;
-short type,refnum;
-OSErr io;
-FSSpec spec;
-FInfo fndrinfo;
-NSWReply reply;
-char line[MAXFIELDCONTENT];
-Rect r;
-Handle itemhandle;
-short item,itemtype;
-long pos;
-Str255 t;
-DialogPtr enternameptr;
-
-enternameptr = GetNewDialog(EnterNameID,0L,0L);
-
-GetDialogItem(enternameptr,fUserName,&itemtype,&itemhandle,&r);
-SetDialogItemText(itemhandle,"\p");
-GetDialogItem(enternameptr,fInstitution,&itemtype,&itemhandle,&r);
-SetDialogItemText(itemhandle,"\p");
-
-TRYENTER:
-ShowWindow(enternameptr);
-SelectWindow(enternameptr);
-result = MISSED;
-while(TRUE) {
-	MaintainCursor();
-	ModalDialog((ModalFilterUPP) 0L,&item);
-	switch(item) {
-		case dNameOK:
-			result = OK; break;
-		case fUserName:
-			break;
-		case fInstitution:
-			break;
-		}
-	if(result == OK) break;
-	}
-
-GetDialogItem(enternameptr,fUserName,&itemtype,&itemhandle,&r);
-GetDialogItemText(itemhandle,t);
-MyPtoCstr(MAXFIELDCONTENT,t,line);
-Strip(line);
-if(formyself && line[0] == '\0') {
-	Alert1("You must enter a user name");
-	goto TRYENTER;
-	}
-if(strlen(line) >= MAXNAME) {
-	my_sprintf(Message,"Name can't be more than %ld chars",(long)(MAXNAME-1L));
-	Alert1(Message);
-	goto TRYENTER;
-	}
-strcpy(UserName,line);
-if(UserName[0] == '\0') my_sprintf(UserName,"<unknown>");
-
-GetDialogItem(enternameptr,fInstitution,&itemtype,&itemhandle,&r);
-GetDialogItemText(itemhandle,t);
-MyPtoCstr(MAXFIELDCONTENT,t,line);
-Strip(line);
-if(strlen(line) >= MAXNAME) {
-	my_sprintf(Message,"Institution can't be more than %ld chars",(long)(MAXNAME-1L));
-	Alert1(Message);
-	goto TRYENTER;
-	}
-strcpy(UserInstitution,line);
-if(UserInstitution[0] == '\0') my_sprintf(UserInstitution,"<unknown>");
-
-if(formyself) {
-	my_sprintf(Message,"Your name is: %s",UserName);
-	if(Answer(Message,'Y') != YES) goto TRYENTER;
-	my_sprintf(Message,"Your institution is: %s",UserInstitution);
-	if(Answer(Message,'Y') != YES) goto TRYENTER;
-	}
-
-DisposeDialog(enternameptr);
-
-CopyPString("\p_bp2_key",PascalLine);
-if(formyself || Answer("Delete the current (invisible) activation key",'N') == YES) {
-	io = FSDelete(PascalLine,0);
-	}
-if(formyself) {
-	reply.sfFile.vRefNum = RefNumbp2;
-	reply.sfFile.parID = ParIDbp2;
-	reply.sfReplacing = FALSE;
-	CopyPString(PascalLine,reply.sfFile.name);
-	}
-else {
-	result = NewFile(-1,1,PascalLine,&reply);
-	if(result != OK) return(MISSED);
-	}
-result = CreateFile(-1,-1,1,PascalLine,&reply,&refnum);
-if(result != OK) {
-	Alert1("Unexpected problem recording your identity. Is the hard disk full?\nContact the authors");
-	return(ABORT);
-	}
-WriteHeader(-1,refnum,reply.sfFile);
-WriteToFile(NO,MAC,UserName,refnum);
-WriteToFile(NO,MAC,UserInstitution,refnum);
-CloseMe(&refnum);
-if(formyself) {
-	spec = reply.sfFile;
-	io = FSpGetFInfo(&spec,&fndrinfo);
-	fndrinfo.fdFlags |= fInvisible;
-	io = FSpSetFInfo(&spec,&fndrinfo);
-	}
-return(OK);
-}
-
-
-int Y2K(void)
-{
-short y2krefnum;
-unsigned long today,secs;
-DateTimeRec dtrp;
-OSErr io;
-FSSpec spec;
-FInfo fndrinfo;
-int type;
-	
-dtrp.year = 2000;
-dtrp.month = 1;
-dtrp.day = 1;
-dtrp.hour = dtrp.minute = dtrp.second = 0; 
-/* dtrp.year = 1998;
-dtrp.month = 9;
-dtrp.day = 22; */
-DateToSeconds(&dtrp,&secs);
-GetDateTime(&today);
-// spec.vRefNum = RefNumbp2;
-// spec.parID = ParIDbp2;
-type = 0;
-io = FSMakeFSSpec(RefNumbp2, ParIDbp2, "\py2k", &spec);
-io = FSpGetFInfo(&spec,&fndrinfo);
-if(io == noErr) {
-	if(!(fndrinfo.fdFlags & fInvisible)) {
-		fndrinfo.fdFlags |= fInvisible;
-		io = FSpSetFInfo(&spec,&fndrinfo);
-		}
-	if(today > secs) {
-		if(((today-secs) < (86400L * 70L)) && (io=MyOpen(&spec,fsRdPerm,&y2krefnum)) == noErr) {
-			Alert1("Welcome to the third millennium!\n(Any idea whether this software is y2k compliant?)");
-			while(Button());
-			BPActivateWindow(SLOW,wData);
-			BPActivateWindow(SLOW,wGrammar);
-			Println(wNotice,"\n\nPhew! BP2 survived the shock...\n");
-			Println(wNotice,"You'd better check your bank account, retirement planning, etc.\n");
-			Println(wNotice,"It's an auspicious day to click the 'Register' button if you never tried it and the bank hasn't screwed up your account ;-)\n\n");
-			Println(wNotice,"With you, forever,\n\n");
-			Println(wNotice,"*    *   *  * * Bol Processor folks * *  *   *    *\n\n");
-			Println(wNotice,"             (Click mouse to continue)");
-			while(!Button());
-			FSClose(y2krefnum);
-			io = FSDelete(&spec);
-			}
-		}
-	}
-else {
-	if(today < secs) {
-		Alert1("=> You should get the y2k certificate for this program.\nContact <bel@kagi.com>");
-		}
-	}
-return(OK);
-}
-
-#endif // 0
-
-#if BP_CARBON_GUI_FORGET_THIS
-int CheckDate()
-{
-	unsigned long today,secs;
-	DateTimeRec dtrp;
-	int reply = YES;
-			
-	dtrp.year = 1984;
-	dtrp.month = 1;
-	dtrp.day = 24;
-	dtrp.hour = dtrp.minute = dtrp.second = 0; 
-	/*dtrp.year = 2007;
-	dtrp.month = 1;
-	dtrp.day = 19;*/
-	DateToSeconds(&dtrp,&secs);
-	GetDateTime(&today);
-	if(today < secs) {
-		reply = Answer("BP3 requires a 68020 processor and at least System 4 to run. "
-				   "This isn't 1984 anymore!!\nContinue anyways?", 'Y');
-	}
-	if (reply == YES)  return(OK);
-	else return(MISSED);
-}
-#endif /* BP_CARBON_GUI_FORGET_THIS */

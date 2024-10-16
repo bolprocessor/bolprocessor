@@ -41,8 +41,7 @@ int trace_csound_pianoroll = 0;
 
 int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	tokenbyte ***pp_b,long tmin,long tmax,int interruptok,
-	Milliseconds **p_delta)
-{
+	Milliseconds **p_delta) {
 PerfParameters ****pp_currentparams,**ptrperf;
 ContinuousControl **p_control;
 ParameterStatus **params,**ptrs;
@@ -122,24 +121,6 @@ resetok = TRUE;
 // max_endtime_event = max_endtime = ZERO;
 
 if(MIDIfileOn) BPPrintMessage(0,odInfo,"👉 a MIDI file will be created\n");
-
-#if BP_CARBON_GUI_FORGET_THIS
-// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-if((rep=MyButton(1)) != MISSED) {
-	// any reason that InterruptSound() is not used here instead ?
-	StopCount(0);
-	Interrupted = TRUE; compiledmem = CompiledGr;
-	
-	if(rep == OK) while((rep = MainEvent()) != RESUME && rep != STOP && rep != EXIT);
-	if(rep == EXIT) return(rep);
-	if((rep == STOP) || (compiledmem && !CompiledGr)) {
-		return(ABORT);
-		}
-	if(LoadedIn && (!CompiledIn && (rep=CompileInteraction()) != OK)) return(rep);
-	}
-rep = OK;
-if(EventState != NO) return(EventState);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 Ke = log((double) SpeedRange) / 64.;
 t0 = ZERO;
@@ -743,8 +724,7 @@ result = OK;
 	if(trace_csound_pianoroll) BPPrintMessage(0,odInfo,"Tcurr = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)t0,(long)t1,(long)Time_res);
 	if(trace_csound_pianoroll)
 		BPPrintMessage(0,odInfo,"Tcurr = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)t0,(long)t1,(long)Time_res);
-
-	
+		
 	if(cswrite) {
 TRYCSFILE:
 		/* Tempo assignment */
@@ -761,7 +741,7 @@ TRYCSFILE:
 			Println(wPrototype7,Message);
 		else {
 			if(CsoundTrace) ShowMessage(TRUE,wMessage,Message);
-			if((!Improvize  && !PlayAllChunks) || !AssignedTempoCsoundFile) { // Fixed !PlayAllChunks 2024-05-20
+			if((!Improvize  && !PlayAllChunks && !AllItems) || !AssignedTempoCsoundFile) { // Fixed !PlayAllChunks 2024-05-20
 				AssignedTempoCsoundFile = TRUE;
 				if(WriteToFile(NO,CsoundFileFormat,Message,CsRefNum) != OK) {
 					BPPrintMessage(0,odError,"=> Couldn't write to file '%s'. May be it has been closed by another application\n");
@@ -1889,7 +1869,6 @@ FINDNEXTEVENT:
 		/* Here we go back to sound-object instance kcurrentinstance */
 		}
 
-
 // The item has been sent entirely.
 
 	ItemOutPutOn = FALSE;
@@ -2191,7 +2170,7 @@ if(add_time > ZERO  && (Improvize || PlayAllChunks)) { // 2024-05-09
 	}
 if(cswrite) LastTime += max_endtime;
 
-if(cswrite && result == OK && !Improvize && !PlayAllChunks && !ConvertMIDItoCsound) // ConvertMIDItoCsound is always false in the console version
+if(cswrite && result == OK && !Improvize && !PlayAllChunks && !ConvertMIDItoCsound && !AllItems) // ConvertMIDItoCsound is always false in the console version
 	WriteToFile(NO,CsoundFileFormat,"s",CsRefNum); // This line will automatically be deleted if this score belongs to a sound-object prototype — see function fix_csound_score() in prototype.php
 
 if(cswrite) WriteToFile(NO,CsoundFileFormat,";",CsRefNum);

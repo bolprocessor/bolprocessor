@@ -369,7 +369,6 @@ if(Jflag > 0) for(i=1; i <= Jflag; i++) (*p_Flag)[i] = ZERO;
 SelectBehind(starttrace,GetTextLength(wTrace),TEH[wTrace]);
 if(changednumber) {
 	SelectBehind(ZERO,ZERO,TEH[wGrammar]);
-/*	ShowSelect(CENTRE,wGrammar); */
 	Dirty[wGrammar] = TRUE;
 	}
 
@@ -382,18 +381,10 @@ if((N_err == 0) && onerulefound) {
 			Gram.trueBP = FALSE; break;
 			}
 		}
-	if (InsertGramCorrections) InsertSubgramTypes();
-#if BP_CARBON_GUI_FORGET_THIS
-	ShowPannel(wControlPannel,dSaveDecisions);
-	ShowPannel(wControlPannel,dShowGramWeights);
-	ShowPannel(wControlPannel,dAnalyze);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
+	if(InsertGramCorrections) InsertSubgramTypes();
 	ResetRuleWeights(0);
 	Dirty[wGrammar] = dirtymem;
 	if(CompileOn) CompileOn--;
-#if BP_CARBON_GUI_FORGET_THIS
-	SelectBehind(GramSelStart,GramSelEnd,TEH[wGrammar]);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end compilegrammar = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	return(OK);
 	}
@@ -693,8 +684,7 @@ int CheckGotoFailed(void) {
 						}
 					else {
 						if(newir > (*(Gram.p_subgram))[newig].number_rule) {
-							my_sprintf(Message,"gram#%ld[%ld] has incorrect rule index in '%s'\n",
-								(long)igram,(long)irul,*((*p_GramProcedure)[0]));
+							my_sprintf(Message,"gram#%ld[%ld] has incorrect rule index in '%s'\n",(long)igram,(long)irul,*((*p_GramProcedure)[0]));
 							N_err++;
 							Print(wTrace,Message);
 							UpdateProcedureIndex(0,igram,irul,newig,newir,2);
@@ -754,83 +744,83 @@ int CheckGotoFailed(void) {
 	}
 
 
-int UpdateProcedureIndex(int jproc,int igram,int irul,int ig,int ir,int mode)
-{
-long pos,posmax,pos1,pos2,posline;
-char c,*p,*q,**qq,**p_line;
-int i,k,dif,gap;
+int UpdateProcedureIndex(int jproc,int igram,int irul,int ig,int ir,int mode) {
+	return OK; // 2024-10-12
+	long pos,posmax,pos1,pos2,posline;
+	char c,*p,*q,**qq,**p_line;
+	int i,k,dif,gap;
 
-pos = posline = ZERO;
-posmax = GetTextLength(wGrammar);
-p_line = NULL;
-while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
-	PleaseWait();
-	if((*p_line)[0] == '\0') goto NEXTLINE;
-	i = 0;
-	p = &(*p_line)[i]; q = &GRAMstring[0];
-	if(Match(FALSE,&p,&q,5)) {
-		i += 5; k = 0;
-		/* Find subgram index */
-		while(MySpace(c=(*p_line)[i])) i++;
-		while(!MySpace(c=(*p_line)[i]) && c != '\0' && c != '[') {
-			c -= '0';
-			if(c >= 0 && c <= 9) k = 10 * k + c;
-			i++;
-			}
-		if(k != igram) goto NEXTLINE;
-		k = 0;
-		while((c=(*p_line)[i]) != '[') i++;
-		k = 0;
-		while((c=(*p_line)[++i]) != ']') {
-			c -= '0';
-			if(c >= 0 && c <= 9) k = 10 * k + c;
-			}
-		if(k != irul) goto NEXTLINE;
-		while(TRUE) {
-			p = &(*p_line)[++i]; qq = (*p_GramProcedure)[jproc];
-			if(Match(FALSE,&p,qq,MyHandleLen(((*p_GramProcedure)[jproc])))) {
-				while((c=(*p_line)[i]) != '(') i++;
-				pos1 = posline + gap + i + 1; pos2 = pos1;
-				while((c=(*p_line)[++i]) != ',') pos2++;
-				SelectBehind(pos1,pos2,TEH[wGrammar]);
-				TextDeleteBehind(wGrammar);
-				switch(mode) {
-					case 0:
-					case 2:
-						my_sprintf(Message,"%ld",(long)ig); break;
-					case 1:
-						my_sprintf(Message,"%ld?",(long)ig); break;
+	pos = posline = ZERO;
+	posmax = GetTextLength(wGrammar);
+	p_line = NULL;
+	while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
+	//	PleaseWait();
+		if((*p_line)[0] == '\0') goto NEXTLINE;
+		i = 0;
+		p = &(*p_line)[i]; q = &GRAMstring[0];
+		if(Match(FALSE,&p,&q,5)) {
+			i += 5; k = 0;
+			/* Find subgram index */
+			while(MySpace(c=(*p_line)[i])) i++;
+			while(!MySpace(c=(*p_line)[i]) && c != '\0' && c != '[') {
+				c -= '0';
+				if(c >= 0 && c <= 9) k = 10 * k + c;
+				i++;
+				}
+			if(k != igram) goto NEXTLINE;
+			k = 0;
+			while((c=(*p_line)[i]) != '[') i++;
+			k = 0;
+			while((c=(*p_line)[++i]) != ']') {
+				c -= '0';
+				if(c >= 0 && c <= 9) k = 10 * k + c;
+				}
+			if(k != irul) goto NEXTLINE;
+			while(TRUE) {
+				p = &(*p_line)[++i]; qq = (*p_GramProcedure)[jproc];
+				if(Match(FALSE,&p,qq,MyHandleLen(((*p_GramProcedure)[jproc])))) {
+					while((c=(*p_line)[i]) != '(') i++;
+					pos1 = posline + gap + i + 1; pos2 = pos1;
+					while((c=(*p_line)[++i]) != ',') pos2++;
+					SelectBehind(pos1,pos2,TEH[wGrammar]);
+					TextDeleteBehind(wGrammar);
+					switch(mode) {
+						case 0:
+						case 2:
+							my_sprintf(Message,"%ld",(long)ig); break;
+						case 1:
+							my_sprintf(Message,"%ld?",(long)ig); break;
+						}
+					PrintBehind(wGrammar,Message);
+					dif = strlen(Message) - (pos2 - pos1);
+					MaintainSelectionInGrammar(pos1,dif);
+					pos += dif; posmax += dif;
+					pos1 = posline + gap + i + 1 + dif; pos2 = pos1;
+					while((c=(*p_line)[++i]) != ')') pos2++;
+					SelectBehind(pos1,pos2,TEH[wGrammar]);
+					TextDeleteBehind(wGrammar);
+					switch(mode) {
+						case 0:
+						case 1:
+							my_sprintf(Message,"%ld",(long)ir); break;
+						case 2:
+							my_sprintf(Message,"%ld?",(long)ir); break;
+						}
+					PrintBehind(wGrammar,Message);
+					dif = strlen(Message) - (pos2 - pos1);
+					MaintainSelectionInGrammar(pos1,dif);
+					pos += dif; posmax += dif;
+					goto END;
 					}
-				PrintBehind(wGrammar,Message);
-				dif = strlen(Message) - (pos2 - pos1);
-				MaintainSelectionInGrammar(pos1,dif);
-				pos += dif; posmax += dif;
-				pos1 = posline + gap + i + 1 + dif; pos2 = pos1;
-				while((c=(*p_line)[++i]) != ')') pos2++;
-				SelectBehind(pos1,pos2,TEH[wGrammar]);
-				TextDeleteBehind(wGrammar);
-				switch(mode) {
-					case 0:
-					case 1:
-						my_sprintf(Message,"%ld",(long)ir); break;
-					case 2:
-						my_sprintf(Message,"%ld?",(long)ir); break;
-					}
-				PrintBehind(wGrammar,Message);
-				dif = strlen(Message) - (pos2 - pos1);
-				MaintainSelectionInGrammar(pos1,dif);
-				pos += dif; posmax += dif;
-				goto END;
 				}
 			}
+	NEXTLINE:
+		posline = pos;
 		}
-NEXTLINE:
-	posline = pos;
+	END:
+	MyDisposeHandle((Handle*)&p_line);
+	return(OK);
 	}
-END:
-MyDisposeHandle((Handle*)&p_line);
-return(OK);
-}
 
 
 int NewIndex(int *p_ig, int *p_ir)
@@ -851,8 +841,7 @@ return(OK);
 }
 
 
-int CompileAlphabet(void)
-{
+int CompileAlphabet(void) {
 int rep, i, j;
 int **ptr1;
 char **ptr2;
@@ -871,18 +860,6 @@ if(GetTuning() != OK) return(ABORT);
 BPPrintMessage(0,odInfo,"Compiling alphabet...\n");
 if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start compilealphabet = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 if(!NoAlphabet && IsEmpty(wAlphabet) && (LoadAlphabet(-1) != OK)) goto ERR;
-// GetMiName();
-
-#if BP_CARBON_GUI_FORGET_THIS
-GetKbName(wAlphabet);
-// FIXME ? Probably will want to get Cs instr. & Midi orch. in console build ?
-// No need aat the moment because the interface takes care of finding file names
-// and constructing the command line with complete paths
-if(GetCsName(wAlphabet) != OK && GetCsName(wData) != OK) GetCsName(wGrammar);
-if(GetFileNameAndLoadIt(wMIDIorchestra,wAlphabet,LoadMIDIorchestra) != OK
-		&& GetFileNameAndLoadIt(wMIDIorchestra,wData,LoadMIDIorchestra) != OK) 
-	GetFileNameAndLoadIt(wMIDIorchestra,wGrammar,LoadMIDIorchestra);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 if(ReleaseAlphabetSpace() != OK) return(ABORT);
 
@@ -1019,22 +996,6 @@ int ReadAlphabet(int justcount) {
 				tbknown = TRUE; goto NEXTLINE;
 				}
 			}
-	#if BP_CARBON_GUI_FORGET_THIS
-		// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-		if(!justcount && (rep=MyButton(1)) != MISSED) {
-			if(rep != OK || (rep=InterruptCompile()) != OK) {
-				MyDisposeHandle((Handle*)&p_line);
-				if(CompileOn) CompileOn--;
-				return(rep);
-				}
-			}
-		rep = OK;
-		if(EventState != NO) {
-			MyDisposeHandle((Handle*)&p_line);
-			if(CompileOn) CompileOn--;
-			return(EventState);
-			}
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 		if(Mystrcmp(p_line,"TIMEPATTERNS:") == 0) {
 			do {
 				if(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) != OK) goto END;
@@ -1798,7 +1759,6 @@ t_subgram subgram;
 t_rule rule;
 
 err = 0;
-if(ClearWindow(NO,wTrace) == ABORT) return(ABORT);
 SelectBehind(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 PrintBehind(wTrace,"\n");
 

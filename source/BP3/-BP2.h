@@ -39,7 +39,7 @@
 #ifndef _H_BP2
 #define _H_BP2
 
-#define SHORT_VERSION "3.0.12"
+#define SHORT_VERSION "3.0.13"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -1618,7 +1618,7 @@ typedef enum {
 #define HOMOSIZE 20		/* length of homomorphism identifier */
 #define MAXDISPL 1000	/* minimum size of display */
 #define MAXLEVEL 128	/* parentheses level */
-#define MAXDERIV 2000 	/* number of derivation steps */
+#define MAXDERIV 10000 	/* number of derivation steps */
 #define MAXTAB 20		/* number of tab sections for display */
 #define MAXMETA 32		/* number of metavariables in a rule */
 #define MAXMETA2 65		/* 2 * MAXMETA + 1 */
@@ -1627,7 +1627,6 @@ typedef enum {
 #define MAXTIME 59944L	/* max computation time (milliseconds) */
 #define MAXCHARTRACE 2000000
 #define MAXCHARDATA 2000000
-#define MAXINFERENCES 2000000
 
 #define MAXMODE 3		/* number of derivation modes: LEFT, etc. */
 #define MODELENGTH 6
