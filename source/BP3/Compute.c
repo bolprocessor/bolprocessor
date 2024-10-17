@@ -2117,8 +2117,7 @@ int ShowItem(int igram,t_gram *p_gram,int justplay,tokenbyte ***pp_a,int repeat,
 	if(TraceProduce) {
 		datamode = DisplayMode(pp_a,&ifunc,&hastabs);
 		if(mode == ANAL || all) datamode = FALSE;
-		// Dirty[wTrace] = TRUE;
-		BPActivateWindow(QUICK,wTrace);
+	//	BPActivateWindow(QUICK,wTrace);
 		if(p_ItemStart == NULL
 				|| DisplayStackIndex >= MyGetHandleSize((Handle)p_ItemStart) / sizeof(long)) {
 			if(Beta) Alert1("=> Err. ShowItem(). p_ItemStart = NULL");

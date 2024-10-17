@@ -1821,28 +1821,29 @@ int CheckItemProduced(t_gram *p_gram,tokenbyte ***pp_a,long *p_length,
 		if(template) MakeTemplate(pp_a);
 		ResetDone = ifunc = FALSE;
 		OkShowExpand = FALSE;
-	//	if(template || DisplayItems) {
-			if(template) {
-				WriteTemplate(wGrammar,pp_a);
-				Dirty[wGrammar] = TRUE;
-				}
-			else {
-				if((result=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto END;
-				Print(OutputWindow,"\n");
-				r = check_and_remove_duplicate_last_line(OutFileName);
-				if(trace_produce_all) BPPrintMessage(1,odInfo,"=> ???\n");
-				if(r) {
-					ItemNumber++;
-					if(trace_produce_all) BPPrintMessage(1,odInfo,"=> *** %d\n",ItemNumber);
-					if(!template && (rtMIDI || OutCsound || WriteMIDIfile)) result = PlayBuffer(pp_a,NO);
-					}
-				if(ItemNumber >= MaxItemsDisplay) {
-					BPPrintMessage(0,odInfo,"%ld items have been produced, as per the limit in settings.\n",(long)ItemNumber);
-					result = ABORT;
-					goto END;
+		if(template) {
+			WriteTemplate(wGrammar,pp_a);
+			Dirty[wGrammar] = TRUE;
+			}
+		else {
+			if((result=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto END;
+			Print(OutputWindow,"\n");
+			r = check_and_remove_duplicate_last_line(OutFileName);
+			if(trace_produce_all) BPPrintMessage(1,odInfo,"=> ???\n");
+			if(r) {
+				ItemNumber++;
+				if(trace_produce_all) BPPrintMessage(1,odInfo,"=> *** %d\n",ItemNumber);
+				if(!template && (rtMIDI || OutCsound || WriteMIDIfile)) {
+					if(trace_produce_all) BPPrintMessage(1,odInfo,"Play #%d\n",ItemNumber);
+					result = PlayBuffer(pp_a,NO);
 					}
 				}
-	//		}
+			if(ItemNumber >= MaxItemsDisplay) {
+				BPPrintMessage(0,odInfo,"%ld items have been produced, as per the limit in settings.\n",(long)ItemNumber);
+				result = ABORT;
+				goto END;
+				}
+			}
 		}
 END:
 	return(result);

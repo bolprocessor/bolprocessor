@@ -7,7 +7,7 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 
-2024-10-16 (version 3.0.13)
+2024-10-16 -> 2024-10-17 (version 3.0.13)
 The "Produce all items" mode has been extended to real-time MIDI, MIDI files and Csound scores. It also takes care of "repeating" rules using _repeat() and _failed() statements.
 Don't forget to update the PHP interface!
 

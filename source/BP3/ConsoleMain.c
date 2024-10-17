@@ -1066,18 +1066,15 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 		strcat(new_thepath,"_midiport");
 		strcpy(Midiportfilename,new_thepath);
      //   BPPrintMessage(0,odInfo,"Midiportfilename = %s\n",Midiportfilename);
-		// WaitABit(100L); // 100 ms
 		rtMIDI = TRUE;
 		resultinit = initializeMIDISystem();
 		if(new_thepath != NULL) free(new_thepath);
 		if(resultinit != OK) {
 			Panic = 1;
+			rtMIDI = FALSE;
 			return ABORT;
 			}
 		if(rtMIDI) {
-		/*	WaitABit(100L); // 100 ms
-			if(ResetNotes) AllNotesOffPedalsOffAllChannels();
-			WaitABit(100L); // 100 ms */
 			if((r = MIDIflush(0)) != OK) return r;
 			Notify("Real-time MIDI started",0);
 			}
