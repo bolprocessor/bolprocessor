@@ -59,10 +59,11 @@ MIDI input
 Real-time MIDI
 --------------
 
+- Create a _part(x) command that is automatically set when importing multi-part MusicXML scores, allowing each part to be assigned to a specific MIDI output (regardless of MIDI channels). Also suggest a conversion of _part() to _ins() for creating Csound scores.
 - Use client:port as MIDI input/output on Linux.  Currently, only the client is mentioned in the settings. Some devices might allocate several ports to the same client.
 - Check -gr.Alan and -gr.Beatrix for a synchronisation problem after more than 2 turns.
 — In Linux, it seems that the two virtual ports 'VirMIDI 0-0' and 'VirMIDI 0-1' are not communicating with other ports even though connections are valid.
-- Install a pitchbender sensitive MIDI output device on Linux.
+- Install a pitchbender sensitive MIDI output device on the Linux test machine.
 - A _script(wait for key…) in the beginning of a grammar does not always work. This needs to be clarified.
 - Put some scripts on top of a grammar (the INIT: section) to run them before the production is started. This will notably allow setting up parameters K1, K2… K127.
 - Check the accuracy of start times in sound-object pictures.
@@ -97,6 +98,7 @@ HTML/PHP/Javascript interface
 -----------------------------
 
 - Implement command-s (on MacOS) or control-s (on Windows/Linux) to save a grammar, data, alphabet, etc. This is almost done in _header.php (line 41) and at the bottom of data.php
+- When moving "-gr" and "-da" projects, their settings should be copied.
 
 
 Standalone application

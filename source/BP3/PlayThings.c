@@ -245,11 +245,6 @@ int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll) {
 		WaitABit(1000L);	/* This is necessary notably if sending a program change */
 		FirstTime = FALSE;
 		}
-	/* if(MaxItemsDisplay > ZERO) {
-		my_sprintf(Message,"Item #%ld",(long)ItemNumber+1L);
-		ShowMessage(TRUE,wMessage,Message);
-		} */
-	// if(!Improvize) initTime = getClockTime();
 	r = PlayBuffer1(pp_buff,onlypianoroll);
 
 	// if(!PlaySelectionOn && ++ItemNumber > INT_MAX) ItemNumber = 1L;
@@ -319,11 +314,11 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	int trace_play = FALSE;
 	if(trace_play) {
 		i = 0;
-		BPPrintMessage(0,odInfo,"\nPlayBuffer1 before PolyMake:\n");
+		BPPrintMessage(1,odInfo,"\nPlayBuffer1 before PolyMake:\n");
 		while(TRUE) {
 			a = (**pp_buff)[i]; b = (**pp_buff)[i+1];
 			if(a == TEND && b == TEND) break;
-			BPPrintMessage(0,odInfo,"%d %d, ",a,b);
+			BPPrintMessage(1,odInfo,"%d %d, ",a,b);
 			i += 2;
 			}
 		BPPrintMessage(0,odInfo,"\n");
@@ -331,11 +326,11 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	while((result=PolyMake(pp_buff,&maxseqapprox,YES)) == AGAIN){};
 	if(trace_play) {
 		i = 0;
-		BPPrintMessage(0,odInfo,"\nPlayBuffer after PolyMake:\n");
+		BPPrintMessage(1,odInfo,"\nPlayBuffer after PolyMake:\n");
 		while(TRUE) {
 			a = (**pp_buff)[i]; b = (**pp_buff)[i+1];
 			if(a == TEND && b == TEND) break;
-			BPPrintMessage(0,odInfo,"%d %d, ",a,b);
+			BPPrintMessage(1,odInfo,"%d %d, ",a,b);
 			i += 2;
 			}
 		BPPrintMessage(0,odInfo,"\n");
@@ -351,7 +346,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		
 	SETTIME:
 	if((result=CheckLoadedPrototypes()) != OK) {
-		BPPrintMessage(0,odInfo, "No sound-object prototypes loaded\n");
+		BPPrintMessage(1,odInfo, "=> No sound-object prototypes loaded\n");
 		goto RELEASE;
 		}
 	#if BP_CARBON_GUI_FORGET_THIS
@@ -372,23 +367,29 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	if(result == AGAIN) again = TRUE;
 	result = OK;
 	SetTimeOn = FALSE;
-	// BPPrintMessage(0,odInfo,"\ntmin = %ld, tmax = %ld\n\n",(long)tmin,(long)tmax);
+	if(trace_play) BPPrintMessage(1,odInfo,"\ntmin = %ld, tmax = %ld, rtMIDI = %d\n",(long)tmin,(long)tmax,rtMIDI);
 
 	// if(ShowGraphic) BPPrintMessage(0,odInfo, "Shall we draw graphics?\n");
 
-//	if(!Improvize) initTime = getClockTime();
 	if(onlypianoroll
 			|| (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && (tmax > tmin || Nature_of_time == SMOOTH))) {
 		if(!ShowPianoRoll && !onlypianoroll) {
 			result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
-			if(OutCsound || WriteMIDIfile || rtMIDI) result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
+			if(OutCsound || WriteMIDIfile || rtMIDI) {
+				if(trace_play) BPPrintMessage(1,odInfo,"Calling MakeSound() [1]\n");
+				result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
+				}
 			}
 		else {
+			if(trace_play) BPPrintMessage(1,odInfo,"Calling MakeSound() [2]\n");
 			result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
 			result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
 			}
 		}
-	else if(OutCsound || WriteMIDIfile || rtMIDI) result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
+	else if(OutCsound || WriteMIDIfile || rtMIDI) {
+		if(trace_play) BPPrintMessage(1,odInfo,"Calling MakeSound() [3]\n");
+		result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
+		}
 
 	/*if(result == AGAIN) {    // NOT USED AT THE MOMENT
 		again = TRUE;
