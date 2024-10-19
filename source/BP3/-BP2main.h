@@ -287,7 +287,7 @@ long Infpos,Infneg,Veryneg,MaxMIDIbytes,
 	MIDIinputFilterstartup,
 	MIDIoutputFilterstartup,Ts,DataEnd;
 unsigned long MIDIacceptFilter[MAXPORTS],MIDIpassFilter[MAXPORTS];
-char MIDIchannelFilter[MAXPORTS][17],MIDIoutFilter[MAXPORTS][19];
+char MIDIchannelFilter[MAXPORTS][17],MIDIpartFilter[MAXPORTS][13],MIDIoutFilter[MAXPORTS][19];
 Milliseconds **p_T;
 long **p_Ppatt,**p_Qpatt;
 MIDIcode **p_Code; 

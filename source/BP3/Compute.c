@@ -1586,6 +1586,7 @@ int Found(tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,int lenc,
 				case T34:	/* performance control */
 				case T35:	/* performance control */
 				case T36:	/* performance control */
+				case T46:	/* _part() */
 					instan[xi++] = (tokenbyte) j1;
 					instan[xi++] = (tokenbyte) j2;
 					goto NEXT;
@@ -1631,6 +1632,7 @@ int Found(tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,int lenc,
 				case T34:	/* performance control */
 				case T35:	/* performance control */
 				case T36:	/* performance control */
+				case T46:	/* _part() */
 	OKMETA:
 					i2 = i2 + i2;
 					if(meta[i2] != -1)	{	/* metavariable unification */

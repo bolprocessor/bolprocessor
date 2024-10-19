@@ -687,7 +687,7 @@ int ProduceAll(t_gram *p_gram,tokenbyte ***pp_a,int template) {
 	ProduceStackIndex = DisplayStackIndex = SkipFlag = FALSE;
 
 	time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
-	if(rtMIDI) HideMessages = TRUE;
+	HideMessages = TRUE;
 
 	if(Varweight) {
 		if(ResetRuleWeights(0) == ABORT) {
@@ -749,7 +749,7 @@ END:
 	MyDisposeHandle((Handle*)&p_stack);
 	MyDisposeHandle((Handle*)&p_weight);
 	MyDisposeHandle((Handle*)&p_flag);
-	if(rtMIDI) HideMessages = FALSE;
+	HideMessages = FALSE;
 	return(r);
 	}
 

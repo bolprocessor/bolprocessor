@@ -39,7 +39,7 @@
 #ifndef _H_BP2
 #define _H_BP2
 
-#define SHORT_VERSION "3.0.13"
+#define SHORT_VERSION "3.0.14"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -500,7 +500,8 @@ enum {
 #define T43 (tokenbyte) 43
 #define T44 (tokenbyte) 44 // _scale()
 #define T45 (tokenbyte) 45 // _capture()
-#define MAXTOKENBYTE 46
+#define T46 (tokenbyte) 46 // _part()
+#define MAXTOKENBYTE 47
 
 // Inference modes
 #define ANAL 0	/* Modus tollens */
@@ -2010,7 +2011,7 @@ typedef struct {
 	} KeyNumberMap;
 
 struct s_CurrentParameters {
-	int currvel,rndvel,velcontrol,currarticul,currchan,scale,blockkey,currinstr,capture;
+	int currvel,rndvel,velcontrol,currarticul,currchan,scale,blockkey,currinstr,currpart,capture;
 	float currtranspose;
 	short xpandkey,xpandval,randomtime,seed;
 	char velmode,articulmode,mapmode,transposemode,lastistranspose;
@@ -2088,7 +2089,7 @@ struct s_SoundObjectInstanceParameters {
 	int capture;
 	short rndvel,velcontrol,randomtime;
 	short xpandkey,xpandval;
-	short transposition,instrument;
+	short transposition,instrument,part;
 	double alpha,dilationratio;
 	Parameters contparameters;
 	KeyNumberMap map0,map1;

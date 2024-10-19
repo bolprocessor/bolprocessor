@@ -324,7 +324,7 @@ void CreateDoneFile(void) {
         free(new_thefile);
 		free(thefile);
 		}
-	else BPPrintMessage(0,odError,"=> No path found in CreateDoneFile()\n");
+	else BPPrintMessage(0,odError,"=> No path found in CreateDoneFile() [1]\n");
 	return;
 	}
 
@@ -404,7 +404,7 @@ FILE* CreateCaptureFile(FILE* oldptr) {
         	free(new_thefile);
 			} */
 		}
-	else BPPrintMessage(0,odError,"=> No path found in CreateDoneFile()\n");
+	else BPPrintMessage(0,odError,"=> No path found in CreateDoneFile() [2]\n");
 	return NULL;
 	}
 

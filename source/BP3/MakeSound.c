@@ -461,7 +461,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 		}
 
 	if(cswrite || MIDIfileOn || ItemCapture) {
-		BPPrintMessage(1,odInfo,"Writing %ld sound-objects\n",(long)(*p_kmax)-2L);
+		BPPrintMessage(0,odInfo,"Writing %ld sound-objects\n",(long)(*p_kmax)-2L);
 		}
 
 	time = 0;

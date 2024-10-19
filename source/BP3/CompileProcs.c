@@ -724,7 +724,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 			}
 		}
 	if(jinstr == -1) return(RESUME);
-	// BPPrintMessage(0,odInfo,"GetPerformanceControl() j = %d MaxPerformanceControl = %d\n",jinstr,MaxPerformanceControl);
+//	BPPrintMessage(1,odInfo,"GetPerformanceControl() j = %d MaxPerformanceControl = %d\n",jinstr,MaxPerformanceControl);
 	if(arg_nr == 1 || arg_nr == 4) {
 		my_sprintf(Message,"\n'%s' should not appear in the left argument of a rule",
 			*((*p_PerformanceControl)[jinstr]));
@@ -806,6 +806,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 			break;
 		case 4:	/* _script() */
 		case 43: /* _ins() */
+		case 67: /* _part() */
 		case 45: /* _step() */
 		case 46: /* _cont() */
 		case 47: /* _fixed() */
@@ -1000,6 +1001,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 				}
 			k = 128 + i;
 			if(initparam != INT_MAX) {	/* Found '<Kx=y>' */
+		//		BPPrintMessage(1,odInfo,"@@@ jinstr = %d\n",jinstr);
 				if(jinstr == 0 && (initparam < 1 || initparam > MAXCHAN)) {
 					my_sprintf(Message,
 						"\nMIDI channel range is 1..%ld. Can't accept '_chan(K%ld=%ld)'",
@@ -1059,6 +1061,14 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 				if(jinstr == 43 && initparam < 1) {
 					my_sprintf(Message,
 						"\nCsound instrument index must be strictly positive. Can't accept '_ins(K%ld=%ld)'",
+							(long)i,(long)initparam);
+					Print(wTrace,Message);
+					return(ABORT);
+					}
+				if(jinstr == 67) BPPrintMessage(1,odInfo,"@@@  _part()\n");
+				if(jinstr == 67 && initparam < 1) {
+					my_sprintf(Message,
+						"\nPart index must be strictly positive. Can't accept '_part(K%ld=%ld)'",
 							(long)i,(long)initparam);
 					Print(wTrace,Message);
 					return(ABORT);
@@ -1167,6 +1177,11 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 					"\nCsound instrument index must be strictly positive. Can't accept '_ins(%ld)'",
 						(long)k);
 				}
+			if(jinstr == 67 && k < 1) {
+				my_sprintf(Message,
+					"\nPart index must be strictly positive. Can't accept '_part(%ld)'",
+						(long)k);
+				}
 			if(jinstr == 59 && (k < 0 || k > 32767)) {
 				my_sprintf(Message,
 					"\nRandom timing range is 0..32767 milliseconds. Can't accept '_rndtime(%ld)'",
@@ -1256,11 +1271,15 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 			*p_n = CreateEventScript(line,quick);
 			if(*p_n < 0) return(*p_n);
 			break;
-		case 43:
-		//	BPPrintMessage(0,odError,"line = %s\n",line);
+		case 43: // _ins()
+		//	BPPrintMessage(0,odError,"instrument = %s\n",line);
 			*p_n = FindCsoundInstrument(line);
 			if(*p_n < 0) return(*p_n);
-	//		*p_n -= 1;
+			break;
+		case 67: // _part()
+		//	BPPrintMessage(1,odInfo,"@ part = %s\n",line);
+			*p_n = FindPart(line);
+			if(*p_n < 0) return(*p_n);
 			break;
 		case 45:
 		case 46:
@@ -1803,25 +1822,9 @@ MyDisposeHandle((Handle*)&p_y);
 return(r);
 }
 
-
-#if BP_CARBON_GUI_FORGET_THIS
-int InterruptCompile(void)
-{
-int r,dirtygrammar,dirtyalphabet;
-
-Interrupted = TRUE;
-dirtygrammar = Dirty[wGrammar]; dirtyalphabet = Dirty[wAlphabet];
-Dirty[wGrammar] = Dirty[wAlphabet] = FALSE;
-while((r = MainEvent()) != RESUME && r != STOP && r != EXIT){};
-if(r == STOP) r = ABORT;
-if(r == RESUME) {
-	r = OK; EventState = NO;
+int FindPart(char* line) {
+	// Needs update $$$
+	int i;
+	i = (int) atol(line);
+	return(i);
 	}
-if((r != ABORT && r != EXIT) && (Dirty[wGrammar] || Dirty[wAlphabet])) {
-	Alert1("Grammar or alphabet changed. Must recompile");
-	return(ABORT);
-	}
-Dirty[wGrammar] = dirtygrammar; Dirty[wAlphabet] = dirtyalphabet;
-return(r);
-}
-#endif /* BP_CARBON_GUI_FORGET_THIS */

@@ -2194,9 +2194,6 @@ PrintBehind(wPrototype7,"\ne\n");
 SORTIR:
 
 if(PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) result = ABORT;
-#if BP_CARBON_GUI_FORGET_THIS
-if(result == OK) result = GetCsoundScore(j);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 if(result == OK) result = CompileObjectScore(j,&longerCsound);
 
 if(CompileOn) CompileOn--;
@@ -2204,65 +2201,46 @@ if(CompileOn) CompileOn--;
 return(result);
 }
 
-#if BP_CARBON_GUI_FORGET_THIS
+int FindCsoundInstrument(char* line) {
+	int i,j,isnumber;
 
-int InterruptCompileCscore(void)
-{
-int r;
-
-Interrupted = TRUE;
-ShowMessage(TRUE,wMessage,"=> Cscore compilation has been interrupted. Click 'Resume' or 'Stop'");
-while((r = MainEvent()) != RESUME && r != STOP && r != EXIT);
-if(r == STOP) r = ABORT;
-if(r == RESUME) {
-	r = OK; EventState = NO;
-	}
-return(r);
-}
-
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-int FindCsoundInstrument(char* line)
-{
-int i,j,isnumber;
-
-Strip(line);
-if(line[0] == '\0') {
-	isnumber = FALSE; goto ERR;
-	}
-
-isnumber = TRUE;
-for(i=0; i < strlen(line); i++) {
-	if(!isdigit(line[i])) {
-		isnumber = FALSE; break;
+	Strip(line);
+	if(line[0] == '\0') {
+		isnumber = FALSE; goto ERR;
 		}
-	}
-if(isnumber) {
-	i = (int) atol(line);
+
+	isnumber = TRUE;
+	for(i=0; i < strlen(line); i++) {
+		if(!isdigit(line[i])) {
+			isnumber = FALSE; break;
+			}
+		}
+	if(isnumber) {
+		i = (int) atol(line);
+		for(j=0; j < Jinstr; j++) {
+	//		BPPrintMessage(0,odInfo,"InstrumentIndex = %d, j = %d\n",(*p_CsInstrumentIndex)[j],j);
+			if(i == (*p_CsInstrumentIndex)[j]) break;
+			}
+		if(j < Jinstr) return(i);
+		goto ERR;
+		}
 	for(j=0; j < Jinstr; j++) {
-//		BPPrintMessage(0,odInfo,"InstrumentIndex = %d, j = %d\n",(*p_CsInstrumentIndex)[j],j);
-		if(i == (*p_CsInstrumentIndex)[j]) break;
+	//	BPPrintMessage(0,odInfo,"InstrumentName = %s, j = %d\n",(*(*pp_CsInstrumentName)[j]),j);
+		if(Mystrcmp((*pp_CsInstrumentName)[j],line) == 0) break;
 		}
-	if(j < Jinstr) return(i);
-	goto ERR;
-	}
-for(j=0; j < Jinstr; j++) {
-//	BPPrintMessage(0,odInfo,"InstrumentName = %s, j = %d\n",(*(*pp_CsInstrumentName)[j]),j);
-	if(Mystrcmp((*pp_CsInstrumentName)[j],line) == 0) break;
-	}
-if(j < Jinstr) return((*p_CsInstrumentIndex)[j]);
+	if(j < Jinstr) return((*p_CsInstrumentIndex)[j]);
 
-ERR:
-if(Jinstr < 2) {
-	Print(wTrace,"\n=> You probably forgot to create or load a '-cs' instrument file\n");
+	ERR:
+	if(Jinstr < 2) {
+		Print(wTrace,"\n=> You probably forgot to create or load a '-cs' instrument file\n");
+		}
+	if(isnumber) my_sprintf(Message,"=> Instrument %ld was not found in the '-cs' instrument file\n",
+		(long) i);
+	else my_sprintf(Message,"=> Instrument \"%s\" was not found in the '-cs' instrument file\n",
+		line);
+	BPPrintMessage(0,odError,Message);
+	return(ABORT);
 	}
-if(isnumber) my_sprintf(Message,"=> Instrument %ld was not found in the '-cs' instrument file\n",
-	(long) i);
-else my_sprintf(Message,"=> Instrument \"%s\" was not found in the '-cs' instrument file\n",
-	line);
-BPPrintMessage(0,odError,Message);
-return(ABORT);
-}
 
 
 int ResetMoreParameter(int j,int ip) {
