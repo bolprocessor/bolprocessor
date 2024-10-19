@@ -147,6 +147,7 @@ int Inits(void) {
 		MIDIacceptFilter[i] = FILTER_ALL_ON;
 		MIDIpassFilter[i] = FILTER_ALL_OFF;
 		my_sprintf(MIDIchannelFilter[i],"%s","1111111111111111");
+		my_sprintf(MIDIpartFilter[i],"%s","111111111111");
 	//	BPPrintMessage(0,odInfo,"Init: MIDIchannelFilter[%d] = %s\n",i,MIDIchannelFilter[i]);
 		}
 	ResetMIDIFilter();

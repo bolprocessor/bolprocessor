@@ -482,6 +482,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 			case T43: /* _tempo() */
 			case T44: /* _scale() */
 			case T45: /* _capture() */
+			case T46: /* _part() */
 				fmaxseq += 1.;
 				Maxevent++;
 				nsymb += 1.;

@@ -64,7 +64,7 @@ int i,j,nseq,oldnseq,nseqmem,newswitch,v,ch,gotnewline,foundobject,
 	failed,paramnameindex,paramvalueindex,maxparam,newxpandval,newkeyval,
 	**p_deftxpandval,**p_deftxpandkey,number_skipped,suggested_quantization,
 	r,rest,oldm,oldp,**p_seq,**p_deftnseq,startvel,articulincrement,
-	startarticul,istop,result,level,nseqplot,instrument,channel,a,b;
+	startarticul,istop,result,level,nseqplot,instrument,part,channel,a,b;
 long k,kobj;
 Handle h;
 char  line[MAXLIN],toofast,skipzeros,foundendconcatenation,just_done,
@@ -234,7 +234,7 @@ for(k=0; k < Maxevent; k++) {
 	(*p_Instance)[k].ncycles = 0;
 	(*p_Instance)[k].alpha = (*p_Instance)[k].dilationratio = 0.;
 	(*p_Instance)[k].velocity = DeftVelocity;
-	(*p_Instance)[k].instrument = (*p_Instance)[k].nseq = 0;
+	(*p_Instance)[k].instrument = (*p_Instance)[k].part = (*p_Instance)[k].nseq = 0;
 	(*p_articul)[k] = 0;
 	(*p_Instance)[k].capture = -1;
 	}
@@ -310,6 +310,7 @@ currentparameters.capture = -1;
 currentparameters.scale = DefaultScaleParam;
 currentparameters.blockkey = DefaultBlockKey;
 currentparameters.currinstr = 0;
+currentparameters.currpart = 0;
 
 currentparameters.currtranspose = starttranspose = (*p_deftstarttranspose)[0] = 0.;
 currentparameters.lastistranspose = TRUE;
@@ -355,7 +356,7 @@ newswitch = TRUE;	/* This will reset all switches in the beginning of the item *
 nseqplot = Minconc + 1;
 iplot = ZERO;
 
-instrument = channel = 0;
+instrument = part = channel = 0;
 part_of_ip = Kpress;
 
 /* for(id=ZERO; ;id += 2) {
@@ -665,7 +666,7 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 			if(tie && (m == T25 || m == T9 || p > 0)) {
 			//	BPPrintMessage(0,odInfo,"\nCase 1 tie = %d\n",tie);
 				// BPPrintMessage(0,odInfo,"GetSymbolicDuration() with tie, nseq = %ld level = %ld m = %ld p = %ld speed = %.2f scale = %.2f id = %ld kobj = %d\n",(long)nseq,(long)level,(long)m,(long)p,speed,scale,id,(int)kobj);
-				objectduration = GetSymbolicDuration(NO,*pp_buff,m,p,id,speed,scale,channel,instrument,foundendconcatenation,level);
+				objectduration = GetSymbolicDuration(NO,*pp_buff,m,p,id,speed,scale,channel,instrument,part,foundendconcatenation,level);
 				// BPPrintMessage(0,odInfo,"End GetSymbolicDuration() objectduration = %.2f\n",objectduration);
 				}
 			iscontinuous = isMIDIcontinuous = FALSE;
@@ -767,7 +768,7 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 					/* We'll get the symbolic duration excluding '&' concatenation */
 					objectduration
 						= GetSymbolicDuration(YES,*pp_buff,m,p,id,speed,
-							scale,channel,instrument,foundendconcatenation,level);
+							scale,channel,instrument,part,foundendconcatenation,level);
 					numberzeros = objectduration - prodtempo; // Added by BB 2021-03-25
 			/*		if(numberzeros >= 1.)
 						BPPrintMessage(0,odInfo,"PutZeros(1) id = %ld m = %d p = %d toofast = %d objectduration = %.1f (*p_im)[nseq]/Kpress = %.1f kobj = %d maxseqapprox = %.0f numberzeros = %.0f numberzeros/Kpress = %.0f\n",id,m,p,(int)toofast,objectduration,(*p_im)[nseq]/Kpress,kobj,maxseqapprox,numberzeros,(numberzeros/Kpress)); */
@@ -1259,7 +1260,7 @@ NEWSEQUENCE:
 					// BPPrintMessage(0,odInfo,"\nGetSymbolicDuration() '&' following terminal nseq = %ld level = %ld m = %ld p = %ld speed = %.2f scale = %.2f id = %ld kobj = %d\n",(long)nseq,(long)level,(long)oldm,(long)oldp,speed,scale,id,(int)kobj);
 					numberzeros
 						= GetSymbolicDuration(NO,*pp_buff,oldm,oldp,id-2L,speed,
-							scale,channel,instrument,foundendconcatenation,level) - prodtempo;
+							scale,channel,instrument,part,foundendconcatenation,level) - prodtempo;
 					if(trace_diagram) 
 						BPPrintMessage(0,odInfo,"End GetSymbolicDuration() numberzeros = %.2f\n\n",numberzeros);
 					if(numberzeros < 0.) numberzeros = 0.;
@@ -1316,6 +1317,12 @@ NEWSEQUENCE:
 			currentparameters.currinstr = value = FindValue(m,p,currentparameters.currchan);
 			if(value == Infpos) goto ENDDIAGRAM;
 			instrument = roundf(value);
+			break;
+		case T46:	/* Part assignment _part() */
+			currentparameters.currpart = value = FindValue(m,p,currentparameters.currchan);
+			if(value == Infpos) goto ENDDIAGRAM;
+			part = roundf(value);
+		//	BPPrintMessage(1,odInfo,"@@@ part = %d, m = %d p = %d\n",part,m,p);
 			break;
 		case T44:	/* _scale() */
 			currentparameters.scale = p % MAXSTRINGCONSTANTS;

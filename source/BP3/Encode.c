@@ -273,6 +273,10 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 							(*p_buff)[i++] = T32; (*p_buff)[i++] = (tokenbyte) n;
 							}
 						break;
+					case 67: /* _part() */
+				//		BPPrintMessage(1,odInfo,"@@@ case 67 _part(%d)\n",(int)n);
+						(*p_buff)[i++] = T46; (*p_buff)[i++] = (tokenbyte) n;
+						break;
 					case 44: /* _value() */
 						(*p_buff)[i++] = T35; (*p_buff)[i++] = (tokenbyte) n;
 						break;

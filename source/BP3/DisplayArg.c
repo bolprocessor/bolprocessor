@@ -1409,11 +1409,11 @@ PRINTPROLONGATIONS:
 			}
 		
 		if(m == T10 || m == T11 || (m >= T14 && m <= T24) || (m >= T26 && m <= T36) || m == T38
-				|| m == T39 || m == T41 || m == T42 || m == T44 || m == T45) {
+				|| m == T39 || m == T41 || m == T42 || m == T44 || m == T46 || m == T45) {
 			// _chan(), _vel(), _mod(), _pitchbend(), _press(), _switchon(,), _switchoff(,)
 			// _volume(), _pan(),_legato(), _staccato(),_pitchrange(),_pitchrate(),_modrate(),
 			// _pressrate(),_transpose(),_volumerate(),_volumecontrol(),_panrate(),_pancontrol()
-			// _ins(), _value(), _step(), _cont(), _rndvel(), _rotate(), _rndtime() _srand() _capture()
+			// _ins(), _value(), _step(), _cont(), _rndvel(), _rotate(), _rndtime(), _srand(), _part(), _capture()
 			if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
 				r = ABORT; goto SORTIR;
 				}
@@ -1487,6 +1487,8 @@ PRINTPROLONGATIONS:
 						ii = 60; break;
 					case T44:
 						ii = 65; break;
+					case T46:
+						ii = 67; break;
 					}
 				my_sprintf(line,"%s(",*((*p_PerformanceControl)[ii]));
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
@@ -1894,35 +1896,35 @@ return(OK);
 }
 
 
-int AcceptControl(tokenbyte m)
-{
-switch(m) {
-	case T15:
-	case T14:
-	case T17:
-	case T16:
-	case T18:
-	case T20:
-	case T21:
-	case T22:
-	case T23:
-	case T24:
-	case T26:
-	case T27:
-	case T28:
-	case T30:
-	case T32:
-	case T33:
-	case T34:
-	case T35:
-	case T36:
-	case T41:
-	case T42:
-		return(NO);
-		break;
+int AcceptControl(tokenbyte m) {
+	switch(m) {
+		case T15:
+		case T14:
+		case T17:
+		case T16:
+		case T18:
+		case T20:
+		case T21:
+		case T22:
+		case T23:
+		case T24:
+		case T26:
+		case T27:
+		case T28:
+		case T30:
+		case T32:
+		case T33:
+		case T34:
+		case T35:
+		case T36:
+		case T41:
+		case T42:
+		case T46:
+			return(NO);
+			break;
+		}
+	return(YES);
 	}
-return(YES);
-}
 
 
 int CheckPeriodOrLine(int print_periods,int *p_newline,int *p_newsection,FILE *f,

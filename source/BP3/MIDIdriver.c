@@ -1375,7 +1375,7 @@ int ListenToEvents() {
 void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,unsigned char* midiData,int dataSize,long time) {
     // This is real time, unlike SendToDriver() which sends events to eventStack
     // Here we deal with both output and input events (see "direction") even if the latter are not sent to the output because PassInEvent() is not true.
-    int key,this_note,status,value,improvize,index,channel,sensitivity,channel_org,capture,note2_done,ctrl2_done,pb2_done, press2_done;
+    int key,this_note,status,value,improvize,index,channel,part,sensitivity,channel_org,capture,note2_done,ctrl2_done,pb2_done, press2_done;
     unsigned long clocktime, time_now;
     int correction = 0;
     status = midiData[0];
@@ -1385,10 +1385,15 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
 	char this_key[100];
     strcpy(this_key,"");
     channel = capture = key = -1;
+    if(kcurrentinstance > 0) {
+        part = (*p_Instance)[kcurrentinstance].part;
+        }
+    else part = 0;
     if(dataSize == 3 || dataSize == 2) {
         status &= 0xF0;
         if(dataSize == 3) key = midiData[1];
         else key = 0;
+    //    BPPrintMessage(1,odInfo,"@ key %d, part %d\n",key,part);
         value = midiData[2];
         channel = channel_org = midiData[0] & 0x0F;
         PrintThisNote(i_scale,key,0,-1,this_key);
@@ -1552,6 +1557,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
             for(index = 0; index < MaxOutputPorts; index++) {
                 // Here use filters to decide which port(s) this event should be sent to.
                 if(!MIDImicrotonality && channel >= 0 && channel < MAXCHAN && MIDIchannelFilter[index][channel] == '0') continue;
+                if(part > 0 && MIDIpartFilter[index][part - 1] == '0') continue;
                 if(!MIDImicrotonality && !PassOutEvent(status,index)) continue;
                 if(direction == IN && !PassInEvent(status,index)) continue;
                 MIDISend(targetPort, MIDIoutputdestination[index], &packetList);
@@ -1579,6 +1585,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
  // BPPrintMessage(0,odInfo,"1) MIDI event time = %ld ms, %ld %ld %ld channel = %d\n",(long)time/1000L,(long)midiData[0],(long)midiData[1],(long)midiData[2],channel);
             if (!MIDImicrotonality && channel >= 0 && channel < MAXCHAN && MIDIchannelFilter[index][channel] == '0') continue;
 // BPPrintMessage(0,odInfo,"2) MIDI event time = %ld ms, status = %ld, key %ld, velocity = %ld channel = %d\n",(long)time/1000L,(long)status,(long)key,(long)value,channel);
+            if(part > 0 && MIDIpartFilter[index][part - 1] == '0') continue;
             if (!MIDImicrotonality && !PassOutEvent(status, index)) continue;
             if(direction == IN && !PassInEvent(status,index)) continue;
             if (dataSize <= 3) {
@@ -1662,6 +1669,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
             // Retrieve the port number for the given client
             int client = MIDIoutput[index];
             if (!MIDImicrotonality && channel >= 0 && channel < MAXCHAN && MIDIchannelFilter[index][channel] == '0') continue;
+            if(part > 0 && MIDIpartFilter[index][part - 1] == '0') continue;
             if (!MIDImicrotonality && !PassOutEvent(status,index)) continue;
             if(direction == IN && !PassInEvent(status,index)) continue;
             int port = MIDIoutputport[index];

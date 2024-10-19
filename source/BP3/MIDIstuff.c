@@ -141,7 +141,13 @@ int read_midisetup() {
 			if(strcmp(itemType,"MIDIchannelFilter") == 0) {
        			if(itemNumber && strlen(itemNumber) > 0) {
 					strcpy(MIDIchannelFilter[index],itemNumber);
-				//	BPPrintMessage(0,odInfo,"Lu: MIDIchannelFilter[%d] = %s\n",index,MIDIchannelFilter[index]);
+				//	BPPrintMessage(0,odInfo,"@ Lu: MIDIchannelFilter[%d] = %s\n",index,MIDIchannelFilter[index]);
+					}
+        		}
+			if(strcmp(itemType,"MIDIpartFilter") == 0) {
+       			if(itemNumber && strlen(itemNumber) > 0) {
+					strcpy(MIDIpartFilter[index],itemNumber);
+			//		BPPrintMessage(0,odInfo,"Lu: MIDIpartFilter[%d] = %s\n",index,MIDIpartFilter[index]);
 					}
         		}
 			if(strcmp(itemType,"MIDIoutFilter") == 0) {
@@ -196,6 +202,8 @@ void save_midisetup() {
 			fprintf(thefile, "MIDIoutFilter\t%d\t%s\n",index,MIDIoutFilter[index]);
 		//	BPPrintMessage(0,odInfo,"Ecrit: MIDIchannelFilter[%d] = %s\n",index,MIDIchannelFilter[index]);
         	fprintf(thefile, "MIDIchannelFilter\t%d\t%s\n",index,MIDIchannelFilter[index]);
+		//	BPPrintMessage(0,odInfo,"Ecrit: MIDIpartFilter[%d] = %s\n",index,MIDIpartFilter[index]);
+        	fprintf(thefile, "MIDIpartFilter\t%d\t%s\n",index,MIDIpartFilter[index]);
 			}
 		for(index = 0; index < MaxInputPorts; index++) {
 			if(strlen(MIDIinputname[index]) == 0) continue;

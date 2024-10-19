@@ -246,7 +246,7 @@ extern long Infpos,Infneg,Veryneg,MaxMIDIbytes,
 	TimeMax,Nalpha,Nbytes,Tbytes2,MIDIinputFilterstartup,
 	MIDIoutputFilterstartup,Ts,DataEnd;
 extern unsigned long MIDIacceptFilter[MAXPORTS],MIDIpassFilter[MAXPORTS];
-extern char MIDIchannelFilter[MAXPORTS][17],MIDIoutFilter[MAXPORTS][19];
+extern char MIDIchannelFilter[MAXPORTS][17],MIDIpartFilter[MAXPORTS][13],MIDIoutFilter[MAXPORTS][19];
 extern Milliseconds **p_T;
 extern long **p_Ppatt,**p_Qpatt;
 extern MIDIcode **p_Code;
