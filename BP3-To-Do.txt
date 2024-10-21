@@ -60,6 +60,7 @@ Real-time MIDI
 --------------
 
 - Set _part() instructions when importing multi-part MusicXML scores. Also suggest a conversion of _part() to _ins() for creating Csound scores, and vice-versa.
+- Why is kcurrentinstance (12) > Maxevent (10) in -gr.koto3 ?
 - Use client:port as MIDI input/output on Linux.  Currently, only the client is mentioned in the settings. Some devices might allocate several ports to the same client.
 - Check -gr.Alan and -gr.Beatrix for a synchronisation problem after more than 2 turns.
 — In Linux, it seems that the two virtual ports 'VirMIDI 0-0' and 'VirMIDI 0-1' are not communicating with other ports even though connections are valid.

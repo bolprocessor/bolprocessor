@@ -362,7 +362,7 @@ else {
 		BPPrintMessage(0,odInfo,"midi_byte = %d time = %ld OldMIDIfileTime = %ld MIDItracklength = %ld Midi_msg = %ld\n",midi_byte,(long)time,(long)OldMIDIfileTime,(long)MIDItracklength,(long)Midi_msg);
 	if(MIDIbytestate > 3 || MIDIbytestate < 1) {
 	//	if(Beta) Alert1("=> Err. WriteMIDIbyte(). MIDIbytestate > 3 || MIDIbytestate < 1");
-		BPPrintMessage(0,odError, "=> Correcting the byte state (%d) in MIDI file\n",MIDIbytestate);
+	//	BPPrintMessage(0,odError, "=> Correcting the byte state (%d) in MIDI file\n",MIDIbytestate);
 		return(OK);
 		}
 	Midi_msg |= ((dword)midi_byte) << (8 * MIDIbytestate); /* accumulate msg */

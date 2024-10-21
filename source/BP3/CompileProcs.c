@@ -1826,5 +1826,9 @@ int FindPart(char* line) {
 	// Needs update $$$
 	int i;
 	i = (int) atol(line);
+	if(i < 1 || i > 12) {
+		BPPrintMessage(0,odError,"=> _part(%d) is out of range. It should be 1..12\n",i);
+		return ABORT;
+		}
 	return(i);
 	}
