@@ -1842,10 +1842,10 @@ if(Maxevent > 5000) (*p_bigitem) = TRUE;
 
 // Sizing down handles to save space
 
-MySetHandleSize((Handle*)&p_Instance,(Size)Maxevent*sizeof(SoundObjectInstanceParameters));
-MySetHandleSize((Handle*)&p_ObjectSpecs,(Size)Maxevent*sizeof(objectspecs**));
-MySetHandleSize((Handle*)&p_articul,(Size)Maxevent*sizeof(short));
-MySetHandleSize((Handle*)&p_T,(Size) (*p_maxseq+2)*sizeof(Milliseconds));
+MySetHandleSize((Handle*)&p_Instance,(Size)Maxevent * sizeof(SoundObjectInstanceParameters));
+MySetHandleSize((Handle*)&p_ObjectSpecs,(Size)Maxevent * sizeof(objectspecs**));
+MySetHandleSize((Handle*)&p_articul,(Size)Maxevent * sizeof(short));
+MySetHandleSize((Handle*)&p_T,(Size) (*p_maxseq+2) * sizeof(Milliseconds));
 
 if(DoSystem() != OK) return(ABORT);
 

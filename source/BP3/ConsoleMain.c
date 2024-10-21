@@ -112,7 +112,7 @@ int main (int argc, char* args[]) {
 	ConsoleInit(&gOptions);
     ConsoleMessagesInit();
 	result = ParsePreInitArgs(argc, args, &gOptions);
-	// if (result != OK) goto CLEANUP;
+	if (result != OK) goto CLEANUP;
 	
 	if (gOptions.useStdErr)	{
 		// split message output from "algorithmic output"
@@ -122,7 +122,7 @@ int main (int argc, char* args[]) {
 	if (Inits() != OK) goto CLEANUP;
 	
 	result = ParsePostInitArgs(argc, args, &gOptions);
-	if (result != OK) goto CLEANUP;
+	if (result != OK) return EXIT_SUCCESS;
 	result = LoadInputFiles(gOptions.inputFilenames);
 	if (result != OK) goto CLEANUP;
 	// some command-line options are applied after loading the settings file
@@ -324,7 +324,7 @@ void CreateDoneFile(void) {
         free(new_thefile);
 		free(thefile);
 		}
-	else BPPrintMessage(0,odError,"=> No path found in CreateDoneFile() [1]\n");
+//	else BPPrintMessage(0,odError,"=> No path found in CreateDoneFile() [1]\n");
 	return;
 	}
 
@@ -399,12 +399,8 @@ FILE* CreateCaptureFile(FILE* oldptr) {
         	free(new_thefile);
 			return ptr;
 			}
-	/*	else {
-			BPPrintMessage(0,odError,"=> Error creating 'capture' file: %s\n",new_thefile);
-        	free(new_thefile);
-			} */
 		}
-	else BPPrintMessage(0,odError,"=> No path found in CreateDoneFile() [2]\n");
+//	else BPPrintMessage(0,odError,"=> No path found in CreateCaptureFile() [2]\n");
 	return NULL;
 	}
 

@@ -50,7 +50,7 @@ unsigned long time_end_compute;
 
 BPPrintMessage(0,odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
 if(Improvize && ItemNumber == 0) {
-	ShowMessage(TRUE,wMessage,"\nNo message during improvization\n");
+	ShowMessage(TRUE,wMessage,"\n👉 Most of the messages will be discarded during the improvisation\n");
 	if(!rtMIDI) BPPrintMessage(1,odInfo,"Only %ld items will be produced.\n",MaxItemsDisplay);
 	}
 time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
