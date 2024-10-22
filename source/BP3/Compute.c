@@ -991,25 +991,24 @@ return(OK);
 }
 
 
-int Destroy(tokenbyte ***pp_a)
-{
-tokenbyte **p_x;
-int rep;
-long size;
+int Destroy(tokenbyte ***pp_a) {
+	tokenbyte **p_x;
+	int rep;
+	long size;
 
-if(*pp_a == NULL) {
-	BPPrintMessage(0,odError,"=> Err. Destroy(). *pp_a = NULL\n");
-	Panic = TRUE;
-	return(ABORT);
+	if(*pp_a == NULL) {
+		BPPrintMessage(0,odError,"=> Err. Destroy(). *pp_a = NULL\n");
+		Panic = TRUE;
+		return(ABORT);
+		}
+	size = MyGetHandleSize((Handle)*pp_a);
+	if((p_x = (tokenbyte**) GiveSpace((Size)size)) == NULL) return(ABORT);
+	if((rep=PrintArg(FALSE,FALSE,0,FALSE,0,1,stdout,wData,&p_x,pp_a)) != OK) return(ABORT);
+			/* stdout and wData are dummy: only copying A to x */
+	if(CopyBuf(&p_x,pp_a) == ABORT) return(ABORT);
+	MyDisposeHandle((Handle*)&p_x);
+	return(OK);
 	}
-size = MyGetHandleSize((Handle)*pp_a);
-if((p_x = (tokenbyte**) GiveSpace((Size)size)) == NULL) return(ABORT);
-if((rep=PrintArg(FALSE,FALSE,0,FALSE,0,1,stdout,wData,&p_x,pp_a)) != OK) return(ABORT);
-		/* stdout and wData are dummy: only copying A to x */
-if(CopyBuf(&p_x,pp_a) == ABORT) return(ABORT);
-MyDisposeHandle((Handle*)&p_x);
-return(OK);
-}
 
 
 long NextPos(tokenbyte ***pp_a,tokenbyte ***pp_b,long *p_lastpos,long *p_incmark,

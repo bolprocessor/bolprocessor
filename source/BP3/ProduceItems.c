@@ -853,7 +853,7 @@ NEXTPOS:
 		goto NEXTPOS;
 		}
 END:
-	CheckItemProduced(p_gram,pp_a,p_length,template,mode);
+	CheckItemProduced(p_gram,old_gram,pp_a,p_length,template,mode);
 	// Look for '_failed'				
 	if(old_gram > 0 && (igram = (*((*((*p_gram).p_subgram))[old_gram].p_rule))[old_rul].failedgram) > 0) {
 		irul = (*((*((*p_gram).p_subgram))[old_gram].p_rule))[old_rul].failedrule;
@@ -1802,7 +1802,7 @@ QUIT:
 	}
 
 
-int CheckItemProduced(t_gram *p_gram,tokenbyte ***pp_a,long *p_length,
+int CheckItemProduced(t_gram *p_gram,int igram,tokenbyte ***pp_a,long *p_length,
 	int template,int mode)  {
 	int j,sign,result,r,datamode,ifunc,hastabs;
 	unsigned long i,imax;
@@ -1826,6 +1826,10 @@ int CheckItemProduced(t_gram *p_gram,tokenbyte ***pp_a,long *p_length,
 			Dirty[wGrammar] = TRUE;
 			}
 		else {
+			if((*((*p_gram).p_subgram))[igram].destru) {
+				if((result=Destroy(pp_a)) != OK) goto END;
+				}
+			(*p_length) = LengthOf(pp_a);
 			if((result=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto END;
 			Print(OutputWindow,"\n");
 			r = check_and_remove_duplicate_last_line(OutFileName);
