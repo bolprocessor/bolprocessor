@@ -459,7 +459,7 @@ int MatchTemplate(tokenbyte***,tokenbyte***);
 int ChangeFlagsInRule(t_gram*,int,int);
 int ProduceItems(int,int,int,tokenbyte***);
 int PrintResult(int,int,int,int,tokenbyte***);
-int CheckItemProduced(t_gram*,tokenbyte***,long*,int,int);
+int CheckItemProduced(t_gram*,int,tokenbyte***,long*,int,int);
 int DisplayMode(tokenbyte***,int*,int*);
 int ResetRuleWeights(int);
 int AnalyzeSelection(int);
