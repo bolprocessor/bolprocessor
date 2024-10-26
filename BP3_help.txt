@@ -610,6 +610,10 @@ Sets current Csound instrument to x.
 • Range of x is 0..127
 • x may also be the name of the instrument as defined in the "Csound instrument file".
 • The argument may also be Kx.  See "variable arguments".
+### _part(x)
+Sets current part of code to x.
+• A part is generally sent to specific MIDI instrument(s), as instructed by the MIDI output filters on the interface.
+• Range of x is 1..12
 ### _vel(x) [Performance control]
 Sets velocity of following "sound-object" to x.
 • Range of x is 0..127

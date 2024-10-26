@@ -6,7 +6,10 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+2024-10-26 (version 3.0.15)
+Interface revised in depth, dark mode is default. Halloween version! 😀
 
+-----
 2024-10-19 -> 2024-10-21 (version 3.0.14)
 The _part() command has been implemented. It allows each part of a score to be assigned to a specific MIDI output, regardless of MIDI channels.
 Don't forget to update the PHP interface. A dark/light mode has been added!
