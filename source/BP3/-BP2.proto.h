@@ -467,7 +467,7 @@ int LearnWeights(void);
 int SetWeights(void);
 int AdjustWeights(void);
 int ProduceAll(t_gram*,tokenbyte***,int);
-int AllFollowingItems(t_gram*,tokenbyte***,long****,long****,long*,int,int,int,int,int,int,tokenbyte****,int*,long*,int,unsigned long,int);
+int AllFollowingItems(t_gram*,tokenbyte***,long****,long****,long*,int,int,int,int,int,int,tokenbyte****,int*,long*,int,unsigned long);
 int PushStack(tokenbyte***,long*****,long*****,long*,tokenbyte*****,int*,long*);
 int PullStack(tokenbyte***,long****,long****,long*,tokenbyte****,int*,long*);
 int LastGrammarWanted(int);

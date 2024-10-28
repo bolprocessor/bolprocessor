@@ -178,7 +178,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 		}
 	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 		EmergencyExit = TRUE;
-		BPPrintMessage(0,odInfo,"=> Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+		BPPrintMessage(0,odInfo,"=> (4) Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return(ABORT);
 		}
 	if(p_gram->p_subgram == NULL) return(OK);
@@ -345,9 +345,9 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 		p_totwght,p_pos,p_prefrule,leftpos,&maxpref,&freedom,*p_repeat,
 		mode,&equalweight,learn,time_end_compute)) > 0) || (nb_candidates == AGAIN)) {
 
-		if(!Improvize && time_end_compute > 0L  && getClockTime() > time_end_compute) {
+		if(!Improvize && !Interactive && time_end_compute > 0L  && getClockTime() > time_end_compute) {
 			EmergencyExit =TRUE;
-			BPPrintMessage(0,odInfo,"=> Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+			BPPrintMessage(0,odInfo,"=> (5) Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 			return(ABORT);
 			}
 		try = irep = 0;
@@ -566,7 +566,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			}
 		if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 			EmergencyExit =TRUE; 
-			BPPrintMessage(0,odInfo,"=> Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+			BPPrintMessage(0,odInfo,"=> (7) Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 			return(ABORT); 
 			}
 	/*	if(pos1 == STOP) {
@@ -644,7 +644,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			}
 		if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 			EmergencyExit = TRUE; 
-			BPPrintMessage(0,odInfo,"=> Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+			BPPrintMessage(0,odInfo,"=> (8) Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 			return(ABORT);
 			}
 		if(Flagthere && (grtype != SUBtype) && !shootagain)
@@ -1079,7 +1079,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 
 	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 		EmergencyExit =TRUE;
-		BPPrintMessage(0,odInfo,"=> Maximum allowed time (%d seconds) has been spent in FindCandidateRules(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+		BPPrintMessage(0,odInfo,"=> (1) Maximum allowed time (%d seconds) has been spent in FindCandidateRules(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return(ABORT);
 		}
 
@@ -1494,7 +1494,7 @@ int Found(tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,int lenc,
 
 	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 		EmergencyExit = TRUE;
-		BPPrintMessage(0,odInfo,"=> Maximum allowed time (%d seconds) has been spent in Found(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+		BPPrintMessage(0,odInfo,"=> (2) Maximum allowed time (%d seconds) has been spent in Found(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return(ABORT);
 		}
 			
@@ -1818,7 +1818,7 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 				* (randomnumber / ((double)RAND_MAX) / 2.));
 				if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 					EmergencyExit = TRUE;
-					BPPrintMessage(0,odInfo,"=> Maximum allowed time (%d seconds) has been spent in Insert(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+					BPPrintMessage(0,odInfo,"=> (3) Maximum allowed time (%d seconds) has been spent in Insert(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 					return(ABORT);
 					}
 			if(trace_compute) BPPrintMessage(0,odInfo,"Insert() randomnumber = %ld pos1 = %ld\n",(long)randomnumber,(long)pos1);

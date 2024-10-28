@@ -742,7 +742,7 @@ int ProduceAll(t_gram *p_gram,tokenbyte ***pp_a,int template) {
 	ShowMessages = FALSE;
 	if((r = ShowItem(1,p_gram,FALSE,pp_a,FALSE,mode,TRUE)) == ABORT || r == FINISH || r == EXIT) goto END;
 	r = AllFollowingItems(p_gram,pp_a,p_weight,p_flag,&length,igram,irul,irep,TRUE,
-		template,endgram,p_stack,&depth,&maxdepth,mode,time_end_compute,0);
+		template,endgram,p_stack,&depth,&maxdepth,mode,time_end_compute);
 	ShowMessages = showmessages;
 	BPPrintMessage(0,odInfo,"👉 %d items have been produced\n",ItemNumber);
 END:
@@ -756,7 +756,7 @@ END:
 
 int AllFollowingItems(t_gram *p_gram,tokenbyte ***pp_a,long ****p_weight,long ****p_flag,
 	long *p_length,int igram,int irul,int irep,int all,int template,int endgram,tokenbyte ****p_stack,
-	int *p_depth,long *p_maxdepth,int mode,unsigned long time_end_compute,int xxx) {
+	int *p_depth,long *p_maxdepth,int mode,unsigned long time_end_compute) {
 
 		// RECENT
 
@@ -766,9 +766,9 @@ int AllFollowingItems(t_gram *p_gram,tokenbyte ***pp_a,long ****p_weight,long **
 	long ipos = ZERO;
 	icandidate = nrep = old_gram = old_rul = 0;
 
-	if((time_end_compute > 0L) && getClockTime() > time_end_compute) {
+	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 		EmergencyExit = TRUE;
-		BPPrintMessage(1,odError,"=> Maximum allowed time (%d seconds) has been spent in AllFollowingItems(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+		BPPrintMessage(1,odError,"=> (6) Maximum allowed time (%d seconds) has been spent in AllFollowingItems(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return ABORT;
 		}
 //	if(igram > endgram) return MISSED;
@@ -821,7 +821,7 @@ NEXTPOS:
 			}
 		if(new_gram > 0) {
 			if(trace_produce_all) BPPrintMessage(1,odInfo,"_goto: new_gram = %d new_rul = %d\n",new_gram,new_rul);
-			r = AllFollowingItems(p_gram,pp_a,p_weight,p_flag,p_length,new_gram,new_rul,irep,all,template,endgram,p_stack,p_depth,p_maxdepth,mode,time_end_compute,xxx);
+			r = AllFollowingItems(p_gram,pp_a,p_weight,p_flag,p_length,new_gram,new_rul,irep,all,template,endgram,p_stack,p_depth,p_maxdepth,mode,time_end_compute);
 			if(r == ABORT || r == EXIT) return r;
 			if(PullStack(pp_a,p_weight,p_flag,p_length,p_stack,p_depth,p_maxdepth) != OK) {
 				BPPrintMessage(0,odError,"=> PullStack() != OK in AllFollowingItems()\n");
@@ -842,7 +842,7 @@ NEXTPOS:
 			(*((*((*p_gram).p_subgram))[igram].p_rule))[irul].w = w;
 			}
 		try_number++;
-		r = AllFollowingItems(p_gram,pp_a,p_weight,p_flag,p_length,igram,irul,irep,all,template,endgram,p_stack,p_depth,p_maxdepth,mode,time_end_compute,xxx);
+		r = AllFollowingItems(p_gram,pp_a,p_weight,p_flag,p_length,igram,irul,irep,all,template,endgram,p_stack,p_depth,p_maxdepth,mode,time_end_compute);
 		if(PullStack(pp_a,p_weight,p_flag,p_length,p_stack,p_depth,p_maxdepth) != OK) {
 			BPPrintMessage(0,odError,"=> PullStack() != OK in AllFollowingItems()\n");
 			return(ABORT);
