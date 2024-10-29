@@ -428,7 +428,7 @@ int stop(int now,char* where) {
 	ptr = my_fopen(0,PanicfileName,"r");
 	if(ptr) {
 		Improvize = PlayAllChunks = FALSE;
-		BPPrintMessage(0,odError,"Found 'panic' file: %s\n",PanicfileName);
+		BPPrintMessage(0,odError,"👉 Found 'panic' file: %s\n",PanicfileName);
 		my_fclose(ptr);
 		Panic = EmergencyExit = TRUE;
         my_fclose(ptr);
