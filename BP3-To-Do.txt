@@ -172,7 +172,6 @@ Various errors
 --------------
 
 - Check why CorrectionFactor = 1.059 in -gr.koto3. (Line 1679 in FillPhaseDiagram) Probably when an out-time object falls at the end of a sequence.
-- Some images are truncated in -gr.koto3
 - Check that scripts can be attached to out-time objects
 - In linux, when the STOP or PANIC button is clicked during a "wait" event, the trace file is empty. Maybe a problem flushing it and closing it.
 - Check quadratic adjustment of _vel and _volume
