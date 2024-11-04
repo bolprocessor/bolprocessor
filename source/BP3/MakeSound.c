@@ -421,12 +421,12 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 		if(endxmax < 100) endxmax = 100;
 		endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
 		// BPPrintMessage(0,odInfo,"@ minkey = %d maxkey = %d endymax = %d\n",minkey,maxkey,endymax);
-		if(WidthMax < 32000) WidthMax = 2 * endxmax + 40;
-		// BPPrintMessage(0,odInfo,Message); ???
+		if(WidthMax < 32000 && WidthMax < (2 * endxmax + 40)) WidthMax = 2 * endxmax + 40; // Revised 2024-11-02
 		if(WidthMax > 32000) {
 			BPPrintMessage(0,odInfo,"\nImage width %d was too large: it has been cropped to 32000\n",WidthMax);
 			WidthMax = endxmax = 32000;
 			}
+		endxmax = (WidthMax - 40) / 2;  // Added 2024-11-02
 		graphrect.top = graphrect.left = 0;
 		graphrect.bottom = graphrect.top + endymax;
 		graphrect.right = graphrect.left + endxmax;
