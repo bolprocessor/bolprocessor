@@ -188,6 +188,7 @@ Cleaning up the code
 MIDI files (Probably unnecessary, as MIDI file creation works perfectly.)
 ----------
 
+- MIDIjs (https://www.midijs.net) is deprecated and should be replaced. Try Web MIDI API (https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API) or MIDIPlayer.js (https://github.com/grimmdude/MidiPlayerJS) or Tone.js
 - note that currently the creation of type-1 MIDI files works even with very large sets of data… Therefore the following issues are not critical.
 - probably error when creating MIDI file from -gr.ShapesInRhythm because a very long silence is inserted, neither visible on graphs nor on the Csound score
 - "Error WriteVarLenQuantity(): value %u is out of range" may happen when data is faulty
