@@ -101,24 +101,15 @@ HTML/PHP/Javascript interface
 
 - Implement command-s (on MacOS) or control-s (on Windows/Linux) to save a grammar, data, alphabet, etc. This is almost done in _header.php (line 41) and at the bottom of data.php
 - When moving "-gr" and "-da" projects, their settings should be copied.
+- Implement export of data (will be very useful in PHP Desktop).
 
 
 Standalone application
 ----------------------
 
-- https://github.com/cztomczak/phpdesktop => Compile BP3 under Linux or MacOS. The MacOS version is still under development by Czarek Tomczak (czarek.tomczak at gmail)
-
-Alternate options in case "phpdesktop" doesn't fit:
-- https://electronforge.io/
-- https://github.com/peachpiecompiler/peachpie
-- https://laravel.com/
-- https://cakephp.org/
-- https://www.yiiframework.com/
-- https://github.com/bcosca/fatfree
-- https://fuelphp.com/
-- https://symfony.com/
-- https://phalcon.io/en-us
-- https://www.chromium.org/Home
+- https://github.com/cztomczak/phpdesktop
+- Checked with MacOS and Windows. A few issues remain to be resolved:
+https://github.com/cztomczak/phpdesktop/issues
 
 
 Csound
@@ -188,7 +179,6 @@ Cleaning up the code
 MIDI files (Probably unnecessary, as MIDI file creation works perfectly.)
 ----------
 
-- MIDIjs (https://www.midijs.net) is deprecated and should be replaced. Try Web MIDI API (https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API) or MIDIPlayer.js (https://github.com/grimmdude/MidiPlayerJS) or Tone.js
 - note that currently the creation of type-1 MIDI files works even with very large sets of data… Therefore the following issues are not critical.
 - probably error when creating MIDI file from -gr.ShapesInRhythm because a very long silence is inserted, neither visible on graphs nor on the Csound score
 - "Error WriteVarLenQuantity(): value %u is out of range" may happen when data is faulty
