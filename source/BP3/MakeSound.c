@@ -636,7 +636,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 				}
 			}
 			
-		LimTimeSet = LimCompute = FALSE; TimeMax = MAXTIME;
+		LimTimeSet = LimCompute = FALSE;
+		TimeMax = MAXTIME;
 		t1 = t11; t2 = t2obj = t22; kcurrentinstance = kfirstinstance;
 		t2tick = Infpos;
 		instrument = -1;

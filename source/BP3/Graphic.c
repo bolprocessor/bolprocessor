@@ -1053,15 +1053,12 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	else {
 		if(Improvize || PlayAllChunks) shift = (double) PianorollShift;
 		}
-	// if(imagePtr == NULL) {
-	//	N_image++;
-		if(strcmp(type,"pianoroll") != 0 && (Improvize || PlayAllChunks) && (ShowPianoRoll))
-	//	if(strcmp(type,"pianoroll") != 0 && (Improvize || PlayAllChunks) && (ShowPianoRoll || !rtMIDI))
-		// ShowPianoRoll, because if no pianoroll has been drawn, the value of shift is incorrect.
-			CreateImageFile(shift/1000.);
-		else CreateImageFile(-1.);  // Later we can use it
-        if(Panic) return ABORT;
-	//	}
+	if(strcmp(type,"pianoroll") != 0 && (Improvize || PlayAllChunks) && (ShowPianoRoll))
+//	if(strcmp(type,"pianoroll") != 0 && (Improvize || PlayAllChunks) && (ShowPianoRoll || !rtMIDI))
+	// ShowPianoRoll, because if no pianoroll has been drawn, the value of shift is incorrect.
+		CreateImageFile(shift/1000.);
+	else CreateImageFile(-1.);  // Later we can use it
+	if(Panic) return ABORT;
 	result = OK;
 	pen_size(1,0);
 	text_style(htext,"arial");
@@ -1076,7 +1073,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 		}
 
 	// Draw scale ruler
-	x = 5. * ((double) GraphicScaleQ) / GraphicScaleP;	/* Duration on 500 pixels */
+	x = 5. * ((double) GraphicScaleQ) / GraphicScaleP;	// Duration on 500 pixels
 	xscale = 1.;
 	if(x >= 10.) {
 		while(x > 10.) {
