@@ -178,7 +178,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 		}
 	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 		EmergencyExit = TRUE;
-		BPPrintMessage(0,odInfo,"=> (4) Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
+		BPPrintMessage(0,odInfo,"=> (4) Maximum allowed time (%ld seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return(ABORT);
 		}
 	if(p_gram->p_subgram == NULL) return(OK);
@@ -361,7 +361,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			goto QUIT;
 			}
 		foundone = TRUE;
-		if(LimCompute && rtMIDI) {
+/*		if(LimCompute && rtMIDI) {
 			Tstart = getClockTime();
 			if(Tstart + TimeMax/10L < time) {
 				my_sprintf(Message,"Max time elapsed!");
@@ -374,7 +374,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 				halt = TRUE;
 				break;
 				}
-			}
+			} */
 		if(PlanProduce || (*p_repeat)) {
 			TextOffset dummy, selend;
 			if(grtype == SUBtype && !freedom){  

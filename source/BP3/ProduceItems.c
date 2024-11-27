@@ -185,7 +185,8 @@ r = OK;
 	} */
 StartCount();
 SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
-LimTimeSet = LimCompute = FALSE; TimeMax = MAXTIME;
+LimTimeSet = LimCompute = FALSE;
+TimeMax = MAXTIME;
 MaxComputeTime = ZERO;
 Nplay = 1; SynchroSignal = OFF;
 if(!PlaySelectionOn && InitThere == 1) FirstTime = TRUE;

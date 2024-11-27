@@ -1629,6 +1629,7 @@ int LoadSettings(const char *filename, int startup) {
 	if(ReadInteger(sefile,&UseBufferLimit,&pos) == MISSED) goto ERR;
 	UseBufferLimit = FALSE;
 	if(ReadLong(sefile,&MaxConsoleTime,&pos) == MISSED) goto ERR;
+	if(MaxConsoleTime > 3600) MaxConsoleTime = 3600;
 //   if(trace_load_settings && MaxConsoleTime > 0L) BPPrintMessage(0,odInfo, "MaxConsoleTime = %ld\n",(long)MaxConsoleTime);
     
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR;
