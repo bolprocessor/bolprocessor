@@ -301,7 +301,7 @@ int MaybeWait(unsigned long current_time) {
 		if((result = stop(1,"Waiting loop")) != OK) return result;
 		WaitABit(5); // milliseconds
 		i++;
-		if(i == 100L && ResetNotes && CapturePtr == NULL) AllNotesOffPedalsOffAllChannels();
+		if(i == 50L && ResetNotes && CapturePtr == NULL) AllNotesOffPedalsOffAllChannels(FALSE);
 		}
 	TimeStopped += (getClockTime() - time_now);
 	if((TimeStopped / 10000L) != (Oldtimestopped / 10000L)) {
@@ -1758,7 +1758,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	}
 
 
-int AllNotesOffPedalsOffAllChannels(void) {
+int AllNotesOffPedalsOffAllChannels(int verbose) {
 	int rs,key,channel;
 	unsigned char midiData[4];
 	int dataSize = 3;
@@ -1766,7 +1766,8 @@ int AllNotesOffPedalsOffAllChannels(void) {
 		BPPrintMessage(0,odError,"=> All Notes Off won't work since MIDI output is not active");	
 		return(OK);
 		}
-	if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"Sending AllNotesOff and resetting controls on all channels\n");
+	if(verbose) 
+		BPPrintMessage(0,odInfo,"Sending AllNotesOff and resetting controls on all channels.\n➡ Check the MIDI out filter if it did not work!\n");
 	for(channel=0; channel < MAXCHAN; channel++) {
 		WaitABit(10); // Wait for 10 ms
 		midiData[0] = ControlChange + channel;

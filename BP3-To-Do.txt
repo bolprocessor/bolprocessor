@@ -59,6 +59,7 @@ MIDI input
 Real-time MIDI
 --------------
 
+- Add pause and continue buttons to the interface.
 - Set _part() instructions when importing multi-part MusicXML scores. Also suggest a conversion of _part() to _ins() for creating Csound scores, and vice-versa.
 - Why is kcurrentinstance (12) > Maxevent (10) in -gr.koto3 ?
 - Use client:port as MIDI input/output on Linux.  Currently, only the client is mentioned in the settings. Some devices might allocate several ports to the same client.
@@ -134,12 +135,6 @@ Chunked data in real-time MIDI
 ------------------------------
 
 - Faulty chunked data (e.g. “-da.Beethoven-fugue-b-flat-major”) produces timing errors in real-time MIDI, although MIDI files are acceptable. This may be difficult to fix due to the size of data.
-
-
-Settings
---------
-
-- Use XML format to store the settings of projects.
 
 
 MIDI file player

@@ -512,7 +512,7 @@ int ClipVelocity(int,int,int,int);
 int ChannelConvert(int);
 int TransposeKey(int*,int);
 int WritePatchName(void);
-int AllNotesOffPedalsOffAllChannels(void);
+int AllNotesOffPedalsOffAllChannels(int);
 int WaitForLastSounds(long);
 int CheckLoadedPrototypes(void);
 int CheckMIDIOutPut(int);
@@ -721,16 +721,9 @@ int SaveWeights(void);
 int LoadKeyboard(short);
 int LoadCsoundInstruments(int,int);
 int LoadTonality(void);
-    // int SaveKeyboard(FSSpec*);
-    // int SaveCsoundInstruments(FSSpec*);
-    int LoadTimeBase(short);
-/* int SaveTimeBase(FSSpec*);
-int SaveObjectPrototypes(FSSpec*);
-int SaveSettings(int,int,Str255,FSSpec*); */
-int LoadSettings(const char *filename, int startup);
-/* OSErr	FindBPPrefsFolder(FSSpecPtr location);
-OSErr	FindFileInPrefsFolder(FSSpecPtr location, StringPtr filename);
-OSErr	GetFolderID(const FSSpecPtr loc, long* dirID); */
+int LoadTimeBase(short);
+char* read_file(const char*);
+int LoadSettings(const char*,int);
 int  CopyStartupSettings(void);
 // void GetStartupSettingsSpec(FSSpecPtr spec);
 int SaveDecisions(void);

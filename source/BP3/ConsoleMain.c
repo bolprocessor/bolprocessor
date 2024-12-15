@@ -261,7 +261,9 @@ CLEANUP:
 			}
 		WaitABit(100); // Sleep for 100 milliseconds
 		BPPrintMessage(0,odInfo,"Duration = %.3f seconds\n",(double)LastTime/1000.); // Date of the last MIDI event
-		if(ResetNotes) AllNotesOffPedalsOffAllChannels();
+		if(ResetNotes) {
+			AllNotesOffPedalsOffAllChannels(TRUE);
+			}
 		WaitABit(100); // 100 milliseconds
 		closeMIDISystem();
 		WaitABit(100); // 100 milliseconds
