@@ -9,6 +9,7 @@ https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3
 
 2024-12-15 (version 3.0.16)
 Settings are now stored in JSON format. Update the PHP interface for compatibility and automatic conversion of settings files.
+‘Pause’ and ‘Continue’ buttons are available to hold real-time MIDI performance.
 
 -----
 2024-11-04 -> 2024-11-27

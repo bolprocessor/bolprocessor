@@ -93,7 +93,7 @@ extern int **p_PerfCtrlNArg,**p_ProcNArg,**p_PerfCtrlNdx,**p_ProcNdx,**p_General
 extern INscripttype** p_INscript;
 extern OUTscripttype** p_OUTscript;
 extern unsigned long TimeStopped,Oldtimestopped;
-extern int StopPlay,TraceMIDIinteraction;
+extern int StopPlay,PausePlay,TraceMIDIinteraction;
 extern char SubgramType[MAXTYPE][TYPELENGTH];
 extern char Code[MAXCODE2];
 extern char VersionName[MAXVERSION][VERSIONLENGTH];
@@ -165,7 +165,7 @@ extern volatile char OKsend;
 #endif */
 extern volatile char ClockOverFlow,SchedulerIsActive;
 extern char Mute,Panic;
-extern char *StopfileName, *PanicfileName;
+extern char *StopfileName, *PanicfileName, *PausefileName, *ContinuefileName;
 
 /* extern char AlertMute; */
 extern int WarnedBasedKey;
