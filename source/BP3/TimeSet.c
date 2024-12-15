@@ -116,8 +116,8 @@ for(j = 0; j <= MAXCHAN; j++) {
 	}
 if(missed_ties > 0) {
 	if(!PlayChunks)
-		BPPrintMessage(0,odError,"=> Total %d tied notes have been missed\n\n",missed_ties);
-	else BPPrintMessage(0,odError,"=> Total %d tied notes have been missed in chunk #%d\n\n",missed_ties,Chunk_number);
+		BPPrintMessage(0,odError,"=> Total %d tied note(s) have been missed\n\n",missed_ties);
+	else BPPrintMessage(0,odError,"=> Total %d tied note(s) have been missed in chunk #%d\n\n",missed_ties,Chunk_number);
 	}
 
 missed_ties = 0;

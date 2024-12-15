@@ -39,7 +39,7 @@
 #ifndef _H_BP2
 #define _H_BP2
 
-#define SHORT_VERSION "3.0.15"
+#define SHORT_VERSION "3.0.16"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -122,6 +122,7 @@
 #  include <float.h>
 #  include <time.h>
 #  include <limits.h>
+#  include "cJSON.h"
 #endif
 
 #include <sys/stat.h>

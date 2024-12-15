@@ -1482,16 +1482,40 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 	return(result);
 	}
 
+char* read_file(const char *filename) {
+	// Load the content of a text file as a single string
+    FILE *file = fopen(filename, "r");
+    if(!file) {
+        perror("Unable to open file");
+        return NULL;
+    	}
+
+    // Get the file size
+    fseek(file, 0, SEEK_END);
+    long filesize = ftell(file);
+    rewind(file);
+    // Allocate memory and read the file
+    char *data = (char *)malloc(filesize + 1);
+    if (!data) {
+        perror("Memory allocation failed");
+        fclose(file);
+        return NULL;
+   		}
+    fread(data, 1, filesize, file);
+    data[filesize] = '\0';
+    fclose(file);
+    return data;
+	}
+
 
 int LoadSettings(const char *filename, int startup) {
-	int i,j,jmax,rep,result,iv,w,wmax,oldoutmidi,oldoutcsound,oldwritemidifile;
+	int i,j,jmax,rep,result,iv,w,wmax,oldoutmidi,oldoutcsound,oldwritemidifile,intvalue;
 	FILE* sefile;
+	float floatvalue;
 	long pos,k;
 	unsigned long kk;
 	double x;
 	char **p_line,**p_completeline;
-
-	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start LoadSettings = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 
 	result = OK;
 	oldoutmidi = rtMIDI;
@@ -1503,11 +1527,173 @@ int LoadSettings(const char *filename, int startup) {
 	else {
 		// filename cannot be NULL or empty
 		if (filename == NULL || filename[0] == '\0') {
-			BPPrintMessage(0,odError, "=> Err. LoadSettings(): filename was NULL or empty\n");
+			BPPrintMessage(0,odError,"=> Err. LoadSettings(): filename was NULL or empty\n");
 			return MISSED;
 			}
 		}
+	EndFadeOut = 2.; C4key = 60; A4freq = 440.;
+	UseBullet = FALSE;
+	Code[7] = '.';
+	PlayTicks = FALSE;
+	ResetTickFlag = TRUE;
+	MIDIfileType = 1;
+	CsoundFileFormat = UNIX;
+	StrikeAgainDefault = TRUE;
+	DeftVolume = DEFTVOLUME;
+	VolumeController = VOLUMECONTROL;
+	DeftVelocity = DEFTVELOCITY;
+	DeftPanoramic = DEFTPANORAMIC;
+	PanoramicController = PANORAMICCONTROL;
+	SamplingRate = SAMPLINGRATE;
+	DefaultBlockKey = 60;
+	ShowObjectGraph = TRUE;
+	ShowPianoRoll = FALSE;
+	Token = Oms = FALSE;
+	UseBufferLimit = FALSE;
+	OutCsound = FALSE;
+	CsoundTrace = FALSE;
+	WriteMIDIfile = FALSE;
+	NoConstraint = FALSE;
+	ResetControllers = FALSE;
+	FileSaveMode = ALLSAME;
+	FileWriteMode = NOW;
+	ProgNrFrom = 1;
+	NotSaidKpress = TRUE;
+	NeverResetWeights = FALSE;
+	ResetFlags = FALSE;
+	ResetWeights = FALSE;
+	NeverResetWeights = FALSE;
 
+   	char *json_data = read_file(filename);
+    if(!json_data) {
+		BPPrintMessage(0,odError,"=> Could not open settings file %s\n", filename);
+		return MISSED;
+		}
+	cJSON *json = cJSON_Parse(json_data);
+    if(!json) {
+        BPPrintMessage(0,odError,"=> Could not parse JSON: %s\n",cJSON_GetErrorPtr());
+        free(json_data);
+        return MISSED;
+    	}
+    cJSON *current_element = NULL;
+    cJSON_ArrayForEach(current_element,json) {
+		if(!cJSON_IsObject(current_element)) continue;
+		const char *key = current_element->string; // Get the key name (e.g., "Quantization")
+		if(key == NULL) continue;
+		cJSON *value_field = cJSON_GetObjectItem(current_element,"value");
+		if(value_field == NULL) {
+			BPPrintMessage(0,odError, "=> Key: %s has no 'value' field\n",key);
+			continue;
+			}
+		if(cJSON_IsString(value_field)) {
+			const char *string_value = cJSON_GetStringValue(value_field);
+		//	BPPrintMessage(0, odInfo, "cJSON_IsString %s: %s\n", key, string_value);
+			intvalue = atoi(string_value);
+			floatvalue = strtof(string_value, NULL);
+			}
+		else if(cJSON_IsNumber(value_field)) {
+			intvalue = cJSON_GetNumberValue(value_field);
+			floatvalue = cJSON_GetNumberValue(value_field);
+		//	BPPrintMessage(0, odInfo, "cJSON_IsNumber %s: %f\n", key, intvalue);
+			}
+		else {
+			BPPrintMessage(0, odInfo, "%s: Unsupported 'value' type\n", key);
+			continue;
+			}
+		if(strcmp(key,"Quantization") == 0) Quantization = (long) intvalue;
+		else if(strcmp(key,"Time_resolution") == 0) Time_res = (long) intvalue;
+		else if(strcmp(key,"Sync_delay") == 0) MIDIsyncDelay = intvalue;
+		else if(strcmp(key,"Quantize") == 0) QuantizeOK = intvalue;
+		else if(strcmp(key,"Striated_time") == 0) Nature_of_time = intvalue;
+		else if(strcmp(key,"Pclock") == 0) Pclock = (double) intvalue;
+		else if(strcmp(key,"Qclock") == 0) Qclock = (double) intvalue;
+		else if(strcmp(key,"Non-stop_improvize") == 0) Improvize = intvalue;
+		else if(strcmp(key,"Max_items_produced") == 0) MaxItemsDisplay = intvalue;
+		else if(strcmp(key,"Play_each_substitution") == 0) UseEachSub = intvalue;
+		else if(strcmp(key,"Produce_all_items") == 0) AllItems = intvalue;
+		else if(strcmp(key,"Display_production") == 0) DisplayProduce = intvalue;
+		else if(strcmp(key,"Step-by-step_produce") == 0) StepProduce = intvalue;
+		else if(strcmp(key,"Trace_microtonality") == 0) TraceMicrotonality = intvalue;
+		else if(strcmp(key,"Trace_production") == 0) TraceProduce = intvalue;
+		else if(strcmp(key,"Choose_candidate_rule") == 0) PlanProduce = intvalue;
+		else if(strcmp(key,"Display_final_score") == 0) DisplayItems = intvalue;
+		else if(strcmp(key,"Show_graphics") == 0) {
+			ShowGraphic = intvalue;
+		//	BPPrintMessage(0,odInfo,"ShowGraphic = %d\n",ShowGraphic);
+			}
+		else if(strcmp(key,"Allow_randomize") == 0) AllowRandomize = intvalue;
+		else if(strcmp(key,"Time_setting_display") == 0) DisplayTimeSet = intvalue;
+		else if(strcmp(key,"Time_setting_step") == 0) StepTimeSet = intvalue;
+		else if(strcmp(key,"Time_setting_trace") == 0) TraceTimeSet = intvalue;
+		else if(strcmp(key,"Csound_trace") == 0) CsoundTrace = intvalue;
+		else if(strcmp(key,"Reset_Notes") == 0) ResetNotes = intvalue;
+		else if(strcmp(key,"Compute_while_playing") == 0) ComputeWhilePlay = intvalue;
+		else if(strcmp(key,"Trace_MIDI_interactions") == 0) TraceMIDIinteraction = intvalue;
+		else if(strcmp(key,"Reset_rule_weights") == 0) ResetWeights = intvalue;
+		else if(strcmp(key,"Reset_rule_flags") == 0) ResetFlags = intvalue;
+		else if(strcmp(key,"Reset_controllers") == 0) ResetControllers = intvalue;
+		else if(strcmp(key,"Ignore_constraints") == 0) NoConstraint = intvalue;
+		else if(strcmp(key,"Split_terminal_symbols") == 0) SplitTimeObjects = intvalue;
+		else if(strcmp(key,"Split_|variables|") == 0) SplitVariables = intvalue;
+		else if(strcmp(key,"Default_buffer_size") == 0) {
+			if(intvalue < 100) intvalue = 1000;
+			DeftBufferSize = BufferSize = (long) intvalue;
+			}
+		else if(strcmp(key,"Max_computation_time") == 0) MaxConsoleTime = (long) intvalue;
+		else if(strcmp(key,"Seed_for_randomization") == 0) Seed = (unsigned) (((long) intvalue) % 32768L);
+		else if(strcmp(key,"Note_convention") == 0) NoteConvention = intvalue;
+		else if(strcmp(key,"GraphicScaleP") == 0) GraphicScaleP = intvalue;
+		else if(strcmp(key,"GraphicScaleQ") == 0) GraphicScaleQ = intvalue;
+		else if(strcmp(key,"Fade-out_time") == 0) EndFadeOut = floatvalue;
+		else if(strcmp(key,"C4_(middle_C)_key_number") == 0) C4key = intvalue;
+		else if(strcmp(key,"A4_frequency_(diapason)") == 0) {
+			A4freq = floatvalue;
+		//	BPPrintMessage(0,odInfo,"A4_frequency_ = %.2f\n", A4freq);
+			}
+		else if(strcmp(key,"Strike_again_NoteOn's") == 0) StrikeAgainDefault = intvalue;
+		else if(strcmp(key,"Default_volume") == 0) DeftVolume = intvalue;
+		else if(strcmp(key,"Volume_controller") == 0) VolumeController = intvalue;
+		else if(strcmp(key,"Default_velocity") == 0) DeftVelocity = intvalue;
+		else if(strcmp(key,"Default_panoramic") == 0) DeftPanoramic = intvalue;
+		else if(strcmp(key,"Panoramic_controller") == 0) PanoramicController = intvalue;
+		else if(strcmp(key,"SamplingRate") == 0) SamplingRate = intvalue;
+		else if(strcmp(key,"Default_block_key") == 0) DefaultBlockKey = intvalue;
+		else if(strcmp(key,"Default_block_key_for_scale_in_Csound") == 0) DefaultBlockKey = intvalue; // Old version
+		else if(strcmp(key,"B#_instead_of_C") == 0) NameChoice[0] = intvalue;
+		else if(strcmp(key,"Db_instead_of_C#") == 0) NameChoice[1] = intvalue;
+		else if(strcmp(key,"Eb_instead_of_D#") == 0) NameChoice[3] = intvalue;
+		else if(strcmp(key,"Fb_instead_of_E") == 0) NameChoice[4] = intvalue;
+		else if(strcmp(key,"E#_instead_of_F") == 0) NameChoice[5] = intvalue;
+		else if(strcmp(key,"Gb_instead_of_F#") == 0) NameChoice[6] = intvalue;
+		else if(strcmp(key,"Ab_instead_of_G#") == 0) NameChoice[8] = intvalue;
+		else if(strcmp(key,"Bb_instead_of_A#") == 0) NameChoice[10] = intvalue;
+		else if(strcmp(key,"Cb_instead_of_B") == 0) NameChoice[11] = intvalue;
+		else if(strcmp(key,"ShowObjectGraph") == 0) ShowObjectGraph = intvalue;
+		else if(strcmp(key,"ShowPianoRoll") == 0) ShowPianoRoll = intvalue;
+		}
+	SetTempo(); SetTimeBase();
+	if(Seed > 0) {
+		if(!PlaySelectionOn) BPPrintMessage(0,odInfo, "Random seed = %u as per settings\n", Seed);
+		ResetRandom();
+		}
+	else {
+		if(!PlaySelectionOn) BPPrintMessage(0,odInfo, "Not using a random seed: shuffling the cards\n");
+		Randomize();
+		}
+	if(MaxItemsDisplay < 2) MaxItemsDisplay = 20;
+	if(PlaySelectionOn) Improvize = FALSE;
+	if(AllItems) Improvize = FALSE;
+	if(ShowObjectGraph || ShowPianoRoll) ShowGraphic = TRUE;
+	if(!ShowGraphic) ShowObjectGraph = ShowPianoRoll = FALSE;
+	if(ShowPianoRoll) BPPrintMessage(0,odInfo,"Pianoroll graphics will be displayed\n");
+	if(ShowObjectGraph) BPPrintMessage(0,odInfo,"Object graphics will be displayed\n");
+	BPPrintMessage(0,odInfo,"Metronome will be %.3f beats/mn by default (as per settings)\n",(Qclock * 60.)/Pclock); 
+	if(Nature_of_time == STRIATED) BPPrintMessage(0,odInfo,"Time is STRIATED\n");
+	else BPPrintMessage(0,odInfo,"Time is SMOOTH (no metronome)\n");
+    cJSON_Delete(json);
+    free(json_data);
+
+/* OBSOLETE non-JSON settings file
 	// open the file for reading
 	sefile = my_fopen(1,filename, "rb");
 	if(sefile == NULL) {
@@ -1516,11 +1702,7 @@ int LoadSettings(const char *filename, int startup) {
 	    }
 
 	pos = ZERO; Dirty[iSettings] = Created[iSettings] = FALSE;
-
-	LoadOn++;
-
 	if(ReadOne(FALSE,FALSE,FALSE,sefile,TRUE,&p_line,&p_completeline,&pos) != OK) {
-    //   BPPrintMessage(0,odError,"=> Error reading settings file\n");
         goto ERR;
         }
 	if(trace_load_settings) 
@@ -1537,8 +1719,6 @@ int LoadSettings(const char *filename, int startup) {
         BPPrintMessage(0,odError,"=> Error ReadInteger() in LoadSettings()\n");
         goto ERR;	// serial port used by old built-in Midi driver
         }
-	// if(startup) Port = j;
-
 	if(ReadOne(FALSE,FALSE,TRUE,sefile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;	// Not used but should be kept for consistency
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR; Quantization = k;
     if(trace_load_settings) BPPrintMessage(0,odError, "Quantization = %ld\n",k);
@@ -1547,10 +1727,6 @@ int LoadSettings(const char *filename, int startup) {
 	if(trace_load_settings) BPPrintMessage(0,odError, "MIDIsyncDelay = %d\n",MIDIsyncDelay);
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR; QuantizeOK = j;
 	if(trace_load_settings) BPPrintMessage(0,odError, "QuantizeOK = %d\n",QuantizeOK);
-	#if BP_CARBON_GUI_FORGET_THIS
-	SetTimeAccuracy(); // We'll see later what to do with Time_res
-	Dirty[wTimeAccuracy] = FALSE;
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 	NotSaidKpress = TRUE;
 
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR; Nature_of_time = j;
@@ -1583,7 +1759,6 @@ int LoadSettings(const char *filename, int startup) {
 	if(ReadInteger(sefile,&PlanProduce,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&DisplayItems,&pos) == MISSED) goto ERR; 
 	if(ReadInteger(sefile,&ShowGraphic,&pos) == MISSED) goto ERR;
-	// if(ShowGraphic) BPPrintMessage(0,odInfo,"Graphics activated\n");
 	if(ReadInteger(sefile,&AllowRandomize,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&DisplayTimeSet,&pos) == MISSED) goto ERR; 
 	if(ReadInteger(sefile,&StepTimeSet,&pos) == MISSED) goto ERR; 
@@ -1591,7 +1766,6 @@ int LoadSettings(const char *filename, int startup) {
 	if(jmax > 27) ReadInteger(sefile,&CsoundTrace,&pos);
 	else CsoundTrace = FALSE;
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
-	// rtMIDI  = j;
 	if(ReadInteger(sefile,&ResetNotes,&pos) == MISSED) goto ERR; 
 	if(ReadInteger(sefile,&ComputeWhilePlay,&pos) == MISSED) goto ERR; 
 	if(ReadInteger(sefile,&TraceMIDIinteraction,&pos) == MISSED) goto ERR; // Previously it was 'Interactive'
@@ -1619,18 +1793,11 @@ int LoadSettings(const char *filename, int startup) {
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR;
 	if(k < 100) k = 1000;
 	DeftBufferSize = BufferSize = k;
-	// BPPrintMessage(0,odInfo, "Default buffer size = %ld symbols\n", DeftBufferSize);
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
-	/* UseGraphicsColor = (j > 0);
-	if(ForceTextColor == 1) UseTextColor = TRUE;
-	if(ForceTextColor == -1) UseTextColor = FALSE;
-	if(ForceGraphicColor == 1) UseGraphicsColor = TRUE;
-	if(ForceGraphicColor == -1) UseGraphicsColor = FALSE; */
 	if(ReadInteger(sefile,&UseBufferLimit,&pos) == MISSED) goto ERR;
 	UseBufferLimit = FALSE;
 	if(ReadLong(sefile,&MaxConsoleTime,&pos) == MISSED) goto ERR;
 	if(MaxConsoleTime > 3600) MaxConsoleTime = 3600;
-//   if(trace_load_settings && MaxConsoleTime > 0L) BPPrintMessage(0,odInfo, "MaxConsoleTime = %ld\n",(long)MaxConsoleTime);
     
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR;
 	Seed = (unsigned) (k % 32768L);
@@ -1657,13 +1824,9 @@ int LoadSettings(const char *filename, int startup) {
 	if(ReadInteger(sefile,&GraphicScaleP,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&GraphicScaleQ,&pos) == MISSED) goto ERR;
 
-	#if BP_CARBON_GUI_FORGET_THIS
-	SetGraphicSettings();
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-	/* Read OMS default input device, and ignore it */
+	// Read OMS default input device, and ignore it
 	if(ReadOne(FALSE,FALSE,TRUE,sefile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-	/* Read OMS default output device, and ignore it */
+	// Read OMS default output device, and ignore it
 	if(iv > 5) {
 		if(ReadOne(FALSE,FALSE,TRUE,sefile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 		}
@@ -1684,9 +1847,6 @@ int LoadSettings(const char *filename, int startup) {
 	if(iv > 7) {
 		if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
 		PlayTicks = j;
-	/*	if(PlayTicks && !InitOn && !startup) {
-			ResetMIDI(FALSE); 
-			} */
 		}
 	if(iv > 10) {
 		if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
@@ -1706,7 +1866,6 @@ int LoadSettings(const char *filename, int startup) {
 		if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
 		ProgNrFrom = j;
 		if(ProgNrFrom == 0) {
-	/*		if(Beta) Alert1("Old program numbers"); */
 			ProgNrFrom = 1;
 			}
 		if(ReadFloat(sefile,&x,&pos) == MISSED) goto ERR;
@@ -1728,8 +1887,8 @@ int LoadSettings(const char *filename, int startup) {
 		MIDIfileType = 1;
 		CsoundFileFormat = UNIX;
 		StrikeAgainDefault = TRUE;
-		// C4key = 48;	/* Here we compensate wrong conventions on old projects */
-		// A4freq = 220.;	/* ditto */
+		// C4key = 48;
+		// A4freq = 220.;
 		C4key = 60;
 		A4freq = 440.0;
 		}
@@ -1757,12 +1916,6 @@ int LoadSettings(const char *filename, int startup) {
 		PanoramicController = PANORAMICCONTROL;
 		SamplingRate = SAMPLINGRATE;
 		}
-	#if BP_CARBON_GUI_FORGET_THIS
-	SetFileSavePreferences();
-	SetDefaultPerformanceValues();
-	SetTuning();
-	SetDefaultStrikeMode();
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 	// This block reads in font sizes for Carbon GUI text windows
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
@@ -1794,8 +1947,7 @@ int LoadSettings(const char *filename, int startup) {
 		ShowObjectGraph = j;
 		if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
 		ShowPianoRoll = j;
-		/**** THIS IS WHERE THE SETTINGS FILE ENDS NOW IN BP3 ****/
-		/* Removed code for reading piano roll colors */
+		// THIS IS WHERE THE SETTINGS FILE ENDS NOW IN BP3
 		}
 	else {
 		ShowObjectGraph = TRUE;
@@ -1811,7 +1963,6 @@ int LoadSettings(const char *filename, int startup) {
 	else BPPrintMessage(0,odInfo,"Time is SMOOTH (no metronome)\n");
 
 	if(PlaySelectionOn) Improvize = 0;			
-	/* Removed code for reading "NewEnvironment", window coordinates & text colors */
 
 	goto QUIT;
 
@@ -1821,13 +1972,11 @@ int LoadSettings(const char *filename, int startup) {
 
 	QUIT:
 	MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
-	my_fclose(sefile);
+	my_fclose(sefile); */
 
-	LoadOn--;
-
-	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end LoadSettings = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	return(result);
 	}
+
 
 int LoadObjectPrototypes(int checkversion,int tryname) {
 	char c,date[80],*newp,*name_of_file = NULL, *final_name = NULL;

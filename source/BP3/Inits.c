@@ -544,11 +544,7 @@ int SetNoteNames(void) {
 			}
 		}
 	for(i=0; i < 12; i++) NameChoice[i] = 0;
-	#if BP_CARBON_GUI_FORGET_THIS
-	return(SetNameChoice());
-	#else
 	return(OK);
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 	}
 
 

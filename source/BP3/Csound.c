@@ -2208,7 +2208,6 @@ int FindCsoundInstrument(char* line) {
 	if(line[0] == '\0') {
 		isnumber = FALSE; goto ERR;
 		}
-
 	isnumber = TRUE;
 	for(i=0; i < strlen(line); i++) {
 		if(!isdigit(line[i])) {
