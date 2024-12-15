@@ -255,8 +255,7 @@ int MIDIflush(int quick) {
 	i = 0;
     while(i < eventCount) {
 	//	BPPrintMessage(1,odInfo,"eventStack[%ld].time = %ld, event = %d %d %d, current_time = %ld\n",i,(long)eventStack[i].time, eventStack[i].status,eventStack[i].data1,eventStack[i].data2,current_time);
-	//	if((result = MaybeWait(current_time)) != OK) return result;
-		if(!quick && (result = MaybeWait(current_time)) != OK) return result; // We need it also here
+		if((result = MaybeWait(current_time)) != OK) return result; // We need it also here
         if((eventStack[i].time + TimeStopped) <= current_time) {
             midiData[0] = eventStack[i].status;
 			type = eventStack[i].status & 0xF0;
@@ -297,7 +296,9 @@ int MaybeWait(unsigned long current_time) {
 	check_stop_instructions(time); // This may set StopPlay to TRUE
 	time_now = getClockTime(); // microseconds
 	i = 0L;
-	while(StopPlay) { // The proper input MIDI event will end this loop, setting StopPlay to FALSE
+	while(StopPlay || PausePlay) {
+		// The proper input MIDI event will end this loop, setting StopPlay to FALSE
+		// Or ‘Continue” will be clicked, setting PausePlay to FALSE
 		if((result = stop(1,"Waiting loop")) != OK) return result;
 		WaitABit(5); // milliseconds
 		i++;

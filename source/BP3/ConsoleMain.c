@@ -46,6 +46,8 @@ POSSIBILITY OF SUCH DAMAGE.
 const size_t	READ_ENTIRE_FILE = 0;
 char StopfileName[500] = {0};
 char PanicfileName[500] = {0};
+char PausefileName[500] = {0};
+char ContinuefileName[500] = {0};
 
 // function prototypes
 void ConsoleInit(BPConsoleOpts* opts);
@@ -102,6 +104,7 @@ int main (int argc, char* args[]) {
 	SkipFlag = FALSE;
 	Interactive = FALSE;
 	StopPlay = FALSE;
+	PausePlay = FALSE;
 	TraceMIDIinteraction = FALSE;
 	TimeStopped = Oldtimestopped = 0L;
 	MIDIsyncDelay = 380; // ms default value
@@ -334,6 +337,8 @@ void CreateStopFile(void) {
 	char line[MAXLIN];
 	char* thefile;
 	char* new_thefile;
+	my_sprintf(PausefileName,"%s","../temp_bolprocessor/messages/_pause");
+	my_sprintf(ContinuefileName,"%s","../temp_bolprocessor/messages/_continue");
 	// We may also need to read the "panic" file which is not specific to the project
 	my_sprintf(PanicfileName,"%s","../temp_bolprocessor/messages/_panic");
 	BPPrintMessage(0,odInfo,"Created path to expected '_panic' file: %s\n",PanicfileName);
@@ -393,7 +398,6 @@ FILE* CreateCaptureFile(FILE* oldptr) {
 			return NULL;
 			}
 		ptr = my_fopen(1,new_thefile,"w");
-
 		free(thefile);
 		if(ptr != NULL) {
 	    	BPPrintMessage(0,odInfo,"Creating 'capture' file: %s\n",new_thefile);
@@ -426,6 +430,25 @@ int stop(int now,char* where) {
 		my_fclose(CapturePtr);
 		return ABORT;
 		}
+    if(strlen(ContinuefileName) > 0) {
+		ptr = my_fopen(0,ContinuefileName,"r");
+		if(ptr) {
+			my_fclose(ptr);
+			PausePlay = FALSE;
+			remove(PausefileName);
+			remove(ContinuefileName);
+			return OK;
+			}
+		}
+    if(strlen(PausefileName) > 0) {
+		ptr = my_fopen(0,PausefileName,"r");
+		if(ptr) {
+			my_fclose(ptr);
+			PausePlay = TRUE;
+			my_fclose(CapturePtr);
+			return OK;
+			}
+		}
     if(strlen(PanicfileName) == 0) return OK;
 	ptr = my_fopen(0,PanicfileName,"r");
 	if(ptr) {
@@ -433,7 +456,6 @@ int stop(int now,char* where) {
 		BPPrintMessage(0,odError,"👉 Found 'panic' file: %s\n",PanicfileName);
 		my_fclose(ptr);
 		Panic = EmergencyExit = TRUE;
-        my_fclose(ptr);
 		my_fclose(CapturePtr);
 		return ABORT;
 		}

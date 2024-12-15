@@ -123,7 +123,7 @@ long MaxProc,MaxPerformanceControl;
 int LoadedAlphabet,LoadedStartString;
 INscripttype** p_INscript;
 OUTscripttype** p_OUTscript;
-int StopPlay,TraceMIDIinteraction;
+int StopPlay,PausePlay,TraceMIDIinteraction;
 unsigned long TimeStopped,Oldtimestopped;
 int **p_PerfCtrlNdx,**p_GeneralMIDIpatchNdx,**p_PerfCtrlNArg,**p_ProcNdx,**p_ProcNArg;
 char SubgramType[][TYPELENGTH] = {"RND","ORD","LIN","SUB","SUB1","TEM","POSLONG"};
