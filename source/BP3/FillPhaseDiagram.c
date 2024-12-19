@@ -1330,7 +1330,7 @@ NEWSEQUENCE:
 				BPPrintMessage(0,odInfo,"FillPhaseDiagram() _scale() value = %ld\n",(long)value);
 			if(currentparameters.scale > -1) {
 				int i_scale = FindScale(currentparameters.scale);
-				BPPrintMessage(0,odInfo,"This tonal scale will be used: #%d\n",i_scale);
+				if(trace_scale) BPPrintMessage(0,odInfo,"This tonal scale will be used: #%d\n",i_scale);
 				newkeyval = (p - currentparameters.scale) / MAXSTRINGCONSTANTS;
 				if(DefaultScaleParam == -1) DefaultScaleParam = currentparameters.scale;
 				}

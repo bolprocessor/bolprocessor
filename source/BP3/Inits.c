@@ -94,7 +94,7 @@ int Inits(void) {
 	POLYconvert = OkShowExpand = FALSE;
 	NewOrchestra = TRUE;
 	ItemNumber = ZERO;
-	MaxItemsDisplay = 20;
+	MaxItemsProduce = 20;
 	AssignedTempoCsoundFile = FALSE;
 	MaxConsoleTime = 0; // No limit
 	Ratio = 0.;  Prod = 1.;
@@ -153,7 +153,7 @@ int Inits(void) {
 		}
 	ResetMIDIFilter();
 
-	QuantizeOK = TRUE;
+	Quantize = TRUE;
 	LapWait = ZERO;
 	PrefixTree.p = SuffixTree.p = NULL;
 	PrefixTree.accept = SuffixTree.accept = FALSE;

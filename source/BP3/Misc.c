@@ -1202,7 +1202,7 @@ my_sprintf(line,"%ld",(long)Quantization);
 SetField(NULL, wTimeAccuracy, fQuantize, line);
 my_sprintf(line,"%ld",(long)MIDIsetUpTime);
 SetField(NULL, wTimeAccuracy, fSetUpTime, line);
-if(QuantizeOK) {
+if(Quantize) {
 	GetDialogItem(gpDialogs[wTimeAccuracy],dOff,&itemtype,
 		(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,0);

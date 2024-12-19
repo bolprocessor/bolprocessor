@@ -740,7 +740,7 @@ WRITE:
 		
 		my_sprintf(LineBuff,"%ld\n%ld\n%ld",(long)Quantization,(long)Time_res,(long)MIDIsetUpTime);
 		WriteToFile(NO,MAC,LineBuff,refnum);
-		my_sprintf(LineBuff,"%ld",(long)QuantizeOK); WriteToFile(NO,MAC,LineBuff,refnum);
+		my_sprintf(LineBuff,"%ld",(long)Quantize); WriteToFile(NO,MAC,LineBuff,refnum);
 		my_sprintf(LineBuff,"%ld",(long)Nature_of_time); WriteToFile(NO,MAC,LineBuff,refnum);
 		my_sprintf(LineBuff,"%.0f",(double)Pclock); WriteToFile(NO,MAC,LineBuff,refnum);
 		my_sprintf(LineBuff,"%.0f",(double)Qclock); WriteToFile(NO,MAC,LineBuff,refnum);
@@ -1601,64 +1601,57 @@ int LoadSettings(const char *filename, int startup) {
 			continue;
 			}
 		if(strcmp(key,"Quantization") == 0) Quantization = (long) intvalue;
-		else if(strcmp(key,"Time_resolution") == 0) Time_res = (long) intvalue;
-		else if(strcmp(key,"Sync_delay") == 0) MIDIsyncDelay = intvalue;
-		else if(strcmp(key,"Quantize") == 0) QuantizeOK = intvalue;
-		else if(strcmp(key,"Striated_time") == 0) Nature_of_time = intvalue;
+		else if(strcmp(key,"Time_res") == 0) Time_res = (long) intvalue;
+		else if(strcmp(key,"MIDIsyncDelay") == 0) MIDIsyncDelay = intvalue;
+		else if(strcmp(key,"Quantize") == 0) Quantize = intvalue;
+		else if(strcmp(key,"Nature_of_time") == 0) Nature_of_time = intvalue;
 		else if(strcmp(key,"Pclock") == 0) Pclock = (double) intvalue;
 		else if(strcmp(key,"Qclock") == 0) Qclock = (double) intvalue;
-		else if(strcmp(key,"Non-stop_improvize") == 0) Improvize = intvalue;
-		else if(strcmp(key,"Max_items_produced") == 0) MaxItemsDisplay = intvalue;
-		else if(strcmp(key,"Play_each_substitution") == 0) UseEachSub = intvalue;
-		else if(strcmp(key,"Produce_all_items") == 0) AllItems = intvalue;
-		else if(strcmp(key,"Display_production") == 0) DisplayProduce = intvalue;
-		else if(strcmp(key,"Step-by-step_produce") == 0) StepProduce = intvalue;
-		else if(strcmp(key,"Trace_microtonality") == 0) TraceMicrotonality = intvalue;
-		else if(strcmp(key,"Trace_production") == 0) TraceProduce = intvalue;
-		else if(strcmp(key,"Choose_candidate_rule") == 0) PlanProduce = intvalue;
-		else if(strcmp(key,"Display_final_score") == 0) DisplayItems = intvalue;
-		else if(strcmp(key,"Show_graphics") == 0) {
-			ShowGraphic = intvalue;
-		//	BPPrintMessage(0,odInfo,"ShowGraphic = %d\n",ShowGraphic);
-			}
-		else if(strcmp(key,"Allow_randomize") == 0) AllowRandomize = intvalue;
-		else if(strcmp(key,"Time_setting_display") == 0) DisplayTimeSet = intvalue;
-		else if(strcmp(key,"Time_setting_step") == 0) StepTimeSet = intvalue;
-		else if(strcmp(key,"Time_setting_trace") == 0) TraceTimeSet = intvalue;
-		else if(strcmp(key,"Csound_trace") == 0) CsoundTrace = intvalue;
-		else if(strcmp(key,"Reset_Notes") == 0) ResetNotes = intvalue;
-		else if(strcmp(key,"Compute_while_playing") == 0) ComputeWhilePlay = intvalue;
-		else if(strcmp(key,"Trace_MIDI_interactions") == 0) TraceMIDIinteraction = intvalue;
-		else if(strcmp(key,"Reset_rule_weights") == 0) ResetWeights = intvalue;
-		else if(strcmp(key,"Reset_rule_flags") == 0) ResetFlags = intvalue;
-		else if(strcmp(key,"Reset_controllers") == 0) ResetControllers = intvalue;
-		else if(strcmp(key,"Ignore_constraints") == 0) NoConstraint = intvalue;
-		else if(strcmp(key,"Split_terminal_symbols") == 0) SplitTimeObjects = intvalue;
-		else if(strcmp(key,"Split_|variables|") == 0) SplitVariables = intvalue;
-		else if(strcmp(key,"Default_buffer_size") == 0) {
+		else if(strcmp(key,"Improvize") == 0) Improvize = intvalue;
+		else if(strcmp(key,"Max_items_produced") == 0) MaxItemsProduce = intvalue;
+		else if(strcmp(key,"MaxItemsProduce") == 0) UseEachSub = intvalue;
+		else if(strcmp(key,"AllItems") == 0) AllItems = intvalue;
+		else if(strcmp(key,"DisplayProduce") == 0) DisplayProduce = intvalue;
+		else if(strcmp(key,"StepProduce") == 0) StepProduce = intvalue;
+		else if(strcmp(key,"TraceMicrotonality") == 0) TraceMicrotonality = intvalue;
+		else if(strcmp(key,"TraceProduce") == 0) TraceProduce = intvalue;
+		else if(strcmp(key,"PlanProduce") == 0) PlanProduce = intvalue;
+		else if(strcmp(key,"DisplayItems") == 0) DisplayItems = intvalue;
+		else if(strcmp(key,"ShowGraphic") == 0) ShowGraphic = intvalue;
+		else if(strcmp(key,"AllowRandomize") == 0) AllowRandomize = intvalue;
+		else if(strcmp(key,"DisplayTimeSet") == 0) DisplayTimeSet = intvalue;
+		else if(strcmp(key,"StepTimeSet") == 0) StepTimeSet = intvalue;
+		else if(strcmp(key,"TraceTimeSet") == 0) TraceTimeSet = intvalue;
+		else if(strcmp(key,"CsoundTrace") == 0) CsoundTrace = intvalue;
+		else if(strcmp(key,"ResetNotes") == 0) ResetNotes = intvalue;
+		else if(strcmp(key,"ComputeWhilePlay") == 0) ComputeWhilePlay = intvalue;
+		else if(strcmp(key,"TraceMIDIinteraction") == 0) TraceMIDIinteraction = intvalue;
+		else if(strcmp(key,"ResetWeights") == 0) ResetWeights = intvalue;
+		else if(strcmp(key,"ResetFlags") == 0) ResetFlags = intvalue;
+		else if(strcmp(key,"ResetControllers") == 0) ResetControllers = intvalue;
+		else if(strcmp(key,"NoConstraint") == 0) NoConstraint = intvalue;
+		else if(strcmp(key,"SplitTimeObjects") == 0) SplitTimeObjects = intvalue;
+		else if(strcmp(key,"Split_|SplitVariables|") == 0) SplitVariables = intvalue;
+		else if(strcmp(key,"DeftBufferSize") == 0) {
 			if(intvalue < 100) intvalue = 1000;
-			DeftBufferSize = BufferSize = (long) intvalue;
+			DeftBufferSize = (long) intvalue;
 			}
-		else if(strcmp(key,"Max_computation_time") == 0) MaxConsoleTime = (long) intvalue;
-		else if(strcmp(key,"Seed_for_randomization") == 0) Seed = (unsigned) (((long) intvalue) % 32768L);
-		else if(strcmp(key,"Note_convention") == 0) NoteConvention = intvalue;
+		else if(strcmp(key,"MaxConsoleTime") == 0) MaxConsoleTime = (long) intvalue;
+		else if(strcmp(key,"Seed") == 0) Seed = (unsigned) (((long) intvalue) % 32768L);
+		else if(strcmp(key,"NoteConvention") == 0) NoteConvention = intvalue;
 		else if(strcmp(key,"GraphicScaleP") == 0) GraphicScaleP = intvalue;
 		else if(strcmp(key,"GraphicScaleQ") == 0) GraphicScaleQ = intvalue;
-		else if(strcmp(key,"Fade-out_time") == 0) EndFadeOut = floatvalue;
-		else if(strcmp(key,"C4_(middle_C)_key_number") == 0) C4key = intvalue;
-		else if(strcmp(key,"A4_frequency_(diapason)") == 0) {
-			A4freq = floatvalue;
-		//	BPPrintMessage(0,odInfo,"A4_frequency_ = %.2f\n", A4freq);
-			}
-		else if(strcmp(key,"Strike_again_NoteOn's") == 0) StrikeAgainDefault = intvalue;
-		else if(strcmp(key,"Default_volume") == 0) DeftVolume = intvalue;
-		else if(strcmp(key,"Volume_controller") == 0) VolumeController = intvalue;
-		else if(strcmp(key,"Default_velocity") == 0) DeftVelocity = intvalue;
-		else if(strcmp(key,"Default_panoramic") == 0) DeftPanoramic = intvalue;
-		else if(strcmp(key,"Panoramic_controller") == 0) PanoramicController = intvalue;
+		else if(strcmp(key,"EndFadeOut") == 0) EndFadeOut = floatvalue;
+		else if(strcmp(key,"C4key") == 0) C4key = intvalue;
+		else if(strcmp(key,"A4freq") == 0) A4freq = floatvalue;
+		else if(strcmp(key,"StrikeAgainDefault") == 0) StrikeAgainDefault = intvalue;
+		else if(strcmp(key,"DeftVolume") == 0) DeftVolume = intvalue;
+		else if(strcmp(key,"VolumeController") == 0) VolumeController = intvalue;
+		else if(strcmp(key,"DeftVelocity") == 0) DeftVelocity = intvalue;
+		else if(strcmp(key,"DeftPanoramic") == 0) DeftPanoramic = intvalue;
+		else if(strcmp(key,"PanoramicController") == 0) PanoramicController = intvalue;
 		else if(strcmp(key,"SamplingRate") == 0) SamplingRate = intvalue;
-		else if(strcmp(key,"Default_block_key") == 0) DefaultBlockKey = intvalue;
-		else if(strcmp(key,"Default_block_key_for_scale_in_Csound") == 0) DefaultBlockKey = intvalue; // Old version
+		else if(strcmp(key,"DefaultBlockKey") == 0) DefaultBlockKey = intvalue;
 		else if(strcmp(key,"B#_instead_of_C") == 0) NameChoice[0] = intvalue;
 		else if(strcmp(key,"Db_instead_of_C#") == 0) NameChoice[1] = intvalue;
 		else if(strcmp(key,"Eb_instead_of_D#") == 0) NameChoice[3] = intvalue;
@@ -1671,6 +1664,7 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"ShowObjectGraph") == 0) ShowObjectGraph = intvalue;
 		else if(strcmp(key,"ShowPianoRoll") == 0) ShowPianoRoll = intvalue;
 		}
+	BufferSize = DeftBufferSize;
 	SetTempo(); SetTimeBase();
 	if(Seed > 0) {
 		if(!PlaySelectionOn) BPPrintMessage(0,odInfo, "Random seed = %u as per settings\n", Seed);
@@ -1680,7 +1674,7 @@ int LoadSettings(const char *filename, int startup) {
 		if(!PlaySelectionOn) BPPrintMessage(0,odInfo, "Not using a random seed: shuffling the cards\n");
 		Randomize();
 		}
-	if(MaxItemsDisplay < 2) MaxItemsDisplay = 20;
+	if(MaxItemsProduce < 2) MaxItemsProduce = 20;
 	if(PlaySelectionOn) Improvize = FALSE;
 	if(AllItems) Improvize = FALSE;
 	if(ShowObjectGraph || ShowPianoRoll) ShowGraphic = TRUE;
@@ -1725,8 +1719,8 @@ int LoadSettings(const char *filename, int startup) {
 	if(ReadLong(sefile,&k,&pos) == MISSED) goto ERR; Time_res = k;
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR; MIDIsetUpTime = j;
 	if(trace_load_settings) BPPrintMessage(0,odError, "MIDIsyncDelay = %d\n",MIDIsyncDelay);
-	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR; QuantizeOK = j;
-	if(trace_load_settings) BPPrintMessage(0,odError, "QuantizeOK = %d\n",QuantizeOK);
+	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR; Quantize = j;
+	if(trace_load_settings) BPPrintMessage(0,odError, "Quantize = %d\n",Quantize);
 	NotSaidKpress = TRUE;
 
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR; Nature_of_time = j;
@@ -1747,8 +1741,8 @@ int LoadSettings(const char *filename, int startup) {
 	if(ReadInteger(sefile,&Improvize,&pos) == MISSED) goto ERR;
 	if(trace_load_settings) BPPrintMessage(0,odError, "Improvize = %d\n",Improvize);
 	if(PlaySelectionOn) Improvize = FALSE;
-	if(ReadInteger(sefile,&MaxItemsDisplay,&pos) == MISSED) goto ERR;
-	if(MaxItemsDisplay < 2) MaxItemsDisplay = 20;
+	if(ReadInteger(sefile,&MaxItemsProduce,&pos) == MISSED) goto ERR;
+	if(MaxItemsProduce < 2) MaxItemsProduce = 20;
 	if(ReadInteger(sefile,&UseEachSub,&pos) == MISSED) goto ERR;
 	if(ReadInteger(sefile,&AllItems,&pos) == MISSED) goto ERR;
 	if(AllItems) Improvize = FALSE;

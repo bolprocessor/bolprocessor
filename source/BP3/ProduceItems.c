@@ -51,7 +51,7 @@ unsigned long time_end_compute;
 BPPrintMessage(0,odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
 if(Improvize && ItemNumber == 0) {
 	ShowMessage(TRUE,wMessage,"\n👉 Most of the messages will be discarded during the improvisation\n");
-	if(!rtMIDI) BPPrintMessage(1,odInfo,"Only %ld items will be produced.\n",MaxItemsDisplay);
+	if(!rtMIDI) BPPrintMessage(1,odInfo,"Only %ld items will be produced.\n",MaxItemsProduce);
 	}
 time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
 
@@ -172,7 +172,7 @@ r = OK;
 		AppendScript(73);
 		}
 	else AppendScript(47);
-	if(QuantizeOK) {
+	if(Quantize) {
 		my_sprintf(Message,"%ld",(long) Quantization);
 		MystrcpyStringToTable(ScriptLine.arg,0,Message);
 		AppendScript(65);
@@ -230,7 +230,7 @@ if(!PlaySelectionOn && DisplayProduce) {
 	Print(wTrace,"\n");
 	}
 if(Improvize) {
-	if(!rtMIDI && ItemNumber > MaxItemsDisplay) {
+	if(!rtMIDI && ItemNumber > MaxItemsProduce) {
 		BPPrintMessage(0,odInfo,"%ld items have been produced.\n",(long)ItemNumber);
 		Improvize =  FALSE;
 		r = ABORT;
@@ -1843,7 +1843,7 @@ int CheckItemProduced(t_gram *p_gram,int igram,tokenbyte ***pp_a,long *p_length,
 					result = PlayBuffer(pp_a,NO);
 					}
 				}
-			if(ItemNumber >= MaxItemsDisplay) {
+			if(ItemNumber >= MaxItemsProduce) {
 				BPPrintMessage(0,odInfo,"%ld items have been produced, as per the limit in settings.\n",(long)ItemNumber);
 				result = ABORT;
 				goto END;

@@ -330,14 +330,14 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	if(Pclock > 0.) {
 		kpress = 1. + (((double)Quantization) * Qclock * Ratio) / Pclock / 1000.;
 		kpress = floor(1.00001 * kpress);
-		if(QuantizeOK && kpress > 1.) {
+		if(Quantize && kpress > 1.) {
 			s = LCM(Ratio,kpress,&overflow) / Ratio;
 			if(s > 1. && s < 10. && Ratio < 1000000.) Ratio = Round(s * Ratio);
 			s = Round(Ratio / kpress);
 			if(s > 10.) Ratio = kpress * s;
 			Prod = Ratio;
 			}
-		if(QuantizeOK) {
+		if(Quantize) {
 			Kpress = kpress;
 			BPPrintMessage(0,odInfo,"Using quantization = %ld ms with compression rate = %.0f\n",(long)Quantization,(double)Kpress);
 			}
@@ -345,7 +345,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 			if((kpress >= 4. && NotSaidKpress) || kpress >= 100.) {
 				NotSaidKpress = FALSE;
 				BPPrintMessage(0,odInfo,"Forcing quantization to %ld ms\n",Quantization);
-				QuantizeOK = TRUE;
+				Quantize = TRUE;
 				goto FINDCOMPRESSION;
 				}
 			}
@@ -634,7 +634,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 			SetTimeBase();
 			SetGrammarTempo();
 			}
-		if(!QuantizeOK) {
+		if(!Quantize) {
 			BPActivateWindow(SLOW,wTimeAccuracy);
 			rep = Answer("Set 'Quantize' to true (no other way!)",'Y');
 			if(rep != YES && Answer("Do you really want to abort this job",'Y') == YES) {
@@ -642,7 +642,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 				goto QUIT;
 				}
 			newquantize = Quantization;
-			QuantizeOK = TRUE;
+			Quantize = TRUE;
 			goto SETQUANTIZE;
 			}
 		else if(Pclock > 0.) {

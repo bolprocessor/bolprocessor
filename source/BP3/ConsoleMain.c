@@ -445,19 +445,20 @@ int stop(int now,char* where) {
 		if(ptr) {
 			my_fclose(ptr);
 			PausePlay = TRUE;
-			my_fclose(CapturePtr);
-			return OK;
+		//	my_fclose(CapturePtr);
+			return OK; // The pause file is not deleted immediately
 			}
 		}
-    if(strlen(PanicfileName) == 0) return OK;
-	ptr = my_fopen(0,PanicfileName,"r");
-	if(ptr) {
-		Improvize = PlayAllChunks = FALSE;
-		BPPrintMessage(0,odError,"👉 Found 'panic' file: %s\n",PanicfileName);
-		my_fclose(ptr);
-		Panic = EmergencyExit = TRUE;
-		my_fclose(CapturePtr);
-		return ABORT;
+    if(strlen(PanicfileName) > 0) {
+		ptr = my_fopen(0,PanicfileName,"r");
+		if(ptr) {
+			Improvize = PlayAllChunks = FALSE;
+			BPPrintMessage(0,odError,"👉 Found 'panic' file: %s\n",PanicfileName);
+			my_fclose(ptr);
+			Panic = EmergencyExit = TRUE;
+			my_fclose(CapturePtr);
+			return ABORT;
+			}
 		}
 	return OK;
 	}

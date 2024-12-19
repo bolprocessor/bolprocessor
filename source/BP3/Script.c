@@ -114,7 +114,7 @@ my_sprintf(Message,"Running script '%s'\nExecute step by step",FileName[w]);
 if(!quick && (r=Answer(Message,'N')) == OK) StepScript = TRUE;
 if(r == ABORT) goto QUIT1;
 ScriptExecOn = 1; OkWait = OK;
-MoreTime = FALSE; MaxItemsDisplay = ZERO;
+MoreTime = FALSE; MaxItemsProduce = ZERO;
 HideTicks = FALSE;
 CurrentDir = WindowParID[wScript];
 CurrentVref = TheVRefNum[wScript];
@@ -188,7 +188,7 @@ for(i=1; i <= MAXCHAN; i++) {
 	p_keyon[i] = NULL;
 	}
 if(w == wScript) {
-	MaxItemsDisplay = ZERO; OkWait = OK;
+	MaxItemsProduce = ZERO; OkWait = OK;
 	ForceTextColor = ForceGraphicColor = 0;
 	OutputWindow = wData;
 	BPActivateWindow(SLOW,w);

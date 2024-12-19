@@ -847,7 +847,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			break;
 		case 52:	/* Quantize on */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
-			if(!check) QuantizeOK = TRUE;
+			if(!check) Quantize = TRUE;
 		/*	if((r=WaitForEmptyBuffer()) != OK) return(r); */
 			break;
 		/* case 53:	// Reset keyboard
@@ -1012,7 +1012,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			break;
 		case 72:	/* Quantize off */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
-			if(!check) QuantizeOK = FALSE;
+			if(!check) Quantize = FALSE;
 			break;
 	/*	case 73:	// Default buffer size
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
@@ -1704,7 +1704,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			if((r=WaitForEmptyBuffer()) != OK) return(r);
 			ItemNumber = ZERO;
-			MaxItemsDisplay = (*(ScriptLine.intarg))[0];
+			MaxItemsProduce = (*(ScriptLine.intarg))[0];
 			ReadKeyBoardOn = FALSE; Jcontrol = -1;
 		/*	if(rtMIDI && Interactive && !LoadedIn) {
 				if(GetInName(wData) != OK) GetInName(wGrammar);

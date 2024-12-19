@@ -59,6 +59,7 @@ MIDI input
 Real-time MIDI
 --------------
 
+- Implement “Compute while playing”
 - Set _part() instructions when importing multi-part MusicXML scores. Also suggest a conversion of _part() to _ins() for creating Csound scores, and vice-versa.
 - Why is kcurrentinstance (12) > Maxevent (10) in -gr.koto3 ?
 - Use client:port as MIDI input/output on Linux.  Currently, only the client is mentioned in the settings. Some devices might allocate several ports to the same client.
