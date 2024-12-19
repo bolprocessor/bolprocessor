@@ -249,7 +249,7 @@ int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll) {
 
 	// if(!PlaySelectionOn && ++ItemNumber > INT_MAX) ItemNumber = 1L;
 	if(!PlaySelectionOn && ItemNumber > INT_MAX) ItemNumber = 1L;
-/*	if(r != EXIT && MaxItemsDisplay > ZERO && ItemNumber >= MaxItemsDisplay && !onlypianoroll) {
+/*	if(r != EXIT && MaxItemsProduce > ZERO && ItemNumber >= MaxItemsProduce && !onlypianoroll) {
 		// Script ordered to terminate production
 		SoundOn = TRUE;
 		r = WaitForEmptyBuffer();

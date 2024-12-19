@@ -198,7 +198,7 @@ long ProduceStackDepth,ProduceStackIndex,DisplayStackIndex,
 	**p_LastStackIndex,**p_MemPos;
 long **p_ItemStart,**p_ItemEnd,CompileDate,ComputeStart,MaxComputeTime,
 	ComputeTime,ItemNumber,Interrupted,MaxDeriv,Sel1,Sel2,AssignedTempoCsoundFile;
-int Nplay,SynchroSignal,QuantizeOK,IgnoreCase,MatchWords,
+int Nplay,SynchroSignal,Quantize,IgnoreCase,MatchWords,
 	TargetWindow,GraphicScaleP,GraphicScaleQ;
 long Time_res,Quantization;
 volatile unsigned long TimeSlice;
@@ -273,7 +273,7 @@ short Maxlevel,MaxFlag,MaxScript,Jscriptline,Final,POLYconvert,
 	KeepFlag,CoverOK,DiscontinuityOK,AllSolTimeSet,
 	LimCompute,LimTimeSet,SkipFlag,StackFlag,PlayFromInsertionPoint,
 	Port,Portbit,MIDI;
-int MaxItemsDisplay;
+int MaxItemsProduce;
 int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,TraceMicrotonality,DisplayProduce,TraceProduce,UseTimeLimit,
 	DisplayTimeSet,StepTimeSet,UseEachSub,PlanProduce,TraceTimeSet,ResetNotes;
 int InsertGramRuleNumbers, InsertGramCorrections, InsertNewBols;
