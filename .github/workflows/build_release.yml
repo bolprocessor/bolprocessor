@@ -18,14 +18,14 @@ jobs:
 
     - name: Install GCC
       run: |
-      if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-        sudo apt-get update
-        sudo apt-get install build-essential
-      elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-        brew install gcc
-      elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-        choco install mingw
-      fi
+        if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+          sudo apt-get update
+          sudo apt-get install build-essential
+        elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+          brew install gcc
+        elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          choco install mingw
+        fi
 
     - name: Build binary
       run: |
