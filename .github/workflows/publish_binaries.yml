@@ -28,6 +28,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         build_type: [Release]
         c_compiler: [gcc]
+        architecture: [x86_64, arm64]
         include:
           - os: windows-latest
             c_compiler: gcc
@@ -41,12 +42,20 @@ jobs:
       - name: Set up upload URL
         run: echo "UPLOAD_URL=${{ needs.create_release.outputs.upload_url }}" >> $GITHUB_ENV
 
+      - name: Set up ${{ matrix.c_compiler }}
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+        uses: actions/setup-${{ matrix.c_compiler }}@v1
+        
       - name: Install ALSA lib on Ubuntu
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev
 
       - name: Make build directory
-        run: make
+        run: |
+          if [ "${{ matrix.os }}" == "macos-latest" ]; then
+            export CFLAGS="-arch ${{ matrix.architecture }}"
+          fi
+          make
 
       - name: Upload Release Asset
         if: matrix.os == 'ubuntu-latest'
@@ -56,7 +65,7 @@ jobs:
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
           asset_path: ./bp3
-          asset_name: bp3-${{ matrix.os }}-${{ matrix.c_compiler }}
+          asset_name: bp3-${{ matrix.os }}-${{ matrix.architecture }}-${{ matrix.c_compiler }}
           asset_content_type: application/octet-stream
         
       - name: Upload Release Asset
@@ -67,7 +76,7 @@ jobs:
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
           asset_path: ./bp
-          asset_name: bp3-${{ matrix.os }}-${{ matrix.c_compiler }}
+          asset_name: bp3-${{ matrix.os }}-${{ matrix.architecture }}-${{ matrix.c_compiler }}
           asset_content_type: application/octet-stream
 
       - name: Upload Release Asset
@@ -78,5 +87,5 @@ jobs:
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
           asset_path: ./bp.exe
-          asset_name: bp3-${{ matrix.os }}-${{ matrix.c_compiler }}.exe
+          asset_name: bp3-${{ matrix.os }}-${{ matrix.architecture }}-${{ matrix.c_compiler }}.exe
           asset_content_type: application/octet-stream
