@@ -17,25 +17,8 @@ RUN mkdir -p /etc/modules-load.d/
 RUN mkdir -p /etc/modprobe.d/
 RUN touch /etc/modules-load.d/virmidi.conf
 RUN touch /etc/modprobe.d/virmidi-options.conf
-
-
-RUN wget https://sourceforge.net/projects/xampp/files/XAMPP%20Linux/8.2.12/xampp-linux-x64-8.2.12-0-installer.run/download -O xampp-installer.run
-RUN chmod +x xampp-installer.run
-RUN ./xampp-installer.run
-
-WORKDIR /opt/lampp/htdocs/bolprocessor/
-# copy from the bp3-ctests image
-COPY --from=bp3-ctests /bp3-ctests /opt/lampp/htdocs/bolprocessor/bp3-ctests
-COPY --from=php-frontend /php-frontend/php /opt/lampp/htdocs/bolprocessor/
-COPY --from=php-frontend /php-frontend/csound_resources /opt/lampp/htdocs/bolprocessor/php-frontend/csound_resources
-
-# copy the bolprocessor source code
-COPY ./source/ /opt/lampp/htdocs/bolprocessor/
-COPY ./Makefile /opt/lampp/htdocs/bolprocessor/
-ARG BP3_TAG
-ADD https://github.com/JonZudell/bolprocessor/releases/download/v0.1.69/bp3-ubuntu-latest-gcc ./bp3-ubuntu-latest-gcc
+ADD https://github.com/JonZudell/bolprocessor/releases/download/v0.1.70/bp3-ubuntu-latest-gcc ./bp3-ubuntu-latest-gcc
 RUN chmod +x bp3-ubuntu-latest-gcc
-RUN chown -R daemon:daemon /opt/lampp/htdocs/bolprocessor/
-RUN chmod 777 /opt/lampp/htdocs/bolprocessor/
+
 
 CMD [ "/opt/lamp/lamp" "start" ]
