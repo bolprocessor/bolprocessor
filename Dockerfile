@@ -33,9 +33,9 @@ COPY --from=php-frontend /php-frontend/csound_resources /opt/lampp/htdocs/bolpro
 COPY ./source/ /opt/lampp/htdocs/bolprocessor/
 COPY ./Makefile /opt/lampp/htdocs/bolprocessor/
 ARG BP3_TAG
-ADD https://github.com/JonZudell/bolprocessor/releases/download/v0.1.66/bp3-ubuntu-latest-gcc ./bp3-ubuntu-latest-gcc
+ADD https://github.com/JonZudell/bolprocessor/releases/download/v0.1.69/bp3-ubuntu-latest-gcc ./bp3-ubuntu-latest-gcc
 RUN chmod +x bp3-ubuntu-latest-gcc
 RUN chown -R daemon:daemon /opt/lampp/htdocs/bolprocessor/
 RUN chmod 777 /opt/lampp/htdocs/bolprocessor/
-ENTRYPOINT [ "sh" ]
+
 CMD [ "/opt/lamp/lamp" "start" ]
