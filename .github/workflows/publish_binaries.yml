@@ -59,7 +59,9 @@ jobs:
           asset_name: bp-${{ matrix.os }}-${{ matrix.c_compiler }}
           asset_content_type: application/zip
             - name: Upload Release Asset
-      if: matrix.os == 'darwin-latest'
+        
+      - name: Upload Release Asset
+        if: matrix.os == 'darwin-latest'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -69,8 +71,9 @@ jobs:
           asset_name: bp-${{ matrix.os }}-${{ matrix.c_compiler }}
           asset_content_type: application/zip
             - name: Upload Release Asset
-            
-      if: matrix.os == 'windows-latest'
+
+      - name: Upload Release Asset
+        if: matrix.os == 'windows-latest'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
