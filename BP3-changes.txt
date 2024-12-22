@@ -6,10 +6,15 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+2024-12-22 (version 3.0.18)
+This version supports the "Respond to Stop/Continue" option, which allows you to interrupt a performance and insert a musical phrase during the pause.
+More details on: 
+https://bp3.tech/real-time-midi/#using-control-messages-to-interrupt-a-performance
+Don't forget to update the PHP interface!
 
+-----
 2024-12-19 (version 3.0.17)
 Settings have been structured to facilitate future development.
-Don't forget to update the PHP interface!
 
 -----
 2024-12-15 (version 3.0.16)

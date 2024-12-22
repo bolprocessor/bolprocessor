@@ -242,7 +242,7 @@ int Inits(void) {
 	ClockInitCapture = -1L;
 	PointCsound = PointMIDI = FALSE;
 	CsFileName[0] = MIDIfileName[0] = CsoundOrchestraName[0] = '\0';
-	EndFadeOut = 2.;
+	EndFadeOut = 2.; AdvanceTime = 0.0;
 	MIDIfileOpened = FALSE;
 	// MIDIfileReply = CsFileReply = NULL;
 	if((p_Oldvalue = (MIDIcontrolstatus**)
@@ -354,6 +354,7 @@ int Inits(void) {
 	RunningStatus = 0; NoRepeat = FALSE;
 	ScriptSyncKey = ScriptSyncChan = -1;
 	StrikeAgainDefault = TRUE;
+	StopPauseContinue = TRUE;
 	MIDImicrotonality = FALSE;
 	Jwheel = Jfeet = Jdisk = 0;
 	EmptyBeat = TRUE;

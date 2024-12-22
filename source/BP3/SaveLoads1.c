@@ -1571,8 +1571,8 @@ int LoadSettings(const char *filename, int startup) {
 		}
 	cJSON *json = cJSON_Parse(json_data);
     if(!json) {
-        BPPrintMessage(0,odError,"=> Could not parse JSON: %s\n",cJSON_GetErrorPtr());
-        free(json_data);
+        BPPrintMessage(0,odError,"=> Could not parse JSON settings: %s\n",cJSON_GetErrorPtr());
+		free(json_data);
         return MISSED;
     	}
     cJSON *current_element = NULL;
@@ -1625,6 +1625,7 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"CsoundTrace") == 0) CsoundTrace = intvalue;
 		else if(strcmp(key,"ResetNotes") == 0) ResetNotes = intvalue;
 		else if(strcmp(key,"ComputeWhilePlay") == 0) ComputeWhilePlay = intvalue;
+		else if(strcmp(key,"AdvanceTime") == 0) AdvanceTime = floatvalue;
 		else if(strcmp(key,"TraceMIDIinteraction") == 0) TraceMIDIinteraction = intvalue;
 		else if(strcmp(key,"ResetWeights") == 0) ResetWeights = intvalue;
 		else if(strcmp(key,"ResetFlags") == 0) ResetFlags = intvalue;
@@ -1632,10 +1633,7 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"NoConstraint") == 0) NoConstraint = intvalue;
 		else if(strcmp(key,"SplitTimeObjects") == 0) SplitTimeObjects = intvalue;
 		else if(strcmp(key,"Split_|SplitVariables|") == 0) SplitVariables = intvalue;
-		else if(strcmp(key,"DeftBufferSize") == 0) {
-			if(intvalue < 100) intvalue = 1000;
-			DeftBufferSize = (long) intvalue;
-			}
+		else if(strcmp(key,"DeftBufferSize") == 0) DeftBufferSize = (long) intvalue;
 		else if(strcmp(key,"MaxConsoleTime") == 0) MaxConsoleTime = (long) intvalue;
 		else if(strcmp(key,"Seed") == 0) Seed = (unsigned) (((long) intvalue) % 32768L);
 		else if(strcmp(key,"NoteConvention") == 0) NoteConvention = intvalue;
@@ -1651,6 +1649,7 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"DeftPanoramic") == 0) DeftPanoramic = intvalue;
 		else if(strcmp(key,"PanoramicController") == 0) PanoramicController = intvalue;
 		else if(strcmp(key,"SamplingRate") == 0) SamplingRate = intvalue;
+		else if(strcmp(key,"StopPauseContinue") == 0) StopPauseContinue = intvalue;
 		else if(strcmp(key,"DefaultBlockKey") == 0) DefaultBlockKey = intvalue;
 		else if(strcmp(key,"B#_instead_of_C") == 0) NameChoice[0] = intvalue;
 		else if(strcmp(key,"Db_instead_of_C#") == 0) NameChoice[1] = intvalue;
@@ -1664,15 +1663,24 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"ShowObjectGraph") == 0) ShowObjectGraph = intvalue;
 		else if(strcmp(key,"ShowPianoRoll") == 0) ShowPianoRoll = intvalue;
 		}
+	if(DeftBufferSize < 100) DeftBufferSize = 1000;
 	BufferSize = DeftBufferSize;
 	SetTempo(); SetTimeBase();
 	if(Seed > 0) {
-		if(!PlaySelectionOn) BPPrintMessage(0,odInfo, "Random seed = %u as per settings\n", Seed);
+		if(!PlaySelectionOn) BPPrintMessage(0,odInfo,"Random seed = %u as per settings\n", Seed);
 		ResetRandom();
 		}
 	else {
-		if(!PlaySelectionOn) BPPrintMessage(0,odInfo, "Not using a random seed: shuffling the cards\n");
+		if(!PlaySelectionOn) BPPrintMessage(0,odInfo,"Not using a random seed: shuffling the cards\n");
 		Randomize();
+		}
+	if(rtMIDI && !ComputeWhilePlay) {
+		BPPrintMessage(0,odInfo,"Compute while playing is off\n");
+		if(AdvanceTime > 0.) BPPrintMessage(0,odInfo,"➡ Advance time limit = %.2f seconds\n",AdvanceTime);
+		else BPPrintMessage(0,odInfo,"➡ No advance time allowed\n");
+		}
+	if(rtMIDI && StopPauseContinue) {
+		BPPrintMessage(0,odInfo,"Stop/Pause/Continue messages will control the performance\n");
 		}
 	if(MaxItemsProduce < 2) MaxItemsProduce = 20;
 	if(PlaySelectionOn) Improvize = FALSE;

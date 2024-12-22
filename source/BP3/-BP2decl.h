@@ -116,7 +116,7 @@ extern time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTi
 extern unsigned long NextStop;
 extern char FindString[256],ReplaceString[256];
 extern t_gram Gram,GlossGram;
-extern int RunningStatus,StrikeAgainDefault,MIDImicrotonality;
+extern int RunningStatus,StrikeAgainDefault,StopPauseContinue,MIDImicrotonality;
 extern int NoteOffPass[MAXPORTS],NoteOnPass[MAXPORTS],KeyPressurePass[MAXPORTS],ControlTypePass[MAXPORTS],ProgramTypePass[MAXPORTS],
 	ChannelPressurePass[MAXPORTS],PitchBendPass[MAXPORTS],SysExPass[MAXPORTS],TimeCodePass[MAXPORTS],SongPosPass[MAXPORTS],SongSelPass[MAXPORTS],TuneTypePass[MAXPORTS],EndSysExPass[MAXPORTS],ClockTypePass[MAXPORTS],StartTypePass[MAXPORTS],ContTypePass[MAXPORTS],ActiveSensePass[MAXPORTS],ResetPass[MAXPORTS];
 extern int NoteOffIn[MAXPORTS],NoteOnIn[MAXPORTS],KeyPressureIn[MAXPORTS],ControlTypeIn[MAXPORTS],ProgramTypeIn[MAXPORTS],
@@ -350,7 +350,7 @@ extern int Created[WMAX];
 extern char FileName[WMAX][MAXNAME+1],CsFileName[MAXNAME+1],MIDIfileName[MAXNAME+1],
 	CsoundOrchestraName[MAXNAME+1];
 // extern FSSpec MIDIfileSpec;
-extern float EndFadeOut;
+extern float EndFadeOut,AdvanceTime;
 extern int CurrentVolume[MAXCHAN+1];
 extern char FilePrefix[WMAX][5];
 extern char FileOldPrefix[WMAX][5];

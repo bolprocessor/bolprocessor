@@ -343,6 +343,26 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 	c0 = e->status;
 	channel = (c0 % 16) + 1;
 	c = c0 - channel + 1;
+	if(Interactive) {
+		if(StopPauseContinue && c0 == Stop) {
+			StopPlay = TRUE;
+			if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"👉 Received Stop message\n");
+			return(OK);
+			}
+		if(StopPauseContinue && c0 == Continue) {
+			StopPlay = FALSE;
+			if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"👉 Received Continue message\n");
+			return(OK);
+			}
+		}
+	switch(c0) {
+		case Start:
+		case Continue:
+		case Stop:
+			StopWaiting(c0,'\0');
+			return(OK);
+			break;
+		}
 	if(packet->length > 1 && !ThreeByteChannelEvent(c)) {  // REVISE THIS!
 		RunningStatus = 0;
 		if(c0 < 128) return(OK);
@@ -402,19 +422,11 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 		e->data2 = c0;
 		return(OK);
 		}
-	switch(c0) {
-		case Start:
-		case Continue:
-		case Stop:
-			StopWaiting(c0,'\0');
-			return(OK);
-			break;
-		}
 	RunningStatus = c0;
 	c1 = e->data1;
 	c2 = e->data2;
 
-	INTERPRET:
+INTERPRET:
 	c = c0 - c0 % 16;
 	if(filter && c2 != 0 && (x0 == 0 || x0 == c0) && (x1 == 0 || x1 == c1)
 				&& (x2 == 0 || x2 == c2)) return(RESUME);
@@ -635,7 +647,6 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 					continue;
 					}
 				thisscripttime = ((*p_INscript)[j]).time + TimeStopped;
-		//		thisscripttime = ((*p_INscript)[j]).time + Oldtimestopped;
 				// We won't verify that velocity (c2) is greater than zero, because a NoteOn with velocity zero can be used as a soundless instruction
 				if(channel == ((*p_INscript)[j]).chan && c1 == ((*p_INscript)[j]).key && time_now > thisscripttime) {
 					if(TraceMIDIinteraction) {

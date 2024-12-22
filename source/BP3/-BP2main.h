@@ -162,7 +162,7 @@ time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTime,Time
 unsigned long NextStop;
 char FindString[256],ReplaceString[256];
 char OutFileName[MAXLIN];
-int RunningStatus,StrikeAgainDefault,MIDImicrotonality;
+int RunningStatus,StrikeAgainDefault,StopPauseContinue,MIDImicrotonality;
 int NoteOffPass[MAXPORTS],NoteOnPass[MAXPORTS],KeyPressurePass[MAXPORTS],ControlTypePass[MAXPORTS],ProgramTypePass[MAXPORTS],
 	ChannelPressurePass[MAXPORTS],PitchBendPass[MAXPORTS],SysExPass[MAXPORTS],TimeCodePass[MAXPORTS],SongPosPass[MAXPORTS],SongSelPass[MAXPORTS],TuneTypePass[MAXPORTS],EndSysExPass[MAXPORTS],ClockTypePass[MAXPORTS],StartTypePass[MAXPORTS],ContTypePass[MAXPORTS],ActiveSensePass[MAXPORTS],ResetPass[MAXPORTS];
 int NoteOffIn[MAXPORTS],NoteOnIn[MAXPORTS],KeyPressureIn[MAXPORTS],ControlTypeIn[MAXPORTS],ProgramTypeIn[MAXPORTS],
@@ -429,7 +429,7 @@ char WindowName[][MAXNAME] = {"Grammar","Alphabet","Start string",
 char FileName[WMAX][MAXNAME+1],CsFileName[MAXNAME+1],MIDIfileName[MAXNAME+1],
 	CsoundOrchestraName[MAXNAME+1];
 // FSSpec MIDIfileSpec;
-float EndFadeOut;
+float EndFadeOut,AdvanceTime;
 int CurrentVolume[MAXCHAN+1];
 long WindowParID[WMAX],ParIDstartup,ParIDbp2;
 // Str255 DeftVolName;
