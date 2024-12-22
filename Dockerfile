@@ -1,4 +1,3 @@
-ARG BP3_TAG=v0.1.0
 FROM ghcr.io/jonzudell/bp3-ctests:v0.1.0 as bp3-ctests
 FROM ghcr.io/jonzudell/php-frontend:v0.1.0 as php-frontend
 
@@ -33,7 +32,8 @@ COPY --from=php-frontend /php-frontend/csound_resources /opt/lampp/htdocs/bolpro
 # copy the bolprocessor source code
 COPY ./source/ /opt/lampp/htdocs/bolprocessor/
 COPY ./Makefile /opt/lampp/htdocs/bolprocessor/
-ADD https://github.com/JonZudell/bolprocessor/releases/download/${BP3_TAG}/bp3-ubuntu-latest-gcc ./bp3-ubuntu-latest-gcc
+ARG BP3_TAG
+ADD https://github.com/JonZudell/bolprocessor/releases/download/v0.1.66/bp3-ubuntu-latest-gcc ./bp3-ubuntu-latest-gcc
 RUN chmod +x bp3-ubuntu-latest-gcc
 RUN chown -R daemon:daemon /opt/lampp/htdocs/bolprocessor/
 RUN chmod 777 /opt/lampp/htdocs/bolprocessor/
