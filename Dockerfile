@@ -10,7 +10,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteract
     libasound2-dev \
     csound \
     wget \
-    netstat
+    net-tools
     
 RUN usermod -a -G audio daemon
 RUN mkdir -p /etc/modules-load.d/
