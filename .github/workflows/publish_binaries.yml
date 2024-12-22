@@ -28,7 +28,6 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         build_type: [Release]
         c_compiler: [gcc]
-        architecture: [x86_64, arm64]
         include:
           - os: windows-latest
             c_compiler: gcc
@@ -46,22 +45,10 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev
 
-      - name: Make for ubuntu
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          docker run --rm -v $(pwd):/workspace -w /workspace --platform linux/${{ matrix.architecture }} gcc:latest make UNAME_S=${{ matrix.os }} UNAME_M=${{ matrix.architecture }}
-          
-      - name: Make for osx
-        if: matrix.os == 'macos-latest'
-        run: |
-          make UNAME_S=${{ matrix.os }} UNAME_M=${{ matrix.architecture }}
+      - name: Make build directory
+        run: make
 
-      - name: Make
-        if: matrix.os == 'windows-latest'
-        run: |
-          make UNAME_S=${{ matrix.os }} UNAME_M=${{ matrix.architecture }}
-      
-      - name: Upload Release for ubuntu
+      - name: Upload Release Asset
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-release-asset@v1
         env:
@@ -69,10 +56,10 @@ jobs:
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
           asset_path: ./bp3
-          asset_name: bp3-${{ matrix.os }}-${{ matrix.architecture }}-${{ matrix.c_compiler }}
+          asset_name: bp3-${{ matrix.os }}-${{ matrix.c_compiler }}
           asset_content_type: application/octet-stream
         
-      - name: Upload Release for osx
+      - name: Upload Release Asset
         if: matrix.os == 'macos-latest'
         uses: actions/upload-release-asset@v1
         env:
@@ -80,10 +67,10 @@ jobs:
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
           asset_path: ./bp
-          asset_name: bp-${{ matrix.os }}-${{ matrix.architecture }}-${{ matrix.c_compiler }}
+          asset_name: bp3-${{ matrix.os }}-${{ matrix.c_compiler }}
           asset_content_type: application/octet-stream
 
-      - name: Upload Release for windows
+      - name: Upload Release Asset
         if: matrix.os == 'windows-latest'
         uses: actions/upload-release-asset@v1
         env:
@@ -91,5 +78,5 @@ jobs:
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
           asset_path: ./bp.exe
-          asset_name: bp3-${{ matrix.os }}-${{ matrix.architecture }}-${{ matrix.c_compiler }}.exe
+          asset_name: bp3-${{ matrix.os }}-${{ matrix.c_compiler }}.exe
           asset_content_type: application/octet-stream
