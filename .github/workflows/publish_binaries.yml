@@ -46,13 +46,18 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev
 
-      - name: Make build directory
+      - name: Make
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
         run: |
-          if [ "${{ matrix.os }}" == "macos-latest" ]; then
-            export CFLAGS="-arch ${{ matrix.architecture }}"
-          fi
+          export CFLAGS="-arch ${{ matrix.architecture }}"
           make
 
+      - name: Make
+        if: matrix.os == 'windows-latest'
+        run: |
+          set CFLAGS=-arch ${{ matrix.architecture }}
+          make
+      
       - name: Upload Release Asset
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-release-asset@v1
