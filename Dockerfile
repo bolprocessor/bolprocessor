@@ -25,4 +25,4 @@ RUN chown -R daemon:daemon /opt/lampp/htdocs/bolprocessor/bp3-ctests
 ADD https://github.com/JonZudell/bolprocessor/releases/download/v0.2.2/bp3-ubuntu-latest-gcc ./bp3-ubuntu-latest-gcc
 RUN chmod +x bp3-ubuntu-latest-gcc
 
-CMD [ "/opt/lamp/lamp" "start" ]
+CMD [ "sh" ]
