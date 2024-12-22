@@ -49,13 +49,14 @@ jobs:
       - name: Make
         if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
         run: |
-          export CFLAGS="-arch ${{ matrix.architecture }}"
-          make
+          make UNAME_S=$(uname -s) UNAME_M=$(uname -m)
 
       - name: Make
         if: matrix.os == 'windows-latest'
         run: |
-          set CFLAGS=-arch ${{ matrix.architecture }}
+          set UNAME_S=${{ matrix.os }}
+          set UNAME_M=${{ matrix.architecture }}
+          make UNAME_S=%UNAME_S% UNAME_M=%UNAME_M%
           make
       
       - name: Upload Release Asset
