@@ -18,9 +18,15 @@ RUN mkdir -p /etc/modprobe.d/
 RUN touch /etc/modules-load.d/virmidi.conf
 RUN touch /etc/modprobe.d/virmidi-options.conf
 
-
 WORKDIR /opt/lampp/htdocs/bolprocessor/
-ADD https://github.com/JonZudell/bolprocessor/releases/download/v0.2.0/bp3-ubuntu-latest-gcc ./bp3-ubuntu-latest-gcc
+# copy from the bp3-ctests image
+COPY --from=bp3-ctests /bp3-ctests /opt/lampp/htdocs/bolprocessor/bp3-ctests
+
+# copy the bolprocessor source code
+COPY ./source/ /opt/lampp/htdocs/bolprocessor/
+COPY ./Makefile /opt/lampp/htdocs/bolprocessor/
+ARG BP3_TAG
+ADD https://github.com/JonZudell/bolprocessor/releases/download/v0.2.1/bp3-ubuntu-latest-gcc ./bp3-ubuntu-latest-gcc
 RUN chmod +x bp3-ubuntu-latest-gcc
 
-CMD [ "sh" ]
+CMD [ "/opt/lamp/lamp" "start" ]
