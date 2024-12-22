@@ -28,14 +28,7 @@ jobs:
         fi
 
     - name: Build binary
-      run: |
-        if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-          gcc -o bolprocessor-linux main.c
-        elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-          gcc -o bolprocessor-osx main.c
-        elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-          gcc -o bolprocessor.exe main.c
-        fi
+      run: make
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
