@@ -1,0 +1,108 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+    - name: Set up job
+      run: echo "Setting up job on ${{ matrix.os }}"
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Setup Ubuntu GCC
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install build-essential
+
+    - name: Setup macOS GCC
+      if: matrix.os == 'macos-latest'
+      run: brew install gcc
+    - name: Setup Windows GCC
+      if: matrix.os == 'windows-latest'
+      run: choco install mingw
+
+    - name: Build binary
+      run: make
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.os }}-binary
+        path: |
+          bolprocessor-linux
+          bolprocessor-osx
+          bolprocessor.exe
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download binaries
+      uses: actions/download-artifact@v2
+      with:
+        name: ubuntu-latest-binary
+        path: ./binaries/linux
+
+    - name: Download binaries
+      uses: actions/download-artifact@v2
+      with:
+        name: macos-latest-binary
+        path: ./binaries/osx
+
+    - name: Download binaries
+      uses: actions/download-artifact@v2
+      with:
+        name: windows-latest-binary
+        path: ./binaries/windows
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset Linux
+      uses: actions/upload-release-asset@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./binaries/linux/bolprocessor-linux
+        asset_name: bolprocessor-linux
+        asset_content_type: application/octet-stream
+
+    - name: Upload Release Asset OSX
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./binaries/osx/bolprocessor-osx
+        asset_name: bolprocessor-osx
+        asset_content_type: application/octet-stream
+
+    - name: Upload Release Asset Windows
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./binaries/windows/bolprocessor.exe
+        asset_name: bolprocessor.exe
+        asset_content_type: application/octet-stream
