@@ -54,9 +54,7 @@ jobs:
       - name: Make
         if: matrix.os == 'windows-latest'
         run: |
-          set UNAME_S=${{ matrix.os }}
-          set UNAME_M=${{ matrix.architecture }}
-          make UNAME_S=%UNAME_S% UNAME_M=%UNAME_M%
+          make UNAME_S=${{ matrix.os }} UNAME_M=${{ matrix.architecture }}
       
       - name: Upload Release Asset
         if: matrix.os == 'ubuntu-latest'
