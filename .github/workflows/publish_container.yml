@@ -1,4 +1,4 @@
-name: Publish Docker image to GitHub Packages on SemVer tag
+name: Publish Docker Image to ghcr.io
 on:
   push:
     tags:
