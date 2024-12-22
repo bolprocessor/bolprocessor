@@ -49,11 +49,33 @@ jobs:
         run: make
 
       - name: Upload Release Asset
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ./bp
+          asset_name: bp-${{ matrix.os }}-${{ matrix.c_compiler }}
+          asset_content_type: application/zip
+            - name: Upload Release Asset
+      if: matrix.os == 'darwin-latest'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ./bp
+          asset_name: bp-${{ matrix.os }}-${{ matrix.c_compiler }}
+          asset_content_type: application/zip
+            - name: Upload Release Asset
+            
+      if: matrix.os == 'windows-latest'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
           asset_path: ./bp.exe
-          asset_name: build-artifacts-${{ matrix.os }}-${{ matrix.c_compiler }}
+          asset_name: bp-${{ matrix.os }}-${{ matrix.c_compiler }}
           asset_content_type: application/zip
