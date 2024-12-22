@@ -32,9 +32,7 @@ COPY --from=php-frontend /php-frontend/csound_resources /opt/lampp/htdocs/bolpro
 # copy the bolprocessor source code
 COPY ./source/ /opt/lampp/htdocs/bolprocessor/
 COPY ./Makefile /opt/lampp/htdocs/bolprocessor/
-RUN export UNAME_S=$(uname -S)
-RUN export UNAME_M=$(uname -m)
-RUN make
+RUN make UNAME_S=$(uname -s) UNAME_M=$(uname -m)
 
 RUN chown -R daemon:daemon /opt/lampp/htdocs/bolprocessor/
 RUN chmod 777 /opt/lampp/htdocs/bolprocessor/

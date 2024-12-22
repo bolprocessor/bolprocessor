@@ -46,10 +46,10 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev
 
-      - name: Make
+      - name: Make in container
         if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
         run: |
-          make UNAME_S=${{ matrix.os }} UNAME_M=${{ matrix.architecture }}
+          docker run --rm -v $(pwd):/workspace -w /workspace --platform linux/${{ matrix.architecture }} gcc:latest make UNAME_S=${{ matrix.os }} UNAME_M=${{ matrix.architecture }}
 
       - name: Make
         if: matrix.os == 'windows-latest'
