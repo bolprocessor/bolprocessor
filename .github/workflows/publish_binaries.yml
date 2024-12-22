@@ -34,4 +34,3 @@ jobs:
 
     - name: Publish artifacts
       uses: actions/upload-artifact@v3
-      path: build/
