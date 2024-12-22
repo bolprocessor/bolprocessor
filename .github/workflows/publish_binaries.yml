@@ -1,10 +1,22 @@
 name: Make on multiple platforms
-
 on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
   build:
     runs-on: ${{ matrix.os }}
 
@@ -34,16 +46,7 @@ jobs:
       with:
         name: build-artifacts
         path: ./build
-    - name: Create GitHub Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
+
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
