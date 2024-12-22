@@ -1,8 +1,8 @@
 name: Publish Docker Image to ghcr.io
-workflow_run:
-  workflows: ["publish binaries"]
-  types:
-    - completed
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 # Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
 env:
