@@ -4,23 +4,21 @@ CC     = gcc
 LIBS   = -lm
 EXE    = bp
 
-UNAME_S ?= none
-UNAME_M ?= none
+UNAME_S ?= Ubuntu
+UNAME_M ?= x86_64
 
 # Detect operating system
 ifeq ($(OS),Windows_NT)
-	UNAME_S := Windows
-	CFLAGS = -DWIN32 -arch $(UNAME_M)
+	CFLAGS =
 	FRAMEWORKS = -lwinmm -Wall -Wextra
 	EXE = bp.exe
 else
-	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Darwin)
-		CFLAGS = -arch $(UNAME_M)
+		CFLAGS =
 		FRAMEWORKS = -framework CoreMIDI -framework CoreFoundation
 	endif
 	ifeq ($(UNAME_S),Linux)
-		CFLAGS = -arch $(UNAME_M)
+		CFLAGS =
 		FRAMEWORKS = -lasound
 		EXE = bp3
 	endif
