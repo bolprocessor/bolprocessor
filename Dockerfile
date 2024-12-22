@@ -37,5 +37,5 @@ ADD https://github.com/JonZudell/bolprocessor/releases/download/v0.1.66/bp3-ubun
 RUN chmod +x bp3-ubuntu-latest-gcc
 RUN chown -R daemon:daemon /opt/lampp/htdocs/bolprocessor/
 RUN chmod 777 /opt/lampp/htdocs/bolprocessor/
-ENTRYPOINT [ "/opt/lampp/lampp" ]
-CMD [ "start" ]
+ENTRYPOINT [ "sh" ]
+CMD [ "/opt/lamp/lamp" "start" ]
