@@ -10,19 +10,19 @@ jobs:
         value: ${{ steps.create_release.outputs.upload_url }}
     runs-on: ubuntu-latest
     steps:
-    - name: Create GitHub Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
   build:
+    needs: create_release
     runs-on: ${{ matrix.os }}
-
     strategy:
       fail-fast: false
       matrix:
@@ -36,24 +36,21 @@ jobs:
             c_compiler: gcc
           - os: ubuntu-latest
             c_compiler: gcc
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up upload URL
-      run: echo "UPLOAD_URL=${{ needs.create_release.outputs.upload_url }}" >> $GITHUB_ENV
-    - name: Install ALSA lib on Ubuntu
-      if: matrix.os == 'ubuntu-latest'
-      run: sudo apt-get update && sudo apt-get install -y libasound2-dev
-
-    - name: Make build directory
-      run: make
-
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create_release.outputs.upload_url }}
-        asset_path: ./build
-        asset_name: build-artifacts
-        asset_content_type: application/zip
+      - uses: actions/checkout@v4
+      - name: Set up upload URL
+        run: echo "UPLOAD_URL=${{ needs.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+      - name: Install ALSA lib on Ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev
+      - name: Make build directory
+        run: make
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ./build
+          asset_name: build-artifacts
+          asset_content_type: application/zip
