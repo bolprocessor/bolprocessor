@@ -17,6 +17,8 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
   build:
     needs: create_release
     runs-on: ${{ matrix.os }}
@@ -35,13 +37,17 @@ jobs:
             c_compiler: gcc
     steps:
       - uses: actions/checkout@v4
+      
       - name: Set up upload URL
         run: echo "UPLOAD_URL=${{ needs.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+
       - name: Install ALSA lib on Ubuntu
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev
+
       - name: Make build directory
         run: make
+
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
