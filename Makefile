@@ -15,7 +15,6 @@ ifeq ($(OS),Windows_NT)
 	EXE = bp.exe
 else
 	UNAME_S := $(shell uname -s)
-	UNAME_M := $(shell uname -m)
 	ifeq ($(UNAME_S),Darwin)
 		CFLAGS =
 		FRAMEWORKS = -framework CoreMIDI -framework CoreFoundation
