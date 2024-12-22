@@ -66,7 +66,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./bp3
+          asset_path: ./bp
           asset_name: bp3-${{ matrix.os }}-${{ matrix.c_compiler }}
           asset_content_type: application/octet-stream
 
