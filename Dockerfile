@@ -1,6 +1,3 @@
-FROM ghcr.io/jonzudell/bp3-ctests:v0.1.0 as bp3-ctests
-FROM ghcr.io/jonzudell/php-frontend:v0.1.0 as php-frontend
-
 FROM ubuntu:22.04 as bolprocessor
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -21,7 +18,7 @@ RUN touch /etc/modprobe.d/virmidi-options.conf
 WORKDIR /opt/lampp/htdocs/bolprocessor/
 # copy from the bp3-ctests image
 COPY --from=bp3-ctests /bp3-ctests /opt/lampp/htdocs/bolprocessor/bp3-ctests
-ADD https://github.com/JonZudell/bolprocessor/releases/download/v0.2.2/bp3-ubuntu-latest-gcc ./bp3-ubuntu-latest-gcc
+ADD https://github.com/JonZudell/bolprocessor/releases/download/v0.2.10/bp3-ubuntu-latest-gcc ./bp3-ubuntu-latest-gcc
 RUN chmod +x bp3-ubuntu-latest-gcc
 
 CMD [ "sh" ]
