@@ -1,12 +1,12 @@
 FROM alpine:3.18 as bolprocessor
 
-RUN apk update && apk add --no-cache \
-    build-base \
-    cmake \
-    alsa-lib-dev \
-    csound \
-    wget \
-    net-tools
+# RUN apk update && apk add --no-cache \
+#     build-base \
+#     cmake \
+#     alsa-lib-dev \
+#     csound \
+#     wget \
+#     net-tools
 
 RUN addgroup -S audio && adduser -S daemon -G audio
 RUN mkdir -p /etc/modules-load.d/
