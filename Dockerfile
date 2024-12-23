@@ -8,12 +8,11 @@ FROM alpine:3.18 as bolprocessor
 #     wget \
 #     net-tools
 
-RUN adduser -S daemon -G audio
 RUN mkdir -p /etc/modules-load.d/
 RUN mkdir -p /etc/modprobe.d/
 RUN touch /etc/modules-load.d/virmidi.conf
 RUN touch /etc/modprobe.d/virmidi-options.conf
-ADD https://github.com/JonZudell/bolprocessor/releases/download/v0.2.11/bp3-ubuntu-latest-gcc ./bp3
+ADD https://github.com/JonZudell/bolprocessor/releases/download/v0.2.14/bp3-ubuntu-latest-gcc ./bp3
 RUN chmod +x bp3
 
 CMD [ "sh" ]
