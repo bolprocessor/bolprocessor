@@ -52,7 +52,9 @@ jobs:
       - name: Install build tools on macOS
         if: matrix.os == 'macos-latest'
         run: |
-          xcode-select --install
+          if ! xcode-select --install 2>&1 | grep installed; then
+            sudo softwareupdate -i -a
+          fi
 
       - name: Make build directory
         run: make
