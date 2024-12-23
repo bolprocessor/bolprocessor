@@ -16,7 +16,7 @@ ifeq ($(OS),Windows_NT)
 else
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Darwin)
-		CFLAGS = -Wall -Wextra -arch i386 -arch x86_64 -arch ppc
+		CFLAGS = -arch i386 -arch x86_64 -arch ppc
 		FRAMEWORKS = -framework CoreMIDI -framework CoreFoundation
 	endif
 	ifeq ($(UNAME_S),Linux)
