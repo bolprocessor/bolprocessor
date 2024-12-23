@@ -49,6 +49,11 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev
 
+      - name: Install build tools on macOS
+        if: matrix.os == 'macos-latest'
+        run: |
+          xcode-select --install
+
       - name: Make build directory
         run: make
 
@@ -131,4 +136,3 @@ jobs:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
-      
