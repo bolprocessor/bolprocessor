@@ -16,7 +16,7 @@ ifeq ($(OS),Windows_NT)
 else
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Darwin)
-		CFLAGS = -arch i386 -arch x86_64 -arch ppc -isysroot $(shell xcrun --show-sdk-path)
+		CFLAGS = -arch x86_64 -isysroot $(shell xcrun --show-sdk-path)
 		FRAMEWORKS = -framework CoreMIDI -framework CoreFoundation
 	endif
 	ifeq ($(UNAME_S),Linux)
