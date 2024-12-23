@@ -8,7 +8,7 @@ FROM alpine:3.18 as bolprocessor
 #     wget \
 #     net-tools
 
-RUN addgroup -S audio && adduser -S daemon -G audio
+RUN adduser -S daemon -G audio
 RUN mkdir -p /etc/modules-load.d/
 RUN mkdir -p /etc/modprobe.d/
 RUN touch /etc/modules-load.d/virmidi.conf
