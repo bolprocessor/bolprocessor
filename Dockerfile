@@ -1,4 +1,4 @@
-FROM ubuntu:18.04 as bolprocessor
+FROM ubuntu:22.04 as bolprocessor
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libasound2-dev \
