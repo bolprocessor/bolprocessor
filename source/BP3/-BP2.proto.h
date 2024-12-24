@@ -993,6 +993,7 @@ int ResetPianoRollColors(void);
 int CheckRegistration(void);
 int CheckDeterminism(t_gram*);
 int SameBuffer(tokenbyte**,tokenbyte**);
+long SendToStack(MIDI_Event,Milliseconds,int,int,long);
 
 int TextIsSelectionEmpty(TextHandle th);
 int TextGetSelection(TextOffset* start,TextOffset* end, TextHandle th);

@@ -147,7 +147,7 @@ int main (int argc, char* args[]) {
 	
 	eventCount = 0L;
 	eventCountMax = MaxMIDIMessages - 50L;
-	initTime = 0L; // millisconds
+	initTime = FirstEventTime = 0L; // millisconds
 
 /* Some things that we might want to do later ...
 	
@@ -416,7 +416,7 @@ int stop(int now,char* where) {
 	if(Panic || EmergencyExit) return ABORT;
     if((r = ListenToEvents()) != OK) return r;
 	unsigned long current_time = getClockTime(); // microseconds
-	if(!now && (current_time < NextStop)) return(OK); // We only check _stop and _panic every 500 ms
+	if(rtMIDI && !now && (current_time < NextStop)) return(OK); // We only check _stop and _panic every 500 ms
 	NextStop = current_time + 500000L; // microseconds
     if(strlen(StopfileName) == 0) return OK;
 	ptr = my_fopen(0,StopfileName,"r");

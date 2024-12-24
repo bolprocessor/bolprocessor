@@ -96,6 +96,7 @@ long GramSelStart,GramSelEnd;
 
 long eventCount,eventCountMax;
 UInt64 initTime;
+unsigned long FirstEventTime;
 MIDI_Event* eventStack;
 size_t MaxMIDIMessages;
 

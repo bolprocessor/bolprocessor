@@ -1640,8 +1640,7 @@ NEWSEQUENCE:
 NEXTTOKEN:
 	id = id;
 	}
-
-if(DoSystem() != OK) return(ABORT);
+if((result=stop(0,"FillPhaseDiagram")) != OK) return(result);
 
 // Mark exact ends of sequences and item
 
@@ -1847,7 +1846,7 @@ MySetHandleSize((Handle*)&p_ObjectSpecs,(Size)Maxevent * sizeof(objectspecs**));
 MySetHandleSize((Handle*)&p_articul,(Size)Maxevent * sizeof(short));
 MySetHandleSize((Handle*)&p_T,(Size) (*p_maxseq+2) * sizeof(Milliseconds));
 
-if(DoSystem() != OK) return(ABORT);
+if((result=stop(0,"FillPhaseDiagram")) != OK) return(result);
 
 if(!foundobject && ShowGraphic && !ShowObjectGraph && !ShowPianoRoll && !ScriptExecOn && Jbol < 3
 		&& Jpatt == 0 && ((*p_numberobjects) > 30) && !ToldAboutPianoRoll) {

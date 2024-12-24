@@ -1625,7 +1625,7 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"CsoundTrace") == 0) CsoundTrace = intvalue;
 		else if(strcmp(key,"ResetNotes") == 0) ResetNotes = intvalue;
 		else if(strcmp(key,"ComputeWhilePlay") == 0) ComputeWhilePlay = intvalue;
-		else if(strcmp(key,"AdvanceTime") == 0) AdvanceTime = floatvalue;
+		else if(strcmp(key,"AdvanceTime") == 0) AdvanceTime = 1000. * floatvalue; // Milliseconds
 		else if(strcmp(key,"TraceMIDIinteraction") == 0) TraceMIDIinteraction = intvalue;
 		else if(strcmp(key,"ResetWeights") == 0) ResetWeights = intvalue;
 		else if(strcmp(key,"ResetFlags") == 0) ResetFlags = intvalue;
@@ -1676,7 +1676,7 @@ int LoadSettings(const char *filename, int startup) {
 		}
 	if(rtMIDI && !ComputeWhilePlay) {
 		BPPrintMessage(0,odInfo,"Compute while playing is off\n");
-		if(AdvanceTime > 0.) BPPrintMessage(0,odInfo,"➡ Advance time limit = %.2f seconds\n",AdvanceTime);
+		if(AdvanceTime > 0.) BPPrintMessage(0,odInfo,"➡ Advance time limit = %.2f seconds\n",AdvanceTime / 1000.);
 		else BPPrintMessage(0,odInfo,"➡ No advance time allowed\n");
 		}
 	if(rtMIDI && StopPauseContinue) {
