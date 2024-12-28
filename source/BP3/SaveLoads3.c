@@ -1,4 +1,4 @@
-/* SaveLoads3.c (BP2 version CVS) */ 
+/* SaveLoads3.c (BP3 version CVS) */ 
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -33,11 +33,11 @@
 
 #include <string.h>
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 #include "ConsoleMessages.h"
 
 #if BP_CARBON_GUI_FORGET_THIS
@@ -411,26 +411,26 @@ switch(type) {
 #define	MFNLEN	(30)
 
 const char  FormatNames[MAXFORMATNAMES][MFNLEN] = {
-		"BP2 text file",	 			/* 'TEXT' */
-		"BP2 text file",				/* 'TEXT' */
-		"BP2 keyboard",				/* 'BP02' */
-		"BP2 sound-object prototypes",	/* 'BP03' */
-		"BP2 decisions",				/* 'BP04' */
-		"BP2 grammar",				/* 'BP05' */
-		"BP2 alphabet",				/* 'BP06' */
-		"BP2 data",					/* 'TEXT', 'BP07' */
-		"BP2 interaction",			/* 'BP08' */
-		"BP2 settings",				/* 'BP09' */
+		"BP3 text file",	 			/* 'TEXT' */
+		"BP3 text file",				/* 'TEXT' */
+		"BP3 keyboard",				/* 'BP02' */
+		"BP3 sound-object prototypes",	/* 'BP03' */
+		"BP3 decisions",				/* 'BP04' */
+		"BP3 grammar",				/* 'BP05' */
+		"BP3 alphabet",				/* 'BP06' */
+		"BP3 data",					/* 'TEXT', 'BP07' */
+		"BP3 interaction",			/* 'BP08' */
+		"BP3 settings",				/* 'BP09' */
 		"AIFF-C sound file",			/* 'AIFC' */
-		"BP2 MIDI file",				/* 'Midi' */
-		"BP2 weights",				/* 'BP10' */
-		"BP2 script",				/* 'BP11' */
-		"BP2 glossary",				/* 'BP12' */
-		"BP2 time-base",				/* 'BP13' */
-		"BP2 Csound instruments",		/* 'BP14' */
-		"BP2 MIDI orchestra",			/* 'BP15' */
+		"BP3 MIDI file",				/* 'Midi' */
+		"BP3 weights",				/* 'BP10' */
+		"BP3 script",				/* 'BP11' */
+		"BP3 glossary",				/* 'BP12' */
+		"BP3 time-base",				/* 'BP13' */
+		"BP3 Csound instruments",		/* 'BP14' */
+		"BP3 MIDI orchestra",			/* 'BP15' */
 		"Standard HTML file",			/* 'TEXT', creator depends on OS or browser */
-		"BP2 MIDI driver settings"		/* 'BP16' */
+		"BP3 MIDI driver settings"		/* 'BP16' */
 		};
 		
 // const int	HFLEN = 8;
@@ -447,19 +447,19 @@ int MakeFormatMenuItems(int type, NavMenuItemSpecArrayHandle* p_handle)
 	
 	// MIDI orchestra does not support HTML
 	if (type == ftiMIDIorchestra) {
-		typelist[0] = type;				// BP2 native format
-		typelist[1] = ftiText;				// BP2 plain text
+		typelist[0] = type;				// BP3 native format
+		typelist[1] = ftiText;				// BP3 plain text
 		numitems = 2;
 	}
 	else {
-		typelist[0] = type;				// BP2 native format
-		typelist[1] = type;				// BP2 native format with HTML encoding
+		typelist[0] = type;				// BP3 native format
+		typelist[1] = type;				// BP3 native format with HTML encoding
 		if (type == ftiAny || type == ftiText) {	// (skip adding plain text again)
 			typelist[2] = ftiHTML;			// HTML
 			numitems = 3;
 		}
 		else {
-			typelist[2] = ftiText;			// BP2 plain text
+			typelist[2] = ftiText;			// BP3 plain text
 			typelist[3] = ftiHTML;			// HTML
 			numitems = 4;
 		}
@@ -1200,7 +1200,7 @@ int CheckVersion(int *p_iv, char** p_line, const char name[]) {
 	for(iv=0; iv < MAXVERSION; iv++)
 		if((diff = strcmp(version,VersionName[iv])) == 0) break;
 	if(iv > Version && name[0] != '\0') {
-		BPPrintMessage(0,odError,"=> File '%s' was created with a version of BP2 more recent than %s\n",name,VersionName[Version]);
+		BPPrintMessage(0,odError,"=> File '%s' was created with a version of BP3 more recent\n",name);
 		rep = NO;
 		if(rep != YES) goto ERR;
 		iv = Version;

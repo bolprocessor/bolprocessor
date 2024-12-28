@@ -32,11 +32,11 @@
 */
 
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 
 int trace_polymake = 0;
 
@@ -703,7 +703,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 					goto QUIT;
 					}
 				else {
-					rep = Answer("Allow BP2 to use additional memory",'Y');
+					rep = Answer("Allow BP3 to use additional memory",'Y');
 					if(rep == YES) {
 						AskedTempMemory = TRUE;
 						goto FORGETIT;
@@ -758,7 +758,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	
 	Would it be good to allow the user to decide an upper limit ?
 	
-	Also, note that BP2 chooses a compression rate for quantization above (at label 
+	Also, note that BP3 chooses a compression rate for quantization above (at label 
 	FINDCOMPRESSION, about line 327) before it even gets to this calculation.
 		-- akozar 20130904
 	*/

@@ -32,11 +32,11 @@
 */
 
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
  
 int trace_cs_scoremake = 0;
 
@@ -867,7 +867,7 @@ if(EndFadeOut > 0.) {
 else strcpy(line,"e");
 WriteToFile(NO,CsoundFileFormat,line,CsRefNum);	// 'e' terminates a Csound score 
 Date(line);
-my_sprintf(Message,"; this score was created by Bol Processor BP2 (version %s) on %s",
+my_sprintf(Message,"; this score was created by Bol Processor BP3 (version %s) on %s",
 	VersionName[Version],line);
 WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);
 GetFPos(CsRefNum,&count);

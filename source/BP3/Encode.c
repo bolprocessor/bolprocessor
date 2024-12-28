@@ -32,11 +32,11 @@
 */
 
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 
 tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1, char **pp2,
 	p_context *p_pleftcontext, p_context *p_prightcontext, int *p_meta, int arg_nr,

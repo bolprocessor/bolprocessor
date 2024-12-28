@@ -33,11 +33,11 @@
 */
 
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 #include "ConsoleGlobals.h"
 #include "ConsoleMessages.h"
 
@@ -340,7 +340,7 @@ if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
  	/* This happens in the beginning of the file */
  		
 	if(time < OldMIDIfileTime) OldMIDIfileTime = time;
-	/* This could happen with a bad rounding. Normally BP2 sorts out events */
+	/* This could happen with a bad rounding. Normally BP3 sorts out events */
 	
 	/* Write out variable length delta time value. */
 	if(WriteVarLenQuantity(OpenMIDIfilePtr, (dword)(time-OldMIDIfileTime),
@@ -775,7 +775,7 @@ if(OldFile(-1,type,fn,&spec)) {
 		
 		if(format == 2 && ntracks > 2) {
 			my_sprintf(Message,
-				"This type-2 MIDI file contains %ld items. BP2 will read only the first one",
+				"This type-2 MIDI file contains %ld items. BP3 will read only the first one",
 				(long) (ntracks - 1));
 			Alert1(Message);
 			ntracks = 2;
@@ -1212,7 +1212,7 @@ switch(err) {
 	default: break;
 	}
 ShowMessage(TRUE,wMessage,Message);
-Alert1("This file is incomplete or in a format that BP2 can't read");
+Alert1("This file is incomplete or in a format that BP3 can't read");
 result = MISSED;
 goto SORTIR;
 }

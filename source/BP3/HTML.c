@@ -32,11 +32,11 @@
 */
 
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 
 
 int CheckHTML(int linebreaks,int w,char** p_buffer,long* p_count,int* p_html)

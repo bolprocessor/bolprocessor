@@ -31,8 +31,8 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "-BP2.h"
-#include "-BP2decl.h"
+#include "-BP3.h"
+#include "-BP3decl.h"
 
 /* int RunScript(int w,int quick)
 {

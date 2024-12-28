@@ -32,11 +32,11 @@
 */
 
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 
 int trace_csound_maths = 0;
 int trace_write_score = 0;
@@ -131,7 +131,7 @@ int Findabc(double ***p_xy,int j,regression *p_r)
 double x1,x2,x3,y1,y2,y22,y3,D,Da,Db,Dc,xmin,xmax,ymax,m;
 
 double infinite_number = 2147483647;
-// 2^31 - 1 (Mersenne) Used in the PHP interface andd in BP2.9.8
+// 2^31 - 1 (Mersenne) Used in the PHP interface and in BP2.9.8
 // We use this number in replacement of Infpos
 
 p_r->a = 0.;  p_r->b = 1.;  p_r->c = 0.;

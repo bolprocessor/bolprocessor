@@ -32,15 +32,19 @@
 */
 
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 
-#if !BP_CARBON_GUI_FORGET_THIS
-#include "StringLists.h"
-#endif
+// REVISED VERSION 2024-12-28 using "console_strings.json" instead of "StringLists.h"
+
+char StringsJason[] = "console_strings.json";
+char ScriptCommand[MAX_STRINGLISTS_NUMBER][MAX_STRINGLISTS_LEN];
+char GramProcedure[MAX_STRINGLISTS_NUMBER][MAX_STRINGLISTS_LEN];
+char PerformanceControl[MAX_STRINGLISTS_NUMBER][MAX_STRINGLISTS_LEN];
+char HTMLdiacritical[MAX_STRINGLISTS_NUMBER][MAX_STRINGLISTS_LEN];
 
 int trace_scriptcommands = 0;
 
@@ -53,24 +57,13 @@ int Inits(void) {
 	// FSSpec spec;
 	long t;
 
-	////////////////////////////////////
-	////   Is this a beta version?  ////
-	#if	COMPILING_BETA
-		Beta = YES;
-	#else
-		Beta = NO;
-	#endif
-	////////////////////////////////////
-
-	// In this part we systematically initialise ALL global variables
+	Beta = NO;
 
 	Time_res = 10L; /* Time resolution for MIDI messages */
 	Quantization = 10L;
-	/* #if WITH_REAL_TIME_SCHEDULER_FORGET_THIS
+	/* #if PRODUCE_TICKS
 	TotalTicks = ZERO;
 	#endif */
-
-	// InBuiltDriverOn = FALSE;
 
 	Nw = 0;
 
@@ -217,10 +210,10 @@ int Inits(void) {
 	LastAction = NO;
 	Ke = log((double) 2.) / 64.;
 	strcpy(Message,"");
-	PictFrame.top = topDrawPrototype;
+	/* PictFrame.top = topDrawPrototype;
 	PictFrame.left = leftDrawPrototype;
 	PictFrame.bottom = bottomDrawPrototype;
-	PictFrame.right = rightDrawPrototype;
+	PictFrame.right = rightDrawPrototype; */
 	// NoteScalePicture = NULL;
 	p_Tpict = NULL; Hpos = -1;
 	Jbol = Jfunc = iProto = Jpatt = Jvar = Jflag = Jhomo = N_err = BolsInGrammar
@@ -593,55 +586,15 @@ long rc;
 GrafPtr saveport;
 OSErr err;
 
-#if BP_CARBON_GUI_FORGET_THIS
-DialogPtr* miscdialogs[] = { &ResumeStopPtr,&ResumeUndoStopPtr,&MIDIkeyboardPtr,
-	&PatternPtr,&ReplaceCommandPtr,&EnterPtr,&FAQPtr,&SixteenPtr,&FileSavePreferencesPtr,
-	&StrikeModePtr,&TuningPtr,&DefaultPerformanceValuesPtr,&CsoundInstrMorePtr,&MIDIprogramPtr };
-int miscdlgThemed[] = { 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0 };
-
-ReplaceCommandPtr = GetNewDialog(ReplaceCommandID,NULL,0L); // could use kLastWindowOfClass instead of 0L
-ResumeStopPtr = GetNewDialog(ResumeStopID,NULL,0L);
-ResumeUndoStopPtr = GetNewDialog(ResumeUndoStopID,NULL,0L);
-MIDIkeyboardPtr = GetNewDialog(MIDIkeyboardID,NULL,0L);
-FileSavePreferencesPtr = GetNewDialog(FileSavePreferencesID,NULL,0L);
-PatternPtr = GetNewDialog(PatternID,NULL,0L);
-EnterPtr = GetNewDialog(EnterID,NULL,0L);
-GreetingsPtr = GetNewDialog(GreetingsID,NULL,0L);
-DrawDialog(GreetingsPtr);
-#if TARGET_API_MAC_CARBON_FORGET_THIS
-  QDFlushPortBuffer(GetDialogPort(GreetingsPtr), NULL);
-#endif
-FAQPtr = GetNewDialog(FAQDialogID,NULL,0L);
-SixteenPtr = GetNewDialog(SixteenDialogID,NULL,0L);
-StrikeModePtr = GetNewDialog(StrikeModeID,NULL,0L);
-TuningPtr = GetNewDialog(TuningID,NULL,0L);
-DefaultPerformanceValuesPtr = GetNewDialog(DefaultID,NULL,0L);
-CsoundInstrMorePtr = GetNewDialog(CsoundInstrMoreID,NULL,0L);
-OMSinoutPtr = GetNewDialog(OMSinoutID,NULL,0L); // FIXME: should remove all OMS code - 20130826 akozar
-MIDIprogramPtr = GetNewDialog(MIDIprogramID,NULL,0L);
-
-for (i = 0; i < 14; ++i)  BPSetDialogAppearance(*(miscdialogs[i]), miscdlgThemed[i]);
-
-#if BP_MACHO
-  err = CreateCMSettings();
-#endif
-
-bad = FALSE;
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 /* This initialization needs to occur even in non-GUI builds ?? */
 ResumeStopOn = FALSE;
 Jbutt = 0;
 for(w=0; w < WMAX; w++) {
-/*	Window[w] = NULL;
-	CurrentColor[w] = Black; */
 	IsHTML[w] = FALSE;
 	WindowFullAlertLevel[w] = 0;
-#if !BP_CARBON_GUI_FORGET_THIS
-//	gpDialogs[w] = NULL;
 	Weird[w] = FALSE;
 	SetUpWindow(w);		// this is to create text buffers
-#endif
 	}
 IsHTML[wCsoundTables] = TRUE;
 
@@ -688,37 +641,6 @@ Jbutt = 28;  // number of buttons must not be less than that found within settin
 return(OK);
 }
 
-#if 0
-int HiliteDefault(DialogPtr dp)
-{
-short itemtype;
-ControlHandle itemhandle;
-Rect r;
-UserItemUPP procForBorderUserItem;
-GrafPtr	saveport;
-
-/* procForBorderUserItem = NewUserItemProc(DrawButtonBorder); */
-
-return(OK); /* $$$ */
-if(dp == NULL || !IsWindowVisible(GetDialogWindow(dp))) return(MISSED);
-GetDialogItem(dp,1,&itemtype,(Handle*)&itemhandle,&r);
-itemtype = (itemtype & 127) - ctrlItem;
-if(itemhandle != NULL && itemtype == btnCtrl) {
-	GetPort(&saveport);
-	SetPortDialogPort(dp);
-	pen_size("canvas",3,3);
-	resize_rect(&r,-2,-2);
-	FrameRoundRect(&r,16,16);
-/*	SetDialogItem(thewindow,1,itemtype,(Handle)procForBorderUserItem,&r); */
-	if(saveport != NULL) SetPort(saveport);
-	else if(Beta) Alert1("=> Err HiliteDefault(). saveport == NULL");
-	}
-return(OK);
-}
-#endif
-
-
-#if !BP_CARBON_GUI_FORGET_THIS
 /* Non-Carbon version just creates TextHandles to use */
 int SetUpWindow(int w)
 {	
@@ -736,252 +658,48 @@ int SetUpWindow(int w)
 	return(OK);
 }
 
-#else
-int SetUpWindow(int w)
-{
-Rect destRect,viewRect;
-Rect scrollrect,r;
-FontInfo myInfo;
-int height,i,itemType;
-long scrapoffset,n;
-OSErr err;
-#if WASTE_FORGET_THIS
-LongRect dr,vr;
-#else
-Rect dr,vr;
-#endif
+int LoadStrings(void) {
+	long max;
+	int i;
 
-/* SetCursor(&WatchCursor); */
-if(w < 0 || w >= WMAX) {
-	Alert1("Internal problem in setting up windows. Restart your Mac!");
-	return(ABORT);
+	p_GramProcedure = p_PerformanceControl = p_GeneralMIDIpatch = p_HTMLdiacrList = NULL;
+	p_ProcNdx = p_ProcNArg = p_PerfCtrlNdx = p_GeneralMIDIpatchNdx = p_PerfCtrlNArg = NULL;
+	MaxProc = MaxPerformanceControl = ZERO;
+
+	if(LoadStringResource(&p_GramProcedure,&p_ProcNdx,&p_ProcNArg,GramProcedureStringsID,
+		&MaxProc,YES) != OK) return(ABORT);
+	if(LoadStringResource(&p_PerformanceControl,&p_PerfCtrlNdx,&p_PerfCtrlNArg,
+		PerformanceControlStringsID,&MaxPerformanceControl,YES) != OK) return(ABORT);
+	if(LoadStringResource(&p_HTMLdiacrList,NULL,NULL,
+		HTMLdiacriticalID,&max,YES) != OK) return(ABORT);
+	if(LoadScriptCommands() != OK) return(ABORT);
+	return(OK);
 	}
-SetPortWindowPort(Window[w]);
-if(Editable[w]) { TextFont(kFontIDCourier); TextSize(WindowTextSize[w]); }
-// SetDialogFont(systemFont);  // too late for this; font will be systemFont anyways - akozar
-Charstep = 7; /* StringWidth("\pm"); */
-Nw = w;
-GetWindowPortBounds(Window[w], &viewRect);
-if (!USE_MLTE_FORGET_THIS) {
-if(OKvScroll[w]  || OKhScroll[w]) {
-	viewRect.right = viewRect.right - SBARWIDTH;
-	if (!RunningOnOSX || OKhScroll[w])  viewRect.bottom = viewRect.bottom - SBARWIDTH;
-	GetWindowPortBounds(Window[w], &r);
-	}
-if(OKvScroll[w]) {
-	scrollrect.left = r.right - SBARWIDTH;
-	scrollrect.right = r.right + 1;
-	scrollrect.bottom = r.bottom - (SBARWIDTH - 1) - Freebottom[w];
-	scrollrect.top = r.top - 1;
-	vScroll[w] = NewControl(Window[w],&scrollrect,"\p",(int)1,(short)0,
-		(short)0,(short)0,(short)scrollBarProc,0L);
-	Vmin[w] = INT_MAX; Vmax[w] = - INT_MAX;
-	Vzero[w] = 0;
-	}
-if(OKhScroll[w]) {
-	scrollrect.left = r.left - 1;
-	scrollrect.right = r.right - (SBARWIDTH - 1);
-	scrollrect.bottom = r.bottom - Freebottom[w];
-	scrollrect.top = r.bottom - SBARWIDTH - Freebottom[w];
-	hScroll[w] = NewControl(Window[w],&scrollrect,"\p",(int)1,(short)0,
-		(short)0,(short)0,(short)scrollBarProc,0L);
-	Hmin[w] = INT_MAX; Hmax[w] = - INT_MAX;
-	Hzero[w] = 0;
-	}
-  }
-viewRect.bottom -= Freebottom[w];
-destRect = viewRect;
-if(Editable[w]) {
-#if WASTE_FORGET_THIS
-	dr.top = destRect.top;
-	dr.left = destRect.left;
-	dr.bottom = destRect.bottom;
-	dr.right = destRect.right;
-	vr.top = viewRect.top;
-	vr.left = viewRect.left;
-	vr.bottom = viewRect.bottom;
-	vr.right = viewRect.right;
-	err = WENew((const LongRect*)&dr,(const LongRect*)&vr,/* weFUseTempMem */ 0,
-		&TEH[w]);
-	if(err != noErr) {
-		TellError(36,err); return(ABORT);
-		}
-	WEFeatureFlag(weFUndoSupport,weBitSet,TEH[w]);
-	WEFeatureFlag(weFIntCutAndPaste,weBitClear,TEH[w]);
-	WEFeatureFlag(weFDrawOffscreen,weBitSet,TEH[w]);
-	WEFeatureFlag(weFInhibitRecal,weBitClear,TEH[w]);
-	WEFeatureFlag(weFAutoScroll,weBitClear,TEH[w]);
-	if(w != wInfo)
-		WESetAlignment(weFlushLeft,TEH[w]);
-	else
-		WESetAlignment(weFlushRight,TEH[w]);
-#elif USE_MLTE_FORGET_THIS
-	if (CreateMLTEObject(w, &viewRect) != OK) return (MISSED);
-#else
-	TEH[w] = TEStyleNew(&destRect,&viewRect);
-	// StyleHandle[w] = TEGetStyleHandle(TEH[w]);
-#endif
-	CalText(TEH[w]);
-	ForgetFileName(w);
-	if(w != wInfo)
-		Reformat(w,(int)kFontIDCourier,WindowTextSize[w],(int)normal,&Black,TRUE,TRUE);
-	else
-		Reformat(w,(int)kFontIDCourier,WindowTextSize[w],(int)normal,&Blue,TRUE,TRUE);
-	}
-else TEH[w] = NULL;
-Dirty[w] = FALSE;
-SetViewRect(w);
-#if !WASTE_FORGET_THIS
-if(Editable[w]) PrintBehind(w," ");	/* Needed to record size into windowscrap */
-#endif
-return(OK);
-}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-
-#if USE_MLTE_FORGET_THIS
-int CreateMLTEObject(int w, Rect* frame)
-{
-	OSStatus err;
-	TXNObject textObject;
-	TXNFrameID id;
-	TXNFrameOptions frameOptions = 0;
-
-	// use Ptrs so we don't have to worry about locking, etc.
-	TEH[w] = (OurMLTERecord**) NewHandle(sizeof(OurMLTERecord));
-	if (MemError() != noErr)  return (MISSED);
-	
-	(*TEH[w])->textobj = NULL;
-	(*TEH[w])->id = 0;
-	(*TEH[w])->viewRect = *frame;
-	
-	if (OKgrow[w])     frameOptions |= kTXNDrawGrowIconMask;
-	if (OKvScroll[w])  frameOptions |= kTXNWantVScrollBarMask;
-	if (OKhScroll[w])  frameOptions |= kTXNWantHScrollBarMask;
-	
-	frameOptions |= kTXNAlwaysWrapAtViewEdgeMask;
-	
-	// we use MacOS text encoding, not kTXNSystemDefaultEncoding which defaults to Unicode
-	// pass window index as the refcon
-	err =TXNNewObject(NULL, Window[w], frame, frameOptions, kTXNTextEditStyleFrameType,	
-				kTXNTextFile, kTXNMacOSEncoding, &textObject, &id, (TXNObjectRefcon)w);
-	if (err != noErr)  return (MISSED);
-	
-	(*TEH[w])->textobj = textObject;
-	(*TEH[w])->id = id;
-
-	{ // this block hopefully turns off auto-handling of keyboard events
-	TXNControlTag  iControlTags [] = {kTXNUseCarbonEvents};
-	TXNControlData iControlData [1];
-	TXNCarbonEventInfo carbonEventInfo;
-	
-	carbonEventInfo.useCarbonEvents = false;
-	carbonEventInfo.filler = 0;
-	carbonEventInfo.flags = 0;
-	carbonEventInfo.fDictionary = NULL;
-	
-	iControlData [0 ].uValue = (UInt32)&carbonEventInfo;
-	err =TXNSetTXNObjectControls(textObject, false, 1, iControlTags, iControlData);
-	}
-	
-	return (OK);
-}
-#endif
-
-
-int LoadStrings(void)
-{
-long max;
-int i;
-
-p_GramProcedure = p_PerformanceControl = p_GeneralMIDIpatch = p_HTMLdiacrList = NULL;
-p_ProcNdx = p_ProcNArg = p_PerfCtrlNdx = p_GeneralMIDIpatchNdx = p_PerfCtrlNArg = NULL;
-MaxProc = MaxPerformanceControl = ZERO;
-
-if(LoadStringResource(&p_GramProcedure,&p_ProcNdx,&p_ProcNArg,GramProcedureStringsID,
-	&MaxProc,YES) != OK) return(ABORT);
-MyLock(TRUE,(Handle)p_GramProcedure);
-	
-if(LoadStringResource(&p_PerformanceControl,&p_PerfCtrlNdx,&p_PerfCtrlNArg,
-	PerformanceControlStringsID,&MaxPerformanceControl,YES) != OK) return(ABORT);
-MyLock(TRUE,(Handle)p_PerformanceControl);
-
-/* if(trace_scale) {
-	for(i=0; i < MaxPerformanceControl; i++)
-		BPPrintMessage(0,odInfo,"%d) %s()\n",i,*((*p_PerformanceControl)[i]));
-	} */
-	
-if(LoadStringResource(&p_GeneralMIDIpatch,&p_GeneralMIDIpatchNdx,NULL,
-	GeneralMIDIpatchesID,&max,YES) != OK) return(ABORT);
-MyLock(TRUE,(Handle)p_GeneralMIDIpatch);
-	
-if(LoadStringResource(&p_HTMLdiacrList,NULL,NULL,
-	HTMLdiacriticalID,&max,YES) != OK) return(ABORT);
-	
-if(LoadScriptCommands() != OK) return(ABORT);
-return(OK);
-}
-
 
 int LoadStringResource(char***** pp_str,int ***pp_ndx,int ***pp_narg,int id,long *p_max,
 	int lock) {
-	int i,im,j,j0,k,km;
+	int i,im,j,j0,k,km,result;
 	char **ptr;
-	const char *buffer;
+	char buffer[MAX_STRINGLISTS_LEN];
 	Handle h_res;
 
-	/* FIXME:  I would like to eventually convert the strings with multiple values in 
-	StringLists.h to appropriate data structures and then all of this code could be
-	dispensed with and accesses to all of these handles to arrays of string handles
-	and ints can be replaced with straightforward references to the constant data.
-	But for now, this will be easier (and less error-prone).
-	-- akozar  20130908
-	*/
-
-	#if !BP_CARBON_GUI_FORGET_THIS
-	const char (*strarray)[MAX_STRINGLISTS_STR_LEN];
-	// use the resource id to select the corresponding array
+	char strarray[MAX_STRINGLISTS_NUMBER][MAX_STRINGLISTS_LEN];
 	switch(id) {
 		case GramProcedureStringsID:
-			strarray = GramProcedure;
-			im = NUM_GRAM_PROC_STRS;
+			if((result = ReadJason(&im,"GramProcedure",strarray)) != OK) return result;
 			break;
 		case PerformanceControlStringsID:
-			strarray = PerformanceControl;
-			im = NUM_PERF_CONTROL_STRS;
-			break;
-		case GeneralMIDIpatchesID:
-			strarray = GeneralMidiPatchName;
-			im = NUM_GEN_MIDI_PATCH_STRS;
+			if((result = ReadJason(&im,"PerformanceControl",strarray)) != OK) return result;
 			break;
 		case HTMLdiacriticalID:
-			strarray = HTMLdiacritical;
-			im = NUM_HTML_DIACRITICAL_STRS;
+			if((result = ReadJason(&im,"HTMLdiacritical",strarray)) != OK) return result;
 			break;
 		default:
 			if (Beta) fprintf(stderr, "=> Warning! Bad STR# id in LoadStringResource().\n");
 			return MISSED;
 			break;
 		}
-
-	// h_res must be non-NULL when it is "locked" below to avoid an error return code
-	h_res = (Handle) &buffer;	// WARNING! Dummy value -- don't use!
-	#else
-	h_res = GetResource('STR#',id);
-	if((i=ResError()) != noErr) {
-		my_sprintf(Message,"=> Error %ld loading resource string list ID %ld",(long)i,(long)id);
-		ParamText(in_place_c2pstr(Message),"\p","\p","\p");
-		NoteAlert(OKAlert,0L);
-		EmergencyExit = TRUE;
-		return(MISSED);
-		}
-	// resource begins with a two-byte integer which is the number of strings
-	im = **((short**)h_res);
-	buffer = (char*) *h_res;
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-	*p_max = im;
-		
+	*p_max = im;	
 	if((*pp_str = (char****) GiveSpace((Size)im * sizeof(char**))) == NULL)
 		return(ABORT);
 	if(pp_ndx != NULL) {
@@ -992,37 +710,26 @@ int LoadStringResource(char***** pp_str,int ***pp_ndx,int ***pp_narg,int id,long
 		if((*pp_narg = (int**) GiveSpace((Size)im * sizeof(int))) == NULL)
 			return(ABORT);
 		}
-
-	/* In Carbon, the strings start at the 3rd byte (buffer[2]) and follow one after another
-	without any padding (they are Pascal strings, so they begin with length bytes).
-	Variable j keeps track of the current offset in buffer. */
 	for(i=0,j=1; i < im; i++) {
-	#if !BP_CARBON_GUI_FORGET_THIS
 		// In console build, we set buffer to each consecutive C string in strarray and
-		// j to the non-existent "length byte" at position -1 (it will be incremented before use).
-		buffer = strarray[i];
+		// j to the non-existent "length byte" at position -1 (it will be incremented before use)
+		strcpy(buffer,strarray[i]);
+		buffer[MAX_STRINGLISTS_LEN - 1] = '\0';
 		j = -1;
 		km = strlen(buffer);
-	#else
-		km = (*h_res)[++j]; /* length of P-string */
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 		j0 = j;
 		if(km == 0) goto ERR;
 		if(pp_ndx != NULL) {
 			j++;
-			MyLock(FALSE,(Handle)h_res);
 			k = GetInteger(NO,buffer,&j);
 			if(k == INT_MAX) goto ERR;
 			(**pp_ndx)[i] = k;
-			MyUnlock((Handle)h_res);
 			}
 		if(pp_narg != NULL) {
 			j++;
-			MyLock(FALSE,(Handle)h_res);
 			k = GetInteger(NO,buffer,&j);
 			if(k == INT_MAX) goto ERR;
 			(**pp_narg)[i] = k;
-			MyUnlock((Handle)h_res);
 			}
 		km -= j - j0;
 		
@@ -1034,31 +741,63 @@ int LoadStringResource(char***** pp_str,int ***pp_ndx,int ***pp_narg,int id,long
 			}
 		(*((**pp_str)[i]))[k] = '\0';
 		}
-	#if BP_CARBON_GUI_FORGET_THIS
-	ReleaseResource(h_res);
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 	return(OK);
 
 	ERR:
-	my_sprintf(Message,"=> Error loading %ldth string in resource list ID %ld",
+	BPPrintMessage(0,odError,"=> Error loading %ldth string in resource list ID %ld",
 		(long)i,(long)id);
-	#if !BP_CARBON_GUI_FORGET_THIS
-	fprintf(stderr, "%s\n", Message);
-	#else
-	ParamText(in_place_c2pstr(Message),"\p","\p","\p");
-	NoteAlert(OKAlert,0L);
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
-	EmergencyExit = TRUE;
-	return(MISSED);
+	Panic = TRUE;
+	return(ABORT);
+	}
+
+int ReadJason(int* p_im, char* key, char the_array[][MAX_STRINGLISTS_LEN]) {
+	int i = 0;
+	char *json_data = read_file(StringsJason);
+    if(!json_data) {
+		BPPrintMessage(0,odError,"=> Could not open file “php/%s”\n",StringsJason);
+		Panic = TRUE;
+		return ABORT;
+		}
+	cJSON *json = cJSON_Parse(json_data);
+    if(!json) {
+        BPPrintMessage(0,odError,"=> Could not parse “php/%s”: %s\n",StringsJason,cJSON_GetErrorPtr());
+		free(json_data);
+		Panic = TRUE;
+        return ABORT;
+    	}
+	cJSON *scriptCommandArray = cJSON_GetObjectItem(json,key);
+	if(!cJSON_IsArray(scriptCommandArray)) {
+        BPPrintMessage(0,odError,"=> “%s” was not found in “php/%s”\n",key,StringsJason);
+		cJSON_Delete(json);
+		free(json_data);
+		Panic = TRUE;
+		return ABORT;
+		}
+    cJSON *item;
+    cJSON_ArrayForEach(item,scriptCommandArray) {
+        if (i >= MAX_STRINGLISTS_NUMBER) {
+			BPPrintMessage(0,odError,"=> Too many “%s” in “php/%s”\n",key,StringsJason);
+            break;
+        	}
+        if (cJSON_IsString(item)) {
+            strncpy(the_array[i],item->valuestring,MAX_STRINGLISTS_LEN - 1);
+            the_array[i][MAX_STRINGLISTS_LEN -1] = '\0';
+            i++;
+			}
+		}
+	*p_im = i;
+    cJSON_Delete(json);
+    free(json_data);
+	return OK;
 	}
 
 
-int LoadScriptCommands() {  // This is the way we will load all lists of strings later
-	int i,im,ilabel,iarg,j,k,script_length,kk,nargs,nmax_args,index,kjn;
+int LoadScriptCommands() {
+	int i,im,result,ilabel,iarg,j,k,script_length,kk,nargs,nmax_args,index,kjn;
 	char c,**ptr;
 
-	im = NUM_SCRIPT_CMD_STRS;
-	MaxScriptInstructions = 0;
+	if((result = ReadJason(&im,"ScriptCommand",ScriptCommand)) != OK) return result;
+	MaxScriptInstructions = 0; 
 	if((h_Script = (scriptcommandtype**) GiveSpace((Size)im * sizeof(scriptcommandtype))) == NULL)
 		goto ERR2;
 	if((h_ScriptIndex = (int**) GiveSpace((Size)im * sizeof(int))) == NULL)

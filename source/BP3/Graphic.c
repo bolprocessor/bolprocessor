@@ -31,11 +31,11 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 
 #define SHOWEVERYTHING 0
 

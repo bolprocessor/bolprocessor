@@ -31,11 +31,11 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h" 
+#include "-BP3decl.h" 
 
 int trace_csound_pianoroll = 0;
 
@@ -2378,7 +2378,7 @@ if(!rtMIDI || MIDIfileOn) {
 
 result = OK;
 #if WITH_REAL_TIME_MIDI_FORGET_THIS
-WhenItStarted += 1L;	/* Change it slightly so that BP2 remembers WaitForEmptyBuffer() has been called */
+WhenItStarted += 1L;	/* Change it slightly so that BP3 remembers WaitForEmptyBuffer() has been called */
 if(Nbytes == ZERO || Panic) return(OK);
 
 formertime = ZERO;

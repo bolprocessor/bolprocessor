@@ -32,11 +32,11 @@
 */
 
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 
 int trace_script = 0;
 
@@ -1511,7 +1511,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(!check) BPActivateWindow(SLOW,wNotice);
 			break;
-		case 110:	/* BP2 script */
+		case 110:	/* BP3 script */
 			return(OK); break;
 		case 111:  	/* Compute while play OFF */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);

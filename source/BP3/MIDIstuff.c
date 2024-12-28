@@ -32,8 +32,8 @@
 */
 
 
-#include "-BP2.h"
-#include "-BP2decl.h"
+#include "-BP3.h"
+#include "-BP3decl.h"
 
 int trace_midi_filter = 0;
 int trace_driver = 0;

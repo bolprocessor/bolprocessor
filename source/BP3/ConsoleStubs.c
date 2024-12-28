@@ -35,14 +35,14 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <string.h>
 
-#include "-BP2.h"
-#include "-BP2decl.h"
+#include "-BP3.h"
+#include "-BP3decl.h"
 #include "ConsoleGlobals.h"
 #include "ConsoleMessages.h"
 
-/* Stubs to replace missing functions from BP2 Carbon GUI and from Mac OS X Carbon libraries */
+/* Stubs to replace missing functions from BP3 Carbon GUI and from Mac OS X Carbon libraries */
 
-/* These are BP2 functions -- some of these may end up utilizing callbacks
+/* These are BP3 functions -- some of these may end up utilizing callbacks
    set by host application using the client API ... */
 
 int PleaseWait(void)
@@ -248,7 +248,7 @@ int CloseCsScore(void)
 	else strcpy(line,"e");
 	if(!ConvertMIDItoCsound) WriteToFile(NO,CsoundFileFormat,line,CsRefNum);	/* 'e' terminates a Csound score */
 	Date(line);
-	my_sprintf(Message,"\n; this score was created by BP console (version %s) on %s",VersionName[Version],line);
+	my_sprintf(Message,"\n; this score was created by BP console on %s",line);
 	WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);
 	SetOutputDestinations(odCsScore, NULL);
 	CloseOutputFile(&(gOptions.outputFiles[ofiCsScore]));
@@ -266,7 +266,7 @@ int CheckTextSize(int w)
 
 
 /* These are Mac OS X Carbon calls that could have useful replacements in
-   the console/library build or that are too numerous in the BP2 source code
+   the console/library build or that are too numerous in the BP3 source code
    to conditionalize with the preprocessor. */
 
 void SysBeep(short duration)
@@ -277,9 +277,10 @@ void SysBeep(short duration)
 	return;
 }
 
+/*
 int Button(void)
 {
 	// See docs-developer/Uses-of-Button.txt for a discussion of this function
 	// and why this return value may not be OK in the future! 
 	return FALSE;
-}
+} */

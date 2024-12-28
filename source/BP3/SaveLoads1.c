@@ -32,11 +32,11 @@
 */
 
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 
 int trace_load_settings = 0;
 int trace_load_prototypes = 0;
@@ -190,7 +190,7 @@ if(ReadOne(FALSE,TRUE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED)
 GetDateSaved(p_completeline,&(p_FileInfo[wKeyboard]));
 if(ReadInteger(refnum,&imax,&pos) == MISSED) goto ERR;
 if(imax > 52) {
-	Alert1("This version of BP2 can't read selected '-kb.' file");
+	Alert1("This version of BP3 can't read selected '-kb.' file");
 	goto ERR;
 	}
 for(i=0; i < imax; i++) {
@@ -324,11 +324,11 @@ GetDateSaved(p_completeline,&(p_FileInfo[wTimeBase]));
 if(ReadInteger(refnum,&y,&pos) == MISSED) goto ERR; maxticks = y;
 if(ReadInteger(refnum,&y,&pos) == MISSED) goto ERR; maxbeats = y;
 if(maxticks > MAXTICKS) {
-	Alert1("This version of BP2 can't read selected '-tb.' file");
+	Alert1("This version of BP3 can't read selected '-tb.' file");
 	goto ERR;
 	}
 if(maxbeats > MAXBEATS) {
-	Alert1("This version of BP2 can't read selected '-tb.' file");
+	Alert1("This version of BP3 can't read selected '-tb.' file");
 	goto ERR;
 	}
 TickThere = FALSE;
@@ -1028,7 +1028,7 @@ void GetStartupSettingsSpec(FSSpecPtr spec)
 			}
 		}
 	if (!haveStartupSpec) {
-		// use the BP2 application folder copy if needed
+		// use the BP3 application folder copy if needed
 		err = FSMakeFSSpec(RefNumbp2, ParIDbp2, kBPSeStartup, spec);
 		// if err, fill in spec ourselves (will probably fail to open, 
 		// but we need to avoid returning completely random values)

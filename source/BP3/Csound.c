@@ -32,11 +32,11 @@
 */
 
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 
 int trace_csound = 0;
 
@@ -715,7 +715,7 @@ if((*p_CsInstrument)[i].ipmax > 0) {
 			}
 		}
 	for(ip=(*p_CsInstrument)[i].ipmax; ip < IPMAX; ip++) {
-		// This may happen with future versions of BP2 when IPMAX gets larger
+		// This may happen with future versions of BP3 when IPMAX gets larger
 		(*((*p_CsInstrument)[j].paramlist))[ip].name = NULL;
 		(*((*p_CsInstrument)[j].paramlist))[ip].comment = NULL;
 		if(ResetMoreParameter(j,ip) != OK) return(ABORT);

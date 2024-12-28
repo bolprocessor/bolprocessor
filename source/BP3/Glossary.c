@@ -31,8 +31,8 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "-BP2.h"
-#include "-BP2decl.h"
+#include "-BP3.h"
+#include "-BP3decl.h"
 
 int CompileGlossary(void)
 // A glossary is a mixture of certain script commands and "Define..." commands

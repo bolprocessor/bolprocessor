@@ -37,8 +37,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h> */
 
-#include "-BP2.h"
-#include "-BP2main.h"
+#include "-BP3.h"
+#include "-BP3main.h"
 
 #include "ConsoleGlobals.h"
 #include "ConsoleMessages.h"
@@ -132,6 +132,7 @@ int main (int argc, char* args[]) {
 	result = ApplyArgs(&gOptions);
 	if (result != OK) goto CLEANUP;
 	
+
 	TraceMemory = FALSE;
 
 	MaxMIDIMessages = 1000L;  // May be increased if necesssary to deal with very large chunks of events in real time
@@ -1203,7 +1204,7 @@ void GetFileName(char* name,const char* path) { // Added by BB 4 Nov 2020
 
 /*	Calls LoadFileToTextHandle() for each file in pathnames and copies the contents
 	to the corresponding TextHandle in TEH[].  pathnames must be an array of 
-	WMAX file/path names with file types that match the window indices in -BP2.h.
+	WMAX file/path names with file types that match the window indices in -BP3.h.
 	
 	Returns MISSED if an error occured or OK if successful. */
 int LoadInputFiles(const char* pathnames[WMAX]) {

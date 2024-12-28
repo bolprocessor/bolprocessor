@@ -32,11 +32,11 @@
 */
 
 
-#ifndef _H_BP2 
-#include "-BP2.h"
+#ifndef _H_BP3 
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 
 #if BP_CARBON_GUI_FORGET_THIS
 
@@ -1525,7 +1525,7 @@ if(what == mouseDown) {
 		}
 	}
 ButtonOn = TRUE;
-result = DoEvent(&event);	/* This may send BP2 to background */
+result = DoEvent(&event);	/* This may send BP3 to background */
 ButtonOn = FALSE;
 if(EventState != EXIT && EventState != ABORT) EventState = NO;
 else result = EventState;

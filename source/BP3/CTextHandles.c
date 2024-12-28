@@ -33,16 +33,16 @@
 */
 
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 #include "ConsoleMessages.h"
 
 /*	NewTextHandle()
 	Creates and inits a new TEHandle (TERec**)
-	TextHandle is a synonym for TEHandle (defined in -BP2.h)
+	TextHandle is a synonym for TEHandle (defined in -BP3.h)
  */
 TEHandle NewTextHandle(void) {
 	TEHandle th;

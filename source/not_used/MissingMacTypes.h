@@ -29,18 +29,17 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
 
-/* #include <stddef.h>
+#include <stddef.h>
 #include <stdbool.h>
-#include <stdint.h> */
+#include <stdint.h>
 
 #ifndef BP_MISSINGMACTYPES_H
 #define BP_MISSINGMACTYPES_H
 
 /* This file contains type definitions from Mac OS that are used by BP3 */
-/*
+
 typedef	int8_t	sbyte;
 
-// these are unsigned on Mac OS, but might be better replaced as "plain" char ??
 typedef	uint8_t		Str255[256], Str63[64], Str31[32];
 typedef uint8_t*	StringPtr;
 
@@ -54,7 +53,6 @@ typedef uint16_t	EventModifiers;
 
 typedef int16_t		MenuID;
 typedef uint16_t	MenuItemIndex;
-*/
 
 
 

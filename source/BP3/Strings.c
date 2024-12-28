@@ -32,11 +32,11 @@
 */
 
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 
 void my_sprintf(char* buffer, const char *format, ...) {
     va_list args;
@@ -262,16 +262,10 @@ length = GetTextLength(w);
 if(MySetHandleSize((Handle*)pp_h,(Size)(1L + length) * sizeof(char)) != OK)
 	return(ABORT);
 	
-/* #if WASTE_FORGET_THIS
-h = WEGetText(TEH[w]);
-(*h)[length] = '\0';
-MystrcpyHandleToHandle(0,pp_h,h);
-#else */
 for(i= 0; i < length; i++) {
 	(**pp_h)[i] = GetTextChar(w,i);
 	}
 (**pp_h)[i] = '\0';
-// #endif
 
 StripHandle(*pp_h);
 return(OK);

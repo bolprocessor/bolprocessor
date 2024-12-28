@@ -33,11 +33,11 @@
 */
 
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 
 /* WARNING: Record carefully any change done here as it may take ages to trace bad consequences */
 
@@ -1709,7 +1709,7 @@ int ClearLockedSpace(void)
 {
 long i;
 
-#if WITH_REAL_TIME_SCHEDULER_FORGET_THIS
+#if PRODUCE_TICKS
 MyUnlock((Handle)p_Clock);
 DisposeHandle((Handle)p_Clock);
 MyUnlock((Handle)p_AllSlices);

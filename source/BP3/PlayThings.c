@@ -32,11 +32,11 @@
 */
 
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 
 
 int PlaySelection(int w, int all) {
@@ -626,7 +626,7 @@ int TextToMIDIstream(int w) {
 		goto END;
 		}
 	if(!NoVariable(&p_a)) {
-		Alert1("You can't convert the selection because it contains text that BP2 interprets as variables");
+		Alert1("You can't convert the selection because it contains text that BP3 interprets as variables");
 		MyDisposeHandle((Handle*)&p_a);
 		goto END;
 		}
@@ -664,250 +664,246 @@ int TextToMIDIstream(int w) {
 	}
 
 
-/* 20130819: Allowed 'what' (the paste action) to be passed as a parameter.
-   Valid values are listed in -BP2.h as "PasteSelectionAlert button indexes".
-   A new value (bAskPasteAction) indicates to ask the user for how to paste.
- */
 int PasteStreamToPrototype(int j, int what)
-{
-long maxsize,newsize,i,ifrom,ito,k,p,offset;
-Size n;
-MIDIcode **ptr1;
-int longerCsound;
-Milliseconds gap,tfrom,tto,datestream,dateproto;
-double alpha;
+	{
+	long maxsize,newsize,i,ifrom,ito,k,p,offset;
+	Size n;
+	MIDIcode **ptr1;
+	int longerCsound;
+	Milliseconds gap,tfrom,tto,datestream,dateproto;
+	double alpha;
 
-if(j < 2 || j >= Jbol) return(MISSED);
-if(Stream.imax <= ZERO) return(OK);
+	if(j < 2 || j >= Jbol) return(MISSED);
+	if(Stream.imax <= ZERO) return(OK);
 
-if((*pp_MIDIcode)[j] == NULL) {
-	if((ptr1 = (MIDIcode**) GiveSpace((Size) 50L * sizeof(MIDIcode))) == NULL) return(ABORT);
-	(*pp_MIDIcode)[j] = ptr1;
-	}
-maxsize = (long) MyGetHandleSize((Handle)(*pp_MIDIcode)[j]);
-maxsize = (maxsize / sizeof(MIDIcode));
-
-if(DurationToPoint(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-
-ifrom = ito = -1L;;
-tfrom = ZERO;
-if((*p_Tpict)[j] != Infneg) {
-	if((*p_Tpict)[j] >= ZERO) tfrom = (*p_Tpict)[j];
-	else tfrom = ZERO;
-	tto = tfrom + (*Stream.code)[Stream.imax - 1L].time;
-	for(i=ZERO; i < (*p_MIDIsize)[j]; i++) {
-		if(ifrom == -1L && (*((*pp_MIDIcode)[j]))[i].time >= tfrom) {
-			ifrom = FindGoodInsertPoint(j,i);
-			}
-		if((*((*pp_MIDIcode)[j]))[i].time >= tto) {
-			ito = FindGoodInsertPoint(j,i);
-			break;
-			}
+	if((*pp_MIDIcode)[j] == NULL) {
+		if((ptr1 = (MIDIcode**) GiveSpace((Size) 50L * sizeof(MIDIcode))) == NULL) return(ABORT);
+		(*pp_MIDIcode)[j] = ptr1;
 		}
-	if(ifrom == -1L) ifrom = ito = (*p_MIDIsize)[j];
-	else if(ito == -1L) ito = (*p_MIDIsize)[j];
-	}
-StopWait();
-
-if((*p_MIDIsize)[j] == ZERO) what = bDeleteReplace;
-#if BP_CARBON_GUI_FORGET_THIS
-else if (what == bAskPasteAction) what = Alert(PasteSelectionAlert,0L);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-switch(what) {
-	case bCancelPasteSelection:
-		if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-		goto SORTIR;
-		break;
-	case bInsertBefore:
-		ifrom = ito = tfrom = ZERO;
-		newsize = Stream.imax + (*p_MIDIsize)[j];
-		(*p_PasteDone)[j] = TRUE;
-		break;
-	case bAppend:
-		newsize = Stream.imax + (*p_MIDIsize)[j];
-		ifrom = ito = (*p_MIDIsize)[j];
-		tfrom = (*((*pp_MIDIcode)[j]))[(*p_MIDIsize)[j] - 1L].time;
-		(*p_PasteDone)[j] = TRUE;
-		break;
-	case bInsertAtInsertPoint:
-		if((*p_Tpict)[j] == Infneg) {
-			Alert1("Can't insert because insert point is not defined or out of range");
-			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-			goto SORTIR;
-			}
-		ito = ifrom;
-		newsize = Stream.imax + (*p_MIDIsize)[j];
-		(*p_PasteDone)[j] = TRUE;
-		break;
-	case bReplaceFromInsertpoint:
-		if((*p_Tpict)[j] == Infneg) {
-			Alert1("Can't replace because insert point is not defined or out of range");
-			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-			goto SORTIR;
-			}
-		if(Answer("Part of the sound-object prototype will be replaced with the selection. Can't be undone. Proceed",
-				'N') != OK) {
-			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-			goto SORTIR;
-			}
-		newsize = (*p_MIDIsize)[j] - (ito - ifrom) + Stream.imax;
-		(*p_PasteDone)[j] = FALSE;
-		break;
-	case bDeleteReplace:
-		if((*p_MIDIsize)[j] > ZERO
-			&& Answer("The sound-object prototype will be replaced with the selection. Can't be undone. Proceed",
-				'N') != OK) {
-			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-			goto SORTIR;
-			}
-		newsize = Stream.imax;
-		ifrom = ito = tfrom = ZERO;
-		(*p_PasteDone)[j] = FALSE;
-		break;
-	case bMergeFromInsertPoint:
-		if((*p_Tpict)[j] == Infneg) {
-			Alert1("Can't merge because insert point is not defined or out of range");
-			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-			goto SORTIR;
-			}
-		newsize = Stream.imax + (*p_MIDIsize)[j];
-		(*p_PasteDone)[j] = FALSE;
-		break;
-	case bHelpPasteSelection:
-#if BP_CARBON_GUI_FORGET_THIS
-		DisplayHelp("Paste text selection to sound-object prototype");
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-		if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-		goto SORTIR;
-		break;
-	default:
-		my_sprintf(Message, "=> Err. PasteStreamToPrototype(): Invalid value for parameter 'what' (%d).", what);
-		if(Beta) Alert1(Message);
-		if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-		goto SORTIR;
-		break;
-	}
-(*p_Ifrom)[j] = ifrom;
-if(ifrom < ZERO || ito < ZERO) {
-	if(Beta) Alert1("=> Err. in PasteStreamToPrototype(). ifrom < ZERO || ito < ZERO");
-	ifrom = ZERO;
-	}
-
-// Resize handles if necessary
-while((newsize+1L) >= maxsize) {	/* +1L for the case Stream.period > 0 */
-	ptr1 = (*pp_MIDIcode)[j];
-	if((ptr1 = (MIDIcode**)IncreaseSpace((Handle)ptr1)) == NULL) goto ERR;
-	(*pp_MIDIcode)[j] = ptr1;
 	maxsize = (long) MyGetHandleSize((Handle)(*pp_MIDIcode)[j]);
 	maxsize = (maxsize / sizeof(MIDIcode));
-	}
 
-// Move up codes before inserting
-switch(what) {
-	case bInsertAtInsertPoint:
-	case bInsertBefore:
-	case bReplaceFromInsertpoint:
-	case bMergeFromInsertPoint:
-		offset = Stream.imax - (ito - ifrom);
-		if(what == bMergeFromInsertPoint) offset = Stream.imax;
-		for(i=(*p_MIDIsize)[j]-1L; i >= ito; i--) {
-			(*((*pp_MIDIcode)[j]))[i+offset] = (*((*pp_MIDIcode)[j]))[i];
+	if(DurationToPoint(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+
+	ifrom = ito = -1L;;
+	tfrom = ZERO;
+	if((*p_Tpict)[j] != Infneg) {
+		if((*p_Tpict)[j] >= ZERO) tfrom = (*p_Tpict)[j];
+		else tfrom = ZERO;
+		tto = tfrom + (*Stream.code)[Stream.imax - 1L].time;
+		for(i=ZERO; i < (*p_MIDIsize)[j]; i++) {
+			if(ifrom == -1L && (*((*pp_MIDIcode)[j]))[i].time >= tfrom) {
+				ifrom = FindGoodInsertPoint(j,i);
+				}
+			if((*((*pp_MIDIcode)[j]))[i].time >= tto) {
+				ito = FindGoodInsertPoint(j,i);
+				break;
+				}
 			}
-		break;
-	}
-	
-// Calculate dilation ratio
-if(Stream.pclock > ZERO) {
-	if((*p_Tref)[j] > EPSILON) {
-		alpha = (((double)Stream.pclock * 1000.) / Stream.qclock) / (*p_Tref)[j];
+		if(ifrom == -1L) ifrom = ito = (*p_MIDIsize)[j];
+		else if(ito == -1L) ito = (*p_MIDIsize)[j];
 		}
-	else {
-		alpha = 1.;
-		(*p_Tref)[j] = ((double)Stream.pclock * 1000.) / Stream.qclock;
-		}
-	}
-else alpha = 1.;
+	StopWait();
 
-// Merge codes
-if(what == bMergeFromInsertPoint) {
-	/* Create a handle to a stream containing the sorted codes */
-	n = Stream.imax + (ito - ifrom);
-	if((ptr1 = (MIDIcode**) GiveSpace(n * sizeof(MIDIcode))) == NULL) goto ERR;
-	for(i=p=ZERO,k=ifrom;;) {
-		if(p >= n) break;
-		if(i < Stream.imax) datestream = (*Stream.code)[i].time / alpha + tfrom;
-		else datestream = Infpos;
-		if(k < ito) dateproto = (*((*pp_MIDIcode)[j]))[k].time;
-		else dateproto = Infpos;
-		if(datestream > dateproto) {
-			(*ptr1)[p].time = dateproto;
-			(*ptr1)[p].byte = (*((*pp_MIDIcode)[j]))[k].byte;
-			(*ptr1)[p].sequence = (*((*pp_MIDIcode)[j]))[k].sequence;
-			k++;
+	#if BP_CARBON_GUI_FORGET_THIS
+	if((*p_MIDIsize)[j] == ZERO) what = bDeleteReplace;
+	else if (what == bAskPasteAction) what = Alert(PasteSelectionAlert,0L);
+	switch(what) {
+		case bCancelPasteSelection:
+			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+			goto SORTIR;
+			break;
+		case bInsertBefore:
+			ifrom = ito = tfrom = ZERO;
+			newsize = Stream.imax + (*p_MIDIsize)[j];
+			(*p_PasteDone)[j] = TRUE;
+			break;
+		case bAppend:
+			newsize = Stream.imax + (*p_MIDIsize)[j];
+			ifrom = ito = (*p_MIDIsize)[j];
+			tfrom = (*((*pp_MIDIcode)[j]))[(*p_MIDIsize)[j] - 1L].time;
+			(*p_PasteDone)[j] = TRUE;
+			break;
+		case bInsertAtInsertPoint:
+			if((*p_Tpict)[j] == Infneg) {
+				Alert1("Can't insert because insert point is not defined or out of range");
+				if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+				goto SORTIR;
+				}
+			ito = ifrom;
+			newsize = Stream.imax + (*p_MIDIsize)[j];
+			(*p_PasteDone)[j] = TRUE;
+			break;
+		case bReplaceFromInsertpoint:
+			if((*p_Tpict)[j] == Infneg) {
+				Alert1("Can't replace because insert point is not defined or out of range");
+				if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+				goto SORTIR;
+				}
+			if(Answer("Part of the sound-object prototype will be replaced with the selection. Can't be undone. Proceed",
+					'N') != OK) {
+				if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+				goto SORTIR;
+				}
+			newsize = (*p_MIDIsize)[j] - (ito - ifrom) + Stream.imax;
+			(*p_PasteDone)[j] = FALSE;
+			break;
+		case bDeleteReplace:
+			if((*p_MIDIsize)[j] > ZERO
+				&& Answer("The sound-object prototype will be replaced with the selection. Can't be undone. Proceed",
+					'N') != OK) {
+				if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+				goto SORTIR;
+				}
+			newsize = Stream.imax;
+			ifrom = ito = tfrom = ZERO;
+			(*p_PasteDone)[j] = FALSE;
+			break;
+		case bMergeFromInsertPoint:
+			if((*p_Tpict)[j] == Infneg) {
+				Alert1("Can't merge because insert point is not defined or out of range");
+				if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+				goto SORTIR;
+				}
+			newsize = Stream.imax + (*p_MIDIsize)[j];
+			(*p_PasteDone)[j] = FALSE;
+			break;
+		case bHelpPasteSelection:
+			DisplayHelp("Paste text selection to sound-object prototype");
+			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+			goto SORTIR;
+			break;
+		default:
+			my_sprintf(Message, "=> Err. PasteStreamToPrototype(): Invalid value for parameter 'what' (%d).", what);
+			if(Beta) Alert1(Message);
+			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+			goto SORTIR;
+			break;
+		}
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+
+	(*p_Ifrom)[j] = ifrom;
+	if(ifrom < ZERO || ito < ZERO) {
+		if(Beta) Alert1("=> Err. in PasteStreamToPrototype(). ifrom < ZERO || ito < ZERO");
+		ifrom = ZERO;
+		}
+
+	// Resize handles if necessary
+	while((newsize+1L) >= maxsize) {	/* +1L for the case Stream.period > 0 */
+		ptr1 = (*pp_MIDIcode)[j];
+		if((ptr1 = (MIDIcode**)IncreaseSpace((Handle)ptr1)) == NULL) goto ERR;
+		(*pp_MIDIcode)[j] = ptr1;
+		maxsize = (long) MyGetHandleSize((Handle)(*pp_MIDIcode)[j]);
+		maxsize = (maxsize / sizeof(MIDIcode));
+		}
+	/*
+	// Move up codes before inserting
+	switch(what) {
+		case bInsertAtInsertPoint:
+		case bInsertBefore:
+		case bReplaceFromInsertpoint:
+		case bMergeFromInsertPoint:
+			offset = Stream.imax - (ito - ifrom);
+			if(what == bMergeFromInsertPoint) offset = Stream.imax;
+			for(i=(*p_MIDIsize)[j]-1L; i >= ito; i--) {
+				(*((*pp_MIDIcode)[j]))[i+offset] = (*((*pp_MIDIcode)[j]))[i];
+				}
+			break;
+		} */
+		
+	// Calculate dilation ratio
+	if(Stream.pclock > ZERO) {
+		if((*p_Tref)[j] > EPSILON) {
+			alpha = (((double)Stream.pclock * 1000.) / Stream.qclock) / (*p_Tref)[j];
 			}
 		else {
-			(*ptr1)[p].time = datestream;
-			(*ptr1)[p].byte = (*Stream.code)[i].byte;
-			(*ptr1)[p].sequence = (*Stream.code)[i].sequence;
-			i++;
+			alpha = 1.;
+			(*p_Tref)[j] = ((double)Stream.pclock * 1000.) / Stream.qclock;
 			}
-		p++;
 		}
-	/* Copy the sorted stream to the prototype */
-	for(p=ZERO; p < n; p++) {
-		(*((*pp_MIDIcode)[j]))[ifrom+p] = (*ptr1)[p];
+	else alpha = 1.;
+
+	/*
+	// Merge codes
+	if(what == bMergeFromInsertPoint) {
+		// Create a handle to a stream containing the sorted codes
+		n = Stream.imax + (ito - ifrom);
+		if((ptr1 = (MIDIcode**) GiveSpace(n * sizeof(MIDIcode))) == NULL) goto ERR;
+		for(i=p=ZERO,k=ifrom;;) {
+			if(p >= n) break;
+			if(i < Stream.imax) datestream = (*Stream.code)[i].time / alpha + tfrom;
+			else datestream = Infpos;
+			if(k < ito) dateproto = (*((*pp_MIDIcode)[j]))[k].time;
+			else dateproto = Infpos;
+			if(datestream > dateproto) {
+				(*ptr1)[p].time = dateproto;
+				(*ptr1)[p].byte = (*((*pp_MIDIcode)[j]))[k].byte;
+				(*ptr1)[p].sequence = (*((*pp_MIDIcode)[j]))[k].sequence;
+				k++;
+				}
+			else {
+				(*ptr1)[p].time = datestream;
+				(*ptr1)[p].byte = (*Stream.code)[i].byte;
+				(*ptr1)[p].sequence = (*Stream.code)[i].sequence;
+				i++;
+				}
+			p++;
+			}
+		for(p=ZERO; p < n; p++) {
+			(*((*pp_MIDIcode)[j]))[ifrom+p] = (*ptr1)[p];
+			}
+		MyDisposeHandle((Handle*)&ptr1);
 		}
-	MyDisposeHandle((Handle*)&ptr1);
-	}
+
 	
-// Copy codes
-if(what != bMergeFromInsertPoint) {
-	for(i=ZERO; i < Stream.imax; i++) {
-		(*((*pp_MIDIcode)[j]))[ifrom+i].time = (*Stream.code)[i].time / alpha + tfrom;
-		(*((*pp_MIDIcode)[j]))[ifrom+i].byte = (*Stream.code)[i].byte;
-		(*((*pp_MIDIcode)[j]))[ifrom+i].sequence = (*Stream.code)[i].sequence;
+	// Copy codes
+	if(what != bMergeFromInsertPoint) {
+		for(i=ZERO; i < Stream.imax; i++) {
+			(*((*pp_MIDIcode)[j]))[ifrom+i].time = (*Stream.code)[i].time / alpha + tfrom;
+			(*((*pp_MIDIcode)[j]))[ifrom+i].byte = (*Stream.code)[i].byte;
+			(*((*pp_MIDIcode)[j]))[ifrom+i].sequence = (*Stream.code)[i].sequence;
+			}
 		}
-	}
 
-// Increment dates after insertion;
-gap = (*Stream.code)[Stream.imax-1L].time / alpha;
-if(what == bInsertAtInsertPoint || what == bInsertBefore) {
-	for(i=(ifrom+Stream.imax); i < newsize; i++) {
-		(*((*pp_MIDIcode)[j]))[i].time += gap;
+	// Increment dates after insertion;
+	gap = (*Stream.code)[Stream.imax-1L].time / alpha;
+	if(what == bInsertAtInsertPoint || what == bInsertBefore) {
+		for(i=(ifrom+Stream.imax); i < newsize; i++) {
+			(*((*pp_MIDIcode)[j]))[i].time += gap;
+			}
+		} */
+
+	(*p_Dur)[j] = ((*((*pp_MIDIcode)[j]))[newsize-1].time);
+	// This value will be corrected by SetPrototypeDuration()
+
+	(*p_MIDIsize)[j] = newsize;
+
+	if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+		
+	(*p_Quan)[j] = 0.;
+	SetPrototypeDuration(j,&longerCsound);
+	#if BP_CARBON_GUI_FORGET_THIS
+	if(Stream.cyclic && what == bDeleteReplace) {
+		(*p_PeriodMode)[j] = RELATIF;
+		(*p_BeforePeriod)[j] = ZERO;
+		SetPrototypePage6(j);
 		}
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+
+	#if BP_CARBON_GUI_FORGET_THIS
+	SetPrototypePage5(j);
+	SetPrototype(j);
+
+	UpdateDirty(TRUE,wPrototype1);
+	#endif /* BP_CARBON_GUI_FORGET_THIS */
+
+	SORTIR:
+	return(OK);
+
+	ERR:
+	PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j);
+	return(ABORT);
 	}
-
-(*p_Dur)[j] = ((*((*pp_MIDIcode)[j]))[newsize-1].time);
-/* This value will be corrected by SetPrototypeDuration() */
-
-(*p_MIDIsize)[j] = newsize;
-
-if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-	
-(*p_Quan)[j] = 0.;
-SetPrototypeDuration(j,&longerCsound);
-if(Stream.cyclic && what == bDeleteReplace) {
-	(*p_PeriodMode)[j] = RELATIF;
-	(*p_BeforePeriod)[j] = ZERO;
-#if BP_CARBON_GUI_FORGET_THIS
-	SetPrototypePage6(j);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-	}
-
-#if BP_CARBON_GUI_FORGET_THIS
-SetPrototypePage5(j);
-SetPrototype(j);
-
-UpdateDirty(TRUE,wPrototype1);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-SORTIR:
-return(OK);
-
-ERR:
-PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j);
-return(ABORT);
-}
 
 
 int UndoPasteSelection(int j)

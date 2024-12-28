@@ -32,11 +32,11 @@
 */
 
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 
 
 int SkipRem(char **p) 	/* Skip comments between[] or C programming style */
@@ -1065,7 +1065,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 					Print(wTrace,Message);
 					return(ABORT);
 					}
-				if(jinstr == 67) BPPrintMessage(1,odInfo,"@@@  _part()\n");
+			//	if(jinstr == 67) BPPrintMessage(1,odInfo,"@@@  _part()\n");
 				if(jinstr == 67 && initparam < 1) {
 					my_sprintf(Message,
 						"\nPart index must be strictly positive. Can't accept '_part(K%ld=%ld)'",

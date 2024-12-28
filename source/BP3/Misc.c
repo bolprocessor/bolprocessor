@@ -32,11 +32,11 @@
 */
 
 
-#ifndef _H_BP2
-#include "-BP2.h"
+#ifndef _H_BP3
+#include "-BP3.h"
 #endif
 
-#include "-BP2decl.h"
+#include "-BP3decl.h"
 
 #if defined(_WIN64)
 	void mysleep(long waitTime) {
@@ -995,7 +995,7 @@ return(OK);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 
 int SetGrammarTempo(void)
-// Here we only erase the line containing "_mm()" and tell BP2 that the grammar is not compiled
+// Here we only erase the line containing "_mm()" and tell BP3 that the grammar is not compiled
 // so that a fresh line is  inserted during the compilation
 {
 int w,j,gap,rep;
