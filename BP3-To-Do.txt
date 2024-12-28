@@ -68,6 +68,7 @@ Real-time MIDI
 - Put some scripts on top of a grammar (the INIT: section) to run them before the production is started. This will notably allow setting up parameters K1, K2… K127.
 - Check the accuracy of start times in sound-object pictures.
 - Restore "PLAY THIS EXPRESSION (real-time MIDI)" with MIDI output features. Maybe store the latest real-time MIDI output?
+- Implement connection with FluidSynth (https://www.fluidsynth.org/)
 
 
 Real-time Csound
@@ -89,6 +90,7 @@ Antescofo Score Language
 Open Sound Control (OSC)
 ------------------------
 
+- Is it useful?
 - This development should be easy with the help of AI tools.
 - Read https://en.wikipedia.org/wiki/Open_Sound_Control
 - This might create a framework for connecting BP3 with PYO (http://ajaxsoundstudio.com/software/pyo/)
@@ -100,7 +102,6 @@ HTML/PHP/Javascript interface
 
 - Implement command-s (on MacOS) or control-s (on Windows/Linux) to save a grammar, data, alphabet, etc. This is almost done in _header.php (line 41) and at the bottom of data.php
 - When moving "-gr" and "-da" projects, their settings should be copied.
-- Implement export of data (will be very useful in PHP Desktop).
 
 
 Standalone application
@@ -133,15 +134,6 @@ Chunked data in real-time MIDI
 ------------------------------
 
 - Faulty chunked data (e.g. “-da.Beethoven-fugue-b-flat-major”) produces timing errors in real-time MIDI, although MIDI files are acceptable. This may be difficult to fix due to the size of data.
-
-
-MIDI file player
-----------------
-
-- The player won't work if the computer doesn't have an internet connection. Download version of the player?
-- Implement Pause and Resume (check https://www.midijs.net/midijs_api.html)
-- Standalone application might not accept to call remote midi.js
-- Implement connection with FluidSynth (https://www.fluidsynth.org/)
 
 
 Images
@@ -189,7 +181,7 @@ MIDI files (Probably unnecessary, as MIDI file creation works perfectly.)
 Documentation
 -------------
 
-- The file BP2_help.txt still needs updates (and a renaming, to be checked by installers)
+- The file BP3_help.txt still needs updates
 - Write new docs for BP3 (command-line usage, etc.)
 - Convert BP2 documentation to an (open-source) authoring system that can help maintain the organization and internal links as well as output in multiple formats (HTML, PDF, etc.) ??
 

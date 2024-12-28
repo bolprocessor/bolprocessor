@@ -1,5 +1,4 @@
 SRCDIR = source/BP3
-PREFIX = source/BP3/PrefixANSIDebug.h
 CC     = gcc
 LIBS   = -lm
 EXE    = bp
@@ -9,21 +8,21 @@ UNAME_M := x86_64
 
 # Detect operating system
 ifeq ($(OS),Windows_NT)
-	UNAME_S := Windows
-	CFLAGS =
-	FRAMEWORKS = -lwinmm -Wall -Wextra
-	EXE = bp.exe
+    UNAME_S := Windows
+    CFLAGS =
+    FRAMEWORKS = -lwinmm -Wall -Wextra
+    EXE = bp.exe
 else
-	UNAME_S := $(shell uname -s)
-	ifeq ($(UNAME_S),Darwin)
-		CFLAGS =
-		FRAMEWORKS = -framework CoreMIDI -framework CoreFoundation
-	endif
-	ifeq ($(UNAME_S),Linux)
-		CFLAGS =
-		FRAMEWORKS = -lasound
-		EXE = bp3
-	endif
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Darwin)
+        CFLAGS = -fsanitize=address -fsanitize-recover=address -g
+        FRAMEWORKS = -framework CoreMIDI -framework CoreFoundation
+    endif
+    ifeq ($(UNAME_S),Linux)
+        CFLAGS = -fsanitize=address -fsanitize-recover=address -g
+        FRAMEWORKS = -lasound
+        EXE = bp3
+    endif
 endif
 
 # Print the operating system detected (optional, for debugging)
@@ -36,13 +35,21 @@ OBJS = $(SRCS:.c=.o)
 all:  $(EXE)
 
 $(EXE): $(OBJS)
-	$(CC) $(CFLAGS) -o $(EXE) $(OBJS) $(LIBS) $(FRAMEWORKS)
+ifeq ($(OS),Windows_NT)
+	$(CC) -g -o $(EXE) $(OBJS) $(LIBS) $(FRAMEWORKS)
+else
+	$(CC) -fsanitize=address -fsanitize-recover=address -g -o $(EXE) $(OBJS) $(LIBS) $(FRAMEWORKS)
+endif
 
 %.o : %.c
-	$(CC) $(CFLAGS) -c -I$(SRCDIR) -include $(PREFIX) $< -o $@
+ifeq ($(OS),Windows_NT)
+	$(CC) -g -c $(CFLAGS) -I $(SRCDIR) $< -o $@
+else
+	$(CC) -fsanitize=address -fsanitize-recover=address -g -c $(CFLAGS) -I $(SRCDIR) $< -o $@
+endif
 
 depend: 
-	makedepend -I $(SRCDIR) -include $(PREFIX)  $(SRCS)
+	makedepend -I $(SRCDIR)  $(SRCS)
 
 clean:
 ifeq ($(UNAME_S),Darwin)
