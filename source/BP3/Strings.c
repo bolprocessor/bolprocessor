@@ -64,47 +64,6 @@ while(--len >= 0) dest[i++] = *src++;
 }
 
 
-/* Copies a pascal string to a C string, truncating if necessary.
-   WARNING: this function also converts whitespace characters! */
-/* int MyPtoCstr(int max,Str255 s,char *t)
-{
-int i,len;
-char c;
-
-len = s[0];
-if(len > max) {
-	if(Beta) Alert1("=> Err. MyPtoCstr(). len > max");
-	len = max;
-	}
-for(i=0; i < len; i++) {
-	c = s[i+1];
-	if(MySpace(c)) c = ' ';
-	t[i] = c;
-	}
-t[len] = '\0';
-return(OK);
-} */
-
-
-/* StringPtr in_place_c2pstr(char* s)
-{
-	unsigned int len = 0;
-	char  cur, next;
-	char* p = s;
-	
-	cur = next = *s;
-	while(cur != '\0')	{
-		next = *(++p);
-		*p = cur;
-		cur = next;
-		++len;
-	}
-	s[0] = (unsigned char)((len>255) ? 255 : len);
-	
-	return (StringPtr)(s);
-} */
-
-
 int Pstrcmp(Str255 s1,Str255 s2)
 {
 int i,n1,n2;

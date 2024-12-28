@@ -7,7 +7,7 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 
-2024-12-28 (version 3.1.0)
+2024-12-28 (version 3.1.2)
 This is a complete rebuild of the console code, using "console_strings.json" instead of "StringLists.h". This will make future development easier. Many obsolete lines of code have been removed.
 Don't forget to update the PHP interface!
 

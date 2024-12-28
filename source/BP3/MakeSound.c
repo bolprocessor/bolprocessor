@@ -120,7 +120,10 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	resetok = TRUE;
 	// max_endtime_event = max_endtime = ZERO;
 
-	if(MIDIfileOn) BPPrintMessage(0,odInfo,"👉 a MIDI file will be created\n");
+	if(MIDIfileOn) {
+		BPPrintMessage(0,odInfo,"👉 a MIDI file will be created\n");
+		ItemNumber++;
+		}
 
 	Ke = log((double) SpeedRange) / 64.;
 	t0 = ZERO;
