@@ -94,7 +94,7 @@ FILE* my_fopen(int,const char*,const char*);
 int my_fclose(FILE*);
 int NeedGlossary(tokenbyte***);
 double calculate_pitchbend_cents(unsigned char, unsigned char);
-pascal void MySoundProc(short sndNum);
+// pascal void MySoundProc(short sndNum);
 long LengthOf(tokenbyte***);
 long CopyBuf(tokenbyte***,tokenbyte***);
 int ShowError(int,int,int);

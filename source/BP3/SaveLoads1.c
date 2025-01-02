@@ -1563,6 +1563,7 @@ int LoadSettings(const char *filename, int startup) {
 	ResetFlags = FALSE;
 	ResetWeights = FALSE;
 	NeverResetWeights = FALSE;
+	MinPeriod = 0;
 
    	char *json_data = read_file(filename);
     if(!json_data) {
@@ -1662,6 +1663,7 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"Cb_instead_of_B") == 0) NameChoice[11] = intvalue;
 		else if(strcmp(key,"ShowObjectGraph") == 0) ShowObjectGraph = intvalue;
 		else if(strcmp(key,"ShowPianoRoll") == 0) ShowPianoRoll = intvalue;
+		else if(strcmp(key,"MinPeriod") == 0) MinPeriod = intvalue; // For processing MIDI data capture
 		}
 	if(DeftBufferSize < 100) DeftBufferSize = 1000;
 	BufferSize = DeftBufferSize;

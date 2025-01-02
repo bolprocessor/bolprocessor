@@ -424,6 +424,7 @@ char WindowName[][MAXNAME] = {"Grammar","Alphabet","Start string",
 
 char FileName[WMAX][MAXNAME+1],CsFileName[MAXNAME+1],MIDIfileName[MAXNAME+1],
 	CsoundOrchestraName[MAXNAME+1];
+int MinPeriod;
 // FSSpec MIDIfileSpec;
 float EndFadeOut,AdvanceTime;
 int CurrentVolume[MAXCHAN+1];

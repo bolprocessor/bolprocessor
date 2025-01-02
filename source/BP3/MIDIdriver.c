@@ -1494,24 +1494,24 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
                         channel = 1; midiData[0]++;
                         }
                     if(status == PitchBend) {
-                        fprintf(CapturePtr, "%ld\t\tpitchbend\t%d\t0\t%d\t%d\t%d\t%d\t%d\tpitch2\n",clocktime,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
+                        fprintf(CapturePtr, "%ld\t\tpitchbend\t%d\t0\t%d\t%d\t%d\t%d\t%d\t%d\tpitch2\n",clocktime,dataSize,part,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
                         pb2_done = TRUE;
                         }
                     else {
                         if(status == ChannelPressure) {
-                            fprintf(CapturePtr, "%ld\t\tpressure\t%d\t0\t%d\t%d\t0\t%d\t%d\tpress2\n",clocktime,dataSize,(int)midiData[0],(int)midiData[2],(channel + 1),correction);
+                            fprintf(CapturePtr, "%ld\t\tpressure\t%d\t0\t%d\t%d\t%d\t0\t%d\t%d\tpress2\n",clocktime,dataSize,part,(int)midiData[0],(int)midiData[2],(channel + 1),correction);
                             press2_done = TRUE;
                             }
                         if(status == NoteOff || (status == NoteOn && midiData[2] == 0)) {
-                            fprintf(CapturePtr, "%ld\t%s\tNoteOff\t%d\t0\t%d\t%d\t%d\t%d\t%d\tnote2\n",clocktime,this_key,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
+                            fprintf(CapturePtr, "%ld\t%s\tNoteOff\t%d\t0\t%d\t%d\t%d\t%d\t%d\t%d\tnote2\n",clocktime,this_key,dataSize,part,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
                             note2_done = TRUE;
                             }
                         else if(status == NoteOn) {
-                            fprintf(CapturePtr, "%ld\t%s\tNoteOn\t%d\t0\t%d\t%d\t%d\t%d\t%d\tnote2\n",clocktime,this_key,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
+                            fprintf(CapturePtr, "%ld\t%s\tNoteOn\t%d\t0\t%d\t%d\t%d\t%d\t%d\t%d\tnote2\n",clocktime,this_key,dataSize,part,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
                             note2_done = TRUE;
                             }
                         else if(status == ControlChange) {
-                            fprintf(CapturePtr, "%ld\t\tControl\t%d\t0\t%d\t%d\t%d\t%d\t%d\tctrl2\n",clocktime,dataSize,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
+                            fprintf(CapturePtr, "%ld\t\tControl\t%d\t0\t%d\t%d\t%d\t%d\t%d\t%d\tctrl2\n",clocktime,dataSize,part,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
                             ctrl2_done = TRUE;
                             }
                         }
@@ -1524,19 +1524,19 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
                 }
             if(status == PitchBend) {
                 correction = (int) calculate_pitchbend_cents(midiData[1],midiData[2]);
-                fprintf(CapturePtr, "%ld\t\tpitchbend\t%d\t%d\t%d\t%d\t%d\t%d\t%d\tpitch1\n",clocktime,dataSize,CaptureSource,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
+                fprintf(CapturePtr, "%ld\t\tpitchbend\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\tpitch1\n",clocktime,dataSize,CaptureSource,part,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1),correction);
                 }
             else if(status == ChannelPressure) {
-                fprintf(CapturePtr, "%ld\t\tpressure\t%d\t%d\t%d\t%d\t0\t%d\t0\tpress1\n",clocktime,dataSize,CaptureSource,(int)midiData[0],(int)midiData[2],(channel + 1));
+                fprintf(CapturePtr, "%ld\t\tpressure\t%d\t%d\t%d\t%d\t%d\t0\t%d\t0\tpress1\n",clocktime,dataSize,CaptureSource,part,(int)midiData[0],(int)midiData[2],(channel + 1));
                 }
             else if(status == NoteOff || (status == NoteOn && midiData[2] == 0)) {
-                fprintf(CapturePtr, "%ld\t%s\tNoteOff\t%d\t%d\t%d\t%d\t%d\t%d\t0\tnote1\n",clocktime,this_key,dataSize,CaptureSource,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1));
+                fprintf(CapturePtr, "%ld\t%s\tNoteOff\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t0\tnote1\n",clocktime,this_key,dataSize,CaptureSource,part,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1));
                 }
             else if(status == NoteOn) {
-                fprintf(CapturePtr, "%ld\t%s\tNoteOn\t%d\t%d\t%d\t%d\t%d\t%d\t0\tnote1\n",clocktime,this_key,dataSize,CaptureSource,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1));
+                fprintf(CapturePtr, "%ld\t%s\tNoteOn\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t0\tnote1\n",clocktime,this_key,dataSize,CaptureSource,part,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1));
                 }
             else if(status == ControlChange) {
-                fprintf(CapturePtr, "%ld\t\tControl\t%d\t%d\t%d\t%d\t%d\t%d\t0\tctrl1\n",clocktime,dataSize,CaptureSource,(int)midiData[0],(int)midiData[1],(int)midiData[2],(channel + 1));
+                fprintf(CapturePtr, "%ld\t\tControl\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t0\tctrl1\n",clocktime,dataSize,CaptureSource,(int)midiData[0],part,(int)midiData[1],(int)midiData[2],(channel + 1));
                 }
             }
         TimeStopped += (getClockTime() - time_now);
