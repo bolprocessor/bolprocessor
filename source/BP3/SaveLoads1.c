@@ -1666,6 +1666,11 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"MinPeriod") == 0) MinPeriod = intvalue; // For processing MIDI data capture
 		}
 	if(DeftBufferSize < 100) DeftBufferSize = 1000;
+	if(rtMIDI && !ComputeWhilePlay && (AdvanceTime <= 0.)) {
+		AdvanceTime = 0.;
+		ComputeWhilePlay = 1;
+		BPPrintMessage(0,odError,"=> Compute while playing has been set to TRUE because Max advance time = 0\n");
+		}
 	BufferSize = DeftBufferSize;
 	SetTempo(); SetTimeBase();
 	if(Seed > 0) {

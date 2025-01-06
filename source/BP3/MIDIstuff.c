@@ -170,7 +170,7 @@ int read_midisetup() {
 			else strcpy(line,InputMIDIportComment[index]);
 			BPPrintMessage(0,odInfo,"MIDI input = %d: “%s” - %s\n",MIDIinput[index],MIDIinputname[index],line);
 			}
-		BPPrintMessage(0,odInfo,"\n");
+		// BPPrintMessage(0,odInfo,"\n");
         }
     return(result);
     }

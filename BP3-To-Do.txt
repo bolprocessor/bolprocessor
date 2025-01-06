@@ -17,6 +17,16 @@ If you are interested in taking part in this project, join the BP developer's li
 https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
 
 
+Apache autostart in XAMPP for MacOS
+-----------------------------------
+
+- The method described on https://github.com/erwinagpasa/Launching-XAMPP-at-OSX-startup is not entirely satisfactory. It allows XAMPP to restart Apache at boot time and PHP pages are displayed correctly. However, when real-time MIDI is used, MIDIClientCreate() returns an error.
+- The only way to use XAMPP on MacOS is to start Apache from the Application Manager "manager-osx.app" (in XAMPP/xamppfiles).
+- The problem probably lies in the current distribution (8.2.4) of XAMPP for MacOS.
+- If the XAMPP Apache is restarted in the MacOS installation script, it runs correctly. But it is not possible to restart it in the console because "/Applications/XAMPP/xamppfiles/xampp restartapache" has to be called by 'root'.
+- Try to fix this in the latest version of XAMPP!
+
+
 Microtonal scales and tuning systems
 ------------------------------------
 

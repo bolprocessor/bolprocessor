@@ -122,6 +122,29 @@ int main (int argc, char* args[]) {
 		SetOutputDestinations(odInfo|odWarning|odError|odUserInt, stderr);
 		BPPrintMessage(0,odInfo,"Splitting message output from algorithmic output\n");
 		}
+
+/*	struct stat buffer;
+	if(stat("/Applications/XAMPP/xamppfiles/bin/httpd",&buffer) == 0) {
+		// We restart Apache because XAMPP is the server and it needs to be cleanly restarted
+		BPPrintMessage(0,odInfo,"We restart Apache because XAMPP is the server\n");
+		fflush(stdout);
+		fflush(stderr);
+	//	int debug_status = system("sudo -l -U root > /tmp/sudo_debug.log 2>&1");
+	// 	int restart_status = system("env sudo -u root /Applications/XAMPP/xamppfiles/xampp restartapache");
+	//	int restart_status = system("bash -c 'sudo -u root /Applications/XAMPP/xamppfiles/xampp restartapache < /dev/null'");
+	//	int restart_status = system("sudo -u root /Applications/XAMPP/xamppfiles/xampp restartapache > /tmp/sudo_output.log 2>&1");
+
+		int restart_status = system("/usr/bin/sudo -u root /Applications/XAMPP/xamppfiles/xampp restartapache");
+	//	int restart_status = system("sudo -u root /Applications/XAMPP/xamppfiles/bin/httpd -k restart");
+	    if(restart_status != 0) {
+			int actual_exit_code = WEXITSTATUS(restart_status);
+			BPPrintMessage(0,odError, 
+				"=> Failed to restart Apache in XAMPP. MIDI cannot be initialised. (Exit code: %d)\n",actual_exit_code);
+			}
+		sleep(5); // seconds
+		} */
+
+
 	if (Inits() != OK) goto CLEANUP;
 	
 	result = ParsePostInitArgs(argc, args, &gOptions);
