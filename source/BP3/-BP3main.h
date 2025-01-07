@@ -186,8 +186,7 @@ char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulation[MAXC
 	ChangedPressure[MAXCHAN+1],WhichCsoundInstrument[MAXCHAN+1];
 int Jbol,Jfunc,Jinstr,Jinscript,Joutscript,Maxinscript,Maxoutscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,MaxVar,
 	Jhomo,**p_VarStatus,iCsoundInstrument;
-int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput,Capture0n,SmartCursor,NotSaidKpress,
-	**p_MemGram,**p_MemRul;
+int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput,Capture0n,SmartCursor,NotSaidKpress,**p_MemGram,**p_MemRul,SaidChannel;
 int CaptureSource;
 FILE* CapturePtr;
 long ProduceStackDepth,ProduceStackIndex,DisplayStackIndex,

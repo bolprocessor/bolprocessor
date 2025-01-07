@@ -75,6 +75,7 @@ int Inits(void) {
 	
 	InitOn = NoCursor = NotSaidKpress = TRUE;
 	ReceivedOpenAppEvent = FALSE;
+	SaidChannel = 0;
 	CheckMem = TRUE; EmergencyExit = FixedMaxQuantization = FALSE;
 	EventState = NO;
 	SetTimeOn = ComputeOn = PolyOn = CompileOn = SoundOn = SelectOn = ButtonOn = ExpandOn

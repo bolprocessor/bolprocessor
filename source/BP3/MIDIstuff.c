@@ -1564,6 +1564,15 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 			if(pitchbend_master > 0 && pitchbend_master < 16384) pitchbend_master -= DEFTPITCHBEND;
 			else pitchbend_master = 0;
 			channel = AssignUniqueChannel(type,note,value,i_scale,pitchbend_master);
+			if(channel < 0) { // Added 2024-01-07
+				if(SaidChannel < 5) {
+					BPPrintMessage(0,odInfo,"➡ Incorrect channel = %d for note = %d",channel,note);
+					if(SaidChannel == 4) BPPrintMessage(0,odInfo,"\n➡ Maybe more...\n");
+					BPPrintMessage(0,odInfo,"\n");
+					SaidChannel++;
+					}
+				channel = 0;
+				}
 			p_e->status = type + channel;
 			if(type == NoteOff || (type == NoteOn && value == 0)) {
 				if(MPEold_note[channel] == note) note = p_e->data1 = MPEnew_note[channel];

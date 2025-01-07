@@ -19,7 +19,7 @@ else
         FRAMEWORKS = -framework CoreMIDI -framework CoreFoundation
     endif
     ifeq ($(UNAME_S),Linux)
-        CFLAGS = -fsanitize=address -fsanitize-recover=address -g
+        CFLAGS =
         FRAMEWORKS = -lasound
         EXE = bp3
     endif

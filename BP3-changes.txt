@@ -7,10 +7,11 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 
-2025-01-06 (version 3.1.4)
+2025-01-06 -> 2025-01-07 (version 3.1.4)
 In real-time MIDI, the console fixes the wrong setting of "Compute while playing" unchecked with a "Max advance time" equal to zero, because it ends up with no sound production. It gives a warning and checks "Compute while playing".
 The display of images created by GD (in PHP) is now correct when PHP version is greater or equal to 8.1.0, as the parameters of the functions imagefilledrectangle(), imagefilledpolygon() have changed. The code has been adapted to detect which version is running.
 The MacOS installer has been corrected to set up user/group parameters in the "bolprocessor" folder: "daemon:admin" if XAMPP is the Apache server. If MAMP is used, the "<user_id>:admin" setting is retained. Wrong parameters were the cause of PHP errors even though the permissions were correct.
+Fixed errors when AssignUniqueChannel() returns (-1) in "-da.Ombres_errantes".
 Don't forget to update the PHP interface!
 
 -----

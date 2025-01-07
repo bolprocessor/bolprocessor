@@ -132,7 +132,7 @@ extern char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulati
 extern int Jbol,Jinstr,Jfunc,Jinscript,Joutscript,Maxinscript,Maxoutscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,
 	MaxVar,Jhomo,**p_VarStatus,iCsoundInstrument;
 extern int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput,Capture0n,
-	SmartCursor,NotSaidKpress,**p_MemGram,**p_MemRul;
+	SmartCursor,NotSaidKpress,**p_MemGram,**p_MemRul,SaidChannel;
 extern int CaptureSource;
 extern FILE* CapturePtr;
 extern long ProduceStackDepth,ProduceStackIndex,DisplayStackIndex,
