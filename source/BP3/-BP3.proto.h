@@ -1053,7 +1053,7 @@ void mysleep(long);
 void save_midisetup(void);
 int read_midisetup(void);
 
-int AssignUniqueChannel(int,int,int,int,int);
+int AssignUniqueChannel(int,int,int,int,int,Milliseconds);
 void insert_space_between_digits(char*);
 void trim_digits_after_key_hash(char*);
 

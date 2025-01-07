@@ -1514,9 +1514,11 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 							if(trace_csound_pianoroll) BPPrintMessage(0,odInfo,"onoff = %d\n",onoff);
 							if((onoff > 0 || cswrite) && !time_pattern) {
 								((*p_keyon[localchan])[c1])--;
-								if((onoff > 0 || cswrite) && (j >= 16384 || !(*p_DiscardNoteOffs)[j]
+								onoff = ByteToInt((*p_keyon[localchan])[c1]); // added 2025-01-07
+								if((onoff == 0 || cswrite) && (j >= 16384 || !(*p_DiscardNoteOffs)[j]
 										|| (*p_icycle)[kcurrentinstance]
 											== (*p_Instance)[kcurrentinstance].ncycles)) {
+								// modified onoff == 0 instead of > 0, 2025-01-07
 	SENDNOTEOFF:
 									if(!cswrite) {
 										e.time = Tcurr;
@@ -1564,8 +1566,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 							strike = TRUE;
 							
 							if(!time_pattern && (onoff > 0)) {
-								if(strikeagain) {
-									/* First send NoteOff */
+								if(strikeagain) { // $$$$
+									// First send NoteOff
 									if(!cswrite) {
 										e.time = Tcurr;
 										e.type = NORMAL_EVENT;

@@ -30,7 +30,6 @@ Apache autostart in XAMPP for MacOS
 Microtonal scales and tuning systems
 ------------------------------------
 
-- Check why AssignUniqueChannel() is sometimes returning (-1) in -da.Ombres_errantes 
 - Retuning the MIDI device to diapason A4 ≠ 440 Hz does not work or makes a mess (e.g. Windows 10, Microsoft GS Wavetable Synth).
 - Check that setting pitchbend range to ± 200 cents on all channels works.
 - Include values for optional stretching of each octave.

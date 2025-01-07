@@ -1489,19 +1489,22 @@ int FindScale(int scale) {
 	return i_scale;
 	}
 
-int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch) {
+int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch, Milliseconds time) {
+	// time is only used for checking
+	int test = FALSE;
     int ch;
 	if(i_scale < 0) i_scale = 0;
 	if(i_scale >= MAXCONVENTIONS) {
-		BPPrintMessage(0,odError,"=> i_scale >= MAXCONVENTIONS (100)\n");
+		BPPrintMessage(1,odError,"=> i_scale = %d, >= MAXCONVENTIONS (100)\n",i_scale);
 		i_scale = 0;
 		}
 	if(status == NoteOff || value == 0) {
-		for(ch = 1; ch < MAXCHAN; ch++) {
+		for(ch = 1; ch < MAXCHAN; ch++) { // "ch = 1" is channel 2 of MIDI
 			if(MPEold_note[ch] == note && MPEscale[ch] == i_scale && MPEpitch[ch] == pitch) {
 				MPEnote[ch] = 0;
 				MPEscale[ch] = -1;
 				MPEpitch[ch] = -1;
+				if(test) BPPrintMessage(1,odInfo,"• NoteOff %d pitch = %d -> ch = %d time= %ld\n",note,pitch,ch,(long)(time -700));
             	return ch;
 				}
 			}
@@ -1512,6 +1515,7 @@ int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch)
 				MPEnote[ch] = 0;
 				MPEscale[ch] = -1;
 				MPEpitch[ch] = -1;
+				if(test) BPPrintMessage(1,odInfo,"•• NoteOff %d pitch = %d -> ch = %d time= %ld\n",note,pitch,ch,(long)(time -700));
             	return ch;
 				}
 			if(status == NoteOn && value > 0 && MPEscale[ch] == i_scale && MPEpitch[ch] == pitch) return ch;
@@ -1519,15 +1523,16 @@ int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch)
         }
     for(ch = 1; ch < MAXCHAN; ch++) {
         if(MPEnote[ch] == 0 && MPEscale[ch] == -1) {
-            if(status == NoteOn && value > 0) {
+            if(status == NoteOn && value > 0) { // Record a new NoteOn
 				MPEnote[ch] = note;
 				MPEscale[ch] = i_scale;
 				MPEpitch[ch] = pitch;
+				if(test) BPPrintMessage(1,odInfo,"NoteOn %d pitch = %d -> ch = %d time= %ld\n",note,pitch,ch,(long)(time -700));
                 return ch;
                 }
             }
         }
-    return(-1);
+    return(-1); // No space left, all 15 channels are busy
     }
 
 int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds time, int nseq, int *p_rs, MIDI_Event *p_e) {
@@ -1558,17 +1563,17 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 //	BPPrintMessage(0,odInfo,"scale = %d\n",scale);
 	if(MIDImicrotonality ) {
 		i_scale = FindScale(scale);
-		// BPPrintMessage(0,odInfo,"i_scale = %d\n",i_scale);
+	//	BPPrintMessage(0,odInfo,"i_scale = %d\n",i_scale);
 		if((type == NoteOn || type == NoteOff) && i_scale <= NumberScales && i_scale >= 0) {
 			pitchbend_master = (int) PitchbendStart(kcurrentinstance);
 			if(pitchbend_master > 0 && pitchbend_master < 16384) pitchbend_master -= DEFTPITCHBEND;
 			else pitchbend_master = 0;
-			channel = AssignUniqueChannel(type,note,value,i_scale,pitchbend_master);
-			if(channel < 0) { // Added 2024-01-07
+			channel = AssignUniqueChannel(type,note,value,i_scale,pitchbend_master,time);
+			if(channel < 1) { // Added 2025-01-07
 				if(SaidChannel < 5) {
-					BPPrintMessage(0,odInfo,"➡ Incorrect channel = %d for note = %d",channel,note);
+					BPPrintMessage(1,odInfo,"➡ Note = %d vel = %d pitch = %d time = %ld ms forced to channel 1",note,value,pitchbend_master,(time - MIDIsetUpTime));
 					if(SaidChannel == 4) BPPrintMessage(0,odInfo,"\n➡ Maybe more...\n");
-					BPPrintMessage(0,odInfo,"\n");
+					BPPrintMessage(1,odInfo,"\n");
 					SaidChannel++;
 					}
 				channel = 0;
