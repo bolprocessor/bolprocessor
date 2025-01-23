@@ -24,7 +24,19 @@
         "-bp2.h": "c",
         "-bp2decl.h": "c",
         "consolemessages.h": "c",
-        "complex": "c"
+        "complex": "c",
+        "-bp3.h": "c",
+        "__node_handle": "c",
+        "deque": "c",
+        "optional": "c",
+        "vector": "c",
+        "charconv": "c",
+        "chrono": "c",
+        "format": "c",
+        "system_error": "c",
+        "array": "c",
+        "functional": "c",
+        "utility": "c"
     },
     "search.useParentIgnoreFiles": true,
     "search.useGlobalIgnoreFiles": false

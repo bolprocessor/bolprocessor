@@ -49,7 +49,7 @@ char line[MAXFIELDCONTENT];
 int i,ip,channel;
 
 if(j < 0 || j >= Jinstr) {
-	Alert1("=> Err. SetCsoundInstrument(). Incorrect index");
+	BPPrintMessage(0,odError,"=> Err. SetCsoundInstrument(). Incorrect index");
 	return(MISSED);
 	}
 if((*p_CsInstrumentIndex)[j] > -1) {
@@ -521,7 +521,7 @@ else {
 	}
 	
 if((*p_CsInstrument)[j].ipmax > IPMAX) {
-	if(Beta) Alert1("=> Err. SetCsoundInstrument(). (*p_CsInstrument)[j].ipmax > IPMAX");
+	BPPrintMessage(0,odError,"=> Err. SetCsoundInstrument(). (*p_CsInstrument)[j].ipmax > IPMAX");
 	(*p_CsInstrument)[j].ipmax = 0;
 	}
 
@@ -620,7 +620,7 @@ for(ip=0; ip < IPMAX; ip++) {
 			if(w > 0) strcpy(line,"multiplicative");
 			break;
 		default:
-			if(Beta) Alert1("=> Err. SetCsoundInstrument(). Incorrect (*paramlist)[ip].combinationtype");
+			BPPrintMessage(0,odError,"=> Err. SetCsoundInstrument(). Incorrect (*paramlist)[ip].combinationtype");
 			break;
 		}
 	if(w > 0) {
@@ -647,7 +647,7 @@ CsoundParam **ptr3;
 char **ptr;
 
 if(j < 0 || j >= Jinstr || i < 0 || i >= Jinstr) {
-	if(Beta) Alert1("=> Err. CopyCsoundInstrument(). Incorrect index");
+	BPPrintMessage(0,odError,"=> Err. CopyCsoundInstrument(). Incorrect index");
 	return(MISSED);
 	}
 (*p_CsDilationRatioIndex)[j] = (*p_CsDilationRatioIndex)[i];
@@ -775,7 +775,7 @@ if(all || newinstr) (*p_CsInstrumentIndex)[j] = -1;
 	= (*p_CsInstrument)[j].rModulation.islogx = (*p_CsInstrument)[j].rModulation.islogy
 	= (*p_CsInstrument)[j].rPanoramic.islogx = (*p_CsInstrument)[j].rPanoramic.islogy = FALSE;
 
-(*p_CsInstrument)[j].pitchbendrange = -1.;
+(*p_CsInstrument)[j].pitchbendrange = 200; // 2025-01-19
 
 (*p_CsInstrument)[j].pressuretable = (*p_CsInstrument)[j].modulationtable
 	= (*p_CsInstrument)[j].panoramictable = -1;
@@ -853,7 +853,7 @@ int i,ip,jj,cc,channel,result,index,iargmax;
 CsoundParam **ptr3,**paramlist;
 
 if(j < 0 || j >= Jinstr) {
-	if(Beta) Alert1("=> Err. GetCsoundInstrument(). Incorrect index");
+	BPPrintMessage(0,odError,"=> Err. GetCsoundInstrument(). Incorrect index");
 	return(MISSED);
 	}
 iargmax = 3;
@@ -1072,7 +1072,7 @@ if(GetField(NULL,TRUE,wCsoundResources,fPitchBendRange,line,&p,&q) == OK) {
 else {
 	(*p_CsInstrument)[j].pitchbendrange = -1.;
 	if((*p_CsPitchFormat)[j] == CPS && (*p_CsPitchBendStartIndex)[j] == -1) {
-		Alert1("=> With the 'cps' option either a pitchbend range or a pitchbend argument should be specified");
+		BPPrintMessage(0,odError,"=> With the 'cps' option either a pitchbend range or a pitchbend argument should be specified");
 		SetField(NULL,wCsoundResources,fPitchBendIndex,"[?]");
 		SetField(NULL,wCsoundResources,fPitchBendRange,"[?]");
 		SelectField(NULL,wCsoundResources,fPitchBendRange,TRUE);
@@ -1173,7 +1173,7 @@ if(GetField(NULL,TRUE,wCsoundResources,fCsoundInstrumentChannel,line,&p,&q) == O
 			if((*p_CsInstrumentIndex)[jj] == WhichCsoundInstrument[channel]) break;
 			}
 		if(jj >= Jinstr) {
-			if(Beta) Alert1("=> Err. GetCsoundInstrument(). jj >= Jinstr");
+			BPPrintMessage(0,odError,"=> Err. GetCsoundInstrument(). jj >= Jinstr");
 			return(MISSED);
 			}
 		MystrcpyHandleToString(MAXFIELDCONTENT,0,line2,(*pp_CsInstrumentName)[jj]);
@@ -1352,7 +1352,7 @@ for(ip=0; ip < IPMAX; ip++) {
 	if(GetField(CsoundInstrMorePtr,TRUE,-1,fMoreEndIndex + (7*ip),line,&p,&q) == OK) {
 		if(paramlist == NULL || (*paramlist)[ip].startindex == -1) {
 NOSTARTINDEX:
-			Alert1("=> Start index should be specified");
+			BPPrintMessage(0,odError,"=> Start index should be specified");
 			ShowWindow(GetDialogWindow(CsoundInstrMorePtr));
 			SelectWindow(GetDialogWindow(CsoundInstrMorePtr));
 			BPUpdateDialog(CsoundInstrMorePtr);
@@ -1384,7 +1384,7 @@ NOSTARTINDEX:
 			MystrcpyStringToHandle(&((*paramlist)[ip].name),line);
 			i = FixStringConstant(line);
 			if(i <= IPANORAMIC) {
-				Alert1("=> This name is reserved to predefined parameters");
+				BPPrintMessage(0,odError,"=> This name is reserved to predefined parameters");
 		/*		SetField(CsoundInstrMorePtr,-1,fMoreName + (7*ip),"[?]"); */
 				SelectField(CsoundInstrMorePtr,-1,fMoreName + (7*ip),TRUE);
 				(*paramlist)[ip].nameindex = -1;
@@ -1428,17 +1428,17 @@ return(OK);
 CheckMinimumSpecsForInstrument(int j)
 {
 if(j < 0 || j >= Jinstr) {
-	if(Beta) Alert1("=> Err. CheckMinimumSpecsForInstrument(). Incorrect index");
+	BPPrintMessage(0,odError,"=> Err. CheckMinimumSpecsForInstrument(). Incorrect index");
 	return(MISSED);
 	}
 if((*p_CsInstrumentIndex)[j] < 1) {
-	Alert1("=> Instrument index should be a positive integer");
+	BPPrintMessage(0,odError,"=> Instrument index should be a positive integer");
 	SetField(NULL,wCsoundResources,fCsoundInstrumentIndex,"[?]");
 	SelectField(NULL,wCsoundResources,fCsoundInstrumentIndex,TRUE);
 	return(MISSED);
 	}
 if(MyHandleLen((*pp_CsInstrumentName)[j]) < 1) {
-	Alert1("=> Instrument name shouldn't be blank as it is used by BP2");
+	BPPrintMessage(0,odError,"=> Instrument name shouldn't be blank as it is used by BP2");
 	SetField(NULL,wCsoundResources,fCsoundInstrumentName,"[New instrument]");
 	return(MISSED);
 	}
@@ -1452,21 +1452,21 @@ char line[MAXFIELDCONTENT];
 int ip;
 
 if(j < 0 || j >= Jinstr) {
-	if(Beta) Alert1("=> Err. BadParameter(). Incorrect index");
+	BPPrintMessage(0,odError,"=> Err. BadParameter(). Incorrect index");
 	return(MISSED);
 	}
 	
 switch(index) {
 	case 1:
-		Alert1("=> Argument 1 is reserved for instrument index. Use minimum 4");
+		BPPrintMessage(0,odError,"=> Argument 1 is reserved for instrument index. Use minimum 4");
 		goto BAD1;
 		break;
 	case 2:
-		Alert1("=> Argument 2 is reserved for timing. Use minimum 4");
+		BPPrintMessage(0,odError,"=> Argument 2 is reserved for timing. Use minimum 4");
 		goto BAD1;
 		break;
 	case 3:
-		Alert1("=> Argument 3 is reserved for duration. Use minimum 4");
+		BPPrintMessage(0,odError,"=> Argument 3 is reserved for duration. Use minimum 4");
 		goto BAD1;
 		break;
 	}
@@ -1793,7 +1793,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 		ip = 1;
 		if(c == ';') goto NEXTLINE;
 		if(finished) {
-			Alert1("=> Unwanted events have been found beyond end of score");
+			BPPrintMessage(0,odError,"=> Unwanted events have been found beyond end of score");
 			result = MISSED; goto SORTIR;
 			}
 		if(c == 't') istempo = TRUE;
@@ -1820,14 +1820,14 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 			if(ip == 1 && param != 0) {
 				my_sprintf(Message,"=> BP3 can't compile this Csound score: argument following 't' should be 0. Can't accept %.2f",
 					param);
-				Alert1(Message);
+				BPPrintMessage(0,odError,"%s",Message);
 				result = MISSED;
 				goto SORTIR;
 				}
 			if(ip > 2) {
 				my_sprintf(Message,"=> BP3 can't compile this Csound score: more than %ld arguments following 't'",
 					(long)ip-1L);
-				Alert1(Message);
+				BPPrintMessage(0,odError,"%s",Message);
 				result = MISSED;
 				goto SORTIR;
 				}
@@ -1835,7 +1835,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 				if(param <= 0.) {
 					my_sprintf(Message,"=> Incorrect Csound score: 2nd argument following 't' should be positive. Can't accept %.2f",
 						param);
-					Alert1(Message);
+					BPPrintMessage(0,odError,"%s",Message);
 					result = MISSED;
 					goto SORTIR;
 					}
@@ -1856,7 +1856,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 							my_sprintf(Message,
 								"=> Can't compile Csound score because instrument %ld is not defined. You may modify or load the '-cs' file",
 								(long)param);
-							Alert1(Message);
+							BPPrintMessage(0,odError,"%s",Message);
 							if((*p_CsoundInstr)[j] > 0) {
 	#if BP_CARBON_GUI_FORGET_THIS
 								ShowWindow(Window[wPrototype1]);
@@ -1866,7 +1866,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 	#endif /* BP_CARBON_GUI_FORGET_THIS */
 								my_sprintf(Message,"=> Perhaps the problem is that you forced this sound-object to use instrument %ld",
 									(long)param);
-								Alert1(Message);
+								BPPrintMessage(0,odError,"%s",Message);
 								}
 							result = MISSED;
 							goto SORTIR;
@@ -1906,13 +1906,13 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 					for(i=0; i < (*p_CsInstrument)[ins].ipmax; i++) {
 						if((index=(*paramlist)[i].startindex) > 0) {
 							if(index < 4 || index >= (maxparam+4)) {
-								if(Beta) Alert1("=> Err. CompileObjectScore(). index < 4 || index >= maxparam");
+								BPPrintMessage(0,odError,"=> Err. CompileObjectScore(). index < 4 || index >= maxparam");
 								}
 							else (*h)[index-4] = (*paramlist)[i].defaultvalue;
 							}
 						if((index=(*paramlist)[i].endindex) > 0) {
 							if(index < 4 || index >= (maxparam+4)) {
-								if(Beta) Alert1("=> Err. CompileObjectScore(). index < 4 || index >= maxparam");
+								BPPrintMessage(0,odError,"=> Err. CompileObjectScore(). index < 4 || index >= maxparam");
 								}
 							else (*h)[index-4] = (*paramlist)[i].defaultvalue;
 							}
@@ -1925,7 +1925,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 				case 3:
 					if(param < 0) {
 						// FIXME ? any way to allow neg. dur? This has multiple uses with Csound -- akozar
-						Alert1("=> Can't compile Csound score because a negative duration was found.\n(3d argument)");
+						BPPrintMessage(0,odError,"=> Can't compile Csound score because a negative duration was found.\n(3d argument)");
 						result = MISSED; goto SORTIR;
 						}
 					param = (param * 60000.) / tempo;
@@ -1934,7 +1934,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 				default:
 					/* Modify param according to instrument mapping */
 					if(ins < 0 || ins >= Jinstr) {
-						Alert1("=> Err. CompileObjectScore(). ins < 0 || ins >= Jinstr");
+						BPPrintMessage(0,odError,"=> Err. CompileObjectScore(). ins < 0 || ins >= Jinstr");
 						if(CompileOn) CompileOn--;
 						return(ABORT);
 						}
@@ -1982,7 +1982,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 							my_sprintf(Message,
 								"=> Default Csound instrument requires %ld arguments but the score is supplying more",
 								(long)(maxparam+3));
-						Alert1(Message);
+						BPPrintMessage(0,odError,"%s",Message);
 						result = ABORT;
 						OutCsound = FALSE;
 						goto SORTIR;
@@ -2005,9 +2005,9 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 					my_sprintf(Message,
 						"=> Default Csound instrument requires at least 3 arguments whereas the score is supplying %ld ones",
 						(long)(ip-1));
-				Alert1(Message);
+				BPPrintMessage(0,odError,"%s",Message);
 				if(Jinstr < 2)
-					Alert1("=> You probably forgot to create or load a '-cs' instrument file");
+					BPPrintMessage(0,odError,"=> You probably forgot to create or load a '-cs' instrument file");
 				if((*p_CsoundInstr)[j] > 0) {
 	#if BP_CARBON_GUI_FORGET_THIS
 					ShowWindow(Window[wPrototype1]);
@@ -2017,7 +2017,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 	#endif /* BP_CARBON_GUI_FORGET_THIS */
 					my_sprintf(Message,"=> Perhaps the problem is that this sound-object is instructed to use instrument %ld",
 						(long)param);
-					Alert1(Message);
+					BPPrintMessage(0,odError,"%s",Message);
 					}
 				MyDisposeHandle((Handle*)&h);
 				result = MISSED;
@@ -2089,7 +2089,7 @@ int k,ip,rep,ins,longerCsound,overflow,result,instrumentindex;
 double param;
 
 if(j < 2 || j >= Jbol) {
-	if(Beta) Alert1("=> Err. DeCompileObjectScore(). j < 2 || j >= Jbol");
+	BPPrintMessage(0,odError,"=> Err. DeCompileObjectScore(). j < 2 || j >= Jbol");
 	return(MISSED);
 	}
 result = OK;
@@ -2127,7 +2127,7 @@ for(ievent=ZERO; ievent < (*p_CsoundSize)[j]; ievent++) {
 		}
 	if(ins >= Jinstr) {
 		if(instrumentindex > 1) {
-			Alert1("=> Can't decompile this Csound score. We need a '-cs' file describing Csound instruments");
+			BPPrintMessage(0,odError,"=> Can't decompile this Csound score. We need a '-cs' file describing Csound instruments");
 			PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j);
 			BPActivateWindow(SLOW,wCsoundResources);
 			DurationToPoint(NULL,pp_CsoundTime,p_CsoundSize,j);
@@ -2250,7 +2250,7 @@ int ResetMoreParameter(int j,int ip) {
 	paramlist = (*p_CsInstrument)[j].paramlist;
 
 	if(paramlist == NULL) {
-		if(Beta) Alert1("=> Err. ResetMoreParameter(). paramlist == NULL");
+		BPPrintMessage(0,odError,"=> Err. ResetMoreParameter(). paramlist == NULL");
 		return(OK);
 		}
 	h = (Handle) (*paramlist)[ip].name;

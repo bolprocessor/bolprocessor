@@ -72,7 +72,7 @@ solset **p_sol_set1,sol_set2,**ptr;
 Milliseconds maxmove,maxcover1,maxcover2;
 
 if(nseq >= Maxconc) {
-	if(Beta) Alert1("=> Err. Locate(). nseq >= Maxconc");
+	BPPrintMessage(0,odError,"=> Err. Locate(). nseq >= Maxconc");
 	return(OK);
 	}	
 imaxseq = (*p_imaxseq)[nseq];
@@ -305,7 +305,7 @@ if(Situation_ok(nseq,i,i0,j,shift1,(*p_tp1)[i],(*p_tp2)[i],(*p_Ts)[i],(*p_tscove
 	
 if((*p_choice1)[i] > 5) {
 	my_sprintf(Message,"=> Error1 choice1[%ld]=%ld.\n",(long)i,(long)(*p_choice1)[i]);
-	if(Beta) Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	}
 if(shift1 == ZERO) goto INCREMENT;
 if((*p_choice1)[i] > 1) goto NEWCHOICE1;
@@ -374,7 +374,7 @@ else {
 	if((*p_choice1)[i] > 5) {
 		my_sprintf(Message,"=> Error2 choice1[%ld]=%ld.\n",
 			(long)i,(long)(*p_choice1)[i]);
-		if(Beta) Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	if(sol1 == -8) {
 		my_sprintf(Message,"\nnseq=%ld i=%ld side=1 j=%ld choice1=%ld sol_set=",
@@ -397,7 +397,7 @@ else {
 	}
 (*p_choice1)[i]--;
 if(i < 0 || i >= imaxseq2) {
-	if(Beta) Alert1("=> Err. Locate(). i > imaxseq2");
+	BPPrintMessage(0,odError,"=> Err. Locate(). i > imaxseq2");
 	result = ABORT;
 	goto QUIT;
 	}
@@ -440,7 +440,7 @@ if(kmax > 100 && ++n > 10) {
 	}
 if(choice2 > 5) {
 	my_sprintf(Message,"=> Error1 choice2[%ld]=%ld",(long)i,(long)choice2);
-	if(Beta) Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	}
 if(redo && (choice2 > 1)) {
 	sol2 = Get_choice(sol_set2,&s,&olds,&redo,&stack_depth,2,i,j,(*p_ts1)[i],(*p_ts2)[i],
@@ -490,7 +490,7 @@ if(sol2 == 4) {		/* Revise preceding object(s) */
 		if(((*p_choice1)[i] < 1) && (i != i0)) {
 			my_sprintf(Message,"=> Err: choice1[%ld]=%ld i0=%ld",
 				(long)i,(long)(*p_choice1)[i],(long)i0);
-			if(Beta) Alert1(Message);
+			BPPrintMessage(0,odError,"%s",Message);
 			}
 		okmove = FALSE;
 		if(j < 16384 && !(*p_OkRelocate)[j]) {
@@ -612,7 +612,7 @@ if(iprev > 0) {
 	for(iprev=i-1; iprev >= (i0-1); iprev--) {
 		if(iprev < 0) {
 			my_sprintf(Message,"=> Error iprev = %ld",(long)iprev);
-			if(Beta) Alert1(Message);
+			BPPrintMessage(0,odError,"%s",Message);
 			result = ABORT; goto QUIT;
 			}
 		if(iprev == ZERO || (*((*p_Seq)[nseq]))[iprev] > 1) break;
@@ -641,7 +641,7 @@ choice2 = Possible_choices(sol_set2,(*p_BreakTempoPrev)[i],i,i0,j,k,nseq,p_marke
 	(*p_maxtruncend)[i],2);
 if(choice2 > 5) {
 	my_sprintf(Message,"=> Error2 choice2[%ld]=%ld",(long)i,(long)choice2);
-	if(Beta) Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	}
 goto NEWCHOICE2;
 
@@ -679,7 +679,7 @@ int j,rep,result;
 unsigned long i,imaxseq,k;
 
 if(nseq >= Maxconc) {
-	if(Beta) Alert1("=> Err. Solution_is_accepted(). nseq >= Maxconc");
+	BPPrintMessage(0,odError,"=> Err. Solution_is_accepted(). nseq >= Maxconc");
 	return(OK);
 	}
 imaxseq = (*p_imaxseq)[nseq];
@@ -779,7 +779,7 @@ int Situation_ok(int nseq, int i, int i0, int j, Milliseconds shift, Millisecond
 	char **p_marked,int nature_time)
 {	
 if(nseq >= Maxconc) {
-	if(Beta) Alert1("=> Err. Situation_ok(). nseq >= Maxconc");
+	BPPrintMessage(0,odError,"=> Err. Situation_ok(). nseq >= Maxconc");
 	return(YES);
 	}
 if(i == i0) return(YES);
@@ -817,7 +817,7 @@ int n,nmax,choice;
 Milliseconds maxmove,mustmove;
 
 if(nseq >= Maxconc) {
-	if(Beta) Alert1("=> Err. Possible_choices(). nseq >= Maxconc");
+	BPPrintMessage(0,odError,"=> Err. Possible_choices(). nseq >= Maxconc");
 	return(0);
 	}
 nmax = 5; choice = 0;
@@ -880,7 +880,7 @@ char rep;
 int n;
 
 if(nseq >= Maxconc) {
-	if(Beta) Alert1("=> Err. Next_choice(). nseq >= Maxconc");
+	BPPrintMessage(0,odError,"=> Err. Next_choice(). nseq >= Maxconc");
 	// BPPrintMessage(0,odError,"=> Err. Next_choice(). nseq >= Maxconc\n");
 	return(OK);
 	}
@@ -965,7 +965,7 @@ for(n=0; n < 5; n++) {
 		return(n);
 		}
 	}
-if(Beta) Alert1("=> Error Next_choice()");
+BPPrintMessage(0,odError,"=> Error Next_choice()");
 Print(wTrace,"\nsol_set[n]=\n");
 for(n=0; n < 5; n++) {
 	my_sprintf(Message,"%ld ",(long)sol_set[n]);
@@ -1053,7 +1053,7 @@ if(shift > ZERO) {
 		if(shiftmore < 0) {
 			my_sprintf(Message,"can't be covered. Previous object(s) must spend %ld milliseconds. Err. Alternate_correction1().\n",
 				(long)-shiftmore);
-			if(Beta) Alert1(Message);
+			BPPrintMessage(0,odError,"%s",Message);
 			}
 		else {
 			my_sprintf(Message,"can't be covered. Previous object(s) must save %ld milliseconds\n",
@@ -1087,11 +1087,11 @@ if(nexts == NULL) {
 		}
 	if(side != (***(p_s)).side) {
 		my_sprintf(Message,"=> Error side: Get_choice. ");
-		if(Beta) Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	if(i != (***(p_s)).i) {
 		my_sprintf(Message,"=> Error i: Get_choice. ");
-		if(Beta) Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	if(isol == BACKTRACK) {	/* All choices have been exhausted */
 		if(**p_olds == NULL) {
@@ -1114,11 +1114,11 @@ else {
 	isol = (***(p_s)).n;
 	if(side != (***(p_s)).side) {
 		my_sprintf(Message,"=> Error side: Get_choice. ");
-		if(Beta) Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	if(i != (***(p_s)).i) {
 		my_sprintf(Message,"=> Error i: Get_choice. ");
-		if(Beta) Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	*(p_olds) = *(p_s);
 	*(p_s) = nexts;
@@ -1233,7 +1233,7 @@ if((result=MyButton(2)) != MISSED) {
 	if(result == EXIT) return(result);
 	if(result == STOP) return(ABORT);
 	if(compiledmem && Dirty[wAlphabet]) {
-		Alert1("Alphabet changed. Must recompile...");
+		BPPrintMessage(0,odError,"Alphabet changed. Must recompile...");
 		return(ABORT);
 		}
 	Dirty[wAlphabet] = dirtymem;

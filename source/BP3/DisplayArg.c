@@ -259,7 +259,7 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 		
 	READY:
 	if(f == NULL) {
-		Alert1("Can't write to disk.\n(incorrect file pointer)");
+		BPPrintMessage(0,odError,"Can't write to disk.\n(incorrect file pointer)");
 		r = MISSED; goto OUT2;
 		}
 
@@ -396,7 +396,7 @@ int PrintArgSub(PrintargType *p_printarg,unsigned long *p_maxib,TextHandle th,
 		if(m == T0 && setting_section && (p == 3 || p == 11)) {	/* '+'  or initial '/' */
 			if(datamode) {
 				if((*p_itab) >= MAXTAB) {
-					Alert1("Too many tab sections: check '.+.+./.' in begining");
+					BPPrintMessage(0,odError,"Too many tab sections: check '.+.+./.' in begining");
 					r = ABORT; goto SORTIR;
 					}
 				tab[(*p_itab)++] = n;
@@ -665,8 +665,8 @@ TERMINAL:
 			for(n=nhomo; n >= 1; n--) {
 				h = homoname[n];
 				if(h >= Jhomo) {
-					if(Beta) {
-						Alert1("=> Err. PrintArgSub(). h >= Jhomo");
+					{
+						BPPrintMessage(0,odError,"=> Err. PrintArgSub(). h >= Jhomo");
 						r = ABORT; goto SORTIR;
 						}
 					}
@@ -916,7 +916,7 @@ PRINTPROLONGATIONS:
 				m = (**pp_a)[i];
 				p = (**pp_a)[i+1];
 				if(m != T43) {
-					if(Beta) Alert1("=> Err. PrintArgSub().  Second T43 is missing");
+					BPPrintMessage(0,odError,"=> Err. PrintArgSub().  Second T43 is missing");
 					i -= 2L;
 					continue;
 					}
@@ -982,7 +982,7 @@ PRINTPROLONGATIONS:
 				p = (**pp_a)[i+1];
 				
 				if(m != T37) {
-					if(Beta) Alert1("=> Err. PrintArgSub().  Second T37 is missing");
+					BPPrintMessage(0,odError,"=> Err. PrintArgSub().  Second T37 is missing");
 					i -= 2L;
 					continue;
 					}
@@ -1538,7 +1538,7 @@ PRINTPROLONGATIONS:
 						case T34:
 						case T36:
 							if(p_StringConstant == NULL) {
-								if(Beta) Alert1("=> Err PrintArgSub(). p_StringConstant == NULL");
+								BPPrintMessage(0,odError,"=> Err PrintArgSub(). p_StringConstant == NULL");
 								my_sprintf(line,"???");
 								}
 							else MystrcpyHandleToString(MAXLIN,0,line,(*p_StringConstant)[p]);
@@ -1546,7 +1546,7 @@ PRINTPROLONGATIONS:
 						case T35:
 							ii = p % 256;
 							if(p_StringConstant == NULL) {
-								if(Beta) Alert1("=> Err PrintArgSub(). p_StringConstant == NULL");
+								BPPrintMessage(0,odError,"=> Err PrintArgSub(). p_StringConstant == NULL");
 								my_sprintf(line,"???");
 								}
 							else MystrcpyHandleToString(MAXLIN,0,line,(*p_StringConstant)[ii]);
@@ -1578,7 +1578,7 @@ PRINTPROLONGATIONS:
 SHOWNUMBER:
 					ii = (p - (p % 256)) / 256;
 					if(p_NumberConstant == NULL) {
-						if(Beta) Alert1("=> Err PrintArgSub(). p_NumberConstant == NULL");
+						BPPrintMessage(0,odError,"=> Err PrintArgSub(). p_NumberConstant == NULL");
 						my_sprintf(line,"???");
 						}
 					else my_sprintf(line,"%.4f",(*p_NumberConstant)[ii]);
@@ -1685,7 +1685,7 @@ s[0] = c;
 s[1] = '\0';
 if(f == stdout) {
 	if(th == NULL) {
-		if(Beta) Alert1("=> Err. OutChar()");
+		BPPrintMessage(0,odError,"=> Err. OutChar()");
 		return(ABORT);
 		}
 	else /* DoKey(c,0,th); */ TextInsert(s,1L,th);
@@ -1792,7 +1792,7 @@ int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned 
 	PRINT:
 		if(f == stdout) {
 			if(th == NULL) {
-				if(Beta) Alert1("=> Err. Display");
+				BPPrintMessage(0,odError,"=> Err. Display");
 				return(ABORT);
 				}
 			TextInsert(s,(long)strlen(s),th);

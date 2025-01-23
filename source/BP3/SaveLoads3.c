@@ -59,7 +59,7 @@ if(w < 0 || w >= WMAX || !Editable[w]) {
 err = NSWInitReply(&reply);
 /* If the file name is empty, at least we insert its prefix */
 if(fn[0] == 0) {
-	if (GetDefaultFileName(w, Message) != OK) return(MISSED);
+	if(GetDefaultFileName(w, Message) != OK) return(MISSED);
 	c2pstrcpy(fn, Message);
 }
 reply.sfFile.vRefNum = TheVRefNum[w];	/* Added 30/3/98 */
@@ -176,7 +176,7 @@ int GetDefaultFileName(int w, char* filename)
 		BPPrintMessage(0,odError,"=> Err. GetDefaultFileName(). Incorrect window index '%d'\n",w);
 		return(MISSED);
 	}
-	if (RunningOnOSX) {
+	if(RunningOnOSX) {
 		// suggest file extensions on OS X
 		strcpy(filename, "untitled");
 		strcat(filename, FileExtension[w]);
@@ -200,9 +200,9 @@ int GetProjectBaseName(char* basename)
 	char *pre, *p_workstr;
 	
 	if      ((len = strlen(FileName[wGrammar])) > 0)   index = wGrammar;
-	else if ((len = strlen(FileName[wData])) > 0)      index = wData;
-	else if ((len = strlen(FileName[wAlphabet])) > 0)  index = wAlphabet;
-	else if ((len = strlen(FileName[iSettings])) > 0)  index = iSettings;
+	else if((len = strlen(FileName[wData])) > 0)      index = wData;
+	else if((len = strlen(FileName[wAlphabet])) > 0)  index = wAlphabet;
+	else if((len = strlen(FileName[iSettings])) > 0)  index = iSettings;
 	else return (MISSED);
 	
 	if(len > MAXNAME) {
@@ -211,7 +211,7 @@ int GetProjectBaseName(char* basename)
 	}
 	
 	// copy everything but the extension for this file type
-	if (MatchFileNameExtension(FileName[index], FileExtension[index])) {
+	if(MatchFileNameExtension(FileName[index], FileExtension[index])) {
 		len -= strlen(FileExtension[index]);
 		strncpy(workstr, FileName[index], len);
 		workstr[len] = '\0'; // strncpy doesn't terminate the string
@@ -223,7 +223,7 @@ int GetProjectBaseName(char* basename)
 	pre = FilePrefix[index];
 	p_workstr = workstr; 
 	len = strlen(pre);
-	if (Match(TRUE, &p_workstr, &pre, len))
+	if(Match(TRUE, &p_workstr, &pre, len))
 		strcpy(basename, &workstr[len]);
 	else  strcpy(basename, workstr);
 	
@@ -290,7 +290,7 @@ void SelectCreatorAndFileType(int type, OSType* thecreator, OSType* thetype)
 			break;
 		case ftiHTML:
 			*thetype = 'TEXT';
-			if (RunningOnOSX)	*thecreator = '\0\0\0\0';	/* use user's default browser? */
+			if(RunningOnOSX)	*thecreator = '\0\0\0\0';	/* use user's default browser? */
 			else			*thecreator = 'MOSS';		/* Netscape creator */
 			break;
 		case ftiMidiDriver:
@@ -393,7 +393,7 @@ switch(type) {
 		*numtypes = 2;
 		break;
 	case ftiHTML:
-		if (Beta) Alert1("=> Err. FillTypeList(): type 18 not allowed.");
+		 BPPrintMessage(0,odError,"=> Err. FillTypeList(): type 18 not allowed.");
 		break;
 	case ftiMidiDriver:
 		typelist[0] = 'BP16';	/* MIDI driver settings (-md) file */
@@ -443,10 +443,10 @@ int MakeFormatMenuItems(int type, NavMenuItemSpecArrayHandle* p_handle)
 	int i, numitems, typelist[4];
 	char HTMLname[MFNLEN+HFLEN];
 	
-	if (type < 0 || type >= MAXFORMATNAMES)  type = ftiText;
+	if(type < 0 || type >= MAXFORMATNAMES)  type = ftiText;
 	
 	// MIDI orchestra does not support HTML
-	if (type == ftiMIDIorchestra) {
+	if(type == ftiMIDIorchestra) {
 		typelist[0] = type;				// BP3 native format
 		typelist[1] = ftiText;				// BP3 plain text
 		numitems = 2;
@@ -454,7 +454,7 @@ int MakeFormatMenuItems(int type, NavMenuItemSpecArrayHandle* p_handle)
 	else {
 		typelist[0] = type;				// BP3 native format
 		typelist[1] = type;				// BP3 native format with HTML encoding
-		if (type == ftiAny || type == ftiText) {	// (skip adding plain text again)
+		if(type == ftiAny || type == ftiText) {	// (skip adding plain text again)
 			typelist[2] = ftiHTML;			// HTML
 			numitems = 3;
 		}
@@ -466,7 +466,7 @@ int MakeFormatMenuItems(int type, NavMenuItemSpecArrayHandle* p_handle)
 	}
 	
 	/* resize before dereferencing */
-	if (MySetHandleSize((Handle*)p_handle, numitems*sizeof(NavMenuItemSpec)) != OK)
+	if(MySetHandleSize((Handle*)p_handle, numitems*sizeof(NavMenuItemSpec)) != OK)
 		return (ABORT);
 	items = **p_handle;
 	
@@ -475,7 +475,7 @@ int MakeFormatMenuItems(int type, NavMenuItemSpecArrayHandle* p_handle)
 	for (i = 0; i < numitems; ++i) {
 		items[i].version = kNavMenuItemSpecVersion;
 		SelectCreatorAndFileType(typelist[i], &(items[i].menuCreator), &(items[i].menuType));
-		if (i == 1 && numitems > 2) {
+		if(i == 1 && numitems > 2) {
 			strcpy(HTMLname, FormatNames[typelist[i]]);
 			strcat(HTMLname, HTMLFormat);
 			c2pstrcpy(items[i].menuItemName, HTMLname);
@@ -490,9 +490,9 @@ int MakeFormatMenuItems(int type, NavMenuItemSpecArrayHandle* p_handle)
 /* returns TRUE if this window can be saved in multiple formats */
 int CanSaveMultipleFormats(int w)
 {
-	if (w == wHelp || w == wNotice || w == wPrototype7 || w == wCsoundTables)
+	if(w == wHelp || w == wNotice || w == wPrototype7 || w == wCsoundTables)
 		return (FALSE);
-	else if (w >= 0 && w < WMAX && Editable[w] || w == wMIDIorchestra)
+	else if(w >= 0 && w < WMAX && Editable[w] || w == wMIDIorchestra)
 		return (TRUE);
 	else  return (FALSE);
 }
@@ -529,9 +529,9 @@ int NewFile(int w, int type, Str255 fn, NSWReply *p_reply)
 	NSWOptionsInit(&opts);
 	opts.appName = "\pBol Processor";
 	opts.prompt  = "\pSave file as:";
-	if (CanSaveMultipleFormats(w)) {
+	if(CanSaveMultipleFormats(w)) {
 		formatItems = (NavMenuItemSpecArrayHandle) GiveSpace(1);
-		if (MakeFormatMenuItems(type, &formatItems) != OK) {
+		if(MakeFormatMenuItems(type, &formatItems) != OK) {
 			MyDisposeHandle((Handle*)&formatItems);
 			return(MISSED);
 		}
@@ -543,8 +543,8 @@ int NewFile(int w, int type, Str255 fn, NSWReply *p_reply)
 	AlertOn = TRUE; // prevent ResumeStop from showing
 	io = NSWPutFile(p_reply, creator, filetype, fn, &opts);
 	AlertOn = FALSE;
-	if (formatItems) MyDisposeHandle((Handle*)&formatItems);
-	if (io != noErr) {
+	if(formatItems) MyDisposeHandle((Handle*)&formatItems);
+	if(io != noErr) {
 		return(MISSED);
 	}
 	if(p_reply->sfGood) {
@@ -569,7 +569,7 @@ int OldFile(int w,int type,Str255 fn,FSSpec *p_spec)
 	if(CallUser(1) != OK) return(MISSED);
 
 	if(w < -1 || w >= WMAX) {
-		if(Beta) Alert1("=> Err. OldFile(). Incorrect window index");
+		BPPrintMessage(0,odError,"=> Err. OldFile(). Incorrect window index");
 		return(MISSED);
 		}
 
@@ -635,10 +635,10 @@ int FindMatchingFileNamePrefix(/*const*/ char* name)
 	char* pre;
 	
 	for (w = 0; w < WMAX; w++) {
-		if (FilePrefix[w][0] == '\0') continue;
+		if(FilePrefix[w][0] == '\0') continue;
 		// prefixes are case sensitive
 		pre = FilePrefix[w];
-		if (Match(TRUE, &name, &pre, strlen(pre))) return w;
+		if(Match(TRUE, &name, &pre, strlen(pre))) return w;
 	}
 	
 	return wUnknown;
@@ -653,16 +653,16 @@ int FindMatchingFileNameExtension(/*const*/ char* name)
 	
 	// find the last '.' in name, if any
 	nameExt = strrchr(name, '.');
-	if (nameExt == NULL)  return wUnknown;
+	if(nameExt == NULL)  return wUnknown;
 	
 	len = strlen(nameExt);
 	for (w = 0; w < WMAX; w++) {
-		if (FileExtension[w][0] == '\0') continue;
+		if(FileExtension[w][0] == '\0') continue;
 		ext = FileExtension[w];
 		// extensions must be the same length
-		if (len != strlen(ext))  continue;
+		if(len != strlen(ext))  continue;
 		// extensions are case insensitive
-		if (Match(FALSE, &nameExt, &ext, strlen(ext))) return w;
+		if(Match(FALSE, &nameExt, &ext, strlen(ext))) return w;
 	}
 	
 	return wUnknown;
@@ -675,10 +675,10 @@ int MatchFileNameExtension(/*const*/ char* name, /*const*/ char* ext)
 	
 	// find the last '.' in name, if any
 	nameExt = strrchr(name, '.');
-	if (nameExt == NULL)  return FALSE;
+	if(nameExt == NULL)  return FALSE;
 	
 	// extensions must be the same length
-	if (strlen(nameExt) != strlen(ext))  return FALSE;
+	if(strlen(nameExt) != strlen(ext))  return FALSE;
 	
 	// extensions are case insensitive
 	return Match(FALSE, &nameExt, &ext, strlen(ext));
@@ -691,18 +691,18 @@ int IdentifyBPFileTypeByName(/*const*/ char* name)
 
 	// try the filename's prefix, if any
 	wfindex = FindMatchingFileNamePrefix(name);
-	if (wfindex != wUnknown)  return wfindex;
+	if(wfindex != wUnknown)  return wfindex;
 	
 	// next try the filename's extension, if any
 	wfindex = FindMatchingFileNameExtension(name);
-	if (wfindex != wUnknown)  return wfindex;
+	if(wfindex != wUnknown)  return wfindex;
 	
 	// also try the other extensions that we recognize
-	if (MatchFileNameExtension(name, ".mid") ||
+	if(MatchFileNameExtension(name, ".mid") ||
 	    MatchFileNameExtension(name, ".midi"))
 		return iMIDIfile;
-	if (MatchFileNameExtension(name, ".trace"))  return wTrace;
-	if (MatchFileNameExtension(name, ".txt") ||
+	if(MatchFileNameExtension(name, ".trace"))  return wTrace;
+	if(MatchFileNameExtension(name, ".txt") ||
 	    MatchFileNameExtension(name, ".sco") ||
 	    MatchFileNameExtension(name, ".htm") ||
 	    MatchFileNameExtension(name, ".html"))
@@ -713,7 +713,7 @@ int IdentifyBPFileTypeByName(/*const*/ char* name)
 
 
 void strip_trailing_spaces(char *str) {
-    if (str == NULL) return;
+    if(str == NULL) return;
     int len = strlen(str);
     while (len > 0 && isspace((unsigned char)str[len - 1])) {
         len--;
@@ -723,7 +723,7 @@ void strip_trailing_spaces(char *str) {
 
 
 void remove_double_slash_prefix(char *str) {
-    if (strncmp(str, "//", 2) == 0) {
+    if(strncmp(str, "//", 2) == 0) {
         // Shift everything to the left over the "//"
         memmove(str, str + 2, strlen(str) - 1);
 		}
@@ -777,9 +777,9 @@ int ReadOne(int bindlines,int careforhtml,int nocomment,FILE* fin,int strip,char
 		buffer =  newBuffer;
 		memcpy(buffer, line, lineSize);
 		buffer[lineSize] = '\0';
-		if (lineSize == 0) {
+		if(lineSize == 0) {
 			char *emptyStr = strdup(""); // Handle empty file case
-			if (emptyStr != NULL) {
+			if(emptyStr != NULL) {
 				free(buffer);
 				buffer = emptyStr;
 				}
@@ -959,11 +959,11 @@ OSErr io;
 char **p_line;
 
 if(refnum == -1) {
-	if(Beta) BPPrintMessage(0,odError,"=> Err. WriteToFile(). refnum == -1 line = \"%s\"\n",line);
+	BPPrintMessage(0,odError,"=> Err. WriteToFile(). refnum == -1 line = \"%s\"\n",line);
 	return(MISSED);
 	}
 p_line = NULL;
-if ((res = MystrcpyStringToHandle(&p_line, line)) != OK) return res;
+if((res = MystrcpyStringToHandle(&p_line, line)) != OK) return res;
 
 #if BP_CARBON_GUI_FORGET_THIS
 count = (long) MyHandleLen(p_line);
@@ -1014,7 +1014,7 @@ long count;
 OSErr io;
 
 if(refnum == -1) {
-	if(Beta) Alert1("=> Err. NoReturnWriteToFile(). refnum == -1");
+	BPPrintMessage(0,odError,"=> Err. NoReturnWriteToFile(). refnum == -1");
 	return(MISSED);
 	}
 
@@ -1047,18 +1047,18 @@ long n;
 if(WASTE_FORGET_THIS || w < 0 || w >= WMAX || !Editable[w]) return(OK);
 n = GetTextLength(w);
 if(n > (TEXTEDIT_MAXCHARS - 100)) {
-	if (WindowFullAlertLevel[w] < 1) {	// this test cannot be in the previous 'if'
+	if(WindowFullAlertLevel[w] < 1) {	// this test cannot be in the previous 'if'
 		if(FileName[w][0] != '\0')
 			my_sprintf(Message,"Window '%s' is almost full",FileName[w]);
 		else
 			my_sprintf(Message,"Window '%s' is almost full",WindowName[w]);
-		Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		WindowFullAlertLevel[w] = 1;	// 1 means we've warned about being almost full
 		}
 	}
-else if (n < 0) {
+else if(n < 0) {
 	my_sprintf(Message, "Text has overflowed the '%s' window! Save your work and quit...", WindowName[w]);
-	Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	EmergencyExit = TRUE;
 	WindowFullAlertLevel[w] = 3;	// 3 means overflowed
 	return(MISSED);
@@ -1078,7 +1078,7 @@ int targetIsFolder,wasAliased;
 (*p_refnum) = -1;	// initialize fRefNum
 
 io = ResolveAliasFile(p_spec,TRUE,&targetIsFolder,&wasAliased);
-if (io != noErr) return (io);
+if(io != noErr) return (io);
 
 if(targetIsFolder)
 	io = paramErr;	// cannot open a folder
@@ -1144,7 +1144,7 @@ int GetThisVersion(int w) {
 	pos = ZERO;
 	p_line = NULL;
 	if(w < 0 || w >= WMAX || !Editable[w]) {
-		if(Beta) Alert1("=> Err. GetThisVersion(). Incorrect window index");
+		BPPrintMessage(0,odError,"=> Err. GetThisVersion(). Incorrect window index");
 		return(MISSED);
 		}
 	posmax = GetTextLength(w);
@@ -1166,7 +1166,7 @@ int GetThisVersion(int w) {
 		my_sprintf(Message,
 			"Can't use file version %s\nbecause 'BP2' version is %s.\n",
 			VersionName[fileversion],VersionName[Version]);
-		if(!ScriptExecOn) Alert1(Message);
+		if(!ScriptExecOn) BPPrintMessage(0,odError,"%s",Message);
 		else PrintBehind(wTrace,Message);
 		goto SORTIR;
 		}
@@ -1219,7 +1219,7 @@ int GetFileDate(int w,char ***pp_result) {
 	char *p,*q,**p_line;
 
 	if(w < 0 || w >= WMAX || !Editable[w]) {
-		if(Beta) Alert1("=> Err. GetFileDate(). w < 0 || w >= WMAX || !Editable[w]");
+		BPPrintMessage(0,odError,"=> Err. GetFileDate(). w < 0 || w >= WMAX || !Editable[w]");
 		return(OK);
 		}
 	pos = ZERO; p_line = NULL;

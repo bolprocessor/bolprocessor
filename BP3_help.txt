@@ -367,12 +367,11 @@ A "subgrammar" using (context-sensitive) leftmost derivation in "production", an
 ### SUB [Subgrammar type]
 A "subgrammar" using (context-sensitive) substitutions.
     A substitution is the simultaneous application of all candidate
-    rules in the "subgrammar".
+    rules in the "subgrammar" until no rule is candidate.
 • This type works in "production" mode only.
 ### SUB1 [Subgrammar type]
 Similar to SUB, but substitutions are performed only once.
 • This type works in "production" mode only.
-• This type is notably used in a "glossary".
 ### POSLONG [Subgrammar type]
 A "subgrammar" in which the candidate rule is selected for the (1) leftmost and (2) longest occurrence
     of its left argument in the "work string".
@@ -614,6 +613,7 @@ Sets current Csound instrument to x.
 Sets current part of code to x.
 • A part is generally sent to specific MIDI instrument(s), as instructed by the MIDI output filters on the interface.
 • Range of x is 1..12
+• Read https://bolprocessor.org/real-time-midi/#the-_part-command
 ### _vel(x) [Performance control]
 Sets velocity of following "sound-object" to x.
 • Range of x is 0..127

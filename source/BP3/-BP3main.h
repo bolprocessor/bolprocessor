@@ -195,14 +195,9 @@ long **p_ItemStart,**p_ItemEnd,CompileDate,ComputeStart,MaxComputeTime,
 	ComputeTime,ItemNumber,Interrupted,MaxDeriv,Sel1,Sel2,AssignedTempoCsoundFile;
 int Nplay,SynchroSignal,Quantize,IgnoreCase,MatchWords,
 	TargetWindow,GraphicScaleP,GraphicScaleQ;
-long Time_res,Quantization;
+long Time_res,Quantization,MaxDeltaTime;
 volatile unsigned long TimeSlice;
 
-#if PRODUCE_TICKS
-Slice **Clock,***p_Clock,**p_AllSlices,*Slices,*SlicePool;
-volatile unsigned long TotalTicks;
-volatile char OKsend;
-#endif
 // these are part of the Scheduler but we need them for now - akozar
 volatile char ClockOverFlow,SchedulerIsActive;
 char Mute,Panic;
@@ -270,7 +265,7 @@ short Maxlevel,MaxFlag,MaxScript,Jscriptline,Final,POLYconvert,
 	Port,Portbit,MIDI;
 int MaxItemsProduce;
 int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,TraceMicrotonality,DisplayProduce,TraceProduce,UseTimeLimit,
-	DisplayTimeSet,StepTimeSet,UseEachSub,PlanProduce,TraceTimeSet,ResetNotes;
+	DisplayTimeSet,StepTimeSet,UseEachSub,PlanProduce,TraceTimeSet,TraceNoteOn,ResetNotes;
 int InsertGramRuleNumbers, InsertGramCorrections, InsertNewBols;
 unsigned long Ptick[MAXTICKS],Qtick[MAXTICKS],GrandCycle[MAXTICKS],
 	PosGrandCycle[MAXTICKS],GrandPeriod,BeatGrandCycle,BeatPosGrandCycle,
@@ -282,7 +277,7 @@ long Infpos,Infneg,Veryneg,MaxMIDIbytes,
 	MIDIinputFilterstartup,
 	MIDIoutputFilterstartup,Ts,DataEnd;
 unsigned long MIDIacceptFilter[MAXPORTS],MIDIpassFilter[MAXPORTS];
-char MIDIchannelFilter[MAXPORTS][17],MIDIpartFilter[MAXPORTS][13],MIDIoutFilter[MAXPORTS][19];
+char MIDIchannelFilter[MAXPORTS][17],MIDIpartFilter[MAXPORTS][MAXPARTS+1],MIDIoutFilter[MAXPORTS][19];
 Milliseconds **p_T;
 long **p_Ppatt,**p_Qpatt;
 MIDIcode **p_Code; 
@@ -334,7 +329,7 @@ int MaxInputPorts, MaxOutputPorts;
 long DataOrigin,Tcurr,LastTime,PianorollShift;
 unsigned long NextTickDate[MAXTICKS],NextBeatDate;
 
-int Nw,LastEditWindow,LastComputeWindow,OutputWindow,ResumeStopOn,ResetTickFlag,ResetTickInItemFlag;
+int Nw,LastEditWindow,LastComputeWindow,OutputWindow,ResumeStopOn;
 /* WindowPtr Window[WMAX];
 DialogPtr ResumeStopPtr,ResumeUndoStopPtr,MIDIkeyboardPtr;
 DialogPtr PatternPtr,ReplaceCommandPtr,EnterPtr,GreetingsPtr,FAQPtr,SixteenPtr,FileSavePreferencesPtr,
@@ -349,7 +344,7 @@ int linesInFolder[WMAX];
 int WindowFullAlertLevel[WMAX];	// used in TextEdit build to track which alerts have been shown
 // MenuHandle myMenus[MAXMENU+1];
 int Buttonheight = 14;
-int NewEnvironment,NewColors,ShowPianoRoll,ToldAboutPianoRoll,ShowObjectGraph,Help,ChangedCoordinates[WMAX];
+int NewEnvironment,NewColors,ShowPianoRoll,ToldAboutPianoRoll,ShowObjectGraph,ShowAllObjects,Help,ChangedCoordinates[WMAX];
 // RGBColor CurrentColor[WMAX];
 // ControlHandle vScroll[WMAX],hScroll[WMAX];
 int SlideH[WMAX],SlideV[WMAX],Hmin[WMAX],Hmax[WMAX],Hzero[WMAX],
@@ -444,13 +439,13 @@ int Nature_of_time,UseBufferLimit,NeedAlphabet,CompleteDecisions,OkWait;
 int PrototypeTickChannel,PrototypeTickKey,PrototypeTickVelocity;
 int TickChannel[MAXTICKS],TickKey[MAXTICKS],TickVelocity[MAXTICKS],MuteTick[MAXTICKS],
 	TickDuration[MAXTICKS],
-	TickCycle[MAXTICKS],TickPosition[MAXTICKS],iTick,jTick,HideTicks,PlayTicks,UseBullet,NeedZouleb;
+	TickCycle[MAXTICKS],TickPosition[MAXTICKS],iTick,jTick,UseBullet,NeedZouleb;
 long ThisTick[MAXTICKS][MAXBEATS];
 int InitOn,SetTimeOn,ComputeOn,PolyOn,SoundOn,SelectOn,PrintOn,InputOn,ClickRuleOn,
 	EnterOn,Option,CompileOn,GraphicOn,ReadKeyBoardOn,ButtonOn,LoadOn,SaveOn,PauseOn,AlertOn,
-	PlaySelectionOn,PlayChunks,LastChunk,PlayAllChunks,PlayPrototypeOn,AEventOn,ExpandOn,SelectPictureOn,EmptyBeat,TickDone,TickThere,
-	FoundNote,NoCursor,MIDIfileOn,WaitOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram,
-	ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
+	PlaySelectionOn,PlayChunks,LastChunk,PlayAllChunks,PlayPrototypeOn,AEventOn,ExpandOn,SelectPictureOn,EmptyBeat,TickDone;
+int	FoundNote,NoCursor,MIDIfileOn,WaitOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram;
+int	ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
 int HideMessages;
 double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
 double MaxFrac;

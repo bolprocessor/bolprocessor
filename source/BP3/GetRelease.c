@@ -54,8 +54,6 @@ for(w=0; w < WMAX; w++) {
 	// just clearing the name of all files enough ? - akozar 20130830
 	FileName[w][0] = '\0';
 	}
-/* TellOthersMyName(wKeyboard); */
-// PlayTicks = FALSE; SetTickParameters(0,MAXBEATS); ResetTickFlag = TRUE;
 NotSaidKpress = TRUE;
 IgnoreUndefinedVariables = ToldAboutPianoRoll = FALSE;
 if(init && !ScriptExecOn) {
@@ -264,7 +262,7 @@ for(w=0; w < MAXWIND; w++) {
 		}
 	else {
 		my_sprintf(Message,"Window #%ld is NULL. ",(long)w);
-		if(Beta) Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	}
 for(w=MAXWIND; w < WMAX; w++) {
@@ -278,7 +276,7 @@ for(w=MAXWIND; w < WMAX; w++) {
 		}
 	else {
 		my_sprintf(Message,"Dialog #%ld is NULL. ",(long)w);
-		if(Beta) Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	/* if(Editable[w]) TextDispose(TEH[w]); */
 	}
@@ -314,7 +312,7 @@ int ReleaseAlphabetSpace(void) {
 	if(p_Image == NULL) jmax = 0;
 	else {
 		jmax = MyGetHandleSize((Handle)p_Image) / sizeof(int**);
-		if(p_Homo == NULL) if(Beta) Alert1("=> Err. ReleaseAlphabetSpace(). p_Image = NULL");
+		if(p_Homo == NULL) BPPrintMessage(0,odError,"=> Err. ReleaseAlphabetSpace(). p_Image = NULL");
 		}
 	for(j=0; j < jmax; j++) {
 		ptr = (Handle)(*p_Image)[j];
@@ -418,7 +416,7 @@ if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 					do {
 						if((**h).x > Jflag || (**h).x < 0) {
 							my_sprintf(Message,"=> Err in flag list. ");
-							if(Beta) Alert1(Message);
+							BPPrintMessage(0,odError,"%s",Message);
 							break;
 							}
 						h1 = (**h).p;
@@ -433,7 +431,7 @@ if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
 					do {
 						if((**h).x > Jflag || (**h).x < 0) {
 							my_sprintf(Message,"=> Err in flag list. ");
-							if(Beta) Alert1(Message);
+							BPPrintMessage(0,odError,"%s",Message);
 							break;
 							}
 						h1 = (**h).p;
@@ -477,7 +475,7 @@ Handle ptr;
 
 if(GlossGram.p_subgram != NULL) {
 	if(MyGetHandleSize((Handle)(GlossGram.p_subgram)) < 2 * sizeof(t_gram)) {
-		if(Beta) Alert1("=> Err. ReleaseGlossarySpace()");
+		BPPrintMessage(0,odError,"=> Err. ReleaseGlossarySpace()");
 		return(ABORT);
 		}
 	if((*(GlossGram.p_subgram))[1].p_rule != NULL) {
@@ -660,7 +658,7 @@ for(j=0; j < Jinstr; j++) {
 	MyDisposeHandle(&ptr);
 	for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
 		if((*p_CsInstrument)[j].paramlist == NULL) {
-			if(Beta) Alert1("=> Err. ReleaseCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
+			BPPrintMessage(0,odError,"=> Err. ReleaseCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
 			break;
 			}
 		ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].name;
@@ -760,7 +758,7 @@ for(j=howmany; j < Jinstr; j++) {
 	(*pp_CsInstrumentComment)[j] = NULL;
 	for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
 		if((*p_CsInstrument)[j].paramlist == NULL) {
-			if(Beta) Alert1("=> Err. ResizeCsoundInstrumentsSpace(). (*p_CsInstrument)[j].paramlist == NULL");
+			BPPrintMessage(0,odError,"=> Err. ResizeCsoundInstrumentsSpace(). (*p_CsInstrument)[j].paramlist == NULL");
 			break;
 			}
 		ptr = (*((*p_CsInstrument)[j].paramlist))[i].name;
@@ -1247,8 +1245,8 @@ if(reset) {
 	}
 
 // Create objects for time patterns
-	if (Jbol < maxsounds && Nature_of_time == SMOOTH) {  //  2024-07-25
-		if (Jbol >= 2)
+	if(Jbol < maxsounds && Nature_of_time == SMOOTH) {  //  2024-07-25
+		if(Jbol >= 2)
 			j = Jbol;
 		else
 			j = 2;
@@ -1287,12 +1285,12 @@ if(reset) {
 			(*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = (*p_PivPos)[j] = (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_BeforePeriod)[j] = ZERO;
 			(*p_Tref)[j] = 1000L;
 			(*p_Dur)[j] = ZERO;
-			if (j >= (Jbol + addbol))
+			if(j >= (Jbol + addbol))
 			{	/* Fixed 13/4/98 */
 				//	if(Jpatt <= 0 || p_Ppatt != NULL && p_Qpatt != NULL) {
-				if (p_Ppatt != NULL && p_Qpatt != NULL)
+				if(p_Ppatt != NULL && p_Qpatt != NULL)
 				{ // Fixed by BB 2022-02-20
-					if ((*p_Ppatt)[j - Jbol - addbol] < 100L || (*p_Qpatt)[j - Jbol - addbol] < 100L)
+					if((*p_Ppatt)[j - Jbol - addbol] < 100L || (*p_Qpatt)[j - Jbol - addbol] < 100L)
 					{
 						// BPPrintMessage(0,odInfo,"1) Jpatt = %d, Ppatt[%d] = %ld, Qpatt[%d] = %ld\n",Jpatt,j-Jbol-addbol,(long)(*p_Ppatt)[j-Jbol-addbol],j-Jbol-addbol,(long)(*p_Qpatt)[j-Jbol-addbol]);
 						(*p_Ppatt)[j - Jbol - addbol] = 100L * (*p_Ppatt)[j - Jbol - addbol];
@@ -1448,7 +1446,7 @@ int i,j,**ptr1;
 char **ptr2,**p_x;
 
 if(Jbol < 2) {
-	if(Beta) Alert1("=> Err. GetAlphabetSpace(). Jbol < 2");
+	BPPrintMessage(0,odError,"=> Err. GetAlphabetSpace(). Jbol < 2");
 	return(ABORT);
 	}
 if((p_x = (char**) GiveSpace((Size)((2) * sizeof(char)))) == NULL) {
@@ -1457,7 +1455,7 @@ if((p_x = (char**) GiveSpace((Size)((2) * sizeof(char)))) == NULL) {
 if((p_Bol = (char****) GiveSpace((Size)(Jbol) * sizeof(char**))) == NULL) return(ABORT);
 for(j=0; j < Jbol; j++) (*p_Bol)[j] = NULL;
 if(p_Image != NULL || p_NoteImage != NULL || p_Homo != NULL) {
-	if(Beta) Alert1("=> Err. GetAlphabetSpace(). p_Image != NULL || p_NoteImage != NULL || p_Homo != NULL");
+	BPPrintMessage(0,odError,"=> Err. GetAlphabetSpace(). p_Image != NULL || p_NoteImage != NULL || p_Homo != NULL");
 	return(ABORT);
 	}
 /* p_Image = p_NoteImage = NULL; p_Homo = NULL; */
@@ -1563,7 +1561,7 @@ return OK;
 int MakeComputeSpace(int maxderiv)
 {
 if(maxderiv < 2) {
-	if(Beta) Alert1("=> Err. MakeComputeSpace()");
+	BPPrintMessage(0,odError,"=> Err. MakeComputeSpace()");
 	maxderiv = 10;
 	}
 if((p_MemGram == NULL) &&
@@ -1604,7 +1602,7 @@ int IncreaseComputeSpace(void) {
 	if(ThreeOverTwo(&MaxDeriv) != OK) return(ABORT);
 	ptr = (Handle) p_MemGram;
 	if(ptr == NULL) {
-		if(Beta) Alert1("=> Err. IncreaseComputeSpace(). ptr = NULL");
+		BPPrintMessage(0,odError,"=> Err. IncreaseComputeSpace(). ptr = NULL");
 		return(ABORT);
 		}
 	if((ptr = IncreaseSpace(ptr)) == NULL) return(ABORT);
@@ -1672,7 +1670,7 @@ int j;
 
 if(p_VarStatus == NULL) return(OK);
 if(p_Var == NULL) {
-	if(Beta) Alert1("=> Err. ResetVariables(). p_Var = NULL");
+	BPPrintMessage(0,odError,"=> Err. ResetVariables(). p_Var = NULL");
 	return(ABORT);
 	}
 if(w != wGrammar && w != wGlossary) return(MISSED);
@@ -1708,13 +1706,6 @@ return(OK);
 int ClearLockedSpace(void)
 {
 long i;
-
-#if PRODUCE_TICKS
-MyUnlock((Handle)p_Clock);
-DisposeHandle((Handle)p_Clock);
-MyUnlock((Handle)p_AllSlices);
-DisposeHandle((Handle)p_AllSlices);
-#endif
 
 for(i=0; i < MaxProc; i++) {
 	MyUnlock((Handle)(*p_GramProcedure)[i]);
@@ -1759,7 +1750,7 @@ double size;
 while(i > (*p_maxi)) {
 	size = ((*p_maxi) * 3.) / 2.;
 	if(size >= ULONG_MAX) {
-		Alert1("Structure is getting too large. Task will be cancelled");
+		BPPrintMessage(0,odError,"Structure is getting too large. Task will be cancelled");
 		return(ABORT);
 		}
 	(*p_maxi) = size;
@@ -1791,34 +1782,13 @@ int ThreeOverTwo(long *p_x)
 int CheckEmergency(void)
 {
 if((stop(0,"CheckEmergency") != OK) || EmergencyExit) {
-//	Alert1("Out of memory. Save your work and exit...");
+//	BPPrintMessage(0,odError,"Out of memory. Save your work and exit...");
 	return(NO);
 	}
 return(OK);
 }
 
-
-/*	FIXME ? There are about 60 calls to this function left,
-	mostly as the last step in a function:
-		return OK;
-	It used to call SystemTask() and MemError() but now
-	obviously only calls PlayTick().  It is not clear to me
-	though whether those calls are needed or not.  PlayTick()
-	always returns OK except after finishing capturing a 
-	"tick cycle" when it returns STOP.  I don't see why dozens
-	of other functions should potentially fail randomly in that
-	rare case.
-	
-	So, should we 
-		1.  Replace all/most calls to DoSystem() with PlayTick(FALSE), or
-		2.  Remove all calls to DoSystem() by replacing calls in return
-			statements with OK and by (carefully!) editing out other calls.
-			EXCEPTION: The call from MainEvent() should be changed to
-					   PlayTick(FALSE) or else it won't get called!
- */
 int DoSystem(void)
 {
-	if(Panic || EmergencyExit) return(OK);
-	if(!SoundOn) return(PlayTick(FALSE));
 	return(OK);
 }

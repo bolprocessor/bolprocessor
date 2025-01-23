@@ -322,7 +322,7 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 		Print(wTrace,"\n");
 		N_err++;
 		if(fatal) {
-			if(!ScriptExecOn) Alert1("Fatal error found.  Compilation aborted...");
+			if(!ScriptExecOn) BPPrintMessage(0,odError,"Fatal error found.  Compilation aborted...");
 			else PrintBehindln(wTrace,"Fatal error found.  Compilation aborted...");
 			break;
 			}
@@ -343,7 +343,7 @@ BPPrintMessage(0,odInfo,"Parsing completed\n");
 if(trace_compile_grammar) BPPrintMessage(0,odInfo,"\n");
 if((*(Gram.p_subgram))[Gram.number_gram].number_rule > MaxRul) {
 	my_sprintf(Message,"=> Err. number rules gram#%ld.",(long)Gram.number_gram);
-	if(Beta) Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	if(CompileOn) CompileOn--;
 	Panic =  TRUE; // 2024-06-18
 	return(ABORT);
@@ -1060,7 +1060,7 @@ int ReadAlphabet(int justcount) {
 	if(Jbol < 3) NoAlphabet = TRUE;
 	else NoAlphabet = FALSE;
 	if(N_err) {
-		if(!ScriptExecOn) Alert1("Alphabet is incorrect...");
+		if(!ScriptExecOn) BPPrintMessage(0,odError,"Alphabet is incorrect...");
 		else PrintBehindln(wTrace,"Alphabet is incorrect...");
 		return(MISSED);
 		}
@@ -1103,7 +1103,7 @@ int GetHomomorph(char **p_line,int justcount)
 
 i = 0; j = 0;
 if((*p_line)[0] == '\0') {
-	if(Beta) Alert1("=> Err. GetHomomorph(). (*p_line)[0] == '\0'");
+	BPPrintMessage(0,odError,"=> Err. GetHomomorph(). (*p_line)[0] == '\0'");
 	return(24);
 	}
 while(MySpace((*p_line)[i])) i++;
@@ -1162,7 +1162,7 @@ for(i=0,k1=0; i <= l;) {
 		r = ABORT; goto QUIT;
 		}
 	if(k2 >= (16384+128)) {
-		if(Beta) Alert1("=> Err. GetBols(). k2 >= (16384+128)");
+		BPPrintMessage(0,odError,"=> Err. GetBols(). k2 >= (16384+128)");
 		r = ABORT; goto QUIT;
 		}
 	if(!justcount && k1 > 0 && Jhomo > 0 && operatorthere) {
@@ -1322,7 +1322,7 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 	if(trace_compile_alphabet) BPPrintMessage(0,odInfo, "jmax = %d\n",jmax);
 	if(jmax > 0) {
 		if(p_t == NULL) {
-			if(Beta) Alert1("=> Err. CreateBol(). p_t == NULL");
+			BPPrintMessage(0,odError,"=> Err. CreateBol(). p_t == NULL");
 			return(ABORT);
 			}
 		for(j=0; j < jmax; j++) {
@@ -1424,14 +1424,14 @@ if(newsubgram) {
 	if((*(Gram.p_subgram))[igram].number_rule > MaxRul) {
 		my_sprintf(Message,
 			"=> Err. number rules gram#%ld. ",(long)Gram.number_gram);
-		if(Beta) Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		N_err++; return(2);
 		}
 	if(tracecompile) Print(wTrace,"------------------------\n");
 	if((++Gram.number_gram) > MaxGram) {
 		my_sprintf(Message,"=> Err. number grams = %ld  MaxGram = %ld. ",
 				(long)Gram.number_gram,(long)MaxGram);
-		if(Beta) Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		N_err++; return(1);
 		}
 	*p_igram = ++igram;
@@ -1737,7 +1737,7 @@ for(i=0; i < MAXNOTBPCASES; i++) {
 		}
 	}
 ShowSelect(CENTRE,wTrace);
-if(!ScriptExecOn) Alert1("Not a true BP grammar...");
+if(!ScriptExecOn) BPPrintMessage(0,odError,"Not a true BP grammar...");
 else PrintBehind(wTrace,"Not a true BP grammar...\n");
 return(MISSED);
 }
@@ -1803,12 +1803,12 @@ return(YES);
 
 void adjust_prefix(char *line) {
     char temp[MAXLIN];
-    if (strncmp(line,"-mi.",4) == 0) {
+    if(strncmp(line,"-mi.",4) == 0) {
         strcpy(temp, line + 4);
         strcpy(line,"-so.");
         strcat(line, temp);
 		}
-    if (strncmp(line,"-ho.",4) == 0) {
+    if(strncmp(line,"-ho.",4) == 0) {
         strcpy(temp, line + 4);
         strcpy(line,"-al.");
         strcat(line, temp);

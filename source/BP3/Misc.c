@@ -415,7 +415,7 @@ void insert_space_between_digits(char* str) {
     int i = 0, j = 0;
 
     while (str[i] != '\0') {
-        if (str[i] == '#') {
+        if(str[i] == '#') {
             i++; // Move to the next character after '#'
             while (isdigit(str[i])) {
                 char num[5] = ""; // To hold the current number, considering max 4 digits
@@ -426,10 +426,10 @@ void insert_space_between_digits(char* str) {
                 num[k] = '\0'; // Null-terminate the number string
                 
                 int num_len = strlen(num);
-                if (num_len == 3) {
+                if(num_len == 3) {
                     // Insert space between the last two digits
                     j += snprintf(result + j, sizeof(result) - j, "%c%c %c", num[0], num[1], num[2]);
-                } else if (num_len == 4) {
+                } else if(num_len == 4) {
                     // Insert space in the middle (between second and third digit)
                     j += snprintf(result + j, sizeof(result) - j, "%c%c %c%c", num[0], num[1], num[2], num[3]);
                 } else {
@@ -452,7 +452,7 @@ void trim_digits_after_key_hash(char* str) {
     int i = 0, j = 0;
 
     while (str[i] != '\0') {
-        if (str[i] == '#' && i > 0 && str[i-1] == 'y' && str[i-2] == 'e' && str[i-3] == 'k') {
+        if(str[i] == '#' && i > 0 && str[i-1] == 'y' && str[i-2] == 'e' && str[i-3] == 'k') {
             result[j++] = str[i++]; // Copy the '#' character
             int digit_count = 0;
             while (isdigit(str[i]) && digit_count < 2) {
@@ -505,106 +505,6 @@ for(i=j=0;; i++) {
 return(OK);
 }
 
-#if BP_CARBON_GUI_FORGET_THIS
-
-int GetThisTick(void)
-{
-char line[MAXFIELDCONTENT];
-long p,q,s,v,c,k;
-short itemtype;
-int jj;
-Handle itemhandle;
-Rect r;
-
-s = (long) GetCtrlValue(wTickDialog,dTickOn);
-if(GetCtrlValue(wTickDialog,dSpecialTick)) {
-	GetField(NULL,TRUE,wTickDialog,fThisTickVelocity,line,&p,&q);
-	v =  p/q;
-	if(v < 0 || v > 127) {
-		my_sprintf(line,"=> Velocity range is 0..127\nCan't accept %ld",(long)v);
-		Alert1(line);
-		SetField(NULL,wTickDialog,fThisTickVelocity,"[?]");
-		SelectField(NULL,wTickDialog,fThisTickVelocity,TRUE);
-		return(MISSED);
-		}
-	GetField(NULL,TRUE,wTickDialog,fThisTickChannel,line,&p,&q);
-	c =  p/q;
-	if(c < 1 || c > 16) {
-		my_sprintf(line,"=> Channel range is 1..16\nCan't accept %ld",(long)c);
-		Alert1(line);
-		SetField(NULL,wTickDialog,fThisTickChannel,"[?]");
-		SelectField(NULL,wTickDialog,fThisTickChannel,TRUE);
-		return(MISSED);
-		}
-	GetField(NULL,TRUE,wTickDialog,fThisTickKey,line,&p,&q);
-	k =  p/q;
-	if(k < 0 || k > 127) {
-		my_sprintf(line,"=> Key range is 0..127\nCan't accept %ld",(long)k);
-		Alert1(line);
-		SetField(NULL,wTickDialog,fThisTickKey,"[?]");
-		SelectField(NULL,wTickDialog,fThisTickKey,TRUE);
-		return(MISSED);
-		}
-	ThisTick[iTick][jTick] = s + 2L * (v + 128L * ((c - 1L) + 128L * k));
-	}
-else ThisTick[iTick][jTick] = s;
-jj = dPlayBeat + 55*iTick + jTick;
-GetDialogItem(gpDialogs[wTimeBase],(short)jj,&itemtype,&itemhandle,&r);
-/* HiliteControl((ControlHandle) itemhandle,11); */
-if(s) {
-	SwitchOn(NULL,wTimeBase,jj);
-	TickThere = TRUE;
-	}
-else SwitchOff(NULL,wTimeBase,jj);
-return(OK);
-}
-
-
-int SetThisTick(void)
-{
-char line[MAXFIELDCONTENT];
-int vel,ch,key;
-
-if(iTick < 0 || jTick < 0) {
-	if(Beta) Alert1("=> Err. SetThisTick()");
-	return(MISSED);
-	}
-if(ThisTick[iTick][jTick] % 2L) {
-	SwitchOn(NULL,wTickDialog,dTickOn);
-	SwitchOff(NULL,wTickDialog,dTickOff);
-	}
-else {
-	SwitchOn(NULL,wTickDialog,dTickOff);
-	SwitchOff(NULL,wTickDialog,dTickOn);
-	}
-if(ThisTick[iTick][jTick] > 1) {
-	SwitchOn(NULL,wTickDialog,dSpecialTick);
-	SwitchOff(NULL,wTickDialog,dDefaultTick);
-	ShowDialogItem(gpDialogs[wTickDialog],fThisTickVelocity);
-	ShowDialogItem(gpDialogs[wTickDialog],fThisTickChannel);
-	ShowDialogItem(gpDialogs[wTickDialog],fThisTickKey);
-	}
-else {
-	SwitchOn(NULL,wTickDialog,dDefaultTick);
-	SwitchOff(NULL,wTickDialog,dSpecialTick);
-	HideDialogItem(gpDialogs[wTickDialog],fThisTickVelocity);
-	HideDialogItem(gpDialogs[wTickDialog],fThisTickChannel);
-	HideDialogItem(gpDialogs[wTickDialog],fThisTickKey);
-	}
-vel = TickVelocity[iTick];
-ch = TickChannel[iTick];
-key = TickKey[iTick];
-FindTickValues(ThisTick[iTick][jTick],&vel,&ch,&key);
-my_sprintf(line,"%ld",(long)vel);
-SetField(NULL,wTickDialog,fThisTickVelocity,line);
-my_sprintf(line,"%ld",(long)ch);
-SetField(NULL,wTickDialog,fThisTickChannel,line);
-my_sprintf(line,"%ld",(long)key);
-SetField(NULL,wTickDialog,fThisTickKey,line);
-return(OK);
-}
-
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 /* Retrieve the name of a linked file of type doc from window w.
    doc is the "document index" of the name that is being looked for.
@@ -614,16 +514,16 @@ int GetLinkedFileName(int w, int doc, char* filename)
 long pos,posmax;
 char *p,*q,line[MAXLIN];
 
-if (filename == NULL) {
-	if(Beta) Alert1("=> Err. GetLinkedFileName(). filename == NULL.");
+if(filename == NULL) {
+	BPPrintMessage(0,odError,"=> Err. GetLinkedFileName(). filename == NULL.");
 	return(MISSED);
 	}
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) BPPrintMessage(0,odError,"=> Err. GetLinkedFileName(). Bad window index %d\n",w);;
+	BPPrintMessage(0,odError,"=> Err. GetLinkedFileName(). Bad window index %d\n",w);;
 	return(MISSED);
 	}
 if(doc < 0 || doc >= WMAX || FilePrefix[doc][0] == '\0') {
-	if(Beta) Alert1("=> Err. GetLinkedFileName(). Bad document index.");
+	BPPrintMessage(0,odError,"=> Err. GetLinkedFileName(). Bad document index.");
 	return(MISSED);
 	}
 pos = ZERO;
@@ -636,10 +536,10 @@ do {
 	p = line; q = FilePrefix[doc];
 	if(Match(TRUE,&p,&q,4) && line[4] != '<' && line[4] != '\334') {
 		Strip(line); // does this make sense?
-		if (line[4] == ':')    // real filename does not begin with prefix
+		if(line[4] == ':')    // real filename does not begin with prefix
 			p = &(line[5]);  // so, skip the prefix in this line
 		else  p = line;
-		if (strlen(p) > MAXNAME) continue;
+		if(strlen(p) > MAXNAME) continue;
 		strcpy(filename,p);
 		return(OK);
 		}
@@ -649,7 +549,7 @@ while(TRUE);
 
 int GetAlphaName(int w)
 {
-if (GetLinkedFileName(w,wAlphabet,FileName[wAlphabet]) == OK) {
+if(GetLinkedFileName(w,wAlphabet,FileName[wAlphabet]) == OK) {
 		NoAlphabet = FALSE;
 		return(OK);
 		}
@@ -660,7 +560,7 @@ int GetMiName(void)
 {
 char name[MAXNAME];
 
-if (GetLinkedFileName(wAlphabet,iObjects,name) == OK) {
+if(GetLinkedFileName(wAlphabet,iObjects,name) == OK) {
 	if(strcmp(FileName[iObjects],name) != 0) {
 		strcpy(FileName[iObjects],name);
 		ObjectMode = ObjectTry = FALSE;
@@ -674,7 +574,7 @@ int GetInName(int w)
 {
 char name[MAXNAME];
 
-if (GetLinkedFileName(w,wInteraction,name) == OK) {
+if(GetLinkedFileName(w,wInteraction,name) == OK) {
 	if(strcmp(FileName[wInteraction],name) != 0) {
 		strcpy(FileName[wInteraction],name);
 		LoadedIn = CompiledIn = FALSE;
@@ -688,7 +588,7 @@ int GetGlName(int w)
 {
 char name[MAXNAME];
 
-if (GetLinkedFileName(w,wGlossary,name) == OK) {
+if(GetLinkedFileName(w,wGlossary,name) == OK) {
 	if(strcmp(FileName[wGlossary],name) != 0) {
 		strcpy(FileName[wGlossary],name);
 		LoadedGl = CompiledGl = FALSE;
@@ -702,7 +602,7 @@ int GetSeName(int w)
 {
 char name[MAXNAME];
 
-if (GetLinkedFileName(w,iSettings,name) == OK) {
+if(GetLinkedFileName(w,iSettings,name) == OK) {
 	if(strcmp(FileName[iSettings],name) != 0 || Dirty[iSettings]) {
 		strcpy(FileName[iSettings],name);
 		Created[iSettings] = FALSE;
@@ -723,7 +623,7 @@ short refnum;
 char name[MAXNAME];
 
 result = MISSED;
-if (GetLinkedFileName(w,wKeyboard,name) == OK) {
+if(GetLinkedFileName(w,wKeyboard,name) == OK) {
 	if(strcmp(FileName[wKeyboard],name) != 0) {
 		strcpy(FileName[wKeyboard],name);
 		if(Token == FALSE && !ScriptExecOn) {
@@ -734,14 +634,14 @@ if (GetLinkedFileName(w,wKeyboard,name) == OK) {
 		c2pstrcpy(spec.name, name);
 		spec.vRefNum = TheVRefNum[wKeyboard];
 		spec.parID = WindowParID[wKeyboard];
-		if (MyOpen(&spec,fsCurPerm,&refnum) == noErr ||
+		if(MyOpen(&spec,fsCurPerm,&refnum) == noErr ||
 		    CheckFileName(wKeyboard,FileName[wKeyboard],&spec,&refnum,type,TRUE) == OK) {
 			result = LoadKeyboard(refnum);
 			}
 		}
 	else {
 		if(Token && FileName[wKeyboard][0] == '\0') {
-			if(!ScriptExecOn) Alert1("=> You can't use tokens ('Misc' menu) unless you define '-kb.' file in alphabet");
+			if(!ScriptExecOn) BPPrintMessage(0,odError,"=> You can't use tokens ('Misc' menu) unless you define '-kb.' file in alphabet");
 			Token = FALSE;
 			result = ABORT;
 			}
@@ -761,11 +661,11 @@ short refnum;
 char name[MAXNAME];
 
 if(wfile < 0 || wfile >= WMAX) {
-	if(Beta) Alert1("=> Err. GetFileNameAndLoadIt().(wfile < 0 || wfile >= WMAX");
+	BPPrintMessage(0,odError,"=> Err. GetFileNameAndLoadIt().(wfile < 0 || wfile >= WMAX");
 	return(MISSED);
 	}
 
-if (GetLinkedFileName(w,wfile,name) == OK) {
+if(GetLinkedFileName(w,wfile,name) == OK) {
 		if(strcmp(FileName[wfile],name) != 0) {
 			strcpy(FileName[wfile],name);
 			type = gFileType[wfile];
@@ -792,7 +692,7 @@ FSSpec spec;
 short refnum;
 char name[MAXNAME];
 
-if (GetLinkedFileName(w,wCsoundResources,name) == OK) {
+if(GetLinkedFileName(w,wCsoundResources,name) == OK) {
 	if(strcmp(FileName[wCsoundResources],name) != 0) {
 		strcpy(FileName[wCsoundResources],name);
 		type = gFileType[wCsoundResources];
@@ -819,7 +719,7 @@ FSSpec spec;
 short refnum;
 char name[MAXNAME];
 
-if (GetLinkedFileName(w,wTimeBase,name) == OK) {
+if(GetLinkedFileName(w,wTimeBase,name) == OK) {
 	if(strcmp(FileName[wTimeBase],name) != 0) {
 		strcpy(FileName[wTimeBase],name);
 		type = gFileType[wTimeBase];
@@ -854,7 +754,7 @@ switch(j) {
 		if(p < 0.) {
 			my_sprintf(Message,"=> Metronome cannot be set to negative value. '%.4f' not accepted",
 				x);
-			Alert1(Message);
+			BPPrintMessage(0,odError,"%s",Message);
 			return(ABORT);
 			}
 		if(p == ZERO) {
@@ -867,7 +767,7 @@ switch(j) {
 		break;
 	case 14:
 		if(Pclock < 1. && !NotFoundMetronom) {
-			Alert1("=> Setting time to 'striated' is inconsistent with having no clock");
+			BPPrintMessage(0,odError,"=> Setting time to 'striated' is inconsistent with having no clock");
 			striated = FALSE;
 			goto MAKECHANGE;
 			}
@@ -893,14 +793,6 @@ MAKECHANGE:
 		Nature_of_time = SMOOTH;
 		}
 	SetTempo();
-	SetTimeBase();
-#if BP_CARBON_GUI_FORGET_THIS
-	ShowWindow(Window[wMetronom]);
-	BringToFront(Window[wMetronom]);
-	UpdateDirty(TRUE,iSettings);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-	SetTickParameters(0,MAXBEATS);
-	ResetTickFlag = TRUE;
 	}
 return(OK);
 }
@@ -954,45 +846,6 @@ else {
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 return(OK);
 }
-
-#if BP_CARBON_GUI_FORGET_THIS
-
-int GetTempo(void)
-{
-Rect r;
-Handle itemhandle;
-short itemtype;
-char s[255];
-Str255 t;
-unsigned long p,q;
-double oldp,oldq;
-
-if(!Dirty[wMetronom]) return(OK);
-GetDialogItem(gpDialogs[wMetronom],fTempo,&itemtype,&itemhandle,&r);
-GetDialogItemText(itemhandle,t);
-MyPtoCstr(MAXFIELDCONTENT,t,s);
-Dirty[wMetronom] = FALSE;
-oldp = Pclock; oldq = Qclock;
-if(FloatToNiceRatio(s,&p,&q) != OK) return(MISSED);
-if(p == ZERO) {
-	Pclock = ZERO; Qclock = 1L;
-	SetTempo();
-	SetTimeBase();
-	return(OK);
-	}
-if(Simplify((double)INT_MAX,(double)p,(double)60L*q,&Qclock,&Pclock) != OK)
-	Simplify((double)INT_MAX,floor((double)p/60L),(double)q,&Qclock,&Pclock);
-if(oldp != Pclock || oldq != Qclock) {
-	SetTickParameters(0,MAXBEATS);
-	ResetTickFlag = TRUE;
-	}
-SetTempo();
-SetTimeBase();
-SetGrammarTempo();
-return(OK);
-}
-
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 int SetGrammarTempo(void)
 // Here we only erase the line containing "_mm()" and tell BP3 that the grammar is not compiled
@@ -1096,11 +949,11 @@ GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,s);
 x = atol(s);
 if(x < 2L) {
-	Alert1("=> Minimum initial buffer size: 2 symbols");
+	BPPrintMessage(0,odError,"=> Minimum initial buffer size: 2 symbols");
 	x = 2L;
 	}
 if(x > 100000L) {
-	Alert1("=> Maximum initial buffer size: 100,000 symbols. (It may be expanded during computation)");
+	BPPrintMessage(0,odError,"=> Maximum initial buffer size: 100,000 symbols. (It may be expanded during computation)");
 	x = 100000L;
 	}
 BufferSize = 2L * (x + 1L);
@@ -1109,11 +962,11 @@ GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,s);
 x = atol(s);
 if(x < 2L) {
-	Alert1("=> Minimum initial buffer size: 2 symbols");
+	BPPrintMessage(0,odError,"=> Minimum initial buffer size: 2 symbols");
 	x = 2L;
 	}
 if(x > 100000L) {
-	Alert1("=> Maximum initial buffer size: 100,000 symbols. (It may be expanded during computation)");
+	BPPrintMessage(0,odError,"=> Maximum initial buffer size: 100,000 symbols. (It may be expanded during computation)");
 	x = 100000L;
 	}
 DeftBufferSize = 2L * (x + 1L);
@@ -1167,7 +1020,7 @@ GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,s);
 if((FloatToNiceRatio(s,&p,&q) != OK) || (p == ZERO)
 		|| (Simplify((double)INT_MAX,(double)5. * q,(double)p,&pp,&qq) != OK)) {
-	Alert1("=> Scale out of range");
+	BPPrintMessage(0,odError,"=> Scale out of range");
 	goto SORTIR;
 	}
 while((pp > INT_MAX) || (qq > INT_MAX)) {
@@ -1210,7 +1063,7 @@ if(Quantize) {
 		(Handle*)&itemhandle,&r);
 	SetControlValue(itemhandle,1);
 	if(Pclock < 0.9 && !LoadOn) {
-		Alert1("=> Quantization requires a metronom value. It has been set to mm = 60");
+		BPPrintMessage(0,odError,"=> Quantization requires a metronom value. It has been set to mm = 60");
 		Pclock = Qclock = 1000.;
 		SetTempo();
 		BPActivateWindow(SLOW,wMetronom);
@@ -1245,7 +1098,7 @@ GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,line);
 i = (int) atol(line); 	/* Don't use atoi() because int's are 4 bytes */
 if(i < 0 || i > 2000) {
-	Alert1("=> Range of set-up time: 0 - 2000ms");
+	BPPrintMessage(0,odError,"=> Range of set-up time: 0 - 2000ms");
 	if(i > 2000) i = 2000;
 	else i = 0;
 	}
@@ -1255,7 +1108,7 @@ GetDialogItemText(itemhandle,t);
 MyPtoCstr(MAXFIELDCONTENT,t,line);
 k = atol(line);
 if(k < 1L) {
-	Alert1("=> Minimum time resolution: 1ms");
+	BPPrintMessage(0,odError,"=> Minimum time resolution: 1ms");
 	Time_res = 1L;
 	SetTimeAccuracy();
 	InputOn--;
@@ -1270,7 +1123,7 @@ MyPtoCstr(MAXFIELDCONTENT,t,line);
 k = atol(line);
 if(k < Time_res) {
 	my_sprintf(Message,"=> Minimum quantization: %ldms",(long)Time_res);
-	Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	Quantization = Time_res;
 	SetTimeAccuracy();
 	InputOn--;
@@ -1514,7 +1367,7 @@ if(EndFadeOut < 0. || EndFadeOut > 100.) {
 	BringToFront(GetDialogWindow(FileSavePreferencesPtr));
 	BPUpdateDialog(FileSavePreferencesPtr);
 	SelectField(FileSavePreferencesPtr,-1,fFadeOut,TRUE);
-	Alert1("Range for MIDI fade out is 0..100 seconds");
+	BPPrintMessage(0,odError,"Range for MIDI fade out is 0..100 seconds");
 	result = AnswerWith("Set fade out to...","0.00",line);
 	if(result != OK) goto ERR;
 	else {
@@ -1569,7 +1422,7 @@ GetField(TuningPtr,TRUE,-1,fC4key,line,&p,&q);
 i = p / q;
 if(i < 2 || i > 127) {
 	my_sprintf(Message,"=> Key for C4 should be in range 2..127 (typ. 60). Can't accept %ld",(long) i);
-	Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	ShowWindow(GetDialogWindow(TuningPtr));
 	SelectWindow(GetDialogWindow(TuningPtr));
 	SetField(TuningPtr,-1,fC4key,"[?]");
@@ -1582,7 +1435,7 @@ int GetField(TuningPtr,TRUE,-1,fA4freq,line,&p,&q);
 x = ((double) p) / q;
 if(x < 25. || x > 2000.) {
 	my_sprintf(Message,"=> Frequency for A4 should be in range 25..2000 (typ. 440). Can't accept %.2f",x);
-	Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	ShowWindow(GetDialogWindow(TuningPtr));
 	SelectWindow(GetDialogWindow(TuningPtr));
 	SetField(TuningPtr,-1,fA4freq,"[?]");
@@ -1614,7 +1467,7 @@ i = p / q;
 if(i < 1 || i > 127) {
 	my_sprintf(Message,"=> Default volume should be in range 1..127 (typ. 90). Can't accept %ld",
 		(long) i);
-	Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SelectWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SetField(DefaultPerformanceValuesPtr,-1,fDeftVolume,"90");
@@ -1627,7 +1480,7 @@ i = p / q;
 if(i < 1 || i > 127) {
 	my_sprintf(Message,"=> Default velocity should be in range 1..127 (typ. 64). Can't accept %ld",
 		(long) i);
-	Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SelectWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SetField(DefaultPerformanceValuesPtr,-1,fDeftVelocity,"64");
@@ -1640,7 +1493,7 @@ i = p / q;
 if(i < 0 || i > 127) {
 	my_sprintf(Message,"=> Default panoramic should be in range 0..127 (typ. 64). Can't accept %ld",
 		(long) i);
-	Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SelectWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SetField(DefaultPerformanceValuesPtr,-1,fDeftPanoramic,"64");
@@ -1653,7 +1506,7 @@ i = p / q;
 if(i < 0 || i > 127) {
 	my_sprintf(Message,"=> Panoramic control index should be in range 0..127 (typ. 10). Can't accept %ld",
 		(long) i);
-	Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SelectWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SetField(DefaultPerformanceValuesPtr,-1,fPanoramicController,"10");
@@ -1666,7 +1519,7 @@ i = p / q;
 if(i < 0 || i > 127) {
 	my_sprintf(Message,"=> Volume control index should be in range 0..127 (typ. 7). Can't accept %ld",
 		(long) i);
-	Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SelectWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SetField(DefaultPerformanceValuesPtr,-1,fVolumeController,"7");
@@ -1679,7 +1532,7 @@ i = p / q;
 if(i < 1 || i > 500) {
 	my_sprintf(Message,"=> Default sample rate should be in range 1..500 (typ. 50). Can't accept %ld",
 		(long) i);
-	Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	ShowWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SelectWindow(GetDialogWindow(DefaultPerformanceValuesPtr));
 	SetField(DefaultPerformanceValuesPtr,-1,fSamplingRate,"50");
@@ -1774,12 +1627,12 @@ while(!WaitNextEvent(everyEvent,&theEvent,3L,NULL) || ((theEvent.what != keyDown
 		while((r = MainEvent()) != RESUME && r != STOP && r != EXIT){};
 		if(r == EXIT) r = STOP;
 		if(Dirty[wAlphabet]) {
-			Alert1("Alphabet changed. Must recompile...");
+			BPPrintMessage(0,odError,"Alphabet changed. Must recompile...");
 			return('Q');
 			}
 		Dirty[wAlphabet] = dirtymem;
 		if(compiledmem && !CompiledGr) {
-			Alert1("Grammar changed. Must recompile...");
+			BPPrintMessage(0,odError,"Grammar changed. Must recompile...");
 			return('Q');
 			}
 		if(r == STOP) return('Q');
@@ -1807,13 +1660,13 @@ Handle i1h;		        /* handle to an Intl1 or Intl0 Rec  */
    so I do not think that they need to be deallocated - akozar */
 i1h = GetIntlResource(1); /* Note: does not return a resource handle on Carbon */
 GetDateTime(&datetime);	  /* See DateTimeUtils.h */
-if (i1h != NULL) {
+if(i1h != NULL) {
 	DateString(datetime,abbrevDate,pascalline, i1h);
 	MyPtoCstr(MAXNAME,pascalline,dd);
 	}
 else  dd[0] = '\0';
 i1h = GetIntlResource(0);
-if (i1h != NULL) {
+if(i1h != NULL) {
 	TimeString(datetime,FALSE,pascalline, i1h);
 	MyPtoCstr(MAXNAME,pascalline,tt);
 	}
@@ -1825,13 +1678,13 @@ struct tm *loctime;
 time(&curtime);
 loctime = localtime(&curtime);
 // format the date
-if (strftime(dd, MAXNAME, "%a, %b %d, %Y", loctime) == 0) {
-	if (Beta) Alert1("=> Err. Date(): strftime() results were too long for dd.");
+if(strftime(dd, MAXNAME, "%a, %b %d, %Y", loctime) == 0) {
+	 BPPrintMessage(0,odError,"=> Err. Date(): strftime() results were too long for dd.");
 	dd[0] = '\0';
 	}
 // format the time
-if (strftime(tt, MAXNAME, "%I:%M %p", loctime) == 0) {
-	if (Beta) Alert1("=> Err. Date(): strftime() results were too long for tt.");
+if(strftime(tt, MAXNAME, "%I:%M %p", loctime) == 0) {
+	 BPPrintMessage(0,odError,"=> Err. Date(): strftime() results were too long for tt.");
 	tt[0] = '\0';
 	}
 #endif
@@ -1891,7 +1744,7 @@ if(j >= MAXSTRINGCONSTANTS) {
 	my_sprintf(Message,
 			"Too many identifiers found (max %ld)\nCan't store '%s'\n",
 				(long)MAXSTRINGCONSTANTS,line);
-	Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	return(ABORT);
 	}
 
@@ -1910,7 +1763,7 @@ if(trace_scale) BPPrintMessage(0,odInfo, "FixStringConstant() j = %d, line = %s\
 return(j);
 
 ERR:
-Alert1("Missing parameter name");
+BPPrintMessage(0,odError,"Missing parameter name");
 return(ABORT);
 }
 
@@ -1954,7 +1807,7 @@ if(j < maxparam) {
 if(j >= MAXSTRINGCONSTANTS) {
 	my_sprintf(Message,
 		"=> Too many numeric constants found (max %ld)\nCan't store '%s'\n",(long)MAXSTRINGCONSTANTS,line);
-	Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	return(ABORT);
 	}
 	
@@ -1970,7 +1823,7 @@ if(trace_FixNumberConstant) BPPrintMessage(0,odInfo,"FixNumberConstant() after i
 return(j);
 
 ERR:
-Alert1("Missing value");
+BPPrintMessage(0,odError,"Missing value");
 return(ABORT);
 }
 
@@ -1992,7 +1845,7 @@ for(i=0; ((m=(**pp_X)[i]) != TEND) || ((**pp_X)[i+1] != TEND); i+=2) {
 	if(m != T4) continue;
 	p = (**pp_X)[i+1];
 	if(p > Jvar || p_VarStatus == NULL) {
-		if(Beta) Alert1("=> Err. NeedGlossary(). p > Jvar || p_VarStatus == NULL");
+		BPPrintMessage(0,odError,"=> Err. NeedGlossary(). p > Jvar || p_VarStatus == NULL");
 		return(NO);
 		}
 	if((*p_VarStatus)[p] & 4) return(YES);
@@ -2095,7 +1948,7 @@ double GetScalingValue(tokenbyte **p_a,unsigned long i) {
 	m = (*p_a)[i+3L];
 	p = (*p_a)[i+5L];
 	if(m < 0 || p < 0) {
-		if(Beta) Alert1("=> Err. GetScalingValue(). m < 0 || p < 0");
+		BPPrintMessage(0,odError,"=> Err. GetScalingValue(). m < 0 || p < 0");
 		return(1.);
 		}
 	value = ((double)TOKBASE * m) + p;

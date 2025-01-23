@@ -49,11 +49,11 @@ else return(MISSED);
 int CheckDuration(int j)
 {
 if(j >= Jbol) {
-	if(Beta) Alert1("=> Err. CheckDuration()");
+	BPPrintMessage(0,odError,"=> Err. CheckDuration()");
 	return(MISSED);
 	}
 if(j < 2 || (*p_Dur)[j] < EPSILON) {
-	Alert1("Invalid option because the duration of this object is null");
+	BPPrintMessage(0,odError,"Invalid option because the duration of this object is null");
 	return(MISSED);
 	}
 else return(OK);
@@ -68,7 +68,7 @@ long imax,oldfilter;
 Handle ptr;
 
 if(p_Code != NULL) {
-	if(Beta) Alert1("MIDI input had not been cleared properly. Will proceed anyway");
+	BPPrintMessage(0,odError,"MIDI input had not been cleared properly. Will proceed anyway");
 	ptr = (Handle) p_Code;
 	MyDisposeHandle(&ptr);
 	p_Code = NULL;
@@ -104,15 +104,15 @@ int longerCsound;
 Milliseconds oldeventrange,neweventrange;
 
 if(j < 0 || j >= Jbol) {
-	if(Beta) {
+	{
 		my_sprintf(Message,"=> Err. AdjustDuration(). j = %ld",(long)j);
-		Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	return(MISSED);
 	}
 
 if((*p_Dur)[j] <= EPSILON) {
-	Alert1("Duration of sound-object prototype is null. Can't be rescaled");
+	BPPrintMessage(0,odError,"Duration of sound-object prototype is null. Can't be rescaled");
 	return(OK);
 	}
 if(Answer("Adjusting duration can't be undone. Proceed anyway",'N') != YES)
@@ -182,7 +182,7 @@ else {
 			}
 		}
 	if(vmin0 == 127 || vmax0 == 0) {
-		Alert1("Velocity range is not significant in this object");
+		BPPrintMessage(0,odError,"Velocity range is not significant in this object");
 		return(OK);
 		}
 	if(vmax0 == vmin0) a = 0.;
@@ -214,7 +214,7 @@ double preroll,postroll;
 
 if(CheckNonEmptyMIDI(j) != OK) return(MISSED);
 if((*p_Quan)[j] < EPSILON) {
-	if(Beta) Alert1("=> Err. QuantizeNoteOn()");
+	BPPrintMessage(0,odError,"=> Err. QuantizeNoteOn()");
 	return(OK);
 	}
 	
@@ -509,9 +509,9 @@ if(CheckNonEmptyMIDI(j) != OK) return(MISSED);
 if(warn && Answer("Suppress AllNotesOff can't be undone. Proceed anyway",'N') != YES)
 	return(MISSED);
 if(GetPrePostRoll(j,&preroll,&postroll) != OK) {
-	if(Beta) {
+	{
 		my_sprintf(Message,"=> Err. SuppressAllNotesOff(). j = %ld",(long)j);
-		Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	return(MISSED);
 	}
@@ -570,9 +570,9 @@ if(CheckNonEmptyMIDI(j) != OK) return(MISSED);
 if(Answer("Suppress messages can't be undone. Proceed anyway",'N') != YES)
 	return(MISSED);
 if(GetPrePostRoll(j,&preroll,&postroll) != OK) {
-	if(Beta) {
+	{
 		my_sprintf(Message,"=> Err. SuppressMessages(). j = %ld",(long)j);
-		Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	return(MISSED);
 	}
@@ -582,7 +582,7 @@ switch(themessage) {
 	case KeyPressure: nbytes = 3; break;		/* 160 */
 	case TimingClock: nbytes = 1; break;		/* 160 (suppressing silences) */
 	default:
-		if(Beta) Alert1("=> Err. SuppressMessages(). Case not supported");
+		BPPrintMessage(0,odError,"=> Err. SuppressMessages(). Case not supported");
 		return(MISSED);
 	}
 if(/* SelectPictureOn && */ (*p_Tpict)[j] > ZERO) {
@@ -631,7 +631,7 @@ else {
 if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 
 if(!found) {
-	if(tell) Alert1("No event was found. Object is unchanged...");
+	if(tell) BPPrintMessage(0,odError,"No event was found. Object is unchanged...");
 	ShowMessage(TRUE,wMessage,"No event was found. Object is unchanged...");
 	}
 else ChangedProtoType(j);
@@ -648,19 +648,19 @@ double preroll,postroll;
 
 if(CheckNonEmptyMIDI(j) != OK) return(MISSED);
 if(GetPrePostRoll(j,&preroll,&postroll) != OK) {
-	if(Beta) {
+	{
 		my_sprintf(Message,"=> Err. InsertSilence(). j = %ld",(long)j);
-		Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	return(MISSED);
 	}
 result = MISSED;
 if((*p_MIDIsize)[j] < 1) {
-	Alert1("Can't do this on an object containing no MIDI code");
+	BPPrintMessage(0,odError,"Can't do this on an object containing no MIDI code");
 	return(result);
 	}
 if(dur < ZERO) {
-	Alert1("A silence with negative duration does not make sense.\nYou perhaps want to set the pre-roll");
+	BPPrintMessage(0,odError,"A silence with negative duration does not make sense.\nYou perhaps want to set the pre-roll");
 	return(result);
 	}
 if(/* SelectPictureOn && */ (*p_Tpict)[j] > ZERO) {
@@ -686,7 +686,7 @@ if(i0 == 0 && Answer("May be you want to set up a negative pre-roll value",'Y') 
 	}
 if(i == (*p_MIDIsize)[j]) {
 	dur = ZERO;
-	Alert1("Insertion point is beyond the last event!");
+	BPPrintMessage(0,odError,"Insertion point is beyond the last event!");
 	result = MISSED;
 	}
 	
@@ -706,7 +706,7 @@ long size;
 
 if(CheckNonEmptyMIDI(j) != OK) return(MISSED);
 if(dur < ZERO) {
-	Alert1("A silence with negative duration does not make sense.\nYou perhaps want to set the post-roll");
+	BPPrintMessage(0,odError,"A silence with negative duration does not make sense.\nYou perhaps want to set the post-roll");
 	return(MISSED);
 	}
 if(Answer("May be you want to set up a positive post-roll value",'Y') != 'N')
@@ -737,14 +737,14 @@ Milliseconds time;
 if(pp_csoundtime != NULL && PointCsound) {
 	if((*p_size)[j] == ZERO) return(OK);
  	else {
- 		if(Beta) Alert1("=> Err. DurationToPoint(). Point mode in Csound");
+ 		BPPrintMessage(0,odError,"=> Err. DurationToPoint(). Point mode in Csound");
 		return(MISSED);
 		}
 	}
 if(pp_midicode != NULL && PointMIDI) {
 	if((*p_size)[j] == ZERO) return(OK);
  	else {
- 		if(Beta) Alert1("=> Err. DurationToPoint(). Point mode in MIDI");
+ 		BPPrintMessage(0,odError,"=> Err. DurationToPoint(). Point mode in MIDI");
 		return(MISSED);
 		}
 	}
@@ -778,14 +778,14 @@ if(pp_csoundtime != NULL && !PointCsound) {
 		return(OK);
 		}
  	else {
- 		if(Beta) Alert1("=> Err. PointToDuration(). Not point mode in Csound");
+ 		BPPrintMessage(0,odError,"=> Err. PointToDuration(). Not point mode in Csound");
 		return(MISSED);
 		}
 	}
 if(pp_midicode != NULL && !PointMIDI) {
 	if((*p_size)[j] == ZERO) return(OK);
  	else {
- 		if(Beta) Alert1("=> Err. PointToDuration(). Not point mode in MIDI");
+ 		BPPrintMessage(0,odError,"=> Err. PointToDuration(). Not point mode in MIDI");
 		return(MISSED);
 		}
 	}
@@ -818,7 +818,7 @@ long i;
 Milliseconds t,t0,t1;
 
 if(j < 2 || j >= Jbol) {
-	if(Beta) Alert1("=> Err. SortMIDIdates(). j < 2 || j >= Jbol");
+	BPPrintMessage(0,odError,"=> Err. SortMIDIdates(). j < 2 || j >= Jbol");
 	return(MISSED);
 	}
 t = (*((*pp_MIDIcode)[j]))[i0].time;
@@ -875,7 +875,7 @@ CsoundLine s0;
 int r;
 
 if(j < 2 || j >= Jbol) {
-	if(Beta) Alert1("=> Err. SortCsoundDates(). j < 2 || j >= Jbol");
+	BPPrintMessage(0,odError,"=> Err. SortCsoundDates(). j < 2 || j >= Jbol");
 	return(MISSED);
 	}
 t = (*((*pp_CsoundTime)[j]))[i0];
@@ -930,7 +930,7 @@ if(Jbol < 3) {
 	}
 if(iProto < 2) iProto = 2;
 if(iProto >= Jbol) {
-	Alert1("Before designing prototypes you must load or create an alphabet");
+	BPPrintMessage(0,odError,"Before designing prototypes you must load or create an alphabet");
 	BPActivateWindow(SLOW,wAlphabet);
 	NeedAlphabet = TRUE;
 	iProto = 0;
@@ -950,17 +950,17 @@ int showgraphic,displaytimeset,r,infothere;
 char line[MAXFIELDCONTENT],**h;
 
 if(j < 2 || j >= Jbol || (*p_MIDIsize)[j] == ZERO) {
-	Alert1("This sound-object contains no MIDI message");
+	BPPrintMessage(0,odError,"This sound-object contains no MIDI message");
 	return(STOP);
 	}
 if(!((*p_Type)[j] & 1)) {
-	Alert1("Can't play this sound-object unless 'MIDI sequence' is checked");
+	BPPrintMessage(0,odError,"Can't play this sound-object unless 'MIDI sequence' is checked");
 	return(DONE);
 	}
 if(GetPrePostRoll(j,&preroll,&postroll) != OK) {
-	if(Beta) {
+	{
 		my_sprintf(Message,"=> Err. PlayPrototype(). j = %ld",(long)j);
-		Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	return(MISSED);
 	}
@@ -1028,7 +1028,7 @@ c = 0;
 if(*p_q == ZERO || (c = *p_p / *p_q) < 1 || c > MAXCHAN) {
 	my_sprintf(Message,"=> MIDI channel should be in range 1..%ld. Can't accept %ld",
 		(long)MAXCHAN,(long)c);
-	Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	*p_p = *p_q = 1;
 	return(MISSED);
 	}
@@ -1116,7 +1116,7 @@ else *p_beforeperiod = ((double)(*p_BeforePeriod)[j] * dur) / 100.;
 *p_objectperiod =  dur - *p_beforeperiod;
 if(*p_objectperiod < 0.) {
 	*p_objectperiod = 0.;
-	if(Beta) Alert1("=> Err. GetPeriod(). *p_objectperiod < ZERO");
+	BPPrintMessage(0,odError,"=> Err. GetPeriod(). *p_objectperiod < ZERO");
 	}
 if(*p_objectperiod < EPSILON) return(MISSED);
 return(OK);
@@ -1126,11 +1126,11 @@ return(OK);
 int CheckNonEmptyMIDI(int j)
 {
 if(j < 2 || j >= Jbol) {
-	if(Beta) Alert1("=> Err. CheckNonEmptyMIDI(). j < 2 || j >= Jbol");
+	BPPrintMessage(0,odError,"=> Err. CheckNonEmptyMIDI(). j < 2 || j >= Jbol");
 	return(MISSED);
 	}
 if((*p_MIDIsize)[j] < 1L) {
-	Alert1("This sound-object prototype does not contain any MIDI message");
+	BPPrintMessage(0,odError,"This sound-object prototype does not contain any MIDI message");
 	return(MISSED);
 	}
 return(OK);

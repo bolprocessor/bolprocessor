@@ -177,7 +177,7 @@ int CreateEventScript(char *x,int quick) {
 	Handle h;
 
 	if(p_Script == NULL) {
-		if(Beta) Alert1("=> Err. Create EventScript()");
+		BPPrintMessage(0,odError,"=> Err. Create EventScript()");
 		return(ABORT);
 		}
 	diff = TRUE;
@@ -245,7 +245,7 @@ double u,v;
 (*p_foundk) = FALSE;
 (*p_inc) = 0;
 if(mode < 1 || mode > 7) {
-	if(Beta) Alert1("=> Err. GetArgument(). 'mode' out of range");
+	BPPrintMessage(0,odError,"=> Err. GetArgument(). 'mode' out of range");
 	return(INT_MAX);
 	}
 q = &d;
@@ -829,7 +829,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 			break;
 		default:
 			my_sprintf(Message,"=> Err. GetPerformanceControl(). Unknown instruction");
-			if(Beta) Alert1(Message);
+			BPPrintMessage(0,odError,"%s",Message);
 			return(ABORT);
 		}
 
@@ -1627,7 +1627,7 @@ if((rep=GetPatterns(wGrammar,FALSE)) != OK) {
 	}
 if(Jpatt > 0 && Nature_of_time != SMOOTH) {
 	if(!ScriptExecOn) {
-		Alert1("Since time-patterns are used you might want to use smooth time");
+		BPPrintMessage(0,odError,"Since time-patterns are used you might want to use smooth time");
 //		BPActivateWindow(SLOW,wMetronom);
 		}
 	else {
@@ -1700,7 +1700,7 @@ if((p_y = (char**) GiveSpace((Size)((BOLSIZE+1) * sizeof(char)))) == NULL) {
 	return(ABORT);
 	}
 if(p_line == NULL) {
-	if(Beta) Alert1("=> Err. ReadPatterns(). p_line == NULL");
+	BPPrintMessage(0,odError,"=> Err. ReadPatterns(). p_line == NULL");
 	r = OK;
 	goto QUIT;
 	}
@@ -1823,11 +1823,10 @@ return(r);
 }
 
 int FindPart(char* line) {
-	// Needs update $$$
 	int i;
 	i = (int) atol(line);
-	if(i < 1 || i > 12) {
-		BPPrintMessage(0,odError,"=> _part(%d) is out of range. It should be 1..12\n",i);
+	if(i < 1 || i > MAXPARTS) {
+		BPPrintMessage(0,odError,"=> _part(%d) is out of range. It should be 1..%d\n",i,MAXPARTS);
 		return ABORT;
 		}
 	return(i);

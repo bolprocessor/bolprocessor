@@ -56,20 +56,17 @@ int Inits(void) {
 	long handlerRefcon;
 	// FSSpec spec;
 	long t;
+	long LastTime = ZERO;
+	long PianorollShift = ZERO;
 
 	Beta = NO;
 
 	Time_res = 10L; /* Time resolution for MIDI messages */
-	Quantization = 10L;
-	/* #if PRODUCE_TICKS
-	TotalTicks = ZERO;
-	#endif */
+	// Quantization = 10L;
 
 	Nw = 0;
 
-	long LastTime = ZERO;
-	long PianorollShift = ZERO;
-	rtMIDI = OutCsound = Capture0n = FALSE;
+	rtMIDI = OutCsound = WriteMIDIfile =  Capture0n = FALSE;
 	CaptureSource = -1;
 	CapturePtr = NULL;
 	
@@ -121,8 +118,7 @@ int Inits(void) {
 		(*p_FileInfo[i])[0] = '\0';
 		}
 
-	if(NEWTIMER_FORGET_THIS) MaxMIDIbytes = MAXTIMESLICES - 50;
-	else MaxMIDIbytes = ZERO;
+	MaxMIDIbytes = ZERO;
 
 	KeyboardType = QWERTY;
 	C4key = 60;  A4freq = 440.;
@@ -142,12 +138,11 @@ int Inits(void) {
 		MIDIacceptFilter[i] = FILTER_ALL_ON;
 		MIDIpassFilter[i] = FILTER_ALL_OFF;
 		my_sprintf(MIDIchannelFilter[i],"%s","1111111111111111");
-		my_sprintf(MIDIpartFilter[i],"%s","111111111111");
+		my_sprintf(MIDIpartFilter[i],"%s","111111111111111111111111111111");
 	//	BPPrintMessage(0,odInfo,"Init: MIDIchannelFilter[%d] = %s\n",i,MIDIchannelFilter[i]);
 		}
 	ResetMIDIFilter();
 
-	Quantize = TRUE;
 	LapWait = ZERO;
 	PrefixTree.p = SuffixTree.p = NULL;
 	PrefixTree.accept = SuffixTree.accept = FALSE;
@@ -202,8 +197,18 @@ int Inits(void) {
 	MyDisposeHandle((Handle*)&p_HTMLdiacrList);
 
 	if(MakeWindows() != OK) return(ABORT);
-	if(InitButtons() != OK) return(ABORT);
 
+	FirstNoteOn = TRUE;
+	OutBPdata = FALSE;
+	ObjectMode = ObjectTry = Improvize = StepProduce = TraceMicrotonality
+		= PlanProduce = DisplayProduce = UseEachSub
+		= TraceProduce = DisplayTimeSet = StepTimeSet = TraceTimeSet = TraceNoteOn = ResetNotes
+		= ShowGraphic = ComputeWhilePlay = NeverResetWeights = FALSE;
+	SynchronizeStart = CyclicPlay = NoConstraint = AllItems
+	 = CsoundTrace = WillRandomize = FALSE;
+	ResetWeights = ResetFlags = ResetControllers = ShowMessages
+		= AllowRandomize = TRUE;
+	NoteConvention = ENGLISH;
 	Offscreen = FALSE;
 	Nw = -1; Ndiagram = Npicture = 0;
 	LastEditWindow = OutputWindow = wData;
@@ -392,7 +397,6 @@ int Inits(void) {
 	TickKey[1] = 84;
 	TickKey[2] = 72;
 	PrototypeTickVelocity = 64;
-	TickThere = PlayTicks = HideTicks = FALSE;
 	for(i=0; i < MAXTICKS; i++) {
 		TickChannel[i] = 1;
 		TickVelocity[i] = 64;
@@ -404,11 +408,8 @@ int Inits(void) {
 		ThisTick[0][0] = ThisTick[1][1] = ThisTick[1][2] = ThisTick[1][3] = 1L;
 		Ptick[i] = Qtick[i] = 1L;
 		MuteTick[i] = FALSE;
-		SetTickParameters(i+1,MAXBEATS);
 		}
-	SetTickParameters(0,MAXBEATS);
 	iTick = jTick = -1;
-	ResetTickFlag = TRUE; ResetTickInItemFlag = FALSE;
 	strcpy(Message,WindowName[wCsoundTables]);
 
 	// MaxHandles = ZERO;
@@ -543,37 +544,36 @@ int SetNoteNames(void) {
 	}
 
 
-int Ctrlinit(void)
-{
-int i,igram,irul,j,k;
-/* Print(wTrace,"\nCtrl values:\n"); */
+int Ctrlinit(void) {
+	int i,igram,irul,j,k;
+	/* Print(wTrace,"\nCtrl values:\n"); */
 
-if(Gram.p_subgram == NULL || Gram.number_gram < 1) return(OK);
-for(i=1; i < MAXPARAMCTRL; i++) {
-	k = ParamValue[i] = ParamInit[i];
-	if(k == INT_MAX) continue;
-	// FIXME ? Can we make this more efficient by resetting all ParamValue[],
-	// then only looping over the grammar rules once, and if ctrl > 0 or
-	// repeatcontrol > 0, then set w/weight or repeat to the appropriate 
-	// ParamValue[ctrl or repeatcontrol] (if not INT_MAX)?
-	for(igram=1; igram <= Gram.number_gram; igram++) {
-		for(irul=0; irul <= (*(Gram.p_subgram))[igram]
-										.number_rule; irul++) {
-			if((*((*(Gram.p_subgram))[igram].p_rule))[irul].ctrl == i) {
-				(*((*(Gram.p_subgram))[igram].p_rule))[irul].w
-					= (*((*(Gram.p_subgram))[igram].p_rule))[irul].weight = k;
-			//	BPPrintMessage(0,odInfo,"Ctrlinit(%d). igram = %d irul = %d weight = %ld\n",i,igram,irul,(long)k);
-				}
-			if((*((*(Gram.p_subgram))[igram].p_rule))[irul].repeatcontrol == i) {
-				(*((*(Gram.p_subgram))[igram].p_rule))[irul].repeat = k;
+	if(Gram.p_subgram == NULL || Gram.number_gram < 1) return(OK);
+	for(i=1; i < MAXPARAMCTRL; i++) {
+		k = ParamValue[i] = ParamInit[i];
+		if(k == INT_MAX) continue;
+		// FIXME ? Can we make this more efficient by resetting all ParamValue[],
+		// then only looping over the grammar rules once, and if ctrl > 0 or
+		// repeatcontrol > 0, then set w/weight or repeat to the appropriate 
+		// ParamValue[ctrl or repeatcontrol] (if not INT_MAX)?
+		for(igram=1; igram <= Gram.number_gram; igram++) {
+			for(irul=0; irul <= (*(Gram.p_subgram))[igram]
+											.number_rule; irul++) {
+				if((*((*(Gram.p_subgram))[igram].p_rule))[irul].ctrl == i) {
+					(*((*(Gram.p_subgram))[igram].p_rule))[irul].w
+						= (*((*(Gram.p_subgram))[igram].p_rule))[irul].weight = k;
+				//	BPPrintMessage(0,odInfo,"Ctrlinit(%d). igram = %d irul = %d weight = %ld\n",i,igram,irul,(long)k);
+					}
+				if((*((*(Gram.p_subgram))[igram].p_rule))[irul].repeatcontrol == i) {
+					(*((*(Gram.p_subgram))[igram].p_rule))[irul].repeat = k;
+					}
 				}
 			}
+	/*	my_sprintf(Message,"K%ld = %ld ",(long)i,(long)k);
+		Print(wTrace,Message); */
 		}
-/*	my_sprintf(Message,"K%ld = %ld ",(long)i,(long)k);
-	Print(wTrace,Message); */
+	return(OK);
 	}
-return(OK);
-}
 
 
 int MakeWindows(void)
@@ -619,7 +619,7 @@ for(w=0; w < MAXWIND; w++) {
 	GetWindowPortBounds(Window[w], &r);
 	Weird[w] = FALSE;
 	err = InvalWindowRect(Window[w], &r);
-	if (err != noErr) Alert1("=> Err MakeWindows().  InvalWindowRect returned non-zero.");
+	if(err != noErr) BPPrintMessage(0,odError,"=> Err MakeWindows().  InvalWindowRect returned non-zero.");
 	}
 
 GetWindowPortBounds(Window[wMessage], &r);
@@ -646,13 +646,13 @@ return(OK);
 int SetUpWindow(int w)
 {	
 	if(w < 0 || w >= WMAX) {
-		Alert1("Internal problem in setting up text buffers!");
+		BPPrintMessage(0,odError,"Internal problem in setting up text buffers!");
 		return(ABORT);
 	}
 	
 	if(Editable[w]) {
 		TEH[w] = NewTextHandle();
-		if (TEH[w] == NULL) return(ABORT);
+		if(TEH[w] == NULL) return(ABORT);
 	}
 	else TEH[w] = NULL;
 	Dirty[w] = FALSE;
@@ -696,7 +696,7 @@ int LoadStringResource(char***** pp_str,int ***pp_ndx,int ***pp_narg,int id,long
 			if((result = ReadJason(&im,"HTMLdiacritical",strarray)) != OK) return result;
 			break;
 		default:
-			if (Beta) fprintf(stderr, "=> Warning! Bad STR# id in LoadStringResource().\n");
+			 fprintf(stderr, "=> Warning! Bad STR# id in LoadStringResource().\n");
 			return MISSED;
 			break;
 		}
@@ -776,11 +776,11 @@ int ReadJason(int* p_im, char* key, char the_array[][MAX_STRINGLISTS_LEN]) {
 		}
     cJSON *item;
     cJSON_ArrayForEach(item,scriptCommandArray) {
-        if (i >= MAX_STRINGLISTS_NUMBER) {
+        if(i >= MAX_STRINGLISTS_NUMBER) {
 			BPPrintMessage(0,odError,"=> Too many “%s” in “php/%s”\n",key,StringsJason);
             break;
         	}
-        if (cJSON_IsString(item)) {
+        if(cJSON_IsString(item)) {
             strncpy(the_array[i],item->valuestring,MAX_STRINGLISTS_LEN - 1);
             the_array[i][MAX_STRINGLISTS_LEN -1] = '\0';
             i++;
@@ -920,7 +920,7 @@ int LoadScriptCommands() {
 	goto ERR3;
 	}
 
-int InitButtons(void) {
+/* int InitButtons(void) {
 	FirstNoteOn = TRUE;
 	OutBPdata = FALSE;
 	ObjectMode = ObjectTry = Improvize = StepProduce = TraceMicrotonality
@@ -933,4 +933,4 @@ int InitButtons(void) {
 		= AllowRandomize = TRUE;
 	NoteConvention = ENGLISH;
 	return(OK);
-	}
+	} */

@@ -141,14 +141,9 @@ extern long **p_ItemStart,**p_ItemEnd,CompileDate,ComputeStart,MaxComputeTime,
 	ComputeTime,ItemNumber,Interrupted,MaxDeriv,Sel1,Sel2,AssignedTempoCsoundFile;
 extern int Nplay,SynchroSignal,Quantize,IgnoreCase,
 	MatchWords,TargetWindow,GraphicScaleP,GraphicScaleQ;
-extern long Time_res,Quantization;
+extern long Time_res,Quantization,MaxDeltaTime;
 extern volatile unsigned long TimeSlice;
 
-/* #if PRODUCE_TICKS
-extern Slice **Clock,***p_Clock,**p_AllSlices,*Slices,*SlicePool;
-extern volatile unsigned long TotalTicks;
-extern volatile char OKsend;
-#endif */
 extern volatile char ClockOverFlow,SchedulerIsActive;
 extern char Mute,Panic;
 extern char *StopfileName, *PanicfileName, *PausefileName, *ContinuefileName;
@@ -221,7 +216,7 @@ extern short Maxlevel,MaxFlag,MaxScript,PlayFromInsertionPoint,
 	MIDI;
 extern int MaxItemsProduce;
 extern int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,TraceMicrotonality,DisplayProduce,UseTimeLimit,
-	DisplayTimeSet,StepTimeSet,TraceProduce,UseEachSub,PlanProduce,TraceTimeSet,ResetNotes;
+	DisplayTimeSet,StepTimeSet,TraceProduce,UseEachSub,PlanProduce,TraceTimeSet,TraceNoteOn,ResetNotes;
 extern int InsertGramRuleNumbers, InsertGramCorrections, InsertNewBols;
 extern unsigned long Ptick[MAXTICKS],Qtick[MAXTICKS],GrandCycle[MAXTICKS],
 	PosGrandCycle[MAXTICKS],GrandPeriod,BeatGrandCycle,BeatPosGrandCycle,
@@ -232,7 +227,7 @@ extern long Infpos,Infneg,Veryneg,MaxMIDIbytes,
 	TimeMax,Nalpha,Nbytes,Tbytes2,MIDIinputFilterstartup,
 	MIDIoutputFilterstartup,Ts,DataEnd;
 extern unsigned long MIDIacceptFilter[MAXPORTS],MIDIpassFilter[MAXPORTS];
-extern char MIDIchannelFilter[MAXPORTS][17],MIDIpartFilter[MAXPORTS][13],MIDIoutFilter[MAXPORTS][19];
+extern char MIDIchannelFilter[MAXPORTS][17],MIDIpartFilter[MAXPORTS][MAXPARTS+1],MIDIoutFilter[MAXPORTS][19];
 extern Milliseconds **p_T;
 extern long **p_Ppatt,**p_Qpatt;
 extern MIDIcode **p_Code;
@@ -286,8 +281,7 @@ extern int MaxInputPorts, MaxOutputPorts;
 extern long Tcurr,LastTime,DataOrigin,PianorollShift;
 extern unsigned long NextTickDate[MAXTICKS],NextBeatDate;
 
-extern int Nw,LastEditWindow,LastComputeWindow,OutputWindow,ResumeStopOn,
-	ResetTickFlag,ResetTickInItemFlag;
+extern int Nw,LastEditWindow,LastComputeWindow,OutputWindow,ResumeStopOn;
 // extern WindowPtr Window[WMAX];
 // extern DialogPtr ResumeStopPtr,ResumeUndoStopPtr,MIDIkeyboardPtr;
 /* extern DialogPtr PatternPtr,ReplaceCommandPtr,EnterPtr,GreetingsPtr,FAQPtr,SixteenPtr,FileSavePreferencesPtr,
@@ -302,8 +296,7 @@ extern int linesInFolder[WMAX];
 extern int WindowFullAlertLevel[WMAX];
 // extern MenuHandle myMenus[MAXMENU+1];
 extern int Buttonheight;
-extern int NewEnvironment,NewColors,ShowPianoRoll,ToldAboutPianoRoll,ShowObjectGraph,
-	Help,ChangedCoordinates[WMAX];
+extern int NewEnvironment,NewColors,ShowPianoRoll,ToldAboutPianoRoll,ShowObjectGraph,ShowAllObjects,Help,ChangedCoordinates[WMAX];
 /* extern RGBColor CurrentColor[WMAX];
 extern ControlHandle vScroll[WMAX],hScroll[WMAX]; */
 extern int SlideH[WMAX],SlideV[WMAX];
@@ -355,13 +348,12 @@ extern int Nature_of_time,UseBufferLimit,NeedAlphabet,CompleteDecisions,OkWait;
 extern int PrototypeTickChannel,PrototypeTickKey,PrototypeTickVelocity;
 extern int TickChannel[MAXTICKS],TickKey[MAXTICKS],TickVelocity[MAXTICKS],MuteTick[MAXTICKS],
 	TickDuration[MAXTICKS],
-	TickCycle[MAXTICKS],TickPosition[MAXTICKS],iTick,jTick,
-	HideTicks,PlayTicks,UseBullet,NeedZouleb;
+	TickCycle[MAXTICKS],TickPosition[MAXTICKS],iTick,jTick,UseBullet,NeedZouleb;
 extern long ThisTick[MAXTICKS][MAXBEATS];
 extern int InitOn,SetTimeOn,ComputeOn,PolyOn,CompileOn,SoundOn,SelectOn,PrintOn,InputOn,
 	ClickRuleOn,GraphicOn,ReadKeyBoardOn,ButtonOn,PauseOn,AlertOn,PlaySelectionOn,PlayChunks,LastChunk,PlayAllChunks,
 	PlayPrototypeOn,MIDIfileOn,WaitOn,ExpandOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram,
-	AEventOn,LoadOn,SaveOn,SelectPictureOn,EnterOn,Option,EmptyBeat,TickDone,TickThere,
+	AEventOn,LoadOn,SaveOn,SelectPictureOn,EnterOn,Option,EmptyBeat,TickDone,
 	FoundNote,NoCursor,ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
 
 extern int HideMessages;

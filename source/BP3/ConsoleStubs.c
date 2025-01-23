@@ -94,7 +94,7 @@ int StartCount(void)
 
 int CheckLoadedPrototypes(void)
 {
-	if (NeedAlphabet && !ObjectMode && !ObjectTry && (rtMIDI || OutCsound || WriteMIDIfile)) {
+	if(NeedAlphabet && !ObjectMode && !ObjectTry && (rtMIDI || OutCsound || WriteMIDIfile)) {
 		ObjectTry = TRUE;
 	/*	BPPrintMessage(0,odWarning, "Loading object prototypes is not yet possible in the "
 			"console version, so MIDI and Csound output may not work correctly.\n");
@@ -108,10 +108,10 @@ int LoadAlphabet(int w)
 
 	// If an alphabet was loaded due to a command-line argument, or none is referenced
 	// in "window" w, the data file, or the grammar file, then everything's fine.
-	if (LoadedAlphabet) return OK;
-	if (w == -1 && GetAlphaName(wData) != OK && GetAlphaName(wGrammar) != OK)
+	if(LoadedAlphabet) return OK;
+	if(w == -1 && GetAlphaName(wData) != OK && GetAlphaName(wGrammar) != OK)
 		return OK;
-	else if (GetAlphaName(w) != OK) return OK;
+	else if(GetAlphaName(w) != OK) return OK;
 	
 	// Otherwise, if a -al reference was found somewhere, we should load it.
 	// FIXME: for now, we just warn the user!
@@ -129,7 +129,7 @@ int LoadGlossary(int anyfile,int manual)
 	// either the data or grammar references a -gl file.
 	// Console build sets LoadedGl if a glossary was loaded due to a command-line
 	// argument, so this test is superfluous unless something changes ...
-	if (LoadedGl) return OK;
+	if(LoadedGl) return OK;
 	else {
 		// Otherwise, if a -gl reference was found somewhere, we should load it.
 		// FIXME: for now, we just warn the user!
@@ -166,7 +166,7 @@ int InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode)
 	BP_NOT_USED(grtype);
 	BP_NOT_USED(mode);
 	
-/*	if (StepProduce || StepGrammars) {
+/*	if(StepProduce || StepGrammars) {
 		BPPrintMessage(0,odWarning, "Step-by-step production and step subgrammars options "
 			"do not work yet in the console version.\n");
 	} */
@@ -180,8 +180,8 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo);
    has been set by a command-line argument */
 int PrepareCsFile(void)
 {
-	if (!CsScoreOpened)	{
-		if (gOptions.outputFiles[ofiCsScore].name != NULL) {
+	if(!CsScoreOpened)	{
+		if(gOptions.outputFiles[ofiCsScore].name != NULL) {
 			return MakeCsoundScoreFile(&(gOptions.outputFiles[ofiCsScore]));
 		}
 	}
@@ -198,7 +198,7 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo)
 	FILE *fout;
 	int i, i_table;
 	
-	if (strcmp(finfo->name, "-") == 0)	{
+	if(strcmp(finfo->name, "-") == 0)	{
 		// if name is "-", use stdout and don't "open" finfo
 		fout = stdout;
 	}
@@ -206,7 +206,7 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo)
 		// open the file for writing
 		ShowMessage(TRUE,wMessage,"\nCreating new Csound score file...");
 		fout = OpenOutputFile(finfo, "w");
-		if (!fout) {
+		if(!fout) {
 			BPPrintMessage(0,odError, "\n=> Could not open file for score %s\n", finfo->name);
 			return MISSED;
 		}

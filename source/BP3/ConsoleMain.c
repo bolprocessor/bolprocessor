@@ -115,9 +115,9 @@ int main (int argc, char* args[]) {
 	ConsoleInit(&gOptions);
     ConsoleMessagesInit();
 	result = ParsePreInitArgs(argc, args, &gOptions);
-	if (result != OK) goto CLEANUP;
+	if(result != OK) goto CLEANUP;
 	
-	if (gOptions.useStdErr)	{
+	if(gOptions.useStdErr)	{
 		// split message output from "algorithmic output"
 		SetOutputDestinations(odInfo|odWarning|odError|odUserInt, stderr);
 		BPPrintMessage(0,odInfo,"Splitting message output from algorithmic output\n");
@@ -145,15 +145,15 @@ int main (int argc, char* args[]) {
 		} */
 
 
-	if (Inits() != OK) goto CLEANUP;
+	if(Inits() != OK) goto CLEANUP;
 	
 	result = ParsePostInitArgs(argc, args, &gOptions);
-	if (result != OK) return EXIT_SUCCESS;
+	if(result != OK) return EXIT_SUCCESS;
 	result = LoadInputFiles(gOptions.inputFilenames);
-	if (result != OK) goto CLEANUP;
+	if(result != OK) goto CLEANUP;
 	// some command-line options are applied after loading the settings file
 	result = ApplyArgs(&gOptions);
-	if (result != OK) goto CLEANUP;
+	if(result != OK) goto CLEANUP;
 	
 
 	TraceMemory = FALSE;
@@ -173,11 +173,6 @@ int main (int argc, char* args[]) {
 	eventCountMax = MaxMIDIMessages - 50L;
 	initTime = FirstEventTime = 0L; // millisconds
 
-/* Some things that we might want to do later ...
-	
-	ResetTicks(TRUE,TRUE,ZERO,0);
-*/
-
 	InitOn = FALSE;
 	time(&SessionStartTime);
 	ProductionTime = ProductionStartTime = PhaseDiagramTime = TimeSettingTime = (time_t) 0L;
@@ -187,18 +182,18 @@ int main (int argc, char* args[]) {
 	
 	CreateStopFile();
 	SessionTime = clock();
-	if (!gOptions.seedProvided) ReseedOrShuffle(NEWSEED);
+	if(!gOptions.seedProvided) ReseedOrShuffle(NEWSEED);
 
-	if (!LoadedStartString)  CopyStringToTextHandle(TEH[wStartString], "S\n");
+	if(!LoadedStartString)  CopyStringToTextHandle(TEH[wStartString], "S\n");
 
 	result = PrepareProdItemsDestination(&gOptions);
-	if (result == OK) result = PrepareTraceDestination(&gOptions);
-	if (result == OK) {
+	if(result == OK) result = PrepareTraceDestination(&gOptions);
+	if(result == OK) {
 		// perform the action specified on the command line
 		switch (gOptions.action) {
 			case compile:
 				result = CompileCheck();
-				if (Beta && result != OK)  BPPrintMessage(0,odError,"=> CompileCheck() returned errors\n");
+				if(result != OK)  BPPrintMessage(0,odError,"=> CompileCheck() returned errors\n");
 				break;
 			case produce:
 				result = ProduceItems(wStartString,FALSE,FALSE,NULL);
@@ -209,7 +204,7 @@ int main (int argc, char* args[]) {
 				AllItems = TRUE;
 				time(&ProductionStartTime);
 				result = ProduceItems(wStartString,FALSE,FALSE,NULL);
-		//		if (Beta && result != OK)  BPPrintMessage(0,odError, "=> ProduceItems() returned errors\n");
+		//		if(result != OK)  BPPrintMessage(0,odError, "=> ProduceItems() returned errors\n");
 				break;
 			case play:
 				BPPrintMessage(0,odInfo,"Playing single item...\n");
@@ -239,7 +234,7 @@ int main (int argc, char* args[]) {
 					// FIXME: Need to either set a selection or call SelectionToBuffer()
 					// and AnalyzeBuffer() similarly to AnalyzeSelection().
 					result = AnalyzeSelection(FALSE);
-					if (Beta && result != OK)  BPPrintMessage(0,odError,"=> AnalyzeSelection() returned errors\n");
+					if(result != OK)  BPPrintMessage(0,odError,"=> AnalyzeSelection() returned errors\n");
 					}
 				break;
 			case expand:
@@ -254,14 +249,14 @@ int main (int argc, char* args[]) {
 			case templates:
 				if(CompileCheck() == OK && ShowNotBP() == OK)	{
 					result = ProduceItems(wStartString,FALSE,TRUE,NULL);
-			//		if (Beta && result != OK) BPPrintMessage(0,odError, "=> ProduceItems() returned errors\n");
+			//		if(Beta && result != OK) BPPrintMessage(0,odError, "=> ProduceItems() returned errors\n");
 				}
 				break;
 			case no_action:
-				if (Beta)  BPPrintMessage(0,odError, "=> Err. main(): action == no_action\n");
+				  BPPrintMessage(0,odError, "=> Err. main(): action == no_action\n");
 				break;
 			default:
-				if (Beta)  BPPrintMessage(0,odError, "=> Err. main(): action == %d\n", gOptions.action);
+				  BPPrintMessage(0,odError, "=> Err. main(): action == %d\n", gOptions.action);
 				break;
 			}
 		}
@@ -807,33 +802,33 @@ int ParsePreInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 {
 	int argn = 1;
 	
-	if (argc == 1) {
+	if(argc == 1) {
 		PrintUsage(args[0]);
 		BPPrintMessage(0,odError,"=> Not enough arguments...\n\n");
 		return ABORT;
 	}
-	else if (argc < 1) {
+	else if(argc < 1) {
 		// can this ever happen?
 		BPPrintMessage(0,odError, "=> Error in ParsePreInitArgs(): argc is %d\n", argc);
 		return ABORT;
 	}
 	
 	while(argn < argc) {
-		if (strcmp(args[argn], "-h") == 0 || strcmp(args[argn], "--help") == 0)	{
+		if(strcmp(args[argn], "-h") == 0 || strcmp(args[argn], "--help") == 0)	{
 			PrintUsage(args[0]);
 			return EXIT;
 		}
-		if (strcmp(args[argn], "--version") == 0)	{
+		if(strcmp(args[argn], "--version") == 0)	{
 			PrintVersion();
 			return EXIT;
 		}
-		if (strcmp(args[argn], "--short-version") == 0)	{
+		if(strcmp(args[argn], "--short-version") == 0)	{
 			PrintShortVersion();
 			return EXIT;
 		}
 		
 		// need to parse these args before Init() so that init messages are redirected
-		if (strcmp(args[argn], "-e") == 0 || strcmp(args[argn], "--use-stderr") == 0)	{
+		if(strcmp(args[argn], "-e") == 0 || strcmp(args[argn], "--use-stderr") == 0)	{
 			opts->useStdErr = TRUE;
 		}
 		++argn;
@@ -858,17 +853,17 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 	while(argn < argc) {
 		/* check if it is an input file */
 		argDone = FALSE;
-		if (args[argn][0] == '-' || args[argn][0] == '+') {
+		if(args[argn][0] == '-' || args[argn][0] == '+') {
 			// check for matching file prefix
 			arglen = strlen(args[argn]);
 			// FIXME: Need to ignore any path components before the filename when matching prefix
 			for (w = 0; w < WMAX; w++) {
 				// This comparison assumes all prefixes are 3 chars long (not including the '.')
-				if (strncmp(args[argn], FilePrefix[w], 3) == 0) {
-					if (arglen == 3) {
+				if(strncmp(args[argn], FilePrefix[w], 3) == 0) {
+					if(arglen == 3) {
 						// argument is just the file prefix (eg. "-gr"),
 						// so look at the next argument for the file name
-						if (++argn < argc)  {
+						if(++argn < argc)  {
 							opts->inputFilenames[w] = args[argn];
 							argDone = TRUE;
 						}
@@ -877,7 +872,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 							return ABORT;
 						}
 					}
-					else if (arglen > 4 && args[argn][3] == '.') {
+					else if(arglen > 4 && args[argn][3] == '.') {
 						//  argument is a complete file name (with 1+ chars after '.'), so just save it
 						opts->inputFilenames[w] = args[argn];
 						argDone = TRUE;
@@ -888,26 +883,26 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 			}
 		}
 		// check for matching file extension
-		else if ((w = FindMatchingFileNameExtension(args[argn])) != wUnknown) {
+		else if((w = FindMatchingFileNameExtension(args[argn])) != wUnknown) {
 			opts->inputFilenames[w] = args[argn];
 			argDone = TRUE;
 			}
 		
-		if (!argDone) {
+		if(!argDone) {
 			/* check if it is an option */
-			if (args[argn][0] == '-') {
-				if (strcmp(args[argn], "-d") == 0 || strcmp(args[argn], "-D") == 0 || strcmp(args[argn], "--display") == 0)	{ // Modified 2024-06-29
+			if(args[argn][0] == '-') {
+				if(strcmp(args[argn], "-d") == 0 || strcmp(args[argn], "-D") == 0 || strcmp(args[argn], "--display") == 0)	{ // Modified 2024-06-29
 					opts->displayItems = TRUE;
 					opts->outOptsChanged = FALSE;
 					}
-		//		else if (strcmp(args[argn], "-d") == 0 || strcmp(args[argn], "--no-display") == 0)	{
-				else if (strcmp(args[argn], "--no-display") == 0)	{
+		//		else if(strcmp(args[argn], "-d") == 0 || strcmp(args[argn], "--no-display") == 0)	{
+				else if(strcmp(args[argn], "--no-display") == 0)	{
 					opts->displayItems = FALSE;
 					opts->outOptsChanged = FALSE;
 					}
-				else  if (strcmp(args[argn], "-o") == 0)	{
+				else  if(strcmp(args[argn], "-o") == 0)	{
 					// look at the next argument for the output file name
-					if (++argn < argc)  {
+					if(++argn < argc)  {
 						opts->displayItems = TRUE;
 						opts->outputFiles[ofiProdItems].name = args[argn];
 						opts->outOptsChanged = TRUE;
@@ -918,12 +913,12 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						return ABORT;
 						}
 					}
-				else if (strcmp(args[argn], "-e") == 0 || strcmp(args[argn], "--use-stderr") == 0)	{
+				else if(strcmp(args[argn], "-e") == 0 || strcmp(args[argn], "--use-stderr") == 0)	{
 					// need to parse these args a second time to avoid "unknown option" error
 					}
-				else if (strcmp(args[argn], "--traceout") == 0)	{
+				else if(strcmp(args[argn], "--traceout") == 0)	{
 					// look at the next argument for the output file name
-					if (++argn < argc)  {
+					if(++argn < argc)  {
 						opts->outputFiles[ofiTraceFile].name = args[argn];
 						}
 					else {
@@ -931,9 +926,9 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						return ABORT;
 						}
 					}
-				else if (strcmp(args[argn], "--csoundout") == 0)	{
+				else if(strcmp(args[argn], "--csoundout") == 0)	{
 					// look at the next argument for the output file name
-					if (++argn < argc)  {
+					if(++argn < argc)  {
 						opts->writeCsoundScore = TRUE;
 						opts->outputFiles[ofiCsScore].name = args[argn];
 						opts->outOptsChanged = TRUE;
@@ -943,9 +938,9 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						return ABORT;
 						}
 					}
-				else if (strcmp(args[argn], "--midiout") == 0)	{
+				else if(strcmp(args[argn], "--midiout") == 0)	{
 					// look at the next argument for the output file name
-					if (++argn < argc)  {
+					if(++argn < argc)  {
 						opts->writeMidiFile = TRUE;
 						opts->outputFiles[ofiMidiFile].name = args[argn];
 						opts->outOptsChanged = TRUE;
@@ -955,27 +950,27 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						return ABORT;
 						}
 					}
-				else if (strcmp(args[argn], "--rtmidi") == 0)	{
+				else if(strcmp(args[argn], "--rtmidi") == 0)	{
 					opts->useRealtimeMidi = TRUE;
 					opts->outOptsChanged = TRUE;
 					}
-				else if (strcmp(args[argn], "--english") == 0)	{
+				else if(strcmp(args[argn], "--english") == 0)	{
 					opts->noteConvention = ENGLISH;
 					}
-				else if (strcmp(args[argn], "--french") == 0)	{
+				else if(strcmp(args[argn], "--french") == 0)	{
 					opts->noteConvention = FRENCH;
 					}
-				else if (strcmp(args[argn], "--indian") == 0)	{
+				else if(strcmp(args[argn], "--indian") == 0)	{
 					opts->noteConvention = INDIAN;
 					}
-				else if (strcmp(args[argn], "--keys") == 0)	{
+				else if(strcmp(args[argn], "--keys") == 0)	{
 					opts->noteConvention = KEYS;
 					}
-				else if (strcmp(args[argn], "--midiformat") == 0)	{
+				else if(strcmp(args[argn], "--midiformat") == 0)	{
 					// look at the next argument for an integer
-					if (++argn < argc && isInteger(args[argn]))  {
+					if(++argn < argc && isInteger(args[argn]))  {
 						opts->midiFileFormat = (int) atol(args[argn]);
-						if (opts->midiFileFormat < 0 || opts->midiFileFormat > 2) {
+						if(opts->midiFileFormat < 0 || opts->midiFileFormat > 2) {
 							BPPrintMessage(0,odError, "\n=> midiformat must be 0, 1, or 2\n\n");
 							return ABORT;
 						}
@@ -985,9 +980,9 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						return ABORT;
 					}
 				}
-				else if (strcmp(args[argn], "--seed") == 0)	{
+				else if(strcmp(args[argn], "--seed") == 0)	{
 					// look at the next argument for an integer seed
-					if (++argn < argc && isInteger(args[argn]))  {
+					if(++argn < argc && isInteger(args[argn]))  {
 						opts->seed = (unsigned int) atol(args[argn]);
 						opts->seedProvided = TRUE;
 					}
@@ -996,21 +991,21 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 						return ABORT;
 					}
 				}
-				else if (strcmp(args[argn], "--show-production") == 0)	{
+				else if(strcmp(args[argn], "--show-production") == 0)	{
 					opts->showProduction = TRUE;
 				}
-				else if (strcmp(args[argn], "--trace-production") == 0)	{
+				else if(strcmp(args[argn], "--trace-production") == 0)	{
 					opts->traceProduction = TRUE;
 				}
-				/* else if (strcmp(args[argn], "--step-production") == 0)	{
+				/* else if(strcmp(args[argn], "--step-production") == 0)	{
 					DisplayProduce = TRUE;
 					StepProduce = TRUE;
 				}
-				else if (strcmp(args[argn], "--step-subgrammars") == 0)	{
+				else if(strcmp(args[argn], "--step-subgrammars") == 0)	{
 					DisplayProduce = TRUE;
 					StepGrammars = TRUE;
 				}
-				else if (strcmp(args[argn], "--choose-rules") == 0)	{
+				else if(strcmp(args[argn], "--choose-rules") == 0)	{
 					PlanProduce = TRUE;
 					DisplayProduce = TRUE;
 					StepProduce = TRUE;
@@ -1025,41 +1020,41 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 			else {
 				/* check if it is an action */
 				// FIXME? help says that actions are case-insensitive
-				if (strcmp(args[argn], "compile") == 0)	{
+				if(strcmp(args[argn], "compile") == 0)	{
 					action = compile;
 					}
-				else if (strcmp(args[argn], "produce") == 0)	{
+				else if(strcmp(args[argn], "produce") == 0)	{
 					action = produce;
 					}
-				else if (strcmp(args[argn], "produce-items") == 0)	{
+				else if(strcmp(args[argn], "produce-items") == 0)	{
 					action = produce_items;
 					// FIXME: look for the item number in next arg
 					}
-				else if (strcmp(args[argn], "produce-all") == 0)	{
+				else if(strcmp(args[argn], "produce-all") == 0)	{
 					action = produce_all;
 					}
-				else if (strcmp(args[argn], "play") == 0)	{
+				else if(strcmp(args[argn], "play") == 0)	{
 					action = play;
 					}
-				else if (strcmp(args[argn], "play-item") == 0)	{
+				else if(strcmp(args[argn], "play-item") == 0)	{
 					action = play_item;
 					// FIXME: look for the item number in next arg
 					}
-				else if (strcmp(args[argn], "play-all") == 0)	{
+				else if(strcmp(args[argn], "play-all") == 0)	{
 					action = play_all;
 					}
-				else if (strcmp(args[argn], "analyze-item") == 0)	{
+				else if(strcmp(args[argn], "analyze-item") == 0)	{
 					action = analyze;
 					// FIXME: look for the item number in next arg
 				}
-				else if (strcmp(args[argn], "expand") == 0)	{
+				else if(strcmp(args[argn], "expand") == 0)	{
 					action = expand;
 				}
-				else if (strcmp(args[argn], "show-beats") == 0)	{
+				else if(strcmp(args[argn], "show-beats") == 0)	{
 					action = show_beats;
 					// FIXME: look for the item number in next arg
 					}
-				else if (strcmp(args[argn], "templates") == 0)	{
+				else if(strcmp(args[argn], "templates") == 0)	{
 					action = templates;
 					}
 				else {
@@ -1070,7 +1065,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					}
 				
 				// more than one action is not allowed
-				if (action != no_action && opts->action != no_action)	{
+				if(action != no_action && opts->action != no_action)	{
 					BPPrintMessage(0,odError, "\n=> Only one action is allowed but two were given: '%s' & '%s'\n\n",ActionTypeToStr(opts->action), ActionTypeToStr(action));
 					return ABORT;
 					}
@@ -1081,7 +1076,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 		++argn;
 		}
 	
-	if (opts->action == no_action)	{
+	if(opts->action == no_action)	{
 		BPPrintMessage(0,odError, "\n=> Missing required action command in arguments.\n");
 		BPPrintMessage(0,odError, "Use '%s --help' to see help information.\n\n", args[0]);
 		return ABORT;
@@ -1140,24 +1135,24 @@ int ApplyArgs(BPConsoleOpts* opts)
 {
 	// If any of the score output or performance options were specified,
 	// then ignore all of those options from the settings file!
-	if (opts->outOptsChanged) {
+	if(opts->outOptsChanged) {
 		OutCsound = WriteMIDIfile = rtMIDI = FALSE;
 	}
 	
 	// apply options that were explicitly given on the command line
-	if (opts->displayItems != NOCHANGE)		DisplayItems = opts->displayItems;
-	if (opts->writeCsoundScore != NOCHANGE)	OutCsound = opts->writeCsoundScore;
-	if (opts->writeMidiFile != NOCHANGE)	WriteMIDIfile = opts->writeMidiFile;
-	if (opts->useRealtimeMidi != NOCHANGE)	rtMIDI = opts->useRealtimeMidi;
-	if (opts->traceProduction != NOCHANGE)	{
+	if(opts->displayItems != NOCHANGE)		DisplayItems = opts->displayItems;
+	if(opts->writeCsoundScore != NOCHANGE)	OutCsound = opts->writeCsoundScore;
+	if(opts->writeMidiFile != NOCHANGE)	WriteMIDIfile = opts->writeMidiFile;
+	if(opts->useRealtimeMidi != NOCHANGE)	rtMIDI = opts->useRealtimeMidi;
+	if(opts->traceProduction != NOCHANGE)	{
 		DisplayProduce = opts->traceProduction;
 		TraceProduce = opts->traceProduction;
 	}
 	// showProduction could be enabled after traceProduction is disabled
-	if (opts->showProduction != NOCHANGE)	DisplayProduce = opts->showProduction;
-	if (opts->noteConvention != NOCHANGE)	NoteConvention = opts->noteConvention;
-	if (opts->midiFileFormat != NOCHANGE)	MIDIfileType = opts->midiFileFormat;
-	if (opts->seedProvided)	{
+	if(opts->showProduction != NOCHANGE)	DisplayProduce = opts->showProduction;
+	if(opts->noteConvention != NOCHANGE)	NoteConvention = opts->noteConvention;
+	if(opts->midiFileFormat != NOCHANGE)	MIDIfileType = opts->midiFileFormat;
+	if(opts->seedProvided)	{
 		Seed = opts->seed;
 		if(Seed > 0) {
 			BPPrintMessage(0,odInfo, "Random seed = %u as per command line\n", Seed);
@@ -1188,7 +1183,7 @@ const char* ActionTypeToStr(action_t action)
 		case show_beats:	return "show-beats";
 		case templates:		return "templates";
 		default:
-			if (Beta)  BPPrintMessage(0,odError, "=> Err. ActionTypeToStr(): action == %d\n", action);
+			  BPPrintMessage(0,odError, "=> Err. ActionTypeToStr(): action == %d\n", action);
 	}
 	
 	return "";
@@ -1199,7 +1194,7 @@ void PrintInputFilenames(BPConsoleOpts* opts)
 {
 	int w;
 	for (w = 0; w < WMAX; w++) {
-		if (opts->inputFilenames[w] != NULL)
+		if(opts->inputFilenames[w] != NULL)
 			BPPrintMessage(0,odInfo, "opts->inputFilenames[%s] = %s\n", WindowName[w], opts->inputFilenames[w]);
 	}
 	return;
@@ -1267,13 +1262,13 @@ int LoadInputFiles(const char* pathnames[WMAX]) {
 				case iSettings:
 					BPPrintMessage(0,odInfo, "Reading settings file: %s\n", pathnames[w]);
 					result = LoadSettings(pathnames[w], FALSE);
-					if (result != OK)  return result;
+					if(result != OK)  return result;
 					break;
 				case iObjects:
 					BPPrintMessage(0,odInfo, "Reading sound-object prototypes file: %s\n", pathnames[w]);
 					strcpy(FileName[iObjects],pathnames[w]);
 					result = LoadObjectPrototypes(0,1);
-					if (result != OK)  return result;
+					if(result != OK)  return result;
 					break;
 				default:
 					BPPrintMessage(0,odWarning, "Ignoring %.3s %s (%s files are currently unsupported)\n", FilePrefix[w], pathnames[w], DocumentTypeName[w]);
@@ -1297,12 +1292,12 @@ int LoadFileToTextHandle(const char* pathname,TEHandle th) {
 	char* filecontents;
 	filecontents = NULL;
 	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start LoadFileToTextHandle = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-	if (pathname == NULL) {
-		if (Beta)  BPPrintMessage(0,odError, "=> Err. LoadFileToTextHandle(): pathname == NULL\n");
+	if(pathname == NULL) {
+		  BPPrintMessage(0,odError, "=> Err. LoadFileToTextHandle(): pathname == NULL\n");
 		return ABORT;
 		}
 	if(th == NULL) {
-		if (Beta)  BPPrintMessage(0,odError, "=> Err. LoadFileToTextHandle(): th == NULL\n");
+		  BPPrintMessage(0,odError, "=> Err. LoadFileToTextHandle(): th == NULL\n");
 		return ABORT;
 		}
 	result = OpenAndReadFile(pathname,&filecontents);
@@ -1323,12 +1318,12 @@ int OpenAndReadFile(const char* pathname,char** buffer) { // Rewritten 2024-06-2
     char line[MAXLIN];
 	long pos;
 	
-	if (pathname == NULL) {
-		if (Beta)  BPPrintMessage(0,odError, "=> Err. LoadFileToTextHandle(): pathname == NULL\n");
+	if(pathname == NULL) {
+		  BPPrintMessage(0,odError, "=> Err. LoadFileToTextHandle(): pathname == NULL\n");
 		return MISSED;
 		}
-	if (pathname[0] == '\0') {
-		if (Beta)  BPPrintMessage(0,odError, "=> Err. LoadFileToTextHandle(): pathname is empty\n");
+	if(pathname[0] == '\0') {
+		  BPPrintMessage(0,odError, "=> Err. LoadFileToTextHandle(): pathname is empty\n");
 		return MISSED;
 		}
 	fin = my_fopen(1,pathname, "r");
@@ -1358,7 +1353,7 @@ int OpenAndReadFile(const char* pathname,char** buffer) { // Rewritten 2024-06-2
         memcpy(*buffer + bufferLength, line, lineSize);
         bufferLength += lineSize;
 		}
-	if (bufferLength > 0)
+	if(bufferLength > 0)
 		(*buffer)[bufferLength] = '\0'; // Null-terminate the block
 	else *buffer = strdup(""); // Handle empty file case
 //	BPPrintMessage(0,odInfo,"OK reading\n");
@@ -1423,7 +1418,7 @@ int my_fclose(FILE *file) {
 FILE* OpenOutputFile(OutFileInfo* finfo, const char* mode) {
 	// Opens the file controlled by an OutFileInfo struct.
 	finfo->fout = my_fopen(1,finfo->name, mode);
-	if (finfo->fout != NULL)  finfo->isOpen = TRUE;
+	if(finfo->fout != NULL)  finfo->isOpen = TRUE;
 	return finfo->fout;
 	}
 
@@ -1446,7 +1441,7 @@ void CloseOutputFile(OutFileInfo* finfo) {
 
 void CloseOutputDestination(int dest, BPConsoleOpts* opts, outfileidx_t fileidx) {
 	// Cleans up an output destination and closes any file associated with it.
-	if (opts->outputFiles[fileidx].isOpen)	{
+	if(opts->outputFiles[fileidx].isOpen)	{
 		BPPrintMessage(0,odInfo, "Closing file: %s\n", opts->outputFiles[fileidx].name);
 		CloseOutputFile(&(opts->outputFiles[fileidx]));
 		SetOutputDestinations(dest, NULL);
@@ -1457,11 +1452,11 @@ void CloseOutputDestination(int dest, BPConsoleOpts* opts, outfileidx_t fileidx)
 int PrepareProdItemsDestination(BPConsoleOpts* opts) {
 //	FILE *fout;
 	// prepare output file if requested
-	if (opts->displayItems && opts->outputFiles[ofiProdItems].name != NULL)	{
+	if(opts->displayItems && opts->outputFiles[ofiProdItems].name != NULL)	{
 		BPPrintMessage(0,odInfo, "Opening output file %s\n", opts->outputFiles[ofiProdItems].name);
 		strcpy(OutFileName,opts->outputFiles[ofiProdItems].name);
 		outPtr = OpenOutputFile(&(opts->outputFiles[ofiProdItems]),"w");
-		if (!outPtr) {
+		if(!outPtr) {
 			BPPrintMessage(0,odError, "=> Could not open file for output %s\n", opts->outputFiles[ofiProdItems].name);
 			return MISSED;
 		    }
@@ -1490,9 +1485,9 @@ int PrepareTraceDestination(BPConsoleOpts* opts) {
 /* Returns TRUE if string s is an integer, otherwise FALSE. */
 int isInteger(const char* s) {
 	int i = 0;
-	if (s[i] != '-' && s[i] != '+' && !isdigit(s[i])) return FALSE;
+	if(s[i] != '-' && s[i] != '+' && !isdigit(s[i])) return FALSE;
 	while(s[++i] != '\0') {
-		if (!isdigit(s[i])) return FALSE;
+		if(!isdigit(s[i])) return FALSE;
     	}
 	return TRUE;
     }

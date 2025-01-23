@@ -38,171 +38,6 @@
 
 #include "-BP3decl.h"
 
-#if BP_CARBON_GUI_FORGET_THIS
-
-Ours(WindowPtr theWindow, WindowPtr thatWindow)
-{
-return((thatWindow != ZERO) && (theWindow == thatWindow));
-}
-
-
-CantOpen(void)
-{
-Rect r;
-WindowPtr w;
-
-SetRect(&r,152,60,366,132);
-SetPortWindowPort((w = NewWindow(0L,&r,"\p",1,1,NULL,0,0L)));
-TextFont(0);
-move_to("canvas",4,40);
-stroke_text("canvas","\pCan't open resource file!");
-#if TARGET_API_MAC_CARBON_FORGET_THIS
-  QDFlushPortBuffer(GetWindowPort(w), NULL);
-#endif
-while(!Button());
-return(OK);
-}
-
-
-DoCommand(int w,long menuchoice)
-{
-int i,theitem,menuID,imenu,r,wind;
-IntProcPtr DoIt;
-Str255	name;
-char line[256];
-
-SetCursor(&WatchCursor);
-
-HiliteMenu(0);
-theitem = LoWord(menuchoice);
-menuID = HiWord(menuchoice);
-imenu = menuID - MenuIDoffset;
-/* Except for 'scriptM', all menus have MAXMENUITEMS items */
-if(imenu < 0 || imenu > MAXMENU || theitem < 1
-			|| (imenu > 0 && imenu < scriptM && theitem >= MAXMENUITEMS))
-	return(MISSED);
-if(Help) {
-	Help = FALSE;
-	GetMenuItemText(myMenus[imenu],theitem,name);
-	MyPtoCstr(255,name,line);
-	for(i=0; i < strlen(line); i++)
-		if(line[i] == '\r' || line[i] == '\n') line[i] = '\0';
-	FilterHelpSelector(line);
-	DisplayHelp(line);
-	return(OK);
-	}
-switch(imenu) {
-	case appleM:
-		Option = FALSE;
-		if(theitem == aboutCommand) return(mAbout(w));
-#if !TARGET_API_MAC_CARBON_FORGET_THIS
-		GetMenuItemText(myMenus[appleM],theitem,name);
-		OpenDeskAcc(name);
-#endif
-		SelectWindow(Window[w]);
-		ResetTicks(FALSE,TRUE,ZERO,0);
-		break;
-	case scriptM:
-		Option = FALSE;
-		if(theitem == 1) return(mCheckScript(w));
-		if(theitem < 2 || theitem >= MaxScriptInstructions+3) return(OK);
-		GetMenuItemText(myMenus[scriptM],theitem,name);
-		MyPtoCstr(255,name,line);
-		if(line[0] == '\0') return(OK);
-		if(line[0] == 'I' && line[1] == 'N' && line[2] == ' ')
-			wind = wInteraction;
-		else	if(theitem == 4) wind = wGlossary;
-				else {
-					if(w == LastEditWindow) wind = w;
-					else wind = wScript;
-					}
-		if(wind == wScript || wind == wInteraction || wind == wGlossary)
-			Println(wind,line);
-		else Print(wind,line);
-		ShowSelect(CENTRE,wind);
-		break;
-	default:
-		if((imenu == actionM || imenu == windowM)
-			&& (r=GetDialogValues(w)) != OK) return(r);
-		DoIt = Menu[imenu][theitem];
-		if(DoIt != NULL) {
-			r = ((int (*)(int)) DoIt)(w);
-			Option = Panic = FALSE;
-			if(r == ABORT || r == RESUME || r == STOP || r == UNDO
-				|| r == EXIT) return(r);
-			}
-	}
-Option = FALSE;
-return(OK);
-}
-
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-#if BP_CARBON_GUI_FORGET_THIS
-
-ShowMessage(int store,int w,char *s)
-{
-int i;
-Rect r;
-GrafPtr saveport;
-
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("=> Err. ShowMessage()");
-	return(OK);
-	}
-if(store) {
-	Jmessage++; if(Jmessage >= MAXMESSAGE) Jmessage = 0;
-	MystrcpyStringToHandle(&(p_MessageMem[Jmessage]),s);
-	}
-	
-if(Beta && ScriptExecOn && TraceRefnum != -1 /* && Tracefile != (FILE*) NULL */)
-/*	fprintf(Tracefile,"%s\n",s); */
-	WriteToFile(NO,MAC,s,TraceRefnum);
-
-ShowWindow(Window[w]);
-if (RunningOnOSX) SendBehind(Window[w], FrontWindow()); // BringToFront() sometimes activates window on OS X
-else BringToFront(Window[w]);
-SetSelect(ZERO,GetTextLength(w),TEH[w]);
-TextDelete(w);
-PrintBehind(w,s);
-TextUpdate(w);
-GetPort(&saveport);
-SetPortWindowPort(Window[w]);
-GetWindowPortBounds(Window[w], &r);
-InvalWindowRect(Window[w], &r);
-QDFlushPortBuffer(GetWindowPort(Window[w]), NULL);
-if(saveport != NULL) SetPort(saveport);
-
-return(OK);
-}
-
-
-int ClearMessage(void)
-{
-SelectBehind(ZERO,GetTextLength(wMessage),TEH[wMessage]);
-TextDelete(wMessage);
-TextUpdate(wMessage);
-return(OK);
-}
-
-
-int FlashInfo(char* s)
-{
-SelectBehind(ZERO,GetTextLength(wInfo),TEH[wInfo]);
-TextDelete(wInfo);
-PrintBehind(wInfo,s);
-ShowWindow(Window[wInfo]);
-if (RunningOnOSX) SendBehind(Window[wInfo], FrontWindow());
-else BringToFront(Window[wInfo]);
-TextUpdate(wInfo);
-#if TARGET_API_MAC_CARBON_FORGET_THIS
-  QDFlushPortBuffer(GetWindowPort(Window[wInfo]), NULL);
-#endif
-return(OK);
-}
-
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
 int SelectSomething(int w)
 /* Select line on which cursor is flashing */
 {
@@ -262,7 +97,7 @@ long origin,end,length;
 *p_gap = 0;
 MyDisposeHandle((Handle*)pp_line);
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("=> Err. ReadLine(YES,). ");
+	BPPrintMessage(0,odError,"=> Err. ReadLine(YES,). ");
 	return(ABORT);
 	}
 if(*p_i >= im) goto BAD;
@@ -340,7 +175,7 @@ int j,k,l;
 char c,oldc;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("=> Err. ReadLine1(). ");
+	BPPrintMessage(0,odError,"=> Err. ReadLine1(). ");
 	return(OK);
 	}
 if(*p_i >= im) return(MISSED);
@@ -374,7 +209,7 @@ for(j=*p_i; j < im; j++) {
 		*p_i = ++j;
 		if(check) {
 			my_sprintf(Message,"\nSelection too long, truncated: %s...\n",line);
-			if(!ScriptExecOn) Alert1(Message);
+			if(!ScriptExecOn) BPPrintMessage(0,odError,"%s",Message);
 			else PrintBehindln(wTrace,Message);
 			return(MISSED);
 			}
@@ -484,7 +319,7 @@ TextHandle th;
 TextOffset selbegin, selend;
 
 if(Nw < 0 || Nw >= WMAX) {
-	if(Beta) Alert1("=> Err. TypeChar()");
+	BPPrintMessage(0,odError,"=> Err. TypeChar()");
 	return(ABORT);
 	}
 if(!Editable[Nw] && !HasFields[Nw]) return(OK);
@@ -650,7 +485,7 @@ for(i=0; ; i++,j++) {
 		}
 	if(start[page]) {
 		if(im >= maxctrl) {
-			if(Beta) Alert1("Too many objects.  Increase MAXCTRL!");
+			BPPrintMessage(0,odError,"Too many objects.  Increase MAXCTRL!");
 			im--; result = ABORT; goto QUIT;
 			}
 		if((i % ibot) == 0 && i > 0) {
@@ -663,7 +498,7 @@ for(i=0; ; i++,j++) {
 		if(r.right > right) break;
 		if((h_ctrl[++im] = NewControl(GetDialogWindow(p_dia),&r,title,1,0,0,1,(ctrltype + 8),0L))
 				== NULL) {
-			if(Beta) Alert1("=> Err1. DoThings()");
+			BPPrintMessage(0,odError,"=> Err1. DoThings()");
 			result = ABORT; goto QUIT;
 			}
 		ShowControl(h_ctrl[im]);
@@ -672,7 +507,7 @@ for(i=0; ; i++,j++) {
 	else {
 		if(i >= numberdrawn) break;
 		if(h_ctrl[i+1] == NULL) {
-			if(Beta) Alert1("=> Err2. DoThings()");
+			BPPrintMessage(0,odError,"=> Err2. DoThings()");
 			result = ABORT; goto QUIT;
 			}
 		/* SetCTitle(h_ctrl[i+1],title); */
@@ -719,7 +554,7 @@ do {
 	if(WaitNextEvent(mDownMask,&theEvent,60L,NULL)) {
 		GlobalToLocal(&(theEvent.where));
 		if(FindControl(theEvent.where, GetDialogWindow(p_dia), &h) != 0) {
-			if (TrackControl(h,theEvent.where,NULL) != 0) {
+			if(TrackControl(h,theEvent.where,NULL) != 0) {
 			  for(i=0; i <= im; i++) {
 				if(h == h_ctrl[i]) {
 					found = TRUE;
@@ -737,7 +572,7 @@ if(theitem == 0) {
 	}
 if(theitem == 1) { /* Right arrow */
 	if(page >= maxpage-1) {
-		if(Beta) Alert1("Too many pages.  Contact Bel!");
+		BPPrintMessage(0,odError,"Too many pages.  Contact Bel!");
 		 result = ABORT; goto QUIT;
 		}
 	if(start[page]) {
@@ -772,7 +607,7 @@ goto REDRAW;
 QUIT:
 DisposeDialog(p_dia);
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("=> Err DoThings(). saveport == NULL");
+else BPPrintMessage(0,odError,"=> Err DoThings(). saveport == NULL");
 return(result);
 }
 
@@ -1037,11 +872,11 @@ else {
 c2pstrcpy(PascalLine, Message);
 SetMenuItemText(myMenus[windowM],glossaryCommand,PascalLine);
 
-if (option)	SetMenuItemText(myMenus[windowM],miscsettingsCommand,"\pComputation & IO Settings");
+if(option)	SetMenuItemText(myMenus[windowM],miscsettingsCommand,"\pComputation & IO Settings");
 else		SetMenuItemText(myMenus[windowM],miscsettingsCommand,"\pSettings");
 
 // use Appearance Mgr features to set option-key shortcuts
-if (HaveAppearanceManager) {
+if(HaveAppearanceManager) {
 	SInt16 modifiers = (option ? kMenuOptionModifier : kMenuNoModifiers);
 	
 	SetMenuItemModifiers(myMenus[fileM], fmOpen, modifiers);
@@ -1260,19 +1095,19 @@ int SelectBehind(long pos1,long pos2,TextHandle teh) {
 	long maxoffset;
 	maxoffset = GetTextHandleLength(teh);
 	if(pos1 < ZERO) {
-		if(Beta) Alert1("=> Err. SelectBehind(). pos1 < ZERO");
+		BPPrintMessage(0,odError,"=> Err. SelectBehind(). pos1 < ZERO");
 		pos1 = ZERO;
     	}
 	else if(pos1 > maxoffset) {
-		if(Beta) Alert1("=> Err. SelectBehind(). pos1 > maxoffset");
+		BPPrintMessage(0,odError,"=> Err. SelectBehind(). pos1 > maxoffset");
 		pos1 = maxoffset;
 	    }
 	if(pos2 < ZERO) {
-		if(Beta) Alert1("=> Err. SelectBehind(). pos2 < ZERO");
+		BPPrintMessage(0,odError,"=> Err. SelectBehind(). pos2 < ZERO");
 		pos2 = ZERO;
 	    }
 	else if(pos2 > maxoffset) {
-		if(Beta) Alert1("=> Err. SelectBehind(). pos2 > maxoffset");
+		BPPrintMessage(0,odError,"=> Err. SelectBehind(). pos2 > maxoffset");
 		pos2 = maxoffset;
 	    }
 	(*teh)->selStart = pos1; (*teh)->selEnd = pos2;
@@ -1329,7 +1164,7 @@ int r,i,i0,im,j,w;
 char c,line[MAXNAME+1],*p,*q;
 
 if(p_line == NULL) {
-	if(Beta) Alert1("=> Err. ChangeNames(). p_line == NULL");
+	BPPrintMessage(0,odError,"=> Err. ChangeNames(). p_line == NULL");
 	return(OK);
 	}
 if((*p_line)[0] == '\0') return(OK);
@@ -1337,7 +1172,7 @@ if((*p_line)[0] == '\0') return(OK);
 r = OK;
 i = 0; im = MyHandleLen(p_line);
 if(p_line == NULL) {
-	if(Beta) Alert1("=> Err. ChangeNames(). p_line == NULL");
+	BPPrintMessage(0,odError,"=> Err. ChangeNames(). p_line == NULL");
 	return(OK);
 	}
 while(TRUE) {
@@ -1422,7 +1257,7 @@ return(r);
 int FindGoodIndex(int wind)
 {
 if(wind < 0 || wind >= WMAX) {
-	if(Beta) Alert1("=> Err. FindGoodIndex(). Incorrect index");
+	BPPrintMessage(0,odError,"=> Err. FindGoodIndex(). Incorrect index");
 	return(LastEditWindow);
 	}
 switch(wind) {
@@ -1441,103 +1276,6 @@ switch(wind) {
 	}
 return(wind);
 }
-
-#if BP_CARBON_GUI_FORGET_THIS
-
-int MyButton(int quick)
-{
-// quick = 0 --> process any event (slowest)
-// quick = 1 --> process any event except activate. This notably includes update events.
-// quick = 2 --> process only mouseclicks
-
-EventRecord event;
-int w,eventfound,theclick,what,mousedown,result,intext,hit;
-short itemHit,itemtype;
-long sleeptime;
-WindowPtr whichwindow;
-DialogPtr thedialog;
-GrafPtr saveport;
-OSErr memerr;
-
-if(LoadOn) return(MISSED);
-
-mousedown = Button();
-if(mousedown) goto DOEVENT;
-
-if(quick >= 2) return(MISSED);
-
-DOEVENT:
-MaintainMenus();
-if ((ComputeOn || CompileOn) && !WaitOn)  sleeptime = 1L;
-else  sleeptime = GetCaretTime();
-eventfound = WaitNextEvent(everyEvent,&event, sleeptime, NULL);
-what = event.what;
-if(!eventfound || (what != mouseDown
-		&& (what != keyDown || ((event.modifiers & cmdKey) == 0))
-		&& what != updateEvt && what != activateEvt
-		&& what != kHighLevelEvent)) return(MISSED);
-if(quick == 1 && what == activateEvt) return(MISSED);
-GetPort(&saveport);
-if(what == mouseDown) {
-	theclick = FindWindow(event.where,&whichwindow);
-	for(w=0; w < WMAX; w++) {
-		if(whichwindow == Window[w]) break;
-		}	
-	if(whichwindow != NULL) {
-		switch(theclick) {
-			case inDrag:
-			case inGrow:
-				BringToFront(whichwindow);
-				break;
-			case inContent:
-				result = OK;
-				intext = FALSE;
-				if(w < WMAX && w != Nw && w != wScript) {
-					BPActivateWindow(QUICK,w);
-					}
-				else {
-					result = OK;
-			/*		if(IsDialogEvent(&event)) result = DoDialog(&event); */
-			/*		hit = DialogSelect(&event,&thedialog,&itemHit);
-					if(hit && (w == wControlPannel)) { 
-						switch(itemHit) {
-							case bMute:
-								if(!Oms && !NEWTIMER_FORGET_THIS)
-									Alert1("'Mute' only works when Opcode OMS is active");
-								else {
-									Mute = 1 - Mute;
-									MaintainMenus();
-									}
-								result = DONE;
-								break;
-							}
-						} */
-					if(result != DONE) DoContent(whichwindow,&event,&intext);
-					}
-				result = intext;
-				if(result == OK) PauseOn = TRUE;
-				if(saveport != NULL) SetPort(saveport);
-				else if(Beta) Alert1("=> Err MyButton(). saveport == NULL");
-				return(result);	/* This causes interruption if result == TRUE */
-				break;
-			default: break;
-			}
-		}
-	}
-ButtonOn = TRUE;
-result = DoEvent(&event);	/* This may send BP3 to background */
-ButtonOn = FALSE;
-if(EventState != EXIT && EventState != ABORT) EventState = NO;
-else result = EventState;
-if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("=> Err MyButton(). saveport == NULL");
-DoSystem();
-
-/* We already processed the click, so we return MISSED */
-if(result == OK) return(MISSED);
-else return(result);
-}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 int TellError(int thecase,OSErr oserr)
 {
@@ -1652,7 +1390,7 @@ if(oserr != noErr) {
 		if(TraceRefnum > -1) WriteToFile(NO,MAC,line,TraceRefnum);
 		if(TempRefnum > -1) WriteToFile(NO,MAC,line,TempRefnum);
 //		FlushVolume();
-		if(Beta) Println(wTrace,line);
+		Println(wTrace,line);
 		ShowMessage(TRUE,wMessage,line);
 		} */
 	}
@@ -1875,7 +1613,7 @@ do {
 	BPActivateWindow(SLOW,TargetWindow);
 	ShowSelect(CENTRE,TargetWindow);
 	if(saveport != NULL) SetPort(saveport);
-	else if(Beta) Alert1("=> Err FindReplace(). saveport == NULL");
+	else BPPrintMessage(0,odError,"=> Err FindReplace(). saveport == NULL");
 	rep = GetReplaceCommand();
 	Deactivate(TEH[TargetWindow]);
 	switch(rep) {
@@ -1942,7 +1680,7 @@ if(!(*p_redo)) {
 	goto START;
 	}
 else {
-	if(!ScriptExecOn) Alert1("End of document reached");
+	if(!ScriptExecOn) BPPrintMessage(0,odError,"End of document reached");
 	return(ABORT);
 	}
 return(rep);
@@ -1956,8 +1694,8 @@ long count;
 // FIXME: should make temp copy of the deleted text in case insertion fails
 TextDelete(TargetWindow);
 count = (long) strlen(ReplaceString);
-if (TextInsert(ReplaceString,count,TEH[TargetWindow]) != OK) {
-	Alert1("The text replacement failed; probably because the window is too full.");
+if(TextInsert(ReplaceString,count,TEH[TargetWindow]) != OK) {
+	BPPrintMessage(0,odError,"The text replacement failed; probably because the window is too full.");
 	return(MISSED);
 	}
 UpdateDirty(TRUE,TargetWindow);
@@ -2091,7 +1829,7 @@ if(ptr != NULL) {
 	}
 else {
 	if(w < 0 || w >= WMAX || !HasFields[w]) {
-		if(Beta) Alert1("=> Err. SetField(). Incorrect index");
+		BPPrintMessage(0,odError,"=> Err. SetField(). Incorrect index");
 		return(MISSED);
 		}
 	thedialog = gpDialogs[w];
@@ -2100,21 +1838,21 @@ else {
 #if !USE_OLD_EDIT_TEXT
   // must get edit text handle this way when it is a real control
   err = GetDialogItemAsControl(thedialog, (short)ifield, (ControlRef*)&itemhandle);
-  if (err != noErr) return(ABORT);
+  if(err != noErr) return(ABORT);
 #else
 GetDialogItem(thedialog,(short)ifield,&itemtype,&itemhandle,&r);
 if(((itemtype & 127)  != editText && (itemtype & 127)  != statText)
 		|| itemhandle == NULL) {
-	if(Beta) {
+	{
 		my_sprintf(Message,"=> Err SetField(%ld,%ld,%s)",(long)w,
 			(long)ifield,(long)string);
-		Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	return(ABORT);
 	}
 #endif
-if (strlen(string) > 255) {
-	if (Beta)  Alert1("=> Err SetField(): string is too long");
+if(strlen(string) > 255) {
+	  BPPrintMessage(0,odError,"=> Err SetField(): string is too long");
 	return (ABORT);
 	}
 c2pstrcpy(line,string);
@@ -2140,7 +1878,7 @@ if(ptr != NULL) {
 	}
 else {
 	if(w < 0 || w >= WMAX || !HasFields[w]) {
-		if(Beta) Alert1("=> Err. GetField(). Incorrect index");
+		BPPrintMessage(0,odError,"=> Err. GetField(). Incorrect index");
 		return(MISSED);
 		}
 	thedialog = gpDialogs[w];
@@ -2150,9 +1888,9 @@ else {
 GetDialogItem(thedialog,(short)ifield,&itemtype,&itemhandle,&r);
 if(((itemtype & 127) != editText && (itemtype & 127)  != statText)
 		|| itemhandle == NULL) {
-	if(Beta) {
+	{
 		my_sprintf(Message,"=> Err GetField(%ld,%ld)",(long)w,(long)ifield);
-		Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	return(MISSED);
 	}
@@ -2168,7 +1906,7 @@ if(Myatof(line,p_p,p_q) < Infneg) {
 	if(forcenum && line[0] != '\0' && line[0] != '[') {
 		ShowWindow(GetDialogWindow(thedialog));
 		BringToFront(GetDialogWindow(thedialog));
-		Alert1("=> Incorrect numerical value");
+		BPPrintMessage(0,odError,"=> Incorrect numerical value");
 		SetField(thedialog,-1,ifield,"[?]");
 		SelectField(thedialog,-1,ifield,TRUE);
 		}
@@ -2206,7 +1944,7 @@ else {
 		BringToFront(Window[w]);
 		SetField(ptr,w,field,"[?]");
 		SelectField(ptr,w,field,TRUE);
-		Alert1("=> Incorrect numerical value");
+		BPPrintMessage(0,odError,"=> Incorrect numerical value");
 		}  */
 	}
 return(OK);
@@ -2222,15 +1960,15 @@ Str255 t;
 long p,q;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("=> Err. GetCtrlValue(). Incorrect index");
+	BPPrintMessage(0,odError,"=> Err. GetCtrlValue(). Incorrect index");
 	return(0);
 	}
 GetDialogItem(gpDialogs[w],(short)icontrol,&itemtype,(Handle*)&itemhandle,&r);
 if((((itemtype & 127) != (ctrlItem+radCtrl)) && ((itemtype & 127) != (ctrlItem+chkCtrl)))
 	|| itemhandle == NULL) {
-	if(Beta) {
+	{
 		my_sprintf(Message,"=> Err GetCtrlValue(%ld,%ld)",(long)w,(long)icontrol);
-		Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	return(0);
 	}
@@ -2245,15 +1983,15 @@ ControlHandle itemhandle;
 short itemtype;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("=> Err. ToggleButton(). Incorrect index");
+	BPPrintMessage(0,odError,"=> Err. ToggleButton(). Incorrect index");
 	return(MISSED);
 	}
 GetDialogItem(gpDialogs[w],(short)icontrol,&itemtype,(Handle*)&itemhandle,&r);
 if((((itemtype & 127) != (ctrlItem+radCtrl)) && ((itemtype & 127) != (ctrlItem+chkCtrl)))
 	|| itemhandle == NULL) {
-	if(Beta)  {
+	 {
 		my_sprintf(Message,"=> Err ToggleButton(%ld,%ld)",(long)w,(long)icontrol);
-		Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	return(MISSED);
 	}
@@ -2281,7 +2019,7 @@ if(ptr != NULL) {
 	}
 else {
 	if(w < 0 || w >= WMAX) {
-		if(Beta) Alert1("=> Err. SwitchOn(). Incorrect index");
+		BPPrintMessage(0,odError,"=> Err. SwitchOn(). Incorrect index");
 		return(MISSED);
 		}
 	thedialog = gpDialogs[w];
@@ -2290,9 +2028,9 @@ GetDialogItem(thedialog,(short)i,&itemtype,&itemhandle,&r);
 itemtype = (itemtype & 127) - ctrlItem;
 if(itemtype != radCtrl && itemtype != chkCtrl && itemtype != btnCtrl
 		|| itemhandle == NULL) {
-	if(Beta) {
+	{
 		my_sprintf(Message,"=> Err SwitchOn(NULL,%ld,%ld)",(long)w,(long)i);
-		Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	return(ABORT);
 	}
@@ -2316,7 +2054,7 @@ if(ptr != NULL) {
 	}
 else {
 	if(w < 0 || w >= WMAX) {
-		if(Beta) Alert1("=> Err. SwitchOff(). Incorrect index");
+		BPPrintMessage(0,odError,"=> Err. SwitchOff(). Incorrect index");
 		return(MISSED);
 		}
 	thedialog = gpDialogs[w];
@@ -2325,9 +2063,9 @@ GetDialogItem(thedialog,(short)i,&itemtype,&itemhandle,&r);
 itemtype = (itemtype & 127) - ctrlItem;
 if(itemtype != radCtrl && itemtype != chkCtrl && itemtype != btnCtrl
 		|| itemhandle == NULL) {
-	if(Beta) {
+	{
 		my_sprintf(Message,"=> Err SwitchOff(%ld,%ld)",(long)w,(long)i);
-		Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	return(ABORT);
 	}
@@ -2346,16 +2084,16 @@ short itemtype;
 Handle itemhandle;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("=> Err. ShowPannel(). Incorrect index");
+	BPPrintMessage(0,odError,"=> Err. ShowPannel(). Incorrect index");
 	return(MISSED);
 	}
 GetDialogItem(gpDialogs[w],(short)i,&itemtype,&itemhandle,&r);
 itemtype = (itemtype & 127) - ctrlItem;
 if(itemtype != radCtrl && itemtype != chkCtrl && itemtype != btnCtrl
 		|| itemhandle == NULL) {
-	if(Beta) {
+	{
 		my_sprintf(Message,"=> Err ShowPannel(%ld,%ld)",(long)w,(long)i);
-		Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	return(ABORT);
 	}
@@ -2371,16 +2109,16 @@ short itemtype;
 Handle itemhandle;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("=> Err. HidePannel(). Incorrect index");
+	BPPrintMessage(0,odError,"=> Err. HidePannel(). Incorrect index");
 	return(MISSED);
 	}
 GetDialogItem(gpDialogs[w],(short)i,&itemtype,&itemhandle,&r);
 itemtype = (itemtype & 127) - ctrlItem;
 if(itemtype != radCtrl && itemtype != chkCtrl && itemtype != btnCtrl
 		|| itemhandle == NULL) {
-	if(Beta) {
+	{
 		my_sprintf(Message,"=> Err HidePannel(%ld,%ld)",(long)w,(long)i);
-		Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		}
 	return(ABORT);
 	}
@@ -2398,7 +2136,7 @@ if(ptr != NULL) {
 	}
 else {
 	if(w < 0 || w >= WMAX || !HasFields[w]) {
-		if(Beta) Alert1("=> Err. SelectField(). Incorrect index");
+		BPPrintMessage(0,odError,"=> Err. SelectField(). Incorrect index");
 		return(MISSED);
 		}
 	thedialog = gpDialogs[w];
@@ -2455,7 +2193,7 @@ FrameRect(&r);
 PenNormal();
 
 if(saveport != NULL) SetPort(saveport);
-else if(Beta) Alert1("=> Err OutlineTextInDialog(). saveport == NULL");
+else BPPrintMessage(0,odError,"=> Err OutlineTextInDialog(). saveport == NULL");
 return(OK);
 }
 

@@ -37,8 +37,6 @@
 
 #include "-BP3decl.h"
 
-#define SHOWEVERYTHING 0
-
 extern FILE * imagePtr;
 
 char graphic_scheme[] = "canvas";
@@ -187,11 +185,12 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 				stroke_style("black");
 				pen_size(1,0);
 				}
-	#if SHOWEVERYTHING
-			if(j == 0) continue;
-	#else
-			if(j == 0 || j == 1 || j == -1) continue;
-	#endif
+			if(ShowAllObjects) {
+				if(j == 0) continue;
+				}
+			else {
+				if(j == 0 || j == 1 || j == -1) continue;
+				}
 			if(OutCsound || MIDImicrotonality) {
 				scale = (*p_Instance)[k].scale;
 				if(trace_graphic)
@@ -247,8 +246,8 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 						strcat(line,">>");
 						}
 				}
-			if(SHOWEVERYTHING) {
-				my_sprintf(line2," #%ld",(long)k);
+			if(ShowAllObjects) {
+				my_sprintf(line2," (#%ld)",(long)k);
 				strcat(line,line2);
 				}
 			for(xc = 0; xc < strlen(line); xc++) {
@@ -532,7 +531,7 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 	w = wGraphic;
 	for(n=Ndiagram-1; n >= 0; n--) {
 		if(n < 0 || n >= MAXDIAGRAM) {
-		//	if(Beta) Alert1("=> Err. KillDiagrams. n < 0 || n >= MAXDIAGRAM");
+		//	BPPrintMessage(0,odError,"=> Err. KillDiagrams. n < 0 || n >= MAXDIAGRAM");
 			Ndiagram = 0;
 			break;
 			}
@@ -545,7 +544,7 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 	if(!Offscreen) {
 		for(n=Npicture-1; n >= 0; n--) {
 			if(n < 0 || n >= MAXPICT) {
-			//	if(Beta) Alert1("=> Err. KillDiagrams. n < 0 || n >= MAXPICT");
+			//	BPPrintMessage(0,odError,"=> Err. KillDiagrams. n < 0 || n >= MAXPICT");
 				Npicture = 0;
 				break;
 				}
@@ -618,7 +617,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 
 	if(w < 0 || w >= WMAX) return(MISSED);
 	if(!GrafWindow[w]) {
-	//	if(Beta) Alert1("=> Err. DrawPrototype(). !GrafWindow[w]");
+	//	BPPrintMessage(0,odError,"=> Err. DrawPrototype(). !GrafWindow[w]");
 		return(MISSED);
 		}
 	if(j < 2 || j >= Jbol) return(OK);
@@ -654,7 +653,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	/*	move_to((p_frame->left + p_frame->right - strlen(label))/2,
 			(p_frame->top + p_frame->bottom - htext)/2);
 		fill_text(label); */
-	/*	if(Beta) {
+	/*	{
 			pen_size(3,3);
 			for(i=0; i < MAXCHAN; i++) {
 				stroke_style(&(PianoColor[i]));
@@ -703,7 +702,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	if((maxendgap > ZERO) && maxendgap < (*p_Dur)[j] && ((*p_Dur)[j] + maxendgap) > tmax)
 		tmax = (*p_Dur)[j] + maxendgap;
 	if((tmax - tmin) < ZERO) {
-	//	if(Beta) Alert1("=> Err1. DrawPrototype()");
+	//	BPPrintMessage(0,odError,"=> Err1. DrawPrototype()");
 		rep = ABORT; goto QUIT;
 		}
 	xmin = p_frame->left + 3 * htext;
@@ -1034,7 +1033,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	/* GetWindowPortBounds(Window[w], &r);
 	ClipRect(&r);
 	if(saveport != NULL) SetPort(saveport);
-	else if(Beta) Alert1("=> Err DrawPrototype(). saveport == NULL"); */
+	else BPPrintMessage(0,odError,"=> Err DrawPrototype(). saveport == NULL"); */
 	return(rep);
 	}
 

@@ -48,7 +48,7 @@ int i,ifunc,j,ch,splitmem,r,undefined,datamode,weightloss,hastabs,maxsounds,chec
 long endofselection,size,lengthA;
 unsigned long time_end_compute;
 
-BPPrintMessage(0,odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
+// BPPrintMessage(0,odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
 if(Improvize && ItemNumber == 0) {
 	ShowMessage(TRUE,wMessage,"\n👉 Most of the messages will be discarded during the improvisation\n");
 	if(!rtMIDI) BPPrintMessage(1,odInfo,"Only %ld items will be produced.\n",MaxItemsProduce);
@@ -286,9 +286,9 @@ if(!PlaySelectionOn) SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
 lengthA = LengthOf(pp_a);
 if(lengthA < 1) {
 	if(!DeriveFurther || PlaySelectionOn)
-		Alert1("=> Empty start string. Can't produce anything");
+		BPPrintMessage(0,odError,"=> Empty start string. Can't produce anything");
 	else
-		Alert1("=> Item is empty. Can't derive further");
+		BPPrintMessage(0,odError,"=> Item is empty. Can't derive further");
 	goto QUIT;
 	}
 Final = FALSE;
@@ -418,7 +418,7 @@ TextGetSelection(&origin, &end, TEH[w]);
 SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 if(end <= origin) {
 	if(ScriptExecOn) Print(wTrace,"\n*** Can't analyze.  No item selected...\n");
-	Alert1("=> Can't analyze. No item selected...");
+	BPPrintMessage(0,odError,"=> Can't analyze. No item selected...");
 	return(MISSED);
 	}
 /*
@@ -562,7 +562,7 @@ TRY:
 if((r=AnswerWith("Set weights to...","0",Message)) == ABORT) return(OK);
 w = (int) atol(Message); 	/* Don't use atoi() because int's are 4 bytes */
 if(w < 0) {
-	Alert1("=> Weights should not be negative"); goto TRY;
+	BPPrintMessage(0,odError,"=> Weights should not be negative"); goto TRY;
 	}
 for(igram=1; igram <= Gram.number_gram; igram++) {
 	for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
@@ -767,11 +767,11 @@ int AllFollowingItems(t_gram *p_gram,tokenbyte ***pp_a,long ****p_weight,long **
 	long ipos = ZERO;
 	icandidate = nrep = old_gram = old_rul = 0;
 
-	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
+/*	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 		EmergencyExit = TRUE;
 		BPPrintMessage(1,odError,"=> (6) Maximum allowed time (%d seconds) has been spent in AllFollowingItems(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return ABORT;
-		}
+		} */
 //	if(igram > endgram) return MISSED;
 	if(FALSE && igram > (*p_gram).number_gram) {
 		BPPrintMessage(1,odError,"=> Err. AllFollowingItems(). igram (%d) > number_gram (%d) [1]\n",igram,(*p_gram).number_gram);
@@ -916,7 +916,7 @@ int PullStack(tokenbyte ***pp_a,long ****p_weight,long ****p_flag,long *p_length
 	Handle ptr;
 
 	if((*p_depth) < 0  || (*p_depth) >= *p_maxdepth) {
-		if(Beta) Alert1("=> Err. PullStack(). *p_depth < 0  || (*p_depth) >= *p_maxdepth");
+		BPPrintMessage(0,odError,"=> Err. PullStack(). *p_depth < 0  || (*p_depth) >= *p_maxdepth");
 		return(ABORT);
 		}
 	(*p_length) = ZERO;
@@ -969,7 +969,7 @@ int LastGrammarWanted(int igram) {
 		wantgram = (int) atol(value); 	/* Don't use atoi() because int's are 4 bytes */
 		if(wantgram < 1 || wantgram > endgram) {
 			my_sprintf(Message,"Range should be [1,%ld]. Try again...",(long)endgram);
-			Alert1(Message);
+			BPPrintMessage(0,odError,"%s",Message);
 			goto TRY;
 			}
 		}
@@ -1158,7 +1158,7 @@ int ClearMarkers(tokenbyte ***pp_a) {
 	int setting_sections;
 
 	if(pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL) {
-		if(Beta) Alert1("=> Err. ClearMarkers(). pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL");
+		BPPrintMessage(0,odError,"=> Err. ClearMarkers(). pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL");
 		return(OK);
 		}
 	setting_sections = TRUE;
@@ -1191,7 +1191,7 @@ long speed;
 char line[MAXLIN];
 
 if(pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL) {
-	if(Beta) Alert1("=> Err. WriteTemplate(). pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL");
+	BPPrintMessage(0,odError,"=> Err. WriteTemplate(). pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL");
 	return(OK);
 	}
 foundspeed = foundscaling = FALSE; speed = 1L; setting_section = TRUE;
@@ -1277,7 +1277,7 @@ KeyNumberMap map;
 
 (*p_posend) = pos;
 if(*pp_a == NULL) {
-	if(Beta) Alert1("=> Err. ReadTemplate(). *pp_a = NULL");
+	BPPrintMessage(0,odError,"=> Err. ReadTemplate(). *pp_a = NULL");
 	return(ABORT);
 	}
 h = WindowTextHandle(TEH[w]);
@@ -1290,7 +1290,7 @@ for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\0'; pos++) {
 		while((c=GetTextChar(w,++pos)) != ']') {
 			c -= '0';
 			if(c < 0 || c > 9) {
-				if(Beta) Alert1("=> Err. ReadTemplate(). Wrong number");
+				BPPrintMessage(0,odError,"=> Err. ReadTemplate(). Wrong number");
 				c = 0;
 				}
 			*p_i = *p_i * 10 + c;
@@ -1299,7 +1299,7 @@ for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\0'; pos++) {
 		}
 	if(i > im) {
 		if(ThreeOverTwo(&im) != OK) {
-			if(Beta) Alert1("=> Err. ReadTemplate(). Can't resize");
+			BPPrintMessage(0,odError,"=> Err. ReadTemplate(). Can't resize");
 			return(ABORT);
 			}
 		ptr = *pp_a;
@@ -1311,7 +1311,7 @@ for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\0'; pos++) {
 		while(!MySpace(c=GetTextChar(w,++pos))) {
 			c = c - '0';
 			if(c < 0 || c > 9) {
-				if(Beta) Alert1("=> Err. ReadTemplate(). Not digit"); return(MISSED);
+				BPPrintMessage(0,odError,"=> Err. ReadTemplate(). Not digit"); return(MISSED);
 				}
 			j = 10 * j + c;
 			}
@@ -1481,7 +1481,6 @@ int AnalyzeBuffer(tokenbyte ***pp_a,int learn,int templates,int all,long pos,int
 	int repeat,r;
 	long lengthA;
 
-	WaitForLastTicks();
 	ComputeOn++;
 	FirstTime = InitThere = FALSE;
 	lengthA = LengthOf(pp_a);
@@ -1535,7 +1534,7 @@ int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templa
 	ShowSelect(CENTRE,wTrace);
 	BufferSize = MAXDISPL;
 	if(*pp_a == NULL) {
-		if(Beta) Alert1("=> Err. Analyze(). *pp_a = NULL");
+		BPPrintMessage(0,odError,"=> Err. Analyze(). *pp_a = NULL");
 		return(ABORT);
 		}
 
@@ -1877,14 +1876,14 @@ int check_and_remove_duplicate_last_line(const char *filename) {
     int is_duplicate = 0;
     if(line_count > 1) {
         for (int i = 0; i < line_count - 1; i++) {
-            if (strcmp(lines[i], lines[line_count - 1]) == 0) {
+            if(strcmp(lines[i], lines[line_count - 1]) == 0) {
                 is_duplicate = 1;
                 break;
 				}
 			}
 		}
     // If duplicate, remove the last line.
-    if (is_duplicate) {
+    if(is_duplicate) {
         free(lines[line_count - 1]);
         line_count--;
 		result = FALSE;

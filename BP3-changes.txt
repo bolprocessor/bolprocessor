@@ -7,10 +7,19 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 
+2025-01-23 (version 3.2.0)
+We now have a control over NoteOn/Noteoff to prevent unnecessary pairs being created when the same note/channel is turned on at the same time, as can happen when interpreting MusicXML scores. This might have been noticeable on some MIDI instruments or when capturing MIDI events.
+The new procedure takes into account fast movements where the order of the notes must be maintained, even if (due to quantization) they end up with identical times.
+A “Trace NoteOn/NoteOff” setting can be used to check this process.
+More information: https://bolprocessor.org/control-noteon-noteoff/
+A number of PHP lines have been fixed to be in compliance with PHP version 8 requirements.
+Calls to mb_convert_encoding() allow reading of old MacOS or Windows data/grammar files.
+Don't forget to update the PHP interface!
+
+-----
 2025-01-07 (version 3.1.5)
 Important correction of the NoteOff exclusion in MakeSound.c
 This change fixed errors when AssignUniqueChannel() returned (-1) in "-da.Ombres_errantes".
-Don't forget to update the PHP interface!
 
 -----
 2025-01-06 (version 3.1.4)

@@ -445,7 +445,7 @@ if(q < 1.) result = MISSED;
 if(result == OK) return(result);
 
 ERR:
-if(Beta) Println(wTrace,"\nCalculation overflow...");
+BPPrintMessage(0,odError,"=> Calculation overflow...\n");
 TellComplex();
 return(result);
 }

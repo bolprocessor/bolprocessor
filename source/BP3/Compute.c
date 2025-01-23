@@ -61,7 +61,7 @@ int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_re
 	if((*p_repeat)) {
 		if(ProduceStackDepth == -1) {
 			BPPrintMessage(1,odError,"Can't repeat: more than %ld computations\n",(long)MAXDERIV);
-			Alert1(Message);
+			BPPrintMessage(0,odError,"%s",Message);
 			return(MISSED);
 			}
 		ShowMessage(TRUE,wMessage,"Repeating...");
@@ -72,6 +72,10 @@ int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_re
 	r = OK;
 	NeedZouleb = 0;
 	Ctrlinit(); // Added 2024-07-06
+
+	if(TraceNoteOn) {
+		BPPrintMessage(1,odInfo,"\n");
+		}
 
 	REDO:
 	for(igram=fromigram; igram <= toigram; igram++) {
@@ -173,14 +177,14 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 	t_subgram subgram;
 
 	if(p_gram == NULL) {
-		Alert1("=> Err. in ComputeInGram(). p_gram == NULL");
+		BPPrintMessage(0,odError,"=> Err. in ComputeInGram(). p_gram == NULL");
 		return(ABORT);
 		}
-	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
+	/* if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 		EmergencyExit = TRUE;
 		BPPrintMessage(0,odInfo,"=> (4) Maximum allowed time (%ld seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return(ABORT);
-		}
+		} */
 	if(p_gram->p_subgram == NULL) return(OK);
 	subgram = (*((*p_gram).p_subgram))[igram];
 	grtype = subgram.type;
@@ -269,7 +273,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 	lastpos = 0;	/* Position for writing into B (SUB only) */
 	if(grtype == SUBtype) {
 		if(*pp_a == NULL) {
-			if(Beta) Alert1("=> Err. ComputeInGram(). *pp_a = NULL");
+			BPPrintMessage(0,odError,"=> Err. ComputeInGram(). *pp_a = NULL");
 			rep = ABORT;
 			goto QUIT;
 			}
@@ -345,11 +349,11 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 		p_totwght,p_pos,p_prefrule,leftpos,&maxpref,&freedom,*p_repeat,
 		mode,&equalweight,learn,time_end_compute)) > 0) || (nb_candidates == AGAIN)) {
 
-		if(!Improvize && !Interactive && time_end_compute > 0L  && getClockTime() > time_end_compute) {
+	/*	if(!Improvize && !Interactive && time_end_compute > 0L  && getClockTime() > time_end_compute) {
 			EmergencyExit =TRUE;
 			BPPrintMessage(0,odInfo,"=> (5) Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 			return(ABORT);
-			}
+			} */
 		try = irep = 0;
 		if(trace_compute) BPPrintMessage(0,odInfo,"nb_candidates = %d (*p_repeat) = %d\n",nb_candidates,(*p_repeat));
 		if(nb_candidates == EXIT) {
@@ -366,7 +370,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			if(Tstart + TimeMax/10L < time) {
 				my_sprintf(Message,"Max time elapsed!");
 				if(!ScriptExecOn && !Improvize) {
-					Alert1(Message);
+					BPPrintMessage(0,odError,"%s",Message);
 					rep = ABORT; goto QUIT;
 					}
 				if(ShowMessages) ShowMessage(TRUE,wMessage,Message);
@@ -454,7 +458,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			irul = (*p_MemRul)[ProduceStackIndex];
 			if(trace_compute) BPPrintMessage(0,odInfo,"Repeating irul= %d\n",irul);
 			if(irul > subgram.number_rule) {
-				Alert1("New grammar does not match old one. Aborting...");
+				BPPrintMessage(0,odError,"New grammar does not match old one. Aborting...");
 				rep = ABORT; goto QUIT;
 				}
 			if(TraceProduce) {
@@ -518,7 +522,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 		if((*p_repeat)) {
 			(*p_pos)[j] = (*p_MemPos)[ProduceStackIndex++];
 			if((*p_pos)[j] > ((*p_length) - 2)) {
-				Alert1("New grammar does not match old one. Aborting...");
+				BPPrintMessage(0,odError,"New grammar does not match old one. Aborting...");
 				rep = ABORT; goto QUIT;
 				}
 			}
@@ -564,11 +568,11 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 		if(pos1 == ABORT || pos1 == EXIT) {
 			rep = pos1; goto QUIT;
 			}
-		if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
+	/*	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 			EmergencyExit =TRUE; 
 			BPPrintMessage(0,odInfo,"=> (7) Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 			return(ABORT); 
-			}
+			} */
 	/*	if(pos1 == STOP) {
 			rep = MISSED;
 			if(igram < (*p_gram).number_gram) {
@@ -642,11 +646,11 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			if(w < 0) w = 0;
 			(*((*((*p_gram).p_subgram))[igram].p_rule))[irul].w = w;
 			}
-		if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
+	/*	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 			EmergencyExit = TRUE; 
 			BPPrintMessage(0,odInfo,"=> (8) Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 			return(ABORT);
-			}
+			} */
 		if(Flagthere && (grtype != SUBtype) && !shootagain)
 			if((rep=ChangeFlagsInRule(p_gram,igram,irul)) != OK) goto QUIT;
 		shootagain = FALSE;
@@ -869,12 +873,12 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			}
 		maxpref = 0;
 		if(*pp_b == NULL) {
-			if(Beta) Alert1("=> Err2. ComputeInGram(). *pp_b = NULL");
+			BPPrintMessage(0,odError,"=> Err2. ComputeInGram(). *pp_b = NULL");
 			goto QUIT;
 			}
 		leftpos = NextPos(pp_a,pp_b,&lastpos,&incmark,leftpos,0);
 		if(leftpos == ABORT) {
-			if(Beta) Alert1("Pos. 2");
+			BPPrintMessage(0,odError,"Pos. 2");
 			}
 		if(changed && (nb_candidates
 				= FindCandidateRules(pp_a,p_gram,1,igram,grtype,p_candidate,p_totwght,
@@ -916,15 +920,15 @@ int r;
 tokenbyte **p_x;
 
 if((*pp_a) == NULL) {
-	Alert1("No item has been produced...");
+	BPPrintMessage(0,odError,"No item has been produced...");
 	return(MISSED);
 	}
 if(ProduceStackDepth <= 0) {
-	Alert1("Can't undo. Decisions not available");
+	BPPrintMessage(0,odError,"Can't undo. Decisions not available");
 	return(MISSED);
 	}
 if(DisplayProduce && DisplayStackIndex < 2) {
-	Alert1("Can't undo");
+	BPPrintMessage(0,odError,"Can't undo");
 	return(MISSED);
 	}
 DisplayStackIndex--;
@@ -934,7 +938,7 @@ if(!repeat) {
 	}
 if(p_ItemStart == NULL
 		|| DisplayStackIndex >= MyGetHandleSize((Handle)p_ItemStart) / sizeof(long)) {
-	if(Beta) Alert1("=> Err. Undo(). p_ItemStart = NULL");
+	BPPrintMessage(0,odError,"=> Err. Undo(). p_ItemStart = NULL");
 	return(ABORT);
 	}
 SetSelect((*p_ItemStart)[DisplayStackIndex-1],(*p_ItemEnd)[DisplayStackIndex-1],
@@ -943,7 +947,7 @@ p_x = NULL;
 if(SelectionToBuffer(FALSE,FALSE,wTrace,&p_x,&endofselection,PROD) != OK) {
 	MyDisposeHandle((Handle*)&p_x);
 	SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
-	Alert1("Can't find previous work string");
+	BPPrintMessage(0,odError,"Can't find previous work string");
 	return(MISSED);
 	}
 if(CopyBuf(&p_x,pp_a) == ABORT) return(ABORT);
@@ -957,7 +961,7 @@ if(DisplayStackIndex > 1) {
 	r = RESUME;
 	UndoFlag = FALSE;
 	if((datemem != CompileDate) || !CompiledGr || !CompiledPt) {
-		Alert1("Grammar changed or recompiled.  Must abort...");
+		BPPrintMessage(0,odError,"Grammar changed or recompiled.  Must abort...");
 		return(ABORT);
 		}
 	if(r == STOP) {
@@ -1020,7 +1024,7 @@ long NextPos(tokenbyte ***pp_a,tokenbyte ***pp_b,long *p_lastpos,long *p_incmark
 	j = *p_lastpos;
 	if(i < 0) return(i);
 	if(*pp_b == NULL) {
-		if(Beta) Alert1("=> Err. NextPos(). *pp_b = NULL");
+		BPPrintMessage(0,odError,"=> Err. NextPos(). *pp_b = NULL");
 		return(-1L);
 		}
 	jmax = MyGetHandleSize((Handle)*pp_b) / sizeof(tokenbyte) - 2L;
@@ -1049,7 +1053,7 @@ long NextPos(tokenbyte ***pp_a,tokenbyte ***pp_b,long *p_lastpos,long *p_incmark
 			}
 		if(j >= jmax-1) {
 			my_sprintf(Message,"=> Err. NextPos(). j=%ld  jmax=%ld ",(long)j,(long)jmax);
-			if(Beta) Alert1(Message);
+			BPPrintMessage(0,odError,"%s",Message);
 			return(ABORT);
 			}
 		(**pp_b)[j++] = m; (**pp_b)[j++] = p;	/* Copy any other symbol */
@@ -1077,11 +1081,11 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 
 	if(CheckEmergency() != OK) return(ABORT);
 
-	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
+/* if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 		EmergencyExit =TRUE;
 		BPPrintMessage(0,odInfo,"=> (1) Maximum allowed time (%d seconds) has been spent in FindCandidateRules(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return(ABORT);
-		}
+		} */
 
 	if(trace_compute) BPPrintMessage(0,odInfo,"FindCandidateRules() leftpos = %ld\n",leftpos);
 
@@ -1092,7 +1096,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 		return(ABORT);
 		}
 	if(p_candidate == NULL || p_totwght == NULL || p_pos == NULL || p_prefrule == NULL) {
-		if(Beta) Alert1("=> Err. FindCandidateRules(). Null handle");
+		BPPrintMessage(0,odError,"=> Err. FindCandidateRules(). Null handle");
 		return(ABORT);
 		}
 		
@@ -1117,7 +1121,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 				do {
 					s = (**h).x;
 					if(s > Jflag) {
-						if(Beta) Alert1("=> Err. p_Swtch. ");
+						BPPrintMessage(0,odError,"=> Err. p_Swtch. ");
 						return(ABORT);
 						}
 					if(s > 0) {
@@ -1224,7 +1228,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 				do {
 					s = (**h).x;
 					if(s > Jflag) {
-						if(Beta) Alert1("=> Err. p_Swtch. ");
+						BPPrintMessage(0,odError,"=> Err. p_Swtch. ");
 						i = ABORT;
 						goto OVER;
 						}
@@ -1255,7 +1259,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 									if((*p_Flag)[s] <= value) goto NEXTRULE2;
 									break;
 								default:
-									if(Beta) Alert1("=> Err.FindCandidateRules(). Invalid flag comparison");
+									BPPrintMessage(0,odError,"=> Err.FindCandidateRules(). Invalid flag comparison");
 									goto NEXTRULE2;
 								}
 							}
@@ -1459,7 +1463,7 @@ long FindArg(tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,int reset,
 			*p_length = pos; if(pos < 2) return(-1);
 			dir = -2; startpos = *p_length - 2;
 			if(startpos != (startpos / 2) * 2) {
-				if(Beta) Alert1("=> Error FindArg(). Odd 'startpos'");
+				BPPrintMessage(0,odError,"=> Error FindArg(). Odd 'startpos'");
 				startpos = (startpos / 2) * 2;
 				}
 			break;
@@ -1492,15 +1496,15 @@ int Found(tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,int lenc,
 	int nexist,nefound,result;
 	if(CheckEmergency() != OK) return(ABORT);
 
-	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
+/*	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 		EmergencyExit = TRUE;
 		BPPrintMessage(0,odInfo,"=> (2) Maximum allowed time (%d seconds) has been spent in Found(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return(ABORT);
-		}
+		} */
 			
 	// offset = rule.leftoffset if grtype = SUBtype; offset = 0 otherwise.
 	if(offset > 0 && grtype != SUBtype) {
-		if(Beta) Alert1("=> Err. Found(). offset > 0");
+		BPPrintMessage(0,odError,"=> Err. Found(). offset > 0");
 		offset = 0;
 		}
 	*p_length = 0;
@@ -1717,7 +1721,7 @@ long Derive(tokenbyte ***pp_a,t_gram *p_gram,tokenbyte ***pp_b,long *p_length,in
 			p_arg1 = rule.p_rightarg; p_arg2 = rule.p_leftarg; break;
 		}
 	if(p_arg1 == NULL || p_arg2 == NULL) {
-		if(Beta) Alert1("Bug in Derive().  Will be fixed: recompile grammar!");
+		BPPrintMessage(0,odError,"Bug in Derive().  Will be fixed: recompile grammar!");
 		return(ABORT);
 		}
 	if(grtype == SUBtype) {
@@ -1775,7 +1779,7 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 	/* *pp_origin = *pp_dest except in 'SUB' subgrammars. */
 
 	if(*pp_dest == NULL) {
-		if(Beta) Alert1("=> Err. Insert(). *pp_dest = NULL");
+		BPPrintMessage(0,odError,"=> Err. Insert(). *pp_dest = NULL");
 		return(-1L);
 		}
 	oldsize = MyGetHandleSize((Handle)*pp_dest);
@@ -1816,11 +1820,11 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 				posdif = ((*p_lengthorigin) - pos - 1);
 				pos1 = pos + 2 * (int)(posdif
 				* (randomnumber / ((double)RAND_MAX) / 2.));
-				if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
+			/*	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 					EmergencyExit = TRUE;
 					BPPrintMessage(0,odInfo,"=> (3) Maximum allowed time (%d seconds) has been spent in Insert(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 					return(ABORT);
-					}
+					} */
 			if(trace_compute) BPPrintMessage(0,odInfo,"Insert() randomnumber = %ld pos1 = %ld\n",(long)randomnumber,(long)pos1);
 				}
 			while(!Found(pp_origin,grtype,p_arg1,offset,rule.leftnegcontext,&lenc1,pos1,
@@ -1831,11 +1835,11 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 	case 1:	{ 			/* ANAL or LEFT rule or LIN or ORD or SUB1 or POSLONG grammar */
 			if(!Found(pp_origin,grtype,p_arg1,offset,rule.leftnegcontext,&lenc1,pos1,1,
 				instan,meta,meta1,&istart,&jstart,&length,rule.ismeta,time_end_compute)) {
-				if(Beta) Alert1("=> Err Insert().  Not found");
+				BPPrintMessage(0,odError,"=> Err Insert().  Not found");
 				return(ABORT);
 				}
 			if(!OkContext(pp_origin,grtype,rule,pos1,length,meta,instan,mode,time_end_compute)) {
-				if(Beta) Alert1("=> Err Insert().  Not OkContext");
+				BPPrintMessage(0,odError,"=> Err Insert().  Not OkContext");
 				return(ABORT);
 				}
 			/* this was necessary for loading instan[] and meta[] */
@@ -1849,7 +1853,7 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 					PROD,time_end_compute)) {
 					pos1 -= 2;
 					if(pos1 < 0) {
-						if(Beta) Alert1("=> Err. Insert(). pos1 < 0");
+						BPPrintMessage(0,odError,"=> Err. Insert(). pos1 < 0");
 						return(ABORT);
 						}
 					}
@@ -1858,11 +1862,11 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 	case 3:	{								/* SUB grammar */
 			if(!Found(pp_origin,grtype,p_arg1,offset,rule.leftnegcontext,&lenc1,pos1,1,
 				instan,meta,meta1,&istart,&jstart,&length,rule.ismeta,time_end_compute)) {
-				if(Beta) Alert1("=> Err Insert().  Not found");
+				BPPrintMessage(0,odError,"=> Err Insert().  Not found");
 				return(ABORT);
 				}
 			if(!OkContext(pp_origin,grtype,rule,pos1,length,meta,instan,PROD,time_end_compute)) {
-				if(Beta) Alert1("=> Err Insert().  Not OkContext");
+				BPPrintMessage(0,odError,"=> Err Insert().  Not OkContext");
 				return(ABORT);
 				}
 			Countmark(rule.p_leftarg,&length1); /* Only to calculate length1 */
@@ -1892,26 +1896,6 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 	if(grtype != SUBtype) {
 		i0 = pos1 + length - (2 * lenc1);
 		j0 = i0 + dif;
-	#if ! _FASTCODE
-		if(dif < 0) {
-			for(i=i0,j=j0; (**pp_dest)[i] != TEND || (**pp_dest)[i+1] != TEND; i+=2,j+=2) {
-				(**pp_dest)[j] = (**pp_dest)[i];
-				(**pp_dest)[j+1] = (**pp_dest)[i+1];
-				}
-			for(i=j; (**pp_dest)[i] != TEND || (**pp_dest)[i+1] != TEND; i+=2)
-				(**pp_dest)[i] = (**pp_dest)[i+1] = TEND;
-			}
-		else {
-			if(dif > 0) {
-				i = i0;
-				while((**pp_dest)[i] != TEND || (**pp_dest)[i+1] != TEND) i+=2;
-				for(j=i+dif; i >= i0; i-=2,j-=2) {
-					(**pp_dest)[j] = (**pp_dest)[i];
-					(**pp_dest)[j+1] = (**pp_dest)[i+1];
-					}
-				}
-			}
-	#else
 		if(dif != 0) {	/* This is a quicker procedure */
 			if(trace_compute) 
 				BPPrintMessage(0,odError,"Moving memory quickly dif = %ld\n",(long)dif);
@@ -1919,7 +1903,6 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 			ptr1 = &(**pp_dest)[i0]; ptr2 = &(**pp_dest)[j0];
 			memmove(ptr2, ptr1, blocksize);
 			}
-	#endif
 		}
 
 	if(trace_compute) {
@@ -2009,8 +1992,8 @@ int Cormark(tokenbyte ***pp_a,long from,long inmark) {
 
 	for(i = from, q = 1; (**pp_a)[i] != TEND || (**pp_a)[i+1] != TEND; i+=2) {
 		m = (int) (**pp_a)[i];
-		if(m >= MAXTOKENBYTE) {
-			if(trace_compute) BPPrintMessage(0,odError,"=> Error in Cormark() from = %ld inmark = %d\n",(long)from,inmark);
+		if(m < 0 || m >= MAXTOKENBYTE) {
+			if(trace_compute) BPPrintMessage(0,odError,"=> Error in Cormark() from = %ld, inmark = %d, m = %d\n",(long)from,inmark,(int)m);
 			return(MISSED);
 			}
 		p = (int)(**pp_a)[i+1];
@@ -2039,7 +2022,7 @@ long Countmark(tokenbyte **p_arg,long *p_length)  {
 	tokenbyte m,p;
 
 	if(p_arg == NULL) {
-		if(Beta) Alert1("=> Err. Countmark()");
+		BPPrintMessage(0,odError,"=> Err. Countmark()");
 		return(0);
 		}
 	for(i=k=len=0; ; i+=2,len++) {
@@ -2063,7 +2046,7 @@ int ChangeFlagsInRule(t_gram *p_gram,int igram,int irul) {
 	if(h != NULL) {
 		do {
 			if((**h).x > Jflag) {
-				if(Beta) Alert1("=> Err. p_Swtch. ");
+				BPPrintMessage(0,odError,"=> Err. p_Swtch. ");
 				rep = ABORT;
 				goto QUIT;
 				}
@@ -2077,7 +2060,7 @@ int ChangeFlagsInRule(t_gram *p_gram,int igram,int irul) {
 	if(h != NULL) {
 		do {					/* Change flags created by rule */
 			if((**h).x > Jflag) {
-				if(Beta) Alert1("=> Err. p_Swtch. ");
+				BPPrintMessage(0,odError,"=> Err. p_Swtch. ");
 				rep = ABORT;
 				goto QUIT;
 				}
@@ -2093,7 +2076,7 @@ int ChangeFlagsInRule(t_gram *p_gram,int igram,int irul) {
 				else {
 					my_sprintf(Message,"Too many /%s/ flags produced.",
 														*((*p_Flagname)[(**h).x]));
-					if(!ScriptExecOn) Alert1(Message);
+					if(!ScriptExecOn) BPPrintMessage(0,odError,"%s",Message);
 					else PrintBehindln(wTrace,Message);
 					(*p_Flag)[(**h).x] = ZERO;
 					}
@@ -2121,7 +2104,7 @@ int ShowItem(int igram,t_gram *p_gram,int justplay,tokenbyte ***pp_a,int repeat,
 	//	BPActivateWindow(QUICK,wTrace);
 		if(p_ItemStart == NULL
 				|| DisplayStackIndex >= MyGetHandleSize((Handle)p_ItemStart) / sizeof(long)) {
-			if(Beta) Alert1("=> Err. ShowItem(). p_ItemStart = NULL");
+			BPPrintMessage(0,odError,"=> Err. ShowItem(). p_ItemStart = NULL");
 			return(OK);
 			}
 		(*p_ItemStart)[DisplayStackIndex] = lastbyte = GetTextLength(wTrace);
@@ -2176,7 +2159,7 @@ if(Nw >= 0 && Nw < WMAX && Editable[Nw]) {
 	}
 if(r == ABORT || r == EXIT) return(r);
 if((datemem != CompileDate) || !CompiledGr || !CompiledPt) {
-	Alert1("Grammar changed or recompiled. Must abort...");
+	BPPrintMessage(0,odError,"Grammar changed or recompiled. Must abort...");
 	return(ABORT);
 	}
 if(!ComputeOn) return(ABORT); /* Happens if repeating */

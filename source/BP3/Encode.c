@@ -104,7 +104,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 				(*p_buff)[i++] = T1;
 				(*p_buff)[i++] = (tokenbyte)(k % TOKBASE);
 				if(i > imax) {
-					if(Beta) Alert1("=> i > imax. Err. Encode()");
+					BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 					goto ERR;
 					}
 				c = NextChar(pp);
@@ -368,7 +368,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 				}
 			if(!notargument && j >= 0) {
 				if(igram < 1 || Gram.p_subgram == NULL || igram > Gram.number_gram) {
-					if(Beta) Alert1("=> Err. Encode(). igram < 1 || Gram.p_subgram == NULL || igram > Gram.number_gram");
+					BPPrintMessage(0,odError,"=> Err. Encode(). igram < 1 || Gram.p_subgram == NULL || igram > Gram.number_gram");
 					goto ERR;
 					}
 				if((ii=(*(Gram.p_subgram))[igram].type) == SUBtype || ii == SUB1type || ii == POSLONGtype) {
@@ -558,19 +558,19 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 				//	BPPrintMessage(0,odInfo,"@@ EQUAL\n");
 					}
 				if(arg_nr == 1) {
-					if (strncmp(p_mem, "≠", strlen("≠")) == 0)
+					if(strncmp(p_mem, "≠", strlen("≠")) == 0)
 						(**nexth).operator = DIF;
-					else if (c == '<')
+					else if(c == '<')
 						(**nexth).operator = INF;
-					else if (c == '>') {
+					else if(c == '>') {
 						(**nexth).operator = SUP;
 				//		BPPrintMessage(0,odInfo,"@@ SUP\n");
 						}
-					else if (strncmp(p_mem, "≥", strlen("≥")) == 0) {
+					else if(strncmp(p_mem, "≥", strlen("≥")) == 0) {
 						(**nexth).operator = SUPEQUAL;
 				//		BPPrintMessage(0,odInfo,"@@ SUPEQUAL\n");
 						}
-					else if (strncmp(p_mem, "≤", strlen("≤")) == 0)
+					else if(strncmp(p_mem, "≤", strlen("≤")) == 0)
 						(**nexth).operator = INFEQUAL;
 					}
 				if(*(ph_flag) == NULL) *(ph_flag) = nexth;
@@ -693,13 +693,13 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 				key += (C4key - 60);
 				// BPPrintMessage(0,odInfo, "key = %d\n",key);
 				if(key < 0 || key >= MAXKEY) {
-				//	Alert1("Simple note is out of range. (May be check \"Tuning\")");
+				//	BPPrintMessage(0,odError,"Simple note is out of range. (May be check \"Tuning\")");
 					BPPrintMessage(0,odError, "=> A simple note is out of range. Probably wrong value of C4 key number = %ld\n",(long)C4key);
 					goto ERR;
 					}
 				(*p_buff)[i++] = (tokenbyte) (key + 16384);
 				if(i > imax) {
-					if(Beta) Alert1("=> i > imax. Err. Encode()");
+					BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 					goto ERR;
 					}
 				c = NextChar(pp);
@@ -718,14 +718,14 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 				goto ERR;
 				}
 			if(jj >= Jbol) {
-				if(Beta) Alert1("=> Err. Encode(). jj >= Jbol");
+				BPPrintMessage(0,odError,"=> Err. Encode(). jj >= Jbol");
 				
 				goto ERR;
 				}
 			for(ii=0; ii < Jhomo; ii++) (*((*p_Image)[ii]))[jj] = (tokenbyte) jj;
 			(*p_buff)[i++] = T7; (*p_buff)[i++] = (tokenbyte) jj;
 			if(i > imax) {
-				if(Beta) Alert1("=> i > imax. Err. Encode()");
+				BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 				
 				goto ERR;
 				}
@@ -789,7 +789,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 				*p_meta = 1;
 				(*p_buff)[i++] = T6;
 				if(i > imax) {
-					if(Beta) Alert1("=> i > imax. Err. Encode()");
+					BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 					goto ERR;
 					}
 				while(d >= '0' && d <= '9') {
@@ -805,7 +805,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 					}
 				(*p_buff)[i++] = (tokenbyte) n;
 				if(i > imax) {
-					if(Beta) Alert1("=> i > imax. Err. Encode()");
+					BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 					
 					goto ERR;
 					}
@@ -885,7 +885,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 			(*p_buff)[i++] = (tokenbyte) key;
 			*pp = qmax;
 			if(i > imax) {
-				if(Beta) Alert1("=> i > imax. Err. Encode()");
+				BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 				goto ERR;
 				}
 			if((**pp) == '&') bound = TRUE;
@@ -903,7 +903,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 				q = *pp;
 				l = MyHandleLen((*p_Bol)[j]);
 				if(l == 0) {
-					if(Beta) Alert1("=> Err. Encode(). l == 0");
+					BPPrintMessage(0,odError,"=> Err. Encode(). l == 0");
 					break;
 					}
 				if(Match(TRUE,&q,(*p_Bol)[j],l) && l > lmax) {
@@ -916,7 +916,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 				(*p_buff)[i++] = T3; (*p_buff)[i++] = (tokenbyte) jj;
 				(*pp) = qmax;
 				if(i > imax) {
-					if(Beta) Alert1("=> i > imax. Err. Encode()");
+					BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 					goto ERR;
 					}
 				if((**pp) == '&') bound = TRUE;
@@ -932,7 +932,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 			q = *pp;
 			l = MyHandleLen((*p_Patt)[j]);
 			if(l == 0) {
-				if(Beta) Alert1("=> Err. Encode(). l == 0 in SEARCHTIMEPATTERN");
+				BPPrintMessage(0,odError,"=> Err. Encode(). l == 0 in SEARCHTIMEPATTERN");
 				break;
 				}
 			if(Match(TRUE,&q,(*p_Patt)[j],l) && l > lmax) {
@@ -945,7 +945,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 			(*p_buff)[i++] = T9; (*p_buff)[i++] = (tokenbyte) jj;
 			*pp = qmax;
 			if(i > imax) {
-				if(Beta) Alert1("=> i > imax. Err. Encode()");
+				BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 				goto ERR;
 				}
 			if((**pp) == '&') bound = TRUE;
@@ -959,7 +959,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 		for(j=0; j < Jhomo; j++) {
 			q = *pp; l = MyHandleLen((*p_Homo)[j]);
 			if(l == 0) {
-				if(Beta) Alert1("=> Err. Encode(). l == 0 in SEARCHHOMO");
+				BPPrintMessage(0,odError,"=> Err. Encode(). l == 0 in SEARCHHOMO");
 				break;
 				}
 			r = *((*p_Homo)[j]);
@@ -974,7 +974,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 			(*p_buff)[i++] = (tokenbyte) jj;
 			*pp = qmax;
 			if(i > imax) {
-				if(Beta) Alert1("=> i > imax. Err. Encode()");
+				BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 				goto ERR;
 				}
 			c = NextChar(pp);
@@ -1007,7 +1007,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 			(*p_buff)[i++] = T0;
 			(*p_buff)[i++] = (tokenbyte) j;
 			if(i > imax) {
-				if(Beta) Alert1("=> i > imax. Err. Encode()");
+				BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 				goto ERR;
 				}
 			(*pp)++;
@@ -1045,13 +1045,13 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 				goto ERR;
 				}
 			if(jj >= Jbol) {
-				if(Beta) Alert1("=> Err. Encode(). (2) jj >= Jbol");
+				BPPrintMessage(0,odError,"=> Err. Encode(). (2) jj >= Jbol");
 				goto ERR;
 				}
 			for(ii=0; ii < Jhomo; ii++) (*((*p_Image)[ii]))[jj] = (tokenbyte) jj;
 			(*p_buff)[i++] = T3; (*p_buff)[i++] = (tokenbyte) jj;
 			if(i > imax) {
-				if(Beta) Alert1("=> i > imax. Err. Encode()");
+				BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 				
 				goto ERR;
 				}
@@ -1075,7 +1075,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 		(*p_buff)[i++] = (tokenbyte) j;
 		if(j > 0) (*p_VarStatus)[j] = (*p_VarStatus)[j] | arg_nr;	/* j > 0 added 8/3/98 */
 		if(i > imax) {
-			if(Beta) Alert1("=> i > imax. Err. Encode()");
+			BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 			goto ERR;
 			}
 		leftside = 0;
@@ -1092,7 +1092,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 	// BPPrintMessage(0,odInfo,"@ End of encoding\n");
 	MyDisposeHandle((Handle*)&p_x);
 	if((i+1) > imax) {
-		if(Beta) Alert1("=> i > imax. Err. Encode()");
+		BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 		goto ERR;
 		}
 	imax = (int) LengthOf(&p_buff);	// OPTIMIZE: can't we just do imax = i - (1 or 2)?
@@ -1219,7 +1219,7 @@ if(p_Var != NULL && Jvar > 0) {
 	for(j=1; j <= Jvar; j++) { 
 		l = MyHandleLen((*p_Var)[j]);
 		if(l == 0) {
-			if(Beta) Alert1("=> Err. GetVar(). l == 0");
+			BPPrintMessage(0,odError,"=> Err. GetVar(). l == 0");
 			break;
 			}
 		q = *pp;
@@ -1316,7 +1316,7 @@ for(i=0; (*pp) <= (*ppmax)+1; (*pp)++,i++) {
 			}
 	if(MaxVar > 0) (*((*p_Var)[Jvar]))[i] = c;
 	}
-if(Beta) Alert1("=> Err2. GetVar()");
+BPPrintMessage(0,odError,"=> Err2. GetVar()");
 return(ABORT);
 }
 
@@ -1385,7 +1385,7 @@ while(i < (*p_imax)-1) {
 			j = (int)(**pp_buff)[i+1];
 			nhomo++;
 			if(nhomo >= MAXLEVEL) {
-				if(Beta) Alert1("Increase 'MAXLEVEL'.  Err Recode()");
+				BPPrintMessage(0,odError,"Increase 'MAXLEVEL'.  Err Recode()");
 				return(20);
 				}
 			depth[nhomo] = levpar;
@@ -1468,7 +1468,7 @@ int nhomo,homoname[MAXLEVEL],depth[MAXLEVEL];
 /* First pick-up ref numbers in master table */
 
 if(*pp_buff == NULL) {
-	if(Beta) Alert1("=> Err. BindSlaves(). *pp_buff = NULL");
+	BPPrintMessage(0,odError,"=> Err. BindSlaves(). *pp_buff = NULL");
 	return(ABORT);
 	}
 if((p_a=(tokenbyte**) GiveSpace((Size) MyGetHandleSize((Handle)*pp_buff))) == NULL)
@@ -1488,7 +1488,7 @@ for(i=levpar=nhomo=islave=0; i < (*p_imax)-1; i+=2) {
 	if((**pp_buff)[i] == T5) {
 		nhomo++;
 		if(nhomo >= MAXLEVEL) {
-			if(Beta) Alert1("Increase 'MAXLEVEL'.  Err Recode()");
+			BPPrintMessage(0,odError,"Increase 'MAXLEVEL'.  Err Recode()");
 			MyDisposeHandle((Handle*)&p_a);
 			return(20);	// should this be error 25 or 40 ? - akozar
 			}
@@ -1505,7 +1505,7 @@ for(i=levpar=nhomo=islave=0; i < (*p_imax)-1; i+=2) {
 		(*p_a)[i+1] = (tokenbyte) j;
 		length[islave++] = endmaster[j] - orgmaster[j] + 2;
 		if(islave >= MAXLEVEL) {
-			if(Beta) Alert1("Increase 'MAXLEVEL'.  Err BindSlaves(). ");
+			BPPrintMessage(0,odError,"Increase 'MAXLEVEL'.  Err BindSlaves(). ");
 			MyDisposeHandle((Handle*)&p_a);
 			return(40);
 			}
@@ -1582,7 +1582,7 @@ TERMINAL:
 				if(depth[n] < levpar) {
 					h = homoname[n];
 					if(h >= Jhomo) {
-						if(Beta) Alert1("=> Err. Reference(). h >= Jhomo");
+						BPPrintMessage(0,odError,"=> Err. Reference(). h >= Jhomo");
 						return(-1);
 						}
 					q2 = Image(h,q2);
@@ -1609,14 +1609,14 @@ tokenbyte jj;
 if(j >= 16384) {
 	jj = j - 16384;
 	if(jj > 127) {
-		if(Beta) Alert1("=> Err. Image(). jj > 127");
+		BPPrintMessage(0,odError,"=> Err. Image(). jj > 127");
 		return(j);
 		}
 	jj = (*((*p_NoteImage)[h]))[jj];
 	}
 else {
 	if(j < 0 || j >= Jbol) {
-		if(Beta) Alert1("=> Err. Image(). j < 0 || j >= Jbol");
+		BPPrintMessage(0,odError,"=> Err. Image(). j < 0 || j >= Jbol");
 		return(j);
 		}
 	jj = (*((*p_Image)[h]))[j];

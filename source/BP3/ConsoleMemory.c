@@ -86,7 +86,7 @@ static Handle GiveSpaceInternal(Size size, int clear) {
 		return NULL;
 		}
 	// allocate the requested block
-	if (clear)	h->memblock = calloc((size_t) 1, (size_t) size);
+	if(clear)	h->memblock = calloc((size_t) 1, (size_t) size);
 	else		h->memblock = malloc((size_t) size);
 	if(h->memblock == NULL) {
 		free(h);
@@ -123,7 +123,7 @@ Size MyGetHandleSize(Handle h) {
 int MyDisposeHandle(Handle *p_h) {
 	int i;
 	if(Panic) return ABORT;
-	if (p_h == NULL || *p_h == NULL) {
+	if(p_h == NULL || *p_h == NULL) {
 	//	BPPrintMessage(0,odError,"=> Err. MyDisposeHandle. p_h or *p_h == NULL\n");
 		*p_h = NULL;
 		return OK;
@@ -198,13 +198,13 @@ int MySetHandleSize(Handle* p_h, Size size) {
 			return ABORT;
 			}
 		void* new_mem = realloc(h->memblock, size);
-		if (new_mem == NULL) {
+		if(new_mem == NULL) {
 			BPPrintMessage(0,odError,"=> Error(2) MySetHandleSize(). new_mem == NULL\n");
 			return ABORT;
 			}
 		h->memblock = new_mem;
 		h->size = size;
-	/*	if (size > oldsize) */  MemoryUsed += (long)(size - oldsize);
+	/*	if(size > oldsize) */  MemoryUsed += (long)(size - oldsize);
 	/*	else  MemoryUsed -= (unsigned long)(oldsize - size); */
 		if(MemoryUsed > MaxMemoryUsed) {
 			MaxMemoryUsed = MemoryUsed;

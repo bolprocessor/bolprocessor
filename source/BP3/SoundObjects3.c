@@ -47,7 +47,7 @@ Handle ptr;
 int i;
 
 if(j < 2 || j >= Jbol) {
-   if(Beta) Alert1("=> Err. ResetPrototype()");
+   BPPrintMessage(0,odError,"=> Err. ResetPrototype()");
    return(MISSED);
    }
 (*p_Type)[j] = 0;
@@ -142,7 +142,7 @@ if(MystrcpyStringToHandle(&((*pp_Comment)[iProto]),line) != OK) return(ABORT);
 rep = GetField(NULL,TRUE,wPrototype2,fMinDilationRatio,line,&p,&q);
 if(rep == OK) {
    if((ratio=((float)p)/q) < 0.) {
-      Alert1("Minimum ratio can't be negative");
+      BPPrintMessage(0,odError,"Minimum ratio can't be negative");
       SetField(NULL,wPrototype2,fMinDilationRatio,"[?]");
       }
    else (*p_AlphaMin)[iProto] = ratio;
@@ -151,7 +151,7 @@ if(rep == OK) {
 rep = GetField(NULL,TRUE,wPrototype2,fMaxDilationRatio,line,&p,&q);
 if(rep == OK) {
    if((ratio=((float)p)/q) < 0.) {
-      Alert1("Maximum ratio can't be negative");
+      BPPrintMessage(0,odError,"Maximum ratio can't be negative");
       SetField(NULL,wPrototype2,fMaxDilationRatio,"[?]");
       }
    else (*p_AlphaMax)[iProto] = ((float)p)/q;
@@ -244,7 +244,7 @@ if(GetField(NULL,TRUE,wPrototype5,fPrototypeTickKey,line,&p,&q) == OK) {
    if(p/q < 0 || p/q > 127) {
       my_sprintf(Message,"=> Tick key should be in range 0..127. Can't accept %ld",
          (long)(p/q));
-      Alert1(Message);
+      BPPrintMessage(0,odError,"%s",Message);
       }
    else PrototypeTickKey = p/q;
    }
@@ -258,7 +258,7 @@ if(GetField(NULL,TRUE,wPrototype5,fPrototypeTickVelocity,line,&p,&q) == OK) {
    if(p/q < 1 || p/q > 127) {
       my_sprintf(Message,"=> Tick velocity should be in range 1..127. Can't accept %ld",
          (long)(p/q));
-      Alert1(Message);
+      BPPrintMessage(0,odError,"%s",Message);
       }
    else PrototypeTickVelocity = p/q;
    }
@@ -268,12 +268,12 @@ if((*p_PeriodMode)[iProto] == ABSOLU) {
       if((dur=(*p_Dur)[iProto]) < p/q) {
          my_sprintf(Message,"Initial part before period can't be longer than %ldms",
             (long)dur);
-         Alert1(Message);
+         BPPrintMessage(0,odError,"%s",Message);
          p = dur; q = 1L; my_sprintf(line,"%ld",(long)p);
          SetField(NULL,wPrototype6,fBeforePeriodms,line);
          }
       if(p < ZERO) {
-         Alert1("Initial part before period can't be negative");
+         BPPrintMessage(0,odError,"Initial part before period can't be negative");
          p = ZERO; q = 1L; my_sprintf(line,"%ld",(long)p);
          SetField(NULL,wPrototype6,fBeforePeriodms,line);
          SetField(NULL,wPrototype6,fBeforePeriodPC,line);
@@ -283,12 +283,12 @@ if((*p_PeriodMode)[iProto] == ABSOLU) {
 if((*p_PeriodMode)[iProto] == RELATIF) {
    if(GetField(NULL,TRUE,wPrototype6,fBeforePeriodPC,line,&p,&q) == OK) {
       if(p/q > 100.) {
-         Alert1("Initial part before period can't be longer than 100% duration");
+         BPPrintMessage(0,odError,"Initial part before period can't be longer than 100% duration");
          p = 100L; q = 1L; my_sprintf(line,"%ld",(long)p);
          SetField(NULL,wPrototype6,fBeforePeriodPC,line);
          }
       if(p < ZERO) {
-         Alert1("Initial part before period can't be negative");
+         BPPrintMessage(0,odError,"Initial part before period can't be negative");
          p = ZERO; q = 1L; my_sprintf(line,"%ld",(long)p);
          SetField(NULL,wPrototype6,fBeforePeriodPC,line);
          SetField(NULL,wPrototype6,fBeforePeriodms,line);
@@ -325,7 +325,7 @@ else {
       BringToFront(Window[wPrototype8]);
       SetField(NULL,wPrototype8,fAssignInstrument,"[None]");
       SelectField(NULL,wPrototype8,fAssignInstrument,TRUE);
-      Alert1("This sound-object prototype contains a Csound score.\nConversion from MIDI will therefore never occur");
+      BPPrintMessage(0,odError,"This sound-object prototype contains a Csound score.\nConversion from MIDI will therefore never occur");
       (*p_CsoundAssignedInstr)[iProto] = -1;
 	  }
    else (*p_CsoundAssignedInstr)[iProto] = p/q;
@@ -610,7 +610,7 @@ int CopyFrom(int w)
 int rep,j;
 
 if(Jbol < 3) {
-   Alert1("No sound-object prototype has been created/loaded");
+   BPPrintMessage(0,odError,"No sound-object prototype has been created/loaded");
    return(OK);
    }
 if(SaveCheck(w) == ABORT) return(MISSED);
@@ -758,7 +758,7 @@ if((*p_MIDIsize)[i] > 0) {
 	ptr1 = (Handle)(*pp_MIDIcode)[j];
 	ptr2 = (Handle)(*pp_MIDIcode)[i];
 	if(ptr2 == NULL) {
-		if(Beta) Alert1("=> Err. CopyPage5(). ptr2 = NULL (1)");
+		BPPrintMessage(0,odError,"=> Err. CopyPage5(). ptr2 = NULL (1)");
 		return(ABORT);
 		}
 	MySetHandleSize(&ptr1,MyGetHandleSize((Handle)ptr2));

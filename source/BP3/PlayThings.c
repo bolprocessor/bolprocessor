@@ -58,7 +58,7 @@ int PlaySelection(int w, int all) {
 	/* if(w != LastComputeWindow && w >= 0 && w < WMAX && Editable[w]) LastComputeWindow = w;
 	w = LastComputeWindow; */  
 	if(w < 0 || w >= WMAX || !Editable[w]) {
-		if(Beta) Alert1("=> Err. PlaySelection(). Incorrect window index");
+		BPPrintMessage(0,odError,"=> Err. PlaySelection(). Incorrect window index");
 		return(MISSED);
 		}
 
@@ -234,7 +234,7 @@ int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll) {
 	// BPPrintMessage(0,odInfo,"Running PlayBuffer()\n");
 	if(FirstTime && !onlypianoroll) {
 		if(p_Initbuff == NULL) {
-		//	if(Beta) Alert1("=> Err. PlayBuffer(). p_Initbuff = NULL. ");
+		//	BPPrintMessage(0,odError,"=> Err. PlayBuffer(). p_Initbuff = NULL. ");
 			BPPrintMessage(0,odError,"=> Err. PlayBuffer(). p_Initbuff = NULL\n");
 			return(ABORT);
 			}
@@ -431,7 +431,7 @@ p_context *p_plx,*p_prx,plx,prx;
 long x,tr;
 
 if(p_line == NULL) {
-	if(Beta) Alert1("=> Err. PlayHandle(). p_line == NULL");
+	BPPrintMessage(0,odError,"=> Err. PlayHandle(). p_line == NULL");
 	return(OK);
 	}
 if((*p_line)[0] == '\0') return(OK);
@@ -440,7 +440,7 @@ if((*p_line)[0] == '\0') return(OK);
 if(GetTuning() != OK) return(ABORT);
 #endif /* BP_CARBON_GUI_FORGET_THIS */
 if(!rtMIDI && !OutCsound && !onlypianoroll) {
-	Alert1("Both MIDI and Csound outputs are inactive. Item can't be played");
+	BPPrintMessage(0,odError,"Both MIDI and Csound outputs are inactive. Item can't be played");
 	BPActivateWindow(SLOW,wSettingsBottom);
 	return(MISSED);
 	}
@@ -568,12 +568,12 @@ int TextToMIDIstream(int w) {
 
 	if(w < 0 || w >= WMAX || !Editable[w]) {
 		if(Beta)
-			Alert1("=> Err. TextToMIDIstream(). Incorrect window index");
+			BPPrintMessage(0,odError,"=> Err. TextToMIDIstream(). Incorrect window index");
 		return(MISSED);
 		}
 	if(!StrikeAgainDefault) {
 	#if !BP_CARBON_GUI_FORGET_THIS
-		r = Alert1("The strike mode setting is \"Don't strike again NoteOn's\", which is unusual.");
+		r = BPPrintMessage(0,odError,"The strike mode setting is \"Don't strike again NoteOn's\", which is unusual.");
 	#else
 		r = Answer("The strike mode setting is 'Don't strike again NoteOn's', which is unusual. Change it?",
 			'N');
@@ -589,7 +589,7 @@ int TextToMIDIstream(int w) {
 		}
 	TextGetSelection(&origin, &end, TEH[w]);
 	if(end <= origin) {
-		Alert1("Selection is empty");
+		BPPrintMessage(0,odError,"Selection is empty");
 		BPActivateWindow(SLOW,w);
 		return(MISSED);
 		}
@@ -626,7 +626,7 @@ int TextToMIDIstream(int w) {
 		goto END;
 		}
 	if(!NoVariable(&p_a)) {
-		Alert1("You can't convert the selection because it contains text that BP3 interprets as variables");
+		BPPrintMessage(0,odError,"You can't convert the selection because it contains text that BP3 interprets as variables");
 		MyDisposeHandle((Handle*)&p_a);
 		goto END;
 		}
@@ -644,7 +644,7 @@ int TextToMIDIstream(int w) {
 		Stream.cyclic = FALSE;
 		if(r == OK) r = PlayBuffer(&p_a,NO);
 		MyDisposeHandle((Handle*)&p_a);
-		if(Stream.i <= ZERO) Alert1("No events were captured...");
+		if(Stream.i <= ZERO) BPPrintMessage(0,odError,"No events were captured...");
 		else Stream.imax = Stream.i;
 		Stream.pclock = (long) Pclock;
 		Stream.qclock = (long) Qclock;
@@ -707,7 +707,7 @@ int PasteStreamToPrototype(int j, int what)
 
 	#if BP_CARBON_GUI_FORGET_THIS
 	if((*p_MIDIsize)[j] == ZERO) what = bDeleteReplace;
-	else if (what == bAskPasteAction) what = Alert(PasteSelectionAlert,0L);
+	else if(what == bAskPasteAction) what = Alert(PasteSelectionAlert,0L);
 	switch(what) {
 		case bCancelPasteSelection:
 			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
@@ -726,7 +726,7 @@ int PasteStreamToPrototype(int j, int what)
 			break;
 		case bInsertAtInsertPoint:
 			if((*p_Tpict)[j] == Infneg) {
-				Alert1("Can't insert because insert point is not defined or out of range");
+				BPPrintMessage(0,odError,"Can't insert because insert point is not defined or out of range");
 				if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 				goto SORTIR;
 				}
@@ -736,7 +736,7 @@ int PasteStreamToPrototype(int j, int what)
 			break;
 		case bReplaceFromInsertpoint:
 			if((*p_Tpict)[j] == Infneg) {
-				Alert1("Can't replace because insert point is not defined or out of range");
+				BPPrintMessage(0,odError,"Can't replace because insert point is not defined or out of range");
 				if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 				goto SORTIR;
 				}
@@ -761,7 +761,7 @@ int PasteStreamToPrototype(int j, int what)
 			break;
 		case bMergeFromInsertPoint:
 			if((*p_Tpict)[j] == Infneg) {
-				Alert1("Can't merge because insert point is not defined or out of range");
+				BPPrintMessage(0,odError,"Can't merge because insert point is not defined or out of range");
 				if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 				goto SORTIR;
 				}
@@ -775,7 +775,7 @@ int PasteStreamToPrototype(int j, int what)
 			break;
 		default:
 			my_sprintf(Message, "=> Err. PasteStreamToPrototype(): Invalid value for parameter 'what' (%d).", what);
-			if(Beta) Alert1(Message);
+			BPPrintMessage(0,odError,"%s",Message);
 			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 			goto SORTIR;
 			break;
@@ -784,7 +784,7 @@ int PasteStreamToPrototype(int j, int what)
 
 	(*p_Ifrom)[j] = ifrom;
 	if(ifrom < ZERO || ito < ZERO) {
-		if(Beta) Alert1("=> Err. in PasteStreamToPrototype(). ifrom < ZERO || ito < ZERO");
+		BPPrintMessage(0,odError,"=> Err. in PasteStreamToPrototype(). ifrom < ZERO || ito < ZERO");
 		ifrom = ZERO;
 		}
 
@@ -1067,7 +1067,7 @@ double maxseq;
 
 if(CheckEmergency() != OK) return(ABORT);
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("=> Err. ShowPeriods(). Incorrect window index");
+	BPPrintMessage(0,odError,"=> Err. ShowPeriods(). Incorrect window index");
 	return(MISSED);
 	}
 if(w != LastEditWindow && Editable[w]) LastEditWindow = w;
@@ -1128,42 +1128,16 @@ return(r);
 
 
 long LengthOf(tokenbyte ***pp_X) {
-    if (*pp_X == NULL) return -1L;
+    if(*pp_X == NULL) return -1L;
     size_t imax = MyGetHandleSize((Handle)*pp_X) / sizeof(tokenbyte);
     tokenbyte *tokens = **pp_X;
     long i = 0;
     while (i < imax - 1) {  // Ensure there's room for checking the next element
-        if (tokens[i] == TEND && tokens[i + 1] == TEND) return i;  // Return the length up to the first TEND
+        if(tokens[i] == TEND && tokens[i + 1] == TEND) return i;  // Return the length up to the first TEND
         i++;
     	}
     return -1L;  // If no termination found, or error case
 	}
-/* #if ! _FASTCODE
-long i,l,imax;
-long lOffset;
-
-if(*pp_X == NULL) return(ZERO);
-imax = MyGetHandleSize((Handle) *pp_X) / sizeof(tokenbyte);
-// OPTIMIZE: use & incr temp pointers instead of **pp_X[i]
-for(i=0,l=0; ((**pp_X)[i] != TEND) || ((**pp_X)[i+1] != TEND); i+=2, l++) {
-	if(i >= imax) {
-		my_sprintf(Message,"=> Err. LengthOf(). i=%ld  imax=%ld",(long)i,(long)imax);
-		if(Beta) Println(wTrace,Message);
-		return(ZERO);
-		}
-	}
-return(l << 1);	// OPTIMIZE: isn't this always i ?
-#else
-long lOffset;
-
-if(*pp_X == NULL) return(ZERO);
-lOffset = Munger((Handle)*pp_X,ZERO,EndStr,4L,NULL,ZERO);
-if(lOffset < ZERO) {
-	if(Beta) Alert1("=> Err. LengthOf()");
-	return(ZERO);
-	}
-return((int) (lOffset >> 1));
-#endif */
 	
 
 long CopyBuf(tokenbyte ***pp_X,tokenbyte ***pp_Y) {	// Copy X to Y
@@ -1175,7 +1149,7 @@ long CopyBuf(tokenbyte ***pp_X,tokenbyte ***pp_Y) {	// Copy X to Y
 	length = LengthOf(pp_X);
 	blocksize = (length + 2L) * sizeof(tokenbyte);
 	if(*pp_X == NULL) {
-		if(Beta) Alert1("=> Err. CopyBuf(). *pp_X = NULL");
+		BPPrintMessage(0,odError,"=> Err. CopyBuf(). *pp_X = NULL");
 		return(ABORT);
 		}
 	maxsize = oldsize = MyGetHandleSize((Handle)*pp_X);
@@ -1258,7 +1232,7 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 	length = end - origin + 4L;
 	if((ptr = (char**) GiveSpace((Size)(length * sizeof(char)))) == NULL) {
 		rep = ABORT;
-		if(Beta) Alert1("=> Err. SelectionToBuffer(). ptr == NULL");
+		BPPrintMessage(0,odError,"=> Err. SelectionToBuffer(). ptr == NULL");
 		goto SORTIR;
 		}
 	*pp_buff = ptr;
@@ -1275,7 +1249,7 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 		if(!MySpace((*p2))) ret = FALSE;
 		p2++;
 		if(++i > length) {
-			if(Beta) Alert1("=> Err. SelectionToBuffer(). i > length");
+			BPPrintMessage(0,odError,"=> Err. SelectionToBuffer(). i > length");
 //			MyUnlock((Handle)*pp_buff);
 			MyDisposeHandle((Handle*)pp_buff);
 			SelectOn = FALSE;
@@ -1310,7 +1284,7 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 
 	SORTIR:
 	if(!ScriptExecOn) {
-		Alert1("No data selected");
+		BPPrintMessage(0,odError,"No data selected");
 		BPPrintMessage(0,odError,"=> No data selected");
 		}
 	else {
@@ -1328,13 +1302,13 @@ int ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buf
 	char c,oldc,**ptr;
 
 	if(*pp_buff == NULL) {
-		if(Beta) Alert1("=> Err. ReadToBuff(). *pp_buff == NULL");
+		BPPrintMessage(0,odError,"=> Err. ReadToBuff(). *pp_buff == NULL");
 		return(ABORT);
 		}
 	size = (long) MyGetHandleSize((Handle)*pp_buff);
 	size = (long) (size / sizeof(char)) - 1L;
 	if(size < 2L) {
-		if(Beta) Alert1("=> Err. ReadToBuff(). size < 2 ");
+		BPPrintMessage(0,odError,"=> Err. ReadToBuff(). size < 2 ");
 		return(ABORT);
 		}
 	if(*p_i >= im) return(MISSED);
@@ -1379,7 +1353,7 @@ int ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buf
 		if(k >= size) {
 			if(ThreeOverTwo(&size) != OK) {
 				*p_i = ++j;
-				if(!ScriptExecOn) Alert1("Too long paragraph in selection");
+				if(!ScriptExecOn) BPPrintMessage(0,odError,"Too long paragraph in selection");
 				else PrintBehind(wTrace,"Too long paragraph in selection. Aborted.\n");
 				return(MISSED);
 				}

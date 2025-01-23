@@ -64,7 +64,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	p_b = NULL;
 	p_nseq = p_nseqmax = NULL;
 	if(*pp_a == NULL) {
-		if(Beta) Alert1("=> Err. PolyMake(). *pp_a = NULL");
+		BPPrintMessage(0,odError,"=> Err. PolyMake(). *pp_a = NULL");
 		return(ABORT);
 		}
 		
@@ -146,14 +146,14 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 		if(p == 12 || p == 22) {	/* '{' */
 			level++;
 			if(level > maxlevel) {
-				if(Beta) Alert1("=> Err. PolyMake(). level > maxlevel");
+				BPPrintMessage(0,odError,"=> Err. PolyMake(). level > maxlevel");
 				r = ABORT; goto QUIT;
 				}
 			continue;
 			}
 		if(p == 13 || p == 23) {	/* '}' */
 			if(level < 1) {
-				if(Beta) Alert1("=> Err. PolyMake(). {} not balanced");
+				BPPrintMessage(0,odError,"=> Err. PolyMake(). {} not balanced");
 				r = ABORT; goto QUIT;
 				}
 			level--;
@@ -324,7 +324,9 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	alreadychangedquantize = FALSE;
 
 	// Calculate compression rate Kpress for quantization
+	
 	FINDCOMPRESSION:
+
 	// BPPrintMessage(0,odInfo,"FINDCOMPRESSION\n");
 	Kpress = 1.;
 	if(Pclock > 0.) {
@@ -362,10 +364,10 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	// Calculate Maxevent, (*p_maxseq) and the final value of Maxconc
 
 	if(Beta && p_nseq != NULL) {
-		Alert1("=> Err. PolyMake(). p_nseq != NULL");
+		BPPrintMessage(0,odError,"=> Err. PolyMake(). p_nseq != NULL");
 		}
 	if(Beta && p_nseqmax != NULL) {
-		Alert1("=> Err. PolyMake(). p_nseqmax != NULL");
+		BPPrintMessage(0,odError,"=> Err. PolyMake(). p_nseqmax != NULL");
 		}
 	if((p_nseq = (int**) GiveSpace((Size)((maxlevel+1)*sizeof(int)))) == NULL) {
 		r = ABORT; goto QUIT;
@@ -494,7 +496,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 				case 12:	/* '{' */
 				case 22:
 					if(++level > maxlevel) {
-						if(Beta) Alert1("=> Err. PolyMake(): level > maxlevel");
+						BPPrintMessage(0,odError,"=> Err. PolyMake(): level > maxlevel");
 						r = ABORT; goto QUIT;
 						}
 					(*p_nseqmax)[level] = (*p_nseq)[level] = (*p_nseq)[level-1];
@@ -506,7 +508,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 				case 13:	/* '}' */
 				case 23:
 					if(level < 1) {
-						if(Beta) Alert1("=> Err. PolyMake(): level < 1");
+						BPPrintMessage(0,odError,"=> Err. PolyMake(): level < 1");
 						r = ABORT; goto QUIT;
 						}
 					if((*p_nseqmax)[level] > (*p_nseqmax)[level-1])
@@ -543,7 +545,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 					break;
 					
 				case 25:	/* '\' speed down */
-					if(Beta) FlashInfo("Speed down");
+					FlashInfo("Speed down");
 					speed = GetScalingValue((*pp_a),i);
 					if(speed < 1.) {
 						r = ABORT;
@@ -604,7 +606,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 		if(Pclock < 1.) {
 			BPActivateWindow(SLOW,wTimeAccuracy);
 			BPActivateWindow(SLOW,wMetronom);
-			if(!ScriptExecOn) Alert1("Quantization is required but you must set a metronom value");
+			if(!ScriptExecOn) BPPrintMessage(0,odError,"Quantization is required but you must set a metronom value");
 			else {
 				Pclock = Qclock = 1.;
 				goto SETMETRONOM;
@@ -621,17 +623,14 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 				goto ENTERMETRONOM;
 				}
 			if(Myatof(Message,&a,&b) < 0.) {
-				Alert1("=> Incorrect value");
+				BPPrintMessage(0,odError,"=> Incorrect value");
 				goto ENTERMETRONOM;
 				}
 			if(Simplify((double)INT_MAX,(double)a,(double)60L*b,&Qclock,&Pclock) != OK)
 				Simplify((double)INT_MAX,floor((double)a/60L),(double)b,&Qclock,&Pclock);
 
 	SETMETRONOM:
-			SetTickParameters(0,MAXBEATS);
-			ResetTickFlag = TRUE;
 			SetTempo();
-			SetTimeBase();
 			SetGrammarTempo();
 			}
 		if(!Quantize) {
@@ -649,7 +648,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 			x = (((double)Quantization) * (imax + 100L) / thelimit);
 			x = 10L * (long) ceil(((double) x) / 10.);
 			if(x < Quantization) {
-				BPPrintMessage(0,odError,"=> Polymetric expansion encountered an unpredicted overflow. Sorry, can't proceed further\n");
+				BPPrintMessage(1,odError,"=> Polymetric expansion encountered an unpredicted overflow. Sorry, can't proceed further\n");
 				r = ABORT;
 				goto QUIT;
 				}
@@ -687,7 +686,6 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 			if(!ScriptExecOn && !alreadychangedquantize) BPPrintMessage(0,odError,"Quantization of %ld ms will be increased to reduce memory requirement (%ld ms might work)\n",
 				(long) Quantization,(long) newquantize);
 			else goto SETQUANTIZE;
-		//	newquantize = 20L; // $$$
 			
 	CHANGEQUANTIZE:
 		//	my_sprintf(Message,"%ld",(long)newquantize);
@@ -727,11 +725,6 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 			
 	SETQUANTIZE:
 			Quantization = newquantize;
-	#if BP_CARBON_GUI_FORGET_THIS
-			UpdateDirty(TRUE,iSettings);
-			SetTimeAccuracy();
-			BPActivateWindow(SLOW,wTimeAccuracy);
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 			MyDisposeHandle((Handle*)&p_nseq);
 			MyDisposeHandle((Handle*)&p_nseqmax);
 			goto FINDCOMPRESSION;
@@ -749,7 +742,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	BPPrintMessage(0,odInfo,"\n");
 
 	CHECKSIZE:
-	// FIXME: This whole section needs reconsideration on OS X
+	// FIXME: This whole section needs reconsideration
 	/* Maximum allowed memory for the phase diagram (?) is set by kMaxPhaseDiagramSize (currently
 	200 MB). That is pretty arbitrary but it is 10x the 20MB limit that MaxMem() was returning. 
 	A better solution is difficult since having no upper limit can lead to extreme thrashing,
@@ -950,7 +943,7 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i += 2L) {
 			}
 		while(m == T1);
 		if(s != 0.) scaling = 1. / s;
-		else if(Beta) Alert1("=> Err. PolyExpand() after '**'. s = 0.");
+		else BPPrintMessage(0,odError,"=> Err. PolyExpand() after '**'. s = 0.");
 		i -= 2;
 		continue;
  		}
@@ -964,7 +957,7 @@ for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i += 2L) {
 			}
 		while(m == T1);
 		if(s != 0.) speed = 1. / s;
-		else if(Beta) Alert1("=> Err. PolyExpand() after '\\'. s = 0.");
+		else BPPrintMessage(0,odError,"=> Err. PolyExpand() after '\\'. s = 0.");
 		i -= 2;
 		continue;
  		}
@@ -1037,7 +1030,7 @@ FIXTEMP:
 		scaling = xq;
 		isequal = Equal(0.005,scaling,speed,prevscale,prevspeed,&overflow);
 		if(isequal == ABORT) {
-			if(Beta) {
+			{
 				BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT\n");
 				result = ABORT; goto SORTIR;
 				}
@@ -1130,7 +1123,7 @@ FIXTEMP:
 			singlegap = FALSE;
 			isequal = Equal(0.005,scaling,speed,scalebeforegap,speedbeforegap,&overflow);
 			if(isequal == ABORT) {
-				if(Beta) {
+				{
 					BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT\n");
 					result = ABORT; goto SORTIR;
 					}
@@ -1196,7 +1189,7 @@ FIXTEMP:
 		i += 2L;
 		m = (*p_b)[i];
 		if(m != T43) {
-			if(Beta) Alert1("=> Err. PolyMake(). m != T43");
+			BPPrintMessage(0,odError,"=> Err. PolyMake(). m != T43");
 			i -= 2L;
 			continue;
 			}
@@ -1222,8 +1215,8 @@ FIXTEMP:
 		
 		isequal = Equal(0.005,scaling,speed,prevscale,prevspeed,&overflow);
 		if(isequal == ABORT) {
-			if(Beta) {
-				Alert1("=> Err. PolyExpand(). isequal == ABORT");
+			{
+				BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT");
 				result = ABORT; goto SORTIR;
 				}
 			isequal = FALSE;
@@ -1329,7 +1322,7 @@ FIXTEMP:
 				}
 			for(j=ZERO; (*p_e)[j] != TEND || (*p_e)[j+1] != TEND; j += 2L) {
 				if(j > jmax) {
-					if(Beta) Alert1("=> Err. PolyExpand() j > jmax");
+					BPPrintMessage(0,odError,"=> Err. PolyExpand() j > jmax");
 					result = ABORT; goto SORTIR;
 					}
 				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
@@ -1419,7 +1412,7 @@ FIXTEMP:
 		a++;	/* Next field */
 		if(a >= k) {
 			my_sprintf(Message,"=> Err in PolyExpand() k = %ld",(long)k);
-			if(Beta) Alert1(Message);
+			BPPrintMessage(0,odError,"%s",Message);
 			break;
 			}
 			
@@ -1565,7 +1558,7 @@ END:
 if((a+1) != k) {
 	my_sprintf(Message,"=> Err. PolyExpand(). a+1=%ld k=%ld",
 		(long)(a+1L),(long)k);
-	if(Beta) Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	}
 fixlength = FALSE;
 restart = firstistempo = toobigitem = FALSE;
@@ -1597,7 +1590,7 @@ for(a=kk=0; a < k; a++) {
 		}
 	if(!toobigitem) {
 		if((L=LCM(L,(*p_p)[a],&overflow)) < 1.) {
-			Println(wTrace,"Unexpected overflow in polymetric formula (case 1). You may send this item to the designers...");
+			BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 1). You may send this item to the designers...");
 			result = MISSED; goto SORTIR;
 			}
 		if(overflow) {
@@ -1609,7 +1602,7 @@ for(a=kk=0; a < k; a++) {
 		isequal = Equal(0.01,(*p_p)[a],(*p_q)[a],pmax,qmax,&overflow);
 		if(overflow) TellComplex();
 		if(isequal == ABORT) {
-			Println(wTrace,"Unexpected overflow in polymetric formula (case 5). You may send this item to the designers...");
+			BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 5). You may send this item to the designers...");
 			result = MISSED; goto SORTIR;
 			}
 		if(fixlength && (isequal != TRUE)) {
@@ -1661,7 +1654,7 @@ for(a=0; a < k; a++) {	/* Calculate undetermined rests */
 				(*p_p)[a] = (*p_p)[a] / gcd;
 				(*p_q)[a] = (*p_q)[a] * ((*p_vargap)[a] / gcd);
 				if((lcm=LCM(qmax,(*p_q)[a],&overflow)) < 1.) {
-					Println(wTrace,"Unexpected overflow in polymetric formula (case 2). You may send this item to the designers...");
+					BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 2). You may send this item to the designers...");
 					result = ABORT; goto SORTIR;
 					}
 				if(overflow) TellComplex();
@@ -1691,7 +1684,7 @@ if(restart) goto START;		/* Now rests are known */
 
 if(comma) {
 	if(Add((*p_P),(*p_Q),pmax,qmax,&xp,&xq,&overflow) != OK) {
-		Println(wTrace,"Unexpected overflow in polymetric formula (case 7). You may send this item to the designers...");
+		BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 7). You may send this item to the designers...");
 		result = ABORT; goto SORTIR;
 		}
 	if(overflow) TellComplex();
@@ -1706,7 +1699,7 @@ if(comma) {
 else {
 	if(Add((*p_P),(*p_Q),((double) kk * pmax),qmax,&xp,&xq,&overflow)
 			!= OK) {
-		Println(wTrace,"Unexpected overflow in polymetric formula (case 8). You may send this item to the designers...");
+		BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 8). You may send this item to the designers...");
 		result = ABORT; goto SORTIR;
 		}
 	if(overflow) TellComplex();
@@ -1726,7 +1719,7 @@ if(!toobigitem) {
 		if((*p_p)[a] == 0.) continue;
 		(*p_pp)[a] = L / (*p_p)[a];
 		if((M = LCM(M,(*p_q)[a] * (*p_pp)[a],&overflow)) < 1.) {
-			Println(wTrace,"Unexpected overflow in polymetric formula (case 10). You may send this item to the designers...");
+			BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 10). You may send this item to the designers...");
 			result = ABORT;
 			goto SORTIR;
 			}
@@ -1893,8 +1886,8 @@ for(a=0; a < k; a++) {
 					if(xq < InvMaxTempo) xq = 0.;
 					isequal = Equal(0.005,xq,xp,prevscale,prevspeed,&overflow);
 					if(isequal == ABORT) {
-						if(Beta) {
-							Alert1("=> Err. PolyExpand(). isequal == ABORT");
+						{
+							BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT");
 							result = ABORT; goto SORTIR;
 							}
 						isequal = FALSE;
@@ -1960,7 +1953,7 @@ COPYIT:
 if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
 
 if(Beta && level != ZERO) {
-	Alert1("=> Err. PolyExpand(). level != ZERO (end)");
+	BPPrintMessage(0,odError,"=> Err. PolyExpand(). level != ZERO (end)");
 	}
 
 result = OK;

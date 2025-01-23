@@ -68,7 +68,7 @@ params = NULL;
 result = ABORT; 
 
 if(chan < 0 || chan >= MAXCHAN) {
-	if(Beta) Alert1("=> Err. CscoreWrite(). chan < 0 || chan >= MAXCHAN");
+	BPPrintMessage(0,odError,"=> Err. CscoreWrite(). chan < 0 || chan >= MAXCHAN");
 	chan = 0;
 	}
 	
@@ -178,6 +178,7 @@ SETON:
 
 if(onoffline == OFF && (*perf)->level[key] < 1) {
 	BPPrintMessage(0,odError,"=> Err. CscoreWrite(). (*perf)->level[key] < 1 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
+	// (*perf)->level[key] = 1;
 	result = OK; // $$$ TEMP
 	goto SORTIR;
 	}
@@ -196,13 +197,13 @@ else
 	params = (*perf)->params;
 
 if(params == NULL) {
-	if(Beta) Alert1("=> Err. CscoreWrite(). params == NULL");
+	BPPrintMessage(0,odError,"=> Err. CscoreWrite(). params == NULL");
 	goto SORTIR;
 	}
 
 iargmax = (*p_CsInstrument)[ins].iargmax;
 if(iargmax < 4) {
-	if(Beta) Alert1("=> Err. CscoreWrite(). iargmax < 4");
+	BPPrintMessage(0,odError,"=> Err. CscoreWrite(). iargmax < 4");
 	iargmax = 4;
 	}
 
@@ -266,14 +267,17 @@ if(iarg > 0) {
 	else deltakey = 0.;
 	pitchclass = modulo(key,12);
 	octave = (key - pitchclass) / 12 + 3;
-	if((*p_CsPitchBendStartIndex)[ins] == -1
-			&& (*params)[IPITCHBEND].active && (*p_CsInstrument)[ins].pitchbendrange > 0.) {
+	if(trace_cs_scoremake && (*params)[IPITCHBEND].active)
+		BPPrintMessage(0,odInfo,"• (*params)[IPITCHBEND] is active, ins = %d range = %d\n",(int)ins,(int)(*p_CsInstrument)[ins].pitchbendrange);
+	if((*p_CsPitchBendStartIndex)[ins] != -1
+			&& (*params)[IPITCHBEND].active && (*p_CsInstrument)[ins].pitchbendrange > 0.) { // Fixed != -1 2025-01-19
 		startvalue = (*params)[IPITCHBEND].startvalue;
 		endvalue = (*params)[IPITCHBEND].endvalue;
 		imax = (*params)[IPITCHBEND].imax;
+		if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"• pitchbend startvalue = %d, endvalue = %d\n",(int)startvalue,(int)endvalue);
 		if((*params)[IPITCHBEND].mode != FIXED) {
 			if((*params)[IPITCHBEND].dur <= 0.) {
-				if(Beta) Alert1("=> Err. CsScoreWrite(). (*params)[IPITCHBEND].dur <= 0");
+				BPPrintMessage(0,odError,"=> Err. CsScoreWrite(). (*params)[IPITCHBEND].dur <= 0");
 				goto SORTIR;
 				}
 			alpha1 = (((*scorearg)[2] / ratio) - (*params)[IPITCHBEND].starttime)
@@ -337,8 +341,9 @@ if(iarg > 0) {
 		endvalue = (*params)[IPITCHBEND].endvalue;
 		imax = (*params)[IPITCHBEND].imax;
 		if((*params)[IPITCHBEND].mode != FIXED) {
+			if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"(pitchbend mode is not FIXED)\n");
 			if((*params)[IPITCHBEND].dur <= 0.) {
-				if(Beta) Alert1("=> Err. CsScoreWrite(). (*params)[IPITCHBEND].dur <= 0");
+				BPPrintMessage(0,odError,"=> Err. CsScoreWrite(). (*params)[IPITCHBEND].dur <= 0");
 				goto SORTIR;
 				}
 			alpha1 = (((*scorearg)[2] / ratio) - (*params)[IPITCHBEND].starttime)
@@ -346,11 +351,15 @@ if(iarg > 0) {
 			alpha2 = ((((*scorearg)[2] + (*scorearg)[3]) / ratio) - (*params)[IPITCHBEND].starttime)
 				/ (*params)[IPITCHBEND].dur;
 			}
-		else alpha1 = alpha2 = 0.;
+		else {
+			alpha1 = alpha2 = 0.;
+			if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"(pitchbend mode is FIXED)\n");
+			}
 		if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
 			alpha1 = alpha2 = -1.;
-		if(alpha1 > -0.01 && alpha1 < 1.01)
+		if(alpha1 > -0.01 && alpha1 < 1.01) {
 			x = GetTableValue(alpha1,imax,(*params)[IPITCHBEND].point,startvalue,endvalue);
+			}
 		else x = startvalue;
 		}
 	else x = DEFTPITCHBEND;
@@ -584,11 +593,11 @@ if(iarg > 0) {
 
 if((*p_CsInstrument)[ins].ipmax > 0 && (*perf)->numberparams > 0) {
 	if((*perf)->params == NULL) {
-		if(Beta) Alert1("=> Err. CscoreWrite(). (*perf)->params == NULL");
+		BPPrintMessage(0,odError,"=> Err. CscoreWrite(). (*perf)->params == NULL");
 		goto WRITECSCORELINE;
 		}
 	if(instrparamlist == NULL) {
-		if(Beta) Alert1("=> Err. CscoreWrite(). instrparamlist == NULL");
+		BPPrintMessage(0,odError,"=> Err. CscoreWrite(). instrparamlist == NULL");
 		goto WRITECSCORELINE;
 		}
 	for(i=0; i < (*p_CsInstrument)[ins].ipmax; i++) {
@@ -817,9 +826,9 @@ io = NSWInitReply(*CsFileReply);
 ShowMessage(TRUE,wMessage,"Create new Csound score file...");
 if(line == NULL || line[0] == '\0') {
 	// make a new filename based on the project's name
-	if (GetProjectBaseName(Message) == OK) {
+	if(GetProjectBaseName(Message) == OK) {
 		// truncate the base filename, leaving enough room for the extension
-		if (strlen(Message) > (MAXNAME-4))  Message[MAXNAME-4] = '\0';
+		if(strlen(Message) > (MAXNAME-4))  Message[MAXNAME-4] = '\0';
 		strcat(Message, ".sco");
 		}
 	else strcpy(Message, "untitled.sco");
@@ -836,18 +845,18 @@ if(NewFile(-1,1,PascalLine,*CsFileReply)) {
 			c2pstrcpy(PascalLine, CsFileName);
 			io = FSpRename(&spec,PascalLine);
 			if(io != noErr && Beta) {
-				Alert1("=> Err. MakeCsFile(). Can't rename");
+				BPPrintMessage(0,odError,"=> Err. MakeCsFile(). Can't rename");
 				}
 			}
 		CsScoreOpened = YES;
 		if(WriteToFile(NO,CsoundFileFormat,"; Csound score",CsRefNum) != OK) {
-			Alert1("Can't write to Csound score file. Unknown error");
+			BPPrintMessage(0,odError,"Can't write to Csound score file. Unknown error");
 			CloseCsScore();
 			return(ABORT);
 			}
 		}
 	}
-if (CsFileReply) MyUnlock((Handle)CsFileReply);
+if(CsFileReply) MyUnlock((Handle)CsFileReply);
 ClearMessage();
 return(rep);
 } */
@@ -875,7 +884,7 @@ SetEOF(CsRefNum,count);
 FlushFile(CsRefNum);
 FSClose(CsRefNum);
 CsScoreOpened = FALSE;
-if (CsFileReply) {
+if(CsFileReply) {
 	MyLock(FALSE, (Handle)CsFileReply);
 	(*CsFileReply)->saveCompleted = true;
 	err = NSWCleanupReply(*CsFileReply);

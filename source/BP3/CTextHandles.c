@@ -50,12 +50,12 @@ TEHandle NewTextHandle(void) {
 	
 	// allocate a handle to a TERec
 	th = (TEHandle) GiveSpace(sizeof(TERec));
-	if (th == NULL) return NULL;
+	if(th == NULL) return NULL;
 	tp = *th;
 	
 	// allocate empty text buffer
 	tp->hText = (Handle2) GiveSpace((Size)1);
-	if (tp->hText == NULL) {
+	if(tp->hText == NULL) {
 		MyDisposeHandle((Handle*)&th);
 		return NULL;
 		}
@@ -84,25 +84,25 @@ int CopyStringToTextHandle(TEHandle th, const char* str) {
 	len = strlen(str);
 	tp = *th;
 	res = MySetHandleSize((Handle*)&(tp->hText), len + (Size)1);	// +1 for null termination
-	if (res != OK)	return res;
+	if(res != OK)	return res;
 	dest = (char*) *tp->hText;
 	strcpy(dest, str);
 	
 	// adjust other "instance variables"
 	tp->length = (int32_t) len;
-	if (tp->selStart > tp->length)	tp->selStart = tp->length;
-	if (tp->selEnd > tp->length)	tp->selEnd = tp->length;
+	if(tp->selStart > tp->length)	tp->selStart = tp->length;
+	if(tp->selEnd > tp->length)	tp->selEnd = tp->length;
 	return OK;
 	}
 
 
 int CopyHandleToTextHandle(TEHandle handle_copy,char** handle_source) {
 	 // Validate pointers
-    if (handle_copy == NULL || *handle_copy == NULL) {
+    if(handle_copy == NULL || *handle_copy == NULL) {
         BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: Source handle is NULL\n");
         return MISSED; 
     	}
-    if (handle_source == NULL) {
+    if(handle_source == NULL) {
         BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: Destination handle is NULL\n");
         return MISSED;
     	}
@@ -110,20 +110,20 @@ int CopyHandleToTextHandle(TEHandle handle_copy,char** handle_source) {
     TERec *rec = *handle_copy;
 
     // Check if the text handle is already allocated or not
-    if (*handle_source != NULL) {
+    if(*handle_source != NULL) {
         BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: *handle_source != NULL\n");
         free(*handle_source); // Prevent memory leaks by freeing existing memory
    		}
 
     // Allocate memory for the text in the destination handle
     *handle_source = malloc((rec->length + 1) * sizeof(char)); // +1 for null terminator
-    if (*handle_source == NULL) {
+    if(*handle_source == NULL) {
         BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: Memory allocation failed\n");
         return MISSED;
     	}
 
     // Check if the text buffer in TEHandle is valid
-    if (rec->hText == NULL || *(rec->hText) == NULL) {
+    if(rec->hText == NULL || *(rec->hText) == NULL) {
         free(*handle_source);
         *handle_source = NULL;
         BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: Text buffer in source handle is NULL\n");
@@ -152,7 +152,7 @@ int TextIsSelectionEmpty(TextHandle th)
 
 int TextGetSelection(TextOffset* start,TextOffset* end, TextHandle th)
 {
-	if (th == NULL)  return (MISSED);
+	if(th == NULL)  return (MISSED);
 	
 	*start = (*th)->selStart;
 	*end   = (*th)->selEnd;
@@ -165,20 +165,20 @@ int SetSelect(TextOffset start,TextOffset end, TextHandle th)
 
 	/* clamp range to text bounds */
 	maxoffset = GetTextHandleLength(th);
-	if (start < ZERO) {
-		if(Beta) Alert1("=> Err. SetSelect(). start < ZERO");
+	if(start < ZERO) {
+		BPPrintMessage(0,odError,"=> Err. SetSelect(). start < ZERO");
 		start = ZERO;
 	}
-	else if (start > maxoffset) {
-		if(Beta) Alert1("=> Err. SetSelect(). start > maxoffset");
+	else if(start > maxoffset) {
+		BPPrintMessage(0,odError,"=> Err. SetSelect(). start > maxoffset");
 		start = maxoffset;
 	}
-	if (end < ZERO) {
-		if(Beta) Alert1("=> Err. SetSelect(). end < ZERO");
+	if(end < ZERO) {
+		BPPrintMessage(0,odError,"=> Err. SetSelect(). end < ZERO");
 		end = ZERO;
 	}
-	else if (end > maxoffset) {
-		if(Beta) Alert1("=> Err. SetSelect(). end > maxoffset");
+	else if(end > maxoffset) {
+		BPPrintMessage(0,odError,"=> Err. SetSelect(). end > maxoffset");
 		end = maxoffset;
 	}
 
@@ -190,7 +190,7 @@ int SetSelect(TextOffset start,TextOffset end, TextHandle th)
 long GetTextLength(int w)
 {
 	if(w < 0 || w >= WMAX || !Editable[w]) {
-		if(Beta) Alert1("=> Err. GetTextLength(). Incorrect w");
+		BPPrintMessage(0,odError,"=> Err. GetTextLength(). Incorrect w");
 		return(ZERO);
 	}
 	return GetTextHandleLength(TEH[w]);
@@ -198,8 +198,8 @@ long GetTextLength(int w)
 
 long GetTextHandleLength(TextHandle th)
 {
-	if (th == NULL) {
-		if(Beta) Alert1("=> Err. GetTextHandleLength(). NULL handle");
+	if(th == NULL) {
+		BPPrintMessage(0,odError,"=> Err. GetTextHandleLength(). NULL handle");
 		return(ZERO);
 	}
 	return((*th)->length);
@@ -208,14 +208,14 @@ long GetTextHandleLength(TextHandle th)
 char GetTextChar(int w,long pos)
 {
 	if(w < 0 || w >= WMAX || !Editable[w]) {
-		if(Beta) Alert1("=> Err. GetTextChar(). Incorrect w");
+		BPPrintMessage(0,odError,"=> Err. GetTextChar(). Incorrect w");
 		return '\0';
 	}
-	if (pos < 0 || pos > (*TEH[w])->length) {
+	if(pos < 0 || pos > (*TEH[w])->length) {
 		BPPrintMessage(0,odError,"=> Err. GetTextChar in %s: 'pos' (%ld) is out of range (max %ld)\n",WindowName[w],(long)pos,(long)(*TEH[w])->length);
 		return '\0';
 	}
-	else if (pos == (*TEH[w])->length) {
+	else if(pos == (*TEH[w])->length) {
 		// length does not include the null char
 		return '\0';
 	}
@@ -245,7 +245,7 @@ int Deactivate(TextHandle th)
 	char cbuffer[2];
 	
 	BP_NOT_USED(modifiers);
-	if (c == '\0' || c == '\b')	{
+	if(c == '\0' || c == '\b')	{
 		// report attempts to output null or backspace
 		fprintf(stderr, "Ignoring DoKey(0x%X)\n", c);
 	}
@@ -271,7 +271,7 @@ int TextInsert(char *s,long length,TextHandle th)
 	BP_NOT_USED(th);
 	// find window index
 	for (w = 0; w < WMAX; ++w) {
-		if (th == TEH[w])  break;
+		if(th == TEH[w])  break;
 	}
 	switch (w)	{
 		case wGrammar:	od = odTrace; break;
@@ -279,7 +279,7 @@ int TextInsert(char *s,long length,TextHandle th)
 		case wTrace:	od = odTrace; break;
 		default:		od = odInfo; break;
 	}
-	if (od == odInfo) {
+	if(od == odInfo) {
 		BPPrintMessage(0,od, "TextInsert(%s): %s\n", (w < WMAX) ? WindowName[w] : "", s);
 	}
 	else {

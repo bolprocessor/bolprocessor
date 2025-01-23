@@ -44,1006 +44,6 @@ int trace_load_csound_instruments = 0;
 int trace_load_scales = 0;
 
 
-#if BP_CARBON_GUI_FORGET_THIS
-// KEEP THIS AS SOME MIGHT BE REUSED LATER
-#include "CarbonCompatUtil.h"
-
-#define OKOMS 1
-
-LoadWeights(void)
-{
-int vref,i,iv,j,r,igram,irul,w;
-FSSpec spec;
-short refnum;
-long pos;
-long compiledate;
-char line[MAXNAME+1];
-char *p,*q;
-OSErr io;
-char **p_completeline,**p_line;
-
-if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || GraphicOn
-	|| PolyOn) return(RESUME);
-if(CompileCheck() != OK) return(MISSED);
-LoadOn++;
-ShowMessage(TRUE,wMessage,"Locate '-wg.' file...");
-p_line = p_completeline = NULL;
-if(OldFile(-1,12,PascalLine,&spec)) {
-	MyPtoCstr(255,PascalLine,LineBuff);
-	if((io=MyOpen(&spec,fsCurPerm,&refnum)) == noErr) {
-		pos = ZERO;
-		if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-		if(CheckVersion(&iv,p_line,LineBuff) != OK) goto NOERR;
-		if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-		if(ReadLong(refnum,&compiledate,&pos) == MISSED) goto ERR;
-		if(compiledate != CompileDate) {
-			r = Answer(
-	"Grammar may have changed. Non-matching grammars may yield unpredictable results. Load anyway",'N');
-			if(r != OK) goto NOERR;
-			}
-		SetCursor(&WatchCursor);
-		for(igram=1; igram <= Gram.number_gram; igram++) {
-			for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
-				if(ReadInteger(refnum,&w,&pos) == MISSED) goto ERR;
-				(*((*(Gram.p_subgram))[igram].p_rule))[irul].weight = w;
-				}
-			}
-		AdjustWeights();
-		p2cstrcpy(FileName[iWeights],PascalLine);
-		goto NOERR;
-ERR:
-		Alert1("Can't read weight file...");
-NOERR:
-		if(FSClose(refnum) == noErr) ;
-		}
-	else TellError(32,io);
-	MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
-	}
-else {
-	// HideWindow(Window[wMessage]);
-	LoadOn--;
-	return(MISSED);
-	}
-LoadOn--;
-if(Beta && LoadOn > 0) {
-	Alert1("=> Err. LoadOn > 0 ");
-	LoadOn = 0;
-	}
-// HideWindow(Window[wMessage]);
-if(!IsEmpty(wInfo)) BringToFront(Window[wInfo]);
-return(OK);
-}
-
-SaveWeights(void)
-{
-int i,igram,irul,w;
-short refnum;
-long count;
-Str255 fn;
-NSWReply reply;
-OSErr err;
-
-if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || GraphicOn
-	|| PolyOn) return(RESUME);
-if(CompileCheck() != OK) return(MISSED);
-err = NSWInitReply(&reply);
-ShowMessage(TRUE,wMessage,"Creating weight file...");
-if(FileName[iWeights][0] != '\0')
-	strcpy(Message,FileName[iWeights]);
-else if (GetDefaultFileName(iWeights, Message) != OK) return(MISSED);
-c2pstrcpy(fn, Message);
-reply.sfFile.vRefNum = TheVRefNum[iSettings];	/* Added 30/3/98 */
-reply.sfFile.parID = WindowParID[iSettings];
-if(NewFile(-1,12,fn,&reply)) {
-	i = CreateFile(-1,-1,12,fn,&reply,&refnum);
-	if(i == ABORT) {
-		err = NSWCleanupReply(&reply);
-		return(MISSED);
-		}
-	if(i == OK) {
-		SetCursor(&WatchCursor);
-		WriteHeader(iWeights,refnum,reply.sfFile);
-		my_sprintf(LineBuff,"%ld",(long)CompileDate);
-		WriteToFile(NO,MAC,LineBuff,refnum);
-		for(igram=1; igram <= Gram.number_gram; igram++) {
-			for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
-				w = (*((*(Gram.p_subgram))[igram].p_rule))[irul].weight;
-				my_sprintf(LineBuff,"%ld",(long)w);
-				WriteToFile(NO,MAC,LineBuff,(long)refnum);
-				}
-			}
-		WriteEnd(-1,refnum);
-		GetFPos(refnum,&count);
-		SetEOF(refnum,count);
-		FlushFile(refnum);
-		FSClose(refnum);
-		reply.saveCompleted = true;
-		err = NSWCleanupReply(&reply);
-		p2cstrcpy(FileName[iWeights],fn);
-		return(OK);
-		}
-	else {
-		MyPtoCstr(MAXNAME,fn,LineBuff);
-		my_sprintf(Message,"=> Error creating '%s'",LineBuff);
-		Alert1(Message);
-		}
-	}
-err = NSWCleanupReply(&reply);
-return(MISSED);
-}
-
-
-LoadKeyboard(short refnum)
-{
-int i,io,iv,imax,j,result;
-char **ptr;
-long pos;
-char **p_line,**p_completeline;
-
-pos = ZERO; Dirty[wKeyboard] = FALSE;
-p_line = p_completeline = NULL;
-LoadOn++;
-
-if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-if(CheckVersion(&iv,p_line,FileName[wKeyboard]) != OK) goto ERR;
-if(ReadOne(FALSE,TRUE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-GetDateSaved(p_completeline,&(p_FileInfo[wKeyboard]));
-if(ReadInteger(refnum,&imax,&pos) == MISSED) goto ERR;
-if(imax > 52) {
-	Alert1("This version of BP3 can't read selected '-kb.' file");
-	goto ERR;
-	}
-for(i=0; i < imax; i++) {
-	if(ReadOne(FALSE,TRUE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED
-			|| (*p_completeline)[0] == '\0')
-		goto ERR;
-	ptr = (*p_Token)[i];
-	MyDisposeHandle((Handle*)&ptr);
-	(*p_Token)[i] = NULL;
-	if((ptr = (char**) GiveSpace((Size)MyHandleLen(p_completeline)+1)) == NULL) {
-		LoadOn--; return(ABORT);
-		}
-	(*p_Token)[i] = ptr;
-	MystrcpyHandleToHandle(0,&((*p_Token)[i]),p_completeline);
-	}
-if(ReadInteger(refnum,&j,&pos) == MISSED) goto ERR;
-KeyboardType = j;
-result = OK;
-goto QUIT;
-
-ERR:
-GetKeyboard();
-result = MISSED;
-my_sprintf(Message,"=> Error reading '%s' keyboard file...",FileName[wKeyboard]);
-Alert1(Message);
-FileName[wKeyboard][0] = '\0';
-
-QUIT:
-MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
-SetKeyboard();
-if(Token) AppendScript(66); else AppendScript(67);
-if(FSClose(refnum) != noErr) {
-	my_sprintf(Message,"=> Error closing '%s' keyboard file...",FileName[wKeyboard]);
-	Alert1(Message);
-	result = MISSED;
-	}
-if(result == OK) {
-	SetName(wKeyboard,TRUE,TRUE);
-	Created[wKeyboard] = TRUE;
-	}
-else	Created[wKeyboard] = FALSE;
-Dirty[wKeyboard] = FALSE;
-// HideWindow(Window[wMessage]);
-LoadOn--;
-return(result);
-}
-
-
-SaveKeyboard(FSSpec *p_spec)
-{
-int i,good;
-short refnum;
-Str255 fn;
-long count;
-NSWReply reply;
-OSErr err;
-
-err = NSWInitReply(&reply);
-GetKeyboard();
-if(FileName[wKeyboard][0] != '\0') strcpy(Message,FileName[wKeyboard]);
-else if (GetDefaultFileName(wKeyboard, Message) != OK) return(MISSED);
-c2pstrcpy(fn, Message);
-p_spec->vRefNum = TheVRefNum[wKeyboard];
-p_spec->parID = WindowParID[wKeyboard];
-CopyPString(fn,p_spec->name);
-good = NO;
-if(Created[wKeyboard]) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noErr);
-if(good) goto WRITE;
-reply.sfFile.vRefNum = TheVRefNum[wKeyboard];	/* Added 30/3/98 */
-reply.sfFile.parID = WindowParID[wKeyboard];
-if(NewFile(-1,gFileType[wKeyboard],fn,&reply)) {
-	i = CreateFile(wKeyboard,-1,gFileType[wKeyboard],fn,&reply,&refnum);
-	(*p_spec) = reply.sfFile;
-	if(i == ABORT) {
-		err = NSWCleanupReply(&reply);
-		return(MISSED);
-		}
-	if(i == OK) {
-WRITE:
-		SetCursor(&WatchCursor);
-		WriteHeader(wKeyboard,refnum,*p_spec);
-		WriteToFile(NO,MAC,"52",refnum);
-		for(i=0; i < 52; i++) {
-			my_sprintf(LineBuff,"%s",*((*p_Token)[i]));
-			WriteToFile(YES,MAC,LineBuff,refnum);
-			}
-		my_sprintf(LineBuff,"%ld",(long)KeyboardType);
-		WriteToFile(NO,MAC,LineBuff,refnum);
-		WriteToFile(NO,MAC,"1\n1\n1\n1\n0\n0\n0\n0\n\0",refnum);
-		WriteEnd(wKeyboard,refnum);
-		GetFPos(refnum,&count);
-		SetEOF(refnum,count);
-		FlushFile(refnum);
-		MyFSClose(wKeyboard,refnum,p_spec);
-		reply.saveCompleted = true;
-		p2cstrcpy(FileName[wKeyboard],p_spec->name);
-		TheVRefNum[wKeyboard] = p_spec->vRefNum;
-		WindowParID[wKeyboard] = p_spec->parID;
-		SetName(wKeyboard,TRUE,TRUE);
-		Created[wKeyboard] = TRUE;
-		Dirty[wKeyboard] = FALSE;
-		err = NSWCleanupReply(&reply);
-		return(OK);
-		}
-	else {
-		MyPtoCstr(MAXNAME,fn,LineBuff);
-		my_sprintf(Message,"=> Error creating '%s'",LineBuff);
-		Alert1(Message);
-		}
-	}
-err = NSWCleanupReply(&reply);
-return(MISSED);
-}
-
-
-LoadTimeBase(short refnum)
-{
-int i,io,iv,imax,j,result,y,maxticks,maxbeats,arg;
-char **ptr;
-long pos,x;
-char **p_line,**p_completeline;
-
-WaitForLastTicks();
-LoadOn++;
-pos = ZERO; Dirty[wTimeBase] = FALSE;
-p_line = p_completeline = NULL;
-if(ReadOne(FALSE,FALSE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-if(CheckVersion(&iv,p_line,FileName[wTimeBase]) != OK) goto ERR;
-if(ReadOne(FALSE,TRUE,FALSE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-GetDateSaved(p_completeline,&(p_FileInfo[wTimeBase]));
-if(ReadInteger(refnum,&y,&pos) == MISSED) goto ERR; maxticks = y;
-if(ReadInteger(refnum,&y,&pos) == MISSED) goto ERR; maxbeats = y;
-if(maxticks > MAXTICKS) {
-	Alert1("This version of BP3 can't read selected '-tb.' file");
-	goto ERR;
-	}
-if(maxbeats > MAXBEATS) {
-	Alert1("This version of BP3 can't read selected '-tb.' file");
-	goto ERR;
-	}
-TickThere = FALSE;
-for(i=0; i < maxticks; i++) {
-	if(ReadInteger(refnum,&y,&pos) == MISSED) goto ERR; /* type */
-	if(ReadInteger(refnum,&y,&pos) == MISSED) goto ERR; arg = y; /* nr of arguments */
-	if(ReadInteger(refnum,&y,&pos) == MISSED) goto ERR; TickKey[i] = y;
-	if(ReadInteger(refnum,&y,&pos) == MISSED) goto ERR; TickChannel[i] = y;
-	if(ReadInteger(refnum,&y,&pos) == MISSED) goto ERR; TickVelocity[i] = y;
-	if(ReadInteger(refnum,&y,&pos) == MISSED) goto ERR; TickCycle[i] = y;
-	Ptick[i] = Qtick[i] = 1L; MuteTick[i] = FALSE;
-	if(arg > 4) {
-		if(ReadLong(refnum,&x,&pos) == MISSED) goto ERR; Ptick[i] = x;
-		if(ReadLong(refnum,&x,&pos) == MISSED) goto ERR; Qtick[i] = x;
-		}
-	if(arg > 6) {
-		if(ReadInteger(refnum,&y,&pos) == MISSED) goto ERR; TickDuration[i] = y;
-		}
-	for(j=0; j < maxbeats; j++) {
-		if(ReadLong(refnum,&x,&pos) == MISSED) goto ERR;
-		ThisTick[i][j] = x;
-		if(x % 2) TickThere = TRUE;
-		}
-	}
-result = OK;
-if(ReadOne(FALSE,TRUE,TRUE,refnum,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-if(iv > 9) {
-/*	MyLock(FALSE,(Handle)p_completeline);
-	result = SetField(NULL,wTimeBase,fTimeBaseComment,*p_completeline);
-	MyUnlock((Handle)p_completeline); */
-	}
-// else SetField(NULL,wTimeBase,fTimeBaseComment,"[Comment on time base]");
-goto QUIT;
-
-ERR:
-GetTimeBase(); GetTickParameters();
-result = MISSED;
-my_sprintf(Message,"=> Error reading '%s' time base file...",FileName[wTimeBase]);
-Alert1(Message);
-FileName[wTimeBase][0] = '\0';
-
-QUIT:
-MyDisposeHandle((Handle*)&p_line);
-MyDisposeHandle((Handle*)&p_completeline);
-for(i=0; i < MAXTICKS; i++) SetTickParameters(i+1,MAXBEATS);
-SetTickParameters(0,MAXBEATS);
-if(FSClose(refnum) != noErr) {
-	my_sprintf(Message,"=> Error closing '%s' time base file...",FileName[wTimeBase]);
-	Alert1(Message);
-	result = MISSED;
-	}
-if(result == OK) {
-	SetName(wTimeBase,TRUE,TRUE);
-	Created[wTimeBase] = TRUE;
-	}
-else	Created[wTimeBase] = FALSE;
-// HideWindow(Window[wMessage]);
-ResetTickFlag = TRUE;
-Dirty[wTimeBase] = FALSE;
-LoadOn--;
-return(result);
-}
-
-
-SaveTimeBase(FSSpec *p_spec)
-{
-int i,j,good;
-short refnum;
-Str255 fn;
-long x,count,p,q;
-NSWReply reply;
-char line[MAXFIELDCONTENT];
-OSErr err;
-
-err = NSWInitReply(&reply);
-GetTimeBase(); GetTickParameters();
-if(FileName[wTimeBase][0] != '\0') strcpy(Message,FileName[wTimeBase]);
-else if (GetDefaultFileName(wTimeBase, Message) != OK) return(MISSED);
-c2pstrcpy(fn, Message);
-p_spec->vRefNum = TheVRefNum[wTimeBase];
-p_spec->parID = WindowParID[wTimeBase];
-CopyPString(fn,p_spec->name);
-good = NO;
-if(Created[wTimeBase]) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noErr);
-if(good) goto WRITE;
-reply.sfFile.vRefNum = TheVRefNum[wTimeBase];	/* Added 30/3/98 */
-reply.sfFile.parID = WindowParID[wTimeBase];
-if(NewFile(-1,gFileType[wTimeBase],fn,&reply)) {
-	i = CreateFile(wTimeBase,-1,gFileType[wTimeBase],fn,&reply,&refnum);
-	*p_spec = reply.sfFile;
-	if(i == ABORT) {
-		err = NSWCleanupReply(&reply);
-		return(MISSED);
-		}
-	if(i == OK) {
-WRITE:
-		SetCursor(&WatchCursor);
-		WriteHeader(wTimeBase,refnum,*p_spec);
-		my_sprintf(LineBuff,"%ld",(long)MAXTICKS); WriteToFile(NO,MAC,LineBuff,refnum);
-		my_sprintf(LineBuff,"%ld",(long)MAXBEATS); WriteToFile(NO,MAC,LineBuff,refnum);
-		for(i=0; i < MAXTICKS; i++) {
-			my_sprintf(LineBuff,"1\n7");	/* '1' is the type and '4' the number of parameters */
-			WriteToFile(NO,MAC,LineBuff,refnum);
-			my_sprintf(LineBuff,"%ld\n%ld\n%ld\n%ld\n%ld\n%ld\n%ld",
-				(long)TickKey[i],(long)TickChannel[i],
-				(long)TickVelocity[i],(long)TickCycle[i],(long)Ptick[i],
-				(long)Qtick[i],(long)TickDuration[i]);
-			WriteToFile(NO,MAC,LineBuff,refnum);
-			for(j=0; j < MAXBEATS; j++) {
-				my_sprintf(LineBuff,"%ld",(long)ThisTick[i][j]);
-				WriteToFile(NO,MAC,LineBuff,refnum);
-				}
-			}
-		GetField(NULL,FALSE,wTimeBase,fTimeBaseComment,line,&p,&q);
-		WriteToFile(YES,MAC,line,refnum);	/* For comment */
-		WriteEnd(wTimeBase,refnum);
-		GetFPos(refnum,&count);
-		SetEOF(refnum,count);
-		FlushFile(refnum);
-		MyFSClose(wTimeBase,refnum,p_spec);
-		reply.saveCompleted = true;
-		p2cstrcpy(FileName[wTimeBase],p_spec->name);
-		TheVRefNum[wTimeBase] = p_spec->vRefNum;
-		WindowParID[wTimeBase] = p_spec->parID;
-		SetName(wTimeBase,TRUE,TRUE);
-		Created[wTimeBase] = TRUE;
-		Dirty[wTimeBase] = FALSE;
-		err = NSWCleanupReply(&reply);
-		return(OK);
-		}
-	else {
-		MyPtoCstr(MAXNAME,fn,LineBuff);
-		my_sprintf(Message,"=> Error creating '%s'",LineBuff);
-		Alert1(Message);
-		}
-	}
-err = NSWCleanupReply(&reply);
-return(MISSED);
-}
-
-
-SaveCsoundInstruments(FSSpec* p_spec)
-// Obsolete
-{
-int i,j,good,ishtml;
-short refnum;
-Str255 fn;
-long x,count,p,q;
-NSWReply reply;
-char line[MAXFIELDCONTENT];
-OSErr err;
-
-err = NSWInitReply(&reply);
-if(FileName[wCsoundResources][0] != '\0') strcpy(Message,FileName[wCsoundResources]);
-else if (GetDefaultFileName(wCsoundResources, Message) != OK) return(MISSED);
-c2pstrcpy(fn, Message);
-p_spec->vRefNum = TheVRefNum[wCsoundResources];
-p_spec->parID = WindowParID[wCsoundResources];
-CopyPString(fn,p_spec->name);
-good = NO;
-if(Created[wCsoundResources]) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noErr);
-if(good) goto WRITE;
-reply.sfFile.vRefNum = TheVRefNum[wCsoundResources];	/* Added 30/3/98 */
-reply.sfFile.parID = WindowParID[wCsoundResources];
-if(NewFile(-1,gFileType[wCsoundResources],fn,&reply)) {
-	i = CreateFile(wCsoundResources,-1,gFileType[wCsoundResources],fn,&reply,&refnum);
-	*p_spec = reply.sfFile;
-	if(i == ABORT) {
-		err = NSWCleanupReply(&reply);
-		return(MISSED);
-		}
-	if(i == OK) {
-WRITE:
-		SaveOn++;
-		WriteHeader(wCsoundResources,refnum,*p_spec);
-		my_sprintf(line,"%ld",(long)MAXCHAN);
-		WriteToFile(NO,MAC,line,refnum);
-		for(i=1; i <= MAXCHAN; i++) {
-			my_sprintf(line,"%ld",(long)WhichCsoundInstrument[i]);
-			WriteToFile(NO,MAC,line,refnum);
-			}
-		WriteToFile(YES,MAC,CsoundOrchestraName,refnum);
-		my_sprintf(line,"%ld",(long)Jinstr);
-		WriteToFile(NO,MAC,line,refnum);
-		for(j=0; j < Jinstr; j++) {
-			PleaseWait();
-			MystrcpyHandleToString(MAXFIELDCONTENT,0,line,(*pp_CsInstrumentName)[j]);
-			ShowMessage(TRUE,wMessage,line);
-			WriteToFile(YES,MAC,line,refnum);
-			MystrcpyHandleToString(MAXFIELDCONTENT,0,line,
-				(*pp_CsInstrumentComment)[j]);
-			WriteToFile(YES,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].iargmax);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrumentIndex)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsDilationRatioIndex)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsAttackVelocityIndex)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsReleaseVelocityIndex)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsPitchIndex)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsPitchFormat)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			
-			my_sprintf(line,"%.4f",(*p_CsInstrument)[j].pitchbendrange);
-			WriteToFile(NO,MAC,line,refnum);
-			
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPitchBend.islogx);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPitchBend.islogy);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rVolume.islogx);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rVolume.islogy);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPressure.islogx);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPressure.islogy);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rModulation.islogx);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rModulation.islogy);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPanoramic.islogx);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].rPanoramic.islogy);
-			WriteToFile(NO,MAC,line,refnum);
-			
-			my_sprintf(line,"%ld",(long)(*p_CsPitchBendStartIndex)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsVolumeStartIndex)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsPressureStartIndex)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsModulationStartIndex)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsPanoramicStartIndex)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsPitchBendEndIndex)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsVolumeEndIndex)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsPressureEndIndex)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsModulationEndIndex)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsPanoramicEndIndex)[j]);
-			WriteToFile(NO,MAC,line,refnum);
-			
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].pitchbendtable);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].volumetable);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].pressuretable);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].modulationtable);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].panoramictable);
-			WriteToFile(NO,MAC,line,refnum);
-			
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].pitchbendGEN);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].volumeGEN);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].pressureGEN);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].modulationGEN);
-			WriteToFile(NO,MAC,line,refnum);
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].panoramicGEN);
-			WriteToFile(NO,MAC,line,refnum);
-			
-			for(i=0; i < 6; i++) {
-				WriteFloatToLine(line,(*(p_CsPitchBend[i]))[j]);
-				WriteToFile(NO,MAC,line,refnum);
-				WriteFloatToLine(line,(*(p_CsVolume[i]))[j]);
-				WriteToFile(NO,MAC,line,refnum);
-				WriteFloatToLine(line,(*(p_CsPressure[i]))[j]);
-				WriteToFile(NO,MAC,line,refnum);
-				WriteFloatToLine(line,(*(p_CsModulation[i]))[j]);
-				WriteToFile(NO,MAC,line,refnum);
-				WriteFloatToLine(line,(*(p_CsPanoramic[i]))[j]);
-				WriteToFile(NO,MAC,line,refnum);
-				}
-			
-			my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].ipmax);
-			WriteToFile(NO,MAC,line,refnum);
-			for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
-				PleaseWait();
-				if((*p_CsInstrument)[j].paramlist == NULL) {
-					if(Beta) Alert1("=> Err. SaveCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
-					break;
-					}
-				MystrcpyHandleToString(MAXFIELDCONTENT,0,line,
-					(*((*p_CsInstrument)[j].paramlist))[i].name);
-				WriteToFile(YES,MAC,line,refnum);
-				MystrcpyHandleToString(MAXFIELDCONTENT,0,line,
-					(*((*p_CsInstrument)[j].paramlist))[i].comment);
-				WriteToFile(YES,MAC,line,refnum);
-				my_sprintf(line,"%ld\n%ld",
-					(long)(*((*p_CsInstrument)[j].paramlist))[i].startindex,
-					(long)(*((*p_CsInstrument)[j].paramlist))[i].endindex);
-				WriteToFile(NO,MAC,line,refnum);
-				if(Version > 12) {
-					my_sprintf(line,"%ld",
-						(long)(*((*p_CsInstrument)[j].paramlist))[i].table);
-					WriteToFile(NO,MAC,line,refnum);
-					my_sprintf(line,"%.3f",
-						(*((*p_CsInstrument)[j].paramlist))[i].defaultvalue);
-					WriteToFile(NO,MAC,line,refnum);
-					my_sprintf(line,"%ld",
-						(long)(*((*p_CsInstrument)[j].paramlist))[i].GENtype);
-					WriteToFile(NO,MAC,line,refnum);
-					my_sprintf(line,"%ld",
-						(long)(*((*p_CsInstrument)[j].paramlist))[i].combinationtype);
-					WriteToFile(NO,MAC,line,refnum);
-					}
-				}
-			}
-		WriteToFile(NO,MAC,"_begin tables",refnum);
-		UpdateThisWindow(FALSE,Window[wCsoundTables]); /* Update text length */
-		ShowSelect(CENTRE,wCsoundTables);
-		ishtml = IsHTML[wCsoundTables];
-		IsHTML[wCsoundTables] = TRUE;
-		NoReturnWriteToFile("<HTML>",refnum);
-		WriteFile(NO,MAC,refnum,wCsoundTables,GetTextLength(wCsoundTables));
-		NoReturnWriteToFile("</HTML>",refnum);
-		IsHTML[wCsoundTables] = ishtml;
-		WriteEnd(-1,refnum);
-		GetFPos(refnum,&count);
-		SetEOF(refnum,count);
-		FlushFile(refnum);
-		MyFSClose(wCsoundResources,refnum,p_spec);
-		reply.saveCompleted = true;
-		p2cstrcpy(FileName[wCsoundResources],p_spec->name);
-		TheVRefNum[wCsoundResources] = p_spec->vRefNum;
-		WindowParID[wCsoundResources] = p_spec->parID;
-		SetName(wCsoundResources,TRUE,TRUE);
-		Created[wCsoundResources] = TRUE;
-		Dirty[wCsoundResources] = FALSE;
-		ClearMessage();
-		if(SaveOn > 0) SaveOn--;
-		err = NSWCleanupReply(&reply);
-		return(OK);
-		}
-	else {
-		MyPtoCstr(MAXNAME,fn,LineBuff);
-		my_sprintf(Message,"=> Error creating '%s'",LineBuff);
-		Alert1(Message);
-		}
-	}
-err = NSWCleanupReply(&reply);
-return(MISSED);
-}
-
-
-SaveSettings(int startup,int openexisting,Str255 fn,FSSpec* p_spec)
-{
-short refnum;
-int i,io,imax,j,rep,w,good,ishtml,result;
-NSWReply reply;
-long count,a,b;
-char line[64];
-GrafPtr saveport;
-Rect r;
-Point p,q;
-OSErr err;
-
-if(ScriptExecOn) return(OK);
-err = NSWInitReply(&reply);
-if(fn[0] == 0) {
-	if (GetDefaultFileName(iSettings, line) != OK) return(MISSED);
-	c2pstrcpy(fn, line);
-	CopyPString(fn,p_spec->name);
-	}
-good = NO;
-if(openexisting) good = (MyOpen(p_spec,fsCurPerm,&refnum) == noErr);
-if(startup && !good) {
-	Alert1("Could not open startup settings file -se.startup.");
-	return(MISSED);
-	}
-p2cstrcpy(line,p_spec->name);
-if(good) goto WRITE;
-reply.sfFile.vRefNum = TheVRefNum[iSettings];	/* Added 30/3/98 */
-reply.sfFile.parID = WindowParID[iSettings];
-result = MISSED;
-
-if(NewFile(iSettings,gFileType[iSettings],fn,&reply)) {
-	io = CreateFile(iSettings,iSettings,gFileType[iSettings],fn,&reply,&refnum);
-	*p_spec = reply.sfFile;
-	if(io == ABORT) {
-		err = NSWCleanupReply(&reply);
-		return(MISSED);
-		}
-	p2cstrcpy(line,fn);
-	if(io == OK) {
-WRITE:
-		SaveOn++;
-		my_sprintf(Message,"Saving '%s'...",line);
-		PleaseWait();
-		ShowMessage(TRUE,wMessage,Message);
-		WriteHeader(iSettings,refnum,*p_spec);
-		my_sprintf(LineBuff,"%ld",(long)Port);
-		WriteToFile(NO,MAC,LineBuff,refnum);
-		
-		WriteToFile(NO,MAC," ",refnum);
-		
-		my_sprintf(LineBuff,"%ld\n%ld\n%ld",(long)Quantization,(long)Time_res,(long)MIDIsetUpTime);
-		WriteToFile(NO,MAC,LineBuff,refnum);
-		my_sprintf(LineBuff,"%ld",(long)Quantize); WriteToFile(NO,MAC,LineBuff,refnum);
-		my_sprintf(LineBuff,"%ld",(long)Nature_of_time); WriteToFile(NO,MAC,LineBuff,refnum);
-		my_sprintf(LineBuff,"%.0f",(double)Pclock); WriteToFile(NO,MAC,LineBuff,refnum);
-		my_sprintf(LineBuff,"%.0f",(double)Qclock); WriteToFile(NO,MAC,LineBuff,refnum);
-		my_sprintf(LineBuff,"%ld",(long)Jbutt); WriteToFile(NO,MAC,LineBuff,refnum);
-		for(i=0; i < Jbutt; i++) {	/* Store radio button settings */
-			PleaseWait();
-			my_sprintf(LineBuff,"%ld",(long)GetControlValue(Hbutt[i]));
-			WriteToFile(NO,MAC,LineBuff,refnum);
-			}
-		my_sprintf(LineBuff,"%ld\n%ld\n%ld\n%ld\n%ld",(long)SplitTimeObjects,(long)SplitVariables,
-			(long)UseTextColor,(long)DeftBufferSize,(long)UseGraphicsColor);
-		WriteToFile(NO,MAC,LineBuff,refnum);
-		my_sprintf(LineBuff,"%ld",(long)UseBufferLimit); WriteToFile(NO,MAC,LineBuff,refnum);
-		my_sprintf(LineBuff,"%ld",(long)TimeMax); WriteToFile(NO,MAC,LineBuff,refnum);
-		GetSeed();
-		my_sprintf(LineBuff,"%.0f\n%ld",(double)Seed,(long)Token);
-		WriteToFile(NO,MAC,LineBuff,refnum);
-		my_sprintf(LineBuff,"%ld\n%ld\n%ld",(long)NoteConvention,(long)StartFromOne,
-			(long)SmartCursor);
-		WriteToFile(NO,MAC,LineBuff,refnum);
-		my_sprintf(LineBuff,"%ld\n%ld",(long)GraphicScaleP,(long)GraphicScaleQ);
-		WriteToFile(NO,MAC,LineBuff,refnum);
-
-		// old settings for OMS
-		my_sprintf(LineBuff,"<no input device>");
-		WriteToFile(NO,MAC,LineBuff,refnum);
-		MoveDisk();
-		my_sprintf(LineBuff,"<no output device>");
-		WriteToFile(NO,MAC,LineBuff,refnum);
-			
-		my_sprintf(LineBuff,"%ld",(long)UseBullet); WriteToFile(NO,MAC,LineBuff,refnum);
-		my_sprintf(LineBuff,"%ld",(long)PlayTicks); WriteToFile(NO,MAC,LineBuff,refnum);
-		
-		my_sprintf(LineBuff,"%ld\n%ld",(long)FileSaveMode,(long)FileWriteMode);
-		WriteToFile(NO,MAC,LineBuff,refnum);
-		my_sprintf(LineBuff,"%ld\n%ld\n%ld\n%.2f",(long)MIDIfileType,(long)CsoundFileFormat,
-			(long)ProgNrFrom,EndFadeOut);
-		WriteToFile(NO,MAC,LineBuff,refnum);
-		my_sprintf(LineBuff,"%ld",(long)C4key);
-		WriteToFile(NO,MAC,LineBuff,refnum);
-		my_sprintf(LineBuff,"%.4f",A4freq);
-		WriteToFile(NO,MAC,LineBuff,refnum);
-		my_sprintf(LineBuff,"%ld",(long)StrikeAgainDefault);
-		WriteToFile(NO,MAC,LineBuff,refnum);
-		
-		my_sprintf(LineBuff,"%ld\n%ld\n%ld\n%ld\n%ld\n%ld",(long)DeftVolume,(long)VolumeController,
-			(long)DeftVelocity,(long)DeftPanoramic,(long)PanoramicController,(long)SamplingRate);
-		WriteToFile(NO,MAC,LineBuff,refnum);
-			
-		my_sprintf(LineBuff,"%ld",(long)WMAX); WriteToFile(NO,MAC,LineBuff,refnum);
-		for(w=0; w < WMAX; w++) {
-			my_sprintf(LineBuff,"%ld",(long)WindowTextSize[w]);
-			WriteToFile(NO,MAC,LineBuff,refnum);
-			}
-		my_sprintf(LineBuff,"%ld",(long)MIDIpassFilter); WriteToFile(NO,MAC,LineBuff,refnum);
-		for(i=0; i < 12; i++) {
-			my_sprintf(LineBuff,"%ld",(long)NameChoice[i]); WriteToFile(NO,MAC,LineBuff,refnum);
-			}
-		my_sprintf(LineBuff,"%ld",(long)MIDIacceptFilter); WriteToFile(NO,MAC,LineBuff,refnum);
-		
-		if(Version > 19) {
-			my_sprintf(LineBuff,"%ld",(long)ShowObjectGraph);
-			WriteToFile(NO,MAC,LineBuff,refnum);
-			my_sprintf(LineBuff,"%ld",(long)ShowPianoRoll);
-			WriteToFile(NO,MAC,LineBuff,refnum);
-			my_sprintf(LineBuff,"%ld",(long)MAXCHAN);
-			WriteToFile(NO,MAC,LineBuff,refnum);
-			for(i=0; i < MAXCHAN; i++) {
-				PleaseWait();
-				my_sprintf(LineBuff,"%ld",(long)PianoColor[i].red);
-				WriteToFile(NO,MAC,LineBuff,refnum);
-				my_sprintf(LineBuff,"%ld",(long)PianoColor[i].green);
-				WriteToFile(NO,MAC,LineBuff,refnum);
-				my_sprintf(LineBuff,"%ld",(long)PianoColor[i].blue);
-				WriteToFile(NO,MAC,LineBuff,refnum);
-				}
-			}
-			
-		my_sprintf(LineBuff,"%ld",(long)(NewEnvironment && !FreezeWindows));
-			WriteToFile(NO,MAC,LineBuff,refnum);
-		if(NewEnvironment && !FreezeWindows) {
-			my_sprintf(LineBuff,"%ld",(long)WMAX); WriteToFile(NO,MAC,LineBuff,refnum);
-			GetPort(&saveport);
-			for(w=0; w < WMAX; w++) {
-				PleaseWait();
-				MoveDisk();
-				my_sprintf(LineBuff,"%ld",(long)ChangedCoordinates[w]);
-				SetPortWindowPort(Window[w]);
-				WriteToFile(NO,MAC,LineBuff,refnum);
-				if(ChangedCoordinates[w]) {
-					GetWindowPortBounds(Window[w], &r);
-					p = topLeft(r);
-					LocalToGlobal(&p);
-					q = botRight(r);
-					LocalToGlobal(&q);
-					my_sprintf(LineBuff,"%ld",(long)(p.v));	/* top */
-					WriteToFile(NO,MAC,LineBuff,refnum);
-					my_sprintf(LineBuff,"%ld",(long)(p.h));	/* left */
-					WriteToFile(NO,MAC,LineBuff,refnum);
-					my_sprintf(LineBuff,"%ld",(long)(q.v));	/* bottom */
-					WriteToFile(NO,MAC,LineBuff,refnum);
-					my_sprintf(LineBuff,"%ld",(long)(q.h));	/* right */
-					WriteToFile(NO,MAC,LineBuff,refnum);
-					}
-				}
-			if(saveport != NULL) SetPort(saveport);
-			else if(Beta) Alert1("=> Err SaveSettings(). saveport == NULL");
-			}
-		imax = MAXCOLOR; if(!NewColors) imax = 0;
-		my_sprintf(LineBuff,"%ld",(long)imax); WriteToFile(NO,MAC,LineBuff,refnum);
-		if(imax > 0) {
-			for(i=0; i < imax; i++) {
-				PleaseWait();
-				my_sprintf(LineBuff,"%ld",(long)(Color[i].red)); WriteToFile(NO,MAC,LineBuff,refnum);
-				my_sprintf(LineBuff,"%ld",(long)(Color[i].green)); WriteToFile(NO,MAC,LineBuff,refnum);
-				my_sprintf(LineBuff,"%ld",(long)(Color[i].blue)); WriteToFile(NO,MAC,LineBuff,refnum);
-				}
-			}
-LASTPART:
-		WriteToFile(NO,MAC,"STARTSTRING:",refnum);
-		UpdateThisWindow(FALSE,Window[wStartString]); /* Update text length */
-		ShowSelect(CENTRE,wStartString);
-		ishtml = IsHTML[wStartString];
-		IsHTML[wStartString] = TRUE;
-		NoReturnWriteToFile("<HTML>",refnum);
-		WriteFile(NO,MAC,refnum,wStartString,GetTextLength(wStartString));
-		NoReturnWriteToFile("</HTML>",refnum);
-		IsHTML[wStartString] = ishtml;
-		WriteEnd(-1,refnum);
-		GetFPos(refnum,&count);
-		SetEOF(refnum,count);
-		FlushFile(refnum);
-		MyFSClose(iSettings,refnum,p_spec);
-		reply.saveCompleted = true;
-		Dirty[iSettings] = FALSE;
-		if(!startup) {
-			Created[iSettings] = TRUE;
-			p2cstrcpy(FileName[iSettings],fn);
-			SetName(iSettings,TRUE,TRUE);
-			TheVRefNum[iSettings] = p_spec->vRefNum;
-			WindowParID[iSettings] = p_spec->parID;
-			}
-		result = OK;
-		if(SaveOn > 0) SaveOn--;
-		}
-	else {
-		MyPtoCstr(MAXNAME,fn,line);
-		my_sprintf(Message,"=> Error creating '%s'",line);
-		Alert1(Message);
-		result = MISSED;
-		}
-	}
-err = NSWCleanupReply(&reply);
-// HideWindow(Window[wMessage]);
-return(result);
-}
-
-
-/* FindBPPrefsFolder() gets an FSSpec for the folder named "Bol Processor"
-   in the system (or user) preferences folder.  If this folder does not
-   exist, it is created.  */
-OSErr	FindBPPrefsFolder(FSSpecPtr location)
-{
-	OSErr	err;
-	short	systemVRefNum;
-	long	prefDirID;
-	long	bpDirID;
-	
-	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, kCreateFolder, 
-			&systemVRefNum, &prefDirID);
-	if (err != noErr) return err;
-	
-	err = FSMakeFSSpec(systemVRefNum, prefDirID, kBPPrefsFolder, location);
-	if (err == fnfErr) {
-		// need to create the "Bol Processor" folder in the Preferences folder
-		err = FSpDirCreate(location, smSystemScript, &bpDirID);
-		if (err != noErr) return err;
-		location->parID = bpDirID;
-		err = FSMakeFSSpec(systemVRefNum, prefDirID, kBPPrefsFolder, location);
-	}
-	else if (err != noErr) return err;
-	else {
-		int targetIsFolder;
-		int wasAliased;
-
-		err = ResolveAliasFile(location, true, &targetIsFolder, &wasAliased);
-		if (err != noErr) return err;
-		if (!targetIsFolder) return paramErr; // "Bol Processor" is a file, not a folder
-	}
-
-	return noErr;
-}
-
-/* FindFileInPrefsFolder() gets an FSSpec for the file named filename that
-   should be in the "Bol Processor" sub-folder of the system (or user) preferences 
-   folder.  If this file does not exist, fnfErr is returned and location is valid (?).
-   filename may be a relative pathname up to 255 chars long. 
-   FSSpec returned may not be in prefs folder if the file was aliased. */
-OSErr	FindFileInPrefsFolder(FSSpecPtr location, StringPtr filename)
-{
-	OSErr	 err;
-	short	 prefVRefNum;
-	long	 bpDirID;
-	
-	err = FindBPPrefsFolder(location);
-	if (err != noErr)	return err;
-	
-	err = GetFolderID(location, &bpDirID);
-	if (err != noErr)	return err;
-	prefVRefNum = location->vRefNum;
-	err = FSMakeFSSpec(prefVRefNum, bpDirID, filename, location);
-	if (err != noErr) return err;
-	else	{
-		int targetIsFolder;
-		int wasAliased;
-
-		err = ResolveAliasFile(location, true, &targetIsFolder, &wasAliased);
-		if (targetIsFolder) return paramErr; // there is a folder where the file should be
-	}
-
-	return noErr;
-}
-
-/* GetFolderID() gets the folder ID for a directory specified via a full FSSpec. */
-OSErr	GetFolderID(const FSSpecPtr loc, long* dirID)
-{
-	OSErr	err;
-	CInfoPBRec	catinfo;
-	Str255	name;
-	
-	CopyPString(loc->name, name);
-	catinfo.dirInfo.ioCompletion = NULL;
-	catinfo.dirInfo.ioNamePtr = name;
-	catinfo.dirInfo.ioVRefNum = loc->vRefNum;
-	catinfo.dirInfo.ioFDirIndex = 0;	// we want info about the named folder
-	catinfo.dirInfo.ioDrDirID = loc->parID;
-	
-	err = PBGetCatInfo(&catinfo, false);
-	*dirID = catinfo.dirInfo.ioDrDirID;
-	return err;
-}
-
-
-/* Copy -se.startup from BP application bundle to "Bol Processor" subfolder of the
-   user's preferences folder if it does not exist there already - akozar 040607 
-   (If called on OS 9, this would copy from BP app's folder to system prefs) */
-int CopyStartupSettings()
-{
-	OSErr  err;
-	long	 prefDirID;
-	FSSpec existing, copy;
-	
-	// locate the file in BP's bundle
-	err = FSMakeFSSpec(RefNumbp2, ParIDbp2, kBPSeStartup, &existing);
-	if (err != noErr) return (MISSED);
-	
-	// make an FSSpec for the copy to be made in prefs folder
-	err = FindBPPrefsFolder(&copy);
-	if (err != noErr)	return err;
-	err = GetFolderID(&copy, &prefDirID);
-	if (err != noErr)	return err;
-	err = FSMakeFSSpec(copy.vRefNum, prefDirID, kBPSeStartup, &copy);
-
-	if (err == noErr)  return (OK);	// already exists
-	if (err != fnfErr) return (MISSED);
-	
-	err = CopyFile(&existing, &copy);
-	if (err != noErr) return (MISSED);
-	return (OK);
-}
-
-void GetStartupSettingsSpec(FSSpecPtr spec)
-{
-	OSErr err;
-	int haveStartupSpec = FALSE;
-	
-	// on OS X, check the user's preferences folder first
-	if (RunningOnOSX) {
-		if (FindFileInPrefsFolder(spec, kBPSeStartup) == noErr)
-			haveStartupSpec = TRUE;
-		else {  
-			if (CopyStartupSettings() == OK &&
-			    FindFileInPrefsFolder(spec, kBPSeStartup) == noErr)
-				haveStartupSpec = TRUE;
-			}
-		}
-	if (!haveStartupSpec) {
-		// use the BP3 application folder copy if needed
-		err = FSMakeFSSpec(RefNumbp2, ParIDbp2, kBPSeStartup, spec);
-		// if err, fill in spec ourselves (will probably fail to open, 
-		// but we need to avoid returning completely random values)
-		if (err != noErr && err != fnfErr) {
-			spec->vRefNum = RefNumbp2;
-			spec->parID = ParIDbp2;
-			CopyPString(kBPSeStartup, spec->name);
-			}
-		}
-
-	return;
-}
-
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
 int LoadTonality(void) {
 	int result,length;
 	char name[MAXLIN], note_names[MAXLIN], key_numbers[MAXLIN], fractions[MAXLIN], baseoctave_string[10];
@@ -1244,7 +244,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		if(ReadFloat(csfile,&r,&pos) == MISSED) goto ERR;
 		if(r == -1.) r = (float) DeftPitchbendRange;
 		(*p_CsInstrument)[j].pitchbendrange = r;
-		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"pitchbendrange = %.3f\n",r);
+		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"pitchbendrange[%d] = %.3f\n",j,r);
 		
 		if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
 		(*p_CsInstrument)[j].rPitchBend.islogx = i;
@@ -1337,7 +337,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		
 		for(ip=0; ip < (*p_CsInstrument)[j].ipmax; ip++) {
 			if((*p_CsInstrument)[j].paramlist == NULL) {
-				Alert1("=> Err. LoadCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
+				BPPrintMessage(0,odError,"=> Err. LoadCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
 				break;
 				}
 			ptr = (*((*p_CsInstrument)[j].paramlist))[ip].name;
@@ -1415,7 +415,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 					(*((*p_CsInstrument)[j].paramlist))[ip].defaultvalue = 1.;
 					my_sprintf(Message,"In instrument %ld a default parameter value '%.3f' was replaced with '1' because its combination mode is multiplicative",
 						(long)(*p_CsInstrumentIndex)[j],r);
-					Alert1(Message);
+					BPPrintMessage(0,odError,"%s",Message);
 					}
 				}
 			else {
@@ -1496,7 +496,7 @@ char* read_file(const char *filename) {
     rewind(file);
     // Allocate memory and read the file
     char *data = (char *)malloc(filesize + 1);
-    if (!data) {
+    if(!data) {
         perror("Memory allocation failed");
         fclose(file);
         return NULL;
@@ -1526,16 +526,16 @@ int LoadSettings(const char *filename, int startup) {
 		}
 	else {
 		// filename cannot be NULL or empty
-		if (filename == NULL || filename[0] == '\0') {
+		if(filename == NULL || filename[0] == '\0') {
 			BPPrintMessage(0,odError,"=> Err. LoadSettings(): filename was NULL or empty\n");
 			return MISSED;
 			}
 		}
 	EndFadeOut = 2.; C4key = 60; A4freq = 440.;
+	Quantize = TRUE;
+	Quantization = 10L; // milliseconds
 	UseBullet = FALSE;
 	Code[7] = '.';
-	PlayTicks = FALSE;
-	ResetTickFlag = TRUE;
 	MIDIfileType = 1;
 	CsoundFileFormat = UNIX;
 	StrikeAgainDefault = TRUE;
@@ -1547,12 +547,13 @@ int LoadSettings(const char *filename, int startup) {
 	SamplingRate = SAMPLINGRATE;
 	DefaultBlockKey = 60;
 	ShowObjectGraph = TRUE;
+	ShowAllObjects = FALSE;
 	ShowPianoRoll = FALSE;
 	Token = Oms = FALSE;
 	UseBufferLimit = FALSE;
-	OutCsound = FALSE;
+//	OutCsound = FALSE;
 	CsoundTrace = FALSE;
-	WriteMIDIfile = FALSE;
+// 	WriteMIDIfile = FALSE;
 	NoConstraint = FALSE;
 	ResetControllers = FALSE;
 	FileSaveMode = ALLSAME;
@@ -1564,6 +565,9 @@ int LoadSettings(const char *filename, int startup) {
 	ResetWeights = FALSE;
 	NeverResetWeights = FALSE;
 	MinPeriod = 0;
+	MaxConsoleTime = 0; // seconds (not used)
+
+	if(OutCsound) MIDIsetUpTime = 0;
 
    	char *json_data = read_file(filename);
     if(!json_data) {
@@ -1602,9 +606,9 @@ int LoadSettings(const char *filename, int startup) {
 			continue;
 			}
 		if(strcmp(key,"Quantization") == 0) Quantization = (long) intvalue;
+		else if(strcmp(key,"Quantize") == 0) Quantize = intvalue;
 		else if(strcmp(key,"Time_res") == 0) Time_res = (long) intvalue;
 		else if(strcmp(key,"MIDIsyncDelay") == 0) MIDIsyncDelay = intvalue;
-		else if(strcmp(key,"Quantize") == 0) Quantize = intvalue;
 		else if(strcmp(key,"Nature_of_time") == 0) Nature_of_time = intvalue;
 		else if(strcmp(key,"Pclock") == 0) Pclock = (double) intvalue;
 		else if(strcmp(key,"Qclock") == 0) Qclock = (double) intvalue;
@@ -1619,10 +623,12 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"PlanProduce") == 0) PlanProduce = intvalue;
 		else if(strcmp(key,"DisplayItems") == 0) DisplayItems = intvalue;
 		else if(strcmp(key,"ShowGraphic") == 0) ShowGraphic = intvalue;
+		else if(strcmp(key,"ShowAllObjects") == 0) ShowAllObjects = intvalue;
 		else if(strcmp(key,"AllowRandomize") == 0) AllowRandomize = intvalue;
 		else if(strcmp(key,"DisplayTimeSet") == 0) DisplayTimeSet = intvalue;
 		else if(strcmp(key,"StepTimeSet") == 0) StepTimeSet = intvalue;
 		else if(strcmp(key,"TraceTimeSet") == 0) TraceTimeSet = intvalue;
+		else if(strcmp(key,"TraceNoteOn") == 0) TraceNoteOn = intvalue;
 		else if(strcmp(key,"CsoundTrace") == 0) CsoundTrace = intvalue;
 		else if(strcmp(key,"ResetNotes") == 0) ResetNotes = intvalue;
 		else if(strcmp(key,"ComputeWhilePlay") == 0) ComputeWhilePlay = intvalue;
@@ -1672,7 +678,7 @@ int LoadSettings(const char *filename, int startup) {
 		BPPrintMessage(0,odError,"=> Compute while playing has been set to TRUE because Max advance time = 0\n");
 		}
 	BufferSize = DeftBufferSize;
-	SetTempo(); SetTimeBase();
+	SetTempo();
 	if(Seed > 0) {
 		if(!PlaySelectionOn) BPPrintMessage(0,odInfo,"Random seed = %u as per settings\n", Seed);
 		ResetRandom();
@@ -1681,6 +687,7 @@ int LoadSettings(const char *filename, int startup) {
 		if(!PlaySelectionOn) BPPrintMessage(0,odInfo,"Not using a random seed: shuffling the cards\n");
 		Randomize();
 		}
+	if(WriteMIDIfile || rtMIDI) BPPrintMessage(0,odInfo,"Time resolution = %ld ms as per settings\n",Time_res);
 	if(rtMIDI && !ComputeWhilePlay) {
 		BPPrintMessage(0,odInfo,"Compute while playing is off\n");
 		if(AdvanceTime > 0.) BPPrintMessage(0,odInfo,"➡ Advance time limit = %.2f seconds\n",AdvanceTime / 1000.);
@@ -1689,6 +696,8 @@ int LoadSettings(const char *filename, int startup) {
 	if(rtMIDI && StopPauseContinue) {
 		BPPrintMessage(0,odInfo,"Stop/Pause/Continue messages will control the performance\n");
 		}
+	if(!Quantize) MaxDeltaTime = 20L;
+	else MaxDeltaTime = 2 * Quantization;
 	if(MaxItemsProduce < 2) MaxItemsProduce = 20;
 	if(PlaySelectionOn) Improvize = FALSE;
 	if(AllItems) Improvize = FALSE;
@@ -1702,7 +711,7 @@ int LoadSettings(const char *filename, int startup) {
     cJSON_Delete(json);
     free(json_data);
 
-/* OBSOLETE non-JSON settings file
+/* OBSOLETE: non-JSON settings file
 	// open the file for reading
 	sefile = my_fopen(1,filename, "rb");
 	if(sefile == NULL) {
@@ -1741,12 +750,12 @@ int LoadSettings(const char *filename, int startup) {
 	if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR; Nature_of_time = j;
 	if(ReadUnsignedLong(sefile,&kk,&pos) == MISSED) goto ERR; Pclock = (double)kk;
 	if(ReadUnsignedLong(sefile,&kk,&pos) == MISSED) goto ERR; Qclock = (double)kk;
-	SetTempo(); SetTimeBase(); Dirty[wMetronom] = Dirty[wTimeBase] = FALSE;
+	SetTempo(); Dirty[wMetronom] = Dirty[wTimeBase] = FALSE;
 
 	if(ReadInteger(sefile,&jmax,&pos) == MISSED) goto ERR;
 	if(jmax != Jbutt) {
 		my_sprintf(Message,"\nError in settings file:  jmax = %d instead of %d\n",jmax,Jbutt);
-		if(Beta) Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		goto ERR;
 		}
 		
@@ -1851,7 +860,6 @@ int LoadSettings(const char *filename, int startup) {
 		}
 
 	PlayTicks = FALSE;
-	ResetTickFlag = TRUE;
 
 	if(iv > 7) {
 		if(ReadInteger(sefile,&j,&pos) == MISSED) goto ERR;
@@ -2016,7 +1024,7 @@ int LoadObjectPrototypes(int checkversion,int tryname) {
 	LoadOn++;
 
 	sofile = my_fopen(1,FileName[iObjects], "r");
-	if (sofile == NULL) {
+	if(sofile == NULL) {
 		BPPrintMessage(0,odError, "=> Could not open prototypes file %s\n",FileName[iObjects]);
 	//	return MISSED;
 		return ABORT; // Fixed by BB 2022-02-18
@@ -2092,7 +1100,7 @@ NEXTBOL:
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "line = %s\n",*p_line);
 
 	if(p_completeline == NULL) {
-		if(Beta) Alert1("=> Err. LoadObjectPrototypes(). p_completeline == NULL");
+		BPPrintMessage(0,odError,"=> Err. LoadObjectPrototypes(). p_completeline == NULL");
 		goto SORTIR;
 		}
 	if(MyHandleLen(p_completeline) < 1) goto SORTIR;
@@ -2130,7 +1138,7 @@ NEXTBOL:
 	//	p_Bol = (char****) GiveSpace((Size)(Jbol) * sizeof(char**));
 		if((jj=CreateBol(0,0,p_completeline,0,0,BOL)) < 0) goto ERR;
 		if(jj >= Jbol) {
-			if(Beta) Alert1("=> Err. LoadObjectPrototypes(). jj >= Jbol");
+			BPPrintMessage(0,odError,"=> Err. LoadObjectPrototypes(). jj >= Jbol");
 			goto ERR;
 			}
 		j = jj;
@@ -2364,7 +1372,7 @@ NEXTBOL:
 	if(iv > 9) {
 		if(ReadOne(FALSE,TRUE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 		if(p_completeline == NULL) {
-			if(Beta) Alert1("=> Err. LoadObjectPrototypes(). p_completeline == NULL");
+			BPPrintMessage(0,odError,"=> Err. LoadObjectPrototypes(). p_completeline == NULL");
 			goto ERR;
 			}
 		s = MyHandleLen(p_completeline);

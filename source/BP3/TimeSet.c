@@ -429,7 +429,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 			result = r; goto EXIT1;
 			}
 		if(Dirty[wAlphabet]) {
-			Alert1("Alphabet changed. Must recompile...");
+			BPPrintMessage(0,odError,"Alphabet changed. Must recompile...");
 			result = ABORT; goto EXIT1;
 			}
 		Dirty[wAlphabet] = dirtymem;

@@ -41,6 +41,7 @@
 int trace_object_features = 0;
 int trace_get_duration = 0;
 int trace_set_variation = 0;
+int trace_table = 0;
 
 int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int j,
 	CurrentParameters *p_currentparameters,ContParameters **p_contparameters,
@@ -61,7 +62,7 @@ int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int
 		return(ABORT); // Fixed by BB 2021-02-26
 		}
 
-	if(Beta && (*p_Instance)[k].contparameters.values != NULL) {
+	if((*p_Instance)[k].contparameters.values != NULL) {
 		BPPrintMessage(0,odError,"=> Err. SetObjectParams(). (*p_Instance)[k].contparameters.values != NULL\n");
 		return(ABORT); // Fixed by BB 2021-02-26
 		}
@@ -86,6 +87,7 @@ int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int
 			scale = (*((*p_contparameters)[level].values))[i].scale;
 			blockkey = (*((*p_contparameters)[level].values))[i].blockkey;
 			if(i <= IPANORAMIC && !(*((*p_contparameters)[level].values))[i].known) {
+				if(trace_set_variation) BPPrintMessage(0,odInfo,"!(*((*p_contparameters)[level].values))[%d].known\n",i);
 				switch(i) {
 					case IMODULATION:
 						if(!ResetControllers && (*p_Oldvalue)[chan].modulation > -1)
@@ -126,9 +128,11 @@ int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int
 				v0 = (*((*p_contparameters)[level].values))[i].v0;
 				v1 = (*((*p_contparameters)[level].values))[i].v1;
 				mode = (*((*p_contparameters)[level].values))[i].mode;
+				if(trace_set_variation) BPPrintMessage(0,odInfo,"v0 = %ld v1 = %ld mode = %d\n",(long)v0,(long)v1,mode);
 				}
 			(*currentinstancevalues)[i].v0 = v0;
 			(*currentinstancevalues)[i].v1 = v1;
+			// BPPrintMessage(0,odInfo,"-> start value v0 = %ld, end value v1 = %ld\n",(long)v0,(long)v1);
 			(*currentinstancevalues)[i].mode = mode;
 			(*currentinstancevalues)[i].control = (*((*p_contparameters)[level].values))[i].control;
 			(*currentinstancevalues)[i].channel = chan;
@@ -141,7 +145,7 @@ int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int
 			if(i == IPANORAMIC && j < Jbol && !(*p_OkPan)[j]) continue;
 			if(i == IVOLUME && j < Jbol && !(*p_OkVolume)[j]) continue;
 			if(h_table == NULL) {
-				if(Beta) Alert1("=> Err. SetObjectParams(). h_table == NULL");
+				BPPrintMessage(0,odError,"=> Err. SetObjectParams(). h_table == NULL\n");
 				}
 			
 			if(isobject && (*h_table)[i].point != NULL) {
@@ -156,14 +160,16 @@ int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int
 						}
 					/* Here we set v1, at last */
 					(*currentinstancevalues)[i].v1 = (*((*h_table)[i].point))[ii-1].value;
+					if(trace_set_variation) BPPrintMessage(0,odInfo,"-> end value v1 = %ld\n",(long)(*currentinstancevalues)[i].v1);
 					}
 				((*h_table)[i].offset)--;
 				}
-				
-			if((*((*p_contparameters)[level].values))[i].v0
-					== (*((*p_contparameters)[level].values))[i].v1
-					&& (*h_table)[i].point == NULL)
-				(*currentinstancevalues)[i].mode = FIXED;
+			
+			// BPPrintMessage(0,odInfo,"SetObjectFeatures k = %ld mode = %ld ?\n",(long)k,(*currentinstancevalues)[i].mode);
+			if((*((*p_contparameters)[level].values))[i].v0 == (*((*p_contparameters)[level].values))[i].v1 && (*h_table)[i].point == NULL) {
+					(*currentinstancevalues)[i].mode = FIXED;
+					if(trace_set_variation) BPPrintMessage(0,odInfo,"SetObjectFeatures k = %ld i = %d mode = FIXED v0 = %ld v1 = %ld\n",(long)k,i,(long)(*((*p_contparameters)[level].values))[i].v0,(long)(*((*p_contparameters)[level].values))[i].v1);
+					}
 				
 			if((*((*p_contparameters)[level].values))[i].channel > 0)
 				(*currentinstancevalues)[i].channel
@@ -189,7 +195,9 @@ int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int
 			}
 		}
 
-	(*p_Instance)[k].nseq = nseq;
+	if(!isobject) (*p_Instance)[k].nseq = nseq;
+	// Otherwise the nseq field has been set in Plot()
+
 	(*p_Instance)[k].velocity = p_currentparameters->currvel;
 	(*p_Instance)[k].rndvel = p_currentparameters->rndvel;
 	(*p_Instance)[k].velcontrol = p_currentparameters->velcontrol;
@@ -284,13 +292,12 @@ long** pts;
 int i;
 
 if(nseq >= Maxconc) {
-	if(Beta) Println(wTrace,"\nErr. AttachObjectLists(). nseq >= Maxconc");
+	BPPrintMessage(0,odError,"=> Err. AttachObjectLists(). nseq >= Maxconc, k = %d\n",k);
 	return(OK);
 	}
-if((*p_waitlist)[nseq] == NULL && (*p_scriptlist)[nseq] == NULL
-											&& !(*p_newswitch)) return(OK);
+if((*p_waitlist)[nseq] == NULL && (*p_scriptlist)[nseq] == NULL && !(*p_newswitch)) return(OK);
 if(k < 2) {
-	if(Beta) Alert1("=> Err. AttachObjectLists()");
+	BPPrintMessage(0,odError,"=> Err. AttachObjectLists()");
 	return(ABORT);
 	}
 if((*p_ObjectSpecs)[k] == NULL) {
@@ -366,7 +373,8 @@ seq = seqmem = (*p_seq)[level] = 0;
 speed = orgspeed;
 scaling = orgscaling;
 if(scaling != 0.) {
-	tempo = speed / scaling;
+//	tempo = speed / scaling;
+	tempo = speed; // 2025-01-21
 	prodtempo = (Prod / tempo);
 	}
 else tempo = prodtempo = 0.;
@@ -382,13 +390,14 @@ okincrease = TRUE;
 if(targettoken == -1) targettoken = IndexToToken(index);
 /* This will be required for FindValue() */
 
-if(trace_set_variation) BPPrintMessage(0,odInfo,"Start SetVariation() targettoken = %ld, index = %d, id = %ld, maxbeats = %.3f\n",(long)targettoken,index,id,*p_maxbeats);
+if(trace_set_variation) BPPrintMessage(0,odInfo,"Start SetVariation() targettoken = %ld, index = %ld, id = %ld, Prod = %.2f speed = %.2f scaling = %.2f tempo = %.2f prodtempo = %.2f\n",(long)targettoken,(long)index,(long)id,Prod,speed,scaling,tempo,prodtempo);
 
 if(index > -1) {
 	maketable = TRUE;
 	startvalue = (*p_endvalue) = (*((*p_contparameters)[levelorg].values))[index].v0;
 	if((*((*p_contparameters)[levelorg].values))[index].mode == FIXED)
 		goto RECORDVALUES;
+	if(trace_set_variation) BPPrintMessage(0,odInfo,"maketable = TRUE, startvalue = %ld\n",(long)startvalue);
 	}
 else {
 	switch(targettoken)	{
@@ -423,7 +432,7 @@ blockkey = blockkeyorg = p_currentparameters->blockkey;
 instrument = instrorg = p_currentparameters->currinstr;
 part = partorg = p_currentparameters->currpart;
 
-for(i=id+2L; ; i+=2L) {
+for(i = id+2L; ; i += 2L) {
 	m = (*p_buff)[i]; p = (*p_buff)[i+1];
 	if(m == TEND && p == TEND) break;
 	if(m == T0) {
@@ -433,6 +442,7 @@ for(i=id+2L; ; i+=2L) {
 				if(scaling != 0.) {
 					tempo = speed / scaling;
 					prodtempo = (Prod / tempo);
+					if(trace_set_variation) BPPrintMessage(0,odInfo,"In SetVariation(1) tempo = %.2f prodtempo = %.2f\n",tempo,prodtempo);
 					}
 				else tempo = prodtempo = 0.;
 				i += 4;
@@ -451,6 +461,7 @@ for(i=id+2L; ; i+=2L) {
 				if(scaling != 0.) {
 					tempo = speed / scaling;
 					prodtempo = (Prod / tempo);
+					if(trace_set_variation) BPPrintMessage(0,odInfo,"In SetVariation(1) tempo = %.2f prodtempo = %.2f\n",tempo,prodtempo);
 					}
 				else tempo = prodtempo = 0.;
 				i += 4;
@@ -483,7 +494,7 @@ for(i=id+2L; ; i+=2L) {
 					}
 				level++;
 				if(level >= Maxlevel) {
-					if(Beta) Println(wTrace,"\nErr. SetVariation(). level >= Maxlevel");
+					BPPrintMessage(0,odError,"=> Err. SetVariation(). level >= Maxlevel\n");
 					goto ENDLOOP;
 					}
 				seq = 0;
@@ -570,6 +581,7 @@ for(i=id+2L; ; i+=2L) {
 		if(!foundtimeobject) {	/* Found first sound-object or prolongation or silence */
 			foundtimeobject = TRUE;
 			maxbeats = prodtempo;
+			if(trace_set_variation) BPPrintMessage(0,odInfo,"maxbeats = prodtempo = %ld\n",(long)prodtempo);
 			goto ENOUGH;
 			}
 		if(nonemptyobject && !tablemade && !forgetmakingtable && (objectsfound > 1)) {
@@ -586,6 +598,7 @@ for(i=id+2L; ; i+=2L) {
 					// (*((*p_CsInstrument)[j].paramlist))[ip].defaultvalue
 					tableisbeingbuilt = FALSE;
 					tablemade = TRUE;
+			//		BPPrintMessage(0,odInfo,"@@ tablemade = TRUE\n");
 					(t.imax)++;
 					}
 				else { 
@@ -626,7 +639,7 @@ ENOUGH:
 			}
 		v = FindValue(m,p,chan);
 		if(v == Infpos) {
-			if(Beta) Alert1("=> Error in SetVariation(). v = Infpos");
+			BPPrintMessage(0,odError,"=> Error in SetVariation(). v = Infpos");
 			result = ABORT;
 			break;
 			}
@@ -639,7 +652,7 @@ ENOUGH:
 			i += 2L;
 			m = (*p_buff)[i]; p = (*p_buff)[i+1];
 			if(m != T37) {
-				if(Beta) Alert1("=> Err. SetVariation(). m != T37");
+				BPPrintMessage(0,odError,"=> Err. SetVariation(). m != T37");
 				break;
 				}
 			vmap.p2 = p % 128;
@@ -661,7 +674,7 @@ ENOUGH:
 		/* _vel(), articulation and _keymap()  are not concerned with tables */
 		
 	/*	if(index < 0) {
-			if(Beta) Alert1("=> Err. SetVariation(). index < 0");
+			BPPrintMessage(0,odError,"=> Err. SetVariation(). index < 0");
 			goto END;
 			} */
 		
@@ -677,10 +690,10 @@ ENOUGH:
 			}
 		(*(t.point))[t.imax].i = itable;
 		(*(t.point))[t.imax].value = v;
-	//	BPPrintMessage(0,odInfo,"Set value for t.imax = %ld (*(t.point))[t.imax].value = %.3f\n",(long)t.imax,(long)v);
+		if(trace_table) BPPrintMessage(0,odInfo,"Set value for t.imax = %ld value = %.3f\n",(long)t.imax,(long)v);
 		(t.imax)++;
 		if(t.imax >= (tablesize - 1L)) {
-			// BPPrintMessage(0,odInfo,"Increase size of t.point: t.imax = %ld tablesize = %ld\n",(long)t.imax,(long)tablesize);
+			if(trace_table) BPPrintMessage(0,odInfo,"Increase size of t.point: t.imax = %ld tablesize = %ld\n",(long)t.imax,(long)tablesize);
 			ptr = t.point;
 			if((ptr = (Coordinates**) IncreaseSpace((Handle)ptr)) == NULL)
 				return(ABORT);
@@ -694,7 +707,7 @@ MORE:
 			else vv = oldv;
 			if(tablemade) {
 				(*(t.point))[t.imax-1L].value = vv;
-				// BPPrintMessage(0,odInfo,"Set value for t.imax = %ld (*(t.point))[t.imax-1L].value = %.3f\n",(long)t.imax,(long)vv);
+				if(trace_table) BPPrintMessage(0,odInfo,"Set value for t.imax = %ld (*(t.point))[t.imax-1L].value = %.3f\n",(long)t.imax,(long)vv);
 				break;
 				}
 			else (*(t.point))[ZERO].value = vv;
@@ -712,7 +725,7 @@ MORE:
 	if(m == T21) {		/* _pitchrange() */
 		if(p > 0) PitchbendRange[chan] = p;
 		else
-			if(Beta) Alert1("=> Err. SetVariation(). p <= 0");
+			BPPrintMessage(0,odError,"=> Err. SetVariation(). p <= 0");
 		continue;
 		}
 	
@@ -720,10 +733,10 @@ MORE:
 		if(!MIDImicrotonality) {
 			x = FindValue(m,p,chan);
 			if(chan == (int) x) continue;
-			/* A channel change in the sequence should be the end of the variation */
-			/* ... of a continuous MIDI parameter */
+			// A channel change in the sequence should be the end of the variation
+			// ... of a continuous MIDI parameter
 			if(objectsfound > 0 && index >= 0 && index <= IPANORAMIC) okincrease = FALSE;
-			BPPrintMessage(0,odInfo,"_chan() chan = %d\n",x);
+			// BPPrintMessage(0,odInfo,"_chan() chan = %d\n",x);
 			chan = (int) x;
 			if(maxbeats == 0.) chanorg = chan;
 			}
@@ -756,15 +769,20 @@ if(maketable && tableisbeingbuilt && !tablemade && t.point != NULL
 	if((*(t.point))[t.imax-1L].i != itable) {
 		(*(t.point))[t.imax].i = itable;
 		(*(t.point))[t.imax].value = oldv;
-	//	BPPrintMessage(0,odInfo,"(*(t.point))[t.imax].value = oldv = %.3f\n",oldv);
+		if(trace_table) BPPrintMessage(0,odInfo,"(*(t.point))[t.imax].value = oldv = %.3f\n",oldv);
 		(t.imax)++;
 		}
 	iobjmem = 0;
 	tablemade = TRUE;
+	if(trace_table) BPPrintMessage(0,odInfo,"@ tablemade = TRUE\n");
 	}
-if(!foundsecondvalue || result != OK) maxbeats = 0.;
+if(!foundsecondvalue || result != OK) {
+	maxbeats = 0.;
+	if(trace_set_variation) BPPrintMessage(0,odInfo,"!foundsecondvalue\n");
+	}
 
 (*p_maxbeats) = maxbeats;
+if(trace_set_variation) BPPrintMessage(0,odInfo,"(*p_maxbeats) = %.2f\n",maxbeats);
 
 if(index < 0 || result != OK) goto END;
 
@@ -795,7 +813,7 @@ else {
 
 RECORDVALUES:
 if((*p_contparameters)[levelorg].values == NULL) {
-	if(Beta) Alert1("=> Err. SetVariation(). (*p_contparameters)[levelorg].values == NULL");
+	BPPrintMessage(0,odError,"=> Err. SetVariation(). (*p_contparameters)[levelorg].values == NULL");
 	goto END;
 	}
 (*((*p_contparameters)[levelorg].values))[index].maxbeats = (long) maxbeats;
@@ -832,97 +850,98 @@ return(result);
 }
 
 
-int Fix(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time)
-{
-int j,k;
-long i,inext;
-double local_period;
-Milliseconds t1,t2;
-unsigned int seed;
+int Fix(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time) {
+	int j,k;
+	short dont_randomize;
+	long i,inext;
+	double local_period;
+	Milliseconds t1,t2;
+	unsigned int seed;
 
-if(nseq >= Maxconc) {
-	if(Beta) Println(wTrace,"\nErr. Fix(). nseq >= Maxconc");
-	return(OK);
-	}
-i = ZERO; // Fixed by BB 2021-03-20
-local_period = 0.;
-while(TRUE) {
-	k = (*((*p_Seq)[nseq]))[i];
-//	if(k > 2 && k < 6) BPPrintMessage(0,odInfo,"Fix() k = %ld alpha = %.2f\n",(long)k,(*p_Instance)[k].alpha);
-	if(k < 0) break;
-	inext = i;
-	while((*((*p_Seq)[nseq]))[++inext] == 0);
-	if(k >= 1) {					/* Ignoring silences "-" except if specs attached */
-		if(k >= Maxevent) {
-			if(Beta) Alert1("=> Err. Fix(). k >= Maxevent");
-			return(ABORT);
-			}
-		j = (*p_Instance)[k].object;
-		if(j > 0) {
-			if(j < 16384 && j != 1) { // j != 1 added by BB 2022-02-24
-				if(j >= Jbol) { // Time pattern
-					t1 = (*p_T)[i];
-					(*p_time1)[i] = t1;
-					t2 = (*p_time2)[i] = t1 + (Milliseconds) ((*p_Instance)[k].alpha * (*p_Dur)[j]);
-				//	BPPrintMessage(0,odInfo,"Fix() time pattern k = %ld j = %ld alpha = %.2f Dur = %.2f, t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(*p_Dur)[j],(long)t1,(long)t2);
-					}
-				else {
-					if((*p_PivMode)[j] == RELATIF)
-						t1 = (*p_T)[i]
-							- (Milliseconds) ((*p_Instance)[k].dilationratio * (*p_Dur)[j]
-							* (*p_PivPos)[j] / 100.);
-					else
-						t1 = (*p_T)[i] - (*p_PivPos)[j];
-					RandomTime(&t1,(*p_Instance)[k].randomtime);
-					(*p_time1)[i] = t1;
-					if(PlayFromInsertionPoint) t1 = (*p_time1)[i] = (*p_T)[i];
-					t2 = (*p_time2)[i] = t1
-						+ (Milliseconds)((*p_Instance)[k].alpha * (*p_Dur)[j]);
-			//		if(k > 2 && k < 6) BPPrintMessage(0,odInfo,"Fix() k = %ld j = %ld alpha = %.2f Dur = %ld t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)(*p_Dur)[j],(long)t1,(long)t2);
-					}
+	if(nseq >= Maxconc) {
+		BPPrintMessage(0,odError,"=> Err. Fix(). nseq >= Maxconc\n");
+		return(OK);
+		}
+	i = ZERO;
+	local_period = 0.;
+	dont_randomize = FALSE;
+	while(TRUE) {
+		k = (*((*p_Seq)[nseq]))[i];
+	//	if(k > 2 && k < 6) BPPrintMessage(0,odInfo,"Fix() k = %ld alpha = %.2f\n",(long)k,(*p_Instance)[k].alpha);
+		if(k < 0) break;
+		inext = i;
+		while((*((*p_Seq)[nseq]))[++inext] == 0);
+		if(k >= 1) {					/* Ignoring silences "-" except if specs attached */
+			if(k >= Maxevent) {
+				BPPrintMessage(0,odError,"=> Err. Fix(). k >= Maxevent");
+				return(ABORT);
 				}
-			else {	/* Simple note or silence */
-				t1 = (*p_T)[i];
-				if(j == 1) { // Added by BB 2022-02-24
-					(*p_time1)[i] = t1;
-					if(nseq == 0 && nature_time == SMOOTH) {
-						t2 = (*p_time2)[i] = t1 + (Milliseconds)((*p_Instance)[k].alpha * (*p_Dur)[j]);
-					//	BPPrintMessage(0,odInfo,"nseq = %ld k = %ld alpha = %.2f Dur[j] = %ld\n",(long)nseq,(long)k,(*p_Instance)[k].alpha,(long)(*p_Dur)[j]);
-					//	t2 = (*p_time2)[i] = (*p_time1)[i] + (inext - i) * local_period;
+			j = (*p_Instance)[k].object;
+			if(j > 0) {
+				if(j < 16384 && j != 1) { // j != 1 added by BB 2022-02-24
+					if(j >= Jbol) { // Time pattern
+						t1 = (*p_T)[i];
+						(*p_time1)[i] = t1;
+						t2 = (*p_time2)[i] = t1 + (Milliseconds) ((*p_Instance)[k].alpha * (*p_Dur)[j]);
+					//	BPPrintMessage(0,odInfo,"Fix() time pattern k = %ld j = %ld alpha = %.2f Dur = %.2f, t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(*p_Dur)[j],(long)t1,(long)t2);
 						}
 					else {
-						t2 = (*p_time2)[i] = t1;
-					//	BPPrintMessage(0,odInfo,"nseq = %ld k = %ld t1 = t2 = %ld\n",(long)nseq,(long)k,(long)t1);
+						if((*p_PivMode)[j] == RELATIF)
+							t1 = (*p_T)[i]
+								- (Milliseconds) ((*p_Instance)[k].dilationratio * (*p_Dur)[j]
+								* (*p_PivPos)[j] / 100.);
+						else
+							t1 = (*p_T)[i] - (*p_PivPos)[j];
+						RandomTime(&t1,(*p_Instance)[k].randomtime,(*p_Instance)[k].alpha * (*p_Dur)[j],&dont_randomize);
+						(*p_time1)[i] = t1;
+						if(PlayFromInsertionPoint) t1 = (*p_time1)[i] = (*p_T)[i];
+						t2 = (*p_time2)[i] = t1
+							+ (Milliseconds)((*p_Instance)[k].alpha * (*p_Dur)[j]);
+				//		if(k > 2 && k < 6) BPPrintMessage(0,odInfo,"Fix() k = %ld j = %ld alpha = %.2f Dur = %ld t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)(*p_Dur)[j],(long)t1,(long)t2);
 						}
 					}
-				else {
-					RandomTime(&t1,(*p_Instance)[k].randomtime);
-					(*p_time1)[i] = t1;
-					t2 = (*p_time2)[i] = t1 + (*p_Instance)[k].alpha * 1000L;
+				else {	/* Simple note or silence */
+					t1 = (*p_T)[i];
+					if(j == 1) { // Added by BB 2022-02-24
+						(*p_time1)[i] = t1;
+						if(nseq == 0 && nature_time == SMOOTH) {
+							t2 = (*p_time2)[i] = t1 + (Milliseconds)((*p_Instance)[k].alpha * (*p_Dur)[j]);
+						//	BPPrintMessage(0,odInfo,"nseq = %ld k = %ld alpha = %.2f Dur[j] = %ld\n",(long)nseq,(long)k,(*p_Instance)[k].alpha,(long)(*p_Dur)[j]);
+						//	t2 = (*p_time2)[i] = (*p_time1)[i] + (inext - i) * local_period;
+							}
+						else {
+							t2 = (*p_time2)[i] = t1;
+						//	BPPrintMessage(0,odInfo,"nseq = %ld k = %ld t1 = t2 = %ld\n",(long)nseq,(long)k,(long)t1);
+							}
+						}
+					else {
+						RandomTime(&t1,(*p_Instance)[k].randomtime,(*p_Instance)[k].alpha * 1000L,&dont_randomize);
+						(*p_time1)[i] = t1;
+						t2 = (*p_time2)[i] = t1 + (*p_Instance)[k].alpha * 1000L;
+						}
+					// BPPrintMessage(0,odInfo,"Fix() simple note or silence k = %ld j = %ld, i = %ld alpha = %.2f t1 = %ldms t2 = %ldms\n",(long)k,(long)j,(long)i,(*p_Instance)[k].alpha,(long)t1,(long)t2);
 					}
-				// BPPrintMessage(0,odInfo,"Fix() simple note or silence k = %ld j = %ld, i = %ld alpha = %.2f t1 = %ldms t2 = %ldms\n",(long)k,(long)j,(long)i,(*p_Instance)[k].alpha,(long)t1,(long)t2);
+				}
+			else {
+				/* Out-time sound-object */
+				j = -j;
+				t1 = t2 = (*p_time1)[i] = (*p_time2)[i] = (*p_T)[i];
 				}
 			}
 		else {
-			/* Out-time sound-object */
-			j = -j;
 			t1 = t2 = (*p_time1)[i] = (*p_time2)[i] = (*p_T)[i];
+			if(nseq == 0 && nature_time == SMOOTH) {
+				t2 = (*p_time2)[i] = (*p_time1)[i] + (inext - i) * local_period;
+				}
 			}
-		}
-	else {
-		t1 = t2 = (*p_time1)[i] = (*p_time2)[i] = (*p_T)[i];
 		if(nseq == 0 && nature_time == SMOOTH) {
-			t2 = (*p_time2)[i] = (*p_time1)[i] + (inext - i) * local_period;
+			local_period = (double) (t2 - t1) / (inext - i);
+			i = inext;
 			}
+		else i = inext;
 		}
-	if(nseq == 0 && nature_time == SMOOTH) {
-		local_period = (double) (t2 - t1) / (inext - i);
-		i = inext;
-		}
-	else i = inext;
+	return(OK);
 	}
-return(OK);
-}
 
 
 int Calculate_alpha(int nseq,int nmax,long maxseq,unsigned long imaxseq,int nature_time,
@@ -970,7 +989,7 @@ if(nature_time == STRIATED || nseq == 0) {
 		// BPPrintMessage(0,odInfo,"@ k = %ld j = %ld nseq = %d i = %ld inext = %ld seq[inext] = %d d = %.2f, T[i] = %ld T[i+1] = %ld, T[inext] = %ld T[inext+1] = %ld Kpress = %.0f Ratio = %.0f Kpress/Ratio = %.3f Pclock = %.2f\n",(long)k,(long)j,nseq,(long)i,(long)inext,(*((*p_Seq)[nseq]))[inext],d,(long)(*p_T)[i],(long)(*p_T)[i+1],(long)(*p_T)[inext],(long)(*p_T)[inext+1],Kpress,Ratio,Kpress/Ratio,(double)Pclock);
 		if(nature_time == SMOOTH) {
 			if(Qclock < 1L) {
-			//	if(Beta) Alert1("=> Err. Calculate_alpha(). Qclock < 1. ");
+			//	BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). Qclock < 1. ");
 				BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). Qclock < 1.\n");
 				return(ABORT);
 				}
@@ -1077,7 +1096,7 @@ FINDNEXTMARKED:
 		/* In this case alpha will be too small on current object */
 		
 		if(k >= Maxevent) {
-		//	if(Beta) Alert1("=> Err. Calculate_alpha(). k >= Maxevent (2)");
+		//	BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). k >= Maxevent (2)");
 			BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). k >= Maxevent (2)\n");
 			return(ABORT);
 			}
@@ -1373,32 +1392,34 @@ int AssignValue(int index,double value,int p,int level,long* p_kmx,
 	CurrentParameters **p_deftcurrentparameters,
 	CurrentParameters *p_currentparameters,ContParameters **p_contparameters,
 	long id,tokenbyte ***pp_buff,double tempo,double scaling,
-	Table **h_table)
-{
-float endval,maxbeats;
-KeyNumberMap mapendvalue;
+	Table **h_table) {
 
-if((*p_contparameters)[level].values == NULL) {
-	if(Beta) Alert1("=> Err. AssignValue(). (*p_contparameters)[level].values == NULL");
-	return(ABORT);
+	float endval,maxbeats;
+	KeyNumberMap mapendvalue;
+
+	if((*p_contparameters)[level].values == NULL) {
+		BPPrintMessage(0,odError,"=> Err. AssignValue(). (*p_contparameters)[level].values == NULL\n");
+		return(ABORT);
+		}
+	(*((*p_contparameters)[level].values))[index].v0
+		= (*((*p_contparameters)[level].values))[index].start
+		= value;
+	(*((*p_contparameters)[level].values))[index].active = TRUE;
+	(*((*p_contparameters)[level].values))[index].known = TRUE;
+
+	if(trace_set_variation) BPPrintMessage(0,odInfo,"AssignValue() active = TRUE, value = v0 = %ld, v1 = %ld for id = %d index = %d\n",(long)value,(long)(*((*p_contparameters)[level].values))[index].v1,id,index);
+
+	if(p < 128)
+		(*((*p_contparameters)[level].values))[index].control = -1;
+	else
+		(*((*p_contparameters)[level].values))[index].control = p - 128;
+		
+	if(SetVariation(-1,p_deftcurrentparameters,p_currentparameters,p_contparameters,level,index,id,*pp_buff,tempo,scaling,&endval,&mapendvalue,&maxbeats,h_table) != OK) return(ABORT);
+	if(trace_set_variation) BPPrintMessage(0,odInfo,"AssignValue() endval = %d maxbeats = %.2f\n",(long)endval,maxbeats);
+	(*((*p_contparameters)[level].values))[index].v1
+		= endval;
+	return(OK);
 	}
-(*((*p_contparameters)[level].values))[index].v0
-	= (*((*p_contparameters)[level].values))[index].start
-	= value;
-// BPPrintMessage(0,odInfo,"active = TRUE for index = %d\n",index);
-(*((*p_contparameters)[level].values))[index].active = TRUE;
-(*((*p_contparameters)[level].values))[index].known = TRUE;
-
-if(p < 128)
-	(*((*p_contparameters)[level].values))[index].control = -1;
-else
-	(*((*p_contparameters)[level].values))[index].control = p - 128;
-	
-if(SetVariation(-1,p_deftcurrentparameters,p_currentparameters,p_contparameters,level,index,id,*pp_buff,
-	tempo,scaling,&endval,&mapendvalue,&maxbeats,h_table) != OK) return(ABORT);
-
-return(OK);
-}
 
 
 int TokenToIndex(tokenbyte m,int index)
@@ -1464,7 +1485,7 @@ double FindValue(tokenbyte m,tokenbyte p,int chan) {
 			if(p >= 128 && m != T26 && (m != T20 || p < 0)) {
 				value = ParamValue[p-128];
 				if(value == INT_MAX) {
-					if(Beta) Alert1("=> Err. FindValue(). value == INT_MAX");
+					BPPrintMessage(0,odError,"=> Err. FindValue(). value == INT_MAX");
 					value = 127;
 					}
 				return((double) value);
@@ -1472,7 +1493,7 @@ double FindValue(tokenbyte m,tokenbyte p,int chan) {
 			else return((double) p);
 			break;
 		}
-	if(m == T35) {	/* _value() */
+	if(m == T35) {	// _value()
 		paramnameindex = (p % 256);
 		paramvalueindex = (p - paramnameindex) / 256;
 		x = (*p_NumberConstant)[paramvalueindex];
@@ -1480,11 +1501,11 @@ double FindValue(tokenbyte m,tokenbyte p,int chan) {
 			BPPrintMessage(0,odInfo,"T35 paramnameindex = %d paramvalueindex = %d, x = %.3f\n",paramnameindex,paramvalueindex,x);
 		}
 	else x = (double) p;
-	if(m == T15 || paramnameindex == IPITCHBEND) {
+	if(m == T15 || paramnameindex == IPITCHBEND) {  // _pitchbend()
 		xx = x;
 		if(PitchbendRange[chan] > 0)
 			x = DEFTPITCHBEND + ((double) x * DEFTPITCHBEND / (double) PitchbendRange[chan]);
-	//	BPPrintMessage(0,odInfo,"Pitchbend x = %ld, xx = %ld, range = %ld\n",(long)x,(long)xx,(long)PitchbendRange[chan]);
+		if(trace_set_variation) BPPrintMessage(0,odInfo,"Pitchbend x = %ld, xx = %ld, range = %ld\n",(long)x,(long)xx,(long)PitchbendRange[chan]);
 		if(x < 0 || x > 16383) {
 			if(PitchbendRange[chan] > 0)
 				my_sprintf(Message,"=> Pitchbend value (%ld cents) on channel %ld out of range (-%ld..%ld cents)",
@@ -1492,7 +1513,7 @@ double FindValue(tokenbyte m,tokenbyte p,int chan) {
 			else
 				my_sprintf(Message,"=> Pitchbend value (%ld) on channel %ld out of range (0..16383)",
 					(long)xx,(long)chan);
-			Alert1(Message);
+			BPPrintMessage(0,odError,"%s",Message);
 			return(Infpos);
 			}
 		}
@@ -1502,286 +1523,304 @@ double FindValue(tokenbyte m,tokenbyte p,int chan) {
 
 double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 	tokenbyte m_org,tokenbyte p_org,long id,double orgspeed,double orgscaling,
-	int channel_org,int instrument_org,int part_org,int foundendconcatenation_org, int level_org)
-{
+	int channel_org,int instrument_org,int part_org,int foundendconcatenation_org, int level_org) {
+	unsigned long i;
+	tokenbyte m,p,old_m,old_p;
+	int level,instrument,part,channel;
+	double tempo,tempomax,prodtempo,objectduration,speed,tick_start,tick_end,this_end,this_point,
+		s,scaling,**p_duration_of_field,**p_duration_org;
+	char tie_is_open,foundendconcatenation,found_beginning,justfinishedconcatenation;
 
-unsigned long i;
-tokenbyte m,p,old_m,old_p;
-int level,instrument,part,channel;
-double tempo,tempomax,prodtempo,objectduration,speed,tick_start,tick_end,this_end,this_point,
-	s,scaling,**p_duration_of_field,**p_duration_org;
-char tie_is_open,foundendconcatenation,found_beginning,justfinishedconcatenation;
-
-if(m_org != T3 && m_org != T25 && m_org != T9) {
-	if(Beta) {
+	if(m_org != T3 && m_org != T25 && m_org != T9) {
 		BPPrintMessage(0,odError,"=> Err. GetSymbolicDuration(). m_org = %ld",(long)m_org);
+		return(0);
 		}
-	return(0);
-	}
 
-if((p_duration_of_field = (double**) GiveSpace((Size)(Maxlevel+1)*sizeof(double))) == NULL)
-	goto SORTIR;
-if((p_duration_org = (double**) GiveSpace((Size)(Maxlevel+1)*sizeof(double))) == NULL)
-	goto SORTIR;
-for(level = 0; level <= Maxlevel; level++) {
-	(*p_duration_of_field)[level] = (*p_duration_org)[level] = 0.;
-	}
-	
-if(orgspeed == 0.) {
-	if(Beta) BPPrintMessage(0,odError,"=> Err. GetSymbolicDuration(). orgspeed == ZERO");
-	objectduration = 0.;
-	goto SORTIR;
-	}
-tempomax = Prod / Kpress;
-scaling = orgscaling;
-speed = orgspeed;
+	if((p_duration_of_field = (double**) GiveSpace((Size)(Maxlevel+1)*sizeof(double))) == NULL)
+		goto SORTIR;
+	if((p_duration_org = (double**) GiveSpace((Size)(Maxlevel+1)*sizeof(double))) == NULL)
+		goto SORTIR;
+	for(level = 0; level <= Maxlevel; level++) {
+		(*p_duration_of_field)[level] = (*p_duration_org)[level] = 0.;
+		}
+		
+	if(orgspeed == 0.) {
+		BPPrintMessage(0,odError,"=> Err. GetSymbolicDuration(). orgspeed == ZERO");
+		objectduration = 0.;
+		goto SORTIR;
+		}
+	tempomax = Prod / Kpress;
+	scaling = orgscaling;
+	speed = orgspeed;
 
-if(scaling != 0.) tempo = speed / scaling;
-else tempo = 0.;
-if(tempo == 0.) prodtempo = 0.;
-else prodtempo = (Prod / tempo);
+	if(scaling != 0.) tempo = speed / scaling;
+	else tempo = 0.;
+	if(tempo == 0.) prodtempo = 0.;
+	else prodtempo = (Prod / tempo);
 
-/* if(p_org == 95 || p_org == 80) trace_get_duration = TRUE;
-else trace_get_duration = FALSE; */
+	/* if(p_org == 95 || p_org == 80) trace_get_duration = TRUE;
+	else trace_get_duration = FALSE; */
 
-if(trace_get_duration)
-	BPPrintMessage(0,odInfo,"\nGetSymbolicDuration Maxlevel = %ld m = %d p = %d Prod = %.2f tempo = %.2f prodtempo = %.2f id = %ld channel = %d instrument = %d part = %d endconcatenation = %d\n",(long)Maxlevel,m_org,p_org,Prod,tempo,prodtempo,id,channel_org,instrument_org,part_org,foundendconcatenation_org);
-
-m = (*p_buff)[id+2L]; p = (*p_buff)[id+3L];
-if(m != T0 || p != 18) {
-	ignoreconcat = TRUE;
 	if(trace_get_duration)
-		BPPrintMessage(0,odInfo,"no tie %ld|%ld\n",(long)m_org,(long)p_org);
-	}
-else if(trace_get_duration)
-		BPPrintMessage(0,odInfo,"tie %ld|%ld %ld|%ld\n",(long)m_org,(long)p_org,(long)m,(long)p);
+		BPPrintMessage(0,odInfo,"GetSymbolicDuration Maxlevel = %ld, m = %d, p = %d, scaling = %.2f orgspeed = %.2f Prod = %.2f tempo = %.2f prodtempo = %.2f id = %ld channel = %d instrument = %d part = %d endconcatenation = %d\n",(long)Maxlevel,m_org,p_org,scaling,orgspeed,Prod,tempo,prodtempo,id,channel_org,instrument_org,part_org,foundendconcatenation_org);
 
-if(ignoreconcat) {
-	i = id + 2L;
-	old_m = m_org; old_p = p_org;
-	}
-else {
-	i = 0;
-	old_m = old_p = 0;
-	level_org = 0;
-	}
+	m = (*p_buff)[id+2L]; p = (*p_buff)[id+3L];
+	if(m != T0 || p != 18) {
+		ignoreconcat = TRUE;
+		if(trace_get_duration)
+			BPPrintMessage(0,odInfo,"no tie %ld|%ld\n",(long)m_org,(long)p_org);
+		}
+	else if(trace_get_duration)
+			BPPrintMessage(0,odInfo,"tie %ld|%ld %ld|%ld\n",(long)m_org,(long)p_org,(long)m,(long)p);
 
-level = level_org;
-(*p_duration_of_field)[level] = (*p_duration_org)[level] = 0.;
-tie_is_open = found_beginning = foundendconcatenation = justfinishedconcatenation = FALSE;
-instrument = instrument_org;
-part = part_org;
-channel = channel_org;
-tick_start = tick_end = -1.;
+	if(ignoreconcat) {
+		i = id + 2L;
+		old_m = m_org; old_p = p_org;
+		}
+	else {
+		i = 0;
+		old_m = old_p = 0;
+		level_org = 0;
+		}
 
-for(i=i; ; i+=2) { 
-	m = (*p_buff)[i]; p = (*p_buff)[i+1];
-	if(m == TEND && p == TEND) break;
-	
-	if(!ignoreconcat && i == id) {
-		if(m != m_org || p != p_org || (*p_buff)[i+2] != T0 || (*p_buff)[i+3] != 18 || channel != channel_org || instrument != instrument_org || part != part_org) {
-			if(trace_get_duration) BPPrintMessage(0,odInfo,"\n=> Error: %ld|%ld channel %d instrument %d part %d does not match the call %ld|%ld channel %d instrument %d part %d\n",(long)m,(long)p,channel,instrument,part,(long)m_org,(long)p_org,channel_org,instrument_org,part_org);
+	level = level_org;
+	(*p_duration_of_field)[level] = (*p_duration_org)[level] = 0.;
+	tie_is_open = found_beginning = foundendconcatenation = justfinishedconcatenation = FALSE;
+	instrument = instrument_org;
+	part = part_org;
+	channel = channel_org;
+	tick_start = tick_end = -1.;
+
+	if(ignoreconcat) { // 2025-01-14
+		tick_start = 0;
+		if((*p_buff)[i] != T3 || (*p_buff)[i+1] != 0) { // No prolongation 2025-01-19
+			tick_end = prodtempo;
 			goto SORTIR;
 			}
 		else {
-			tick_start = (*p_duration_of_field)[level];
-			(*p_duration_of_field)[level] += prodtempo; // Added by BB 2021-04-02
-			if(trace_get_duration) BPPrintMessage(0,odInfo,"\n• Got it: %ld|%ld id = %ld level %d channel %d instrument %d part %d tick_start = %.2f foundendconcatenation = %d\n",(long)m,(long)p,(long)id,level,channel,instrument,part,tick_start,(int)foundendconcatenation);
-			tie_is_open = found_beginning = TRUE;
-			old_m = m; old_p = p;
-			continue; // Added by BB 2021-04-01
+			tick_end = prodtempo;
 			}
 		}
-	
-	if(m == T10) {	// Channel assignment _chan()
-		channel = (int) FindValue(m,p,0);
-		if(trace_get_duration) BPPrintMessage(0,odInfo,"[%d]",channel);
-		continue;
-		}
-	if(m == T32) { // Instrument assignment _ins()
-		instrument = (int) FindValue(m,p,0);
-		if(trace_get_duration) BPPrintMessage(0,odInfo,"\ninstrument = %d\n",instrument);
-		continue;
-		}
-	if(m == T46) { // Part assignment _part()
-		part = (int) FindValue(m,p,0);
-		if(trace_get_duration) BPPrintMessage(0,odInfo,"\npart = %d\n",part);
-		continue;
-		}
-	if(m == T0) {
-		switch(p) {
-			case 11:	// '/' speed up
-				speed = GetScalingValue(p_buff,i);
-				if(scaling != 0.) {
-					tempo = speed / scaling;
-					prodtempo = (Prod / tempo);
-					}
-				else tempo = 0.;
-				if(tempo == 0.) prodtempo = 0.;
-				else prodtempo = Prod / tempo;
-				i += 4;
-				continue;
-				break;
-			case 25:	// '\' speed down
-				speed = 1. / (GetScalingValue(p_buff,i));
-				if(scaling != 0.) {
-					tempo = speed / scaling;
-					prodtempo = (Prod / tempo);
-					}
-				else tempo = 0.;
-				if(tempo == 0.) prodtempo = 0.;
-				else prodtempo = (Prod / tempo);
-				i += 4;
-				continue;
-				break;
-			case 21:	// '*' scaling up 
-				scaling = GetScalingValue(p_buff,i);
-				if(scaling != 0.) {
-					tempo = speed / scaling;
-					prodtempo = (Prod / tempo);
-					}
-				else tempo = 0.;
-				if(tempo == 0.) prodtempo = 0.;
-				else prodtempo = (Prod / tempo);
-				i += 4;
-				continue;
-				break;
-			case 24:	// '**' scaling down
-				s = GetScalingValue(p_buff,i);
-				scaling = 1. / s;
-				if(scaling != 0.) {
-					tempo = speed / scaling;
-					prodtempo = (Prod / tempo);
-					}
-				else tempo = 0.;
-				if(tempo == 0.) prodtempo = 0.;
-				else prodtempo = (Prod / tempo);
-				i += 4;
-				continue;
-				break;
-			case 12:	// '{'
-			case 22:
-				if(ignoreconcat) goto SORTIR;
-				(*p_duration_org)[level+1] = (*p_duration_of_field)[level+1] = (*p_duration_of_field)[level];
-				level++;
-				if(trace_get_duration) BPPrintMessage(0,odInfo,"{(%ld) ",(long)(*p_duration_of_field)[level]);
-				break;
-			case 13:	// '}'
-			case 23:
-				if(ignoreconcat) goto SORTIR;
-				level--;
-				(*p_duration_of_field)[level] = (*p_duration_of_field)[level+1];
-				if(trace_get_duration) BPPrintMessage(0,odInfo,"}(%ld) ",(long)(*p_duration_of_field)[level]);
-				break;
-			case 14:	// comma
-				(*p_duration_of_field)[level] = (*p_duration_org)[level];
-				if(trace_get_duration) BPPrintMessage(0,odInfo,",(%ld) ",(long)(*p_duration_of_field)[level]);
-				(*p_duration_of_field)[level] = (*p_duration_org)[level];
-				break;
-			case 7:		// period 
-				if(trace_get_duration) BPPrintMessage(0,odInfo,"•");
-				break;
-			case 18:	// '&' following terminal
-				if(!found_beginning || ignoreconcat) continue;
-				if(trace_get_duration) BPPrintMessage(0,odInfo,"+&");
-				if(instrument != instrument_org || channel != channel_org || part != part_org) continue;
-				if(old_m == m_org && old_p == p_org && instrument == instrument_org && part == part_org && channel == channel_org) {
-					if(trace_get_duration)
-						BPPrintMessage(0,odInfo,"\nFound '&' following terminal\n");
-					if(!tie_is_open && !justfinishedconcatenation) {
-						goto SORTIR;
+	for(i=i; ; i+=2) { 
+		m = (*p_buff)[i]; p = (*p_buff)[i+1];
+		if(m == TEND && p == TEND) break;
+		if(trace_get_duration) BPPrintMessage(0,odInfo,"• %d|%d\n",m,p);
+		if(!ignoreconcat && i == id) {
+			if(m != m_org || p != p_org || (*p_buff)[i+2] != T0 || (*p_buff)[i+3] != 18 || channel != channel_org || instrument != instrument_org || part != part_org) {
+				if(trace_get_duration) BPPrintMessage(0,odInfo,"\n=> Error: %ld|%ld channel %d instrument %d part %d does not match the call %ld|%ld channel %d instrument %d part %d\n",(long)m,(long)p,channel,instrument,part,(long)m_org,(long)p_org,channel_org,instrument_org,part_org);
+				goto SORTIR;
+				}
+			else {
+				tick_start = (*p_duration_of_field)[level];
+				(*p_duration_of_field)[level] += prodtempo;
+				if(trace_get_duration) BPPrintMessage(0,odInfo,"• Got it: %ld|%ld id = %ld level %d channel %d instrument %d part %d tick_start = %.2f foundendconcatenation = %d\n",(long)m,(long)p,(long)id,level,channel,instrument,part,tick_start,(int)foundendconcatenation);
+				tie_is_open = found_beginning = TRUE;
+				old_m = m; old_p = p;
+				continue; // Added by BB 2021-04-01
+				}
+			}
+		
+		if(m == T10) {	// Channel assignment _chan()
+			channel = (int) FindValue(m,p,0);
+			if(trace_get_duration) BPPrintMessage(0,odInfo,"channel = %d\n",channel);
+			continue;
+			}
+		if(m == T32) { // Instrument assignment _ins()
+			instrument = (int) FindValue(m,p,0);
+			if(trace_get_duration) BPPrintMessage(0,odInfo,"\ninstrument = %d\n",instrument);
+			continue;
+			}
+		if(m == T46) { // Part assignment _part()
+			part = (int) FindValue(m,p,0);
+			if(trace_get_duration) BPPrintMessage(0,odInfo,"\npart = %d\n",part);
+			continue;
+			}
+		if(m == T0) {
+			switch(p) {
+				case 11:	// '/' speed up
+					speed = GetScalingValue(p_buff,i);
+					if(scaling != 0.) {
+						tempo = speed / scaling;
+						prodtempo = (Prod / tempo);
 						}
+					else tempo = 0.;
+					if(tempo == 0.) prodtempo = 0.;
+					else prodtempo = Prod / tempo;
+					i += 4;
+					continue;
+					break;
+				case 25:	// '\' speed down
+					speed = 1. / (GetScalingValue(p_buff,i));
+					if(scaling != 0.) {
+						tempo = speed / scaling;
+						prodtempo = (Prod / tempo);
+						}
+					else tempo = 0.;
+					if(tempo == 0.) prodtempo = 0.;
+					else prodtempo = (Prod / tempo);
+					i += 4;
+					continue;
+					break;
+				case 21:	// '*' scaling up 
+					scaling = GetScalingValue(p_buff,i);
+					if(scaling != 0.) {
+						tempo = speed / scaling;
+						prodtempo = (Prod / tempo);
+						}
+					else tempo = 0.;
+					if(tempo == 0.) prodtempo = 0.;
+					else prodtempo = (Prod / tempo);
+					i += 4;
+					continue;
+					break;
+				case 24:	// '**' scaling down
+					s = GetScalingValue(p_buff,i);
+					scaling = 1. / s;
+					if(scaling != 0.) {
+						tempo = speed / scaling;
+						prodtempo = (Prod / tempo);
+						}
+					else tempo = 0.;
+					if(tempo == 0.) prodtempo = 0.;
+					else prodtempo = (Prod / tempo);
+					i += 4;
+					continue;
+					break;
+				case 12:	// '{'
+				case 22:
+					if(ignoreconcat) goto SORTIR;
+					(*p_duration_org)[level+1] = (*p_duration_of_field)[level+1] = (*p_duration_of_field)[level];
+					level++;
+					if(trace_get_duration) BPPrintMessage(0,odInfo,"{ (%ld)\n",(long)(*p_duration_of_field)[level]);
+					break;
+				case 13:	// '}'
+				case 23:
+					if(ignoreconcat) goto SORTIR;
+					level--;
+					(*p_duration_of_field)[level] = (*p_duration_of_field)[level+1];
+					if(trace_get_duration) BPPrintMessage(0,odInfo,"} (%ld)\n",(long)(*p_duration_of_field)[level]);
+					break;
+				case 14:	// comma
+					if(ignoreconcat) goto SORTIR; // Added 2025-01-21 confirmed 2025-01-22
+					(*p_duration_of_field)[level] = (*p_duration_org)[level];
+					if(trace_get_duration) BPPrintMessage(0,odInfo,", (%ld)\n",(long)(*p_duration_of_field)[level]);
+					(*p_duration_of_field)[level] = (*p_duration_org)[level];
+					tick_end = tick_start; // 2025-01-22 remove?
+					break;
+				case 7:		// period 
+					if(trace_get_duration) BPPrintMessage(0,odInfo,"•\n");
+					break;
+				case 18:	// '&' following terminal
+					if(!found_beginning || ignoreconcat) continue;
+					if(trace_get_duration) BPPrintMessage(0,odInfo,"+&\n");
+					if(instrument != instrument_org || channel != channel_org || part != part_org) continue;
+					if(old_m == m_org && old_p == p_org && instrument == instrument_org && part == part_org && channel == channel_org) {
+						if(trace_get_duration)
+							BPPrintMessage(0,odInfo,"Found '&' following terminal\n");
+						if(!tie_is_open && !justfinishedconcatenation) {
+							goto SORTIR;
+							}
+						if(trace_get_duration)
+							BPPrintMessage(0,odInfo,"• Starting tie: %ld|%ld location %.2f\n",(long)old_m,(long)old_p,tick_start);
+						tie_is_open = TRUE;
+						}
+					justfinishedconcatenation = FALSE;
+					break;
+				case 19:	// '&' preceding terminal
+					if(!found_beginning || ignoreconcat) continue;
+					if(trace_get_duration) BPPrintMessage(0,odInfo,"&+\n");
+					if(instrument != instrument_org || channel != channel_org || part != part_org ) continue;
+					this_end = (*p_duration_of_field)[level] + prodtempo;
 					if(trace_get_duration)
-						BPPrintMessage(0,odInfo,"• Starting tie: %ld|%ld location %.2f\n",(long)old_m,(long)old_p,tick_start);
-					tie_is_open = TRUE;
-					}
-				justfinishedconcatenation = FALSE;
-				break;
-			case 19:	// '&' preceding terminal
-				if(!found_beginning || ignoreconcat) continue;
-				if(trace_get_duration) BPPrintMessage(0,odInfo,"&+");
-				if(instrument != instrument_org || channel != channel_org || part != part_org ) continue;
-				this_end = (*p_duration_of_field)[level] + prodtempo;
-				if(trace_get_duration)
-					BPPrintMessage(0,odInfo,"\nIs this the end? this_end = %.2f tick_end = %.2f",this_end,tick_end);
-				if(tie_is_open && this_end > tick_end) {
-					foundendconcatenation = TRUE;
-					}
-				break;
+						BPPrintMessage(0,odInfo,"Is this the end? this_end = %.2f tick_end = %.2f\n",this_end,tick_end);
+					if(tie_is_open && this_end > tick_end) {
+						if(trace_get_duration)
+							BPPrintMessage(0,odInfo,"yes\n");
+						foundendconcatenation = TRUE;
+						}
+					break;
+				}
+			old_m = m; old_p = p;
+		//	continue; Fixed by BB 2021-04-01
 			}
+	/*	if(ignoreconcat) {  // 2025-01-14
+			tick_start = 0.; tick_end = prodtempo;
+			goto SORTIR;
+			} */
+		justfinishedconcatenation = FALSE;
 		old_m = m; old_p = p;
-	//	continue; Fixed by BB 2021-04-01
-		}
-	if(ignoreconcat) {
-		tick_start = 0.; tick_end = prodtempo;
-		goto SORTIR;
-		}
-	justfinishedconcatenation = FALSE;
-	old_m = m; old_p = p;
-	if(m == T7 || m == T4) continue; // out-time object or variable
-	if(m == T9) {	// time pattern
-		(*p_duration_of_field)[level] += prodtempo;
-		continue;
-		}
-	if(m == T3 && p == 0) {
-		if(trace_get_duration) BPPrintMessage(0,odInfo,"_");
-		(*p_duration_of_field)[level] += prodtempo;
-		continue;
-		}
-	if(m == T3 || m == T25) {
-		(*p_duration_of_field)[level] += prodtempo;
-		if(trace_get_duration) BPPrintMessage(0,odInfo," <%ld|%ld> (%ld)",m,p,(long)(*p_duration_of_field)[level]);
-		if(trace_get_duration)
-			if(foundendconcatenation) BPPrintMessage(0,odInfo,"\nm = %d p = %d i = %ld tick_start = %.2f this_end = %.2f found_beginning = %d\n",m,p,(long)i,tick_start,this_end,(int)found_beginning);
-		if(found_beginning && foundendconcatenation && m == m_org && p == p_org && instrument == instrument_org && part == part_org && channel == channel_org && this_end >= tick_start) { // Fixed this_end >= tick_start by BB 2021-04-01
-			tick_end = this_end;
-			tie_is_open = FALSE;
-			justfinishedconcatenation = TRUE;
-			if(trace_get_duration)
-				BPPrintMessage(0,odInfo,"\n• Ending tie: %ld|%ld this_end = %.2f\n",(long)m_org,(long)p_org,this_end);
+		if(m == T7 || m == T4) continue; // out-time object or variable
+		if(m == T9) {	// time pattern
+			(*p_duration_of_field)[level] += prodtempo;
+			continue;
 			}
-		foundendconcatenation = FALSE;
-		continue;
+		if(m == T3 && p == 0) {
+			if(trace_get_duration) BPPrintMessage(0,odInfo,"_\n");
+			(*p_duration_of_field)[level] += prodtempo;
+			tick_end += prodtempo; // 2025-01-21
+			continue;
+			}
+		if(m == T3 || m == T25) {
+			(*p_duration_of_field)[level] += prodtempo;
+			if(trace_get_duration) BPPrintMessage(0,odInfo,"<%ld|%ld> (%ld)\n",m,p,(long)(*p_duration_of_field)[level]);
+			if(trace_get_duration)
+				if(foundendconcatenation) BPPrintMessage(0,odInfo,"foundendconcatenation\n");
+			if(found_beginning && foundendconcatenation && m == m_org && p == p_org && instrument == instrument_org && part == part_org && channel == channel_org && this_end >= tick_start) { // Fixed this_end >= tick_start by BB 2021-04-01
+				tick_end = this_end;
+				tie_is_open = FALSE;
+				justfinishedconcatenation = TRUE;
+				if(trace_get_duration)
+					BPPrintMessage(0,odInfo,"Perhaps end of tie: <%d|%d> i = %ld tick_start = %.2f this_end = %.2f found_beginning = %d\n",m,p,(long)i,tick_start,this_end,(int)found_beginning);
+				}
+			foundendconcatenation = FALSE;
+			continue;
+			}
 		}
+
+	SORTIR:
+
+	if(!ignoreconcat && trace_get_duration)
+		BPPrintMessage(0,odInfo,"Duration of expression = %.2f\n",(*p_duration_of_field)[level]);
+
+	if(tick_start >= 0. && tick_end >= 0. && tick_end >= tick_start)
+		objectduration = tick_end - tick_start;
+	else {
+		objectduration = 0.;
+		if(!ignoreconcat && m_org == T3) {
+			if(trace_get_duration) BPPrintMessage(0,odError,"\n=> An unbound tied object was ignored\n");
+			(*(p_Missed_tie_event[instrument_org]))[p_org] += 1;
+			}
+		if(!ignoreconcat && m_org == T25) {
+			if(trace_get_duration)
+				BPPrintMessage(0,odError,"\n=> An unbound tied note was ignored\n");
+			(*(p_Missed_tie_note[channel_org]))[p_org] += 1;
+			}
+		}
+
+	if(trace_get_duration)
+		BPPrintMessage(0,odInfo,"OBJECT DURATION = %.2f channel %d tick_start = %.2f tick_end = %.2f\n",objectduration,channel,tick_start,tick_end);
+	MyDisposeHandle((Handle*)&p_duration_of_field);
+	MyDisposeHandle((Handle*)&p_duration_org);
+	return(objectduration);
 	}
 
-SORTIR:
 
-if(trace_get_duration)
-	BPPrintMessage(0,odInfo,"\nDuration of expression = %.2f\n",(*p_duration_of_field)[level]);
+int RandomTime(Milliseconds *p_t1,short randomtime,Milliseconds duration,short *p_dont_randomize) {
+	float x;
 
-if(tick_start >= 0. && tick_end >= 0. && tick_end >= tick_start)
-	objectduration = tick_end - tick_start;
-else {
-	objectduration = 0.;
-	if(!ignoreconcat && m_org == T3) {
-		if(trace_get_duration) BPPrintMessage(0,odError,"\n=> An unbound tied event was ignored\n");
-		(*(p_Missed_tie_event[instrument_org]))[p_org] += 1;
+	if(randomtime == 0) return(OK);
+	if(duration < (2 * randomtime)) {
+		*p_dont_randomize = TRUE;
+		return(OK);
 		}
-	if(!ignoreconcat && m_org == T25) {
-		if(trace_get_duration)
-			BPPrintMessage(0,odError,"\n=> An unbound tied note was ignored\n");
-		(*(p_Missed_tie_note[channel_org]))[p_org] += 1;
+	if(*p_dont_randomize) {
+		*p_dont_randomize = FALSE;
+		return(OK);
 		}
+	x = (2. * rand() * ((float)randomtime)) / ((float)RAND_MAX);
+	UsedRandom = TRUE;
+	if(x > randomtime) x = randomtime - x;
+	(*p_t1) += x;
+	if((*p_t1) < ZERO) (*p_t1) = ZERO;
+	return(OK);
 	}
-
-if(trace_get_duration)
-	BPPrintMessage(0,odInfo,"\nOBJECT DURATION = %.2f channel %d tick_start = %.2f tick_end = %.2f\n",objectduration,channel,tick_start,tick_end);
-MyDisposeHandle((Handle*)&p_duration_of_field);
-MyDisposeHandle((Handle*)&p_duration_org);
-return(objectduration);
-}
-
-
-int RandomTime(Milliseconds *p_t1,short randomtime)
-{
-float x;
-
-if(randomtime == 0) return(OK);
-x = (2. * rand() * ((float)randomtime)) / ((float)RAND_MAX);
-UsedRandom = TRUE;
-if(x > randomtime) x = randomtime - x;
-(*p_t1) += x;
-if((*p_t1) < ZERO) (*p_t1) = ZERO;
-return(OK);
-}

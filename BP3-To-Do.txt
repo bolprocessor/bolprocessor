@@ -25,6 +25,7 @@ Apache autostart in XAMPP for MacOS
 - The problem probably lies in the current distribution (8.2.4) of XAMPP for MacOS.
 - If the XAMPP Apache is restarted in the MacOS installation script, it runs correctly. But it is not possible to restart it in the console because "/Applications/XAMPP/xamppfiles/xampp restartapache" has to be called by 'root'.
 - Try to fix this in the latest version of XAMPP!
+- If the "bolprocessor" folder is relocated, using XAMPP with MacOS, it no longer works after a reboot and BP3 needs to be reinstalled. See https://bolprocessor.org/quick-install-macos/#relocating-bolprocessor
 
 
 Microtonal scales and tuning systems
@@ -69,12 +70,12 @@ MIDI input
 Real-time MIDI
 --------------
 
-- Set _part() instructions when importing multi-part MusicXML scores. Also suggest a conversion of _part() to _ins() for creating Csound scores, and vice-versa.
 - Why is kcurrentinstance (12) > Maxevent (10) in -gr.koto3 ?
+- Fix item #7 in -da.checkContControl
 - Use client:port as MIDI input/output on Linux.  Currently, only the client is mentioned in the settings. Some devices might allocate several ports to the same client.
 — In Linux, it seems that the two virtual ports 'VirMIDI 0-0' and 'VirMIDI 0-1' are not communicating with other ports even though connections are valid.
-- Install a pitchbender sensitive MIDI output device on the Linux test machine.
-- A _script(wait for key…) in the beginning of a grammar does not always work. This needs to be clarified.
+- Install a pitchbender sensitive MIDI output device on the Linux test computer.
+- Try to display the timing during a real-time MIDI performance. This seems to be impossible under MacOS and Windows, and only possible under Linux.
 - Put some scripts on top of a grammar (the INIT: section) to run them before the production is started. This will notably allow setting up parameters K1, K2… K127.
 - Check the accuracy of start times in sound-object pictures.
 - Restore "PLAY THIS EXPRESSION (real-time MIDI)" with MIDI output features. Maybe store the latest real-time MIDI output?
@@ -127,8 +128,9 @@ Csound
 
 - The Csound orchestra file "0-default.orc" does not work on Linux. It returns Csound error 1 (on line 47).
 Read https://forum.csound.com/t/orchestra-file-rejected-by-linux/1780
+- Check -gr.vina3 for the use of tables (13th parameter), see https://bolprocessor.org/sarasvati-vina/
 - (Optional) Revise CsoundWrite to make sure that events are ordered by "note-on" dates, notably with tied notes/sound-objects
-- Reference: https://csound.com/docs/manual/i.html => use negated p1 for distinct note-off?
+- Reference: https://csound.com/docs/manual/i.html => use negative p1 for distinct note-off?
 - Implement output to DAC in the interface: https://csound.com/docs/manual/CommandFlags.html
 - Csound can compile orchestras and scores directly from strings of text: this feature could be exploited
 
@@ -167,14 +169,15 @@ Cleaning up the code
 -------------------
 
 - The console code contains many obsolete parts (marked as such and not compiled). These are mostly remnants of BP2's built-in interface, at the time we wanted to maintain a MacOS standalone version of BP2 using conditional compilation. These will be removed unless they turn out to be useful for further development.
+- Delete all code tagged as BP_CARBON_GUI_FORGET_THIS
+- Finish deleting the code for ticks
 - Unused code files have been moved to a "not_used" folder in the "source" folder. These can be deleted later.
-- There are still many parts of the code marked "WITH_REAL_TIME_MIDI". This marker has been changed to "WITH_REAL_TIME_MIDI_FORGET_THIS" to indicate that these need to be deleted, as they are remnants of BP2's real-time MIDI or initial (unfinished) implementation of real-time MIDI in/output. Leave them unchanged for now, as some code could be reused.
 
 
 MIDI files (Probably unnecessary, as MIDI file creation works perfectly.)
 ----------
 
-- note that currently the creation of type-1 MIDI files works even with very large sets of data… Therefore the following issues are not critical.
+- Note that currently the creation of type-1 MIDI files works even with very large sets of data… Therefore the following issues are not critical.
 - probably error when creating MIDI file from -gr.ShapesInRhythm because a very long silence is inserted, neither visible on graphs nor on the Csound score
 - "Error WriteVarLenQuantity(): value %u is out of range" may happen when data is faulty
 - add code to write track names (is it necessary?)

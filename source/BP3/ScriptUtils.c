@@ -337,13 +337,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 		case 20:	/* MIDI sound ON */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
-	#if WITH_REAL_TIME_MIDI_FORGET_THIS
-			rtMIDI = TRUE;
-			
-			if(rtMIDI && !oldoutmidi) ResetMIDI(FALSE);
-	#else
 			return(MISSED);
-	#endif
 			break;
 		case 21:	/* MIDI sound OFF */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
@@ -565,7 +559,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 					return(LoadGlossary(FALSE,FALSE));
 					break;
 				}
-			if (strlen(line) > MAXNAME) {
+			if(strlen(line) > MAXNAME) {
 				my_sprintf(Message,"\nFilename '%s' is too long. You should check the script.\n", line);
 				Print(wTrace,Message);
 				return(ABORT);
@@ -608,7 +602,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 					}
 				if(ReadFile(w,refnum) != OK) {
 					my_sprintf(Message,"Can't read '%s'... (no data)",FileName[w]);
-					Alert1(Message);
+					BPPrintMessage(0,odError,"%s",Message);
 					FSClose(refnum);
 					return(ABORT);
 					}
@@ -821,7 +815,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 		/*	if((r=WaitForEmptyBuffer()) != OK) return(r); */
 			Qclock = (double)(*(ScriptLine.intarg))[0];
 			Pclock = (double)(*(ScriptLine.intarg))[1];
-			SetTempo(); SetTimeBase();
+			SetTempo();
 			break;
 		/* case 47:	// Ignore buffer limit
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
@@ -891,7 +885,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			j= (*(ScriptLine.intarg))[0];
 			if(Editable[ScriptW]) {
 				if(check) return(OK);
-				if (j > GetTextLength(ScriptW)) {
+				if(j > GetTextLength(ScriptW)) {
 					my_sprintf(Message,"Selection start value '%d' is out of bounds.\n", j);
 					Print(wTrace,Message);
 					r = ABORT;
@@ -914,7 +908,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			j= (*(ScriptLine.intarg))[0];
 			if(Editable[ScriptW]) {
 				if(check) return(OK);
-				if (j > GetTextLength(ScriptW)) {
+				if(j > GetTextLength(ScriptW)) {
 					my_sprintf(Message,"Selection end value '%d' is out of bounds.\n", j);
 					Print(wTrace,Message);
 					r = ABORT;
@@ -1004,7 +998,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.type = TWO_BYTE_EVENT;
 			e.status = ProgramChange + CurrentChannel - 1;
 			if((*(ScriptLine.intarg))[0] <= 0 && ProgNrFrom > 0) {
-				if(Beta) Alert1("=> Err. DoScript(). Program number <= 0");
+				BPPrintMessage(0,odError,"=> Err. DoScript(). Program number <= 0");
 				(*(ScriptLine.intarg))[0] = 0;
 				}
 			e.data2 = (*(ScriptLine.intarg))[0] - ProgNrFrom;
@@ -1715,13 +1709,8 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			j = Improvize; Improvize = TRUE;
 			oldoutmidi = rtMIDI;
 			if(!OutCsound) {
-	#if WITH_REAL_TIME_MIDI_FORGET_THIS
-				rtMIDI = TRUE;
-				if(rtMIDI && !oldoutmidi) ResetMIDI(FALSE);
-	#else
 				CyclicPlay = i; Improvize = j;
 				return(MISSED);
-	#endif
 				}
 			displayitems = DisplayItems;
 			DisplayItems = FALSE;
@@ -1849,12 +1838,10 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 		case 165:	/* Tick cycle ON */
 			if(check) return(OK);
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
-			HideTicks = FALSE;
 			break;
 		case 166:	/* Tick cycle OFF */
 			if(check) return(OK);
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
-			HideTicks = TRUE;
 			break;
 	/*	case 167:	// AE send fast class '"AEclass"' ID '"AEID"' to application '"signature"'/
 		case 168:	// AE send normal class '"AEclass"' ID '"AEID"' to application '"signature"' /
@@ -1926,22 +1913,16 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 		/*	if((r=WaitForEmptyBuffer()) != OK) return(r); */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
-			ResetTickInItemFlag = TRUE;
 			break;
 		case 177:	/* Time ticks OFF */
 			if(check) return(OK);
 		/*	if((r=WaitForEmptyBuffer()) != OK) return(r); */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
-			PlayTicks = FALSE;
-			SetTickParameters(0,MAXBEATS);
 			break;
 		case 178:	/* Time ticks ON */
 			if(check) return(OK);
 		/*	if((r=WaitForEmptyBuffer()) != OK) return(r); */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
-			PlayTicks = TRUE;
-			ResetTickFlag = TRUE;
-			SetTickParameters(0,MAXBEATS);
 			break;
 		case 179:
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
@@ -2000,10 +1981,10 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				return(MISSED);
 				}
 			if(CheckUsedKey(p_keyon,0,1) != OK) return(MISSED);
-			if(!Oms && !NEWTIMER_FORGET_THIS) {
+	/*		if(!Oms && !NEWTIMER_FORGET_THIS) {
 				Print(wTrace,"'Mute' works only with OMS, not with the in-built MIDI driver. 'IN Mute ON' has been ignored\n");
 				return(OK);
-				}
+				} */
 			MuteOnKey = (*(ScriptLine.intarg))[0];
 			MuteOnChan = (*(ScriptLine.intarg))[1];
 			break;
@@ -2017,10 +1998,10 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				return(MISSED);
 				}
 			if(CheckUsedKey(p_keyon,0,1) != OK) return(MISSED);
-			if(!Oms && !NEWTIMER_FORGET_THIS) {
+	/*		if(!Oms && !NEWTIMER_FORGET_THIS) {  2025-01-17
 				Print(wTrace,"'Mute' works only with OMS, not with the in-built MIDI driver. 'IN Mute OFF' has been ignored\n");
 				return(OK);
-				}
+				} */
 			MuteOffKey = (*(ScriptLine.intarg))[0];
 			MuteOffChan = (*(ScriptLine.intarg))[1];
 			break;

@@ -42,7 +42,7 @@ int i,j,r,changed,gap,dirtymem,wmem,noteconventionmem;
 Handle ptr;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("=> Err. RunScript(). Not editable window");
+	BPPrintMessage(0,odError,"=> Err. RunScript(). Not editable window");
 	return(MISSED);
 	}
 while(Button());
@@ -67,7 +67,7 @@ BPActivateWindow(SLOW,wScriptDialog);
 BPActivateWindow(SLOW,w);
 if(SaveCheck(w) == ABORT) goto QUIT1;
 if(FileName[w][0] == '\0') {
-	Alert1("=> You should first load a script or save the current one");
+	BPPrintMessage(0,odError,"=> You should first load a script or save the current one");
 	goto QUIT1;
 	}
 
@@ -204,9 +204,6 @@ return(r);
 long i;
 
 CountOn = FALSE;
-#if WITH_REAL_TIME_MIDI_FORGET_THIS
-  ResetMIDI(TRUE);
-#endif
 BPActivateWindow(SLOW,wScript);
 SwitchOn(NULL,wScriptDialog,bRecordScript);
 
@@ -315,7 +312,7 @@ return(OK);
 /* int WaitForSyncScript(void)
 {
 if(!ScriptRecOn) {
-	Alert1("'REC' should be on"); return(OK);
+	BPPrintMessage(0,odError,"'REC' should be on"); return(OK);
 	}
 if(Answer("Define MIDI synchronisation code or key stroke",'Y') != YES) return(OK);
 SwitchOn(NULL,wScriptDialog,bWaitForSyncScript);
@@ -349,7 +346,7 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 	char b,c,*p,*q,**p_arg,newarg;
 
 	if(p_line == NULL) {
-		if(Beta) Alert1("=> ERROR: ExecScriptLine(). p_line = NULL");
+		BPPrintMessage(0,odError,"=> ERROR: ExecScriptLine(). p_line = NULL");
 		return(OK);
 		}
 	if((*p_line)[0] == '\0') return(OK);
@@ -402,7 +399,7 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 		j = strlen(Message);
 	//	BPPrintMessage(0,odInfo,"Match%d #%d [%d] %s = etc. ? this line = %s\n",check,i,(*h_ScriptIndex)[i],Message,*p_arg);
 		if(j == 0) {
-			if(Beta) Println(wTrace,"=> Err. ExecScriptLine(): strlen = 0");
+			BPPrintMessage(0,odError,"=> Err. ExecScriptLine(): strlen = 0\n");
 			continue;
 			}
 		q = &(Message[0]);

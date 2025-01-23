@@ -47,7 +47,7 @@ void my_sprintf(char* buffer, const char *format, ...) {
 	int n_chars = vsnprintf(buffer, MAX_BUFFER_SIZE, format, args);
     // Clean up the argument list
     va_end(args);
-    if (n_chars >= MAX_BUFFER_SIZE) {
+    if(n_chars >= MAX_BUFFER_SIZE) {
         BPPrintMessage(0,odError,"=> Truncation occurred in my_sprintf()\n");
     	}
 	}
@@ -82,7 +82,7 @@ int MystrcpyStringToTable(char ****p_t,int j,char *s)
 int imax;
 
 if(p_t == NULL) {
-	if(Beta) Alert1("=> Err. MystrcpyStringToTable(). p_t = NULL");
+	BPPrintMessage(0,odError,"=> Err. MystrcpyStringToTable(). p_t = NULL");
 	return(MISSED);
 	}
 imax = (MyGetHandleSize((Handle)(*p_t)[j]) / sizeof(char)) - 1; // Fixed by BB 2021-02-11
@@ -94,7 +94,7 @@ do {
 while(s[i] != '\0' && i < imax);
 if(s[i] != '\0') {
 	(*((*p_t)[j]))[i] = '\0';
-	if(Beta && s[i] != '\0') Alert1("=> Err. MystrcpyStringToTable(). s[i] incomplete");
+	if(Beta && s[i] != '\0') BPPrintMessage(0,odError,"=> Err. MystrcpyStringToTable(). s[i] incomplete");
 	}
 return(OK);
 }
@@ -105,7 +105,7 @@ int MystrcpyTableToString(int imax,char *s,char ****p_t,int j)
 /* register */ int i;
 
 if(p_t == NULL) {
-	if(Beta) Alert1("=> Err. MystrcpyTableToString(). p_t = NULL");
+	BPPrintMessage(0,odError,"=> Err. MystrcpyTableToString(). p_t = NULL");
 	return(MISSED);
 	}
 i = -1;
@@ -122,7 +122,7 @@ int MystrcpyStringToHandle(char ***pp_t,char *s)
 {
 long i,imt,ims;
 
-if (s == NULL) {
+if(s == NULL) {
 	BPPrintMessage(0,odError, "=> Err. MystrcpyStringToHandle(). Input string is NULL\n");
 	return ABORT;
     }
@@ -157,7 +157,7 @@ int MystrcpyHandleToString(int imax,int offset,char *s,char **p_t) {
 	i = 0;
 	while((c = (*p_t)[offset++]) != '\0' && (i < imax || imax == 0))
 		s[i++] = c;
-	if (i > imax && imax > 0) i = imax;
+	if(i > imax && imax > 0) i = imax;
 	s[i] = '\0';	/* The content might have been truncated */
 	return(OK);
 	}
@@ -169,11 +169,11 @@ long i;
 Size ims = 0,imt = 0;
 
 // Validate input pointers
-    if (pp_s == NULL || *pp_s == NULL) {
+    if(pp_s == NULL || *pp_s == NULL) {
         BPPrintMessage(0,odError, "=> Err. MystrcpyHandleToHandle(). pp_s is NULL\n");
         return ABORT;
    		}
-    if (p_t == NULL || *p_t == NULL) {
+    if(p_t == NULL || *p_t == NULL) {
         BPPrintMessage(0,odError, "=> Err. MystrcpyHandleToHandle(). p_t is NULL\n");
         (**pp_s)[0] = '\0';
         return ABORT;
@@ -185,7 +185,7 @@ Size ims = 0,imt = 0;
     // If the source string is empty, set destination to empty and exit
     if(imt == 0) {
         (**pp_s)[0] = '\0';
-        if (MySetHandleSize((Handle*)pp_s,1) != OK) {
+        if(MySetHandleSize((Handle*)pp_s,1) != OK) {
             BPPrintMessage(0,odError, "=> Err. MySetHandleSize(%ld) in MystrcpyHandleToHandle()\n",(long)imt);
             return ABORT;
 			}
@@ -196,8 +196,8 @@ Size ims = 0,imt = 0;
     // Get the current size of the destination handle
     ims = (long) MyGetHandleSize((Handle)*pp_s);
     // Resize the destination handle if needed
-    if (imt > ims) {
-        if (MySetHandleSize((Handle*)pp_s, imt) != OK) {
+    if(imt > ims) {
+        if(MySetHandleSize((Handle*)pp_s, imt) != OK) {
             BPPrintMessage(0,odError, "=> Err. Err. MySetHandleSize(0) in MystrcpyHandleToHandle()\n");
             return ABORT;
 			}
@@ -214,7 +214,7 @@ int GetTextHandle(char ***pp_h,int w)
 long i,length;
 
 if(w < 0 || w >= WMAX || !Editable[w]) {
-	if(Beta) Alert1("=> Err. GetTextHandle(). Invalid window index");
+	BPPrintMessage(0,odError,"=> Err. GetTextHandle(). Invalid window index");
 	return(MISSED);
 	}
 length = GetTextLength(w);
@@ -236,7 +236,7 @@ int Mystrcmp(char **p_t,char *s) {
 
 	i = ZERO;
 	if(p_t == NULL) {
-	//	if(Beta) Alert1("=> Err. Mystrcmp(). p_t = NULL");
+	//	BPPrintMessage(0,odError,"=> Err. Mystrcmp(). p_t = NULL");
 		return(1);
 		}
 	do 
@@ -252,7 +252,7 @@ long i;
 
 i = ZERO;
 if(p_t == NULL || p_s == NULL) {
-	if(Beta) Alert1("=> Err. MyHandlecmp(). p_t = NULL || p_s = NULL");
+	BPPrintMessage(0,odError,"=> Err. MyHandlecmp(). p_t = NULL || p_s = NULL");
 	return(0);
 	}
 do 
@@ -266,7 +266,7 @@ int MyHandleLen(char **p_t) {
 	long i,im;
 	i = ZERO;
 	if(p_t == NULL) {
-		if(Beta) Alert1("=> Err. MyHandleLen(). p_t = NULL");
+		BPPrintMessage(0,odError,"=> Err. MyHandleLen(). p_t = NULL");
 		return(0);
 		}
 	im = MyGetHandleSize((Handle)p_t);
@@ -276,7 +276,7 @@ int MyHandleLen(char **p_t) {
 		if(i >= im) break;
 		}
 	if((*p_t)[i] != '\0') {
-		if(Beta) Alert1("=> Err. MyHandleLen(). (*p_t)[i] != nullchar");
+		BPPrintMessage(0,odError,"=> Err. MyHandleLen(). (*p_t)[i] != nullchar");
 		}
 	return(i);
 	}
@@ -316,14 +316,14 @@ int StripHandle(char **p_line)
 int i,im,j;
 
 if(p_line == NULL) {
-	if(Beta) Alert1("=> Err. StripHandle(). p_line = NULL");
+	BPPrintMessage(0,odError,"=> Err. StripHandle(). p_line = NULL");
 	return(OK);
 	}
 if((*p_line)[0] == '\0') return(OK);
 j = 0; while(isspace((*p_line)[j])) j++;
 if(j > 0) {
 	if((im=MyHandleLen(p_line)) == 0) {
-		if(Beta) Alert1("=> Err. StripHandle(). MyHandleLen(p_line) == 0");
+		BPPrintMessage(0,odError,"=> Err. StripHandle(). MyHandleLen(p_line) == 0");
 		return(ABORT);
 		}
 	for(i=j; i <= im; i++) {
@@ -361,13 +361,13 @@ char NextChar(char **pp) {
     while (MySpace(**pp) && **pp != '\r' && **pp != '\n') {
         // Get the first byte as an unsigned char for proper range checks.
         unsigned char c = (unsigned char) **pp;
-        if (c >= 0xF0)
+        if(c >= 0xF0)
             // 4-byte UTF-8 character
             (*pp) += 4;
-        else if (c >= 0xE0)
+        else if(c >= 0xE0)
             // 3-byte UTF-8 character
             (*pp) += 3;
-        else if (c >= 0xC0)
+        else if(c >= 0xC0)
             // 2-byte UTF-8 character
             (*pp) += 2;
         else
@@ -430,7 +430,7 @@ int Match(int casesensitive,char** p_s,char** p_t,int length)
 char c,d;
 
 if(p_s == NULL || p_t == NULL) {
-	if(Beta) Alert1("=> Err. Match(). p_s == NULL || p_t == NULL");
+	BPPrintMessage(0,odError,"=> Err. Match(). p_s == NULL || p_t == NULL");
 	return(NO);
 	}
 /* if(MyHandleLen(p_s) < length) return(NO); */
@@ -455,13 +455,13 @@ size_t utf8_strlen(const char *s) {
 size_t utf8_strsize(const char *s) {
     size_t byteSize = 0;
     while (*s) {
-        if ((*s & 0x80) == 0) {  // 0xxxxxxx, 1 byte
+        if((*s & 0x80) == 0) {  // 0xxxxxxx, 1 byte
             byteSize++;
-        } else if ((*s & 0xE0) == 0xC0) {  // 110xxxxx, 2 bytes
+        } else if((*s & 0xE0) == 0xC0) {  // 110xxxxx, 2 bytes
             byteSize += 2;
-        } else if ((*s & 0xF0) == 0xE0) {  // 1110xxxx, 3 bytes
+        } else if((*s & 0xF0) == 0xE0) {  // 1110xxxx, 3 bytes
             byteSize += 3;
-        } else if ((*s & 0xF8) == 0xF0) {  // 11110xxx, 4 bytes
+        } else if((*s & 0xF8) == 0xF0) {  // 11110xxx, 4 bytes
             byteSize += 4;
         }
         s++;
@@ -471,14 +471,14 @@ size_t utf8_strsize(const char *s) {
 
 
 void convert_path(char* path) {  // Converts a path to forward slashes
-    if (path == NULL) return;
+    if(path == NULL) return;
     int writeIndex = 0;  // This keeps track of where to write in the array
     for (int readIndex = 0; path[readIndex] != '\0'; readIndex++) {
-        if (path[readIndex] == '\\' && path[readIndex + 1] == '\\') {
+        if(path[readIndex] == '\\' && path[readIndex + 1] == '\\') {
             // When two backslashes are found, skip the next one
             path[writeIndex++] = '/';  // Replace double backslashes with one forward slash
             readIndex++;  // Skip the next backslash
-        } else if (path[readIndex] == '\\') {
+        } else if(path[readIndex] == '\\') {
             // Single backslash found, convert it to a forward slash
             path[writeIndex++] = '/';
         } else {
@@ -504,11 +504,11 @@ return(OK);
 void remove_spaces(char *input, char *result) {
 	char c;
 	int i, j = 0;
-	if (input == NULL) {
+	if(input == NULL) {
 		BPPrintMessage(0,odError,"=> Error remove_spaces(). input == NULL\n");
 		return;
 		}
-	if (result == NULL) {
+	if(result == NULL) {
 		BPPrintMessage(0,odError,"=> Error remove_spaces(). result == NULL\n");
 		return;
 		}
@@ -523,12 +523,12 @@ void remove_spaces(char *input, char *result) {
 
 void remove_carriage_returns(char *line) {
     char *src = line, *dst = line;
-	if (line == NULL) {
+	if(line == NULL) {
 		BPPrintMessage(0,odError,"=> Error remove_carriage_returns(). line == NULL\n");
 		return;
 		}
     while (*src != '\0') {
-        if (*src != '\r') { // Copy over everything that's not a '\r'
+        if(*src != '\r') { // Copy over everything that's not a '\r'
             *dst++ = *src;
         	}
         src++;
@@ -546,12 +546,12 @@ void remove_final_linefeed(char *line) {
 /*
 void remove_final_linefeed(char *line) {
     char *src = line, *dst = line;
-	if (line == NULL) {
+	if(line == NULL) {
 		BPPrintMessage(0,odError,"=> Error remove_final_linefeed(). line == NULL\n");
 		return;
 		}
     while (*src != '\0') {
-        if (*src != '\n') { // Copy over everything that's not a '\n'
+        if(*src != '\n') { // Copy over everything that's not a '\n'
             *dst++ = *src;
         	}
         src++;
@@ -566,7 +566,7 @@ void remove_final_linefeed(char *line) {
 	int i, j = 0;
 	for (i = 0; input[i] != '\0'; i++) {
 		c = (unsigned char) input[i];
-		if (isgraph(c) && c != '\n' && c != '\r') result[j++] = input[i];
+		if(isgraph(c) && c != '\n' && c != '\r') result[j++] = input[i];
 		}
 	result[j] = '\0';
 } */
@@ -591,7 +591,7 @@ if(ptr != NULL) {
 	}
 else {
 	if(w < 0 || w >= WMAX || !HasFields[w]) {
-		if(Beta) Alert1("=> Err. TooLongFileName(). Incorrect index");
+		BPPrintMessage(0,odError,"=> Err. TooLongFileName(). Incorrect index");
 		return(MISSED);
 		}
 	thedialog = gpDialogs[w];
@@ -601,7 +601,7 @@ if(strlen(line) > MAXNAME) {
 	line[MAXNAME-1] = '�';
 	line[MAXNAME] = '\0';
 	my_sprintf(Message,"File name is too long. Truncating to '%s'",line);
-	Alert1(Message);
+	BPPrintMessage(0,odError,"%s",Message);
 	BPActivateWindow(QUICK,w);
 	SetField(thedialog,w,field,line);
 	SelectField(thedialog,w,field,TRUE);

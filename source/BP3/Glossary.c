@@ -174,7 +174,7 @@ while(ReadLine(YES,wGlossary,&pos,posmax,&p_line,&gap) == OK) {
 	*pp2 = *pp1; while(OkChar(**pp2) || (**pp2) == '|') (*pp2)++;
 	j = GetVar(pp1,pp2);
 	if(j < 1 || j > Jvar || p_VarStatus == NULL) {
-		if(Beta) Alert1("=> Err. CompileGlossary(). j < 1 || j > Jvar || p_VarStatus == NULL");
+		BPPrintMessage(0,odError,"=> Err. CompileGlossary(). j < 1 || j > Jvar || p_VarStatus == NULL");
 		if(CompileOn) CompileOn--;
 		MyDisposeHandle((Handle*)&p_line);
 		return(ABORT);

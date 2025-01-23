@@ -46,11 +46,11 @@ long length;
 char *ptr;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("=> Err1. Print()");
+	BPPrintMessage(0,odError,"=> Err1. Print()");
 	return(OK);
 	}
 if(!Editable[w]) {
-	if(Beta) Alert1("=> Err2. Print()");
+	BPPrintMessage(0,odError,"=> Err2. Print()");
 	return(MISSED);
 	}
 length = strlen(t);
@@ -70,15 +70,15 @@ int PrintHandle(int w,char** p_t)
 long length;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("=> Err1. Print()");
+	BPPrintMessage(0,odError,"=> Err1. Print()");
 	return(OK);
 	}
 if(!Editable[w]) {
-	if(Beta) Alert1("=> Err2. Print()");
+	BPPrintMessage(0,odError,"=> Err2. Print()");
 	return(MISSED);
 	}
 if(p_t == NULL) {
-	if(Beta) Alert1("=> Err. PrintHandle(). p_t == NULL");
+	BPPrintMessage(0,odError,"=> Err. PrintHandle(). p_t == NULL");
 	return(OK);
 	}
 length = MyHandleLen(p_t);
@@ -99,15 +99,15 @@ int PrintHandleBehind(int w,char** p_t)
 long length;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("=> Err1. PrintHandleBehind()");
+	BPPrintMessage(0,odError,"=> Err1. PrintHandleBehind()");
 	return(OK);
 	}
 if(!Editable[w]) {
-	if(Beta) Alert1("=> Err2. PrintHandleBehind()");
+	BPPrintMessage(0,odError,"=> Err2. PrintHandleBehind()");
 	return(MISSED);
 	}
 if(p_t == NULL) {
-	if(Beta) Alert1("=> Err. PrintHandleBehind(). p_t == NULL");
+	BPPrintMessage(0,odError,"=> Err. PrintHandleBehind(). p_t == NULL");
 	return(OK);
 	}
 length = MyHandleLen(p_t);
@@ -144,11 +144,11 @@ long length;
 char *ptr;
 
 if(w < 0 || w >= WMAX) {
-	if(Beta) Alert1("=> Err1. Print()");
+	BPPrintMessage(0,odError,"=> Err1. Print()");
 	return(OK);
 	}
 if(!Editable[w]) {
-	if(Beta) Alert1("=> Err2. Print()");
+	BPPrintMessage(0,odError,"=> Err2. Print()");
 	return(MISSED);
 	}
 length = strlen(t);
@@ -181,11 +181,11 @@ t_subgram subgram;
 double p,q;
 
 if(wind < 0 || wind >= WMAX || !Editable[wind])  {
-	if(Beta) Alert1("=> Err. DisplayGrammar(). Incorrect index");
+	BPPrintMessage(0,odError,"=> Err. DisplayGrammar(). Incorrect index");
 	return(MISSED);
 	}
 if(p_gram->p_subgram == NULL) {
-	if(Beta) Alert1("=> Err. DisplayGrammar(). Grammar is empty");
+	BPPrintMessage(0,odError,"=> Err. DisplayGrammar(). Grammar is empty");
 	return(MISSED);
 	}
 //if(isgrammar && !producemode) UseTextColor = TRUE;
@@ -225,7 +225,7 @@ for(igram=1; igram <= (*p_gram).number_gram; igram++) {
 	subgram = (*((*p_gram).p_subgram))[igram];
 	if(isgrammar && subgram.number_rule == 0) {
 		my_sprintf(Message,"Subgrammar %ld has no rules...",(long)igram);
-		Alert1(Message);
+		BPPrintMessage(0,odError,"%s",Message);
 		continue;
 		}
 	irul = 0;
@@ -327,7 +327,7 @@ tokenbyte **ptr;
 
 if(wind < 0 || wind >= WMAX || !Editable[wind]) return(MISSED);
 if((*p_gram).p_subgram == NULL) {
-	if(Beta) Alert1("=> Err. DisplayGrammar(). Grammar is empty");
+	BPPrintMessage(0,odError,"=> Err. DisplayGrammar(). Grammar is empty");
 	return(MISSED);
 	}
 rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
@@ -440,7 +440,7 @@ if(h != NULL) {
 	do {
 		if((s=(**h).x) > Jflag || s < 0) {
 			my_sprintf(Message,"=> Err in flag list");
-			if(Beta) Alert1(Message);
+			BPPrintMessage(0,odError,"%s",Message);
 			r = ABORT; goto END;
 			}
 		// Reformat(wind,-1,-1,-1,&Color[FlagC],NO,NO);
@@ -553,7 +553,7 @@ if(h != NULL) {
 	do {
 		if((**h).x > Jflag || (**h).x < 0) {
 			my_sprintf(Message,"=> Err in flag list. ");
-			if(Beta) Alert1(Message);
+			BPPrintMessage(0,odError,"%s",Message);
 			r = ABORT; goto END;
 			}
 		// Reformat(wind,-1,-1,-1,&Color[FlagC],NO,NO);
@@ -721,7 +721,7 @@ for(i=0; i < Jhomo; i++) {
 			}
 		else
 			if(jj >= Jbol) {
-				if(Beta) Alert1("=> Err. ShowAlphabet(). jj >= Jbol");
+				BPPrintMessage(0,odError,"=> Err. ShowAlphabet(). jj >= Jbol");
 				return(ABORT);
 				}
 		}
