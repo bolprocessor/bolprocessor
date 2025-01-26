@@ -8,12 +8,14 @@ from a MIDI instrument.
 
 BP3 compiles and runs in the MacOS, Linux and Windows environments.
 
-Bol Processor is now released as free software (open source) under a
+Read: https://bolprocessor.org/install/
+
+Bol Processor is released as free software (open source) under a
 BSD-style license (please see the License.txt file for complete terms).
   
 BP development is now hosted by GitHub at
 
-           https://github.com/bolprocessor/bolprocessor
+https://github.com/bolprocessor/bolprocessor
 
 If you would like to help with any stage of this process, please get in
 contact with us either privately (contact@bolprocessor.org) or via the mailing lists:
