@@ -23,6 +23,15 @@ contact with us either privately (contact@bolprocessor.org) or via the mailing l
 BP open discussion forum: https://sourceforge.net/p/bolprocessor/discussion/555616
 BP developers list: https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
 
+Note that the latest version of the C code is in the “graphics-for-BP3” branch. Download:
+https://github.com/bolprocessor/bolprocessor/archive/graphics-for-BP3.zip
+
+Don't forget to download the PHP interface:
+https://github.com/bolprocessor/php-frontend/archive/master.zip
+
+and the set of examples:
+https://github.com/bolprocessor/bp3-ctests/archive/main.zip
+
 If you want to get started understanding the source code, look in the
 "docs-developer" directory; particularly the files "BP2-info.txt" and
 "BP2-history.txt".

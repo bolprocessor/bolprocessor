@@ -15,7 +15,7 @@ ifeq ($(OS),Windows_NT)
 else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Darwin)
-        CFLAGS = -fsanitize=address -fsanitize-recover=address -g
+        CFLAGS =
         FRAMEWORKS = -framework CoreMIDI -framework CoreFoundation
     endif
     ifeq ($(UNAME_S),Linux)
@@ -38,14 +38,14 @@ $(EXE): $(OBJS)
 ifeq ($(OS),Windows_NT)
 	$(CC) -g -o $(EXE) $(OBJS) $(LIBS) $(FRAMEWORKS)
 else
-	$(CC) -fsanitize=address -fsanitize-recover=address -g -o $(EXE) $(OBJS) $(LIBS) $(FRAMEWORKS)
+	$(CC) -g -o $(EXE) $(OBJS) $(LIBS) $(FRAMEWORKS)
 endif
 
 %.o : %.c
 ifeq ($(OS),Windows_NT)
 	$(CC) -g -c $(CFLAGS) -I $(SRCDIR) $< -o $@
 else
-	$(CC) -fsanitize=address -fsanitize-recover=address -g -c $(CFLAGS) -I $(SRCDIR) $< -o $@
+	$(CC) -g -c $(CFLAGS) -I $(SRCDIR) $< -o $@
 endif
 
 depend: 
