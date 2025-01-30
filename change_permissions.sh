@@ -1,26 +1,31 @@
 #!/bin/bash
 
 # Define the directory path
-BASE_DIR="/opt/lampp/htdocs"
-TARGET_DIR_NAME="bolprocessor"
+TARGET_DIR_NAME="bolprocessor/php"
 TARGET_DIR=""
 
-# Function to find the target directory
+# Extract the top-level directory (first component of TARGET_DIR_NAME)
+TOP_LEVEL_DIR=$(echo "$TARGET_DIR_NAME" | cut -d'/' -f1)
+
+# Function to find the top-level target directory
 find_target_directory() {
-    TARGET_DIR=$(find "$BASE_DIR" -type d -name "$TARGET_DIR_NAME" 2>/dev/null | head -n 1)
+    TARGET_DIR=$(find / -type d -name "$TOP_LEVEL_DIR" 2>/dev/null | head -n 1)
     if [ -z "$TARGET_DIR" ]; then
-        echo "Error: $TARGET_DIR_NAME not found in $BASE_DIR."
+        echo "Error: $TOP_LEVEL_DIR not found in the system."
         exit 1
     fi
 }
 
-# Find the target directory
+# Find the target directory 
 find_target_directory
 
-# Change ownership to 'daemon' and permissions to '775' recursively
-echo "Changing owner to 'daemon' and permissions to '775' for all files and directories in $TARGET_DIR..."
+# Make sure that user 'daemon' belongs to group 'linuxlite'
+usermod -aG linuxlite daemon
 
-sudo chown -R daemon:admin "$TARGET_DIR"
+# Change ownership to 'daemon' and permissions to '775' recursively
+echo "Changing owner/group to 'daemon:linuxlite' and permissions to '775' for all files and directories in $TARGET_DIR..."
+
+sudo chown -R daemon:linuxlite "$TARGET_DIR"
 sudo chmod -R 775 "$TARGET_DIR"
 
-echo "Completed changing owner to 'daemon' and permissions to '775' for all files and directories in $TARGET_DIR."
+echo "Completed changing owner and permissions for all files and directories in $TARGET_DIR."
