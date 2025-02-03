@@ -1,13 +1,13 @@
 Bol Processor BP3 history of changes
 ====================================
 
-Current location of this file:
+Location of the latest version of this file:
 https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.txt
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 
-2025-01-23 -> 2025-02-02 (version 3.2.0)
+2025-01-23 -> 2025-02-03 (version 3.2.0)
 We now have a control over NoteOn/Noteoff to prevent unnecessary pairs being created when the same note/channel is turned on at the same time, as can happen when interpreting MusicXML scores. This might have been noticeable on some MIDI instruments or when capturing MIDI events.
 The new procedure takes into account fast movements where the order of the notes must be maintained, even if (due to quantization) they end up with identical times.
 A “Trace NoteOn/NoteOff” setting can be used to check this process.
@@ -20,6 +20,8 @@ Calls to mb_convert_encoding() have been added to allow reading old MacOS or Win
 https://bolprocessor.org/quick-install-windows/
 Linux update scripts have been adapted to work with a "bolprocessor" symbolic link. Read:
 https://bolprocessor.org/quick-install-linux/#relocating-bolprocessor
+The interface has been modified to handle symbolic links on MacOS and Windows. There are still cases that need to be resolved. Read:
+https://bolprocessor.org/move-data/
 Don't forget to update the PHP interface!
 
 -----
