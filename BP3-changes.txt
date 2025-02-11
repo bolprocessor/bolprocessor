@@ -6,7 +6,11 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+2025-02-12 (version 3.2.1)
+The PHP interface has been adapted for its integration with PHP Desktop. This integration already works on MacOS, but it still requires deployment procedures.
+The interface checks the PHP version, its extensions and the architecture of the computer's system. It gives a warning on the front page if a 64-bit architecture is not used.
 
+-----
 2025-01-23 -> 2025-02-05 (version 3.2.0)
 We now have a control over NoteOn/Noteoff to prevent unnecessary pairs being created when the same note/channel is turned on at the same time, as can happen when interpreting MusicXML scores. This might have been noticeable on some MIDI instruments or when capturing MIDI events.
 The new procedure takes into account fast movements where the order of the notes must be maintained, even if (due to quantization) they end up with identical times.
@@ -22,6 +26,7 @@ Linux update scripts have been adapted to work with a "bolprocessor" symbolic li
 https://bolprocessor.org/quick-install-linux/#relocating-bolprocessor
 The interface has been modified to handle symbolic links on MacOS and Windows. There are still cases that need to be resolved. Read:
 https://bolprocessor.org/move-data/
+The interface has been prepared for its implementation in PHP Desktop (MacOS version).
 Don't forget to update the PHP interface!
 
 -----

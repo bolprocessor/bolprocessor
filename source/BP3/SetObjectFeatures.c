@@ -1015,7 +1015,7 @@ if(nature_time == STRIATED || nseq == 0) {
 					BPPrintMessage(0,odError,"=> Probable rounding error: (*p_T)[%ld] = 0 for object #%ld\n",(long)inext,(long)k); // Added by BB 2021-03-22
 				if(j >= 16383) // simple note
 					alpha = ((double)(*p_T)[inext] - (*p_T)[i]) / 1000L;
-				else if(j >= Jbol) { // time pattern
+				else if(j >= Jbol) {     // time pattern
 					if(nature_time == STRIATED) alpha = 0.; // 2025-02-05
 					else  alpha = (double) ((*p_T)[inext] - (*p_T)[i]) / (*p_Tref)[j];
 					}

@@ -706,7 +706,7 @@ int LoadSettings(const char *filename, int startup) {
 	if(ShowPianoRoll) BPPrintMessage(0,odInfo,"Pianoroll graphics will be displayed\n");
 	if(ShowObjectGraph) BPPrintMessage(0,odInfo,"Object graphics will be displayed\n");
 	BPPrintMessage(0,odInfo,"Metronome will be %.3f beats/mn by default (as per settings)\n",(Qclock * 60.)/Pclock); 
-	if(Nature_of_time == STRIATED) BPPrintMessage(0,odInfo,"Time is STRIATED\n");
+	if(Nature_of_time == STRIATED) BPPrintMessage(0,odInfo,"Time is STRIATED according to the settings\n");
 	else BPPrintMessage(0,odInfo,"Time is SMOOTH (no metronome)\n");
     cJSON_Delete(json);
     free(json_data);

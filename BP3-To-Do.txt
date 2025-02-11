@@ -142,12 +142,6 @@ Actions
 - Implement expand-item & show-beats options.
 
 
-Chunked data in real-time MIDI
-------------------------------
-
-- Faulty chunked data (e.g. “-da.Beethoven-fugue-b-flat-major”) produces timing errors in real-time MIDI, although MIDI files are acceptable. This may be difficult to fix due to the size of data.
-
-
 Images
 ------
 
