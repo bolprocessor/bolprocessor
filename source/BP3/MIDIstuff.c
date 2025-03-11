@@ -233,18 +233,43 @@ char* longToBinary(int totalBits,unsigned long num) {
     return binary; // Return the binary string
 	}
 
-int MIDIflush(int quick) {
+int MIDIflush(int quick, int now) {
     unsigned long current_time,time_now;
-    long i;
-	int kcurrentinstance,i_scale;
+    long i,j;
+	int kcurrentinstance,i_scale,changed;
     long time;
     unsigned char midiData[4];
     int dataSize;
     int result,size,type;
 
+	if(ChangedGrammar || ChangedSettings) return OK;
+//	if(ChangedGrammar) return OK;
 	result = OK;
     size = sizeof(MIDI_Event);
 	current_time = getClockTime() - initTime;
+/*	if(now) {
+		dataSize = 3;
+		i = 0;
+		while(i < eventCount) {
+			if((eventStack[i].time + TimeStopped) <= current_time) {
+				midiData[0] = eventStack[i].status;
+				type = eventStack[i].status & 0xF0;
+				midiData[1] = eventStack[i].data1;
+				midiData[2] = eventStack[i].data2;
+				if(eventStack[i].type == NORMAL_EVENT) {
+					kcurrentinstance =  eventStack[i].instance;
+					i_scale = eventStack[i].scale;
+					time = eventStack[i].time + TimeStopped;
+					sendMIDIEvent(kcurrentinstance,i_scale,OUT,0,midiData,dataSize,time);
+					if(type == NoteOff) break;
+					}
+				}
+            memmove(&eventStack[i], &eventStack[i + 1], (eventCount - i - 1) * size);
+			}
+        eventCount = 0L;
+		TimeStopped = 0L;
+        return result;
+		} */
     if(Panic) eventCount = 0L;
     if((result = stop(0,"MIDIflush")) != OK) {
         eventCount = 0L;
@@ -252,10 +277,31 @@ int MIDIflush(int quick) {
         }
 	if(!quick && (result = MaybeWait(current_time)) != OK) return result;
 	// BPPrintMessage(0,odInfo,"current_time = %ld, initTime = %ld\n",current_time,initTime);
-	i = 0;
+	i = j = 0;
     while(i < eventCount) {
 	//	BPPrintMessage(1,odInfo,"eventStack[%ld].time = %ld, event = %d %d %d, current_time = %ld\n",i,(long)eventStack[i].time, eventStack[i].status,eventStack[i].data1,eventStack[i].data2,current_time);
 		if((result = MaybeWait(current_time)) != OK) return result; // We need it also here
+		j++;
+		if((LiveGrammar || LiveSettings) && j > 20) {
+			j = 0;
+			time_now = getClockTime();
+			ChangedSettings = ReloadSettings();
+			if(LiveGrammar) ChangedGrammar = ReloadGrammar();
+			if(ChangedGrammar) {
+				CompileCheck();
+				AllNotesOffPedalsOffAllChannels(FALSE);
+				}
+			if(ChangedGrammar || ChangedSettings) {
+				eventCount = 0L;
+				TimeStopped = (getClockTime() - time_now); // Microseconds
+				time_now = getClockTime() - initTime; // Microseconds
+				LastTime = (time_now + TimeStopped) / 1000L; // Milliseconds
+				Tcurr = LastTime / Time_res;
+			//	BPPrintMessage(1,odInfo,"(MIDIflush) time_now = %ld ms, TimeStopped = %ld ms, LastTime = %d ms\n",(long)(time_now / 1000L),(long)(TimeStopped / 1000L),(long)LastTime);
+				return OK;
+				}
+			}
+
         if((eventStack[i].time + TimeStopped) <= current_time) {
             midiData[0] = eventStack[i].status;
 			type = eventStack[i].status & 0xF0;
@@ -710,7 +756,7 @@ int check_stop_instructions(unsigned long time) {
 	//	if(TraceMIDIinteraction && ToldStop++ < 5) BPPrintMessage(1,odInfo,"Stop sound? at time %ld ms <= %ld ms as per instruction %d\n",(long)thisscripttime / 1000L,(long)time / 1000L,instr);
 		if(thisscripttime > (time + 200)) continue;
 		StopPlay = TRUE;
-		if(time == 0L) initTime = (UInt64) getClockTime();
+		if(time == 0L) initTime = (UInt64) getClockTime(); // Microseconds
 		if(TraceMIDIinteraction) BPPrintMessage(1,odInfo,"Stopped sound at time %ld ms <= %ld ms as per instruction %d\n",(long)thisscripttime / 1000L,(long)time / 1000L,instr);
 		switch(instr) {
 			case 46: // Wait for Space
@@ -1524,9 +1570,10 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 
 	int check_corrections = FALSE;
 
-	LastTime = time;
+	if(ChangedGrammar || ChangedSettings) return(FINISH);
 	if(Panic || EmergencyExit) return(ABORT);
 	if(!MIDIfileOn && !rtMIDI) return(OK);
+	LastTime = time;
 	status = ByteToInt(p_e->status);
 	channel = status % 16;
 	note = ByteToInt(p_e->data1);
@@ -1658,14 +1705,22 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	if(rtMIDI) {
   		if(trace_driver)
 			BPPrintMessage(0,odInfo,"Sending MIDI event to stack, date = %ld ms,\tstatus = %ld,\tdata1 = %ld,\tdata2 = %ld\n",(long)time,(long)p_e->status,(long)p_e->data1,(long)p_e->data2);
-		if((result = MIDIflush(0)) != OK) return result;
+		if((result = MIDIflush(FALSE,FALSE)) != OK) return result;
+		if(ChangedGrammar || ChangedSettings) {
+	//	if(ChangedGrammar) {
+			eventCount = 0L;
+	/*		LastTime = MIDIsetUpTime + (TimeStopped / 1000L);
+			Tcurr = LastTime / Time_res;
+			BPPrintMessage(1,odInfo,"return FINISH\n"); */
+			return FINISH;
+			}
 		eventCount = SendToStack(*p_e,time,kcurrentinstance,i_scale,eventCount);
     	if((result = CleanUpBuffer()) != OK) return result;
 		if((type == NoteOn) && FirstNoteOn) {
 			FirstNoteOn = FALSE;
-			initTime = (UInt64) getClockTime();
+			initTime = (UInt64) getClockTime(); // Microseconds
 			if(check_corrections) {
-				BPPrintMessage(1,odInfo,"First NoteOn at %ld ms\n",(long)time);
+				BPPrintMessage(1,odInfo,"First NoteOn at %ld ms\n",(long)(initTime / 1000L));
 				}
 			} 
 		return(OK);
@@ -1777,7 +1832,7 @@ int AllNotesOffPedalsOffAllChannels(int verbose) {
 		return(OK);
 		}
 	if(verbose) 
-		BPPrintMessage(0,odInfo,"Sending AllNotesOff and resetting controls on all channels.\n➡ Check the MIDI out filter if it did not work!\n");
+		BPPrintMessage(1,odInfo,"Sending AllNotesOff and resetting controls on all channels.\n➡ Check the MIDI out filter if it did not work!\n");
 	for(channel=0; channel < MAXCHAN; channel++) {
 		WaitABit(10); // Wait for 10 ms
 		midiData[0] = ControlChange + channel;
@@ -1858,9 +1913,9 @@ int CleanUpBuffer(void) {
 	//	BPPrintMessage(1,odInfo,"%.3f s, time_now = %ld\n",(time_now - initTime)/1000000.,(long)time_now);
 		while(eventCount > half) { 
 		// Reaching half the limit of the buffer
-	//	while(eventCount > eventCountMax) { 
 			WaitABit(10); // Sleep for 10 milliseconds
-			if((r = MIDIflush(1)) != OK) break;
+			if((r = MIDIflush(TRUE,FALSE)) != OK) break;
+			if(ChangedGrammar || ChangedSettings) break;
 			}
 		}
 	return r;

@@ -688,7 +688,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			Nbytes = 0; Tbytes2 = ZERO;
 			}
 		else {
-			drivertime = getClockTime(); // Revise this! 2021-02-26
+			drivertime = getClockTime();
 			if(drivertime > Tcurr) {
 				/* Too late to start on time! */
 				currenttime = drivertime * Time_res;
@@ -706,7 +706,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 		
 		if((Improvize || PlayAllChunks || AllItems) && (LastTime > ZERO)) {
 			PianorollShift = LastTime;
-		//	BPPrintMessage(0,odInfo,"(Tcurr * Time_res) = %ld ms, LastTime = %ld ms, currenttime = %ld ms\n",(long)Tcurr * Time_res,(long)LastTime,(long)currenttime);
+		//	BPPrintMessage(1,odInfo,"(Tcurr * Time_res) = %ld ms, LastTime = %ld ms, currenttime = %ld ms\n",(long)Tcurr * Time_res,(long)LastTime,(long)currenttime);
 			Tcurr = LastTime / Time_res; // 2024-05-02
 			t0 = Tcurr * Time_res;
 			// BPPrintMessage(0,odInfo,"PianorollShift = %ld\n",(long)PianorollShift);
@@ -1383,7 +1383,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 										|| (*p_icycle)[kcurrentinstance]
 											== (*p_Instance)[kcurrentinstance].ncycles)) {
 								// 2025-01-07: modified onoff == 0 instead of > 0
-	SENDNOTEOFF:
+SENDNOTEOFF:
 									if(TraceNoteOn) {
 										PrintThisNote(-1,c1,0,-1,this_note);
 										BPPrintMessage(1,odInfo,"NoteOff %s channel %d at %ld ms\n",this_note,(localchan + 1),(Tcurr * Time_res - MIDIsetUpTime));
@@ -1567,7 +1567,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 							}
 						}
 					}
-	NEWPERIOD:
+NEWPERIOD:
 				if(trace_csound_pianoroll) BPPrintMessage(0,odInfo,"\nNEWPERIOD:\n");
 				if((*p_istartperiod)[kcurrentinstance] > -1 && ievent >= (*p_iendperiod)[kcurrentinstance]) {
 					/* Cyclic object: start another period */
@@ -1627,7 +1627,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			if(cswrite || chancont < 0 || icont < 0 || !(*(p_active[chancont]))[icont])
 				goto FINDNEXTEVENT;
 
-	SENDCONTROLMESSAGE:
+SENDCONTROLMESSAGE:
 	// Send message of continuous parameter
 			
 			if(Beta && (chancont < 0 || icont < 0 || chancont >= MAXCHAN || icont > IPANORAMIC)) {
@@ -1644,7 +1644,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 					goto OVER;
 
 
-	FINDNEXTEVENT:
+FINDNEXTEVENT:
 	// Look for the next event: in a sound-object instance, a tick, or a continous parameter
 
 			t2obj = t2tick = Infpos;
@@ -1762,106 +1762,31 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	if(showpianoroll) goto OUTGRAPHIC;
 		
 	buffertime = Infpos;
-
 	waitcompletion = FALSE;
 
 	SynchroSignal = OFF;
-
 	RunningStatus = 0;	/* This is used by ListenToEvents() */
 
 	if(showpianoroll || (!waitcompletion && !CyclicPlay)) {
 		result = OK;
 		goto OVER;
 		}
-
 	result = OK;
-	/* if(buffertime < Infpos) result = WaitForLastSounds((long) buffertime);
-	else if(waitcompletion) result = WaitForEmptyBuffer();
-	if(result != OK) goto OVER; */
 
-	#if BP_CARBON_GUI_FORGET_THIS
-	// HideWindow(Window[wMessage]);
-
-	QUESTION:
-
-	// HideWindow(Window[wInfo]);
-	rep = OK; rep1 = rep2 = rep3 = NO;
-	if(!CyclicPlay && !ScriptExecOn) StopWait();
-	SndSetSysBeepState(sysBeepDisable);
-	ShowDuration(YES);
-	if(!FirstTime && !PlayPrototypeOn
-		&& (CyclicPlay 
-			|| (!Improvize && !ScriptExecOn && (DisplayItems || PlaySelectionOn) && OkWait
-				&& !NoRepeat && (rep1=rep=Answer("Play again",'N')) != NO)
-			|| (Improvize && interruptedonce
-				&& !NoRepeat && (rep1=rep=Answer("Play again",'N')) != NO)
-			|| ((WriteMIDIfile || OutCsound)
-				&& (rep2=rep=Answer("Save to file",'Y')) != NO)
-			|| (!Improvize && !ScriptExecOn && !DisplayItems && !PlaySelectionOn
-				&& ((rep3=Alert(DisplayItemAlert,0L)) || TRUE)))) {
-		if(rep == ABORT || rep3 == dCancelPlay) {
-			result = ABORT; buffertime = ZERO; goto OVER;
-			}
-		if(rep3 == dProduceMore) {
-			result = RESUME; goto OVER;
-			}
-		if(rep3 == dDisplayItem) {
-			if(*pp_b == NULL) {
-			//	BPPrintMessage(0,odError,"=> Err. MakeSound(). *pp_b == NULL");
-				BPPrintMessage(0,odError,"=> Err. MakeSound(). *pp_b == NULL\n");
-				}
-			else {
-				BPActivateWindow(SLOW,wData);
-				PrintArg(DisplayMode(pp_b,&ifunc,&hastabs),FALSE,TRUE,FALSE,ifunc,FALSE,stdout,wData,pp_Scrap,pp_b);
-				DataEnd = GetTextLength(wData);
-				SetSelect(DataOrigin,GetTextLength(wData)-1,TEH[wData]);
-				ShowSelect(CENTRE,wData);
-				Dirty[wData] = TRUE;
-				}
-			goto QUESTION;
-			}
-		for(k=2; k <= (*p_kmax); k++) {
-			(*p_inext)[k] = (*p_inext1)[k];
-			(*p_onoff)[k] = FALSE;
-			(*p_nextd)[k] = (*p_Instance)[k].starttime + (*p_t1)[k];
-			}
-		if(rep1 == YES || rep3 == dPlayAgain) {
-			while(Button());
-			result = OK;
-			ResetDriver();
-			}
-		if((WriteMIDIfile || OutCsound) && (rep2 == YES)) {
-			if(WriteMIDIfile) MIDIfileOn = TRUE;
-			if(OutCsound) cswrite = TRUE;
-			}
-		if(CyclicPlay) {
-			result = WaitForLastSounds(200L);	/* Wait until 2 seconds left */
-			if(result != OK) goto OVER;
-			}
-		if(!Newstatus || MIDIfileOn || cswrite) goto START2;
-		else {
-			Newstatus = FALSE;
-			result = AGAIN;
-			goto OVER;
-			}
-		}
-	if(rep == ABORT) result = ABORT;
-	#else
-	// seems likely if result == OK here, then MakeSound() will end properly in non-GUI build  
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-	OVER:
-	// HideWindow(Window[wMessage]);
-	// HideWindow(Window[wInfo]);
-	// if(imagePtr != NULL) result = EndImageFile();
+OVER:
 	if(result == ENDREPEAT) result = OK;
 	if(Panic || result == STOP) result = ABORT;
+	if(ChangedGrammar) {
+//	if(ChangedGrammar || ChangedSettings) {
+		eventCount = 0L;
+		result = OK;
+		}
 	if(result == ABORT) {
 		BPPrintMessage(0,odError,"Stopped playing\n");
 		goto GETOUT;
 		}
 
-	OUTGRAPHIC:
+OUTGRAPHIC:
 	if(showpianoroll) goto GETOUT;
 
 	if(!cswrite && !Panic && (result == RESUME || (!Improvize && !PlayAllChunks && !CyclicPlay))) { // Fixed 2024-05-02
@@ -1901,7 +1826,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			}
 		}
 
-	GETOUT:
+GETOUT:
 
 	if(EventState == AGAIN) result = AGAIN;
 
@@ -1929,14 +1854,14 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			e.data1 = 0;
 			e.data2 = 0;
 			// BPPrintMessage(0,odInfo,"scale6 = %d\n",scale);
-			if((result=SendToDriver(0,scale,blockkey,(Tcurr * Time_res),nseq,&rs,&e)) != OK) goto OVER;
+			if((result=SendToDriver(0,scale,blockkey,(Tcurr * Time_res),nseq,&rs,&e)) != OK) goto OVER2;
 			e.time = Tcurr + (add_time / Time_res);
 			e.type = NORMAL_EVENT;
 			e.status = NoteOn;
 			e.data1 = 0;
 			e.data2 = 0;
 			// BPPrintMessage(0,odInfo,"scale7 = %d\n",scale);
-			if((result=SendToDriver(0,scale,blockkey,((Tcurr * Time_res) + add_time),nseq,&rs,&e)) != OK) goto OVER;
+			if((result=SendToDriver(0,scale,blockkey,((Tcurr * Time_res) + add_time),nseq,&rs,&e)) != OK) goto OVER2;
 			}
 		if(cswrite) {
 		//	BPPrintMessage(0,odInfo,"Added silence of %.3f sec at time = %.3f sec.\n",(add_time / 1000.),((LastTime + max_endtime_event) / 1000.));
@@ -1945,6 +1870,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);
 			}
 		}
+OVER2:
 	if(cswrite) LastTime += max_endtime;
 
 	if(cswrite && result == OK && !Improvize && !PlayAllChunks && !ConvertMIDItoCsound && !AllItems) // ConvertMIDItoCsound is always false in the console version
@@ -2158,202 +2084,201 @@ return(x);
 
 int SendControl(ContinuousControl **p_control,Milliseconds t0,int chan,int iparam,int maxconc,
 	int cswrite,int showpianoroll,int *p_rs,char ***p_active,Milliseconds ***p_t2cont,
-	int ***p_seqcont,MIDIcontrolstatus **p_Oldvalue,PerfParameters ****pp_currentparams)
-{
-int seq,lsb,msb,nn,result;
-double value,alpha;
-MIDI_Event e;
-Milliseconds time,t2;
-ParameterStream **param;
+	int ***p_seqcont,MIDIcontrolstatus **p_Oldvalue,PerfParameters ****pp_currentparams) {
+	int seq,lsb,msb,nn,result;
+	double value,alpha;
+	MIDI_Event e;
+	Milliseconds time,t2;
+	ParameterStream **param;
 
-result = OK;
-if(iparam < 0 || iparam > IPANORAMIC) {
-//	BPPrintMessage(0,odError,"=> Err. SendControl(). iparam < 0 || iparam > IPANORAMIC");
-	return(ABORT);
-	}
-if(chan < 0 || chan >= MAXCHAN) {
-	// BPPrintMessage(0,odError,"=> Err. SendControl(). chan < 0 || chan >= MAXCHAN");
-	result = ABORT;
-	goto OVER;
-	}
-seq = (*(p_seqcont[chan]))[iparam];
-
-if(seq < 0 || seq >= maxconc) {
-	// BPPrintMessage(0,odError,"=> Err. SendControl(). seq < 0 || seq >= maxconc");
-	return(ABORT);
-	}
-	
-param = (*p_control)[seq].param;
-
-if(chan != (*param)[iparam].channel) {
-	// BPPrintMessage(0,odError,"=> Err. SendControl(). chan != (*param)[iparam].channel");
-	result = ABORT;
-	goto OVER;
-	}
-if(!(*(p_active[chan]))[iparam]) {
-	// BPPrintMessage(0,odError,"=> Err. SendControl(). !(*(p_active[chan]))[iparam]");
-	return(ABORT);
-	}
-if((*p_control)[seq].param == NULL) {
-	// BPPrintMessage(0,odError,"=> Err. SendControl(). (*p_control)[seq].param == NULL");
-	return(ABORT);
-	}
-if((*param)[iparam].ibm <= ZERO) {
-	Print(wTrace,"=> Err. SendControl(). (*param)[iparam].ibm <= ZERO\n");
-/*	This case was found in item #26 of -da.checkControls.html when played after the
-	two preceding ones */
-	goto INCREMENT;
-	}
-
-alpha = ((double)(*param)[iparam].ib) / (*param)[iparam].ibm;
-
-if((value = GetTableValue(alpha,(*param)[iparam].imax,(*param)[iparam].point,
-		(*param)[iparam].startvalue,(*param)[iparam].endvalue)) == Infpos) {
-	BPPrintMessage(0,odError,"=> Err. SendControl(). value == Infpos");
-	BPPrintMessage(0,odError,"=> Err. SendControl(). value == Infpos\n");
-	return(ABORT);
-	}
-if(value < 0. && value > -0.1) value = 0.;
-if(value > 16383. && value < 16384.) value = 16383.;
-
-if(value < 0. || value > 16383.) {
-	{
-		my_sprintf(Message,"=> Err. SendControl(). value = %.3f\n",value);
-		Print(wTrace,Message);
-		BPPrintMessage(0,odError,"=> Err. SendControl(). value = %.3f\n",value);
+	result = OK;
+	if(iparam < 0 || iparam > IPANORAMIC) {
+	//	BPPrintMessage(0,odError,"=> Err. SendControl(). iparam < 0 || iparam > IPANORAMIC");
+		return(ABORT);
 		}
-	return(OK);
-	}
+	if(chan < 0 || chan >= MAXCHAN) {
+		// BPPrintMessage(0,odError,"=> Err. SendControl(). chan < 0 || chan >= MAXCHAN");
+		result = ABORT;
+		goto OVER3;
+		}
+	seq = (*(p_seqcont[chan]))[iparam];
 
-time = t0 + (*param)[iparam].starttime
-	+ ((long)(*param)[iparam].duration
-	* (*param)[iparam].ib) / (*param)[iparam].ibm;
+	if(seq < 0 || seq >= maxconc) {
+		// BPPrintMessage(0,odError,"=> Err. SendControl(). seq < 0 || seq >= maxconc");
+		return(ABORT);
+		}
+		
+	param = (*p_control)[seq].param;
 
-Tcurr =  time / Time_res;
+	if(chan != (*param)[iparam].channel) {
+		// BPPrintMessage(0,odError,"=> Err. SendControl(). chan != (*param)[iparam].channel");
+		result = ABORT;
+		goto OVER3;
+		}
+	if(!(*(p_active[chan]))[iparam]) {
+		// BPPrintMessage(0,odError,"=> Err. SendControl(). !(*(p_active[chan]))[iparam]");
+		return(ABORT);
+		}
+	if((*p_control)[seq].param == NULL) {
+		// BPPrintMessage(0,odError,"=> Err. SendControl(). (*p_control)[seq].param == NULL");
+		return(ABORT);
+		}
+	if((*param)[iparam].ibm <= ZERO) {
+		Print(wTrace,"=> Err. SendControl(). (*param)[iparam].ibm <= ZERO\n");
+	/*	This case was found in item #26 of -da.checkControls.html when played after the
+		two preceding ones */
+		goto INCREMENT;
+		}
 
-// BPPrintMessage(0,odInfo,"SendControl(). value = %.3f Tcurr = %ld\n",value,(long)Tcurr);
+	alpha = ((double)(*param)[iparam].ib) / (*param)[iparam].ibm;
 
-lsb = ((long)value) % 128;
-msb = (((long)value) - lsb) >> 7;
+	if((value = GetTableValue(alpha,(*param)[iparam].imax,(*param)[iparam].point,
+			(*param)[iparam].startvalue,(*param)[iparam].endvalue)) == Infpos) {
+		BPPrintMessage(0,odError,"=> Err. SendControl(). value == Infpos");
+		BPPrintMessage(0,odError,"=> Err. SendControl(). value == Infpos\n");
+		return(ABORT);
+		}
+	if(value < 0. && value > -0.1) value = 0.;
+	if(value > 16383. && value < 16384.) value = 16383.;
 
-switch(iparam) {
-	case IPITCHBEND:
-		ChangedPitchbend[chan] = TRUE;
-		(*p_Oldvalue)[chan].pitchbend = value;
-		if(!cswrite) {
-			e.time = Tcurr;
-			e.type = NORMAL_EVENT;
-			e.status = PitchBend + chan;
-			e.data1 = lsb;
-			e.data2 = msb;
-			if((result=SendToDriver(0,0,0,time,seq,p_rs,&e)) != OK) goto OVER;
+	if(value < 0. || value > 16383.) {
+		{
+			my_sprintf(Message,"=> Err. SendControl(). value = %.3f\n",value);
+			Print(wTrace,Message);
+			BPPrintMessage(0,odError,"=> Err. SendControl(). value = %.3f\n",value);
 			}
-		break;
-	case IPRESSURE:
-		ChangedPressure[chan] = TRUE;
-		(*p_Oldvalue)[chan].pressure = value;
-		if(!cswrite) {
-			e.time = Tcurr;
-			e.type = TWO_BYTE_EVENT;
-			e.status = ChannelPressure + chan;
-            e.data1 = 0;
-			e.data2 = value;
-			if((result=SendToDriver(0,0,0,time,seq,p_rs,&e)) != OK) goto OVER;
-			}
-		break;
-	case IMODULATION:
-		ChangedModulation[chan] = TRUE;
-		(*p_Oldvalue)[chan].modulation = value;
-		if(!cswrite) {
-			e.time = Tcurr;
-			e.type = NORMAL_EVENT;
-			e.status = ControlChange + chan;
-			e.data1 = 1;
-			e.data2 = msb;
-			if((result=SendToDriver(0,0,0,time,seq,p_rs,&e)) != OK) goto OVER;
-			e.time = Tcurr;
-			e.type = NORMAL_EVENT;
-			e.status = ControlChange + chan;
-			e.data1 = 33;
-			e.data2 = lsb;
-			if((result=SendToDriver(0,0,0,time,seq,p_rs,&e)) != OK) goto OVER;
-			}
-		break;
-	case IVOLUME: // Later consider that it also may have a LSB
-		ChangedVolume[chan] = TRUE;
-		(*p_Oldvalue)[chan].volume = value;
-		if(!cswrite) {
-			e.time = Tcurr;
-			e.type = NORMAL_EVENT;
-			e.status = ControlChange + chan;
-			e.data1 = VolumeControl[chan+1];
-			e.data2 = value;
-			if((result=SendToDriver(0,0,0,time,seq,p_rs,&e)) != OK) goto OVER;
-			}
-		break;
-	case IPANORAMIC: // Later consider that it also may have a LSB
-		ChangedPanoramic[chan] = TRUE;
-		(*p_Oldvalue)[chan].panoramic = value;
-		if(!cswrite) {
-			e.time = Tcurr;
-			e.type = NORMAL_EVENT;
-			e.status = ControlChange + chan;
-			e.data1 = PanoramicControl[chan+1];
-			e.data2 = value;
-			if((result=SendToDriver(0,0,0,time,seq,p_rs,&e)) != OK) goto OVER;
-			}
-		break;
-	}
+		return(OK);
+		}
 
-(*param)[iparam].ib++;
-(*(p_t2cont[chan]))[iparam] = t2 = (*param)[iparam].starttime
-	+ ((*param)[iparam].duration * (*param)[iparam].ib)
-	/ (*param)[iparam].ibm;
+	time = t0 + (*param)[iparam].starttime
+		+ ((long)(*param)[iparam].duration
+		* (*param)[iparam].ib) / (*param)[iparam].ibm;
 
-INCREMENT:
-if((*param)[iparam].ib > (*param)[iparam].ibm) {
-	(*param)[iparam].ibm = -1L;
-	(*(p_active[chan]))[iparam] = FALSE;
-	(*(p_t2cont[chan]))[iparam] = Infpos;
-	
-	/* Try to activate the same parameter+channel in another sequence */
-	for(nn=0; nn < maxconc; nn++) {
-		if(nn == seq) continue;
-		if((*((*p_control)[nn].param))[iparam].ibm <= ZERO) continue;
-		if(chan == (*((*p_control)[nn].param))[iparam].channel) {
-			if((*(p_active[chan]))[iparam]) {
-				// BPPrintMessage(0,odError,"=> Err. SendControl(). (*(p_active[chan]))[iparam]");
-				return(ABORT);
-				}
-			
-			/* Set the proper ib using value of t2 */
-			if((*((*p_control)[nn].param))[iparam].duration <= ZERO) {
-				// BPPrintMessage(0,odError,"=> Err. SendControl(). (*((*p_control)[nn].param))[iparam].duration <= 0");
-				(*((*p_control)[nn].param))[iparam].ib = ZERO;
-				goto OVER;
-				}
-			(*((*p_control)[nn].param))[iparam].ib
-				= (t2 - (*((*p_control)[nn].param))[iparam].starttime)
-					* (*((*p_control)[nn].param))[iparam].ibm
-					/ (*((*p_control)[nn].param))[iparam].duration;
-			if((*((*p_control)[nn].param))[iparam].ib
-					<= (*((*p_control)[nn].param))[iparam].ibm) {
-				(*(p_t2cont[chan]))[iparam] = t2;
-				(*(p_seqcont[chan]))[iparam] = nn;
-				(*(p_active[chan]))[iparam] = TRUE;
-				}
-			else {
-				(*((*p_control)[nn].param))[iparam].ibm = -1L;
-	/*			(*(p_active[chan]))[iparam] = FALSE; */
+	Tcurr =  time / Time_res;
+
+	// BPPrintMessage(0,odInfo,"SendControl(). value = %.3f Tcurr = %ld\n",value,(long)Tcurr);
+
+	lsb = ((long)value) % 128;
+	msb = (((long)value) - lsb) >> 7;
+
+	switch(iparam) {
+		case IPITCHBEND:
+			ChangedPitchbend[chan] = TRUE;
+			(*p_Oldvalue)[chan].pitchbend = value;
+			if(!cswrite) {
+				e.time = Tcurr;
+				e.type = NORMAL_EVENT;
+				e.status = PitchBend + chan;
+				e.data1 = lsb;
+				e.data2 = msb;
+				if((result=SendToDriver(0,0,0,time,seq,p_rs,&e)) != OK) goto OVER3;
 				}
 			break;
+		case IPRESSURE:
+			ChangedPressure[chan] = TRUE;
+			(*p_Oldvalue)[chan].pressure = value;
+			if(!cswrite) {
+				e.time = Tcurr;
+				e.type = TWO_BYTE_EVENT;
+				e.status = ChannelPressure + chan;
+				e.data1 = 0;
+				e.data2 = value;
+				if((result=SendToDriver(0,0,0,time,seq,p_rs,&e)) != OK) goto OVER3;
+				}
+			break;
+		case IMODULATION:
+			ChangedModulation[chan] = TRUE;
+			(*p_Oldvalue)[chan].modulation = value;
+			if(!cswrite) {
+				e.time = Tcurr;
+				e.type = NORMAL_EVENT;
+				e.status = ControlChange + chan;
+				e.data1 = 1;
+				e.data2 = msb;
+				if((result=SendToDriver(0,0,0,time,seq,p_rs,&e)) != OK) goto OVER3;
+				e.time = Tcurr;
+				e.type = NORMAL_EVENT;
+				e.status = ControlChange + chan;
+				e.data1 = 33;
+				e.data2 = lsb;
+				if((result=SendToDriver(0,0,0,time,seq,p_rs,&e)) != OK) goto OVER3;
+				}
+			break;
+		case IVOLUME: // Later consider that it also may have a LSB
+			ChangedVolume[chan] = TRUE;
+			(*p_Oldvalue)[chan].volume = value;
+			if(!cswrite) {
+				e.time = Tcurr;
+				e.type = NORMAL_EVENT;
+				e.status = ControlChange + chan;
+				e.data1 = VolumeControl[chan+1];
+				e.data2 = value;
+				if((result=SendToDriver(0,0,0,time,seq,p_rs,&e)) != OK) goto OVER3;
+				}
+			break;
+		case IPANORAMIC: // Later consider that it also may have a LSB
+			ChangedPanoramic[chan] = TRUE;
+			(*p_Oldvalue)[chan].panoramic = value;
+			if(!cswrite) {
+				e.time = Tcurr;
+				e.type = NORMAL_EVENT;
+				e.status = ControlChange + chan;
+				e.data1 = PanoramicControl[chan+1];
+				e.data2 = value;
+				if((result=SendToDriver(0,0,0,time,seq,p_rs,&e)) != OK) goto OVER3;
+				}
+			break;
+		}
+
+	(*param)[iparam].ib++;
+	(*(p_t2cont[chan]))[iparam] = t2 = (*param)[iparam].starttime
+		+ ((*param)[iparam].duration * (*param)[iparam].ib)
+		/ (*param)[iparam].ibm;
+
+	INCREMENT:
+	if((*param)[iparam].ib > (*param)[iparam].ibm) {
+		(*param)[iparam].ibm = -1L;
+		(*(p_active[chan]))[iparam] = FALSE;
+		(*(p_t2cont[chan]))[iparam] = Infpos;
+		
+		/* Try to activate the same parameter+channel in another sequence */
+		for(nn=0; nn < maxconc; nn++) {
+			if(nn == seq) continue;
+			if((*((*p_control)[nn].param))[iparam].ibm <= ZERO) continue;
+			if(chan == (*((*p_control)[nn].param))[iparam].channel) {
+				if((*(p_active[chan]))[iparam]) {
+					// BPPrintMessage(0,odError,"=> Err. SendControl(). (*(p_active[chan]))[iparam]");
+					return(ABORT);
+					}
+				
+				/* Set the proper ib using value of t2 */
+				if((*((*p_control)[nn].param))[iparam].duration <= ZERO) {
+					// BPPrintMessage(0,odError,"=> Err. SendControl(). (*((*p_control)[nn].param))[iparam].duration <= 0");
+					(*((*p_control)[nn].param))[iparam].ib = ZERO;
+					goto OVER3;
+					}
+				(*((*p_control)[nn].param))[iparam].ib
+					= (t2 - (*((*p_control)[nn].param))[iparam].starttime)
+						* (*((*p_control)[nn].param))[iparam].ibm
+						/ (*((*p_control)[nn].param))[iparam].duration;
+				if((*((*p_control)[nn].param))[iparam].ib
+						<= (*((*p_control)[nn].param))[iparam].ibm) {
+					(*(p_t2cont[chan]))[iparam] = t2;
+					(*(p_seqcont[chan]))[iparam] = nn;
+					(*(p_active[chan]))[iparam] = TRUE;
+					}
+				else {
+					(*((*p_control)[nn].param))[iparam].ibm = -1L;
+		/*			(*(p_active[chan]))[iparam] = FALSE; */
+					}
+				break;
+				}
 			}
 		}
-	}
 
-OVER:
-return(result);
-}
+OVER3:
+	return(result);
+	}
 
 
 double GetTableValue(double alpha,long imax,Coordinates** coords,double startvalue,

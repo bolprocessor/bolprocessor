@@ -1913,7 +1913,7 @@ int ReseedOrShuffle(int what) {
 			if(seed == 0) seed = 1;
 			Seed = seed;
 			if(Seed > 0) {
-				BPPrintMessage(0,odInfo, "New random seed = %u\n", seed);
+				BPPrintMessage(1,odInfo, "New random seed = %u\n", seed);
 				srand(Seed);
 				UsedRandom = FALSE;
 				}
@@ -1926,7 +1926,7 @@ int ReseedOrShuffle(int what) {
 				// FIXME ? Why seed a second time (with a restricted range for the seed too) ?
 				randomnumber = rand();
 				seed = (unsigned int) (randomnumber % 32768);
-				BPPrintMessage(0,odInfo, "Random seed = %u\n", seed);
+				BPPrintMessage(1,odInfo, "Random seed = %u\n", seed);
 				srand(seed);
 				UsedRandom = TRUE;
 				}

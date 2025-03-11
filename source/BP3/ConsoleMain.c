@@ -60,15 +60,15 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts);
 int ApplyArgs(BPConsoleOpts* opts);
 const char* ActionTypeToStr(action_t action);
 int LoadInputFiles(const char* pathnames[WMAX]);
-int LoadFileToTextHandle(const char* pathname, TEHandle th);
-int OpenAndReadFile(const char*,char**);
+int LoadFileToTextHandle(int,char* pathname,TEHandle th);
 int PrepareProdItemsDestination(BPConsoleOpts* opts);
 int PrepareTraceDestination(BPConsoleOpts* opts);
 void CloseOutputDestination(int dest, BPConsoleOpts* opts, outfileidx_t fileidx);
 int isInteger(const char* s);
+void extract_and_append(char*,char*);
 
 // globals only for the console app
-int LoadedAlphabet  = FALSE;
+int LoadedAlphabet = FALSE;
 int LoadedStartString = FALSE;
 BPConsoleOpts gOptions;
 FILE * imagePtr;
@@ -112,6 +112,8 @@ int main (int argc, char* args[]) {
 
 	NoteOffInputFilter = NoteOnInputFilter = KeyPressureInputFilter = ControlTypeInputFilter = ProgramTypeInputFilter = ChannelPressureInputFilter = PitchBendInputFilter = SysExInputFilter = TimeCodeInputFilter = SongPosInputFilter = SongSelInputFilter = TuneTypeInputFilter = EndSysExInputFilter = ClockTypeInputFilter = StartTypeInputFilter = ContTypeInputFilter = ActiveSenseInputFilter = ResetInputFilter = 3;
 	
+	LiveGrammar = LiveSettings = TraceLive = ChangedGrammar = ChangedSettings = FALSE;
+	strcpy(LiveFolder,"");
 	ConsoleInit(&gOptions);
     ConsoleMessagesInit();
 	result = ParsePreInitArgs(argc, args, &gOptions);
@@ -155,7 +157,6 @@ int main (int argc, char* args[]) {
 	result = ApplyArgs(&gOptions);
 	if(result != OK) goto CLEANUP;
 	
-
 	TraceMemory = FALSE;
 
 	MaxMIDIMessages = 1000L;  // May be increased if necesssary to deal with very large chunks of events in real time
@@ -171,7 +172,7 @@ int main (int argc, char* args[]) {
 	
 	eventCount = 0L;
 	eventCountMax = MaxMIDIMessages - 50L;
-	initTime = FirstEventTime = 0L; // millisconds
+	initTime = FirstEventTime = 0L; // microseconds
 
 	InitOn = FALSE;
 	time(&SessionStartTime);
@@ -276,9 +277,8 @@ CLEANUP:
 	CloseCsScore();
 	if(rtMIDI) {
 		if(Panic) eventCount = 0L;
-	//	MIDIflush(0);
 		while(eventCount > 0L) {
-			if(MIDIflush(0) != OK) break;  // Process MIDI events
+			if(MIDIflush(FALSE,FALSE) != OK) break;  // Process MIDI events
 			if((result = WaitABit(10)) != OK) break; // Sleep for 10 milliseconds
 			}
 		WaitABit(100); // Sleep for 100 milliseconds
@@ -1115,7 +1115,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 			return ABORT;
 			}
 		if(rtMIDI) {
-			if((r = MIDIflush(0)) != OK) return r;
+			if((r = MIDIflush(FALSE,FALSE)) != OK) return r;
 			Notify("Real-time MIDI started",0);
 			}
 		else Notify("Real-time MIDI failed to start",1);
@@ -1158,10 +1158,10 @@ int ApplyArgs(BPConsoleOpts* opts)
 			BPPrintMessage(0,odInfo, "Random seed = %u as per command line\n", Seed);
 			ResetRandom();
 			}
-		else {
+	/*	else {
 			BPPrintMessage(0,odInfo, "Not using a random seed: shuffling the cards\n");
 			Randomize();
-			}
+			} */
 	}
 	
 	return OK;
@@ -1223,8 +1223,8 @@ void GetFileName(char* name,const char* path) { // Added by BB 4 Nov 2020
 /*	Calls LoadFileToTextHandle() for each file in pathnames and copies the contents
 	to the corresponding TextHandle in TEH[].  pathnames must be an array of 
 	WMAX file/path names with file types that match the window indices in -BP3.h.
-	
 	Returns MISSED if an error occured or OK if successful. */
+
 int LoadInputFiles(const char* pathnames[WMAX]) {
 	int w, result;
 	for(w = 0; w < WMAX; w++) {
@@ -1238,7 +1238,7 @@ int LoadInputFiles(const char* pathnames[WMAX]) {
 				case wData:
 				case wGlossary:
 					BPPrintMessage(0,odInfo, "Reading %s file: %s\n", DocumentTypeName[w], pathnames[w]);
-					result = LoadFileToTextHandle(pathnames[w], TEH[w]);
+					result = LoadFileToTextHandle(w,(char*)pathnames[w],TEH[w]);
 					if(result != OK)  {
 						BPPrintMessage(0,odError,"=> You first need to save the Grammar or Data\n");
 						return result;
@@ -1261,7 +1261,7 @@ int LoadInputFiles(const char* pathnames[WMAX]) {
 					break;
 				case iSettings:
 					BPPrintMessage(0,odInfo, "Reading settings file: %s\n", pathnames[w]);
-					result = LoadSettings(pathnames[w], FALSE);
+					result = LoadSettings(pathnames[w],FALSE);
 					if(result != OK)  return result;
 					break;
 				case iObjects:
@@ -1282,16 +1282,14 @@ int LoadInputFiles(const char* pathnames[WMAX]) {
 /*	LoadFileToTextHandle()
 	Reads in the entire contents of the file at 'pathname' and copies
 	it to the existing TEHandle th. 
-	
 	Returns OK on success, ABORT if the parameters from the caller
 	are bad, or MISSED if there was an error.
  */
 
-int LoadFileToTextHandle(const char* pathname,TEHandle th) {
+int LoadFileToTextHandle(int w,char* pathname,TEHandle th) {
 	int result;
 	char* filecontents;
 	filecontents = NULL;
-	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start LoadFileToTextHandle = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	if(pathname == NULL) {
 		  BPPrintMessage(0,odError, "=> Err. LoadFileToTextHandle(): pathname == NULL\n");
 		return ABORT;
@@ -1300,24 +1298,48 @@ int LoadFileToTextHandle(const char* pathname,TEHandle th) {
 		  BPPrintMessage(0,odError, "=> Err. LoadFileToTextHandle(): th == NULL\n");
 		return ABORT;
 		}
-	result = OpenAndReadFile(pathname,&filecontents);
-//	BPPrintMessage(0,odInfo,"%s\n",filecontents);
-	if(result != OK)  return result;
+	result = OpenAndReadFile((const char*) pathname,&filecontents);
+	// BPPrintMessage(1,odInfo,"%s\n",filecontents);
+	if(result != OK) return result;
 	result = CopyStringToTextHandle(th,filecontents);
-	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed before end LoadFileToTextHandle = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	free(filecontents);
 	filecontents = NULL;
-	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end LoadFileToTextHandle = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	return result;	
 	}
 
+int ReloadGrammar(void) {
+	int result;
+	char pathname[MAXNAME];
+	char* filecontents;
+	if(strlen(LiveFolder) < 1) return FALSE;
+	my_sprintf(pathname,"%s/_saved_grammar",LiveFolder);
+	result = OpenAndReadFile((const char*) pathname,&filecontents);
+	// BPPrintMessage(1,odInfo,"%s\n",filecontents);
+	if(result != OK) return FALSE;
+	if(remove(pathname) != 0) BPPrintMessage(1,odError,"=> Cannot delete _saved_grammar\n");
+	if(TraceLive) BPPrintMessage(1,odInfo,"👉 Loading grammar: %s\n",filecontents);
+	result = LoadFileToTextHandle(wGrammar,filecontents,TEH[wGrammar]);
+	free(filecontents);
+	filecontents = NULL;
+	my_sprintf(pathname,"%s/_saved_alphabet",LiveFolder);
+	result = OpenAndReadFile((const char*) pathname,&filecontents);
+	// BPPrintMessage(1,odInfo,"%s\n",filecontents);
+	if(result == OK) {
+		if(remove(pathname) != 0) BPPrintMessage(1,odError,"=> Cannot delete _saved_alphabet\n");
+		if(TraceLive) BPPrintMessage(1,odInfo,"👉 Loading alphabet: %s\n",filecontents);
+		result = LoadFileToTextHandle(wAlphabet,filecontents,TEH[wAlphabet]);
+		free(filecontents);
+		filecontents = NULL;
+		}
+	CompiledGr = CompiledAl = FALSE;
+	return TRUE;
+	}
 
-int OpenAndReadFile(const char* pathname,char** buffer) { // Rewritten 2024-06-25
+int OpenAndReadFile(const char* pathname,char** buffer) {
 	FILE *fin;
 	int result;
     char line[MAXLIN];
 	long pos;
-	
 	if(pathname == NULL) {
 		  BPPrintMessage(0,odError, "=> Err. LoadFileToTextHandle(): pathname == NULL\n");
 		return MISSED;
@@ -1326,13 +1348,12 @@ int OpenAndReadFile(const char* pathname,char** buffer) { // Rewritten 2024-06-2
 		  BPPrintMessage(0,odError, "=> Err. LoadFileToTextHandle(): pathname is empty\n");
 		return MISSED;
 		}
-	fin = my_fopen(1,pathname, "r");
+	fin = my_fopen(FALSE,pathname,"r");
 	if(!fin) {
-		BPPrintMessage(0,odError, "=> Could not open file for reading: %s\n", pathname);
+	//	BPPrintMessage(0,odError, "=> Could not open file for reading: %s\n", pathname);
 		return MISSED;
 		}
 //	BPPrintMessage(0,odInfo, "Opened file: %s\n", pathname);
-
 	*buffer = NULL;
     size_t bufferLength = 0;
     int i = 0;
@@ -1372,7 +1393,7 @@ FILE* my_fopen(int check, const char* path, const char* mode) {
         BPPrintMessage(0,odError, "=> Err. in my_fopen(). path == NULL\n");
         return NULL;
 		}
-    strcpy(convertedPath,path);  // Copy the original path to the buffer
+    strcpy(convertedPath,path);
     convert_path(convertedPath);  // Change backslashes to normal
 	struct stat file_stat;
 	file = fopen(convertedPath,thismode);
@@ -1389,7 +1410,7 @@ FILE* my_fopen(int check, const char* path, const char* mode) {
 				}
 			}
 		}
-    return file;  // Return the file pointer 
+    return file;
     }
 
 int my_fclose(FILE *file) {
@@ -1467,6 +1488,7 @@ int PrepareProdItemsDestination(BPConsoleOpts* opts) {
 
 int PrepareTraceDestination(BPConsoleOpts* opts) {
 	FILE *fout;
+	char output[MAXNAME];
 	// prepare trace output file if requested
 	if(opts->outputFiles[ofiTraceFile].name != NULL) {
 		fout = OpenOutputFile(&(opts->outputFiles[ofiTraceFile]), "w");
@@ -1475,12 +1497,43 @@ int PrepareTraceDestination(BPConsoleOpts* opts) {
 			return MISSED;
 		    }
 		SetOutputDestinations(odTrace,fout);
-        BPPrintMessage(0,odInfo, "Creating trace file: %s\n", opts->outputFiles[ofiTraceFile].name);
+        BPPrintMessage(0,odInfo, "Creating trace file: %s\n",opts->outputFiles[ofiTraceFile].name);
+		extract_and_append((char*) opts->outputFiles[ofiTraceFile].name,output);
+		strcpy(LiveFolder,output);
+		if(path_exists(output))
+        	BPPrintMessage(0,odInfo, "Checking live folder: %s\n",LiveFolder);
+		else {
+			BPPrintMessage(0,odError,"=> Live coding won't work as this folder is missing: %s\n",LiveFolder);
+			strcpy(LiveFolder,"");
+			LiveGrammar = LiveSettings = FALSE;
+			}
 	    }
     return OK;
     }
 
 /* Utility functions */
+
+void extract_and_append(char* input, char* output) {
+    char *ptr = input;
+    int count = 0;
+    // Find the position of the third occurrence of '_'
+    while (*ptr && count < 3) {
+        if (*ptr == '_') count++;
+        if (count < 3) ptr++; // Move pointer forward until the third '_'
+    	}
+    // Copy up to the third '_'
+    size_t length = ptr - input;
+    strncpy(output, input, length);
+    output[length] = '\0'; // Null terminate the new string
+    // Append "_live"
+    strcat(output,"_live");
+	}
+
+// Function to check if a file or directory exists
+int path_exists(char *path) {
+    struct stat buffer;
+    return (stat(path, &buffer) == 0); // Returns 1 if exists, 0 otherwise
+	}
 
 /* Returns TRUE if string s is an integer, otherwise FALSE. */
 int isInteger(const char* s) {

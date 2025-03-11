@@ -44,16 +44,16 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start)
 /* Produce items. Start string is selection in window w or in buffer p_start */
 {
 tokenbyte **p_buff,***pp_buff,**p_a,***pp_a;
-int i,ifunc,j,ch,splitmem,r,undefined,datamode,weightloss,hastabs,maxsounds,check;
+int i,ifunc,j,ch,splitmem,r,undefined,datamode,weightloss,hastabs,maxsounds,check,changed;
 long endofselection,size,lengthA;
 unsigned long time_end_compute;
 
+ComputeOn++;
 // BPPrintMessage(0,odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
 if(Improvize && ItemNumber == 0) {
 	ShowMessage(TRUE,wMessage,"\n👉 Most of the messages will be discarded during the improvisation\n");
 	if(!rtMIDI) BPPrintMessage(1,odInfo,"Only %ld items will be produced.\n",MaxItemsProduce);
 	}
-time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
 
 if(CheckEmergency() != OK) return(ABORT);
 
@@ -68,15 +68,13 @@ if(CompileCheck() != OK) {
 
 if(!template && CheckLoadedPrototypes() != OK) return(MISSED);
 
-#if BP_CARBON_GUI_FORGET_THIS
-if(GetTuning() != OK) return(ABORT);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
+STARTFROMSCRATCH:
+time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
 
 p_a = NULL; pp_a = &p_a;
 pp_buff = &p_buff; p_buff = NULL;
 r = OK;
 
-ComputeOn++;
 // if(ShowGraphic) CreateImageFile(-1.);
 if(Panic) return ABORT;
 
@@ -311,7 +309,8 @@ SplitTimeObjects = splitmem;
 if(!PlaySelectionOn && Improvize) {
 	my_sprintf(Message,"Item #%ld\n",(long)(ItemNumber + 1L));
 	FlashInfo(Message);
-	if(!rtMIDI && !template && Improvize) BPPrintMessage(0,odInfo,Message);
+	if(!rtMIDI && !template && Improvize)
+		BPPrintMessage(1,odInfo,Message);
 	ItemNumber++; // Needs to bee checked. Sometimes only 5 items created in improvize mode.
 	if(SkipFlag) goto MAKE;
 	if(!PlaySelectionOn && DisplayItems) {
@@ -325,6 +324,13 @@ if(!PlaySelectionOn && Improvize) {
 		}
 	if((rtMIDI || OutCsound || WriteMIDIfile || OutBPdata)
 		&& ((r=PlayBuffer(pp_a,NO)) == ABORT || r == EXIT)) goto QUIT;
+	if(ChangedGrammar || ChangedSettings) {
+		ChangedGrammar = ChangedSettings = FALSE;
+	//	BPPrintMessage(1,odInfo,"Changed grammar\n");
+		Tcurr = LastTime / Time_res;
+		eventCount = 0L;
+		goto STARTFROMSCRATCH;
+		}
 	goto MAKE;
 	}
 if(!StepProduce && !TraceProduce && !PlaySelectionOn

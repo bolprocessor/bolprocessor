@@ -238,6 +238,7 @@ int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,T
 	VariableOn,N_err,nstore,NumberTables,OkShowExpand,Improvize,ComputeWhilePlay,TransposeInput,
 	TransposeValue,Varweight,Flagthere,ResetDone,BolsInGrammar,NoAlphabet,PointCsound,PointMIDI,
 	**p_Ifrom,**p_Resolution,**p_CsoundInstr,**p_CsoundAssignedInstr;
+int LiveGrammar,LiveSettings,TraceLive,ChangedGrammar,ChangedSettings;
 MIDIcode ****pp_MIDIcode;
 float **p_CsoundTempo;
 Milliseconds ****pp_CsoundTime;
@@ -282,6 +283,7 @@ Milliseconds **p_T;
 long **p_Ppatt,**p_Qpatt;
 MIDIcode **p_Code; 
 char Midiportfilename[MAXNAME];
+char LiveFolder[MAXNAME];
 double SpeedRange,Ke,CorrectionFactor;
 unsigned long NumEventsWritten;
 int DeriveFurther,DeriveFurtherKey,DeriveFurtherChan,ResetWeights,NeverResetWeights,

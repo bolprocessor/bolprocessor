@@ -17,9 +17,17 @@ If you are interested in taking part in this project, join the BP developer's li
 https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
 
 
+Live coding
+-----------
+
+- When loading a grammar, if the grammar is not valid, the improvisation will stop. It should continue with the previous grammar. Perhaps store a backup of the current grammar so that it can be reloaded if necessary.
+- Create an option to react to changes only at the moment when an entire element has been sent to MIDI. You can use the MIDI event (ActiveSensing) at the end of each item to do this.
+
+
 Apache autostart in XAMPP for MacOS
 -----------------------------------
 
+- This is of minor interest due to the availability of the "BolProcessor.app" standalone MacOS application 
 - The method described on https://github.com/erwinagpasa/Launching-XAMPP-at-OSX-startup is not entirely satisfactory. It allows XAMPP to restart Apache at boot time and PHP pages are displayed correctly. However, when real-time MIDI is used, MIDIClientCreate() returns an error.
 - The only way to use XAMPP on MacOS is to start Apache from the Application Manager "manager-osx.app" (in XAMPP/xamppfiles).
 - The problem probably lies in the current distribution (8.2.4) of XAMPP for MacOS.

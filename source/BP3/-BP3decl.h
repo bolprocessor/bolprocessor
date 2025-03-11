@@ -187,6 +187,7 @@ extern int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVari
 	Flagthere,ResetDone,BolsInGrammar,NoAlphabet,**p_Ifrom,PointCsound,PointMIDI,
 	**p_Resolution,
 	**p_CsoundInstr,**p_CsoundAssignedInstr;
+extern int LiveGrammar,LiveSettings,TraceLive,ChangedGrammar,ChangedSettings;
 extern MIDIcode ****pp_MIDIcode;
 extern float **p_CsoundTempo;
 extern Milliseconds ****pp_CsoundTime;
@@ -232,6 +233,7 @@ extern Milliseconds **p_T;
 extern long **p_Ppatt,**p_Qpatt;
 extern MIDIcode **p_Code;
 extern char Midiportfilename[MAXNAME];
+extern char LiveFolder[MAXNAME];
 
 extern double SpeedRange,Ke,CorrectionFactor;
 
@@ -397,6 +399,6 @@ extern int FirstNoteOn;
 extern int ToldPitchbend, ToldStop;
 
 extern int stop(int,char*);
-extern int MIDIflush(int);
+extern int MIDIflush(int,int);
 
 #endif /* BP3_DECL_H */

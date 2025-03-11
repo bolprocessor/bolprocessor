@@ -73,7 +73,7 @@ if(mode == 1 && IsEmpty(wGrammar)) {
 	}
 BPPrintMessage(0,odInfo,"Compiling grammar...\n");
 
-TextGetSelection(&GramSelStart, &GramSelEnd, TEH[wGrammar]);
+TextGetSelection(&GramSelStart,&GramSelEnd,TEH[wGrammar]);
 startsel = GramSelStart;
 endsel = GramSelEnd;
 if(trace_compile_grammar) BPPrintMessage(0,odInfo,"startsel = %ld, endsel = %ld\n",(long)startsel,(long)endsel);

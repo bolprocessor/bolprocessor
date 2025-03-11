@@ -90,7 +90,7 @@ int CopyStringToTextHandle(TEHandle th, const char* str) {
 	
 	// adjust other "instance variables"
 	tp->length = (int32_t) len;
-	if(tp->selStart > tp->length)	tp->selStart = tp->length;
+	if(tp->selStart > tp->length) tp->selStart = tp->length;
 	if(tp->selEnd > tp->length)	tp->selEnd = tp->length;
 	return OK;
 	}

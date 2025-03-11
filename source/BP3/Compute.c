@@ -48,6 +48,7 @@ int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_re
 	int r,igram,inrul,finish,again,outgram,outrul,displayproducemem,level;
 	unsigned long ix;
 
+	if(ChangedGrammar || ChangedSettings) return(OK);
 	ReleaseProduceStackSpace();
 	MaxDeriv = MAXDERIV;
 	NumberInferences = 0L;
@@ -176,6 +177,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 	tokenbyte ***pp_b,**p_b,**p_c,***pp_c,instan[MAXLIN],meta[MAXMETA2];
 	t_subgram subgram;
 
+	if(ChangedGrammar || ChangedSettings) return(OK);
 	if(p_gram == NULL) {
 		BPPrintMessage(0,odError,"=> Err. in ComputeInGram(). p_gram == NULL");
 		return(ABORT);
@@ -568,6 +570,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 		if(pos1 == ABORT || pos1 == EXIT) {
 			rep = pos1; goto QUIT;
 			}
+		if(ChangedGrammar || ChangedSettings) return(OK);
 	/*	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 			EmergencyExit =TRUE; 
 			BPPrintMessage(0,odInfo,"=> (7) Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
@@ -1000,6 +1003,7 @@ int Destroy(tokenbyte ***pp_a) {
 	int rep;
 	long size;
 
+	if(ChangedGrammar || ChangedSettings) return(OK);
 	if(*pp_a == NULL) {
 		BPPrintMessage(0,odError,"=> Err. Destroy(). *pp_a = NULL\n");
 		Panic = TRUE;
@@ -1080,6 +1084,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 	if((rep=ListenToEvents()) < 0) return(rep);
 
 	if(CheckEmergency() != OK) return(ABORT);
+	if(ChangedGrammar || ChangedSettings) return(0);
 
 /* if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 		EmergencyExit =TRUE;
@@ -1420,6 +1425,8 @@ int OkContext(tokenbyte ***pp_a,int grtype,t_rule rule,long pos,long length,
 	int sign;
 	long pos1,pos2,length1;
 
+	if(ChangedGrammar || ChangedSettings) return(NO);
+
 	if(rule.p_leftcontext != NULL) {
 		sign = (*rule.p_leftcontext)->sign;
 		pos1 = FindArg(pp_a,grtype,(*rule.p_leftcontext)->p_arg,FALSE,&length1,meta,instan,
@@ -1452,6 +1459,8 @@ long FindArg(tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,int reset,
 	long startpos,istart,jstart,lenc1;
 	int dir;
 	tokenbyte meta1[MAXMETA2];
+
+	if(ChangedGrammar || ChangedSettings) return(-1);
 
 	switch(mode) {
 		case TEMP:
@@ -1495,6 +1504,8 @@ int Found(tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,int lenc,
 	int i,j,i1,i2,j1,j2,xi,istart,jstart;
 	int nexist,nefound,result;
 	if(CheckEmergency() != OK) return(ABORT);
+
+	if(ChangedGrammar || ChangedSettings) return(FALSE);
 
 /*	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 		EmergencyExit = TRUE;
@@ -1710,6 +1721,7 @@ long Derive(tokenbyte ***pp_a,t_gram *p_gram,tokenbyte ***pp_b,long *p_length,in
 		BPPrintMessage(1,odError,"=> Calculation overflow (%ld derivations): task abandoned. Loop?\n",NumberInferences);
 		return(ABORT);
 		}
+	if(ChangedGrammar || ChangedSettings) return(OK);
 	NumberInferences++;
 	if(trace_compute) BPPrintMessage(0,odInfo,"Derive() igram = %d irul = %d\n",igram,irul);
 	rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
@@ -1778,6 +1790,7 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 
 	/* *pp_origin = *pp_dest except in 'SUB' subgrammars. */
 
+	if(ChangedGrammar || ChangedSettings) return(0);
 	if(*pp_dest == NULL) {
 		BPPrintMessage(0,odError,"=> Err. Insert(). *pp_dest = NULL");
 		return(-1L);
@@ -2091,9 +2104,10 @@ QUIT:
 
 
 int ShowItem(int igram,t_gram *p_gram,int justplay,tokenbyte ***pp_a,int repeat,int mode,int all) {
-
 	int r,rep,ifunc,datamode,hastabs;
 	long lastbyte;
+
+	if(ChangedGrammar || ChangedSettings) return(OK);
 	if(justplay) {
 		r = PlayBuffer(pp_a,NO);
 		goto QUIT;
@@ -2125,93 +2139,3 @@ int ShowItem(int igram,t_gram *p_gram,int justplay,tokenbyte ***pp_a,int repeat,
 	QUIT:
 	return(r);
 	}
-
-
-#if BP_CARBON_GUI_FORGET_THIS
-int InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode)
-{
-long lastbyte;
-int r,rep;
-unsigned long datemem;
-
-StopCount(0);
-
-Interrupted = TRUE;
-datemem = CompileDate;
-if(StepProduce) {
-	if(UndoFlag) {
-		ShowWindow(GetDialogWindow(ResumeUndoStopPtr));
-		BringToFront(GetDialogWindow(ResumeUndoStopPtr));
-		}
-	else {
-		ShowWindow(GetDialogWindow(ResumeStopPtr));
-		BringToFront(GetDialogWindow(ResumeStopPtr));
-		}
-	}
-while((r = MainEvent()) != RESUME && r != STOP && r != ABORT && r != EXIT
-											&& !(StepProduce && r == UNDO)){};
-UndoFlag = FALSE;
-lastbyte = GetTextLength(wTrace);
-SetSelect(lastbyte,lastbyte,TEH[wTrace]);
-if(Nw >= 0 && Nw < WMAX && Editable[Nw]) {
-	lastbyte =  GetTextLength(Nw);
-	SetSelect(lastbyte,lastbyte,TEH[Nw]);
-	}
-if(r == ABORT || r == EXIT) return(r);
-if((datemem != CompileDate) || !CompiledGr || !CompiledPt) {
-	BPPrintMessage(0,odError,"Grammar changed or recompiled. Must abort...");
-	return(ABORT);
-	}
-if(!ComputeOn) return(ABORT); /* Happens if repeating */
-if(LoadedIn && (!CompiledIn && (r=CompileInteraction()) != OK))
-	return(r);
-if(r == STOP && mode == PROD) {
-	if(repeat) {
-		StepProduce = StepGrammars = DisplayProduce
-			= PlanProduce = TraceProduce = FALSE;
-		r = OK;	/* Computation should be finished. */
-		}
-	else {
-		if(!Improvize
-			&& (igram >= 0 && igram < (*p_gram).number_gram) && !AllOn) {
-				my_sprintf(Message,"Jump to subgrammar #%ld\nand terminate computation",
-					(long)igram + 1L);
-			if((r=Answer(Message,'Y')) == OK) {
-				TextOffset dummy, selend;
-				r = FINISH;
-				TextGetSelection(&dummy, &selend, TEH[wTrace]);
-				SetSelect(selend,selend,TEH[wTrace]);
-				if(StepProduce
-					&& ((rep=Answer("Terminate step by step",'N')) != OK)) {
-					if(rep == ABORT) return(AGAIN);
-					StepProduce = PlanProduce = TraceProduce = FALSE;
-					}
-				if(!StepProduce && DisplayProduce && ((rep=Answer("Show computation",'N'))
-						!= OK)) {
-					if(rep == ABORT) {
-						StepProduce = PlanProduce = TraceProduce = TRUE;
-						 return(AGAIN);
-						}
-					DisplayProduce = FALSE;
-					}
-				}
-			else {
-				if(r == ABORT) return(AGAIN);
-				if(r == NO) r = STOP;
-				if(Improvize && SkipFlag && (grtype == SUBtype)) {
-					SkipFlag = FALSE;
-					r = OK;
-					}
-				else r = ABORT;
-				}
-			}
-		}
-	}
-if(r == STOP) r = ABORT;
-if(r == RESUME) {
-	r = OK; EventState = NO;
-	}
-PleaseWait();
-return(r);
-}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
