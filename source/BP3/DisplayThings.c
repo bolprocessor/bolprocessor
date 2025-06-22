@@ -39,30 +39,29 @@
 #include "-BP3decl.h"
 
 int trace_display = 0;
+int check_context = 1;
 
-int Print(int w,char* t)
-{
-long length;
-char *ptr;
-
-if(w < 0 || w >= WMAX) {
-	BPPrintMessage(0,odError,"=> Err1. Print()");
+int Print(int w,char* t) {
+	long length;
+	char *ptr;
+	if(!FirstGrammar) return(OK);
+	if(w < 0 || w >= WMAX) {
+		BPPrintMessage(0,odError,"=> Err1. Print()");
+		return(OK);
+		}
+	if(!Editable[w]) {
+		BPPrintMessage(0,odError,"=> Err2. Print()");
+		return(MISSED);
+		}
+	length = strlen(t);
+	BPActivateWindow(QUICK,w);
+	ptr = t;
+	TextInsert(ptr,length,TEH[w]);
+	if(LockedWindow[w]) Deactivate(TEH[w]);
+	CheckTextSize(w);
+	w = FindGoodIndex(w);
 	return(OK);
 	}
-if(!Editable[w]) {
-	BPPrintMessage(0,odError,"=> Err2. Print()");
-	return(MISSED);
-	}
-length = strlen(t);
-BPActivateWindow(QUICK,w);
-ptr = t;
-TextInsert(ptr,length,TEH[w]);
-if(LockedWindow[w]) Deactivate(TEH[w]);
-CheckTextSize(w);
-w = FindGoodIndex(w);
-if(NeedSave[w]) Dirty[w] = TRUE;
-return(OK);
-}
 
 
 int PrintHandle(int w,char** p_t)
@@ -89,7 +88,6 @@ MyUnlock((Handle)p_t);
 CheckTextSize(w);
 if(LockedWindow[w]) Deactivate(TEH[w]);
 w = FindGoodIndex(w);
-if(NeedSave[w]) Dirty[w] = TRUE;
 return(OK);
 }
 
@@ -117,7 +115,6 @@ MyUnlock((Handle)p_t);
 CheckTextSize(w);
 if(LockedWindow[w]) Deactivate(TEH[w]);
 w = FindGoodIndex(w);
-if(NeedSave[w]) Dirty[w] = TRUE;
 return(OK);
 }
 
@@ -142,7 +139,7 @@ int PrintBehind(int w,char* t)
 {
 long length;
 char *ptr;
-
+if(!FirstGrammar) return(OK);
 if(w < 0 || w >= WMAX) {
 	BPPrintMessage(0,odError,"=> Err1. Print()");
 	return(OK);
@@ -157,7 +154,6 @@ TextInsert(ptr,length,TEH[w]);
 CheckTextSize(w);
 if(LockedWindow[w]) Deactivate(TEH[w]);
 w = FindGoodIndex(w);
-if(NeedSave[w]) Dirty[w] = TRUE;
 return(OK);
 }
 
@@ -170,7 +166,7 @@ return(OK);
 }
 
 
-int DisplayGrammar(t_gram *p_gram,int wind,int producemode,int showweights,int isgrammar)
+int DisplayGrammar(t_gram *p_gram,int wind,int producemode,int showweights)
 {
 int i,igram,irul,inc,j,proc,w,splitmem,shownctrlval[MAXPARAMCTRL];
 char *ptr;
@@ -181,56 +177,46 @@ t_subgram subgram;
 double p,q;
 
 if(wind < 0 || wind >= WMAX || !Editable[wind])  {
-	BPPrintMessage(0,odError,"=> Err. DisplayGrammar(). Incorrect index");
+	BPPrintMessage(0,odError,"=> Err. DisplayGrammar(). Incorrect index\n");
 	return(MISSED);
 	}
 if(p_gram->p_subgram == NULL) {
-	BPPrintMessage(0,odError,"=> Err. DisplayGrammar(). Grammar is empty");
+	BPPrintMessage(0,odError,"=> Err. DisplayGrammar(). Grammar is empty\n");
 	return(MISSED);
 	}
 //if(isgrammar && !producemode) UseTextColor = TRUE;
 for(i=1; i < MAXPARAMCTRL; i++) shownctrlval[i] = FALSE;
 splitmem = SplitVariables;
-BPActivateWindow(SLOW,wind);
-starttrace = GetTextLength(wind);
-SetSelect(starttrace,starttrace,TEH[wind]);
-// Reformat(wind,-1,-1,(int) 0,&Black,NO,NO);
-Print(wind,"\n");
-if(isgrammar) {
-	if(InitThere > 0) {
-		// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
-		Print(wind,InitToken);
-		Print(wind," ");
-		// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
-		}
-	switch(InitThere) {
-		case 1:
-			my_sprintf(Message,"%s  ",*(p_ScriptLabelPart(85,0)));
-			Print(wind,Message);
-			PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&p_Initbuff);
-			Print(wind,"\n");
-			break;
-		case 2:
-			if(p_InitScriptLine != NULL) Println(wind,(*p_InitScriptLine));
-			break;
-		}
+// BPActivateWindow(SLOW,wind);
+// starttrace = GetTextLength(wind);
+// SetSelect(starttrace,starttrace,TEH[wind]);
+if(InitThere > 0) {
+	Print(wind,InitToken);
+	Print(wind," ");
 	}
-else {
-	Print(wind,"// ------------ GLOSSARY ------------\n\n");
+switch(InitThere) {
+	case 1:
+		my_sprintf(Message,"%s  ",*(p_ScriptLabelPart(85,0)));
+		Print(wind,Message);
+		PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&p_Initbuff);
+		Print(wind,"\n");
+		break;
+	case 2:
+		if(p_InitScriptLine != NULL) Println(wind,(*p_InitScriptLine));
+		break;
 	}
-for(igram=1; igram <= (*p_gram).number_gram; igram++) {
+for(igram=1; igram <= p_gram->number_gram; igram++) {
 	my_sprintf(Message,"\n------------- SUBGRAMMAR #%ld --------------\n",
 		(long)igram);
-	if(isgrammar && igram > 1) Print(wind,Message);
-	subgram = (*((*p_gram).p_subgram))[igram];
-	if(isgrammar && subgram.number_rule == 0) {
+	Print(wind,Message);
+	subgram = (*(p_gram->p_subgram))[igram];
+	if(subgram.number_rule == 0) {
 		my_sprintf(Message,"Subgrammar %ld has no rules...",(long)igram);
-		BPPrintMessage(0,odError,"%s",Message);
+		Print(wind,Message);
 		continue;
 		}
 	irul = 0;
-	// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
-	if(isgrammar) Println(wind,SubgramType[subgram.type]);
+	Println(wind,SubgramType[subgram.type]);
 	if(igram == 1) {
 		if(Simplify((double)INT_MAX,(double)60L*Qclock,Pclock,&p,&q) != OK)
 			Simplify((double)INT_MAX,Qclock,floor((double)Pclock/60.),&p,&q);
@@ -291,10 +277,9 @@ for(igram=1; igram <= (*p_gram).number_gram; igram++) {
 	for(irul=irul; irul <= subgram.number_rule; irul++) {
 		PleaseWait();
 		if(ShowRule(p_gram,igram,irul,wind,producemode,shownctrlval,FALSE,
-			showweights,isgrammar) != OK) goto END;
+			showweights,TRUE) != OK) goto END;
 		}
 	}
-// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
 if(Jpatt > 0) {
 	Print(wind,"\nTIMEPATTERNS:\n");
 	for(j=0; j < Jpatt; j++) {
@@ -308,8 +293,8 @@ my_sprintf(Message,"// %ld error(s)\n",(long)N_err);
 Print(wind,Message);
 
 END:
-SetSelect(starttrace,GetTextLength(wind),TEH[wind]);
-ShowSelect(CENTRE,wind);
+/* SetSelect(starttrace,GetTextLength(wind),TEH[wind]);
+ShowSelect(CENTRE,wind); */
 SplitVariables = splitmem;
 return(OK);
 }
@@ -326,14 +311,36 @@ p_flaglist **h;
 tokenbyte **ptr;
 
 if(wind < 0 || wind >= WMAX || !Editable[wind]) return(MISSED);
-if((*p_gram).p_subgram == NULL) {
+if(p_gram->p_subgram == NULL) {
 	BPPrintMessage(0,odError,"=> Err. DisplayGrammar(). Grammar is empty");
 	return(MISSED);
 	}
-rule = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul];
+rule = (*((*(p_gram->p_subgram))[igram].p_rule))[irul];
+
+if(check_context && irul == 12) {
+	printf("[%d] CONTEXT:\n",irul);
+	printf("rule.leftoffset: %d\n",rule.leftoffset);
+	printf("rule.rightoffset: %d\n",rule.rightoffset);
+	printf("rule.leftnegcontext: %d\n",rule.leftnegcontext);
+	if(rule.p_leftcontext != NULL) {
+		printf("rule.p_leftcontext: %p\n", (void *)rule.p_leftcontext);
+		printf("*rule.p_leftcontext: %p\n", (void *)*rule.p_leftcontext);
+	if(*rule.p_leftcontext != NULL) {
+		printf("(*rule.p_leftcontext)->p_arg: %p\n", (void *)(*rule.p_leftcontext)->p_arg);
+	if((*rule.p_leftcontext)->p_arg != NULL) printf("*(*rule.p_leftcontext)->p_arg: %p\n", (void *)*(*rule.p_leftcontext)->p_arg);
+	}}
+	printf("rule.rightoffset: %d\n",rule.rightoffset);
+	printf("rule.rightoffset: %d\n",rule.rightoffset);
+	if(rule.p_rightcontext != NULL) {
+		printf("rule.p_rightcontext: %p\n", (void *)rule.p_rightcontext);
+		printf("*rule.p_rightcontext: %p\n", (void *)*rule.p_rightcontext);
+	if(*rule.p_rightcontext != NULL) {
+		printf("(*rule.p_rightcontext)->p_arg: %p\n", (void *)(*rule.p_rightcontext)->p_arg);
+	if((*rule.p_rightcontext)->p_arg != NULL) printf("*(*rule.p_rightcontext)->p_arg: %p\n", (void *)*(*rule.p_rightcontext)->p_arg);
+	}}
+	}
+
 teh = TEH[wind];
-Dirty[wind] = TRUE;
-// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
 if(showgram) {
 	my_sprintf(Message,"gram#%ld[%ld]",(long)igram,(long)irul);
 	Print(wind,Message);
@@ -342,15 +349,12 @@ if(showweights) {
 	if(!showgram) {
 		my_sprintf(Message,"[%ld]",(long)irul);
 		Print(wind,Message);
-		// Reformat(wind,-1,-1,(int) 0,&None,NO,NO); 
 		}
-	inc = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].incweight;
+	inc = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].incweight;
 	if(rule.ctrl > 0) {
 		Print(wind," <");
-		// Reformat(wind,-1,-1,-1,&Color[ControlC],NO,NO);
 		my_sprintf(Message,"K%ld",(long)(rule.ctrl));
 		Print(wind,Message);
-		// Reformat(wind,-1,-1,-1,&Black,NO,NO);
 		if(shownctrlval != NULL && !shownctrlval[rule.ctrl] && inc == 0) {
 			shownctrlval[rule.ctrl] = TRUE;
 			my_sprintf(Message,"=%ld",(long)ParamInit[rule.ctrl]);
@@ -358,13 +362,13 @@ if(showweights) {
 			}
 		}
 	else {
-		w = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].weight;
+		w = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].weight;
 		if(w < INT_MAX) {
 			my_sprintf(Message," <%ld",(long)w);
 			Print(wind,Message);
 			}
 		else {
-			my_sprintf(Message," <�");
+			my_sprintf(Message," <?");
 			Print(wind,Message);
 			}
 		}
@@ -373,7 +377,7 @@ if(showweights) {
 	if(inc != 0) Print(wind,Message);
 	if(producemode) {
 		my_sprintf(Message,":%ld",
-				(long)((*((*((*p_gram).p_subgram))[igram].p_rule))[irul].w));
+				(long)((*((*(p_gram->p_subgram))[igram].p_rule))[irul].w));
 		Print(wind,Message);
 		}
 	Print(wind,"> ");
@@ -382,26 +386,11 @@ else {
 	if(!showgram) my_sprintf(Message,"[%ld] ",(long)irul);
 	else my_sprintf(Message," ");
 	Print(wind,Message);
-	// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
 	}
 if(showmode) {
-	// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
-	my_sprintf(Message,"%s ",Mode[(*((*((*p_gram).p_subgram))[igram].p_rule))[irul].mode]);
+	my_sprintf(Message,"%s ",Mode[(*((*(p_gram->p_subgram))[igram].p_rule))[irul].mode]);
 	Print(wind,Message);
-	// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
 	}
-if(Beta && 0) {
-	my_sprintf(LineBuff,"lo=%ld ",
-		(long)((*((*((*p_gram).p_subgram))[igram].p_rule))[irul].leftoffset));
-	Print(wind,LineBuff);
-	my_sprintf(LineBuff,"ro=%ld ",
-		(long)((*((*((*p_gram).p_subgram))[igram].p_rule))[irul].rightoffset));
-	Print(wind,LineBuff);
-	my_sprintf(LineBuff,"lenc=%ld ",
-		(long)((*((*((*p_gram).p_subgram))[igram].p_rule))[irul].leftnegcontext));
-	Print(wind,LineBuff);
-	}
-// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
 if(rule.stop == 1 || rule.stop == 3) {
 	my_sprintf(Message,"%s ",*((*p_GramProcedure)[3]));
 	Print(wind,Message);
@@ -435,11 +424,11 @@ if(rule.traceoff == 1 || rule.traceoff == 3) {
 	Print(wind,Message);
 	}
 // Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
-h = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].p_leftflag;
+h = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftflag;
 if(h != NULL) {
 	do {
 		if((s=(**h).x) > Jflag || s < 0) {
-			my_sprintf(Message,"=> Err in flag list");
+			my_sprintf(Message,"=> Err in flag list (left)\n");
 			BPPrintMessage(0,odError,"%s",Message);
 			r = ABORT; goto END;
 			}
@@ -488,13 +477,11 @@ if(h != NULL) {
 				}
 			}
 		Print(wind,Message);
-		// Reformat(wind,-1,-1,-1,&Black,NO,NO);
 		h = (**h).p;
 		}
 	while(h != NULL);
 	}
 if((pp_ctxt = rule.p_leftcontext) != NULL) {
-	// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
 	if((*pp_ctxt)->sign == 0) {
 		my_sprintf(Message," #(");
 		}
@@ -502,22 +489,18 @@ if((pp_ctxt = rule.p_leftcontext) != NULL) {
 		my_sprintf(Message," (");
 		}
 	Print(wind,Message);
-	// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
 	ptr = (*pp_ctxt)->p_arg;
 	if(PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&ptr) != OK) {
 		r = ABORT; goto END;
 		}
-	// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
 	Print(wind,")");
-	// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
 	}
-ptr = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].p_leftarg;
+ptr = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftarg;
 if(PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&ptr) != OK) {
 	r = ABORT; goto END;
 	}
 if((pp_ctxt =
-	(*((*((*p_gram).p_subgram))[igram].p_rule))[irul].p_rightcontext) != NULL) {
-	// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
+	(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightcontext) != NULL) {
 	if((*pp_ctxt)->sign == 0) {
 		my_sprintf(Message," #(");
 		}
@@ -525,19 +508,15 @@ if((pp_ctxt =
 		my_sprintf(Message," (");
 		}
 	Print(wind,Message);
-	// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
 	ptr = (*pp_ctxt)->p_arg;
 	if(PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&ptr) != OK) {
 		r = ABORT; goto END;
 		}
-	
-	// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
 	Print(wind,")");
 	}
-// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
-my_sprintf(Message," %s ",Arrow[(*((*((*p_gram).p_subgram))[igram].p_rule))[irul].operator]);
+my_sprintf(Message," %s ",Arrow[(*((*(p_gram->p_subgram))[igram].p_rule))[irul].operator]);
 Print(wind,Message);
-ptr = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].p_rightarg;
+ptr = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightarg;
 if((*ptr)[0] == TEND && (*ptr)[1] == TEND) {
 	Print(wind,"lambda");
 	}
@@ -548,11 +527,11 @@ else {
 		}
 	}
 // Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
-h = (*((*((*p_gram).p_subgram))[igram].p_rule))[irul].p_rightflag;
+h = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightflag;
 if(h != NULL) {
 	do {
 		if((**h).x > Jflag || (**h).x < 0) {
-			my_sprintf(Message,"=> Err in flag list. ");
+			my_sprintf(Message,"=> Err in flag list (right). Jflag = %d\n",Jflag);
 			BPPrintMessage(0,odError,"%s",Message);
 			r = ABORT; goto END;
 			}
@@ -578,12 +557,10 @@ if(h != NULL) {
 			else my_sprintf(Message,"/");
 			}
 		Print(wind,Message);
-		// Reformat(wind,-1,-1,-1,&Black,NO,NO);
 		h = (**h).p;
 		}
 	while(h != NULL);
 	}
-// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
 if(rule.stop == 2 || rule.stop == 3) {
 	my_sprintf(Message," %s ",*((*p_GramProcedure)[3]));
 	Print(wind,Message);
@@ -681,7 +658,6 @@ int ShowAlphabet(void)
 {
 int i,j,jj,dirtymem;
 
-dirtymem = Dirty[wTrace];
 SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 Println(wTrace,"\nALPHABET:");
 if(Jhomo == 0) {
@@ -729,7 +705,6 @@ for(i=0; i < Jhomo; i++) {
 	Print(wTrace,Message);
 	}
 ShowSelect(CENTRE,wTrace);
-Dirty[wTrace] = dirtymem;
 return(OK);
 }
 

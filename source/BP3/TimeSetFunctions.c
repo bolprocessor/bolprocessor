@@ -1221,50 +1221,5 @@ if(Improvize && !WriteMIDIfile && !OutCsound) {
 	if(Improvize && (result == ABORT || SkipFlag)) return(ABORT);
 	if(result == QUICK || result == EXIT) return(result);
 	}
-#if BP_CARBON_GUI_FORGET_THIS
-// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-if((result=MyButton(2)) != MISSED) {
-	StopCount(0);
-	
-	Interrupted = TRUE;
-	dirtymem = Dirty[wAlphabet]; Dirty[wAlphabet] = FALSE;
-	if(result == OK)
-		while((result = MainEvent()) != RESUME && result != STOP && result != EXIT);
-	if(result == EXIT) return(result);
-	if(result == STOP) return(ABORT);
-	if(compiledmem && Dirty[wAlphabet]) {
-		BPPrintMessage(0,odError,"Alphabet changed. Must recompile...");
-		return(ABORT);
-		}
-	Dirty[wAlphabet] = dirtymem;
-	if(LoadedIn && (!CompiledIn && (result=CompileInteraction()) != OK))
-		return(result);
-	if(Dirty[wTimeAccuracy]) {
-		result = ResetMIDI(FALSE);
-		if(result == ABORT || result == EXIT) return(result);
-		if((result=CheckSettings()) == ABORT) return(result);
-		else {
-			Dirty[wTimeAccuracy] = FALSE; result = AGAIN;
-			}
-		return(result);
-		}
-		
-	if(IsMidiDriverOn()) *p_tstart = GetDriverTime();
-	
-	PleaseWait();
-	}
-result = OK;
-if(EventState != NO) return(EventState);
-else {
-	if(LimTimeSet && uselim && (IsMidiDriverOn())) {
-	/*	DriverStatus(CLOCKTIME_CODE,(MIDI_Parameters*) &parms); */
-		drivertime = GetDriverTime();
-		if(*p_tstart + (TimeMax / Time_res) < drivertime) {
-			ShowMessage(TRUE,wMessage,"Max time elapsed!");
-			return(QUICK);
-			}
-		}
-	}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 return(OK);
 }

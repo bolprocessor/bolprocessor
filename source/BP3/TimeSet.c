@@ -414,49 +414,6 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 		}
 	(*p_alphadone)[nseq] = TRUE;
 
-#if BP_CARBON_GUI_FORGET_THIS
-	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-	// This block is very similar to the middle of InterruptTimeSet().  Could we
-	// refactor the shared code into a function ?? -- akozar, 20130830
-/*	if((r=MyButton(1)) != MISSED) {
-		StopCount(0);
-		
-		Interrupted = TRUE;
-		dirtymem = Dirty[wAlphabet]; Dirty[wAlphabet] = FALSE;
-		compiledmem = CompiledGr;
-		if(r == OK) while((r = MainEvent()) != RESUME && r != STOP && r != EXIT);
-		if(r == EXIT) {
-			result = r; goto EXIT1;
-			}
-		if(Dirty[wAlphabet]) {
-			BPPrintMessage(0,odError,"Alphabet changed. Must recompile...");
-			result = ABORT; goto EXIT1;
-			}
-		Dirty[wAlphabet] = dirtymem;
-		if((r == STOP) || (compiledmem && (CompileCheck() != OK))) {
-			result = ABORT; goto EXIT1;
-			}
-		if(LoadedIn && (!CompiledIn && (result=CompileInteraction()) != OK))
-			goto EXIT1;
-		if(Dirty[wTimeAccuracy]) {
-			ResetMIDI(FALSE);
-			if((result=CheckSettings()) == ABORT) goto EXIT1;
-			else {
-				Dirty[wTimeAccuracy] = FALSE; result = AGAIN;
-				}
-			goto EXIT1;
-			}
-			
-		if(IsMidiDriverOn()) tstart = GetDriverTime();
-		
-		PleaseWait();
-		}
-	r = OK;
-	if(EventState != NO) {
-		result = EventState; goto EXIT1;
-		} */
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
 	if(DisplayTimeSet) {
 		if(trace_timeset) BPPrintMessage(0,odInfo,"\nSequence #%ld\n",(long)(nseq+1L));
 		}
@@ -464,13 +421,6 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	if(NoConstraint) {
 		CoverOK = DiscontinuityOK = TRUE;
 		}
-
-/*	if(trace_timeset) {
-		BPPrintMessage(0,odInfo,"\nBefore Fix(), T[i], i = 1,%ld:\n",(long)maxseq);
-		for(i=1L; i <= maxseq; i++)
-			BPPrintMessage(0,odInfo,"%ld ",(long)(*p_T)[i]);
-		BPPrintMessage(0,odInfo,"%s","\n");
-		} */
 
 TRY:
 	if(trace_timeset) ShowMessage(FALSE,wMessage,"\nPlacing objects");
@@ -778,3 +728,7 @@ if(EmergencyExit) result = ABORT;
 	} */
 return(result);
 }
+
+char GetCap() {
+	return 'Q';
+	}

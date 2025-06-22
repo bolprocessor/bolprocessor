@@ -34,6 +34,7 @@
 #include "-BP3.h"
 #include "-BP3decl.h"
 
+/*
 int CompileGlossary(void)
 // A glossary is a mixture of certain script commands and "Define..." commands
 // that are compiled as a context-free grammar the left arguments of which
@@ -54,11 +55,11 @@ if(GlossGram.p_subgram != NULL && ReleaseGlossarySpace() != OK) return(ABORT);
 
 p_line = NULL; r = OK;
 pp1 = &p1; pp2 = &p2;
-/* Check that grammar is compiled so that grammar variables, if any, are created */
+// Check that grammar is compiled so that grammar variables, if any, are created
 if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar)))
 	CompiledAl = FALSE;
 if(!CompiledGr || !CompiledAl) {
-	if((r=CompileGrammar(2)) == OK) {
+	if((r=CompileGrammar(2,&Gram)) == OK) {
 		if(ResetRuleWeights(0) == ABORT) return(ABORT);
 		}
 	else return(MISSED);
@@ -70,17 +71,17 @@ ShowMessage(TRUE,wMessage,Message);
 
 if(p_Var == NULL && GetVariableSpace() != OK) return(ABORT);
 if((r=ResetVariables(wGlossary)) != OK) return(r);
-if(p_Flagname == NULL && GetFlagSpace() != OK) return(ABORT); /* Normally not used */
+if(p_Flagname == NULL && GetFlagSpace() != OK) return(ABORT); // Normally not used
 if((GlossGram.p_subgram=(t_subgram**) GiveSpace((Size)(2)*sizeof(t_subgram)))
 					== NULL) return(ABORT);
 GlossGram.number_gram = 1;
 noteconventionmem = NoteConvention;
 
 CompileOn++;
-CompiledGl = TRUE; /* See remark at CompileInteraction() */
+CompiledGl = TRUE; // See remark at CompileInteraction()
 errors = 0;
 
-/* Then create grammar using 'Define...' instructions */
+// Then create grammar using 'Define...' instructions
 pos = ZERO;
 posmax = GetTextLength(wGlossary);
 irul = (*(GlossGram.p_subgram))[1].number_rule = 0;
@@ -94,7 +95,7 @@ irul = (*(GlossGram.p_subgram))[1].number_rule = 0;
 	= 0;
 (*(GlossGram.p_subgram))[1].seed = NOSEED;
 
-MystrcpyHandleToString(MAXNAME,0,line2,p_ScriptLabelPart(144,0));	/* "Define" */
+MystrcpyHandleToString(MAXNAME,0,line2,p_ScriptLabelPart(144,0));	// "Define"
 while(ReadLine(YES,wGlossary,&pos,posmax,&p_line,&gap) == OK) {
 	if((*p_line)[0] != '\0') irul++;
 	}
@@ -155,7 +156,7 @@ while(ReadLine(YES,wGlossary,&pos,posmax,&p_line,&gap) == OK) {
 		&changed,&keep)) != OK) goto BADLINE;
 	MystrcpyHandleToString(MAXLIN,is,line,p_line);
 	p = &(line[0]); q = &(line2[0]); length = strlen(line2);
-	/* Line should either start with "Define" or contain "-->" */
+	// Line should either start with "Define" or contain "-->"
 	if(Match(TRUE,&p,&q,length)) type = 1;
 	else {
 		if(strstr(line,Arrow[1]) != NULLSTR) {
@@ -192,7 +193,7 @@ while(ReadLine(YES,wGlossary,&pos,posmax,&p_line,&gap) == OK) {
 		}
 	*pp1 = &(line[length]); while(MySpace(**pp1)) (*pp1)++;
 	ppl = ppr = NULL; h_flag = NULL;
-	p_arg = Encode(FALSE,TRUE,0,irul,pp1,pp2,&ppl,&ppr,&meta,4,&h_flag,FALSE,&r);
+	p_arg = Encode(p_gram,FALSE,TRUE,0,irul,pp1,pp2,&ppl,&ppr,&meta,4,&h_flag,FALSE,&r);
 	if(r != OK) goto ERR;
 	if(p_arg == NULL) {
 		r = MISSED; goto BADLINE;
@@ -215,7 +216,7 @@ while(ReadLine(YES,wGlossary,&pos,posmax,&p_line,&gap) == OK) {
 	while((**pp2) != '\0') (*pp2)++;
 	(*pp2)--;
 	ppl = ppr = NULL; h_flag = NULL;
-	p_arg = Encode(FALSE,TRUE,0,irul,pp1,pp2,&ppl,&ppr,&meta,8,&h_flag,TRUE,&r);
+	p_arg = Encode(p_gram,FALSE,TRUE,0,irul,pp1,pp2,&ppl,&ppr,&meta,8,&h_flag,TRUE,&r);
 	if(r != OK) goto ERR;
 	if(p_arg == NULL) {
 		r = MISSED; goto BADLINE;
@@ -229,22 +230,6 @@ BADLINE:
 	errors++;
 NEXTLINE:
 	posline = pos;
-#if BP_CARBON_GUI_FORGET_THIS
-	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-	if((r=MyButton(1)) != MISSED) {
-		if(r == OK) while((r = MainEvent()) != RESUME && r != STOP && r != EXIT);
-		if(r == EXIT) goto ERR;
-		if(r == STOP) r = ABORT;
-		if(r == RESUME) {
-			r = OK; EventState = NO;
-			}
-		if(r != OK) break;
-		}
-	r = OK;
-	if(EventState) {
-		r = EventState; goto ERR;
-		}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 	}
 	
 irul--;
@@ -294,6 +279,38 @@ ReleaseGlossarySpace();
 return(ABORT);
 }
 
+int ReleaseGlossarySpace(void)
+{
+int irul,j;
+t_rule rule;
+Handle ptr;
+
+if(GlossGram.p_subgram != NULL) {
+	if(MyGetHandleSize((Handle)(GlossGram.p_subgram)) < 2 * sizeof(t_gram)) {
+		BPPrintMessage(0,odError,"=> Err. ReleaseGlossarySpace()");
+		return(ABORT);
+		}
+	if((*(GlossGram.p_subgram))[1].p_rule != NULL) {
+		for(irul=1; irul < (MyGetHandleSize((Handle)(*(GlossGram.p_subgram))[1].p_rule)
+					/ sizeof(t_rule)); irul++) {
+			ptr = (Handle) (*((*(GlossGram.p_subgram))[1].p_rule))[irul].p_leftarg;
+			MyDisposeHandle((Handle*)&ptr);
+			ptr = (Handle) (*((*(GlossGram.p_subgram))[1].p_rule))[irul].p_rightarg;
+			MyDisposeHandle((Handle*)&ptr);
+			}
+		ptr = (Handle) (*(GlossGram.p_subgram))[1].p_rule;
+		MyDisposeHandle(&ptr);
+		(*(GlossGram.p_subgram))[1].p_rule = NULL;
+		}
+	}
+ptr = (Handle) GlossGram.p_subgram;
+MyDisposeHandle((Handle*)&ptr);
+GlossGram.p_subgram = NULL;
+GlossGram.number_gram = 0;
+ResetVariables(wGlossary);
+return OK;
+}
+
 
 int UpdateGlossary(void)
 {
@@ -308,4 +325,4 @@ if(!LoadedGl) {
 if(LoadedGl && !CompiledGl) return(CompileGlossary());
 else CompiledGl = TRUE;
 return(OK);
-}
+} */

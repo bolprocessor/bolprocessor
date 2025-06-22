@@ -36,7 +36,8 @@
         "system_error": "c",
         "array": "c",
         "functional": "c",
-        "utility": "c"
+        "utility": "c",
+        "stdio.h": "c"
     },
     "search.useParentIgnoreFiles": true,
     "search.useGlobalIgnoreFiles": false

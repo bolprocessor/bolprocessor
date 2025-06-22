@@ -38,7 +38,7 @@
 
 #include "-BP3decl.h"
 
-tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1, char **pp2,
+tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int irul, char **pp1, char **pp2,
 	p_context *p_pleftcontext, p_context *p_prightcontext, int *p_meta, int arg_nr,
 	p_flaglist ***ph_flag,int quick,int *p_result) {
 	// arg_nr = 0: item 
@@ -83,17 +83,6 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 
 	// for(; (*pp) <= (*pp2);) {  2024-05-24
 	while((*pp) <= (*pp2)) {
-
-	#if BP_CARBON_GUI_FORGET_THIS
-		// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-		if((SelectOn || CompileOn) && ((*p_result)=MyButton(2)) != MISSED) {
-			if((*p_result) != OK || ((*p_result)=InterruptCompile()) != OK) goto ERR;
-			PleaseWait();
-			}
-		(*p_result) = OK;
-		if(EventState != NO) goto ERR;
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
-
 		while(GetNilString(pp) == OK){}; /* Skip "lambda" */
 		c = NextChar(pp);
 		if(isdigit(c)) {
@@ -367,58 +356,58 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 				goto ERR;
 				}
 			if(!notargument && j >= 0) {
-				if(igram < 1 || Gram.p_subgram == NULL || igram > Gram.number_gram) {
-					BPPrintMessage(0,odError,"=> Err. Encode(). igram < 1 || Gram.p_subgram == NULL || igram > Gram.number_gram");
+				if(igram < 1 || p_gram->p_subgram == NULL || igram > p_gram->number_gram) {
+					BPPrintMessage(0,odError,"=> Err. Encode(). igram < 1 || p_gram->p_subgram == NULL || igram > p_gram->number_gram\n");
 					goto ERR;
 					}
-				if((ii=(*(Gram.p_subgram))[igram].type) == SUBtype || ii == SUB1type || ii == POSLONGtype) {
+				if((ii=(*(p_gram->p_subgram))[igram].type) == SUBtype || ii == SUB1type || ii == POSLONGtype) {
 					my_sprintf(Message,
 						"Can't accept rule procedure '_goto', etc., in SUB or SUB1 or POSLONG subgrammar\n");
 					Print(wTrace,Message);
 					goto ERR;
 					}
-				Gram.hasproc = TRUE;
+				p_gram->hasproc = TRUE;
 				switch(j) {
 					case 0:	/* _goto */
-						(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotogram = ig;
-						(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotorule = ir;
+						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].gotogram = ig;
+						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].gotorule = ir;
 					//	BPPrintMessage(0,odInfo,"gotogram = %d, gotorule = %d, igram = %d, irul = %d\n",ig,ir,igram,irul);
 						break;
 					case 1:	/* _failed */
-						(*((*(Gram.p_subgram))[igram].p_rule))[irul].failedgram = ig;
-						(*((*(Gram.p_subgram))[igram].p_rule))[irul].failedrule = ir;
+						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].failedgram = ig;
+						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].failedrule = ir;
 						break;
 					case 2:	/* _repeat */
-						(*((*(Gram.p_subgram))[igram].p_rule))[irul].repeat = ig;
-						(*((*(Gram.p_subgram))[igram].p_rule))[irul].repeatcontrol = ir;
+						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].repeat = ig;
+						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].repeatcontrol = ir;
 					//	BPPrintMessage(0,odInfo,"repeat = %d, ir = %d, igram = %d, irul = %d\n",ig,ir,igram,irul);
 						break;
 					case 3:	/* _stop */
-						(*((*(Gram.p_subgram))[igram].p_rule))[irul].stop += arg_nr;
+						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].stop += arg_nr;
 						break;
 					case 4:	/* _print */
-						(*((*(Gram.p_subgram))[igram].p_rule))[irul].print += arg_nr;
+						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].print += arg_nr;
 						break;
 					case 5:	/* _printOn */
-						(*((*(Gram.p_subgram))[igram].p_rule))[irul].printon += arg_nr;
+						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].printon += arg_nr;
 						break;
 					case 6:	/* _printOff */
-						(*((*(Gram.p_subgram))[igram].p_rule))[irul].printoff += arg_nr;
+						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].printoff += arg_nr;
 						break;
 					case 7:	/* _stepOn */
-						(*((*(Gram.p_subgram))[igram].p_rule))[irul].stepon += arg_nr;
+						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].stepon += arg_nr;
 						break;
 					case 8:	/* _stepOff */
-						(*((*(Gram.p_subgram))[igram].p_rule))[irul].stepoff += arg_nr;
+						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].stepoff += arg_nr;
 						break;
 					case 9:	/* _traceOn */
-						(*((*(Gram.p_subgram))[igram].p_rule))[irul].traceon += arg_nr;
+						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].traceon += arg_nr;
 						break;
 					case 10:	/* _traceOff */
-						(*((*(Gram.p_subgram))[igram].p_rule))[irul].traceoff += arg_nr;
+						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].traceoff += arg_nr;
 						break;
 					case 11:	/* _destru */
-						(*((*(Gram.p_subgram))[igram].p_rule))[irul].destru = TRUE;
+						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].destru = TRUE;
 						break;
 					}
 				c = NextChar(pp);
@@ -749,7 +738,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 					i--;i--;
 					}
 				if(leftside) {
-					if(GetContext(igram,irul,pp,pp2,
+					if(GetContext(p_gram,igram,irul,pp,pp2,
 						p_pleftcontext,p_meta) == MISSED) {
 						my_sprintf(Message,
 							"Error in left context!\n");
@@ -760,7 +749,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 					(**p_pleftcontext)->sign = 1 - neg;
 					}
 				else {
-					if(GetContext(igram,irul,
+					if(GetContext(p_gram,igram,irul,
 						pp,pp2,p_prightcontext,p_meta) == MISSED) {
 						my_sprintf(Message,
 							"Error in right context!\n");
@@ -1073,7 +1062,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 		if((j=GetVar(pp,pp2)) < 0) goto ERR;
 		(*p_buff)[i++] = T4;
 		(*p_buff)[i++] = (tokenbyte) j;
-		if(j > 0) (*p_VarStatus)[j] = (*p_VarStatus)[j] | arg_nr;	/* j > 0 added 8/3/98 */
+		if(j > 0) (*p_VarStatus)[j] = (*p_VarStatus)[j] | arg_nr;
 		if(i > imax) {
 			BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 			goto ERR;
@@ -1133,7 +1122,7 @@ tokenbyte **Encode(int sequence,int notargument, int igram, int irul, char **pp1
 	}
 
 
-int GetContext(int igram, int irul, char **pp, char **ppmax, p_context *p_ppc, int *p_meta)
+int GetContext(t_gram* p_gram,int igram, int irul, char **pp, char **ppmax, p_context *p_ppc, int *p_meta)
 {
 int levpar,result,flagindex;
 char c,c1,*p1,**pp1,c2,*p2,**pp2;
@@ -1168,18 +1157,18 @@ if(levpar != 0) {
 **pp2 = ' '; /* Erase ')' */
 ppx = NULL; ppy = NULL;
 result = OK;
-if((p = Encode(FALSE,TRUE,igram,irul,pp1,pp2,&ppx,&ppy,p_meta,0,NULL,FALSE,&result))
+if((p = Encode(p_gram,FALSE,TRUE,igram,irul,pp1,pp2,&ppx,&ppy,p_meta,0,NULL,FALSE,&result))
 		== NULL) {
 	(*(*p_ppc))->p_arg = NULL;
 	if(result < 0) return(result);
-	my_sprintf(Message,"Can't encode remote context!");
+	my_sprintf(Message,"Can't encode remote context!\n");
 	Print(wTrace,Message);
 	if(EmergencyExit) return(ABORT);
 	return(MISSED);
 	}
 (*(*p_ppc))->p_arg = p;
 if((ppx != NULL) || (ppy != NULL)) {
-	my_sprintf(Message,"Can't have multilayered remote context!");
+	my_sprintf(Message,"Can't have multilayered remote context!\n");
 	Print(wTrace,Message);
 	return(MISSED);
 	}

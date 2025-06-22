@@ -226,7 +226,8 @@ int Inits(void) {
 		= ScriptExecOn = 0;
 	Jcontrol = -1;
 	for(i=0; i < MAXPARAMCTRL; i++) ParamControl[i] = ParamKey[i] = ParamChan[i] = -1;
-	MaxRul = MaxGram = 0;
+	MaxRul = 0;
+	MaxGram = 0;
 	Gram.trueBP = Gram.hasTEMP = Gram.hasproc = FALSE;
 	pp_MIDIcode = NULL;
 	pp_CsoundTime = NULL;
@@ -281,11 +282,10 @@ int Inits(void) {
 	StartFromOne = TRUE;
 	MIDIsetUpTime = 700L;	/* ms */
 	NewEnvironment = NewColors = Help = FALSE;
-	for(i=0; i < WMAX; i++) ChangedCoordinates[i] = Dirty[i] = FALSE;
 	ObjectMode = ObjectTry = Final = LoadedScript = FALSE;
-	LoadedIn = LoadedGl = FALSE;
+	LoadedIn = FALSE;
 	TransposeInput = FALSE; TransposeValue = 0;
-	CompiledGr = CompiledAl = CompiledPt = CompiledIn = CompiledGl = CompiledCsObjects
+	CompiledGr = CompiledAl = CompiledPt = CompiledIn = CompiledCsObjects
 		= CompiledRegressions = NotFoundMetronom = NotFoundNatureTime = ToldPitchbend = ToldStop = 0;
 	Pclock = Qclock = 1.;
 	Nature_of_time = STRIATED;
@@ -655,7 +655,6 @@ int SetUpWindow(int w)
 		if(TEH[w] == NULL) return(ABORT);
 	}
 	else TEH[w] = NULL;
-	Dirty[w] = FALSE;
 	return(OK);
 }
 

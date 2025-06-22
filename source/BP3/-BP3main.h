@@ -151,7 +151,7 @@ int **p_Missed_tie_event[MAXINSTRUMENTS+1],**p_Missed_tie_note[MAXCHAN+1]; // Ad
 int Chunk_number; // Added by BB 2021-02-11
 char ****p_NoteName[MAXCONVENTIONS],****p_AltNoteName[MAXCONVENTIONS];
 int **p_NoteLength[MAXCONVENTIONS],**p_AltNoteLength[MAXCONVENTIONS];
-int InitThere,FirstTime,MaxScriptInstructions,KeyboardType,C4key,ProgNrFrom,TestMIDIChannel,
+int InitThere,FirstTime,FirstGrammar,MaxScriptInstructions,KeyboardType,C4key,ProgNrFrom,TestMIDIChannel,
 	CurrentMIDIprogram[MAXCHAN+1],DefaultBlockKey;
 double A4freq;
 time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTime,TimeSettingTime;
@@ -165,7 +165,7 @@ int NoteOffIn[MAXPORTS],NoteOnIn[MAXPORTS],KeyPressureIn[MAXPORTS],ControlTypeIn
 	ChannelPressureIn[MAXPORTS],PitchBendIn[MAXPORTS],SysExIn[MAXPORTS],TimeCodeIn[MAXPORTS],SongPosIn[MAXPORTS],SongSelIn[MAXPORTS],
 	TuneTypeIn[MAXPORTS],EndSysExIn[MAXPORTS],ClockTypeIn[MAXPORTS],StartTypeIn[MAXPORTS],ContTypeIn[MAXPORTS],
 	ActiveSenseIn[MAXPORTS],ResetIn[MAXPORTS];
-t_gram Gram,GlossGram;
+t_gram Gram,Gram_compile,GlossGram;
 scriptcommandtype **h_Script;
 fullscriptcommandtype ScriptLine;
 int **h_ScriptIndex;
@@ -238,7 +238,7 @@ int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,T
 	VariableOn,N_err,nstore,NumberTables,OkShowExpand,Improvize,ComputeWhilePlay,TransposeInput,
 	TransposeValue,Varweight,Flagthere,ResetDone,BolsInGrammar,NoAlphabet,PointCsound,PointMIDI,
 	**p_Ifrom,**p_Resolution,**p_CsoundInstr,**p_CsoundAssignedInstr;
-int LiveGrammar,LiveSettings,TraceLive,ChangedGrammar,ChangedSettings;
+int LiveGrammar,LiveSettings,TraceLive,SyncChange,ChangedGrammar,NewGrammarWaiting,ChangedSettings;
 MIDIcode ****pp_MIDIcode;
 float **p_CsoundTempo;
 Milliseconds ****pp_CsoundTime;
@@ -346,7 +346,7 @@ int linesInFolder[WMAX];
 int WindowFullAlertLevel[WMAX];	// used in TextEdit build to track which alerts have been shown
 // MenuHandle myMenus[MAXMENU+1];
 int Buttonheight = 14;
-int NewEnvironment,NewColors,ShowPianoRoll,ToldAboutPianoRoll,ShowObjectGraph,ShowAllObjects,Help,ChangedCoordinates[WMAX];
+int NewEnvironment,NewColors,ShowPianoRoll,ToldAboutPianoRoll,ShowObjectGraph,ShowAllObjects,Help;
 // RGBColor CurrentColor[WMAX];
 // ControlHandle vScroll[WMAX],hScroll[WMAX];
 int SlideH[WMAX],SlideV[WMAX],Hmin[WMAX],Hmax[WMAX],Hzero[WMAX],
@@ -431,8 +431,8 @@ long WindowParID[WMAX],ParIDstartup,ParIDbp2;
 int Jwheel,Jfeet,Jdisk;
 int Jbutt; /* Number of buttons created in dialogs */
 // ControlHandle Hbutt[MAXBUTT];
-int Dirty[WMAX],CompiledGr,CompiledPt,CompiledAl,CompiledIn,CompiledGl,CompiledCsObjects,
-	CompiledRegressions,LoadedIn,LoadedGl,LoadedCsoundInstruments,Interactive,
+int CompiledGr,CompiledPt,CompiledAl,CompiledIn,CompiledCsObjects,
+	CompiledRegressions,LoadedIn,LoadedCsoundInstruments,Interactive,
 	NotFoundMetronom,NotFoundNatureTime;
 int NotBPCase[MAXNOTBPCASES];
 int Created[WMAX];

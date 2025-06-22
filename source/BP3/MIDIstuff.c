@@ -286,9 +286,14 @@ int MIDIflush(int quick, int now) {
 			j = 0;
 			time_now = getClockTime();
 			ChangedSettings = ReloadSettings();
-			if(LiveGrammar) ChangedGrammar = ReloadGrammar();
-			if(ChangedGrammar) {
+			if(LiveGrammar) NewGrammarWaiting = ReloadGrammar();
+			if(NewGrammarWaiting && !SyncChange) {
+				CompiledGr = FALSE;
+				FirstGrammar = FALSE;
+				ChangedGrammar = TRUE;
 				CompileCheck();
+				NewGrammarWaiting = FALSE;
+			//	BPPrintMessage(1,odInfo,"ok2\n");
 				AllNotesOffPedalsOffAllChannels(FALSE);
 				}
 			if(ChangedGrammar || ChangedSettings) {
@@ -1524,7 +1529,7 @@ int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch,
 				MPEnote[ch] = 0;
 				MPEscale[ch] = -1;
 				MPEpitch[ch] = -1;
-				if(test) BPPrintMessage(1,odInfo,"• NoteOff %d pitch = %d -> ch = %d time= %ld\n",note,pitch,ch,(long)(time -700));
+				if(test) BPPrintMessage(1,odInfo,"• NoteOff %d pitch = %d -> ch = %d time= %ld\n",note,pitch,ch,(long)(time - MIDIsetUpTime));
             	return ch;
 				}
 			}
@@ -1535,7 +1540,7 @@ int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch,
 				MPEnote[ch] = 0;
 				MPEscale[ch] = -1;
 				MPEpitch[ch] = -1;
-				if(test) BPPrintMessage(1,odInfo,"•• NoteOff %d pitch = %d -> ch = %d time= %ld\n",note,pitch,ch,(long)(time -700));
+				if(test) BPPrintMessage(1,odInfo,"•• NoteOff %d pitch = %d -> ch = %d time= %ld\n",note,pitch,ch,(long)(time - MIDIsetUpTime));
             	return ch;
 				}
 			if(status == NoteOn && value > 0 && MPEscale[ch] == i_scale && MPEpitch[ch] == pitch) return ch;
@@ -1548,7 +1553,7 @@ int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch,
 				MPEnote[ch] = note;
 				MPEscale[ch] = i_scale;
 				MPEpitch[ch] = pitch;
-				if(test) BPPrintMessage(1,odInfo,"NoteOn %d pitch = %d -> ch = %d time= %ld\n",note,pitch,ch,(long)(time -700));
+				if(test) BPPrintMessage(1,odInfo,"NoteOn %d pitch = %d -> ch = %d time= %ld\n",note,pitch,ch,(long)(time - MIDIsetUpTime));
                 return ch;
                 }
             }

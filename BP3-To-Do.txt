@@ -3,7 +3,7 @@ Bol Processor BP3 To Do List
 
 This is a list of technical improvements considered during the development of BP3. 
 None of them are critical to its proper functioning. 
-🎹 However, we need good musical examples to highlight BP3's features! 🎶
+🎹 However, we most urgently need good musical examples to highlight BP3's features! 🎶
 
 The most requested improvements are listed at the top of the list.
 
@@ -49,6 +49,12 @@ Capture (in progress)
 --------------------
 
 - Use the captured incoming NoteOn/Noteoff events to build a polymetric structure that reproduces the stream. The difficulty lies in the design of the most significant polymetric structure - for which AI tools may be helpful in the future.
+
+
+AI development
+--------------
+- A transformer could be trained to "understand" Bol Processor syntax. This could be achieved by submitting a large corpus of MusicXML scores alongside their corresponding Bol Processor translations.
+- An AI tool could conduct an in-depth analysis of the C code in ‘Polymetric.c’ and ‘Timeset.c’, as well as the literature describing these processes.
 
 
 Csound orchestra
@@ -158,9 +164,10 @@ Images
 - Revise the drawing of time streaks (the vertical blue lines). These should be adjusted to the (varying) tempo instead of the default metronomic setting.
 
 
-Various errors
+Various issues
 --------------
 
+- Check why istart=4 in Compute.c when running -gr.koto3. If not checked, it crashes on the remote right context of gram #2 rule #12. Therefore, if(istart > i) return(FALSE) has been added on 2025-03-15.
 - Check why CorrectionFactor = 1.059 in -gr.koto3. (Line 1679 in FillPhaseDiagram) Probably when an out-time object falls at the end of a sequence.
 - Check that scripts can be attached to out-time objects
 - In linux, when the STOP or PANIC button is clicked during a "wait" event, the trace file is empty. Maybe a problem flushing it and closing it.

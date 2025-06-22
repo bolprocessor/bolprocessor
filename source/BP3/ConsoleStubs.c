@@ -118,25 +118,6 @@ int LoadAlphabet(int w)
 	BPPrintMessage(0,odWarning, "Ignoring alphabet file specified in data or grammar file!\n");
 	BPPrintMessage(0,odWarning, "(You can specify an alphabet file as a command-line argument).\n");
 	return MISSED;
-}	
-
-int LoadGlossary(int anyfile,int manual)
-{
-	BP_NOT_USED(anyfile);
-	BP_NOT_USED(manual);
-
-	// LoadGlossary() is called from UpdateGlossary() only if !LoadedGl and 
-	// either the data or grammar references a -gl file.
-	// Console build sets LoadedGl if a glossary was loaded due to a command-line
-	// argument, so this test is superfluous unless something changes ...
-	if(LoadedGl) return OK;
-	else {
-		// Otherwise, if a -gl reference was found somewhere, we should load it.
-		// FIXME: for now, we just warn the user!
-		BPPrintMessage(0,odWarning, "Ignoring glossary file specified in data or grammar file!\n");
-		BPPrintMessage(0,odWarning, "(You can specify a glossary file as a command-line argument).\n");
-		return MISSED;
-	}	
 }
 
 int ShowSelect(int dir,int w)

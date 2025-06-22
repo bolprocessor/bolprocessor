@@ -140,7 +140,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 	iCsoundInstrument = 0;
 	LoadOn++;
 	pos = ZERO;
-	Dirty[wCsoundResources] = CompiledRegressions = CompiledCsObjects = 0;
+	CompiledRegressions = CompiledCsObjects = 0;
 	p_line = p_completeline = NULL;
 
 	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Opening Csound instruments file: %s\n",FileName[wCsoundResources]);
@@ -722,7 +722,7 @@ int LoadSettings(const char *filename, int startup) {
 		}
 	if((LiveGrammar || LiveSettings) && !rtMIDI) {
 		LiveGrammar = LiveSettings = FALSE;
-		BPPrintMessage(0,odError,"=> Live coding is only possible in real-time MIDI improvization\n");
+		BPPrintMessage(0,odError,"=> Live coding is only possible in real-time MIDI  \n");
 		}
 	if(old_livegrammar != LiveGrammar) {
 		if(LiveGrammar) BPPrintMessage(1,odInfo,"👉 Live coding: start following grammar(s)\n");
@@ -1080,7 +1080,6 @@ NEXTBOL:
 		OutCsound = FALSE;
 		goto ERR;
 		} */
-	Dirty[iObjects] = Dirty[wPrototype7] = FALSE;
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo,"Compiled Csound score\n");
 
 	if(ReadOne(FALSE,TRUE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;

@@ -6,7 +6,11 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+2025-06-22 (version 3.3.1)
+A few fixes in "live coding".
+Updates of the "to-do" file regarding the potential use of AI.
 
+-----
 2025-03-11 (version 3.3.0)
 First version with "live coding" features in the "Improvize" mode (grammars only).
 If "Follow grammar(s)" and/or "Follow settings" is checked in the LIVE CODING section of the settings, the console will reload a grammar, alphabet and settings taken from locations recorded in a "live" folder associated with the session. Thus, if a different grammar is saved during the performance, the console will switch to that grammar after the current variation has been played. This feature works with any number of competing grammars. There is still some work to be done in order to avoid an interruption if an invalid grammar is loaded.

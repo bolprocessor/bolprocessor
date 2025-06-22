@@ -41,369 +41,342 @@
 int trace_compile_alphabet = 0;
 int trace_compile_grammar = 0;
 
-int CompileGrammar(int mode)
-{
-int i,istart,igram,irul,gap,check,needsnumber,fatal,onerulefound,tracecompile,r,rep,
-	dirtymem,done,changednumber;
-long pos,posmax,posline,posinstr,starttrace,origin,end,dummy,startsel,endsel;
-char *p,*q,**p_line,**p_line2;
-t_rule **ptr;
-Handle ptr1;
+int CompileGrammar(int verbose,t_gram* p_gram) {
+	int i,istart,igram,irul,gap,check,needsnumber,fatal,onerulefound,tracecompile,r,rep,
+		dirtymem,done,changednumber;
+	long pos,posmax,posline,posinstr,starttrace,origin,end,dummy,startsel,endsel;
+	char *p,*q,**p_line,**p_line2;
+	t_rule **ptr;
+	Handle ptr1;
 
-dummy = ZERO;
+	dummy = ZERO;
+	strcpy(LastSeen_scale,"");
+	if(CheckEmergency() != OK) {
+		Panic = TRUE; return(ABORT);
+		}
+	// SelectBehind(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
+	if(!ScriptExecOn) PrintBehind(wTrace,"\n");
+	fatal = changednumber = FALSE;
+	p_gram->trueBP = p_gram->hasTEMP = p_gram->hasproc = WillRandomize = FALSE;
+	NotBPCase[8] = NotFoundMetronom = NotFoundNatureTime = TRUE;
 
-strcpy(LastSeen_scale,"");
-if(CheckEmergency() != OK) {
-	Panic = TRUE; return(ABORT);
-	}
-#if BP_CARBON_GUI_FORGET_THIS
-if(GetTuning() != OK) return(ABORT);
-ResetPannel();
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-// SelectBehind(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
-if(!ScriptExecOn) PrintBehind(wTrace,"\n");
-fatal = changednumber = FALSE;
-CompiledGr = Gram.trueBP = Gram.hasTEMP = Gram.hasproc = WillRandomize = FALSE;
-NotBPCase[8] = NotFoundMetronom = NotFoundNatureTime = TRUE;
+	if(IsEmpty(wGrammar)) {
+		if(trace_compile_grammar) BPPrintMessage(0,odInfo,"Grammar is empty\n");
+		CompiledGr = TRUE;
+		return(MISSED);
+		}
+	if(verbose) BPPrintMessage(0,odInfo,"Compiling grammar...\n");
 
-if(mode == 1 && IsEmpty(wGrammar)) {
-	if(trace_compile_grammar) BPPrintMessage(0,odInfo,"Grammar is empty\n");
-	CompiledGr = TRUE;
-	return(MISSED);
-	}
-BPPrintMessage(0,odInfo,"Compiling grammar...\n");
+	TextGetSelection(&GramSelStart,&GramSelEnd,TEH[wGrammar]);
+	startsel = GramSelStart;
+	endsel = GramSelEnd;
+	if(trace_compile_grammar) BPPrintMessage(0,odInfo,"startsel = %ld, endsel = %ld\n",(long)startsel,(long)endsel);
 
-TextGetSelection(&GramSelStart,&GramSelEnd,TEH[wGrammar]);
-startsel = GramSelStart;
-endsel = GramSelEnd;
-if(trace_compile_grammar) BPPrintMessage(0,odInfo,"startsel = %ld, endsel = %ld\n",(long)startsel,(long)endsel);
+	CompileDate = (long) time(NULL);
 
-#if BP_CARBON_GUI_FORGET_THIS
-GetDateTime((unsigned long*)&CompileDate);
-#else
-CompileDate = (long) time(NULL);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
+	NoAlphabet = TRUE;
+	GetAlphaName(wGrammar);
+	N_err = 0;
 
-NoAlphabet = TRUE;
-GetAlphaName(wGrammar);
-N_err = 0;
+	CompileOn++;
 
-CompileOn++;
-
-if(!CompiledAl || (AddBolsInGrammar() > 0)) {
-	CompiledAl = CompiledGl = FALSE;
-	if(CompileAlphabet() != OK) {
+	if(!CompiledAl || (AddBolsInGrammar() > 0)) {
+		CompiledAl = FALSE;
+		if(CompileAlphabet() != OK) {
+			if(CompileOn) CompileOn--;
+			return(MISSED);
+			}
+		}
+	if(!CompiledPt) {
+		if((rep=CompilePatterns()) != OK) {
+			if(CompileOn) CompileOn--;
+			return(rep);
+			}
+		}
+	starttrace = GetTextLength(wTrace);
+	tracecompile = FALSE; rep = YES;
+	if(!ScriptExecOn && 0 && DisplayProduce && (rep=Answer("Trace grammar compilation",'N')) == YES)
+		tracecompile = TRUE;
+	if(rep == ABORT) {
 		if(CompileOn) CompileOn--;
 		return(MISSED);
 		}
-	}
-if(mode == 1 && !CompiledPt) {
-	if((rep=CompilePatterns()) != OK) {
+	ReleaseGrammarSpace(p_gram,FALSE);
+	if(GetGrammarSpace(p_gram) == ABORT || ResetVariables(wGrammar) != OK) {
 		if(CompileOn) CompileOn--;
-		return(rep);
+		ReleaseGrammarSpace(p_gram,FALSE);
+		return(MISSED);
 		}
-	}
-starttrace = GetTextLength(wTrace);
-tracecompile = FALSE; rep = YES;
-dirtymem = Dirty[wGrammar];
-if(mode == 1 && !ScriptExecOn && 0 && DisplayProduce && (rep=Answer("Trace grammar compilation",'N')) == YES)
-	tracecompile = TRUE;
-if(rep == ABORT) {
-	if(CompileOn) CompileOn--;
-	return(MISSED);
-	}
-ReleaseGrammarSpace();
-if(GetGrammarSpace() == ABORT || ResetVariables(wGrammar) != OK) {
-	if(CompileOn) CompileOn--;
-	ReleaseGrammarSpace();
-	return(MISSED);
-	}
-Gram.number_gram = igram = 1;
-(*(Gram.p_subgram))[1].number_rule = 0;
-done = TRUE; /* Flag meaning that current number of rules is correct. */
-(*(Gram.p_subgram))[1].oldindex = 0;
-(*(Gram.p_subgram))[1].type = RNDtype;
-
-(*(Gram.p_subgram))[igram].stop = (*(Gram.p_subgram))[igram].print
-= (*(Gram.p_subgram))[igram].printon = (*(Gram.p_subgram))[igram].printoff
-= (*(Gram.p_subgram))[igram].stepon = (*(Gram.p_subgram))[igram].stepoff
-= (*(Gram.p_subgram))[igram].traceon = (*(Gram.p_subgram))[igram].traceoff
-= (*(Gram.p_subgram))[igram].destru = (*(Gram.p_subgram))[igram].randomize
-= 0;
-(*(Gram.p_subgram))[igram].seed = NOSEED;
-
-(*(Gram.p_subgram))[1].p_rule = NULL;
-if((ptr =
-	(t_rule**) GiveSpace((Size)(MaxRul+1)*sizeof(t_rule))) == NULL) {
-		if(CompileOn) CompileOn--;
-		return(ABORT);
-		}
-(*(Gram.p_subgram))[1].p_rule = ptr;
-for(i=1; i <= MaxRul; i++) {
-	(*((*(Gram.p_subgram))[1].p_rule))[i].p_leftarg
-	= (*((*(Gram.p_subgram))[1].p_rule))[i].p_rightarg = NULL;
-	(*((*(Gram.p_subgram))[1].p_rule))[i].p_leftcontext =
-	(*((*(Gram.p_subgram))[1].p_rule))[i].p_rightcontext = NULL;
-	(*((*(Gram.p_subgram))[1].p_rule))[i].p_leftflag = NULL;
-	(*((*(Gram.p_subgram))[1].p_rule))[i].p_rightflag = NULL;
-	(*((*(Gram.p_subgram))[1].p_rule))[i].mode
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].operator
-	 	= (*((*(Gram.p_subgram))[1].p_rule))[i].weight
-	 	= (*((*(Gram.p_subgram))[1].p_rule))[i].gotogram
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].gotorule
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].failedgram
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].failedrule
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].oldgramindex
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].oldrulindex
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].repeat
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].repeatcontrol
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].stop
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].print
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].printon
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].printoff
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].stepon
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].stepoff
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].traceon
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].traceoff
-		= (*((*(Gram.p_subgram))[1].p_rule))[i].destru
-		= 0;
-	}
-
-onerulefound = FALSE;
-
-pos = posline = ZERO;
-posmax = GetTextLength(wGrammar);
-ShowMessage(TRUE,wMessage,"Compiling subgrammar #1...");
-if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start compilegrammar = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-for(i=0; i < MAXNOTBPCASES; i++) NotBPCase[i] = FALSE;
-NotBPCase[8] = NotBPCase[3] = TRUE;
-for(i=1; i < MAXPARAMCTRL; i++) {
-	ParamInit[i] = ParamValue[i] = INT_MAX;
-	ParamChan[i] = -1;
-	}
-p_line = NULL;
-InitThere = 0; p_InitScriptLine = NULL;
-// Deactivate(TEH[wGrammar]);
-while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
-/*	if(DoSystem() != OK) {
-		if(CompileOn) CompileOn--;
-		return(ABORT);
-		} */
-	if((*p_line)[0] == '\0') goto NEXTLINE;
-	if(Mystrcmp(p_line,"DATA:") == 0) break;
-	if(Mystrcmp(p_line,"COMMENT:") == 0) break;
-	if(Mystrcmp(p_line,"TIMEPATTERNS:") == 0) {
-		do {
-			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
-			if((*p_line)[0] == '\0') continue;
-			}
-		while((*p_line)[0] != '-' || (*p_line)[1] != '-');
-		goto NEXTLINE;
-		}
-	if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
-		do {
-			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
-			if((*p_line)[0] == '\0') continue;
-			}
-		while((*p_line)[0] != '-' || (*p_line)[1] != '-');
-		Gram.hasTEMP = TRUE;
-		goto NEXTLINE;
-		}
-	p = &((*p_line)[0]); q = &(InitToken[0]);
-	if(Match(TRUE,p_line,&q,strlen(InitToken))) {
-		istart = strlen(InitToken);
-		origin = (long) posline + istart + gap;
-		end = (long) posline + MyHandleLen(p_line) + gap;
-		while(MySpace(GetTextChar(wGrammar,origin))) origin++;
-		posinstr = origin;
-		if(origin >= end) goto NEXTLINE;
-		if((end - origin) >= MAXLIN) {
-			Print(wTrace,"Too long argument for 'INIT:'\n");
-			ReleaseGrammarSpace();
-			MyDisposeHandle((Handle*)&p_line);
-			if(CompileOn) CompileOn--;
-			return(MISSED);
-			}
-		SelectBehind(origin,end,TEH[wGrammar]);
-		if((p_line2 = (char**) GiveSpace((Size)(MAXLIN * sizeof(char))))
-			== NULL) {
-			MyDisposeHandle((Handle*)&p_line);
+	p_gram->number_gram = igram = 1;
+	(*(p_gram->p_subgram))[1].number_rule = 0;
+	done = TRUE; /* Flag meaning that current number of rules is correct. */
+	(*(p_gram->p_subgram))[1].oldindex = 0;
+	(*(p_gram->p_subgram))[1].type = RNDtype;
+	(*(p_gram->p_subgram))[igram].stop = (*(p_gram->p_subgram))[igram].print
+	= (*(p_gram->p_subgram))[igram].printon = (*(p_gram->p_subgram))[igram].printoff
+	= (*(p_gram->p_subgram))[igram].stepon = (*(p_gram->p_subgram))[igram].stepoff
+	= (*(p_gram->p_subgram))[igram].traceon = (*(p_gram->p_subgram))[igram].traceoff
+	= (*(p_gram->p_subgram))[igram].destru = (*(p_gram->p_subgram))[igram].randomize
+	= 0;
+	(*(p_gram->p_subgram))[igram].seed = NOSEED;
+	(*(p_gram->p_subgram))[1].p_rule = NULL;
+	if((ptr = (t_rule**) GiveSpace((Size)(MaxRul+1)*sizeof(t_rule))) == NULL) {
 			if(CompileOn) CompileOn--;
 			return(ABORT);
 			}
-		if(ReadToBuff(YES,FALSE,wGrammar,&origin,end,&p_line2) != OK) {
-			ReleaseGrammarSpace();
-			MyDisposeHandle((Handle*)&p_line);
-			if(CompileOn) CompileOn--;
-			return(MISSED);
-			}
-		check = 2; // Will not create a script line
-		rep = ExecScriptLine(NULL,wScript,check,FALSE,p_line2,dummy,&posinstr,&i,&i);
-		if(rep == OK) {
-			/* This will set InitThere to 1 if "Play ..." instruction has been found. */
-			if(InitThere == 0) {
-				InitThere = 2;
-				if((p_InitScriptLine=(char**) GiveSpace((Size)
-						(1 + MyHandleLen(p_line2)) * sizeof(char))) == NULL) {
-					ReleaseGrammarSpace();
-					MyDisposeHandle((Handle*)&p_line);
-					if(CompileOn) CompileOn--;
-					return(ABORT);
-					}
-				MystrcpyHandleToHandle(0,&p_InitScriptLine,p_line2);
+	(*(p_gram->p_subgram))[1].p_rule = ptr;
+	for(i=1; i <= MaxRul; i++) {
+		(*((*(p_gram->p_subgram))[1].p_rule))[i].p_leftarg
+		= (*((*(p_gram->p_subgram))[1].p_rule))[i].p_rightarg = NULL;
+		(*((*(p_gram->p_subgram))[1].p_rule))[i].p_leftcontext =
+		(*((*(p_gram->p_subgram))[1].p_rule))[i].p_rightcontext = NULL;
+		(*((*(p_gram->p_subgram))[1].p_rule))[i].p_leftflag = NULL;
+		(*((*(p_gram->p_subgram))[1].p_rule))[i].p_rightflag = NULL;
+		(*((*(p_gram->p_subgram))[1].p_rule))[i].mode
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].operator
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].weight
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].gotogram
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].gotorule
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].failedgram
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].failedrule
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].oldgramindex
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].oldrulindex
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].repeat
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].repeatcontrol
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].stop
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].print
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].printon
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].printoff
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].stepon
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].stepoff
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].traceon
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].traceoff
+			= (*((*(p_gram->p_subgram))[1].p_rule))[i].destru
+			= 0;
+		}
+
+	onerulefound = FALSE;
+
+	pos = posline = ZERO;
+	posmax = GetTextLength(wGrammar);
+	if(verbose) ShowMessage(TRUE,wMessage,"Compiling subgrammar #1...");
+	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start compilegrammar = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	for(i=0; i < MAXNOTBPCASES; i++) NotBPCase[i] = FALSE;
+	NotBPCase[8] = NotBPCase[3] = TRUE;
+	for(i=1; i < MAXPARAMCTRL; i++) {
+		ParamInit[i] = ParamValue[i] = INT_MAX;
+		ParamChan[i] = -1;
+		}
+	p_line = NULL;
+	InitThere = 0; p_InitScriptLine = NULL;
+	while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
+		if((*p_line)[0] == '\0') goto NEXTLINE;
+		if(Mystrcmp(p_line,"DATA:") == 0) break;
+		if(Mystrcmp(p_line,"COMMENT:") == 0) break;
+		if(Mystrcmp(p_line,"TIMEPATTERNS:") == 0) {
+			do {
+				if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
+				if((*p_line)[0] == '\0') continue;
 				}
-			MyDisposeHandle((Handle*)&p_line2);
+			while((*p_line)[0] != '-' || (*p_line)[1] != '-');
 			goto NEXTLINE;
 			}
-		else Print(wTrace,"Unable to make sense of 'INIT:'\n");
-		MyDisposeHandle((Handle*)&p_line2);
-		if(rep != OK) {
-			ReleaseGrammarSpace();
-			MyDisposeHandle((Handle*)&p_line);
-			if(CompileOn) CompileOn--;
-			return(MISSED);
+		if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
+			do {
+				if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
+				if((*p_line)[0] == '\0') continue;
+				}
+			while((*p_line)[0] != '-' || (*p_line)[1] != '-');
+			p_gram->hasTEMP = TRUE;
+			goto NEXTLINE;
 			}
-		goto NEXTLINE;
-		}
+		p = &((*p_line)[0]); q = &(InitToken[0]);
+		if(Match(TRUE,p_line,&q,strlen(InitToken))) {
+			istart = strlen(InitToken);
+			origin = (long) posline + istart + gap;
+			end = (long) posline + MyHandleLen(p_line) + gap;
+			while(MySpace(GetTextChar(wGrammar,origin))) origin++;
+			posinstr = origin;
+			if(origin >= end) goto NEXTLINE;
+			if((end - origin) >= MAXLIN) {
+				Print(wTrace,"Too long argument for 'INIT:'\n");
+				ReleaseGrammarSpace(p_gram,FALSE);
+				MyDisposeHandle((Handle*)&p_line);
+				if(CompileOn) CompileOn--;
+				return(MISSED);
+				}
+			SelectBehind(origin,end,TEH[wGrammar]);
+			if((p_line2 = (char**) GiveSpace((Size)(MAXLIN * sizeof(char))))
+				== NULL) {
+				MyDisposeHandle((Handle*)&p_line);
+				if(CompileOn) CompileOn--;
+				return(ABORT);
+				}
+			if(ReadToBuff(YES,FALSE,wGrammar,&origin,end,&p_line2) != OK) {
+				ReleaseGrammarSpace(p_gram,FALSE);
+				MyDisposeHandle((Handle*)&p_line);
+				if(CompileOn) CompileOn--;
+				return(MISSED);
+				}
+			check = 2; // Will not create a script line
+			rep = ExecScriptLine(NULL,wScript,check,FALSE,p_line2,dummy,&posinstr,&i,&i);
+			if(rep == OK) {
+				/* This will set InitThere to 1 if "Play ..." instruction has been found. */
+				if(InitThere == 0) {
+					InitThere = 2;
+					if((p_InitScriptLine=(char**) GiveSpace((Size)
+							(1 + MyHandleLen(p_line2)) * sizeof(char))) == NULL) {
+						ReleaseGrammarSpace(p_gram,FALSE);
+						MyDisposeHandle((Handle*)&p_line);
+						if(CompileOn) CompileOn--;
+						return(ABORT);
+						}
+					MystrcpyHandleToHandle(0,&p_InitScriptLine,p_line2);
+					}
+				MyDisposeHandle((Handle*)&p_line2);
+				goto NEXTLINE;
+				}
+			else Print(wTrace,"Unable to make sense of 'INIT:'\n");
+			MyDisposeHandle((Handle*)&p_line2);
+			if(rep != OK) {
+				ReleaseGrammarSpace(p_gram,FALSE);
+				MyDisposeHandle((Handle*)&p_line);
+				if(CompileOn) CompileOn--;
+				return(MISSED);
+				}
+			goto NEXTLINE;
+			}
+			
+		/* Skip headers */
+		p = &(*p_line)[0]; q = &(FilePrefix[wAlphabet][0]);
+		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
+			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
+		p = &(*p_line)[0]; q = &(FileOldPrefix[wAlphabet][0]);
+		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
+			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
+		p = &(*p_line)[0]; q = &(FilePrefix[wInteraction][0]);
+		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
+			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
+		p = &(*p_line)[0]; q = &(FilePrefix[wGlossary][0]);
+		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
+			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
+		p = &(*p_line)[0]; q = &(FilePrefix[iSettings][0]);
+		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
+			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
+		p = &(*p_line)[0]; q = &(FilePrefix[wTimeBase][0]);
+		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
+			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
+		p = &(*p_line)[0]; q = &(FilePrefix[wCsoundResources][0]);
+		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
+			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
+		p = &(*p_line)[0]; q = &(FilePrefix[wTonality][0]);
+		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
+			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
+		p = &(*p_line)[0]; q = &(FilePrefix[iMidiDriver][0]);
+		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
+			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
+		p = &(*p_line)[0]; q = &(FilePrefix[iObjects][0]);
+		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
+			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
+		p = &(*p_line)[0]; q = &(FileOldPrefix[iObjects][0]);
+		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
+			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
+			
+		needsnumber = FALSE; igram = 0; irul = 0;
+		if(trace_compile_grammar) BPPrintMessage(0,odInfo,"Parsing: %s\n",*p_line);
+		i = ParseGrammarLine(p_gram,p_line,&onerulefound,tracecompile,&igram,&irul,
+															&needsnumber,&done);
+		if(i != 0) {
+			if(EmergencyExit || (i < 0)) {
+				MyDisposeHandle((Handle*)&p_line);
+				ReleaseGrammarSpace(p_gram,FALSE);
+				if(CompileOn) CompileOn--;
+				if(Panic || EmergencyExit) return(ABORT);
+				else return(i);
+				}
+			if(verbose) {
+				Print(wTrace,"\n");
+				fatal = ShowError(i,igram,irul);
+				Print(wTrace,"??? ");
+				Println(wTrace,*p_line);
+				Print(wTrace,"\n");
+				}
+			N_err++;
+			if(fatal) {
+				if(verbose && !ScriptExecOn) BPPrintMessage(0,odError,"Fatal error found.  Compilation aborted...");
+				else PrintBehindln(wTrace,"Fatal error found.  Compilation aborted...");
+				break;
+				}
+			}
+		if(InsertGramRuleNumbers && needsnumber && N_err == 0) {
+			Renumber(p_gram,p_line,posline+gap,&pos,igram,irul,&posmax,&changednumber);
+			}
 		
-	/* Skip headers */
-	p = &(*p_line)[0]; q = &(FilePrefix[wAlphabet][0]);
-	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
-		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
-	p = &(*p_line)[0]; q = &(FileOldPrefix[wAlphabet][0]);
-	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
-		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
-	p = &(*p_line)[0]; q = &(FilePrefix[wInteraction][0]);
-	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
-		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
-	p = &(*p_line)[0]; q = &(FilePrefix[wGlossary][0]);
-	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
-		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
-	p = &(*p_line)[0]; q = &(FilePrefix[iSettings][0]);
-	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
-		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
-	p = &(*p_line)[0]; q = &(FilePrefix[wTimeBase][0]);
-	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
-		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
-	p = &(*p_line)[0]; q = &(FilePrefix[wCsoundResources][0]);
-	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
-		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
-	p = &(*p_line)[0]; q = &(FilePrefix[wTonality][0]);
-	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
-		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
-	p = &(*p_line)[0]; q = &(FilePrefix[iMidiDriver][0]);
-	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
-		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
-	p = &(*p_line)[0]; q = &(FilePrefix[iObjects][0]);
-	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
-		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
-	p = &(*p_line)[0]; q = &(FileOldPrefix[iObjects][0]);
-	if((Match(TRUE,p_line,&q,4)) && Gram.number_gram == 1
-		&& (*(Gram.p_subgram))[1].number_rule == 0) goto NEXTLINE;
-		
-	needsnumber = FALSE; igram = 0; irul = 0;
-//	MyLock(TRUE,(Handle)p_line);
-	if(trace_compile_grammar) BPPrintMessage(0,odInfo,"Parsing: %s\n",*p_line);
-	i = ParseGrammarLine(p_line,&onerulefound,tracecompile,&igram,&irul,
-														&needsnumber,&done);
-//	MyUnlock((Handle)p_line);
-	if(i != 0) {
-		if(EmergencyExit || (i < 0)) {
-			MyDisposeHandle((Handle*)&p_line);
-			ReleaseGrammarSpace();
-			if(CompileOn) CompileOn--;
-			if(Panic || EmergencyExit) return(ABORT);
-			else return(i);
+	NEXTLINE:
+		posline = pos;
+		}  // while(Readline())
+
+	END:
+	MyDisposeHandle((Handle*)&p_line);
+	if(verbose) BPPrintMessage(0,odInfo,"Parsing completed\n");
+
+	// DisplayGrammar(p_gram,wData,TRUE,TRUE);
+
+	if(trace_compile_grammar) BPPrintMessage(0,odInfo,"\n");
+	/* if((*(p_gram->p_subgram))[p_gram->number_gram].number_rule > MaxRul) {
+		my_sprintf(Message,"=> Err. number rules gram#%ld.",(long)p_gram->number_gram);
+		BPPrintMessage(0,odError,"%s",Message);
+		if(CompileOn) CompileOn--;
+		Panic =  TRUE; // 2024-06-18
+		return(ABORT);
+		} */
+	if((*(p_gram->p_subgram))[p_gram->number_gram].number_rule < 1) {
+		ptr = (t_rule**) (*(p_gram->p_subgram))[p_gram->number_gram].p_rule;
+		MyDisposeHandle((Handle*)&ptr);
+		(*(p_gram->p_subgram))[p_gram->number_gram].p_rule = NULL;
+		p_gram->number_gram--;
+		}
+	MaxGram = p_gram->number_gram;
+	if(p_gram->number_gram == 0) {
+		ptr1 = (Handle) p_gram->p_subgram;
+		MyDisposeHandle(&ptr1);
+		p_gram->p_subgram = NULL;
+		}
+	CheckGotoFailed(p_gram);
+	if(verbose) BPPrintMessage(0,odInfo,"\nErrors: %ld\n",(long)N_err);
+	for(i=1; i < MAXPARAMCTRL; i++) {
+		if(ParamInit[i] == INT_MAX) ParamInit[i] = ParamValue[i] = 127;
+		}
+	if(Jflag > 0) for(i=1; i <= Jflag; i++) (*p_Flag)[i] = ZERO;
+	if(verbose) {
+		SelectBehind(starttrace,GetTextLength(wTrace),TEH[wTrace]);
+		if(changednumber) SelectBehind(ZERO,ZERO,TEH[wGrammar]);
+		}
+
+	if((N_err == 0) && onerulefound) {
+		CompiledGr = JustCompiled = TRUE;
+		p_gram->trueBP = TRUE;
+		NotBPCase[8] = FALSE;
+		for(i=0; i < MAXNOTBPCASES; i++) {
+			if(NotBPCase[i]) {
+				p_gram->trueBP = FALSE; break;
+				}
 			}
-		Print(wTrace,"\n");
-		fatal = ShowError(i,igram,irul);
-		Print(wTrace,"??? ");
-		Println(wTrace,*p_line);
-		Print(wTrace,"\n");
-		N_err++;
-		if(fatal) {
-			if(!ScriptExecOn) BPPrintMessage(0,odError,"Fatal error found.  Compilation aborted...");
-			else PrintBehindln(wTrace,"Fatal error found.  Compilation aborted...");
-			break;
-			}
+		if(InsertGramCorrections) InsertSubgramTypes(p_gram);
+		ResetRuleWeights(p_gram,0);
+		if(CompileOn) CompileOn--;
+		return(OK);
 		}
-	if(InsertGramRuleNumbers && needsnumber && N_err == 0) {
-		Renumber(p_line,posline+gap,&pos,igram,irul,&posmax,&changednumber);
+	else {
+		if(verbose) ShowSelect(CENTRE,wTrace);
+		p_gram->trueBP = p_gram->hasTEMP = p_gram->hasproc = FALSE;
+		if(CompileOn) CompileOn--;
+		return(N_err == 0);
 		}
-	Dirty[wGrammar] = FALSE;  // FIXME ? What if the grammar was unsaved before CompileGrammar() ?
-	
-NEXTLINE:
-	posline = pos;
-	}  // while(Readline())
-
-END:
-MyDisposeHandle((Handle*)&p_line);
-BPPrintMessage(0,odInfo,"Parsing completed\n");
-// if(tracecompile) Print(wTrace,"\n");  2024-07-03
-if(trace_compile_grammar) BPPrintMessage(0,odInfo,"\n");
-if((*(Gram.p_subgram))[Gram.number_gram].number_rule > MaxRul) {
-	my_sprintf(Message,"=> Err. number rules gram#%ld.",(long)Gram.number_gram);
-	BPPrintMessage(0,odError,"%s",Message);
-	if(CompileOn) CompileOn--;
-	Panic =  TRUE; // 2024-06-18
-	return(ABORT);
-	}
-if((*(Gram.p_subgram))[Gram.number_gram].number_rule < 1) {
-	ptr = (t_rule**) (*(Gram.p_subgram))[Gram.number_gram].p_rule;
-	MyDisposeHandle((Handle*)&ptr);
-	(*(Gram.p_subgram))[Gram.number_gram].p_rule = NULL;
-	Gram.number_gram--;
-	}
-MaxGram = Gram.number_gram;
-if(Gram.number_gram == 0) {
-	ptr1 = (Handle) Gram.p_subgram;
-	MyDisposeHandle(&ptr1);
-	Gram.p_subgram = NULL;
-	}
-CheckGotoFailed();
-BPPrintMessage(0,odInfo,"\nErrors: %ld\n",(long)N_err);
-for(i=1; i < MAXPARAMCTRL; i++) {
-	if(ParamInit[i] == INT_MAX) ParamInit[i] = ParamValue[i] = 127;
-	}
-if(Jflag > 0) for(i=1; i <= Jflag; i++) (*p_Flag)[i] = ZERO;
-SelectBehind(starttrace,GetTextLength(wTrace),TEH[wTrace]);
-if(changednumber) {
-	SelectBehind(ZERO,ZERO,TEH[wGrammar]);
-	Dirty[wGrammar] = TRUE;
 	}
 
-if((N_err == 0) && onerulefound) {
-	CompiledGr = JustCompiled = TRUE;
-	Gram.trueBP = TRUE;
-	NotBPCase[8] = FALSE;
-	for(i=0; i < MAXNOTBPCASES; i++) {
-		if(NotBPCase[i]) {
-			Gram.trueBP = FALSE; break;
-			}
-		}
-	if(InsertGramCorrections) InsertSubgramTypes();
-	ResetRuleWeights(0);
-	Dirty[wGrammar] = dirtymem;
-	if(CompileOn) CompileOn--;
-	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end compilegrammar = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-	return(OK);
-	}
-else {
-	if(mode == 1) {
-		ShowSelect(CENTRE,wTrace);
-		// Created[wGrammar] = FALSE;
-		}
-	if(mode == 2) CompiledGr = CompiledAl = TRUE;
-	Gram.trueBP = Gram.hasTEMP = Gram.hasproc = FALSE;
-	Dirty[wGrammar] = dirtymem;
-	if(CompileOn) CompileOn--;
-//	SelectBehind(GramSelStart,GramSelEnd,TEH[wGrammar]);
-	return(N_err == 0);
-	}
-}
 
-
-int InsertSubgramTypes(void)	/* Insert 'ORD', 'RND', etc. */
+int InsertSubgramTypes(t_gram* p_gram)	/* Insert 'ORD', 'RND', etc. */
 {
 long pos,posmax,posline;
 double n,d;
@@ -459,7 +432,6 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 			MaintainSelectionInGrammar(pos,dif);
 			pos += dif; posmax += dif;
 			NotFoundMetronom = FALSE;
-			Dirty[wGrammar] = TRUE;
 			}
 		if(NotFoundNatureTime) {
 			if(Nature_of_time == STRIATED)
@@ -471,7 +443,6 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 			MaintainSelectionInGrammar(pos,dif);
 			pos += dif; posmax += dif;
 			NotFoundNatureTime = FALSE;
-			Dirty[wGrammar] = TRUE;
 			}
 		goto NEXTLINE;
 		}
@@ -482,7 +453,7 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 		if(!found) {
 PUTIT:
 			SelectBehind(posline+gap,posline+gap,TEH[wGrammar]);
-			my_sprintf(Message,"%s\n",SubgramType[(*(Gram.p_subgram))[igram].type]);
+			my_sprintf(Message,"%s\n",SubgramType[(*(p_gram->p_subgram))[igram].type]);
 			PrintBehind(wGrammar,Message);
 			dif = strlen(Message);
 			MaintainSelectionInGrammar(posline+gap,dif);
@@ -510,7 +481,7 @@ return(OK);
 }
 
 
-int Renumber(char **p_line,long posline,long *p_pos,int igram,int irul,
+int Renumber(t_gram* p_gram,char **p_line,long posline,long *p_pos,int igram,int irul,
 	long *p_posmax,int *p_changednumber)
 {
 /* register */ int i,j,k;
@@ -522,7 +493,7 @@ for(i=0; i < MAXLIN; i++) {
 	if((*p_line)[i] == '\0') break;
 	line2[i] = (*p_line)[i];
 	}
-line2[i] = '\0';	/* Gram numbers are in the beginning of 'line'... */
+line2[i] = '\0';	/* Grammar numbers are in the beginning of 'line'... */
 					/* No need to check beyond MAXLIN. */
 if(line2[0] == '\0') return(OK);
 
@@ -555,13 +526,13 @@ if(Match(FALSE,&p,&q,5)) {
 		if(pos1 < Sel1) Sel1 += dif; /* Used in PlaySelection() */
 		if(pos1 < Sel2) Sel2 += dif; /* Used in PlaySelection() */
 		*p_pos += dif; *p_posmax += dif; pos3 += dif;
-		(*((*(Gram.p_subgram))[igram].p_rule))[irul].oldgramindex = k;
-		(*((*(Gram.p_subgram))[igram].p_rule))[irul].oldrulindex = irul;
-		if((*(Gram.p_subgram))[igram].oldindex == 0) {
-			(*(Gram.p_subgram))[igram].oldindex = k;
+		(*((*(p_gram->p_subgram))[igram].p_rule))[irul].oldgramindex = k;
+		(*((*(p_gram->p_subgram))[igram].p_rule))[irul].oldrulindex = irul;
+		if((*(p_gram->p_subgram))[igram].oldindex == 0) {
+			(*(p_gram->p_subgram))[igram].oldindex = k;
 			if(k == (igram - 1)) {
-				if((*(Gram.p_subgram))[k].oldindex == 0)
-					(*(Gram.p_subgram))[k].oldindex = k;
+				if((*(p_gram->p_subgram))[k].oldindex == 0)
+					(*(p_gram->p_subgram))[k].oldindex = k;
 				}
 			}
 		}
@@ -606,9 +577,9 @@ if((*p_line)[i] == '[') {
 	if(pos1 < Sel2) Sel2 += dif;
 	*p_pos += dif; *p_posmax += dif;
 	if(k != 0)  {
-		if((*((*(Gram.p_subgram))[igram].p_rule))[irul].oldgramindex == 0)
-			(*((*(Gram.p_subgram))[igram].p_rule))[irul].oldgramindex = igram;
-		(*((*(Gram.p_subgram))[igram].p_rule))[irul].oldrulindex = k;
+		if((*((*(p_gram->p_subgram))[igram].p_rule))[irul].oldgramindex == 0)
+			(*((*(p_gram->p_subgram))[igram].p_rule))[irul].oldgramindex = igram;
+		(*((*(p_gram->p_subgram))[igram].p_rule))[irul].oldrulindex = k;
 		}
 	return(OK);
 	}
@@ -632,13 +603,13 @@ return(OK);
 }
 
 
-int CheckGotoFailed(void) {
+int CheckGotoFailed(t_gram* p_gram) {
 	int i,igram,irul,ig,ir,newig,newir;
 
-	for(igram=1; igram <= Gram.number_gram; igram++) {
-		for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
-			if((*((*(Gram.p_subgram))[igram].p_rule))[irul].repeat > 0) {
-				if((i=(*(Gram.p_subgram))[igram].type) == SUBtype ||
+	for(igram=1; igram <= p_gram->number_gram; igram++) {
+		for(irul=1; irul <= (*(p_gram->p_subgram))[igram].number_rule; irul++) {
+			if((*((*(p_gram->p_subgram))[igram].p_rule))[irul].repeat > 0) {
+				if((i=(*(p_gram->p_subgram))[igram].type) == SUBtype ||
 						i == SUB1type || i == POSLONGtype) {
 					my_sprintf(Message,
 						"=> gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
@@ -647,10 +618,10 @@ int CheckGotoFailed(void) {
 					Print(wTrace,Message);
 					}
 				}
-			if((newig=ig=(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotogram) > 0) {
-				newir = ir = (*((*(Gram.p_subgram))[igram].p_rule))[irul].gotorule;
-				NewIndex(&newig,&newir);
-				if((i=(*(Gram.p_subgram))[igram].type) == SUBtype ||
+			if((newig=ig=(*((*(p_gram->p_subgram))[igram].p_rule))[irul].gotogram) > 0) {
+				newir = ir = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].gotorule;
+				NewIndex(p_gram,&newig,&newir);
+				if((i=(*(p_gram->p_subgram))[igram].type) == SUBtype ||
 						i == SUB1type || i == POSLONGtype) {
 					my_sprintf(Message,
 						"=> gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
@@ -661,11 +632,11 @@ int CheckGotoFailed(void) {
 					continue;
 					}
 				if(newig != ig || newir != ir) {
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotogram = newig;
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].gotorule = newir;
+					(*((*(p_gram->p_subgram))[igram].p_rule))[irul].gotogram = newig;
+					(*((*(p_gram->p_subgram))[igram].p_rule))[irul].gotorule = newir;
 					UpdateProcedureIndex(0,igram,irul,newig,newir,0);
 					}
-				if(newig > Gram.number_gram) {
+				if(newig > p_gram->number_gram) {
 					my_sprintf(Message,"gram#%ld[%ld] has incorrect grammar index in '%s'\n",
 						(long)igram,(long)irul,*((*p_GramProcedure)[0]));
 					N_err++;
@@ -673,7 +644,7 @@ int CheckGotoFailed(void) {
 					UpdateProcedureIndex(0,igram,irul,newig,newir,1);
 					}
 				else {
-					if(((i=(*(Gram.p_subgram))[newig].type) == SUBtype ||
+					if(((i=(*(p_gram->p_subgram))[newig].type) == SUBtype ||
 						i == SUB1type || i == POSLONGtype) && newir > 0) {
 						my_sprintf(Message,
 							"gram#%ld[%ld] contains '%s' addressing rule in 'SUB' or 'SUB1' or 'POSLONG' subgrammar.\n",
@@ -683,7 +654,7 @@ int CheckGotoFailed(void) {
 						UpdateProcedureIndex(0,igram,irul,newig,newir,1);
 						}
 					else {
-						if(newir > (*(Gram.p_subgram))[newig].number_rule) {
+						if(newir > (*(p_gram->p_subgram))[newig].number_rule) {
 							my_sprintf(Message,"gram#%ld[%ld] has incorrect rule index in '%s'\n",(long)igram,(long)irul,*((*p_GramProcedure)[0]));
 							N_err++;
 							Print(wTrace,Message);
@@ -692,10 +663,10 @@ int CheckGotoFailed(void) {
 						}
 					}
 				}
-			if((newig=ig=(*((*(Gram.p_subgram))[igram].p_rule))[irul].failedgram) > 0) {
-				newir = ir = (*((*(Gram.p_subgram))[igram].p_rule))[irul].failedrule;
-				NewIndex(&newig,&newir);
-				if((i=(*(Gram.p_subgram))[igram].type) == SUBtype ||
+			if((newig=ig=(*((*(p_gram->p_subgram))[igram].p_rule))[irul].failedgram) > 0) {
+				newir = ir = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].failedrule;
+				NewIndex(p_gram,&newig,&newir);
+				if((i=(*(p_gram->p_subgram))[igram].type) == SUBtype ||
 						i == SUB1type || i == POSLONGtype) {
 					my_sprintf(Message,
 						"=> gram#%ld is 'SUB' or 'SUB1' or 'POSLONG' and should not contain '%s'.\n",
@@ -706,11 +677,11 @@ int CheckGotoFailed(void) {
 					continue;
 					}
 				if(newig != ig || newir != ir) {
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].failedgram = newig;
-					(*((*(Gram.p_subgram))[igram].p_rule))[irul].failedrule = newir;
+					(*((*(p_gram->p_subgram))[igram].p_rule))[irul].failedgram = newig;
+					(*((*(p_gram->p_subgram))[igram].p_rule))[irul].failedrule = newir;
 					UpdateProcedureIndex(1,igram,irul,newig,newir,0);
 					}
-				if(newig > Gram.number_gram) {
+				if(newig > p_gram->number_gram) {
 					my_sprintf(Message,"gram#%ld[%ld] has incorrect grammar index in '%s'\n",
 						(long)igram,(long)irul,*((*p_GramProcedure)[1]));
 					N_err++;
@@ -718,7 +689,7 @@ int CheckGotoFailed(void) {
 					UpdateProcedureIndex(1,igram,irul,newig,newir,1);
 					}
 				else {
-					if(((i=(*(Gram.p_subgram))[newig].type) == SUBtype ||
+					if(((i=(*(p_gram->p_subgram))[newig].type) == SUBtype ||
 							i == SUB1type || i == POSLONGtype) && newir > 0) {
 						my_sprintf(Message,
 							"gram#%ld[%ld] contains '%s' addressing rule in 'SUB' or 'SUB1' or 'POSLONG' subgrammar.\n",
@@ -728,7 +699,7 @@ int CheckGotoFailed(void) {
 						UpdateProcedureIndex(1,igram,irul,newig,newir,1);
 						}
 					else {
-						if(newir > (*(Gram.p_subgram))[newig].number_rule) {
+						if(newir > (*(p_gram->p_subgram))[newig].number_rule) {
 							my_sprintf(Message,"gram#%ld[%ld] has incorrect rule index in '%s'\n",
 								(long)igram,(long)irul,*((*p_GramProcedure)[1]));
 							N_err++;
@@ -823,16 +794,16 @@ int UpdateProcedureIndex(int jproc,int igram,int irul,int ig,int ir,int mode) {
 	}
 
 
-int NewIndex(int *p_ig, int *p_ir)
+int NewIndex(t_gram* p_gram,int *p_ig, int *p_ir)
 {
 int igram,irul;
-for(igram=1; igram <= Gram.number_gram; igram++) {
-	if(*p_ir == 0 && (*(Gram.p_subgram))[igram].oldindex == *p_ig) {
+for(igram=1; igram <= p_gram->number_gram; igram++) {
+	if(*p_ir == 0 && (*(p_gram->p_subgram))[igram].oldindex == *p_ig) {
 		*p_ig = igram; return(OK);
 		}
-	for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
-		if(*p_ig == (*((*(Gram.p_subgram))[igram].p_rule))[irul].oldgramindex
-			&& *p_ir == (*((*(Gram.p_subgram))[igram].p_rule))[irul].oldrulindex) {
+	for(irul=1; irul <= (*(p_gram->p_subgram))[igram].number_rule; irul++) {
+		if(*p_ig == (*((*(p_gram->p_subgram))[igram].p_rule))[irul].oldgramindex
+			&& *p_ir == (*((*(p_gram->p_subgram))[igram].p_rule))[irul].oldrulindex) {
 			*p_ig = igram; *p_ir = irul; return(OK);
 			}
 		}
@@ -1070,7 +1041,7 @@ int ReadAlphabet(int justcount) {
 
 int AddBolsInGrammar(void)
 {
-/* register */ int i,j=0,rem;
+int i,j=0,rem;
 int gap;
 long pos,posmax;
 char **p_line;
@@ -1142,7 +1113,7 @@ for(i=0,k1=0; i <= l;) {
 		return(26);
 		}
 	if(length == -1) {
-		if(trace_compile_alphabet) BPPrintMessage(0,odError, "GetBols() failed, length = %d\n",length);
+		if(trace_compile_alphabet) BPPrintMessage(0,odError, "=> GetBols() failed, length = %d\n",length);
 		MyDisposeHandle((Handle*)&p_y);
 		return(27);
 		}
@@ -1392,7 +1363,7 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 	}
 
 
-int ParseGrammarLine(char** p_line,int *p_onerulefound,int tracecompile,int *p_igram,
+int ParseGrammarLine(t_gram* p_gram,char** p_line,int *p_onerulefound,int tracecompile,int *p_igram,
 	int *p_irul,int *p_needsnumber,int *p_done)
 {
 int i,j,igram,irul,w,imode,type,operator,incweight,lenc,result,foundk,
@@ -1407,8 +1378,8 @@ double x;
 
 p_pleftcontext = &ppl; p_prightcontext = &ppr;
 p_plx = &plx; p_prx = &prx;
-igram = *p_igram = Gram.number_gram;
-irul = *p_irul = (*(Gram.p_subgram))[igram].number_rule;
+igram = *p_igram = p_gram->number_gram;
+irul = *p_irul = (*(p_gram->p_subgram))[igram].number_rule;
 
 if((*p_line)[0] == '\0') return(0);
 
@@ -1421,63 +1392,63 @@ if((*p_line)[0] == '-' && (*p_line)[MyHandleLen(p_line)-1] == '-') {
 	}
 if(newsubgram) {
 	*p_done = TRUE;
-	if((*(Gram.p_subgram))[igram].number_rule > MaxRul) {
+	if((*(p_gram->p_subgram))[igram].number_rule > MaxRul) {
 		my_sprintf(Message,
-			"=> Err. number rules gram#%ld. ",(long)Gram.number_gram);
+			"=> Err. number rules gram#%ld. ",(long)p_gram->number_gram);
 		BPPrintMessage(0,odError,"%s",Message);
 		N_err++; return(2);
 		}
 	if(tracecompile) Print(wTrace,"------------------------\n");
-	if((++Gram.number_gram) > MaxGram) {
-		my_sprintf(Message,"=> Err. number grams = %ld  MaxGram = %ld. ",
-				(long)Gram.number_gram,(long)MaxGram);
-		BPPrintMessage(0,odError,"%s",Message);
+	p_gram->number_gram += 1;
+	if(p_gram->number_gram > MaxGram) {
+		if(FirstGrammar) BPPrintMessage(0,odError,"=> Err. number grams = %ld  MaxGram = %ld\n",
+				(long)p_gram->number_gram,(long)MaxGram);
 		N_err++; return(1);
 		}
 	*p_igram = ++igram;
-	(*(Gram.p_subgram))[igram].number_rule = *p_irul = 0;
+	(*(p_gram->p_subgram))[igram].number_rule = *p_irul = 0;
 	my_sprintf(Message,"Compiling subgrammar #%ld...",(long)igram);
 	ShowMessage(TRUE,wMessage,Message);
-	(*(Gram.p_subgram))[igram].type = RNDtype;
-	(*(Gram.p_subgram))[igram].oldindex = 0;
-	(*(Gram.p_subgram))[igram].stop = (*(Gram.p_subgram))[igram].print
-	= (*(Gram.p_subgram))[igram].printon = (*(Gram.p_subgram))[igram].printoff
-	= (*(Gram.p_subgram))[igram].stepon = (*(Gram.p_subgram))[igram].stepoff
-	= (*(Gram.p_subgram))[igram].traceon = (*(Gram.p_subgram))[igram].traceoff
-	= (*(Gram.p_subgram))[igram].destru = (*(Gram.p_subgram))[igram].randomize
+	(*(p_gram->p_subgram))[igram].type = RNDtype;
+	(*(p_gram->p_subgram))[igram].oldindex = 0;
+	(*(p_gram->p_subgram))[igram].stop = (*(p_gram->p_subgram))[igram].print
+	= (*(p_gram->p_subgram))[igram].printon = (*(p_gram->p_subgram))[igram].printoff
+	= (*(p_gram->p_subgram))[igram].stepon = (*(p_gram->p_subgram))[igram].stepoff
+	= (*(p_gram->p_subgram))[igram].traceon = (*(p_gram->p_subgram))[igram].traceoff
+	= (*(p_gram->p_subgram))[igram].destru = (*(p_gram->p_subgram))[igram].randomize
 	= 0;
-	(*(Gram.p_subgram))[igram].seed = NOSEED;
-	(*(Gram.p_subgram))[igram].p_rule = NULL;
+	(*(p_gram->p_subgram))[igram].seed = NOSEED;
+	(*(p_gram->p_subgram))[igram].p_rule = NULL;
 	if((ptrule = (t_rule**) GiveSpace((Size)(MaxRul+1)*sizeof(t_rule)))
 								== NULL) return(ABORT);
-	(*(Gram.p_subgram))[igram].p_rule = ptrule;
+	(*(p_gram->p_subgram))[igram].p_rule = ptrule;
 	for(i=1; i <= MaxRul; i++) {
-		(*((*(Gram.p_subgram))[igram].p_rule))[i].p_leftarg
-		= (*((*(Gram.p_subgram))[igram].p_rule))[i].p_rightarg = NULL;
-		(*((*(Gram.p_subgram))[igram].p_rule))[i].p_leftcontext =
-		(*((*(Gram.p_subgram))[igram].p_rule))[i].p_rightcontext = NULL;
-		(*((*(Gram.p_subgram))[igram].p_rule))[i].p_leftflag = NULL;
-		(*((*(Gram.p_subgram))[igram].p_rule))[i].p_rightflag = NULL;
-		(*((*(Gram.p_subgram))[igram].p_rule))[i].mode
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].operator
-		 	= (*((*(Gram.p_subgram))[igram].p_rule))[i].weight
-		 	= (*((*(Gram.p_subgram))[igram].p_rule))[i].gotogram
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].gotorule
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].failedgram
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].failedrule
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].oldgramindex 
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].oldrulindex
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].repeat
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].repeatcontrol
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].stop
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].print
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].printon
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].printoff
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].stepon
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].stepoff
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].traceon
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].traceoff
-			= (*((*(Gram.p_subgram))[igram].p_rule))[i].destru = 0;
+		(*((*(p_gram->p_subgram))[igram].p_rule))[i].p_leftarg
+		= (*((*(p_gram->p_subgram))[igram].p_rule))[i].p_rightarg = NULL;
+		(*((*(p_gram->p_subgram))[igram].p_rule))[i].p_leftcontext =
+		(*((*(p_gram->p_subgram))[igram].p_rule))[i].p_rightcontext = NULL;
+		(*((*(p_gram->p_subgram))[igram].p_rule))[i].p_leftflag = NULL;
+		(*((*(p_gram->p_subgram))[igram].p_rule))[i].p_rightflag = NULL;
+		(*((*(p_gram->p_subgram))[igram].p_rule))[i].mode
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].operator
+		 	= (*((*(p_gram->p_subgram))[igram].p_rule))[i].weight
+		 	= (*((*(p_gram->p_subgram))[igram].p_rule))[i].gotogram
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].gotorule
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].failedgram
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].failedrule
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].oldgramindex 
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].oldrulindex
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].repeat
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].repeatcontrol
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].stop
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].print
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].printon
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].printoff
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].stepon
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].stepoff
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].traceon
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].traceoff
+			= (*((*(p_gram->p_subgram))[igram].p_rule))[i].destru = 0;
 		}
 	return(0);
 	}
@@ -1499,7 +1470,7 @@ if(SkipRem(ptr) != OK) return(10);
 if(NextChar(ptr)  == '\0') return(0);
 if(beforefirstrule && irul == 0) {
 	if((type = GetSubgramType(ptr)) > -1) {
-		(*(Gram.p_subgram))[igram].type = type;
+		(*(p_gram->p_subgram))[igram].type = type;
 		if(type == SUBtype || type == SUB1type || type == POSLONGtype) SUBthere = TRUE;
 		if((c=NextChar(ptr))  == '\0' || c == '[') return(0);
 		else return(35);
@@ -1512,35 +1483,35 @@ if(beforefirstrule && irul == 0) {
 				proc = TRUE;
 				switch(j) {
 					case 3:	/* _stop */
-						(*(Gram.p_subgram))[igram].stop = TRUE;
+						(*(p_gram->p_subgram))[igram].stop = TRUE;
 						break;
 					case 4:	/* _print */
-						(*(Gram.p_subgram))[igram].print = TRUE;
+						(*(p_gram->p_subgram))[igram].print = TRUE;
 						break;
 					case 5:	/* _printOn */
-						(*(Gram.p_subgram))[igram].printon = TRUE;
+						(*(p_gram->p_subgram))[igram].printon = TRUE;
 						break;
 					case 6:	/* _printOff */
-						(*(Gram.p_subgram))[igram].printoff = TRUE;
+						(*(p_gram->p_subgram))[igram].printoff = TRUE;
 						break;
 					case 7:	/* _stepOn */
-						(*(Gram.p_subgram))[igram].stepon = TRUE;
+						(*(p_gram->p_subgram))[igram].stepon = TRUE;
 						break;
 					case 8:	/* _stepOff */
-						(*(Gram.p_subgram))[igram].stepoff = TRUE;
+						(*(p_gram->p_subgram))[igram].stepoff = TRUE;
 						break;
 					case 9:	/* _traceOn */
-						(*(Gram.p_subgram))[igram].traceon = TRUE;
+						(*(p_gram->p_subgram))[igram].traceon = TRUE;
 						break;
 					case 10:	/* _traceOff */
-						(*(Gram.p_subgram))[igram].traceoff = TRUE;
+						(*(p_gram->p_subgram))[igram].traceoff = TRUE;
 						break;
 					case 11:	/* _destru */
-						(*(Gram.p_subgram))[igram].destru = TRUE;
-						Gram.hasproc = TRUE;
+						(*(p_gram->p_subgram))[igram].destru = TRUE;
+						p_gram->hasproc = TRUE;
 						break;
 					case 12:	/* _randomize */
-						(*(Gram.p_subgram))[igram].randomize = TRUE;
+						(*(p_gram->p_subgram))[igram].randomize = TRUE;
 						WillRandomize = TRUE;
 						break;
 					case 13:	/* _mm */
@@ -1561,7 +1532,7 @@ if(beforefirstrule && irul == 0) {
 						if(ChangeMetronom(j,x) != OK) return(7);
 						break;
 					case 16:	/* _srand */
-						(*(Gram.p_subgram))[igram].seed = y;
+						(*(p_gram->p_subgram))[igram].seed = y;
 						break;
 					}
 				}
@@ -1575,7 +1546,7 @@ if(beforefirstrule && irul == 0) {
 		else return(0);
 		}
 	}
-*p_irul = (*(Gram.p_subgram))[igram].number_rule = ++irul;
+*p_irul = (*(p_gram->p_subgram))[igram].number_rule = ++irul;
 i = incweight = 0;
 if((**ptr) == '<' || (**ptr) == '\334') {
 	if((w=GetArgument(1,ptr,&incweight,&initparam,&foundk,&x,&u,&v)) == INT_MAX){
@@ -1601,6 +1572,7 @@ if((**ptr) == '<' || (**ptr) == '\334') {
 					Print(wTrace,Message);
 					return(20);
 					}
+				w = initparam; // 2025-03-13
 				if(ParamInit[i] == INT_MAX)
 					ParamInit[i] = ParamValue[i] = (int) initparam;
 				else {
@@ -1629,31 +1601,31 @@ else {
 	}
 if(SkipRem(ptr) != OK) return(10);
 if(CheckEnd(**ptr)) return(5);
-(*((*(Gram.p_subgram))[igram].p_rule))[irul].ctrl = i;
-(*((*(Gram.p_subgram))[igram].p_rule))[irul].weight = w;
-(*((*(Gram.p_subgram))[igram].p_rule))[irul].incweight = incweight;
-type = (*(Gram.p_subgram))[igram].type;
+(*((*(p_gram->p_subgram))[igram].p_rule))[irul].ctrl = i;
+(*((*(p_gram->p_subgram))[igram].p_rule))[irul].weight = w;
+(*((*(p_gram->p_subgram))[igram].p_rule))[irul].incweight = incweight;
+type = (*(p_gram->p_subgram))[igram].type;
 c = NextChar(ptr);
 if(CheckEnd(c)) return(5);
 meta = FALSE;
 if((imode=GetMode(ptr,type)) < 0) return(3);
-(*((*(Gram.p_subgram))[igram].p_rule))[irul].mode = imode;
+(*((*(p_gram->p_subgram))[igram].p_rule))[irul].mode = imode;
 if(SkipRem(ptr) != OK) return(10);
 if(CheckEnd(**ptr)) return(5);
 if((operator=GetArg(ptr,pp1,pp2,pp3,pp4)) == -1) {
-	(*((*(Gram.p_subgram))[igram].p_rule))[irul].operator = 0;
+	(*((*(p_gram->p_subgram))[igram].p_rule))[irul].operator = 0;
 	return(8);
 	}
-(*((*(Gram.p_subgram))[igram].p_rule))[irul].operator = operator;
+(*((*(p_gram->p_subgram))[igram].p_rule))[irul].operator = operator;
 *p_needsnumber = TRUE;
 *p_pleftcontext = *p_prightcontext = NULL; 
 if((*pp4) == NULL) return(9);
 h_flag = NULL;
-if((pp_leftp=Encode(FALSE,FALSE,igram,irul,pp1,pp2,p_pleftcontext,p_prightcontext,&meta,1,
+if((pp_leftp=Encode(p_gram,FALSE,FALSE,igram,irul,pp1,pp2,p_pleftcontext,p_prightcontext,&meta,1,
 		&h_flag,FALSE,&result)) == NULL) {
-	(*((*(Gram.p_subgram))[igram].p_rule))[irul].p_leftarg = NULL;
-	(*((*(Gram.p_subgram))[igram].p_rule))[irul].p_leftcontext =
-	(*((*(Gram.p_subgram))[igram].p_rule))[irul].p_rightcontext = NULL;
+	(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftarg = NULL;
+	(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftcontext =
+	(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightcontext = NULL;
 	if(result < 0) return(result);
 	else return(15); /* error in argument */
 	}
@@ -1664,38 +1636,38 @@ if(*p_pleftcontext != NULL) {
 if(*p_prightcontext != NULL) {
 	pp_a = (**p_prightcontext)->p_arg; /* ClearMarkers(&pp_a); */
 	}
-(*((*(Gram.p_subgram))[igram].p_rule))[irul].p_leftarg = pp_leftp;
-(*((*(Gram.p_subgram))[igram].p_rule))[irul].p_leftflag = h_flag;
+(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftarg = pp_leftp;
+(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftflag = h_flag;
 if(h_flag != NULL) NotBPCase[6] = TRUE;
-(*((*(Gram.p_subgram))[igram].p_rule))[irul].ismeta = meta;
-(*((*(Gram.p_subgram))[igram].p_rule))[irul].p_leftcontext = *p_pleftcontext;
-(*((*(Gram.p_subgram))[igram].p_rule))[irul].p_rightcontext = *p_prightcontext;
+(*((*(p_gram->p_subgram))[igram].p_rule))[irul].ismeta = meta;
+(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftcontext = *p_pleftcontext;
+(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightcontext = *p_prightcontext;
 /* if(*p_pleftcontext != NULL || *p_prightcontext != NULL)
 	NotBPCase[3] = TRUE;	Remote context(s) found */
 h_flag = NULL;
 NextChar(pp3); /* $$$  GetNilString(pp3); skip "lambda" */
-if((pp_rightp=Encode(FALSE,FALSE,igram,irul,pp3,pp4,p_plx,p_prx,&meta,2,
+if((pp_rightp=Encode(p_gram,FALSE,FALSE,igram,irul,pp3,pp4,p_plx,p_prx,&meta,2,
 		&h_flag,FALSE,&result)) == NULL) {
-	(*((*(Gram.p_subgram))[igram].p_rule))[irul].p_rightarg = NULL;
+	(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightarg = NULL;
 	if(result < 0) return(result);
 	else return(15); /* error in argument */
 	}
 if(h_flag != NULL && (type == SUBtype || type == SUB1type || type == POSLONGtype)) return(49);
 /* ClearMarkers(&pp_rightp); */
-(*((*(Gram.p_subgram))[igram].p_rule))[irul].p_rightarg = pp_rightp;
-(*((*(Gram.p_subgram))[igram].p_rule))[irul].p_rightflag = h_flag;
+(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightarg = pp_rightp;
+(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightflag = h_flag;
 if(h_flag != NULL) NotBPCase[6] = TRUE;
 if((i = FindLeftoffset(pp_leftp,pp_rightp,&lenc)) == -1) {
-	(*((*(Gram.p_subgram))[igram].p_rule))[irul].leftoffset = 0;
-	(*((*(Gram.p_subgram))[igram].p_rule))[irul].leftnegcontext = 0;
+	(*((*(p_gram->p_subgram))[igram].p_rule))[irul].leftoffset = 0;
+	(*((*(p_gram->p_subgram))[igram].p_rule))[irul].leftnegcontext = 0;
 	my_sprintf(Message,"Can't have only negative contexts in argument!\n");
 	Print(wTrace,Message);
 	return(15);
 	}
-(*((*(Gram.p_subgram))[igram].p_rule))[irul].leftoffset = i;
-(*((*(Gram.p_subgram))[igram].p_rule))[irul].leftnegcontext = lenc;
+(*((*(p_gram->p_subgram))[igram].p_rule))[irul].leftoffset = i;
+(*((*(p_gram->p_subgram))[igram].p_rule))[irul].leftnegcontext = lenc;
 i = FindRightoffset(pp_leftp,pp_rightp,&lenarg);
-(*((*(Gram.p_subgram))[igram].p_rule))[irul].rightoffset = i;
+(*((*(p_gram->p_subgram))[igram].p_rule))[irul].rightoffset = i;
 if((i=NumberWildCards(pp_leftp)) < (j=NumberWildCards(pp_rightp))) {
 	ShowError(29,igram,irul);
 	my_sprintf(Message,"NumberWildCards left side (%ld) is less than on right side (%ld)\n",(long)i,(long)j);
@@ -1704,12 +1676,12 @@ if((i=NumberWildCards(pp_leftp)) < (j=NumberWildCards(pp_rightp))) {
 	}
 *p_done = FALSE;
 *p_onerulefound = TRUE;
-if(tracecompile) ShowRule(&Gram,igram,irul,wTrace,FALSE,NULL,TRUE,TRUE,TRUE);
+if(tracecompile) ShowRule(p_gram,igram,irul,wTrace,FALSE,NULL,TRUE,TRUE,TRUE);
 return(0);
 }
 
 
-int ShowNotBP(void)
+int ShowNotBP(t_gram* p_gram)
 {
 int i,j=1;
 static char *err[] = {
@@ -1725,7 +1697,7 @@ static char *err[] = {
 "Period notation is not handled in grammars"	/* 9 $$$ suppressed */
 	};
 
-if(!CompiledGr || Gram.trueBP) return(OK);
+if(!CompiledGr || p_gram->trueBP) return(OK);
 BPActivateWindow(SLOW,wTrace);
 my_sprintf(Message,"\nThis is not a true BP grammar.\nThe following features are not standard:\n");
 Print(wTrace,Message);
@@ -1743,12 +1715,11 @@ return(MISSED);
 }
 
 
-int MaintainSelectionInGrammar(long pos,int dif)
-{
-if(pos <= GramSelStart) GramSelStart += dif;
-if(pos <= GramSelEnd) GramSelEnd += dif;
-return(OK);
-}
+int MaintainSelectionInGrammar(long pos,int dif) {
+	if(pos <= GramSelStart) GramSelStart += dif;
+	if(pos <= GramSelEnd) GramSelEnd += dif;
+	return(OK);
+	}
 
 
 int CheckDeterminism(t_gram *p_gram)
@@ -1762,8 +1733,8 @@ err = 0;
 SelectBehind(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 PrintBehind(wTrace,"\n");
 
-for(igram=1; igram <= (*p_gram).number_gram; igram++) {
-	subgram = (*((*p_gram).p_subgram))[igram];
+for(igram=1; igram <= p_gram->number_gram; igram++) {
+	subgram = (*(p_gram->p_subgram))[igram];
 	for(irul=1; irul <= subgram.number_rule; irul++) {
 		PleaseWait();
 		rule = (*(subgram.p_rule))[irul];
@@ -1776,10 +1747,10 @@ for(igram=1; igram <= (*p_gram).number_gram; igram++) {
 				if(newrule) {
 					newrule = FALSE;
 					Println(wTrace,"The following rules make the grammar non-deterministic:");
-					ShowRule(p_gram,igram,irul,wTrace,FALSE,NULL,TRUE,FALSE,FALSE);
+					ShowRule(p_gram,igram,irul,wTrace,FALSE,NULL,TRUE,FALSE,TRUE);
 					err++;
 					}
-				ShowRule(p_gram,igram,jrul,wTrace,FALSE,NULL,TRUE,FALSE,FALSE);
+				ShowRule(p_gram,igram,jrul,wTrace,FALSE,NULL,TRUE,FALSE,TRUE);
 				}
 			}
 		}
@@ -1812,5 +1783,497 @@ void adjust_prefix(char *line) {
         strcpy(temp, line + 4);
         strcpy(line,"-al.");
         strcat(line, temp);
+		}
+	}
+
+/******** COPY GRAMMAR ********/
+
+
+void copy_grammar(t_gram *dest, t_gram *src, int verbose) {
+    // Copy top-level grammar properties
+    dest->number_gram = src->number_gram;
+    dest->trueBP = src->trueBP;
+    dest->hasTEMP = src->hasTEMP;
+    dest->hasproc = src->hasproc;
+    
+    // Allocate memory for subgrammar pointers
+    dest->p_subgram = (t_subgram **)malloc(sizeof(t_subgram *));
+    if (!dest->p_subgram) {
+        if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for subgrammars\n");
+        return;
+    	}
+    
+    // Allocate memory for the array of subgrammars
+    // Add 1 to number_gram since indices start from 1
+    *dest->p_subgram = (t_subgram *)malloc((src->number_gram + 1) * sizeof(t_subgram));
+    if (!*dest->p_subgram) {
+        if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for subgrammar array\n");
+        free(dest->p_subgram);
+        dest->p_subgram = NULL;
+        return;
+    	}
+    
+    // Copy each subgrammar (indices 1 to number_gram)
+    for (int igram = 1; igram <= src->number_gram; igram++) {
+        // Get the correct number of rules from the source
+        int num_rules = (*(src->p_subgram))[igram].number_rule;
+        // Copy subgrammar properties
+        (*(dest->p_subgram))[igram].number_rule = num_rules;
+        (*(dest->p_subgram))[igram].type = (*(src->p_subgram))[igram].type;
+        (*(dest->p_subgram))[igram].oldindex = (*(src->p_subgram))[igram].oldindex;
+        (*(dest->p_subgram))[igram].seed = (*(src->p_subgram))[igram].seed;
+        (*(dest->p_subgram))[igram].stop = (*(src->p_subgram))[igram].stop;
+        (*(dest->p_subgram))[igram].print = (*(src->p_subgram))[igram].print;
+        (*(dest->p_subgram))[igram].printon = (*(src->p_subgram))[igram].printon;
+        (*(dest->p_subgram))[igram].printoff = (*(src->p_subgram))[igram].printoff;
+        (*(dest->p_subgram))[igram].stepon = (*(src->p_subgram))[igram].stepon;
+        (*(dest->p_subgram))[igram].stepoff = (*(src->p_subgram))[igram].stepoff;
+        (*(dest->p_subgram))[igram].traceon = (*(src->p_subgram))[igram].traceon;
+        (*(dest->p_subgram))[igram].traceoff = (*(src->p_subgram))[igram].traceoff;
+        (*(dest->p_subgram))[igram].destru = (*(src->p_subgram))[igram].destru;
+        (*(dest->p_subgram))[igram].randomize = (*(src->p_subgram))[igram].randomize;
+        // Allocate memory for rule pointers
+        (*(dest->p_subgram))[igram].p_rule = (t_rule **)malloc(sizeof(t_rule *));
+        if (!(*(dest->p_subgram))[igram].p_rule) {
+            if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for rules in subgrammar %d\n", igram);
+            return;
+        	}
+        // Allocate memory for the array of rules
+        // Note: Rule indices also start from 1, adjust allocation size
+        *((*(dest->p_subgram))[igram].p_rule) = (t_rule *)malloc((num_rules + 1) * sizeof(t_rule));
+        if (!*((*(dest->p_subgram))[igram].p_rule)) {
+            if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for rule array in subgrammar %d\n", igram);
+            free((*(dest->p_subgram))[igram].p_rule);
+            (*(dest->p_subgram))[igram].p_rule = NULL;
+            return;
+        	}
+        // Copy each rule (rule indices start from 1)
+        for (int irul = 1; irul <= num_rules; irul++) {
+            // Use the correct pattern for accessing rules
+            t_rule *dest_rule = &(*((*(dest->p_subgram))[igram].p_rule))[irul];
+            t_rule *src_rule = &(*((*(src->p_subgram))[igram].p_rule))[irul];      
+			// BPPrintMessage(0,odInfo, "GRAM#%d rule %d, w = %d\n", igram,irul,src_rule->w);
+            // Copy rule properties
+            dest_rule->mode = src_rule->mode;
+            dest_rule->operator = src_rule->operator;
+            dest_rule->weight = src_rule->weight;
+            dest_rule->incweight = src_rule->incweight;
+            dest_rule->w = src_rule->w;
+            dest_rule->ctrl = src_rule->ctrl;
+            dest_rule->ismeta = src_rule->ismeta;
+            dest_rule->leftoffset = src_rule->leftoffset;
+            dest_rule->rightoffset = src_rule->rightoffset;
+            dest_rule->leftnegcontext = src_rule->leftnegcontext;
+            dest_rule->oldgramindex = src_rule->oldgramindex;
+            dest_rule->oldrulindex = src_rule->oldrulindex;
+            dest_rule->gotogram = src_rule->gotogram;
+            dest_rule->gotorule = src_rule->gotorule;
+            dest_rule->failedgram = src_rule->failedgram;
+            dest_rule->failedrule = src_rule->failedrule;
+            dest_rule->repeat = src_rule->repeat;
+            dest_rule->repeatcontrol = src_rule->repeatcontrol;
+            dest_rule->stop = src_rule->stop;
+            dest_rule->print = src_rule->print;
+            dest_rule->printon = src_rule->printon;
+            dest_rule->printoff = src_rule->printoff;
+            dest_rule->stepon = src_rule->stepon;
+            dest_rule->stepoff = src_rule->stepoff;
+            dest_rule->traceon = src_rule->traceon;
+            dest_rule->traceoff = src_rule->traceoff;
+            dest_rule->destru = src_rule->destru;
+
+			// Handle p_leftflag
+			if (src_rule->p_leftflag) {
+				// Allocate memory for the pointer
+				dest_rule->p_leftflag = (p_flaglist **)malloc(sizeof(p_flaglist *));
+				if (!dest_rule->p_leftflag) {
+					fprintf(stderr, "Memory allocation failed for left flags\n");
+					return;
+					}
+				// Allocate memory for the first flaglist
+				*(dest_rule->p_leftflag) = (p_flaglist *)malloc(sizeof(p_flaglist));
+				if (!*(dest_rule->p_leftflag)) {
+					fprintf(stderr, "Memory allocation failed for left flag\n");
+					free(dest_rule->p_leftflag);
+					dest_rule->p_leftflag = NULL;
+					return;
+					}
+				// Copy the first flaglist structure
+				(**(dest_rule->p_leftflag)).x = (**(src_rule->p_leftflag)).x;
+				(**(dest_rule->p_leftflag)).increment = (**(src_rule->p_leftflag)).increment;
+				(**(dest_rule->p_leftflag)).refvalue = (**(src_rule->p_leftflag)).refvalue;
+				(**(dest_rule->p_leftflag)).refflag = (**(src_rule->p_leftflag)).refflag;
+				(**(dest_rule->p_leftflag)).paramcontrol = (**(src_rule->p_leftflag)).paramcontrol;
+				(**(dest_rule->p_leftflag)).operator = (**(src_rule->p_leftflag)).operator;
+				(**(dest_rule->p_leftflag)).p = NULL;
+				// If source has a chain, copy it
+				if ((**(src_rule->p_leftflag)).p) {
+					// Allocate memory for the next pointer in chain
+					(**(dest_rule->p_leftflag)).p = (p_flaglist **)malloc(sizeof(p_flaglist *));
+					if (!(**(dest_rule->p_leftflag)).p) {
+						fprintf(stderr, "Memory allocation failed for left flag chain\n");
+						return;
+						}
+					copy_flaglist_chain((**(dest_rule->p_leftflag)).p, (**(src_rule->p_leftflag)).p);
+					}
+				}
+			else dest_rule->p_leftflag = NULL;
+
+			// Handle p_rightflag
+			if (src_rule->p_rightflag) {
+				// Allocate memory for the pointer
+				dest_rule->p_rightflag = (p_flaglist **)malloc(sizeof(p_flaglist *));
+				if (!dest_rule->p_rightflag) {
+					fprintf(stderr, "Memory allocation failed for right flags\n");
+					return;
+					}
+				// Allocate memory for the first flaglist
+				*(dest_rule->p_rightflag) = (p_flaglist *)malloc(sizeof(p_flaglist));
+				if (!*(dest_rule->p_rightflag)) {
+					fprintf(stderr, "Memory allocation failed for right flag\n");
+					free(dest_rule->p_rightflag);
+					dest_rule->p_rightflag = NULL;
+					return;
+					}
+				// Copy the first flaglist structure
+			//    memcpy(*(dest_rule->p_rightflag), *(src_rule->p_rightflag), sizeof(p_flaglist));
+				(**(dest_rule->p_rightflag)).x = (**(src_rule->p_rightflag)).x;
+				(**(dest_rule->p_rightflag)).increment = (**(src_rule->p_rightflag)).increment;
+				(**(dest_rule->p_rightflag)).refvalue = (**(src_rule->p_rightflag)).refvalue;
+				(**(dest_rule->p_rightflag)).refflag = (**(src_rule->p_rightflag)).refflag;
+				(**(dest_rule->p_rightflag)).paramcontrol = (**(src_rule->p_rightflag)).paramcontrol;
+				(**(dest_rule->p_rightflag)).operator = (**(src_rule->p_rightflag)).operator;
+				(**(dest_rule->p_rightflag)).p = NULL;
+				// If source has a chain, copy it
+				if ((**(src_rule->p_rightflag)).p) {
+					// Allocate memory for the next pointer in chain
+					(**(dest_rule->p_rightflag)).p = (p_flaglist **)malloc(sizeof(p_flaglist *));
+					if (!(**(dest_rule->p_rightflag)).p) {
+						fprintf(stderr, "Memory allocation failed for right flag chain\n");
+						return;
+						}
+					copy_flaglist_chain((**(dest_rule->p_rightflag)).p, (**(src_rule->p_rightflag)).p);
+					}
+				}
+			else dest_rule->p_rightflag = NULL;
+
+            // Handle p_leftarg
+            if (src_rule->p_leftarg) {
+                // Calculate the size of the array using TEND markers
+                int leftarg_count = 0;
+                for (int idx = 0; ; idx += 2) {
+                    int m = (*src_rule->p_leftarg)[idx];
+                    int p = (*src_rule->p_leftarg)[idx+1];
+                    leftarg_count += 2;
+                    if (m == TEND && p == TEND) break;
+                	}
+                // Allocate memory for the token array
+                dest_rule->p_leftarg = (tokenbyte **)malloc(sizeof(tokenbyte *));
+                if (!dest_rule->p_leftarg) {
+                    if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for left arg tokens\n");
+                    return;
+                	}
+                *dest_rule->p_leftarg = (tokenbyte *)malloc(leftarg_count * sizeof(tokenbyte));
+                if (!*dest_rule->p_leftarg) {
+                    if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for left arg tokens\n");
+                    free(dest_rule->p_leftarg);
+                    dest_rule->p_leftarg = NULL;
+                    return;
+                	}
+                // Copy the token array
+                memcpy(*dest_rule->p_leftarg, *src_rule->p_leftarg, leftarg_count * sizeof(tokenbyte));
+				}
+			else dest_rule->p_leftarg = NULL;
+            
+            // Similar handling for p_rightarg
+            if (src_rule->p_rightarg) {
+                // Calculate the size of the array using TEND markers
+                int rightarg_count = 0;
+                for (int idx = 0; ; idx += 2) {
+                    int m = (*src_rule->p_rightarg)[idx];
+                    int p = (*src_rule->p_rightarg)[idx+1];
+                    rightarg_count += 2;
+                    if (m == TEND && p == TEND) break;
+                	}
+                // Allocate memory for the token array
+                dest_rule->p_rightarg = (tokenbyte **)malloc(sizeof(tokenbyte *));
+                if (!dest_rule->p_rightarg) {
+                    if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for right arg tokens\n");
+                    return;
+                	}
+                *dest_rule->p_rightarg = (tokenbyte *)malloc(rightarg_count * sizeof(tokenbyte));
+                if (!*dest_rule->p_rightarg) {
+                    if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for right arg tokens\n");
+                    free(dest_rule->p_rightarg);
+                    dest_rule->p_rightarg = NULL;
+                    return;
+                	}
+                // Copy the token array
+                memcpy(*dest_rule->p_rightarg, *src_rule->p_rightarg, rightarg_count * sizeof(tokenbyte));
+				}
+			else dest_rule->p_rightarg = NULL;
+
+
+            
+            // Handle p_leftcontext
+            if (src_rule->p_leftcontext) {
+                // Allocate new array of context pointers
+                dest_rule->p_leftcontext = (p_context)malloc(sizeof(t_context*));
+                if (!dest_rule->p_leftcontext) {
+                    if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for left context\n");
+                    return;
+                	}  
+                // Allocate the context struct
+                *dest_rule->p_leftcontext = (t_context*)malloc(sizeof(t_context));
+                if (!*dest_rule->p_leftcontext) {
+                    if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for left context struct\n");
+                    return;
+                	}
+                // Copy context properties
+                (*dest_rule->p_leftcontext)->sign = (*src_rule->p_leftcontext)->sign;
+                // Handle the p_arg array using TEND-based calculation
+                if ((*src_rule->p_leftcontext)->p_arg) {
+                    // Calculate the size of the array using TEND markers
+                    int arg_count = 0;
+                    for (int idx = 0; ; idx += 2) {
+                        tokenbyte m = (*(*src_rule->p_leftcontext)->p_arg)[idx];
+                        tokenbyte p = (*(*src_rule->p_leftcontext)->p_arg)[idx+1];
+				//		BPPrintMessage(0,odInfo, "left context igram = %d irul = %d m = %d, p = %d\n",igram,irul,m,p);
+                        arg_count += 2;
+                        if (m == TEND && p == TEND) break;
+                    	}
+                    // Allocate memory for the token array
+                    (*dest_rule->p_leftcontext)->p_arg = (tokenbyte **)malloc(sizeof(tokenbyte *));
+                    if (!(*dest_rule->p_leftcontext)->p_arg) {
+                        if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for left context args\n");
+                        return;
+                    	}
+                    *(*dest_rule->p_leftcontext)->p_arg = (tokenbyte *)malloc(arg_count * sizeof(tokenbyte));
+                    if (!*(*dest_rule->p_leftcontext)->p_arg) {
+                        if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for left context arg tokens\n");
+                        free((*dest_rule->p_leftcontext)->p_arg);
+                        (*dest_rule->p_leftcontext)->p_arg = NULL;
+                        return;
+                   		}
+               //     BPPrintMessage(1,odInfo,"Left context igram = %d, irule = %d, arg_count = %d sign = %d\n",igram,irul,arg_count,(*dest_rule->p_leftcontext)->sign);
+                    // Copy the token array
+					if ((*src_rule->p_leftcontext)->p_arg == NULL || (*dest_rule->p_leftcontext)->p_arg == NULL) {
+						fprintf(stderr, "Error: p_arg is NULL!\n");
+						if(verbose) BPPrintMessage(0,odError, "=> Error: igram = %d, irule = %d, p_arg is NULL!\n",igram,irul);
+						return;
+						}
+                    memcpy(*(*dest_rule->p_leftcontext)->p_arg, *(*src_rule->p_leftcontext)->p_arg, arg_count * sizeof(tokenbyte));
+                	} 
+				else (*dest_rule->p_leftcontext)->p_arg = NULL;
+            	} 
+			else dest_rule->p_leftcontext = NULL;
+            
+
+            // Similar handling for p_rightcontext
+            if (src_rule->p_rightcontext) {
+                // Allocate new array of context pointers
+                dest_rule->p_rightcontext = (p_context)malloc(sizeof(t_context*));
+                if (!dest_rule->p_rightcontext) {
+                    if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for right context\n");
+                    return;
+                	}
+                // Allocate the context struct
+                *(dest_rule->p_rightcontext) = (t_context *)malloc(sizeof(t_context));
+                if (!*dest_rule->p_rightcontext) {
+                    if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for right context struct\n");
+                    return;
+                	}
+                // Copy context properties
+                (*dest_rule->p_rightcontext)->sign = (*src_rule->p_rightcontext)->sign;
+                // Handle the p_arg array using TEND-based calculation
+                if ((*src_rule->p_rightcontext)->p_arg) {
+                    // Calculate the size of the array using TEND markers
+                    int arg_count = 0;
+                    for (int idx = 0; ; idx += 2) {
+                        tokenbyte m = (*(*src_rule->p_rightcontext)->p_arg)[idx];
+                        tokenbyte p = (*(*src_rule->p_rightcontext)->p_arg)[idx+1];
+				//		BPPrintMessage(0,odInfo, "right context igram = %d irul = %d m = %d, p = %d\n",igram,irul,m,p);
+                        arg_count += 2;
+                        if (m == TEND && p == TEND) break;
+                    	}
+                    // Allocate memory for the token array
+                    (*dest_rule->p_rightcontext)->p_arg = (tokenbyte **)malloc(sizeof(tokenbyte *));
+                    if (!(*dest_rule->p_rightcontext)->p_arg) {
+                        if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for right context args\n");
+                        return;
+                    	}
+                    *(*dest_rule->p_rightcontext)->p_arg = (tokenbyte *)malloc(arg_count * sizeof(tokenbyte));
+                    if (!*(*dest_rule->p_rightcontext)->p_arg) {
+                        if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for right context arg tokens\n");
+                        free((*dest_rule->p_rightcontext)->p_arg);
+                        (*dest_rule->p_rightcontext)->p_arg = NULL;
+                        return;
+                    	}
+               //     BPPrintMessage(1,odInfo,"Right context igram = %d, irule = %d, arg_count = %d sign = %d\n",igram,irul,arg_count,(*dest_rule->p_rightcontext)->sign);
+				/*	printf("dest_rule->p_rightcontext: %p\n", (void *)dest_rule->p_rightcontext);
+					printf("*dest_rule->p_rightcontext: %p\n", (void *)*dest_rule->p_rightcontext);
+					printf("(*dest_rule->p_rightcontext)->p_arg: %p\n", (void *)(*dest_rule->p_rightcontext)->p_arg);
+					printf("*(*dest_rule->p_rightcontext)->p_arg: %p\n", (void *)*(*dest_rule->p_rightcontext)->p_arg); */
+
+                    // Copy the token array
+					if ((*src_rule->p_rightcontext)->p_arg == NULL || (*dest_rule->p_rightcontext)->p_arg == NULL) {
+						fprintf(stderr, "Error: p_arg is NULL!\n");
+						if(verbose) BPPrintMessage(0,odError, "=> Error: igram = %d, irule = %d, p_arg is NULL!\n",igram,irul);
+						return;
+						}
+                    memcpy(*(*dest_rule->p_rightcontext)->p_arg, *(*src_rule->p_rightcontext)->p_arg, arg_count * sizeof(tokenbyte));
+                	} 
+				else (*dest_rule->p_rightcontext)->p_arg = NULL;
+            	} 
+			else dest_rule->p_rightcontext = NULL;
+			}
+		}
+	}
+
+/* Proposed by Claude AI, not used
+ void free_grammar(t_gram *gram) {
+    if (!gram || !gram->p_subgram) return;
+    
+    // Iterate through subgrammars from 1 to number_gram
+    for (int i = 1; i <= gram->number_gram; i++) {
+        t_subgram *subgram = &(*(gram->p_subgram))[i];
+        
+        if (subgram->p_rule) {
+            // Iterate through rules from 1 to number_rule
+            for (int j = 1; j <= subgram->number_rule; j++) {
+                t_rule *rule = &(*(subgram->p_rule))[j];
+                
+                // Free leftflag structures
+                if (rule->p_leftflag) {
+                    for (int k = 0; rule->p_leftflag[k]; k++) {
+                        if (rule->p_leftflag[k]->p) {
+                            for (int m = 0; rule->p_leftflag[k]->p[m]; m++) {
+                                free(rule->p_leftflag[k]->p[m]);
+                            }
+                            free(rule->p_leftflag[k]->p);
+                        }
+                        free(rule->p_leftflag[k]);
+                    }
+                    free(rule->p_leftflag);
+                }
+                
+                // Free rightflag structures
+                if (rule->p_rightflag) {
+                    for (int k = 0; rule->p_rightflag[k]; k++) {
+                        if (rule->p_rightflag[k]->p) {
+                            for (int m = 0; rule->p_rightflag[k]->p[m]; m++) {
+                                free(rule->p_rightflag[k]->p[m]);
+                            }
+                            free(rule->p_rightflag[k]->p);
+                        }
+                        free(rule->p_rightflag[k]);
+                    }
+                    free(rule->p_rightflag);
+                }
+                
+                // Free leftarg structure
+                if (rule->p_leftarg) {
+                    if (*rule->p_leftarg) {
+                        free(*rule->p_leftarg);
+                    }
+                    free(rule->p_leftarg);
+                }
+                
+                // Free rightarg structure
+                if (rule->p_rightarg) {
+                    if (*rule->p_rightarg) {
+                        free(*rule->p_rightarg);
+                    }
+                    free(rule->p_rightarg);
+                }
+                
+                // Free leftcontext structures
+                if (rule->p_leftcontext) {
+                    if (*rule->p_leftcontext) {
+                        if ((*rule->p_leftcontext)->p_arg) {
+                            if (*(*rule->p_leftcontext)->p_arg) {
+                                free(*(*rule->p_leftcontext)->p_arg);
+                            }
+                            free((*rule->p_leftcontext)->p_arg);
+                        }
+                        free(*rule->p_leftcontext);
+                    }
+                    free(rule->p_leftcontext);
+                }
+                
+                // Free rightcontext structures
+                if (rule->p_rightcontext) {
+                    if (*rule->p_rightcontext) {
+                        if ((*rule->p_rightcontext)->p_arg) {
+                            if (*(*rule->p_rightcontext)->p_arg) {
+                                free(*(*rule->p_rightcontext)->p_arg);
+                            }
+                            free((*rule->p_rightcontext)->p_arg);
+                        }
+                        free(*rule->p_rightcontext);
+                    }
+                    free(rule->p_rightcontext);
+                }
+            }
+            
+            // Free the rule array
+            if (*(subgram->p_rule)) {
+                free(*(subgram->p_rule));
+            }
+            free(subgram->p_rule);
+        }
+    }
+    
+    // Free the subgrammar array
+    if (*gram->p_subgram) {
+        free(*gram->p_subgram);
+    }
+    free(gram->p_subgram);
+    gram->p_subgram = NULL;
+} */
+
+
+// Helper function to recursively copy a chain of flaglists
+void copy_flaglist_chain(p_flaglist **dest, p_flaglist **src) {
+    if (!src || !*src) {
+        *dest = NULL;
+        return;
+    	}
+    // Allocate memory for the flaglist
+    *dest = (p_flaglist *)malloc(sizeof(p_flaglist));
+    if (!*dest) {
+        fprintf(stderr, "Memory allocation failed for flaglist in chain\n");
+        return;
+    	}
+    // Copy each field individually
+    (*dest)->x = (*src)->x;
+    (*dest)->increment = (*src)->increment;
+    (*dest)->refvalue = (*src)->refvalue;
+    (*dest)->refflag = (*src)->refflag;
+    (*dest)->paramcontrol = (*src)->paramcontrol;
+    (*dest)->operator = (*src)->operator;
+    // Initialize p to NULL to avoid dangling pointer
+    (*dest)->p = NULL;
+    // If source has a next item in chain, copy it
+    if ((*src)->p) {
+        // Allocate memory for the next pointer in chain
+        (*dest)->p = (p_flaglist **)malloc(sizeof(p_flaglist *));
+        if (!(*dest)->p) {
+            fprintf(stderr, "Memory allocation failed for flaglist chain\n");
+            return;
+        	}
+        // Recursively copy the rest of the chain
+        copy_flaglist_chain((*dest)->p, (*src)->p);
+		}
+	return;
+	}
+
+// Function to copy Gram_compile to Gram
+void CopyGramcompileToGram(int verbose) {
+    copy_grammar(&Gram,&Gram_compile,verbose);
+	ReleaseGrammarSpace(&Gram_compile,FALSE);
+	if(trace_compile_grammar) {
+		BPPrintMessage(1,odInfo,"This is the grammar:");
+		DisplayGrammar(&Gram,wData,TRUE,TRUE);
 		}
 	}

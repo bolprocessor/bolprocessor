@@ -36,7 +36,7 @@
 #ifndef _H_BP3
 #define _H_BP3
 
-#define SHORT_VERSION "3.3.0"
+#define SHORT_VERSION "3.3.1"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -1019,7 +1019,7 @@ struct s_rule {
 	char ismeta;			/* '1' if contains metavariables '?x' */
 	int leftoffset;		/* length of left (proximate) context (in tokenbytes) */
 	int rightoffset;	/* length of right (proximate) context (in tokenbytes) */
-	int leftnegcontext;	/* lenght of left negative context common to both arguments (in symbols, i.e. 4 tokenbytes per symbol) */
+	int leftnegcontext;	/* length of left negative context common to both arguments (in symbols, i.e. 4 tokenbytes per symbol) */
 	tokenbyte **p_leftarg,**p_rightarg;
 	p_context p_leftcontext,p_rightcontext;
 	int oldgramindex,oldrulindex;

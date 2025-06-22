@@ -32,25 +32,12 @@
 #ifndef BP3_DECL_H
 #define BP3_DECL_H
 
-/* #if  defined(__POWERPC) && !TARGET_API_MAC_CARBON_FORGET_THIS
-extern QDGlobals Qd;
-#endif
-
-extern GWorldPtr gMainGWorld;
-extern GDHandle gCurDev; */
-
 extern int Version;
 
 // extern ProcessSerialNumber PSN;					
 extern long MemoryUsed,MemoryUsedInit,MaxMemoryUsed,
 	MaxHandles,SessionTime;
 extern int CheckMem;
-
-#if BP_CARBON_GUI_FORGET_THIS
-extern IntProcPtr Menu[MAXMENU][MAXMENUITEMS];
-extern ResID WindowMenuIcons[11];
-extern ResID DeviceMenuIcons[12];
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 extern int EmergencyExit,FixedMaxQuantization,
 	TraceMemory,EventState,Beta;
@@ -67,7 +54,6 @@ extern MIDIstream Stream;
 extern node PrefixTree,SuffixTree;
 extern long SwitchState;
 extern char InitToken[6];
-// extern Rect PictFrame;
 extern char Mode[MAXMODE][MODELENGTH];
 extern char NilString[MAXNIL][NILLENGTH];
 extern char Reality[2][6];
@@ -95,13 +81,13 @@ extern int **p_Missed_tie_event[MAXINSTRUMENTS+1],**p_Missed_tie_note[MAXCHAN+1]
 extern int Chunk_number;
 extern char ****p_NoteName[MAXCONVENTIONS],****p_AltNoteName[MAXCONVENTIONS];
 extern int **p_NoteLength[MAXCONVENTIONS],**p_AltNoteLength[MAXCONVENTIONS];
-extern int InitThere,FirstTime,MaxScriptInstructions,KeyboardType,C4key,ProgNrFrom,TestMIDIChannel,
+extern int InitThere,FirstTime,FirstGrammar,MaxScriptInstructions,KeyboardType,C4key,ProgNrFrom,TestMIDIChannel,
 	CurrentMIDIprogram[MAXCHAN+1],DefaultBlockKey;
 extern double A4freq;
 extern time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTime,TimeSettingTime;
 extern unsigned long NextStop;
 extern char FindString[256],ReplaceString[256];
-extern t_gram Gram,GlossGram;
+extern t_gram Gram,Gram_compile,GlossGram;
 extern int RunningStatus,StrikeAgainDefault,StopPauseContinue,MIDImicrotonality;
 extern int NoteOffPass[MAXPORTS],NoteOnPass[MAXPORTS],KeyPressurePass[MAXPORTS],ControlTypePass[MAXPORTS],ProgramTypePass[MAXPORTS],
 	ChannelPressurePass[MAXPORTS],PitchBendPass[MAXPORTS],SysExPass[MAXPORTS],TimeCodePass[MAXPORTS],SongPosPass[MAXPORTS],SongSelPass[MAXPORTS],TuneTypePass[MAXPORTS],EndSysExPass[MAXPORTS],ClockTypePass[MAXPORTS],StartTypePass[MAXPORTS],ContTypePass[MAXPORTS],ActiveSensePass[MAXPORTS],ResetPass[MAXPORTS];
@@ -187,7 +173,7 @@ extern int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVari
 	Flagthere,ResetDone,BolsInGrammar,NoAlphabet,**p_Ifrom,PointCsound,PointMIDI,
 	**p_Resolution,
 	**p_CsoundInstr,**p_CsoundAssignedInstr;
-extern int LiveGrammar,LiveSettings,TraceLive,ChangedGrammar,ChangedSettings;
+extern int LiveGrammar,LiveSettings,SyncChange,TraceLive,ChangedGrammar,NewGrammarWaiting,ChangedSettings;
 extern MIDIcode ****pp_MIDIcode;
 extern float **p_CsoundTempo;
 extern Milliseconds ****pp_CsoundTime;
@@ -298,7 +284,7 @@ extern int linesInFolder[WMAX];
 extern int WindowFullAlertLevel[WMAX];
 // extern MenuHandle myMenus[MAXMENU+1];
 extern int Buttonheight;
-extern int NewEnvironment,NewColors,ShowPianoRoll,ToldAboutPianoRoll,ShowObjectGraph,ShowAllObjects,Help,ChangedCoordinates[WMAX];
+extern int NewEnvironment,NewColors,ShowPianoRoll,ToldAboutPianoRoll,ShowObjectGraph,ShowAllObjects,Help;
 /* extern RGBColor CurrentColor[WMAX];
 extern ControlHandle vScroll[WMAX],hScroll[WMAX]; */
 extern int SlideH[WMAX],SlideV[WMAX];
@@ -322,8 +308,8 @@ extern char **p_FileInfo[WMAX];
 extern int Jwheel,Jfeet,Jdisk;
 extern int Jbutt;
 // extern ControlHandle Hbutt[MAXBUTT];
-extern int Dirty[WMAX],CompiledGr,CompiledPt,CompiledAl,CompiledIn,CompiledGl,
-	CompiledCsObjects,CompiledRegressions,LoadedIn,LoadedGl,LoadedCsoundInstruments,
+extern int CompiledGr,CompiledPt,CompiledAl,CompiledIn,
+	CompiledCsObjects,CompiledRegressions,LoadedIn,LoadedCsoundInstruments,
 	Interactive,NotFoundMetronom,NotFoundNatureTime;
 extern int NotBPCase[MAXNOTBPCASES];
 extern int Hmin[WMAX],Hmax[WMAX],Hzero[WMAX],Vmin[WMAX],Vmax[WMAX],Vzero[WMAX];
@@ -375,7 +361,7 @@ extern int MPEpitch[17];
 // extern DynamicMenuItem** InstalledMenuItems;
 extern long WidthMax,HeightMax;
 
-extern int Find_leak, check_memory_use;
+extern int check_memory_use;
 extern Handle mem_ptr[5000];
 extern int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 

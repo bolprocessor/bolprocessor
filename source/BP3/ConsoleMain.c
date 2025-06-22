@@ -82,7 +82,6 @@ char LastSeen_scale[100]; // Last scale found during compilation of grammar
 Handle mem_ptr[5000];
 int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 
-int Find_leak = FALSE; // Flag to locate place where negative leak starts
 int check_memory_use = FALSE;
 
 int trace_scale = 0;
@@ -112,7 +111,7 @@ int main (int argc, char* args[]) {
 
 	NoteOffInputFilter = NoteOnInputFilter = KeyPressureInputFilter = ControlTypeInputFilter = ProgramTypeInputFilter = ChannelPressureInputFilter = PitchBendInputFilter = SysExInputFilter = TimeCodeInputFilter = SongPosInputFilter = SongSelInputFilter = TuneTypeInputFilter = EndSysExInputFilter = ClockTypeInputFilter = StartTypeInputFilter = ContTypeInputFilter = ActiveSenseInputFilter = ResetInputFilter = 3;
 	
-	LiveGrammar = LiveSettings = TraceLive = ChangedGrammar = ChangedSettings = FALSE;
+	LiveGrammar = LiveSettings = TraceLive = ChangedGrammar = NewGrammarWaiting = ChangedSettings = SyncChange = FALSE;
 	strcpy(LiveFolder,"");
 	ConsoleInit(&gOptions);
     ConsoleMessagesInit();
@@ -173,7 +172,7 @@ int main (int argc, char* args[]) {
 	eventCount = 0L;
 	eventCountMax = MaxMIDIMessages - 50L;
 	initTime = FirstEventTime = 0L; // microseconds
-
+	FirstGrammar = TRUE;
 	InitOn = FALSE;
 	time(&SessionStartTime);
 	ProductionTime = ProductionStartTime = PhaseDiagramTime = TimeSettingTime = (time_t) 0L;
@@ -185,7 +184,7 @@ int main (int argc, char* args[]) {
 	SessionTime = clock();
 	if(!gOptions.seedProvided) ReseedOrShuffle(NEWSEED);
 
-	if(!LoadedStartString)  CopyStringToTextHandle(TEH[wStartString], "S\n");
+	if(!LoadedStartString)  CopyStringToTextHandle(TEH[wStartString],"S\n");
 
 	result = PrepareProdItemsDestination(&gOptions);
 	if(result == OK) result = PrepareTraceDestination(&gOptions);
@@ -231,7 +230,7 @@ int main (int argc, char* args[]) {
 				else if(Beta && result != OK && result != ABORT) BPPrintMessage(0,odError,"=> PlaySelection() returned errors\n");
 				break;
 			case analyze:
-				if(CompileCheck() == OK && ShowNotBP() == OK)	{
+				if(CompileCheck() == OK && ShowNotBP(&Gram) == OK)	{
 					// FIXME: Need to either set a selection or call SelectionToBuffer()
 					// and AnalyzeBuffer() similarly to AnalyzeSelection().
 					result = AnalyzeSelection(FALSE);
@@ -248,7 +247,7 @@ int main (int argc, char* args[]) {
 			case show_beats:
 				break;
 			case templates:
-				if(CompileCheck() == OK && ShowNotBP() == OK)	{
+				if(CompileCheck() == OK && ShowNotBP(&Gram) == OK)	{
 					result = ProduceItems(wStartString,FALSE,TRUE,NULL);
 			//		if(Beta && result != OK) BPPrintMessage(0,odError, "=> ProduceItems() returned errors\n");
 				}
@@ -1246,7 +1245,7 @@ int LoadInputFiles(const char* pathnames[WMAX]) {
 					switch(w) {
 						case wAlphabet:			LoadedAlphabet = TRUE; break;
 						case wStartString:		LoadedStartString = TRUE; break;
-						case wGlossary:			LoadedGl = TRUE; break;
+			//			case wGlossary:			LoadedGl = TRUE; break;
 						}
 					break;
 				case wCsoundResources:
@@ -1316,22 +1315,33 @@ int ReloadGrammar(void) {
 	result = OpenAndReadFile((const char*) pathname,&filecontents);
 	// BPPrintMessage(1,odInfo,"%s\n",filecontents);
 	if(result != OK) return FALSE;
-	if(remove(pathname) != 0) BPPrintMessage(1,odError,"=> Cannot delete _saved_grammar\n");
+	if(remove(pathname) != 0) BPPrintMessage(1,odError,"=> Cannot delete '_saved_grammar'\n");
 	if(TraceLive) BPPrintMessage(1,odInfo,"👉 Loading grammar: %s\n",filecontents);
 	result = LoadFileToTextHandle(wGrammar,filecontents,TEH[wGrammar]);
 	free(filecontents);
 	filecontents = NULL;
+	my_sprintf(pathname,"%s/_sync_grammar",LiveFolder);
+	result = OpenAndReadFile((const char*) pathname,&filecontents);
+	// BPPrintMessage(1,odInfo,"%s\n",filecontents);
+	SyncChange = FALSE;
+	if(result == OK) {
+		if(remove(pathname) != 0) BPPrintMessage(1,odError,"=> Cannot delete '_sync_grammar'\n");
+		SyncChange = TRUE; // This new grammar needs to be synchronised
+		free(filecontents);
+		filecontents = NULL;
+		}
 	my_sprintf(pathname,"%s/_saved_alphabet",LiveFolder);
 	result = OpenAndReadFile((const char*) pathname,&filecontents);
 	// BPPrintMessage(1,odInfo,"%s\n",filecontents);
 	if(result == OK) {
-		if(remove(pathname) != 0) BPPrintMessage(1,odError,"=> Cannot delete _saved_alphabet\n");
+		if(remove(pathname) != 0) BPPrintMessage(1,odError,"=> Cannot delete '_saved_alphabet'\n");
 		if(TraceLive) BPPrintMessage(1,odInfo,"👉 Loading alphabet: %s\n",filecontents);
 		result = LoadFileToTextHandle(wAlphabet,filecontents,TEH[wAlphabet]);
 		free(filecontents);
 		filecontents = NULL;
 		}
-	CompiledGr = CompiledAl = FALSE;
+	CompiledAl = FALSE;
+	// if(TraceLive) BPPrintMessage(1,odInfo,"👉 OK loaded grammar\n");
 	return TRUE;
 	}
 
@@ -1503,7 +1513,7 @@ int PrepareTraceDestination(BPConsoleOpts* opts) {
 		if(path_exists(output))
         	BPPrintMessage(0,odInfo, "Checking live folder: %s\n",LiveFolder);
 		else {
-			BPPrintMessage(0,odError,"=> Live coding won't work as this folder is missing: %s\n",LiveFolder);
+			BPPrintMessage(0,odError,"=> Live coding won't work as this folder is missing (your interface might need an upgrade): %s\n",LiveFolder);
 			strcpy(LiveFolder,"");
 			LiveGrammar = LiveSettings = FALSE;
 			}

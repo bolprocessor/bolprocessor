@@ -77,19 +77,12 @@ int PlaySelection(int w, int all) {
 
 	r = ABORT;
 
-	#if BP_CARBON_GUI_FORGET_THIS
-	if(SaveCheck(wAlphabet) == ABORT) goto END;
-	if(SaveCheck(wGrammar) == ABORT) goto END;
-	if(SaveCheck(wInteraction) == ABORT) goto END;
-	if(SaveCheck(wGlossary) == ABORT) goto END;
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
-
 	if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 		CompiledAl = FALSE;
 		if(CompileAlphabet() != OK) goto END;
 		}
 
-	if((r=UpdateGlossary()) != OK) goto END;
+	// if((r=UpdateGlossary()) != OK) goto END;
 	if(CompileRegressions() != OK) goto END;
 
 	r = MISSED;
@@ -277,7 +270,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	finish = FALSE; dummy = 0;
 	CurrentChannel = 1;
 
-	if(!NoVariable(pp_buff) && UpdateGlossary() != OK) return(ABORT);
+	// if(!NoVariable(pp_buff) && UpdateGlossary() != OK) return(ABORT);
 
 	/* We need to store the item in its current format to be able to derive it further */
 	p_b = NULL;
@@ -288,7 +281,8 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 			return(ABORT);
 		if(CopyBuf(pp_buff,&p_b) == ABORT) return(ABORT);
 		}
-		
+
+	/*	
 	//// Using glossary
 	if(GlossGram.p_subgram != NULL && NeedGlossary(pp_buff) && !onlypianoroll) {
 		displayProducemem = DisplayProduce;
@@ -307,7 +301,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		ShowMessages = showmessagesmem;
 		UseBufferLimit = usebufferlimitmem;
 		if(result != OK) goto SORTIR;
-		}
+		} */
 
 	result = OK;
  	ShowMessages = TRUE; // 2024-05-23
@@ -436,9 +430,6 @@ if(p_line == NULL) {
 	}
 if((*p_line)[0] == '\0') return(OK);
 
-#if BP_CARBON_GUI_FORGET_THIS
-if(GetTuning() != OK) return(ABORT);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 if(!rtMIDI && !OutCsound && !onlypianoroll) {
 	BPPrintMessage(0,odError,"Both MIDI and Csound outputs are inactive. Item can't be played");
 	BPActivateWindow(SLOW,wSettingsBottom);
@@ -447,12 +438,6 @@ if(!rtMIDI && !OutCsound && !onlypianoroll) {
 
 r = MISSED;
 asked = FALSE;
-#if BP_CARBON_GUI_FORGET_THIS
-if(SaveCheck(wAlphabet) == ABORT) return(r);
-if(SaveCheck(wInteraction) == ABORT) return(r);
-if(SaveCheck(wGlossary) == ABORT) return(r);
-if(SaveCheck(wGrammar) == ABORT) return(r);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 if(!CompiledAl || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 	CompiledAl = FALSE;
@@ -500,7 +485,7 @@ ENCODE:
 	p_plx = &plx; p_prx = &prx;
 	*p_plx = *p_prx = NULL;
 //	BPPrintMessage(0,odInfo,"@@@ Encode\n");
-	p_ti = Encode(FALSE,TRUE,0,0,&p1,&p2,p_plx,p_prx,&meta,0,NULL,FALSE,&r);
+	p_ti = Encode(&Gram,FALSE,TRUE,0,0,&p1,&p2,p_plx,p_prx,&meta,0,NULL,FALSE,&r);
 //	MyUnlock((Handle)p_line);
 	if(p_ti == NULL) {
 		if(r != OK) {
@@ -530,7 +515,7 @@ NOVARIABLE:
 				derivevariables = r;
 				}
 			if(!derivevariables) goto NOVARIABLE;
-			if(!CompiledGr || !CompiledGl) {
+			if(!CompiledGr) {
 				MyDisposeHandle((Handle*)&p_ti);
 			//	if(PlaySelectionOn > 0) PlaySelectionOn--; // Fixed by BB 2021-02-17
 				if((r=CompileCheck()) != OK) break;
@@ -1117,7 +1102,6 @@ while(origin < end) {
 	MyDisposeHandle((Handle*)&p_a);
 	/* Could be NULL because of PolyExpand() */
 	}
-// if(Dirty[w]) SetSelect(UndoPos,newend,TEH[w]);
 ShowSelect(CENTRE,w);
 return(r);
 
@@ -1264,7 +1248,7 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 	jbolmem = Jbol;
 	notargument = TRUE;
 //	BPPrintMessage(0,odInfo,"@@@ Encode\n");
-	p_ti = Encode(sequence,notargument,0,0,&p1,&p2,p_plx,p_prx,&meta,0,NULL,FALSE,&rep);
+	p_ti = Encode(&Gram,sequence,notargument,0,0,&p1,&p2,p_plx,p_prx,&meta,0,NULL,FALSE,&rep);
 //	MyUnlock((Handle)*pp_buff);
 	MyDisposeHandle((Handle*)pp_buff);
 	if(p_ti == NULL) {

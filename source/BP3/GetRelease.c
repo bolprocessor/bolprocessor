@@ -48,8 +48,6 @@ int i,w,r;
 Handle ptr;
 
 if(check_memory_use) BPPrintMessage(0,odInfo,"Before ResetProject() MemoryUsed = %ld\n",(long)MemoryUsed);
-;
-if(Find_leak) BPPrintMessage(0,odInfo,"OKdone7\n");
 for(w=0; w < WMAX; w++) {
 	// just clearing the name of all files enough ? - akozar 20130830
 	FileName[w][0] = '\0';
@@ -84,36 +82,20 @@ if(init && !ScriptExecOn) {
 		} */
 	}
 
-if(Find_leak) BPPrintMessage(0,odInfo,"OKdone1\n");
 if(ReleaseScaleSpace() != OK) return(MISSED);
 if(ReleaseProduceStackSpace() != OK) return(MISSED);
 if(ReleaseObjectPrototypes() != OK) return(MISSED);
-
-if(Find_leak) BPPrintMessage(0,odInfo,"OKdone2\n");
-if(check_memory_use) BPPrintMessage(0,odInfo,"Before ReleaseGrammarSpace() MemoryUsed = %ld\n",(long)MemoryUsed);
-
-if(ReleaseGrammarSpace() != OK) return(MISSED);
-if(Find_leak) BPPrintMessage(0,odInfo,"OKdone3\n");
-
-if(check_memory_use) BPPrintMessage(0,odInfo,"Before ReleaseVariableSpace() MemoryUsed = %ld\n",(long)MemoryUsed);
+if(ReleaseGrammarSpace(&Gram,TRUE) != OK) return(MISSED);
 if(ReleaseVariableSpace() != OK) return(MISSED);
-if(check_memory_use) BPPrintMessage(0,odInfo,"Before ReleaseAlphabetSpace() MemoryUsed = %ld\n",(long)MemoryUsed);
 if(ReleaseAlphabetSpace() != OK) return(MISSED);
-if(check_memory_use) BPPrintMessage(0,odInfo,"Before ReleasePatternSpace() MemoryUsed = %ld\n",(long)MemoryUsed);
 if(ReleasePatternSpace() != OK) return(MISSED);
-if(check_memory_use) BPPrintMessage(0,odInfo,"Before ReleaseGlossarySpace() MemoryUsed = %ld\n",(long)MemoryUsed);
-if(ReleaseGlossarySpace() != OK) return(MISSED);
-if(check_memory_use) BPPrintMessage(0,odInfo,"Before ReleaseScriptSpace() MemoryUsed = %ld\n",(long)MemoryUsed);
+// if(ReleaseGlossarySpace() != OK) return(MISSED);
 if(init && (ReleaseScriptSpace() != OK)) return(MISSED);
-if(check_memory_use) BPPrintMessage(0,odInfo,"Before ReleaseConstants() MemoryUsed = %ld\n",(long)MemoryUsed);
 if(ReleaseConstants() != OK) return(MISSED);
-if(check_memory_use) BPPrintMessage(0,odInfo,"After ReleaseConstants() MemoryUsed = %ld\n",(long)MemoryUsed);
-if(Find_leak) BPPrintMessage(0,odInfo,"OKdone4\n");
 
 ItemNumber = 0L;
 ptr = (Handle) p_Initbuff;
 MyDisposeHandle(&ptr);
-if(Find_leak) BPPrintMessage(0,odInfo,"OKdone5\n");
 p_Initbuff = NULL;
 for(i=0; i <= MAXCHAN; i++) {
 	PressRate[i] = SamplingRate;
@@ -244,59 +226,10 @@ int ReleasePhaseDiagram(int nmax,unsigned long*** pp_imaxseq) {
 	return OK;
 	}
 
-
-#if 0  /* this function appears not to be called - akozar */
-int ReleaseWindowSpace(void)
-{
-int i,w;
-Handle ptr;
-
-for(i=0; i < Jbutt; i++) {
-	DisposeControl(Hbutt[i]);
-	}
-Jbutt = 0;
-for(w=0; w < MAXWIND; w++) {
-	if(Window[w] != NULL) {
-		DisposeWindow(Window[w]);
-		Window[w] = NULL;
-		}
-	else {
-		my_sprintf(Message,"Window #%ld is NULL. ",(long)w);
-		BPPrintMessage(0,odError,"%s",Message);
-		}
-	}
-for(w=MAXWIND; w < WMAX; w++) {
-	if(gpDialogs[w] != NULL) {	// Releasing DITLs by hand seems bad, especially in Carbon - akozar
-		/*ptr = (Handle) ((DialogPeek)gpDialogs[w])->items;
-		MyDisposeHandle(&ptr);
-		((DialogPeek)gpDialogs[w])->items = NULL;*/
-		DisposeDialog(gpDialogs[w]);
-		gpDialogs[w] = NULL;
-		Window[w] = NULL;
-		}
-	else {
-		my_sprintf(Message,"Dialog #%ld is NULL. ",(long)w);
-		BPPrintMessage(0,odError,"%s",Message);
-		}
-	/* if(Editable[w]) TextDispose(TEH[w]); */
-	}
-DisposeDialog(ReplaceCommandPtr);
-DisposeDialog(ResumeStopPtr);
-DisposeDialog(ResumeUndoStopPtr);
-DisposeDialog(MIDIkeyboardPtr);
-DisposeDialog(GreetingsPtr);
-DisposeDialog(FAQPtr);
-DisposeDialog(SixteenPtr);
-DisposeDialog(MIDIprogramPtr);
-return OK;
-}
-#endif
-
-
 int ReleaseAlphabetSpace(void) {
 	int j,jmax;
 	Handle ptr;
-	CompiledAl = CompiledGr = CompiledGl = FALSE;
+	CompiledGr = FALSE;
 	NoAlphabet = TRUE; Jfunc = 0;
 	if(p_Bol == NULL) jmax = 0;
 	else jmax = Jbol;
@@ -369,184 +302,138 @@ Jpatt = 0; CompiledPt = FALSE;
 return OK;
 }
 
-
-int ReleaseGrammarSpace(void)
-{
-int igram,irul,j;
-t_rule rule;
-p_flaglist **h,**h1;
-Handle ptr;
-
-if(Gram.number_gram >= 1 && Gram.p_subgram != NULL) {
-	for(igram=1; igram < (MyGetHandleSize((Handle)Gram.p_subgram) / sizeof(t_subgram));
-																			igram++) {
-																				
-		if(Find_leak) BPPrintMessage(0,odInfo, "igram = %d\n",igram);
-		if((*(Gram.p_subgram))[igram].p_rule != NULL) {
-			for(irul=1; irul < (MyGetHandleSize((Handle)(*(Gram.p_subgram))[igram].p_rule)
-					/ sizeof(t_rule)); irul++) {
-			//	continue;							
-				if(Find_leak) BPPrintMessage(0,odInfo, "irul = %d\n",irul);
-				rule = (*((*(Gram.p_subgram))[igram].p_rule))[irul];
-				if(rule.p_leftcontext != NULL) {
-					ptr = (Handle)
-				(*((*((*(Gram.p_subgram))[igram].p_rule))[irul].p_leftcontext))->p_arg;
-					MyDisposeHandle(&ptr);
-					ptr = (Handle)
-							(*((*(Gram.p_subgram))[igram].p_rule))[irul].p_leftcontext;
-					MyDisposeHandle(&ptr);
-					}
-				if(rule.p_rightcontext != NULL) {
-					ptr = (Handle)
-				(*((*((*(Gram.p_subgram))[igram].p_rule))[irul].p_rightcontext))->p_arg;
-					MyDisposeHandle(&ptr);
-					ptr = (Handle)
-							(*((*(Gram.p_subgram))[igram].p_rule))[irul].p_rightcontext;
-					MyDisposeHandle(&ptr);
-					}
-				ptr = (Handle) (*((*(Gram.p_subgram))[igram].p_rule))[irul].p_leftarg;
-				MyDisposeHandle(&ptr);
-				if(Find_leak) BPPrintMessage(0,odInfo, "left arg\n");
-				ptr = (Handle) (*((*(Gram.p_subgram))[igram].p_rule))[irul].p_rightarg;
-				MyDisposeHandle(&ptr);
-				if(Find_leak) BPPrintMessage(0,odInfo, "right arg\n");
-				h = (*((*(Gram.p_subgram))[igram].p_rule))[irul].p_leftflag;
-				if(h != NULL) {
-			//		BPPrintMessage(0,odInfo, "left flags\n");
-					do {
-						if((**h).x > Jflag || (**h).x < 0) {
-							my_sprintf(Message,"=> Err in flag list. ");
-							BPPrintMessage(0,odError,"%s",Message);
-							break;
-							}
-						h1 = (**h).p;
-						MyDisposeHandle((Handle*)&h);
-						h = h1;
+int ReleaseGrammarSpace(t_gram* p_gram,int all) {
+	int igram,irul,j;
+	t_rule rule;
+	p_flaglist **h,**h1;
+	Handle ptr;
+	int result = OK;
+	if(p_gram->number_gram >= 1 && p_gram->p_subgram != NULL) {
+		for(igram=1; igram < (MyGetHandleSize((Handle)p_gram->p_subgram) / sizeof(t_subgram));
+																				igram++) {
+			if((*(p_gram->p_subgram))[igram].p_rule != NULL) {
+				for(irul=1; irul < (MyGetHandleSize((Handle)(*(p_gram->p_subgram))[igram].p_rule)
+						/ sizeof(t_rule)); irul++) {
+					rule = (*((*(p_gram->p_subgram))[igram].p_rule))[irul];
+					if(rule.p_leftcontext != NULL) {
+						ptr = (Handle)
+					(*((*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftcontext))->p_arg;
+						MyDisposeHandle(&ptr);
+						ptr = (Handle)
+								(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftcontext;
+						MyDisposeHandle(&ptr);
 						}
-					while(h != NULL);
-					}
-				h = (*((*(Gram.p_subgram))[igram].p_rule))[irul].p_rightflag;
-				if(h != NULL) {
-					if(Find_leak) BPPrintMessage(0,odInfo, "right flags\n");
-					do {
-						if((**h).x > Jflag || (**h).x < 0) {
-							my_sprintf(Message,"=> Err in flag list. ");
-							BPPrintMessage(0,odError,"%s",Message);
-							break;
-							}
-						h1 = (**h).p;
-						MyDisposeHandle((Handle*)&h);
-						h = h1;
+					if(rule.p_rightcontext != NULL) {
+						ptr = (Handle)
+					(*((*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightcontext))->p_arg;
+						MyDisposeHandle(&ptr);
+						ptr = (Handle)
+								(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightcontext;
+						MyDisposeHandle(&ptr);
 						}
-					while(h != NULL);
+					ptr = (Handle) (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftarg;
+					MyDisposeHandle(&ptr);
+					ptr = (Handle) (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightarg;
+					MyDisposeHandle(&ptr);
+					h = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftflag;
+					if(h != NULL) {
+				//		BPPrintMessage(0,odInfo, "left flags\n");
+						do {
+							if((**h).x > Jflag || (**h).x < 0) {
+								my_sprintf(Message,"=> Err in flag list. ");
+								BPPrintMessage(0,odError,"%s",Message);
+								break;
+								}
+							h1 = (**h).p;
+							MyDisposeHandle((Handle*)&h);
+							h = h1;
+							}
+						while(h != NULL);
+						}
+					h = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightflag;
+					if(h != NULL) {
+						do {
+							if((**h).x > Jflag || (**h).x < 0) {
+								my_sprintf(Message,"=> Err in flag list. ");
+								BPPrintMessage(0,odError,"%s",Message);
+								break;
+								}
+							h1 = (**h).p;
+							MyDisposeHandle((Handle*)&h);
+							h = h1;
+							}
+						while(h != NULL);
+						}
 					}
+				ptr = (Handle) (*(p_gram->p_subgram))[igram].p_rule;
+				MyDisposeHandle(&ptr);
+				(*(p_gram->p_subgram))[igram].p_rule = NULL;
 				}
-			ptr = (Handle) (*(Gram.p_subgram))[igram].p_rule;
-			MyDisposeHandle(&ptr);
-			if(Find_leak) BPPrintMessage(0,odInfo, "rule done\n");
-			(*(Gram.p_subgram))[igram].p_rule = NULL;
 			}
-		}
-	ptr = (Handle) Gram.p_subgram;
-	MyDisposeHandle(&ptr);
-	Gram.p_subgram = NULL;
-	}
-if(Find_leak) BPPrintMessage(0,odInfo, "Before p_InitScriptLine\n");
-ptr = (Handle) p_InitScriptLine;
-MyDisposeHandle(&ptr);
-if(Find_leak) BPPrintMessage(0,odInfo, "After p_InitScriptLine\n");
-p_InitScriptLine = NULL;
-MaxRul = N_err = 0;
-MaxGram = Gram.number_gram = 0;
-CompiledGr = Gram.trueBP = Gram.hasTEMP = Gram.hasproc = FALSE;
-BolsInGrammar = 0;
-InitThere = 0;
-FirstTime = FALSE;
-// return(OK);
-return(ReleaseFlagSpace());
-}
-
-
-int ReleaseGlossarySpace(void)
-{
-int irul,j;
-t_rule rule;
-Handle ptr;
-
-if(GlossGram.p_subgram != NULL) {
-	if(MyGetHandleSize((Handle)(GlossGram.p_subgram)) < 2 * sizeof(t_gram)) {
-		BPPrintMessage(0,odError,"=> Err. ReleaseGlossarySpace()");
-		return(ABORT);
-		}
-	if((*(GlossGram.p_subgram))[1].p_rule != NULL) {
-		for(irul=1; irul < (MyGetHandleSize((Handle)(*(GlossGram.p_subgram))[1].p_rule)
-					/ sizeof(t_rule)); irul++) {
-			ptr = (Handle) (*((*(GlossGram.p_subgram))[1].p_rule))[irul].p_leftarg;
-			MyDisposeHandle((Handle*)&ptr);
-			ptr = (Handle) (*((*(GlossGram.p_subgram))[1].p_rule))[irul].p_rightarg;
-			MyDisposeHandle((Handle*)&ptr);
-			}
-		ptr = (Handle) (*(GlossGram.p_subgram))[1].p_rule;
+		ptr = (Handle) p_gram->p_subgram;
 		MyDisposeHandle(&ptr);
-		(*(GlossGram.p_subgram))[1].p_rule = NULL;
+		p_gram->p_subgram = NULL;
 		}
+	ptr = (Handle) p_InitScriptLine;
+	MyDisposeHandle(&ptr);
+	p_InitScriptLine = NULL;
+	if(all) {
+		MaxRul = 0;
+		MaxGram = 0;
+		N_err = 0;
+		CompiledGr = FALSE;
+		BolsInGrammar = 0;
+		InitThere = 0;
+		}
+	p_gram->number_gram = 0;
+	p_gram->trueBP = p_gram->hasTEMP = p_gram->hasproc = FALSE;
+	FirstTime = FALSE;
+	if(all) result = ReleaseFlagSpace();
+	return(result);
 	}
-ptr = (Handle) GlossGram.p_subgram;
-MyDisposeHandle((Handle*)&ptr);
-GlossGram.p_subgram = NULL;
-GlossGram.number_gram = 0;
-ResetVariables(wGlossary);
-CompiledGl = FALSE;
-return OK;
-}
+
+int ReleaseFlagSpace(void) {
+	int j;
+	Handle ptr;
+	if(p_Flagname != NULL) {
+		if(Jflag > 0) {
+			for(j=1; j < (MyGetHandleSize((Handle)p_Flagname) / sizeof(char**)); j++) {
+				ptr = (Handle) (*p_Flagname)[j];
+				MyDisposeHandle(&ptr);
+				}
+			}
+		ptr = (Handle) p_Flagname;
+		MyDisposeHandle(&ptr);
+		p_Flagname = NULL;
+		}
+	Jflag = MaxFlag = 0;
+	ptr = (Handle) p_Flag;
+	MyDisposeHandle(&ptr);
+	p_Flag = NULL;
+	CompiledGr = FALSE;
+	return OK;
+	}
 
 
-int ReleaseFlagSpace(void)
-{
-int j;
-Handle ptr;
-
-if(p_Flagname != NULL) {
-	if(Jflag > 0) {
-		for(j=1; j < (MyGetHandleSize((Handle)p_Flagname) / sizeof(char**)); j++) {
-			ptr = (Handle) (*p_Flagname)[j];
+int ReleaseVariableSpace(void) {
+	int j;
+	Handle ptr;
+	if(p_Var != NULL) {
+		for(j=0; j < (MyGetHandleSize((Handle)p_Var) / sizeof(char**)); j++) {
+			ptr = (Handle) (*p_Var)[j];
 			MyDisposeHandle(&ptr);
 			}
 		}
-	ptr = (Handle) p_Flagname;
+	ptr = (Handle) p_Var;
 	MyDisposeHandle(&ptr);
-	p_Flagname = NULL;
+	p_Var = NULL;
+	ptr = (Handle) p_VarStatus;
+	MyDisposeHandle(&ptr);
+	p_VarStatus = NULL;
+	Jvar = MaxVar = 0;
+	CompiledGr = FALSE;
+	return OK;
 	}
-Jflag = MaxFlag = 0;
-ptr = (Handle) p_Flag;
-MyDisposeHandle(&ptr);
-p_Flag = NULL;
-CompiledGr = FALSE;
-return OK;
-}
-
-
-int ReleaseVariableSpace(void)
-{
-int j;
-Handle ptr;
-
-if(p_Var != NULL) {
-	for(j=0; j < (MyGetHandleSize((Handle)p_Var) / sizeof(char**)); j++) {
-		ptr = (Handle) (*p_Var)[j];
-		MyDisposeHandle(&ptr);
-		}
-	}
-ptr = (Handle) p_Var;
-MyDisposeHandle(&ptr);
-p_Var = NULL;
-ptr = (Handle) p_VarStatus;
-MyDisposeHandle(&ptr);
-p_VarStatus = NULL;
-Jvar = MaxVar = 0;
-CompiledGl = CompiledGr = FALSE;
-return OK;
-}
 
 
 int ReleaseScriptSpace(void) {
@@ -564,7 +451,7 @@ int ReleaseScriptSpace(void) {
 		}
 	Jscriptline = 0;
 	Jinscript = 0; /* also impossible to execute script instructions from interaction */
-	CompiledGr = CompiledGl = FALSE;
+	CompiledGr = FALSE;
 	return(OK);
 	}
 
@@ -869,7 +756,7 @@ if(MyDisposeHandle(&ptr) != OK) return(ABORT); */
 // if(DoSystem() != OK) return(ABORT);
 if(ResizeObjectSpace(YES,2,0) != OK) return(ABORT);
 
-Dirty[iObjects] = Created[iObjects] = FALSE;
+Created[iObjects] = FALSE;
 ObjectMode = ObjectTry = FALSE;
 
 // BPPrintMessage(0,odInfo,"ReleaseObjectPrototypes() worked fine\n");
@@ -1360,84 +1247,81 @@ if((p_Qpatt = (long**) GiveSpace((Size)(Jpatt) * sizeof(long))) == NULL) return(
 return OK;
 }
 
+int GetGrammarSpace(t_gram* p_gram) {
+	long pos,posmax;
+	int i,igram,newsubgram,maxrulesinsubgram,gap,numbergram;
+	char *p,*q,**p_line;
 
-int GetGrammarSpace(void)
-{
-long pos,posmax;
-int i,igram,newsubgram,maxrulesinsubgram,gap,numbergram;
-char *p,*q,**p_line;
-
-if(CheckEmergency() != OK) return(ABORT);
-if(p_Var == NULL && GetVariableSpace() != OK) return(ABORT);
-if(p_Flagname == NULL && GetFlagSpace() != OK) return(ABORT);
-if(p_Script == NULL && GetScriptSpace() != OK) return(ABORT);
-MaxGram = Gram.number_gram = 0;
-numbergram = 1;
-pos = ZERO;
-posmax = GetTextLength(wGrammar);
-p_line = NULL; maxrulesinsubgram = 0;
-while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
-	if((*p_line)[0] == '\0') goto NEXTLINE;
-	q = &(InitToken[0]);
-	if(Match(TRUE,p_line,&q,4)) goto NEXTLINE;	/* Found "INIT:" */
-	if((numbergram == 1) && (maxrulesinsubgram == 0)) {
-		for(i=0; i < WMAX; i++) {
-			if(FilePrefix[i][0] == '\0') continue;
-			q = &(FilePrefix[i][0]);
-			if(Match(TRUE,p_line,&q,4)) goto NEXTLINE;
-			}
-		}
-	if(Mystrcmp(p_line,"DATA:") == 0) goto END;
-	if(Mystrcmp(p_line,"COMMENT:") == 0) goto END;
-	if(Mystrcmp(p_line,"TIMEPATTERNS:") == 0) {
-		do {
-			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK)  goto END;
-			if((*p_line)[0] == '\0') {
-				goto NEXTLINE;
+	if(CheckEmergency() != OK) return(ABORT);
+	if(p_Var == NULL && GetVariableSpace() != OK) return(ABORT);
+	if(p_Flagname == NULL && GetFlagSpace() != OK) return(ABORT);
+	if(p_Script == NULL && GetScriptSpace() != OK) return(ABORT);
+	MaxGram = p_gram->number_gram = 0;
+	numbergram = 1;
+	pos = ZERO;
+	posmax = GetTextLength(wGrammar);
+	p_line = NULL; maxrulesinsubgram = 0;
+	while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
+		if((*p_line)[0] == '\0') goto NEXTLINE;
+		q = &(InitToken[0]);
+		if(Match(TRUE,p_line,&q,4)) goto NEXTLINE;	/* Found "INIT:" */
+		if((numbergram == 1) && (maxrulesinsubgram == 0)) {
+			for(i=0; i < WMAX; i++) {
+				if(FilePrefix[i][0] == '\0') continue;
+				q = &(FilePrefix[i][0]);
+				if(Match(TRUE,p_line,&q,4)) goto NEXTLINE;
 				}
 			}
-		while((*p_line)[0] != '-' || (*p_line)[1] != '-');
-		goto NEXTLINE;
-		}
-	if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
-		do {
-			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
-			if((*p_line)[0] == '\0') {
-				goto NEXTLINE;
+		if(Mystrcmp(p_line,"DATA:") == 0) goto END;
+		if(Mystrcmp(p_line,"COMMENT:") == 0) goto END;
+		if(Mystrcmp(p_line,"TIMEPATTERNS:") == 0) {
+			do {
+				if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
+				if((*p_line)[0] == '\0') {
+					goto NEXTLINE;
+					}
+				}
+			while((*p_line)[0] != '-' || (*p_line)[1] != '-');
+			goto NEXTLINE;
+			}
+		if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
+			do {
+				if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
+				if((*p_line)[0] == '\0') {
+					goto NEXTLINE;
+					}
+				}
+			while((*p_line)[0] != '-' || (*p_line)[1] != '-');
+			goto NEXTLINE;
+			}
+		newsubgram = FALSE;
+		if((*p_line)[0] == '-' && (*p_line)[MyHandleLen(p_line)-1] == '-') {
+			newsubgram = TRUE;
+			for(i=0; i < MAXARROW; i++) {
+				if(strstr(*p_line,Arrow[i]) != NULLSTR) newsubgram = FALSE;
 				}
 			}
-		while((*p_line)[0] != '-' || (*p_line)[1] != '-');
-		goto NEXTLINE;
-		}
-	newsubgram = FALSE;
-	if((*p_line)[0] == '-' && (*p_line)[MyHandleLen(p_line)-1] == '-') {
-		newsubgram = TRUE;
-		for(i=0; i < MAXARROW; i++) {
-			if(strstr(*p_line,Arrow[i]) != NULLSTR) newsubgram = FALSE;
+		if(newsubgram) {
+			numbergram++;
+			if(maxrulesinsubgram > MaxRul) MaxRul = maxrulesinsubgram;
+			maxrulesinsubgram = 0;
+			goto NEXTLINE;
 			}
+		maxrulesinsubgram++;
+	NEXTLINE: ;
 		}
-	if(newsubgram) {
-		numbergram++;
-		if(maxrulesinsubgram > MaxRul) MaxRul = maxrulesinsubgram;
-		maxrulesinsubgram = 0;
-		goto NEXTLINE;
+	END:
+	MyDisposeHandle((Handle*)&p_line);
+	if(maxrulesinsubgram > MaxRul) MaxRul = maxrulesinsubgram;
+	if((p_gram->p_subgram=(t_subgram**) GiveSpace((Size)(numbergram+1)*sizeof(t_subgram)))
+							== NULL) return(ABORT);
+	for(igram=1; igram <= numbergram; igram++) {
+		(*(p_gram->p_subgram))[igram].p_rule = NULL;
+		(*(p_gram->p_subgram))[igram].number_rule = 0;
 		}
-	maxrulesinsubgram++;
-NEXTLINE: ;
+	MaxGram = numbergram;
+	return OK;
 	}
-
-END:
-MyDisposeHandle((Handle*)&p_line);
-if(maxrulesinsubgram > MaxRul) MaxRul = maxrulesinsubgram;
-if((Gram.p_subgram=(t_subgram**) GiveSpace((Size)(numbergram+1)*sizeof(t_subgram)))
-						== NULL) return(ABORT);
-for(igram=1; igram <= numbergram; igram++) {
-	(*(Gram.p_subgram))[igram].p_rule = NULL;
-	(*(Gram.p_subgram))[igram].number_rule = 0;
-	}
-MaxGram = numbergram;
-return OK;
-}
 
 
 int GetAlphabetSpace(void)
@@ -1489,55 +1373,49 @@ return OK;
 }
 
 
-int GetVariableSpace(void)
-{
-int i;
-
-if(ReleaseVariableSpace() != OK) return(ABORT);
-MaxVar = MAXVAR;
-if((p_Var = (char****) GiveSpace((Size)MaxVar * sizeof(char**))) == NULL) {
-	return(ABORT);
+int GetVariableSpace(void) {
+	int i;
+	if(ReleaseVariableSpace() != OK) return(ABORT);
+	MaxVar = MAXVAR;
+	if((p_Var = (char****) GiveSpace((Size)MaxVar * sizeof(char**))) == NULL) {
+		return(ABORT);
+		}
+	if((p_VarStatus = (int**) GiveSpace((Size)MaxVar * sizeof(int))) == NULL) {
+		return(ABORT);
+		}
+	for(i=0; i < MaxVar; i++) {
+		(*p_Var)[i] = NULL; (*p_VarStatus)[i] = 0;
+		}
+	return OK;
 	}
-if((p_VarStatus = (int**) GiveSpace((Size)MaxVar * sizeof(int))) == NULL) {
-	return(ABORT);
+
+
+int GetFlagSpace(void) {
+	int i;
+	if(ReleaseFlagSpace() != OK) return(ABORT);
+	MaxFlag = MAXFLAG;
+	if((p_Flagname = (char****) GiveSpace((Size)MaxFlag * sizeof(char**))) == NULL) {
+		return(ABORT);
+		}
+	for(i=0; i < MaxFlag; i++) (*p_Flagname)[i] = NULL;
+	if((p_Flag = (long**) GiveSpace((Size)MaxFlag * sizeof(long))) == NULL) {
+		return(ABORT);
+		}
+	return OK;
 	}
-for(i=0; i < MaxVar; i++) {
-	(*p_Var)[i] = NULL; (*p_VarStatus)[i] = 0;
+
+
+int GetScriptSpace(void) {
+	int i;
+	if(ReleaseScriptSpace() != OK) return(ABORT);
+	MaxScript = MAXEVENTSCRIPT;
+	if((p_Script = (char****) GiveSpace((Size)MaxScript * sizeof(char**))) == NULL) {
+		return(ABORT);
+		}
+	for(i=0; i < MaxScript; i++) (*p_Script)[i] = NULL;
+	Jscriptline = 0;
+	return OK;
 	}
-return OK;
-}
-
-
-int GetFlagSpace(void)
-{
-int i;
-
-if(ReleaseFlagSpace() != OK) return(ABORT);
-MaxFlag = MAXFLAG;
-if((p_Flagname = (char****) GiveSpace((Size)MaxFlag * sizeof(char**))) == NULL) {
-	return(ABORT);
-	}
-for(i=0; i < MaxFlag; i++) (*p_Flagname)[i] = NULL;
-if((p_Flag = (long**) GiveSpace((Size)MaxFlag * sizeof(long))) == NULL) {
-	return(ABORT);
-	}
-return OK;
-}
-
-
-int GetScriptSpace(void)
-{
-int i;
-
-if(ReleaseScriptSpace() != OK) return(ABORT);
-MaxScript = MAXEVENTSCRIPT;
-if((p_Script = (char****) GiveSpace((Size)MaxScript * sizeof(char**))) == NULL) {
-	return(ABORT);
-	}
-for(i=0; i < MaxScript; i++) (*p_Script)[i] = NULL;
-Jscriptline = 0;
-return OK;
-}
 
 
 int CreateBuffer(tokenbyte*** pp_buff)
@@ -1676,7 +1554,7 @@ if(p_Var == NULL) {
 if(w != wGrammar && w != wGlossary) return(MISSED);
 for(j=1; j < (MyGetHandleSize((Handle)p_VarStatus) / sizeof(int)); j++) {
 	if(w == wGrammar) (*p_VarStatus)[j] = (*p_VarStatus)[j] & (4+8);
-	if(w == wGlossary) (*p_VarStatus)[j] = (*p_VarStatus)[j] & (1+2);
+//	if(w == wGlossary) (*p_VarStatus)[j] = (*p_VarStatus)[j] & (1+2);
 	}
 return(OK);
 }

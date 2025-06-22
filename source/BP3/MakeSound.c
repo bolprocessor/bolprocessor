@@ -713,7 +713,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			}
 		else {
 			Tcurr = (t0 + t1) / Time_res;
-			if(rtMIDI) {
+			if(MIDIfileOn || rtMIDI) {
 				PianorollShift = MIDIsetUpTime;
 			//	if(!Improvize) PianorollShift = 0L;
 			//	BPPrintMessage(0,odInfo,"PianorollShift = %ld\n",(long)PianorollShift);
