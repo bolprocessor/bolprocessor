@@ -1,55 +1,46 @@
-SRCDIR = source/BP3
-CC     = gcc
-LIBS   = -lm
-EXE    = bp
+# === Configuration ===
+SRCDIR  = source/BP3
+CC      = gcc
+LIBS    = -lm
+CFLAGS  = -O2 -Wall -Wextra
+EXE     = bp
 
 UNAME_S := Windows
-UNAME_M := x86_64
 
-# Detect operating system
+# === OS Detection ===
 ifeq ($(OS),Windows_NT)
     UNAME_S := Windows
-    CFLAGS =
-    FRAMEWORKS = -lwinmm -Wall -Wextra
+    FRAMEWORKS = -lwinmm
     EXE = bp.exe
 else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Darwin)
-        CFLAGS =
         FRAMEWORKS = -framework CoreMIDI -framework CoreFoundation
     endif
     ifeq ($(UNAME_S),Linux)
-        CFLAGS =
         FRAMEWORKS = -lasound
         EXE = bp3
     endif
 endif
 
-# Print the operating system detected (optional, for debugging)
-$(info Operating System: $(UNAME_S))
-
+# === Source and Object Files ===
 SRCS = $(wildcard $(SRCDIR)/*.c)
-
 OBJS = $(SRCS:.c=.o)
 
-all:  $(EXE)
+# === Output OS Info ===
+$(info Operating System: $(UNAME_S))
+
+# === Build Rules ===
+all: $(EXE)
 
 $(EXE): $(OBJS)
-ifeq ($(OS),Windows_NT)
-	$(CC) -g -o $(EXE) $(OBJS) $(LIBS) $(FRAMEWORKS)
-else
-	$(CC) -g -o $(EXE) $(OBJS) $(LIBS) $(FRAMEWORKS)
-endif
+	$(CC) $(CFLAGS) -o $(EXE) $(OBJS) $(LIBS) $(FRAMEWORKS)
 
 %.o : %.c
-ifeq ($(OS),Windows_NT)
-	$(CC) -g -c $(CFLAGS) -I $(SRCDIR) $< -o $@
-else
-	$(CC) -g -c $(CFLAGS) -I $(SRCDIR) $< -o $@
-endif
+	$(CC) $(CFLAGS) -c -I$(SRCDIR) $< -o $@
 
-depend: 
-	makedepend -I $(SRCDIR)  $(SRCS)
+depend:
+	makedepend -I$(SRCDIR) $(SRCS)
 
 clean:
 ifeq ($(UNAME_S),Darwin)
@@ -60,5 +51,5 @@ else ifeq ($(UNAME_S),Linux)
 	-rm -f $(SRCDIR)/*.o
 else ifeq ($(OS),Windows_NT)
 	@if exist $(EXE) (echo Deleting $(EXE) & del /Q $(EXE))
-	@if exist $(subst /,\,$(SRCDIR))\*.o (echo Deleting $(SRCDIR)\*.o & del /Q $(subst /,\,$(SRCDIR))\*.o)
+	@if exist $(subst /,\,$(SRCDIR))\*.o (echo Deleting object files & del /Q $(subst /,\,$(SRCDIR))\*.o)
 endif

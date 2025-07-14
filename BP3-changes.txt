@@ -6,6 +6,12 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+
+2025-07-14 (version 3.3.2)
+The Makefile has been updated to compile with the -O2 optimization flag.
+A version with debugging flags and no optimization is also available.
+
+-----
 2025-06-22 (version 3.3.1)
 A few fixes in "live coding".
 Updates of the "to-do" file regarding the potential use of AI.

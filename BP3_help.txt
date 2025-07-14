@@ -2,11 +2,6 @@
 // This version still includes many features from BP2 that haven't been implemented in BP3.
 // When editing it, beware that the compiler looks for prefixes. Therefore, if an item is
 // the prefix of another one then it should precede it in this file.
-### Help 
-• To access on-line help, type cmd-? or select "Help" in the "Action" menu.
-The cursor becomes a question mark.  Select a menu command, click a button or
-select any word or group of words you need information about.
-• In the "Help" text, expressions between quotes are hyperlinks to more entries.
 ### What style of music is BP3 dealing with?
 • BP3 is not designed for a particular musical style. It stemmed out of formalizing
     music representation and composition tasks in the context of non-western music, notably
