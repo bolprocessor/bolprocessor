@@ -7,7 +7,11 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 
-2025-07-14 (version 3.3.2)
+2025-10-17 (version 3.3.3)
+Interface fixed for error in analysis of captured data
+
+-----
+2025-07-14 -> (version 3.3.2)
 The Makefile has been updated to compile with the -O2 optimization flag.
 A version with debugging flags and no optimization is also available.
 

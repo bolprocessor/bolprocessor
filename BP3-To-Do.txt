@@ -24,6 +24,12 @@ Live coding
 - Create an option to react to changes only at the moment when an entire element has been sent to MIDI. You can use the MIDI event (ActiveSensing) at the end of each item to do this.
 
 
+Realistic performance models
+----------------------------
+
+- Check the synthesis through neural codec language modelling (MIDI-VALLEE, https://tangjjbetsy.github.io/MIDI-VALLE/) to replace 'descriptive' performance controls imbedded in MusicXML scores. Mainly check that MIDI-VALLEE would not modify the microtonal instructions carried by Pitchbend instructions on separate MIDI channels.
+
+
 Apache autostart in XAMPP for MacOS
 -----------------------------------
 
