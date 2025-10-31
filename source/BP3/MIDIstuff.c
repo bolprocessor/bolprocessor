@@ -1586,7 +1586,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	value = ByteToInt(p_e->data2);
 	if(p_e->type == TWO_BYTE_EVENT) p_e->data1 = 0;
 	i_scale = -1;
-	// BPPrintMessage(0,odInfo,"@ status %d, c1 = %d c2 = %d channel = %d, time = %ld ms\n",status,note,value,channel,(long)time);
+//	BPPrintMessage(1,odInfo,"@@@ status %d, c1 = %d c2 = %d channel = %d, time = %ld ms\n",status,note,value,channel,(long)time);
 	if(type != NoteOn && type != NoteOff) i_scale = blockkey = 0;
 	if(MIDImicrotonality) {
 		i_scale = FindScale(scale);
@@ -1746,7 +1746,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 		}
 	if(ItemCapture) *p_running_status = 0;
 	if(trace_driver) 
-		BPPrintMessage(0,odInfo,"++ SendToDriver() time = %ld channel = %d type = %d\tc1 = %d\tc2 = %d\n",(long)time,channel,type,ByteToInt(p_e->data1),ByteToInt(p_e->data2));
+		BPPrintMessage(1,odInfo,"++ SendToDriver() time = %ld channel = %d type = %d\tc1 = %d\tc2 = %d\n",(long)time,channel,type,ByteToInt(p_e->data1),ByteToInt(p_e->data2));
 	/* Store if volume */
 	if(type == NoteOn && CurrentVolume[channel+1] == -1)
 		CurrentVolume[channel+1] = DeftVolume;
@@ -1774,7 +1774,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 		midibyte = p_e->data2;
 		if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 		if(trace_driver) 
-			BPPrintMessage(0,odInfo,"Full event status = %d c1 = %d c2= %d time = %ld\n",status,ByteToInt(p_e->data1),ByteToInt(p_e->data2),(long)time);
+			BPPrintMessage(1,odInfo,"Full event status = %d c1 = %d c2= %d time = %ld\n",status,ByteToInt(p_e->data1),ByteToInt(p_e->data2),(long)time);
 		}
 	else {
 		// Skip the status byte, send only data ("running status")
@@ -1804,6 +1804,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 			}
 		else BPPrintMessage(0,odError,"=> Err. SendToDriver(). type == ChannelPressure\n");
 		}
+//	BPPrintMessage(1,odInfo,"@@@@ test\n");
 	return(OK);
 	}
 

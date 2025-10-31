@@ -325,7 +325,7 @@ if(s[i] == '+') {
 		}
 	i++;
 	}
-for(i=i; i < j; i++) {
+for( ; i < j; i++) {
 	c = s[i];
 	if(isdigit(c)) {
 		p = 10L * p + (long)(c - '0');

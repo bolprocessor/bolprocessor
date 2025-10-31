@@ -90,7 +90,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 
 	// if((result = CleanUpBuffer()) != OK) return result;
 
-	// BPPrintMessage(0,odInfo, "\nRunning MakeSound() (Tcurr * Time_res) = %ld, tmin = %ld ms, tmax = %ld ms\n",(long) Tcurr * Time_res,tmin,tmax);
+	// BPPrintMessage(1,odInfo, "\nRunning MakeSound() (Tcurr * Time_res) = %ld, tmin = %ld ms, tmax = %ld ms\n",(long) Tcurr * Time_res,tmin,tmax);
 
 	if(Panic || CheckEmergency() != OK) return(ABORT);
 	if(SoundOn) return(OK); 
@@ -251,7 +251,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 				}
 			}
 		else preroll = 0.;
-	//	BPPrintMessage(0,odInfo,"ok\n");
+	//	BPPrintMessage(1,odInfo,"@@@ ok\n");
 		
 		date = (*p_t1)[k] = - preroll;
 		if((*p_Instance)[k].truncbeg < EPSILON) date1 = date;
@@ -585,6 +585,9 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 		}
 
 	if(MIDIfileOn) {
+		if(Create_set) {
+			MakeMIDIFile(&(gOptions.outputFiles[ofiMidiFile]));
+			}
 		if((result=PrepareMIDIFile()) != OK) goto OVER;
 		Nplay = 1;
 		}
@@ -625,7 +628,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	//	PleaseWait();
 		if((result=stop(1,"MakeSound")) != OK) goto OVER;
 		if(SkipFlag) goto OVER;
-	//	BPPrintMessage(0,odError, "occurrence = %d\n",occurrence);
+	//	BPPrintMessage(1,odInfo, "@@@ occurrence = %d\n",occurrence);
 		for(k=2; k <= (*p_kmax); k++) {
 			(*p_inext)[k] = (*p_inext1)[k];
 			(*p_onoff)[k] = FALSE;
@@ -648,7 +651,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 		t2tick = Infpos;
 		instrument = -1;
 		result = OK;
-		// BPPrintMessage(1,odInfo,"@@@ Starting\n");
+	//	BPPrintMessage(1,odInfo,"@@@ Starting\n");
 			
 		mustwait = FALSE;
 		
@@ -668,12 +671,9 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 				firstvolume[ch] = firstmodulation[ch] = firstpitchbend[ch] = firstpressure[ch]
 					= firstpanoramic[ch] = TRUE;
 				} */
-	//		if(MIDIfileOpened || rtMIDI || cswrite) { // 2025-01-22
-	//		if(MIDIfileOn || rtMIDI || cswrite) { // 2025-01-22
-				for(k=0; k < MAXKEY; k++) {
-					(*p_keyon[ch])[k] = 0;
-					(*p_last_timeon[ch])[k] = 0L;
-		//			}
+			for(k=0; k < MAXKEY; k++) {
+				(*p_keyon[ch])[k] = 0;
+				(*p_last_timeon[ch])[k] = 0L;
 				}
 			}
 		resetok = FALSE;
@@ -715,12 +715,10 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			Tcurr = (t0 + t1) / Time_res;
 			if(MIDIfileOn || rtMIDI) {
 				PianorollShift = MIDIsetUpTime;
-			//	if(!Improvize) PianorollShift = 0L;
-			//	BPPrintMessage(0,odInfo,"PianorollShift = %ld\n",(long)PianorollShift);
+		//		BPPrintMessage(1,odInfo,"PianorollShift = %ld\n",(long)PianorollShift);
 				}
 			}
 		
-		if(trace_csound_pianoroll) BPPrintMessage(0,odInfo,"Tcurr = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)t0,(long)t1,(long)Time_res);
 		if(trace_csound_pianoroll)
 			BPPrintMessage(0,odInfo,"Tcurr = %ld, t0 = %ld, t1 = %ld, Time_res = %ld\n",(long)Tcurr,(long)t0,(long)t1,(long)Time_res);
 			
@@ -891,7 +889,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 							&& (j >= 16384 || (*p_OkVolume)[j])) {
 						(*p_Oldvalue)[chan].volume = volume;
 						ChangedVolume[chan] = TRUE;
-						if(!cswrite) {
+						if(!cswrite && !Create_set) {
 							e.time = Tcurr;
 							e.type = NORMAL_EVENT;
 							e.status = ControlChange + chan;
@@ -904,7 +902,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 							&& (j >= 16384 || (*p_OkPan)[j])) {
 						(*p_Oldvalue)[chan].panoramic = panoramic;
 						ChangedPanoramic[chan] = TRUE;
-						if(!cswrite) {
+						if(!cswrite && !Create_set) {
 							e.time = Tcurr;
 							e.type = NORMAL_EVENT;
 							e.status = ControlChange + chan;
@@ -918,7 +916,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 						ChangedPitchbend[chan] = TRUE;
 						lsb = ((long)pitchbend) % 128;
 						msb = (((long)pitchbend) - lsb) >> 7;
-						if(!cswrite) {
+						if(!cswrite && !Create_set) {
 							e.time = Tcurr;
 							e.type = NORMAL_EVENT;
 							e.status = PitchBend + chan;
@@ -930,7 +928,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 					if(okpressure && pressure != (*p_Oldvalue)[chan].pressure) {
 						(*p_Oldvalue)[chan].pressure = pressure;
 						ChangedPressure[chan] = TRUE;
-						if(!cswrite) {
+						if(!cswrite && !Create_set) {
 							e.time = Tcurr;
 							e.type = TWO_BYTE_EVENT;
 							e.status = ChannelPressure + chan;
@@ -945,7 +943,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 						ChangedModulation[chan] = TRUE;
 						lsb = ((long)modulation) % 128;
 						msb = (((long)modulation) - lsb) >> 7;
-						if(!cswrite) {
+						if(!cswrite && !Create_set) {
 			//				BPPrintMessage(0,odInfo,"Sending modulation = %d\n",modulation);
 							e.time = Tcurr;
 							e.type = NORMAL_EVENT;
@@ -1296,7 +1294,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 
 	PLAYOBJECT:
 			if(trace_csound_pianoroll) 
-				BPPrintMessage(0,odInfo,"\nPLAYOBJECT: k = %d j = %d objectduration = %ld t1 = %ld t2 = %ld t3 = %ld ievent = %d im = %d\n",kcurrentinstance,j,objectduration,(long)t1,(long)t2,(long)t3,ievent,im);
+				BPPrintMessage(1,odInfo,"\nPLAYOBJECT: k = %d j = %d objectduration = %ld t1 = %ld t2 = %ld t3 = %ld ievent = %d im = %d\n",kcurrentinstance,j,objectduration,(long)t1,(long)t2,(long)t3,ievent,im);
 			while(t1 <= t2  && t1 <= t3  && ievent < im) {
 		//	while(t1 <= t2  && t1 <= t3  && (ievent < im || j == 1)) { // Fixed by BB 2021-01
 				if((result=stop(0,"MakeSound")) != OK) goto OVER;
@@ -1847,7 +1845,7 @@ GETOUT:
 		BPPrintMessage(0,odInfo,"max_endtime = %ld, max_endtime_event = %ld\n",(long)max_endtime,(long)max_endtime_event);
 
 	if(add_time > ZERO  && (Improvize || PlayAllChunks)) { // 2024-05-09
-		if(MIDIfileOn || rtMIDI) {
+		if((MIDIfileOn || rtMIDI) && !Create_set) {
 			e.time = Tcurr;
 			e.type = NORMAL_EVENT;
 			e.status = NoteOn;
@@ -1924,9 +1922,7 @@ OVER2:
 
 	// if(cswrite && CsoundTrace) ShowSelect(CENTRE,wTrace);
 	Interrupted = FALSE;
-	#if BP_CARBON_GUI_FORGET_THIS
-	SndSetSysBeepState(sysBeepEnable);
-	#endif
+
 	return(result);
 	}
 

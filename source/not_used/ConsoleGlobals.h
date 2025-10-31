@@ -1,8 +1,8 @@
-/*  ConsoleMessages.h (BP3) */
+/*  ConsoleGlobals.h (BP3) */
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
-	Copyright (c) 2013, 2019, 2020 by Anthony Kozar
+	Copyright (c) 2020 by Anthony Kozar
     All rights reserved. 
     
     Redistribution and use in source and binary forms, with or without
@@ -32,26 +32,11 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef BP_CONSOLEMESSAGES_H
-#define BP_CONSOLEMESSAGES_H
-
-// Output destinations / messages types (these may be summed)
-
-#define odDisplay	1		// for results of produce items, expand selection, etc.
-#define odMidiDump	2		// for printing Midi messages as text
-#define odCsScore	4		// for writing Csound score
-#define odTrace		8		// for tracing processes (and step-by-step ?)
-#define odInfo		16		// informational messages
-#define odWarning	32		// warning messages
-#define odError		64		// error messages
-#define odUserInt	128		// interactive messages to which a response is expected
-
-typedef	int (*bp_message_callback_t)(void* bp, int dest, const char *format, va_list parms);
-
-void ConsoleMessagesInit(void);
-void SetOutputDestinations(int dest, FILE* file);
-
-int BPSetMessageCallback(bp_message_callback_t func);
+#ifndef BP_CONSOLEGLOBALS_H
+#define BP_CONSOLEGLOBALS_H
 
 
-#endif /* BP_CONSOLEMESSAGES_H */
+
+
+
+#endif /* BP_CONSOLEGLOBALS_H */

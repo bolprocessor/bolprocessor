@@ -158,6 +158,7 @@ extern objectspecs ****p_ObjectSpecs;
 extern int WaitKey[MAXWAIT+1],WaitChan[MAXWAIT+1];
 extern long **p_Flag,BufferSize,DeftBufferSize,Maxevent;
 extern FILE* OpenMIDIfilePtr;
+extern FILE* UnitfilePtr;
 extern short HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,
 	MIDIfileOpened,MIDIfileTrackEmpty;
 extern int MIDIbytestate,MIDIfileTrackNumber,StepScript,TypeScript,MoreTime;
@@ -238,7 +239,7 @@ extern int DeriveFurther,DeriveFurtherKey,DeriveFurtherChan,ResetWeights,NeverRe
 	ParamControlChan,Newstatus,ShowMessages,ScriptSyncKey,ScriptSyncChan,
 	SUBthere,DisplayItems,ShowGraphic,NoteConvention,MoreConvention,FunctionTable,
 	ScriptRecOn,ScriptExecOn,DefaultVolume,LastAction,UndoWindow,
-	PedalOrigin,PedalPosition,HangOn,NoRepeat,ConvertMIDItoCsound;
+	PedalOrigin,PedalPosition,HangOn,NoRepeat,ConvertMIDItoCsound,ErrorDuration;
 extern TextOffset UndoPos;
 extern long CountOn;
 extern unsigned long WaitStartDate,WaitEndDate;
@@ -339,7 +340,7 @@ extern int TickChannel[MAXTICKS],TickKey[MAXTICKS],TickVelocity[MAXTICKS],MuteTi
 	TickCycle[MAXTICKS],TickPosition[MAXTICKS],iTick,jTick,UseBullet,NeedZouleb;
 extern long ThisTick[MAXTICKS][MAXBEATS];
 extern int InitOn,SetTimeOn,ComputeOn,PolyOn,CompileOn,SoundOn,SelectOn,PrintOn,InputOn,
-	ClickRuleOn,GraphicOn,ReadKeyBoardOn,ButtonOn,PauseOn,AlertOn,PlaySelectionOn,PlayChunks,LastChunk,PlayAllChunks,
+	ClickRuleOn,GraphicOn,ReadKeyBoardOn,ButtonOn,PauseOn,AlertOn,PlaySelectionOn,PlayChunks,Create_set,LastChunk,PlayAllChunks,
 	PlayPrototypeOn,MIDIfileOn,WaitOn,ExpandOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram,
 	AEventOn,LoadOn,SaveOn,SelectPictureOn,EnterOn,Option,EmptyBeat,TickDone,
 	FoundNote,NoCursor,ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
@@ -386,5 +387,10 @@ extern int ToldPitchbend, ToldStop;
 
 extern int stop(int,char*);
 extern int MIDIflush(int,int);
+
+extern char PathToMidiFile[MAXLIN];
+extern int SetMidiFileNr;
+
+extern BPConsoleOpts gOptions;
 
 #endif /* BP3_DECL_H */

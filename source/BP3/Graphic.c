@@ -1227,13 +1227,15 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 		return(OK);
 		}
 	// if(stop(0,"DrawPianoNote") != OK) return(ABORT);
-	if(rtMIDI || WriteMIDIfile || OutCsound || OutBPdata) {
+	if((rtMIDI || WriteMIDIfile || OutCsound || OutBPdata) && !Create_set) {
 		timeon -= PianorollShift;
 		timeoff -= PianorollShift;	
 		}
-	else if(DisplayItems) {
-		timeon -= 600L;
-		timeoff -= 600L;
+	else if(Create_set || DisplayItems) {
+/*		timeon -= 600L;
+		timeoff -= 600L; */
+		timeon -= MIDIsetUpTime; // 2025-10-24
+		timeoff -= MIDIsetUpTime;
 		}
 	timeon = Round(((double)timeon * GraphicScaleP) / GraphicScaleQ / 10.);
 	timeoff = Round(((double)timeoff * GraphicScaleP) / GraphicScaleQ / 10.);

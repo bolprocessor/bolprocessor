@@ -1,8 +1,8 @@
-/*  ConsoleGlobals.h (BP3) */
+/*  ConsoleMessages.h (BP3) */
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
-	Copyright (c) 2020 by Anthony Kozar
+	Copyright (c) 2013, 2019, 2020 by Anthony Kozar
     All rights reserved. 
     
     Redistribution and use in source and binary forms, with or without
@@ -32,61 +32,27 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef BP_CONSOLEGLOBALS_H
-#define BP_CONSOLEGLOBALS_H
+#ifndef BP_CONSOLEMESSAGES_H
+#define BP_CONSOLEMESSAGES_H
 
-// indices to gOptions.outputFiles[]
-typedef enum {
-	ofiProdItems	= 0,	// output file for produced items (-o option)
-	ofiMidiFile		= 1,	// output Std Midi score file (--midiout option)
-	ofiCsScore		= 2,	// output Csound score file (--csoundout option)
-	ofiTraceFile	= 3,	// output file for tracing processes (no option yet)
-}	outfileidx_t;
+/* // Output destinations / messages types (these may be summed)
 
-// actions that can be specified on the command line
-typedef enum {
-	no_action = 0, compile, produce, produce_items, produce_all, play, play_item,
-	play_all, analyze, expand, show_beats, templates
-} action_t;
+#define odDisplay	1		// for results of produce items, expand selection, etc.
+#define odMidiDump	2		// for printing Midi messages as text
+#define odCsScore	4		// for writing Csound score
+#define odTrace		8		// for tracing processes (and step-by-step ?)
+#define odInfo		16		// informational messages
+#define odWarning	32		// warning messages
+#define odError		64		// error messages
+#define odUserInt	128		// interactive messages to which a response is expected */
 
-// Values for CLOption type are TRUE, FALSE, and NOCHANGE
-typedef int CLOption;
-#define NOCHANGE		-1
+/*
+typedef	int (*bp_message_callback_t)(void* bp, int dest, const char *format, va_list parms);
 
-#define MAXOUTFILES		4
+void ConsoleMessagesInit(void);
+void SetOutputDestinations(int dest, FILE* file);
 
-typedef struct OutFileInfo {
-	const char	*name;
-	FILE		*fout;
-	int		isOpen;
-} OutFileInfo;
+int BPSetMessageCallback(bp_message_callback_t func); */
 
-typedef struct BPConsoleOpts {
-	action_t	action;
-	int			itemNumber;
-	const char	*startString;
-	const char	*midiInSource;
-	const char	*midiOutDestination;
-	const char	*inputFilenames[WMAX];
-	OutFileInfo	outputFiles[MAXOUTFILES];
-	int		useStdErr;
-	int		useStartString;
-	int		seedProvided;
-	int		outOptsChanged;
-	CLOption	displayItems;
-	CLOption	writeCsoundScore;
-	CLOption	writeMidiFile;
-	CLOption	useRealtimeMidi;
-	CLOption	showProduction;
-	CLOption	traceProduction;
-	int			noteConvention;		// NOCHANGE is an option too
-	int			midiFileFormat;		// NOCHANGE is an option too
-	unsigned	seed;
-} BPConsoleOpts;
 
-extern BPConsoleOpts gOptions;
-
-FILE* OpenOutputFile(OutFileInfo* finfo, const char* mode);
-void CloseOutputFile(OutFileInfo* finfo);
-
-#endif /* BP_CONSOLEGLOBALS_H */
+#endif /* BP_CONSOLEMESSAGES_H */

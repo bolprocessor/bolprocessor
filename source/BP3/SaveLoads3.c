@@ -38,7 +38,7 @@
 #endif
 
 #include "-BP3decl.h"
-#include "ConsoleMessages.h"
+// #include "ConsoleMessages.h"
 
 // FIXME: name should be const, but Match needs to take const char * instead of char**
 int FindMatchingFileNamePrefix(/*const*/ char* name)

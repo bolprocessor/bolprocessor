@@ -78,7 +78,7 @@ int Inits(void) {
 	SetTimeOn = ComputeOn = PolyOn = CompileOn = SoundOn = SelectOn = ButtonOn = ExpandOn
 		= PrintOn = ClickRuleOn = GraphicOn = CompleteDecisions = LoadOn = SaveOn = MIDIfileOn
 		= ReadKeyBoardOn = AlertOn = HangOn = ScriptRecOn = PlayPrototypeOn
-		= PlaySelectionOn = PlayChunks = PlayAllChunks = UseEachSub = SelectPictureOn = TypeScript = InputOn = EnterOn = AEventOn = HideMessages
+		= PlaySelectionOn = PlayChunks = Create_set = PlayAllChunks = UseEachSub = SelectPictureOn = TypeScript = InputOn = EnterOn = AEventOn = HideMessages
 		= PauseOn = WaitOn = ItemOutPutOn = ItemCapture = TickCapture = TickCaptureStarted
 		= AskedAboutCsound = MustChangeInput = ToldSkipped = ShownBufferSize = FALSE;
 	Option = TickDone = FoundNote = GotAlert = UsedRandom = SaidTooComplex = FALSE;
@@ -98,6 +98,7 @@ int Inits(void) {
 	TimeMax = MAXTIME;
 	Nalpha = 100L; SpeedRange = 6.;
 	CorrectionFactor = 1.;
+	ErrorDuration = 0;
 	Chunk_number = 0;
 	NextStop = 0L;
 
@@ -375,7 +376,7 @@ int Inits(void) {
 		}
 	ForceRatio = -1.; PlayFromInsertionPoint = FALSE;
 
-	OpenMIDIfilePtr = NULL;
+	OpenMIDIfilePtr = UnitfilePtr = NULL;
 	HelpRefnum = TempRefnum = TraceRefnum = -1;
 	CsRefNum = -1; CsScoreOpened = MIDIfileTrackEmpty = FALSE;
 	for(i=0; i < WMAX; i++) {
@@ -424,6 +425,7 @@ int Inits(void) {
 	iCsoundInstrument = 0;
 	ResetCsoundInstrument(iCsoundInstrument,YES,NO);
 	for(i=1; i <= MAXCHAN; i++) WhichCsoundInstrument[i] = -1; // FIXME: this is done above too?
+	SetMidiFileNr = 0;
 	return(OK);
 	}
 

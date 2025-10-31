@@ -38,8 +38,8 @@
 #endif
 
 #include "-BP3decl.h"
-#include "ConsoleGlobals.h"
-#include "ConsoleMessages.h"
+// #include "ConsoleGlobals.h"
+// #include "ConsoleMessages.h"
 
 int check_fade_out = 0;
 
@@ -76,7 +76,6 @@ byte tempo_sig[] = {0x00, 0xff, 0x51, 0x03};
 
 byte end_of_track[] = {0x00, 0xff, 0x2f, 0x00};
 
-int MakeMIDIFile(OutFileInfo* finfo);
 static int WriteMIDIFileHeader(FILE* fout);
 static int WriteBeginningOfTrack(FILE* fout, int inclMetaEvts, int isTempoOnlyTrk);
 static int WriteEndOfTrack(FILE* fout);
@@ -86,18 +85,23 @@ static int CloseMIDIFile2(void);
 
 int trace_writing_midi_file = 0;
 
-int MakeMIDIFile(OutFileInfo* finfo)
-{
-int result;
-FILE *fout;
-
+int MakeMIDIFile(OutFileInfo* finfo) {
+	int result;
+	FILE *fout;
 	result = MISSED;
+	char thename[MAXNAME];
 	if(OpenMIDIfilePtr != NULL) {
-		BPPrintMessage(0,odError, "MIDI file is already open: %s\n", finfo->name);
-		return OK; // 2024-07-12
+		if(!Create_set) {
+			BPPrintMessage(0,odError, "MIDI file is already open: %s\n", finfo->name);
+			return OK;
+			}
+		else CloseMIDIFile();
 		}
-
-	ShowMessage(TRUE,wMessage,"Creating new MIDI file...");
+	if(Create_set) {
+		sprintf(thename,"%d.mid",SetMidiFileNr);
+		change_midifile_name(thename);
+		}
+	// BPPrintMessage(1,odInfo,"Creating new MIDI file...\n");
 	fout = OpenOutputFile(finfo,"wb");
 	if(!fout) {
 		BPPrintMessage(0,odError, "=> Could not open file for MIDI %s\n", finfo->name);
@@ -107,7 +111,6 @@ FILE *fout;
 		OpenMIDIfilePtr = fout;
 		MIDIfileOpened = MIDIfileTrackEmpty = TRUE;
 		MIDIfileTrackNumber = 0;
-		
 		result = WriteMIDIFileHeader(fout);
 		if(result == OK) {
 			if(MIDIfileType == 1) {
@@ -116,21 +119,36 @@ FILE *fout;
 				if(result == OK) {
 					// start a new track for MIDI events without meta info
 					result = WriteBeginningOfTrack(fout, FALSE, FALSE);
+					}
 				}
-			}
 			else {
 				// For both type 0 & type 2 files,
 				// write tempo/meta info & events into the same track.
 				result = WriteBeginningOfTrack(fout, TRUE, FALSE);
-			}
+				}
 			if(result == OK) WriteMIDIorchestra();
+			}
 		}
-	}
-	
 	if(result != OK) CloseMIDIFile2();
 	return result;
-}
+	}
 
+void change_midifile_name(char *tail) {
+	const char *base = PathToMidiFile;
+    size_t base_len = strlen(base);
+    int need_slash = (base_len > 0 && base[base_len - 1] == '/') ? 0 : 1;
+    size_t total = base_len + (need_slash ? 1 : 0) + strlen(tail) + 1;
+    char *combined = (char *)malloc(total);
+    char *p = combined;
+    memcpy(p, base, base_len); p += base_len;
+    if (need_slash) *p++ = '/';
+    memcpy(p, tail, strlen(tail) + 1); // includes '\0'
+	// BPPrintMessage(1,odInfo,"\ncombined = %s\n",combined);
+    // If you previously malloc'd the old value, free it here.
+    // Otherwise skip the free (e.g., if it pointed at a literal).
+    // free(gOptions.outputFiles[ofiMidiFile].name);
+    gOptions.outputFiles[ofiMidiFile].name = combined;
+	}
 
 static int WriteMIDIFileHeader(FILE* fout)
 {
@@ -173,16 +191,13 @@ static int WriteMIDIFileHeader(FILE* fout)
 
 
 /*	WriteBeginningOfTrack()
-	
 	Write the beginning of a new track chunk.
-	
 	Parameters:
 	  inclMetaEvts - TRUE if track should include Time Sign., Tempo, & Key Sign. events
 	  isTempoOnlyTrk - TRUE if track is the "tempo track" for a Type-1 MIDI file; only
 		  meta events will be written to the track followed by an "End of Track" event.
  */
-static int WriteBeginningOfTrack(FILE* fout, int inclMetaEvts, int isTempoOnlyTrk)
-{
+static int WriteBeginningOfTrack(FILE* fout, int inclMetaEvts, int isTempoOnlyTrk) {
 	int i, result;
 	dword length;
 	byte b0,b1,b2;
@@ -192,8 +207,7 @@ static int WriteBeginningOfTrack(FILE* fout, int inclMetaEvts, int isTempoOnlyTr
 		// this function does not support writing an empty track without meta events
 		BPPrintMessage(0,odError, "=> Error in WriteBeginningOfTrack(): inconsistent parameters\n");
 		return ABORT;
-	}
-	
+		}
 	Midi_msg = ZERO;
 	OldMIDIfileTime = -1L;
 	MIDItracklength = ZERO;
@@ -203,23 +217,21 @@ static int WriteBeginningOfTrack(FILE* fout, int inclMetaEvts, int isTempoOnlyTr
 	
 	result = WriteRawBytes(fout, MTrk, sizeof(MTrk));
 	if(result != OK)  return ABORT;
-
 	if(!isTempoOnlyTrk) {
 		/* Remember where to write the track length */
 		MidiLen_pos  = ftell(fout);
 		if(MidiLen_pos < 0) {
 			BPPrintMessage(0,odError, "=> Error in WriteBeginningOfTrack(): ftell() returned %ld.\n", MidiLen_pos);
 			return ABORT;
-		}
+			}
 		if(WriteReverse(fout,(dword)0x00000000) != OK) return(ABORT);
-	}
+		}
 	else {
 		// already know the length of a tempo-only track
 		length = sizeof(time_sig) + sizeof(tempo_sig) + 3
 			+ sizeof(key_sig) + sizeof(end_of_track);
 		if(WriteReverse(fout,length) != OK) return(ABORT);
-	}
-	
+		}
 	if(inclMetaEvts) {
 		// write meta events for the time signature, tempo, & key signature
 		result = WriteRawBytes(fout, time_sig, sizeof(time_sig));
@@ -247,18 +259,16 @@ static int WriteBeginningOfTrack(FILE* fout, int inclMetaEvts, int isTempoOnlyTr
 
 		MIDItracklength = sizeof(time_sig) + sizeof(tempo_sig) + 3
 			+ sizeof(key_sig);
-	}
-	
+		}
 	if(isTempoOnlyTrk) {
 		// Write "End of Track" meta event because no normal MIDI events
 		// will be added to this "tempo track".
 		result = WriteRawBytes(fout, end_of_track, sizeof(end_of_track));
 		if(result != OK)  return ABORT;
-	}
-	
+		}
 	for(i=1; i <= MAXCHAN; i++) CurrentVolume[i] = -1;	
 	return OK;
-}
+	}
 
 
 static int WriteEndOfTrack(FILE* fout)
@@ -306,19 +316,15 @@ static int WriteEndOfTrack(FILE* fout)
 	return OK;
 }
 
-
-static int WriteRawBytes(FILE* fout, byte* data, size_t numbytes)
-{
+static int WriteRawBytes(FILE* fout, byte* data, size_t numbytes) {
 	size_t written;
-	
 	written = fwrite(data, (size_t)1, numbytes, fout);
 	if(written < numbytes)	{
 		BPPrintMessage(0,odError, "=> Error while writing to Midi file.\n");
 		return ABORT;
-	}
-	
+		}
 	return OK;
-}
+	}
 
 
 int WriteMIDIbyte(Milliseconds time,byte midi_byte)
@@ -398,34 +404,30 @@ return result;
 
 
 /* Finishes writing the track and MIDI header, then calls CloseMIDIFile2() */
-int CloseMIDIFile(void)
-{
-int result;
-byte byteval;
+int CloseMIDIFile(void) {
+	int result;
+	byte byteval;
 
-if(!MIDIfileOpened) return(OK);
-// BPPrintMessage(0,odInfo,"Closing MIDI file\n");
-
-result = WriteEndOfTrack(OpenMIDIfilePtr);
-if(result == OK) {
-	// FIXME: Even if the track is empty, we should probably still count it, right?
-	if(MIDIfileTrackEmpty) MIDIfileTrackNumber--;
-
-	/* Write again number of tracks */
-	result = fseek(OpenMIDIfilePtr, sizeof(header1) + 1 + sizeof(header2), SEEK_SET);
-	if(result != 0) {
-		result = MISSED;
+	if(!MIDIfileOpened) return(OK);
+	// BPPrintMessage(0,odInfo,"Closing MIDI file\n");
+	result = WriteEndOfTrack(OpenMIDIfilePtr);
+	if(result == OK) {
+		// FIXME: Even if the track is empty, we should probably still count it, right?
+		if(MIDIfileTrackEmpty) MIDIfileTrackNumber--;
+		/* Write again number of tracks */
+		result = fseek(OpenMIDIfilePtr, sizeof(header1) + 1 + sizeof(header2), SEEK_SET);
+		if(result != 0) {
+			result = MISSED;
+			}
+		else {
+			byteval = (byte) (MIDIfileTrackNumber & 0xff);
+			result = WriteRawBytes(OpenMIDIfilePtr, &byteval, 1L);
+			}
+		}
+	// Need to close the file and cleanup even if the above fails!
+	CloseMIDIFile2();
+	return result;
 	}
-	else {
-		byteval = (byte) (MIDIfileTrackNumber & 0xff);
-		result = WriteRawBytes(OpenMIDIfilePtr, &byteval, 1L);
-	}
-}
-
-// Need to close the file and cleanup even if the above fails!
-CloseMIDIFile2();
-return result;
-}
 
 
 /* Actually closes the MIDI file and resets globals */
@@ -550,39 +552,20 @@ static int WriteVarLenQuantity(FILE* fout, dword value, dword *tracklen)
 	return result;
 }
 
-
-int PrepareMIDIFile(void)
-{
-int rep;
-
-WriteMIDIorchestra();
-if(!MIDIfileOpened) {
-	// Console version of PrepareMIDIFile() assumes that score file name has been set by a command-line argument
-	if(gOptions.outputFiles[ofiMidiFile].name != NULL) {
-		return MakeMIDIFile(&(gOptions.outputFiles[ofiMidiFile]));
+int PrepareMIDIFile(void) {
+	int rep;
+	if(!Create_set) WriteMIDIorchestra();
+	if(!MIDIfileOpened) {
+		if(gOptions.outputFiles[ofiMidiFile].name != NULL) {
+			return MakeMIDIFile(&(gOptions.outputFiles[ofiMidiFile]));
+			}
+		else {
+			BPPrintMessage(0,odError, "=> Error in PrepareMIDIFile(): file name is NULL.\n");
+			return MISSED;
+			}
 		}
-	else {
-		BPPrintMessage(0,odError, "=> Error in PrepareMIDIFile(): file name is NULL.\n");
-		return MISSED;
-		}
+	return(OK);
 	}
-// else MIDI file is already open
-/* switch(FileSaveMode) {	// FIXME !!!!
-	case ALLSAME:
-		return(OK);
-		break;
-	case ALLSAMEPROMPT:
-		my_sprintf(Message,"Current MIDI file is '%s'. Change it",MIDIfileName);
-		rep = Answer(Message,'N');
-		if(rep == ABORT) return(rep);
-		if(rep == NO) return(OK);
-	case NEWFILE:
-		CloseMIDIFile();
-		return(MakeMIDIFile(&(gOptions.outputFiles[ofiMidiFile])));
-		break;
-	} */
-return(OK);
-}
 
 
 int ResetMIDIfile(void)

@@ -38,7 +38,7 @@
 #endif
 
 #include "-BP3decl.h"
-#include "ConsoleMessages.h"
+// #include "ConsoleMessages.h"
 
 /*	NewTextHandle()
 	Creates and inits a new TEHandle (TERec**)
@@ -205,22 +205,21 @@ long GetTextHandleLength(TextHandle th)
 	return((*th)->length);
 }
 
-char GetTextChar(int w,long pos)
-{
+char GetTextChar(int w,long pos) {
 	if(w < 0 || w >= WMAX || !Editable[w]) {
 		BPPrintMessage(0,odError,"=> Err. GetTextChar(). Incorrect w");
 		return '\0';
-	}
+		}
 	if(pos < 0 || pos > (*TEH[w])->length) {
 		BPPrintMessage(0,odError,"=> Err. GetTextChar in %s: 'pos' (%ld) is out of range (max %ld)\n",WindowName[w],(long)pos,(long)(*TEH[w])->length);
 		return '\0';
-	}
-	else if(pos == (*TEH[w])->length) {
+		}
+	else if(pos >= (*TEH[w])->length) {
 		// length does not include the null char
 		return '\0';
-	}
+		}
 	else  return (*(*TEH[w])->hText)[pos];
-}
+	}
 
 // Returns handle of the actual text buffer in a TextHandle
 char** WindowTextHandle(TextHandle th)
@@ -239,23 +238,6 @@ int Deactivate(TextHandle th)
 	BP_NOT_USED(th);
 	return OK;
 }
-
-/* int DoKey(char c,EventModifiers modifiers,TextHandle th)
-{
-	char cbuffer[2];
-	
-	BP_NOT_USED(modifiers);
-	if(c == '\0' || c == '\b')	{
-		// report attempts to output null or backspace
-		fprintf(stderr, "Ignoring DoKey(0x%X)\n", c);
-	}
-	else {
-		cbuffer[0] = c;
-		cbuffer[1] = '\0';
-		TextInsert(cbuffer, 1L, th);
-	}
-	return OK;
-} */
 
 int TextDelete(int w)
 {

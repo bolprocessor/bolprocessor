@@ -37,8 +37,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "-BP3.h"
 #include "-BP3decl.h"
-#include "ConsoleGlobals.h"
-#include "ConsoleMessages.h"
+// #include "ConsoleGlobals.h"
+// #include "ConsoleMessages.h"
 
 /* Stubs to replace missing functions from BP3 Carbon GUI and from Mac OS X Carbon libraries */
 

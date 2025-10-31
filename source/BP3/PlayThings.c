@@ -50,30 +50,21 @@ int PlaySelection(int w, int all) {
 	if(OutCsound) PrepareCsFile(); // The same file will be used for all chunks or items
 	// if(WriteMIDIfile) PrepareMIDIFile(); 2024-07-12
 
-	#if BP_CARBON_GUI_FORGET_THIS
-	if(GetTuning() != OK) return(ABORT);
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
-
 	asked = FALSE;
 	/* if(w != LastComputeWindow && w >= 0 && w < WMAX && Editable[w]) LastComputeWindow = w;
 	w = LastComputeWindow; */  
 	if(w < 0 || w >= WMAX || !Editable[w]) {
-		BPPrintMessage(0,odError,"=> Err. PlaySelection(). Incorrect window index");
+		BPPrintMessage(1,odError,"=> Err. PlaySelection(). Incorrect window index");
 		return(MISSED);
 		}
 
 	// if(WillRandomize) ReseedOrShuffle(RANDOMIZE);
 
-	TextGetSelection(&origin, &end, TEH[w]);
-  //  BPPrintMessage(0,odError,"origin = %ld, end = %ld\n",(long)origin,(long)end);
+	TextGetSelection(&origin,&end,TEH[w]);
 	if(all) {
-	//	ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
-		BPPrintMessage(0,odError,"\n(No message when playing chunks.)\n");
+		BPPrintMessage(1,odInfo,"👉 No detailed message when processing chunks or units.\n\n");
 		PlayAllChunks = TRUE;
 		}
-
-	// PlaySelectionOn++; // Fixed by BB 2021-02-17
-	// ResetMIDI(TRUE); // Fixed by BB 2022-02-18
 
 	r = ABORT;
 
@@ -119,7 +110,7 @@ int PlaySelection(int w, int all) {
 		end++;
 		}
 
-	// BPPrintMessage(0,odInfo,"@ origin = %ld next_origin = %ld end = %ld\n",(long)origin,(long)next_origin,(long)end);
+	// BPPrintMessage(1,odInfo,"@ origin = %ld next_origin = %ld end = %ld\n",(long)origin,(long)next_origin,(long)end);
 	LastChunk = FALSE;
 	while((originmem=origin) < end) {
 		if((r=stop(0,"PlaySelection")) != OK) return ABORT;
@@ -137,11 +128,12 @@ int PlaySelection(int w, int all) {
 		if(next_origin == origin) break;
 		if((next_origin + 1) == end) LastChunk = TRUE;
 		r = OK;
+	//	BPPrintMessage(1,odInfo,"@@ origin = %ld next_origin = %ld\n",(long)origin,(long)next_origin);
 		SetSelect(origin,next_origin,TEH[w]);
-	//	BPPrintMessage(0,odInfo,"Playing selection\n");
+	//	BPPrintMessage(1,odInfo,"Playing selection\n");
 		Nplay = 1;
 		SaidTooComplex = ShownBufferSize = FALSE;
-	//	BPPrintMessage(0,odInfo,"Playing selection %ld to %ld (up to %ld)\n",(long)origin,(long)next_origin,(long)end);
+	//	BPPrintMessage(1,odInfo,"Playing selection %ld to %ld (up to %ld)\n",(long)origin,(long)next_origin,(long)end);
 		if((r=SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
 			MyDisposeHandle((Handle*)&p_a);
 			/* Could already be NULL because of PolyExpand() */
@@ -187,7 +179,7 @@ int PlaySelection(int w, int all) {
 		else {
 	NOVARIABLE:
 			if(r == OK) {
-		//		BPPrintMessage(0,odInfo,"@@@ PlayBuffer\n");
+			//	BPPrintMessage(1,odInfo,"@@@ PlayBuffer\n");
 				r = PlayBuffer(&p_a,NO);	/* HERE WE DO IT */
 				}
 		//	MyDisposeHandle((Handle*)&p_a);
@@ -203,15 +195,8 @@ int PlaySelection(int w, int all) {
 
 	END:
 	if(r == OK) SetSelect(firstorigin,end,TEH[w]);
-	// if(PlaySelectionOn > 0) PlaySelectionOn--; */ // Fixed by BB 2021-02-17
 
 	ResetMIDIfile();
-	
-	/* if(r == OK) {
-		BPActivateWindow(SLOW,LastComputeWindow);
-		// ResetMIDI(TRUE);
-		// if(ResetControllers) ResetMIDIControllers(YES,NO,NO);
-		} */
 	return(r);
 	}
 
@@ -343,18 +328,12 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		BPPrintMessage(1,odInfo, "=> No sound-object prototypes loaded\n");
 		goto RELEASE;
 		}
-	#if BP_CARBON_GUI_FORGET_THIS
-	if((result=LoadInteraction(TRUE,FALSE)) != OK) goto RELEASE;
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 	SetTimeOn = TRUE; nmax = 0;
-	if((result = TimeSet(pp_buff,&kmax,&tmin,&tmax,&maxseq,&nmax,p_imaxseq,maxseqapprox))
-								== MISSED || result == ABORT || result == EXIT) {
+	if((result = TimeSet(pp_buff,&kmax,&tmin,&tmax,&maxseq,&nmax,p_imaxseq,maxseqapprox)) == MISSED || result == ABORT || result == EXIT) {
 		SetTimeOn = FALSE;
-	//	if(result != ABORT && nmax,&p_imaxseq) != OK) result = ABORT;
 		if(result == MISSED) ShowError(37,0,0);
-	//	if((result == ABORT && !SkipFlag) || result == EXIT) goto RELEASE;
 		if(Panic) return ABORT;
-		if(result == ABORT || result == EXIT) goto RELEASE; // Fixed by BB 2021-02-26
+		if(result == ABORT || result == EXIT) goto RELEASE; 
 		result = MISSED;
 		goto RELEASE;
 		}
@@ -364,26 +343,33 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	if(trace_play) BPPrintMessage(1,odInfo,"\ntmin = %ld, tmax = %ld, rtMIDI = %d\n",(long)tmin,(long)tmax,rtMIDI);
 
 	// if(ShowGraphic) BPPrintMessage(0,odInfo, "Shall we draw graphics?\n");
-
-	if(onlypianoroll
-			|| (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && (tmax > tmin || Nature_of_time == SMOOTH))) {
-		if(!ShowPianoRoll && !onlypianoroll) {
-			result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
-			if(OutCsound || WriteMIDIfile || rtMIDI) {
-				if(trace_play) BPPrintMessage(1,odInfo,"Calling MakeSound() [1]\n");
-				result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
-				}
-			}
-		else {
-			if(trace_play) BPPrintMessage(1,odInfo,"Calling MakeSound() [2]\n");
-			result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
-			result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
-			}
-		}
-	else if(OutCsound || WriteMIDIfile || rtMIDI) {
-		if(trace_play) BPPrintMessage(1,odInfo,"Calling MakeSound() [3]\n");
+	if(Create_set) {
+		if(ErrorDuration > 0) return(MISSED);
+		if(trace_play) BPPrintMessage(1,odInfo,"Calling MakeSound() [4]\n");
 		result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
 		}
+	else {
+		if(onlypianoroll
+				|| (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && (tmax > tmin || Nature_of_time == SMOOTH))) {
+			if(!ShowPianoRoll && !onlypianoroll) {
+				result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
+				if(OutCsound || WriteMIDIfile || rtMIDI) {
+					if(trace_play) BPPrintMessage(1,odInfo,"Calling MakeSound() [1]\n");
+					result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
+					}
+				}
+			else {
+				if(trace_play) BPPrintMessage(1,odInfo,"Calling MakeSound() [2]\n");
+				result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
+				result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
+				}
+			}
+		else if(OutCsound || WriteMIDIfile || rtMIDI) {
+			if(trace_play) BPPrintMessage(1,odInfo,"Calling MakeSound() [3]\n");
+			result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
+			}
+		}
+	
 
 	/*if(result == AGAIN) {    // NOT USED AT THE MOMENT
 		again = TRUE;
@@ -1190,9 +1176,13 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 	POSITION:
 	while(MySpace(c=GetTextChar(w,origin))) {
 		origin++;
-		if(origin >= end) {
+		if(origin == end) {
 			SelectOn = FALSE;
-			BPPrintMessage(0,odError,"=> SelectionToBuffer error 1\n");
+			return(MISSED);
+			}
+		if(origin > end) {
+			SelectOn = FALSE;
+			BPPrintMessage(0,odError,"=> SelectionToBuffer error 1, origin = %ld, end = %ld\n",origin,end);
 			return(MISSED);
 			}
 		}
@@ -1210,7 +1200,7 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 		}
 	if(origin >= end) {
 		SelectOn = FALSE;
-			BPPrintMessage(0,odError,"=> SelectionToBuffer error 3\n");
+			BPPrintMessage(0,odError,"=> SelectionToBuffer error 3, origin = %ld, end = %ld\n",origin,end);
 		return(MISSED);
 		}
 	length = end - origin + 4L;
@@ -1280,7 +1270,7 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 
 
 int ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buff)
-/* Read TExt buffer */ {
+/* Read Text buffer */ {
 	int first;
 	long j,size,k,length;
 	char c,oldc,**ptr;
@@ -1298,9 +1288,14 @@ int ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buf
 	if(*p_i >= im) return(MISSED);
 	first = TRUE; oldc = '\0';
 	if(stop(0,"ReadToBuff") != OK) return ABORT;
+//	BPPrintMessage(1,odInfo,"@@@ i = %ld, im = %ld\n",*p_i,im);
+	if(Create_set) {
+		if(UnitfilePtr != NULL) fclose(UnitfilePtr);
+		UnitfilePtr = NULL;
+		Create_unit_file();
+		}
 	for(j=*p_i,k=0; j < im; j++) {
 		c = GetTextChar(w,j);
-	//	BPPrintMessage(0,odInfo,"%c",c);
 		if(nocomment && c == '*' && oldc == '/') {
 			/* Skip C-type remark */
 			oldc = '\0'; j++; k--;
@@ -1333,6 +1328,8 @@ int ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buf
 			}
 	//	if(c == '�') (**pp_buff)[k++] = ' ';
 		c = Filter(c);
+		if(Create_set && UnitfilePtr != NULL) fputc(c,UnitfilePtr);
+	//	BPPrintMessage(1,odInfo,"%c",c);
 		if(/* c != '�' && */ (c != '\r' || noreturn)) (**pp_buff)[k++] = c;
 		if(k >= size) {
 			if(ThreeOverTwo(&size) != OK) {
@@ -1359,4 +1356,28 @@ int ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buf
 		goto CLEAN;
 		}
 	return(OK);
+	}
+
+void Create_unit_file() {
+	char thename[MAXNAME];
+	const char *base = PathToMidiFile;
+    size_t base_len = strlen(base);
+	if(UnitfilePtr != NULL) return;
+	SetMidiFileNr++;
+	sprintf(thename,"%d.txt",SetMidiFileNr);
+    int need_slash = (base_len > 0 && base[base_len - 1] == '/') ? 0 : 1;
+    size_t total = base_len + (need_slash ? 1 : 0) + strlen(thename) + 1;
+    char *path = (char *)malloc(total);
+    char *p = path;
+    memcpy(p, base, base_len); p += base_len;
+    if (need_slash) *p++ = '/';
+    memcpy(p,thename,strlen(thename) + 1); // includes '\0'
+	// BPPrintMessage(1,odInfo,"\npath = %s\n",path);
+	UnitfilePtr = fopen(path, "w");
+    if(UnitfilePtr == NULL) {
+		 BPPrintMessage(0, odError, "=> Error creating %s: %s\n", path, strerror(errno));
+        return;
+    	}
+	else if(SetMidiFileNr == 1) BPPrintMessage(1,odInfo,"Copying polymetric expressions to files, starting with %s\n",path);
+	return;
 	}

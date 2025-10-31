@@ -36,7 +36,7 @@
 #ifndef _H_BP3
 #define _H_BP3
 
-#define SHORT_VERSION "3.3.3"
+#define SHORT_VERSION "3.3.4"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -144,20 +144,21 @@ typedef struct {
 #define IN 0
 #define OUT 1
 
+// Output destinations / messages types (these may be summed)
+#define odDisplay	1		// for results of produce items, expand selection, etc.
+#define odMidiDump	2		// for printing Midi messages as text
+#define odCsScore	4		// for writing Csound score
+#define odTrace		8		// for tracing processes (and step-by-step ?)
+#define odInfo		16		// informational messages
+#define odWarning	32		// warning messages
+#define odError		64		// error messages
+#define odUserInt	128		// interactive messages to which a response is expected
+
 /* Control/Status codes 
  * These codes are common for both A & B ports */
 #define CLOCKTIME_CODE 0		/* control/status */
 #define CHANNELIZE_CODE 2		/* control only */
 #define CLEAR_SCHEDULER_CODE 3	/* control only */
-
-
-#if BP_CARBON_GUI_FORGET_THIS
-#include "NavServWrapper.h"
-#endif
-
-#if !BP_CARBON_GUI_FORGET_THIS
-#include "ConsoleMessages.h"
-#endif
 
 #if defined(_WIN64)
 	#include <windows.h>
@@ -910,6 +911,12 @@ typedef enum {
 #define ActiveSensing 254
 #define SystemReset 255
 
+// Values for CLOption type are TRUE, FALSE, and NOCHANGE
+typedef int CLOption;
+#define NOCHANGE		-1
+#define MAXOUTFILES		4
+
+
 // --------------  Types -----------------------------
 
 // Decide between pointers and handles.
@@ -939,6 +946,51 @@ typedef enum {
 		} MIDIPacket;
 	typedef char** Handle;
 #endif
+
+typedef	int (*bp_message_callback_t)(void* bp, int dest, const char *format, va_list parms);
+
+// actions that can be specified on the command line
+typedef enum {
+	no_action = 0, compile, produce, produce_items, produce_all, play, play_item,
+	play_all, create_set, analyze, expand, show_beats, templates
+} action_t;
+
+typedef struct OutFileInfo {
+	const char	*name;
+	FILE		*fout;
+	int		isOpen;
+} OutFileInfo;
+
+typedef struct BPConsoleOpts {
+	action_t	action;
+	int			itemNumber;
+	const char	*startString;
+	const char	*midiInSource;
+	const char	*midiOutDestination;
+	const char	*inputFilenames[WMAX];
+	OutFileInfo	outputFiles[MAXOUTFILES];
+	int		useStdErr;
+	int		useStartString;
+	int		seedProvided;
+	int		outOptsChanged;
+	CLOption	displayItems;
+	CLOption	writeCsoundScore;
+	CLOption	writeMidiFile;
+	CLOption	useRealtimeMidi;
+	CLOption	showProduction;
+	CLOption	traceProduction;
+	int			noteConvention;	
+	int			midiFileFormat;	
+	unsigned	seed;
+} BPConsoleOpts;
+
+// indices to gOptions.outputFiles[]
+typedef enum {
+	ofiProdItems	= 0,	// output file for produced items (-o option)
+	ofiMidiFile		= 1,	// output Std Midi score file (--midiout option)
+	ofiCsScore		= 2,	// output Csound score file (--csoundout option)
+	ofiTraceFile	= 3,	// output file for tracing processes (no option yet)
+}	outfileidx_t;
 
 typedef TEHandle TextHandle;
 typedef long TextOffset;	// should be short, but there are many assumptions of long - akozar

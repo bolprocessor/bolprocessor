@@ -114,15 +114,15 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 
 	pos_init = ZERO;
 	level = 0;
-	if(NeedZouleb > 0) {
-		if(ShowMessages) ShowMessage(TRUE,wMessage,"Applying serial tools...");
+	if(NeedZouleb > 0) { // $$$ Doesn't happen?
+		if(ShowMessages) ShowMessage(TRUE,wMessage,"Applying serial tools (in Polymetric)...");
 		do {
 			r = Zouleb(&p_b,&level,&pos_init,FALSE,FALSE,0,FALSE,FALSE,NOSEED);
 			if(r != OK) goto QUIT;
 			}
 		while(level >= 0);
-		maxlevel++;	/* A pair of brackets {} may have been created around a sound-object at the deepest level */
-	//	if(trace_polymake) // HideWindow(Window[wMessage]);
+		maxlevel++;	// A pair of brackets {} may have been created around a sound-object at the deepest level
+	//	if(PrintArg(FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,stdout,wData,&p_b,pp_a) != OK) goto QUIT;
 		}
 
 	if(Beta && NeedZouleb > 0) {

@@ -139,14 +139,15 @@ int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_re
 		ix = ZERO;
 		level = 0;
 		if(NeedZouleb > 0) {
-			if(ShowMessages) ShowMessage(TRUE,wMessage,"Applying serial tools...");
+			if(ShowMessages) BPPrintMessage(1,odInfo,"👉 Applying serial tools...\n");
 			do {
 				r = Zouleb(pp_a,&level,&ix,FALSE,FALSE,0,(*p_repeat),FALSE,NOSEED);
 				if(r != OK) break;
 				}
 			while(level >= 0);
-			r = ShowItem(igram,&Gram,FALSE,pp_a,(*p_repeat),PROD,FALSE);
-		//	if(ShowMessages) HideWindow(Window[wMessage]);
+	//		r = ShowItem(igram,&Gram,FALSE,pp_a,(*p_repeat),PROD,FALSE);
+	//		PrintArg(FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,stdout,wData,pp_Scrap,pp_a);
+	//		PlayBuffer(pp_a,NO);
 			}
 		}
 		

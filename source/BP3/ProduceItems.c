@@ -320,7 +320,7 @@ if(!PlaySelectionOn && DisplayItems) {
 		}
 	}
 // if((!DisplayItems || PlaySelectionOn) && (rtMIDI || OutCsound || WriteMIDIfile)) {
-if(ShowGraphic || rtMIDI || OutCsound || WriteMIDIfile  || OutBPdata) {
+if(ShowGraphic || rtMIDI || OutCsound || WriteMIDIfile || OutBPdata) {
 	r = PlayBuffer(pp_a,NO);
 	if(r == RESUME) goto MAKE;
 	goto QUIT;
@@ -1397,10 +1397,6 @@ int separator,gap;
 long pos,pos1,posmax;
 char **p_line;
 
-#if BP_CARBON_GUI_FORGET_THIS
-UpdateThisWindow(FALSE,Window[wGrammar]); /* Update text length */
-ShowSelect(CENTRE,wGrammar);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 pos = pos1 = ZERO;
 posmax = GetTextLength(wGrammar);
 while(posmax > 0 && GetTextChar(wGrammar,posmax-1) == '\r') posmax--;
@@ -1835,6 +1831,7 @@ int check_and_remove_duplicate_last_line(const char *filename) {
 		outPtr = NULL;
 		}
 	else return FALSE;
+//	BPPrintMessage(1,odInfo,"@@@ file = %s\n",filename);
     FILE *file = my_fopen(1,filename,"r");
     if(file == NULL) return FALSE;
     char *lines[1000]; // Assuming a maximum of 1000 lines

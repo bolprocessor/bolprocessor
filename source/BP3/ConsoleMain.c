@@ -40,8 +40,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "-BP3.h"
 #include "-BP3main.h"
 
-#include "ConsoleGlobals.h"
-#include "ConsoleMessages.h"
+// #include "ConsoleGlobals.h"
+// #include "ConsoleMessages.h"
 
 const size_t	READ_ENTIRE_FILE = 0;
 char StopfileName[500] = {0};
@@ -70,7 +70,7 @@ void extract_and_append(char*,char*);
 // globals only for the console app
 int LoadedAlphabet = FALSE;
 int LoadedStartString = FALSE;
-BPConsoleOpts gOptions;
+// BPConsoleOpts gOptions;
 FILE * imagePtr;
 FILE * outPtr;
 char imageFileName[500];
@@ -224,6 +224,20 @@ int main (int argc, char* args[]) {
 				BPPrintMessage(0,odInfo,"Playing item(s) or chunks…\n");
 				PlaySelectionOn = PlayChunks = TRUE;
 				Improvize = FALSE;
+				result = PlaySelection(wData,1);
+				PlayAllChunks = FALSE;
+				if(result == OK) BPPrintMessage(0,odInfo,"\nErrors: 0\n");
+				else if(Beta && result != OK && result != ABORT) BPPrintMessage(0,odError,"=> PlaySelection() returned errors\n");
+				break;
+			case create_set:
+				BPPrintMessage(0,odInfo,"\n👉 Creating AI training set ➡ metronome = 60 beats/mn, no graphics…\n");
+				Create_set = TRUE;
+				Improvize = FALSE;
+				MIDIfileOn = TRUE;
+				EndFadeOut = 0.;
+				ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
+				Pclock = Qclock = 1; // Speed will be set by the _tempo() instruction at the beginning
+				PlaySelectionOn = PlayChunks = TRUE;
 				result = PlaySelection(wData,1);
 				PlayAllChunks = FALSE;
 				if(result == OK) BPPrintMessage(0,odInfo,"\nErrors: 0\n");
@@ -942,6 +956,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					if(++argn < argc)  {
 						opts->writeMidiFile = TRUE;
 						opts->outputFiles[ofiMidiFile].name = args[argn];
+						strcpy(PathToMidiFile,args[argn]);
 						opts->outOptsChanged = TRUE;
 						}
 					else {
@@ -1041,6 +1056,12 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					}
 				else if(strcmp(args[argn], "play-all") == 0)	{
 					action = play_all;
+					}
+				else if(strcmp(args[argn], "create_set") == 0)	{
+					action = create_set;
+		/*			opts->writeMidiFile = TRUE;
+					gOptions.outputFiles[ofiMidiFile].name = "../my_output/set_-da.Watch_What_Happens_by_Oscar_Peterson[1]/essayer.mid";
+					opts->outOptsChanged = TRUE; */
 					}
 				else if(strcmp(args[argn], "analyze-item") == 0)	{
 					action = analyze;
@@ -1484,7 +1505,7 @@ int PrepareProdItemsDestination(BPConsoleOpts* opts) {
 //	FILE *fout;
 	// prepare output file if requested
 	if(opts->displayItems && opts->outputFiles[ofiProdItems].name != NULL)	{
-		BPPrintMessage(0,odInfo, "Opening output file %s\n", opts->outputFiles[ofiProdItems].name);
+		BPPrintMessage(1,odInfo,"Creating output file %s\n",opts->outputFiles[ofiProdItems].name);
 		strcpy(OutFileName,opts->outputFiles[ofiProdItems].name);
 		outPtr = OpenOutputFile(&(opts->outputFiles[ofiProdItems]),"w");
 		if(!outPtr) {

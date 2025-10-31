@@ -586,7 +586,7 @@ int LoadSettings(const char *filename, int startup) {
 	MinPeriod = 0;
 	MaxConsoleTime = 0; // seconds (not used)
 
-	if(OutCsound) MIDIsetUpTime = 0;
+	if(OutCsound || Create_set) MIDIsetUpTime = 0;
 	int old_livegrammar = LiveGrammar;
 	int old_livesettings = LiveSettings;
 

@@ -39,7 +39,6 @@
 #endif
 
 #include "-BP3decl.h"
-#include "ConsoleMessages.h"
 
 typedef enum {	
 	odiDisplay	= 0,	// for results of produce items, expand selection, etc.
@@ -130,12 +129,12 @@ int BPPrintMessage(int force,int dest, const char *format, ...) {
         vfprintf(stdout, format, args);
         va_end(args);
     }
-    if(dest & odWarning && !PlayAllChunks && (!Improvize || ItemNumber < 1)) {
+    if((dest & odWarning) && !PlayAllChunks && (!Improvize || ItemNumber < 1)) {
         va_start(args, format);
         vfprintf(gOutDestinations[odiWarning], format, args);
         va_end(args);
     }
-    if(dest & odInfo && !PlayAllChunks && (((!Improvize || ItemNumber < 1) && !HideMessages) || force)) {
+    if((dest & odInfo) && (((!Improvize || ItemNumber < 1) && !HideMessages && !PlayAllChunks) || force)) {
         va_start(args, format);
    //     fprintf(stderr, "ok %s\n",format);
    //     vfprintf(gOutDestinations[odiInfo], format, args);

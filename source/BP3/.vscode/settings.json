@@ -37,7 +37,8 @@
         "array": "c",
         "functional": "c",
         "utility": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "-bp3decl.h": "c"
     },
     "search.useParentIgnoreFiles": true,
     "search.useGlobalIgnoreFiles": false

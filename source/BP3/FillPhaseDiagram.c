@@ -81,7 +81,7 @@ p_list ****p_waitlist,****p_scriptlist,**tag,**ptag;
 
 if(CheckEmergency() != OK) return(ABORT);
 if((result=stop(1,"FillPhaseDiagram")) != OK) return(result);
-if(trace_diagram) BPPrintMessage(0,odInfo,"Started filling phase diagram\n");
+if(trace_diagram) BPPrintMessage(1,odInfo,"Started filling phase diagram\n");
 
 AllSolTimeSet = StackFlag = (*p_bigitem) = ToldSkipped = FALSE;
 
@@ -204,7 +204,7 @@ for(i=0; i < Maxlevel; i++) {
 	}
 
 (*p_nmax) = 0;
-if(trace_toofast) BPPrintMessage(0,odError,"\nMinconc = %ld, Maxconc = %ld, maxseqapprox = %ld\n",(long)Minconc,(long)Maxconc,(long)maxseqapprox);
+if(trace_toofast) BPPrintMessage(1,odError,"\nMinconc = %ld, Maxconc = %ld, maxseqapprox = %ld\n",(long)Minconc,(long)Maxconc,(long)maxseqapprox);
 // for(nseq=0; nseq <= Minconc; nseq++) {
 for(nseq=0; nseq < Maxconc; nseq++) { // Replaced Minconc with Maxconc by BB 2021-02-26 
 	if(MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseqapprox,p_maxcol) != OK) {
@@ -219,7 +219,7 @@ for(nseq=0; nseq < Maxconc; nseq++) {
 (*p_deftnseq)[0] = nseq = 0;
 
 if(trace_diagram)
-	BPPrintMessage(0,odInfo,"Maxevent = %d\n",Maxevent);
+	BPPrintMessage(1,odInfo,"Maxevent = %d\n",Maxevent);
 
 for(k=0; k < Maxevent; k++) {
 	(*p_Instance)[k].object = 0;
@@ -378,19 +378,19 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 	if(m == TEND && p == TEND) break;
 	if((result=stop(0,"FillPhaseDiagram")) != OK) return(result);
 	if(trace_diagram)
-		BPPrintMessage(0,odInfo,"\n1) FillPhaseDiagram() m = %d p = %d level = %ld nseq = %ld id = %ld\n",m,p,(long)level,(long)nseq,(long)id);
+		BPPrintMessage(1,odInfo,"\n1) FillPhaseDiagram() m = %d p = %d level = %ld nseq = %ld id = %ld\n",m,p,(long)level,(long)nseq,(long)id);
 	if(m != T3 || p != 0) part_of_ip = Kpress; // Added by BB 2021-03-25
 	if(m == T33 || m == T34) {	/* _step() or _cont() */
 		paramnameindex = p;
 		i = FindParameterIndex(p_contparameters,level,paramnameindex);
-		if(trace_diagram || trace_toofast) BPPrintMessage(0,odInfo, "_step() or _cont() m = %d paramnameindex = %d i = %d\n",m,paramnameindex,i);
+		if(trace_diagram || trace_toofast) BPPrintMessage(1,odInfo, "_step() or _cont() m = %d paramnameindex = %d i = %d\n",m,paramnameindex,i);
 		if(i >= 0) {
 			UpdateParameter(i,p_contparameters,level,ZERO);
 			if(m == T33) (*((*p_contparameters)[level].values))[i].mode = STEPWISE;
 			else (*((*p_contparameters)[level].values))[i].mode = CONTINUOUS;
 			if(SetVariation(-1,p_deftcurrentparameters,&currentparameters,p_contparameters,level,i,id,*pp_buff,speed,scale,&endval,&mapendvalue,&maxbeats,h_table) != OK)
 				goto ENDDIAGRAM;
-			if(trace_toofast) BPPrintMessage(0,odInfo,"SetVariation(1) maxbeats = %d endval = %ld\n",maxbeats,(long)endval);
+			if(trace_toofast) BPPrintMessage(1,odInfo,"SetVariation(1) maxbeats = %d endval = %ld\n",maxbeats,(long)endval);
 			}
 		goto NEXTTOKEN;
 		}
@@ -440,16 +440,16 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 				UpdateParameter(i,p_contparameters,level,ZERO);
 				if(p == 4) {
 					(*((*p_contparameters)[level].values))[i].mode = STEPWISE;
-					if(trace_toofast) BPPrintMessage(0,odInfo,"_pitchstep level = %d  i = %ld\n",level,(long)i);
+					if(trace_toofast) BPPrintMessage(1,odInfo,"_pitchstep level = %d  i = %ld\n",level,(long)i);
 					}
 				else {
 					(*((*p_contparameters)[level].values))[i].mode = CONTINUOUS;
-					if(trace_toofast) BPPrintMessage(0,odInfo,"_pitchcont level = %d  i = %ld\n",level,(long)i);
+					if(trace_toofast) BPPrintMessage(1,odInfo,"_pitchcont level = %d  i = %ld\n",level,(long)i);
 					}
 				if(SetVariation(-1,p_deftcurrentparameters,&currentparameters,p_contparameters,level,i,id,
 						*pp_buff,speed,scale,&endval,&mapendvalue,&maxbeats,h_table) != OK)
 					goto ENDDIAGRAM;
-				if(trace_toofast) BPPrintMessage(0,odInfo,"-> pitchbend maxbeats = %d, endval = %ld v0 = %ld v1 = %ld\n",(int)maxbeats,(long)endval,(long)(*((*p_contparameters)[level].values))[i].v0,(long)(*((*p_contparameters)[level].values))[i].v1);
+				if(trace_toofast) BPPrintMessage(1,odInfo,"-> pitchbend maxbeats = %d, endval = %ld v0 = %ld v1 = %ld\n",(int)maxbeats,(long)endval,(long)(*((*p_contparameters)[level].values))[i].v0,(long)(*((*p_contparameters)[level].values))[i].v1);
 				break;
 			case 6:	/* _presstep */
 			case 7:	/* _presscont */
@@ -623,14 +623,14 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 	if((m == T3 && p < Jbol) || m == T25	// Sound-object or simple note or silence
 			|| (m == T9 && p < Jpatt)) {	// Time pattern
 		if(trace_diagram || trace_toofast) {
-			BPPrintMessage(0,odInfo,"\n••• m = %ld p = %ld id = %ld",(long)m,(long)p,(long)id);
-			if(m == T3 && p > 1) BPPrintMessage(0,odInfo," (*p_MIDIsize)[p] = %ld (*p_CsoundSize)[p] = %ld\n",(*p_MIDIsize)[p],(*p_CsoundSize)[p]);
-			else BPPrintMessage(0,odInfo,"\n");
+			BPPrintMessage(1,odInfo,"\n••• m = %ld p = %ld id = %ld",(long)m,(long)p,(long)id);
+			if(m == T3 && p > 1) BPPrintMessage(1,odInfo," (*p_MIDIsize)[p] = %ld (*p_CsoundSize)[p] = %ld\n",(*p_MIDIsize)[p],(*p_CsoundSize)[p]);
+			else BPPrintMessage(1,odInfo,"\n");
 			}
 		if(m == T3 && p > 1 && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO) {
 			m = T3;
 			p = 1;
-			if(trace_diagram) BPPrintMessage(0,odError,"=> m = %d p = %d, MIDIsize = CsoundSize = 0\n",m,p);
+			if(trace_diagram) BPPrintMessage(1,odError,"=> m = %d p = %d, MIDIsize = CsoundSize = 0\n",m,p);
 			}
 		toofast = (tempo > tempomax || tempo == 0.);
 		just_done = FALSE;
@@ -641,7 +641,7 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 			just_done = TRUE;
 			}
 		if(ip > maxseqapprox) {
-			BPPrintMessage(0,odError,"\n=> Error nseq = %ld Class((*p_im)[nseq]) = %ld maxseqapprox = %ld\n",
+			BPPrintMessage(1,odError,"\n=> Error nseq = %ld Class((*p_im)[nseq]) = %ld maxseqapprox = %ld\n",
 				(long)nseq,ip,(long)maxseqapprox);
 			goto ENDDIAGRAM;
 			}
@@ -651,16 +651,16 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 		if(m == T25) {
 			tie = (*(p_Tie_note[channel]))[p]; // Added by BB 2021-02-07
 			if(trace_diagram || trace_toofast)
-				BPPrintMessage(0,odInfo,"Tie_note? m = %d p = %d tie =  %d\n",m,p,tie);
+				BPPrintMessage(1,odInfo,"Tie_note? m = %d p = %d channel = %d tie =  %d\n",m,p,channel,tie);
 			}
 		else if(m == T3) {
 			tie = (*(p_Tie_event[instrument]))[p]; // Added by BB 2021-02-07
-			if(trace_diagram) BPPrintMessage(0,odInfo,"Tie_event m = %d p = %d tie =  %d\n",m,p,tie);
+			if(trace_diagram) BPPrintMessage(1,odInfo,"Tie_event m = %d p = %d tie =  %d\n",m,p,tie);
 			}
 		else tie = FALSE;
 		if(foundendconcatenation && tie) {
 			if(trace_diagram || trace_toofast)
-				BPPrintMessage(0,odInfo,"With foundendconcatenation <%d|%d> last object = %d\n",m,p,(int)kobj);
+				BPPrintMessage(1,odInfo,"With foundendconcatenation <%d|%d> last object = %d\n",m,p,(int)kobj);
 			if(m == T25) (*(p_Tie_note[channel]))[p] = FALSE;
 			else if(m == T3) (*(p_Tie_event[instrument]))[p] = FALSE;		
 			if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
@@ -670,11 +670,11 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 			}
 		else {
 			objectduration = 0.;
-			if(tie && (m == T25 || m == T9 || (m == T3 && p > 0))) { // 2025-01-22 m == T3
-			//	BPPrintMessage(0,odInfo,"\nCase 1 tie = %d\n",tie);
-			if(trace_diagram || trace_toofast) BPPrintMessage(0,odInfo,"GetSymbolicDuration() with tie, nseq = %ld level = %ld m = %ld p = %ld speed = %.2f scale = %.2f prodtempo = %.2f id = %ld kobj = %d\n",(long)nseq,(long)level,(long)m,(long)p,speed,scale,prodtempo,id,(int)kobj);
+			if(tie && (m == T25 || m == T9 || (m == T3 && p > 0))) { 
+				//	BPPrintMessage(1,odInfo,"\nCase 1 tie = %d\n",tie);
+				if(trace_diagram || trace_toofast) BPPrintMessage(1,odInfo,"GetSymbolicDuration() with tie, nseq = %ld level = %ld m = %ld p = %ld speed = %.2f scale = %.2f prodtempo = %.2f id = %ld kobj = %d\n",(long)nseq,(long)level,(long)m,(long)p,speed,scale,prodtempo,id,(int)kobj);
 				objectduration = GetSymbolicDuration(NO,*pp_buff,m,p,id,speed,scale,channel,instrument,part,foundendconcatenation,level);
-			if(trace_diagram || trace_toofast) BPPrintMessage(0,odInfo,"=> End GetSymbolicDuration() objectduration = %.2f id = %ld, %ld|%ld\n",objectduration,(long)id,(long)m,(long)p);
+				if(trace_diagram || trace_toofast) BPPrintMessage(1,odInfo,"=> End GetSymbolicDuration() objectduration = %.2f id = %ld, %ld|%ld\n",objectduration,(long)id,(long)m,(long)p);
 				}
 			iscontinuous = isMIDIcontinuous = FALSE;
 			if(p > 0) {
@@ -683,17 +683,17 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 				if((*p_contparameters)[level].number > 0) {
 					for(i=0; i < (*p_contparameters)[level].number; i++) {
 						if(trace_toofast)
-							BPPrintMessage(0,odInfo,"Continuous? kobj = %d m = %d p = %d level = %d id = %ld i = %d\n",kobj,(int)m,(int)p,level,id,i);
+							BPPrintMessage(1,odInfo,"Continuous? kobj = %d m = %d p = %d level = %d id = %ld i = %d\n",kobj,(int)m,(int)p,level,id,i);
 						if((*((*p_contparameters)[level].values))[i].active) {
 							iscontinuous = TRUE;
 							if(i <= IPANORAMIC) isMIDIcontinuous = TRUE;
-							if(trace_toofast) BPPrintMessage(0,odInfo,"-> yes\n");
+							if(trace_toofast) BPPrintMessage(1,odInfo,"-> yes\n");
 							break;
 							}
 						}
 					if(iscontinuous) {
 						objectduration = GetSymbolicDuration(TRUE,*pp_buff,m,p,id,speed,scale,channel,instrument,part,foundendconcatenation,level); // 2025-01-19
-						if(trace_toofast) BPPrintMessage(0,odInfo,"iscontinuous -> objectduration = %ld\n",(long)objectduration);
+						if(trace_toofast) BPPrintMessage(1,odInfo,"iscontinuous -> objectduration = %ld\n",(long)objectduration);
 						for(i=0; i < (*p_contparameters)[level].number; i++)
 							UpdateParameter(i,p_contparameters,level,objectduration);
 						}
@@ -707,13 +707,13 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 				kobj++; (*p_numberobjects) = kobj;
 				ShowProgress(kobj);
 				ip = Class((*p_im)[nseq]);
-				if(p == 1 && trace_toofast) BPPrintMessage(0,odInfo,"This silence is a specific object (1)\n");
-				// BPPrintMessage(0,odInfo,"@ nseq = %ld, kobj = %ld m = %d p = %d ip = %ld\n",(long)nseq,(long)kobj,m,p,(long)ip);
+				if(p == 1 && trace_toofast) BPPrintMessage(1,odInfo,"This silence is a specific object (1)\n");
+				if(trace_diagram) BPPrintMessage(1,odInfo,"@ nseq = %ld, (*p_im)[nseq] = %ld, kobj = %ld m = %d p = %d ip = %ld\n",(long)nseq,(long)(*p_im)[nseq],(long)kobj,m,p,(long)ip);
 				if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,currswitchstate)
 					== ABORT) goto ENDDIAGRAM;
 				if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,
 					p_Seq,&nseq,maxseqapprox,ip,kobj) != OK) goto ENDDIAGRAM;
-				if(trace_toofast) BPPrintMessage(0,odInfo,"Plot nseq = %ld nseqplot = %ld, kobj = %ld, iplot = %ld, tie = %d foundendconcatenation = %d m = %d p = %d ip = %ld\n",(long)nseq,(long)nseqplot,(long)kobj,(long)iplot,(int)tie,(int)foundendconcatenation,m,p,(long)ip);
+				if(trace_toofast) BPPrintMessage(1,odInfo,"Plot nseq = %ld nseqplot = %ld, kobj = %ld, iplot = %ld, tie = %d foundendconcatenation = %d m = %d p = %d ip = %ld\n",(long)nseq,(long)nseqplot,(long)kobj,(long)iplot,(int)tie,(int)foundendconcatenation,m,p,(long)ip);
 				if(overstrike) {
 					kobj--;
 					(*p_numberobjects) = kobj;
@@ -749,7 +749,7 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 					+ (mapincrement.q2 * ibeatsmap / maxbeatsmap);
 				if(currentparameters.mapmode == CONTINUOUS) {
 					ibeatsmap += objectduration;
-					if(trace_toofast) BPPrintMessage(0,odInfo,"ibeatsmap = %d objectduration = %d\n",ibeatsmap,objectduration);
+					if(trace_toofast) BPPrintMessage(1,odInfo,"ibeatsmap = %d objectduration = %d\n",ibeatsmap,objectduration);
 					currentparameters.map1.p1 = startmap.p1
 						+ (mapincrement.p1 * ibeatsmap / maxbeatsmap);
 					currentparameters.map1.q1 = startmap.q1
@@ -769,14 +769,14 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 				for(i=0; i < (*p_contparameters)[level].number; i++) {
 					if((*((*p_contparameters)[level].values))[i].active) {
 						if((*((*p_contparameters)[level].values))[i].increment == 0) {
-						//	BPPrintMessage(0,odInfo,"active = FALSE for i = %d\n",i);
+						//	BPPrintMessage(1,odInfo,"active = FALSE for i = %d\n",i);
 							(*((*p_contparameters)[level].values))[i].active = FALSE;
 							}
 						}
 					}
 
 
-				// BPPrintMessage(0,odInfo,"Sequence toofast = %d overstrike = %d\n",toofast,overstrike);
+				// BPPrintMessage(1,odInfo,"Sequence toofast = %d overstrike = %d\n",toofast,overstrike);
 				if(toofast && !overstrike) {
 				// Sequence is too fast, we'll store proper duration nevertheless
 				// We'll get the symbolic duration excluding '&' concatenation
@@ -785,8 +785,8 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 							scale,channel,instrument,part,foundendconcatenation,level);
 					numberzeros = objectduration - prodtempo; // Added by BB 2021-03-25
 			/*		if(numberzeros >= 1.)
-						BPPrintMessage(0,odInfo,"PutZeros(1) id = %ld m = %d p = %d toofast = %d objectduration = %.1f (*p_im)[nseq]/Kpress = %.1f kobj = %d maxseqapprox = %.0f numberzeros = %.0f numberzeros/Kpress = %.0f\n",id,m,p,(int)toofast,objectduration,(*p_im)[nseq]/Kpress,kobj,maxseqapprox,numberzeros,(numberzeros/Kpress)); */
-					if(trace_toofast) BPPrintMessage(0,odInfo,"-> toofast GetSymbolicDuration() nseq = %ld, nseqplot = %ld, level = %ld m = %ld p = %ld (key #%d), objectduration = %ld numberzeros = %.2f speed = %.2f prodtempo = %.2f scale = %.2f id = %ld\n",(long)nseq,(long)nseqplot,(long)level,(long)m,(long)p,(p - 16384),(long)objectduration,numberzeros,speed,prodtempo,scale,id);
+						BPPrintMessage(1,odInfo,"PutZeros(1) id = %ld m = %d p = %d toofast = %d objectduration = %.1f (*p_im)[nseq]/Kpress = %.1f kobj = %d maxseqapprox = %.0f numberzeros = %.0f numberzeros/Kpress = %.0f\n",id,m,p,(int)toofast,objectduration,(*p_im)[nseq]/Kpress,kobj,maxseqapprox,numberzeros,(numberzeros/Kpress)); */
+					if(trace_toofast) BPPrintMessage(1,odInfo,"-> toofast GetSymbolicDuration() nseq = %ld, nseqplot = %ld, level = %ld m = %ld p = %ld (key #%d), objectduration = %ld numberzeros = %.2f speed = %.2f prodtempo = %.2f scale = %.2f id = %ld\n",(long)nseq,(long)nseqplot,(long)level,(long)m,(long)p,(p - 16384),(long)objectduration,numberzeros,speed,prodtempo,scale,id);
 					if(PutZeros(nseq,toofast,p_im,p_maxcol,maxseqapprox,numberzeros,p_nmax,0) != OK)
 						goto ENDDIAGRAM;
 					skipzeros = TRUE;
@@ -802,9 +802,9 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 					else (*p_im)[nseq] -= (Kpress - 1.); // 2024-01-14 */
 					(*p_maxcol)[nseq] = Class((*p_im)[nseq]);
 				//	if(speed/scale > max_tempo_in_skipped_object) max_tempo_in_skipped_object = speed/scale;
-					if(tempo != speed/scale) BPPrintMessage(0,odError,"=> ERROR tempo = %.3f speed/scale = %.3f\n",(double)tempo,(double)speed/scale);
+					if(tempo != speed/scale) BPPrintMessage(1,odError,"=> ERROR tempo = %.3f speed/scale = %.3f\n",(double)tempo,(double)speed/scale);
 					if(tempo > max_tempo_in_skipped_object) max_tempo_in_skipped_object = tempo; // Fixed by BB 2021-03-26
-					if(trace_toofast) BPPrintMessage(0,odInfo,"---> toofast m = %d p = %d (key #%d), nseq = %ld, speed = %.0f scale = %.0f objectduration = %.0f Prod = %.0f = tempomax = %.0f prodtempo = %.0f, (*p_im)[%d] = %.0f, maxcol[nseq] = %ld\n",m,p,(p - 16384),(long)nseq,speed,scale,objectduration,Prod,tempomax,prodtempo,nseq,(*p_im)[nseq],(long)(*p_maxcol)[nseq]);
+					if(trace_toofast) BPPrintMessage(1,odInfo,"---> toofast m = %d p = %d (key #%d), nseq = %ld, speed = %.0f scale = %.0f objectduration = %.0f Prod = %.0f = tempomax = %.0f prodtempo = %.0f, (*p_im)[%d] = %.0f, maxcol[nseq] = %ld\n",m,p,(p - 16384),(long)nseq,speed,scale,objectduration,Prod,tempomax,prodtempo,nseq,(*p_im)[nseq],(long)(*p_maxcol)[nseq]);
 	//				toofast = (tempo > tempomax || tempo == 0.); // 2025-01-14
 					if(toofast) old_toofast = TRUE;
 					else old_toofast = FALSE;
@@ -818,7 +818,7 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 					kobj++;
 					(*p_numberobjects) = kobj;
 					ShowProgress(kobj);
-					if(trace_toofast) BPPrintMessage(0,odInfo,"This silence is a specific object (2)\n");
+					if(trace_toofast) BPPrintMessage(1,odInfo,"This silence is a specific object (2)\n");
 					if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,currswitchstate)
 						== ABORT) goto ENDDIAGRAM;
 					if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
@@ -835,17 +835,17 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 					for(i=0; i < (*p_contparameters)[level].number; i++) {
 						if((*((*p_contparameters)[level].values))[i].active) {
 							if((*((*p_contparameters)[level].values))[i].increment == 0) {
-								if(trace_toofast) BPPrintMessage(0,odInfo,"active = FALSE for i = %d\n",i);
+								if(trace_toofast) BPPrintMessage(1,odInfo,"active = FALSE for i = %d\n",i);
 								(*((*p_contparameters)[level].values))[i].active = FALSE;
 								}
 							}
 						}
 					}
 				if((p == 0 && !skipzeros) || p == 1) {	/* Empty object or silence */
-				//	BPPrintMessage(0,odInfo,"--> toofast = %d m = %d p = %d, Kpress = %.0f speed = %.0f scale = %.0f Prod = %.0f tempomax = %.0f tempo = %.0f prodtempo = %.0f, (*p_im)[%d] = %.0f, maxcol[nseq] = %ld part_of_ip = %.0f\n",(int)toofast,m,p,(double)Kpress,(double)speed,(double)scale,(double)Prod,(double)tempomax,(double)tempo,(double)prodtempo,(int)nseq,(double)(*p_im)[nseq],(long)(*p_maxcol)[nseq],(double)part_of_ip);
+				//	BPPrintMessage(1,odInfo,"--> toofast = %d m = %d p = %d, Kpress = %.0f speed = %.0f scale = %.0f Prod = %.0f tempomax = %.0f tempo = %.0f prodtempo = %.0f, (*p_im)[%d] = %.0f, maxcol[nseq] = %ld part_of_ip = %.0f\n",(int)toofast,m,p,(double)Kpress,(double)speed,(double)scale,(double)Prod,(double)tempomax,(double)tempo,(double)prodtempo,(int)nseq,(double)(*p_im)[nseq],(long)(*p_maxcol)[nseq],(double)part_of_ip);
 					if(!new_thing || m != T3 || p != 0 || !toofast || just_done) { // Added by BB 2021-03-27
 						if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,&nseq,maxseqapprox,ip,p) != OK) goto ENDDIAGRAM;
-						if(trace_toofast) BPPrintMessage(0,odInfo,"Plot(1) id = %ld m = %d p = %d ip = %.0f iplot = %.0f skipzeros = %d toofast = %d overstrike = %d (*p_im)[%d] = %.1f (*p_im)[nseq]/Kpress = %.1f kobj = %d maxseqapprox = %.0f Prod = %.0f tempo = %.0f nseq = %d nseqplot = %d (*p_maxcol)[nseq] = %.0f part_of_ip = %.0f\n",id,m,p,(double)ip,(double)iplot,(int)skipzeros,(int)toofast,overstrike,nseq,(*p_im)[nseq],(*p_im)[nseq]/Kpress,kobj,maxseqapprox,(double)Prod,(double)tempo,nseq,nseqplot,(double)ip,(double)part_of_ip);
+						if(trace_toofast) BPPrintMessage(1,odInfo,"Plot(1) id = %ld m = %d p = %d ip = %.0f iplot = %.0f skipzeros = %d toofast = %d overstrike = %d (*p_im)[%d] = %.1f (*p_im)[nseq]/Kpress = %.1f kobj = %d maxseqapprox = %.0f Prod = %.0f tempo = %.0f nseq = %d nseqplot = %d (*p_maxcol)[nseq] = %.0f part_of_ip = %.0f\n",id,m,p,(double)ip,(double)iplot,(int)skipzeros,(int)toofast,overstrike,nseq,(*p_im)[nseq],(*p_im)[nseq]/Kpress,kobj,maxseqapprox,(double)Prod,(double)tempo,nseq,nseqplot,(double)ip,(double)part_of_ip);
 						part_of_ip = 0.;
 						(*p_maxcol)[nseq] = ip;
 						}
@@ -867,11 +867,11 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 		if(add_zeros && (!new_thing || m != T3 || p != 0 || !toofast || skipzeros || just_done)) { // Added by BB 2021-03-26
 			numberzeros = prodtempo - 1.;
 			if(skipzeros) numberzeros = -1.;
-			if(trace_toofast) BPPrintMessage(0,odInfo,"@ add zeros kobj = %ld, m = %ld p = %ld numberzeros = %.2f\n",(long)kobj,(long)m,(long)p,numberzeros);
+			if(trace_toofast) BPPrintMessage(1,odInfo,"@ add zeros kobj = %ld, m = %ld p = %ld numberzeros = %.2f\n",(long)kobj,(long)m,(long)p,numberzeros);
 			if(PutZeros(nseq,toofast,p_im,p_maxcol,maxseqapprox,numberzeros,p_nmax,0) != OK) goto ENDDIAGRAM;
 		/*	if(numberzeros >= 1. && PutZeros(toofast,p_im,p_maxcol,nseq,maxseqapprox,numberzeros,p_nmax,kobj) != OK)
 				goto ENDDIAGRAM; */
-		//	if(numberzeros >= 1.) BPPrintMessage(0,odInfo,"PutZeros(2) id = %ld m = %d p = %d prodtempo = %.0f toofast = %d (*p_im)[%d] = %.1f (*p_maxcol)[nseq] = %.1f (*p_im)[nseq]/Kpress = %.1f kobj = %d maxseqapprox = %.0f Prod = %.0f tempo = %.0f numberzeros = %.0f numberzeros/Kpress = %.0f\n",(long)id,m,p,(double)prodtempo,(int)toofast,(int)nseq,(double)(*p_im)[nseq],(double)(*p_maxcol)[nseq],(double)(*p_im)[nseq]/Kpress,(int)kobj,(double)maxseqapprox,(double)Prod,(double)tempo,(double)numberzeros,(double)(numberzeros/Kpress));
+		//	if(numberzeros >= 1.) BPPrintMessage(1,odInfo,"PutZeros(2) id = %ld m = %d p = %d prodtempo = %.0f toofast = %d (*p_im)[%d] = %.1f (*p_maxcol)[nseq] = %.1f (*p_im)[nseq]/Kpress = %.1f kobj = %d maxseqapprox = %.0f Prod = %.0f tempo = %.0f numberzeros = %.0f numberzeros/Kpress = %.0f\n",(long)id,m,p,(double)prodtempo,(int)toofast,(int)nseq,(double)(*p_im)[nseq],(double)(*p_maxcol)[nseq],(double)(*p_im)[nseq]/Kpress,(int)kobj,(double)maxseqapprox,(double)Prod,(double)tempo,(double)numberzeros,(double)(numberzeros/Kpress));
 			}
 		just_done = FALSE;
 		
@@ -947,7 +947,7 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 			for(i=0; i < (*p_contparameters)[level].number; i++) {
 				if((*((*p_contparameters)[level].values))[i].active) {
 					if((*((*p_contparameters)[level].values))[i].increment == 0) {
-				//		BPPrintMessage(0,odInfo,"active = FALSE for i = %d\n",i);
+				//		BPPrintMessage(1,odInfo,"active = FALSE for i = %d\n",i);
 						(*((*p_contparameters)[level].values))[i].active = FALSE;
 						}
 					}
@@ -959,15 +959,15 @@ DONEOUTTIMEOBJECT:
 		goto NEXTTOKEN;
 		}
 	if(trace_diagram) 
-		BPPrintMessage(0,odInfo,"FillPhaseDiagram() m = %d p = %d level = %ld\n",m,p,(long)level);
+		BPPrintMessage(1,odInfo,"FillPhaseDiagram() m = %d p = %d level = %ld\n",m,p,(long)level);
 	switch(m) {
 		case T0:
 			switch(p) {
 				case 12:			/* '{' */
 				case 22:
-				//	BPPrintMessage(0,odInfo,"\nFillPhaseDiagram() { m = %d p = %d level = %ld\n",m,p,(long)level);
+				//	BPPrintMessage(1,odInfo,"\nFillPhaseDiagram() { m = %d p = %d level = %ld\n",m,p,(long)level);
 					skipzeros = add_zeros = FALSE;
-					if(trace_toofast) BPPrintMessage(0,odInfo,"{\n");
+					if(trace_toofast) BPPrintMessage(1,odInfo,"{\n");
 					for(i=0; i < (*p_contparameters)[level].number; i++) {
 						UpdateParameter(i,p_contparameters,level,ZERO);
 						}
@@ -976,7 +976,7 @@ DONEOUTTIMEOBJECT:
 						
 					level++;
 					if(level >= Maxlevel) {
-						BPPrintMessage(0,odError,"=> Err. FillPhaseDiagram(). level >= Maxlevel");
+						BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). level >= Maxlevel");
 						goto ENDDIAGRAM;
 						}
 						
@@ -1020,7 +1020,7 @@ DONEOUTTIMEOBJECT:
 									level,i,id,*pp_buff,speed,scale,&endval,&mapendvalue,
 									&maxbeats,h_table) != OK)
 								goto ENDDIAGRAM;
-							if(trace_toofast) BPPrintMessage(0,odInfo,"SetVariation(2) i = %d maxbeats = %d endval = %ld\n",i,maxbeats,(long)endval);
+							if(trace_toofast) BPPrintMessage(1,odInfo,"SetVariation(2) i = %d maxbeats = %d endval = %ld\n",i,maxbeats,(long)endval);
 							}
 						}
 					
@@ -1038,9 +1038,9 @@ DONEOUTTIMEOBJECT:
 				case 13:					/* '}' */
 				case 23:
 					skipzeros = add_zeros = FALSE;
-					if(trace_toofast) BPPrintMessage(0,odInfo,"}\n");
+					if(trace_toofast) BPPrintMessage(1,odInfo,"}\n");
 					if(level >= Maxlevel) {
-						BPPrintMessage(0,odError,"=> Err. FillPhaseDiagram(). level >= Maxlevel");
+						BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). level >= Maxlevel");
 						goto ENDDIAGRAM;
 						}
 					inext = (*p_im)[nseq];
@@ -1050,13 +1050,13 @@ DONEOUTTIMEOBJECT:
 					/* (*p_maxcol)[nseq] must be checked because of concatenated time-objects */
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
-						BPPrintMessage(0,odError,"=> Formula too complex (case 1)\n");
+						BPPrintMessage(1,odError,"=> Formula too complex (case 1)\n");
 						Panic = TRUE;
 						goto ENDDIAGRAM;
 				//		else goto NEWSEQUENCE;
 						}
 					if(nseq > (*p_nmax)) {
-						BPPrintMessage(0,odError,"=> Err. FillPhaseDiagram(). nseq > (*p_nmax) after '}'\n");
+						BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). nseq > (*p_nmax) after '}'\n");
 						if((gotnewline=MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseqapprox,p_maxcol))
 								!= OK) {
 							if(gotnewline == ABORT) goto ENDDIAGRAM;
@@ -1115,23 +1115,23 @@ DONEOUTTIMEOBJECT:
 					skipzeros = add_zeros = FALSE;
 					inext = (*p_origin)[level];
 					classofinext = Class(inext);
-					if(trace_toofast) BPPrintMessage(0,odInfo,",\n");
-					if(trace_diagram) BPPrintMessage(0,odInfo,"nseq = %ld level = %ld Minconc = %ld inext = %.0f classofinext = %ld\n",(long)nseq,(long)level,(long)Minconc,(double)inext,(long)classofinext);
+					if(trace_toofast) BPPrintMessage(1,odInfo,",\n");
+					if(trace_diagram) BPPrintMessage(1,odInfo,"nseq = %ld level = %ld Minconc = %ld inext = %.0f classofinext = %ld\n",(long)nseq,(long)level,(long)Minconc,(double)inext,(long)classofinext);
 					
 					/* (*p_maxcol)[nseq] must be checked because of concatenated time-objects */
-					if(trace_diagram) BPPrintMessage(0,odInfo,"@@ (*p_maxcol)[%ld + 1] = %ld\n",(long)nseq,(long)(*p_maxcol)[nseq+1]);
+					if(trace_diagram) BPPrintMessage(1,odInfo,"@@ (*p_maxcol)[%ld + 1] = %ld\n",(long)nseq,(long)(*p_maxcol)[nseq+1]);
 					while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 					if(nseq >= Minconc) {
 						Panic = TRUE;
 						{
-							BPPrintMessage(0,odError,"=> Formula too complex (case 2)\n"); // BB 2021-01-29
-							BPPrintMessage(0,odError,"nseq = %ld Minconc = %ld classofinext = %ld inext = %.0f\n",(long)nseq,(long)Minconc,(long)classofinext,inext);
+							BPPrintMessage(1,odError,"=> Formula too complex (case 2)\n"); // BB 2021-01-29
+							BPPrintMessage(1,odError,"nseq = %ld Minconc = %ld classofinext = %ld inext = %.0f\n",(long)nseq,(long)Minconc,(long)classofinext,inext);
 							goto ENDDIAGRAM;
 							}
 						goto NEWSEQUENCE;
 						}
 					if(nseq > (*p_nmax)) {
-						BPPrintMessage(0,odError,"\n=> Error 3 FillPhaseDiagram(). nseq > (*p_nmax) after ','");
+						BPPrintMessage(1,odError,"\n=> Error 3 FillPhaseDiagram(). nseq > (*p_nmax) after ','");
 						if((gotnewline=MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseqapprox,p_maxcol))
 								!= OK) {
 							if(gotnewline == ABORT) goto ENDDIAGRAM;
@@ -1181,7 +1181,7 @@ NEWSEQUENCE:
 									level,i,id,*pp_buff,speed,scale,&endval,&mapendvalue,
 									&maxbeats,h_table) != OK)
 								goto ENDDIAGRAM;
-							if(trace_toofast) BPPrintMessage(0,odInfo,"SetVariation(3) i = %d  maxbeats = %d endval = %ld\n",i,maxbeats,(long)endval);
+							if(trace_toofast) BPPrintMessage(1,odInfo,"SetVariation(3) i = %d  maxbeats = %d endval = %ld\n",i,maxbeats,(long)endval);
 							}
 						}
 					
@@ -1203,7 +1203,7 @@ NEWSEQUENCE:
 						prodtempo = (Prod / tempo);
 						}
 					else tempo = prodtempo = 0.;
-					if(trace_toofast) BPPrintMessage(0,odInfo,"# id = %ld scale = %.2f speed = %.2f tempo = %.2f prodtempo = %.2f\n",id,scale,speed,tempo,prodtempo);
+					if(trace_toofast) BPPrintMessage(1,odInfo,"# id = %ld scale = %.2f speed = %.2f tempo = %.2f prodtempo = %.2f\n",id,scale,speed,tempo,prodtempo);
 					toofast = (tempo > tempomax || tempo == 0.);
 					id += 4;
 					oldp = -1;
@@ -1220,7 +1220,7 @@ NEWSEQUENCE:
 						prodtempo = (Prod / tempo);
 						}
 					else tempo = prodtempo = 0.;
-					if(trace_toofast) BPPrintMessage(0,odInfo,"## id = %ld scale = %.2f speed = %.2f tempo = %.2f prodtempo = %.2f\n",id,scale,speed,tempo,prodtempo);
+					if(trace_toofast) BPPrintMessage(1,odInfo,"## id = %ld scale = %.2f speed = %.2f tempo = %.2f prodtempo = %.2f\n",id,scale,speed,tempo,prodtempo);
 					toofast = (tempo > tempomax || tempo == 0.);
 					id += 4;
 					oldp = -1;
@@ -1235,7 +1235,7 @@ NEWSEQUENCE:
 						prodtempo = (Prod / tempo);
 						}
 					else tempo = prodtempo = 0.;
-					if(trace_toofast) BPPrintMessage(0,odInfo,"### id = %ld scale = %.2f speed = %.2f tempo = %.2f prodtempo = %.2f\n",id,scale,speed,tempo,prodtempo);
+					if(trace_toofast) BPPrintMessage(1,odInfo,"### id = %ld scale = %.2f speed = %.2f tempo = %.2f prodtempo = %.2f\n",id,scale,speed,tempo,prodtempo);
 					toofast = (tempo > tempomax || tempo == 0.);
 					id += 4;
 					oldp = -1;
@@ -1253,7 +1253,7 @@ NEWSEQUENCE:
 						prodtempo = (Prod / tempo);
 						}
 					else tempo = prodtempo = 0.;
-					if(trace_toofast) BPPrintMessage(0,odInfo,"#### prodtempo = %ld\n",(long)prodtempo);
+					if(trace_toofast) BPPrintMessage(1,odInfo,"#### prodtempo = %ld\n",(long)prodtempo);
 					toofast = (tempo > tempomax || tempo == 0.);
 					id += 4;
 					oldp = -1;
@@ -1264,14 +1264,14 @@ NEWSEQUENCE:
 	//				if(level >= Maxlevel) goto NEXTTOKEN;
 					skipzeros = FALSE;
 					if(trace_diagram)
-						BPPrintMessage(0,odInfo,"'&' preceding id = %ld nseq = %ld level = %ld\n",(long)id,(long)nseq,(long)level);
+						BPPrintMessage(1,odInfo,"'&' preceding id = %ld nseq = %ld level = %ld\n",(long)id,(long)nseq,(long)level);
 					foundendconcatenation = TRUE;
 					goto NEXTTOKEN;
 					break;
 					
 				case 18:				/* '&' following terminal or simple note */
 					if(foundendconcatenation) {
-						BPPrintMessage(0,odInfo,"foundendconcatenation -> goto NEXTTOKEN\n");
+						if(trace_diagram) BPPrintMessage(1,odInfo,"foundendconcatenation -> goto NEXTTOKEN\n");
 						goto NEXTTOKEN;
 						}
 					skipzeros = FALSE;
@@ -1280,22 +1280,22 @@ NEWSEQUENCE:
 					
 					if((oldm != T3 && oldm != T25) || oldp < 1 || id < 2L) {
 						my_sprintf(Message,"=> Concatenation '&' should follow a sound-object or simple note. One of them is misplaced");
-						BPPrintMessage(0,odError,Message);
+						BPPrintMessage(1,odError,Message);
 						goto NEXTTOKEN;
 						}
-					if(trace_toofast) BPPrintMessage(0,odInfo,"GetSymbolicDuration() '&' following terminal nseq = %ld level = %ld m = %ld p = %ld speed = %.2f scale = %.2f id = %ld kobj = %d\n",(long)nseq,(long)level,(long)oldm,(long)oldp,speed,scale,id,(int)kobj);
+					if(trace_toofast) BPPrintMessage(1,odInfo,"GetSymbolicDuration() '&' following terminal nseq = %ld level = %ld m = %ld p = %ld speed = %.2f scale = %.2f id = %ld kobj = %d\n",(long)nseq,(long)level,(long)oldm,(long)oldp,speed,scale,id,(int)kobj);
 					numberzeros
 						= GetSymbolicDuration(NO,*pp_buff,oldm,oldp,id-2L,speed,
 							scale,channel,instrument,part,foundendconcatenation,level) - prodtempo;
 					if(trace_diagram || trace_toofast) 
-						BPPrintMessage(0,odInfo,"End GetSymbolicDuration() numberzeros = %.2f\n",numberzeros);
+						BPPrintMessage(1,odInfo,"End GetSymbolicDuration() numberzeros = %.2f\n",numberzeros);
 					if(numberzeros < 0.) numberzeros = 0.;
 							
 					if(PutZeros(nseq,toofast,p_im,p_maxcol,maxseqapprox,numberzeros,p_nmax,0) != OK) goto ENDDIAGRAM; // 2025-01-16
 					
 					if(oldm == T25) {
 						(*(p_Tie_note[channel]))[oldp] = TRUE; // Added by BB 2021-02-07 
-						if(trace_toofast) BPPrintMessage(0,odInfo,"Found tied note p = %d\n",(int)oldp);
+						if(trace_toofast) BPPrintMessage(1,odInfo,"Found tied note p = %d\n",(int)oldp);
 						}
 					else if(oldm == T3) (*(p_Tie_event[instrument]))[oldp] = TRUE; // Added by BB 2021-02-07
 				
@@ -1303,7 +1303,7 @@ NEWSEQUENCE:
 					if(nseq >= Minconc) {
 						Panic = TRUE;
 						{
-							BPPrintMessage(0,odError,"=> Err. FillPhaseDiagram(). nseq >= Minconc after '&'");
+							BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). nseq >= Minconc after '&'");
 							goto ENDDIAGRAM;
 							}
 						goto NEWSEQUENCE;
@@ -1337,7 +1337,7 @@ NEWSEQUENCE:
 			currentparameters.currchan = value = FindValue(m,p,currentparameters.currchan);
 			if(value == Infpos) goto ENDDIAGRAM;
 			channel = roundf(value);
-	//		if(trace_capture) BPPrintMessage(0,odInfo,"§§ channel = %d\n",channel);
+	//		if(trace_capture) BPPrintMessage(1,odInfo,"§§ channel = %d\n",channel);
 			break;
 		case T32:	/* Instrument assignment _ins() */
 			currentparameters.currinstr = value = FindValue(m,p,currentparameters.currchan);
@@ -1353,28 +1353,28 @@ NEWSEQUENCE:
 		case T44:	/* _scale() */
 			currentparameters.scale = p % MAXSTRINGCONSTANTS;
 			if(trace_scale)
-				BPPrintMessage(0,odInfo,"FillPhaseDiagram() _scale() value = %ld\n",(long)value);
+				BPPrintMessage(1,odInfo,"FillPhaseDiagram() _scale() value = %ld\n",(long)value);
 			if(currentparameters.scale > -1) {
 				int i_scale = FindScale(currentparameters.scale);
-				if(trace_scale) BPPrintMessage(0,odInfo,"This tonal scale will be used: #%d\n",i_scale);
+				if(trace_scale) BPPrintMessage(1,odInfo,"This tonal scale will be used: #%d\n",i_scale);
 				newkeyval = (p - currentparameters.scale) / MAXSTRINGCONSTANTS;
 				if(DefaultScaleParam == -1) DefaultScaleParam = currentparameters.scale;
 				}
 			else newkeyval = DefaultBlockKey;
 			if(trace_scale) 
-				BPPrintMessage(0,odInfo,"newkeyval = %ld currentparameters.scale = %d\n",(long)newkeyval,currentparameters.scale);
+				BPPrintMessage(1,odInfo,"newkeyval = %ld currentparameters.scale = %d\n",(long)newkeyval,currentparameters.scale);
 			if(newkeyval < 0 || newkeyval > 127) {
-				BPPrintMessage(0,odError,"=> Err. FillPhaseDiagram(). newblockkey < 0 || newblockkey > 127");
+				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). newblockkey < 0 || newblockkey > 127");
 				currentparameters.blockkey = DefaultBlockKey;
 				}
 			else if(currentparameters.scale > -1) {
 				newval = (*p_NumberConstant)[newkeyval];
 				if(newval == 0) newval = 60;
 				if(newval < 0 || newval > 127) {	 
-					BPPrintMessage(0,odError,"\n=> Error on block key in \"_scale()\" statement. It should be in range [0..127], or a note in your convention. Its default value will be used: %d\n",DefaultBlockKey);
+					BPPrintMessage(1,odError,"\n=> Error on block key in \"_scale()\" statement. It should be in range [0..127], or a note in your convention. Its default value will be used: %d\n",DefaultBlockKey);
 					newval = DefaultBlockKey;
 					}
-				if(trace_scale) BPPrintMessage(0,odInfo,"blockkey = %ld\n",(long)newval);
+				if(trace_scale) BPPrintMessage(1,odInfo,"blockkey = %ld\n",(long)newval);
 				currentparameters.blockkey = newval;
 				if(newval > 0) DefaultBlockKey = newval;
 				}
@@ -1429,12 +1429,12 @@ NEWSEQUENCE:
 				{
 					if(paramvalueindex >= (MyGetHandleSize((Handle)p_NumberConstant)
 						/ sizeof(double))) {
-						BPPrintMessage(0,odError,"=> Err FillPhaseDiagram(). paramvalueindex overflow");
+						BPPrintMessage(1,odError,"=> Err FillPhaseDiagram(). paramvalueindex overflow");
 						goto ENDDIAGRAM;
 						}
 					}
 				value = FindValue(m,p,currentparameters.currchan);
-				if(trace_diagram) BPPrintMessage(0,odInfo, "_value() paramnameindex = %d i = %d value = %.3f\n",paramnameindex,i,value);
+				if(trace_diagram) BPPrintMessage(1,odInfo, "_value() paramnameindex = %d i = %d value = %.3f\n",paramnameindex,i,value);
 				if(AssignValue(i,value,0,level,p_numberobjects,p_deftcurrentparameters,&currentparameters,
 					p_contparameters,id,pp_buff,tempo,scale,h_table) != OK)
 						goto ENDDIAGRAM;
@@ -1447,7 +1447,7 @@ NEWSEQUENCE:
 			if(i >= 0) {
 				value = FindValue(m,p,currentparameters.currchan);
 				if(trace_diagram || trace_toofast) 
-					BPPrintMessage(0,odInfo, "_pitchbend() i = %d value = %.3f\n",i,value);
+					BPPrintMessage(1,odInfo, "_pitchbend() i = %d value = %.3f\n",i,value);
 				if(value == Infpos) goto ENDDIAGRAM;
 				if(AssignValue(i,value,0,level,p_numberobjects,p_deftcurrentparameters,&currentparameters,
 					p_contparameters,id,pp_buff,tempo,scale,h_table) != OK)
@@ -1511,7 +1511,7 @@ NEWSEQUENCE:
 		//	currentparameters.xpandkey = p % 256;
 			currentparameters.xpandkey = p % MAXSTRINGCONSTANTS;
 			if(currentparameters.xpandkey < 0) {
-				BPPrintMessage(0,odError,"=> Err. FillPhaseDiagram(). xpandkey < 0");
+				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). xpandkey < 0");
 				currentparameters.xpandkey = -1;
 				}
 			if(currentparameters.xpandkey > -1)
@@ -1521,7 +1521,7 @@ NEWSEQUENCE:
 //				currentparameters.xpandkey = 0; 
 				}
 			if(newxpandval < 0 || newxpandval >= maxparam) {
-				BPPrintMessage(0,odError,"=> Err. FillPhaseDiagram(). newxpandval < 0 || newxpandval >= maxparam");
+				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). newxpandval < 0 || newxpandval >= maxparam");
 				newxpandval = 0;
 				}
 			if(currentparameters.xpandkey > -1
@@ -1550,11 +1550,11 @@ NEWSEQUENCE:
 		case T45:	/* Capture input MIDI stream _capture() */
 			if(Interactive) {
 				currentparameters.capture = p;
-				if(trace_capture) BPPrintMessage(0,odInfo,"👉 Found CaptureSource = %d\n",p);
+				if(trace_capture) BPPrintMessage(1,odInfo,"👉 Found CaptureSource = %d\n",p);
 				Capture0n = TRUE;
 				CapturePtr = CreateCaptureFile(CapturePtr);
 				}
-			else BPPrintMessage(0,odError,"=> _capture(%d) will be ignored because there is no input\n",p);
+			else BPPrintMessage(1,odError,"=> _capture(%d) will be ignored because there is no input\n",p);
 			break;
 		case T11:	/* Velocity assignment _vel() */
 	//		if(level >= Maxlevel) goto NEXTTOKEN;
@@ -1640,12 +1640,12 @@ NEWSEQUENCE:
 	//		if(level >= Maxlevel) goto NEXTTOKEN;
 			v = p % 128;
 			if(v < 64 || v > 95)  {
-				BPPrintMessage(0,odError,"=> Err. FillPhaseDiagram(). v < 64 || v > 95");
+				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). v < 64 || v > 95");
 				goto ENDDIAGRAM;
 				}
 			ch = (p - v) / 128 - 1;
 			if(ch < 0 || ch > 15) {
-				BPPrintMessage(0,odError,"=> Err. FillPhaseDiagram(). ch < 0 || ch > 15");
+				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). ch < 0 || ch > 15");
 				goto ENDDIAGRAM;
 				}
 			currswitchstate[ch] = currswitchstate[ch] | (1L << (v - 64));
@@ -1655,12 +1655,12 @@ NEWSEQUENCE:
 	//		if(level >= Maxlevel) goto NEXTTOKEN;
 			v = p % 128;
 			if(v < 64 || v > 95)  {
-				BPPrintMessage(0,odError,"=> Err. FillPhaseDiagram(). v < 64 || v > 95");
+				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). v < 64 || v > 95");
 				goto ENDDIAGRAM;
 				}
 			ch = (p - v) / 128 - 1;
 			if(ch < 0 || ch > 15) {
-				BPPrintMessage(0,odError,"=> Err. FillPhaseDiagram(). ch < 0 || ch > 15");
+				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). ch < 0 || ch > 15");
 				goto ENDDIAGRAM;
 				}
 			currswitchstate[ch] = currswitchstate[ch] & ~(1L << (v - 64));
@@ -1680,12 +1680,12 @@ imax = ZERO;
 for(nseq=nseqmem=0; nseq <= (*p_nmax); nseq++) {
 	k = (*((*p_Seq)[nseq]))[(*p_maxcol)[nseq]];
 	j = (*p_Instance)[k].object;
-//	BPPrintMessage(0,odInfo,"@ nseq = %ld maxcol[nseq] = %ld, k = %d, j = %d\n",nseq,(*p_maxcol)[nseq],k,j);
+	if(trace_diagram) BPPrintMessage(1,odInfo,"@ nseq = %ld maxcol[nseq] = %ld, k = %d, j = %d\n",nseq,(*p_maxcol)[nseq],k,j);
 	if(j > 0 || (j == 0 && k == 0))
 	// Fixed 2024-09-18 for out-time objects in -gr.koto3 and time-patterns in -gr.tryTimePatterns
 		(*p_maxcol)[nseq]++;
 	ip = (*p_maxcol)[nseq];
-	// if(trace_diagram) BPPrintMessage(0,odInfo,"@ nseq = %ld maxcol[nseq] = %ld\n",nseq,(*p_maxcol)[nseq]);
+	if(trace_diagram) BPPrintMessage(1,odInfo,"@ nseq = %ld, ip = %ld\n",nseq,ip);
 	oldnseq = nseq;
 	if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,&nseq,maxseqapprox,ip,1) != OK) goto ENDDIAGRAM;
 	/* This shortens objects that would be too long because of roundings when Kpress > 1 */
@@ -1700,39 +1700,47 @@ for(nseq=nseqmem=0; nseq <= (*p_nmax); nseq++) {
 LOOKATEND:
 k = (*((*p_Seq)[nseqmem]))[imax];
 if(k < 0 || k > kobj) {
-	BPPrintMessage(0,odError,"=> Err. FillPhaseDiagram(). k < 0 || k > kobj");
+	BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). k < 0 || k > kobj");
 	k = 0;
 	}
 j = (*p_Instance)[k].object;
-if(trace_diagram || trace_toofast) BPPrintMessage(0,odInfo,"LOOKATEND nseqmem = %ld imax = %ld k = %d j = %d\n",nseqmem,imax,k,j);
+if(trace_diagram || trace_toofast) BPPrintMessage(1,odInfo,"LOOKATEND nseqmem = %ld imax = %ld k = %d j = %d\n",nseqmem,imax,k,j);
 if(j < 0) {
 	/* Oops! we are outside the table */
-	BPPrintMessage(0,odError,"=> Err. FillPhaseDiagram(). LOOKATEND: j < 0");
+	BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). LOOKATEND: j < 0");
 	imax--;
 	if(imax > ZERO) goto LOOKATEND;
 	}
 
-CorrectionFactor = 1.;
+CorrectionFactor = 1.; ErrorDuration = 0;
 
 if(imax > 0.) {
 	if(imax > 1.) {
 		CorrectionFactor = (((Ratio * Pduration) / Qduration) / (Kpress * (imax - 1.)));
 	// This compensates errors due to overflow in calculating Prod and Ratio
 		if(CorrectionFactor < 0.9 || CorrectionFactor > 1.1) {
-			BPPrintMessage(0,odError,"=> Correction factor = %.3f (imax = %ld nseqmem = %ld  nseqmax = %ld): probable error",CorrectionFactor,(long)imax,(long)nseqmem,(long)(*p_nmax));
-			if(!PlayChunks) BPPrintMessage(0,odError,"\n");
-			else BPPrintMessage(0,odError," in chunk #%d\n\n",Chunk_number);
+			if(Create_set) {
+			ErrorDuration++;
+				BPPrintMessage(1,odError,"Correction factor = %.3f (imax = %ld nseqmem = %ld  nseqmax = %ld)\n",CorrectionFactor,(long)imax,(long)nseqmem,(long)(*p_nmax));
+				BPPrintMessage(1,odError,"➡ We will not use chunk or sample #%d\n",Chunk_number);
+				}
+			else {
+				BPPrintMessage(1,odError,"=> Correction factor = %.3f (imax = %ld nseqmem = %ld  nseqmax = %ld)\n",CorrectionFactor,(long)imax,(long)nseqmem,(long)(*p_nmax));
+				BPPrintMessage(1,odError,"➡ Probable error of duration");
+				if(!PlayChunks) BPPrintMessage(1,odError,"\n\n");
+				else BPPrintMessage(1,odError," in chunk #%d\n",Chunk_number);
+				}
 			}
-		else if(!PlayChunks && !Improvize) BPPrintMessage(0,odError,"Correction of the duration = %.3f: no problem\n",CorrectionFactor);
+		else if(!PlayChunks && !Improvize) BPPrintMessage(1,odError,"Correction of the duration = %.3f: no problem\n",CorrectionFactor);
 		}
 	if(trace_diagram || trace_toofast) {
-		BPPrintMessage(0,odInfo,"Correction factor = %.3f Ratio = %.0f Pduration = %ld Qduration = %ld Kpress = %ld imax = %ld\n",(float)CorrectionFactor,(float)Ratio,(long)Pduration,(long)Qduration,(long)Kpress,(long)imax);
+		BPPrintMessage(1,odInfo,"Correction factor = %.3f Ratio = %.0f Pduration = %ld Qduration = %ld Kpress = %ld imax = %ld\n",(float)CorrectionFactor,(float)Ratio,(long)Pduration,(long)Qduration,(long)Kpress,(long)imax);
 		}
 	if(number_skipped > 0) { // Added by BB 2021-02-01
 		suggested_quantization = (int)(Quantization * (tempomax + 1) / max_tempo_in_skipped_object * CorrectionFactor);
 		if(suggested_quantization > 10)
 			suggested_quantization = suggested_quantization - modulo(suggested_quantization,((int)Time_res / 2));
-		BPPrintMessage(0,odError,"=> %d objects/notes have been skipped. Quantization should be less than %d ms to avoid it\n",number_skipped,suggested_quantization);
+		BPPrintMessage(1,odError,"=> %d objects/notes have been skipped. Quantization should be less than %d ms to avoid it\n",number_skipped,suggested_quantization);
 		}
 	/* Let's put an out-time silence at the end of the item, and attach to it the ultimate control parameter values */
 	nseq = Minconc;
@@ -1740,7 +1748,7 @@ if(imax > 0.) {
 	kobj++;
 	(*p_numberobjects) = kobj;
 	if(kobj >= Maxevent) {
-	 	BPPrintMessage(0,odError,"\nErr. FillPhaseDiagram(). kobj >= Maxevent. (1)");
+	 	BPPrintMessage(1,odError,"\nErr. FillPhaseDiagram(). kobj >= Maxevent. (1)");
 	 	kobj--; (*p_numberobjects) = kobj;
 	 	goto LASTOBJECTDONE;
 	 	}
@@ -1767,7 +1775,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 		/* Append <<->> */
 		kobj++; (*p_numberobjects) = kobj;
 		if(kobj >= Maxevent) {
-		 	BPPrintMessage(0,odError,"=> Err. FillPhaseDiagram(). kobj >= Maxevent. (2)");
+		 	BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). kobj >= Maxevent. (2)");
 		 	failed = TRUE; goto ENDDIAGRAM;
 		 	}
 		(*p_Instance)[kobj].object = -1;
@@ -1807,9 +1815,9 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 failed = FALSE;
 
 if(show_diagram) {
-	BPPrintMessage(0,odInfo,"\n");
+	BPPrintMessage(1,odInfo,"\n");
 	ShowPhaseDiagram((*p_nmax),(*p_imaxseq));
-	BPPrintMessage(0,odInfo,"\n");
+	BPPrintMessage(1,odInfo,"\n");
 	}
 
 ENDDIAGRAM:
@@ -1897,7 +1905,7 @@ if(!foundobject && ShowGraphic && !ShowObjectGraph && !ShowPianoRoll && !ScriptE
 if(ShowGraphic && !ShowObjectGraph && !ShowPianoRoll)
 	ShowObjectGraph = TRUE;
 	
-if(trace_diagram || trace_toofast) BPPrintMessage(0,odInfo, "Finished filling phase diagram\n");
+if(trace_diagram || trace_toofast) BPPrintMessage(1,odInfo, "Finished filling phase diagram\n");
 return(OK);
 }
 
@@ -1911,15 +1919,15 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 			oldk = (*((*p_seq)[*p_nseq]))[iplot];
 			if(!force && oldk > 1) {
 				// This may happen due to roundings after arithmetic overflows
-			//	BPPrintMessage(0,odInfo,"Plot(2) PLOTOUTSIDE nseq = %d, iplot = %ld, oldk = %d, newk = %d\n",*p_nseq,(long)iplot, oldk, newk);
+			//	BPPrintMessage(1,odInfo,"Plot(2) PLOTOUTSIDE nseq = %d, iplot = %ld, oldk = %d, newk = %d\n",*p_nseq,(long)iplot, oldk, newk);
 				goto PLOTOUTSIDE;
 				}
 			if(force && oldk > 1 && newk > 1) {
 				/* When newk == 1 with force, table contains arbitrary numbers, so oldk is irrelevant */
-				BPPrintMessage(0,odError,"=> Error Plot(): overwrote object #%d\n",oldk);
+				BPPrintMessage(1,odError,"=> Error Plot(): overwrote object #%d\n",oldk);
 				(*p_Instance)[oldk].object = 0;
 				}
-			if(trace_toofast && oldk >= 0) BPPrintMessage(0,odInfo,"Plot() INTIME nseq = %d, iplot = %ld, oldk = %d, newk = %d\n",(*p_nseq),(long)iplot,oldk,newk);
+			if(trace_toofast && oldk >= 0) BPPrintMessage(1,odInfo,"Plot() INTIME nseq = %d, iplot = %ld, oldk = %d, newk = %d\n",(*p_nseq),(long)iplot,oldk,newk);
 			(*((*p_seq)[*p_nseq]))[iplot] = newk;
 			(*p_nseqplot) = (*p_nseq); // 2025-01-14
 			if(newk >= 1) (*p_Instance)[newk].nseq = (*p_nseq); // 2025-01-15
@@ -1932,10 +1940,10 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 				}
 			if(newk == 0 || newk == 1) {
 	//			(*p_overstrike) = TRUE;
-				if(trace_toofast) BPPrintMessage(0,odInfo,"@@@ newk = %d\n",newk);
+				if(trace_toofast) BPPrintMessage(1,odInfo,"@@@ newk = %d\n",newk);
 				return(OK);
 				}
-			if(trace_toofast) BPPrintMessage(0,odInfo,"Plot(4) PLOTOUTSIDE nseqplot = %d, iplot = %ld, oldk = %d, newk = %d\n",(*p_nseqplot),(long)iplot,oldk,newk);
+			if(trace_toofast) BPPrintMessage(1,odInfo,"Plot(4) PLOTOUTSIDE nseqplot = %d, iplot = %ld, oldk = %d, newk = %d\n",(*p_nseqplot),(long)iplot,oldk,newk);
 			if((*p_nseqplot) >= Maxconc) {
 	NEWCOLUMN:
 				(*p_nseqplot) = Minconc + 1;
@@ -1943,12 +1951,12 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 				}
 			if((*p_iplot) >= maxseq || (Quantization > 0 && (((*p_iplot) - iplot) > (200L / Quantization)) && !force)) {
 				(*p_overstrike) = TRUE;
-				if(trace_overstrike) BPPrintMessage(0,odError,"=> overstrike1 (*p_iplot) = %ld maxseq = %ld iplot = %ld force = %d\n",(long)(*p_iplot),(long)maxseq,(long)iplot,(int)force);
+				if(trace_overstrike) BPPrintMessage(1,odError,"=> overstrike1 (*p_iplot) = %ld maxseq = %ld iplot = %ld force = %d\n",(long)(*p_iplot),(long)maxseq,(long)iplot,(int)force);
 				TellSkipped();
 				return(OK);
 				}
 			if((*p_nseqplot) > (*p_nmax)) {
-				if(trace_toofast) BPPrintMessage(0,odInfo,"MakeNewLineInPhaseTable(1)\n");
+				if(trace_toofast) BPPrintMessage(1,odInfo,"MakeNewLineInPhaseTable(1)\n");
 				if((gotnewline=MakeNewLineInPhaseTable((*p_nseqplot),p_nmax,p_im,maxseq,
 						p_maxcol)) != OK) {
 					if(gotnewline == ABORT) return(ABORT);
@@ -1959,7 +1967,7 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 			(*((*p_seq)[*p_nseqplot]))[*p_iplot] = newk;
 			if(newk >= 1) (*p_Instance)[newk].nseq = (*p_nseqplot); // 2025-01-15
 			if((*p_iplot) > (*p_maxcol)[*p_nseqplot]) {
-				if(trace_toofast) BPPrintMessage(0,odInfo,"@ iplot = %ld\n",(*p_iplot));
+				if(trace_toofast) BPPrintMessage(1,odInfo,"@ iplot = %ld\n",(*p_iplot));
 				(*p_maxcol)[*p_nseqplot] = (*p_iplot);
 				}
 			(*p_nseqplot)++;
@@ -1972,10 +1980,10 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 				if(nseq > (*p_nmax)) {
 					if((*p_ObjectSpecs)[newk] == NULL && ObjScriptLine(newk) == NULL) {
 						(*p_overstrike) = TRUE;
-						if(trace_overstrike) BPPrintMessage(0,odError,"overstrike2 nseq = %ld\n",(long)nseq);
+						if(trace_overstrike) BPPrintMessage(1,odError,"overstrike2 nseq = %ld\n",(long)nseq);
 						return(OK);
 						}
-					if(trace_toofast) BPPrintMessage(0,odInfo,"MakeNewLineInPhaseTable(2)\n");
+					if(trace_toofast) BPPrintMessage(1,odInfo,"MakeNewLineInPhaseTable(2)\n");
 					if((gotnewline=MakeNewLineInPhaseTable(nseq,p_nmax,p_im,maxseq,p_maxcol))
 							!= OK) {
 						if(gotnewline == ABORT) return(ABORT);
@@ -1992,7 +2000,7 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 				return(OK);
 				}
 			(*p_overstrike) = TRUE;
-			if(trace_overstrike) BPPrintMessage(0,odError,"overstrike3\n");
+			if(trace_overstrike) BPPrintMessage(1,odError,"overstrike3\n");
 			break;
 		case BORDERLINE: // At the end of the item
 			if(newk == 0 || newk == 1) {
@@ -2006,7 +2014,7 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 				if((*p_ObjectSpecs)[newk] == NULL && ObjScriptLine(newk) == NULL) {
 	//				(*p_Instance)[newk].object = 0;
 					(*p_overstrike) = TRUE;
-					if(trace_overstrike) BPPrintMessage(0,odError,"overstrike4\n");
+					if(trace_overstrike) BPPrintMessage(1,odError,"overstrike4\n");
 					return(OK);
 					}
 				else goto PLOTOUTSIDE;
@@ -2019,26 +2027,25 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 	return(OK);
 	}
 
+unsigned long Class(double i) {
+	unsigned long result;
 
-unsigned long Class(double i)
-{
-unsigned long result;
-
-if(i < 0.) {
-	/* Happens in beginning of table */
-	return(ZERO);
+	if(i < 0.) {
+		/* Happens in beginning of table */
+		return(ZERO);
+		}
+	if(Kpress < 1.) {
+		BPPrintMessage(0,odError,"=> Err. Class(). Kpress < 1.");
+		Kpress = 1.;
+		}
+	if(Kpress < 2.) Kpress = 1.; // 2025-10-26
+	// if(Kpress < 2. || i < 1.) return((unsigned long)i);
+	// if(Kpress < 2. || i < 0.) return((unsigned long)i); 
+	// result = 1L + ((unsigned long)(floor(i) / Kpress));
+	result = (unsigned long)(floor(i) / Kpress); // 2025-10-26
+	// BPPrintMessage(1,odInfo,"\nClass(%.4f) = %ld, Kpress = %.4f\n",i,result,Kpress);
+	return(result);
 	}
-if(Kpress < 1.) {
-	BPPrintMessage(0,odError,"=> Err. Class(). Kpress < 1.");
-	Kpress = 1.;
-	}
-// if(Kpress < 2. || i < 1.) return((unsigned long)i);
-if(Kpress < 2. || i < 0.) return((unsigned long)i); // Fixed by BB 2021-03-20
-// result = 1L + ((unsigned long)((ceil(i) - 1.) / Kpress));
-result = 1L + ((unsigned long)(floor(i) / Kpress)); // Fixed by BB 2021-03-22
-// if(i < 2.) BPPrintMessage(0,odInfo,"Class(%.4f) = %ld\n",i,result);
-return(result);
-}
 
 
 int FindParameterIndex(ContParameters **p_param,int level,int paramnameindex)
@@ -2048,7 +2055,7 @@ Handle h;
 ContParameterSpecs **ptr;
 
 if(level >= Maxlevel) {
-	BPPrintMessage(0,odError,"=> Err. FindParameterIndex(). level >= Maxlevel");
+	BPPrintMessage(1,odError,"=> Err. FindParameterIndex(). level >= Maxlevel");
 	return(ABORT);
 	}
 if((*p_param)[level].values == NULL) {
@@ -2176,7 +2183,7 @@ int UpdateParameter(int i,ContParameters **p_contparameters,int level,long durat
 	if((*((*p_contparameters)[level].values))[i].active) {
 		ibeats = (*((*p_contparameters)[level].values))[i].ibeats;
 		maxbeats = (*((*p_contparameters)[level].values))[i].maxbeats;
-		if(trace_toofast)BPPrintMessage(0,odInfo,"UpdateParameter() ibeats = %d maxbeats = %d duration = %ld\n",ibeats,maxbeats,(long)duration);
+		if(trace_toofast)BPPrintMessage(1,odInfo,"UpdateParameter() ibeats = %d maxbeats = %d duration = %ld\n",ibeats,maxbeats,(long)duration);
 		if((*((*p_contparameters)[level].values))[i].point != NULL
 				&& (ibeats + duration) > maxbeats) {
 			BPPrintMessage(0,odError,"=> Err. UpdateParameter(). ibeats + duration > maxbeats");
@@ -2240,7 +2247,7 @@ int nseqplot;
 overstrike = FALSE; // Fixed by BB 2021-01-31
 if(nseq >= Maxconc) {
 	BPPrintMessage(0,odError,"=> Error MakeNewLineInPhaseTable() nseq >= Maxconc\n");
-	BPPrintMessage(0,odInfo,"nseq = %ld, nmax = %d, maxseq = %.0f, Maxconc = %ld\n",(long)nseq,*p_nmax,maxseq,(long)Maxconc);
+	BPPrintMessage(1,odInfo,"nseq = %ld, nmax = %d, maxseq = %.0f, Maxconc = %ld\n",(long)nseq,*p_nmax,maxseq,(long)Maxconc);
 //	TellSkipped();
 	return(ABORT);
 	}
@@ -2326,14 +2333,14 @@ int PutZeros(int nseq_current, char toofast,double **p_im,unsigned long **p_maxc
 		ip = Class(i);
 		kmax = Class(numberzeros);
 		new_method = 1;
-		if(trace_toofast) BPPrintMessage(0,odInfo,"PutZeros() kobj = %d nseq = %d i = %.2f Class(i) = %ld kmax = %ld toofast = %d, numberzeros = %ld, new_method = %d\n",kobj,nseq,i,(long)ip,kmax,(int)toofast,(long)numberzeros,new_method);
+		if(trace_toofast) BPPrintMessage(1,odInfo,"PutZeros() kobj = %d nseq = %d i = %.2f Class(i) = %ld kmax = %ld toofast = %d, numberzeros = %.2f, new_method = %d\n",kobj,nseq,i,(long)ip,kmax,(int)toofast,numberzeros,new_method);
 		if(new_method) { // Created by BB 2021-03-22
 			for(k = 1; k <= kmax; k++) {
 				ipnew = ip + k;
 				if(toofast) continue;
 				if(ipnew > maxseq) {
 					if(ipnew < (1.005 * (maxseq + 1.))) {
-						BPPrintMessage(0,odInfo,"Adjusted ipnew (%ld) to %.0f (object #%d)\n",ipnew,maxseq,kobj);
+						BPPrintMessage(1,odInfo,"Adjusted ipnew (%ld) to %.0f (object #%d)\n",ipnew,maxseq,kobj);
 						ipnew = maxseq;
 						}
 					else {
@@ -2406,15 +2413,15 @@ return(OK);
 int ShowPhaseDiagram(int nmax,unsigned long* imaxseq) {
 	int iseq,nseq,k;
 	for(nseq=0; nseq <= nmax; nseq++) {
-		BPPrintMessage(0,odInfo,"[%d] ",nseq);
+		BPPrintMessage(1,odInfo,"[%d] ",nseq);
 		for(iseq = ZERO; iseq <= imaxseq[nseq]; iseq++) {
 			k = (*((*p_Seq)[nseq]))[iseq];
-			if(k == 0) BPPrintMessage(0,odInfo,"_");
-			else if(k == 1) BPPrintMessage(0,odInfo,"-");
-			else if(k == -1) BPPrintMessage(0,odInfo,"|");
-			else BPPrintMessage(0,odInfo,"%d",k);
+			if(k == 0) BPPrintMessage(1,odInfo,"_");
+			else if(k == 1) BPPrintMessage(1,odInfo,"-");
+			else if(k == -1) BPPrintMessage(1,odInfo,"|");
+			else BPPrintMessage(1,odInfo,"%d",k);
 			}
-		BPPrintMessage(0,odInfo,"\n");
+		BPPrintMessage(1,odInfo,"\n");
 		}
 	return(OK);
 	}

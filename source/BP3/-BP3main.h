@@ -226,6 +226,7 @@ SoundObjectInstanceParameters **p_Instance;
 objectspecs ****p_ObjectSpecs;
 long **p_Flag,BufferSize,DeftBufferSize,Maxevent;
 FILE* OpenMIDIfilePtr;
+FILE* UnitfilePtr;
 short HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,MIDIfileOpened,
 	MIDIfileTrackEmpty;
 int MIDIbytestate,MIDIfileTrackNumber,StepScript,TypeScript,MoreTime;
@@ -301,7 +302,7 @@ int DeriveFurther,DeriveFurtherKey,DeriveFurtherChan,ResetWeights,NeverResetWeig
 	ParamControlChan,Newstatus,ShowMessages,ScriptSyncKey,ScriptSyncChan,
 	SUBthere,DisplayItems,ShowGraphic,NoteConvention,MoreConvention,FunctionTable,
 	ScriptRecOn,ScriptExecOn,DefaultVolume,LastAction,UndoWindow,
-	PedalOrigin,PedalPosition,HangOn,NoRepeat,ConvertMIDItoCsound;
+	PedalOrigin,PedalPosition,HangOn,NoRepeat,ConvertMIDItoCsound,ErrorDuration;
 TextOffset UndoPos;
 long CountOn;
 unsigned long WaitStartDate,WaitEndDate;
@@ -445,7 +446,7 @@ int TickChannel[MAXTICKS],TickKey[MAXTICKS],TickVelocity[MAXTICKS],MuteTick[MAXT
 long ThisTick[MAXTICKS][MAXBEATS];
 int InitOn,SetTimeOn,ComputeOn,PolyOn,SoundOn,SelectOn,PrintOn,InputOn,ClickRuleOn,
 	EnterOn,Option,CompileOn,GraphicOn,ReadKeyBoardOn,ButtonOn,LoadOn,SaveOn,PauseOn,AlertOn,
-	PlaySelectionOn,PlayChunks,LastChunk,PlayAllChunks,PlayPrototypeOn,AEventOn,ExpandOn,SelectPictureOn,EmptyBeat,TickDone;
+	PlaySelectionOn,PlayChunks,Create_set,LastChunk,PlayAllChunks,PlayPrototypeOn,AEventOn,ExpandOn,SelectPictureOn,EmptyBeat,TickDone;
 int	FoundNote,NoCursor,MIDIfileOn,WaitOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram;
 int	ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
 int HideMessages;
@@ -466,5 +467,33 @@ int ToldPitchbend, ToldStop;
 // DynamicMenuItem** InstalledMenuItems;
 
 long WidthMax,HeightMax;
+char PathToMidiFile[MAXLIN];
+int SetMidiFileNr;
+
+/*
+typedef struct BPConsoleOpts {
+	action_t	action;
+	int			itemNumber;
+	const char	*startString;
+	const char	*midiInSource;
+	const char	*midiOutDestination;
+	const char	*inputFilenames[WMAX];
+	OutFileInfo	outputFiles[MAXOUTFILES];
+	int		useStdErr;
+	int		useStartString;
+	int		seedProvided;
+	int		outOptsChanged;
+	CLOption	displayItems;
+	CLOption	writeCsoundScore;
+	CLOption	writeMidiFile;
+	CLOption	useRealtimeMidi;
+	CLOption	showProduction;
+	CLOption	traceProduction;
+	int			noteConvention;	
+	int			midiFileFormat;	
+	unsigned	seed;
+} BPConsoleOpts; */
+
+BPConsoleOpts gOptions;
 
 #endif /* BP3_MAIN_H */

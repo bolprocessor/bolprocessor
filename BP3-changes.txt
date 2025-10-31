@@ -7,6 +7,12 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 
+2025-10-31 (version 3.3.4)
+This version allows sample sets to be created for AI training. The challenge lies in converting MIDI files to polymetric notation. To do this, import a MusicXML score into a data project, then click the CREATE SET FOR AI TRAINING button. Sets are available in downloadable zipped folders. A different set is created each time the process is called.
+Fixed function Class() in FillPhaseDiagram.c. Errors were probably unnoticeable on large items.
+Don't forget to update the PHP interface!
+
+-----
 2025-10-17 (version 3.3.3)
 Interface fixed for error in analysis of captured data
 

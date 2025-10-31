@@ -2,7 +2,7 @@
 SRCDIR  = source/BP3
 CC      = gcc
 LIBS    = -lm
-CFLAGS  = -O2 -Wall -Wextra
+CFLAGS  = -O2 -fno-common
 EXE     = bp
 
 UNAME_S := Windows

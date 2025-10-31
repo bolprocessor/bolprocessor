@@ -494,7 +494,7 @@ int CaptureCodes(int);
 int ListenToEvents(void);
 int Ctrl_adjust(MIDI_Event*,int,int,int);
 int ChangeStatus(int,int,int);
-// int MakeMIDIFile(OutFileInfo* finfo);
+int MakeMIDIFile(OutFileInfo* finfo);
 // int MakeCsFile(const char*);
 int CloseMIDIFile(void);
 int CloseCsScore(void);
@@ -1043,6 +1043,17 @@ int read_midisetup(void);
 int AssignUniqueChannel(int,int,int,int,int,Milliseconds);
 void insert_space_between_digits(char*);
 void trim_digits_after_key_hash(char*);
+
+void change_midifile_name(char*);
+void Create_unit_file(void);
+
+FILE* OpenOutputFile(OutFileInfo* finfo, const char* mode);
+void CloseOutputFile(OutFileInfo* finfo);
+
+void ConsoleMessagesInit(void);
+void SetOutputDestinations(int dest, FILE* file);
+
+int BPSetMessageCallback(bp_message_callback_t func);
 
 #if defined(__linux__)
    void MyAlsaMidiInProc(snd_seq_event_t*);
