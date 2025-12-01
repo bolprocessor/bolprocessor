@@ -2029,7 +2029,6 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 
 unsigned long Class(double i) {
 	unsigned long result;
-
 	if(i < 0.) {
 		/* Happens in beginning of table */
 		return(ZERO);

@@ -1598,6 +1598,7 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 	if(ignoreconcat) { // 2025-01-14
 		tick_start = 0;
 		if((*p_buff)[i] != T3 || (*p_buff)[i+1] != 0) { // No prolongation 2025-01-19
+			if(trace_get_duration) BPPrintMessage(1,odInfo,"No prolongation\n");
 			tick_end = prodtempo;
 			goto SORTIR;
 			}
@@ -1692,24 +1693,25 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 					break;
 				case 12:	// '{'
 				case 22:
-					if(ignoreconcat) goto SORTIR;
+					if(ignoreconcat || justfinishedconcatenation) goto SORTIR; // fixed 2025-12-01
 					(*p_duration_org)[level+1] = (*p_duration_of_field)[level+1] = (*p_duration_of_field)[level];
 					level++;
 					if(trace_get_duration) BPPrintMessage(1,odInfo,"{ (%ld)\n",(long)(*p_duration_of_field)[level]);
 					break;
 				case 13:	// '}'
 				case 23:
-					if(ignoreconcat) goto SORTIR;
+					if(ignoreconcat || justfinishedconcatenation) goto SORTIR; // fixed 2025-12-01
 					level--;
 					(*p_duration_of_field)[level] = (*p_duration_of_field)[level+1];
 					if(trace_get_duration) BPPrintMessage(1,odInfo,"} (%ld)\n",(long)(*p_duration_of_field)[level]);
 					break;
 				case 14:	// comma
-					if(ignoreconcat) goto SORTIR; // Added 2025-01-21 confirmed 2025-01-22
+					if(ignoreconcat || justfinishedconcatenation) goto SORTIR; // Added 2025-01-21  fixed 2025-12-01
 					(*p_duration_of_field)[level] = (*p_duration_org)[level];
 					if(trace_get_duration) BPPrintMessage(1,odInfo,", (%ld)\n",(long)(*p_duration_of_field)[level]);
 					(*p_duration_of_field)[level] = (*p_duration_org)[level];
-					tick_end = tick_start; // 2025-01-22 remove?
+					if(!foundendconcatenation)  // 2025-01-22 fixed 2025-12-01
+						tick_end = tick_start;
 					break;
 				case 7:		// period 
 					if(trace_get_duration) BPPrintMessage(1,odInfo,"•\n");

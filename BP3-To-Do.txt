@@ -21,6 +21,7 @@ AI development
 --------------
 
 - A transformer could be trained to "understand" Bol Processor syntax. Start with polymetric notation using sample sets created with large items of "real music". These sets are matching every polymetric structure with its interpretation as a MIDIfile.
+- Design a PHP procedure that minimises any polymetric expression by replacing quantified rests with undetermined rests wherever possible, without losing accuracy.
 - An AI tool could also conduct an in-depth analysis of the C code in ‘Polymetric.c’ and ‘Timeset.c’, as well as the literature describing these processes.
 
 
