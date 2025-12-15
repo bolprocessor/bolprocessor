@@ -176,7 +176,8 @@ Various issues
 --------------
 
 - When outputing a data file of an item requiring serial tools (NeedZouleb > 0), display the result after the application of tools. Example: -gr.Visser.Waves. This may happen in Compute.c after SORTIR.
-- Errors of duration occur when playing some polymetric structures with tied notes that miss their target. Examples are stored in -da.checkBadDurations. The issue is in 
+- Errors of duration occur when playing some polymetric structures with tied notes that miss their target. Examples are stored in -da.checkBadDurations.
+- Check why tempo(3/2) {C4& {3, &C4 _rest D4}} does not produce the same pattern as {C4& {3, &C4 _rest D4}} 
 - Check delete_orphan_ties() in data.php, as it still keeps erratic ties, which are difficult to predict.
 - Check why istart=4 in Compute.c when running -gr.koto3. If not checked, it crashes on the remote right context of gram #2 rule #12. Therefore, if(istart > i) return(FALSE) has been added on 2025-03-15.
 - Check that scripts can be attached to out-time objects

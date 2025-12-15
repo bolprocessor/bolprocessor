@@ -7,6 +7,16 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 
+2025-12-15 (version 3.3.6)
+The calculation of durations for undetermined rests has been modified. Now they cannot be null.
+Sample sets for AI training of MIDI file conversion to polymetric structures now include minimised polymetric structures (see https://bolprocessor.org/polymetric-structure/#minimised-polymetric-expression).
+The interface contains a procedure to minimise any polymetric structure (if eligible) as explained on this page:
+https://bolprocessor.org/minimising-a-polymetric-structure/
+Don't forget to update the PHP interface and new examples containing the "-da.tryMinimise" data file:
+https://github.com/bolprocessor/php-frontend/
+https://github.com/bolprocessor/bp3-ctests/
+
+-----
 2025-12-01 (version 3.3.5)
 A bug in GetSymbolicDuration() has been fixed. Previously, some tied notes were assigned shorter-than-expected durations.
 

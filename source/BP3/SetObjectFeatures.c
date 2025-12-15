@@ -1562,9 +1562,6 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 	if(tempo == 0.) prodtempo = 0.;
 	else prodtempo = (Prod / tempo);
 
-	/* if(p_org == 95 || p_org == 80) trace_get_duration = TRUE;
-	else trace_get_duration = FALSE; */
-
 	if(trace_get_duration)
 		BPPrintMessage(1,odInfo,"GetSymbolicDuration Maxlevel = %ld, m = %d, p = %d, scaling = %.2f orgspeed = %.2f Prod = %.2f tempo = %.2f prodtempo = %.2f id = %ld channel = %d instrument = %d part = %d endconcatenation = %d\n",(long)Maxlevel,m_org,p_org,scaling,orgspeed,Prod,tempo,prodtempo,id,channel_org,instrument_org,part_org,foundendconcatenation_org);
 

@@ -910,7 +910,7 @@ ptempo = qtempo = 1L;
 prevscale = scaling = oldscaling;
 prevspeed = speed = oldspeed;
 if(speed > TokenLimit || (1./speed) > TokenLimit) {
-	BPPrintMessage(0,odError,"=> Unexpected overflow in polymetric formula (case 14). You may send this item to the designers...\n");
+	BPPrintMessage(0,odError,"=> Unexpected overflow in polymetric formula (case 14). You should send this item to the designers...\n");
 	result = ABORT; goto SORTIR;
 	}
 
@@ -1030,10 +1030,8 @@ FIXTEMP:
 		scaling = xq;
 		isequal = Equal(0.005,scaling,speed,prevscale,prevspeed,&overflow);
 		if(isequal == ABORT) {
-			{
-				BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT\n");
-				result = ABORT; goto SORTIR;
-				}
+			BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT\n");
+			result = ABORT; goto SORTIR;
 			isequal = FALSE;
 			}
 		if(isequal == FALSE) {
@@ -1231,7 +1229,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) scaling - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+				(*((*pp_c)[a]))[ic++] = (tokenbyte) scaling - (((tokenbyte) x) * TOKBASE);
 				}
 			else {
 				y = modf(((1. / scaling) / (double)TOKBASE),&x);
@@ -1240,7 +1238,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./scaling) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+				(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./scaling) - (((tokenbyte) x) * TOKBASE);
 				}
 			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 				result = ABORT; goto SORTIR;
@@ -1252,7 +1250,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte)  speed - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+				(*((*pp_c)[a]))[ic++] = (tokenbyte)  speed - (((tokenbyte) x) * TOKBASE);
 				}
 			else {
 				y = modf((1. / speed / (double)TOKBASE),&x);
@@ -1261,7 +1259,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./speed) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+				(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./speed) - (((tokenbyte) x) * TOKBASE); 
 				}
 			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 				result = ABORT; goto SORTIR;
@@ -1291,8 +1289,8 @@ FIXTEMP:
 		continue;
 		}
 	if(m == T0 && (p == 12 || p == 22)) { 			/* '{' or '|' */
-		if(p == 12) truebracket = TRUE;
-		else truebracket = FALSE;
+		if(p == 12) truebracket = TRUE; // '{'
+		else truebracket = FALSE; // '|'
 		firstistempo = FALSE;
 		i += 2L;
 		xp = (*p_p)[a];
@@ -1562,7 +1560,9 @@ if((a+1) != k) {
 	}
 fixlength = FALSE;
 restart = firstistempo = toobigitem = FALSE;
-pmax = 0.; qmax = 1.;
+pmax = 0.;
+pmax = 1.; // Fixed 2025-12-06
+qmax = 1.;
 a1 = a0 = -1;
 L = 1.;
 result = EMPTY;
@@ -1590,7 +1590,7 @@ for(a=kk=0; a < k; a++) {
 		}
 	if(!toobigitem) {
 		if((L=LCM(L,(*p_p)[a],&overflow)) < 1.) {
-			BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 1). You may send this item to the designers...");
+			BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 1). You should send this item to the designers...");
 			result = MISSED; goto SORTIR;
 			}
 		if(overflow) {
@@ -1602,7 +1602,7 @@ for(a=kk=0; a < k; a++) {
 		isequal = Equal(0.01,(*p_p)[a],(*p_q)[a],pmax,qmax,&overflow);
 		if(overflow) TellComplex();
 		if(isequal == ABORT) {
-			BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 5). You may send this item to the designers...");
+			BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 5). You should send this item to the designers...");
 			result = MISSED; goto SORTIR;
 			}
 		if(fixlength && (isequal != TRUE)) {
@@ -1631,12 +1631,16 @@ if(result == EMPTY) {
 	(**pp_a)[1] = TEND;
 	goto SORTIR;
 	}
-	
-for(a=0; a < k; a++) {	/* Calculate undetermined rests */
+
+int trace_und = 0;
+
+for(a=0; a < k; a++) {	// Calculate undetermined rests
+	// The reverse process is implemented on data.php
 	if((*p_vargap)[a] > 0) {
 		restart = TRUE;
 		Substract(pmax,qmax,(*p_p)[a],(*p_q)[a],&xp,&xq,&sign,&overflow);
 		if(overflow) TellComplex();
+		if(trace_und) BPPrintMessage(0,odInfo,"a = %d, pmax = %.1f, qmax = %.1f, (*p_p)[a] = %.1f, (*p_q)[a] = %.1f, xp = %.1f, xq = %.1f, sign = %d\n",a,pmax,qmax,(*p_p)[a],(*p_q)[a],xp,xq,sign);
 		if(sign < 0 || xp < 1.) {
 			if((*ptr_fixtempo)[a0]) {
 				if(comma)
@@ -1652,21 +1656,23 @@ for(a=0; a < k; a++) {	/* Calculate undetermined rests */
 				gcd = GCD((*p_p)[a],(double)(*p_vargap)[a]);
 				if(gcd < 1L) gcd = 1L;
 				(*p_p)[a] = (*p_p)[a] / gcd;
-				(*p_q)[a] = (*p_q)[a] * ((*p_vargap)[a] / gcd);
+				(*p_q)[a] = ((*p_q)[a] * (*p_vargap)[a]) / gcd;
 				if((lcm=LCM(qmax,(*p_q)[a],&overflow)) < 1.) {
-					BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 2). You may send this item to the designers...");
+					BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 2). You should send this item to the designers...");
 					result = ABORT; goto SORTIR;
 					}
-				if(overflow) TellComplex();
-				
+				if(overflow) TellComplex();			
 				pmax = pmax * (lcm / qmax);
 				qmax = lcm;
-				(*p_p)[a] = (*p_p)[a] * (lcm / (*p_q)[a]);
-				
-				y = modf(((*p_p)[a] / pmax),&mgap);
-				
-				(*p_pgap)[a] = ((mgap + 1.) * pmax - (*p_p)[a]) / (*p_vargap)[a];
+				(*p_p)[a] = (*p_p)[a] * (lcm / (*p_q)[a]);	
+				x = modf(((*p_p)[a] / pmax),&mgap);
+				double y = ((mgap + 1.) * pmax - (*p_p)[a]) / (*p_vargap)[a]; // 2025-12-13
+				(*p_pgap)[a] = (double)(long) y;
+		//		(*p_pgap)[a] = (mgap * pmax - (*p_p)[a]) / (*p_vargap)[a];
+				double thepgap = (*p_pgap)[a];
+				if((*p_pgap)[a] < 1.) (*p_pgap)[a] = 1.; // Added 2025-13-06 reject null durations
 				(*p_qgap)[a] = lcm;
+				if(trace_und) BPPrintMessage(0,odInfo,"case 1, a = %d, lcm = %.1f, gcd = %ld, pmax = %.1f, qmax = %.1f, mgap = %.1f, (*p_p)[a] = %.1f, (*p_q)[a] = %.1f, (*p_pgap)[a] = %.1f, (*p_qgap)[a] = %.1f, (*p_vargap)[a] = %ld\n",a,lcm,gcd,pmax,qmax,mgap,(*p_p)[a],(*p_q)[a],(*p_pgap)[a],(*p_qgap)[a],(long)(*p_vargap)[a]);
 				}
 			}
 		else {
@@ -1674,6 +1680,7 @@ for(a=0; a < k; a++) {	/* Calculate undetermined rests */
 			if(gcd < 1L) gcd = 1L;
 			(*p_pgap)[a] = xp / gcd;
 			(*p_qgap)[a] = xq * (*p_vargap)[a] / gcd;
+			if(trace_und) BPPrintMessage(0,odInfo,"case 2, a = %d, gcd = %ld, (*p_pgap)[a] = %.1f, (*p_qgap)[a] = %.1f, vargap[a] = %ld, xp = %ld\n",a,(long)gcd,(*p_pgap)[a],(*p_qgap)[a],(long)(*p_vargap)[a],(long)xp);
 			}
 		}
 	}
@@ -1684,7 +1691,7 @@ if(restart) goto START;		/* Now rests are known */
 
 if(comma) {
 	if(Add((*p_P),(*p_Q),pmax,qmax,&xp,&xq,&overflow) != OK) {
-		BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 7). You may send this item to the designers...");
+		BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 7). You should send this item to the designers...");
 		result = ABORT; goto SORTIR;
 		}
 	if(overflow) TellComplex();
@@ -1699,7 +1706,7 @@ if(comma) {
 else {
 	if(Add((*p_P),(*p_Q),((double) kk * pmax),qmax,&xp,&xq,&overflow)
 			!= OK) {
-		BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 8). You may send this item to the designers...");
+		BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 8). You should send this item to the designers...");
 		result = ABORT; goto SORTIR;
 		}
 	if(overflow) TellComplex();
@@ -1719,7 +1726,7 @@ if(!toobigitem) {
 		if((*p_p)[a] == 0.) continue;
 		(*p_pp)[a] = L / (*p_p)[a];
 		if((M = LCM(M,(*p_q)[a] * (*p_pp)[a],&overflow)) < 1.) {
-			BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 10). You may send this item to the designers...");
+			BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 10). You should send this item to the designers...");
 			result = ABORT;
 			goto SORTIR;
 			}
