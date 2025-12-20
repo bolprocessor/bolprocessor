@@ -104,21 +104,25 @@ A structure of "sound-objects" represented as a "polymetric expression".
 	"period notation". The interpreter determines their durations as the ones yielding
 	the simplest expanded expression.
 • For instance, the sequence
-       a b c d • e _rest f • g h _rest i     (also notated    a b c d • e … f • g h … i)
+       a b c d • e _rest f • g h _rest i     also notated    a b c d • e … f • g h … i
     will be expanded as:
        a b c d • e - _ f • g h - i
 • Similarly, the polymetric expression
-       {3/2 c d e, _rest f g}       (also notated     {3/2 c d e, … f g})
-    will be expanded as:
+       {3/2 c d e, _rest f g}       also notated     {3/2 c d e, … f g}
+    will be made explicit as:
+        {3/2 c d e, 5/2 f g}
+    and expanded as:
         /2 {- _ _ c _ d _ e _,- _ _ _ _ f _ g _}
 • Each field of a polymetric expression (or each beat of a sequence) may contain
-   several undetermined rest.  (This is a recent feature). In this case, these rests
+   several undetermined rests.  In this case, these rests
    share equal durations.  For instance,
        {C3 D3 B2, _rest C4 D4 _rest B3}
-   is expanded as:
+    will be made explicit as:
+       {C3 D3 B2, 1/2 C4 D4 1/2 B3}
+   and expanded as:
        /8 {C3_ _ _ _ _ _ _ D3_ _ _ _ _ _ _ B2_ _ _ _ _ _ _,
                                      -_ _ C4_ _ _ _ _ D4_ _ _ _ _ -_ _ B3_ _ _ _ _}
-   in which each rest has a duration of 3/8 beats.
+   in which each rest has a duration of 1/2 beats.
 • Read https://bolprocessor.org/polymetric-structure/#undetermined-rests
 ### Period notation
 • Periods are used to indicate 'beats', i.e. sequences of "sound-objects" that are
@@ -382,7 +386,7 @@ A "subgrammar" in which the candidate rule is selected for the (1) leftmost and 
 A list of 'templates' used by a true BP grammar. See reference manual.
 ### REC
 Starts/stops recording actions as a script (in the script window).
-### _randomize
+### _randomize [Grammar procedure]
 A "grammar procedure" or a "tool".
 • On top of a "subgrammar", it picks up an arbitrary seed for the sequence of random numbers
 	so that all subsequent random choices become unpredictable.
@@ -599,12 +603,12 @@ Sets current channel to x.
 • Range of x is 1..16
 • The argument may also be Kx.  See "variable arguments".  In this case it may be
     controlled by a MIDI device during the performance.
-### _ins(x)
+### _ins(x) [Performance control]
 Sets current Csound instrument to x.
 • Range of x is 0..127
 • x may also be the name of the instrument as defined in the "Csound instrument file".
 • The argument may also be Kx.  See "variable arguments".
-### _part(x)
+### _part(x) [Performance control]
 Sets current part of code to x.
 • A part is generally sent to specific MIDI instrument(s), as instructed by the MIDI output filters on the interface.
 • Range of x is 1..12
@@ -739,7 +743,7 @@ Sets the range of pitchbend control to ± x cents on the current channel. This v
     messages indicate pitch corrections in cents, with y varying between -x and +x.
     "_pitchrange(0)" [default value] indicates that subsequent _pitchbend(y) messages
     on the current MIDI channels take the actual MIDI value for y (range 0..16383).
-### _transpose(x) [Tool]
+### _transpose(x) [Performance control]
 Transposes notes 'x' semitones higher in the remaining part of the sequence.
 • 'x' may also be negative or decimal (down to +/- 0.01).
 • Transposition is clipped to the MIDI octave range.
@@ -751,15 +755,15 @@ Transposes notes 'x' semitones higher in the remaining part of the sequence.
     will produce the same output as:
        _transpose(-10) A3 _transpose(-8) D4
 • _transpose(Kx) is no longer licit.
-### _transposecont [Tool]
+### _transposecont [Performance control]
 Following "_transposecont", "_transpose(x)" values are interpolated.
 • Try for instance:
     _transposecont _transpose(0) C4 C4 C4 C4 C4 C4 C4 C4 C4 C4 C4 _transpose(12) C4
 • "_transposecont" is cancelled by "_transposefixed".
 • In the current version, "_transposecont" and "_transposestep" are equivalent.
-### _transposestep [Tool]
+### _transposestep [Performance control]
 See "_transposecont".
-### _transposefixed [Tool]
+### _transposefixed [Performance control]
 Cancels the effect of "_transposecont" or "_transposestep".
 ### _pitchrate(x) [Current channel]  [Performance control]
 Sets the rate of continuous change of pitchbend to x samples per second.
@@ -1266,9 +1270,6 @@ If a NoteOn must be sent while the same key of the same channel is already activ
     setting.
 • BP3's default setting is the behaviour defined as "Strike again NoteOn's".
 • Related topic: "Don't strike again NoteOn's"
-### % of duration
-The specified value is a percentage of the sound-object's duration, so the actual
-    value will vary according to its "dilation ratio".
 ### Csound implementation
 • Csound is a 100% software environment for the design and transformation of digitized
     sounds.  It runs on most platforms, including MacOS 9 & X, Linux, and Windows.
@@ -1548,7 +1549,7 @@ A set of tools modifying the application of rules in a grammar.
     "variables" in a grammar, metastructures containing "wild cards", etc.
 • The current serial tools are:
     "_retro", "_rndseq", "_rotate", "_ordseq", "_keymap", "_keyxpand".
-### _retro [Tool]
+### _retro [Performance control]
 A tool for "serial music".
 This "tool" reverts the order of "sound-objects", "variables", "wild cards" and "time patterns"
     in the remaining part of a sequence.
@@ -1560,7 +1561,7 @@ This "tool" reverts the order of "sound-objects", "variables", "wild cards" and 
     a b _retro c d e _retro f g   will become   a b f g e d c        ["_retro" cancels itself]
 • Check the preceding examples in ‘-gr.trySerial’
 • Related topics: "_rndseq", "_ordseq", "_rotate".
-### _rndseq [Tool]
+### _rndseq [Performance control]
 A tool for "serial music".
 This "tool" shuffles the order of "sound-objects", "variables", "wild cards" and "time patterns"
     in the remaining part of a sequence.
@@ -1572,7 +1573,7 @@ This "tool" shuffles the order of "sound-objects", "variables", "wild cards" and
     _rndseq {a b c • d e • f g}    could become   {b d f • c g • e a}  ["period notation"]
 • Check the preceding examples in ‘-gr.trySerial’
 • Related topics: "_retro", "_ordseq", "_rotate", "_srand", "_randomize".
-### _rotate(x) [Tool]
+### _rotate(x) [Performance control]
 A tool for "serial music".
 Rotates a sequence of "sound-objects" or "simple notes" (left shift of 'x' units).
 • For instance,
@@ -1582,7 +1583,7 @@ Rotates a sequence of "sound-objects" or "simple notes" (left shift of 'x' units
 • Range of x is -128..127
 • The argument may also be Kx.  See "variable arguments".  In this case it may be
     controlled by a MIDI device during the performance.
-### _ordseq [Tool]
+### _ordseq [Performance control]
 A tool for "serial music".
 This "tool" prevents the remaining part of a sequence from being modified by "_rndseq",
     "_rotate" or "_retro".
@@ -1599,7 +1600,7 @@ In the following sequence, this "performance control" modifies pitches in range 
     using the current "note convention", e.g.: _keymap(C3,G2,D6,F6).
 • See '-gr.tryKeyMap' for typical examples.
 • Related topic: "_keyxpand"
-### _keyxpand(p,x) [Tool]
+### _keyxpand(p,x) [Performance control]
 A tool for "serial music".
 • In the following sequence, this "tool" multiplies by x melodic intervals relative to the
     centre note p. For instance,
@@ -1615,7 +1616,7 @@ A tool for "serial music".
     "Accept key changes" has been set to true.
 • See '-gr.tryKeyXpand' for typical examples.
 • Related topic: "_keymap"
-### _tempo(x) [Tool]
+### _tempo(x) [Performance control]
 Multiplies the tempo by 'x'
 • The argument may be a floating-point number or an integer ratio.
     Thus, _tempo(4/3) and _tempo(0.35) are valid expressions.
