@@ -189,6 +189,7 @@ int Jbol,Jfunc,Jinstr,Jinscript,Joutscript,Maxinscript,Maxoutscript,iProto,Jcont
 int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput,Capture0n,SmartCursor,NotSaidKpress,**p_MemGram,**p_MemRul,SaidChannel;
 int CaptureSource;
 FILE* CapturePtr;
+Milliseconds TabfileStart;
 long ProduceStackDepth,ProduceStackIndex,DisplayStackIndex,
 	**p_LastStackIndex,**p_MemPos;
 long **p_ItemStart,**p_ItemEnd,CompileDate,ComputeStart,MaxComputeTime,
@@ -225,8 +226,8 @@ int FileSaveMode,FileWriteMode,MIDIfileType,CsoundFileFormat;
 SoundObjectInstanceParameters **p_Instance;
 objectspecs ****p_ObjectSpecs;
 long **p_Flag,BufferSize,DeftBufferSize,Maxevent;
-FILE* OpenMIDIfilePtr;
-FILE* UnitfilePtr;
+FILE *OpenMIDIfilePtr;
+FILE *UnitfilePtr,*TabfilePtr;
 short HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,MIDIfileOpened,
 	MIDIfileTrackEmpty;
 int MIDIbytestate,MIDIfileTrackNumber,StepScript,TypeScript,MoreTime;

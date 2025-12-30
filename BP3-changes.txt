@@ -6,6 +6,12 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+2025-12-30 (version 3.3.8)
+When creating datasets for MIDI file conversion to polymetric structures, tables are added that contain easy-to-read lists of events.
+Don't forget to update the PHP interface:
+https://github.com/bolprocessor/php-frontend/ 
+
+-----
 2025-12-19 (version 3.3.7)
 The last tagged version is checked on GitHub. A call for updating is issued if necessary.
 The 'minimise' algorithm has been upgraded on the interface (file data.txt)

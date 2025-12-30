@@ -20,16 +20,15 @@ https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
 AI development
 --------------
 
-- A transformer could be trained to "understand" Bol Processor syntax. Start with polymetric notation using sample sets created with large items of "real music". These sets are matching every polymetric structure with its interpretation as a MIDIfile.
-- Design a PHP procedure that minimises any polymetric expression by replacing quantified rests with undetermined rests wherever possible, without losing accuracy.
-- An AI tool could also conduct an in-depth analysis of the C code in ‘Polymetric.c’ and ‘Timeset.c’, as well as the literature describing these processes.
+- A transformer could be trained to "understand" Bol Processor syntax. Start with polymetric notation using sample sets created with large items of "real music". These sets are matching every polymetric structure with its interpretation as a MIDIfile and a table of MIDI events. Read https://bolprocessor.org/ai-recognition-of-polymetric-notation/
+- An AI tool could also conduct an in-depth analysis and documentation of the C code in ‘Polymetric.c’ and ‘Timeset.c’, as well as the literature describing these processes.
 
 
 Live coding
 -----------
 
 - When loading a grammar, if the grammar is not valid, the improvisation will stop. It should continue with the previous grammar. Perhaps store a backup of the current grammar so that it can be reloaded if necessary.
-- Create an option to react to changes only at the moment when an entire element has been sent to MIDI. You can use the MIDI event (ActiveSensing) at the end of each item to do this.
+- Create an option to react to changes only at the moment when an entire element has been sent to MIDI. We can use the MIDI event (ActiveSensing) at the end of each item to do this.
 
 
 Realistic performance models
@@ -44,9 +43,8 @@ Apache autostart in XAMPP for MacOS
 - This is of minor interest due to the availability of the "BolProcessor.app" standalone MacOS application 
 - The method described on https://github.com/erwinagpasa/Launching-XAMPP-at-OSX-startup is not entirely satisfactory. It allows XAMPP to restart Apache at boot time and PHP pages are displayed correctly. However, when real-time MIDI is used, MIDIClientCreate() returns an error.
 - The only way to use XAMPP on MacOS is to start Apache from the Application Manager "manager-osx.app" (in XAMPP/xamppfiles).
-- The problem probably lies in the current distribution (8.2.4) of XAMPP for MacOS.
 - If the XAMPP Apache is restarted in the MacOS installation script, it runs correctly. But it is not possible to restart it in the console because "/Applications/XAMPP/xamppfiles/xampp restartapache" has to be called by 'root'.
-- Try to fix this in the latest version of XAMPP!
+- We hope to fix this in a forthcoming version of XAMPP.
 - If the "bolprocessor" folder is relocated, using XAMPP with MacOS, it no longer works after a reboot and BP3 needs to be reinstalled. See https://bolprocessor.org/quick-install-macos/#relocating-bolprocessor
 
 
@@ -55,14 +53,14 @@ Microtonal scales and tuning systems
 
 - Retuning the MIDI device to diapason A4 ≠ 440 Hz does not work or makes a mess (e.g. Windows 10, Microsoft GS Wavetable Synth).
 - Check that setting pitchbend range to ± 200 cents on all channels works.
-- Include values for optional stretching of each octave.
-- Implement a performance control to set the A4 frequency (diapason) in the score.
+- Include values for optional stretching of octaves.
+- Implement a performance control to set the A4 frequency (diapason) within the score.
 
 
 Capture (in progress)
 --------------------
 
-- Use the captured incoming NoteOn/Noteoff events to build a polymetric structure that reproduces the stream. The difficulty lies in the design of the most significant polymetric structure - for which AI tools may be helpful in the future.
+- Use the captured incoming NoteOn/Noteoff events to build a polymetric structure that reproduces the stream. The difficulty lies in the design of the most significant polymetric structure - for which AI tools are on the agenda.
 
 
 Csound orchestra
@@ -86,7 +84,7 @@ Csound orchestra
 MIDI input
 ----------
 
-- Implement more script instructions previously designed for BP2. Try to fix "_script(Wait for space)" (no hope!)
+- Implement more script instructions previously designed for BP2. Try to fix "_script(Wait for space)" (No hope!)
 
 
 Real-time MIDI
@@ -101,13 +99,13 @@ Real-time MIDI
 - Put some scripts on top of a grammar (the INIT: section) to run them before the production is started. This will notably allow setting up parameters K1, K2… K127.
 - Check the accuracy of start times in sound-object pictures.
 - Restore "PLAY THIS EXPRESSION (real-time MIDI)" with MIDI output features. Maybe store the latest real-time MIDI output?
-- Implement connection with FluidSynth (https://www.fluidsynth.org/)
+- Implement a connection with FluidSynth (https://www.fluidsynth.org/)
 
 
 Real-time Csound
 ----------------
 
-- This development should be easy with the help of AI tools.
+- This development might be easy with the help of AI tools.
 - Implement UDP for communicating with Csound. Links:
 https://csound.com/docs/manual/udpserver.html
 https://www.geeksforgeeks.org/udp-server-client-implementation-c/
@@ -123,7 +121,7 @@ Antescofo Score Language
 Open Sound Control (OSC)
 ------------------------
 
-- Is it useful?
+- Is it still useful?
 - This development should be easy with the help of AI tools.
 - Read https://en.wikipedia.org/wiki/Open_Sound_Control
 - This might create a framework for connecting BP3 with PYO (http://ajaxsoundstudio.com/software/pyo/)
@@ -133,7 +131,7 @@ Open Sound Control (OSC)
 HTML/PHP/Javascript interface
 -----------------------------
 
-- Implement command-s (on MacOS) or control-s (on Windows/Linux) to save a grammar, data, alphabet, etc. This is almost done in _header.php (line 41) and at the bottom of data.php
+- Implement command-s (on MacOS) or control-s (on Windows/Linux) to save a grammar, data, alphabet, etc. This is almost done in _header.php (line 52) and at the bottom of data.php
 - When moving "-gr" and "-da" projects, their settings should be copied.
 
 
@@ -177,7 +175,7 @@ Various issues
 
 - When outputing a data file of an item requiring serial tools (NeedZouleb > 0), display the result after the application of tools. Example: -gr.Visser.Waves. This may happen in Compute.c after SORTIR.
 - Errors of duration occur when playing some polymetric structures with tied notes that miss their target. Examples are stored in -da.checkBadDurations.
-- Check why tempo(3/2) {C4& {3, &C4 _rest D4}} does not produce the same pattern as {C4& {3, &C4 _rest D4}} 
+- Check why tempo(3/2) {C4& {3,&C4 _rest D4}} does not produce the same pattern as {C4& {3,&C4 _rest D4}} 
 - Check delete_orphan_ties() in data.php, as it still keeps erratic ties, which are difficult to predict.
 - Check why istart=4 in Compute.c when running -gr.koto3. If not checked, it crashes on the remote right context of gram #2 rule #12. Therefore, if(istart > i) return(FALSE) has been added on 2025-03-15.
 - Check that scripts can be attached to out-time objects

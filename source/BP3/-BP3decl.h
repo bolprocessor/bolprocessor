@@ -121,6 +121,7 @@ extern int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput
 	SmartCursor,NotSaidKpress,**p_MemGram,**p_MemRul,SaidChannel;
 extern int CaptureSource;
 extern FILE* CapturePtr;
+extern Milliseconds TabfileStart;
 extern long ProduceStackDepth,ProduceStackIndex,DisplayStackIndex,
 	**p_LastStackIndex,**p_MemPos;
 extern long **p_ItemStart,**p_ItemEnd,CompileDate,ComputeStart,MaxComputeTime,
@@ -157,8 +158,8 @@ extern SoundObjectInstanceParameters **p_Instance;
 extern objectspecs ****p_ObjectSpecs;
 extern int WaitKey[MAXWAIT+1],WaitChan[MAXWAIT+1];
 extern long **p_Flag,BufferSize,DeftBufferSize,Maxevent;
-extern FILE* OpenMIDIfilePtr;
-extern FILE* UnitfilePtr;
+extern FILE *OpenMIDIfilePtr;
+extern FILE *UnitfilePtr,*TabfilePtr;
 extern short HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,
 	MIDIfileOpened,MIDIfileTrackEmpty;
 extern int MIDIbytestate,MIDIfileTrackNumber,StepScript,TypeScript,MoreTime;

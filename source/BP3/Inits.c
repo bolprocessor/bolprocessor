@@ -376,7 +376,7 @@ int Inits(void) {
 		}
 	ForceRatio = -1.; PlayFromInsertionPoint = FALSE;
 
-	OpenMIDIfilePtr = UnitfilePtr = NULL;
+	OpenMIDIfilePtr = UnitfilePtr = TabfilePtr = NULL;
 	HelpRefnum = TempRefnum = TraceRefnum = -1;
 	CsRefNum = -1; CsScoreOpened = MIDIfileTrackEmpty = FALSE;
 	for(i=0; i < WMAX; i++) {

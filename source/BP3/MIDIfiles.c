@@ -327,60 +327,52 @@ static int WriteRawBytes(FILE* fout, byte* data, size_t numbytes) {
 	}
 
 
-int WriteMIDIbyte(Milliseconds time,byte midi_byte)
-{
-// time is in milliseconds
-if(SoundOn && !MIDIfileOn) return(OK);
-if(!MIDIfileOpened) return(OK);
+int WriteMIDIbyte(Milliseconds time,byte midi_byte) {
+	// time is in milliseconds
+	if(SoundOn && !MIDIfileOn) return(OK);
+	if(!MIDIfileOpened) return(OK);
+	MIDIfileTrackEmpty = FALSE;
 
-// PleaseWait();
-MIDIfileTrackEmpty = FALSE;
-
-if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
-	if(MIDIbytestate > 0) {	/* Write out the accumulated message. */
-		if(Writedword(OpenMIDIfilePtr, Midi_msg, MIDIbytestate) != OK) goto BAD;
-		MIDItracklength += MIDIbytestate;
-		}
-		
- 	if(OldMIDIfileTime == -1L) OldMIDIfileTime = time;
- 	/* This happens in the beginning of the file */
- 		
-	if(time < OldMIDIfileTime) OldMIDIfileTime = time;
-	/* This could happen with a bad rounding. Normally BP3 sorts out events */
-	
-	/* Write out variable length delta time value. */
-	if(WriteVarLenQuantity(OpenMIDIfilePtr, (dword)(time-OldMIDIfileTime),
-			&MIDItracklength) != OK) goto BAD;
+	if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
+		if(MIDIbytestate > 0) {	/* Write out the accumulated message. */
+			if(Writedword(OpenMIDIfilePtr, Midi_msg, MIDIbytestate) != OK) goto BAD;
+			MIDItracklength += MIDIbytestate;
+			}
+		if(OldMIDIfileTime == -1L) OldMIDIfileTime = time;
+		/* This happens in the beginning of the file */
 			
-	OldMIDIfileTime = time;
-
-	/* Grab the new byte read. */
-	Midi_msg = (dword)midi_byte;
-	MIDIbytestate = 1;
-	
-	if(trace_writing_midi_file)
-		BPPrintMessage(0,odInfo,"midi_byte = %d time = %ld OldMIDIfileTime = %ld MIDItracklength = %ld Midi_msg = %ld\n",midi_byte,(long)time,(long)OldMIDIfileTime,(long)MIDItracklength,(long)Midi_msg);
-	
-	}
-else {
-
-	if(trace_writing_midi_file)
-		BPPrintMessage(0,odInfo,"midi_byte = %d time = %ld OldMIDIfileTime = %ld MIDItracklength = %ld Midi_msg = %ld\n",midi_byte,(long)time,(long)OldMIDIfileTime,(long)MIDItracklength,(long)Midi_msg);
-	if(MIDIbytestate > 3 || MIDIbytestate < 1) {
-	//	BPPrintMessage(0,odError,"=> Err. WriteMIDIbyte(). MIDIbytestate > 3 || MIDIbytestate < 1");
-	//	BPPrintMessage(0,odError, "=> Correcting the byte state (%d) in MIDI file\n",MIDIbytestate);
-		return(OK);
+		if(time < OldMIDIfileTime) OldMIDIfileTime = time;
+		/* This could happen with a bad rounding. Normally BP3 sorts out events */
+		
+		/* Write out variable length delta time value. */
+		if(WriteVarLenQuantity(OpenMIDIfilePtr, (dword)(time-OldMIDIfileTime),
+				&MIDItracklength) != OK) goto BAD;
+				
+		OldMIDIfileTime = time;
+		/* Grab the new byte read. */
+		Midi_msg = (dword)midi_byte;
+		MIDIbytestate = 1;
+		if(trace_writing_midi_file)
+			BPPrintMessage(0,odInfo,"midi_byte = %d time = %ld OldMIDIfileTime = %ld MIDItracklength = %ld Midi_msg = %ld\n",midi_byte,(long)time,(long)OldMIDIfileTime,(long)MIDItracklength,(long)Midi_msg);
 		}
-	Midi_msg |= ((dword)midi_byte) << (8 * MIDIbytestate); /* accumulate msg */
-	MIDIbytestate++;		/* Keep track of number of bytes in msg. */
-	}
-return(OK);
+	else {
+		if(trace_writing_midi_file)
+			BPPrintMessage(0,odInfo,"midi_byte = %d time = %ld OldMIDIfileTime = %ld MIDItracklength = %ld Midi_msg = %ld\n",midi_byte,(long)time,(long)OldMIDIfileTime,(long)MIDItracklength,(long)Midi_msg);
+		if(MIDIbytestate > 3 || MIDIbytestate < 1) {
+		//	BPPrintMessage(0,odError,"=> Err. WriteMIDIbyte(). MIDIbytestate > 3 || MIDIbytestate < 1");
+		//	BPPrintMessage(0,odError, "=> Correcting the byte state (%d) in MIDI file\n",MIDIbytestate);
+			return(OK);
+			}
+		Midi_msg |= ((dword)midi_byte) << (8 * MIDIbytestate); /* accumulate msg */
+		MIDIbytestate++;		/* Keep track of number of bytes in msg. */
+		}
+	return(OK);
 
-BAD:
-BPPrintMessage(0,odError,"=> Canceling creation of MIDIfile\n");
-CloseMIDIFile2();
-return(ABORT);
-}
+	BAD:
+	BPPrintMessage(0,odError,"=> Canceling creation of MIDIfile\n");
+	CloseMIDIFile2();
+	return(ABORT);
+	}
 
 
 int NewTrack(void)

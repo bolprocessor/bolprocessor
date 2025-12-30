@@ -1703,6 +1703,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 					if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
 					if(TraceMIDIinteraction) 
 						BPPrintMessage(0,odInfo,"Sending pitchbend to MIDI file: %d %d %d\n",pb_event.status,pb_event.data1,pb_event.data2);
+					if(TabfilePtr != NULL) WriteToTab(time,&pb_event);
 					}
 				}
 			}
@@ -1734,6 +1735,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	// The following is for MIDI files
 	if(!MIDIfileOn || !MIDIfileOpened) return OK;
 	status = type + channel;
+	if(TabfilePtr != NULL) WriteToTab(time,p_e);
 	if(p_e->type == RAW_EVENT || p_e->type == TWO_BYTE_EVENT) {
 		if(p_e->type == TWO_BYTE_EVENT) {
 			midibyte = p_e->status;
@@ -2130,6 +2132,18 @@ int PrintThisNote(int i_scale,int key,int channel,int wind,char* line) {
 		}
 	trim_digits_after_key_hash(line); // Remove the octave number after key#xx
 	return(OK);
+	}
+
+int WriteToTab(Milliseconds time,MIDI_Event *p_e) {
+	int status = p_e->status;
+	int data1 = p_e->data1;
+	int data2 = p_e->data2;
+	if(TabfileStart == -1L) {
+		TabfileStart = time;
+		}
+	time -= TabfileStart;
+	fprintf(TabfilePtr,"%ld\t%d\t%d\t%d\n",(long)time,status,data1,data2);
+	return OK;
 	}
 
 /* void RegisterProgramChange(MIDI_Event *p_e)
