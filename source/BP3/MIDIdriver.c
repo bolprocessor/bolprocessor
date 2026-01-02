@@ -1488,12 +1488,12 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
         if(ClockInitCapture < 0L) {
             if(kcurrentinstance >= 0 && kcurrentinstance < Maxevent && (status == NoteOn || status == NoteOff)) {
                 ClockInitCapture = clocktime;
-          //    BPPrintMessage(0,odInfo,"clocktime = %ld\n",clocktime);
+            //    BPPrintMessage(0,odInfo,"clocktime = %ld\n",clocktime);
                 }
             clocktime = 0;
             }
         else clocktime -= ClockInitCapture;
-    //    if(trace_capture) BPPrintMessage(0,odInfo,"@ kcurrentinstance = %d, CaptureSource = %d, ClockInitCapture = %d, data %d %d %d\n",kcurrentinstance,CaptureSource,ClockInitCapture,midiData[0],midiData[1],midiData[2]);
+        // if(trace_capture) BPPrintMessage(0,odInfo,"@ kcurrentinstance = %d, CaptureSource = %d, ClockInitCapture = %d, data %d %d %d\n",kcurrentinstance,CaptureSource,ClockInitCapture,midiData[0],midiData[1],midiData[2]);
         if(kcurrentinstance >= 0 && kcurrentinstance < Maxevent) { 
             if(kcurrentinstance > 0) capture = (*p_Instance)[kcurrentinstance].capture;
             else capture = CaptureSource;

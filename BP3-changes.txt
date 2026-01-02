@@ -6,10 +6,15 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2025-12-30 (version 3.3.8)
-When creating datasets for MIDI file conversion to polymetric structures, tables are added that contain easy-to-read lists of events.
+2026-01-02 (version 3.3.9)
+For MIDI file conversion to polymetric structures, datasets include lists of MIDI events in the form of simple 4-column tables and detailed TSV tables. Read:
+https://bolprocessor.org/ai-recognition-of-polymetric-notation/
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/ 
+
+-----
+2025-12-30 (version 3.3.8)
+When creating datasets for MIDI file conversion to polymetric structures, tables are added that contain easy-to-read lists of events.
 
 -----
 2025-12-19 (version 3.3.7)

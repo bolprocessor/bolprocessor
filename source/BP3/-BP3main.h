@@ -227,7 +227,7 @@ SoundObjectInstanceParameters **p_Instance;
 objectspecs ****p_ObjectSpecs;
 long **p_Flag,BufferSize,DeftBufferSize,Maxevent;
 FILE *OpenMIDIfilePtr;
-FILE *UnitfilePtr,*TabfilePtr;
+FILE *UnitfilePtr,*TabfilePtr,*TsvFilePtr;
 short HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,MIDIfileOpened,
 	MIDIfileTrackEmpty;
 int MIDIbytestate,MIDIfileTrackNumber,StepScript,TypeScript,MoreTime;

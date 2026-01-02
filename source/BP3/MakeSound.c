@@ -889,7 +889,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 							&& (j >= 16384 || (*p_OkVolume)[j])) {
 						(*p_Oldvalue)[chan].volume = volume;
 						ChangedVolume[chan] = TRUE;
-						if(!cswrite && !Create_set) {
+						if(!cswrite) {
+							// Since the value is 0..127 we send only the MSB
 							e.time = Tcurr;
 							e.type = NORMAL_EVENT;
 							e.status = ControlChange + chan;
@@ -902,7 +903,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 							&& (j >= 16384 || (*p_OkPan)[j])) {
 						(*p_Oldvalue)[chan].panoramic = panoramic;
 						ChangedPanoramic[chan] = TRUE;
-						if(!cswrite && !Create_set) {
+						if(!cswrite) {
+							// Since the value is 0..127 we send only the MSB
 							e.time = Tcurr;
 							e.type = NORMAL_EVENT;
 							e.status = ControlChange + chan;
@@ -916,7 +918,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 						ChangedPitchbend[chan] = TRUE;
 						lsb = ((long)pitchbend) % 128;
 						msb = (((long)pitchbend) - lsb) >> 7;
-						if(!cswrite && !Create_set) {
+						if(!cswrite) {
+				//		if(!cswrite && !Create_set) {
 							e.time = Tcurr;
 							e.type = NORMAL_EVENT;
 							e.status = PitchBend + chan;
@@ -928,13 +931,13 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 					if(okpressure && pressure != (*p_Oldvalue)[chan].pressure) {
 						(*p_Oldvalue)[chan].pressure = pressure;
 						ChangedPressure[chan] = TRUE;
-						if(!cswrite && !Create_set) {
+						if(!cswrite) {
 							e.time = Tcurr;
 							e.type = TWO_BYTE_EVENT;
 							e.status = ChannelPressure + chan;
 							e.data1 = 0;
 							e.data2 = pressure;
-					//		BPPrintMessage(0,odInfo,"@@@ Sending pressure = %d\n",pressure);
+				//			BPPrintMessage(1,odInfo,"@@@ Sending pressure = %d time = %ld\n",pressure,(long)Tcurr);
 							if((result=SendToDriver(0,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 							}
 						}
@@ -943,7 +946,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 						ChangedModulation[chan] = TRUE;
 						lsb = ((long)modulation) % 128;
 						msb = (((long)modulation) - lsb) >> 7;
-						if(!cswrite && !Create_set) {
+						if(!cswrite) {
 			//				BPPrintMessage(0,odInfo,"Sending modulation = %d\n",modulation);
 							e.time = Tcurr;
 							e.type = NORMAL_EVENT;
@@ -1169,7 +1172,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 										s = 0;
 										}
 									rs = 0;
-									if(!cswrite) {
+									if(!cswrite && !Create_set) {
 										e.time = Tcurr;
 										e.type = NORMAL_EVENT;
 										e.status = ControlChange + ii;
@@ -1948,30 +1951,29 @@ int ExecuteScriptList(p_list **scriptlist) {
 	return(r);
 	}
 
-int ClipVelocity(int v,int localvelocity,int control,int rndvel)
-{
-int r;
-float x;
+int ClipVelocity(int v,int localvelocity,int control,int rndvel) {
+	int r;
+	float x;
 
-if(control >= MAXPARAMCTRL) {
-	my_sprintf(Message,"=> Err. ClipVelocity(). control = %ld",(long)control);
-//	BPPrintMessage(0,odError,"%s",Message);
-	control = -1;
+	if(control >= MAXPARAMCTRL) {
+		my_sprintf(Message,"=> Err. ClipVelocity(). control = %ld",(long)control);
+	//	BPPrintMessage(0,odError,"%s",Message);
+		control = -1;
+		}
+	if(control > -1) v = ParamValue[control];
+	if(rndvel > 0) {
+		if(rndvel > 127) r = ParamValue[rndvel-128];
+		else r = rndvel;
+		x = (2. * rand() * ((float)r)) / ((float)RAND_MAX);
+		if(x > r) x = r - x;
+		UsedRandom = TRUE;
+		localvelocity += x;
+		if(localvelocity < 1) localvelocity = 1;
+		}
+	v = (v * localvelocity) / 127;
+	if(v > 127) v = 127;
+	return(v);
 	}
-if(control > -1) v = ParamValue[control];
-if(rndvel > 0) {
-	if(rndvel > 127) r = ParamValue[rndvel-128];
-	else r = rndvel;
-	x = (2. * rand() * ((float)r)) / ((float)RAND_MAX);
-	if(x > r) x = r - x;
-	UsedRandom = TRUE;
-	localvelocity += x;
-	if(localvelocity < 1) localvelocity = 1;
-	}
-v = (v * localvelocity) / 127;
-if(v > 127) v = 127;
-return(v);
-}
 
 
 int ChannelConvert(int ch) {
@@ -2179,6 +2181,7 @@ int SendControl(ContinuousControl **p_control,Milliseconds t0,int chan,int ipara
 				e.status = ChannelPressure + chan;
 				e.data1 = 0;
 				e.data2 = value;
+		//		BPPrintMessage(1,odInfo,"@@ Sending pressure = %d time = %ld\n",value,(long)Tcurr);
 				if((result=SendToDriver(0,0,0,time,seq,p_rs,&e)) != OK) goto OVER3;
 				}
 			break;

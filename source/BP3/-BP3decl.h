@@ -159,7 +159,7 @@ extern objectspecs ****p_ObjectSpecs;
 extern int WaitKey[MAXWAIT+1],WaitChan[MAXWAIT+1];
 extern long **p_Flag,BufferSize,DeftBufferSize,Maxevent;
 extern FILE *OpenMIDIfilePtr;
-extern FILE *UnitfilePtr,*TabfilePtr;
+extern FILE *UnitfilePtr,*TabfilePtr,*TsvFilePtr;
 extern short HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,
 	MIDIfileOpened,MIDIfileTrackEmpty;
 extern int MIDIbytestate,MIDIfileTrackNumber,StepScript,TypeScript,MoreTime;

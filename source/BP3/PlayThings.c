@@ -1294,7 +1294,9 @@ int ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buf
 		UnitfilePtr = NULL;
 		if(TabfilePtr != NULL) fclose(TabfilePtr);
 		TabfilePtr = NULL;
-		Create_unit_tab_files();
+		if(TsvFilePtr != NULL) fclose(TsvFilePtr);
+		TsvFilePtr = NULL;
+		Create_unit_tab_tsv_files();
 		}
 	for(j=*p_i,k=0; j < im; j++) {
 		c = GetTextChar(w,j);
@@ -1360,7 +1362,7 @@ int ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buf
 	return(OK);
 	}
 
-void Create_unit_tab_files() {
+void Create_unit_tab_tsv_files() {
 	char thename[MAXNAME];
 	const char *base = PathToMidiFile;
     size_t base_len = strlen(base);
@@ -1374,13 +1376,15 @@ void Create_unit_tab_files() {
     memcpy(p_unit, base, base_len); p_unit += base_len;
     if (need_slash) *p_unit++ = '/';
     memcpy(p_unit,thename,strlen(thename) + 1); // includes '\0'
-	BPPrintMessage(1,odInfo,"\npath = %s\n",path_unit);
+	// BPPrintMessage(1,odInfo,"\npath = %s\n",path_unit);
 	UnitfilePtr = fopen(path_unit, "w");
     if(UnitfilePtr == NULL) {
 		 BPPrintMessage(0,odError,"=> Error creating %s: %s\n", path_unit, strerror(errno));
         return;
     	}
 	else if(SetMidiFileNr == 1) BPPrintMessage(1,odInfo,"Copying polymetric expressions to files, starting with %s\n",path_unit);
+
+	// Create the tab file
 	sprintf(thename,"%d.tab",SetMidiFileNr);
     size_t total_tab = base_len + (need_slash ? 1 : 0) + strlen(thename) + 1;
     char *path_tab = (char *)malloc(total_tab);
@@ -1389,8 +1393,20 @@ void Create_unit_tab_files() {
 	p_tab += base_len;
     if (need_slash) *p_tab++ = '/';
     memcpy(p_tab,thename,strlen(thename) + 1); // includes '\0'
-	BPPrintMessage(1,odInfo,"\npath_tab = %s\n",path_tab);
+	// BPPrintMessage(1,odInfo,"\npath_tab = %s\n",path_tab);
 	TabfilePtr = fopen(path_tab, "w");
+
+	// Create the tsv file
+	sprintf(thename,"%d.tsv",SetMidiFileNr);
+    size_t total_tsv = base_len + (need_slash ? 1 : 0) + strlen(thename) + 1;
+    char *path_tsv = (char *)malloc(total_tsv);
+    char *p_tsv = path_tsv;
+    memcpy(p_tsv, base, base_len);
+	p_tsv += base_len;
+    if (need_slash) *p_tsv++ = '/';
+    memcpy(p_tsv,thename,strlen(thename) + 1); // includes '\0'
+	TsvFilePtr = fopen(path_tsv, "w");
+	fprintf(TsvFilePtr, "time\tnote\tevent\tsize\tsource\tstatus\tdata1\tdata2\tchannel\n");
 	TabfileStart = -1L;
 	return;
 	}

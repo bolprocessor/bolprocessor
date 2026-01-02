@@ -1046,7 +1046,7 @@ void insert_space_between_digits(char*);
 void trim_digits_after_key_hash(char*);
 
 void change_midifile_name(char*);
-void Create_unit_tab_files(void);
+void Create_unit_tab_tsv_files(void);
 
 FILE* OpenOutputFile(OutFileInfo* finfo, const char* mode);
 void CloseOutputFile(OutFileInfo* finfo);

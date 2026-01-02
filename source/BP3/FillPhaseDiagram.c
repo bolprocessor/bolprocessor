@@ -1720,7 +1720,7 @@ if(imax > 0.) {
 	// This compensates errors due to overflow in calculating Prod and Ratio
 		if(CorrectionFactor < 0.9 || CorrectionFactor > 1.1) {
 			if(Create_set) {
-			ErrorDuration++;
+				ErrorDuration++;
 				BPPrintMessage(1,odError,"Correction factor = %.3f (imax = %ld nseqmem = %ld  nseqmax = %ld)\n",CorrectionFactor,(long)imax,(long)nseqmem,(long)(*p_nmax));
 				BPPrintMessage(1,odError,"➡ We will not use chunk or sample #%d\n",Chunk_number);
 				}

@@ -1583,6 +1583,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	channel = status % 16;
 	note = ByteToInt(p_e->data1);
 	type = status & 0xF0;
+
 	value = ByteToInt(p_e->data2);
 	if(p_e->type == TWO_BYTE_EVENT) p_e->data1 = 0;
 	i_scale = -1;
@@ -1736,7 +1737,9 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	if(!MIDIfileOn || !MIDIfileOpened) return OK;
 	status = type + channel;
 	if(TabfilePtr != NULL) WriteToTab(time,p_e);
+	// if(type == ChannelPressure) BPPrintMessage(1,odInfo,"+ SendToDriver() time = %ld channel = %d p_e->type = %d type = %d\tc1 = %d\tc2 = %d\n",(long)time,channel,ByteToInt(p_e->type),type,ByteToInt(p_e->data1),ByteToInt(p_e->data2));
 	if(p_e->type == RAW_EVENT || p_e->type == TWO_BYTE_EVENT) {
+		// BPPrintMessage(1,odInfo,"++ SendToDriver() time = %ld channel = %d p_e->type = %d type = %d\tc1 = %d\tc2 = %d\n",(long)time,channel,ByteToInt(p_e->type),type,ByteToInt(p_e->data1),ByteToInt(p_e->data2));
 		if(p_e->type == TWO_BYTE_EVENT) {
 			midibyte = p_e->status;
 			if(WriteMIDIbyte(time,midibyte) != OK) return(ABORT);
@@ -2134,15 +2137,81 @@ int PrintThisNote(int i_scale,int key,int channel,int wind,char* line) {
 	return(OK);
 	}
 
-int WriteToTab(Milliseconds time,MIDI_Event *p_e) {
-	int status = p_e->status;
+int WriteToTab(Milliseconds clocktime,MIDI_Event *p_e) {
+	int status_with_channel = p_e->status;
 	int data1 = p_e->data1;
 	int data2 = p_e->data2;
+	int part = 0;
+	int dataSize = 3;
+	int channel = status_with_channel & 0x0F;
+	int status = status_with_channel - channel;
+	char this_key[100];
+    strcpy(this_key,"");
 	if(TabfileStart == -1L) {
-		TabfileStart = time;
+		TabfileStart = clocktime;
 		}
-	time -= TabfileStart;
-	fprintf(TabfilePtr,"%ld\t%d\t%d\t%d\n",(long)time,status,data1,data2);
+	clocktime -= TabfileStart;
+
+	int key = data1;
+	NoteConvention = ENGLISH;
+    PrintThisNote(0,key,0,-1,this_key);
+
+	// Write to the simple tab file
+	fprintf(TabfilePtr,"%ld\t%d\t%d\t%d\n",(long)clocktime,status,data1,data2);
+
+	// Write to the detailed tsv file
+	if(status == PitchBend) {
+		fprintf(TsvFilePtr, "%ld\t\tpitchbend\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,dataSize,part,status,data1,data2,(channel + 1));
+	//	pb2_done = TRUE;
+		}
+	else {
+		if(status == ChannelPressure) {
+			dataSize = 2;
+			fprintf(TsvFilePtr, "%ld\t\tpressure\t%d\t%d\t%d\t%d\t\t%d\n",clocktime,dataSize,part,status,data2,(channel + 1));
+		//	press2_done = TRUE;
+			}
+		else if(status == NoteOff || (status == NoteOn && data2 == 0)) {
+			fprintf(TsvFilePtr, "%ld\t%s\tNoteOff\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,this_key,dataSize,part,status,data1,data2,(channel + 1));
+		//	note2_done = TRUE;
+			}
+		else if(status == NoteOn) {
+			fprintf(TsvFilePtr, "%ld\t%s\tNoteOn\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,this_key,dataSize,part,status,data1,data2,(channel + 1));
+		//	note2_done = TRUE;
+			}
+		else if(status == ControlChange) {
+			if(data1 == 64) 
+				fprintf(TsvFilePtr, "%ld\t\tpedal\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,dataSize,part,status,data1,data2,(channel + 1));
+			else if(data1 == 65) 
+				fprintf(TsvFilePtr, "%ld\t\tportamento\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,dataSize,part,status,data1,data2,(channel + 1));
+			else if(data1 == 66) 
+				fprintf(TsvFilePtr, "%ld\t\tsostenuto\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,dataSize,part,status,data1,data2,(channel + 1));
+			else if(data1 == 67) 
+				fprintf(TsvFilePtr, "%ld\t\tsoft\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,dataSize,part,status,data1,data2,(channel + 1));
+			else if(data1 == 7) 
+				fprintf(TsvFilePtr, "%ld\t\tvolume MSB\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,dataSize,part,status,data1,data2,(channel + 1));
+			else if(data1 == 39) 
+				fprintf(TsvFilePtr, "%ld\t\tvolume LSB\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,dataSize,part,status,data1,data2,(channel + 1));
+			else if(data1 == 11) 
+				fprintf(TsvFilePtr, "%ld\t\texpression MSB\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,dataSize,part,status,data1,data2,(channel + 1));
+			else if(data1 == 43) 
+				fprintf(TsvFilePtr, "%ld\t\texpression LSB\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,dataSize,part,status,data1,data2,(channel + 1));
+			else if(data1 == 10) 
+				fprintf(TsvFilePtr, "%ld\t\tpanoramic MSB\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,dataSize,part,status,data1,data2,(channel + 1));
+			else if(data1 == 42) 
+				fprintf(TsvFilePtr, "%ld\t\tpanoramic LSB\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,dataSize,part,status,data1,data2,(channel + 1));
+			else if(data1 == 1) 
+				fprintf(TsvFilePtr, "%ld\t\tmodulation MSB\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,dataSize,part,status,data1,data2,(channel + 1));
+			else if(data1 == 33) 
+				fprintf(TsvFilePtr, "%ld\t\tmodulation LSB\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,dataSize,part,status,data1,data2,(channel + 1));
+			else if(data1 == 8) 
+				fprintf(TsvFilePtr, "%ld\t\tbalance MSB\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,dataSize,part,status,data1,data2,(channel + 1));
+			else if(data1 == 40) 
+				fprintf(TsvFilePtr, "%ld\t\tbalance LSB\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,dataSize,part,status,data1,data2,(channel + 1));
+			else
+				fprintf(TsvFilePtr, "%ld\t\tcontrol\t%d\t%d\t%d\t%d\t%d\t%d\n",clocktime,dataSize,part,status,data1,data2,(channel + 1));
+		//	ctrl2_done = TRUE;
+			}
+		}
 	return OK;
 	}
 
