@@ -38,6 +38,7 @@ extern int Version;
 extern long MemoryUsed,MemoryUsedInit,MaxMemoryUsed,
 	MaxHandles,SessionTime;
 extern int CheckMem;
+extern int NumberMessages;
 
 extern int EmergencyExit,FixedMaxQuantization,
 	TraceMemory,EventState,Beta;
@@ -52,7 +53,7 @@ extern char **p_MessageMem[MAXMESSAGE],**p_HTMLchar1,**p_HTMLchar2,**p_HTMLdiacr
 extern MIDIstream Stream;
 
 extern node PrefixTree,SuffixTree;
-extern long SwitchState;
+// extern int SwitchState,PedalState;
 extern char InitToken[6];
 extern char Mode[MAXMODE][MODELENGTH];
 extern char NilString[MAXNIL][NILLENGTH];
@@ -113,7 +114,7 @@ extern int imageHits;
 extern int PitchbendRange[MAXCHAN+1],DeftPitchbendRange,PitchbendRate[MAXCHAN+1],ModulationRate[MAXCHAN+1],PressRate[MAXCHAN+1],
 	VolumeRate[MAXCHAN+1],VolumeControl[MAXCHAN+1],PanoramicRate[MAXCHAN+1],PanoramicControl[MAXCHAN+1],
 	DeftVolume,DeftVelocity,DeftPanoramic,PanoramicController,VolumeController,SamplingRate;
-extern char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulation[MAXCHAN+1],ChangedPitchbend[MAXCHAN+1],ChangedSwitch[MAXCHAN+1],
+extern char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulation[MAXCHAN+1],ChangedPitchbend[MAXCHAN+1],ChangedSwitch[MAXCHAN+1],ChangedPedal[MAXCHAN+1],
 	ChangedPressure[MAXCHAN+1],WhichCsoundInstrument[MAXCHAN+1];
 extern int Jbol,Jinstr,Jfunc,Jinscript,Joutscript,Maxinscript,Maxoutscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,
 	MaxVar,Jhomo,**p_VarStatus,iCsoundInstrument;

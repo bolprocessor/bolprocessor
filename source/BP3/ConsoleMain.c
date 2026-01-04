@@ -234,6 +234,7 @@ int main (int argc, char* args[]) {
 				Create_set = TRUE;
 				Improvize = FALSE;
 				MIDIfileOn = TRUE;
+				ResetControllers = ResetNotes = FALSE;
 				EndFadeOut = 0.;
 				ShowGraphic = ShowPianoRoll = ShowObjectGraph = FALSE;
 				Pclock = Qclock = 1; // Speed will be set by the _tempo() instruction at the beginning
@@ -297,7 +298,10 @@ CLEANUP:
 		WaitABit(100); // Sleep for 100 milliseconds
 		BPPrintMessage(0,odInfo,"Duration = %.3f seconds\n",(double)LastTime/1000.); // Date of the last MIDI event
 		if(ResetNotes) {
-			AllNotesOffPedalsOffAllChannels(TRUE);
+			AllNotesOffAllChannels(TRUE);
+			}
+		if(ResetControllers)  {
+			AllControlsOffAllChannels(TRUE);
 			}
 		WaitABit(100); // 100 milliseconds
 		closeMIDISystem();

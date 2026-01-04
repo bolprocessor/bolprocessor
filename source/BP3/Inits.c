@@ -248,14 +248,6 @@ int Inits(void) {
 	// MIDIfileReply = CsFileReply = NULL;
 	if((p_Oldvalue = (MIDIcontrolstatus**)
 		GiveSpace((Size)MAXCHAN*sizeof(MIDIcontrolstatus))) == NULL) return(ABORT);
-		
-	for(ch=0; ch < MAXCHAN; ch++) {
-		(*p_Oldvalue)[ch].volume = -1;
-		(*p_Oldvalue)[ch].panoramic = -1;
-		(*p_Oldvalue)[ch].pressure = -1;
-		(*p_Oldvalue)[ch].pitchbend = -1;
-		(*p_Oldvalue)[ch].modulation = -1;
-		}
 
 	// Variables for Csound instruments
 	p_CsInstrument = NULL;
@@ -389,8 +381,7 @@ int Inits(void) {
 	if(SetNoteNames() != OK) return(ABORT);
 	NeedAlphabet = FALSE;
 	for(i=0; i < MAXCHAN; i++) {
-		ChangedVolume[i] = ChangedPanoramic[i] = ChangedModulation[i] = ChangedPitchbend[i] = ChangedSwitch[i]
-			= ChangedPressure[i] = FALSE;
+		ChangedVolume[i] = ChangedPanoramic[i] = ChangedModulation[i] = ChangedPitchbend[i] = ChangedSwitch[i] = ChangedPedal[i] = ChangedPressure[i] = FALSE;
 		WhichCsoundInstrument[i+1] = -1;
 		}
 	PrototypeTickChannel = 1; PrototypeTickKey = 84;

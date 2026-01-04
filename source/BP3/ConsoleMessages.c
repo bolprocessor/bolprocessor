@@ -90,6 +90,13 @@ int BPPrintMessage(int force,int dest, const char *format, ...) {
 	va_list	args;
     int result;
 
+    if(MAXMESSAGES > 0 && NumberMessages == MAXMESSAGES) {
+        BPPrintMessage(1,odInfo,"👉 End of displaying messages (max %d)\n",MAXMESSAGES);
+        NumberMessages++;  return OK;
+        }
+    if(MAXMESSAGES > 0 && NumberMessages > MAXMESSAGES) return OK;
+    NumberMessages++; 
+
     // Handle callback if set
     if(gMessageCallback != NULL) {
         va_start(args, format);
@@ -145,29 +152,30 @@ int BPPrintMessage(int force,int dest, const char *format, ...) {
 	return OK;
     }
 
+// The following are obsolete in BP3
+
 int BPSetMessageCallback(bp_message_callback_t func)
 {
 	gMessageCallback = func;
 	return OK;
 }
 
-int ShowMessage(int store, int w, char *message)
-{
-	if(w < 0 || w >= WMAX || !Editable[w]) {
-		 BPPrintMessage(0,odError,"=> Err. ShowMessage()");
-		return(OK);
-	}
-	
-	// save message for recall
-	if(store) {
-		Jmessage++;
-		if(Jmessage >= MAXMESSAGE) Jmessage = 0;
-		MystrcpyStringToHandle(&(p_MessageMem[Jmessage]), message);
-	}
-	
-	BPPrintMessage(0,odInfo, "%s\n", message);
-	return OK;
-}
+int ShowMessage(int store, int w, char *message) {
+    // This is obsolete. Generally replaced by BPPrint()
+    if(w < 0 || w >= WMAX || !Editable[w]) {
+        BPPrintMessage(0,odError,"=> Err. ShowMessage()");
+        return(OK);
+        }
+    // Save message for recall (currently not used)
+    if(store) {
+        Jmessage++;
+        if(Jmessage >= MAXMESSAGE) Jmessage = 0;
+        MystrcpyStringToHandle(&(p_MessageMem[Jmessage]), message);
+        }
+    
+    BPPrintMessage(0,odInfo, "%s\n", message);
+    return OK;
+    }
 
 int ClearMessage(void)
 {
@@ -176,7 +184,7 @@ int ClearMessage(void)
 
 int FlashInfo(char* message)
 {
-	BPPrintMessage(0,odInfo, "%s\n", message);
+	BPPrintMessage(0,odInfo,"%s\n",message);
 	return OK;
 }
 

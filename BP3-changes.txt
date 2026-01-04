@@ -6,11 +6,19 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+2026-01-04 (version 3.3.10)
+A few changes have been made to increase consistency between MIDI files and event tables when creating datasets for AI training:
+- The pedals (64) are now controlled separately from the controllers in the range 65–95
+- "Reset controllers" and "Reset notes" are disabled
+- The pedal is released even if it is pushed again immediately afterwards
+"Reset controllers" now includes resetting the pedal on every channel. See MakeSound.c -> SWITCHES.
+Don't forget to update the PHP interface:
+https://github.com/bolprocessor/php-frontend/
+
+-----
 2026-01-02 (version 3.3.9)
 For MIDI file conversion to polymetric structures, datasets include lists of MIDI events in the form of simple 4-column tables and detailed TSV tables. Read:
 https://bolprocessor.org/ai-recognition-of-polymetric-notation/
-Don't forget to update the PHP interface:
-https://github.com/bolprocessor/php-frontend/ 
 
 -----
 2025-12-30 (version 3.3.8)
@@ -21,9 +29,6 @@ When creating datasets for MIDI file conversion to polymetric structures, tables
 The last tagged version is checked on GitHub. A call for updating is issued if necessary.
 The 'minimise' algorithm has been upgraded on the interface (file data.txt)
 Performance controls are listed entirely: function is_performance_control() in file _basic_tasks.php
-Don't forget to update the PHP interface and new examples containing the "-da.tryMinimise" data file:
-https://github.com/bolprocessor/php-frontend/
-https://github.com/bolprocessor/bp3-ctests/
 
 -----
 2025-12-15 (version 3.3.6)

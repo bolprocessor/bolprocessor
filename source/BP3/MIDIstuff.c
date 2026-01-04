@@ -294,7 +294,8 @@ int MIDIflush(int quick, int now) {
 				CompileCheck();
 				NewGrammarWaiting = FALSE;
 			//	BPPrintMessage(1,odInfo,"ok2\n");
-				AllNotesOffPedalsOffAllChannels(FALSE);
+				AllNotesOffAllChannels(FALSE);
+				AllControlsOffAllChannels(FALSE);
 				}
 			if(ChangedGrammar || ChangedSettings) {
 				eventCount = 0L;
@@ -353,7 +354,10 @@ int MaybeWait(unsigned long current_time) {
 		if((result = stop(1,"Waiting loop")) != OK) return result;
 		WaitABit(5); // milliseconds
 		i++;
-		if(i == 50L && ResetNotes && CapturePtr == NULL) AllNotesOffPedalsOffAllChannels(FALSE);
+		if(i == 50L && ResetNotes && CapturePtr == NULL) {
+			AllNotesOffAllChannels(FALSE);
+			AllControlsOffAllChannels(FALSE);
+			}
 		}
 	TimeStopped += (getClockTime() - time_now);
 	if((TimeStopped / 10000L) != (Oldtimestopped / 10000L)) {
@@ -397,7 +401,8 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 	if(Interactive) {
 		if(StopPauseContinue && c0 == Stop) {
 			StopPlay = TRUE;
-			AllNotesOffPedalsOffAllChannels(FALSE);
+			AllNotesOffAllChannels(FALSE);
+			AllControlsOffAllChannels(FALSE);
 			if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"👉 Received Stop message\n");
 			return(OK);
 			}
@@ -1834,7 +1839,7 @@ long SendToStack(MIDI_Event event,Milliseconds time,int kcurrentinstance,int i_s
 	return count;
 	}
 
-int AllNotesOffPedalsOffAllChannels(int verbose) {
+int AllNotesOffAllChannels(int verbose) {
 	int rs,key,channel;
 	unsigned char midiData[4];
 	int dataSize = 3;
@@ -1843,21 +1848,64 @@ int AllNotesOffPedalsOffAllChannels(int verbose) {
 		return(OK);
 		}
 	if(verbose) 
-		BPPrintMessage(1,odInfo,"Sending AllNotesOff and resetting controls on all channels.\n➡ Check the MIDI out filter if it did not work!\n");
+		BPPrintMessage(1,odInfo,"Sending AllNotesOff on all channels.\n➡ Check the MIDI out filter if it did not work!\n");
 	for(channel=0; channel < MAXCHAN; channel++) {
 		WaitABit(10); // Wait for 10 ms
 		midiData[0] = ControlChange + channel;
 		midiData[1] = 123; // All Notes Off
 		midiData[2] = 0;
 		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0); // Sending immediately
-		midiData[0] = ControlChange + channel;
-		midiData[1] = 64; // Pedal Off
-		midiData[2] = 0;
-		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0); // Sending immediately
+		}
+	WaitABit(10);
+	return(OK);
+	}
+
+int AllControlsOffAllChannels(int verbose) {
+	int rs,key,channel,ii;
+	unsigned char midiData[4];
+	int dataSize = 3;
+	if(!rtMIDI) {
+		BPPrintMessage(0,odError,"=> Resetting controls won't work since MIDI output is not active");	
+		return(OK);
+		}
+	if(verbose) 
+		BPPrintMessage(1,odInfo,"Resetting controls on all channels.\n➡ Check the MIDI out filter if it did not work!\n");
+	for(channel=0; channel < MAXCHAN; channel++) {
+		for(ii= 0; ii < 32; ii++) {
+			midiData[0] = ControlChange + channel;
+			midiData[1] = 64 + ii;
+			midiData[2] = 0;
+			sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0);
+			}
 		midiData[0] = PitchBend + channel;
 		midiData[1] = 0x00;
 		midiData[2] = 0x40;
-		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0); // Sending immediately
+		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0);
+
+		midiData[0] = ControlChange + channel;
+		midiData[1] = VolumeControl[channel+1];
+		midiData[2] = DEFTVOLUME;
+		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0);
+
+		midiData[0] = ControlChange + channel;
+		midiData[1] = PanoramicControl[channel+1];
+		midiData[2] = DEFTPANORAMIC;
+		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0);
+
+		midiData[0] = ControlChange + channel;
+		midiData[1] = 1; // Modulation MSB
+		midiData[2] = 0;
+		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0);
+
+		midiData[0] = ControlChange + channel;
+		midiData[1] = 33; // Modulation LSB
+		midiData[2] = 0;
+		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0);
+
+		midiData[0] = ChannelPressure + channel;
+		midiData[1] = 0;
+		midiData[2] = 0;
+		sendMIDIEvent(-1,0,OUT,0,midiData,2,0);
 		}
 	WaitABit(10);
 	return(OK);

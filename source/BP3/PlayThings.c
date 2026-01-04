@@ -431,7 +431,6 @@ if(!CompiledAl || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 	}
 if(!onlypianoroll) {
 	if(CompileRegressions() != OK) return(r);
-	// ResetMIDI(TRUE);  Fixed by BB 2022-02-18
 	if(ResetControllers) {
 		for(ch=0; ch < MAXCHAN; ch++) {
 			(*p_Oldvalue)[ch].volume = -1;
@@ -1369,6 +1368,7 @@ void Create_unit_tab_tsv_files() {
 	if(UnitfilePtr != NULL) return;
 	SetMidiFileNr++;
 	sprintf(thename,"%d.txt",SetMidiFileNr);
+	// BPPrintMessage(1,odInfo,"@@ SetMidiFileNr = %d\n",SetMidiFileNr);
     int need_slash = (base_len > 0 && base[base_len - 1] == '/') ? 0 : 1;
     size_t total = base_len + (need_slash ? 1 : 0) + strlen(thename) + 1;
     char *path_unit = (char *)malloc(total);

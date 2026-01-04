@@ -36,7 +36,7 @@
 #ifndef _H_BP3
 #define _H_BP3
 
-#define SHORT_VERSION "3.3.9"
+#define SHORT_VERSION "3.3.10"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -375,8 +375,8 @@ enum {
 #define SAMPLINGRATE 50
 #define PANORAMICCONTROL 10
 #define DEFTPANORAMIC 64
-#define DEFTPITCHBEND 8191.5 
-// #define DEFTPITCHBEND 8191 // Fixed by BB 2022-02-20
+#define DEFTPITCHBEND 8192.0 
+// #define DEFTPITCHBEND 8191
 #define DEFTPRESSURE 0
 #define DEFTMODULATION 0
 
@@ -519,6 +519,7 @@ enum {
 #define MAXWIND 14	/* number of windows */
 #define MAXDIAL 25	/* number of dialogs */
 #define WMAX 39		/* number of windows = MAXDIAL + MAXWIND */
+#define MAXMESSAGES 1000 // Maximum number of messsages (0 if unlimited)
 
 /*
 // Cursor ID's
@@ -1140,12 +1141,14 @@ typedef struct {
 typedef struct {
 	p_list** waitlist;
 	p_list** scriptline;
-	long** switchstate;
+	int** switchstate;
+	int** pedalstate;
 	} objectspecs;
 	
 #define WaitList(i) (*((*p_ObjectSpecs)[(i)]))->waitlist
 #define ObjScriptLine(i) (*((*p_ObjectSpecs)[(i)]))->scriptline
 #define SwitchState(i) (*((*p_ObjectSpecs)[(i)]))->switchstate
+#define PedalState(i) (*((*p_ObjectSpecs)[(i)]))->pedalstate
 
 #define PitchbendStart(i) (*((*p_Instance)[i].contparameters.values))[IPITCHBEND].v0
 #define PitchbendEnd(i) (*((*p_Instance)[i].contparameters.values))[IPITCHBEND].v1
@@ -1288,7 +1291,8 @@ typedef struct s_PerfParameters PerfParameters;
 
 typedef struct {
 	char pressure,volume,panoramic;
-	int pitchbend,modulation;
+	double pitchbend;
+	int modulation;
 	} MIDIcontrolstatus;
 
 typedef struct {

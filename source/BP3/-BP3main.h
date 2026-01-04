@@ -40,6 +40,7 @@ GWorldPtr gMainGWorld;
 GDHandle gCurDev; */
 
 int Version = 31;
+int NumberMessages = 0;
 
 // ProcessSerialNumber PSN; 
 long MemoryUsed,MemoryUsedInit,MaxMemoryUsed,MaxHandles,
@@ -105,7 +106,7 @@ char **p_MessageMem[MAXMESSAGE],**p_HTMLchar1,**p_HTMLchar2,**p_HTMLdiacritical;
 MIDIstream Stream;
 
 node PrefixTree,SuffixTree;
-long SwitchState;
+// int SwitchState,PedalState;
 char InitToken[] = "INIT:";
 // Rect PictFrame;
 char Mode[][MODELENGTH] = {"RND","LEFT","RIGHT"};
@@ -182,7 +183,7 @@ long CurrentDir,LastDir,OldModulation;
 int PitchbendRange[MAXCHAN+1],DeftPitchbendRange,PitchbendRate[MAXCHAN+1],ModulationRate[MAXCHAN+1],PressRate[MAXCHAN+1],
 	VolumeRate[MAXCHAN+1],VolumeControl[MAXCHAN+1],PanoramicRate[MAXCHAN+1],PanoramicControl[MAXCHAN+1],
 	DeftVolume,DeftVelocity,DeftPanoramic,PanoramicController,VolumeController,SamplingRate;
-char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulation[MAXCHAN+1],ChangedPitchbend[MAXCHAN+1],ChangedSwitch[MAXCHAN+1],
+char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulation[MAXCHAN+1],ChangedPitchbend[MAXCHAN+1],ChangedSwitch[MAXCHAN+1],ChangedPedal[MAXCHAN+1],
 	ChangedPressure[MAXCHAN+1],WhichCsoundInstrument[MAXCHAN+1];
 int Jbol,Jfunc,Jinstr,Jinscript,Joutscript,Maxinscript,Maxoutscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,MaxVar,
 	Jhomo,**p_VarStatus,iCsoundInstrument;

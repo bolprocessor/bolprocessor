@@ -57,8 +57,9 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 		idummy,lsb,msb,rs,localchan,localvelocity,outtime,foundfirsteventinperiod,maxparam,index,overflow,
 		foundlasteventinperiod,foundfirstevent,cswrite,nextisobject,exclusive,themessage,
 		okvolume,okpanoramic,okpitchbend,okpressure,okmodulation,hrect,htext,leftoffset,topoffset,
-		contchan,volume,panoramic,pitchbend,modulation,pressure,**p_seqcont[MAXCHAN+1],
+		contchan,volume,panoramic,modulation,pressure,**p_seqcont[MAXCHAN+1],
 		octave,pitchclass,time_pattern,showpianoroll;
+	double pitchbend;
 		
 	Milliseconds time,buffertime,torigin,t0,t1,t11,t2,t2obj,
 		t2tick,t22,date1,**p_t1,**p_t2cont[MAXCHAN+1],**p_nextd,computetime,currenttime;
@@ -67,8 +68,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	char **p_keyon[MAXCHAN+1],**p_onoff,**p_line,**p_active[MAXCHAN+1],line[4],line_image[200];
 	long **p_last_timeon[MAXCHAN+1],timeleft,formertime,size,istreak,posmin,localperiod,endxmax,endymax,oldtcurr,
 		i1,i2,oldi2,imap,gap,maxmapped,i,im,ievent,yruler,max_endtime_event,max_endtime,add_time;
-	unsigned long currswitchstate[MAXCHAN+1],oldtime,maxmidibytes5,drivertime,t3,objectstarttime,objectduration,delta_timeon;
-	unsigned int seed;
+	unsigned long oldtime,maxmidibytes5,drivertime,t3,objectstarttime,objectduration,delta_timeon;
+	unsigned int currswitchstate[MAXCHAN+1],currpedalstate[MAXCHAN+1],seed; // 2026-01-03
 	int scale,blockkey;
 	float howmuch;
 	double value,fstreak,alpha,beta,date,olddate,
@@ -638,7 +639,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			}
 		icont = -1; chancont = -1;
 		for(ch=0; ch < MAXCHAN; ch++) {
-			currswitchstate[ch] = ZERO;
+			currswitchstate[ch] = 0;
+			currpedalstate[ch] = 0;
 			for(index=0; index <= IPANORAMIC; index++) {
 				(*(p_t2cont[ch]))[index] = Infpos;
 				(*(p_active[ch]))[index] = FALSE;
@@ -879,7 +881,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 					if((control=(*((*p_Instance)[kcurrentinstance].contparameters.values))[IPANORAMIC].control)
 						> -1) panoramic = ParamValue[control];
 					
-					pitchbend = (int) PitchbendStart(kcurrentinstance);
+					pitchbend = PitchbendStart(kcurrentinstance);
 					
 					pressure = (int) PressureStart(kcurrentinstance);
 					
@@ -913,13 +915,13 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 							if((result=SendToDriver(0,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 							}
 						}
-					if(okpitchbend && pitchbend != (*p_Oldvalue)[chan].pitchbend && pitchbend >= 0) {
+					if(okpitchbend && pitchbend != (*p_Oldvalue)[chan].pitchbend && pitchbend >= 0.) {
+					//	BPPrintMessage(1,odInfo,"\nchan = %d, pitchbend = %ld, old = %ld\n",chan,(long)pitchbend,(long)(*p_Oldvalue)[chan].pitchbend);
 						(*p_Oldvalue)[chan].pitchbend = pitchbend;
 						ChangedPitchbend[chan] = TRUE;
 						lsb = ((long)pitchbend) % 128;
 						msb = (((long)pitchbend) - lsb) >> 7;
 						if(!cswrite) {
-				//		if(!cswrite && !Create_set) {
 							e.time = Tcurr;
 							e.type = NORMAL_EVENT;
 							e.status = PitchBend + chan;
@@ -1157,6 +1159,42 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 						}
 
 	SWITCHES:
+					/* Look at pedals */
+					if((*p_ObjectSpecs)[kcurrentinstance] != NULL
+							&& PedalState(kcurrentinstance) != NULL) {
+						Tcurr = (t0 + t1) / Time_res;
+						for(ii=0; ii < MAXCHAN; ii++) {
+					//		if(ii == 0) BPPrintMessage(1,odInfo,"@@@ channel %d, k = %d, currpedalstate = %d, PedalState = %d\n",ii,kcurrentinstance,currpedalstate[ii],(*(PedalState(kcurrentinstance)))[ii]);
+							if(currpedalstate[ii] != (*(PedalState(kcurrentinstance)))[ii]) {
+							//	if(ii == 0) BPPrintMessage(1,odInfo,"Changed\n");
+								currpedalstate[ii] = (*(PedalState(kcurrentinstance)))[ii];
+								ChangedPedal[ii] = TRUE;
+								s = 127 * (currpedalstate[ii] > 0);
+								rs = 0;
+								if(!cswrite) {
+									e.time = Tcurr;
+									e.type = NORMAL_EVENT;
+									e.status = ControlChange + ii;
+									e.data1 = 64;
+									e.data2 = s;
+									if((result=SendToDriver(0,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+									}
+								}
+							else if(!cswrite && (*(PedalState(kcurrentinstance)))[ii] > 0) {
+								// Action again the pedal 2026-01-04
+								rs = 0;
+								e.time = Tcurr;
+								e.type = NORMAL_EVENT;
+								e.status = ControlChange + ii;
+								e.data1 = 64;
+								e.data2 = 0;
+								if((result=SendToDriver(0,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+								rs = 0;
+								e.data2 = 127;
+								if((result=SendToDriver(0,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
+								}
+							}
+						}
 					/* Look at switches */
 					if((*p_ObjectSpecs)[kcurrentinstance] != NULL
 							&& SwitchState(kcurrentinstance) != NULL) {
@@ -1165,7 +1203,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 							if(currswitchstate[ii] != (*(SwitchState(kcurrentinstance)))[ii]) {
 								currswitchstate[ii] = (*(SwitchState(kcurrentinstance)))[ii];
 								ChangedSwitch[ii] = TRUE;
-								for(jj=0; jj < 32; jj++) {
+							//	for(jj=0; jj < 32; jj++) {
+								for(jj=0; jj < 31; jj++) { // 2026-01-06
 									s = 127 * (currswitchstate[ii] & (1L << jj));
 									if(s < 0 || s > 127) {
 									//	BPPrintMessage(0,odError,"=> Err. MakeSound(). s < 0 || s > 127");
@@ -1176,7 +1215,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 										e.time = Tcurr;
 										e.type = NORMAL_EVENT;
 										e.status = ControlChange + ii;
-										e.data1 = 64 + jj;
+									//	e.data1 = 64 + jj;
+										e.data1 = 65 + jj; // 2026-01-06
 										e.data2 = s;
 										if((result=SendToDriver(0,0,0,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 										}
@@ -1809,13 +1849,25 @@ OUTGRAPHIC:
 				}
 			/* Switch off switches */
 			rs = 0;
-			if(currswitchstate[ch] != ZERO) {
-				for(jj=0; jj < 32; jj++) {
+			if(currpedalstate[ch] != 0) {
+				e.time = Tcurr;
+				e.type = NORMAL_EVENT;
+				e.status = ControlChange + ch;
+				e.data1 = 64;
+				e.data2 = 0;
+				if(SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e) != OK) {
+					result = ABORT;
+					goto GETOUT;
+					}
+				}
+			rs = 0;
+			if(currswitchstate[ch] != 0) {
+				for(jj=0; jj < 31; jj++) {
 					if(currswitchstate[ch] & (1L << jj)) {
 						e.time = Tcurr;
 						e.type = NORMAL_EVENT;
 						e.status = ControlChange + ch;
-						e.data1 = 64 + jj;
+						e.data1 = 65 + jj;
 						e.data2 = 0;
 						if(SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e) != OK) {
 							result = ABORT;
@@ -1847,7 +1899,7 @@ GETOUT:
 	if(trace_csound_pianoroll) 
 		BPPrintMessage(0,odInfo,"max_endtime = %ld, max_endtime_event = %ld\n",(long)max_endtime,(long)max_endtime_event);
 
-	if(add_time > ZERO  && (Improvize || PlayAllChunks)) { // 2024-05-09
+	if(add_time > ZERO  && (Improvize || PlayAllChunks)) {
 		if((MIDIfileOn || rtMIDI) && !Create_set) {
 			e.time = Tcurr;
 			e.type = NORMAL_EVENT;

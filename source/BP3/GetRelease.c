@@ -209,6 +209,11 @@ int ReleasePhaseDiagram(int nmax,unsigned long*** pp_imaxseq) {
 					MyDisposeHandle(&ptr);
 					SwitchState(i) = NULL;
 					}
+				if(PedalState(i) != NULL) {
+					ptr = (Handle) PedalState(i);
+					MyDisposeHandle(&ptr);
+					PedalState(i) = NULL;
+					}
 				ptr = (Handle) (*p_ObjectSpecs)[i];
 				MyDisposeHandle(&ptr);
 				(*p_ObjectSpecs)[i] = NULL;

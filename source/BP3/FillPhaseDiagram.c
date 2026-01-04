@@ -49,8 +49,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 	int* p_nmax,unsigned long **p_imaxseq,
 	double maxseqapprox,int *p_bigitem,short **p_articul)
 {
-unsigned long id,iseq,ip,ip_next,iplot,**p_maxcol,classofinext,currswitchstate[MAXCHAN+1],
-	tstart,imax;
+unsigned long id,iseq,ip,ip_next,iplot,**p_maxcol,classofinext,tstart,imax;
+unsigned int currswitchstate[MAXCHAN+1],currpedalstate[MAXCHAN+1]; // 2026-01-03
 float maxbeats,ibeatsvel,maxbeatsvel,**p_deftmaxbeatsvel,ibeatsarticul,maxbeatsarticul,
 	**p_deftibeatsarticul,**p_deftmaxbeatsarticul,**p_deftibeatsvel,
 	**p_deftibeatsmap,**p_deftmaxbeatsmap,ibeatsmap,maxbeatsmap,
@@ -62,7 +62,7 @@ double objectduration,**p_im,**p_origin,scale,inext,
 	**p_currobject,**p_objectsfound,objectsfound,part_of_ip;
 short rndvel,velcontrol,**p_deftrndvel,**p_deftvelcontrol,**p_deftstartvel,
 	velincrement,**p_deftvelincrement,**p_deftarticulincrement,**p_deftstartarticul;
-int i,j,nseq,oldnseq,nseqmem,newswitch,v,ch,gotnewline,foundobject,
+int i,j,nseq,oldnseq,nseqmem,newswitch,newpedal,v,ch,gotnewline,foundobject,
 	failed,paramnameindex,paramvalueindex,maxparam,newxpandval,newkeyval,
 	**p_deftxpandval,**p_deftxpandkey,number_skipped,suggested_quantization,
 	r,rest,oldm,oldp,**p_seq,**p_deftnseq,startvel,articulincrement,
@@ -352,8 +352,9 @@ foundendconcatenation = skipzeros = FALSE;
 
 ibeatsvel = ibeatsarticul = ibeatsmap = ibeatstranspose = 0.;
 
-for(i=0; i <= MAXCHAN; i++) currswitchstate[i] = 0L;
-newswitch = TRUE;	/* This will reset all switches in the beginning of the item */
+for(i=0; i <= MAXCHAN; i++) currswitchstate[i] = currpedalstate[i] = 0;
+newswitch = TRUE;	// This will reset all switches in the beginning of the item
+newpedal = TRUE; // This will reset pedals in the beginning of the item
 
 nseqplot = Minconc + 1;
 iplot = ZERO;
@@ -709,7 +710,7 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 				ip = Class((*p_im)[nseq]);
 				if(p == 1 && trace_toofast) BPPrintMessage(1,odInfo,"This silence is a specific object (1)\n");
 				if(trace_diagram) BPPrintMessage(1,odInfo,"@ nseq = %ld, (*p_im)[nseq] = %ld, kobj = %ld m = %d p = %d ip = %ld\n",(long)nseq,(long)(*p_im)[nseq],(long)kobj,m,p,(long)ip);
-				if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,currswitchstate)
+				if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,&newpedal,currswitchstate,currpedalstate)
 					== ABORT) goto ENDDIAGRAM;
 				if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,
 					p_Seq,&nseq,maxseqapprox,ip,kobj) != OK) goto ENDDIAGRAM;
@@ -813,13 +814,13 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 				}
 			else {
 				ip = Class((*p_im)[nseq]);
-				if(p == 1 && ((*p_waitlist)[nseq] != NULL || (*p_scriptlist)[nseq] != NULL || newswitch || isMIDIcontinuous)) {
+				if(p == 1 && ((*p_waitlist)[nseq] != NULL || (*p_scriptlist)[nseq] != NULL || newswitch || newpedal || isMIDIcontinuous)) {
 					// Silence becomes a specific object because it has attached info
 					kobj++;
 					(*p_numberobjects) = kobj;
 					ShowProgress(kobj);
 					if(trace_toofast) BPPrintMessage(1,odInfo,"This silence is a specific object (2)\n");
-					if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,currswitchstate)
+					if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,&newpedal,currswitchstate,currpedalstate)
 						== ABORT) goto ENDDIAGRAM;
 					if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
 						&nseq,maxseqapprox,ip,kobj)!= OK) goto ENDDIAGRAM;
@@ -908,8 +909,8 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 			(*p_numberobjects) = kobj;
 			ShowProgress(kobj);
 			(*p_Instance)[kobj].object = - p;
-			if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,
-				currswitchstate) == ABORT) goto ENDDIAGRAM;
+			if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,&newpedal,
+				currswitchstate,currpedalstate) == ABORT) goto ENDDIAGRAM;
 			ip = Class((*p_im)[nseq] + prodtempo); // Fixed +prodtempo by BB 2024-09-17
 			if(Plot(OUTTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
 					&nseq,maxseqapprox,ip,kobj) != OK) {
@@ -1643,13 +1644,20 @@ NEWSEQUENCE:
 				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). v < 64 || v > 95");
 				goto ENDDIAGRAM;
 				}
-			ch = (p - v) / 128 - 1;
+			ch = ((p - v) / 128) - 1;
 			if(ch < 0 || ch > 15) {
 				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). ch < 0 || ch > 15");
 				goto ENDDIAGRAM;
 				}
-			currswitchstate[ch] = currswitchstate[ch] | (1L << (v - 64));
-			newswitch = TRUE;
+			if(v == 64) {
+		//		currpedalstate[ch] = currpedalstate[ch] | (1L << (v - 64));
+				currpedalstate[ch] = 1;
+				newpedal = TRUE;
+				}
+			else {
+				currswitchstate[ch] = currswitchstate[ch] | (1L << (v - 64));
+				newswitch = TRUE;
+				}
 			break;
 		case T18:	/* _switchoff() */
 	//		if(level >= Maxlevel) goto NEXTTOKEN;
@@ -1658,13 +1666,20 @@ NEWSEQUENCE:
 				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). v < 64 || v > 95");
 				goto ENDDIAGRAM;
 				}
-			ch = (p - v) / 128 - 1;
+			ch = ((p - v) / 128) - 1;
 			if(ch < 0 || ch > 15) {
 				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). ch < 0 || ch > 15");
 				goto ENDDIAGRAM;
 				}
-			currswitchstate[ch] = currswitchstate[ch] & ~(1L << (v - 64));
-			newswitch = TRUE;
+			if(v == 64) {
+		//		currpedalstate[ch] = currpedalstate[ch] & ~(1L << (v - 64));
+				currpedalstate[ch] = 0;
+				newpedal = TRUE;
+				}
+			else {
+				currswitchstate[ch] = currswitchstate[ch] & ~(1L << (v - 64));
+				newswitch = TRUE;
+				}
 			break;
 		default:
 			oldp = -1;
@@ -1753,7 +1768,7 @@ if(imax > 0.) {
 	 	goto LASTOBJECTDONE;
 	 	}
 	(*p_Instance)[kobj].object = -1;
-	if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,currswitchstate)
+	if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,&newpedal,currswitchstate,currpedalstate)
 		== ABORT) goto ENDDIAGRAM;
 	if(Plot(BORDERLINE,&nseqplot,&ip,&overstrike,TRUE,p_nmax,p_maxcol,p_im,p_Seq,&nseq,
 		maxseqapprox,ip,kobj) != OK) goto ENDDIAGRAM;
@@ -1771,7 +1786,7 @@ LASTOBJECTDONE:
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	if((*p_maxcol)[nseq] < 1L) (*p_maxcol)[nseq] = 1L;
 	ip = (*p_maxcol)[nseq];
-	if((*p_waitlist)[nseq] != NULL || (*p_scriptlist)[nseq] != NULL || newswitch) {
+	if((*p_waitlist)[nseq] != NULL || (*p_scriptlist)[nseq] != NULL || newswitch || newpedal) {
 		/* Append <<->> */
 		kobj++; (*p_numberobjects) = kobj;
 		if(kobj >= Maxevent) {
@@ -1779,9 +1794,9 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 		 	failed = TRUE; goto ENDDIAGRAM;
 		 	}
 		(*p_Instance)[kobj].object = -1;
-		if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,currswitchstate)
+		if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,&newpedal,currswitchstate,currpedalstate)
 			== ABORT) goto ENDDIAGRAM;
-		newswitch = FALSE;
+		newswitch = newpedal = FALSE;
 		nseqmem = nseq;
 		if(Plot(ANYWHERE,&nseqplot,&ip,&overstrike,TRUE,p_nmax,p_maxcol,p_im,p_Seq,
 			&nseq,maxseqapprox,ip,kobj)!= OK) goto ENDDIAGRAM;
@@ -2047,109 +2062,108 @@ unsigned long Class(double i) {
 	}
 
 
-int FindParameterIndex(ContParameters **p_param,int level,int paramnameindex)
-{
-int i,j,maxnumber;
-Handle h;
-ContParameterSpecs **ptr;
+int FindParameterIndex(ContParameters **p_param,int level,int paramnameindex) {
+	int i,j,maxnumber;
+	Handle h;
+	ContParameterSpecs **ptr;
 
-if(level >= Maxlevel) {
-	BPPrintMessage(1,odError,"=> Err. FindParameterIndex(). level >= Maxlevel");
-	return(ABORT);
-	}
-if((*p_param)[level].values == NULL) {
-	maxnumber = IPANORAMIC + 1;
-	if((ptr=(ContParameterSpecs**)
-		GiveSpace((Size)maxnumber * sizeof(ContParameterSpecs))) == NULL) return(ABORT);
-	(*p_param)[level].values = ptr;
-	for(j=0; j < maxnumber; j++) {
-		(*((*p_param)[level].values))[j].index = -1;
-		(*((*p_param)[level].values))[j].mode = FIXED;
-		(*((*p_param)[level].values))[j].increment = 0.;
-		(*((*p_param)[level].values))[j].maxbeats = 1;
-		(*((*p_param)[level].values))[j].active = FALSE;
-		(*((*p_param)[level].values))[j].known = FALSE;
-		(*((*p_param)[level].values))[j].control = -1;
-		(*((*p_param)[level].values))[j].start
-			= (*((*p_param)[level].values))[j].v0
-			= (*((*p_param)[level].values))[j].v1
-			= 0.;
-		(*((*p_param)[level].values))[j].channel = 0;
-		(*((*p_param)[level].values))[j].scale = DefaultScaleParam;
-		(*((*p_param)[level].values))[j].blockkey = DefaultBlockKey;
-		(*((*p_param)[level].values))[j].imax = 0;
-		(*((*p_param)[level].values))[j].ibeats = 0;
-		(*((*p_param)[level].values))[j].point = NULL;
+	if(level >= Maxlevel) {
+		BPPrintMessage(1,odError,"=> Err. FindParameterIndex(). level >= Maxlevel");
+		return(ABORT);
 		}
-	(*((*p_param)[level].values))[IPITCHBEND].start
-		= (*((*p_param)[level].values))[IPITCHBEND].v0
-		= (*((*p_param)[level].values))[IPITCHBEND].v1
-		= DEFTPITCHBEND;
-	(*((*p_param)[level].values))[IVOLUME].start
-		= (*((*p_param)[level].values))[IVOLUME].v0
-		= (*((*p_param)[level].values))[IVOLUME].v1
-		= DeftVolume;
-	(*((*p_param)[level].values))[IPANORAMIC].start
-		= (*((*p_param)[level].values))[IPANORAMIC].v0
-		= (*((*p_param)[level].values))[IPANORAMIC].v1
-		= DeftPanoramic;
-	(*((*p_param)[level].values))[IPRESSURE].start
-		= (*((*p_param)[level].values))[IPRESSURE].v0
-		= (*((*p_param)[level].values))[IPRESSURE].v1
-		= DEFTPRESSURE;
-	(*((*p_param)[level].values))[IMODULATION].start
-		= (*((*p_param)[level].values))[IMODULATION].v0
-		= (*((*p_param)[level].values))[IMODULATION].v1
-		= DEFTMODULATION;
-	
-	(*((*p_param)[level].values))[IVOLUME].index = IVOLUME;
-	(*((*p_param)[level].values))[IPITCHBEND].index = IPITCHBEND;
-	(*((*p_param)[level].values))[IPANORAMIC].index = IPANORAMIC;
-	(*((*p_param)[level].values))[IPRESSURE].index = IPRESSURE;
-	(*((*p_param)[level].values))[IMODULATION].index = IMODULATION;
-	(*p_param)[level].number = IPANORAMIC + 1;
-	}
-	
-if(paramnameindex < 0) return(-1);
+	if((*p_param)[level].values == NULL) {
+		maxnumber = IPANORAMIC + 1;
+		if((ptr=(ContParameterSpecs**)
+			GiveSpace((Size)maxnumber * sizeof(ContParameterSpecs))) == NULL) return(ABORT);
+		(*p_param)[level].values = ptr;
+		for(j=0; j < maxnumber; j++) {
+			(*((*p_param)[level].values))[j].index = -1;
+			(*((*p_param)[level].values))[j].mode = FIXED;
+			(*((*p_param)[level].values))[j].increment = 0.;
+			(*((*p_param)[level].values))[j].maxbeats = 1;
+			(*((*p_param)[level].values))[j].active = FALSE;
+			(*((*p_param)[level].values))[j].known = FALSE;
+			(*((*p_param)[level].values))[j].control = -1;
+			(*((*p_param)[level].values))[j].start
+				= (*((*p_param)[level].values))[j].v0
+				= (*((*p_param)[level].values))[j].v1
+				= 0.;
+			(*((*p_param)[level].values))[j].channel = 0;
+			(*((*p_param)[level].values))[j].scale = DefaultScaleParam;
+			(*((*p_param)[level].values))[j].blockkey = DefaultBlockKey;
+			(*((*p_param)[level].values))[j].imax = 0;
+			(*((*p_param)[level].values))[j].ibeats = 0;
+			(*((*p_param)[level].values))[j].point = NULL;
+			}
+		(*((*p_param)[level].values))[IPITCHBEND].start
+			= (*((*p_param)[level].values))[IPITCHBEND].v0
+			= (*((*p_param)[level].values))[IPITCHBEND].v1
+			= DEFTPITCHBEND;
+		(*((*p_param)[level].values))[IVOLUME].start
+			= (*((*p_param)[level].values))[IVOLUME].v0
+			= (*((*p_param)[level].values))[IVOLUME].v1
+			= DeftVolume;
+		(*((*p_param)[level].values))[IPANORAMIC].start
+			= (*((*p_param)[level].values))[IPANORAMIC].v0
+			= (*((*p_param)[level].values))[IPANORAMIC].v1
+			= DeftPanoramic;
+		(*((*p_param)[level].values))[IPRESSURE].start
+			= (*((*p_param)[level].values))[IPRESSURE].v0
+			= (*((*p_param)[level].values))[IPRESSURE].v1
+			= DEFTPRESSURE;
+		(*((*p_param)[level].values))[IMODULATION].start
+			= (*((*p_param)[level].values))[IMODULATION].v0
+			= (*((*p_param)[level].values))[IMODULATION].v1
+			= DEFTMODULATION;
+		
+		(*((*p_param)[level].values))[IVOLUME].index = IVOLUME;
+		(*((*p_param)[level].values))[IPITCHBEND].index = IPITCHBEND;
+		(*((*p_param)[level].values))[IPANORAMIC].index = IPANORAMIC;
+		(*((*p_param)[level].values))[IPRESSURE].index = IPRESSURE;
+		(*((*p_param)[level].values))[IMODULATION].index = IMODULATION;
+		(*p_param)[level].number = IPANORAMIC + 1;
+		}
+		
+	if(paramnameindex < 0) return(-1);
 
-maxnumber = MyGetHandleSize((Handle)(*p_param)[level].values) / sizeof(ContParameterSpecs);
-for(i=0; i < maxnumber; i++) {
-	if((*((*p_param)[level].values))[i].index == -1) {
+	maxnumber = MyGetHandleSize((Handle)(*p_param)[level].values) / sizeof(ContParameterSpecs);
+	for(i=0; i < maxnumber; i++) {
+		if((*((*p_param)[level].values))[i].index == -1) {
+			(*((*p_param)[level].values))[i].index = paramnameindex;
+			break;
+			}
+		if((*((*p_param)[level].values))[i].index == paramnameindex) break;
+		}
+	if(i >= maxnumber) {
+		h = (Handle) ((*p_param)[level].values);
+		MySetHandleSize(&h,(Size)(i+2) * sizeof(ContParameterSpecs));
+		/* We give space for 2 more parameters to save time */
+		(*p_param)[level].values = (ContParameterSpecs**) h;
+		maxnumber = MyGetHandleSize(h) / sizeof(ContParameterSpecs);
+		for(j=i; j < maxnumber; j++) {
+			(*((*p_param)[level].values))[j].index = -1;
+			(*((*p_param)[level].values))[j].mode = FIXED;
+			(*((*p_param)[level].values))[j].increment = 0.;
+			(*((*p_param)[level].values))[j].maxbeats = 1;
+			(*((*p_param)[level].values))[j].active = FALSE;
+			(*((*p_param)[level].values))[j].known = FALSE;
+		// (*(*p_CsInstrument)[j].paramlist)[ip].defaultvalue ???
+			(*((*p_param)[level].values))[j].start
+				= (*((*p_param)[level].values))[j].v0
+				= (*((*p_param)[level].values))[j].v1
+				= 0.;
+			(*((*p_param)[level].values))[j].channel = 0;
+			(*((*p_param)[level].values))[j].scale = DefaultScaleParam;
+			(*((*p_param)[level].values))[j].blockkey = DefaultBlockKey;
+			(*((*p_param)[level].values))[j].imax = 0;
+			(*((*p_param)[level].values))[j].ibeats = 0;
+			(*((*p_param)[level].values))[j].point = NULL;
+			}
 		(*((*p_param)[level].values))[i].index = paramnameindex;
-		break;
 		}
-	if((*((*p_param)[level].values))[i].index == paramnameindex) break;
+	if(i >= (*p_param)[level].number) (*p_param)[level].number = i + 1;
+	return(i);
 	}
-if(i >= maxnumber) {
-	h = (Handle) ((*p_param)[level].values);
-	MySetHandleSize(&h,(Size)(i+2) * sizeof(ContParameterSpecs));
-	/* We give space for 2 more parameters to save time */
-	(*p_param)[level].values = (ContParameterSpecs**) h;
-	maxnumber = MyGetHandleSize(h) / sizeof(ContParameterSpecs);
-	for(j=i; j < maxnumber; j++) {
-		(*((*p_param)[level].values))[j].index = -1;
-		(*((*p_param)[level].values))[j].mode = FIXED;
-		(*((*p_param)[level].values))[j].increment = 0.;
-		(*((*p_param)[level].values))[j].maxbeats = 1;
-		(*((*p_param)[level].values))[j].active = FALSE;
-		(*((*p_param)[level].values))[j].known = FALSE;
-	// (*(*p_CsInstrument)[j].paramlist)[ip].defaultvalue ???
-		(*((*p_param)[level].values))[j].start
-			= (*((*p_param)[level].values))[j].v0
-			= (*((*p_param)[level].values))[j].v1
-			= 0.;
-		(*((*p_param)[level].values))[j].channel = 0;
-		(*((*p_param)[level].values))[j].scale = DefaultScaleParam;
-		(*((*p_param)[level].values))[j].blockkey = DefaultBlockKey;
-		(*((*p_param)[level].values))[j].imax = 0;
-		(*((*p_param)[level].values))[j].ibeats = 0;
-		(*((*p_param)[level].values))[j].point = NULL;
-		}
-	(*((*p_param)[level].values))[i].index = paramnameindex;
-	}
-if(i >= (*p_param)[level].number) (*p_param)[level].number = i + 1;
-return(i);
-}
 
 
 int UpdateParameter(int i,ContParameters **p_contparameters,int level,long duration) {

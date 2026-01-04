@@ -528,7 +528,7 @@ int ReloadSettings(void) {
 	}
 
 int LoadSettings(const char *filename, int startup) {
-	int i,j,jmax,rep,result,iv,w,wmax,oldoutmidi,oldoutcsound,oldwritemidifile,intvalue;
+	int i,j,jmax,rep,result,iv,w,wmax,oldoutmidi,oldoutcsound,oldwritemidifile,intvalue,ch;
 	FILE* sefile;
 	float floatvalue;
 	long pos,k;
@@ -731,6 +731,13 @@ int LoadSettings(const char *filename, int startup) {
 	if(old_livesettings != LiveSettings) {
 		if(LiveSettings) BPPrintMessage(1,odInfo,"👉 Live coding: start following settings\n");
 		else BPPrintMessage(1,odInfo,"👉 Live coding: stop following settings\n");
+		}
+	for(ch=0; ch < MAXCHAN; ch++) {
+		(*p_Oldvalue)[ch].volume = 90;
+		(*p_Oldvalue)[ch].panoramic = 64;
+		(*p_Oldvalue)[ch].pressure = 0;
+		(*p_Oldvalue)[ch].pitchbend = DEFTPITCHBEND;
+		(*p_Oldvalue)[ch].modulation = 0;
 		}
 	if(!Quantize) MaxDeltaTime = 20L;
 	else MaxDeltaTime = 2 * Quantization;

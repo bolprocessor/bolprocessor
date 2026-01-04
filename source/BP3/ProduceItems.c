@@ -80,11 +80,12 @@ if(Panic) return ABORT;
 
 SaidTooComplex = ShownBufferSize = FALSE;
 if(ResetControllers) {
+	// These values will force the production of messages before the first object
 	for(ch=0; ch < MAXCHAN; ch++) {
 		(*p_Oldvalue)[ch].volume = -1;
 		(*p_Oldvalue)[ch].panoramic = -1;
 		(*p_Oldvalue)[ch].pressure = -1;
-		(*p_Oldvalue)[ch].pitchbend = -1;
+		(*p_Oldvalue)[ch].pitchbend = -1.;
 		(*p_Oldvalue)[ch].modulation = -1;
 		}
 	}

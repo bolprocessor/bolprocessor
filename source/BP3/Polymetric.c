@@ -762,7 +762,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	// Maxevent += Maxconc + 1;
 	// Maxconc += 4;
 	(*p_maxseq) = fmaxseq + 1.;
-	/* Takes care of newswitch at the end of diagram */
+	/* Takes care of newswitch and newpedal at the end of diagram */
 
 	if(ShowMessages) ShowDuration(YES);
 		

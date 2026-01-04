@@ -69,7 +69,7 @@ int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int
 
 	(*p_Instance)[k].contparameters.values = NULL;
 	(*p_Instance)[k].contparameters.number = 0;
-
+	if(trace_set_variation) BPPrintMessage(1,odInfo,"$$$$$\n");
 	if(level >= 0) {
 		n = (*p_contparameters)[level].number;
 		if(n <= IPANORAMIC) n = (IPANORAMIC + 1);
@@ -87,7 +87,7 @@ int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int
 			scale = (*((*p_contparameters)[level].values))[i].scale;
 			blockkey = (*((*p_contparameters)[level].values))[i].blockkey;
 			if(i <= IPANORAMIC && !(*((*p_contparameters)[level].values))[i].known) {
-				if(trace_set_variation) BPPrintMessage(0,odInfo,"!(*((*p_contparameters)[level].values))[%d].known\n",i);
+				if(trace_set_variation) BPPrintMessage(1,odInfo,"!(*((*p_contparameters)[level].values))[%d].known\n",i);
 				switch(i) {
 					case IMODULATION:
 						if(!ResetControllers && (*p_Oldvalue)[chan].modulation > -1)
@@ -96,7 +96,7 @@ int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int
 							v0 = DEFTMODULATION;
 						break;
 					case IPITCHBEND:
-						if(!ResetControllers && (*p_Oldvalue)[chan].pitchbend > -1)
+						if(!ResetControllers && (*p_Oldvalue)[chan].pitchbend > -1.)
 							v0 = (*p_Oldvalue)[chan].pitchbend;
 						else
 							v0 = DEFTPITCHBEND;
@@ -123,12 +123,13 @@ int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int
 				(*((*p_contparameters)[level].values))[i].known = TRUE;
 				v1 = v0;
 				mode = FIXED;
+				if(trace_set_variation) BPPrintMessage(1,odInfo,"i = %d, v0 = %ld v1 = %ld mode = %d\n",i,(long)v0,(long)v1,mode);
 				}
 			else {
 				v0 = (*((*p_contparameters)[level].values))[i].v0;
 				v1 = (*((*p_contparameters)[level].values))[i].v1;
 				mode = (*((*p_contparameters)[level].values))[i].mode;
-				if(trace_set_variation) BPPrintMessage(0,odInfo,"v0 = %ld v1 = %ld mode = %d\n",(long)v0,(long)v1,mode);
+				if(trace_set_variation) BPPrintMessage(1,odInfo,"i = %d, v0 = %ld v1 = %ld mode = %d\n",i,(long)v0,(long)v1,mode);
 				}
 			(*currentinstancevalues)[i].v0 = v0;
 			(*currentinstancevalues)[i].v1 = v1;
@@ -160,7 +161,7 @@ int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int
 						}
 					/* Here we set v1, at last */
 					(*currentinstancevalues)[i].v1 = (*((*h_table)[i].point))[ii-1].value;
-					if(trace_set_variation) BPPrintMessage(0,odInfo,"-> end value v1 = %ld\n",(long)(*currentinstancevalues)[i].v1);
+					if(trace_set_variation) BPPrintMessage(1,odInfo,"-> end value v1 = %ld\n",(long)(*currentinstancevalues)[i].v1);
 					}
 				((*h_table)[i].offset)--;
 				}
@@ -168,7 +169,7 @@ int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int
 			// BPPrintMessage(0,odInfo,"SetObjectFeatures k = %ld mode = %ld ?\n",(long)k,(*currentinstancevalues)[i].mode);
 			if((*((*p_contparameters)[level].values))[i].v0 == (*((*p_contparameters)[level].values))[i].v1 && (*h_table)[i].point == NULL) {
 					(*currentinstancevalues)[i].mode = FIXED;
-					if(trace_set_variation) BPPrintMessage(0,odInfo,"SetObjectFeatures k = %ld i = %d mode = FIXED v0 = %ld v1 = %ld\n",(long)k,i,(long)(*((*p_contparameters)[level].values))[i].v0,(long)(*((*p_contparameters)[level].values))[i].v1);
+					if(trace_set_variation) BPPrintMessage(1,odInfo,"SetObjectFeatures k = %ld i = %d mode = FIXED v0 = %ld v1 = %ld\n",(long)k,i,(long)(*((*p_contparameters)[level].values))[i].v0,(long)(*((*p_contparameters)[level].values))[i].v1);
 					}
 				
 			if((*((*p_contparameters)[level].values))[i].channel > 0)
@@ -285,17 +286,17 @@ int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int
 
 
 int AttachObjectLists(long k,int nseq,p_list ****p_waitlist,p_list ****p_scriptlist,
-	int* p_newswitch,unsigned long* currswitchstate)
+	int* p_newswitch,int *p_newpedal,unsigned int* currswitchstate,unsigned int* currpedalstate)
 {
 objectspecs** pto;
-long** pts;
+int** pts;
 int i;
 
 if(nseq >= Maxconc) {
 	BPPrintMessage(0,odError,"=> Err. AttachObjectLists(). nseq >= Maxconc, k = %d\n",k);
 	return(OK);
 	}
-if((*p_waitlist)[nseq] == NULL && (*p_scriptlist)[nseq] == NULL && !(*p_newswitch)) return(OK);
+if((*p_waitlist)[nseq] == NULL && (*p_scriptlist)[nseq] == NULL && !(*p_newswitch) && !(*p_newpedal)) return(OK);
 if(k < 2) {
 	BPPrintMessage(0,odError,"=> Err. AttachObjectLists()");
 	return(ABORT);
@@ -308,13 +309,18 @@ if((*p_ObjectSpecs)[k] == NULL) {
 WaitList(k) = (*p_waitlist)[nseq];
 ObjScriptLine(k) = (*p_scriptlist)[nseq];
 if(*p_newswitch) {
-	if((pts = (long**) GiveSpace((Size) (MAXCHAN + 1) * sizeof(long))) == NULL) return(ABORT);
+	if((pts = (int**) GiveSpace((Size) (MAXCHAN + 1) * sizeof(int))) == NULL) return(ABORT);
 	SwitchState(k) = pts;
 	for(i=0; i < MAXCHAN; i++) (*(SwitchState(k)))[i] = currswitchstate[i];
 	}
+if(*p_newpedal) {
+	if((pts = (int**) GiveSpace((Size) (MAXCHAN + 1) * sizeof(int))) == NULL) return(ABORT);
+	PedalState(k) = pts;
+	for(i=0; i < MAXCHAN; i++) (*(PedalState(k)))[i] = currpedalstate[i];
+	}
 (*p_waitlist)[nseq] = NULL;
 (*p_scriptlist)[nseq] = NULL;
-*p_newswitch = FALSE;
+*p_newswitch = *p_newpedal = FALSE;
 return(OK);
 }
 

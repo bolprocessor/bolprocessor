@@ -360,153 +360,148 @@ return(0.);
 }
 
 
-double Remap(double x,int ins,int i,int *p_overflow)
-{
-
-*p_overflow = FALSE;
-switch(i) {
-	case IPITCHBEND: return(XtoY(x,&((*p_CsInstrument)[ins].rPitchBend),p_overflow,ins));
-		break;
-	case IVOLUME: return(XtoY(x,&((*p_CsInstrument)[ins].rVolume),p_overflow,ins));
-		break;
-	case IMODULATION: return(XtoY(x,&((*p_CsInstrument)[ins].rModulation),p_overflow,ins));
-		break;
-	case IPRESSURE: return(XtoY(x,&((*p_CsInstrument)[ins].rPressure),p_overflow,ins));
-		break;
-	case IPANORAMIC: return(XtoY(x,&((*p_CsInstrument)[ins].rPanoramic),p_overflow,ins));
-		break;
+double Remap(double x,int ins,int i,int *p_overflow) {
+	*p_overflow = FALSE;
+	switch(i) {
+		case IPITCHBEND: return(XtoY(x,&((*p_CsInstrument)[ins].rPitchBend),p_overflow,ins));
+			break;
+		case IVOLUME: return(XtoY(x,&((*p_CsInstrument)[ins].rVolume),p_overflow,ins));
+			break;
+		case IMODULATION: return(XtoY(x,&((*p_CsInstrument)[ins].rModulation),p_overflow,ins));
+			break;
+		case IPRESSURE: return(XtoY(x,&((*p_CsInstrument)[ins].rPressure),p_overflow,ins));
+			break;
+		case IPANORAMIC: return(XtoY(x,&((*p_CsInstrument)[ins].rPanoramic),p_overflow,ins));
+			break;
+		}
+	return(x);
 	}
-return(x);
-}
 
 
 int MakeCsoundFunctionTable(int onoffline,double **scorearg,double alpha1,double alpha2,long imax,
-	Coordinates** coords,int ins,int paramnameindex,int ip,int iarg0,int iarg1)
-{
-int r,result,overflow,gentype,usescorevalues;
-long i,n,lasti,newx,sum;
-double x,y,iscale,oldx,xmax,v0,v1;
-char line[MAXLIN],line2[MAXLIN];
-Handle h;
-XYgraph subtable;
+	Coordinates** coords,int ins,int paramnameindex,int ip,int iarg0,int iarg1) {
+	int r,result,overflow,gentype,usescorevalues;
+	long i,n,lasti,newx,sum;
+	double x,y,iscale,oldx,xmax,v0,v1;
+	char line[MAXLIN],line2[MAXLIN];
+	Handle h;
+	XYgraph subtable;
 
-if(scorearg == NULL) {
-	BPPrintMessage(0,odError,"=> Err. MakeCsoundFunctionTable(). scorearg == NULL");
-	return(MISSED);
-	}
-if(alpha1 < 0. || alpha2 > 1. || (alpha1 >= alpha2)) return(MISSED);
-
-r = ABORT;
-subtable.imax = ZERO;
-subtable.point = NULL;
-result = GetPartOfTable(&subtable,alpha1,alpha2,imax,coords);
-if(result == ABORT) return(result);
-if(subtable.imax <= ZERO) {
-//	BPPrintMessage(0,odError,"=> Err. MakeCsoundFunctionTable(). subtable.imax <= ZERO");
-	r = MISSED;
-	goto SORTIR;
-	}
-if(result == OK) {
-	usescorevalues = onoffline;
-	if(usescorevalues) {
-		if(iarg0 > 0) v0 = (*scorearg)[iarg0];
-		else usescorevalues = FALSE;
-		if(iarg1 > 0) v1 = (*scorearg)[iarg1];
-		else usescorevalues = FALSE;
+	if(scorearg == NULL) {
+		BPPrintMessage(0,odError,"=> Err. MakeCsoundFunctionTable(). scorearg == NULL");
+		return(MISSED);
 		}
-	lasti = subtable.imax - 1L;
-	xmax = (*(subtable.point))[lasti].x;
-	x = log(xmax) / log(2.);
-	if(x == (long)x) n = x;
-	else n = 1L + (long)x;
-	n = 1L << n;
-	if(n < 256L) n = 256L;	/* This provides a minimum accuracy */
-	iscale = ((double) n) / xmax;
-	y = (*(subtable.point))[ZERO].value;
-	oldx = 0.;
-	if(usescorevalues) y = CombineScoreValues(y,oldx,xmax,v0,v1,ins,paramnameindex,ip);
-	y = Remap(y,ins,paramnameindex,&overflow);
-	if(overflow) goto SORTIR;
-	FunctionTable++;
-	gentype = GetGENtype(ins,ip,paramnameindex);
-	my_sprintf(line,"f%ld %.3f %ld -%ld %.3f",(long)FunctionTable,(*scorearg)[2],
-		(long)n,(long)gentype,y);
-	newx = sum = 0;
-	oldx = 0.;
-	for(i=1L; i <= lasti; i++) {
-		if(i == lasti)
-			newx = n - sum;	/* This compensates rounding errors */
-		else 
-			newx = MyInt(((*(subtable.point))[i].x - oldx) * iscale);
-		oldx = (*(subtable.point))[i].x;
-		sum += newx;
-		my_sprintf(line2," %ld",(long)newx);
-		strcat(line,line2);
-		y = (*(subtable.point))[i].value;
-		if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(1) = %.3f for i = %ld\n",y,(long)i);
+	if(alpha1 < 0. || alpha2 > 1. || (alpha1 >= alpha2)) return(MISSED);
+
+	r = ABORT;
+	subtable.imax = ZERO;
+	subtable.point = NULL;
+	result = GetPartOfTable(&subtable,alpha1,alpha2,imax,coords);
+	if(result == ABORT) return(result);
+	if(subtable.imax <= ZERO) {
+	//	BPPrintMessage(0,odError,"=> Err. MakeCsoundFunctionTable(). subtable.imax <= ZERO");
+		r = MISSED;
+		goto SORTIR;
+		}
+	if(result == OK) {
+		usescorevalues = onoffline;
+		if(usescorevalues) {
+			if(iarg0 > 0) v0 = (*scorearg)[iarg0];
+			else usescorevalues = FALSE;
+			if(iarg1 > 0) v1 = (*scorearg)[iarg1];
+			else usescorevalues = FALSE;
+			}
+		lasti = subtable.imax - 1L;
+		xmax = (*(subtable.point))[lasti].x;
+		x = log(xmax) / log(2.);
+		if(x == (long)x) n = x;
+		else n = 1L + (long)x;
+		n = 1L << n;
+		if(n < 256L) n = 256L;	/* This provides a minimum accuracy */
+		iscale = ((double) n) / xmax;
+		y = (*(subtable.point))[ZERO].value;
+		oldx = 0.;
 		if(usescorevalues) y = CombineScoreValues(y,oldx,xmax,v0,v1,ins,paramnameindex,ip);
-		if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(2) = %.3f for i = %ld\n",y,(long)i);
 		y = Remap(y,ins,paramnameindex,&overflow);
-		if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(3) = %.3f for i = %ld\n",y,(long)i);
 		if(overflow) goto SORTIR;
-		if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(4) = %.3f for i = %ld\n",y,(long)i);
-		my_sprintf(line2," %.3f",y);
-		strcat(line,line2);
+		FunctionTable++;
+		gentype = GetGENtype(ins,ip,paramnameindex);
+		my_sprintf(line,"f%ld %.3f %ld -%ld %.3f",(long)FunctionTable,(*scorearg)[2],
+			(long)n,(long)gentype,y);
+		newx = sum = 0;
+		oldx = 0.;
+		for(i=1L; i <= lasti; i++) {
+			if(i == lasti)
+				newx = n - sum;	/* This compensates rounding errors */
+			else 
+				newx = MyInt(((*(subtable.point))[i].x - oldx) * iscale);
+			oldx = (*(subtable.point))[i].x;
+			sum += newx;
+			my_sprintf(line2," %ld",(long)newx);
+			strcat(line,line2);
+			y = (*(subtable.point))[i].value;
+			if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(1) = %.3f for i = %ld\n",y,(long)i);
+			if(usescorevalues) y = CombineScoreValues(y,oldx,xmax,v0,v1,ins,paramnameindex,ip);
+			if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(2) = %.3f for i = %ld\n",y,(long)i);
+			y = Remap(y,ins,paramnameindex,&overflow);
+			if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(3) = %.3f for i = %ld\n",y,(long)i);
+			if(overflow) goto SORTIR;
+			if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(4) = %.3f for i = %ld\n",y,(long)i);
+			my_sprintf(line2," %.3f",y);
+			strcat(line,line2);
+			}
+		if(CsoundTrace) ShowMessage(TRUE,wMessage,line);
+		if(trace_write_score) BPPrintMessage(0,odInfo,"%s\n",line);
+		if(ConvertMIDItoCsound) Println(wPrototype7,line);
+		else WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
 		}
-	if(CsoundTrace) ShowMessage(TRUE,wMessage,line);
-	if(trace_write_score) BPPrintMessage(0,odInfo,"%s\n",line);
-	if(ConvertMIDItoCsound) Println(wPrototype7,line);
-	else WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
+	r = OK;
+
+	SORTIR:
+	h = (Handle) subtable.point;
+	MyDisposeHandle(&h);
+	return(r);
 	}
-r = OK;
 
-SORTIR:
-h = (Handle) subtable.point;
-MyDisposeHandle(&h);
-return(r);
-}
-
-
-int GetGENtype(int ins,int ip,int paramnameindex)
-{
-if(paramnameindex <= IPANORAMIC) {
-	switch(paramnameindex) {
-		case IPITCHBEND:
-			return((*p_CsInstrument)[ins].pitchbendGEN);
-		case IVOLUME:
-			return((*p_CsInstrument)[ins].volumeGEN);
-		case IPRESSURE:
-			return((*p_CsInstrument)[ins].pressureGEN);
-		case IMODULATION:
-			return((*p_CsInstrument)[ins].modulationGEN);
-		case IPANORAMIC:
-			return((*p_CsInstrument)[ins].panoramicGEN);
-		default:
+int GetGENtype(int ins,int ip,int paramnameindex) {
+	if(paramnameindex <= IPANORAMIC) {
+		switch(paramnameindex) {
+			case IPITCHBEND:
+				return((*p_CsInstrument)[ins].pitchbendGEN);
+			case IVOLUME:
+				return((*p_CsInstrument)[ins].volumeGEN);
+			case IPRESSURE:
+				return((*p_CsInstrument)[ins].pressureGEN);
+			case IMODULATION:
+				return((*p_CsInstrument)[ins].modulationGEN);
+			case IPANORAMIC:
+				return((*p_CsInstrument)[ins].panoramicGEN);
+			default:
+				return(7);
+				break;
+			}
+		}
+	if(ip >= 0) {
+		if(ins < 0 || ins >= Jinstr) {
+			BPPrintMessage(0,odError,"=> Err. GetGENtype(). ins < 0 || ins >= Jinstr");
 			return(7);
-			break;
+			}
+	/*	if(ip >= IPMAX) {
+			BPPrintMessage(0,odError,"=> Err. GetGENtype(). ip >= IPMAX");
+			return(7);
+			} */
+		if((*p_CsInstrument)[ins].paramlist == NULL) {
+			BPPrintMessage(0,odError,"=> Err. GetGENtype(). (*p_CsInstrument)[ins].paramlist == NULL");
+			return(7);
+			}
+		if(ip >= (*p_CsInstrument)[ins].ipmax) {
+			BPPrintMessage(0,odError,"=> Err. GetGENtype(). ip >= (*p_CsInstrument)[ins].ipmax");
+			return(7);
+			}
+		return((*((*p_CsInstrument)[ins].paramlist))[ip].GENtype);
 		}
+	return(7);
 	}
-if(ip >= 0) {
-	if(ins < 0 || ins >= Jinstr) {
-		BPPrintMessage(0,odError,"=> Err. GetGENtype(). ins < 0 || ins >= Jinstr");
-		return(7);
-		}
-/*	if(ip >= IPMAX) {
-		BPPrintMessage(0,odError,"=> Err. GetGENtype(). ip >= IPMAX");
-		return(7);
-		} */
-	if((*p_CsInstrument)[ins].paramlist == NULL) {
-		BPPrintMessage(0,odError,"=> Err. GetGENtype(). (*p_CsInstrument)[ins].paramlist == NULL");
-		return(7);
-		}
-	if(ip >= (*p_CsInstrument)[ins].ipmax) {
-		BPPrintMessage(0,odError,"=> Err. GetGENtype(). ip >= (*p_CsInstrument)[ins].ipmax");
-		return(7);
-		}
-	return((*((*p_CsInstrument)[ins].paramlist))[ip].GENtype);
-	}
-return(7);
-}
 
 
 int GetPartOfTable(XYgraph *p_subtable,double alpha1,double alpha2,long imax,Coordinates** coords)
