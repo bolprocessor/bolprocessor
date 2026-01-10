@@ -584,7 +584,7 @@ int PutZeros(int,char,double**,unsigned long**,double,double,int*,int);
 int ShowPhaseDiagram(int,unsigned long*);
 unsigned long Class(double);
 int Plot(char,int*,unsigned long*,char*,int,int*,unsigned long**,double**,long****,int*,double,unsigned long,int);
-int AttachObjectLists(long,int,p_list****,p_list****,int*,int*,unsigned int*,unsigned int*);
+int AttachObjectLists(long,int,p_list****,p_list****,int*,unsigned int*);
 int SetVariation(tokenbyte,CurrentParameters**,CurrentParameters*,ContParameters**,int,int,unsigned long,tokenbyte**,double,double,float*,KeyNumberMap*,float*,Table**);
 int Locate(int,unsigned long**,long,long,Milliseconds**,unsigned long*,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,int,int,char**);
 int Calculate_alpha(int,int,long,unsigned long,int,char**);

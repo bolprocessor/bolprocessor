@@ -592,7 +592,7 @@ INTERPRET:
 				return(OK);
 				}
 			else
-			if(c1 >= 64 && c1 <= 95) {
+			if(c1 >= 64 && c1 <= 69) {
 				if(!ScriptExecOn) {
 					my_sprintf(Message,"%ld",(long)(c0-c+1));
 					MystrcpyStringToTable(ScriptLine.arg,1,Message);

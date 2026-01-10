@@ -6,14 +6,20 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+2026-01-10 (version 3.3.11)
+Problems relating to MIDI switches #64 to #69 have been fixed.
+The approach of controlling the hold pedal (#64) separately has been abandoned.
+A new option, PedalReleaseDefault, has been set to true by default for switches #64 to #69. This can be changed in the project settings. If a switch is 'on' and a _switchon() control is found, the switch is first set to 'off' and then 'on' again. This is useful for controlling pedals on keyboard instruments.
+Don't forget to update the PHP interface:
+https://github.com/bolprocessor/php-frontend/
+
+-----
 2026-01-04 (version 3.3.10)
 A few changes have been made to increase consistency between MIDI files and event tables when creating datasets for AI training:
-- The pedals (64) are now controlled separately from the controllers in the range 65–95
+- The pedals (64) are now controlled separately from the controllers in the range 65–95 (abandoned later)
 - "Reset controllers" and "Reset notes" are disabled
 - The pedal is released even if it is pushed again immediately afterwards
 "Reset controllers" now includes resetting the pedal on every channel. See MakeSound.c -> SWITCHES.
-Don't forget to update the PHP interface:
-https://github.com/bolprocessor/php-frontend/
 
 -----
 2026-01-02 (version 3.3.9)

@@ -1206,7 +1206,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(!check && ScriptExecOn == 0 && wind == wScript) r = ABORT;
 			else r = OK;
 			break;
-		case 86: /* MIDI switch ON "64..95" channel "1..16" */
+		case 86: /* MIDI switch ON "64..69" channel "1..16" */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			e.time = Tcurr;
@@ -1216,7 +1216,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.data2 = 127;
 			if((r=SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
-		case 87: /* MIDI switch OFF "64..95" channel "1..16" */
+		case 87: /* MIDI switch OFF "64..69" channel "1..16" */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			e.time = Tcurr;
@@ -2104,11 +2104,11 @@ for(j=0; j < ScriptNrArg(k); j++) {
 			}
 		continue;
 		}
-	if(strcmp(line,"64..95") == 0) {
+	if(strcmp(line,"64..69") == 0) {
 		if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
 			goto QUIT;
-		if(n < 64 || n > 95) {
-			Print(wTrace,"\nNumber out of range [64..95]\n");
+		if(n < 64 || n > 69) {
+			Print(wTrace,"\nNumber out of range [64..69]\n");
 			goto QUIT;
 			}
 		continue;

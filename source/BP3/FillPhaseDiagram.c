@@ -50,7 +50,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 	double maxseqapprox,int *p_bigitem,short **p_articul)
 {
 unsigned long id,iseq,ip,ip_next,iplot,**p_maxcol,classofinext,tstart,imax;
-unsigned int currswitchstate[MAXCHAN+1],currpedalstate[MAXCHAN+1]; // 2026-01-03
+unsigned int currswitchstate[MAXCHAN+1]; // 2026-01-03
 float maxbeats,ibeatsvel,maxbeatsvel,**p_deftmaxbeatsvel,ibeatsarticul,maxbeatsarticul,
 	**p_deftibeatsarticul,**p_deftmaxbeatsarticul,**p_deftibeatsvel,
 	**p_deftibeatsmap,**p_deftmaxbeatsmap,ibeatsmap,maxbeatsmap,
@@ -62,7 +62,7 @@ double objectduration,**p_im,**p_origin,scale,inext,
 	**p_currobject,**p_objectsfound,objectsfound,part_of_ip;
 short rndvel,velcontrol,**p_deftrndvel,**p_deftvelcontrol,**p_deftstartvel,
 	velincrement,**p_deftvelincrement,**p_deftarticulincrement,**p_deftstartarticul;
-int i,j,nseq,oldnseq,nseqmem,newswitch,newpedal,v,ch,gotnewline,foundobject,
+int i,j,nseq,oldnseq,nseqmem,newswitch,v,ch,gotnewline,foundobject,
 	failed,paramnameindex,paramvalueindex,maxparam,newxpandval,newkeyval,
 	**p_deftxpandval,**p_deftxpandkey,number_skipped,suggested_quantization,
 	r,rest,oldm,oldp,**p_seq,**p_deftnseq,startvel,articulincrement,
@@ -352,9 +352,8 @@ foundendconcatenation = skipzeros = FALSE;
 
 ibeatsvel = ibeatsarticul = ibeatsmap = ibeatstranspose = 0.;
 
-for(i=0; i <= MAXCHAN; i++) currswitchstate[i] = currpedalstate[i] = 0;
+for(i=0; i <= MAXCHAN; i++) currswitchstate[i] = 0;
 newswitch = TRUE;	// This will reset all switches in the beginning of the item
-newpedal = TRUE; // This will reset pedals in the beginning of the item
 
 nseqplot = Minconc + 1;
 iplot = ZERO;
@@ -710,7 +709,7 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 				ip = Class((*p_im)[nseq]);
 				if(p == 1 && trace_toofast) BPPrintMessage(1,odInfo,"This silence is a specific object (1)\n");
 				if(trace_diagram) BPPrintMessage(1,odInfo,"@ nseq = %ld, (*p_im)[nseq] = %ld, kobj = %ld m = %d p = %d ip = %ld\n",(long)nseq,(long)(*p_im)[nseq],(long)kobj,m,p,(long)ip);
-				if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,&newpedal,currswitchstate,currpedalstate)
+				if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,currswitchstate)
 					== ABORT) goto ENDDIAGRAM;
 				if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,
 					p_Seq,&nseq,maxseqapprox,ip,kobj) != OK) goto ENDDIAGRAM;
@@ -814,13 +813,13 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 				}
 			else {
 				ip = Class((*p_im)[nseq]);
-				if(p == 1 && ((*p_waitlist)[nseq] != NULL || (*p_scriptlist)[nseq] != NULL || newswitch || newpedal || isMIDIcontinuous)) {
+				if(p == 1 && ((*p_waitlist)[nseq] != NULL || (*p_scriptlist)[nseq] != NULL || newswitch || isMIDIcontinuous)) {
 					// Silence becomes a specific object because it has attached info
 					kobj++;
 					(*p_numberobjects) = kobj;
 					ShowProgress(kobj);
 					if(trace_toofast) BPPrintMessage(1,odInfo,"This silence is a specific object (2)\n");
-					if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,&newpedal,currswitchstate,currpedalstate)
+					if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,currswitchstate)
 						== ABORT) goto ENDDIAGRAM;
 					if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
 						&nseq,maxseqapprox,ip,kobj)!= OK) goto ENDDIAGRAM;
@@ -909,8 +908,8 @@ for(id=istop=ZERO; ;id += 2,istop++) {
 			(*p_numberobjects) = kobj;
 			ShowProgress(kobj);
 			(*p_Instance)[kobj].object = - p;
-			if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,&newpedal,
-				currswitchstate,currpedalstate) == ABORT) goto ENDDIAGRAM;
+			if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,
+				currswitchstate) == ABORT) goto ENDDIAGRAM;
 			ip = Class((*p_im)[nseq] + prodtempo); // Fixed +prodtempo by BB 2024-09-17
 			if(Plot(OUTTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
 					&nseq,maxseqapprox,ip,kobj) != OK) {
@@ -1640,8 +1639,8 @@ NEWSEQUENCE:
 		case T17:	/* _switchon() */
 	//		if(level >= Maxlevel) goto NEXTTOKEN;
 			v = p % 128;
-			if(v < 64 || v > 95)  {
-				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). v < 64 || v > 95");
+			if(v < 64 || v > 69)  {
+				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). v < 64 || v > 69");
 				goto ENDDIAGRAM;
 				}
 			ch = ((p - v) / 128) - 1;
@@ -1649,21 +1648,14 @@ NEWSEQUENCE:
 				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). ch < 0 || ch > 15");
 				goto ENDDIAGRAM;
 				}
-			if(v == 64) {
-		//		currpedalstate[ch] = currpedalstate[ch] | (1L << (v - 64));
-				currpedalstate[ch] = 1;
-				newpedal = TRUE;
-				}
-			else {
-				currswitchstate[ch] = currswitchstate[ch] | (1L << (v - 64));
-				newswitch = TRUE;
-				}
+			currswitchstate[ch] = currswitchstate[ch] | (1L << (v - 64));
+			newswitch = TRUE;
 			break;
 		case T18:	/* _switchoff() */
 	//		if(level >= Maxlevel) goto NEXTTOKEN;
 			v = p % 128;
-			if(v < 64 || v > 95)  {
-				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). v < 64 || v > 95");
+			if(v < 64 || v > 69)  {
+				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). v < 64 || v > 69");
 				goto ENDDIAGRAM;
 				}
 			ch = ((p - v) / 128) - 1;
@@ -1671,15 +1663,8 @@ NEWSEQUENCE:
 				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). ch < 0 || ch > 15");
 				goto ENDDIAGRAM;
 				}
-			if(v == 64) {
-		//		currpedalstate[ch] = currpedalstate[ch] & ~(1L << (v - 64));
-				currpedalstate[ch] = 0;
-				newpedal = TRUE;
-				}
-			else {
-				currswitchstate[ch] = currswitchstate[ch] & ~(1L << (v - 64));
-				newswitch = TRUE;
-				}
+			currswitchstate[ch] = currswitchstate[ch] & ~(1L << (v - 64));
+			newswitch = TRUE;
 			break;
 		default:
 			oldp = -1;
@@ -1768,7 +1753,7 @@ if(imax > 0.) {
 	 	goto LASTOBJECTDONE;
 	 	}
 	(*p_Instance)[kobj].object = -1;
-	if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,&newpedal,currswitchstate,currpedalstate)
+	if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,currswitchstate)
 		== ABORT) goto ENDDIAGRAM;
 	if(Plot(BORDERLINE,&nseqplot,&ip,&overstrike,TRUE,p_nmax,p_maxcol,p_im,p_Seq,&nseq,
 		maxseqapprox,ip,kobj) != OK) goto ENDDIAGRAM;
@@ -1786,7 +1771,7 @@ LASTOBJECTDONE:
 for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	if((*p_maxcol)[nseq] < 1L) (*p_maxcol)[nseq] = 1L;
 	ip = (*p_maxcol)[nseq];
-	if((*p_waitlist)[nseq] != NULL || (*p_scriptlist)[nseq] != NULL || newswitch || newpedal) {
+	if((*p_waitlist)[nseq] != NULL || (*p_scriptlist)[nseq] != NULL || newswitch) {
 		/* Append <<->> */
 		kobj++; (*p_numberobjects) = kobj;
 		if(kobj >= Maxevent) {
@@ -1794,9 +1779,9 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 		 	failed = TRUE; goto ENDDIAGRAM;
 		 	}
 		(*p_Instance)[kobj].object = -1;
-		if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,&newpedal,currswitchstate,currpedalstate)
+		if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,currswitchstate)
 			== ABORT) goto ENDDIAGRAM;
-		newswitch = newpedal = FALSE;
+		newswitch = FALSE;
 		nseqmem = nseq;
 		if(Plot(ANYWHERE,&nseqplot,&ip,&overstrike,TRUE,p_nmax,p_maxcol,p_im,p_Seq,
 			&nseq,maxseqapprox,ip,kobj)!= OK) goto ENDDIAGRAM;

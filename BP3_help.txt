@@ -1,18 +1,16 @@
 // This is the help file of Bol Processor.
-// This version still includes many features from BP2 that haven't been implemented in BP3.
-// When editing it, beware that the compiler looks for prefixes. Therefore, if an item is
-// the prefix of another one then it should precede it in this file.
+// This version still includes features from BP2 that haven't been implemented in BP3.
 ### What style of music is BP3 dealing with?
 • BP3 is not designed for a particular musical style. It stemmed out of formalizing
-    music representation and composition tasks in the context of non-western music, notably
+    music representation and composition tasks in the context of non-Western music, notably
     North-Indian rhythm. For this reason it focused on text-oriented representations and formal
     grammmars.  'Bol Processor' originates from the word 'bol' (Hindi/Urdu 'bolna', to speak)
     designating the onomatopeic names of drum strokes in India.
-• When MIDI output was designed, elementary musical 'gestures' that produced sounds on drums
+• When MIDI output was designed, elementary musical "gestures" that produced sounds on drums
     were replaced with "sound-objects", i.e. arbitrary sequences of events encoded as MIDI messages.
 • Simplified sound-objects named "simple notes" have later been introduced to facilitate work
-    with western tonal systems in English, French or Indian "note conventions".
-• BP3 is now able to deal with polyphony, and does it in a smart way. See "polymetric structures".
+    with Western tonal systems in English, French or Indian "note conventions".
+• BP3 is able to deal with polyphony, and does it in a smart way. See "polymetric structures".
 • BP3 also deals with incomplete representations of polyrhythmic sequences.
     See "period notation".
 • BP3 is able to control all MIDI parameters, including continuous parameters such as pitchbend,
@@ -703,11 +701,11 @@ Indicates that channel pressure should change continuously between two specified
 ### _switchon(i,c) [Performance control]
 Sets controller i to 127 on channel c. For instance, if controller 64 is the hold
     pedal, this command will have the same effect as pushing the pedal.
-• The range for 'i' is 64 to 95.
+• The range for 'i' is 64 to 69.
 ### _switchoff(i,c) [Performance control]
 Sets controller i to 0 on channel c. For instance, if controller 64 is the hold pedal,
     this command will have the same effect as releasing the pedal.
-• The range for 'i' is 64 to 95.
+• The range for 'i' is 64 to 69.
 ### _volumestep [Performance control]
 Indicates that volume should change stepwise between two specified values.
 ### _legato(x) [Performance control]

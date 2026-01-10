@@ -557,7 +557,7 @@ int LoadSettings(const char *filename, int startup) {
 	Code[7] = '.';
 	MIDIfileType = 1;
 	CsoundFileFormat = UNIX;
-	StrikeAgainDefault = TRUE;
+	StrikeAgainDefault = PedalReleaseDefault = TRUE;
 	DeftVolume = DEFTVOLUME;
 	VolumeController = VOLUMECONTROL;
 	DeftVelocity = DEFTVELOCITY;
@@ -671,6 +671,7 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"C4key") == 0) C4key = intvalue;
 		else if(strcmp(key,"A4freq") == 0) A4freq = floatvalue;
 		else if(strcmp(key,"StrikeAgainDefault") == 0) StrikeAgainDefault = intvalue;
+		else if(strcmp(key,"PedalReleaseDefault") == 0) PedalReleaseDefault = intvalue;
 		else if(strcmp(key,"DeftVolume") == 0) DeftVolume = intvalue;
 		else if(strcmp(key,"VolumeController") == 0) VolumeController = intvalue;
 		else if(strcmp(key,"DeftVelocity") == 0) DeftVelocity = intvalue;

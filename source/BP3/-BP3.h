@@ -36,7 +36,7 @@
 #ifndef _H_BP3
 #define _H_BP3
 
-#define SHORT_VERSION "3.3.10"
+#define SHORT_VERSION "3.3.11"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -1141,14 +1141,12 @@ typedef struct {
 typedef struct {
 	p_list** waitlist;
 	p_list** scriptline;
-	int** switchstate;
-	int** pedalstate;
+	unsigned int** switchstate;
 	} objectspecs;
 	
 #define WaitList(i) (*((*p_ObjectSpecs)[(i)]))->waitlist
 #define ObjScriptLine(i) (*((*p_ObjectSpecs)[(i)]))->scriptline
 #define SwitchState(i) (*((*p_ObjectSpecs)[(i)]))->switchstate
-#define PedalState(i) (*((*p_ObjectSpecs)[(i)]))->pedalstate
 
 #define PitchbendStart(i) (*((*p_Instance)[i].contparameters.values))[IPITCHBEND].v0
 #define PitchbendEnd(i) (*((*p_Instance)[i].contparameters.values))[IPITCHBEND].v1

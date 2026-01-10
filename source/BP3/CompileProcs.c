@@ -932,8 +932,8 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 			}
 		} */
 	if(jinstr == 14 || jinstr == 15) {
-		if(p < 64 || p > 95) {
-			my_sprintf(Message,"\nFirst argument of '%s' is switch number, range 64..95. Can't accept %ld",
+		if(p < 64 || p > 69) {
+			my_sprintf(Message,"\nFirst argument of '%s' is switch number, range 64..69. Can't accept %ld",
 				*((*p_PerformanceControl)[jinstr]),(long)p);
 			Print(wTrace,Message);
 			return(ABORT);

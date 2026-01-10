@@ -345,7 +345,7 @@ int Inits(void) {
 	Gram.number_gram = GlossGram.number_gram = 0;
 	RunningStatus = 0; NoRepeat = FALSE;
 	ScriptSyncKey = ScriptSyncChan = -1;
-	StrikeAgainDefault = TRUE;
+	StrikeAgainDefault = PedalReleaseDefault = TRUE;
 	StopPauseContinue = TRUE;
 	MIDImicrotonality = FALSE;
 	Jwheel = Jfeet = Jdisk = 0;
@@ -381,7 +381,7 @@ int Inits(void) {
 	if(SetNoteNames() != OK) return(ABORT);
 	NeedAlphabet = FALSE;
 	for(i=0; i < MAXCHAN; i++) {
-		ChangedVolume[i] = ChangedPanoramic[i] = ChangedModulation[i] = ChangedPitchbend[i] = ChangedSwitch[i] = ChangedPedal[i] = ChangedPressure[i] = FALSE;
+		ChangedVolume[i] = ChangedPanoramic[i] = ChangedModulation[i] = ChangedPitchbend[i] = ChangedSwitch[i] = ChangedPressure[i] = FALSE;
 		WhichCsoundInstrument[i+1] = -1;
 		}
 	PrototypeTickChannel = 1; PrototypeTickKey = 84;

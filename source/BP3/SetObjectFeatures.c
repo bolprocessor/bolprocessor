@@ -286,17 +286,17 @@ int SetObjectParams(int isobject,int level,int nseq,short** p_articul,long k,int
 
 
 int AttachObjectLists(long k,int nseq,p_list ****p_waitlist,p_list ****p_scriptlist,
-	int* p_newswitch,int *p_newpedal,unsigned int* currswitchstate,unsigned int* currpedalstate)
+	int* p_newswitch,unsigned int* currswitchstate)
 {
 objectspecs** pto;
-int** pts;
+unsigned int** pts;
 int i;
 
 if(nseq >= Maxconc) {
 	BPPrintMessage(0,odError,"=> Err. AttachObjectLists(). nseq >= Maxconc, k = %d\n",k);
 	return(OK);
 	}
-if((*p_waitlist)[nseq] == NULL && (*p_scriptlist)[nseq] == NULL && !(*p_newswitch) && !(*p_newpedal)) return(OK);
+if((*p_waitlist)[nseq] == NULL && (*p_scriptlist)[nseq] == NULL && !(*p_newswitch)) return(OK);
 if(k < 2) {
 	BPPrintMessage(0,odError,"=> Err. AttachObjectLists()");
 	return(ABORT);
@@ -309,18 +309,13 @@ if((*p_ObjectSpecs)[k] == NULL) {
 WaitList(k) = (*p_waitlist)[nseq];
 ObjScriptLine(k) = (*p_scriptlist)[nseq];
 if(*p_newswitch) {
-	if((pts = (int**) GiveSpace((Size) (MAXCHAN + 1) * sizeof(int))) == NULL) return(ABORT);
+	if((pts = (unsigned int**) GiveSpace((Size) (MAXCHAN + 1) * sizeof(unsigned int))) == NULL) return(ABORT);
 	SwitchState(k) = pts;
 	for(i=0; i < MAXCHAN; i++) (*(SwitchState(k)))[i] = currswitchstate[i];
 	}
-if(*p_newpedal) {
-	if((pts = (int**) GiveSpace((Size) (MAXCHAN + 1) * sizeof(int))) == NULL) return(ABORT);
-	PedalState(k) = pts;
-	for(i=0; i < MAXCHAN; i++) (*(PedalState(k)))[i] = currpedalstate[i];
-	}
 (*p_waitlist)[nseq] = NULL;
 (*p_scriptlist)[nseq] = NULL;
-*p_newswitch = *p_newpedal = FALSE;
+*p_newswitch = FALSE;
 return(OK);
 }
 
