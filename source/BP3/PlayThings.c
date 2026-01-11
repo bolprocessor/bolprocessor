@@ -130,7 +130,7 @@ int PlaySelection(int w, int all) {
 		r = OK;
 	//	BPPrintMessage(1,odInfo,"@@ origin = %ld next_origin = %ld\n",(long)origin,(long)next_origin);
 		SetSelect(origin,next_origin,TEH[w]);
-	//	BPPrintMessage(1,odInfo,"Playing selection\n");
+		if(!Improvize) BPPrintMessage(1,odInfo,"Playing chunk %d\n",(Chunk_number + 1));
 		Nplay = 1;
 		SaidTooComplex = ShownBufferSize = FALSE;
 	//	BPPrintMessage(1,odInfo,"Playing selection %ld to %ld (up to %ld)\n",(long)origin,(long)next_origin,(long)end);
