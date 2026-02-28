@@ -746,6 +746,7 @@ int LoadSettings(const char *filename, int startup) {
 	if(PlaySelectionOn) Improvize = FALSE;
 	if(AllItems) Improvize = FALSE;
 	if(ShowObjectGraph || ShowPianoRoll) ShowGraphic = TRUE;
+	if(OutBPdata) ShowGraphic = FALSE;
 	if(!ShowGraphic) ShowObjectGraph = ShowPianoRoll = FALSE;
 	if(ShowPianoRoll) BPPrintMessage(0,odInfo,"Pianoroll graphics will be displayed\n");
 	if(ShowObjectGraph) BPPrintMessage(0,odInfo,"Object graphics will be displayed\n");

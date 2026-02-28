@@ -6,9 +6,13 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+2026-02-28 (version 3.3.13)
+In the "produce BP data file" mode, no images are displayed.
+In the list of variables at the bottom of a grammar, none of the variables contain a "=" or a ":".
+
 
 2026-01-11 (version 3.3.12)
-When importing MusicXML files, pedals "sostenuto" and "soft" are recognised in addition to "sustain".
+When importing MusicXML files, pedals "sostenuto" (MIDI controller #66) and "soft" (MIDI controller #67) are recognised in addition to "sustain" (MIDI controller #64).
 File data.php has been fixed to avoid a truncation of the "chunk.bpda" file when there are unbound ties in the last chunk.
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/

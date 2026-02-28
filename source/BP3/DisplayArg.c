@@ -388,6 +388,7 @@ int PrintArgSub(PrintargType *p_printarg,unsigned long *p_maxib,TextHandle th,
 
 	for(i=ia; ; i+=2L) {
 		m = (int)(**pp_a)[i]; p = (int)(**pp_a)[i+1];
+//		if(nocode) BPPrintMessage(0,odInfo,"@@@ m = %d, p = %d\n",m,p);
 		if(m == TEND && p == TEND) break;
 		if(m == T3 || m == T25) {
 			if((r=CheckPeriodOrLine(print_periods,p_newline,p_newsection,f,th,&beat,numberprolongations,
@@ -1706,6 +1707,7 @@ int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned 
 	char s[255];
 	tokenbyte mm,pp,**ptr;
 	int n,h,px,py;
+//	BPPrintMessage(1,odInfo,"@@@ m = %d, p = %d, thechar = %s\n",m,p,thechar);
 	if(nocode) {
 		if(!istemplate) {
 			if((*p_ib) > ((*p_maxib)-16L)) {
