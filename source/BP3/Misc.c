@@ -54,6 +54,11 @@
     void mysleep(long waitTime) {
         usleep(waitTime);
         }
+#elif defined(__BP3_WASM__)
+    void mysleep(long waitTime) {
+        /* No-op in WASM — cannot block the main thread */
+        (void)waitTime;
+        }
 #endif
 
 

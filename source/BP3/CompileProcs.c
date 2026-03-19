@@ -1320,7 +1320,16 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 				if(!MIDImicrotonality) BPPrintMessage(0,odInfo,"👉 Microtonality mimics MIDI Polyphonic Expression\n");
 				MIDImicrotonality = TRUE;
 				}
+#ifdef __BP3_WASM__
+			if(NumberScales > 0) {
+				MIDImicrotonality = TRUE;
+				}
+#endif
+#ifdef __BP3_WASM__
+			if(strcmp(line,"0") == 0) k = 0;
+#else
 			if(strcmp(line,"0") == 0 || (!OutCsound && !rtMIDI && !WriteMIDIfile)) k = 0; 
+#endif
 			else {
 				k = FixStringConstant(line);
 				if(k < 0) return(k);
