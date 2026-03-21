@@ -67,4 +67,3 @@ properties...  And it shows that there is no simple, standard measure of the
 musical sense. Even the criterion of having integer ratios with very large terms as being
 "closer to irrational numbers" does not hold in the case of -gr.Visser5, which both BP2 and I
 would call a "complex" piece...
-a mathematicall

@@ -1084,9 +1084,6 @@ if(PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) return(ABORT);
 
 SORTIR:
 if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-#if BP_CARBON_GUI_FORGET_THIS
-SetPrototypePage5(j);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 return(rep);
 }
 

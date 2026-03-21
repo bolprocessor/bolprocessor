@@ -226,7 +226,7 @@ if(k == -1) {	/* 'NIL' end-of-line marker */
 	for(ii=ZERO; ii <= (*p_imaxseq)[nseq]; ii++) {
 		kk = (*((*p_Seq)[nseq]))[ii];
 		if(kk > 1) (*p_delta)[kk] = (*p_delta1)[ii] + (*p_delta2)[ii];
-		//* if(kk > 1) BPPrintMessage(0,odError,"\nBefore Solution_is_accepted:\nii = %ld kk = %ld starttime = %ld endtime = %ld, ts1[%ld] = %ld ts2[%ld] = %ld\n",(long)ii,(long)kk,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime,ii,(*p_ts1)[ii],ii,(*p_ts2)[ii]); */
+	//	if(kk > 1) BPPrintMessage(0,odError,"\nBefore Solution_is_accepted:\nii = %ld kk = %ld starttime = %ld endtime = %ld, ts1[%ld] = %ld ts2[%ld] = %ld\n",(long)ii,(long)kk,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime,ii,(*p_ts1)[ii],ii,(*p_ts2)[ii]);
 		}
 	// BPPrintMessage(0,odError,"1) ts1[1] = %ld ts2[1] = %ld\n",(*p_ts1)[1],(*p_ts2)[1]);
 	if((result=Solution_is_accepted(++nsol,nseq,p_imaxseq,kmax,p_ts1,p_ts2,p_delta,
@@ -235,16 +235,10 @@ if(k == -1) {	/* 'NIL' end-of-line marker */
 		//	for(ii=1; ii <= (*p_imaxseq)[nseq]; ii++) { Fixed by BB 2021-03-20
 			for(ii=ZERO; ii <= (*p_imaxseq)[nseq]; ii++) {
 				kk = (*((*p_Seq)[nseq]))[ii];
-				// if(kk ==  4) BPPrintMessage(0,odError,"2) ts1[%ld] = %ld ts2[%ld] = %ld\n",ii,(*p_ts1)[ii],ii,(*p_ts2)[ii]);
 				if(kk > 1) { // Fixed by BB 2021-03-21
-		//		if(kk >= 1) {
-		//			if((*p_ts1)[ii]/Kpress > 100000 || (*p_ts2)[ii]/Kpress > 100000) BPPrintMessage(0,odError,"ERR: kk = %ld ts1[%ld] = %ld ts2[%ld] = %ld Kpress = %.0f\n",(long)kk,ii,(*p_ts1)[ii],ii,(*p_ts2)[ii],Kpress);
 					(*p_Instance)[kk].starttime = (*p_ts1)[ii];
 					(*p_Instance)[kk].endtime = (*p_ts2)[ii];
-				//	if(kk > 1) BPPrintMessage(0,odError,"kk = %ld starttime = %ld endtime = %ld\n",(long)kk,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
-				//	if((*p_ts1)[ii]/Kpress > 100000 || (*p_ts2)[ii]/Kpress > 100000) BPPrintMessage(0,odError,"ERR: Solution_is_accepted Chunk_number = %d, Kpress = %ld, kk = %ld, ii = %ld starttime = %ld endtime = %ld\n",Chunk_number,(long)Kpress,(long)kk,ii,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime);
 					}
-				// BPPrintMessage(0,odInfo,"Solution_is_accepted Chunk_number = %d, kk = %ld, ii = %ld starttime = %ld endtime = %ld, delta0 = %ld delta1 = %ld delta2 = %ld\n",Chunk_number,(long)kk,ii,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime,(long)(*p_ddelta0)[ii],(long)(*p_ddelta1)[ii],(long)(*p_ddelta2)[ii]);
 				if(ii <= imaxseq) {
 					DELTA = (*p_DELTA)[ii]
 						= (*p_ddelta0)[ii] + (*p_ddelta1)[ii] + (*p_ddelta2)[ii];

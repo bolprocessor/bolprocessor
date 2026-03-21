@@ -365,6 +365,7 @@ int GetBol(char**,int*);
 int OkBolChar(char);
 int OkBolChar2(char);
 int CreateBol(int,int,char**,int,int,int);
+int CreateSilentSoundObject(int);
 int ParseGrammarLine(t_gram*,char**,int*,int,int*,int*,int*,int*);
 int SkipRem(char**);
 int FindLeftoffset(tokenbyte**,tokenbyte**,int*);
@@ -795,6 +796,7 @@ void erase_rect(Rect*);
 void draw_line(int,int,int,int,char*);
 void stroke_rect(Rect*);
 void fill_rect(Rect*,char*);
+void fill_rect_hatched(Rect*,char*);
 void resize_rect(Rect*,int,int);
 
 char *recode_tags(const char*);

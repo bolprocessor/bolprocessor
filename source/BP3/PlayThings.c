@@ -484,7 +484,7 @@ ENCODE:
 	//	PlaySelectionOn++; // Fixed by BB 2021-02-17
 	//	if(!onlypianoroll) ResetMIDI(TRUE); Fixed by BB 2022-02-18
 	//		}
-		if(NoVariable(&p_ti)) {
+		if(TRUE || NoVariable(&p_ti)) { // 2026-03-20
 NOVARIABLE:
 			r = PlayBuffer(&p_ti,onlypianoroll);
 			}
@@ -675,83 +675,6 @@ int PasteStreamToPrototype(int j, int what)
 		}
 	StopWait();
 
-	#if BP_CARBON_GUI_FORGET_THIS
-	if((*p_MIDIsize)[j] == ZERO) what = bDeleteReplace;
-	else if(what == bAskPasteAction) what = Alert(PasteSelectionAlert,0L);
-	switch(what) {
-		case bCancelPasteSelection:
-			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-			goto SORTIR;
-			break;
-		case bInsertBefore:
-			ifrom = ito = tfrom = ZERO;
-			newsize = Stream.imax + (*p_MIDIsize)[j];
-			(*p_PasteDone)[j] = TRUE;
-			break;
-		case bAppend:
-			newsize = Stream.imax + (*p_MIDIsize)[j];
-			ifrom = ito = (*p_MIDIsize)[j];
-			tfrom = (*((*pp_MIDIcode)[j]))[(*p_MIDIsize)[j] - 1L].time;
-			(*p_PasteDone)[j] = TRUE;
-			break;
-		case bInsertAtInsertPoint:
-			if((*p_Tpict)[j] == Infneg) {
-				BPPrintMessage(0,odError,"Can't insert because insert point is not defined or out of range");
-				if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-				goto SORTIR;
-				}
-			ito = ifrom;
-			newsize = Stream.imax + (*p_MIDIsize)[j];
-			(*p_PasteDone)[j] = TRUE;
-			break;
-		case bReplaceFromInsertpoint:
-			if((*p_Tpict)[j] == Infneg) {
-				BPPrintMessage(0,odError,"Can't replace because insert point is not defined or out of range");
-				if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-				goto SORTIR;
-				}
-			if(Answer("Part of the sound-object prototype will be replaced with the selection. Can't be undone. Proceed",
-					'N') != OK) {
-				if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-				goto SORTIR;
-				}
-			newsize = (*p_MIDIsize)[j] - (ito - ifrom) + Stream.imax;
-			(*p_PasteDone)[j] = FALSE;
-			break;
-		case bDeleteReplace:
-			if((*p_MIDIsize)[j] > ZERO
-				&& Answer("The sound-object prototype will be replaced with the selection. Can't be undone. Proceed",
-					'N') != OK) {
-				if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-				goto SORTIR;
-				}
-			newsize = Stream.imax;
-			ifrom = ito = tfrom = ZERO;
-			(*p_PasteDone)[j] = FALSE;
-			break;
-		case bMergeFromInsertPoint:
-			if((*p_Tpict)[j] == Infneg) {
-				BPPrintMessage(0,odError,"Can't merge because insert point is not defined or out of range");
-				if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-				goto SORTIR;
-				}
-			newsize = Stream.imax + (*p_MIDIsize)[j];
-			(*p_PasteDone)[j] = FALSE;
-			break;
-		case bHelpPasteSelection:
-			DisplayHelp("Paste text selection to sound-object prototype");
-			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-			goto SORTIR;
-			break;
-		default:
-			my_sprintf(Message, "=> Err. PasteStreamToPrototype(): Invalid value for parameter 'what' (%d).", what);
-			BPPrintMessage(0,odError,"%s",Message);
-			if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-			goto SORTIR;
-			break;
-		}
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
-
 	(*p_Ifrom)[j] = ifrom;
 	if(ifrom < ZERO || ito < ZERO) {
 		BPPrintMessage(0,odError,"=> Err. in PasteStreamToPrototype(). ifrom < ZERO || ito < ZERO");
@@ -852,20 +775,6 @@ int PasteStreamToPrototype(int j, int what)
 		
 	(*p_Quan)[j] = 0.;
 	SetPrototypeDuration(j,&longerCsound);
-	#if BP_CARBON_GUI_FORGET_THIS
-	if(Stream.cyclic && what == bDeleteReplace) {
-		(*p_PeriodMode)[j] = RELATIF;
-		(*p_BeforePeriod)[j] = ZERO;
-		SetPrototypePage6(j);
-		}
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-	#if BP_CARBON_GUI_FORGET_THIS
-	SetPrototypePage5(j);
-	SetPrototype(j);
-
-	UpdateDirty(TRUE,wPrototype1);
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 	SORTIR:
 	return(OK);
@@ -886,12 +795,6 @@ for(i=((*p_Ifrom)[j]+Stream.imax); i < (*p_MIDIsize)[j]; i++) {
 	}
 (*p_MIDIsize)[j] -= Stream.imax;
 SetPrototypeDuration(j,&longerCsound);
-#if BP_CARBON_GUI_FORGET_THIS
-SetPrototypePage5(j);
-SetPrototype(j);
-ChangedProtoType(j);
-UpdateDirty(TRUE,wPrototype1);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 return(OK);
 }
 

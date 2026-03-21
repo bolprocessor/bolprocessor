@@ -1,4 +1,4 @@
-SoundObjectfile format: -mi.filename
+SoundObjectfile format: -so.filename
 
 Version string
 Date string

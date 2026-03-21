@@ -620,8 +620,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 			if(!OkBolChar(c=NextChar(pp))) {
 				(*p_x)[l++] = c;
 				(*p_x)[l] = '\0';
-				my_sprintf(Message,
-				"Terminal <<%s...>> starts with incorrect character '%c'\n",(*p_x),c);
+				my_sprintf(Message,"Terminal <<%s...>> starts with incorrect character '%c'\n",(*p_x),c);
 				Print(wTrace,Message);
 				ShowError(27,igram,irul);
 				goto ERR;
@@ -642,7 +641,6 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 						(*p_x),(long)BOLSIZE);
 					Print(wTrace,Message);
 					ShowError(22,igram,irul);
-					
 					goto ERR;
 					}
 				(*pp)++;
@@ -651,6 +649,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 					goto ERR;
 					}
 				}
+			
 	end1:	(*pp)++;
 			if((c=(**pp)) != '>') {
 				Expect('>',">",c);
@@ -659,7 +658,6 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 				}
 			(*pp)++;
 			(*p_x)[l++] = '\0';
-			
 			/* May be it's an out-time simple note */
 			cv = NoteConvention;
 			lmax = 0;
@@ -700,26 +698,32 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 				continue;
 				}
 			
-			/* It must be an out-time sound-object */
+			/* It must be an out-time sound-object (or variable converted to silent sound-object) */
 			if(l >= BOLSIZE) {
 				ShowError(4,igram,irul);
 				my_sprintf(Message,"Max length: %ld chars!\n",(long)BOLSIZE);
 				Print(wTrace,Message);
 				goto ERR;
 				}
+	//		BPPrintMessage(1,odInfo,"=> <<%s>>, Jbol = %d\n",(*p_x),Jbol);
+			int oldJbol = Jbol;
 			if((jj=CreateBol(TRUE,FALSE,p_x,FALSE,TRUE,BOL)) < 0) {
 				goto ERR;
 				}
+			if(Jbol > oldJbol) {
+				ResizeObjectSpace(FALSE,Jbol,0);
+				CreateSilentSoundObject(jj);
+				BPPrintMessage(1,odInfo,"Incremented Jbol = %ld to include <<%s>>\n",(long)Jbol,(*p_x));
+				}
+	//		BPPrintMessage(1,odInfo,"=> jj = %d, <<%s>>, Jbol = %d\n",jj,(*p_x),Jbol);
 			if(jj >= Jbol) {
 				BPPrintMessage(0,odError,"=> Err. Encode(). jj >= Jbol");
-				
 				goto ERR;
 				}
 			for(ii=0; ii < Jhomo; ii++) (*((*p_Image)[ii]))[jj] = (tokenbyte) jj;
 			(*p_buff)[i++] = T7; (*p_buff)[i++] = (tokenbyte) jj;
 			if(i > imax) {
 				BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
-				
 				goto ERR;
 				}
 			leftside = neg = FALSE;

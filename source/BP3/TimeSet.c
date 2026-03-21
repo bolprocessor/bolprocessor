@@ -436,7 +436,7 @@ TRY:
 		} */
 	if((result=Fix(nseq,p_time1,p_time2,nature_time)) != OK) goto EXIT1;
 
-/*	if(trace_timeset) {
+/*	if(TRUE || trace_timeset) {
 		BPPrintMessage(0,odInfo,"\nAfter Fix(), T[i], i = 1,%ld:\n",(long)maxseq);
 		for(i=1L; i <= maxseq; i++)
 			BPPrintMessage(0,odInfo,"%ld ",(long)(*p_T)[i]);
@@ -573,8 +573,7 @@ QUEST2:
 		}
 	else {
 		if(trace_timeset) ShowMessage(FALSE,wMessage,"Interpolating streaks");
-		(*p_T)[0] = ZERO; // Fixed by BB 2022-02-23
-	//	for(i=1L; i <= maxseq; i++) { Fixed by BB 2021-03-20
+		(*p_T)[0] = ZERO;
 		for(i=ZERO; i <= maxseq; i++) {
 			if(i <= (*p_imaxseq)[nseq] && ((k=(*((*p_Seq)[nseq]))[i]) >= 1 || k == -1))
 						(*p_marked)[i] = TRUE;
@@ -680,7 +679,8 @@ QUEST2:
 if(trace_timeset) BPPrintMessage(0,odInfo,"\nCalculating legato/staccato\n");
 outtimeevents = TRUE;
 for(k=2; k <= (*p_kmx); k++) {
-	j = (*p_Instance)[k].object; if(j > 0) outtimeevents = FALSE;
+	j = (*p_Instance)[k].object;
+	if(j > 0) outtimeevents = FALSE;
 	if((nature_time == STRIATED) && (*p_Instance)[k].starttime > max_end_time) {
 		// This can happen with an out-time object at the beginning of an item
 		if(0 && TraceMIDIinteraction) {  // Reactivate this to check -gr.koto3
@@ -693,7 +693,6 @@ for(k=2; k <= (*p_kmx); k++) {
 		}
 	a = (*p_articul)[k];
 	if(a == 0) continue;
-	// if(a > 127) a = a - 256;
 	if(a < -99) a = -99;
 	
 	/* Can't play legato if object's end was truncated */

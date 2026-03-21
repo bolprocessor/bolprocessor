@@ -1100,9 +1100,9 @@ NEXTBOL:
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "Size of MIDI code = %d\n",s);
 	imax = s;
-		(*p_PasteDone)[j] = FALSE;
-		(*p_MIDIsize)[j] = (*p_Ifrom)[j] = ZERO;
-		(*pp_MIDIcode)[j] = NULL;
+	(*p_PasteDone)[j] = FALSE;
+	(*p_MIDIsize)[j] = (*p_Ifrom)[j] = ZERO;
+	(*pp_MIDIcode)[j] = NULL;
 	if(imax > 0) {
 		if((p_b = (MIDIcode**) GiveSpace((Size)sizeof(MIDIcode)*(imax+1))) == NULL) goto ERR;
 		rep = OK;

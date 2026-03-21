@@ -366,7 +366,8 @@ int Inits(void) {
 			= SamplingRate;
 		PanoramicControl[i] = PanoramicController;
 		}
-	ForceRatio = -1.; PlayFromInsertionPoint = FALSE;
+	ForceRatio = -1.;
+	PlayFromInsertionPoint = FALSE;
 
 	OpenMIDIfilePtr = UnitfilePtr = TabfilePtr = TsvFilePtr = NULL;
 	HelpRefnum = TempRefnum = TraceRefnum = -1;

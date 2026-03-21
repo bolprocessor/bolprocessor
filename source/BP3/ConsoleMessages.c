@@ -61,14 +61,19 @@ static FILE*	gOutDestinations[MAXOUTDEST] =
 static bp_message_callback_t	gMessageCallback = NULL;
 
 void ConsoleMessagesInit() {
-    gOutDestinations[odiDisplay] = stdout;
-    gOutDestinations[odiMidiDump] = stdout;
-    gOutDestinations[odiCsScore] = stdout;
-    gOutDestinations[odiTrace] = stdout;
-    gOutDestinations[odiInfo] = stdout;
-    gOutDestinations[odiWarning] = stdout;
-    gOutDestinations[odiError] = stdout;
-    gOutDestinations[odiUserInt] = stdout;
+#ifdef __BP3_WASM__
+    FILE* dest = NULL;
+#else
+    FILE* dest = stdout;
+#endif
+    gOutDestinations[odiDisplay] = dest;
+    gOutDestinations[odiMidiDump] = dest;
+    gOutDestinations[odiCsScore] = dest;
+    gOutDestinations[odiTrace] = dest;
+    gOutDestinations[odiInfo] = dest;
+    gOutDestinations[odiWarning] = dest;
+    gOutDestinations[odiError] = dest;
+    gOutDestinations[odiUserInt] = dest;
     }
 
 void SetOutputDestinations(int dest, FILE* file) {
@@ -133,7 +138,9 @@ int BPPrintMessage(int force,int dest, const char *format, ...) {
     if(dest & odError) {
         va_start(args, format);
     //    vfprintf(gOutDestinations[odiError], format, args);
+#ifndef __BP3_WASM__
         vfprintf(stdout, format, args);
+#endif
         va_end(args);
     }
     if((dest & odWarning) && !PlayAllChunks && (!Improvize || ItemNumber < 1)) {
@@ -145,8 +152,10 @@ int BPPrintMessage(int force,int dest, const char *format, ...) {
         va_start(args, format);
    //     fprintf(stderr, "ok %s\n",format);
    //     vfprintf(gOutDestinations[odiInfo], format, args);
+#ifndef __BP3_WASM__
         result = vfprintf(stdout, format, args);
         if(result < 0) fprintf(stderr, "Error occurred during writing to stdout.\n");
+#endif
         va_end(args);
         }
 	return OK;

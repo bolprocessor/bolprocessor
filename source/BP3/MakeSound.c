@@ -817,6 +817,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			t3 = (*p_Instance)[kcurrentinstance].endtime;
 			objectstarttime = (*p_Instance)[kcurrentinstance].starttime;
 			objectduration = t3 - objectstarttime;
+		//	BPPrintMessage(0,odError,"kcurrentinstance = %d, startime = %ld, endtime = %ld\n",kcurrentinstance,objectstarttime,(*p_Instance)[kcurrentinstance].endtime);
 			if(objectduration < 0 || objectduration > 500000) { // Revised 2024-06-21
 				jj = (*p_Instance)[kcurrentinstance].object;
 			//	if(TraceMIDIinteraction) 

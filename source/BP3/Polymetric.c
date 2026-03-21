@@ -1475,18 +1475,17 @@ FIXTEMP:
 		continue;
 		}
 	if(period) {
-		if(m == T3 || m == T25) (*p_useful)[a] = foundtokens = TRUE;
+		if(m == T3 || m == T25 || m == T4) (*p_useful)[a] = foundtokens = TRUE;
 		}
-	else {	/* comma */
-	//	if((m == T3 && p > 1) || m == T25 || (m >= T7 && m <= T43))
-		if((m == T3 && p >= 1) || m == T25 || (m >= T7 && m <= T43) || m == T1) // Fixed by BB 2021-01-28
+	else {	// comma
+		if((m == T3 && p >= 1) || m == T25 || m == T4 || (m >= T7 && m <= T43) || m == T1) // Fixed by BB 2021-01-28
 			(*p_useful)[a] = foundtokens = TRUE;
 		}
-	if(m == T3 || m == T7 || m == T8 || m == T9 || m == T25) {
-		/* Terminal or prolongation or out-time object or synchronization tag... */
-		/* ... or time pattern or simple note */
+	if(m == T3 || m == T7 || m == T8 || m == T9 || m == T25 || m == T4) {
+		// Terminal or prolongation or out-time object or synchronization tag...
+		// ... or time pattern or simple note or variable
 		firstistempo = FALSE;
-		if(m == T3 || m == T9 || m == T25) {
+		if(m == T3 || m == T9 || m == T25 || m == T4) {
 			if(Add((*p_p)[a],(*p_q)[a],scaling,speed,&xp,&xq,&overflow) != OK){
 				result = ABORT; goto SORTIR;
 				}
@@ -1509,27 +1508,8 @@ FIXTEMP:
 		(*p_empty)[a] = FALSE;
 		}
 	else {
-		if((m == T4 || m == T6 || (m == T0 && p == 1))) {
-		/*	if(ShowMessages && (m != T4 || MaxVar > 0) && (ShowGraphic || !Improvize)) {
-				switch(m) {  // Suppressed 2024-06-19
-					case T4:
-						my_sprintf(Message,
-							"Variable '%s' found and ignored (field level %ld)",*((*p_Var)[p]),
-								(long)a);
-						break;
-					case T6:
-						my_sprintf(Message,
-							"Unreplaced wild card '?%ld' found and ignored (field level %ld)",
-								(long)p,(long)a);
-						break;
-					case T0:
-						my_sprintf(Message,
-							"Unreplaced wild card '?' found and ignored (field level %ld)",
-								(long)a);
-						break;
-					}
-				ShowMessage(TRUE,wMessage,Message);
-				} */
+	//	if((m == T4 || m == T6 || (m == T0 && p == 1))) {
+		if((m == T6 || (m == T0 && p == 1))) { // 2026-03-20
 			}
 		else {
 			if((m >= T10 && m <= T24) || (m >= T26 && m < MAXTOKENBYTE) || (m == T0

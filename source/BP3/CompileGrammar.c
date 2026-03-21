@@ -822,10 +822,6 @@ if(PrototypesLoaded) return(OK);
 rep = MISSED;
 N_err = 0;
 
-#if BP_CARBON_GUI_FORGET_THIS
-if(GetTuning() != OK) return(ABORT);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
 // if(ReleaseObjectPrototypes() != OK) return(ABORT);
 
 BPPrintMessage(0,odInfo,"Compiling alphabet...\n");
@@ -1266,7 +1262,8 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 	// char **ptr,*q,line[MAXLIN];
 	// char **p_t[MAXBOL];
 
-	if(trace_compile_alphabet) BPPrintMessage(0,odInfo, "CreateBol() Jbol = %d\n",Jbol);
+	if(trace_compile_alphabet)
+		BPPrintMessage(0,odInfo, "CreateBol() Jbol = %d, *px = “%s”\n",Jbol,*p_x);
 	if(type == BOL) {
 		jmax = Jbol; p_t = p_Bol;
 		}
@@ -1285,6 +1282,7 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 		}
 	diff = TRUE;
 	for(j=0; j < MAXNIL; j++) {
+//		BPPrintMessage(0,odError, "j = %d\n",j);
 		if(Mystrcmp(p_x,NilString[j]) == 0) {
 			ShowError(54,0,0);
 			return(ABORT);
@@ -1297,6 +1295,7 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 			return(ABORT);
 			}
 		for(j=0; j < jmax; j++) {
+	//		BPPrintMessage(0,odError, "j = %d\n",j);
 			if((MyHandlecmp((*p_t)[j],p_x)) == 0) {
 				diff = FALSE;
 				break;
@@ -1340,6 +1339,7 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 			}
 		if(j >= Jbol) { // 2024-08-18
 			MySetHandleSize((Handle*)&p_t,(Size)(j + 1) * sizeof(char**));
+			MySetHandleSize((Handle*)&p_Type,(Size)(j + 1) * sizeof(char**));
 			}
 	//	BPPrintMessage(0,odInfo, "size of bol %s = %ld, j = %d\n",*p_x,(long)MyHandleLen(p_x),j);
 		if((ptr=(char**) GiveSpace((Size)MyHandleLen(p_x)+1)) == NULL) return(ABORT);
