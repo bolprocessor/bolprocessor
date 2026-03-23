@@ -1638,11 +1638,11 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
         if(TraceMIDIinteraction) strcpy(Message,"");
         switch (status) {
             case 0x90: // Note On
-                if(trace_all_interactions) sprintf(Message,"Sending NoteOn %d velocity %d ",key,value);
+                if(trace_all_interactions) snprintf(Message,sizeof(Message),"Sending NoteOn %d velocity %d ",key,value);
                 snd_seq_ev_set_noteon(&ev, channel, key, value);
                 break;
             case 0x80: // Note Off
-                if(trace_all_interactions) sprintf(Message,"Sending NoteOff %d value %d",key,value);
+                if(trace_all_interactions) snprintf(Message,sizeof(Message),"Sending NoteOff %d value %d",key,value);
                 snd_seq_ev_set_noteoff(&ev, channel, key, value);
                 break;
             case 0xB0: // Control Change
@@ -1664,17 +1664,17 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
             case 0xFA: // MIDI Start (250)
                 snd_seq_ev_set_fixed(&ev);
                 ev.type = SND_SEQ_EVENT_START;
-                if(TraceMIDIinteraction) sprintf(Message,"👉 Sent START");
+                if(TraceMIDIinteraction) snprintf(Message,sizeof(Message),"👉 Sent START");
                 break;
             case 0xFB: // MIDI Continue (251)
                 snd_seq_ev_set_fixed(&ev);
                 ev.type = SND_SEQ_EVENT_CONTINUE;
-                if(TraceMIDIinteraction) sprintf(Message,"👉 Sent CONTINUE");
+                if(TraceMIDIinteraction) snprintf(Message,sizeof(Message),"👉 Sent CONTINUE");
                 break;
             case 0xFC: // MIDI Stop (252)
                 snd_seq_ev_set_fixed(&ev);
                 ev.type = SND_SEQ_EVENT_STOP;
-                if(TraceMIDIinteraction) sprintf(Message,"👉 Sent STOP");
+                if(TraceMIDIinteraction) snprintf(Message,sizeof(Message),"👉 Sent STOP");
                 break;
                 // There is no direct handling for Active Sensing and Timing Clock in the ALSA sequencer
             default:
@@ -1692,7 +1692,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
             int port = MIDIoutputport[index];
             if(TraceMIDIinteraction || trace_all_interactions) {
                 if(strlen(Message) > 0) {
-                    sprintf(line,"%s, client %d, port %d",Message,client,port);
+                    snprintf(line,sizeof(line),"%s, client %d, port %d",Message,client,port);
                     BPPrintMessage(0,odInfo,"%s\n",line);
                     }
                 else {

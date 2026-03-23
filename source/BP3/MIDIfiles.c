@@ -98,7 +98,7 @@ int MakeMIDIFile(OutFileInfo* finfo) {
 		else CloseMIDIFile();
 		}
 	if(Create_set) {
-		sprintf(thename,"%d.mid",SetMidiFileNr);
+		snprintf(thename,sizeof(thename),"%d.mid",SetMidiFileNr);
 		change_midifile_name(thename);
 		}
 	// BPPrintMessage(1,odInfo,"Creating new MIDI file...\n");

@@ -1017,7 +1017,8 @@ static cJSON_bool print_string_ptr(const unsigned char * const input, printbuffe
                     break;
                 default:
                     /* escape and print as unicode codepoint */
-                    snprintf((char*)output_pointer, 5, "u%04x", *input_pointer);
+         //           snprintf((char*)output_pointer, 5, "u%04x", *input_pointer);
+                    snprintf((char*)output_pointer, sizeof(output_pointer), "u%04x", *input_pointer);
                     output_pointer += 4;
                     break;
             }

@@ -6,6 +6,11 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+2026-03-23 (version 3.3.16)
+The creation of silent sound-objects has been finalised (see the previous version).
+All "sprintf()" functions have been replaced with "snprintf()".
+
+-----
 2026-03-22 (version 3.3.15)
 Terminals that are defined in the alphabet, but not in a sound-object file, will no longer be deleted. Instead, they are converted to silent sound-objects, i.e. sound objects containing neither MIDI nor Csound code. Silent sound-objects have properties similar to those of simple notes. They are displayed in hatched rectangles.
 Any leftover variables are no longer deleted at the end of the production or when reading BP data. Instead, they are also converted into silent sound-objects.

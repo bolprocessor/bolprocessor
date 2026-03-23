@@ -43,7 +43,6 @@ void my_sprintf(char* buffer, const char *format, ...) {
     // Start extracting arguments based on the format string
     va_start(args, format);   
     // Use vsnprintf instead of snprintf to pass the argument list
-//	sprintf(buffer, format, args);
 	int n_chars = vsnprintf(buffer, MAX_BUFFER_SIZE, format, args);
     // Clean up the argument list
     va_end(args);

@@ -161,6 +161,20 @@ See "Terminal alphabet"
     'alphabet' window.
 • BP3 also recognizes predefined terminal symbols called "simple notes".
 • Related topics: "Variables", "sound-objects".
+### Empty strings
+The following are equivalent reserved words for empty strings:
+• nil
+• lambda
+• empty
+• null
+
+These are used to write erase rules, for instance:
+
+SomeVariable --> lambda
+
+instead of:
+
+SomeVariable -->
 ### Metavariables
 See "Wild cards"
 ### Wild cards

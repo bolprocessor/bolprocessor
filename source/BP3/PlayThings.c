@@ -1270,7 +1270,7 @@ void Create_unit_tab_tsv_files() {
     size_t base_len = strlen(base);
 	if(UnitfilePtr != NULL) return;
 	SetMidiFileNr++;
-	sprintf(thename,"%d.txt",SetMidiFileNr);
+	snprintf(thename,sizeof(thename),"%d.txt",SetMidiFileNr);
 	// BPPrintMessage(1,odInfo,"@@ SetMidiFileNr = %d\n",SetMidiFileNr);
     int need_slash = (base_len > 0 && base[base_len - 1] == '/') ? 0 : 1;
     size_t total = base_len + (need_slash ? 1 : 0) + strlen(thename) + 1;
@@ -1288,7 +1288,7 @@ void Create_unit_tab_tsv_files() {
 	else if(SetMidiFileNr == 1) BPPrintMessage(1,odInfo,"Copying polymetric expressions to files, starting with %s\n",path_unit);
 
 	// Create the tab file
-	sprintf(thename,"%d.tab",SetMidiFileNr);
+	snprintf(thename,sizeof(thename),"%d.tab",SetMidiFileNr);
     size_t total_tab = base_len + (need_slash ? 1 : 0) + strlen(thename) + 1;
     char *path_tab = (char *)malloc(total_tab);
     char *p_tab = path_tab;
@@ -1300,7 +1300,7 @@ void Create_unit_tab_tsv_files() {
 	TabfilePtr = fopen(path_tab, "w");
 
 	// Create the tsv file
-	sprintf(thename,"%d.tsv",SetMidiFileNr);
+	snprintf(thename,sizeof(thename),"%d.tsv",SetMidiFileNr);
     size_t total_tsv = base_len + (need_slash ? 1 : 0) + strlen(thename) + 1;
     char *path_tsv = (char *)malloc(total_tsv);
     char *p_tsv = path_tsv;

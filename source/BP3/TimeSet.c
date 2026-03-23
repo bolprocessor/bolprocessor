@@ -85,12 +85,13 @@ for(j = 0; j < MAXINSTRUMENTS; j++)
 
 time(&start_time);
 ProductionTime += start_time - ProductionStartTime;
-result = FillPhaseDiagram(pp_buff,p_kmx,p_maxseq,p_nmax,p_imaxseq,
-	maxseqapprox,&bigitem,p_articul);
+result = MakeEmptyTokensSilent(pp_buff);
+if(result != OK) goto SORTIR;
+result = FillPhaseDiagram(pp_buff,p_kmx,p_maxseq,p_nmax,p_imaxseq,maxseqapprox,&bigitem,p_articul);
+if(result != OK) goto SORTIR;
+
 time(&end_time);
 PhaseDiagramTime += end_time - start_time;
-	
-if(result != OK) goto SORTIR;
 
 start_time = end_time;
 result = SetTimeObjects(bigitem,p_imaxseq,*p_maxseq,p_nmax,p_kmx,p_tmin,p_tmax,p_articul);

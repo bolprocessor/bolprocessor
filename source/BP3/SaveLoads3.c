@@ -576,7 +576,7 @@ int GetThisVersion(int w) {
 	if(fileversion > Version) {
 		// It would be unusual for VersionName[fileversion] to exist if fileversion > Version
 		my_sprintf(Message,
-			"Can't use file version %s\nbecause 'BP2' version is %s.\n",
+			"Can't use file version %s\nbecause 'BP3' version is %s.\n",
 			VersionName[fileversion],VersionName[Version]);
 		if(!ScriptExecOn) BPPrintMessage(0,odError,"%s",Message);
 		else PrintBehind(wTrace,Message);

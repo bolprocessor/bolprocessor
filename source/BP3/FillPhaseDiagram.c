@@ -619,30 +619,12 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				}
 			goto NEXTTOKEN;
 			}
-		if(m == T4) { // 2026-03-20
-		//	if(trace_diagram)
-				BPPrintMessage(0,odInfo,"Variable “%s” converted to silent sound-object\n",*(*p_Var)[p]);
-			int oldJbol = Jbol;
-			p = CreateBol(TRUE,FALSE,(char**)(*p_Var)[p],FALSE,FALSE,BOL);
-			if(Jbol > oldJbol) {
-				ResizeObjectSpace(FALSE,Jbol,0);
-				if(trace_diagram)
-					BPPrintMessage(1,odInfo,"Incremented Jbol = %ld\n",(long)Jbol);
-				}
-			m = T3;
-			CreateSilentSoundObject(p);
-			}
 		if((m == T3 && p < Jbol) || m == T4 || m == T25	|| (m == T9 && p < Jpatt)) {
 			// Sound-object or simple note or silence or time pattern
 			if(trace_diagram || trace_toofast) {
 				BPPrintMessage(1,odInfo,"\n••• m = %ld p = %ld id = %ld",(long)m,(long)p,(long)id);
 				if(m == T3 && p > 1) BPPrintMessage(1,odInfo," (*p_MIDIsize)[p] = %ld (*p_CsoundSize)[p] = %ld\n",(*p_MIDIsize)[p],(*p_CsoundSize)[p]);
 				else BPPrintMessage(1,odInfo,"\n");
-				}
-			if(m == T3 && p > 1 && p < Jbol && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO) {
-				CreateSilentSoundObject(p);
-				if(trace_diagram)
-					BPPrintMessage(1,odInfo,"Created silent sound-object, p = %ld, “%s”\n",(long)p,*(*p_Bol)[p]);
 				}
 			toofast = (tempo > tempomax || tempo == 0.);
 			just_done = FALSE;
@@ -2440,6 +2422,36 @@ int ShowPhaseDiagram(int nmax,unsigned long* imaxseq) {
 		BPPrintMessage(1,odInfo,"\n");
 		}
 	return(OK);
+	}
+
+int MakeEmptyTokensSilent(tokenbyte ***pp_buff) {
+	unsigned long id;
+	tokenbyte m,p;
+	for(id=ZERO; ;id += 2) {
+		m = (**pp_buff)[id];
+		p = (**pp_buff)[id+1];
+		if(m == TEND && p == TEND) break;
+		if(m == T4) { // 2026-03-23
+			if(trace_diagram)
+				BPPrintMessage(0,odInfo,"Variable “%s” converted to silent sound-object\n",*(*p_Var)[p]);
+			int oldJbol = Jbol;
+			p = CreateBol(TRUE,FALSE,(char**)(*p_Var)[p],FALSE,FALSE,BOL);
+			if(Jbol > oldJbol) {
+				ResizeObjectSpace(FALSE,Jbol,0);
+				if(trace_diagram)
+					BPPrintMessage(1,odInfo,"Incremented Jbol = %ld\n",(long)Jbol);
+				}
+			(**pp_buff)[id] = T3;
+			(**pp_buff)[id+1] = p;
+			CreateSilentSoundObject(p);
+			}
+		if(m == T3 && p > 1 && p < Jbol && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO) {
+			CreateSilentSoundObject(p);
+			if(trace_diagram)
+				BPPrintMessage(1,odInfo,"Created silent sound-object “%s”\n",*(*p_Bol)[p]);
+			}
+		}
+	return OK;
 	}
 
 int CreateSilentSoundObject(int p) {

@@ -571,6 +571,7 @@ int GoodHTMLchar(char);
 int NeedsHTMLConversion(char**);
 int TimeSet(tokenbyte***,long*,long*,long*,unsigned long*,int*,unsigned long**,double);
 int FillPhaseDiagram(tokenbyte***,long*,unsigned long*,int*,unsigned long**,double,int*,short**);
+int MakeEmptyTokensSilent(tokenbyte***);
 int UpdateParameter(int,ContParameters**,int,long);
 int IncrementParameter(int,ContParameters**,int,double);
 int MakeNewLineInPhaseTable(int,int*,double**,double,unsigned long**);
