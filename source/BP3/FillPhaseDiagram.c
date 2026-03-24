@@ -2439,7 +2439,7 @@ int MakeEmptyTokensSilent(tokenbyte ***pp_buff) {
 			if(Jbol > oldJbol) {
 				ResizeObjectSpace(FALSE,Jbol,0);
 				if(trace_diagram)
-					BPPrintMessage(1,odInfo,"Incremented Jbol = %ld\n",(long)Jbol);
+					BPPrintMessage(0,odInfo,"Incremented Jbol = %ld\n",(long)Jbol);
 				}
 			(**pp_buff)[id] = T3;
 			(**pp_buff)[id+1] = p;
@@ -2448,7 +2448,7 @@ int MakeEmptyTokensSilent(tokenbyte ***pp_buff) {
 		if(m == T3 && p > 1 && p < Jbol && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO) {
 			CreateSilentSoundObject(p);
 			if(trace_diagram)
-				BPPrintMessage(1,odInfo,"Created silent sound-object “%s”\n",*(*p_Bol)[p]);
+				BPPrintMessage(0,odInfo,"Created silent sound-object “%s”\n",*(*p_Bol)[p]);
 			}
 		}
 	return OK;

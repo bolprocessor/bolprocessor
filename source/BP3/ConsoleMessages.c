@@ -89,52 +89,52 @@ void SetOutputDestinations(int dest, FILE* file) {
     }
 
 
-/* Functions for displaying messages and writing output in the console build */
+// Functions for displaying messages and writing output in the console build
 
 int BPPrintMessage(int force,int dest, const char *format, ...) {
 	va_list	args;
     int result;
 
-    if(MAXMESSAGES > 0 && NumberMessages == MAXMESSAGES) {
+   if((MAXMESSAGES > 0) && (NumberMessages == MAXMESSAGES)) {
+        NumberMessages++;
         BPPrintMessage(1,odInfo,"👉 End of displaying messages (max %d)\n",MAXMESSAGES);
-        NumberMessages++;  return OK;
+        return OK;
         }
-    if(MAXMESSAGES > 0 && NumberMessages > MAXMESSAGES) return OK;
-    NumberMessages++; 
+    if((MAXMESSAGES > 0) && (NumberMessages > (MAXMESSAGES + 1))) return OK; // 2026-03-24
 
     // Handle callback if set
     if(gMessageCallback != NULL) {
         va_start(args, format);
         gMessageCallback(NULL, dest, format, args);
         va_end(args);
-    }
+        }
 
     // Handle standard destinations
     if(dest & odDisplay) {
         va_start(args, format);
         vfprintf(gOutDestinations[odiDisplay], format, args);
         va_end(args);
-    }
+        }
     if(dest & odMidiDump) {
         va_start(args, format);
         vfprintf(gOutDestinations[odiMidiDump], format, args);
         va_end(args);
-    }
+        }
     if(dest & odCsScore) {
         va_start(args, format);
         vfprintf(gOutDestinations[odiCsScore], format, args);
         va_end(args);
-    }
+        }
     if(dest & odTrace) {
         va_start(args, format);
         vfprintf(gOutDestinations[odiTrace], format, args);
         va_end(args);
-    }
+        }
     if(dest & odUserInt) {
         va_start(args, format);
         vfprintf(gOutDestinations[odiUserInt], format, args);
         va_end(args);
-    }
+        }
     if(dest & odError) {
         va_start(args, format);
     //    vfprintf(gOutDestinations[odiError], format, args);
@@ -142,17 +142,18 @@ int BPPrintMessage(int force,int dest, const char *format, ...) {
         vfprintf(stdout, format, args);
 #endif
         va_end(args);
-    }
+        }
     if((dest & odWarning) && !PlayAllChunks && (!Improvize || ItemNumber < 1)) {
         va_start(args, format);
         vfprintf(gOutDestinations[odiWarning], format, args);
         va_end(args);
-    }
+        }
     if((dest & odInfo) && (((!Improvize || ItemNumber < 1) && !HideMessages && !PlayAllChunks) || force)) {
         va_start(args, format);
    //     fprintf(stderr, "ok %s\n",format);
    //     vfprintf(gOutDestinations[odiInfo], format, args);
 #ifndef __BP3_WASM__
+        NumberMessages++; // 2026-03-24
         result = vfprintf(stdout, format, args);
         if(result < 0) fprintf(stderr, "Error occurred during writing to stdout.\n");
 #endif

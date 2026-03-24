@@ -634,8 +634,8 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"Pclock") == 0) Pclock = (double) intvalue;
 		else if(strcmp(key,"Qclock") == 0) Qclock = (double) intvalue;
 		else if(strcmp(key,"Improvize") == 0) Improvize = intvalue;
-		else if(strcmp(key,"Max_items_produced") == 0) MaxItemsProduce = intvalue;
-		else if(strcmp(key,"MaxItemsProduce") == 0) UseEachSub = intvalue;
+		else if(strcmp(key,"MaxItemsProduce") == 0) MaxItemsProduce = intvalue;
+		else if(strcmp(key,"UseEachSub") == 0) UseEachSub = intvalue;
 		else if(strcmp(key,"AllItems") == 0) AllItems = intvalue;
 		else if(strcmp(key,"DisplayProduce") == 0) DisplayProduce = intvalue;
 		else if(strcmp(key,"StepProduce") == 0) StepProduce = intvalue;

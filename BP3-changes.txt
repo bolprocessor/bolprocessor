@@ -6,8 +6,16 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+2026-03-24 (version 3.3.17)
+Fixed problems displaying (BP data) items in Improvize mode. The limit is now taken into account.
+A few fixed on the PHP interface to deal with (very) old files.
+Don't forget to update the PHP interface:
+https://github.com/bolprocessor/php-frontend/
+
+-----
 2026-03-23 (version 3.3.16)
 The creation of silent sound-objects has been finalised (see the previous version).
+Read: https://bolprocessor.org/silent-sound-objects/
 All "sprintf()" functions have been replaced with "snprintf()".
 
 -----
@@ -34,8 +42,6 @@ In the list of variables at the bottom of a grammar, none of the variables conta
 2026-01-11 (version 3.3.12)
 When importing MusicXML files, pedals "sostenuto" (MIDI controller #66) and "soft" (MIDI controller #67) are recognised in addition to "sustain" (MIDI controller #64).
 File data.php has been fixed to avoid a truncation of the "chunk.bpda" file when there are unbound ties in the last chunk.
-Don't forget to update the PHP interface:
-https://github.com/bolprocessor/php-frontend/
 
 -----
 2026-01-10 (version 3.3.11)
