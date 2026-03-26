@@ -6,6 +6,16 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+2026-03-26 (version 3.3.18)
+1) The console can now be called with shorter commands that do not declare a trace folder. In this case, neither a trace file nor an image is produced.
+For instance, you can use the following command line:
+../bp produce -se ../ctests/-se.Visser2 -gr ../ctests/-gr.acceleration --midiout ../my_output/test.mid --seed 1
+Or you can use the following command line:
+../bp produce -se ../ctests/-se.Visser2 -gr ../ctests/-gr.acceleration --midiout ../my_output/test.mid --traceout ../temp_bolprocessor/trace_f45ac19623_-gr.acceleration.txt
+If the command line contains a "--seed" option, this is used instead of the seed value in the settings file.
+2) The PolyExpand() function in Polymetric.c is no longer recursive. Instead, it uses a push/pop procedure on a heap table to avoid stack overflows in the WASM environment. This results in a slight increase in speed (about 14%).
+
+-----
 2026-03-24 (version 3.3.17)
 Fixed problems displaying (BP data) items in Improvize mode. The limit is now taken into account.
 A few fixed on the PHP interface to deal with (very) old files.

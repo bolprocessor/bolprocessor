@@ -378,7 +378,6 @@ int Inits(void) {
 		}
 	FileName[wScript][0] = '\0';
 	CurrentChannel = 1;	/* Used for program changes,by default. */
-	Seed = 1;
 	NumberMessages = 0;
 	if(SetNoteNames() != OK) return(ABORT);
 	NeedAlphabet = FALSE;

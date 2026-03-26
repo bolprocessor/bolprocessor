@@ -94,7 +94,11 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	// BPPrintMessage(1,odInfo, "\nRunning MakeSound() (Tcurr * Time_res) = %ld, tmin = %ld ms, tmax = %ld ms\n",(long) Tcurr * Time_res,tmin,tmax);
 
 	if(Panic || CheckEmergency() != OK) return(ABORT);
-	if(SoundOn) return(OK); 
+	if(SoundOn) return(OK);
+	if(NoTracePath) {
+		ShowObjectGraph = ShowPianoRoll = ShowGraphic = FALSE;
+		BPPrintMessage(0,odInfo,"👉 No graphic due to the absence of a specified trace path\n");
+		}
 
 	if(CompileRegressions() != OK) return(ABORT);
 
@@ -433,7 +437,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			BPPrintMessage(0,odInfo,"\nImage width %d was too large: it has been cropped to 32000\n",WidthMax);
 			WidthMax = endxmax = 32000;
 			}
-		endxmax = (WidthMax - 40) / 2;  // Added 2024-11-02
+		endxmax = (WidthMax - 40) / 2;
 		graphrect.top = graphrect.left = 0;
 		graphrect.bottom = graphrect.top + endymax;
 		graphrect.right = graphrect.left + endxmax;

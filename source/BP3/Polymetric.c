@@ -37,6 +37,7 @@
 #endif
 
 #include "-BP3decl.h"
+#include <stdlib.h>  /* realloc, free — for iterative PolyExpand stack */
 
 int trace_polymake = 0;
 
@@ -45,8 +46,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	char fixtempo,useful,toocomplex,alreadychangedquantize;
 	int k,krep,rep,level,r,**p_nseq,**p_nseqmax,maxlevel,needalphabet,foundinit,overflow,toofast,
 		numberouttimeinseq,longestseqouttime,numbertoofast,longestnumbertoofast,morelines,max_quantization;
-	double P,Q,tempo,tempomax,prodtempo,fmaxseq,nsymb,lcm,kpress,thelimit,speed,scaling,s,
-		limit1,limit2,imax,x,firstscaling,scalespeed,maxscalespeed;
+	double P,Q,tempo,tempomax,prodtempo,fmaxseq,nsymb,lcm,kpress,thelimit,speed,scaling,s,limit1,limit2,imax,x,firstscaling,scalespeed,maxscalespeed;
 	unsigned long i,maxid,pos_init,gcd,numberprolongations;
 	long newquantize,newquantize2,totalbytes,a,b;
 
@@ -792,344 +792,292 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 
 int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned long *p_maxid,
 	unsigned long *p_pos,double *p_P,double *p_Q,double oldspeed,char *p_fixtempo,
-	char *p_onefielduseful,double oldscaling,int notrailing)
-{
-tokenbyte m,p,****pp_c,**p_e,**ptr;
-char xf,useful,**ptr_fixtempo,**p_firstistempo,**p_empty,**p_useful,
-	foundtokens,toobigitem,truebracket,space,forceshowtempo;
-int gr,k,kk,kmax,a,a0,a1,result,r,tempomark,fixlength,dirtymem,sign,isequal,
-	singlegap,newg,newh,just_fill_gap,restart,comma,period,overflow,imbedded,
-	compiledmem,firstistempo,**p_vargap;
-double L,M,lcm,Q,**p_p,**p_q,**p_pp,**p_r,pmax,qmax,**p_pgap,**p_qgap,xp,xq,ss,x,y,t,
-	speed,speedbeforegap,scalebeforegap,s,mm,scalegap,scaleup,scaledown,rescale,
-	mgap,approxduration,rescalesubstructure,scaling,prevscale,prevspeed;
-long level;
-unsigned long i,j,jmax,gcd,g,h,lastbyte,oldpos,ic,id,**p_maxic,useless,ptempo,qtempo;
+	char *p_onefielduseful,double oldscaling,int notrailing) {
 
-if(trace_polymake) {
-	my_sprintf(Message,"Expanding polymetric expression [position %lu]...",(*p_pos));
-	ShowMessage(TRUE,wMessage,Message);
-	}
-result = ABORT; compiledmem = CompiledGr;
+	tokenbyte m,p,****pp_c,**p_e,**ptr;
+	char xf,useful,**ptr_fixtempo,**p_firstistempo,**p_empty,**p_useful,
+		foundtokens,toobigitem,truebracket,space,forceshowtempo;
+	int gr,k,kk,kmax,a,a0,a1,result,r,tempomark,fixlength,dirtymem,sign,isequal,
+		singlegap,newg,newh,just_fill_gap,restart,comma,period,overflow,imbedded,
+		compiledmem,firstistempo,**p_vargap;
+	double L,M,lcm,Q,**p_p,**p_q,**p_pp,**p_r,pmax,qmax,**p_pgap,**p_qgap,xp,xq,ss,x,y,t,
+		speed,speedbeforegap,scalebeforegap,s,mm,scalegap,scaleup,scaledown,rescale,
+		mgap,approxduration,rescalesubstructure,scaling,prevscale,prevspeed;
+	long level;
+	unsigned long i,j,jmax,gcd,g,h,lastbyte,oldpos,ic,id,**p_maxic,useless,ptempo,qtempo;
 
-if((r=stop(1,"PolyExpand")) != OK) return(r);
+	/* --- Iterative stack for PolyExpand (replaces recursion) --- */
+	typedef struct {
+		/* Heap-allocated handles owned by this frame */
+		tokenbyte ****pp_c;
+		tokenbyte **p_e, **ptr;
+		unsigned long **p_maxic;
+		char **ptr_fixtempo, **p_firstistempo, **p_empty, **p_useful;
+		int **p_vargap;
+		double **p_p, **p_q, **p_pp, **p_r, **p_pgap, **p_qgap;
+		/* Caller's output pointers (parameters saved/restored) */
+		tokenbyte ***pp_a;
+		unsigned long *p_maxid;
+		unsigned long idorg;
+		double *p_P, *p_Q;
+		char *p_fixtempo, *p_onefielduseful;
+		unsigned long *p_pos;
+		double oldspeed, oldscaling;
+		int notrailing;
+		/* All scalar locals */
+		tokenbyte m_save, p_save;
+		char xf, useful, foundtokens, toobigitem, truebracket, space, forceshowtempo;
+		int gr, k, kk, kmax, a, a0, a1, result, r, tempomark, fixlength, dirtymem, sign, isequal;
+		int singlegap, newg, newh, just_fill_gap, restart, comma, period, overflow, imbedded;
+		int compiledmem, firstistempo;
+		double L, M, lcm, Q, pmax, qmax, xp, xq, ss, x, y, t;
+		double speed, speedbeforegap, scalebeforegap, s, mm, scalegap, scaleup, scaledown, rescale;
+		double mgap, approxduration, rescalesubstructure, scaling, prevscale, prevspeed;
+		long level;
+		unsigned long i, j, jmax, gcd, g, h, lastbyte, oldpos, ic, id, useless, ptempo, qtempo;
+		} _PolyFrame;
 
-imbedded = TRUE;
+	static _PolyFrame *_poly_stack = NULL;
+	static int _poly_stack_depth = 0;
+	static int _poly_stack_cap = 0;
 
-/* Calculate k, the number of arguments */
-k = 1; level = ZERO;
-comma = period = FALSE;
-for(i=(*p_pos);
-	(level >= ZERO) && ((m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND); i += 2L) {
-	if(m != T0) continue;
-	p = (*p_b)[i+1];
-	switch(p) {
-		case 22:
-		case 12:	/* '{' */
-			level++;
-			break;
-		case 23:
-		case 13:	/* '}' */
-			level--;
-			break;
-		case 7:		/* period */
-			if(level == ZERO) {
-				period = TRUE; k++;
-				}
-			break;
-		case 14:	/* ',' */
-			if(level == ZERO) {
-				comma = TRUE; k++;
-				}
-			break;
-		default: break;
+	_POLY_ENTRY:
+	/* Initialize all handle pointers to NULL so SORTIR cleanup is safe */
+	pp_c = NULL; p_e = NULL; ptr = NULL; p_maxic = NULL;
+	ptr_fixtempo = NULL; p_firstistempo = NULL; p_empty = NULL; p_useful = NULL;
+	p_vargap = NULL;
+	p_p = NULL; p_q = NULL; p_pp = NULL; p_r = NULL; p_pgap = NULL; p_qgap = NULL;
+	k = 0;
+
+	if(trace_polymake) {
+		my_sprintf(Message,"Expanding polymetric expression [position %lu]...",(*p_pos));
+		ShowMessage(TRUE,wMessage,Message);
 		}
-	}
+	result = ABORT; compiledmem = CompiledGr;
+
+	if((r=stop(1,"PolyExpand")) != OK) { result = r; goto SORTIR; }
+
+	imbedded = TRUE;
+
+	/* Calculate k, the number of arguments */
+	k = 1; level = ZERO;
+	comma = period = FALSE;
+	for(i=(*p_pos);
+		(level >= ZERO) && ((m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND); i += 2L) {
+		if(m != T0) continue;
+		p = (*p_b)[i+1];
+		switch(p) {
+			case 22:
+			case 12:	/* '{' */
+				level++;
+				break;
+			case 23:
+			case 13:	/* '}' */
+				level--;
+				break;
+			case 7:		/* period */
+				if(level == ZERO) {
+					period = TRUE; k++;
+					}
+				break;
+			case 14:	/* ',' */
+				if(level == ZERO) {
+					comma = TRUE; k++;
+					}
+				break;
+			default: break;
+			}
+		}
+			
+	if((pp_c = (tokenbyte****) GiveSpace((Size)k * sizeof(tokenbyte**))) == NULL) { result = ABORT; goto SORTIR; }
+	if((p_maxic = (unsigned long**) GiveSpace((Size)k * sizeof(unsigned long))) == NULL)
+		{ result = ABORT; goto SORTIR; }
+	for(a = 0; a < k; a++) {
+		(*p_maxic)[a] = FIELDSIZE - 16L;
+		ptr = (tokenbyte**) GiveSpace((Size) FIELDSIZE * sizeof(tokenbyte));
+		if(ptr == NULL) { result = ABORT; goto SORTIR; }
+		(*pp_c)[a] = ptr;
+		}
+	if((p_e = (tokenbyte**) GiveSpace((Size) FIELDSIZE * sizeof(tokenbyte))) == NULL) goto SORTIR;
+	jmax = FIELDSIZE - 16L;
+
+	if((ptr_fixtempo = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) 
+		goto SORTIR;
+	if((p_vargap = (int**) GiveSpace((Size)sizeof(int) * k)) == NULL) 
+		goto SORTIR;
+	if((p_firstistempo = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) 
+		goto SORTIR;
+	if((p_empty = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) 
+		goto SORTIR;
+	if((p_useful = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) 
+		goto SORTIR;
+	if((p_p = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
+		goto SORTIR;
+	if((p_q = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
+		goto SORTIR;
+	if((p_pp = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
+		goto SORTIR;
+	if((p_r = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
+		goto SORTIR;
+	if((p_pgap = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
+		goto SORTIR;
+	if((p_qgap = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
+		goto SORTIR;
 		
-if((pp_c = (tokenbyte****) GiveSpace((Size)k * sizeof(tokenbyte**))) == NULL) return(ABORT);
-if((p_maxic = (unsigned long**) GiveSpace((Size)k * sizeof(unsigned long))) == NULL)
-	 return(ABORT);
-for(a = 0; a < k; a++) {
-	(*p_maxic)[a] = FIELDSIZE - 16L;
-	ptr = (tokenbyte**) GiveSpace((Size) FIELDSIZE * sizeof(tokenbyte));
-	if(ptr == NULL) return(ABORT);
-	(*pp_c)[a] = ptr;
-	}
-if((p_e = (tokenbyte**) GiveSpace((Size) FIELDSIZE * sizeof(tokenbyte))) == NULL) goto SORTIR;
-jmax = FIELDSIZE - 16L;
+	(*p_pgap)[0] = 0.; (*p_qgap)[0]= 1.;
+	oldpos = (*p_pos);
+	restart = FALSE;
+	if(period && comma) {
+		BPPrintMessage(0,odError,"=> Error in polymetric expression.\nThe same expression contains both a bullet and a comma...\n");
+		result = ABORT;
+		goto SORTIR;
+		}
 
-if((ptr_fixtempo = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) 
-	goto SORTIR;
-if((p_vargap = (int**) GiveSpace((Size)sizeof(int) * k)) == NULL) 
-	goto SORTIR;
-if((p_firstistempo = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) 
-	goto SORTIR;
-if((p_empty = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) 
-	goto SORTIR;
-if((p_useful = (char**) GiveSpace((Size)sizeof(char) * k)) == NULL) 
-	goto SORTIR;
-if((p_p = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
-	goto SORTIR;
-if((p_q = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
-	goto SORTIR;
-if((p_pp = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
-	goto SORTIR;
-if((p_r = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
-	goto SORTIR;
-if((p_pgap = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
-	goto SORTIR;
-if((p_qgap = (double**) GiveSpace((Size)sizeof(double) * k)) == NULL) 
-	goto SORTIR;
-	
-(*p_pgap)[0] = 0.; (*p_qgap)[0]= 1.;
-oldpos = (*p_pos);
-restart = FALSE;
-if(period && comma) {
-	BPPrintMessage(0,odError,"=> Error in polymetric expression.\nThe same expression contains both a bullet and a comma...\n");
-	result = ABORT;
-	goto SORTIR;
-	}
+	START:
+	result = OK;
+	a = 0;
+	(*p_pos) = oldpos;
+	(*p_p)[0] = 0L; (*p_q)[0] = 1L;
+	firstistempo = TRUE;
+	(*p_firstistempo)[0] = foundtokens = FALSE;
+	scalegap = 1.;
 
-START:
-result = OK;
-a = 0;
-(*p_pos) = oldpos;
-(*p_p)[0] = 0L; (*p_q)[0] = 1L;
-firstistempo = TRUE;
-(*p_firstistempo)[0] = foundtokens = FALSE;
-scalegap = 1.;
+	ic = ZERO;
+	(*p_vargap)[0] = 0;
+	newg = newh = singlegap = tempomark = FALSE;
+	(*p_empty)[0] = TRUE; (*p_useful)[0] = FALSE;
+	g = h = ZERO;
+	(*ptr_fixtempo)[0] = FALSE;
+	ptempo = qtempo = 1L;
 
-ic = ZERO;
-(*p_vargap)[0] = 0;
-newg = newh = singlegap = tempomark = FALSE;
-(*p_empty)[0] = TRUE; (*p_useful)[0] = FALSE;
-g = h = ZERO;
-(*ptr_fixtempo)[0] = FALSE;
-ptempo = qtempo = 1L;
-
-prevscale = scaling = oldscaling;
-prevspeed = speed = oldspeed;
-if(speed > TokenLimit || (1./speed) > TokenLimit) {
-	BPPrintMessage(0,odError,"=> Unexpected overflow in polymetric formula (case 14). You should send this item to the designers...\n");
-	result = ABORT; goto SORTIR;
-	}
-
-just_fill_gap = FALSE;
-		
-for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i += 2L) {
-	p = (*p_b)[i+1];
-	if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
+	prevscale = scaling = oldscaling;
+	prevspeed = speed = oldspeed;
+	if(speed > TokenLimit || (1./speed) > TokenLimit) {
+		BPPrintMessage(0,odError,"=> Unexpected overflow in polymetric formula (case 14). You should send this item to the designers...\n");
 		result = ABORT; goto SORTIR;
 		}
- 	if(m == T0 && p == 21) {  /* '*' scaling up */
- 		scaling = 0.;
- 		do {
- 			i += 2;
- 			m = (*p_b)[i];
- 			p = (*p_b)[i+1];
- 			if(m == T1) scaling = (TOKBASE * scaling) + p;
+
+	just_fill_gap = FALSE;
+			
+	for(i = (*p_pos); (m = (*p_b)[i]) != TEND || (*p_b)[i+1] != TEND; i += 2L) {
+		p = (*p_b)[i+1];
+		if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
+			result = ABORT; goto SORTIR;
 			}
-		while(m == T1);
-		i -= 2;
-		continue;
- 		}
- 	if(m == T0 && p == 24) {  /* '**' scaling down */
- 		s = 0.;
- 		do {
- 			i += 2;
- 			m = (*p_b)[i];
- 			p = (*p_b)[i+1];
- 			if(m == T1) s = (TOKBASE * s) + p;
+		if(m == T0 && p == 21) {  /* '*' scaling up */
+			scaling = 0.;
+			do {
+				i += 2;
+				m = (*p_b)[i];
+				p = (*p_b)[i+1];
+				if(m == T1) scaling = (TOKBASE * scaling) + p;
+				}
+			while(m == T1);
+			i -= 2;
+			continue;
 			}
-		while(m == T1);
-		if(s != 0.) scaling = 1. / s;
-		else BPPrintMessage(0,odError,"=> Err. PolyExpand() after '**'. s = 0.");
-		i -= 2;
-		continue;
- 		}
- 	if(m == T0 && p == 25) {  /*  speed down */
- 		s = 0.;
- 		do {
- 			i += 2;
- 			m = (*p_b)[i];
- 			p = (*p_b)[i+1];
- 			if(m == T1) s = (TOKBASE * s) + p;
+		if(m == T0 && p == 24) {  /* '**' scaling down */
+			s = 0.;
+			do {
+				i += 2;
+				m = (*p_b)[i];
+				p = (*p_b)[i+1];
+				if(m == T1) s = (TOKBASE * s) + p;
+				}
+			while(m == T1);
+			if(s != 0.) scaling = 1. / s;
+			else BPPrintMessage(0,odError,"=> Err. PolyExpand() after '**'. s = 0.");
+			i -= 2;
+			continue;
 			}
-		while(m == T1);
-		if(s != 0.) speed = 1. / s;
-		else BPPrintMessage(0,odError,"=> Err. PolyExpand() after '\\'. s = 0.");
-		i -= 2;
-		continue;
- 		}
- 	if(m == T0 && p == 11 && !tempomark) {	/* '/' speed up */
- 		tempomark = TRUE;
- 		foundtokens = TRUE;
- 		firstistempo = (*p_firstistempo)[a] = FALSE;
- 		continue;
- 		}
- 	if(m == T1) {							/* digit */
- 		firstistempo = FALSE;
- 		foundtokens = TRUE;
- 		if(tempomark) {						/* changing tempo */
-			h = (TOKBASE * h) + p;
-			if(!newh) {
-				newh = TRUE;
-				continue;
+		if(m == T0 && p == 25) {  /*  speed down */
+			s = 0.;
+			do {
+				i += 2;
+				m = (*p_b)[i];
+				p = (*p_b)[i+1];
+				if(m == T1) s = (TOKBASE * s) + p;
+				}
+			while(m == T1);
+			if(s != 0.) speed = 1. / s;
+			else BPPrintMessage(0,odError,"=> Err. PolyExpand() after '\\'. s = 0.");
+			i -= 2;
+			continue;
+			}
+		if(m == T0 && p == 11 && !tempomark) {	/* '/' speed up */
+			tempomark = TRUE;
+			foundtokens = TRUE;
+			firstistempo = (*p_firstistempo)[a] = FALSE;
+			continue;
+			}
+		if(m == T1) {							/* digit */
+			firstistempo = FALSE;
+			foundtokens = TRUE;
+			if(tempomark) {						/* changing tempo */
+				h = (TOKBASE * h) + p;
+				if(!newh) {
+					newh = TRUE;
+					continue;
+					}
+				else {
+					tempomark = FALSE; 		/* two bytes have been read */
+					/* process 'k' (and perhaps 'g') */
+					}
+				}
+			else {								/* fractional silence */
+				g = (TOKBASE * g) + p;
+				if(!newg) {
+					newg = TRUE;
+					continue;		/* read next byte */
+					}
+				/* two bytes have been read */
+				if((*p_b)[i+2] == T0 && (*p_b)[i+3] == 11) {	/* '/' */
+					continue;
+					}
+				/* process number 'g': it is a silence. */	
+				}
+			}
+		tempomark = FALSE;
+		
+	FIXTEMP:
+		scalegap = 1.;
+		if(newh) {
+			newh = FALSE;
+			if(newg) {
+				singlegap = TRUE;
+				scalebeforegap = scaling;
+				speedbeforegap = speed;
+				if(g > 1000.) {
+					if(MakeRatio(1000.,(((double)g) / ((double)h)),&x,&y) != OK) {
+						result = ABORT; goto SORTIR;
+						}
+					g = (unsigned long) x;
+					h = (unsigned long) y;
+					}
+				speed = speed * h; /* only temporary and relative change of speed */
 				}
 			else {
-				tempomark = FALSE; 		/* two bytes have been read */
-				/* process 'k' (and perhaps 'g') */
+				(*ptr_fixtempo)[a] = TRUE;
+				(*p_fixtempo) = TRUE;
+				speed = h; /* absolute value */
 				}
-			}
-		else {								/* fractional silence */
-			g = (TOKBASE * g) + p;
-			if(!newg) {
-				newg = TRUE;
-				continue;		/* read next byte */
+				
+			if(speed > MaxTempo || scaling > MaxTempo) {
+				MakeRatio(MaxTempo,(scaling/speed),&xq,&xp);
+				speed = xp;
+				scaling = xq;
 				}
-			/* two bytes have been read */
-			if((*p_b)[i+2] == T0 && (*p_b)[i+3] == 11) {	/* '/' */
-				continue;
-				}
-			/* process number 'g': it is a silence. */	
-			}
-		}
-	tempomark = FALSE;
-	
-FIXTEMP:
-	scalegap = 1.;
-	if(newh) {
-		newh = FALSE;
-		if(newg) {
-			singlegap = TRUE;
-			scalebeforegap = scaling;
-			speedbeforegap = speed;
-			if(g > 1000.) {
-				if(MakeRatio(1000.,(((double)g) / ((double)h)),&x,&y) != OK) {
-					result = ABORT; goto SORTIR;
-					}
-				g = (unsigned long) x;
-				h = (unsigned long) y;
-				}
-			speed = speed * h; /* only temporary and relative change of speed */
-			}
-		else {
-			(*ptr_fixtempo)[a] = TRUE;
-			(*p_fixtempo) = TRUE;
-			speed = h; /* absolute value */
-			}
-			
-		if(speed > MaxTempo || scaling > MaxTempo) {
-			MakeRatio(MaxTempo,(scaling/speed),&xq,&xp);
+			else Simplify(MaxTempo,scaling,speed,&xq,&xp);
+			if(xq < InvMaxTempo) xq = 0.;
 			speed = xp;
 			scaling = xq;
-			}
-		else Simplify(MaxTempo,scaling,speed,&xq,&xp);
-		if(xq < InvMaxTempo) xq = 0.;
-		speed = xp;
-		scaling = xq;
-		isequal = Equal(0.005,scaling,speed,prevscale,prevspeed,&overflow);
-		if(isequal == ABORT) {
-			BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT\n");
-			result = ABORT; goto SORTIR;
-			isequal = FALSE;
-			}
-		if(isequal == FALSE) {
-			prevscale = scaling;
-			prevspeed = speed;
-			if(scaling >= 1. || scaling == 0.) {
-				y = modf((scaling/(double)TOKBASE),&x);
-				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 21;	/* '*' scaling up */
-				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
-				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) scaling - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
-				}
-			else {
-				y = modf(((1./scaling)/(double)TOKBASE),&x);
-				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 24;	/* '**' scaling down */
-				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
-				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./scaling) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
-				}
-			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-				result = ABORT; goto SORTIR;
-				}
-			if(speed >= 1.) {
-				y = modf((speed / (double)TOKBASE),&x);
-				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 11;	/* '/' speed up */
-				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
-				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) speed - (((tokenbyte) x) * TOKBASE);  /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
-				}
-			else  {
-				y = modf((1. / speed / (double)TOKBASE),&x);
-				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 25;	/*  speed down */
-				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
-				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./speed) - (((tokenbyte) x) * TOKBASE);  /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
-				}
-			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-				result = ABORT; goto SORTIR;
-				}
-			}
-		h = ZERO;
-		}
-	if(newg) {
-		newg = FALSE;
-		(*p_empty)[a] = FALSE;
-		if(g > ZERO) {
-			if(Add((*p_p)[a],(*p_q)[a],(double) g * scaling,speed,&xp,&xq,
-					&overflow) != OK) {
-				result = ABORT; goto SORTIR;
-				}
-			if(overflow) TellComplex();
-			
-			if(trace_polymake) BPPrintMessage(0,odInfo,"MaxFrac = %.0f, xp = %.0f xq = %.0f\n",MaxFrac,xp,xq);
-			if(xp > MaxFrac || xq > MaxFrac) {
-				MakeRatio(MaxFrac,(xp/xq),&xp,&xq);
-				TellComplex();
-				}
-			else Simplify(MaxFrac,xp,xq,&xp,&xq);
-			
-			(*p_p)[a] = xp; (*p_q)[a] = xq;
-			if(trace_polymake) BPPrintMessage(0,odInfo,"xp = %.0f xq = %.0f\n",xp,xq);
-			
-			/* Replace number with '-' */
-			(*((*pp_c)[a]))[ic++] = T3;
-			(*((*pp_c)[a]))[ic++] = 1;	/* '-' */
-			if(period) (*p_useful)[a] = TRUE;
-			g--;
-			while(g > ZERO) {
-				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-					result = ABORT; goto SORTIR;
-					}
-				(*((*pp_c)[a]))[ic++] = T3;
-				(*((*pp_c)[a]))[ic++] = 0;	/* '_' */
-				g--;
-				}
-			}
-		/* g = ZERO now */
-		if(singlegap) {
-			singlegap = FALSE;
-			isequal = Equal(0.005,scaling,speed,scalebeforegap,speedbeforegap,&overflow);
+			isequal = Equal(0.005,scaling,speed,prevscale,prevspeed,&overflow);
 			if(isequal == ABORT) {
-				{
-					BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT\n");
-					result = ABORT; goto SORTIR;
-					}
+				BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT\n");
+				result = ABORT; goto SORTIR;
 				isequal = FALSE;
 				}
 			if(isequal == FALSE) {
-				scaling = scalebeforegap;
-				speed = speedbeforegap;
 				prevscale = scaling;
 				prevspeed = speed;
 				if(scaling >= 1. || scaling == 0.) {
@@ -1139,7 +1087,7 @@ FIXTEMP:
 					(*((*pp_c)[a]))[ic++] = T1;
 					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 					(*((*pp_c)[a]))[ic++] = T1;
-					(*((*pp_c)[a]))[ic++] = (tokenbyte) scaling - (((tokenbyte) x) * TOKBASE);  /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) scaling - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 					}
 				else {
 					y = modf(((1./scaling)/(double)TOKBASE),&x);
@@ -1148,7 +1096,7 @@ FIXTEMP:
 					(*((*pp_c)[a]))[ic++] = T1;
 					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 					(*((*pp_c)[a]))[ic++] = T1;
-					(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./scaling) - (((tokenbyte) x) * TOKBASE);  /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./scaling) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 					}
 				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 					result = ABORT; goto SORTIR;
@@ -1160,186 +1108,437 @@ FIXTEMP:
 					(*((*pp_c)[a]))[ic++] = T1;
 					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 					(*((*pp_c)[a]))[ic++] = T1;
-					(*((*pp_c)[a]))[ic++] = (tokenbyte) speed - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) speed - (((tokenbyte) x) * TOKBASE);  /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 					}
 				else  {
 					y = modf((1. / speed / (double)TOKBASE),&x);
 					(*((*pp_c)[a]))[ic++] = T0;
-					(*((*pp_c)[a]))[ic++] = 25;	/* '\' speed down */
+					(*((*pp_c)[a]))[ic++] = 25;	/*  speed down */
 					(*((*pp_c)[a]))[ic++] = T1;
 					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 					(*((*pp_c)[a]))[ic++] = T1;
-					(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./speed) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./speed) - (((tokenbyte) x) * TOKBASE);  /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
 					}
 				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 					result = ABORT; goto SORTIR;
 					}
 				}
+			h = ZERO;
 			}
-		}
-	if(just_fill_gap) {
-		just_fill_gap = FALSE;
-		continue;
-		}
-	if(m == T43) {	/* _tempo() */
-		foundtokens = TRUE;
-		ptempo = p;
-		i += 2L;
-		m = (*p_b)[i];
-		if(m != T43) {
-			BPPrintMessage(0,odError,"=> Err. PolyMake(). m != T43");
-			i -= 2L;
+		if(newg) {
+			newg = FALSE;
+			(*p_empty)[a] = FALSE;
+			if(g > ZERO) {
+				if(Add((*p_p)[a],(*p_q)[a],(double) g * scaling,speed,&xp,&xq,
+						&overflow) != OK) {
+					result = ABORT; goto SORTIR;
+					}
+				if(overflow) TellComplex();
+				
+				if(trace_polymake) BPPrintMessage(0,odInfo,"MaxFrac = %.0f, xp = %.0f xq = %.0f\n",MaxFrac,xp,xq);
+				if(xp > MaxFrac || xq > MaxFrac) {
+					MakeRatio(MaxFrac,(xp/xq),&xp,&xq);
+					TellComplex();
+					}
+				else Simplify(MaxFrac,xp,xq,&xp,&xq);
+				
+				(*p_p)[a] = xp; (*p_q)[a] = xq;
+				if(trace_polymake) BPPrintMessage(0,odInfo,"xp = %.0f xq = %.0f\n",xp,xq);
+				
+				/* Replace number with '-' */
+				(*((*pp_c)[a]))[ic++] = T3;
+				(*((*pp_c)[a]))[ic++] = 1;	/* '-' */
+				if(period) (*p_useful)[a] = TRUE;
+				g--;
+				while(g > ZERO) {
+					if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
+						result = ABORT; goto SORTIR;
+						}
+					(*((*pp_c)[a]))[ic++] = T3;
+					(*((*pp_c)[a]))[ic++] = 0;	/* '_' */
+					g--;
+					}
+				}
+			/* g = ZERO now */
+			if(singlegap) {
+				singlegap = FALSE;
+				isequal = Equal(0.005,scaling,speed,scalebeforegap,speedbeforegap,&overflow);
+				if(isequal == ABORT) {
+					{
+						BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT\n");
+						result = ABORT; goto SORTIR;
+						}
+					isequal = FALSE;
+					}
+				if(isequal == FALSE) {
+					scaling = scalebeforegap;
+					speed = speedbeforegap;
+					prevscale = scaling;
+					prevspeed = speed;
+					if(scaling >= 1. || scaling == 0.) {
+						y = modf((scaling/(double)TOKBASE),&x);
+						(*((*pp_c)[a]))[ic++] = T0;
+						(*((*pp_c)[a]))[ic++] = 21;	/* '*' scaling up */
+						(*((*pp_c)[a]))[ic++] = T1;
+						(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
+						(*((*pp_c)[a]))[ic++] = T1;
+						(*((*pp_c)[a]))[ic++] = (tokenbyte) scaling - (((tokenbyte) x) * TOKBASE);  /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+						}
+					else {
+						y = modf(((1./scaling)/(double)TOKBASE),&x);
+						(*((*pp_c)[a]))[ic++] = T0;
+						(*((*pp_c)[a]))[ic++] = 24;	/* '**' scaling down */
+						(*((*pp_c)[a]))[ic++] = T1;
+						(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
+						(*((*pp_c)[a]))[ic++] = T1;
+						(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./scaling) - (((tokenbyte) x) * TOKBASE);  /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+						}
+					if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
+						result = ABORT; goto SORTIR;
+						}
+					if(speed >= 1.) {
+						y = modf((speed / (double)TOKBASE),&x);
+						(*((*pp_c)[a]))[ic++] = T0;
+						(*((*pp_c)[a]))[ic++] = 11;	/* '/' speed up */
+						(*((*pp_c)[a]))[ic++] = T1;
+						(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
+						(*((*pp_c)[a]))[ic++] = T1;
+						(*((*pp_c)[a]))[ic++] = (tokenbyte) speed - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+						}
+					else  {
+						y = modf((1. / speed / (double)TOKBASE),&x);
+						(*((*pp_c)[a]))[ic++] = T0;
+						(*((*pp_c)[a]))[ic++] = 25;	/* '\' speed down */
+						(*((*pp_c)[a]))[ic++] = T1;
+						(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
+						(*((*pp_c)[a]))[ic++] = T1;
+						(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./speed) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+						}
+					if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
+						result = ABORT; goto SORTIR;
+						}
+					}
+				}
+			}
+		if(just_fill_gap) {
+			just_fill_gap = FALSE;
 			continue;
 			}
-		qtempo = (*p_b)[i+1L];
-		if(firstistempo) {
-			(*p_firstistempo)[a] = TRUE;
-			firstistempo = FALSE;
-			}
-		prevspeed = speed;
-		prevscale = scaling;
-		speed = oldspeed * ptempo;
-		scaling = oldscaling * qtempo;
-		if(speed > MaxTempo || scaling > MaxTempo) {
-			MakeRatio(MaxTempo,(scaling/speed),&xq,&xp);
-			speed = xp;
-			scaling = xq;
-			TellComplex();
-			}
-		else Simplify(MaxTempo,scaling,speed,&xq,&xp);
-		if(xq < InvMaxTempo) xq = 0.;
-		speed = xp;
-		scaling = xq;
-		
-		isequal = Equal(0.005,scaling,speed,prevscale,prevspeed,&overflow);
-		if(isequal == ABORT) {
-			{
-				BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT");
-				result = ABORT; goto SORTIR;
+		if(m == T43) {	/* _tempo() */
+			foundtokens = TRUE;
+			ptempo = p;
+			i += 2L;
+			m = (*p_b)[i];
+			if(m != T43) {
+				BPPrintMessage(0,odError,"=> Err. PolyMake(). m != T43");
+				i -= 2L;
+				continue;
 				}
-			isequal = FALSE;
-			}
-		if(isequal == FALSE) {
-			prevscale = scaling;
+			qtempo = (*p_b)[i+1L];
+			if(firstistempo) {
+				(*p_firstistempo)[a] = TRUE;
+				firstistempo = FALSE;
+				}
 			prevspeed = speed;
-			if(scaling >= 1. || scaling == 0.) {
-				y = modf((scaling / (double)TOKBASE),&x);
-				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 21;	/* '*' scaling up */
-				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
-				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) scaling - (((tokenbyte) x) * TOKBASE);
-				}
-			else {
-				y = modf(((1. / scaling) / (double)TOKBASE),&x);
-				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 24;	/* '**' scaling down */
-				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
-				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./scaling) - (((tokenbyte) x) * TOKBASE);
-				}
-			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-				result = ABORT; goto SORTIR;
-				}
-			if(speed >= 1.) {
-				y = modf((speed / (double)TOKBASE),&x);
-				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 11; /* '/' speed up */
-				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
-				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte)  speed - (((tokenbyte) x) * TOKBASE);
-				}
-			else {
-				y = modf((1. / speed / (double)TOKBASE),&x);
-				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 25; /*  speed down */
-				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
-				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./speed) - (((tokenbyte) x) * TOKBASE); 
-				}
-			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-				result = ABORT; goto SORTIR;
-				}
-			}
-		continue;
-		}
-	if(m == T0 && p == 17) {					/* Undetermined rest "_rest" */
-		firstistempo = (*p_firstistempo)[a] = FALSE;
-		/* This field can't be used to determine the duration */
-		if(restart) {	/* Scanning structure second time...*/
-			newh = newg = TRUE;
-			xp = speed * ((*p_pgap)[a]);
-			xq = (*p_qgap)[a] * (scaling);
-			if(xp > ULONG_MAX || xq > ULONG_MAX)  {
-				if(MakeRatio(ULONG_MAX,(xq/xp),&xq,&xp) != OK) {
-					result = ABORT; goto SORTIR;
-					}
+			prevscale = scaling;
+			speed = oldspeed * ptempo;
+			scaling = oldscaling * qtempo;
+			if(speed > MaxTempo || scaling > MaxTempo) {
+				MakeRatio(MaxTempo,(scaling/speed),&xq,&xp);
+				speed = xp;
+				scaling = xq;
 				TellComplex();
 				}
-			g = xp;
-			h = xq;
-			just_fill_gap = TRUE;
-			goto FIXTEMP;
-			}
-		else (*p_vargap)[a]++;
-		continue;
-		}
-	if(m == T0 && (p == 12 || p == 22)) { 			/* '{' or '|' */
-		if(p == 12) truebracket = TRUE; // '{'
-		else truebracket = FALSE; // '|'
-		firstistempo = FALSE;
-		i += 2L;
-		xp = (*p_p)[a];
-		xq = (*p_q)[a];
-		xf = (*ptr_fixtempo)[a];
-		useful = (*p_useful)[a];
-		
-		//// Recursive call ///////////////////
-		r = PolyExpand(p_b,&p_e,ZERO,&jmax,&i,&xp,&xq,speed,&xf,&useful,scaling,notrailing);
-		///////////////////////////////////
-		
-		if(r != OK && r != SINGLE && r != EMPTY && r != IMBEDDED) {
-			result = r;
-			goto SORTIR;
-			}
-		
-		if(r != EMPTY) {
-			(*p_empty)[a] = FALSE;
-			(*ptr_fixtempo)[a] = xf;
-			(*p_useful)[a] = useful;
-			(*p_p)[a] = xp;
-			(*p_q)[a] = xq;
+			else Simplify(MaxTempo,scaling,speed,&xq,&xp);
+			if(xq < InvMaxTempo) xq = 0.;
+			speed = xp;
+			scaling = xq;
 			
-			if(r != IMBEDDED && truebracket) {
-				(*((*pp_c)[a]))[ic++] = T0;
-				(*((*pp_c)[a]))[ic++] = 12;	/* '{' */
-				}
-			for(j=ZERO; (*p_e)[j] != TEND || (*p_e)[j+1] != TEND; j += 2L) {
-				if(j > jmax) {
-					BPPrintMessage(0,odError,"=> Err. PolyExpand() j > jmax");
+			isequal = Equal(0.005,scaling,speed,prevscale,prevspeed,&overflow);
+			if(isequal == ABORT) {
+				{
+					BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT");
 					result = ABORT; goto SORTIR;
+					}
+				isequal = FALSE;
+				}
+			if(isequal == FALSE) {
+				prevscale = scaling;
+				prevspeed = speed;
+				if(scaling >= 1. || scaling == 0.) {
+					y = modf((scaling / (double)TOKBASE),&x);
+					(*((*pp_c)[a]))[ic++] = T0;
+					(*((*pp_c)[a]))[ic++] = 21;	/* '*' scaling up */
+					(*((*pp_c)[a]))[ic++] = T1;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
+					(*((*pp_c)[a]))[ic++] = T1;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) scaling - (((tokenbyte) x) * TOKBASE);
+					}
+				else {
+					y = modf(((1. / scaling) / (double)TOKBASE),&x);
+					(*((*pp_c)[a]))[ic++] = T0;
+					(*((*pp_c)[a]))[ic++] = 24;	/* '**' scaling down */
+					(*((*pp_c)[a]))[ic++] = T1;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
+					(*((*pp_c)[a]))[ic++] = T1;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./scaling) - (((tokenbyte) x) * TOKBASE);
 					}
 				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 					result = ABORT; goto SORTIR;
 					}
-				m = (*p_e)[j];
-				p = (*p_e)[j+1];
-				(*((*pp_c)[a]))[ic++] = m;
-				(*((*pp_c)[a]))[ic++] = p;
-				}
-			/* Now, substructure has been copied. */
-			
-			if(r != IMBEDDED) {
-				if(truebracket) {
+				if(speed >= 1.) {
+					y = modf((speed / (double)TOKBASE),&x);
 					(*((*pp_c)[a]))[ic++] = T0;
-					(*((*pp_c)[a]))[ic++] = 13;	/* '}' */
+					(*((*pp_c)[a]))[ic++] = 11; /* '/' speed up */
+					(*((*pp_c)[a]))[ic++] = T1;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
+					(*((*pp_c)[a]))[ic++] = T1;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte)  speed - (((tokenbyte) x) * TOKBASE);
 					}
-				else imbedded = FALSE;
+				else {
+					y = modf((1. / speed / (double)TOKBASE),&x);
+					(*((*pp_c)[a]))[ic++] = T0;
+					(*((*pp_c)[a]))[ic++] = 25; /*  speed down */
+					(*((*pp_c)[a]))[ic++] = T1;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
+					(*((*pp_c)[a]))[ic++] = T1;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./speed) - (((tokenbyte) x) * TOKBASE); 
+					}
+				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
+					result = ABORT; goto SORTIR;
+					}
 				}
+			continue;
+			}
+		if(m == T0 && p == 17) {					/* Undetermined rest "_rest" */
+			firstistempo = (*p_firstistempo)[a] = FALSE;
+			/* This field can't be used to determine the duration */
+			if(restart) {	/* Scanning structure second time...*/
+				newh = newg = TRUE;
+				xp = speed * ((*p_pgap)[a]);
+				xq = (*p_qgap)[a] * (scaling);
+				if(xp > ULONG_MAX || xq > ULONG_MAX)  {
+					if(MakeRatio(ULONG_MAX,(xq/xp),&xq,&xp) != OK) {
+						result = ABORT; goto SORTIR;
+						}
+					TellComplex();
+					}
+				g = xp;
+				h = xq;
+				just_fill_gap = TRUE;
+				goto FIXTEMP;
+				}
+			else (*p_vargap)[a]++;
+			continue;
+			}
+		if(m == T0 && (p == 12 || p == 22)) { 			/* '{' or '|' */
+			if(p == 12) truebracket = TRUE; // '{'
+			else truebracket = FALSE; // '|'
+			firstistempo = FALSE;
+			i += 2L;
+			xp = (*p_p)[a];
+			xq = (*p_q)[a];
+			xf = (*ptr_fixtempo)[a];
+			useful = (*p_useful)[a];
+			
+			//// PUSH — iterative replacement of recursive call ///////////////////
+			{
+			if(_poly_stack_depth >= _poly_stack_cap) {
+				int newcap = _poly_stack_cap ? _poly_stack_cap * 2 : 16;
+				_PolyFrame *newstack = (_PolyFrame *)realloc(_poly_stack, newcap * sizeof(_PolyFrame));
+				if(!newstack) { result = ABORT; goto SORTIR; }
+				_poly_stack = newstack;
+				_poly_stack_cap = newcap;
+				}
+			_PolyFrame *_sf = &_poly_stack[_poly_stack_depth++];
+			/* Save all heap handles */
+			_sf->pp_c = pp_c; _sf->p_e = p_e; _sf->ptr = ptr; _sf->p_maxic = p_maxic;
+			_sf->ptr_fixtempo = ptr_fixtempo; _sf->p_firstistempo = p_firstistempo;
+			_sf->p_empty = p_empty; _sf->p_useful = p_useful; _sf->p_vargap = p_vargap;
+			_sf->p_p = p_p; _sf->p_q = p_q; _sf->p_pp = p_pp; _sf->p_r = p_r;
+			_sf->p_pgap = p_pgap; _sf->p_qgap = p_qgap;
+			/* Save caller's output context (parameters) */
+			_sf->pp_a = pp_a; _sf->p_maxid = p_maxid; _sf->idorg = idorg;
+			_sf->p_P = p_P; _sf->p_Q = p_Q;
+			_sf->p_fixtempo = p_fixtempo; _sf->p_onefielduseful = p_onefielduseful;
+			_sf->p_pos = p_pos;
+			_sf->oldspeed = oldspeed; _sf->oldscaling = oldscaling;
+			_sf->notrailing = notrailing;
+			/* Save all scalar locals */
+			_sf->m_save = m; _sf->p_save = p;
+			_sf->xf = xf; _sf->useful = useful; _sf->foundtokens = foundtokens;
+			_sf->toobigitem = toobigitem; _sf->truebracket = truebracket;
+			_sf->space = space; _sf->forceshowtempo = forceshowtempo;
+			_sf->gr = gr; _sf->k = k; _sf->kk = kk; _sf->kmax = kmax;
+			_sf->a = a; _sf->a0 = a0; _sf->a1 = a1;
+			_sf->result = result; _sf->r = r;
+			_sf->tempomark = tempomark; _sf->fixlength = fixlength;
+			_sf->dirtymem = dirtymem; _sf->sign = sign; _sf->isequal = isequal;
+			_sf->singlegap = singlegap; _sf->newg = newg; _sf->newh = newh;
+			_sf->just_fill_gap = just_fill_gap; _sf->restart = restart;
+			_sf->comma = comma; _sf->period = period; _sf->overflow = overflow;
+			_sf->imbedded = imbedded; _sf->compiledmem = compiledmem;
+			_sf->firstistempo = firstistempo;
+			_sf->L = L; _sf->M = M; _sf->lcm = lcm; _sf->Q = Q;
+			_sf->pmax = pmax; _sf->qmax = qmax; _sf->xp = xp; _sf->xq = xq;
+			_sf->ss = ss; _sf->x = x; _sf->y = y; _sf->t = t;
+			_sf->speed = speed; _sf->speedbeforegap = speedbeforegap;
+			_sf->scalebeforegap = scalebeforegap; _sf->s = s; _sf->mm = mm;
+			_sf->scalegap = scalegap; _sf->scaleup = scaleup; _sf->scaledown = scaledown;
+			_sf->rescale = rescale; _sf->mgap = mgap; _sf->approxduration = approxduration;
+			_sf->rescalesubstructure = rescalesubstructure; _sf->scaling = scaling;
+			_sf->prevscale = prevscale; _sf->prevspeed = prevspeed;
+			_sf->level = level;
+			_sf->i = i; _sf->j = j; _sf->jmax = jmax; _sf->gcd = gcd;
+			_sf->g = g; _sf->h = h; _sf->lastbyte = lastbyte; _sf->oldpos = oldpos;
+			_sf->ic = ic; _sf->id = id; _sf->useless = useless;
+			_sf->ptempo = ptempo; _sf->qtempo = qtempo;
+			/* Set up parameters for child invocation */
+			/* pp_a -> parent's p_e (stored in stack frame) */
+			pp_a = (tokenbyte ***)&(_sf->p_e);
+			p_maxid = &(_sf->jmax);
+			idorg = ZERO;
+			p_pos = &(_sf->i);
+			p_P = &(_sf->xp);
+			p_Q = &(_sf->xq);
+			p_fixtempo = &(_sf->xf);
+			p_onefielduseful = &(_sf->useful);
+			oldspeed = speed;
+			oldscaling = scaling;
+			/* notrailing stays the same */
+			goto _POLY_ENTRY;
+			}
+			_POLY_AFTER_CHILD:
+			///////////////////////////////////////////////////////////////////
+			
+			if(r != OK && r != SINGLE && r != EMPTY && r != IMBEDDED) {
+				result = r;
+				goto SORTIR;
+				}
+			
+			if(r != EMPTY) {
+				(*p_empty)[a] = FALSE;
+				(*ptr_fixtempo)[a] = xf;
+				(*p_useful)[a] = useful;
+				(*p_p)[a] = xp;
+				(*p_q)[a] = xq;
+				
+				if(r != IMBEDDED && truebracket) {
+					(*((*pp_c)[a]))[ic++] = T0;
+					(*((*pp_c)[a]))[ic++] = 12;	/* '{' */
+					}
+				for(j=ZERO; (*p_e)[j] != TEND || (*p_e)[j+1] != TEND; j += 2L) {
+					if(j > jmax) {
+						BPPrintMessage(0,odError,"=> Err. PolyExpand() j > jmax");
+						result = ABORT; goto SORTIR;
+						}
+					if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
+						result = ABORT; goto SORTIR;
+						}
+					m = (*p_e)[j];
+					p = (*p_e)[j+1];
+					(*((*pp_c)[a]))[ic++] = m;
+					(*((*pp_c)[a]))[ic++] = p;
+					}
+				/* Now, substructure has been copied. */
+				
+				if(r != IMBEDDED) {
+					if(truebracket) {
+						(*((*pp_c)[a]))[ic++] = T0;
+						(*((*pp_c)[a]))[ic++] = 13;	/* '}' */
+						}
+					else imbedded = FALSE;
+					}
+				if(scaling >= 1. || scaling == 0.) {
+					y = modf((scaling / (double)TOKBASE),&x); 
+					(*((*pp_c)[a]))[ic++] = T0;
+					(*((*pp_c)[a]))[ic++] = 21;	/* '*' scaling up */
+					(*((*pp_c)[a]))[ic++] = T1;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
+					(*((*pp_c)[a]))[ic++] = T1;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte)  scaling - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+					}
+				else {
+					y = modf(((1. / scaling) / (double)TOKBASE),&x);
+					(*((*pp_c)[a]))[ic++] = T0;
+					(*((*pp_c)[a]))[ic++] = 24;	/* '**' scaling down */
+					(*((*pp_c)[a]))[ic++] = T1;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
+					(*((*pp_c)[a]))[ic++] = T1;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./scaling) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+					}
+				prevscale = scaling;
+				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
+					result = ABORT; goto SORTIR;
+					}
+				if(speed >= 1.) {
+					(*((*pp_c)[a]))[ic++] = T0;
+					(*((*pp_c)[a]))[ic++] = 11;	/* '/' speed up */
+					y = modf((speed / (double)TOKBASE),&x);
+					(*((*pp_c)[a]))[ic++] = T1;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
+					(*((*pp_c)[a]))[ic++] = T1;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte)  speed - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+					}
+				else {
+					(*((*pp_c)[a]))[ic++] = T0;
+					(*((*pp_c)[a]))[ic++] = 25;	/* speed down */
+					y = modf((1. / speed / (double)TOKBASE),&x);
+					(*((*pp_c)[a]))[ic++] = T1;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
+					(*((*pp_c)[a]))[ic++] = T1;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./speed) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+					}
+				prevspeed = speed;
+				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
+					result = ABORT; goto SORTIR;
+					}
+				}
+			continue;
+			}
+		if(m == T0 && (p == 13 || p == 23)) {		/* '}' or '|' */
+			firstistempo = FALSE;
+			(*((*pp_c)[a]))[ic++] = TEND;
+			(*((*pp_c)[a]))[ic++] = TEND;
+			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
+				result = ABORT; goto SORTIR;
+				}
+			(*p_pos) = i;
+			if(foundtokens) imbedded = FALSE;
+			if(trace_polymake) BPPrintMessage(0,odInfo,"} foundtokens = %ld ic = %ld (*p_useful)[a] = %ld\n",(long)foundtokens,(long)ic,(long)(*p_useful)[a]);
+			goto END;
+			}
+		if(m == T0 && (p == 14 || p == 7)) {		/* Either ',' or period */
+			(*((*pp_c)[a]))[ic++] = TEND;
+			(*((*pp_c)[a]))[ic++] = TEND;
+			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
+				result = ABORT; goto SORTIR;
+				}
+			foundtokens = TRUE;
+			
+			a++;	/* Next field */
+			if(a >= k) {
+				my_sprintf(Message,"=> Err in PolyExpand() k = %ld",(long)k);
+				BPPrintMessage(0,odError,"%s",Message);
+				break;
+				}
+				
+			(*p_p)[a] = 0.;
+			(*p_q)[a] = 1.;
+			(*p_vargap)[a] = 0;
+			if(!restart) {
+				(*p_pgap)[a] = 0.; (*p_qgap)[a] = 1.;
+				firstistempo = TRUE;
+				(*p_firstistempo)[a] = FALSE;
+				}
+			ic = 0;
+			(*ptr_fixtempo)[a] = FALSE;
+			(*p_empty)[a] = TRUE;
+			(*p_useful)[a] = FALSE;
+			scaling = oldscaling;
+			speed = oldspeed;
+			prevscale = scaling;
+			prevspeed = speed;
 			if(scaling >= 1. || scaling == 0.) {
 				y = modf((scaling / (double)TOKBASE),&x); 
 				(*((*pp_c)[a]))[ic++] = T0;
@@ -1347,7 +1546,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte)  scaling - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+				(*((*pp_c)[a]))[ic++] = (tokenbyte)  scaling - (((tokenbyte) x) * TOKBASE);
 				}
 			else {
 				y = modf(((1. / scaling) / (double)TOKBASE),&x);
@@ -1356,9 +1555,8 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./scaling) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+				(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./scaling) - (((tokenbyte) x) * TOKBASE);
 				}
-			prevscale = scaling;
 			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 				result = ABORT; goto SORTIR;
 				}
@@ -1369,7 +1567,7 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte)  speed - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+				(*((*pp_c)[a]))[ic++] = (tokenbyte) speed - (((tokenbyte) x) * TOKBASE);
 				}
 			else {
 				(*((*pp_c)[a]))[ic++] = T0;
@@ -1378,594 +1576,562 @@ FIXTEMP:
 				(*((*pp_c)[a]))[ic++] = T1;
 				(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
 				(*((*pp_c)[a]))[ic++] = T1;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./speed) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+				(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./speed) - (((tokenbyte) x) * TOKBASE);
 				}
-			prevspeed = speed;
 			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 				result = ABORT; goto SORTIR;
 				}
+			continue;
 			}
-		continue;
-		}
-	if(m == T0 && (p == 13 || p == 23)) {		/* '}' or '|' */
-		firstistempo = FALSE;
-		(*((*pp_c)[a]))[ic++] = TEND;
-		(*((*pp_c)[a]))[ic++] = TEND;
-		if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-			result = ABORT; goto SORTIR;
+		if(period) {
+			if(m == T3 || m == T25 || m == T4) (*p_useful)[a] = foundtokens = TRUE;
 			}
-		(*p_pos) = i;
-		if(foundtokens) imbedded = FALSE;
-		if(trace_polymake) BPPrintMessage(0,odInfo,"} foundtokens = %ld ic = %ld (*p_useful)[a] = %ld\n",(long)foundtokens,(long)ic,(long)(*p_useful)[a]);
-		goto END;
-		}
-	if(m == T0 && (p == 14 || p == 7)) {		/* Either ',' or period */
-		(*((*pp_c)[a]))[ic++] = TEND;
-		(*((*pp_c)[a]))[ic++] = TEND;
-		if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-			result = ABORT; goto SORTIR;
+		else {	// comma
+			if((m == T3 && p >= 1) || m == T25 || m == T4 || (m >= T7 && m <= T43) || m == T1) // Fixed by BB 2021-01-28
+				(*p_useful)[a] = foundtokens = TRUE;
 			}
-		foundtokens = TRUE;
-		
-		a++;	/* Next field */
-		if(a >= k) {
-			my_sprintf(Message,"=> Err in PolyExpand() k = %ld",(long)k);
-			BPPrintMessage(0,odError,"%s",Message);
-			break;
-			}
-			
-		(*p_p)[a] = 0.;
-		(*p_q)[a] = 1.;
-		(*p_vargap)[a] = 0;
-		if(!restart) {
-			(*p_pgap)[a] = 0.; (*p_qgap)[a] = 1.;
-			firstistempo = TRUE;
-			(*p_firstistempo)[a] = FALSE;
-			}
-		ic = 0;
-		(*ptr_fixtempo)[a] = FALSE;
-		(*p_empty)[a] = TRUE;
-		(*p_useful)[a] = FALSE;
-		scaling = oldscaling;
-		speed = oldspeed;
-		prevscale = scaling;
-		prevspeed = speed;
-		if(scaling >= 1. || scaling == 0.) {
-			y = modf((scaling / (double)TOKBASE),&x); 
-			(*((*pp_c)[a]))[ic++] = T0;
-			(*((*pp_c)[a]))[ic++] = 21;	/* '*' scaling up */
-			(*((*pp_c)[a]))[ic++] = T1;
-			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
-			(*((*pp_c)[a]))[ic++] = T1;
-			(*((*pp_c)[a]))[ic++] = (tokenbyte)  scaling - (((tokenbyte) x) * TOKBASE);
-			}
-		else {
-			y = modf(((1. / scaling) / (double)TOKBASE),&x);
-			(*((*pp_c)[a]))[ic++] = T0;
-			(*((*pp_c)[a]))[ic++] = 24;	/* '**' scaling down */
-			(*((*pp_c)[a]))[ic++] = T1;
-			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
-			(*((*pp_c)[a]))[ic++] = T1;
-			(*((*pp_c)[a]))[ic++] = (tokenbyte)  (1./scaling) - (((tokenbyte) x) * TOKBASE);
-			}
-		if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-			result = ABORT; goto SORTIR;
-			}
-		if(speed >= 1.) {
-			(*((*pp_c)[a]))[ic++] = T0;
-			(*((*pp_c)[a]))[ic++] = 11;	/* '/' speed up */
-			y = modf((speed / (double)TOKBASE),&x);
-			(*((*pp_c)[a]))[ic++] = T1;
-			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
-			(*((*pp_c)[a]))[ic++] = T1;
-			(*((*pp_c)[a]))[ic++] = (tokenbyte) speed - (((tokenbyte) x) * TOKBASE);
-			}
-		else {
-			(*((*pp_c)[a]))[ic++] = T0;
-			(*((*pp_c)[a]))[ic++] = 25;	/* speed down */
-			y = modf((1. / speed / (double)TOKBASE),&x);
-			(*((*pp_c)[a]))[ic++] = T1;
-			(*((*pp_c)[a]))[ic++] = (tokenbyte) x;
-			(*((*pp_c)[a]))[ic++] = T1;
-			(*((*pp_c)[a]))[ic++] = (tokenbyte) (1./speed) - (((tokenbyte) x) * TOKBASE);
-			}
-		if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-			result = ABORT; goto SORTIR;
-			}
-		continue;
-		}
-	if(period) {
-		if(m == T3 || m == T25 || m == T4) (*p_useful)[a] = foundtokens = TRUE;
-		}
-	else {	// comma
-		if((m == T3 && p >= 1) || m == T25 || m == T4 || (m >= T7 && m <= T43) || m == T1) // Fixed by BB 2021-01-28
-			(*p_useful)[a] = foundtokens = TRUE;
-		}
-	if(m == T3 || m == T7 || m == T8 || m == T9 || m == T25 || m == T4) {
-		// Terminal or prolongation or out-time object or synchronization tag...
-		// ... or time pattern or simple note or variable
-		firstistempo = FALSE;
-		if(m == T3 || m == T9 || m == T25 || m == T4) {
-			if(Add((*p_p)[a],(*p_q)[a],scaling,speed,&xp,&xq,&overflow) != OK){
+		if(m == T3 || m == T7 || m == T8 || m == T9 || m == T25 || m == T4) {
+			// Terminal or prolongation or out-time object or synchronization tag...
+			// ... or time pattern or simple note or variable
+			firstistempo = FALSE;
+			if(m == T3 || m == T9 || m == T25 || m == T4) {
+				if(Add((*p_p)[a],(*p_q)[a],scaling,speed,&xp,&xq,&overflow) != OK){
+					result = ABORT; goto SORTIR;
+					}
+				if(overflow) TellComplex();
+				if(trace_polymake) BPPrintMessage(0,odInfo,"MaxFrac = %.0f, m = %d p = %d, xp = %.0f xq = %.0f\n",MaxFrac,m,p,xp,xq);
+				if(xp > MaxFrac || xq > MaxFrac) {
+					MakeRatio(MaxFrac,(xp/xq),&xp,&xq);
+					TellComplex();
+					}
+				else Simplify(MaxFrac,xp,xq,&xp,&xq);;
+				if(trace_polymake) BPPrintMessage(0,odInfo,"xp = %.0f xq = %.0f\n",xp,xq);
+				
+				(*p_p)[a] = xp; (*p_q)[a] = xq;
+				}
+			(*((*pp_c)[a]))[ic++] = (tokenbyte) m;
+			(*((*pp_c)[a]))[ic++] = (tokenbyte) p;
+			if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
 				result = ABORT; goto SORTIR;
 				}
-			if(overflow) TellComplex();
-			if(trace_polymake) BPPrintMessage(0,odInfo,"MaxFrac = %.0f, m = %d p = %d, xp = %.0f xq = %.0f\n",MaxFrac,m,p,xp,xq);
-			if(xp > MaxFrac || xq > MaxFrac) {
-				MakeRatio(MaxFrac,(xp/xq),&xp,&xq);
-				TellComplex();
-				}
-			else Simplify(MaxFrac,xp,xq,&xp,&xq);;
-			if(trace_polymake) BPPrintMessage(0,odInfo,"xp = %.0f xq = %.0f\n",xp,xq);
-			
-			(*p_p)[a] = xp; (*p_q)[a] = xq;
-			}
-		(*((*pp_c)[a]))[ic++] = (tokenbyte) m;
-		(*((*pp_c)[a]))[ic++] = (tokenbyte) p;
-		if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-			result = ABORT; goto SORTIR;
-			}
-		(*p_empty)[a] = FALSE;
-		}
-	else {
-	//	if((m == T4 || m == T6 || (m == T0 && p == 1))) {
-		if((m == T6 || (m == T0 && p == 1))) { // 2026-03-20
+			(*p_empty)[a] = FALSE;
 			}
 		else {
-			if((m >= T10 && m <= T24) || (m >= T26 && m < MAXTOKENBYTE) || (m == T0
-															&& (p == 18 || p == 19))) {
-			/* '&' or tool or performance control */
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) m;
-				(*((*pp_c)[a]))[ic++] = (tokenbyte) p;
-				(*p_empty)[a] = FALSE;
-				foundtokens = TRUE;
-				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-					result = ABORT; goto SORTIR;
+		//	if((m == T4 || m == T6 || (m == T0 && p == 1))) {
+			if((m == T6 || (m == T0 && p == 1))) { // 2026-03-20
+				}
+			else {
+				if((m >= T10 && m <= T24) || (m >= T26 && m < MAXTOKENBYTE) || (m == T0
+																&& (p == 18 || p == 19))) {
+				/* '&' or tool or performance control */
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) m;
+					(*((*pp_c)[a]))[ic++] = (tokenbyte) p;
+					(*p_empty)[a] = FALSE;
+					foundtokens = TRUE;
+					if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
+						result = ABORT; goto SORTIR;
+						}
 					}
 				}
 			}
 		}
-	}
-(*((*pp_c)[a]))[ic++] = TEND;
-(*((*pp_c)[a]))[ic++] = TEND;
-if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
-	result = ABORT; goto SORTIR;
-	}
+	(*((*pp_c)[a]))[ic++] = TEND;
+	(*((*pp_c)[a]))[ic++] = TEND;
+	if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
+		result = ABORT; goto SORTIR;
+		}
 
-END:
-if((a+1) != k) {
-	my_sprintf(Message,"=> Err. PolyExpand(). a+1=%ld k=%ld",
-		(long)(a+1L),(long)k);
-	BPPrintMessage(0,odError,"%s",Message);
-	}
-fixlength = FALSE;
-restart = firstistempo = toobigitem = FALSE;
-pmax = 0.;
-pmax = 1.; // Fixed 2025-12-06
-qmax = 1.;
-a1 = a0 = -1;
-L = 1.;
-result = EMPTY;
+	END:
+	if((a+1) != k) {
+		my_sprintf(Message,"=> Err. PolyExpand(). a+1=%ld k=%ld",
+			(long)(a+1L),(long)k);
+		BPPrintMessage(0,odError,"%s",Message);
+		}
+	fixlength = FALSE;
+	restart = firstistempo = toobigitem = FALSE;
+	pmax = 0.;
+	pmax = 1.; // Fixed 2025-12-06
+	qmax = 1.;
+	a1 = a0 = -1;
+	L = 1.;
+	result = EMPTY;
 
-for(a=kk=0; a < k; a++) {
-	if(!(*p_empty)[a]) result = OK;
-	if((*p_useful)[a]) {
-		(*p_onefielduseful) = TRUE;
-		kk++;	/* Only used in sequences */
-		if(a1 == -1) a1 = a;
-		}
-	if((*p_vargap)[a] || (*p_p)[a] == ZERO) continue;
-	if(a0 == -1) {
-		a0 = a;		/* The duration field is the leftmost one... */
-					/* ... satisfying non-empty conditions */
-		pmax = (*p_p)[a];
-		qmax = (*p_q)[a];
-		}
-	if(!fixlength && !firstistempo && (*p_firstistempo)[a] && (*p_useful)[a]
-			&& !(*ptr_fixtempo)[a]) {
-		a0 = a;
-		pmax = (*p_p)[a];
-		qmax = (*p_q)[a];
-		firstistempo = TRUE;
-		}
-	if(!toobigitem) {
-		if((L=LCM(L,(*p_p)[a],&overflow)) < 1.) {
-			BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 1). You should send this item to the designers...");
-			result = MISSED; goto SORTIR;
+	for(a=kk=0; a < k; a++) {
+		if(!(*p_empty)[a]) result = OK;
+		if((*p_useful)[a]) {
+			(*p_onefielduseful) = TRUE;
+			kk++;	/* Only used in sequences */
+			if(a1 == -1) a1 = a;
 			}
-		if(overflow) {
-			TellComplex();
-			toobigitem = TRUE;
+		if((*p_vargap)[a] || (*p_p)[a] == ZERO) continue;
+		if(a0 == -1) {
+			a0 = a;		/* The duration field is the leftmost one... */
+						/* ... satisfying non-empty conditions */
+			pmax = (*p_p)[a];
+			qmax = (*p_q)[a];
 			}
-		}
-	if((*ptr_fixtempo)[a]) {
-		isequal = Equal(0.01,(*p_p)[a],(*p_q)[a],pmax,qmax,&overflow);
-		if(overflow) TellComplex();
-		if(isequal == ABORT) {
-			BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 5). You should send this item to the designers...");
-			result = MISSED; goto SORTIR;
+		if(!fixlength && !firstistempo && (*p_firstistempo)[a] && (*p_useful)[a]
+				&& !(*ptr_fixtempo)[a]) {
+			a0 = a;
+			pmax = (*p_p)[a];
+			qmax = (*p_q)[a];
+			firstistempo = TRUE;
 			}
-		if(fixlength && (isequal != TRUE)) {
-			if(comma) my_sprintf(Message,"Conflicting field duration (field %ld)...\n",
-				(long)(a+1L));
-			else my_sprintf(Message,"Conflicting beat duration (beat %ld)...\n",
-				(long)(a+1L));
-			Print(wTrace,Message);
-			result = MISSED; goto SORTIR;
+		if(!toobigitem) {
+			if((L=LCM(L,(*p_p)[a],&overflow)) < 1.) {
+				BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 1). You should send this item to the designers...");
+				result = MISSED; goto SORTIR;
+				}
+			if(overflow) {
+				TellComplex();
+				toobigitem = TRUE;
+				}
 			}
-		fixlength = TRUE;
-		pmax = (*p_p)[a];
-		qmax = (*p_q)[a];
-		a0 = a;	/* Fixed length field: must be the duration one. */
-		(*p_fixtempo) = TRUE;
-		}
-	}
-	
-if(a0 == -1) {
-	a0 = 0;
-	(*p_r)[a0] = 1.;
-	}
-	
-if(result == EMPTY) {
-	(**pp_a)[0] = TEND;
-	(**pp_a)[1] = TEND;
-	goto SORTIR;
-	}
-
-int trace_und = 0;
-
-for(a=0; a < k; a++) {	// Calculate undetermined rests
-	// The reverse process is implemented on data.php
-	if((*p_vargap)[a] > 0) {
-		restart = TRUE;
-		Substract(pmax,qmax,(*p_p)[a],(*p_q)[a],&xp,&xq,&sign,&overflow);
-		if(overflow) TellComplex();
-		if(trace_und) BPPrintMessage(0,odInfo,"a = %d, pmax = %.1f, qmax = %.1f, (*p_p)[a] = %.1f, (*p_q)[a] = %.1f, xp = %.1f, xq = %.1f, sign = %d\n",a,pmax,qmax,(*p_p)[a],(*p_q)[a],xp,xq,sign);
-		if(sign < 0 || xp < 1.) {
-			if((*ptr_fixtempo)[a0]) {
-				if(comma)
-					my_sprintf(Message,"Not enough time for undetermined rest (field %ld)\n",
-						(long)(a+1L));
-				else
-					my_sprintf(Message,"Not enough time for undetermined rest (beat %ld)\n",
-						(long)(a+1L));
+		if((*ptr_fixtempo)[a]) {
+			isequal = Equal(0.01,(*p_p)[a],(*p_q)[a],pmax,qmax,&overflow);
+			if(overflow) TellComplex();
+			if(isequal == ABORT) {
+				BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 5). You should send this item to the designers...");
+				result = MISSED; goto SORTIR;
+				}
+			if(fixlength && (isequal != TRUE)) {
+				if(comma) my_sprintf(Message,"Conflicting field duration (field %ld)...\n",
+					(long)(a+1L));
+				else my_sprintf(Message,"Conflicting beat duration (beat %ld)...\n",
+					(long)(a+1L));
 				Print(wTrace,Message);
 				result = MISSED; goto SORTIR;
 				}
-			else {
-				gcd = GCD((*p_p)[a],(double)(*p_vargap)[a]);
-				if(gcd < 1L) gcd = 1L;
-				(*p_p)[a] = (*p_p)[a] / gcd;
-				(*p_q)[a] = ((*p_q)[a] * (*p_vargap)[a]) / gcd;
-				if((lcm=LCM(qmax,(*p_q)[a],&overflow)) < 1.) {
-					BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 2). You should send this item to the designers...");
-					result = ABORT; goto SORTIR;
+			fixlength = TRUE;
+			pmax = (*p_p)[a];
+			qmax = (*p_q)[a];
+			a0 = a;	/* Fixed length field: must be the duration one. */
+			(*p_fixtempo) = TRUE;
+			}
+		}
+		
+	if(a0 == -1) {
+		a0 = 0;
+		(*p_r)[a0] = 1.;
+		}
+		
+	if(result == EMPTY) {
+		(**pp_a)[0] = TEND;
+		(**pp_a)[1] = TEND;
+		goto SORTIR;
+		}
+
+	int trace_und = 0;
+
+	for(a=0; a < k; a++) {	// Calculate undetermined rests
+		// The reverse process is implemented on data.php
+		if((*p_vargap)[a] > 0) {
+			restart = TRUE;
+			Substract(pmax,qmax,(*p_p)[a],(*p_q)[a],&xp,&xq,&sign,&overflow);
+			if(overflow) TellComplex();
+			if(trace_und) BPPrintMessage(0,odInfo,"a = %d, pmax = %.1f, qmax = %.1f, (*p_p)[a] = %.1f, (*p_q)[a] = %.1f, xp = %.1f, xq = %.1f, sign = %d\n",a,pmax,qmax,(*p_p)[a],(*p_q)[a],xp,xq,sign);
+			if(sign < 0 || xp < 1.) {
+				if((*ptr_fixtempo)[a0]) {
+					if(comma)
+						my_sprintf(Message,"Not enough time for undetermined rest (field %ld)\n",
+							(long)(a+1L));
+					else
+						my_sprintf(Message,"Not enough time for undetermined rest (beat %ld)\n",
+							(long)(a+1L));
+					Print(wTrace,Message);
+					result = MISSED; goto SORTIR;
 					}
-				if(overflow) TellComplex();			
-				pmax = pmax * (lcm / qmax);
-				qmax = lcm;
-				(*p_p)[a] = (*p_p)[a] * (lcm / (*p_q)[a]);	
-				x = modf(((*p_p)[a] / pmax),&mgap);
-				double y = ((mgap + 1.) * pmax - (*p_p)[a]) / (*p_vargap)[a]; // 2025-12-13
-				(*p_pgap)[a] = (double)(long) y;
-		//		(*p_pgap)[a] = (mgap * pmax - (*p_p)[a]) / (*p_vargap)[a];
-				double thepgap = (*p_pgap)[a];
-				if((*p_pgap)[a] < 1.) (*p_pgap)[a] = 1.; // Added 2025-13-06 reject null durations
-				(*p_qgap)[a] = lcm;
-				if(trace_und) BPPrintMessage(0,odInfo,"case 1, a = %d, lcm = %.1f, gcd = %ld, pmax = %.1f, qmax = %.1f, mgap = %.1f, (*p_p)[a] = %.1f, (*p_q)[a] = %.1f, (*p_pgap)[a] = %.1f, (*p_qgap)[a] = %.1f, (*p_vargap)[a] = %ld\n",a,lcm,gcd,pmax,qmax,mgap,(*p_p)[a],(*p_q)[a],(*p_pgap)[a],(*p_qgap)[a],(long)(*p_vargap)[a]);
+				else {
+					gcd = GCD((*p_p)[a],(double)(*p_vargap)[a]);
+					if(gcd < 1L) gcd = 1L;
+					(*p_p)[a] = (*p_p)[a] / gcd;
+					(*p_q)[a] = ((*p_q)[a] * (*p_vargap)[a]) / gcd;
+					if((lcm=LCM(qmax,(*p_q)[a],&overflow)) < 1.) {
+						BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 2). You should send this item to the designers...");
+						result = ABORT; goto SORTIR;
+						}
+					if(overflow) TellComplex();			
+					pmax = pmax * (lcm / qmax);
+					qmax = lcm;
+					(*p_p)[a] = (*p_p)[a] * (lcm / (*p_q)[a]);	
+					x = modf(((*p_p)[a] / pmax),&mgap);
+					double y = ((mgap + 1.) * pmax - (*p_p)[a]) / (*p_vargap)[a]; // 2025-12-13
+					(*p_pgap)[a] = (double)(long) y;
+			//		(*p_pgap)[a] = (mgap * pmax - (*p_p)[a]) / (*p_vargap)[a];
+					double thepgap = (*p_pgap)[a];
+					if((*p_pgap)[a] < 1.) (*p_pgap)[a] = 1.; // Added 2025-13-06 reject null durations
+					(*p_qgap)[a] = lcm;
+					if(trace_und) BPPrintMessage(0,odInfo,"case 1, a = %d, lcm = %.1f, gcd = %ld, pmax = %.1f, qmax = %.1f, mgap = %.1f, (*p_p)[a] = %.1f, (*p_q)[a] = %.1f, (*p_pgap)[a] = %.1f, (*p_qgap)[a] = %.1f, (*p_vargap)[a] = %ld\n",a,lcm,gcd,pmax,qmax,mgap,(*p_p)[a],(*p_q)[a],(*p_pgap)[a],(*p_qgap)[a],(long)(*p_vargap)[a]);
+					}
+				}
+			else {
+				gcd = GCD(xp,(double)(*p_vargap)[a]);
+				if(gcd < 1L) gcd = 1L;
+				(*p_pgap)[a] = xp / gcd;
+				(*p_qgap)[a] = xq * (*p_vargap)[a] / gcd;
+				if(trace_und) BPPrintMessage(0,odInfo,"case 2, a = %d, gcd = %ld, (*p_pgap)[a] = %.1f, (*p_qgap)[a] = %.1f, vargap[a] = %ld, xp = %ld\n",a,(long)gcd,(*p_pgap)[a],(*p_qgap)[a],(long)(*p_vargap)[a],(long)xp);
 				}
 			}
-		else {
-			gcd = GCD(xp,(double)(*p_vargap)[a]);
-			if(gcd < 1L) gcd = 1L;
-			(*p_pgap)[a] = xp / gcd;
-			(*p_qgap)[a] = xq * (*p_vargap)[a] / gcd;
-			if(trace_und) BPPrintMessage(0,odInfo,"case 2, a = %d, gcd = %ld, (*p_pgap)[a] = %.1f, (*p_qgap)[a] = %.1f, vargap[a] = %ld, xp = %ld\n",a,(long)gcd,(*p_pgap)[a],(*p_qgap)[a],(long)(*p_vargap)[a],(long)xp);
+		}
+
+	if(restart) goto START;		/* Now rests are known */
+
+	/* Calculate duration of structure */
+
+	if(comma) {
+		if(Add((*p_P),(*p_Q),pmax,qmax,&xp,&xq,&overflow) != OK) {
+			BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 7). You should send this item to the designers...");
+			result = ABORT; goto SORTIR;
+			}
+		if(overflow) TellComplex();
+		if(xp > MaxFrac || xq > MaxFrac) {
+			MakeRatio(MaxFrac,(xp/xq),&xp,&xq);
+			TellComplex();
+			}
+		else Simplify(MaxFrac,xp,xq,&xp,&xq);
+		(*p_P) = xp;
+		(*p_Q) = xq;
+		}
+	else {
+		if(Add((*p_P),(*p_Q),((double) kk * pmax),qmax,&xp,&xq,&overflow)
+				!= OK) {
+			BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 8). You should send this item to the designers...");
+			result = ABORT; goto SORTIR;
+			}
+		if(overflow) TellComplex();
+		if(xp > MaxFrac || xq > MaxFrac) {
+			MakeRatio(MaxFrac,(xp/xq),&xp,&xq);
+			TellComplex();
+			}
+		else Simplify(MaxFrac,xp,xq,&xp,&xq);
+		(*p_P) = xp;
+		(*p_Q) = xq;
+		}
+
+	if(!toobigitem) {
+		M = 1.;
+		for(a=0; a < k; a++) {
+			if((*p_empty)[a]) continue;
+			if((*p_p)[a] == 0.) continue;
+			(*p_pp)[a] = L / (*p_p)[a];
+			if((M = LCM(M,(*p_q)[a] * (*p_pp)[a],&overflow)) < 1.) {
+				BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 10). You should send this item to the designers...");
+				result = ABORT;
+				goto SORTIR;
+				}
+			if(overflow) {
+				TellComplex();
+				toobigitem = TRUE;
+				break;
+				}
 			}
 		}
-	}
+	approxduration = pmax / qmax;
 
-if(restart) goto START;		/* Now rests are known */
-
-/* Calculate duration of structure */
-
-if(comma) {
-	if(Add((*p_P),(*p_Q),pmax,qmax,&xp,&xq,&overflow) != OK) {
-		BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 7). You should send this item to the designers...");
-		result = ABORT; goto SORTIR;
-		}
-	if(overflow) TellComplex();
-	if(xp > MaxFrac || xq > MaxFrac) {
-		MakeRatio(MaxFrac,(xp/xq),&xp,&xq);
-		TellComplex();
-		}
-	else Simplify(MaxFrac,xp,xq,&xp,&xq);
-	(*p_P) = xp;
-	(*p_Q) = xq;
-	}
-else {
-	if(Add((*p_P),(*p_Q),((double) kk * pmax),qmax,&xp,&xq,&overflow)
-			!= OK) {
-		BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 8). You should send this item to the designers...");
-		result = ABORT; goto SORTIR;
-		}
-	if(overflow) TellComplex();
-	if(xp > MaxFrac || xq > MaxFrac) {
-		MakeRatio(MaxFrac,(xp/xq),&xp,&xq);
-		TellComplex();
-		}
-	else Simplify(MaxFrac,xp,xq,&xp,&xq);
-	(*p_P) = xp;
-	(*p_Q) = xq;
-	}
-
-if(!toobigitem) {
-	M = 1.;
 	for(a=0; a < k; a++) {
 		if((*p_empty)[a]) continue;
-		if((*p_p)[a] == 0.) continue;
-		(*p_pp)[a] = L / (*p_p)[a];
-		if((M = LCM(M,(*p_q)[a] * (*p_pp)[a],&overflow)) < 1.) {
-			BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 10). You should send this item to the designers...");
-			result = ABORT;
-			goto SORTIR;
-			}
-		if(overflow) {
-			TellComplex();
-			toobigitem = TRUE;
-			break;
-			}
+		(*p_r)[a] = 1.;
+		if((*p_p)[a] == 0) continue;
+		if(!toobigitem) (*p_r)[a] = M / ((*p_q)[a] * ((*p_pp)[a]));
+		else (*p_r)[a] = ((*p_p)[a] / (*p_q)[a]) / approxduration;
 		}
-	}
-approxduration = pmax / qmax;
 
-for(a=0; a < k; a++) {
-	if((*p_empty)[a]) continue;
-	(*p_r)[a] = 1.;
-	if((*p_p)[a] == 0) continue;
-	if(!toobigitem) (*p_r)[a] = M / ((*p_q)[a] * ((*p_pp)[a]));
-	else (*p_r)[a] = ((*p_p)[a] / (*p_q)[a]) / approxduration;
-	}
+	ss = 1.;
 
-ss = 1.;
+	scaledown = scaleup = 1.;
 
-scaledown = scaleup = 1.;
+	xp = (*p_r)[a0];
 
-xp = (*p_r)[a0];
+	rescale = xp;
 
-rescale = xp;
+	//  Copy structure to *pp_a
 
-//  Copy structure to *pp_a
+	result = OK;
+	level = ZERO;
+	id = idorg;
 
-result = OK;
-level = ZERO;
-id = idorg;
+	scaling = prevscale = oldscaling;
+	speed = prevspeed = oldspeed;
+	kmax = 0;
 
-scaling = prevscale = oldscaling;
-speed = prevspeed = oldspeed;
-kmax = 0;
-
-for(a=0; a < k; a++) {
-	if((*p_empty)[a]) continue;
-	if(comma && !(*p_useful)[a]) continue;
-	if(comma && a > a1) {
-		(**pp_a)[id++] = T0;
-		(**pp_a)[id++] = 14; /* ',' */
-		if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
-		}
-	scaling = rescale * oldscaling;
-	speed = oldspeed * (*p_r)[a];
-	if(speed > MaxTempo || scaling > MaxTempo) {
-		MakeRatio(MaxTempo,(scaling/speed),&scaling,&speed);
-		TellComplex();
-		}
-	else Simplify(MaxTempo,scaling,speed,&scaling,&speed);
-	if(scaling < InvMaxTempo) scaling = 0.;
-	if(comma || a == 0 || scaling != prevscale || speed != prevspeed) {
-		if(scaling >= 1. || scaling == 0.) {
-			y = modf((scaling / (double)TOKBASE),&x);
+	for(a=0; a < k; a++) {
+		if((*p_empty)[a]) continue;
+		if(comma && !(*p_useful)[a]) continue;
+		if(comma && a > a1) {
 			(**pp_a)[id++] = T0;
-			(**pp_a)[id++] = 21;	/* '*' scaling up */
-			(**pp_a)[id++] = T1;
-			(**pp_a)[id++] = (tokenbyte) x;
-			(**pp_a)[id++] = T1;
-			(**pp_a)[id++] = (tokenbyte)  scaling - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
-			}
-		else {
-			y = modf(((1. / scaling) / (double)TOKBASE),&x);
-			(**pp_a)[id++] = T0;
-			(**pp_a)[id++] = 24;	/* '**' scaling down */
-			(**pp_a)[id++] = T1;
-			(**pp_a)[id++] = (tokenbyte) x;
-			(**pp_a)[id++] = T1;
-			(**pp_a)[id++] = (tokenbyte)  (1./scaling) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
-			}
-		if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
-		if(speed >= 1.) {
-			y = modf((speed / (double)TOKBASE),&x);
-			(**pp_a)[id++] = T0;
-			(**pp_a)[id++] = 11;	/* '/' speed up */
-			(**pp_a)[id++] = T1;
-			(**pp_a)[id++] = (tokenbyte) x;
-			(**pp_a)[id++] = T1;
-			(**pp_a)[id++] = (tokenbyte)  speed - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
-			}
-		else  {
-			y = modf((1. / speed / (double)TOKBASE),&x);
-			(**pp_a)[id++] = T0;
-			(**pp_a)[id++] = 25;	/* '\' speed down */
-			(**pp_a)[id++] = T1;
-			(**pp_a)[id++] = (tokenbyte) x;
-			(**pp_a)[id++] = T1;
-			(**pp_a)[id++] = (tokenbyte)  (1./speed) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
-			}
-		if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
-		}
-	
-	prevscale = scaling;
-	prevspeed = speed;
-	space = forceshowtempo = FALSE;
-	
-	for(ic=ZERO; ; ic+=2L) {
-		if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
-		m = (*((*pp_c)[a]))[ic];
-		p = (*((*pp_c)[a]))[ic+1];
-		if(m == T3 && p == 1) {
-			/* Replace strings of '-' with trailing '_' otherwise FillPhaseDiagram() may not place them... */
-			/* ... properly when toofast is true */
-			if(space && notrailing) p = 0;
-			else space = TRUE;
-			goto COPYIT;
-			}
-		space = FALSE;
-		if(m == TEND && p == TEND) break;
-		if(m == T0) {
-			switch(p) {
-				case 12: /* '{' */
-					level++;
-					forceshowtempo = TRUE;
-					goto COPYIT;
-					break;
-				case 13: /* '}' */
-					level--;
-					forceshowtempo = TRUE;
-					goto COPYIT;
-					break;
-				case 14: /* ',' */
-					forceshowtempo = TRUE;
-					goto COPYIT;
-					break;
-				case 22:	/* Forget '|' */
-				case 23:
-					break;
-				case 21:	/* '*' scaling up */
-					s = GetScalingValue(((*pp_c)[a]),ic);
-					scaling = rescale * s;
-					ic += 4L;
-					break;
-				case 24:	/* '**' scaling down */
-					s = GetScalingValue(((*pp_c)[a]),ic);
-					scaling = rescale / s;
-					ic += 4L;
-					break;
-				case 11:	/* '/' speed up */
-					speed = GetScalingValue(((*pp_c)[a]),ic);
-					speed = speed * ((*p_r)[a]);
-					break;
-				case 25:	/* '\' speed down */
-					speed = GetScalingValue(((*pp_c)[a]),ic);
-					speed = 1. / speed;
-					speed = speed * ((*p_r)[a]);
-					break;
-				default:
-					goto COPYIT;
-				}
-			switch(p) {
-				case 11:	/* '/' speed up */
-				case 25:	/* '\' speed down */
-					xp = speed;
-					xq = scaling;
-					if(speed > MaxTempo || scaling > MaxTempo) {
-						MakeRatio(MaxTempo,(scaling/speed),&xq,&xp);
-						TellComplex();
-						}
-					else Simplify(MaxTempo,xq,xp,&xq,&xp);
-					if(xq < InvMaxTempo) xq = 0.;
-					isequal = Equal(0.005,xq,xp,prevscale,prevspeed,&overflow);
-					if(isequal == ABORT) {
-						{
-							BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT");
-							result = ABORT; goto SORTIR;
-							}
-						isequal = FALSE;
-						}
-					if(isequal == FALSE || forceshowtempo) {
-						forceshowtempo = FALSE;
-						prevscale = xq;
-						prevspeed = xp;
-						if(xq >= 1. || xq == 0.) {
-							y = modf((xq / (double)TOKBASE),&x);
-							(**pp_a)[id++] = T0;
-							(**pp_a)[id++] = 21;	/* '*' scaling up */
-							(**pp_a)[id++] = T1;
-							(**pp_a)[id++] = (tokenbyte) x;
-							(**pp_a)[id++] = T1;
-							(**pp_a)[id++] = (tokenbyte)  xq - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
-							}
-						else  {
-							y = modf((1. / xq / (double)TOKBASE),&x);
-							(**pp_a)[id++] = T0;
-							(**pp_a)[id++] = 24;	/* '**' scaling down */
-							(**pp_a)[id++] = T1;
-							(**pp_a)[id++] = (tokenbyte) x;
-							(**pp_a)[id++] = T1;
-							(**pp_a)[id++] = (tokenbyte)  (1. / xq) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
-							}
-						if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
-						if(xp >= 1.) {
-							y = modf((xp / (double)TOKBASE),&x);
-							(**pp_a)[id++] = T0;
-							(**pp_a)[id++] = 11;	/* '/' speed up */
-							(**pp_a)[id++] = T1;
-							(**pp_a)[id++] = (tokenbyte) x;
-							(**pp_a)[id++] = T1;
-							(**pp_a)[id++] = (tokenbyte)  xp - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
-							}
-						else  {
-							y = modf((1. / xp / (double)TOKBASE),&x);
-							(**pp_a)[id++] = T0;
-							(**pp_a)[id++] = 25;	/* '\' speed down */
-							(**pp_a)[id++] = T1;
-							(**pp_a)[id++] = (tokenbyte) x;
-							(**pp_a)[id++] = T1;
-							(**pp_a)[id++] = (tokenbyte)  (1./xp) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
-							}
-						if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
-						}
-					ic += 4L;
-					break;
-				}
-			}
-		else {
-COPYIT:
-			(**pp_a)[id++] = (tokenbyte) m;
-			(**pp_a)[id++] = (tokenbyte) p;
+			(**pp_a)[id++] = 14; /* ',' */
 			if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
 			}
+		scaling = rescale * oldscaling;
+		speed = oldspeed * (*p_r)[a];
+		if(speed > MaxTempo || scaling > MaxTempo) {
+			MakeRatio(MaxTempo,(scaling/speed),&scaling,&speed);
+			TellComplex();
+			}
+		else Simplify(MaxTempo,scaling,speed,&scaling,&speed);
+		if(scaling < InvMaxTempo) scaling = 0.;
+		if(comma || a == 0 || scaling != prevscale || speed != prevspeed) {
+			if(scaling >= 1. || scaling == 0.) {
+				y = modf((scaling / (double)TOKBASE),&x);
+				(**pp_a)[id++] = T0;
+				(**pp_a)[id++] = 21;	/* '*' scaling up */
+				(**pp_a)[id++] = T1;
+				(**pp_a)[id++] = (tokenbyte) x;
+				(**pp_a)[id++] = T1;
+				(**pp_a)[id++] = (tokenbyte)  scaling - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+				}
+			else {
+				y = modf(((1. / scaling) / (double)TOKBASE),&x);
+				(**pp_a)[id++] = T0;
+				(**pp_a)[id++] = 24;	/* '**' scaling down */
+				(**pp_a)[id++] = T1;
+				(**pp_a)[id++] = (tokenbyte) x;
+				(**pp_a)[id++] = T1;
+				(**pp_a)[id++] = (tokenbyte)  (1./scaling) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+				}
+			if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
+			if(speed >= 1.) {
+				y = modf((speed / (double)TOKBASE),&x);
+				(**pp_a)[id++] = T0;
+				(**pp_a)[id++] = 11;	/* '/' speed up */
+				(**pp_a)[id++] = T1;
+				(**pp_a)[id++] = (tokenbyte) x;
+				(**pp_a)[id++] = T1;
+				(**pp_a)[id++] = (tokenbyte)  speed - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+				}
+			else  {
+				y = modf((1. / speed / (double)TOKBASE),&x);
+				(**pp_a)[id++] = T0;
+				(**pp_a)[id++] = 25;	/* '\' speed down */
+				(**pp_a)[id++] = T1;
+				(**pp_a)[id++] = (tokenbyte) x;
+				(**pp_a)[id++] = T1;
+				(**pp_a)[id++] = (tokenbyte)  (1./speed) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+				}
+			if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
+			}
+		
+		prevscale = scaling;
+		prevspeed = speed;
+		space = forceshowtempo = FALSE;
+		
+		for(ic=ZERO; ; ic+=2L) {
+			if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
+			m = (*((*pp_c)[a]))[ic];
+			p = (*((*pp_c)[a]))[ic+1];
+			if(m == T3 && p == 1) {
+				/* Replace strings of '-' with trailing '_' otherwise FillPhaseDiagram() may not place them... */
+				/* ... properly when toofast is true */
+				if(space && notrailing) p = 0;
+				else space = TRUE;
+				goto COPYIT;
+				}
+			space = FALSE;
+			if(m == TEND && p == TEND) break;
+			if(m == T0) {
+				switch(p) {
+					case 12: /* '{' */
+						level++;
+						forceshowtempo = TRUE;
+						goto COPYIT;
+						break;
+					case 13: /* '}' */
+						level--;
+						forceshowtempo = TRUE;
+						goto COPYIT;
+						break;
+					case 14: /* ',' */
+						forceshowtempo = TRUE;
+						goto COPYIT;
+						break;
+					case 22:	/* Forget '|' */
+					case 23:
+						break;
+					case 21:	/* '*' scaling up */
+						s = GetScalingValue(((*pp_c)[a]),ic);
+						scaling = rescale * s;
+						ic += 4L;
+						break;
+					case 24:	/* '**' scaling down */
+						s = GetScalingValue(((*pp_c)[a]),ic);
+						scaling = rescale / s;
+						ic += 4L;
+						break;
+					case 11:	/* '/' speed up */
+						speed = GetScalingValue(((*pp_c)[a]),ic);
+						speed = speed * ((*p_r)[a]);
+						break;
+					case 25:	/* '\' speed down */
+						speed = GetScalingValue(((*pp_c)[a]),ic);
+						speed = 1. / speed;
+						speed = speed * ((*p_r)[a]);
+						break;
+					default:
+						goto COPYIT;
+					}
+				switch(p) {
+					case 11:	/* '/' speed up */
+					case 25:	/* '\' speed down */
+						xp = speed;
+						xq = scaling;
+						if(speed > MaxTempo || scaling > MaxTempo) {
+							MakeRatio(MaxTempo,(scaling/speed),&xq,&xp);
+							TellComplex();
+							}
+						else Simplify(MaxTempo,xq,xp,&xq,&xp);
+						if(xq < InvMaxTempo) xq = 0.;
+						isequal = Equal(0.005,xq,xp,prevscale,prevspeed,&overflow);
+						if(isequal == ABORT) {
+							{
+								BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT");
+								result = ABORT; goto SORTIR;
+								}
+							isequal = FALSE;
+							}
+						if(isequal == FALSE || forceshowtempo) {
+							forceshowtempo = FALSE;
+							prevscale = xq;
+							prevspeed = xp;
+							if(xq >= 1. || xq == 0.) {
+								y = modf((xq / (double)TOKBASE),&x);
+								(**pp_a)[id++] = T0;
+								(**pp_a)[id++] = 21;	/* '*' scaling up */
+								(**pp_a)[id++] = T1;
+								(**pp_a)[id++] = (tokenbyte) x;
+								(**pp_a)[id++] = T1;
+								(**pp_a)[id++] = (tokenbyte)  xq - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+								}
+							else  {
+								y = modf((1. / xq / (double)TOKBASE),&x);
+								(**pp_a)[id++] = T0;
+								(**pp_a)[id++] = 24;	/* '**' scaling down */
+								(**pp_a)[id++] = T1;
+								(**pp_a)[id++] = (tokenbyte) x;
+								(**pp_a)[id++] = T1;
+								(**pp_a)[id++] = (tokenbyte)  (1. / xq) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+								}
+							if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
+							if(xp >= 1.) {
+								y = modf((xp / (double)TOKBASE),&x);
+								(**pp_a)[id++] = T0;
+								(**pp_a)[id++] = 11;	/* '/' speed up */
+								(**pp_a)[id++] = T1;
+								(**pp_a)[id++] = (tokenbyte) x;
+								(**pp_a)[id++] = T1;
+								(**pp_a)[id++] = (tokenbyte)  xp - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+								}
+							else  {
+								y = modf((1. / xp / (double)TOKBASE),&x);
+								(**pp_a)[id++] = T0;
+								(**pp_a)[id++] = 25;	/* '\' speed down */
+								(**pp_a)[id++] = T1;
+								(**pp_a)[id++] = (tokenbyte) x;
+								(**pp_a)[id++] = T1;
+								(**pp_a)[id++] = (tokenbyte)  (1./xp) - (((tokenbyte) x) * TOKBASE); /* instead of (y * TOKBASE), fixed by BB 21 May 2007 */
+								}
+							if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
+							}
+						ic += 4L;
+						break;
+					}
+				}
+			else {
+	COPYIT:
+				(**pp_a)[id++] = (tokenbyte) m;
+				(**pp_a)[id++] = (tokenbyte) p;
+				if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
+				}
+			}
+		kmax++;
 		}
-	kmax++;
-	}
 
-(**pp_a)[id++] = TEND; (**pp_a)[id++] = TEND;
-if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
+	(**pp_a)[id++] = TEND; (**pp_a)[id++] = TEND;
+	if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
 
-if(Beta && level != ZERO) {
-	BPPrintMessage(0,odError,"=> Err. PolyExpand(). level != ZERO (end)");
-	}
+	if(Beta && level != ZERO) {
+		BPPrintMessage(0,odError,"=> Err. PolyExpand(). level != ZERO (end)");
+		}
 
-result = OK;
-if(kmax == 1) result = SINGLE; /* Indicates that structure had one single field */
+	result = OK;
+	if(kmax == 1) result = SINGLE; /* Indicates that structure had one single field */
 
-SORTIR:
+	SORTIR:
 
-MyDisposeHandle((Handle*)&ptr_fixtempo); MyDisposeHandle((Handle*)&p_vargap);
-MyDisposeHandle((Handle*)&p_empty); MyDisposeHandle((Handle*)&p_useful);
-MyDisposeHandle((Handle*)&p_firstistempo);
-MyDisposeHandle((Handle*)&p_p); MyDisposeHandle((Handle*)&p_q);
-MyDisposeHandle((Handle*)&p_pp); MyDisposeHandle((Handle*)&p_r);
-MyDisposeHandle((Handle*)&p_pgap); MyDisposeHandle((Handle*)&p_qgap);
-MyDisposeHandle((Handle*)&p_e);
-for(a=0; a < k; a++) {
-	ptr = (*pp_c)[a];
-	MyDisposeHandle((Handle*)&ptr);
-	(*pp_c)[a] = NULL;
-	}
-MyDisposeHandle((Handle*)&pp_c);
-MyDisposeHandle((Handle*)&p_maxic);
-if(CheckEmergency() != OK) result = ABORT;
-if((result == OK || result == SINGLE) && imbedded) result = IMBEDDED;
-return(result);
-}
+	MyDisposeHandle((Handle*)&ptr_fixtempo); MyDisposeHandle((Handle*)&p_vargap);
+	MyDisposeHandle((Handle*)&p_empty); MyDisposeHandle((Handle*)&p_useful);
+	MyDisposeHandle((Handle*)&p_firstistempo);
+	MyDisposeHandle((Handle*)&p_p); MyDisposeHandle((Handle*)&p_q);
+	MyDisposeHandle((Handle*)&p_pp); MyDisposeHandle((Handle*)&p_r);
+	MyDisposeHandle((Handle*)&p_pgap); MyDisposeHandle((Handle*)&p_qgap);
+	MyDisposeHandle((Handle*)&p_e);
+	if(pp_c != NULL) {
+		for(a=0; a < k; a++) {
+			ptr = (*pp_c)[a];
+			MyDisposeHandle((Handle*)&ptr);
+			(*pp_c)[a] = NULL;
+			}
+		}
+	MyDisposeHandle((Handle*)&pp_c);
+	MyDisposeHandle((Handle*)&p_maxic);
+	if(CheckEmergency() != OK) result = ABORT;
+	if((result == OK || result == SINGLE) && imbedded) result = IMBEDDED;
+
+	/* --- POP or true return --- */
+	if(_poly_stack_depth > 0) {
+		int _child_result = result;
+		_PolyFrame *_sf = &_poly_stack[--_poly_stack_depth];
+		/* Restore all heap handles */
+		pp_c = _sf->pp_c; p_e = _sf->p_e; ptr = _sf->ptr; p_maxic = _sf->p_maxic;
+		ptr_fixtempo = _sf->ptr_fixtempo; p_firstistempo = _sf->p_firstistempo;
+		p_empty = _sf->p_empty; p_useful = _sf->p_useful; p_vargap = _sf->p_vargap;
+		p_p = _sf->p_p; p_q = _sf->p_q; p_pp = _sf->p_pp; p_r = _sf->p_r;
+		p_pgap = _sf->p_pgap; p_qgap = _sf->p_qgap;
+		/* Restore caller's output context (parameters) */
+		pp_a = _sf->pp_a; p_maxid = _sf->p_maxid; idorg = _sf->idorg;
+		p_P = _sf->p_P; p_Q = _sf->p_Q;
+		p_fixtempo = _sf->p_fixtempo; p_onefielduseful = _sf->p_onefielduseful;
+		p_pos = _sf->p_pos;
+		oldspeed = _sf->oldspeed; oldscaling = _sf->oldscaling;
+		notrailing = _sf->notrailing;
+		/* Restore all scalar locals */
+		m = _sf->m_save; p = _sf->p_save;
+		xf = _sf->xf; useful = _sf->useful; foundtokens = _sf->foundtokens;
+		toobigitem = _sf->toobigitem; truebracket = _sf->truebracket;
+		space = _sf->space; forceshowtempo = _sf->forceshowtempo;
+		gr = _sf->gr; k = _sf->k; kk = _sf->kk; kmax = _sf->kmax;
+		a = _sf->a; a0 = _sf->a0; a1 = _sf->a1;
+		result = _sf->result; r = _sf->r;
+		tempomark = _sf->tempomark; fixlength = _sf->fixlength;
+		dirtymem = _sf->dirtymem; sign = _sf->sign; isequal = _sf->isequal;
+		singlegap = _sf->singlegap; newg = _sf->newg; newh = _sf->newh;
+		just_fill_gap = _sf->just_fill_gap; restart = _sf->restart;
+		comma = _sf->comma; period = _sf->period; overflow = _sf->overflow;
+		imbedded = _sf->imbedded; compiledmem = _sf->compiledmem;
+		firstistempo = _sf->firstistempo;
+		L = _sf->L; M = _sf->M; lcm = _sf->lcm; Q = _sf->Q;
+		pmax = _sf->pmax; qmax = _sf->qmax; xp = _sf->xp; xq = _sf->xq;
+		ss = _sf->ss; x = _sf->x; y = _sf->y; t = _sf->t;
+		speed = _sf->speed; speedbeforegap = _sf->speedbeforegap;
+		scalebeforegap = _sf->scalebeforegap; s = _sf->s; mm = _sf->mm;
+		scalegap = _sf->scalegap; scaleup = _sf->scaleup; scaledown = _sf->scaledown;
+		rescale = _sf->rescale; mgap = _sf->mgap; approxduration = _sf->approxduration;
+		rescalesubstructure = _sf->rescalesubstructure; scaling = _sf->scaling;
+		prevscale = _sf->prevscale; prevspeed = _sf->prevspeed;
+		level = _sf->level;
+		i = _sf->i; j = _sf->j; jmax = _sf->jmax; gcd = _sf->gcd;
+		g = _sf->g; h = _sf->h; lastbyte = _sf->lastbyte; oldpos = _sf->oldpos;
+		ic = _sf->ic; id = _sf->id; useless = _sf->useless;
+		ptempo = _sf->ptempo; qtempo = _sf->qtempo;
+		/* Set r to child's result and resume after the "call" */
+		r = _child_result;
+		goto _POLY_AFTER_CHILD;
+		}
+	else {
+		/* True return — free stack if allocated */
+		if(_poly_stack) { free(_poly_stack); _poly_stack = NULL; _poly_stack_depth = 0; _poly_stack_cap = 0; }
+		return(result);
+		}
+}		
 
 
 int Check_ic(unsigned long ic,unsigned long **p_maxic,int a,tokenbyte ****pp_c)
@@ -1990,7 +2156,6 @@ int TellComplex(void)
 {
 if(!SaidTooComplex) {
 	SaidTooComplex = TRUE;
-//	BPPrintMessage(0,odInfo,"Formula is complex. Roundings are performed... (ULONG_MAX = %ul)\n",ULONG_MAX);
 	BPPrintMessage(0,odInfo,"Formula is complex. Roundings are performed\n");
 	}
 return(OK);

@@ -241,6 +241,7 @@ extern int DeriveFurther,DeriveFurtherKey,DeriveFurtherChan,ResetWeights,NeverRe
 	SUBthere,DisplayItems,ShowGraphic,NoteConvention,MoreConvention,FunctionTable,
 	ScriptRecOn,ScriptExecOn,DefaultVolume,LastAction,UndoWindow,
 	PedalOrigin,PedalPosition,HangOn,NoRepeat,ConvertMIDItoCsound,ErrorDuration;
+extern int NoTracePath;
 extern TextOffset UndoPos;
 extern long CountOn;
 extern unsigned long WaitStartDate,WaitEndDate;

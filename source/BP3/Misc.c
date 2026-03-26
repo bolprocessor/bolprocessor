@@ -1139,7 +1139,7 @@ int ReseedOrShuffle(int what) {
 
 	switch(what) {
 		case NOSEED:
-			Seed = 0;
+			Seed = 0L;
 			break;
 		case NEWSEED:
 			if(Seed == 0) {

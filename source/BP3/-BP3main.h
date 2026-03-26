@@ -304,6 +304,7 @@ int DeriveFurther,DeriveFurtherKey,DeriveFurtherChan,ResetWeights,NeverResetWeig
 	SUBthere,DisplayItems,ShowGraphic,NoteConvention,MoreConvention,FunctionTable,
 	ScriptRecOn,ScriptExecOn,DefaultVolume,LastAction,UndoWindow,
 	PedalOrigin,PedalPosition,HangOn,NoRepeat,ConvertMIDItoCsound,ErrorDuration;
+int NoTracePath;
 TextOffset UndoPos;
 long CountOn;
 unsigned long WaitStartDate,WaitEndDate;
