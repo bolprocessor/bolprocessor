@@ -174,13 +174,14 @@ int PlaySelection(int w, int all) {
 					asked = TRUE;
 					}
 				} */
-			if((r=ProduceItems(w,FALSE,FALSE,NULL)) != OK) goto END;
+			if((r = ProduceItems(w,FALSE,FALSE,NULL)) != OK) goto END;
 			}
 		else {
 	NOVARIABLE:
 			if(r == OK) {
 			//	BPPrintMessage(1,odInfo,"@@@ PlayBuffer\n");
 				r = PlayBuffer(&p_a,NO);	/* HERE WE DO IT */
+				if(r != OK) goto END;
 				}
 		//	MyDisposeHandle((Handle*)&p_a);
 			/* Could already be NULL because of PolyExpand() */
@@ -203,7 +204,6 @@ int PlaySelection(int w, int all) {
 
 int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll) {
 	int r;
-
 	if(Panic || CheckEmergency() != OK) return(ABORT);
 	if((r=stop(1,"PlayBuffer")) != OK) return(r);
 	if(Jbol < 3) NoAlphabet = TRUE;
@@ -216,7 +216,7 @@ int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll) {
 			BPPrintMessage(0,odError,"=> Err. PlayBuffer(). p_Initbuff = NULL\n");
 			return(ABORT);
 			}
-		if((r=PlayBuffer1(&p_Initbuff,NO)) != OK) {
+		if((r = PlayBuffer1(&p_Initbuff,NO)) != OK) {
 			BPPrintMessage(0,odError,"=> PlayBuffer1() cancelled\n");
 			return(r);
 			}
@@ -224,10 +224,10 @@ int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll) {
 		FirstTime = FALSE;
 		}
 	r = PlayBuffer1(pp_buff,onlypianoroll);
+	// BPPrintMessage(1,odInfo,"r = %d\n",r);
 
-	// if(!PlaySelectionOn && ++ItemNumber > INT_MAX) ItemNumber = 1L;
 	if(!PlaySelectionOn && ItemNumber > INT_MAX) ItemNumber = 1L;
-/*	if(r != EXIT && MaxItemsProduce > ZERO && ItemNumber >= MaxItemsProduce && !onlypianoroll) {
+/*	if(r != EXIT && MaxItemsProduce > ZERO && ItemNumber > MaxItemsProduce && !onlypianoroll) {
 		// Script ordered to terminate production
 		SoundOn = TRUE;
 		r = WaitForEmptyBuffer();
@@ -290,7 +290,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 
 	result = OK;
  	ShowMessages = TRUE; // 2024-05-23
-	int trace_play = FALSE;
+	int trace_play = 0;
 	if(trace_play) {
 		i = 0;
 		BPPrintMessage(1,odInfo,"\nPlayBuffer1 before PolyMake:\n");
@@ -353,20 +353,25 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 				|| (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && (tmax > tmin || Nature_of_time == SMOOTH))) {
 			if(!ShowPianoRoll && !onlypianoroll) {
 				result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
-				if(OutCsound || WriteMIDIfile || rtMIDI) {
-					if(trace_play) BPPrintMessage(1,odInfo,"Calling MakeSound() [1]\n");
+				if(OutCsound || WriteMIDIfile || rtMIDI || OutBPdata) {
+					if(trace_play)
+						BPPrintMessage(1,odInfo,"Calling MakeSound() [1]\n");
 					result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
 					}
 				}
 			else {
-				if(trace_play) BPPrintMessage(1,odInfo,"Calling MakeSound() [2]\n");
+				if(trace_play)
+					BPPrintMessage(1,odInfo,"Calling MakeSound() [2]\n");
 				result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
-				result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
+				if(result == OK) result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
 				}
 			}
-		else if(OutCsound || WriteMIDIfile || rtMIDI) {
-			if(trace_play) BPPrintMessage(1,odInfo,"Calling MakeSound() [3]\n");
+		else if(OutCsound || WriteMIDIfile || rtMIDI || OutBPdata) {
+			if(trace_play) 
+				BPPrintMessage(1,odInfo,"Calling MakeSound() [3]\n");
 			result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
+			if(result == OK) 
+				result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
 			}
 		}
 	
@@ -387,7 +392,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 
 	RELEASE:
 	// BPPrintMessage(0,odError,"@@ End MakeSound() nmax = %ld\n",(long)nmax);
-	if(result == ABORT) return(result);
+	if(result == ABORT || result == EXIT) return(result);
 	if(ReleasePhaseDiagram(nmax,&p_imaxseq) != OK) return(ABORT);
 	if(result == MISSED) BPPrintMessage(0,odInfo,"Item ignored\n");
 
@@ -461,7 +466,6 @@ ENCODE:
 			i++;
 		continue;
 		}
-//	MyLock(FALSE,(Handle)p_line);
 	p1 = &((*p_line)[i]);
 	while(i < im && (*p_line)[i] != '\r' && (*p_line)[i] != '\n' && (*p_line)[i] != '\0')
 		i++;
@@ -469,9 +473,8 @@ ENCODE:
 	i++;
 	p_plx = &plx; p_prx = &prx;
 	*p_plx = *p_prx = NULL;
-//	BPPrintMessage(0,odInfo,"@@@ Encode\n");
+//	BPPrintMessage(1,odInfo,"@@@ Encode\n");
 	p_ti = Encode(&Gram,FALSE,TRUE,0,0,&p1,&p2,p_plx,p_prx,&meta,0,NULL,FALSE,&r);
-//	MyUnlock((Handle)p_line);
 	if(p_ti == NULL) {
 		if(r != OK) {
 			MyDisposeHandle((Handle*)&p_ti);
@@ -481,11 +484,9 @@ ENCODE:
 		continue;
 		}
 	else {
-	//	PlaySelectionOn++; // Fixed by BB 2021-02-17
-	//	if(!onlypianoroll) ResetMIDI(TRUE); Fixed by BB 2022-02-18
-	//		}
 		if(TRUE || NoVariable(&p_ti)) { // 2026-03-20
 NOVARIABLE:
+	//		BPPrintMessage(1,odInfo,"@@@ onlypianoroll = %d\n",onlypianoroll);
 			r = PlayBuffer(&p_ti,onlypianoroll);
 			}
 		else {

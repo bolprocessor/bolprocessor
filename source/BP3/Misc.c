@@ -152,7 +152,7 @@ return(OK);
 
 int Notify(char* message,int up) { // Doesn't work on Mac because of authorisations, although the code is correct: it works when calling bp with Terminal command
 	if(strcmp(message,"") == 0) return OK;
-    BPPrintMessage(1,odError,"👉 %s\n",message); // We use 'odError' so that it displays even in Improvize mode 
+    BPPrintMessage(1,odInfo,"👉 %s\n",message);
 	int timeout = 5;
     #if defined(_WIN64)
     if(up) MessageBox(NULL, message, "Alert", MB_OK | MB_ICONINFORMATION);

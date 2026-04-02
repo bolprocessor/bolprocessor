@@ -705,7 +705,7 @@ if(ShowPianoRoll) {
 		
 	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"key = %d chan = %d timeon = %ld timeoff = %ld minkey = %d maxkey = %d\n",key,chan,(long)timeon,(long)timeoff,minkey,maxkey);
 	DrawPianoNote("csound",key,chan,timeon,timeoff,leftoffset,topoffset,hrect,minkey,maxkey,p_graphrect);
-//	BPPrintMessage(0,odInfo," key #%d draw_line(%d,%d) p_r->left = %d\n",key,timeon,timeoff,p_graphrect->left);
+//	BPPrintMessage(1,odInfo," key #%d draw_line(%d,%d) p_r->left = %d\n",key,timeon,timeoff,p_graphrect->left);
 	}
 
 if(!OutCsound) {

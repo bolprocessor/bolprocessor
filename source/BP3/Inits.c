@@ -86,6 +86,7 @@ int Inits(void) {
 	NewOrchestra = TRUE;
 	ItemNumber = ZERO;
 	MaxItemsProduce = 20;
+	MaxItemsGraphic = 10;
 	AssignedTempoCsoundFile = FALSE;
 	MaxConsoleTime = 0; // No limit
 	Ratio = 0.;  Prod = 1.;

@@ -346,7 +346,7 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 	char b,c,*p,*q,**p_arg,newarg;
 
 	if(p_line == NULL) {
-		BPPrintMessage(0,odError,"=> ERROR: ExecScriptLine(). p_line = NULL");
+		BPPrintMessage(0,odError,"=> ExecScriptLine(). p_line = NULL\n");
 		return(OK);
 		}
 	if((*p_line)[0] == '\0') return(OK);

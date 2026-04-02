@@ -1848,7 +1848,7 @@ int AllNotesOffAllChannels(int verbose) {
 		return(OK);
 		}
 	if(verbose) 
-		BPPrintMessage(1,odInfo,"Sending AllNotesOff on all channels.\n➡ Check the MIDI out filter if it did not work!\n");
+		BPPrintMessage(1,odInfo,"Sending AllNotesOff on all channels\n➡ Check the MIDI out filter if it did not work!\n");
 	for(channel=0; channel < MAXCHAN; channel++) {
 		WaitABit(10); // Wait for 10 ms
 		midiData[0] = ControlChange + channel;
@@ -1869,7 +1869,7 @@ int AllControlsOffAllChannels(int verbose) {
 		return(OK);
 		}
 	if(verbose) 
-		BPPrintMessage(1,odInfo,"Resetting controls on all channels.\n➡ Check the MIDI out filter if it did not work!\n");
+		BPPrintMessage(1,odInfo,"Resetting controls on all channels\n➡ Check the MIDI out filter if it did not work!\n");
 	for(channel=0; channel < MAXCHAN; channel++) {
 		for(ii= 0; ii < 32; ii++) {
 			midiData[0] = ControlChange + channel;

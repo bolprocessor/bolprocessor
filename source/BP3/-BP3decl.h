@@ -47,7 +47,7 @@ extern int LoadedScript,PrototypesLoaded;
 extern int Jmessage;
 
 extern long GramSelStart,GramSelEnd;
-extern int LoadedAlphabet,LoadedStartString;
+extern int LoadedAlphabet,LoadedData;
 
 extern char **p_MessageMem[MAXMESSAGE],**p_HTMLchar1,**p_HTMLchar2,**p_HTMLdiacritical;
 extern MIDIstream Stream;
@@ -203,7 +203,7 @@ extern short Maxlevel,MaxFlag,MaxScript,PlayFromInsertionPoint,
 	KeepFlag,CoverOK,DiscontinuityOK,AllSolTimeSet,
 	LimCompute,LimTimeSet,SkipFlag,StackFlag,Port,Portbit,
 	MIDI;
-extern int MaxItemsProduce;
+extern int MaxItemsProduce,MaxItemsGraphic;
 extern int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,TraceMicrotonality,DisplayProduce,UseTimeLimit,
 	DisplayTimeSet,StepTimeSet,TraceProduce,UseEachSub,PlanProduce,TraceTimeSet,TraceNoteOn,ResetNotes;
 extern int InsertGramRuleNumbers, InsertGramCorrections, InsertNewBols;

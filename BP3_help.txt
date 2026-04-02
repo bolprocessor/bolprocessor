@@ -301,6 +301,13 @@ In "production", there are three derivation modes for rules in a "subgrammar":
 • RIGHT: the position of the derivation is the rightmost occurrence of the left argument
     of this rule;
 • If a "subgrammar" is of "LIN" type then all rules are applied in "LEFT" mode.
+### Rule weight
+• Each rule may be assigned a weight in the range 0..32767. These are used when there are multiple rules in the "RND", "LIN", "SUB" or "SUB1" grammars.
+• The weight value is indicated between angle brackets, e.g. <43>. The default weight is 127. A rule with a weight of 0 is inactive.
+• The probability of selecting a rule is the ratio of its weight to the sum of the weights of the eligible rules (whose left argument is found in the work string).
+• Weights in the range 0..127 can be set using MIDI controllers and parameters K1, K2, etc.
+• Weights can be infinite and are notated as <inf>. A rule with an infinite weight will always be included in the selected rules if its left argument is found in the work string.
+• Weights can be dynamically controlled: any rule can be given a positive or negative weight increment each time it is applied. For example, a rule with a weight of <100-30> will have successive weights of 100, 70, 40, 10 and 0 and therefore cannot be applied more than four times in the same production.
 ### Programmed grammars
 See "flags"
 ### Flags

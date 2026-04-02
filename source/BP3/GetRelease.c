@@ -94,7 +94,7 @@ if(ReleasePatternSpace() != OK) return(MISSED);
 if(init && (ReleaseScriptSpace() != OK)) return(MISSED);
 if(ReleaseConstants() != OK) return(MISSED);
 
-ItemNumber = 0L;
+ItemNumber = ZERO;
 ptr = (Handle) p_Initbuff;
 MyDisposeHandle(&ptr);
 p_Initbuff = NULL;

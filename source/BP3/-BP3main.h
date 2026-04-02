@@ -116,7 +116,7 @@ MIDIcontrolstatus **p_Oldvalue;
 char ****p_GramProcedure,****p_PerformanceControl,****p_GeneralMIDIpatch,
 	****p_Diacritical,****p_HTMLdiacrList;
 long MaxProc,MaxPerformanceControl;
-int LoadedAlphabet,LoadedStartString;
+int LoadedAlphabet,LoadedData;
 INscripttype** p_INscript;
 OUTscripttype** p_OUTscript;
 int StopPlay,PausePlay,TraceMIDIinteraction;
@@ -266,7 +266,7 @@ short Maxlevel,MaxFlag,MaxScript,Jscriptline,Final,POLYconvert,
 	KeepFlag,CoverOK,DiscontinuityOK,AllSolTimeSet,
 	LimCompute,LimTimeSet,SkipFlag,StackFlag,PlayFromInsertionPoint,
 	Port,Portbit,MIDI;
-int MaxItemsProduce;
+int MaxItemsProduce,MaxItemsGraphic;
 int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,TraceMicrotonality,DisplayProduce,TraceProduce,UseTimeLimit,
 	DisplayTimeSet,StepTimeSet,UseEachSub,PlanProduce,TraceTimeSet,TraceNoteOn,ResetNotes;
 int InsertGramRuleNumbers, InsertGramCorrections, InsertNewBols;

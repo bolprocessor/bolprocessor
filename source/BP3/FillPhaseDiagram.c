@@ -1730,7 +1730,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					else BPPrintMessage(1,odError," in chunk #%d\n",Chunk_number);
 					}
 				}
-			else if(!PlayChunks && !Improvize) BPPrintMessage(1,odError,"Correction of the duration = %.3f: no problem\n",CorrectionFactor);
+			else if(!PlayChunks && !Improvize) BPPrintMessage(1,odInfo,"Correction of the duration = %.3f: no problem\n",CorrectionFactor);
 			}
 		if(trace_diagram || trace_toofast) {
 			BPPrintMessage(1,odInfo,"Correction factor = %.3f Ratio = %.0f Pduration = %ld Qduration = %ld Kpress = %ld imax = %ld\n",(float)CorrectionFactor,(float)Ratio,(long)Pduration,(long)Qduration,(long)Kpress,(long)imax);
@@ -1894,15 +1894,15 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 
 	if((result=stop(0,"FillPhaseDiagram")) != OK) return(result);
 
-	if(!foundobject && ShowGraphic && !ShowObjectGraph && !ShowPianoRoll && !ScriptExecOn && Jbol < 3
+	/* if(!foundobject && ShowGraphic && !ShowObjectGraph && !ShowPianoRoll && !ScriptExecOn && Jbol < 3
 			&& Jpatt == 0 && ((*p_numberobjects) > 30) && !ToldAboutPianoRoll) {
 		ToldAboutPianoRoll = TRUE;
 		ShowPianoRoll = TRUE;
 		BPPrintMessage(0,odInfo,"This project doesn't require sound-objects. We'll use piano roll display\n");
-		}
+		} */
 
-	if(ShowGraphic && !ShowObjectGraph && !ShowPianoRoll)
-		ShowObjectGraph = TRUE;
+	/* if(ShowGraphic && !ShowObjectGraph && !ShowPianoRoll)
+		ShowObjectGraph = TRUE; */
 		
 	if(trace_diagram || trace_toofast) BPPrintMessage(1,odInfo, "Finished filling phase diagram\n");
 	return(OK);

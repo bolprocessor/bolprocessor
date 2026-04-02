@@ -6,6 +6,14 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+2026-04-02 (version 3.3.19)
+Many small changes have been made to deal more precisely with the "max items produced" parameter. Consistency is required for comparative tests in the WebAssembly environment.
+The "max items displayed" setting in the interface also allows you to indicate the maximum number of items that can be shown in images. Previously, this value was fixed at 10.
+A problem with changing the start string (on grammar.php) has been fixed.
+Don't forget to update the PHP interface:
+https://github.com/bolprocessor/php-frontend/
+
+-----
 2026-03-26 (version 3.3.18)
 1) The console can now be called with shorter commands that do not declare a trace folder. In this case, neither a trace file nor an image is produced.
 For instance, you can use the following command line:

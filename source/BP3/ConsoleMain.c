@@ -69,7 +69,7 @@ void extract_and_append(char*,char*);
 
 // globals only for the console app
 int LoadedAlphabet = FALSE;
-int LoadedStartString = FALSE;
+int LoadedData = FALSE;
 // BPConsoleOpts gOptions;
 FILE * imagePtr;
 FILE * outPtr;
@@ -185,7 +185,7 @@ int main (int argc, char* args[]) {
 	SessionTime = clock();
 	if(!gOptions.seedProvided) ReseedOrShuffle(NEWSEED);
 
-	if(!LoadedStartString)  CopyStringToTextHandle(TEH[wStartString],"S\n");
+	CopyStringToTextHandle(TEH[wStartString],"S\n");
 
 	result = PrepareProdItemsDestination(&gOptions);
 	if(result == OK) result = PrepareTraceDestination(&gOptions);
@@ -197,6 +197,11 @@ int main (int argc, char* args[]) {
 				if(result != OK)  BPPrintMessage(0,odError,"=> CompileCheck() returned errors\n");
 				break;
 			case produce:
+				if(LoadedData) {
+					TEH[wStartString] = TEH[wData];
+				//	result = ProduceItems(wData,FALSE,FALSE,NULL);
+					BPPrintMessage(1,odInfo,"Using the specified start string\n");
+					}
 				result = ProduceItems(wStartString,FALSE,FALSE,NULL);
 				break;
 			case produce_items:
@@ -460,7 +465,7 @@ int stop(int now,char* where) {
 	ptr = my_fopen(0,StopfileName,"r");
 	if(ptr) {
 		Improvize = PlayAllChunks = FALSE;
-		my_sprintf(Message,"Found 'stop' file (during “%s”): %s\n",where,StopfileName);
+		my_sprintf(Message,"Found 'stop' file (during “%s”): %s",where,StopfileName);
         Notify(Message,0);
         strcpy(Message,"");
 		Panic = EmergencyExit = TRUE;
@@ -527,7 +532,7 @@ void CreateImageFile(double time) {
 		}
 	imageHits = 0;
 	N_image++;
-	BPPrintMessage(0,odInfo,"N_image = %d\n",N_image);
+//	BPPrintMessage(0,odInfo,"N_image = %d\n",N_image);
 	if(gOptions.outputFiles[ofiTraceFile].name == NULL) {
 		BPPrintMessage(0,odInfo,"=> Cannot create image file because no path is specified and trace mode is not active\n");
 		N_image = 0;
@@ -1266,8 +1271,12 @@ int LoadInputFiles(const char* pathnames[WMAX]) {
 						return result;
 						}
 					switch(w) {
-						case wAlphabet:			LoadedAlphabet = TRUE; break;
-						case wStartString:		LoadedStartString = TRUE; break;
+						case wAlphabet:
+							LoadedAlphabet = TRUE;
+							break;
+						case wData:
+							LoadedData = TRUE;
+							break;
 			//			case wGlossary:			LoadedGl = TRUE; break;
 						}
 					break;

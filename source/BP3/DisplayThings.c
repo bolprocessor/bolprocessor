@@ -39,7 +39,7 @@
 #include "-BP3decl.h"
 
 int trace_display = 0;
-int check_context = 1;
+int check_context = 0;
 
 int Print(int w,char* t) {
 	long length;
@@ -708,6 +708,22 @@ ShowSelect(CENTRE,wTrace);
 return(OK);
 }
 
+int BalancedPoly(tokenbyte ***pp_a) {
+	tokenbyte m,p;
+	int level,empty;
+	long i;
+	level = 0;
+	empty = 1;
+	for(i=0; ; i+=2) {
+		m = (**pp_a)[i]; p = (**pp_a)[i+1];
+		if(m == TEND && p == TEND) break;
+		if(m == T0 && p == 12) level++;
+		if(m == T0 && p == 13) level--;
+		if(m == T3 || m == T4) empty = 0; // We check that there is at least a variable or a terminal
+		}
+	if(level == 0 && !empty) return TRUE;
+	return FALSE;
+	}
 
 int DisplayMode(tokenbyte ***pp_a,int *p_ifunc,int *p_hastabs) {
 	int datamode,setting_section,founddigit;

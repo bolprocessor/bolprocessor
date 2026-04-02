@@ -68,10 +68,12 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	unsigned char c;
 	p_list **waitlist;
 
-    if(!ShowGraphic) return OK;
+	// BPPrintMessage(1,odInfo,"@ DrawItem() ItemNumber = %ld, MaxItemsProduce = %d\n",ItemNumber,MaxItemsProduce);
+    if(!ShowGraphic || (!rtMIDI && ((MaxItemsProduce > 0) && (ItemNumber > MaxItemsProduce)))) {
+		return OK;
+		}
 	if(!ShowObjectGraph) return(OK);
-	// BPPrintMessage(0,odInfo,"Creating image %d based on objects\n",N_image);
-
+	// BPPrintMessage(1,odInfo,"Creating image %d based on objects\n",N_image);
 	if(tmin == Infpos) {
 		BPPrintMessage(0,odError,"=> Err. DrawObject(). tmin == Infpos\n");
 		return(OK);
@@ -112,7 +114,8 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	r.left = 0;
 	endxmax = leftoffset + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10
 		+ BOLSIZE * 10;
-	if(trace_graphic) BPPrintMessage(0,odInfo,"GraphicScaleP = %d GraphicScaleQ = %d tmin = %d tmax =%d endxmax = %d\n",GraphicScaleP,GraphicScaleQ,tmin,tmax,endxmax);
+	if(trace_graphic) 
+		BPPrintMessage(1,odInfo,"GraphicScaleP = %d GraphicScaleQ = %d tmin = %d tmax =%d endxmax = %d\n",GraphicScaleP,GraphicScaleQ,tmin,tmax,endxmax);
 	if(endxmax < 100) endxmax = 100;
 
 	if(WidthMax < 32000) WidthMax = 2 * endxmax + 40;
@@ -137,20 +140,21 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	// if(0 < Vmin[w]) Vmin[w] = 0;
 	Hmin[w] = 0;
 	Vmin[w] = 0;
-	if(trace_graphic) BPPrintMessage(0,odInfo,"\ntopoffset = %ld nmax = %d maxlines = %d\n",(long)topoffset,nmax,maxlines);
+	if(trace_graphic) 
+		BPPrintMessage(1,odInfo,"\ntopoffset = %ld nmax = %d maxlines = %d\n",(long)topoffset,nmax,maxlines);
 	for(nseq = nmin; nseq <= nmax; nseq++) {
-		if(trace_graphic) BPPrintMessage(0,odInfo,"\nnseq = %d\n",nseq);
+		if(trace_graphic) BPPrintMessage(1,odInfo,"\nnseq = %d\n",nseq);
 		foundone = FALSE;
 		for(i=ZERO; i < (*p_imaxseq)[nseq] && i <= imax; i++) { // Fixed by BB 2021-03-20
 			k = (*((*p_Seq)[nseq]))[i];
 			if(trace_graphic) {
-				if(k > 0) BPPrintMessage(0,odInfo,"k = %d \n",k);
+				if(k > 0) BPPrintMessage(1,odInfo,"k = %d \n",k);
 			//	else BPPrintMessage(0,odInfo,"_");
 				}
 			if(k < 0) BPPrintMessage(0,odError,"=> Err. 'k' in DrawItem(): nseq = %ld, i = %ld, k = %ld\n",(long)nseq,(long)i,(long)k);
 			if(k < 2) continue;	/* Reject '_' and '-' */
 			if(kmode) {
-				if(trace_graphic) BPPrintMessage(0,odInfo,"kmode = TRUE\n");
+				if(trace_graphic) BPPrintMessage(1,odInfo,"kmode = TRUE\n");
 				if(p_object == NULL) {
 					BPPrintMessage(0,odError,"=> Err. DrawObject(). p_object == NULL\n");
 					return(ABORT);
@@ -1061,7 +1065,6 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 		if(Improvize || PlayAllChunks) shift = (double) PianorollShift;
 		}
 	if(strcmp(type,"pianoroll") != 0 && (Improvize || PlayAllChunks) && (ShowPianoRoll))
-//	if(strcmp(type,"pianoroll") != 0 && (Improvize || PlayAllChunks) && (ShowPianoRoll || !rtMIDI))
 	// ShowPianoRoll, because if no pianoroll has been drawn, the value of shift is incorrect.
 		CreateImageFile(shift/1000.);
 	else CreateImageFile(-1.);  // Later we can use it
@@ -1235,14 +1238,13 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 		return(OK);
 		}
 	// if(stop(0,"DrawPianoNote") != OK) return(ABORT);
-	if((rtMIDI || WriteMIDIfile || OutCsound || OutBPdata) && !Create_set) {
+	if((rtMIDI || WriteMIDIfile || OutCsound) && !Create_set) {
 		timeon -= PianorollShift;
-		timeoff -= PianorollShift;	
+		timeoff -= PianorollShift;
+	//	if(ItemNumber < 2) BPPrintMessage(1,odInfo,"@ key = %d, timeon = %ld, timeoff = %ld\n",key,(long)timeon,(long)timeoff);
 		}
 	else if(Create_set || DisplayItems) {
-/*		timeon -= 600L;
-		timeoff -= 600L; */
-		timeon -= MIDIsetUpTime; // 2025-10-24
+		timeon -= MIDIsetUpTime;
 		timeoff -= MIDIsetUpTime;
 		}
 	timeon = Round(((double)timeon * GraphicScaleP) / GraphicScaleQ / 10.);

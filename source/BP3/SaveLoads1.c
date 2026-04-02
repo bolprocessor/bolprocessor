@@ -635,6 +635,7 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"Qclock") == 0) Qclock = (double) intvalue;
 		else if(strcmp(key,"Improvize") == 0) Improvize = intvalue;
 		else if(strcmp(key,"MaxItemsProduce") == 0) MaxItemsProduce = intvalue;
+		else if(strcmp(key,"MaxItemsGraphic") == 0) MaxItemsGraphic = intvalue;
 		else if(strcmp(key,"UseEachSub") == 0) UseEachSub = intvalue;
 		else if(strcmp(key,"AllItems") == 0) AllItems = intvalue;
 		else if(strcmp(key,"DisplayProduce") == 0) DisplayProduce = intvalue;
@@ -752,12 +753,13 @@ int LoadSettings(const char *filename, int startup) {
 		}
 	if(!Quantize) MaxDeltaTime = 20L;
 	else MaxDeltaTime = 2 * Quantization;
-	if(MaxItemsProduce < 2) MaxItemsProduce = 20;
+	if(MaxItemsProduce < 1) MaxItemsProduce = 1;
+	if(MaxItemsGraphic < 1) MaxItemsGraphic = 1;
 	if(PlaySelectionOn) Improvize = FALSE;
 	if(AllItems) Improvize = FALSE;
 	if(ShowObjectGraph || ShowPianoRoll) ShowGraphic = TRUE;
-	if(OutBPdata) ShowGraphic = FALSE;
-	if(!ShowGraphic) ShowObjectGraph = ShowPianoRoll = FALSE;
+//	if(OutBPdata) ShowGraphic = FALSE;
+//	if(!ShowGraphic) ShowObjectGraph = ShowPianoRoll = FALSE;
 	if(ShowPianoRoll) BPPrintMessage(0,odInfo,"Pianoroll graphics will be displayed\n");
 	if(ShowObjectGraph) BPPrintMessage(0,odInfo,"Object graphics will be displayed\n");
 	BPPrintMessage(0,odInfo,"Metronome will be %.3f beats/mn by default (as per settings)\n",(Qclock * 60.)/Pclock); 

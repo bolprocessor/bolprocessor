@@ -50,8 +50,8 @@ unsigned long time_end_compute;
 
 ComputeOn++;
 // BPPrintMessage(1,odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
-if(Improvize && ItemNumber == 0) {
-	ShowMessage(TRUE,wMessage,"\n👉 Most of the messages will be discarded during the improvisation\n");
+if(Improvize && ItemNumber == 0 && !WriteMIDIfile) {
+	 BPPrintMessage(1,odInfo,"\n👉 Most of the messages will be discarded during the improvisation\n");
 	if(!rtMIDI) BPPrintMessage(1,odInfo,"Only %ld items will be produced.\n",MaxItemsProduce);
 	}
 
@@ -197,20 +197,23 @@ if(!PlaySelectionOn && DisplayProduce) {
 	Print(wTrace,"\n");
 	}
 if(Improvize) {
-	if(!rtMIDI && ItemNumber > MaxItemsProduce) {
-		BPPrintMessage(0,odInfo,"%ld items have been produced.\n",(long)ItemNumber);
+	if(!rtMIDI && (MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) {
+//		BPPrintMessage(1,odInfo,"👉 %ld items have been produced. We stop improvizing...\n",(long)(ItemNumber - 1L));
 		Improvize =  FALSE;
 		r = ABORT;
 		goto QUIT;
 		}
 	if(rtMIDI) {
-		if(ItemNumber > 10) ShowGraphic = ShowPianoRoll = FALSE;
-	//	if(ItemNumber >= 20 || (r=ListenToEvents()) == ABORT) {
+	//	ItemNumber++;
+		if(ItemNumber >= MaxItemsGraphic) {
+			if(ShowObjectGraph || ShowPianoRoll) BPPrintMessage(1,odInfo,"👉 Stopped producing graphics after %ld items.\n",(ItemNumber));
+			ShowPianoRoll = ShowObjectGraph = FALSE;
+			// Do not reset ShowGraphic so that the last image will be finalised
+			}
 		if((r=ListenToEvents()) == ABORT) {
 			Improvize = FALSE;
-			BPPrintMessage(0,odInfo,"%ld items have been produced.\n",(long)ItemNumber);
-			if(r == ABORT) BPPrintMessage(0,odInfo,"Production has been canceled by user.\n");
-			r = ABORT;
+			BPPrintMessage(1,odInfo,"%ld items have been produced.\n",(long)ItemNumber);
+			BPPrintMessage(1,odInfo,"Production has been canceled by user.\n");
 			goto QUIT;
 			}
 		}
@@ -276,11 +279,24 @@ ResetDone = ifunc = FALSE;
 OkShowExpand = FALSE;
 SplitTimeObjects = splitmem;
 if(!PlaySelectionOn && Improvize) {
-	my_sprintf(Message,"Item #%ld\n",(long)(ItemNumber + 1L));
-	FlashInfo(Message);
 	if(!rtMIDI && !template && Improvize)
 		BPPrintMessage(1,odInfo,Message);
-	ItemNumber++; // Needs to bee checked. Sometimes only 5 items created in improvize mode.
+	if(!WriteMIDIfile && !rtMIDI && !OutCsound) {
+		ItemNumber++;
+		if((MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) {
+			if(!OutBPdata) BPPrintMessage(1,odInfo,"👉 %ld items have been produced\n",(long)(ItemNumber - 1L));
+			ShowPianoRoll = ShowObjectGraph = FALSE;
+			// Do not reset ShowGraphic so that the last image will be finalised
+			Improvize = FALSE;
+			r = OK;
+			goto QUIT;
+			}
+		}
+	else if(rtMIDI && !WriteMIDIfile && !OutCsound) ItemNumber++;
+/*	else {
+		my_sprintf(Message,"Item #%ld\n",(long)(ItemNumber + 1L));
+		FlashInfo(Message);
+		} */
 	if(SkipFlag) goto MAKE;
 	if(!PlaySelectionOn && DisplayItems) {
 		if(NumberCharsData < MAXCHARDATA) {
@@ -291,7 +307,7 @@ if(!PlaySelectionOn && Improvize) {
 			}
 		}
 	if((rtMIDI || OutCsound || WriteMIDIfile || OutBPdata)
-		&& ((r=PlayBuffer(pp_a,NO)) == ABORT || r == EXIT)) goto QUIT;
+		&& ((r = PlayBuffer(pp_a,NO)) == ABORT || r == EXIT)) goto QUIT;
 	if(ChangedGrammar || ChangedSettings) {
 	//	if(TraceLive && ChangedGrammar) BPPrintMessage(1,odInfo,"Changed grammar\n");
 		ChangedGrammar = ChangedSettings = FALSE;
@@ -734,7 +750,7 @@ END:
 int AllFollowingItems(t_gram *p_gram,tokenbyte ***pp_a,long ****p_weight,long ****p_flag,
 	long *p_length,int igram,int irul,int irep,int all,int template,int endgram,tokenbyte ****p_stack,
 	int *p_depth,long *p_maxdepth,int mode,unsigned long time_end_compute) {
-	int icandidate,r,w,repeat,changed,grtype,nrep,old_gram,old_rul,new_gram,new_rul;
+	int icandidate,r,w,repeat,changed,grtype,nrep,old_gram,old_rul,new_gram,new_rul,force;
 	static int try_number = 1;
 	long leftpos,lastpos,incmark,new_pos;
 	long ipos = ZERO;
@@ -765,7 +781,10 @@ NEXTPOS:
 	if(trace_produce_all) BPPrintMessage(1,odInfo,"\n%d) NextDerivation igram = %d irul = %d icandidate = %d ipos = %d, irep = %d\n",try_number,igram,irul,icandidate,ipos,irep);
 	if((r = NextDerivation(pp_a,p_length,&igram,&irul,&ipos,&icandidate,mode,time_end_compute)) == OK) {
 		if(trace_produce_all) BPPrintMessage(1,odInfo,"PUSH %d\n",(*p_depth));
-		if(igram > endgram) goto END;
+		if(igram > endgram) {
+			force = FALSE;
+			goto END;
+			}
 		if(PushStack(pp_a,&p_weight,&p_flag,p_length,&p_stack,p_depth,p_maxdepth) != OK) return ABORT;
 		grtype = ORDtype;
 		repeat = TRUE;	// This forces imode to 1 in Insert()
@@ -826,8 +845,9 @@ NEXTPOS:
 		ipos += 2L;
 		goto NEXTPOS;
 		}
+	force = FALSE;
 END:
-	CheckItemProduced(p_gram,old_gram,pp_a,p_length,template,mode);
+	CheckItemProduced(p_gram,old_gram,pp_a,p_length,template,mode,force);
 	// Look for '_failed'				
 	if(old_gram > 0 && (igram = (*((*(p_gram->p_subgram))[old_gram].p_rule))[old_rul].failedgram) > 0) {
 		irul = (*((*(p_gram->p_subgram))[old_gram].p_rule))[old_rul].failedrule;
@@ -1777,14 +1797,14 @@ QUIT:
 
 
 int CheckItemProduced(t_gram *p_gram,int igram,tokenbyte ***pp_a,long *p_length,
-	int template,int mode)  {
+	int template,int mode,int force)  {
 	int j,sign,result,r,datamode,ifunc,hastabs;
 	unsigned long i,imax;
 	long count;
 	OSErr io;
 	char c,buffer[2];
 	result = OK;
-	if(NoVariable(pp_a)) {
+	if(force || NoVariable(pp_a)) {
 		datamode = DisplayMode(pp_a,&ifunc,&hastabs);
 		/* if(datamode && !ifunc && !template) {
 			if((result=PolyMake(pp_a,&maxseqapprox)) == ABORT || result == EXIT) {
@@ -1803,7 +1823,7 @@ int CheckItemProduced(t_gram *p_gram,int igram,tokenbyte ***pp_a,long *p_length,
 				if((result=Destroy(pp_a)) != OK) goto END;
 				}
 			(*p_length) = LengthOf(pp_a);
-			if((result=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto END;
+			if((result = PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto END;
 			Print(OutputWindow,"\n");
 			r = check_and_remove_duplicate_last_line(OutFileName);
 			if(trace_produce_all) BPPrintMessage(1,odInfo,"???\n");
@@ -1811,11 +1831,13 @@ int CheckItemProduced(t_gram *p_gram,int igram,tokenbyte ***pp_a,long *p_length,
 				ItemNumber++;
 				if(trace_produce_all) BPPrintMessage(1,odInfo,"*** %d\n",ItemNumber);
 				if(!template && (rtMIDI || OutCsound || WriteMIDIfile)) {
-					if(trace_produce_all) BPPrintMessage(1,odInfo,"Play #%d\n",ItemNumber);
+				if(trace_produce_all) 
+					BPPrintMessage(1,odInfo,"Play #%d\n",ItemNumber);
 					result = PlayBuffer(pp_a,NO);
+
 					}
 				}
-			if(ItemNumber >= MaxItemsProduce) {
+			if(ItemNumber > MaxItemsProduce) {
 				BPPrintMessage(0,odInfo,"%ld items have been produced, as per the limit in settings.\n",(long)ItemNumber);
 				result = ABORT;
 				goto END;

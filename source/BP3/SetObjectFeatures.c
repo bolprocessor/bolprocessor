@@ -1508,15 +1508,19 @@ double FindValue(tokenbyte m,tokenbyte p,int chan) {
 		if(PitchbendRange[chan] > 0)
 			x = DEFTPITCHBEND + ((double) x * DEFTPITCHBEND / (double) PitchbendRange[chan]);
 		if(trace_set_variation) BPPrintMessage(0,odInfo,"Pitchbend x = %ld, xx = %ld, range = %ld\n",(long)x,(long)xx,(long)PitchbendRange[chan]);
+		if(x == 16384) x = 16383;
 		if(x < 0 || x > 16383) {
 			if(PitchbendRange[chan] > 0)
 				my_sprintf(Message,"=> Pitchbend value (%ld cents) on channel %ld out of range (-%ld..%ld cents)",
 					(long)xx,(long)chan,(long)PitchbendRange[chan],(long)PitchbendRange[chan]);
 			else
-				my_sprintf(Message,"=> Pitchbend value (%ld) on channel %ld out of range (0..16383)",
+				my_sprintf(Message,"=> Pitchbend value (%ld) on channel %ld out of range (0..16384)",
 					(long)xx,(long)chan);
-			BPPrintMessage(0,odError,"%s",Message);
-			return(Infpos);
+			BPPrintMessage(0,odError,"%s\n",Message);
+			if(x < 0) x = 0;
+			if(x >= 16384) x = 16383;
+			return(x);
+//			return(Infpos);
 			}
 		}
 	return(x);

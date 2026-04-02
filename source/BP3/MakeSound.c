@@ -120,6 +120,14 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 		BPPrintMessage(0,odInfo, "=> Cancelling MakeSound()\n");
 		return(OK);
 		}
+	if(WriteMIDIfile || OutCsound) {
+		ItemNumber++;
+	//	BPPrintMessage(1,odInfo,"👉 %ld !!!\n",(long)ItemNumber);
+		if((MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) {
+			if(ItemNumber == (MaxItemsProduce + 1L)) BPPrintMessage(1,odInfo,"👉 %ld items have been produced\n",(long)(ItemNumber - 1L));
+			return(OK);
+			}
+		}
 	interruptedonce = overflow = FALSE;
 	rs = 0;
 	resetok = TRUE;
@@ -127,7 +135,6 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 
 	if(MIDIfileOn) {
 		BPPrintMessage(0,odInfo,"👉 a MIDI file will be created\n");
-		ItemNumber++;
 		}
 
 	Ke = log((double) SpeedRange) / 64.;
@@ -341,6 +348,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	SoundOn = TRUE;
 
 	if(showpianoroll) {
+//		BPPrintMessage(1,odInfo,"@@@ ItemNumber = %ld / %d\n",ItemNumber,MaxItemsProduce);
 		minkey = 127; maxkey = 0;
 		tmax = ZERO;
 		for(k=2; k <= (*p_kmax); k++) {
@@ -464,8 +472,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 		if(computetime > MaxComputeTime) MaxComputeTime = computetime;
 		}
 	else computetime = ZERO;
-	if(!MIDIfileOn && !cswrite && rtMIDI && !ItemCapture && !FirstTime && !PlayPrototypeOn
-			&& !showpianoroll) {
+	if(!MIDIfileOn && !cswrite && rtMIDI && !ItemCapture && !FirstTime && !PlayPrototypeOn && !showpianoroll) {
 		if(OkWait && SynchronizeStart) {
 			// SynchronizeStart is no longer used
 			}
@@ -714,13 +721,13 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 		//	BPPrintMessage(1,odInfo,"(Tcurr * Time_res) = %ld ms, LastTime = %ld ms, currenttime = %ld ms\n",(long)Tcurr * Time_res,(long)LastTime,(long)currenttime);
 			Tcurr = LastTime / Time_res; // 2024-05-02
 			t0 = Tcurr * Time_res;
-			// BPPrintMessage(0,odInfo,"PianorollShift = %ld\n",(long)PianorollShift);
+			// BPPrintMessage(1,odInfo,"PianorollShift(1) = %ld\n",(long)PianorollShift);
 			}
 		else {
 			Tcurr = (t0 + t1) / Time_res;
 			if(MIDIfileOn || rtMIDI) {
 				PianorollShift = MIDIsetUpTime;
-		//		BPPrintMessage(1,odInfo,"PianorollShift = %ld\n",(long)PianorollShift);
+				// BPPrintMessage(1,odInfo,"PianorollShift(2) = %ld\n",(long)PianorollShift);
 				}
 			}
 		
@@ -1435,9 +1442,11 @@ SENDNOTEOFF:
 				j,nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT) goto OVER;
 										}
 									if(showpianoroll) {
-										if(trace_csound_pianoroll) BPPrintMessage(0,odInfo,"* DrawPianoNote(1) start = %ld end = %ld leftoffset = %ld nseq = %d\n",(*p_last_timeon[localchan])[c1],(t0 + t1),leftoffset,nseq);
+										if(trace_csound_pianoroll) 
+											BPPrintMessage(1,odInfo,"* DrawPianoNote(1) start = %ld end = %ld leftoffset = %ld nseq = %d\n",(*p_last_timeon[localchan])[c1],(t0 + t1),leftoffset,nseq);
 										result = OK;
-										result = DrawPianoNote("midi",c1,localchan,(*p_last_timeon[localchan])[c1],(t0 + t1),leftoffset,topoffset,hrect,minkey,maxkey,&graphrect);
+										if(!cswrite) // 2026-03-31
+											result = DrawPianoNote("midi",c1,localchan,(*p_last_timeon[localchan])[c1],(t0 + t1),leftoffset,topoffset,hrect,minkey,maxkey,&graphrect);
 										(*p_last_timeon[localchan])[c1] = 0L;
 										if(result != OK || overflow) goto OVER;
 										}
@@ -1487,10 +1496,9 @@ SENDNOTEOFF:
 											if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 											}
 										if(showpianoroll) {
-											if(trace_csound_pianoroll) BPPrintMessage(0,odInfo,"* DrawPianoNote(2) start = %ld end = %ld leftoffset = %ld nseq = %d\n",(*p_last_timeon[localchan])[c1],(t0 + t1),leftoffset,nseq);
-											result = DrawPianoNote("midi",c1,localchan,(*p_last_timeon[localchan])[c1],(t0 + t1),
-												leftoffset,topoffset,hrect,
-												minkey,maxkey,&graphrect);
+											if(trace_csound_pianoroll)
+												BPPrintMessage(1,odInfo,"* DrawPianoNote(2) start = %ld end = %ld leftoffset = %ld nseq = %d\n",(*p_last_timeon[localchan])[c1],(t0 + t1),leftoffset,nseq);
+											result = DrawPianoNote("midi",c1,localchan,(*p_last_timeon[localchan])[c1],(t0 + t1),leftoffset,topoffset,hrect,minkey,maxkey,&graphrect);
 											if(result != OK || overflow) goto OVER;
 											}
 										}
@@ -1530,10 +1538,11 @@ SENDNOTEOFF:
 					j,nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT) goto OVER;
 										}
 									if(showpianoroll) { // Fixed by BB 4 Nov 2020
-										if(trace_csound_pianoroll) BPPrintMessage(0,odInfo,"* DrawPianoNote(3) start = %ld end = %ld leftoffset = %ld nseq = %d\n",(*p_last_timeon[localchan])[c1],(t0 + t1),leftoffset,nseq);
-										result = DrawPianoNote("midi",c1,localchan,(*p_last_timeon[localchan])[c1],
-										(t0 + t1),leftoffset,topoffset,hrect,
-											minkey,maxkey,&graphrect);
+										if(trace_csound_pianoroll) 
+											BPPrintMessage(1,odInfo,"* DrawPianoNote(3) start = %ld end = %ld leftoffset = %ld nseq = %d\n",(*p_last_timeon[localchan])[c1],(t0 + t1),leftoffset,nseq);
+										result = OK;
+										if(!cswrite)  // 2026-03-31
+											result = DrawPianoNote("midi",c1,localchan,(*p_last_timeon[localchan])[c1],(t0 + t1),leftoffset,topoffset,hrect,minkey,maxkey,&graphrect);
 										if(result != OK || overflow) goto OVER;
 										}
 									(*((*pp_currentparams)[nseq]))->starttime[c1] = (t0 + t1) / 1000.;
@@ -1727,8 +1736,8 @@ FINDNEXTEVENT:
 		// Display in pianoroll all notes contained in Csound score, even if not creating Csound output
 	//	if(false && !cswrite && showpianoroll) {
 		if(showpianoroll) {
-			// This has been inactivated because (1) it doesn't seem useful and (2) it makes a few errors in timing notes within sound-objects, e.g. -gr.koto3. Needs to be revised once we have real-time Csound output
-		//	BPPrintMessage(0,odInfo,"\nDisplay in pianoroll all notes contained in Csound scores\n");
+			// Needs to be revised once we have real-time Csound output
+	//		BPPrintMessage(1,odInfo,"\nDisplay in pianoroll all notes contained in Csound scores\n");
 			for(k=2; k <= (*p_kmax); k++) {
 				j = (*p_Instance)[k].object;
 				if(j < 1) continue;
@@ -1812,7 +1821,7 @@ OVER:
 		result = OK;
 		}
 	if(result == ABORT) {
-		BPPrintMessage(0,odError,"Stopped playing\n");
+		BPPrintMessage(0,odError,"(Stopped playing)\n");
 		goto GETOUT;
 		}
 
