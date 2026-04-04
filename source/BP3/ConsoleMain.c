@@ -557,10 +557,12 @@ void CreateImageFile(double time) {
 	strcpy(imageFileName,new_thefile);
     getcwd(cwd,sizeof(cwd));
     convert_path(cwd);
+	size_t len = strlen(cwd);
+	if(len < 4 || strcmp(cwd + len - 4, "/php") != 0) strcat(cwd,"/php");
     if(strlen(cwd) > 259) BPPrintMessage(0,odError,"=> Warning: this path might be too long: %s\n",cwd);
-  //  BPPrintMessage(0,odInfo,"cwd = %s\n",cwd);
+//  	BPPrintMessage(1,odInfo,"cwd = %s\n",cwd);
     my_sprintf(line1,"%s/CANVAS_header.txt",cwd);
-   // BPPrintMessage(0,odInfo,"Reading %s\n",line1);
+//   	BPPrintMessage(1,odInfo,"Reading %s\n",line1);
 	thisfile = my_fopen(1,line1,"r");
 	if(thisfile == NULL) {
 		BPPrintMessage(0,odError,"=> %s is missing!\n",line1);
@@ -608,6 +610,8 @@ int EndImageFile(void) {
 	imageHits = 0;
     getcwd(cwd,sizeof(cwd));
     convert_path(cwd);
+	size_t len = strlen(cwd);
+	if(len < 4 || strcmp(cwd + len - 4, "/php") != 0) strcat(cwd,"/php");
     my_sprintf(line,"%s/CANVAS_footer.txt",cwd);
 	thisfile = my_fopen(1,line,"r");
 	if(thisfile == NULL) {
@@ -741,34 +745,35 @@ const char gOptionList[] =
 	"  --short-version  print just the version number\n"
 	"\n"
 	"ACTIONS:  Specify which operation to perform.  They are case-insensitive.\n"
-	"  produce          produce one item from the grammar\n"
-	"  produce-items N  produce N items from the grammar\n"
-	"  produce-all      produce all items from the grammar\n"
+	"  produce:          produce item(s) from the grammar using 'S' as a startup string\n"
+	"  produce [-da fname]:          produce item(s) from the grammar using data in file 'fname' as a startup string\n"
+	"  produce-all:      produce all items from the grammar using 'S' as a startup string\n"
+	"  produce-all [-da fname]:      produce all items from the grammar using data in file 'fname' as a startup string\n"
     "\n"
-	"  play             play item in the input data file\n"
-	"  play-item N      play the Nth item in the input data file\n"
-	"  play-all         play all items in the input data file\n"
-	"  analyze-item N   analyze the Nth item's derivation using the grammar\n"
-	"  expand           expand item in the input data file to a complete polymetric expression\n"
-	"  show-beats N     display the Nth item using periods to show the beats\n"
+	"  play:            play all items in the input data file\n"
+	"  play-item N:      play the Nth item in the input data file (not implemented)\n"
+/*	"  play-all:         play all items in the input data file\n" */
+	"  analyze:   analyze item in the input data file using the grammar\n"
+/*	"  analyze-item N:   analyze the Nth item's derivation using the grammar\n" */
+	"  expand:           expand item in the input data file to a complete polymetric expression\n"
+/*	"  show-beats N:     display the Nth item using periods to show the beats\n" */
 	"\n"
-	"  compile          check the syntax of input files and }ort errors\n"
-	"  templates        produce templates from the grammar\n" 
+	"  compile:          check the syntax of input files and }ort errors\n"
+	"  templates:        produce templates from the grammar\n" 
 	"\n"
 	"FILE-TYPES: Input files are automatically recognized if they use BP's naming\n"
-	"            conventions (either prefixes or extensions).  Otherwise, specify\n"
-	"            the type of input files with the following markers.\n"
+	"            conventions (either prefixes or extensions).\n"
 	"\n"
-	"  These file types can currently be loaded and used:\n"
+	"  The following file types can currently be loaded and used. Paths and names are given in 'fname':\n"
 	"\n"
-	"  -da fname        load data file 'fname'\n"
-	"  -gl fname        load glossary file 'fname'\n"
-	"  -gr fname        load grammar file 'fname'\n"
-	"  -to fname        load tonality file 'fname'\n"
-	"  -al fname        load alphabet file 'fname'\n"
-	"  -se fname        load settings file 'fname'\n"
-	"  -so fname        load sound-object prototypes file 'fname'\n"
-	"  -cs fname        load Csound instrument definitions file 'fname'\n"
+	"  -da fname:        load data file 'fname'\n"
+/*	"  -gl fname:        load glossary file 'fname'\n" */
+	"  -gr fname:        load grammar file 'fname'\n"
+	"  -to fname:        load tonality file 'fname'\n"
+	"  -al fname:        load alphabet file 'fname'\n"
+	"  -se fname:        load settings file 'fname'\n"
+	"  -so fname:        load sound-object prototypes file 'fname'\n"
+	"  -cs fname:        load Csound instrument definitions file 'fname'\n"
 	"\n"
 	"  These file-type markers currently are recognized but ignored:\n"
 	"      -in  -kb  -md  -mi  -tb  -tr  -wg  +sc \n"
@@ -782,30 +787,33 @@ const char gOptionList[] =
 	"  +sc fname        load script file 'fname'\n"
  */
 	"OPTIONS (Output):\n"
-	"  -D or --display        print produced items to standard output (default)\n"
-	"  -d or --no-display     don't print produced items to standard output\n"
-	"  -o outfile             write produced items to file 'outfile'\n"
-	"  -e or --use-stderr     print messages to standard error instead of standard output\n"
-	"  --traceout tracefile   write compilation & trace output to file 'tracefile'\n"
+	"  -D or -d or --display:        print produced items to terminal output\n"
+	"  --no-display:     don't print produced items to standard output (default)\n"
+	"  -o outfile:             write produced items to file 'outfile'\n"
+	"  -e or --use-stderr:     print messages to standard error instead of standard output\n"
+	"  --traceout tracefile:   write compilation & trace output to file 'tracefile'\n"
 	"\n"
-	"  --csoundout outfile    write Csound score to file 'outfile' ('-' for stdout)\n"
-	"  --midiout outfile      write Midi score to file 'outfile' ('-' for stdout)\n"
-	"  --midiformat num       use Midi file format 0, 1, or 2 (default is 1)\n"
-	"  --rtmidi destination   play real-time Midi on 'destination'\n"
+	"  --csoundout outfile:    write Csound score to file 'outfile'\n"
+	"  --midiout outfile:      write Midi score to file 'outfile'\n"
+/*	"  --midiformat num:       use Midi file format 0, 1, or 2 (default is 1)\n" */
+	"  --rtmidi:   play real-time Midi\n"
 	"\n"
 	"OPTIONS (Computation):\n"
-	"  -s or --start string   use 'string' as the start string (default is \"S\")\n"
-	"  -S startfile           read the start string from file 'startfile'\n"
-	"  --seed num             seeds the random number generator with the integer 'num'\n"
-	"  --show-production      outputs the work string at each step of producing items\n"
-	"  --trace-production     outputs the work string & selected rule at each step of production\n"
+/*	"  -s or --start string   use 'string' as the start string (default is \"S\")\n"
+	"  -S startfile           read the start string from file 'startfile'\n" */
+	"  --seed num:             seeds the random number generator with the integer 'num'\n"
+/*	"  --show-production      outputs the work string at each step of producing items\n"
+	"  --trace-production     outputs the work string & selected rule at each step of production\n" */
 	"\n"
 	"OPTIONS (Musical):\n"
-	"  --english              specifies that the input files use English note conventions\n"
-	"  --french               specifies that the input files use Italian/Spanish/French note conventions\n"
-	"  --indian               specifies that the input files use Indian note conventions\n"
-	"  --keys                 specifies that the input files use Midi note numbers\n"
-	"\n";
+	"  --english:              specifies that the input files use English note conventions\n"
+	"  --french:               specifies that the input files use Italian/Spanish/French note conventions\n"
+	"  --indian:               specifies that the input files use Indian note conventions\n"
+	"  --keys:                 specifies that the input files use Midi note numbers\n"
+	"\n"
+	"EXAMPLE OF COMMAND LINE:\n"
+	"./bp produce -se ./ctests/-se.Mozart -o ./temp_bolprocessor/out.txt -gr ./ctests/-gr.Mozart -cs ./csound_resources/-cs.Mozart -to ./tonality_resources/-to.Mozart --rtmidi --traceout ./temp_bolprocessor/trace_f45ac19623_-gr.Mozart.txt --english --seed 4"
+	;
 
 void PrintUsage(char* programName)
 {
@@ -1341,13 +1349,17 @@ int LoadFileToTextHandle(int w,char* pathname,TEHandle th) {
 int ReloadGrammar(void) {
 	int result;
 	char pathname[MAXNAME];
-	char* filecontents;
+	char* filecontents = NULL;
 	if(strlen(LiveFolder) < 1) return FALSE;
 	my_sprintf(pathname,"%s/_saved_grammar",LiveFolder);
 	result = OpenAndReadFile((const char*) pathname,&filecontents);
 	// BPPrintMessage(1,odInfo,"%s\n",filecontents);
 	if(result != OK) return FALSE;
 	if(remove(pathname) != 0) BPPrintMessage(1,odError,"=> Cannot delete '_saved_grammar'\n");
+	if(access(filecontents, F_OK) != 0) {
+    	if(strncmp(filecontents, "../", 3) == 0)
+        	filecontents[1] = '/';  // "../" → "./"
+		}
 	if(TraceLive) BPPrintMessage(1,odInfo,"👉 Loading grammar: %s\n",filecontents);
 	result = LoadFileToTextHandle(wGrammar,filecontents,TEH[wGrammar]);
 	free(filecontents);
@@ -1551,6 +1563,7 @@ int PrepareTraceDestination(BPConsoleOpts* opts) {
 			LiveGrammar = LiveSettings = FALSE;
 			}
 		NoTracePath = FALSE;
+	//	BPPrintMessage(1,odInfo,"@@@ LiveFolder = %s\n",LiveFolder);
 	    }
     return OK;
     }

@@ -749,20 +749,25 @@ int ReadJason(int* p_im, char* key, char the_array[][MAX_STRINGLISTS_LEN]) {
 	int i = 0;
 	char *json_data = read_file(StringsJason);
     if(!json_data) {
-		BPPrintMessage(0,odError,"=> Could not open file “php/%s”\n",StringsJason);
-		Panic = TRUE;
-		return ABORT;
+		char path[256];
+    	snprintf(path, sizeof(path), "php/%s", StringsJason);
+    	json_data = read_file(path);
+		if(!json_data) {
+			BPPrintMessage(0,odError,"=> Could not find file “%s”\n",StringsJason);
+			Panic = TRUE;
+			return ABORT;
+			}
 		}
 	cJSON *json = cJSON_Parse(json_data);
     if(!json) {
-        BPPrintMessage(0,odError,"=> Could not parse “php/%s”: %s\n",StringsJason,cJSON_GetErrorPtr());
+        BPPrintMessage(0,odError,"=> Could not parse “%s”: %s\n",StringsJason,cJSON_GetErrorPtr());
 		free(json_data);
 		Panic = TRUE;
         return ABORT;
     	}
 	cJSON *scriptCommandArray = cJSON_GetObjectItem(json,key);
 	if(!cJSON_IsArray(scriptCommandArray)) {
-        BPPrintMessage(0,odError,"=> “%s” was not found in “php/%s”\n",key,StringsJason);
+        BPPrintMessage(0,odError,"=> “%s” was not found in “%s”\n",key,StringsJason);
 		cJSON_Delete(json);
 		free(json_data);
 		Panic = TRUE;
@@ -771,7 +776,7 @@ int ReadJason(int* p_im, char* key, char the_array[][MAX_STRINGLISTS_LEN]) {
     cJSON *item;
     cJSON_ArrayForEach(item,scriptCommandArray) {
         if(i >= MAX_STRINGLISTS_NUMBER) {
-			BPPrintMessage(0,odError,"=> Too many “%s” in “php/%s”\n",key,StringsJason);
+			BPPrintMessage(0,odError,"=> Too many “%s” in “%s”\n",key,StringsJason);
             break;
         	}
         if(cJSON_IsString(item)) {

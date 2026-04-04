@@ -51,6 +51,7 @@ T2 x Parenthesis marker.  x=0 for a master parenthesis.  x=1 is
 T3 0 '_' prolongation of the immediate preceding time-object
 T3 1 '-' silence
 T3 x terminal symbol x (with 1 < x < Jbol)
+T3 x simple note (with x > 16383) where (x - 16384) is the index of the note (MIDI key number)
 
 T4 x variable x (with 0 < x <= Jvar)
 

@@ -510,15 +510,20 @@ char* read_file(const char *filename) {
 int ReloadSettings(void) {
 	int result;
 	char pathname[MAXNAME];
-	char* filecontents;
+	char* filecontents = NULL;
 	if(strlen(LiveFolder) < 1) return MISSED;
 	my_sprintf(pathname,"%s/_saved_settings",LiveFolder);
+//	BPPrintMessage(1,odInfo,"pathname = %s\n",pathname);
 	result = OpenAndReadFile((const char*) pathname,&filecontents);
 	// BPPrintMessage(1,odInfo,"%s\n",filecontents);
 	if(result != OK) return FALSE;
 	if(remove(pathname) != 0) {
 		perror("Error deleting file");
 		BPPrintMessage(1,odError,"=> Cannot delete _saved_settings\n");
+		}
+	if(access(filecontents, F_OK) != 0) {
+    	if(strncmp(filecontents, "../", 3) == 0)
+        	filecontents[1] = '/';  // "../" → "./"
 		}
 	if(TraceLive) BPPrintMessage(1,odInfo,"👉 Loading settings: %s\n",filecontents);
 	result = LoadSettings(filecontents,FALSE);
