@@ -1826,7 +1826,7 @@ int RandomTime(Milliseconds *p_t1,short randomtime,Milliseconds duration,short *
 		*p_dont_randomize = FALSE;
 		return(OK);
 		}
-	x = (2. * rand() * ((float)randomtime)) / ((float)RAND_MAX);
+	x = (2. * bp3_rand() * ((float)randomtime)) / ((float)BP3_RAND_MAX);
 	UsedRandom = TRUE;
 	if(x > randomtime) x = randomtime - x;
 	(*p_t1) += x;

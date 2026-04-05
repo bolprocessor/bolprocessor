@@ -2002,7 +2002,7 @@ int ClipVelocity(int v,int localvelocity,int control,int rndvel) {
 	if(rndvel > 0) {
 		if(rndvel > 127) r = ParamValue[rndvel-128];
 		else r = rndvel;
-		x = (2. * rand() * ((float)r)) / ((float)RAND_MAX);
+		x = (2. * bp3_rand() * ((float)r)) / ((float)BP3_RAND_MAX);
 		if(x > r) x = r - x;
 		UsedRandom = TRUE;
 		localvelocity += x;

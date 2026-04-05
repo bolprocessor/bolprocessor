@@ -39,7 +39,7 @@
 #include "-BP3decl.h"
 
 int trace_load_settings = 0;
-int trace_load_prototypes = 0;
+int trace_load_prototypes = 1;
 int trace_load_csound_instruments = 0;
 int trace_load_scales = 0;
 
@@ -707,10 +707,10 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"LiveSettings") == 0) LiveSettings = intvalue;
 		else if(strcmp(key,"TraceLive") == 0) TraceLive = intvalue;
 		}
-	/* if(NoTracePath) {
+	if(NoTracePath) {
 		ShowObjectGraph = ShowPianoRoll = ShowGraphic = FALSE;
 		BPPrintMessage(0,odInfo,"No graphic due to the absence of a trace path\n");
-		} */
+		}
 	if(DeftBufferSize < 100) DeftBufferSize = 1000;
 	if(rtMIDI && !ComputeWhilePlay && (AdvanceTime <= 0.)) {
 		AdvanceTime = 0.;

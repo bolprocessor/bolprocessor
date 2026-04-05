@@ -996,7 +996,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	// Csound instrument status
 	if((*p_Type)[iProto] & 4) {
 		if((*p_CsoundInstr)[iProto] > 0)
-		my_sprintf(Message,"Force to Csound instrument %ld",(long)(*p_CsoundInstr)[iProto]);
+			my_sprintf(Message,"Force to Csound instrument %ld",(long)(*p_CsoundInstr)[iProto]);
 		else if((*p_CsoundInstr)[iProto] == 0) my_sprintf(Message,"Force to current Csound instrument");
 			else my_sprintf(Message,"Never change Csound instruments");
 	//	c2pstrcpy(label, Message);

@@ -1113,7 +1113,7 @@ return(NO);
 
 int ResetRandom(void) {
 	if(Seed > 0) {
-		srand(Seed);
+		bp3_srand(Seed);
 	//	BPPrintMessage(0,odInfo, "Random seed reset to %u\n", Seed);
 		UsedRandom = FALSE;
 		}
@@ -1144,34 +1144,34 @@ int ReseedOrShuffle(int what) {
 		case NEWSEED:
 			if(Seed == 0) {
 				seed = (unsigned int) time(NULL);
-				srand(seed);
+				bp3_srand(seed);
 				}
-			randomnumber = rand();
+			randomnumber = bp3_rand();
 			seed = (unsigned int) (randomnumber % 32768);
 			if(seed == 0) seed = 1;
 			Seed = seed;
 			if(Seed > 0) {
 				BPPrintMessage(1,odInfo, "New random seed = %u\n", seed);
-				srand(Seed);
+				bp3_srand(Seed);
 				UsedRandom = FALSE;
 				}
 			break;
 		case RANDOMIZE:
 			if(Seed == 0) {
-				// We need this initial srand() so that sequences of rand() are not identical
+				// We need this initial bp3_srand() so that sequences of bp3_rand() are not identical
 				seed = (unsigned int) time(NULL);
-				srand(seed);
+				bp3_srand(seed);
 				// FIXME ? Why seed a second time (with a restricted range for the seed too) ?
-				randomnumber = rand();
+				randomnumber = bp3_rand();
 				seed = (unsigned int) (randomnumber % 32768);
 				BPPrintMessage(1,odInfo, "Random seed = %u\n", seed);
-				srand(seed);
+				bp3_srand(seed);
 				UsedRandom = TRUE;
 				}
 			break;
 		default:
 			seed = (unsigned int) ((Seed + what) % 32768);
-			srand(seed);
+			bp3_srand(seed);
 			UsedRandom = TRUE;
 			break;
 		}

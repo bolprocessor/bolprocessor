@@ -866,7 +866,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			seed = (Seed + (*(ScriptLine.intarg))[0]) % 32768;
-			srand(seed);
+			bp3_srand(seed);
 			UsedRandom = TRUE;
 			break;
 		case 58:	/* MIDI set-up time */

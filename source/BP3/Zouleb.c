@@ -492,10 +492,10 @@ if(*pp_x == NULL) {
 if((result=MakeRandomSequence(pp_x,size-1L,repeat,store)) != OK) return(result);
 
 if(!repeat) {
-	r1 = rand(); r2 = rand();
+	r1 = bp3_rand(); r2 = bp3_rand();
 	UsedRandom = TRUE;
-	randomnumber = r1 + (((double)r2) / ((double)(RAND_MAX + 1L)));
-	pos = (((double) size) * randomnumber) / ((double)(RAND_MAX + 1L));
+	randomnumber = r1 + (((double)r2) / ((double)(BP3_RAND_MAX + 1L)));
+	pos = (((double) size) * randomnumber) / ((double)(BP3_RAND_MAX + 1L));
 	if(pos >= size) {
 		BPPrintMessage(0,odError,"=> Err. MakeRandomSequence(). pos >= size");
 		pos = size - 1L;

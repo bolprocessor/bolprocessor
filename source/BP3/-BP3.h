@@ -54,6 +54,8 @@
 #define COMPILING_BETA 0
 #endif
 
+#include "bp3_random.h"
+
 // Select compilation options (ALL OBSOLETE)
 // The only compilation options are the ones selecting code for MacOS, Windows and Linux.
 
@@ -418,56 +420,58 @@ enum {
 #define ScriptID 'scri'
 #define CsoundInstrID 'csin'
 
-// Tokens
+// Encoding tokens
+// More details in docs-developer/BP3-info.txt
 #define TEND (tokenbyte) -1
 #define T0 (tokenbyte) 0
-#define T1 (tokenbyte) 1
-#define T2 (tokenbyte) 2
-#define T3 (tokenbyte) 3
-#define T4 (tokenbyte) 4
-#define T5 (tokenbyte) 5
-#define T6 (tokenbyte) 6
-#define T7 (tokenbyte) 7
-#define T8 (tokenbyte) 8
-#define T9 (tokenbyte) 9
-#define T10 (tokenbyte) 10
-#define T11 (tokenbyte) 11
-#define T12 (tokenbyte) 12
-#define T13 (tokenbyte) 13
-#define T14 (tokenbyte) 14
-#define T15 (tokenbyte) 15
-#define T16 (tokenbyte) 16
-#define T17 (tokenbyte) 17
-#define T18 (tokenbyte) 18
-#define T19 (tokenbyte) 19
-#define T20 (tokenbyte) 20
-#define T21 (tokenbyte) 21
-#define T22 (tokenbyte) 22
-#define T23 (tokenbyte) 23
-#define T24 (tokenbyte) 24
-#define T25 (tokenbyte) 25
-#define T26 (tokenbyte) 26
-#define T27 (tokenbyte) 27
-#define T28 (tokenbyte) 28
-#define T29 (tokenbyte) 29
-#define T30 (tokenbyte) 30
-#define T31 (tokenbyte) 31
-#define T32 (tokenbyte) 32 // _ins()
-#define T33 (tokenbyte) 33
-#define T34 (tokenbyte) 34
-#define T35 (tokenbyte) 35
-#define T36 (tokenbyte) 36
-#define T37 (tokenbyte) 37
-#define T38 (tokenbyte) 38
-#define T39 (tokenbyte) 39
-#define T40 (tokenbyte) 40
-#define T41 (tokenbyte) 41
-#define T42 (tokenbyte) 42
-#define T43 (tokenbyte) 43
-#define T44 (tokenbyte) 44 // _scale()
-#define T45 (tokenbyte) 45 // _capture()
-#define T46 (tokenbyte) 46 // _part()
-#define MAXTOKENBYTE 47
+#define T1 (tokenbyte) 1	// Numbers
+#define T2 (tokenbyte) 2	// Parenthesis maarket
+#define T3 (tokenbyte) 3	// Silence, prolongation, terminal symbol, simple note
+#define T4 (tokenbyte) 4	// Variable
+#define T5 (tokenbyte) 5	// Homomorphism marker
+#define T6 (tokenbyte) 6	// Wildcard '?x'
+#define T7 (tokenbyte) 7	// Out-time object
+#define T8 (tokenbyte) 8	// Synchronisation tag
+#define T9 (tokenbyte) 9	// Time pattern
+#define T10 (tokenbyte) 10	// MIDI channel
+#define T11 (tokenbyte) 11	// Velocity
+#define T12 (tokenbyte) 12	// _velcont, _velstep, etc
+#define T13 (tokenbyte) 13	// Script line 'x'
+#define T14 (tokenbyte) 14	// _mod(x)
+#define T15 (tokenbyte) 15	// _pitchbend(x)
+#define T16 (tokenbyte) 16	// _press(x)
+#define T17 (tokenbyte) 17	// _switchon()
+#define T18 (tokenbyte) 18	// _switchoff()
+#define T19 (tokenbyte) 19	// _volume(x)
+#define T20 (tokenbyte) 20	// _legato(x)
+#define T21 (tokenbyte) 21	// _pitchrange()
+#define T22 (tokenbyte) 22	// _pitchrate(x)
+#define T23 (tokenbyte) 23	// _modrate(x)
+#define T24 (tokenbyte) 24	// _pressrate(x)
+#define T25 (tokenbyte) 25	// Simple note x
+#define T26 (tokenbyte) 26	// _transpose()
+#define T27 (tokenbyte) 27	// _volumerate(x)
+#define T28 (tokenbyte) 28	// _volumecontrol(x)
+#define T29 (tokenbyte) 29	// _pan(x)
+#define T30 (tokenbyte) 30	// _panrate(x)
+#define T31 (tokenbyte) 31	// _pancontrol(x)
+#define T32 (tokenbyte) 32	// _ins()
+#define T33 (tokenbyte) 33	// _step()
+#define T34 (tokenbyte) 34	// _cont()
+#define T35 (tokenbyte) 35	// _value()
+#define T36 (tokenbyte) 36	// _fixed()
+#define T37 (tokenbyte) 37	// _keymap()
+#define T38 (tokenbyte) 38	// _rndvel(x)
+#define T39 (tokenbyte) 39	// _rotate(x)
+#define T40 (tokenbyte) 40	// _keyxpand()
+#define T41 (tokenbyte) 41	// _rndtime(x)
+#define T42 (tokenbyte) 42	// _srand(x)
+#define T43 (tokenbyte) 43	// _tempo()
+#define T44 (tokenbyte) 44	// _scale()
+#define T45 (tokenbyte) 45	// _capture()
+#define T46 (tokenbyte) 46	// _part()
+#define T47 (tokenbyte) 47	// remaining variable processed as a silent sound-object
+#define MAXTOKENBYTE 48
 
 // Inference modes
 #define ANAL 0	/* Modus tollens */
@@ -849,7 +853,7 @@ typedef enum {
 #define BOLSIZE 30		/* length of terminal name */
 #define MAXFLAG 8		/* default number of flags */
 #define MAXEVENTSCRIPT 8	/* default number of event script lines */
-#define FIELDSIZE 100	/* standard size of field in poly structure */
+#define FIELDSIZE 1000	/* standard size of field in poly structure */
 #define MAXVAR 30		/* initial number of variables in grammar or script */
 #define HOMOSIZE 20		/* length of homomorphism identifier */
 #define MAXDISPL 1000	/* minimum size of display */

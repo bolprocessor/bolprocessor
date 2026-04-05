@@ -188,7 +188,11 @@ int main (int argc, char* args[]) {
 	CopyStringToTextHandle(TEH[wStartString],"S\n");
 
 	result = PrepareProdItemsDestination(&gOptions);
-	if(result == OK) result = PrepareTraceDestination(&gOptions);
+	if(result == OK)
+		result = PrepareTraceDestination(&gOptions);
+	if(NoTracePath) {
+    	ShowObjectGraph = ShowPianoRoll = ShowGraphic = FALSE;
+		}
 	if(result == OK) {
 		// perform the action specified on the command line
 		switch (gOptions.action) {

@@ -428,11 +428,11 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 		else {
 			if(trace_compute) BPPrintMessage(0,odInfo,"nb_candidates (2) = %d\n",nb_candidates);
 			if(nb_candidates > 1) {
-				randomnumber = rand();
+				randomnumber = bp3_rand();
 				int total = (*p_totwght)[nb_candidates-1];
-				choice = (total + 1) * (randomnumber/((double)RAND_MAX)); // Fixed 2024-07-06
+				choice = (total + 1) * (randomnumber/((double)BP3_RAND_MAX)); // Fixed 2024-07-06
 				if(choice > total) choice = total;
-			if(trace_weights) BPPrintMessage(0,odInfo,"ComputeInGram(%d). choice = %ld nb_candidates =  %d (*p_totwght)[nb_candidates-1] = %ld, randomnumber = %ld RAND_MAX = %ld\n",igram,(long)choice,nb_candidates,(long)(*p_totwght)[nb_candidates-1],(long)randomnumber,(long)RAND_MAX);
+			if(trace_weights) BPPrintMessage(0,odInfo,"ComputeInGram(%d). choice = %ld nb_candidates =  %d (*p_totwght)[nb_candidates-1] = %ld, randomnumber = %ld BP3_RAND_MAX = %ld\n",igram,(long)choice,nb_candidates,(long)(*p_totwght)[nb_candidates-1],(long)randomnumber,(long)BP3_RAND_MAX);
 				UsedRandom = TRUE;
 				j = 0;
 				while(choice > (*p_totwght)[j]) { // Fixed 2024-07-06
@@ -481,9 +481,9 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 				continue;
 				}
 			j = 0;
-			randomnumber = rand();
+			randomnumber = bp3_rand();
 			UsedRandom = TRUE;
-			irul = 1 + (subgram.number_rule - 1) * (randomnumber / ((double)RAND_MAX));
+			irul = 1 + (subgram.number_rule - 1) * (randomnumber / ((double)BP3_RAND_MAX));
 			rule = (*(subgram.p_rule))[irul];
 			irep = 0;
 			if((rule.w == 0) ||
@@ -1856,10 +1856,10 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 	case 0:	{						/* RND rule */
 			UsedRandom = TRUE;
 			do {
-				randomnumber = rand();
+				randomnumber = bp3_rand();
 				posdif = ((*p_lengthorigin) - pos - 1);
 				pos1 = pos + 2 * (int)(posdif
-				* (randomnumber / ((double)RAND_MAX) / 2.));
+				* (randomnumber / ((double)BP3_RAND_MAX) / 2.));
 			/*	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 					EmergencyExit = TRUE;
 					BPPrintMessage(0,odInfo,"=> (3) Maximum allowed time (%d seconds) has been spent in Insert(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);

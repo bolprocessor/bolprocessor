@@ -217,7 +217,13 @@ T42 x  _srand(x)
 T43 x  T43 y   _tempo(n)
 	n = x / y
 
-T44 x remark index x [not yet implemented]
+T44 x _scale()
+
+T45 x _capture()
+
+T46 x _part()
+
+T47 x Remaining variable processed as a silent sound-object
 
 
 
