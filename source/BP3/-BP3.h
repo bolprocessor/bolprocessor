@@ -470,7 +470,7 @@ enum {
 #define T44 (tokenbyte) 44	// _scale()
 #define T45 (tokenbyte) 45	// _capture()
 #define T46 (tokenbyte) 46	// _part()
-#define T47 (tokenbyte) 47	// remaining variable processed as a silent sound-object
+#define T47 (tokenbyte) 47	// Remaining variable processed as a silent sound-object
 #define MAXTOKENBYTE 48
 
 // Inference modes

@@ -808,15 +808,18 @@ const char gOptionList[] =
 	"  --seed num:             seeds the random number generator with the integer 'num'\n"
 /*	"  --show-production      outputs the work string at each step of producing items\n"
 	"  --trace-production     outputs the work string & selected rule at each step of production\n" */
+	"(These options take precedence over the values in the settings file.)\n"
 	"\n"
 	"OPTIONS (Musical):\n"
 	"  --english:              specifies that the input files use English note conventions\n"
 	"  --french:               specifies that the input files use Italian/Spanish/French note conventions\n"
 	"  --indian:               specifies that the input files use Indian note conventions\n"
 	"  --keys:                 specifies that the input files use Midi note numbers\n"
+	"(These options take precedence over the values in the settings file.)\n"
 	"\n"
 	"EXAMPLE OF COMMAND LINE:\n"
-	"./bp produce -se ./ctests/-se.Mozart -o ./temp_bolprocessor/out.txt -gr ./ctests/-gr.Mozart -cs ./csound_resources/-cs.Mozart -to ./tonality_resources/-to.Mozart --rtmidi --traceout ./temp_bolprocessor/trace_f45ac19623_-gr.Mozart.txt --english --seed 4"
+	"./bp produce -se ./ctests/-se.Mozart -o ./temp_bolprocessor/out.txt -gr ./ctests/-gr.Mozart -cs ./csound_resources/-cs.Mozart -to ./tonality_resources/-to.Mozart --rtmidi --traceout ./temp_bolprocessor/trace_my_session_my_project.txt --english --seed 4\n"
+	"(If the --traceout option is not specified, no image is created.)\n"
 	;
 
 void PrintUsage(char* programName)

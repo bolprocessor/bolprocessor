@@ -39,7 +39,7 @@
 #include "-BP3decl.h"
 
 int trace_load_settings = 0;
-int trace_load_prototypes = 1;
+int trace_load_prototypes = 0;
 int trace_load_csound_instruments = 0;
 int trace_load_scales = 0;
 

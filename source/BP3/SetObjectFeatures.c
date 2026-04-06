@@ -544,14 +544,14 @@ for(i = id+2L; ; i += 2L) {
 		continue;
 		}
 	
-	if(m == T3 || m == T25 || m == T9) {
+	if(m == T3 || m == T47 || m == T25 || m == T9) {
 		/* Sound-object, silence, prolongation, simple note, time pattern */
 		if(foundendconcatenation && foundconcatenation
-				&& (m == T25 || (m == T3 && p > 0))) {
+				&& (m == T25 || ((m == T3 || m == T47) && p > 0))) {
 			foundendconcatenation = FALSE;
 			if(m == oldm && p == oldp) {
 				foundconcatenation = FALSE;
-				m = T3; p = 0;
+				m = T3; p = 0; // Check this for T47, 2026-04-06
 				levelmem = level;
 				seqmem = seq;
 				}
@@ -559,7 +559,7 @@ for(i = id+2L; ; i += 2L) {
 			
 		if(seq != seqmem) continue;
 		
-		if((m == T25 || m == T9 || (m == T3 && p > 0)) && level <= 0) {
+		if((m == T25 || m == T9 || ((m == T3 || m == T47) && p > 0)) && level <= 0) {
 			nonemptyobject = TRUE;
 			objectsfound++;
 			if(!foundconcatenation && objectsfound == 1) {
@@ -1539,7 +1539,7 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 
 	if(trace_get_duration)
 		BPPrintMessage(1,odInfo,"GetSymbolicDuration()\n");
-	if(m_org != T3 && m_org != T25 && m_org != T9) {
+	if(m_org != T3 && m_org != T47 && m_org != T25 && m_org != T9) {
 		BPPrintMessage(0,odError,"=> Err. GetSymbolicDuration(). m_org = %ld",(long)m_org);
 		return(0);
 		}
@@ -1598,7 +1598,8 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 
 	if(ignoreconcat) { // 2025-01-14
 		tick_start = 0;
-		if((*p_buff)[i] != T3 || (*p_buff)[i+1] != 0) { // No prolongation 2025-01-19
+		if(((*p_buff)[i] != T3 && (*p_buff)[i] != T47) || (*p_buff)[i+1] != 0) {
+			// No prolongation 2025-01-19
 			if(trace_get_duration) BPPrintMessage(1,odInfo,"No prolongation\n");
 			tick_end = prodtempo;
 			goto SORTIR;
@@ -1762,13 +1763,13 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 			(*p_duration_of_field)[level] += prodtempo;
 			continue;
 			}
-		if(m == T3 && p == 0) {
+		if((m == T3 || m == T47) && p == 0) {
 			if(trace_get_duration) BPPrintMessage(1,odInfo,"_\n");
 			(*p_duration_of_field)[level] += prodtempo;
 			tick_end += prodtempo; // 2025-01-21
 			continue;
 			}
-		if(m == T3 || m == T25 || m == T4) {  // 2026-03-20
+		if(m == T3 || m == T47 || m == T25 || m == T4) {  // 2026-03-20
 			(*p_duration_of_field)[level] += prodtempo;
 			if(trace_get_duration) BPPrintMessage(1,odInfo,"<%ld|%ld> (%ld)\n",m,p,(long)(*p_duration_of_field)[level]);
 			if(trace_get_duration)
@@ -1795,7 +1796,7 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 		objectduration = tick_end - tick_start;
 	else {
 		objectduration = 0.;
-		if(!ignoreconcat && m_org == T3) {
+		if(!ignoreconcat && (m_org == T3 || m_org == T47)) {
 			if(trace_get_duration) BPPrintMessage(1,odError,"\n=> An unbound tied object was ignored\n");
 			(*(p_Missed_tie_event[instrument_org]))[p_org] += 1;
 			}

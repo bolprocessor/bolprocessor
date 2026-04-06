@@ -6,13 +6,13 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-04-02 -> 2026-04-05 (version 3.3.19)
+2026-04-02 -> 2026-04-06 (version 3.3.19)
 Many small changes have been made to deal more precisely with the "max items produced" parameter. Consistency is required for comparative tests in the WebAssembly environment.
 The "max items displayed" setting in the interface also allows you to indicate the maximum number of items that can be shown in images. Previously, this value was fixed at 10.
-A problem with changing the start string (on grammar.php) has been fixed.
-For geeks(1): The calculation of random numbers has been customised to create identical sequences under MacOS, Windows and Linux. See file "bp3_random.c"
-For geeks(2): You can now send a command line to the console from within the 'bolprocessor' folder instead of 'bolprocessor/php' which is used by the PHP interface.
-Click the "console's instruction" link for details.
+A problem with changing the start string (on "grammar.php") has been fixed.
+For geeks(1): The calculation of random numbers has been customised to create identical sequences under MacOS, Windows and Linux. See file "bp3_random.c".
+For geeks(2): In "FillPhaseDiagrams.c", "SetObjectFeatures.c" and "Graphic.c", remaining variables (processed as silent sound-objects) are tagged with T47 instead of T4.
+For geeks(3): You can now send a command line to the console from within the 'bolprocessor' folder instead of 'bolprocessor/php' which is used by the PHP interface. Click the "console's instruction" link for details.
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/
 

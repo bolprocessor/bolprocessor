@@ -378,7 +378,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		if((result=stop(0,"FillPhaseDiagram")) != OK) return(result);
 		if(trace_diagram)
 			BPPrintMessage(1,odInfo,"\n1) FillPhaseDiagram() m = %d p = %d level = %ld nseq = %ld id = %ld\n",m,p,(long)level,(long)nseq,(long)id);
-		if(m != T3 || p != 0) part_of_ip = Kpress; // Added by BB 2021-03-25
+		if((m != T3 && m != T47) || p != 0) part_of_ip = Kpress; // Added by BB 2021-03-25
 		if(m == T33 || m == T34) {	/* _step() or _cont() */
 			paramnameindex = p;
 			i = FindParameterIndex(p_contparameters,level,paramnameindex);
@@ -619,7 +619,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				}
 			goto NEXTTOKEN;
 			}
-		if((m == T3 && p < Jbol) || m == T4 || m == T25	|| (m == T9 && p < Jpatt)) {
+		if(((m == T3 || m == T47) && p < Jbol) || m == T4 || m == T25	|| (m == T9 && p < Jpatt)) {
 			// Sound-object or simple note or silence or time pattern
 			if(trace_diagram || trace_toofast) {
 				BPPrintMessage(1,odInfo,"\n••• m = %ld p = %ld id = %ld",(long)m,(long)p,(long)id);
@@ -629,7 +629,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 			toofast = (tempo > tempomax || tempo == 0.);
 			just_done = FALSE;
 			if(p >= 1) add_zeros = TRUE; // 2025-01-16
-			if(!new_thing || m != T3 || p != 0 || !toofast || skipzeros || (m == T3 && p == 0 && toofast && part_of_ip >= Kpress)) { // Added by BB 2021-03-25
+			if(!new_thing || (m != T3 && m != T47) || p != 0 || !toofast || skipzeros || ((m == T3 || m == T47) && p == 0 && toofast && part_of_ip >= Kpress)) { // Added by BB 2021-03-25
 				((*p_im)[nseq]) += Kpress;
 				ip = Class((*p_im)[nseq]);
 				just_done = TRUE;
@@ -647,7 +647,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				if(trace_diagram || trace_toofast)
 					BPPrintMessage(1,odInfo,"Tie_note? m = %d p = %d channel = %d tie =  %d\n",m,p,channel,tie);
 				}
-			else if(m == T3) {
+			else if((m == T3 || m == T47)) {
 				tie = (*(p_Tie_event[instrument]))[p]; // Added by BB 2021-02-07
 				}
 			else tie = FALSE;
@@ -656,7 +656,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				if(trace_diagram || trace_toofast)
 					BPPrintMessage(1,odInfo,"With foundendconcatenation <%d|%d> last object = %d\n",m,p,(int)kobj);
 				if(m == T25) (*(p_Tie_note[channel]))[p] = FALSE;
-				else if(m == T3) (*(p_Tie_event[instrument]))[p] = FALSE;		
+				else if(m == T3 || m == T47) (*(p_Tie_event[instrument]))[p] = FALSE;		
 				if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
 					&nseq,maxseqapprox,ip,1) != OK) goto ENDDIAGRAM;
 				oldm = m; oldp = p;
@@ -664,7 +664,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				}
 			else {
 				objectduration = 0.;
-				if(tie && (m == T25 || m == T9 || (m == T3 && p > 0))) { 
+				if(tie && (m == T25 || m == T9 || ((m == T3 || m == T47) && p > 0))) { 
 					//	BPPrintMessage(1,odInfo,"\nCase 1 tie = %d\n",tie);
 					if(trace_diagram || trace_toofast) BPPrintMessage(1,odInfo,"GetSymbolicDuration() with tie, nseq = %ld level = %ld m = %ld p = %ld speed = %.2f scale = %.2f prodtempo = %.2f id = %ld kobj = %d\n",(long)nseq,(long)level,(long)m,(long)p,speed,scale,prodtempo,id,(int)kobj);
 					objectduration = GetSymbolicDuration(NO,*pp_buff,m,p,id,speed,scale,channel,instrument,part,foundendconcatenation,level);
@@ -693,7 +693,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 							}
 						}
 					}
-				if((m == T25 || m == T9 || m == T4 || (m == T3 && p > 1) || objectduration > 1. || isMIDIcontinuous) && !foundendconcatenation) {
+				if((m == T25 || m == T9 || m == T4 || ((m == T3 || m == T47) && p > 1) || objectduration > 1. || isMIDIcontinuous) && !foundendconcatenation) {
 					// Non-empty sound-object or time pattern or variable or simple note
 					// p > 1 implies that silences won't be played as objects except if isMIDIcontinuous  2026-03-20
 					skipzeros = FALSE;
@@ -712,12 +712,13 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					if(overstrike) {
 						kobj--;
 						(*p_numberobjects) = kobj;
-						if(m != T3 || p != 1) number_skipped++;
+						if((m != T3 && m != T47) || p != 1) number_skipped++;
 						}
 					(*p_maxcol)[nseq] = ip;
 					switch(m) {
 						case T3:
-							if(p > 1) foundobject = TRUE; // Sound object
+						case T47:
+							if(p > 1) foundobject = TRUE; // Sound object or remaining variable
 							break;
 						case T4: // Variable 2026-03-20 (probably useless)
 							foundobject = TRUE;
@@ -839,7 +840,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					if((p == 0 && !skipzeros) || (p == 1 && m != T4)) {
 						// Empty object or silence
 					//	BPPrintMessage(1,odInfo,"--> toofast = %d m = %d p = %d, Kpress = %.0f speed = %.0f scale = %.0f Prod = %.0f tempomax = %.0f tempo = %.0f prodtempo = %.0f, (*p_im)[%d] = %.0f, maxcol[nseq] = %ld part_of_ip = %.0f\n",(int)toofast,m,p,(double)Kpress,(double)speed,(double)scale,(double)Prod,(double)tempomax,(double)tempo,(double)prodtempo,(int)nseq,(double)(*p_im)[nseq],(long)(*p_maxcol)[nseq],(double)part_of_ip);
-						if(!new_thing || m != T3 || p != 0 || !toofast || just_done) { // Added by BB 2021-03-27
+						if(!new_thing || (m != T3 && m != T47) || p != 0 || !toofast || just_done) { // Added by BB 2021-03-27
 							if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,&nseq,maxseqapprox,ip,p) != OK) goto ENDDIAGRAM;
 							if(trace_toofast) BPPrintMessage(1,odInfo,"Plot(1) id = %ld m = %d p = %d ip = %.0f iplot = %.0f skipzeros = %d toofast = %d overstrike = %d (*p_im)[%d] = %.1f (*p_im)[nseq]/Kpress = %.1f kobj = %d maxseqapprox = %.0f Prod = %.0f tempo = %.0f nseq = %d nseqplot = %d (*p_maxcol)[nseq] = %.0f part_of_ip = %.0f\n",id,m,p,(double)ip,(double)iplot,(int)skipzeros,(int)toofast,overstrike,nseq,(*p_im)[nseq],(*p_im)[nseq]/Kpress,kobj,maxseqapprox,(double)Prod,(double)tempo,nseq,nseqplot,(double)ip,(double)part_of_ip);
 							part_of_ip = 0.;
@@ -860,7 +861,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				}
 			foundendconcatenation = FALSE;
 		//	add_zeros = just_done = TRUE;
-			if(add_zeros && (!new_thing || m != T3 || p != 0 || !toofast || skipzeros || just_done)) { // Added by BB 2021-03-26
+			if(add_zeros && (!new_thing || (m != T3 && m != T47) || p != 0 || !toofast || skipzeros || just_done)) { // Added by BB 2021-03-26
 				numberzeros = prodtempo - 1.;
 				if(skipzeros) numberzeros = -1.;
 				if(trace_diagram) BPPrintMessage(1,odInfo,"@ add zeros kobj = %ld, m = %ld p = %ld numberzeros = %.2f\n",(long)kobj,(long)m,(long)p,numberzeros);
@@ -871,8 +872,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				}
 			just_done = FALSE;
 			
-			if(m != T3 && m != T9 && m != T25 && m != T4) {
-				BPPrintMessage(0,odError,"=> Err. FillPhaseDiagram(). m != T3 && m != T9 && m != T25 && m != T4\n");
+			if(m != T3 && m != T47 && m != T9 && m != T25 && m != T4) {
+				BPPrintMessage(0,odError,"=> Err. FillPhaseDiagram(). m != T3 && m != T47 && m != T9 && m != T25 && m != T4\n");
 				goto NEXTTOKEN;
 				}
 			if(trace_diagram) BPPrintMessage(0,odError,"numberzeros = %.2f\n",numberzeros);
@@ -1277,7 +1278,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						inext = (*p_im)[nseq];
 						classofinext = Class(inext);
 						
-						if((oldm != T3 && oldm != T25) || oldp < 1 || id < 2L) {
+						if((oldm != T3 && oldm != T47 && oldm != T25) || oldp < 1 || id < 2L) {
 							my_sprintf(Message,"=> Concatenation '&' should follow a sound-object or simple note. One of them is misplaced");
 							BPPrintMessage(1,odError,Message);
 							goto NEXTTOKEN;
@@ -1296,7 +1297,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 							(*(p_Tie_note[channel]))[oldp] = TRUE; // Added by BB 2021-02-07 
 							if(trace_toofast) BPPrintMessage(1,odInfo,"Found tied note p = %d\n",(int)oldp);
 							}
-						else if(oldm == T3) (*(p_Tie_event[instrument]))[oldp] = TRUE; // Added by BB 2021-02-07
+						else if((oldm == T3 || oldm == T47)) (*(p_Tie_event[instrument]))[oldp] = TRUE; // Added by BB 2021-02-07
 					
 						while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 						if(nseq >= Minconc) {
@@ -2441,11 +2442,11 @@ int MakeEmptyTokensSilent(tokenbyte ***pp_buff) {
 				if(trace_diagram)
 					BPPrintMessage(0,odInfo,"Incremented Jbol = %ld\n",(long)Jbol);
 				}
-			(**pp_buff)[id] = T3;
+			(**pp_buff)[id] = T47; // 2026-04-06 replaced T3 with T47
 			(**pp_buff)[id+1] = p;
 			CreateSilentSoundObject(p);
 			}
-		if(m == T3 && p > 1 && p < Jbol && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO) {
+		if((m == T3 || m == T47) && p > 1 && p < Jbol && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO) {
 			CreateSilentSoundObject(p);
 			if(trace_diagram)
 				BPPrintMessage(0,odInfo,"Created silent sound-object “%s”\n",*(*p_Bol)[p]);

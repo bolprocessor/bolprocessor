@@ -248,7 +248,7 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 					}
 				}
 			setting_section2 = FALSE;
-			if(m == T3 || m == T25 || m == T9) {
+			if(m == T3 || m == T47 || m == T25 || m == T9) {
 				if(speed > 1.) tempo2 = speed;
 				if(firstscale == 0. && scale != 0.) firstscale = scale;
 				}
@@ -390,7 +390,7 @@ int PrintArgSub(PrintargType *p_printarg,unsigned long *p_maxib,TextHandle th,
 		m = (int)(**pp_a)[i]; p = (int)(**pp_a)[i+1];
 //		if(nocode) BPPrintMessage(0,odInfo,"@@@ m = %d, p = %d\n",m,p);
 		if(m == TEND && p == TEND) break;
-		if(m == T3 || m == T25) {
+		if(m == T3 || m == T47 || m == T25) {
 			if((r=CheckPeriodOrLine(print_periods,p_newline,p_newsection,f,th,&beat,numberprolongations,
 					&sp)) != OK) goto SORTIR;
 			}
@@ -656,7 +656,7 @@ DONESPEED:
 			p += 16384;
 			goto TERMINAL;
 			}
-		if(m == T3 && p < Jbol && p_Bol != NULL) {				/* Terminal */
+		if((m == T3 || m == T47) && p < Jbol && p_Bol != NULL) {				/* Terminal */
 			if(!nocode && sp != 4 && sp && (sp < 3 || SplitTimeObjects))
 				if(Space(f,th,&sp) != OK) {
 					r = ABORT; goto SORTIR;
@@ -674,7 +674,7 @@ TERMINAL:
 				if(depth[n] < levpar) p = Image(h,p);
 				}
 			if(p >= 16384) m = T25;
-			else m = T3;
+			else m = T3; // Check for T47, 2026-04-06
 		/*	if(!nocode && UseTextColor) {
 				if(p < 2) Reformat(wind,-1,-1,-1,&Black,NO,NO);	// '-' or '_'
 				else	if(p < 16384) Reformat(wind,-1,-1,-1,&Color[TerminalC],NO,NO);
@@ -1100,7 +1100,7 @@ PRINTPROLONGATIONS:
 			continue;
 			}
 			
-		if(ifunc && m == T3 && p == Jfunc) {	/* interpreting grammar */
+		if(ifunc && (m == T3 || m == T47) && p == Jfunc) {	/* interpreting grammar */
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th," --> ",NULL,-1)) != OK) {
 				goto SORTIR;
@@ -1733,7 +1733,7 @@ int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned 
 				}
 			if((**pp_b)[*p_ib] == TEND && (**pp_b)[(*p_ib)+1] == TEND) return(MISSED);
 			if(m == T3 && p == 0) {	/* '_' */
-				if((**pp_b)[*p_ib] != T3 && (**pp_b)[*p_ib] != T25) return(MISSED);
+				if((**pp_b)[*p_ib] != T3 && (**pp_b)[*p_ib] != T47 && (**pp_b)[*p_ib] != T25) return(MISSED);
 				mm = (**pp_b)[*p_ib];
 				pp = (**pp_b)[(*p_ib)+1];
 				if(mm == T25) pp += 16384;
@@ -1765,7 +1765,7 @@ int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned 
 				(*p_ib) += 2;
 				return(OK);
 				}
-			if(m == T1 || m == T0 || m == T5 || m == T3 || m == T25 || m == T43) {
+			if(m == T1 || m == T0 || m == T5 || m == T3 || m == T47 || m == T25 || m == T43) {
 			/* m = T3 or T25 while checking slave bracket */
 				if(m != (**pp_b)[*p_ib] || p != (**pp_b)[(*p_ib)+1]) return(MISSED);
 				(*p_ib) += 2;
