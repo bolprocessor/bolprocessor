@@ -830,7 +830,6 @@ int ClearObjectSpace(void) { // NOT USED
 	MyDisposeHandle((Handle*)&p_PasteDone);
 	MyDisposeHandle((Handle*)&p_Tref);
 	MyDisposeHandle((Handle*)&p_Tpict);
-	// MyDisposeHandle((Handle*)&p_ObjectColor);
 	MyDisposeHandle((Handle*)&p_Resolution);
 	MyDisposeHandle((Handle*)&p_CsoundInstr);
 	MyDisposeHandle((Handle*)&p_CsoundAssignedInstr);
@@ -919,7 +918,6 @@ int MakeSoundObjectSpace(void) {
 	if((p_PasteDone = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
 	if((p_Tref = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
 	if((p_Tpict = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
-	/* if((p_ObjectColor = (RGBColor**) GiveSpace((Size) jmax *sizeof(RGBColor))) == NULL) goto ERR; */
 	if((p_Resolution = (int**) GiveSpace((Size) jmax *sizeof(int))) == NULL) goto ERR;
 	if((p_CsoundInstr = (int**) GiveSpace((Size) jmax *sizeof(int))) == NULL) goto ERR;
 	if((p_CsoundAssignedInstr = (int**) GiveSpace((Size) jmax *sizeof(int))) == NULL) goto ERR;
@@ -934,6 +932,7 @@ int MakeSoundObjectSpace(void) {
 	
 	for(j=2; j < jmax; j++) { // 2026-03-21
 		(*p_MIDIsize)[j] = (*p_CsoundSize)[j] = ZERO;
+		(*p_DefaultChannel)[j] = 0;
 		}
 
 	for(j=0; j < 2 ; j++) {
@@ -975,7 +974,6 @@ int MakeSoundObjectSpace(void) {
 		(*p_Tpict)[j] = Infneg;
 		(*p_CsoundInstr)[j] = 0;
 		(*p_CsoundAssignedInstr)[j] = -1;
-		// (*p_ObjectColor)[j].red = (*p_ObjectColor)[j].green = (*p_ObjectColor)[j].blue = -1L;
 		}
 	(*p_Tref)[1] = (*p_Dur)[1] = 1000L;
 	(*p_OkPan)[1] = (*p_OkVolume)[1] = (*p_OkMap)[1] = (*p_OkVelocity)[1] = TRUE;
@@ -1094,10 +1092,11 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 	MySetHandleSize((Handle*)&p_Ifrom,(Size)maxsounds*sizeof(int));
 	MySetHandleSize((Handle*)&p_Quan,(Size)maxsounds*sizeof(double));
 	MySetHandleSize((Handle*)&p_DefaultChannel,(Size)maxsounds*sizeof(char));
+	if(p_DefaultChannel != NULL && *p_DefaultChannel != NULL)
+    	memset(*p_DefaultChannel,0,(size_t)maxsounds * sizeof(char));
 	MySetHandleSize((Handle*)&p_PasteDone,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_Tref,(Size)maxsounds*sizeof(long));
 	MySetHandleSize((Handle*)&p_Tpict,(Size)maxsounds*sizeof(long));
-	/* MySetHandleSize((Handle*)&p_ObjectColor,(Size)maxsounds*sizeof(RGBColor));*/
 	MySetHandleSize((Handle*)&p_Resolution,(Size)maxsounds*sizeof(int));
 	MySetHandleSize((Handle*)&p_CsoundInstr,(Size)maxsounds*sizeof(int));
 	MySetHandleSize((Handle*)&p_CsoundAssignedInstr,(Size)maxsounds*sizeof(int));
@@ -1136,7 +1135,8 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 		}
 
 	// Create objects for time patterns
-	if(Jbol < maxsounds && Nature_of_time == SMOOTH) {  //  2024-07-25
+//	if(Jbol < maxsounds && Nature_of_time == SMOOTH) { 
+	if(Jbol < maxsounds) {  //  2026-04-06
 		if(Jbol >= 2) j = Jbol;
 		else j = 2;
 		//	BPPrintMessage(0,odInfo,"Running time patterns in ResizeObjectSpace() Jbol = %ld maxsounds = %ld\n",(long)Jbol,(long)maxsounds);
@@ -1195,7 +1195,6 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 			(*p_CsoundAssignedInstr)[j] = -1;
 			(*p_DefaultChannel)[j] = (*p_Quan)[j] = 0;
 			(*p_Tpict)[j] = Infneg;
-		/*	(*p_ObjectColor)[j].red = (*p_ObjectColor)[j].green = (*p_ObjectColor)[j].blue = -1L; */
 			}
 		}
 	return OK;

@@ -92,7 +92,6 @@ if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 (*p_DefaultChannel)[j] = (*p_Quan)[j] = 0;
 (*p_StrikeAgain)[j] = -1;
 (*p_Tpict)[j] = ZERO;
-// (*p_ObjectColor)[j].red = (*p_ObjectColor)[j].green = (*p_ObjectColor)[j].blue = -1L;
 ptr = (Handle)(*pp_Comment)[j];
 if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 (*pp_Comment)[j] = NULL;

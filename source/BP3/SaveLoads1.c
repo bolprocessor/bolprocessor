@@ -1072,14 +1072,10 @@ NEXTBOL:
 		(*p_CsoundInstr)[j] = s;
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 	(*p_Tpict)[j] = k;
-	if(iv > 21) { // These are no longer used
+	if(iv > 21) { // These are no longer used (object colors)
 		if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
-		// (*p_ObjectColor)[j].red = k;
 		if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
-		// (*p_ObjectColor)[j].green = k;
 		if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
-		// (*p_ObjectColor)[j].blue = k;
-		if(trace_load_prototypes) BPPrintMessage(0,odInfo, "(*p_ObjectColor)[j].blue = %ld\n",k);
 		}
 	(*pp_CsoundTime)[j] = NULL;
 	(*p_CompiledCsoundScore)[j] = 0; // Added 2024-07-04
