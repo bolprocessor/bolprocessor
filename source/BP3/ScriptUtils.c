@@ -316,6 +316,8 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			((*p_OUTscript)[Joutscript]).time = 1000 * Tcurr * Time_res; // microseconds
 			if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"[%d] OUTscript instruction %d, duration = %lu ms, time = %lu ms\n",Joutscript,instr,((*p_OUTscript)[Joutscript]).duration / 1000L,((*p_OUTscript)[Joutscript]).time / 1000L);
 			break;
+		case 193:	/* CT (control tag) — dispatcher passthrough, no engine action */
+			break;
 		case 18:	/* Max time */
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);

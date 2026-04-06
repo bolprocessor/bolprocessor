@@ -1992,7 +1992,7 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 						}
 					}
 				oldk = (*((*p_seq)[nseq]))[iplot];
-				if(oldk > 1) continue;
+				if(oldk > 1 || oldk == -1) continue;
 				(*((*p_seq)[nseq]))[iplot] = newk;
 				(*p_nseq) = nseq;
 				if(newk >= 1) (*p_Instance)[newk].nseq = nseq; // 2025-01-15
