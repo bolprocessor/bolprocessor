@@ -403,10 +403,10 @@ char c,*q,**p_line,remark[MAXLIN];
 long origin,neworigin,end,pos,posmax;
 
 if(!CompiledGr) return(MISSED);
-w = LastEditWindow;
-BPActivateWindow(SLOW,w);
+w = wData;
+/* BPActivateWindow(SLOW,w); */
 p_a = NULL; pp_a = &p_a;
-TextGetSelection(&origin, &end, TEH[w]);
+TextGetSelection(&origin, &end, TEH[wData]);
 SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 if(end <= origin) {
 	if(ScriptExecOn) Print(wTrace,"\n*** Can't analyze.  No item selected...\n");
@@ -420,7 +420,9 @@ if(Gram.trueBP && !Gram.hasTEMP) {
 		!= NO) return(ABORT);
 	} */
 templates = NO;
-if(Gram.hasTEMP && (templates=Answer("Use templates",'Y')) == ABORT) return(ABORT);
+if(Gram.hasTEMP) templates = YES;
+//  if(Gram.hasTEMP && (templates=Answer("Use templates",'Y')) == ABORT) return(ABORT);
+
 pos = ZERO; all = NO;
 p_line = NULL;
 if(templates) {
@@ -428,23 +430,25 @@ if(templates) {
 	while(posmax > 0 && GetTextChar(wGrammar,posmax-1) == '\r') posmax--;
 	while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 		if((*p_line)[0] == '\0') continue;
-		if(Mystrcmp(p_line,"TEMPLATES:") == 0) break;
+		if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
+			BPPrintMessage(0,odInfo,"Template(s) found, position %ld\n",pos);
+			break;
+			}
 		}
-	if((r=Answer("Show only first matching template",'Y')) == ABORT) {
+/*	if((r=Answer("Show only first matching template",'Y')) == ABORT) {
 		MyDisposeHandle((Handle*)&p_line); return(r);
 		}
-	if(r == NO) all = YES;
+	if(r == NO) all = YES; */
+	all = YES;
 	}
 MyDisposeHandle((Handle*)&p_line);
-if(wTrace != w) SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
+// if(wTrace != w) 
+SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 MaxDeriv = MAXDERIV;
+
 if(MakeComputeSpace(MaxDeriv) != OK) return(MISSED);
 if(learn) ResetRuleWeights(&Gram,1);
 neworigin = origin;
-
-#if BP_CARBON_GUI_FORGET_THIS
-SwitchOn(NULL,wControlPannel,dAnalyze);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 /* Skip headers */
 p_line = NULL;
@@ -463,8 +467,7 @@ origin = neworigin;
 r = OK; p_line = NULL;
 while(origin < end) {
 	r = OK;
-	PleaseWait();
-	ShowMessage(TRUE,wMessage,"Analyzing selection...");
+	BPPrintMessage(0,odInfo,"Analyzing selection...\n");
 	while(MySpace(c=GetTextChar(w,origin)) || c == '\r') {
 		origin++;
 		if(origin >= end) goto END;
@@ -474,31 +477,31 @@ while(origin < end) {
 	if(ReadLine(YES,w,&neworigin,end,&p_line,&i) != OK) goto END;
 	GetInitialRemark(p_line,remark);
 	neworigin = origin;
-	if((r = SelectionToBuffer(FALSE,FALSE,w,pp_a,&neworigin,ANAL)) != OK) {
+	if((r = SelectionToBuffer(FALSE,FALSE,w,pp_a,&neworigin,(int)ANAL)) != OK) {
 		MyDisposeHandle((Handle*)pp_a);
-		BPActivateWindow(SLOW,wTrace);
-		r = MISSED; goto END;
+		BPPrintMessage(0,odInfo,"=> BAD\n");
 		}
-	SetSelect(origin,neworigin,TEH[w]);
-	BPActivateWindow(QUICK,w);
-	SelectBehind(origin,origin,TEH[w]);
-	origin = neworigin;
-	PleaseWait();
+	SetSelect(origin,(neworigin - 1L),TEH[w]);
+//	BPActivateWindow(QUICK,w);
+//	SelectBehind(origin,origin,TEH[w]);
+//	origin = neworigin;
+//	PleaseWait();
 	if(r == OK) r = AnalyzeBuffer(pp_a,learn,templates,all,pos,&result,remark);
 	MyDisposeHandle((Handle*)pp_a);
 	if(r == ABORT || r == EXIT) goto END;
 	else r = OK;
-	my_sprintf(Message,""); // Fixed by BB 2022-02-2
+	my_sprintf(Message,"");
 	if(result == OK) my_sprintf(Message,"[PASSED] ");
 	if(result == MISSED) my_sprintf(Message,"[MISSED] ");
-	dif = strlen(Message);
+	origin = neworigin;
+/*	dif = strlen(Message);
 	if(dif > 0 && w != wTrace) {
 		Print(w,Message);
 		origin += dif; end += dif;
-		}
+		} */
 	}
-SetSelect(end,end,TEH[w]);
-ShowSelect(CENTRE,w);
+/* SetSelect(end,end,TEH[w]);
+ShowSelect(CENTRE,w); */
 if(learn) {
 	if((r=Answer("Add infered weights\nto current weights",'Y'))
 		== ABORT) {
@@ -1261,7 +1264,7 @@ return(OK);
 }
 
 
-int ReadTemplate(int w,long pos,long *p_posend,tokenbyte ***pp_a,int *p_i)
+int ReadTemplate(int w,long pos,long *p_posend,tokenbyte ***pp_a,long posmax,int *p_i)
 {
 int i,j,jj,l,n,lmax;
 long im,u,v;
@@ -1278,7 +1281,7 @@ if(*pp_a == NULL) {
 h = WindowTextHandle(TEH[w]);
 im = (long) MyGetHandleSize((Handle)*pp_a);
 im = (long) (im / sizeof(tokenbyte)) - 6L;
-for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\0'; pos++) {
+for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\n' && c != '\0'; pos++) {
 	if(MySpace(c)) continue;
 	if(c == '[') {
 		(*p_i) = 0;
@@ -1290,8 +1293,10 @@ for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\0'; pos++) {
 				}
 			*p_i = *p_i * 10 + c;
 			}
-		continue;
+	//	BPPrintMessage(0,odInfo,"pos = %ld (%d) ",pos,(*p_i));
+	//	continue;
 		}
+	// BPPrintMessage(0,odInfo,"%c",c);
 	if(i > im) {
 		if(ThreeOverTwo(&im) != OK) {
 			BPPrintMessage(0,odError,"=> Err. ReadTemplate(). Can't resize");
@@ -1331,7 +1336,7 @@ for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\0'; pos++) {
 		(**pp_a)[i++] = (tokenbyte) 0; continue;
 		}
 		
-	if(c == '-') {	/* Separating line below templates */
+	 if(pos >= posmax  || c == '-') {	// Separating line below templates
 		return(MISSED);
 		}
 	
@@ -1408,6 +1413,7 @@ for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\0'; pos++) {
 	}
 (**pp_a)[i++] = (tokenbyte) TEND; (**pp_a)[i++] = (tokenbyte) TEND;
 (*p_posend) = pos + 1;
+// BPPrintMessage(0,odInfo,"\n@@@ End reading template, posend = %ld\n",(*p_posend));
 return(OK);
 }
 
@@ -1488,11 +1494,10 @@ int AnalyzeBuffer(tokenbyte ***pp_a,int learn,int templates,int all,long pos,int
 	}
 
 
-int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templates,int all,
-	long pos,int *p_result,char *remark) {
+int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templates,int all,long pos,int *p_result,char *remark) {
 /* pos = position of first template considered in grammar window */
-	int i,itemp,r,igram,finish,again,foundone,good,hasperiods;
-	long posend,lastbyte;
+	int i,itemp,r,igram,finish,again,foundone,good,hasperiods,success;
+	long posend,lastbyte, posmax;
 	tokenbyte m,p,**p_b,***pp_b,**p_c,***pp_c,**p_d,***pp_d;
 	double maxseqapprox;
 	unsigned long time_end_compute;
@@ -1502,27 +1507,28 @@ int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templa
 	pp_b = &p_b; pp_c = &p_c; pp_d = &p_d;
 
 	r = OK; (*p_result) = ABORT;
+	success = FALSE;
 
 	lastbyte = GetTextLength(wTrace);
+	posmax = GetTextLength(wGrammar) - 1;
 	SetSelect(lastbyte,lastbyte,TEH[wTrace]);
 	if(remark[0] == '\0') my_sprintf(LineBuff,"");
 	else my_sprintf(LineBuff,"[%s] ",remark);
-	if((all && templates) || DisplayProduce) {
+	if(((all && templates) || DisplayProduce)) {
 		if(remark[0] == '\0') {
-			Print(wTrace,">>> Analyzing item: ");
-			if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wTrace,pp_Scrap,pp_a)) != OK)
+	/*		BPPrintMessage(0,odInfo,"👉 Analyzing item: \n");
+			if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wData,pp_Scrap,pp_a)) != OK)
 				return(r);
+			BPPrintMessage(0,odInfo,"\n"); */
 			}
 		else {
-			my_sprintf(Message,">>> Analyzing item [%s]\n",remark);
-			Print(wTrace,Message);
+			BPPrintMessage(0,odError,"👉 Analyzing item [%s]\n",remark);
 			}
 		if(StepProduce) {
 			r = InterruptCompute(-1,&Gram,*p_repeat,-1,ANAL);
 			if(r != OK) return(r);
 			}
 		}
-	ShowSelect(CENTRE,wTrace);
 	BufferSize = MAXDISPL;
 	if(*pp_a == NULL) {
 		BPPrintMessage(0,odError,"=> Err. Analyze(). *pp_a = NULL");
@@ -1554,8 +1560,7 @@ int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templa
 		r = ABORT; goto END;
 		}
 		
-	NEXTTEMPLATE:
-	PleaseWait();
+NEXTTEMPLATE:
 	if(CopyBuf(pp_c,pp_a) == ABORT) {
 		r = ABORT; goto END;
 		}
@@ -1565,20 +1570,19 @@ int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templa
 			GiveSpace((Size) MAXDISPL * sizeof(tokenbyte))) == NULL) {
 			r = ABORT; goto END;
 			}
-		if(ReadTemplate(wGrammar,pos,&posend,pp_b,&itemp) != OK) {
+		// BPPrintMessage(0,odInfo,"@@@ Template  pos = %ld, itemp = %d\n",pos,itemp);
+		if(ReadTemplate(wGrammar,pos,&posend,pp_b,posmax,&itemp) != OK) {
 			(*p_result) = MISSED;
 			if(!foundone) {
-				my_sprintf(Message,"Item matched no template...");
-				ShowMessage(TRUE,wMessage,Message);
-				if(StepProduce) {
+				BPPrintMessage(0,odInfo,"Item matched no template...\n");
+				if(FALSE && StepProduce) {
 					r = InterruptCompute(-1,&Gram,*p_repeat,-1,ANAL);
 					if(r != OK) {
 						MyDisposeHandle((Handle*)pp_b);
 						goto END;
 						}
 					}
-				my_sprintf(Message,"Item %smatched no template...\n\n",LineBuff);
-				Print(wTrace,Message);
+				BPPrintMessage(0,odInfo,"Item %s matched no template...\n\n",LineBuff);
 				}
 			else if(good) *p_result = OK;
 			MyDisposeHandle((Handle*)pp_b);
@@ -1586,6 +1590,7 @@ int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templa
 			else */ r = OK;
 			goto END;
 			}
+	//	BPPrintMessage(0,odInfo,"Template [%d] has been read\n",itemp);
 		hasperiods = FoundPeriod(pp_b);
 		if((r=MatchTemplate(pp_a,pp_b)) != OK) {
 			MyDisposeHandle((Handle*)pp_b);
@@ -1609,16 +1614,13 @@ int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templa
 		if(ScriptExecOn || all || DisplayProduce) {
 			lastbyte = GetTextLength(wTrace);
 			SetSelect(lastbyte,lastbyte,TEH[wTrace]);
-			if(DisplayProduce) {
-				my_sprintf(Message,"Item matched template [%ld], yielding:\n",(long)itemp);
-				Print(wTrace,Message);
-				if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wTrace,pp_Scrap,pp_a)) != OK) goto END;
-				ShowSelect(CENTRE,wTrace);
+			if(FALSE && DisplayProduce) {
+				BPPrintMessage(0,odError,"Item matched template [%ld], yielding:\n",(long)itemp);
+				if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wData,pp_Scrap,pp_a)) != OK) goto END;
+				BPPrintMessage(0,odError,"\n");
 				}
 			else {
-				my_sprintf(Message,"Item %smatched template [%ld]\n",LineBuff,(long)itemp);
-				Print(wTrace,Message);
-				ShowSelect(CENTRE,wTrace);
+				BPPrintMessage(0,odError,"Item %smatched template [%ld]\n",LineBuff,(long)itemp);
 				}
 			}
 		if(StepProduce) {
@@ -1629,7 +1631,6 @@ int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templa
 	ClearMarkers(pp_a);
 
 	time_end_compute = 0L;
-
 	for(igram=Gram.number_gram; igram >= 1; igram--) {
 		PleaseWait();
 		finish = FALSE;
@@ -1671,15 +1672,16 @@ int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templa
 		if(m == T1) continue;
 		break;
 		}
-	if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 10) { /* 'S' */
-		good = (*p_result) = YES;
-		if(!templates) my_sprintf(Message,"Item %saccepted by grammar...",LineBuff);
-		else my_sprintf(Message,
-			"Item %smatching template [%ld] accepted by grammar...",LineBuff,(long)itemp);
-		ShowMessage(TRUE,wMessage,Message);
-		if(!templates) my_sprintf(Message,"Item %saccepted by grammar...\n\n",LineBuff);
-		else my_sprintf(Message,"Item %smatching template [%ld] accepted by grammar...\n\n",
-			LineBuff,(long)itemp);
+	
+	if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 10) { // 'S'
+		good = (*p_result) = success = YES;
+		if(!templates) BPPrintMessage(0,odInfo,"Item %saccepted by grammar... 😀\n",LineBuff);
+		else BPPrintMessage(0,odInfo,
+			"👉 Item %s matching template [%ld] accepted by grammar... 😀\n",LineBuff,(long)itemp);
+/*		ShowMessage(TRUE,wMessage,Message);
+		if(!templates) BPPrintMessage(0,odInfo,"👉 Item %saccepted by grammar... 😀\n\n",LineBuff);
+		else BPPrintMessage(0,odInfo,"👉 Item %smatching template [%ld] accepted by grammar... 😀\n\n",LineBuff,(long)itemp);
+		Print(wTrace,Message);
 		if(1 || all || DisplayProduce || ScriptExecOn) {
 			Print(wTrace,Message);
 			ShowSelect(CENTRE,wTrace);
@@ -1687,24 +1689,18 @@ int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templa
 		if(StepProduce) {
 			r = InterruptCompute(-1,&Gram,*p_repeat,-1,ANAL);
 			if(r != OK) goto END;
-			}
+			}  */
 		if(all && templates) goto NEXTTEMPLATE;
 		}
 	else {
-		my_sprintf(Message,"Item %srejected by grammar...",LineBuff);
 		(*p_result) = MISSED;
-		ShowMessage(TRUE,wMessage,Message);
 		if(templates)
-			my_sprintf(Message,"Item %smatching template [%ld] rejected by grammar...\n",LineBuff,
-				(long)itemp);
+			BPPrintMessage(0,odInfo,"👉 Item %s matching template [%ld] rejected by grammar... 😢\n",LineBuff,(long)itemp);
 		else
-			my_sprintf(Message,"Item %srejected by grammar...\n",LineBuff);
-		Print(wTrace,Message);
-		my_sprintf(Message,"Result of failed analysis:\n");
-		Print(wTrace,Message);
-		if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wTrace,pp_Scrap,pp_a)) != OK)
-			goto END;
-		ShowSelect(CENTRE,wTrace);
+			BPPrintMessage(0,odInfo,"👉 Item %s rejected by grammar... 😢\n",LineBuff);
+		BPPrintMessage(0,odInfo,"Result of failed analysis:\n");
+		if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wData,pp_Scrap,pp_a)) != OK) goto END;
+		BPPrintMessage(0,odInfo,"\n");
 		if(templates) goto NEXTTEMPLATE;
 		if(learn) {
 			r = ABORT; goto END;
@@ -1713,6 +1709,7 @@ int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templa
 		}
 
 	END:
+	if(!success) BPPrintMessage(0,odInfo,"😢 No success in parsing!\n",LineBuff);
 	ShowSelect(CENTRE,wTrace);
 	MyDisposeHandle((Handle*)pp_c);
 	MyDisposeHandle((Handle*)pp_d);

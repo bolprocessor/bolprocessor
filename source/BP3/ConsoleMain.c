@@ -255,9 +255,11 @@ int main (int argc, char* args[]) {
 				else if(Beta && result != OK && result != ABORT) BPPrintMessage(0,odError,"=> PlaySelection() returned errors\n");
 				break;
 			case analyze:
+				BPPrintMessage(0,odInfo,"Analysing this item\n");
+                start = 0;
+                end = GetTextLength(wData);
+                SetSelect(start,end,TEH[wData]);
 				if(CompileCheck() == OK && ShowNotBP(&Gram) == OK)	{
-					// FIXME: Need to either set a selection or call SelectionToBuffer()
-					// and AnalyzeBuffer() similarly to AnalyzeSelection().
 					result = AnalyzeSelection(FALSE);
 					if(result != OK)  BPPrintMessage(0,odError,"=> AnalyzeSelection() returned errors\n");
 					}
@@ -806,8 +808,8 @@ const char gOptionList[] =
 /*	"  -s or --start string   use 'string' as the start string (default is \"S\")\n"
 	"  -S startfile           read the start string from file 'startfile'\n" */
 	"  --seed num:             seeds the random number generator with the integer 'num'\n"
-/*	"  --show-production      outputs the work string at each step of producing items\n"
-	"  --trace-production     outputs the work string & selected rule at each step of production\n" */
+	"  --show-production      outputs the work string at each step of producing items\n"
+	"  --trace-production     outputs the work string & selected rule at each step of production\n"
 	"(These options take precedence over the values in the settings file.)\n"
 	"\n"
 	"OPTIONS (Musical):\n"
@@ -1092,13 +1094,12 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					gOptions.outputFiles[ofiMidiFile].name = "../my_output/set_-da.Watch_What_Happens_by_Oscar_Peterson[1]/essayer.mid";
 					opts->outOptsChanged = TRUE; */
 					}
-				else if(strcmp(args[argn], "analyze-item") == 0)	{
+				else if(strcmp(args[argn], "analyze") == 0)	{
 					action = analyze;
-					// FIXME: look for the item number in next arg
-				}
+					}
 				else if(strcmp(args[argn], "expand") == 0)	{
 					action = expand;
-				}
+					}
 				else if(strcmp(args[argn], "show-beats") == 0)	{
 					action = show_beats;
 					// FIXME: look for the item number in next arg
@@ -1196,7 +1197,7 @@ int ApplyArgs(BPConsoleOpts* opts)
 	if(opts->traceProduction != NOCHANGE)	{
 		DisplayProduce = opts->traceProduction;
 		TraceProduce = opts->traceProduction;
-	}
+		}
 	// showProduction could be enabled after traceProduction is disabled
 	if(opts->showProduction != NOCHANGE)	DisplayProduce = opts->showProduction;
 	if(opts->noteConvention != NOCHANGE)	NoteConvention = opts->noteConvention;
@@ -1220,7 +1221,7 @@ const char* ActionTypeToStr(action_t action)
 		case play:			return "play";
 		case play_item:		return "play-item";
 		case play_all:		return "play-all";
-		case analyze:		return "analyze-item";
+		case analyze:		return "analyze";
 		case expand:	return "expand";
 		case show_beats:	return "show-beats";
 		case templates:		return "templates";

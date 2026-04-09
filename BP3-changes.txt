@@ -6,6 +6,14 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+2026-04-09 (version 3.4.0)
+This is the first version of BP3 that can analyse items against a grammar. This feature has been inherited from BP1 and BP2. However, parsing only works with "true BP grammars" — read https://bolprocessor.org/bol-processor-grammars/.
+Check the examples -da.dhahatite/-gr.dhahatite and -da.dhin-/-gr.dhin-, which are explained on this page: https://bolprocessor.org/parsing-items/.
+The production of templates in grammars will be made available in the next version.
+Don't forget to update the PHP interface:
+https://github.com/bolprocessor/php-frontend/
+
+-----
 2026-04-02 -> 2026-04-06 (version 3.3.19)
 Many small changes have been made to deal more precisely with the "max items produced" parameter. Consistency is required for comparative tests in the WebAssembly environment.
 The "max items displayed" setting in the interface also allows you to indicate the maximum number of items that can be shown in images. Previously, this value was fixed at 10.
@@ -14,8 +22,6 @@ Problems in ResizeObjectSpace() have been fixed.
 For geeks(1): The calculation of random numbers has been customised to create identical sequences under MacOS, Windows and Linux. See file "bp3_random.c".
 For geeks(2): In "FillPhaseDiagrams.c", "SetObjectFeatures.c" and "Graphic.c", remaining variables (processed as silent sound-objects) are tagged with T47 instead of T4.
 For geeks(3): You can now send a command line to the console from within the 'bolprocessor' folder instead of 'bolprocessor/php' which is used by the PHP interface. Click the "console's instruction" link for details.
-Don't forget to update the PHP interface:
-https://github.com/bolprocessor/php-frontend/
 
 -----
 2026-03-26 (version 3.3.18)

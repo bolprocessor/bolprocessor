@@ -1698,22 +1698,16 @@ static char *err[] = {
 	};
 
 if(!CompiledGr || p_gram->trueBP) return(OK);
-BPActivateWindow(SLOW,wTrace);
-my_sprintf(Message,"\nThis is not a true BP grammar.\nThe following features are not standard:\n");
-Print(wTrace,Message);
+BPPrintMessage(0,odError,"=> This is not a true BP grammar.\nThe following features are not standard:\n");
 for(i=0; i < MAXNOTBPCASES; i++) {
 	if(NotBPCase[i]) {
-		my_sprintf(Message,"[%ld] %s\n",(long)j,err[i]);
-		Print(wTrace,Message);
+		BPPrintMessage(0,odError,"[%ld] %s\n",(long)j,err[i]);
 		j++;
 		}
 	}
-ShowSelect(CENTRE,wTrace);
-if(!ScriptExecOn) BPPrintMessage(0,odError,"Not a true BP grammar...");
-else PrintBehind(wTrace,"Not a true BP grammar...\n");
+BPPrintMessage(0,odError,"\n");
 return(MISSED);
 }
-
 
 int MaintainSelectionInGrammar(long pos,int dif) {
 	if(pos <= GramSelStart) GramSelStart += dif;

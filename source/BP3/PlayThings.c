@@ -1076,7 +1076,7 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 	*p_end = end;
 	SelectOn = TRUE;
 
-	POSITION:
+POSITION:
 	while(MySpace(c=GetTextChar(w,origin))) {
 		origin++;
 		if(origin == end) {
@@ -1113,9 +1113,7 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 		goto SORTIR;
 		}
 	*pp_buff = ptr;
-//	BPPrintMessage(0,odInfo,"@@@ Selection %d %d length %d\n",origin,end,length);
 	if(ReadToBuff(YES,noreturn,w,&origin,end,pp_buff) != OK) goto BAD;
-
 	*p_end = origin;
 //	MyLock(TRUE,(Handle)*pp_buff);
 	p1 = **pp_buff; p2 = p1; i = 0; ret = FALSE;
@@ -1135,14 +1133,13 @@ int SelectionToBuffer(int sequence,int noreturn,int w,tokenbyte ***pp_X,
 			}
 		} 
 	if(p1 == p2) {
-		MyUnlock((Handle)*pp_buff);
+	//	MyUnlock((Handle)*pp_buff);
 		goto BAD;
 		}
 	jbolmem = Jbol;
 	notargument = TRUE;
-//	BPPrintMessage(0,odInfo,"@@@ Encode\n");
+	// BPPrintMessage(0,odInfo,"@@@ Encode\n");
 	p_ti = Encode(&Gram,sequence,notargument,0,0,&p1,&p2,p_plx,p_prx,&meta,0,NULL,FALSE,&rep);
-//	MyUnlock((Handle)*pp_buff);
 	MyDisposeHandle((Handle*)pp_buff);
 	if(p_ti == NULL) {
 		SelectOn = FALSE;

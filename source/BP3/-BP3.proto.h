@@ -448,7 +448,7 @@ int MakeTemplate(tokenbyte***);
 int WriteTemplate(t_gram*,int,tokenbyte***);
 int ClearMarkers(tokenbyte***);
 int CheckSize(unsigned long,unsigned long*,tokenbyte***);
-int ReadTemplate(int,long,long*,tokenbyte***,int*);
+int ReadTemplate(int,long,long*,tokenbyte***,long,int*);
 int DeleteTemplates(void);
 int MakeSound(long*,unsigned long,int,tokenbyte***,long,long,int,Milliseconds**);
 int SendControl(ContinuousControl**,Milliseconds,int,int,int,int,int,int*,char***,

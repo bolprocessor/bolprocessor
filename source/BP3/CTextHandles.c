@@ -166,19 +166,19 @@ int SetSelect(TextOffset start,TextOffset end, TextHandle th)
 	/* clamp range to text bounds */
 	maxoffset = GetTextHandleLength(th);
 	if(start < ZERO) {
-		BPPrintMessage(0,odError,"=> Err. SetSelect(). start < ZERO");
+		BPPrintMessage(0,odError,"=> Err. SetSelect(). start < ZERO\n");
 		start = ZERO;
 	}
 	else if(start > maxoffset) {
-		BPPrintMessage(0,odError,"=> Err. SetSelect(). start > maxoffset");
+		BPPrintMessage(0,odError,"=> Err. SetSelect(). start > maxoffset, start = %ld\n",(long)start);
 		start = maxoffset;
 	}
 	if(end < ZERO) {
-		BPPrintMessage(0,odError,"=> Err. SetSelect(). end < ZERO");
+		BPPrintMessage(0,odError,"=> Err. SetSelect(). end < ZERO\n");
 		end = ZERO;
 	}
 	else if(end > maxoffset) {
-		BPPrintMessage(0,odError,"=> Err. SetSelect(). end > maxoffset");
+		BPPrintMessage(0,odError,"=> Err. SetSelect(). end > maxoffset, end = %ld, maxoffset = %ld\n",(long)end,maxoffset);
 		end = maxoffset;
 	}
 

@@ -277,12 +277,12 @@ char c;
 
 i = j = 0; remark[j] = '\0';
 while((c=(*p_line)[i++]) != '[') {
-	if(c == '\0') return(OK);
+	if(c == '\0' || c  == '\n') return(OK);
 	}
 while((c=(*p_line)[i++]) != ']') {
 	remark[j++] = c;
 	if(j >= MAXLIN) break;
-	if(c == '\0') return(OK);
+	if(c == '\0' || c  == '\n') break;
 	}
 remark[j] = '\0';
 return(OK);
