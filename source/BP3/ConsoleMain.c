@@ -274,10 +274,7 @@ int main (int argc, char* args[]) {
 			case show_beats:
 				break;
 			case templates:
-				if(CompileCheck() == OK && ShowNotBP(&Gram) == OK)	{
-					result = ProduceItems(wStartString,FALSE,TRUE,NULL);
-			//		if(Beta && result != OK) BPPrintMessage(0,odError, "=> ProduceItems() returned errors\n");
-				}
+				result = ProduceItems(wStartString,FALSE,TRUE,NULL);
 				break;
 			case no_action:
 				  BPPrintMessage(0,odError, "=> Err. main(): action == no_action\n");
@@ -964,6 +961,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 					// look at the next argument for the output file name
 					if(++argn < argc)  {
 						opts->outputFiles[ofiTraceFile].name = args[argn];
+						strcpy(TraceOutFilePath,args[argn]);
 						}
 					else {
 						BPPrintMessage(0,odError, "\n=> Missing filename after %s\n\n", args[argn-1]);

@@ -193,7 +193,7 @@ Milliseconds TabfileStart;
 long ProduceStackDepth,ProduceStackIndex,DisplayStackIndex,
 	**p_LastStackIndex,**p_MemPos;
 long **p_ItemStart,**p_ItemEnd,CompileDate,ComputeStart,MaxComputeTime,
-	ComputeTime,ItemNumber,Interrupted,MaxDeriv,Sel1,Sel2,AssignedTempoCsoundFile;
+	ComputeTime,ItemNumber,TemplateNumber,Interrupted,MaxDeriv,Sel1,Sel2,AssignedTempoCsoundFile;
 int Nplay,SynchroSignal,Quantize,IgnoreCase,MatchWords,
 	TargetWindow,GraphicScaleP,GraphicScaleQ;
 long Time_res,Quantization,MaxDeltaTime;
@@ -236,7 +236,7 @@ long MidiLen_pos,**p_Tref,**p_Tpict;
 dword MIDItracklength,Midi_msg;
 Milliseconds OldMIDIfileTime;
 unsigned long LapWait,WhenItStarted;
-int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,Token,SpaceOn,
+int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,SplitLines,Token,SpaceOn,
 	VariableOn,N_err,nstore,NumberTables,OkShowExpand,Improvize,ComputeWhilePlay,TransposeInput,
 	TransposeValue,Varweight,Flagthere,ResetDone,BolsInGrammar,NoAlphabet,PointCsound,PointMIDI,
 	**p_Ifrom,**p_Resolution,**p_CsoundInstr,**p_CsoundAssignedInstr;
@@ -289,7 +289,7 @@ char LiveFolder[MAXNAME];
 double SpeedRange,Ke,CorrectionFactor;
 unsigned long NumEventsWritten;
 int DeriveFurther,DeriveFurtherKey,DeriveFurtherChan,ResetWeights,NeverResetWeights,
-	ResetWeightKey,ResetWeightChan,ResetFlags,ResetControllers,AllItems,JustCompiled,
+	ResetWeightKey,ResetWeightChan,ResetFlags,ResetControllers,AllItems,AllTemplates,JustCompiled,
 	PlayKey,PlayChan,RepeatKey,RepeatChan,EndRepeatKey,EndRepeatChan,IgnoreUndefinedVariables,
 	EverKey,EverChan,QuitKey,QuitChan,MuteOnKey,MuteOnChan,MuteOffKey,MuteOffChan,
 	UseEachSubKey,UseEachSubChan,
@@ -309,6 +309,7 @@ TextOffset UndoPos;
 long CountOn;
 unsigned long WaitStartDate,WaitEndDate;
 char Message[MAXLIN],TheName[MAXNAME];
+char TraceOutFilePath[MAXLIN];
 char DateMark[] = "Date:";
 // PolyHandle p_Diagram[MAXDIAGRAM];
 int Ndiagram,ObjectMode,ObjectTry;

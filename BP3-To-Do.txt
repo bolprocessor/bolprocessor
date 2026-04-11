@@ -51,7 +51,7 @@ Apache autostart in XAMPP for MacOS
 Microtonal scales and tuning systems
 ------------------------------------
 
-- Retuning the MIDI device to diapason A4 ≠ 440 Hz does not work or makes a mess (e.g. Windows 10, Microsoft GS Wavetable Synth).
+- Tuning the MIDI device to diapason A4 ≠ 440 Hz does not work or makes a mess (e.g. Windows 10, Microsoft GS Wavetable Synth).
 - Check that setting pitchbend range to ± 200 cents on all channels works.
 - Include values for optional stretching of octaves.
 - Implement a performance control to set the A4 frequency (diapason) within the score.
@@ -118,16 +118,6 @@ Antescofo Score Language
 - Study ASCL. Antescofo can be used as a standalone program or as an extension in environments like Max/MSP (https://antescofo-doc.ircam.fr/).
 
 
-Open Sound Control (OSC)
-------------------------
-
-- Is it still useful?
-- This development should be easy with the help of AI tools.
-- Read https://en.wikipedia.org/wiki/Open_Sound_Control
-- This might create a framework for connecting BP3 with PYO (http://ajaxsoundstudio.com/software/pyo/)
-- Also try direct communication with MuseScore.
-
-
 HTML/PHP/Javascript interface
 -----------------------------
 
@@ -158,7 +148,7 @@ Read https://forum.csound.com/t/orchestra-file-rejected-by-linux/1780
 Actions
 -------
 
-- Fix analyze-item action.
+- Implement rule weight learning in parsing sets of items.
 - Implement expand-item & show-beats options.
 
 
@@ -173,7 +163,8 @@ Images
 Various issues
 --------------
 
-- Problem tracing the production of an item containing patterns.
+- Currently, the console crashes if the list of TEMPLATES in a grammar is not terminated with a solid line "-----". The interface takes care of this by adding the missing terminating line.
+- Problem tracing the production of an item containing structural patterns.
 - When outputing a data file of an item requiring serial tools (NeedZouleb > 0), display the result after the application of tools. Example: -gr.Visser.Waves. This may happen in Compute.c after SORTIR.
 - Errors of duration occur when playing some polymetric structures with tied notes that miss their target. Examples are stored in -da.checkBadDurations.
 - Check why tempo(3/2) {C4& {3,&C4 _rest D4}} does not produce the same pattern as {C4& {3,&C4 _rest D4}} 

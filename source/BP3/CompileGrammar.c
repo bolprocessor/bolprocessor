@@ -182,12 +182,12 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 			goto NEXTLINE;
 			}
 		if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
+			p_gram->hasTEMP = TRUE;
 			do {
 				if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
 				if((*p_line)[0] == '\0') continue;
 				}
 			while((*p_line)[0] != '-' || (*p_line)[1] != '-');
-			p_gram->hasTEMP = TRUE;
 			goto NEXTLINE;
 			}
 		p = &((*p_line)[0]); q = &(InitToken[0]);
@@ -318,7 +318,8 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 
 	END:
 	MyDisposeHandle((Handle*)&p_line);
-	if(verbose) BPPrintMessage(0,odInfo,"Parsing completed\n");
+//	if(verbose) 
+	BPPrintMessage(0,odInfo,"Parsing completed\n");
 
 	// DisplayGrammar(p_gram,wData,TRUE,TRUE);
 
@@ -330,12 +331,13 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 		Panic =  TRUE; // 2024-06-18
 		return(ABORT);
 		} */
-	if((*(p_gram->p_subgram))[p_gram->number_gram].number_rule < 1) {
+/*	if((*(p_gram->p_subgram))[p_gram->number_gram].number_rule < 1) {
+		// 2026-04-11
 		ptr = (t_rule**) (*(p_gram->p_subgram))[p_gram->number_gram].p_rule;
 		MyDisposeHandle((Handle*)&ptr);
 		(*(p_gram->p_subgram))[p_gram->number_gram].p_rule = NULL;
 		p_gram->number_gram--;
-		}
+		} */
 	MaxGram = p_gram->number_gram;
 	if(p_gram->number_gram == 0) {
 		ptr1 = (Handle) p_gram->p_subgram;
@@ -359,7 +361,8 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 		NotBPCase[8] = FALSE;
 		for(i=0; i < MAXNOTBPCASES; i++) {
 			if(NotBPCase[i]) {
-				p_gram->trueBP = FALSE; break;
+				p_gram->trueBP = FALSE;
+				break;
 				}
 			}
 		if(InsertGramCorrections) InsertSubgramTypes(p_gram);
@@ -368,9 +371,9 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 		return(OK);
 		}
 	else {
-		if(verbose) ShowSelect(CENTRE,wTrace);
 		p_gram->trueBP = p_gram->hasTEMP = p_gram->hasproc = FALSE;
 		if(CompileOn) CompileOn--;
+	//	BPPrintMessage(1,odInfo,"@@@@@@##\n");
 		return(N_err == 0);
 		}
 	}
@@ -1681,33 +1684,32 @@ return(0);
 }
 
 
-int ShowNotBP(t_gram* p_gram)
-{
-int i,j=1;
-static char *err[] = {
-"Rule(s) with 'lambda', 'empty', 'null' or 'nil' as right argument",	/* 0 */
-" ", 		/* 1 */
-"'SUB' or 'SUB1' or 'POSLONG' substitutions(s)",	/* 2 */
-"No rule is valid for parsing.  Use '<->' instead of '-->'", /* 3 */
-"Item contains polymetric structure(s)",		/* 4 */
-"'<Kx>' controlled rule weight(s)",	/* 5 */
-"'/flag/' programmed grammar(s)",	/* 6 */
-"Using tool(s): '_destru','_goto','_failed','_repeat','_retro','_rndseq'", /* 7 */
-"Grammar is empty!",	/* 8 */
-"Period notation is not handled in grammars"	/* 9 $$$ suppressed */
-	};
+int ShowNotBP(t_gram* p_gram) {
+	int i,j=1;
+	static char *err[] = {
+	"Rule(s) with 'lambda', 'empty', 'null' or 'nil' as right argument",	/* 0 */
+	" ", 		/* 1 */
+	"'SUB' or 'SUB1' or 'POSLONG' substitutions(s)",	/* 2 */
+	"No rule is valid for parsing.  Use '<->' instead of '-->'", /* 3 */
+	"Item contains polymetric structure(s)",		/* 4 */
+	"'<Kx>' controlled rule weight(s)",	/* 5 */
+	"'/flag/' programmed grammar(s)",	/* 6 */
+	"Using tool(s): '_destru','_goto','_failed','_repeat','_retro','_rndseq','_keyxpand','_stepOn','_stepOff','_stop'", /* 7 */
+	"Grammar is empty!",	/* 8 */
+	"Period notation is not handled in grammars"	/* 9 $$$ suppressed */
+		};
 
-if(!CompiledGr || p_gram->trueBP) return(OK);
-BPPrintMessage(0,odError,"=> This is not a true BP grammar.\nThe following features are not standard:\n");
-for(i=0; i < MAXNOTBPCASES; i++) {
-	if(NotBPCase[i]) {
-		BPPrintMessage(0,odError,"[%ld] %s\n",(long)j,err[i]);
-		j++;
+	if(!CompiledGr || p_gram->trueBP) return(OK);
+	BPPrintMessage(0,odError,"=> This is not a true BP grammar.\nThe following features are not standard:\n");
+	for(i=0; i < MAXNOTBPCASES; i++) {
+		if(NotBPCase[i]) {
+			BPPrintMessage(0,odError,"[%ld] %s\n",(long)j,err[i]);
+			j++;
+			}
 		}
+	BPPrintMessage(0,odError,"\n");
+	return(MISSED);
 	}
-BPPrintMessage(0,odError,"\n");
-return(MISSED);
-}
 
 int MaintainSelectionInGrammar(long pos,int dif) {
 	if(pos <= GramSelStart) GramSelStart += dif;

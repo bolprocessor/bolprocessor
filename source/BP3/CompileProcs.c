@@ -1620,6 +1620,7 @@ rep = MISSED; CompiledPt = FALSE;
 oldjpatt = Jpatt;
 // ShowMessage(TRUE,wMessage,"Looking for time patterns...");
 if((rep=ReleasePatternSpace()) != OK) goto ERR;
+
 if((rep=GetPatterns(wAlphabet,TRUE)) != OK){	/* Just counting patterns */
 	Jpatt = 0; goto ERR;
 	}
@@ -1660,7 +1661,7 @@ if(CompileOn) CompileOn--;
 return(OK);
 
 ERR:
-ShowMessage(TRUE,wMessage,"Can't compile patterns");
+ShowMessage(TRUE,wMessage,"Can't compile time patterns");
 if(CompileOn) CompileOn--;
 return(rep);
 }
@@ -1679,8 +1680,10 @@ p_line = NULL;
 while(ReadLine(YES,w,&pos,posmax,&p_line,&gap) == OK) {
 	if((*p_line)[0] == '\0') continue;
 	if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
+//		BPPrintMessage(1,odInfo,"@@@ patt\n");
 		do {
-			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) return(result);
+//			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) return(result);
+			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) break;
 			if((*p_line)[0] == '\0') continue;
 			}
 		while((*p_line)[0] != '-' || (*p_line)[1] != '-');

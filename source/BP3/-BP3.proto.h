@@ -441,6 +441,7 @@ int PushStack(tokenbyte***,long*****,long*****,long*,tokenbyte*****,int*,long*);
 int PullStack(tokenbyte***,long****,long****,long*,tokenbyte****,int*,long*);
 int LastGrammarWanted(int);
 int NextDerivation(tokenbyte***,long*,int*,int*,long*,int*,int,unsigned long);
+int DeriveMore(tokenbyte***,long*,int*,int*,long*,int*,int,unsigned long);
 int LastStructuralSubgrammar(void);
 int StructuralRule(int,int);
 int NoVariable(tokenbyte***);

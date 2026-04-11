@@ -84,7 +84,7 @@ int Inits(void) {
 	Option = TickDone = FoundNote = GotAlert = UsedRandom = SaidTooComplex = FALSE;
 	POLYconvert = OkShowExpand = FALSE;
 	NewOrchestra = TRUE;
-	ItemNumber = ZERO;
+	ItemNumber = TemplateNumber = ZERO;
 	MaxItemsProduce = 20;
 	MaxItemsGraphic = 10;
 	AssignedTempoCsoundFile = FALSE;
@@ -208,6 +208,7 @@ int Inits(void) {
 		= ShowGraphic = ComputeWhilePlay = NeverResetWeights = FALSE;
 	SynchronizeStart = CyclicPlay = NoConstraint = AllItems
 	 = CsoundTrace = WillRandomize = FALSE;
+	AllTemplates = TRUE;
 	ResetWeights = ResetFlags = ResetControllers = ShowMessages
 		= AllowRandomize = TRUE;
 	NoteConvention = ENGLISH;
@@ -218,6 +219,7 @@ int Inits(void) {
 	LastAction = NO;
 	Ke = log((double) 2.) / 64.;
 	strcpy(Message,"");
+	strcpy(TraceOutFilePath,"");
 	/* PictFrame.top = topDrawPrototype;
 	PictFrame.left = leftDrawPrototype;
 	PictFrame.bottom = bottomDrawPrototype;

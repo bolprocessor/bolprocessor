@@ -997,7 +997,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 			if(j == 2) {		/* '#' */
 				neg = TRUE;
 				}
-			if(j == 7) {		/* '�' */
+			if(j == 7) {		/* '.' */
 	//			NotBPCase[9] = TRUE;
 				}
 	OKCODE:	

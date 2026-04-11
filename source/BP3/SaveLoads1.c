@@ -579,9 +579,11 @@ int LoadSettings(const char *filename, int startup) {
 	CsoundTrace = FALSE;
 // 	WriteMIDIfile = FALSE;
 	NoConstraint = FALSE;
+	AllTemplates = TRUE;
 	ResetControllers = FALSE;
 	FileSaveMode = ALLSAME;
 	FileWriteMode = NOW;
+	SplitLines = FALSE;
 	ProgNrFrom = 1;
 	NotSaidKpress = TRUE;
 	NeverResetWeights = FALSE;
@@ -647,6 +649,7 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"StepProduce") == 0) StepProduce = intvalue;
 		else if(strcmp(key,"TraceMicrotonality") == 0) TraceMicrotonality = intvalue;
 		else if(strcmp(key,"TraceProduce") == 0) TraceProduce = intvalue;
+		else if(strcmp(key,"AllTemplates") == 0) AllTemplates = intvalue;
 		else if(strcmp(key,"PlanProduce") == 0) PlanProduce = intvalue;
 		else if(strcmp(key,"DisplayItems") == 0) DisplayItems = intvalue;
 		else if(strcmp(key,"ShowGraphic") == 0) ShowGraphic = intvalue;
@@ -667,6 +670,7 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"NoConstraint") == 0) NoConstraint = intvalue;
 		else if(strcmp(key,"SplitTimeObjects") == 0) SplitTimeObjects = intvalue;
 		else if(strcmp(key,"Split_|SplitVariables|") == 0) SplitVariables = intvalue;
+		else if(strcmp(key,"SplitLines") == 0) SplitLines = intvalue;
 		else if(strcmp(key,"DeftBufferSize") == 0) DeftBufferSize = (long) intvalue;
 		else if(strcmp(key,"MaxConsoleTime") == 0) MaxConsoleTime = (long) intvalue;
 		else if(strcmp(key,"Seed") == 0) {

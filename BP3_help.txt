@@ -94,6 +94,9 @@ A structure of "sound-objects" represented as a "polymetric expression".
         in the 'Misc' menu].
 • Many commented examples will be found in "-da.checkPoly".
 • Read https://bolprocessor.org/polymetric-structure/
+### Structural markers
+• The glyphs '+', ':', ';', '=' and '\' can be used in grammar rules as structural markers.
+• See for instance "-gr.dhadhatite" using '+'.
 ### Undetermined rests
 • These are notated '_rest'.
     The old notation '…' (be careful: this is a single character, not three periods!)
