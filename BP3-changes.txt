@@ -6,7 +6,7 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-04-11 -> 2026-04-12 (version 3.4.1)
+2026-04-11 -> 2026-04-13 (version 3.4.1)
 This version creates templates in "true BP grammars" — read https://bolprocessor.org/bol-processor-grammars/.
 The interface displays a "Create templates" if the grammar has this property.
 Check the examples -da.dhahatite/-gr.dhahatite and -da.dhin-/-gr.dhin-, which are explained on this page: https://bolprocessor.org/parsing-items/.

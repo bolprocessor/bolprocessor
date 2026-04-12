@@ -1847,11 +1847,10 @@ int CheckItemProduced(t_gram *p_gram,int igram,tokenbyte ***pp_a,long *p_length,
 				} */
 			if((result=Destroy(pp_a)) != OK) goto END;
 			(*p_length) = LengthOf(pp_a);
-	//		if((result = PrintWorkString(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto END;
-			if((result = PrintWorkString(FALSE,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto END; // 2026-04-12
+			if((result = PrintWorkString(FALSE,OutputWindow,FALSE,ifunc,pp_a)) != OK) goto END;
 			Print(OutputWindow,"\n");
-			if(SplitLines) Print(OutputWindow,"\n");
 			r = check_and_remove_duplicate_last_line(OutFileName);
+		//	if(SplitLines) Print(OutputWindow,"\n");
 			if(trace_produce_all) BPPrintMessage(1,odInfo,"???\n");
 			if(r) {
 				ItemNumber++;
@@ -1975,10 +1974,11 @@ int check_and_remove_duplicate_last_line(const char *filename) {
     fclose(file);
     int is_duplicate = 0;
     if (line_count > 1) {
-        const char *last = skip_index_prefix(lines[line_count - 1]);
+        const char* last = skip_index_prefix(lines[line_count - 1]);
+	//	if(strlen(last) == 0) last = skip_index_prefix(lines[line_count - 2]);
         for (int i = 0; i < line_count - 1; i++) {
-            const char *cur = skip_index_prefix(lines[i]);
-			if (cur != NULL && *cur == '\0') continue;
+            const char* cur = skip_index_prefix(lines[i]);
+		//	if (cur != NULL && strlen(cur) == 0) continue;
         //    BPPrintMessage(1, odError, "COMPARE: <%s> vs <%s>\n", cur, last);
 			if (strcmp(cur, last) == 0) {
                 is_duplicate = 1;
