@@ -933,6 +933,7 @@ int ExpandSelection(int w) {
 
 
 int ShowPeriods(int w)
+// Not used any more
 {
 int r,finish,ifunc,hastabs;
 tokenbyte **p_a;
@@ -967,23 +968,15 @@ while(origin < end) {
 		while(isspace(GetTextChar(w,oldend))) oldend--;
 		oldend++;
 		SetSelect(oldorigin,oldend,TEH[w]);
-#if BP_CARBON_GUI_FORGET_THIS
-		// FIXME: this destroys the contents of the clipboard
-		// so we need another way to remember the deleted text for Undo-ing
-		TextCopy(w);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 		LastAction = SPACESELECTION;
 		UndoWindow = w;
 		TextGetSelection(&UndoPos, &dummy, TEH[w]);
 		TextDelete(w);
 		while((r=PolyMake(&p_a,&maxseq,NO)) == AGAIN);
 		if(r == ABORT || r == EXIT) goto BAD;
-		r = PrintArg(DisplayMode(&p_a,&ifunc,&hastabs),FALSE,FALSE,TRUE,FALSE,FALSE,stdout,w,pp_Scrap,&p_a);
+		int datamode = DisplayMode(&p_a,&ifunc,&hastabs);
+		r = PrintArg(datamode,FALSE,FALSE,TRUE,FALSE,FALSE,stdout,w,pp_Scrap,&p_a);
 		if(r != OK) goto BAD;
-#if BP_CARBON_GUI_FORGET_THIS
-		BPActivateWindow(SLOW,w);
-		UpdateDirty(TRUE,w);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 		TextGetSelection(&dummy, &newend, TEH[w]);
 		end += newend - oldend;
 		origin += newend - oldend;

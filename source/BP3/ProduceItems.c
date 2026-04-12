@@ -301,8 +301,9 @@ if(!PlaySelectionOn && Improvize) {
 	if(!PlaySelectionOn && DisplayItems) {
 		if(NumberCharsData < MAXCHARDATA) {
 			datamode = DisplayMode(pp_a,&ifunc,&hastabs);
-			if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
+			if((r=PrintWorkString(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
 			Print(OutputWindow,"\n");
+			if(SplitLines) Print(OutputWindow,"\n");
 			NumberCharsData += 20;
 			}
 		}
@@ -328,8 +329,9 @@ if(!PlaySelectionOn && DisplayItems) {
 		SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
 		datamode = DisplayMode(pp_a,&ifunc,&hastabs);
 	//	BPPrintMessage(0,odInfo, "\nBol Processor score:\n");
-		if((r=PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
-		Print(OutputWindow,"\n\n");
+		if((r=PrintWorkString(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
+		Print(OutputWindow,"\n");
+		if(SplitLines) Print(OutputWindow,"\n");
 		DataEnd = GetTextLength(OutputWindow);
 		SetSelect(DataOrigin,DataEnd,TEH[OutputWindow]);
 		NumberCharsData += 20;
@@ -1524,7 +1526,7 @@ int AnalyzeBuffer(tokenbyte ***pp_a,int learn,int templates,int all,long pos,int
 
 int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templates,int all,long pos,int *p_result,char *remark) {
 /* pos = position of first template considered in grammar window */
-	int i,itemp,r,igram,finish,again,foundone,good,hasperiods,success;
+	int i,itemp,r,igram,finish,again,foundone,good,hasperiods,success,datamode,ifunc,hastabs;
 	long posend,lastbyte, posmax;
 	tokenbyte m,p,**p_b,***pp_b,**p_c,***pp_c,**p_d,***pp_d;
 	double maxseqapprox;
@@ -1649,7 +1651,7 @@ NEXTTEMPLATE:
 				BPPrintMessage(0,odError,"\n");
 				}
 			else {
-				BPPrintMessage(0,odError,"Item %smatched template [%ld]\n",LineBuff,(long)itemp);
+				BPPrintMessage(0,odError,"👉 Item %smatched template [%ld]\n",LineBuff,(long)itemp);
 				}
 			}
 		if(StepProduce) {
@@ -1667,7 +1669,7 @@ NEXTTEMPLATE:
 		if(r == MISSED) break;
 		if(r == FINISH) continue;
 		if(finish) {
-			if((r = ShowItem(igram,&Gram,FALSE,pp_a,(*p_repeat),PROD,FALSE))
+			if((r = ShowItem(igram,&Gram,FALSE,pp_a,(*p_repeat),ANAL,FALSE))
 				== ENDREPEAT || r == ABORT || r == EXIT) {
 				goto END;
 				}
@@ -1706,15 +1708,15 @@ NEXTTEMPLATE:
 		good = (*p_result) = success = YES;
 		if(!templates) BPPrintMessage(0,odInfo,"Item %saccepted by grammar... ✅\n",LineBuff);
 		else BPPrintMessage(0,odInfo,
-			"👉 Item %s matching template [%ld] accepted by grammar... ✅\n",LineBuff,(long)itemp);
+			"Item %s matching template [%ld] accepted by grammar... ✅\n",LineBuff,(long)itemp);
 		if(all && templates) goto NEXTTEMPLATE;
 		}
 	else {
 		(*p_result) = MISSED;
 		if(templates)
-			BPPrintMessage(0,odInfo,"👉 Item %s matching template [%ld] rejected by grammar... ❌\n",LineBuff,(long)itemp);
+			BPPrintMessage(0,odInfo,"Item %s matching template [%ld] rejected by grammar... ❌\n",LineBuff,(long)itemp);
 		else
-			BPPrintMessage(0,odInfo,"👉 Item %s rejected by grammar... ❌\n",LineBuff);
+			BPPrintMessage(0,odInfo,"Item %s rejected by grammar... ❌\n",LineBuff);
 		BPPrintMessage(0,odInfo,"Result of failed analysis:\n");
 		if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wData,pp_Scrap,pp_a)) != OK) goto END;
 		BPPrintMessage(0,odInfo,"\n");
@@ -1773,7 +1775,7 @@ int MatchTemplate(tokenbyte ***pp_a,tokenbyte ***pp_b) {
 	}
 
 
-int PrintResult(int expand,int w,int datamode,int ifunc,tokenbyte ***pp_a) {
+int PrintWorkString(int expand,int w,int datamode,int ifunc,tokenbyte ***pp_a) {
 	int r;
 	tokenbyte **p_b;
 	double maxseqapprox;
@@ -1845,7 +1847,8 @@ int CheckItemProduced(t_gram *p_gram,int igram,tokenbyte ***pp_a,long *p_length,
 				} */
 			if((result=Destroy(pp_a)) != OK) goto END;
 			(*p_length) = LengthOf(pp_a);
-			if((result = PrintResult(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto END;
+	//		if((result = PrintWorkString(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto END;
+			if((result = PrintWorkString(FALSE,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto END; // 2026-04-12
 			Print(OutputWindow,"\n");
 			if(SplitLines) Print(OutputWindow,"\n");
 			r = check_and_remove_duplicate_last_line(OutFileName);

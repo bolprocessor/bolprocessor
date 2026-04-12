@@ -433,7 +433,7 @@ int LearnWeights(void);
 int AdjustWeights(void);
 int ProduceAll(t_gram*,tokenbyte***,int);
 int ProduceItems(int,int,int,tokenbyte***);
-int PrintResult(int,int,int,int,tokenbyte***);
+int PrintWorkString(int,int,int,int,tokenbyte***);
 int BalancedPoly(tokenbyte***);
 int CheckItemProduced(t_gram*,int,tokenbyte***,long*,int,int,int);
 int AllFollowingItems(t_gram*,tokenbyte***,long****,long****,long*,int,int,int,int,int,int,tokenbyte****,int*,long*,int,unsigned long);

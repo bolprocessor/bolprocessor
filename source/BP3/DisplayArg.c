@@ -271,7 +271,6 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 	else prodtempo = 0.;
 	speed = 1.;
 	scale = 1.;
-
 	if((*pp_a) == NULL && !nocode) {
 		r = Display('\0',nhomo,levpar,homoname,depth,&maxib,pp_a,&ia,istemplate,
 			(tokenbyte)0,(tokenbyte)0,0,pp_b,&ib,f,th," << Not encoded >> ",NULL,-1);
@@ -308,10 +307,6 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 		}
 	else {
 		if(th != NULL) {
-	#if WASTE_FORGET_THIS
-			WEFeatureFlag(weFInhibitRecal,weBitClear,th);
-			if(wasactive) Activate(th);
-	#endif
 			if(r == OK && print_periods && pos > 0 && pos < (Prod/firstscale)) {
 				for(i=pos; i < (Prod/firstscale); i++) {
 					if(OutChar(f,th,'-') != OK) {
@@ -388,7 +383,7 @@ int PrintArgSub(PrintargType *p_printarg,unsigned long *p_maxib,TextHandle th,
 
 	for(i=ia; ; i+=2L) {
 		m = (int)(**pp_a)[i]; p = (int)(**pp_a)[i+1];
-//		if(nocode) BPPrintMessage(0,odInfo,"@@@ m = %d, p = %d\n",m,p);
+	//	BPPrintMessage(0,odInfo,"@++ m = %d, p = %d\n",m,p);
 		if(m == TEND && p == TEND) break;
 		if(m == T3 || m == T47 || m == T25) {
 			if((r=CheckPeriodOrLine(print_periods,p_newline,p_newsection,f,th,&beat,numberprolongations,
@@ -427,14 +422,14 @@ int PrintArgSub(PrintargType *p_printarg,unsigned long *p_maxib,TextHandle th,
 							}
 						break;
 					}
-				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,
-						p,nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
+				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
 					goto SORTIR;
 					}
 				continue;
 				}
 			switch(p) {
 				case 11: /* '/' speed up */
+					// OutChar(f,th,'@');
 					speed = GetScalingValue((*pp_a),i);
 					if((*p_scale) != 0.) {
 						tempo = speed / (*p_scale);
@@ -1701,13 +1696,12 @@ return(OK);
 int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned long *p_maxib,
 	tokenbyte ***pp_a,
 	unsigned long *p_i,int istemplate,tokenbyte m,tokenbyte p,int nocode,
-	tokenbyte ***pp_b,unsigned long *p_ib,FILE *f,TextHandle th,char *format,char **p_smthing,
-	long integ) {
+	tokenbyte ***pp_b,unsigned long *p_ib,FILE *f,TextHandle th,char *format,char **p_smthing,long integ) {
 
 	char s[255];
 	tokenbyte mm,pp,**ptr;
 	int n,h,px,py;
-//	BPPrintMessage(1,odInfo,"@@@ m = %d, p = %d, thechar = %s\n",m,p,thechar);
+	
 	if(nocode) {
 		if(!istemplate) {
 			if((*p_ib) > ((*p_maxib)-16L)) {
@@ -1773,12 +1767,14 @@ int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned 
 			}
 		}
 	else {
+	//	BPPrintMessage(1,odInfo,"@@@ m = %d, p = %d\n",m,p);
 		if(m == T25) {
 			PrintThisNote(-1,p,0,-1,s);
 			goto PRINT;
 			}
 		if(integ == -1) {
 			if(p_smthing != NULL) {
+			//	BPPrintMessage(1,odInfo,"@ smthing = %s\n",*p_smthing);
 				my_sprintf(s,format,*p_smthing);
 				}
 			else {
@@ -1789,6 +1785,7 @@ int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned 
 				}
 			}
 		else {
+		//	BPPrintMessage(1,odInfo,"@ integ = %ld\n",integ);
 			my_sprintf(s,format,(long)integ);
 			}
 	PRINT:

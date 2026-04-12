@@ -343,7 +343,7 @@ void CreateDoneFile(void) {
 	char* new_thefile;
 	int length;
 	if(gOptions.outputFiles[ofiTraceFile].name != NULL) {
-	//    BPPrintMessage(0,odInfo,"Creating 'done' file: %s\n",gOptions.outputFiles[ofiTraceFile].name);
+	 //   BPPrintMessage(1,odInfo,"Creating 'done' file2: %s\n",gOptions.outputFiles[ofiTraceFile].name);
 		my_sprintf(Message,"%s",gOptions.outputFiles[ofiTraceFile].name);
 		remove_spaces(Message,line);
 		thefile = str_replace(".txt","",line);
