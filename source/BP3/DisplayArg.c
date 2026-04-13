@@ -199,6 +199,7 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 		scale = 1.;
 		for(i=ZERO; ;i+=2L) {
 			m = (int)(**pp_a)[i]; p = (int)(**pp_a)[i+1];
+	//		BPPrintMessage(1,odInfo,"m = %d, p = %d\n",m,p);
 			if(m == TEND && p == TEND) break;
 			if(setting_section2 && m == T1) continue;
 			if(m == T1 && (**pp_a)[i+2] == T1 && (**pp_a)[i+4] == T0 && (**pp_a)[i+5] == 11) {
@@ -386,8 +387,7 @@ int PrintArgSub(PrintargType *p_printarg,unsigned long *p_maxib,TextHandle th,
 	//	BPPrintMessage(0,odInfo,"@++ m = %d, p = %d\n",m,p);
 		if(m == TEND && p == TEND) break;
 		if(m == T3 || m == T47 || m == T25) {
-			if((r=CheckPeriodOrLine(print_periods,p_newline,p_newsection,f,th,&beat,numberprolongations,
-					&sp)) != OK) goto SORTIR;
+			if((r=CheckPeriodOrLine(print_periods,p_newline,p_newsection,f,th,&beat,numberprolongations,&sp)) != OK) goto SORTIR;
 			}
 		if(m == T0 && setting_section && (p == 3 || p == 11)) {	/* '+'  or initial '/' */
 			if(datamode) {
@@ -1149,14 +1149,15 @@ PRINTPROLONGATIONS:
 						}
 					}
 				}
-			if(!datamode && (p == 12 || p == 13 || p == 14 || p == 7)) /* '{', '}', comma, '�' */
+			if(!datamode && (p == 12 || p == 13 || p == 14 || p == 7)) /* '{', '}', comma, '•' */
 				forceshowtempo = TRUE;
 			if(p == 22 || p == 23) continue;	/* Temporary bracket '|' */
 			if(nocode) {
 				if(p == 12) {	/* '{' */
 					(*p_sequence)[level] = FALSE;
 					}
-				if(p == 7 || (p > 11 && p < 20)) {		/* '�', '{', '}', comma */
+				if(p == 7 || (p > 11 && p < 20)) {		/* '•', '{', '}', comma */
+			//		BPPrintMessage(1,odInfo,"@ PrintArgSub\n");
 					if((*p_sequence)[level]) {
 						if(p == 13 || p == 14) {				/* '}', comma */
 							(*p_sequence)[level] = FALSE;
@@ -1167,8 +1168,7 @@ PRINTPROLONGATIONS:
 								}
 							}
 						}
-					if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,nocode,
-							pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
+					if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
 						goto SORTIR;
 						}
 					if((p == 12 || p == 14) && !(*p_sequence)[level]
@@ -1693,10 +1693,7 @@ return(OK);
 }
 
 
-int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned long *p_maxib,
-	tokenbyte ***pp_a,
-	unsigned long *p_i,int istemplate,tokenbyte m,tokenbyte p,int nocode,
-	tokenbyte ***pp_b,unsigned long *p_ib,FILE *f,TextHandle th,char *format,char **p_smthing,long integ) {
+int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned long *p_maxib,tokenbyte ***pp_a,unsigned long *p_i,int istemplate,tokenbyte m,tokenbyte p,int nocode,tokenbyte ***pp_b,unsigned long *p_ib,FILE *f,TextHandle th,char *format,char **p_smthing,long integ) {
 
 	char s[255];
 	tokenbyte mm,pp,**ptr;
@@ -1722,7 +1719,7 @@ int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned 
 			/* pp_a is istemplate, pp_b is item without structure */
 	POSITION:
 			if((**pp_b)[*p_ib] == T0 && (**pp_b)[(*p_ib)+1] == 7) {
-				(*p_ib) += 2;		/* Skip '�' */
+				(*p_ib) += 2;		/* Skip '•' */
 				goto POSITION;
 				}
 			if((**pp_b)[*p_ib] == TEND && (**pp_b)[(*p_ib)+1] == TEND) return(MISSED);
@@ -1789,9 +1786,11 @@ int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned 
 			my_sprintf(s,format,(long)integ);
 			}
 	PRINT:
+	// BPPrintMessage(1,odInfo,"@  Display %s\n",s);
 		if(f == stdout) {
+	//		BPPrintMessage(1,odInfo,"@@  Display %s\n",s);
 			if(th == NULL) {
-				BPPrintMessage(0,odError,"=> Err. Display");
+				BPPrintMessage(0,odError,"=> Err. Display()\n");
 				return(ABORT);
 				}
 			TextInsert(s,(long)strlen(s),th);

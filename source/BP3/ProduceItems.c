@@ -480,7 +480,7 @@ while(origin < end) {
 	neworigin = origin;
 	if((r = SelectionToBuffer(FALSE,FALSE,w,pp_a,&neworigin,(int)ANAL)) != OK) {
 		MyDisposeHandle((Handle*)pp_a);
-		BPPrintMessage(0,odInfo,"=> BAD\n");
+		BPPrintMessage(0,odInfo,"=> Error reading data, check the trace file!\n");
 		}
 	SetSelect(origin,(neworigin - 1L),TEH[w]);
 //	BPActivateWindow(QUICK,w);

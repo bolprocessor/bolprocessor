@@ -245,8 +245,7 @@ int TextDelete(int w)
 	return OK;
 }
 
-int TextInsert(char *s,long length,TextHandle th)
-{
+int TextInsert(char *s,long length,TextHandle th) {
 	int w, od;
 	
 	BP_NOT_USED(length);
@@ -254,19 +253,18 @@ int TextInsert(char *s,long length,TextHandle th)
 	// find window index
 	for (w = 0; w < WMAX; ++w) {
 		if(th == TEH[w])  break;
-	}
+		}
 	switch (w)	{
 		case wGrammar:	od = odTrace; break;
 		case wData:		od = odDisplay; break;
 		case wTrace:	od = odTrace; break;
 		default:		od = odInfo; break;
-	}
+		}
 	if(od == odInfo) {
 		BPPrintMessage(0,od, "TextInsert(%s): %s\n", (w < WMAX) ? WindowName[w] : "", s);
-	}
+		}
 	else {
 		BPPrintMessage(0,od, "%s", s);
-	}
-	
+		}
 	return OK;
-}
+	}

@@ -558,7 +558,7 @@ int LoadSettings(const char *filename, int startup) {
 	EndFadeOut = 2.; C4key = 60; A4freq = 440.;
 	Quantize = TRUE;
 	Quantization = 10L; // milliseconds
-	UseBullet = FALSE;
+	UseBullet = TRUE;
 	Code[7] = '.';
 	MIDIfileType = 1;
 	CsoundFileFormat = UNIX;
