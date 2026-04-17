@@ -248,6 +248,9 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 			}
 			
 		/* Skip headers */
+		p = &(*p_line)[0]; q = &(FilePrefix[wData][0]);
+		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
+			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
 		p = &(*p_line)[0]; q = &(FilePrefix[wAlphabet][0]);
 		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
 			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
@@ -269,7 +272,12 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 		p = &(*p_line)[0]; q = &(FilePrefix[wCsoundResources][0]);
 		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
 			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
+
 		p = &(*p_line)[0]; q = &(FilePrefix[wTonality][0]);
+		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
+			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
+
+		p = &(*p_line)[0]; q = &(FilePrefix[wWeights][0]);
 		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
 			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
 		p = &(*p_line)[0]; q = &(FilePrefix[iMidiDriver][0]);
@@ -1656,7 +1664,7 @@ if((pp_rightp=Encode(p_gram,FALSE,FALSE,igram,irul,pp3,pp4,p_plx,p_prx,&meta,2,
 	else return(15); /* error in argument */
 	}
 if(h_flag != NULL && (type == SUBtype || type == SUB1type || type == POSLONGtype)) return(49);
-/* ClearMarkers(&pp_rightp); */
+if(Analyzing) ClearMarkers(&pp_rightp,TRUE); // 2026-04-17
 (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightarg = pp_rightp;
 (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightflag = h_flag;
 if(h_flag != NULL) NotBPCase[6] = TRUE;

@@ -151,6 +151,7 @@ typedef struct {
 #define odMidiDump	2		// for printing Midi messages as text
 #define odCsScore	4		// for writing Csound score
 #define odTrace		8		// for tracing processes (and step-by-step ?)
+#define odWeights		256		// for weights
 #define odInfo		16		// informational messages
 #define odWarning	32		// warning messages
 #define odError		64		// error messages
@@ -520,20 +521,10 @@ enum {
 
 #define MAXMENU 9		/* number of menus in menu bar */
 #define MAXMENUITEMS 26 /* number of items in each menu */
-#define MAXWIND 14	/* number of windows */
+#define MAXWIND 15	/* number of windows */
 #define MAXDIAL 25	/* number of dialogs */
-#define WMAX 39		/* number of windows = MAXDIAL + MAXWIND */
-#define MAXMESSAGES 100000 // Maximum number of messsages (0 if unlimited)
-
-/*
-// Cursor ID's
-#define WheelID 1003 // 4 consecutive cursors
-#define FeetID 1020 // 8 consecutive cursors
-#define DiskID 1200 // 2 consecutive cursors
-#define KeyboardID 129
-#define QuestionID 128
-#define XcrossID 131
-*/
+#define WMAX 40		/* number of windows = MAXDIAL + MAXWIND */
+#define MAXMESSAGES 5000 // Maximum number of messsages (0 if unlimited)
 
 // Strings ID's
 #define DialogStringsBaseID 300
@@ -610,9 +601,9 @@ enum {
 #define wNotice 11
 #define wGlossary 12
 #define wInteraction 13
+#define wWeights 14
 
 // Dialog indexes
-#define wRandomSequence 14
 #define wTimeAccuracy 15
 #define wTimeBase 16
 #define wBufferSize 17
@@ -919,7 +910,7 @@ typedef enum {
 // Values for CLOption type are TRUE, FALSE, and NOCHANGE
 typedef int CLOption;
 #define NOCHANGE		-1
-#define MAXOUTFILES		4
+#define MAXOUTFILES		5 
 
 
 // --------------  Types -----------------------------
@@ -991,10 +982,11 @@ typedef struct BPConsoleOpts {
 
 // indices to gOptions.outputFiles[]
 typedef enum {
-	ofiProdItems	= 0,	// output file for produced items (-o option)
-	ofiMidiFile		= 1,	// output Std Midi score file (--midiout option)
-	ofiCsScore		= 2,	// output Csound score file (--csoundout option)
-	ofiTraceFile	= 3,	// output file for tracing processes (no option yet)
+	ofiProdItems,	// output file for produced items (-o option)
+	ofiMidiFile,	// output Std Midi score file (--midiout option)
+	ofiCsScore,	// output Csound score file (--csoundout option)
+	ofiTraceFile,	// output file for tracing processes (no option yet)
+	ofiWeightsFile	// weights file used as an output
 }	outfileidx_t;
 
 typedef TEHandle TextHandle;

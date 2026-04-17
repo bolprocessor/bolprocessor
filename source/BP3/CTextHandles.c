@@ -258,13 +258,15 @@ int TextInsert(char *s,long length,TextHandle th) {
 		case wGrammar:	od = odTrace; break;
 		case wData:		od = odDisplay; break;
 		case wTrace:	od = odTrace; break;
+		case wWeights:	od = odWeights; break;
 		default:		od = odInfo; break;
 		}
 	if(od == odInfo) {
 		BPPrintMessage(0,od, "TextInsert(%s): %s\n", (w < WMAX) ? WindowName[w] : "", s);
 		}
 	else {
-		BPPrintMessage(0,od, "%s", s);
+		// if(w == wWeights) BPPrintMessage(1,odInfo,"@@ s = %s",s);
+		BPPrintMessage(1,od,"%s",s);
 		}
 	return OK;
 	}

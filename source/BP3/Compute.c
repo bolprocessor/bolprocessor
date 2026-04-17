@@ -503,7 +503,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 		rule = (*(subgram.p_rule))[irul];
 		if(TraceProduce) {
 			if(NumberCharsTrace < MAXCHARTRACE) {
-				if(ProduceStackIndex >= 0)
+				if(ProduceStackIndex >= 0 && mode != ANAL)
 					my_sprintf(Message,"\n[Step #%ld] Selected: ",(long)ProduceStackIndex + 1);
 				else
 					my_sprintf(Message,"\nSelected: ");
@@ -2135,7 +2135,6 @@ QUIT:
 	return(rep);
 	}
 
-
 int ShowItem(int igram,t_gram *p_gram,int justplay,tokenbyte ***pp_a,int repeat,int mode,int all) {
 	int r,rep,ifunc,datamode,hastabs;
 	long lastbyte;
@@ -2176,4 +2175,19 @@ int ShowItem(int igram,t_gram *p_gram,int justplay,tokenbyte ***pp_a,int repeat,
 
 	QUIT:
 	return(r);
+	}
+
+int SaveWeights(void) {
+	int igram,irul,w;
+	BPPrintMessage(0,odInfo,"Saving rule weights\n");
+	Print(wWeights,"// Rule weights after learning\n");
+	for(igram=1; igram <= Gram.number_gram; igram++) {
+		for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
+			w = (*((*(Gram.p_subgram))[igram].p_rule))[irul].weight;
+			my_sprintf(Message,
+"{\"igram\":%d,\"irul\":%d,\"weight\":\"%d\"}\n",igram,irul,w);
+			Print(wWeights,Message);
+			}
+		}
+	return OK;
 	}

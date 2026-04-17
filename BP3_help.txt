@@ -95,7 +95,7 @@ A structure of "sound-objects" represented as a "polymetric expression".
 • Many commented examples will be found in "-da.checkPoly".
 • Read https://bolprocessor.org/polymetric-structure/
 ### Structural markers
-• The glyphs '+', ':', ';', '=' and '\' can be used in grammar rules as structural markers.
+• The glyphs '+', ':', ';', and '=' can be used in grammar rules as structural markers.
 • See for instance "-gr.dhadhatite" using '+'.
 ### Undetermined rests
 • These are notated '_rest'.
@@ -1648,8 +1648,7 @@ Multiplies the tempo by 'x'
     "E5 F5" is performed at tempo 3 = 1.5 * 2.
 • The above example shows that speed change is relative.
     Thus, '_tempo(2)' is not the strict equivalent of '/2' (the obsolete "tempo marker"
-    notation) although it should replace it in most cases. "Tempo markers" are kept only
-    for compatibility with old BP3 projects.
+    notation) although it should replace it in most cases.
 ### Variable arguments
 Some "performance controls", "tools", and rule weights in a grammar, can be given arguments
     notated K1, K2, ... Kx.

@@ -170,7 +170,7 @@ extern Milliseconds OldMIDIfileTime;
 extern unsigned long LapWait,WhenItStarted;
 extern int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,SplitLines,Token,
 	SpaceOn,
-	VariableOn,N_err,nstore,NumberTables,OkShowExpand,Improvize,ComputeWhilePlay,Varweight,
+	VariableOn,N_err,nstore,NumberTables,OkShowExpand,Improvize,Analyzing,ComputeWhilePlay,Varweight,
 	TransposeInput,TransposeValue,
 	Flagthere,ResetDone,BolsInGrammar,NoAlphabet,**p_Ifrom,PointCsound,PointMIDI,
 	**p_Resolution,
@@ -393,6 +393,7 @@ extern int MIDIflush(int,int);
 
 extern char PathToMidiFile[MAXLIN];
 extern int SetMidiFileNr;
+extern int WeightsFileExists;
 
 extern BPConsoleOpts gOptions;
 

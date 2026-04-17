@@ -237,7 +237,7 @@ dword MIDItracklength,Midi_msg;
 Milliseconds OldMIDIfileTime;
 unsigned long LapWait,WhenItStarted;
 int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,SplitLines,Token,SpaceOn,
-	VariableOn,N_err,nstore,NumberTables,OkShowExpand,Improvize,ComputeWhilePlay,TransposeInput,
+	VariableOn,N_err,nstore,NumberTables,OkShowExpand,Improvize,Analyzing,ComputeWhilePlay,TransposeInput,
 	TransposeValue,Varweight,Flagthere,ResetDone,BolsInGrammar,NoAlphabet,PointCsound,PointMIDI,
 	**p_Ifrom,**p_Resolution,**p_CsoundInstr,**p_CsoundAssignedInstr;
 int LiveGrammar,LiveSettings,TraceLive,SyncChange,ChangedGrammar,NewGrammarWaiting,ChangedSettings;
@@ -367,33 +367,33 @@ int	FileTypeIndexToWindowFileIndex[MAXFILETYPEINDEX] = {wUnknown, wUnknown, wKey
 // In this section every array should contain WMAX values
 
 int WindowTextSize[] = {10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,
-									10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10};
-short LockedWindow[] =	{0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-short GrafWindow[] =	{0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0};
-short OKvScroll[] =	{1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0};
-short OKhScroll[] =	{0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-short OKgrow[] =		{1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-short Adjustable[] =	{1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-short NeedSave[] =	{1,1,1,0,0,1,0,1,1,1,0,0,1,1,0,0,1,0,0,0,0,1,0,0,1,0,1,1,1,1,1,1,0,0,0,1,1,1,1};
-int Freebottom[] =	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,0,20,0};
-short Editable[] =	{1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0};
-short HasFields[] =  	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,1,0,0,1,1,1,1,1,1,0,0,1,1,1,0,1}; // Note: HasFields[n] true also assumes IsDialog[n] true
-short IsDialog[] =  	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+									10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10};
+short LockedWindow[] =	{0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+short GrafWindow[] =	{0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0};
+short OKvScroll[] =	{1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1};
+short OKhScroll[] =	{0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+short OKgrow[] =		{1,1,1,0,1,1,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
+short Adjustable[] =	{1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+short NeedSave[] =	{1,1,1,0,0,1,0,1,1,1,0,0,1,1,0,0,1,0,0,0,0,1,0,0,1,0,1,1,1,1,1,1,0,0,0,1,1,1,1,1};
+int Freebottom[] =	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,0,20,0,0};
+short Editable[] =	{1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0};
+short HasFields[] =  	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,1,0,0,1,1,1,1,1,1,0,0,1,1,1,0,1,0}; // Note: HasFields[n] true also assumes IsDialog[n] true
+short IsDialog[] =  	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0};
 int WindowUsesThemeBkgd[] = 
-				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,1,0,0,0,0,0,0,0,1,0,0,0,0,1};
+				{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,1,0,0,0,0,0,0,0,1,0,0,0,0,1,0};
 
 	// gFileType maps window/file index to a FileTypeIndex
-short gFileType[] =   {5,6,1,1,1,1,1,7,13,0,1,1,14,8,1,1,15,19,1,1,1,2,15,15,11,9,3,1,1,1,1,1,1,1,1,16,1,1,17};
+short gFileType[] =   {5,6,1,1,1,1,1,7,13,0,1,1,14,8,1,1,15,19,1,1,1,2,15,15,11,9,3,1,1,1,1,1,1,1,1,16,1,1,17,18};
 	// FilePrefix, FileExtension, and DocumentTypeName map window/file index to their appropriate strings
 char FilePrefix[][5] = {"-gr.","-al.","\0","\0","\0","-tr.","\0","-da.",
 	"+sc.","\0","\0","\0","-gl.","-in.","-wg.","\0","-tb.","-md.","\0","\0","\0","-kb.",
-	"\0","\0","\0","-se.","-so.","\0","\0","\0","\0","\0","\0","\0","\0","-cs.","\0","\0","-to."};
+	"\0","\0","\0","-se.","-so.","\0","\0","\0","\0","\0","\0","\0","\0","-cs.","\0","\0","-to.","\0"};
 char FileOldPrefix[][5] = {"-gr.","-ho.","\0","\0","\0","-tr.","\0","-da.",
 	"+sc.","\0","\0","\0","-gl.","-in.","-wg.","\0","-tb.","-md.","\0","\0","\0","-kb.",
-	"\0","\0","\0","-se.","-mi.","\0","\0","\0","\0","\0","\0","\0","\0","-cs.","\0","\0","\0"};
+	"\0","\0","\0","-se.","-mi.","\0","\0","\0","\0","\0","\0","\0","\0","-cs.","\0","\0","\0","\0"};
 char FileExtension[][6] = {".bpgr",".bpal","\0","\0","\0",".bptr","\0",".bpda",
 	".bpsc","\0","\0","\0",".bpgl",".bpin",".bpwg","\0",".bptb",".bpmd","\0","\0","\0",".bpkb",
-	"\0","\0","\0",".bpse",".bpso","\0","\0","\0","\0","\0","\0","\0","\0",".bpcs","\0","\0",".bpto"};
+	"\0","\0","\0",".bpse",".bpso","\0","\0","\0","\0","\0","\0","\0","\0",".bpcs","\0","\0",".bpto","\0"};
 char FileOldExtension[][6] = {".bpgr",".bpho","\0","\0","\0",".bptr","\0",".bpda",
 	".bpsc","\0","\0","\0",".bpgl",".bpin",".bpwg","\0",".bptb",".bpmd","\0","\0","\0",".bpkb",
 	"\0","\0","\0",".bpse",".bpmi","\0","\0","\0","\0","\0","\0","\0","\0",".bpcs","\0","\0","\0"};
@@ -401,11 +401,11 @@ char DocumentTypeName[][21] = {"grammar","alphabet","\0","\0","\0","trace","\0",
 	"script","\0","\0","\0","glossary","interaction","weights","decisions","time-base","MIDI driver settings",
 	"\0","\0","\0","keyboard","\0","\0","MIDI","settings","sound-objects","\0","\0","\0","\0","\0","\0","\0","\0",
 	"csound instruments","\0","\0","Tonality"};
-	/* See window and dialog indexes in BP2.h */
+	/* See window and dialog indexes in BP3.h */
 char DeftName[][MAXNAME] = {"New Grammar","New Alphabet",
 	"Start string","Message","Graphic","Trace","Info",
 	"New Data","New script","Scrap","Help","Notice","New glossary","New interaction",
-	"Random","Time accuracy","Time base","Buffer","Find","Graphic settings","Control",
+	"Rule weights","Time accuracy","Time base","Buffer","Find","Graphic settings","Control",
 	"New Keyboard","Script","Metronom","\0","\0","New prototypes",
 	"\0","\0","\0","\0","Period","Csound object prototype","MIDI filter","Tick settings",
 	"Csound resources","\0","\0","Tonal resource"};
@@ -413,7 +413,7 @@ char DeftName[][MAXNAME] = {"New Grammar","New Alphabet",
 char WindowName[][MAXNAME] = {"Grammar","Alphabet","Start string",
 	"Message","Graphic","Trace","Info",
 	"Data","Script","Scrap","Help","Notice","Glossary","Interaction",
-	"Weight","Time accuracy","Time base","Buffer","Find-replace",
+	"Rule weights","Time accuracy","Time base","Buffer","Find-replace",
 	"Graphic settings","Control pannel","Keyboard","Script dialog","Tempo",
 	"Computation settings","General settings","Object Prototypes",
 	"Prototypes (2)","Prototypes (3)","Prototypes (4)","Prototypes (5)","Prototypes (6)",
@@ -472,6 +472,7 @@ int ToldPitchbend, ToldStop;
 long WidthMax,HeightMax;
 char PathToMidiFile[MAXLIN];
 int SetMidiFileNr;
+// int WeightsFileExists;
 
 /*
 typedef struct BPConsoleOpts {

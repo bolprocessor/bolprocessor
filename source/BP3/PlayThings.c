@@ -994,15 +994,24 @@ return(r);
 
 
 long LengthOf(tokenbyte ***pp_X) {
-    if(*pp_X == NULL) return -1L;
-    size_t imax = MyGetHandleSize((Handle)*pp_X) / sizeof(tokenbyte);
+	long i,imax;
+    if(*pp_X == NULL) {
+		BPPrintMessage(0,odError,"=> Err 1 LengthOf()\n");
+		Panic = TRUE;
+		return ZERO;
+		}
+ //   imax = (long) MyGetHandleSize((Handle)*pp_X) / sizeof(tokenbyte); CRASHES!
     tokenbyte *tokens = **pp_X;
-    long i = 0;
-    while (i < imax - 1) {  // Ensure there's room for checking the next element
-        if(tokens[i] == TEND && tokens[i + 1] == TEND) return i;  // Return the length up to the first TEND
+    i = ZERO;
+    while(TRUE) { // 2026-04-17
+ //   while (i < imax - 1) { 
+        if(tokens[i] == TEND && tokens[i + 1] == TEND) return i; 
+		// Return the length up to the first TEND
         i++;
     	}
-    return -1L;  // If no termination found, or error case
+	BPPrintMessage(0,odError,"=> Err 2 LengthOf()\n");
+	Panic = TRUE;
+    return ZERO;  // If no termination found, or error case
 	}
 	
 

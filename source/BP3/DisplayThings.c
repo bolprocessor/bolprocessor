@@ -46,20 +46,17 @@ int Print(int w,char* t) {
 	char *ptr;
 	if(!FirstGrammar) return(OK);
 	if(w < 0 || w >= WMAX) {
-		BPPrintMessage(0,odError,"=> Err1. Print()");
+		BPPrintMessage(0,odError,"=> Err1. Print() w = %d\n",w);
 		return(OK);
 		}
 	if(!Editable[w]) {
-		BPPrintMessage(0,odError,"=> Err2. Print()");
+		BPPrintMessage(0,odError,"=> Err2. Print() Not editable %d\n",w);
 		return(MISSED);
 		}
 	length = strlen(t);
-	BPActivateWindow(QUICK,w);
+	// BPActivateWindow(QUICK,w);
 	ptr = t;
 	TextInsert(ptr,length,TEH[w]);
-	if(LockedWindow[w]) Deactivate(TEH[w]);
-	CheckTextSize(w);
-	w = FindGoodIndex(w);
 	return(OK);
 	}
 

@@ -724,7 +724,7 @@ int ProduceAll(t_gram *p_gram,tokenbyte ***pp_a,int template) {
 			BPPrintMessage(0,odError,"=> This grammar has no structural rules\nand does not require templates\n");
 			goto END;
 			}
-		if(trace_produce_all) BPPrintMessage(1,odInfo,"Last structural grammar = %d\n",endgram);
+		BPPrintMessage(1,odInfo,"Last structural grammar = %d\n",endgram);
 		Print(wData,"----------\nTEMPLATES:\n");
 		// if((r=DeleteTemplates()) != OK) goto END;
 		}
@@ -1110,6 +1110,7 @@ int StructuralRule(int igram, int irul) {
 	lenc = 4 * (*((*(Gram.p_subgram))[igram].p_rule))[irul].leftnegcontext;
 	i0 = (*((*(Gram.p_subgram))[igram].p_rule))[irul].leftoffset + lenc;
 	i1 = (int) LengthOf(&p_arg) - 1 -(*((*(Gram.p_subgram))[igram].p_rule))[irul].rightoffset;
+	if(i1 < 0) return FALSE; // An error was found
 	for(i=i0; ((*p_arg)[i] != TEND || (*p_arg)[i+1] != TEND) && i < i1; i+=2) {
 		p = (int) (*p_arg)[i]; q = (int) (*p_arg)[i+1];
 		switch(p) {
@@ -1162,24 +1163,29 @@ int MakeTemplate(tokenbyte ***pp_a) {
 	unsigned long i;
 	tokenbyte m,p;
 
-	ClearMarkers(pp_a);
+	ClearMarkers(pp_a,FALSE);
 	for(i=ZERO; ((m=(**pp_a)[i]) != TEND || (**pp_a)[i+1] != TEND); i+=2L) {
 		p = (**pp_a)[i+1];
-		if(m == T3 || m == T7 || m == T25) {	/* Terminal or out-time object or simple note */
+		if(m == T3 || m == T7 || m == T25) {
+			// Terminal or out-time object or simple note
 			if(p >= 0) {
 				(**pp_a)[i] = T3; (**pp_a)[i+1] = 0;	/* '_' */
 				}
 			}
+		if(m == T1) {
+			BPPrintMessage(0,odError,"=> Can't write template with silences as number\n");
+			return(NO);
+			}
 		if(m == T4) return(NO); // Variable
 		if(m == T0 && p == 10) return(NO); // 'S'
 		}
-	ClearMarkers(pp_a);
+	ClearMarkers(pp_a,FALSE);
 	return(OK);
 	}
 
 
-int ClearMarkers(tokenbyte ***pp_a) {
-/* Suppress '•' beat markers */
+int ClearMarkers(tokenbyte ***pp_a,int isgrammar) {
+// Suppress tempo markers
 	unsigned long i,k;
 	tokenbyte m,p;
 	int setting_sections;
@@ -1189,19 +1195,37 @@ int ClearMarkers(tokenbyte ***pp_a) {
 		return(OK);
 		}
 	setting_sections = TRUE;
+	if(isgrammar) {
+		setting_sections = FALSE;
+		m = (**pp_a)[ZERO]; p = (**pp_a)[1L];
+		if(m == T1) setting_sections = TRUE;
+		if(m == T0 && p == 21) setting_sections = TRUE;
+		// Grammar argument does not start with a number
+		}
 	for(i=k=ZERO; ;) {
 		m = (**pp_a)[i+k]; p = (**pp_a)[i+k+1L];
-		if(setting_sections && m == T0 && p == 21)	{ /* '*' */
+		// BPPrintMessage(1,odInfo,"@@ m = %d, p = %d\n",m,p);
+		if(setting_sections && m == T0 && p == 21)	{ // '*'
 			k += 6; continue;
 			}
-	//	if(m == T0 && p == 7) {		/* '•' */
-	//		k += 2; continue;
-	//		}
+		if(setting_sections && m == T1)	{ // number
+			k += 4; continue;
+			}
+		if(setting_sections && m == T0 && p == 3)	{ // '+'
+			k += 2; continue;
+			}
+		if(m == T0 && p == 11)	{ // '/'
+			k += 6; continue;
+			}
+		if(m == T0 && p == 7) {		// beat marker '•' added again 2026-04-17
+			// BPPrintMessage(1,odInfo,"=> Clearing marker\n");
+			k += 2; continue;
+			}
 		if(k > 0) {
 			(**pp_a)[i] = m;
 			(**pp_a)[i+1] = p;
 			}
-		if(m != T1 && (m != T0 || p != 3)) setting_sections = FALSE;
+		if(m != T1 && (m != T0 || p != 3) && (m != T0 || p != 11)) setting_sections = FALSE;
 		i += 2L;
 		if(m == TEND && p == TEND) break;
 		}
@@ -1544,6 +1568,9 @@ int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templa
 	SetSelect(lastbyte,lastbyte,TEH[wTrace]);
 	if(remark[0] == '\0') my_sprintf(LineBuff,"");
 	else my_sprintf(LineBuff,"[%s] ",remark);
+
+	ClearMarkers(pp_a,FALSE); // 2026-04-17
+
 	if(((all && templates) || DisplayProduce)) {
 		if(remark[0] == '\0') {
 	/*		BPPrintMessage(0,odInfo,"👉 Analyzing item: \n");
@@ -1582,14 +1609,14 @@ int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templa
 				}
 			}
 		}
-		
+
 	if((*pp_c = (tokenbyte**) GiveSpace((Size)MyGetHandleSize((Handle)*pp_a))) == NULL) {
 		return(ABORT);
 		}
 	if(CopyBuf(pp_a,pp_c) == ABORT) {
 		r = ABORT; goto END;
 		}
-		
+
 NEXTTEMPLATE:
 	if(CopyBuf(pp_c,pp_a) == ABORT) {
 		r = ABORT; goto END;
@@ -1623,7 +1650,7 @@ NEXTTEMPLATE:
 			}
 	//	BPPrintMessage(1,odInfo,"Template [%d] has been read\n",itemp);
 		hasperiods = FoundPeriod(pp_b);
-		if((r=MatchTemplate(pp_a,pp_b)) != OK) {
+		if((r = MatchTemplate(pp_a,pp_b)) != OK) {
 			MyDisposeHandle((Handle*)pp_b);
 			if(r == ABORT || r == EXIT) goto END;
 			goto NEXTTEMPLATE;
@@ -1640,8 +1667,6 @@ NEXTTEMPLATE:
 			}
 		MyDisposeHandle((Handle*)pp_b);
 		foundone = TRUE;
-	/*	my_sprintf(Message,"Item %smatched template [%ld]",LineBuff,(long)itemp);
-		ShowMessage(TRUE,wMessage,Message); */
 		if(ScriptExecOn || all || DisplayProduce) {
 			lastbyte = GetTextLength(wTrace);
 			SetSelect(lastbyte,lastbyte,TEH[wTrace]);
@@ -1651,7 +1676,9 @@ NEXTTEMPLATE:
 				BPPrintMessage(0,odError,"\n");
 				}
 			else {
-				BPPrintMessage(0,odError,"👉 Item %smatched template [%ld]\n",LineBuff,(long)itemp);
+				BPPrintMessage(0,odError,"👉 Item %s matched template [%ld]\n",LineBuff,(long)itemp);
+				my_sprintf(Message,"\n==== Item %s matched template [%ld] ====\n",LineBuff,(long)itemp);
+				if(TraceProduce) Print(wTrace,Message);
 				}
 			}
 		if(StepProduce) {
@@ -1659,7 +1686,7 @@ NEXTTEMPLATE:
 			if(r != OK) goto END;
 			}
 		}
-	ClearMarkers(pp_a);
+	// ClearMarkers(pp_a); 2026-04-17
 
 	time_end_compute = 0L;
 	for(igram=Gram.number_gram; igram >= 1; igram--) {
@@ -1742,11 +1769,12 @@ int MatchTemplate(tokenbyte ***pp_a,tokenbyte ***pp_b) {
 /* On normal exit p_a should have structure derived from template */
 	tokenbyte **p_c;
 	double maxseqapprox;
-	int r,hasperiods;
+	int r,hasperiods,ifunc,hastabs,datamode;
 
 	r = OK;
 	hasperiods = FALSE; p_c = NULL;
 	// datamode = DisplayMode(pp_a,&ifunc,&hastabs);
+	datamode = FALSE;
 	if((hasperiods=FoundPeriod(pp_b) && !HasStructure(*pp_b))) {
 		if((p_c=(tokenbyte**) GiveSpace((Size) MyGetHandleSize((Handle)*pp_b))) == NULL) {
 			r = ABORT; goto QUIT;
@@ -1762,7 +1790,7 @@ int MatchTemplate(tokenbyte ***pp_a,tokenbyte ***pp_b) {
 			return(MISSED);
 			}
 		}
-	r = PrintArg(FALSE,TRUE,FALSE,FALSE,FALSE,TRUE,stdout,0,pp_a,pp_b);
+	r = PrintArg(datamode,TRUE,FALSE,FALSE,FALSE,TRUE,stdout,0,pp_a,pp_b);
 	if(r == ABORT || r == EXIT) goto QUIT;
 	if(r != OK) r = MISSED;
 	if(hasperiods) {
@@ -1872,55 +1900,6 @@ int CheckItemProduced(t_gram *p_gram,int igram,tokenbyte ***pp_a,long *p_length,
 END:
 	return(result);
 	}
-
-/*
-int check_and_remove_duplicate_last_line(const char *filename) {
-	int result = TRUE;
-	if(outPtr) {
-		fflush(outPtr);
-		fclose(outPtr);
-		outPtr = NULL;
-		}
-	else return FALSE;
-    FILE *file = my_fopen(1,filename,"r");
-    if(file == NULL) return FALSE;
-    char *lines[1000]; // Assuming a maximum of 1000 lines
-    int line_count = 0;
-    char buffer[5000];
-    while(fgets(buffer,5000, file) != NULL) {
-		remove_trailing_newline(buffer);
-        lines[line_count] = strdup(buffer);
-        line_count++;
-   		}
-    fclose(file);
-    int is_duplicate = 0;
-    if(line_count > 1) {
-        for (int i = 0; i < line_count - 1; i++) {
-            if(strcmp(lines[i], lines[line_count - 1]) == 0) {
-                is_duplicate = 1;
-                break;
-				}
-			}
-		}
-    // If duplicate, remove the last line.
-    if(is_duplicate) {
-        free(lines[line_count - 1]);
-        line_count--;
-		result = FALSE;
-    	}
-    // Write the updated content back to the file.
- 	file = my_fopen(1,filename,"wb");
-    if(file == NULL) return FALSE;
-    for(int i = 0; i < line_count; i++) {
-		fprintf(file,"%s\n",lines[i]);
-        free(lines[i]);
-    	}
-    fclose(file);
-	outPtr = fopen(filename,"a");
-	return result;
-	} */
-
-
 
 static const char *skip_index_prefix(const char *s) {
     if (s == NULL) return NULL;

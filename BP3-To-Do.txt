@@ -149,6 +149,7 @@ Actions
 -------
 
 - Implement rule weight learning in parsing sets of items.
+- Expand the concept of "true BP grammar" by disregarding performance controls.
 - Implement expand-item & show-beats options.
 
 
@@ -163,6 +164,7 @@ Images
 Various issues
 --------------
 
+- Templates can't be created with rules containing integers as silences. This can be solved in MakeTemplate().
 - Currently, the console crashes if the list of TEMPLATES in a grammar is not terminated with a solid line "-----". The interface takes care of this by adding the missing terminating line.
 - Problem tracing the production of an item containing structural patterns.
 - When outputing a data file of an item requiring serial tools (NeedZouleb > 0), display the result after the application of tools. Example: -gr.Visser.Waves. This may happen in Compute.c after SORTIR.

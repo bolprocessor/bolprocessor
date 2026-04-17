@@ -49,14 +49,15 @@ typedef enum {
 	odiWarning	= 5,	// warning messages
 	odiError	= 6,	// error messages
 	odiUserInt	= 7,	// interactive messages to which a response is expected
+	odiWeights	= 8,	// interactive messages to which a response is expected
 }	outdestidx_t;
 
-#define	MAXOUTDEST	8
+#define	MAXOUTDEST	15
 
 /* private globals */
 
 static FILE*	gOutDestinations[MAXOUTDEST] = 
-					{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+					{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
 static bp_message_callback_t	gMessageCallback = NULL;
 
@@ -74,6 +75,7 @@ void ConsoleMessagesInit() {
     gOutDestinations[odiWarning] = dest;
     gOutDestinations[odiError] = dest;
     gOutDestinations[odiUserInt] = dest;
+    gOutDestinations[odiWeights] = dest;
     }
 
 void SetOutputDestinations(int dest, FILE* file) {
@@ -82,6 +84,7 @@ void SetOutputDestinations(int dest, FILE* file) {
 	if(dest & odMidiDump)	gOutDestinations[odiMidiDump] = file;
 	if(dest & odCsScore)	gOutDestinations[odiCsScore] = file;
 	if(dest & odTrace)		gOutDestinations[odiTrace] = file;
+	if(dest & odWeights)		gOutDestinations[odiWeights] = file;
 	if(dest & odUserInt)	gOutDestinations[odiUserInt] = file;
 	if(dest & odError)		gOutDestinations[odiError] = file;
 	if(dest & odWarning)	gOutDestinations[odiWarning] = file;
@@ -103,7 +106,7 @@ int BPPrintMessage(int force,int dest, const char *format, ...) {
     if((MAXMESSAGES > 0) && (NumberMessages > (MAXMESSAGES + 1))) return OK; // 2026-03-24
 
     // Handle callback if set
-    if(gMessageCallback != NULL) {
+   if(gMessageCallback != NULL) {
         va_start(args, format);
         gMessageCallback(NULL, dest, format, args);
         va_end(args);
@@ -128,6 +131,11 @@ int BPPrintMessage(int force,int dest, const char *format, ...) {
     if(dest & odTrace) {
         va_start(args, format);
         vfprintf(gOutDestinations[odiTrace], format, args);
+        va_end(args);
+        }
+    if(dest & odWeights) {
+        va_start(args, format);
+        vfprintf(gOutDestinations[odiWeights], format, args);
         va_end(args);
         }
     if(dest & odUserInt) {

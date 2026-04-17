@@ -178,10 +178,11 @@ int MySetHandleSize(Handle* p_h, Size size) {
 //	BPPrintMessage(0,odInfo,"size = %ld\n",(long) size);
 	if(size <= 0L) {
 		BPPrintMessage(0,odError,"=> Err. MySetHandleSize() size <= 0\n");
+		Panic = TRUE;
 		return ABORT;
 		}
 	if(p_h == NULL) {
-		BPPrintMessage(0,odError,"=> Err. MySetHandleSize(). p_h == NULL");
+		BPPrintMessage(0,odError,"=> Err. MySetHandleSize(). p_h == NULL\n");
 		Panic = TRUE;
 		return(ABORT);
 		}
@@ -190,16 +191,19 @@ int MySetHandleSize(Handle* p_h, Size size) {
 		h = (s_handle_priv*) *p_h;
 		if(h->memblock == NULL) {
 			BPPrintMessage(0,odError,"=> Error(1) MySetHandleSize(). h->memblock == NULL\n");
+			Panic = TRUE;
 			return ABORT;
 			}
 		oldsize = h->size;
 		if(!InitOn && oldsize < (Size)1) {
 			BPPrintMessage(0,odError,"=> Err. MySetHandleSize(). oldsize = %ld (1)\n", (long) oldsize);
+			Panic = TRUE;
 			return ABORT;
 			}
 		void* new_mem = realloc(h->memblock, size);
 		if(new_mem == NULL) {
 			BPPrintMessage(0,odError,"=> Error(2) MySetHandleSize(). new_mem == NULL\n");
+			Panic = TRUE;
 			return ABORT;
 			}
 		h->memblock = new_mem;
@@ -221,6 +225,7 @@ int MySetHandleSize(Handle* p_h, Size size) {
 	//	BPPrintMessage(0,odError,"=> Warning: MySetHandleSize(%ld), handle was NULL\n",(long)size);
 		if((*p_h = GiveSpace(size)) == NULL) {
 			BPPrintMessage(0,odError,"=> Err. MySetHandleSize(%ld), handle == NULL\n",(long)size);
+			Panic = TRUE;
 			return(ABORT);
 			}
 		}

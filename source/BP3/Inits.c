@@ -640,20 +640,18 @@ return(OK);
 }
 
 /* Non-Carbon version just creates TextHandles to use */
-int SetUpWindow(int w)
-{	
+int SetUpWindow(int w) {	
 	if(w < 0 || w >= WMAX) {
-		BPPrintMessage(0,odError,"Internal problem in setting up text buffers!");
+		BPPrintMessage(0,odError,"=> Internal problem in setting up text buffers! w = %d\n",w);
 		return(ABORT);
-	}
-	
+		}
 	if(Editable[w]) {
 		TEH[w] = NewTextHandle();
 		if(TEH[w] == NULL) return(ABORT);
-	}
+		}
 	else TEH[w] = NULL;
 	return(OK);
-}
+	}
 
 int LoadStrings(void) {
 	long max;
