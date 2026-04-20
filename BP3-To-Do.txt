@@ -148,8 +148,6 @@ Read https://forum.csound.com/t/orchestra-file-rejected-by-linux/1780
 Actions
 -------
 
-- Implement rule weight learning in parsing sets of items.
-- Expand the concept of "true BP grammar" by disregarding performance controls.
 - Implement expand-item & show-beats options.
 
 

@@ -1258,7 +1258,7 @@ int GetGrammarSpace(t_gram* p_gram) {
 	pos = ZERO;
 	posmax = GetTextLength(wGrammar);
 	p_line = NULL; maxrulesinsubgram = 0;
-	while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
+	while(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 		if((*p_line)[0] == '\0') goto NEXTLINE;
 		q = &(InitToken[0]);
 		if(Match(TRUE,p_line,&q,4)) goto NEXTLINE;	/* Found "INIT:" */
@@ -1273,7 +1273,7 @@ int GetGrammarSpace(t_gram* p_gram) {
 		if(Mystrcmp(p_line,"COMMENT:") == 0) goto END;
 		if(Mystrcmp(p_line,"TIMEPATTERNS:") == 0) {
 			do {
-				if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
+				if(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
 				if((*p_line)[0] == '\0') {
 					goto NEXTLINE;
 					}
@@ -1283,7 +1283,7 @@ int GetGrammarSpace(t_gram* p_gram) {
 			}
 		if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
 			do {
-				if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
+				if(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
 				if((*p_line)[0] == '\0') {
 					goto NEXTLINE;
 					}

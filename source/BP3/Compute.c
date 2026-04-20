@@ -99,7 +99,7 @@ int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_re
 		if(finish) {
 	//		BPPrintMessage(1,odInfo,"@@@@ ShowItem()\n");
 			if(!SkipFlag
-				&& (((r = ShowItem(igram,&Gram,FALSE,pp_a,(*p_repeat),PROD,FALSE)) == ABORT)
+				&& (((r = ShowItem(FALSE,pp_a,(*p_repeat),PROD,FALSE)) == ABORT)
 					|| r == EXIT || r == STOP)) goto SORTIR;
 			StepProduce = DisplayProduce = TRUE;
 			PlanProduce = TraceProduce = finish - 1;
@@ -144,7 +144,7 @@ int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_re
 				if(r != OK) break;
 				}
 			while(level >= 0);
-	//		r = ShowItem(igram,&Gram,FALSE,pp_a,(*p_repeat),PROD,FALSE);
+	//		r = ShowItem(FALSE,pp_a,(*p_repeat),PROD,FALSE);
 	//		PrintArg(FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,stdout,wData,pp_Scrap,pp_a);
 	//		PlayBuffer(pp_a,NO);
 			}
@@ -240,7 +240,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			rep = ABORT;
 			goto QUIT;
 			}
-		if((rep = ShowItem(igram,p_gram,FALSE,pp_a,(*p_repeat),PROD,FALSE)) == ABORT
+		if((rep = ShowItem(FALSE,pp_a,(*p_repeat),PROD,FALSE)) == ABORT
 				|| rep == FINISH || rep == EXIT || rep == STOP) goto QUIT;
 		}
 	if(subgram.print) {
@@ -487,9 +487,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			irul = 1 + (subgram.number_rule - 1) * (randomnumber / ((double)BP3_RAND_MAX));
 			rule = (*(subgram.p_rule))[irul];
 			irep = 0;
-			if((rule.w == 0) ||
-			((*p_pos)[j] = FindArg(pp_a,grtype,rule.p_leftarg,TRUE,p_length,meta,
-								instan,rule,mode,time_end_compute)) == -1) {
+			if((rule.w == 0) || ((*p_pos)[j] = FindArg(pp_a,grtype,rule.p_leftarg,TRUE,p_length,meta,instan,rule,mode,time_end_compute)) == -1) {
 				try++;
 				if(CheckEmergency() != OK) return(ABORT);
 				goto TRY2;
@@ -589,7 +587,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 		if((*p_repeat) && (ProduceStackIndex >= ProduceStackDepth)) {
 			(*p_repeat) = PlanProduce = FALSE;
 		//	BPPrintMessage(1,odInfo,"@@@@ ShowItem()\n");
-			if((rep = ShowItem(igram,p_gram,FALSE,pp_a,(*p_repeat),mode,FALSE)) == ABORT
+			if((rep = ShowItem(FALSE,pp_a,(*p_repeat),mode,FALSE)) == ABORT
 				|| rep == FINISH || rep == EXIT || rep == STOP) goto QUIT;
 			if(CompleteDecisions ||
 				(Answer("End of known computation.\nContinue",'Y') == YES
@@ -603,7 +601,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 				}
 			}
 		if(grtype != SUBtype && grtype != SUB1type) {
-			if((c = ShowItem(igram,p_gram,FALSE,pp_a,(*p_repeat),mode,FALSE))
+			if((c = ShowItem(FALSE,pp_a,(*p_repeat),mode,FALSE))
 					== ABORT || c == STOP || c == FINISH || c == EXIT) {
 				rep = c;
 				goto QUIT;
@@ -636,7 +634,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 					}
 				}
 			}
-		if(learn) (*((*(p_gram->p_subgram))[igram].p_rule))[irul].w++;
+		if(learn) (*((*(p_gram->p_subgram))[igram].p_rule))[irul].w++; // rule.w += 1
 
 	MORE:	
 		if(Varweight && (grtype != SUBtype) && !shootagain) {
@@ -663,7 +661,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 						}
 					if(CopyBuf(pp_b,pp_c) == ABORT) return(ABORT);
 			//		BPPrintMessage(1,odInfo,"@ ShowItem()\n");
-					c = ShowItem(igram,p_gram,FALSE,pp_c,(*p_repeat),mode,FALSE);
+					c = ShowItem(FALSE,pp_c,(*p_repeat),mode,FALSE);
 					MyDisposeHandle((Handle*)pp_c);
 					if(c == ABORT || c == FINISH || c == EXIT || c == STOP) {
 						if(!(*p_repeat))	{
@@ -714,7 +712,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 		if(mode == PROD && rule.destru) {
 			if((rep=Destroy(pp_a)) != OK) goto QUIT;
 		//	BPPrintMessage(1,odInfo,"@@@ ShowItem()\n");
-			if((rep = ShowItem(igram,p_gram,FALSE,pp_a,(*p_repeat),PROD,FALSE)) == ABORT
+			if((rep = ShowItem(FALSE,pp_a,(*p_repeat),PROD,FALSE)) == ABORT
 					|| rep == FINISH || rep == EXIT || rep == STOP) goto QUIT;
 			}
 		if(equalweight && !(*p_repeat) && !PlanProduce) goto TRY2;
@@ -795,7 +793,6 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 				}
 			if(NumberCharsData < MAXCHARDATA) {
 				if(changed && BalancedPoly(pp_b)) { // 2026-03-31
-		//			BPPrintMessage(1,odInfo,"@ PrintWorkString()\n");
 					ItemNumber++;
 					if((MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) {
 						BPPrintMessage(1,odInfo,"👉 %ld items have been produced\n",(long)(ItemNumber - 1L));
@@ -803,6 +800,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 						goto QUIT;
 						}
 					hastabs = FALSE; // 2026-04-12
+					BPPrintMessage(1,odInfo,"@@@ PrintWorkString()\n");
 					if((rep=PrintWorkString(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_b)) != OK) {
 						BPPrintMessage(0,odError,"=> Error calling PrintWorkString(2) in Compute.c\n");
 						goto QUIT;
@@ -861,7 +859,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			/*	PrintWorkString(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_c);
 				Print(OutputWindow," (2)\n"); */
 			//	BPPrintMessage(1,odInfo,"@@ ShowItem() ItemNumber = %ld, MaxItemsProduce = %d\n",ItemNumber,MaxItemsProduce);
-				rep = ShowItem(igram,p_gram,TRUE,pp_c,(*p_repeat),mode,FALSE);
+				rep = ShowItem(TRUE,pp_c,(*p_repeat),mode,FALSE);
 				MyDisposeHandle((Handle*)pp_c);
 				if(rep == ABORT) {
 					if(!Panic) BPPrintMessage(0,odError,"=> Error calling ShowItem() in Compute.c\n");
@@ -2135,7 +2133,7 @@ QUIT:
 	return(rep);
 	}
 
-int ShowItem(int igram,t_gram *p_gram,int justplay,tokenbyte ***pp_a,int repeat,int mode,int all) {
+int ShowItem(int justplay,tokenbyte ***pp_a,int repeat,int mode,int all) {
 	int r,rep,ifunc,datamode,hastabs;
 	long lastbyte;
 
@@ -2145,6 +2143,7 @@ int ShowItem(int igram,t_gram *p_gram,int justplay,tokenbyte ***pp_a,int repeat,
 		goto QUIT;
 		}
 	if(TraceProduce) {
+		// BPPrintMessage(1,odInfo,"@@@ ShowItem()\n");
 		datamode = DisplayMode(pp_a,&ifunc,&hastabs);
 		if((mode == ANAL) || all) {
 			datamode = FALSE;
@@ -2178,6 +2177,7 @@ int ShowItem(int igram,t_gram *p_gram,int justplay,tokenbyte ***pp_a,int repeat,
 	}
 
 int SaveWeights(void) {
+	// Save current rule weigths to the "-wg" weights file
 	int igram,irul,w;
 	BPPrintMessage(0,odInfo,"Saving rule weights\n");
 	Print(wWeights,"// Rule weights after learning\n");

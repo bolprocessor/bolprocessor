@@ -126,7 +126,7 @@ CompiledGl = FALSE;
 
 HERE:
 p_line = NULL;
-while(ReadLine(YES,w,&pos,posmax,&p_line,&gap) == OK) {
+while(ReadLine(NO,YES,w,&pos,posmax,&p_line,&gap) == OK) {
 	PleaseWait();
 	if(w == wScript) {
 		SetSelect(posline+gap,pos,TEH[w]); Activate(TEH[w]);

@@ -215,6 +215,7 @@ int Inits(void) {
 	Offscreen = FALSE;
 	Nw = -1; Ndiagram = Npicture = 0;
 	LastEditWindow = OutputWindow = wData;
+	// SetSelect(ZERO,ZERO,TEH[wData]);
 	LastComputeWindow = wGrammar;
 	LastAction = NO;
 	Ke = log((double) 2.) / 64.;
@@ -321,6 +322,7 @@ int Inits(void) {
 	p_MemGram = p_MemRul = p_VarStatus = NULL;
 	p_MemPos = p_LastStackIndex = NULL;
 	p_ItemStart = p_ItemEnd = NULL;
+	p_Scrap = NULL;
 	pp_Scrap = &p_Scrap;
 	p_StringList = NULL; pp_StringList = &p_StringList; NrStrings = 0;
 	if(ResetScriptQueue() != OK) return(ABORT);

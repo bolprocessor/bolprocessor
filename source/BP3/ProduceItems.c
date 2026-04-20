@@ -130,11 +130,11 @@ if(pp_start != NULL) pp_a = pp_start;
 else if(CreateBuffer(pp_a) != OK)  {
 	r = MISSED; goto QUIT;
 	}
-if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start MakeComputeSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+// if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start MakeComputeSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 if(MakeComputeSpace(MaxDeriv) != OK) {
 	r = MISSED; goto QUIT;
 	}
-if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end MakeComputeSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+/* if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end MakeComputeSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 if(!ResetWeights && !NeverResetWeights && Varweight && !JustCompiled) {
 	if((r=Answer("Reset rule weights to initial values",'N')) == OK) {
 		Varweight = ResetRuleWeights(&Gram,0);
@@ -143,7 +143,7 @@ if(!ResetWeights && !NeverResetWeights && Varweight && !JustCompiled) {
 		NeverResetWeights = TRUE;
 		}
 	if(r == ABORT) goto QUIT;
-	}
+	} */
 JustCompiled = FALSE;
 
 maxsounds = Jbol + Jpatt;
@@ -185,7 +185,7 @@ if(!PlaySelectionOn && Improvize) {
 	if(DeriveFurther && Varweight) weightloss = TRUE;
 	}
 if((PlaySelectionOn || ResetWeights) && Varweight) {
-	if(ResetRuleWeights(&Gram,0) == ABORT) {
+	if(ResetRuleWeights(&Gram,0) == ABORT) { // rule.w = rule.weight
 		if(CompileCheck() != OK) goto QUIT;
 		}
 	weightloss = TRUE;
@@ -263,7 +263,7 @@ if(lengthA < 1) {
 	}
 Final = FALSE;
 Prod = 1.;
-if(!PlaySelectionOn && !Improvize && ShowItem(-1,&Gram,0,pp_a,repeat,PROD,FALSE) == ABORT) goto QUIT;
+if(!PlaySelectionOn && !Improvize && ShowItem(FALSE,pp_a,repeat,PROD,FALSE) == ABORT) goto QUIT;
 if(pp_start == NULL) LastComputeWindow = w;
 
 // BPPrintMessage(0,odError,"OK OK!\n");
@@ -279,8 +279,9 @@ ResetDone = ifunc = FALSE;
 OkShowExpand = FALSE;
 SplitTimeObjects = splitmem;
 if(!PlaySelectionOn && Improvize) {
-	if(!rtMIDI && !template && Improvize)
+/*	if(!rtMIDI && !template && Improvize) { // 2026-04-19
 		BPPrintMessage(1,odInfo,Message);
+		} */
 	if(!WriteMIDIfile && !rtMIDI && !OutCsound) {
 		ItemNumber++;
 		if((MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) {
@@ -293,22 +294,24 @@ if(!PlaySelectionOn && Improvize) {
 			}
 		}
 	else if(rtMIDI && !WriteMIDIfile && !OutCsound) ItemNumber++;
-/*	else {
-		my_sprintf(Message,"Item #%ld\n",(long)(ItemNumber + 1L));
-		FlashInfo(Message);
-		} */
+	
 	if(SkipFlag) goto MAKE;
 	if(!PlaySelectionOn && DisplayItems) {
 		if(NumberCharsData < MAXCHARDATA) {
 			datamode = DisplayMode(pp_a,&ifunc,&hastabs);
+			// BPPrintMessage(1,odInfo,"@@ Display? OutputWindow = %d, datamode = %d, hastabs = %d\n",OutputWindow,datamode,hastabs);
 			if((r=PrintWorkString(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
+			// BPPrintMessage(1,odInfo,"@@@ Display? OutputWindow = %d, datamode = %d, hastabs = %d\n",OutputWindow,datamode,hastabs); $$$$
 			Print(OutputWindow,"\n");
 			if(SplitLines) Print(OutputWindow,"\n");
 			NumberCharsData += 20;
 			}
 		}
-	if((rtMIDI || OutCsound || WriteMIDIfile || OutBPdata)
-		&& ((r = PlayBuffer(pp_a,NO)) == ABORT || r == EXIT)) goto QUIT;
+	if(rtMIDI || OutCsound || WriteMIDIfile || OutBPdata) {
+	//	BPPrintMessage(1,odInfo,"@ PlayBuffer() 1\n");
+	//	Print(OutputWindow,"####\n");
+		if((r = PlayBuffer(pp_a,NO)) == ABORT || r == EXIT) goto QUIT;
+		}
 	if(ChangedGrammar || ChangedSettings) {
 	//	if(TraceLive && ChangedGrammar) BPPrintMessage(1,odInfo,"Changed grammar\n");
 		ChangedGrammar = ChangedSettings = FALSE;
@@ -319,12 +322,13 @@ if(!PlaySelectionOn && Improvize) {
 	goto MAKE;
 	}
 if(!StepProduce && !TraceProduce && !PlaySelectionOn
-	&& ((r=ShowItem(-1,&Gram,0,pp_a,repeat,PROD,FALSE)) == ABORT || r == EXIT)) {
+	&& ((r=ShowItem(FALSE,pp_a,repeat,PROD,FALSE)) == ABORT || r == EXIT)) {
 		BPPrintMessage(0,odError, "=> Failed in ShowItem()\n");
 		goto QUIT;
 		}
 // BPPrintMessage(0,odInfo, "DisplayItems = %d\n",DisplayItems);
 if(!PlaySelectionOn && DisplayItems) {
+	// BPPrintMessage(1,odInfo,"@@ Display\n");
 	if(NumberCharsData < MAXCHARDATA) {
 		SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
 		datamode = DisplayMode(pp_a,&ifunc,&hastabs);
@@ -338,8 +342,10 @@ if(!PlaySelectionOn && DisplayItems) {
 	//	if(Improvize) ShowMessages = FALSE;
 		}
 	}
+// BPPrintMessage(1,odInfo,"@ PlayBuffer() ?\n");
 // if((!DisplayItems || PlaySelectionOn) && (rtMIDI || OutCsound || WriteMIDIfile)) {
 if(ShowGraphic || rtMIDI || OutCsound || WriteMIDIfile || OutBPdata) {
+//	BPPrintMessage(1,odInfo,"@@ PlayBuffer()\n");
 	r = PlayBuffer(pp_a,NO);
 	if(r == RESUME) goto MAKE;
 	goto QUIT;
@@ -360,56 +366,55 @@ return(r);
 }
 
 
-int ResetRuleWeights(t_gram* p_gram,int mode)
-{
-int igram,irul;
-t_rule rule;
+int ResetRuleWeights(t_gram* p_gram,int mode) {
+	int igram,irul;
+	t_rule rule;
 
-Varweight = FALSE;
-// if(p_gram->p_subgram == NULL || p_gram->number_gram < 1 || !CompiledGr) return(FALSE);
-if(p_gram->p_subgram == NULL || p_gram->number_gram < 1) return(FALSE);
-for(igram=1; igram <= p_gram->number_gram; igram++) {
-	for(irul=1; irul <= (*(p_gram->p_subgram))[igram].number_rule; irul++) {
-		rule = (*((*(p_gram->p_subgram))[igram].p_rule))[irul];
-		if((rule.p_leftarg == NULL) || (rule.p_rightarg == NULL)) continue;
-		switch(mode) {
-			case 0:	/* Producing or analyzing items */
-				(*((*(p_gram->p_subgram))[igram].p_rule))[irul].w = rule.weight;
-		//		printf("igram = %d irul = %d weight = %d\n",igram,irul,rule.weight);
-				break;
-			case 1:	/* Reset before learning weights */
-				(*((*(p_gram->p_subgram))[igram].p_rule))[irul].w = 0;
-				break;
-			case 2:	/* Copy learned weights */
-				(*((*(p_gram->p_subgram))[igram].p_rule))[irul].weight = rule.w;
-				break;
-			case 3:	/* Add learned weights */
-				(*((*(p_gram->p_subgram))[igram].p_rule))[irul].weight += rule.w;
-				break;
-			}	
-		if(!Varweight && (rule.incweight != 0)) Varweight = TRUE;
-		if(!Flagthere && (rule.p_leftflag != NULL || rule.p_rightflag != NULL))
-			Flagthere = TRUE;
+	Varweight = FALSE;
+	// if(p_gram->p_subgram == NULL || p_gram->number_gram < 1 || !CompiledGr) return(FALSE);
+	if(p_gram->p_subgram == NULL || p_gram->number_gram < 1) return(FALSE);
+	for(igram=1; igram <= p_gram->number_gram; igram++) {
+		for(irul=1; irul <= (*(p_gram->p_subgram))[igram].number_rule; irul++) {
+			rule = (*((*(p_gram->p_subgram))[igram].p_rule))[irul];
+			if((rule.p_leftarg == NULL) || (rule.p_rightarg == NULL)) continue;
+			switch(mode) {
+				case 0:	/* Producing or analyzing items */
+					(*((*(p_gram->p_subgram))[igram].p_rule))[irul].w = rule.weight;
+			//		printf("igram = %d irul = %d weight = %d\n",igram,irul,rule.weight);
+					break;
+				case 1:	/* Reset before learning weights */
+					(*((*(p_gram->p_subgram))[igram].p_rule))[irul].w = 0;
+					break;
+				case 2:	/* Copy learned weights */
+					(*((*(p_gram->p_subgram))[igram].p_rule))[irul].weight = rule.w;
+					break;
+				case 3:	/* Add learned weights */
+					(*((*(p_gram->p_subgram))[igram].p_rule))[irul].weight += rule.w;
+					break;
+				}	
+			if(!Varweight && (rule.incweight != 0)) Varweight = TRUE;
+			if(!Flagthere && (rule.p_leftflag != NULL || rule.p_rightflag != NULL))
+				Flagthere = TRUE;
+			}
 		}
+	ResetDone = TRUE;
+	return(Varweight);
 	}
-ResetDone = TRUE;
-return(Varweight);
-}
 
 
-int AnalyzeSelection(int learn)
-{
-int i,w,r,templates,all,dif,result,gap;
+int AnalyzeSelection(int learn) {
+int i,r,templates,all,dif,result,gap;
 tokenbyte **p_a,***pp_a;
-char c,*q,**p_line,remark[MAXLIN];
+char c,*q,*sl,**p_line,remark[MAXLIN];
 long origin,neworigin,end,pos,posmax;
+char the_slashes[] = "//";
+sl = the_slashes;
 
 if(!CompiledGr) return(MISSED);
-w = wData;
-/* BPActivateWindow(SLOW,w); */
+/* BPActivateWindow(SLOW,wData); */
 p_a = NULL; pp_a = &p_a;
 TextGetSelection(&origin, &end, TEH[wData]);
-SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
+// SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 if(end <= origin) {
 	if(ScriptExecOn) Print(wTrace,"\n*** Can't analyze.  No item selected...\n");
 	BPPrintMessage(0,odError,"=> Can't analyze. No item selected...");
@@ -421,40 +426,42 @@ if(Gram.trueBP && !Gram.hasTEMP) {
 	if((r=Answer("Templates have not been produced. Will you need them",'Y'))
 		!= NO) return(ABORT);
 	} */
-templates = NO;
-if(Gram.hasTEMP) templates = YES;
-else BPPrintMessage(1,odInfo,"No template found\n");
-//  if(Gram.hasTEMP && (templates=Answer("Use templates",'Y')) == ABORT) return(ABORT);
 
 pos = ZERO; all = NO;
 p_line = NULL;
-if(templates) {
-	posmax = GetTextLength(wGrammar);
-	while(posmax > 0 && GetTextChar(wGrammar,posmax-1) == '\r') posmax--;
-	while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
-		if((*p_line)[0] == '\0') continue;
-		if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
-			BPPrintMessage(1,odInfo,"Template(s) found, position %ld\n",pos);
-			break;
-			}
+templates = NO;
+posmax = GetTextLength(wGrammar);
+while(posmax > 0 && GetTextChar(wGrammar,posmax-1) == '\r') posmax--;
+while(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
+	if((*p_line)[0] == '\0') continue;
+	if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
+		BPPrintMessage(1,odInfo,"Template(s) found, position %ld\n",pos);
+		Gram.hasTEMP = templates = TRUE;
+		break;
 		}
+	}
+if(templates) {
 	all = AllTemplates;
 	if(all) BPPrintMessage(1,odInfo,"👉 We will try all templates, as per your settings\n");
 	else BPPrintMessage(1,odInfo,"👉 We will stop after the first successful parsing, as per your settings\n");
 	}
+else BPPrintMessage(1,odInfo,"👉 No template found\n");
 MyDisposeHandle((Handle*)&p_line);
-// if(wTrace != w) 
 SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 MaxDeriv = MAXDERIV;
 
 if(MakeComputeSpace(MaxDeriv) != OK) return(MISSED);
-if(learn) ResetRuleWeights(&Gram,1);
+if(learn) {
+	ResetRuleWeights(&Gram,2); // weight = w
+	ResetRuleWeights(&Gram,1); // w = 0
+	}
 neworigin = origin;
 
 /* Skip headers */
 p_line = NULL;
-while(ReadLine(YES,w,&origin,end,&p_line,&gap) == OK) {
+while(ReadLine(NO,YES,wData,&origin,end,&p_line,&gap) == OK) {
 	if((*p_line)[0] == '\0') goto NEXTLINE;
+	if(Match(TRUE,p_line,&sl,2)) continue; // Skip "//"
 	for(i=0; i < WMAX; i++) {
 		if(FilePrefix[i][0] == '\0') continue;
 		q = &(FilePrefix[i][0]);
@@ -464,63 +471,46 @@ while(ReadLine(YES,w,&origin,end,&p_line,&gap) == OK) {
 		}
 NEXTLINE: ;
 	}
+
 origin = neworigin;
 r = OK; p_line = NULL;
 while(origin < end) {
 	r = OK;
-	BPPrintMessage(0,odInfo,"Analyzing selection...\n");
-	while(MySpace(c=GetTextChar(w,origin)) || c == '\r') {
+//	BPPrintMessage(1,odInfo,"@ origin = %ld\n",origin);
+	while(MySpace(c=GetTextChar(wData,origin)) || c == '\r' || c == '\n') {
 		origin++;
 		if(origin >= end) goto END;
 		}
-	SetSelect(origin,end,TEH[w]);
 	neworigin = origin;
-	if(ReadLine(YES,w,&neworigin,end,&p_line,&i) != OK) goto END;
+	// We'll read lines separated by two linefeeds
+	int two_linefeeds = TRUE;
+	if(ReadLine(two_linefeeds,YES,wData,&neworigin,end,&p_line,&i) != OK)
+		goto END;
 	GetInitialRemark(p_line,remark);
+	// BPPrintMessage(1,odInfo,"@ origin = %ld, neworigin = %ld, end = %ld\n",origin,neworigin,end);
+	SetSelect(origin,(neworigin - 1L),TEH[wData]);
 	neworigin = origin;
-	if((r = SelectionToBuffer(FALSE,FALSE,w,pp_a,&neworigin,(int)ANAL)) != OK) {
+	if((r = SelectionToBuffer(FALSE,TRUE,wData,pp_a,&neworigin,(int)ANAL)) != OK) {
 		MyDisposeHandle((Handle*)pp_a);
-		BPPrintMessage(0,odInfo,"=> Error reading data, check the trace file!\n");
+		BPPrintMessage(0,odInfo,"=> Error reading data, check the Trace file!\n");
 		}
-	SetSelect(origin,(neworigin - 1L),TEH[w]);
-//	BPActivateWindow(QUICK,w);
-//	SelectBehind(origin,origin,TEH[w]);
-//	origin = neworigin;
-//	PleaseWait();
-	if(r == OK) r = AnalyzeBuffer(pp_a,learn,templates,all,pos,&result,remark);
+	if(r == OK) {
+		if(LengthOf(pp_a) > ZERO) {
+			BPPrintMessage(1,odInfo,"\n🔎 Analyzing new selection...\n");
+			if(TraceProduce) {
+				r = PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wData,pp_Scrap,pp_a);
+				BPPrintMessage(1,odInfo,"\n");
+				}
+			r = AnalyzeBuffer(pp_a,learn,templates,all,pos,&result,remark);
+			}
+		else BPPrintMessage(1,odInfo,"\n🔎 Comment:\n%s",Message);
+		// 'Message' has been filled in ReadToBuff()
+		}
 	MyDisposeHandle((Handle*)pp_a);
 	if(r == ABORT || r == EXIT) goto END;
 	else r = OK;
-	my_sprintf(Message,"");
-	if(result == OK) my_sprintf(Message,"[PASSED] ");
-	if(result == MISSED) my_sprintf(Message,"[MISSED] ");
+	if(neworigin >= end) goto END;
 	origin = neworigin;
-/*	dif = strlen(Message);
-	if(dif > 0 && w != wTrace) {
-		Print(w,Message);
-		origin += dif; end += dif;
-		} */
-	}
-/* SetSelect(end,end,TEH[w]);
-ShowSelect(CENTRE,w); */
-if(learn) {
-	if((r=Answer("Add infered weights\nto current weights",'Y'))
-		== ABORT) {
-			ResetRuleWeights(&Gram,0); r = OK; goto END;
-			}
-	if(r == OK) ResetRuleWeights(&Gram,3);
-	else {
-		if((r=Answer("Keep infered weights\nin current grammar",'Y'))
-			!= OK) {
-			ResetRuleWeights(&Gram,0); r = OK; goto END;
-			}
-		ResetRuleWeights(&Gram,2);
-		}
-	if((r=Answer("Update grammar window\nwith new weights",'Y'))
-		!= OK) {
-			r = OK; goto END;
-			}
-	return(AdjustWeights());
 	}
 END:
 MyDisposeHandle((Handle*)&p_line);
@@ -528,27 +518,13 @@ return(r);
 }
 
 
-
-int LearnWeights(void)
-{
-if(ComputeOn || SetTimeOn || PrintOn || SoundOn || SelectOn || CompileOn || GraphicOn
-	|| PolyOn) return(RESUME);
-if(CompileCheck() != OK) return(MISSED);
-if(ShowNotBP(&Gram) != OK) return(OK);
-return(AnalyzeSelection(TRUE));
-}
-
-
 int SetWeights(void)
+// OBSOLETE
 {
 int r,w,igram,irul;
 
 if(CompileCheck() != OK) return(MISSED);
 if(Gram.p_subgram == NULL || Gram.number_gram < 1) return(MISSED);
-#if BP_CARBON_GUI_FORGET_THIS
-if((r=Answer("Save current weights",'Y')) == ABORT) return(OK);
-if(r == OK) SaveWeights();
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 TRY:
 if((r=AnswerWith("Set weights to...","0",Message)) == ABORT) return(OK);
@@ -564,8 +540,8 @@ for(igram=1; igram <= Gram.number_gram; igram++) {
 return(AdjustWeights());
 }
 
-
 int AdjustWeights(void)		/* Copy weights in memory to grammar window */
+// OBSOLETE
 {
 int i,j,igram,irul,newsubgram,dif,gap;
 long pos,posline,posmax,pos1,pos2;
@@ -576,7 +552,7 @@ pos = posline = ZERO; igram = irul = 1;
 posmax = GetTextLength(wGrammar);
 ShowMessage(TRUE,wMessage,"Copying weights to all rules...");
 p_line = NULL;
-while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
+while(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	PleaseWait();
 	if((*p_line)[0] == '\0') goto NEXTLINE;
 	j = MyHandleLen(p_line); while(j > 0 && MySpace((*p_line)[j])) j--;
@@ -590,7 +566,7 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	if(Mystrcmp(p_line,"COMMENT:") == 0) goto END;
 	if(Mystrcmp(p_line,"TIMEPATTERNS:") == 0) {
 		do {
-			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
+			if(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
 			if((*p_line)[0] == '\0') continue;
 			}
 		while((*p_line)[0] != '-' || (*p_line)[1] != '-');
@@ -598,7 +574,7 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 		}
 	if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
 		do {
-			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
+			if(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
 			if((*p_line)[0] == '\0') continue;
 			}
 		while((*p_line)[0] != '-' || (*p_line)[1] != '-');
@@ -632,9 +608,11 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 		while(MySpace(c=(*p_line)[i]) && i < j) i++;
 		if((*p_line)[i] == '[')
 			while((*p_line)[++i] != ']' && i < j){};
-		if((*p_line)[i] == '<' || (*p_line)[i] == '\334') {
+		if((*p_line)[i] == '<') {
+//		if((*p_line)[i] == '<' || (*p_line)[i] == '\334') {
 			pos1 = posline + gap + i + 1; pos2 = pos1;
-			while((*p_line)[++i] != '>' && (*p_line)[i] != '\334' && i < j) pos2++;
+			while((*p_line)[++i] != '>' && i < j) pos2++;
+//			while((*p_line)[++i] != '>' && (*p_line)[i] != '\334' && i < j) pos2++;
 			SetSelect(pos1,pos2,TEH[wGrammar]);
 			TextDelete(wGrammar);
 			my_sprintf(Message,"%ld",
@@ -685,7 +663,7 @@ int ProduceAll(t_gram *p_gram,tokenbyte ***pp_a,int template) {
 	HideMessages = TRUE;
 
 	if(Varweight) {
-		if(ResetRuleWeights(&Gram,1) == ABORT) {
+		if(ResetRuleWeights(&Gram,0) == ABORT) { // rule.w = rule.weight
 			if(CompileCheck() != OK) return(OK);
 			}
 		weightloss = TRUE;
@@ -706,7 +684,7 @@ int ProduceAll(t_gram *p_gram,tokenbyte ***pp_a,int template) {
 			r = ABORT; goto END;
 			}
 		}
-	ResetRuleWeights(&Gram,0);
+	ResetRuleWeights(&Gram,0); // rule.w = rule.weight
 	if((p_weight=(long****) GiveSpace((Size) maxdepth * sizeof(long**))) == NULL) {
 		r = ABORT; goto END;
 		}
@@ -741,7 +719,7 @@ int ProduceAll(t_gram *p_gram,tokenbyte ***pp_a,int template) {
 	igram = irul = irep = 1;
 	showmessages = ShowMessages;
 	if(!template) ShowMessages = FALSE;
-	if((r = ShowItem(1,p_gram,FALSE,pp_a,FALSE,mode,TRUE)) == ABORT || r == FINISH || r == EXIT) goto END;
+	if((r = ShowItem(FALSE,pp_a,FALSE,mode,TRUE)) == ABORT || r == FINISH || r == EXIT) goto END;
 	r = AllFollowingItems(p_gram,pp_a,p_weight,p_flag,&length,igram,irul,irep,TRUE,
 		template,endgram,p_stack,&depth,&maxdepth,mode,time_end_compute);
 	ShowMessages = showmessages;
@@ -810,7 +788,7 @@ NEXTPOS:
 			BPPrintMessage(1,odError,"=> Could not derive in igram = %d irul = %d\n",igram,irul);
 			return r; // Happens if buffer problem
 			}
-		if((r = ShowItem(igram,p_gram,FALSE,pp_a,FALSE,mode,TRUE)) != OK) return r;
+		if((r = ShowItem(FALSE,pp_a,FALSE,mode,TRUE)) != OK) return r;
 		// Check '_repeat', '_goto'
 		nrep = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].repeat;
 		if(nrep == 0) irep = 0;
@@ -1163,7 +1141,7 @@ int MakeTemplate(tokenbyte ***pp_a) {
 	unsigned long i;
 	tokenbyte m,p;
 
-	ClearMarkers(pp_a,FALSE);
+	ClearMarkers(pp_a,TRUE);
 	for(i=ZERO; ((m=(**pp_a)[i]) != TEND || (**pp_a)[i+1] != TEND); i+=2L) {
 		p = (**pp_a)[i+1];
 		if(m == T3 || m == T7 || m == T25) {
@@ -1179,7 +1157,7 @@ int MakeTemplate(tokenbyte ***pp_a) {
 		if(m == T4) return(NO); // Variable
 		if(m == T0 && p == 10) return(NO); // 'S'
 		}
-	ClearMarkers(pp_a,FALSE);
+	// ClearMarkers(pp_a,FALSE);
 	return(OK);
 	}
 
@@ -1195,7 +1173,9 @@ int ClearMarkers(tokenbyte ***pp_a,int isgrammar) {
 		return(OK);
 		}
 	setting_sections = TRUE;
+	// BPPrintMessage(1,odInfo,"@@ Clearing markers\n");
 	if(isgrammar) {
+		// BPPrintMessage(1,odInfo,"@@@ Clearing markers\n");
 		setting_sections = FALSE;
 		m = (**pp_a)[ZERO]; p = (**pp_a)[1L];
 		if(m == T1) setting_sections = TRUE;
@@ -1216,6 +1196,42 @@ int ClearMarkers(tokenbyte ***pp_a,int isgrammar) {
 			}
 		if(m == T0 && p == 11)	{ // '/'
 			k += 6; continue;
+			}
+		switch(m) {
+			case T11: // _vel()
+			case T12: // _velcont, _panstep, etc.
+			case T13: // _script()
+			case T14: // _mod()
+			case T15: // _pitchbend()
+			case T16: // _press()
+			case T17: // _switchon()
+			case T18: // _switchoff()
+			case T19: // _volume()
+			case T20: // _legato()
+			case T21: // _pitchrange()
+			case T22: // _pitchrate()
+			case T23: // _modrate()
+			case T24: // _pressrate()
+			case T26: // _transpose()
+			case T27: // _volumerate()
+			case T28: // _volumecontrol()
+			case T29: // _pan()
+			case T30: // _panrate()
+			case T31: // _pancontrol()
+			case T32: // _ins()
+			case T33: // _step()
+			case T34: // _cont()
+			case T35: // _value()
+			case T36: // _fixed()
+			case T38: // _rndvel()
+			case T41: // _rndtime()
+			case T42: // _srand()
+			case T43: // _tempo()
+			case T44: // _scale()
+			case T45: // _capture()
+			case T46: // _part()
+				k += 2; continue;
+			break;
 			}
 		if(m == T0 && p == 7) {		// beat marker '•' added again 2026-04-17
 			// BPPrintMessage(1,odInfo,"=> Clearing marker\n");
@@ -1483,7 +1499,7 @@ posmax = GetTextLength(wGrammar);
 while(posmax > 0 && GetTextChar(wGrammar,posmax-1) == '\r') posmax--;
 separator = TRUE;
 p_line = NULL;
-while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
+while(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	if((*p_line)[0] == '\0') {
 		pos1 = pos; continue;
 		}
@@ -1491,7 +1507,7 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	if(Mystrcmp(p_line,"COMMENT:") == 0) goto SORTIR;
 	if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
 		do {
-			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto SORTIR;
+			if(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto SORTIR;
 			if((*p_line)[0] == '\0') continue;
 			}
 		while((*p_line)[0] != '-' || (*p_line)[1] != '-');
@@ -1549,7 +1565,7 @@ int AnalyzeBuffer(tokenbyte ***pp_a,int learn,int templates,int all,long pos,int
 
 
 int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templates,int all,long pos,int *p_result,char *remark) {
-/* pos = position of first template considered in grammar window */
+// pos = position of first template considered in grammar window
 	int i,itemp,r,igram,finish,again,foundone,good,hasperiods,success,datamode,ifunc,hastabs;
 	long posend,lastbyte, posmax;
 	tokenbyte m,p,**p_b,***pp_b,**p_c,***pp_c,**p_d,***pp_d;
@@ -1573,13 +1589,13 @@ int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templa
 
 	if(((all && templates) || DisplayProduce)) {
 		if(remark[0] == '\0') {
-	/*		BPPrintMessage(0,odInfo,"👉 Analyzing item: \n");
-			if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wData,pp_Scrap,pp_a)) != OK)
+			BPPrintMessage(0,odInfo,"▶︎ Analyzing item\n");
+	/*		if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wData,pp_Scrap,pp_a)) != OK)
 				return(r);
 			BPPrintMessage(0,odInfo,"\n"); */
 			}
 		else {
-			BPPrintMessage(0,odError,"👉 Analyzing item [%s]\n",remark);
+			BPPrintMessage(0,odError,"▶︎ Analyzing item [%s]\n",remark);
 			}
 		if(StepProduce) {
 			r = InterruptCompute(-1,&Gram,*p_repeat,-1,ANAL);
@@ -1632,15 +1648,15 @@ NEXTTEMPLATE:
 		if(ReadTemplate(wGrammar,pos,&posend,pp_b,posmax,&itemp) != OK) {
 			(*p_result) = MISSED;
 			if(!foundone) {
-				BPPrintMessage(1,odInfo,"Item matched no template...\n");
+		/*		BPPrintMessage(1,odInfo,"Item matched no template...\n");
 				if(FALSE && StepProduce) {
 					r = InterruptCompute(-1,&Gram,*p_repeat,-1,ANAL);
 					if(r != OK) {
 						MyDisposeHandle((Handle*)pp_b);
 						goto END;
 						}
-					}
-				BPPrintMessage(1,odInfo,"Item %s matched no template...\n\n",LineBuff);
+					} */
+				BPPrintMessage(1,odInfo,"Item %s matched no template ❌\n",LineBuff);
 				}
 			else if(good) *p_result = OK;
 			MyDisposeHandle((Handle*)pp_b);
@@ -1689,6 +1705,9 @@ NEXTTEMPLATE:
 	// ClearMarkers(pp_a); 2026-04-17
 
 	time_end_compute = 0L;
+	if(learn) {
+		ResetRuleWeights(&Gram,1); // rule.w = 0
+		}
 	for(igram=Gram.number_gram; igram >= 1; igram--) {
 		PleaseWait();
 		finish = FALSE;
@@ -1696,7 +1715,7 @@ NEXTTEMPLATE:
 		if(r == MISSED) break;
 		if(r == FINISH) continue;
 		if(finish) {
-			if((r = ShowItem(igram,&Gram,FALSE,pp_a,(*p_repeat),ANAL,FALSE))
+			if((r = ShowItem(FALSE,pp_a,(*p_repeat),ANAL,FALSE))
 				== ENDREPEAT || r == ABORT || r == EXIT) {
 				goto END;
 				}
@@ -1732,6 +1751,9 @@ NEXTTEMPLATE:
 		}
 	
 	if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 10) { // 'S'
+		if(learn) {
+			ResetRuleWeights(&Gram,3); // rule.weight += rule.w
+			}
 		good = (*p_result) = success = YES;
 		if(!templates) BPPrintMessage(0,odInfo,"Item %saccepted by grammar... ✅\n",LineBuff);
 		else BPPrintMessage(0,odInfo,
@@ -1756,8 +1778,8 @@ NEXTTEMPLATE:
 		}
 
 	END:
-	if(!success) BPPrintMessage(0,odInfo,"😢 No success in parsing!\n",LineBuff);
-	ShowSelect(CENTRE,wTrace);
+/*	if(!success) BPPrintMessage(0,odInfo,"😢 No success in parsing!\n",LineBuff);
+	ShowSelect(CENTRE,wTrace); */
 	MyDisposeHandle((Handle*)pp_c);
 	MyDisposeHandle((Handle*)pp_d);
 	return(r);
@@ -1829,6 +1851,8 @@ int PrintWorkString(int expand,int w,int datamode,int ifunc,tokenbyte ***pp_a) {
 			datamode = FALSE;
 			}
 		}
+	// BPPrintMessage(1,odInfo,"@@ PrintWorkString() datamode = %d, ifunc = %d, stdout = %d, w = %d\n",datamode,ifunc,stdout,w);
+	// datamode = TRUE;
 	if((r = PrintArg(datamode,FALSE,1,datamode,ifunc,0,stdout,w,pp_Scrap,pp_a)) != OK) goto QUIT;
 	if(expand && datamode && !ifunc) {
 		if(CopyBuf(&p_b,pp_a) == ABORT) {

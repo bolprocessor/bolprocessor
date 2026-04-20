@@ -76,89 +76,113 @@ return(c);
 }
 
 
-int ReadLine(int nocomment,int w,long *p_i,long im,char ***pp_line,int* p_gap)
-/* Read unlimited line in TExt buffer */
-{
-int j,k,jm;
-char c,oldc,**ptr;
-long origin,end,length;
+int ReadLine(int two_linefeeds,int nocomment,int w,long *p_i,long im,char ***pp_line,int* p_gap) {
+	// Read unlimited line to TExt buffer
+	int j,k,jm;
+	char c,oldc,**ptr;
+	long origin,end,length;
 
-*p_gap = 0;
-MyDisposeHandle((Handle*)pp_line);
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	BPPrintMessage(0,odError,"=> Err. ReadLine(YES,). ");
-	return(ABORT);
-	}
-if(*p_i >= im) goto BAD;
-origin = *p_i;
-
-/* Suppress blanks in beginning */
-if(nocomment) {
-	while(MySpace(c=GetTextChar(w,origin)) || c == '\n') {
-		origin++; (*p_i)++; (*p_gap)++;
+	*p_gap = 0;
+	MyDisposeHandle((Handle*)pp_line);
+	if(w < 0 || w >= WMAX || !Editable[w]) {
+		BPPrintMessage(0,odError,"=> Err. ReadLine(NO,YES,). ");
+		return(ABORT);
 		}
-	}
-end = origin; oldc = '\0';
-while(TRUE) {
-	c = GetTextChar(w,end);
-	if(nocomment && c == '*' && oldc == '/') {
-		/* Skip C-type remark */
-		oldc = '\0'; end++;
-		while(TRUE) {
-			c = GetTextChar(w,end);
-			if(end >= im) {
-				c = '\r';
-				break;
-				}
-			if(c == '/' && oldc == '*') {
-				end++;
-				c = GetTextChar(w,end);
-				break;
-				}
-			oldc = c;
-			end++;
+	if(*p_i >= im) goto BAD;
+	origin = *p_i;
+
+	// Suppress blanks in the beginning
+	if(nocomment) {
+		while(MySpace(c=GetTextChar(w,origin)) || c == '\n' || c == '\r') {
+			origin++; (*p_i)++; (*p_gap)++;
 			}
 		}
-	if((c == '\r' || c == '\n') /* && oldc != '�' */) break;
-	if(c == '\0' || end >= im) break;
-	oldc = c;
-NEXTCHAR:
-	end++;
-	}
-if(nocomment && GetTextChar(w,origin) == '/'
-				&& GetTextChar(w,origin+1) == '/') {
-	/* Ignore lines starting with // */
-	if((ptr = (char**) GiveSpace((Size)(2 * sizeof(char)))) == NULL) return(ABORT);
-	*pp_line = ptr; (**pp_line)[0] = '\0';
-	*p_i = end + 1; return(OK);
-	}
-if(origin >= end) {
-	if((ptr = (char**) GiveSpace((Size)(2 * sizeof(char)))) == NULL) return(ABORT);
-	*pp_line = ptr; (**pp_line)[0] = '\0';
-	(*p_i)++; return(OK);
-	}
-length = end - origin + 4L;
-if((ptr = (char**) GiveSpace((Size)(length * sizeof(char)))) == NULL) return(ABORT);
-*pp_line = ptr;
-if(ReadToBuff(nocomment,FALSE,w,&origin,end,pp_line) != OK) goto BAD;
-*p_i = origin;
+	end = origin;
+	int newline_count = 0;
+	oldc = '\0';
+	while (TRUE) {
+		c = GetTextChar(w,end);
+		if (nocomment && c == '*' && oldc == '/') {
+			// Skip C-type remark
+			oldc = '\0';
+			end++;
+			while (TRUE) {
+				c = GetTextChar(w, end);
+				if (end >= im) {
+					c = '\n';
+					break;
+					}
+				if (c == '/' && oldc == '*') {
+					end++;
+					c = GetTextChar(w, end);
+					break;
+					}
+				oldc = c;
+				end++;
+				}
+			}
+		if (c == '\r' || c == '\n') {
+			/* Treat CRLF as a single newline */
+			if (c == '\r' && (end + 1) < im && GetTextChar(w,(end + 1)) == '\n') end++;
+			newline_count++;
+		//	if(newline_count == 2) BPPrintMessage(1,odInfo,"#");
+			if (!two_linefeeds || newline_count == 2) {
+				break;
+				}
+			oldc = '\n';
+			end++;
+			continue;
+			}
+		else newline_count = 0;
+		if (c == '\0' || end >= im) break;
+		oldc = c;
+		end++;
+		}
+	if(nocomment && GetTextChar(w,origin) == '/' && GetTextChar(w,origin+1) == '/') {
+		// Ignore lines starting with "//"
+		if((ptr = (char**) GiveSpace((Size)(2 * sizeof(char)))) == NULL) return(ABORT);
+		*pp_line = ptr; (**pp_line)[0] = '\0';
+		*p_i = end + 1; return(OK);
+		}
+	if(origin >= end) {
+		if((ptr = (char**) GiveSpace((Size)(2 * sizeof(char)))) == NULL) return(ABORT);
+		*pp_line = ptr; (**pp_line)[0] = '\0';
+		(*p_i)++; return(OK);
+		}
+	length = end - origin + 4L;
+	if((ptr = (char**) GiveSpace((Size)(length * sizeof(char)))) == NULL) return(ABORT);
+	*pp_line = ptr;
+	int noreturn = two_linefeeds;
+	if(ReadToBuff(nocomment,noreturn,w,&origin,end,pp_line) != OK) goto BAD;
+	*p_i = origin;
 
-/* Suppress trailing blanks */
-jm = MyHandleLen(*pp_line) - 1;
-for(j=jm; j > 0; j--) {
-	if(MySpace((**pp_line)[j])) (**pp_line)[j] = '\0';
-	else break;
-	}
-return(OK);
+	// Suppress trailing blanks
+	jm = MyHandleLen(*pp_line) - 1;
+	for(j=jm; j > 0; j--) {
+		if(MySpace((**pp_line)[j])) (**pp_line)[j] = '\0';
+		else break;
+		}
+	return(OK);
 
-BAD:
-MyDisposeHandle((Handle*)pp_line);
-return(MISSED);
-}
+	// Replace linefeeds with spaces
+	if(two_linefeeds) {
+		for(j=0; j <= jm; j++) {
+			if((**pp_line)[j] == '\r' || (**pp_line)[j] == '\n') {
+				(**pp_line)[j] = ' ';
+			//	BPPrintMessage(1,odInfo,"@");
+				}
+			}
+		}
+	return(OK);
+
+	BAD:
+	MyDisposeHandle((Handle*)pp_line);
+	return(MISSED);
+	}
 
 
 int ReadLine1(int check,int w,long *p_i,long im,char *line,int size)
-/* Read line in TExt buffer.  Old version: length is limited to 'size'. */
+// Read line in TExt buffer.  Old version: length is limited to 'size'.
 {
 int j,k,l;
 char c,oldc;
@@ -243,7 +267,7 @@ if(w >= 0 && w < WMAX && Editable[w]) {
 		}
 	if(w == wGrammar) strcpy(line,"COMMENT:");
 	len = strlen(line);
-	while(ReadLine(YES,w,&pos,posmax,&p_line,&gap) == OK) {
+	while(ReadLine(NO,YES,w,&pos,posmax,&p_line,&gap) == OK) {
 	//	BPPrintMessage(0,odInfo,"line = %s\n",*p_line);
 		if((*p_line)[0] == '\0' || (*p_line)[0] == '\r' || (*p_line)[0] == '\n') continue;
 		for(j=0; j < WMAX; j++) {
@@ -379,9 +403,9 @@ int CompileCheck(void) {
 				return(r);
 				}
 			}
-		if((Varweight = ResetRuleWeights(p_gram,0)) == ABORT) {
+		if((Varweight = ResetRuleWeights(p_gram,0)) == ABORT) { // rule.w = rule.weight
 	//	if(FirstGrammar && ResetWeights && (Varweight = ResetRuleWeights(0)) == ABORT) {
-			Print(wTrace,"Can't fix bug in grammar code. Unexpected error\n");
+			BPPrintMessage(0,odError,"=> Can't reset rule weights in grammar code. Unexpected error\n");
 			return(MISSED);
 			}
 		}

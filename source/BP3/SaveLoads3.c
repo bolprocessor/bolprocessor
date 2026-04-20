@@ -563,7 +563,7 @@ int GetThisVersion(int w) {
 	r = MISSED;
 
 	REDO:
-	if(ReadLine(NO,w,&pos,posmax,&p_line,&j) != OK) goto SORTIR;
+	if(ReadLine(NO,NO,w,&pos,posmax,&p_line,&j) != OK) goto SORTIR;
 	if((*p_line)[0] == '\0') goto REDO;
 	FindVersion(p_line,version);
 	diff = TRUE;
@@ -585,7 +585,7 @@ int GetThisVersion(int w) {
 	if(fileversion >= 3) {
 		/* Delete info and date line */
 	REDO2:
-		if(ReadLine(NO,w,&pos,posmax,&p_line,&j) != OK) goto SORTIR;
+		if(ReadLine(NO,NO,w,&pos,posmax,&p_line,&j) != OK) goto SORTIR;
 		if((*p_line)[0] == '\0') goto REDO2;
 		}
 	SetSelect(ZERO,pos,TEH[w]);
@@ -637,9 +637,9 @@ int GetFileDate(int w,char ***pp_result) {
 	pos = ZERO; p_line = NULL;
 	posmax = GetTextLength(w);
 	(**pp_result)[0] = '\0';
-	if(ReadLine(NO,w,&pos,posmax,&p_line,&gap) != OK) return(OK);
+	if(ReadLine(NO,NO,w,&pos,posmax,&p_line,&gap) != OK) return(OK);
 	pos = ZERO;
-	while((result=ReadLine(NO,w,&pos,posmax,&p_line,&gap)) == OK) {
+	while((result=ReadLine(NO,NO,w,&pos,posmax,&p_line,&gap)) == OK) {
 		if(GetDateSaved(p_line,pp_result) == OK) break;
 		}
 	MyDisposeHandle((Handle*)&p_line);

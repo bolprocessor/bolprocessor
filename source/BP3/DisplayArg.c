@@ -195,13 +195,15 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 			goto QUIT;
 			} */
 		}
+	// BPPrintMessage(1,odInfo,"@ PrintArg() datamode = %d, showtempo = %d, istemplate = %d, nocode = %d, wind = %d\n",datamode,showtempo,istemplate,nocode,wind);
 	if((datamode || showtempo) && !istemplate) {
 		// If tempo is greater than 1 and there is no fractional gap we will print periods
 		// print_periods = 0 don't print
 		// print_periods = 1 print periods
 		// print_periods = 2 don't print
-		// print_periods = 3 print also section markers '�'
+		// print_periods = 3 print also section markers '•'
 		
+		// BPPrintMessage(1,odInfo,"@@  PrintArg() datamode = %d, showtempo = %d, istemplate = %d, nocode = %d, wind = %d\n",datamode,showtempo,istemplate,nocode,wind);
 		setting_section2 = TRUE;
 		if(datamode) print_periods = 2;
 		firsttempo = 0.;
@@ -391,6 +393,8 @@ int PrintArgSub(PrintargType *p_printarg,unsigned long *p_maxib,TextHandle th,
 		(*p_sequence)[level] = FALSE;
 		}
 	else p_sequence = NULL;
+
+	// BPPrintMessage(1,odInfo,"@@ PrintArgSub()\n");
 
 	for(i=ia; ; i+=2L) {
 		m = (int)(**pp_a)[i]; p = (int)(**pp_a)[i+1];
@@ -1799,7 +1803,10 @@ int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned 
 				}
 			TextInsert(s,(long)strlen(s),th);
 			}
-		else fprintf(f,"%s",s); //  Fixed by BB 2022-02-20
+		else {
+	//		fprintf(f,"%s",s); //  Fixed by BB 2022-02-20
+			BPPrintMessage(1,odInfo,"@@  Display %s\n",s);
+			}
 		}
 	return(OK);
 	}

@@ -421,24 +421,22 @@ return(-1);
 }
 
 
-int Match(int casesensitive,char** p_s,char** p_t,int length)
-// Is (*p_t) a prefix of (*p_s) ?
-// Beware that *p_s is no longer modified since 22/6/95
-{
-/* register */ int i;
-char c,d;
-
-if(p_s == NULL || p_t == NULL) {
-	BPPrintMessage(0,odError,"=> Err. Match(). p_s == NULL || p_t == NULL");
+int Match(int casesensitive,char** p_s,char** p_t,int length) {
+	// Is (*p_t) a prefix of (*p_s) ?
+	// Beware that *p_s is no longer modified since 22/6/1995
+	int i;
+	char c,d;
+	if(p_s == NULL || p_t == NULL) {
+		BPPrintMessage(0,odError,"=> Err. Match(). p_s == NULL || p_t == NULL");
+		return(NO);
+		}
+	/* if(MyHandleLen(p_s) < length) return(NO); */
+	i = 0;
+	while((((c=(*p_s)[i]) == (d=((*p_t)[i]))) || (!casesensitive && ((UpperCase(c) == d)
+			|| (c == UpperCase(d))))) && (c != '\0') && (i < length)) i++;
+	if(((*p_t)[i]) == '\0' && i == length) return(YES);
 	return(NO);
 	}
-/* if(MyHandleLen(p_s) < length) return(NO); */
-i = 0;
-while((((c=(*p_s)[i]) == (d=((*p_t)[i]))) || (!casesensitive && ((UpperCase(c) == d)
-		|| (c == UpperCase(d))))) && (c != '\0') && (i < length)) i++;
-if(((*p_t)[i]) == '\0' && i == length) return(YES);
-return(NO);
-}
 
 // Function to calculate the length of a UTF-8 encoded string
 size_t utf8_strlen(const char *s) {

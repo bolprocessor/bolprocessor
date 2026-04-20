@@ -38,9 +38,7 @@
 
 #include "-BP3decl.h"
 
-tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int irul, char **pp1, char **pp2,
-	p_context *p_pleftcontext, p_context *p_prightcontext, int *p_meta, int arg_nr,
-	p_flaglist ***ph_flag,int quick,int *p_result) {
+tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int irul, char **pp1, char **pp2, p_context *p_pleftcontext, p_context *p_prightcontext, int *p_meta, int arg_nr, p_flaglist ***ph_flag,int quick,int *p_result) {
 	// arg_nr = 0: item 
 	// arg_nr = 1: left argument (grammar)
 	// arg_nr = 2: right argument (grammar)
@@ -62,8 +60,9 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 	if(p_Flagname == NULL && GetFlagSpace() != OK) return(NULL);
 	if(p_Var == NULL && GetVariableSpace() != OK) return(NULL);
 	for(i=0,p=(*pp1); p < (*pp2); i++,p++) {
-	//	BPPrintMessage(0,odInfo,"%c",*p); // 2024-07-11
+	//	BPPrintMessage(1,odInfo,"[%c]",*p); // 2024-07-11
 		}
+	// BPPrintMessage(1,odInfo,"\n@ i = %ld\n",i);
 	pp = pp1;
 	imax = 4L * i + 6L;
 	buffsize = imax + 4L;
@@ -118,11 +117,6 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 			}
 			
 	NOTSCALE:
-		/* if(c == '�') {
-			(*pp)++;
-			while(isspace(c=**pp) && (*pp) < (*pp2)) (*pp)++;
-			continue;
-			} */
 		if(c == '\n' || c == '\r' || c == '\0') break;
 		if(c == '[') {
 			if(arg_nr == 0 || arg_nr == 2 || arg_nr == 8) break;
@@ -1086,17 +1080,17 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 
 	(*p_buff)[i++] = TEND; (*p_buff)[i] = TEND;
 
-	// BPPrintMessage(0,odInfo,"@ End of encoding\n");
+	// BPPrintMessage(1,odInfo,"@ End of encoding, imax = %ld, notargument = %d\n",imax,notargument);
 	MyDisposeHandle((Handle*)&p_x);
 	if((i+1) > imax) {
-		BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
+		BPPrintMessage(0,odError,"=> i > imax. Err. Encode(), imax = %ld\n",imax);
 		goto ERR;
 		}
 	imax = (int) LengthOf(&p_buff);	// OPTIMIZE: can't we just do imax = i - (1 or 2)?
 	j = Recode(notargument,&imax,&p_buff);
+	// BPPrintMessage(1,odInfo,"@ End of Recode(), imax = %ld, j = %d\n",imax,j);
 	if(j > 0) {
 		ShowError(j,igram,irul);
-	//	DoSystem();
 		goto ERR;
 		}
 
@@ -1244,6 +1238,7 @@ if(!isupper(c) && !bracket) {
 			" May be unknown terminal symbol, time-pattern or incorrect note convention?");
 		Print(wTrace,Message);
 		}
+	Print(wTrace,"\n");
 	return(ABORT);
 	}
 if(MaxVar != 0) {
@@ -1349,7 +1344,7 @@ int j,imaster,nbmaster;
 long i,orgmaster[MAXLEVEL],endmaster[MAXLEVEL];
 
 i = ZERO;
-/* levpar = */ imaster = /* nhomo = */ 0;
+imaster = 0;
 while(i < (*p_imax)-1) {
 	if((**pp_buff)[i] == T0) {
 		i++;

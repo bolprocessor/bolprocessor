@@ -265,15 +265,13 @@ int main (int argc, char* args[]) {
 				int learn = WeightsFileExists;
 				Analyzing = TRUE;
 				if(CompileCheck() == OK && ShowNotBP(&Gram) == OK)	{
-					learn = FALSE; // $$$$
+				//	learn = FALSE;
 					if(learn) {
 						BPPrintMessage(1,odInfo,"👉 Learning weights from examples\n");
 						}
-					else {
-						start = 0;
-						end = GetTextLength(wData);
-						SetSelect(start,end,TEH[wData]);
-						}
+					start = 0;
+					end = GetTextLength(wData);
+					SetSelect(start,end,TEH[wData]);
 					result = AnalyzeSelection(learn);
 					if(result != OK)  BPPrintMessage(0,odError,"=> AnalyzeSelection() returned errors\n");
 					else if(learn) {
@@ -291,7 +289,6 @@ int main (int argc, char* args[]) {
 			case show_beats:
 				break;
 			case templates:
-				// if(CompileCheck() == OK) SaveWeights(); $$$$
 				result = ProduceItems(wStartString,FALSE,TRUE,NULL);
 				result = OK;
 				break;

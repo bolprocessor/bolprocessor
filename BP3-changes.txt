@@ -6,13 +6,20 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+2026-04-20 (version 3.4.2)
+This version infers rule weights from the analysis of sets of examples.
+Read the documentation: https://bolprocessor.org/learning-rule-weights/
+The concept of "true BP grammar" has been expanded by disregarding performance controls.
+Character '\334' is now ignored  in the C code.
+Don't forget to update the PHP interface:
+https://github.com/bolprocessor/php-frontend/
+
+-----
 2026-04-11 -> 2026-04-17 (version 3.4.1)
 This version creates templates in "true BP grammars" — read https://bolprocessor.org/bol-processor-grammars/.
 The interface displays a "Create templates" if the grammar has this property.
 Check the examples -da.dhahatite/-gr.dhahatite and -da.dhin-/-gr.dhin-, which are explained on this page: https://bolprocessor.org/parsing-items/.
 Rule weight learning from sets of examples will soon be implemented.
-Don't forget to update the PHP interface:
-https://github.com/bolprocessor/php-frontend/
 
 -----
 2026-04-09 (version 3.4.0)

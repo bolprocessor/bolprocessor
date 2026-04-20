@@ -1677,13 +1677,13 @@ done = FALSE;
 pos = ZERO; result = MISSED;
 posmax = GetTextLength(w);
 p_line = NULL;
-while(ReadLine(YES,w,&pos,posmax,&p_line,&gap) == OK) {
+while(ReadLine(NO,YES,w,&pos,posmax,&p_line,&gap) == OK) {
 	if((*p_line)[0] == '\0') continue;
 	if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
 //		BPPrintMessage(1,odInfo,"@@@ patt\n");
 		do {
-//			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) return(result);
-			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) break;
+//			if(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) return(result);
+			if(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) break;
 			if((*p_line)[0] == '\0') continue;
 			}
 		while((*p_line)[0] != '-' || (*p_line)[1] != '-');

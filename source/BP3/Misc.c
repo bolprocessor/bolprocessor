@@ -539,7 +539,8 @@ do {
 	if(line[0] == '-' && line[1] == '-') return(MISSED);
 	adjust_prefix(line);
 	p = line; q = FilePrefix[doc];
-	if(Match(TRUE,&p,&q,4) && line[4] != '<' && line[4] != '\334') {
+	if(Match(TRUE,&p,&q,4) && line[4] != '<') {
+//	if(Match(TRUE,&p,&q,4) && line[4] != '<' && line[4] != '\334') {
 		Strip(line); // does this make sense?
 		if(line[4] == ':')    // real filename does not begin with prefix
 			p = &(line[5]);  // so, skip the prefix in this line
@@ -856,7 +857,7 @@ rep = OK;
 MystrcpyHandleToString(MAXLIN,0,line1,(*p_GramProcedure)[13]);	/* _mm() */
 MystrcpyHandleToString(MAXLIN,0,line2,(*p_GramProcedure)[14]);	/* _striated */
 MystrcpyHandleToString(MAXLIN,0,line3,(*p_GramProcedure)[15]);	/* _smooth() */
-while(ReadLine(YES,w,&pos,posmax,&p_line,&gap) == OK) {
+while(ReadLine(NO,YES,w,&pos,posmax,&p_line,&gap) == OK) {
 	if((*p_line)[0] == '\0' || (*p_line)[0] == '\r') continue;
 	for(j=0; j < WMAX; j++) {
 		if(FilePrefix[j][0] == '\0') continue;
@@ -867,7 +868,7 @@ while(ReadLine(YES,w,&pos,posmax,&p_line,&gap) == OK) {
 	if(Mystrcmp(p_line,"COMMENT:") == 0) break;
 	if(Mystrcmp(p_line,"TIMEPATTERNS:") == 0) {
 		do {
-			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
+			if(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
 			if((*p_line)[0] == '\0') continue;
 			}
 		while((*p_line)[0] != '-' || (*p_line)[1] != '-');

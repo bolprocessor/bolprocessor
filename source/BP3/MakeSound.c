@@ -117,7 +117,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	// BPPrintMessage(0,odInfo,"cswrite = %d, OutCsound = %d, WriteMIDIfile = %d, MIDIfileOn = %d\n",cswrite,OutCsound,WriteMIDIfile,MIDIfileOn);
 
 	if(!cswrite && !rtMIDI && !MIDIfileOn && !ShowGraphic && !showpianoroll) {
-		BPPrintMessage(0,odInfo, "=> Cancelling MakeSound()\n");
+	//	BPPrintMessage(0,odInfo, "=> Cancelling MakeSound()\n");
 		return(OK);
 		}
 	if(WriteMIDIfile || OutCsound) {

@@ -159,8 +159,7 @@ int TextGetSelection(TextOffset* start,TextOffset* end, TextHandle th)
 	return OK;
 }
 
-int SetSelect(TextOffset start,TextOffset end, TextHandle th)
-{
+int SetSelect(TextOffset start,TextOffset end, TextHandle th) {
 	long maxoffset;
 
 	/* clamp range to text bounds */
@@ -185,7 +184,7 @@ int SetSelect(TextOffset start,TextOffset end, TextHandle th)
 	(*th)->selStart = start;
 	(*th)->selEnd = end;
 	return OK;
-}
+	}
 
 long GetTextLength(int w)
 {
@@ -259,7 +258,8 @@ int TextInsert(char *s,long length,TextHandle th) {
 		case wData:		od = odDisplay; break;
 		case wTrace:	od = odTrace; break;
 		case wWeights:	od = odWeights; break;
-		default:		od = odInfo; break;
+	//	default:		od = odInfo; break;
+		default:		od = odDisplay; break; // 2026-04-19
 		}
 	if(od == odInfo) {
 		BPPrintMessage(0,od, "TextInsert(%s): %s\n", (w < WMAX) ? WindowName[w] : "", s);

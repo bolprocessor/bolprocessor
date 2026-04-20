@@ -169,13 +169,13 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 		}
 	p_line = NULL;
 	InitThere = 0; p_InitScriptLine = NULL;
-	while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
+	while(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 		if((*p_line)[0] == '\0') goto NEXTLINE;
 		if(Mystrcmp(p_line,"DATA:") == 0) break;
 		if(Mystrcmp(p_line,"COMMENT:") == 0) break;
 		if(Mystrcmp(p_line,"TIMEPATTERNS:") == 0) {
 			do {
-				if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
+				if(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
 				if((*p_line)[0] == '\0') continue;
 				}
 			while((*p_line)[0] != '-' || (*p_line)[1] != '-');
@@ -184,7 +184,7 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 		if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
 			p_gram->hasTEMP = TRUE;
 			do {
-				if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
+				if(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
 				if((*p_line)[0] == '\0') continue;
 				}
 			while((*p_line)[0] != '-' || (*p_line)[1] != '-');
@@ -374,7 +374,7 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 				}
 			}
 		if(InsertGramCorrections) InsertSubgramTypes(p_gram);
-		ResetRuleWeights(p_gram,0);
+		ResetRuleWeights(p_gram,0); // w = weight
 		if(CompileOn) CompileOn--;
 		return(OK);
 		}
@@ -398,13 +398,13 @@ pos = posline = ZERO;
 posmax = GetTextLength(wGrammar);
 igram = 1; irul = 0; found = FALSE;
 p_line = NULL;
-while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
+while(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	if((*p_line)[0] == '\0') goto NEXTLINE;
 	if(Mystrcmp(p_line,"DATA:") == 0) break;
 	if(Mystrcmp(p_line,"COMMENT:") == 0) break;
 	if(Mystrcmp(p_line,"TIMEPATTERNS:") == 0) {
 		do {
-			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
+			if(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
 			if((*p_line)[0] == '\0') continue;
 			}
 		while((*p_line)[0] != '-' || (*p_line)[1] != '-');
@@ -412,7 +412,7 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 		}
 	if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
 		do {
-			if(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
+			if(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) goto END;
 			if((*p_line)[0] == '\0') continue;
 			}
 		while((*p_line)[0] != '-' || (*p_line)[1] != '-');
@@ -735,7 +735,7 @@ int UpdateProcedureIndex(int jproc,int igram,int irul,int ig,int ir,int mode) {
 	pos = posline = ZERO;
 	posmax = GetTextLength(wGrammar);
 	p_line = NULL;
-	while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
+	while(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	//	PleaseWait();
 		if((*p_line)[0] == '\0') goto NEXTLINE;
 		i = 0;
@@ -913,7 +913,7 @@ int ReadAlphabet(int justcount) {
 
 	p_line = NULL;
 	my_sprintf(operatorbetweenquotes,"\'%s\'",Arrowstring);
-	while(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
+	while(ReadLine(NO,YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
 		if((*p_line)[0] != '\0' && strstr(*p_line,Arrowstring) != NULLSTR
 				&& strstr(*p_line,operatorbetweenquotes) == NULLSTR) {
 			/*  Arrow is there and it is not between single quotes (check is incomplete) $$$ */
@@ -923,7 +923,7 @@ int ReadAlphabet(int justcount) {
 		}
 	MyDisposeHandle((Handle*)&p_line);
 	pos = ZERO; foundoperatorthere = FALSE;
-	while(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
+	while(ReadLine(NO,YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
 		if((*p_line)[0] == '\0' || (*p_line)[0] == '\r') goto NEXTLINE;
 		if(trace_compile_alphabet) BPPrintMessage(0,odInfo,"Reading: %s\n",(*p_line));
 		operatorinline = FALSE;
@@ -976,7 +976,7 @@ int ReadAlphabet(int justcount) {
 			}
 		if(Mystrcmp(p_line,"TIMEPATTERNS:") == 0) {
 			do {
-				if(ReadLine(YES,wAlphabet,&pos,posmax,&p_line,&gap) != OK) goto END;
+				if(ReadLine(NO,YES,wAlphabet,&pos,posmax,&p_line,&gap) != OK) goto END;
 				if((*p_line)[0] == '\0') {
 					goto NEXTLINE;
 					}
@@ -1058,7 +1058,7 @@ pos = ZERO;
 posmax = GetTextLength(wGrammar);
 p_line = NULL;
 PleaseWait();
-while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
+while(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	if((*p_line)[0] == '\0') continue;
 	rem = FALSE;
 	for(i=0; i < MyHandleLen(p_line)-3; i++) {
@@ -1067,7 +1067,7 @@ while(ReadLine(YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 		if(rem) continue;
 		if(MySpace((*p_line)[i]) && (*p_line)[i+1] == '\'') j++;
 		if((*p_line)[i] == '<' && (*p_line)[i+1] == '<') j++;
-		if((*p_line)[i] == '\334' && (*p_line)[i+1] == '\334') j++;
+	//	if((*p_line)[i] == '\334' && (*p_line)[i+1] == '\334') j++;
 		}
 	}
 MyDisposeHandle((Handle*)&p_line);
@@ -1559,7 +1559,8 @@ if(beforefirstrule && irul == 0) {
 	}
 *p_irul = (*(p_gram->p_subgram))[igram].number_rule = ++irul;
 i = incweight = 0;
-if((**ptr) == '<' || (**ptr) == '\334') {
+if((**ptr) == '<') {
+// if((**ptr) == '<' || (**ptr) == '\334') {
 	if((w=GetArgument(1,ptr,&incweight,&initparam,&foundk,&x,&u,&v)) == INT_MAX){
 		return(20);
 		}
