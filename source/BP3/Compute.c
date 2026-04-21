@@ -800,7 +800,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 						goto QUIT;
 						}
 					hastabs = FALSE; // 2026-04-12
-					BPPrintMessage(1,odInfo,"@@@ PrintWorkString()\n");
+					// BPPrintMessage(1,odInfo,"@@@ PrintWorkString()\n");
 					if((rep=PrintWorkString(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_b)) != OK) {
 						BPPrintMessage(0,odError,"=> Error calling PrintWorkString(2) in Compute.c\n");
 						goto QUIT;

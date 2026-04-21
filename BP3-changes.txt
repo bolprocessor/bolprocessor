@@ -6,11 +6,14 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-04-20 (version 3.4.2)
+2026-04-20 -> 2026-04-21 (version 3.4.2)
 This version infers rule weights from the analysis of sets of examples.
 Read the documentation: https://bolprocessor.org/learning-rule-weights/
 The concept of "true BP grammar" has been expanded by disregarding performance controls.
 Character '\334' is now ignored  in the C code.
+An important bug, which has so far gone unnoticed, was fixed in copy_grammars().
+LengthOf() has been optimised again.
+In the interface, better handling of files with incorrect write permissions (MacOS and Linux).
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/
 

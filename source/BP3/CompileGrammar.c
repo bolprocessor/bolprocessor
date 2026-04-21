@@ -1973,9 +1973,9 @@ void copy_grammar(t_gram *dest, t_gram *src, int verbose) {
                     if (m == TEND && p == TEND) break;
                 	}
                 // Allocate memory for the token array
-                dest_rule->p_leftarg = (tokenbyte **)malloc(sizeof(tokenbyte *));
+				dest_rule->p_leftarg = (tokenbyte **)GiveSpace((Size)(leftarg_count * sizeof(tokenbyte)));
                 if (!dest_rule->p_leftarg) {
-                    if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for left arg tokens\n");
+                    if(verbose) BPPrintMessage(0,odError, "=> GiveSpace failedfailed for left arg tokens\n");
                     return;
                 	}
                 *dest_rule->p_leftarg = (tokenbyte *)malloc(leftarg_count * sizeof(tokenbyte));
@@ -2001,9 +2001,9 @@ void copy_grammar(t_gram *dest, t_gram *src, int verbose) {
                     if (m == TEND && p == TEND) break;
                 	}
                 // Allocate memory for the token array
-                dest_rule->p_rightarg = (tokenbyte **)malloc(sizeof(tokenbyte *));
-                if (!dest_rule->p_rightarg) {
-                    if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for right arg tokens\n");
+				dest_rule->p_rightarg = (tokenbyte **)GiveSpace((Size)(rightarg_count * sizeof(tokenbyte)));
+                if (dest_rule->p_rightarg == NULL) {
+                    if(verbose) BPPrintMessage(0,odError, "=> GiveSpace failed for right arg tokens\n");
                     return;
                 	}
                 *dest_rule->p_rightarg = (tokenbyte *)malloc(rightarg_count * sizeof(tokenbyte));
@@ -2048,9 +2048,9 @@ void copy_grammar(t_gram *dest, t_gram *src, int verbose) {
                         if (m == TEND && p == TEND) break;
                     	}
                     // Allocate memory for the token array
-                    (*dest_rule->p_leftcontext)->p_arg = (tokenbyte **)malloc(sizeof(tokenbyte *));
-                    if (!(*dest_rule->p_leftcontext)->p_arg) {
-                        if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for left context args\n");
+					(*dest_rule->p_leftcontext)->p_arg = (tokenbyte **)GiveSpace((Size)(arg_count * sizeof(tokenbyte)));
+                    if ((*dest_rule->p_leftcontext)->p_arg == NULL) {
+                        if(verbose) BPPrintMessage(0,odError, "=> GiveSpace failed for left context arg tokens\n");
                         return;
                     	}
                     *(*dest_rule->p_leftcontext)->p_arg = (tokenbyte *)malloc(arg_count * sizeof(tokenbyte));
@@ -2107,11 +2107,9 @@ void copy_grammar(t_gram *dest, t_gram *src, int verbose) {
                         if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for right context args\n");
                         return;
                     	}
-                    *(*dest_rule->p_rightcontext)->p_arg = (tokenbyte *)malloc(arg_count * sizeof(tokenbyte));
-                    if (!*(*dest_rule->p_rightcontext)->p_arg) {
-                        if(verbose) BPPrintMessage(0,odError, "=> Memory allocation failed for right context arg tokens\n");
-                        free((*dest_rule->p_rightcontext)->p_arg);
-                        (*dest_rule->p_rightcontext)->p_arg = NULL;
+					(*dest_rule->p_rightcontext)->p_arg = (tokenbyte **)GiveSpace((Size)(arg_count * sizeof(tokenbyte)));
+                    if ((*dest_rule->p_rightcontext)->p_arg == NULL) {
+                        if(verbose) BPPrintMessage(0,odError, "=> GiveSpace failed for right context arg tokens\n");
                         return;
                     	}
                //     BPPrintMessage(1,odInfo,"Right context igram = %d, irule = %d, arg_count = %d sign = %d\n",igram,irul,arg_count,(*dest_rule->p_rightcontext)->sign);

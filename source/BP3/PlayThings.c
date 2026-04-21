@@ -992,58 +992,34 @@ MyDisposeHandle((Handle*)&p_a);
 return(r);
 }
 
-/*
-long LengthOf(tokenbyte ***pp_X) {
-	long i,imax;
-    if(*pp_X == NULL) {
-		BPPrintMessage(0,odError,"=> Err 1 LengthOf()\n");
-		Panic = TRUE;
-		return ZERO;
-		}
- //   imax = (long) MyGetHandleSize((Handle)*pp_X) / sizeof(tokenbyte); CRASHES!
-    tokenbyte *tokens = **pp_X;
-    i = ZERO;
-    while(TRUE) { // 2026-04-17
- //   while (i < imax - 1) { 
-        if(tokens[i] == TEND && tokens[i + 1] == TEND) return i; 
-		// Return the length up to the first TEND
-        i++;
-    	}
-	BPPrintMessage(0,odError,"=> Err 2 LengthOf()\n");
-	Panic = TRUE;
-    return ZERO;  // If no termination found, or error case
-	} */
-
-  long LengthOf(tokenbyte ***pp_X) {          
-      if(pp_X == NULL || *pp_X == NULL) {
+long LengthOf(tokenbyte ***pp_X) {          
+	if(pp_X == NULL || *pp_X == NULL) {
 		BPPrintMessage(0,odError,"=> Err 1 LengthOf()\n");
 		Panic = TRUE;
 		return ZERO;
 		}                        
-      if(**pp_X == NULL) {
+	if(**pp_X == NULL) {
 		BPPrintMessage(0,odError,"=> Err 2 LengthOf()\n");
 		Panic = TRUE;
 		return ZERO;
-	  	}
-   /*   Size sz = MyGetHandleSize((Handle)*pp_X);                     
-      if(sz < 2 * sizeof(tokenbyte)) {
+		}
+	Size sz = MyGetHandleSize((Handle)*pp_X);                     
+	if(sz < 2 * sizeof(tokenbyte)) {
 		BPPrintMessage(0,odError,"=> Err 3 LengthOf()\n");
 		Panic = TRUE;
 		return ZERO;        // trop petit pour TEND TEND
-	  	}
-      long imax = (long)(sz / sizeof(tokenbyte)); */
-	  long i = ZERO;          
-      tokenbyte *tokens = **pp_X;   
-	while(TRUE) {                                                             
-//      for(long i = 0; i < imax - 1; i++) {                          
-          if(tokens[i] == TEND && tokens[i + 1] == TEND) return i;  
-		  i++;          
-      	}
+		}
+	long imax = (long)(sz / sizeof(tokenbyte));
+	long i = ZERO;          
+	tokenbyte *tokens = **pp_X;                                          
+	for(long i = 0; i < imax - 1; i++) {                          
+		if(tokens[i] == TEND && tokens[i + 1] == TEND) return i;  
+		i++;          
+		}
 	BPPrintMessage(0,odError,"=> Err 4 LengthOf()\n");
 	Panic = TRUE;
-  	return ZERO;                                                             
-  }                                                                                                                                                                           
-
+	return ZERO;                                                             
+	}                                                                                      
 
 long CopyBuf(tokenbyte ***pp_X,tokenbyte ***pp_Y) {	// Copy X to Y
 	long length;
