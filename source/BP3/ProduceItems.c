@@ -1772,9 +1772,9 @@ NEXTTEMPLATE:
 
 		if(templates) goto NEXTTEMPLATE;
 		if(learn) {
-			r = ABORT; goto END;
+			r = MISSED; goto END;
 			}
-		if((r=InterruptCompute(-1,&Gram,FALSE,-1,ANAL)) != OK) goto END;
+	//	if((r=InterruptCompute(-1,&Gram,FALSE,-1,ANAL)) != OK) goto END;
 		}
 
 	END:

@@ -1577,13 +1577,16 @@ char x[ARROWLENGTH+1];
 *qq1 = *pp;
 for(operator=0; operator < MAXARROW && strlen(Arrow[operator]) > 0; operator++) {
 	strcpy(x,Arrow[operator]);
-	strcat(x," ");		/* This helps discriminating --> from '-->' */
+	strcat(x," ");	// This helps discriminating --> from '-->'
 	if((i2 = FindPattern(qq1,x,&i3)) > 0) {
 		*qq2 = &((*qq1)[i2-1]);
 		*qq3 = &((*qq1)[i3]);
 		*qq4 = *qq3;
 		*qq4 = GetEnd(qq4);
-		if(operator == 0 || operator == 2) NotBPCase[3] = FALSE; /* '<->', '<--' */
+		if(operator == 0 || operator == 2) {
+			NotBPCase[3] = FALSE; // '<->', '<--'
+			// This rule is valid for analysis
+			}
 		return(operator);
 		}
 	}

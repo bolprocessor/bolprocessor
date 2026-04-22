@@ -1331,7 +1331,7 @@ for(j=0; j < MAXCODE; j++)
 			}
 		return(j);
 		}
-if(x == '.' /* || x == '�' */) return(7);
+if(x == '.') return(7);
 if(x == '*') return(21);
 if(x == '\\') return(25);
 return(-1);
