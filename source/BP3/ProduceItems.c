@@ -1233,9 +1233,14 @@ int ClearMarkers(tokenbyte ***pp_a,int isgrammar) {
 				k += 2; continue;
 			break;
 			}
-		if(m == T0 && p == 7) {		// beat marker '•' added again 2026-04-17
+		if(m == T0 && p == 7) {		// beat marker '•'
 			// BPPrintMessage(1,odInfo,"=> Clearing marker\n");
-			k += 2; continue;
+			if(!isgrammar) {
+				if(!Grammar_has_periods) {
+					k += 2; continue;
+					}
+				}
+			else Grammar_has_periods = TRUE;
 			}
 		if(k > 0) {
 			(**pp_a)[i] = m;

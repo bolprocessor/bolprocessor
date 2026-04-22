@@ -316,6 +316,7 @@ extern int CompiledGr,CompiledPt,CompiledAl,CompiledIn,
 	CompiledCsObjects,CompiledRegressions,LoadedIn,LoadedCsoundInstruments,
 	Interactive,NotFoundMetronom,NotFoundNatureTime;
 extern int NotBPCase[MAXNOTBPCASES];
+extern int Grammar_has_periods;
 extern int Hmin[WMAX],Hmax[WMAX],Hzero[WMAX],Vmin[WMAX],Vmax[WMAX],Vzero[WMAX];
 extern int Created[WMAX];
 extern char FileName[WMAX][MAXNAME+1],CsFileName[MAXNAME+1],MIDIfileName[MAXNAME+1],

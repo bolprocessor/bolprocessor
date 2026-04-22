@@ -50,6 +50,7 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 	Handle ptr1;
 
 	dummy = ZERO;
+	Grammar_has_periods = FALSE;
 	strcpy(LastSeen_scale,"");
 	if(CheckEmergency() != OK) {
 		Panic = TRUE; return(ABORT);

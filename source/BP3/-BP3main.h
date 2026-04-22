@@ -439,6 +439,7 @@ int CompiledGr,CompiledPt,CompiledAl,CompiledIn,CompiledCsObjects,
 	CompiledRegressions,LoadedIn,LoadedCsoundInstruments,Interactive,
 	NotFoundMetronom,NotFoundNatureTime;
 int NotBPCase[MAXNOTBPCASES];
+int Grammar_has_periods;
 int Created[WMAX];
 short TheVRefNum[WMAX],RefNumStartUp,RefNumbp2;
 int Nature_of_time,UseBufferLimit,NeedAlphabet,CompleteDecisions,OkWait;
