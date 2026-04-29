@@ -79,7 +79,7 @@ int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_re
 	DisplayGrammar(&Gram,wData,TRUE,TRUE,FALSE); */
 
 	REDO:
-	if(TraceProduce && Improvize) Print(wTrace,"Starting with S\n\n");
+	if(TraceProduce && !TraceDetail && Improvize) Print(wTrace,"Starting with S\n\n");
 	for(igram=fromigram; igram <= toigram; igram++) {
 		inrul = 0;
 		if((*p_repeat) && p_MemGram != NULL && igram < (*p_MemGram)[ProduceStackIndex])

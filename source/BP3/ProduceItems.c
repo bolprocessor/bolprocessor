@@ -486,7 +486,7 @@ NEXTLINE: ;
 if(TraceDetail) {
 	Print(wTrace,"# Header\n[Grammar Snapshot]\n");
 	DisplayGrammar(&Gram,wTrace,TRUE,TRUE,TRUE);
-	Print(wTrace,"\n# Body\n[Trace]");
+	Print(wTrace,"\n# Body\n[Trace]\n");
 	}
 origin = neworigin;
 r = OK; p_line = NULL;
