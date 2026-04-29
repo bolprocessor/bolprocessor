@@ -164,6 +164,7 @@ Various issues
 --------------
 
 - Templates can't be created with rules containing integers as silences. This can be solved in MakeTemplate().
+- In the trace of -gr.Mozart, _scale(Cmaj,0) is misrepresented as _scale(K133=0).
 - Currently, the console crashes if the list of TEMPLATES in a grammar is not terminated with a solid line "-----". The interface takes care of this by adding the missing terminating line.
 - Problem tracing the production of an item containing structural patterns.
 - Errors of duration occur when playing some polymetric structures with tied notes that miss their target. Examples are stored in -da.checkBadDurations.

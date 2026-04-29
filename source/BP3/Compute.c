@@ -150,6 +150,10 @@ int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_re
 	if(DisplayProduce != displayproducemem) {
 		DisplayProduce = displayproducemem;
 		}
+	if(TraceProduce && !TraceDetail) {
+		Print(wTrace,"\nResult = ");
+		if((r=PrintWorkString(FALSE,wTrace,FALSE,FALSE,pp_a)) != OK) return(r);
+		}
 	if(NeedZouleb != 0) {
 		BPPrintMessage(0,odError,"=> NeedZouleb = %ld after Compute(). Should be 0\n",(long)NeedZouleb);
 		}
