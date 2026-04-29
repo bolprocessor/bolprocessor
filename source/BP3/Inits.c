@@ -204,7 +204,7 @@ int Inits(void) {
 	OutBPdata = FALSE;
 	ObjectMode = ObjectTry = Improvize = StepProduce = TraceMicrotonality
 		= PlanProduce = DisplayProduce = UseEachSub
-		= TraceProduce = DisplayTimeSet = StepTimeSet = TraceTimeSet = TraceNoteOn = ResetNotes
+		= TraceProduce = TraceDetail = DisplayTimeSet = StepTimeSet = TraceTimeSet = TraceNoteOn = ResetNotes
 		= ShowGraphic = ComputeWhilePlay = NeverResetWeights = FALSE;
 	SynchronizeStart = CyclicPlay = NoConstraint = AllItems
 	 = CsoundTrace = WillRandomize = FALSE;
@@ -213,6 +213,7 @@ int Inits(void) {
 		= AllowRandomize = TRUE;
 	NoteConvention = ENGLISH;
 	Offscreen = FALSE;
+	Step = 0;
 	Nw = -1; Ndiagram = Npicture = 0;
 	LastEditWindow = OutputWindow = wData;
 	// SetSelect(ZERO,ZERO,TEH[wData]);

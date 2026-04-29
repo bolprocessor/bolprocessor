@@ -403,7 +403,8 @@ int CompileCheck(void) {
 				return(r);
 				}
 			}
-		if((Varweight = ResetRuleWeights(p_gram,0)) == ABORT) { // rule.w = rule.weight
+		if((Varweight = ResetRuleWeights(p_gram,0)) == ABORT) {
+			// rule.w = rule.weight
 	//	if(FirstGrammar && ResetWeights && (Varweight = ResetRuleWeights(0)) == ABORT) {
 			BPPrintMessage(0,odError,"=> Can't reset rule weights in grammar code. Unexpected error\n");
 			return(MISSED);

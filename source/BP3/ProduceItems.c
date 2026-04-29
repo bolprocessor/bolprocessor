@@ -60,6 +60,11 @@ if(CheckEmergency() != OK) return(ABORT);
 if(((SetTimeOn || PrintOn || SoundOn || SelectOn) && !repeat)
 					|| CompileOn || GraphicOn || PolyOn) return(RESUME);
 
+if(AllItems && TraceDetail) {
+	TraceProduce = TRUE; TraceDetail = FALSE;
+	BPPrintMessage(1,odInfo,"Detailed trace is not possible when producing all items\n");
+	}
+
 if(CompileCheck() != OK) {
 	Improvize = FALSE;
 	if(FirstGrammar) BPPrintMessage(0,odError,"=> Compilation failed\n");
@@ -77,6 +82,12 @@ r = OK;
 
 // if(ShowGraphic) CreateImageFile(-1.);
 if(Panic) return ABORT;
+
+if(TraceDetail && !AllItems) {
+	Print(wTrace,"# Header\n[Grammar Snapshot]\n");
+	DisplayGrammar(&Gram,wTrace,TRUE,TRUE,TRUE);
+	Print(wTrace,"\n# Body\n[Trace]");
+	}
 
 SaidTooComplex = ShownBufferSize = FALSE;
 if(ResetControllers) {
@@ -263,6 +274,7 @@ if(lengthA < 1) {
 	}
 Final = FALSE;
 Prod = 1.;
+Step = 0;
 if(!PlaySelectionOn && !Improvize && ShowItem(FALSE,pp_a,repeat,PROD,FALSE) == ABORT) goto QUIT;
 if(pp_start == NULL) LastComputeWindow = w;
 
@@ -401,7 +413,6 @@ int ResetRuleWeights(t_gram* p_gram,int mode) {
 	return(Varweight);
 	}
 
-
 int AnalyzeSelection(int learn) {
 int i,r,templates,all,dif,result,gap;
 tokenbyte **p_a,***pp_a;
@@ -472,6 +483,11 @@ while(ReadLine(NO,YES,wData,&origin,end,&p_line,&gap) == OK) {
 NEXTLINE: ;
 	}
 
+if(TraceDetail) {
+	Print(wTrace,"# Header\n[Grammar Snapshot]\n");
+	DisplayGrammar(&Gram,wTrace,TRUE,TRUE,TRUE);
+	Print(wTrace,"\n# Body\n[Trace]");
+	}
 origin = neworigin;
 r = OK; p_line = NULL;
 while(origin < end) {
@@ -651,7 +667,7 @@ int ProduceAll(t_gram *p_gram,tokenbyte ***pp_a,int template) {
 	OSErr io;
 	unsigned long time_end_compute;
 
-// DisplayGrammar(&Gram,wData,TRUE,TRUE);
+// DisplayGrammar(&Gram,wData,TRUE,TRUE,FALSE);
 	if(template && ShowNotBP(p_gram) != OK) return(OK);
 
 	p_flag = NULL; p_weight = NULL;
@@ -1089,6 +1105,7 @@ int StructuralRule(int igram, int irul) {
 	i0 = (*((*(Gram.p_subgram))[igram].p_rule))[irul].leftoffset + lenc;
 	i1 = (int) LengthOf(&p_arg) - 1 -(*((*(Gram.p_subgram))[igram].p_rule))[irul].rightoffset;
 	if(i1 < 0) return FALSE; // An error was found
+//	BPPrintMessage(1,odInfo,"@@ gram#%d [%d]\n",igram,irul);
 	for(i=i0; ((*p_arg)[i] != TEND || (*p_arg)[i+1] != TEND) && i < i1; i+=2) {
 		p = (int) (*p_arg)[i]; q = (int) (*p_arg)[i+1];
 		switch(p) {
@@ -1113,7 +1130,7 @@ int StructuralRule(int igram, int irul) {
 					case 4:		// ':'
 					case 5:		// ';'
 					case 6:		// '='
-					case 11:	// '/' not found because illicit
+			//		case 11:	// '/' never found because illicit
 					case 25:	// '\'
 						return(TRUE);
 					}
@@ -1583,6 +1600,7 @@ int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templa
 
 	r = OK; (*p_result) = ABORT;
 	success = FALSE;
+	Step = 0;
 
 	lastbyte = GetTextLength(wTrace);
 	posmax = GetTextLength(wGrammar) - 1;
@@ -1688,7 +1706,7 @@ NEXTTEMPLATE:
 			}
 		MyDisposeHandle((Handle*)pp_b);
 		foundone = TRUE;
-		if(ScriptExecOn || all || DisplayProduce) {
+		if(!TraceDetail && (ScriptExecOn || all || DisplayProduce)) {
 			lastbyte = GetTextLength(wTrace);
 			SetSelect(lastbyte,lastbyte,TEH[wTrace]);
 			if(FALSE && DisplayProduce) {
@@ -1763,6 +1781,10 @@ NEXTTEMPLATE:
 		if(!templates) BPPrintMessage(0,odInfo,"Item %saccepted by grammar... ✅\n",LineBuff);
 		else BPPrintMessage(0,odInfo,
 			"Item %s matching template [%ld] accepted by grammar... ✅\n",LineBuff,(long)itemp);
+		if(TraceDetail) {
+			Print(wTrace,"step %d: success\n\n",Step);
+			Step++;
+			}
 		if(all && templates) goto NEXTTEMPLATE;
 		}
 	else {
@@ -1771,6 +1793,10 @@ NEXTTEMPLATE:
 			BPPrintMessage(0,odInfo,"Item %s matching template [%ld] rejected by grammar... ❌\n",LineBuff,(long)itemp);
 		else
 			BPPrintMessage(0,odInfo,"Item %s rejected by grammar... ❌\n",LineBuff);
+		if(TraceDetail) {
+			Print(wTrace,"step %d: failure\n\n",Step);
+			Step++;
+			}
 		BPPrintMessage(0,odInfo,"Result of failed analysis:\n");
 		if((r=PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wData,pp_Scrap,pp_a)) != OK) goto END;
 		BPPrintMessage(0,odInfo,"\n");
@@ -1911,6 +1937,7 @@ int CheckItemProduced(t_gram *p_gram,int igram,tokenbyte ***pp_a,long *p_length,
 			if(trace_produce_all) BPPrintMessage(1,odInfo,"???\n");
 			if(r) {
 				ItemNumber++;
+				if(TraceProduce) Print(wTrace,"\n");
 				if(trace_produce_all) BPPrintMessage(1,odInfo,"*** %d\n",ItemNumber);
 				if(!template && (rtMIDI || OutCsound || WriteMIDIfile)) {
 				if(trace_produce_all) 

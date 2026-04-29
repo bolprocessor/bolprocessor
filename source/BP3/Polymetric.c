@@ -114,8 +114,8 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 
 	pos_init = ZERO;
 	level = 0;
-	if(NeedZouleb > 0) { // $$$ Doesn't happen?
-		if(ShowMessages) ShowMessage(TRUE,wMessage,"Applying serial tools (in Polymetric)...");
+	if(NeedZouleb > 0) { 
+		BPPrintMessage(0,odInfo,"👉 (Unexpectedly) applying serial tools in Polymetric()\n");
 		do {
 			r = Zouleb(&p_b,&level,&pos_init,FALSE,FALSE,0,FALSE,FALSE,NOSEED);
 			if(r != OK) goto QUIT;

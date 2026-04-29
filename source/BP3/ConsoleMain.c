@@ -344,7 +344,7 @@ CLEANUP:
         if(ProductionTime > 0) BPPrintMessage(0,odInfo, "Production time: %ld seconds\n",(long)ProductionTime);
         if(PhaseDiagramTime > 0) BPPrintMessage(0,odInfo, "Phase-diagram filling time: %ld seconds\n",(long)PhaseDiagramTime);
         if(TimeSettingTime > 0) BPPrintMessage(0,odInfo, "Time-setting time: %ld seconds\n",(long)TimeSettingTime);
-        if(current_time > SessionStartTime && !Panic) BPPrintMessage(0,odInfo, "Total computation time: %ld seconds\n",(long)(current_time-SessionStartTime));
+        if(!Analyzing && current_time > SessionStartTime && !Panic) BPPrintMessage(0,odInfo, "Total computation time: %ld seconds\n",(long)(current_time-SessionStartTime));
         }
 	CreateDoneFile();
 	free(eventStack);

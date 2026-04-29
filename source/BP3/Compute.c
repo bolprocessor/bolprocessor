@@ -76,9 +76,10 @@ int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_re
 		BPPrintMessage(1,odInfo,"\n");
 		}
 	/* BPPrintMessage(1,odInfo,"YOUR GRAMMAR:\n");
-	DisplayGrammar(&Gram,wData,TRUE,TRUE); */
+	DisplayGrammar(&Gram,wData,TRUE,TRUE,FALSE); */
 
 	REDO:
+	if(TraceProduce && Improvize) Print(wTrace,"Starting with S\n\n");
 	for(igram=fromigram; igram <= toigram; igram++) {
 		inrul = 0;
 		if((*p_repeat) && p_MemGram != NULL && igram < (*p_MemGram)[ProduceStackIndex])
@@ -144,19 +145,13 @@ int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_re
 				if(r != OK) break;
 				}
 			while(level >= 0);
-	//		r = ShowItem(FALSE,pp_a,(*p_repeat),PROD,FALSE);
-	//		PrintArg(FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,stdout,wData,pp_Scrap,pp_a);
-	//		PlayBuffer(pp_a,NO);
 			}
 		}
-		
-	// HideWindow(Window[wMessage]);
 	if(DisplayProduce != displayproducemem) {
 		DisplayProduce = displayproducemem;
 		}
-	if(Beta && NeedZouleb != 0) {
-		my_sprintf(Message,"NeedZouleb = %ld after Compute(). Should be 0",(long)NeedZouleb);
-		ShowMessage(TRUE,wMessage,Message);
+	if(NeedZouleb != 0) {
+		BPPrintMessage(0,odError,"=> NeedZouleb = %ld after Compute(). Should be 0\n",(long)NeedZouleb);
 		}
 //	if(ItemNumber == 0) ItemNumber = 1;
 	return(r);
@@ -168,9 +163,9 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 	int *p_outrul, unsigned long time_end_compute) {
 
 	char c;
-	int rep,datamode,ifunc,ig,ir,j,irul,irep,nrep,**p_candidate,foundone,
+	int rep,datamode,ifunc,ig,ir,j,jj,irul,irep,nrep,**p_candidate,foundone,
 		**p_prefrule,grtype,maxpref,nb_candidates,r,choice,shootagain,hastabs,
-		freedom,w,notsaid,changed,randomnumber,
+		freedom,w,notsaid,changed,randomnumber,irul_c,
 		halt,startfrom,try,maxtry,equalweight;
 	t_rule rule;
 	long i,position,firstposition,**p_origin,**p_pos,leftpos,lastpos,pos1,incmark,
@@ -178,6 +173,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 	unsigned long datemem,time;
 	tokenbyte ***pp_b,**p_b,**p_c,***pp_c,instan[MAXLIN],meta[MAXMETA2];
 	t_subgram subgram;
+	TextOffset dummy, selend;
 
 	if(ChangedGrammar || ChangedSettings) return(OK);
 	if(p_gram == NULL) {
@@ -233,7 +229,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 	if(mode != PROD) goto NOPROD1;
 
 	ReseedOrShuffle(subgram.seed);
-//	DisplayGrammar(&Gram,wData,TRUE,TRUE);
+//	DisplayGrammar(&Gram,wData,TRUE,TRUE,FALSE);
 
 	if(subgram.destru) {
 		if(Destroy(pp_a) == ABORT) {
@@ -376,7 +372,6 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 				}
 			} */
 		if(PlanProduce || (*p_repeat)) {
-			TextOffset dummy, selend;
 			if(grtype == SUBtype && !freedom){  
 				j = 0;
 				goto DOIT;
@@ -401,10 +396,10 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			for(j=0; j < nb_candidates; j++) {
 				irul = (*p_candidate)[j];
 				if(TraceProduce) {
-					TextGetSelection(&dummy, &((*p_origin)[j]), TEH[wTrace]);
+				//	TextGetSelection(&dummy, &((*p_origin)[j]), TEH[wTrace]);
 					Print(wTrace,"Candidate: ");
-					ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,TRUE,TRUE);
-					ShowSelect(CENTRE,wTrace);
+					ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,TRUE,TRUE,FALSE);
+				//	ShowSelect(CENTRE,wTrace);
 					}
 				}
 			TextGetSelection(&dummy, &((*p_origin)[nb_candidates]), TEH[wTrace]);
@@ -459,7 +454,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 				}
 			if(TraceProduce) {
 				Print(wTrace,"Rule selected: ");
-				ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,TRUE,TRUE);
+				ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,TRUE,TRUE,FALSE);
 				}
 			}
 		else irul = (*p_candidate)[j];
@@ -499,15 +494,28 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			try = 0;
 			}
 		rule = (*(subgram.p_rule))[irul];
-		if(TraceProduce) {
-			if(NumberCharsTrace < MAXCHARTRACE) {
-				if(ProduceStackIndex >= 0 && mode != ANAL)
-					my_sprintf(Message,"\n[Step #%ld] Selected: ",(long)ProduceStackIndex + 1);
-				else
-					my_sprintf(Message,"\nSelected: ");
-				Print(wTrace,Message);
-				ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,FALSE,FALSE);
-				NumberCharsTrace += strlen(Message);
+		if(TraceDetail) {
+		//	if(Step == 0) Print(wTrace,"\n");
+			Print(wTrace,"step %d: candidates=[",Step);
+			for(jj=0; jj < nb_candidates; jj++) {
+				irul_c = (*p_candidate)[jj];
+				if(jj > 0) Print(wTrace,", ");
+				Print(wTrace,"SG%d.R%d",igram,irul_c);
+				}
+			Print(wTrace,"], chosen=SG%d.R%d\n",igram,irul);
+			Step++;
+			} 
+		else {
+			if(TraceProduce) {
+				if(NumberCharsTrace < MAXCHARTRACE) {
+					if(ProduceStackIndex >= 0 && mode != ANAL)
+						my_sprintf(Message,"\n[Step #%ld] Selected: ",(long)ProduceStackIndex + 1);
+					else
+						my_sprintf(Message,"\nSelected: ");
+					Print(wTrace,Message);
+					ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,FALSE,FALSE,FALSE);
+					NumberCharsTrace += strlen(Message);
+					}
 				}
 			}
 		if(grtype == SUBtype) {
@@ -1090,7 +1098,8 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 	
 // Does this grammar contain candidate rules ?
 // enlist them in *p_candidate[], store their cumulated weights
-// in *p_totwght[], and leftmost occurrence of left arg in *p_pos[]
+// in *p_totwght[], and leftmost occurrence of left arg in *p_pos[] [mode = PROD]
+// or rightmost occurrence of right arg in *p_pos[] [mode = ANAL]
 
 	t_rule rule;
 	int i,j,rep;
@@ -1131,7 +1140,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 	(*p_totwght)[0] = 0;
 	sumwght = 0;
 
-		/* SUB: first try preference rules... */
+	// SUB: first try preference rules...
 
 	if(grtype == SUBtype && (*p_maxpref) > 0) {
 		// if(trace_compute) BPPrintMessage(1,odInfo,"SUBtype *p_maxpref = %d\n",*p_maxpref);
@@ -1201,7 +1210,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 				if(TraceProduce) {
 					my_sprintf(Message,"\nRule already selected: ");
 					Print(wTrace,Message);
-					ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,TRUE,TRUE);
+					ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,TRUE,TRUE,FALSE);
 					}
 				(*p_candidate)[0] = irul;
 				(*p_totwght)[0] = 1;
@@ -1212,7 +1221,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 			}
 		}
 		
-		/* Now try all the remaining rules... */
+	// Now try all the remaining rules...
 
 	if(trace_compute) BPPrintMessage(1,odInfo,"Remaining rules startfrom = %d\n",startfrom);
 	if(startfrom > n) return(0);
@@ -1226,7 +1235,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 		dir = 1;
 		if(!p_gram->hasproc && (grtype == RNDtype) && !AllItems) *p_equalweight = TRUE;
 		}
-	for(irul=startfrom,i=0,sumwght=0; irul >= 1 && irul <= n; irul+=dir) {
+	for(irul=startfrom, i=0, sumwght=0; irul >= 1 && irul <= n; irul += dir) {
 		rule = (*((*(p_gram->p_subgram))[igram].p_rule))[irul];
 		// BPPrintMessage(1,odInfo,"Trying every rule igram = %d irul = %d\n",igram,irul);
 		if(mode == PROD) {
@@ -1307,14 +1316,19 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 			arg = rule.p_rightarg;
 			}
 		if(CheckEmergency() != OK) return(ABORT);
-		if((grtype != SUBtype && (pos=FindArg(pp_a,grtype,arg,TRUE,&length,meta,instan,rule,mode,time_end_compute)) != -1)
+		bool caseA = (grtype != SUBtype && (pos=FindArg(pp_a,grtype,arg,TRUE,&length,meta,instan,rule,mode,time_end_compute)) != -1);
+		bool caseB = (grtype == SUBtype && Found(irul,pp_a,grtype,arg,rule.leftoffset,rule.leftnegcontext,&lenc1,leftpos,1,instan,meta,meta1,&istart,&jstart,&length,rule.ismeta,time_end_compute) && OkContext(pp_a,grtype,rule,leftpos,length,meta,instan,PROD,time_end_compute));
+		if(caseA || caseB) {
+	/* 	if((grtype != SUBtype && 
+				(pos=FindArg(pp_a,grtype,arg,TRUE,&length,meta,instan,rule,mode,time_end_compute)) != -1)
 				|| (grtype == SUBtype && Found(irul,pp_a,grtype,arg,rule.leftoffset,rule.leftnegcontext,&lenc1,leftpos,1,instan,meta,meta1,&istart,&jstart,&length,rule.ismeta,time_end_compute)
-						&& OkContext(pp_a,grtype,rule,leftpos,length,meta,instan,PROD,time_end_compute))) {
+						&& OkContext(pp_a,grtype,rule,leftpos,length,meta,instan,PROD,time_end_compute))) { */
 			(*p_pos)[i] = pos;
 			if(pos == ABORT) return(ABORT);
 			if(grtype == POSLONGtype) (*p_length)[i] = length;
 			if(((grtype != LINtype && grtype != SUBtype) && ((mode == ANAL)
 				|| ((mode == PROD) && (w == INT_MAX || grtype == ORDtype || grtype == SUB1type))))) {
+				// We'll use this first-found candidate rule
 				(*p_candidate)[0] = (*p_prefrule)[0] = irul;
 				(*p_totwght)[0] = 1; (*p_pos)[0] = pos;
 				(*p_maxpref) = 1;
@@ -1432,7 +1446,6 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 	MyDisposeHandle((Handle*)&p_length);
 	if(trace_compute) 
 		BPPrintMessage(0,odInfo,"End FindCandidateRules i = %d\n",i);
-
 	return(i);
 	}
 
@@ -1476,7 +1489,7 @@ int OkContext(tokenbyte ***pp_a,int grtype,t_rule rule,long pos,long length,
 
 long FindArg(tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,int reset,
 	long *p_length,tokenbyte meta[],tokenbyte instan[],t_rule rule,int mode,unsigned long time_end_compute) {
-/* Search left/rightmost pattern position in A[] */
+	// Search left/rightmost pattern position in A[]
 	long pos;
 	long startpos,istart,jstart,lenc1;
 	int dir;
@@ -1490,7 +1503,7 @@ long FindArg(tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,int reset,
 			dir = 2; startpos = 0;
 			break;
 		case ANAL:	/* rightmost search */
-			pos = 0; while((**pp_a)[pos] != TEND || (**pp_a)[pos+1] != TEND) pos+=2;
+			pos = 0; while((**pp_a)[pos] != TEND || (**pp_a)[pos+1] != TEND) pos += 2;
 			*p_length = pos; if(pos < 2) return(-1);
 			dir = -2; startpos = *p_length - 2;
 			if(startpos != (startpos / 2) * 2) {
@@ -1500,12 +1513,11 @@ long FindArg(tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,int reset,
 			break;
 		}
 	for(pos=startpos; pos >= 0 && ((**pp_a)[pos] != TEND || (**pp_a)[pos+1] != TEND);
-			pos += dir) {
-				
+			pos += dir) {	
 		if(CheckEmergency() != OK) return(ABORT);
-		
 		if(Found(-7,pp_a,grtype,p_arg,0,rule.leftnegcontext,&lenc1,pos,reset,instan,meta,
 			meta1,&istart,&jstart,p_length,rule.ismeta,time_end_compute)) {
+			// The "-7" is just for trace
 			if(reset) {
 				if(OkContext(pp_a,grtype,rule,pos,*p_length,meta,instan,
 					mode,time_end_compute)) return(pos);
@@ -1521,7 +1533,8 @@ long FindArg(tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,int reset,
 int Found(int irul,tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,int lenc,
 	long *p_lenc1,long pos,int reset,tokenbyte instan[],tokenbyte meta[],
 	tokenbyte meta1[],long *p_istart,long *p_jstart,long *p_length,int ismeta,unsigned long time_end_compute){
-	
+	// irul is not relevant, only in trace_compute
+
 	int i,j,i1,i2,j1,j2,xi,istart,jstart;
 	int nexist,nefound,result;
 	if(CheckEmergency() != OK) return(ABORT);
@@ -1539,7 +1552,7 @@ int Found(int irul,tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,in
 		BPPrintMessage(0,odError,"=> Err. Found(). offset > 0\n");
 		offset = 0;
 		}
-	*p_length = 0;
+	(*p_length) = 0;
 	if(ismeta) {
 		for(i=0; i< MAXMETA2; i++) meta1[i] = -1; /* context wildcard table */
 		if(reset) {
@@ -1560,7 +1573,7 @@ int Found(int irul,tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,in
 		if(trace_compute) 
 			BPPrintMessage(0,odInfo,"Found() left neg irul = %d, istart = %d lenc = %d jstart = %d pos = %ld offset = %ld\n",irul,istart,lenc,jstart,(long)pos,(long)offset);
 		}
-	*p_lenc1 = lenc - (istart / 4);	/* Used only for SUB */
+	(*p_lenc1) = lenc - (istart / 4);	/* Used only for SUB */
 	if(jstart < 0) return(FALSE);	/* Not found */
 	(*p_istart) = istart; (*p_jstart) = jstart;
 	if(istart > 0) { // 2025-03-15
@@ -1592,7 +1605,7 @@ int Found(int irul,tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,in
 			instan[xi++] = (tokenbyte) j1; instan[xi++] = (tokenbyte) j2;
 			goto NEXT;
 			}
-		if(i1 == T0 && i2 == 1)	{			/* '?' */
+		if(i1 == T0 && i2 == 1)	{	// Wildcard '?'
 			switch(j1) {
 				case T0:
 					if(j2 != 8 && j2 != 9) return(FALSE);
@@ -1636,10 +1649,10 @@ int Found(int irul,tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,in
 					instan[xi++] = (tokenbyte) j2;
 					goto NEXT;
 					break;
-				default: return(FALSE);					/* not found */
+				default: return(FALSE);
 				}
 			}
-		if(i1 == T6)	{							/* '?i2' */
+		if(i1 == T6)	{	// Wildcard '?i2'
 			switch(j1) {
 				case T0:
 					if(j2 != 8 && j2 != 9) return(FALSE);
@@ -1731,7 +1744,7 @@ int Found(int irul,tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,in
 			}
 		}
 	return(result);
-	/* 'OK' if there was no negative context or at least it was defeated once */
+	// 'OK' if there was no negative context or at least it was defeated once
 	}
 
 
@@ -2134,14 +2147,15 @@ QUIT:
 	}
 
 int ShowItem(int justplay,tokenbyte ***pp_a,int repeat,int mode,int all) {
-	int r,rep,ifunc,datamode,hastabs;
+	int rep,ifunc,datamode,hastabs;
 	long lastbyte;
-
+	int r = OK;
 	if(ChangedGrammar || ChangedSettings) return(OK);
 	if(justplay) {
 		r = PlayBuffer(pp_a,NO);
 		goto QUIT;
 		}
+	if(TraceDetail) goto QUIT;
 	if(TraceProduce) {
 		// BPPrintMessage(1,odInfo,"@@@ ShowItem()\n");
 		datamode = DisplayMode(pp_a,&ifunc,&hastabs);
@@ -2153,7 +2167,7 @@ int ShowItem(int justplay,tokenbyte ***pp_a,int repeat,int mode,int all) {
 		if(p_ItemStart == NULL
 				|| DisplayStackIndex >= MyGetHandleSize((Handle)p_ItemStart) / sizeof(long)) {
 			BPPrintMessage(0,odError,"=> Err. ShowItem(). p_ItemStart = NULL");
-			return(OK);
+			goto QUIT;
 			}
 		(*p_ItemStart)[DisplayStackIndex] = lastbyte = GetTextLength(wTrace);
 		SetSelect(lastbyte,lastbyte,TEH[wTrace]);
@@ -2170,7 +2184,6 @@ int ShowItem(int justplay,tokenbyte ***pp_a,int repeat,int mode,int all) {
 		ShowSelect(CENTRE,wTrace);
 		}
 	if(mode == PROD && PlanProduce && (DisplayStackIndex > 1)) UndoFlag = TRUE;
-	r = OK;
 
 	QUIT:
 	return(r);

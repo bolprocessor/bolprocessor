@@ -6,16 +6,22 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+2026-04-29 (version 3.4.3)
+A new type of trace file has been created: "Detailed Trace" in the settings and "TraceDetail" in the C code. This new format creates a more compact version of the trace suitable for further analysis.
+Don't forget to update the PHP interface:
+https://github.com/bolprocessor/php-frontend/
+
+-----
 2026-04-20 -> 2026-04-22 (version 3.4.2)
 This version infers rule weights from the analysis of sets of examples.
 Read the documentation: https://bolprocessor.org/learning-rule-weights/
 The concept of "true BP grammar" has been expanded by disregarding performance controls.
+When parsing an item, periods are ignored unless one is found in the grammar used for analysis.
 Character '\334' is now ignored  in the C code.
 An important bug, which has so far gone unnoticed, was fixed in copy_grammars().
 LengthOf() has been optimised again.
+The interface has been updated to handle line feeds in data and grammars more consistently.
 In the interface, better handling of files with incorrect write permissions (MacOS and Linux).
-Don't forget to update the PHP interface:
-https://github.com/bolprocessor/php-frontend/
 
 -----
 2026-04-11 -> 2026-04-17 (version 3.4.1)

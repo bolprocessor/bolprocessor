@@ -47,7 +47,7 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 /* nocode = FALSE: copy pp_a to file f, if not NULL, or window 'wind' */
 /* nocode = TRUE and istemplate = FALSE: copy pp_a without structure to array pp_b... */
 /* istemplate = TRUE: match template in pp_a against item in pp_b... */
-/* ... and replace '_' in istemplate with terminals in pp_b. */
+/* ... and replace '_' in template with terminals in pp_b. */
 /* showtempo: add prolongational gaps using "Prod" */
 /* ret = TRUE: print a 'return' at the end */
 /* ifunc = TRUE: interpret grammar.  Jfunc is the index of '-->' */
@@ -271,7 +271,7 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 		
 	READY:
 	if(f == NULL) {
-		BPPrintMessage(0,odError,"Can't write to disk.\n(incorrect file pointer)");
+		BPPrintMessage(0,odError,"=> Can't write to disk. (incorrect file pointer)\n");
 		r = MISSED; goto OUT2;
 		}
 
@@ -1019,24 +1019,21 @@ PRINTPROLONGATIONS:
 			}
 		
 			
-		if(m == T40) {	/*Tool '_keyxpand()' */
+		if(m == T40) {	// Tool '_keyxpand()'
 			if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
 				r = ABORT; goto SORTIR;
 				}
 			if(nocode) {
-				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
-						nocode,pp_b,p_ib,f,th,"%c",NULL,-1)) != OK) {
+				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,nocode,pp_b,p_ib,f,th,"%c",NULL,-1)) != OK) {
 					goto SORTIR;
 					}
 				}
 			else {
-		//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 				my_sprintf(line,"%s(",*((*p_PerformanceControl)[58]));
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 						(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
 					goto SORTIR;
 					}
-		//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 				key = p % 256;
 				if(key > 127) {
 					my_sprintf(line,"K%ld=%ld",(long)key-128,(long)ParamValue[key-128]);
@@ -1046,18 +1043,16 @@ PRINTPROLONGATIONS:
 						(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
 					goto SORTIR;
 					}
-		//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 						(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th,",",NULL,-1)) != OK) {
 					goto SORTIR;
 					}
-		//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 				goto SHOWNUMBER;
 				}
 			continue;
 			}
 			
-		if(m == T13) {	/* Performance Control '_script()' */
+		if(m == T13) {	// Performance Control '_script()'
 			if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
 				r = ABORT; goto SORTIR;
 				}

@@ -168,7 +168,7 @@ extern long MidiLen_pos,**p_Tref,**p_Tpict;
 extern dword MIDItracklength,Midi_msg;
 extern Milliseconds OldMIDIfileTime;
 extern unsigned long LapWait,WhenItStarted;
-extern int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,SplitLines,Token,
+extern int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,SplitLines,Token,Step,
 	SpaceOn,
 	VariableOn,N_err,nstore,NumberTables,OkShowExpand,Improvize,Analyzing,ComputeWhilePlay,Varweight,
 	TransposeInput,TransposeValue,
@@ -205,7 +205,7 @@ extern short Maxlevel,MaxFlag,MaxScript,PlayFromInsertionPoint,
 	MIDI;
 extern int MaxItemsProduce,MaxItemsGraphic;
 extern int CyclicPlay,AllowRandomize,WillRandomize,StepProduce,TraceMicrotonality,DisplayProduce,UseTimeLimit,
-	DisplayTimeSet,StepTimeSet,TraceProduce,UseEachSub,PlanProduce,TraceTimeSet,TraceNoteOn,ResetNotes;
+	DisplayTimeSet,StepTimeSet,TraceProduce,TraceDetail,UseEachSub,PlanProduce,TraceTimeSet,TraceNoteOn,ResetNotes;
 extern int InsertGramRuleNumbers, InsertGramCorrections, InsertNewBols;
 extern unsigned long Ptick[MAXTICKS],Qtick[MAXTICKS],GrandCycle[MAXTICKS],
 	PosGrandCycle[MAXTICKS],GrandPeriod,BeatGrandCycle,BeatPosGrandCycle,

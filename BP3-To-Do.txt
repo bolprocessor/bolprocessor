@@ -149,6 +149,7 @@ Actions
 -------
 
 - Implement expand-item & show-beats options.
+- Restore the use of glossaries? Not sure it's worth it.
 
 
 Images
@@ -165,7 +166,6 @@ Various issues
 - Templates can't be created with rules containing integers as silences. This can be solved in MakeTemplate().
 - Currently, the console crashes if the list of TEMPLATES in a grammar is not terminated with a solid line "-----". The interface takes care of this by adding the missing terminating line.
 - Problem tracing the production of an item containing structural patterns.
-- When outputing a data file of an item requiring serial tools (NeedZouleb > 0), display the result after the application of tools. Example: -gr.Visser.Waves. This may happen in Compute.c after SORTIR.
 - Errors of duration occur when playing some polymetric structures with tied notes that miss their target. Examples are stored in -da.checkBadDurations.
 - Check why tempo(3/2) {C4& {3,&C4 _rest D4}} does not produce the same pattern as {C4& {3,&C4 _rest D4}} 
 - Check delete_orphan_ties() in data.php, as it still keeps erratic ties, which are difficult to predict.

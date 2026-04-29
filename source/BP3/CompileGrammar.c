@@ -1689,7 +1689,7 @@ if((i=NumberWildCards(pp_leftp)) < (j=NumberWildCards(pp_rightp))) {
 	}
 *p_done = FALSE;
 *p_onerulefound = TRUE;
-if(tracecompile) ShowRule(p_gram,igram,irul,wTrace,FALSE,NULL,TRUE,TRUE,TRUE);
+if(tracecompile) ShowRule(p_gram,igram,irul,wTrace,FALSE,NULL,TRUE,TRUE,TRUE,FALSE);
 return(0);
 }
 
@@ -1753,10 +1753,10 @@ for(igram=1; igram <= p_gram->number_gram; igram++) {
 				if(newrule) {
 					newrule = FALSE;
 					Println(wTrace,"The following rules make the grammar non-deterministic:");
-					ShowRule(p_gram,igram,irul,wTrace,FALSE,NULL,TRUE,FALSE,TRUE);
+					ShowRule(p_gram,igram,irul,wTrace,FALSE,NULL,TRUE,FALSE,TRUE,FALSE);
 					err++;
 					}
-				ShowRule(p_gram,igram,jrul,wTrace,FALSE,NULL,TRUE,FALSE,TRUE);
+				ShowRule(p_gram,igram,jrul,wTrace,FALSE,NULL,TRUE,FALSE,TRUE,FALSE);
 				}
 			}
 		}
@@ -2278,6 +2278,6 @@ void CopyGramcompileToGram(int verbose) {
 	ReleaseGrammarSpace(&Gram_compile,FALSE);
 	if(trace_compile_grammar) {
 		BPPrintMessage(1,odInfo,"This is the grammar:");
-		DisplayGrammar(&Gram,wData,TRUE,TRUE);
+		DisplayGrammar(&Gram,wData,TRUE,TRUE,FALSE);
 		}
 	}

@@ -649,6 +649,7 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"StepProduce") == 0) StepProduce = intvalue;
 		else if(strcmp(key,"TraceMicrotonality") == 0) TraceMicrotonality = intvalue;
 		else if(strcmp(key,"TraceProduce") == 0) TraceProduce = intvalue;
+		else if(strcmp(key,"TraceDetail") == 0) TraceDetail = intvalue;
 		else if(strcmp(key,"AllTemplates") == 0) AllTemplates = intvalue;
 		else if(strcmp(key,"PlanProduce") == 0) PlanProduce = intvalue;
 		else if(strcmp(key,"DisplayItems") == 0) DisplayItems = intvalue;
@@ -710,6 +711,9 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"LiveGrammar") == 0) LiveGrammar = intvalue;
 		else if(strcmp(key,"LiveSettings") == 0) LiveSettings = intvalue;
 		else if(strcmp(key,"TraceLive") == 0) TraceLive = intvalue;
+		}
+	if(TraceDetail && (Improvize || Analyzing)) {
+		BPPrintMessage(1,odInfo,"Detailed trace is enabled (production or parsing)\n");
 		}
 	if(NoTracePath) {
 		ShowObjectGraph = ShowPianoRoll = ShowGraphic = FALSE;

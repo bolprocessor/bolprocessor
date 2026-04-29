@@ -299,7 +299,7 @@ int DoCommand(int,long);
 int ShowMessage(int,int,char*);
 int FlashInfo(char*);
 int ClearMessage(void);
-int Print(int,char*);
+int Print(int w, const char *format, ...); // 2026-04-27
 int PrintHandle(int,char**);
 int PrintHandleln(int,char**);
 int PrintHandleBehind(int,char**);
@@ -621,8 +621,8 @@ int PrintPeriod(FILE*,TextHandle);
 int Display(char,int,int,int*,int*,unsigned long*,tokenbyte***,unsigned long*,int,tokenbyte,tokenbyte,int,
 	tokenbyte***,unsigned long*,FILE*,TextHandle,char*,char**,long);
 int ShowCodes(int);
-int DisplayGrammar(t_gram*,int,int,int);
-int ShowRule(t_gram*,int,int,int,int,int*,int,int,int);
+int DisplayGrammar(t_gram*,int,int,int,int);
+int ShowRule(t_gram*,int,int,int,int,int*,int,int,int,int);
 int ShowAlphabet(void);
 int SequenceField(tokenbyte***,long);
 int HasStructure(tokenbyte**);

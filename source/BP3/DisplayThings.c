@@ -41,6 +41,7 @@
 int trace_display = 0;
 int check_context = 0;
 
+/*
 int Print(int w,char* t) {
 	long length;
 	char *ptr;
@@ -54,10 +55,37 @@ int Print(int w,char* t) {
 		return(MISSED);
 		}
 	length = strlen(t);
-	// BPActivateWindow(QUICK,w);
 	ptr = t;
 	TextInsert(ptr,length,TEH[w]);
 	return(OK);
+	} */
+
+int Print(int w, const char *format, ...) { // 2026-04-27
+    va_list args;
+    int length;
+    char buffer[4096];
+    if (!FirstGrammar) return OK;
+    if (w < 0 || w >= WMAX) {
+        BPPrintMessage(0, odError, "=> Err1. Print() w = %d\n", w);
+        return OK;
+    	}
+    if (!Editable[w]) {
+        BPPrintMessage(0, odError, "=> Err2. Print() Not editable %d\n", w);
+        return MISSED;
+    	}
+    va_start(args, format);
+    length = vsnprintf(buffer, sizeof buffer, format, args);
+    va_end(args);
+    if (length < 0) {
+        BPPrintMessage(0, odError, "=> Err3. Print() formatting failed\n");
+        return MISSED;
+    	}
+    if ((size_t)length >= sizeof buffer) {
+        BPPrintMessage(0, odError, "=> Err4. Print() text truncated\n");
+        length = sizeof buffer - 1;
+    	}
+    TextInsert(buffer, length, TEH[w]);
+    return OK;
 	}
 
 
@@ -163,492 +191,489 @@ return(OK);
 }
 
 
-int DisplayGrammar(t_gram *p_gram,int wind,int producemode,int showweights)
-{
-int i,igram,irul,inc,j,proc,w,splitmem,shownctrlval[MAXPARAMCTRL];
-char *ptr;
-p_context pp_ctxt;
-p_flaglist **h;
-long starttrace;
-t_subgram subgram;
-double p,q;
+int DisplayGrammar(t_gram *p_gram,int wind,int producemode,int showweights,int for_trace) {
+	int i,igram,irul,inc,j,proc,w,splitmem,shownctrlval[MAXPARAMCTRL];
+	char *ptr;
+	p_context pp_ctxt;
+	p_flaglist **h;
+	long starttrace;
+	t_subgram subgram;
+	double p,q;
 
-if(wind < 0 || wind >= WMAX || !Editable[wind])  {
-	BPPrintMessage(0,odError,"=> Err. DisplayGrammar(). Incorrect index\n");
-	return(MISSED);
-	}
-if(p_gram->p_subgram == NULL) {
-	BPPrintMessage(0,odError,"=> Err. DisplayGrammar(). Grammar is empty\n");
-	return(MISSED);
-	}
-//if(isgrammar && !producemode) UseTextColor = TRUE;
-for(i=1; i < MAXPARAMCTRL; i++) shownctrlval[i] = FALSE;
-splitmem = SplitVariables;
-// BPActivateWindow(SLOW,wind);
-// starttrace = GetTextLength(wind);
-// SetSelect(starttrace,starttrace,TEH[wind]);
-if(InitThere > 0) {
-	Print(wind,InitToken);
-	Print(wind," ");
-	}
-switch(InitThere) {
-	case 1:
-		my_sprintf(Message,"%s  ",*(p_ScriptLabelPart(85,0)));
-		Print(wind,Message);
-		PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&p_Initbuff);
+	if(wind < 0 || wind >= WMAX || !Editable[wind])  {
+		BPPrintMessage(0,odError,"=> Err. DisplayGrammar(). Incorrect index\n");
+		return(MISSED);
+		}
+	if(p_gram->p_subgram == NULL) {
+		BPPrintMessage(0,odError,"=> Err. DisplayGrammar(). Grammar is empty\n");
+		return(MISSED);
+		}
+	for(i=1; i < MAXPARAMCTRL; i++) shownctrlval[i] = FALSE;
+	splitmem = SplitVariables;
+	if(InitThere > 0) {
+		Print(wind,InitToken);
+		Print(wind," ");
+		}
+	switch(InitThere) {
+		case 1:
+			my_sprintf(Message,"%s  ",*(p_ScriptLabelPart(85,0)));
+			if(!for_trace) Print(wind,Message);
+			if(!for_trace) PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&p_Initbuff);
+			if(!for_trace) Print(wind,"\n");
+			break;
+		case 2:
+			if(!for_trace && p_InitScriptLine != NULL) Println(wind,(*p_InitScriptLine));
+			break;
+		}
+	for(igram=1; igram <= p_gram->number_gram; igram++) {
+		my_sprintf(Message,"\n------------- SUBGRAMMAR #%ld --------------\n",
+			(long)igram);
+		if(!for_trace) Print(wind,Message);
+		subgram = (*(p_gram->p_subgram))[igram];
+		if(subgram.number_rule == 0) {
+			my_sprintf(Message,"Subgrammar %ld has no rules...",(long)igram);
+			if(!for_trace) Print(wind,Message);
+			continue;
+			}
+		irul = 0;
+		Println(wind,SubgramType[subgram.type]);
+		if(igram == 1) {
+			if(Simplify((double)INT_MAX,(double)60L*Qclock,Pclock,&p,&q) != OK)
+				Simplify((double)INT_MAX,Qclock,floor((double)Pclock/60.),&p,&q);
+			my_sprintf(Message,"%s(%.4f) ",*((*p_GramProcedure)[13]),((double)p)/q);
+			if(!for_trace) Print(wind,Message);
+			if(Nature_of_time == STRIATED)
+				my_sprintf(Message,"%s",*((*p_GramProcedure)[14]));
+			else
+				my_sprintf(Message,"%s",*((*p_GramProcedure)[15]));
+			if(!for_trace) Println(wind,Message);
+			}
+		proc = FALSE;
+		if(subgram.stop) {
+			my_sprintf(Message,"%s ",*((*p_GramProcedure)[3]));
+			Print(wind,Message); proc = TRUE;
+			}
+		if(subgram.print) {
+			my_sprintf(Message,"%s ",*((*p_GramProcedure)[4]));
+			Print(wind,Message); proc = TRUE;
+			}
+		if(subgram.printon) {
+			my_sprintf(Message,"%s ",*((*p_GramProcedure)[5]));
+			Print(wind,Message); proc = TRUE;
+			}
+		if(subgram.printoff) {
+			my_sprintf(Message,"%s ",*((*p_GramProcedure)[6]));
+			Print(wind,Message); proc = TRUE;
+			}
+		if(subgram.stepon) {
+			my_sprintf(Message,"%s ",*((*p_GramProcedure)[7]));
+			Print(wind,Message); proc = TRUE;
+			}
+		if(subgram.stepoff) {
+			my_sprintf(Message,"%s ",*((*p_GramProcedure)[8]));
+			Print(wind,Message); proc = TRUE;
+			}
+		if(subgram.traceon) {
+			my_sprintf(Message,"%s ",*((*p_GramProcedure)[9]));
+			Print(wind,Message); proc = TRUE;
+			}
+		if(subgram.traceoff) {
+			my_sprintf(Message,"%s ",*((*p_GramProcedure)[10]));
+			Print(wind,Message); proc = TRUE;
+			}
+		if(subgram.destru) {
+			my_sprintf(Message,"%s ",*((*p_GramProcedure)[11]));
+			Print(wind,Message); proc = TRUE;
+			}
+		if(subgram.randomize) {
+			my_sprintf(Message,"%s ",*((*p_GramProcedure)[12]));
+			Print(wind,Message); proc = TRUE;
+			}
+		if(subgram.seed > -1) {
+			my_sprintf(Message,"%s(%ld) ",*((*p_GramProcedure)[16]),(long)subgram.seed);
+			Print(wind,Message); proc = TRUE;
+			}
+		irul++; if(proc) Print(wind,"\n");
+		for(irul=irul; irul <= subgram.number_rule; irul++) {
+			if(ShowRule(p_gram,igram,irul,wind,producemode,shownctrlval,FALSE,
+				showweights,TRUE,for_trace) != OK) goto END;
+			}
+		}
+	if(Jpatt > 0) {
+		Print(wind,"\nTIMEPATTERNS:\n");
+		for(j=0; j < Jpatt; j++) {
+			my_sprintf(Message,"%s = %ld/%ld  ",*((*p_Patt)[j]),(long)(*p_Ppatt)[j],
+				(long)(*p_Qpatt)[j]);
+			Print(wind,Message);
+			}
 		Print(wind,"\n");
-		break;
-	case 2:
-		if(p_InitScriptLine != NULL) Println(wind,(*p_InitScriptLine));
-		break;
-	}
-for(igram=1; igram <= p_gram->number_gram; igram++) {
-	my_sprintf(Message,"\n------------- SUBGRAMMAR #%ld --------------\n",
-		(long)igram);
-	Print(wind,Message);
-	subgram = (*(p_gram->p_subgram))[igram];
-	if(subgram.number_rule == 0) {
-		my_sprintf(Message,"Subgrammar %ld has no rules...",(long)igram);
-		Print(wind,Message);
-		continue;
 		}
-	irul = 0;
-	Println(wind,SubgramType[subgram.type]);
-	if(igram == 1) {
-		if(Simplify((double)INT_MAX,(double)60L*Qclock,Pclock,&p,&q) != OK)
-			Simplify((double)INT_MAX,Qclock,floor((double)Pclock/60.),&p,&q);
-		my_sprintf(Message,"%s(%.4f) ",*((*p_GramProcedure)[13]),((double)p)/q);
-		Print(wind,Message);
-		if(Nature_of_time == STRIATED)
-			my_sprintf(Message,"%s",*((*p_GramProcedure)[14]));
-		else
-			my_sprintf(Message,"%s",*((*p_GramProcedure)[15]));
-		Println(wind,Message);
-		}
-	proc = FALSE;
-	if(subgram.stop) {
-		my_sprintf(Message,"%s ",*((*p_GramProcedure)[3]));
-		Print(wind,Message); proc = TRUE;
-		}
-	if(subgram.print) {
-		my_sprintf(Message,"%s ",*((*p_GramProcedure)[4]));
-		Print(wind,Message); proc = TRUE;
-		}
-	if(subgram.printon) {
-		my_sprintf(Message,"%s ",*((*p_GramProcedure)[5]));
-		Print(wind,Message); proc = TRUE;
-		}
-	if(subgram.printoff) {
-		my_sprintf(Message,"%s ",*((*p_GramProcedure)[6]));
-		Print(wind,Message); proc = TRUE;
-		}
-	if(subgram.stepon) {
-		my_sprintf(Message,"%s ",*((*p_GramProcedure)[7]));
-		Print(wind,Message); proc = TRUE;
-		}
-	if(subgram.stepoff) {
-		my_sprintf(Message,"%s ",*((*p_GramProcedure)[8]));
-		Print(wind,Message); proc = TRUE;
-		}
-	if(subgram.traceon) {
-		my_sprintf(Message,"%s ",*((*p_GramProcedure)[9]));
-		Print(wind,Message); proc = TRUE;
-		}
-	if(subgram.traceoff) {
-		my_sprintf(Message,"%s ",*((*p_GramProcedure)[10]));
-		Print(wind,Message); proc = TRUE;
-		}
-	if(subgram.destru) {
-		my_sprintf(Message,"%s ",*((*p_GramProcedure)[11]));
-		Print(wind,Message); proc = TRUE;
-		}
-	if(subgram.randomize) {
-		my_sprintf(Message,"%s ",*((*p_GramProcedure)[12]));
-		Print(wind,Message); proc = TRUE;
-		}
-	if(subgram.seed > -1) {
-		my_sprintf(Message,"%s(%ld) ",*((*p_GramProcedure)[16]),(long)subgram.seed);
-		Print(wind,Message); proc = TRUE;
-		}
-	irul++; if(proc) Print(wind,"\n");
-	for(irul=irul; irul <= subgram.number_rule; irul++) {
-		PleaseWait();
-		if(ShowRule(p_gram,igram,irul,wind,producemode,shownctrlval,FALSE,
-			showweights,TRUE) != OK) goto END;
-		}
-	}
-if(Jpatt > 0) {
-	Print(wind,"\nTIMEPATTERNS:\n");
-	for(j=0; j < Jpatt; j++) {
-		my_sprintf(Message,"%s = %ld/%ld  ",*((*p_Patt)[j]),(long)(*p_Ppatt)[j],
-			(long)(*p_Qpatt)[j]);
-		Print(wind,Message);
-		}
-	Print(wind,"\n");
-	}
-my_sprintf(Message,"// %ld error(s)\n",(long)N_err);
-Print(wind,Message);
+	my_sprintf(Message,"// %ld error(s)\n",(long)N_err);
+	if(!for_trace) Print(wind,Message);
 
-END:
-/* SetSelect(starttrace,GetTextLength(wind),TEH[wind]);
-ShowSelect(CENTRE,wind); */
-SplitVariables = splitmem;
-return(OK);
-}
+	END:
+	SplitVariables = splitmem;
+	return(OK);
+	}
 
 
 int ShowRule(t_gram *p_gram,int igram,int irul,int wind,int producemode,
-	int* shownctrlval,int showgram,int showweights,int showmode)
-{
-t_rule rule;
-p_context pp_ctxt;
-TextHandle teh;
-int w,i,ig,ir,inc,j,r,s;
-p_flaglist **h;
-tokenbyte **ptr;
+	int* shownctrlval,int showgram,int showweights,int showmode,int for_trace) {
+	t_rule rule;
+	p_context pp_ctxt;
+	TextHandle teh;
+	int w,i,ig,ir,inc,j,r,s;
+	p_flaglist **h;
+	tokenbyte **ptr;
 
-if(wind < 0 || wind >= WMAX || !Editable[wind]) return(MISSED);
-if(p_gram->p_subgram == NULL) {
-	BPPrintMessage(0,odError,"=> Err. DisplayGrammar(). Grammar is empty");
-	return(MISSED);
-	}
-rule = (*((*(p_gram->p_subgram))[igram].p_rule))[irul];
+	if(wind < 0 || wind >= WMAX || !Editable[wind]) return(MISSED);
+	if(p_gram->p_subgram == NULL) {
+		BPPrintMessage(0,odError,"=> Err. DisplayGrammar(). Grammar is empty");
+		return(MISSED);
+		}
+	rule = (*((*(p_gram->p_subgram))[igram].p_rule))[irul];
+	if(for_trace) {
+		showgram = showweights = TRUE;
+		producemode = FALSE;
+		}
 
-if(check_context && irul == 12) {
-	printf("[%d] CONTEXT:\n",irul);
-	printf("rule.leftoffset: %d\n",rule.leftoffset);
-	printf("rule.rightoffset: %d\n",rule.rightoffset);
-	printf("rule.leftnegcontext: %d\n",rule.leftnegcontext);
-	if(rule.p_leftcontext != NULL) {
-		printf("rule.p_leftcontext: %p\n", (void *)rule.p_leftcontext);
-		printf("*rule.p_leftcontext: %p\n", (void *)*rule.p_leftcontext);
-	if(*rule.p_leftcontext != NULL) {
-		printf("(*rule.p_leftcontext)->p_arg: %p\n", (void *)(*rule.p_leftcontext)->p_arg);
-	if((*rule.p_leftcontext)->p_arg != NULL) printf("*(*rule.p_leftcontext)->p_arg: %p\n", (void *)*(*rule.p_leftcontext)->p_arg);
-	}}
-	printf("rule.rightoffset: %d\n",rule.rightoffset);
-	printf("rule.rightoffset: %d\n",rule.rightoffset);
-	if(rule.p_rightcontext != NULL) {
-		printf("rule.p_rightcontext: %p\n", (void *)rule.p_rightcontext);
-		printf("*rule.p_rightcontext: %p\n", (void *)*rule.p_rightcontext);
-	if(*rule.p_rightcontext != NULL) {
-		printf("(*rule.p_rightcontext)->p_arg: %p\n", (void *)(*rule.p_rightcontext)->p_arg);
-	if((*rule.p_rightcontext)->p_arg != NULL) printf("*(*rule.p_rightcontext)->p_arg: %p\n", (void *)*(*rule.p_rightcontext)->p_arg);
-	}}
-	}
+	if(check_context && irul == 12) {
+		printf("[%d] CONTEXT:\n",irul);
+		printf("rule.leftoffset: %d\n",rule.leftoffset);
+		printf("rule.rightoffset: %d\n",rule.rightoffset);
+		printf("rule.leftnegcontext: %d\n",rule.leftnegcontext);
+		if(rule.p_leftcontext != NULL) {
+			printf("rule.p_leftcontext: %p\n", (void *)rule.p_leftcontext);
+			printf("*rule.p_leftcontext: %p\n", (void *)*rule.p_leftcontext);
+			if(*rule.p_leftcontext != NULL) {
+				printf("(*rule.p_leftcontext)->p_arg: %p\n", (void *)(*rule.p_leftcontext)->p_arg);
+				if((*rule.p_leftcontext)->p_arg != NULL) printf("*(*rule.p_leftcontext)->p_arg: %p\n", (void *)*(*rule.p_leftcontext)->p_arg);
+				}
+			}
+		printf("rule.rightoffset: %d\n",rule.rightoffset);
+		printf("rule.rightoffset: %d\n",rule.rightoffset);
+		if(rule.p_rightcontext != NULL) {
+			printf("rule.p_rightcontext: %p\n", (void *)rule.p_rightcontext);
+			printf("*rule.p_rightcontext: %p\n", (void *)*rule.p_rightcontext);
+			if(*rule.p_rightcontext != NULL) {
+				printf("(*rule.p_rightcontext)->p_arg: %p\n", (void *)(*rule.p_rightcontext)->p_arg);
+				if((*rule.p_rightcontext)->p_arg != NULL) printf("*(*rule.p_rightcontext)->p_arg: %p\n", (void *)*(*rule.p_rightcontext)->p_arg);
+				}
+			}
+		}
 
-teh = TEH[wind];
-if(showgram) {
-	my_sprintf(Message,"gram#%ld[%ld]",(long)igram,(long)irul);
-	Print(wind,Message);
-	}
-if(showweights) {
-	if(!showgram) {
-		my_sprintf(Message,"[%ld]",(long)irul);
+	teh = TEH[wind];
+	if(showgram) {
+		my_sprintf(Message,"gram#%ld[%ld]",(long)igram,(long)irul);
 		Print(wind,Message);
 		}
-	inc = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].incweight;
-	if(rule.ctrl > 0) {
-		Print(wind," <");
-		my_sprintf(Message,"K%ld",(long)(rule.ctrl));
-		Print(wind,Message);
-		if(shownctrlval != NULL && !shownctrlval[rule.ctrl] && inc == 0) {
-			shownctrlval[rule.ctrl] = TRUE;
-			my_sprintf(Message,"=%ld",(long)ParamInit[rule.ctrl]);
+	if(showweights) {
+		if(!showgram) {
+			my_sprintf(Message,"[%ld]",(long)irul);
 			Print(wind,Message);
 			}
-		}
-	else {
-		w = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].weight;
-		if(w < INT_MAX) {
-			my_sprintf(Message," <%ld",(long)w);
+		inc = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].incweight;
+		if(rule.ctrl > 0) {
+			Print(wind," <");
+			my_sprintf(Message,"K%ld",(long)(rule.ctrl));
 			Print(wind,Message);
-			}
-		else {
-			my_sprintf(Message," <?");
-			Print(wind,Message);
-			}
-		}
-	if(inc > 0) my_sprintf(Message,"+%ld",(long)inc);
-	if(inc < 0) my_sprintf(Message,"-%ld",(long)-inc);
-	if(inc != 0) Print(wind,Message);
-	if(producemode) {
-		my_sprintf(Message,":%ld",
-				(long)((*((*(p_gram->p_subgram))[igram].p_rule))[irul].w));
-		Print(wind,Message);
-		}
-	Print(wind,"> ");
-	}
-else {
-	if(!showgram) my_sprintf(Message,"[%ld] ",(long)irul);
-	else my_sprintf(Message," ");
-	Print(wind,Message);
-	}
-if(showmode) {
-	my_sprintf(Message,"%s ",Mode[(*((*(p_gram->p_subgram))[igram].p_rule))[irul].mode]);
-	Print(wind,Message);
-	}
-if(rule.stop == 1 || rule.stop == 3) {
-	my_sprintf(Message,"%s ",*((*p_GramProcedure)[3]));
-	Print(wind,Message);
-	}
-if(rule.print == 1 || rule.print == 3) {
-	my_sprintf(Message," %s ",*((*p_GramProcedure)[4]));
-	Print(wind,Message);
-	}
-if(rule.printon == 1 || rule.printon == 3) {
-	my_sprintf(Message," %s ",*((*p_GramProcedure)[5]));
-	Print(wind,Message);
-	}
-if(rule.printoff == 1 || rule.printoff == 3) {
-	my_sprintf(Message," %s ",*((*p_GramProcedure)[6]));
-	Print(wind,Message);
-	}
-if(rule.stepon == 1 || rule.stepon == 3) {
-	my_sprintf(Message," %s ",*((*p_GramProcedure)[7]));
-	Print(wind,Message);
-	}
-if(rule.stepoff == 1 || rule.stepoff == 3) {
-	my_sprintf(Message," %s ",*((*p_GramProcedure)[8]));
-	Print(wind,Message);
-	}
-if(rule.traceon == 1 || rule.traceon == 3) {
-	my_sprintf(Message," %s ",*((*p_GramProcedure)[9]));
-	Print(wind,Message);
-	}
-if(rule.traceoff == 1 || rule.traceoff == 3) {
-	my_sprintf(Message," %s ",*((*p_GramProcedure)[10]));
-	Print(wind,Message);
-	}
-// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
-h = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftflag;
-if(h != NULL) {
-	do {
-		if((s=(**h).x) > Jflag || s < 0) {
-			my_sprintf(Message,"=> Err in flag list (left)\n");
-			BPPrintMessage(0,odError,"%s",Message);
-			r = ABORT; goto END;
-			}
-		// Reformat(wind,-1,-1,-1,&Color[FlagC],NO,NO);
-		if(producemode)
-			my_sprintf(Message," /%s: %ld/ ",*((*p_Flagname)[s]),(long)(*p_Flag)[s]);
-		else {
-			my_sprintf(Message," /%s/ ",*((*p_Flagname)[s]));
-			if((**h).increment > 0)
-				my_sprintf(Message," /%s +%ld/ ",*((*p_Flagname)[s]),
-					(long)((**h).increment));
-			if((**h).increment < 0)
-				my_sprintf(Message," /%s -%ld/ ",*((*p_Flagname)[s]),
-					(long)(-(**h).increment));
-			if((**h).operator != OFF) {
-				switch((**h).operator) {
-					case EQUAL:
-						my_sprintf(Message," /%s = ",*((*p_Flagname)[s]));
-						break;
-					case DIF:
-						my_sprintf(Message," /%s � ",*((*p_Flagname)[s]));
-						break;
-					case INFEQUAL:
-						my_sprintf(Message," /%s � ",*((*p_Flagname)[s]));
-						break;
-					case SUPEQUAL:
-						my_sprintf(Message," /%s � ",*((*p_Flagname)[s]));
-						break;
-					case INF:
-						my_sprintf(Message," /%s < ",*((*p_Flagname)[s]));
-						break;
-					case SUP:
-						my_sprintf(Message," /%s > ",*((*p_Flagname)[s]));
-						break;
-					}
+			if(shownctrlval != NULL && !shownctrlval[rule.ctrl] && inc == 0) {
+				shownctrlval[rule.ctrl] = TRUE;
+				my_sprintf(Message,"=%ld",(long)ParamInit[rule.ctrl]);
 				Print(wind,Message);
-				switch((**h).paramcontrol) {
-					case 1: my_sprintf(Message,"K%ld/ ",
-						(long)((**h).refvalue));
-						break;
-					case 2: my_sprintf(Message,"%s/ ",
-												*((*p_Flagname)[(**h).refvalue]));
-							break;
-					default: my_sprintf(Message,"%ld/ ",(long)((**h).refvalue));
-					}
 				}
-			}
-		Print(wind,Message);
-		h = (**h).p;
-		}
-	while(h != NULL);
-	}
-if((pp_ctxt = rule.p_leftcontext) != NULL) {
-	if((*pp_ctxt)->sign == 0) {
-		my_sprintf(Message," #(");
-		}
-	else {
-		my_sprintf(Message," (");
-		}
-	Print(wind,Message);
-	ptr = (*pp_ctxt)->p_arg;
-	if(PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&ptr) != OK) {
-		r = ABORT; goto END;
-		}
-	Print(wind,")");
-	}
-ptr = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftarg;
-if(PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&ptr) != OK) {
-	r = ABORT; goto END;
-	}
-if((pp_ctxt =
-	(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightcontext) != NULL) {
-	if((*pp_ctxt)->sign == 0) {
-		my_sprintf(Message," #(");
-		}
-	else {
-		my_sprintf(Message," (");
-		}
-	Print(wind,Message);
-	ptr = (*pp_ctxt)->p_arg;
-	if(PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&ptr) != OK) {
-		r = ABORT; goto END;
-		}
-	Print(wind,")");
-	}
-my_sprintf(Message," %s ",Arrow[(*((*(p_gram->p_subgram))[igram].p_rule))[irul].operator]);
-Print(wind,Message);
-ptr = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightarg;
-if((*ptr)[0] == TEND && (*ptr)[1] == TEND) {
-	Print(wind,"lambda");
-	}
-else {
-	// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
-	if(PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&ptr) != OK) {
-		r = ABORT; goto END;
-		}
-	}
-// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
-h = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightflag;
-if(h != NULL) {
-	do {
-		if((**h).x > Jflag || (**h).x < 0) {
-			my_sprintf(Message,"=> Err in flag list (right). Jflag = %d\n",Jflag);
-			BPPrintMessage(0,odError,"%s",Message);
-			r = ABORT; goto END;
-			}
-		// Reformat(wind,-1,-1,-1,&Color[FlagC],NO,NO);
-		if((**h).operator == ASSIGN) {
-			if((**h).paramcontrol == 1)
-				my_sprintf(Message," /%s = K%ld/",*((*p_Flagname)[(**h).x]),
-					(long)((**h).refvalue));
-			else if((**h).paramcontrol == 2) my_sprintf(Message," /%s = %s/ ",
-							*((*p_Flagname)[(**h).x]),*((*p_Flagname)[(**h).refvalue]));
-			else my_sprintf(Message," /%s = %ld/",*((*p_Flagname)[(**h).x]),
-				(long)((**h).refvalue));
 			}
 		else {
-			if((**h).increment > 0) my_sprintf(Message," /%s +%ld",*((*p_Flagname)[(**h).x]),
-				(long)((**h).increment));
-			else my_sprintf(Message," /%s -%ld",*((*p_Flagname)[(**h).x]),
-				(long)(-(**h).increment));
-			Print(wind,Message);
-			if(producemode) {
-			my_sprintf(Message,": %ld/",(long)(*p_Flag)[(**h).x]);
+			w = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].weight;
+			if(w < INT_MAX) {
+				my_sprintf(Message," <%ld",(long)w);
+				Print(wind,Message);
 				}
-			else my_sprintf(Message,"/");
+			else {
+				my_sprintf(Message," <?");
+				Print(wind,Message);
+				}
 			}
-		Print(wind,Message);
-		h = (**h).p;
-		}
-	while(h != NULL);
-	}
-if(rule.stop == 2 || rule.stop == 3) {
-	my_sprintf(Message," %s ",*((*p_GramProcedure)[3]));
-	Print(wind,Message);
-	}
-if(rule.print == 2 || rule.print == 3) {
-	my_sprintf(Message," %s ",*((*p_GramProcedure)[4]));
-	Print(wind,Message);
-	}
-if(rule.printon == 2 || rule.printon == 3) {
-	my_sprintf(Message," %s ",*((*p_GramProcedure)[5]));
-	Print(wind,Message);
-	}
-if(rule.printoff == 2 || rule.printoff == 3) {
-	my_sprintf(Message," %s ",*((*p_GramProcedure)[6]));
-	Print(wind,Message);
-	}
-if(rule.stepon == 2 || rule.stepon == 3) {
-	my_sprintf(Message," %s ",*((*p_GramProcedure)[7]));
-	Print(wind,Message);
-	}
-if(rule.stepoff == 2 || rule.stepoff == 3) {
-	my_sprintf(Message," %s ",*((*p_GramProcedure)[8]));
-	Print(wind,Message);
-	}
-if(rule.traceon == 2 || rule.traceon == 3) {
-	my_sprintf(Message," %s ",*((*p_GramProcedure)[9]));
-	Print(wind,Message);
-	}
-if(rule.traceoff == 2 || rule.traceoff == 3) {
-	my_sprintf(Message," %s ",*((*p_GramProcedure)[10]));
-	Print(wind,Message);
-	}
-if(rule.destru) {
-	my_sprintf(Message," %s ",*((*p_GramProcedure)[11]));
-	Print(wind,Message);
-	}
-if((i=rule.repeat) > 0) {
-	if(rule.repeatcontrol > 0) {
-		my_sprintf(Message," %s(",*((*p_GramProcedure)[2]));
-		Print(wind,Message); // Reformat(wind,-1,-1,(int) 0,&Color[ControlC],NO,NO);
-		my_sprintf(Message,"K%ld",(long)(rule.repeatcontrol));
-		Print(wind,Message);
-		// Reformat(wind,-1,-1,-1,&Black,NO,NO);
-		if(shownctrlval != NULL && !shownctrlval[rule.repeatcontrol]) {
-			shownctrlval[rule.repeatcontrol] = TRUE;
-			my_sprintf(Message,"=%ld",(long)ParamInit[rule.repeatcontrol]);
+		if(inc > 0) my_sprintf(Message,"+%ld",(long)inc);
+		if(inc < 0) my_sprintf(Message,"-%ld",(long)-inc);
+		if(inc != 0) Print(wind,Message);
+		if(producemode) {
+			my_sprintf(Message,":%ld",
+					(long)((*((*(p_gram->p_subgram))[igram].p_rule))[irul].w));
 			Print(wind,Message);
 			}
-		// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
-		my_sprintf(Message,")");
-		Print(wind,Message);
+		Print(wind,"> ");
 		}
 	else {
-		my_sprintf(Message," %s(",*((*p_GramProcedure)[2]));
+		if(!showgram) my_sprintf(Message,"[%ld] ",(long)irul);
+		else my_sprintf(Message," ");
+		Print(wind,Message);
+		}
+	if(showmode) {
+		my_sprintf(Message,"%s ",Mode[(*((*(p_gram->p_subgram))[igram].p_rule))[irul].mode]);
+		Print(wind,Message);
+		}
+	if(rule.stop == 1 || rule.stop == 3) {
+		my_sprintf(Message,"%s ",*((*p_GramProcedure)[3]));
+		Print(wind,Message);
+		}
+	if(rule.print == 1 || rule.print == 3) {
+		my_sprintf(Message," %s ",*((*p_GramProcedure)[4]));
+		Print(wind,Message);
+		}
+	if(rule.printon == 1 || rule.printon == 3) {
+		my_sprintf(Message," %s ",*((*p_GramProcedure)[5]));
+		Print(wind,Message);
+		}
+	if(rule.printoff == 1 || rule.printoff == 3) {
+		my_sprintf(Message," %s ",*((*p_GramProcedure)[6]));
+		Print(wind,Message);
+		}
+	if(rule.stepon == 1 || rule.stepon == 3) {
+		my_sprintf(Message," %s ",*((*p_GramProcedure)[7]));
+		Print(wind,Message);
+		}
+	if(rule.stepoff == 1 || rule.stepoff == 3) {
+		my_sprintf(Message," %s ",*((*p_GramProcedure)[8]));
+		Print(wind,Message);
+		}
+	if(rule.traceon == 1 || rule.traceon == 3) {
+		my_sprintf(Message," %s ",*((*p_GramProcedure)[9]));
+		Print(wind,Message);
+		}
+	if(rule.traceoff == 1 || rule.traceoff == 3) {
+		my_sprintf(Message," %s ",*((*p_GramProcedure)[10]));
+		Print(wind,Message);
+		}
+	// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
+	h = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftflag;
+	if(h != NULL) {
+		do {
+			if((s=(**h).x) > Jflag || s < 0) {
+				my_sprintf(Message,"=> Err in flag list (left)\n");
+				BPPrintMessage(0,odError,"%s",Message);
+				r = ABORT; goto END;
+				}
+			// Reformat(wind,-1,-1,-1,&Color[FlagC],NO,NO);
+			if(producemode)
+				my_sprintf(Message," /%s: %ld/ ",*((*p_Flagname)[s]),(long)(*p_Flag)[s]);
+			else {
+				my_sprintf(Message," /%s/ ",*((*p_Flagname)[s]));
+				if((**h).increment > 0)
+					my_sprintf(Message," /%s +%ld/ ",*((*p_Flagname)[s]),
+						(long)((**h).increment));
+				if((**h).increment < 0)
+					my_sprintf(Message," /%s -%ld/ ",*((*p_Flagname)[s]),
+						(long)(-(**h).increment));
+				if((**h).operator != OFF) {
+					switch((**h).operator) {
+						case EQUAL:
+							my_sprintf(Message," /%s = ",*((*p_Flagname)[s]));
+							break;
+						case DIF:
+							my_sprintf(Message," /%s � ",*((*p_Flagname)[s]));
+							break;
+						case INFEQUAL:
+							my_sprintf(Message," /%s � ",*((*p_Flagname)[s]));
+							break;
+						case SUPEQUAL:
+							my_sprintf(Message," /%s � ",*((*p_Flagname)[s]));
+							break;
+						case INF:
+							my_sprintf(Message," /%s < ",*((*p_Flagname)[s]));
+							break;
+						case SUP:
+							my_sprintf(Message," /%s > ",*((*p_Flagname)[s]));
+							break;
+						}
+					Print(wind,Message);
+					switch((**h).paramcontrol) {
+						case 1: my_sprintf(Message,"K%ld/ ",
+							(long)((**h).refvalue));
+							break;
+						case 2: my_sprintf(Message,"%s/ ",
+													*((*p_Flagname)[(**h).refvalue]));
+								break;
+						default: my_sprintf(Message,"%ld/ ",(long)((**h).refvalue));
+						}
+					}
+				}
+			Print(wind,Message);
+			h = (**h).p;
+			}
+		while(h != NULL);
+		}
+	if((pp_ctxt = rule.p_leftcontext) != NULL) {
+		if((*pp_ctxt)->sign == 0) {
+			my_sprintf(Message," #(");
+			}
+		else {
+			my_sprintf(Message," (");
+			}
+		Print(wind,Message);
+		ptr = (*pp_ctxt)->p_arg;
+		if(PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&ptr) != OK) {
+			r = ABORT; goto END;
+			}
+		Print(wind,")");
+		}
+	ptr = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftarg;
+	if(PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&ptr) != OK) {
+		r = ABORT; goto END;
+		}
+	if((pp_ctxt =
+		(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightcontext) != NULL) {
+		if((*pp_ctxt)->sign == 0) {
+			my_sprintf(Message," #(");
+			}
+		else {
+			my_sprintf(Message," (");
+			}
+		Print(wind,Message);
+		ptr = (*pp_ctxt)->p_arg;
+		if(PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&ptr) != OK) {
+			r = ABORT; goto END;
+			}
+		Print(wind,")");
+		}
+	my_sprintf(Message," %s ",Arrow[(*((*(p_gram->p_subgram))[igram].p_rule))[irul].operator]);
+	Print(wind,Message);
+	ptr = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightarg;
+	if((*ptr)[0] == TEND && (*ptr)[1] == TEND) {
+		Print(wind,"lambda");
+		}
+	else {
+		// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
+		if(PrintArg(FALSE,FALSE,0,FALSE,0,0,stdout,wind,pp_Scrap,&ptr) != OK) {
+			r = ABORT; goto END;
+			}
+		}
+	// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
+	h = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightflag;
+	if(h != NULL) {
+		do {
+			if((**h).x > Jflag || (**h).x < 0) {
+				my_sprintf(Message,"=> Err in flag list (right). Jflag = %d\n",Jflag);
+				BPPrintMessage(0,odError,"%s",Message);
+				r = ABORT; goto END;
+				}
+			// Reformat(wind,-1,-1,-1,&Color[FlagC],NO,NO);
+			if((**h).operator == ASSIGN) {
+				if((**h).paramcontrol == 1)
+					my_sprintf(Message," /%s = K%ld/",*((*p_Flagname)[(**h).x]),
+						(long)((**h).refvalue));
+				else if((**h).paramcontrol == 2) my_sprintf(Message," /%s = %s/ ",
+								*((*p_Flagname)[(**h).x]),*((*p_Flagname)[(**h).refvalue]));
+				else my_sprintf(Message," /%s = %ld/",*((*p_Flagname)[(**h).x]),
+					(long)((**h).refvalue));
+				}
+			else {
+				if((**h).increment > 0) my_sprintf(Message," /%s +%ld",*((*p_Flagname)[(**h).x]),
+					(long)((**h).increment));
+				else my_sprintf(Message," /%s -%ld",*((*p_Flagname)[(**h).x]),
+					(long)(-(**h).increment));
+				Print(wind,Message);
+				if(producemode) {
+				my_sprintf(Message,": %ld/",(long)(*p_Flag)[(**h).x]);
+					}
+				else my_sprintf(Message,"/");
+				}
+			Print(wind,Message);
+			h = (**h).p;
+			}
+		while(h != NULL);
+		}
+	if(rule.stop == 2 || rule.stop == 3) {
+		my_sprintf(Message," %s ",*((*p_GramProcedure)[3]));
+		Print(wind,Message);
+		}
+	if(rule.print == 2 || rule.print == 3) {
+		my_sprintf(Message," %s ",*((*p_GramProcedure)[4]));
+		Print(wind,Message);
+		}
+	if(rule.printon == 2 || rule.printon == 3) {
+		my_sprintf(Message," %s ",*((*p_GramProcedure)[5]));
+		Print(wind,Message);
+		}
+	if(rule.printoff == 2 || rule.printoff == 3) {
+		my_sprintf(Message," %s ",*((*p_GramProcedure)[6]));
+		Print(wind,Message);
+		}
+	if(rule.stepon == 2 || rule.stepon == 3) {
+		my_sprintf(Message," %s ",*((*p_GramProcedure)[7]));
+		Print(wind,Message);
+		}
+	if(rule.stepoff == 2 || rule.stepoff == 3) {
+		my_sprintf(Message," %s ",*((*p_GramProcedure)[8]));
+		Print(wind,Message);
+		}
+	if(rule.traceon == 2 || rule.traceon == 3) {
+		my_sprintf(Message," %s ",*((*p_GramProcedure)[9]));
+		Print(wind,Message);
+		}
+	if(rule.traceoff == 2 || rule.traceoff == 3) {
+		my_sprintf(Message," %s ",*((*p_GramProcedure)[10]));
+		Print(wind,Message);
+		}
+	if(rule.destru) {
+		my_sprintf(Message," %s ",*((*p_GramProcedure)[11]));
+		Print(wind,Message);
+		}
+	if((i=rule.repeat) > 0) {
+		if(rule.repeatcontrol > 0) {
+			my_sprintf(Message," %s(",*((*p_GramProcedure)[2]));
+			Print(wind,Message); // Reformat(wind,-1,-1,(int) 0,&Color[ControlC],NO,NO);
+			my_sprintf(Message,"K%ld",(long)(rule.repeatcontrol));
+			Print(wind,Message);
+			// Reformat(wind,-1,-1,-1,&Black,NO,NO);
+			if(shownctrlval != NULL && !shownctrlval[rule.repeatcontrol]) {
+				shownctrlval[rule.repeatcontrol] = TRUE;
+				my_sprintf(Message,"=%ld",(long)ParamInit[rule.repeatcontrol]);
+				Print(wind,Message);
+				}
+			// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
+			my_sprintf(Message,")");
+			Print(wind,Message);
+			}
+		else {
+			my_sprintf(Message," %s(",*((*p_GramProcedure)[2]));
+			Print(wind,Message);
+			// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
+			my_sprintf(Message,"%ld",(long)i);
+			Print(wind,Message);
+			// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
+			Print(wind,")");
+			}
+		}
+	if((ig=rule.failedgram) > 0) {
+		ir = rule.failedrule;
+		my_sprintf(Message," %s(",*((*p_GramProcedure)[1]));
 		Print(wind,Message);
 		// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
-		my_sprintf(Message,"%ld",(long)i);
+		my_sprintf(Message,"%ld,%ld",(long)ig,(long)ir);
 		Print(wind,Message);
 		// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
 		Print(wind,")");
 		}
-	}
-if((ig=rule.failedgram) > 0) {
-	ir = rule.failedrule;
-	my_sprintf(Message," %s(",*((*p_GramProcedure)[1]));
-	Print(wind,Message);
+	if((ig=rule.gotogram) > 0) {
+		ir = rule.gotorule;
+		my_sprintf(Message," %s(",*((*p_GramProcedure)[0]));
+		Print(wind,Message);
+		// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
+		my_sprintf(Message,"%ld,%ld",(long)ig,(long)ir);
+		Print(wind,Message);
+		// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
+		Print(wind,")");
+		}
 	// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
-	my_sprintf(Message,"%ld,%ld",(long)ig,(long)ir);
-	Print(wind,Message);
-	// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
-	Print(wind,")");
-	}
-if((ig=rule.gotogram) > 0) {
-	ir = rule.gotorule;
-	my_sprintf(Message," %s(",*((*p_GramProcedure)[0]));
-	Print(wind,Message);
-	// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
-	my_sprintf(Message,"%ld,%ld",(long)ig,(long)ir);
-	Print(wind,Message);
-	// Reformat(wind,-1,-1,(int) 1,&None,NO,NO);
-	Print(wind,")");
-	}
-// Reformat(wind,-1,-1,(int) 0,&None,NO,NO);
-r = OK;
+	r = OK;
 
-END:
-my_sprintf(Message,"\n");
-Print(wind,Message);
-ShowSelect(CENTRE,wind);
-return(r);
-}
+	END:
+	my_sprintf(Message,"\n");
+	Print(wind,Message);
+	ShowSelect(CENTRE,wind);
+	return(r);
+	}
 
 
 int ShowAlphabet(void)
