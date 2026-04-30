@@ -224,6 +224,7 @@ double **p_CsPitchBend[6],**p_CsVolume[6],**p_CsPressure[6],**p_CsModulation[6],
 int FileSaveMode,FileWriteMode,MIDIfileType,CsoundFileFormat;
 
 SoundObjectInstanceParameters **p_Instance;
+short **p_Articul;
 objectspecs ****p_ObjectSpecs;
 long **p_Flag,BufferSize,DeftBufferSize,Maxevent;
 FILE *OpenMIDIfilePtr;

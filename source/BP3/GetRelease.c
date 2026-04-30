@@ -1201,48 +1201,44 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 	}
 
 
-int MakeEventSpace(unsigned long ***pp_imaxseq)
-{
-int nseq;
-long k;
-unsigned long maxconc2;
+int MakeEventSpace(unsigned long ***pp_imaxseq) {
+	int nseq;
+	long k;
+	unsigned long maxconc2;
 
-maxconc2 = Maxconc + 20; // Added by BB 2021-03-23
+	maxconc2 = Maxconc + 20; // Added by BB 2021-03-23
 
-if((*pp_imaxseq = (unsigned long**) GiveSpace((Size)maxconc2 * sizeof(unsigned long))) == NULL)
-	return(ABORT);
-if((p_Seq = (long****) GiveSpace((Size)maxconc2 * sizeof(long**))) == NULL)
-	return(ABORT);
-for(nseq = 0; nseq < maxconc2; nseq++) (*p_Seq)[nseq] = NULL;
+	if((*pp_imaxseq = (unsigned long**) GiveSpace((Size)maxconc2 * sizeof(unsigned long))) == NULL)
+		return(ABORT);
+	if((p_Seq = (long****) GiveSpace((Size)maxconc2 * sizeof(long**))) == NULL)
+		return(ABORT);
+	for(nseq = 0; nseq < maxconc2; nseq++) (*p_Seq)[nseq] = NULL;
 
-/* The following will be resized when Maxevent is better known, in FillPhaseDiagram() */
+	// The following will be resized when Maxevent is better known, in FillPhaseDiagram()
 
-if((p_Instance = (SoundObjectInstanceParameters**) GiveSpace((Size)Maxevent * sizeof(SoundObjectInstanceParameters))) == NULL)
-	return(ABORT);
-	
-if((p_ObjectSpecs = (objectspecs****) GiveSpace((Size)Maxevent * sizeof(objectspecs**)))
-	== NULL) return(MISSED);
-for(k = 0; k < Maxevent; k++) {
-	(*p_ObjectSpecs)[k] = NULL;
-	(*p_Instance)[k].contparameters.values = NULL;
-	(*p_Instance)[k].contparameters.number = 0;
+	if((p_Instance = (SoundObjectInstanceParameters**) GiveSpace((Size)Maxevent * sizeof(SoundObjectInstanceParameters))) == NULL)
+		return(ABORT);	
+	if((p_ObjectSpecs = (objectspecs****) GiveSpace((Size)Maxevent * sizeof(objectspecs**)))
+		== NULL) return(MISSED);
+	for(k = 0; k < Maxevent; k++) {
+		(*p_ObjectSpecs)[k] = NULL;
+		(*p_Instance)[k].contparameters.values = NULL;
+		(*p_Instance)[k].contparameters.number = 0;
+		}
+	return OK;
 	}
 
-return OK;
-}
 
+int GetPatternSpace(void) {
+	int i,j,**ptr1;
+	char **ptr2;
 
-int GetPatternSpace(void)
-{
-int i,j,**ptr1;
-char **ptr2;
-
-if((p_Patt = (char****) GiveSpace((Size)(Jpatt) * sizeof(char**))) == NULL) return(ABORT);
-for(j=0; j < Jpatt; j++) (*p_Patt)[j] = NULL;
-if((p_Ppatt = (long**) GiveSpace((Size)(Jpatt) * sizeof(long))) == NULL) return(ABORT);
-if((p_Qpatt = (long**) GiveSpace((Size)(Jpatt) * sizeof(long))) == NULL) return(ABORT);
-return OK;
-}
+	if((p_Patt = (char****) GiveSpace((Size)(Jpatt) * sizeof(char**))) == NULL) return(ABORT);
+	for(j=0; j < Jpatt; j++) (*p_Patt)[j] = NULL;
+	if((p_Ppatt = (long**) GiveSpace((Size)(Jpatt) * sizeof(long))) == NULL) return(ABORT);
+	if((p_Qpatt = (long**) GiveSpace((Size)(Jpatt) * sizeof(long))) == NULL) return(ABORT);
+	return OK;
+	}
 
 int GetGrammarSpace(t_gram* p_gram) {
 	long pos,posmax;

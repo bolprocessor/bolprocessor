@@ -155,6 +155,7 @@ extern double **p_CsPitchBend[6],**p_CsVolume[6],**p_CsPressure[6],**p_CsModulat
 extern int FileSaveMode,FileWriteMode,MIDIfileType,CsoundFileFormat;
 
 extern SoundObjectInstanceParameters **p_Instance;
+extern short **p_Articul;
 extern objectspecs ****p_ObjectSpecs;
 extern int WaitKey[MAXWAIT+1],WaitChan[MAXWAIT+1];
 extern long **p_Flag,BufferSize,DeftBufferSize,Maxevent;

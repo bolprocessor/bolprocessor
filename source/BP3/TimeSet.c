@@ -48,7 +48,7 @@ int TimeSet(tokenbyte ***pp_buff,long* p_kmx,long *p_tmin,long *p_tmax,unsigned 
 	int* p_nmax,unsigned long **p_imaxseq,double maxseqapprox)
 {
 int i,result,bigitem,maxties,j,missed_ties;
-short **p_articul;
+// short **p_Articul;
 time_t start_time,end_time;
 
 // // HideWindow(Window[wInfo]);
@@ -59,7 +59,7 @@ if(CheckEmergency() != OK) return(ABORT);
 if(!Improvize) Chunk_number++;
 // BPPrintMessage(0,odError,"\nChunk_number = %d\n",Chunk_number);
 
-if((p_articul = (short**) GiveSpace((Size)Maxevent*sizeof(short))) == NULL) return(ABORT);
+if((p_Articul = (short**) GiveSpace((Size)Maxevent*sizeof(short))) == NULL) return(ABORT);
 
 maxties = Jbol + Jpatt;
 // BPPrintMessage(0,odInfo,"\n\n@@ maxties = %d\n\n",maxties);
@@ -85,16 +85,17 @@ for(j = 0; j < MAXINSTRUMENTS; j++)
 
 time(&start_time);
 ProductionTime += start_time - ProductionStartTime;
-result = MakeEmptyTokensSilent(pp_buff);
+result = MakeEmptyTokensSilent(pp_buff,&maxseqapprox);
 if(result != OK) goto SORTIR;
-result = FillPhaseDiagram(pp_buff,p_kmx,p_maxseq,p_nmax,p_imaxseq,maxseqapprox,&bigitem,p_articul);
+// result = FillPhaseDiagram(pp_buff,p_kmx,p_maxseq,p_nmax,p_imaxseq,maxseqapprox,&bigitem,p_Articul);
+result = FillPhaseDiagram(pp_buff,p_kmx,p_maxseq,p_nmax,p_imaxseq,maxseqapprox,&bigitem);
 if(result != OK) goto SORTIR;
 
 time(&end_time);
 PhaseDiagramTime += end_time - start_time;
 
 start_time = end_time;
-result = SetTimeObjects(bigitem,p_imaxseq,*p_maxseq,p_nmax,p_kmx,p_tmin,p_tmax,p_articul);
+result = SetTimeObjects(bigitem,p_imaxseq,*p_maxseq,p_nmax,p_kmx,p_tmin,p_tmax,p_Articul);
 time(&end_time);
 TimeSettingTime += end_time - start_time;
 // ProductionTime += TimeSettingTime;
@@ -102,7 +103,7 @@ TimeSettingTime += end_time - start_time;
 if(trace_timeset) BPPrintMessage(0,odInfo,"End TimeSet() maxseq = %ld\n\n",(long)*p_maxseq);
 
 SORTIR:
-MyDisposeHandle((Handle*)&p_articul);
+MyDisposeHandle((Handle*)&p_Articul);
 
 missed_ties = 0;
 for(j = 0; j <= MAXCHAN; j++) {
@@ -141,7 +142,7 @@ return(result);
 
 
 int SetTimeObjects(int bigitem,unsigned long **p_imaxseq,unsigned long maxseq,int *p_nmax,
-	long *p_kmx,long *p_tmin,long *p_tmax,short **p_articul)
+	long *p_kmx,long *p_tmin,long *p_tmax,short **p_Articul)
 
 {
 int nseq,r,rep,BTflag,result,stepthis,first,dirtymem,compiledmem,nature_time,a,j,key,last_line,outtimeevents;
@@ -669,9 +670,9 @@ QUEST2:
 			if(i < ZERO) break;
 			}
 		if(i > ZERO) {
-			a = (*p_articul)[k];
+			a = (*p_Articul)[k];
 			if(a > 127) a = a - 256;
-			if(a > 0 && k > 1) (*p_articul)[k] = 0;
+			if(a > 0 && k > 1) (*p_Articul)[k] = 0;
 			}
 		}
 	}
@@ -692,7 +693,7 @@ for(k=2; k <= (*p_kmx); k++) {
 		continue; // Well, needs to be checked
 		// result = ABORT; goto EXIT1;
 		}
-	a = (*p_articul)[k];
+	a = (*p_Articul)[k];
 	if(a == 0) continue;
 	if(a < -99) a = -99;
 	
