@@ -901,8 +901,7 @@ int ParsePreInitArgs(int argc, char* args[], BPConsoleOpts* opts)
 	
 	Returns ABORT if an error occured or OK if program should continue.
  */
-int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts)
-{
+int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 	int argn = 1, arglen, w, resultinit, r;
 	int argDone;
 	action_t action = no_action;

@@ -163,6 +163,7 @@ Images
 Various issues
 --------------
 
+- Revise the heuristics described on https://bolprocessor.org/random-selection-of-an-item/. It is of much less relevance to fast machines. It will be made optional for a systematic analysis of the production mechanism.
 - Templates can't be created with rules containing integers as silences. This can be solved in MakeTemplate().
 - In the trace of -gr.Mozart, _scale(Cmaj,0) is misrepresented as _scale(K133=0).
 - Currently, the console crashes if the list of TEMPLATES in a grammar is not terminated with a solid line "-----". The interface takes care of this by adding the missing terminating line.

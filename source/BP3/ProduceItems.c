@@ -83,11 +83,7 @@ r = OK;
 // if(ShowGraphic) CreateImageFile(-1.);
 if(Panic) return ABORT;
 
-if(TraceDetail && !AllItems) {
-	Print(wTrace,"# Header\n[Grammar Snapshot]\n");
-	DisplayGrammar(&Gram,wTrace,TRUE,TRUE,TRUE);
-	Print(wTrace,"\n# Body\n[Trace]");
-	}
+trace_header();
 
 SaidTooComplex = ShownBufferSize = FALSE;
 if(ResetControllers) {
@@ -483,11 +479,8 @@ while(ReadLine(NO,YES,wData,&origin,end,&p_line,&gap) == OK) {
 NEXTLINE: ;
 	}
 
-if(TraceDetail) {
-	Print(wTrace,"# Header\n[Grammar Snapshot]\n");
-	DisplayGrammar(&Gram,wTrace,TRUE,TRUE,TRUE);
-	Print(wTrace,"\n# Body\n[Trace]\n");
-	}
+trace_header();
+
 origin = neworigin;
 r = OK; p_line = NULL;
 while(origin < end) {
@@ -1688,8 +1681,13 @@ NEXTTEMPLATE:
 			goto END;
 			}
 	//	BPPrintMessage(1,odInfo,"Template [%d] has been read\n",itemp);
+		if(TraceDetail) {
+			if(itemp == 1) Print(wTrace,"\n");
+			Print(wTrace,"Trying template [%d]\n",(itemp));
+			}
 		hasperiods = FoundPeriod(pp_b);
 		if((r = MatchTemplate(pp_a,pp_b)) != OK) {
+			if(TraceDetail) Print(wTrace,"Missed this template\n");
 			MyDisposeHandle((Handle*)pp_b);
 			if(r == ABORT || r == EXIT) goto END;
 			goto NEXTTEMPLATE;
@@ -1794,6 +1792,7 @@ NEXTTEMPLATE:
 		else
 			BPPrintMessage(0,odInfo,"Item %s rejected by grammar... ❌\n",LineBuff);
 		if(TraceDetail) {
+			if(Step == 0) Print(wTrace,"\n");
 			Print(wTrace,"step %d: failure\n\n",Step);
 			Step++;
 			}
@@ -2036,4 +2035,28 @@ int check_and_remove_duplicate_last_line(const char *filename) {
     fclose(file);
     if(out_ptr_ok) outPtr = fopen(filename, "a");
     return result;
+	}
+
+int trace_header(void) {
+	time_t now;
+    struct tm *local;
+    time(&now);
+    local = localtime(&now);
+    char buffer[20];
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M", local);
+	if(TraceDetail && !AllItems) {
+		Print(wTrace,"# Header\n");
+		Print(wTrace,"# Seed: %ld\n",(long)Seed);
+		if(Analyzing)
+			Print(wTrace,"# Mode: Analyze\n");
+		else if(Improvize) {
+			Print(wTrace,"# Mode: Improvize\n");
+			Print(wTrace,"# Items requested: %d\n",MaxItemsProduce);
+			}
+		Print(wTrace,"# Run date: %s\n",buffer);
+		Print(wTrace,"[Grammar Snapshot]\n");
+		DisplayGrammar(&Gram,wTrace,TRUE,TRUE,TRUE);
+		Print(wTrace,"\n# Body\n[Trace]");
+		}
+	return OK;
 	}
