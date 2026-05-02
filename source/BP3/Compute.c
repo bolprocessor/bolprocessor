@@ -228,7 +228,8 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			goto QUIT;
 			}
 		}
-	maxtry = subgram.number_rule / 2; // See note on RND: https://bolprocessor.org/random-selection-of-an-item/
+	maxtry = subgram.number_rule / 2;
+	// See note on RND: https://bolprocessor.org/random-selection-of-an-item/
 
 	if(mode != PROD) goto NOPROD1;
 
@@ -341,6 +342,17 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 	(*p_length) = LengthOf(pp_a);
 	if((*p_length) <= ZERO) return(OK);
 
+	int equalweight2 = equalweight;
+	int repeat2 = (*p_repeat);
+	int freedom2 = freedom;
+	int startfrom2 = startfrom;
+	int maxpref2 = maxpref;
+	int** p_prefrule2 = p_prefrule;
+	int** p_candidate2 = p_candidate;
+	long** p_pos2 = p_pos;
+	long** p_totwght2 = p_totwght;
+	long leftpos2= leftpos;
+
 	while(((nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom,igram,grtype,p_candidate,p_totwght,p_pos,p_prefrule,leftpos,&maxpref,&freedom,*p_repeat,
 		mode,&equalweight,learn,time_end_compute)) > 0) || (nb_candidates == AGAIN)) {
 
@@ -382,7 +394,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 				goto DOIT;
 				}
 			TextGetSelection(&dummy, &firstposition, TEH[wTrace]);
-			if(TraceProduce) {
+			if(TraceProduce && !TraceDetail) {
 				if(grtype == ORDtype) {
 					my_sprintf(Message,"'ORD' grammar: selecting first candidate rule:\n");
 					Print(wTrace,Message);
@@ -400,7 +412,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 				}
 			for(j=0; j < nb_candidates; j++) {
 				irul = (*p_candidate)[j];
-				if(TraceProduce) {
+				if(TraceProduce && !TraceDetail) {
 				//	TextGetSelection(&dummy, &((*p_origin)[j]), TEH[wTrace]);
 					Print(wTrace,"Candidate: ");
 					ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,TRUE,TRUE,FALSE);
@@ -409,12 +421,12 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 				}
 			TextGetSelection(&dummy, &((*p_origin)[nb_candidates]), TEH[wTrace]);
 	ENTER:
-			if(grtype == ORDtype || grtype == SUB1type || grtype == POSLONGtype) j = 0;
+			if(grtype == ORDtype || grtype == SUB1type || grtype == POSLONGtype)
+				j = 0;
 			else {
 				if((nb_candidates == 1) || (*p_repeat)) {
 					if(!(*p_repeat) && notsaid && grtype != ORDtype) {
-						my_sprintf(Message,"Only one candidate rule...\n");
-						Print(wTrace,Message);
+						if(TraceProduce && !TraceDetail) Print(wTrace,"Only one candidate rule...\n");
 						}
 					j = 0;
 					MyDisposeHandle((Handle*)&p_origin);
@@ -431,22 +443,19 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 		//	Print(wTrace,"nb_candidates (2) = %d\n",nb_candidates);
 			if(nb_candidates > 1) {
 				randomnumber = bp3_rand();
-				int total = (*p_totwght)[nb_candidates-1];
-				choice = (total + 1) * (randomnumber/((double)BP3_RAND_MAX)); // Fixed 2024-07-06
-				if(choice > total) choice = total;
+				int total = (*p_totwght)[nb_candidates - 1];
+				choice = (total + 1) * (randomnumber/((double)BP3_RAND_MAX));
+				if(choice > total) choice = total; // Shouldn't happen, just for safety
 				if(trace_weights) BPPrintMessage(0,odInfo,"ComputeInGram(%d). choice = %ld nb_candidates =  %d (*p_totwght)[nb_candidates-1] = %ld, randomnumber = %ld BP3_RAND_MAX = %ld\n",igram,(long)choice,nb_candidates,(long)(*p_totwght)[nb_candidates-1],(long)randomnumber,(long)BP3_RAND_MAX);
 					UsedRandom = TRUE;
 				j = 0;
-				while(choice > (*p_totwght)[j]) { // Fixed 2024-07-06
-				//	BPPrintMessage(0,odInfo,"igram =  %d (*p_totwght)[%d] = %ld\n",igram,j,(*p_totwght)[j]);
+				while(choice > (*p_totwght)[j]) {
+				//	BPPrintMessage(0,odInfo,"igram = %d (*p_totwght)[%d] = %ld\n",igram,j,(*p_totwght)[j]);
 					if(++j >= nb_candidates) {
 						BPPrintMessage(0,odInfo,"=> Err. ComputeInGram(). j = %ld, nb_candidates = %ld\n",(long)j,(long)nb_candidates);
 						j = nb_candidates - 1; break;
 						}
 					}
-	/*			my_sprintf(Message,"j = %ld",(long)j);
-				ShowMessage(TRUE,wMessage,Message); */
-	//			Print(wTrace,"j = %ld\n",(long)j);
 				}
 			else j = 0;			/* ORD or SUB1 or POSLONG */
 			}
@@ -458,7 +467,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 				BPPrintMessage(0,odError,"New grammar does not match old one. Aborting...");
 				rep = ABORT; goto QUIT;
 				}
-			if(TraceProduce) {
+			if(TraceProduce && !TraceDetail) {
 				Print(wTrace,"Rule selected: ");
 				ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,TRUE,TRUE,FALSE);
 				}
@@ -482,7 +491,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 					r = ABORT; goto QUIT;
 					}
 				try = 0;
-				continue;
+				continue; // Call again FindCandidateRules()
 				}
 			j = 0;
 			randomnumber = bp3_rand();
@@ -504,6 +513,19 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 		rule = (*(subgram.p_rule))[irul];
 		if(TraceDetail) {
 			found_one = FALSE;
+
+	/*		int equalweight2 = equalweight;
+			int repeat2 = (*p_repeat);
+			int freedom2 = freedom;
+			int startfrom2 = startfrom;
+			int maxpref2 = maxpref;
+			int** p_prefrule2 = p_prefrule;
+			int** p_candidate2 = p_candidate;
+			long** p_pos2 = p_pos;
+			long** p_totwght2 = p_totwght;
+			long leftpos2= leftpos; */
+		//	nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom2,igram,grtype,p_candidate,p_totwght,p_pos,p_prefrule,leftpos,&maxpref,&freedom2,repeat2,mode,&equalweight2,learn,time_end_compute); $$$$
+
 			if(nb_candidates > 0) {
 			//	BPPrintMessage(1,odInfo,"step %d: candidates=[",Step);
 				if(Step == 0 && !(p_gram->hasTEMP)) Print(wTrace,"\n");
@@ -525,7 +547,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			Step++;
 			} 
 		else {
-			if(TraceProduce) {
+			if(TraceProduce && !TraceDetail) {
 				if(NumberCharsTrace < MAXCHARTRACE) {
 					if(ProduceStackIndex >= 0 && mode != ANAL)
 						my_sprintf(Message,"\n[Step #%ld] Selected: ",(long)ProduceStackIndex);
@@ -808,7 +830,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			datamode = DisplayMode(pp_b,&ifunc,&hastabs);
 			long length = LengthOf(pp_b);
 		//	BPPrintMessage(0,odError,"Subst ItemNumber = %d length = %ld datamode = %d hastabs = %d ifunc = %d\n",ItemNumber,length,datamode,hastabs,ifunc);
-			if(TraceProduce) {
+			if(TraceProduce && !TraceDetail) {
 				if(NumberCharsTrace < MAXCHARTRACE) {
 					hastabs = FALSE; // 2026-04-12
 					if((rep=PrintWorkString(datamode && hastabs,wTrace,hastabs,ifunc,pp_b)) != OK) {
@@ -913,7 +935,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 					if(DisplayProduce) {
 						ShowMessage(TRUE,wMessage,"A weight has decreased to 0...");
 						}
-					if(TraceProduce) {
+					if(TraceProduce && !TraceDetail) {
 						Print(wTrace,"A weight has decreased to 0.\n");
 						}
 					rep = OK;
@@ -1227,7 +1249,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 				&length,rule.ismeta,time_end_compute)
 				&& OkContext(pp_a,grtype,rule,leftpos,length,meta,instan,
 					mode,time_end_compute)) {
-				if(TraceProduce) {
+				if(TraceProduce && !TraceDetail) {
 					my_sprintf(Message,"\nRule already selected: ");
 					Print(wTrace,Message);
 					ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,TRUE,TRUE,FALSE);
@@ -1950,8 +1972,8 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 			Countmark(rule.p_leftarg,&length1); /* Only to calculate length1 */
 			*p_leftpos +=
 				length1 - (2 * rule.leftnegcontext) - offset - rule.rightoffset;
-					/* Rem: offset = rule.leftoffset in SUB subgrammar */
-					/* *p_leftpos used only in SUB subgrammars anyway. */
+					// Rem: offset = rule.leftoffset in SUB subgrammar
+					// *p_leftpos used only in SUB subgrammars anyway.
 			break;
 			}
 		}
@@ -2039,7 +2061,7 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 			NeedZouleb++;
 		}
 						
-	if(grtype != SUBtype) { /* Not in SUB subgrammar */
+	if(grtype != SUBtype) {
 		(*p_lengthorigin) += dif;
 		Cormark(pp_dest,pos1+length+dif,inmark);
 		}
@@ -2064,11 +2086,11 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 int Cormark(tokenbyte ***pp_a,long from,long inmark) {
 /* Recalculate slave markers after derivation... */
 // Checked by BB, 6 Nov 2020, with -gr.dhin-- seems OK
-// But "from" is too large when work string does not contain markers…
+// However, 'from' is too large when the work string does not contain markers…
 	long i;
 	tokenbyte m,p,q;		/* 'from' is the position of rightmost symbol inserted */
 
-	for(i = from, q = 1; (**pp_a)[i] != TEND || (**pp_a)[i+1] != TEND; i+=2) {
+	for(i = from, q = 1; (**pp_a)[i] != TEND || (**pp_a)[i+1] != TEND; i += 2) {
 		m = (int) (**pp_a)[i];
 		if(m < 0 || m >= MAXTOKENBYTE) {
 			if(trace_compute) BPPrintMessage(0,odError,"=> Error in Cormark() from = %ld, inmark = %d, m = %d\n",(long)from,inmark,(int)m);
@@ -2076,8 +2098,8 @@ int Cormark(tokenbyte ***pp_a,long from,long inmark) {
 			}
 		p = (int)(**pp_a)[i+1];
 		if(trace_compute) BPPrintMessage(0,odInfo,"Cormark() i = %ld m = %d p =%d q = %ld\n",(long)i,m,p,(long)q);
-		if(m == 2 && p == 0) q++; /* zero marker */
-		else if(m == 2 && p >= q) (**pp_a)[i+1] = (tokenbyte)(p + inmark);
+		if(m == T2 && p == 0) q++; // Master marker (replaced '2' with 'T2' 2026-05-02)
+		else if(m == T2 && p >= q) (**pp_a)[i+1] = (tokenbyte)(p + inmark); // Slave marker
 		}
 	return(OK);
 	}
@@ -2101,14 +2123,14 @@ long Countmark(tokenbyte **p_arg,long *p_length)  {
 
 	if(p_arg == NULL) {
 		BPPrintMessage(0,odError,"=> Err. Countmark()");
-		return(0);
+		return(0L);
 		}
 	for(i=k=len=0; ; i+=2,len++) {
 		m = (int) (*p_arg)[i]; p = (int) (*p_arg)[i+1];
 		if(m == TEND && p == TEND) break;
-		if(m == T2 && p == 0) k++;		/* zero marker */
+		if(m == T2 && p == 0) k++;		// Master marker
 		if(m == T0 && p == 2) {	
-			len--;					/* Don't count '#' */
+			len--;					// Don't count '#' (negative context)
 			}
 		}
 	*p_length = len + len;
@@ -2177,7 +2199,7 @@ int ShowItem(int justplay,tokenbyte ***pp_a,int repeat,int mode,int all) {
 		goto QUIT;
 		}
 	if(TraceDetail) goto QUIT;
-	if(TraceProduce) {
+	if(TraceProduce && !TraceDetail) {
 		// BPPrintMessage(1,odInfo,"@@@ ShowItem()\n");
 		datamode = DisplayMode(pp_a,&ifunc,&hastabs);
 		if((mode == ANAL) || all) {

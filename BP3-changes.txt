@@ -6,7 +6,7 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-04-29 -> 2026-05-01 (version 3.4.3)
+2026-04-29 -> 2026-05-02 (version 3.4.3)
 A new type of trace file has been created: "Detailed Trace" in the settings and "TraceDetail" in the C code. This new format creates a more compact version of the trace suitable for further analysis.
 Fixed overflow problem in FillPhaseDiagram.c when converting variables to sound-objects.
 "p_Articul" is now a global variable.

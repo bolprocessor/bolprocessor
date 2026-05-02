@@ -571,7 +571,7 @@ int DOStoMac(char*);
 int MacToHTML(int,char***,int);
 int GoodHTMLchar(char);
 int NeedsHTMLConversion(char**);
-int trace_header(void);
+int trace_header(int);
 int TimeSet(tokenbyte***,long*,long*,long*,unsigned long*,int*,unsigned long**,double);
 int FillPhaseDiagram(tokenbyte***,long*,unsigned long*,int*,unsigned long**,double,int*);
 int MakeEmptyTokensSilent(tokenbyte***,double*);

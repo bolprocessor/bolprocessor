@@ -83,7 +83,7 @@ r = OK;
 // if(ShowGraphic) CreateImageFile(-1.);
 if(Panic) return ABORT;
 
-trace_header();
+trace_header(FALSE);
 
 SaidTooComplex = ShownBufferSize = FALSE;
 if(ResetControllers) {
@@ -479,7 +479,7 @@ while(ReadLine(NO,YES,wData,&origin,end,&p_line,&gap) == OK) {
 NEXTLINE: ;
 	}
 
-trace_header();
+trace_header(learn);
 
 origin = neworigin;
 r = OK; p_line = NULL;
@@ -2037,7 +2037,7 @@ int check_and_remove_duplicate_last_line(const char *filename) {
     return result;
 	}
 
-int trace_header(void) {
+int trace_header(int learn) {
 	time_t now;
     struct tm *local;
     time(&now);
@@ -2047,8 +2047,10 @@ int trace_header(void) {
 	if(TraceDetail && !AllItems) {
 		Print(wTrace,"# Header\n");
 		Print(wTrace,"# Seed: %ld\n",(long)Seed);
-		if(Analyzing)
-			Print(wTrace,"# Mode: Analyze\n");
+		if(Analyzing) {
+			if(learn) Print(wTrace,"# Mode: Learn\n");
+			else Print(wTrace,"# Mode: Analyze\n");
+			}
 		else if(Improvize) {
 			Print(wTrace,"# Mode: Improvize\n");
 			Print(wTrace,"# Items requested: %d\n",MaxItemsProduce);
