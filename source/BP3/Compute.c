@@ -233,6 +233,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 
 	if(mode != PROD) goto NOPROD1;
 
+//	BPPrintMessage(1,odInfo,"subgram.seed = %d\n",subgram.seed);
 	ReseedOrShuffle(subgram.seed);
 //	DisplayGrammar(&Gram,wData,TRUE,TRUE,FALSE);
 
@@ -342,17 +343,6 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 	(*p_length) = LengthOf(pp_a);
 	if((*p_length) <= ZERO) return(OK);
 
-	int equalweight2 = equalweight;
-	int repeat2 = (*p_repeat);
-	int freedom2 = freedom;
-	int startfrom2 = startfrom;
-	int maxpref2 = maxpref;
-	int** p_prefrule2 = p_prefrule;
-	int** p_candidate2 = p_candidate;
-	long** p_pos2 = p_pos;
-	long** p_totwght2 = p_totwght;
-	long leftpos2= leftpos;
-
 	while(((nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom,igram,grtype,p_candidate,p_totwght,p_pos,p_prefrule,leftpos,&maxpref,&freedom,*p_repeat,
 		mode,&equalweight,learn,time_end_compute)) > 0) || (nb_candidates == AGAIN)) {
 
@@ -362,6 +352,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			return(ABORT);
 			} */
 		try = irep = 0;
+		if(TraceDetail) equalweight = FALSE; // 2026-05-03
 		if(trace_compute) 
 			BPPrintMessage(1,odInfo,"nb_candidates = %d (*p_repeat) = %d\n",nb_candidates,(*p_repeat));
 		if(nb_candidates == EXIT) {
@@ -387,7 +378,6 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 				break;
 				}
 			} */
-	//	if(TraceDetail) Print(wTrace,"Nb candidates = %d\n",nb_candidates);
 		if(PlanProduce || (*p_repeat)) {
 			if(grtype == SUBtype && !freedom){  
 				j = 0;
@@ -481,10 +471,8 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			(*p_prefrule)[maxpref++] = irul;
 			}
 		if(equalweight && try > 0) {
-	TRY2:
-	// Try any rule (see doc "Random problem")
+TRY2:
 			if(trace_compute) BPPrintMessage(0,odInfo,"try = %ld maxtry = %ld\n",(long)try,(long)maxtry);
-		//	Print(wTrace,"try = %ld maxtry = %ld\n",(long)try,(long)maxtry);
 			if(try > maxtry) {
 				(*p_length) = LengthOf(pp_a);	/* was changed by FindArg() */
 				if((*p_length) <= ZERO) {
@@ -504,7 +492,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 				if(CheckEmergency() != OK) return(ABORT);
 				goto TRY2;
 				}
-	TRY3:	(*p_length) = LengthOf(pp_a);	/* was changed by FindArg() */
+TRY3:		(*p_length) = LengthOf(pp_a);	/* was changed by FindArg() */
 			if((*p_length) <= ZERO)  {
 				r = ABORT; goto QUIT;
 				}
@@ -512,37 +500,25 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			}
 		rule = (*(subgram.p_rule))[irul];
 		if(TraceDetail) {
-			found_one = FALSE;
-
-	/*		int equalweight2 = equalweight;
-			int repeat2 = (*p_repeat);
-			int freedom2 = freedom;
-			int startfrom2 = startfrom;
-			int maxpref2 = maxpref;
-			int** p_prefrule2 = p_prefrule;
-			int** p_candidate2 = p_candidate;
-			long** p_pos2 = p_pos;
-			long** p_totwght2 = p_totwght;
-			long leftpos2= leftpos; */
-		//	nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom2,igram,grtype,p_candidate,p_totwght,p_pos,p_prefrule,leftpos,&maxpref,&freedom2,repeat2,mode,&equalweight2,learn,time_end_compute); $$$$
-
 			if(nb_candidates > 0) {
 			//	BPPrintMessage(1,odInfo,"step %d: candidates=[",Step);
 				if(Step == 0 && !(p_gram->hasTEMP)) Print(wTrace,"\n");
 				Print(wTrace,"step %d: candidates=[",Step);
+				found_one = FALSE;
 				for(jj=0; jj < nb_candidates; jj++) {
 					irul_c = (*p_candidate)[jj];
-					if(irul_c  == irul) continue;
 					if(found_one) Print(wTrace,", ");
 					Print(wTrace,"SG%d.R%d",igram,irul_c);
-				//	BPPrintMessage(1,odInfo,"SG%d.R%d ",igram,irul_c);
 					found_one = TRUE;
+				//	BPPrintMessage(1,odInfo,"SG%d.R%d ",igram,irul_c);
 					}
 				}
-			else Print(wTrace,"[nb_candidates = %ld",(long)nb_candidates);
-			if(found_one) Print(wTrace,", ");
-			Print(wTrace,"SG%d.R%d",igram,irul);
-			Print(wTrace,"], chosen=SG%d.R%d\n",igram,irul);
+			else {
+				if(nb_candidates == ABORT)
+					Print(wTrace,"step %d: [Interruption]\n",Step);
+				else Print(wTrace,"step %d: [Error nb_candidates = %ld",Step,(long)nb_candidates);
+				}
+			if(nb_candidates > 0) Print(wTrace,"], chosen=SG%d.R%d\n",igram,irul);
 	//		BPPrintMessage(1,odInfo,"], chosen=SG%d.R%d\n",igram,irul);
 			Step++;
 			} 
@@ -600,7 +576,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 		if((c=rule.traceoff) == 1 || c == 3) {
 			TraceProduce = StepProduce = DisplayProduce = FALSE;
 			}
-	NOPROD:
+NOPROD:
 		(*p_length) = LengthOf(pp_a);
 		if((*p_length) <= ZERO)  {
 			r = ABORT; goto QUIT;
@@ -686,7 +662,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			}
 		if(learn) (*((*(p_gram->p_subgram))[igram].p_rule))[irul].w++; // rule.w += 1
 
-	MORE:	
+MORE:	
 		if(Varweight && (grtype != SUBtype) && !shootagain) {
 			w = rule.w;
 			w = w + rule.incweight;
@@ -811,6 +787,10 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			}
 		}   // End of while() loop
 
+	if(mode == PROD &&  (*p_length) < 3L && igram == 1 && nb_candidates == 0) {
+		BPPrintMessage(1,odError,"=> Cannot produce items because all weights are nil in gram#%d\n",igram);
+		nb_candidates = ABORT;
+		}
 	if(nb_candidates == ABORT || nb_candidates == EXIT || nb_candidates == FINISH
 			|| nb_candidates == STOP) {
 		rep = nb_candidates;

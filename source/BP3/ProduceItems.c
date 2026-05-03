@@ -1780,7 +1780,7 @@ NEXTTEMPLATE:
 		else BPPrintMessage(0,odInfo,
 			"Item %s matching template [%ld] accepted by grammar... ✅\n",LineBuff,(long)itemp);
 		if(TraceDetail) {
-			Print(wTrace,"step %d: success\n\n",Step);
+			Print(wTrace,"success\n\n");
 			Step++;
 			}
 		if(all && templates) goto NEXTTEMPLATE;
@@ -1793,7 +1793,7 @@ NEXTTEMPLATE:
 			BPPrintMessage(0,odInfo,"Item %s rejected by grammar... ❌\n",LineBuff);
 		if(TraceDetail) {
 			if(Step == 0) Print(wTrace,"\n");
-			Print(wTrace,"step %d: failure\n\n",Step);
+			Print(wTrace,"failure\n\n");
 			Step++;
 			}
 		BPPrintMessage(0,odInfo,"Result of failed analysis:\n");

@@ -186,7 +186,7 @@ int main (int argc, char* args[]) {
 	
 	CreateStopFile();
 	SessionTime = clock();
-	if(!gOptions.seedProvided) ReseedOrShuffle(NEWSEED);
+	if(Seed == 0 && !gOptions.seedProvided) ReseedOrShuffle(NEWSEED);
 
 	CopyStringToTextHandle(TEH[wStartString],"S\n");
 
