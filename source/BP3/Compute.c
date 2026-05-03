@@ -45,6 +45,7 @@ int trace_weights = 0;
 int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_repeat,unsigned long time_end_compute) {
 	int r,igram,inrul,finish,again,outgram,outrul,displayproducemem,level;
 	unsigned long ix;
+	char** string;
 
 	if(ChangedGrammar || ChangedSettings) return(OK);
 	ReleaseProduceStackSpace();
@@ -79,7 +80,13 @@ int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_re
 	DisplayGrammar(&Gram,wData,TRUE,TRUE,FALSE); */
 
 	REDO:
-	if(TraceProduce && !TraceDetail && Improvize) Print(wTrace,"Starting with S\n\n");
+	if(TraceProduce && !TraceDetail && Improvize) {
+		string = NULL;
+		if (GetTextHandle(&string, wStartString) == OK && string != NULL) {
+			Print(wTrace, "\nStarting with “%s”\n\n", *string);
+			}
+		}
+
 	for(igram=fromigram; igram <= toigram; igram++) {
 		inrul = 0;
 		if((*p_repeat) && p_MemGram != NULL && igram < (*p_MemGram)[ProduceStackIndex])
@@ -787,7 +794,7 @@ MORE:
 			}
 		}   // End of while() loop
 
-	if(mode == PROD &&  (*p_length) < 3L && igram == 1 && nb_candidates == 0) {
+	if(mode == PROD &&  !LoadedData && (*p_length) < 3L && igram == 1 && nb_candidates == 0) {
 		BPPrintMessage(1,odError,"=> Cannot produce items because all weights are nil in gram#%d\n",igram);
 		nb_candidates = ABORT;
 		}

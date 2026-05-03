@@ -577,33 +577,3 @@ char* recode_tags(const char *input)  // Not used
 	free(temp_line1);
 	return(temp_line2);
 }
-
-#if BP_CARBON_GUI_FORGET_THIS
-TooLongFileName(char* line,DialogPtr ptr,int w,int field)
-{
-DialogPtr thedialog;
-
-if(ptr != NULL) {
-	thedialog = ptr; w = -1;
-	}
-else {
-	if(w < 0 || w >= WMAX || !HasFields[w]) {
-		BPPrintMessage(0,odError,"=> Err. TooLongFileName(). Incorrect index");
-		return(MISSED);
-		}
-	thedialog = gpDialogs[w];
-	}
-// Strip(line); // don't strip filenames - akozar
-if(strlen(line) > MAXNAME) {
-	line[MAXNAME-1] = '�';
-	line[MAXNAME] = '\0';
-	my_sprintf(Message,"File name is too long. Truncating to '%s'",line);
-	BPPrintMessage(0,odError,"%s",Message);
-	BPActivateWindow(QUICK,w);
-	SetField(thedialog,w,field,line);
-	SelectField(thedialog,w,field,TRUE);
-	return(TRUE);
-	}
-return(FALSE);
-}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
