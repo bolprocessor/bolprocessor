@@ -274,6 +274,10 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
 			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
 
+		p = &(*p_line)[0]; q = &(FilePrefix[wKeyboard][0]);
+		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
+			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
+
 		p = &(*p_line)[0]; q = &(FilePrefix[wTonality][0]);
 		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
 			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
@@ -1376,8 +1380,7 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 
 
 int ParseGrammarLine(t_gram* p_gram,char** p_line,int *p_onerulefound,int tracecompile,int *p_igram,
-	int *p_irul,int *p_needsnumber,int *p_done)
-{
+	int *p_irul,int *p_needsnumber,int *p_done) {
 int i,j,igram,irul,w,imode,type,operator,incweight,lenc,result,foundk,
 	newsubgram,meta,lenarg,beforefirstrule,proc;
 long initparam,y,u,v;

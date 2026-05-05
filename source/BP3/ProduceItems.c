@@ -506,7 +506,7 @@ while(origin < end) {
 	if(r == OK) {
 		if(LengthOf(pp_a) > ZERO) {
 			BPPrintMessage(1,odInfo,"\n🔎 Analyzing new selection...\n");
-			if(TraceProduce) {
+			if(TraceProduce && !TraceDetail) {
 				r = PrintArg(FALSE,FALSE,TRUE,FALSE,FALSE,FALSE,stdout,wData,pp_Scrap,pp_a);
 				BPPrintMessage(1,odInfo,"\n");
 				}
@@ -1936,7 +1936,7 @@ int CheckItemProduced(t_gram *p_gram,int igram,tokenbyte ***pp_a,long *p_length,
 			if(trace_produce_all) BPPrintMessage(1,odInfo,"???\n");
 			if(r) {
 				ItemNumber++;
-				if(TraceProduce) Print(wTrace,"\n");
+				if(TraceProduce && !TraceDetail) Print(wTrace,"\n");
 				if(trace_produce_all) BPPrintMessage(1,odInfo,"*** %d\n",ItemNumber);
 				if(!template && (rtMIDI || OutCsound || WriteMIDIfile)) {
 				if(trace_produce_all) 

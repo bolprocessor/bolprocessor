@@ -36,7 +36,7 @@
 #ifndef _H_BP3
 #define _H_BP3
 
-#define SHORT_VERSION "3.4.3"
+#define SHORT_VERSION "3.4.4"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 

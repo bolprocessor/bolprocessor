@@ -359,7 +359,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 			return(ABORT);
 			} */
 		try = irep = 0;
-		if(TraceDetail) equalweight = FALSE; // 2026-05-03
+		if(TraceDetail) equalweight = FALSE; // 2026-05-03, so all candidate rules will be listed
 		if(trace_compute) 
 			BPPrintMessage(1,odInfo,"nb_candidates = %d (*p_repeat) = %d\n",nb_candidates,(*p_repeat));
 		if(nb_candidates == EXIT) {
@@ -943,7 +943,7 @@ MORE:
 				= FindCandidateRules(pp_a,p_gram,1,igram,grtype,p_candidate,p_totwght,
 					p_pos,p_prefrule,leftpos,&maxpref,&freedom,*p_repeat,
 					mode,&equalweight,learn,time_end_compute)) > 0) {
-			if(TraceProduce || trace_compute) {
+			if((TraceProduce && !TraceDetail) || trace_compute) {
 				if(NumberCharsTrace < MAXCHARTRACE) {
 					my_sprintf(Message,"Trying same grammar for new rules\n");
 					Print(wTrace,Message);
@@ -961,7 +961,7 @@ MORE:
 		}
 	rep = OK;
 
-	QUIT:
+QUIT:
 	MyDisposeHandle((Handle*)&p_candidate);
 	MyDisposeHandle((Handle*)&p_totwght);
 	MyDisposeHandle((Handle*)&p_pos);
