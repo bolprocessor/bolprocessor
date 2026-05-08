@@ -84,7 +84,7 @@ void SetOutputDestinations(int dest, FILE* file) {
 	if(dest & odMidiDump)	gOutDestinations[odiMidiDump] = file;
 	if(dest & odCsScore)	gOutDestinations[odiCsScore] = file;
 	if(dest & odTrace)		gOutDestinations[odiTrace] = file;
-	if(dest & odWeights)		gOutDestinations[odiWeights] = file;
+	if(dest & odWeights)	gOutDestinations[odiWeights] = file;
 	if(dest & odUserInt)	gOutDestinations[odiUserInt] = file;
 	if(dest & odError)		gOutDestinations[odiError] = file;
 	if(dest & odWarning)	gOutDestinations[odiWarning] = file;

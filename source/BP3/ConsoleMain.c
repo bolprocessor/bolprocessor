@@ -1487,10 +1487,10 @@ FILE* my_fopen(int check, const char* path, const char* mode) {
 		}
 	else if(strcmp(mode,"w") == 0 || strcmp(mode,"wb") == 0) {
         if(stat(convertedPath, &file_stat) == 0) {
-            if((file_stat.st_mode & 0777) != 0777) {
-				int result = chmod(convertedPath,0777);
+            if((file_stat.st_mode & 0775) != 0775) {
+				int result = chmod(convertedPath,0775);
 				if(result != 0)
-					BPPrintMessage(0,odError,"=> Error chmod 777 after opening %s. %s\n",convertedPath, strerror(errno));
+					BPPrintMessage(0,odError,"=> Error chmod 775 after opening %s. %s\n",convertedPath, strerror(errno));
 				}
 			}
 		}

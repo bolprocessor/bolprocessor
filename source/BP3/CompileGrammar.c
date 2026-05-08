@@ -853,7 +853,7 @@ if((rep=GetAlphabetSpace()) != OK) {	// This creates "_" and "-"
 	goto ERR;
 	}
 if((rep=ReadAlphabet(TRUE)) != OK){		/* Just count */
-	ReleaseAlphabetSpace();
+//	ReleaseAlphabetSpace(); 2026-05-08
 	goto ERR;
 	}
 if(Jhomo > 0) {
@@ -1043,8 +1043,8 @@ int ReadAlphabet(int justcount) {
 	if(Jbol < 3) NoAlphabet = TRUE;
 	else NoAlphabet = FALSE;
 	if(N_err) {
-		if(!ScriptExecOn) BPPrintMessage(0,odError,"Alphabet is incorrect...");
-		else PrintBehindln(wTrace,"Alphabet is incorrect...");
+	/*	if(!ScriptExecOn) BPPrintMessage(0,odError,"Alphabet is incorrect...");
+		else PrintBehindln(wTrace,"Alphabet is incorrect..."); */
 		return(MISSED);
 		}
 	else return(OK);
@@ -1205,9 +1205,12 @@ return(j-(*p_i));
 
 ERR:
 j = 0;
+int this_len = strlen((*p_line));
 while(TRUE) {
+	if(trace_compile_alphabet) BPPrintMessage(0,odInfo,"i = %d, j = %d\n",i,j);
 	c = (*p_line)[i];
-	if(isspace(c) || j >= MAXLIN) break;
+	if(trace_compile_alphabet) BPPrintMessage(0,odInfo,"i = %d, j = %d, c = %c\n",i,j,c);
+	if(isspace(c) || j >= this_len) break;
 	line[j++] = c;
 	i++;
 	}
