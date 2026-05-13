@@ -261,14 +261,15 @@ int main (int argc, char* args[]) {
 				else if(Beta && result != OK && result != ABORT) BPPrintMessage(0,odError,"=> PlaySelection() returned errors\n");
 				break;
 			case analyze:
-				BPPrintMessage(0,odInfo,"Analysing this item\n");
+				BPPrintMessage(0,odInfo,"Analysing…\n");
 				int learn = WeightsFileExists;
 				Analyzing = TRUE;
 				if(CompileCheck() == OK && ShowNotBP(&Gram) == OK)	{
-				//	learn = FALSE;
-					if(learn) {
+					if(strcmp(ParseMode,"ANAL") == 0) learn = FALSE;
+					if(learn) 
 						BPPrintMessage(1,odInfo,"👉 Learning weights from examples\n");
-						}
+					else
+						BPPrintMessage(1,odInfo,"👉 Analysing all data\n");
 					start = 0;
 					end = GetTextLength(wData);
 					SetSelect(start,end,TEH[wData]);
@@ -1482,8 +1483,7 @@ FILE* my_fopen(int check, const char* path, const char* mode) {
 	struct stat file_stat;
 	file = fopen(convertedPath,thismode);
     if(file == NULL) {
-		if(check) BPPrintMessage(0,odError, "=> Failed to open: %s in '%s' mode. Error: %s\n",
-                   convertedPath, thismode, strerror(errno));
+		if(check) BPPrintMessage(0,odError, "=> Failed to open: %s in '%s' mode. Error: %s\n",convertedPath, thismode, strerror(errno));
 		}
 	else if(strcmp(mode,"w") == 0 || strcmp(mode,"wb") == 0) {
         if(stat(convertedPath, &file_stat) == 0) {

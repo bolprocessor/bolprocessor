@@ -177,11 +177,12 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 	int rep,datamode,ifunc,ig,ir,j,jj,irul,irep,nrep,**p_candidate,foundone,
 		**p_prefrule,grtype,maxpref,nb_candidates,r,choice,shootagain,hastabs,
 		freedom,w,notsaid,changed,randomnumber,irul_c,found_one,
-		halt,startfrom,try,maxtry,equalweight;
+		halt,startfrom,try,maxtry,equalweight,total_weight_candidates;
 	t_rule rule;
 	long i,position,firstposition,**p_origin,**p_pos,leftpos,lastpos,pos1,incmark,
 		**p_totwght;
 	unsigned long datemem,time;
+	double p;
 	tokenbyte ***pp_b,**p_b,**p_c,***pp_c,instan[MAXLIN],meta[MAXMETA2];
 	t_subgram subgram;
 	TextOffset dummy, selend;
@@ -509,11 +510,13 @@ TRY3:		(*p_length) = LengthOf(pp_a);	/* was changed by FindArg() */
 		if(TraceDetail) {
 			if(nb_candidates > 0) {
 			//	BPPrintMessage(1,odInfo,"step %d: candidates=[",Step);
+				total_weight_candidates = 0;
 				if(Step == 0 && !(p_gram->hasTEMP)) Print(wTrace,"\n");
 				Print(wTrace,"step %d: candidates=[",Step);
 				found_one = FALSE;
 				for(jj=0; jj < nb_candidates; jj++) {
 					irul_c = (*p_candidate)[jj];
+					total_weight_candidates += (*((*(Gram.p_subgram))[igram].p_rule))[irul_c].weight;
 					if(found_one) Print(wTrace,", ");
 					Print(wTrace,"SG%d.R%d",igram,irul_c);
 					found_one = TRUE;
@@ -525,7 +528,14 @@ TRY3:		(*p_length) = LengthOf(pp_a);	/* was changed by FindArg() */
 					Print(wTrace,"step %d: [Interruption]\n",Step);
 				else Print(wTrace,"step %d: [Error nb_candidates = %ld",Step,(long)nb_candidates);
 				}
-			if(nb_candidates > 0) Print(wTrace,"], chosen=SG%d.R%d\n",igram,irul);
+			if(nb_candidates > 0) {
+				Print(wTrace,"], chosen=SG%d.R%d",igram,irul);
+				if(mode == PROD && total_weight_candidates > 0) {
+					p = (double) (*((*(Gram.p_subgram))[igram].p_rule))[irul].weight / total_weight_candidates;
+					Print(wTrace," prob=%.3f",p);
+					}
+				Print(wTrace,"\n");
+				}
 	//		BPPrintMessage(1,odInfo,"], chosen=SG%d.R%d\n",igram,irul);
 			Step++;
 			} 

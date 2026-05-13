@@ -261,6 +261,7 @@ extern int Charstep,UndoFlag;
 extern long ClockInitCapture;
 extern long NumberCharsTrace, NumberCharsData, NumberInferences;
 extern char LineBuff[MAXLIN];
+extern char ParseMode[6];
 extern char MIDIinputname[MAXPORTS][MAXNAME],MIDIoutputname[MAXPORTS][MAXNAME],OutputMIDIportComment[MAXPORTS][MAXNAME],InputMIDIportComment[MAXPORTS][MAXNAME];
 extern int MIDIinput[MAXPORTS], MIDIoutput[MAXPORTS];
 #if defined(__linux__)

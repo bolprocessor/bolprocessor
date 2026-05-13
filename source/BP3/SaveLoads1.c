@@ -540,6 +540,7 @@ int LoadSettings(const char *filename, int startup) {
 	unsigned long kk;
 	double x;
 	char **p_line,**p_completeline;
+	const char* string_value;
 
 	result = OK;
 	oldoutmidi = rtMIDI;
@@ -592,6 +593,8 @@ int LoadSettings(const char *filename, int startup) {
 	NeverResetWeights = FALSE;
 	MinPeriod = 0;
 	MaxConsoleTime = 0; // seconds (not used)
+	strncpy(ParseMode,"ANAL",sizeof(ParseMode) - 1);
+	ParseMode[sizeof(ParseMode) - 1] = '\0';
 
 	if(OutCsound || Create_set) MIDIsetUpTime = 0;
 	int old_livegrammar = LiveGrammar;
@@ -619,8 +622,8 @@ int LoadSettings(const char *filename, int startup) {
 			continue;
 			}
 		if(cJSON_IsString(value_field)) {
-			const char *string_value = cJSON_GetStringValue(value_field);
-		//	BPPrintMessage(0, odInfo, "cJSON_IsString %s: %s\n", key, string_value);
+			string_value = cJSON_GetStringValue(value_field);
+	//		BPPrintMessage(0, odInfo, "cJSON_IsString %s: %s\n", key, string_value);
 			intvalue = atoi(string_value);
 			floatvalue = strtof(string_value, NULL);
 			}
@@ -711,6 +714,10 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"LiveGrammar") == 0) LiveGrammar = intvalue;
 		else if(strcmp(key,"LiveSettings") == 0) LiveSettings = intvalue;
 		else if(strcmp(key,"TraceLive") == 0) TraceLive = intvalue;
+		else if(strcmp(key,"ParseMode") == 0) {
+			strncpy(ParseMode, string_value, sizeof(ParseMode) - 1);
+    		ParseMode[sizeof(ParseMode) - 1] = '\0';
+			}
 		}
 	if(TraceDetail && (Improvize || Analyzing)) {
 		BPPrintMessage(1,odInfo,"Detailed trace is enabled (production or parsing)\n");

@@ -324,6 +324,7 @@ int Charstep,UndoFlag;
 long ClockInitCapture;
 long NumberCharsTrace, NumberCharsData, NumberInferences;
 char LineBuff[MAXLIN];
+char ParseMode[6];
 char MIDIinputname[MAXPORTS][MAXNAME],MIDIoutputname[MAXPORTS][MAXNAME],OutputMIDIportComment[MAXPORTS][MAXNAME],InputMIDIportComment[MAXPORTS][MAXNAME];
 int MIDIinput[MAXPORTS], MIDIoutput[MAXPORTS]; // In Linux, these are 'clients'. Otherwise, 'ports'.
 #if defined(__linux__)

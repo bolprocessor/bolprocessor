@@ -93,6 +93,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+// Future: dealing with regular expression functions similar to preg_match()
+// #include <regex.h> // OK if using MinGW on Windows but then you're depending on a Unix compatibility layer
+// Or, better:
+// #define PCRE2_CODE_UNIT_WIDTH 8
+// #include <pcre2.h> // portable regex library, see later…
+// Or, easier, probably the best solution: https://github.com/kokke/tiny-regex-c
+
 typedef	int8_t	sbyte;
 
 typedef	uint8_t		Str255[256], Str63[64], Str31[32];

@@ -442,7 +442,8 @@ while(posmax > 0 && GetTextChar(wGrammar,posmax-1) == '\r') posmax--;
 while(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 	if((*p_line)[0] == '\0') continue;
 	if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
-		BPPrintMessage(1,odInfo,"Template(s) found, position %ld\n",pos);
+	//	BPPrintMessage(1,odInfo,"Template(s) found, position %ld\n",pos);
+		BPPrintMessage(1,odInfo,"Template(s) found\n");
 		Gram.hasTEMP = templates = TRUE;
 		break;
 		}
