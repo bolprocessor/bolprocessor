@@ -2203,7 +2203,6 @@ int ShowItem(int justplay,tokenbyte ***pp_a,int repeat,int mode,int all) {
 			datamode = FALSE;
 			ifunc = FALSE; // 2026-04-12
 			}
-	//	BPActivateWindow(QUICK,wTrace);
 		if(p_ItemStart == NULL
 				|| DisplayStackIndex >= MyGetHandleSize((Handle)p_ItemStart) / sizeof(long)) {
 			BPPrintMessage(0,odError,"=> Err. ShowItem(). p_ItemStart = NULL");
@@ -2225,11 +2224,11 @@ int ShowItem(int justplay,tokenbyte ***pp_a,int repeat,int mode,int all) {
 		}
 	if(mode == PROD && PlanProduce && (DisplayStackIndex > 1)) UndoFlag = TRUE;
 
-	QUIT:
+QUIT:
 	return(r);
 	}
 
-int SaveWeights(void) {
+int SaveWeightsToFile(void) {
 	// Save current rule weigths to the "-wg" weights file
 	int igram,irul,w;
 	BPPrintMessage(0,odInfo,"Saving rule weights\n");
@@ -2237,9 +2236,52 @@ int SaveWeights(void) {
 	for(igram=1; igram <= Gram.number_gram; igram++) {
 		for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
 			w = (*((*(Gram.p_subgram))[igram].p_rule))[irul].weight;
-			my_sprintf(Message,
-"{\"igram\":%d,\"irul\":%d,\"weight\":\"%d\"}\n",igram,irul,w);
-			Print(wWeights,Message);
+			Print(wWeights,"{\"igram\":%d,\"irul\":%d,\"weight\":\"%d\"}\n",igram,irul,w);
+			}
+		}
+	return OK;
+	}
+
+int GetWeightsFromFile(void) {
+	// Read rule weights back from the "-wg" weights file
+	int igram, irul, weight;
+	char line[256];
+	BPPrintMessage(0, odInfo, "Loading rule weights\n");
+	while(fgets(line, sizeof(line), weightPtr) != NULL) {
+		// Skip comment lines
+		if(line[0] == '/' || line[0] == '\n') continue;
+	//	BPPrintMessage(0,odInfo,"%s\n",line);
+		if(sscanf(line,"{\"igram\":%d,\"irul\":%d,\"weight\":\"%d\"}",
+			&igram,&irul,&weight) == 3) {
+			if(igram >= 1 && igram <= Gram.number_gram) {
+				if(irul >= 1 && irul <= (*(Gram.p_subgram))[igram].number_rule) {
+					(*((*(Gram.p_subgram))[igram].p_rule))[irul].weight = weight;
+				//	BPPrintMessage(0,odInfo,"igram = %d, irul = %d, weight = %d\n",igram,irul,weight);
+					}
+				}
+			}
+		}
+	return OK;
+	}
+
+int NormaliseWeights(void) {
+	int igram, irul, weight, max;
+	double scale;
+	max = 0;
+	for(igram=1; igram <= Gram.number_gram; igram++) {
+		for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
+			weight = (*((*(Gram.p_subgram))[igram].p_rule))[irul].weight;
+			if(weight > max) max = weight;
+			}
+		}
+	if(max > MAXWEIGHT) {
+		scale = (double) MAXWEIGHT / max;
+		for(igram=1; igram <= Gram.number_gram; igram++) {
+			for(irul=1; irul <= (*(Gram.p_subgram))[igram].number_rule; irul++) {
+				weight = (*((*(Gram.p_subgram))[igram].p_rule))[irul].weight;
+				weight = (int) (weight * scale);
+				(*((*(Gram.p_subgram))[igram].p_rule))[irul].weight = weight;
+				}
 			}
 		}
 	return OK;

@@ -714,6 +714,7 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"LiveGrammar") == 0) LiveGrammar = intvalue;
 		else if(strcmp(key,"LiveSettings") == 0) LiveSettings = intvalue;
 		else if(strcmp(key,"TraceLive") == 0) TraceLive = intvalue;
+		else if(strcmp(key,"LearnFromWeights") == 0) LearnFromWeights = intvalue;
 		else if(strcmp(key,"ParseMode") == 0) {
 			strncpy(ParseMode, string_value, sizeof(ParseMode) - 1);
     		ParseMode[sizeof(ParseMode) - 1] = '\0';

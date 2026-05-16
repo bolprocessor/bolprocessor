@@ -176,7 +176,7 @@ extern int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVari
 	Flagthere,ResetDone,BolsInGrammar,NoAlphabet,**p_Ifrom,PointCsound,PointMIDI,
 	**p_Resolution,
 	**p_CsoundInstr,**p_CsoundAssignedInstr;
-extern int LiveGrammar,LiveSettings,SyncChange,TraceLive,ChangedGrammar,NewGrammarWaiting,ChangedSettings;
+extern int LiveGrammar,LiveSettings,SyncChange,TraceLive,LearnFromWeights,ChangedGrammar,NewGrammarWaiting,ChangedSettings;
 extern MIDIcode ****pp_MIDIcode;
 extern float **p_CsoundTempo;
 extern Milliseconds ****pp_CsoundTime;
@@ -374,6 +374,7 @@ extern int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 
 extern FILE * imagePtr;
 extern FILE * outPtr;
+extern FILE * weightPtr;
 extern int N_image;
 extern long MaxConsoleTime;
 extern int NumberScales, MaxScales, DefaultScaleParam, ToldAboutScale;

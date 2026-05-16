@@ -241,7 +241,7 @@ int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,S
 	VariableOn,N_err,nstore,NumberTables,OkShowExpand,Improvize,Analyzing,ComputeWhilePlay,TransposeInput,
 	TransposeValue,Varweight,Flagthere,ResetDone,BolsInGrammar,NoAlphabet,PointCsound,PointMIDI,
 	**p_Ifrom,**p_Resolution,**p_CsoundInstr,**p_CsoundAssignedInstr;
-int LiveGrammar,LiveSettings,TraceLive,SyncChange,ChangedGrammar,NewGrammarWaiting,ChangedSettings;
+int LiveGrammar,LiveSettings,TraceLive,LearnFromWeights,SyncChange,ChangedGrammar,NewGrammarWaiting,ChangedSettings;
 MIDIcode ****pp_MIDIcode;
 float **p_CsoundTempo;
 Milliseconds ****pp_CsoundTime;

@@ -41,25 +41,6 @@
 int trace_display = 0;
 int check_context = 0;
 
-/*
-int Print(int w,char* t) {
-	long length;
-	char *ptr;
-	if(!FirstGrammar) return(OK);
-	if(w < 0 || w >= WMAX) {
-		BPPrintMessage(0,odError,"=> Err1. Print() w = %d\n",w);
-		return(OK);
-		}
-	if(!Editable[w]) {
-		BPPrintMessage(0,odError,"=> Err2. Print() Not editable %d\n",w);
-		return(MISSED);
-		}
-	length = strlen(t);
-	ptr = t;
-	TextInsert(ptr,length,TEH[w]);
-	return(OK);
-	} */
-
 int Print(int w, const char *format, ...) { // 2026-04-27
     va_list args;
     int length;

@@ -74,6 +74,7 @@ int LoadedData = FALSE;
 // BPConsoleOpts gOptions;
 FILE * imagePtr;
 FILE * outPtr;
+FILE * weightPtr;
 char imageFileName[500];
 int N_image;
 long MaxConsoleTime; // seconds: time allowed for console work
@@ -115,6 +116,7 @@ int main (int argc, char* args[]) {
 	NoteOffInputFilter = NoteOnInputFilter = KeyPressureInputFilter = ControlTypeInputFilter = ProgramTypeInputFilter = ChannelPressureInputFilter = PitchBendInputFilter = SysExInputFilter = TimeCodeInputFilter = SongPosInputFilter = SongSelInputFilter = TuneTypeInputFilter = EndSysExInputFilter = ClockTypeInputFilter = StartTypeInputFilter = ContTypeInputFilter = ActiveSenseInputFilter = ResetInputFilter = 3;
 	
 	LiveGrammar = LiveSettings = TraceLive = ChangedGrammar = NewGrammarWaiting = ChangedSettings = SyncChange = FALSE;
+	LearnFromWeights = TRUE;
 	strcpy(LiveFolder,"");
 	ConsoleInit(&gOptions);
     ConsoleMessagesInit();
@@ -193,8 +195,6 @@ int main (int argc, char* args[]) {
 	result = PrepareProdItemsDestination(&gOptions);
 	if(result == OK)
 		result = PrepareTraceDestination(&gOptions);
-	if(result == OK)
-		result = PrepareWeightsDestination(&gOptions);
 
 	if(NoTracePath) {
     	ShowObjectGraph = ShowPianoRoll = ShowGraphic = FALSE;
@@ -262,9 +262,10 @@ int main (int argc, char* args[]) {
 				break;
 			case analyze:
 				BPPrintMessage(0,odInfo,"Analysing…\n");
-				int learn = WeightsFileExists;
 				Analyzing = TRUE;
 				if(CompileCheck() == OK && ShowNotBP(&Gram) == OK)	{
+					PrepareWeightsDestination(&gOptions);
+					int learn = WeightsFileExists;
 					if(strcmp(ParseMode,"ANAL") == 0) learn = FALSE;
 					if(learn) 
 						BPPrintMessage(1,odInfo,"👉 Learning weights from examples\n");
@@ -276,7 +277,9 @@ int main (int argc, char* args[]) {
 					result = AnalyzeSelection(learn);
 					if(result != OK)  BPPrintMessage(0,odError,"=> AnalyzeSelection() returned errors\n");
 					else if(learn) {
-						SaveWeights();
+						NormaliseWeights();
+						SaveWeightsToFile();
+						fclose(weightPtr);
 						}
 					}
 				break;
@@ -1485,7 +1488,7 @@ FILE* my_fopen(int check, const char* path, const char* mode) {
     if(file == NULL) {
 		if(check) BPPrintMessage(0,odError, "=> Failed to open: %s in '%s' mode. Error: %s\n",convertedPath, thismode, strerror(errno));
 		}
-	else if(strcmp(mode,"w") == 0 || strcmp(mode,"wb") == 0) {
+	else if(strcmp(mode,"w") == 0 || strcmp(mode,"wb") == 0 || strcmp(mode,"a+") == 0) {
         if(stat(convertedPath, &file_stat) == 0) {
             if((file_stat.st_mode & 0775) != 0775) {
 				int result = chmod(convertedPath,0775);
@@ -1602,13 +1605,20 @@ int PrepareWeightsDestination(BPConsoleOpts* opts) {
 	FILE *fout;
 	char output[MAXNAME];
 	if(opts->outputFiles[ofiWeightsFile].name != NULL) {
-		fout = OpenOutputFile(&(opts->outputFiles[ofiWeightsFile]),"w");
-		if(!fout) {
-			BPPrintMessage(0,odError, "=> Could not create trace file %s\n", opts->outputFiles[ofiWeightsFile].name);
+		if(LearnFromWeights) {
+			weightPtr = OpenOutputFile(&(opts->outputFiles[ofiWeightsFile]),"r");
+			if(weightPtr != NULL) {
+				GetWeightsFromFile();
+				fclose(weightPtr);
+				}
+			}
+		weightPtr = OpenOutputFile(&(opts->outputFiles[ofiWeightsFile]),"w");
+		if(!weightPtr) {
+			BPPrintMessage(0,odError, "=> Could not create weights file %s\n", opts->outputFiles[ofiWeightsFile].name);
 			return MISSED;
 		    }
-		SetOutputDestinations(odWeights,fout);
-        BPPrintMessage(0,odInfo,"Creating weights file: %s\n",opts->outputFiles[ofiWeightsFile].name);
+		SetOutputDestinations(odWeights,weightPtr);
+        BPPrintMessage(0,odInfo,"Creating new weights file: %s\n",opts->outputFiles[ofiWeightsFile].name);
 		WeightsFileExists = TRUE;
 	    }
     return OK;

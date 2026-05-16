@@ -231,6 +231,7 @@ enum {
 #define MAXBUTT 32		/* number of buttons created in dialogs */
 #define MAXMESSAGE 70	/* number of messages remembered */
 #define MAXLIN 400		/* length of input line in any file */
+#define MAXWEIGHT 32767	/* weight of rule in grammar */
 #define MAXPORTS 32		/* number of input/output MIDI ports */
 #define MAXCLIENTS 512 /* number of MIDI clients (in Linux) */
 #define HTMLTOKENLENGTH 80 /* estimated max length of html token */

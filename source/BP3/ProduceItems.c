@@ -427,12 +427,6 @@ if(end <= origin) {
 	BPPrintMessage(0,odError,"=> Can't analyze. No item selected...");
 	return(MISSED);
 	}
-/*
-if(Gram.trueBP && !Gram.hasTEMP) {
-	if(ScriptExecOn) Print(wTrace,"\n*** Templates have not been produced.\n");
-	if((r=Answer("Templates have not been produced. Will you need them",'Y'))
-		!= NO) return(ABORT);
-	} */
 
 pos = ZERO; all = NO;
 p_line = NULL;
@@ -459,10 +453,6 @@ SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
 MaxDeriv = MAXDERIV;
 
 if(MakeComputeSpace(MaxDeriv) != OK) return(MISSED);
-if(learn) {
-	ResetRuleWeights(&Gram,2); // weight = w
-	ResetRuleWeights(&Gram,1); // w = 0
-	}
 neworigin = origin;
 
 /* Skip headers */
