@@ -36,7 +36,7 @@
 #ifndef _H_BP3
 #define _H_BP3
 
-#define SHORT_VERSION "3.4.4"
+#define SHORT_VERSION "3.4.5"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -92,6 +92,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+
+#include <curl/curl.h>
 
 // Future: dealing with regular expression functions similar to preg_match()
 // #include <regex.h> // OK if using MinGW on Windows but then you're depending on a Unix compatibility layer
@@ -150,9 +152,6 @@ typedef struct {
 #define PORTB 32
 #define PORTB_COMPLEMENT 0xffdf /* long complement of PORTB */
 
-#define IN 0
-#define OUT 1
-
 // Output destinations / messages types (these may be summed)
 #define odDisplay	1		// for results of produce items, expand selection, etc.
 #define odMidiDump	2		// for printing Midi messages as text
@@ -187,6 +186,9 @@ typedef struct {
 	#include <termios.h>
     #include <time.h>
 #endif
+
+#define INmidi 0
+#define OUTmidi 1
 
 // Moved macros and enum down here to avoid potential problems with replacing names
 // in any of the above headers -- 010807 akozar
@@ -956,7 +958,7 @@ typedef	int (*bp_message_callback_t)(void* bp, int dest, const char *format, va_
 // actions that can be specified on the command line
 typedef enum {
 	no_action = 0, compile, produce, produce_items, produce_all, play, play_item,
-	play_all, create_set, analyze, expand, show_beats, templates
+	play_all, create_set, analyze, expand, show_beats, templates, enter_notes,
 } action_t;
 
 typedef struct OutFileInfo {

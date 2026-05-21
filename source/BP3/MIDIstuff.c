@@ -260,7 +260,7 @@ int MIDIflush(int quick, int now) {
 					kcurrentinstance =  eventStack[i].instance;
 					i_scale = eventStack[i].scale;
 					time = eventStack[i].time + TimeStopped;
-					sendMIDIEvent(kcurrentinstance,i_scale,OUT,0,midiData,dataSize,time);
+					sendMIDIEvent(kcurrentinstance,i_scale,OUTmidi,0,midiData,dataSize,time);
 					if(type == NoteOff) break;
 					}
 				}
@@ -327,7 +327,7 @@ int MIDIflush(int quick, int now) {
 				time = eventStack[i].time + TimeStopped;
 		//  	if(type == NoteOn || type == NoteOff) BPPrintMessage(0,odInfo,"§ type %d Note %d value %d time %ld\n",type,eventStack[i].data1,midiData[2],(long)time); 
 		//		BPPrintMessage(1,odInfo,"§ %ld ms, %d %d %d, TimeStopped = %ld\n",(long)time/1000L,midiData[0],midiData[1],midiData[2],(long)TimeStopped/1000L); 
-				sendMIDIEvent(kcurrentinstance,i_scale,OUT,0,midiData,dataSize,time);
+				sendMIDIEvent(kcurrentinstance,i_scale,OUTmidi,0,midiData,dataSize,time);
 				}
             // Move remaining events forward
             memmove(&eventStack[i], &eventStack[i + 1], (eventCount - i - 1) * size);
@@ -821,7 +821,7 @@ int check_stop_instructions(unsigned long time) {
 			my_sprintf(Message,"Sending MIDI instruction (%d) at date %ld ms",mssg,(long)thisscripttime / 1000L);
 			Notify(Message,0);
 			strcpy(Message,"");
-			sendMIDIEvent(-1,0,OUT,0,midiData,1,thisscripttime);
+			sendMIDIEvent(-1,0,OUTmidi,0,midiData,1,thisscripttime);
 			}
 		}
 	return OK;
@@ -1854,7 +1854,7 @@ int AllNotesOffAllChannels(int verbose) {
 		midiData[0] = ControlChange + channel;
 		midiData[1] = 123; // All Notes Off
 		midiData[2] = 0;
-		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0); // Sending immediately
+		sendMIDIEvent(-1,0,OUTmidi,0,midiData,dataSize,0); // Sending immediately
 		}
 	WaitABit(10);
 	return(OK);
@@ -1875,37 +1875,37 @@ int AllControlsOffAllChannels(int verbose) {
 			midiData[0] = ControlChange + channel;
 			midiData[1] = 64 + ii;
 			midiData[2] = 0;
-			sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0);
+			sendMIDIEvent(-1,0,OUTmidi,0,midiData,dataSize,0);
 			}
 		midiData[0] = PitchBend + channel;
 		midiData[1] = 0x00;
 		midiData[2] = 0x40;
-		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0);
+		sendMIDIEvent(-1,0,OUTmidi,0,midiData,dataSize,0);
 
 		midiData[0] = ControlChange + channel;
 		midiData[1] = VolumeControl[channel+1];
 		midiData[2] = DEFTVOLUME;
-		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0);
+		sendMIDIEvent(-1,0,OUTmidi,0,midiData,dataSize,0);
 
 		midiData[0] = ControlChange + channel;
 		midiData[1] = PanoramicControl[channel+1];
 		midiData[2] = DEFTPANORAMIC;
-		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0);
+		sendMIDIEvent(-1,0,OUTmidi,0,midiData,dataSize,0);
 
 		midiData[0] = ControlChange + channel;
 		midiData[1] = 1; // Modulation MSB
 		midiData[2] = 0;
-		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0);
+		sendMIDIEvent(-1,0,OUTmidi,0,midiData,dataSize,0);
 
 		midiData[0] = ControlChange + channel;
 		midiData[1] = 33; // Modulation LSB
 		midiData[2] = 0;
-		sendMIDIEvent(-1,0,OUT,0,midiData,dataSize,0);
+		sendMIDIEvent(-1,0,OUTmidi,0,midiData,dataSize,0);
 
 		midiData[0] = ChannelPressure + channel;
 		midiData[1] = 0;
 		midiData[2] = 0;
-		sendMIDIEvent(-1,0,OUT,0,midiData,2,0);
+		sendMIDIEvent(-1,0,OUTmidi,0,midiData,2,0);
 		}
 	WaitABit(10);
 	return(OK);
@@ -2263,20 +2263,24 @@ int WriteToTab(Milliseconds clocktime,MIDI_Event *p_e) {
 	return OK;
 	}
 
-/* void RegisterProgramChange(MIDI_Event *p_e)
-{
-	int j, thisevent, channel, program;
-	short itemtype;
-//	ControlHandle itemhandle;
-	Rect r;
-	
-	// Register program change to the MIDI orchestra
-	channel = ByteToInt(p_e->status) % 16;
-	thisevent = ByteToInt(p_e->status) - channel;
-	if(thisevent == ProgramChange) {
-		program = ByteToInt(p_e->data2) + 1;
-		if(CurrentMIDIprogram[channel+1] != program) {
-			CurrentMIDIprogram[channel+1] = program;
-		}
+void send_note(char* note) {
+    CURL *curl = curl_easy_init();
+    if (!curl) return;
+    char *esc_note = curl_easy_escape(curl, note, 0);
+	if(!esc_note) {
+        curl_easy_cleanup(curl);
+        return;
+    	}
+    char post[1024];
+	snprintf(post, sizeof(post),"note=%s",esc_note);
+    curl_easy_setopt(curl, CURLOPT_URL, UrlToPush);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, 500L);
+    CURLcode res = curl_easy_perform(curl);
+    if (res != CURLE_OK) {
+        BPPrintMessage(0,odError,"send_note() POST failed: %s\n",curl_easy_strerror(res));
+    	}
+    curl_free(esc_note);
+    curl_easy_cleanup(curl);
 	}
-} */
+

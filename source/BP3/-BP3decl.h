@@ -171,7 +171,7 @@ extern Milliseconds OldMIDIfileTime;
 extern unsigned long LapWait,WhenItStarted;
 extern int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,SplitLines,Token,Step,
 	SpaceOn,
-	VariableOn,N_err,nstore,NumberTables,OkShowExpand,Improvize,Analyzing,ComputeWhilePlay,Varweight,
+	VariableOn,N_err,nstore,NumberTables,OkShowExpand,Improvize,Analyzing,ComputeWhilePlay,Varweight,MIDIcapture,
 	TransposeInput,TransposeValue,
 	Flagthere,ResetDone,BolsInGrammar,NoAlphabet,**p_Ifrom,PointCsound,PointMIDI,
 	**p_Resolution,
@@ -223,6 +223,7 @@ extern long **p_Ppatt,**p_Qpatt;
 extern MIDIcode **p_Code;
 extern char Midiportfilename[MAXNAME];
 extern char LiveFolder[MAXNAME];
+extern char UrlToPush[MAXLIN];
 
 extern double SpeedRange,Ke,CorrectionFactor;
 

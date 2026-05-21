@@ -748,7 +748,6 @@ int CheckDeterminism(t_gram*);
 int SameBuffer(tokenbyte**,tokenbyte**);
 long SendToStack(MIDI_Event,Milliseconds,int,int,long);
 int FindVersion(char**,char*);
-
 int TextIsSelectionEmpty(TextHandle th);
 int TextGetSelection(TextOffset* start,TextOffset* end, TextHandle th);
 int SetSelect(long,long,TextHandle);
@@ -816,6 +815,7 @@ int ClearObjectSpace(void);
 void CreateDoneFile(void);
 void CreateStopFile(void);
 int stop(int,char*);
+void send_note(char*);
 
 void StopWaiting(int,char);
 int CreateMicrotonalScale(char*,char*,char*,char*,char*,char*);

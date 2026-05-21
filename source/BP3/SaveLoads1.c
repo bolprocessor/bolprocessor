@@ -716,8 +716,13 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"TraceLive") == 0) TraceLive = intvalue;
 		else if(strcmp(key,"LearnFromWeights") == 0) LearnFromWeights = intvalue;
 		else if(strcmp(key,"ParseMode") == 0) {
-			strncpy(ParseMode, string_value, sizeof(ParseMode) - 1);
+			strncpy(ParseMode,string_value,sizeof(ParseMode) - 1);
     		ParseMode[sizeof(ParseMode) - 1] = '\0';
+			}
+		else if(strcmp(key,"UrlToPush") == 0) {
+			strncpy(UrlToPush,string_value,sizeof(UrlToPush) - 1);
+    		UrlToPush[sizeof(UrlToPush) - 1] = '\0';
+			BPPrintMessage(0,odInfo,"UrlToPush = %s\n",UrlToPush);
 			}
 		}
 	if(TraceDetail && (Improvize || Analyzing)) {
@@ -731,20 +736,18 @@ int LoadSettings(const char *filename, int startup) {
 	if(rtMIDI && !ComputeWhilePlay && (AdvanceTime <= 0.)) {
 		AdvanceTime = 0.;
 		ComputeWhilePlay = 1;
-		BPPrintMessage(0,odError,"=> Compute while playing has been set to TRUE because Max advance time = 0\n");
+		BPPrintMessage(0,odInfo,"Compute while playing has been set to TRUE because Max advance time = 0\n");
 		}
 	BufferSize = DeftBufferSize;
 	SetTempo();
 	if(Seed > 0) {
-/*		if(!PlaySelectionOn) 
-			BPPrintMessage(1,odInfo,"Random seed = %u as per settings\n", Seed); */
 		ResetRandom();
 		}
 	else {
 		if(!PlaySelectionOn) BPPrintMessage(1,odInfo,"Not using a random seed: shuffling the cards\n");
 		Randomize();
 		}
-	if(WriteMIDIfile || rtMIDI) BPPrintMessage(0,odInfo,"Time resolution = %ld ms as per settings\n",Time_res);
+	if((WriteMIDIfile || rtMIDI) && !MIDIcapture) BPPrintMessage(0,odInfo,"Time resolution = %ld ms as per settings\n",Time_res);
 	if(rtMIDI && !ComputeWhilePlay) {
 		BPPrintMessage(0,odInfo,"Compute while playing is off\n");
 		if(AdvanceTime > 0.) BPPrintMessage(0,odInfo,"➡ Advance time limit = %.2f seconds\n",AdvanceTime / 1000.);
@@ -781,11 +784,13 @@ int LoadSettings(const char *filename, int startup) {
 	if(ShowObjectGraph || ShowPianoRoll) ShowGraphic = TRUE;
 //	if(OutBPdata) ShowGraphic = FALSE;
 //	if(!ShowGraphic) ShowObjectGraph = ShowPianoRoll = FALSE;
-	if(ShowPianoRoll) BPPrintMessage(0,odInfo,"Pianoroll graphics will be displayed\n");
-	if(ShowObjectGraph) BPPrintMessage(0,odInfo,"Object graphics will be displayed\n");
-	BPPrintMessage(0,odInfo,"Metronome will be %.3f beats/mn by default (as per settings)\n",(Qclock * 60.)/Pclock); 
-	if(Nature_of_time == STRIATED) BPPrintMessage(0,odInfo,"Time is STRIATED according to the settings\n");
-	else BPPrintMessage(0,odInfo,"Time is SMOOTH (no metronome)\n");
+	if(!MIDIcapture) {
+		if(ShowPianoRoll) BPPrintMessage(0,odInfo,"Pianoroll graphics will be displayed\n");
+		if(ShowObjectGraph) BPPrintMessage(0,odInfo,"Object graphics will be displayed\n");
+		BPPrintMessage(0,odInfo,"Metronome will be %.3f beats/mn by default (as per settings)\n",(Qclock * 60.)/Pclock); 
+		if(Nature_of_time == STRIATED) BPPrintMessage(0,odInfo,"Time is STRIATED according to the settings\n");
+		else BPPrintMessage(0,odInfo,"Time is SMOOTH (no metronome)\n");
+		}
     cJSON_Delete(json);
     free(json_data);
 	return(result);

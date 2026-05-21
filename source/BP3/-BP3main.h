@@ -239,7 +239,7 @@ Milliseconds OldMIDIfileTime;
 unsigned long LapWait,WhenItStarted;
 int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,SplitLines,Token,Step,SpaceOn,
 	VariableOn,N_err,nstore,NumberTables,OkShowExpand,Improvize,Analyzing,ComputeWhilePlay,TransposeInput,
-	TransposeValue,Varweight,Flagthere,ResetDone,BolsInGrammar,NoAlphabet,PointCsound,PointMIDI,
+	TransposeValue,Varweight,MIDIcapture,Flagthere,ResetDone,BolsInGrammar,NoAlphabet,PointCsound,PointMIDI,
 	**p_Ifrom,**p_Resolution,**p_CsoundInstr,**p_CsoundAssignedInstr;
 int LiveGrammar,LiveSettings,TraceLive,LearnFromWeights,SyncChange,ChangedGrammar,NewGrammarWaiting,ChangedSettings;
 MIDIcode ****pp_MIDIcode;
@@ -287,6 +287,7 @@ long **p_Ppatt,**p_Qpatt;
 MIDIcode **p_Code; 
 char Midiportfilename[MAXNAME];
 char LiveFolder[MAXNAME];
+char UrlToPush[MAXLIN];
 double SpeedRange,Ke,CorrectionFactor;
 unsigned long NumEventsWritten;
 int DeriveFurther,DeriveFurtherKey,DeriveFurtherChan,ResetWeights,NeverResetWeights,

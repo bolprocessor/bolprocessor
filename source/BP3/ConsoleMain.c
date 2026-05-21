@@ -109,6 +109,7 @@ int main (int argc, char* args[]) {
 	StopPlay = FALSE;
 	PausePlay = FALSE;
 	TraceMIDIinteraction = FALSE;
+	MIDIcapture = FALSE;
 	TimeStopped = Oldtimestopped = 0L;
 	MIDIsyncDelay = 380; // ms default value
 	DisplayItems = FALSE;
@@ -118,6 +119,7 @@ int main (int argc, char* args[]) {
 	LiveGrammar = LiveSettings = TraceLive = ChangedGrammar = NewGrammarWaiting = ChangedSettings = SyncChange = FALSE;
 	LearnFromWeights = TRUE;
 	strcpy(LiveFolder,"");
+	strcpy(UrlToPush,"");
 	ConsoleInit(&gOptions);
     ConsoleMessagesInit();
 	result = ParsePreInitArgs(argc, args, &gOptions);
@@ -172,7 +174,7 @@ int main (int argc, char* args[]) {
 		Panic = TRUE;
         goto CLEANUP;
     	}
-	if(rtMIDI) BPPrintMessage(0,odInfo,"👉 Real-time events use a buffer of MaxMIDIMessages = %ld\n",(long)MaxMIDIMessages);
+	if(rtMIDI && !MIDIcapture) BPPrintMessage(0,odInfo,"👉 Real-time events use a buffer of MaxMIDIMessages = %ld\n",(long)MaxMIDIMessages);
 	
 	eventCount = 0L;
 	eventCountMax = MaxMIDIMessages - 50L;
@@ -183,8 +185,10 @@ int main (int argc, char* args[]) {
 	time(&SessionStartTime);
 	ProductionTime = ProductionStartTime = PhaseDiagramTime = TimeSettingTime = (time_t) 0L;
 	time(&ProductionStartTime);
-	BPPrintMessage(0,odInfo,"\nBP3 Console completed its initialization and will use:");
-	BPPrintMessage(0,odInfo,"\n%s\n%s\n\n",gOptions.inputFilenames[wGrammar],gOptions.inputFilenames[wData]);
+	if(!MIDIcapture) {
+		BPPrintMessage(0,odInfo,"\nBP3 Console completed its initialization and will use:");
+		BPPrintMessage(0,odInfo,"\n%s\n%s\n\n",gOptions.inputFilenames[wGrammar],gOptions.inputFilenames[wData]);
+		}
 	
 	CreateStopFile();
 	SessionTime = clock();
@@ -234,7 +238,7 @@ int main (int argc, char* args[]) {
 				else if(Beta && result != OK && result != ABORT) BPPrintMessage(0,odError,"=> PlaySelection() returned errors\n");
 				break;
 			case play_item:
-				 BPPrintMessage(0,odInfo,"Playing...\n");
+				BPPrintMessage(0,odInfo,"Playing...\n");
 				break;
 			case play_all:
 				BPPrintMessage(0,odInfo,"Playing item(s) or chunks…\n");
@@ -296,6 +300,21 @@ int main (int argc, char* args[]) {
 				result = ProduceItems(wStartString,FALSE,TRUE,NULL);
 				result = OK;
 				break;
+			case enter_notes:
+			 	curl_global_init(CURL_GLOBAL_DEFAULT);
+				BPPrintMessage(0,odInfo,"\n👉 Entering MIDI notes to send them to the project file…\n");
+				MIDIcapture = rtMIDI = TRUE;
+				if(strlen(UrlToPush) < 1) {
+					BPPrintMessage(0,odError,"=> Open and save the settings of your project to update links!\n");
+					result = ABORT;
+					}
+				else {
+					while(TRUE) {
+						if(stop(0,"Capture") != OK) break;
+						}
+					result = OK;
+					}
+				break;
 			case no_action:
 				  BPPrintMessage(0,odError, "=> Err. main(): action == no_action\n");
 				break;
@@ -325,14 +344,16 @@ CLEANUP:
 			if((result = WaitABit(10)) != OK) break; // Sleep for 10 milliseconds
 			}
 		WaitABit(100); // Sleep for 100 milliseconds
-		BPPrintMessage(0,odInfo,"Duration = %.3f seconds\n",(double)LastTime/1000.); // Date of the last MIDI event
-		if(ResetNotes) {
-			AllNotesOffAllChannels(TRUE);
+		if(!MIDIcapture) {
+			BPPrintMessage(0,odInfo,"Duration = %.3f seconds\n",(double)LastTime/1000.); // Date of the last MIDI event
+			if(ResetNotes) {
+				AllNotesOffAllChannels(TRUE);
+				}
+			if(ResetControllers)  {
+				AllControlsOffAllChannels(TRUE);
+				}
+			WaitABit(100); // 100 milliseconds
 			}
-		if(ResetControllers)  {
-			AllControlsOffAllChannels(TRUE);
-			}
-		WaitABit(100); // 100 milliseconds
 		closeMIDISystem();
 		WaitABit(100); // 100 milliseconds
 		}
@@ -1130,9 +1151,12 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 				else if(strcmp(args[argn], "templates") == 0)	{
 					action = templates;
 					}
+				else if(strcmp(args[argn], "enter_notes") == 0) {
+					action = enter_notes;
+					}
 				else {
 					BPPrintMessage(0,odError, "\n=> Unknown action '%s'\n", args[argn]);
-					BPPrintMessage(0,odError, "If '%s' is an input file, indicate the file type (eg. -gr %s).\n", args[argn], args[argn]);
+					BPPrintMessage(0,odError, "If '%s' is an input file, indicate the file type (eg. '-gr %s')\n",args[argn],args[argn]);
 					BPPrintMessage(0,odError, "Use '%s --help' to see help information.\n\n", args[0]);
 					return ABORT;
 					}
@@ -1225,7 +1249,7 @@ int ApplyArgs(BPConsoleOpts* opts)
 	if(opts->showProduction != NOCHANGE)	DisplayProduce = opts->showProduction;
 	if(opts->noteConvention != NOCHANGE)	NoteConvention = opts->noteConvention;
 	if(opts->midiFileFormat != NOCHANGE)	MIDIfileType = opts->midiFileFormat;
-	if(Seed > 0) {
+	if(Seed > 0 && !MIDIcapture) {
 			BPPrintMessage(0,odInfo, "Random seed = %u\n", Seed);
 			ResetRandom();
 		}
