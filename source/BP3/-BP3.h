@@ -93,6 +93,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define CURL_STATICLIB
 #include <curl/curl.h>
 
 // Future: dealing with regular expression functions similar to preg_match()

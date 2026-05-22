@@ -310,9 +310,11 @@ int main (int argc, char* args[]) {
 					}
 				else {
 					while(TRUE) {
-						if(stop(0,"Capture") != OK) break;
+						if(stop(1,"Capture") != OK) break;
+						mysleep(500000L); // 500 milliseconds
 						}
 					result = OK;
+					Panic = TRUE;
 					}
 				break;
 			case no_action:

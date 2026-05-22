@@ -2267,20 +2267,24 @@ void send_note(char* note) {
     CURL *curl = curl_easy_init();
     if (!curl) return;
     char *esc_note = curl_easy_escape(curl, note, 0);
-	if(!esc_note) {
+    if (!esc_note) {
         curl_easy_cleanup(curl);
         return;
     	}
-    char post[1024];
-	snprintf(post, sizeof(post),"note=%s",esc_note);
-    curl_easy_setopt(curl, CURLOPT_URL, UrlToPush);
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, 500L);
+    char url[2048];
+    snprintf(url, sizeof(url),
+        "%s?note=%s",
+        UrlToPush,
+        esc_note);
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS,2000L);
     CURLcode res = curl_easy_perform(curl);
     if (res != CURLE_OK) {
-        BPPrintMessage(0,odError,"send_note() POST failed: %s\n",curl_easy_strerror(res));
+        BPPrintMessage(0, odError,
+            "send_note() GET failed: %s\n",
+            curl_easy_strerror(res));
     	}
     curl_free(esc_note);
     curl_easy_cleanup(curl);
 	}
-
