@@ -1487,7 +1487,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
         //    BPPrintMessage(0,odInfo,"%s\n",this_key);
             send_note(this_key);
             }
-        return;
+    //    return; 2026-05-23
         }
     if(CapturePtr != NULL) {
         note2_done = ctrl2_done = pb2_done = press2_done = FALSE;

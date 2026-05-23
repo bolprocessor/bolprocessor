@@ -66,7 +66,7 @@ int Inits(void) {
 
 	Nw = 0;
 
-	rtMIDI = OutCsound = WriteMIDIfile =  Capture0n = FALSE;
+	rtMIDI = OutCsound = WriteMIDIfile = FALSE;
 	CaptureSource = -1;
 	CapturePtr = NULL;
 	

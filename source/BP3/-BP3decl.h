@@ -117,7 +117,7 @@ extern char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulati
 	ChangedPressure[MAXCHAN+1],WhichCsoundInstrument[MAXCHAN+1];
 extern int Jbol,Jinstr,Jfunc,Jinscript,Joutscript,Maxinscript,Maxoutscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,
 	MaxVar,Jhomo,**p_VarStatus,iCsoundInstrument;
-extern int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput,Capture0n,
+extern int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput,
 	SmartCursor,NotSaidKpress,**p_MemGram,**p_MemRul,SaidChannel;
 extern int CaptureSource;
 extern FILE* CapturePtr;

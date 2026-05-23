@@ -6,10 +6,10 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-05-21 -> 2026-05-22 (version 3.4.5)
+2026-05-21 -> 2026-05-23 (version 3.4.5)
 This version enables you to enter note names from a MIDI device (typically a keyboard).
 Read https://bolprocessor.org/enter-notes/ for details.
-For geeks: It uses CURL, a package that may not work perfectly on Windows. We're fixing it…
+For geeks: I'm not sure if the note capture feature works on Windows.
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/
 

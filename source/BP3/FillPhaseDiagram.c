@@ -1555,7 +1555,6 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				if(Interactive) {
 					currentparameters.capture = p;
 					if(trace_capture) BPPrintMessage(1,odInfo,"👉 Found CaptureSource = %d\n",p);
-					Capture0n = TRUE;
 					CapturePtr = CreateCaptureFile(CapturePtr);
 					}
 				else BPPrintMessage(1,odError,"=> _capture(%d) will be ignored because there is no input\n",p);

@@ -310,11 +310,9 @@ int main (int argc, char* args[]) {
 					}
 				else {
 					while(TRUE) {
-						if(stop(1,"Capture") != OK) break;
-						mysleep(500000L); // 500 milliseconds
+						if(WaitABit(400L) != OK) break; // 400 milliseconds
 						}
 					result = OK;
-					Panic = TRUE;
 					}
 				break;
 			case no_action:
@@ -807,7 +805,8 @@ const char gOptionList[] =
 /*	"  show-beats N:     display the Nth item using periods to show the beats\n" */
 	"\n"
 	"  compile:          check the syntax of input files and }ort errors\n"
-	"  templates:        produce templates from the grammar\n" 
+	"  templates:        produce templates from the grammar\n"
+	"  enter_notes:        enter notes from a MIDI input device\n"
 	"\n"
 	"FILE-TYPES: Input files are automatically recognized if they use BP's naming\n"
 	"            conventions (either prefixes or extensions).\n"
