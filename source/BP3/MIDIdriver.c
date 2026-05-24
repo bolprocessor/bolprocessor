@@ -149,11 +149,11 @@ int initializeMIDISystem(void) {
                     busyinput[i] = 1;
                     continue; // Skip to next device
                     }
-                busyforoutput = FALSE; // 2024-10-06
+     /*         busyforoutput = FALSE; // 2026-05-24
                 for(j = 0; j < MaxOutputPorts; j++) {
-                    if(MIDIoutput[j] == i) busyforoutput =TRUE;
+                    if(MIDIoutput[j] == i) busyforoutput = TRUE;
                     }
-                if(busyforoutput) continue;
+                if(busyforoutput) continue; */
                 if(strcmp(mic.szPname,MIDIinputname[index]) == 0) {
                     busyinput[i] = 1;
                     resultopen = midiInOpen(&hMIDIin[i], i, (DWORD_PTR)MyMIDIInProc, (DWORD_PTR)i, CALLBACK_FUNCTION);
