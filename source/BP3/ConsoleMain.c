@@ -863,7 +863,7 @@ const char gOptionList[] =
 	"\n"
 	"EXAMPLE OF COMMAND LINE:\n"
 	"./bp produce -se ./ctests/-se.Mozart -o ./temp_bolprocessor/out.txt -gr ./ctests/-gr.Mozart -cs ./csound_resources/-cs.Mozart -to ./tonality_resources/-to.Mozart --rtmidi --traceout ./temp_bolprocessor/trace_my_session_my_project.txt --english --seed 4\n"
-	"(If the --traceout option is not specified, no image is created.)\n"
+	"(If the --traceout option is not specified, no image will be created.)\n"
 	;
 
 void PrintUsage(char* programName)

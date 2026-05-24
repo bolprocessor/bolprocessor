@@ -9,6 +9,7 @@ https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3
 2026-05-21 -> 2026-05-24 (version 3.4.5)
 This version enables you to enter note names from a MIDI device (typically a keyboard).
 Read https://bolprocessor.org/enter-notes/ for details.
+"localhost" is automatically replaced with "127.0.0.1" on Windows to speed up access.
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/
 
