@@ -7,6 +7,19 @@ EXE     = bp
 
 UNAME_S := Windows
 
+ifeq ($(OS),Windows_NT)
+    # Windows
+	CURL_DIR = C:/curl
+    CFLAGS += -I$(CURL_DIR)/include
+    LIBS += -L$(CURL_DIR)/lib -l:libcurl-x64.dll -lws2_32 -lcrypt32
+else
+    # macOS / Linux
+    CURL_CFLAGS := $(shell curl-config --cflags)
+    CURL_LIBS := $(shell curl-config --libs)
+    CFLAGS += $(CURL_CFLAGS)
+    LIBS += $(CURL_LIBS)
+endif
+
 # === OS Detection ===
 ifeq ($(OS),Windows_NT)
     UNAME_S := Windows
