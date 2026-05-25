@@ -5,34 +5,39 @@ LIBS    = -lm
 CFLAGS  = -O2 -fno-common
 EXE     = bp
 
-UNAME_S := Windows
-
-ifeq ($(OS),Windows_NT)
-    # Windows
-	CURL_DIR = C:/curl
-    CFLAGS += -I$(CURL_DIR)/include
-    LIBS += -L$(CURL_DIR)/lib -l:libcurl-x64.dll -lws2_32 -lcrypt32
-else
-    # macOS / Linux
-    CURL_CFLAGS := $(shell curl-config --cflags)
-    CURL_LIBS := $(shell curl-config --libs)
-    CFLAGS += $(CURL_CFLAGS)
-    LIBS += $(CURL_LIBS)
-endif
+# Avoid wrong libraries inherited from PHP/Apache/XAMPP
+unexport LD_LIBRARY_PATH
 
 # === OS Detection ===
 ifeq ($(OS),Windows_NT)
     UNAME_S := Windows
     FRAMEWORKS = -lwinmm
     EXE = bp.exe
+
+    CURL_DIR = C:/curl
+    CFLAGS += -I$(CURL_DIR)/include
+    LIBS += -L$(CURL_DIR)/lib -l:libcurl-x64.dll -lws2_32 -lcrypt32
+
 else
     UNAME_S := $(shell uname -s)
+
     ifeq ($(UNAME_S),Darwin)
         FRAMEWORKS = -framework CoreMIDI -framework CoreFoundation
+        CURL_CONFIG = /usr/bin/curl-config
+        CURL_CFLAGS := $(shell $(CURL_CONFIG) --cflags)
+        CURL_LIBS   := $(shell $(CURL_CONFIG) --libs)
+        CFLAGS += $(CURL_CFLAGS)
+        LIBS   += $(CURL_LIBS)
     endif
+
     ifeq ($(UNAME_S),Linux)
         FRAMEWORKS = -lasound
         EXE = bp3
+        CURL_CONFIG = /usr/bin/curl-config
+        CURL_CFLAGS := $(shell $(CURL_CONFIG) --cflags)
+        CURL_LIBS   := $(shell $(CURL_CONFIG) --libs)
+        CFLAGS += $(CURL_CFLAGS)
+        LIBS   += -L/usr/lib/x86_64-linux-gnu $(CURL_LIBS)
     endif
 endif
 
@@ -42,6 +47,8 @@ OBJS = $(SRCS:.c=.o)
 
 # === Output OS Info ===
 $(info Operating System: $(UNAME_S))
+$(info CFLAGS: $(CFLAGS))
+$(info LIBS: $(LIBS))
 
 # === Build Rules ===
 all: $(EXE)
