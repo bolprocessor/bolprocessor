@@ -93,12 +93,10 @@ Real-time MIDI
 - Why is kcurrentinstance (12) > Maxevent (10) in -gr.koto3 ?
 - Fix item #7 in -da.checkContControl
 - Use client:port as MIDI input/output on Linux.  Currently, only the client is mentioned in the settings. Some devices might allocate several ports to the same client.
-— In Linux, it seems that the two virtual ports 'VirMIDI 0-0' and 'VirMIDI 0-1' are not communicating with other ports even though connections are valid.
-- Install a pitchbender sensitive MIDI output device on the Linux test computer.
+— In Linux, it seems that the two virtual ports 'VirMIDI 0-0' and 'VirMIDI 0-1' are not communicating with other ports even though their connections are valid.
 - Try to display the timing during a real-time MIDI performance. This seems to be impossible under MacOS and Windows, and only possible under Linux.
 - Put some scripts on top of a grammar (the INIT: section) to run them before the production is started. This will notably allow setting up parameters K1, K2… K127.
 - Check the accuracy of start times in sound-object pictures.
-- Restore "PLAY THIS EXPRESSION (real-time MIDI)" with MIDI output features. Maybe store the latest real-time MIDI output?
 - Implement a connection with FluidSynth (https://www.fluidsynth.org/)
 
 
@@ -109,7 +107,7 @@ Real-time Csound
 - Implement UDP for communicating with Csound. Links:
 https://csound.com/docs/manual/udpserver.html
 https://www.geeksforgeeks.org/udp-server-client-implementation-c/
-- Implement OSC ?
+- Implement OSC: this will be done in the forthcoming architecture (Kanopi).
 
 
 Antescofo Score Language
@@ -122,7 +120,7 @@ HTML/PHP/Javascript interface
 -----------------------------
 
 - Implement command-s (on MacOS) or control-s (on Windows/Linux) to save a grammar, data, alphabet, etc. This is almost done in _header.php (line 52) and at the bottom of data.php
-- When moving "-gr" and "-da" projects, their settings should be copied.
+- When moving "-gr" and "-da" projects to a different workspace, their settings should be copied.
 
 
 Standalone application
@@ -142,7 +140,7 @@ Read https://forum.csound.com/t/orchestra-file-rejected-by-linux/1780
 - (Optional) Revise CsoundWrite to make sure that events are ordered by "note-on" dates, notably with tied notes/sound-objects
 - Reference: https://csound.com/docs/manual/i.html => use negative p1 for distinct note-off?
 - Implement output to DAC in the interface: https://csound.com/docs/manual/CommandFlags.html
-- Csound can compile orchestras and scores directly from strings of text: this feature could be exploited
+- Csound can compile orchestras and scores directly from strings of text: this feature could be exploited.
 
 
 Actions
@@ -182,7 +180,7 @@ Cleaning up the code
 - The console code contains many obsolete parts (marked as such and not compiled). These are mostly remnants of BP2's built-in interface, at the time we wanted to maintain a MacOS standalone version of BP2 using conditional compilation. These will be removed unless they turn out to be useful for further development.
 - Delete all code tagged as BP_CARBON_GUI_FORGET_THIS (in progress)
 - Finish deleting the code for ticks
-- Unused code files have been moved to a "not_used" folder in the "source" folder. These can be deleted later.
+- Obsolete code files have been moved to a "not_used" folder in the "source" folder. These can be deleted later.
 
 
 MIDI files (Anthony's suggestions. Probably unnecessary, as MIDI file creation works perfectly.)
@@ -205,8 +203,8 @@ MIDI files (Anthony's suggestions. Probably unnecessary, as MIDI file creation w
 Documentation
 -------------
 
-- The file BP3_help.txt still needs updates
+- The file BP3_help.txt needs updates
 - Write new docs for BP3 (command-line usage, etc.)
-- Convert BP2 documentation to an (open-source) authoring system that can help maintain the organization and internal links as well as output in multiple formats (HTML, PDF, etc.) ??
+- Convert BP2 documentation to an (open-source) authoring system that can help maintain the organization and internal links as well as output in multiple formats (HTML, PDF, etc.) ?? Currently, the website is used for documentation.
 
 ========
