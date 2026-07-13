@@ -82,7 +82,6 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	PolyOn = TRUE;
 
 	if(ShowMessages) ShowMessage(TRUE,wMessage,"Interpreting structure...");
-
 	if(PrintArg(FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,stdout,wData,&p_b,pp_a) != OK) goto QUIT;
 		/* stdout and TEH are useless */
 		/* item is now in B[] without structure */
@@ -115,14 +114,17 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	pos_init = ZERO;
 	level = 0;
 	if(NeedZouleb > 0) { 
-		BPPrintMessage(0,odInfo,"👉 (Unexpectedly) applying serial tools in Polymetric()\n");
+		BPPrintMessage(0,odInfo,"👉 Applying serial tools to modify order of sequence(s)\n");
 		do {
 			r = Zouleb(&p_b,&level,&pos_init,FALSE,FALSE,0,FALSE,FALSE,NOSEED);
 			if(r != OK) goto QUIT;
 			}
 		while(level >= 0);
 		maxlevel++;	// A pair of brackets {} may have been created around a sound-object at the deepest level
-	//	if(PrintArg(FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,stdout,wData,&p_b,pp_a) != OK) goto QUIT;
+		if(TraceProduce && !TraceDetail) {
+			Print(wTrace,"\nResult = ");
+			if((r=PrintWorkString(FALSE,wTrace,FALSE,FALSE,&p_b)) != OK) return(r);
+			}
 		}
 
 	if(Beta && NeedZouleb > 0) {
@@ -599,7 +601,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	if(numbertoofast > longestnumbertoofast) longestnumbertoofast = numbertoofast;
 	fmaxseq += longestseqouttime + longestnumbertoofast; // Added by BB 2021-03-24
 	imax = fmaxseq / Kpress;
-	thelimit = ULONG_MAX - 10.;
+	thelimit = (double) ULONG_MAX - 10.;
 
 	if(imax >= thelimit) {
 	TOOBIG:
@@ -1317,8 +1319,8 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 				newh = newg = TRUE;
 				xp = speed * ((*p_pgap)[a]);
 				xq = (*p_qgap)[a] * (scaling);
-				if(xp > ULONG_MAX || xq > ULONG_MAX)  {
-					if(MakeRatio(ULONG_MAX,(xq/xp),&xq,&xp) != OK) {
+				if(xp > (double) ULONG_MAX || xq > (double) ULONG_MAX)  {
+					if(MakeRatio((double) ULONG_MAX,(xq/xp),&xq,&xp) != OK) {
 						result = ABORT; goto SORTIR;
 						}
 					TellComplex();

@@ -1620,7 +1620,7 @@ double size;
 
 while(i > (*p_maxi)) {
 	size = ((*p_maxi) * 3.) / 2.;
-	if(size >= ULONG_MAX) {
+	if(size >= (double) ULONG_MAX) {
 		BPPrintMessage(0,odError,"Structure is getting too large. Task will be cancelled");
 		return(ABORT);
 		}

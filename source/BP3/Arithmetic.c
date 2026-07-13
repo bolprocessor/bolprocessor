@@ -52,7 +52,7 @@ if(q == 0. || s == 0.) {
 	}
 
 D = LCM(q,s,&overflow);
-if(D < 1. || D >= ULONG_MAX || overflow) {
+if(D < 1. || D >= (double) ULONG_MAX || overflow) {
 	x = p / q;
 	y = r / s;
 	dif = fabs(x - y);
@@ -83,7 +83,7 @@ if(r == 0.) {
 if(q == 0. || s == 0.) return(MISSED);
 
 qq = q; ss = s;
-while((D = LCM(qq,ss,&overflow)) < 1. || D >= ULONG_MAX || overflow) {
+while((D = LCM(qq,ss,&overflow)) < 1. || D >= (double) ULONG_MAX || overflow) {
 	(*p_overflow) = TRUE;
 	qq = qq / 2.;
 	ss = ss / 2.;
@@ -91,12 +91,12 @@ while((D = LCM(qq,ss,&overflow)) < 1. || D >= ULONG_MAX || overflow) {
 		x = p / q;
 		y = r / s;
 		z = x + y;
-		return(MakeRatio((double)ULONG_MAX,z,p_P,p_Q));
+		return(MakeRatio((double) ULONG_MAX,z,p_P,p_Q));
 		}
 	}
 N = ((D/qq) * p) + ((D/ss) * r);
 
-if(D >= ULONG_MAX || (E=GCD(N,D)) < 1L) E = 1L;
+if(D >= (double) ULONG_MAX || (E=GCD(N,D)) < 1L) E = 1L;
 (*p_P) = N / E;
 (*p_Q) = D / E;
 return(OK);
@@ -120,7 +120,7 @@ if(r == ZERO) {
 	}
 
 qq = q; ss = s;
-while((D = LCM(qq,ss,&overflow)) < 1. || D >= ULONG_MAX || overflow) {
+while((D = LCM(qq,ss,&overflow)) < 1. || D >= (double) ULONG_MAX || overflow) {
 	(*p_overflow) = TRUE;
 	qq = qq / 2.;
 	ss = ss / 2.;
@@ -128,7 +128,7 @@ while((D = LCM(qq,ss,&overflow)) < 1. || D >= ULONG_MAX || overflow) {
 		x = p / q;
 		y = r / s;
 		z = x - y;
-		return(MakeRatio((double)ULONG_MAX,z,p_P,p_Q));
+		return(MakeRatio((double) ULONG_MAX,z,p_P,p_Q));
 		}
 	}
 n1 = (D/qq) * p;
@@ -139,7 +139,7 @@ else {
 	N = n2 - n1;
 	}
 
-if(D >= ULONG_MAX || (E=GCD(N,D)) < 1L) E = 1L;
+if(D >= (double) ULONG_MAX || (E=GCD(N,D)) < 1L) E = 1L;
 *p_P = N / E;
 *p_Q = D / E;
 return(OK);
@@ -258,7 +258,7 @@ unsigned long GCD(double p,double q)
 {
 unsigned long pp,qq,qmem;
 
-if(p < 1. || q < 1. || p >= ULONG_MAX || q >= ULONG_MAX) return(ZERO);
+if(p < 1. || q < 1. || p >= (double) ULONG_MAX || q >= (double) ULONG_MAX) return(ZERO);
 pp = (unsigned long) p;
 qq = (unsigned long) q;
 if(p < 1.) return(qq);
@@ -283,7 +283,7 @@ x = 1.;
 for(i=0; i < imax; i++) {
 	xold = x;
 	x = LCM(x,(double)p[i],p_overflow);
-	if(x < 1. || x >= ULONG_MAX || (*p_overflow)) {
+	if(x < 1. || x >= (double) ULONG_MAX || (*p_overflow)) {
 		x = xold;
 		goto SORTIR;
 		}

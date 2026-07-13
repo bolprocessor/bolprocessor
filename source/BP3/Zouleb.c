@@ -39,338 +39,341 @@
 
 
 int Zouleb(tokenbyte ***pp_a,int *p_level,unsigned long *p_pos_init,int retro,
-	int rndseq,int rotate,int repeat,int isbracket,int orgseed)
-{
-unsigned long i,imax,ib,ibmax,iorg,j,newpos,origin,end;
-long ichunk,nchunks,ichunkmax,**p_index,x;
-tokenbyte m,p,**p_b;
-int r,orglevel,newlevel,more,store,newrotate,maxparam,seed,ischanged;
-unsigned int currentseed;
-ChunkPointer **p_chunk;
-char line[MAXLIN];
-
-PleaseWait();
-
-if(pp_a == NULL) {
-	BPPrintMessage(0,odError,"=> Err. Zouleb(). pp_a == NULL");
-	return(OK);
-	}
-
-if(p_NumberConstant == NULL) maxparam = 0;
-else maxparam = (MyGetHandleSize((Handle)p_NumberConstant) / sizeof(double));
-
-imax = MyGetHandleSize((Handle)(*pp_a)) / sizeof(tokenbyte) - 6L;
-
-ichunkmax = FIELDSIZE;
-p_chunk =  (ChunkPointer**) GiveSpace((Size)ichunkmax * sizeof(ChunkPointer));
-if(p_chunk == NULL) return(ABORT);
-				
-ibmax = FIELDSIZE;
-p_b =  (tokenbyte**) GiveSpace((ibmax + 6L) * (Size)sizeof(tokenbyte));
-if(p_b == NULL) return(ABORT);
-
-
-orglevel = (*p_level);
-seed = orgseed;
-r = OK;
-
-// First we read the sequence and store its chunks
-
-ichunk = ZERO;
-more = 0;
-i = iorg = (*p_pos_init);
-
-if(rotate != 0) rotate = FindValue(T39,rotate,0);
-
-while(TRUE) {
+	int rndseq,int rotate,int repeat,int isbracket,int orgseed) {
 	
-	m = (**pp_a)[i]; p = (**pp_a)[i+1];
-	
-	if(m == TEND && p == TEND) {
-		break;
+	// Modify order of time-objects in a sequence, due to instructions:
+	// _retro, _ordseq, _rndseq, or _rotate
+
+	unsigned long i,imax,ib,ibmax,iorg,j,newpos,origin,end;
+	long ichunk,nchunks,ichunkmax,**p_index,x;
+	tokenbyte m,p,**p_b;
+	int r,orglevel,newlevel,more,store,newrotate,maxparam,seed,ischanged;
+	unsigned int currentseed;
+	ChunkPointer **p_chunk;
+	char line[MAXLIN];
+
+	PleaseWait();
+
+	if(pp_a == NULL) {
+		BPPrintMessage(0,odError,"=> Err. Zouleb(). pp_a == NULL");
+		return(OK);
 		}
-	if(m == T0 && (p == 13 || p == 14 || p == 23)) {	/*  ',' or  '}' */
-		break;
-		}
-	switch(m) {
-		case T3:	/* terminal */
-		case T4:	/* variable */
-		case T9:	/* time pattern */
-		case T25:	/* simple note */
-			origin = i;
-			do {	/* Include prolongation symbols '_' */
-				i += 2L;
-				m = (**pp_a)[i]; p = (**pp_a)[i+1];
-				}
-			while(m == T3 && p == 0);
-			goto STOREOBJECT;
+
+	if(p_NumberConstant == NULL) maxparam = 0;
+	else maxparam = (MyGetHandleSize((Handle)p_NumberConstant) / sizeof(double));
+
+	imax = MyGetHandleSize((Handle)(*pp_a)) / sizeof(tokenbyte) - 6L;
+
+	ichunkmax = FIELDSIZE;
+	p_chunk =  (ChunkPointer**) GiveSpace((Size)ichunkmax * sizeof(ChunkPointer));
+	if(p_chunk == NULL) return(ABORT);
+					
+	ibmax = FIELDSIZE;
+	p_b =  (tokenbyte**) GiveSpace((ibmax + 6L) * (Size)sizeof(tokenbyte));
+	if(p_b == NULL) return(ABORT);
+
+
+	orglevel = (*p_level);
+	seed = orgseed;
+	r = OK;
+
+	// First we read the sequence and store its chunks
+
+	ichunk = ZERO;
+	more = 0;
+	i = iorg = (*p_pos_init);
+
+	if(rotate != 0) rotate = FindValue(T39,rotate,0);
+
+	while(TRUE) {
+		
+		m = (**pp_a)[i]; p = (**pp_a)[i+1];
+		
+		if(m == TEND && p == TEND) {
 			break;
-		case T6:	/* wildcard */
-		case T7:	/* out-time object or simple note */
-			origin = i;
-			i += 2L;
-STOREOBJECT:
-			end = i;
-			if((r=StoreChunk(&p_chunk,&ichunk,&ichunkmax,origin,end)) != OK)
-				goto SORTIR;
-			continue;
+			}
+		if(m == T0 && (p == 13 || p == 14 || p == 23)) {	/*  ',' or  '}' */
 			break;
-		case T12:
-			if(p == 23) {	/* _randomize */
-				seed = RANDOMIZE;
-				goto NEXT;
+			}
+		switch(m) {
+			case T3:	/* terminal */
+			case T4:	/* variable */
+			case T9:	/* time pattern */
+			case T25:	/* simple note */
+				origin = i;
+				do {	/* Include prolongation symbols '_' */
+					i += 2L;
+					m = (**pp_a)[i]; p = (**pp_a)[i+1];
+					}
+				while(m == T3 && p == 0);
+				goto STOREOBJECT;
 				break;
-				}
-			if(p == 21 || p == 22 || p == 24) {
+			case T6:	/* wildcard */
+			case T7:	/* out-time object or simple note */
+				origin = i;
+				i += 2L;
+	STOREOBJECT:
+				end = i;
+				if((r=StoreChunk(&p_chunk,&ichunk,&ichunkmax,origin,end)) != OK)
+					goto SORTIR;
+				continue;
+				break;
+			case T12:
+				if(p == 23) {	/* _randomize */
+					seed = RANDOMIZE;
+					goto NEXT;
+					break;
+					}
+				if(p == 21 || p == 22 || p == 24) {
+					i += 2L;
+					origin = i;
+					newlevel = orglevel;
+					}
+				else goto NEXT;
+				ischanged = TRUE;
+				switch(p) {
+					case 21:	/* _retro */
+						if((r=Zouleb(pp_a,&newlevel,&i,1-retro,rndseq,rotate,repeat,FALSE,seed))
+							!= OK) goto SORTIR;
+						if(!retro) ischanged = FALSE;
+						break;
+					case 22:	/* _rndseq */
+						if((r=Zouleb(pp_a,&newlevel,&i,FALSE,TRUE,0,repeat,FALSE,seed))
+							!= OK) goto SORTIR;
+						ischanged = FALSE;
+						break;
+					case 24:	/* _ordseq */
+						if((r=Zouleb(pp_a,&newlevel,&i,FALSE,FALSE,0,repeat,FALSE,seed))
+							!= OK) goto SORTIR;
+						break;
+					}
+	STORE:
+				end = i;
+				if((r=StoreChunk(&p_chunk,&ichunk,&ichunkmax,origin,end)) != OK)
+					goto SORTIR;
+				more--;
+				continue;
+				break;
+			case T39:	/* _rotate */
+				if(p == 0) goto NEXT;
+				newrotate = FindValue(m,p,0);
 				i += 2L;
 				origin = i;
 				newlevel = orglevel;
-				}
-			else goto NEXT;
-			ischanged = TRUE;
-			switch(p) {
-				case 21:	/* _retro */
-					if((r=Zouleb(pp_a,&newlevel,&i,1-retro,rndseq,rotate,repeat,FALSE,seed))
-						!= OK) goto SORTIR;
-					if(!retro) ischanged = FALSE;
-					break;
-				case 22:	/* _rndseq */
-					if((r=Zouleb(pp_a,&newlevel,&i,FALSE,TRUE,0,repeat,FALSE,seed))
-						!= OK) goto SORTIR;
-					ischanged = FALSE;
-					break;
-				case 24:	/* _ordseq */
-					if((r=Zouleb(pp_a,&newlevel,&i,FALSE,FALSE,0,repeat,FALSE,seed))
-						!= OK) goto SORTIR;
-					break;
-				}
-STORE:
-			end = i;
-			if((r=StoreChunk(&p_chunk,&ichunk,&ichunkmax,origin,end)) != OK)
-				goto SORTIR;
-			more--;
-			continue;
-			break;
-		case T39:	/* _rotate */
-			if(p == 0) goto NEXT;
-			newrotate = FindValue(m,p,0);
-			i += 2L;
-			origin = i;
-			newlevel = orglevel;
-			if((r=Zouleb(pp_a,&newlevel,&i,retro,rndseq,rotate+newrotate,
-					repeat,FALSE,seed)) != OK)
-				goto SORTIR;
-			ischanged = ((rotate+newrotate) == 0);
-			goto STORE;
-			break;
-		case T42:	/* _srand */
-			seed = p;
-			goto NEXT;
-			break;
-		}
-	
-	if(m == T1) {	/* Number */
-		origin = i;
-		do {
-			i += 2L;
-			m = (**pp_a)[i];
+				if((r=Zouleb(pp_a,&newlevel,&i,retro,rndseq,rotate+newrotate,
+						repeat,FALSE,seed)) != OK)
+					goto SORTIR;
+				ischanged = ((rotate+newrotate) == 0);
+				goto STORE;
+				break;
+			case T42:	/* _srand */
+				seed = p;
+				goto NEXT;
+				break;
 			}
-		while(m == T1);
-		if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 11) {	/* '/' */
+		
+		if(m == T1) {	/* Number */
+			origin = i;
 			do {
 				i += 2L;
 				m = (**pp_a)[i];
 				}
 			while(m == T1);
+			if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 11) {	/* '/' */
+				do {
+					i += 2L;
+					m = (**pp_a)[i];
+					}
+				while(m == T1);
+				}
+			end = i;
+			if((r=StoreChunk(&p_chunk,&ichunk,&ichunkmax,origin,end)) != OK) goto SORTIR;
+			continue;
 			}
-		end = i;
-		if((r=StoreChunk(&p_chunk,&ichunk,&ichunkmax,origin,end)) != OK) goto SORTIR;
-		continue;
+		
+		if(m == T0 && (p == 11 || p == 21 || p == 24 || p == 25)) {	/* '/' '*' '**' '\' */
+			do {
+				i += 2L;
+				m = (**pp_a)[i];
+				}
+			while(m == T1);
+			continue;
+			}
+			
+		if(m == T0 && (p == 12 || p == 22)) {	/* '{' */
+			origin = i;
+			newpos = i + 2L;
+			newlevel = orglevel + 1;
+			do {
+				r = Zouleb(pp_a,&newlevel,&newpos,retro,rndseq,rotate,repeat,TRUE,seed);
+				if(r != OK) goto SORTIR;
+				}
+			while(newlevel > orglevel);
+			end = i = newpos;
+			ischanged = TRUE;
+			if(retro || rndseq || (rotate != 0)) ischanged = FALSE;
+			if((r=StoreChunk(&p_chunk,&ichunk,&ichunkmax,origin,end)) != OK) goto SORTIR;
+			continue;
+			}
+	NEXT:
+		i += 2L;
 		}
-	
-	if(m == T0 && (p == 11 || p == 21 || p == 24 || p == 25)) {	/* '/' '*' '**' '\' */
-		do {
-			i += 2L;
-			m = (**pp_a)[i];
+
+	nchunks = ichunk;
+
+	if(repeat) {
+		if(ProduceStackDepth == -1) {
+			my_sprintf(Message,"Can't repeat: more than %ld computations",(long)MAXDERIV);
+			BPPrintMessage(0,odError,"%s",Message);
+			r = ABORT; goto SORTIR;
 			}
-		while(m == T1);
-		continue;
 		}
 		
-	if(m == T0 && (p == 12 || p == 22)) {	/* '{' */
-		origin = i;
-		newpos = i + 2L;
-		newlevel = orglevel + 1;
-		do {
-			r = Zouleb(pp_a,&newlevel,&newpos,retro,rndseq,rotate,repeat,TRUE,seed);
-			if(r != OK) goto SORTIR;
-			}
-		while(newlevel > orglevel);
-		end = i = newpos;
-		ischanged = TRUE;
-		if(retro || rndseq || (rotate != 0)) ischanged = FALSE;
-		if((r=StoreChunk(&p_chunk,&ichunk,&ichunkmax,origin,end)) != OK) goto SORTIR;
-		continue;
+	store = FALSE;
+	if(ComputeOn) {
+		if(ProduceStackDepth > -1) store = TRUE;
+		else BPPrintMessage(0,odError,"=> Err. Zouleb(). ProduceStackDepth == -1\n");
 		}
-NEXT:
-	i += 2L;
-	}
 
-nchunks = ichunk;
+	p_index = NULL;
 
-if(repeat) {
-	if(ProduceStackDepth == -1) {
-		my_sprintf(Message,"Can't repeat: more than %ld computations",(long)MAXDERIV);
-		BPPrintMessage(0,odError,"%s",Message);
-		r = ABORT; goto SORTIR;
-		}
-	}
-	
-store = FALSE;
-if(ComputeOn) {
-	if(ProduceStackDepth > -1) store = TRUE;
-	else BPPrintMessage(0,odError,"=> Err. Zouleb(). ProduceStackDepth == -1\n");
-	}
-
-p_index = NULL;
-
-if(rndseq) {
-	if(!repeat) ReseedOrShuffle(orgseed);
-	r = MakeRandomSequence(&p_index,nchunks,repeat,store);
-	if(r != OK) goto SORTIR;
-	}
-else {
-	if(rotate != 0) {
-		if(rotate < -128 || rotate > 127) {
-			BPPrintMessage(0,odError,"=> Err. Zouleb(). rotate < -128 || rotate > 127");
-			rotate = 0;
-			}
-		r = RotateSequence(&p_index,nchunks,rotate);
+	if(rndseq) {
+		if(!repeat) ReseedOrShuffle(orgseed);
+		r = MakeRandomSequence(&p_index,nchunks,repeat,store);
 		if(r != OK) goto SORTIR;
 		}
-	}
-
-// Now we copy the modified structure
-
-i = iorg;
-ib = ZERO;
-
-ichunk = ZERO;
-
-while(TRUE) {
-	m = (**pp_a)[i]; p = (**pp_a)[i+1];
-	
-	if(m == TEND && p == TEND) {
-		(*p_level)--;
-		(*p_pos_init) = i + (2L * more);
-		break;
+	else {
+		if(rotate != 0) {
+			if(rotate < -128 || rotate > 127) {
+				BPPrintMessage(0,odError,"=> Err. Zouleb(). rotate < -128 || rotate > 127");
+				rotate = 0;
+				}
+			r = RotateSequence(&p_index,nchunks,rotate);
+			if(r != OK) goto SORTIR;
+			}
 		}
-	if(m == T0 && p == 14) {		/* ',' */
-		(*p_pos_init) = i + (2L * (more + 1));
-		break;
-		}
-	if(m == T0 && (p == 13 || p == 23)) {	/* '}' */
-		(*p_level)--;
-		(*p_pos_init) = i + (2L * (isbracket + more));
-		break;
-		}
+
+	// Now we copy the modified structure
+
+	i = iorg;
+	ib = ZERO;
+
+	ichunk = ZERO;
+
+	while(TRUE) {
+		m = (**pp_a)[i]; p = (**pp_a)[i+1];
 		
-	if(m == T0 && (p == 12 || p == 22)) {	/* '{' */
-		if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto SORTIR;
-		GetChunk(p_chunk,&ichunk,nchunks,rndseq,retro,rotate,&ib,&ibmax,&i,*pp_a,p_b,p_index,(p == 22),
-			&more);
-		continue;
-		}
+		if(m == TEND && p == TEND) {
+			(*p_level)--;
+			(*p_pos_init) = i + (2L * more);
+			break;
+			}
+		if(m == T0 && p == 14) {		/* ',' */
+			(*p_pos_init) = i + (2L * (more + 1));
+			break;
+			}
+		if(m == T0 && (p == 13 || p == 23)) {	/* '}' */
+			(*p_level)--;
+			(*p_pos_init) = i + (2L * (isbracket + more));
+			break;
+			}
+			
+		if(m == T0 && (p == 12 || p == 22)) {	/* '{' */
+			if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto SORTIR;
+			GetChunk(p_chunk,&ichunk,nchunks,rndseq,retro,rotate,&ib,&ibmax,&i,*pp_a,p_b,p_index,(p == 22),
+				&more);
+			continue;
+			}
+			
+		switch(m) {
+			case T3:	/* sound-object */
+			case T4:	/* variable */
+			case T6:	/* wildcard */
+			case T7:	/* out-time object or simple note */
+			case T9:	/* time pattern */
+			case T25:	/* simple note */
+				GetChunk(p_chunk,&ichunk,nchunks,rndseq,retro,rotate,&ib,&ibmax,&i,*pp_a,p_b,p_index,NO,&more);
+				continue;
+				break;
+			case T12:
+				switch(p) {
+					case 21:	/* _retro */
+					case 22:	/* _rndseq */
+					case 24:	/* _ordseq */
+	GETITBACK:
+						i += 2L;	/* skip instruction */
+						NeedZouleb--;
+						GetChunk(p_chunk,&ichunk,nchunks,rndseq,retro,rotate,&ib,&ibmax,&i,*pp_a,p_b,p_index,NO,&more);
+						continue;
+					}
+				break;
+			case T39:	/* _rotate */
+				goto GETITBACK;
+				break;
+			}
 		
-	switch(m) {
-		case T3:	/* sound-object */
-		case T4:	/* variable */
-		case T6:	/* wildcard */
-		case T7:	/* out-time object or simple note */
-		case T9:	/* time pattern */
-		case T25:	/* simple note */
-			GetChunk(p_chunk,&ichunk,nchunks,rndseq,retro,rotate,&ib,&ibmax,&i,*pp_a,p_b,p_index,NO,&more);
+		if(m == T1) {	/* Number */
+			GetChunk(p_chunk,&ichunk,nchunks,rndseq,retro,rotate,&ib,&ibmax,&i,*pp_a,p_b,p_index,NO,
+				&more);
 			continue;
 			break;
-		case T12:
-			switch(p) {
-				case 21:	/* _retro */
-				case 22:	/* _rndseq */
-				case 24:	/* _ordseq */
-GETITBACK:
-					i += 2L;	/* skip instruction */
-					NeedZouleb--;
-					GetChunk(p_chunk,&ichunk,nchunks,rndseq,retro,rotate,&ib,&ibmax,&i,*pp_a,p_b,p_index,NO,&more);
-					continue;
-				}
-			break;
-		case T39:	/* _rotate */
-			goto GETITBACK;
-			break;
-		}
-	
-	if(m == T1) {	/* Number */
-		GetChunk(p_chunk,&ichunk,nchunks,rndseq,retro,rotate,&ib,&ibmax,&i,*pp_a,p_b,p_index,NO,
-			&more);
-		continue;
-		break;
-		}
-	
-	if(m == T0 && (p == 11 || p == 21 || p == 24 || p == 25)) {	/* '/' '*' '**' '\' */
-		do {
-			(*p_b)[ib++] = m; (*p_b)[ib++] = p;
-			if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto SORTIR;
-			i += 2L;
-			m = (**pp_a)[i]; p = (**pp_a)[i+1];
 			}
-		while(m == T1);
-		continue;
-		}
 		
-NEXT2:
-	(*p_b)[ib++] = m; (*p_b)[ib++] = p;
+		if(m == T0 && (p == 11 || p == 21 || p == 24 || p == 25)) {	/* '/' '*' '**' '\' */
+			do {
+				(*p_b)[ib++] = m; (*p_b)[ib++] = p;
+				if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto SORTIR;
+				i += 2L;
+				m = (**pp_a)[i]; p = (**pp_a)[i+1];
+				}
+			while(m == T1);
+			continue;
+			}
+			
+	NEXT2:
+		(*p_b)[ib++] = m; (*p_b)[ib++] = p;
+		if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto SORTIR;
+		i += 2L;
+		}
+	(*p_b)[ib++] = TEND; (*p_b)[ib++] = TEND;
 	if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto SORTIR;
-	i += 2L;
-	}
-(*p_b)[ib++] = TEND; (*p_b)[ib++] = TEND;
-if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto SORTIR;
 
-MyDisposeHandle((Handle*) &p_index);
+	MyDisposeHandle((Handle*) &p_index);
 
-// Copy b to a
+	// Copy b to a
 
-if(more > 0) {
-	i = iorg;
-	while((**pp_a)[i] != TEND || (**pp_a)[i+1] != TEND) i += 2L;
-	j = i + more + more;
-	if((r=CheckBuffer(j+2L,&imax,pp_a)) != OK) goto SORTIR;
-	for(j=j; ; i-=2L,j-=2L) {
-		(**pp_a)[j] = (**pp_a)[i];
-		(**pp_a)[j+1] = (**pp_a)[i+1];
-		if(i == iorg) break;
+	if(more > 0) {
+		i = iorg;
+		while((**pp_a)[i] != TEND || (**pp_a)[i+1] != TEND) i += 2L;
+		j = i + more + more;
+		if((r=CheckBuffer(j+2L,&imax,pp_a)) != OK) goto SORTIR;
+		for(j=j; ; i-=2L,j-=2L) {
+			(**pp_a)[j] = (**pp_a)[i];
+			(**pp_a)[j+1] = (**pp_a)[i+1];
+			if(i == iorg) break;
+			}
 		}
-	}
-if(more < 0) {
-	i = iorg - more - more;
-	for(j=iorg; (**pp_a)[i] != TEND || (**pp_a)[i+1] != TEND; i+=2L,j+=2L) {
-		(**pp_a)[j] = (**pp_a)[i];
-		(**pp_a)[j+1] = (**pp_a)[i+1];
+	if(more < 0) {
+		i = iorg - more - more;
+		for(j=iorg; (**pp_a)[i] != TEND || (**pp_a)[i+1] != TEND; i+=2L,j+=2L) {
+			(**pp_a)[j] = (**pp_a)[i];
+			(**pp_a)[j+1] = (**pp_a)[i+1];
+			}
+		(**pp_a)[j] = (**pp_a)[j+1] = TEND;
 		}
-	(**pp_a)[j] = (**pp_a)[j+1] = TEND;
-	}
-for(i=iorg, ib=0; ; i+=2L, ib+=2L) {
-	m = (*p_b)[ib];
-	p = (*p_b)[ib+1];
-	if(m == TEND && p == TEND) break;
-	(**pp_a)[i] = m;
-	(**pp_a)[i+1] = p;
-	}
+	for(i=iorg, ib=0; ; i+=2L, ib+=2L) {
+		m = (*p_b)[ib];
+		p = (*p_b)[ib+1];
+		if(m == TEND && p == TEND) break;
+		(**pp_a)[i] = m;
+		(**pp_a)[i+1] = p;
+		}
 
-SORTIR:
-MyDisposeHandle((Handle*)&p_chunk);
-MyDisposeHandle((Handle*)&p_b);
-return(r);
-}
+	SORTIR:
+	MyDisposeHandle((Handle*)&p_chunk);
+	MyDisposeHandle((Handle*)&p_b);
+	return(r);
+	}
 
 
 int StoreChunk(ChunkPointer ***pp_chunk,long *p_i,long *p_imax,unsigned long origin,

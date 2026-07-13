@@ -871,7 +871,7 @@ if(Pduration > 0.) {
 	else my_sprintf(Message,"Dur = %.0f ticks",Pduration);
 		
 	if(Ratio != Prod) {
-		if(Ratio < ULONG_MAX) my_sprintf(line,"  Ratio = %lu",(unsigned long)Ratio);
+		if(Ratio < (double) ULONG_MAX) my_sprintf(line,"  Ratio = %lu",(unsigned long)Ratio);
 		else my_sprintf(line,"   Ratio = %.0f",Ratio);
 		if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
 		}

@@ -6,11 +6,17 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+
+2026-07-13 (version 3.4.6)
+The Zouleb() function is now called in a unique place (Polymetric.c).
+Fixed conversion of ULONG_MAX from 'unsigned long' to 'double'.
+Don't forget to update the PHP interface:
+https://github.com/bolprocessor/php-frontend/
+ 
+-----
 2026-05-21 -> 2026-06-02 (version 3.4.5)
 This version enables you to enter note names from a MIDI device (typically a keyboard).
 Read https://bolprocessor.org/enter-notes/ for details.
-Don't forget to update the PHP interface:
-https://github.com/bolprocessor/php-frontend/
 
 -----
 2026-05-06 -> 2026-05-16 (version 3.4.4)

@@ -141,30 +141,19 @@ int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_re
 	CompleteDecisions = TRUE;
 
 	SORTIR:
-
-	if(r == OK) {
+	/* if(r == OK) {
 		ix = ZERO;
 		level = 0;
 		if(NeedZouleb > 0) {
-			if(ShowMessages) BPPrintMessage(1,odInfo,"👉 Applying serial tools...\n");
+			if(ShowMessages) BPPrintMessage(1,odInfo,"👉 Applying serial tools to modify order of sequence(s) in Compute()\n");
 			do {
 				r = Zouleb(pp_a,&level,&ix,FALSE,FALSE,0,(*p_repeat),FALSE,NOSEED);
 				if(r != OK) break;
 				}
 			while(level >= 0);
 			}
-		}
-	if(DisplayProduce != displayproducemem) {
-		DisplayProduce = displayproducemem;
-		}
-	if(TraceProduce && !TraceDetail) {
-		Print(wTrace,"\nResult = ");
-		if((r=PrintWorkString(FALSE,wTrace,FALSE,FALSE,pp_a)) != OK) return(r);
-		}
-	if(NeedZouleb != 0) {
-		BPPrintMessage(0,odError,"=> NeedZouleb = %ld after Compute(). Should be 0\n",(long)NeedZouleb);
-		}
-//	if(ItemNumber == 0) ItemNumber = 1;
+		} */
+	DisplayProduce = displayproducemem;
 	return(r);
 	}
 

@@ -394,7 +394,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	PleaseWait();
 	if(trace_timeset) {
 		if(Kpress > 1.) {
-			if(Kpress < ULONG_MAX)
+			if(Kpress < (double) ULONG_MAX)
 				my_sprintf(Message,"%ld objects. Compression rate = %.0f  Sequence %ld/%ld",
 					(long)(*p_kmx),Kpress,((long)nseq)+1L,((long)(*p_nmax))+1L);
 			else
