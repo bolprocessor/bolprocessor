@@ -146,15 +146,13 @@ return(OK);
 }
 
 
-int Eucl(unsigned long a,unsigned long b,unsigned long *p_q,unsigned long *p_r)
-{
+int Eucl(unsigned long a,unsigned long b,unsigned long *p_q,unsigned long *p_r) {
+	if(b == ZERO) return(-1);
 
-if(b == ZERO) return(-1);
-
-(*p_r) = a % b;
-(*p_q) = (a - *p_r) / b;
-return(0);
-}
+	(*p_r) = a % b;
+	(*p_q) = (a - *p_r) / b;
+	return(0);
+	}
 
 
 int Simplify(double limit,double p,double q,double *p_p,double *p_q)
@@ -231,76 +229,71 @@ return(result);
 }
 
 
-double LCM(double p,double q,int *p_overflow)
-{
-double r;
-unsigned long gcd;
+double LCM(double p,double q,int *p_overflow) {
+	double r;
+	unsigned long gcd;
 
-(*p_overflow) = FALSE;
-if(p == q) return(p);
-if(p < 1. || q  < 1.) {
-	(*p_overflow) = TRUE;
-	return(ZERO);
-	}
-if((gcd=GCD(p,q)) == ZERO)  {
-	TellComplex();
-	(*p_overflow) = TRUE;
-/*	return(p * q); */
-	if(p > q) return(p);
-	else return(q);
-	}
-r = (p / gcd) * q;
-return(r);
-}
-
-
-unsigned long GCD(double p,double q)
-{
-unsigned long pp,qq,qmem;
-
-if(p < 1. || q < 1. || p >= (double) ULONG_MAX || q >= (double) ULONG_MAX) return(ZERO);
-pp = (unsigned long) p;
-qq = (unsigned long) q;
-if(p < 1.) return(qq);
-if(q < 1.) return(pp);
-while(qq != ZERO) {
-	qmem = qq;
-	qq = pp % qq;
-	pp = qmem;
-	}
-return(pp);
-}
-
-
-unsigned long LCMofTable(unsigned long p[],int imax,int *p_overflow)
-{
-int i;
-double x,xold;
-unsigned long result;
-
-x = 1.;
-*p_overflow = FALSE;
-for(i=0; i < imax; i++) {
-	xold = x;
-	x = LCM(x,(double)p[i],p_overflow);
-	if(x < 1. || x >= (double) ULONG_MAX || (*p_overflow)) {
-		x = xold;
-		goto SORTIR;
+	(*p_overflow) = FALSE;
+	if(p == q) return(p);
+	if(p < 1. || q  < 1.) {
+		(*p_overflow) = TRUE;
+		return(ZERO);
 		}
+	if((gcd=GCD(p,q)) == ZERO)  {
+		TellComplex();
+		(*p_overflow) = TRUE;
+		if(p > q) return(p);
+		else return(q);
+		}
+	r = (p / gcd) * q;
+	return(r);
 	}
-SORTIR:
-result = (unsigned long) x;
-return(result);
-}
 
 
-long MyInt(double x)
-{
-long i;
+unsigned long GCD(double p,double q) {
+	unsigned long pp,qq,qmem;
 
-i = (long) (1.00001 * x);
-return(i);
-}
+	if(p < 1. || q < 1. || p >= (double) ULONG_MAX || q >= (double) ULONG_MAX) return(ZERO);
+	pp = (unsigned long) p;
+	qq = (unsigned long) q;
+	if(p < 1.) return(qq);
+	if(q < 1.) return(pp);
+	while(qq != ZERO) {
+		qmem = qq;
+		qq = pp % qq;
+		pp = qmem;
+		}
+	return(pp);
+	}
+
+
+unsigned long LCMofTable(unsigned long p[],int imax,int *p_overflow) {
+	int i;
+	double x,xold;
+	unsigned long result;
+
+	x = 1.;
+	*p_overflow = FALSE;
+	for(i=0; i < imax; i++) {
+		xold = x;
+		x = LCM(x,(double)p[i],p_overflow);
+		if(x < 1. || x >= (double) ULONG_MAX || (*p_overflow)) {
+			x = xold;
+			goto SORTIR;
+			}
+		}
+	SORTIR:
+	result = (unsigned long) x;
+	return(result);
+	}
+
+
+long MyInt(double x) {
+	long i;
+
+	i = (long) (1.00001 * x);
+	return(i);
+	}
 
 
 double Myatof(char *s,long *p_p,long *p_q)

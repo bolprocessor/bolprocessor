@@ -8,7 +8,7 @@ https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3
 
 
 2026-07-13 (version 3.4.6)
-The Zouleb() function is now called in a unique place (Polymetric.c).
+The Zouleb() function is now called in Polymetric.c and ProduceItems.c.
 Fixed conversion of ULONG_MAX from 'unsigned long' to 'double'.
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/

@@ -329,6 +329,16 @@ if(!PlaySelectionOn && Improvize) {
 		}
 	goto MAKE;
 	}
+if(OutBPdata && NeedZouleb > 0) { // 2026-07-13
+	unsigned long ix = ZERO;
+	int level = 0;
+	if(ShowMessages) BPPrintMessage(1,odInfo,"👉 Applying serial tools to modify order of sequence(s) in Compute()\n");
+	do {
+		r = Zouleb(pp_a,&level,&ix,FALSE,FALSE,0,0,FALSE,NOSEED);
+		if(r != OK) break;
+		}
+	while(level >= 0);
+	}
 if(!StepProduce && !TraceProduce && !PlaySelectionOn
 	&& ((r=ShowItem(FALSE,pp_a,repeat,PROD,FALSE)) == ABORT || r == EXIT)) {
 		BPPrintMessage(0,odError, "=> Failed in ShowItem()\n");
