@@ -145,10 +145,11 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	for(nseq = nmin; nseq <= nmax; nseq++) {
 		if(trace_graphic) BPPrintMessage(1,odInfo,"\nnseq = %d\n",nseq);
 		foundone = FALSE;
-		for(i=ZERO; i < (*p_imaxseq)[nseq] && i <= imax; i++) { // Fixed by BB 2021-03-20
+		for(i=ZERO; i < (*p_imaxseq)[nseq] && i <= imax; i++) {
 			k = (*((*p_Seq)[nseq]))[i];
 			if(trace_graphic) {
-				if(k > 0) BPPrintMessage(1,odInfo,"k = %d \n",k);
+			//	if(k > 0) 
+				BPPrintMessage(1,odInfo,"k = %d \n",k);
 			//	else BPPrintMessage(0,odInfo,"_");
 				}
 			if(k < 0) BPPrintMessage(0,odError,"=> Err. 'k' in DrawItem(): nseq = %ld, i = %ld, k = %ld\n",(long)nseq,(long)i,(long)k);
