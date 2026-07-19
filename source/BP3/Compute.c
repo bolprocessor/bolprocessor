@@ -169,11 +169,11 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 		BPPrintMessage(0,odError,"=> Err. in ComputeInGram(). p_gram == NULL");
 		return(ABORT);
 		}
-	/* if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
+	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 		EmergencyExit = TRUE;
 		BPPrintMessage(0,odInfo,"=> (4) Maximum allowed time (%ld seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return(ABORT);
-		} */
+		}
 	if(p_gram->p_subgram == NULL) return(OK);
 	subgram = (*(p_gram->p_subgram))[igram];
 	grtype = subgram.type;
@@ -331,11 +331,11 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 	while(((nb_candidates = FindCandidateRules(pp_a,p_gram,startfrom,igram,grtype,p_candidate,p_totwght,p_pos,p_prefrule,leftpos,&maxpref,&freedom,*p_repeat,
 		mode,&equalweight,learn,time_end_compute)) > 0) || (nb_candidates == AGAIN)) {
 
-	/*	if(!Improvize && !Interactive && time_end_compute > 0L  && getClockTime() > time_end_compute) {
+		if(!Improvize && !Interactive && time_end_compute > 0L  && getClockTime() > time_end_compute) {
 			EmergencyExit =TRUE;
 			BPPrintMessage(0,odInfo,"=> (5) Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 			return(ABORT);
-			} */
+			}
 		try = irep = 0;
 		if(TraceDetail) equalweight = FALSE; // 2026-05-03, so all candidate rules will be listed
 		if(trace_compute) 
@@ -584,11 +584,11 @@ NOPROD:
 			rep = pos1; goto QUIT;
 			}
 		if(ChangedGrammar || ChangedSettings) return(OK);
-	/*	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
-			EmergencyExit =TRUE; 
+		if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
+			EmergencyExit = TRUE; 
 			BPPrintMessage(0,odInfo,"=> (7) Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 			return(ABORT); 
-			} */
+			}
 	/*	if(pos1 == STOP) {
 			rep = MISSED;
 			if(igram < p_gram->number_gram) {
@@ -663,11 +663,11 @@ MORE:
 			if(w < 0) w = 0;
 			(*((*(p_gram->p_subgram))[igram].p_rule))[irul].w = w;
 			}
-	/*	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
+		if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 			EmergencyExit = TRUE; 
 			BPPrintMessage(0,odInfo,"=> (8) Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 			return(ABORT);
-			} */
+			}
 		if(Flagthere && (grtype != SUBtype) && !shootagain)
 			if((rep=ChangeFlagsInRule(p_gram,igram,irul)) != OK) goto QUIT;
 		shootagain = FALSE;
@@ -1129,11 +1129,11 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 	if(CheckEmergency() != OK) return(ABORT);
 	if(ChangedGrammar || ChangedSettings) return(0);
 
-/* if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
+	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 		EmergencyExit =TRUE;
 		BPPrintMessage(0,odInfo,"=> (1) Maximum allowed time (%d seconds) has been spent in FindCandidateRules(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return(ABORT);
-		} */
+		}
 
 	if(trace_compute) BPPrintMessage(1,odInfo,"FindCandidateRules() leftpos = %ld\n",leftpos);
 
@@ -1558,11 +1558,11 @@ int Found(int irul,tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,in
 
 	if(ChangedGrammar || ChangedSettings) return(FALSE);
 
-/*	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
+	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 		EmergencyExit = TRUE;
 		BPPrintMessage(0,odInfo,"=> (2) Maximum allowed time (%d seconds) has been spent in Found(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return(ABORT);
-		} */
+		}
 			
 	// offset = rule.leftoffset if grtype = SUBtype; offset = 0 otherwise.
 	if(offset > 0 && grtype != SUBtype) {
@@ -1894,11 +1894,11 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 				posdif = ((*p_lengthorigin) - pos - 1);
 				pos1 = pos + 2 * (int)(posdif
 				* (randomnumber / ((double)BP3_RAND_MAX) / 2.));
-			/*	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
+				if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 					EmergencyExit = TRUE;
 					BPPrintMessage(0,odInfo,"=> (3) Maximum allowed time (%d seconds) has been spent in Insert(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 					return(ABORT);
-					} */
+					}
 			if(trace_compute) BPPrintMessage(0,odInfo,"Insert() randomnumber = %ld pos1 = %ld\n",(long)randomnumber,(long)pos1);
 				}
 			while(!Found(-1,pp_origin,grtype,p_arg1,offset,rule.leftnegcontext,&lenc1,pos1,

@@ -40,348 +40,348 @@
 
 int trace_produce_all = 0;
 
-int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start)
-/* Produce items. Start string is selection in window w or in buffer p_start */
-{
-tokenbyte **p_buff,***pp_buff,**p_a,***pp_a;
-int i,ifunc,j,ch,splitmem,r,undefined,datamode,weightloss,hastabs,maxsounds,check,changed;
-long endofselection,size,lengthA;
-unsigned long time_end_compute;
+int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
+	tokenbyte **p_buff,***pp_buff,**p_a,***pp_a;
+	int i,ifunc,j,ch,splitmem,r,undefined,datamode,weightloss,hastabs,maxsounds,check,changed;
+	long endofselection,size,lengthA;
+	unsigned long time_end_compute;
 
-ComputeOn++;
-// BPPrintMessage(1,odInfo,"Maximum time allowed = %d seconds\n",MaxConsoleTime);
-if(Improvize && ItemNumber == 0 && !WriteMIDIfile) {
-	 BPPrintMessage(1,odInfo,"\n👉 Most of the messages will be discarded during the improvisation\n");
-	if(!rtMIDI) BPPrintMessage(1,odInfo,"Only %ld items will be produced.\n",MaxItemsProduce);
-	}
-
-if(CheckEmergency() != OK) return(ABORT);
-
-if(((SetTimeOn || PrintOn || SoundOn || SelectOn) && !repeat)
-					|| CompileOn || GraphicOn || PolyOn) return(RESUME);
-
-if(AllItems && TraceDetail) {
-	TraceProduce = TRUE; TraceDetail = FALSE;
-	BPPrintMessage(1,odInfo,"Detailed trace is not possible when producing all items\n");
-	}
-
-if(CompileCheck() != OK) {
-	Improvize = FALSE;
-	if(FirstGrammar) BPPrintMessage(0,odError,"=> Compilation failed\n");
-	return(MISSED);
-	}
-
-if(!template && CheckLoadedPrototypes() != OK) return(MISSED);
-
-STARTFROMSCRATCH:
-time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
-
-p_a = NULL; pp_a = &p_a;
-pp_buff = &p_buff; p_buff = NULL;
-r = OK;
-
-// if(ShowGraphic) CreateImageFile(-1.);
-if(Panic) return ABORT;
-
-trace_header(FALSE);
-
-SaidTooComplex = ShownBufferSize = FALSE;
-if(ResetControllers) {
-	// These values will force the production of messages before the first object
-	for(ch=0; ch < MAXCHAN; ch++) {
-		(*p_Oldvalue)[ch].volume = -1;
-		(*p_Oldvalue)[ch].panoramic = -1;
-		(*p_Oldvalue)[ch].pressure = -1;
-		(*p_Oldvalue)[ch].pitchbend = -1.;
-		(*p_Oldvalue)[ch].modulation = -1;
+	ComputeOn++;
+	if(MaxConsoleTime > 0L) BPPrintMessage(1,odInfo,"Maximum time allowed = %ld seconds\n",MaxConsoleTime);
+	if(Improvize && ItemNumber == 0 && !WriteMIDIfile) {
+		BPPrintMessage(1,odInfo,"\n👉 Most of the messages will be discarded during the improvisation\n");
+		if(!rtMIDI) BPPrintMessage(1,odInfo,"Only %ld items will be produced.\n",MaxItemsProduce);
 		}
-	}
-// if(!PlaySelectionOn && ResetControllers) ResetMIDIControllers(YES,YES,NO);
-if(!PlaySelectionOn && (InitThere == 2)) {
-	if(!ScriptExecOn) {
-		CurrentDir = WindowParID[wScript];
-		CurrentVref = TheVRefNum[wScript];
+
+	if(CheckEmergency() != OK) return(ABORT);
+
+	if(((SetTimeOn || PrintOn || SoundOn || SelectOn) && !repeat)
+						|| CompileOn || GraphicOn || PolyOn) return(RESUME);
+
+	if(AllItems && TraceDetail) {
+		TraceProduce = TRUE; TraceDetail = FALSE;
+		BPPrintMessage(1,odInfo,"Detailed trace is not possible when producing all items\n");
 		}
-	check = 0; // This will create a script line
-	if(ExecScriptLine(NULL,wScript,check,TRUE,p_InitScriptLine,size,&size,&i,&i) != OK) {
+
+	if(CompileCheck() != OK) {
+		Improvize = FALSE;
+		if(FirstGrammar) BPPrintMessage(0,odError,"=> Compilation failed\n");
+		return(MISSED);
+		}
+
+	if(!template && CheckLoadedPrototypes() != OK) return(MISSED);
+
+	STARTFROMSCRATCH:
+	if(MaxConsoleTime > 0L)
+			time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
+	else time_end_compute = 0L;
+
+	p_a = NULL; pp_a = &p_a;
+	pp_buff = &p_buff; p_buff = NULL;
+	r = OK;
+
+	// if(ShowGraphic) CreateImageFile(-1.);
+	if(Panic) return ABORT;
+
+	trace_header(FALSE);
+
+	SaidTooComplex = ShownBufferSize = FALSE;
+	if(ResetControllers) {
+		// These values will force the production of messages before the first object
+		for(ch=0; ch < MAXCHAN; ch++) {
+			(*p_Oldvalue)[ch].volume = -1;
+			(*p_Oldvalue)[ch].panoramic = -1;
+			(*p_Oldvalue)[ch].pressure = -1;
+			(*p_Oldvalue)[ch].pitchbend = -1.;
+			(*p_Oldvalue)[ch].modulation = -1;
+			}
+		}
+	// if(!PlaySelectionOn && ResetControllers) ResetMIDIControllers(YES,YES,NO);
+	if(!PlaySelectionOn && (InitThere == 2)) {
+		if(!ScriptExecOn) {
+			CurrentDir = WindowParID[wScript];
+			CurrentVref = TheVRefNum[wScript];
+			}
+		check = 0; // This will create a script line
+		if(ExecScriptLine(NULL,wScript,check,TRUE,p_InitScriptLine,size,&size,&i,&i) != OK) {
+			r = MISSED; goto QUIT;
+			}
+		}
+	SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
+	ifunc = weightloss = FALSE;
+	splitmem = SplitTimeObjects;
+
+	undefined = FALSE;
+	for(j=1; j <= Jvar; j++) {
+		if(((*p_VarStatus)[j] & 2) && !((*p_VarStatus)[j] & 1) && !((*p_VarStatus)[j] & 4)) {
+			undefined = TRUE; break;
+			}
+		}
+	if(!OutBPdata && undefined && !repeat && !IgnoreUndefinedVariables) {
+		BPPrintMessage(0,odError,"\n=> Undefined variable(s) found and ignored:\n=> ");
+		for(j = 1, i = 0; j <= Jvar; j++) {
+			if(((*p_VarStatus)[j] & 2) && !((*p_VarStatus)[j] & 1)
+										&& !((*p_VarStatus)[j] & 4))  {
+				if(i > 0) BPPrintMessage(0,odError,", ");
+				my_sprintf(Message,"%s",*((*p_Var)[j]));
+				BPPrintMessage(0,odError,Message);
+				i++;
+				}
+			}
+		BPPrintMessage(0,odError,"\n");
+		}
+	PedalOrigin = -1;
+	if(Jflag > 0) for(i=1; i <= Jflag; i++) (*p_Flag)[i] = ZERO;
+	MaxDeriv = MAXDERIV;
+	if(pp_start != NULL) pp_a = pp_start;
+	else if(CreateBuffer(pp_a) != OK)  {
 		r = MISSED; goto QUIT;
 		}
-	}
-SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
-ifunc = weightloss = FALSE;
-splitmem = SplitTimeObjects;
-
-undefined = FALSE;
-for(j=1; j <= Jvar; j++) {
-	if(((*p_VarStatus)[j] & 2) && !((*p_VarStatus)[j] & 1) && !((*p_VarStatus)[j] & 4)) {
-		undefined = TRUE; break;
+	// if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start MakeComputeSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if(MakeComputeSpace(MaxDeriv) != OK) {
+		r = MISSED; goto QUIT;
 		}
-	}
-if(!OutBPdata && undefined && !repeat && !IgnoreUndefinedVariables) {
-	BPPrintMessage(0,odError,"\n=> Undefined variable(s) found and ignored:\n=> ");
-	for(j = 1, i = 0; j <= Jvar; j++) {
-		if(((*p_VarStatus)[j] & 2) && !((*p_VarStatus)[j] & 1)
-									&& !((*p_VarStatus)[j] & 4))  {
-			if(i > 0) BPPrintMessage(0,odError,", ");
-			my_sprintf(Message,"%s",*((*p_Var)[j]));
-			BPPrintMessage(0,odError,Message);
-			i++;
+	/* if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end MakeComputeSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if(!ResetWeights && !NeverResetWeights && Varweight && !JustCompiled) {
+		if((r=Answer("Reset rule weights to initial values",'N')) == OK) {
+			Varweight = ResetRuleWeights(&Gram,0);
 			}
-		}
-	BPPrintMessage(0,odError,"\n");
-	}
-PedalOrigin = -1;
-if(Jflag > 0) for(i=1; i <= Jflag; i++) (*p_Flag)[i] = ZERO;
-MaxDeriv = MAXDERIV;
-if(pp_start != NULL) pp_a = pp_start;
-else if(CreateBuffer(pp_a) != OK)  {
-	r = MISSED; goto QUIT;
-	}
-// if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start MakeComputeSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-if(MakeComputeSpace(MaxDeriv) != OK) {
-	r = MISSED; goto QUIT;
-	}
-/* if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end MakeComputeSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-if(!ResetWeights && !NeverResetWeights && Varweight && !JustCompiled) {
-	if((r=Answer("Reset rule weights to initial values",'N')) == OK) {
-		Varweight = ResetRuleWeights(&Gram,0);
-		}
-	if(r == NO && (r=Answer("OK to never reset rule weights",'Y')) == OK) {
-		NeverResetWeights = TRUE;
-		}
-	if(r == ABORT) goto QUIT;
-	} */
-JustCompiled = FALSE;
+		if(r == NO && (r=Answer("OK to never reset rule weights",'Y')) == OK) {
+			NeverResetWeights = TRUE;
+			}
+		if(r == ABORT) goto QUIT;
+		} */
+	JustCompiled = FALSE;
 
-maxsounds = Jbol + Jpatt;
-// BPPrintMessage(0,odInfo,"Jbol = %ld, Jpatt = %ld\n",(long)Jbol,(long)Jpatt);
-ResizeObjectSpace(FALSE,maxsounds,0);
+	maxsounds = Jbol + Jpatt;
+	// BPPrintMessage(0,odInfo,"Jbol = %ld, Jpatt = %ld\n",(long)Jbol,(long)Jpatt);
+	ResizeObjectSpace(FALSE,maxsounds,0);
 
-r = OK;
-StartCount();
-SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
-LimTimeSet = LimCompute = FALSE;
-TimeMax = MAXTIME;
-MaxComputeTime = ZERO;
-Nplay = 1; SynchroSignal = OFF;
-if(!PlaySelectionOn && InitThere == 1) FirstTime = TRUE;
-else FirstTime = FALSE;
-if(!PlaySelectionOn && DisplayItems && !template) BPActivateWindow(SLOW,OutputWindow);
-
-if(!PlaySelectionOn && (AllItems || template)) {
-	ProduceAll(&Gram,pp_a,template);
-	goto QUIT;
-	}
-if(pp_start == NULL && IsEmpty(w)) {
-	if(w == wStartString) {
-		SetSelect(ZERO,GetTextLength(wStartString),TEH[wStartString]);
-		TextDelete(wStartString);
-		Print(wStartString,"S\n");
-		}
-	else goto QUIT;
-	}
-
-MAKE:
-if(!Improvize || ShowMessages) ShowMessage(TRUE,wMessage,"\nProducing item(s)...");
-BufferSize = DeftBufferSize;
-ProduceStackIndex = DisplayStackIndex = SkipFlag = FALSE;
-/* if(!PlaySelectionOn && UseTimeLimit) {
-	LimTimeSet = LimCompute = TRUE;
-	} */
-if(!PlaySelectionOn && Improvize) {
-	if(DeriveFurther && Varweight) weightloss = TRUE;
-	}
-if((PlaySelectionOn || ResetWeights) && Varweight) {
-	if(ResetRuleWeights(&Gram,0) == ABORT) { // rule.w = rule.weight
-		if(CompileCheck() != OK) goto QUIT;
-		}
-	weightloss = TRUE;
-	}
-if((PlaySelectionOn || ResetFlags) && Jflag > 0)
-	for(i=1; i <= Jflag; i++) (*p_Flag)[i] = ZERO;
-if(!PlaySelectionOn && DisplayProduce) {
+	r = OK;
+	StartCount();
 	SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
-	Print(wTrace,"\n");
-	}
-if(Improvize) {
-	if(!rtMIDI && (MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) {
-//		BPPrintMessage(1,odInfo,"👉 %ld items have been produced. We stop improvizing...\n",(long)(ItemNumber - 1L));
-		Improvize =  FALSE;
-		r = ABORT;
+	LimTimeSet = LimCompute = FALSE;
+	TimeMax = MAXTIME;
+	MaxComputeTime = ZERO;
+	Nplay = 1; SynchroSignal = OFF;
+	if(!PlaySelectionOn && InitThere == 1) FirstTime = TRUE;
+	else FirstTime = FALSE;
+	if(!PlaySelectionOn && DisplayItems && !template) BPActivateWindow(SLOW,OutputWindow);
+
+	if(!PlaySelectionOn && (AllItems || template)) {
+		ProduceAll(&Gram,pp_a,template);
 		goto QUIT;
 		}
-	if(rtMIDI) {
-	//	ItemNumber++;
-		if(ItemNumber >= MaxItemsGraphic) {
-			if(ShowObjectGraph || ShowPianoRoll) BPPrintMessage(1,odInfo,"👉 Stopped producing graphics after %ld items.\n",(ItemNumber));
-			ShowPianoRoll = ShowObjectGraph = FALSE;
-			// Do not reset ShowGraphic so that the last image will be finalised
+	if(pp_start == NULL && IsEmpty(w)) {
+		if(w == wStartString) {
+			SetSelect(ZERO,GetTextLength(wStartString),TEH[wStartString]);
+			TextDelete(wStartString);
+			Print(wStartString,"S\n");
 			}
-		if((r=ListenToEvents()) == ABORT) {
-			Improvize = FALSE;
-			BPPrintMessage(1,odInfo,"%ld items have been produced.\n",(long)ItemNumber);
-			BPPrintMessage(1,odInfo,"Production has been canceled by user.\n");
+		else goto QUIT;
+		}
+
+	MAKE:
+	if(!Improvize || ShowMessages) ShowMessage(TRUE,wMessage,"\nProducing item(s)...");
+	BufferSize = DeftBufferSize;
+	ProduceStackIndex = DisplayStackIndex = SkipFlag = FALSE;
+	/* if(!PlaySelectionOn && UseTimeLimit) {
+		LimTimeSet = LimCompute = TRUE;
+		} */
+	if(!PlaySelectionOn && Improvize) {
+		if(DeriveFurther && Varweight) weightloss = TRUE;
+		}
+	if((PlaySelectionOn || ResetWeights) && Varweight) {
+		if(ResetRuleWeights(&Gram,0) == ABORT) { // rule.w = rule.weight
+			if(CompileCheck() != OK) goto QUIT;
+			}
+		weightloss = TRUE;
+		}
+	if((PlaySelectionOn || ResetFlags) && Jflag > 0)
+		for(i=1; i <= Jflag; i++) (*p_Flag)[i] = ZERO;
+	if(!PlaySelectionOn && DisplayProduce) {
+		SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
+		Print(wTrace,"\n");
+		}
+	if(Improvize) {
+		if(!rtMIDI && (MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) {
+	//		BPPrintMessage(1,odInfo,"👉 %ld items have been produced. We stop improvizing...\n",(long)(ItemNumber - 1L));
+			Improvize =  FALSE;
+			r = ABORT;
 			goto QUIT;
+			}
+		if(rtMIDI) {
+		//	ItemNumber++;
+			if(ItemNumber >= MaxItemsGraphic) {
+				if(ShowObjectGraph || ShowPianoRoll) BPPrintMessage(1,odInfo,"👉 Stopped producing graphics after %ld items.\n",(ItemNumber));
+				ShowPianoRoll = ShowObjectGraph = FALSE;
+				// Do not reset ShowGraphic so that the last image will be finalised
+				}
+			if((r=ListenToEvents()) == ABORT) {
+				Improvize = FALSE;
+				BPPrintMessage(1,odInfo,"%ld items have been produced.\n",(long)ItemNumber);
+				BPPrintMessage(1,odInfo,"Production has been canceled by user.\n");
+				goto QUIT;
+				}
 			}
 		}
-	}
-if((r = stop(1,"ProduceItems")) != OK) {
-	goto QUIT;
-	}
-if(pp_start != NULL) goto DOIT;
-if(!PlaySelectionOn && DeriveFurther) {
-	if(!Improvize && DisplayItems) {
-		if((SelectionToBuffer(FALSE,FALSE,OutputWindow,pp_buff,&endofselection,PROD) != OK)
-				|| (CopyBuf(pp_buff,pp_a) == ABORT)) {
+	if((r = stop(1,"ProduceItems")) != OK) {
+		goto QUIT;
+		}
+	if(pp_start != NULL) goto DOIT;
+	if(!PlaySelectionOn && DeriveFurther) {
+		if(!Improvize && DisplayItems) {
+			if((SelectionToBuffer(FALSE,FALSE,OutputWindow,pp_buff,&endofselection,PROD) != OK)
+					|| (CopyBuf(pp_buff,pp_a) == ABORT)) {
+				MyDisposeHandle((Handle*)pp_buff);
+				goto QUIT;
+				}
 			MyDisposeHandle((Handle*)pp_buff);
-			goto QUIT;
-			}
-		MyDisposeHandle((Handle*)pp_buff);
-		ShowMessage(TRUE,wMessage,"Deriving same item further...");
-		}  /* Item is already in buffer if Improvize or not displayed */
-	}
-else {
-	if(SelectSomething(w) != OK) {
-		/* Default start string is "S" */
-		i = 0; r = OK;
-		(**(pp_a))[i++] = T0; (**(pp_a))[i++] = (tokenbyte) 10;
-		(**(pp_a))[i++] = (tokenbyte) TEND;
-		(**(pp_a))[i++] = (tokenbyte) TEND;
+			ShowMessage(TRUE,wMessage,"Deriving same item further...");
+			}  /* Item is already in buffer if Improvize or not displayed */
 		}
 	else {
-		if((r=SelectionToBuffer(FALSE,FALSE,w,pp_buff,&endofselection,PROD)) == OK) {
-			r = (CopyBuf(pp_buff,pp_a) > ZERO);
+		if(SelectSomething(w) != OK) {
+			/* Default start string is "S" */
+			i = 0; r = OK;
+			(**(pp_a))[i++] = T0; (**(pp_a))[i++] = (tokenbyte) 10;
+			(**(pp_a))[i++] = (tokenbyte) TEND;
+			(**(pp_a))[i++] = (tokenbyte) TEND;
 			}
-		MyDisposeHandle((Handle*)pp_buff);
-		}
-	if(r != OK) goto QUIT;
-	}
-
-DOIT:
-DataOrigin = GetTextLength(OutputWindow);
-if(!PlaySelectionOn) SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
-lengthA = LengthOf(pp_a);
-if(lengthA < 1) {
-	if(!DeriveFurther || PlaySelectionOn)
-		BPPrintMessage(0,odError,"=> Empty start string. Can't produce anything");
-	else
-		BPPrintMessage(0,odError,"=> Item is empty. Can't derive further");
-	goto QUIT;
-	}
-Final = FALSE;
-Prod = 1.;
-Step = 0;
-if(!PlaySelectionOn && !Improvize && ShowItem(FALSE,pp_a,repeat,PROD,FALSE) == ABORT) goto QUIT;
-if(pp_start == NULL) LastComputeWindow = w;
-
-// BPPrintMessage(0,odError,"OK OK!\n");
-// HERE WE DO IT ///////////////////////////////////////////////////////////
-if((((r=Compute(pp_a,1,Gram.number_gram,&lengthA,&repeat,time_end_compute)) != OK) && !SkipFlag) || r == EXIT) goto QUIT;
-////////////////////////////////////////////////////////////////////////////
-
-// if(ShowGraphic) BPPrintMessage(0,odInfo, "After computing we'll try graphics\n");
-if(!ShowGraphic && !PlaySelectionOn && !Improvize && DisplayItems)
-	BPActivateWindow(QUICK,OutputWindow);
-Final = TRUE;
-ResetDone = ifunc = FALSE;
-OkShowExpand = FALSE;
-SplitTimeObjects = splitmem;
-if(!PlaySelectionOn && Improvize) {
-/*	if(!rtMIDI && !template && Improvize) { // 2026-04-19
-		BPPrintMessage(1,odInfo,Message);
-		} */
-	if(!WriteMIDIfile && !rtMIDI && !OutCsound) {
-		ItemNumber++;
-		if((MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) {
-			if(!OutBPdata) BPPrintMessage(1,odInfo,"👉 %ld items have been produced\n",(long)(ItemNumber - 1L));
-			ShowPianoRoll = ShowObjectGraph = FALSE;
-			// Do not reset ShowGraphic so that the last image will be finalised
-			Improvize = FALSE;
-			r = OK;
-			goto QUIT;
+		else {
+			if((r=SelectionToBuffer(FALSE,FALSE,w,pp_buff,&endofselection,PROD)) == OK) {
+				r = (CopyBuf(pp_buff,pp_a) > ZERO);
+				}
+			MyDisposeHandle((Handle*)pp_buff);
 			}
+		if(r != OK) goto QUIT;
 		}
-	else if(rtMIDI && !WriteMIDIfile && !OutCsound) ItemNumber++;
-	
-	if(SkipFlag) goto MAKE;
-	if(!PlaySelectionOn && DisplayItems) {
-		if(NumberCharsData < MAXCHARDATA) {
-			datamode = DisplayMode(pp_a,&ifunc,&hastabs);
-			// BPPrintMessage(1,odInfo,"@@ Display? OutputWindow = %d, datamode = %d, hastabs = %d\n",OutputWindow,datamode,hastabs);
-			if((r=PrintWorkString(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
-			// BPPrintMessage(1,odInfo,"@@@ Display? OutputWindow = %d, datamode = %d, hastabs = %d\n",OutputWindow,datamode,hastabs); $$$$
-			Print(OutputWindow,"\n");
-			if(SplitLines) Print(OutputWindow,"\n");
-			NumberCharsData += 20;
-			}
-		}
-	if(rtMIDI || OutCsound || WriteMIDIfile || OutBPdata) {
-	//	BPPrintMessage(1,odInfo,"@ PlayBuffer() 1\n");
-	//	Print(OutputWindow,"####\n");
-		if((r = PlayBuffer(pp_a,NO)) == ABORT || r == EXIT) goto QUIT;
-		}
-	if(ChangedGrammar || ChangedSettings) {
-	//	if(TraceLive && ChangedGrammar) BPPrintMessage(1,odInfo,"Changed grammar\n");
-		ChangedGrammar = ChangedSettings = FALSE;
-		Tcurr = LastTime / Time_res;
-		eventCount = 0L;
-		goto STARTFROMSCRATCH;
-		}
-	goto MAKE;
-	}
-if(OutBPdata && NeedZouleb > 0) { // 2026-07-13
-	unsigned long ix = ZERO;
-	int level = 0;
-	if(ShowMessages) BPPrintMessage(1,odInfo,"👉 Applying serial tools to modify order of sequence(s) in Compute()\n");
-	do {
-		r = Zouleb(pp_a,&level,&ix,FALSE,FALSE,0,0,FALSE,NOSEED);
-		if(r != OK) break;
-		}
-	while(level >= 0);
-	}
-if(!StepProduce && !TraceProduce && !PlaySelectionOn
-	&& ((r=ShowItem(FALSE,pp_a,repeat,PROD,FALSE)) == ABORT || r == EXIT)) {
-		BPPrintMessage(0,odError, "=> Failed in ShowItem()\n");
+
+	DOIT:
+	DataOrigin = GetTextLength(OutputWindow);
+	if(!PlaySelectionOn) SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
+	lengthA = LengthOf(pp_a);
+	if(lengthA < 1) {
+		if(!DeriveFurther || PlaySelectionOn)
+			BPPrintMessage(0,odError,"=> Empty start string. Can't produce anything");
+		else
+			BPPrintMessage(0,odError,"=> Item is empty. Can't derive further");
 		goto QUIT;
 		}
-// BPPrintMessage(0,odInfo, "DisplayItems = %d\n",DisplayItems);
-if(!PlaySelectionOn && DisplayItems) {
-	// BPPrintMessage(1,odInfo,"@@ Display\n");
-	if(NumberCharsData < MAXCHARDATA) {
-		SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
-		datamode = DisplayMode(pp_a,&ifunc,&hastabs);
-	//	BPPrintMessage(0,odInfo, "\nBol Processor score:\n");
-		if((r=PrintWorkString(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
-		Print(OutputWindow,"\n");
-		if(SplitLines) Print(OutputWindow,"\n");
-		DataEnd = GetTextLength(OutputWindow);
-		SetSelect(DataOrigin,DataEnd,TEH[OutputWindow]);
-		NumberCharsData += 20;
-	//	if(Improvize) ShowMessages = FALSE;
+	Final = FALSE;
+	Prod = 1.;
+	Step = 0;
+	if(!PlaySelectionOn && !Improvize && ShowItem(FALSE,pp_a,repeat,PROD,FALSE) == ABORT) goto QUIT;
+	if(pp_start == NULL) LastComputeWindow = w;
+
+	// BPPrintMessage(0,odError,"OK OK!\n");
+	// HERE WE DO IT ///////////////////////////////////////////////////////////
+	if((((r=Compute(pp_a,1,Gram.number_gram,&lengthA,&repeat,time_end_compute)) != OK) && !SkipFlag) || r == EXIT) goto QUIT;
+	////////////////////////////////////////////////////////////////////////////
+
+	// if(ShowGraphic) BPPrintMessage(0,odInfo, "After computing we'll try graphics\n");
+	if(!ShowGraphic && !PlaySelectionOn && !Improvize && DisplayItems)
+		BPActivateWindow(QUICK,OutputWindow);
+	Final = TRUE;
+	ResetDone = ifunc = FALSE;
+	OkShowExpand = FALSE;
+	SplitTimeObjects = splitmem;
+	if(!PlaySelectionOn && Improvize) {
+	/*	if(!rtMIDI && !template && Improvize) { // 2026-04-19
+			BPPrintMessage(1,odInfo,Message);
+			} */
+		if(!WriteMIDIfile && !rtMIDI && !OutCsound) {
+			ItemNumber++;
+			if((MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) {
+				if(!OutBPdata) BPPrintMessage(1,odInfo,"👉 %ld items have been produced\n",(long)(ItemNumber - 1L));
+				ShowPianoRoll = ShowObjectGraph = FALSE;
+				// Do not reset ShowGraphic so that the last image will be finalised
+				Improvize = FALSE;
+				r = OK;
+				goto QUIT;
+				}
+			}
+		else if(rtMIDI && !WriteMIDIfile && !OutCsound) ItemNumber++;
+		
+		if(SkipFlag) goto MAKE;
+		if(!PlaySelectionOn && DisplayItems) {
+			if(NumberCharsData < MAXCHARDATA) {
+				datamode = DisplayMode(pp_a,&ifunc,&hastabs);
+				// BPPrintMessage(1,odInfo,"@@ Display? OutputWindow = %d, datamode = %d, hastabs = %d\n",OutputWindow,datamode,hastabs);
+				if((r=PrintWorkString(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
+				// BPPrintMessage(1,odInfo,"@@@ Display? OutputWindow = %d, datamode = %d, hastabs = %d\n",OutputWindow,datamode,hastabs); $$$$
+				Print(OutputWindow,"\n");
+				if(SplitLines) Print(OutputWindow,"\n");
+				NumberCharsData += 20;
+				}
+			}
+		if(rtMIDI || OutCsound || WriteMIDIfile || OutBPdata) {
+		//	BPPrintMessage(1,odInfo,"@ PlayBuffer() 1\n");
+		//	Print(OutputWindow,"####\n");
+			if((r = PlayBuffer(pp_a,NO)) == ABORT || r == EXIT) goto QUIT;
+			}
+		if(ChangedGrammar || ChangedSettings) {
+		//	if(TraceLive && ChangedGrammar) BPPrintMessage(1,odInfo,"Changed grammar\n");
+			ChangedGrammar = ChangedSettings = FALSE;
+			Tcurr = LastTime / Time_res;
+			eventCount = 0L;
+			goto STARTFROMSCRATCH;
+			}
+		goto MAKE;
 		}
-	}
-// BPPrintMessage(1,odInfo,"@ PlayBuffer() ?\n");
-// if((!DisplayItems || PlaySelectionOn) && (rtMIDI || OutCsound || WriteMIDIfile)) {
-if(ShowGraphic || rtMIDI || OutCsound || WriteMIDIfile || OutBPdata) {
-//	BPPrintMessage(1,odInfo,"@@ PlayBuffer()\n");
-	r = PlayBuffer(pp_a,NO);
-	if(r == RESUME) goto MAKE;
-	goto QUIT;
-	}
-r = OK;
+	if(OutBPdata && NeedZouleb > 0) { // 2026-07-13
+		unsigned long ix = ZERO;
+		int level = 0;
+		if(ShowMessages) BPPrintMessage(1,odInfo,"👉 Applying serial tools to modify order of sequence(s) in Compute()\n");
+		do {
+			r = Zouleb(pp_a,&level,&ix,FALSE,FALSE,0,0,FALSE,NOSEED);
+			if(r != OK) break;
+			}
+		while(level >= 0);
+		}
+	if(!StepProduce && !TraceProduce && !PlaySelectionOn
+		&& ((r=ShowItem(FALSE,pp_a,repeat,PROD,FALSE)) == ABORT || r == EXIT)) {
+			BPPrintMessage(0,odError, "=> Failed in ShowItem()\n");
+			goto QUIT;
+			}
+	// BPPrintMessage(0,odInfo, "DisplayItems = %d\n",DisplayItems);
+	if(!PlaySelectionOn && DisplayItems) {
+		// BPPrintMessage(1,odInfo,"@@ Display\n");
+		if(NumberCharsData < MAXCHARDATA) {
+			SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
+			datamode = DisplayMode(pp_a,&ifunc,&hastabs);
+		//	BPPrintMessage(0,odInfo, "\nBol Processor score:\n");
+			if((r=PrintWorkString(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
+			Print(OutputWindow,"\n");
+			if(SplitLines) Print(OutputWindow,"\n");
+			DataEnd = GetTextLength(OutputWindow);
+			SetSelect(DataOrigin,DataEnd,TEH[OutputWindow]);
+			NumberCharsData += 20;
+		//	if(Improvize) ShowMessages = FALSE;
+			}
+		}
+	// BPPrintMessage(1,odInfo,"@ PlayBuffer() ?\n");
+	// if((!DisplayItems || PlaySelectionOn) && (rtMIDI || OutCsound || WriteMIDIfile)) {
+	if(ShowGraphic || rtMIDI || OutCsound || WriteMIDIfile || OutBPdata) {
+	//	BPPrintMessage(1,odInfo,"@@ PlayBuffer()\n");
+		r = PlayBuffer(pp_a,NO);
+		if(r == RESUME) goto MAKE;
+		goto QUIT;
+		}
+	r = OK;
 
-QUIT:
-ComputeOn--;
+	QUIT:
+	ComputeOn--;
 
-// if(ResetControllers) ResetMIDIControllers(NO,NO,YES);
-ResetMIDIfile();
-// if(ResetMIDI(TRUE) == EXIT) r = EXIT;
-// if(ResetControllers) ResetMIDIControllers(YES,NO,YES);
-PedalOrigin = -1;
-MyDisposeHandle((Handle*)pp_a);
-// ReleaseComputeSpace();
-return(r);
-}
+	// if(ResetControllers) ResetMIDIControllers(NO,NO,YES);
+	ResetMIDIfile();
+	// if(ResetMIDI(TRUE) == EXIT) r = EXIT;
+	// if(ResetControllers) ResetMIDIControllers(YES,NO,YES);
+	PedalOrigin = -1;
+	MyDisposeHandle((Handle*)pp_a);
+	// ReleaseComputeSpace();
+	return(r);
+	}
 
 
 int ResetRuleWeights(t_gram* p_gram,int mode) {
@@ -668,8 +668,9 @@ int ProduceAll(t_gram *p_gram,tokenbyte ***pp_a,int template) {
 	depth = 0;
 	maxdepth = 20L;
 	ProduceStackIndex = DisplayStackIndex = SkipFlag = FALSE;
-
-	time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
+	if(MaxConsoleTime > 0L)
+			time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
+	else time_end_compute = 0L;
 	HideMessages = TRUE;
 
 	if(Varweight) {
@@ -754,11 +755,11 @@ int AllFollowingItems(t_gram *p_gram,tokenbyte ***pp_a,long ****p_weight,long **
 	long ipos = ZERO;
 	icandidate = nrep = old_gram = old_rul = 0;
 
-/*	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
+	if(!Improvize && !Interactive && time_end_compute > 0L && getClockTime() > time_end_compute) {
 		EmergencyExit = TRUE;
 		BPPrintMessage(1,odError,"=> (6) Maximum allowed time (%d seconds) has been spent in AllFollowingItems(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 		return ABORT;
-		} */
+		}
 	if(FALSE && igram > p_gram->number_gram) {
 		BPPrintMessage(1,odError,"=> Err. AllFollowingItems(). igram (%d) > number_gram (%d) [1]\n",igram,p_gram->number_gram);
 		return ABORT;

@@ -276,7 +276,9 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		MaxDeriv = MAXDERIV;
 		if((result=MakeComputeSpace(MaxDeriv)) != OK) goto SORTIR;
 		DisplayProduce = ShowMessages = UseBufferLimit = finish = repeat = FALSE;
-        time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
+        if(MaxConsoleTime > 0L)
+			time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
+		else time_end_compute = 0L;
 		
 		//////  Make derivation (unique substitution) with glossary ///////
 		result = ComputeInGram(pp_buff,&GlossGram,1,0,&length,&finish,&repeat,PROD,FALSE,

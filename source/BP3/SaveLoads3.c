@@ -141,7 +141,7 @@ void remove_double_slash_prefix(char *str) {
 		}
 	}
 
-
+/*
 int ReadOne(int bindlines,int careforhtml,int nocomment,FILE* fin,int strip,char ***pp_line,
 	char ***pp_completeline,long *p_pos) {
 // Read a line in the file and save it to text handle 'pp_completeline'
@@ -216,6 +216,97 @@ int ReadOne(int bindlines,int careforhtml,int nocomment,FILE* fin,int strip,char
 		return OK;
 		}
 	return STOP;
+	}
+*/
+
+int ReadOne(int bindlines, int careforhtml, int nocomment, FILE *fin,
+            int strip, char ***pp_line, char ***pp_completeline, long *p_pos) {
+	// Read one line at *p_pos.
+	// Return MISSED at end of file or after a read error.
+	// Lines beginning with "//" may be stripped of that prefix.
+	// bindlines is currently unused.
+
+	int html;
+	long count;
+	long size = 3000;
+	char *buffer = NULL;
+	char line[3000];
+
+	(void)bindlines;  // Avoid an “unused parameter” warning.
+
+	MyDisposeHandle((Handle *)pp_line);
+	MyDisposeHandle((Handle *)pp_completeline);
+
+	if((*pp_line = (char **)GiveSpace((Size)size * sizeof(char))) == NULL)
+		return ABORT;
+
+	if((*pp_completeline =
+			(char **)GiveSpace((Size)size * sizeof(char))) == NULL) {
+		MyDisposeHandle((Handle *)pp_line);
+		return ABORT;
+		}
+
+	// Position the stream at the location of the next line.
+	if(fseek(fin, *p_pos, SEEK_SET) != 0) {
+		BPPrintMessage(0, odError, "Error seeking in file.\n");
+		MyDisposeHandle((Handle *)pp_line);
+		MyDisposeHandle((Handle *)pp_completeline);
+		return MISSED;
+		}
+
+	// fgets() returns NULL both at EOF and on an I/O error.
+	// In either case, this function must return MISSED so its caller stops.
+	if(fgets(line, sizeof(line), fin) == NULL) {
+		if(ferror(fin)) {
+			BPPrintMessage(0, odError, "Error reading from file.\n");
+			clearerr(fin);
+			}
+
+		MyDisposeHandle((Handle *)pp_line);
+		MyDisposeHandle((Handle *)pp_completeline);
+		return MISSED;
+		}
+
+	// Save the new position immediately. This also works for a final line
+	// that has no terminating newline.
+	*p_pos = ftell(fin);
+
+	remove_final_linefeed(line);
+	remove_carriage_returns(line);
+
+	size_t lineSize = utf8_strsize(line);
+
+	buffer = malloc(lineSize + 1);
+	if(buffer == NULL) {
+		BPPrintMessage(0, odError, "Memory allocation failed in ReadOne().\n");
+		MyDisposeHandle((Handle *)pp_line);
+		MyDisposeHandle((Handle *)pp_completeline);
+		return MISSED;
+		}
+
+	memcpy(buffer, line, lineSize);
+	buffer[lineSize] = '\0';
+
+	// Keep the original line before optionally removing trailing spaces
+	// or a double-slash comment prefix.
+	MystrcpyStringToHandle(pp_completeline, buffer);
+
+	if(strip)
+		strip_trailing_spaces(buffer);
+
+	if(careforhtml) {
+		count = 1L + MyHandleLen(*pp_completeline);
+		html = TRUE;
+		CheckHTML(FALSE, 0, *pp_completeline, &count, &html);
+		}
+
+	if(nocomment)
+		remove_double_slash_prefix(buffer);
+
+	MystrcpyStringToHandle(pp_line, buffer);
+
+	free(buffer);
+	return OK;
 	}
 
 
