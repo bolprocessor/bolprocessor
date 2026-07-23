@@ -6,9 +6,12 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-07-19 (version 3.4.7)
+2026-07-19 -> 2026-07-23 (version 3.4.7)
 Fixed the ReadOne() function to avoir infinite loop on ill-formed "-cs" files.
 "Max computation time" has been reactivated in the settings. If its value is 0, there is no time limit for the computation.
+Some changes in the interface to allow running MAMP Apache (instead of XAMPP Apache) in MacOS. Installation and startup instructions have been updated, read https://bolprocessor.org/install-mamp-or-xampp-on-macos/
+The time limitation of Apache in MAMP (free version on MacOS) has been raised to 3600s.
+Scripts in footer_enter_notes() at the bottom of Grammar and Data pages have been updated to work with MAMP. Checked in MacOS and Windows.
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/
 

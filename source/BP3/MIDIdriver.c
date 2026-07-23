@@ -343,16 +343,14 @@ int initializeMIDISystem(void) {
         BPPrintMessage(0,odInfo,"\n🎹 Setting up MacOS MIDI system\n");
         status = MIDIClientCreate(CFSTR("MIDIcheck Client"),NULL,NULL,&MIDIoutputClient);
         if(status != noErr) {
-            BPPrintMessage(0,odError,"=> Unexpectedly, needs to kill and restart MIDIServer\n");
-            system("killall MIDIServer"); // Stop existing MIDI server
-            system("open /System/Library/Frameworks/CoreMIDI.framework/MIDIServer");
-       //     system("codesign -v /System/Library/Frameworks/CoreMIDI.framework/MIDIServer");
-            sleep(5); // Wait briefly
-            status = MIDIClientCreate(CFSTR("MIDIcheck Client"), NULL, NULL,&MIDIoutputClient);
-            if(status != noErr) {
-                BPPrintMessage(0,odError,"=> Error: Could not create MIDI client\n");
-                return(FALSE);
-                }
+            if(status == kMIDINoConnection) BPPrintMessage(0, odError,"=> No connection to the CoreMIDI server\n");
+            else
+                BPPrintMessage(0, odError,
+                        "MIDIClientCreate failed: OSStatus = %d (0x%08X)\n",
+                        (int)status, (unsigned int)status);
+            BPPrintMessage(0, odError,
+                "=> Could not create MIDI client\n");
+            return(FALSE);
             }
         status = MIDIOutputPortCreate(MIDIoutputClient,CFSTR("Output Port"),&MIDIoutPort);
         if(status != noErr) {

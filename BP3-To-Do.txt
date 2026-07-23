@@ -37,17 +37,6 @@ Realistic performance models
 - Check the synthesis through neural codec language modelling (MIDI-VALLEE, https://tangjjbetsy.github.io/MIDI-VALLE/) to replace 'descriptive' performance controls imbedded in MusicXML scores. Mainly check that MIDI-VALLEE would not modify the microtonal instructions carried by Pitchbend instructions on separate MIDI channels.
 
 
-Apache autostart in XAMPP for MacOS
------------------------------------
-
-- This is of minor interest due to the availability of the "BolProcessor.app" standalone MacOS application 
-- The method described on https://github.com/erwinagpasa/Launching-XAMPP-at-OSX-startup is not entirely satisfactory. It allows XAMPP to restart Apache at boot time and PHP pages are displayed correctly. However, when real-time MIDI is used, MIDIClientCreate() returns an error.
-- The only way to use XAMPP on MacOS is to start Apache from the Application Manager "manager-osx.app" (in XAMPP/xamppfiles).
-- If the XAMPP Apache is restarted in the MacOS installation script, it runs correctly. But it is not possible to restart it in the console because "/Applications/XAMPP/xamppfiles/xampp restartapache" has to be called by 'root'.
-- We hope to fix this in a forthcoming version of XAMPP.
-- If the "bolprocessor" folder is relocated, using XAMPP with MacOS, it no longer works after a reboot and BP3 needs to be reinstalled. See https://bolprocessor.org/quick-install-macos/#relocating-bolprocessor
-
-
 Microtonal scales and tuning systems
 ------------------------------------
 
@@ -166,6 +155,7 @@ Various issues
 - Currently, the console crashes if the list of TEMPLATES in a grammar is not terminated with a solid line "-----". The interface takes care of this by adding the missing terminating line.
 - Problem tracing the production of an item containing structural patterns.
 - Errors of duration occur when playing some polymetric structures with tied notes that miss their target. Examples are stored in -da.checkBadDurations.
+- When playing -da.Beethoven-fuge-b-flat-major using PLAY safe (7 chunks) there is a time error between two chunnks. Check the chunking on data.php
 - Check why tempo(3/2) {C4& {3,&C4 _rest D4}} does not produce the same pattern as {C4& {3,&C4 _rest D4}} 
 - Check delete_orphan_ties() in data.php, as it still keeps erratic ties, which are difficult to predict.
 - Check why istart=4 in Compute.c when running -gr.koto3. If not checked, it crashes on the remote right context of gram #2 rule #12. Therefore, if(istart > i) return(FALSE) has been added on 2025-03-15.
@@ -198,13 +188,5 @@ MIDI files (Anthony's suggestions. Probably unnecessary, as MIDI file creation w
 - fix or remove the handling of FileSaveMode in PrepareMIDIFile()? The option is currently always set to ALLSAME by Inits() and LoadSettings(). Until this option becomes necessary it would be best to leave it out.
 - remove  "('-' for stdout)" text from --midiout help?  Piping MIDI files probably won't work because we use ftell/fseek to write some parts of the file.
 (Alternatively, could support dumping MIDI file in a text format to stdout?)
-
-
-Documentation
--------------
-
-- The file BP3_help.txt needs updates
-- Write new docs for BP3 (command-line usage, etc.)
-- Convert BP2 documentation to an (open-source) authoring system that can help maintain the organization and internal links as well as output in multiple formats (HTML, PDF, etc.) ?? Currently, the website is used for documentation.
 
 ========
