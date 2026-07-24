@@ -552,7 +552,6 @@ int stop(int now,char* where) {
 	return OK;
 	}
 
-
 void CreateImageFile(double time) {
 	FILE* thisfile; 
 	char* someline;
@@ -580,7 +579,7 @@ void CreateImageFile(double time) {
 	N_image++;
 //	BPPrintMessage(0,odInfo,"N_image = %d\n",N_image);
 	if(gOptions.outputFiles[ofiTraceFile].name == NULL) {
-		BPPrintMessage(0,odInfo,"=> Cannot create image file because no path is specified and trace mode is not active\n");
+		BPPrintMessage(0,odError,"=> Cannot create image file because no path is specified and trace mode is not active\n");
 		N_image = 0;
 		return;
 		}
@@ -605,15 +604,20 @@ void CreateImageFile(double time) {
     convert_path(cwd);
 	size_t len = strlen(cwd);
 	if(len < 4 || strcmp(cwd + len - 4, "/php") != 0) strcat(cwd,"/php");
-    if(strlen(cwd) > 259) BPPrintMessage(0,odError,"=> Warning: this path might be too long: %s\n",cwd);
+    if(strlen(cwd) > 259) {
+		BPPrintMessage(0,odError,"=> Warning: this path might be too long: %s\n",cwd);
+		imagePtr = NULL;
+		return;
+		}
 //  	BPPrintMessage(1,odInfo,"cwd = %s\n",cwd);
     my_sprintf(line1,"%s/CANVAS_header.txt",cwd);
-//   	BPPrintMessage(1,odInfo,"Reading %s\n",line1);
+	BPPrintMessage(0,odInfo,"Reading %s\n",line1);
 	thisfile = my_fopen(1,line1,"r");
 	if(thisfile == NULL) {
 		BPPrintMessage(0,odError,"=> %s is missing!\n",line1);
 		my_fclose(imagePtr);
         imagePtr = NULL;
+		return;
 		}
 	else {
 		someline = (char*) malloc(MAXLIN);

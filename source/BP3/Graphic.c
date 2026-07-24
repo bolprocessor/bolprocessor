@@ -128,7 +128,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 
 	rep = DrawItemBackground(&r,imax,htext,hrect,leftoffset,interruptok,p_delta,&yruler,
 		topoffset,&overflow,"objects");
-	if(rep != OK || overflow) goto ENDGRAPH;
+	if(rep != OK || overflow || imagePtr == NULL) goto ENDGRAPH;
 
 	// Now draw sound objects
 
@@ -388,6 +388,7 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 	long x;
 	double xx,preperiod,objectperiod;
 
+	if(imagePtr == NULL) return OK;
 	r.top = top;
 	r.left = (int)t1 + leftoffset;
 	r.right = (int)t2 + leftoffset;
@@ -1050,7 +1051,6 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	return(rep);
 	}
 
-
 int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int leftoffset,
 	int interruptok,Milliseconds **p_delta,long *p_yruler,int topoffset,int *p_overflow,char* type) {
 	int result;
@@ -1069,6 +1069,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	// ShowPianoRoll, because if no pianoroll has been drawn, the value of shift is incorrect.
 		CreateImageFile(shift/1000.);
 	else CreateImageFile(-1.);  // Later we can use it
+	if(imagePtr == NULL) return OK;
 	if(Panic) return ABORT;
 	result = OK;
 	pen_size(1,0);
