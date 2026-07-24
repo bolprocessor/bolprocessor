@@ -388,7 +388,10 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 	long x;
 	double xx,preperiod,objectperiod;
 
-	if(imagePtr == NULL) return OK;
+	if(imagePtr == NULL) {
+		ShowGraphic = FALSE;
+		return OK;
+		}
 	r.top = top;
 	r.left = (int)t1 + leftoffset;
 	r.right = (int)t2 + leftoffset;
@@ -1069,7 +1072,10 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	// ShowPianoRoll, because if no pianoroll has been drawn, the value of shift is incorrect.
 		CreateImageFile(shift/1000.);
 	else CreateImageFile(-1.);  // Later we can use it
-	if(imagePtr == NULL) return OK;
+	if(imagePtr == NULL) {
+		ShowGraphic = FALSE;
+		return OK;
+		}
 	if(Panic) return ABORT;
 	result = OK;
 	pen_size(1,0);
@@ -1231,6 +1237,7 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 	char* word;
 	int length;
 
+	if(imagePtr == NULL) return OK;
 	if(key < 0 || key > 127) {
 		BPPrintMessage(0,odError,"=> Err. DrawPianoNote() key = %d\n",key);
 		return(OK);
@@ -1280,6 +1287,8 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 int DrawNoteScale(Rect* p_r,int w,int minkey,int maxkey,int hrect,int leftoffset,int topoffset) {
 	int y,key,xmin,xmax;
 	char line[20];
+
+	if(imagePtr == NULL) return OK;
 	pen_size(2,0);
 	xmin = p_r->left + 41;
 	xmax = p_r->right - 28;

@@ -581,6 +581,7 @@ void CreateImageFile(double time) {
 	if(gOptions.outputFiles[ofiTraceFile].name == NULL) {
 		BPPrintMessage(0,odError,"=> Cannot create image file because no path is specified and trace mode is not active\n");
 		N_image = 0;
+		imagePtr = NULL; ShowGraphic = FALSE;
 		return;
 		}
     my_sprintf(line1,"%s",gOptions.outputFiles[ofiTraceFile].name);
@@ -606,7 +607,7 @@ void CreateImageFile(double time) {
 	if(len < 4 || strcmp(cwd + len - 4, "/php") != 0) strcat(cwd,"/php");
     if(strlen(cwd) > 259) {
 		BPPrintMessage(0,odError,"=> Warning: this path might be too long: %s\n",cwd);
-		imagePtr = NULL;
+		imagePtr = NULL; ShowGraphic = FALSE;
 		return;
 		}
 //  	BPPrintMessage(1,odInfo,"cwd = %s\n",cwd);
@@ -616,7 +617,7 @@ void CreateImageFile(double time) {
 	if(thisfile == NULL) {
 		BPPrintMessage(0,odError,"=> %s is missing!\n",line1);
 		my_fclose(imagePtr);
-        imagePtr = NULL;
+        imagePtr = NULL; ShowGraphic = FALSE;
 		return;
 		}
 	else {
