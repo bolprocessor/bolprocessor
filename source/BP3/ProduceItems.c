@@ -47,7 +47,7 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 	unsigned long time_end_compute;
 
 	ComputeOn++;
-	if(MaxConsoleTime > 0L) BPPrintMessage(1,odInfo,"Maximum time allowed = %ld seconds\n",MaxConsoleTime);
+	if(MaxConsoleTime > 0L) BPPrintMessage(1,odInfo,"Maximum computation time allowed = %ld seconds\n",MaxConsoleTime);
 	if(Improvize && ItemNumber == 0 && !WriteMIDIfile) {
 		BPPrintMessage(1,odInfo,"\n👉 Most of the messages will be discarded during the improvisation\n");
 		if(!rtMIDI) BPPrintMessage(1,odInfo,"Only %ld items will be produced.\n",MaxItemsProduce);
@@ -211,7 +211,6 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 			goto QUIT;
 			}
 		if(rtMIDI) {
-		//	ItemNumber++;
 			if(ItemNumber >= MaxItemsGraphic) {
 				if(ShowObjectGraph || ShowPianoRoll) BPPrintMessage(1,odInfo,"👉 Stopped producing graphics after %ld items.\n",(ItemNumber));
 				ShowPianoRoll = ShowObjectGraph = FALSE;
@@ -287,10 +286,7 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 	OkShowExpand = FALSE;
 	SplitTimeObjects = splitmem;
 	if(!PlaySelectionOn && Improvize) {
-	/*	if(!rtMIDI && !template && Improvize) { // 2026-04-19
-			BPPrintMessage(1,odInfo,Message);
-			} */
-		if(!WriteMIDIfile && !rtMIDI && !OutCsound) {
+		if(!WriteMIDIfile && !rtMIDI && !OutCsound && !EventListOn) {
 			ItemNumber++;
 			if((MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) {
 				if(!OutBPdata) BPPrintMessage(1,odInfo,"👉 %ld items have been produced\n",(long)(ItemNumber - 1L));
@@ -301,7 +297,7 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 				goto QUIT;
 				}
 			}
-		else if(rtMIDI && !WriteMIDIfile && !OutCsound) ItemNumber++;
+		else if(rtMIDI && !WriteMIDIfile && !OutCsound && !EventListOn) ItemNumber++;
 		
 		if(SkipFlag) goto MAKE;
 		if(!PlaySelectionOn && DisplayItems) {
@@ -315,7 +311,7 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 				NumberCharsData += 20;
 				}
 			}
-		if(rtMIDI || OutCsound || WriteMIDIfile || OutBPdata) {
+		if(rtMIDI || OutCsound || WriteMIDIfile || OutBPdata || EventListOn) {
 		//	BPPrintMessage(1,odInfo,"@ PlayBuffer() 1\n");
 		//	Print(OutputWindow,"####\n");
 			if((r = PlayBuffer(pp_a,NO)) == ABORT || r == EXIT) goto QUIT;
@@ -361,8 +357,7 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 			}
 		}
 	// BPPrintMessage(1,odInfo,"@ PlayBuffer() ?\n");
-	// if((!DisplayItems || PlaySelectionOn) && (rtMIDI || OutCsound || WriteMIDIfile)) {
-	if(ShowGraphic || rtMIDI || OutCsound || WriteMIDIfile || OutBPdata) {
+	if(ShowGraphic || rtMIDI || OutCsound || WriteMIDIfile || OutBPdata || EventListOn) {
 	//	BPPrintMessage(1,odInfo,"@@ PlayBuffer()\n");
 		r = PlayBuffer(pp_a,NO);
 		if(r == RESUME) goto MAKE;
@@ -1940,9 +1935,9 @@ int CheckItemProduced(t_gram *p_gram,int igram,tokenbyte ***pp_a,long *p_length,
 				ItemNumber++;
 				if(TraceProduce && !TraceDetail) Print(wTrace,"\n");
 				if(trace_produce_all) BPPrintMessage(1,odInfo,"*** %d\n",ItemNumber);
-				if(!template && (rtMIDI || OutCsound || WriteMIDIfile)) {
-				if(trace_produce_all) 
-					BPPrintMessage(1,odInfo,"Play #%d\n",ItemNumber);
+				if(!template && (rtMIDI || OutCsound || WriteMIDIfile || EventListOn)) {
+					if(trace_produce_all) 
+						BPPrintMessage(1,odInfo,"Play #%d\n",ItemNumber);
 					result = PlayBuffer(pp_a,NO);
 					}
 				}

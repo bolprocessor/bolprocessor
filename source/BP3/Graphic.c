@@ -218,10 +218,10 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 						}
 					else {
 						key = j - 16384;
-						if((*p_Instance)[k].lastistranspose)
+						if((*p_Instance)[k].transposefirst)
 							TransposeKey(&key,(*p_Instance)[k].transposition);
 						key = ExpandKey(key,(*p_Instance)[k].xpandkey,(*p_Instance)[k].xpandval);
-						if(!(*p_Instance)[k].lastistranspose)
+						if(!(*p_Instance)[k].transposefirst)
 							TransposeKey(&key,(*p_Instance)[k].transposition);
 						key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
 							&((*p_Instance)[k].map0),
@@ -237,10 +237,10 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 					else {
 						strcpy(line,"<<");
 						key = j - 16384;
-						if((*p_Instance)[k].lastistranspose)
+						if((*p_Instance)[k].transposefirst)
 							TransposeKey(&key,(*p_Instance)[k].transposition);
 						key = ExpandKey(key,(*p_Instance)[k].xpandkey,(*p_Instance)[k].xpandval);
-						if(!(*p_Instance)[k].lastistranspose)
+						if(!(*p_Instance)[k].transposefirst)
 							TransposeKey(&key,(*p_Instance)[k].transposition);
 						key = MapThisKey(key,0.,(*p_Instance)[k].mapmode,
 							&((*p_Instance)[k].map0),
@@ -581,7 +581,7 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 	} */
 
 
-int DrawSequence(int nseq,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
+/* int DrawSequence(int nseq,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	Milliseconds **p_t2,long kmax,unsigned long imax,unsigned long **p_imaxseq,
 	int kmode,long **p_ddelta0,long **p_ddelta1,long **p_ddelta2) {
 	int j,result;
@@ -617,7 +617,7 @@ int DrawSequence(int nseq,SoundObjectInstanceParameters **p_object,Milliseconds 
 		kmode,FALSE,p_delta);
 	MyDisposeHandle((Handle*)&p_delta);
 	return(result);
-	}
+	} */
 
 
 int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED because prototypes are drawn on the PHP interface
@@ -1066,7 +1066,9 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	shift = 0.;
 	if(strcmp(type,"pianoroll") == 0) shift = 0.; // Later we'll take care of this  2024-05-10
 	else {
-		if(Improvize || PlayAllChunks) shift = (double) PianorollShift;
+		if(Improvize || PlayAllChunks) {
+			shift = (double) (PianorollShift - MIDIsetUpTime);
+			}
 		}
 	if(strcmp(type,"pianoroll") != 0 && (Improvize || PlayAllChunks) && (ShowPianoRoll))
 	// ShowPianoRoll, because if no pianoroll has been drawn, the value of shift is incorrect.
@@ -1247,7 +1249,7 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 		return(OK);
 		}
 	// if(stop(0,"DrawPianoNote") != OK) return(ABORT);
-	if((rtMIDI || WriteMIDIfile || OutCsound) && !Create_set) {
+	if((rtMIDI || WriteMIDIfile || OutCsound || EventListOn) && !Create_set) {
 		timeon -= PianorollShift;
 		timeoff -= PianorollShift;
 	//	if(ItemNumber < 2) BPPrintMessage(1,odInfo,"@ key = %d, timeon = %ld, timeoff = %ld\n",key,(long)timeon,(long)timeoff);

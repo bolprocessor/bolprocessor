@@ -204,7 +204,7 @@ int main (int argc, char* args[]) {
     	ShowObjectGraph = ShowPianoRoll = ShowGraphic = FALSE;
 		}
 	if(result == OK) {
-		// perform the action specified on the command line
+		if(EventListOn) MakeEventListFile(&(gOptions.outputFiles[ofiEventListfile]));
 		switch (gOptions.action) {
 			case compile:
 				result = CompileCheck();
@@ -334,6 +334,7 @@ CLEANUP:
 		}
 	// Close open files
 	CloseMIDIFile();
+	CloseEventListFile();
 	// CloseFileAndUpdateVolume(&TraceRefnum);
 	// CloseFileAndUpdateVolume(&TempRefnum);
 	CloseCsScore();
@@ -447,6 +448,7 @@ void CreateStopFile(void) {
 			else BPPrintMessage(0,odError, "=> Memory allocation failed for new_thefile in CreateStopFile()\n");
         	free(thefile);
 	    	BPPrintMessage(0,odInfo,"Created path to expected '_stop' file: %s\n",StopfileName);
+			remove(StopfileName); // This is necessary because a stop file might still be in the temp_bolprocessor folder.
             }
 		else {
 	    	BPPrintMessage(0,odInfo,"=> Memory allocation failed for thefile in CreateStopFile()\n");
@@ -612,10 +614,10 @@ void CreateImageFile(double time) {
 		}
 //  	BPPrintMessage(1,odInfo,"cwd = %s\n",cwd);
     my_sprintf(line1,"%s/CANVAS_header.txt",cwd);
-	BPPrintMessage(0,odInfo,"Reading %s\n",line1);
+//	BPPrintMessage(0,odInfo,"Reading %s\n",line1);
 	thisfile = my_fopen(1,line1,"r");
 	if(thisfile == NULL) {
-		BPPrintMessage(0,odError,"=> %s is missing!\n",line1);
+//		BPPrintMessage(0,odError,"%s is missing!\n",line1);
 		my_fclose(imagePtr);
         imagePtr = NULL; ShowGraphic = FALSE;
 		return;
@@ -666,7 +668,7 @@ int EndImageFile(void) {
     my_sprintf(line,"%s/CANVAS_footer.txt",cwd);
 	thisfile = my_fopen(1,line,"r");
 	if(thisfile == NULL) {
-        BPPrintMessage(0,odInfo,"%s is missing!\n",line);
+     //   BPPrintMessage(0,odInfo,"%s is missing!\n",line);
         }
 	else {
 		while(fgets(pick_a_line,sizeof(pick_a_line),thisfile) != NULL) {
@@ -767,6 +769,7 @@ void ConsoleInit(BPConsoleOpts* opts) // OBSOLETE
 	opts->displayItems = NOCHANGE;
 	opts->writeCsoundScore = NOCHANGE;
 	opts->writeMidiFile = NOCHANGE;
+	opts->writeEventListFile = NOCHANGE;
 	opts->useRealtimeMidi = NOCHANGE;
 	opts->showProduction = NOCHANGE;
 	opts->traceProduction = NOCHANGE;
@@ -848,6 +851,7 @@ const char gOptionList[] =
 	"\n"
 	"  --csoundout outfile:    write Csound score to file 'outfile'\n"
 	"  --midiout outfile:      write Midi score to file 'outfile'\n"
+	"  --eventlistout outfile:      write event list to file 'outfile'\n"
 /*	"  --midiformat num:       use Midi file format 0, 1, or 2 (default is 1)\n" */
 	"  --rtmidi:   play real-time Midi\n"
 	"\n"
@@ -1048,6 +1052,20 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 						return ABORT;
 						}
 					}
+				else if(strcmp(args[argn], "--eventlistout") == 0)	{
+					// look at the next argument for the output file name
+					if(++argn < argc)  {
+						opts->writeEventListFile = TRUE;
+						opts->outputFiles[ofiEventListfile].name = args[argn];
+						strcpy(PathToMidiFile,args[argn]);
+						opts->outOptsChanged = TRUE;
+						EventListOn = TRUE;
+						}
+					else {
+						BPPrintMessage(0,odError, "\n=> Missing filename after %s\n\n", args[argn-1]);
+						return ABORT;
+						}
+					}
 				else if(strcmp(args[argn], "--rtmidi") == 0)	{
 					opts->useRealtimeMidi = TRUE;
 					opts->outOptsChanged = TRUE;
@@ -1071,13 +1089,13 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 						if(opts->midiFileFormat < 0 || opts->midiFileFormat > 2) {
 							BPPrintMessage(0,odError, "\n=> midiformat must be 0, 1, or 2\n\n");
 							return ABORT;
+							}
 						}
-					}
 					else {
 						BPPrintMessage(0,odError, "\n=> Missing number after --midiformat\n\n");
 						return ABORT;
+						}
 					}
-				}
 				else if(strcmp(args[argn], "--seed") == 0)	{
 					// look at the next argument for an integer seed
 					if(++argn < argc && isInteger(args[argn]))  {
@@ -1088,27 +1106,13 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 						BPPrintMessage(0,odError, "\n=> Missing number after --seed\n\n");
 						return ABORT;
 					}
-				}
+					}
 				else if(strcmp(args[argn], "--show-production") == 0)	{
 					opts->showProduction = TRUE;
-				}
+					}
 				else if(strcmp(args[argn], "--trace-production") == 0)	{
 					opts->traceProduction = TRUE;
-				}
-				/* else if(strcmp(args[argn], "--step-production") == 0)	{
-					DisplayProduce = TRUE;
-					StepProduce = TRUE;
-				}
-				else if(strcmp(args[argn], "--step-subgrammars") == 0)	{
-					DisplayProduce = TRUE;
-					StepGrammars = TRUE;
-				}
-				else if(strcmp(args[argn], "--choose-rules") == 0)	{
-					PlanProduce = TRUE;
-					DisplayProduce = TRUE;
-					StepProduce = TRUE;
-					TraceProduce = TRUE;
-				} */
+					}
 				else {
 					BPPrintMessage(0,odError, "\n=> Unknown option '%s'\n", args[argn]);
 					BPPrintMessage(0,odError, "Use '%s --help' to see help information.\n\n", args[0]);
@@ -1239,13 +1243,14 @@ int ApplyArgs(BPConsoleOpts* opts)
 	// If any of the score output or performance options were specified,
 	// then ignore all of those options from the settings file!
 	if(opts->outOptsChanged) {
-		OutCsound = WriteMIDIfile = rtMIDI = FALSE;
-	}
+		OutCsound = WriteMIDIfile = WriteEventListfile = rtMIDI = FALSE;
+		}
 	
 	// apply options that were explicitly given on the command line
 	if(opts->displayItems != NOCHANGE)		DisplayItems = opts->displayItems;
 	if(opts->writeCsoundScore != NOCHANGE)	OutCsound = opts->writeCsoundScore;
 	if(opts->writeMidiFile != NOCHANGE)	WriteMIDIfile = opts->writeMidiFile;
+	if(opts->writeEventListFile != NOCHANGE)	WriteEventListfile = opts->writeEventListFile;
 	if(opts->useRealtimeMidi != NOCHANGE)	rtMIDI = opts->useRealtimeMidi;
 	if(opts->traceProduction != NOCHANGE)	{
 		DisplayProduce = opts->traceProduction;

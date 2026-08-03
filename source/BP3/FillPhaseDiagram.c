@@ -231,7 +231,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		(*p_Instance)[k].xpandval = 0;
 		(*p_Instance)[k].randomtime = 0;
 		(*p_Instance)[k].seed = NOSEED;
-		(*p_Instance)[k].lastistranspose = TRUE;
+		(*p_Instance)[k].transposefirst = TRUE;
 		(*p_Instance)[k].ncycles = 0;
 		(*p_Instance)[k].alpha = (*p_Instance)[k].dilationratio = 0.;
 		(*p_Instance)[k].velocity = DeftVelocity;
@@ -314,7 +314,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 	currentparameters.currpart = 0;
 
 	currentparameters.currtranspose = starttranspose = (*p_deftstarttranspose)[0] = 0.;
-	currentparameters.lastistranspose = TRUE;
+	currentparameters.transposefirst = TRUE;
 	currentparameters.transposemode = FIXED;
 
 	currentparameters.articulmode = currentparameters.velmode = FIXED;
@@ -1502,7 +1502,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				if(value == Infpos) goto ENDDIAGRAM;
 				currentparameters.currtranspose = starttranspose
 					= (*p_deftcurrentparameters)[level].currtranspose + value;
-				currentparameters.lastistranspose = TRUE;
+				currentparameters.transposefirst = TRUE;
 				if(SetVariation(m,p_deftcurrentparameters,&currentparameters,p_contparameters,level,-1,id,*pp_buff,
 						speed,scale,&endtranspose,&mapendvalue,&maxbeatstranspose,h_table) != OK)
 					goto ENDDIAGRAM;
@@ -1541,7 +1541,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					currentparameters.xpandval = r;
 					}
 				else currentparameters.xpandval = newxpandval;
-				currentparameters.lastistranspose = FALSE;
+				currentparameters.transposefirst = FALSE;
 				break;
 			case T41:	/* Time fluctuation assignment _rndtime() */
 				currentparameters.randomtime = p;
@@ -2453,9 +2453,9 @@ int MakeEmptyTokensSilent(tokenbyte ***pp_buff,double *p_maxseqapprox) {
 				if(trace_diagram)
 					BPPrintMessage(0,odInfo,"Incremented Jbol = %ld\n",(long)Jbol);
 				}
-			(**pp_buff)[id] = T47; // 2026-04-06 replaced T3 with T47
+			(**pp_buff)[id] = T47;
 			(**pp_buff)[id+1] = p;
-			(*p_maxseqapprox) += 4.0; // 2026-04-30 
+			(*p_maxseqapprox) += 4.0;
 			Maxevent++;
 			MySetHandleSize((Handle*)&p_Instance,(Size)Maxevent * sizeof(SoundObjectInstanceParameters));
 			MySetHandleSize((Handle*)&p_ObjectSpecs,(Size)Maxevent * sizeof(objectspecs**));

@@ -36,7 +36,7 @@
 #ifndef _H_BP3
 #define _H_BP3
 
-#define SHORT_VERSION "3.4.7"
+#define SHORT_VERSION "3.5.0"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -921,7 +921,7 @@ typedef enum {
 // Values for CLOption type are TRUE, FALSE, and NOCHANGE
 typedef int CLOption;
 #define NOCHANGE		-1
-#define MAXOUTFILES		5 
+#define MAXOUTFILES		6 
 
 
 // --------------  Types -----------------------------
@@ -983,6 +983,7 @@ typedef struct BPConsoleOpts {
 	CLOption	displayItems;
 	CLOption	writeCsoundScore;
 	CLOption	writeMidiFile;
+	CLOption	writeEventListFile;
 	CLOption	useRealtimeMidi;
 	CLOption	showProduction;
 	CLOption	traceProduction;
@@ -997,6 +998,7 @@ typedef enum {
 	ofiMidiFile,	// output Std Midi score file (--midiout option)
 	ofiCsScore,	// output Csound score file (--csoundout option)
 	ofiTraceFile,	// output file for tracing processes (no option yet)
+	ofiEventListfile, // output Eventlist file (--eventlistout option)
 	ofiWeightsFile	// weights file used as an output
 }	outfileidx_t;
 
@@ -1280,7 +1282,7 @@ struct s_PerfParameters {
 	int numberparams;
 	ParameterStatus **params,**startparams[MAXKEY];
 	short xpandkey,xpandval;
-	char lastistranspose;
+	char transposefirst;
 	int transpose;
 	int level[MAXKEY];
 	int velocity[MAXKEY];
@@ -1306,9 +1308,9 @@ typedef struct {
 
 struct s_CurrentParameters {
 	int currvel,rndvel,velcontrol,currarticul,currchan,scale,blockkey,currinstr,currpart,capture;
-	float currtranspose;
+	int currtranspose;
 	short xpandkey,xpandval,randomtime,seed;
-	char velmode,articulmode,mapmode,transposemode,lastistranspose;
+	char velmode,articulmode,mapmode,transposemode,transposefirst;
 	KeyNumberMap map0,map1;
 	};
 typedef struct s_CurrentParameters CurrentParameters;
@@ -1379,15 +1381,15 @@ struct s_SoundObjectInstanceParameters {
 	short object,nseq,ncycles,seed;
 	Milliseconds truncbeg,truncend;
 	char velocity,channel;
-	int scale,blockkey;
+	int transposition,scale,blockkey;
 	int capture;
 	short rndvel,velcontrol,randomtime;
 	short xpandkey,xpandval;
-	short transposition,instrument,part;
+	short instrument,part;
 	double alpha,dilationratio;
 	Parameters contparameters;
 	KeyNumberMap map0,map1;
-	char mapmode,lastistranspose;
+	char mapmode,transposefirst;
 	};
 typedef struct s_SoundObjectInstanceParameters
 	SoundObjectInstanceParameters;

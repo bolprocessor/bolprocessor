@@ -66,7 +66,7 @@ int Inits(void) {
 
 	Nw = 0;
 
-	rtMIDI = OutCsound = WriteMIDIfile = FALSE;
+	rtMIDI = OutCsound = WriteMIDIfile = WriteEventListfile = FALSE;
 	CaptureSource = -1;
 	CapturePtr = NULL;
 	
@@ -76,7 +76,7 @@ int Inits(void) {
 	CheckMem = TRUE; EmergencyExit = FixedMaxQuantization = FALSE;
 	EventState = NO;
 	SetTimeOn = ComputeOn = PolyOn = CompileOn = SoundOn = SelectOn = ButtonOn = ExpandOn
-		= PrintOn = ClickRuleOn = GraphicOn = CompleteDecisions = LoadOn = SaveOn = MIDIfileOn
+		= PrintOn = ClickRuleOn = GraphicOn = CompleteDecisions = LoadOn = SaveOn = MIDIfileOn = EventListOn
 		= ReadKeyBoardOn = AlertOn = HangOn = ScriptRecOn = PlayPrototypeOn
 		= PlaySelectionOn = PlayChunks = Create_set = PlayAllChunks = UseEachSub = SelectPictureOn = TypeScript = InputOn = EnterOn = AEventOn = HideMessages
 		= PauseOn = WaitOn = ItemOutPutOn = ItemCapture = TickCapture = TickCaptureStarted
@@ -84,7 +84,7 @@ int Inits(void) {
 	Option = TickDone = FoundNote = GotAlert = UsedRandom = SaidTooComplex = FALSE;
 	POLYconvert = OkShowExpand = FALSE;
 	NewOrchestra = TRUE;
-	ItemNumber = TemplateNumber = ZERO;
+	ItemNumber = EventNumber = TemplateNumber = ZERO;
 	MaxItemsProduce = 20;
 	MaxItemsGraphic = 10;
 	AssignedTempoCsoundFile = FALSE;
@@ -101,7 +101,7 @@ int Inits(void) {
 	CorrectionFactor = 1.;
 	ErrorDuration = 0;
 	Chunk_number = 0;
-	NextStop = 0L;
+	NextStop = getClockTime() + 1000000L; // microseconds
 
 	Oms = FALSE;
 
@@ -375,7 +375,7 @@ int Inits(void) {
 	ForceRatio = -1.;
 	PlayFromInsertionPoint = FALSE;
 
-	OpenMIDIfilePtr = UnitfilePtr = TabfilePtr = TsvFilePtr = NULL;
+	OpenMIDIfilePtr = EventListPtr = UnitfilePtr = TabfilePtr = TsvFilePtr = NULL;
 	HelpRefnum = TempRefnum = TraceRefnum = -1;
 	CsRefNum = -1; CsScoreOpened = MIDIfileTrackEmpty = FALSE;
 	for(i=0; i < WMAX; i++) {
@@ -930,7 +930,7 @@ int LoadScriptCommands() {
 		= TraceProduce = DisplayTimeSet = StepTimeSet = TraceTimeSet = ResetNotes
 		= ShowGraphic = ComputeWhilePlay = NeverResetWeights = FALSE;
 	SynchronizeStart = CyclicPlay = NoConstraint = AllItems
-		= WriteMIDIfile = CsoundTrace = WillRandomize = FALSE;
+		= WriteMIDIfile = WriteEventListfile = CsoundTrace = WillRandomize = FALSE;
 	ResetWeights = ResetFlags = ResetControllers = ShowMessages
 		= AllowRandomize = TRUE;
 	NoteConvention = ENGLISH;

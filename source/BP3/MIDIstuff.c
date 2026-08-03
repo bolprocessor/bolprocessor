@@ -1582,8 +1582,9 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 
 	if(ChangedGrammar || ChangedSettings) return(FINISH);
 	if(Panic || EmergencyExit) return(ABORT);
-	if(!MIDIfileOn && !rtMIDI) return(OK);
+	if(!MIDIfileOn && !rtMIDI && !EventListOn) return(OK);
 	LastTime = time;
+	
 	status = ByteToInt(p_e->status);
 	channel = status % 16;
 	note = ByteToInt(p_e->data1);

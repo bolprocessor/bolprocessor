@@ -1209,7 +1209,7 @@ long lastbyte;
 unsigned long drivertime;
 
 compiledmem = CompiledGr;
-if(Improvize && !WriteMIDIfile && !OutCsound) {
+if(Improvize && !WriteMIDIfile && !OutCsound && !EventListOn) {
 	result = ListenToEvents();
 	if(result == ENDREPEAT) return(result);
 	if(Improvize && (result == ABORT || SkipFlag)) return(ABORT);

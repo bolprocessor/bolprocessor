@@ -85,9 +85,10 @@ for(j = 0; j < MAXINSTRUMENTS; j++)
 
 time(&start_time);
 ProductionTime += start_time - ProductionStartTime;
+
 result = MakeEmptyTokensSilent(pp_buff,&maxseqapprox);
 if(result != OK) goto SORTIR;
-// result = FillPhaseDiagram(pp_buff,p_kmx,p_maxseq,p_nmax,p_imaxseq,maxseqapprox,&bigitem,p_Articul);
+
 result = FillPhaseDiagram(pp_buff,p_kmx,p_maxseq,p_nmax,p_imaxseq,maxseqapprox,&bigitem);
 if(result != OK) goto SORTIR;
 

@@ -219,7 +219,7 @@ int SetObjectParams(int isobject,int level,int nseq,long k,int j,
 		}
 
 	(*p_Instance)[k].transposition = 0;
-	(*p_Instance)[k].lastistranspose = p_currentparameters->lastistranspose;
+	(*p_Instance)[k].transposefirst = p_currentparameters->transposefirst;
 	(*p_Instance)[k].capture = p_currentparameters->capture;
 	(*p_Instance)[k].part = p_currentparameters->currpart;
 	if(j < 1 || j >= Jbol) {

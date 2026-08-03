@@ -256,11 +256,11 @@ if(iarg > 0) {
 		key = MyInt(deltakey);
 		deltakey -= key;
 		if(j < Jbol) {
-			if((*p_OkTransp)[j] && (*perf)->lastistranspose)
+			if((*p_OkTransp)[j] && (*perf)->transposefirst)
 				TransposeKey(&key,(*perf)->transpose);
 			if((*p_OkMap)[j])
 				key = ExpandKey(key,(*perf)->xpandkey,(*perf)->xpandval);
-			if((*p_OkTransp)[j] && (!(*perf)->lastistranspose))
+			if((*p_OkTransp)[j] && (!(*perf)->transposefirst))
 				TransposeKey(&key,(*perf)->transpose);
 			}
 		}

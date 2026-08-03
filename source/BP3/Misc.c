@@ -1061,9 +1061,7 @@ if(j < maxparam) {
 	return(j);
 	}
 if(j >= MAXSTRINGCONSTANTS) {
-	my_sprintf(Message,
-		"=> Too many numeric constants found (max %ld)\nCan't store '%s'\n",(long)MAXSTRINGCONSTANTS,line);
-	BPPrintMessage(0,odError,"%s",Message);
+	BPPrintMessage(0,odError,"=> Too many numeric constants found (max %ld)\nCan't store '%s'\n",(long)MAXSTRINGCONSTANTS,line);
 	return(ABORT);
 	}
 	
@@ -1079,7 +1077,7 @@ if(trace_FixNumberConstant) BPPrintMessage(0,odInfo,"FixNumberConstant() after i
 return(j);
 
 ERR:
-BPPrintMessage(0,odError,"Missing value");
+BPPrintMessage(0,odError,"=> Missing value in FixNumberConstant()\n");
 return(ABORT);
 }
 

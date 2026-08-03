@@ -227,15 +227,6 @@ int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll) {
 	// BPPrintMessage(1,odInfo,"r = %d\n",r);
 
 	if(!PlaySelectionOn && ItemNumber > INT_MAX) ItemNumber = 1L;
-/*	if(r != EXIT && MaxItemsProduce > ZERO && ItemNumber > MaxItemsProduce && !onlypianoroll) {
-		// Script ordered to terminate production
-		SoundOn = TRUE;
-		r = WaitForEmptyBuffer();
-		SoundOn = FALSE;
-		if(r != OK) return(r);
-		BPPrintMessage(0,odInfo,"Aborted PlayBuffer()\n");
-		return(ABORT);
-		}  */
 	return(r);
 	}
 
@@ -342,7 +333,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	if(result == AGAIN) again = TRUE;
 	result = OK;
 	SetTimeOn = FALSE;
-	if(trace_play) BPPrintMessage(1,odInfo,"\ntmin = %ld, tmax = %ld, rtMIDI = %d\n",(long)tmin,(long)tmax,rtMIDI);
+	if(trace_play) BPPrintMessage(1,odInfo,"\n@ tmin = %ld, tmax = %ld, rtMIDI = %d\n",(long)tmin,(long)tmax,rtMIDI);
 
 	// if(ShowGraphic) BPPrintMessage(0,odInfo, "Shall we draw graphics?\n");
 	if(Create_set) {
@@ -351,9 +342,8 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
 		}
 	else {
-		if(onlypianoroll
-				|| (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && (tmax > tmin || Nature_of_time == SMOOTH))) {
-			if(!ShowPianoRoll && !onlypianoroll) {
+		if(onlypianoroll || (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && (tmax > tmin || Nature_of_time == SMOOTH))) {
+			if(!ShowPianoRoll && !onlypianoroll && !EventListOn) {
 				result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
 				if(OutCsound || WriteMIDIfile || rtMIDI || OutBPdata) {
 					if(trace_play)
@@ -364,11 +354,13 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 			else {
 				if(trace_play)
 					BPPrintMessage(1,odInfo,"Calling MakeSound() [2]\n");
+		/*		PianorollShift = MIDIsetUpTime;
+				Tcurr = LastTime / Time_res; */
 				result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
 				if(result == OK) result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
 				}
 			}
-		else if(OutCsound || WriteMIDIfile || rtMIDI || OutBPdata) {
+		else if(OutCsound || WriteMIDIfile || EventListOn || rtMIDI || OutBPdata) {
 			if(trace_play) 
 				BPPrintMessage(1,odInfo,"Calling MakeSound() [3]\n");
 			result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);

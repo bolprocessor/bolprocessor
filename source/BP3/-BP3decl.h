@@ -125,7 +125,7 @@ extern Milliseconds TabfileStart;
 extern long ProduceStackDepth,ProduceStackIndex,DisplayStackIndex,
 	**p_LastStackIndex,**p_MemPos;
 extern long **p_ItemStart,**p_ItemEnd,CompileDate,ComputeStart,MaxComputeTime,
-	ComputeTime,ItemNumber,TemplateNumber,Interrupted,MaxDeriv,Sel1,Sel2,AssignedTempoCsoundFile;
+	ComputeTime,ItemNumber,EventNumber,TemplateNumber,Interrupted,MaxDeriv,Sel1,Sel2,AssignedTempoCsoundFile;
 extern int Nplay,SynchroSignal,Quantize,IgnoreCase,
 	MatchWords,TargetWindow,GraphicScaleP,GraphicScaleQ;
 extern long Time_res,Quantization,MaxDeltaTime;
@@ -159,7 +159,7 @@ extern short **p_Articul;
 extern objectspecs ****p_ObjectSpecs;
 extern int WaitKey[MAXWAIT+1],WaitChan[MAXWAIT+1];
 extern long **p_Flag,BufferSize,DeftBufferSize,Maxevent;
-extern FILE *OpenMIDIfilePtr;
+extern FILE *OpenMIDIfilePtr, *EventListPtr;
 extern FILE *UnitfilePtr,*TabfilePtr,*TsvFilePtr;
 extern short HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,
 	MIDIfileOpened,MIDIfileTrackEmpty;
@@ -236,7 +236,7 @@ extern int DeriveFurther,DeriveFurtherKey,DeriveFurtherChan,ResetWeights,NeverRe
 	MinTclockKey,MaxTclockKey,TclockChan,SkipKey,SkipChan,NoConstraint,
 	NoConstraintKey,NoConstraintChan,AgainKey,AgainChan,
 	SynchronizeStart,SynchronizeStartKey,SynchronizeStartChan,SpeedCtrl,SpeedChan,
-	WriteMIDIfile,CsoundTrace,ShownBufferSize,
+	WriteMIDIfile,WriteEventListfile,CsoundTrace,ShownBufferSize,
 	ParamControl[MAXPARAMCTRL],ParamKey[MAXPARAMCTRL],ParamChan[MAXPARAMCTRL],
 	ParamValue[MAXPARAMCTRL],ParamInit[MAXPARAMCTRL],SaidTooComplex,ToldSkipped,
 	ParamControlChan,Newstatus,ShowMessages,ScriptSyncKey,ScriptSyncChan,
@@ -348,7 +348,7 @@ extern int TickChannel[MAXTICKS],TickKey[MAXTICKS],TickVelocity[MAXTICKS],MuteTi
 extern long ThisTick[MAXTICKS][MAXBEATS];
 extern int InitOn,SetTimeOn,ComputeOn,PolyOn,CompileOn,SoundOn,SelectOn,PrintOn,InputOn,
 	ClickRuleOn,GraphicOn,ReadKeyBoardOn,ButtonOn,PauseOn,AlertOn,PlaySelectionOn,PlayChunks,Create_set,LastChunk,PlayAllChunks,
-	PlayPrototypeOn,MIDIfileOn,WaitOn,ExpandOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram,
+	PlayPrototypeOn,MIDIfileOn,EventListOn,WaitOn,ExpandOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram,
 	AEventOn,LoadOn,SaveOn,SelectPictureOn,EnterOn,Option,EmptyBeat,TickDone,
 	FoundNote,NoCursor,ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
 

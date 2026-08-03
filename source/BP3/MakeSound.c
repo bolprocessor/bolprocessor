@@ -116,13 +116,13 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 
 	// BPPrintMessage(0,odInfo,"cswrite = %d, OutCsound = %d, WriteMIDIfile = %d, MIDIfileOn = %d\n",cswrite,OutCsound,WriteMIDIfile,MIDIfileOn);
 
-	if(!cswrite && !rtMIDI && !MIDIfileOn && !ShowGraphic && !showpianoroll) {
+	if(!cswrite && !rtMIDI && !MIDIfileOn && !EventListOn && !ShowGraphic && !showpianoroll) {
 	//	BPPrintMessage(0,odInfo, "=> Cancelling MakeSound()\n");
 		return(OK);
 		}
-	if(WriteMIDIfile || OutCsound) {
+	if(WriteMIDIfile || OutCsound || EventListOn) {
 		ItemNumber++;
-	//	BPPrintMessage(1,odInfo,"👉 %ld !!!\n",(long)ItemNumber);
+	//  BPPrintMessage(1,odInfo,"@@ 👉 %ld !!!\n",(long)ItemNumber);
 		if((MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) {
 			if(ItemNumber == (MaxItemsProduce + 1L)) BPPrintMessage(1,odInfo,"👉 %ld items have been produced\n",(long)(ItemNumber - 1L));
 			return(OK);
@@ -134,7 +134,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	// max_endtime_event = max_endtime = ZERO;
 
 	if(MIDIfileOn) {
-		BPPrintMessage(0,odInfo,"👉 a MIDI file will be created\n");
+		BPPrintMessage(0,odInfo,"👉 A MIDI file has been created\n");
 		}
 
 	Ke = log((double) SpeedRange) / 64.;
@@ -348,7 +348,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	SoundOn = TRUE;
 
 	if(showpianoroll) {
-//		BPPrintMessage(1,odInfo,"@@@ ItemNumber = %ld / %d\n",ItemNumber,MaxItemsProduce);
+	//	BPPrintMessage(1,odInfo,"@@@ ItemNumber = %ld / %d\n",ItemNumber,MaxItemsProduce);
 		minkey = 127; maxkey = 0;
 		tmax = ZERO;
 		for(k=2; k <= (*p_kmax); k++) {
@@ -358,8 +358,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			if(j < 2) continue;
 			if(j < 16384) {
 				beta = (*p_Instance)[k].dilationratio;
-				if((*p_PostRollMode)[j] == ABSOLU) postroll = (*p_PostRollMode)[j];
-				else postroll = beta * (*p_PostRollMode)[j];
+				if((*p_PostRollMode)[j] == ABSOLU) postroll = (*p_PostRoll)[j];
+				else postroll = beta * (*p_PostRoll)[j];
 				}
 			else postroll = 0.;
 			if(tmax < ((*p_Instance)[k].endtime - postroll))
@@ -376,9 +376,9 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 						c0 -= localchan;
 						if(c0 == NoteOn) { 
 							c1 = (*((*pp_MIDIcode)[j]))[i+1].byte;		/* key number */
-							if((*p_Instance)[k].lastistranspose) TransposeKey(&c1,trans);
+							if((*p_Instance)[k].transposefirst) TransposeKey(&c1,trans);
 							c1 = ExpandKey(c1,(*p_Instance)[k].xpandkey,(*p_Instance)[k].xpandval);
-							if(!(*p_Instance)[k].lastistranspose) TransposeKey(&c1,trans);
+							if(!(*p_Instance)[k].transposefirst) TransposeKey(&c1,trans);
 							key = c1;
 						//	BPPrintMessage(0,odInfo,"===> key = %d\n",key);
 							if(key < minkey) minkey = key;
@@ -419,9 +419,9 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			else {
 				key = GoodKey(j);
 			//	BPPrintMessage(0,odInfo,"j = %d => key = %d\n",j,key);
-				if((*p_Instance)[k].lastistranspose) TransposeKey(&key,trans);
+				if((*p_Instance)[k].transposefirst) TransposeKey(&key,trans);
 				key = ExpandKey(key,(*p_Instance)[k].xpandkey,(*p_Instance)[k].xpandval);
-				if(!(*p_Instance)[k].lastistranspose) TransposeKey(&key,trans);
+				if(!(*p_Instance)[k].transposefirst) TransposeKey(&key,trans);
 				if(key < minkey) minkey = key;
 				if(key > maxkey) maxkey = key;
 				}
@@ -464,7 +464,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 		Vmin[w] = Vmax[w] = 0;
 		}
 
-	if(!MIDIfileOn && !cswrite && rtMIDI && !showpianoroll)
+	if(!MIDIfileOn && !cswrite && !EventListOn && rtMIDI && !showpianoroll)
 		drivertime = getClockTime();
 
 	if(Improvize && !Interrupted && !FirstTime && !ItemCapture && !showpianoroll) {
@@ -478,8 +478,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			}
 		}
 
-	if(cswrite || MIDIfileOn || ItemCapture) {
-		BPPrintMessage(0,odInfo,"Writing %ld sound-objects\n",(long)(*p_kmax)-2L);
+	if(cswrite || MIDIfileOn || EventListOn || ItemCapture) {
+		BPPrintMessage(1,odInfo,"Writing %ld sound-objects\n",(long)(*p_kmax)-2L);
 		}
 
 	time = 0;
@@ -637,7 +637,6 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 
 	for(occurrence = 0; occurrence < Nplay || SynchroSignal == PLAYFOREVER; occurrence++) {
 		result = OK;
-	//	PleaseWait();
 		if((result=stop(1,"MakeSound")) != OK) goto OVER;
 		if(SkipFlag) goto OVER;
 	//	BPPrintMessage(1,odInfo, "@@@ occurrence = %d\n",occurrence);
@@ -690,7 +689,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			}
 		resetok = FALSE;
 		
-		if((MIDIfileOn || cswrite || showpianoroll || rtMIDI
+		if((MIDIfileOn || cswrite || showpianoroll || rtMIDI || EventListOn
 				|| ItemNumber == ZERO || PlaySelectionOn || ItemCapture) && !CyclicPlay) {
 	//		if(!cswrite && !MIDIfileOn && !ItemCapture) { 2025-01-22
 			if(!cswrite && !ItemCapture) {
@@ -709,7 +708,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			else currenttime = Tcurr * Time_res;
 			}
 
-	//	BPPrintMessage(1,odInfo,"@@@ Tcurr = %ld, currenttime = %ld, drivertime = %ld, LastTime = %ld\n",Tcurr,currenttime,drivertime,LastTime);
+		// BPPrintMessage(1,odInfo,"@@@ Tcurr = %ld, currenttime = %ld, drivertime = %ld, LastTime = %ld\n",Tcurr,currenttime,drivertime,LastTime);
 
 		if(t1 < ZERO) t0 = currenttime - t1;
 		else t0 = currenttime;
@@ -721,13 +720,13 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 		//	BPPrintMessage(1,odInfo,"(Tcurr * Time_res) = %ld ms, LastTime = %ld ms, currenttime = %ld ms\n",(long)Tcurr * Time_res,(long)LastTime,(long)currenttime);
 			Tcurr = LastTime / Time_res; // 2024-05-02
 			t0 = Tcurr * Time_res;
-			// BPPrintMessage(1,odInfo,"PianorollShift(1) = %ld\n",(long)PianorollShift);
+		//	BPPrintMessage(1,odInfo,"PianorollShift(1) = %ld, LastTime = %ld\n",(long)PianorollShift,(long)LastTime);
 			}
 		else {
 			Tcurr = (t0 + t1) / Time_res;
-			if(MIDIfileOn || rtMIDI) {
+			if(MIDIfileOn || rtMIDI || EventListOn) {
 				PianorollShift = MIDIsetUpTime;
-				// BPPrintMessage(1,odInfo,"PianorollShift(2) = %ld\n",(long)PianorollShift);
+			//	BPPrintMessage(1,odInfo,"PianorollShift(2) = %ld, LastTime = %ld\n",(long)PianorollShift,(long)LastTime);
 				}
 			}
 		
@@ -824,7 +823,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 				= (*p_Instance)[kcurrentinstance].transposition;
 			(*((*pp_currentparams)[nseq]))->xpandkey = (*p_Instance)[kcurrentinstance].xpandkey;
 			(*((*pp_currentparams)[nseq]))->xpandval = (*p_Instance)[kcurrentinstance].xpandval;
-			(*((*pp_currentparams)[nseq]))->lastistranspose = (*p_Instance)[kcurrentinstance].lastistranspose;
+			(*((*pp_currentparams)[nseq]))->transposefirst = (*p_Instance)[kcurrentinstance].transposefirst;
 			t3 = (*p_Instance)[kcurrentinstance].endtime;
 			objectstarttime = (*p_Instance)[kcurrentinstance].starttime;
 			objectduration = t3 - objectstarttime;
@@ -851,9 +850,10 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 				}
 			else im = 6;	/* Simple note contains 6 MIDI bytes (NoteOn/NoteOff). */
 			
-	// Initialise sound-object instance kcurrentinstance
+			// Initialise sound-object instance kcurrentinstance
 
 			if(!(*p_onoff)[kcurrentinstance]) {
+				if(EventListOn) AddEventToList(kcurrentinstance);
 				if(trace_csound_pianoroll) BPPrintMessage(0,odInfo,"kcurrentinstance2 = %d\n",kcurrentinstance);
 				howmuch = 0.;
 				result = OK;
@@ -1400,11 +1400,11 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 							simplenote = TRUE;
 							}
 						if(c1 > 0) {
-							if((*p_Instance)[kcurrentinstance].lastistranspose)
+							if((*p_Instance)[kcurrentinstance].transposefirst)
 								TransposeKey(&c1,trans);
 							c1 = ExpandKey(c1,(*p_Instance)[kcurrentinstance].xpandkey,
 								(*p_Instance)[kcurrentinstance].xpandval);
-							if(!(*p_Instance)[kcurrentinstance].lastistranspose)
+							if(!(*p_Instance)[kcurrentinstance].transposefirst)
 								TransposeKey(&c1,trans);
 							}
 						if(c0 == NoteOff || c2 == 0) {

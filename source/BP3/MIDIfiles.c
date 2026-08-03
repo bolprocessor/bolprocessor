@@ -38,9 +38,6 @@
 #endif
 
 #include "-BP3decl.h"
-// #include "ConsoleGlobals.h"
-// #include "ConsoleMessages.h"
-
 int check_fade_out = 0;
 
 #define  BITS0_6    0x7F
@@ -393,7 +390,6 @@ if(result != OK)  return result;
 result = WriteBeginningOfTrack(OpenMIDIfilePtr, TRUE, FALSE);
 return result;
 }
-
 
 /* Finishes writing the track and MIDI header, then calls CloseMIDIFile2() */
 int CloseMIDIFile(void) {

@@ -607,6 +607,7 @@ if(xpandval >= maxparam) {
 	return(key);
 	}
 val = (*p_NumberConstant)[xpandval];
+// BPPrintMessage(1,odInfo,"@@@ xpandval = %d, val = %.4f\n",xpandval,val);
 newkey = centerkey + Round(((double)(key - centerkey)) * val);
 while(newkey > 127) newkey -= 12;
 while(newkey < 0) newkey += 12;

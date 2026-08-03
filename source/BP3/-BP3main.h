@@ -193,7 +193,7 @@ Milliseconds TabfileStart;
 long ProduceStackDepth,ProduceStackIndex,DisplayStackIndex,
 	**p_LastStackIndex,**p_MemPos;
 long **p_ItemStart,**p_ItemEnd,CompileDate,ComputeStart,MaxComputeTime,
-	ComputeTime,ItemNumber,TemplateNumber,Interrupted,MaxDeriv,Sel1,Sel2,AssignedTempoCsoundFile;
+	ComputeTime,ItemNumber,EventNumber,TemplateNumber,Interrupted,MaxDeriv,Sel1,Sel2,AssignedTempoCsoundFile;
 int Nplay,SynchroSignal,Quantize,IgnoreCase,MatchWords,
 	TargetWindow,GraphicScaleP,GraphicScaleQ;
 long Time_res,Quantization,MaxDeltaTime;
@@ -227,7 +227,7 @@ SoundObjectInstanceParameters **p_Instance;
 short **p_Articul;
 objectspecs ****p_ObjectSpecs;
 long **p_Flag,BufferSize,DeftBufferSize,Maxevent;
-FILE *OpenMIDIfilePtr;
+FILE *OpenMIDIfilePtr, *EventListPtr;
 FILE *UnitfilePtr,*TabfilePtr,*TsvFilePtr;
 short HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,MIDIfileOpened,
 	MIDIfileTrackEmpty;
@@ -299,7 +299,7 @@ int DeriveFurther,DeriveFurtherKey,DeriveFurtherChan,ResetWeights,NeverResetWeig
 	MinTclockKey,MaxTclockKey,TclockChan,SkipKey,SkipChan,NoConstraint,
 	NoConstraintKey,NoConstraintChan,AgainKey,AgainChan,
 	SynchronizeStart,SynchronizeStartKey,SynchronizeStartChan,SpeedCtrl,SpeedChan,
-	WriteMIDIfile,CsoundTrace,ShownBufferSize,
+	WriteMIDIfile,WriteEventListfile,CsoundTrace,ShownBufferSize,
 	ParamControl[MAXPARAMCTRL],ParamKey[MAXPARAMCTRL],ParamChan[MAXPARAMCTRL],
 	ParamValue[MAXPARAMCTRL],ParamInit[MAXPARAMCTRL],SaidTooComplex,ToldSkipped,
 	ParamControlChan,Newstatus,ShowMessages,ScriptSyncKey,ScriptSyncChan,
@@ -454,7 +454,7 @@ long ThisTick[MAXTICKS][MAXBEATS];
 int InitOn,SetTimeOn,ComputeOn,PolyOn,SoundOn,SelectOn,PrintOn,InputOn,ClickRuleOn,
 	EnterOn,Option,CompileOn,GraphicOn,ReadKeyBoardOn,ButtonOn,LoadOn,SaveOn,PauseOn,AlertOn,
 	PlaySelectionOn,PlayChunks,Create_set,LastChunk,PlayAllChunks,PlayPrototypeOn,AEventOn,ExpandOn,SelectPictureOn,EmptyBeat,TickDone;
-int	FoundNote,NoCursor,MIDIfileOn,WaitOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram;
+int	FoundNote,NoCursor,MIDIfileOn,EventListOn,WaitOn,ReceivedOpenAppEvent,Oms,GotAlert,NewOrchestra,ChangedMIDIprogram;
 int	ItemOutPutOn,ItemCapture,TickCapture,TickCaptureStarted,AskedAboutCsound;
 int HideMessages;
 double MaxTempo,InvMaxTempo,TokenLimit,InvTokenLimit;
@@ -494,6 +494,7 @@ typedef struct BPConsoleOpts {
 	CLOption	displayItems;
 	CLOption	writeCsoundScore;
 	CLOption	writeMidiFile;
+	CLOption	writeEventListFile;
 	CLOption	useRealtimeMidi;
 	CLOption	showProduction;
 	CLOption	traceProduction;

@@ -237,7 +237,7 @@ for(i=0; i < (*p_MIDIsize)[j] - 2; i++) {
 		i += 2;
 		}
 	}
-/* Force resulting time list to be monotonous */
+// Force resulting time list to be monotonous
 size = (*p_MIDIsize)[j];
 time = (*((*pp_MIDIcode)[j]))[size - 1].time;
 for(i=size-1; i >= 0; i--) {
