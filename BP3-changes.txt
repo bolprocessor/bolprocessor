@@ -7,12 +7,14 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 -----
-2026-08-03 (version 3.5.0)
-This is the first version to offer the option of producing detailed lists of sound events as text files. This will facilitate connections with sound devices, replacing the MIDI and Csound outputs of the Bol Processor.
+2026-08-03 -> 2026-08-04 (version 3.5.0)
+This is the first version to offer the option of producing detailed lists of sound events as text files. This will facilitate connections with a great diversity of sound devices in replacement of the MIDI and Csound outputs of the Bol Processor.
 When 'Event list' is selected on a Data or Grammar page, sound events are saved to a CSV file and the full description of sound-object prototypes is saved to a JSON file.
 
 The following Terminal command (launched from inside the "php" folder) demonstrates this process: "-gr.koto3" creates "koto3.csv" and "koto3.mid", while "-so.abc1" creates "abc1.json" in the same location:
 ../bp produce -se ../ctests/-se.koto3 -gr ../ctests/-gr.koto3 -al ../ctests/-al.abc1 -so ../ctests/-so.abc1 --midiout ../my_output/koto3.mid --eventlistout ../my_output/koto3.csv --traceout ../temp_bolprocessor/trace_some_file.txt --seed 1
+
+We plan to update the PHP interface to deal with sound-object prototypes stored in the new JSON format.
 
 Since this is an initial version, the layout of files is likely to evolve during further development. Bugs will be fixed!
 Don't forget to update the PHP interface:
@@ -25,7 +27,8 @@ Fixed the ReadOne() function to avoir infinite loop on ill-formed "-cs" files.
 Some changes in the interface to allow running MAMP Apache (instead of XAMPP Apache) in MacOS. Installation and startup instructions have been updated, read https://bolprocessor.org/install-mamp-or-xampp-on-macos/
 The time limitation of Apache in MAMP (free version on MacOS) has been raised to 3600s.
 Scripts in footer_enter_notes() at the bottom of Grammar and Data pages have been updated to work with MAMP as well as with the standalone BolProcessor.app application.
-Better check of imagePtr to avoid crashes if CANVAS_header.txt or CANVAS_footer.txt is missing. 
+Better check of imagePtr to avoid crashes if CANVAS_header.txt or CANVAS_footer.txt is missing.
+
 -----
 2026-07-13 (version 3.4.6)
 The Zouleb() function is now called in Polymetric.c and ProduceItems.c at the end of producing an item. Previously it was called at the end of each subgrammar.
