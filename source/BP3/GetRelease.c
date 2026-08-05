@@ -800,16 +800,16 @@ int ClearObjectSpace(void) { // NOT USED
 	MyDisposeHandle((Handle*)&p_TruncEndMode);
 	MyDisposeHandle((Handle*)&p_PreRollMode);
 	MyDisposeHandle((Handle*)&p_PostRollMode);
-	MyDisposeHandle((Handle*)&p_PeriodMode);
+	MyDisposeHandle((Handle*)&p_CyclicMode);
 	MyDisposeHandle((Handle*)&p_StrikeAgain);
 	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed (c) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	MyDisposeHandle((Handle*)&p_CompiledCsoundScore);
 	MyDisposeHandle((Handle*)&p_DiscardNoteOffs);
-	MyDisposeHandle((Handle*)&p_ForceIntegerPeriod);
+	MyDisposeHandle((Handle*)&p_ForceIntegerCycles);
 	MyDisposeHandle((Handle*)&p_PivPos);
 	MyDisposeHandle((Handle*)&p_PreRoll);
 	MyDisposeHandle((Handle*)&p_PostRoll);
-	MyDisposeHandle((Handle*)&p_BeforePeriod);
+	MyDisposeHandle((Handle*)&p_CyclicAfter);
 	MyDisposeHandle((Handle*)&p_MaxDelay);
 	MyDisposeHandle((Handle*)&p_MaxForward);
 	MyDisposeHandle((Handle*)&p_MaxBegGap);
@@ -888,15 +888,15 @@ int MakeSoundObjectSpace(void) {
 	if((p_TruncEndMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
 	if((p_PreRollMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
 	if((p_PostRollMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
-	if((p_PeriodMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_CyclicMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
 	if((p_StrikeAgain = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
 	if((p_CompiledCsoundScore = (int**) GiveSpace((Size) jmax *sizeof(int))) == NULL) goto ERR;
 	if((p_DiscardNoteOffs = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
-	if((p_ForceIntegerPeriod = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+	if((p_ForceIntegerCycles = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
 	if((p_PivPos = (float**) GiveSpace((Size) jmax *sizeof(float))) == NULL) goto ERR;
 	if((p_PreRoll = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
 	if((p_PostRoll = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
-	if((p_BeforePeriod = (float**) GiveSpace((Size) jmax *sizeof(float))) == NULL) goto ERR;
+	if((p_CyclicAfter = (float**) GiveSpace((Size) jmax *sizeof(float))) == NULL) goto ERR;
 	if((p_MaxDelay = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
 	if((p_MaxForward = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
 	if((p_MaxBegGap = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
@@ -938,8 +938,8 @@ int MakeSoundObjectSpace(void) {
 	for(j=0; j < 2 ; j++) {
 		(*p_MIDIsize)[j] = (*p_CsoundSize)[j] = ZERO;
 		(*p_Ifrom)[j] = 0; (*p_Type)[j] = 0;
-		(*p_PivPos)[j] = (*p_BeforePeriod)[j] = 0.;
-		(*p_PeriodMode)[j] = IRRELEVANT;
+		(*p_PivPos)[j] = (*p_CyclicAfter)[j] = 0.;
+		(*p_CyclicMode)[j] = IRRELEVANT;
 		(*p_PreRoll)[j] = (*p_PostRoll)[j] = ZERO;
 		(*p_AlphaCtrlNr)[j] = 0; (*p_AlphaCtrlChan)[j] = 1;
 		(*pp_MIDIcode)[j] = NULL; (*pp_CsoundTime)[j] = NULL;
@@ -953,7 +953,7 @@ int MakeSoundObjectSpace(void) {
 			= (*p_OkVelocity)[j] = (*p_DiscardNoteOffs)[j] = (*p_PasteDone)[j] = FALSE;
 		(*p_BreakTempo)[j] = TRUE;
 		(*p_FixScale)[j] = (*p_ContBeg)[j] = (*p_ContEnd)[j]
-			= (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = (*p_AlphaCtrl)[j] = (*p_ForceIntegerPeriod)[j]
+			= (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = (*p_AlphaCtrl)[j] = (*p_ForceIntegerCycles)[j]
 			= FALSE;
 		(*p_PivType)[j] = 1; (*p_PivMode)[j] = ABSOLU;
 		(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = RELATIF;
@@ -964,12 +964,12 @@ int MakeSoundObjectSpace(void) {
 				= (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLU;
 			(*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j]
 				= (*p_TruncEndMode)[j] = RELATIF;
-		(*p_PeriodMode)[j] = IRRELEVANT;
+		(*p_CyclicMode)[j] = IRRELEVANT;
 		(*p_MaxBegGap)[j] = (*p_MaxEndGap)[j] = Infpos;
 		(*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = 100L;
 		(*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = 0L;
 		(*p_Tref)[j] = ZERO; (*p_Resolution)[j] = 1; (*p_Dur)[j] = (*p_PivPos)[j]
-		= (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_BeforePeriod)[j] = ZERO;
+		= (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_CyclicAfter)[j] = ZERO;
 		(*p_DefaultChannel)[j] = (*p_Quan)[j] = 0;
 		(*p_Tpict)[j] = Infneg;
 		(*p_CsoundInstr)[j] = 0;
@@ -1065,15 +1065,15 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 	MySetHandleSize((Handle*)&p_TruncEndMode,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_PreRollMode,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_PostRollMode,(Size)maxsounds*sizeof(char));
-	MySetHandleSize((Handle*)&p_PeriodMode,(Size)maxsounds*sizeof(char));
+	MySetHandleSize((Handle*)&p_CyclicMode,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_StrikeAgain,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_CompiledCsoundScore,(Size)maxsounds*sizeof(int));
 	MySetHandleSize((Handle*)&p_DiscardNoteOffs,(Size)maxsounds*sizeof(char));
-	MySetHandleSize((Handle*)&p_ForceIntegerPeriod,(Size)maxsounds*sizeof(char));
+	MySetHandleSize((Handle*)&p_ForceIntegerCycles,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_PivPos,(Size)maxsounds*sizeof(float));
 	MySetHandleSize((Handle*)&p_PreRoll,(Size)maxsounds*sizeof(long));
 	MySetHandleSize((Handle*)&p_PostRoll,(Size)maxsounds*sizeof(long));
-	MySetHandleSize((Handle*)&p_BeforePeriod,(Size)maxsounds*sizeof(float));
+	MySetHandleSize((Handle*)&p_CyclicAfter,(Size)maxsounds*sizeof(float));
 	MySetHandleSize((Handle*)&p_MaxDelay,(Size)maxsounds*sizeof(long));
 	MySetHandleSize((Handle*)&p_MaxForward,(Size)maxsounds*sizeof(long));
 	MySetHandleSize((Handle*)&p_MaxBegGap,(Size)maxsounds*sizeof(long));
@@ -1157,7 +1157,7 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 			(*p_CompiledCsoundScore)[j] = 0; // Fixed 2024-07-04
 			(*p_ContBeg)[j] = (*p_ContEnd)[j] = (*p_OkTransp)[j] = (*p_OkPan)[j] = (*p_OkMap)[j] = (*p_OkVelocity)[j] = (*p_OkArticul)[j] = (*p_OkVolume)[j] = (*p_DiscardNoteOffs)[j] = FALSE;
 			(*p_BreakTempo)[j] = TRUE;
-			(*p_FixScale)[j] = (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = (*p_AlphaCtrl)[j] = (*p_ForceIntegerPeriod)[j] = FALSE;
+			(*p_FixScale)[j] = (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = (*p_AlphaCtrl)[j] = (*p_ForceIntegerCycles)[j] = FALSE;
 			(*p_PivType)[j] = 1;
 			(*p_PivMode)[j] = ABSOLU;
 			(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = RELATIF;
@@ -1167,10 +1167,10 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 			(*p_AlphaMax)[j] = 100.;
 			(*p_DelayMode)[j] = (*p_ForwardMode)[j] = (*p_BreakTempoMode)[j] = (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLU;
 			(*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j] = (*p_TruncEndMode)[j] = RELATIF;
-			(*p_PeriodMode)[j] = IRRELEVANT;
+			(*p_CyclicMode)[j] = IRRELEVANT;
 			(*p_MaxBegGap)[j] = (*p_MaxEndGap)[j] = Infpos;
 			(*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = ZERO;
-			(*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = (*p_PivPos)[j] = (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_BeforePeriod)[j] = ZERO;
+			(*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = (*p_PivPos)[j] = (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_CyclicAfter)[j] = ZERO;
 			(*p_Tref)[j] = 1000L;
 	//		(*p_Dur)[j] = ZERO;
 			(*p_Dur)[j] = 1000L; // 2026-03-20

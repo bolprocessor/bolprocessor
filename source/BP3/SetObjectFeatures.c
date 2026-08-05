@@ -1032,7 +1032,7 @@ if(nature_time == STRIATED || nseq == 0) {
 		beta = alpha;
 	//	if(j > 16383) goto OKALPHA1;
 		if(j >= Jbol) goto OKALPHA1;
-		if((*p_FixScale)[j] && (*p_PeriodMode)[j] == IRRELEVANT) {
+		if((*p_FixScale)[j] && (*p_CyclicMode)[j] == IRRELEVANT) {
 			alpha = beta = 1.; goto OKALPHA1;
 			}
 		if(FixDilationRatioInCyclicObject(j,d,&alpha,&beta,&ncycles) == OK) goto OKALPHA1;
@@ -1212,7 +1212,7 @@ FINDNEXTMARKED:
 		beta = alpha; ncycles = 1;
 	//	if(j > 16383) goto OKALPHA2;
 		if(j >= Jbol) goto OKALPHA2;
-		if((*p_FixScale)[j] && (*p_PeriodMode)[j] == IRRELEVANT) {
+		if((*p_FixScale)[j] && (*p_CyclicMode)[j] == IRRELEVANT) {
 			alpha = beta = 1.; goto OKALPHA2;
 			}
 		if(FixDilationRatioInCyclicObject(j,d,&alpha,&beta,&ncycles) == OK) goto OKALPHA2;
@@ -1247,14 +1247,14 @@ int FixDilationRatioInCyclicObject(int j,double d,double *p_alpha,double *p_dila
 /* ... and change alpha if necessary */
 {
 int n1,n2,limit;
-double objectperiod,beforeperiod,ncycles,pivpos;
+double objectperiod,cyclicafter,ncycles,pivpos;
 
 *p_dilationratio = *p_alpha;
 if(j > 16383) return(OK);
 
 // We're only concerned about cyclic objects with dilation ratio > 1.
-if((*p_alpha) <= 1. || (*p_PeriodMode)[j] == IRRELEVANT) return(MISSED);
-if(GetPeriod(j,1.,&objectperiod,&beforeperiod) == MISSED) return(MISSED);
+if((*p_alpha) <= 1. || (*p_CyclicMode)[j] == IRRELEVANT) return(MISSED);
+if(GetPeriod(j,1.,&objectperiod,&cyclicafter) == MISSED) return(MISSED);
 
 if(!(*p_FixScale)[j] && !(*p_OkExpand)[j] && !(*p_OkCompress)[j])
 	limit = TRUE;		/* dilation ratio has a specified upper limit */
@@ -1268,12 +1268,12 @@ if(PlayFromInsertionPoint) pivpos = 0.;
 	
 // First consider objects that can't be stretched
 
-if(!limit && (!(*p_OkExpand)[j] || (*p_PeriodMode)[j] == ABSOLU)) {
+if(!limit && (!(*p_OkExpand)[j] || (*p_CyclicMode)[j] == ABSOLU)) {
 	*p_dilationratio = 1.;
 FINDCYCLES:
 	ncycles = (double)(((*p_alpha) * (*p_Dur)[j] / (*p_dilationratio))
-		- beforeperiod + pivpos) / objectperiod;
-	if((*p_ForceIntegerPeriod)[j]) {
+		- cyclicafter + pivpos) / objectperiod;
+	if((*p_ForceIntegerCycles)[j]) {
 		if((ncycles - (int)ncycles) > 0.5) ncycles = ceil(ncycles);
 		else ncycles = floor(ncycles);
 		}
@@ -1286,7 +1286,7 @@ ncycles = d;
 
 // Adjust dilation ratio so that the duration is correct
 
-*p_dilationratio = (*p_alpha) * (*p_Dur)[j] / (beforeperiod - pivpos + (ncycles * objectperiod));
+*p_dilationratio = (*p_alpha) * (*p_Dur)[j] / (cyclicafter - pivpos + (ncycles * objectperiod));
 
 // If beta is too large, fix limit value and increase ncycles
 
@@ -1299,7 +1299,7 @@ if((!limit && !(*p_OkExpand)[j] && *p_dilationratio > 1.)
 
 SORTIR:
 if((*p_Dur)[j] > EPSILON) {
-	*p_alpha = *p_dilationratio * (beforeperiod + (ncycles * objectperiod)) / (*p_Dur)[j];
+	*p_alpha = *p_dilationratio * (cyclicafter + (ncycles * objectperiod)) / (*p_Dur)[j];
 	*p_ncycles = (int) ncycles;
 	}
 else {

@@ -7,7 +7,7 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 -----
-2026-08-03 -> 2026-08-04 (version 3.5.0)
+2026-08-03 -> 2026-08-05 (version 3.5.0)
 This is the first version to offer the option of producing detailed lists of sound events as text files. This will facilitate connections with a great diversity of sound devices in replacement of the MIDI and Csound outputs of the Bol Processor.
 When 'Event list' is selected on a Data or Grammar page, sound events are saved to a CSV file and the full description of sound-object prototypes is saved to a JSON file.
 

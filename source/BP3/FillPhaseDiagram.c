@@ -2476,7 +2476,7 @@ int CreateSilentSoundObject(int p) {
 	(*p_OkExpand)[p] = (*p_OkCompress)[p] = (*p_OkRelocate)[p] = TRUE;
 	(*p_Type)[p] = 0;
 	(*p_BreakTempo)[p] = TRUE;
-	(*p_FixScale)[p] = (*p_ContBeg)[p] = (*p_ContEnd)[p] = (*p_TruncBeg)[p] = (*p_TruncEnd)[p] = (*p_AlphaCtrl)[p] = (*p_ForceIntegerPeriod)[p] = FALSE;
+	(*p_FixScale)[p] = (*p_ContBeg)[p] = (*p_ContEnd)[p] = (*p_TruncBeg)[p] = (*p_TruncEnd)[p] = (*p_AlphaCtrl)[p] = (*p_ForceIntegerCycles)[p] = FALSE;
 	(*p_PivType)[p] = 1; (*p_PivMode)[p] = ABSOLU;
 	(*p_PreRollMode)[p] = (*p_PostRollMode)[p] = RELATIF;
 	(*p_MaxDelay)[p] = (*p_MaxForward)[p] = ZERO;
@@ -2484,13 +2484,13 @@ int CreateSilentSoundObject(int p) {
 	(*p_AlphaMin)[p] = 0; (*p_AlphaMax)[p] = 100.;
 	(*p_DelayMode)[p] = (*p_ForwardMode)[p] = (*p_BreakTempoMode)[p] = (*p_ContBegMode)[p] = (*p_ContEndMode)[p] = ABSOLU;
 	(*p_CoverBegMode)[p] = (*p_CoverEndMode)[p] = (*p_TruncBegMode)[p] = (*p_TruncEndMode)[p] = RELATIF;
-	(*p_PeriodMode)[p] = IRRELEVANT;
+	(*p_CyclicMode)[p] = IRRELEVANT;
 	(*p_MaxBegGap)[p] = (*p_MaxEndGap)[p] = Infpos;
 	(*p_CoverBeg)[p] = (*p_CoverEnd)[p] = TRUE;
 	(*p_MaxCoverBeg)[p] = (*p_MaxCoverEnd)[p] = 100L;
 	(*p_MaxTruncBeg)[p] = (*p_MaxTruncEnd)[p] = 0L;
 //		(*p_Resolution)[p] = 1;
-	(*p_PivPos)[p] = (*p_PreRoll)[p] = (*p_PostRoll)[p] = (*p_BeforePeriod)[p] = ZERO;
+	(*p_PivPos)[p] = (*p_PreRoll)[p] = (*p_PostRoll)[p] = (*p_CyclicAfter)[p] = ZERO;
 	(*p_MIDIsize)[p] = (*p_CsoundSize)[p] = ZERO;
 	// CheckConsistency(p,TRUE);
 	return OK;

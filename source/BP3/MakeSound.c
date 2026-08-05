@@ -73,7 +73,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 	int scale,blockkey;
 	float howmuch;
 	double value,fstreak,alpha,beta,date,olddate,
-		preroll,postroll,objectperiod,beforeperiod,
+		preroll,postroll,objectperiod,cyclicafter,
 		firstcycleduration,**p_periodgap,p,q,this_key,deltakey;
 	p_list **waitlist,**scriptlist;
 	MIDI_Event e;
@@ -220,9 +220,6 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			(*p_inext1)[k] = 0;
 			(*p_onoff)[k] = FALSE;
 			(*p_istartperiod)[k] = (*p_iendperiod)[k] = -1;
-		/*	my_sprintf(Message,"ERROR in MakeSound(): found time pattern: k = %ld, j = %ld\n",(long)k,(long)j);
-			BPPrintMessage(0,odInfo,Message); */
-		//	continue;
 			}
 		if(j < 0) j = -j;
 		(*p_inext1)[k] = 0;
@@ -232,8 +229,6 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 		alpha = (*p_Instance)[k].alpha;
 		beta = (*p_Instance)[k].dilationratio;	// alpha != beta if the sound-object is cyclic
 		if((*p_Instance)[k].ncycles < 2 && beta != alpha) {
-			my_sprintf(Message,"=> Err. MakeSound(). beta != alpha\n");
-			BPPrintMessage(0,odInfo,Message);
 			beta = (*p_Instance)[k].dilationratio = alpha;
 			}
 		if(j < 16384) {
@@ -255,7 +250,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 				if((*p_PreRollMode)[j] == ABSOLU) preroll = (*p_PreRoll)[j];
 				else preroll = beta * (*p_PreRoll)[j];
 				if(alpha > 1.) {
-					if(GetPeriod(j,beta,&objectperiod,&beforeperiod) == OK) {
+					if(GetPeriod(j,beta,&objectperiod,&cyclicafter) == OK) {
 						foundfirsteventinperiod = FALSE;
 						foundlasteventinperiod = FALSE;
 						}
@@ -277,7 +272,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 		foundfirstevent = FALSE;
 		if(j > 1 && j < 16384) {	/* Sound-object or time pattern */
 			/* Look for first event in object and for first and last events in its periodical part */
-			if(Beta && j >= Jbol && Jbol < 2) {
+			if(j >= Jbol && Jbol < 2) {
 				my_sprintf(Message,"=> Err. MakeSound(). j >= Jbol && Jbol < 2\n");
 				BPPrintMessage(0,odInfo,Message);
 				}
@@ -289,18 +284,21 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 					date += (Milliseconds) (beta * (*((*pp_MIDIcode)[j]))[i].time);
 			//	if(trace_csound_pianoroll) BPPrintMessage(0,odInfo,"CsoundSize[%d] = %ld olddate = %ld, date = %ld\n",j,(long)(*p_CsoundSize)[j],(long)olddate,(long)date);
 				if(!foundfirstevent && date >= date1) {
-					(*p_inext1)[k] = i;	/* Index of first message to be sent */
+					(*p_inext1)[k] = i;	// Index of first message to be sent
 					(*p_t1)[k] = date - date1 - preroll;
 					foundfirstevent = TRUE;
 					if(foundlasteventinperiod) break;
 					}
-				if(!foundfirsteventinperiod && date >= beforeperiod) {
+				if(!foundfirsteventinperiod && date >= cyclicafter) {
 					(*p_istartperiod)[k] = i;
-					(*p_periodgap)[k] = date - beforeperiod;
+					(*p_periodgap)[k] = date - cyclicafter;
+					if(trace_csound_pianoroll)
+						BPPrintMessage(0,odInfo,"•• k = %d, i = %d, im = %ld, date = %.4f, cyclicafter = %.4f, istartperiod = %d, periodgap = %.4f\n",k,i,im,date,cyclicafter,(*p_istartperiod)[k],(*p_periodgap)[k]);
 					foundfirsteventinperiod = TRUE;
 					}
-				if(!foundlasteventinperiod && (i == (im - 1) || date > firstcycleduration)) {
-				/* We checked 'firstcycleduration' in case postroll was negative */
+				if(trace_csound_pianoroll) BPPrintMessage(0,odInfo,"---\n");
+				if(!foundlasteventinperiod && !foundfirsteventinperiod && ((i == (im - 1)) || date > firstcycleduration)) { // Fixed 2026-08-05
+					// We checked 'firstcycleduration' in case postroll was negative
 					if(cswrite && (*p_CsoundSize)[j] > 0 && !ConvertMIDItoCsound) {
 						if(i < (im-1) && (*((*pp_CsoundTime)[j]))[i+1] == ZERO) {
 							i++;
@@ -317,6 +315,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 						}
 					(*p_iendperiod)[k] = i;
 					(*p_periodgap)[k] += (firstcycleduration - olddate);
+					if(trace_csound_pianoroll)
+						BPPrintMessage(0,odInfo,"••+ firstcycleduration = %.4f, date = %.4f, olddate = %.4f, periodgap = %.4f\n",firstcycleduration,date,olddate,(*p_periodgap)[k]);
 					foundlasteventinperiod = TRUE;
 					break;
 					}
@@ -645,7 +645,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			(*p_onoff)[k] = FALSE;
 			(*p_nextd)[k] = (*p_Instance)[k].starttime + (*p_t1)[k];		
 			if(trace_csound_pianoroll)
-				BPPrintMessage(1,odInfo,"k = %ld starttime = %ld endtime = %ld  (*p_t1)[k] = %ld (*p_nextd)[k] = %ld\n",(long)k,(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)(*p_t1)[k],(long)(*p_nextd)[k]);
+				BPPrintMessage(1,odInfo,"@@ k = %ld starttime = %ld endtime = %ld  (*p_t1)[k] = %ld (*p_nextd)[k] = %ld\n",(long)k,(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)(*p_t1)[k],(long)(*p_nextd)[k]);
 			}
 		icont = -1; chancont = -1;
 		for(ch=0; ch < MAXCHAN; ch++) {
@@ -853,7 +853,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			// Initialise sound-object instance kcurrentinstance
 
 			if(!(*p_onoff)[kcurrentinstance]) {
-				if(EventListOn) AddEventToList(kcurrentinstance);
+				if(EventListOn) AddEventToList(kcurrentinstance,cyclicafter);
 				if(trace_csound_pianoroll) BPPrintMessage(0,odInfo,"kcurrentinstance2 = %d\n",kcurrentinstance);
 				howmuch = 0.;
 				result = OK;
@@ -1607,10 +1607,15 @@ SENDNOTEOFF:
 						}
 					}
 NEWPERIOD:
-				if(trace_csound_pianoroll) BPPrintMessage(0,odInfo,"\nNEWPERIOD:\n");
+				if(trace_csound_pianoroll) {
+					BPPrintMessage(0,odInfo,"\nNEWPERIOD:\n");
+					BPPrintMessage(0,odInfo,"k = %d, istartperiod = %d, ievent = %ld, iendperiod = %d\n",kcurrentinstance,(*p_istartperiod)[kcurrentinstance],ievent,(*p_iendperiod)[kcurrentinstance]);
+					}
 				if((*p_istartperiod)[kcurrentinstance] > -1 && ievent >= (*p_iendperiod)[kcurrentinstance]) {
 					/* Cyclic object: start another period */
 					t1 += (*p_periodgap)[kcurrentinstance];
+					if(trace_csound_pianoroll)
+						BPPrintMessage(0,odInfo,"••• periodgap = %.4f, t1 = %ld\n",(*p_periodgap)[kcurrentinstance],(long)t1);
 					(*p_icycle)[kcurrentinstance]++;
 					if(t1 <= t3 && (*p_icycle)[kcurrentinstance]
 							<= (*p_Instance)[kcurrentinstance].ncycles) {
@@ -1747,7 +1752,6 @@ FINDNEXTEVENT:
 					alpha = (*p_Instance)[k].alpha;
 					beta = (*p_Instance)[k].dilationratio;	// alpha != beta if the sound-object is cyclic
 					if((*p_Instance)[k].ncycles < 2 && beta != alpha) {
-						BPPrintMessage(0,odError,"=> Err. MakeSound(). beta != alpha\n");
 						beta = (*p_Instance)[k].dilationratio = alpha;
 						}
 					nseq = (*p_Instance)[k].nseq;

@@ -39,7 +39,7 @@
 #include "-BP3decl.h"
 
 int trace_load_settings = 0;
-int trace_load_prototypes = 0;
+int trace_load_prototypes = 1;
 int trace_load_csound_instruments = 0;
 int trace_load_scales = 0;
 
@@ -949,7 +949,9 @@ NEXTBOL:
 		if(sojson != NULL) {
 			if(!first) fprintf(sojson,",\n");
 			first = FALSE;
-			fprintf(sojson,"  {\n    \"Name\": \"%s\",\n    \"Id\": %d,\n",*p_completeline,j);
+			fprintf(sojson,"  {\n");
+			SaveStringAsJson(sojson,"Name","","Name",*p_completeline);
+			SaveIntAsJson(sojson,"Id","","Identifier",j);
 			}
 		if(Jbol > oldjbol) {
 			Jbol = oldjbol;
@@ -961,6 +963,7 @@ NEXTBOL:
 	if(ReadInteger(sofile,&objecttype,&pos) == MISSED) goto ERR;
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "object type = %d\n",objecttype);
 	(*p_Type)[j] = objecttype;
+	SaveIntAsJson(sojson,"Type","enum","Object type",(*p_Type)[j]);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	(*p_Resolution)[j] = s;
 	SaveIntAsJson(sojson,"Resolution","ms","Resolution",s);
@@ -988,25 +991,25 @@ NEXTBOL:
 	(*p_FixScale)[j] = (*p_line)[i++]-'0';
 	SaveIntAsJson(sojson,"FixScale","boolean","Never rescale",(int)(*p_FixScale)[j]);
 	(*p_OkExpand)[j] = (*p_line)[i++]-'0';
-	SaveIntAsJson(sojson,"OkExpand","boolean","Expand at will",(int)(*p_OkExpand)[j]);
+	SaveIntAsJson(sojson,"OkExpand","boolean","Expand",(int)(*p_OkExpand)[j]);
 	(*p_OkCompress)[j] = (*p_line)[i++]-'0';
-	SaveIntAsJson(sojson,"OkCompress","boolean","Compress at will",(int)(*p_OkCompress)[j]);
+	SaveIntAsJson(sojson,"OkCompress","boolean","Compress",(int)(*p_OkCompress)[j]);
 	(*p_OkRelocate)[j] = (*p_line)[i++]-'0';
-	SaveIntAsJson(sojson,"OkRelocate)","boolean","Relocate at will",(int)(*p_OkRelocate)[j]);
+	SaveIntAsJson(sojson,"OkRelocate","boolean","Relocate",(int)(*p_OkRelocate)[j]);
 	(*p_BreakTempo)[j] = (*p_line)[i++]-'0';
-	SaveIntAsJson(sojson,"BreakTempo","boolean","Break tempo at will",(int)(*p_BreakTempo)[j]);
+	SaveIntAsJson(sojson,"BreakTempo","boolean","Break tempo after this object (organum)",(int)(*p_BreakTempo)[j]);
 	(*p_ContBeg)[j] = (*p_line)[i++]-'0';
 	SaveIntAsJson(sojson,"ContBeg","boolean","Force continuity at the beginning",(int)(*p_ContBeg)[j]);
 	(*p_ContEnd)[j] = (*p_line)[i++]-'0';
 	SaveIntAsJson(sojson,"ContEnd","boolean","Force continuity at the end",(int)(*p_ContEnd)[j]);
 	(*p_CoverBeg)[j] = (*p_line)[i++]-'0';
-	SaveIntAsJson(sojson,"CoverBeg","boolean","Cover beginning at will",(int)(*p_CoverBeg)[j]);
+	SaveIntAsJson(sojson,"CoverBeg","boolean","Cover beginning",(int)(*p_CoverBeg)[j]);
 	(*p_CoverEnd)[j] = (*p_line)[i++]-'0';
-	SaveIntAsJson(sojson,"CoverEnd","boolean","Cover end at will",(int)(*p_CoverEnd)[j]);
+	SaveIntAsJson(sojson,"CoverEnd","boolean","Cover end",(int)(*p_CoverEnd)[j]);
 	(*p_TruncBeg)[j] = (*p_line)[i++]-'0';
-	SaveIntAsJson(sojson,"TruncBeg","boolean","Truncate beginning at will",(int)(*p_TruncBeg)[j]);
+	SaveIntAsJson(sojson,"TruncBeg","boolean","Truncate beginning",(int)(*p_TruncBeg)[j]);
 	(*p_TruncEnd)[j] = (*p_line)[i++]-'0';
-	SaveIntAsJson(sojson,"TruncEnd","boolean","Truncate end at will",(int)(*p_TruncEnd)[j]);
+	SaveIntAsJson(sojson,"TruncEnd","boolean","Truncate end",(int)(*p_TruncEnd)[j]);
 	pivspec = (*p_line)[i++]-'0';
 	(*p_PivType)[j] = pivbeg + 2 * pivend + 3 * pivbegon + 4 * pivendoff
 		+ 5 * pivcent + 6 * pivcentonoff + 7 * pivspec;
@@ -1016,6 +1019,7 @@ NEXTBOL:
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* rescalemode */
 	(*p_RescaleMode)[j] = s;
 	SaveIntAsJson(sojson,"RescaleMode","enum","Rescale mode",s);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo,"RescaleMode = %d\n",(*p_RescaleMode)[j]);
 	if(ReadFloat(sofile,&r,&pos) == MISSED) goto ERR;
 	(*p_AlphaMin)[j] = r;
 	SaveFloatAsJson(sojson,"AlphaMin","","Minimum expansion",r);
@@ -1073,14 +1077,19 @@ NEXTBOL:
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* coverendmode */
 	(*p_CoverEndMode)[j] = s;
 	SaveIntAsJson(sojson,"CoverEndMode","enum","Cover end mode",s);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo,"CoverEndMode = %d\n",(*p_CoverEndMode)[j]);
+
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 	(*p_MaxCoverEnd)[j] = k;
 	SaveLongAsJson(sojson,"MaxCoverEnd","ms or percent","Max cover at end",k);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo,"MaxCoverEnd = %ld\n",(*p_MaxCoverEnd)[j]);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* truncbegmode */
 	(*p_TruncBegMode)[j] = s;
 	SaveIntAsJson(sojson,"TruncBegMode","enum","Truncate beginning mode",s);
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 	(*p_MaxTruncBeg)[j] = k;
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo,"MaxTruncBeg = %ld\n",(*p_MaxTruncBeg)[j]);
+
 	SaveLongAsJson(sojson,"MaxTruncBeg","ms or percent","Max truncate beginning",k);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* truncendmode */
 	(*p_TruncEndMode)[j] = s;
@@ -1096,10 +1105,10 @@ NEXTBOL:
 	SaveFloatAsJson(sojson,"PivPos","ms","Pivot position",r);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	(*p_AlphaCtrlNr)[j] = s;
-	SaveIntAsJson(sojson,"AlphaCtr","","Alpha controler number",s);
+	SaveIntAsJson(sojson,"AlphaCtr","","Alpha controller number",s);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	(*p_AlphaCtrlChan)[j] = s;
-	SaveIntAsJson(sojson,"AlphaCtrlChan","","Alpha controler channel",s);
+	SaveIntAsJson(sojson,"AlphaCtrlChan","","Alpha controller channel",s);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	(*p_OkTransp)[j] = s;
 	SaveIntAsJson(sojson,"OkTransp","boolean","Accept transposition",s);
@@ -1131,29 +1140,29 @@ NEXTBOL:
 	(*p_PostRollMode)[j] = s;
 	SaveIntAsJson(sojson,"PostRollMode","enum","Postroll mode",s);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
-	(*p_PeriodMode)[j] = s;
-	SaveIntAsJson(sojson,"PeriodMode","enum","Period mode",s);
+	(*p_CyclicMode)[j] = s;
+	SaveIntAsJson(sojson,"CyclicMode","enum","Cyclic mode",s);
 	if(ReadFloat(sofile,&r,&pos) == MISSED) goto ERR;
-	(*p_BeforePeriod)[j] = r;
-	SaveFloatAsJson(sojson,"BeforePeriod","ms","Periodical after (ms or percent)",r);
+	(*p_CyclicAfter)[j] = r;
+	SaveFloatAsJson(sojson,"CyclicAfter","ms or percent","Cyclic after",r);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
-	(*p_ForceIntegerPeriod)[j] = s;
-	SaveIntAsJson(sojson,"ForceIntegerPeriod","boolean","Force integer number of periods",s);
+	(*p_ForceIntegerCycles)[j] = s;
+	SaveIntAsJson(sojson,"ForceIntegerCycles","boolean","Force integer number of cycles",s);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	(*p_DiscardNoteOffs)[j] = s;
-	SaveIntAsJson(sojson,"DiscardNoteOffs","boolean","Discard NoteOff's",s);
+	SaveIntAsJson(sojson,"DiscardNoteOffs","boolean","Discard NoteOff's (cyclic play) exxcept in last cycle",s);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	(*p_StrikeAgain)[j] = s;
-	SaveIntAsJson(sojson,"StrikeAgain","boolean","Don’t strike again NoteOn's",s);
+	SaveIntAsJson(sojson,"StrikeAgain","enum","Strike (again) mode",s);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	(*p_CsoundAssignedInstr)[j] = s;
-	SaveIntAsJson(sojson,"CsoundAssignedInstr","","Csound instrument assigned to MIDI messages #",s);
+	SaveIntAsJson(sojson,"CsoundAssignedInstr","","Force MIDI to Csound instrument #",s);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 		(*p_CsoundInstr)[j] = s;
-	SaveIntAsJson(sojson,"CsoundInstr","","Csound instrument #",s);
+	SaveIntAsJson(sojson,"CsoundInstr","enum","MIDI to Csound conversion mode",s);
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 	(*p_Tpict)[j] = k;
-	SaveLongAsJson(sojson,"Tpict","ms","Insert point to play from",k);
+	SaveLongAsJson(sojson,"Tpict","ms","Tempo of MF2T code",k);
 
 	if(iv > 21) { // These are no longer used (object colors)
 		if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
@@ -1172,9 +1181,9 @@ NEXTBOL:
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "line2 = %s\n",*p_line);
 	if(Mystrcmp(p_line,"_beginCsoundScore_") != 0) goto ERR;
 	if(ReadOne(FALSE,FALSE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "line3 = %s\n",*p_line);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "line4 = %s\n",*p_line);
 
-	SaveStringAsJson(sojson,"Csound score",*p_line);
+	SaveStringAsJson(sojson,"","","Csound score",*p_line);
 
 	if((ptr = (Handle) GiveSpace(MyGetHandleSize((Handle)p_completeline))) == NULL) goto ERR;
 	(*pp_CsoundScoreText)[j] = (char**) ptr;
@@ -1182,7 +1191,7 @@ NEXTBOL:
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo,"Compiled Csound score\n");
 
 	if(ReadOne(FALSE,TRUE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "line4 = %s\n",*p_line);
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "line5 = %s\n",*p_line);
 	if(Mystrcmp(p_completeline,"_endCsoundScore_") == 0) goto READSIZE;
 	else goto ERR;
 
@@ -1225,7 +1234,10 @@ NEXTBOL:
 		if(MyDisposeHandle((Handle*)&p_b) != OK) goto ERR;
 		}
 
-	if(CheckConsistency(j,TRUE) != OK) goto ERR;
+	if(CheckConsistency(j,TRUE) != OK) {
+		BPPrintMessage(0,odError,"=> Inconsistency found in '%s'\n",*((*p_Bol)[j]));
+		goto ERR;
+		}
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "CheckConsistency is OK for j = %d\n",j);
 	if(iv > 9) {
 		if(ReadOne(FALSE,TRUE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
@@ -1254,9 +1266,9 @@ NEXTBOL:
 	if(j > 1 && j < Jbol) ResetPrototype(j);
 	if(CheckEmergency() == OK) {
 		rep = MISSED;
-		BPPrintMessage(0,odError,"=> This sound-object file may be corrupted or in some unknown format\n");
+		BPPrintMessage(0,odError,"=> A sound-object file may be corrupted or in some unknown format\n");
 		if(j > 1 && j < Jbol) {
-			BPPrintMessage(0,odError,"An error occured while reading '%s'\n",*((*p_Bol)[j]));
+			BPPrintMessage(0,odError,"=> The error occured while reading '%s'\n",*((*p_Bol)[j]));
 			}
 		else BPPrintMessage(0,odError,"=> The error did not occur while reading a sound-object\n");
 		BPPrintMessage(0,odInfo,"You may load the sound-object file in a text editor and try to fix inconsistencies\n");
@@ -1287,9 +1299,14 @@ NEXTBOL:
 	return(rep);
 	}
 
-int SaveStringAsJson(FILE *sojson,const char* name,const char* value) {
+int SaveStringAsJson(FILE *sojson,const char *key,const char *unit,const char *name,const char* value) {
 	if(sojson == NULL) return(MISSED);
-	fprintf(sojson, "    \"%s\": \"%s\",\n", name, value);
+	if(strlen(key) == 0 && strlen(unit) == 0)
+    	fprintf(sojson,"    \"%s\": \"%s\",\n", name, value);
+	else if(strlen(unit) == 0)
+    	fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": \"%s\"\n      },\n",name,key,value);
+	else 
+    	fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": \"%s\",\n      \"unit\": \"%s\"\n      },\n",name,key,value,unit);
 	return(OK);
 	}
 int SaveIntAsJson(FILE *sojson,const char *key,const char *unit,const char *name,int value) {

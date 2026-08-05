@@ -68,8 +68,8 @@ if(MyDisposeHandle(&ptr) != OK) return(ABORT);
       = (*p_PostRollMode)[j] = RELATIF;
 (*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = 100L;
 (*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = 0L;
-(*p_PivPos)[j] = (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_BeforePeriod)[j] = ZERO;
-(*p_PeriodMode)[j] = IRRELEVANT;
+(*p_PivPos)[j] = (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_CyclicAfter)[j] = ZERO;
+(*p_CyclicMode)[j] = IRRELEVANT;
 
 (*p_AlphaCtrlNr)[j] = 255; (*p_AlphaCtrlChan)[j] = 255;
 (*p_Ifrom)[j] = 0;
@@ -88,7 +88,7 @@ if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 (*p_Dur)[j] = ZERO;
 (*p_Resolution)[j] = 1;
 (*p_Tref)[j] = 1000L;
-(*p_ForceIntegerPeriod)[j] = FALSE;
+(*p_ForceIntegerCycles)[j] = FALSE;
 (*p_DefaultChannel)[j] = (*p_Quan)[j] = 0;
 (*p_StrikeAgain)[j] = -1;
 (*p_Tpict)[j] = ZERO;
@@ -495,11 +495,11 @@ return(OK);
 
 int CopyPage6(int i,int j)
 {
-(*p_BeforePeriod)[j] = (*p_BeforePeriod)[i];
-(*p_PeriodMode)[j] = (*p_PeriodMode)[i];
+(*p_CyclicAfter)[j] = (*p_CyclicAfter)[i];
+(*p_CyclicMode)[j] = (*p_CyclicMode)[i];
 (*p_StrikeAgain)[j] = (*p_StrikeAgain)[i];
 (*p_DiscardNoteOffs)[j] = (*p_DiscardNoteOffs)[i];
-(*p_ForceIntegerPeriod)[j] = (*p_ForceIntegerPeriod)[i];
+(*p_ForceIntegerCycles)[j] = (*p_ForceIntegerCycles)[i];
 return(OK);
 }
 

@@ -253,13 +253,13 @@ char **p_DefaultChannel,**p_AlphaCtrlChan,**p_AlphaCtrl,**p_Type,**p_PasteDone,
 	**p_CoverBeg,**p_CoverEnd,**p_TruncBeg,**p_TruncEnd,**p_PivType,**p_PivMode,
 	**p_RescaleMode,**p_DelayMode,**p_ForwardMode,
 	**p_BreakTempoMode,**p_ContBegMode,**p_ContEndMode,**p_CoverBegMode,**p_CoverEndMode,
-	**p_TruncBegMode,**p_TruncEndMode,**p_PreRollMode,**p_PostRollMode,**p_PeriodMode,
-	**p_ForceIntegerPeriod,**p_StrikeAgain,
+	**p_TruncBegMode,**p_TruncEndMode,**p_PreRollMode,**p_PostRollMode,**p_CyclicMode,
+	**p_ForceIntegerCycles,**p_StrikeAgain,
 	****pp_Comment,****pp_CsoundScoreText,****p_CsoundTables;
 int **p_AlphaCtrlNr,MaxCsoundTables,**p_CompiledCsoundScore;
 CsoundLine ****pp_CsoundScore;
 double **p_AlphaMin,**p_AlphaMax,**p_Quan,ForceRatio,Infpos1;
-float **p_PivPos,**p_BeforePeriod;
+float **p_PivPos,**p_CyclicAfter;
 long **p_Dur,****p_Seq,**p_MaxDelay,**p_MaxForward,**p_MaxBegGap,**p_MaxEndGap,
 	**p_MaxCoverBeg,**p_MaxCoverEnd,**p_MaxTruncBeg,**p_MaxTruncEnd,**p_PreRoll,**p_PostRoll;
 int Minconc,Maxconc;

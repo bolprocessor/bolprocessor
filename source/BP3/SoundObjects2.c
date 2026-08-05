@@ -1100,24 +1100,26 @@ return(OK);
 }
 
 
-int GetPeriod(int j,double beta,double *p_objectperiod,double *p_beforeperiod)
-{
-double dur;
+int GetPeriod(int j,double beta,double *p_objectperiod,double *p_cyclicafter) {
+	double dur;
 
-*p_objectperiod = *p_beforeperiod = 0.;
-if(j < 0 || j >= Jbol || (*p_PeriodMode)[j] == IRRELEVANT) return(MISSED);
-dur = beta * (*p_Dur)[j];
-if(dur < EPSILON) return(MISSED);
-if((*p_PeriodMode)[j] == ABSOLU) *p_beforeperiod = (*p_BeforePeriod)[j];
-else *p_beforeperiod = ((double)(*p_BeforePeriod)[j] * dur) / 100.;
-*p_objectperiod =  dur - *p_beforeperiod;
-if(*p_objectperiod < 0.) {
-	*p_objectperiod = 0.;
-	BPPrintMessage(0,odError,"=> Err. GetPeriod(). *p_objectperiod < ZERO");
+	*p_objectperiod = *p_cyclicafter = 0.;
+	if(j < 0 || j >= Jbol || (*p_CyclicMode)[j] == IRRELEVANT) return(MISSED);
+	dur = beta * (*p_Dur)[j];
+	if(dur < EPSILON) return(MISSED);
+	if((*p_CyclicMode)[j] == ABSOLU) *p_cyclicafter = (*p_CyclicAfter)[j];
+	else {
+		*p_cyclicafter = ((double)(*p_CyclicAfter)[j] * dur) / 100.;
+		}
+	*p_objectperiod =  dur - *p_cyclicafter;
+	// BPPrintMessage(1,odInfo,"@@@ j = %d, cyclicafter = %.4f, objectperiod = %.4f\n",j,*p_cyclicafter,*p_objectperiod);
+	if(*p_objectperiod < 0.) {
+		*p_objectperiod = 0.;
+		BPPrintMessage(0,odError,"=> Err. GetPeriod(). *p_objectperiod =  %.4f\n",*p_objectperiod);
+		}
+	if(*p_objectperiod < EPSILON) return(MISSED);
+	return(OK);
 	}
-if(*p_objectperiod < EPSILON) return(MISSED);
-return(OK);
-}
 
 
 int CheckNonEmptyMIDI(int j)
