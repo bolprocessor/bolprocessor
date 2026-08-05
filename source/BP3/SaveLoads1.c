@@ -39,7 +39,7 @@
 #include "-BP3decl.h"
 
 int trace_load_settings = 0;
-int trace_load_prototypes = 1;
+int trace_load_prototypes = 0;
 int trace_load_csound_instruments = 0;
 int trace_load_scales = 0;
 
@@ -1070,7 +1070,7 @@ NEXTBOL:
 	SaveLongAsJson(sojson,"MaxEndGap","ms","Max gap at end (ms or percent)",(*p_MaxEndGap)[j]);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* coverbegmode */
 	(*p_CoverBegMode)[j] = s;
-	SaveIntAsJson(sojson,"CoverBegMode","enum","Cover mode",s);
+	SaveIntAsJson(sojson,"CoverBegMode","enum","Cover beginning mode",s);
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 	(*p_MaxCoverBeg)[j] = k;
 	SaveLongAsJson(sojson,"MaxCoverBeg","ms or percent","Max cover at beginning",k);

@@ -127,10 +127,6 @@ if(kmax > 100 && ++n > 10) {
 		goto QUIT;
 		}
 	}
-/* if((r=DoSystem()) != OK) {
-	result = r;
-	goto QUIT;
-	} */
 olds = NULL;
 if(!redo) {
 	stack_depth = 0;
@@ -160,14 +156,6 @@ i = i0;
 goto CHECK;
 	
 INCREMENT:
-/* if(kmax > 100 && ++n > 10) {
-	PleaseWait(); n = 0;
-//	if(((r=DoSystem()) != OK) || (r=InterruptTimeSet(TRUE,p_tstart)) != OK) {
-	if((r=InterruptTimeSet(TRUE,p_tstart)) != OK) {
-		result = r;
-		goto QUIT;
-		}
-	} */
 if(DisplayTimeSet) {
 	Print(wTrace,">");
 	}

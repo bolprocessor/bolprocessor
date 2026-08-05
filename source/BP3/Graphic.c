@@ -775,11 +775,11 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	// stroke_style(&Black);
 	// Draw covered parts
 	maxcover1 = maxcover2 = dur;
-	if(!(*p_CoverBeg)[j]) {
+	if((*p_CoverBeg)[j]) {
 		if((*p_CoverBegMode)[j] == ABSOLU) maxcover1 = (*p_MaxCoverBeg)[j];
 		else maxcover1 = (dur * (*p_MaxCoverBeg)[j]) / 100.;
 		}
-	if(!(*p_CoverEnd)[j]) {
+	if((*p_CoverEnd)[j]) {
 		if((*p_CoverEndMode)[j] == ABSOLU) maxcover2 = (*p_MaxCoverEnd)[j];
 		else maxcover2 = (dur * (*p_MaxCoverEnd)[j]) / 100.;
 		}
@@ -846,12 +846,12 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	/* PenNormal();
 	stroke_style(&Blue); */
 	maxtrunc1 = maxtrunc2 = dur;
-	if(!(*p_TruncBeg)[j]) {
+	if((*p_TruncBeg)[j]) {
 		if((*p_TruncBegMode)[j] == ABSOLU) maxtrunc1 = (*p_MaxTruncBeg)[j];
 		else maxtrunc1 = (dur * (*p_MaxTruncBeg)[j]) / 100.;
 		}
 
-	if(!(*p_TruncEnd)[j]) {
+	if((*p_TruncEnd)[j]) {
 		if((*p_TruncEndMode)[j] == ABSOLU) maxtrunc2 = (*p_MaxTruncEnd)[j];
 		else maxtrunc2 = (dur * (*p_MaxTruncEnd)[j]) / 100.;
 		}

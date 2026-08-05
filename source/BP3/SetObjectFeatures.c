@@ -1341,14 +1341,15 @@ for(i=ZERO;; i++) { // Fixed by BB 2021-03-22
 		}
 
 	maxcover1 = maxcover2 = Infpos;
-	if(j > 1 && j < 16384 && !(*p_CoverBeg)[j]) {
+	if(j > 1 && j < 16384 && (*p_CoverBeg)[j]) {
 		if((*p_CoverBegMode)[j] == ABSOLU) maxcover1 = (*p_MaxCoverBeg)[j];
 		else maxcover1 = (dur * (*p_MaxCoverBeg)[j]) / 100.;
 		}
 	
-	if(j > 1 && j < 16384 && !(*p_CoverEnd)[j]) {
+	if(j > 1 && j < 16384 && (*p_CoverEnd)[j]) {
 		if((*p_CoverEndMode)[j] == ABSOLU) maxcover2 = (*p_MaxCoverEnd)[j];
 		else maxcover2 = (dur * (*p_MaxCoverEnd)[j]) / 100.;
+	//	BPPrintMessage(0,odInfo,"@@ maxcover2 = %ld\n",maxcover2);
 		} 
 	
 	if((maxcover1 + maxcover2) >= dur && maxcover1 != Infpos && maxcover2 != Infpos)
@@ -1356,6 +1357,7 @@ for(i=ZERO;; i++) { // Fixed by BB 2021-03-22
 	else {
 		(*p_maxcoverbeg)[i] = maxcover1;
 		(*p_maxcoverend)[i] = maxcover2;
+	//	BPPrintMessage(0,odInfo,"@@ (*p_maxcoverend)[i] = %ld\n",(*p_maxcoverend)[i]);
 		}
 	
 	maxgap1 = maxgap2 = Infpos;
@@ -1372,16 +1374,23 @@ for(i=ZERO;; i++) { // Fixed by BB 2021-03-22
 	(*p_maxgapend)[i] = maxgap2;
 	
 	maxtrunc1 = maxtrunc2 = dur;
-	if(j > 1 && j < 16384 && !(*p_TruncBeg)[j]) {
-		if((*p_TruncBegMode)[j] == ABSOLU) maxtrunc1 = (*p_MaxTruncBeg)[j];
-		else maxtrunc1 = (dur * (*p_MaxTruncBeg)[j]) / 100.;
+	if(j > 1 && j < 16384) {
+		if((*p_TruncBeg)[j]) {
+			if((*p_TruncBegMode)[j] == ABSOLU) maxtrunc1 = (*p_MaxTruncBeg)[j];
+			else maxtrunc1 = (dur * (*p_MaxTruncBeg)[j]) / 100.;
+			}
+		else maxtrunc1 = ZERO;
 		}
 	if(maxtrunc1 < dur) (*p_maxtruncbeg)[i] = maxtrunc1;
 	else (*p_maxtruncbeg)[i] = dur;
 	
-	if(j > 1 && j < 16384 && !(*p_TruncEnd)[j]) {
-		if((*p_TruncEndMode)[j] == ABSOLU) maxtrunc2 = (*p_MaxTruncEnd)[j];
-		else maxtrunc2 = (dur * (*p_MaxTruncEnd)[j]) / 100.;
+	if(j > 1 && j < 16384) {
+		if((*p_TruncEnd)[j]) {
+			if((*p_TruncEndMode)[j] == ABSOLU) maxtrunc2 = (*p_MaxTruncEnd)[j];
+			else maxtrunc2 = (dur * (*p_MaxTruncEnd)[j]) / 100.;
+		//	BPPrintMessage(0,odInfo,"@@ maxtrunc2 = %ld\n",maxtrunc2);
+			}
+		else maxtrunc2 = ZERO;
 		}
 	if(maxtrunc2 < dur) (*p_maxtruncend)[i] = maxtrunc2;
 	else (*p_maxtruncend)[i] = dur;
