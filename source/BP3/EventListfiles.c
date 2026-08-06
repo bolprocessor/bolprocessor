@@ -52,7 +52,6 @@ int MakeEventListFile(OutFileInfo* finfo) {
 		}
 	else EventListPtr = fout;
 	BPPrintMessage(0,odInfo,"👉 An event list file has been created\n");
-//	WriteToEventListFile("Tcurr,event,item,k,id proto,label,start time,end time,trunc beg,trunc end,dilation ratio beta,dilation ratio alpha,cycles,articul,preroll,postroll,transpos,transpose first,expand value,expand key");
 	WriteToEventListFile("event,item,k,id proto,label,start time,end time,trunc beg,trunc end,dilation ratio beta,dilation ratio alpha,cycles,cyclic after,force integer number of cycles,articul,preroll,postroll,transpos,transpose first,expand value,expand key");
 	return result;
 	}
@@ -82,7 +81,7 @@ int WriteToEventListFile(const char *line) {
     return OK;
 	}
 
-int AddEventToList(int k,double cyclicafter) {
+int AddEventToList(int k) {
 	long starttime,endtime,shift;
 	int j,id_proto,articul,trans,cyclic_after;
 	short xpandval,xpandkey;
@@ -107,8 +106,12 @@ int AddEventToList(int k,double cyclicafter) {
 		else if(j == 1) my_sprintf(label,"-");
 		else {
 			my_sprintf(label,"%s",*((*p_Bol)[j]));
-			cyclic_after = (int) cyclicafter;
-			forceintegercycles = (*p_ForceIntegerCycles)[j];
+			if((*p_Instance)[k].ncycles > 1) {
+				if((*p_CyclicMode)[j] == ABSOLU) cyclic_after = (int)(*p_CyclicAfter)[j];
+				else
+					cyclic_after = (int) ((double)(*p_CyclicAfter)[j] * (*p_Dur)[j]) / 100.;
+				forceintegercycles = (*p_ForceIntegerCycles)[j];
+				}
 			}
 		id_proto = j;
 		dilationratio = (*p_Instance)[k].dilationratio;
@@ -120,6 +123,7 @@ int AddEventToList(int k,double cyclicafter) {
 	else {
 		id_proto = 0;
 		preroll = postroll = 0.;
+		dilationratio = (*p_Instance)[k].dilationratio;
 		my_sprintf(label,"%s",*((*(p_NoteName[NoteConvention]))[j-16384]));
 		}
 	if(p_Articul != NULL) articul =	(*p_Articul)[k];
@@ -139,7 +143,6 @@ int AddEventToList(int k,double cyclicafter) {
 	starttime = (*p_Instance)[k].starttime + shift;
 	endtime = (*p_Instance)[k].endtime  + shift;
 	EventNumber++;
-	// my_sprintf(line,"%ld,#%ld,%ld,(%d),%d,%s,%ld,%ld,%ld,%ld,%.4f,%.4f,%d,%d,%.4f,%.4f,%d,%d,%.4f,%d",(Tcurr * Time_res),EventNumber,ItemNumber,k,id_proto,label,starttime,endtime,(*p_Instance)[k].truncbeg,(*p_Instance)[k].truncend,dilationratio,(*p_Instance)[k].alpha,(*p_Instance)[k].ncycles,articul,preroll,postroll,trans,transposefirst,expand,xpandkey);
 	my_sprintf(line,"#%ld,%ld,(%d),%d,%s,%ld,%ld,%ld,%ld,%.4f,%.4f,%d,%d,%d,%d,%.4f,%.4f,%d,%d,%.4f,%d",EventNumber,ItemNumber,k,id_proto,label,starttime,endtime,(*p_Instance)[k].truncbeg,(*p_Instance)[k].truncend,dilationratio,(*p_Instance)[k].alpha,(*p_Instance)[k].ncycles,cyclic_after,forceintegercycles,articul,preroll,postroll,trans,transposefirst,expand,xpandkey);
 	if(WriteToEventListFile(line) != OK) return MISSED;
 	return(OK);

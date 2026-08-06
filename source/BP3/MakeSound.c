@@ -853,7 +853,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			// Initialise sound-object instance kcurrentinstance
 
 			if(!(*p_onoff)[kcurrentinstance]) {
-				if(EventListOn) AddEventToList(kcurrentinstance,cyclicafter);
+				if(EventListOn) AddEventToList(kcurrentinstance);
 				if(trace_csound_pianoroll) BPPrintMessage(0,odInfo,"kcurrentinstance2 = %d\n",kcurrentinstance);
 				howmuch = 0.;
 				result = OK;
@@ -1750,7 +1750,8 @@ FINDNEXTEVENT:
 				if(j < Jbol && (*p_CsoundSize)[j] > 0 && !ConvertMIDItoCsound) {
 					date1 = (*p_Instance)[k].starttime;
 					alpha = (*p_Instance)[k].alpha;
-					beta = (*p_Instance)[k].dilationratio;	// alpha != beta if the sound-object is cyclic
+					beta = (*p_Instance)[k].dilationratio;
+					// alpha != beta if the sound-object is cyclic
 					if((*p_Instance)[k].ncycles < 2 && beta != alpha) {
 						beta = (*p_Instance)[k].dilationratio = alpha;
 						}
