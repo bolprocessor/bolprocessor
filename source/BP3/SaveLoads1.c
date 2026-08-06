@@ -819,12 +819,39 @@ int LoadObjectPrototypes(int checkversion,int tryname) {
 
 	json_path[0] = '\0';
 	if(EventListOn) {
-		const char *name = strrchr(FileName[iObjects], '/');
+	/*	const char *name = strrchr(FileName[iObjects], '/');
 		if(name != NULL && strncmp(name + 1, "-so.", 4) == 0) {
 			snprintf(json_path, sizeof json_path,"%.*s%s.json",(int)(name + 1 - FileName[iObjects]),FileName[iObjects],name + 5);
+			} */
+		const char *path  = FileName[iObjects];
+		const char *slash = strrchr(path, '/');
+		const char *backslash = strrchr(path, '\\');
+		const char *separator;
+		const char *basename;
+		int length;
+
+		/* Select the last path separator, whether / or \ */
+		if (slash == NULL) separator = backslash;
+		else if (backslash == NULL) separator = slash;
+		else separator = (slash > backslash) ? slash : backslash;
+		basename = (separator != NULL) ? separator + 1 : path;
+		if(strncmp(basename, "-so.", 4) == 0) {
+			/* Keep the directory, remove "-so.", and add ".json". */
+			length = snprintf(json_path, sizeof json_path,
+				"%.*s%s.json",
+				(int)(basename - path), path,
+				basename + 4);
+
+			if (length < 0 || (size_t)length >= sizeof json_path) {
+				BPPrintMessage(0, odError,"=> JSON file path is too long: %s\n", path);
+				sojson = NULL;
+				}
+			else sojson = fopen(json_path,"w");
 			}
-		sojson = fopen(json_path,"w");
-		if(sojson == NULL) perror(json_path);
+		if(sojson == NULL) {
+			int saved_errno = errno;
+    		BPPrintMessage(0, odError,"=> Cannot create JSON file of prototypes \"%s\": %s\n",json_path, strerror(saved_errno));
+			}
 		else {
 			fprintf(sojson,"{\n\"header\": \"Bol Processor sound-object prototypes\",\n");
 			fprintf(sojson,"\"Prototypes\": [\n");
