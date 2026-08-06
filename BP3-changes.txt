@@ -16,7 +16,7 @@ The following Terminal command (launched from inside the "php" folder) demonstra
 
 We plan to update the PHP interface to deal with sound-object prototypes stored in the new JSON format.
 
-Since this is an initial version, the layout of files is likely to evolve during further development. Bugs will be fixed!
+Since this is an initial version, the layout of files is likely to evolve during further development. Fixed Possible_choices() in TimeSetFunctions.c to avoid setting negative dates.
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/
 

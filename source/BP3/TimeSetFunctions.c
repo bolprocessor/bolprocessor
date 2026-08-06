@@ -52,6 +52,7 @@ int Solution_is_accepted(int,int,unsigned long**,long,Milliseconds**,Millisecond
 Milliseconds Alternate_correction1(int,int,int,Milliseconds,Milliseconds**,Milliseconds,Milliseconds,
 	Milliseconds,Milliseconds,Milliseconds,Milliseconds);
 
+int check_choices = 0;
 
 int Locate(int nseq,unsigned long** p_imaxseq,long imax,long kmax,Milliseconds **p_DELTA,
 	unsigned long* p_tstart,Milliseconds **p_time1,Milliseconds **p_time2,
@@ -273,7 +274,6 @@ BPPrintMessage(0,odInfo,"\n"); */
 // BPPrintMessage(0,odInfo,"shift1 = %ld, nseq = %ld, j = %ld, i = %ld Ts[i] = %ld tp1[i] = %ld tp2[i] = %ld\n",(long)shift1,(long)nseq,(long)j,(long)i,(long)(*p_Ts)[i],(long)(*p_tp1)[i],(long)(*p_tp2)[i]);
 
 if(shift1 == ZERO) goto INCREMENT;
-/* Added 8/3/97 */
 
 if(Situation_ok(nseq,i,i0,j,shift1,(*p_tp1)[i],(*p_tp2)[i],(*p_Ts)[i],(*p_tscover)[i],
 	(*p_tsgap)[i],(*p_maxgapbeg)[i],(*p_maxcoverbeg)[i],p_marked,nature_time)) {
@@ -785,7 +785,7 @@ return(NO);
 
 char Possible_choices(solset sol,char BreakTempoPrev,int i,int i0,int j,long k,int nseq,
 	char **p_marked,int nature_time,Milliseconds t1,Milliseconds t2,Milliseconds shift,
-	Milliseconds ts,Milliseconds maxtruncbeg,Milliseconds maxtruncend,int side)
+	Milliseconds ts,Milliseconds maxtruncbeg,Milliseconds maxtruncend,int side) {
 
 /*	sol[0] = Shift object
 	sol[1] = Break tempo
@@ -794,65 +794,70 @@ char Possible_choices(solset sol,char BreakTempoPrev,int i,int i0,int j,long k,i
 	sol[4] = Revise previous object(s)	*/
 	
 /*	side = 1 means correcting clockwise, side = 2 anticlockwise */
-{
-int n,nmax,choice;
-Milliseconds maxmove,mustmove;
 
-if(nseq >= Maxconc) {
-	BPPrintMessage(0,odError,"=> Err. Possible_choices(). nseq >= Maxconc");
-	return(0);
-	}
-nmax = 5; choice = 0;
-for(n=0; n < nmax; n++) sol[n] = FALSE;
-if((i > i0) || side == 2) {
-	(sol)[4] = TRUE; choice++;
-	}
-if(shift == ZERO) return(choice);
-if((side == 1) && (nature_time == SMOOTH) && (shift > ZERO)) {
-	(sol)[1] = TRUE; choice++;
-	if(nseq == 0 || !(*p_marked)[i]) return(choice);
-	}
-if(j > 16383) {
-	(sol)[0] = TRUE; choice++;
-	}
-else {
-	if((*p_OkRelocate)[j]) {
+	int n,nmax,choice;
+	Milliseconds maxmove,mustmove;
+
+	if(nseq >= Maxconc) {
+		BPPrintMessage(0,odError,"=> Err. Possible_choices(). nseq >= Maxconc\n");
+		return(0);
+		}
+	nmax = 5; choice = 0;
+	for(n=0; n < nmax; n++) sol[n] = FALSE;
+	if((i > i0) || side == 2) {
+		(sol)[4] = TRUE; choice++;
+		}
+	if(shift == ZERO) return(choice);
+	if((side == 1) && (nature_time == SMOOTH) && (shift > ZERO)) {
+		(sol)[1] = TRUE; choice++;
+		if(nseq == 0 || !(*p_marked)[i]) return(choice);
+		}
+	if(j > 16383) {
 		(sol)[0] = TRUE; choice++;
+		if(check_choices) BPPrintMessage(0,odInfo,"\n@@@ back1\n");
 		}
 	else {
-		if(side == 1) mustmove = shift;
-		else mustmove = -shift;
-		if(mustmove > ZERO) {
-			if((*p_DelayMode)[j] == ABSOLU) maxmove = (*p_MaxDelay)[j];
-			else
-				maxmove = (*p_MaxDelay)[j] * ((*p_Instance)[k].dilationratio
-					* (double)(*p_Dur)[j] / 100.);
-			if(mustmove <= maxmove) {
-				sol[0] = TRUE; choice++;
-				}
+		if((*p_OkRelocate)[j] && (t1 + shift) > ZERO) { // Fixed 2026-08-06
+			// We make sure not to get negative dates
+			(sol)[0] = TRUE; choice++;
+			if(check_choices) BPPrintMessage(0,odInfo,"\n@@@ back2, shift = %ld, t1 = %ld\n",shift,t1);
 			}
 		else {
-			if((*p_ForwardMode)[j] == ABSOLU) maxmove = -(*p_MaxForward)[j];
-			else
-				maxmove = -(*p_MaxForward)[j] * ((*p_Instance)[k].dilationratio
-					* (double)(*p_Dur)[j] / 100.);
-			if(mustmove >= maxmove) {
-				(sol)[0] = TRUE; choice++;
+			if(side == 1) mustmove = shift;
+			else mustmove = -shift;
+			if(mustmove > ZERO) {
+				if((*p_DelayMode)[j] == ABSOLU) maxmove = (*p_MaxDelay)[j];
+				else
+					maxmove = (*p_MaxDelay)[j] * ((*p_Instance)[k].dilationratio
+						* (double)(*p_Dur)[j] / 100.);
+				if(mustmove <= maxmove) {
+					sol[0] = TRUE; choice++;
+					if(check_choices) BPPrintMessage(0,odInfo,"\n@@@ back3\n");
+					}
+				}
+			else {
+				if((*p_ForwardMode)[j] == ABSOLU) maxmove = -(*p_MaxForward)[j];
+				else
+					maxmove = -(*p_MaxForward)[j] * ((*p_Instance)[k].dilationratio
+						* (double)(*p_Dur)[j] / 100.);
+				if(mustmove >= maxmove) {
+					(sol)[0] = TRUE; choice++;
+					if(check_choices) BPPrintMessage(0,odInfo,"\n@@@ back4\n");
+					}
 				}
 			}
+		}	
+	if((side == 1) && (i > 1) && (shift > ZERO) && (BreakTempoPrev || (nature_time == SMOOTH))) {
+		(sol)[1] = TRUE; choice++;
 		}
-	}	
-if((side == 1) && (i > 1) && (shift > ZERO) && (BreakTempoPrev || (nature_time == SMOOTH))) {
-	(sol)[1] = TRUE; choice++;
+	if(side == 1 && shift > ZERO && shift <= maxtruncbeg) {
+		(sol)[2] = TRUE; choice++;
+		}
+	if(side == 2 && shift < ZERO && (-shift) <= maxtruncend) {
+		(sol)[3] = TRUE; choice++;
+		}
+	return(choice);
 	}
-if(side == 1 && shift > ZERO && shift <= maxtruncbeg) {
-	(sol)[2] = TRUE; choice++;
-	}
-if(side == 2 && shift < ZERO && (-shift) <= maxtruncend) {
-	(sol)[3] = TRUE; choice++;
-	}
-return(choice);
-}
 
 
 int Next_choice(solset sol_set, int nseq, int i, int i0, int j, Milliseconds ts,

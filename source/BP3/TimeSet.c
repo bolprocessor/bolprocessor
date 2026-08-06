@@ -472,8 +472,8 @@ TRY:
 	
 	if(r == MISSED || r == QUICK) {
 		result = MISSED;
-		if(ShowGraphic || !Improvize) {
-			FlashInfo("Must release constraints...");
+		if(ShowGraphic || PlaySelectionOn) {
+			BPPrintMessage(0,odInfo,"Must release time constraints...\n");
 			}
 		if(r == QUICK) {	/* Find a quick solution */
 			if(ShowMessages) ShowMessage(TRUE,wMessage,"Quick!");
@@ -482,21 +482,21 @@ TRY:
 			}
 		if(!StepTimeSet) { 
 			if(!CoverOK && !DiscontinuityOK) {
-				if(ShowGraphic || PlaySelectionOn || !Improvize)
-					ShowMessage(TRUE,wMessage,"Releasing overlapping");
+				if(ShowGraphic || PlaySelectionOn)
+					BPPrintMessage(0,odInfo,"Releasing overlapping\n");
 				CoverOK = TRUE;
 				goto TRY;
 				}
 			if(!DiscontinuityOK) {
-				if(ShowGraphic || PlaySelectionOn || !Improvize)
-					ShowMessage(TRUE,wMessage,"Releasing continuity");
+				if(ShowGraphic || PlaySelectionOn)
+					BPPrintMessage(0,odInfo,"Releasing continuity\n");
 				CoverOK = FALSE;
 				DiscontinuityOK = TRUE;
 				goto TRY;
 				}
 			if(!CoverOK) {
-				if(ShowGraphic || PlaySelectionOn || !Improvize)
-					ShowMessage(TRUE,wMessage,"Releasing continuity and overlapping");
+				if(ShowGraphic || PlaySelectionOn)
+					BPPrintMessage(0,odInfo,"Releasing continuity and overlapping\n");
 				CoverOK = TRUE;
 				goto TRY;
 				}
@@ -563,7 +563,7 @@ QUEST2:
 	tmax = Infneg;
 	olddelta = ZERO;
 	if(nature_time == STRIATED) {
-		if(trace_timeset) ShowMessage(FALSE,wMessage,"Calculating global drift");
+		if(trace_timeset) BPPrintMessage(0,odInfo,"Calculating global drift\n");
 		for(i=1L; i <= maxseq; i++) {
 			if((*p_DELTA)[i] > EPSILON) BTflag = TRUE;
 			else {		/* Correct last streaks for which DELTA is not known */
@@ -575,7 +575,7 @@ QUEST2:
 			}
 		}
 	else {
-		if(trace_timeset) ShowMessage(FALSE,wMessage,"Interpolating streaks");
+		if(trace_timeset) BPPrintMessage(0,odInfo,"Interpolating streaks\n");
 		(*p_T)[0] = ZERO;
 		for(i=ZERO; i <= maxseq; i++) {
 			if(i <= (*p_imaxseq)[nseq] && ((k=(*((*p_Seq)[nseq]))[i]) >= 1 || k == -1))
@@ -607,14 +607,13 @@ QUEST2:
 
 	if(BTflag) {
 		if(trace_timeset)
-			ShowMessage(TRUE,wMessage,"Starting again algorithm (broke tempo)...");
+			BPPrintMessage(0,odInfo,"Starting again algorithm (broke tempo)...\n");
 		if(DisplayTimeSet) {
-			my_sprintf(Message,"\nBroke tempo. T[i], i = 1,maxseq:\n");
-			Print(wTrace,Message);
+			BPPrintMessage(0,odInfo,"\nBroke tempo. T[i], i = 1,maxseq:\n");
 			for(i=1; i <= maxseq; i++) {
-				my_sprintf(Message,"%ld ",(long)(*p_T)[i]);
-				Print(wTrace,Message);
+				BPPrintMessage(0,odInfo,"%ld ",(long)(*p_T)[i]);
 				}
+			BPPrintMessage(0,odInfo,"\n");
 			}
 		goto STARTAGAIN;
 		}
