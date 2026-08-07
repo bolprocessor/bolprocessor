@@ -276,6 +276,8 @@ int SetObjectParams(int isobject,int level,int nseq,long k,int j,
 	if(trace_scale) BPPrintMessage(0,odInfo,"4) scale = %d\n",p_currentparameters->scale); 
 	(*p_Instance)[k].blockkey = p_currentparameters->blockkey;
 
+// = DeftVolume;
+
 /*	VolumeStart(k) = DEFTVOLUME;
 	PanoramicStart(k) = DEFTPANORAMIC;
 	PitchbendStart(k) = DEFTPITCHBEND;
