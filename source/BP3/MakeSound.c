@@ -774,7 +774,6 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			blockkey = (*p_Instance)[kcurrentinstance].blockkey;
 			j = (*p_Instance)[kcurrentinstance].object;
 			if(j == 0) {
-			//	BPPrintMessage(0,odError,"=> Err. MakeSound(). j = 0");
 				BPPrintMessage(0,odError,"=> Err. MakeSound(). j = 0\n");
 				result = ABORT; goto OVER;
 				}

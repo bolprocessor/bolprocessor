@@ -1324,8 +1324,8 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 			break;
 		case 65:	/* _scale() */
 			if(trace_scale) BPPrintMessage(0,odInfo,"_scale() found in compilation\n");
-			if(!OutCsound && (rtMIDI || WriteMIDIfile)) { 
-				if(!MIDImicrotonality) BPPrintMessage(0,odInfo,"👉 Microtonality mimics MIDI Polyphonic Expression\n");
+			if(!OutCsound && (rtMIDI || WriteMIDIfile || EventListOn)) { 
+				if(!MIDImicrotonality) BPPrintMessage(0,odInfo,"👉 Microtonality mimics MIDI Polyphonic Expression\nNumber of scales = %d\n",NumberScales);
 				MIDImicrotonality = TRUE;
 				}
 #ifdef __BP3_WASM__
@@ -1336,16 +1336,12 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 #ifdef __BP3_WASM__
 			if(strcmp(line,"0") == 0) k = 0;
 #else
-			if(strcmp(line,"0") == 0 || (!OutCsound && !rtMIDI && !WriteMIDIfile)) k = 0; 
+			if(strcmp(line,"0") == 0 || (!OutCsound && !rtMIDI && !WriteMIDIfile && !EventListOn)) k = 0; 
 #endif
 			else {
 				k = FixStringConstant(line);
 				if(k < 0) return(k);
 				i_scale = FindScale(k);
-		/*		for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
-					result = MyHandlecmp((*p_StringConstant)[k],(*Scale)[i_scale].label);
-					if(result == 0) break;
-					} */
 				if(i_scale > NumberScales) {
 					my_sprintf(Message,"Instruction \"_scale(%s,...)\" is illicit as this name is unknown\n",*((*p_StringConstant)[k]));
 					Print(wTrace,Message);

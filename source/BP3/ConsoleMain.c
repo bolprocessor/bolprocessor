@@ -78,7 +78,7 @@ FILE * weightPtr;
 char imageFileName[500];
 int N_image;
 long MaxConsoleTime; // seconds: time allowed for console work
-int NumberScales, MaxScales, DefaultScaleParam, ToldAboutScale; // Microtonal scales loaded from Csound instruments file
+int NumberScales, MaxScales, DefaultScaleParam, ToldAboutScale; // Microtonal scales loaded from tonality file
 t_scale** Scale;
 char LastSeen_scale[100]; // Last scale found during compilation of grammar
 Handle mem_ptr[5000];

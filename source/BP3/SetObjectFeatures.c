@@ -139,7 +139,8 @@ int SetObjectParams(int isobject,int level,int nseq,long k,int j,
 			(*currentinstancevalues)[i].control = (*((*p_contparameters)[level].values))[i].control;
 			(*currentinstancevalues)[i].channel = chan;
 			(*currentinstancevalues)[i].scale = scale;
-			if(trace_scale) BPPrintMessage(0,odInfo,"1) scale = %d\n",scale);
+			if(trace_scale) 
+				BPPrintMessage(0,odInfo,"1) scale = %d\n",scale);
 			(*currentinstancevalues)[i].blockkey = blockkey;
 			(*currentinstancevalues)[i].index = (*((*p_contparameters)[level].values))[i].index;
 			(*currentinstancevalues)[i].imax = ZERO;

@@ -52,7 +52,7 @@ int MakeEventListFile(OutFileInfo* finfo) {
 		}
 	else EventListPtr = fout;
 	BPPrintMessage(0,odInfo,"👉 An event list file has been created\n");
-	WriteToEventListFile("event,item,k,id proto,label,start time,end time,trunc beg,trunc end,dilation ratio beta,dilation ratio alpha,cycles,cyclic after,force integer number of cycles,articul,preroll,postroll,transpos,transpose first,expand value,expand key,volume start,volume end,volume channel,volume mode (2 = continuous),modulation start,modulation end,modulation channel,modulation mode,panoramic start,panoramic end,panoramic channel,panoramic mode,pressure start,pressure end,pressure channel, pressure mode,pitchbend start,pitchbend end,pitchbend channel,pitchbend mode");
+	WriteToEventListFile("event,item,k,id proto,label,start time,end time,trunc beg,trunc end,dilation ratio beta,dilation ratio alpha,cycles,cyclic after,force integer number of cycles,articul,preroll,postroll,transpos,transpose first,expand value,expand key,volume start,volume end,volume channel,volume mode (2 = continuous),modulation start,modulation end,modulation channel,modulation mode,panoramic start,panoramic end,panoramic channel,panoramic mode,pressure start,pressure end,pressure channel, pressure mode,pitchbend start,pitchbend end,pitchbend channel,pitchbend mode,scale,block key");
 	return result;
 	}
 
@@ -83,14 +83,14 @@ int WriteToEventListFile(const char *line) {
 
 int AddEventToList(int k) {
 	long starttime,endtime,shift;
-	int j,id_proto,articul,trans,cyclic_after;
+	int j,id_proto,articul,trans,cyclic_after,blockkey;
 	short xpandval,xpandkey;
-	char line[MAXLIN],label[MAXNAME];
+	char line[MAXLIN],label[MAXNAME],scalename[MAXNAME];
 	double alpha,dilationratio,preroll,postroll,expand;
 	int transposefirst,forceintegercycles;
 
     if(EventListPtr == NULL) {
-        BPPrintMessage(0,odError, "=> Could not add event to list\n");
+        BPPrintMessage(0,odError,"=> Could not add event to list\n");
         return MISSED;
     	}
 	j = (*p_Instance)[k].object;
@@ -122,6 +122,13 @@ int AddEventToList(int k) {
 	int pitchbendend = PitchbendEnd(k);
 	int pitchbendchannel = PitchbendChannel(k);
 	int pitchbendmode = PitchbendMode(k);
+
+	int scale = (*p_Instance)[k].scale;
+	if(scale > 0) my_sprintf(scalename,"%s",*((*p_StringConstant)[scale]));
+	else my_sprintf(scalename,"%s","");
+	// BPPrintMessage(0,odInfo,"@@@ Scale = %s\n",*((*p_StringConstant)[scale]));
+	if(strlen(scalename) > 0) blockkey = (*p_Instance)[k].blockkey;
+	else blockkey = -1;
 
 	if(j < 16384) {
 		if(j < 0) {
@@ -168,7 +175,7 @@ int AddEventToList(int k) {
 	starttime = (*p_Instance)[k].starttime + shift;
 	endtime = (*p_Instance)[k].endtime  + shift;
 	EventNumber++;
-	my_sprintf(line,"#%ld,%ld,(%d),%d,%s,%ld,%ld,%ld,%ld,%.4f,%.4f,%d,%d,%d,%d,%.4f,%.4f,%d,%d,%.4f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",EventNumber,ItemNumber,k,id_proto,label,starttime,endtime,(*p_Instance)[k].truncbeg,(*p_Instance)[k].truncend,dilationratio,(*p_Instance)[k].alpha,(*p_Instance)[k].ncycles,cyclic_after,forceintegercycles,articul,preroll,postroll,trans,transposefirst,expand,xpandkey,volumestart,volumeend,volumechannel,volumemode,modulationstart,modulationend,modulationchannel,modulationmode,panoramicstart,panoramicend,panoramicchannel,panoramicmode,pressurestart,pressureend,pressurechannel,pressuremode,pitchbendstart,pitchbendend,pitchbendchannel,pitchbendmode);
+	my_sprintf(line,"#%ld,%ld,(%d),%d,%s,%ld,%ld,%ld,%ld,%.4f,%.4f,%d,%d,%d,%d,%.4f,%.4f,%d,%d,%.4f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%d",EventNumber,ItemNumber,k,id_proto,label,starttime,endtime,(*p_Instance)[k].truncbeg,(*p_Instance)[k].truncend,dilationratio,(*p_Instance)[k].alpha,(*p_Instance)[k].ncycles,cyclic_after,forceintegercycles,articul,preroll,postroll,trans,transposefirst,expand,xpandkey,volumestart,volumeend,volumechannel,volumemode,modulationstart,modulationend,modulationchannel,modulationmode,panoramicstart,panoramicend,panoramicchannel,panoramicmode,pressurestart,pressureend,pressurechannel,pressuremode,pitchbendstart,pitchbendend,pitchbendchannel,pitchbendmode,scalename,blockkey);
 	if(WriteToEventListFile(line) != OK) return MISSED;
 	return(OK);
 	}

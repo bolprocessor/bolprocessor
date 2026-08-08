@@ -324,7 +324,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 #ifdef __BP3_WASM__
 						if(NumberScales > 0) {
 #else
-						if(OutCsound || rtMIDI || WriteMIDIfile) {
+						if(OutCsound || rtMIDI || WriteMIDIfile || EventListOn) {
 #endif
 							(*p_buff)[i++] = T44; (*p_buff)[i++] = (tokenbyte) n;
 							if(trace_scale) BPPrintMessage(0,odInfo,"Encode() T44 i = %d n = %d\n",i,n);
