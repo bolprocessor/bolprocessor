@@ -1374,7 +1374,14 @@ char* read_file(const char *filename) {
         fclose(file);
         return NULL;
    		}
-    fread(data, 1, filesize, file);
+    size_t bytes_read = fread(data, 1, filesize, file);
+	if(bytes_read != filesize) {
+		if(ferror(file))
+    		BPPrintMessage(0,odError,"=> Error while reading file: %s\n",strerror(errno));
+		else
+			BPPrintMessage(0,odError,"=> Unexpected end of file: read %zu bytes instead of %zu\n",bytes_read, filesize);
+		return NULL;
+		}
     data[filesize] = '\0';
     fclose(file);
     return data;

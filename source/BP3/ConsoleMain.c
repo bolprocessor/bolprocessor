@@ -603,7 +603,12 @@ void CreateImageFile(double time) {
     BPPrintMessage(0,odInfo,"Creating image #%d: %s\n",N_image,new_thefile);
 	imagePtr = my_fopen(1,new_thefile,"w");
 	strcpy(imageFileName,new_thefile);
-    getcwd(cwd,sizeof(cwd));
+	if(getcwd(cwd, sizeof cwd) == NULL) {
+    	BPPrintMessage(0,odError,"=> Could not read directory of image data: %s\n",strerror(errno));
+		N_image = 0;
+		imagePtr = NULL; ShowGraphic = FALSE;
+		return;
+		}
     convert_path(cwd);
 	size_t len = strlen(cwd);
 	if(len < 4 || strcmp(cwd + len - 4, "/php") != 0) strcat(cwd,"/php");
@@ -661,7 +666,13 @@ int EndImageFile(void) {
         return ABORT;
         }
 	imageHits = 0;
-    getcwd(cwd,sizeof(cwd));
+	if(getcwd(cwd,sizeof cwd) == NULL) {
+    	BPPrintMessage(0,odError,"=> Could not read directory of image data: %s\n",strerror(errno));
+		N_image = 0;
+		imagePtr = NULL; ShowGraphic = FALSE;
+		return ABORT;
+		}
+
     convert_path(cwd);
 	size_t len = strlen(cwd);
 	if(len < 4 || strcmp(cwd + len - 4, "/php") != 0) strcat(cwd,"/php");

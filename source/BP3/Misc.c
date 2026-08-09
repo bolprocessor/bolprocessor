@@ -166,7 +166,7 @@ int Notify(char* message,int up) { // Doesn't work on Mac because of authorisati
     if(up) {
         char linuxCommand[1024];
         snprintf(linuxCommand, sizeof(linuxCommand), "zenity --info --text=\"%s\" --title=\"Alert\" --timeout=%d", message, timeout);
-        system(linuxCommand);
+        int linuxstatus = system(linuxCommand);
         }
     #endif
     return OK;
