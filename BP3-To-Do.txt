@@ -79,8 +79,8 @@ MIDI input
 Real-time MIDI
 --------------
 
+- In -da.checkContControls, items #15 and #21: the event list is not complete because continuous controls are not handled inside events.
 - Why is kcurrentinstance (12) > Maxevent (10) in -gr.koto3 ?
-- Fix item #7 in -da.checkContControl
 - Use client:port as MIDI input/output on Linux.  Currently, only the client is mentioned in the settings. Some devices might allocate several ports to the same client.
 — In Linux, it seems that the two virtual ports 'VirMIDI 0-0' and 'VirMIDI 0-1' are not communicating with other ports even though their connections are valid.
 - Try to display the timing during a real-time MIDI performance. This seems to be impossible under MacOS and Windows, and only possible under Linux.
