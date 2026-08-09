@@ -52,7 +52,7 @@ int MakeEventListFile(OutFileInfo* finfo) {
 		}
 	else EventListPtr = fout;
 	BPPrintMessage(0,odInfo,"👉 An event list file has been created\n");
-	WriteToEventListFile("event,item,k,id proto,label,start time,end time,trunc beg,trunc end,dilation ratio beta,dilation ratio alpha,cycles,cyclic after,force integer number of cycles,articul,preroll,postroll,transpos,transpose first,expand value,expand key,volume start,volume end,volume channel,volume mode (2 = continuous),modulation start,modulation end,modulation channel,modulation mode,panoramic start,panoramic end,panoramic channel,panoramic mode,pressure start,pressure end,pressure channel, pressure mode,pitchbend start,pitchbend end,pitchbend channel,pitchbend mode,scale,block key");
+	WriteToEventListFile("event,item,k,id proto,label,start time,end time,trunc beg,trunc end,dilation ratio beta,dilation ratio alpha,cycles,cyclic after,force integer number of cycles,articul,preroll,postroll,transpos,transpose first,expand value,expand key,volume start,volume end,volume channel,volume mode (2 = continuous),modulation start,modulation end,modulation channel,modulation mode,panoramic start,panoramic end,panoramic channel,panoramic mode,pressure start,pressure end,pressure channel, pressure mode,pitchbend start,pitchbend end,pitchbend channel,pitchbend mode,microtonal scale,block key");
 	return result;
 	}
 
@@ -139,7 +139,7 @@ int AddEventToList(int k) {
 		else {
 			my_sprintf(label,"%s",*((*p_Bol)[j]));
 			if((*p_Instance)[k].ncycles > 1) {
-				if((*p_CyclicMode)[j] == ABSOLU) cyclic_after = (int)(*p_CyclicAfter)[j];
+				if((*p_CyclicMode)[j] == FIXVALUE) cyclic_after = (int)(*p_CyclicAfter)[j];
 				else
 					cyclic_after = (int) ((double)(*p_CyclicAfter)[j] * (*p_Dur)[j]) / 100.;
 				forceintegercycles = (*p_ForceIntegerCycles)[j];
@@ -147,9 +147,9 @@ int AddEventToList(int k) {
 			}
 		id_proto = j;
 		dilationratio = (*p_Instance)[k].dilationratio;
-		if((*p_PreRollMode)[j] == ABSOLU) preroll = (*p_PreRoll)[j];
+		if((*p_PreRollMode)[j] == FIXVALUE) preroll = (*p_PreRoll)[j];
 		else preroll = dilationratio * (*p_PreRoll)[j];
-		if((*p_PostRollMode)[j] == ABSOLU) postroll = (*p_PostRoll)[j];
+		if((*p_PostRollMode)[j] == FIXVALUE) postroll = (*p_PostRoll)[j];
 		else postroll = dilationratio * (*p_PostRoll)[j];
 		}
 	else {

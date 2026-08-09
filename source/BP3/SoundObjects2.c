@@ -1107,7 +1107,7 @@ int GetPeriod(int j,double beta,double *p_objectperiod,double *p_cyclicafter) {
 	if(j < 0 || j >= Jbol || (*p_CyclicMode)[j] == IRRELEVANT) return(MISSED);
 	dur = beta * (*p_Dur)[j];
 	if(dur < EPSILON) return(MISSED);
-	if((*p_CyclicMode)[j] == ABSOLU) *p_cyclicafter = (*p_CyclicAfter)[j];
+	if((*p_CyclicMode)[j] == FIXVALUE) *p_cyclicafter = (*p_CyclicAfter)[j];
 	else {
 		*p_cyclicafter = ((double)(*p_CyclicAfter)[j] * dur) / 100.;
 		}

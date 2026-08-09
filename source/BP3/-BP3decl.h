@@ -175,7 +175,7 @@ extern int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVari
 	TransposeInput,TransposeValue,
 	Flagthere,ResetDone,BolsInGrammar,NoAlphabet,**p_Ifrom,PointCsound,PointMIDI,
 	**p_Resolution,
-	**p_CsoundInstr,**p_CsoundAssignedInstr;
+	**p_CsoundInstr,**p_CsoundInstrumentMode;
 extern int LiveGrammar,LiveSettings,SyncChange,TraceLive,LearnFromWeights,ChangedGrammar,NewGrammarWaiting,ChangedSettings;
 extern MIDIcode ****pp_MIDIcode;
 extern float **p_CsoundTempo;
@@ -187,7 +187,7 @@ extern char **p_DefaultChannel,**p_PasteDone,
 	**p_OkTransp,**p_OkArticul,**p_OkVolume,**p_OkPan,**p_OkMap,**p_OkVelocity,
 	**p_ContBeg,**p_ContEnd,**p_CoverBeg,**p_CoverEnd,**p_TruncBeg,**p_TruncEnd,
 	**p_PivType,**p_PivMode,**p_RescaleMode,**p_DelayMode,**p_ForwardMode,
-	**p_BreakTempoMode,**p_ContBegMode,**p_ContEndMode,**p_CoverBegMode,**p_CoverEndMode,
+	**p_ContBegMode,**p_ContEndMode,**p_CoverBegMode,**p_CoverEndMode,
 	**p_TruncBegMode,**p_TruncEndMode,**p_PreRollMode,**p_PostRollMode,
 	**p_CyclicMode,**p_ForceIntegerCycles,**p_StrikeAgain,
 	****pp_Comment,****pp_CsoundScoreText,****p_CsoundTables;

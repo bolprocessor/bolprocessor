@@ -305,10 +305,9 @@ enum {
 #define ON 1
 #define LINE 2
 
-#define RELATIF 0
-#define ABSOLU -1
-#define IRRELEVANT -2
-#define LINEAR 0
+#define PERCENT 0
+#define FIXVALUE -1
+#define IRRELEVANT 1
 
 // Values for wait event types
 #define KEYBOARDEVENT 0
@@ -332,7 +331,7 @@ enum {
 
 // Values and indexes for pitch, modulation and pressure
 // #define OFF 0 already defined
-#define FIXED 1
+#define FIX 1
 #define CONTINUOUS 2
 #define STEPWISE 3
 

@@ -7,7 +7,7 @@ Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 -----
-2026-08-07 -> 2026-08-08 (version 3.5.1)
+2026-08-07 -> 2026-08-09 (version 3.5.1)
 
 The event list file now displays the performance parameters attached to sound objects (e.g. volume and pitch bend), including those that change continuously. It also displays the names of scales used for microtonality, if any.
 

@@ -299,7 +299,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 				}
 			morespace = (*p_morespace)[linenum];
 			if(j < 16384) {
-				if((*p_PivMode)[j] == ABSOLU)
+				if((*p_PivMode)[j] == FIXVALUE)
 					pivloc = (long) ((*p_PivPos)[j] * GraphicScaleP) / GraphicScaleQ / 10L;
 				else
 					pivloc = (long) ((*p_Instance)[k].dilationratio * (*p_PivPos)[j] * (*p_Dur)[j]
@@ -692,14 +692,14 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	GetPrePostRoll(j,&preroll,&postroll);
 
 	// Calculate leftmost date 'tmin'
-	if((*p_PivMode)[j] == RELATIF) pivpos = ((*p_PivPos)[j] * (*p_Dur)[j]) / 100L;
+	if((*p_PivMode)[j] == PERCENT) pivpos = ((*p_PivPos)[j] * (*p_Dur)[j]) / 100L;
 	else pivpos = (*p_PivPos)[j];
 	if(preroll < 0.) tmin = 0;
 	else tmin = - preroll;
 	if(pivpos < tmin) tmin = pivpos;
 	maxbeggap = -1L;
 	if((*p_ContBeg)[j]) {
-		if((*p_ContBegMode)[j] == RELATIF)
+		if((*p_ContBegMode)[j] == PERCENT)
 			maxbeggap = ((*p_MaxBegGap)[j] * (*p_Dur)[j]) / 100L;
 		else maxbeggap = (*p_MaxBegGap)[j];
 		}
@@ -712,7 +712,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	if(pivpos > tmax) tmax = pivpos;
 	maxendgap = -1L;
 	if((*p_ContEnd)[j]) {
-		if((*p_ContEndMode)[j] == RELATIF)
+		if((*p_ContEndMode)[j] == PERCENT)
 			maxendgap = ((*p_MaxEndGap)[j] * (*p_Dur)[j]) / 100L;
 		else maxendgap = (*p_MaxEndGap)[j];
 		}
@@ -776,11 +776,11 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	// Draw covered parts
 	maxcover1 = maxcover2 = dur;
 	if((*p_CoverBeg)[j]) {
-		if((*p_CoverBegMode)[j] == ABSOLU) maxcover1 = (*p_MaxCoverBeg)[j];
+		if((*p_CoverBegMode)[j] == FIXVALUE) maxcover1 = (*p_MaxCoverBeg)[j];
 		else maxcover1 = (dur * (*p_MaxCoverBeg)[j]) / 100.;
 		}
 	if((*p_CoverEnd)[j]) {
-		if((*p_CoverEndMode)[j] == ABSOLU) maxcover2 = (*p_MaxCoverEnd)[j];
+		if((*p_CoverEndMode)[j] == FIXVALUE) maxcover2 = (*p_MaxCoverEnd)[j];
 		else maxcover2 = (dur * (*p_MaxCoverEnd)[j]) / 100.;
 		}
 	r.top = p_frame->top + 2 * htext + 5;
@@ -801,11 +801,11 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	// Draw continuity
 	maxgap1 = maxgap2 = INT_MAX;
 	if((*p_ContBeg)[j]) {
-		if((*p_ContBegMode)[j] == ABSOLU) maxgap1 = (*p_MaxBegGap)[j];
+		if((*p_ContBegMode)[j] == FIXVALUE) maxgap1 = (*p_MaxBegGap)[j];
 		else maxgap1 = (dur * (*p_MaxBegGap)[j]) / 100.;
 		}
 	if((*p_ContEnd)[j]) {
-		if((*p_ContEndMode)[j] == ABSOLU) maxgap2 = (*p_MaxEndGap)[j];
+		if((*p_ContEndMode)[j] == FIXVALUE) maxgap2 = (*p_MaxEndGap)[j];
 		else maxgap2 = (dur * (*p_MaxEndGap)[j]) / 100.;
 		}
 	r.top = p_frame->top + topoffset + 1;
@@ -847,12 +847,12 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	stroke_style(&Blue); */
 	maxtrunc1 = maxtrunc2 = dur;
 	if((*p_TruncBeg)[j]) {
-		if((*p_TruncBegMode)[j] == ABSOLU) maxtrunc1 = (*p_MaxTruncBeg)[j];
+		if((*p_TruncBegMode)[j] == FIXVALUE) maxtrunc1 = (*p_MaxTruncBeg)[j];
 		else maxtrunc1 = (dur * (*p_MaxTruncBeg)[j]) / 100.;
 		}
 
 	if((*p_TruncEnd)[j]) {
-		if((*p_TruncEndMode)[j] == ABSOLU) maxtrunc2 = (*p_MaxTruncEnd)[j];
+		if((*p_TruncEndMode)[j] == FIXVALUE) maxtrunc2 = (*p_MaxTruncEnd)[j];
 		else maxtrunc2 = (dur * (*p_MaxTruncEnd)[j]) / 100.;
 		}
 
@@ -1010,9 +1010,9 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 		fill_text(label); */
 		}
 	else {
-		if((*p_CsoundAssignedInstr)[iProto] >= 1) {
+		if((*p_CsoundInstrumentMode)[iProto] >= 1) {
 			my_sprintf(Message,"Send MIDI messages to Csound instrument %ld",
-				(long)(*p_CsoundAssignedInstr)[iProto]);
+				(long)(*p_CsoundInstrumentMode)[iProto]);
 		//	c2pstrcpy(label, Message);
 			x = p_frame->right - 4 - strlen(line);
 		/*	move_to(x,p_frame->bottom - (4 * htext));

@@ -123,7 +123,7 @@ int SetObjectParams(int isobject,int level,int nseq,long k,int j,
 					}
 				(*((*p_contparameters)[level].values))[i].known = TRUE;
 				v1 = v0;
-				mode = FIXED;
+				mode = FIX;
 				if(trace_set_variation) BPPrintMessage(1,odInfo,"i = %d, v0 = %ld v1 = %ld mode = %d\n",i,(long)v0,(long)v1,mode);
 				}
 			else {
@@ -170,8 +170,8 @@ int SetObjectParams(int isobject,int level,int nseq,long k,int j,
 			
 			// BPPrintMessage(0,odInfo,"SetObjectFeatures k = %ld mode = %ld ?\n",(long)k,(*currentinstancevalues)[i].mode);
 			if((*((*p_contparameters)[level].values))[i].v0 == (*((*p_contparameters)[level].values))[i].v1 && (*h_table)[i].point == NULL) {
-					(*currentinstancevalues)[i].mode = FIXED;
-					if(trace_set_variation) BPPrintMessage(1,odInfo,"SetObjectFeatures k = %ld i = %d mode = FIXED v0 = %ld v1 = %ld\n",(long)k,i,(long)(*((*p_contparameters)[level].values))[i].v0,(long)(*((*p_contparameters)[level].values))[i].v1);
+					(*currentinstancevalues)[i].mode = FIX;
+					if(trace_set_variation) BPPrintMessage(1,odInfo,"SetObjectFeatures k = %ld i = %d mode = FIX v0 = %ld v1 = %ld\n",(long)k,i,(long)(*((*p_contparameters)[level].values))[i].v0,(long)(*((*p_contparameters)[level].values))[i].v1);
 					}
 				
 			if((*((*p_contparameters)[level].values))[i].channel > 0)
@@ -400,7 +400,7 @@ if(trace_set_variation) BPPrintMessage(0,odInfo,"Start SetVariation() targettoke
 if(index > -1) {
 	maketable = TRUE;
 	startvalue = (*p_endvalue) = (*((*p_contparameters)[levelorg].values))[index].v0;
-	if((*((*p_contparameters)[levelorg].values))[index].mode == FIXED)
+	if((*((*p_contparameters)[levelorg].values))[index].mode == FIX)
 		goto RECORDVALUES;
 	if(trace_set_variation) BPPrintMessage(0,odInfo,"maketable = TRUE, startvalue = %ld\n",(long)startvalue);
 	}
@@ -408,7 +408,7 @@ else {
 	switch(targettoken)	{
 		case T11:	/* _vel() */
 			startvalue = (*p_endvalue) = p_currentparameters->currvel;
-			if(p_currentparameters->velmode == FIXED) goto END;
+			if(p_currentparameters->velmode == FIX) goto END;
 			break;
 		case T20:	/* _legato() or _staccato() */
 			startvalue = (*p_endvalue) = p_currentparameters->currarticul;
@@ -418,7 +418,7 @@ else {
 			break;
 		case T37:	/* _keymap() */
 			*p_mapendvalue = p_currentparameters->map0;
-			if(p_currentparameters->mapmode == FIXED
+			if(p_currentparameters->mapmode == FIX
 				|| p_currentparameters->mapmode == OFF) goto END;
 			break;
 		}
@@ -827,7 +827,7 @@ if((*p_contparameters)[levelorg].values == NULL) {
 	= (*((*p_contparameters)[levelorg].values))[index].v0 = startvalue;
 (*((*p_contparameters)[levelorg].values))[index].known = TRUE;
 /* (*((*p_contparameters)[levelorg].values))[index].instrument = instrorg; */
-if((maxbeats == 0.) || (*((*p_contparameters)[levelorg].values))[index].mode == FIXED) {
+if((maxbeats == 0.) || (*((*p_contparameters)[levelorg].values))[index].mode == FIX) {
 	(*((*p_contparameters)[levelorg].values))[index].maxbeats = 1;
 	(*((*p_contparameters)[levelorg].values))[index].increment = 0;
 	(*((*p_contparameters)[levelorg].values))[index].v1 = startvalue;
@@ -891,7 +891,7 @@ int Fix(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time) 
 				//		BPPrintMessage(0,odInfo,"Fix() time pattern k = %ld j = %ld alpha = %.2f Dur = %.2f, t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(*p_Dur)[j],(long)t1,(long)t2);
 						}
 					else {
-						if((*p_PivMode)[j] == RELATIF)
+						if((*p_PivMode)[j] == PERCENT)
 							t1 = (*p_T)[i]
 								- (Milliseconds) ((*p_Instance)[k].dilationratio * (*p_Dur)[j]
 								* (*p_PivPos)[j] / 100.);
@@ -1264,7 +1264,7 @@ if(!(*p_FixScale)[j] && !(*p_OkExpand)[j] && !(*p_OkCompress)[j])
 	limit = TRUE;		/* dilation ratio has a specified upper limit */
 else limit = FALSE;		/* it hasn't */
 
-if((*p_PivMode)[j] == RELATIF)
+if((*p_PivMode)[j] == PERCENT)
 	pivpos = (*p_Dur)[j] * (*p_PivPos)[j] / 100.;
 else
 	pivpos = (*p_PivPos)[j];
@@ -1272,7 +1272,7 @@ if(PlayFromInsertionPoint) pivpos = 0.;
 	
 // First consider objects that can't be stretched
 
-if(!limit && (!(*p_OkExpand)[j] || (*p_CyclicMode)[j] == ABSOLU)) {
+if(!limit && (!(*p_OkExpand)[j] || (*p_CyclicMode)[j] == FIXVALUE)) {
 	*p_dilationratio = 1.;
 FINDCYCLES:
 	ncycles = (double)(((*p_alpha) * (*p_Dur)[j] / (*p_dilationratio))
@@ -1347,7 +1347,7 @@ int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend
 		if(j > 1 && j < 16384) {
 			if((*p_CoverBeg)[j]) {
 				if((*p_CoverBegMode)[j] == OK) maxcover1 = Infpos;
-				else if((*p_CoverBegMode)[j] == ABSOLU) maxcover1 = (*p_MaxCoverBeg)[j];
+				else if((*p_CoverBegMode)[j] == FIXVALUE) maxcover1 = (*p_MaxCoverBeg)[j];
 				else maxcover1 = (dur * (*p_MaxCoverBeg)[j]) / 100.;
 				if(check_limits) BPPrintMessage(0,odInfo,"@@ maxcover1 = %ld, j = %d\n",maxcover1,j);
 				}
@@ -1356,7 +1356,7 @@ int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend
 		if(j > 1 && j < 16384) {
 			if((*p_CoverEnd)[j]) {
 				if((*p_CoverEndMode)[j] == OK) maxcover2 = Infpos;
-				else if((*p_CoverEndMode)[j] == ABSOLU) maxcover2 = (*p_MaxCoverEnd)[j];
+				else if((*p_CoverEndMode)[j] == FIXVALUE) maxcover2 = (*p_MaxCoverEnd)[j];
 				else maxcover2 = (dur * (*p_MaxCoverEnd)[j]) / 100.;
 				if(check_limits) BPPrintMessage(0,odInfo,"@@ maxcover2 = %ld, j = %d\n",maxcover2,j);
 				}
@@ -1376,7 +1376,7 @@ int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend
 		if(j > 1 && j < 16384) {
 			if((*p_ContBeg)[j]) {
 				if((*p_ContBegMode)[j] == OK) maxgap1 = ZERO;
-				else if((*p_ContBegMode)[j] == ABSOLU) maxgap1 = (*p_MaxBegGap)[j];
+				else if((*p_ContBegMode)[j] == FIXVALUE) maxgap1 = (*p_MaxBegGap)[j];
 				else maxgap1 = (dur * (*p_MaxBegGap)[j]) / 100.;
 				if(check_limits) BPPrintMessage(0,odInfo,"@@ maxgap1 = %ld, j = %d\n",maxgap1,j);
 				}
@@ -1386,7 +1386,7 @@ int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend
 		if(j > 1 && j < 16384) {
 			if((*p_ContEnd)[j]) {
 				if((*p_ContEndMode)[j] == OK) maxgap2 = ZERO;
-				else if((*p_ContEndMode)[j] == ABSOLU) maxgap2 = (*p_MaxEndGap)[j];
+				else if((*p_ContEndMode)[j] == FIXVALUE) maxgap2 = (*p_MaxEndGap)[j];
 				else maxgap2 = (dur * (*p_MaxEndGap)[j]) / 100.;
 				if(check_limits) BPPrintMessage(0,odInfo,"@@ maxgap2 = %ld, j = %d\n",maxgap2,j);
 				}
@@ -1397,7 +1397,7 @@ int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend
 		if(j > 1 && j < 16384) {
 			if((*p_TruncBeg)[j]) {
 				if((*p_TruncBegMode)[j] == OK) maxtrunc1 = dur;
-				else if((*p_TruncBegMode)[j] == ABSOLU) maxtrunc1 = (*p_MaxTruncBeg)[j];
+				else if((*p_TruncBegMode)[j] == FIXVALUE) maxtrunc1 = (*p_MaxTruncBeg)[j];
 				else maxtrunc1 = (dur * (*p_MaxTruncBeg)[j]) / 100.;
 				if(check_limits) BPPrintMessage(0,odInfo,"@@ maxtrunc1 = %ld, j = %d\n",maxtrunc1,j);
 				}
@@ -1410,7 +1410,7 @@ int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend
 		if(j > 1 && j < 16384) {
 			if((*p_TruncEnd)[j]) {
 				if((*p_TruncEndMode)[j] == OK) maxtrunc2 = dur;
-				else if((*p_TruncEndMode)[j] == ABSOLU) maxtrunc2 = (*p_MaxTruncEnd)[j];
+				else if((*p_TruncEndMode)[j] == FIXVALUE) maxtrunc2 = (*p_MaxTruncEnd)[j];
 				else maxtrunc2 = (dur * (*p_MaxTruncEnd)[j]) / 100.;
 				if(check_limits) BPPrintMessage(0,odInfo,"@@ maxtrunc2 = %ld, j = %d\n",maxtrunc2,j);
 				}

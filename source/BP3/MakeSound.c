@@ -247,7 +247,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 					im = (*p_CsoundSize)[j];
 				firstcycleduration = beta * (*p_Dur)[j];
 				(*p_iendperiod)[k] = im - 1;
-				if((*p_PreRollMode)[j] == ABSOLU) preroll = (*p_PreRoll)[j];
+				if((*p_PreRollMode)[j] == FIXVALUE) preroll = (*p_PreRoll)[j];
 				else preroll = beta * (*p_PreRoll)[j];
 				if(alpha > 1.) {
 					if(GetPeriod(j,beta,&objectperiod,&cyclicafter) == OK) {
@@ -337,7 +337,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 		if(j < 0) j = -j;
 		if(j < 16384) {
 			beta = (*p_Instance)[k].dilationratio;
-			if((*p_PreRollMode)[j] == ABSOLU) preroll = (*p_PreRoll)[j];
+			if((*p_PreRollMode)[j] == FIXVALUE) preroll = (*p_PreRoll)[j];
 			else preroll = beta * (*p_PreRoll)[j];
 			}
 		else preroll = 0.;
@@ -358,7 +358,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,
 			if(j < 2) continue;
 			if(j < 16384) {
 				beta = (*p_Instance)[k].dilationratio;
-				if((*p_PostRollMode)[j] == ABSOLU) postroll = (*p_PostRoll)[j];
+				if((*p_PostRollMode)[j] == FIXVALUE) postroll = (*p_PostRoll)[j];
 				else postroll = beta * (*p_PostRoll)[j];
 				}
 			else postroll = 0.;
@@ -2429,7 +2429,7 @@ int MapThisKey(int key,float howmuch,char mapmode,KeyNumberMap *p_map0,KeyNumber
 KeyNumberMap map;	/* Fixed 24/2/99 - was 'p_map' */
 	
 if(mapmode == OFF) return(key);
-if(mapmode == FIXED || mapmode == STEPWISE) return(KeyImage(key,p_map0));
+if(mapmode == FIX || mapmode == STEPWISE) return(KeyImage(key,p_map0));
 map.p1 = p_map0->p1 + howmuch * (p_map1->p1 - p_map0->p1);
 map.q1 = p_map0->q1 + howmuch * (p_map1->q1 - p_map0->q1);
 map.p2 = p_map0->p2 + howmuch * (p_map1->p2 - p_map0->p2);

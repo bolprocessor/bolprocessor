@@ -112,7 +112,7 @@ else {
 		}
 	else {
 		if(instrument > 0) index = instrument;
-		else if(j < Jbol && (*p_CsoundAssignedInstr)[j] >= 0) index = (*p_CsoundAssignedInstr)[j];
+		else if(j < Jbol && (*p_CsoundInstrumentMode)[j] >= 0) index = (*p_CsoundInstrumentMode)[j];
 			else if(WhichCsoundInstrument[chan+1] >= 0)
 								index = WhichCsoundInstrument[chan+1];
 				else index = 0;
@@ -275,7 +275,7 @@ if(iarg > 0) {
 		endvalue = (*params)[IPITCHBEND].endvalue;
 		imax = (*params)[IPITCHBEND].imax;
 		if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"• pitchbend startvalue = %d, endvalue = %d\n",(int)startvalue,(int)endvalue);
-		if((*params)[IPITCHBEND].mode != FIXED) {
+		if((*params)[IPITCHBEND].mode != FIX) {
 			if((*params)[IPITCHBEND].dur <= 0.) {
 				BPPrintMessage(0,odError,"=> Err. CsScoreWrite(). (*params)[IPITCHBEND].dur <= 0");
 				goto SORTIR;
@@ -340,8 +340,8 @@ if(iarg > 0) {
 		startvalue = (*params)[IPITCHBEND].startvalue;
 		endvalue = (*params)[IPITCHBEND].endvalue;
 		imax = (*params)[IPITCHBEND].imax;
-		if((*params)[IPITCHBEND].mode != FIXED) {
-			if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"(pitchbend mode is not FIXED)\n");
+		if((*params)[IPITCHBEND].mode != FIX) {
+			if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"(pitchbend mode is not FIX)\n");
 			if((*params)[IPITCHBEND].dur <= 0.) {
 				BPPrintMessage(0,odError,"=> Err. CsScoreWrite(). (*params)[IPITCHBEND].dur <= 0");
 				goto SORTIR;
@@ -353,7 +353,7 @@ if(iarg > 0) {
 			}
 		else {
 			alpha1 = alpha2 = 0.;
-			if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"(pitchbend mode is FIXED)\n");
+			if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"(pitchbend mode is FIX)\n");
 			}
 		if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
 			alpha1 = alpha2 = -1.;
@@ -399,7 +399,7 @@ if(iarg > 0) {
 		startvalue = (*params)[IVOLUME].startvalue;
 		endvalue = (*params)[IVOLUME].endvalue;
 		imax = (*params)[IVOLUME].imax;
-		if((*params)[IVOLUME].mode != FIXED) {
+		if((*params)[IVOLUME].mode != FIX) {
 			alpha1 = (((*scorearg)[2] / ratio) - (*params)[IVOLUME].starttime)
 				/ (*params)[IVOLUME].dur;
 			alpha2 = ((((*scorearg)[2] + (*scorearg)[3]) / ratio) - (*params)[IVOLUME].starttime)
@@ -448,7 +448,7 @@ if(iarg > 0) {
 		startvalue = (*params)[IPRESSURE].startvalue;
 		endvalue = (*params)[IPRESSURE].endvalue;
 		imax = (*params)[IPRESSURE].imax;
-		if((*params)[IPRESSURE].mode != FIXED) {
+		if((*params)[IPRESSURE].mode != FIX) {
 			alpha1 = (((*scorearg)[2] / ratio) - (*params)[IPRESSURE].starttime)
 				/ (*params)[IPRESSURE].dur;
 			alpha2 = ((((*scorearg)[2] + (*scorearg)[3]) / ratio) - (*params)[IPRESSURE].starttime)
@@ -497,7 +497,7 @@ if(iarg > 0) {
 		startvalue = (*params)[IMODULATION].startvalue;
 		endvalue = (*params)[IMODULATION].endvalue;
 		imax = (*params)[IMODULATION].imax;
-		if((*params)[IMODULATION].mode != FIXED) {
+		if((*params)[IMODULATION].mode != FIX) {
 			alpha1 = (((*scorearg)[2] / ratio) - (*params)[IMODULATION].starttime)
 				/ (*params)[IMODULATION].dur;
 			alpha2 = ((((*scorearg)[2] + (*scorearg)[3]) / ratio) - (*params)[IMODULATION].starttime)
@@ -547,7 +547,7 @@ if(iarg > 0) {
 		startvalue = (*params)[IPANORAMIC].startvalue;
 		endvalue = (*params)[IPANORAMIC].endvalue;
 		imax = (*params)[IPANORAMIC].imax;
-		if((*params)[IPANORAMIC].mode != FIXED) {
+		if((*params)[IPANORAMIC].mode != FIX) {
 			alpha1 = (((*scorearg)[2] / ratio) - (*params)[IPANORAMIC].starttime)
 				/ (*params)[IPANORAMIC].dur;
 			alpha2 = ((((*scorearg)[2] + (*scorearg)[3]) / ratio) - (*params)[IPANORAMIC].starttime)
@@ -613,7 +613,7 @@ if((*p_CsInstrument)[ins].ipmax > 0 && (*perf)->numberparams > 0) {
 			startvalue = (*params)[paramnameindex].startvalue;
 			endvalue = (*params)[paramnameindex].endvalue;
 			imax = (*params)[paramnameindex].imax;
-			if((*params)[paramnameindex].mode != FIXED) {
+			if((*params)[paramnameindex].mode != FIX) {
 				alpha1 = (((*scorearg)[2] / ratio) - (*params)[paramnameindex].starttime)
 					/ (*params)[paramnameindex].dur;
 				alpha2 = ((((*scorearg)[2] + (*scorearg)[3]) / ratio)

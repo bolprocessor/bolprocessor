@@ -791,7 +791,6 @@ int ClearObjectSpace(void) { // NOT USED
 	MyDisposeHandle((Handle*)&p_RescaleMode);
 	MyDisposeHandle((Handle*)&p_DelayMode);
 	MyDisposeHandle((Handle*)&p_ForwardMode);
-	MyDisposeHandle((Handle*)&p_BreakTempoMode);
 	MyDisposeHandle((Handle*)&p_ContBegMode);
 	MyDisposeHandle((Handle*)&p_ContEndMode);
 	MyDisposeHandle((Handle*)&p_CoverBegMode);
@@ -832,7 +831,7 @@ int ClearObjectSpace(void) { // NOT USED
 	MyDisposeHandle((Handle*)&p_Tpict);
 	MyDisposeHandle((Handle*)&p_Resolution);
 	MyDisposeHandle((Handle*)&p_CsoundInstr);
-	MyDisposeHandle((Handle*)&p_CsoundAssignedInstr);
+	MyDisposeHandle((Handle*)&p_CsoundInstrumentMode);
 	MyDisposeHandle((Handle*)&p_CsoundTempo);
 	MyDisposeHandle((Handle*)&p_Dur);
 	MyDisposeHandle((Handle*)&pp_MIDIcode);
@@ -879,7 +878,6 @@ int MakeSoundObjectSpace(void) {
 	if((p_RescaleMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
 	if((p_DelayMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
 	if((p_ForwardMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
-	if((p_BreakTempoMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
 	if((p_ContBegMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
 	if((p_ContEndMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
 	if((p_CoverBegMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
@@ -920,7 +918,7 @@ int MakeSoundObjectSpace(void) {
 	if((p_Tpict = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
 	if((p_Resolution = (int**) GiveSpace((Size) jmax *sizeof(int))) == NULL) goto ERR;
 	if((p_CsoundInstr = (int**) GiveSpace((Size) jmax *sizeof(int))) == NULL) goto ERR;
-	if((p_CsoundAssignedInstr = (int**) GiveSpace((Size) jmax *sizeof(int))) == NULL) goto ERR;
+	if((p_CsoundInstrumentMode = (int**) GiveSpace((Size) jmax *sizeof(int))) == NULL) goto ERR;
 	if((p_CsoundTempo = (float**) GiveSpace((Size) jmax *sizeof(float))) == NULL) goto ERR;
 
 	if((p_Dur = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
@@ -955,15 +953,15 @@ int MakeSoundObjectSpace(void) {
 		(*p_FixScale)[j] = (*p_ContBeg)[j] = (*p_ContEnd)[j]
 			= (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = (*p_AlphaCtrl)[j] = (*p_ForceIntegerCycles)[j]
 			= FALSE;
-		(*p_PivType)[j] = 1; (*p_PivMode)[j] = ABSOLU;
-		(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = RELATIF;
+		(*p_PivType)[j] = 1; (*p_PivMode)[j] = FIXVALUE;
+		(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = PERCENT;
 		(*p_MaxDelay)[j] = (*p_MaxForward)[j] = ZERO;
-		(*p_RescaleMode)[j] = LINEAR;
+		(*p_RescaleMode)[j] = PERCENT;
 		(*p_AlphaMin)[j] = 0; (*p_AlphaMax)[j] = 100.;
-			(*p_DelayMode)[j] = (*p_ForwardMode)[j] = (*p_BreakTempoMode)[j]
-				= (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLU;
+			(*p_DelayMode)[j] = (*p_ForwardMode)[j]
+				= (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = FIXVALUE;
 			(*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j]
-				= (*p_TruncEndMode)[j] = RELATIF;
+				= (*p_TruncEndMode)[j] = PERCENT;
 		(*p_CyclicMode)[j] = IRRELEVANT;
 		(*p_MaxBegGap)[j] = (*p_MaxEndGap)[j] = Infpos;
 		(*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = 100L;
@@ -973,7 +971,7 @@ int MakeSoundObjectSpace(void) {
 		(*p_DefaultChannel)[j] = (*p_Quan)[j] = 0;
 		(*p_Tpict)[j] = Infneg;
 		(*p_CsoundInstr)[j] = 0;
-		(*p_CsoundAssignedInstr)[j] = -1;
+		(*p_CsoundInstrumentMode)[j] = -1;
 		}
 	(*p_Tref)[1] = (*p_Dur)[1] = 1000L;
 	(*p_OkPan)[1] = (*p_OkVolume)[1] = (*p_OkMap)[1] = (*p_OkVelocity)[1] = TRUE;
@@ -1056,7 +1054,6 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 	MySetHandleSize((Handle*)&p_RescaleMode,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_DelayMode,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_ForwardMode,(Size)maxsounds*sizeof(char));
-	MySetHandleSize((Handle*)&p_BreakTempoMode,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_ContBegMode,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_ContEndMode,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_CoverBegMode,(Size)maxsounds*sizeof(char));
@@ -1099,7 +1096,7 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 	MySetHandleSize((Handle*)&p_Tpict,(Size)maxsounds*sizeof(long));
 	MySetHandleSize((Handle*)&p_Resolution,(Size)maxsounds*sizeof(int));
 	MySetHandleSize((Handle*)&p_CsoundInstr,(Size)maxsounds*sizeof(int));
-	MySetHandleSize((Handle*)&p_CsoundAssignedInstr,(Size)maxsounds*sizeof(int));
+	MySetHandleSize((Handle*)&p_CsoundInstrumentMode,(Size)maxsounds*sizeof(int));
 	MySetHandleSize((Handle*)&p_CsoundTempo,(Size)maxsounds*sizeof(float));
 
 	MySetHandleSize((Handle*)&p_Dur,(Size)maxsounds*sizeof(long));
@@ -1159,14 +1156,14 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 			(*p_BreakTempo)[j] = TRUE;
 			(*p_FixScale)[j] = (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = (*p_AlphaCtrl)[j] = (*p_ForceIntegerCycles)[j] = FALSE;
 			(*p_PivType)[j] = 1;
-			(*p_PivMode)[j] = ABSOLU;
-			(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = RELATIF;
+			(*p_PivMode)[j] = FIXVALUE;
+			(*p_PreRollMode)[j] = (*p_PostRollMode)[j] = PERCENT;
 			(*p_MaxDelay)[j] = (*p_MaxForward)[j] = ZERO;
-			(*p_RescaleMode)[j] = LINEAR;
+			(*p_RescaleMode)[j] = PERCENT;
 			(*p_AlphaMin)[j] = 0;
 			(*p_AlphaMax)[j] = 100.;
-			(*p_DelayMode)[j] = (*p_ForwardMode)[j] = (*p_BreakTempoMode)[j] = (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLU;
-			(*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j] = (*p_TruncEndMode)[j] = RELATIF;
+			(*p_DelayMode)[j] = (*p_ForwardMode)[j] = (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = FIXVALUE;
+			(*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j] = (*p_TruncEndMode)[j] = PERCENT;
 			(*p_CyclicMode)[j] = IRRELEVANT;
 			(*p_MaxBegGap)[j] = (*p_MaxEndGap)[j] = Infpos;
 			(*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = ZERO;
@@ -1192,7 +1189,7 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 				}
 			(*p_Resolution)[j] = 1;
 			(*p_CsoundInstr)[j] = 0;
-			(*p_CsoundAssignedInstr)[j] = -1;
+			(*p_CsoundInstrumentMode)[j] = -1;
 			(*p_DefaultChannel)[j] = (*p_Quan)[j] = 0;
 			(*p_Tpict)[j] = Infneg;
 			}

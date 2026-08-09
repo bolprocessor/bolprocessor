@@ -1188,7 +1188,7 @@ PRINTPROLONGATIONS:
 			else {
 				if(!datamode || ((p > 11 || p == 7) && (print_periods < 3 || p == 18 || p == 19))) {
 					if((p != 1 || sp != 4) && p != 9 && p != 8 && p != 18 /* && p != 7 */
-							&& (p < 12 || p > 14)) // FIXED by BB 2020-10-22
+							&& (p < 12 || p > 14))
 						if(Space(f,th,&sp) != OK) {
 							r = ABORT; goto SORTIR;
 							}
@@ -1211,7 +1211,7 @@ PRINTPROLONGATIONS:
 						case 2:
 							sp = 4; break;
 						case 3:
-				//		case 7: FIXED by BB 2020-10-22
+				//		case 7:
 						case 8:
 						case 12:
 						case 14:

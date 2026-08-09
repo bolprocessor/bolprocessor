@@ -59,13 +59,12 @@ ptr = (Handle)(*pp_CsoundTime)[j];
 if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 (*pp_CsoundTime)[j] = NULL;
 
-(*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLU;
+(*p_ContBegMode)[j] = (*p_ContEndMode)[j] = FIXVALUE;
 (*p_MaxBegGap)[j] = (*p_MaxEndGap)[j] = Infpos;
-(*p_DelayMode)[j] = (*p_ForwardMode)[j] = (*p_BreakTempoMode)[j]
-   = ABSOLU;
-(*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = RELATIF;
+(*p_DelayMode)[j] = (*p_ForwardMode)[j] = FIXVALUE;
+(*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = PERCENT;
 (*p_TruncBegMode)[j] = (*p_TruncEndMode)[j] = (*p_PreRollMode)[j]
-      = (*p_PostRollMode)[j] = RELATIF;
+      = (*p_PostRollMode)[j] = PERCENT;
 (*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = 100L;
 (*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = 0L;
 (*p_PivPos)[j] = (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_CyclicAfter)[j] = ZERO;
@@ -82,8 +81,8 @@ if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 (*p_OkTransp)[j] = (*p_OkPan)[j] = (*p_OkMap)[j] = (*p_OkVelocity)[j]
    = (*p_OkArticul)[j] = (*p_OkVolume)[j] = TRUE;
 (*p_BreakTempo)[j] = (*p_DiscardNoteOffs)[j] = FALSE;
-(*p_PivType)[j] = 1; (*p_PivMode)[j] = ABSOLU;
-(*p_RescaleMode)[j] = LINEAR;
+(*p_PivType)[j] = 1; (*p_PivMode)[j] = FIXVALUE;
+(*p_RescaleMode)[j] = PERCENT;
 (*p_AlphaMin)[j] = 0; (*p_AlphaMax)[j] = 100.;
 (*p_Dur)[j] = ZERO;
 (*p_Resolution)[j] = 1;
@@ -109,7 +108,7 @@ ptr = (Handle)(*pp_CsoundScore)[j];
 if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 (*pp_CsoundScore)[j] = NULL;
 (*p_CsoundInstr)[j] = 0;
-(*p_CsoundAssignedInstr)[j] = -1;
+(*p_CsoundInstrumentMode)[j] = -1;
 (*p_MIDIsize)[j] = (*p_CsoundSize)[j] = ZERO;
 ChangedProtoType(j);
 CompiledCsObjects = (*p_CompiledCsoundScore)[j] = 0;
@@ -158,26 +157,22 @@ if((*p_PivType)[j] < 1 || (*p_PivType)[j] > 7) {
 	if(trace_inconsistencies) BPPrintMessage(0,odInfo,"CheckConsistency() (*p_PivType)[%d] = %d\n",j,(*p_PivType)[j]);
    (*p_PivType)[j] = 1; bugg++;
    }
-if((*p_PivMode)[j] < ABSOLU || (*p_PivMode)[j] > RELATIF) {
-	if(trace_inconsistencies) BPPrintMessage(0,odInfo,"CheckConsistency() (*p_PivMode)[%d] = %d\n",j,(*p_PivMode)[j]);
-   (*p_PivMode)[j] = ABSOLU; bugg++;
-   }
 
 SetPrototypeDuration(j,&longerCsound);
 dur = (*p_Dur)[j];
 if(dur < EPSILON) {
    (*p_PivType)[j] = 1; (*p_PivPos)[j] = ZERO;
    (*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j]
-      = (*p_TruncEndMode)[j] = (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = ABSOLU;
+      = (*p_TruncEndMode)[j] = (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = FIXVALUE;
    (*p_CoverBeg)[j] = (*p_CoverEnd)[j] = TRUE;
    (*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = ZERO;
    (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = FALSE;
    (*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = ZERO;
    }
 switch((*p_PivType)[j]) {
-   case 1: (*p_PivPos)[j] = 0.; (*p_PivMode)[j] = ABSOLU; break;
-   case 2: (*p_PivPos)[j] = 100.; (*p_PivMode)[j] = RELATIF; break;
-   case 5: (*p_PivPos)[j] = 50.; (*p_PivMode)[j] = RELATIF; break;
+   case 1: (*p_PivPos)[j] = 0.; (*p_PivMode)[j] = FIXVALUE; break;
+   case 2: (*p_PivPos)[j] = 100.; (*p_PivMode)[j] = PERCENT; break;
+   case 5: (*p_PivPos)[j] = 50.; (*p_PivMode)[j] = PERCENT; break;
    case 7: /* pivspec */ break;
    case 4: /* endoff */
    case 3: /* begon */
@@ -206,35 +201,35 @@ switch((*p_PivType)[j]) {
       switch((*p_PivType)[j]) {
          case 3: /* begon */
             (*p_PivPos)[j] = ((float)(ton - preroll) * 100.) / dur;
-            (*p_PivMode)[j] = RELATIF; break;
+            (*p_PivMode)[j] = PERCENT; break;
          case 4: /* endoff */
             (*p_PivPos)[j] = ((float)(toff - preroll) * 100.) / dur;
-            (*p_PivMode)[j] = RELATIF; break;
+            (*p_PivMode)[j] = PERCENT; break;
          case 6: /* centonoff */
             (*p_PivPos)[j] = ((float)((ton+toff)/2. - preroll) * 100.) / dur;
-            (*p_PivMode)[j] = RELATIF; break;
+            (*p_PivMode)[j] = PERCENT; break;
          }
    }
    
 /* if((*p_CoverBeg)[j] && dur > EPSILON) {
-   (*p_MaxCoverBeg)[j] = 100L; (*p_CoverBegMode)[j] = RELATIF;
+   (*p_MaxCoverBeg)[j] = 100L; (*p_CoverBegMode)[j] = PERCENT;
    }
 if((*p_CoverEnd)[j] && dur > EPSILON) {
-   (*p_MaxCoverEnd)[j] = 100L; (*p_CoverEndMode)[j] = RELATIF;
+   (*p_MaxCoverEnd)[j] = 100L; (*p_CoverEndMode)[j] = PERCENT;
    } */
 if((*p_MaxCoverBeg)[j] < 0) {
    (*p_MaxCoverBeg)[j] = 0; bugg++;
    }
-if((*p_CoverBegMode)[j] == RELATIF) {
+if((*p_CoverBegMode)[j] == PERCENT) {
    if((*p_MaxCoverBeg)[j] > 100L) (*p_MaxCoverBeg)[j] = 100L;
    }
 if((*p_MaxCoverEnd)[j] < 0) {
    (*p_MaxCoverEnd)[j] = 0; bugg++;
    }
-if((*p_CoverEndMode)[j] == RELATIF) {
+if((*p_CoverEndMode)[j] == PERCENT) {
    if((*p_MaxCoverEnd)[j] > 100L) (*p_MaxCoverEnd)[j] = 100L;
    }
-if((*p_CoverBegMode)[j] == RELATIF && (*p_CoverEndMode)[j] == RELATIF) {
+if((*p_CoverBegMode)[j] == PERCENT && (*p_CoverEndMode)[j] == PERCENT) {
    maxcover1 = maxcover2 = INT_MAX;
    if(!(*p_CoverBeg)[j]) maxcover1 = (dur * (*p_MaxCoverBeg)[j]) / 100.;
    if(!(*p_CoverEnd)[j]) maxcover2 = (dur * (*p_MaxCoverEnd)[j]) / 100.;
@@ -247,30 +242,30 @@ if((*p_CoverBegMode)[j] == RELATIF && (*p_CoverEndMode)[j] == RELATIF) {
       (*p_MaxCoverBeg)[j] = (maxcover1 * 100) / dur;
       }
    }
-/* if((*p_CoverBegMode)[j] == RELATIF && (*p_MaxCoverBeg)[j] == 100L)
+/* if((*p_CoverBegMode)[j] == PERCENT && (*p_MaxCoverBeg)[j] == 100L)
    (*p_CoverBeg)[j] = TRUE;
-if((*p_CoverEndMode)[j] == RELATIF && (*p_MaxCoverEnd)[j] == 100L)
+if((*p_CoverEndMode)[j] == PERCENT && (*p_MaxCoverEnd)[j] == 100L)
    (*p_CoverEnd)[j] = TRUE; */
    
 /* if((*p_TruncBeg)[j] && dur > EPSILON) {
-   (*p_MaxTruncBeg)[j] = 100L; (*p_TruncBegMode)[j] = RELATIF;
+   (*p_MaxTruncBeg)[j] = 100L; (*p_TruncBegMode)[j] = PERCENT;
    }
 if((*p_TruncEnd)[j] && dur > EPSILON) {
-   (*p_MaxTruncEnd)[j] = 100L; (*p_TruncEndMode)[j] = RELATIF;
+   (*p_MaxTruncEnd)[j] = 100L; (*p_TruncEndMode)[j] = PERCENT;
    } */
 if((*p_MaxTruncBeg)[j] < 0) {
    (*p_MaxTruncBeg)[j] = 0; bugg++;
    }
-if((*p_TruncBegMode)[j] == RELATIF) {
+if((*p_TruncBegMode)[j] == PERCENT) {
    if((*p_MaxTruncBeg)[j] > 100L) (*p_MaxTruncBeg)[j] = 100L;
    }
 if((*p_MaxTruncEnd)[j] < 0) {
    (*p_MaxTruncEnd)[j] = 0; bugg++;
    }
-if((*p_TruncEndMode)[j] == RELATIF) {
+if((*p_TruncEndMode)[j] == PERCENT) {
    if((*p_MaxTruncEnd)[j] > 100L) (*p_MaxTruncEnd)[j] = 100L;
    }
-if((*p_TruncBegMode)[j] == RELATIF && (*p_TruncEndMode)[j] == RELATIF) {
+if((*p_TruncBegMode)[j] == PERCENT && (*p_TruncEndMode)[j] == PERCENT) {
    maxtrunc1 = maxtrunc2 = INT_MAX;
    if(!(*p_TruncBeg)[j]) maxtrunc1 = (dur * (*p_MaxTruncBeg)[j]) / 100.;
    if(!(*p_TruncEnd)[j]) maxtrunc2 = (dur * (*p_MaxTruncEnd)[j]) / 100.;
@@ -283,9 +278,9 @@ if((*p_TruncBegMode)[j] == RELATIF && (*p_TruncEndMode)[j] == RELATIF) {
       (*p_MaxTruncBeg)[j] = (maxtrunc1 * 100) / dur;
       }
    }
-/* if((*p_TruncBegMode)[j] == RELATIF && (*p_MaxTruncBeg)[j] == 100L)
+/* if((*p_TruncBegMode)[j] == PERCENT && (*p_MaxTruncBeg)[j] == 100L)
    (*p_TruncBeg)[j] = TRUE;
-if((*p_TruncEndMode)[j] == RELATIF && (*p_MaxTruncEnd)[j] == 100L)
+if((*p_TruncEndMode)[j] == PERCENT && (*p_MaxTruncEnd)[j] == 100L)
    (*p_TruncEnd)[j] = TRUE; */
 if(check && (bugg > 0)) {
    BPPrintMessage(0,odInfo,"Found inconsistencies in sound-object prototype '%s'. These have been corrected.\n",(*p_Bol)[j]);
@@ -545,6 +540,6 @@ int CopyPage8(int i,int j)
 (*p_OkArticul)[j] = (*p_OkArticul)[i];
 (*p_OkVolume)[j] = (*p_OkVolume)[i];
 (*p_CsoundInstr)[j] = (*p_CsoundInstr)[i];
-(*p_CsoundAssignedInstr)[j] = (*p_CsoundAssignedInstr)[i];
+(*p_CsoundInstrumentMode)[j] = (*p_CsoundInstrumentMode)[i];
 return(OK);
 }
