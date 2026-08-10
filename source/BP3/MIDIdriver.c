@@ -1430,7 +1430,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
 				if(MPEold_note[channel] == key) key = midiData[1] = MPEnew_note[channel];
 				MPEold_note[channel] = MPEnew_note[channel] = -1;
 				}
-        //    BPPrintMessage(0,odInfo,"§§ Note %d velocity %d channel %d i_scale = %d\n",key,value,channel,i_scale);
+            // BPPrintMessage(0,odInfo,"§§ Note %d velocity %d channel %d i_scale = %d\n",key,value,channel,i_scale);
             midiData[0] = status + channel;
             if(status == NoteOn && value > 0) {
                 if(blockkey == 0) blockkey = DefaultBlockKey;

@@ -43,6 +43,7 @@
 #include "-BP3decl.h"
 
 int trace_timeset = 0;
+int trace_fix = 0;
 
 int TimeSet(tokenbyte ***pp_buff,long* p_kmx,long *p_tmin,long *p_tmax,unsigned long *p_maxseq,
 	int* p_nmax,unsigned long **p_imaxseq,double maxseqapprox)
@@ -427,7 +428,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 
 TRY:
 	if(trace_timeset) ShowMessage(FALSE,wMessage,"\nPlacing objects");
-/*	if(trace_timeset) {
+	if(trace_fix) {
 		BPPrintMessage(0,odInfo,"\nBefore Fix(), T[i], i = 1,%ld:\n",(long)maxseq);
 		for(i=1L; i <= maxseq; i++)
 			BPPrintMessage(0,odInfo,"%ld ",(long)(*p_T)[i]);
@@ -436,10 +437,10 @@ TRY:
 		for(i=1L; i <= maxseq; i++)
 			BPPrintMessage(0,odInfo,"[%ld]%ld ",(long)i,(long)(*p_time2)[i]);
 		BPPrintMessage(0,odInfo,"%s","\n");
-		} */
+		} 
 	if((result=Fix(nseq,p_time1,p_time2,nature_time)) != OK) goto EXIT1;
 
-/*	if(TRUE || trace_timeset) {
+	if(trace_fix) {
 		BPPrintMessage(0,odInfo,"\nAfter Fix(), T[i], i = 1,%ld:\n",(long)maxseq);
 		for(i=1L; i <= maxseq; i++)
 			BPPrintMessage(0,odInfo,"%ld ",(long)(*p_T)[i]);
@@ -448,7 +449,7 @@ TRY:
 		for(i=1L; i <= maxseq; i++)
 			BPPrintMessage(0,odInfo,"[%ld]%ld ",(long)i,(long)(*p_time2)[i]);
 		BPPrintMessage(0,odInfo,"%s","\n");
-		} */
+		}
 	
 	if(trace_timeset) BPPrintMessage(0,odInfo,"Solving constraints Locate() for nseq = %ld\n",(long)nseq);
 	r = Locate(nseq,p_imaxseq,maxseq,*p_kmx,p_DELTA,&tstart,p_time1,

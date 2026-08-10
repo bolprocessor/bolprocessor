@@ -1307,8 +1307,8 @@ typedef struct {
 
 struct s_CurrentParameters {
 	int currvel,rndvel,velcontrol,currarticul,currchan,scale,blockkey,currinstr,currpart,capture;
-	int currtranspose;
-	short xpandkey,xpandval,randomtime,seed;
+	int currtranspose,randomtime,seed;
+	short xpandkey,xpandval;
 	char velmode,articulmode,mapmode,transposemode,transposefirst;
 	KeyNumberMap map0,map1;
 	};
@@ -1377,12 +1377,12 @@ typedef struct s_ContinuousControl ContinuousControl;
 
 struct s_SoundObjectInstanceParameters {
 	Milliseconds starttime,endtime;
-	short object,nseq,ncycles,seed;
+	short object,nseq,ncycles;
 	Milliseconds truncbeg,truncend;
 	char velocity,channel;
-	int transposition,scale,blockkey;
+	int transposition,scale,blockkey,randomtime,seed;
 	int capture;
-	short rndvel,velcontrol,randomtime;
+	short rndvel,velcontrol;
 	short xpandkey,xpandval;
 	short instrument,part;
 	double alpha,dilationratio;

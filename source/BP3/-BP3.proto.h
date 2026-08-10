@@ -594,7 +594,7 @@ int SaveLongAsJson(FILE*,const char*,const char*,const char*,long);
 int SaveFloatAsJson(FILE*,const char*,const char*,const char*,double);
 static void WriteJsonString(FILE*, const char*);
 double GetSymbolicDuration(int,tokenbyte**,tokenbyte,tokenbyte,long,double,double,int,int,int,int,int);
-int RandomTime(Milliseconds*,short,Milliseconds,short*);
+int RandomTime(Milliseconds*,int,Milliseconds,short*);
 int FindPart(char*);
 int PutZeros(int,char,double**,unsigned long**,double,double,int*,int);
 int ShowPhaseDiagram(int,unsigned long*);

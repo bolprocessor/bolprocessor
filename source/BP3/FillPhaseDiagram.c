@@ -412,11 +412,9 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					startvel = startvel + (velincrement * ibeatsvel / maxbeatsvel);
 					currentparameters.currvel = startvel;
 					if(p == 0) currentparameters.velmode = STEPWISE;
-					else currentparameters.velmode = CONTINUOUS;	/* not implemented */
-				if(SetVariation(T11,p_deftcurrentparameters,&currentparameters,
-				p_contparameters,level,-1,id,*pp_buff,speed,scale,&endvel,&mapendvalue,
-				&maxbeatsvel,h_table) != OK)
-						goto ENDDIAGRAM;
+					else currentparameters.velmode = CONTINUOUS;	// not implemented
+					if(SetVariation(T11,p_deftcurrentparameters,&currentparameters,
+					p_contparameters,level,-1,id,*pp_buff,speed,scale,&endvel,&mapendvalue,&maxbeatsvel,h_table) != OK)goto ENDDIAGRAM;
 					ibeatsvel = 0.;
 					if(maxbeatsvel == 0.) {
 						maxbeatsvel = 1.; velincrement = 0;

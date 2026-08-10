@@ -79,6 +79,7 @@ MIDI input
 Real-time MIDI
 --------------
 
+- Implement case velmode = CONTINUOUS to modify velocities in sound-objects. (See FillPhaseDiagram.c for m == T12)
 - In -da.checkContControls, items #15 and #21: the event list is not complete because continuous controls are not handled inside events.
 - Why is kcurrentinstance (12) > Maxevent (10) in -gr.koto3 ?
 - Use client:port as MIDI input/output on Linux.  Currently, only the client is mentioned in the settings. Some devices might allocate several ports to the same client.

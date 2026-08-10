@@ -2002,6 +2002,7 @@ int ClipVelocity(int v,int localvelocity,int control,int rndvel) {
 	//	BPPrintMessage(0,odError,"%s",Message);
 		control = -1;
 		}
+	// BPPrintMessage(0,odInfo,"@@@ v = %d, localvelocity = %d, control = %d, rndvel = %d\n",v,localvelocity,control,rndvel);
 	if(control > -1) v = ParamValue[control];
 	if(rndvel > 0) {
 		if(rndvel > 127) r = ParamValue[rndvel-128];

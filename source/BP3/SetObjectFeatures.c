@@ -876,7 +876,7 @@ int Fix(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time) 
 		if(k < 0) break;
 		inext = i;
 		while((*((*p_Seq)[nseq]))[++inext] == 0);
-		if(k >= 1) {					/* Ignoring silences "-" except if specs attached */
+		if(k >= 1) {	// Ignoring silences "-" except if specs attached
 			if(k >= Maxevent) {
 				BPPrintMessage(0,odError,"=> Err. Fix(). k >= Maxevent");
 				return(ABORT);
@@ -890,11 +890,9 @@ int Fix(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time) 
 						t2 = (*p_time2)[i] = t1 + (Milliseconds) ((*p_Instance)[k].alpha * (*p_Dur)[j]);
 				//		BPPrintMessage(0,odInfo,"Fix() time pattern k = %ld j = %ld alpha = %.2f Dur = %.2f, t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(*p_Dur)[j],(long)t1,(long)t2);
 						}
-					else {
+					else { // Sound-object
 						if((*p_PivMode)[j] == PERCENT)
-							t1 = (*p_T)[i]
-								- (Milliseconds) ((*p_Instance)[k].dilationratio * (*p_Dur)[j]
-								* (*p_PivPos)[j] / 100.);
+							t1 = (*p_T)[i] - (Milliseconds) ((*p_Instance)[k].dilationratio * (*p_Dur)[j] * (*p_PivPos)[j] / 100.);
 						else
 							t1 = (*p_T)[i] - (*p_PivPos)[j];
 						RandomTime(&t1,(*p_Instance)[k].randomtime,(*p_Instance)[k].alpha * (*p_Dur)[j],&dont_randomize);
@@ -906,7 +904,7 @@ int Fix(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time) 
 				//		BPPrintMessage(0,odInfo,"Fix() k = %ld j = %ld alpha = %.2f Dur = %ld t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)(*p_Dur)[j],(long)t1,(long)t2);
 						}
 					}
-				else {	/* Simple note or silence */
+				else {	// Simple note or silence
 					t1 = (*p_T)[i];
 					if(j == 1) { // Added by BB 2022-02-24
 						(*p_time1)[i] = t1;
@@ -929,7 +927,7 @@ int Fix(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time) 
 					}
 				}
 			else {
-				/* Out-time sound-object */
+				// Out-time sound-object 
 				j = -j;
 				t1 = t2 = (*p_time1)[i] = (*p_time2)[i] = (*p_T)[i];
 				}
@@ -1847,14 +1845,14 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 	}
 
 
-int RandomTime(Milliseconds *p_t1,short randomtime,Milliseconds duration,short *p_dont_randomize) {
+int RandomTime(Milliseconds *p_t1,int randomtime,Milliseconds duration,short *p_dont_randomize) {
 	float x;
 
 	if(randomtime == 0) return(OK);
-	if(duration < (2 * randomtime)) {
+	/* if(duration < (2 * randomtime)) { 2026-08-10
 		*p_dont_randomize = TRUE;
 		return(OK);
-		}
+		} */
 	if(*p_dont_randomize) {
 		*p_dont_randomize = FALSE;
 		return(OK);

@@ -52,7 +52,7 @@ int MakeEventListFile(OutFileInfo* finfo) {
 		}
 	else EventListPtr = fout;
 	BPPrintMessage(0,odInfo,"👉 An event list file has been created\n");
-	WriteToEventListFile("event,item,k,id proto,label,start time,end time,velocity,random velocity,trunc beg,trunc end,dilation ratio beta,dilation ratio alpha,cycles,cyclic after,force integer number of cycles,articul,preroll,postroll,transposition,transpose first,expand value,expand key,volume start,volume end,volume channel,volume mode (2 = continuous),modulation start,modulation end,modulation channel,modulation mode,panoramic start,panoramic end,panoramic channel,panoramic mode,pressure start,pressure end,pressure channel, pressure mode,pitchbend start,pitchbend end,pitchbend channel,pitchbend mode,microtonal scale,block key");
+	WriteToEventListFile("event,item,k,id proto,label,start time,end time,random time,velocity,random velocity,velocity control,trunc beg,trunc end,dilation ratio beta,dilation ratio alpha,cycles,cyclic after,force integer number of cycles,articul,preroll,postroll,transposition,transpose first,expand value,expand key,volume start,volume end,volume channel,volume mode (2 = continuous),modulation start,modulation end,modulation channel,modulation mode,panoramic start,panoramic end,panoramic channel,panoramic mode,pressure start,pressure end,pressure channel, pressure mode,pitchbend start,pitchbend end,pitchbend channel,pitchbend mode,microtonal scale,block key");
 	return result;
 	}
 
@@ -171,13 +171,15 @@ int AddEventToList(int k) {
 		expand = 0;
 		xpandkey = -1;
 		}
-	int velocity = (*p_Instance)[k].velocity;
+	int velocity = ByteToInt((*p_Instance)[k].velocity);
 	int rndvel = (*p_Instance)[k].rndvel;
+	int velcontrol = (*p_Instance)[k].velcontrol;
+	int randomtime = (*p_Instance)[k].randomtime;
 	shift = PianorollShift - MIDIsetUpTime;
 	starttime = (*p_Instance)[k].starttime + shift;
 	endtime = (*p_Instance)[k].endtime  + shift;
 	EventNumber++;
-	my_sprintf(line,"#%ld,%ld,(%d),%d,%s,%ld,%ld,%d,%d,%ld,%ld,%.4f,%.4f,%d,%d,%d,%d,%.4f,%.4f,%d,%d,%.4f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%d",EventNumber,ItemNumber,k,id_proto,label,starttime,endtime,velocity,rndvel,(*p_Instance)[k].truncbeg,(*p_Instance)[k].truncend,dilationratio,(*p_Instance)[k].alpha,(*p_Instance)[k].ncycles,cyclic_after,forceintegercycles,articul,preroll,postroll,trans,transposefirst,expand,xpandkey,volumestart,volumeend,volumechannel,volumemode,modulationstart,modulationend,modulationchannel,modulationmode,panoramicstart,panoramicend,panoramicchannel,panoramicmode,pressurestart,pressureend,pressurechannel,pressuremode,pitchbendstart,pitchbendend,pitchbendchannel,pitchbendmode,scalename,blockkey);
+	my_sprintf(line,"#%ld,%ld,(%d),%d,%s,%ld,%ld,%d,%d,%d,%d,%ld,%ld,%.4f,%.4f,%d,%d,%d,%d,%.4f,%.4f,%d,%d,%.4f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%d",EventNumber,ItemNumber,k,id_proto,label,starttime,endtime,randomtime,velocity,rndvel,velcontrol,(*p_Instance)[k].truncbeg,(*p_Instance)[k].truncend,dilationratio,(*p_Instance)[k].alpha,(*p_Instance)[k].ncycles,cyclic_after,forceintegercycles,articul,preroll,postroll,trans,transposefirst,expand,xpandkey,volumestart,volumeend,volumechannel,volumemode,modulationstart,modulationend,modulationchannel,modulationmode,panoramicstart,panoramicend,panoramicchannel,panoramicmode,pressurestart,pressureend,pressurechannel,pressuremode,pitchbendstart,pitchbendend,pitchbendchannel,pitchbendmode,scalename,blockkey);
 	if(WriteToEventListFile(line) != OK) return MISSED;
 	return(OK);
 	}
