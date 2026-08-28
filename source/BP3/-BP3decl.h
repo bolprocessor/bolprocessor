@@ -105,6 +105,7 @@ extern char ****p_Bol,****p_Patt,****p_Flagname,****p_Script,
 extern tokenbyte ***pp_Scrap,**p_Scrap,**p_Initbuff;
 extern char **p_InitScriptLine;
 extern unsigned Seed,UsedRandom;
+extern int IgnoreFields,TraceZouleb;
 extern short CurrentVref,LastVref;
 extern int ScriptW,CurrentChannel;
 extern long CurrentDir,LastDir,OldModulation;

@@ -40,6 +40,7 @@
 #include <stdlib.h>  /* realloc, free — for iterative PolyExpand stack */
 
 int trace_polymake = 0;
+int check_poly_after_zouleb = 0;
 
 int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	tokenbyte m,p,**p_b,**ptr;
@@ -47,8 +48,8 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	int k,krep,rep,level,r,**p_nseq,**p_nseqmax,maxlevel,needalphabet,foundinit,overflow,toofast,
 		numberouttimeinseq,longestseqouttime,numbertoofast,longestnumbertoofast,morelines,max_quantization;
 	double P,Q,tempo,tempomax,prodtempo,fmaxseq,nsymb,lcm,kpress,thelimit,speed,scaling,s,limit1,limit2,imax,x,firstscaling,scalespeed,maxscalespeed;
-	unsigned long i,maxid,pos_init,gcd,numberprolongations;
-	long newquantize,newquantize2,totalbytes,a,b;
+	unsigned long i,ilimit,maxid,pos_init,gcd,numberprolongations,endprocess;
+	long newquantize,newquantize2,totalbytes,a,b,ichunk;
 
 	if(CheckEmergency() != OK) return(ABORT);
 
@@ -105,6 +106,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 			if(level > maxlevel) maxlevel = level;
 			level--;
 			}
+		if(check_poly_after_zouleb) DisplayCode(TRUE,i,m,p);
 		}
 	if(level != 0) {	/* '{' and '}' not balanced */
 		BPPrintMessage(0,odError,"=> Incorrect polymetric expression(s): '{' and '}' are not balanced. Can't proceed further...\n");
@@ -113,55 +115,67 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 
 	pos_init = ZERO;
 	level = 0;
+	
+// NeedZouleb = 1; 
+
 	if(NeedZouleb > 0) { 
 		BPPrintMessage(0,odInfo,"👉 Applying serial tools to modify order of sequence(s)\n");
-		do {
-			r = Zouleb(&p_b,&level,&pos_init,FALSE,FALSE,0,FALSE,FALSE,NOSEED);
-			if(r != OK) goto QUIT;
+		ichunk = ilimit = ZERO;
+		endprocess = ZERO;
+		level = 0;
+		if(!IgnoreFields) {
+			r = Zouleb(&p_b,&pos_init,0,0,FALSE,0,Infpos,NOSEED,&ilimit,&endprocess,FALSE);
+			if(r != OK && r != STOP) goto QUIT;
+			DeleteSerialTools(&p_b);
 			}
-		while(level >= 0);
-		maxlevel++;	// A pair of brackets {} may have been created around a sound-object at the deepest level
+		else {
+			BPPrintMessage(0,odInfo,"=> The “Ignore field separators” is set. We will use the old algorithm!\n");
+			r = ZoulebOld(&p_b,&level,&pos_init,FALSE,FALSE,0,FALSE,FALSE,FALSE);
+			}
 		if(TraceProduce && !TraceDetail) {
 			Print(wTrace,"\nResult = ");
 			if((r=PrintWorkString(FALSE,wTrace,FALSE,FALSE,&p_b)) != OK) return(r);
 			}
-		}
-
-	if(Beta && NeedZouleb > 0) {
-		my_sprintf(Message,"NeedZouleb = %ld in polymetric expression",(long)NeedZouleb);
-		Println(wTrace,Message);
+		maxlevel++;	// A pair of brackets {} may have been created around a sound-object at the deepest level
 		}
 
 	if(ShowMessages) ShowMessage(TRUE,wMessage,"Expanding polymetric expression...");
 
 	needalphabet = FALSE;
 
+ 	if(check_poly_after_zouleb) BPPrintMessage(0,odInfo,"\n\n===\n\n");
+
 	for(i=ZERO,level=0; ; i+=2L) {
 		m = (*p_b)[i]; p = (*p_b)[i+1];
 		if(m == TEND && p == TEND) break;
+		if(check_poly_after_zouleb) DisplayCode(TRUE,i,m,p);
 		if(m == T3) {
 			if(p > 1) needalphabet = TRUE; 
 			continue;
 			}
 		if(m == T7 && p < 16384) needalphabet = TRUE;
 		if(m != T0) continue;
-		if(p == 12 || p == 22) {	/* '{' */
+		if(p == 12 || p == 22) {	// '{'
 			level++;
-			if(level > maxlevel) {
-				BPPrintMessage(0,odError,"=> Err. PolyMake(). level > maxlevel");
-				r = ABORT; goto QUIT;
+			if(FALSE && level > maxlevel) {
+				BPPrintMessage(0,odError,"=> Err. PolyMake(). level (%d) > maxlevel (%d). i = %ld, preceding token: %d %d, next tokens: %d %d, %d %d\n",level,maxlevel,i,(*p_b)[i-2],(*p_b)[i-1],(*p_b)[i+2],(*p_b)[i+3],(*p_b)[i+4],(*p_b)[i+5]);
+				r = OK; goto QUIT;
 				}
 			continue;
 			}
-		if(p == 13 || p == 23) {	/* '}' */
+		if(p == 13 || p == 23) {	// '}'
 			if(level < 1) {
-				BPPrintMessage(0,odError,"=> Err. PolyMake(). {} not balanced");
-				r = ABORT; goto QUIT;
+				BPPrintMessage(0,odError,"=> Err. PolyMake(). {} not balanced: too many '}', i = %ld\n",i);
+				level = 1;
+		//		r = ABORT; goto QUIT;
 				}
-			level--;
+			else level--;
 			continue;
 			}
 		}
+	
+	// return(ABORT);
+
 	Maxconc += 1;
 	if(needalphabet && !ObjectMode) {
 		if(!NeedAlphabet) {
@@ -1231,11 +1245,11 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 			ptempo = p;
 			i += 2L;
 			m = (*p_b)[i];
-			if(m != T43) {
-				BPPrintMessage(0,odError,"=> Err. PolyMake(). m != T43");
+	/*		if(m != T43) {
+				BPPrintMessage(0,odError,"=> Err. PolyMake(). m != T43, i = %ld\n",i);
 				i -= 2L;
 				continue;
-				}
+				} */
 			qtempo = (*p_b)[i+1L];
 			if(firstistempo) {
 				(*p_firstistempo)[a] = TRUE;

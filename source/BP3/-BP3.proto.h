@@ -678,12 +678,25 @@ int PolyExpand(tokenbyte**,tokenbyte***,unsigned long,unsigned long*,unsigned lo
 int Check_ic(unsigned long,unsigned long**,int,tokenbyte****);
 int CheckPeriodOrLine(int,int*,int*,FILE*,TextHandle,int*,unsigned long,int*);
 int StoreChunk(ChunkPointer***,long*,long*,unsigned long,unsigned long);
-int Zouleb(tokenbyte***,int*,unsigned long*,int,int,int,int,int,int);
+int StoreChunkOld(ChunkPointer ***pp_chunk,long *p_i,long *p_imax,unsigned long origin,
+	unsigned long end);
+int Zouleb(tokenbyte***,unsigned long*,int,int,int,int,long,int,unsigned long*,unsigned long*,int);
+int ZoulebOld(tokenbyte ***pp_a,int *p_level,unsigned long *p_pos_init,int retro,
+	int rndseq,int rotate,int repeat,int isbracket,int orgseed);
+int DeleteSerialTools(tokenbyte***);
+unsigned long NextEnd(tokenbyte***,unsigned long,int*);
+void DisplayCode(int,unsigned long, tokenbyte, tokenbyte);
 int GetChunk(ChunkPointer**,long*,long,int,int,int,unsigned long*,unsigned long*,unsigned long*,tokenbyte**,tokenbyte**,long**,int,int*);
+int GetChunkOld(ChunkPointer **p_chunk,long *p_ichunk,long ichunkmax,int rndseq,
+	int retro,int rotate,unsigned long *p_ib,
+	unsigned long *p_maxib,unsigned long *p_i,tokenbyte **p_a,tokenbyte **p_b,
+	long **p_index,int istempbracket,int *p_more);
 int CheckBuffer(unsigned long,unsigned long*,tokenbyte***);
 int ExpandKey(int,short,short);
 int MakeRandomSequence(long***,long,int,int);
-int RotateSequence(long***,long,int);
+int MakeRandomSequenceOld(long ***pp_x,long size,int repeat,int store);
+int RotateSequence(long***,long,long,int);
+int RotateSequenceOld(long ***pp_x,long size,int rotate);
 int ReseedOrShuffle(int);
 int GetWeightsFromFile(void);
 int NormaliseWeights(void);

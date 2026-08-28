@@ -1279,7 +1279,7 @@ FINDCYCLES:
 		if((ncycles - (int)ncycles) > 0.5) ncycles = ceil(ncycles);
 		else ncycles = floor(ncycles);
 		}
-//	BPPrintMessage(0,odInfo,"@@@ j = %d, ncycles = %.4f\n",j,ncycles);
+//	BPPrintMessage(0,odInfo,"@@@ j = %d, ncycles = %.4f, CyclicMode = %d\n",j,ncycles,(int)(*p_CyclicMode)[j]);
 	goto SORTIR;
 	}
 

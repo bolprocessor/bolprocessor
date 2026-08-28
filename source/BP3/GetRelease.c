@@ -1610,26 +1610,25 @@ return(OK);
 }
 
 
-int CheckBuffer(unsigned long i,unsigned long *p_maxi,tokenbyte ***pp_c)
-{
-tokenbyte **ptr;
-double size;
+int CheckBuffer(unsigned long i,unsigned long *p_maxi,tokenbyte ***pp_c) {
+	tokenbyte **ptr;
+	double size;
 
-while(i > (*p_maxi)) {
-	size = ((*p_maxi) * 3.) / 2.;
-	if(size >= (double) ULONG_MAX) {
-		BPPrintMessage(0,odError,"Structure is getting too large. Task will be cancelled");
-		return(ABORT);
+	while(i > (*p_maxi)) {
+		size = ((*p_maxi) * 3.) / 2.;
+		if(size >= (double) ULONG_MAX) {
+			BPPrintMessage(0,odError,"=> Structure is getting too large. Task will be cancelled\n");
+			return(ABORT);
+			}
+		(*p_maxi) = size;
+		ptr = (*pp_c);
+		if((ptr=(tokenbyte**) IncreaseSpace((Handle)ptr)) == NULL) {
+			return(ABORT);
+			}
+		(*pp_c) = ptr;
 		}
-	(*p_maxi) = size;
-	ptr = (*pp_c);
-	if((ptr=(tokenbyte**) IncreaseSpace((Handle)ptr)) == NULL) {
-		return(ABORT);
-		}
-	(*pp_c) = ptr;
+	return(OK);
 	}
-return(OK);
-}
 
 
 /*	FIXME ? The return value of ThreeOverTwo() is being used to abort every

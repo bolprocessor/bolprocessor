@@ -175,6 +175,7 @@ char ****p_Bol,****p_Patt,****p_Flagname,****p_Script,****p_Var,****p_Homo,****p
 tokenbyte ***pp_Scrap,**p_Scrap,**p_Initbuff;
 char **p_InitScriptLine;
 unsigned Seed,UsedRandom;
+int IgnoreFields,TraceZouleb;
 short CurrentVref,LastVref;
 int ScriptW,CurrentChannel;
 int imageHits;

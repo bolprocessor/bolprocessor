@@ -151,6 +151,8 @@ Images
 Various issues
 --------------
 
+- Implement again _transpose(Kx) and _keyxpand([note],Kx).
+- Try to make sense of 'truebracket' and 'imbedded' in Polymetric.c
 - Templates can't be created with rules containing integers as silences. This can be solved in MakeTemplate().
 - In the trace of -gr.Mozart, _scale(Cmaj,0) is misrepresented as _scale(K133=0).
 - Currently, the console crashes if the list of TEMPLATES in a grammar is not terminated with a solid line "-----". The interface takes care of this by adding the missing terminating line.

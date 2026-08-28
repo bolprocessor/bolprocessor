@@ -674,6 +674,10 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"PanoramicController") == 0) PanoramicController = intvalue;
 		else if(strcmp(key,"SamplingRate") == 0) SamplingRate = intvalue;
 		else if(strcmp(key,"StopPauseContinue") == 0) StopPauseContinue = intvalue;
+
+		else if(strcmp(key,"IgnoreFields") == 0) IgnoreFields = intvalue;
+		else if(strcmp(key,"TraceZouleb") == 0) TraceZouleb = intvalue;
+
 		else if(strcmp(key,"DefaultBlockKey") == 0) DefaultBlockKey = intvalue;
 		else if(strcmp(key,"B#_instead_of_C") == 0) NameChoice[0] = intvalue;
 		else if(strcmp(key,"Db_instead_of_C#") == 0) NameChoice[1] = intvalue;
@@ -1015,6 +1019,7 @@ NEXTBOL:
 	(*p_AlphaCtrl)[j] = (*p_line)[i++]-'0';
 	SaveIntAsJson(sojson,"AlphaCtrl","boolean","Alpha control",(int)(*p_AlphaCtrl)[j]);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* rescalemode */
+	if(s == -2) s = 1; // Fixing old bug
 	(*p_RescaleMode)[j] = s;
 	thismode(s,mode);
 	SaveStringAsJson(sojson,"RescaleMode","enum","Rescale mode",mode);
@@ -1029,6 +1034,7 @@ NEXTBOL:
 		}
 	SaveFloatAsJson(sojson,"AlphaMax","","Maximum expansion",(*p_AlphaMax)[j]);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* delaymode */
+	if(s == -2) s = 1; // Fixing old bug
 	(*p_DelayMode)[j] = s;
 	thismode(s,mode);
 	SaveStringAsJson(sojson,"DelayMode","enum","Delay mode",mode);
@@ -1036,6 +1042,7 @@ NEXTBOL:
 	(*p_MaxDelay)[j] = k;
 	if(iv > 4) {
 		if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* forwardmode */
+		if(s == -2) s = 1; // Fixing old bug
 		(*p_ForwardMode)[j] = s;
 		thismode(s,mode);
 		SaveStringAsJson(sojson,"ForwardMode","enum","Forward mode",mode);
@@ -1053,6 +1060,7 @@ NEXTBOL:
 	SaveStringAsJson(sojson,"BreakTempoMode","enum","Break tempo mode",mode); */
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR; // ???
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* contbegmode */
+	if(s == -2) s = 1; // Fixing old bug
 	(*p_ContBegMode)[j] = s;
 //	BPPrintMessage(0,odInfo,"@@@ p_ContBegMode = %s\n",s);
 	thismode(s,mode);
@@ -1065,6 +1073,7 @@ NEXTBOL:
 		}
 	SaveLongAsJson(sojson,"MaxBegGap","ms","Max gap at beginning",(*p_MaxBegGap)[j]);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* contendmode */
+	if(s == -2) s = 1; // Fixing old bug
 	(*p_ContEndMode)[j] = s;
 	thismode(s,mode);
 	SaveStringAsJson(sojson,"ContEndMode","enum","Continuity at end mode",mode);
@@ -1075,6 +1084,7 @@ NEXTBOL:
 		}
 	SaveLongAsJson(sojson,"MaxEndGap","ms","Max gap at end (ms or percent)",(*p_MaxEndGap)[j]);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* coverbegmode */
+	if(s == -2) s = 1; // Fixing old bug
 	(*p_CoverBegMode)[j] = s;
 	thismode(s,mode);
 	SaveStringAsJson(sojson,"CoverBegMode","enum","Cover beginning mode",mode);
@@ -1082,6 +1092,7 @@ NEXTBOL:
 	(*p_MaxCoverBeg)[j] = k;
 	SaveLongAsJson(sojson,"MaxCoverBeg","ms or percent","Max cover at beginning",k);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* coverendmode */
+	if(s == -2) s = 1; // Fixing old bug
 	(*p_CoverEndMode)[j] = s;
 	thismode(s,mode);
 	SaveStringAsJson(sojson,"CoverEndMode","enum","Cover end mode",mode);
@@ -1091,6 +1102,7 @@ NEXTBOL:
 	SaveLongAsJson(sojson,"MaxCoverEnd","ms or percent","Max cover at end",k);
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo,"MaxCoverEnd = %ld\n",(*p_MaxCoverEnd)[j]);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* truncbegmode */
+	if(s == -2) s = 1; // Fixing old bug
 	(*p_TruncBegMode)[j] = s;
 	thismode(s,mode);
 	SaveStringAsJson(sojson,"TruncBegMode","enum","Truncate beginning mode",mode);
@@ -1100,12 +1112,14 @@ NEXTBOL:
 	SaveLongAsJson(sojson,"MaxTruncBeg","ms or percent","Max truncate beginning",k);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* truncendmode */
 	(*p_TruncEndMode)[j] = s;
+	if(s == -2) s = 1; // Fixing old bug
 	thismode(s,mode);
 	SaveStringAsJson(sojson,"TruncEndMode","enum","Truncate end mode",mode);
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 	(*p_MaxTruncEnd)[j] = k;
 	SaveLongAsJson(sojson,"MaxTruncEnd","ms or percent","Max truncate end",k);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	if(s == -2) s = 1; // Fixing old bug
 	(*p_PivMode)[j] = s;
 	thismode(s,mode);
 	SaveStringAsJson(sojson,"PivMode","enum","Pivot mode",mode);
@@ -1134,7 +1148,7 @@ NEXTBOL:
 	(*p_OkMap)[j] = s;
 	SaveIntAsJson(sojson,"OkMap","boolean","Accept key expand changes",s);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
-		(*p_OkVelocity)[j] = s;
+	(*p_OkVelocity)[j] = s;
 	SaveIntAsJson(sojson,"OkVelocity","boolean","Accept velocity changes",s);
 	if(ReadFloat(sofile,&r,&pos) == MISSED) goto ERR;
 	(*p_PreRoll)[j] = r;
@@ -1143,14 +1157,17 @@ NEXTBOL:
 	(*p_PostRoll)[j] = r;
 	SaveFloatAsJson(sojson,"Postroll","ms","Postroll",r);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	if(s == -2) s = 1; // Fixing old bug
 	(*p_PreRollMode)[j] = s;
 	thismode(s,mode);
 	SaveStringAsJson(sojson,"PreRollMode","enum","Preroll mode",mode);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	if(s == -2) s = 1; // Fixing old bug
 	(*p_PostRollMode)[j] = s;
 	thismode(s,mode);
 	SaveStringAsJson(sojson,"PostRollMode","enum","Postroll mode",mode);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
+	if(s == -2) s = 1; // Fixing old bug
 	(*p_CyclicMode)[j] = s;
 	thismode(s,mode);
 	SaveStringAsJson(sojson,"CyclicMode","enum","Cyclic mode",mode);

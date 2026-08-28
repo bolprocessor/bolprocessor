@@ -6,14 +6,19 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
------
-2026-08-07 -> 2026-08-10 (version 3.5.1)
-
-The event list file now displays the performance parameters attached to sound objects (e.g. volume and pitch bend), including those that change continuously. It also displays the names of scales used for microtonality, if any.
-Values of _rndtime() are no longer limited by the durations of events.
+2026-08-28 (version 3.5.2)
+The Zouleb() procedure has been completely redesigned to handle self-embedded structures such as the following:
+_rotate(-1) {_rotate(2) _rotate(-1) a b c d}
+The syntax of serial tools that change the order of events has been updated to a more intuitive version, as demonstrated in the Data project "da.trySerialTools". However, the old syntax was used to produce emblematic pieces such as "gr.Visser.Shapes" and "gr.Visser.Waves". Therefore, the old syntax can be activated by selecting the "Ignore field separators" option in the settings.
+More explanations on the https://bolprocessor.org/serial-tools/ page.
 
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/
+
+-----
+2026-08-07 -> 2026-08-10 (version 3.5.1)
+The event list file now displays the performance parameters attached to sound objects (e.g. volume and pitch bend), including those that change continuously. It also displays the names of scales used for microtonality, if any.
+Values of _rndtime() are no longer limited by the durations of events.
 
 -----
 2026-08-03 -> 2026-08-06 (version 3.5.0)

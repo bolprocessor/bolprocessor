@@ -124,8 +124,7 @@ int MyDisposeHandle(Handle *p_h) {
 	int i;
 	if(Panic) return ABORT;
 	if(p_h == NULL || *p_h == NULL) {
-	//	BPPrintMessage(0,odError,"=> Err. MyDisposeHandle. p_h or *p_h == NULL\n");
-		*p_h = NULL;
+	//	*p_h = NULL; 2026-08-15
 		return OK;
 		}
 	s_handle_priv*	h = (s_handle_priv*) *p_h;
@@ -133,11 +132,6 @@ int MyDisposeHandle(Handle *p_h) {
 		BPPrintMessage(0,odError,"=> Err. MyDisposeHandle(). h->memblock == NULL\n");
 		return(ABORT);
 		}
-/*	for(i = 0; i < 5000; i++) { // 2024-05-20
-		if(mem_ptr[i] == (Handle)(*p_h)) {
-			hist_mem_ptr[i] = 2;
-			}
-		} */
 	if(h->size < 1) {
 		BPPrintMessage(0,odError,"=> Err. MyDisposeHandle(). size < 1\n");
 		*p_h = NULL;
@@ -146,9 +140,6 @@ int MyDisposeHandle(Handle *p_h) {
 	MemoryUsed -= (long) h->size;
 	free(h->memblock);
 	free(h);
-/*	if(check_memory_use && MemoryUsed < MemoryUsedInit) {
-		BPPrintMessage(0,odInfo,"=> WARNING! MemoryUsed (%ld) < MemoryUsedInit (%ld) in %s/%s\n",(long)MemoryUsed,(long)MemoryUsedInit,__FILE__,__FUNCTION__);
-		} */
 	*p_h = NULL;
 	return OK;
 	}

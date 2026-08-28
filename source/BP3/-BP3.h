@@ -36,7 +36,7 @@
 #ifndef _H_BP3
 #define _H_BP3
 
-#define SHORT_VERSION "3.5.1"
+#define SHORT_VERSION "3.5.2"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -534,7 +534,7 @@ enum {
 #define MAXWIND 15	/* number of windows */
 #define MAXDIAL 25	/* number of dialogs */
 #define WMAX 40		/* number of windows = MAXDIAL + MAXWIND */
-#define MAXMESSAGES 5000 // Maximum number of messsages (0 if unlimited)
+#define MAXMESSAGES 50000 // Maximum number of messsages (0 if unlimited)
 
 // Strings ID's
 #define DialogStringsBaseID 300

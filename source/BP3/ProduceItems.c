@@ -43,8 +43,8 @@ int trace_produce_all = 0;
 int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 	tokenbyte **p_buff,***pp_buff,**p_a,***pp_a;
 	int i,ifunc,j,ch,splitmem,r,undefined,datamode,weightloss,hastabs,maxsounds,check,changed;
-	long endofselection,size,lengthA;
-	unsigned long time_end_compute;
+	long endofselection,size,lengthA,ichunk;
+	unsigned long time_end_compute,ilimit,pos_init,endprocess;
 
 	ComputeOn++;
 	if(MaxConsoleTime > 0L) BPPrintMessage(1,odInfo,"Maximum computation time allowed = %ld seconds\n",MaxConsoleTime);
@@ -325,16 +325,21 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 			}
 		goto MAKE;
 		}
-	if(OutBPdata && NeedZouleb > 0) { // 2026-07-13
+/*  if(OutBPdata && NeedZouleb > 0) {  // Deleted 2028-08-27
 		unsigned long ix = ZERO;
 		int level = 0;
-		if(ShowMessages) BPPrintMessage(1,odInfo,"👉 Applying serial tools to modify order of sequence(s) in Compute()\n");
-		do {
-			r = Zouleb(pp_a,&level,&ix,FALSE,FALSE,0,0,FALSE,NOSEED);
-			if(r != OK) break;
+		BPPrintMessage(1,odInfo,"=> 👉 Applying serial tools to modify order of sequence(s) in Compute()\n");
+		ichunk = ilimit = pos_init = ZERO;
+		endprocess = ZERO;
+		r = Zouleb(pp_a,&pos_init,0,0,FALSE,0,Infpos,NOSEED,&ilimit,&endprocess,FALSE);
+		if(r != OK && r != STOP) goto QUIT;
+		DeleteSerialTools(pp_a);
+		if(TraceProduce && !TraceDetail) {
+			Print(wTrace,"\nResult = ");
+			if((r=PrintWorkString(FALSE,wTrace,FALSE,FALSE,pp_a)) != OK) return(r);
 			}
-		while(level >= 0);
-		}
+		NeedZouleb = 0;
+		} */
 	if(!StepProduce && !TraceProduce && !PlaySelectionOn
 		&& ((r=ShowItem(FALSE,pp_a,repeat,PROD,FALSE)) == ABORT || r == EXIT)) {
 			BPPrintMessage(0,odError, "=> Failed in ShowItem()\n");

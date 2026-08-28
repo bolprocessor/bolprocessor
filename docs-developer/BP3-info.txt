@@ -20,7 +20,7 @@ T0 7 ¥  (used as a beat separator. Normal period is also accepted)
 T0 8 (
 T0 9 )
 T0 10 S
-T0 11 T1 x T1 y / speed up ((TOKBASE * x) + y) times
+T0 11 /   T0 T1 x T1 y = speed up ((TOKBASE * x) + y) times
 T0 12 {
 T0 13 }
 T0 14 ,
@@ -73,8 +73,8 @@ T10 x MIDI channel assignment _chan(x)
 T11 x Velocity assignment _vel(x)  [default 64] (current channel)  -1 < x < 128
 	if x > 127 the value assigned is ParamValue[x-128]
 
-T12 0 _velcont
-T12 1 _velstep
+T12 0 _velstep
+T12 1 _velcont
 T12 2 _modstep
 T12 3 _modcont
 T12 4 _pitchstep

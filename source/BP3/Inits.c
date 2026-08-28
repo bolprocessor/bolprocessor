@@ -293,6 +293,8 @@ int Inits(void) {
 	Nplay = 1;	/* Number of times each item is played */
 	SynchroSignal = OFF;
 	MaxDeriv = MAXDERIV;
+	IgnoreFields = TraceZouleb = FALSE;
+
 
 	Infneg = LONG_MIN;
 	Veryneg = Infneg + 1;
