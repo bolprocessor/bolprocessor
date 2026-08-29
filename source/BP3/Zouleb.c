@@ -617,18 +617,19 @@ int GetChunk(ChunkPointer **p_chunk,long *p_ichunk,long nchunks,int rndseq,
 unsigned long NextEnd(tokenbyte ***pp_a,unsigned long iorg,int *p_next_is_bracket) {
 	// Find the end of _rotate() or _rndseq() or _retro or polymetric structure
 	tokenbyte m,p;
-	int level,is_poly,is_field,is_ordseq,is_rndseq,is_retro;
+	int level,is_poly,is_field,is_ordseq,is_rndseq,is_retro,is_rotate;
 	unsigned long i;
 
 	level = 0; i = iorg;
-	is_poly = is_field = is_ordseq = is_rndseq = is_retro = (*p_next_is_bracket) = FALSE;
+	is_poly = is_field = is_ordseq = is_rndseq = is_retro = is_rotate = (*p_next_is_bracket) = FALSE;
 	while(TRUE) {
 		m = (**pp_a)[i]; p = (**pp_a)[i+1];
 		if(m == TEND && p == TEND) return(i);
 		if(i == iorg && m == T0 && p == 14) is_field = TRUE; // ','
-		if(i == iorg && m == T12 && p == 24) is_ordseq = TRUE; // ','
-		if(i == iorg && m == T12 && p == 22) is_rndseq = TRUE; // ','
-		if(i == iorg && m == T12 && p == 21) is_retro = TRUE; // ','
+		if(i == iorg && m == T12 && p == 24) is_ordseq = TRUE; // '_ordseq'
+		if(i == iorg && m == T12 && p == 22) is_rndseq = TRUE; // '_rndseq'
+		if(i == iorg && m == T12 && p == 21) is_retro = TRUE; // '_retro'
+		if(i == iorg && m == T39) is_rotate = TRUE; // '_rotate'
 		if(m == T0 && (p == 12 || p == 22)) {	// '{', temp '{'
 			if(i > iorg) level++;
 			else is_poly = TRUE;
@@ -648,7 +649,7 @@ unsigned long NextEnd(tokenbyte ***pp_a,unsigned long iorg,int *p_next_is_bracke
 				}
 			if(m == T12 && (p == 21 || p == 22)) {
 				//  _retro, _rndseq
-				if(!is_retro && !is_rndseq) (*p_next_is_bracket) = TRUE;
+				if(!is_retro && !is_rndseq && !is_rndseq && !is_rotate) (*p_next_is_bracket) = TRUE;
 				return(i);
 				}
 			}
