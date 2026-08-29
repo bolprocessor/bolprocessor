@@ -118,7 +118,7 @@ T15 x _pitchbend(x)  (current channel)     -1 < x < 16385
 
 T16 x _press(x) (current channel)     -1 < x < 128
 	if x > 127 the value assigned is ParamValue[x-128]
-
+ 
 T17 x _switchon(i,channel)  x = channel * 128 + i
 
 T18 x _switchoff(i,channel)  x = channel * 128 + i

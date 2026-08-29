@@ -81,7 +81,7 @@ int Zouleb(tokenbyte ***pp_a,unsigned long *p_pos_init,int level,int retro,int r
 	ibmax = FIELDSIZE;
 	more = 0;
 
-	if(TraceZouleb) BPPrintMessage(0,odInfo,"@ Creating p_chunk table\n");
+	// if(TraceZouleb) BPPrintMessage(0,odInfo,"@ Creating p_chunk table\n");
 	p_chunk = (ChunkPointer**) GiveSpace((Size)ichunkmax * sizeof(ChunkPointer));
 	if(p_chunk == NULL) return(ABORT);
 
@@ -110,7 +110,7 @@ int Zouleb(tokenbyte ***pp_a,unsigned long *p_pos_init,int level,int retro,int r
 			}
 		m = (**pp_a)[i]; p = (**pp_a)[i+1];
 		if(TraceZouleb) DisplayCode(TRUE,i,m,p);
-		if(rndseq) BPPrintMessage(0,odInfo,"§§§rand§§§\n");
+	//	if(rndseq) BPPrintMessage(0,odInfo,"§§§rand§§§\n");
 		if(m == TEND && p == TEND) {
 			if(TraceZouleb) 
 				BPPrintMessage(0,odInfo,"Found TEND\n");
@@ -197,10 +197,10 @@ int Zouleb(tokenbyte ***pp_a,unsigned long *p_pos_init,int level,int retro,int r
 					if((result = Zouleb(pp_a,&i,++level,retro,TRUE,rotate,rotate_init,seed,p_ilimit,p_endprocess,repeat)) != OK)
 						goto EXITZOULEB;
 					level--;
-					rndseq = FALSE; // Needed for last items of -da.trySerialTools
+			//		rndseq = FALSE; // Needed for last items of -da.trySerialTools
 					if(level < 0) BPPrintMessage(0,odError,"=> Error Zouleb() level = %d\n",level);
 					if(TraceZouleb) {
-						BPPrintMessage(0,odInfo,"@ after Zouleb _rndseq, level = %d, i = %ld\n",level,i);
+						BPPrintMessage(0,odInfo,"@ after Zouleb _rndseq, level = %d, i = %ld, rndseq = %d\n",level,i,rndseq);
 						BPPrintMessage(0,odInfo,"Level %d ",level);
 						}
 					if((result = StoreChunk(&p_chunk,&ichunk,&ichunkmax,origin,end)) != OK) goto EXITZOULEB;
@@ -617,17 +617,18 @@ int GetChunk(ChunkPointer **p_chunk,long *p_ichunk,long nchunks,int rndseq,
 unsigned long NextEnd(tokenbyte ***pp_a,unsigned long iorg,int *p_next_is_bracket) {
 	// Find the end of _rotate() or _rndseq() or _retro or polymetric structure
 	tokenbyte m,p;
-	int level,is_poly,is_field,is_ordseq,is_rndseq;
+	int level,is_poly,is_field,is_ordseq,is_rndseq,is_retro;
 	unsigned long i;
 
 	level = 0; i = iorg;
-	is_poly = is_field = is_ordseq = is_rndseq = (*p_next_is_bracket) = FALSE;
+	is_poly = is_field = is_ordseq = is_rndseq = is_retro = (*p_next_is_bracket) = FALSE;
 	while(TRUE) {
 		m = (**pp_a)[i]; p = (**pp_a)[i+1];
 		if(m == TEND && p == TEND) return(i);
 		if(i == iorg && m == T0 && p == 14) is_field = TRUE; // ','
 		if(i == iorg && m == T12 && p == 24) is_ordseq = TRUE; // ','
 		if(i == iorg && m == T12 && p == 22) is_rndseq = TRUE; // ','
+		if(i == iorg && m == T12 && p == 21) is_retro = TRUE; // ','
 		if(m == T0 && (p == 12 || p == 22)) {	// '{', temp '{'
 			if(i > iorg) level++;
 			else is_poly = TRUE;
@@ -647,7 +648,7 @@ unsigned long NextEnd(tokenbyte ***pp_a,unsigned long iorg,int *p_next_is_bracke
 				}
 			if(m == T12 && (p == 21 || p == 22)) {
 				//  _retro, _rndseq
-				(*p_next_is_bracket) = TRUE;
+				if(!is_retro && !is_rndseq) (*p_next_is_bracket) = TRUE;
 				return(i);
 				}
 			}
