@@ -1215,14 +1215,14 @@ Delay between the last event of a "sound-object" and the end of its time-span in
         = date of last event - date of first event - pre-roll + post-roll
 • Related topics: "Pre-roll", "Append silence"
 ### Cyclic sound-objects
-Any sound-object may contain a periodical part starting at an arbitrary point of its
-    time-span interval (see "Periodical after").
+Any sound-object may contain a cyclic part starting at an arbitrary point of its
+    time-span interval (see "Cyclic after").
 • BP3 handles two typical cases:
-    1) The sequence of events in the periodical part must be sent again
+    1) The sequence of events in the Cyclic part must be sent again
        to the sound device when that part is repeated.  This happens for instance
        with sound-objects produced by a MIDI synthesizer.
     2) Cyclic properties are defined but there is no need to repeat the sequence in
-       the periodical part.  This happens for instance with sound-objects produced
+       the cyclic part.  This happens for instance with sound-objects produced
        by a MIDI sampler: the sampler expects BP3 to trigger the sample with a
        NoteOn and it takes care of repetitions until a NoteOff is received.
   In '-so.abc1', for instance, 'cycle1' illustrates case 1 and 'cycle2' case 2.
@@ -1231,20 +1231,20 @@ Any sound-object may contain a periodical part starting at an arbitrary point of
     This property is generally combined with "Don't strike again NoteOn's".
 • Property "Force integer number of periods" modifies durations making sure that the
     last repetition of the cyclic part is complete.
-• It is a good idea to place the object's pivot at the beginning of the periodical
+• It is a good idea to place the object's pivot at the beginning of the cyclic
     part.  See "Set pivot".
 • If a cyclic sound-object has a negative "post-roll", events falling beyond its off-setting
 	time are ignored.
-• Beware when setting the startpoint of the periodical part: the balance between
-    NoteOn's and NoteOff's should be equal in the periodical part.
+• Beware when setting the startpoint of the cyclic part: the balance between
+    NoteOn's and NoteOff's should be equal in the cyclic part.
     BP3 compensates some balance problems by avoiding two successive NoteOn's on the
     same key and channel (see "Strike NoteOn's according to default") and appending
     extra NoteOff's after the item when necessary, but an improper balance may result
     in unwanted auditive results.
 • Related topics: "OK Rescale", "Never rescale", "Dilation ratio range",
-    "Expand at will", "Compress at will", "Periodical after"
-### Periodical after
-If this option is checked then the sound-object contains a periodical part starting
+    "Expand at will", "Compress at will", "Cyclic after"
+### Cyclic after
+If this option is checked then the sound-object contains a cyclic part starting
 	at a defined point of its time-span interval.  The value (in milliseconds or
 	as a percentage of the duration) is the duration of the initial non-cyclic part.
 • If the sound-object does not have the "Expand at will" property it makes no difference
@@ -1253,10 +1253,10 @@ If this option is checked then the sound-object contains a periodical part start
     negative value.
 • Related topic: "Cyclic sound-objects".
 ### No period
-This sound-object has no periodical part.  This is a default setting.
+This sound-object has no cyclic part.  This is a default setting.
 • Related topic: "Cyclic sound-objects". 
 ### Force integer number of periods
-This property fixes acceptable durations so that the last repetition of the periodical
+This property fixes acceptable durations so that the last repetition of the cyclic
 	part is complete.
 • The property is only needed for sound-objects that do not have the "Expand at will"
     property, or that have specified limits for the "Dilation ratio range". However, it
@@ -1614,29 +1614,22 @@ This "tool" prevents the remaining part of a sequence from being modified by "_r
 A performance control for "serial music".
 In the following sequence, this "performance control" modifies pitches in range (p1,p2)
     according to a linear mapping in which q1 is the image of p1 and q2 the image of p2.
-• The tool makes changes on "simple notes" and on "sound-objects" in which the property
-    "Accept key changes" has been set to true.
-• Unlike "_keyxpand", changes do not occur during the production of a "grammar",
-    but at "performance time".
-• p1,q1,p2,q2 may be written as integers (key numbers) in range 0..127, or "simple notes"
-    using the current "note convention", e.g.: _keymap(C3,G2,D6,F6).
-• See '-gr.tryKeyMap' for typical examples.
+• The tool makes changes on "simple notes" and on "sound-objects" in which the property "Accept key changes" has been set to true.
+• p1,q1,p2,q2 may be written as integers (key numbers) in range 0..127, or "simple notes", using the current "note convention", e.g.: _keymap(C3,G2,D6,F6).
+• See '-gr.tryKeyMap' for typical examples, and read:
+https://bolprocessor.org/serial-tools/
 • Related topic: "_keyxpand"
 ### _keyxpand(p,x) [Performance control]
-A tool for "serial music".
-• In the following sequence, this "tool" multiplies by x melodic intervals relative to the
-    centre note p. For instance,
+A performance control for "serial music".
+• In the following sequence, this "tool" multiplies by x melodic intervals relative to the centre note p. For instance,
     _keyxpand(C4,-2) B3 C4 D4 E4   yields  D4 C4 G#3 E3.
-• Unlike "_keymap", this tool changes "simple notes" during the production of a "grammar".
 • x is an integer or a floating point number.
-• Just like "_retro", "_rndseq" and "_rotate", _keyxpand is applied recursively to the
-    fields of a polymetric expression.  Values are cumulated multiplicatively if the centre
-    note is the same. For instance,
-    _keyxpand(C4,-2) B3 C4 {_keyxpand(C4,-1) D4 E4}  yields  D4 C4 {E4 G#3},
-    i.e. the same as  _keyxpand(C4,-2) B3 C4 _keyxpand(C4,2) {D4 E4}.
-• _keyxpand also makes changes on "simple notes" and on "sound-objects" in which the property
-    "Accept key changes" has been set to true.
-• See '-gr.tryKeyXpand' for typical examples.
+• Just like "_retro", "_rndseq" and "_rotate", _keyxpand is applied recursively to the fields of a polymetric expression.  Values of 'x' are cumulated multiplicatively if the centre note is the same. For instance,
+    _keyxpand(C4,-2) B3 C4 {_keyxpand(C4,-1) D4 E4}  yields  D4 C4 {E4 G#4},
+i.e. the same as  _keyxpand(C4,-2) B3 C4 _keyxpand(C4,2) {D4 E4}.
+• _keyxpand also makes changes on "simple notes" and on "sound-objects" in which the property "Accept key changes" has been set to true.
+• See '-gr.tryKeyXpand' for typical examples, and read:
+https://bolprocessor.org/serial-tools/
 • Related topic: "_keymap"
 ### _tempo(x) [Performance control]
 Multiplies the tempo by 'x'

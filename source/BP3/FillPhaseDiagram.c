@@ -617,7 +617,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				}
 			goto NEXTTOKEN;
 			}
-		if(((m == T3 || m == T47) && p < Jbol) || m == T4 || m == T25	|| (m == T9 && p < Jpatt)) {
+		if(((m == T3 || m == T47) && p < Jbol) || m == T4 || m == T25 || (m == T9 && p < Jpatt)) {
 			// Sound-object or simple note or silence or time pattern
 			if(trace_diagram || trace_toofast) {
 				BPPrintMessage(1,odInfo,"\n••• m = %ld p = %ld id = %ld",(long)m,(long)p,(long)id);
@@ -642,15 +642,15 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 			nseqmem = nseq;
 			tie = FALSE;
 			if(m == T25) {
-				tie = (*(p_Tie_note[channel]))[p]; // Added by BB 2021-02-07
+				tie = (*(p_Tie_note[channel]))[p]; 
 				if(trace_diagram || trace_toofast)
 					BPPrintMessage(1,odInfo,"Tie_note? m = %d p = %d channel = %d tie =  %d\n",m,p,channel,tie);
 				}
 			else if((m == T3 || m == T47)) {
-				tie = (*(p_Tie_event[instrument]))[p]; // Added by BB 2021-02-07
+				tie = (*(p_Tie_event[instrument]))[p]; 
 				}
 			else tie = FALSE;
-			if(trace_diagram) BPPrintMessage(1,odInfo,"Tie_event m = %d, p = %d, tie = %d\n",m,p,tie);
+			if(trace_diagram) BPPrintMessage(1,odInfo,"Tie_event m = %d, p = %d, tie = %d, foundendconcatenation = %d\n",m,p,tie,(int) foundendconcatenation);
 			if(foundendconcatenation && tie) {
 				if(trace_diagram || trace_toofast)
 					BPPrintMessage(1,odInfo,"With foundendconcatenation <%d|%d> last object = %d\n",m,p,(int)kobj);
@@ -684,8 +684,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 								break;
 								}
 							}
+						objectduration = GetSymbolicDuration(TRUE,*pp_buff,m,p,id,speed,scale,channel,instrument,part,foundendconcatenation,level); // 2028-08-30
 						if(iscontinuous) {
-							objectduration = GetSymbolicDuration(TRUE,*pp_buff,m,p,id,speed,scale,channel,instrument,part,foundendconcatenation,level); // 2025-01-19
 							if(trace_toofast) BPPrintMessage(1,odInfo,"iscontinuous -> objectduration = %ld\n",(long)objectduration);
 							for(i=0; i < (*p_contparameters)[level].number; i++)
 								UpdateParameter(i,p_contparameters,level,objectduration);
@@ -747,7 +747,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						+ (mapincrement.q2 * ibeatsmap / maxbeatsmap);
 					if(currentparameters.mapmode == CONTINUOUS) {
 						ibeatsmap += objectduration;
-						if(trace_toofast) BPPrintMessage(1,odInfo,"ibeatsmap = %d objectduration = %d\n",ibeatsmap,objectduration);
+						// BPPrintMessage(1,odInfo,"ibeatsmap = %d objectduration = %d\n",ibeatsmap,objectduration);
 						currentparameters.map1.p1 = startmap.p1
 							+ (mapincrement.p1 * ibeatsmap / maxbeatsmap);
 						currentparameters.map1.q1 = startmap.q1
