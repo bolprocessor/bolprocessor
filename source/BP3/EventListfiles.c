@@ -170,7 +170,7 @@ int AddEventToList(int k) {
 			}
 		else i_scale = -1;
 		PrintThisNote(i_scale,j-16384,0,-1,label);
-		BPPrintMessage(0,odInfo,"@@@ scale = %d, i_scale = %d, label = %s\n",scale,i_scale,label);
+	//	BPPrintMessage(0,odInfo,"@@@ scale = %d, i_scale = %d, label = %s\n",scale,i_scale,label);
 		}
 	if(p_Articul != NULL) articul =	(*p_Articul)[k];
 	else articul = 0;

@@ -351,7 +351,7 @@ CLEANUP:
         if(TimeSettingTime > 0) BPPrintMessage(0,odInfo, "Time-setting time: %ld seconds\n",(long)TimeSettingTime);
         if(!Analyzing && current_time > SessionStartTime && !Panic) BPPrintMessage(0,odInfo, "Total computation time: %ld seconds\n",(long)(current_time-SessionStartTime));
         }
-	else BPPrintMessage(0,odError, "=> result was: %d\n",result);
+//	else BPPrintMessage(0,odError, "=> result was: %d\n",result);
 	CreateDoneFile();
 	free(eventStack);
 	return EXIT_SUCCESS;
@@ -861,9 +861,11 @@ const char gOptionList[] =
 	"  --keys:                 specifies that the input files use Midi note numbers\n"
 	"(These options take precedence over the values in the settings file.)\n"
 	"\n"
-	"EXAMPLE OF COMMAND LINE:\n"
+	"EXAMPLES OF COMMAND LINE:\n"
 	"./bp produce -se ./ctests/-se.Mozart -o ./temp_bolprocessor/out.txt -gr ./ctests/-gr.Mozart -cs ./csound_resources/-cs.Mozart -to ./tonality_resources/-to.Mozart --rtmidi --traceout ./temp_bolprocessor/trace_my_session_my_project.txt --english --seed 4\n"
-	"(If the --traceout option is not specified, no image will be created.)\n"
+	"(If the --traceout option is not specified, no image will be created.)\n\n"
+	"./bp play -se ./ctests/Imported_MusicXML/-se.Ombres_errantes -da ./[your_path]/0.bpda -to ./tonality_resources/-to.tryTunings --eventlistout ./my_output/Ombres_errantes.csv\n"
+	"(This will produce 'Ombres_errantes.csv', 'rameau_en_sib.scl' and 'rameau_en_sib.kbm' in the my_output folder.)\n"
 	;
 
 void PrintUsage(char* programName)
