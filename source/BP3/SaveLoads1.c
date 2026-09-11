@@ -799,10 +799,6 @@ int LoadObjectPrototypes(int checkversion,int tryname) {
 
 	json_path[0] = '\0';
 	if(EventListOn) {
-	/*	const char *name = strrchr(FileName[iObjects], '/');
-		if(name != NULL && strncmp(name + 1, "-so.", 4) == 0) {
-			snprintf(json_path, sizeof json_path,"%.*s%s.json",(int)(name + 1 - FileName[iObjects]),FileName[iObjects],name + 5);
-			} */
 		const char *path  = FileName[iObjects];
 		const char *slash = strrchr(path, '/');
 		const char *backslash = strrchr(path, '\\');

@@ -382,6 +382,7 @@ extern long MaxConsoleTime;
 extern int NumberScales, MaxScales, DefaultScaleParam, ToldAboutScale;
 extern char LastSeen_scale[100];
 extern t_scale** Scale;
+extern char Exported_scale[500];
 extern int trace_scale, trace_capture;
 
 extern int WarnedBlockKey,WarnedRangeKey;

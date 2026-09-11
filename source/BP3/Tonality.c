@@ -40,6 +40,120 @@
 
 int trace_each_scale = 0;
 
+int ExportScale(int i_scale) {
+	OutFileInfo* finfo;
+	const char *path;
+	int result;
+
+	finfo = &gOptions.outputFiles[ofiEventListfile];
+	path = finfo->name;
+
+	const char *slash = strrchr(path, '/');
+	const char *backslash = strrchr(path, '\\');
+	const char *separator;
+
+	if (slash == NULL) separator = backslash;
+	else if (backslash == NULL) separator = slash;
+	else separator = (slash > backslash) ? slash : backslash;
+	if(separator == NULL) {
+		BPPrintMessage(0,odError,"=> Error in ExportScale(): separator is NULL\n");
+		return(MISSED);
+		}
+	int dir_length = (int)(separator - path + 1);  /* include / or \ */
+	char directory[dir_length + 1];
+	memcpy(directory, path, dir_length);
+	directory[dir_length] = '\0';
+//	BPPrintMessage(0, odInfo, "@@@ directory = %s\n", directory);
+	char label[256];
+//	const char *label = *((*Scale)[i_scale].label);
+	snprintf(label,sizeof label,"%s",*((*Scale)[i_scale].label));
+	char scale_path[1024];
+	snprintf(scale_path,sizeof scale_path,"%s%s.scl",directory,label);
+
+	int n = snprintf(scale_path, sizeof scale_path,"%s%s.scl", directory, label);
+	if(n < 0 || (size_t)n >= sizeof scale_path) {
+		BPPrintMessage(0,odError,"=> Scale file path is too long\n");
+		return(MISSED);
+		}
+//	BPPrintMessage(0, odInfo, "@@@ scale path = %s\n", scale_path);
+	result = ExportSCL(i_scale,scale_path,label);
+	snprintf(scale_path,sizeof scale_path,"%s%s.kbm",directory,label);
+	result = ExportKBM(i_scale,scale_path,label);
+	return(OK);
+	}
+
+/* struct s_scale {
+	int index;
+	int** keys;
+	int** keyclass;
+	char** label;
+	char**** notenames;
+	int numgrades,numnotes,basekey,baseoctave;
+	double basefreq,interval;
+	double** tuningratio;
+	short** deviation;
+	short** blockkey_shift;
+	};
+typedef struct s_scale t_scale; */
+
+int ExportSCL(int i_scale,char* scale_path,char* label) {
+	FILE *fout ;
+	fout = my_fopen(1,scale_path,"wb");
+	int i_note,keyclass,numgrades;
+	double ratio;
+	if(!fout) {
+		BPPrintMessage(0,odError,"=> Could not create SCL export file %s\n",scale_path);
+		return MISSED;
+		}
+	fprintf(fout,"! %s\n",label);
+	fprintf(fout,"! Scala file, ref. https://www.huygens-fokker.org/scala/scl_format.html\n");
+	fprintf(fout,"! Exported by the Bol Processor\n");
+	numgrades = (*Scale)[i_scale].numgrades;
+	fprintf(fout,"%d\n",numgrades);
+	for(i_note = 1; i_note <= numgrades; i_note++) {
+		ratio = (*(*Scale)[i_scale].tuningratio)[i_note];	
+		int cents = (int)lround(1200.0 * log2(ratio));
+		if(cents == 1200) fprintf(fout,"2/1 ");
+		else fprintf(fout,"%d cents ",cents);
+		keyclass = (*((*Scale)[i_scale].keyclass))[i_note];
+		fprintf(fout,"%s",*((*(*Scale)[i_scale].notenames)[keyclass]));
+		fprintf(fout,"\n");
+		}
+	my_fclose(fout);
+	return(OK);
+	}
+
+int ExportKBM(int i_scale,char* scale_path,char* label) {
+	FILE *fout ;
+	fout = my_fopen(1,scale_path,"wb");
+	int i_note,keyclass,numgrades;
+	double ratio;
+	if(!fout) {
+		BPPrintMessage(0,odError,"=> Could not create KBM export file %s\n",scale_path);
+		return MISSED;
+		}
+	fprintf(fout,"! %s\n",label);
+	fprintf(fout,"! Keyboard mapping (KBM) file\n");
+	fprintf(fout,"! Exported by the Bol Processor\n");
+	fprintf(fout,"! Size of map. The pattern repeats every so many keys:\n");
+	numgrades = (*Scale)[i_scale].numgrades;
+	fprintf(fout,"%d\n",numgrades);
+	fprintf(fout,"! First MIDI note number to retune:\n0\n");
+	fprintf(fout,"! Last MIDI note number to retune:\n127\n");
+	fprintf(fout,"! Middle note where the first entry in the mapping is mapped to:\n%d\n",(*Scale)[i_scale].basekey);
+	fprintf(fout,"! Reference note for which frequency is given:\n%d\n",(*Scale)[i_scale].basekey);
+	fprintf(fout,"! Frequency to tune the above note to (floating point e.g. 440.0):\n%.3f\n",(*Scale)[i_scale].basefreq);
+	fprintf(fout,"! Scale degree to consider as formal octave:\n%d\n",numgrades);
+	fprintf(fout,"! Mapping\n");
+	for(i_note = 0; i_note < numgrades; i_note++) {
+		keyclass = (*((*Scale)[i_scale].keyclass))[i_note];
+		fprintf(fout,"%d",keyclass);
+		fprintf(fout,"\n");
+		}
+	my_fclose(fout);
+	return(OK);
+	}
+
 int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_numbers, char* fractions, char* baseoctave_string) {
 	// "line" contains the scale as defined in Csound GEN51 format
 	char c, curr_arg[MAXLIN], label[MAXLIN], this_note[MAXLIN], this_fraction_arg[MAXLIN], note_name[20],key_number_string[20];

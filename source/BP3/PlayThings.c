@@ -110,9 +110,9 @@ int PlaySelection(int w, int all) {
 		end++;
 		}
 
-	// BPPrintMessage(1,odInfo,"@ origin = %ld next_origin = %ld end = %ld\n",(long)origin,(long)next_origin,(long)end);
 	LastChunk = FALSE;
-	while((originmem=origin) < end) {
+//	while((originmem = origin) < end) {
+	while(origin < end) {
 		if((r=stop(0,"PlaySelection")) != OK) return ABORT;
 		next_origin = origin;
 		time(&ProductionStartTime);
@@ -125,15 +125,15 @@ int PlaySelection(int w, int all) {
 				SelectOn = FALSE; return(MISSED);
 				}
 			}
-		if(next_origin == origin) break;
-		if((next_origin + 1) == end) LastChunk = TRUE;
+	//	BPPrintMessage(1,odInfo,"@ origin = %ld next_origin = %ld end = %ld\n",(long)origin,(long)next_origin,(long)end);
+		if(next_origin < (origin + 2)) break;
+		if((next_origin + 1) >= end) LastChunk = TRUE;
 		r = OK;
-	//	BPPrintMessage(1,odInfo,"@@ origin = %ld next_origin = %ld\n",(long)origin,(long)next_origin);
 		SetSelect(origin,next_origin,TEH[w]);
 		if(!Improvize) BPPrintMessage(1,odInfo,"Playing chunk %d\n",(Chunk_number + 1));
 		Nplay = 1;
 		SaidTooComplex = ShownBufferSize = FALSE;
-	//	BPPrintMessage(1,odInfo,"Playing selection %ld to %ld (up to %ld)\n",(long)origin,(long)next_origin,(long)end);
+	//	BPPrintMessage(1,odInfo,"Selection %ld to %ld (up to %ld)\n",(long)origin,(long)next_origin,(long)end);
 		if((r=SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
 			MyDisposeHandle((Handle*)&p_a);
 			/* Could already be NULL because of PolyExpand() */
@@ -190,8 +190,8 @@ int PlaySelection(int w, int all) {
 				break;
 				}
 			}
+		if(LastChunk) break;
 		origin = next_origin + 1;
-		// if(ReleasePhaseDiagram(nmax,&p_imaxseq) != OK) return(ABORT); // Added by BB 2021-03-21
 		}
 
 	END:

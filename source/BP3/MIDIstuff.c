@@ -1597,7 +1597,12 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	if(type != NoteOn && type != NoteOff) i_scale = blockkey = 0;
 	if(MIDImicrotonality) {
 		i_scale = FindScale(scale);
-		if((type == NoteOn || type == NoteOff) && i_scale <= NumberScales && i_scale >= 0) {
+		if((type == NoteOn || type == NoteOff) && i_scale <= NumberScales && i_scale > 0) {
+			if(EventListOn && !Exported_scale[i_scale]) {
+				BPPrintMessage(0,odInfo,"👉 Exporting SCL and KBM of scale \"%s\"\n",*((*Scale)[i_scale].label));
+				result = ExportScale(i_scale);
+				Exported_scale[i_scale] = TRUE;
+				}
 			pitchbend_master = (int) PitchbendStart(kcurrentinstance);
 			if(pitchbend_master > 0 && pitchbend_master < 16384) pitchbend_master -= DEFTPITCHBEND;
 			else pitchbend_master = 0;
@@ -1605,7 +1610,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	//		BPPrintMessage(0,odInfo,"@ key %d, value = %d scale = %d channel = %d\n",note,value,scale,channel);
 			if(channel < 1) { // Added 2025-01-07
 				if(SaidChannel < 5) {
-					BPPrintMessage(1,odInfo,"=> No channel available for note #%d vel = %d pitch = %d time = %ld ms in SendToDriver()",note,value,pitchbend_master,(time - MIDIsetUpTime));
+					BPPrintMessage(1,odInfo,"=> No channel available for key #%d vel = %d pitch = %d time = %ld ms in SendToDriver()",note,value,pitchbend_master,(time - MIDIsetUpTime));
 					if(SaidChannel == 4) BPPrintMessage(0,odInfo,"\n➡ Maybe more...\n");
 					BPPrintMessage(1,odInfo,"\n");
 					SaidChannel++;

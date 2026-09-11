@@ -833,6 +833,9 @@ char *recode_tags(const char*);
 void GetFileName(char*,const char*);
 char* str_replace(const char*, const char*, const char*);
 int ReadJason(int*,char*,char[][MAX_STRINGLISTS_LEN]);
+int ExportScale(int);
+int ExportSCL(int,char*,char*);
+int ExportKBM(int,char*,char*);
 
 // int ReleaseComputeSpace(void);
 int ClearObjectSpace(void);

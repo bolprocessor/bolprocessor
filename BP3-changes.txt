@@ -6,10 +6,17 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-08-30 (version 3.5.3)
-The lists of events now include the _keymap(p1,q1,p2,q2) mode and parameters.
+2026-09-11 (version 3.5.4)
+When creating event lists (see below, version 3.5.0), microtonality is now taken into account. Scala (SCL) and keyboard mapping (KBM) files are produced wherever they are used and mentioned in the event list to define the tonal structure.
+For example, check '-da.Ombres_errantes'. This produces 'Ombres_errantes.csv' (the event list), 'rameau_en_sib.scl' and 'rameau_en_sib.kbm' in your output folder.
+Many small issues have been fixed in the interface.
+
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/
+
+-----
+2026-08-30 (version 3.5.3)
+The lists of events now include the _keymap(p1,q1,p2,q2) mode and parameters.
 
 -----
 2026-08-28 -> 2026-08-29 (version 3.5.2)
