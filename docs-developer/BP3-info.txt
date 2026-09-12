@@ -435,109 +435,6 @@ A string of tokenbytes terminates with -1 -1
 LengthOf() returns the length in tokenbytes, not including the two end markers.
 Therefore the total length is LengthOf() + 2 * sizeof(tokenbyte).
 
-------------- Window and dialog indexes (obsolete) --------------
-
-// Window indexes
-#define wGrammar 0
-#define wAlphabet 1
-#define wStartString 2
-#define wMessage 3
-#define wGraphic 4
-#define wTrace 5
-#define wInfo 6
-#define wData 7
-#define wScript 8
-#define wScrap 9
-#define wHelp 10
-#define wNotice 11
-#define wGlossary 12
-
-// Dialog indexes
-#define wInteraction 13
-#define wRandomSequence 14
-#define wAccuracy 15
-#define wTimeBase 16
-#define wBufferSize 17
-#define wFindReplace 18
-#define wGraphicSettings 19
-#define wControlPannel 20
-#define wKeyboard 21
-#define wScriptDialog 22
-#define wTempo 23
-#define wSettingsTop 24
-#define wSettingsBottom 25
-#define wPrototype1 26
-#define wPrototype2 27
-#define wPrototype3 28
-#define wPrototype4 29
-#define wPrototype5 30
-#define wFilter 31
-
-// Additional indexes used in file types (see FileType[] in BP2main.h)
-#define iObjects 26
-#define iWeights 14
-#define iMIDIfile 24
-#define iSettings 25
-
-------------------------- Default text styles --------------------------------
-
-Red: variable
-Green: time pattern tx
-Blue: homomorphism
-Cyan: flag /flag/
-Magenta: parameter controller Kx
-Yellow: synchronisation tag <<Wx>>
-Brown: terminal symbol
-
------------------------  File types ----------------------------------
-Also see document "Types-creators"
-
-	case 1:
-		thetype = 'TEXT';
-		break;
-	case 2:
-		thetype = 'BP02';	/* -kb keyboard file */
-		break;
-	case 3:
-		thetype = 'BP03';	/* -mi MIDI object file */
-		break;
-	case 4:
-		thetype = 'BP04';	/* decision file */
-		break;
-	case 5:
-		thetype = 'BP05';	/* -gr grammar file */
-		break;
-	case 6:
-		thetype = 'BP06';	/* -ho alphabet file */
-		break;
-	case 7:
-		thetype = 'BP07';	/* -da data file */
-		break;
-	case 8:
-		thetype = 'BP08';	/* -in interactive code file */
-		break;
-	case 9:
-		thetype = 'BP09';	/* -se settings file */
-		break;
-	case 10:
-		thetype = 'AIFC';	/* AIFF compressed file */
-		break;
-	case 11:
-		thetype = 'Midi';	/* MIDI file */
-		break;
-	case 12:
-		thetype = 'BP10';	/* -wg weight file */
-		break;
-	case 13:
-		thetype = 'BP11';	/* +sc script file */
-		break;
-	case 14:
-		thetype = 'BP12';	/* -gl glossary file */
-		break;
-	case 15:
-		thetype = 'BP13';	/* time-base -tb file */
-		break;
-
 --------------------------  Variables and terminals --------------------------------
 
 Jbol is the number of terminals.  Index 0 is "_".  Index 1 is "-".
@@ -619,65 +516,6 @@ Locate()             Interrupt()          r = Interrupt()
 InterruptCompute()                        OK,ABORT,FAILED,FINISH,AGAIN
 ShowItem()           InterruptCompute()   r = InterruptCompute()
                      PlayBuffer()
-
-------------------------   String handling  --------------------------
-
-Mystrcpy(char *s1,char *s2,int imax) limits length to imax
-pStrCopy(char*,Str255);  /* first argument copied to second */
-unsigned char c2pstr(char*) /* taken in Strings.h, formerly *CtoPstr(char*) */;
-MyPtoCstr(Str255,char*,int);
-Mystrcpy(char**,char*);
-MystrcpyStringToTable(char ****p_t,int j,char *s)
-MystrcpyTableToString(char *s,char ****p_t,int j)
-MystrcpyStringToHandle(char **p_t,char *s)
-MystrcpyHandleToString(int offset,char *s,char **p_t)
-MystrcpyHandleToHandle(int offset,char **p_s,char **p_t)
-
-Mystrcmp(char**,char*);
-Myhandlecmp(char **p_t,char **p_s)
-Pstrcmp(Str255,char*);
-
-MyHandleLen(char **p_t)
-
-StripString(char *word) eliminates trailing spaces on both sides
-StripHandle(char **p_line)
-
-char Filter(char c) eliminates smart quotes
-
---------------- My convention for refCon in DIALOGS --------------------
-
-* - refCon is (long) type
-* - "r" is the rectangle in which buttons should be drawn
-* - From LSB to MSB:
-* - 2 bits = button type (0=no button, 1=radio, 2=push, 3=check)
-* - 6 bits = 4 * (stringlistID - 300)
-* - 9 bits = 256 * r.right.  (If 0 then r.right = window width)
-* - 9 bits = 131072 * r.bottom. (If 0 then r.bottom = window height)
-* - 3 bits = 67108864 * ((r.left-4) / 64)
-* - 3 bits = 536870912 * ((r.top-4) / 64)
-
------  CLOCK  ------------------
-
-clock period (in seconds) = Pclock / Qclock
-i.e. Qclock ticks in Pclock seconds.
-
-Pclock and Qclock are long integers.
-
-metronom value mm = 60 * Qclock / Pclock
-
-Smooth time:
--- measured => Pclock > 0, Qclock > 0
--- non-measured => Pclock = 0, Qclock = 1.  Windows "Time Base" and
-"Metronom" display "no clock".
-
---------- Graphic scale --------------
-
-Screen of Mac Classic is approximately 500 points.
-1 pixel represents GraphicScaleQ/(GraphicScaleP * 100) milliseconds
-User will enter x = the number of seconds represented by 500 pixels.
-Therefore, GraphicScaleQ/GraphicScaleP = x / 5.
-That ratio is then simplified.
-1 second is therefore: 100 * GraphicScaleP / GraphicScaleQ pixels.
 
 -------------------------  MIDI OPCODES ----------------------------------
 
@@ -1172,31 +1010,6 @@ j = (*p_Obj)[k].
 	if(j > 16383) then simple note (j-16384) will be played
 	if(j >= Jbol) then j is a time object (for time pattern).
 
---------------- 'Dump' files: storage of MIDI data --------------------------------
-
-File format: text.  Encoding: decimal
-To be revised: use Hexa.
-
-Content:
-
-"BP2 decimal MIDI dump"
-imax ;; number of codes in file
-b[0] ;; first byte
-b[1] ;; second byte
-...
-b[im-1]
-
-To load or save D-50 memory I used SoundObjectEditor with an input/output buffer
-of 120 000 bytes. Click 'D50' when entering SoundObjectEditor and follow instructions.
-
-Note that D-50 transfers from/to internal (I) or external (X) banks, not from/to
-card (C).  Therefore, to save the content of ROM card PN-D50-02, I first transfered it
-to the internal bank.
-Bank (X) is the one in the multimode expansion card supplied by Musitronics
-(TSI GmbH, Neustr. 12, 5481 Waldorf, West Germany).  Presumably you can also
-transfer from/to (Y) bank if your card has an additional Toshiba TC 55257 PL-10
-memory chip.
-
 -------------- VARIABLE STATUS ------------------------------------------------------
 
 (*p_VarStatus)[j] is the status of variable j defined by the following binary flags:
@@ -1419,27 +1232,6 @@ if(shift > 0) {
 return(FAILED);
 }
 
------------ LOADING AND CREATING SOUND-OBJECT PROTOTYPES ----------------------
-
-Different things take place when typing cmd-E (edit prototypes):
-	
-1.	BP2 compiles the alphabet, grammar, glossary in order to collect all terminal
-	symbols.
-2.	If it finds a -mi.file name, it loads it.  There are two cases:
-	2.1 the file is an old one (before 2.5) and does tell the number of
-		prototypes it contains.  Then BP2 reads only the proototypes already
-		defined in the alphabet.
-	2.2 the file is a new one.  BP2 reserves space for the current terminals
-		plus the prototypes announced in the file.  It maps prototypes with
-		terminals if they have identical names; it creates terminals for prototypes
-		which don't match any terminal.
-3.	If BP2 doesn't find a -mi.file name it prompts for the name of a file and loads
-	it.  If no name is given, it creates empty prototypes for each terminal.
-
------------  APPLE EVENTS -------------------------------------------------------
-
-The list of supported Apple Events is under this entry in the "BP2 help" file.
-
 ----------- TICK CYCLES IN TIME BASE DIALOG --------------------------------------
 
 In real-time ticking (when items are not being produced or played), integer periods cannot
@@ -1506,38 +1298,6 @@ for(i=0; i < MAXTICKS; i++) {
 	GrandCycle[i] = (ppqlcm / ppq[i]) * h;
 	}
 
-----------------------  HTML file format ----------------------------------
-
-ReadFile() automatically recognizes and converts HTML files (after removing LF's
-	if files are in DOS format)
-	
-It identifies the file as a HTML one after finding:
-
-	• "<HTML>" or "<html>";
-	• a token "</…>" where "…" is a non-empty string of alphabetic chars shorter than
-		HTMLTOKENLENGTH;
-	• a token "&…;" where "…" is a non-empty string of alphabetic chars shorter than
-		HTMLTOKENLENGTH;
-	• a token "&#…;" where "…" is a non-empty string of 1 to 3 digits.
-	
-Conversion removes all <> </> tags and translates special characters "&…;" to the
-	Mac character set.  Unknown characters are replaced with '•'.
-Conversion accepts inserts in normal text if preceded by "</html>" and ending with "<html>".
-
-A file that has been identified as HTML is saved again as HTML, except if its name is
-	changed ("Save as…").  When names are changed the user is given four format options:
-	
-	• Normal BP2 file (signature 'Bel0', file type depending on type of data
-		(see "Types-creators");
-	• Pure text (signature 'Bel0', file type 'TEXT');
-	• HTML text (signature 'MOSS', file type 'TEXT');
-	• HTML BP2 (signature 'MOSS', file type depending on type of data
-		(see "Types-creators");
-
-HTML text is directly compatible with Netscape Navigator.
-Character '…' is converted to "_rest".  HTML files are sliced to approximately 80 character
-	lines terminated with CR and LF.
-
 --------------------  Tick encoding in Time base window -------------------------------
 
 The following is the value of ThisTick[][]
@@ -1551,14 +1311,3 @@ ThisTick[][] = s + 2 * (v + 128 * ((c - 1) + 128 * k))
 
 Special values:
 If ThisTick[][] < 2 then v, c and k are taken from the default values on the tick cycle.
-
--------------------------  DoDialog() returns -----------------------------------------
-
-OK if hit content, nothing done
-OK if return key
-STOP if hit a button and procedure failed
-STOP if hit a button and procedure succeded
-EXIT to exit program
-ABORT in case of emergency
-OK if hit static text
-OK if hit edit text
