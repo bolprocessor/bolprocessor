@@ -294,8 +294,6 @@ int Inits(void) {
 	SynchroSignal = OFF;
 	MaxDeriv = MAXDERIV;
 	IgnoreFields = TraceZouleb = FALSE;
-
-
 	Infneg = LONG_MIN;
 	Veryneg = Infneg + 1;
 	Infpos = - Veryneg;

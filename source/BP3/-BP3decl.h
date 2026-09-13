@@ -374,6 +374,7 @@ extern int check_memory_use;
 extern Handle mem_ptr[5000];
 extern int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 
+extern char OutputDir[MAXLIN];
 extern FILE * imagePtr;
 extern FILE * outPtr;
 extern FILE * weightPtr;

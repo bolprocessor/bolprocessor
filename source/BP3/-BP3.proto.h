@@ -836,6 +836,8 @@ int ReadJason(int*,char*,char[][MAX_STRINGLISTS_LEN]);
 int ExportScale(int);
 int ExportSCL(int,char*,char*);
 int ExportKBM(int,char*,char*);
+int ExportPrototypeAsJson(FILE*,int,int,int,MIDIcode**);
+int FindOutputDirectory(void);
 
 // int ReleaseComputeSpace(void);
 int ClearObjectSpace(void);

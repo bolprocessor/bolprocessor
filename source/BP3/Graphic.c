@@ -37,7 +37,7 @@
 
 #include "-BP3decl.h"
 
-extern FILE * imagePtr;
+// extern FILE * imagePtr;
 
 char graphic_scheme[] = "canvas";
 int resize = 4; // Rescaling the image to get high resolution

@@ -44,57 +44,20 @@ int ExportScale(int i_scale) {
 	OutFileInfo* finfo;
 	const char *path;
 	int result;
-
-	finfo = &gOptions.outputFiles[ofiEventListfile];
-	path = finfo->name;
-
-	const char *slash = strrchr(path, '/');
-	const char *backslash = strrchr(path, '\\');
-	const char *separator;
-
-	if (slash == NULL) separator = backslash;
-	else if (backslash == NULL) separator = slash;
-	else separator = (slash > backslash) ? slash : backslash;
-	if(separator == NULL) {
-		BPPrintMessage(0,odError,"=> Error in ExportScale(): separator is NULL\n");
-		return(MISSED);
-		}
-	int dir_length = (int)(separator - path + 1);  /* include / or \ */
-	char directory[dir_length + 1];
-	memcpy(directory, path, dir_length);
-	directory[dir_length] = '\0';
-//	BPPrintMessage(0, odInfo, "@@@ directory = %s\n", directory);
 	char label[256];
-//	const char *label = *((*Scale)[i_scale].label);
 	snprintf(label,sizeof label,"%s",*((*Scale)[i_scale].label));
 	char scale_path[1024];
-	snprintf(scale_path,sizeof scale_path,"%s%s.scl",directory,label);
-
-	int n = snprintf(scale_path, sizeof scale_path,"%s%s.scl", directory, label);
+	snprintf(scale_path,sizeof scale_path,"%s%s.scl",OutputDir,label);
+	int n = snprintf(scale_path, sizeof scale_path,"%s%s.scl",OutputDir,label);
 	if(n < 0 || (size_t)n >= sizeof scale_path) {
 		BPPrintMessage(0,odError,"=> Scale file path is too long\n");
 		return(MISSED);
 		}
-//	BPPrintMessage(0, odInfo, "@@@ scale path = %s\n", scale_path);
 	result = ExportSCL(i_scale,scale_path,label);
-	snprintf(scale_path,sizeof scale_path,"%s%s.kbm",directory,label);
+	snprintf(scale_path,sizeof scale_path,"%s%s.kbm",OutputDir,label);
 	result = ExportKBM(i_scale,scale_path,label);
 	return(OK);
 	}
-
-/* struct s_scale {
-	int index;
-	int** keys;
-	int** keyclass;
-	char** label;
-	char**** notenames;
-	int numgrades,numnotes,basekey,baseoctave;
-	double basefreq,interval;
-	double** tuningratio;
-	short** deviation;
-	short** blockkey_shift;
-	};
-typedef struct s_scale t_scale; */
 
 int ExportSCL(int i_scale,char* scale_path,char* label) {
 	FILE *fout ;

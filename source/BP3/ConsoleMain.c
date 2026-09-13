@@ -71,7 +71,8 @@ void extract_and_append(char*,char*);
 // globals only for the console app
 int LoadedAlphabet = FALSE;
 int LoadedData = FALSE;
-// BPConsoleOpts gOptions;
+
+char OutputDir[MAXLIN];
 FILE * imagePtr;
 FILE * outPtr;
 FILE * weightPtr;
@@ -114,6 +115,7 @@ int main (int argc, char* args[]) {
 	TimeStopped = Oldtimestopped = 0L;
 	MIDIsyncDelay = 380; // ms default value
 	DisplayItems = FALSE;
+	OutputDir[0] = '\0';
 
 	NoteOffInputFilter = NoteOnInputFilter = KeyPressureInputFilter = ControlTypeInputFilter = ProgramTypeInputFilter = ChannelPressureInputFilter = PitchBendInputFilter = SysExInputFilter = TimeCodeInputFilter = SongPosInputFilter = SongSelInputFilter = TuneTypeInputFilter = EndSysExInputFilter = ClockTypeInputFilter = StartTypeInputFilter = ContTypeInputFilter = ActiveSenseInputFilter = ResetInputFilter = 3;
 	
@@ -861,11 +863,13 @@ const char gOptionList[] =
 	"  --keys:                 specifies that the input files use Midi note numbers\n"
 	"(These options take precedence over the values in the settings file.)\n"
 	"\n"
-	"EXAMPLES OF COMMAND LINE:\n"
-	"./bp produce -se ./ctests/-se.Mozart -o ./temp_bolprocessor/out.txt -gr ./ctests/-gr.Mozart -cs ./csound_resources/-cs.Mozart -to ./tonality_resources/-to.Mozart --rtmidi --traceout ./temp_bolprocessor/trace_my_session_my_project.txt --english --seed 4\n"
-	"(If the --traceout option is not specified, no image will be created.)\n\n"
-	"./bp play -se ./ctests/Imported_MusicXML/-se.Ombres_errantes -da ./[your_path]/0.bpda -to ./tonality_resources/-to.tryTunings --eventlistout ./my_output/Ombres_errantes.csv\n"
-	"(This will produce 'Ombres_errantes.csv', 'rameau_en_sib.scl' and 'rameau_en_sib.kbm' in the my_output folder.)\n"
+	"EXAMPLES OF COMMAND LINE (Unix):\n"
+	"./bp produce -se ./ctests/-se.Mozart -o ./temp_bolprocessor/out.txt -gr ./ctests/-gr.Mozart -to ./tonality_resources/-to.Mozart --rtmidi --traceout ./temp_bolprocessor/trace_my_session_my_project.txt --english --seed 4\n"
+	"(This will play the 'Mozart' project in real-time MIDI. If the --traceout option is not specified, no image will be created. With a non-zero seed, the random production can be repeated identically.)\n\n"
+	"./bp play -se ./ctests/Imported_MusicXML/-se.Ombres_errantes -da ./[your_path]/0.bpda -to ./tonality_resources/-to.tryTunings --eventlistout ./my_output/Ombres_errantes.csv --traceout ./temp_bolprocessor/trace_my_session_my_project.txt --english\n"
+	"(This will produce 'Ombres_errantes.csv', 'rameau_en_sib.scl' and 'rameau_en_sib.kbm' in the 'my_output' folder. If the --traceout option is not specified, no image will be created.)\n\n"
+	"./bp produce -se ./ctests/-se.koto3 -gr ./ctests/-gr.koto3 -al ./ctests/-al.abc1 -so ./ctests/-so.abc1 --eventlistout ./my_output/koto3.csv --traceout ./temp_bolprocessor/trace_my_session_my_project.txt\n"
+	"(This will produce 'koto3.csv' and 'abc1.json' in the 'my_output' folder. If the --traceout option is not specified, no image will be created.)\n"
 	;
 
 void PrintUsage(char* programName)
@@ -1053,6 +1057,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 						strcpy(PathToMidiFile,args[argn]);
 						opts->outOptsChanged = TRUE;
 						EventListOn = TRUE;
+						FindOutputDirectory();
 						}
 					else {
 						BPPrintMessage(0,odError, "\n=> Missing filename after %s\n\n", args[argn-1]);
@@ -1717,6 +1722,30 @@ void StopWaiting(int key,char ch) {
 		else continue;
 		}
 	return;
+	}
+
+int FindOutputDirectory(void) {
+	OutFileInfo* finfo;
+	const char *path;
+	int result;
+	if(!EventListOn) return(MISSED);
+	finfo = &gOptions.outputFiles[ofiEventListfile];
+	path = finfo->name;
+	const char *slash = strrchr(path, '/');
+	const char *backslash = strrchr(path, '\\');
+	const char *separator;
+	if (slash == NULL) separator = backslash;
+	else if (backslash == NULL) separator = slash;
+	else separator = (slash > backslash) ? slash : backslash;
+	if(separator == NULL) {
+		BPPrintMessage(0,odError,"=> Error in ExportScale(): separator is NULL\n");
+		return(MISSED);
+		}
+	int dir_length = (int)(separator - path + 1);  /* include / or \ */
+	// char directory[dir_length + 1];
+	memcpy(OutputDir, path, dir_length);
+	OutputDir[dir_length] = '\0';
+	return(OK);
 	}
 
 #if !defined(_WIN64) && !defined(__BP3_WASM__)

@@ -811,10 +811,10 @@ int LoadObjectPrototypes(int checkversion,int tryname) {
 		else if (backslash == NULL) separator = slash;
 		else separator = (slash > backslash) ? slash : backslash;
 		basename = (separator != NULL) ? separator + 1 : path;
-		if(strncmp(basename, "-so.", 4) == 0) {
-			/* Keep the directory, remove "-so.", and add ".json". */
-			length = snprintf(json_path, sizeof json_path,"%.*s%s.json",
-				(int)(basename - path), path,basename + 4);
+
+		if(strncmp(basename, "-so.",4) == 0) {
+			// Keep the directory, remove "-so.", and add ".json".
+			length = snprintf(json_path, sizeof json_path,"%s%s.json", OutputDir, basename + 4);
 			if (length < 0 || (size_t)length >= sizeof json_path) {
 				BPPrintMessage(0, odError,"=> JSON file path is too long: %s\n", path);
 				sojson = NULL;
