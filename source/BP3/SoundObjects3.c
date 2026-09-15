@@ -115,7 +115,7 @@ CompiledCsObjects = (*p_CompiledCsoundScore)[j] = 0;
 return(OK);
 }
 
-
+/*
 int CheckConsistency(int j,int check) {
    int k,bugg,longerCsound;
    long i,t,ton,toff;
@@ -125,7 +125,7 @@ int CheckConsistency(int j,int check) {
    if(j >= Jbol || j < 2) return(OK);
    bugg = 0;
 
-   /* if((*p_CsoundSize)[j] <= ZERO) {
+   if((*p_CsoundSize)[j] <= ZERO) {
       if((*p_Type)[j] & 4) {
          (*p_Type)[j] &= (255-4);
          (*p_CsoundInstr)[j] = 0;
@@ -140,7 +140,7 @@ int CheckConsistency(int j,int check) {
       if((*p_Type)[j] & 1) {
          (*p_Type)[j] &= (255-1);
          }
-      } */
+      }
       
    if((*p_Resolution)[j] <= ZERO) {
       if(trace_inconsistencies) BPPrintMessage(0,odError,"=> Err. CheckConsistency(). (*p_Resolution)[j] <= ZERO\n");
@@ -170,7 +170,7 @@ int CheckConsistency(int j,int check) {
       (*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = ZERO;
       }
    return(OK);
-   /* 
+   
    switch((*p_PivType)[j]) {
       case 1: (*p_PivPos)[j] = 0.; (*p_PivMode)[j] = FIXVALUE; break;
       case 2: (*p_PivPos)[j] = 100.; (*p_PivMode)[j] = PERCENT; break;
@@ -211,7 +211,7 @@ int CheckConsistency(int j,int check) {
                (*p_PivPos)[j] = ((float)((ton+toff)/2. - preroll) * 100.) / dur;
                (*p_PivMode)[j] = PERCENT; break;
             }
-      } */
+      }
    if((*p_MaxCoverBeg)[j] < 0) {
       (*p_MaxCoverBeg)[j] = 0; bugg++;
       }
@@ -266,7 +266,7 @@ int CheckConsistency(int j,int check) {
       BPPrintMessage(0,odInfo,"=> Found inconsistencies in sound-object prototype '%s'. These have been corrected.\n",(*p_Bol)[j]);
       }
    return(OK);
-   }
+   } */
 
 
 int PrototypeWindow(int w)
@@ -283,243 +283,4 @@ switch(w) {
       return(TRUE);
    }
 return(FALSE);
-}
-
-#if BP_CARBON_GUI_FORGET_THIS
-
-int CopyFrom(int w)
-{
-int rep,j;
-
-if(Jbol < 3) {
-   BPPrintMessage(0,odError,"No sound-object prototype has been created/loaded");
-   return(OK);
-   }
-if(SaveCheck(w) == ABORT) return(MISSED);
-my_sprintf(Message,"This object is empty");
-j = DoThings(p_Bol,2,Jbol,NULL,16,CheckPrototypeSize,Message,(int) pushButProc);
-if(j == iProto || j < 2) return(OK);
-switch(w) {
-   case wPrototype1:
-      my_sprintf(Message,"Copy all properties, MIDI codes, Csound score from '%s'",
-         *((*p_Bol)[j])); break;
-   case wPrototype2:
-      my_sprintf(Message,"Copy Duration/Pivot/Location properties from '%s'",
-         *((*p_Bol)[j])); break;
-   case wPrototype3:
-      my_sprintf(Message,"Copy Cover/Truncate/Break tempo properties from '%s'",
-         *((*p_Bol)[j])); break;
-   case wPrototype4:
-      my_sprintf(Message,"Copy Continuity/Pre-postroll properties from '%s'",
-         *((*p_Bol)[j])); break;
-   case wPrototype5:
-      my_sprintf(Message,"Copy MIDI codes (sound) from '%s'",
-         *((*p_Bol)[j])); break;
-   case wPrototype6:
-      my_sprintf(Message,"Copy period settings from '%s'",
-         *((*p_Bol)[j])); break;
-   case wPrototype7:
-      my_sprintf(Message,"Copy Csound score from '%s'",
-         *((*p_Bol)[j])); break;
-   case wPrototype8:
-      my_sprintf(Message,"Copy MIDI and Csound properties from '%s'",
-         *((*p_Bol)[j])); break;
-   }
-rep = Answer(Message,'N');
-if(rep != OK) return(OK);
-if(w == wPrototype1) {
-   SetPrototypePage1(j);
-   CopyPage1(j,iProto);
-   ChangedProtoType(iProto);
-   }
-if(w == wPrototype1 || w == wPrototype2) {
-   SetPrototypePage2(j);
-   CopyPage2(j,iProto);
-   }
-if(w == wPrototype1 || w == wPrototype3) {
-   SetPrototypePage3(j);
-   CopyPage3(j,iProto);
-   }
-if(w == wPrototype1 || w == wPrototype4) {
-   SetPrototypePage4(j);
-   CopyPage4(j,iProto);
-   }
-if(w == wPrototype1 || w == wPrototype5) {
-   SetPrototypePage5(j);
-   CopyPage5(j,iProto);
-   ChangedProtoType(iProto);
-   }
-if(w == wPrototype1 || w == wPrototype6) {
-   SetPrototypePage6(j);
-   CopyPage6(j,iProto);
-   }
-if(w == wPrototype1 || w == wPrototype7) {
-   SetPrototypePage7(j);
-   CopyPage7(j,iProto);
-   }
-if(w == wPrototype1 || w == wPrototype8) {
-   SetPrototypePage8(j);
-   CopyPage8(j,iProto);
-   }
-UpdateDirty(TRUE,w);
-GetPrototype(YES);
-return(OK);
-}
-
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-int CopyPage1(int i,int j)
-{
-(*p_Type)[j] = (*p_Type)[i];
-return(OK);
-}
-
-
-int CopyPage2(int i,int j)
-{
-(*p_OkExpand)[j] = (*p_OkExpand)[i];
-(*p_OkCompress)[j] = (*p_OkCompress)[i];
-(*p_FixScale)[j] = (*p_FixScale)[i];
-(*p_PivType)[j] = (*p_PivType)[i];
-(*p_PivMode)[j] = (*p_PivMode)[i];
-(*p_OkRelocate)[j] = (*p_OkRelocate)[i];
-(*p_MaxDelay)[j] = (*p_MaxDelay)[i];
-(*p_MaxForward)[j] = (*p_MaxForward)[i];
-return(OK);
-}
-
-
-int CopyPage3(int i,int j)
-{
-(*p_CoverBeg)[j] = (*p_CoverBeg)[i];
-(*p_MaxCoverBeg)[j] = (*p_MaxCoverBeg)[i];
-(*p_CoverBegMode)[j] = (*p_CoverBegMode)[i];
-(*p_CoverEnd)[j] = (*p_CoverEnd)[i];
-(*p_MaxCoverEnd)[j] = (*p_MaxCoverEnd)[i];
-(*p_CoverEndMode)[j] = (*p_CoverEndMode)[i];
-(*p_TruncBeg)[j] = (*p_TruncBeg)[i];
-(*p_MaxTruncBeg)[j] = (*p_MaxTruncBeg)[i];
-(*p_TruncBegMode)[j] = (*p_TruncBegMode)[i];
-(*p_TruncEnd)[j] = (*p_TruncEnd)[i];
-(*p_MaxTruncEnd)[j] = (*p_MaxTruncEnd)[i];
-(*p_TruncEndMode)[j] = (*p_TruncEndMode)[i];
-(*p_BreakTempo)[j] = (*p_BreakTempo)[i];
-return(OK);
-}
-
-
-int CopyPage4(int i,int j)
-{
-(*p_ContBeg)[j] = (*p_ContBeg)[i];
-(*p_MaxBegGap)[j] = (*p_MaxBegGap)[i];
-(*p_ContBegMode)[j] = (*p_ContBegMode)[i];
-(*p_ContEnd)[j] = (*p_ContEnd)[i];
-(*p_MaxEndGap)[j] = (*p_MaxEndGap)[i];
-(*p_ContEndMode)[j] =(*p_ContEndMode)[i];
-(*p_PreRollMode)[j] = (*p_PreRollMode)[i];
-(*p_PostRollMode)[j] = (*p_PostRollMode)[i];
-(*p_PreRoll)[j] = (*p_PreRoll)[i];
-(*p_PostRoll)[j] = (*p_PostRoll)[i];
-
-return(OK);
-}
-
-
-int CopyPage5(int i,int j)
-{
-Handle ptr1,ptr2;
-int k;
-
-(*p_Tref)[j] = (*p_Tref)[i];
-(*p_Quan)[j] = (*p_Quan)[i];
-(*p_Dur)[j] = (*p_Dur)[i];
-(*p_MIDIsize)[j] = (*p_MIDIsize)[i];
-
-/* Copy MIDI codes */
-if((*p_MIDIsize)[i] > 0) {
-	ptr1 = (Handle)(*pp_MIDIcode)[j];
-	ptr2 = (Handle)(*pp_MIDIcode)[i];
-	if(ptr2 == NULL) {
-		BPPrintMessage(0,odError,"=> Err. CopyPage5(). ptr2 = NULL (1)");
-		return(ABORT);
-		}
-	MySetHandleSize(&ptr1,MyGetHandleSize((Handle)ptr2));
-	(*pp_MIDIcode)[j] = (MIDIcode**) ptr1;
-   
-	for(k=0; k < (*p_MIDIsize)[i]; k++) {
-		(*((*pp_MIDIcode)[j]))[k] = (*((*pp_MIDIcode)[i]))[k];
-		}
-	}
-else {
-   ptr1 = (Handle)(*pp_MIDIcode)[j];
-   if(MyDisposeHandle(&ptr1) != OK) return(ABORT);
-   (*pp_MIDIcode)[j] = NULL;
-   }
-return(OK);
-}
-
-
-int CopyPage6(int i,int j)
-{
-(*p_CyclicAfter)[j] = (*p_CyclicAfter)[i];
-(*p_CyclicMode)[j] = (*p_CyclicMode)[i];
-(*p_StrikeAgain)[j] = (*p_StrikeAgain)[i];
-(*p_DiscardNoteOffs)[j] = (*p_DiscardNoteOffs)[i];
-(*p_ForceIntegerCycles)[j] = (*p_ForceIntegerCycles)[i];
-return(OK);
-}
-
-
-int CopyPage7(int i,int j)
-{
-Handle ptr;
-int ievent;
-
-if((*pp_CsoundScoreText)[i] != NULL) {
-   if((*pp_CsoundScoreText)[j] == NULL) {
-      if((ptr = (Handle) GiveSpace(MyGetHandleSize((Handle)(*pp_CsoundScoreText)[i])))
-         == NULL) return(ABORT);
-      (*pp_CsoundScoreText)[j] = (char**) ptr;
-      }
-   MystrcpyHandleToHandle(0,&((*pp_CsoundScoreText)[j]),(*pp_CsoundScoreText)[i]);
-   }
-else {
-   ptr = (Handle) (*pp_CsoundScoreText)[j];
-   if(MyDisposeHandle(&ptr) != OK) return(ABORT);
-   (*pp_CsoundScoreText)[j] = NULL;
-   if((*pp_CsoundScore)[j] != NULL) {
-      for(ievent=0; ievent < (*p_CsoundSize)[j]; ievent++) {
-         ptr = (Handle) (*((*pp_CsoundScore)[j]))[ievent].h_param;
-         if(MyDisposeHandle(&ptr) != OK) return(ABORT);
-         (*((*pp_CsoundScore)[j]))[ievent].h_param = NULL;
-         }
-      }
-   ptr = (Handle) (*pp_CsoundScore)[j];
-   if(MyDisposeHandle(&ptr) != OK) return(ABORT);
-   (*pp_CsoundScore)[j] = NULL;
-   ptr = (Handle) (*pp_CsoundTime)[j];
-   if(MyDisposeHandle(&ptr) != OK) return(ABORT);
-   (*pp_CsoundTime)[j] = NULL;
-   (*p_CsoundSize)[j] = 0;
-   CompiledCsObjects = (*p_CompiledCsoundScore)[j] = 0;
-   }
-#if BP_CARBON_GUI_FORGET_THIS
-SetCsoundScore(j);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-return(OK);
-}
-
-
-int CopyPage8(int i,int j)
-{
-(*p_DefaultChannel)[j] = (*p_DefaultChannel)[i];
-(*p_OkTransp)[j] = (*p_OkTransp)[i];
-(*p_OkPan)[j] = (*p_OkPan)[i];
-(*p_OkMap)[j] = (*p_OkMap)[i];
-(*p_OkVelocity)[j] = (*p_OkVelocity)[i];
-(*p_OkArticul)[j] = (*p_OkArticul)[i];
-(*p_OkVolume)[j] = (*p_OkVolume)[i];
-(*p_CsoundInstr)[j] = (*p_CsoundInstr)[i];
-(*p_CsoundInstrumentMode)[j] = (*p_CsoundInstrumentMode)[i];
-return(OK);
 }

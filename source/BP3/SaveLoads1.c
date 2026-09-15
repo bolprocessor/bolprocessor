@@ -776,14 +776,6 @@ int LoadSettings(const char *filename, int startup) {
 	return(result);
 	}
 
-
-/*	ExportPrototypeAsJson() — 2026-09-12.
-	Sort du corps de LoadObjectPrototypes() TOUS les appels Save*AsJson(), pour qu'ils
-	s'exécutent APRÈS CheckConsistency() au lieu d'être entrelacés avec la lecture.
-	Le fichier JSON porte ainsi les valeurs RÉELLEMENT UTILISÉES, non les valeurs brutes.
-	Chaque valeur est relue dans le tableau global que la lecture venait d'affecter :
-	aucune valeur n'est recalculée ici, l'ordre des clés est celui d'avant.	*/
-
 int ExportPrototypeAsJson(FILE *sojson,int j,int iv,int midicodesize,MIDIcode **p_b) {
 	int i;
 	char mode[MAXNAME];
@@ -797,7 +789,7 @@ int ExportPrototypeAsJson(FILE *sojson,int j,int iv,int midicodesize,MIDIcode **
 	SaveIntAsJson(sojson,"Resolution","ms","Resolution",(*p_Resolution)[j]);
 	SaveIntAsJson(sojson,"DefaultChannel","","Default MIDI channel",(*p_DefaultChannel)[j]);
 	SaveLongAsJson(sojson,"Tref","ms","Tref",(*p_Tref)[j]);
-	SaveFloatAsJson(sojson,"Quan","ms","Quantization",(*p_Quan)[j]);
+	SaveIntAsJson(sojson,"Quan","ms","Quantization",(int)(*p_Quan)[j]);
 	thismode_rescale((*p_RescaleMode)[j],mode);
 	SaveStringAsJson(sojson,"RescaleMode","enum","Rescale mode",mode);
 	SaveIntAsJson(sojson,"FixScale","boolean","Never rescale",(int)(*p_FixScale)[j]);
@@ -839,11 +831,6 @@ int ExportPrototypeAsJson(FILE *sojson,int j,int iv,int midicodesize,MIDIcode **
 	thismode((*p_TruncBegMode)[j],mode);
 	SaveStringAsJson(sojson,"TruncBegMode","enum","Truncate beginning mode",mode);
 	SaveLongAsJson(sojson,"MaxTruncBeg","ms or percent","Max truncate beginning",(*p_MaxTruncBeg)[j]);
-/*	⚠ ORDRE D'ORIGINE CONSERVÉ, ET IL EST SUSPECT : à la lecture, (*p_TruncEndMode)[j] = s
-	est exécuté AVANT la correction if(s == -2) s = 1, alors que partout ailleurs la
-	correction précède l'affectation. Le tableau gardait donc -2 quand le JSON recevait 1.
-	Exporter depuis le tableau rend les deux cohérents — c'est le SEUL endroit où cette
-	réécriture change une valeur exportée, et il est signalé plutôt que corrigé en silence.	*/
 	thismode((*p_TruncEndMode)[j],mode);
 	SaveStringAsJson(sojson,"TruncEndMode","enum","Truncate end mode",mode);
 	SaveLongAsJson(sojson,"MaxTruncEnd","ms or percent","Max truncate end",(*p_MaxTruncEnd)[j]);
@@ -884,12 +871,13 @@ int ExportPrototypeAsJson(FILE *sojson,int j,int iv,int midicodesize,MIDIcode **
 			break;
 		}
 	SaveStringAsJson(sojson,"StrikeAgain","enum","Strike again NoteOn's",mode);
-	SaveIntAsJson(sojson,"CsoundInstr","","Csound instrument #",(*p_CsoundInstr)[j]);
 	switch((*p_CsoundInstrumentMode)[j]) {
 		case 0:
 			strcpy(mode,"FORCE TO CURRENT INSTRUMENT");
 			break;
 		case -1:
+			break;
+		case  1:
 			if((*p_CsoundInstr)[j] == -1) strcpy(mode,"NO CHANGE");
 			else strcpy(mode,"FORCE TO INSTRUMENT");
 			break;
@@ -897,6 +885,7 @@ int ExportPrototypeAsJson(FILE *sojson,int j,int iv,int midicodesize,MIDIcode **
 			strcpy(mode,"UNKNOWN");
 			break;
 		}
+	SaveIntAsJson(sojson,"CsoundInstr","","Csound instrument #",(*p_CsoundInstr)[j]);
 	SaveStringAsJson(sojson,"CsoundInstrumentMode","enum","Csound conversion mode",mode);
 	SaveLongAsJson(sojson,"Tpict","ms","Tempo of MF2T code",(*p_Tpict)[j]);
 	if((*pp_CsoundScoreText)[j] != NULL)
@@ -1326,10 +1315,8 @@ NEXTBOL:
 	/* if(CheckConsistency(j,TRUE) != OK) {
 		BPPrintMessage(0,odError,"=> Inconsistency found in '%s'\n",*((*p_Bol)[j]));
 		goto ERR;
-		} */
-	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "CheckConsistency is OK for j = %d\n",j);
-/*	L'exportation JSON a lieu ICI, après CheckConsistency(), et non plus au fil de la lecture :
-	le fichier porte donc les valeurs RÉELLEMENT UTILISÉES. Voir ExportPrototypeAsJson().	*/
+		}
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "CheckConsistency is OK for j = %d\n",j); */
 	if(ExportPrototypeAsJson(sojson,j,iv,imax,p_b) != OK) goto ERR;
 	if(p_b != NULL && MyDisposeHandle((Handle*)&p_b) != OK) goto ERR;
 	if(iv > 9) {
