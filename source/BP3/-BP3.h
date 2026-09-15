@@ -309,12 +309,31 @@ enum {
 #define FIXVALUE -1
 #define IRRELEVANT 1
 
+// Values for pivot position
+#define PIVBEG 1
+#define PIVEND 2
+#define PIVBEGON 3
+#define PIVENDOFF 4
+#define PIVMIDDLE 5
+#define PIVMIDDLEONOFF 6
+#define SETPIVOT 7
+
 // Values for wait event types
 #define KEYBOARDEVENT 0
 #define APPLEVENT 1
 #define STARTEVENT 2
 #define STOPEVENT 3
 #define CONTINUEEVENT 4
+
+// Values for sound-object types
+#define MIDI_TYPE 1
+#define CSOUND_TYPE 4
+#define MIDI_CSOUND_TYPE 5
+
+// Values for rescale
+#define OK_RESCALE 0
+#define NEVER_RESCALE 1
+#define DILATION_RATIO 2
 
 // Values fo file formats
 #define MAC 0

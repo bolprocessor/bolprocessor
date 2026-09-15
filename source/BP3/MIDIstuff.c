@@ -1338,7 +1338,7 @@ if((ptr1 = (MIDIcode**) GiveSpace((Size) im2 * sizeof(MIDIcode))) == NULL)
 	return(ABORT);
 
 if(FormatMIDIstream(p_b,imax,ptr1,zerostart,im2,&nbytes,filter) != OK) return(MISSED);
-// BPPrintMessage(0,odInfo, "j = %d nbytes = %d\n",j,nbytes);
+// BPPrintMessage(0,odInfo, "§§§ %s nbytes = %d, imax = %ld\n",*((*p_Bol)[j]),nbytes,imax);
 
 ptr = (Handle)(*pp_MIDIcode)[j];
 if(MyDisposeHandle(&ptr) != OK) return(ABORT);
@@ -1353,7 +1353,7 @@ if(nbytes > 0) {
 	(*p_Dur)[j] = ((*((*pp_MIDIcode)[j]))[nbytes-1].time) - preroll + postroll;
 	ptr1 = (*pp_MIDIcode)[j];
 	MySetHandleSize((Handle*)&ptr1,(Size) nbytes * sizeof(MIDIcode));
-	(*pp_MIDIcode)[j]  = ptr1;
+	(*pp_MIDIcode)[j] = ptr1;
 	PointMIDI = TRUE;
 	if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 	}
@@ -1378,7 +1378,6 @@ int FormatMIDIstream(MIDIcode **p_b,long imax,MIDIcode **p_c,int zerostart,
 			BPPrintMessage(0,odInfo,"%d\n",(*p_b)[i].byte);
 			}
 		} */
-		
 	time = (*p_b)[0].time;
 	if(zerostart) t0 = time;
 	else t0 = ZERO;
@@ -1415,7 +1414,14 @@ int FormatMIDIstream(MIDIcode **p_b,long imax,MIDIcode **p_c,int zerostart,
 	b = ByteToInt((*p_b)[i].byte);
 	time = (*p_b)[i].time;
 
-	if(b == TimingClock) goto NEXTBYTE;
+	if(b == TimingClock) {
+		// Only accept TimingClock if it is the only byte in the sequence
+		if(imax > 1) goto NEXTBYTE; // 2026-09-15
+		(*p_c)[ii].time = time;
+		(*p_c)[ii].byte = b;
+		(*p_c)[ii++].sequence = (*p_b)[i].sequence;
+		goto NEXTBYTE;
+		}
 	if(b == SystemExclusive) {
 		br = 0;
 		while(((b = (*p_b)[i].byte) != EndSysEx) && i < imax - 1) {

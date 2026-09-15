@@ -1036,56 +1036,55 @@ return(OK);
 }
 
 
-int SetPrototypeDuration(int j,int *p_longerCsound)
-{
-double preroll,postroll,dur,maxdur;
-int rep;
-long size,i;
+int SetPrototypeDuration(int j,int *p_longerCsound) {
+	double preroll,postroll,dur,maxdur;
+	int rep;
+	long size,i;
 
-rep = OK; *p_longerCsound = 0;
-(*p_Dur)[j] = ZERO;
+	rep = OK; *p_longerCsound = 0;
+	(*p_Dur)[j] = ZERO;
 
-if(DurationToPoint(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+	if(DurationToPoint(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(MISSED);
 
-size = (*p_MIDIsize)[j];
-dur = 0.;
-(*p_Dur)[j] = dur;
-if(size < 1L) goto CSOUND;
+	size = (*p_MIDIsize)[j];
+	dur = 0.;
+	(*p_Dur)[j] = dur;
+	if(size < 1L) goto CSOUND;
 
-if((*pp_MIDIcode)[j] != NULL) dur = ((*((*pp_MIDIcode)[j]))[size-1].time);
-else dur = 0.;
-if(dur > EPSILON) dur = dur - (*p_PreRoll)[j] + (*p_PostRoll)[j];
-else dur = 0.;
-if(dur < 0.) dur = 0.;
-(*p_Dur)[j] = dur;
+	if((*pp_MIDIcode)[j] != NULL) dur = ((*((*pp_MIDIcode)[j]))[size-1].time);
+	else dur = 0.;
+	if(dur > EPSILON) dur = dur - (*p_PreRoll)[j] + (*p_PostRoll)[j];
+	else dur = 0.;
+	if(dur < 0.) dur = 0.;
+	(*p_Dur)[j] = dur;
 
-CSOUND:
-size = (*p_CsoundSize)[j];
-if(size < 1L) goto SORTIR;
+	CSOUND:
+	size = (*p_CsoundSize)[j];
+	if(size < 1L) goto SORTIR;
 
-if(DurationToPoint(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) return(ABORT);
+	if(DurationToPoint(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) return(ABORT);
 
-maxdur = 0.;
-for(i=0; i < (*p_CsoundSize)[j]; i++) {
-	dur = (*((*pp_CsoundTime)[j]))[i] + (*((*pp_CsoundScore)[j]))[i].duration;
-	if(dur > maxdur) maxdur = dur;
+	maxdur = 0.;
+	for(i=0; i < (*p_CsoundSize)[j]; i++) {
+		dur = (*((*pp_CsoundTime)[j]))[i] + (*((*pp_CsoundScore)[j]))[i].duration;
+		if(dur > maxdur) maxdur = dur;
+		}
+	if(maxdur > EPSILON) dur = maxdur - (*p_PreRoll)[j] + (*p_PostRoll)[j];
+	else dur = 0.;
+
+	if(dur - (*p_Dur)[j] > Time_res) {
+		if((*p_MIDIsize)[j] > ZERO) *p_longerCsound = dur - (*p_Dur)[j];
+		else (*p_Dur)[j] = dur;
+		}
+	if(((dur - (*p_Dur)[j]) < (- Time_res)) && (*p_MIDIsize)[j] > ZERO)
+		*p_longerCsound = dur - (*p_Dur)[j];
+
+	if(PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) return(ABORT);
+
+	SORTIR:
+	if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+	return(rep);
 	}
-if(maxdur > EPSILON) dur = maxdur - (*p_PreRoll)[j] + (*p_PostRoll)[j];
-else dur = 0.;
-
-if(dur - (*p_Dur)[j] > Time_res) {
-	if((*p_MIDIsize)[j] > ZERO) *p_longerCsound = dur - (*p_Dur)[j];
-	else (*p_Dur)[j] = dur;
-	}
-if(((dur - (*p_Dur)[j]) < (- Time_res)) && (*p_MIDIsize)[j] > ZERO)
-	*p_longerCsound = dur - (*p_Dur)[j];
-
-if(PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) return(ABORT);
-
-SORTIR:
-if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-return(rep);
-}
 
 
 int GetPrePostRoll(int j,double *p_preroll,double *p_postroll)

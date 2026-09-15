@@ -2478,7 +2478,7 @@ int CreateSilentSoundObject(int p) {
 	(*p_PivType)[p] = 1; (*p_PivMode)[p] = FIXVALUE;
 	(*p_PreRollMode)[p] = (*p_PostRollMode)[p] = PERCENT;
 	(*p_MaxDelay)[p] = (*p_MaxForward)[p] = ZERO;
-	(*p_RescaleMode)[p] = PERCENT;
+	(*p_RescaleMode)[p] = OK_RESCALE;
 	(*p_AlphaMin)[p] = 0; (*p_AlphaMax)[p] = 100.;
 	(*p_DelayMode)[p] = (*p_ForwardMode)[p] = (*p_ContBegMode)[p] = (*p_ContEndMode)[p] = FIXVALUE;
 	(*p_CoverBegMode)[p] = (*p_CoverEndMode)[p] = (*p_TruncBegMode)[p] = (*p_TruncEndMode)[p] = PERCENT;

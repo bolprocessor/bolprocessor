@@ -1034,13 +1034,14 @@ if(nature_time == STRIATED || nseq == 0) {
 		beta = alpha;
 	//	if(j > 16383) goto OKALPHA1;
 		if(j >= Jbol) goto OKALPHA1;
+		if((*p_RescaleMode)[j] == OK_RESCALE) goto OKALPHA1;
 		if((*p_FixScale)[j] && (*p_CyclicMode)[j] == IRRELEVANT) {
 			alpha = beta = 1.; goto OKALPHA1;
 			}
 		if(FixDilationRatioInCyclicObject(j,d,&alpha,&beta,&ncycles) == OK) goto OKALPHA1;
 		if((*p_OkExpand)[j] && alpha >= 1.) goto OKALPHA1;
 		if((*p_OkCompress)[j] && alpha <= 1.) goto OKALPHA1;
-		if(!(*p_FixScale)[j] && !(*p_OkExpand)[j] && !(*p_OkCompress)[j]) {
+		if((!(*p_FixScale)[j] && !(*p_OkExpand)[j] && !(*p_OkCompress)[j]) || (*p_RescaleMode)[j] == DILATION_RATIO) { // 2026-09-15
 			if(alpha > (*p_AlphaMax)[j]) beta = alpha = (*p_AlphaMax)[j];
 			if(alpha < (*p_AlphaMin)[j]) beta = alpha = (*p_AlphaMin)[j];
 			goto OKALPHA1;
@@ -1212,15 +1213,15 @@ FINDNEXTMARKED:
 		if(!gotcurrenttime) currenttime += (Milliseconds) (alpha * dur);
 		
 		beta = alpha; ncycles = 1;
-	//	if(j > 16383) goto OKALPHA2;
 		if(j >= Jbol) goto OKALPHA2;
+		if((*p_RescaleMode)[j] == OK_RESCALE) goto OKALPHA2;
 		if((*p_FixScale)[j] && (*p_CyclicMode)[j] == IRRELEVANT) {
 			alpha = beta = 1.; goto OKALPHA2;
 			}
 		if(FixDilationRatioInCyclicObject(j,d,&alpha,&beta,&ncycles) == OK) goto OKALPHA2;
 		if((*p_OkExpand)[j] && alpha >= 1.) goto OKALPHA2;
 		if((*p_OkCompress)[j] && alpha <= 1.) goto OKALPHA2;
-		if(!(*p_FixScale)[j] && !(*p_OkExpand)[j] && !(*p_OkCompress)[j]) {
+		if((!(*p_FixScale)[j] && !(*p_OkExpand)[j] && !(*p_OkCompress)[j]) || (*p_RescaleMode)[j] == DILATION_RATIO) {
 			if(alpha > (*p_AlphaMax)[j]) beta = alpha = (*p_AlphaMax)[j];
 			if(alpha < (*p_AlphaMin)[j]) beta = alpha = (*p_AlphaMin)[j];
 			goto OKALPHA2;
@@ -1242,75 +1243,73 @@ return(OK);
 }
 
 
-int FixDilationRatioInCyclicObject(int j,double d,double *p_alpha,double *p_dilationratio,
-	int *p_ncycles)
+int FixDilationRatioInCyclicObject(int j,double d,double *p_alpha,double *p_dilationratio,int *p_ncycles) {
 /* Examine objects with periodical part and see whether that part could be repeated
 If so, fix the number of repetitions and the actual dilation ratio,...
  ... and change alpha if necessary */
-{
-int n1,n2,limit;
-double objectperiod,cyclicafter,ncycles,pivpos;
+	int n1,n2,limit;
+	double objectperiod,cyclicafter,ncycles,pivpos;
 
-*p_dilationratio = *p_alpha;
-if(j > 16383) return(OK);
+	*p_dilationratio = *p_alpha;
+	if(j > 16383) return(OK);
 
-// We're only concerned about cyclic objects with dilation ratio > 1.
-if((*p_alpha) <= 1. || (*p_CyclicMode)[j] == IRRELEVANT) return(MISSED);
-if(GetPeriod(j,1.,&objectperiod,&cyclicafter) == MISSED) return(MISSED);
+	// We're only concerned about cyclic objects with dilation ratio > 1.
+	if((*p_alpha) <= 1. || (*p_CyclicMode)[j] == IRRELEVANT) return(MISSED);
+	if(GetPeriod(j,1.,&objectperiod,&cyclicafter) == MISSED) return(MISSED);
 
-if(!(*p_FixScale)[j] && !(*p_OkExpand)[j] && !(*p_OkCompress)[j])
-	limit = TRUE;		/* dilation ratio has a specified upper limit */
-else limit = FALSE;		/* it hasn't */
+	if(!(*p_FixScale)[j] && !(*p_OkExpand)[j] && !(*p_OkCompress)[j])
+		limit = TRUE;		/* dilation ratio has a specified upper limit */
+	else limit = FALSE;		/* it hasn't */
 
-if((*p_PivMode)[j] == PERCENT)
-	pivpos = (*p_Dur)[j] * (*p_PivPos)[j] / 100.;
-else
-	pivpos = (*p_PivPos)[j];
-if(PlayFromInsertionPoint) pivpos = 0.;
-	
-// First consider objects that can't be stretched
+	if((*p_PivMode)[j] == PERCENT)
+		pivpos = (*p_Dur)[j] * (*p_PivPos)[j] / 100.;
+	else
+		pivpos = (*p_PivPos)[j];
+	if(PlayFromInsertionPoint) pivpos = 0.;
+		
+	// First consider objects that can't be stretched
 
-if(!limit && (!(*p_OkExpand)[j] || (*p_CyclicMode)[j] == FIXVALUE)) {
-	*p_dilationratio = 1.;
-FINDCYCLES:
-	ncycles = (double)(((*p_alpha) * (*p_Dur)[j] / (*p_dilationratio))
-		- cyclicafter + pivpos) / objectperiod;
-	if((*p_ForceIntegerCycles)[j]) {
-		if((ncycles - (int)ncycles) > 0.5) ncycles = ceil(ncycles);
-		else ncycles = floor(ncycles);
+	if(!limit && (!(*p_OkExpand)[j] || (*p_CyclicMode)[j] == FIXVALUE)) {
+		*p_dilationratio = 1.;
+	FINDCYCLES:
+		ncycles = (double)(((*p_alpha) * (*p_Dur)[j] / (*p_dilationratio))
+			- cyclicafter + pivpos) / objectperiod;
+		if((*p_ForceIntegerCycles)[j]) {
+			if((ncycles - (int)ncycles) > 0.5) ncycles = ceil(ncycles);
+			else ncycles = floor(ncycles);
+			}
+	//	BPPrintMessage(0,odInfo,"@@@ j = %d, ncycles = %.4f, CyclicMode = %d\n",j,ncycles,(int)(*p_CyclicMode)[j]);
+		goto SORTIR;
 		}
-//	BPPrintMessage(0,odInfo,"@@@ j = %d, ncycles = %.4f, CyclicMode = %d\n",j,ncycles,(int)(*p_CyclicMode)[j]);
-	goto SORTIR;
+
+	// Now, objects that can be stretched
+		
+	ncycles = d;
+
+	// Adjust dilation ratio so that the duration is correct
+
+	*p_dilationratio = (*p_alpha) * (*p_Dur)[j] / (cyclicafter - pivpos + (ncycles * objectperiod));
+
+	// If beta is too large, fix limit value and increase ncycles
+
+	if((!limit && !(*p_OkExpand)[j] && *p_dilationratio > 1.)
+			|| (limit && (*p_dilationratio > (*p_AlphaMax)[j]))) {
+		if(limit) *p_dilationratio = (*p_AlphaMax)[j];
+		else *p_dilationratio = 1.;
+		goto FINDCYCLES;
+		}
+
+	SORTIR:
+	if((*p_Dur)[j] > EPSILON) {
+		*p_alpha = *p_dilationratio * (cyclicafter + (ncycles * objectperiod)) / (*p_Dur)[j];
+		*p_ncycles = (int) ncycles;
+		}
+	else {
+		*p_alpha = 0.;
+		*p_ncycles = 0;
+		}
+	return(OK);
 	}
-
-// Now, objects that can be stretched
-	
-ncycles = d;
-
-// Adjust dilation ratio so that the duration is correct
-
-*p_dilationratio = (*p_alpha) * (*p_Dur)[j] / (cyclicafter - pivpos + (ncycles * objectperiod));
-
-// If beta is too large, fix limit value and increase ncycles
-
-if((!limit && !(*p_OkExpand)[j] && *p_dilationratio > 1.)
-		|| (limit && (*p_dilationratio > (*p_AlphaMax)[j]))) {
-	if(limit) *p_dilationratio = (*p_AlphaMax)[j];
-	else *p_dilationratio = 1.;
-	goto FINDCYCLES;
-	}
-
-SORTIR:
-if((*p_Dur)[j] > EPSILON) {
-	*p_alpha = *p_dilationratio * (cyclicafter + (ncycles * objectperiod)) / (*p_Dur)[j];
-	*p_ncycles = (int) ncycles;
-	}
-else {
-	*p_alpha = 0.;
-	*p_ncycles = 0;
-	}
-return(OK);
-}
 
 
 int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend,

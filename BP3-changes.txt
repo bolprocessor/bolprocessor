@@ -6,7 +6,7 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Read also the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-09-11 -> 2026-09-13 (version 3.5.4)
+2026-09-11 -> 2026-09-15 (version 3.5.4)
 When creating event lists (see below, version 3.5.0), microtonality is now taken into account. Scala (SCL) and keyboard mapping (KBM) files are produced wherever they are used and mentioned in the event list to define the tonal structure.
 For example, check '-da.Ombres_errantes'. This produces 'Ombres_errantes.csv' (the event list), 'rameau_en_sib.scl' and 'rameau_en_sib.kbm' in your output folder.
 Read https://bolprocessor.org/event-lists/ for more details.

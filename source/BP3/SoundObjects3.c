@@ -82,7 +82,7 @@ if(MyDisposeHandle(&ptr) != OK) return(ABORT);
    = (*p_OkArticul)[j] = (*p_OkVolume)[j] = TRUE;
 (*p_BreakTempo)[j] = (*p_DiscardNoteOffs)[j] = FALSE;
 (*p_PivType)[j] = 1; (*p_PivMode)[j] = FIXVALUE;
-(*p_RescaleMode)[j] = PERCENT;
+(*p_RescaleMode)[j] = OK_RESCALE;
 (*p_AlphaMin)[j] = 0; (*p_AlphaMax)[j] = 100.;
 (*p_Dur)[j] = ZERO;
 (*p_Resolution)[j] = 1;
@@ -125,7 +125,7 @@ int CheckConsistency(int j,int check) {
    if(j >= Jbol || j < 2) return(OK);
    bugg = 0;
 
-   if((*p_CsoundSize)[j] <= ZERO) {
+   /* if((*p_CsoundSize)[j] <= ZERO) {
       if((*p_Type)[j] & 4) {
          (*p_Type)[j] &= (255-4);
          (*p_CsoundInstr)[j] = 0;
@@ -140,7 +140,7 @@ int CheckConsistency(int j,int check) {
       if((*p_Type)[j] & 1) {
          (*p_Type)[j] &= (255-1);
          }
-      }
+      } */
       
    if((*p_Resolution)[j] <= ZERO) {
       if(trace_inconsistencies) BPPrintMessage(0,odError,"=> Err. CheckConsistency(). (*p_Resolution)[j] <= ZERO\n");
@@ -153,12 +153,13 @@ int CheckConsistency(int j,int check) {
       (*p_Tref)[j] = ZERO;
       }
    if((*p_PivType)[j] < 1 || (*p_PivType)[j] > 7) {
-      if(trace_inconsistencies) BPPrintMessage(0,odInfo,"CheckConsistency() (*p_PivType)[%d] = %d\n",j,(*p_PivType)[j]);
+      if(trace_inconsistencies) BPPrintMessage(0,odInfo,"=> CheckConsistency() (*p_PivType)[%d] = %d\n",j,(*p_PivType)[j]);
       (*p_PivType)[j] = 1; bugg++;
       }
 
    SetPrototypeDuration(j,&longerCsound);
    dur = (*p_Dur)[j];
+   BPPrintMessage(0,odInfo,"@@ %s, dur = %ld\n",*((*p_Bol)[j]),dur);
    if(dur < EPSILON) {
       (*p_PivType)[j] = 1; (*p_PivPos)[j] = ZERO;
       (*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j]
@@ -168,18 +169,20 @@ int CheckConsistency(int j,int check) {
       (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = FALSE;
       (*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = ZERO;
       }
+   return(OK);
+   /* 
    switch((*p_PivType)[j]) {
       case 1: (*p_PivPos)[j] = 0.; (*p_PivMode)[j] = FIXVALUE; break;
       case 2: (*p_PivPos)[j] = 100.; (*p_PivMode)[j] = PERCENT; break;
       case 5: (*p_PivPos)[j] = 50.; (*p_PivMode)[j] = PERCENT; break;
-      case 7: /* pivspec */ break;
-      case 4: /* endoff */
-      case 3: /* begon */
-      case 6: /* centonoff */
-         if((*p_MIDIsize)[j] == ZERO && (*p_CsoundSize)[j] == ZERO) {
-            if(trace_inconsistencies) BPPrintMessage(0,odInfo,"CheckConsistency() (*p_MIDIsize)[%d] = ZERO and (*p_CsoundSize)[%d] = ZERO\n",j,j);
-            (*p_PivType)[j] = 1; bugg++; break;
-            }
+      case 7: break; // pivspec
+      case 4: // endoff
+      case 3: // begon
+      case 6: // centonoff
+      // if((*p_MIDIsize)[j] == ZERO && (*p_CsoundSize)[j] == ZERO) {
+       //     if(trace_inconsistencies) BPPrintMessage(0,odInfo,"CheckConsistency() (*p_MIDIsize)[%d] = ZERO and (*p_CsoundSize)[%d] = ZERO\n",j,j);
+        //   (*p_PivType)[j] = 1; bugg++; break;
+      //     }
          ton = toff = -1L;
          for(i=t=ZERO; i < (*p_MIDIsize)[j]-2; i++) {
             t += (*((*pp_MIDIcode)[j]))[i].time;
@@ -198,23 +201,16 @@ int CheckConsistency(int j,int check) {
             }
          GetPrePostRoll(j,&preroll,&postroll);
          switch((*p_PivType)[j]) {
-            case 3: /* begon */
+            case 3: // begon
                (*p_PivPos)[j] = ((float)(ton - preroll) * 100.) / dur;
                (*p_PivMode)[j] = PERCENT; break;
-            case 4: /* endoff */
+            case 4: // endoff
                (*p_PivPos)[j] = ((float)(toff - preroll) * 100.) / dur;
                (*p_PivMode)[j] = PERCENT; break;
-            case 6: /* centonoff */
+            case 6: // centonoff
                (*p_PivPos)[j] = ((float)((ton+toff)/2. - preroll) * 100.) / dur;
                (*p_PivMode)[j] = PERCENT; break;
             }
-      }
-      
-   /* if((*p_CoverBeg)[j] && dur > EPSILON) {
-      (*p_MaxCoverBeg)[j] = 100L; (*p_CoverBegMode)[j] = PERCENT;
-      }
-   if((*p_CoverEnd)[j] && dur > EPSILON) {
-      (*p_MaxCoverEnd)[j] = 100L; (*p_CoverEndMode)[j] = PERCENT;
       } */
    if((*p_MaxCoverBeg)[j] < 0) {
       (*p_MaxCoverBeg)[j] = 0; bugg++;
@@ -241,17 +237,6 @@ int CheckConsistency(int j,int check) {
          (*p_MaxCoverBeg)[j] = (maxcover1 * 100) / dur;
          }
       }
-   /* if((*p_CoverBegMode)[j] == PERCENT && (*p_MaxCoverBeg)[j] == 100L)
-      (*p_CoverBeg)[j] = TRUE;
-   if((*p_CoverEndMode)[j] == PERCENT && (*p_MaxCoverEnd)[j] == 100L)
-      (*p_CoverEnd)[j] = TRUE; */
-      
-   /* if((*p_TruncBeg)[j] && dur > EPSILON) {
-      (*p_MaxTruncBeg)[j] = 100L; (*p_TruncBegMode)[j] = PERCENT;
-      }
-   if((*p_TruncEnd)[j] && dur > EPSILON) {
-      (*p_MaxTruncEnd)[j] = 100L; (*p_TruncEndMode)[j] = PERCENT;
-      } */
    if((*p_MaxTruncBeg)[j] < 0) {
       (*p_MaxTruncBeg)[j] = 0; bugg++;
       }
@@ -277,12 +262,8 @@ int CheckConsistency(int j,int check) {
          (*p_MaxTruncBeg)[j] = (maxtrunc1 * 100) / dur;
          }
       }
-   /* if((*p_TruncBegMode)[j] == PERCENT && (*p_MaxTruncBeg)[j] == 100L)
-      (*p_TruncBeg)[j] = TRUE;
-   if((*p_TruncEndMode)[j] == PERCENT && (*p_MaxTruncEnd)[j] == 100L)
-      (*p_TruncEnd)[j] = TRUE; */
    if(check && (bugg > 0)) {
-      BPPrintMessage(0,odInfo,"Found inconsistencies in sound-object prototype '%s'. These have been corrected.\n",(*p_Bol)[j]);
+      BPPrintMessage(0,odInfo,"=> Found inconsistencies in sound-object prototype '%s'. These have been corrected.\n",(*p_Bol)[j]);
       }
    return(OK);
    }

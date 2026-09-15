@@ -882,13 +882,6 @@ for(j=2; j < maxsounds; j++) {
 	if((rep=CompileObjectScore(j,&longerCsound)) != OK) {
 		if(rep == ABORT) goto SORTIR;
 		iProto = j;
-#if BP_CARBON_GUI_FORGET_THIS
-		SetPrototype(iProto);
-		SetCsoundScore(iProto);
-		ShowWindow(Window[wPrototype1]);
-		BringToFront(Window[wPrototype1]);
-		BPActivateWindow(SLOW,wPrototype7);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 		CompiledCsObjects = 0;
 		rep = MISSED;
 		goto SORTIR;
