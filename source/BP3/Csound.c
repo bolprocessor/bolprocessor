@@ -1226,15 +1226,15 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 			if(ip < 4) {
 				if((*p_CsInstrumentIndex)[ins] > 0)
 					my_sprintf(Message,
-						"=> Csound instrument %ld requires at least 3 arguments whereas the score is supplying %ld ones",
+						"=> Csound instrument %ld requires at least 3 arguments whereas the score is supplying %ld",
 						(long)(*p_CsInstrumentIndex)[ins],(long)(ip-1));
 				else
 					my_sprintf(Message,
-						"=> Default Csound instrument requires at least 3 arguments whereas the score is supplying %ld ones",
+						"=> Default Csound instrument requires at least 3 arguments whereas the score is supplying %ld",
 						(long)(ip-1));
-				BPPrintMessage(0,odError,"%s",Message);
+				BPPrintMessage(0,odError,"%s\n",Message);
 				if(Jinstr < 2)
-					BPPrintMessage(0,odError,"=> You probably forgot to create or load a '-cs' instrument file");
+					BPPrintMessage(0,odError,"=> You probably forgot to create or load a '-cs' instrument file\n");
 				if((*p_CsoundInstr)[j] > 0) {
 	#if BP_CARBON_GUI_FORGET_THIS
 					ShowWindow(Window[wPrototype1]);

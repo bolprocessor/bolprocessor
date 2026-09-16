@@ -335,10 +335,19 @@ enum {
 #define NEVER_RESCALE 1
 #define DILATION_RATIO 2
 
+// Values for channel
+#define FORCE_TO_CURRENT 0
+#define NO_CHANGE -1
+
 // Values fo file formats
 #define MAC 0
 #define DOS 1
 #define UNIX 2
+
+// Values for midi to csound conversion
+#define USE_CURRENT_INSTRUMENT 0
+#define DO_NOT_CHANGE_INSTRUMENT -1
+#define FORCE_TO_INSTRUMENT 1
 
 // More values for SynchroSignal
 #define PLAYNOW 1

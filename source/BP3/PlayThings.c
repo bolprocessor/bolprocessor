@@ -126,7 +126,7 @@ int PlaySelection(int w, int all) {
 				}
 			}
 	//	BPPrintMessage(1,odInfo,"@ origin = %ld next_origin = %ld end = %ld\n",(long)origin,(long)next_origin,(long)end);
-		if(next_origin < (origin + 2)) break;
+		if(next_origin < (origin + 1)) break;
 		if((next_origin + 1) >= end) LastChunk = TRUE;
 		r = OK;
 		SetSelect(origin,next_origin,TEH[w]);

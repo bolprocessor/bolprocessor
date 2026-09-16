@@ -581,6 +581,8 @@ void thismode(int,char*);
 void thismode_pivot(int,char*);
 void thismode_type(int,char*);
 void thismode_rescale(int,char*);
+void thismode_channel(int,char*);
+void thismode_csound(int,char*);
 int TimeSet(tokenbyte***,long*,long*,long*,unsigned long*,int*,unsigned long**,double);
 int FillPhaseDiagram(tokenbyte***,long*,unsigned long*,int*,unsigned long**,double,int*);
 int MakeEmptyTokensSilent(tokenbyte***,double*);
