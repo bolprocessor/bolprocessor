@@ -593,118 +593,114 @@ return(OK);
 }
 
 
-int ResizeCsoundInstrumentsSpace(int howmany)
-{
-int i,j;
-char **ptr;
+int ResizeCsoundInstrumentsSpace(int howmany) {
+	int i,j;
+	char **ptr;
 
-if(howmany != Jinstr) CompiledCsObjects = CompiledRegressions = 0;
- 
-if(howmany == 0) {
-	BPPrintMessage(0,odError,"=> Err. ResizeCsoundInstrumentsSpace(). howmany == 0\n");
-	return(ReleaseCsoundInstruments());
-	}
-if(Jinstr == 0) {
-	if((p_CsoundTables=(char****) GiveSpace((Size)2 *sizeof(char**))) == NULL) return(ABORT);
-	// MaxCsoundTables = 10;
-	for(i=0; i < MaxCsoundTables; i++) (*p_CsoundTables)[i] = NULL;
-	if((p_CsInstrument=(CsoundInstrument**) GiveSpace((Size)howmany * sizeof(CsoundInstrument))) == NULL) return(ABORT);
-	if((p_CsInstrumentIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
-	if((p_CsPitchFormat=(char**) GiveSpace((Size)howmany * sizeof(char))) == NULL) return(ABORT);
-	if((p_CsDilationRatioIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
-	if((p_CsAttackVelocityIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
-	if((p_CsReleaseVelocityIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
-	if((p_CsPitchIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
-	if((p_CsPitchBendStartIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
-	if((p_CsVolumeStartIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
-	if((p_CsPressureStartIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
-	if((p_CsModulationStartIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
-	if((p_CsPanoramicStartIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
-	if((p_CsPitchBendEndIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
-	if((p_CsVolumeEndIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
-	if((p_CsPressureEndIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
-	if((p_CsModulationEndIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
-	if((p_CsPanoramicEndIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
-	if((pp_CsInstrumentName=(char****) GiveSpace((Size)howmany * sizeof(char**))) == NULL) return(ABORT);
-	if((pp_CsInstrumentComment=(char****) GiveSpace((Size)howmany * sizeof(char**))) == NULL) return(ABORT);
-	for(i=0; i < 6; i++) {
-		if((p_CsPitchBend[i]=(double**) GiveSpace((Size)howmany * sizeof(double))) == NULL) return(ABORT);
-		if((p_CsVolume[i]=(double**) GiveSpace((Size)howmany * sizeof(double))) == NULL) return(ABORT);
-		if((p_CsPressure[i]=(double**) GiveSpace((Size)howmany * sizeof(double))) == NULL) return(ABORT);
-		if((p_CsModulation[i]=(double**) GiveSpace((Size)howmany * sizeof(double))) == NULL) return(ABORT);
-		if((p_CsPanoramic[i]=(double**) GiveSpace((Size)howmany * sizeof(double))) == NULL) return(ABORT);
-		}
-	}
+	if(howmany != Jinstr) CompiledCsObjects = CompiledRegressions = 0;
 	
-for(j=howmany; j < Jinstr; j++) {
-	/* Downsizing */
-	ptr = (*pp_CsInstrumentName)[j];
-	MyDisposeHandle((Handle*)&ptr);
-	(*pp_CsInstrumentName)[j] = NULL;
-	ptr = (*pp_CsInstrumentComment)[j];
-	MyDisposeHandle((Handle*)&ptr);
-	(*pp_CsInstrumentComment)[j] = NULL;
-	for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
-		if((*p_CsInstrument)[j].paramlist == NULL) {
-			BPPrintMessage(0,odError,"=> Err. ResizeCsoundInstrumentsSpace(). (*p_CsInstrument)[j].paramlist == NULL");
-			break;
+	if(howmany == 0) {
+		BPPrintMessage(0,odError,"=> Err. ResizeCsoundInstrumentsSpace(). howmany == 0\n");
+		return(ReleaseCsoundInstruments());
+		}
+	if(Jinstr == 0) {
+		if((p_CsoundTables=(char****) GiveSpace((Size)2 *sizeof(char**))) == NULL) return(ABORT);
+		// MaxCsoundTables = 10;
+		for(i=0; i < MaxCsoundTables; i++) (*p_CsoundTables)[i] = NULL;
+		if((p_CsInstrument=(CsoundInstrument**) GiveSpace((Size)howmany * sizeof(CsoundInstrument))) == NULL) return(ABORT);
+		if((p_CsInstrumentIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
+		if((p_CsPitchFormat=(char**) GiveSpace((Size)howmany * sizeof(char))) == NULL) return(ABORT);
+		if((p_CsDilationRatioIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
+		if((p_CsAttackVelocityIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
+		if((p_CsReleaseVelocityIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
+		if((p_CsPitchIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
+		if((p_CsPitchBendStartIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
+		if((p_CsVolumeStartIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
+		if((p_CsPressureStartIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
+		if((p_CsModulationStartIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
+		if((p_CsPanoramicStartIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
+		if((p_CsPitchBendEndIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
+		if((p_CsVolumeEndIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
+		if((p_CsPressureEndIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
+		if((p_CsModulationEndIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
+		if((p_CsPanoramicEndIndex=(int**) GiveSpace((Size)howmany * sizeof(int))) == NULL) return(ABORT);
+		if((pp_CsInstrumentName=(char****) GiveSpace((Size)howmany * sizeof(char**))) == NULL) return(ABORT);
+		if((pp_CsInstrumentComment=(char****) GiveSpace((Size)howmany * sizeof(char**))) == NULL) return(ABORT);
+		for(i=0; i < 6; i++) {
+			if((p_CsPitchBend[i]=(double**) GiveSpace((Size)howmany * sizeof(double))) == NULL) return(ABORT);
+			if((p_CsVolume[i]=(double**) GiveSpace((Size)howmany * sizeof(double))) == NULL) return(ABORT);
+			if((p_CsPressure[i]=(double**) GiveSpace((Size)howmany * sizeof(double))) == NULL) return(ABORT);
+			if((p_CsModulation[i]=(double**) GiveSpace((Size)howmany * sizeof(double))) == NULL) return(ABORT);
+			if((p_CsPanoramic[i]=(double**) GiveSpace((Size)howmany * sizeof(double))) == NULL) return(ABORT);
 			}
-		ptr = (*((*p_CsInstrument)[j].paramlist))[i].name;
-		MyDisposeHandle((Handle*)&ptr);
-		ptr = (*((*p_CsInstrument)[j].paramlist))[i].comment;
-		MyDisposeHandle((Handle*)&ptr);
 		}
-	ptr = (char**)(*p_CsInstrument)[j].paramlist;
-	MyDisposeHandle((Handle*)&ptr);
-	(*p_CsInstrument)[j].paramlist = NULL;
+		
+	for(j=howmany; j < Jinstr; j++) {
+		/* Downsizing */
+		ptr = (*pp_CsInstrumentName)[j];
+		MyDisposeHandle((Handle*)&ptr);
+		(*pp_CsInstrumentName)[j] = NULL;
+		ptr = (*pp_CsInstrumentComment)[j];
+		MyDisposeHandle((Handle*)&ptr);
+		(*pp_CsInstrumentComment)[j] = NULL;
+		for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
+			if((*p_CsInstrument)[j].paramlist == NULL) {
+				BPPrintMessage(0,odError,"=> Err. ResizeCsoundInstrumentsSpace(). (*p_CsInstrument)[j].paramlist == NULL");
+				break;
+				}
+			ptr = (*((*p_CsInstrument)[j].paramlist))[i].name;
+			MyDisposeHandle((Handle*)&ptr);
+			ptr = (*((*p_CsInstrument)[j].paramlist))[i].comment;
+			MyDisposeHandle((Handle*)&ptr);
+			}
+		ptr = (char**)(*p_CsInstrument)[j].paramlist;
+		MyDisposeHandle((Handle*)&ptr);
+		(*p_CsInstrument)[j].paramlist = NULL;
+		}
+
+	if(MySetHandleSize((Handle*)&p_CsInstrument,(Size)howmany * sizeof(CsoundInstrument)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&p_CsInstrumentIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&p_CsPitchFormat,(Size)howmany * sizeof(char)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&p_CsDilationRatioIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&p_CsAttackVelocityIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&p_CsReleaseVelocityIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&p_CsPitchIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&p_CsPitchBendStartIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&p_CsVolumeStartIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&p_CsPressureStartIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&p_CsModulationStartIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&p_CsPanoramicStartIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&p_CsPitchBendEndIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&p_CsVolumeEndIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&p_CsPressureEndIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&p_CsModulationEndIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&p_CsPanoramicEndIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
+
+	if(MySetHandleSize((Handle*)&pp_CsInstrumentName,(Size)howmany * sizeof(char**)) != OK) return(ABORT);
+	if(MySetHandleSize((Handle*)&pp_CsInstrumentComment,(Size)howmany * sizeof(char**)) != OK) return(ABORT);
+
+	for(i=0; i < 6; i++) {
+		if(MySetHandleSize((Handle*)&(p_CsPitchBend[i]),(Size)howmany * sizeof(double)) != OK) return(ABORT);
+		if(MySetHandleSize((Handle*)&(p_CsVolume[i]),(Size)howmany * sizeof(double)) != OK) return(ABORT);
+		if(MySetHandleSize((Handle*)&(p_CsPressure[i]),(Size)howmany * sizeof(double)) != OK) return(ABORT);
+		if(MySetHandleSize((Handle*)&(p_CsModulation[i]),(Size)howmany * sizeof(double)) != OK) return(ABORT);
+		if(MySetHandleSize((Handle*)&(p_CsPanoramic[i]),(Size)howmany * sizeof(double)) != OK) return(ABORT);
+		}
+
+	for(j=Jinstr; j < howmany; j++) {
+		if((ptr=(char**) GiveSpace((Size)2L * sizeof(char))) == NULL) return(ABORT);
+		(*pp_CsInstrumentName)[j] = ptr;
+		(*((*pp_CsInstrumentName)[j]))[0] = '\0';
+		if((ptr=(char**) GiveSpace((Size)2L * sizeof(char))) == NULL) return(ABORT);
+		(*pp_CsInstrumentComment)[j] = ptr;
+		(*((*pp_CsInstrumentComment)[j]))[0] = '\0';
+		ResetCsoundInstrument(j,NO,YES);
+		}
+		
+	Jinstr = howmany;
+	if(iCsoundInstrument >= Jinstr) iCsoundInstrument = 0;
+	return(OK);
 	}
-
-if(MySetHandleSize((Handle*)&p_CsInstrument,(Size)howmany * sizeof(CsoundInstrument)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&p_CsInstrumentIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&p_CsPitchFormat,(Size)howmany * sizeof(char)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&p_CsDilationRatioIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&p_CsAttackVelocityIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&p_CsReleaseVelocityIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&p_CsPitchIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&p_CsPitchBendStartIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&p_CsVolumeStartIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&p_CsPressureStartIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&p_CsModulationStartIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&p_CsPanoramicStartIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&p_CsPitchBendEndIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&p_CsVolumeEndIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&p_CsPressureEndIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&p_CsModulationEndIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&p_CsPanoramicEndIndex,(Size)howmany * sizeof(int)) != OK) return(ABORT);
-
-if(MySetHandleSize((Handle*)&pp_CsInstrumentName,(Size)howmany * sizeof(char**)) != OK) return(ABORT);
-if(MySetHandleSize((Handle*)&pp_CsInstrumentComment,(Size)howmany * sizeof(char**)) != OK) return(ABORT);
-
-for(i=0; i < 6; i++) {
-	if(MySetHandleSize((Handle*)&(p_CsPitchBend[i]),(Size)howmany * sizeof(double)) != OK) return(ABORT);
-	if(MySetHandleSize((Handle*)&(p_CsVolume[i]),(Size)howmany * sizeof(double)) != OK) return(ABORT);
-	if(MySetHandleSize((Handle*)&(p_CsPressure[i]),(Size)howmany * sizeof(double)) != OK) return(ABORT);
-	if(MySetHandleSize((Handle*)&(p_CsModulation[i]),(Size)howmany * sizeof(double)) != OK) return(ABORT);
-	if(MySetHandleSize((Handle*)&(p_CsPanoramic[i]),(Size)howmany * sizeof(double)) != OK) return(ABORT);
-	}
-
-for(j=Jinstr; j < howmany; j++) {
-	if((ptr=(char**) GiveSpace((Size)2L * sizeof(char))) == NULL) return(ABORT);
-	(*pp_CsInstrumentName)[j] = ptr;
-	(*((*pp_CsInstrumentName)[j]))[0] = '\0';
-	if((ptr=(char**) GiveSpace((Size)2L * sizeof(char))) == NULL) return(ABORT);
-	(*pp_CsInstrumentComment)[j] = ptr;
-	(*((*pp_CsInstrumentComment)[j]))[0] = '\0';
-	ResetCsoundInstrument(j,NO,YES);
-	}
-	
-Jinstr = howmany;
-if(iCsoundInstrument >= Jinstr) iCsoundInstrument = 0;
-#if BP_CARBON_GUI_FORGET_THIS
-SetCsoundInstrument(iCsoundInstrument,-1);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-return(OK);
-}
 
 
 int ReleaseObjectPrototypes(void) {
@@ -716,7 +712,7 @@ int ReleaseObjectPrototypes(void) {
 	maxsounds = Jbol + Jpatt;
 	if(pp_MIDIcode == NULL) max = 0;
 	else max = MyGetHandleSize((Handle) pp_MIDIcode) / sizeof(MIDIcode**);
-	// BPPrintMessage(0,odInfo,"max = %d\n",max);
+	// BPPrintMessage(0,odInfo,"@@@ max = %d\n",max);
 	for(j=2; j < max; j++) {
 		/* Here we also release time-patterns */
 	/*	if((*pp_MIDIcode)[j] != NULL) {
@@ -803,7 +799,7 @@ int ClearObjectSpace(void) { // NOT USED
 	MyDisposeHandle((Handle*)&p_StrikeAgain);
 	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed (c) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 	MyDisposeHandle((Handle*)&p_CompiledCsoundScore);
-	MyDisposeHandle((Handle*)&p_DiscardNoteOffs);
+//	MyDisposeHandle((Handle*)&p_DiscardNoteOffs);
 	MyDisposeHandle((Handle*)&p_ForceIntegerCycles);
 	MyDisposeHandle((Handle*)&p_PivPos);
 	MyDisposeHandle((Handle*)&p_PreRoll);
@@ -848,9 +844,9 @@ int MakeSoundObjectSpace(void) {
 	Milliseconds **ptr2;
 	
 	// BPPrintMessage(0,odInfo, "Running MakeSoundObjectSpace()\n");
-	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start MakeSoundObjectSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 
 	jmax = Jbol;
+	// BPPrintMessage(0,odInfo,"@@@ jmax = %d\n",jmax);
 
 	if(MySetHandleSize((char***)&p_Bol,(Size)jmax *sizeof(char**)) != OK) return(ABORT);
 	if((p_Type = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
@@ -889,7 +885,7 @@ int MakeSoundObjectSpace(void) {
 	if((p_CyclicMode = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
 	if((p_StrikeAgain = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
 	if((p_CompiledCsoundScore = (int**) GiveSpace((Size) jmax *sizeof(int))) == NULL) goto ERR;
-	if((p_DiscardNoteOffs = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
+//	if((p_DiscardNoteOffs = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
 	if((p_ForceIntegerCycles = (char**) GiveSpace((Size) jmax *sizeof(char))) == NULL) goto ERR;
 	if((p_PivPos = (float**) GiveSpace((Size) jmax *sizeof(float))) == NULL) goto ERR;
 	if((p_PreRoll = (long**) GiveSpace((Size) jmax *sizeof(long))) == NULL) goto ERR;
@@ -948,7 +944,7 @@ int MakeSoundObjectSpace(void) {
 		(*p_StrikeAgain)[j] = -1;
 		(*p_CompiledCsoundScore)[j] = 1;
 		(*p_OkTransp)[j] = (*p_OkPan)[j] = (*p_OkMap)[j] = (*p_OkVolume)[j] = (*p_OkArticul)[j]
-			= (*p_OkVelocity)[j] = (*p_DiscardNoteOffs)[j] = (*p_PasteDone)[j] = FALSE;
+			= (*p_OkVelocity)[j] = (*p_PasteDone)[j] = FALSE;
 		(*p_BreakTempo)[j] = TRUE;
 		(*p_FixScale)[j] = (*p_ContBeg)[j] = (*p_ContEnd)[j]
 			= (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = (*p_AlphaCtrl)[j] = (*p_ForceIntegerCycles)[j]
@@ -1004,8 +1000,7 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 	Handle ptr;
 
 	// BPPrintMessage(0,odInfo, "Running ResizeSoundObjectSpace() for maxsounds = %d, Jbol = %d, reset = %d addbol = %d\n",maxsounds,Jbol,reset,addbol);
-	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed (19) = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-
+	
 	if(maxsounds < Jbol) maxsounds = Jbol; // 2026-03-20
 
 	if(maxsounds < Jbol) { // Obsolete
@@ -1028,7 +1023,6 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 			(*pp_CsoundScore)[j] = NULL;
 			}
 		}
-
 	MySetHandleSize((Handle*)&p_Type,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_FixScale,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_OkExpand,(Size)maxsounds*sizeof(char));
@@ -1065,7 +1059,7 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 	MySetHandleSize((Handle*)&p_CyclicMode,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_StrikeAgain,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_CompiledCsoundScore,(Size)maxsounds*sizeof(int));
-	MySetHandleSize((Handle*)&p_DiscardNoteOffs,(Size)maxsounds*sizeof(char));
+//	MySetHandleSize((Handle*)&p_DiscardNoteOffs,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_ForceIntegerCycles,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_PivPos,(Size)maxsounds*sizeof(float));
 	MySetHandleSize((Handle*)&p_PreRoll,(Size)maxsounds*sizeof(long));
@@ -1089,8 +1083,6 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 	MySetHandleSize((Handle*)&p_Ifrom,(Size)maxsounds*sizeof(int));
 	MySetHandleSize((Handle*)&p_Quan,(Size)maxsounds*sizeof(double));
 	MySetHandleSize((Handle*)&p_DefaultChannel,(Size)maxsounds*sizeof(char));
-	if(p_DefaultChannel != NULL && *p_DefaultChannel != NULL)
-    	memset(*p_DefaultChannel,0,(size_t)maxsounds * sizeof(char));
 	MySetHandleSize((Handle*)&p_PasteDone,(Size)maxsounds*sizeof(char));
 	MySetHandleSize((Handle*)&p_Tref,(Size)maxsounds*sizeof(long));
 	MySetHandleSize((Handle*)&p_Tpict,(Size)maxsounds*sizeof(long));
@@ -1105,7 +1097,6 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 	MySetHandleSize((Handle*)&pp_Comment,(Size)maxsounds*sizeof(char**));
 	MySetHandleSize((Handle*)&pp_CsoundScoreText,(Size)maxsounds*sizeof(char**));
 	MySetHandleSize((Handle*)&pp_CsoundScore,(Size)maxsounds*sizeof(CsoundLine**));
-
 	reset = 0;
 	if(reset) {
 		for(j=2; j < Jbol && j < maxsounds; j++) {
@@ -1130,7 +1121,6 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 			(*p_Type)[j] = 0;
 			}
 		}
-
 	// Create objects for time patterns
 //	if(Jbol < maxsounds && Nature_of_time == SMOOTH) { 
 	if(Jbol < maxsounds) {  //  2026-04-06
@@ -1152,7 +1142,7 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 			(*p_OkExpand)[j] = (*p_OkCompress)[j] = TRUE;
 			(*p_StrikeAgain)[j] = -1;
 			(*p_CompiledCsoundScore)[j] = 0; // Fixed 2024-07-04
-			(*p_ContBeg)[j] = (*p_ContEnd)[j] = (*p_OkTransp)[j] = (*p_OkPan)[j] = (*p_OkMap)[j] = (*p_OkVelocity)[j] = (*p_OkArticul)[j] = (*p_OkVolume)[j] = (*p_DiscardNoteOffs)[j] = FALSE;
+			(*p_ContBeg)[j] = (*p_ContEnd)[j] = (*p_OkTransp)[j] = (*p_OkPan)[j] = (*p_OkMap)[j] = (*p_OkVelocity)[j] = (*p_OkArticul)[j] = (*p_OkVolume)[j] = FALSE;
 			(*p_BreakTempo)[j] = TRUE;
 			(*p_FixScale)[j] = (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = (*p_AlphaCtrl)[j] = (*p_ForceIntegerCycles)[j] = FALSE;
 			(*p_PivType)[j] = 1;
@@ -1191,6 +1181,7 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 			(*p_CsoundInstr)[j] = 0;
 			(*p_CsoundInstrumentMode)[j] = -1;
 			(*p_DefaultChannel)[j] = (*p_Quan)[j] = 0;
+			// BPPrintMessage(0,odInfo,"§§§ DefaultChannel[%d] = %d\n",j,(*p_DefaultChannel)[j]);
 			(*p_Tpict)[j] = Infneg;
 			}
 		}

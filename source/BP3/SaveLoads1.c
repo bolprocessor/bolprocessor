@@ -539,7 +539,7 @@ int LoadSettings(const char *filename, int startup) {
 	Code[7] = '.';
 	MIDIfileType = 1;
 	CsoundFileFormat = UNIX;
-	StrikeAgainDefault = PedalReleaseDefault = TRUE;
+	StrikeAgainSettings = PedalReleaseDefault = TRUE;
 	DeftVolume = DEFTVOLUME;
 	VolumeController = VOLUMECONTROL;
 	DeftVelocity = DEFTVELOCITY;
@@ -665,7 +665,7 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"EndFadeOut") == 0) EndFadeOut = floatvalue;
 		else if(strcmp(key,"C4key") == 0) C4key = intvalue;
 		else if(strcmp(key,"A4freq") == 0) A4freq = floatvalue;
-		else if(strcmp(key,"StrikeAgainDefault") == 0) StrikeAgainDefault = intvalue;
+		else if(strcmp(key,"StrikeAgainSettings") == 0) StrikeAgainSettings = intvalue;
 		else if(strcmp(key,"PedalReleaseDefault") == 0) PedalReleaseDefault = intvalue;
 		else if(strcmp(key,"DeftVolume") == 0) DeftVolume = intvalue;
 		else if(strcmp(key,"VolumeController") == 0) VolumeController = intvalue;
@@ -776,7 +776,7 @@ int LoadSettings(const char *filename, int startup) {
 	return(result);
 	}
 
-int ExportPrototypeAsJson(FILE *sojson,int j,int iv,int midicodesize,MIDIcode **p_b) {
+int ExportPrototypeAsJson(FILE *sojson,int j,int iv,int midicodesize,MIDIcode **p_b,const char *this_score) {
 	int i;
 	char mode[MAXNAME];
 	char Message[MAXLIN];
@@ -813,16 +813,16 @@ int ExportPrototypeAsJson(FILE *sojson,int j,int iv,int midicodesize,MIDIcode **
 		SaveFloatAsJson(sojson,"AlphaMin","","Minimum ratio",(*p_AlphaMin)[j]);
 		SaveFloatAsJson(sojson,"AlphaMax","","Maximum ratio",(*p_AlphaMax)[j]);
 		}
-	SaveIntAsJson(sojson,"AlphaCtrl","boolean","Alpha control",(int)(*p_AlphaCtrl)[j]);
+//	SaveIntAsJson(sojson,"AlphaCtrl","boolean","Alpha control",(int)(*p_AlphaCtrl)[j]);
 	if((*p_AlphaCtrl)[j]) {
-		SaveIntAsJson(sojson,"AlphaCtr","","Send ratio to controller number",(*p_AlphaCtrlNr)[j]);
+		SaveIntAsJson(sojson,"AlphaCtrlNr","","Send ratio to controller number",(*p_AlphaCtrlNr)[j]);
 		SaveIntAsJson(sojson,"AlphaCtrlChan","","Send ratio to controller channel",(*p_AlphaCtrlChan)[j]);
 		}
 	SaveIntAsJson(sojson,"OkTransp","boolean","Accept transposition",(*p_OkTransp)[j]);
 	SaveIntAsJson(sojson,"OkArticul","boolean","Accept articulation",(*p_OkArticul)[j]);
 	SaveIntAsJson(sojson,"OkVolume","boolean","Accept volume changes",(*p_OkVolume)[j]);
 	SaveIntAsJson(sojson,"OkPan","boolean","Accept panoramic changes",(*p_OkPan)[j]);
-	SaveIntAsJson(sojson,"OkMap","boolean","Accept key expand changes",(*p_OkMap)[j]);
+	SaveIntAsJson(sojson,"OkMap","boolean","Accept key expand and mapping",(*p_OkMap)[j]);
 	SaveIntAsJson(sojson,"OkVelocity","boolean","Accept velocity changes",(*p_OkVelocity)[j]);
 	SaveIntAsJson(sojson,"OkRelocate","boolean","Relocate",(int)(*p_OkRelocate)[j]);
 	if(!(*p_OkRelocate)[j]) {
@@ -859,29 +859,29 @@ int ExportPrototypeAsJson(FILE *sojson,int j,int iv,int midicodesize,MIDIcode **
 		SaveLongAsJson(sojson,"MaxCoverEnd","ms or percent","Max cover at end",(*p_MaxCoverEnd)[j]);
 		}
 	SaveIntAsJson(sojson,"TruncBeg","boolean","Truncate beginning",(int)(*p_TruncBeg)[j]);
-	if((*p_TruncBeg)[j]) {
+	if((*p_TruncBeg)[j] && (*p_MaxTruncBeg)[j] > 0) {
 		thismode((*p_TruncBegMode)[j],mode);
 		SaveStringAsJson(sojson,"TruncBegMode","enum","Truncate beginning mode",mode);
 		SaveLongAsJson(sojson,"MaxTruncBeg","ms or percent","Max truncate beginning",(*p_MaxTruncBeg)[j]);
 		}
 	SaveIntAsJson(sojson,"TruncEnd","boolean","Truncate end",(int)(*p_TruncEnd)[j]);
-	if((*p_TruncEnd)[j]) {
+	if((*p_TruncEnd)[j] && (*p_MaxTruncEnd)[j] > 0) {
 		thismode((*p_TruncEndMode)[j],mode);
 		SaveStringAsJson(sojson,"TruncEndMode","enum","Truncate end mode",mode);
 		SaveLongAsJson(sojson,"MaxTruncEnd","ms or percent","Max truncate end",(*p_MaxTruncEnd)[j]);
 		}
 	thismode((*p_PreRollMode)[j],mode);
 	SaveStringAsJson(sojson,"PreRollMode","enum","Preroll mode",mode);
-	SaveFloatAsJson(sojson,"Preroll","ms or percent","Preroll",(*p_PreRoll)[j]);
+	SaveFloatAsJson(sojson,"Preroll","ms or percent","Preroll value",(*p_PreRoll)[j]);
 	thismode((*p_PostRollMode)[j],mode);
 	SaveStringAsJson(sojson,"PostRollMode","enum","Postroll mode",mode);
-	SaveFloatAsJson(sojson,"Postroll","ms or percent","Postroll",(*p_PostRoll)[j]);
+	SaveFloatAsJson(sojson,"Postroll","ms or percent","Postroll value",(*p_PostRoll)[j]);
 	thismode((*p_CyclicMode)[j],mode);
-	SaveStringAsJson(sojson,"CyclicMode","enum","Cyclic mode (only MIDI)",mode);
+	SaveStringAsJson(sojson,"CyclicMode","enum","Cyclic mode",mode);
 	if((*p_CyclicMode)[j] != IRRELEVANT) {
 		SaveFloatAsJson(sojson,"CyclicAfter","ms or percent","Cyclic after",(*p_CyclicAfter)[j]);
 		SaveIntAsJson(sojson,"ForceIntegerCycles","boolean","Force integer number of cycles",(*p_ForceIntegerCycles)[j]);
-		SaveIntAsJson(sojson,"DiscardNoteOffs","boolean","Discard NoteOff's (cyclic play) except in last cycle (MIDI)",(*p_DiscardNoteOffs)[j]);
+	//	SaveIntAsJson(sojson,"DiscardNoteOffs","boolean","Discard NoteOff's (cyclic play) except in last cycle (MIDI)",(*p_DiscardNoteOffs)[j]);
 		}
 	switch((*p_StrikeAgain)[j]) {
 		case 1:
@@ -897,16 +897,17 @@ int ExportPrototypeAsJson(FILE *sojson,int j,int iv,int midicodesize,MIDIcode **
 			strcpy(mode,"UNKNOWN");
 			break;
 		}
-	SaveStringAsJson(sojson,"StrikeAgain","enum","Strike again NoteOn's (MIDI)",mode);
+	SaveStringAsJson(sojson,"StrikeAgain","enum","Strike again NoteOn's",mode);
 
-	thismode_csound((*p_CsoundInstrumentMode)[j],mode); ;
-	SaveStringAsJson(sojson,"CsoundInstrumentMode","enum","Csound conversion mode",mode);
-	if((*p_CsoundInstrumentMode)[j] == FORCE_TO_INSTRUMENT)
+	if((*p_CsoundInstrumentMode)[j] > 0)
 		SaveIntAsJson(sojson,"CsoundInstr","","Csound instrument #",(*p_CsoundInstr)[j]);
-
+	else {
+		thismode_csound((*p_CsoundInstrumentMode)[j],mode); ;
+		SaveStringAsJson(sojson,"CsoundInstrumentMode","enum","Csound instrument mode",mode);
+		}
 	SaveLongAsJson(sojson,"Tpict","ms","Tempo of MF2T code",(*p_Tpict)[j]);
 	if((*pp_CsoundScoreText)[j] != NULL)
-		SaveStringAsJson(sojson,"","","Csound score",*((*pp_CsoundScoreText)[j]));
+		SaveStringAsJson(sojson,"","","Csound score",this_score);
 	else SaveStringAsJson(sojson,"","","Csound score","");
 	SaveIntAsJson(sojson,"MIDIcodesize","","Size of MIDI code",midicodesize);
 	if(p_b != NULL) {
@@ -923,7 +924,7 @@ int ExportPrototypeAsJson(FILE *sojson,int j,int iv,int midicodesize,MIDIcode **
 int LoadObjectPrototypes(int checkversion,int tryname) {
 	char c,date[80],*newp,*name_of_file = NULL, *final_name = NULL;
 	MIDIcode **p_b;
-	char **p_line,**p_completeline,line[MAXLIN],line2[MAXLIN];
+	char **p_line,**p_completeline,line[MAXLIN],line2[MAXLIN],this_score[MAXSCORELENGTH];
 	char json_path[MAXNAME];
 	int i,iv,j,jj,co,rep,okt1,diff,stop,maxsounds,s,objecttype,oldjbol,notsaid,
 		pivbeg,pivend,pivbegon,pivendoff,pivmiddle,pivmiddleonoff,pivspec,newbols,okrescale,
@@ -937,9 +938,17 @@ int LoadObjectPrototypes(int checkversion,int tryname) {
 	FILE *sofile, *sojson;
 	sojson = NULL;
 
-	CompileAlphabet();
+	/* snprintf(label,sizeof label,"%s",*((*Scale)[i_scale].label));
+	char scale_path[1024];
+	snprintf(json_path,sizeof json_path,"%s%s.scl",OutputDir,label);
+	int n = snprintf(scale_path, sizeof scale_path,"%s%s.scl",OutputDir,label);
+	if(n < 0 || (size_t)n >= sizeof scale_path) {
+		BPPrintMessage(0,odError,"=> Scale file path is too long\n");
+		return(MISSED);
+		} */
 
-	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start LoadObjectPrototypes = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if((rep=CompileAlphabet()) != OK) return rep;
+	ObjectMode = ObjectTry = TRUE;
 
 	json_path[0] = '\0';
 	if(EventListOn) {
@@ -958,6 +967,7 @@ int LoadObjectPrototypes(int checkversion,int tryname) {
 
 		if(strncmp(basename, "-so.",4) == 0) {
 			// Keep the directory, remove "-so.", and add ".json".
+
 			length = snprintf(json_path, sizeof json_path,"%s%s.json", OutputDir, basename + 4);
 			if (length < 0 || (size_t)length >= sizeof json_path) {
 				BPPrintMessage(0, odError,"=> JSON file path is too long: %s\n", path);
@@ -1097,28 +1107,28 @@ NEXTBOL:
 			}
 		if(Jbol > oldjbol) {
 			Jbol = oldjbol;
-			BPPrintMessage(0,odInfo,"This sound-object has not been created because it is not in the alphabet: %s\n",*p_completeline);
+			BPPrintMessage(0,odInfo,"This sound-object has not been created because it is not in the alphabet: « %s » (%d)\n",*p_completeline,j);
 			}
 		}
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "Final Jbol = %d\n",Jbol);
+
+	(*p_CsoundSize)[j] = (*p_MIDIsize)[j] = ZERO;
 	if(ReadInteger(sofile,&objecttype,&pos) == MISSED) goto ERR;
-	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "object type = %d\n",objecttype);
+	if(trace_load_prototypes) 
+		BPPrintMessage(0,odInfo, "object type [%d] = %d\n",j,objecttype);
 	(*p_Type)[j] = objecttype;
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	(*p_Resolution)[j] = s;
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "(*p_Resolution)[%d] = %d\n",j,(*p_Resolution)[j]);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	(*p_DefaultChannel)[j] = s;
+	// BPPrintMessage(0,odInfo,"&&& DefaultChannel[%d] = %d\n",j,(*p_DefaultChannel)[j]);
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
-	(*p_Tref)[j] = ((long) k * (*p_Resolution)[j]);
+	(*p_Tref)[j] = (long) k; // 2026-09-17
 	if(ReadFloat(sofile,&r,&pos) == MISSED) goto ERR;
 	(*p_Quan)[j] = r;
 	if(ReadOne(FALSE,FALSE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo,"line3 = %s\n",*p_line);
-/*	Les vingt lectures (*p_line)[i++] qui suivent ne bornaient pas la longueur de la ligne.
-	prototype.php la construit toujours complète, mais un fichier '-so.' écrit par un autre
-	dispositif, ou tronqué, faisait lire au-delà de la fin. Refus nommé plutôt que lecture
-	hors limites.	*/
 	i = 0;
 	pivbeg = (*p_line)[i++]-'0';
 	pivend = (*p_line)[i++]-'0';
@@ -1221,7 +1231,9 @@ NEXTBOL:
 	if(s == -2) s = 1; // Fixing old bug
 	(*p_PivMode)[j] = s;
 	if(ReadFloat(sofile,&r,&pos) == MISSED) goto ERR;
-		(*p_PivPos)[j] = r;
+	(*p_PivPos)[j] = r;
+	if(trace_load_prototypes) 
+		BPPrintMessage(0,odInfo,"PivPos[%d] = %.2f\n",j,(*p_PivPos)[j]);
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	(*p_AlphaCtrlNr)[j] = s;
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
@@ -1256,7 +1268,7 @@ NEXTBOL:
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	(*p_ForceIntegerCycles)[j] = s;
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
-	(*p_DiscardNoteOffs)[j] = s;
+//	(*p_DiscardNoteOffs)[j] = s; Obsolete
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	(*p_StrikeAgain)[j] = s;
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
@@ -1272,11 +1284,12 @@ NEXTBOL:
 		if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 		if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 		}
+
 	(*pp_CsoundTime)[j] = NULL;
-	(*p_CompiledCsoundScore)[j] = 0; // Added 2024-07-04
-	(*p_CsoundSize)[j]= 0; // Added 2024-07-04
-	(*pp_CsoundScore)[j] = NULL; // Added 2024-07-04
-	(*pp_CsoundScoreText)[j] = NULL; // Added 2024-07-04
+	(*p_CompiledCsoundScore)[j] = 0;
+//	(*p_CsoundSize)[j]= 0;
+	(*pp_CsoundScore)[j] = NULL;
+	(*pp_CsoundScoreText)[j] = NULL;
 
 	// Read pp_CsoundScoreText
 	if(ReadOne(FALSE,FALSE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
@@ -1284,21 +1297,22 @@ NEXTBOL:
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "line2 = %s\n",*p_line);
 	if(Mystrcmp(p_line,"_beginCsoundScore_") != 0) goto ERR;
 	if(ReadOne(FALSE,FALSE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
+	strcpy(this_score,*p_line);
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "line4 = %s\n",*p_line);
-
 	if((ptr = (Handle) GiveSpace(MyGetHandleSize((Handle)p_completeline))) == NULL) goto ERR;
 	(*pp_CsoundScoreText)[j] = (char**) ptr;
 	if(MystrcpyHandleToHandle(0,&((*pp_CsoundScoreText)[j]),p_completeline) != OK) goto ERR;
-	if(trace_load_prototypes) BPPrintMessage(0,odInfo,"Compiled Csound score\n");
-
 	if(ReadOne(FALSE,TRUE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "line5 = %s\n",*p_line);
-	if(Mystrcmp(p_completeline,"_endCsoundScore_") == 0) goto READSIZE;
+	if(Mystrcmp(p_completeline,"_endCsoundScore_") == 0) {
+		CompileObjectScore(j,&longerCsound);
+		if(trace_load_prototypes) BPPrintMessage(0,odInfo,"Compiled Csound score\n");
+		goto READSIZE;
+		}
 	else goto ERR;
 
 	READSIZE:
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
-
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "Size of MIDI code = %d\n",s);
 	imax = s;
 	p_b = NULL;
@@ -1326,15 +1340,16 @@ NEXTBOL:
 			}
 		imax = i;
 		if(trace_load_prototypes) BPPrintMessage(0,odInfo, "imax = %d\n",imax);
-		if(MIDItoPrototype(FALSE,TRUE,j,p_b,imax) != OK) goto ERR;
+		if(MIDItoPrototype(FALSE,FALSE,j,p_b,imax) != OK) goto ERR;
 		}
-
-	/* if(CheckConsistency(j,TRUE) != OK) {
+	if(CheckConsistency(j,TRUE) != OK) {
 		BPPrintMessage(0,odError,"=> Inconsistency found in '%s'\n",*((*p_Bol)[j]));
 		goto ERR;
 		}
-	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "CheckConsistency is OK for j = %d\n",j); */
-	if(ExportPrototypeAsJson(sojson,j,iv,imax,p_b) != OK) goto ERR;
+	if(trace_load_prototypes) 
+		BPPrintMessage(0,odInfo, "CheckConsistency is OK for j = %d\n",j);
+
+	if(ExportPrototypeAsJson(sojson,j,iv,imax,p_b,this_score) != OK) goto ERR;
 	if(p_b != NULL && MyDisposeHandle((Handle*)&p_b) != OK) goto ERR;
 	if(iv > 9) {
 		if(ReadOne(FALSE,TRUE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
@@ -1367,8 +1382,7 @@ NEXTBOL:
 		if(j > 1 && j < Jbol) {
 			BPPrintMessage(0,odError,"=> The error occured while reading '%s'\n",*((*p_Bol)[j]));
 			}
-		else BPPrintMessage(0,odError,"=> The error did not occur while reading a sound-object\n");
-		BPPrintMessage(0,odInfo,"You may load the sound-object file in a text editor and try to fix inconsistencies\n");
+		else BPPrintMessage(0,odError,"=> Probably you created a new sound-object which is still empty\n");
 		}
 	else rep = ABORT;
 
@@ -1384,15 +1398,18 @@ NEXTBOL:
 			BPPrintMessage(0, odError,"=> Cannot change permissions of %s: %s\n",json_path,strerror(errno));
 		}
 
-	ObjectMode = ObjectTry = TRUE;
 	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end LoadObjectPrototypes = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+
 	if(rep == OK) {
 		if(newbols) {
 			ResizeObjectSpace(NO,Jbol + Jpatt,0);
 			// BPPrintMessage(0,odInfo,"Resizing object space for Jbol = %d and Jpatt = %ld\n",Jbol,Jpatt);
 			}
 		}
+	// rep = CompileCsoundObjects();
+	CompiledCsObjects = TRUE;
 	PrototypesLoaded = TRUE;
+	Trace("SaveLoads1");
 	return(rep);
 	}
 
@@ -1416,15 +1433,15 @@ void thismode(int value,char mode[30]) {
 
 void thismode_csound(int value,char mode[30]) {
 		switch(value) {
-		case 0:
-			strcpy(mode,"USE_CURRENT_INSTRUMENT");
+		case GLOBAL_CS:
+			strcpy(mode,"GLOBAL_CS");
 			break;
-		case -1:
-			strcpy(mode,"DO_NOT_CHANGE_INSTRUMENT");
+		case LOCAL_CS:
+			strcpy(mode,"LOCAL_CS");
 			break;
-		case  1:
-			strcpy(mode,"FORCE_TO_INSTRUMENT");
-			break;
+	/*	case  GLOBAL_CS:
+			strcpy(mode,"GLOBAL_CS");
+			break; */
 		default:
 			strcpy(mode,"UNKNOWN");
 			break;
@@ -1496,14 +1513,14 @@ void thismode_rescale(int value,char mode[30]) {
 
 void thismode_channel(int value,char mode[30]) {
     switch (value) {
-        case FORCE_TO_CURRENT:
-            strcpy(mode, "FORCE_TO_CURRENT");
+        case GLOBAL_CH:
+            strcpy(mode, "GLOBAL_CH");
             break;
-        case NO_CHANGE:
-            strcpy(mode, "NO_CHANGE");
+        case LOCAL_CH:
+            strcpy(mode, "LOCAL_CH");
             break;
         default:
-            strcpy(mode, "UNKNOWN");
+            strcpy(mode, "UNKNOWN"); // This never happens
             break;
 		}
 	}

@@ -217,7 +217,10 @@ T42 x  _srand(x)
 T43 x  T43 y   _tempo(n)
 	n = x / y
 
-T44 x _scale()
+T44 x _scale(scale_name,blockkey)
+	y = x % 256
+	scale_name = (*p_StringConstant)[y]
+	blockkey = (int)(*p_NumberConstant)[(x - y)/MAXSTRINGCONSTANTS]
 
 T45 x _capture()
 
@@ -294,6 +297,7 @@ T47 x Remaining variable processed as a silent sound-object
 62: _transposefixed
 63: _transposecont
 64: _transposestep
+65: _scale
 
 The same in alphabetic order:
 (see PerfCtrlNdx[] in BP2main.h)

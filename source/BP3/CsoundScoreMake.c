@@ -40,7 +40,7 @@
  
 int trace_cs_scoremake = 0;
 
-int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double dilationratio,Milliseconds time_ms,int iline,
+int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double beta,Milliseconds time_ms,int iline,
 	int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,
 	PerfParameters ****pp_currentparams,int scale,int blockkey)
 {
@@ -50,12 +50,10 @@ int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int min
 // onoffline = OFF -- terminate Csound process as a NoteOff has been encountered, and
 //    write Csound score line
 
-int i,jj,k,c,ins,index,paramnameindex,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,
-	pitchclass,result,maxparam,itable,pitch_format,i_scale;
+int i,jj,k,c,ins,index,paramnameindex,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,pitchclass,result,maxparam,itable,pitch_format,i_scale;
 char line[MAXLIN],line2[MAXLIN];
 long imax,pivloc,trbeg,starttime;
-double time,x,xx,cents,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,
-endvalue,ratio,oldtime_on;
+double time,x,xx,cents,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,endvalue,ratio,oldtime_on;
 PerfParameters **perf;
 ParameterStatus **params,**paramscopy;
 Handle h;
@@ -75,7 +73,7 @@ if(chan < 0 || chan >= MAXCHAN) {
 perf = (*pp_currentparams)[nseq]; 
 
 if(trace_cs_scoremake)
-	BPPrintMessage(0,odInfo,"\nRunning CscoreWrite for iline = %d channel = %d instrument = %d k = %d\n",iline,chan,instrument,kcurrentinstance);
+	BPPrintMessage(0,odInfo,"\nRunning CscoreWrite for iline = %d channel = %d instrument = %d k = %d, onoffline = %d\n",iline,chan,instrument,kcurrentinstance,onoffline);
 
 if(onoffline == LINE) {
 	if(j >= Jbol) {
@@ -88,7 +86,7 @@ if(onoffline == LINE) {
 		BPPrintMessage(0,odInfo,Message);
 		goto SORTIR;
 		}
-	dur = (*((*pp_CsoundScore)[j]))[iline].duration * dilationratio;
+	dur = (*((*pp_CsoundScore)[j]))[iline].duration * beta;
 	key = 0;
 	}
 else {
@@ -99,7 +97,7 @@ else {
 		}
 	}
 
-if(Jinstr == 1) {
+if(Jinstr < 2) {
 	ins = 0;
 	if((*p_CsInstrumentIndex)[ins] == -1) index = 1;
 	else index = (*p_CsInstrumentIndex)[ins];
@@ -107,15 +105,14 @@ if(Jinstr == 1) {
 else {
 	if(onoffline == LINE) {
 		index = instrument;
-		if((*p_CsoundInstr)[j] > 0) index = (*p_CsoundInstr)[j];
-		if((*p_CsoundInstr)[j] < 0) index = (*((*pp_CsoundScore)[j]))[iline].instrument;
+	/*	if((*p_CsoundInstr)[j] > 0) index = (*p_CsoundInstr)[j];
+		if((*p_CsoundInstr)[j] < 0) index = (*((*pp_CsoundScore)[j]))[iline].instrument; */
 		}
 	else {
 		if(instrument > 0) index = instrument;
 		else if(j < Jbol && (*p_CsoundInstrumentMode)[j] >= 0) index = (*p_CsoundInstrumentMode)[j];
-			else if(WhichCsoundInstrument[chan+1] >= 0)
-								index = WhichCsoundInstrument[chan+1];
-				else index = 0;
+		else if(WhichCsoundInstrument[chan+1] >= 0) index = WhichCsoundInstrument[chan+1];
+		else index = 0;
 		}
 	for(ins=0; ins < Jinstr; ins++) {
 		if((*p_CsInstrumentIndex)[ins] == index) break;
@@ -126,22 +123,17 @@ else {
 	}
 instrparamlist = (*p_CsInstrument)[ins].paramlist;
 
-// if(Pclock > 0.)	/* Striated or measured smooth time */ // Fixed by BB 30 0ct 2020 ???
-	// time = ((double) t) * Qclock / ((double) Pclock) / 1000.;
-// else 
-	// time = ((double) t) / 1000.;
+time = ((double) time_ms) / 1000.;
 
-time = ((double) time_ms) / 1000.;	 // Fixed by BB 2022-02-10
-
-if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"Pclock = %ld Qclock = %ld, t = %ld, time = %.3f, onoffline = %d\n",(long)Pclock,(long)Qclock,(long)time_ms,time,onoffline);
+if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"Pclock = %ld Qclock = %ld, t = %ld, time = %.3f, onoffline = %d, ins = %d\n",(long)Pclock,(long)Qclock,(long)time_ms,time,onoffline,ins);
 
 comeback = FALSE;
 maxparam = (*p_Instance)[kcurrentinstance].contparameters.number; // Fixed by BB 2024-07-05
 
 if(onoffline == ON) {
 	if((*perf)->level[key] > 0) {
-	/* Here we're in trouble because of two consecutive NoteOn's */
-	/* The solution will be to use the 'sequence' information */
+	// Here we're in trouble because of two consecutive NoteOn's
+	// The solution will be to use the 'sequence' information
 		if(strikeagain) {
 			comeback = TRUE;
 			onoffline = OFF;
@@ -159,10 +151,7 @@ SETON:
 	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"key = %d level = %d\n",key,(*perf)->level[key]);
 	(*perf)->starttime[key] = time;
 	(*perf)->velocity[key] = velocity;
-	(*perf)->dilationratio[key] = dilationratio;
-	
-//	maxparam = (*((*pp_currentparams)[nseq]))->numberparams; 
-//	maxparam = (*p_Instance)[kcurrentinstance].contparameters.number; // Fixed by BB 2024-07-05
+	(*perf)->beta[key] = beta;
 	
 	if((paramscopy = (ParameterStatus**)
 		GiveSpace((Size)(maxparam * sizeof(ParameterStatus)))) == NULL) {
@@ -176,8 +165,8 @@ SETON:
 	goto SORTIR;
 	}
 
-if(onoffline == OFF && (*perf)->level[key] < 1) {
-	BPPrintMessage(0,odError,"=> Err. CscoreWrite(). (*perf)->level[key] < 1 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
+if(onoffline == OFF && (*perf)->level[key] < 0) {
+	BPPrintMessage(0,odError,"=> Err. CscoreWrite(). (*perf)->level[key] < 0 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
 	// (*perf)->level[key] = 1;
 	result = OK; // $$$ TEMP
 	goto SORTIR;
@@ -212,24 +201,24 @@ if((scorearg=(double**) GiveSpace((Size)((iargmax + 1) * sizeof(double)))) == NU
 	
 for(iarg=0; iarg <= iargmax; iarg++) (*scorearg)[iarg] = 0.;
 
-// if(Pclock > 0.)  /* Striated or measured smooth time */ 
-//	ratio = Qclock / ((double) Pclock) / 1000.;
-// else
-//	ratio = 0.001;
+if(onoffline == LINE) {
+	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"@@+ iline = %d\n",iline);
+	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"@@@ ins = %d, iargmax = %d, nbparameters = %d\n",ins,iargmax,(*((*pp_CsoundScore)[j]))[iline].nbparameters);
+	}
 
-ratio = 0.001; // Fixed by BB 2022-02-10
+ratio = 0.001;
 		
 if(onoffline != LINE) {
-//	(*scorearg)[2] = (*perf)->starttime[key] * Qclock / ((double) Pclock);
-	(*scorearg)[2] = (*perf)->starttime[key]; // Fixed by BB 2022-02-10
+	(*scorearg)[2] = (*perf)->starttime[key];
 	(*scorearg)[3] = time - (*scorearg)[2];
-	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"onoffline != LINE, key = %d, starttime = %.3f, time = %ld, scorearg[2] = %.3f, scorearg[3] = %.3f\n",key,(*perf)->starttime[key],(long)time,(*scorearg)[2],(*scorearg)[3]);
+	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"onoffline != LINE, key = %d, starttime = %.3f, time = %ld, scorearg[2] = %.3f, scorearg[3] = %.3f, iargmax = %d\n",key,(*perf)->starttime[key],(long)time,(*scorearg)[2],(*scorearg)[3],iargmax);
 	}
 else {
 	(*scorearg)[2] = time;
 	(*scorearg)[3] = dur * ratio;
-	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"onoffline == LINE, scorearg[2] = %ld, scorearg[3] = %ld\n",(long)(*scorearg)[2],(long)(*scorearg)[3]);
-	for(iarg=4; iarg < (4+(*((*pp_CsoundScore)[j]))[iline].nbparameters); iarg++) {
+	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"onoffline == LINE, scorearg[2] = %ld, scorearg[3] = %ld, nbparameters = %d, iargmax = %d\n",(long)(*scorearg)[2],(long)(*scorearg)[3],(*((*pp_CsoundScore)[j]))[iline].nbparameters,iargmax);
+	for(iarg=4; iarg < (4+(*((*pp_CsoundScore)[j]))[iline].nbparameters) && iarg <= iargmax; iarg++) {
+		// BPPrintMessage(0,odInfo,"iarg = %d\n",iarg);
 		(*scorearg)[iarg] = (*((*((*pp_CsoundScore)[j]))[iline].h_param))[iarg-4];
 		}
 	}
@@ -262,6 +251,11 @@ if(iarg > 0) {
 				key = ExpandKey(key,(*perf)->xpandkey,(*perf)->xpandval);
 			if((*p_OkTransp)[j] && (!(*perf)->transposefirst))
 				TransposeKey(&key,(*perf)->transpose);
+			if((*p_OkMap)[j])
+				key = MapThisKey(key,0.,(*p_Instance)[kcurrentinstance].mapmode,
+							&((*p_Instance)[kcurrentinstance].map0),
+							&((*p_Instance)[kcurrentinstance].map1));
+
 			}
 		}
 	else deltakey = 0.;
@@ -275,7 +269,7 @@ if(iarg > 0) {
 		endvalue = (*params)[IPITCHBEND].endvalue;
 		imax = (*params)[IPITCHBEND].imax;
 		if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"• pitchbend startvalue = %d, endvalue = %d\n",(int)startvalue,(int)endvalue);
-		if((*params)[IPITCHBEND].mode != FIX) {
+		if((*params)[IPITCHBEND].mode != FIXMAPMODE) {
 			if((*params)[IPITCHBEND].dur <= 0.) {
 				BPPrintMessage(0,odError,"=> Err. CsScoreWrite(). (*params)[IPITCHBEND].dur <= 0");
 				goto SORTIR;
@@ -340,8 +334,8 @@ if(iarg > 0) {
 		startvalue = (*params)[IPITCHBEND].startvalue;
 		endvalue = (*params)[IPITCHBEND].endvalue;
 		imax = (*params)[IPITCHBEND].imax;
-		if((*params)[IPITCHBEND].mode != FIX) {
-			if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"(pitchbend mode is not FIX)\n");
+		if((*params)[IPITCHBEND].mode != FIXMAPMODE) {
+			if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"(pitchbend mode is not FIXMAPMODE)\n");
 			if((*params)[IPITCHBEND].dur <= 0.) {
 				BPPrintMessage(0,odError,"=> Err. CsScoreWrite(). (*params)[IPITCHBEND].dur <= 0");
 				goto SORTIR;
@@ -353,7 +347,7 @@ if(iarg > 0) {
 			}
 		else {
 			alpha1 = alpha2 = 0.;
-			if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"(pitchbend mode is FIX)\n");
+			if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"(pitchbend mode is FIXMAPMODE)\n");
 			}
 		if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
 			alpha1 = alpha2 = -1.;
@@ -399,7 +393,7 @@ if(iarg > 0) {
 		startvalue = (*params)[IVOLUME].startvalue;
 		endvalue = (*params)[IVOLUME].endvalue;
 		imax = (*params)[IVOLUME].imax;
-		if((*params)[IVOLUME].mode != FIX) {
+		if((*params)[IVOLUME].mode != FIXMAPMODE) {
 			alpha1 = (((*scorearg)[2] / ratio) - (*params)[IVOLUME].starttime)
 				/ (*params)[IVOLUME].dur;
 			alpha2 = ((((*scorearg)[2] + (*scorearg)[3]) / ratio) - (*params)[IVOLUME].starttime)
@@ -448,7 +442,7 @@ if(iarg > 0) {
 		startvalue = (*params)[IPRESSURE].startvalue;
 		endvalue = (*params)[IPRESSURE].endvalue;
 		imax = (*params)[IPRESSURE].imax;
-		if((*params)[IPRESSURE].mode != FIX) {
+		if((*params)[IPRESSURE].mode != FIXMAPMODE) {
 			alpha1 = (((*scorearg)[2] / ratio) - (*params)[IPRESSURE].starttime)
 				/ (*params)[IPRESSURE].dur;
 			alpha2 = ((((*scorearg)[2] + (*scorearg)[3]) / ratio) - (*params)[IPRESSURE].starttime)
@@ -497,7 +491,7 @@ if(iarg > 0) {
 		startvalue = (*params)[IMODULATION].startvalue;
 		endvalue = (*params)[IMODULATION].endvalue;
 		imax = (*params)[IMODULATION].imax;
-		if((*params)[IMODULATION].mode != FIX) {
+		if((*params)[IMODULATION].mode != FIXMAPMODE) {
 			alpha1 = (((*scorearg)[2] / ratio) - (*params)[IMODULATION].starttime)
 				/ (*params)[IMODULATION].dur;
 			alpha2 = ((((*scorearg)[2] + (*scorearg)[3]) / ratio) - (*params)[IMODULATION].starttime)
@@ -547,7 +541,7 @@ if(iarg > 0) {
 		startvalue = (*params)[IPANORAMIC].startvalue;
 		endvalue = (*params)[IPANORAMIC].endvalue;
 		imax = (*params)[IPANORAMIC].imax;
-		if((*params)[IPANORAMIC].mode != FIX) {
+		if((*params)[IPANORAMIC].mode != FIXMAPMODE) {
 			alpha1 = (((*scorearg)[2] / ratio) - (*params)[IPANORAMIC].starttime)
 				/ (*params)[IPANORAMIC].dur;
 			alpha2 = ((((*scorearg)[2] + (*scorearg)[3]) / ratio) - (*params)[IPANORAMIC].starttime)
@@ -613,7 +607,7 @@ if((*p_CsInstrument)[ins].ipmax > 0 && (*perf)->numberparams > 0) {
 			startvalue = (*params)[paramnameindex].startvalue;
 			endvalue = (*params)[paramnameindex].endvalue;
 			imax = (*params)[paramnameindex].imax;
-			if((*params)[paramnameindex].mode != FIX) {
+			if((*params)[paramnameindex].mode != FIXMAPMODE) {
 				alpha1 = (((*scorearg)[2] / ratio) - (*params)[paramnameindex].starttime)
 					/ (*params)[paramnameindex].dur;
 				alpha2 = ((((*scorearg)[2] + (*scorearg)[3]) / ratio)
@@ -690,8 +684,8 @@ if(iarg > 0 && onoffline != LINE) (*scorearg)[iarg] = velocity;
 
 iarg = (*p_CsDilationRatioIndex)[ins];
 if(iarg > 0) {
-	if(onoffline == LINE) (*scorearg)[iarg] = dilationratio;
-	else (*scorearg)[iarg] = (*perf)->dilationratio[key];
+	if(onoffline == LINE) (*scorearg)[iarg] = beta;
+	else (*scorearg)[iarg] = (*perf)->beta[key];
 	}
 	
 // Write Csound event

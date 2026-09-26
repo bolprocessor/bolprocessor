@@ -252,9 +252,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 						(*p_buff)[i++] = T0; (*p_buff)[i++] = 17;
 						break;
 					case 43: /* _ins() */
-						if(OutCsound) {
-							(*p_buff)[i++] = T32; (*p_buff)[i++] = (tokenbyte) n;
-							}
+						(*p_buff)[i++] = T32; (*p_buff)[i++] = (tokenbyte) n;
 						break;
 					case 67: /* _part() */
 				//		BPPrintMessage(1,odInfo,"@@@ case 67 _part(%d)\n",(int)n);
@@ -327,7 +325,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 						if(OutCsound || rtMIDI || WriteMIDIfile || EventListOn) {
 #endif
 							(*p_buff)[i++] = T44; (*p_buff)[i++] = (tokenbyte) n;
-							if(trace_scale) BPPrintMessage(0,odInfo,"Encode() T44 i = %d n = %d\n",i,n);
+							if(trace_scale) BPPrintMessage(0,odInfo,"Encode() T44 i = %ld n = %d\n",i,n);
 							}
 						break;
 					case 66: /* _capture() */
@@ -807,7 +805,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 			}
 			
 	SEARCHNOTE:
-		/* Look for simple note in current convention */
+		// Look for simple note in current convention
 		lmax = 0;
 		if(strlen(LastSeen_scale) > 0) {
 			ptr = LastSeen_scale;

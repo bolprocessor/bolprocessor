@@ -275,7 +275,7 @@ CJSON_PUBLIC(void) cJSON_Delete(cJSON *item)
     }
 }
 
-/* get the decimal point character of the current locale */
+// Get the decimal point character of the current locale
 static unsigned char get_decimal_point(void)
 {
 #ifdef ENABLE_LOCALES

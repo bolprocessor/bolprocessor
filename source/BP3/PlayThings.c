@@ -70,7 +70,7 @@ int PlaySelection(int w, int all) {
 
 	if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 		CompiledAl = FALSE;
-		if(CompileAlphabet() != OK) goto END;
+		if((r=CompileAlphabet()) != OK) goto END;
 		}
 
 	// if((r=UpdateGlossary()) != OK) goto END;
@@ -339,7 +339,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	if(Create_set) {
 		if(ErrorDuration > 0) return(MISSED);
 		if(trace_play) BPPrintMessage(1,odInfo,"Calling MakeSound() [4]\n");
-		result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
+		result = MakeSound(&kmax,maxseq,nmax+1,tmin,tmax,NULL);
 		}
 	else {
 		if(onlypianoroll || (ShowGraphic && p_Initbuff != (*pp_buff) && POLYconvert && (tmax > tmin || Nature_of_time == SMOOTH))) {
@@ -348,7 +348,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 				if(OutCsound || WriteMIDIfile || rtMIDI || OutBPdata) {
 					if(trace_play)
 						BPPrintMessage(1,odInfo,"Calling MakeSound() [1]\n");
-					result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
+					result = MakeSound(&kmax,maxseq,nmax+1,tmin,tmax,NULL);
 					}
 				}
 			else {
@@ -356,14 +356,14 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 					BPPrintMessage(1,odInfo,"Calling MakeSound() [2]\n");
 		/*		PianorollShift = MIDIsetUpTime;
 				Tcurr = LastTime / Time_res; */
-				result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
+				result = MakeSound(&kmax,maxseq,nmax+1,tmin,tmax,NULL);
 				if(result == OK) result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
 				}
 			}
 		else if(OutCsound || WriteMIDIfile || EventListOn || rtMIDI || OutBPdata) {
 			if(trace_play) 
 				BPPrintMessage(1,odInfo,"Calling MakeSound() [3]\n");
-			result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,NO,NULL);
+			result = MakeSound(&kmax,maxseq,nmax+1,tmin,tmax,NULL);
 			if(result == OK) 
 				result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
 			}
@@ -377,7 +377,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	if((onlypianoroll || ShowPianoRoll) && !OutCsound) goto RELEASE;
 
 	PLAYIT:
-	if(result == OK) result = MakeSound(&kmax,maxseq,nmax+1,&p_b,tmin,tmax,YES,NULL);
+	if(result == OK) result = MakeSound(&kmax,maxseq,nmax+1,tmin,tmax,NULL);
 	if(result == AGAIN) again = TRUE;
 	if(again || EventState == AGAIN) {
 		again = FALSE; result = OK;
@@ -426,7 +426,7 @@ asked = FALSE;
 
 if(!CompiledAl || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 	CompiledAl = FALSE;
-	if(CompileAlphabet() != OK) return(r);
+	if((r=CompileAlphabet()) != OK) return(r);
 	}
 if(!onlypianoroll) {
 	if(CompileRegressions() != OK) return(r);
@@ -536,21 +536,8 @@ int TextToMIDIstream(int w) {
 			BPPrintMessage(0,odError,"=> Err. TextToMIDIstream(). Incorrect window index");
 		return(MISSED);
 		}
-	if(!StrikeAgainDefault) {
-	#if !BP_CARBON_GUI_FORGET_THIS
+	if(!StrikeAgainSettings) {
 		r = BPPrintMessage(0,odError,"The strike mode setting is \"Don't strike again NoteOn's\", which is unusual.");
-	#else
-		r = Answer("The strike mode setting is 'Don't strike again NoteOn's', which is unusual. Change it?",
-			'N');
-		if(r == ABORT) return(r);
-		if(r == YES) {
-			ShowWindow(GetDialogWindow(StrikeModePtr));
-			SelectWindow(GetDialogWindow(StrikeModePtr));
-			SetDefaultStrikeMode();
-			BPUpdateDialog(StrikeModePtr);
-			return(ABORT);
-			}
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 		}
 	TextGetSelection(&origin, &end, TEH[w]);
 	if(end <= origin) {
@@ -565,21 +552,15 @@ int TextToMIDIstream(int w) {
 	/* ResetMIDI(TRUE); */
 
 	r = ABORT; p_a = NULL;
-	#if BP_CARBON_GUI_FORGET_THIS
-	if(SaveCheck(wAlphabet) == ABORT) goto END;
-	if(SaveCheck(wGrammar) == ABORT) goto END;
-	if(SaveCheck(wInteraction) == ABORT) goto END;
-	if(SaveCheck(wGlossary) == ABORT) goto END;
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 	if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 		CompiledAl = FALSE;
-		if(CompileAlphabet() != OK) goto END;
+		if((r=CompileAlphabet()) != OK) goto END;
 		}
 	r = MISSED;
 	// FIXME ? Why is this done a second time? - akozar 20130830
 	if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 		CompiledAl = FALSE;
-		if(CompileAlphabet() != OK) goto END;
+		if((r=CompileAlphabet()) != OK) goto END;
 		}
 	r = OK;
 	SetSelect(origin,end,TEH[w]);
@@ -870,7 +851,7 @@ int ExpandSelection(int w) {
 	if(CheckEmergency() != OK) return(ABORT);
 	if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 		CompiledAl = FALSE;
-		if(CompileAlphabet() != OK) return(MISSED);
+		if((r=CompileAlphabet()) != OK) return(r);
 		}
 	p_a = NULL;
 	wout = OutputWindow;
@@ -945,7 +926,7 @@ TextGetSelection(&origin, &end, TEH[w]);
 if(origin >= end) return(MISSED);
 if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
 	CompiledAl = FALSE;
-	if(CompileAlphabet() != OK) return(MISSED);
+	if((r=CompileAlphabet()) != OK) return(r);
 	}
 newend = end;
 p_a = NULL;

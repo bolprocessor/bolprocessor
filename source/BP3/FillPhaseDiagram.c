@@ -233,7 +233,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		(*p_Instance)[k].seed = NOSEED;
 		(*p_Instance)[k].transposefirst = TRUE;
 		(*p_Instance)[k].ncycles = 0;
-		(*p_Instance)[k].alpha = (*p_Instance)[k].dilationratio = 0.;
+		(*p_Instance)[k].alpha = (*p_Instance)[k].beta = 0.;
 		(*p_Instance)[k].velocity = DeftVelocity;
 		(*p_Instance)[k].instrument = (*p_Instance)[k].part = (*p_Instance)[k].nseq = 0;
 		(*p_Articul)[k] = 0;
@@ -243,9 +243,9 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 	failed = TRUE;
 	result = ABORT;
 	if(DisplayTimeSet && !ScriptExecOn && !Improvize) {
-		if((AllSolTimeSet=Answer("Display all canonic solutions",'Y')) == ABORT) {
+	/*	if((AllSolTimeSet=Answer("Display all canonic solutions",'Y')) == ABORT) {
 			goto ENDDIAGRAM;
-			}
+			} */
 		StackFlag = AllSolTimeSet || DisplayTimeSet;
 		}
 	if(!StepTimeSet) {
@@ -315,9 +315,9 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 
 	currentparameters.currtranspose = starttranspose = (*p_deftstarttranspose)[0] = 0.;
 	currentparameters.transposefirst = TRUE;
-	currentparameters.transposemode = FIX;
+	currentparameters.transposemode = FIXMAPMODE;
 
-	currentparameters.articulmode = currentparameters.velmode = FIX;
+	currentparameters.articulmode = currentparameters.velmode = FIXMAPMODE;
 	currentparameters.mapmode = OFF;
 
 	currentparameters.xpandkey = (*p_deftxpandkey)[0]  = -1;
@@ -401,7 +401,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				(*((*p_contparameters)[level].values))[i].ibeats = 0;
 				(*((*p_contparameters)[level].values))[i].maxbeats = 1;
 				(*((*p_contparameters)[level].values))[i].increment = 0;
-				(*((*p_contparameters)[level].values))[i].mode = FIX;
+				(*((*p_contparameters)[level].values))[i].mode = FIXMAPMODE;
 				}
 			goto NEXTTOKEN;
 			}
@@ -486,7 +486,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					
 					break;
 				case 12: /* _velfixed */
-					currentparameters.velmode = FIX;
+					currentparameters.velmode = FIXMAPMODE;
 					startvel = startvel + (velincrement * ibeatsvel / maxbeatsvel);
 					currentparameters.currvel = startvel;
 					ibeatsvel = 0.; maxbeatsvel = 1.; velincrement = 0.;
@@ -497,7 +497,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(*((*p_contparameters)[level].values))[i].ibeats = 0;
 					(*((*p_contparameters)[level].values))[i].maxbeats = 1;
 					(*((*p_contparameters)[level].values))[i].increment = 0;
-					(*((*p_contparameters)[level].values))[i].mode = FIX;
+					(*((*p_contparameters)[level].values))[i].mode = FIXMAPMODE;
 					break;
 				case 14: /* _pitchfixed */
 					i = IPITCHBEND;
@@ -505,7 +505,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(*((*p_contparameters)[level].values))[i].ibeats = 0;
 					(*((*p_contparameters)[level].values))[i].maxbeats = 1;
 					(*((*p_contparameters)[level].values))[i].increment = 0;
-					(*((*p_contparameters)[level].values))[i].mode = FIX;
+					(*((*p_contparameters)[level].values))[i].mode = FIXMAPMODE;
 					break;
 				case 15: /* _pressfixed */
 					i = IPRESSURE;
@@ -513,7 +513,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(*((*p_contparameters)[level].values))[i].ibeats = 0;
 					(*((*p_contparameters)[level].values))[i].maxbeats = 1;
 					(*((*p_contparameters)[level].values))[i].increment = 0;
-					(*((*p_contparameters)[level].values))[i].mode = FIX;
+					(*((*p_contparameters)[level].values))[i].mode = FIXMAPMODE;
 					break;
 				case 16: /* _volumefixed */
 					i = IVOLUME;
@@ -521,10 +521,10 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(*((*p_contparameters)[level].values))[i].ibeats = 0;
 					(*((*p_contparameters)[level].values))[i].maxbeats = 1;
 					(*((*p_contparameters)[level].values))[i].increment = 0;
-					(*((*p_contparameters)[level].values))[i].mode = FIX;
+					(*((*p_contparameters)[level].values))[i].mode = FIXMAPMODE;
 					break;
 				case 17: /* _articulfixed */
-					currentparameters.articulmode = FIX;
+					currentparameters.articulmode = FIXMAPMODE;
 					startarticul = startarticul + (articulincrement * ibeatsarticul / maxbeatsarticul);
 					currentparameters.currarticul = startarticul;
 					ibeatsarticul = 0; maxbeatsarticul = 1; articulincrement = 0;
@@ -535,7 +535,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(*((*p_contparameters)[level].values))[i].ibeats = 0;
 					(*((*p_contparameters)[level].values))[i].maxbeats = 1;
 					(*((*p_contparameters)[level].values))[i].increment = 0;
-					(*((*p_contparameters)[level].values))[i].mode = FIX;
+					(*((*p_contparameters)[level].values))[i].mode = FIXMAPMODE;
 					break;
 				case 19: /* _panstep */
 				case 20: /* _pancont */
@@ -548,7 +548,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						goto ENDDIAGRAM;
 					break;
 				case 25: /* _mapfixed */
-					currentparameters.mapmode = FIX;
+					currentparameters.mapmode = FIXMAPMODE;
 					startmap.p1 = startmap.p1 + (mapincrement.p1 * ibeatsmap / maxbeatsmap);
 					startmap.q1 = startmap.q1 + (mapincrement.q1 * ibeatsmap / maxbeatsmap);
 					startmap.p2 = startmap.p2 + (mapincrement.p2 * ibeatsmap / maxbeatsmap);
@@ -593,7 +593,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						}
 					break;
 				case 28: /* _transposefixed */
-					currentparameters.transposemode = FIX;
+					currentparameters.transposemode = FIXMAPMODE;
 					starttranspose = starttranspose + (transposeincrement * ibeatstranspose / maxbeatstranspose);
 					currentparameters.currtranspose = starttranspose;
 					ibeatstranspose = 0.; maxbeatstranspose = 1.; transposeincrement = 0.;
@@ -902,24 +902,24 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 			}
 	//	if(m == T7 && ((p > 16383) || (p < Jbol && ((*p_MIDIsize)[p] > ZERO || (*p_CsoundSize)[p] > ZERO)))) {
 		if(m == T7 && ((p > 16383) || (p < Jbol))) { // 2026-03-20
-			/* Out-time object or out-time simple note */
+			// Out-time object or out-time simple note
 			skipzeros = FALSE;
 	//		if(p > 16383 || (p > 1 && ((*p_MIDIsize)[p] > ZERO || (*p_CsoundSize)[p] > ZERO))) {
 			if(p > 1) {
-				/* Sound-object or simple note */
+				// Sound-object or simple note
 				kobj++;
 				(*p_numberobjects) = kobj;
 				ShowProgress(kobj);
 				(*p_Instance)[kobj].object = - p;
 				if(AttachObjectLists(kobj,nseq,p_waitlist,p_scriptlist,&newswitch,
 					currswitchstate) == ABORT) goto ENDDIAGRAM;
-		//		ip = Class((*p_im)[nseq] + prodtempo); BB 2024-09-17
+		//		ip = Class((*p_im)[nseq] + prodtempo);
 				ip = Class((*p_im)[nseq] + 1); // 2026-03-20
 				if(Plot(OUTTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
 						&nseq,maxseqapprox,ip,kobj) != OK) {
 					goto ENDDIAGRAM;
 					}
-			//	(*p_maxcol)[nseq]--; // Fixed by BB 2024-09-17
+			//	(*p_maxcol)[nseq]--;
 				if(overstrike) {
 					kobj--;
 					(*p_numberobjects) = kobj;
@@ -1344,7 +1344,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		//		if(trace_capture) BPPrintMessage(1,odInfo,"§§ channel = %d\n",channel);
 				break;
 			case T32:	/* Instrument assignment _ins() */
-				currentparameters.currinstr = value = FindValue(m,p,currentparameters.currchan);
+				value = FindValue(m,p,currentparameters.currchan);
+				currentparameters.currinstr = (int) value;
 				if(value == Infpos) goto ENDDIAGRAM;
 				instrument = roundf(value);
 				break;
@@ -1505,7 +1506,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						speed,scale,&endtranspose,&mapendvalue,&maxbeatstranspose,h_table) != OK)
 					goto ENDDIAGRAM;
 				ibeatstranspose = 0;
-				if(maxbeatstranspose == 0 || currentparameters.transposemode == FIX) {
+				if(maxbeatstranspose == 0 || currentparameters.transposemode == FIXMAPMODE) {
 					maxbeatstranspose = 1; transposeincrement = 0;
 					}
 				else transposeincrement = endtranspose - starttranspose;
@@ -1545,7 +1546,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				currentparameters.randomtime = p;
 				if((2 * p) > MaxDeltaTime) {
 					MaxDeltaTime = 2 * p;
-					BPPrintMessage(1,odInfo,"Max time of merged NoteOns = %ld ms, due to __rndtime(%d)\n",MaxDeltaTime,p);
+					BPPrintMessage(1,odInfo,"Max time of merged NoteOns = %ld ms, due to rndtime(%d)\n",MaxDeltaTime,p);
 					}
 				break;
 			case T42:	/* Reseed and reset random sequence _srand() */
@@ -1571,7 +1572,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						*pp_buff,speed,scale,&endvel,&mapendvalue,&maxbeatsvel,h_table) != OK)
 					goto ENDDIAGRAM;
 				ibeatsvel = 0.;
-				if(maxbeatsvel == 0. || currentparameters.velmode == FIX) {
+				if(maxbeatsvel == 0. || currentparameters.velmode == FIXMAPMODE) {
 					maxbeatsvel = 1.; velincrement = 0.;
 					}
 				else velincrement = endvel - startvel;
@@ -1585,7 +1586,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						speed,scale,&endarticul,&mapendvalue,&maxbeatsarticul,h_table) != OK)
 					goto ENDDIAGRAM;
 				ibeatsarticul = 0;
-				if(maxbeatsarticul == 0 || currentparameters.articulmode == FIX) {
+				if(maxbeatsarticul == 0 || currentparameters.articulmode == FIXMAPMODE) {
 					maxbeatsarticul = 1; articulincrement = 0;
 					}
 				else articulincrement = endarticul - startarticul;
@@ -1615,12 +1616,12 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				startmap.p2 = p % 128;
 				startmap.q2 = (p - (p % 128)) / 128;
 				currentparameters.map0 = startmap;
-				if(currentparameters.mapmode == OFF) currentparameters.mapmode = FIX;
+				if(currentparameters.mapmode == OFF) currentparameters.mapmode = FIXMAPMODE;
 				if(SetVariation(T37,p_deftcurrentparameters,&currentparameters,p_contparameters,level,-1,id,*pp_buff,
 						speed,scale,&endval,&mapendvalue,&maxbeatsmap,h_table) != OK)
 					goto ENDDIAGRAM;
 				ibeatsmap = 0;
-				if(maxbeatsmap == 0 || currentparameters.mapmode == FIX) {
+				if(maxbeatsmap == 0 || currentparameters.mapmode == FIXMAPMODE) {
 					maxbeatsmap = 1;
 					mapincrement.p1 = mapincrement.q1 = mapincrement.p2 = mapincrement.q2 = 0;
 					if(startmap.p1 == startmap.q1 && startmap.p2 == startmap.q2) {
@@ -2462,14 +2463,15 @@ int MakeEmptyTokensSilent(tokenbyte ***pp_buff,double *p_maxseqapprox) {
 			}
 		if((m == T3 || m == T47) && p > 1 && p < Jbol && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO) {
 			CreateSilentSoundObject(p);
-			if(trace_diagram)
-				BPPrintMessage(0,odInfo,"Created silent sound-object “%s”\n",*(*p_Bol)[p]);
+		//	if(trace_diagram)
+				BPPrintMessage(0,odInfo,"@@@ Created silent sound-object “%s”\n",*(*p_Bol)[p]);
 			}
 		}
 	return OK;
 	}
 
 int CreateSilentSoundObject(int p) {
+//	BPPrintMessage(0,odInfo,"@@@ Creating silent sound-object “%s”\n",*(*p_Bol)[p]);
 	(*p_Dur)[p] = (*p_Tref)[p] = 1000L;
 	(*p_OkExpand)[p] = (*p_OkCompress)[p] = (*p_OkRelocate)[p] = TRUE;
 	(*p_Type)[p] = 0;

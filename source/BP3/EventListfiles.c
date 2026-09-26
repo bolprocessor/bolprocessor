@@ -52,7 +52,7 @@ int MakeEventListFile(OutFileInfo* finfo) {
 		}
 	else EventListPtr = fout;
 	BPPrintMessage(0,odInfo,"👉 An event list file has been created\n");
-	WriteToEventListFile("event,item,k,id proto,label,start time,end time,random time,velocity,random velocity,velocity control,trunc beg,trunc end,dilation ratio beta,dilation ratio alpha,cycles,cyclic after,force integer number of cycles,articul,preroll,postroll,transposition,transpose first,expand value,expand key,keymap mode,keymap0 p1,keymap0 q1,keymap0 p2,keymap0 q2,keymap1 p1,keymap1 q1,keymap1 p2,keymap1 q2,volume start,volume end,volume channel,volume mode (2 = continuous),modulation start,modulation end,modulation channel,modulation mode,panoramic start,panoramic end,panoramic channel,panoramic mode,pressure start,pressure end,pressure channel, pressure mode,pitchbend start,pitchbend end,pitchbend channel,pitchbend mode,tonal scale,block key");
+	WriteToEventListFile("event,item,k,id proto,label,start time,end time,MIDI channel,Csound instrument,random time,velocity,random velocity,trunc beg,trunc end,dilation ratio beta (actual),dilation ratio alpha (declared),cyclic,cyclic after (ms or percent),force integer number of cycles,articul,preroll (ms),postroll (ms),transposition,transpose first,expand value,expand key,keymap mode,keymap0 p1,keymap0 q1,keymap0 p2,keymap0 q2,keymap1 p1,keymap1 q1,keymap1 p2,keymap1 q2,volume start,volume end,volume channel,volume mode,modulation start,modulation end,modulation channel,modulation mode,panoramic start,panoramic end,panoramic channel,panoramic mode,pressure start,pressure end,pressure channel, pressure mode,pitchbend start,pitchbend end,pitchbend channel,pitchbend mode,tonal scale,block key");
 	return result;
 	}
 
@@ -83,11 +83,12 @@ int WriteToEventListFile(const char *line) {
 
 int AddEventToList(int k) {
 	long starttime,endtime,shift;
-	int j,id_proto,articul,trans,cyclic_after,blockkey,keymap0_p1,keymap0_q1,keymap0_p2,keymap0_q2,keymap1_p1,keymap1_q1,keymap1_p2,keymap1_q2;
+	int j,id_proto,articul,trans,cyclic_after,blockkey,keymap0_p1,keymap0_q1,keymap0_p2,keymap0_q2,keymap1_p1,keymap1_q1,keymap1_p2,keymap1_q2,cyclic;
 	short xpandval,xpandkey;
-	char line[MAXLIN],label[MAXNAME],scalename[MAXNAME],keymapmode[MAXNAME];
-	double alpha,dilationratio,preroll,postroll,expand;
+	char line[MAXLIN],label[MAXNAME],scalename[MAXNAME],keymapmode[MAXNAME],channel_txt[MAXNAME],instrument_txt[MAXNAME],pitchbendmode_txt[15],pressuremode_txt[15],panoramicmode_txt[15],volumemode_txt[15],modulationmode_txt[15],pitchbendstart_txt[15],pitchbendend_txt[15],pitchbendchannel_txt[15],xpandkey_txt[15],blockkey_txt[10];
+	double alpha,beta,preroll,postroll,expand;
 	int transposefirst,forceintegercycles,i_scale;
+	int localchan,instrument;
 
     if(EventListPtr == NULL) {
         BPPrintMessage(0,odError,"=> Could not add event to list\n");
@@ -97,34 +98,116 @@ int AddEventToList(int k) {
 	if(j == -1) return(OK);
 	if(j == 0) return(OK);
 	if(j < 16384 && j >= Jbol) return(OK); // Time-pattern
+
+	// BPPrintMessage(0,odError,"k = %d, j = %d\n",k,j);
 	
 	keymap0_p1 = keymap0_q1 = keymap0_p2 = keymap0_q2 = 0;
 	keymap1_p1 = keymap1_q1 = keymap1_p2 = keymap1_q2 = 0;
-	cyclic_after = forceintegercycles = 0;
+	cyclic_after = forceintegercycles = cyclic = 0;
+	localchan = (*p_Instance)[k].channel;
+	instrument = (*p_Instance)[k].instrument;
 	int volumestart = VolumeStart(k);
 	int volumeend = VolumeEnd(k);
 	int volumechannel = VolumeChannel(k);
 	int volumemode = VolumeMode(k);
+	switch(volumemode) {
+		case FIXMAPMODE:
+			strcpy(volumemode_txt,"FIXED");
+		break;
+		case STEPWISE:
+			strcpy(volumemode_txt,"STEPWISE");
+		break;
+		case CONTINUOUS:
+			strcpy(volumemode_txt,"CONTINUOUS");
+		break;
+		default:
+			strcpy(volumemode_txt,"");
+		break;
+		}
 
 	int modulationstart = ModulationStart(k);
 	int modulationend = ModulationEnd(k);
 	int modulationchannel = ModulationChannel(k);
 	int modulationmode = ModulationMode(k);
-
+	switch(modulationmode) {
+		case FIXMAPMODE:
+			strcpy(modulationmode_txt,"FIXED");
+		break;
+		case STEPWISE:
+			strcpy(modulationmode_txt,"STEPWISE");
+		break;
+		case CONTINUOUS:
+			strcpy(modulationmode_txt,"CONTINUOUS");
+		break;
+		default:
+			strcpy(modulationmode_txt,"");
+		break;
+		}
 	int panoramicstart = PanoramicStart(k);
 	int panoramicend = PanoramicEnd(k);
 	int panoramicchannel = PanoramicChannel(k);
 	int panoramicmode = PanoramicMode(k);
-
+	switch(panoramicmode) {
+		case FIXMAPMODE:
+			strcpy(panoramicmode_txt,"FIXED");
+		break;
+		case STEPWISE:
+			strcpy(panoramicmode_txt,"STEPWISE");
+		break;
+		case CONTINUOUS:
+			strcpy(panoramicmode_txt,"CONTINUOUS");
+		break;
+		default:
+			strcpy(panoramicmode_txt,"");
+		break;
+		}
 	int pressurestart = PressureStart(k);
 	int pressureend = PressureEnd(k);
 	int pressurechannel = PressureChannel(k);
 	int pressuremode = PressureMode(k);
-
+	switch(pressuremode) {
+		case FIXMAPMODE:
+			strcpy(pressuremode_txt,"FIXED");
+		break;
+		case STEPWISE:
+			strcpy(pressuremode_txt,"STEPWISE");
+		break;
+		case CONTINUOUS:
+			strcpy(pressuremode_txt,"CONTINUOUS");
+		break;
+		default:
+			strcpy(pressuremode_txt,"");
+		break;
+		}
 	int pitchbendstart = PitchbendStart(k);
 	int pitchbendend = PitchbendEnd(k);
 	int pitchbendchannel = PitchbendChannel(k);
+	sprintf(pitchbendchannel_txt,"%d",pitchbendchannel);
 	int pitchbendmode = PitchbendMode(k);
+	if(j >= 16384) {
+		my_sprintf(pitchbendstart_txt,"%d",pitchbendstart);
+		my_sprintf(pitchbendend_txt,"%d",pitchbendend);
+		switch(pitchbendmode) {
+			case FIXMAPMODE:
+				strcpy(pitchbendmode_txt,"FIXED");
+			break;
+			case STEPWISE:
+				strcpy(pitchbendmode_txt,"STEPWISE");
+			break;
+			case CONTINUOUS:
+				strcpy(pitchbendmode_txt,"CONTINUOUS");
+			break;
+			default:
+				strcpy(pitchbendmode_txt,"");
+			break;
+			}
+		}
+	else { // Not a simple note
+		strcpy(pitchbendmode_txt,"");
+		strcpy(pitchbendstart_txt,"");
+		strcpy(pitchbendend_txt,"");
+		strcpy(pitchbendchannel_txt,"");
+		}
 
 	int scale = (*p_Instance)[k].scale;
 	if(scale > 0) my_sprintf(scalename,"%s",*((*p_StringConstant)[scale]));
@@ -132,8 +215,10 @@ int AddEventToList(int k) {
 	// BPPrintMessage(0,odInfo,"@@@ Scale = %s\n",*((*p_StringConstant)[scale]));
 	if(strlen(scalename) > 0) blockkey = (*p_Instance)[k].blockkey;
 	else blockkey = -1;
-
-	
+	if(blockkey <  0) strcpy(blockkey_txt,"");
+	else my_sprintf(blockkey_txt,"%d",blockkey);
+	preroll = postroll = id_proto = 0;
+	beta = (*p_Instance)[k].beta;
 	if(j < 16384) {
 		if(j < 0) {
 			j = -j;
@@ -142,30 +227,29 @@ int AddEventToList(int k) {
 		else if(j == 1) my_sprintf(label,"-");
 		else {
 			my_sprintf(label,"%s",*((*p_Bol)[j]));
-			if((*p_Instance)[k].ncycles > 1) {
-				if((*p_CyclicMode)[j] == FIXVALUE) cyclic_after = (int)(*p_CyclicAfter)[j];
-				else
-					cyclic_after = (int) ((double)(*p_CyclicAfter)[j] * (*p_Dur)[j]) / 100.;
+			if((*p_CyclicMode)[j] != IRRELEVANT) {
+				cyclic = 1;
 				forceintegercycles = (*p_ForceIntegerCycles)[j];
+				if((*p_CyclicMode)[j] == FIXVALUE) cyclic_after = (int)(*p_CyclicAfter)[j];
+				if((*p_CyclicMode)[j] == PERCENT) cyclic_after = (int) ((double)(*p_CyclicAfter)[j] * (*p_Dur)[j]) / 100.;
 				}
+			id_proto = j;
+			if((*p_PreRollMode)[j] == FIXVALUE) preroll = (*p_PreRoll)[j];
+			else preroll = beta * (*p_PreRoll)[j];
+			if((*p_PostRollMode)[j] == FIXVALUE) postroll = (*p_PostRoll)[j];
+			else postroll = beta * (*p_PostRoll)[j];
+
+			if((*p_DefaultChannel)[j] != 0) localchan = (*p_DefaultChannel)[j];
+			if((*p_CsoundInstrumentMode)[j] != 0) instrument = (*p_CsoundInstrumentMode)[j];
 			}
-		id_proto = j;
-		dilationratio = (*p_Instance)[k].dilationratio;
-		if((*p_PreRollMode)[j] == FIXVALUE) preroll = (*p_PreRoll)[j];
-		else preroll = dilationratio * (*p_PreRoll)[j];
-		if((*p_PostRollMode)[j] == FIXVALUE) postroll = (*p_PostRoll)[j];
-		else postroll = dilationratio * (*p_PostRoll)[j];
 		}
 	else {
-		id_proto = 0;
 		preroll = postroll = 0.;
-		dilationratio = (*p_Instance)[k].dilationratio;
+		beta = (*p_Instance)[k].beta;
 		if(MIDImicrotonality) {
 			scale = (*p_Instance)[k].scale;
 			if(scale < 0) i_scale = -1;
-			else if(scale == 0) {
-				i_scale = 0;
-				}
+			else if(scale == 0) i_scale = 0;
 			else i_scale = FindScale(scale);
 			}
 		else i_scale = -1;
@@ -180,51 +264,43 @@ int AddEventToList(int k) {
 	if(xpandval > 0) {
 		expand = (*p_NumberConstant)[xpandval];
 		xpandkey = (*p_Instance)[k].xpandkey;
+		my_sprintf(xpandkey_txt,"%d",xpandkey);
 		}
 	else {
 		expand = 0;
-		xpandkey = -1;
+		strcpy(xpandkey_txt,"");
 		}
+	if(localchan < 0) strcpy(channel_txt,"LOCAL_CH"); 
+	else if(localchan == 0) strcpy(channel_txt,"GLOBAL_CH");
+	else my_sprintf(channel_txt,"%d",localchan);
+
+	if(instrument < 0) strcpy(instrument_txt,"LOCAL_CS"); 
+	else if(instrument == 0) strcpy(instrument_txt,"GLOBAL_CS");
+	else my_sprintf(instrument_txt,"%d",instrument);
+
 	int velocity = ByteToInt((*p_Instance)[k].velocity);
 	int rndvel = (*p_Instance)[k].rndvel;
-	int velcontrol = (*p_Instance)[k].velcontrol;
 	int randomtime = (*p_Instance)[k].randomtime;
 	shift = PianorollShift - MIDIsetUpTime;
 	starttime = (*p_Instance)[k].starttime + shift;
 	endtime = (*p_Instance)[k].endtime  + shift;
 	char mapmode = (*p_Instance)[k].mapmode;
-	if(mapmode == CONTINUOUS) my_sprintf(keymapmode,"CONT");
-	else if(mapmode == STEPWISE) my_sprintf(keymapmode,"STEP");
-	else if(mapmode == FIX) my_sprintf(keymapmode,"FIX");
-	else my_sprintf(keymapmode,"OFF");
+	if(mapmode == CONTINUOUS) strcpy(keymapmode,"CONT");
+	else if(mapmode == STEPWISE) strcpy(keymapmode,"STEP");
+	else if(mapmode == FIXMAPMODE) strcpy(keymapmode,"FIXMAPMODE");
+	else strcpy(keymapmode,"OFF");
 	keymap0_p1 = (*p_Instance)[k].map0.p1;
 	keymap0_q1 = (*p_Instance)[k].map0.q1;
 	keymap0_p2 = (*p_Instance)[k].map0.p2;
 	keymap0_q2 = (*p_Instance)[k].map0.q2;
-
 	keymap1_p1 = (*p_Instance)[k].map1.p1;
 	keymap1_q1 = (*p_Instance)[k].map1.q1;
 	keymap1_p2 = (*p_Instance)[k].map1.p2;
 	keymap1_q2 = (*p_Instance)[k].map1.q2;
-
 	if(j == 1 && starttime == endtime && strcmp(keymapmode,"OFF") == 0) return(OK);
 
 	EventNumber++;
-	my_sprintf(line,"#%ld,%ld,(%d),%d,%s,%ld,%ld,%d,%d,%d,%d,%ld,%ld,%.4f,%.4f,%d,%d,%d,%d,%.4f,%.4f,%d,%d,%.4f,%d,%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%d",EventNumber,ItemNumber,k,id_proto,label,starttime,endtime,randomtime,velocity,rndvel,velcontrol,(*p_Instance)[k].truncbeg,(*p_Instance)[k].truncend,dilationratio,(*p_Instance)[k].alpha,(*p_Instance)[k].ncycles,cyclic_after,forceintegercycles,articul,preroll,postroll,trans,transposefirst,expand,xpandkey,keymapmode,keymap0_p1,keymap0_q1,keymap0_p2,keymap0_q2,keymap1_p1,keymap1_q1,keymap1_p2,keymap1_q2,volumestart,volumeend,volumechannel,volumemode,modulationstart,modulationend,modulationchannel,modulationmode,panoramicstart,panoramicend,panoramicchannel,panoramicmode,pressurestart,pressureend,pressurechannel,pressuremode,pitchbendstart,pitchbendend,pitchbendchannel,pitchbendmode,scalename,blockkey);
+	my_sprintf(line,"#%ld,%ld,(%d),%d,%s,%ld,%ld,%s,%s,%d,%d,%d,%ld,%ld,%.4f,%.4f,%d,%d,%d,%d,%.4f,%.4f,%d,%d,%.4f,%s,%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%d,%d,%d,%s,%d,%d,%d,%s,%d,%d,%d,%s,%s,%s,%s,%s,%s,%s",EventNumber,ItemNumber,k,id_proto,label,starttime,endtime,channel_txt,instrument_txt,randomtime,velocity,rndvel,(*p_Instance)[k].truncbeg,(*p_Instance)[k].truncend,beta,(*p_Instance)[k].alpha,cyclic,cyclic_after,forceintegercycles,articul,preroll,postroll,trans,transposefirst,expand,xpandkey_txt,keymapmode,keymap0_p1,keymap0_q1,keymap0_p2,keymap0_q2,keymap1_p1,keymap1_q1,keymap1_p2,keymap1_q2,volumestart,volumeend,volumechannel,volumemode_txt,modulationstart,modulationend,modulationchannel,modulationmode_txt,panoramicstart,panoramicend,panoramicchannel,panoramicmode_txt,pressurestart,pressureend,pressurechannel,pressuremode_txt,pitchbendstart_txt,pitchbendend_txt,pitchbendchannel_txt,pitchbendmode_txt,scalename,blockkey_txt);
 	if(WriteToEventListFile(line) != OK) return MISSED;
 	return(OK);
 	}
-
-	/* Milliseconds starttime,endtime;
-	short object,nseq,ncycles,seed;
-	Milliseconds truncbeg,truncend;
-	char velocity,channel;
-	int scale,blockkey;
-	int capture;
-	short rndvel,velcontrol,randomtime;
-	short xpandkey,xpandval;
-	short transposition,instrument,part;
-	double alpha,dilationratio;
-	Parameters contparameters;
-	KeyNumberMap map0,map1;
-	char mapmode,transposefirst; */

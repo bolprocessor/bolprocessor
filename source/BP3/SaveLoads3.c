@@ -141,84 +141,6 @@ void remove_double_slash_prefix(char *str) {
 		}
 	}
 
-/*
-int ReadOne(int bindlines,int careforhtml,int nocomment,FILE* fin,int strip,char ***pp_line,
-	char ***pp_completeline,long *p_pos) {
-// Read a line in the file and save it to text handle 'pp_completeline'
-// If the line starts with "//", discard it
-// bindlines is now irrelevant
-	int i, html;
-	char *buffer;
-	long size, count;
-	char line[3000];
-	buffer = NULL;
-
-	MyDisposeHandle((Handle*)pp_line);
-	MyDisposeHandle((Handle*)pp_completeline);
-	size = 3000;
-	if((*pp_line = (char**) GiveSpace((Size)size * sizeof(char))) == NULL) return(ABORT);
-	if((*pp_completeline = (char**) GiveSpace((Size)size * sizeof(char))) == NULL) return(ABORT);
-
-	// BPPrintMessage(0,odError,"pos1 = %ld\n",*p_pos);
-	if(fseek(fin, *p_pos, SEEK_SET) != 0) {
-		BPPrintMessage(0,odError, "Error reading from file\n");
-	//	perror("fseek failed");
-		MyDisposeHandle((Handle*)pp_line);
-		MyDisposeHandle((Handle*)pp_completeline);
-		return MISSED;
-		}
-		// *p_pos = ftell(fin);
-		// BPPrintMessage(0,odError,"pos2 = %ld\n",*p_pos);
-	if(fgets(line, sizeof(line),fin) != NULL) {
-		if(ferror(fin)) {
-			BPPrintMessage(0,odError, "Error reading from file.\n");
-			clearerr(fin);  // Clear the error indicator for the stream
-			MyDisposeHandle((Handle*)pp_line);
-			MyDisposeHandle((Handle*)pp_completeline);
-			return MISSED;
-			}
-		remove_final_linefeed(line);
-		*p_pos = ftell(fin);
-		// BPPrintMessage(0,odError,"pos3 = %ld\n",*p_pos);
-		size_t lineSize = utf8_strsize(line);
-		char* newBuffer = realloc(buffer,lineSize + 2); // +1 for '\n' and +1 for '\0'
-		if(newBuffer == NULL) {
-			BPPrintMessage(0,odError, "=> Err. ReadOne(). newBuffer == NULL\n");
-			return MISSED;
-			}
-		buffer =  newBuffer;
-		memcpy(buffer, line, lineSize);
-		buffer[lineSize] = '\0';
-		if(lineSize == 0) {
-			char *emptyStr = strdup(""); // Handle empty file case
-			if(emptyStr != NULL) {
-				free(buffer);
-				buffer = emptyStr;
-				}
-			else {
-				BPPrintMessage(0,odError, "Memory allocation failed for empty string\n");
-				free(buffer);
-				return MISSED;
-				}
-			}
-		remove_carriage_returns(line);
-		// BPPrintMessage(0,odInfo,"thisline = %s\n",buffer);
-		MystrcpyStringToHandle(pp_completeline,buffer);
-		if(strip) strip_trailing_spaces(buffer);
-		if(careforhtml) {
-			count = 1L + MyHandleLen(*pp_completeline);
-			html = TRUE;
-			CheckHTML(FALSE,0,*pp_completeline,&count,&html);
-			}
-		if(nocomment) remove_double_slash_prefix(buffer);
-		MystrcpyStringToHandle(pp_line,buffer);
-		free(buffer);
-		return OK;
-		}
-	return STOP;
-	}
-*/
-
 int ReadOne(int bindlines, int careforhtml, int nocomment, FILE *fin,
             int strip, char ***pp_line, char ***pp_completeline, long *p_pos) {
 	// Read one line at *p_pos.
@@ -400,36 +322,32 @@ return(OK);
 }
 
 
-int ReadFloat(FILE* fin,double* p_i,long* p_pos)
-{
-int rep,i;
-long p,q;
-char c;
-char **p_line,**p_completeline;
+int ReadFloat(FILE* fin,double* p_i,long* p_pos) {
+	int rep,i;
+	long p,q;
+	char c;
+	char **p_line,**p_completeline;
 
-p_line = p_completeline = NULL;
-if((rep = ReadOne(FALSE,FALSE,TRUE,fin,TRUE,&p_line,&p_completeline,p_pos)) == MISSED)  {
-	rep = MISSED; goto QUIT;
+	p_line = p_completeline = NULL;
+	if((rep = ReadOne(FALSE,FALSE,TRUE,fin,TRUE,&p_line,&p_completeline,p_pos)) == MISSED)  {
+		rep = MISSED; goto QUIT;
+		}
+	if(MyHandleLen(p_line) == 0)  {
+		rep = MISSED; goto QUIT;
+		}
+	char *end;
+	errno = 0;
+	*p_i = strtod(*p_line,&end);
+	if(end == *p_line || errno == ERANGE) {
+		rep = MISSED;
+		goto QUIT;
+		}
+	// BPPrintMessage(0,odInfo,"$$ %s\n%.2f\n\n",*p_line,*p_i);
+	QUIT:
+	MyDisposeHandle((Handle*)&p_line);
+	MyDisposeHandle((Handle*)&p_completeline);
+	return(rep);
 	}
-if(MyHandleLen(p_line) == 0)  {
-	rep = MISSED; goto QUIT;
-	}
-i = 0; while(MySpace(c=(*p_line)[i])) i++;
-if(c != '-' && c != '+' && !isdigit(c)) {
-	rep = MISSED; goto QUIT;
-	}
-MyLock(FALSE,(Handle)p_line);
-*p_i = Myatof(*p_line,&p,&q);
-MyUnlock((Handle)p_line);
-if((*p_i) < Infneg) {
-	rep = MISSED; goto QUIT;
-	}
-
-QUIT:
-MyDisposeHandle((Handle*)&p_line);
-MyDisposeHandle((Handle*)&p_completeline);
-return(rep);
-}
 
 
 int NewWriteToFile(char* line,FILE* fout) {

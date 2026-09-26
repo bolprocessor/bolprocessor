@@ -302,7 +302,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 				if((*p_PivMode)[j] == FIXVALUE)
 					pivloc = (long) ((*p_PivPos)[j] * GraphicScaleP) / GraphicScaleQ / 10L;
 				else
-					pivloc = (long) ((*p_Instance)[k].dilationratio * (*p_PivPos)[j] * (*p_Dur)[j]
+					pivloc = (long) ((*p_Instance)[k].beta * (*p_PivPos)[j] * (*p_Dur)[j]
 								* GraphicScaleP) / GraphicScaleQ / 1000L;
 				}
 			else pivloc = 0.;
@@ -318,7 +318,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 			
 			if(trace_graphic) BPPrintMessage(0,odInfo,"\nRunning DrawObject(%s) for t1 = %ld t2= %ld linenum = %ld, endx = %ld morespace = %ld, top = %ld\n",label,(long)t1,(long)t2,(long)linenum,(long)endx,(long)morespace,(long)(*p_top)[linenum]);
 					
-			if(DrawObject(j,label,moved_up,(*p_Instance)[k].dilationratio,(*p_top)[linenum],hrect,htext,
+			if(DrawObject(j,label,moved_up,(*p_Instance)[k].beta,(*p_top)[linenum],hrect,htext,
 					leftoffset,pivloc,t1,t2,trbeg,trend,&morespace,
 					&endx,&endy) == ABORT) {
 				rep = OK;
@@ -540,45 +540,6 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 		}
 	return(OK);
 	}
-
-
-/* int KillDiagrams(int w){
-// Currently not used
-	int n;
-	w = wGraphic;
-	for(n=Ndiagram-1; n >= 0; n--) {
-		if(n < 0 || n >= MAXDIAGRAM) {
-		//	BPPrintMessage(0,odError,"=> Err. KillDiagrams. n < 0 || n >= MAXDIAGRAM");
-			Ndiagram = 0;
-			break;
-			}
-		if(DiagramWindow[n] == w && p_Diagram[n] != NULL) {
-		//	KillPoly(p_Diagram[n]);
-			p_Diagram[n] = NULL;
-			if(n == Ndiagram-1) Ndiagram--;
-			}
-		}
-	if(!Offscreen) {
-		for(n=Npicture-1; n >= 0; n--) {
-			if(n < 0 || n >= MAXPICT) {
-			//	BPPrintMessage(0,odError,"=> Err. KillDiagrams. n < 0 || n >= MAXPICT");
-				Npicture = 0;
-				break;
-				}
-			if(PictureWindow[n] == w && p_Picture[n] != NULL) {
-			//	KillPicture(p_Picture[n]);
-				p_Picture[n] = NULL;
-				PictureWindow[n] = -1;
-				if(n == Npicture-1) Npicture--;
-				}
-			}
-		}
-
-	Hmin[w] = INT_MAX; Hmax[w] = - INT_MAX;
-	Hzero[w] = Vzero[w] = 0;
-	Vmin[w] = INT_MAX; Vmax[w] = - INT_MAX;
-	return(OK);
-	} */
 
 
 /* int DrawSequence(int nseq,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
@@ -1020,8 +981,9 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 			}
 		}
 	// MIDI channel status
+	// BPPrintMessage(0,odInfo,"=> ### DefaultChannel[%d] = %d\n",iProto,(*p_DefaultChannel)[iProto]);
 	if((*p_DefaultChannel)[iProto] > 0)
-	my_sprintf(Message,"Force to MIDI channel %ld",(long)(*p_DefaultChannel)[iProto]);
+		my_sprintf(Message,"Force to MIDI channel %ld",(long)(*p_DefaultChannel)[iProto]);
 	else if((*p_DefaultChannel)[iProto] == 0) my_sprintf(Message,"Force to current MIDI channel");
 		else my_sprintf(Message,"Never change MIDI channels");
 	// c2pstrcpy(label, Message);

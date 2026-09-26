@@ -422,7 +422,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 		}
 	if(packet->length > 1 && !ThreeByteChannelEvent(c)) {  // REVISE THIS!
 		RunningStatus = 0;
-		if(c0 < 128) return(OK);
+		if(c0 < NoteOff) return(OK);
 		if(c0 == SystemExclusive) {
 			do {
 				e->time = 0;
@@ -1325,45 +1325,44 @@ return(r);
 }
 
 
-int MIDItoPrototype(int zerostart,int filter,int j,MIDIcode **p_b,long imax)
-// Store MIDI codes to prototype j
-{
-long im2,nbytes;
-MIDIcode **ptr1;
-Handle ptr;
-double preroll,postroll;
+int MIDItoPrototype(int zerostart,int filter,int j,MIDIcode **p_b,long imax) {
+	// Store MIDI codes to prototype j
+	long im2,nbytes;
+	MIDIcode **ptr1;
+	Handle ptr;
+	double preroll,postroll;
 
-im2 = 2L * imax;
-if((ptr1 = (MIDIcode**) GiveSpace((Size) im2 * sizeof(MIDIcode))) == NULL)
-	return(ABORT);
+	im2 = 2L * imax;
+	if((ptr1 = (MIDIcode**) GiveSpace((Size) im2 * sizeof(MIDIcode))) == NULL)
+		return(ABORT);
 
-if(FormatMIDIstream(p_b,imax,ptr1,zerostart,im2,&nbytes,filter) != OK) return(MISSED);
-// BPPrintMessage(0,odInfo, "§§§ %s nbytes = %d, imax = %ld\n",*((*p_Bol)[j]),nbytes,imax);
+	if(FormatMIDIstream(p_b,imax,ptr1,zerostart,im2,&nbytes,filter) != OK) return(MISSED);
+	// BPPrintMessage(0,odInfo, "§§§ %s nbytes = %d, imax = %ld\n",*((*p_Bol)[j]),nbytes,imax);
 
-ptr = (Handle)(*pp_MIDIcode)[j];
-if(MyDisposeHandle(&ptr) != OK) return(ABORT);
-(*pp_MIDIcode)[j] = NULL;
+	ptr = (Handle)(*pp_MIDIcode)[j];
+	if(MyDisposeHandle(&ptr) != OK) return(ABORT);
+	(*pp_MIDIcode)[j] = NULL;
 
-(*pp_MIDIcode)[j] = ptr1;
-
-GetPrePostRoll(j,&preroll,&postroll);
-if(nbytes > 0) {
-	(*p_MIDIsize)[j] = nbytes;
-	(*p_Type)[j] |= 1;
-	(*p_Dur)[j] = ((*((*pp_MIDIcode)[j]))[nbytes-1].time) - preroll + postroll;
-	ptr1 = (*pp_MIDIcode)[j];
-	MySetHandleSize((Handle*)&ptr1,(Size) nbytes * sizeof(MIDIcode));
 	(*pp_MIDIcode)[j] = ptr1;
-	PointMIDI = TRUE;
-	if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+
+	GetPrePostRoll(j,&preroll,&postroll);
+	if(nbytes > 0) {
+		(*p_MIDIsize)[j] = nbytes;
+		(*p_Type)[j] |= 1;
+		(*p_Dur)[j] = ((*((*pp_MIDIcode)[j]))[nbytes-1].time) - preroll + postroll;
+		ptr1 = (*pp_MIDIcode)[j];
+		MySetHandleSize((Handle*)&ptr1,(Size) nbytes * sizeof(MIDIcode));
+		(*pp_MIDIcode)[j] = ptr1;
+		PointMIDI = TRUE;
+		if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+		}
+	else {
+		PointMIDI = FALSE;
+		(*p_MIDIsize)[j] = ZERO;
+		(*p_Dur)[j] = ZERO;
+		}
+	return(OK);
 	}
-else {
-	PointMIDI = FALSE;
-	(*p_MIDIsize)[j] = ZERO;
-	(*p_Dur)[j] = ZERO;
-	}
-return(OK);
-}
 
 
 int FormatMIDIstream(MIDIcode **p_b,long imax,MIDIcode **p_c,int zerostart,
@@ -1499,7 +1498,7 @@ int FormatMIDIstream(MIDIcode **p_b,long imax,MIDIcode **p_c,int zerostart,
 	if(ThreeByteChannelEvent(b) || b == ProgramChange || b == ChannelPressure || b == PitchBend) {
 		goto NEXTBYTE;
 		}
-	br = 0;	/* b doesn't have a value that may be taken for running status */
+	br = 0;	// b doesn't have a value that may be taken for running status
 	goto NEXTBYTE;
 
 	QUIT:

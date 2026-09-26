@@ -17,17 +17,37 @@ If you are interested in taking part in this project, join the BP developer's li
 https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
 
 
-AI development
+Various issues
 --------------
 
-- A transformer could be trained to "understand" Bol Processor syntax. Start with polymetric notation using sample sets created with large items of "real music". These sets are matching every polymetric structure with its interpretation as a MIDIfile and a table of MIDI events. Read https://bolprocessor.org/ai-recognition-of-polymetric-notation/
-- An AI tool could also conduct an in-depth analysis and documentation of the C code in ‘Polymetric.c’ and ‘Timeset.c’, as well as the literature describing these processes.
+- Pianoroll is not drawn if there are negative dates (due to pivot and preroll).
+- Pure Csound objects are not truncated correctly.
+- In -da.Beethoven-fugue-b-flat-major, k = 22082, note Bb5, start time = end time = 0
+- When playing -da.Beethoven-fuge-b-flat-major using PLAY safe (7 chunks) there is a time error between two chunks. Check the chunking on data.php
+- Try to make sense of 'truebracket' and 'imbedded' in Polymetric.c
+- Templates can't be created with rules containing integers as silences. This can be solved in MakeTemplate().
+- Currently, the console crashes if the list of TEMPLATES in a grammar is not terminated with a solid line "-----". However, the interface prevents this by adding the missing terminating line.
+- Problem tracing the production of an item containing structural patterns.
+- Errors of duration occur when playing some polymetric structures with tied notes that miss their target. Examples are stored in -da.checkBadDurations.
+- Check why tempo(3/2) {C4& {3,&C4 _rest D4}} does not produce the same pattern as {C4& {3,&C4 _rest D4}} 
+- Check delete_orphan_ties() in data.php, as it still keeps erratic ties which are difficult to predict.
+- Check why istart = 4 in Compute.c when running -gr.koto3. If not checked, it crashes on the remote right context of gram #2 rule #12. Therefore, if(istart > i) return(FALSE) has been added on 2025-03-15.
+- Check that scripts can be attached to out-time objects.
+- In Linux, when the STOP or PANIC button is clicked during a "wait" event, the trace file is empty. Maybe a problem flushing it and closing it.
+- Check quadratic adjustment of _vel and _volume.
+
+
+Sound-objects
+-------------
+
+- Create an option to completely delete notes in truncated parts at the beginning or end of a sound-object.
+- Fix truncation of the end in pure Csound objects.
 
 
 Live coding
 -----------
 
-- When loading a grammar, if the grammar is not valid, the improvisation will stop. It should continue with the previous grammar. Perhaps store a backup of the current grammar so that it can be reloaded if necessary.
+- When loading a grammar, if the grammar is not valid, the improvisation will stop. It should continue with the previous grammar. Perhaps store an image of the current grammar so that it can be reloaded if necessary.
 - Create an option to react to changes only at the moment when an entire element has been sent to MIDI. We can use the MIDI event (ActiveSensing) at the end of each item to do this.
 
 
@@ -43,7 +63,7 @@ Microtonal scales and tuning systems
 - Tuning the MIDI device to diapason A4 ≠ 440 Hz does not work or makes a mess (e.g. Windows 10, Microsoft GS Wavetable Synth).
 - Check that setting pitchbend range to ± 200 cents on all channels works.
 - Include values for optional stretching of octaves.
-- Implement a performance control to set the A4 frequency (diapason) within the score.
+- Implement a performance control to set the A4 frequency (diapason) in the score.
 
 
 Capture (in progress)
@@ -79,12 +99,13 @@ MIDI input
 Real-time MIDI
 --------------
 
+- Implement pitchbend effect on sound-objects (MIDI and Csound).
 - Implement case velmode = CONTINUOUS to modify velocities in sound-objects. (See FillPhaseDiagram.c for m == T12)
 - In -da.checkContControls, items #15 and #21: the event list is not complete because continuous controls are not handled inside events.
 - Why is kcurrentinstance (12) > Maxevent (10) in -gr.koto3 ?
 - Use client:port as MIDI input/output on Linux.  Currently, only the client is mentioned in the settings. Some devices might allocate several ports to the same client.
 — In Linux, it seems that the two virtual ports 'VirMIDI 0-0' and 'VirMIDI 0-1' are not communicating with other ports even though their connections are valid.
-- Try to display the timing during a real-time MIDI performance. This seems to be impossible under MacOS and Windows, and only possible under Linux.
+- Try to display the timing during a real-time MIDI performance. This seems to be impossible in MacOS and Windows, and only possible in Linux.
 - Put some scripts on top of a grammar (the INIT: section) to run them before the production is started. This will notably allow setting up parameters K1, K2… K127.
 - Check the accuracy of start times in sound-object pictures.
 - Implement a connection with FluidSynth (https://www.fluidsynth.org/)
@@ -146,25 +167,6 @@ Images
 - In Graphic.c, in the Improvize mode, dates on the ruler are adjusted by the "shift" variable. This doesn't yet work on the "pianoroll" type, because its background is drawn before updating PianorollShift. This can be solved (if felt necessary) by drawing the pianoroll graph after the completion of MakeSound, i.e. when calling DrawItem(). To this effect, the drawings of notes would be stored in a structure.
 - When no settings file is specified, allow the creation of images via a command line option. This option should specify a location for images. Currently, image location is the one of the trace file, which is always specified by the HTML/PHP interface.
 - Revise the drawing of time streaks (the vertical blue lines). These should be adjusted to the (varying) tempo instead of the default metronomic setting.
-
-
-Various issues
---------------
-
-- Implement again _transpose(Kx) and _keyxpand([note],Kx).
-- Try to make sense of 'truebracket' and 'imbedded' in Polymetric.c
-- Templates can't be created with rules containing integers as silences. This can be solved in MakeTemplate().
-- In the trace of -gr.Mozart, _scale(Cmaj,0) is misrepresented as _scale(K133=0).
-- Currently, the console crashes if the list of TEMPLATES in a grammar is not terminated with a solid line "-----". The interface takes care of this by adding the missing terminating line.
-- Problem tracing the production of an item containing structural patterns.
-- Errors of duration occur when playing some polymetric structures with tied notes that miss their target. Examples are stored in -da.checkBadDurations.
-- When playing -da.Beethoven-fuge-b-flat-major using PLAY safe (7 chunks) there is a time error between two chunnks. Check the chunking on data.php
-- Check why tempo(3/2) {C4& {3,&C4 _rest D4}} does not produce the same pattern as {C4& {3,&C4 _rest D4}} 
-- Check delete_orphan_ties() in data.php, as it still keeps erratic ties, which are difficult to predict.
-- Check why istart=4 in Compute.c when running -gr.koto3. If not checked, it crashes on the remote right context of gram #2 rule #12. Therefore, if(istart > i) return(FALSE) has been added on 2025-03-15.
-- Check that scripts can be attached to out-time objects
-- In linux, when the STOP or PANIC button is clicked during a "wait" event, the trace file is empty. Maybe a problem flushing it and closing it.
-- Check quadratic adjustment of _vel and _volume
 
 
 Cleaning up the code

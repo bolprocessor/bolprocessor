@@ -354,7 +354,7 @@ int PrintArgSub(PrintargType *p_printarg,unsigned long *p_maxib,TextHandle th,
 	int h,j,k,r,newtempo,forceshowtempo,key,new_depth[MAXLEVEL],compiledmem,maxpoly,level,
 		datamode,istemplate,wind,ifunc,nocode,levpar,nhomo;
 	unsigned long i,ii,ia,numberprolongations,oldnumberprolongations;
-	char c,line[MAXLIN],**p_sequence;
+	char c,line[MAXLIN],line2[MAXLIN],**p_sequence;
 	TextOffset dummy;
 	long posmem,n;
 	double tempo,x,y,scale,speed,s,perioddivision,firstscale,prodtempo;
@@ -1411,7 +1411,7 @@ PRINTPROLONGATIONS:
 				|| m == T39 || m == T41 || m == T42 || m == T44 || m == T46 || m == T45) {
 			// _chan(), _vel(), _mod(), _pitchbend(), _press(), _switchon(,), _switchoff(,)
 			// _volume(), _pan(),_legato(), _staccato(),_pitchrange(),_pitchrate(),_modrate(),
-			// _pressrate(),_transpose(),_volumerate(),_volumecontrol(),_panrate(),_pancontrol()
+			// _pressrate(),_transpose(),_volumerate(),_volumecontrol(),_panrate(),_pancontrol(),_scale(),
 			// _ins(), _value(), _step(), _cont(), _rndvel(), _rotate(), _rndtime(), _srand(), _part(), _capture()
 			if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
 				r = ABORT; goto SORTIR;
@@ -1490,12 +1490,20 @@ PRINTPROLONGATIONS:
 						ii = 67; break;
 					}
 				my_sprintf(line,"%s(",*((*p_PerformanceControl)[ii]));
-				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
+				if(m == T44) { // _scale
+					j = p % MAXSTRINGCONSTANTS;
+					if(p_StringConstant == NULL) {
+						BPPrintMessage(0,odError,"=> Err PrintArgSub(). p_StringConstant == NULL");
+						my_sprintf(line2,"???");
+						}
+					else MystrcpyHandleToString(MAXLIN,0,line2,(*p_StringConstant)[j]);
+					my_sprintf(line,"%s%s,%d",line,line2,(int)(*p_NumberConstant)[(p - j) / MAXSTRINGCONSTANTS]);
+					}
+				else if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 						(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
 					goto SORTIR;
 					}
-				if(p >= 128 && AcceptControl(m)) {
-		//			Reformat(wind,-1,-1,-1,&Color[ControlC],NO,NO);
+				if(m != T44 && p >= 128 && AcceptControl(m)) {
 					my_sprintf(line,"K%ld",(long)(p-128L));
 					if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 							(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
@@ -1511,7 +1519,6 @@ PRINTPROLONGATIONS:
 						}
 					}
 				else {
-			//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 					switch(m) {
 						case T17:
 						case T18:
@@ -1550,6 +1557,7 @@ PRINTPROLONGATIONS:
 								}
 							else MystrcpyHandleToString(MAXLIN,0,line,(*p_StringConstant)[ii]);
 							break;
+						case T44: break;
 						default:
 							my_sprintf(line,"%ld",(long)p);
 							break;
@@ -1559,7 +1567,6 @@ PRINTPROLONGATIONS:
 						goto SORTIR;
 						}
 					}
-			//	Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 				if(m != T35) {
 					if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 							(tokenbyte)0,nocode,pp_b,p_ib,f,th,")",NULL,-1)) != OK) {
@@ -1572,7 +1579,6 @@ PRINTPROLONGATIONS:
 						goto SORTIR;
 						}
 					}
-			//	Reformat(wind,-1,-1,-1,&Black,NO,NO);
 				if(m == T35) {
 SHOWNUMBER:
 					ii = (p - (p % 256)) / 256;
@@ -1585,12 +1591,10 @@ SHOWNUMBER:
 							(tokenbyte)0,nocode,pp_b,p_ib,f,th,line,NULL,-1)) != OK) {
 						goto SORTIR;
 						}
-			//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 					if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 							(tokenbyte)0,nocode,pp_b,p_ib,f,th,")",NULL,-1)) != OK) {
 						goto SORTIR;
 						}
-				//	Reformat(wind,-1,-1,-1,&Black,NO,NO);
 					}
 				sp = 1;
 				}
@@ -1601,12 +1605,10 @@ SHOWNUMBER:
 			if(Space(f,th,&sp) != OK) {
 				r = ABORT; goto SORTIR;
 				}
-		//	Reformat(wind,-1,-1,-1,&Magenta,NO,NO);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 					nocode,pp_b,p_ib,f,th,"?%ld",NULL,p)) != OK) {
 				goto SORTIR;
 				}
-		//	Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			sp = 1;
 			}
 		else {	/* Unknown token */

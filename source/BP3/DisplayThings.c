@@ -45,7 +45,21 @@ int Print(int w, const char *format, ...) { // 2026-04-27
     va_list args;
     int length;
     char buffer[4096];
-    if (!FirstGrammar) return OK;
+
+	if(w == wTrace) {
+		NumberTraceLines++;
+		if(!OKtraceLines) return(OK);
+		if(NumberTraceLines == MAXMESSAGES) {
+			Print(w,"\n\n<< MAX MESSAGES (%d) REACHED >>\n",MAXMESSAGES);
+			OKtraceLines = FALSE;
+			return OK;
+			}
+		if(NumberTraceLines > MAXMESSAGES) {
+			OKtraceLines = FALSE;
+			return OK;
+			}
+		}
+	if (!FirstGrammar) return OK;
     if (w < 0 || w >= WMAX) {
         BPPrintMessage(0, odError, "=> Err1. Print() w = %d\n", w);
         return OK;

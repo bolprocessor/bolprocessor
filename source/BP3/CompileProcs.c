@@ -1401,7 +1401,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 					initparam = (int) atol(ptr);
 					if(arg_nr == 0)	/* Playing selection */
 						ParamValue[cntl] = initparam;
-					else {	/* Compiling grammar */
+					else {	// Compiling grammar
 						if(ParamInit[cntl] == INT_MAX) ParamInit[cntl] = ParamValue[cntl]
 							= initparam;
 						else {

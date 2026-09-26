@@ -36,7 +36,7 @@
 #ifndef _H_BP3
 #define _H_BP3
 
-#define SHORT_VERSION "3.5.4"
+#define SHORT_VERSION "3.5.5"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -234,6 +234,7 @@ enum {
 #define MAXBUTT 32		/* number of buttons created in dialogs */
 #define MAXMESSAGE 70	/* number of messages remembered */
 #define MAXLIN 400		/* length of input line in any file */
+#define MAXSCORELENGTH 5000 /* length of Csound score */
 #define MAXWEIGHT 32767	/* weight of rule in grammar */
 #define MAXPORTS 32		/* number of input/output MIDI ports */
 #define MAXCLIENTS 512 /* number of MIDI clients (in Linux) */
@@ -336,8 +337,8 @@ enum {
 #define DILATION_RATIO 2
 
 // Values for channel
-#define FORCE_TO_CURRENT 0
-#define NO_CHANGE -1
+#define GLOBAL_CH 0
+#define LOCAL_CH -1
 
 // Values fo file formats
 #define MAC 0
@@ -345,9 +346,8 @@ enum {
 #define UNIX 2
 
 // Values for midi to csound conversion
-#define USE_CURRENT_INSTRUMENT 0
-#define DO_NOT_CHANGE_INSTRUMENT -1
-#define FORCE_TO_INSTRUMENT 1
+#define LOCAL_CS -1
+#define GLOBAL_CS 0
 
 // More values for SynchroSignal
 #define PLAYNOW 1
@@ -359,7 +359,7 @@ enum {
 
 // Values and indexes for pitch, modulation and pressure
 // #define OFF 0 already defined
-#define FIX 1
+#define FIXMAPMODE 1
 #define CONTINUOUS 2
 #define STEPWISE 3
 
@@ -390,6 +390,9 @@ enum {
 #define UP 0
 #define CENTRE 1
 #define DOWN 2
+
+#define LINE_SEP "<BR>"
+#define LINE_SEP_LEN 4
 
 // Pitch parameter in Csound
 #define OPPC 0
@@ -1313,7 +1316,7 @@ struct s_PerfParameters {
 	int transpose;
 	int level[MAXKEY];
 	int velocity[MAXKEY];
-	float dilationratio[MAXKEY];
+	float beta[MAXKEY];
 	double starttime[MAXKEY];
 	double startpitchbend[MAXKEY];
 	int startvolume[MAXKEY];
@@ -1413,7 +1416,7 @@ struct s_SoundObjectInstanceParameters {
 	short rndvel,velcontrol;
 	short xpandkey,xpandval;
 	short instrument,part;
-	double alpha,dilationratio;
+	double alpha,beta;
 	Parameters contparameters;
 	KeyNumberMap map0,map1;
 	char mapmode,transposefirst;
@@ -1566,6 +1569,14 @@ typedef struct {
 
 typedef struct {
 } QDGlobals, *GrafPtr, *CGrafPtr, *GWorldPtr, **GDHandle, Cursor;
+
+typedef struct {
+    const char *text;   /* start of the line in the original string        */
+    size_t      len;    /* length of the line INCLUDING its trailing <BR>  */
+    double      date;   /* p2 (start time) if this is an i-statement       */
+    long        order;  /* original position, for a stable sort            */
+    int         is_i;   /* 1 if this is a sortable i-statement             */
+} ScoreLine;
 
 
 #include "-BP3.proto.h"

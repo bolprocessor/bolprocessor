@@ -88,7 +88,7 @@ extern time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTi
 extern unsigned long NextStop;
 extern char FindString[256],ReplaceString[256];
 extern t_gram Gram,Gram_compile,GlossGram;
-extern int RunningStatus,StrikeAgainDefault,PedalReleaseDefault,StopPauseContinue,MIDImicrotonality;
+extern int RunningStatus,StrikeAgainSettings,PedalReleaseDefault,StopPauseContinue,MIDImicrotonality;
 extern int NoteOffPass[MAXPORTS],NoteOnPass[MAXPORTS],KeyPressurePass[MAXPORTS],ControlTypePass[MAXPORTS],ProgramTypePass[MAXPORTS],
 	ChannelPressurePass[MAXPORTS],PitchBendPass[MAXPORTS],SysExPass[MAXPORTS],TimeCodePass[MAXPORTS],SongPosPass[MAXPORTS],SongSelPass[MAXPORTS],TuneTypePass[MAXPORTS],EndSysExPass[MAXPORTS],ClockTypePass[MAXPORTS],StartTypePass[MAXPORTS],ContTypePass[MAXPORTS],ActiveSensePass[MAXPORTS],ResetPass[MAXPORTS];
 extern int NoteOffIn[MAXPORTS],NoteOnIn[MAXPORTS],KeyPressureIn[MAXPORTS],ControlTypeIn[MAXPORTS],ProgramTypeIn[MAXPORTS],
@@ -111,6 +111,7 @@ extern int ScriptW,CurrentChannel;
 extern long CurrentDir,LastDir,OldModulation;
 extern unsigned long NumEventsWritten;
 extern int imageHits;
+extern int NumberTraceLines,OKtraceLines;
 extern int PitchbendRange[MAXCHAN+1],DeftPitchbendRange,PitchbendRate[MAXCHAN+1],ModulationRate[MAXCHAN+1],PressRate[MAXCHAN+1],
 	VolumeRate[MAXCHAN+1],VolumeControl[MAXCHAN+1],PanoramicRate[MAXCHAN+1],PanoramicControl[MAXCHAN+1],
 	DeftVolume,DeftVelocity,DeftPanoramic,PanoramicController,VolumeController,SamplingRate;
@@ -154,7 +155,7 @@ extern double **p_CsPitchBend[6],**p_CsVolume[6],**p_CsPressure[6],**p_CsModulat
 
 
 extern int FileSaveMode,FileWriteMode,MIDIfileType,CsoundFileFormat;
-
+extern int TraceAll;
 extern SoundObjectInstanceParameters **p_Instance;
 extern short **p_Articul;
 extern objectspecs ****p_ObjectSpecs;
@@ -184,7 +185,7 @@ extern Milliseconds ****pp_CsoundTime;
 extern long **p_CsoundSize,**p_MIDIsize;
 extern char **p_DefaultChannel,**p_PasteDone,
 	**p_AlphaCtrl,**p_Type,**p_FixScale,**p_OkExpand,**p_OkCompress,**p_OkRelocate,
-	**p_BreakTempo,**p_DiscardNoteOffs,
+	**p_BreakTempo,
 	**p_OkTransp,**p_OkArticul,**p_OkVolume,**p_OkPan,**p_OkMap,**p_OkVelocity,
 	**p_ContBeg,**p_ContEnd,**p_CoverBeg,**p_CoverEnd,**p_TruncBeg,**p_TruncEnd,
 	**p_PivType,**p_PivMode,**p_RescaleMode,**p_DelayMode,**p_ForwardMode,

@@ -351,7 +351,7 @@ int Inits(void) {
 	Gram.number_gram = GlossGram.number_gram = 0;
 	RunningStatus = 0; NoRepeat = FALSE;
 	ScriptSyncKey = ScriptSyncChan = -1;
-	StrikeAgainDefault = PedalReleaseDefault = TRUE;
+	StrikeAgainSettings = PedalReleaseDefault = TRUE;
 	StopPauseContinue = TRUE;
 	MIDImicrotonality = FALSE;
 	Jwheel = Jfeet = Jdisk = 0;
@@ -374,6 +374,8 @@ int Inits(void) {
 		}
 	ForceRatio = -1.;
 	PlayFromInsertionPoint = FALSE;
+	NumberTraceLines = 0;
+	OKtraceLines = TRUE;
 
 	OpenMIDIfilePtr = EventListPtr = UnitfilePtr = TabfilePtr = TsvFilePtr = NULL;
 	HelpRefnum = TempRefnum = TraceRefnum = -1;

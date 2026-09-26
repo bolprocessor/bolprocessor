@@ -730,172 +730,165 @@ return(OK);
    is newly allocated and uninitialized.  This is the case when called from 
    ResizeCsoundInstrumentsSpace().  When "all" is NO, then the instrument
    index, name, and comment are preserved.  Changes by BB. */
-int ResetCsoundInstrument(int j,int all, int newinstr)
-{
-Handle ptr;
-int i,channel;
+int ResetCsoundInstrument(int j,int all, int newinstr) {
+	Handle ptr;
+	int i,channel;
 
-if(!newinstr) {
-	// Jinstr has not been adjusted yet when resizing
-	if(j < 0 || j >= Jinstr) { 
-		BPPrintMessage(0,odError,"=> Err. ResetCsoundInstrument(). Incorrect index = %d\n",j);
-		return(MISSED);
-		}
-	for(channel=1; channel <= MAXCHAN; channel++) {
-		if(WhichCsoundInstrument[channel] == (*p_CsInstrumentIndex)[j]) {
-			WhichCsoundInstrument[channel] = -1;
-			break;
+	if(!newinstr) {
+		// Jinstr has not been adjusted yet when resizing
+		if(j < 0 || j >= Jinstr) { 
+			BPPrintMessage(0,odError,"=> Err. ResetCsoundInstrument(). Incorrect index = %d\n",j);
+			return(MISSED);
+			}
+		for(channel=1; channel <= MAXCHAN; channel++) {
+			if(WhichCsoundInstrument[channel] == (*p_CsInstrumentIndex)[j]) {
+				WhichCsoundInstrument[channel] = -1;
+				break;
+				}
 			}
 		}
-	}
 
-if(all || newinstr) (*p_CsInstrumentIndex)[j] = -1;
-(*p_CsDilationRatioIndex)[j] = (*p_CsAttackVelocityIndex)[j]
-	= (*p_CsReleaseVelocityIndex)[j]
-	= (*p_CsPressureStartIndex)[j] = (*p_CsModulationStartIndex)[j]
-	= (*p_CsPanoramicStartIndex)[j]
-	= (*p_CsPressureEndIndex)[j] = (*p_CsModulationEndIndex)[j]
-	= (*p_CsPanoramicEndIndex)[j] = -1;
-	
-(*p_CsPitchIndex)[j] = 4;
-(*p_CsPitchFormat)[j] = OPPC;
+	if(all || newinstr) (*p_CsInstrumentIndex)[j] = -1;
+	(*p_CsDilationRatioIndex)[j] = (*p_CsAttackVelocityIndex)[j]
+		= (*p_CsReleaseVelocityIndex)[j]
+		= (*p_CsPressureStartIndex)[j] = (*p_CsModulationStartIndex)[j]
+		= (*p_CsPanoramicStartIndex)[j]
+		= (*p_CsPressureEndIndex)[j] = (*p_CsModulationEndIndex)[j]
+		= (*p_CsPanoramicEndIndex)[j] = -1;
+		
+	(*p_CsPitchIndex)[j] = 4;
+	(*p_CsPitchFormat)[j] = OPPC;
 
-(*p_CsVolumeStartIndex)[j] = 5;
-(*p_CsVolumeEndIndex)[j] = 6;
-(*p_CsInstrument)[j].volumetable = 7;
+	(*p_CsVolumeStartIndex)[j] = 5;
+	(*p_CsVolumeEndIndex)[j] = 6;
+	(*p_CsInstrument)[j].volumetable = 7;
 
-(*p_CsPitchBendStartIndex)[j] = 8;
-(*p_CsPitchBendEndIndex)[j] = 9;
-(*p_CsInstrument)[j].pitchbendtable = 10;
+	(*p_CsPitchBendStartIndex)[j] = 8;
+	(*p_CsPitchBendEndIndex)[j] = 9;
+	(*p_CsInstrument)[j].pitchbendtable = 10;
 
-(*p_CsInstrument)[j].rPitchBend.islogx = (*p_CsInstrument)[j].rPitchBend.islogy = TRUE;
+	(*p_CsInstrument)[j].rPitchBend.islogx = (*p_CsInstrument)[j].rPitchBend.islogy = TRUE;
 
-(*p_CsInstrument)[j].rVolume.islogx = (*p_CsInstrument)[j].rVolume.islogy
-	= (*p_CsInstrument)[j].rPressure.islogx = (*p_CsInstrument)[j].rPressure.islogy
-	= (*p_CsInstrument)[j].rModulation.islogx = (*p_CsInstrument)[j].rModulation.islogy
-	= (*p_CsInstrument)[j].rPanoramic.islogx = (*p_CsInstrument)[j].rPanoramic.islogy = FALSE;
+	(*p_CsInstrument)[j].rVolume.islogx = (*p_CsInstrument)[j].rVolume.islogy
+		= (*p_CsInstrument)[j].rPressure.islogx = (*p_CsInstrument)[j].rPressure.islogy
+		= (*p_CsInstrument)[j].rModulation.islogx = (*p_CsInstrument)[j].rModulation.islogy
+		= (*p_CsInstrument)[j].rPanoramic.islogx = (*p_CsInstrument)[j].rPanoramic.islogy = FALSE;
 
-(*p_CsInstrument)[j].pitchbendrange = 200; // 2025-01-19
+	(*p_CsInstrument)[j].pitchbendrange = 200; // 2025-01-19
 
-(*p_CsInstrument)[j].pressuretable = (*p_CsInstrument)[j].modulationtable
-	= (*p_CsInstrument)[j].panoramictable = -1;
+	(*p_CsInstrument)[j].pressuretable = (*p_CsInstrument)[j].modulationtable
+		= (*p_CsInstrument)[j].panoramictable = -1;
 
-(*p_CsInstrument)[j].pitchbendGEN = (*p_CsInstrument)[j].volumeGEN
-	= (*p_CsInstrument)[j].pressureGEN = (*p_CsInstrument)[j].modulationGEN
-	= (*p_CsInstrument)[j].panoramicGEN = 7;
+	(*p_CsInstrument)[j].pitchbendGEN = (*p_CsInstrument)[j].volumeGEN
+		= (*p_CsInstrument)[j].pressureGEN = (*p_CsInstrument)[j].modulationGEN
+		= (*p_CsInstrument)[j].panoramicGEN = 7;
 
-(*p_CsInstrument)[j].iargmax = 10;	/* Three Arguments are compulsory */
+	(*p_CsInstrument)[j].iargmax = 10;	/* Three Arguments are compulsory */
 
-if(!newinstr) {
-	for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
-		if((*p_CsInstrument)[j].paramlist == NULL) {
-			BPPrintMessage(0,odError,"=> Err. ResetCsoundInstrument(). (*p_CsInstrument)[j].paramlist == NULL\n",j);
-			continue;
+	if(!newinstr) {
+		for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
+			if((*p_CsInstrument)[j].paramlist == NULL) {
+				BPPrintMessage(0,odError,"=> Err. ResetCsoundInstrument(). (*p_CsInstrument)[j].paramlist == NULL\n",j);
+				continue;
+				}
+			ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].name;
+			MyDisposeHandle(&ptr);
+			ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].comment;
+			MyDisposeHandle(&ptr);
 			}
-		ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].name;
+		ptr = (Handle) (*p_CsInstrument)[j].paramlist;
 		MyDisposeHandle(&ptr);
-		ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].comment;
-		MyDisposeHandle(&ptr);
 		}
-	ptr = (Handle) (*p_CsInstrument)[j].paramlist;
-	MyDisposeHandle(&ptr);
+		
+	(*p_CsInstrument)[j].paramlist = NULL;
+	(*p_CsInstrument)[j].ipmax = 0;
+
+	if(all) {
+		ptr = (Handle)(*pp_CsInstrumentName)[j];
+		MySetHandleSize(&ptr,(Size)2L * sizeof(char));
+		(*pp_CsInstrumentName)[j] = (char**) ptr;
+	//	(*((*pp_CsInstrumentName)[j]))[0] = '\0';
+		strcpy((*((*pp_CsInstrumentName)[j])),""); // Fixed by BB 2021-02-14
+		
+		ptr = (Handle)(*pp_CsInstrumentComment)[j];
+		MySetHandleSize(&ptr,(Size)2L * sizeof(char));
+		(*pp_CsInstrumentComment)[j] = (char**) ptr;
+	//	(*((*pp_CsInstrumentComment)[j]))[0] = '\0';
+		strcpy((*((*pp_CsInstrumentComment)[j])),""); // Fixed by BB 2021-02-14
+		}
+
+	(*(p_CsPitchBend[0]))[j] = 0.; (*(p_CsPitchBend[1]))[j] = DEFTPITCHBEND;
+	(*(p_CsPitchBend[2]))[j] = 16383.;
+	(*(p_CsVolume[0]))[j] = 0.; (*(p_CsVolume[1]))[j] = 64.;
+	(*(p_CsVolume[2]))[j] = 127.;
+	(*(p_CsPressure[0]))[j] = 0.; (*(p_CsPressure[1]))[j] = 64.;
+	(*(p_CsPressure[2]))[j] = 127.;
+	(*(p_CsModulation[0]))[j] = 0.; (*(p_CsModulation[1]))[j] = 8192.;
+	(*(p_CsModulation[2]))[j] = 16383.;
+	(*(p_CsPanoramic[0]))[j] = 0.; (*(p_CsPanoramic[1]))[j] = 64.;
+	(*(p_CsPanoramic[2]))[j] = 127.;
+
+	(*(p_CsPitchBend[3]))[j] = -200.; (*(p_CsPitchBend[4]))[j] = 0.;
+	(*(p_CsPitchBend[5]))[j] = 200.;
+	(*(p_CsVolume[3]))[j] = Infpos1; (*(p_CsVolume[4]))[j] = Infpos1;
+	(*(p_CsVolume[5]))[j] = Infpos1;
+	(*(p_CsPressure[3]))[j] = Infpos1; (*(p_CsPressure[4]))[j] = Infpos1;
+	(*(p_CsPressure[5]))[j] = Infpos1;
+	(*(p_CsModulation[3]))[j] = Infpos1; (*(p_CsModulation[4]))[j] = Infpos1;
+	(*(p_CsModulation[5]))[j] = Infpos1;
+	(*(p_CsPanoramic[3]))[j] = Infpos1; (*(p_CsPanoramic[4]))[j] = Infpos1;
+	(*(p_CsPanoramic[5]))[j] = Infpos1;
+	CompiledRegressions = FALSE;
+	return(OK);
 	}
-	
-(*p_CsInstrument)[j].paramlist = NULL;
-(*p_CsInstrument)[j].ipmax = 0;
 
-if(all) {
-	ptr = (Handle)(*pp_CsInstrumentName)[j];
-	MySetHandleSize(&ptr,(Size)2L * sizeof(char));
-	(*pp_CsInstrumentName)[j] = (char**) ptr;
-//	(*((*pp_CsInstrumentName)[j]))[0] = '\0';
-	strcpy((*((*pp_CsInstrumentName)[j])),""); // Fixed by BB 2021-02-14
-	
-	ptr = (Handle)(*pp_CsInstrumentComment)[j];
-	MySetHandleSize(&ptr,(Size)2L * sizeof(char));
-	(*pp_CsInstrumentComment)[j] = (char**) ptr;
-//	(*((*pp_CsInstrumentComment)[j]))[0] = '\0';
-	strcpy((*((*pp_CsInstrumentComment)[j])),""); // Fixed by BB 2021-02-14
+int FixCsoundScoreName(char* line) {
+	return(OK);	// Csound doesn't care! -- akozar 031907
 	}
 
-(*(p_CsPitchBend[0]))[j] = 0.; (*(p_CsPitchBend[1]))[j] = DEFTPITCHBEND;
-(*(p_CsPitchBend[2]))[j] = 16383.;
-(*(p_CsVolume[0]))[j] = 0.; (*(p_CsVolume[1]))[j] = 64.;
-(*(p_CsVolume[2]))[j] = 127.;
-(*(p_CsPressure[0]))[j] = 0.; (*(p_CsPressure[1]))[j] = 64.;
-(*(p_CsPressure[2]))[j] = 127.;
-(*(p_CsModulation[0]))[j] = 0.; (*(p_CsModulation[1]))[j] = 8192.;
-(*(p_CsModulation[2]))[j] = 16383.;
-(*(p_CsPanoramic[0]))[j] = 0.; (*(p_CsPanoramic[1]))[j] = 64.;
-(*(p_CsPanoramic[2]))[j] = 127.;
 
-(*(p_CsPitchBend[3]))[j] = -200.; (*(p_CsPitchBend[4]))[j] = 0.;
-(*(p_CsPitchBend[5]))[j] = 200.;
-(*(p_CsVolume[3]))[j] = Infpos1; (*(p_CsVolume[4]))[j] = Infpos1;
-(*(p_CsVolume[5]))[j] = Infpos1;
-(*(p_CsPressure[3]))[j] = Infpos1; (*(p_CsPressure[4]))[j] = Infpos1;
-(*(p_CsPressure[5]))[j] = Infpos1;
-(*(p_CsModulation[3]))[j] = Infpos1; (*(p_CsModulation[4]))[j] = Infpos1;
-(*(p_CsModulation[5]))[j] = Infpos1;
-(*(p_CsPanoramic[3]))[j] = Infpos1; (*(p_CsPanoramic[4]))[j] = Infpos1;
-(*(p_CsPanoramic[5]))[j] = Infpos1;
-CompiledRegressions = FALSE;
-return(OK);
-}
+int CompileCsoundObjects(void) { // NO LONGER USED
+	int j,rep,longerCsound,maxsounds;
 
-int FixCsoundScoreName(char* line)
-{
-return(OK);	// Csound doesn't care! -- akozar 031907
-/* if(strcmp(strstr(line,".sco"),".sco") == 0) return(OK);
-line[MAXNAME - 1 - strlen(".sco")] = '\0';
-strcat(line,".sco");
-my_sprintf(Message,"Csound score file was renamed « %s »",line);
-ShowMessage(TRUE,wMessage,Message);
-return(MISSED);
-*/
-}
+	if(CompiledCsObjects || (!ObjectMode && !EventListOn)) return(OK);
+	if(Jbol < 2) return(OK);
 
+	rep = OK;
+	CompileOn++;
+	maxsounds = MyGetHandleSize((Handle)p_Type) / sizeof(char);
+	BPPrintMessage(0,odInfo,"Running CompileCsoundObjects() for %d sound-objects\n",maxsounds);
 
-int CompileCsoundObjects(void)
-// Tokenize Csound scores in sound-object prototypes
-{
-int j,rep,longerCsound,maxsounds;
-
-if(CompiledCsObjects || !ObjectMode) return(OK);
-if(Jbol < 2) return(OK);
-
-rep = OK;
-CompileOn++;
-maxsounds = MyGetHandleSize((Handle)p_Type) / sizeof(char);
-if(trace_csound) BPPrintMessage(0,odInfo,"Running CompileCsoundObjects() for maxsounds = %ld\n",(long)maxsounds);
-
-for(j=2; j < maxsounds; j++) {
-	if(trace_csound) BPPrintMessage(0,odInfo,"(*p_Type)[%d] = %d\n",j,(*p_Type)[j]);
-	if((*p_Type)[j] == 0) continue;
-	if(!((*p_Type)[j] & 4)) {  // The third bit is not 1
-		if((*pp_CsoundScoreText)[j] == NULL) {
-			if(trace_csound) BPPrintMessage(0,odInfo, "No Csound score in %d\n",j);
-			continue;
+	for(j=2; j < maxsounds; j++) {
+		if(trace_csound) 
+			BPPrintMessage(0,odInfo,"%s --> Type[%d] = %d\n",*((*p_Bol)[j]),j,(*p_Type)[j]);
+		if((*p_Type)[j] == 0) continue;
+		if(!((*p_Type)[j] & 4)) {  // The third bit is not 1
+			if((*pp_CsoundScoreText)[j] == NULL) {
+				if(trace_csound) 
+					BPPrintMessage(0,odInfo, "No Csound score in %d\n",j);
+				continue;
+				}
+			(*p_Type)[j] |= 4; // Set the third bit to 1
 			}
-		(*p_Type)[j] |= 4; // Set the third bit to 1
+		if((rep=CompileObjectScore(j,&longerCsound)) != OK) {
+			if(rep == ABORT) goto SORTIR;
+			iProto = j;
+			CompiledCsObjects = 0;
+			rep = MISSED;
+			goto SORTIR;
+			}
 		}
-	if((rep=CompileObjectScore(j,&longerCsound)) != OK) {
-		if(rep == ABORT) goto SORTIR;
-		iProto = j;
-		CompiledCsObjects = 0;
-		rep = MISSED;
-		goto SORTIR;
-		}
-	}
-CompiledCsObjects = 1;
+	CompiledCsObjects = 1;
 
-SORTIR:
-if(CompileOn) CompileOn--;
-return(rep);
-}
+	SORTIR:
+	if(CompileOn) CompileOn--;
+	return(rep);
+	}
 
 
 int CompileObjectScore(int j,int *p_longerCsound) {
+	// Compiling the Csound score of sound-object prototype 'j'
+
 	char c,**p_line,line[MAXLIN];
 	int i,ii,ipos,im,i0,i1,ievent,ip,ins,l,nparam,maxparam,maxevents,foundevent,result,
 		istempo,overflow,finished,index,html;
@@ -906,7 +899,8 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 
 	if(j < 2 || j >= Jbol) return(OK);
 
-	if(trace_csound) BPPrintMessage(0,odInfo,"CompileObjectScore(%d)\n",j);
+	if(trace_csound) 
+		BPPrintMessage(0,odInfo,"CompileObjectScore(%d)\n",j);
 	p_line = (*pp_CsoundScoreText)[j];
 	if(p_line == NULL) {
 		if(trace_csound) BPPrintMessage(0,odInfo, "=> Warning CompileObjectScore(%d). p_line == NULL\n",j);
@@ -915,23 +909,16 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 	if(trace_csound) BPPrintMessage(0,odInfo, "Compiling object score line[%d] = %s\n",j,(*p_line));
 
 	if(strlen(*p_line) == 0 || strcmp((*p_line),"<HTML></HTML>") == 0) {
-	/*	ptr = (Handle) (*pp_CsoundScore)[j];
-		if(ptr != NULL) {
-			if(trace_csound) BPPrintMessage(0,odError, "=> Error (*pp_CsoundScore)[%d] != NULL, (*p_CsoundSize)[%d] = %d\n",j,j,(*p_CsoundSize)[j]);
-			for(i=0; i < (*p_CsoundSize)[j]; i++) {
-				ptr2 = (Handle) (*((*pp_CsoundScore)[j]))[i].h_param;
-				MyDisposeHandle(&ptr2);
-				(*((*pp_CsoundScore)[j]))[i].h_param = NULL;
-				}
-			MyDisposeHandle(&ptr);
-			(*pp_CsoundScore)[j] = NULL;
-			} */
-		(*p_CsoundSize)[j] = ZERO;
+	//	BPPrintMessage(0,odInfo, "@@@ j = %d empty line\n",j);
 		if((*p_Type)[j] & 4) {
 			(*p_Type)[j] &= (255-4);
 			}
 		return(OK);
 		}
+	// BPPrintMessage(0,odInfo,"%s\n",(*p_line));
+
+	// Csound instructions are required in chronological order
+	sort_csound_score(p_line);
 
 	if((result=CompileRegressions()) != OK) return(result);
 
@@ -1045,24 +1032,22 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 		param = Myatof(line,&p,&q);
 		if(istempo) {
 			if(ip == 1 && param != 0) {
-				my_sprintf(Message,"=> BP3 can't compile this Csound score: argument following 't' should be 0. Can't accept %.2f",
-					param);
-				BPPrintMessage(0,odError,"%s",Message);
+				my_sprintf(Message,"=> BP3 can't compile this Csound score: argument following 't' should be 0.");
+				BPPrintMessage(0,odError,"%s\n",Message);
 				result = MISSED;
 				goto SORTIR;
 				}
 			if(ip > 2) {
 				my_sprintf(Message,"=> BP3 can't compile this Csound score: more than %ld arguments following 't'",
 					(long)ip-1L);
-				BPPrintMessage(0,odError,"%s",Message);
+				BPPrintMessage(0,odError,"%s\n",Message);
 				result = MISSED;
 				goto SORTIR;
 				}
 			if(ip == 2) {
 				if(param <= 0.) {
-					my_sprintf(Message,"=> Incorrect Csound score: 2nd argument following 't' should be positive. Can't accept %.2f",
-						param);
-					BPPrintMessage(0,odError,"%s",Message);
+					my_sprintf(Message,"=> Incorrect Csound score: 2nd argument following 't' should be positive.");
+					BPPrintMessage(0,odError,"%s\n",Message);
 					result = MISSED;
 					goto SORTIR;
 					}
@@ -1083,17 +1068,11 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 							my_sprintf(Message,
 								"=> Can't compile Csound score because instrument %ld is not defined. You may modify or load the '-cs' file",
 								(long)param);
-							BPPrintMessage(0,odError,"%s",Message);
+							BPPrintMessage(0,odError,"%s\n",Message);
 							if((*p_CsoundInstr)[j] > 0) {
-	#if BP_CARBON_GUI_FORGET_THIS
-								ShowWindow(Window[wPrototype1]);
-								BringToFront(Window[wPrototype1]);
-								BPActivateWindow(SLOW,wPrototype8);
-								SelectField(NULL,wPrototype8,fForceToInstrument,TRUE);
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 								my_sprintf(Message,"=> Perhaps the problem is that you forced this sound-object to use instrument %ld",
 									(long)param);
-								BPPrintMessage(0,odError,"%s",Message);
+								BPPrintMessage(0,odError,"%s\n",Message);
 								}
 							result = MISSED;
 							goto SORTIR;
@@ -1146,6 +1125,10 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 						}
 					break;
 				case 2:
+					if(param < 0) {
+						BPPrintMessage(0,odError,"=> Can't compile Csound score because a negative parameter was found: %.2f\n(2nd argument)",param);
+						result = MISSED; goto SORTIR;
+						}
 					param = (param * 60000.) / tempo;
 					(*((*pp_CsoundTime)[j]))[ievent] = param;
 					break;
@@ -1209,7 +1192,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 							my_sprintf(Message,
 								"=> Default Csound instrument requires %ld arguments but the score is supplying more",
 								(long)(maxparam+3));
-						BPPrintMessage(0,odError,"%s",Message);
+						BPPrintMessage(0,odError,"%s\n",Message);
 						result = ABORT;
 						OutCsound = FALSE;
 						goto SORTIR;
@@ -1244,7 +1227,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 	#endif /* BP_CARBON_GUI_FORGET_THIS */
 					my_sprintf(Message,"=> Perhaps the problem is that this sound-object is instructed to use instrument %ld",
 						(long)param);
-					BPPrintMessage(0,odError,"%s",Message);
+					BPPrintMessage(0,odError,"%s\n",Message);
 					}
 				MyDisposeHandle((Handle*)&h);
 				result = MISSED;
@@ -1253,8 +1236,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 				}
 				
 			(*((*pp_CsoundScore)[j]))[ievent].h_param = h;
-			h = NULL;
-			
+			h = NULL;	
 			ievent++;
 			if(ievent >= maxevents) {
 				ptr = (Handle) (*pp_CsoundScore)[j];
@@ -1303,9 +1285,9 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 
 	if(iProto == 0 && Jbol > 2) iProto = 2;
 	(*p_CompiledCsoundScore)[j] = 1;
-	if(result == OK) BPPrintMessage(0,odError,"Csound score of object « %s » successfully compiled\n",*((*p_Bol)[j]));
-	else BPPrintMessage(0,odError,"Csound score of object « %s » not successfully compiled\n",*((*p_Bol)[j]));
-	return(result);
+	if(result == OK) BPPrintMessage(0,odError,"Csound score of object « %s » (%d) successfully compiled\n",*((*p_Bol)[j]),j);
+	else BPPrintMessage(0,odError,"Csound score of object « %s » (%d) not compiled\n",*((*p_Bol)[j]),j);
+	return(OK);
 	}
 
 
@@ -1458,13 +1440,11 @@ int FindCsoundInstrument(char* line) {
 
 	ERR:
 	if(Jinstr < 2) {
-		Print(wTrace,"\n=> You probably forgot to create or load a '-cs' instrument file\n");
+		Print(wTrace,"\n=> You probably forgot to create or load a '-cs' instrument file");
 		}
-	if(isnumber) my_sprintf(Message,"=> Instrument %ld was not found in the '-cs' instrument file\n",
-		(long) i);
-	else my_sprintf(Message,"=> Instrument \"%s\" was not found in the '-cs' instrument file\n",
-		line);
-	BPPrintMessage(0,odError,Message);
+	if(isnumber) my_sprintf(Message,"=> Instrument %ld was not found in the '-cs' instrument file",(long) i);
+	else my_sprintf(Message,"=> Instrument \"%s\" was not found in the '-cs' instrument file",line);
+	BPPrintMessage(0,odError,"%s\n",Message);
 	return(ABORT);
 	}
 
@@ -1497,4 +1477,95 @@ int ResetMoreParameter(int j,int ip) {
 	(*paramlist)[ip].combinationtype = ADD;
 	return(OK);
 	}
+
+/* Returns 1 and sets *date if the line (content_len chars, without <BR>)
+   is an i-statement with a numeric p2. */
+static int parse_i_statement(const char *s, size_t content_len, double *date)
+{
+    const char *p = s, *end = s + content_len;
+    char *q;
+    double d;
+
+    while (p < end && isspace((unsigned char)*p)) p++;
+    if (p >= end || *p != 'i') return 0;
+    p++;
+    while (p < end && isspace((unsigned char)*p)) p++;   /* "i 1" form      */
+    while (p < end && !isspace((unsigned char)*p)) p++;  /* instrument p1   */
+    while (p < end && isspace((unsigned char)*p)) p++;
+    if (p >= end) return 0;
+
+    d = strtod(p, &q);
+    if (q == p || q > end) return 0;   /* no numeric p2 (e.g. "+" or ".") */
+    *date = d;
+    return 1;
+}
+
+static int compare_lines(const void *a, const void *b)
+{
+    const ScoreLine *x = (const ScoreLine *)a;
+    const ScoreLine *y = (const ScoreLine *)b;
+    if (x->date < y->date) return -1;
+    if (x->date > y->date) return  1;
+    return (x->order < y->order) ? -1 : (x->order > y->order); /* stable */
+}
+
+
+int sort_csound_score(char **p_line)
+// Sorts each block of consecutive i-statements by start date (p2).
+// Returns 0 on success, -1 on error.
+{
+    char *str, *buf, *dst;
+    const char *p, *next;
+    size_t total, n = 1, k = 0, a, b;
+    ScoreLine *lines;
+
+    if (p_line == NULL || *p_line == NULL) return -1;
+    str = *p_line;
+    total = strlen(str);
+
+    /* Count lines */
+    for (p = str; (p = strstr(p, LINE_SEP)) != NULL; p += LINE_SEP_LEN) n++;
+
+    lines = (ScoreLine *)malloc(n * sizeof(ScoreLine));
+    buf   = (char *)malloc(total + 1);
+    if (lines == NULL || buf == NULL) { free(lines); free(buf); return -1; }
+
+    /* Split into lines, each keeping its trailing <BR> */
+    p = str;
+    for (;;) {
+        size_t content_len;
+        next = strstr(p, LINE_SEP);
+        content_len = next ? (size_t)(next - p) : strlen(p);
+        lines[k].text  = p;
+        lines[k].len   = next ? content_len + LINE_SEP_LEN : content_len;
+        lines[k].order = (long)k;
+        lines[k].date  = 0.;
+        lines[k].is_i  = parse_i_statement(p, content_len, &lines[k].date);
+        k++;
+        if (next == NULL) break;
+        p = next + LINE_SEP_LEN;
+    }
+
+    /* Sort each run of consecutive i-statements; other lines
+       (t, f, s, comments, <HTML>...) stay where they are. */
+    for (a = 0; a < n; a = b) {
+        if (!lines[a].is_i) { b = a + 1; continue; }
+        for (b = a; b < n && lines[b].is_i; b++) ;
+        if (b - a > 1)
+            qsort(lines + a, b - a, sizeof(ScoreLine), compare_lines);
+    }
+
+    /* Rebuild, then copy back (same length, so the handle size is unchanged) */
+    dst = buf;
+    for (k = 0; k < n; k++) {
+        memcpy(dst, lines[k].text, lines[k].len);
+        dst += lines[k].len;
+    }
+    *dst = '\0';
+    memcpy(str, buf, total + 1);
+
+    free(lines);
+    free(buf);
+    return 0;
+}
 

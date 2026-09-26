@@ -158,7 +158,7 @@ time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTime,Time
 unsigned long NextStop;
 char FindString[256],ReplaceString[256];
 char OutFileName[MAXLIN];
-int RunningStatus,StrikeAgainDefault,PedalReleaseDefault,StopPauseContinue,MIDImicrotonality;
+int RunningStatus,StrikeAgainSettings,PedalReleaseDefault,StopPauseContinue,MIDImicrotonality;
 int NoteOffPass[MAXPORTS],NoteOnPass[MAXPORTS],KeyPressurePass[MAXPORTS],ControlTypePass[MAXPORTS],ProgramTypePass[MAXPORTS],
 	ChannelPressurePass[MAXPORTS],PitchBendPass[MAXPORTS],SysExPass[MAXPORTS],TimeCodePass[MAXPORTS],SongPosPass[MAXPORTS],SongSelPass[MAXPORTS],TuneTypePass[MAXPORTS],EndSysExPass[MAXPORTS],ClockTypePass[MAXPORTS],StartTypePass[MAXPORTS],ContTypePass[MAXPORTS],ActiveSensePass[MAXPORTS],ResetPass[MAXPORTS];
 int NoteOffIn[MAXPORTS],NoteOnIn[MAXPORTS],KeyPressureIn[MAXPORTS],ControlTypeIn[MAXPORTS],ProgramTypeIn[MAXPORTS],
@@ -179,6 +179,7 @@ int IgnoreFields,TraceZouleb;
 short CurrentVref,LastVref;
 int ScriptW,CurrentChannel;
 int imageHits;
+int NumberTraceLines,OKtraceLines;
 long CurrentDir,LastDir,OldModulation;
 int PitchbendRange[MAXCHAN+1],DeftPitchbendRange,PitchbendRate[MAXCHAN+1],ModulationRate[MAXCHAN+1],PressRate[MAXCHAN+1],
 	VolumeRate[MAXCHAN+1],VolumeControl[MAXCHAN+1],PanoramicRate[MAXCHAN+1],PanoramicControl[MAXCHAN+1],
@@ -223,6 +224,7 @@ double **p_CsPitchBend[6],**p_CsVolume[6],**p_CsPressure[6],**p_CsModulation[6],
 
 
 int FileSaveMode,FileWriteMode,MIDIfileType,CsoundFileFormat;
+int TraceAll;
 
 SoundObjectInstanceParameters **p_Instance;
 short **p_Articul;
@@ -248,7 +250,7 @@ float **p_CsoundTempo;
 Milliseconds ****pp_CsoundTime;
 long **p_CsoundSize,**p_MIDIsize;
 char **p_DefaultChannel,**p_AlphaCtrlChan,**p_AlphaCtrl,**p_Type,**p_PasteDone,
-	**p_FixScale,**p_OkExpand,**p_OkCompress,**p_OkRelocate,**p_BreakTempo,**p_DiscardNoteOffs,
+	**p_FixScale,**p_OkExpand,**p_OkCompress,**p_OkRelocate,**p_BreakTempo,
 	**p_OkTransp,**p_OkArticul,**p_OkVolume,**p_OkPan,**p_OkMap,**p_OkVelocity,
 	**p_ContBeg,**p_ContEnd,
 	**p_CoverBeg,**p_CoverEnd,**p_TruncBeg,**p_TruncEnd,**p_PivType,**p_PivMode,

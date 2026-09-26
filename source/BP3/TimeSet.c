@@ -179,8 +179,8 @@ in = 1.; jn = ZERO;
 period = ((double) Pclock) * 1000. * CorrectionFactor / Qclock;
 // BPPrintMessage(0,odInfo,"Pclock = %ld Qclock = %ld, CorrectionFactor = %.3f\n",(long)Pclock,(long)Qclock,CorrectionFactor);
 
-// if(trace_timeset)
-BPPrintMessage(0,odInfo,"Setting time streaks on %d lines\n",(*p_nmax));
+if(trace_timeset)
+	BPPrintMessage(0,odInfo,"Setting time streaks on %d lines\n",(*p_nmax));
 
 while(TRUE) {
 	jj= Class(in);
@@ -189,7 +189,7 @@ while(TRUE) {
 		jn = jj;		/* Write only once */
 		if(nature_time == STRIATED) {
 			(*p_T)[jn] = (Milliseconds) ((period * (in - 1.)) / Ratio);
-			// BPPrintMessage(0,odError,"jn = %ld (*p_T)[jn] = %ld in = %ld period = %.0f Ratio = %.0f\n",(long)jn,(long)(*p_T)[jn],(long)in,(double)period,(double)Ratio);
+			// BPPrintMessage(0,odInfo,"jn = %ld (*p_T)[jn] = %ld in = %ld period = %.0f Ratio = %.0f\n",(long)jn,(long)(*p_T)[jn],(long)in,(double)period,(double)Ratio);
 			if(Kpress > 2) { // Compensates roundings // Added by BB 2021-03-21
 				if(jn > 0) (*p_T)[jn-1] = (*p_T)[jn];
 				if((jn + 1) <= maxseq) (*p_T)[jn+1] = (*p_T)[jn];
@@ -199,6 +199,8 @@ while(TRUE) {
 		}
 	in += Kpress;
 	}
+if(trace_timeset)
+	BPPrintMessage(0,odInfo,"End of setting time streaks\n");
 
 // Now display phase diagram (optional)
 #if DISPLAY_PHASE_DIAGRAM
@@ -419,7 +421,8 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	(*p_alphadone)[nseq] = TRUE;
 
 	if(DisplayTimeSet) {
-		if(trace_timeset) BPPrintMessage(0,odInfo,"\nSequence #%ld\n",(long)(nseq+1L));
+	//	if(trace_timeset) 
+			BPPrintMessage(0,odInfo,"\nSequence #%ld\n",(long)(nseq+1L));
 		}
 	CoverOK = DiscontinuityOK = stepthis = FALSE;
 	if(NoConstraint) {
@@ -427,7 +430,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 		}
 
 TRY:
-	if(trace_timeset) ShowMessage(FALSE,wMessage,"\nPlacing objects");
+	if(DisplayTimeSet) Print(wTrace,"\nPlacing objects…\n");
 	if(trace_fix) {
 		BPPrintMessage(0,odInfo,"\nBefore Fix(), T[i], i = 1,%ld:\n",(long)maxseq);
 		for(i=1L; i <= maxseq; i++)
@@ -472,45 +475,45 @@ TRY:
 		} */
 	
 	if(r == MISSED || r == QUICK) {
-		result = MISSED;
-		if(ShowGraphic || PlaySelectionOn) {
-			BPPrintMessage(0,odInfo,"Must release time constraints...\n");
+		if(r == MISSED) {
+			BPPrintMessage(0,odInfo,"👉  We must release time constraint(s):\n");
+				if(TraceTimeSet) Print(wTrace,"\n➡ We must release time constraint(s)!\n");
 			}
-		if(r == QUICK) {	/* Find a quick solution */
+		if(r == QUICK) {	// Find a quick solution
 			if(ShowMessages) ShowMessage(TRUE,wMessage,"Quick!");
 			DiscontinuityOK = CoverOK = TRUE;
 			goto TRY;
 			}
-		if(!StepTimeSet) { 
-			if(!CoverOK && !DiscontinuityOK) {
-				if(ShowGraphic || PlaySelectionOn)
-					BPPrintMessage(0,odInfo,"Releasing overlapping\n");
-				CoverOK = TRUE;
-				goto TRY;
-				}
-			if(!DiscontinuityOK) {
-				if(ShowGraphic || PlaySelectionOn)
-					BPPrintMessage(0,odInfo,"Releasing continuity\n");
-				CoverOK = FALSE;
-				DiscontinuityOK = TRUE;
-				goto TRY;
-				}
-			if(!CoverOK) {
-				if(ShowGraphic || PlaySelectionOn)
-					BPPrintMessage(0,odInfo,"Releasing continuity and overlapping\n");
-				CoverOK = TRUE;
-				goto TRY;
-				}
-			goto EXIT1;
+		result = MISSED;
+		if(!CoverOK && !DiscontinuityOK) {
+			BPPrintMessage(0,odInfo,"• Releasing overlapping\n");
+			if(TraceTimeSet) Print(wTrace,"• Releasing overlapping\n");
+			CoverOK = TRUE;
+			goto TRY;
 			}
-		Print(wTrace,"\nRelease:\n\n");
-		if(!DiscontinuityOK) Print(wTrace,"C)ontinuity\n");
-		if(!CoverOK) Print(wTrace,"O)verlapping\n");
-		if(!CoverOK || !DiscontinuityOK)
-			Print(wTrace,"B)oth continuity and overlapping\n");
-		if(!StepTimeSet && !stepthis)
-			Print(wTrace,"S)tep by step decision\n\n");
-		Print(wTrace,"Q)uit\n");
+		if(!DiscontinuityOK) {
+			BPPrintMessage(0,odInfo,"• Releasing continuity\n");
+			if(TraceTimeSet) Print(wTrace,"• Releasing continuity\n");
+			CoverOK = FALSE;
+			DiscontinuityOK = TRUE;
+			goto TRY;
+			}
+		if(!CoverOK) {
+			BPPrintMessage(0,odInfo,"• Releasing continuity and overlapping\n");
+			if(TraceTimeSet) Print(wTrace,"• Releasing continuity and overlapping\n");
+			CoverOK = TRUE;
+			goto TRY;
+			}
+		goto EXIT1;
+	/*	if(TraceTimeSet) {
+			Print(wTrace,"\nRelease:\n\n");
+			if(!DiscontinuityOK) Print(wTrace,"Continuity\n");
+			if(!CoverOK) Print(wTrace,"Overlapping\n");
+			if(!CoverOK || !DiscontinuityOK)
+				Print(wTrace,"Both continuity and overlapping\n");
+			if(!StepTimeSet && !stepthis)
+				Print(wTrace,"S)tep by step decision\n\n");
+			} */
 		
 QUEST1:
 		rep = GetCap();
@@ -702,12 +705,10 @@ for(k=2; k <= (*p_kmx); k++) {
 	if(a > 0 && (*p_Instance)[k].truncend > ZERO) continue;
 	(*p_Instance)[k].alpha += ((*p_Instance)[k].alpha * a) / 100.;
 	(*p_Instance)[k].endtime = (*p_Instance)[k].starttime + ((*p_Instance)[k].endtime
-		- (*p_Instance)[k].starttime) * (1. + ((double) a) / 100.);
-		
-//		BPPrintMessage(0,odInfo,"legato k = %ld starttime = %ld endtime = %ld  a = %ld\n",(long)k,(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)a);
-		
+		- (*p_Instance)[k].starttime) * (1. + ((double) a) / 100.);	
+	// BPPrintMessage(0,odInfo,"@@ legato k = %ld starttime = %ld endtime = %ld  a = %ld\n",(long)k,(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)a);	
 	if((*p_Instance)[k].ncycles < 2)	/* Object is not cyclic */
-		(*p_Instance)[k].dilationratio = (*p_Instance)[k].alpha;
+		(*p_Instance)[k].beta = (*p_Instance)[k].alpha;
 	}
 result = OK;
 

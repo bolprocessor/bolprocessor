@@ -103,6 +103,7 @@ int main (int argc, char* args[]) {
 	long forgotten_mem, memory_before;
 	time_t current_time;
 
+	TraceAll = FALSE;
 	MaxHandles = ZERO;
 	MemoryUsed = 0;
 	MemoryUsedInit = MemoryUsed;
@@ -984,7 +985,6 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 			opts->inputFilenames[w] = args[argn];
 			argDone = TRUE;
 			}
-		
 		if(!argDone) {
 			/* check if it is an option */
 			if(args[argn][0] == '-') {
@@ -1745,6 +1745,14 @@ int FindOutputDirectory(void) {
 	// char directory[dir_length + 1];
 	memcpy(OutputDir, path, dir_length);
 	OutputDir[dir_length] = '\0';
+	return(OK);
+	}
+
+int Trace(const char* mssg) {
+	if(!TraceAll) return(OK);
+	BPPrintMessage(1,odInfo,"@TRACE %s\n",mssg);
+	int j = 24;
+	BPPrintMessage(1,odInfo,"@p_CsoundInstrumentMode[%d] = %d\n",j,(*p_CsoundInstrumentMode)[j]);
 	return(OK);
 	}
 

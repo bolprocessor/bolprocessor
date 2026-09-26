@@ -123,7 +123,7 @@ int SetObjectParams(int isobject,int level,int nseq,long k,int j,
 					}
 				(*((*p_contparameters)[level].values))[i].known = TRUE;
 				v1 = v0;
-				mode = FIX;
+				mode = FIXMAPMODE;
 				if(trace_set_variation) BPPrintMessage(1,odInfo,"i = %d, v0 = %ld v1 = %ld mode = %d\n",i,(long)v0,(long)v1,mode);
 				}
 			else {
@@ -170,8 +170,8 @@ int SetObjectParams(int isobject,int level,int nseq,long k,int j,
 			
 			// BPPrintMessage(0,odInfo,"SetObjectFeatures k = %ld mode = %ld ?\n",(long)k,(*currentinstancevalues)[i].mode);
 			if((*((*p_contparameters)[level].values))[i].v0 == (*((*p_contparameters)[level].values))[i].v1 && (*h_table)[i].point == NULL) {
-					(*currentinstancevalues)[i].mode = FIX;
-					if(trace_set_variation) BPPrintMessage(1,odInfo,"SetObjectFeatures k = %ld i = %d mode = FIX v0 = %ld v1 = %ld\n",(long)k,i,(long)(*((*p_contparameters)[level].values))[i].v0,(long)(*((*p_contparameters)[level].values))[i].v1);
+					(*currentinstancevalues)[i].mode = FIXMAPMODE;
+					if(trace_set_variation) BPPrintMessage(1,odInfo,"SetObjectFeatures k = %ld i = %d mode = FIXMAPMODE v0 = %ld v1 = %ld\n",(long)k,i,(long)(*((*p_contparameters)[level].values))[i].v0,(long)(*((*p_contparameters)[level].values))[i].v1);
 					}
 				
 			if((*((*p_contparameters)[level].values))[i].channel > 0)
@@ -243,8 +243,8 @@ int SetObjectParams(int isobject,int level,int nseq,long k,int j,
 			}
 		}
 	if(j > 0 && j < Jbol) {
-		if((*p_DefaultChannel)[j] > 0) {	/* Object has specific channel */
-			/* Here we need (*p_DefaultChannel)[1] = 0. */
+		if((*p_DefaultChannel)[j] > 0) {	// Object has a specific MIDI channel
+			// Here we need (*p_DefaultChannel)[1] = 0.
 			(*p_Instance)[k].channel = (*p_DefaultChannel)[j];
 			if((*p_Instance)[k].channel > MAXCHAN || (*p_Instance)[k].channel < 1) {
 				my_sprintf(Message,"'%s' has channel %ld.  Should be 1..%ld\n",
@@ -257,21 +257,23 @@ int SetObjectParams(int isobject,int level,int nseq,long k,int j,
 		else {
 			if((*p_DefaultChannel)[j] == 0)
 				(*p_Instance)[k].channel = p_currentparameters->currchan;
-			else (*p_Instance)[k].channel = 0;
+			else (*p_Instance)[k].channel = 0; // No change
 			}
-		if((*p_CsoundInstr)[j] > 0) {	/* Object has specific instrument */
-			/* Here we need (*p_CsoundInstr)[1] = 0. */
+		if((*p_CsoundInstr)[j] > 0) {	// Object has specific instrument
+			// Here we need (*p_CsoundInstr)[1] = 0
 			(*p_Instance)[k].instrument = (*p_CsoundInstr)[j];
 			}
 		else {
-			if((*p_CsoundInstr)[j] == 0)
+			(*p_Instance)[k].instrument = p_currentparameters->currinstr;
+		/*	if((*p_CsoundInstrumentMode)[j] == GLOBAL_CS)
 				(*p_Instance)[k].instrument = p_currentparameters->currinstr;
-			else (*p_Instance)[k].instrument = 0;
+			else (*p_Instance)[k].instrument = 0; */
 			}
 		}
 	else {
 		(*p_Instance)[k].channel = p_currentparameters->currchan;
 		(*p_Instance)[k].instrument = p_currentparameters->currinstr;
+	
 		}
 	(*p_Instance)[k].scale = p_currentparameters->scale;
 	if(trace_scale) BPPrintMessage(0,odInfo,"4) scale = %d\n",p_currentparameters->scale); 
@@ -400,7 +402,7 @@ if(trace_set_variation) BPPrintMessage(0,odInfo,"Start SetVariation() targettoke
 if(index > -1) {
 	maketable = TRUE;
 	startvalue = (*p_endvalue) = (*((*p_contparameters)[levelorg].values))[index].v0;
-	if((*((*p_contparameters)[levelorg].values))[index].mode == FIX)
+	if((*((*p_contparameters)[levelorg].values))[index].mode == FIXMAPMODE)
 		goto RECORDVALUES;
 	if(trace_set_variation) BPPrintMessage(0,odInfo,"maketable = TRUE, startvalue = %ld\n",(long)startvalue);
 	}
@@ -408,7 +410,7 @@ else {
 	switch(targettoken)	{
 		case T11:	/* _vel() */
 			startvalue = (*p_endvalue) = p_currentparameters->currvel;
-			if(p_currentparameters->velmode == FIX) goto END;
+			if(p_currentparameters->velmode == FIXMAPMODE) goto END;
 			break;
 		case T20:	/* _legato() or _staccato() */
 			startvalue = (*p_endvalue) = p_currentparameters->currarticul;
@@ -418,7 +420,7 @@ else {
 			break;
 		case T37:	/* _keymap() */
 			*p_mapendvalue = p_currentparameters->map0;
-			if(p_currentparameters->mapmode == FIX
+			if(p_currentparameters->mapmode == FIXMAPMODE
 				|| p_currentparameters->mapmode == OFF) goto END;
 			break;
 		}
@@ -827,7 +829,7 @@ if((*p_contparameters)[levelorg].values == NULL) {
 	= (*((*p_contparameters)[levelorg].values))[index].v0 = startvalue;
 (*((*p_contparameters)[levelorg].values))[index].known = TRUE;
 /* (*((*p_contparameters)[levelorg].values))[index].instrument = instrorg; */
-if((maxbeats == 0.) || (*((*p_contparameters)[levelorg].values))[index].mode == FIX) {
+if((maxbeats == 0.) || (*((*p_contparameters)[levelorg].values))[index].mode == FIXMAPMODE) {
 	(*((*p_contparameters)[levelorg].values))[index].maxbeats = 1;
 	(*((*p_contparameters)[levelorg].values))[index].increment = 0;
 	(*((*p_contparameters)[levelorg].values))[index].v1 = startvalue;
@@ -892,7 +894,7 @@ int Fix(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time) 
 						}
 					else { // Sound-object
 						if((*p_PivMode)[j] == PERCENT)
-							t1 = (*p_T)[i] - (Milliseconds) ((*p_Instance)[k].dilationratio * (*p_Dur)[j] * (*p_PivPos)[j] / 100.);
+							t1 = (*p_T)[i] - (Milliseconds) ((*p_Instance)[k].beta * (*p_Dur)[j] * (*p_PivPos)[j] / 100.);
 						else
 							t1 = (*p_T)[i] - (*p_PivPos)[j];
 						RandomTime(&t1,(*p_Instance)[k].randomtime,(*p_Instance)[k].alpha * (*p_Dur)[j],&dont_randomize);
@@ -1007,7 +1009,7 @@ if(nature_time == STRIATED || nseq == 0) {
 			else {		/* Pclock = ZERO; non-measured smooth time */
 				alpha = d;
 				}
-			if(trace_object_features) BPPrintMessage(0,odInfo,"Calculate_alpha() smooth 1st line k = %ld j = %ld alpha = %.2f d = %.2f clockperiod = %ld i = %ld inext = %ld Dur = %ld Tref = %ld\n",(long)k,(long)j,(double)alpha,(long)d,(long)clockperiod,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+			if(trace_object_features && j < Jbol) BPPrintMessage(0,odInfo,"Calculate_alpha() smooth 1st line k = %ld j = %ld alpha = %.2f d = %.2f clockperiod = %ld i = %ld inext = %ld Dur = %ld Tref = %ld\n",(long)k,(long)j,(double)alpha,(long)d,(long)clockperiod,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 			}
 		else {					/* Striated time or nseq > 0 */
 			if(d > 0.) {
@@ -1027,25 +1029,44 @@ if(nature_time == STRIATED || nseq == 0) {
 				else alpha = 1.; // 2026-03-20
 				}
 			else alpha = 0.;
-			if(trace_object_features)
+			if(trace_object_features && j < Jbol)
 				BPPrintMessage(0,odInfo,"Calculate_alpha striated nseq = %ld k = %ld j = %ld nseq = %d alpha = %.2f d = %.2f i = %ld inext = %ld Dur = %ld Tref = %ld T[i] = %ld T[inext] = %ld\n",(long)nseq,(long)k,(long)j,nseq,alpha,d,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j],(long)(*p_T)[i],(long)(*p_T)[inext]);
 			}
 		
 		beta = alpha;
 	//	if(j > 16383) goto OKALPHA1;
 		if(j >= Jbol) goto OKALPHA1;
-		if((*p_RescaleMode)[j] == OK_RESCALE) goto OKALPHA1;
-		if((*p_FixScale)[j] && (*p_CyclicMode)[j] == IRRELEVANT) {
-			alpha = beta = 1.; goto OKALPHA1;
+		beta = 1.;
+		if((*p_RescaleMode)[j] == OK_RESCALE) goto CHECKMORE1;
+		if((*p_FixScale)[j]) {
+			if((*p_CyclicMode)[j] == IRRELEVANT) {
+				alpha = 1.; 
+				goto OKALPHA1;
+				}
 			}
+/*		if((*p_FixScale)[j] && (*p_CyclicMode)[j] == IRRELEVANT) {
+			alpha = beta = 1.; goto OKALPHA1;
+			} */
 		if(FixDilationRatioInCyclicObject(j,d,&alpha,&beta,&ncycles) == OK) goto OKALPHA1;
-		if((*p_OkExpand)[j] && alpha >= 1.) goto OKALPHA1;
-		if((*p_OkCompress)[j] && alpha <= 1.) goto OKALPHA1;
-		if((!(*p_FixScale)[j] && !(*p_OkExpand)[j] && !(*p_OkCompress)[j]) || (*p_RescaleMode)[j] == DILATION_RATIO) { // 2026-09-15
+CHECKMORE1:
+		if((*p_RescaleMode)[j] == DILATION_RATIO) { // 2026-09-15
 			if(alpha > (*p_AlphaMax)[j]) beta = alpha = (*p_AlphaMax)[j];
 			if(alpha < (*p_AlphaMin)[j]) beta = alpha = (*p_AlphaMin)[j];
 			goto OKALPHA1;
 			}
+		if((*p_OkExpand)[j] && alpha >= 1.) goto OKALPHA1;
+		if(!(*p_OkExpand)[j] && alpha > 1.) {
+			alpha = 1.; goto OKALPHA1;
+			}
+		if((*p_OkCompress)[j] && alpha <= 1.) goto OKALPHA1;
+		if(!(*p_OkCompress)[j] && alpha <= 1.) {
+			alpha = 1.; goto OKALPHA1;
+			}
+	/*	if((!(*p_FixScale)[j] && !(*p_OkExpand)[j] && !(*p_OkCompress)[j]) || (*p_RescaleMode)[j] == DILATION_RATIO) { // 2026-09-15
+			if(alpha > (*p_AlphaMax)[j]) beta = alpha = (*p_AlphaMax)[j];
+			if(alpha < (*p_AlphaMin)[j]) beta = alpha = (*p_AlphaMin)[j];
+			goto OKALPHA1;
+			} */
 		beta = alpha = 1.;
 		
 OKALPHA1:
@@ -1053,9 +1074,9 @@ OKALPHA1:
 		if(beta < 0.) beta = 0.;
 		(*p_Instance)[k].alpha = alpha;
 		if(trace_object_features)
-			BPPrintMessage(0,odInfo,"Calculate_alpha() nseq = %d k = %d i = %ld inext = %ld alpha = %.2f\n",nseq,k,i,inext,alpha);
+			BPPrintMessage(0,odInfo,"Calculate_alpha() nseq = %d k = %d i = %ld inext = %ld, alpha = %.2f, beta = %.2f ncycles = %d\n",nseq,k,i,inext,alpha,beta,ncycles);
 		if(ForceRatio >= 0.) (*p_Instance)[k].alpha = beta = ForceRatio;
-		(*p_Instance)[k].dilationratio = beta;
+		(*p_Instance)[k].beta = beta;
 		(*p_Instance)[k].ncycles = ncycles;
 		i = inext;
 		}
@@ -1214,26 +1235,45 @@ FINDNEXTMARKED:
 		
 		beta = alpha; ncycles = 1;
 		if(j >= Jbol) goto OKALPHA2;
-		if((*p_RescaleMode)[j] == OK_RESCALE) goto OKALPHA2;
-		if((*p_FixScale)[j] && (*p_CyclicMode)[j] == IRRELEVANT) {
-			alpha = beta = 1.; goto OKALPHA2;
+		if((*p_RescaleMode)[j] == OK_RESCALE) goto CHECKMORE2;
+		if((*p_FixScale)[j]) {
+			beta = 1.;
+			if((*p_CyclicMode)[j] == IRRELEVANT) {
+				alpha = 1.; 
+				goto OKALPHA2;
+				}
 			}
+	/*	if((*p_FixScale)[j] && (*p_CyclicMode)[j] == IRRELEVANT) {
+			alpha = beta = 1.; goto OKALPHA2;
+			} */
 		if(FixDilationRatioInCyclicObject(j,d,&alpha,&beta,&ncycles) == OK) goto OKALPHA2;
-		if((*p_OkExpand)[j] && alpha >= 1.) goto OKALPHA2;
-		if((*p_OkCompress)[j] && alpha <= 1.) goto OKALPHA2;
-		if((!(*p_FixScale)[j] && !(*p_OkExpand)[j] && !(*p_OkCompress)[j]) || (*p_RescaleMode)[j] == DILATION_RATIO) {
+CHECKMORE2:
+		if((*p_RescaleMode)[j] == DILATION_RATIO) { // 2026-09-15
 			if(alpha > (*p_AlphaMax)[j]) beta = alpha = (*p_AlphaMax)[j];
 			if(alpha < (*p_AlphaMin)[j]) beta = alpha = (*p_AlphaMin)[j];
 			goto OKALPHA2;
 			}
-		beta = alpha = 1.;
+		if((*p_OkExpand)[j] && alpha >= 1.) goto OKALPHA2;
+		if(!(*p_OkExpand)[j] && alpha > 1.) {
+			alpha = 1.; goto OKALPHA2;
+			}
+		if((*p_OkCompress)[j] && alpha <= 1.) goto OKALPHA2;
+		if(!(*p_OkCompress)[j] && alpha <= 1.) {
+			alpha = 1.; goto OKALPHA2;
+			}
+/*		if((!(*p_FixScale)[j] && !(*p_OkExpand)[j] && !(*p_OkCompress)[j]) || (*p_RescaleMode)[j] == DILATION_RATIO) {
+			if(alpha > (*p_AlphaMax)[j]) beta = alpha = (*p_AlphaMax)[j];
+			if(alpha < (*p_AlphaMin)[j]) beta = alpha = (*p_AlphaMin)[j];
+			goto OKALPHA2;
+			} */
+		alpha = 1.;
 		
 OKALPHA2:
 		if(alpha < 0.) alpha = 0.;
 		if(beta < 0.) beta = 0.;
 		(*p_Instance)[k].alpha = alpha;
 		if(ForceRatio >= 0.) (*p_Instance)[k].alpha = beta = ForceRatio;
-		(*p_Instance)[k].dilationratio = beta;
+		(*p_Instance)[k].beta = beta;
 		(*p_Instance)[k].ncycles = ncycles;
 		i = inext;
 		}
@@ -1243,15 +1283,18 @@ return(OK);
 }
 
 
-int FixDilationRatioInCyclicObject(int j,double d,double *p_alpha,double *p_dilationratio,int *p_ncycles) {
+int FixDilationRatioInCyclicObject(int j,double d,double *p_alpha,double *p_beta,int *p_ncycles) {
 /* Examine objects with periodical part and see whether that part could be repeated
 If so, fix the number of repetitions and the actual dilation ratio,...
  ... and change alpha if necessary */
 	int n1,n2,limit;
 	double objectperiod,cyclicafter,ncycles,pivpos;
 
-	*p_dilationratio = *p_alpha;
-	if(j > 16383) return(OK);
+	if(j > 16383) {
+		*p_beta = *p_alpha;
+		return(OK);
+		}
+	if(!(*p_FixScale)[j]) *p_beta = *p_alpha;
 
 	// We're only concerned about cyclic objects with dilation ratio > 1.
 	if((*p_alpha) <= 1. || (*p_CyclicMode)[j] == IRRELEVANT) return(MISSED);
@@ -1270,15 +1313,15 @@ If so, fix the number of repetitions and the actual dilation ratio,...
 	// First consider objects that can't be stretched
 
 	if(!limit && (!(*p_OkExpand)[j] || (*p_CyclicMode)[j] == FIXVALUE)) {
-		*p_dilationratio = 1.;
+		*p_beta = 1.;
 	FINDCYCLES:
-		ncycles = (double)(((*p_alpha) * (*p_Dur)[j] / (*p_dilationratio))
+		ncycles = (double)(((*p_alpha) * (*p_Dur)[j] / (*p_beta))
 			- cyclicafter + pivpos) / objectperiod;
 		if((*p_ForceIntegerCycles)[j]) {
 			if((ncycles - (int)ncycles) > 0.5) ncycles = ceil(ncycles);
 			else ncycles = floor(ncycles);
 			}
-	//	BPPrintMessage(0,odInfo,"@@@ j = %d, ncycles = %.4f, CyclicMode = %d\n",j,ncycles,(int)(*p_CyclicMode)[j]);
+		// BPPrintMessage(0,odInfo,"@@@ j = %d, ncycles = %.4f, CyclicMode = %d\n",j,ncycles,(int)(*p_CyclicMode)[j]);
 		goto SORTIR;
 		}
 
@@ -1288,20 +1331,19 @@ If so, fix the number of repetitions and the actual dilation ratio,...
 
 	// Adjust dilation ratio so that the duration is correct
 
-	*p_dilationratio = (*p_alpha) * (*p_Dur)[j] / (cyclicafter - pivpos + (ncycles * objectperiod));
+	if(!(*p_FixScale)[j]) *p_beta = (*p_alpha) * (*p_Dur)[j] / (cyclicafter - pivpos + (ncycles * objectperiod));
 
 	// If beta is too large, fix limit value and increase ncycles
 
-	if((!limit && !(*p_OkExpand)[j] && *p_dilationratio > 1.)
-			|| (limit && (*p_dilationratio > (*p_AlphaMax)[j]))) {
-		if(limit) *p_dilationratio = (*p_AlphaMax)[j];
-		else *p_dilationratio = 1.;
+	if((!limit && !(*p_OkExpand)[j] && *p_beta > 1.) || (limit && (*p_beta > (*p_AlphaMax)[j]))) {
+		if(limit) *p_beta = (*p_AlphaMax)[j];
+		else *p_beta = 1.;
 		goto FINDCYCLES;
 		}
 
 	SORTIR:
 	if((*p_Dur)[j] > EPSILON) {
-		*p_alpha = *p_dilationratio * (cyclicafter + (ncycles * objectperiod)) / (*p_Dur)[j];
+		*p_alpha = *p_beta * (cyclicafter + (ncycles * objectperiod)) / (*p_Dur)[j];
 		*p_ncycles = (int) ncycles;
 		}
 	else {
@@ -1336,8 +1378,8 @@ int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend
 			j = -j; dur = ZERO;
 			}
 		else {
-			if(j < 16384) dur = (*p_Instance)[k].dilationratio * (*p_Dur)[j];
-			else dur = (*p_Instance)[k].dilationratio * 1000L;	/* Simple note */
+			if(j < 16384) dur = (*p_Instance)[k].beta * (*p_Dur)[j];
+			else dur = (*p_Instance)[k].beta * 1000L;	/* Simple note */
 			}
 
 		maxcover1 = maxcover2 = Infpos;
@@ -1500,9 +1542,7 @@ double FindValue(tokenbyte m,tokenbyte p,int chan) {
 	int value,paramvalueindex,paramnameindex;
 
 	if(m == T37) return(0.); // _keymap()
-
 	// BPPrintMessage(0,odInfo,"FindValue m = %ld p = %ld chan = %d\n",(long)m,(long)p,chan);
-
 	paramnameindex = -1;
 	switch(m) {
 		case T10: // _chan()
@@ -1512,7 +1552,7 @@ double FindValue(tokenbyte m,tokenbyte p,int chan) {
 		case T20: // _legato()
 	//	case T26: /* _transpose() */
 		case T29: // _pan()
-	//	case T32: /* _ins() */
+		case T32: // _ins()
 		case T38: // _rndvel()
 		case T39: // _rotate() 
 			if(p >= 128 && m != T26 && (m != T20 || p < 0)) {

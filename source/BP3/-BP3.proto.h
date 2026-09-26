@@ -59,6 +59,7 @@ int BPPrintMessage(int, int, const char*, ...);
 #define PrintWindowState()
 #define PrintCall(x,y)
 
+int Trace(const char*);
 int HasGWorlds(void);
 int GWorldInit(void);
 short GetDepth(GDHandle);
@@ -451,7 +452,7 @@ int ClearMarkers(tokenbyte***,int);
 int CheckSize(unsigned long,unsigned long*,tokenbyte***);
 int ReadTemplate(int,long,long*,tokenbyte***,long,int*);
 int DeleteTemplates(void);
-int MakeSound(long*,unsigned long,int,tokenbyte***,long,long,int,Milliseconds**);
+int MakeSound(long*,unsigned long,int,long,long,Milliseconds**);
 int SendControl(ContinuousControl**,Milliseconds,int,int,int,int,int,int*,char***,
 	Milliseconds***,int***,MIDIcontrolstatus**,PerfParameters****);
 int InterruptSound(void);
@@ -717,7 +718,7 @@ int ShowObjects(int);
 int EditObject(int);
 int SetPrototype(int),GetPrototype(int),ErasePrototype(int);
 int ResetPrototype(int);
-// int CheckConsistency(int,int);
+int CheckConsistency(int,int);
 int PrototypeWindow(int);
 int CopyFrom(int);
 int CheckPrototypeSize(int);
@@ -739,12 +740,15 @@ int InsertSilence(int,Milliseconds);
 int AppendSilence(int,Milliseconds);
 int DurationToPoint(MIDIcode****,Milliseconds****,long**,int);
 int PointToDuration(MIDIcode****,Milliseconds****,long**,int);
+int sort_csound_score(char**);
+int ThisInstrument(int,int,int);
 // int ChangeControlValue(int,ControlHandle,int);
 int SortMIDIdates(long,int);
 int SortCsoundDates(long,int);
 int CheckiProto(void);
-int PlayPrototype(int);
-int CheckChannelRange(long*,long*);
+int TransposeAndExpand(int,int*,int) ;
+// int PlayPrototype(int);
+// int CheckChannelRange(long*,long*);
 // int EvaluateExpression(char*,expression**,long*,double*);
 int SetPrototypeDuration(int,int*);
 int GetPrePostRoll(int,double*,double*);
@@ -833,7 +837,10 @@ int ReadJason(int*,char*,char[][MAX_STRINGLISTS_LEN]);
 int ExportScale(int);
 int ExportSCL(int,char*,char*);
 int ExportKBM(int,char*,char*);
-int ExportPrototypeAsJson(FILE*,int,int,int,MIDIcode**);
+int ExportPrototypeAsJson(FILE*,int,int,int,MIDIcode**,const char*);
+int PlayCsoundLine(int,int);
+int PlayMIDIcode(int);
+int MIDIchannel(int,int,int,int*);
 int FindOutputDirectory(void);
 
 // int ReleaseComputeSpace(void);

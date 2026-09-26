@@ -396,7 +396,10 @@ int CompileCheck(void) {
 	if(!CompiledGr && (AddBolsInGrammar() > BolsInGrammar)) CompiledAl = FALSE;
 	if(!CompiledGr || !CompiledAl) {
 		if((r=CompileGrammar(FirstGrammar,p_gram)) != OK) {
-			if(r == MISSED && CompiledGr && !CompiledAl) r = CompileAlphabet();
+			if(r == MISSED && CompiledGr && !CompiledAl) {
+				r = CompileAlphabet();
+				if(r != OK) return r;
+				}
 			if(CompiledGr && CompiledAl) r = OK;
 			if(r != OK) {
 				if(FirstGrammar) BPPrintMessage(0,odError,"=> Problem compiling grammar and/or alphabet\n");
@@ -407,10 +410,10 @@ int CompileCheck(void) {
 			// rule.w = rule.weight
 	//	if(FirstGrammar && ResetWeights && (Varweight = ResetRuleWeights(0)) == ABORT) {
 			BPPrintMessage(0,odError,"=> Can't reset rule weights in grammar code. Unexpected error\n");
-			return(MISSED);
+			return(ABORT);
 			}
 		}
-	if(ObjectMode && ((r=CompileCsoundObjects()) != OK)) return(r);
+	// if(ObjectMode && ((r=CompileCsoundObjects()) != OK)) return(r);
 	if(!CompiledPt) if((r=CompilePatterns()) != OK) return(r);
 	if(r == OK) {
 	//	BPPrintMessage(1,odInfo,"FirstGrammar = %d\n",FirstGrammar);
