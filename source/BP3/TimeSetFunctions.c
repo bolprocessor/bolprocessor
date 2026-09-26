@@ -52,7 +52,7 @@ int Solution_is_accepted(int,int,unsigned long**,long,Milliseconds**,Millisecond
 Milliseconds Alternate_correction1(int,int,int,Milliseconds,Milliseconds**,Milliseconds,Milliseconds,
 	Milliseconds,Milliseconds,Milliseconds,Milliseconds);
 
-int check_choices = 1;
+int check_choices = 0;
 
 int Locate(int nseq,unsigned long** p_imaxseq,long imax,long kmax,Milliseconds **p_DELTA,
 	unsigned long* p_tstart,Milliseconds **p_time1,Milliseconds **p_time2,
