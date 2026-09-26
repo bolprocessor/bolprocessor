@@ -86,7 +86,7 @@ int AddEventToList(int k) {
 	int j,id_proto,articul,trans,cyclic_after,blockkey,keymap0_p1,keymap0_q1,keymap0_p2,keymap0_q2,keymap1_p1,keymap1_q1,keymap1_p2,keymap1_q2,cyclic;
 	short xpandval,xpandkey;
 	char line[MAXLIN],label[MAXNAME],scalename[MAXNAME],keymapmode[MAXNAME],channel_txt[MAXNAME],instrument_txt[MAXNAME],pitchbendmode_txt[15],pressuremode_txt[15],panoramicmode_txt[15],volumemode_txt[15],modulationmode_txt[15],pitchbendstart_txt[15],pitchbendend_txt[15],pitchbendchannel_txt[15],xpandkey_txt[15],blockkey_txt[10];
-	double alpha,beta,preroll,postroll,expand;
+	double beta,preroll,postroll,expand;
 	int transposefirst,forceintegercycles,i_scale;
 	int localchan,instrument;
 
@@ -182,27 +182,25 @@ int AddEventToList(int k) {
 	int pitchbendstart = PitchbendStart(k);
 	int pitchbendend = PitchbendEnd(k);
 	int pitchbendchannel = PitchbendChannel(k);
-	sprintf(pitchbendchannel_txt,"%d",pitchbendchannel);
+	my_sprintf(pitchbendchannel_txt,"%d",pitchbendchannel);
 	int pitchbendmode = PitchbendMode(k);
-	if(j >= 16384) {
-		my_sprintf(pitchbendstart_txt,"%d",pitchbendstart);
-		my_sprintf(pitchbendend_txt,"%d",pitchbendend);
-		switch(pitchbendmode) {
-			case FIXMAPMODE:
-				strcpy(pitchbendmode_txt,"FIXED");
-			break;
-			case STEPWISE:
-				strcpy(pitchbendmode_txt,"STEPWISE");
-			break;
-			case CONTINUOUS:
-				strcpy(pitchbendmode_txt,"CONTINUOUS");
-			break;
-			default:
-				strcpy(pitchbendmode_txt,"");
-			break;
-			}
+	my_sprintf(pitchbendstart_txt,"%d",pitchbendstart);
+	my_sprintf(pitchbendend_txt,"%d",pitchbendend);
+	switch(pitchbendmode) {
+		case FIXMAPMODE:
+			strcpy(pitchbendmode_txt,"FIXED");
+		break;
+		case STEPWISE:
+			strcpy(pitchbendmode_txt,"STEPWISE");
+		break;
+		case CONTINUOUS:
+			strcpy(pitchbendmode_txt,"CONTINUOUS");
+		break;
+		default:
+			strcpy(pitchbendmode_txt,"");
+		break;
 		}
-	else { // Not a simple note
+	if(j > 1 && j < Jbol) { // Sound-object
 		strcpy(pitchbendmode_txt,"");
 		strcpy(pitchbendstart_txt,"");
 		strcpy(pitchbendend_txt,"");
@@ -211,7 +209,7 @@ int AddEventToList(int k) {
 
 	int scale = (*p_Instance)[k].scale;
 	if(scale > 0) my_sprintf(scalename,"%s",*((*p_StringConstant)[scale]));
-	else my_sprintf(scalename,"%s","");
+	else strcpy(scalename,"");
 	// BPPrintMessage(0,odInfo,"@@@ Scale = %s\n",*((*p_StringConstant)[scale]));
 	if(strlen(scalename) > 0) blockkey = (*p_Instance)[k].blockkey;
 	else blockkey = -1;
@@ -219,13 +217,26 @@ int AddEventToList(int k) {
 	else my_sprintf(blockkey_txt,"%d",blockkey);
 	preroll = postroll = id_proto = 0;
 	beta = (*p_Instance)[k].beta;
+	preroll = postroll = 0.;
 	if(j < 16384) {
 		if(j < 0) {
 			j = -j;
-			my_sprintf(label,"<<%s>>",*((*p_Bol)[j]));
+			if(j >= 16384) {
+				if(MIDImicrotonality) {
+					scale = (*p_Instance)[k].scale;
+					if(scale < 0) i_scale = -1;
+					else if(scale == 0) i_scale = 0;
+					else i_scale = FindScale(scale);
+					}
+				else i_scale = -1;
+				PrintThisNote(i_scale,j-16384,0,-1,line);
+				my_sprintf(label,"<<%s>>",line);
+				}
+			else if(j < Jbol) my_sprintf(label,"<<%s>>",*((*p_Bol)[j]));
+			else strcpy(label,"???");
 			}
 		else if(j == 1) my_sprintf(label,"-");
-		else {
+		else if(j < Jbol) {
 			my_sprintf(label,"%s",*((*p_Bol)[j]));
 			if((*p_CyclicMode)[j] != IRRELEVANT) {
 				cyclic = 1;
@@ -242,10 +253,11 @@ int AddEventToList(int k) {
 			if((*p_DefaultChannel)[j] != 0) localchan = (*p_DefaultChannel)[j];
 			if((*p_CsoundInstrumentMode)[j] != 0) instrument = (*p_CsoundInstrumentMode)[j];
 			}
+		else {
+			strcpy(label,"???");
+			}
 		}
 	else {
-		preroll = postroll = 0.;
-		beta = (*p_Instance)[k].beta;
 		if(MIDImicrotonality) {
 			scale = (*p_Instance)[k].scale;
 			if(scale < 0) i_scale = -1;

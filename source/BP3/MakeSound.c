@@ -37,7 +37,7 @@
 
 #include "-BP3decl.h" 
 
-int trace_makesound = 0;
+int trace_makesound = 1;
 int trace_maps = 0;
 
 int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,long tmax,Milliseconds **p_delta) {
@@ -1059,7 +1059,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 				t2obj = t2tick = Infpos;
 				
 				for(k = 2; k <= (*p_kmax); k++) {
-					if((*p_Instance)[k].object <= 0) continue;
+					if((*p_Instance)[k].object == 0) continue;
 					if((*p_nextd)[k] < t2obj) {
 						if(trace_makesound)
 							BPPrintMessage(0,odInfo,"t2obj = (*p_nextd)[%d] = %ld\n",k,(long)(*p_nextd)[k]);
@@ -1839,7 +1839,9 @@ FINDNEXTEVENT:
 			kcurrentinstance = 0;
 			
 			for(k = 2; k <= (*p_kmax); k++) {
-				if((*p_Instance)[k].object <= 0) continue;
+				if(trace_makesound)
+					BPPrintMessage(0,odInfo,"+nextd[%d] = %ld, t2obj = %ld, object = %d\n",k,(*p_nextd)[k],t2obj,(*p_Instance)[k].object);
+				if((*p_Instance)[k].object == 0) continue;
 				if((*p_nextd)[k] < t2obj) {
 					kcurrentinstance = k;
 					t2obj = (*p_nextd)[k];

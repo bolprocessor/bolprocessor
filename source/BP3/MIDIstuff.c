@@ -2091,7 +2091,7 @@ int GetThisNote(char* line,int* p_thekey,int* p_channel,int ignorechannel) {
 int PrintThisNote(int i_scale,int key,int channel,int wind,char* line) {
 	// wind is not used
 	int pitchclass, octave;
-	char channelstring[20], jscale;
+	char channelstring[20];
 	if(key < 0) {
 		strcpy(line,"<void>");
 		return(OK);
