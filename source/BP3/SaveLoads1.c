@@ -1256,10 +1256,10 @@ NEXTBOL:
 	(*p_PostRoll)[j] = r;
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	if(s == -2) s = 1; // Fixing old bug
-	(*p_PreRollMode)[j] = s;
+	(*p_PreRollMode)[j] = s; // Currently, PreRollMode is always FIXVALUE
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	if(s == -2) s = 1; // Fixing old bug
-	(*p_PostRollMode)[j] = s;
+	(*p_PostRollMode)[j] = s; // Currently, PostRollMode is always FIXVALUE
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR;
 	if(s == -2) s = 1; // Fixing old bug
 	(*p_CyclicMode)[j] = s;

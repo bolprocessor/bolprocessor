@@ -59,7 +59,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	POLYconvert = OkShowExpand = FALSE;
 	Ratio = Prod = 1.;
 	Kpress = 1.;
-	Maxevent = 3L;
+	MaxObjects = 3L;
 	(*p_maxseq) = 10.;
 
 	p_b = NULL;
@@ -377,7 +377,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 			BPPrintMessage(0,odError,"=> To avoid skipping objects/notes, quantization should be less than %d ms\n",max_quantization); */
 		}
 
-	// Calculate Maxevent, (*p_maxseq) and the final value of Maxconc
+	// Calculate MaxObjects, (*p_maxseq) and the final value of Maxconc
 
 	if(Beta && p_nseq != NULL) {
 		BPPrintMessage(0,odError,"=> Err. PolyMake(). p_nseq != NULL");
@@ -396,7 +396,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	level = 0;
 	nsymb = ZERO;
 	fmaxseq = (*p_maxseq) = 0.;
-	Maxevent = 3L;
+	MaxObjects = 3L;
 	tempomax = Prod / Kpress;
 	Minconc = 0;
 	Maxlevel = 1;
@@ -437,7 +437,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 			fmaxseq += prodtempo;
 			if(p >= 1 || m == T9 || m == T25) {	/* Even silence may become an event if preceded... */
 									/* ... by _pitchbend() for instance. */
-				Maxevent++;
+				MaxObjects++;
 				if(toofast) nsymb += prodtempo;
 				else nsymb += 1.;
 				}
@@ -502,7 +502,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 			case T45: /* _capture() */
 			case T46: /* _part() */
 				fmaxseq += 1.;
-				Maxevent++;
+				MaxObjects++;
 				nsymb += 1.;
 				continue;
 				break;
@@ -774,8 +774,8 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 
 	FORGETIT:
 	// Maxconc += Maxconc;
-	Maxevent += ((2 * Maxconc) + 1);
-	// Maxevent += Maxconc + 1;
+	MaxObjects += ((2 * Maxconc) + 1);
+	// MaxObjects += Maxconc + 1;
 	// Maxconc += 4;
 	(*p_maxseq) = fmaxseq + 1.;
 	/* Takes care of newswitch  at the end of diagram */

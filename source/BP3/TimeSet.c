@@ -60,7 +60,7 @@ if(CheckEmergency() != OK) return(ABORT);
 if(!Improvize) Chunk_number++;
 // BPPrintMessage(0,odError,"\nChunk_number = %d\n",Chunk_number);
 
-if((p_Articul = (short**) GiveSpace((Size)Maxevent*sizeof(short))) == NULL) return(ABORT);
+if((p_Articul = (short**) GiveSpace((Size)MaxObjects*sizeof(short))) == NULL) return(ABORT);
 
 maxties = Jbol + Jpatt;
 // BPPrintMessage(0,odInfo,"\n\n@@ maxties = %d\n\n",maxties);
@@ -210,7 +210,7 @@ if(trace_timeset) {
 	BPPrintMessage(0,odInfo,"@Minconc = %ld    Maxconc = %ld\n\n",(long)Minconc,(long)Maxconc);
 	}
 
-for(k=ZERO; k < Maxevent; k++) {
+for(k=ZERO; k < MaxObjects; k++) {
 	if((j=(*p_Instance)[k].object) >= 0) {
 		if(j >= Jbol) {
 			if(j < 16384)
@@ -247,7 +247,7 @@ for(k=ZERO; k < Maxevent; k++) {
 	}
 BPPrintMessage(0,odInfo,"\n");
 	
-if(Maxevent < 1000) {
+if(MaxObjects < 1000) {
 	BPPrintMessage(0,odInfo,"\n");
 //	if((*p_nmax) > 1) last_line = (*p_nmax) - 1;
 //	else last_line =  1;
@@ -421,7 +421,7 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 	(*p_alphadone)[nseq] = TRUE;
 
 	if(DisplayTimeSet) {
-	//	if(trace_timeset) 
+		if(trace_timeset) 
 			BPPrintMessage(0,odInfo,"\nSequence #%ld\n",(long)(nseq+1L));
 		}
 	CoverOK = DiscontinuityOK = stepthis = FALSE;
@@ -432,23 +432,23 @@ for(nseq=0; nseq <= (*p_nmax); nseq++) {
 TRY:
 	if(DisplayTimeSet) Print(wTrace,"\nPlacing objects…\n");
 	if(trace_fix) {
-		BPPrintMessage(0,odInfo,"\nBefore Fix(), T[i], i = 1,%ld:\n",(long)maxseq);
+		BPPrintMessage(0,odInfo,"\nBefore FixObjectTimings(), T[i], i = 1,%ld:\n",(long)maxseq);
 		for(i=1L; i <= maxseq; i++)
 			BPPrintMessage(0,odInfo,"%ld ",(long)(*p_T)[i]);
 		BPPrintMessage(0,odInfo,"%s","\n");
-		BPPrintMessage(0,odInfo,"Before Fix(), time2:\n");
+		BPPrintMessage(0,odInfo,"Before FixObjectTimings(), time2:\n");
 		for(i=1L; i <= maxseq; i++)
 			BPPrintMessage(0,odInfo,"[%ld]%ld ",(long)i,(long)(*p_time2)[i]);
 		BPPrintMessage(0,odInfo,"%s","\n");
 		} 
-	if((result=Fix(nseq,p_time1,p_time2,nature_time)) != OK) goto EXIT1;
+	if((result=FixObjectTimings(nseq,p_time1,p_time2,nature_time)) != OK) goto EXIT1;
 
 	if(trace_fix) {
-		BPPrintMessage(0,odInfo,"\nAfter Fix(), T[i], i = 1,%ld:\n",(long)maxseq);
+		BPPrintMessage(0,odInfo,"\nAfter FixObjectTimings(), T[i], i = 1,%ld:\n",(long)maxseq);
 		for(i=1L; i <= maxseq; i++)
 			BPPrintMessage(0,odInfo,"%ld ",(long)(*p_T)[i]);
 		BPPrintMessage(0,odInfo,"%s","\n");
-		BPPrintMessage(0,odInfo,"After Fix(), time2:\n");
+		BPPrintMessage(0,odInfo,"After FixObjectTimings(), time2:\n");
 		for(i=1L; i <= maxseq; i++)
 			BPPrintMessage(0,odInfo,"[%ld]%ld ",(long)i,(long)(*p_time2)[i]);
 		BPPrintMessage(0,odInfo,"%s","\n");

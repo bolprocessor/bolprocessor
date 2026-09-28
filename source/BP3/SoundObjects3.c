@@ -64,8 +64,8 @@ int ResetPrototype(int j) {
    (*p_MaxBegGap)[j] = (*p_MaxEndGap)[j] = Infpos;
    (*p_DelayMode)[j] = (*p_ForwardMode)[j] = FIXVALUE;
    (*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = PERCENT;
-   (*p_TruncBegMode)[j] = (*p_TruncEndMode)[j] = (*p_PreRollMode)[j]
-         = (*p_PostRollMode)[j] = PERCENT;
+   (*p_TruncBegMode)[j] = (*p_TruncEndMode)[j] = PERCENT;
+   (*p_PreRollMode)[j] = (*p_PostRollMode)[j] = FIXVALUE;
    (*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = 100L;
    (*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = 0L;
    (*p_PivPos)[j] = (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_CyclicAfter)[j] = ZERO;

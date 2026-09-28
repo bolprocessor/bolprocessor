@@ -97,7 +97,7 @@ if((p_ts1 = (Milliseconds**) GiveSpace((Size)imax2 * sizeof(Milliseconds))) == N
 	return(ABORT);
 if((p_ts2 = (Milliseconds**) GiveSpace((Size)imax2 * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
-if((p_delta = (Milliseconds**) GiveSpace((Size)Maxevent * sizeof(Milliseconds))) == NULL)
+if((p_delta = (Milliseconds**) GiveSpace((Size)MaxObjects * sizeof(Milliseconds))) == NULL)
 	return(ABORT);
 if((p_delta1 = (Milliseconds**) GiveSpace((Size)imax2 * sizeof(Milliseconds))) == NULL)
 	return(ABORT);

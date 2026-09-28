@@ -229,7 +229,7 @@ int TraceAll;
 SoundObjectInstanceParameters **p_Instance;
 short **p_Articul;
 objectspecs ****p_ObjectSpecs;
-long **p_Flag,BufferSize,DeftBufferSize,Maxevent;
+long **p_Flag,BufferSize,DeftBufferSize,MaxObjects;
 FILE *OpenMIDIfilePtr, *EventListPtr;
 FILE *UnitfilePtr,*TabfilePtr,*TsvFilePtr;
 short HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,MIDIfileOpened,
@@ -279,7 +279,7 @@ unsigned long Ptick[MAXTICKS],Qtick[MAXTICKS],GrandCycle[MAXTICKS],
 	LastCommonDate[MAXTICKS],LastCommonBeatDate;
 double Pclock,Qclock,OldPclock,OldQclock,MinPclock,MaxPclock,MinQclock,MaxQclock,
 	Prod,Ratio,Kpress,Pduration,Qduration;
-long Infpos,Infneg,Veryneg,MaxMIDIbytes,
+long Infpos,Infneg,Veryneg,
 	TimeMax,Nalpha,Nbytes,Tbytes2,
 	MIDIinputFilterstartup,
 	MIDIoutputFilterstartup,Ts,DataEnd;

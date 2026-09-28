@@ -40,7 +40,7 @@
  
 int trace_cs_scoremake = 0;
 
-int CscoreWrite(Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double beta,Milliseconds time_ms,int iline,
+int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double beta,Milliseconds time_ms,int iline,
 	int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,
 	PerfParameters ****pp_currentparams,int scale,int blockkey)
 {
@@ -66,7 +66,7 @@ params = NULL;
 result = ABORT; 
 
 if(chan < 0 || chan >= MAXCHAN) {
-	BPPrintMessage(0,odError,"=> Err. CscoreWrite(). chan < 0 || chan >= MAXCHAN");
+	BPPrintMessage(0,odError,"=> Err. CscoreWrite(ZERO,). chan < 0 || chan >= MAXCHAN");
 	chan = 0;
 	}
 	
@@ -77,21 +77,22 @@ if(trace_cs_scoremake)
 
 if(onoffline == LINE) {
 	if(j >= Jbol) {
-		my_sprintf(Message,"=> Err. CscoreWrite(). j >= Jbol, j = %ld\n",(long)j);
+		my_sprintf(Message,"=> Err. CscoreWrite(ZERO,). j >= Jbol, j = %ld\n",(long)j);
 		BPPrintMessage(0,odInfo,Message);
 		goto SORTIR;
 		} 
 	if(iline < 0 || (iline >= (*p_CsoundSize)[j])) {
-		my_sprintf(Message,"=> Err. CscoreWrite(). iline < 0 || iline >= (*p_CsoundSize)[j] iline = %ld\n",(long)iline);
+		my_sprintf(Message,"=> Err. CscoreWrite(ZERO,). iline < 0 || iline >= (*p_CsoundSize)[j] iline = %ld\n",(long)iline);
 		BPPrintMessage(0,odInfo,Message);
 		goto SORTIR;
 		}
-	dur = (*((*pp_CsoundScore)[j]))[iline].duration * beta;
+	dur = (*((*pp_CsoundScore)[j]))[iline].duration * beta - cut_the_end;
+	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"CsoundScore[%d][%d] duration = %.2f\n",j,iline,dur);
 	key = 0;
 	}
 else {
 	if(key < 0 || key >= MAXKEY) {
-		my_sprintf(Message,"=> Err. CscoreWrite(). Incorrect key = %ld\n",(long)key);
+		my_sprintf(Message,"=> Err. CscoreWrite(ZERO,). Incorrect key = %ld\n",(long)key);
 		BPPrintMessage(0,odInfo,Message);
 		goto SORTIR;
 		}
@@ -155,18 +156,18 @@ SETON:
 	
 	if((paramscopy = (ParameterStatus**)
 		GiveSpace((Size)(maxparam * sizeof(ParameterStatus)))) == NULL) {
-			BPPrintMessage(0,odError,"Err. GiveSpace in CscoreWrite(). maxparam = %ld\n",(long)maxparam);
+			BPPrintMessage(0,odError,"Err. GiveSpace in CscoreWrite(ZERO,). maxparam = %ld\n",(long)maxparam);
 			goto SORTIR;
 			}
 	for(i=0; i < maxparam; i++) (*paramscopy)[i] = (*((*perf)->params))[i];
 	(*perf)->startparams[key] = paramscopy;
 	result = OK;
-//	BPPrintMessage(0,odInfo,"Start CscoreWrite(). maxparam = %ld\n",(long)maxparam);
+//	BPPrintMessage(0,odInfo,"Start CscoreWrite(ZERO,). maxparam = %ld\n",(long)maxparam);
 	goto SORTIR;
 	}
 
 if(onoffline == OFF && (*perf)->level[key] < 0) {
-	BPPrintMessage(0,odError,"=> Err. CscoreWrite(). (*perf)->level[key] < 0 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
+	BPPrintMessage(0,odError,"=> Err. CscoreWrite(ZERO,). (*perf)->level[key] < 0 : %ld for key = %ld\n",(long)(*perf)->level[key],(long)key);
 	// (*perf)->level[key] = 1;
 	result = OK; // $$$ TEMP
 	goto SORTIR;
@@ -186,13 +187,14 @@ else
 	params = (*perf)->params;
 
 if(params == NULL) {
-	BPPrintMessage(0,odError,"=> Err. CscoreWrite(). params == NULL");
+	BPPrintMessage(0,odError,"=> Err. CscoreWrite(ZERO,). params == NULL\n");
+	result = OK;
 	goto SORTIR;
 	}
 
 iargmax = (*p_CsInstrument)[ins].iargmax;
 if(iargmax < 4) {
-	BPPrintMessage(0,odError,"=> Err. CscoreWrite(). iargmax < 4");
+	BPPrintMessage(0,odError,"=> Err. CscoreWrite(ZERO,). iargmax < 4");
 	iargmax = 4;
 	}
 
@@ -587,11 +589,11 @@ if(iarg > 0) {
 
 if((*p_CsInstrument)[ins].ipmax > 0 && (*perf)->numberparams > 0) {
 	if((*perf)->params == NULL) {
-		BPPrintMessage(0,odError,"=> Err. CscoreWrite(). (*perf)->params == NULL");
+		BPPrintMessage(0,odError,"=> Err. CscoreWrite(ZERO,). (*perf)->params == NULL");
 		goto WRITECSCORELINE;
 		}
 	if(instrparamlist == NULL) {
-		BPPrintMessage(0,odError,"=> Err. CscoreWrite(). instrparamlist == NULL");
+		BPPrintMessage(0,odError,"=> Err. CscoreWrite(ZERO,). instrparamlist == NULL");
 		goto WRITECSCORELINE;
 		}
 	for(i=0; i < (*p_CsInstrument)[ins].ipmax; i++) {
@@ -695,7 +697,7 @@ WRITECSCORELINE:
 // First send this note to pianoroll
 if(ShowPianoRoll) {
 	timeon = (Milliseconds) 1000 * (*scorearg)[2];
-	timeoff = (Milliseconds) 1000 * ((*scorearg)[2] + (*scorearg)[3]); // Fixed by BB 2022-02-10
+	timeoff = (Milliseconds) 1000 * ((*scorearg)[2] + (*scorearg)[3]);
 		
 	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"key = %d chan = %d timeon = %ld timeoff = %ld minkey = %d maxkey = %d\n",key,chan,(long)timeon,(long)timeoff,minkey,maxkey);
 	DrawPianoNote("csound",key,chan,timeon,timeoff,leftoffset,topoffset,hrect,minkey,maxkey,p_graphrect);
@@ -763,7 +765,7 @@ strcpy(Message,"");
 SORTIR:
 MyDisposeHandle((Handle*)&scorearg);
 if(result == OK && onoffline == OFF) {
-	MyDisposeHandle((Handle*)&params);	/* This had been created while onoffline == ON */
+	MyDisposeHandle((Handle*)&params);	// This had been created while onoffline == ON
 	}
 
 if(result == OK && comeback) {

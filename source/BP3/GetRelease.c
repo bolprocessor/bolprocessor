@@ -1202,13 +1202,13 @@ int MakeEventSpace(unsigned long ***pp_imaxseq) {
 		return(ABORT);
 	for(nseq = 0; nseq < maxconc2; nseq++) (*p_Seq)[nseq] = NULL;
 
-	// The following will be resized when Maxevent is better known, in FillPhaseDiagram()
+	// The following will be resized when MaxObjects is better known, in FillPhaseDiagram()
 
-	if((p_Instance = (SoundObjectInstanceParameters**) GiveSpace((Size)Maxevent * sizeof(SoundObjectInstanceParameters))) == NULL)
+	if((p_Instance = (SoundObjectInstanceParameters**) GiveSpace((Size)MaxObjects * sizeof(SoundObjectInstanceParameters))) == NULL)
 		return(ABORT);	
-	if((p_ObjectSpecs = (objectspecs****) GiveSpace((Size)Maxevent * sizeof(objectspecs**)))
+	if((p_ObjectSpecs = (objectspecs****) GiveSpace((Size)MaxObjects * sizeof(objectspecs**)))
 		== NULL) return(MISSED);
-	for(k = 0; k < Maxevent; k++) {
+	for(k = 0; k < MaxObjects; k++) {
 		(*p_ObjectSpecs)[k] = NULL;
 		(*p_Instance)[k].contparameters.values = NULL;
 		(*p_Instance)[k].contparameters.number = 0;

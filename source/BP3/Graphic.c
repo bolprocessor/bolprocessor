@@ -87,7 +87,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 
 	rep = OK;
 	GraphicOn = TRUE; overflow = FALSE;
-	maxlines = (int) Maxevent + 1;
+	maxlines = (int) MaxObjects + 1;
 	Hzero[w] = Vzero[w] = 0;
 	Vmin[w] = INT_MAX; Vmax[w] = - 1;
 
@@ -110,7 +110,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 		}
 	topoffset = (4 * htext) + 8;
 	r.top = 0;
-	r.bottom = r.top + topoffset + Maxevent * (hrect + htext);
+	r.bottom = r.top + topoffset + MaxObjects * (hrect + htext);
 	r.left = 0;
 	endxmax = leftoffset + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10
 		+ BOLSIZE * 10;

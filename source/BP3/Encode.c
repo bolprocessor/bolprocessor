@@ -619,7 +619,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 				}
 			while((c=NextChar(pp)) != '>') {
 				(*p_x)[l++] = c;
-				if(!OkBolChar2(c) || c == '-') {
+				if(!OkBolChar2(c)) {
 					(*p_x)[l] = '\0';
 					my_sprintf(Message,
 					"Terminal <<%s...>> contains incorrect character '%c'\n",(*p_x),c);

@@ -893,7 +893,7 @@ if(Pduration > 0.) {
 	my_sprintf(line,"  Prod = %.0f",Prod);
 	if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
 	
-	my_sprintf(line,"  [%ld objects]",(long)Maxevent);
+	my_sprintf(line,"  [%ld objects]",(long)MaxObjects);
 	if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
 	
 	if(Kpress > 1.) my_sprintf(line,"  Comp = %.0f",Kpress);

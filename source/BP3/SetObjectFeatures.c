@@ -857,7 +857,7 @@ return(result);
 }
 
 
-int Fix(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time) {
+int FixObjectTimings(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time) {
 	int j,k;
 	short dont_randomize;
 	long i,inext;
@@ -866,7 +866,7 @@ int Fix(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time) 
 	unsigned int seed;
 
 	if(nseq >= Maxconc) {
-		BPPrintMessage(0,odError,"=> Err. Fix(). nseq >= Maxconc\n");
+		BPPrintMessage(0,odError,"=> Err. FixObjectTimings(). nseq >= Maxconc\n");
 		return(OK);
 		}
 	i = ZERO;
@@ -874,13 +874,13 @@ int Fix(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time) 
 	dont_randomize = FALSE;
 	while(TRUE) {
 		k = (*((*p_Seq)[nseq]))[i];
-	//	if(k > 2 && k < 6) BPPrintMessage(0,odInfo,"Fix() k = %ld alpha = %.2f\n",(long)k,(*p_Instance)[k].alpha);
+	//	if(k > 2 && k < 6) BPPrintMessage(0,odInfo,"FixObjectTimings() k = %ld alpha = %.2f\n",(long)k,(*p_Instance)[k].alpha);
 		if(k < 0) break;
 		inext = i;
 		while((*((*p_Seq)[nseq]))[++inext] == 0);
 		if(k >= 1) {	// Ignoring silences "-" except if specs attached
-			if(k >= Maxevent) {
-				BPPrintMessage(0,odError,"=> Err. Fix(). k >= Maxevent");
+			if(k >= MaxObjects) {
+				BPPrintMessage(0,odError,"=> Err. FixObjectTimings(). k >= MaxObjects");
 				return(ABORT);
 				}
 			j = (*p_Instance)[k].object;
@@ -890,7 +890,7 @@ int Fix(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time) 
 						t1 = (*p_T)[i];
 						(*p_time1)[i] = t1;
 						t2 = (*p_time2)[i] = t1 + (Milliseconds) ((*p_Instance)[k].alpha * (*p_Dur)[j]);
-				//		BPPrintMessage(0,odInfo,"Fix() time pattern k = %ld j = %ld alpha = %.2f Dur = %.2f, t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(*p_Dur)[j],(long)t1,(long)t2);
+				//		BPPrintMessage(0,odInfo,"FixObjectTimings() time pattern k = %ld j = %ld alpha = %.2f Dur = %.2f, t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(*p_Dur)[j],(long)t1,(long)t2);
 						}
 					else { // Sound-object
 						if((*p_PivMode)[j] == PERCENT)
@@ -903,7 +903,7 @@ int Fix(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time) 
 						t2 = (*p_time2)[i] = t1
 							+ (Milliseconds)((*p_Instance)[k].alpha * (*p_Dur)[j]);
 				//		if(k > 2 && k < 6) 
-				//		BPPrintMessage(0,odInfo,"Fix() k = %ld j = %ld alpha = %.2f Dur = %ld t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)(*p_Dur)[j],(long)t1,(long)t2);
+				//		BPPrintMessage(0,odInfo,"FixObjectTimings() k = %ld j = %ld alpha = %.2f Dur = %ld t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)(*p_Dur)[j],(long)t1,(long)t2);
 						}
 					}
 				else {	// Simple note or silence
@@ -925,7 +925,7 @@ int Fix(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int nature_time) 
 						(*p_time1)[i] = t1;
 						t2 = (*p_time2)[i] = t1 + (*p_Instance)[k].alpha * 1000L;
 						}
-					// BPPrintMessage(0,odInfo,"Fix() simple note or silence k = %ld j = %ld, i = %ld alpha = %.2f t1 = %ldms t2 = %ldms\n",(long)k,(long)j,(long)i,(*p_Instance)[k].alpha,(long)t1,(long)t2);
+					// BPPrintMessage(0,odInfo,"FixObjectTimings() simple note or silence k = %ld j = %ld, i = %ld alpha = %.2f t1 = %ldms t2 = %ldms\n",(long)k,(long)j,(long)i,(*p_Instance)[k].alpha,(long)t1,(long)t2);
 					}
 				}
 			else {
@@ -978,8 +978,8 @@ if(nature_time == STRIATED || nseq == 0) {
 			i = inext;
 			continue;
 			}
-		if(k >= Maxevent) {
-			BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). k >= Maxevent\n");
+		if(k >= MaxObjects) {
+			BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). k >= MaxObjects\n");
 			return(ABORT);
 			}
 		j = (*p_Instance)[k].object;
@@ -1120,9 +1120,9 @@ FINDNEXTMARKED:
 		if(inext > inextm) inext = inextm;
 		/* In this case alpha will be too small on current object */
 		
-		if(k >= Maxevent) {
-		//	BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). k >= Maxevent (2)");
-			BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). k >= Maxevent (2)\n");
+		if(k >= MaxObjects) {
+		//	BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). k >= MaxObjects (2)");
+			BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). k >= MaxObjects (2)\n");
 			return(ABORT);
 			}
 		j = (*p_Instance)[k].object;
@@ -1369,8 +1369,8 @@ int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend
 		k = (*((*p_Seq)[nseq]))[i];
 		if(k == -1) break;
 		if(k < 1) continue;
-		if(k >= Maxevent) {
-			BPPrintMessage(0,odError,"=> Err. SetLimits(). k >= Maxevent\n");
+		if(k >= MaxObjects) {
+			BPPrintMessage(0,odError,"=> Err. SetLimits(). k >= MaxObjects\n");
 			return(ABORT);
 			}
 		j = (*p_Instance)[k].object;

@@ -1392,8 +1392,8 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
 	char this_key[100];
     strcpy(this_key,"");
     channel = capture = key = -1;
-    if(kcurrentinstance > 0 && kcurrentinstance < Maxevent) {
-    //    BPPrintMessage(1,odInfo,"kcurrentinstance = %d Maxevent = %ld\n",kcurrentinstance,(long)Maxevent);
+    if(kcurrentinstance > 0 && kcurrentinstance < MaxObjects) {
+    //    BPPrintMessage(1,odInfo,"kcurrentinstance = %d MaxObjects = %ld\n",kcurrentinstance,(long)MaxObjects);
         part = (*p_Instance)[kcurrentinstance].part;
         }
     else part = 0;
@@ -1495,7 +1495,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
         long clocktime = (getClockTime() - initTime - TimeStopped) / 1000L - MIDIsetUpTime; // milliseconds
         clocktime = (long)((float)clocktime / Time_res + 0.5) * Time_res;
         if(ClockInitCapture < 0L) {
-            if(kcurrentinstance >= 0 && kcurrentinstance < Maxevent && (status == NoteOn || status == NoteOff)) {
+            if(kcurrentinstance >= 0 && kcurrentinstance < MaxObjects && (status == NoteOn || status == NoteOff)) {
                 ClockInitCapture = clocktime;
             //    BPPrintMessage(0,odInfo,"clocktime = %ld\n",clocktime);
                 }
@@ -1503,7 +1503,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
             }
         else clocktime -= ClockInitCapture;
         // if(trace_capture) BPPrintMessage(0,odInfo,"@ kcurrentinstance = %d, CaptureSource = %d, ClockInitCapture = %d, data %d %d %d\n",kcurrentinstance,CaptureSource,ClockInitCapture,midiData[0],midiData[1],midiData[2]);
-        if(kcurrentinstance >= 0 && kcurrentinstance < Maxevent) { 
+        if(kcurrentinstance >= 0 && kcurrentinstance < MaxObjects) { 
             if(kcurrentinstance > 0) capture = (*p_Instance)[kcurrentinstance].capture;
             else capture = CaptureSource;
             if(trace_capture) BPPrintMessage(0,odInfo,"👉👉 kcurrentinstance = %d, CaptureSource = %d, capture = %d, %d %d %d\n",kcurrentinstance,CaptureSource,capture,midiData[0],midiData[1],midiData[2]);

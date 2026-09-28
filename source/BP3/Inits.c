@@ -120,8 +120,6 @@ int Inits(void) {
 		(*p_FileInfo[i])[0] = '\0';
 		}
 
-	MaxMIDIbytes = ZERO;
-
 	KeyboardType = QWERTY;
 	C4key = 60;  A4freq = 440.;
 	DefaultBlockKey =  60; // Block frequency on C4 wheen changing scales

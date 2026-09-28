@@ -92,7 +92,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 	max_tempo_in_skipped_object = 0.;
 	old_toofast = FALSE;
 	maxseqapprox = ((ceil(maxseqapprox) / Kpress) + 6.) * 1.01;	/* This is an approximation. */
-	if(ShowMessages || Maxevent > 500L) {
+	if(ShowMessages || MaxObjects > 500L) {
 		if(Kpress > 1.) {
 			// ShowWindow(Window[wTimeAccuracy]);
 			if(Kpress < (double) ULONG_MAX)
@@ -218,9 +218,9 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 	(*p_deftnseq)[0] = nseq = 0;
 
 	if(trace_diagram)
-		BPPrintMessage(1,odInfo,"Maxevent = %d\n",Maxevent);
+		BPPrintMessage(1,odInfo,"MaxObjects = %d\n",MaxObjects);
 
-	for(k=0; k < Maxevent; k++) {
+	for(k=0; k < MaxObjects; k++) {
 		(*p_Instance)[k].object = 0;
 		(*p_ObjectSpecs)[k] = NULL;
 		(*p_Instance)[k].channel = 0;
@@ -1751,8 +1751,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		ip = imax;
 		kobj++;
 		(*p_numberobjects) = kobj;
-		if(kobj >= Maxevent) {
-			BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). kobj (%ld) >= Maxevent (%ld). (1)\n",kobj,Maxevent);
+		if(kobj >= MaxObjects) {
+			BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). kobj (%ld) >= MaxObjects (%ld). (1)\n",kobj,MaxObjects);
 			kobj--; (*p_numberobjects) = kobj;
 			goto LASTOBJECTDONE;
 			}
@@ -1778,8 +1778,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		if((*p_waitlist)[nseq] != NULL || (*p_scriptlist)[nseq] != NULL || newswitch) {
 			/* Append <<->> */
 			kobj++; (*p_numberobjects) = kobj;
-			if(kobj >= Maxevent) {
-				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). kobj (%ld) >= Maxevent (%ld). (2)\n",kobj,Maxevent);
+			if(kobj >= MaxObjects) {
+				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). kobj (%ld) >= MaxObjects (%ld). (2)\n",kobj,MaxObjects);
 				failed = TRUE; goto ENDDIAGRAM;
 				}
 			(*p_Instance)[kobj].object = -1;
@@ -1827,7 +1827,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 
 	ENDDIAGRAM:
 
-	// if(ShowMessages || Maxevent > 500) HideWindow(Window[wInfo]); 2024-09-11
+	// if(ShowMessages || MaxObjects > 500) HideWindow(Window[wInfo]); 2024-09-11
 
 	for(i=0; i < MAXSTRINGCONSTANTS; i++) {
 		h = (Handle)(*h_table)[i].point;
@@ -1887,15 +1887,15 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 	if(failed) return(result);
 
 	(*p_maxseq)++; /* Now we got the exact value. */
-	Maxevent = (*p_numberobjects) + 1; 	/* Now we got the exact value. */
+	MaxObjects = (*p_numberobjects) + 1; 	/* Now we got the exact value. */
 
-	if(Maxevent > 5000) (*p_bigitem) = TRUE;
+	if(MaxObjects > 5000) (*p_bigitem) = TRUE;
 
 	// Sizing down handles to save space
 
-	MySetHandleSize((Handle*)&p_Instance,(Size)Maxevent * sizeof(SoundObjectInstanceParameters));
-	MySetHandleSize((Handle*)&p_ObjectSpecs,(Size)Maxevent * sizeof(objectspecs**));
-	MySetHandleSize((Handle*)&p_Articul,(Size)Maxevent * sizeof(short));
+	MySetHandleSize((Handle*)&p_Instance,(Size)MaxObjects * sizeof(SoundObjectInstanceParameters));
+	MySetHandleSize((Handle*)&p_ObjectSpecs,(Size)MaxObjects * sizeof(objectspecs**));
+	MySetHandleSize((Handle*)&p_Articul,(Size)MaxObjects * sizeof(short));
 	MySetHandleSize((Handle*)&p_T,(Size) (*p_maxseq+2) * sizeof(Milliseconds));
 
 	if((result=stop(0,"FillPhaseDiagram")) != OK) return(result);
@@ -1936,8 +1936,8 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 			(*((*p_seq)[*p_nseq]))[iplot] = newk;
 			(*p_nseqplot) = (*p_nseq); // 2025-01-14
 			if(newk >= 1) {
-				if(newk >= Maxevent) {
-					BPPrintMessage(1,odError,"=> Err. Plot(): newk (%d) >= Maxevent (%ld)\n",newk, Maxevent); // 2026-04-30
+				if(newk >= MaxObjects) {
+					BPPrintMessage(1,odError,"=> Err. Plot(): newk (%d) >= MaxObjects (%ld)\n",newk, MaxObjects); // 2026-04-30
 					}
 				(*p_Instance)[newk].nseq = (*p_nseq); // 2025-01-15
 				}
@@ -2404,7 +2404,7 @@ int ShowProgress(int k)
 return(OK);
 if(!ShowMessages || ((k % 50) != 0)) return(OK);
 PleaseWait();
-my_sprintf(Message,"Time-objects created: %ld.  Estimated: %ld",(long)k,(long)(Maxevent-1));
+my_sprintf(Message,"Time-objects created: %ld.  Estimated: %ld",(long)k,(long)(MaxObjects-1));
 // FlashInfo(Message);
 return(OK);
 }
@@ -2455,10 +2455,10 @@ int MakeEmptyTokensSilent(tokenbyte ***pp_buff,double *p_maxseqapprox) {
 			(**pp_buff)[id] = T47;
 			(**pp_buff)[id+1] = p;
 			(*p_maxseqapprox) += 4.0;
-			Maxevent++;
-			MySetHandleSize((Handle*)&p_Instance,(Size)Maxevent * sizeof(SoundObjectInstanceParameters));
-			MySetHandleSize((Handle*)&p_ObjectSpecs,(Size)Maxevent * sizeof(objectspecs**));
-			MySetHandleSize((Handle*)&p_Articul,(Size)Maxevent * sizeof(short));
+			MaxObjects++;
+			MySetHandleSize((Handle*)&p_Instance,(Size)MaxObjects * sizeof(SoundObjectInstanceParameters));
+			MySetHandleSize((Handle*)&p_ObjectSpecs,(Size)MaxObjects * sizeof(objectspecs**));
+			MySetHandleSize((Handle*)&p_Articul,(Size)MaxObjects * sizeof(short));
 			CreateSilentSoundObject(p);
 			}
 		if((m == T3 || m == T47) && p > 1 && p < Jbol && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO) {

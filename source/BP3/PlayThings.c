@@ -665,20 +665,6 @@ int PasteStreamToPrototype(int j, int what)
 		maxsize = (long) MyGetHandleSize((Handle)(*pp_MIDIcode)[j]);
 		maxsize = (maxsize / sizeof(MIDIcode));
 		}
-	/*
-	// Move up codes before inserting
-	switch(what) {
-		case bInsertAtInsertPoint:
-		case bInsertBefore:
-		case bReplaceFromInsertpoint:
-		case bMergeFromInsertPoint:
-			offset = Stream.imax - (ito - ifrom);
-			if(what == bMergeFromInsertPoint) offset = Stream.imax;
-			for(i=(*p_MIDIsize)[j]-1L; i >= ito; i--) {
-				(*((*pp_MIDIcode)[j]))[i+offset] = (*((*pp_MIDIcode)[j]))[i];
-				}
-			break;
-		} */
 		
 	// Calculate dilation ratio
 	if(Stream.pclock > ZERO) {
@@ -691,56 +677,6 @@ int PasteStreamToPrototype(int j, int what)
 			}
 		}
 	else alpha = 1.;
-
-	/*
-	// Merge codes
-	if(what == bMergeFromInsertPoint) {
-		// Create a handle to a stream containing the sorted codes
-		n = Stream.imax + (ito - ifrom);
-		if((ptr1 = (MIDIcode**) GiveSpace(n * sizeof(MIDIcode))) == NULL) goto ERR;
-		for(i=p=ZERO,k=ifrom;;) {
-			if(p >= n) break;
-			if(i < Stream.imax) datestream = (*Stream.code)[i].time / alpha + tfrom;
-			else datestream = Infpos;
-			if(k < ito) dateproto = (*((*pp_MIDIcode)[j]))[k].time;
-			else dateproto = Infpos;
-			if(datestream > dateproto) {
-				(*ptr1)[p].time = dateproto;
-				(*ptr1)[p].byte = (*((*pp_MIDIcode)[j]))[k].byte;
-				(*ptr1)[p].sequence = (*((*pp_MIDIcode)[j]))[k].sequence;
-				k++;
-				}
-			else {
-				(*ptr1)[p].time = datestream;
-				(*ptr1)[p].byte = (*Stream.code)[i].byte;
-				(*ptr1)[p].sequence = (*Stream.code)[i].sequence;
-				i++;
-				}
-			p++;
-			}
-		for(p=ZERO; p < n; p++) {
-			(*((*pp_MIDIcode)[j]))[ifrom+p] = (*ptr1)[p];
-			}
-		MyDisposeHandle((Handle*)&ptr1);
-		}
-
-	
-	// Copy codes
-	if(what != bMergeFromInsertPoint) {
-		for(i=ZERO; i < Stream.imax; i++) {
-			(*((*pp_MIDIcode)[j]))[ifrom+i].time = (*Stream.code)[i].time / alpha + tfrom;
-			(*((*pp_MIDIcode)[j]))[ifrom+i].byte = (*Stream.code)[i].byte;
-			(*((*pp_MIDIcode)[j]))[ifrom+i].sequence = (*Stream.code)[i].sequence;
-			}
-		}
-
-	// Increment dates after insertion;
-	gap = (*Stream.code)[Stream.imax-1L].time / alpha;
-	if(what == bInsertAtInsertPoint || what == bInsertBefore) {
-		for(i=(ifrom+Stream.imax); i < newsize; i++) {
-			(*((*pp_MIDIcode)[j]))[i].time += gap;
-			}
-		} */
 
 	(*p_Dur)[j] = ((*((*pp_MIDIcode)[j]))[newsize-1].time);
 	// This value will be corrected by SetPrototypeDuration()

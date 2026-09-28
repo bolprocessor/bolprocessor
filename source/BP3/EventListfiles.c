@@ -83,7 +83,7 @@ int WriteToEventListFile(const char *line) {
 
 int AddEventToList(int k) {
 	long starttime,endtime,shift;
-	int j,id_proto,articul,trans,cyclic_after,blockkey,keymap0_p1,keymap0_q1,keymap0_p2,keymap0_q2,keymap1_p1,keymap1_q1,keymap1_p2,keymap1_q2,cyclic;
+	int j,id_proto,articul,trans,cyclic_after,blockkey,keymap0_p1,keymap0_q1,keymap0_p2,keymap0_q2,keymap1_p1,keymap1_q1,keymap1_p2,keymap1_q2,cyclic,sound_object;
 	short xpandval,xpandkey;
 	char line[MAXLIN],label[MAXNAME],scalename[MAXNAME],keymapmode[MAXNAME],channel_txt[MAXNAME],instrument_txt[MAXNAME],pitchbendmode_txt[15],pressuremode_txt[15],panoramicmode_txt[15],volumemode_txt[15],modulationmode_txt[15],pitchbendstart_txt[15],pitchbendend_txt[15],pitchbendchannel_txt[15],xpandkey_txt[15],blockkey_txt[10];
 	double beta,preroll,postroll,expand;
@@ -200,12 +200,6 @@ int AddEventToList(int k) {
 			strcpy(pitchbendmode_txt,"");
 		break;
 		}
-	if(j > 1 && j < Jbol) { // Sound-object
-		strcpy(pitchbendmode_txt,"");
-		strcpy(pitchbendstart_txt,"");
-		strcpy(pitchbendend_txt,"");
-		strcpy(pitchbendchannel_txt,"");
-		}
 
 	int scale = (*p_Instance)[k].scale;
 	if(scale > 0) my_sprintf(scalename,"%s",*((*p_StringConstant)[scale]));
@@ -218,6 +212,7 @@ int AddEventToList(int k) {
 	preroll = postroll = id_proto = 0;
 	beta = (*p_Instance)[k].beta;
 	preroll = postroll = 0.;
+	sound_object = FALSE;
 	if(j < 16384) {
 		if(j < 0) {
 			j = -j;
@@ -232,30 +227,18 @@ int AddEventToList(int k) {
 				PrintThisNote(i_scale,j-16384,0,-1,line);
 				my_sprintf(label,"<<%s>>",line);
 				}
-			else if(j < Jbol) my_sprintf(label,"<<%s>>",*((*p_Bol)[j]));
+			else if(j < Jbol) {
+				my_sprintf(label,"<<%s>>",*((*p_Bol)[j]));
+				sound_object = TRUE;
+				}
 			else strcpy(label,"???");
 			}
 		else if(j == 1) my_sprintf(label,"-");
 		else if(j < Jbol) {
 			my_sprintf(label,"%s",*((*p_Bol)[j]));
-			if((*p_CyclicMode)[j] != IRRELEVANT) {
-				cyclic = 1;
-				forceintegercycles = (*p_ForceIntegerCycles)[j];
-				if((*p_CyclicMode)[j] == FIXVALUE) cyclic_after = (int)(*p_CyclicAfter)[j];
-				if((*p_CyclicMode)[j] == PERCENT) cyclic_after = (int) ((double)(*p_CyclicAfter)[j] * (*p_Dur)[j]) / 100.;
-				}
-			id_proto = j;
-			if((*p_PreRollMode)[j] == FIXVALUE) preroll = (*p_PreRoll)[j];
-			else preroll = beta * (*p_PreRoll)[j];
-			if((*p_PostRollMode)[j] == FIXVALUE) postroll = (*p_PostRoll)[j];
-			else postroll = beta * (*p_PostRoll)[j];
-
-			if((*p_DefaultChannel)[j] != 0) localchan = (*p_DefaultChannel)[j];
-			if((*p_CsoundInstrumentMode)[j] != 0) instrument = (*p_CsoundInstrumentMode)[j];
+			sound_object = TRUE;
 			}
-		else {
-			strcpy(label,"???");
-			}
+		else strcpy(label,"???");
 		}
 	else {
 		if(MIDImicrotonality) {
@@ -267,6 +250,26 @@ int AddEventToList(int k) {
 		else i_scale = -1;
 		PrintThisNote(i_scale,j-16384,0,-1,label);
 	//	BPPrintMessage(0,odInfo,"@@@ scale = %d, i_scale = %d, label = %s\n",scale,i_scale,label);
+		}
+	if(sound_object) {
+		strcpy(pitchbendmode_txt,"");
+		strcpy(pitchbendstart_txt,"");
+		strcpy(pitchbendend_txt,"");
+		strcpy(pitchbendchannel_txt,"");
+		if((*p_CyclicMode)[j] != IRRELEVANT) {
+			cyclic = 1;
+			forceintegercycles = (*p_ForceIntegerCycles)[j];
+			if((*p_CyclicMode)[j] == FIXVALUE) cyclic_after = (int)(*p_CyclicAfter)[j];
+			if((*p_CyclicMode)[j] == PERCENT) cyclic_after = (int) ((double)(*p_CyclicAfter)[j] * (*p_Dur)[j]) / 100.;
+			}
+		id_proto = j;
+		if((*p_PreRollMode)[j] == FIXVALUE) preroll = (*p_PreRoll)[j];
+		else preroll = beta * (*p_PreRoll)[j];
+		if((*p_PostRollMode)[j] == FIXVALUE) postroll = (*p_PostRoll)[j];
+		else postroll = beta * (*p_PostRoll)[j];
+		if(beta == 0.) preroll = postroll = 0.;
+		if((*p_DefaultChannel)[j] != 0) localchan = (*p_DefaultChannel)[j];
+		if((*p_CsoundInstrumentMode)[j] != 0) instrument = (*p_CsoundInstrumentMode)[j];
 		}
 	if(p_Articul != NULL) articul =	(*p_Articul)[k];
 	else articul = 0;

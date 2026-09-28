@@ -160,7 +160,7 @@ extern SoundObjectInstanceParameters **p_Instance;
 extern short **p_Articul;
 extern objectspecs ****p_ObjectSpecs;
 extern int WaitKey[MAXWAIT+1],WaitChan[MAXWAIT+1];
-extern long **p_Flag,BufferSize,DeftBufferSize,Maxevent;
+extern long **p_Flag,BufferSize,DeftBufferSize,MaxObjects;
 extern FILE *OpenMIDIfilePtr, *EventListPtr;
 extern FILE *UnitfilePtr,*TabfilePtr,*TsvFilePtr;
 extern short HelpRefnum,TempRefnum,TraceRefnum,CsRefNum,CsScoreOpened,
@@ -215,7 +215,7 @@ extern unsigned long Ptick[MAXTICKS],Qtick[MAXTICKS],GrandCycle[MAXTICKS],
 	LastCommonDate[MAXTICKS],LastCommonBeatDate;
 extern double Pclock,Qclock,OldPclock,OldQclock,MinPclock,MaxPclock,
 	MinQclock,MaxQclock,Prod,Ratio,Kpress,Pduration,Qduration;
-extern long Infpos,Infneg,Veryneg,MaxMIDIbytes,
+extern long Infpos,Infneg,Veryneg,
 	TimeMax,Nalpha,Nbytes,Tbytes2,MIDIinputFilterstartup,
 	MIDIoutputFilterstartup,Ts,DataEnd;
 extern unsigned long MIDIacceptFilter[MAXPORTS],MIDIpassFilter[MAXPORTS];

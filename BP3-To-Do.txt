@@ -21,7 +21,7 @@ Various issues
 --------------
 
 - Pianoroll is not drawn if there are negative dates (due to pivot and preroll).
-- Pure Csound objects are not truncated correctly.
+- Pure Csound objects are not truncated correctly et the end.
 - In -da.Beethoven-fugue-b-flat-major, k = 22082, note Bb5, start time = end time = 0
 - When playing -da.Beethoven-fuge-b-flat-major using PLAY safe (7 chunks) there is a time error between two chunks. Check the chunking on data.php
 - Try to make sense of 'truebracket' and 'imbedded' in Polymetric.c
@@ -37,11 +37,16 @@ Various issues
 - Check quadratic adjustment of _vel and _volume.
 
 
-Sound-objects
--------------
+Event lists
+-----------
 
-- Create an option to completely delete notes in truncated parts at the beginning or end of a sound-object.
-- Fix truncation of the end in pure Csound objects.
+- Export '-cs' file in JSON
+
+
+Inference engine
+----------------
+
+- Treat performance controls as meta information attached to the neighbouring terminal or variable.
 
 
 Live coding
@@ -114,7 +119,7 @@ Real-time MIDI
 Real-time Csound
 ----------------
 
-- This development might be easy with the help of AI tools.
+- This development might be easy with the help of AI tools. :-)
 - Implement UDP for communicating with Csound. Links:
 https://csound.com/docs/manual/udpserver.html
 https://www.geeksforgeeks.org/udp-server-client-implementation-c/

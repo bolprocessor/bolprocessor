@@ -251,7 +251,8 @@ enum {
 #define MAXCHAN 16	/* number of MIDI-BP3 channels */
 #define MAXPARTS 30	/* number of parts in a score */
 #define MAXINSTRUMENTS 512	/* number of Csound instruments refered to by tied notes */
-// #define IPMAX 20	/* max number of additional parameters in Csound instrument */
+// #define IPMAX 20	 max number of additional parameters in Csound instrument
+#define MAXINS 20	/* number of Csound instruments used in a Csound performance */
 #define MAXDATABASEFIELDS 60 /* number of fields in database */
 #define MAXTIMESLICES 5000 /* max number of time slices by the OMS output time scheduling */
 #define CLOCKRES 5L /* 5ms resolution of time scheduler */
