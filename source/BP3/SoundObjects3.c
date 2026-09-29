@@ -154,7 +154,7 @@ int CheckConsistency(int j,int check) {
       }
    if((*p_PivType)[j] < PIVBEG || (*p_PivType)[j] > SETPIVOT) {
       if(trace_consistency) BPPrintMessage(0,odInfo,"=> CheckConsistency() (*p_PivType)[%d] = %d\n",j,(*p_PivType)[j]);
-      (*p_PivType)[j] = 1; bugg++;
+      (*p_PivType)[j] = PIVBEG; bugg++;
       }
    SetPrototypeDuration(j,&longerCsound);
    dur = (*p_Dur)[j];
@@ -181,8 +181,11 @@ int CheckConsistency(int j,int check) {
          (*p_PivMode)[j] = FIXVALUE;
          break;
       case PIVMIDDLE:
-         (*p_PivPos)[j] = (dur - preroll - postroll) / 2.;
-         (*p_PivMode)[j] = FIXVALUE;
+   /*      (*p_PivPos)[j] = (dur - preroll - postroll) / 2.;
+         (*p_PivMode)[j] = FIXVALUE; */
+         (*p_PivPos)[j] = 50;
+         (*p_PivMode)[j] = PERCENT;
+        // BPPrintMessage(0,odInfo,"@@@ MIDDLE\n");
          break;
       case SETPIVOT:
          switch((*p_PivMode)[j]) {
@@ -200,8 +203,8 @@ int CheckConsistency(int j,int check) {
       case PIVMIDDLEONOFF: 
          if((*p_MIDIsize)[j] == ZERO && (*p_CsoundSize)[j] == ZERO) {
             if(trace_consistency) BPPrintMessage(0,odInfo,"CheckConsistency() (*p_MIDIsize)[%d] = ZERO and (*p_CsoundSize)[%d] = ZERO\n",j,j);
-            (*p_PivType)[j] = 1; bugg++; break;
-          }
+            (*p_PivType)[j] = PIVBEG; bugg++; break;
+            }
          ton = toff = -1L;
          for(i=t=ZERO; i < (*p_MIDIsize)[j]-2; i++) {
             t += (*((*pp_MIDIcode)[j]))[i].time;
@@ -221,19 +224,22 @@ int CheckConsistency(int j,int check) {
             }
          switch((*p_PivType)[j]) {
             case PIVBEGON:
-            //  (*p_PivPos)[j] = ((float)(ton - preroll) * 100.) / dur;
-              (*p_PivPos)[j] = ton - preroll;
-               (*p_PivMode)[j] = FIXVALUE;
+               (*p_PivPos)[j] = ((float)(ton - preroll) * 100.) / dur;
+               (*p_PivMode)[j] = PERCENT;
+             // (*p_PivPos)[j] = ton - preroll;
+             //  (*p_PivMode)[j] = FIXVALUE;
                break;
             case PIVENDOFF:
-            //   (*p_PivPos)[j] = ((float)(toff - preroll) * 100.) / dur;
-               (*p_PivPos)[j] = toff - preroll;
-               (*p_PivMode)[j] = FIXVALUE;
+               (*p_PivPos)[j] = ((float)(toff - preroll) * 100.) / dur;
+               (*p_PivMode)[j] = PERCENT;
+             //  (*p_PivPos)[j] = toff - preroll;
+             //  (*p_PivMode)[j] = FIXVALUE;
                break;
             case PIVMIDDLEONOFF:
-            //   (*p_PivPos)[j] = ((float)((ton+toff)/2. - preroll) * 100.) / dur;
-               (*p_PivPos)[j] = (ton + toff)/2. - preroll;
-               (*p_PivMode)[j] = FIXVALUE;
+               (*p_PivPos)[j] = ((float)((ton+toff)/2. - preroll) * 100.) / dur;
+               (*p_PivMode)[j] = PERCENT;
+             //  (*p_PivPos)[j] = (ton + toff)/2. - preroll;
+             //  (*p_PivMode)[j] = FIXVALUE;
                break;
             }
          break;

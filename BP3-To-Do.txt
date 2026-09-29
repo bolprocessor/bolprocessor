@@ -3,7 +3,7 @@ Bol Processor BP3 To Do List
 
 This is a list of technical improvements considered during the development of BP3. 
 None of them are critical to its proper functioning. 
-🎹 However, we most urgently need good musical examples to highlight BP3's features! 🎶
+🎹 However, we welcome real-world musical examples to highlight BP3's features! 🎶
 
 The most requested improvements are listed at the top of the list.
 
@@ -20,8 +20,8 @@ https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
 Various issues
 --------------
 
+- Design an example demonstrating properties "Allow gap" in sound-objects.
 - Pianoroll is not drawn if there are negative dates (due to pivot and preroll).
-- Pure Csound objects are not truncated correctly et the end.
 - In -da.Beethoven-fugue-b-flat-major, k = 22082, note Bb5, start time = end time = 0
 - When playing -da.Beethoven-fuge-b-flat-major using PLAY safe (7 chunks) there is a time error between two chunks. Check the chunking on data.php
 - Try to make sense of 'truebracket' and 'imbedded' in Polymetric.c

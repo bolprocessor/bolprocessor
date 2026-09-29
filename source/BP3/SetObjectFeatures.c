@@ -893,8 +893,10 @@ int FixObjectTimings(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int 
 				//		BPPrintMessage(0,odInfo,"FixObjectTimings() time pattern k = %ld j = %ld alpha = %.2f Dur = %.2f, t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(*p_Dur)[j],(long)t1,(long)t2);
 						}
 					else { // Sound-object
-						if((*p_PivMode)[j] == PERCENT)
-							t1 = (*p_T)[i] - (Milliseconds) ((*p_Instance)[k].beta * (*p_Dur)[j] * (*p_PivPos)[j] / 100.);
+						if((*p_PivMode)[j] == PERCENT) {
+							t1 = (*p_T)[i] - (Milliseconds) ((*p_Instance)[k].alpha * (*p_Dur)[j] * (*p_PivPos)[j] / 100.);
+							// BPPrintMessage(0,odInfo,"@@ t1 = %ld, T = %ld, alpha = %.2f, Dur = %ld, PivPos = %.2f\n",t1,(*p_T)[i],(*p_Instance)[k].alpha,(*p_Dur)[j],(*p_PivPos)[j]);
+							}
 						else
 							t1 = (*p_T)[i] - (*p_PivPos)[j];
 						RandomTime(&t1,(*p_Instance)[k].randomtime,(*p_Instance)[k].alpha * (*p_Dur)[j],&dont_randomize);
@@ -1304,8 +1306,10 @@ If so, fix the number of repetitions and the actual dilation ratio,...
 		limit = TRUE;		/* dilation ratio has a specified upper limit */
 	else limit = FALSE;		/* it hasn't */
 
-	if((*p_PivMode)[j] == PERCENT)
-		pivpos = (*p_Dur)[j] * (*p_PivPos)[j] / 100.;
+	if((*p_PivMode)[j] == PERCENT) {
+		pivpos = (*p_alpha) * (*p_Dur)[j] * (*p_PivPos)[j] / 100.;
+	//	BPPrintMessage(0,odInfo,"@@ pivpos = %.2f, alpha = %.2f, Dur = %ld, PivPos = %.2f\n",pivpos,(*p_alpha),(*p_Dur)[j],(*p_PivPos)[j]);
+		}
 	else
 		pivpos = (*p_PivPos)[j];
 	if(PlayFromInsertionPoint) pivpos = 0.;

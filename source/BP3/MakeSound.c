@@ -1106,7 +1106,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 						}
 					maxparam = MyGetHandleSize((Handle)(*((*pp_currentparams)[nseq]))->params) / sizeof(ParameterStatus);
 					// This value maybe oversized if continuous _value() statements were found earlier on this sequence
-					// but this will be fixed in CscoreWrite(ZERO,) - BB 2021-02-15
+					// but this will be fixed in CscoreWrite() - BB 2021-02-15
 					params = (*((*pp_currentparams)[nseq]))->params;
 			//		BPPrintMessage(0,odInfo,"Found maxparam = %d, (*p_Instance)[%d].contparameters.number = %d\n",maxparam,kcurrentinstance,(*p_Instance)[kcurrentinstance].contparameters.number);
 					(*p_Instance)[kcurrentinstance].contparameters.number = maxparam; // 2024-07-05
@@ -1376,16 +1376,16 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 				if(PlayCsoundLine(cswrite,j)) { 
 				// Writing a Csound event taken from the Csound score of a sound-object 
 					localchan = 0;
+					cut_the_end = ZERO;
 					if(!(*p_silence)[kcurrentinstance]) {
 						instrument = ThisInstrument(cswrite,kcurrentinstance,ievent);
 						if(trace_makesound) {
-							cut_the_end = ZERO;
 							if((*p_Instance)[kcurrentinstance].truncend > EPSILON) {
-								startsilence = (*p_Instance)[kcurrentinstance].starttime + (beta * (*p_Dur)[j]) - (*p_Instance)[kcurrentinstance].truncend;
+								startsilence = (*p_Instance)[kcurrentinstance].starttime - (*p_Instance)[kcurrentinstance].truncbeg + (beta * (*p_Dur)[j]) - (*p_Instance)[kcurrentinstance].truncend;
 								end_this_event = (t0 + t1) + (*((*pp_CsoundScore)[j]))[ievent].duration * beta;
 								if(end_this_event > startsilence)
 									cut_the_end = end_this_event - startsilence;
-								if(trace_makesound) BPPrintMessage(0,odInfo,"@) kcurrentinstance = %d j = %d, ievent = %ld, t1 = %ld, startsilence = %ld, end_this_event = %ld, cut_the_end = %ld\n",kcurrentinstance,j,ievent,(long)t1,startsilence,end_this_event,cut_the_end);
+								if(trace_makesound) BPPrintMessage(0,odInfo,"@) kcurrentinstance = %d j = %d, ievent = %ld, t1 = %ld, startsilence = %ld, end_this_event = %ld, cut_the_end = %ld, Dur= %ld, beta = %.2f, starttime = %ld, truncend = %ld\n",kcurrentinstance,j,ievent,(long)t1,startsilence,end_this_event,cut_the_end,(*p_Dur)[j],beta,(*p_Instance)[kcurrentinstance].starttime,(*p_Instance)[kcurrentinstance].truncend);
 								}
 							else startsilence = end_this_event = ZERO;
 							if(trace_makesound) BPPrintMessage(0,odInfo,"Before CscoreWrite(2) kcurrentinstance = %ld, j = %ld, beta = %.2f, t0 = %ld, t1 = %ld, t2 = %ld, t3 = %ld, c1 = %ld, c2 = %ld, localchan = %d instrument = %d\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,t2,t3,(long)c1,(long)c2,localchan,instrument);

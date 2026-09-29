@@ -86,7 +86,7 @@ if(onoffline == LINE) {
 		BPPrintMessage(0,odInfo,Message);
 		goto SORTIR;
 		}
-	dur = (*((*pp_CsoundScore)[j]))[iline].duration * beta - cut_the_end;
+	dur = (*((*pp_CsoundScore)[j]))[iline].duration * beta - (double) cut_the_end;
 	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"CsoundScore[%d][%d] duration = %.2f\n",j,iline,dur);
 	key = 0;
 	}
