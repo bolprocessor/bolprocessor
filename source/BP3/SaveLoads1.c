@@ -1377,12 +1377,11 @@ NEXTBOL:
 	ERR:
 	if(j > 1 && j < Jbol) ResetPrototype(j);
 	if(CheckEmergency() == OK) {
-		rep = MISSED;
-		BPPrintMessage(0,odError,"=> A sound-object file may be corrupted or in some unknown format\n");
+		BPPrintMessage(0,odInfo,"The sound-object file may be incomplete or in some unknown format. ");
 		if(j > 1 && j < Jbol) {
-			BPPrintMessage(0,odError,"=> The error occured while reading '%s'\n",*((*p_Bol)[j]));
+			BPPrintMessage(0,odError,"An error occured while reading « %s »\n",*((*p_Bol)[j]));
 			}
-		else BPPrintMessage(0,odError,"=> Probably you created a new sound-object which is still empty\n");
+		else BPPrintMessage(0,odError,"Probably you created a new sound-object which is still empty\n");
 		}
 	else rep = ABORT;
 

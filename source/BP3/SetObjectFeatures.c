@@ -953,8 +953,7 @@ int FixObjectTimings(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int 
 
 
 int Calculate_alpha(int nseq,int nmax,long maxseq,unsigned long imaxseq,int nature_time,
-	char** p_marked)
-{
+	char** p_marked) {
 int j,k,kprev,unfinished,gotcurrenttime,ncycles;
 long i,inext,inextm,imax,iprev,jprev,ii;
 double d,alpha,beta,r,sigmaridi,clockperiod;
@@ -993,7 +992,6 @@ if(nature_time == STRIATED || nseq == 0) {
 	//	BPPrintMessage(0,odInfo,"@ k = %ld j = %ld nseq = %d i = %ld inext = %ld seq[inext] = %d d = %.2f, T[i] = %ld T[i+1] = %ld, T[inext] = %ld T[inext+1] = %ld Kpress = %.0f Ratio = %.0f Kpress/Ratio = %.3f Pclock = %.2f\n",(long)k,(long)j,nseq,(long)i,(long)inext,(*((*p_Seq)[nseq]))[inext],d,(long)(*p_T)[i],(long)(*p_T)[i+1],(long)(*p_T)[inext],(long)(*p_T)[inext+1],Kpress,Ratio,Kpress/Ratio,(double)Pclock);
 		if(nature_time == SMOOTH) {
 			if(Qclock < 1L) {
-			//	BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). Qclock < 1. ");
 				BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). Qclock < 1.\n");
 				return(ABORT);
 				}
@@ -1002,9 +1000,9 @@ if(nature_time == STRIATED || nseq == 0) {
 					alpha = (double) d * clockperiod / 1000L;
 				else if(j >= Jbol) // time pattern ("else" added by BB 2022-02-19)
 					alpha = (double) d  * clockperiod / (*p_Tref)[j];
-				else if((*p_Tref)[j] > EPSILON) // Striated object
+				else if(j > 1 && (*p_Tref)[j] > EPSILON) // Striated object
 					alpha = (double) d * clockperiod / (*p_Tref)[j];
-				else if((*p_Dur)[j] > EPSILON) // Smooth object
+				else if(j > 1 && (*p_Dur)[j] > EPSILON) // Smooth object
 					alpha = (double) d * clockperiod / (*p_Dur)[j];
 				else alpha = d;
 				}

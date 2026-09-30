@@ -62,13 +62,13 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 		t2tick,t22,date1,**p_t1,startsilence,**p_t2cont[MAXCHAN+1],**p_nextd,computetime,currenttime,this_gap;
 	Handle h;
 	char **p_keychannel[MAXCHAN+1],**p_keyinstrument[MAXINS+1],**p_silence,**p_onoff,**p_line,**p_active[MAXCHAN+1],line[4],line_image[200],label_note[15];
-	long **p_inext,**p_inext1,**p_last_timeon[MAXCHAN+1],timeleft,formertime,size,istreak,posmin,localperiod,endxmax,endymax,oldtcurr,this_date,
+	long **p_inext,**p_inext1,**p_last_timeon[MAXCHAN+1],timeleft,formertime,size,istreak,posmin,localperiod,endxmax,endymax,oldtcurr,this_date,the_end,
 		i1,i2,oldi2,imap,gap,maxmapped,i,im,ievent,yruler,max_endtime_event,max_endtime,add_time;
 	unsigned long oldtime,drivertime,t3,objectstarttime,objectduration,delta_timeon;
 	unsigned int currswitchstate[MAXCHAN+1],seed;
 	int scale,blockkey,send_more;
 	float howmuch;
-	double value,fstreak,alpha,beta,date,olddate,
+	double value,fstreak,alpha,beta,date,olddate,pivotloc,
 		preroll,postroll,objectperiod,cyclicafter,time_nextperiod_start,
 		firstcycleduration,**p_periodgap,p,q,this_key,deltakey;
 	p_list **waitlist,**scriptlist;
@@ -375,10 +375,14 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 				if((*p_PostRollMode)[j] == FIXVALUE) postroll = (double) (*p_PostRoll)[j];
 				else postroll = beta * (*p_PostRoll)[j];
 				if(beta == 0.) postroll = 0;
+				if((*p_PivMode)[j] == FIXVALUE) pivotloc = (double) (*p_PivPos)[j];
+				else pivotloc = beta * (*p_PivPos)[j];
+				if(beta == 0.) pivotloc = 0;
 				}
 			else postroll = 0.;
-			if(tmax < ((*p_Instance)[k].endtime + postroll))
-				tmax = ((*p_Instance)[k].endtime + postroll);
+			the_end = (*p_Instance)[k].endtime + (long) postroll;
+			if(pivotloc < 0.) the_end -= (long) pivotloc;
+			if(tmax < the_end) tmax = the_end;
 			trans = (*p_Instance)[k].transposition;
 			objectchannel = 0; // OK for pianoroll
 			if(j < 16384) {
@@ -1865,15 +1869,6 @@ FINDNEXTEVENT:
 							break;
 						}
 					time_ms = date1;
-			/*		BPPrintMessage(0,odInfo,"2) k = %d j= %d\n",k,j); // 2024-05-09
-					for(ievent = 0 ; ievent < (*p_CsoundSize)[j]; ievent++) { 
-						p_line = (*pp_CsoundScoreText)[j];
-						if(strlen((*p_line)) > 0) {
-							time_ms += (*((*pp_CsoundTime)[j]))[ievent] * Pclock / Qclock;
-							if((result=CscoreWrite(ZERO,&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,
-								strikeagain,LINE,beta,time_ms,ievent,0,0,0,0,j,nseq,k,pp_currentparams,scale,blockkey)) == ABORT) goto OVER; 
-							} 
-						} */
 					}
 				}
 			}
@@ -2565,7 +2560,6 @@ int KeyImage(int key,KeyNumberMap *p_map) {
 	}
 
 int PlayCsoundLine(int cswrite,int j) {
-//	if(cswrite && j < Jbol && j > 0 && (*p_CsoundSize)[j] > ZERO && (*p_MIDIsize)[j] == ZERO && !ConvertMIDItoCsound) return(OK);
 	if(cswrite && j < Jbol && j > 0 && (*p_CsoundSize)[j] > ZERO && !ConvertMIDItoCsound) return(OK);
 	return(MISSED);
 	}

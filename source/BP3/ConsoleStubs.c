@@ -227,7 +227,8 @@ int CloseCsScore(void)
 		my_sprintf(line,"e %.3f",EndFadeOut); // This line will automatically be deleted if this score belongs to a sound-objectt prototype — see function fix_csound_score() in prototype.php
 		}
 	else strcpy(line,"e");
-	if(!ConvertMIDItoCsound) WriteToFile(NO,CsoundFileFormat,line,CsRefNum);	/* 'e' terminates a Csound score */
+	// 'e' terminates a Csound score
+	if(!ConvertMIDItoCsound) WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
 	Date(line);
 	my_sprintf(Message,"\n; this score was created by BP console on %s",line);
 	WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);

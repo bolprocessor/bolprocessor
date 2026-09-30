@@ -958,7 +958,6 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 			fill_text(label); */
 			}
 		}
-	// stroke_style(&Black);
 	// Csound instrument status
 	if((*p_Type)[iProto] & 4) {
 		if((*p_CsoundInstr)[iProto] > 0)

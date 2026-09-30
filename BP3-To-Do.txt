@@ -20,6 +20,7 @@ https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
 Various issues
 --------------
 
+- Delete occurrences of ConvertMIDItoCsound as it is (probably) obsolete.
 - Design an example demonstrating properties "Allow gap" in sound-objects.
 - Pianoroll is not drawn if there are negative dates (due to pivot and preroll).
 - In -da.Beethoven-fugue-b-flat-major, k = 22082, note Bb5, start time = end time = 0

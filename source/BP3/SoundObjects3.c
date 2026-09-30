@@ -90,7 +90,7 @@ int ResetPrototype(int j) {
    (*p_Tref)[j] = 1000L;
    (*p_ForceIntegerCycles)[j] = FALSE;
    (*p_DefaultChannel)[j] = (*p_Quan)[j] = 0;
-   BPPrintMessage(0,odInfo,"=> §&§ DefaultChannel[%d] = %d\n",j,(*p_DefaultChannel)[j]);
+   // BPPrintMessage(0,odInfo,"=> §&§ DefaultChannel[%d] = %d\n",j,(*p_DefaultChannel)[j]);
    (*p_StrikeAgain)[j] = -1;
    (*p_Tpict)[j] = ZERO;
    ptr = (Handle)(*pp_Comment)[j];
