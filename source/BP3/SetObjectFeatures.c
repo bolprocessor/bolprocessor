@@ -996,13 +996,14 @@ if(nature_time == STRIATED || nseq == 0) {
 				return(ABORT);
 				}
 			if(Pclock > 0.) { 				/* Measured smooth time */
+			// BPPrintMessage(0,odInfo,"@@@ j = %d, Tref = %ld, Dur = %ld\n",j,(*p_Tref)[j],(*p_Dur)[j]);
 				if(j >= 16383) // simple note
 					alpha = (double) d * clockperiod / 1000L;
-				else if(j >= Jbol) // time pattern ("else" added by BB 2022-02-19)
+				else if(j >= Jbol) // time pattern
 					alpha = (double) d  * clockperiod / (*p_Tref)[j];
-				else if(j > 1 && (*p_Tref)[j] > EPSILON) // Striated object
+				else if((*p_Tref)[j] > EPSILON) // Striated object
 					alpha = (double) d * clockperiod / (*p_Tref)[j];
-				else if(j > 1 && (*p_Dur)[j] > EPSILON) // Smooth object
+				else if((*p_Dur)[j] > EPSILON) // Smooth object
 					alpha = (double) d * clockperiod / (*p_Dur)[j];
 				else alpha = d;
 				}

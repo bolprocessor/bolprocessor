@@ -265,7 +265,7 @@ int Inits(void) {
 	p_NumberConstant = NULL;
 	FileSaveMode = ALLSAME;
 	FileWriteMode = NOW;
-	ConvertMIDItoCsound = FALSE; // THis variable is NEVER TRUE
+	ConvertMIDItoCsound = FALSE; // This variable is NEVER TRUE
 	MIDIfileType = 1;
 	CsoundFileFormat = MAC;
 
