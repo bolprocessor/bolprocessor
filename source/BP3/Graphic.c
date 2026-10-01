@@ -59,7 +59,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	int linenum,old_linenum,linemax,maxlines,hrect,htext,morespace,**p_morespace,
 		nseq,leftoffset,topoffset,rep,maxslideh,maxslidev,linemin,tab,key,
 		edge,foundone,overflow,xc,scale,i_scale,result,moved_up;
-	long pivloc,t1,tt1,t2,endxmax,endymax,endx,y,i,j,k,yruler,
+	long pivloc,t1,tt1,t2,endxmax,endymax,endx,y,i,j,k,yruler,preroll,postroll,
 		**p_endx,endy,**p_endy,**p_top,trbeg,trend;
 	Rect r, r2;
 	char label[BOLSIZE+5];
@@ -298,12 +298,22 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 			//	if(!moved_up) (*p_morespace)[linenum] = 0;  // Fixed by BB 2021-01-31
 				}
 			morespace = (*p_morespace)[linenum];
+			preroll = postroll = ZERO;
 			if(j < 16384) {
+				if((*p_PreRollMode)[j] == FIXVALUE) preroll = (*p_PreRoll)[j];
+				else preroll = (*p_Instance)[k].beta * (*p_PreRoll)[j];
+				if((*p_Instance)[k].beta == 0.) preroll = 0.;
+				preroll = (preroll * GraphicScaleP) / GraphicScaleQ / 10L;
+				if((*p_PostRollMode)[j] == FIXVALUE) postroll = (*p_PostRoll)[j];
+				else postroll = (*p_Instance)[k].beta * (*p_PostRoll)[j];
+				if((*p_Instance)[k].beta == 0.) postroll = 0.;
+				postroll = (postroll * GraphicScaleP) / GraphicScaleQ / 10L;
+
 				if((*p_PivMode)[j] == FIXVALUE)
 					pivloc = (long) ((*p_PivPos)[j] * GraphicScaleP) / GraphicScaleQ / 10L;
 				else
-					pivloc = (long) ((*p_Instance)[k].beta * (*p_PivPos)[j] * (*p_Dur)[j]
-								* GraphicScaleP) / GraphicScaleQ / 1000L;
+					pivloc = (long) ((*p_Instance)[k].beta * (*p_PivPos)[j] * (*p_Dur)[j] * GraphicScaleP) / GraphicScaleQ / 1000L;
+				if(preroll < ZERO) pivloc -= preroll;
 				}
 			else pivloc = 0.;
 			pivloc -= trbeg;
@@ -318,9 +328,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 			
 			if(trace_graphic) BPPrintMessage(0,odInfo,"\nRunning DrawObject(%s) for t1 = %ld t2= %ld linenum = %ld, endx = %ld morespace = %ld, top = %ld\n",label,(long)t1,(long)t2,(long)linenum,(long)endx,(long)morespace,(long)(*p_top)[linenum]);
 					
-			if(DrawObject(j,label,moved_up,(*p_Instance)[k].beta,(*p_top)[linenum],hrect,htext,
-					leftoffset,pivloc,t1,t2,trbeg,trend,&morespace,
-					&endx,&endy) == ABORT) {
+			if(DrawObject(j,label,moved_up,(*p_Instance)[k].beta,(*p_top)[linenum],hrect,htext,leftoffset,pivloc,t1,t2,trbeg,trend,&morespace,&endx,&endy,preroll,postroll) == ABORT) {
 				rep = OK;
 				goto ENDGRAPH;
 				}
@@ -380,8 +388,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	}
 
 
-int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect, int htext, int leftoffset,
-	long pivloc, long t1, long t2, long trbeg, long trend, int *p_morespace, long *p_endx, long *p_endy) {
+int DrawObject(int j, char *label, int moved_up, double beta, int top, int hrect, int htext, int leftoffset, long pivloc, long t1, long t2, long trbeg, long trend, int *p_morespace, long *p_endx, long *p_endy, long preroll, long postroll) {
 	// Pattern pat;
 	Rect r,r1,r2,r3;
 	int tab,rep,x_startpivot,y_startpivot;
@@ -392,6 +399,7 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 		ShowGraphic = FALSE;
 		return OK;
 		}
+	
 	r.top = top;
 	r.left = (int)t1 + leftoffset;
 	r.right = (int)t2 + leftoffset;
@@ -427,6 +435,23 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 			fill_rect_hatched(&r2,"Cornsilk");
 		else fill_rect(&r2,"Cornsilk");
 		}
+	// Draw preroll and postroll
+	if(preroll < ZERO) {
+		r1.top = top;
+		r1.left = r.left;
+		r1.bottom = r1.top + hrect;
+		r1.right = r.left - (int)(preroll);
+	//	resize_rect(&r1,-1,-1);
+		fill_rect_hatched(&r1,"lightgrey");
+		}
+	if(postroll > ZERO) {
+		r1.top = top;
+		r1.left = r.right - (int)(postroll);
+		r1.bottom = r1.top + hrect;
+		r1.right = r.right;
+	//	resize_rect(&r1,-1,-1);
+		fill_rect_hatched(&r1,"lightgrey");
+		}
 
 	// Draw gray rectangles indicating truncated parts
 	if(trbeg > 0L) {
@@ -455,9 +480,14 @@ int DrawObject(int j, char *label, int moved_up, double beta,int top, int hrect,
 
 	// Draw period(s)
 	GetPeriod(j,beta,&objectperiod,&preperiod);
+
+	
 	if(objectperiod > EPSILON) {
 		objectperiod = (objectperiod * (double) GraphicScaleP) / GraphicScaleQ / 10.;
 		preperiod = (preperiod * (double) GraphicScaleP) / GraphicScaleQ / 10.;
+		if(j > 1 && j < Jbol) {
+			if(preroll < ZERO) preperiod -= preroll;
+			}
 		xx = r.left - trbeg + preperiod;
 		stroke_style("grey");
 		while(objectperiod > 3 && xx < (r.right - 1)) {
@@ -650,7 +680,7 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 		stroke_style(&Black); */
 		}
 	topoffset = 6 * htext;
-	GetPrePostRoll(j,&preroll,&postroll);
+	GetPrePostRoll(j,&preroll,&postroll);  // WRONG!
 
 	// Calculate leftmost date 'tmin'
 	if((*p_PivMode)[j] == PERCENT) pivpos = ((*p_PivPos)[j] * (*p_Dur)[j]) / 100L;

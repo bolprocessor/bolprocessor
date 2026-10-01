@@ -1349,7 +1349,7 @@ int MIDItoPrototype(int zerostart,int filter,int j,MIDIcode **p_b,long imax) {
 	if(nbytes > 0) {
 		(*p_MIDIsize)[j] = nbytes;
 		(*p_Type)[j] |= 1;
-		(*p_Dur)[j] = ((*((*pp_MIDIcode)[j]))[nbytes-1].time) - preroll + postroll;
+		(*p_Dur)[j] = ((*((*pp_MIDIcode)[j]))[nbytes-1].time);
 		ptr1 = (*pp_MIDIcode)[j];
 		MySetHandleSize((Handle*)&ptr1,(Size) nbytes * sizeof(MIDIcode));
 		(*pp_MIDIcode)[j] = ptr1;

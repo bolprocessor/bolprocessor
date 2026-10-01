@@ -895,17 +895,20 @@ int FixObjectTimings(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int 
 					else { // Sound-object
 						if((*p_PivMode)[j] == PERCENT) {
 							t1 = (*p_T)[i] - (Milliseconds) ((*p_Instance)[k].alpha * (*p_Dur)[j] * (*p_PivPos)[j] / 100.);
-							// BPPrintMessage(0,odInfo,"@@ t1 = %ld, T = %ld, alpha = %.2f, Dur = %ld, PivPos = %.2f\n",t1,(*p_T)[i],(*p_Instance)[k].alpha,(*p_Dur)[j],(*p_PivPos)[j]);
+							// BPPrintMessage(0,odInfo,"@@ PERCENT t1 = %ld, T = %ld, alpha = %.2f, Dur[%d] = %ld, PivPos = %.2f\n",t1,(*p_T)[i],(*p_Instance)[k].alpha,j,(*p_Dur)[j],(*p_PivPos)[j]);
 							}
-						else
+						else {
 							t1 = (*p_T)[i] - (*p_PivPos)[j];
+							// BPPrintMessage(0,odInfo,"@@ FIXVALUE t1 = %ld, T = %ld, alpha = %.2f, Dur[%d] = %ld, PivPos = %.2f\n",t1,(*p_T)[i],(*p_Instance)[k].alpha,j,(*p_Dur)[j],(*p_PivPos)[j]);
+							}
 						RandomTime(&t1,(*p_Instance)[k].randomtime,(*p_Instance)[k].alpha * (*p_Dur)[j],&dont_randomize);
-						(*p_time1)[i] = t1;
 						if(PlayFromInsertionPoint) t1 = (*p_time1)[i] = (*p_T)[i];
-						t2 = (*p_time2)[i] = t1
+						t2 =  t1
 							+ (Milliseconds)((*p_Instance)[k].alpha * (*p_Dur)[j]);
-				//		if(k > 2 && k < 6) 
-				//		BPPrintMessage(0,odInfo,"FixObjectTimings() k = %ld j = %ld alpha = %.2f Dur = %ld t1 = %ld t2 = %ld\n",(long)k,(long)j,(*p_Instance)[k].alpha,(long)(*p_Dur)[j],(long)t1,(long)t2);
+						if((*p_PreRoll)[j] < ZERO) t1 += (*p_PreRoll)[j];
+						if((*p_PostRoll)[j] > ZERO) t2 += (*p_PostRoll)[j];
+						(*p_time1)[i] = t1;
+						(*p_time2)[i] = t2;
 						}
 					}
 				else {	// Simple note or silence
@@ -1307,10 +1310,12 @@ If so, fix the number of repetitions and the actual dilation ratio,...
 
 	if((*p_PivMode)[j] == PERCENT) {
 		pivpos = (*p_alpha) * (*p_Dur)[j] * (*p_PivPos)[j] / 100.;
-	//	BPPrintMessage(0,odInfo,"@@ pivpos = %.2f, alpha = %.2f, Dur = %ld, PivPos = %.2f\n",pivpos,(*p_alpha),(*p_Dur)[j],(*p_PivPos)[j]);
+	//	BPPrintMessage(0,odInfo,"@@ PERCENT pivpos = %.2f, alpha = %.2f, Dur = %ld, PivPos = %.2f\n",pivpos,(*p_alpha),(*p_Dur)[j],(*p_PivPos)[j]);
 		}
-	else
+	else {
 		pivpos = (*p_PivPos)[j];
+	//	BPPrintMessage(0,odInfo,"@@ FIXVALUE pivpos = %.2f, alpha = %.2f, Dur = %ld, PivPos = %.2f\n",pivpos,(*p_alpha),(*p_Dur)[j],(*p_PivPos)[j]);
+		}
 	if(PlayFromInsertionPoint) pivpos = 0.;
 		
 	// First consider objects that can't be stretched

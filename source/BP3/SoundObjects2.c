@@ -401,24 +401,22 @@ int SetPrototypeDuration(int j,int *p_longerCsound) {
 
 	if(j < 2 || j >= Jbol) return(OK);
 	rep = OK; *p_longerCsound = 0;
+
 	(*p_Dur)[j] = ZERO;
 
 	if(DurationToPoint(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(MISSED);
 
 	size = (*p_MIDIsize)[j];
-	dur = 0.;
-	(*p_Dur)[j] = dur;
+	/* dur = 0.;
+	(*p_Dur)[j] = dur; */
 	if(size < 1L) goto CSOUND;
 
 	if((*pp_MIDIcode)[j] != NULL) dur = ((*((*pp_MIDIcode)[j]))[size-1].time);
 	else dur = 0.;
-	if(dur > EPSILON) dur = dur - (*p_PreRoll)[j] + (*p_PostRoll)[j];
-	else dur = 0.;
 	if(dur < 0.) dur = 0.;
 	(*p_Dur)[j] = dur;
 
-
-	CSOUND:
+CSOUND:
 	size = (*p_CsoundSize)[j];
 	// BPPrintMessage(0,odInfo,"§ size = %ld\n",size);
 	if(size < 1L) goto SORTIR;
@@ -430,8 +428,7 @@ int SetPrototypeDuration(int j,int *p_longerCsound) {
 		dur = (*((*pp_CsoundTime)[j]))[i] + (*((*pp_CsoundScore)[j]))[i].duration;
 		if(dur > maxdur) maxdur = dur;
 		}
-	if(maxdur > EPSILON) dur = maxdur - (*p_PreRoll)[j] + (*p_PostRoll)[j];
-	else dur = 0.;
+	dur = maxdur;
 
 	// BPPrintMessage(0,odInfo,"§§ dur = %.2f\n",dur);
 
@@ -450,19 +447,14 @@ int SetPrototypeDuration(int j,int *p_longerCsound) {
 	}
 
 
-int GetPrePostRoll(int j,double *p_preroll,double *p_postroll) {
-/*	if(j < 2 || j >= Jbol || (*p_Dur)[j] < EPSILON) {
-		*p_preroll = *p_postroll = 0.;
-		return(MISSED);
-		} */
+int GetPrePostRoll(int j,double *p_preroll,double *p_postroll) { // NOT USED
 	if(j < 2 || j >= Jbol) {
 		*p_preroll = *p_postroll = 0.;
 		return(MISSED);
 		}
-	// (*p_PreRollMode)[j] is no longer used
+	// (*p_PreRollMode)[j] is not used here
 	*p_preroll = (*p_PreRoll)[j];
 	*p_postroll = (*p_PostRoll)[j];
-//	BPPrintMessage(0,odError,"=> j = %d, preroll = %.2f, postroll = %.2f\n",j,*p_preroll,*p_postroll);
 	return(OK);
 	}
 

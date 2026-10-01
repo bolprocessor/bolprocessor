@@ -222,7 +222,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 	for(k = 2; k <= (*p_kmax); k++) {
 		(*p_inext1)[k] = (*p_inext)[k] = ZERO;
 		time_pattern = send_more = FALSE;
-		preroll = 0.;
+		preroll = postroll = 0.;
 		(*p_inext1)[k] = 0;
 		objectperiod = 0.;
 		j = (*p_Instance)[k].object;
@@ -253,9 +253,13 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 			else preroll = beta * (*p_PreRoll)[j];
 			if(beta == 0.) preroll = 0.;
 			}
-		if(((*p_Instance)[k].starttime - preroll) < t11) {
+	/*	if(((*p_Instance)[k].starttime - preroll) < t11) {
 			kfirstinstance = k;
 			t11 = (*p_Instance)[k].starttime - preroll;
+			} */
+		if(((*p_Instance)[k].starttime) < t11) {
+			kfirstinstance = k;
+			t11 = (*p_Instance)[k].starttime;
 			}
 		foundfirsteventinperiod = foundlasteventinperiod = TRUE;
 		if(j < 16384) {
@@ -274,13 +278,18 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 				(*p_iendperiod)[k] = im - 1;
 				if(alpha > 1.) {
 					if(GetPeriod(j,beta,&objectperiod,&cyclicafter) == OK) {
+						if(j > 1 && j < Jbol) {
+							if((*p_PreRoll)[j] < ZERO) cyclicafter -= (double)(*p_PreRoll)[j];
+							}
 						if(trace_makesound) BPPrintMessage(0,odInfo,"@@ objectperiod = %.2f, cyclicafter = %.2f, beta = %.2f, alpha = %.2f\n",objectperiod,cyclicafter,beta,alpha);
 						foundfirsteventinperiod = foundlasteventinperiod = FALSE;
 						}
 					}
 				}
 			}
-		date = (*p_t1)[k] = - preroll;
+		(*p_t1)[k] = ZERO;
+		if(preroll < ZERO) (*p_t1)[k] -= preroll;
+		date = (*p_t1)[k];
 		date1 = date;
 		// date1 = (*p_Instance)[k].truncbeg;
 		if(trace_makesound) 
@@ -308,7 +317,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 			//		BPPrintMessage(0,odInfo,"CsoundSize[%d] = %ld, olddate = %ld, date = %ld, date1 = %ld, i = %ld, im = %ld\n",j,(long)(*p_CsoundSize)[j],(long)olddate,(long)date,date1,i,im);
 				if(!foundfirstevent && date >= date1) {
 					(*p_inext1)[k] = i;	// Index of first message to be sent
-					(*p_t1)[k] = date - date1 - preroll;
+					(*p_t1)[k] = date - date1;
+					if(preroll < 0.) (*p_t1)[k] -= preroll;
 					foundfirstevent = TRUE;
 					if(trace_makesound) BPPrintMessage(0,odInfo,"break: t1 = %ld, i = %ld\n",(*p_t1)[k],i);
 					if(foundlasteventinperiod) break;
@@ -346,15 +356,9 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 					}
 				}
 			}
-		else {	// Simple note or silence
-			
-			}
-	/*	if(j < 16384) {
-			preroll = (*p_PreRoll)[j];
-			}
-		else preroll = 0.; */
 		if((k != kfirstinstance) && (((*p_Instance)[k].starttime - preroll) < t22)) {
-			t22 = ((*p_Instance)[k].starttime - preroll);
+			t22 = (*p_Instance)[k].starttime;
+			if(preroll < 0.) t22 -= preroll;
 			}
 		}
 	SoundOn = TRUE;
@@ -380,7 +384,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 				if(beta == 0.) pivotloc = 0;
 				}
 			else postroll = 0.;
-			the_end = (*p_Instance)[k].endtime + (long) postroll;
+			the_end = (*p_Instance)[k].endtime;
+			if(postroll > 0.) the_end += (long) postroll;
 			if(pivotloc < 0.) the_end -= (long) pivotloc;
 			if(tmax < the_end) tmax = the_end;
 			trans = (*p_Instance)[k].transposition;
@@ -855,7 +860,6 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 				}
 			params = (*((*pp_currentparams)[nseq]))->params;
 			time_pattern = send_more = FALSE;
-		//	foundfirsteventinperiod = foundlasteventinperiod = TRUE;
 			alpha = (*p_Instance)[kcurrentinstance].alpha;
 			beta = (*p_Instance)[kcurrentinstance].beta;
 			preroll = postroll = 0.;
@@ -894,6 +898,9 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 					if(beta == 0.) preroll = postroll = 0.;
 					if(alpha > 1.) {
 						if(GetPeriod(j,beta,&objectperiod,&cyclicafter) == OK) {
+							if(j > 1 && j < Jbol) {
+								if((*p_PreRoll)[j] < ZERO) cyclicafter -= (double)(*p_PreRoll)[j];
+								}
 							if(trace_makesound) BPPrintMessage(0,odInfo,"@@@ objectperiod = %.2f, cyclicafter = %.2f, beta = %.2f, alpha = %.2f\n",objectperiod,cyclicafter,beta,alpha);
 						//	foundfirsteventinperiod = foundlasteventinperiod = FALSE;
 							}
@@ -918,6 +925,9 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 			(*((*pp_currentparams)[nseq]))->xpandval = (*p_Instance)[kcurrentinstance].xpandval;
 			(*((*pp_currentparams)[nseq]))->transposefirst = (*p_Instance)[kcurrentinstance].transposefirst;
 			t3 = (*p_Instance)[kcurrentinstance].endtime;
+			if(j > 1 && j < Jbol) {
+				if((*p_PostRoll)[j] > ZERO) t3 -= (*p_PostRoll)[j];
+				}
 			objectstarttime = (*p_Instance)[kcurrentinstance].starttime;
 			objectduration = t3 - objectstarttime;
 		//	BPPrintMessage(0,odError,"kcurrentinstance = %d, startime = %ld, endtime = %ld\n",kcurrentinstance,objectstarttime,(*p_Instance)[kcurrentinstance].endtime);
@@ -1383,17 +1393,15 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 					cut_the_end = ZERO;
 					if(!(*p_silence)[kcurrentinstance]) {
 						instrument = ThisInstrument(cswrite,kcurrentinstance,ievent);
-						if(trace_makesound) {
-							if((*p_Instance)[kcurrentinstance].truncend > EPSILON) {
-								startsilence = (*p_Instance)[kcurrentinstance].starttime - (*p_Instance)[kcurrentinstance].truncbeg + (beta * (*p_Dur)[j]) - (*p_Instance)[kcurrentinstance].truncend;
-								end_this_event = (t0 + t1) + (*((*pp_CsoundScore)[j]))[ievent].duration * beta;
-								if(end_this_event > startsilence)
-									cut_the_end = end_this_event - startsilence;
-								if(trace_makesound) BPPrintMessage(0,odInfo,"@) kcurrentinstance = %d j = %d, ievent = %ld, t1 = %ld, startsilence = %ld, end_this_event = %ld, cut_the_end = %ld, Dur= %ld, beta = %.2f, starttime = %ld, truncend = %ld\n",kcurrentinstance,j,ievent,(long)t1,startsilence,end_this_event,cut_the_end,(*p_Dur)[j],beta,(*p_Instance)[kcurrentinstance].starttime,(*p_Instance)[kcurrentinstance].truncend);
-								}
-							else startsilence = end_this_event = ZERO;
-							if(trace_makesound) BPPrintMessage(0,odInfo,"Before CscoreWrite(2) kcurrentinstance = %ld, j = %ld, beta = %.2f, t0 = %ld, t1 = %ld, t2 = %ld, t3 = %ld, c1 = %ld, c2 = %ld, localchan = %d instrument = %d\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,t2,t3,(long)c1,(long)c2,localchan,instrument);
+						if((*p_Instance)[kcurrentinstance].truncend > EPSILON) {
+							startsilence = (*p_Instance)[kcurrentinstance].starttime - (*p_Instance)[kcurrentinstance].truncbeg + (beta * (*p_Dur)[j]) - (*p_Instance)[kcurrentinstance].truncend;
+							end_this_event = (t0 + t1) + (*((*pp_CsoundScore)[j]))[ievent].duration * beta;
+							if(end_this_event > startsilence)
+								cut_the_end = end_this_event - startsilence;
+							if(trace_makesound) BPPrintMessage(0,odInfo,"@) kcurrentinstance = %d j = %d, ievent = %ld, t1 = %ld, startsilence = %ld, end_this_event = %ld, cut_the_end = %ld, Dur= %ld, beta = %.2f, starttime = %ld, truncend = %ld\n",kcurrentinstance,j,ievent,(long)t1,startsilence,end_this_event,cut_the_end,(*p_Dur)[j],beta,(*p_Instance)[kcurrentinstance].starttime,(*p_Instance)[kcurrentinstance].truncend);
 							}
+						else startsilence = end_this_event = ZERO;
+						if(trace_makesound) BPPrintMessage(0,odInfo,"Before CscoreWrite(2) kcurrentinstance = %ld, j = %ld, beta = %.2f, t0 = %ld, t1 = %ld, t2 = %ld, t3 = %ld, c1 = %ld, c2 = %ld, localchan = %d instrument = %d\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,t2,t3,(long)c1,(long)c2,localchan,instrument);
 						if((result=CscoreWrite(cut_the_end,&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,LINE,beta,(t0 + t1),ievent,0,0,localchan,instrument,j,nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT) goto OVER;
 						}
 					goto NEWPERIOD;
@@ -1668,7 +1676,7 @@ SENDNOTEOFF:
 NEWPERIOD:
 				if(trace_makesound) {
 					BPPrintMessage(0,odInfo,"\nNEWPERIOD:\n");
-					BPPrintMessage(0,odInfo,"kcurrentinstance = %d, istartperiod = %d, ievent = %ld, im = %ld, istartperiod = %d, iendperiod = %d, time_nextperiod_start = %.2f, objectperiod = %.2f, t1 = %ld, t3 = %ld, silence = %d\n",kcurrentinstance,(*p_istartperiod)[kcurrentinstance],ievent,im,(*p_istartperiod)[kcurrentinstance],(*p_iendperiod)[kcurrentinstance],time_nextperiod_start,objectperiod,t1,t3,(*p_silence)[kcurrentinstance]);
+					BPPrintMessage(0,odInfo,"kcurrentinstance = %d, istartperiod = %d, ievent = %ld, im = %ld, iendperiod = %d, time_nextperiod_start = %.2f, objectperiod = %.2f, t1 = %ld, t3 = %ld, silence = %d\n",kcurrentinstance,(*p_istartperiod)[kcurrentinstance],ievent,im,(*p_iendperiod)[kcurrentinstance],time_nextperiod_start,objectperiod,t1,t3,(*p_silence)[kcurrentinstance]);
 					}
 				if((*p_istartperiod)[kcurrentinstance] > -1 && ievent >= (*p_iendperiod)[kcurrentinstance]) {
 					// Cyclic object: start another period

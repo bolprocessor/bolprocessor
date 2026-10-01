@@ -610,8 +610,7 @@ int TextToMIDIstream(int w) {
 	}
 
 
-int PasteStreamToPrototype(int j, int what)
-	{
+int PasteStreamToPrototype(int j, int what) {
 	long maxsize,newsize,i,ifrom,ito,k,p,offset;
 	Size n;
 	MIDIcode **ptr1;
