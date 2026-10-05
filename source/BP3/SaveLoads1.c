@@ -834,29 +834,38 @@ int ExportPrototypeAsJson(FILE *sojson,int j,int iv,int midicodesize,MIDIcode **
 		SaveLongAsJson(sojson,"MaxForward","ms","Max forward",(*p_MaxForward)[j]);
 		}
 	SaveIntAsJson(sojson,"BreakTempo","boolean","Break tempo after this object (organum)",(int)(*p_BreakTempo)[j]);
+	
 	SaveIntAsJson(sojson,"ContBeg","boolean","Force continuity at the beginning",(int)(*p_ContBeg)[j]);
 	if((*p_ContBeg)[j]) {
 		thismode((*p_ContBegMode)[j],mode);
-		SaveStringAsJson(sojson,"ContBegMode","enum","Continuity at beginning mode",mode);
-		SaveLongAsJson(sojson,"MaxBegGap","ms","Max gap at beginning",(*p_MaxBegGap)[j]);
+		if((*p_ContBegMode)[j] != IRRELEVANT) {
+			SaveStringAsJson(sojson,"ContBegMode","enum","Max gap at beginning mode",mode);
+			SaveLongAsJson(sojson,"MaxBegGap","ms","Max gap at beginning",(*p_MaxBegGap)[j]);
+			}
 		}
 	SaveIntAsJson(sojson,"ContEnd","boolean","Force continuity at the end",(int)(*p_ContEnd)[j]);
 	if((*p_ContEnd)[j]) {
 		thismode((*p_ContEndMode)[j],mode);
-		SaveStringAsJson(sojson,"ContEndMode","enum","Continuity at end mode",mode);
-		SaveLongAsJson(sojson,"MaxEndGap","ms","Max gap at end (ms or percent)",(*p_MaxEndGap)[j]);
+		if((*p_ContEndMode)[j] != IRRELEVANT) {
+			SaveStringAsJson(sojson,"ContEndMode","enum","Max gap at end mode",mode);
+			SaveLongAsJson(sojson,"MaxEndGap","ms","Max gap at end (ms or percent)",(*p_MaxEndGap)[j]);
+			}
 		}
 	SaveIntAsJson(sojson,"CoverBeg","boolean","Cover beginning",(int)(*p_CoverBeg)[j]);
 	if((*p_CoverBeg)[j]) {
 		thismode((*p_CoverBegMode)[j],mode);
-		SaveStringAsJson(sojson,"CoverBegMode","enum","Cover beginning mode",mode);
-		SaveLongAsJson(sojson,"MaxCoverBeg","ms or percent","Max cover at beginning",(*p_MaxCoverBeg)[j]);
+		if((*p_CoverBegMode)[j] != IRRELEVANT) {
+			SaveStringAsJson(sojson,"CoverBegMode","enum","Cover beginning mode",mode);
+			SaveLongAsJson(sojson,"MaxCoverBeg","ms or percent","Max cover at beginning",(*p_MaxCoverBeg)[j]);
+			}
 		}
 	SaveIntAsJson(sojson,"CoverEnd","boolean","Cover end",(int)(*p_CoverEnd)[j]);
 	if((*p_CoverEnd)[j]) {
 		thismode((*p_CoverEndMode)[j],mode);
-		SaveStringAsJson(sojson,"CoverEndMode","enum","Cover end mode",mode);
-		SaveLongAsJson(sojson,"MaxCoverEnd","ms or percent","Max cover at end",(*p_MaxCoverEnd)[j]);
+		if((*p_CoverEndMode)[j] != IRRELEVANT) {
+			SaveStringAsJson(sojson,"CoverEndMode","enum","Cover end mode",mode);
+			SaveLongAsJson(sojson,"MaxCoverEnd","ms or percent","Max cover at end",(*p_MaxCoverEnd)[j]);
+			}
 		}
 	SaveIntAsJson(sojson,"TruncBeg","boolean","Truncate beginning",(int)(*p_TruncBeg)[j]);
 	if((*p_TruncBeg)[j] && (*p_MaxTruncBeg)[j] > 0) {
@@ -1375,7 +1384,7 @@ NEXTBOL:
 	goto NEXTBOL;
 
 	ERR:
-	if(j > 1 && j < Jbol) ResetPrototype(j);
+	if(j > 1 && j < Jbol && (*p_Tref)[j] == ZERO) ResetPrototype(j);
 	if(CheckEmergency() == OK) {
 		BPPrintMessage(0,odInfo,"The sound-object file may be incomplete or in some unknown format. ");
 		if(j > 1 && j < Jbol) {

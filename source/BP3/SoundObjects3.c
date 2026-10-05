@@ -69,7 +69,7 @@ int ResetPrototype(int j) {
    (*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = 100L;
    (*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = 0L;
    (*p_PivPos)[j] = (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_CyclicAfter)[j] = ZERO;
-   (*p_CyclicMode)[j] = IRRELEVANT;
+  (*p_CyclicMode)[j] = IRRELEVANT;
 
    (*p_AlphaCtrlNr)[j] = 255; (*p_AlphaCtrlChan)[j] = 255;
    (*p_Ifrom)[j] = 0;
@@ -86,6 +86,7 @@ int ResetPrototype(int j) {
    (*p_RescaleMode)[j] = OK_RESCALE;
    (*p_AlphaMin)[j] = 0; (*p_AlphaMax)[j] = 100.;
    (*p_Dur)[j] = ZERO;
+   (*p_SilentObject)[j] = FALSE;
    (*p_Resolution)[j] = 1;
    (*p_Tref)[j] = 1000L;
    (*p_ForceIntegerCycles)[j] = FALSE;
@@ -148,9 +149,7 @@ int CheckConsistency(int j,int check) {
    if((*p_FixScale)[j]) {
       (*p_OkExpand)[j] = (*p_OkCompress)[j] = FALSE;
       }
-   if((*p_Tref)[j] < EPSILON) {
-      (*p_Tref)[j] = ZERO;
-      }
+   if((*p_Tref)[j] < EPSILON) (*p_Tref)[j] = ZERO;
    if((*p_PivType)[j] < PIVBEG || (*p_PivType)[j] > SETPIVOT) {
       if(trace_consistency) BPPrintMessage(0,odInfo,"=> CheckConsistency() (*p_PivType)[%d] = %d\n",j,(*p_PivType)[j]);
       (*p_PivType)[j] = PIVBEG; bugg++;
@@ -159,14 +158,19 @@ int CheckConsistency(int j,int check) {
    dur = (*p_Dur)[j];
    // if(trace_consistency) BPPrintMessage(0,odInfo,"@@ %s, dur = %ld\n",*((*p_Bol)[j]),dur);
    if(dur < EPSILON) {
-      BPPrintMessage(0,odInfo,"👉 Duration of « %s » is null\n",*((*p_Bol)[j]));
-      (*p_PivType)[j] = PIVBEG; (*p_PivPos)[j] = ZERO;
-      (*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j]
-         = (*p_TruncEndMode)[j] = (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = FIXVALUE;
-      (*p_CoverBeg)[j] = (*p_CoverEnd)[j] = TRUE;
-      (*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = ZERO;
-      (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = FALSE;
-      (*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = ZERO;
+      BPPrintMessage(0,odInfo,"👉 Duration of « %s » (%d) is null\n",*((*p_Bol)[j]),j);
+      if((*p_Tref)[j] > ZERO) {
+         BPPrintMessage(0,odInfo,"➡ We take it as a silent object with Tref = %ld ms\n",(*p_Tref)[j]);
+         }
+      else {
+         (*p_PivType)[j] = PIVBEG; (*p_PivPos)[j] = ZERO;
+         (*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j] = (*p_TruncEndMode)[j] = (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = FIXVALUE;
+         (*p_CoverBeg)[j] = (*p_CoverEnd)[j] = TRUE;
+         (*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = ZERO;
+         (*p_TruncBeg)[j] = (*p_TruncEnd)[j] = FALSE;
+         (*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = ZERO;
+         }
+      (*p_CyclicMode)[j] = IRRELEVANT;
       }
    switch((*p_PivType)[j]) {
       case PIVBEG:

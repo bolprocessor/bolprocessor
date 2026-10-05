@@ -2463,7 +2463,7 @@ int MakeEmptyTokensSilent(tokenbyte ***pp_buff,double *p_maxseqapprox) {
 			}
 		if((m == T3 || m == T47) && p > 1 && p < Jbol && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO) {
 			CreateSilentSoundObject(p);
-		//	if(trace_diagram)
+			if(trace_diagram)
 				BPPrintMessage(0,odInfo,"@@@ Created silent sound-object “%s”\n",*(*p_Bol)[p]);
 			}
 		}
@@ -2471,27 +2471,29 @@ int MakeEmptyTokensSilent(tokenbyte ***pp_buff,double *p_maxseqapprox) {
 	}
 
 int CreateSilentSoundObject(int p) {
-//	BPPrintMessage(0,odInfo,"@@@ Creating silent sound-object “%s”\n",*(*p_Bol)[p]);
-	(*p_Dur)[p] = (*p_Tref)[p] = 1000L;
-	(*p_OkExpand)[p] = (*p_OkCompress)[p] = (*p_OkRelocate)[p] = TRUE;
-	(*p_Type)[p] = 0;
-	(*p_BreakTempo)[p] = TRUE;
-	(*p_FixScale)[p] = (*p_ContBeg)[p] = (*p_ContEnd)[p] = (*p_TruncBeg)[p] = (*p_TruncEnd)[p] = (*p_AlphaCtrl)[p] = (*p_ForceIntegerCycles)[p] = FALSE;
-	(*p_PivType)[p] = PIVBEG; (*p_PivMode)[p] = FIXVALUE;
-	(*p_PreRollMode)[p] = (*p_PostRollMode)[p] = PERCENT;
-	(*p_MaxDelay)[p] = (*p_MaxForward)[p] = ZERO;
-	(*p_RescaleMode)[p] = OK_RESCALE;
-	(*p_AlphaMin)[p] = 0; (*p_AlphaMax)[p] = 100.;
-	(*p_DelayMode)[p] = (*p_ForwardMode)[p] = (*p_ContBegMode)[p] = (*p_ContEndMode)[p] = FIXVALUE;
-	(*p_CoverBegMode)[p] = (*p_CoverEndMode)[p] = (*p_TruncBegMode)[p] = (*p_TruncEndMode)[p] = PERCENT;
-	(*p_CyclicMode)[p] = IRRELEVANT;
-	(*p_MaxBegGap)[p] = (*p_MaxEndGap)[p] = Infpos;
-	(*p_CoverBeg)[p] = (*p_CoverEnd)[p] = TRUE;
-	(*p_MaxCoverBeg)[p] = (*p_MaxCoverEnd)[p] = 100L;
-	(*p_MaxTruncBeg)[p] = (*p_MaxTruncEnd)[p] = 0L;
-//		(*p_Resolution)[p] = 1;
-	(*p_PivPos)[p] = (*p_PreRoll)[p] = (*p_PostRoll)[p] = (*p_CyclicAfter)[p] = ZERO;
+//	BPPrintMessage(0,odInfo,"@@@ Creating silent sound-object « %s », Tref  = %ld, Dur= %ld\n",*(*p_Bol)[p],(*p_Tref)[p],(*p_Dur)[p]);
+
+	(*p_SilentObject)[p] = TRUE;
 	(*p_MIDIsize)[p] = (*p_CsoundSize)[p] = ZERO;
-	// CheckConsistency(p,TRUE);
+	(*p_Type)[p] = 0;
+	if((*p_Tref)[p] == ZERO) { // Created from a variable
+		(*p_Dur)[p] = (*p_Tref)[p] = 1000L;
+		(*p_OkExpand)[p] = (*p_OkCompress)[p] = (*p_OkRelocate)[p] = TRUE;
+		(*p_BreakTempo)[p] = TRUE;
+		(*p_FixScale)[p] = (*p_ContBeg)[p] = (*p_ContEnd)[p] = (*p_TruncBeg)[p] = (*p_TruncEnd)[p] = (*p_AlphaCtrl)[p] = (*p_ForceIntegerCycles)[p] = FALSE;
+		(*p_PivType)[p] = PIVBEG; (*p_PivMode)[p] = FIXVALUE;
+		(*p_PreRollMode)[p] = (*p_PostRollMode)[p] = PERCENT;
+		(*p_MaxDelay)[p] = (*p_MaxForward)[p] = ZERO;
+		(*p_RescaleMode)[p] = OK_RESCALE;
+		(*p_AlphaMin)[p] = 0; (*p_AlphaMax)[p] = 100.;
+		(*p_DelayMode)[p] = (*p_ForwardMode)[p] = (*p_ContBegMode)[p] = (*p_ContEndMode)[p] = FIXVALUE;
+		(*p_CoverBegMode)[p] = (*p_CoverEndMode)[p] = (*p_TruncBegMode)[p] = (*p_TruncEndMode)[p] = PERCENT;
+		(*p_CyclicMode)[p] = IRRELEVANT;
+		(*p_MaxBegGap)[p] = (*p_MaxEndGap)[p] = Infpos;
+		(*p_CoverBeg)[p] = (*p_CoverEnd)[p] = TRUE;
+		(*p_MaxCoverBeg)[p] = (*p_MaxCoverEnd)[p] = 100L;
+		(*p_MaxTruncBeg)[p] = (*p_MaxTruncEnd)[p] = 0L;
+		(*p_PivPos)[p] = (*p_PreRoll)[p] = (*p_PostRoll)[p] = (*p_CyclicAfter)[p] = ZERO;
+		}
 	return OK;
 	}

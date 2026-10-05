@@ -905,8 +905,10 @@ int FixObjectTimings(int nseq,Milliseconds **p_time1,Milliseconds **p_time2,int 
 						if(PlayFromInsertionPoint) t1 = (*p_time1)[i] = (*p_T)[i];
 						t2 =  t1
 							+ (Milliseconds)((*p_Instance)[k].alpha * (*p_Dur)[j]);
-						if((*p_PreRoll)[j] < ZERO) t1 += (*p_PreRoll)[j];
-						if((*p_PostRoll)[j] > ZERO) t2 += (*p_PostRoll)[j];
+						if((*p_PreRoll)[j] < ZERO) 
+							t1 += (*p_PreRoll)[j];
+						if((*p_PostRoll)[j] > ZERO)
+							t2 += (*p_PostRoll)[j];
 						(*p_time1)[i] = t1;
 						(*p_time2)[i] = t2;
 						}
@@ -998,7 +1000,7 @@ if(nature_time == STRIATED || nseq == 0) {
 				BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). Qclock < 1.\n");
 				return(ABORT);
 				}
-			if(Pclock > 0.) { 				/* Measured smooth time */
+			if(Pclock > 0.) {	// Measured smooth time
 			// BPPrintMessage(0,odInfo,"@@@ j = %d, Tref = %ld, Dur = %ld\n",j,(*p_Tref)[j],(*p_Dur)[j]);
 				if(j >= 16383) // simple note
 					alpha = (double) d * clockperiod / 1000L;
@@ -1010,12 +1012,12 @@ if(nature_time == STRIATED || nseq == 0) {
 					alpha = (double) d * clockperiod / (*p_Dur)[j];
 				else alpha = d;
 				}
-			else {		/* Pclock = ZERO; non-measured smooth time */
+			else {		// Pclock = ZERO; non-measured smooth time
 				alpha = d;
 				}
 			if(trace_object_features && j < Jbol) BPPrintMessage(0,odInfo,"Calculate_alpha() smooth 1st line k = %ld j = %ld alpha = %.2f d = %.2f clockperiod = %ld i = %ld inext = %ld Dur = %ld Tref = %ld\n",(long)k,(long)j,(double)alpha,(long)d,(long)clockperiod,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 			}
-		else {					/* Striated time or nseq > 0 */
+		else {					// Striated time or nseq > 0
 			if(d > 0.) {
 				if(Kpress > 2 && inext > i && (*p_T)[inext] == 0.)
 					BPPrintMessage(0,odError,"=> Probable rounding error: (*p_T)[%ld] = 0 for object #%ld\n",(long)inext,(long)k);
@@ -1025,8 +1027,13 @@ if(nature_time == STRIATED || nseq == 0) {
 					if(nature_time == STRIATED) alpha = 0.; // 2025-02-05
 					else  alpha = (double) ((*p_T)[inext] - (*p_T)[i]) / (*p_Tref)[j];
 					}
-				else if((*p_Tref)[j] > EPSILON) // Striated object
+				else if((*p_Tref)[j] > EPSILON) { // Striated object
 					alpha = ((double)(*p_T)[inext] - (*p_T)[i]) / (*p_Tref)[j];
+					if((*p_Dur)[j] == ZERO) (*p_SilentObject)[j] = TRUE;
+					if((*p_SilentObject)[j]) {
+						(*p_Dur)[j] = (*p_Tref)[j];
+						}
+					}
 				else if((*p_Dur)[j] > EPSILON) // Smooth object
 					alpha = ((double)(*p_T)[inext] - (*p_T)[i]) / (*p_Dur)[j];
 			//	else alpha = 0.;
@@ -1038,7 +1045,6 @@ if(nature_time == STRIATED || nseq == 0) {
 			}
 		
 		beta = alpha;
-	//	if(j > 16383) goto OKALPHA1;
 		if(j >= Jbol) goto OKALPHA1;
 		beta = 1.;
 		if((*p_RescaleMode)[j] == OK_RESCALE) goto CHECKMORE1;
@@ -1066,11 +1072,6 @@ CHECKMORE1:
 		if(!(*p_OkCompress)[j] && alpha <= 1.) {
 			alpha = 1.; goto OKALPHA1;
 			}
-	/*	if((!(*p_FixScale)[j] && !(*p_OkExpand)[j] && !(*p_OkCompress)[j]) || (*p_RescaleMode)[j] == DILATION_RATIO) { // 2026-09-15
-			if(alpha > (*p_AlphaMax)[j]) beta = alpha = (*p_AlphaMax)[j];
-			if(alpha < (*p_AlphaMin)[j]) beta = alpha = (*p_AlphaMin)[j];
-			goto OKALPHA1;
-			} */
 		beta = alpha = 1.;
 		
 OKALPHA1:
@@ -1387,13 +1388,13 @@ int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend
 			}
 		else {
 			if(j < 16384) dur = (*p_Instance)[k].beta * (*p_Dur)[j];
-			else dur = (*p_Instance)[k].beta * 1000L;	/* Simple note */
+			else dur = (*p_Instance)[k].beta * 1000L;	// Simple note
 			}
 
 		maxcover1 = maxcover2 = Infpos;
 		if(j > 1 && j < 16384) {
 			if((*p_CoverBeg)[j]) {
-				if((*p_CoverBegMode)[j] == OK) maxcover1 = Infpos;
+				if((*p_CoverBegMode)[j] == IRRELEVANT) maxcover1 = Infpos;
 				else if((*p_CoverBegMode)[j] == FIXVALUE) maxcover1 = (*p_MaxCoverBeg)[j];
 				else maxcover1 = (dur * (*p_MaxCoverBeg)[j]) / 100.;
 				if(check_limits) BPPrintMessage(0,odInfo,"@@ maxcover1 = %ld, j = %d\n",maxcover1,j);
@@ -1402,7 +1403,7 @@ int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend
 			}
 		if(j > 1 && j < 16384) {
 			if((*p_CoverEnd)[j]) {
-				if((*p_CoverEndMode)[j] == OK) maxcover2 = Infpos;
+				if((*p_CoverEndMode)[j] == IRRELEVANT) maxcover2 = Infpos;
 				else if((*p_CoverEndMode)[j] == FIXVALUE) maxcover2 = (*p_MaxCoverEnd)[j];
 				else maxcover2 = (dur * (*p_MaxCoverEnd)[j]) / 100.;
 				if(check_limits) BPPrintMessage(0,odInfo,"@@ maxcover2 = %ld, j = %d\n",maxcover2,j);
@@ -1422,17 +1423,16 @@ int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend
 		maxgap1 = maxgap2 = Infpos;
 		if(j > 1 && j < 16384) {
 			if((*p_ContBeg)[j]) {
-				if((*p_ContBegMode)[j] == OK) maxgap1 = ZERO;
+				if((*p_ContBegMode)[j] == IRRELEVANT) maxgap1 = ZERO;
 				else if((*p_ContBegMode)[j] == FIXVALUE) maxgap1 = (*p_MaxBegGap)[j];
 				else maxgap1 = (dur * (*p_MaxBegGap)[j]) / 100.;
-				if(check_limits) BPPrintMessage(0,odInfo,"@@ maxgap1 = %ld, j = %d\n",maxgap1,j);
+				if(check_limits) BPPrintMessage(0,odInfo,"@@ maxgap1 = %ld, j = %d, MaxBegGap = %ld\n",maxgap1,j,(*p_MaxBegGap)[j]);
 				}
 			}
-		(*p_maxgapbeg)[i] = maxgap1;
-		
+		(*p_maxgapbeg)[i] = maxgap1;	
 		if(j > 1 && j < 16384) {
 			if((*p_ContEnd)[j]) {
-				if((*p_ContEndMode)[j] == OK) maxgap2 = ZERO;
+				if((*p_ContEndMode)[j] == IRRELEVANT) maxgap2 = ZERO;
 				else if((*p_ContEndMode)[j] == FIXVALUE) maxgap2 = (*p_MaxEndGap)[j];
 				else maxgap2 = (dur * (*p_MaxEndGap)[j]) / 100.;
 				if(check_limits) BPPrintMessage(0,odInfo,"@@ maxgap2 = %ld, j = %d\n",maxgap2,j);
@@ -1443,7 +1443,7 @@ int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend
 		maxtrunc1 = maxtrunc2 = dur;
 		if(j > 1 && j < 16384) {
 			if((*p_TruncBeg)[j]) {
-				if((*p_TruncBegMode)[j] == OK) maxtrunc1 = dur;
+				if((*p_TruncBegMode)[j] == IRRELEVANT) maxtrunc1 = dur;
 				else if((*p_TruncBegMode)[j] == FIXVALUE) maxtrunc1 = (*p_MaxTruncBeg)[j];
 				else maxtrunc1 = (dur * (*p_MaxTruncBeg)[j]) / 100.;
 				if(check_limits) BPPrintMessage(0,odInfo,"@@ maxtrunc1 = %ld, j = %d\n",maxtrunc1,j);
@@ -1456,7 +1456,7 @@ int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend
 		
 		if(j > 1 && j < 16384) {
 			if((*p_TruncEnd)[j]) {
-				if((*p_TruncEndMode)[j] == OK) maxtrunc2 = dur;
+				if((*p_TruncEndMode)[j] == IRRELEVANT) maxtrunc2 = dur;
 				else if((*p_TruncEndMode)[j] == FIXVALUE) maxtrunc2 = (*p_MaxTruncEnd)[j];
 				else maxtrunc2 = (dur * (*p_MaxTruncEnd)[j]) / 100.;
 				if(check_limits) BPPrintMessage(0,odInfo,"@@ maxtrunc2 = %ld, j = %d\n",maxtrunc2,j);

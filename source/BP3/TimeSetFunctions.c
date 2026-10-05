@@ -476,8 +476,7 @@ if(sol2 == 4) {		// Revise preceding object(s)
 				if((*p_ForwardMode)[j] == FIXVALUE)
 					maxmove = -(*p_MaxForward)[j];
 				else
-					maxmove = -(*p_MaxForward)[j] * ((*p_Instance)[k].beta
-						* (double)(*p_Dur)[j] / 100.);
+					maxmove = -(*p_MaxForward)[j] * ((*p_Instance)[k].beta * (double)(*p_Dur)[j] / 100.);
 				if(shift2 >= maxmove) okmove = TRUE;
 				}
 			else {

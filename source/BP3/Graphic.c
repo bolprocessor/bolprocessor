@@ -308,7 +308,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 				else postroll = (*p_Instance)[k].beta * (*p_PostRoll)[j];
 				if((*p_Instance)[k].beta == 0.) postroll = 0.;
 				postroll = (postroll * GraphicScaleP) / GraphicScaleQ / 10L;
-
+				// BPPrintMessage(0,odInfo,"&&&& Dur[%d] = %ld\n",j,(*p_Dur)[j]);
 				if((*p_PivMode)[j] == FIXVALUE)
 					pivloc = (long) ((*p_PivPos)[j] * GraphicScaleP) / GraphicScaleQ / 10L;
 				else
@@ -326,7 +326,8 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 				morespace = 0;
 				}
 			
-			if(trace_graphic) BPPrintMessage(0,odInfo,"\nRunning DrawObject(%s) for t1 = %ld t2= %ld linenum = %ld, endx = %ld morespace = %ld, top = %ld\n",label,(long)t1,(long)t2,(long)linenum,(long)endx,(long)morespace,(long)(*p_top)[linenum]);
+			if(trace_graphic) 
+				BPPrintMessage(0,odInfo,"\nRunning DrawObject(%s) for t1 = %ld t2= %ld linenum = %ld, endx = %ld morespace = %ld, top = %ld\n",label,(long)t1,(long)t2,(long)linenum,(long)endx,(long)morespace,(long)(*p_top)[linenum]);
 					
 			if(DrawObject(j,label,moved_up,(*p_Instance)[k].beta,(*p_top)[linenum],hrect,htext,leftoffset,pivloc,t1,t2,trbeg,trend,&morespace,&endx,&endy,preroll,postroll) == ABORT) {
 				rep = OK;
@@ -438,17 +439,17 @@ int DrawObject(int j, char *label, int moved_up, double beta, int top, int hrect
 	// Draw preroll and postroll
 	if(preroll < ZERO) {
 		r1.top = top;
-		r1.left = r.left;
+		r1.left = r.left - trbeg;
 		r1.bottom = r1.top + hrect;
-		r1.right = r.left - (int)(preroll);
+		r1.right = r1.left - (int)(preroll);
 	//	resize_rect(&r1,-1,-1);
 		fill_rect_hatched(&r1,"lightgrey");
 		}
 	if(postroll > ZERO) {
 		r1.top = top;
-		r1.left = r.right - (int)(postroll);
+		r1.right = r.right + trend;
+		r1.left = r1.right - (int)(postroll);
 		r1.bottom = r1.top + hrect;
-		r1.right = r.right;
 	//	resize_rect(&r1,-1,-1);
 		fill_rect_hatched(&r1,"lightgrey");
 		}

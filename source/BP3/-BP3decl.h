@@ -201,7 +201,7 @@ extern long **p_Dur,****p_Seq,**p_MaxDelay,**p_MaxForward,**p_PreRoll,**p_PostRo
 	**p_MaxBegGap,**p_MaxEndGap,
 	**p_MaxCoverBeg,**p_MaxCoverEnd,**p_MaxTruncBeg,**p_MaxTruncEnd;
 extern int Minconc,Maxconc;
-extern short Maxlevel,MaxFlag,MaxScript,PlayFromInsertionPoint,
+extern short Maxlevel,MaxFlag,MaxScript,PlayFromInsertionPoint,**p_SilentObject,
 	Jscriptline,Final,POLYconvert,
 	KeepFlag,CoverOK,DiscontinuityOK,AllSolTimeSet,
 	LimCompute,LimTimeSet,SkipFlag,StackFlag,Port,Portbit,

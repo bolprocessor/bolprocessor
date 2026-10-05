@@ -681,7 +681,7 @@ QUEST2:
 		}
 	}
 
-/* Modify Alpha according to articulation (legato/staccato) */
+// Modify Alpha according to articulation (legato/staccato)
 if(trace_timeset) BPPrintMessage(0,odInfo,"\nCalculating legato/staccato\n");
 outtimeevents = TRUE;
 for(k=2; k <= (*p_kmx); k++) {
@@ -701,13 +701,13 @@ for(k=2; k <= (*p_kmx); k++) {
 	if(a == 0) continue;
 	if(a < -99) a = -99;
 	
-	/* Can't play legato if object's end was truncated */
+	// Can't play legato if object's end was truncated
 	if(a > 0 && (*p_Instance)[k].truncend > ZERO) continue;
 	(*p_Instance)[k].alpha += ((*p_Instance)[k].alpha * a) / 100.;
 	(*p_Instance)[k].endtime = (*p_Instance)[k].starttime + ((*p_Instance)[k].endtime
 		- (*p_Instance)[k].starttime) * (1. + ((double) a) / 100.);	
 	// BPPrintMessage(0,odInfo,"@@ legato k = %ld starttime = %ld endtime = %ld  a = %ld\n",(long)k,(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)a);	
-	if((*p_Instance)[k].ncycles < 2)	/* Object is not cyclic */
+	if((*p_Instance)[k].ncycles < 2)	// Object is not cyclic
 		(*p_Instance)[k].beta = (*p_Instance)[k].alpha;
 	}
 result = OK;
