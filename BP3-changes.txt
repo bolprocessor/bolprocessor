@@ -6,14 +6,21 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Geeks can also read the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
+-----
+2026-10-07 (version 3.5.6)
+Full implementation of sound-objects, including silent sound-objects. Documentation:
+https://bolprocessor.org/sound-objects/
+https://bolprocessor.org/silent-sound-objects/
+
+Don't forget to update the PHP interface:
+https://github.com/bolprocessor/php-frontend/
+
+-----
 2026-09-26 -> 2026-10-05 (version 3.5.5)
 The handling of sound-objects (notably Csound) has been revised and documented in detail at:
 https://bolprocessor.org/sound-objects/
 For geeks: major changes are in "MakeSounds.c"
 Many small (undetected) issues have been solved.
-
-Don't forget to update the PHP interface:
-https://github.com/bolprocessor/php-frontend/
 
 -----
 2026-09-11 -> 2026-09-16 (version 3.5.4)

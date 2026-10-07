@@ -83,7 +83,7 @@ int WriteToEventListFile(const char *line) {
 
 int AddEventToList(int k) {
 	long starttime,endtime,shift;
-	int j,id_proto,articul,trans,cyclic_after,blockkey,keymap0_p1,keymap0_q1,keymap0_p2,keymap0_q2,keymap1_p1,keymap1_q1,keymap1_p2,keymap1_q2,cyclic,sound_object;
+	int j,id_proto,articul,trans,cyclic_after,blockkey,keymap0_p1,keymap0_q1,keymap0_p2,keymap0_q2,keymap1_p1,keymap1_q1,keymap1_p2,keymap1_q2,cyclic,sound_object,silent;
 	short xpandval,xpandkey;
 	char line[MAXLIN],label[MAXNAME],scalename[MAXNAME],keymapmode[MAXNAME],channel_txt[MAXNAME],instrument_txt[MAXNAME],pitchbendmode_txt[15],pressuremode_txt[15],panoramicmode_txt[15],volumemode_txt[15],modulationmode_txt[15],pitchbendstart_txt[15],pitchbendend_txt[15],pitchbendchannel_txt[15],xpandkey_txt[15],blockkey_txt[10];
 	double beta,preroll,postroll,expand;
@@ -101,6 +101,8 @@ int AddEventToList(int k) {
 
 	// BPPrintMessage(0,odError,"k = %d, j = %d\n",k,j);
 	
+	silent = FALSE;
+	if(j > 0 && j < Jbol && (*p_CsoundSize)[j] == ZERO && (*p_MIDIsize)[j] == ZERO && (*p_Tref)[j] == ZERO) silent = TRUE;
 	keymap0_p1 = keymap0_q1 = keymap0_p2 = keymap0_q2 = 0;
 	keymap1_p1 = keymap1_q1 = keymap1_p2 = keymap1_q2 = 0;
 	cyclic_after = forceintegercycles = cyclic = 0;
@@ -124,6 +126,7 @@ int AddEventToList(int k) {
 			strcpy(volumemode_txt,"");
 		break;
 		}
+	if(silent) strcpy(volumemode_txt,"");
 
 	int modulationstart = ModulationStart(k);
 	int modulationend = ModulationEnd(k);
@@ -143,6 +146,8 @@ int AddEventToList(int k) {
 			strcpy(modulationmode_txt,"");
 		break;
 		}
+	if(silent) strcpy(modulationmode_txt,"");
+
 	int panoramicstart = PanoramicStart(k);
 	int panoramicend = PanoramicEnd(k);
 	int panoramicchannel = PanoramicChannel(k);
@@ -161,6 +166,8 @@ int AddEventToList(int k) {
 			strcpy(panoramicmode_txt,"");
 		break;
 		}
+	if(silent) strcpy(panoramicmode_txt,"");
+
 	int pressurestart = PressureStart(k);
 	int pressureend = PressureEnd(k);
 	int pressurechannel = PressureChannel(k);
@@ -179,6 +186,8 @@ int AddEventToList(int k) {
 			strcpy(pressuremode_txt,"");
 		break;
 		}
+	if(silent) strcpy(pressuremode_txt,"");
+
 	int pitchbendstart = PitchbendStart(k);
 	int pitchbendend = PitchbendEnd(k);
 	int pitchbendchannel = PitchbendChannel(k);
@@ -256,6 +265,7 @@ int AddEventToList(int k) {
 		strcpy(pitchbendstart_txt,"");
 		strcpy(pitchbendend_txt,"");
 		strcpy(pitchbendchannel_txt,"");
+	//	if(((*p_CsoundSize)[j] == ZERO && (*p_MIDIsize)[j] == ZERO) || (*p_Type)[j] == 0) silent = TRUE;
 		if((*p_CyclicMode)[j] != IRRELEVANT) {
 			cyclic = 1;
 			forceintegercycles = (*p_ForceIntegerCycles)[j];
@@ -288,10 +298,12 @@ int AddEventToList(int k) {
 	if(localchan < 0) strcpy(channel_txt,"LOCAL_CH"); 
 	else if(localchan == 0) strcpy(channel_txt,"GLOBAL_CH");
 	else my_sprintf(channel_txt,"%d",localchan);
+	if(silent) strcpy(channel_txt,"");
 
 	if(instrument < 0) strcpy(instrument_txt,"LOCAL_CS"); 
 	else if(instrument == 0) strcpy(instrument_txt,"GLOBAL_CS");
 	else my_sprintf(instrument_txt,"%d",instrument);
+	if(silent) strcpy(instrument_txt,"");
 
 	int velocity = ByteToInt((*p_Instance)[k].velocity);
 	int rndvel = (*p_Instance)[k].rndvel;

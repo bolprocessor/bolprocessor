@@ -407,8 +407,6 @@ int SetPrototypeDuration(int j,int *p_longerCsound) {
 	if(DurationToPoint(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(MISSED);
 
 	size = (*p_MIDIsize)[j];
-	/* dur = 0.;
-	(*p_Dur)[j] = dur; */
 	if(size < 1L) goto CSOUND;
 
 	if((*pp_MIDIcode)[j] != NULL) dur = ((*((*pp_MIDIcode)[j]))[size-1].time);

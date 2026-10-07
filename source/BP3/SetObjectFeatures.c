@@ -980,7 +980,7 @@ if(nature_time == STRIATED || nseq == 0) {
 		if(k == -1) break;
 		inext = i;
 		while((*((*p_Seq)[nseq]))[++inext] == 0);
-		if(k < 2) { /* Reject first silence and null events */ // Fixed by BB 2021-01-25
+		if(k < 2) { // Reject first silence and null events
 			i = inext;
 			continue;
 			}
@@ -993,7 +993,7 @@ if(nature_time == STRIATED || nseq == 0) {
 		if(j <= 0) {
 			beta = alpha = 0.; goto OKALPHA1;
 			}
-		d = (double) (inext - i) * Kpress / Ratio; /* Symbolic duration */
+		d = (double) (inext - i) * Kpress / Ratio; // Symbolic duration
 	//	BPPrintMessage(0,odInfo,"@ k = %ld j = %ld nseq = %d i = %ld inext = %ld seq[inext] = %d d = %.2f, T[i] = %ld T[i+1] = %ld, T[inext] = %ld T[inext+1] = %ld Kpress = %.0f Ratio = %.0f Kpress/Ratio = %.3f Pclock = %.2f\n",(long)k,(long)j,nseq,(long)i,(long)inext,(*((*p_Seq)[nseq]))[inext],d,(long)(*p_T)[i],(long)(*p_T)[i+1],(long)(*p_T)[inext],(long)(*p_T)[inext+1],Kpress,Ratio,Kpress/Ratio,(double)Pclock);
 		if(nature_time == SMOOTH) {
 			if(Qclock < 1L) {
@@ -1008,6 +1008,11 @@ if(nature_time == STRIATED || nseq == 0) {
 					alpha = (double) d  * clockperiod / (*p_Tref)[j];
 				else if((*p_Tref)[j] > EPSILON) // Striated object
 					alpha = (double) d * clockperiod / (*p_Tref)[j];
+					if((*p_Dur)[j] == ZERO) (*p_SilentObject)[j] = TRUE;
+					if((*p_SilentObject)[j]) {
+						(*p_Dur)[j] = (*p_Tref)[j];
+						alpha = (double) (*p_Tref)[j] / 1000.;
+						}
 				else if((*p_Dur)[j] > EPSILON) // Smooth object
 					alpha = (double) d * clockperiod / (*p_Dur)[j];
 				else alpha = d;
@@ -1027,17 +1032,20 @@ if(nature_time == STRIATED || nseq == 0) {
 					if(nature_time == STRIATED) alpha = 0.; // 2025-02-05
 					else  alpha = (double) ((*p_T)[inext] - (*p_T)[i]) / (*p_Tref)[j];
 					}
-				else if((*p_Tref)[j] > EPSILON) { // Striated object
+				else if((*p_Tref)[j] > EPSILON) { // Striated object declared as a prototype
 					alpha = ((double)(*p_T)[inext] - (*p_T)[i]) / (*p_Tref)[j];
 					if((*p_Dur)[j] == ZERO) (*p_SilentObject)[j] = TRUE;
 					if((*p_SilentObject)[j]) {
-						(*p_Dur)[j] = (*p_Tref)[j];
+				//		(*p_Dur)[j] = (*p_Tref)[j];
+						(*p_Dur)[j] = (long) (((*p_T)[inext] - (*p_T)[i]));
+						if((*p_Dur)[j] < EPSILON) (*p_Dur)[j] = (*p_Tref)[j];
+				//		alpha =  (double) (*p_Dur)[j] / (double) (*p_Tref)[j];
+						alpha = (double) (*p_Tref)[j] / 1000.;
 						}
 					}
 				else if((*p_Dur)[j] > EPSILON) // Smooth object
 					alpha = ((double)(*p_T)[inext] - (*p_T)[i]) / (*p_Dur)[j];
-			//	else alpha = 0.;
-				else alpha = 1.; // 2026-03-20
+				else alpha = 1.;
 				}
 			else alpha = 0.;
 			if(trace_object_features && j < Jbol)
@@ -1079,7 +1087,7 @@ OKALPHA1:
 		if(beta < 0.) beta = 0.;
 		(*p_Instance)[k].alpha = alpha;
 		if(trace_object_features)
-			BPPrintMessage(0,odInfo,"Calculate_alpha() nseq = %d k = %d i = %ld inext = %ld, alpha = %.2f, beta = %.2f ncycles = %d\n",nseq,k,i,inext,alpha,beta,ncycles);
+			BPPrintMessage(0,odInfo,"Calculate_alpha() nseq = %d k = %d i = %ld inext = %ld, alpha = %.2f, beta = %.2f ncycles = %d, ForceRatio = %.2f\n",nseq,k,i,inext,alpha,beta,ncycles,ForceRatio);
 		if(ForceRatio >= 0.) (*p_Instance)[k].alpha = beta = ForceRatio;
 		(*p_Instance)[k].beta = beta;
 		(*p_Instance)[k].ncycles = ncycles;

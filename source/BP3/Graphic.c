@@ -499,7 +499,7 @@ int DrawObject(int j, char *label, int moved_up, double beta, int top, int hrect
 		}
 
 	// Draw pivot
-	if(try_pivots || (j < Jbol && (*p_Tref)[j] > EPSILON)) {
+	if(try_pivots || (j < Jbol)) {
 		x_startpivot = r.left + (int) pivloc;
 		
 		// Erase background above pivot

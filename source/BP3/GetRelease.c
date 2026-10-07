@@ -1162,7 +1162,7 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 			(*p_MaxBegGap)[j] = (*p_MaxEndGap)[j] = Infpos;
 			(*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = ZERO;
 			(*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = (*p_PivPos)[j] = (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_CyclicAfter)[j] = ZERO;
-			(*p_Tref)[j] = 1000L;
+			(*p_Tref)[j] = ZERO; // 2026-10-06
 	//		(*p_Dur)[j] = ZERO;
 			(*p_Dur)[j] = 1000L; // 2026-03-20
 			(*p_SilentObject)[j] = FALSE;

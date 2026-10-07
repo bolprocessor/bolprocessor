@@ -1133,7 +1133,7 @@ NEXTBOL:
 	(*p_DefaultChannel)[j] = s;
 	// BPPrintMessage(0,odInfo,"&&& DefaultChannel[%d] = %d\n",j,(*p_DefaultChannel)[j]);
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
-	(*p_Tref)[j] = (long) k; // 2026-09-17
+	(*p_Tref)[j] = (long) k;
 	if(ReadFloat(sofile,&r,&pos) == MISSED) goto ERR;
 	(*p_Quan)[j] = r;
 	if(ReadOne(FALSE,FALSE,TRUE,sofile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
@@ -1497,7 +1497,7 @@ void thismode_type(int value,char mode[30]) {
             strcpy(mode, "MIDI_CSOUND_TYPE");
             break;
         default:
-            strcpy(mode, "UNKNOWN");
+            strcpy(mode, "SILENT");
             break;
 		}
 	}

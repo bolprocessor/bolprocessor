@@ -2476,8 +2476,9 @@ int CreateSilentSoundObject(int p) {
 	(*p_SilentObject)[p] = TRUE;
 	(*p_MIDIsize)[p] = (*p_CsoundSize)[p] = ZERO;
 	(*p_Type)[p] = 0;
-	if((*p_Tref)[p] == ZERO) { // Created from a variable
-		(*p_Dur)[p] = (*p_Tref)[p] = 1000L;
+	if((*p_Tref)[p] == ZERO) { // Created from a variable or an undeclared terminal
+	//	(*p_Dur)[p] = (*p_Tref)[p] = 1000L; 2026-10-06
+		(*p_Dur)[p] = 1000L;
 		(*p_OkExpand)[p] = (*p_OkCompress)[p] = (*p_OkRelocate)[p] = TRUE;
 		(*p_BreakTempo)[p] = TRUE;
 		(*p_FixScale)[p] = (*p_ContBeg)[p] = (*p_ContEnd)[p] = (*p_TruncBeg)[p] = (*p_TruncEnd)[p] = (*p_AlphaCtrl)[p] = (*p_ForceIntegerCycles)[p] = FALSE;
